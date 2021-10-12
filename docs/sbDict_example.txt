@@ -1,0 +1,57 @@
+max_init
+{'info': {'widget': <widgets.TextEdit.TextEdit object at 0x00000188D461D348>, 'widgetType': 'TextEdit', 'derivedType': 'QTextEdit', 'signalInstance': <PySide2.QtCore.SignalInstance object at 0x00000188C59B12E8>, 'docString': '\n\t\tGet current scene attributes. Only those with relevant values will be displayed.\n\t\t:Return:\n\t\t\t\t{dict} - app object values\n\t\t', 'method': <bound method Init.info of <max_init.Init object at 0x00000188D4628A20>>}, 
+
+'mainWindow': {'widget': <PySide2.QtWidgets.QWidget object at 0x00000188D461D3C8>, 'widgetType': 'QWidget', 'derivedType': 'QWidget', 'signalInstance': None, 'docString': None, 'method': None}}
+
+
+slots_max_main
+{'i007': {'widget': <PySide2.QtWidgets.QPushButton object at 0x00000188D461D948>, 'widgetType': 'QPushButton', 'derivedType': 'QPushButton', 'signalInstance': <PySide2.QtCore.SignalInstance object at 0x00000188C59B1330>, 'docString': None, 'method': None}, 
+
+'i014': {'widget': <PySide2.QtWidgets.QPushButton object at 0x00000188D461D9C8>, 'widgetType': 'QPushButton', 'derivedType': 'QPushButton', 'signalInstance': <PySide2.QtCore.SignalInstance object at 0x00000188C59B1348>, 'docString': None, 'method': None}, 
+
+'i010': {'widget': <PySide2.QtWidgets.QPushButton object at 0x00000188D461D808>, 'widgetType': 'QPushButton', 'derivedType': 'QPushButton', 'signalInstance': <PySide2.QtCore.SignalInstance object at 0x00000188C59B1360>, 'docString': None, 'method': None}, 
+
+'i011': {'widget': <PySide2.QtWidgets.QPushButton object at 0x00000188D461D988>, 'widgetType': 'QPushButton', 'derivedType': 'QPushButton', 'signalInstance': <PySide2.QtCore.SignalInstance object at 0x00000188C59B1378>, 'docString': None, 'method': None}, 
+
+'i012': {'widget': <PySide2.QtWidgets.QPushButton object at 0x00000188D461D848>, 'widgetType': 'QPushButton', 'derivedType': 'QPushButton', 'signalInstance': <PySide2.QtCore.SignalInstance object at 0x00000188C59B1390>, 'docString': None, 'method': None}, 
+
+'i013': {'widget': <PySide2.QtWidgets.QPushButton object at 0x00000188D461D888>, 'widgetType': 'QPushButton', 'derivedType': 'QPushButton', 'signalInstance': <PySide2.QtCore.SignalInstance object at 0x00000188C59B13A8>, 'docString': None, 'method': None}, 
+
+'i009': {'widget': <PySide2.QtWidgets.QPushButton object at 0x00000188D461D8C8>, 'widgetType': 'QPushButton', 'derivedType': 'QPushButton', 'signalInstance': <PySide2.QtCore.SignalInstance object at 0x00000188C59B13C0>, 'docString': None, 'method': None}, 
+
+'i008': {'widget': <PySide2.QtWidgets.QPushButton object at 0x00000188D461D908>, 'widgetType': 'QPushButton', 'derivedType': 'QPushButton', 'signalInstance': <PySide2.QtCore.SignalInstance object at 0x00000188C59B13D8>, 'docString': None, 'method': None}, 
+
+'r001': {'widget': <PySide2.QtWidgets.QWidget object at 0x00000188D461DA88>, 'widgetType': 'QWidget', 'derivedType': 'QWidget', 'signalInstance': None, 'docString': None, 'method': None}, 
+'i015': {'widget': <PySide2.QtWidgets.QPushButton object at 0x00000188D461DA08>, 'widgetType': 'QPushButton', 'derivedType': 'QPushButton', 'signalInstance': <PySide2.QtCore.SignalInstance object at 0x00000188C59B13F0>, 'docString': None, 'method': None}, 
+
+'i003': {'widget': <PySide2.QtWidgets.QPushButton object at 0x00000188D461DA48>, 'widgetType': 'QPushButton', 'derivedType': 'QPushButton', 'signalInstance': <PySide2.QtCore.SignalInstance object at 0x00000188C59B1408>, 'docString': None, 'method': None}, 
+
+'main': {'widget': <PySide2.QtWidgets.QWidget object at 0x00000188D461D7C8>, 'widgetType': 'QWidget', 'derivedType': 'QWidget', 'signalInstance': None, 'docString': None, 'method': None}, 
+
+'mainWindow': {'widget': <PySide2.QtWidgets.QWidget object at 0x00000188D461D788>, 'widgetType': 'QWidget', 'derivedType': 'QWidget', 'signalInstance': None, 'docString': None, 'method': None}}
+
+
+slots_max_polygons
+{'i004': {'widget': <PySide2.QtWidgets.QPushButton object at 0x00000188D4626B08>, 'widgetType': 'QPushButton', 'derivedType': 'QPushButton', 'signalInstance': <PySide2.QtCore.SignalInstance object at 0x00000188C59B1498>, 'docString': None, 'method': None},
+
+'i010': {'widget': <PySide2.QtWidgets.QPushButton object at 0x00000188D4626AC8>, 'widgetType': 'QPushButton', 'derivedType': 'QPushButton', 'signalInstance': <PySide2.QtCore.SignalInstance object at 0x00000188C59B1528>, 'docString': None, 'method': None},
+
+'i002': {'widget': <PySide2.QtWidgets.QPushButton object at 0x00000188D4626B88>, 'widgetType': 'QPushButton', 'derivedType': 'QPushButton', 'signalInstance': <PySide2.QtCore.SignalInstance object at 0x00000188C59B14F8>, 'docString': None, 'method': None}, 
+
+'i000': {'widget': <PySide2.QtWidgets.QPushButton object at 0x00000188D4626B48>, 'widgetType': 'QPushButton', 'derivedType': 'QPushButton', 'signalInstance': <PySide2.QtCore.SignalInstance object at 0x00000188C59B1510>, 'docString': None, 'method': None}, 
+
+'i003': {'widget': <PySide2.QtWidgets.QPushButton object at 0x00000188D4626BC8>, 'widgetType': 'QPushButton', 'derivedType': 'QPushButton', 'signalInstance': <PySide2.QtCore.SignalInstance object at 0x00000188C59B14E0>, 'docString': None, 'method': None}, 
+
+'mainWindow': {'widget': <PySide2.QtWidgets.QWidget object at 0x00000188D4626A88>, 'widgetType': 'QWidget', 'derivedType': 'QWidget', 'signalInstance': None, 'docString': None, 'method': None}}
+
+{'b046': {'widget': <PySide2.QtWidgets.QPushButton object at 0x00000188D4626D08>, 'widgetType': 'QPushButton', 'derivedType': 'QPushButton', 'signalInstance': <PySide2.QtCore.SignalInstance object at 0x00000188C59B1480>, 'docString': '\n\t\tSplit\n\t\t', 'method': <bound method Polygons.b046 of <slots_max_polygons.Polygons object at 0x00000188D03224E0>>}, 
+
+'i010': {'widget': <PySide2.QtWidgets.QPushButton object at 0x00000188D4626C88>, 'widgetType': 'QPushButton', 'derivedType': 'QPushButton', 'signalInstance': <PySide2.QtCore.SignalInstance object at 0x00000188C59B15A0>, 'docString': None, 'method': None}, 
+
+'mainWindow': {'widget': <PySide2.QtWidgets.QWidget object at 0x00000188D4626C48>, 'widgetType': 'QWidget', 'derivedType': 'QWidget', 'signalInstance': None, 'docString': None, 'method': None}, 
+
+'b040': {'widget': <PySide2.QtWidgets.QPushButton object at 0x00000188D4626CC8>, 'widgetType': 'QPushButton', 'derivedType': 'QPushButton', 'signalInstance': <PySide2.QtCore.SignalInstance object at 0x00000188C59B15B8>, 'docString': '\n\t\tMerge Vertices\n\t\t', 'method': <bound method Polygons.b040 of <slots_max_polygons.Polygons object at 0x00000188D03224E0>>}, 
+
+'i000': {'widget': <PySide2.QtWidgets.QPushButton object at 0x00000188D4626D48>, 'widgetType': 'QPushButton', 'derivedType': 'QPushButton', 'signalInstance': <PySide2.QtCore.SignalInstance object at 0x00000188C59B15D0>, 'docString': None, 'method': None}}
+
+
