@@ -46,7 +46,7 @@ sys.path.append('path to /tentacle') --append the dir containing 'append_to_path
 import append_to_path as ap
 ap.appendPaths('maya', verbose=0)
 ```
-to launch the menu, add a macro like the following:
+and to launch the menu, add a macro like the following:
 ```
 def hk_main_show():
 	'''
@@ -67,7 +67,7 @@ python.Init() --initalize python
 python.Execute("import sys; sys.path.append('path to /tentacle')") --append the dir containing 'append_to_path.py' to the python path.
 python.Execute("import append_to_path as ap; ap.appendPaths('max', verbose=0)")
 ```
-to launch the menu, add a macro like the following:
+and to launch the menu, add a macro like the following:
 ```
 macroScript main_max
 category: "_macros.ui"
