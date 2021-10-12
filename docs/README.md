@@ -48,16 +48,14 @@ ap.appendPaths('maya', verbose=0)
 ```
 and to launch the menu, add a macro like the following:
 ```
-def hk_main_show():
-	'''
-	hk_main_show
-	Display main marking menu.
+def hk_tentacle_show():
+	'''Display main marking menu.
 	'''
 	if 'tentacle' not in {**locals(), **globals()}:
 		from tentacle_maya import Instance
 		tentacle = Instance(key_show='key_Z') #holding the Z key will show the menu.
 
-	main.show_()
+	tentacle.show_()
 ```
 
 For 3ds Max:
