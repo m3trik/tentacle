@@ -17,7 +17,7 @@
 ![alt text](https://raw.githubusercontent.com/m3trik/tentacle/master/docs/dependancy_graph.jpg)
 
 
-#### tentacle_main:
+#### tcl_main:
 ###### *handles main gui construction.*
 
 #### childEvents:
