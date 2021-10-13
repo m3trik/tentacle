@@ -12,13 +12,13 @@ import tentacle.ui.widgets as wgts
 # ------------------------------------------------
 # 	Construct the Widget Stack
 # ------------------------------------------------
-class Tentacle_main(QtWidgets.QStackedWidget):
-	'''Tentacle_main is a marking menu based on a QStackedWidget.
+class Tcl_main(QtWidgets.QStackedWidget):
+	'''Tcl_main is a marking menu based on a QStackedWidget.
 	Gets and sets signal connections (through the switchboard module).
 	Initializes events for child widgets using the childEvents module.
 	Plots points for paint events in the overlay module.
 
-	The various ui's are set by calling 'setUi' with the intended ui name string. ex. Tentacle_main().setUi('polygons')
+	The various ui's are set by calling 'setUi' with the intended ui name string. ex. Tcl_main().setUi('polygons')
 
 	:Parameters:
 		parent (obj) = The parent application's top level window.
@@ -186,7 +186,7 @@ class Tentacle_main(QtWidgets.QStackedWidget):
 
 
 	# ------------------------------------------------
-	# 	Tentacle_main widget events
+	# 	Tcl_main widget events
 	# ------------------------------------------------
 	def keyPressEvent(self, event):
 		'''A widget must call setFocusPolicy() to accept focus initially, and have focus, in order to receive a key press event.
@@ -414,7 +414,7 @@ if __name__ == '__main__':
 	if not qApp:
 		qApp = QtWidgets.QApplication(sys.argv)
 
-	Tentacle_main().show('init')
+	Tcl_main().show('init')
 	sys.exit(qApp.exec_())
 
 

@@ -260,7 +260,7 @@ class Switchboard(QtCore.QObject):
 			name (str) = ui name. ie. 'polygons'
 
 		:Return:
-			(dict) packed keyword arguments. ie. {'_currentUi': <function <lambda> at 0x000001D97BCFCAC8>, '_ui': <function <lambda> at 0x000001D97BCFCA58>, 'tentacle': <PySide2.QtWidgets.QWidget object at 0x000001D94E1E9D88>, 'polygons_submenu': <PySide2.QtWidgets.QMainWindow object at 0x000001D978D8A708>, 'sb': <switchboard.Switchboard object at 0x000001D97BD7D1C8>, 'polygons': <PySide2.QtWidgets.QMainWindow object at 0x000001D97BCEB0C8>}
+			(dict) packed keyword arguments. ie. {'_currentUi': <function <lambda> at 0x000001D97BCFCAC8>, '_ui': <function <lambda> at 0x000001D97BCFCA58>, 'tcl': <PySide2.QtWidgets.QWidget object at 0x000001D94E1E9D88>, 'polygons_submenu': <PySide2.QtWidgets.QMainWindow object at 0x000001D978D8A708>, 'sb': <switchboard.Switchboard object at 0x000001D97BD7D1C8>, 'polygons': <PySide2.QtWidgets.QMainWindow object at 0x000001D97BCEB0C8>}
 		'''
 		childUi = self.getUi(name, level=2)
 		childUiName = self.getUiName(name, level=2)
@@ -275,7 +275,7 @@ class Switchboard(QtCore.QObject):
 					else parentUi,
 
 			'sb': self,
-			'tentacle': self.parent(),
+			'tcl': self.parent(),
 		}
 
 		return kwargs

@@ -7,12 +7,12 @@ from PySide2 import QtWidgets, QtCore
 try: import shiboken2
 except: from PySide2 import shiboken2
 
-from tentacle import Tentacle_main
+from tentacle import Tcl_main
 
 
 
-class Tentacle_maya(Tentacle_main):
-	'''Tentacle class overridden for use with Autodesk Maya.
+class Tcl_maya(Tcl_main):
+	'''Tcl class overridden for use with Autodesk Maya.
 
 	:Parameters:
 		parent = Application top level window instance.
@@ -58,7 +58,7 @@ class Tentacle_maya(Tentacle_main):
 				import Pymel.Core as pm
 				pm.undo()
 
-		return Tentacle_main.keyPressEvent(self, event)
+		return Tcl_main.keyPressEvent(self, event)
 
 
 	def showEvent(self, event):
@@ -67,7 +67,7 @@ class Tentacle_maya(Tentacle_main):
 			event = <QEvent>
 		'''
 
-		return Tentacle_main.showEvent(self, event) #super().showEvent(event)
+		return Tcl_main.showEvent(self, event) #super().showEvent(event)
 
 
 	def hideEvent(self, event):
@@ -79,12 +79,12 @@ class Tentacle_maya(Tentacle_main):
 			self.qApp.instance().quit()
 			sys.exit() #assure that the sys processes are terminated.
 
-		return Tentacle_main.hideEvent(self, event) #super().hideEvent(event)
+		return Tcl_main.hideEvent(self, event) #super().hideEvent(event)
 
 
 
 class Instance():
-	'''Manage multiple instances of Tentacle_maya.
+	'''Manage multiple instances of Tcl_maya.
 	'''
 	instances={}
 
@@ -105,7 +105,7 @@ class Instance():
 
 		if self.activeWindow_ is None or self.activeWindow_.isVisible():
 			name = 'main'+str(len(self.instances))
-			setattr(self, name, Tentacle_maya(self.parent, self.preventHide, self.key_show))
+			setattr(self, name, Tcl_maya(self.parent, self.preventHide, self.key_show))
 			self.activeWindow_ = getattr(self, name)
 			self.instances[name] = self.activeWindow_
 
@@ -159,7 +159,7 @@ if __name__ == "__main__":
 
 	# import cProfile
 	# cProfile.run('Instance(dummyParent).show_()')
-	Instance(dummyParent).show('init') #Tentacle_maya(dummyParent).show()
+	Instance(dummyParent).show('init') #Tcl_maya(dummyParent).show()
 	sys.exit(qApp.exec_())
 
 
@@ -175,7 +175,7 @@ if __name__ == "__main__":
 # 		annotation='',
 # 		catagory='',
 # 		commandLanguage='python',
-# 		command=if 'tentacle' not in {**locals(), **globals()}: main = Tentacle_maya.createInstance(); main.hide(); main.show(),
+# 		command=if 'tentacle' not in {**locals(), **globals()}: main = Tcl_maya.createInstance(); main.hide(); main.show(),
 # 		hotkeyCtx='',
 # 	)
 

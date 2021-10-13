@@ -108,7 +108,7 @@ class File(Init):
 			return
 
 		if index>0: #hide then perform operation
-			self.tentacle.hide(force=1)
+			self.tcl.hide(force=1)
 			if index==1: #Import
 				mel.eval('Import;')
 			elif index==2: #Import options
@@ -132,7 +132,7 @@ class File(Init):
 			return
 
 		if index>0: #hide then perform operation
-			self.tentacle.hide(force=1)
+			self.tcl.hide(force=1)
 			if index==1: #Export selection
 				mel.eval('ExportSelection;')
 			elif index==2: #Unreal
@@ -246,7 +246,7 @@ class File(Init):
 		'''Minimize Main Application
 		'''
 		mel.eval("minimizeApp;")
-		self.tentacle.hide(force=1)
+		self.tcl.hide(force=1)
 
 
 	def lbl002(self):
@@ -292,7 +292,7 @@ class File(Init):
 		# pm.openFile(files[0], open=1, force=force)
 
 		self.cmb000(index=1)
-		self.tentacle.hide(force=1)
+		self.tcl.hide(force=1)
 
 
 	def b002(self):

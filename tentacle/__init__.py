@@ -1,7 +1,13 @@
 # !/usr/bin/python
 # coding=utf-8
 import sys, os.path
-print ('hey!')
+
+import datetime
+
+hour = datetime.datetime.now().hour
+greeting = "morning" if 5<=hour<12 else "afternoon" if hour<18 else "evening"
+print("Good {}!".format(greeting))
+
 sys.path.append(os.path.dirname(os.path.abspath(__file__))) #append this dir to the system path.
 
 if __name__=='__main__':
@@ -13,7 +19,7 @@ from .switchboard import Switchboard
 from .childEvents import EventFactoryFilter
 from .overlay import OverlayFactoryFilter
 from .styleSheet import StyleSheet
-from .tentacle_main import Tentacle_main
+from .tcl_main import Tcl_main
 
 # print ('tentacle:', __name__, __package__, __file__)
 

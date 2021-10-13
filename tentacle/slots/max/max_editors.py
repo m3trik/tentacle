@@ -74,7 +74,7 @@ class Editors(Init):
 		text = tree.getWidgetText(wItem, column)
 		header = tree.getHeaderFromColumn(column)
 
-		self.tentacle.hide() #hide the menu before opening an external editor.
+		self.tcl.hide() #hide the menu before opening an external editor.
 
 		if header=='General Editors':
 			if text=='Channel Info':
@@ -227,10 +227,10 @@ class Editors(Init):
 		'''
 		w = self.getEditorWidget(name)
 
-		self.tentacle.setUi('dynLayout')
+		self.tcl.setUi('dynLayout')
 		self.stackedWidget.setCurrentWidget(w)
-		self.tentacle.resize(width, height)
-		self.tentacle.move(QtGui.QCursor.pos() - self.tentacle.rect().center()) #move window to cursor position and offset from left corner to center
+		self.tcl.resize(width, height)
+		self.tcl.move(QtGui.QCursor.pos() - self.tcl.rect().center()) #move window to cursor position and offset from left corner to center
 
 		return w
 

@@ -24,7 +24,7 @@ class Slots(QtCore.QObject):
 			<name>_ui (ui) = ui of <name> ie. self.polygons for the ui of filename polygons.
 			<name>_submenu_ui (ui) = ui of <name_submenu> ie. self.polygons_submenu.
 			sb (class) = switchboard instance.
-			tentacle (class) = tentacle stacked widget instance.
+			tcl (class) = tentacle stacked widget instance.
 		'''
 		for k, v in kwargs.items():
 			setattr(self, k, v)
@@ -136,7 +136,7 @@ class Slots(QtCore.QObject):
 		'''
 		def wrapper(self, *args, **kwargs):
 			fn(self, *args, **kwargs) #execute the method normally.
-			self.tentacle.hide() #Get the state of the widget in the current ui and set any widgets (having the methods name) in child or parent ui's accordingly.
+			self.tcl.hide() #Get the state of the widget in the current ui and set any widgets (having the methods name) in child or parent ui's accordingly.
 		return wrapper
 
 	# @hideMain
@@ -435,7 +435,7 @@ class Slots(QtCore.QObject):
 		:Return:
 			(int, float, bool)
 		'''
-		modifiers = self.tentacle.qApp.keyboardModifiers()
+		modifiers = self.tcl.qApp.keyboardModifiers()
 		if not modifiers in (QtCore.Qt.AltModifier, QtCore.Qt.ControlModifier | QtCore.Qt.AltModifier):
 			return value
 
@@ -460,7 +460,7 @@ class Slots(QtCore.QObject):
 		'''
 		if not hasattr(self, '_progressBar'):
 			from widgets.progressBar import ProgressBar
-			self._progressBar = ProgressBar(self.tentacle)
+			self._progressBar = ProgressBar(self.tcl)
 
 		try:
 			self.currentUi.progressBar.step1
@@ -491,7 +491,7 @@ class Slots(QtCore.QObject):
 		'''
 		if not hasattr(self, '_messageBox'):
 			from widgets.messageBox import MessageBox
-			self._messageBox = MessageBox(self.tentacle.parent())
+			self._messageBox = MessageBox(self.tcl.parent())
 
 		self._messageBox.location = location
 		self._messageBox.timeout = timeout
@@ -1093,7 +1093,7 @@ print (os.path.splitext(os.path.basename(__file__))[0])
 	# 		method (str) = method name.
 	# 	'''
 	# 	ui = self.sb.getUi()
-	# 	temp = self.tentacle.setUi(name)
+	# 	temp = self.tcl.setUi(name)
 	# 	method = self.sb.getMethod(name, method)
 
 	# 	try:
@@ -1101,7 +1101,7 @@ print (os.path.splitext(os.path.basename(__file__))[0])
 	# 	except Exception as error:
 	# 		print(error)
 
-	# 	self.tentacle.setUi(ui)
+	# 	self.tcl.setUi(ui)
 
 
 	# def setSpinboxes(self, ui, spinboxes, attributes={}):

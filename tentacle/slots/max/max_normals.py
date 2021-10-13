@@ -134,7 +134,7 @@ class Normals(Init):
 				index = [mod for mod in obj.modifiers].index(mod)+1 #add one to convert index from python to maxscript
 				rt.maxOps.CollapseNodeTo(obj, index, False)
 
-		self.tentacle.hide()
+		self.tcl.hide()
 
 
 	def tb003(self, state=None):
@@ -202,14 +202,14 @@ class Normals(Init):
 	def b001(self):
 		'''Soften Edge Normal
 		'''
-		self.tentacle.hide()
+		self.tcl.hide()
 		maxEval('$.EditablePoly.makeSmoothEdges 1')
 
 
 	def b002(self):
 		'''Harden Edge Normal
 		'''
-		self.tentacle.hide()
+		self.tcl.hide()
 		maxEval('$.EditablePoly.makeHardEdges 1')
 
 

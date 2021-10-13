@@ -40,7 +40,7 @@ class Preferences(Init):
 			return
 
 		if index>0:
-			self.tentacle.qApp.setStyle(cmb.items[index])
+			self.tcl.qApp.setStyle(cmb.items[index])
 
 
 	def cmb001(self, index=-1):

@@ -111,7 +111,7 @@ class Normals(Init):
 			return
 
 		all_ = tb.menu_.chk001.isChecked()
-		state = self.tentacle.ui.chk002.isChecked() #pm.polyNormalPerVertex(vertex, query=1, freezeNormal=1)
+		state = self.tcl.ui.chk002.isChecked() #pm.polyNormalPerVertex(vertex, query=1, freezeNormal=1)
 		selection = pm.ls (selection=1, objectsOnly=1)
 		maskObject = pm.selectMode (query=1, object=1)
 		maskVertex = pm.selectType (query=1, vertex=1)

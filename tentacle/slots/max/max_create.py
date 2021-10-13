@@ -206,7 +206,7 @@ class Create(Init):
 		cmb000.setCurrentIndex(cmb000.findText(catagory1))
 		cmb001.setCurrentIndex(cmb001.findText(catagory2))
 		self.b000()
-		self.tentacle.hide()
+		self.tcl.hide()
 
 
 	def b001(self):

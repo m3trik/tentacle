@@ -7,12 +7,12 @@ from PySide2 import QtWidgets, QtCore
 try: import shiboken2
 except: from PySide2 import shiboken2
 
-from tentacle import Tentacle_main
+from tentacle import Tcl_main
 
 
 
-class Tentacle_blender(Tentacle_main):
-	'''Tentacle class overridden for use with Blender.
+class Tcl_blender(Tcl_main):
+	'''Tcl class overridden for use with Blender.
 
 	:Parameters:
 		parent = Application top level window instance.
@@ -54,7 +54,7 @@ class Tentacle_blender(Tentacle_main):
 			event = <QEvent>
 		'''
 
-		return Tentacle_main.showEvent(self, event) #super(Tentacle_main, self).showEvent(event)
+		return Tcl_main.showEvent(self, event) #super(Tcl_main, self).showEvent(event)
 
 
 	def hideEvent(self, event):
@@ -66,11 +66,11 @@ class Tentacle_blender(Tentacle_main):
 			self.qApp.instance().quit()
 			sys.exit() #assure that the sys processes are terminated.
 
-		return Tentacle_main.hideEvent(self, event) #super(Tentacle_main, self).hideEvent(event)
+		return Tcl_main.hideEvent(self, event) #super(Tcl_main, self).hideEvent(event)
 
 
 class Instance():
-	'''Manage multiple instances of Tentacle_blender.
+	'''Manage multiple instances of Tcl_blender.
 	'''
 	instances={}
 
@@ -91,7 +91,7 @@ class Instance():
 
 		if self.activeWindow_ is None or self.activeWindow_.isVisible():
 			name = 'tentacle'+str(len(self.instances))
-			setattr(self, name, Tentacle_blender(self.parent, self.preventHide, self.key_show))
+			setattr(self, name, Tcl_blender(self.parent, self.preventHide, self.key_show))
 			self.activeWindow_ = getattr(self, name)
 			self.instances[name] = self.activeWindow_
 
@@ -127,7 +127,7 @@ if __name__ == "__main__":
 
 	import cProfile
 	cProfile.run("Instance(dummyParent).show('init')")
-	# Instance(dummyParent).show_() #Tentacle_blender(dummyParent).show()
+	# Instance(dummyParent).show_() #Tcl_blender(dummyParent).show()
 	sys.exit(qApp.exec_())
 
 
@@ -137,4 +137,4 @@ if __name__ == "__main__":
 # -----------------------------------------------
 
 
-# run = if 'tentacle' not in {**locals(), **globals()}: tentacle = Tentacle_blender.createInstance(); tentacle.hide(); tentacle.show(),
+# run = if 'tentacle' not in {**locals(), **globals()}: tentacle = Tcl_blender.createInstance(); tentacle.hide(); tentacle.show(),

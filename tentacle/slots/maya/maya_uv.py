@@ -34,7 +34,7 @@ class Uv(Init):
 
 		if index>0: #hide tentacle then perform operation
 			text = cmb.items[index]
-			self.tentacle.hide()
+			self.tcl.hide()
 			if text=='UV Editor':
 				mel.eval('TextureViewWindow;') 
 			elif text=='UV Set Editor':
@@ -89,7 +89,7 @@ class Uv(Init):
 
 		if index>0:
 			text = cmb.items[index]
-			self.tentacle.hide() #hide hotbox then perform operation
+			self.tcl.hide() #hide hotbox then perform operation
 			if text=='Flip U':
 				pm.polyFlipUV(flipType=0, local=1, usePivot=1, pivotU=0, pivotV=0)
 			elif text=='Flip V':

@@ -106,7 +106,7 @@ class File(Init):
 			return
 
 		if index>0: #hide then perform operation
-			self.tentacle.hide(force=1)
+			self.tcl.hide(force=1)
 			if index == 1: #Import
 				maxEval('max file import')
 			elif index == 2: #Import options
@@ -135,7 +135,7 @@ class File(Init):
 			return
 
 		if index>0: #hide then perform operation
-			self.tentacle.hide(force=1)
+			self.tcl.hide(force=1)
 			if index==1: #Export selection
 				maxEval('actionMan.executeAction 0 "40373"') #max file export
 			elif index==2: #Export options
@@ -249,7 +249,7 @@ class File(Init):
 		maxEval('minimizeAll app')
 		maxEval('undoMinimizeAll app')
 		rt.releaseOLEObject(app)
-		self.tentacle.hide(force=1)
+		self.tcl.hide(force=1)
 
 
 	def lbl002(self):
@@ -286,7 +286,7 @@ class File(Init):
 		# rt.loadMaxFile(str(files[0]))
 
 		self.cmb000(index=1)
-		self.tentacle.hide(force=1)
+		self.tcl.hide(force=1)
 
 
 	def b002(self):

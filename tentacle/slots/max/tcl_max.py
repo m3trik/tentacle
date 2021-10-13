@@ -7,12 +7,12 @@ from PySide2 import QtCore, QtWidgets
 try: from pymxs import runtime as rt
 except ImportError as e: print(e)
 
-from tentacle import Tentacle_main
+from tentacle import Tcl_main
 
 
 
-class Tentacle_max(Tentacle_main):
-	'''Tentacle class overridden for use with Autodesk 3ds max.
+class Tcl_max(Tcl_main):
+	'''Tcl class overridden for use with Autodesk 3ds max.
 
 	:Parameters:
 		parent = main application top level window object.
@@ -64,7 +64,7 @@ class Tentacle_max(Tentacle_main):
 				import pymxs
 				pymxs.undo(True)
 
-		return Tentacle_main.keyPressEvent(self, event)
+		return Tcl_main.keyPressEvent(self, event)
 
 
 	def showEvent(self, event):
@@ -78,7 +78,7 @@ class Tentacle_max(Tentacle_main):
 		except Exception as error:
 			print(error)
 
-		return Tentacle_main.showEvent(self, event) #super().showEvent(event)
+		return Tcl_main.showEvent(self, event) #super().showEvent(event)
 
 
 	def hideEvent(self, event):
@@ -96,7 +96,7 @@ class Tentacle_max(Tentacle_main):
 			self.qApp.instance().quit()
 			sys.exit() #assure that the sys processes are terminated.
 
-		return Tentacle_main.hideEvent(self, event) #super().hideEvent(event)
+		return Tcl_main.hideEvent(self, event) #super().hideEvent(event)
 
 
 	# import contextlib
@@ -125,7 +125,7 @@ class Tentacle_max(Tentacle_main):
 
 
 class Instance():
-	'''Manage multiple instances of Tentacle_max.
+	'''Manage multiple instances of Tcl_max.
 	'''
 	instances={}
 
@@ -146,7 +146,7 @@ class Instance():
 
 		if self.activeWindow_ is None or self.activeWindow_.isVisible():
 			name = 'main'+str(len(self.instances))
-			setattr(self, name, Tentacle_max(self.parent, self.preventHide, self.key_show))
+			setattr(self, name, Tcl_max(self.parent, self.preventHide, self.key_show))
 			self.activeWindow_ = getattr(self, name)
 			self.instances[name] = self.activeWindow_
 
@@ -188,7 +188,7 @@ if __name__ == "__main__":
 
 	import cProfile
 	cProfile.run("Instance(dummyParent).show('init')")
-	# Instance(dummyParent).show_() #Tentacle_max(p).show()
+	# Instance(dummyParent).show_() #Tcl_max(p).show()
 	sys.exit(app.exec_())
 
 
