@@ -7,11 +7,11 @@ from PySide2 import QtCore, QtWidgets
 try: from pymxs import runtime as rt
 except ImportError as e: print(e)
 
-from tentacle import Tcl_main
+from tentacle import Tcl
 
 
 
-class Tcl_max(Tcl_main):
+class Tcl_max(Tcl):
 	'''Tcl class overridden for use with Autodesk 3ds max.
 
 	:Parameters:
@@ -64,7 +64,7 @@ class Tcl_max(Tcl_main):
 				import pymxs
 				pymxs.undo(True)
 
-		return Tcl_main.keyPressEvent(self, event)
+		return Tcl.keyPressEvent(self, event)
 
 
 	def showEvent(self, event):
@@ -78,7 +78,7 @@ class Tcl_max(Tcl_main):
 		except Exception as error:
 			print(error)
 
-		return Tcl_main.showEvent(self, event) #super().showEvent(event)
+		return Tcl.showEvent(self, event) #super().showEvent(event)
 
 
 	def hideEvent(self, event):
@@ -96,7 +96,7 @@ class Tcl_max(Tcl_main):
 			self.qApp.instance().quit()
 			sys.exit() #assure that the sys processes are terminated.
 
-		return Tcl_main.hideEvent(self, event) #super().hideEvent(event)
+		return Tcl.hideEvent(self, event) #super().hideEvent(event)
 
 
 	# import contextlib

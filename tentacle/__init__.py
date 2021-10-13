@@ -19,7 +19,7 @@ from .switchboard import Switchboard
 from .childEvents import EventFactoryFilter
 from .overlay import OverlayFactoryFilter
 from .styleSheet import StyleSheet
-from .tcl_main import Tcl_main
+from .tcl import Tcl
 
 # print ('tentacle:', __name__, __package__, __file__)
 

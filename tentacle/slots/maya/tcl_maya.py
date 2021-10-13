@@ -7,11 +7,11 @@ from PySide2 import QtWidgets, QtCore
 try: import shiboken2
 except: from PySide2 import shiboken2
 
-from tentacle import Tcl_main
+from tentacle import Tcl
 
 
 
-class Tcl_maya(Tcl_main):
+class Tcl_maya(Tcl):
 	'''Tcl class overridden for use with Autodesk Maya.
 
 	:Parameters:
@@ -58,7 +58,7 @@ class Tcl_maya(Tcl_main):
 				import Pymel.Core as pm
 				pm.undo()
 
-		return Tcl_main.keyPressEvent(self, event)
+		return Tcl.keyPressEvent(self, event)
 
 
 	def showEvent(self, event):
@@ -67,7 +67,7 @@ class Tcl_maya(Tcl_main):
 			event = <QEvent>
 		'''
 
-		return Tcl_main.showEvent(self, event) #super().showEvent(event)
+		return Tcl.showEvent(self, event) #super().showEvent(event)
 
 
 	def hideEvent(self, event):
@@ -79,7 +79,7 @@ class Tcl_maya(Tcl_main):
 			self.qApp.instance().quit()
 			sys.exit() #assure that the sys processes are terminated.
 
-		return Tcl_main.hideEvent(self, event) #super().hideEvent(event)
+		return Tcl.hideEvent(self, event) #super().hideEvent(event)
 
 
 

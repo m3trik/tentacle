@@ -7,11 +7,11 @@ from PySide2 import QtWidgets, QtCore
 try: import shiboken2
 except: from PySide2 import shiboken2
 
-from tentacle import Tcl_main
+from tentacle import Tcl
 
 
 
-class Tcl_blender(Tcl_main):
+class Tcl_blender(Tcl):
 	'''Tcl class overridden for use with Blender.
 
 	:Parameters:
@@ -54,7 +54,7 @@ class Tcl_blender(Tcl_main):
 			event = <QEvent>
 		'''
 
-		return Tcl_main.showEvent(self, event) #super(Tcl_main, self).showEvent(event)
+		return Tcl.showEvent(self, event) #super(Tcl, self).showEvent(event)
 
 
 	def hideEvent(self, event):
@@ -66,7 +66,7 @@ class Tcl_blender(Tcl_main):
 			self.qApp.instance().quit()
 			sys.exit() #assure that the sys processes are terminated.
 
-		return Tcl_main.hideEvent(self, event) #super(Tcl_main, self).hideEvent(event)
+		return Tcl.hideEvent(self, event) #super(Tcl, self).hideEvent(event)
 
 
 class Instance():
