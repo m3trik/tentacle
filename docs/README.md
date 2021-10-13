@@ -1,4 +1,4 @@
-###### *A Python3/PySide marking menu style toolkit for Maya, 3ds Max, and Blender.
+###### *A Python3/PySide2 marking menu style toolkit for Maya, 3ds Max, and Blender.
 *personal project. work in progress..*
 
 ## Design:
