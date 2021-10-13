@@ -1,18 +1,54 @@
-#-----------------------------------------------------
+# -----------------------------------------------------
+# Syntax:
+# -----------------------------------------------------
+
+# Pattern _____________________ Example matches ________________________________
+
+# Literal File Names:
+# /access.log			access.log
+# access.log			access.log, logs/access.log, var/logs/access.log
+# build/				build
+
+# Wildcard Symbols: 
+# * - matches zero or more characters.
+# *.log				error.log, logs/debug.log, build/logs/error.log
+
+# ** - match any file or zero or more directories. When followed by a slash (/), it matches only directories.
+# logs/**				Matches anything inside the logs directory.
+# **/build			var/build, pub/build, build
+# foo/**/bar			foo/bar, foo/a/bar, foo/a/b/c/bar
+
+# ? - matches any single character.
+# access?.log			access0.log, access1.log, accessA.log
+# foo??				fooab, foo23, foo0s
+
+# [] - match any of the characters enclosed in the square brackets. When two characters are separated by a hyphen - it denotes a range of characters. The range includes all characters that are between those two characters. The ranges can be alphabetic or numeric.
+# If the first character following the [ is an exclamation mark (!), then the pattern matches any character except those from the specified set.
+# *.[oa]			file.o, file.a
+# *.[!oa]			file.s, file.1, file.0
+# access.[0-2].log		access.0.log, access.1.log, access.2.log
+# file.[a-c].out			file.a.out, file.b.out, file.c.out
+# file.[a-cx-z].out		file.a.out, file.b.out, file.c.out, file.x.out, file.y.out, file.z.out
+# access.[!0-2].log		access.3.log, access.4.log, access.Q.log
+
+# Negating Patterns
+# ! negates (re-include) any file that is ignored by the previous pattern. The exception to this rule is to re-include a file if its parent directory is excluded.
+# *.log, !error.log		error.log or logs/error.log will not be ignored
 
 
 
-#ignore:
-
-*desktop.ini
+# -----------------------------------------------------
+# Ignore:
+# -----------------------------------------------------
+desktop.ini
 *.rar
 .vscode
-grepWin_backup
 .test
+**/grepWin_backup
 
 
 
-#-----------------------------------------------------
+# -----------------------------------------------------
 
 
 # Byte-compiled / optimized / DLL files

@@ -153,6 +153,38 @@ class Init(Slots):
 	# ======================================================================
 
 	@staticmethod
+	def standardizeComponentName(componentType, returnType='abv'):
+		'''Return an alternate component alias for the given alias. ie. a hex value of 0x0001 for 'vertex'
+		If nothing is found, a value of 'None' will be returned.
+
+		:Parameters:
+			componentType (str) = Component type as a string.
+			returnType (str) = The desired returned alias. (valid: 'abv', 'singular', 'plural', 'full', 'int', 'hex')
+
+		:Return:
+			(str)
+
+		ex. call: standardizeComponentName('control vertex', 'hex')
+		'''
+		rtypes = ('abv', 'singular', 'plural', 'full', 'int', 'hex')
+		types = [
+			('vtx', 'vertex', 'vertices', 'Polygon Vertex', 31, 0x0001),
+			('e', 'edge', 'edges', 'Polygon Edge', 32, 0x8000),
+			('f', 'face', 'faces', 'Polygon Face', 34, 0x0008),
+			('cv', 'control vertex', 'control vertices', 'Control Vertex', 28, 0x0010),
+			('uv', 'texture', 'texture coordinates', 'Polygon UV', 35, 0x0010),
+		]
+
+		result = None
+		for t in types:
+			if componentType in t:
+				index = rtypes.index(returnType)
+				result = t[index]
+				break
+
+		return result
+
+	@staticmethod
 	def getComponents(objects=None, componentType=None, selection=False, returnType='unicode', returnNodeType='shape', flatten=False):
 		'''Get the components of the given type.
 
@@ -173,24 +205,16 @@ class Init(Slots):
 			if selection:
 				o = pm.ls(sl=1)
 				t = Init.getObjectType(o)
-				types = {'Polygon Vertex':'vtx', 'Polygon Edge':'e', 'Polygon Face':'f', 'Control Vertex':'cv'}
-				componentType = types[t] if t in types else None
+				componentType = Init.standardizeComponentName(t, returnType='full')
 				if not componentType: #get all components of the given objects.
-					all_components = [Init.getComponents(objects, typ) for typ in types]
+					all_components = [Init.getComponents(objects, typ) for typ in ('vtx', 'e', 'f', 'cv')]
 					return all_components
 			else:
 				return
 		else: #get the correct componentType variable from possible args.
-			if componentType in ('vtx', 'vertex', 'vertices', 'Polygon Vertex', 31, 0x0001):
-				componentType = 'vtx'
-			elif componentType in ('e', 'edge', 'edges', 'Polygon Edge', 32, 0x8000):
-				componentType = 'e'
-			elif componentType in ('f', 'face', 'faces', 'Polygon Face', 34, 0x0008):
-				componentType = 'f'
-			elif componentType in ('cv', 'control vertex', 'control vertices', 'Control Vertex', 28, 0x0010):
-				componentType = 'cv'
+			componentType = Init.standardizeComponentName(componentType, returnType='abv')
 
-		mask = {'vtx':31, 'e':32, 'f':34, 'cv':28}
+		mask = Init.standardizeComponentName(componentType, returnType='int')
 		components=[]
 
 		if selection:
@@ -203,14 +227,14 @@ class Init(Slots):
 				else: #get selected components, FILTERING for those of the given tranform object(s).
 					shapes = Init.getShapeNode(objects)
 					selected_shapes = pm.ls(shapes, sl=1)
-				components = pm.filterExpand(selected_shapes, selectionMask=mask[componentType], expand=flatten)
+				components = pm.filterExpand(selected_shapes, selectionMask=mask, expand=flatten)
 			else:
 				transforms = pm.ls(sl=1, transforms=1)
 				if transforms:
 					for obj in transforms: #get ALL selected components, for each selected transform object.
 						components+=pm.ls('{}.{}[*]'.format(obj, componentType), flatten=flatten)
 				else: #get selected components.
-					components = pm.filterExpand(selectionMask=mask[componentType], expand=flatten)
+					components = pm.filterExpand(selectionMask=mask, expand=flatten)
 		else:
 			for obj in pm.ls(objects):
 				components+=pm.ls('{}.{}[*]'.format(obj, componentType), flatten=flatten)
@@ -267,24 +291,17 @@ class Init(Slots):
 		:Return:
 			(list) Polygon components.
 		'''
-		if componentType in ('vtx', 'vertex', 'vertices', 'Polygon Vertex', 31, 0x0001):
-			componentType = 0x0001
-		elif componentType in ('e', 'edge', 'edges', 'Polygon Edge', 32, 0x8000):
-			componentType = 0x8000
-		elif componentType in ('f', 'face', 'faces', 'Polygon Face', 34, 0x0008):
-			componentType = 0x0008
-		elif componentType in ('uv', 'texture', 'texture coordinates', 'Polygon UV', 35, 0x0010):
-			componentType = 0x0010
+		componentType = Init.standardizeComponentName(componentType, returnType='hex')
 
 		orig_selection = pm.ls(sl=1) #get currently selected objects in order to re-select them after the contraint operation.
 
 		pm.polySelectConstraint(mode=3, type=componentType, random=True, randomratio=randomRatio)
 
-		if componentType is 'vertex':
+		if componentType==0x0001:
 			pm.selectType(polymeshVertex=True)
-		elif componentType is 'edge':
+		elif componentType==0x8000:
 			pm.selectType(polymeshEdge=True)
-		elif componentType is 'face':
+		elif componentType==0x0008:
 			pm.selectType(polymeshFace=True)
 		else:
 			pm.selectType(polymeshUV=True) #pm.selectType(texture=True)
