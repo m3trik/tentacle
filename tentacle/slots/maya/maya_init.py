@@ -4,8 +4,7 @@ import os
 
 from PySide2 import QtGui, QtWidgets, QtCore
 
-# Maya dependancies
-try:
+try: #Maya dependancies
 	import maya.mel as mel
 	import pymel.core as pm
 	import maya.OpenMayaUI as OpenMayaUI
@@ -15,7 +14,6 @@ try:
 except ImportError as error:
 	print(__file__, error)
 
-from tentacle.ui import widgets as wgts
 from slots import Slots
 
 
@@ -59,9 +57,13 @@ class Init(Slots):
 				if pm.selectType(query=1, allObjects=1): #get object/s
 
 					selectedObjects = pm.ls(selection=1, objectsOnly=1)
-					name_and_type = ['<font style="color: Yellow;">{0}<font style="color: LightGray;">:{1}'.format(i.name(), pm.objectType(i)) for i in selectedObjects] #ie. ['pCube1:transform', 'pSphere1:transform']
-					name_and_type_str = str(name_and_type).translate(str.maketrans('', '', '[]\'')) #format as single string.
-					hud.insertText('Selected: {}'.format(name_and_type_str)) #currently selected objects by name and type.
+					numberOfSelected = len(selectedObjects)
+					if numberOfSelected<11:
+						name_and_type = ['<font style="color: Yellow;">{0}<font style="color: LightGray;">:{1}<br/>'.format(i.name(), pm.objectType(i)) for i in selectedObjects] #ie. ['pCube1:transform', 'pSphere1:transform']
+						name_and_type_str = str(name_and_type).translate(str.maketrans('', '', ',[]\'')) #format as single string. remove brackets, single quotes, and commas.
+					else:
+						name_and_type_str = '' #if more than 10 objects selected, don't list each object.
+					hud.insertText('Selected: <font style="color: Yellow;">{0}<br/>{1}'.format(numberOfSelected, name_and_type_str)) #currently selected objects by name and type.
 
 					objectFaces = pm.polyEvaluate(selectedObjects, face=True)
 					if type(objectFaces)==int:
@@ -102,14 +104,14 @@ class Init(Slots):
 					pass
 
 
-		prevCommand = self.sb.prevCommand(docString=True)
+		prevCommand = self.tcl.sb.prevCommand(docString=True)
 		if prevCommand:
 			hud.insertText('Prev Command: <font style="color: Yellow;">{}'.format(prevCommand))  #get button text from last used command
 
-		# prevUi = self.sb.previousName(omitLevel=[0,1,2])
+		# prevUi = self.tcl.sb.previousName(omitLevel=[0,1,2])
 		# hud.insertText('Prev UI: {}'.format(prevUi.replace('_', '').title())) #get the last level 3 ui name string.
 
-		# prevCamera = self.sb.prevCamera(docString=True)
+		# prevCamera = self.tcl.sb.prevCamera(docString=True)
 		# hud.insertText('Prev Camera: {}'.format(prevCamera)) #get the previously used camera.
 
 
@@ -153,7 +155,7 @@ class Init(Slots):
 	# ======================================================================
 
 	@staticmethod
-	def standardizeComponentName(componentType, returnType='abv'):
+	def convertComponentName(componentType, returnType='abv'):
 		'''Return an alternate component alias for the given alias. ie. a hex value of 0x0001 for 'vertex'
 		If nothing is found, a value of 'None' will be returned.
 
@@ -164,7 +166,7 @@ class Init(Slots):
 		:Return:
 			(str)
 
-		ex. call: standardizeComponentName('control vertex', 'hex')
+		ex. call: convertComponentName('control vertex', 'hex')
 		'''
 		rtypes = ('abv', 'singular', 'plural', 'full', 'int', 'hex')
 		types = [
@@ -183,6 +185,7 @@ class Init(Slots):
 				break
 
 		return result
+
 
 	@staticmethod
 	def getComponents(objects=None, componentType=None, selection=False, returnType='unicode', returnNodeType='shape', flatten=False):
@@ -205,16 +208,16 @@ class Init(Slots):
 			if selection:
 				o = pm.ls(sl=1)
 				t = Init.getObjectType(o)
-				componentType = Init.standardizeComponentName(t, returnType='full')
+				componentType = Init.convertComponentName(t, returnType='full')
 				if not componentType: #get all components of the given objects.
 					all_components = [Init.getComponents(objects, typ) for typ in ('vtx', 'e', 'f', 'cv')]
 					return all_components
 			else:
 				return
 		else: #get the correct componentType variable from possible args.
-			componentType = Init.standardizeComponentName(componentType, returnType='abv')
+			componentType = Init.convertComponentName(componentType, returnType='abv')
 
-		mask = Init.standardizeComponentName(componentType, returnType='int')
+		mask = Init.convertComponentName(componentType, returnType='int')
 		components=[]
 
 		if selection:
@@ -291,7 +294,7 @@ class Init(Slots):
 		:Return:
 			(list) Polygon components.
 		'''
-		componentType = Init.standardizeComponentName(componentType, returnType='hex')
+		componentType = Init.convertComponentName(componentType, returnType='hex')
 
 		orig_selection = pm.ls(sl=1) #get currently selected objects in order to re-select them after the contraint operation.
 
@@ -2167,25 +2170,24 @@ class Init(Slots):
 
 
 	@staticmethod
-	def getTransformNode(node=None, attributes=False, regEx=''):
+	def getTransformNode(node, attributes=False, regEx=''):
 		'''Get the transform node(s).
 
 		:Parameters:
-			node (obj) = Node. If nothing is given, the current selection will be used.
+			node (obj) = A relative of a transform Node.
 			attributes (bool) = Return the attributes of the node, rather then the node itself.
-			regEx (str) = 	List only the attributes that match the string(s) passed from this flag. String can be a regular expression.
+			regEx (str) = List only the attributes that match the string(s) passed from this flag. String can be a regular expression.
 
 		:Return:
-			(list) node(s)
+			(list) node(s) or node attributes.
 		'''
-		if not node:
-			node = pm.ls(sl=1)
-
 		transforms = pm.ls(node, type='transform')
-		if not transforms:
-			shapeNodes = pm.ls(sl=1, objectsOnly=1)
+		if not transforms: #from shape
+			shapeNodes = pm.ls(node, objectsOnly=1)
 			transforms = pm.listRelatives(shapeNodes, parent=1)
-		
+			if not transforms: #from history
+				transforms = pm.listRelatives(pm.listHistory(node, future=1), parent=1)
+
 		if attributes:
 			transforms = pm.listAttr(transforms, read=1, hasData=1, string=regEx)
 
@@ -2197,16 +2199,13 @@ class Init(Slots):
 		'''Get the shape node(s).
 
 		:Parameters:
-			node (obj) = Node. If nothing is given, the current selection will be used.
+			node (obj) = A relative of a shape Node.
 			attributes (bool) = Return the attributes of the node, rather then the node itself.
 			regEx (str) = 	List only the attributes that match the string(s) passed from this flag. String can be a regular expression.
 
 		:Return:
-			(list) node(s)
+			(list) node(s) or node attributes.
 		'''
-		if not node:
-			pm.ls(sl=1, type='transform')
-
 		shapes = pm.listRelatives(node, children=1, shapes=1) #get shape node from transform: returns list ie. [nt.Mesh('pConeShape1')]
 		if not shapes:
 			shapes = pm.ls(node, type='shape')
@@ -2222,16 +2221,13 @@ class Init(Slots):
 		'''Get the history node(s).
 
 		:Parameters:
-			node (obj) = Node. If nothing is given, the current selection will be used.
+			node (obj) = A relative of a history Node.
 			attributes (bool) = Return the attributes of the node, rather then the node itself.
 			regEx (str) = 	List only the attributes that match the string(s) passed from this flag. String can be a regular expression.
 
 		:Return:
-			(list) node(s)
+			(list) node(s) or node attributes.
 		'''
-		if not node:
-			pm.ls(sl=1, type='transform')
-
 		shapes = pm.listRelatives(node, children=1, shapes=1) #get shape node from transform: returns list ie. [nt.Mesh('pConeShape1')]
 		connections = pm.listConnections(shapes, source=1, destination=0) #get incoming connections: returns list ie. [nt.PolyCone('polyCone1')]
 		if not connections:
@@ -2258,7 +2254,7 @@ class Init(Slots):
 		'''Get node attributes and their corresponding values as a dict.
 
 		:Parameters:
-			node (obj) = Transform node.
+			node (obj) = The node to get attributes for.
 			include (list) = Attributes to include. All other will be omitted. Exclude takes dominance over include. Meaning, if the same attribute is in both lists, it will be excluded.
 			exclude (list) = Attributes to exclude from the returned dictionay. ie. ['Position','Rotation','Scale','renderable','isHidden','isFrozen','selected']
 
@@ -2266,18 +2262,31 @@ class Init(Slots):
 			(dict) {'string attribute': current value}
 		'''
 		if not all((include, exclude)):
-			exclude = ['message', 'caching', 'frozen', 'isHistoricallyInteresting', 'nodeState', 'binMembership', 'output', 'edgeIdMap', 'miterAlong',
-				'axis', 'axisX', 'axisY', 'axisZ', 'paramWarn', 'uvSetName', 'createUVs', 'texture', 'maya70', 'inputPolymesh', 'maya2017Update1', 
-				'manipMatrix', 'inMeshCache', 'faceIdMap', 'subdivideNgons', 'useOldPolyArchitecture', 'inputComponents', 'vertexIdMap',
-				'binMembership', 'maya2015', 'cacheInput', 'inputMatrix', 'forceParallel', 'autoFit', 'maya2016SP3', 'maya2017', 'caching', 'output',
-				'useInputComp', 'worldSpace', 'taperCurve_Position', 'taperCurve_FloatValue', 'taperCurve_Interp', 'componentTagCreate',
+			exclude = ['message', 'caching', 'frozen', 'isHistoricallyInteresting', 'nodeState', 'binMembership', 'output', 'edgeIdMap', 'miterAlong', 'axis', 'axisX', 'axisY', 
+				'axisZ', 'paramWarn', 'uvSetName', 'createUVs', 'texture', 'maya70', 'inputPolymesh', 'maya2017Update1', 'manipMatrix', 'inMeshCache', 'faceIdMap', 'subdivideNgons', 
+				'useOldPolyArchitecture', 'inputComponents', 'vertexIdMap', 'binMembership', 'maya2015', 'cacheInput', 'inputMatrix', 'forceParallel', 'autoFit', 'maya2016SP3', 
+				'maya2017', 'caching', 'output', 'useInputComp', 'worldSpace', 'taperCurve_Position', 'taperCurve_FloatValue', 'taperCurve_Interp', 'componentTagCreate', 
+				'isCollapsed', 'blackBox', 'viewMode', 'templateVersion', 'uiTreatment', 'boundingBoxMinX', 'boundingBoxMinY', 'boundingBoxMinZ', 'boundingBoxMaxX', 'boundingBoxMaxY', 
+				'boundingBoxMaxZ', 'boundingBoxSizeX', 'boundingBoxSizeY', 'boundingBoxSizeZ', 'boundingBoxCenterX', 'boundingBoxCenterY', 'boundingBoxCenterZ', 'visibility', 
+				'intermediateObject', 'template', 'objectColorR', 'objectColorG', 'objectColorB', 'wireColorR', 'wireColorG', 'wireColorB', 'useObjectColor', 'objectColor', 
+				'overrideDisplayType', 'overrideLevelOfDetail', 'overrideShading', 'overrideTexturing', 'overridePlayback', 'overrideEnabled', 'overrideVisibility', 'hideOnPlayback', 
+				'overrideRGBColors', 'overrideColor', 'overrideColorR', 'overrideColorG', 'overrideColorB', 'lodVisibility', 'selectionChildHighlighting', 'identification', 
+				'layerRenderable', 'layerOverrideColor', 'ghosting', 'ghostingMode', 'ghostPreFrames', 'ghostPostFrames', 'ghostStep', 'ghostFarOpacity', 'ghostNearOpacity', 
+				'ghostColorPreR', 'ghostColorPreG', 'ghostColorPreB', 'ghostColorPostR', 'ghostColorPostG', 'ghostColorPostB', 'ghostUseDriver', 'hiddenInOutliner', 'useOutlinerColor', 
+				'outlinerColorR', 'outlinerColorG', 'outlinerColorB', 'renderType', 'renderVolume', 'visibleFraction', 'hardwareFogMultiplier', 'motionBlur', 'visibleInReflections', 
+				'visibleInRefractions', 'castsShadows', 'receiveShadows', 'asBackground', 'maxVisibilitySamplesOverrider', 'maxVisibilitySamples', 'geometryAntialiasingOverride', 
+				'antialiasingLevel', 'shadingSamplesOverride', 'shadingSamples', 'maxShadingSamples','volumeSamplesOverride', 'volumeSamples', 'depthJitter', 'IgnoreSelfShadowing', 
+				'primaryVisibility', 'tweak', 'relativeTweak', 'uvPivotX', 'uvPivotY', 'displayImmediate', 'displayColors', 'ignoreHwShader', 'holdOut', 'smoothShading', 
+				'boundingBoxScaleX', 'boundingBoxScaleY', 'boundingBoxScaleZ', 'featureDisplacement', 'randomSeed', 'compId', 'weight', 'gravityX', 'gravityY', 'gravityZ', 'attraction', 
+				'magnX', 'magnY', 'magnZ', 'maya2012', 'maya2018', 'newThickness', 'compBoundingBoxMinX', 'compBoundingBoxMinY', 'compBoundingBoxMinZ', 'compBoundingBoxMaxX', 
+				'compBoundingBoxMaxY', 'compBoundingBoxMaxZ', 
 			]
 		# print('node:', node); print('attr:', pm.listAttr(node))
 		attributes={} 
 		for attr in pm.listAttr(node):
 			if not attr in exclude and (attr in include if include else attr not in include): #ie. pm.getAttr('polyCube1.subdivisionsDepth')
 				try:
-					attributes[attr] = pm.getAttr(node+'.'+attr, silent=True)
+					attributes[attr] = pm.getAttr(getattr(node, attr), silent=True) #get the attribute's value.
 				except Exception as error:
 					print (error)
 
@@ -2289,13 +2298,13 @@ class Init(Slots):
 		'''Set node attribute values using a dict.
 
 		:Parameters:
-			node (obj) = Transform node.
+			node (obj) = The node to set attributes for.
 			attributes (dict) = Attributes and their correponding value to set. ie. {'string attribute': value}
 
 		ex call:
 		self.setAttributesMEL(obj, {'smoothLevel':1})
 		'''
-		[pm.setAttr(node+'.'+attr, value) 
+		[pm.setAttr(getattr(node, attr), value)
 			for attr, value in attributes.items() 
 				if attr and value] #ie. pm.setAttr('polyCube1.subdivisionsDepth', 5)
 
@@ -2389,7 +2398,7 @@ class Init(Slots):
 
 	@classmethod
 	def attr(cls, fn):
-		'''Decorator for objAttrWindow.
+		'''Decorator for setAttributeWindow (objAttrWindow).
 		'''
 		def wrapper(self, *args, **kwargs):
 			self.setAttributeWindow(fn(self, *args, **kwargs))
@@ -2403,14 +2412,21 @@ class Init(Slots):
 			include (list) = Attributes to include. All other will be omitted. Exclude takes dominance over include. Meaning, if the same attribute is in both lists, it will be excluded.
 			exclude (list) = Attributes to exclude from the returned dictionay. ie. ['Position','Rotation','Scale','renderable','isHidden','isFrozen','selected']
 		'''
-		if obj is None:
+		if not obj:
 			return
 
 		if isinstance(obj, (list, set, tuple)):
 			obj = obj[0]
 
 		attributes = self.getAttributesMEL(obj, include=include, exclude=exclude)
-		self.objAttrWindow(obj, attributes, self.setAttributesMEL)
+		children = self.objAttrWindow(obj, attributes, self.setAttributesMEL)
+
+		for c in children:
+			if c.__class__.__name__=='QCheckBox':
+				attr = getattr(obj, c.objectName())
+				c.stateChanged.connect(lambda state, obj=obj, attr=attr: pm.select(attr, deselect=not state, add=1))
+				if attr in pm.ls(sl=1):
+					c.setChecked(True)
 
 
 	@staticmethod

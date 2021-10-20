@@ -20,11 +20,10 @@ class Slots(QtCore.QObject):
 		'''
 		:Parameters: 
 			**kwargs (passed in via the switchboard module's 'getClassFromUiName' method.)
-			_current_ui (method) = Returns the current ui if it is either the parent or a child ui for the class; else, return the parent ui.
-			<name>_ui (ui) = ui of <name> ie. self.polygons for the ui of filename polygons.
-			<name>_submenu_ui (ui) = ui of <name_submenu> ie. self.polygons_submenu.
-			sb (class) = switchboard instance.
-			tcl (class) = tentacle stacked widget instance.
+				_current_ui (method) = Returns the current ui if it is either the parent or a child ui for the class; else, return the parent ui.
+				<name>_ui (ui) = ui of <name> ie. self.polygons for the ui of filename polygons.
+				<name>_submenu_ui (ui) = ui of <name_submenu> ie. self.polygons_submenu.
+				tcl (class) = tentacle stacked widget instance.
 		'''
 		for k, v in kwargs.items():
 			setattr(self, k, v)
@@ -36,6 +35,16 @@ class Slots(QtCore.QObject):
 		a child ui for the class; else, return the parent ui for the class.
 		'''
 		return self._current_ui()
+
+
+	# @classmethod
+	def hideMain(fn):
+		'''A decorator that hides the stacked widget main window.
+		'''
+		def wrapper(self, *args, **kwargs):
+			fn(self, *args, **kwargs) #execute the method normally.
+			self.tcl.hide() #Get the state of the widget in the current ui and set any widgets (having the methods name) in child or parent ui's accordingly.
+		return wrapper
 
 
 	@staticmethod
@@ -97,6 +106,34 @@ class Slots(QtCore.QObject):
 				if attr and value]
 
 
+	def objAttrWindow(self, obj, attributes, fn=None):
+		'''Launch a popup window containing the given objects attributes.
+
+		:Parameters:
+			obj (obj) = The object to get the attributes of.
+			attributes (dict) = {'attribute':<value>}
+			fn (method) = Set an alternative method to call on widget signal. ex. fn(obj, {'attr':<value>})
+
+		:Return:
+			(list) the menu's child widgets.
+		'''
+		if not fn:
+			fn = self.setAttributes
+
+		menu = self.tcl.wgts.Menu(self.tcl, menu_type='form', padding=2, title=str(obj), position='cursorPos')
+
+		for k, v in attributes.items():
+			if isinstance(v, (float, int, bool)):
+
+				s = menu.add('QDoubleSpinBox', label=k, checkable=True, setSpinBoxByValue_=v)
+				s.valueChanged.connect(lambda value, obj=obj, attr=k: fn(obj, {attr:value}))
+
+		self.tcl.childEvents.addWidgets(self.tcl.sb.getUiName(), menu.childWidgets)
+		menu.show()
+
+		return menu.childWidgets
+
+
 	def connect_(self, widgets, signals, slots, class_=None):
 		'''Connect multiple signals to multiple slots at once.
 
@@ -116,52 +153,18 @@ class Slots(QtCore.QObject):
 			try:
 				widgets = Slots.getObjects(class_, widgets, showError_=True) #getObjects returns a widget list from a string of objectNames.
 			except:
-				widgets = Slots.getObjects(self.sb.getUi(), widgets, showError_=True)
+				widgets = Slots.getObjects(self.tcl.sb.getUi(), widgets, showError_=True)
 
 		#if the variables are not of a list type; convert them.
-		widgets = self.sb.list(widgets)
-		signals = self.sb.list(signals)
-		slots = self.sb.list(slots)
+		widgets = self.tcl.sb.list_(widgets)
+		signals = self.tcl.sb.list_(signals)
+		slots = self.tcl.sb.list_(slots)
 
 		for widget in widgets:
 			for signal in signals:
 				signal = getattr(widget, signal)
 				for slot in slots:
 					signal.connect(slot)
-
-
-	# @classmethod
-	def hideMain(fn):
-		'''A decorator that hides the stacked widget main window.
-		'''
-		def wrapper(self, *args, **kwargs):
-			fn(self, *args, **kwargs) #execute the method normally.
-			self.tcl.hide() #Get the state of the widget in the current ui and set any widgets (having the methods name) in child or parent ui's accordingly.
-		return wrapper
-
-	# @hideMain
-	def objAttrWindow(self, obj, attributes, fn=None):
-		'''Launch a popup window containing the given objects attributes.
-
-		:Parameters:
-			obj (obj) = The object to get the attributes of.
-			attributes (dict) = {'attribute':<value>}
-			fn (method) = Set an alternative method to call on widget signal. 
-				fn two arguments. The object to get the attributes for, and a dict containing attribute:value pairs. ex. fn(obj, {'attribute':<value>}
-		'''
-		from widgets.menu import Menu
-		menu = Menu(position='cursorPos', setVisible=True)
-
-		spinboxes = [menu.add('QDoubleSpinBox', setSpinBoxByValue_=[k, v]) for 
-			k, v in attributes.items() 
-			if isinstance(v, (float, int, bool))]
-
-		if not fn:
-			fn = self.getAttributes
-
-		[w.valueChanged.connect(
-			lambda value, widget=w, obj=obj: fn(obj, {widget.prefix().rstrip(': '):value})) 
-				for w in spinboxes] #set signal/slot connections
 
 
 	@classmethod
@@ -174,15 +177,11 @@ class Slots(QtCore.QObject):
 		return wrapper
 
 	def syncWidgets(self, widgets, from_ui=None, op=2, attributeTypes = {
-															'isChecked':'setChecked', 
-															'isDisabled':'setDisabled', 
-															'isEnabled':'setEnabled', 
-															'value':'setValue', 
-															'text':'setText', 
-															'icon':'setIcon',}):
+		'isChecked':'setChecked', 'isDisabled':'setDisabled', 'isEnabled':'setEnabled', 
+		'value':'setValue', 'text':'setText', 'icon':'setIcon',}):
 		'''
 		Keep widgets (having the same objectName) in sync across parent and child uis
-		If the second widget does not have an attribute it will silently skip it.
+		If the second widget does not have an attribute it will be silently skipped.
 		Attributes starting with '__' are ignored.
 
 		:Parameters:
@@ -194,9 +193,9 @@ class Slots(QtCore.QObject):
 		self.syncWidgets('chk002-6')
 		'''
 		if not from_ui:
-			from_ui = self.sb.getUi()
+			from_ui = self.tcl.sb.getUi()
 
-		to_ui = self.sb.getUi(from_ui, level=2) if self.sb.getUiLevel(from_ui)==3 else self.sb.getUi(from_ui, level=3)#get either it's parent or submenu, depending on the given ui.
+		to_ui = self.tcl.sb.getUi(from_ui, level=2) if self.tcl.sb.getUiLevel(from_ui)==3 else self.tcl.sb.getUi(from_ui, level=3)#get either it's parent or submenu, depending on the given ui.
 
 		if op in (0, 1): #
 			if isinstance(widgets, (str)):
@@ -204,7 +203,7 @@ class Slots(QtCore.QObject):
 				to_widgets = Slots.getObjects(to_ui, widgets)
 			else: #if list of widget objects:
 				from_widgets = widgets
-				to_widgets = [self.sb.getWidget(w.objectName(), name=to_ui) for w in widgets]
+				to_widgets = [self.tcl.sb.getWidget(w.objectName(), ui=to_ui) for w in widgets]
 
 		if op==1: #get parents of the given widgets
 			from_widgets += [w.parent() for w in from_widgets]
@@ -212,8 +211,8 @@ class Slots(QtCore.QObject):
 
 		else: #get all widgets
 			if not op in (0, 1):
-				from_widgets = self.sb.getWidget(name=from_ui)
-				to_widgets = self.sb.getWidget(name=to_ui)
+				from_widgets = self.tcl.sb.getWidget(ui=from_ui)
+				to_widgets = self.tcl.sb.getWidget(ui=to_ui)
 
 		from_widgets = {w.objectName():w for w in from_widgets}; #print ('from_widgets:', [i for i in from_widgets.values() if 'QRadioButton' in str(i)])
 		to_widgets = {w.objectName():w for w in to_widgets}; #print ('to_widgets:  ', [i for i in to_widgets.values() if 'QRadioButton' in str(i)])
@@ -241,8 +240,8 @@ class Slots(QtCore.QObject):
 		ex.	self.toggleWidgets(<ui1>, <ui2>, setDisabled='b000', setUnChecked='chk009-12', setVisible='b015,b017')
 		'''
 		if not args:
-			childUi = self.sb.getUi(level=2)
-			parentUi = self.sb.getUi(level=3)
+			childUi = self.tcl.sb.getUi(level=2)
+			parentUi = self.tcl.sb.getUi(level=3)
 			args = [parentUi, childUi]
 
 		for ui in args:
@@ -998,7 +997,7 @@ class Slots(QtCore.QObject):
 		'''
 		from math import sin, radians
 
-		if unit is 'degrees':
+		if unit=='degrees':
 			a1, a2 = radians(a1), radians(a2)
 
 		a3 = 3.14159 - a1 - a2
@@ -1092,9 +1091,9 @@ print (os.path.splitext(os.path.basename(__file__))[0])
 	# 		name (str) = ui name.
 	# 		method (str) = method name.
 	# 	'''
-	# 	ui = self.sb.getUi()
+	# 	ui = self.tcl.sb.getUi()
 	# 	temp = self.tcl.setUi(name)
-	# 	method = self.sb.getMethod(name, method)
+	# 	method = self.tcl.sb.getMethod(name, method)
 
 	# 	try:
 	# 		method(*args, **kwargs)

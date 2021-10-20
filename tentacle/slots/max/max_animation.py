@@ -17,14 +17,14 @@ class Animation(Init):
 		dh = self.animation_ui.draggable_header
 
 		if state is 'setMenu':
-			dh.contextMenu.add(wgts.ComboBox, setObjectName='cmb000', setToolTip='')
+			dh.contextMenu.add(self.tcl.wgts.ComboBox, setObjectName='cmb000', setToolTip='')
 			return
 
 
 	def cmb000(self, index=-1):
 		'''Editors
 		'''
-		cmb = self.animation_ui.cmb000
+		cmb = self.animation_ui.draggable_header.contextMenu.cmb000
 
 		if index is 'setMenu':
 			list_ = ['Track View: Curve Editor','Track View: Dope Sheet','Track View: New Track View','Motion Mixer','Pose Mixer','MassFx Tools',

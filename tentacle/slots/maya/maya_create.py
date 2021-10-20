@@ -17,14 +17,14 @@ class Create(Init):
 		dh = self.create_ui.draggable_header
 
 		if state is 'setMenu':
-			dh.contextMenu.add(wgts.ComboBox, setObjectName='cmb000', setToolTip='')
+			dh.contextMenu.add(self.tcl.wgts.ComboBox, setObjectName='cmb000', setToolTip='')
 			return
 
 
-	def cmb003(self, index=-1):
+	def cmb000(self, index=-1):
 		'''Editors
 		'''
-		cmb = self.create_ui.cmb003
+		cmb = self.create_ui.draggable_header.contextMenu.cmb000
 		
 		if index is 'setMenu':
 			list_ = ['']
@@ -38,30 +38,24 @@ class Create(Init):
 			cmb.setCurrentIndex(0)
 
 
-	def cmb000(self, index=-1):
+	def cmb001(self, index=-1):
 		'''
 		'''
-		cmb = self.create_ui.cmb000
+		cmb = self.create_ui.cmb001
 
 		if index is 'setMenu':
 			list_ = ['Polygon', 'NURBS', 'Light']
 			cmb.addItems_(list_)
 			return
 
-		if index==0: #shared menu. later converted to the specified type.
-			self.cmb001(0)
-
-		if index==1:
-			self.cmb001(1)
-
-		if index==2:
-			self.cmb001(2)
+		if index>=0:
+			self.cmb002(index)
 
 
-	def cmb001(self, index=-1):
+	def cmb002(self, index=-1):
 		'''
 		'''
-		cmb = self.create_ui.cmb001
+		cmb = self.create_ui.cmb002
 
 		if index is 'setMenu':
 			list_ = ["Cube", "Sphere", "Cylinder", "Plane", "Circle", "Cone", "Pyramid", "Torus", "Tube", "GeoSphere", "Platonic Solids", "Text"]
@@ -87,9 +81,9 @@ class Create(Init):
 		'''Create Object
 		'''
 		axis = [0,90,0]
-		type_ = self.create_ui.cmb000.currentText()
-		index = self.create_ui.cmb001.currentIndex()
-		name = self.create_ui.t000.text()
+		type_ = self.create_ui.cmb001.currentText()
+		index = self.create_ui.cmb002.currentIndex()
+		name = ''
 
 		selection = pm.ls(selection=1)
 
@@ -162,13 +156,12 @@ class Create(Init):
 			type1 (str) = 
 			type2 (str) = 
 		'''
-		cmb000 = self.create_ui.cmb000
 		cmb001 = self.create_ui.cmb001
+		cmb002 = self.create_ui.cmb002
 
-		cmb000.setCurrentIndex(cmb000.findText(catagory1))
-		cmb001.setCurrentIndex(cmb001.findText(catagory2))
+		cmb001.setCurrentIndex(cmb001.findText(catagory1))
+		cmb002.setCurrentIndex(cmb002.findText(catagory2))
 		self.b000()
-		self.tcl.hide()
 
 
 	def b001(self):

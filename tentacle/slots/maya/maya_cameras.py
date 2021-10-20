@@ -427,7 +427,7 @@ print(os.path.splitext(os.path.basename(__file__))[0])
 	# 	Camera Editors
 
 	# 	'''
-	# 	cmb = self.current_ui.cmb000
+	# 	cmb = self.current_ui.draggable_header.contextMenu.cmb000
 		
 	# 	list_ = ['Camera Sequencer', 'Camera Set Editor']
 	# 	contents = cmb.addItems_(list_, '')

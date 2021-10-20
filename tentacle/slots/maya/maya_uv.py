@@ -17,7 +17,7 @@ class Uv(Init):
 		dh = self.uv_ui.draggable_header
 
 		if state is 'setMenu':
-			dh.contextMenu.add(wgts.ComboBox, setObjectName='cmb000', setToolTip='Maya UV Editors')
+			dh.contextMenu.add(self.tcl.wgts.ComboBox, setObjectName='cmb000', setToolTip='Maya UV Editors')
 			dh.contextMenu.add('QPushButton', setText='Create UV Snapshot', setObjectName='b001', setToolTip='Save an image file of the current UV layout.')
 			return
 
@@ -25,7 +25,7 @@ class Uv(Init):
 	def cmb000(self, index=-1):
 		'''Editors
 		'''
-		cmb = self.uv_ui.cmb000
+		cmb = self.uv_ui.draggable_header.contextMenu.cmb000
 
 		if index is 'setMenu':
 			list_ = ['UV Editor','UV Set Editor','UV Tool Kit','UV Linking: Texture-Centric','UV Linking: UV-Centric','UV Linking: Paint Effects/UV','UV Linking: Hair/UV','Flip UV']
@@ -68,9 +68,9 @@ class Uv(Init):
 				borders = True if pm.polyOptions(query=1, displayMapBorder=1) else False
 				distortion = pm.textureWindow(panel, query=1, displayDistortion=1)
 
-				cmb.menu_.add(wgts.CheckBox, setObjectName='chk014', setText='Checkered', setChecked=checkered, setToolTip='')
-				cmb.menu_.add(wgts.CheckBox, setObjectName='chk015', setText='Borders', setChecked=borders, setToolTip='')
-				cmb.menu_.add(wgts.CheckBox, setObjectName='chk016', setText='Distortion', setChecked=distortion, setToolTip='')
+				cmb.menu_.add(self.tcl.wgts.CheckBox, setObjectName='chk014', setText='Checkered', setChecked=checkered, setToolTip='')
+				cmb.menu_.add(self.tcl.wgts.CheckBox, setObjectName='chk015', setText='Borders', setChecked=borders, setToolTip='')
+				cmb.menu_.add(self.tcl.wgts.CheckBox, setObjectName='chk016', setText='Distortion', setChecked=distortion, setToolTip='')
 
 			except NameError as error:
 				print(error)
@@ -177,10 +177,10 @@ class Uv(Init):
 		'''
 		tb = self.current_ui.tb000
 		if state is 'setMenu':
-			tb.menu_.add(wgts.CheckBox, setText='Pre-Scale Mode: 1', setObjectName='chk025', setTristate=True, setCheckState_=1, setToolTip='Allow shell scaling during packing.')
-			tb.menu_.add(wgts.CheckBox, setText='Pre-Rotate Mode: 1', setObjectName='chk007', setTristate=True, setCheckState_=1, setToolTip='Allow shell rotation during packing.')
+			tb.menu_.add(self.tcl.wgts.CheckBox, setText='Pre-Scale Mode: 1', setObjectName='chk025', setTristate=True, setCheckState_=1, setToolTip='Allow shell scaling during packing.')
+			tb.menu_.add(self.tcl.wgts.CheckBox, setText='Pre-Rotate Mode: 1', setObjectName='chk007', setTristate=True, setCheckState_=1, setToolTip='Allow shell rotation during packing.')
 			tb.menu_.add('QDoubleSpinBox', setPrefix='Rotate Step: ', setObjectName='s007', setMinMax_='0.0-360 step22.5', setValue=22.5, setToolTip='Set the allowed rotation increment contraint.')
-			tb.menu_.add(wgts.CheckBox, setText='Stack Similar: 2', setObjectName='chk026', setTristate=True, setCheckState_=2, setToolTip='Find Similar shells. <br>state 1: Find similar shells, and pack one of each, ommiting the rest.<br>state 2: Find similar shells, and stack during packing.')
+			tb.menu_.add(self.tcl.wgts.CheckBox, setText='Stack Similar: 2', setObjectName='chk026', setTristate=True, setCheckState_=2, setToolTip='Find Similar shells. <br>state 1: Find similar shells, and pack one of each, ommiting the rest.<br>state 2: Find similar shells, and stack during packing.')
 			tb.menu_.add('QDoubleSpinBox', setPrefix='Stack Similar Tolerance: ', setObjectName='s006', setMinMax_='0.0-10 step.1', setValue=1.0, setToolTip='Stack shells with uv\'s within the given range.')
 			tb.menu_.add('QSpinBox', setPrefix='UDIM: ', setObjectName='s004', setMinMax_='1001-1200 step1', setValue=1001, setToolTip='Set the desired UDIM tile space.')
 			tb.menu_.add('QSpinBox', setPrefix='Map Size: ', setObjectName='s005', setMinMax_='512-8192 step512', setValue=2048, setToolTip='UV map resolution.')

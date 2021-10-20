@@ -17,14 +17,14 @@ class Create(Init):
 		dh = self.create_ui.draggable_header
 
 		if state is 'setMenu':
-			dh.contextMenu.add(wgts.ComboBox, setObjectName='cmb003', setToolTip='')
+			dh.contextMenu.add(self.tcl.wgts.ComboBox, setObjectName='cmb000', setToolTip='')
 			return
 
 
-	def cmb003(self, index=-1):
+	def cmb000(self, index=-1):
 		'''Editors
 		'''
-		cmb = self.create_ui.cmb000
+		cmb = self.create_ui.draggable_header.contextMenu.cmb000
 
 		if index is 'setMenu':
 			list_ = ['']
@@ -38,29 +38,23 @@ class Create(Init):
 			cmb.setCurrentIndex(0)
 
 
-	def cmb000(self, index=-1):
+	def cmb001(self, index=-1):
 		'''Create: Select Base Type
 		'''
-		cmb = self.create_ui.cmb000
+		cmb = self.create_ui.cmb001
 
 		if index is 'setMenu':
 			list_ = ['Mesh', 'Editable Poly', 'Editable Mesh', 'Editable Patch', 'NURBS', 'Light']
 			cmb.addItems_(list_)
 			return
 
-		if index==0: #shared menu. later converted to the specified type.
-			self.cmb001(0)
-
-		if index==4:
-			self.cmb001(4)
-
-		if index==5:
-			self.cmb001(5)
+		if index>=0:
+			self.cmb001(index)
 
 
 	def cmb001(self, index=-1):
 		''''''
-		cmb = self.create_ui.cmb001
+		cmb = self.create_ui.cmb002
 
 		if index is 'setMenu':
 			list_ = ["Cube", "Sphere", "Cylinder", "Plane", "Circle", "Cone", "Pyramid", "Torus", "Tube", "GeoSphere", "Text"] 
@@ -87,9 +81,9 @@ class Create(Init):
 		'''Create Object
 		'''
 		axis = [0,90,0]
-		type_ = self.create_ui.cmb000.currentText()
-		index = self.create_ui.cmb001.currentIndex()
-		name = self.create_ui.t000.text()
+		type_ = self.create_ui.cmb001.currentText()
+		index = self.create_ui.cmb002.currentIndex()
+		name = ''
 
 		selection = rt.selection
 
@@ -149,7 +143,7 @@ class Create(Init):
 				rt.Prism(side1Length=14.1038, side2Length=14.8447, side3Length=16.3529, height=22.8732, pos=[-13.7066,-71.6249,0], isSelected=True, name=name)
 
 
-		#convert to the type selected in cmb000
+		#convert to the type selected in cmb001
 		if type_ in ['Editable Poly', 'Polygons']: #Polygons
 			rt.convertTo(node, rt.PolyMeshObject)
 
@@ -174,6 +168,7 @@ class Create(Init):
 
 		#translate the newly created node (add support for averaging multiple components)
 		if selection:
+			print (selection)
 			obj = selection[0]
 			if rt.subObjectLevel==1: #vertex
 				vertex = Init.bitArrayToArray(rt.polyop.getVertSelection(obj))
@@ -185,7 +180,7 @@ class Create(Init):
 
 		node.pos = rt.point3(pos)
 
-		# if self.create_ui.cmb000.currentIndex() == 0: #if create type: polygon; convert to editable poly
+		# if self.create_ui.cmb001.currentIndex() == 0: #if create type: polygon; convert to editable poly
 		# 	rt.convertTo(node, rt.PolyMeshObject) #convert after adding primitive attributes to spinboxes
 
 		rt.select(node) #select the transform node so that you can see any edits
@@ -200,13 +195,12 @@ class Create(Init):
 			catagory1 (str) = type
 			catagory2 (str) = type
 		'''
-		cmb000 = self.create_ui.cmb000
 		cmb001 = self.create_ui.cmb001
+		cmb002 = self.create_ui.cmb002
 
-		cmb000.setCurrentIndex(cmb000.findText(catagory1))
-		cmb001.setCurrentIndex(cmb001.findText(catagory2))
+		cmb001.setCurrentIndex(cmb001.findText(catagory1))
+		cmb002.setCurrentIndex(cmb002.findText(catagory2))
 		self.b000()
-		self.tcl.hide()
 
 
 	def b001(self):

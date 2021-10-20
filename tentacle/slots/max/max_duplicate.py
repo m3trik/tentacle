@@ -28,15 +28,15 @@ class Duplicate(Init):
 		dh = self.duplicate_ui.draggable_header
 
 		if state is 'setMenu':
-			dh.contextMenu.add(wgts.ComboBox, setObjectName='cmb001', setToolTip='')
+			dh.contextMenu.add(self.tcl.wgts.ComboBox, setObjectName='cmb000', setToolTip='')
 
 			return
 
 
-	def cmb001(self, index=-1):
+	def cmb000(self, index=-1):
 		'''Editors
 		'''
-		cmb = self.duplicate_ui.cmb001
+		cmb = self.duplicate_ui.draggable_header.contextMenu.cmb000
 		
 		if index is 'setMenu':
 			files = ['']
@@ -66,10 +66,10 @@ class Duplicate(Init):
 		'''Duplicate: Translate To Components
 		'''
 		if self.duplicate_ui.chk007.isChecked():
-			self.toggleWidgets(setEnabled='chk008,b034,cmb000', setDisabled='chk000,chk009,s005')
+			self.toggleWidgets(setEnabled='chk008,b034,cmb001', setDisabled='chk000,chk009,s005')
 			self.b034()
 		else:
-			self.toggleWidgets(setEnabled='chk000,chk009,s005', setDisabled='chk008,b034,cmb000')
+			self.toggleWidgets(setEnabled='chk000,chk009,s005', setDisabled='chk008,b034,cmb001')
 
 
 	@Slots.message
@@ -262,7 +262,7 @@ class Duplicate(Init):
 			rotXYZ =  [float(self.duplicate_ui.s007.value()),float(self.duplicate_ui.s008.value()),float(self.duplicate_ui.s009.value())]
 			translateToComponent = self.duplicate_ui.chk007.isChecked()
 			alignToNormal = self.duplicate_ui.chk008.isChecked()
-			componentList = [self.duplicate_ui.cmb000.itemText(i) for i in range(self.duplicate_ui.cmb000.count())]
+			componentList = [self.duplicate_ui.draggable_header.contextMenu.cmb001.itemText(i) for i in range(self.duplicate_ui.draggable_header.contextMenu.cmb001.count())]
 			
 			try: pm.delete(duplicateObjList[1:]) #delete all the geometry in the list, except the original obj
 			except e as error:
@@ -397,9 +397,9 @@ class Duplicate(Init):
 
 
 	def b008(self):
-		'''Add Selected Components To cmb000
+		'''Add Selected Components To cmb001
 		'''
-		self.comboBox(self.duplicate_ui.cmb000, pm.ls(selection=1, flatten=1))
+		self.comboBox(self.duplicate_ui.draggable_header.contextMenu.cmb001, pm.ls(selection=1, flatten=1))
 
 
 

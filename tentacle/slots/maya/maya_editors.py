@@ -10,7 +10,7 @@ class Editors(Init):
 	def __init__(self, *args, **kwargs):
 		super().__init__(*args, **kwargs)
 
-		self.dynLayout_ui = self.sb.getUi('dynLayout')
+		self.dynLayout_ui = self.tcl.sb.getUi('dynLayout')
 		self.stackedWidget = self.dynLayout_ui.stackedWidget
 
 
@@ -20,7 +20,7 @@ class Editors(Init):
 		dh = self.editors_ui.draggable_header
 
 		if state is 'setMenu':
-			dh.contextMenu.add(wgts.ComboBox, setObjectName='cmb000', setToolTip='')
+			dh.contextMenu.add(self.tcl.wgts.ComboBox, setObjectName='cmb000', setToolTip='')
 			return
 
 
@@ -192,7 +192,7 @@ class Editors(Init):
 	def cmb000(self, index=-1):
 		'''Editors
 		'''
-		cmb = self.editors_ui.cmb000
+		cmb = self.editors_ui.draggable_header.contextMenu.cmb000
 		
 		if index is 'setMenu':
 			list_ = ['']
@@ -237,7 +237,7 @@ class Editors(Init):
 		self.tcl.setUi('dynLayout')
 		self.stackedWidget.setCurrentWidget(w)
 		self.tcl.resize(width, height)
-		# self.tcl.move(self.tcl.centerPos().x(), self.tcl.centerPos().y()+(self.sb.sizeY/2.5))
+		# self.tcl.move(self.tcl.centerPos().x(), self.tcl.centerPos().y()+(self.tcl.sb.sizeY/2.5))
 		return w
 
 

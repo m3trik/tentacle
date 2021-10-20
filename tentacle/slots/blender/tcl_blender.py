@@ -29,7 +29,7 @@ class Tcl_blender(Tcl):
 			except Exception as error:
 				print(self.__class__.__name__, error)
 
-		# progressIndicator = wgts.WidgetProgressIndicator()
+		# progressIndicator = self.tcl.wgts.WidgetProgressIndicator()
 		# progressIndicator.start()
 
 		super().__init__(parent)

@@ -37,7 +37,7 @@ class WidgetMultiWidget(QtWidgets.QWidget, Attributes):
 		self.layoutType = layoutType
 		self._mouseGrabber=None
 		# self.setMouseTracking(True)
-		self.setAttributes(kwargs) #set any additional given keyword args for the widget.
+		self.setAttributes(**kwargs) #set any additional given keyword args for the widget.
 
 
 	@property

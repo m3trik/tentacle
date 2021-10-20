@@ -4,15 +4,13 @@ import os
 
 from PySide2 import QtGui, QtWidgets, QtCore
 
-# 3ds Max dependancies
-try:
+try: #3ds Max dependancies
 	from pymxs import runtime as rt
 	maxEval = rt.execute #rt.executeScriptFile
 
 except ImportError as error:
 	print(__file__, error); rt=None; maxEval=lambda s: None
 
-from tentacle.ui import widgets as wgts
 from slots import Slots
 
 
@@ -51,9 +49,13 @@ class Init(Slots):
 
 				level = rt.subObjectLevel
 				if level==0: #object level
-					name_and_type = ['<font style="color: Yellow;">{0}<font style="color: LightGray;">:{1}'.format(obj.name, rt.classOf(obj.baseObject)) for obj in selection]
-					name_and_type_str = str(name_and_type).translate(str.maketrans('', '', '[]\'')) #format as single string.
-					hud.insertText('Selected: <font style="color: Yellow;">{}'.format(name_and_type_str)) #currently selected objects
+					numberOfSelected = len(selection)
+					if numberOfSelected<11:
+						name_and_type = ['<font style="color: Yellow;">{0}<font style="color: LightGray;">:{1}'.format(obj.name, rt.classOf(obj.baseObject)) for obj in selection]
+						name_and_type_str = str(name_and_type).translate(str.maketrans('', '', ',[]\'')) #format as single string. remove brackets, single quotes, and commas.
+					else:
+						name_and_type_str = '' #if more than 10 objects selected, don't list each object.
+					hud.insertText('Selected: <font style="color: Yellow;">{0}<br/>{1}'.format(numberOfSelected, name_and_type_str)) #currently selected objects by name and type.
 
 				elif level>0: #component level
 					obj = selection[0]
@@ -91,14 +93,14 @@ class Init(Slots):
 						except NameError:
 							pass
 
-		prevCommand = self.sb.prevCommand(docString=True)
+		prevCommand = self.tcl.sb.prevCommand(docString=True)
 		if prevCommand:
 			hud.insertText('Prev Command: <font style="color: Yellow;">{}'.format(prevCommand))  #get button text from last used command
 
-		# prevUi = self.sb.previousName(omitLevel=[0,1,2])
+		# prevUi = self.tcl.sb.previousName(omitLevel=[0,1,2])
 		# hud.insertText('Prev UI: {}'.format(prevUi.replace('_', '').title())) #get the last level 3 ui name string.
 
-		# prevCamera = self.sb.prevCamera(docString=True)
+		# prevCamera = self.tcl.sb.prevCamera(docString=True)
 		# hud.insertText('Prev Camera: {}'.format(prevCamera)) #get the previously used camera.
 
 

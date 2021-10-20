@@ -19,28 +19,25 @@ class Preferences(Init):
 		dh = self.preferences_ui.draggable_header
 
 		if state is 'setMenu':
-			dh.contextMenu.add(wgts.ComboBox, setObjectName='cmb003', setToolTip='')
+			dh.contextMenu.add(self.tcl.wgts.ComboBox, setObjectName='cmb000', setToolTip='')
 			return
 
 
 	def cmb000(self, index=-1):
-		'''Ui Style: Set main ui style using QStyleFactory
+		'''Editors
 		'''
-		cmb = self.preferences_ui.cmb000
+		cmb = self.preferences_ui.draggable_header.contextMenu.cmb000
 
 		if index is 'setMenu':
-			from PySide2 import QtWidgets, QtCore
-			list_ = QtWidgets.QStyleFactory.keys() #get styles from QStyleFactory
-			cmb.addItems_(list_)
-			try: #get/set current value
-				index = self.styleComboBox.findText(QtGui.qApp.style().objectName(), QtCore.Qt.MatchFixedString)
-				cmb.setCurrentIndex(index)
-			except:
-				pass
+			list_ = ['']
+			cmb.addItems_(list_, '')
 			return
 
 		if index>0:
-			self.tcl.qApp.setStyle(cmb.items[index])
+			text = cmb.items[index]
+			if text=='':
+				pass
+			cmb.setCurrentIndex(0)
 
 
 	def cmb001(self, index=-1):
@@ -85,20 +82,23 @@ class Preferences(Init):
 
 
 	def cmb003(self, index=-1):
-		'''Editors
+		'''Ui Style: Set main ui style using QStyleFactory
 		'''
 		cmb = self.preferences_ui.cmb003
 
 		if index is 'setMenu':
-			list_ = ['']
-			cmb.addItems_(list_, '')
+			from PySide2 import QtWidgets, QtCore
+			list_ = QtWidgets.QStyleFactory.keys() #get styles from QStyleFactory
+			cmb.addItems_(list_)
+			try: #get/set current value
+				index = self.styleComboBox.findText(QtGui.qApp.style().objectName(), QtCore.Qt.MatchFixedString)
+				cmb.setCurrentIndex(index)
+			except:
+				pass
 			return
 
 		if index>0:
-			text = cmb.items[index]
-			if text=='':
-				pass
-			cmb.setCurrentIndex(0)
+			self.tcl.qApp.setStyle(cmb.items[index])
 
 
 	def b001(self):
@@ -150,7 +150,7 @@ print(os.path.splitext(os.path.basename(__file__))[0])
 # 	'''
 # 	Custom Menu Set
 # 	'''
-# 	cmb = self.preferences_ui.cmb000
+# 	cmb = self.preferences_ui.draggable_header.contextMenu.cmb000
 	
 # 	list_ = ['Modeling', 'Normals', 'Materials', 'UV'] #combobox list menu corresponding to the button text sets.
 # 	contents = cmb.addItems_(list_, 'Menu Sets')

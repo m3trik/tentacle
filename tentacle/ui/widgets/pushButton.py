@@ -28,7 +28,7 @@ class PushButton(QtWidgets.QPushButton, MenuInstance, Attributes, RichText):
 		super().__init__(parent)
 		RichText.__init__(self, alignment='AlignCenter')
 
-		self.setAttributes(kwargs)
+		self.setAttributes(**kwargs)
 
 
 	def mousePressEvent(self, event):

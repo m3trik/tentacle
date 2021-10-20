@@ -33,7 +33,7 @@ class ProgressBar(QtWidgets.QProgressBar, Attributes):
 		self.isCanceled = False
 		# self.connect(QtWidgets.QShortcut(QtGui.QKeySequence(QtCore.Qt.Key_Escape), self), self.cancel())
 
-		self.setAttributes(kwargs)
+		self.setAttributes(**kwargs)
 
 
 	def cancel(self):

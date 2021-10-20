@@ -43,7 +43,7 @@ class WidgetLoadingIndicator(QtWidgets.QWidget, Attributes):
 		value = QtGui.QCursor.pos()
 		self.move(10,0) #fix for widget not moving to correct pos with setPosition_='cursor' attribute. #self.move(value - self.rect().center()) #move and center
 
-		self.setAttributes(kwargs)
+		self.setAttributes(**kwargs)
 
 
 	@property

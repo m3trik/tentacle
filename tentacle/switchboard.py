@@ -105,14 +105,9 @@ class Switchboard(QtCore.QObject):
 		'''
 		name = str(name) #prevent unicode
 
-		self.setAttributes(kwargs) #set any passed in keyword args for the widget.
+		self.setAttributes(widget, **kwargs) #set any passed in keyword args for the widget.
 
 		objectName = str(widget.objectName())
-
-		#add the widget as an attribute of the ui if it is not already.
-		ui = self.getUi(name)
-		if not hasattr(ui, objectName):
-			setattr(ui, objectName, widget) #this will add child items as attributes to the main menu so they can be accessed directly.
 
 		class_ = self.getClassFromUiName(name) #get the corresponding slot class from the ui name.
 		derivedType = self._getDerivedType(widget) #the base class of any custom widgets.  ie. 'QPushButton' from 'PushButton'
@@ -147,7 +142,7 @@ class Switchboard(QtCore.QObject):
 		if not name:
 			name = self.getUiName()
 
-		widgets = self.list(widgets) #if 'widgets' isn't a list, convert it to one.
+		widgets = self.list_(widgets) #if 'widgets' isn't a list, convert it to one.
 		for widget in widgets:
 			w = self.sbDict[name]['widgets'].pop(widget, None)
 			self.gcProtect(w)
@@ -188,28 +183,28 @@ class Switchboard(QtCore.QObject):
 		return self.sbDict[name]['widgets']
 
 
-	def setAttributes(self, attributes=None, order=['setVisible'], **kwargs):
-		'''Works with attributes passed in as a dict or kwargs.
-		If attributes are passed in as a dict, kwargs are ignored.
-
-		:Parameters:
-			attributes (dict) = Keyword attributes and their corresponding values.
-			order (list) = List of string keywords. ie. ['move', 'setVisible']. attributes in this list will be set last, in order of the list. an example would be setting move positions after setting resize arguments.
-			**kwargs = Set any keyword arguments.
+	def setAttributes(self, obj=None, order=['setVisible'], **kwargs):
 		'''
-		if not attributes:
-			attributes = kwargs
+		:Parameters:
+			obj (obj) = the child obj or widgetAction to set attributes for. (default=self)
+			order (list) = List of string keywords. ie. ['move', 'setVisible']. attributes in this list will be set last, in order of the list. an example would be setting move positions after setting resize arguments.
+			**kwargs = The keyword arguments to set.
+		'''
+		if not kwargs:
+			return
+
+		obj = obj if obj else self
 
 		for k in order:
-			v = attributes.pop(k, None)
+			v = kwargs.pop(k, None)
 			if v:
 				from collections import OrderedDict
-				attributes = OrderedDict(attributes)
-				attributes[k] = v
+				kwargs = OrderedDict(kwargs)
+				kwargs[k] = v
 
-		for attr, value in attributes.items():
+		for attr, value in kwargs.items():
 			try:
-				getattr(self, attr)(value)
+				getattr(obj, attr)(value)
 
 			except AttributeError:
 				pass
@@ -274,7 +269,6 @@ class Switchboard(QtCore.QObject):
 				if self.getUi() in (v for k, v in self.uiList().items() if self.getUiName(parentUi) in k) #if the current ui is not one of the parent ui's children or the parent ui itself, default to the parent ui.
 					else parentUi,
 
-			'sb': self,
 			'tcl': self.parent(),
 		}
 
@@ -378,7 +372,7 @@ class Switchboard(QtCore.QObject):
 		if widgets is None:
 			widgets = self.widgets(name)
 		else:
-			widgets = self.list(widgets) #convert 'widgets' to a list if it is not one already.
+			widgets = self.list_(widgets) #convert 'widgets' to a list if it is not one already.
 
 		for widget in widgets:
 			signal = self.getSignal(name, widget)
@@ -406,7 +400,7 @@ class Switchboard(QtCore.QObject):
 		if widgets is None:
 			widgets = self.widgets(name)
 		else:
-			widgets = self.list(widgets) #convert 'widgets' to a list if it is not one already.
+			widgets = self.list_(widgets) #convert 'widgets' to a list if it is not one already.
 
 		for widget in widgets:
 			signal = self.getSignal(name, widget)
@@ -1122,7 +1116,7 @@ class Switchboard(QtCore.QObject):
 		if not allowCurrent:
 			list_ = list_[:-1] #remove the last index. (currentName)
 
-		omitLevel = self.list(omitLevel) #if omitLevel is not a list, convert it to one.
+		omitLevel = self.list_(omitLevel) #if omitLevel is not a list, convert it to one.
 		list_ = [i for i in list_ if not self.getUiLevel(i) in omitLevel] #remove any items having a uiLevel of those in the omitLevel list.
 
 		if not allowDuplicates:
@@ -1408,7 +1402,7 @@ class Switchboard(QtCore.QObject):
 		ex call: sb.prefix(widget, ['b', 'chk', '_'])
 		'''
 		if prefix is not None: #check the actual prefix against the given prefix and return bool.
-			prefix = self.list(prefix) #if 'widgets' isn't a list, convert it to one.
+			prefix = self.list_(prefix) #if 'widgets' isn't a list, convert it to one.
 
 			name = self.getUiName()
 			for p in prefix:
@@ -1447,7 +1441,7 @@ class Switchboard(QtCore.QObject):
 
 
 	@staticmethod
-	def list(x):
+	def list_(x):
 		'''Convert a given obj to a list if it isn't a list, set, or tuple already.
 
 		:Parameters:
@@ -1456,7 +1450,7 @@ class Switchboard(QtCore.QObject):
 		:Return:
 			(list)
 		'''
-		if not isinstance(x, (list,set,tuple)):
+		if not isinstance(x, (list, set, tuple)):
 			x = [x]
 		return x
 
@@ -1631,7 +1625,10 @@ sbDict = {
 
 
 
-
+		# #add the widget as an attribute of the ui if it is not already.
+		# ui = self.getUi(name)
+		# if not hasattr(ui, objectName):
+		# 	setattr(ui, objectName, widget) #this will add child items as attributes to the main menu so they can be accessed directly.
 	
 
 

@@ -22,11 +22,11 @@ class File(Init):
 		dh = self.file_ui.draggable_header
 
 		if state is 'setMenu':
-			dh.contextMenu.add(wgts.ComboBox, setObjectName='cmb005', setToolTip='')
-			dh.contextMenu.add(wgts.ToolButton, setObjectName='tb000', setText='Save', setToolTip='')
-			dh.contextMenu.add(wgts.Label, setObjectName='lbl001', setText='Minimize App', setToolTip='Minimize the main application.')
-			dh.contextMenu.add(wgts.Label, setObjectName='lbl002', setText='Maximize App', setToolTip='Restore the main application.')
-			dh.contextMenu.add(wgts.Label, setObjectName='lbl003', setText='Close App', setToolTip='Close the main application.')
+			dh.contextMenu.add(self.tcl.wgts.ComboBox, setObjectName='cmb000', setToolTip='')
+			dh.contextMenu.add(self.tcl.wgts.ToolButton, setObjectName='tb000', setText='Save', setToolTip='')
+			dh.contextMenu.add(self.tcl.wgts.Label, setObjectName='lbl001', setText='Minimize App', setToolTip='Minimize the main application.')
+			dh.contextMenu.add(self.tcl.wgts.Label, setObjectName='lbl002', setText='Maximize App', setToolTip='Restore the main application.')
+			dh.contextMenu.add(self.tcl.wgts.Label, setObjectName='lbl003', setText='Close App', setToolTip='Close the main application.')
 			return
 
 
@@ -40,27 +40,28 @@ class File(Init):
 		rt.autosave.Interval = interval
 
 
+
 	def cmb000(self, index=-1):
-		'''Recent Files
+		'''Editors
 		'''
-		cmb = self.file_ui.cmb000
+		cmb = self.file_ui.draggable_header.contextMenu.cmb000
 
 		if index is 'setMenu':
-			cmb.contextMenu.add('QPushButton', setObjectName='b001', setText='Last', setToolTip='Open the most recent file.')
+			list_ = ['Schematic View']
+			cmb.addItems_(list_, '3dsMax File Editors')
 			return
 
-		items = cmb.addItems_(self.getRecentFiles(), 'Recent Files:', clear=True)
-
 		if index>0:
-			# force=True; force if maxEval("maxFileName;") else not force #if sceneName prompt user to save; else force open.  also: checkForSave(); If the scene has been modified since the last file save (if any), calling this function displays the message box prompting the user that the scene has been modified and requests to save.
-			rt.loadMaxFile(str(items[index-1]))
+			text = cmb.items[index]
+			if text=='Schematic View':
+				maxEval('schematicView.Open "Schematic View 1"')
 			cmb.setCurrentIndex(0)
 
 
 	def cmb001(self, index=-1):
 		'''Recent Projects
 		'''
-		cmb = self.file_ui.cmb001
+		cmb = self.file_ui.cmb006.contextMenu.cmb001
 
 		if index is 'setMenu':
 			return
@@ -163,19 +164,19 @@ class File(Init):
 
 
 	def cmb005(self, index=-1):
-		'''Editors
+		'''Recent Files
 		'''
 		cmb = self.file_ui.cmb005
 
 		if index is 'setMenu':
-			list_ = ['Schematic View']
-			cmb.addItems_(list_, '3dsMax File Editors')
+			cmb.contextMenu.add('QPushButton', setObjectName='b001', setText='Last', setToolTip='Open the most recent file.')
 			return
 
+		items = cmb.addItems_(self.getRecentFiles(), 'Recent Files:', clear=True)
+
 		if index>0:
-			text = cmb.items[index]
-			if text=='Schematic View':
-				maxEval('schematicView.Open "Schematic View 1"')
+			# force=True; force if maxEval("maxFileName;") else not force #if sceneName prompt user to save; else force open.  also: checkForSave(); If the scene has been modified since the last file save (if any), calling this function displays the message box prompting the user that the scene has been modified and requests to save.
+			rt.loadMaxFile(str(items[index-1]))
 			cmb.setCurrentIndex(0)
 
 
@@ -185,9 +186,9 @@ class File(Init):
 		cmb = self.file_ui.cmb006
 
 		if index is 'setMenu':
-			cmb.contextMenu.add(wgts.ComboBox, setObjectName='cmb001', setToolTip='Current project directory root.')
-			cmb.contextMenu.add(wgts.Label, setObjectName='lbl000', setText='Set', setToolTip='Set the project directory.')
-			cmb.contextMenu.add(wgts.Label, setObjectName='lbl004', setText='Root', setToolTip='Open the project directory.')
+			cmb.contextMenu.add(self.tcl.wgts.ComboBox, setObjectName='cmb001', setToolTip='Current project directory root.')
+			cmb.contextMenu.add(self.tcl.wgts.Label, setObjectName='lbl000', setText='Set', setToolTip='Set the project directory.')
+			cmb.contextMenu.add(self.tcl.wgts.Label, setObjectName='lbl004', setText='Root', setToolTip='Open the project directory.')
 			return
 
 		path = self.formatPath(rt.pathconfig.getCurrentProjectFolderPath()) #current project path.
@@ -206,7 +207,7 @@ class File(Init):
 	def tb000(self, state=None):
 		'''Save
 		'''
-		tb = self.file_ui.tb000
+		tb = self.file_ui.draggable_header.contextMenu.tb000
 
 		if state is 'setMenu':
 			tb.menu_.add('QCheckBox', setText='Wireframe', setObjectName='chk000', setToolTip='Set view to wireframe before save.')
@@ -285,7 +286,7 @@ class File(Init):
 		# files = self.getRecentFiles()
 		# rt.loadMaxFile(str(files[0]))
 
-		self.cmb000(index=1)
+		self.draggable_header.contextMenu.cmb005(index=1)
 		self.tcl.hide(force=1)
 
 

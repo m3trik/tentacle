@@ -22,7 +22,8 @@ Promoting a widget in designer to use a custom class:
 
 
 class ComboBox(QtWidgets.QComboBox, MenuInstance, Attributes):
-	''''''
+	'''
+	'''
 	returnPressed = QtCore.Signal()
 	beforePopupShown = QtCore.Signal()
 	beforePopupHidden = QtCore.Signal()
@@ -38,7 +39,7 @@ class ComboBox(QtWidgets.QComboBox, MenuInstance, Attributes):
 		self.menu_.visible=False #built-in method isVisible() not working.
 		self.view().installEventFilter(self)
 
-		self.setAttributes(kwargs)
+		self.setAttributes(**kwargs)
 
 
 	@property
@@ -125,10 +126,10 @@ class ComboBox(QtWidgets.QComboBox, MenuInstance, Attributes):
 		if not self.popupStyle=='modelView':
 			if not self.menu_.visible:
 				self.menu_.show()
-				self.menu_.visible=True
+				self.menu_.visible = True
 			else:
 				self.menu_.hide()
-				self.menu_.visible=False
+				self.menu_.visible = False
 			return	
 
 		else:

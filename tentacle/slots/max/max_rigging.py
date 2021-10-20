@@ -17,14 +17,14 @@ class Rigging(Init):
 		dh = self.rigging_ui.draggable_header
 
 		if state is 'setMenu':
-			dh.contextMenu.add(wgts.ComboBox, setObjectName='cmb000', setToolTip='')
+			dh.contextMenu.add(self.tcl.wgts.ComboBox, setObjectName='cmb000', setToolTip='')
 			return
 
 
 	def cmb000(self, index=-1):
 		'''Editors
 		'''
-		cmb = self.rigging_ui.cmb000
+		cmb = self.rigging_ui.draggable_header.contextMenu.cmb000
 
 		if index is 'setMenu':
 			list_ = ['Bone Tools','Parameter Editor','Parameter Collector','Parameter Wire Dialog']

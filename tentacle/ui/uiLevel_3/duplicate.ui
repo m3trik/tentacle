@@ -436,7 +436,7 @@
              </widget>
             </item>
             <item row="3" column="3" colspan="6">
-             <widget class="ComboBox" name="cmb000">
+             <widget class="ComboBox" name="cmb001">
               <property name="enabled">
                <bool>false</bool>
               </property>
@@ -920,7 +920,7 @@
             </item>
            </layout>
            <zorder>s004</zorder>
-           <zorder>cmb000</zorder>
+           <zorder>cmb001</zorder>
            <zorder>s002</zorder>
            <zorder>s005</zorder>
            <zorder>chk008</zorder>

@@ -88,7 +88,7 @@ class TreeWidgetExpandableList(QtWidgets.QTreeWidget, Attributes):
 			    background-color: none;
 			}''')
 
-		self.setAttributes(kwargs)
+		self.setAttributes(**kwargs)
 
 
 	def add(self, widget, header='root', childHeader=None, refresh=False, **kwargs):

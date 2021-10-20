@@ -51,7 +51,7 @@ class WidgetGifPlayer(QtWidgets.QWidget, Attributes):
 		self.label.resize(50, 50)
 		self.move(QtGui.QCursor.pos() - self.rect().center())
 
-		self.setAttributes(kwargs)
+		self.setAttributes(**kwargs)
 
 
 	def start(self):

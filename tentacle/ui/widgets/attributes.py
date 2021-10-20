@@ -11,36 +11,35 @@ class Attributes(object):
 		'''
 		'''
 
-	def setAttributes(self, attributes=None, obj=None, order=['setPosition_', 'setVisible'], **kwargs):
+	def setAttributes(self, obj=None, order=['setPosition_', 'setVisible'], **kwargs):
 		'''Works with attributes passed in as a dict or kwargs.
 		If attributes are passed in as a dict, kwargs are ignored.
 
 		:Parameters:
-			attributes (dict) = keyword attributes and their corresponding values.
-			obj (obj) = the child obj or widgetAction to set attributes for. (default=None)
-			#order (list) = list of string keywords. ie. ['setPosition_', 'setVisible']. attributes in this list will be set last, by list order. an example would be setting move positions after setting resize arguments, or showing the widget only after other attributes have been set.
+			obj (obj) = the child obj or widgetAction to set attributes for. (default=self)
+			order (list) = list of string keywords. ie. ['setPosition_', 'setVisible']. attributes in this list will be set last, by list order. an example would be setting move positions after setting resize arguments, or showing the widget only after other attributes have been set.
+			**kwargs = The keyword arguments to set.
 
 		kw:Parameters:
 			set any keyword arguments.
 		'''
-		if not attributes:
-			attributes = kwargs
+		if not kwargs: #if no attributes given.
+			return
 
-		if obj is None:
-			obj = self
+		obj = obj if obj else self
 
 		for k in order:
-			v = attributes.pop(k, None)
+			v = kwargs.pop(k, None)
 			if v:
 				from collections import OrderedDict
-				attributes = OrderedDict(attributes)
-				attributes[k] = v
+				kwargs = OrderedDict(kwargs)
+				kwargs[k] = v
 
-		for attr, value in attributes.items():
+		for attr, value in kwargs.items():
 			try:
 				getattr(obj, attr)(value)
 
-			except AttributeError:
+			except:
 				self.setCustomAttribute(obj, attr, value)
 
 
@@ -98,20 +97,20 @@ class Attributes(object):
 				self.insertSeparator(w)
 
 		elif attr=='setLayoutDirection_':
-			self.setAttributes({'setLayoutDirection':getattr(QtCore.Qt, value)}, w)
+			self.setAttributes(w, setLayoutDirection=getattr(QtCore.Qt, value))
 
 		elif attr=='setAlignment_':
-			self.setAttributes({'setAlignment':getattr(QtCore.Qt, value)}, w)
+			self.setAttributes(w, setAlignment=getattr(QtCore.Qt, value))
 
 		elif attr=='setButtonSymbols_':
-			self.setAttributes({'setButtonSymbols':getattr(QtWidgets.QAbstractSpinBox, value)}, w)
+			self.setAttributes(w, setButtonSymbols=getattr(QtWidgets.QAbstractSpinBox, value))
 
 		#presets
 		elif attr=='setMinMax_':
 			self.setMinMax(w, value)
 
 		elif attr=='setSpinBoxByValue_':
-			self.setSpinBoxByValue(w, value[0], value[1])
+			self.setSpinBoxByValue(w, value)
 
 		elif attr=='setCheckState_':
 			state = {0:QtCore.Qt.CheckState.Unchecked, 1:QtCore.Qt.CheckState.PartiallyChecked, 2:QtCore.Qt.CheckState.Checked}
@@ -137,28 +136,20 @@ class Attributes(object):
 		maximum = float(spanStr[1].split()[0])
 
 		if hasattr(spinbox, 'setDecimals'):
-			self.setAttributes({
-				'setDecimals':decimals,
-			}, spinbox)
+			self.setAttributes(spinbox, setDecimals=decimals)
 
-		self.setAttributes({
-			'setMinimum':minimum, 
-			'setMaximum':maximum, 
-			'setSingleStep':step, 
-			'setButtonSymbols_':'NoButtons',
-		}, spinbox)
+		self.setAttributes(spinbox, setMinimum=minimum, setMaximum=maximum, setSingleStep=step, setButtonSymbols_='NoButtons')
 
 
-	def setSpinBoxByValue(self, spinbox, attribute, value):
-		''':Parameters:
+	def setSpinBoxByValue(self, spinbox, value):
+		'''Set a spinbox's attributes according to a given value.
+
+		:Parameters:
 			spinbox (obj) = spinbox widget.
-			attribute (str) = object attribute.
 			value (multi) = attribute value.
 		'''
-		prefix = attribute+': '
-		suffix = spinbox.suffix()
-		minimum = spinbox.minimum()
 		maximum = spinbox.maximum()
+		minimum = -maximum
 		step = spinbox.singleStep()
 		decimals = spinbox.decimals()
 
@@ -174,16 +165,8 @@ class Attributes(object):
 		elif isinstance(value, int):
 			decimals = 0
 
-		self.setAttributes({
-			'setValue':value,
-			'setPrefix':prefix,
-			'setSuffix':suffix,
-			'setMinimum':minimum, 
-			'setMaximum':maximum, 
-			'setSingleStep':step, 
-			'setDecimals':decimals,
-			'setButtonSymbols_':'NoButtons',
-		}, spinbox)
+		self.setAttributes(spinbox, setValue=value, setMinimum=minimum, setMaximum=maximum, 
+			setSingleStep=step, setDecimals=decimals, setButtonSymbols_='NoButtons',)
 
 
 	@staticmethod

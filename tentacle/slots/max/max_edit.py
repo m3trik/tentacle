@@ -17,14 +17,14 @@ class Edit(Init):
 		dh = self.edit_ui.draggable_header
 
 		if state is 'setMenu':
-			dh.contextMenu.add(wgts.ComboBox, setObjectName='cmb000', setToolTip='')
+			dh.contextMenu.add(self.tcl.wgts.ComboBox, setObjectName='cmb000', setToolTip='')
 			return
 
 
 	def cmb000(self, index=-1):
 		'''Editors
 		'''
-		cmb = self.edit_ui.cmb000
+		cmb = self.edit_ui.draggable_header.contextMenu.cmb000
 
 		if index is 'setMenu':
 			list_ = ['']
@@ -36,7 +36,29 @@ class Edit(Init):
 			if text=='':
 				pass
 			cmb.setCurrentIndex(0)
-	
+
+
+	@Init.attr
+	def cmb001(self, index=-1):
+		'''Object History Attributes
+		'''
+		cmb = self.edit_ui.cmb001
+
+		if index is 'setMenu':
+			cmb.beforePopupShown.connect(self.cmb001) #refresh comboBox contents before showing it's popup.
+			return
+
+		try:
+			list_ = [n.name() for n in pm.listHistory(pm.ls(sl=1, objectsOnly=1))]
+		except RuntimeError as error:
+			list_ = ['No selection.']
+		cmb.addItems_(list_, 'History')
+
+		cmb.setCurrentIndex(0)
+		if index>0:
+			if cmb.items[index]!='No selection.':
+				return pm.ls(cmb.items[index])
+
 
 	def chk006_9(self):
 		'''Set the toolbutton's text according to the checkstates.
@@ -132,6 +154,29 @@ class Edit(Init):
 			if level==4: #faces
 				faces = rt.polyop.getFaceSelection(obj)
 				rt.polyop.deleteFaces(obj, faces, delIsoVerts=1)
+
+
+	@Slots.message
+	def b000(self):
+		'''Object Transform Attributes
+		'''
+		node = pm.ls(sl=1, objectsOnly=1)
+		if not node:
+			return 'Error: Operation requires a single selected object.'
+		transform = Init.getTransformNode(node)
+
+		self.setAttributeWindow(transform[0], include=['translateX','translateY','translateZ','rotateX','rotateY','rotateZ','scaleX','scaleY','scaleZ'])
+
+
+	@Slots.message
+	def b001(self):
+		'''Object History Attributes: get most recent node
+		'''
+		cmb = self.edit_ui.cmb001
+		try:
+			self.setAttributeWindow(pm.ls(cmb.items[-1]))
+		except RuntimeError as error: # Error: index of: 'Found no items to list the history for.'
+			return 'Error: Found no items to list the history for.'
 
 
 	def b021(self):

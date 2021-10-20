@@ -31,7 +31,7 @@ class Label(QtWidgets.QLabel, MenuInstance, Attributes):
 		super().__init__(parent)
 
 		self.setTextFormat(QtCore.Qt.RichText)
-		self.setAttributes(kwargs)
+		self.setAttributes(**kwargs)
 
 
 	def mousePressEvent(self, event):

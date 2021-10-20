@@ -4,7 +4,8 @@ import sys, os.path
 
 from PySide2 import QtCore, QtGui, QtWidgets
 
-from tentacle import Switchboard, EventFactoryFilter, OverlayFactoryFilter, StyleSheet
+from tentacle import Switchboard, EventFactoryFilter, OverlayFactoryFilter
+from tentacle.ui import StyleSheet
 import tentacle.ui.widgets as wgts
 
 
@@ -12,7 +13,7 @@ import tentacle.ui.widgets as wgts
 # ------------------------------------------------
 # 	Construct the Widget Stack
 # ------------------------------------------------
-class Tcl(QtWidgets.QStackedWidget):
+class Tcl(QtWidgets.QStackedWidget, StyleSheet):
 	'''Tcl is a marking menu based on a QStackedWidget.
 	Gets and sets signal connections (through the switchboard module).
 	Initializes events for child widgets using the childEvents module.
@@ -45,7 +46,8 @@ class Tcl(QtWidgets.QStackedWidget):
 
 		self.childEvents = EventFactoryFilter(self)
 		self.overlay = OverlayFactoryFilter(self) #Paint events are handled by the overlay module.
-		self.style = StyleSheet(self)
+
+		self.wgts = wgts
 
 		self.qApp.instance().focusChanged.connect(self.focusChanged)
 
@@ -171,13 +173,13 @@ class Tcl(QtWidgets.QStackedWidget):
 		:Parameters:
 			name (str) = The name of ui to duplicate the widgets to.
 		'''
-		w0 = wgts.PushButton(parent=self.sb.getUi(name), setObjectName='return_area', setSize_=(45, 45), setPosition_=self.drawPath[0]) #create an invisible return button at the start point.
+		w0 = self.wgts.PushButton(parent=self.sb.getUi(name), setObjectName='return_area', setSize_=(45, 45), setPosition_=self.drawPath[0]) #create an invisible return button at the start point.
 		self.childEvents.addWidgets(name, w0) #initialize the widget to set things like the event filter and styleSheet.
 
 		if self.sb.getUiLevel(self.sb.previousName(omitLevel=3))==2: #if submenu: recreate widget/s from the previous ui that are in the current path.
 			for i in range(2, len(self.widgetPath)+1): #for index in widgetPath starting at 2:
 				prevWidget = self.widgetPath[-i][0] #assign the index a neg value to count from the back of the list (starting at -2).
-				w1 = wgts.PushButton(parent=self.sb.getUi(name), copy_=prevWidget, setPosition_=self.widgetPath[-i][1], setVisible=True)
+				w1 = self.wgts.PushButton(parent=self.sb.getUi(name), copy_=prevWidget, setPosition_=self.widgetPath[-i][1], setVisible=True)
 				self.childEvents.addWidgets(name, w1) #initialize the widget to set things like the event filter and styleSheet.
 				self.childEvents._mouseOver.append(w1)
 				w1.grabMouse() #set widget to receive mouse events.
@@ -466,8 +468,8 @@ print(os.path.splitext(os.path.basename(__file__))[0])
 # self.worker.finished.connect(self.thread.quit)
 # self.thread.started.connect(self.worker.start)
 
-# # self.loadingIndicator = wgts.LoadingIndicator(color='white', start=True, setPosition_='cursor')
-# self.loadingIndicator = wgts.GifPlayer(setPosition_='cursor')
+# # self.loadingIndicator = self.wgts.LoadingIndicator(color='white', start=True, setPosition_='cursor')
+# self.loadingIndicator = self.wgts.GifPlayer(setPosition_='cursor')
 # self.worker.started.connect(self.loadingIndicator.start)
 # self.worker.finished.connect(self.loadingIndicator.stop)
 # self.thread.start()

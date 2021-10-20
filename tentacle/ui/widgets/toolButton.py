@@ -40,7 +40,7 @@ class ToolButton(QtWidgets.QToolButton, MenuInstance, Attributes, RichText):
 
 		self.setAttribute(QtCore.Qt.WA_SetStyle) #Indicates that the widget has a style of its own.
 
-		self.setAttributes(kwargs)
+		self.setAttributes(**kwargs)
 
 
 	def enterEvent(self, event):

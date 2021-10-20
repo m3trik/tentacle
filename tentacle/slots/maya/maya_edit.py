@@ -17,14 +17,14 @@ class Edit(Init):
 		dh = self.edit_ui.draggable_header
 
 		if state is 'setMenu':
-			dh.contextMenu.add(wgts.ComboBox, setObjectName='cmb000', setToolTip='Maya Editors')
+			dh.contextMenu.add(self.tcl.wgts.ComboBox, setObjectName='cmb000', setToolTip='Maya Editors')
 			return
 
 
 	def cmb000(self, index=-1):
 		'''Editors
 		'''
-		cmb = self.edit_ui.cmb000
+		cmb = self.edit_ui.draggable_header.contextMenu.cmb000
 
 		if index is 'setMenu':
 			list_ = ['Cleanup', 'Transfer: Attribute Values', 'Transfer: Shading Sets']
@@ -43,6 +43,28 @@ class Edit(Init):
 			cmb.setCurrentIndex(0)
 
 
+	@Init.attr
+	def cmb001(self, index=-1):
+		'''Object History Attributes
+		'''
+		cmb = self.edit_ui.cmb001
+
+		if index is 'setMenu':
+			cmb.beforePopupShown.connect(self.cmb001) #refresh comboBox contents before showing it's popup.
+			return
+
+		try:
+			list_ = list(set([n.name() for n in pm.listHistory(pm.ls(sl=1, objectsOnly=1), pruneDagObjects=1)])) #levels=1, interestLevel=2, 
+		except RuntimeError as error:
+			list_ = ['No selection.']
+		cmb.addItems_(list_, 'History')
+
+		cmb.setCurrentIndex(0)
+		if index>0:
+			if cmb.items[index]!='No selection.':
+				return pm.ls(cmb.items[index])
+
+
 	def chk006_9(self):
 		'''Set the toolbutton's text according to the checkstates.
 		'''
@@ -57,7 +79,7 @@ class Edit(Init):
 		tb = self.current_ui.tb000
 		if state is 'setMenu':
 			tb.menu_.add('QCheckBox', setText='All Geometry', setObjectName='chk005', setToolTip='Clean All scene geometry.')
-			tb.menu_.add('QCheckBox', setText='Select Only', setObjectName='chk004', setToolTip='Repair matching geometry, else; only select.') #tb.menu_.add(wgts.CheckBox, setText='Select Only', setObjectName='chk004', setTristate=True, setCheckState_=2, setToolTip='Select and/or Repair matching geometry. <br>0: Repair Only<br>1: Repair and Select<br>2: Select Only')
+			tb.menu_.add('QCheckBox', setText='Select Only', setObjectName='chk004', setToolTip='Repair matching geometry, else; only select.') #tb.menu_.add(self.tcl.wgts.CheckBox, setText='Select Only', setObjectName='chk004', setTristate=True, setCheckState_=2, setToolTip='Select and/or Repair matching geometry. <br>0: Repair Only<br>1: Repair and Select<br>2: Select Only')
 			tb.menu_.add('QCheckBox', setText='N-Gons', setObjectName='chk002', setChecked=True, setToolTip='Find N-gons.')
 			tb.menu_.add('QCheckBox', setText='Non-Manifold Geometry', setObjectName='chk017', setChecked=True, setToolTip='Check for nonmanifold polys.')
 			tb.menu_.add('QCheckBox', setText='Non-Manifold Vertex', setObjectName='chk021', setToolTip='A connected vertex of non-manifold geometry where the faces share a single vertex.')
@@ -75,11 +97,11 @@ class Edit(Init):
 			tb.menu_.add('QCheckBox', setText='Zero UV Face Area', setObjectName='chk015', setToolTip='Check for 0 uv face area.')
 			tb.menu_.add('QDoubleSpinBox', setPrefix='UV Face Area Tolerance:', setObjectName='s008', setDisabled=True, setMinMax_='0.0-10 step.001', setValue=0.001, setToolTip='Tolerance for uv face areas.')
 			tb.menu_.add('QCheckBox', setText='Overlapping Duplicate Objects', setObjectName='chk022', setToolTip='Find any duplicate overlapping geometry at the object level.')
-			tb.menu_.add('QCheckBox', setText='Omit Selected Objects', setObjectName='chk023', setToolTip='Overlapping Duplicate Objects: Search for duplicates of any selected objects while omitting the initially selected objects.')
+			tb.menu_.add('QCheckBox', setText='Omit Selected Objects', setObjectName='chk023', setDisabled=True, setToolTip='Overlapping Duplicate Objects: Search for duplicates of any selected objects while omitting the initially selected objects.')
 
 			tb.menu_.chk004.stateChanged.connect(lambda state: tb.menu_.chk004.setText('Repair' if state else 'Select Only')) #set button text to reflect current state.
-			tb.menu_.chk022.stateChanged.connect(lambda state: self.toggleWidgets(tb.menu_, setDisabled='chk002-3,chk005,chk010-21,s006-8') if state 
-															else self.toggleWidgets(tb.menu_, setEnabled='chk002-3,chk005,chk010-21,s006-8')) #disable non-relevant options.
+			tb.menu_.chk022.stateChanged.connect(lambda state: self.toggleWidgets(tb.menu_, setDisabled='chk002-3,chk005,chk010-21,s006-8', setEnabled='chk023') if state 
+															else self.toggleWidgets(tb.menu_, setEnabled='chk002-3,chk005,chk010-21,s006-8', setDisabled='chk023')) #disable non-relevant options.
 			tb.menu_.chk013.toggled.connect(lambda state: tb.menu_.s006.setEnabled(True if state else False))
 			tb.menu_.chk014.toggled.connect(lambda state: tb.menu_.s007.setEnabled(True if state else False))
 			tb.menu_.chk015.toggled.connect(lambda state: tb.menu_.s008.setEnabled(True if state else False))
@@ -141,7 +163,7 @@ class Edit(Init):
 	def tb001(self, state=None):
 		'''Delete History
 		'''
-		tb = self.edit_ui.tb001
+		tb = self.current_ui.tb001
 		if state is 'setMenu':
 			tb.menu_.add('QCheckBox', setText='For All Objects', setObjectName='chk018', setChecked=True, setToolTip='Delete history on All objects or just those selected.')
 			tb.menu_.add('QCheckBox', setText='Delete Unused Nodes', setObjectName='chk019', setChecked=True, setToolTip='Delete unused nodes.')
@@ -151,20 +173,17 @@ class Edit(Init):
 		all_ = tb.menu_.chk018.isChecked()
 		unusedNodes = tb.menu_.chk019.isChecked()
 		deformers = tb.menu_.chk020.isChecked()
-		objects = pm.ls(selection=1)
-		if all_:
-			objects = pm.ls(typ="mesh")
+		objects = pm.ls(selection=1, objectsOnly=1) if not all_ else pm.ls(typ="mesh")
 
-		for obj in objects:
-			try:
-				if all_:
-					pm.delete (obj, constructionHistory=1)
-				else:
-					pm.bakePartialHistory (obj, prePostDeformers=1)
-			except:
-				pass
+		try: #delete history
+			if all_:
+				pm.delete(objects, constructionHistory=1)
+			else:
+				pm.bakePartialHistory(objects, prePostDeformers=1)
+		except:
+			pass
 		if unusedNodes:
-			mel.eval('hyperShadePanelMenuCommand("hyperShadePanel1", "deleteUnusedNodes");')
+			pm.mel.MLdeleteUnused() #pm.mel.hyperShadePanelMenuCommand('hyperShadePanel1', 'deleteUnusedNodes')
 
 		#display viewPort messages
 		if all_:
@@ -241,6 +260,30 @@ class Edit(Init):
 		for obj in objects:
 			self.deleteAlongAxis(obj, axis)
 		pm.undoInfo(closeChunk=1)
+
+
+	@Slots.message
+	def b000(self):
+		'''Object Transform Attributes
+		'''
+		node = pm.ls(sl=1, objectsOnly=1)
+		if not node:
+			return 'Error: Operation requires a single selected object.'
+		transform = Init.getTransformNode(node)
+
+		self.setAttributeWindow(transform[0], include=['translateX','translateY','translateZ','rotateX','rotateY','rotateZ','scaleX','scaleY','scaleZ'])
+
+
+	@Slots.message
+	def b001(self):
+		'''Object History Attributes: get most recent node
+		'''
+		cmb = self.edit_ui.cmb001
+		try:
+			print (pm.ls(cmb.items[-1]))
+			self.setAttributeWindow(pm.ls(cmb.items[-1]))
+		except RuntimeError as error: # Error: index of: 'Found no items to list the history for.'
+			return 'Error: Found no items to list the history for.'
 
 
 	def b021(self):

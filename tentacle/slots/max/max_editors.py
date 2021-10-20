@@ -10,7 +10,7 @@ class Editors(Init):
 	def __init__(self, *args, **kwargs):
 		super().__init__(*args, **kwargs)
 
-		self.dynLayout_ui = self.sb.getUi('dynLayout')
+		self.dynLayout_ui = self.tcl.sb.getUi('dynLayout')
 		self.stackedWidget = self.dynLayout_ui.stackedWidget
 
 		self.editors_ui.v000.setText('Command Panel')
@@ -28,7 +28,7 @@ class Editors(Init):
 		dh = self.editors_ui.draggable_header
 
 		if state is 'setMenu':
-			dh.contextMenu.add(wgts.ComboBox, setObjectName='cmb000', setToolTip='')
+			dh.contextMenu.add(self.tcl.wgts.ComboBox, setObjectName='cmb000', setToolTip='')
 			return
 
 

@@ -33,7 +33,7 @@ class StyleSheet(QtCore.QObject):
 			'HOVER'				: 'rgb(82,133,166)',
 			'TEXT'				: 'white',
 			'TEXT_CHECKED'		: 'black',
-			'TEXT_DISABLED'		: 'grey',
+			'TEXT_DISABLED'		: 'gray',
 			'TEXT_HOVER'		: 'white',
 			'TEXT_BACKGROUND'	: 'rgb(50,50,50)',
 		},
@@ -42,7 +42,7 @@ class StyleSheet(QtCore.QObject):
 			'BACKGROUND'		: 'rgb(50,50,50)',
 			'PRESSED'			: 'rgb(125,125,125)',
 			'HOVER'				: 'rgb(82,133,166)',
-			'TEXT'				: 'grey',
+			'TEXT'				: 'gray',
 			'TEXT_CHECKED'		: 'black',
 			'TEXT_DISABLED'		: 'darkGray',
 			'TEXT_HOVER'		: 'white',
@@ -157,7 +157,7 @@ class StyleSheet(QtCore.QObject):
 			}
 
 			QToolButton:open { /* when the button has its menu open */
-				background-color: dark grey;
+				background-color: dark gray;
 			}
 
 			/* popupMode set to DelayedPopup or InstantPopup */
@@ -1016,7 +1016,7 @@ class StyleSheet(QtCore.QObject):
 	def __init__(self, parent):
 		super(StyleSheet, self).__init__(parent)
 
-		self.sb = self.parent().sb
+		self.sb = self.parent.sb
 
 
 	def getStyleSheet(self, widgetType, style='standard'):
@@ -1041,18 +1041,19 @@ class StyleSheet(QtCore.QObject):
 		return css
 
 
-	def setStyleSheet(self, name, widgets, ratio=6):
+	def setStyleSheet_(self, widgets, name=None, ratio=6):
 		'''Set the styleSheet for the given widgets.
 		Set the style for a specific widget by using the '#' syntax and the widget's objectName. ie. QWidget#mainWindow
 
 		:Parameters:
-			name (str) = name of the parent ui.
 			widgets (obj)(list) = widget or list of widgets.
+			name (str) = name of the parent ui. If None is given, the current ui will be used.
 			ratio (int) = The ratio of widget size, text length in relation to the amount of padding applied.
 		'''
+		name = name if name else self.sb.getUiName()
 		uiLevel = self.sb.getUiLevel(name)
 
-		for widget in self.sb.list(widgets):
+		for widget in self.sb.list_(widgets):
 			derivedType = self.sb.getDerivedType(widget, name) #get the derived class type as string.
 
 			if hasattr(widget, 'styleSheet'):

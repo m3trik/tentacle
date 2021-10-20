@@ -35,7 +35,7 @@ class TextEdit(QtWidgets.QTextEdit, Attributes, MenuInstance):
 		self.viewport().setAutoFillBackground(False)
 		# self.setTextBackgroundColor(QtGui.QColor(50, 50, 50))
 
-		self.setAttributes(kwargs)
+		self.setAttributes(**kwargs)
 
 
 	def insertText(self, text):

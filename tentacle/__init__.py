@@ -18,7 +18,6 @@ if __name__=='__main__':
 from .switchboard import Switchboard
 from .childEvents import EventFactoryFilter
 from .overlay import OverlayFactoryFilter
-from .styleSheet import StyleSheet
 from .tcl import Tcl
 
 # print ('tentacle:', __name__, __package__, __file__)

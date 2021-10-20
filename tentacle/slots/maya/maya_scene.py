@@ -19,14 +19,14 @@ class Scene(Init):
 		dh = self.scene_ui.draggable_header
 
 		if state is 'setMenu':
-			dh.contextMenu.add(wgts.ComboBox, setObjectName='cmb000', setToolTip='Maya Scene Editors')
+			dh.contextMenu.add(self.tcl.wgts.ComboBox, setObjectName='cmb000', setToolTip='Maya Scene Editors')
 			return
 
 
 	def cmb000(self, index=-1):
 		'''Editors
 		'''
-		cmb = self.scene_ui.cmb000
+		cmb = self.scene_ui.draggable_header.contextMenu.cmb000
 
 		if index is 'setMenu':
 			items = ['Node Editor', 'Outlinder', 'Content Browser', 'Optimize Scene Size', 'Prefix Hierarchy Names', 'Search and Replace Names']

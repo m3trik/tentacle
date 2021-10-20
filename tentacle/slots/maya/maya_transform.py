@@ -17,14 +17,14 @@ class Transform(Init):
 		dh = self.transform_ui.draggable_header
 
 		if state is 'setMenu':
-			dh.contextMenu.add(wgts.ComboBox, setObjectName='cmb000', setToolTip='')
+			dh.contextMenu.add(self.tcl.wgts.ComboBox, setObjectName='cmb000', setToolTip='')
 			return
 
 
 	def cmb000(self, index=-1):
 		'''Editors
 		'''
-		cmb = self.transform_ui.cmb000
+		cmb = self.transform_ui.draggable_header.contextMenu.cmb000
 
 		if index is 'setMenu':
 			files = ['']
@@ -47,7 +47,7 @@ class Transform(Init):
 
 		if index is 'setMenu':
 			cmb.popupStyle = 'qmenu'
-			cmb.contextMenu.add(wgts.Label, setText='Disable All', setObjectName='lbl001', setToolTip='Disable all transform snapping.')
+			cmb.contextMenu.add(self.tcl.wgts.Label, setText='Disable All', setObjectName='lbl001', setToolTip='Disable all transform snapping.')
 
 			try: #query and set current states:
 				edge_constraint = True if pm.xformConstraint(query=1, type=1)=='edge' else False
@@ -58,7 +58,7 @@ class Transform(Init):
 						('chk025', 'Surface', surface_constraint),
 						('chk026', 'Make Live', live_object)]
 
-				widgets = [cmb.menu_.add(wgts.CheckBox, setObjectName=chk, setText=typ, setChecked=state) for chk, typ, state in values]
+				widgets = [cmb.menu_.add(self.tcl.wgts.CheckBox, setObjectName=chk, setText=typ, setChecked=state) for chk, typ, state in values]
 
 			except NameError as error:
 				print(error)
@@ -104,7 +104,7 @@ class Transform(Init):
 
 		if index is 'setMenu':
 			cmb.popupStyle = 'qmenu'
-			cmb.contextMenu.add(wgts.Label, setText='Disable All', setObjectName='lbl001', setToolTip='Disable all transform snapping.')
+			cmb.contextMenu.add(self.tcl.wgts.Label, setText='Disable All', setObjectName='lbl001', setToolTip='Disable all transform snapping.')
 
 			try:
 				moveValue = pm.manipMoveContext('Move', q=True, snapValue=True)
@@ -115,7 +115,7 @@ class Transform(Init):
 						('chk022', 'Scale <b>Off</b>'), ('s022', 'increment:', scaleValue, '1.00-1000 step2.8125'), 
 						('chk023', 'Rotate <b>Off</b>'), ('s023', 'degrees:', rotateValue, '1.00-360 step2.8125')]
 
-				widgets = [cmb.menu_.add(wgts.CheckBox, setObjectName=i[0], setText=i[1], setTristate=1) if len(i) is 2 
+				widgets = [cmb.menu_.add(self.tcl.wgts.CheckBox, setObjectName=i[0], setText=i[1], setTristate=1) if len(i) is 2 
 						else cmb.menu_.add('QDoubleSpinBox', setObjectName=i[0], setPrefix=i[1], setValue=i[2], setMinMax_=i[3], setDisabled=1) for i in values]
 
 			except NameError as error:
@@ -631,7 +631,7 @@ print(os.path.splitext(os.path.basename(__file__))[0])
 	# 	cmb = self.transform_ui.cmb001
 
 	# 	if index is 'setMenu':
-	# 		cmb.contextMenu.add(wgts.Label, setObjectName='lbl000', setText='Disable All', setToolTip='Disable all constraints.')
+	# 		cmb.contextMenu.add(self.tcl.wgts.Label, setObjectName='lbl000', setText='Disable All', setToolTip='Disable all constraints.')
 
 	# 		list_ = ['Edge', 'Surface', 'Make Live']
 	# 		cmb.addItems_(list_, 'Off')

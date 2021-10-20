@@ -10,13 +10,6 @@ class Rendering(Init):
 	def __init__(self, *args, **kwargs):
 		super().__init__(*args, **kwargs)
 
-		# #checkable comboBox not working
-		# comboBox = self.CheckableComboBox(self.rendering_ui.cmb000)
-		# for num in range(6):
-		# 	comboBox.addItem("checkbox " + str(num))
-		# comboBox.checkIndex(1)
-		# comboBox.checkIndex(2)
-
 
 	def draggable_header(self, state=None):
 		'''Context menu
@@ -24,14 +17,14 @@ class Rendering(Init):
 		dh = self.rendering_ui.draggable_header
 
 		if state is 'setMenu':
-			dh.contextMenu.add(wgts.ComboBox, setObjectName='cmb001', setToolTip='')
+			dh.contextMenu.add(self.tcl.wgts.ComboBox, setObjectName='cmb000', setToolTip='')
 			return
 
 
-	def cmb001(self, index=-1):
+	def cmb000(self, index=-1):
 		'''Editors
 		'''
-		cmb = self.rendering_ui.cmb001
+		cmb = self.rendering_ui.draggable_header.contextMenu.cmb000
 
 		if index is 'setMenu':
 			list_ = ['']
@@ -45,10 +38,10 @@ class Rendering(Init):
 			cmb.setCurrentIndex(0)
 
 
-	def cmb000(self, index=-1):
+	def cmb001(self, index=-1):
 		'''Render: camera
 		'''
-		cmb = self.rendering_ui.cmb000
+		cmb = self.rendering_ui.cmb001
 
 		if index is 'setMenu':
 			return
@@ -62,7 +55,7 @@ class Rendering(Init):
 	def b000(self):
 		'''Render Current Frame
 		'''
-		cmb = self.rendering_ui.cmb000
+		cmb = self.rendering_ui.cmb001
 		index = cmb.currentIndex()
 
 		try:

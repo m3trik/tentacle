@@ -44,7 +44,7 @@ class MessageBox(QtWidgets.QMessageBox, Attributes):
 
 		self.location = location
 
-		self.setAttributes(kwargs)
+		self.setAttributes(**kwargs)
 
 
 	def _tick(self):

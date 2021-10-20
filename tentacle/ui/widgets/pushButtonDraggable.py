@@ -49,7 +49,7 @@ class PushButtonDraggable(QtWidgets.QPushButton, MenuInstance, Attributes, RichT
 
 		self.setCursor(QtGui.QCursor(QtCore.Qt.OpenHandCursor))
 
-		self.setAttributes(kwargs)
+		self.setAttributes(**kwargs)
 
 
 	def setText(self, text):

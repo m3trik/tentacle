@@ -11,6 +11,16 @@ class Polygons(Init):
 		super().__init__(*args, **kwargs)
 
 
+	def draggable_header(self, state=None):
+		'''Context menu
+		'''
+		dh = self.polygons_ui.draggable_header
+
+		if state is 'setMenu':
+			dh.contextMenu.add(self.tcl.wgts.ComboBox, setObjectName='cmb000', setToolTip='')
+			return
+
+
 	def chk008(self, state=None):
 		'''Divide Facet: Split U
 		'''
@@ -29,19 +39,8 @@ class Polygons(Init):
 		self.toggleWidgets(setUnChecked='chk008,chk009')
 
 
-	def draggable_header(self, state=None):
-		'''Context menu
-		'''
-		dh = self.polygons_ui.draggable_header
-
-		if state is 'setMenu':
-			dh.contextMenu.add(wgts.ComboBox, setObjectName='cmb000', setToolTip='')
-
-			return
-
-
 	def cmb000(self, index=-1):
-		'''3dsMax Polygon Operations
+		'''Editors
 		'''
 		cmb = self.polygons_ui.draggable_header.contextMenu.cmb000
 

@@ -119,48 +119,8 @@
             <property name="spacing">
              <number>0</number>
             </property>
-            <item row="3" column="0" colspan="2">
-             <widget class="QPushButton" name="b000">
-              <property name="minimumSize">
-               <size>
-                <width>0</width>
-                <height>20</height>
-               </size>
-              </property>
-              <property name="maximumSize">
-               <size>
-                <width>999</width>
-                <height>20</height>
-               </size>
-              </property>
-              <property name="toolTip">
-               <string>Create the specified object. If a point is set, the object will be created at that coordinate.</string>
-              </property>
-              <property name="layoutDirection">
-               <enum>Qt::RightToLeft</enum>
-              </property>
-              <property name="text">
-               <string>Create</string>
-              </property>
-              <property name="checkable">
-               <bool>false</bool>
-              </property>
-              <property name="autoDefault">
-               <bool>false</bool>
-              </property>
-              <property name="default">
-               <bool>false</bool>
-              </property>
-              <property name="flat">
-               <bool>false</bool>
-              </property>
-              <property name="bnabled" stdset="0">
-               <bool>true</bool>
-              </property>
-             </widget>
-            </item>
             <item row="1" column="0" colspan="2">
-             <widget class="ComboBox" name="cmb001">
+             <widget class="ComboBox" name="cmb002">
               <property name="sizePolicy">
                <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                 <horstretch>0</horstretch>
@@ -259,8 +219,48 @@
               </item>
              </widget>
             </item>
+            <item row="2" column="0" colspan="2">
+             <widget class="QPushButton" name="b000">
+              <property name="minimumSize">
+               <size>
+                <width>0</width>
+                <height>20</height>
+               </size>
+              </property>
+              <property name="maximumSize">
+               <size>
+                <width>999</width>
+                <height>20</height>
+               </size>
+              </property>
+              <property name="toolTip">
+               <string>Create the specified object. If a point is set, the object will be created at that coordinate.</string>
+              </property>
+              <property name="layoutDirection">
+               <enum>Qt::RightToLeft</enum>
+              </property>
+              <property name="text">
+               <string>Create</string>
+              </property>
+              <property name="checkable">
+               <bool>false</bool>
+              </property>
+              <property name="autoDefault">
+               <bool>false</bool>
+              </property>
+              <property name="default">
+               <bool>false</bool>
+              </property>
+              <property name="flat">
+               <bool>false</bool>
+              </property>
+              <property name="bnabled" stdset="0">
+               <bool>true</bool>
+              </property>
+             </widget>
+            </item>
             <item row="0" column="0" colspan="2">
-             <widget class="ComboBox" name="cmb000">
+             <widget class="ComboBox" name="cmb001">
               <property name="sizePolicy">
                <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                 <horstretch>0</horstretch>
@@ -304,33 +304,10 @@
               </item>
              </widget>
             </item>
-            <item row="2" column="0" colspan="2">
-             <widget class="QLineEdit" name="t000">
-              <property name="minimumSize">
-               <size>
-                <width>0</width>
-                <height>20</height>
-               </size>
-              </property>
-              <property name="maximumSize">
-               <size>
-                <width>16777215</width>
-                <height>20</height>
-               </size>
-              </property>
-              <property name="toolTip">
-               <string>Create: set object name</string>
-              </property>
-              <property name="placeholderText">
-               <string>name:</string>
-              </property>
-             </widget>
-            </item>
            </layout>
-           <zorder>cmb000</zorder>
-           <zorder>t000</zorder>
-           <zorder>b000</zorder>
            <zorder>cmb001</zorder>
+           <zorder>b000</zorder>
+           <zorder>cmb002</zorder>
           </widget>
          </item>
          <item>

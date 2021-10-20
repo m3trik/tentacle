@@ -31,7 +31,7 @@ class LineEdit(QtWidgets.QLineEdit, MenuInstance, Attributes):
 		super().__init__(parent)
 
 		# self.setCursor(QtGui.QCursor(QtCore.Qt.ArrowCursor))
-		self.setAttributes(kwargs)
+		self.setAttributes(**kwargs)
 
 
 	def contextMenuEvent(self, event):

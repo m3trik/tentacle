@@ -11,6 +11,7 @@ if __name__=='__main__':
 
 from . import icons, uiLevel_0, uiLevel_1, uiLevel_2, uiLevel_3
 from .uiLoader import UiLoader
+from .styleSheet import StyleSheet
 
 # print ('tentacle.ui:', __name__, __package__, __file__)
 

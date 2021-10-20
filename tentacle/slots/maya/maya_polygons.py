@@ -17,7 +17,7 @@ class Polygons(Init):
 		dh = self.polygons_ui.draggable_header
 
 		if state is 'setMenu':
-			dh.contextMenu.add(wgts.ComboBox, setObjectName='cmb000', setToolTip='')
+			dh.contextMenu.add(self.tcl.wgts.ComboBox, setObjectName='cmb000', setToolTip='')
 			return
 
 
@@ -40,7 +40,7 @@ class Polygons(Init):
 
 
 	def cmb000(self, index=-1):
-		'''Maya Polygon Operations
+		'''Editors
 		'''
 		cmb = self.polygons_ui.draggable_header.contextMenu.cmb000
 

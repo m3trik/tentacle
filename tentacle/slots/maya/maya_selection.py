@@ -11,38 +11,19 @@ class Selection(Init):
 		super().__init__(*args, **kwargs)
 
 
-		# try: #set initial checked button states
-		# 	state = pm.selectPref(query=True, useDepth=True)
-		# 	self.selection_submenu.chk004.setChecked(state) #chk004 ignore backfacing (camera based selection)
-
-		# 	#selection style: set initial checked state
-		# 	ctx = pm.currentCtx() #flags (ctx, c=True) get the context's class.
-		# 	if ctx == 'lassoContext':
-		# 		self.cmb004(index=2)
-		# 		self.selection_submenu.chk006.setChecked(True)
-		# 	elif ctx == 'paintContext':
-		# 		self.cmb004(index=3)
-		# 		self.selection_submenu.chk007.setChecked(True)
-		# 	else: #selectContext
-		# 		self.cmb004(index=1)
-		# 		self.selection_submenu.chk005.setChecked(True)
-		# except NameError:
-		# 	pass
-
-
 	def draggable_header(self, state=None):
 		'''Context menu
 		'''
 		dh = self.selection_ui.draggable_header
 
 		if state is 'setMenu':
-			dh.contextMenu.add(wgts.ComboBox, setObjectName='cmb001', setToolTip='')
-			dh.contextMenu.add(wgts.ComboBox, setObjectName='cmb004', setToolTip='Set the select tool type.')
-			dh.contextMenu.add(wgts.ComboBox, setObjectName='cmb006', setToolTip='A list of currently selected objects.')
+			dh.contextMenu.add(self.tcl.wgts.ComboBox, setObjectName='cmb000', setToolTip='')
+			dh.contextMenu.add(self.tcl.wgts.ComboBox, setObjectName='cmb004', setToolTip='Set the select tool type.')
+			dh.contextMenu.add(self.tcl.wgts.ComboBox, setObjectName='cmb006', setToolTip='A list of currently selected objects.')
 			dh.contextMenu.add('QCheckBox', setText='Ignore Backfacing', setObjectName='chk004', setToolTip='Ignore backfacing components during selection.')
 			dh.contextMenu.add('QCheckBox', setText='Soft Selection', setObjectName='chk008', setToolTip='Toggle soft selection mode.')
-			dh.contextMenu.add(wgts.Label, setText='Grow Selection', setObjectName='lbl003', setToolTip='Grow the current selection.')
-			dh.contextMenu.add(wgts.Label, setText='Shrink Selection', setObjectName='lbl004', setToolTip='Shrink the current selection.')
+			dh.contextMenu.add(self.tcl.wgts.Label, setText='Grow Selection', setObjectName='lbl003', setToolTip='Grow the current selection.')
+			dh.contextMenu.add(self.tcl.wgts.Label, setText='Shrink Selection', setObjectName='lbl004', setToolTip='Shrink the current selection.')
 			return
 
 
@@ -57,7 +38,7 @@ class Selection(Init):
 	def lbl000(self):
 		'''Selection Sets: Create New
 		'''
-		cmb = self.selection_ui.cmb000
+		cmb = self.selection_ui.cmb001
 		if not cmb.isEditable():
 			cmb.addItems_('', ascending=True)
 			cmb.setEditable(True)
@@ -65,14 +46,14 @@ class Selection(Init):
 		else:
 			name = cmb.currentText()
 			self.creatNewSelectionSet(name)
-			self.cmb000() #refresh the sets comboBox
+			self.cmb001() #refresh the sets comboBox
 			cmb.setCurrentIndex(0)
 
 
 	def lbl001(self):
 		'''Selection Sets: Modify Current
 		'''
-		cmb = self.selection_ui.cmb000
+		cmb = self.selection_ui.cmb001
 		if not cmb.isEditable():
 			name = cmb.currentText()
 			self._oldSetName = name
@@ -82,18 +63,18 @@ class Selection(Init):
 			name = cmb.currentText()
 			self.modifySet(self._oldSetName)
 			cmb.setItemText(cmb.currentIndex(), name)
-			# self.cmb000() #refresh the sets comboBox
+			# self.cmb001() #refresh the sets comboBox
 
 
 	def lbl002(self):
 		'''Selection Sets: Delete Current
 		'''
-		cmb = self.selection_ui.cmb000
+		cmb = self.selection_ui.cmb001
 		name = cmb.currentText()
 
 		pm.delete(name)
 
-		self.cmb000() #refresh the sets comboBox
+		self.cmb001() #refresh the sets comboBox
 
 
 	def lbl003(self):
@@ -111,7 +92,7 @@ class Selection(Init):
 	def lbl005(self):
 		'''Selection Sets: Select Current
 		'''
-		cmb = self.selection_ui.cmb000
+		cmb = self.selection_ui.cmb001
 		name = cmb.currentText()
 
 		if cmb.currentIndex()>0:
@@ -170,7 +151,7 @@ class Selection(Init):
 	def chk004(self, state=None):
 		'''Ignore Backfacing (Camera Based Selection)
 		'''
-		if self.selection_submenu.chk004.isChecked():
+		if self.selection_submenu_ui.chk004.isChecked():
 			pm.selectPref(useDepth=True)
 			return 'Camera-based selection <hl>On</hl>.'
 		else:
@@ -183,7 +164,7 @@ class Selection(Init):
 		'''
 		self.setSelectionStyle('selectContext')
 		self.toggleWidgets(setChecked='chk005', setUnChecked='chk006-7')
-		self.selection_ui.cmb004.setCurrentIndex(0)
+		self.selection_ui.draggable_header.contextMenu.cmb004.setCurrentIndex(0)
 		self.viewPortMessage('Select Style: <hl>Marquee</hl>')
 
 
@@ -192,7 +173,7 @@ class Selection(Init):
 		'''
 		self.setSelectionStyle('lassoContext')
 		self.toggleWidgets(setChecked='chk006', setUnChecked='chk005,chk007')
-		self.selection_ui.cmb004.setCurrentIndex(1)
+		self.selection_ui.draggable_header.contextMenu.cmb004.setCurrentIndex(1)
 		self.viewPortMessage('Select Style: <hl>Lasso</hl>')
 
 
@@ -201,7 +182,7 @@ class Selection(Init):
 		'''
 		self.setSelectionStyle('paintContext')
 		self.toggleWidgets(setChecked='chk007', setUnChecked='chk005-6')
-		self.selection_ui.cmb004.setCurrentIndex(2)
+		self.selection_ui.draggable_header.contextMenu.cmb004.setCurrentIndex(2)
 		self.viewPortMessage('Select Style: <hl>Paint</hl>')
 
 
@@ -209,7 +190,7 @@ class Selection(Init):
 	def chk008(self, state=None):
 		'''Toggle Soft Selection
 		'''
-		if self.selection_submenu.chk008.isChecked():
+		if self.selection_submenu_ui.chk008.isChecked():
 			pm.softSelect(edit=1, softSelectEnabled=True)
 			return 'Soft Select <hl>On</hl>.'
 		else:
@@ -236,28 +217,9 @@ class Selection(Init):
 
 
 	def cmb000(self, index=-1):
-		'''Selection Sets
-		'''
-		cmb = self.selection_ui.cmb000
-
-		if index is 'setMenu':
-			cmb.contextMenu.add(wgts.Label, setText='Select', setObjectName='lbl005', setToolTip='Select the current set elements.')
-			cmb.contextMenu.add(wgts.Label, setText='New', setObjectName='lbl000', setToolTip='Create a new selection set.')
-			cmb.contextMenu.add(wgts.Label, setText='Modify', setObjectName='lbl001', setToolTip='Modify the current set by renaming and/or changing the selection.')
-			cmb.contextMenu.add(wgts.Label, setText='Delete', setObjectName='lbl002', setToolTip='Delete the current set.')
-			cmb.returnPressed.connect(lambda m=cmb.contextMenu.lastActiveChild: getattr(self, m(name=1))()) #connect to the last pressed child widget's corresponding method after return pressed. ie. self.lbl000 if cmb.lbl000 was clicked last.
-			cmb.currentIndexChanged.connect(self.lbl005) #select current set on index change.
-			cmb.beforePopupShown.connect(self.cmb000) #refresh comboBox contents before showing it's popup.
-			return
-
-		items = [str(s) for s in pm.ls(et='objectSet', flatten=1)]
-		cmb.addItems_(items, clear=True)
-
-
-	def cmb001(self, index=-1):
 		'''Editors
 		'''
-		cmb = self.selection_ui.cmb001
+		cmb = self.selection_ui.draggable_header.contextMenu.cmb000
 		
 		if index is 'setMenu':
 			items = ['Polygon Selection Constraints']
@@ -269,6 +231,25 @@ class Selection(Init):
 			if text=='Polygon Selection Constraints':
 				mel.eval('PolygonSelectionConstraints;')
 			cmb.setCurrentIndex(0)
+
+
+	def cmb001(self, index=-1):
+		'''Selection Sets
+		'''
+		cmb = self.selection_ui.cmb001
+
+		if index is 'setMenu':
+			cmb.contextMenu.add(self.tcl.wgts.Label, setText='Select', setObjectName='lbl005', setToolTip='Select the current set elements.')
+			cmb.contextMenu.add(self.tcl.wgts.Label, setText='New', setObjectName='lbl000', setToolTip='Create a new selection set.')
+			cmb.contextMenu.add(self.tcl.wgts.Label, setText='Modify', setObjectName='lbl001', setToolTip='Modify the current set by renaming and/or changing the selection.')
+			cmb.contextMenu.add(self.tcl.wgts.Label, setText='Delete', setObjectName='lbl002', setToolTip='Delete the current set.')
+			cmb.returnPressed.connect(lambda m=cmb.contextMenu.lastActiveChild: getattr(self, m(name=1))()) #connect to the last pressed child widget's corresponding method after return pressed. ie. self.lbl000 if cmb.lbl000 was clicked last.
+			cmb.currentIndexChanged.connect(self.lbl005) #select current set on index change.
+			cmb.beforePopupShown.connect(self.cmb001) #refresh comboBox contents before showing it's popup.
+			return
+
+		items = [str(s) for s in pm.ls(et='objectSet', flatten=1)]
+		cmb.addItems_(items, clear=True)
 
 
 	def cmb002(self, index=-1):
@@ -399,7 +380,7 @@ class Selection(Init):
 	def cmb004(self, index=-1):
 		'''Select Style: Set Context
 		'''
-		cmb = self.selection_ui.cmb004
+		cmb = self.selection_ui.draggable_header.contextMenu.cmb004
 
 		if index is 'setMenu':
 			items = ['Marquee', 'Lasso', 'Paint'] 
@@ -448,7 +429,7 @@ class Selection(Init):
 	def cmb006(self, index=-1):
 		'''Currently Selected Objects
 		'''
-		cmb = self.selection_ui.cmb006
+		cmb = self.selection_ui.draggable_header.contextMenu.cmb006
 
 		if index is 'setMenu':
 			cmb.setCurrentText('Current Selection') # cmb.insertItem(cmb.currentIndex(), 'Current Selection') #insert item at current index.
@@ -627,7 +608,7 @@ class Selection(Init):
 	def modifySet(self, name):
 		'''Selection Sets: Modify Current by renaming or changing the set members.
 		'''
-		newName = self.selection_ui.cmb000.currentText()
+		newName = self.selection_ui.cmb001.currentText()
 		if not newName:
 			newName = self.generateUniqueSetName()
 		name = pm.rename(name, newName)

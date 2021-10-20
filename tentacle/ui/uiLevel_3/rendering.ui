@@ -123,7 +123,7 @@
              <number>0</number>
             </property>
             <item row="0" column="0" colspan="2">
-             <widget class="ComboBox" name="cmb000">
+             <widget class="ComboBox" name="cmb001">
               <property name="minimumSize">
                <size>
                 <width>0</width>

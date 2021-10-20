@@ -24,14 +24,14 @@ class Subdivision(Init):
 		dh = self.subdivision_ui.draggable_header
 
 		if state is 'setMenu':
-			dh.contextMenu.add(wgts.ComboBox, setObjectName='cmb000', setToolTip='Subdivision Modifiers')
+			dh.contextMenu.add(self.tcl.wgts.ComboBox, setObjectName='cmb000', setToolTip='Subdivision Modifiers')
 			return
 
 
 	def cmb000(self, index=-1):
 		'''Editors
 		'''
-		cmb = self.subdivision_ui.cmb000
+		cmb = self.subdivision_ui.draggable_header.contextMenu.cmb000
 
 		if index is 'setMenu':
 			list_ = ['TurboSmooth','TurboSmooth Pro','OpenSubDiv','Subdivide','Subdivide (WSM)','MeshSmooth','Optimize','Pro Optimizer','Add Divisions']

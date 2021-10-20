@@ -36,8 +36,8 @@ class Materials(Init):
 		dh = self.materials_ui.draggable_header
 
 		if state is 'setMenu':
-			dh.contextMenu.add(wgts.ComboBox, setObjectName='cmb001', setToolTip='Maya Material Editors')
-			dh.contextMenu.add(wgts.Label, setText='Material Attributes', setObjectName='lbl004', setToolTip='Show the material attributes in the attribute editor.')
+			dh.contextMenu.add(self.tcl.wgts.ComboBox, setObjectName='cmb000', setToolTip='Maya Material Editors')
+			dh.contextMenu.add(self.tcl.wgts.Label, setText='Material Attributes', setObjectName='lbl004', setToolTip='Show the material attributes in the attribute editor.')
 			return
 
 
@@ -59,10 +59,10 @@ class Materials(Init):
 		self.materials_ui.tb002.setText('Assign New')
 
 
-	def cmb001(self, index=-1):
+	def cmb000(self, index=-1):
 		'''Editors
 		'''
-		cmb = self.materials_ui.cmb001
+		cmb = self.materials_ui.draggable_header.contextMenu.cmb000
 
 		if index is 'setMenu':
 			files = ['Hypershade']
@@ -87,10 +87,10 @@ class Materials(Init):
 		b = self.materials_submenu_ui.b003
 
 		if index is 'setMenu':
-			cmb.contextMenu.add(wgts.Label, setText='Open in Editor', setObjectName='lbl000', setToolTip='Open material in editor.')
-			cmb.contextMenu.add(wgts.Label, setText='Rename', setObjectName='lbl001', setToolTip='Rename the current material.')
-			cmb.contextMenu.add(wgts.Label, setText='Delete', setObjectName='lbl002', setToolTip='Delete the current material.')
-			cmb.contextMenu.add(wgts.Label, setText='Delete All Unused Materials', setObjectName='lbl003', setToolTip='Delete All unused materials.')
+			cmb.contextMenu.add(self.tcl.wgts.Label, setText='Open in Editor', setObjectName='lbl000', setToolTip='Open material in editor.')
+			cmb.contextMenu.add(self.tcl.wgts.Label, setText='Rename', setObjectName='lbl001', setToolTip='Rename the current material.')
+			cmb.contextMenu.add(self.tcl.wgts.Label, setText='Delete', setObjectName='lbl002', setToolTip='Delete the current material.')
+			cmb.contextMenu.add(self.tcl.wgts.Label, setText='Delete All Unused Materials', setObjectName='lbl003', setToolTip='Delete All unused materials.')
 			cmb.beforePopupShown.connect(self.cmb002) #refresh comboBox contents before showing it's popup.
 			cmb.returnPressed.connect(lambda: self.lbl001(setEditable=False))
 			return
@@ -560,7 +560,7 @@ print(os.path.splitext(os.path.basename(__file__))[0])
 	# 	Existing Materials
 
 	# 	'''
-	# 	cmb = self.materials_ui.cmb000
+	# 	cmb = self.materials_ui.draggable_header.contextMenu.cmb000
 
 	# 	mats = [m for m in pm.ls(materials=1)]
 	# 	matNames = [m.name() for m in mats]

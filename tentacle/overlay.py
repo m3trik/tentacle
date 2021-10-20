@@ -1,8 +1,8 @@
 # !/usr/bin/python
 # coding=utf-8
-from PySide2 import QtCore, QtGui, QtWidgets
-
 import os.path
+
+from PySide2 import QtCore, QtGui, QtWidgets
 
 from tentacle import EventFactoryFilter
 
@@ -16,16 +16,20 @@ from tentacle import EventFactoryFilter
 # ------------------------------------------------
 class Overlay(QtWidgets.QWidget):
 	'''Handles paint events as an overlay on top of an existing widget.
+
+	:Parameters:
+		tcl (obj) = tcl widget instance.
+		antialiasing (bool) = Set antialiasing for the tangent paint events.
 	'''
 	greyPen = QtGui.QPen(QtGui.QColor(115, 115, 115), 3, QtCore.Qt.SolidLine, QtCore.Qt.RoundCap, QtCore.Qt.RoundJoin)
 	blackPen = QtGui.QPen(QtGui.QColor(0, 0, 0), 1, QtCore.Qt.SolidLine, QtCore.Qt.RoundCap, QtCore.Qt.RoundJoin)
 
 
-	def __init__(self, parent=None, antialiasing=False):
-		super(Overlay, self).__init__(parent)
+	def __init__(self, tcl=None, antialiasing=False):
+		super(Overlay, self).__init__(tcl)
 
-		if parent:
-			self.parent = parent
+		if tcl:
+			self.tcl = tcl
 			self.antialiasing = antialiasing
 
 			self.setWindowFlags(QtCore.Qt.WindowStaysOnTopHint)
@@ -41,13 +45,13 @@ class Overlay(QtWidgets.QWidget):
 		:Parameters:
 			event=<QEvent>
 		'''
-		if self.parent.sb.uiLevel>0 and self.parent.sb.uiLevel<3:
+		if self.tcl.sb.uiLevel>0 and self.tcl.sb.uiLevel<3:
 
 			self.painter.begin(self)
 
-			for i, start_point in enumerate(self.parent.drawPath): #plot and draw the points in the drawPath list.
+			for i, start_point in enumerate(self.tcl.drawPath): #plot and draw the points in the drawPath list.
 				try:
-					end_point = self.mapFromGlobal(self.parent.drawPath[i+1])
+					end_point = self.mapFromGlobal(self.tcl.drawPath[i+1])
 				except:
 					end_point = self.mouseEventPos #after the list points are drawn, plot the current end_point, controlled by the mouse move event.
 

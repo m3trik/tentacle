@@ -17,14 +17,14 @@ class Animation(Init):
 		dh = self.animation_ui.draggable_header
 
 		if state is 'setMenu':
-			dh.contextMenu.add(wgts.ComboBox, setObjectName='cmb000', setToolTip='')
+			dh.contextMenu.add(self.tcl.wgts.ComboBox, setObjectName='cmb000', setToolTip='')
 			return
 
 
 	def cmb000(self, index=-1):
 		'''Editors
 		'''
-		cmb = self.animation_ui.cmb000
+		cmb = self.animation_ui.draggable_header.contextMenu.cmb000
 		
 		if index is 'setMenu':
 			list_ = ['']
@@ -34,7 +34,8 @@ class Animation(Init):
 		if index>0:
 			text = cmb.items[index]
 			if text=='':
-				mel.eval('')
+				pass
+
 			cmb.setCurrentIndex(0)
 
 
@@ -69,7 +70,7 @@ class Animation(Init):
 		time = tb.menu_.s001.value()
 		relative = tb.menu_.chk002.isChecked()
 
-		Animation.invertSelectedKeyframes(time=time, relative=relative)
+		return Animation.invertSelectedKeyframes(time=time, relative=relative)
 
 
 	def b000(self):
@@ -98,6 +99,7 @@ class Animation(Init):
 		pm.currentTime(currentTime+frame, edit=True, update=update)
 
 
+	@Init.undoChunk
 	@staticmethod
 	def invertSelectedKeyframes(time=1, relative=True):
 		'''Duplicate any selected keyframes and paste them inverted at the given time.
@@ -108,13 +110,12 @@ class Animation(Init):
 
 		ex. call: invertSelectedKeyframes(time=48, relative=0)
 		'''
-		pm.undoInfo(openChunk=1)
-
+		# pm.undoInfo(openChunk=1)
 		allActiveKeyTimes = pm.keyframe(query=True, sl=True, tc=True) #get times from all selected keys.
 		if not allActiveKeyTimes:
-			error = '# Error: No keys selected. #'
-			print (error)
+			error = '# Error: No keys selected. #'; print (error)
 			return error
+
 		range_ = max(allActiveKeyTimes) - min(allActiveKeyTimes)
 		time = time - max(allActiveKeyTimes) if not relative else time
 
@@ -132,8 +133,7 @@ class Animation(Init):
 
 					inAngle = pm.keyTangent(node, query=True, time=t, inAngle=True)
 					pm.keyTangent(node, edit=True, time=rt+range_+time, inAngle=-inAngle[0])
-
-		pm.undoInfo(closeChunk=1)
+		# pm.undoInfo(closeChunk=1)
 
 
 

@@ -21,11 +21,11 @@ class File(Init):
 		dh = self.file_ui.draggable_header
 
 		if state is 'setMenu':
-			dh.contextMenu.add(wgts.ComboBox, setObjectName='cmb005', setToolTip='')
-			dh.contextMenu.add(wgts.ToolButton, setObjectName='tb000', setText='Save', setToolTip='')
-			dh.contextMenu.add(wgts.Label, setObjectName='lbl001', setText='Minimize App', setToolTip='Minimize the main application.')
-			dh.contextMenu.add(wgts.Label, setObjectName='lbl002', setText='Maximize App', setToolTip='Restore the main application.')
-			dh.contextMenu.add(wgts.Label, setObjectName='lbl003', setText='Close App', setToolTip='Close the main application.')
+			dh.contextMenu.add(self.tcl.wgts.ComboBox, setObjectName='cmb000', setToolTip='')
+			dh.contextMenu.add(self.tcl.wgts.ToolButton, setObjectName='tb000', setText='Save', setToolTip='')
+			dh.contextMenu.add(self.tcl.wgts.Label, setObjectName='lbl001', setText='Minimize App', setToolTip='Minimize the main application.')
+			dh.contextMenu.add(self.tcl.wgts.Label, setObjectName='lbl002', setText='Maximize App', setToolTip='Restore the main application.')
+			dh.contextMenu.add(self.tcl.wgts.Label, setObjectName='lbl003', setText='Close App', setToolTip='Close the main application.')
 			return
 
 
@@ -38,26 +38,30 @@ class File(Init):
 
 
 	def cmb000(self, index=-1):
-		'''Recent Files
+		'''Editors
 		'''
-		cmb = self.file_ui.cmb000
+		cmb = self.file_ui.draggable_header.contextMenu.cmb000
 
 		if index is 'setMenu':
-			cmb.contextMenu.add('QPushButton', setObjectName='b001', setText='Last', setToolTip='Open the most recent file.')
+			list_ = []
+			cmb.addItems_(list_, 'Maya File Editors')
 			return
 
-		cmb.addItems_(self.getRecentFiles(), "Recent Files", clear=True)
-
 		if index>0:
-			force=True; force if str(pm.mel.file(query=1, sceneName=1, shortName=1)) else not force #if sceneName prompt user to save; else force open
-			pm.openFile(cmb.items[index], open=1, force=force)
+			text = cmb.items[index]
+			if text=='':
+				mel.eval('') #
+			if text=='':
+				mel.eval('') #
+			if text=='':
+				mel.eval('') #
 			cmb.setCurrentIndex(0)
 
 
 	def cmb001(self, index=-1):
 		'''Recent Projects
 		'''
-		cmb = self.file_ui.cmb001
+		cmb = self.file_ui.cmb006.contextMenu.cmb001
 
 		if index is 'setMenu':
 			return
@@ -158,25 +162,20 @@ class File(Init):
 			cmb.setCurrentIndex(0)
 
 
-
 	def cmb005(self, index=-1):
-		'''Editors
+		'''Recent Files
 		'''
 		cmb = self.file_ui.cmb005
 
 		if index is 'setMenu':
-			list_ = []
-			cmb.addItems_(list_, 'Maya File Editors')
+			cmb.contextMenu.add('QPushButton', setObjectName='b001', setText='Last', setToolTip='Open the most recent file.')
 			return
 
+		cmb.addItems_(self.getRecentFiles(), "Recent Files", clear=True)
+
 		if index>0:
-			text = cmb.items[index]
-			if text=='':
-				mel.eval('') #
-			if text=='':
-				mel.eval('') #
-			if text=='':
-				mel.eval('') #
+			force=True; force if str(pm.mel.file(query=1, sceneName=1, shortName=1)) else not force #if sceneName prompt user to save; else force open
+			pm.openFile(cmb.items[index], open=1, force=force)
 			cmb.setCurrentIndex(0)
 
 
@@ -186,9 +185,9 @@ class File(Init):
 		cmb = self.file_ui.cmb006
 
 		if index is 'setMenu':
-			cmb.contextMenu.add(wgts.ComboBox, setObjectName='cmb001', setToolTip='Current project directory root.')
-			cmb.contextMenu.add(wgts.Label, setObjectName='lbl000', setText='Set', setToolTip='Set the project directory.')
-			cmb.contextMenu.add(wgts.Label, setObjectName='lbl004', setText='Root', setToolTip='Open the project directory.')
+			cmb.contextMenu.add(self.tcl.wgts.ComboBox, setObjectName='cmb001', setToolTip='Current project directory root.')
+			cmb.contextMenu.add(self.tcl.wgts.Label, setObjectName='lbl000', setText='Set', setToolTip='Set the project directory.')
+			cmb.contextMenu.add(self.tcl.wgts.Label, setObjectName='lbl004', setText='Root', setToolTip='Open the project directory.')
 			return
 
 		path = self.formatPath(pm.workspace(query=1, rd=1)) #current project path.
@@ -206,7 +205,7 @@ class File(Init):
 	def tb000(self, state=None):
 		'''Save
 		'''
-		tb = self.file_ui.tb000
+		tb = self.file_ui.draggable_header.contextMenu.tb000
 		if state is 'setMenu':
 			tb.menu_.add('QCheckBox', setText='Wireframe', setObjectName='chk000', setToolTip='Set view to wireframe before save.')
 			tb.menu_.add('QCheckBox', setText='Increment', setObjectName='chk001', setChecked=True, setToolTip='Append and increment a unique integer value.')
@@ -291,7 +290,7 @@ class File(Init):
 		# 	force=False #if sceneName, prompt user to save; else force open
 		# pm.openFile(files[0], open=1, force=force)
 
-		self.cmb000(index=1)
+		self.draggable_header.contextMenu.cmb005(index=1)
 		self.tcl.hide(force=1)
 
 

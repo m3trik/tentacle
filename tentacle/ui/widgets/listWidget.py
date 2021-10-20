@@ -26,7 +26,7 @@ class ListWidget(QtWidgets.QListWidget, Attributes):
 
 		# self.setViewMode(QtWidgets.QListView.IconMode)
 		self.clear()
-		self.setAttributes(kwargs)
+		self.setAttributes(**kwargs)
 
 
 	def add(self, w, **kwargs):

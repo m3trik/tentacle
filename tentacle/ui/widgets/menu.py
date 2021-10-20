@@ -10,51 +10,113 @@ class Menu(QtWidgets.QMenu, Attributes):
 	'''
 	:Parameters:
 		position (str)(obj) = Desired menu position relative to it's parent. 
-						valid values are: 'cursorPos', 'center', 'top', 'bottom', 'right', 'left', 
-						'topLeft', 'topRight', 'bottomRight', 'bottomLeft', or <QWidget>. Setting a widget to this property, positions the menu in relation to the given widget.
-		menu_type (str) = Menu style. valid parameters are: 'standard', 'context'
+			valid values are: 'cursorPos', 'center', 'top', 'bottom', 'right', 'left', 'topLeft', 'topRight', 'bottomRight', 'bottomLeft', or <QWidget>. 
+			Setting a widget to this property, positions the menu in relation to the given widget.
+		menu_type (str) = Menu style. valid parameters are: 'standard', 'context', 'form'
 	'''
-	def __init__(self, parent=None, position='bottomLeft', menu_type='standard', **kwargs):
+	def __init__(self, parent=None, menu_type='standard', title='', padding=8, position='bottomLeft', preventHide=False, **kwargs):
 		super().__init__(parent)
 
-		self.position=position
-		self.menu_type=menu_type
+		self.menu_type = menu_type
+		self.position = position
+		self.preventHide = preventHide
+
+		self.draggable_header.setText(title)
 
 		self.setWindowFlags(QtCore.Qt.Tool|QtCore.Qt.FramelessWindowHint|QtCore.Qt.WindowStaysOnTopHint)
 		self.setAttribute(QtCore.Qt.WA_TranslucentBackground)
+		self.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
 
 		self.setStyleSheet('''
-			QMenu {
-				background-color: rgba(127,127,127,175);
-				border: 1px solid gray;
-				padding: 7px 7px 7px 7px;
-				margin: 5px;
-			}
+			QMenu {{
+				background-color: rgba(50,50,50,175);
+				padding: {0}px {0}px {0}px {0}px;
+			}}
 
-			QMenu::item {
+			QMenu::item {{
 				background-color: transparent;
 				spacing: 0px;
 				border: 1px solid transparent;
 				margin: 0px;
-			}''')
+			}}'''.format(padding))
 
-		self.setAttributes(kwargs)
+		self.setAttributes(**kwargs)
 
 
 	@property
 	def containsMenuItems(self):
 		'''Query whether any child objects have been added to the menu.
 		'''
-		state = True if self.children_() else False
+		state = True if self.childWidgets else False
 
 		return state
 
 
-	def add(self, w, **kwargs):
+	@property
+	def childWidgets(self):
+		'''Get a list of the menu's child widgets.
+
+		:Return:
+			(list) child widgets.
+		'''
+		if not hasattr(self, '_childWidgets'):
+			self._childWidgets=[]
+
+		return self._childWidgets
+
+
+	@property
+	def draggable_header(self):
+		'''Get the draggable header.
+		'''
+		if not hasattr(self, '_draggable_header'):
+			from pushButtonDraggable import PushButtonDraggable
+			self._draggable_header = PushButtonDraggable()
+			wAction = QtWidgets.QWidgetAction(self)
+			wAction.setDefaultWidget(self._draggable_header)
+			self.addAction(wAction)
+
+		return self._draggable_header
+
+
+	@property
+	def formLayout(self):
+		'''Get the menu's form layout.
+		'''
+		if not hasattr(self, '_formLayout'):
+			form = QtWidgets.QWidget(self)
+			form.setStyleSheet('QWidget {background-color:rgb(50,50,50);}')
+			self._formLayout = QtWidgets.QFormLayout(form)
+			self._formLayout.setVerticalSpacing(0)
+			wAction = QtWidgets.QWidgetAction(self)
+			wAction.setDefaultWidget(form)
+			self.addAction(wAction)
+
+		return self._formLayout
+
+
+	def addApplyButton(self):
+		'''Add a pushbutton that executes the parent object.
+
+		:Return:
+			(widget) The added pushbutton, or None if the process failed.
+		'''
+		try:
+			self.draggable_header.setText(self.parent().text())
+			objectName = self.parent().objectName()
+			w = self.add('QPushButton', setText='Apply', setObjectName=objectName)
+			w.setMinimumSize(119, 26)
+		except AttributeError as error:
+			w = None
+
+		return w
+
+
+	def add(self, widget, label='', checkable=False, **kwargs):
 		'''Add items to the QMenu.
 
 		:Parameters:
-			widget (str)(obj) = widget. ie. 'QLabel' or QtWidgets.QLabel
+			widget (str)(obj) = The widget to add. ie. 'QLabel', QtWidgets.QLabel, QtWidgets.QLabel()
 
 		kw:Parameters:
 			insertSeparator_ (bool) = insert a separator before the widget.
@@ -64,31 +126,52 @@ class Menu(QtWidgets.QMenu, Attributes):
 			setMinMax_ (str) = Set the min, max, and step values with a string. ie. '1-100 step.1'
 
 		:Return:
- 			the added widget.
+ 			(obj) the added widget instance.
 
 		ex.call:
 		menu.add('QCheckBox', setText='Component Ring', setObjectName='chk000', setToolTip='Select component ring.')
 		'''
-		#get the widget
-		try:
-			w = getattr(QtWidgets, w)(self) #ie. QtWidgets.QAction(self) object from string.
+		try: #get the widget
+			w = getattr(QtWidgets, widget)() #ie. QtWidgets.QAction(self) object from string.
 		except:
-			if callable(w):
-				w = w(self) #ie. QtWidgets.QAction(self) object.
+			try: #if callable(widget):
+				w = widget() #ie. QtWidgets.QAction(self) object.
+			except:
+				w = widget
 
-		self.setAttributes(kwargs, w) #set any additional given keyword args for the widget.
+		self.setAttributes(w, **kwargs) #set any additional given keyword args for the widget.
 
 		type_ = w.__class__.__name__
 
-		if type_=='QAction': #
+		if type_=='QAction': #add action item.
 			a = self.addAction(w)
 
-		else: #
-			wAction = QtWidgets.QWidgetAction(self)
-			wAction.setDefaultWidget(w)
-			self.addAction(wAction)
+		else:
+			if self.menu_type=='form': #add widgets to the form layout.
+				l = QtWidgets.QCheckBox()
+				text = ''.join([(' '+i if i.isupper() else i) for i in label]).title() #format the attr name. ie. 'Subdivisions Height' from 'subdivisionsHeight'
+				l.setText(text)
+				l.setObjectName(label)
+				if not checkable:
+					l.setCheckable(False)
+					l.setStyleSheet('QCheckBox::hover {background-color: rgb(100,100,100); color: white;}')
+				self.formLayout.addRow(l, w)
+				self.childWidgets.append(l) #add the widget to the childWidgets list.
 
-			w.setMinimumSize(w.sizeHint().width(), 20) #self.parent().minimumSizeHint().height()+1)
+			else: #convert to action item, then add.
+				wAction = QtWidgets.QWidgetAction(self)
+				wAction.setDefaultWidget(w)
+				self.addAction(wAction)
+
+			try: #set minimum child height
+				w.setMinimumSize(w.sizeHint().width(), 16)
+				l.setMinimumSize(l.sizeHint().width(), 16)
+				w.setMaximumSize(9999, 16)
+				l.setMaximumSize(9999, 16)
+			except UnboundLocalError: #'l' does not exist. (not a form menu)
+				pass
+
+			self.childWidgets.append(w) #add the widget to the childWidgets list.
 
 			setattr(self, w.objectName(), w) #add the widget's objectName as a QMenu attribute.
 
@@ -96,35 +179,11 @@ class Menu(QtWidgets.QMenu, Attributes):
 
 			#connect to 'setLastActiveChild' when signal activated.
 			if hasattr(w, 'released'):
-				w.released.connect(lambda widget=w: self.setLastActiveChild(widget))
+				w.released.connect(lambda w=w: self.setLastActiveChild(w))
 			elif hasattr(w, 'valueChanged'):
-				w.valueChanged.connect(lambda value, widget=w: self.setLastActiveChild(value, widget))
+				w.valueChanged.connect(lambda value, w=w: self.setLastActiveChild(value, w))
 
 		return w
-
-
-	def children_(self, index=None, include=[], exclude=['QAction', 'QWidgetAction', 'QHBoxLayout', 'QVBoxLayout']):
-		'''Get a list of the menu's child objects, excluding those types listed in 'exclude'.
-
-		:Parameters:
-			index (int) = return the child widget at the given index.
-			exclude (list) = Widget types to exclude from the returned results.
-			include (list) = Widget types to include in the returned results. All others will be omitted. Exclude takes dominance over include. Meaning, if a widget is both in the exclude and include lists, it will be excluded.
-
-		:Return:
-			(obj)(list) child widgets or child widget at given index.
-		'''
-		children = [i for i in self.children() 
-				if i.__class__.__name__ not in exclude 
-				and (i.__class__.__name__ in include if include else i.__class__.__name__ not in include)]
-
-		if index is not None:
-			try:
-				children = children[index]
-			except IndexError:
-				children = None
-
-		return children
 
 
 	def setLastActiveChild(self, widget, *args, **kwargs):
@@ -185,7 +244,7 @@ class Menu(QtWidgets.QMenu, Attributes):
 			menuItem (obj) = The item to add.
 		'''
 		p = self.parent()
-		if not all([self.menu_type is 'context', p]):
+		if not all([self.menu_type=='context', p]):
 			return
 
 		if not hasattr(self, '_contextMenuToolTip'):
@@ -211,9 +270,13 @@ class Menu(QtWidgets.QMenu, Attributes):
 
 
 	def hide(self, force=False):
-		'''Hide the menu.
+		'''Sets the widget as invisible.
+		Prevents hide event under certain circumstances.
+
+		:Parameters:
+			force (bool) = override preventHide.
 		'''
-		if not force:
+		if force or not self.preventHide:
 
 			for child in self.children():
 				try:
@@ -222,14 +285,14 @@ class Menu(QtWidgets.QMenu, Attributes):
 				except AttributeError:
 					pass
 
-		return super(Menu, self).hide()
+			return super().hide()
 
 
 	def show(self):
 		'''Show the menu.
 		'''
 		if self.containsMenuItems: #prevent show if the menu is empty.
-			return super(Menu, self).show()
+			return super().show()
 
 
 	def showEvent(self, event):
@@ -237,10 +300,14 @@ class Menu(QtWidgets.QMenu, Attributes):
 		:Parameters:
 			event = <QEvent>
 		'''
+		self.resize(self.sizeHint()) #self.setMinimumSize(width, self.sizeHint().height()+5)
+
+		getCenter = lambda w, p: QtCore.QPoint(p.x()-(w.width()/2), p.y()-(w.height()/4)) #get widget center position.
+
 		#set menu position
-		if self.position is 'cursorPos':
+		if self.position=='cursorPos':
 			pos = QtGui.QCursor.pos() #global position
-			self.move(pos.x()-self.width()/4-10, pos.y()-20) #move to cursor position and offset slightly.
+			self.move(getCenter(self, pos)) #move to cursor position.
 
 		elif not isinstance(self.position, (type(None), str)): #if self.position is a widget:
 			pos = getattr(self.positionRelativeTo.rect(), self.position)
@@ -249,16 +316,7 @@ class Menu(QtWidgets.QMenu, Attributes):
 		elif self.parent(): #if parent: map to parent in the given position. default is 'bottomLeft'
 			pos = getattr(self.parent().rect(), self.position)
 			pos = self.parent().mapToGlobal(pos())
-			self.move(pos.x()-16, pos.y()-2)
-
-		#resize the menu
-		width = self.sizeHint().width()
-		if self.parent():
-			parentWidth = self.parent().size().width()
-			if parentWidth>width:
-				width = parentWidth
-
-		self.setMinimumSize(width, self.sizeHint().height()+5)
+			self.move(getCenter(self, pos))
 
 		return QtWidgets.QToolButton.showEvent(self, event)
 
@@ -303,17 +361,26 @@ if __name__ == "__main__":
 	if not qApp:
 		qApp = QtWidgets.QApplication(sys.argv)
 
-	# create parent menu containing two submenus:
-	m = Menu(position='cursorPos', setVisible=True)
-	m1 = Menu('Create', addMenu_=m)
-	m1.add('QAction', setText='Action', insertSeparator_=True)
-	m1.add('QAction', setText='Action', insertSeparator_=True)
-	m1.add('QPushButton', setText='Button')
+	# # create parent menu containing two submenus:
+	# m = Menu(position='cursorPos')
+	# m1 = Menu('Create', addMenu_=m)
+	# m1.add('QAction', setText='Action', insertSeparator_=True)
+	# m1.add('QAction', setText='Action', insertSeparator_=True)
+	# m1.add('QPushButton', setText='Button')
 
-	m2 = Menu('Cameras', addMenu_=m)
-	m2.add('QAction', setText='Action', insertSeparator_=True)
-	m2.add('QAction', setText='Action', insertSeparator_=True)
-	m2.add('QPushButton', setText='Button')
+	# m2 = Menu('Cameras', addMenu_=m)
+	# m2.add('QAction', setText='Action', insertSeparator_=True)
+	# m2.add('QAction', setText='Action', insertSeparator_=True)
+	# m2.add('QPushButton', setText='Button')
+	# m.show()
+
+	# # form layout example
+	menu = Menu(menu_type='form', padding=6, title='Title', position='cursorPos')
+	s = menu.add('QDoubleSpinBox', label='attrOne', checkable=True, setSpinBoxByValue_=1.0)
+	s = menu.add('QDoubleSpinBox', label='attrTwo', checkable=False, setSpinBoxByValue_=2.0)
+	menu.show()
+
+	print (menu.childWidgets)
 
 	# m.exec_(parent=None)
 	sys.exit(qApp.exec_())
@@ -339,6 +406,42 @@ Promoting a widget in designer to use a custom class:
 '''
 
 # depricated ------------------------------------------------------------------------
+
+
+	# def children_(self, index=None, include=[], exclude=['QAction', 'QWidgetAction', 'QHBoxLayout', 'QVBoxLayout', 'QFormLayout', 'QValidator']):
+	# 	'''Get a list of the menu's child objects, excluding those types listed in 'exclude'.
+
+	# 	:Parameters:
+	# 		index (int) = return the child widget at the given index.
+	# 		exclude (list) = Widget types to exclude from the returned results.
+	# 		include (list) = Widget types to include in the returned results. All others will be omitted. Exclude takes dominance over include. Meaning, if a widget is both in the exclude and include lists, it will be excluded.
+
+	# 	:Return:
+	# 		(obj)(list) child widgets or child widget at given index.
+	# 	'''
+	# 	# children = [i for i in self.children() 
+	# 	# 		if i.__class__.__name__ not in exclude 
+	# 	# 		and (i.__class__.__name__ in include if include else i.__class__.__name__ not in include)]
+
+	# 	# children=[]
+	# 	# for c in self.children():
+	# 	# 	for cc in c.children():
+	# 	# 		for ccc in cc.children():
+	# 	# 			children.append(ccc) 
+
+	# 	# print (children)
+	# 	children = [i for i in self.children()
+	# 			if i.__class__.__name__ not in exclude 
+	# 			and (i.__class__.__name__ in include if include else i.__class__.__name__ not in include)]
+
+	# 	if index is not None:
+	# 		try:
+	# 			children = children[index]
+
+	# 		except IndexError:
+	# 			children = None
+
+	# 	return children
 
 
 # def contextMenuToolTip(self):

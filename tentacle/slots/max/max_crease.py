@@ -31,14 +31,14 @@ class Crease(Init):
 		dh = self.crease_ui.draggable_header
 
 		if state is 'setMenu':
-			dh.contextMenu.add(wgts.ComboBox, setObjectName='cmb000', setToolTip='3ds Max Crease Modifiers')
+			dh.contextMenu.add(self.tcl.wgts.ComboBox, setObjectName='cmb000', setToolTip='3ds Max Crease Modifiers')
 			return
 
 
 	def cmb000(self, index=-1):
 		'''Editors
 		'''
-		cmb = self.crease_ui.cmb000
+		cmb = self.crease_ui.draggable_header.contextMenu.cmb000
 
 		if index is 'setMenu':
 			list_ = ['Crease Modifier']
