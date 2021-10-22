@@ -161,6 +161,7 @@ class Edit(Init):
 
 
 	@Slots.message
+	@Slots.hideMain
 	def b000(self):
 		'''Object Transform Attributes
 		'''
@@ -178,6 +179,7 @@ class Edit(Init):
 
 
 	@Slots.message
+	@Slots.hideMain
 	def b001(self):
 		'''Object History Attributes: get most recent node
 		'''

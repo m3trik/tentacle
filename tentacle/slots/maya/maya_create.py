@@ -76,6 +76,7 @@ class Create(Init):
 			cmb.addItems_(lights, clear=True)
 
 
+	@Slots.hideMain
 	@Init.attr
 	def b000(self):
 		'''Create Object

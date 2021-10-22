@@ -263,6 +263,7 @@ class Edit(Init):
 
 
 	@Slots.message
+	@Slots.hideMain
 	def b000(self):
 		'''Object Transform Attributes
 		'''
@@ -275,14 +276,17 @@ class Edit(Init):
 
 
 	@Slots.message
+	@Slots.hideMain
 	def b001(self):
 		'''Object History Attributes: get most recent node
 		'''
 		cmb = self.edit_ui.cmb001
-		try:
-			print (pm.ls(cmb.items[-1]))
-			self.setAttributeWindow(pm.ls(cmb.items[-1]))
-		except RuntimeError as error: # Error: index of: 'Found no items to list the history for.'
+		self.cmb001() #refresh the contents of the combobox.
+
+		items = pm.ls(cmb.items[-1])
+		if items:
+			self.setAttributeWindow(items)
+		else:
 			return 'Error: Found no items to list the history for.'
 
 

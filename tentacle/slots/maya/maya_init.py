@@ -2416,7 +2416,7 @@ class Init(Slots):
 			return
 
 		if isinstance(obj, (list, set, tuple)):
-			obj = obj[0]
+			obj = obj[0] # pm.warning("'setAttributeWindow' only works with one object at a time.")
 
 		attributes = self.getAttributesMEL(obj, include=include, exclude=exclude)
 		children = self.objAttrWindow(obj, attributes, self.setAttributesMEL, checkable=True)

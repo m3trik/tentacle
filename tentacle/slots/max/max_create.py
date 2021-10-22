@@ -77,6 +77,7 @@ class Create(Init):
 
 
 	@Init.attr
+	@Slots.hideMain
 	def b000(self):
 		'''Create Object
 		'''
