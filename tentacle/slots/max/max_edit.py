@@ -48,16 +48,20 @@ class Edit(Init):
 			cmb.beforePopupShown.connect(self.cmb001) #refresh comboBox contents before showing it's popup.
 			return
 
-		try:
-			list_ = [n.name() for n in pm.listHistory(pm.ls(sl=1, objectsOnly=1))]
-		except RuntimeError as error:
+		sel = list(rt.selection)
+		if sel:
+			list_ = ['{}.{}'.format(sel[0].name, m.name) for m in sel[0].modifiers]
+			list_.append('{}.{}'.format(sel[0].name, 'baseObject'))
+		else:
 			list_ = ['No selection.']
 		cmb.addItems_(list_, 'History')
 
 		cmb.setCurrentIndex(0)
 		if index>0:
 			if cmb.items[index]!='No selection.':
-				return pm.ls(cmb.items[index])
+				objName, attrName = cmb.items[index].split('.')
+				obj = rt.getNodeByName(objName)
+				return getattr(obj, attrName)
 
 
 	def chk006_9(self):
@@ -160,23 +164,28 @@ class Edit(Init):
 	def b000(self):
 		'''Object Transform Attributes
 		'''
-		node = pm.ls(sl=1, objectsOnly=1)
-		if not node:
+		selection = list(rt.selection)
+		if not selection:
 			return 'Error: Operation requires a single selected object.'
-		transform = Init.getTransformNode(node)
 
-		self.setAttributeWindow(transform[0], include=['translateX','translateY','translateZ','rotateX','rotateY','rotateZ','scaleX','scaleY','scaleZ'])
+		obj = selection[0]
+
+		props = ['pos.x', 'pos.y', 'pos.z', 'rotation.x_rotation', 'rotation.y_rotation', 'rotation.z_rotation', 
+				'scale.x', 'scale.y', 'scale.z', 'center', 'pivot.x', 'pivot.y', 'pivot.z']
+		attrs = {p:getattr(obj, p) for p in props}
+
+		self.setAttributeWindow(obj, attributes=attrs)
 
 
 	@Slots.message
 	def b001(self):
 		'''Object History Attributes: get most recent node
 		'''
-		cmb = self.edit_ui.cmb001
-		try:
-			self.setAttributeWindow(pm.ls(cmb.items[-1]))
-		except RuntimeError as error: # Error: index of: 'Found no items to list the history for.'
-			return 'Error: Found no items to list the history for.'
+		selection = rt.modPanel.getCurrentObject()
+		if not selection:
+			return 'Error: Operation requires a single selected object.'
+
+		self.setAttributeWindow(selection)
 
 
 	def b021(self):

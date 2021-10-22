@@ -2419,7 +2419,7 @@ class Init(Slots):
 			obj = obj[0]
 
 		attributes = self.getAttributesMEL(obj, include=include, exclude=exclude)
-		children = self.objAttrWindow(obj, attributes, self.setAttributesMEL)
+		children = self.objAttrWindow(obj, attributes, self.setAttributesMEL, checkable=True)
 
 		for c in children:
 			if c.__class__.__name__=='QCheckBox':

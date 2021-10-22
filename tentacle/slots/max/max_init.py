@@ -47,7 +47,7 @@ class Init(Slots):
 					axis = {0:'x', 1:'y', 2:'z'}
 					hud.insertText('Symmetry Axis: <font style="color: Yellow;">{}'.format(axis[int_].upper())) #symmetry axis
 
-				level = rt.subObjectLevel
+				level = rt.subObjectLevel if rt.subObjectLevel else 0
 				if level==0: #object level
 					numberOfSelected = len(selection)
 					if numberOfSelected<11:
@@ -1071,25 +1071,36 @@ class Init(Slots):
 			self.setAttributeWindow(fn(self, *args, **kwargs))
 		return wrapper
 
-	def setAttributeWindow(self, obj, include=[], exclude=[]):
+	def setAttributeWindow(self, obj, include=[], exclude=[], attributes={}):
 		'''Launch a popup window containing the given objects attributes.
 
 		:Parameters:
 			obj (obj) = The object to get the attributes of.
 			include (list) = Attributes to include. All other will be omitted. Exclude takes dominance over include. Meaning, if the same attribute is in both lists, it will be excluded.
 			exclude (list) = Attributes to exclude from the returned dictionay. ie. [u'Position',u'Rotation',u'Scale',u'renderable',u'isHidden',u'isFrozen',u'selected']
+			attributes (dict) = Explicitly pass in attribute:values pairs.
 		'''
-		if obj is None:
+		if not obj:
 			return
 
 		if isinstance(obj, (list, set, tuple)):
 			obj = obj[0]
 
-		if not all((include, exclude)):
-			exclude = []
+		if attributes:
+			attributes = {k:v for k, v in attributes.items() 
+				if not k in exclude and (k in include if include else k not in include)}
+		else:
+			attributes = self.getAttributesMax(obj, include=include, exclude=exclude)
+		children = self.objAttrWindow(obj, attributes, self.setAttributesMax, checkable=True)
 
-		attributes = self.getAttributesMax(obj, include=include, exclude=exclude)
-		self.objAttrWindow(obj, attributes, self.setAttributesMax)
+		'this is not set up yet for max. currently just outputs the check state for testing.'
+		for c in children:
+			if c.__class__.__name__=='QCheckBox':
+				# c.stateChanged.connect(lambda state, obj=obj, attr=attr: rt.selectMore(prop) if state else rt.deselect(prop))
+				c.stateChanged.connect(lambda state, obj=obj, w=c: print('select: '+'{}.{}'.format(obj.name, w.objectName())) if state 
+					else print('deselect: '+'{}.{}'.format(obj.name, w.objectName())))
+				# if attr in list(rt.selection):
+					# c.setChecked(True)
 
 
 	@Slots.message

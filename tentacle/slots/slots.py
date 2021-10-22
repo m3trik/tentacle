@@ -106,13 +106,14 @@ class Slots(QtCore.QObject):
 				if attr and value]
 
 
-	def objAttrWindow(self, obj, attributes, fn=None):
+	def objAttrWindow(self, obj, attributes, fn=None, checkable=False):
 		'''Launch a popup window containing the given objects attributes.
 
 		:Parameters:
 			obj (obj) = The object to get the attributes of.
 			attributes (dict) = {'attribute':<value>}
 			fn (method) = Set an alternative method to call on widget signal. ex. fn(obj, {'attr':<value>})
+			checkable (bool) = Set the attributes as checkable.
 
 		:Return:
 			(list) the menu's child widgets.
@@ -120,12 +121,20 @@ class Slots(QtCore.QObject):
 		if not fn:
 			fn = self.setAttributes
 
-		menu = self.tcl.wgts.Menu(self.tcl, menu_type='form', padding=2, title=str(obj), position='cursorPos')
+		try: #get the objects name to as the window title:
+			title = obj.name()
+		except:
+			try:
+				title = obj.name
+			except:
+				title = str(obj)
+
+		menu = self.tcl.wgts.Menu(self.tcl, menu_type='form', padding=2, title=title, position='cursorPos')
 
 		for k, v in attributes.items():
 			if isinstance(v, (float, int, bool)):
-
-				s = menu.add('QDoubleSpinBox', label=k, checkable=True, setSpinBoxByValue_=v)
+				v = float(f'{v:g}') ##remove any trailing zeros from the float value.
+				s = menu.add('QDoubleSpinBox', label=k, checkable=checkable, setSpinBoxByValue_=v, setDecimals=3)
 				s.valueChanged.connect(lambda value, obj=obj, attr=k: fn(obj, {attr:value}))
 
 		self.tcl.childEvents.addWidgets(self.tcl.sb.getUiName(), menu.childWidgets)

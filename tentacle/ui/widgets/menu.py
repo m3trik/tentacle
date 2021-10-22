@@ -165,8 +165,8 @@ class Menu(QtWidgets.QMenu, Attributes):
 
 			try: #set minimum child height
 				w.setMinimumSize(w.sizeHint().width(), 16)
-				l.setMinimumSize(l.sizeHint().width(), 16)
 				w.setMaximumSize(9999, 16)
+				l.setMinimumSize(l.sizeHint().width(), 16)
 				l.setMaximumSize(9999, 16)
 			except UnboundLocalError: #'l' does not exist. (not a form menu)
 				pass
