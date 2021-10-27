@@ -2419,7 +2419,7 @@ class Init(Slots):
 			obj = obj[0] # pm.warning("'setAttributeWindow' only works with one object at a time.")
 
 		attributes = self.getAttributesMEL(obj, include=include, exclude=exclude)
-		children = self.objAttrWindow(obj, attributes, self.setAttributesMEL, checkable=True)
+		children = self.objAttrWindow(obj, attributes, self.setAttributesMEL, checkableLabel=True)
 
 		for c in children:
 			if c.__class__.__name__=='QCheckBox':

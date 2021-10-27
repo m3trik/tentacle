@@ -112,13 +112,15 @@ class Menu(QtWidgets.QMenu, Attributes):
 		return w
 
 
-	def add(self, widget, label='', checkable=False, **kwargs):
+	def add(self, widget, label='', checkableLabel=False, **kwargs):
 		'''Add items to the QMenu.
 
 		:Parameters:
 			widget (str)(obj) = The widget to add. ie. 'QLabel', QtWidgets.QLabel, QtWidgets.QLabel()
+			lable (str) = Add a label. (which is actually a checkbox. by default it is not checkable)
+			checkableLabel (bool) = The label is checkable.
 
-		kw:Parameters:
+		additional kwargs:
 			insertSeparator_ (bool) = insert a separator before the widget.
 			setLayoutDirection_ (str) = ie. 'LeftToRight'
 			setAlignment_ (str) = ie. 'AlignVCenter'
@@ -152,7 +154,7 @@ class Menu(QtWidgets.QMenu, Attributes):
 				text = ''.join([(' '+i if i.isupper() else i) for i in label]).title() #format the attr name. ie. 'Subdivisions Height' from 'subdivisionsHeight'
 				l.setText(text)
 				l.setObjectName(label)
-				if not checkable:
+				if not checkableLabel:
 					l.setCheckable(False)
 					l.setStyleSheet('QCheckBox::hover {background-color: rgb(100,100,100); color: white;}')
 				self.formLayout.addRow(l, w)

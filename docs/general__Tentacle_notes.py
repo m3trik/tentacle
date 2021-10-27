@@ -264,8 +264,10 @@ ncalls  tottime  percall  cumtime  percall filename:lineno(function)
 # -----------------------------------------------
 
 
-maya macros (broken in maya 2022):
-isolateSelect -state 0 modelPanel4
+O:/Cloud/Code/_scripts/tentacle\tentacle\slots\maya\maya_file.py line 293, in b001
+self.draggable_header.contextMenu.cmb005(index=1)
+
+# AttributeError: 'function' object has no attribute 'contextMenu'
 
 
 max_edit.py", line 66, in tb000

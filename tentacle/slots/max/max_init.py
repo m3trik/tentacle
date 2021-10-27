@@ -1091,7 +1091,7 @@ class Init(Slots):
 				if not k in exclude and (k in include if include else k not in include)}
 		else:
 			attributes = self.getAttributesMax(obj, include=include, exclude=exclude)
-		children = self.objAttrWindow(obj, attributes, self.setAttributesMax, checkable=True)
+		children = self.objAttrWindow(obj, attributes, self.setAttributesMax, checkableLabel=True)
 
 		'this is not set up yet for max. currently just outputs the check state for testing.'
 		for c in children:

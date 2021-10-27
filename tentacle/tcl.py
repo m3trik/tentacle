@@ -260,7 +260,7 @@ class Tcl(QtWidgets.QStackedWidget, StyleSheet):
 			event = <QEvent>
 		'''
 		if self.sb.uiLevel<3:
-			self.childEvents.mouseTracking(self.sb.name)
+			self.childEvents.mouseTracking(self.sb.uiName)
 
 		return QtWidgets.QStackedWidget.mouseMoveEvent(self, event)
 
@@ -516,7 +516,7 @@ print(os.path.splitext(os.path.basename(__file__))[0])
 			# self.addWidget(parentUi) #add the ui to the stackedLayout.
 			# self.childEvents.initWidgets(parentUiName)
 
-# if any([self.sb.name=='main', self.sb.name=='cameras', self.sb.name=='editors']):
+# if any([self.sb.uiName=='main', self.sb.uiName=='cameras', self.sb.uiName=='editors']):
 # 	drag = QtGui.QDrag(self)
 # 	drag.setMimeData(QtCore.QMimeData())
 

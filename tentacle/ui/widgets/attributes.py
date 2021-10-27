@@ -150,23 +150,24 @@ class Attributes(object):
 		'''
 		maximum = spinbox.maximum()
 		minimum = -maximum
-		step = spinbox.singleStep()
-		decimals = spinbox.decimals()
 
-		if isinstance(value, bool):
-			value = int(value)
-			minimum = 0
-			maximum = 1
+		if isinstance(value, (int, bool)):
+			step = spinbox.singleStep()
+
+			if isinstance(value, bool):
+				value = int(value)
+				minimum = 0
+				maximum = 1
+
+			self.setAttributes(spinbox, setValue=value, setMinimum=minimum, setMaximum=maximum, 
+				setSingleStep=step, setButtonSymbols_='NoButtons',)
 
 		elif isinstance(value, float):
 			decimals = str(value)[::-1].find('.') #get decimal places
 			step = Attributes.moveDecimalPoint(1, -decimals)
 
-		elif isinstance(value, int):
-			decimals = 0
-
-		self.setAttributes(spinbox, setValue=value, setMinimum=minimum, setMaximum=maximum, 
-			setSingleStep=step, setDecimals=decimals, setButtonSymbols_='NoButtons',)
+			self.setAttributes(spinbox, setValue=value, setMinimum=minimum, setMaximum=maximum, 
+				setSingleStep=step, setDecimals=decimals, setButtonSymbols_='NoButtons',)
 
 
 	@staticmethod

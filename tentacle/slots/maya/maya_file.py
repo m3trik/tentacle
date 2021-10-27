@@ -280,6 +280,7 @@ class File(Init):
 		os.startfile(self.formatPath(dir2))
 
 
+	@Slots.hideMain
 	def b001(self):
 		'''Recent Files: Open Last
 		'''
@@ -290,8 +291,7 @@ class File(Init):
 		# 	force=False #if sceneName, prompt user to save; else force open
 		# pm.openFile(files[0], open=1, force=force)
 
-		self.draggable_header.contextMenu.cmb005(index=1)
-		self.tcl.hide(force=1)
+		self.cmb005(index=1)
 
 
 	def b002(self):
@@ -305,12 +305,14 @@ class File(Init):
 				print (error)
 
 
+	@Slots.hideMain
 	def b007(self):
 		'''Import file
 		'''
 		self.cmb003(index=1)
 
 
+	@Slots.hideMain
 	def b008(self):
 		'''Export Selection
 		'''

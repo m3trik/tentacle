@@ -37,7 +37,6 @@ class Slots(QtCore.QObject):
 		return self._current_ui()
 
 
-	# @classmethod
 	def hideMain(fn):
 		'''A decorator that hides the stacked widget main window.
 		'''
@@ -106,14 +105,14 @@ class Slots(QtCore.QObject):
 				if attr and value]
 
 
-	def objAttrWindow(self, obj, attributes, fn=None, checkable=False):
+	def objAttrWindow(self, obj, attributes, fn=None, checkableLabel=False):
 		'''Launch a popup window containing the given objects attributes.
 
 		:Parameters:
 			obj (obj) = The object to get the attributes of.
 			attributes (dict) = {'attribute':<value>}
 			fn (method) = Set an alternative method to call on widget signal. ex. fn(obj, {'attr':<value>})
-			checkable (bool) = Set the attributes as checkable.
+			checkableLabel (bool) = Set the attribute labels as checkable.
 
 		:Return:
 			(list) the menu's child widgets.
@@ -132,9 +131,15 @@ class Slots(QtCore.QObject):
 		menu = self.tcl.wgts.Menu(self.tcl, menu_type='form', padding=2, title=title, position='cursorPos')
 
 		for k, v in attributes.items():
+
 			if isinstance(v, (float, int, bool)):
-				v = float(f'{v:g}') ##remove any trailing zeros from the float value.
-				s = menu.add('QDoubleSpinBox', label=k, checkable=checkable, setSpinBoxByValue_=v, setDecimals=3)
+				if type(v)==int or type(v)==bool:
+					s = menu.add('QSpinBox', label=k, checkableLabel=checkableLabel, setSpinBoxByValue_=v)
+
+				elif type(v)==float:
+					v = float(f'{v:g}') ##remove any trailing zeros from the float value.
+					s = menu.add('QDoubleSpinBox', label=k, checkableLabel=checkableLabel, setSpinBoxByValue_=v, setDecimals=3)
+
 				s.valueChanged.connect(lambda value, obj=obj, attr=k: fn(obj, {attr:value}))
 
 		self.tcl.childEvents.addWidgets(self.tcl.sb.getUiName(), menu.childWidgets)
