@@ -1455,14 +1455,12 @@ class Switchboard(QtCore.QObject):
 		'''Convert a given obj to a list if it isn't a list, set, or tuple already.
 
 		:Parameters:
-			x () = unknown object type.
+			x (unknown) = The object to convert to a list if not already a list, set, or tuple.
 
 		:Return:
 			(list)
 		'''
-		if not isinstance(x, (list, set, tuple)):
-			x = [x]
-		return x
+		return x if isinstance(x, (list, tuple, set)) else [x]
 
 
 	@staticmethod

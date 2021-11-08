@@ -124,7 +124,7 @@
     </property>
     <property name="geometry">
      <rect>
-      <x>225</x>
+      <x>130</x>
       <y>350</y>
       <width>76</width>
       <height>19</height>
@@ -195,8 +195,8 @@
     </property>
     <property name="geometry">
      <rect>
-      <x>150</x>
-      <y>260</y>
+      <x>115</x>
+      <y>320</y>
       <width>106</width>
       <height>19</height>
      </rect>
@@ -269,8 +269,8 @@
     </property>
     <property name="geometry">
      <rect>
-      <x>190</x>
-      <y>320</y>
+      <x>220</x>
+      <y>350</y>
       <width>51</width>
       <height>19</height>
      </rect>
@@ -378,6 +378,83 @@
     </property>
     <property name="checked">
      <bool>false</bool>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="b000">
+    <property name="geometry">
+     <rect>
+      <x>120</x>
+      <y>250</y>
+      <width>96</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="minimumSize">
+     <size>
+      <width>0</width>
+      <height>20</height>
+     </size>
+    </property>
+    <property name="maximumSize">
+     <size>
+      <width>999</width>
+      <height>20</height>
+     </size>
+    </property>
+    <property name="palette">
+     <palette>
+      <active>
+       <colorrole role="Highlight">
+        <brush brushstyle="SolidPattern">
+         <color alpha="255">
+          <red>80</red>
+          <green>138</green>
+          <blue>255</blue>
+         </color>
+        </brush>
+       </colorrole>
+      </active>
+      <inactive>
+       <colorrole role="Highlight">
+        <brush brushstyle="SolidPattern">
+         <color alpha="255">
+          <red>80</red>
+          <green>138</green>
+          <blue>255</blue>
+         </color>
+        </brush>
+       </colorrole>
+      </inactive>
+      <disabled>
+       <colorrole role="Highlight">
+        <brush brushstyle="SolidPattern">
+         <color alpha="255">
+          <red>51</red>
+          <green>153</green>
+          <blue>255</blue>
+         </color>
+        </brush>
+       </colorrole>
+      </disabled>
+     </palette>
+    </property>
+    <property name="toolTip">
+     <string/>
+    </property>
+    <property name="text">
+     <string>Transform Attr</string>
+    </property>
+    <property name="autoDefault">
+     <bool>true</bool>
+    </property>
+    <property name="default">
+     <bool>false</bool>
+    </property>
+    <property name="flat">
+     <bool>false</bool>
+    </property>
+    <property name="bnabled" stdset="0">
+     <bool>true</bool>
     </property>
    </widget>
   </widget>

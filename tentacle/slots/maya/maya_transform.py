@@ -398,6 +398,19 @@ class Transform(Init):
 		cmb.setCurrentText('Off') if not any((cmb.menu_.chk024.isChecked(), cmb.menu_.chk025.isChecked(), cmb.menu_.chk026.isChecked())) else cmb.setCurrentText('On')
 
 
+	@Slots.message
+	@Slots.hideMain
+	def b000(self):
+		'''Object Transform Attributes
+		'''
+		node = pm.ls(sl=1, objectsOnly=1)
+		if not node:
+			return 'Error: Operation requires a single selected object.'
+		transform = Init.getTransformNode(node)
+
+		self.setAttributeWindow(transform[0], include=['translateX','translateY','translateZ','rotateX','rotateY','rotateZ','scaleX','scaleY','scaleZ'], checkableLabel=True)
+
+
 	def b002(self):
 		'''Freeze Transformations
 		'''

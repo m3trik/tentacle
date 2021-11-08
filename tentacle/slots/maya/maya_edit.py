@@ -264,19 +264,6 @@ class Edit(Init):
 
 	@Slots.message
 	@Slots.hideMain
-	def b000(self):
-		'''Object Transform Attributes
-		'''
-		node = pm.ls(sl=1, objectsOnly=1)
-		if not node:
-			return 'Error: Operation requires a single selected object.'
-		transform = Init.getTransformNode(node)
-
-		self.setAttributeWindow(transform[0], include=['translateX','translateY','translateZ','rotateX','rotateY','rotateZ','scaleX','scaleY','scaleZ'])
-
-
-	@Slots.message
-	@Slots.hideMain
 	def b001(self):
 		'''Object History Attributes: get most recent node
 		'''
@@ -285,7 +272,7 @@ class Edit(Init):
 
 		items = pm.ls(cmb.items[-1])
 		if items:
-			self.setAttributeWindow(items)
+			self.setAttributeWindow(items, checkableLabel=True)
 		else:
 			return 'Error: Found no items to list the history for.'
 

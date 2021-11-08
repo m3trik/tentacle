@@ -386,6 +386,24 @@ class Transform(Init):
 			self.alignVertices(mode=6,average=avg,edgeloop=loop)
 
 
+	@Slots.message
+	@Slots.hideMain
+	def b000(self):
+		'''Object Transform Attributes
+		'''
+		selection = list(rt.selection)
+		if not selection:
+			return 'Error: Operation requires a single selected object.'
+
+		obj = selection[0]
+
+		props = ['pos.x', 'pos.y', 'pos.z', 'rotation.x_rotation', 'rotation.y_rotation', 'rotation.z_rotation', 
+				'scale.x', 'scale.y', 'scale.z', 'center', 'pivot.x', 'pivot.y', 'pivot.z']
+		attrs = {p:getattr(obj, p) for p in props}
+
+		self.setAttributeWindow(obj, attributes=attrs, checkableLabel=True)
+
+
 	def lbl000(self):
 		'''Transform Constraints: Disable All
 		'''

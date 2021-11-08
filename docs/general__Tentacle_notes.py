@@ -264,6 +264,24 @@ ncalls  tottime  percall  cumtime  percall filename:lineno(function)
 # -----------------------------------------------
 
 
+# attribute window breaks when reused in submenus
+
+
+
+# Traceback (most recent call last):
+#   File "O:/Cloud/Code/_scripts/tentacle\tentacle\slots\slots.py", line 493, in wrapper
+#     self.messageBox(fn(self, *args, **kwargs))
+#   File "O:/Cloud/Code/_scripts/tentacle\tentacle\slots\maya\maya_selection.py", line 534, in tb002
+#     similarFaces = self.getFacesWithSimilarNormals(selectedFaces, rangeX=rangeX, rangeY=rangeY, rangeZ=rangeZ)
+#   File "O:/Cloud/Code/_scripts/tentacle\tentacle\slots\maya\maya_init.py", line 1608, in getFacesWithSimilarNormals
+#     for f in Init.getComponents(node, 'faces', returnType=returnType, returnNodeType=returnNodeType, flatten=1):
+#   File "O:/Cloud/Code/_scripts/tentacle\tentacle\slots\maya\maya_init.py", line 250, in getComponents
+#     result = [''.join(c.rsplit('Shape', 1)).decode('utf-8') for c in components]
+#   File "O:/Cloud/Code/_scripts/tentacle\tentacle\slots\maya\maya_init.py", line 250, in <listcomp>
+#     result = [''.join(c.rsplit('Shape', 1)).decode('utf-8') for c in components]
+# AttributeError: 'str' object has no attribute 'decode'
+
+
 O:/Cloud/Code/_scripts/tentacle\tentacle\slots\maya\maya_file.py line 293, in b001
 self.draggable_header.contextMenu.cmb005(index=1)
 

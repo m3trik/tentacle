@@ -248,6 +248,23 @@ class Rigging(Init):
 			[[pm.setAttr('{}.{}'.format(obj, i), lock=v) for i in k] for k, v in attrs_and_state.items()]
 
 
+	@Slots.message
+	@Slots.hideMain
+	def b000(self):
+		'''Object Transform Limit Attributes
+		'''
+		node = pm.ls(sl=1, objectsOnly=1)
+		if not node:
+			return 'Error: Operation requires a single selected object.'
+
+		params = ['enableTranslationX','translationX','enableTranslationY','translationY','enableTranslationZ','translationZ',
+			'enableRotationX','rotationX','enableRotationY','rotationY','enableRotationZ','rotationZ',
+			'enableScaleX','scaleX','enableScaleY','scaleY','enableScaleZ','scaleZ']
+
+		attrs = Init.getParameterValuesMEL(node, 'transformLimits', params)
+		self.setAttributeWindow(node, attrs, fn=Init.setParameterValuesMEL, fn_args='transformLimits')
+
+
 	def b001(self):
 		'''Connect Joints
 		'''
@@ -322,8 +339,8 @@ class Rigging(Init):
 		'''
 		def _formatName(name, stripDigits=stripDigits, strip=strip, suffix=suffix):
 			if stripDigits:
-				name_ = ''.join([i for i in name if not i.isdigit()])	
-			return name_.replace(strip, '')+suffix
+				name = ''.join([i for i in name if not i.isdigit()])	
+			return name.replace(strip, '')+suffix
 
 		def _create_locator(obj, objName, stripDigits=stripDigits, strip=strip, suffix=suffix, scale=scale, _fullPath=_fullPath):
 			locName = _formatName(objName, stripDigits, strip, suffix)

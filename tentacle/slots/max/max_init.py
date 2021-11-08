@@ -1071,36 +1071,44 @@ class Init(Slots):
 			self.setAttributeWindow(fn(self, *args, **kwargs))
 		return wrapper
 
-	def setAttributeWindow(self, obj, include=[], exclude=[], attributes={}):
+	def setAttributeWindow(self, obj, attributes={}, include=[], exclude=[], checkableLabel=True, fn=None, fn_args=[]):
 		'''Launch a popup window containing the given objects attributes.
 
 		:Parameters:
-			obj (obj) = The object to get the attributes of.
+			obj (obj)(list) = The object to get the attributes of.
+			attributes (dict) = Explicitly pass in attribute:values pairs. Else, attributes will be pulled from self.getAttributesMax for the given obj.
 			include (list) = Attributes to include. All other will be omitted. Exclude takes dominance over include. Meaning, if the same attribute is in both lists, it will be excluded.
 			exclude (list) = Attributes to exclude from the returned dictionay. ie. [u'Position',u'Rotation',u'Scale',u'renderable',u'isHidden',u'isFrozen',u'selected']
-			attributes (dict) = Explicitly pass in attribute:values pairs.
+			checkableLabel (bool) = Set the attribute labels as checkable.
+			fn (method) = Set an alternative method to call on widget signal. ex. fn(obj, {'attr':<value>})
+			fn_args (list) = Any additonal args to pass to fn.
+				The first parameter of fn is always the given object, and the last parameter is the attribute:value pairs as a dict.
+
+		ex. call: self.setAttributeWindow(obj, attributes=attrs, checkableLabel=True)
 		'''
 		if not obj:
 			return
-
-		if isinstance(obj, (list, set, tuple)):
+		elif isinstance(obj, (list, set, tuple)):
 			obj = obj[0]
+
+		fn = fn if fn else self.setAttributesMax
 
 		if attributes:
 			attributes = {k:v for k, v in attributes.items() 
 				if not k in exclude and (k in include if include else k not in include)}
 		else:
 			attributes = self.getAttributesMax(obj, include=include, exclude=exclude)
-		children = self.objAttrWindow(obj, attributes, self.setAttributesMax, checkableLabel=True)
 
-		'this is not set up yet for max. currently just outputs the check state for testing.'
-		for c in children:
-			if c.__class__.__name__=='QCheckBox':
-				# c.stateChanged.connect(lambda state, obj=obj, attr=attr: rt.selectMore(prop) if state else rt.deselect(prop))
-				c.stateChanged.connect(lambda state, obj=obj, w=c: print('select: '+'{}.{}'.format(obj.name, w.objectName())) if state 
-					else print('deselect: '+'{}.{}'.format(obj.name, w.objectName())))
-				# if attr in list(rt.selection):
-					# c.setChecked(True)
+		children = self.objAttrWindow(obj, attributes, checkableLabel=checkableLabel, fn=fn, fn_args=fn_args)
+
+		if checkableLabel: # this is not set up yet for max. currently just outputs the check state for testing.
+			for c in children:
+				if c.__class__.__name__=='QCheckBox':
+					# c.stateChanged.connect(lambda state, obj=obj, attr=attr: rt.selectMore(prop) if state else rt.deselect(prop))
+					c.stateChanged.connect(lambda state, obj=obj, w=c: print('select: '+'{}.{}'.format(obj.name, w.objectName())) if state 
+						else print('deselect: '+'{}.{}'.format(obj.name, w.objectName())))
+					# if attr in list(rt.selection):
+						# c.setChecked(True)
 
 
 	@Slots.message

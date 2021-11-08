@@ -105,20 +105,27 @@ class Slots(QtCore.QObject):
 				if attr and value]
 
 
-	def objAttrWindow(self, obj, attributes, fn=None, checkableLabel=False):
+	def objAttrWindow(self, obj, attributes, checkableLabel=False, fn=None, fn_args=[]):
 		'''Launch a popup window containing the given objects attributes.
 
 		:Parameters:
 			obj (obj) = The object to get the attributes of.
 			attributes (dict) = {'attribute':<value>}
-			fn (method) = Set an alternative method to call on widget signal. ex. fn(obj, {'attr':<value>})
 			checkableLabel (bool) = Set the attribute labels as checkable.
+			fn (method) = Set an alternative method to call on widget signal. ex. Init.setParameterValuesMEL
+			fn_args (list) = Any additonal args to pass to fn.
+				The first parameter of fn is always the given object, and the last parameter is the attribute:value pairs as a dict.
 
 		:Return:
 			(list) the menu's child widgets.
+
+		ex. call: self.setAttributeWindow(node, attrs, fn=Init.setParameterValuesMEL, fn_args='transformLimits')
+		ex. call: self.setAttributeWindow(transform[0], include=['translateX','translateY','translateZ','rotateX','rotateY','rotateZ','scaleX','scaleY','scaleZ'], checkableLabel=True)
 		'''
-		if not fn:
-			fn = self.setAttributes
+		import ast
+
+		fn = fn if fn else self.setAttributes
+		fn_args = fn_args if isinstance(fn_args, (list, tuple, set)) else [fn_args]
 
 		try: #get the objects name to as the window title:
 			title = obj.name()
@@ -140,9 +147,13 @@ class Slots(QtCore.QObject):
 					v = float(f'{v:g}') ##remove any trailing zeros from the float value.
 					s = menu.add('QDoubleSpinBox', label=k, checkableLabel=checkableLabel, setSpinBoxByValue_=v, setDecimals=3)
 
-				s.valueChanged.connect(lambda value, obj=obj, attr=k: fn(obj, {attr:value}))
+				s.valueChanged.connect(lambda value, attr=k: fn(obj, *fn_args, {attr:value}))
 
-		self.tcl.childEvents.addWidgets(self.tcl.sb.getUiName(), menu.childWidgets)
+			else: #isinstance(v, (list, set, tuple)):
+				w = menu.add('QLineEdit', label=k, checkableLabel=checkableLabel, setText=str(v))
+				w.returnPressed.connect(lambda w=w, attr=k: fn(obj, *fn_args, {attr:ast.literal_eval(w.text())}))
+
+		self.tcl.setStyleSheet_(menu.childWidgets) # self.tcl.childEvents.addWidgets(self.tcl.sb.getUiName(), menu.childWidgets)
 		menu.show()
 
 		return menu.childWidgets

@@ -162,24 +162,6 @@ class Edit(Init):
 
 	@Slots.message
 	@Slots.hideMain
-	def b000(self):
-		'''Object Transform Attributes
-		'''
-		selection = list(rt.selection)
-		if not selection:
-			return 'Error: Operation requires a single selected object.'
-
-		obj = selection[0]
-
-		props = ['pos.x', 'pos.y', 'pos.z', 'rotation.x_rotation', 'rotation.y_rotation', 'rotation.z_rotation', 
-				'scale.x', 'scale.y', 'scale.z', 'center', 'pivot.x', 'pivot.y', 'pivot.z']
-		attrs = {p:getattr(obj, p) for p in props}
-
-		self.setAttributeWindow(obj, attributes=attrs)
-
-
-	@Slots.message
-	@Slots.hideMain
 	def b001(self):
 		'''Object History Attributes: get most recent node
 		'''
@@ -187,7 +169,7 @@ class Edit(Init):
 		if not selection:
 			return 'Error: Operation requires a single selected object.'
 
-		self.setAttributeWindow(selection)
+		self.setAttributeWindow(selection, checkableLabel=True)
 
 
 	def b021(self):
