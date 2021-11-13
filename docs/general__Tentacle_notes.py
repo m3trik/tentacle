@@ -1,5 +1,11 @@
-'''
+# Tentacle notes
 
+
+
+# ======================================================================
+	'PROFILING:'
+# ======================================================================
+'''
 #times:
 tk_slots_max_viewport
 time: 0.0632666986347
@@ -9,267 +15,434 @@ time: 0.0816165578988
 
 #profile:
 tk_
-     9633 function calls (9588 primitive calls) in 1.733 seconds
+		 9633 function calls (9588 primitive calls) in 1.733 seconds
 
 Ordered by: standard name
 
 ncalls  tottime  percall  cumtime  percall filename:lineno(function)
-    1    0.000    0.000    1.733    1.733 <string>:1(<module>)
-    1    0.000    0.000    0.000    0.000 UserDict.py:4(__init__)
-    1    0.006    0.006    0.006    0.006 __init__.py:44(<module>)
-    1    0.000    0.000    0.000    0.000 __init__.py:71(ProcessError)
-    1    0.000    0.000    0.000    0.000 __init__.py:74(BufferTooShort)
-    1    0.000    0.000    0.000    0.000 __init__.py:77(TimeoutError)
-    1    0.000    0.000    0.000    0.000 __init__.py:80(AuthenticationError)
-    6    0.000    0.000    0.000    0.000 arguments.py:17(isIterable)
-    1    0.000    0.000    0.000    0.000 arguments.py:394(listForNone)
-    6    0.000    0.000    0.000    0.000 arguments.py:78(isMapping)
-    1    0.000    0.000    0.000    0.000 atexit.py:37(register)
-    1    0.000    0.000    0.000    0.000 general.py:1128(ls)
-   16    0.000    0.000    0.001    0.000 linecache.py:13(getline)
-   16    0.000    0.000    0.001    0.000 linecache.py:33(getlines)
-   16    0.000    0.000    0.000    0.000 linecache.py:47(checkcache)
-    1    0.000    0.000    0.001    0.001 linecache.py:72(updatecache)
-    3    0.000    0.000    0.000    0.000 newsuper.py:45(newsuper)
-    2    0.000    0.000    0.000    0.000 ntpath.py:174(split)
-    2    0.000    0.000    0.000    0.000 ntpath.py:213(dirname)
-    5    0.000    0.000    0.000    0.000 ntpath.py:220(islink)
-    2    0.000    0.000    0.000    0.000 ntpath.py:415(normpath)
-    2    0.000    0.000    0.000    0.000 ntpath.py:483(abspath)
-  194    0.000    0.000    0.001    0.000 ntpath.py:63(join)
-  392    0.001    0.000    0.001    0.000 ntpath.py:96(splitdrive)
+		1    0.000    0.000    1.733    1.733 <string>:1(<module>)
+		1    0.000    0.000    0.000    0.000 UserDict.py:4(__init__)
+		1    0.006    0.006    0.006    0.006 __init__.py:44(<module>)
+		1    0.000    0.000    0.000    0.000 __init__.py:71(ProcessError)
+		1    0.000    0.000    0.000    0.000 __init__.py:74(BufferTooShort)
+		1    0.000    0.000    0.000    0.000 __init__.py:77(TimeoutError)
+		1    0.000    0.000    0.000    0.000 __init__.py:80(AuthenticationError)
+		6    0.000    0.000    0.000    0.000 arguments.py:17(isIterable)
+		1    0.000    0.000    0.000    0.000 arguments.py:394(listForNone)
+		6    0.000    0.000    0.000    0.000 arguments.py:78(isMapping)
+		1    0.000    0.000    0.000    0.000 atexit.py:37(register)
+		1    0.000    0.000    0.000    0.000 general.py:1128(ls)
+	 16    0.000    0.000    0.001    0.000 linecache.py:13(getline)
+	 16    0.000    0.000    0.001    0.000 linecache.py:33(getlines)
+	 16    0.000    0.000    0.000    0.000 linecache.py:47(checkcache)
+		1    0.000    0.000    0.001    0.001 linecache.py:72(updatecache)
+		3    0.000    0.000    0.000    0.000 newsuper.py:45(newsuper)
+		2    0.000    0.000    0.000    0.000 ntpath.py:174(split)
+		2    0.000    0.000    0.000    0.000 ntpath.py:213(dirname)
+		5    0.000    0.000    0.000    0.000 ntpath.py:220(islink)
+		2    0.000    0.000    0.000    0.000 ntpath.py:415(normpath)
+		2    0.000    0.000    0.000    0.000 ntpath.py:483(abspath)
+	194    0.000    0.000    0.001    0.000 ntpath.py:63(join)
+	392    0.001    0.000    0.001    0.000 ntpath.py:96(splitdrive)
  20/7    0.000    0.000    0.002    0.000 os.py:209(walk)
-    1    0.000    0.000    0.000    0.000 pmcmds.py:115(ls_wrapped)
-    1    0.000    0.000    0.000    0.000 pmcmds.py:115(symmetricModelling_wrapped)
-    1    0.000    0.000    0.000    0.000 pmcmds.py:115(xformConstraint_wrapped)
-    6    0.000    0.000    0.000    0.000 pmcmds.py:70(getMelRepresentation)
-    1    0.000    0.000    0.000    0.000 process.py:285(AuthenticationString)
-    1    0.000    0.000    0.000    0.000 process.py:299(_MainProcess)
-    1    0.000    0.000    0.000    0.000 process.py:301(__init__)
-    1    0.000    0.000    0.000    0.000 process.py:35(<module>)
-    1    0.000    0.000    0.000    0.000 process.py:86(Process)
-   16    0.000    0.000    0.014    0.001 pydoc.py:1512(locate)
-   47    0.000    0.000    0.013    0.000 pydoc.py:300(safeimport)
-    1    0.000    0.000    0.000    0.000 qComboBox_.py:131(hidePopup)
-   28    0.002    0.000    0.017    0.001 qComboBox_.py:15(__init__)
-    1    0.000    0.000    0.000    0.000 qComboBox_.py:205(eventFilter)
-    1    0.000    0.000    0.000    0.000 qListWidget_.py:1(<module>)
-    1    0.000    0.000    0.000    0.000 qListWidget_.py:8(QListWidget_)
-  104    0.006    0.000    0.019    0.000 qMenu_.py:15(__init__)
-    1    0.000    0.000    0.000    0.000 qMessageBox_.py:1(<module>)
-    1    0.000    0.000    0.000    0.000 qMessageBox_.py:23(QMessageBox_)
-    1    0.000    0.000    0.000    0.000 qProgressBar_.py:1(<module>)
-    1    0.000    0.000    0.000    0.000 qProgressBar_.py:23(QProgressBar_)
-   34    0.001    0.000    0.001    0.000 qProgressBar_.py:29(__init__)
-    1    0.000    0.000    0.000    0.000 qPushButton_Draggable.py:1(<module>)
-   34    0.001    0.000    0.006    0.000 qPushButton_Draggable.py:14(__init__)
-    1    0.000    0.000    0.000    0.000 qPushButton_Draggable.py:7(QPushButton_Draggable)
-    1    0.002    0.002    0.008    0.008 qSplashScreen_.py:1(<module>)
-    1    0.000    0.000    0.000    0.000 qSplashScreen_.py:14(QSplashScreen_)
-    1    0.000    0.000    0.000    0.000 qTextEdit_.py:1(<module>)
-    1    0.000    0.000    0.000    0.000 qTextEdit_.py:23(QTextEdit_)
-    1    0.000    0.000    0.000    0.000 qTextEdit_.py:30(__init__)
-    1    0.000    0.000    0.000    0.000 qTextEdit_.py:52(showEvent)
-   76    0.003    0.000    0.021    0.000 qToolButton_.py:10(__init__)
-    1    0.000    0.000    0.000    0.000 qTreeWidget_ExpandableList.py:1(<module>)
-    1    0.000    0.000    0.000    0.000 qTreeWidget_ExpandableList.py:13(QTreeWidget_ExpandableList)
-   18    0.000    0.000    0.000    0.000 qTreeWidget_ExpandableList.py:142(eventFilter)
-    3    0.002    0.001    0.003    0.001 qTreeWidget_ExpandableList.py:44(__init__)
-  180    0.001    0.000    0.023    0.000 shared.py:16(menu_)
-  280    0.001    0.000    0.001    0.000 shared.py:172(setAttributes)
-   76    0.001    0.000    0.001    0.000 shared.py:49(__init__)
-   47    0.000    0.000    0.000    0.000 string.py:283(split)
-   47    0.000    0.000    0.000    0.000 string.py:310(join)
-    1    0.000    0.000    1.712    1.712 tk_.py:30(__init__)
-    1    0.000    0.000    0.011    0.011 tk_.py:300(showEvent)
-    1    0.000    0.000    0.007    0.007 tk_.py:53(setUi)
-    1    0.000    0.000    0.000    0.000 tk_childEvents.py:174(createEventName)
-    1    0.000    0.000    0.000    0.000 tk_childEvents.py:192(eventFilter)
-    1    0.000    0.000    0.000    0.000 tk_childEvents.py:24(__init__)
+		1    0.000    0.000    0.000    0.000 pmcmds.py:115(ls_wrapped)
+		1    0.000    0.000    0.000    0.000 pmcmds.py:115(symmetricModelling_wrapped)
+		1    0.000    0.000    0.000    0.000 pmcmds.py:115(xformConstraint_wrapped)
+		6    0.000    0.000    0.000    0.000 pmcmds.py:70(getMelRepresentation)
+		1    0.000    0.000    0.000    0.000 process.py:285(AuthenticationString)
+		1    0.000    0.000    0.000    0.000 process.py:299(_MainProcess)
+		1    0.000    0.000    0.000    0.000 process.py:301(__init__)
+		1    0.000    0.000    0.000    0.000 process.py:35(<module>)
+		1    0.000    0.000    0.000    0.000 process.py:86(Process)
+	 16    0.000    0.000    0.014    0.001 pydoc.py:1512(locate)
+	 47    0.000    0.000    0.013    0.000 pydoc.py:300(safeimport)
+		1    0.000    0.000    0.000    0.000 qComboBox_.py:131(hidePopup)
+	 28    0.002    0.000    0.017    0.001 qComboBox_.py:15(__init__)
+		1    0.000    0.000    0.000    0.000 qComboBox_.py:205(eventFilter)
+		1    0.000    0.000    0.000    0.000 qListWidget_.py:1(<module>)
+		1    0.000    0.000    0.000    0.000 qListWidget_.py:8(QListWidget_)
+	104    0.006    0.000    0.019    0.000 qMenu_.py:15(__init__)
+		1    0.000    0.000    0.000    0.000 qMessageBox_.py:1(<module>)
+		1    0.000    0.000    0.000    0.000 qMessageBox_.py:23(QMessageBox_)
+		1    0.000    0.000    0.000    0.000 qProgressBar_.py:1(<module>)
+		1    0.000    0.000    0.000    0.000 qProgressBar_.py:23(QProgressBar_)
+	 34    0.001    0.000    0.001    0.000 qProgressBar_.py:29(__init__)
+		1    0.000    0.000    0.000    0.000 qPushButton_Draggable.py:1(<module>)
+	 34    0.001    0.000    0.006    0.000 qPushButton_Draggable.py:14(__init__)
+		1    0.000    0.000    0.000    0.000 qPushButton_Draggable.py:7(QPushButton_Draggable)
+		1    0.002    0.002    0.008    0.008 qSplashScreen_.py:1(<module>)
+		1    0.000    0.000    0.000    0.000 qSplashScreen_.py:14(QSplashScreen_)
+		1    0.000    0.000    0.000    0.000 qTextEdit_.py:1(<module>)
+		1    0.000    0.000    0.000    0.000 qTextEdit_.py:23(QTextEdit_)
+		1    0.000    0.000    0.000    0.000 qTextEdit_.py:30(__init__)
+		1    0.000    0.000    0.000    0.000 qTextEdit_.py:52(showEvent)
+	 76    0.003    0.000    0.021    0.000 qToolButton_.py:10(__init__)
+		1    0.000    0.000    0.000    0.000 qTreeWidget_ExpandableList.py:1(<module>)
+		1    0.000    0.000    0.000    0.000 qTreeWidget_ExpandableList.py:13(QTreeWidget_ExpandableList)
+	 18    0.000    0.000    0.000    0.000 qTreeWidget_ExpandableList.py:142(eventFilter)
+		3    0.002    0.001    0.003    0.001 qTreeWidget_ExpandableList.py:44(__init__)
+	180    0.001    0.000    0.023    0.000 shared.py:16(menu_)
+	280    0.001    0.000    0.001    0.000 shared.py:172(setAttributes)
+	 76    0.001    0.000    0.001    0.000 shared.py:49(__init__)
+	 47    0.000    0.000    0.000    0.000 string.py:283(split)
+	 47    0.000    0.000    0.000    0.000 string.py:310(join)
+		1    0.000    0.000    1.712    1.712 tk_.py:30(__init__)
+		1    0.000    0.000    0.011    0.011 tk_.py:300(showEvent)
+		1    0.000    0.000    0.007    0.007 tk_.py:53(setUi)
+		1    0.000    0.000    0.000    0.000 tk_childEvents.py:174(createEventName)
+		1    0.000    0.000    0.000    0.000 tk_childEvents.py:192(eventFilter)
+		1    0.000    0.000    0.000    0.000 tk_childEvents.py:24(__init__)
  15/1    0.000    0.000    0.005    0.005 tk_childEvents.py:32(initWidgets)
  14/6    0.000    0.000    0.004    0.001 tk_childEvents.py:93(addWidgets)
-    1    0.000    0.000    1.733    1.733 tk_maya.py:110(show_)
-    1    0.000    0.000    1.717    1.717 tk_maya.py:26(__init__)
-    1    0.000    0.000    0.005    0.005 tk_maya.py:43(getMainWindow)
-    2    0.000    0.000    0.001    0.000 tk_maya.py:53(<genexpr>)
-    1    0.000    0.000    0.011    0.011 tk_maya.py:58(showEvent)
-    1    0.000    0.000    1.717    1.717 tk_maya.py:94(_getInstance)
-    1    0.000    0.000    0.000    0.000 tk_maya.py:99(<dictcomp>)
-    1    0.000    0.000    0.000    0.000 tk_overlay.py:108(__init__)
-   18    0.000    0.000    0.000    0.000 tk_overlay.py:118(eventFilter)
-    1    0.000    0.000    0.000    0.000 tk_overlay.py:25(__init__)
-    1    0.000    0.000    0.000    0.000 tk_slots_.py:17(__init__)
-    1    0.000    0.000    0.000    0.000 tk_slots_maya_init.py:33(__init__)
-    1    0.000    0.000    0.000    0.000 tk_slots_maya_init.py:42(construct_hud)
-    1    0.000    0.000    0.000    0.000 tk_styleSheet.py:1010(__init__)
-    7    0.000    0.000    0.000    0.000 tk_styleSheet.py:1016(getStyleSheet)
-   16    0.000    0.000    0.002    0.000 tk_styleSheet.py:1039(setStyleSheet)
-   33    0.000    0.000    0.000    0.000 tk_switchboard.py:1029(getMethod)
-    6    0.000    0.000    0.000    0.000 tk_switchboard.py:1049(<genexpr>)
-   12    0.000    0.000    0.000    0.000 tk_switchboard.py:1057(<genexpr>)
-    2    0.000    0.000    0.000    0.000 tk_switchboard.py:1101(previousName)
-    1    0.000    0.000    0.000    0.000 tk_switchboard.py:1148(prevCommand)
-    1    0.000    0.000    0.000    0.000 tk_switchboard.py:1264(gcProtect)
-   33    0.000    0.000    0.000    0.000 tk_switchboard.py:1351(getUiLevel)
-   20    0.000    0.000    0.000    0.000 tk_switchboard.py:1379(prefix)
-   65    0.000    0.000    0.000    0.000 tk_switchboard.py:1438(list)
+		1    0.000    0.000    1.733    1.733 tk_maya.py:110(show_)
+		1    0.000    0.000    1.717    1.717 tk_maya.py:26(__init__)
+		1    0.000    0.000    0.005    0.005 tk_maya.py:43(getMainWindow)
+		2    0.000    0.000    0.001    0.000 tk_maya.py:53(<genexpr>)
+		1    0.000    0.000    0.011    0.011 tk_maya.py:58(showEvent)
+		1    0.000    0.000    1.717    1.717 tk_maya.py:94(_getInstance)
+		1    0.000    0.000    0.000    0.000 tk_maya.py:99(<dictcomp>)
+		1    0.000    0.000    0.000    0.000 tk_overlay.py:108(__init__)
+	 18    0.000    0.000    0.000    0.000 tk_overlay.py:118(eventFilter)
+		1    0.000    0.000    0.000    0.000 tk_overlay.py:25(__init__)
+		1    0.000    0.000    0.000    0.000 tk_slots_.py:17(__init__)
+		1    0.000    0.000    0.000    0.000 tk_slots_maya_init.py:33(__init__)
+		1    0.000    0.000    0.000    0.000 tk_slots_maya_init.py:42(construct_hud)
+		1    0.000    0.000    0.000    0.000 tk_styleSheet.py:1010(__init__)
+		7    0.000    0.000    0.000    0.000 tk_styleSheet.py:1016(getStyleSheet)
+	 16    0.000    0.000    0.002    0.000 tk_styleSheet.py:1039(setStyleSheet)
+	 33    0.000    0.000    0.000    0.000 tk_switchboard.py:1029(getMethod)
+		6    0.000    0.000    0.000    0.000 tk_switchboard.py:1049(<genexpr>)
+	 12    0.000    0.000    0.000    0.000 tk_switchboard.py:1057(<genexpr>)
+		2    0.000    0.000    0.000    0.000 tk_switchboard.py:1101(previousName)
+		1    0.000    0.000    0.000    0.000 tk_switchboard.py:1148(prevCommand)
+		1    0.000    0.000    0.000    0.000 tk_switchboard.py:1264(gcProtect)
+	 33    0.000    0.000    0.000    0.000 tk_switchboard.py:1351(getUiLevel)
+	 20    0.000    0.000    0.000    0.000 tk_switchboard.py:1379(prefix)
+	 65    0.000    0.000    0.000    0.000 tk_switchboard.py:1438(list)
 17/15    0.000    0.000    0.000    0.000 tk_switchboard.py:163(widgets)
-   16    0.000    0.000    0.000    0.000 tk_switchboard.py:191(setAttributes)
-   16    0.000    0.000    0.000    0.000 tk_switchboard.py:257(getClassKwargs)
-   16    0.000    0.000    0.001    0.000 tk_switchboard.py:289(getClassFromUiName)
-   16    0.000    0.000    0.000    0.000 tk_switchboard.py:312(getDefaultSignalType)
-   16    0.000    0.000    0.000    0.000 tk_switchboard.py:347(getSignal)
-    1    0.000    0.000    0.000    0.000 tk_switchboard.py:370(setConnections)
-   15    0.000    0.000    0.001    0.000 tk_switchboard.py:380(connectSlots)
-    2    0.000    0.000    0.000    0.000 tk_switchboard.py:438(uiList)
+	 16    0.000    0.000    0.000    0.000 tk_switchboard.py:191(setAttributes)
+	 16    0.000    0.000    0.000    0.000 tk_switchboard.py:257(getClassKwargs)
+	 16    0.000    0.000    0.001    0.000 tk_switchboard.py:289(getClassFromUiName)
+	 16    0.000    0.000    0.000    0.000 tk_switchboard.py:312(getDefaultSignalType)
+	 16    0.000    0.000    0.000    0.000 tk_switchboard.py:347(getSignal)
+		1    0.000    0.000    0.000    0.000 tk_switchboard.py:370(setConnections)
+	 15    0.000    0.000    0.001    0.000 tk_switchboard.py:380(connectSlots)
+		2    0.000    0.000    0.000    0.000 tk_switchboard.py:438(uiList)
 53/46    0.000    0.000    0.001    0.000 tk_switchboard.py:459(getUi)
-    1    0.000    0.000    0.000    0.000 tk_switchboard.py:514(setUiName)
-   40    0.000    0.000    0.000    0.000 tk_switchboard.py:535(getUiName)
-    1    0.000    0.000    0.000    0.000 tk_switchboard.py:578(getUiNameFromWidget)
-    1    0.000    0.000    1.711    1.711 tk_switchboard.py:58(__init__)
-    2    0.000    0.000    0.000    0.000 tk_switchboard.py:588(<genexpr>)
-    1    0.000    0.000    0.000    0.000 tk_switchboard.py:656(getUiIndex)
-    1    0.000    0.000    0.000    0.000 tk_switchboard.py:674(setUiSize)
-  751    0.000    0.000    0.000    0.000 tk_switchboard.py:68(sbDict)
-    2    0.000    0.000    0.000    0.000 tk_switchboard.py:722(getUiSize)
-    1    0.000    0.000    0.000    0.000 tk_switchboard.py:758(getUiSizeX)
-    1    0.000    0.000    0.000    0.000 tk_switchboard.py:771(getUiSizeY)
-    1    0.000    0.000    0.000    0.000 tk_switchboard.py:784(setMainAppWindow)
-   15    0.000    0.000    0.002    0.000 tk_switchboard.py:79(addWidgets)
-   16    0.000    0.000    0.000    0.000 tk_switchboard.py:799(getMainAppWindow)
-    3    0.000    0.000    0.000    0.000 tk_switchboard.py:824(setClassInstance)
-   16    0.000    0.000    0.000    0.000 tk_switchboard.py:856(getClassInstance)
-    1    0.000    0.000    0.000    0.000 tk_switchboard.py:888(getWidget)
-   17    0.000    0.000    0.000    0.000 tk_switchboard.py:916(getWidgetName)
-   17    0.000    0.000    0.000    0.000 tk_switchboard.py:948(getWidgetType)
-   16    0.000    0.000    0.002    0.000 tk_switchboard.py:96(addWidget)
-   16    0.000    0.000    0.000    0.000 tk_switchboard.py:980(_getDerivedType)
-   33    0.000    0.000    0.000    0.000 tk_switchboard.py:998(getDerivedType)
-    1    0.008    0.008    1.711    1.711 tk_uiLoader.py:32(__init__)
-   72    0.000    0.000    0.000    0.000 tk_uiLoader.py:50(uiDict)
-    1    0.000    0.000    1.542    1.542 tk_uiLoader.py:61(registerWidgets)
-    6    0.001    0.000    0.158    0.026 tk_uiLoader.py:76(addUi)
-   16    0.000    0.000    0.001    0.000 traceback.py:78(extract_tb)
-    1    0.000    0.000    0.000    0.000 util.py:172(Finalize)
-    1    0.000    0.000    0.000    0.000 util.py:336(ForkAwareThreadLock)
-    1    0.000    0.000    0.000    0.000 util.py:346(ForkAwareLocal)
-    1    0.000    0.000    0.000    0.000 util.py:35(<module>)
-    1    0.000    0.000    0.000    0.000 weakref.py:47(__init__)
-   47    0.002    0.000    0.012    0.000 {__import__}
-    1    0.000    0.000    0.000    0.000 {any}
-    1    0.000    0.000    0.000    0.000 {built-in method ls}
-    1    0.000    0.000    0.000    0.000 {built-in method symmetricModelling}
-    1    0.000    0.000    0.000    0.000 {built-in method xformConstraint}
-    3    0.000    0.000    0.000    0.000 {callable}
-   19    0.000    0.000    0.000    0.000 {function eventFilter at 0x000001DD9CE1FAC8}
-    1    0.000    0.000    0.000    0.000 {function hidePopup at 0x000001DD9CE1F7B8}
-  160    0.000    0.000    0.000    0.000 {getattr}
+		1    0.000    0.000    0.000    0.000 tk_switchboard.py:514(setUiName)
+	 40    0.000    0.000    0.000    0.000 tk_switchboard.py:535(getUiName)
+		1    0.000    0.000    0.000    0.000 tk_switchboard.py:578(getUiNameFromWidget)
+		1    0.000    0.000    1.711    1.711 tk_switchboard.py:58(__init__)
+		2    0.000    0.000    0.000    0.000 tk_switchboard.py:588(<genexpr>)
+		1    0.000    0.000    0.000    0.000 tk_switchboard.py:656(getUiIndex)
+		1    0.000    0.000    0.000    0.000 tk_switchboard.py:674(setUiSize)
+	751    0.000    0.000    0.000    0.000 tk_switchboard.py:68(sbDict)
+		2    0.000    0.000    0.000    0.000 tk_switchboard.py:722(getUiSize)
+		1    0.000    0.000    0.000    0.000 tk_switchboard.py:758(getUiSizeX)
+		1    0.000    0.000    0.000    0.000 tk_switchboard.py:771(getUiSizeY)
+		1    0.000    0.000    0.000    0.000 tk_switchboard.py:784(setMainAppWindow)
+	 15    0.000    0.000    0.002    0.000 tk_switchboard.py:79(addWidgets)
+	 16    0.000    0.000    0.000    0.000 tk_switchboard.py:799(getMainAppWindow)
+		3    0.000    0.000    0.000    0.000 tk_switchboard.py:824(setClassInstance)
+	 16    0.000    0.000    0.000    0.000 tk_switchboard.py:856(getClassInstance)
+		1    0.000    0.000    0.000    0.000 tk_switchboard.py:888(getWidget)
+	 17    0.000    0.000    0.000    0.000 tk_switchboard.py:916(getWidgetName)
+	 17    0.000    0.000    0.000    0.000 tk_switchboard.py:948(getWidgetType)
+	 16    0.000    0.000    0.002    0.000 tk_switchboard.py:96(addWidget)
+	 16    0.000    0.000    0.000    0.000 tk_switchboard.py:980(_getDerivedType)
+	 33    0.000    0.000    0.000    0.000 tk_switchboard.py:998(getDerivedType)
+		1    0.008    0.008    1.711    1.711 tk_uiLoader.py:32(__init__)
+	 72    0.000    0.000    0.000    0.000 tk_uiLoader.py:50(uiDict)
+		1    0.000    0.000    1.542    1.542 tk_uiLoader.py:61(registerWidgets)
+		6    0.001    0.000    0.158    0.026 tk_uiLoader.py:76(addUi)
+	 16    0.000    0.000    0.001    0.000 traceback.py:78(extract_tb)
+		1    0.000    0.000    0.000    0.000 util.py:172(Finalize)
+		1    0.000    0.000    0.000    0.000 util.py:336(ForkAwareThreadLock)
+		1    0.000    0.000    0.000    0.000 util.py:346(ForkAwareLocal)
+		1    0.000    0.000    0.000    0.000 util.py:35(<module>)
+		1    0.000    0.000    0.000    0.000 weakref.py:47(__init__)
+	 47    0.002    0.000    0.012    0.000 {__import__}
+		1    0.000    0.000    0.000    0.000 {any}
+		1    0.000    0.000    0.000    0.000 {built-in method ls}
+		1    0.000    0.000    0.000    0.000 {built-in method symmetricModelling}
+		1    0.000    0.000    0.000    0.000 {built-in method xformConstraint}
+		3    0.000    0.000    0.000    0.000 {callable}
+	 19    0.000    0.000    0.000    0.000 {function eventFilter at 0x000001DD9CE1FAC8}
+		1    0.000    0.000    0.000    0.000 {function hidePopup at 0x000001DD9CE1F7B8}
+	160    0.000    0.000    0.000    0.000 {getattr}
  1059    0.003    0.000    0.003    0.000 {hasattr}
-    1    0.000    0.000    0.000    0.000 {instance}
-  410    0.000    0.000    0.000    0.000 {isinstance}
-    6    0.000    0.000    0.000    0.000 {iter}
-  597    0.000    0.000    0.000    0.000 {len}
-    1    0.000    0.000    0.000    0.000 {map}
-    1    0.004    0.004    0.004    0.004 {method 'activateWindow' of 'PySide2.QtWidgets.QWidget' objects}
-    1    0.000    0.000    0.000    0.000 {method 'addAction' of 'PySide2.QtWidgets.QWidget' objects}
-    1    0.001    0.001    0.001    0.001 {method 'addWidget' of 'PySide2.QtWidgets.QStackedWidget' objects}
-  135    0.000    0.000    0.000    0.000 {method 'append' of 'list' objects}
-   15    0.000    0.000    0.000    0.000 {method 'capitalize' of 'str' objects}
-    1    0.000    0.000    0.000    0.000 {method 'center' of 'PySide2.QtCore.QRect' objects}
-   16    0.000    0.000    0.000    0.000 {method 'children' of 'PySide2.QtCore.QObject' objects}
-    2    0.000    0.000    0.000    0.000 {method 'connect' of 'PySide2.QtCore.SignalInstance' objects}
-    1    0.000    0.000    0.000    0.000 {method 'disable' of '_lsprof.Profiler' objects}
-    2    0.000    0.000    0.000    0.000 {method 'emit' of 'PySide2.QtCore.SignalInstance' objects}
-  142    0.000    0.000    0.000    0.000 {method 'endswith' of 'str' objects}
-   63    0.000    0.000    0.000    0.000 {method 'format' of 'str' objects}
-    2    0.000    0.000    0.000    0.000 {method 'frameGeometry' of 'PySide2.QtWidgets.QWidget' objects}
-    9    0.000    0.000    0.000    0.000 {method 'get' of 'dict' objects}
-    1    0.000    0.000    0.000    0.000 {method 'get_source' of 'zipimport.zipimporter' objects}
-    1    0.000    0.000    0.000    0.000 {method 'height' of 'PySide2.QtCore.QRect' objects}
-    1    0.000    0.000    0.000    0.000 {method 'index' of 'list' objects}
-   34    0.000    0.000    0.000    0.000 {method 'installEventFilter' of 'PySide2.QtCore.QObject' objects}
-   18    0.000    0.000    0.000    0.000 {method 'isWidgetType' of 'PySide2.QtCore.QObject' objects}
-   85    0.000    0.000    0.000    0.000 {method 'isdigit' of 'str' objects}
-  310    0.000    0.000    0.000    0.000 {method 'items' of 'dict' objects}
-    3    0.000    0.000    0.000    0.000 {method 'iteritems' of 'dict' objects}
-   49    0.000    0.000    0.000    0.000 {method 'join' of 'str' objects}
-    1    0.000    0.000    0.000    0.000 {method 'keys' of 'dict' objects}
-   71    0.107    0.002    0.156    0.002 {method 'load' of 'PySide2.QtUiTools.QUiLoader' objects}
-   37    0.000    0.000    0.000    0.000 {method 'lower' of 'str' objects}
-   16    0.000    0.000    0.000    0.000 {method 'lower' of 'unicode' objects}
-    2    0.000    0.000    0.000    0.000 {method 'lstrip' of 'str' objects}
-    1    0.000    0.000    0.000    0.000 {method 'move' of 'PySide2.QtWidgets.QWidget' objects}
-  368    0.000    0.000    0.000    0.000 {method 'objectName' of 'PySide2.QtCore.QObject' objects}
-   18    0.000    0.000    0.000    0.000 {method 'parent' of 'PySide2.QtCore.QObject' objects}
-    2    0.000    0.000    0.000    0.000 {method 'parentWidget' of 'PySide2.QtWidgets.QWidget' objects}
-  579    0.000    0.000    0.000    0.000 {method 'pop' of 'dict' objects}
-    1    0.000    0.000    0.000    0.000 {method 'raise_' of 'PySide2.QtWidgets.QWidget' objects}
-    1    0.000    0.000    0.000    0.000 {method 'rect' of 'PySide2.QtWidgets.QWidget' objects}
-   15    1.528    0.102    1.528    0.102 {method 'registerCustomWidget' of 'PySide2.QtUiTools.QUiLoader' objects}
-  537    0.000    0.000    0.000    0.000 {method 'replace' of 'str' objects}
-  3/2    0.000    0.000    0.000    0.000 {method 'resize' of 'PySide2.QtWidgets.QWidget' objects}
-   71    0.000    0.000    0.000    0.000 {method 'rfind' of 'str' objects}
-   16    0.000    0.000    0.000    0.000 {method 'rstrip' of 'unicode' objects}
-   76    0.000    0.000    0.000    0.000 {method 'setArrowType' of 'PySide2.QtWidgets.QToolButton' objects}
-  184    0.000    0.000    0.000    0.000 {method 'setAttribute' of 'PySide2.QtWidgets.QWidget' objects}
-    1    0.000    0.000    0.000    0.000 {method 'setAutoFillBackground' of 'PySide2.QtWidgets.QWidget' objects}
-   34    0.000    0.000    0.000    0.000 {method 'setCheckable' of 'PySide2.QtWidgets.QAbstractButton' objects}
-    1    0.000    0.000    0.000    0.000 {method 'setCurrentWidget' of 'PySide2.QtWidgets.QStackedWidget' objects}
-   35    0.000    0.000    0.000    0.000 {method 'setCursor' of 'PySide2.QtWidgets.QWidget' objects}
-    3    0.000    0.000    0.000    0.000 {method 'setHeaderHidden' of 'PySide2.QtWidgets.QTreeView' objects}
-    3    0.000    0.000    0.000    0.000 {method 'setIndentation' of 'PySide2.QtWidgets.QTreeView' objects}
-   76    0.001    0.000    0.001    0.000 {method 'setMenu' of 'PySide2.QtWidgets.QToolButton' objects}
-   76    0.000    0.000    0.000    0.000 {method 'setPopupMode' of 'PySide2.QtWidgets.QToolButton' objects}
-  148    0.019    0.000    0.019    0.000 {method 'setStyleSheet' of 'PySide2.QtWidgets.QWidget' objects}
-   76    0.000    0.000    0.000    0.000 {method 'setToolButtonStyle' of 'PySide2.QtWidgets.QToolButton' objects}
-   34    0.000    0.000    0.000    0.000 {method 'setVisible' of 'PySide2.QtWidgets.QWidget' objects}
-  106    0.001    0.000    0.001    0.000 {method 'setWindowFlags' of 'PySide2.QtWidgets.QWidget' objects}
-    3    0.000    0.000    0.000    0.000 {method 'setter' of 'property' objects}
-    1    0.005    0.005    0.016    0.016 {method 'show' of 'PySide2.QtWidgets.QWidget' objects}
-    2    0.000    0.000    0.000    0.000 {method 'size' of 'PySide2.QtWidgets.QWidget' objects}
-  187    0.000    0.000    0.000    0.000 {method 'split' of 'str' objects}
-    1    0.000    0.000    0.000    0.000 {method 'splitlines' of 'str' objects}
-   40    0.000    0.000    0.000    0.000 {method 'startswith' of 'str' objects}
-   16    0.000    0.000    0.000    0.000 {method 'strip' of 'str' objects}
-    7    0.000    0.000    0.000    0.000 {method 'styleSheet' of 'PySide2.QtWidgets.QWidget' objects}
-  109    0.000    0.000    0.000    0.000 {method 'type' of 'PySide2.QtCore.QEvent' objects}
-   16    0.000    0.000    0.000    0.000 {method 'update' of 'dict' objects}
-   16    0.000    0.000    0.000    0.000 {method 'upper' of 'str' objects}
-    2    0.000    0.000    0.000    0.000 {method 'value' of 'PySide2.QtWidgets.QAbstractSlider' objects}
-   24    0.000    0.000    0.000    0.000 {method 'values' of 'dict' objects}
-    3    0.000    0.000    0.000    0.000 {method 'values' of 'dictproxy' objects}
-   28    0.009    0.000    0.009    0.000 {method 'view' of 'PySide2.QtWidgets.QComboBox' objects}
-    1    0.000    0.000    0.000    0.000 {method 'viewport' of 'PySide2.QtWidgets.QAbstractScrollArea' objects}
-    1    0.000    0.000    0.000    0.000 {method 'width' of 'PySide2.QtCore.QRect' objects}
-   14    0.000    0.000    0.001    0.000 {next}
-    2    0.000    0.000    0.000    0.000 {nt._getfullpathname}
-  117    0.001    0.000    0.001    0.000 {nt._isdir}
-    1    0.000    0.000    0.000    0.000 {nt.getcwd}
-    7    0.001    0.000    0.001    0.000 {nt.listdir}
-    1    0.000    0.000    0.000    0.000 {nt.stat}
-    1    0.000    0.000    0.000    0.000 {nt.urandom}
-    6    0.000    0.000    0.000    0.000 {operator.isMappingType}
-    1    0.000    0.000    0.000    0.000 {pos}
-   11    0.000    0.000    0.000    0.000 {setattr}
-    2    0.000    0.000    0.000    0.000 {shiboken2.shiboken2.isValid}
-    3    0.000    0.000    0.000    0.000 {sys._getframe}
-   16    0.000    0.000    0.000    0.000 {sys.exc_info}
-    1    0.004    0.004    0.004    0.004 {topLevelWidgets}
+		1    0.000    0.000    0.000    0.000 {instance}
+	410    0.000    0.000    0.000    0.000 {isinstance}
+		6    0.000    0.000    0.000    0.000 {iter}
+	597    0.000    0.000    0.000    0.000 {len}
+		1    0.000    0.000    0.000    0.000 {map}
+		1    0.004    0.004    0.004    0.004 {method 'activateWindow' of 'PySide2.QtWidgets.QWidget' objects}
+		1    0.000    0.000    0.000    0.000 {method 'addAction' of 'PySide2.QtWidgets.QWidget' objects}
+		1    0.001    0.001    0.001    0.001 {method 'addWidget' of 'PySide2.QtWidgets.QStackedWidget' objects}
+	135    0.000    0.000    0.000    0.000 {method 'append' of 'list' objects}
+	 15    0.000    0.000    0.000    0.000 {method 'capitalize' of 'str' objects}
+		1    0.000    0.000    0.000    0.000 {method 'center' of 'PySide2.QtCore.QRect' objects}
+	 16    0.000    0.000    0.000    0.000 {method 'children' of 'PySide2.QtCore.QObject' objects}
+		2    0.000    0.000    0.000    0.000 {method 'connect' of 'PySide2.QtCore.SignalInstance' objects}
+		1    0.000    0.000    0.000    0.000 {method 'disable' of '_lsprof.Profiler' objects}
+		2    0.000    0.000    0.000    0.000 {method 'emit' of 'PySide2.QtCore.SignalInstance' objects}
+	142    0.000    0.000    0.000    0.000 {method 'endswith' of 'str' objects}
+	 63    0.000    0.000    0.000    0.000 {method 'format' of 'str' objects}
+		2    0.000    0.000    0.000    0.000 {method 'frameGeometry' of 'PySide2.QtWidgets.QWidget' objects}
+		9    0.000    0.000    0.000    0.000 {method 'get' of 'dict' objects}
+		1    0.000    0.000    0.000    0.000 {method 'get_source' of 'zipimport.zipimporter' objects}
+		1    0.000    0.000    0.000    0.000 {method 'height' of 'PySide2.QtCore.QRect' objects}
+		1    0.000    0.000    0.000    0.000 {method 'index' of 'list' objects}
+	 34    0.000    0.000    0.000    0.000 {method 'installEventFilter' of 'PySide2.QtCore.QObject' objects}
+	 18    0.000    0.000    0.000    0.000 {method 'isWidgetType' of 'PySide2.QtCore.QObject' objects}
+	 85    0.000    0.000    0.000    0.000 {method 'isdigit' of 'str' objects}
+	310    0.000    0.000    0.000    0.000 {method 'items' of 'dict' objects}
+		3    0.000    0.000    0.000    0.000 {method 'iteritems' of 'dict' objects}
+	 49    0.000    0.000    0.000    0.000 {method 'join' of 'str' objects}
+		1    0.000    0.000    0.000    0.000 {method 'keys' of 'dict' objects}
+	 71    0.107    0.002    0.156    0.002 {method 'load' of 'PySide2.QtUiTools.QUiLoader' objects}
+	 37    0.000    0.000    0.000    0.000 {method 'lower' of 'str' objects}
+	 16    0.000    0.000    0.000    0.000 {method 'lower' of 'unicode' objects}
+		2    0.000    0.000    0.000    0.000 {method 'lstrip' of 'str' objects}
+		1    0.000    0.000    0.000    0.000 {method 'move' of 'PySide2.QtWidgets.QWidget' objects}
+	368    0.000    0.000    0.000    0.000 {method 'objectName' of 'PySide2.QtCore.QObject' objects}
+	 18    0.000    0.000    0.000    0.000 {method 'parent' of 'PySide2.QtCore.QObject' objects}
+		2    0.000    0.000    0.000    0.000 {method 'parentWidget' of 'PySide2.QtWidgets.QWidget' objects}
+	579    0.000    0.000    0.000    0.000 {method 'pop' of 'dict' objects}
+		1    0.000    0.000    0.000    0.000 {method 'raise_' of 'PySide2.QtWidgets.QWidget' objects}
+		1    0.000    0.000    0.000    0.000 {method 'rect' of 'PySide2.QtWidgets.QWidget' objects}
+	 15    1.528    0.102    1.528    0.102 {method 'registerCustomWidget' of 'PySide2.QtUiTools.QUiLoader' objects}
+	537    0.000    0.000    0.000    0.000 {method 'replace' of 'str' objects}
+	3/2    0.000    0.000    0.000    0.000 {method 'resize' of 'PySide2.QtWidgets.QWidget' objects}
+	 71    0.000    0.000    0.000    0.000 {method 'rfind' of 'str' objects}
+	 16    0.000    0.000    0.000    0.000 {method 'rstrip' of 'unicode' objects}
+	 76    0.000    0.000    0.000    0.000 {method 'setArrowType' of 'PySide2.QtWidgets.QToolButton' objects}
+	184    0.000    0.000    0.000    0.000 {method 'setAttribute' of 'PySide2.QtWidgets.QWidget' objects}
+		1    0.000    0.000    0.000    0.000 {method 'setAutoFillBackground' of 'PySide2.QtWidgets.QWidget' objects}
+	 34    0.000    0.000    0.000    0.000 {method 'setCheckable' of 'PySide2.QtWidgets.QAbstractButton' objects}
+		1    0.000    0.000    0.000    0.000 {method 'setCurrentWidget' of 'PySide2.QtWidgets.QStackedWidget' objects}
+	 35    0.000    0.000    0.000    0.000 {method 'setCursor' of 'PySide2.QtWidgets.QWidget' objects}
+		3    0.000    0.000    0.000    0.000 {method 'setHeaderHidden' of 'PySide2.QtWidgets.QTreeView' objects}
+		3    0.000    0.000    0.000    0.000 {method 'setIndentation' of 'PySide2.QtWidgets.QTreeView' objects}
+	 76    0.001    0.000    0.001    0.000 {method 'setMenu' of 'PySide2.QtWidgets.QToolButton' objects}
+	 76    0.000    0.000    0.000    0.000 {method 'setPopupMode' of 'PySide2.QtWidgets.QToolButton' objects}
+	148    0.019    0.000    0.019    0.000 {method 'setStyleSheet' of 'PySide2.QtWidgets.QWidget' objects}
+	 76    0.000    0.000    0.000    0.000 {method 'setToolButtonStyle' of 'PySide2.QtWidgets.QToolButton' objects}
+	 34    0.000    0.000    0.000    0.000 {method 'setVisible' of 'PySide2.QtWidgets.QWidget' objects}
+	106    0.001    0.000    0.001    0.000 {method 'setWindowFlags' of 'PySide2.QtWidgets.QWidget' objects}
+		3    0.000    0.000    0.000    0.000 {method 'setter' of 'property' objects}
+		1    0.005    0.005    0.016    0.016 {method 'show' of 'PySide2.QtWidgets.QWidget' objects}
+		2    0.000    0.000    0.000    0.000 {method 'size' of 'PySide2.QtWidgets.QWidget' objects}
+	187    0.000    0.000    0.000    0.000 {method 'split' of 'str' objects}
+		1    0.000    0.000    0.000    0.000 {method 'splitlines' of 'str' objects}
+	 40    0.000    0.000    0.000    0.000 {method 'startswith' of 'str' objects}
+	 16    0.000    0.000    0.000    0.000 {method 'strip' of 'str' objects}
+		7    0.000    0.000    0.000    0.000 {method 'styleSheet' of 'PySide2.QtWidgets.QWidget' objects}
+	109    0.000    0.000    0.000    0.000 {method 'type' of 'PySide2.QtCore.QEvent' objects}
+	 16    0.000    0.000    0.000    0.000 {method 'update' of 'dict' objects}
+	 16    0.000    0.000    0.000    0.000 {method 'upper' of 'str' objects}
+		2    0.000    0.000    0.000    0.000 {method 'value' of 'PySide2.QtWidgets.QAbstractSlider' objects}
+	 24    0.000    0.000    0.000    0.000 {method 'values' of 'dict' objects}
+		3    0.000    0.000    0.000    0.000 {method 'values' of 'dictproxy' objects}
+	 28    0.009    0.000    0.009    0.000 {method 'view' of 'PySide2.QtWidgets.QComboBox' objects}
+		1    0.000    0.000    0.000    0.000 {method 'viewport' of 'PySide2.QtWidgets.QAbstractScrollArea' objects}
+		1    0.000    0.000    0.000    0.000 {method 'width' of 'PySide2.QtCore.QRect' objects}
+	 14    0.000    0.000    0.001    0.000 {next}
+		2    0.000    0.000    0.000    0.000 {nt._getfullpathname}
+	117    0.001    0.000    0.001    0.000 {nt._isdir}
+		1    0.000    0.000    0.000    0.000 {nt.getcwd}
+		7    0.001    0.000    0.001    0.000 {nt.listdir}
+		1    0.000    0.000    0.000    0.000 {nt.stat}
+		1    0.000    0.000    0.000    0.000 {nt.urandom}
+		6    0.000    0.000    0.000    0.000 {operator.isMappingType}
+		1    0.000    0.000    0.000    0.000 {pos}
+	 11    0.000    0.000    0.000    0.000 {setattr}
+		2    0.000    0.000    0.000    0.000 {shiboken2.shiboken2.isValid}
+		3    0.000    0.000    0.000    0.000 {sys._getframe}
+	 16    0.000    0.000    0.000    0.000 {sys.exc_info}
+		1    0.004    0.004    0.004    0.004 {topLevelWidgets}
+'''
+
+# ======================================================================
+	'EXAMPLES:'
+# ======================================================================
+
+# decorators:
+@Slots.sync				# Keep widgets (having the same objectName) in sync across parent and child uis. A decorator using the syncWidgets method. 'isChecked':'setChecked', 'isDisabled':'setDisabled', 'isEnabled':'setEnabled', 'value':'setValue', 'text':'setText', 'icon':'setIcon'
+@Slots.message		# Pop up a message box displaying the returned str. also: self.viewPortMessage("Display Local Rotation Axes:<hl>"+str(state)+"</hl>")
+@Slots.hideMain		# Hides the stacked widget main window.
+@Slots.progress		# Display a progress bar. (currently disabled)
+@Init.attr				# Launch a popup window containing the given objects attributes. A Decorator for setAttributeWindow (objAttrWindow).
+@Init.undoChunk		# A decorator to place a function into Maya's undo chunk.
+
+
+
+#add widgets to  menu|contextMenu:
+tb.contextMenu.add('QRadioButton', setText='Current Material', setObjectName='chk007', setChecked=True, setToolTip='Re-Assign the current stored material.')
+tb.contextMenu.add('QCheckBox', setText='Current Material', setObjectName='chk010', setChecked=True, setToolTip='Use the current material, <br>else use the current viewport selection to get a material.')
+tb.contextMenu.add('QDoubleSpinBox', setPrefix='Width: ', setObjectName='s000', setMinMax_='0.00-100 step.05', setValue=0.25, setHeight_=20, setToolTip='Bevel Width.')
+cmb.contextMenu.add(self.tcl.wgts.Label, setText='Open in Editor', setObjectName='lbl000', setToolTip='Open material in editor.')
+cmb.contextMenu.add('QPushButton', setObjectName='b002', setText='Delete All', setToolTip='Delete all autosave files.') #delete all
+
+
+
+# creating additional connections:
+cmb.returnPressed.connect(lambda: self.lbl001(setEditable=False))
+cmb.returnPressed.connect(lambda m=cmb.contextMenu.lastActiveChild: getattr(self, m(name=1))()) #connect to the last pressed child widget's corresponding method after return pressed. ie. self.lbl000 if cmb.lbl000 was clicked last.
+cmb.currentIndexChanged.connect(self.lbl005) #select current set on index change.
+cmb.beforePopupShown.connect(self.cmb001) #refresh comboBox contents before showing it's popup.
+cmb.contextMenu.chk006.setChecked(pm.autoSave(query=1, enable=1)) #set the initial autosave state.
+tb.contextMenu.chk015.stateChanged.connect(lambda state: self.toggleWidgets(tb.contextMenu, setDisabled='t000-1,s001,chk005-11') if state 
+															else self.toggleWidgets(tb.contextMenu, setEnabled='t000-1,s001,chk005-11')) #disable non-relevant options.
+self.connect_('chk006-9', 'toggled', self.chk006_9, tb.contextMenu)
+self.connect_((tb.contextMenu.chk012,tb.contextMenu.chk013,tb.contextMenu.chk014), 'toggled', 
+				[lambda state: self.rigging_ui.tb004.setText('Lock Attributes' 
+					if any((tb.contextMenu.chk012.isChecked(),tb.contextMenu.chk013.isChecked(),tb.contextMenu.chk014.isChecked())) else 'Unlock Attributes'), 
+				lambda state: self.rigging_submenu_ui.tb004.setText('Lock Transforms' 
+					if any((tb.contextMenu.chk012.isChecked(),tb.contextMenu.chk013.isChecked(),tb.contextMenu.chk014.isChecked())) else 'Unlock Attributes')])
+
+
+
+# call a method from another class.
+self.tcl.sb.getMethod('file', 'b005')()
+
+
+
+# pushButton w/contextMenu:
+def tb002(self, state=None):
+		'''Assign Material
+		'''
+		tb = self.materials_ui.tb002
+		if state is 'setMenu':
+			tb.contextMenu.add('QRadioButton', setText='Current Material', setObjectName='chk007', setChecked=True, setToolTip='Re-Assign the current stored material.')
+			return
+
+		selection = pm.ls(selection=1, flatten=1)
+		if not selection:
+			return 'Error: No renderable object is selected for assignment.'
+
+		assignCurrent = tb.contextMenu.chk007.isChecked()
+
+
+
+# comboBox standard:
+def cmb000(self, index=-1):
+		'''Editors
+		'''
+		cmb = self.edit_ui.draggable_header.contextMenu.cmb000
+
+		if index is 'setMenu':
+			list_ = ['Cleanup', 'Transfer: Attribute Values', 'Transfer: Shading Sets']
+			cmb.addItems_(list_, 'Maya Editors')
+			return
+
+		if index>0:
+			text = cmb.items[index]
+			if text=='Cleanup':
+				pm.mel.CleanupPolygonOptions()
+			if text=='Transfer: Attribute Values':
+				pm.mel.TransferAttributeValuesOptions()
+				# mel.eval('performTransferAttributes 1;') #Transfer Attributes Options
+			if text=='Transfer: Shading Sets':
+				pm.mel.performTransferShadingSets(1)
+			cmb.setCurrentIndex(0)
+
+
+# comboBox w/contextMenu
+def cmb002(self, index=-1):
+		'''Material list
+
+		:Parameters:
+			index (int) = parameter on activated, currentIndexChanged, and highlighted signals.
+		'''
+		cmb = self.materials_ui.cmb002
+
+		if index is 'setMenu':
+			cmb.contextMenu.add(self.tcl.wgts.Label, setText='Open in Editor', setObjectName='lbl000', setToolTip='Open material in editor.')
+			return
+
+		sceneMaterials = tb.contextMenu.chk000.isChecked()
+		idMapMaterials = tb.contextMenu.chk001.isChecked()
+		favoriteMaterials = tb.contextMenu.chk002.isChecked()
+
+		cmb.addItems_(list_, clear=True)
+
+
+
+#comboBox w/menu:
+def cmb006(self, index=-1):
+		'''Currently Selected Objects
+		'''
+		cmb = self.selection_ui.draggable_header.contextMenu.cmb006
+
+		if index is 'setMenu':
+			cmb.setCurrentText('Current Selection') # cmb.insertItem(cmb.currentIndex(), 'Current Selection') #insert item at current index.
+			cmb.popupStyle = 'qmenu'
+			cmb.beforePopupShown.connect(self.cmb006) #refresh the comboBox contents before showing it's popup.
+			return
+
+		cmb.clear()
+		items = [str(i) for i in pm.ls(sl=1, flatten=1)]
+		widgets = [cmb.menu_.add('QCheckBox', setText=t, setChecked=1) for t in items[:50]] #selection list is capped with a slice at 50 elements.
+
+
+
+# expandable_treewidget:
+def tree000(self, wItem=None, column=None):
+	'''
+	'''
+	tree = self.current_ui.tree000
+
+	if wItem=='setMenu':
+		tree.expandOnHover = True
+		tree.convert(tree.getTopLevelItems(), 'QLabel') #construct the tree using the existing contents.
+		return
+
+	if not any([wItem, column]): #refresh list items -----------------------------
+		#command history
+		recentCommandInfo = self.tcl.sb.prevCommand(docString=1, toolTip=1, as_list=1) #Get a list of any recent command names and their toolTips
+		[tree.add('QLabel', 'Recent Commands', refresh=1, setText=s[0], setToolTip=s[1]) for s in recentCommandInfo]
+		return
+
+	# widget = tree.getWidget(wItem, column)
+	header = tree.getHeaderFromColumn(column)
+	text = tree.getWidgetText(wItem, column)
+	index = tree.getIndexFromWItem(wItem, column)
+
+	if header=='Recent Commands':
+		recentCommands = self.tcl.sb.prevCommand(method=1, as_list=1) #Get a list of any recent commands
+		method = recentCommands[index]
+		if callable(method):
+			method()
+
+	# # if header=='':
+	# #   if text=='':
+	# #     pass
+	# #   if text=='':
+	# #     pass
+
+# ----------------------------------------------------------------------
 
 
 
 
 
-# BUGFIXES:
-# -----------------------------------------------
+
+
+
+
+# ======================================================================
+	'BUGFIXES'
+# ======================================================================
+'''
 
 Traceback (most recent call last):
-  File "O:/Cloud/Code/_scripts/tentacle\tentacle\childEvents.py", line 237, in eventFilter
-    getattr(self, eventName)(event) #handle the event locally. #ie. self.enterEvent(event)
-  File "O:/Cloud/Code/_scripts/tentacle\tentacle\childEvents.py", line 263, in showEvent
-    self.tcl.sb.getMethod(self.uiName, self.widgetName)()
-  File "O:/Cloud/Code/_scripts/tentacle\tentacle\slots\max\max_file.py", line 195, in cmb006
-    list_ = [f for f in os.listdir(path)]
+	File "O:/Cloud/Code/_scripts/tentacle\tentacle\childEvents.py", line 237, in eventFilter
+		getattr(self, eventName)(event) #handle the event locally. #ie. self.enterEvent(event)
+	File "O:/Cloud/Code/_scripts/tentacle\tentacle\childEvents.py", line 263, in showEvent
+		self.tcl.sb.getMethod(self.uiName, self.widgetName)()
+	File "O:/Cloud/Code/_scripts/tentacle\tentacle\slots\max\max_file.py", line 195, in cmb006
+		list_ = [f for f in os.listdir(path)]
 NotADirectoryError: [WinError 267] The directory name is invalid: 'C:\\Users\\m3\\Documents\\3ds Max 2022\\3ds Max 2022.mxp'
 
 
@@ -300,20 +473,20 @@ self.draggable_header.contextMenu.cmb005(index=1)
 
 
 max_edit.py", line 66, in tb000
-    self.meshCleanup(isolatedVerts=isolatedVerts, edgeAngle=edgeAngle, nGons=nGons, repair=repair)
-  File "O:\Cloud\__portable\_scripts/max/slots\tk_slots_max_edit.py", line 268, in meshCleanup
-    _nGons = Edit.findNGons(obj)
-  File "O:\Cloud\__portable\_scripts/max/slots\tk_slots_max_edit.py", line 184, in findNGons
-    nGons = [f for f in faces if rt.polyop.getFaceDeg(obj, f)>4]
+		self.meshCleanup(isolatedVerts=isolatedVerts, edgeAngle=edgeAngle, nGons=nGons, repair=repair)
+	File "O:\Cloud\__portable\_scripts/max/slots\tk_slots_max_edit.py", line 268, in meshCleanup
+		_nGons = Edit.findNGons(obj)
+	File "O:\Cloud\__portable\_scripts/max/slots\tk_slots_max_edit.py", line 184, in findNGons
+		nGons = [f for f in faces if rt.polyop.getFaceDeg(obj, f)>4]
 RuntimeError: MAXScript exception raised.
 -- Runtime error: EPoly operation on non-Editable Poly: Editable Mesh
 Error: default isn't an editable poly or nothing is selected.
 Found 0 isolated vertices.
 
 max_edit.py", line 66, in tb000
-    self.meshCleanup(isolatedVerts=isolatedVerts, edgeAngle=edgeAngle, nGons=nGons, repair=repair)
-  File "O:\Cloud\__portable\_scripts/max/slots\tk_slots_max_edit.py", line 290, in meshCleanup
-    obj.EditablePoly.remove(selLevel='Vertex', flag=1)
+		self.meshCleanup(isolatedVerts=isolatedVerts, edgeAngle=edgeAngle, nGons=nGons, repair=repair)
+	File "O:\Cloud\__portable\_scripts/max/slots\tk_slots_max_edit.py", line 290, in meshCleanup
+		obj.EditablePoly.remove(selLevel='Vertex', flag=1)
 AttributeError: 'pymxs.MXSWrapperBase' object has no attribute 'EditablePoly'
 
 

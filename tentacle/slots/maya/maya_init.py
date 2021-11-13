@@ -2446,7 +2446,7 @@ class Init(Slots):
 
 	@classmethod
 	def attr(cls, fn):
-		'''Decorator for setAttributeWindow (objAttrWindow).
+		'''A decorator for setAttributeWindow (objAttrWindow).
 		'''
 		def wrapper(self, *args, **kwargs):
 			self.setAttributeWindow(fn(self, *args, **kwargs))

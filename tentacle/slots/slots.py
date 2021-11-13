@@ -205,7 +205,7 @@ class Slots(QtCore.QObject):
 		'isChecked':'setChecked', 'isDisabled':'setDisabled', 'isEnabled':'setEnabled', 
 		'value':'setValue', 'text':'setText', 'icon':'setIcon',}):
 		'''
-		Keep widgets (having the same objectName) in sync across parent and child uis
+		Keep widgets (having the same objectName) in sync across parent and child UIs.
 		If the second widget does not have an attribute it will be silently skipped.
 		Attributes starting with '__' are ignored.
 
