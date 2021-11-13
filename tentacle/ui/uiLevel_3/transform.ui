@@ -124,7 +124,7 @@
              <number>0</number>
             </property>
             <item>
-             <widget class="ToolButton" name="tb000">
+             <widget class="PushButton" name="tb000">
               <property name="enabled">
                <bool>true</bool>
               </property>
@@ -446,7 +446,7 @@
              </widget>
             </item>
             <item>
-             <widget class="ToolButton" name="tb001">
+             <widget class="PushButton" name="tb001">
               <property name="enabled">
                <bool>true</bool>
               </property>
@@ -668,11 +668,6 @@
  </widget>
  <customwidgets>
   <customwidget>
-   <class>ToolButton</class>
-   <extends>QToolButton</extends>
-   <header>widgets.toolbutton.h</header>
-  </customwidget>
-  <customwidget>
    <class>PushButtonDraggable</class>
    <extends>QPushButton</extends>
    <header>widgets.pushbuttondraggable.h</header>
@@ -681,6 +676,11 @@
    <class>ProgressBar</class>
    <extends>QProgressBar</extends>
    <header>widgets.progressbar.h</header>
+  </customwidget>
+  <customwidget>
+   <class>PushButton</class>
+   <extends>QPushButton</extends>
+   <header>widgets.pushbutton.h</header>
   </customwidget>
   <customwidget>
    <class>ComboBox</class>

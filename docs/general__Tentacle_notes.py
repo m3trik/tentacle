@@ -263,9 +263,20 @@ ncalls  tottime  percall  cumtime  percall filename:lineno(function)
 # BUGFIXES:
 # -----------------------------------------------
 
+Traceback (most recent call last):
+  File "O:/Cloud/Code/_scripts/tentacle\tentacle\childEvents.py", line 237, in eventFilter
+    getattr(self, eventName)(event) #handle the event locally. #ie. self.enterEvent(event)
+  File "O:/Cloud/Code/_scripts/tentacle\tentacle\childEvents.py", line 263, in showEvent
+    self.tcl.sb.getMethod(self.uiName, self.widgetName)()
+  File "O:/Cloud/Code/_scripts/tentacle\tentacle\slots\max\max_file.py", line 195, in cmb006
+    list_ = [f for f in os.listdir(path)]
+NotADirectoryError: [WinError 267] The directory name is invalid: 'C:\\Users\\m3\\Documents\\3ds Max 2022\\3ds Max 2022.mxp'
+
 
 # attribute window breaks when reused in submenus
 
+
+# convert toolbuttons to pushbuttons with right click context menus. 
 
 
 # Traceback (most recent call last):

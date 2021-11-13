@@ -44,14 +44,14 @@ class Animation(Init):
 		'''
 		tb = self.current_ui.tb000
 		if state is 'setMenu':
-			tb.menu_.add('QSpinBox', setPrefix='Frame: ', setObjectName='s000', setMinMax_='0-10000 step1', setValue=1, setToolTip='')
-			tb.menu_.add('QCheckBox', setText='Relative', setObjectName='chk000', setChecked=True, setToolTip='')
-			tb.menu_.add('QCheckBox', setText='Update', setObjectName='chk001', setChecked=True, setToolTip='')
+			tb.contextMenu.add('QSpinBox', setPrefix='Frame: ', setObjectName='s000', setMinMax_='0-10000 step1', setValue=1, setToolTip='')
+			tb.contextMenu.add('QCheckBox', setText='Relative', setObjectName='chk000', setChecked=True, setToolTip='')
+			tb.contextMenu.add('QCheckBox', setText='Update', setObjectName='chk001', setChecked=True, setToolTip='')
 			return
 
-		frame = self.invertOnModifier(tb.menu_.s000.value())
-		relative = tb.menu_.chk000.isChecked()
-		update = tb.menu_.chk001.isChecked()
+		frame = self.invertOnModifier(tb.contextMenu.s000.value())
+		relative = tb.contextMenu.chk000.isChecked()
+		update = tb.contextMenu.chk001.isChecked()
 
 		Animation.setCurrentFrame(frame, relative=relative, update=update)
 
@@ -63,12 +63,12 @@ class Animation(Init):
 		'''
 		tb = self.current_ui.tb001
 		if state is 'setMenu':
-			tb.menu_.add('QSpinBox', setPrefix='Time: ', setObjectName='s001', setMinMax_='0-10000 step1', setValue=1, setToolTip='The desired start time for the inverted keys.')
-			tb.menu_.add('QCheckBox', setText='Relative', setObjectName='chk002', setChecked=False, setToolTip='Start time position as relative or absolute.')
+			tb.contextMenu.add('QSpinBox', setPrefix='Time: ', setObjectName='s001', setMinMax_='0-10000 step1', setValue=1, setToolTip='The desired start time for the inverted keys.')
+			tb.contextMenu.add('QCheckBox', setText='Relative', setObjectName='chk002', setChecked=False, setToolTip='Start time position as relative or absolute.')
 			return
 
-		time = tb.menu_.s001.value()
-		relative = tb.menu_.chk002.isChecked()
+		time = tb.contextMenu.s001.value()
+		relative = tb.contextMenu.chk002.isChecked()
 
 		return Animation.invertSelectedKeyframes(time=time, relative=relative)
 

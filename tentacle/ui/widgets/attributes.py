@@ -85,7 +85,7 @@ class Attributes(object):
 			# w.resize(w.size().width(), value)
 
 		elif attr=='setPosition_':
-			if value is 'cursor':
+			if value=='cursor':
 				value = QtGui.QCursor.pos()
 			w.move(w.mapFromGlobal(value - w.rect().center())) #move and center
 

@@ -81,7 +81,7 @@ class MessageBox(QtWidgets.QMessageBox, Attributes):
 		style = {
 		'Error:'	: '<hl style="color:red;">Error:</hl>',
 		'Warning:'	: '<hl style="color:yellow;">Warning:</hl>',
-		'Note:'	: '<hl style="color:blue;">Note:</hl>',
+		'Note:'		: '<hl style="color:blue;">Note:</hl>',
 		'Result:'	: '<hl style="color:green;">Result:</hl>',
 		}
 

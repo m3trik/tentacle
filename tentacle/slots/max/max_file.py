@@ -1,7 +1,6 @@
 # !/usr/bin/python
 # coding=utf-8
 import os.path
-from datetime import datetime
 
 from max_init import *
 
@@ -23,7 +22,7 @@ class File(Init):
 
 		if state is 'setMenu':
 			dh.contextMenu.add(self.tcl.wgts.ComboBox, setObjectName='cmb000', setToolTip='')
-			dh.contextMenu.add(self.tcl.wgts.ToolButton, setObjectName='tb000', setText='Save', setToolTip='')
+			dh.contextMenu.add(self.tcl.wgts.PushButton, setObjectName='tb000', setText='Save', setToolTip='Save the current file.')
 			dh.contextMenu.add(self.tcl.wgts.Label, setObjectName='lbl001', setText='Minimize App', setToolTip='Minimize the main application.')
 			dh.contextMenu.add(self.tcl.wgts.Label, setObjectName='lbl002', setText='Maximize App', setToolTip='Restore the main application.')
 			dh.contextMenu.add(self.tcl.wgts.Label, setObjectName='lbl003', setText='Close App', setToolTip='Close the main application.')
@@ -38,7 +37,6 @@ class File(Init):
 		rt.autosave.Enable = state
 		rt.autosave.NumberOfFiles = amount
 		rt.autosave.Interval = interval
-
 
 
 	def cmb000(self, index=-1):
@@ -66,7 +64,7 @@ class File(Init):
 		if index is 'setMenu':
 			return
 
-		items = cmb.addItems_(self.getRecentAutosave(), "Recent Projects", clear=True)
+		items = cmb.addItems_(self.getRecentProjects(), "Recent Projects", clear=True)
 
 		if index>0:
 			maxEval('setProject "'+items[index]+'"')
@@ -90,10 +88,11 @@ class File(Init):
 			cmb.contextMenu.s001.valueChanged.connect(lambda v: rt.autosave.setmxsprop('Interval', v))
 			return
 
-		items = cmb.addItems_(self.getRecentAutosave(), "Recent Autosave", clear=True)
+		items = cmb.addItems_(self.getRecentAutosave(appendDatetime=True), "Recent Autosave", clear=True)
 
 		if index>0:
-			rt.loadMaxFile(path+'\\'+str(files[index-1]))
+			file = Slots.fileTimeStamp(cmb.items[index], detach=True)[0] #cmb.items[index].split('\\')[-1]
+			rt.loadMaxFile(file)
 			cmb.setCurrentIndex(0)
 
 
@@ -175,7 +174,6 @@ class File(Init):
 		items = cmb.addItems_(self.getRecentFiles(), 'Recent Files:', clear=True)
 
 		if index>0:
-			# force=True; force if maxEval("maxFileName;") else not force #if sceneName prompt user to save; else force open.  also: checkForSave(); If the scene has been modified since the last file save (if any), calling this function displays the message box prompting the user that the scene has been modified and requests to save.
 			rt.loadMaxFile(str(items[index-1]))
 			cmb.setCurrentIndex(0)
 
@@ -191,7 +189,7 @@ class File(Init):
 			cmb.contextMenu.add(self.tcl.wgts.Label, setObjectName='lbl004', setText='Root', setToolTip='Open the project directory.')
 			return
 
-		path = self.formatPath(rt.pathconfig.getCurrentProjectFolderPath()) #current project path.
+		path = self.formatPath(rt.pathconfig.getCurrentProjectFolderPath(), strip='file') #current project path.
 		list_ = [f for f in os.listdir(path)]
 
 		project = self.getNameFromFullPath(path) #add current project path string to label. strip path and trailing '/'
@@ -207,17 +205,17 @@ class File(Init):
 	def tb000(self, state=None):
 		'''Save
 		'''
-		tb = self.file_ui.draggable_header.contextMenu.tb000
+		tb = self.current_ui.draggable_header.contextMenu.tb000
 
 		if state is 'setMenu':
-			tb.menu_.add('QCheckBox', setText='Wireframe', setObjectName='chk000', setToolTip='Set view to wireframe before save.')
-			tb.menu_.add('QCheckBox', setText='Increment', setObjectName='chk001', setChecked=True, setToolTip='Append and increment a unique integer value.')
-			tb.menu_.add('QCheckBox', setText='Quit', setObjectName='chk002', setToolTip='Quit after save.')
+			tb.contextMenu.add('QCheckBox', setText='Wireframe', setObjectName='chk000', setToolTip='Set view to wireframe before save.')
+			tb.contextMenu.add('QCheckBox', setText='Increment', setObjectName='chk001', setChecked=True, setToolTip='Append and increment a unique integer value.')
+			tb.contextMenu.add('QCheckBox', setText='Quit', setObjectName='chk002', setToolTip='Quit after save.')
 			return
 
-		wireframe = tb.menu_.chk000.isChecked()
-		increment = tb.menu_.chk001.isChecked()
-		quit = tb.menu_.chk002.isChecked()
+		wireframe = tb.contextMenu.chk000.isChecked()
+		increment = tb.contextMenu.chk001.isChecked()
+		quit = tb.contextMenu.chk002.isChecked()
 
 		if wireframe:
 			pm.mel.DisplayWireframe()
@@ -268,8 +266,8 @@ class File(Init):
 	def lbl004(self):
 		'''Open current project root
 		'''
-		dir_ = self.getRecentFiles() #current project path.
-		dir_ = self.formatPath(dir_) #reformat for network address
+		recentFiles = self.getRecentFiles() #current project path.
+		dir_ = self.formatPath(recentFiles) #reformat for network address
 		os.startfile(dir_)
 
 
@@ -339,44 +337,6 @@ class File(Init):
 
 	@staticmethod
 	def getRecentFiles():
-		'''Get a list of recently opened files.
-
-		:Return:
-			(list)
-		'''
-		#get recent file list. #convert to python
-		maxEval('''
-		Fn getRecentFiles =
-			(
-			local recentfiles = (getdir #maxData) + "RecentDocuments.xml"
-			if doesfileexist recentfiles then
-				(
-				XMLArray = #()		
-				xDoc = dotnetobject "system.xml.xmldocument"	
-				xDoc.Load recentfiles
-				Rootelement = xDoc.documentelement
-
-				XMLArray = for i = 0 to rootelement.childnodes.item[4].childnodes.itemof[0].childnodes.count-1 collect 
-					(
-					rootelement.childnodes.item[4].childnodes.itemof[0].childnodes.itemof[i].childnodes.itemof[3].innertext	
-					)
-					
-				Return XMLArray
-				LRXML = Undefined
-				XDoc = Undefined
-				XDoc = nothing	
-				)
-			)
-			''')
-
-		files = File.getRecentfiles()
-		result = [Init.formatPath(f) for f in files]
-
-		return result
-
-
-	@staticmethod
-	def getRecentFiles():
 		'''Get a list of recent files from "RecentDocuments.xml" in the maxData directory.
 
 		:Return:
@@ -402,7 +362,9 @@ class File(Init):
 			)
 		)
 		''')
-		result = rt._getRecentFiles()
+		files = rt._getRecentFiles()
+		result = [Init.formatPath(f) for f in files]
+
 		return result
 
 
@@ -420,18 +382,23 @@ class File(Init):
 
 
 	@staticmethod
-	def getRecentAutosave():
+	def getRecentAutosave(appendDatetime=False):
 		'''Get a list of autosave files.
+
+		:Parameters:
+			appendDatetime (bool) = Attach a modified timestamp and date to given file path(s).
 
 		:Return:
 			(list)
 		'''
+		from datetime import datetime
+
 		path = rt.GetDir(rt.name('autoback'))
-		files = [f for f in os.listdir(path) if f.endswith('.max') or f.endswith('.bak')] #get list of max autosave files
+		files = [r'{}\{}'.format(path, f) for f in os.listdir(path) if f.endswith('.max') or f.endswith('.bak')] #get list of max autosave files
+		result = [Init.formatPath(f) for f in list(reversed(files))] #format and reverse the list.
 
-		list_ = [f+'  '+datetime.fromtimestamp(os.path.getmtime(path+'\\'+f)).strftime('%H:%M  %m-%d-%Y') for f in files] #attach modified timestamp
-
-		result = sorted(list_, reverse=1)
+		if appendDatetime:  #attach modified timestamp
+			result = Slots.fileTimeStamp(result)
 
 		return result
 

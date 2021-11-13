@@ -2269,11 +2269,11 @@ class Init(Slots):
 		for p in parameters:
 			values = cmd(node, **{'q':True, p:True}) #query the parameter to get it's value.
 
-			for n, i in enumerate(values): #convert True|False to 1|0
-				if i==True:
-					values[n] = 1
-				elif i==False:
-					values[n] = 0
+			# for n, i in enumerate(values): #convert True|False to 1|0
+			# 	if i==True:
+			# 		values[n] = 1
+			# 	elif i==False:
+			# 		values[n] = 0
 
 			result[p] = values
 
@@ -2282,7 +2282,7 @@ class Init(Slots):
 
 	@staticmethod
 	def setParameterValuesMEL(node, cmd, parameters):
-		'''Set parameters for a maya command.
+		'''Set parameters using a maya command.
 
 		:Parameters:
 			node (str)(obj)(list) = The object to query attributes of.

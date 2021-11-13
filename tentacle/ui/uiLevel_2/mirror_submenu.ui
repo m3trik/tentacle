@@ -87,7 +87,7 @@
      <string>Mirror</string>
     </property>
    </widget>
-   <widget class="ToolButton" name="tb000">
+   <widget class="PushButton" name="tb000">
     <property name="geometry">
      <rect>
       <x>180</x>
@@ -162,9 +162,9 @@
  </widget>
  <customwidgets>
   <customwidget>
-   <class>ToolButton</class>
-   <extends>QToolButton</extends>
-   <header>widgets.toolbutton.h</header>
+   <class>PushButton</class>
+   <extends>QPushButton</extends>
+   <header>widgets.pushbutton.h</header>
   </customwidget>
  </customwidgets>
  <resources/>

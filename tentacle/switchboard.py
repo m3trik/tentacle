@@ -242,7 +242,7 @@ class Switchboard(QtCore.QObject):
 			uiName = self.getUiName()
 
 		widgetType = widget.__class__.__name__
-		prefixTypes = {'QPushButton':'b', 'QPushButton':'v', 'QPushButton':'i', 'QToolButton':'tb', 'QComboBox':'cmb', 
+		prefixTypes = {'QPushButton':'b', 'QPushButton':'v', 'QPushButton':'i', 'QPushButton':'tb', 'QComboBox':'cmb', 
 			'QCheckBox':'chk', 'QRadioButton':'chk', 'QPushButton(checkable)':'chk', 'QSpinBox':'s', 'QDoubleSpinBox':'s',
 			'QLabel':'lbl', 'QWidget':'w', 'QTreeWidget':'tree', 'QListWidget':'list', 'QLineEdit':'line', 'QTextEdit':'text'}
 
@@ -316,7 +316,6 @@ class Switchboard(QtCore.QObject):
 			'QAction':'triggered',
 			'QLabel':'released',
 			'QPushButton':'released',
-			'QToolButton':'released',
 			'QListWidget':'itemClicked',
 			'QTreeWidget':'itemClicked',
 			'QComboBox':'currentIndexChanged',
@@ -1604,10 +1603,10 @@ sbDict = {
 'materials': {
 	'widgets': {
 		'<PySide2.QtWidgets.QVBoxLayout object at 0x0000000003D07208>': {'widgetType': 'QVBoxLayout', 'widgetName': 'verticalLayout_2', 'derivedType': 'QVBoxLayout', 'signalInstance': None, 'docString': None, 'prefix': None, 'method': None}, 
-		'<widgets.toolButton.ToolButton object at 0x0000000003D04E08>': {'widgetType': 'ToolButton', 'widgetName': 'tb002', 'derivedType': 'QToolButton', 'signalInstance': '<PySide2.QtCore.SignalInstance object at 0x0000000002A463D8>', 'docString': None, 'prefix': 'tb', 'method': '<bound method Materials.wrapper of <slots_max_materials.Materials object at 0x0000000003D547C8>>'}, 
+		'<widgets.pushButton.PushButton object at 0x0000000003D04E08>': {'widgetType': 'PushButton', 'widgetName': 'tb002', 'derivedType': 'QPushButton', 'signalInstance': '<PySide2.QtCore.SignalInstance object at 0x0000000002A463D8>', 'docString': None, 'prefix': 'tb', 'method': '<bound method Materials.wrapper of <slots_max_materials.Materials object at 0x0000000003D547C8>>'}, 
 		'<PySide2.QtWidgets.QGroupBox object at 0x0000000003D07248>': {'widgetType': 'QGroupBox', 'widgetName': 'group000', 'derivedType': 'QGroupBox', 'signalInstance': None, 'docString': None, 'prefix': 'group', 'method': None}, 
 		'<PySide2.QtWidgets.QPushButton object at 0x0000000003D07288>': {'widgetType': 'QPushButton', 'widgetName': 'b002', 'derivedType': 'QPushButton', 'signalInstance': '<PySide2.QtCore.SignalInstance object at 0x0000000002A46390>', 'docString': None, 'prefix': 'b', 'method': '<bound method Materials.wrapper of <slots_max_materials.Materials object at 0x0000000003D547C8>>'}, 
-		'<widgets.ToolButton.ToolButton object at 0x0000000003D04FC8>': {'widgetType': 'ToolButton', 'widgetName': 'tb001', 'derivedType': 'QToolButton', 'signalInstance': '<PySide2.QtCore.SignalInstance object at 0x0000000002A46408>', 'docString': '\n\t\tStored Material Options\n\t\t', 'prefix': 'tb', 'method': '<bound method Materials.tb001 of <slots_max_materials.Materials object at 0x0000000003D547C8>>'}, 
+		'<widgets.pushButton.PushButton object at 0x0000000003D04FC8>': {'widgetType': 'PushButton', 'widgetName': 'tb001', 'derivedType': 'QPushButton', 'signalInstance': '<PySide2.QtCore.SignalInstance object at 0x0000000002A46408>', 'docString': '\n\t\tStored Material Options\n\t\t', 'prefix': 'tb', 'method': '<bound method Materials.tb001 of <slots_max_materials.Materials object at 0x0000000003D547C8>>'}, 
 		'<PySide2.QtWidgets.QWidget object at 0x0000000003D070C8>': {'widgetType': 'QWidget', 'widgetName': 'mainWindow', 'derivedType': 'QWidget', 'signalInstance': None, 'docString': None, 'prefix': 'mainWindow', 'method': None}, 
 		'<widgets.progressBar.ProgressBar object at 0x0000000003D07088>': {'widgetType': 'ProgressBar', 'widgetName': 'progressBar', 'derivedType': 'QProgressBar', 'signalInstance': '<PySide2.QtCore.SignalInstance object at 0x0000000002A463F0>', 'docString': None, 'prefix': 'progressBar', 'method': None}, 
 		'<widgets.comboBox.ComboBox object at 0x0000000003D04F08>': {'widgetType': 'ComboBox', 'widgetName': 'cmb002', 'derivedType': 'QComboBox', 'signalInstance': '<PySide2.QtCore.SignalInstance object at 0x0000000002A46378>', 'docString': '\n\t\tMaterial list\n\n\t\t:Parameters:\n\t\t\tindex (int) = parameter on activated, currentIndexChanged, and highlighted signals.\n\t\t', 'prefix': 'cmb', 'method': '<bound method Materials.cmb002 of <slots_max_materials.Materials object at 0x0000000003D547C8>>'}, 
@@ -1615,7 +1614,7 @@ sbDict = {
 		'<PySide2.QtWidgets.QGridLayout object at 0x0000000003D07148>': {'widgetType': 'QGridLayout', 'widgetName': 'gridLayout_2', 'derivedType': 'QGridLayout', 'signalInstance': None, 'docString': None, 'prefix': None, 'method': None}, 
 		'<PySide2.QtWidgets.QHBoxLayout object at 0x0000000003D07188>': {'widgetType': 'QHBoxLayout', 'widgetName': 'horizontalLayout', 'derivedType': 'QHBoxLayout', 'signalInstance': None, 'docString': None, 'prefix': 'horizontalLayout', 'method': None}, 
 		'<PySide2.QtWidgets.QVBoxLayout object at 0x0000000003D071C8>': {'widgetType': 'QVBoxLayout', 'widgetName': 'verticalLayout', 'derivedType': 'QVBoxLayout', 'signalInstance': None, 'docString': None, 'prefix': 'verticalLayout', 'method': None}, 
-		'<widgets.toolButton.ToolButton object at 0x0000000003D04E88>': {'widgetType': 'ToolButton', 'widgetName': 'tb000', 'derivedType': 'QToolButton', 'signalInstance': '<PySide2.QtCore.SignalInstance object at 0x0000000002A46420>', 'docString': None, 'prefix': 'tb', 'method': '<bound method Materials.wrapper of <slots_max_materials.Materials object at 0x0000000003D547C8>>'}, 
+		'<widgets.pushButton.PushButton object at 0x0000000003D04E88>': {'widgetType': 'PushButton', 'widgetName': 'tb000', 'derivedType': 'QPushButton', 'signalInstance': '<PySide2.QtCore.SignalInstance object at 0x0000000002A46420>', 'docString': None, 'prefix': 'tb', 'method': '<bound method Materials.wrapper of <slots_max_materials.Materials object at 0x0000000003D547C8>>'}, 
 		'<PySide2.QtWidgets.QWidget object at 0x0000000003D07108>': {'widgetType': 'QWidget', 'widgetName': 'layoutWidget_2', 'derivedType': 'QWidget', 'signalInstance': None, 'docString': None, 'prefix': None, 'method': None}
 		}, 
 	'size': [256, 182], 

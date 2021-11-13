@@ -30,6 +30,7 @@ class PushButtonDraggable(QtWidgets.QPushButton, MenuInstance, Attributes, RichT
 
 	def __init__(self, parent=None, **kwargs):
 		super().__init__(parent)
+		# RichText.__init__(self, alignment='AlignCenter')
 
 		self.setCheckable(True)
 
@@ -113,7 +114,7 @@ class PushButtonDraggable(QtWidgets.QPushButton, MenuInstance, Attributes, RichT
 
 			self.window().move(self.window().mapFromGlobal(curPos + diff))
 			self.__mouseMovePos = globalPos
-		except AttributeError:
+		except AttributeError as error:
 			pass
 
 		return QtWidgets.QPushButton.mouseMoveEvent(self, event)
@@ -138,6 +139,22 @@ class PushButtonDraggable(QtWidgets.QPushButton, MenuInstance, Attributes, RichT
 		self.window().hide()
 
 		return QtWidgets.QPushButton.mouseReleaseEvent(self, event)
+
+
+	def showEvent(self, event):
+		'''
+		:Parameters:
+			event = <QEvent>
+		'''
+		text = self.text().rstrip('*')
+		if self.menu_.containsMenuItems:
+			self.menu_.setTitle(text)
+
+		if self.contextMenu.containsMenuItems:
+			self.contextMenu.setTitle(text)
+			self.setText(text+'*')
+
+		return QtWidgets.QPushButton.showEvent(self, event)
 
 
 

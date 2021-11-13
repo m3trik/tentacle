@@ -205,74 +205,6 @@
           </property>
          </widget>
         </item>
-        <item row="6" column="1">
-         <widget class="ToolButton" name="tb002">
-          <property name="enabled">
-           <bool>true</bool>
-          </property>
-          <property name="minimumSize">
-           <size>
-            <width>116</width>
-            <height>20</height>
-           </size>
-          </property>
-          <property name="maximumSize">
-           <size>
-            <width>116</width>
-            <height>20</height>
-           </size>
-          </property>
-          <property name="toolTip">
-           <string>Assign stored material shader ID</string>
-          </property>
-          <property name="text">
-           <string>Assign Current</string>
-          </property>
-         </widget>
-        </item>
-        <item row="2" column="3">
-         <widget class="ToolButton" name="tb001">
-          <property name="enabled">
-           <bool>true</bool>
-          </property>
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-          <property name="minimumSize">
-           <size>
-            <width>20</width>
-            <height>20</height>
-           </size>
-          </property>
-          <property name="maximumSize">
-           <size>
-            <width>20</width>
-            <height>20</height>
-           </size>
-          </property>
-          <property name="font">
-           <font>
-            <pointsize>8</pointsize>
-           </font>
-          </property>
-          <property name="toolTip">
-           <string>Select all components with the same material.  
- If nothing is selected; search all geometry.</string>
-          </property>
-          <property name="text">
-           <string/>
-          </property>
-          <property name="iconSize">
-           <size>
-            <width>16</width>
-            <height>16</height>
-           </size>
-          </property>
-         </widget>
-        </item>
         <item row="2" column="0" colspan="3">
          <widget class="ComboBox" name="cmb002">
           <property name="sizePolicy">
@@ -316,7 +248,7 @@
          </widget>
         </item>
         <item row="6" column="2" colspan="2">
-         <widget class="ToolButton" name="tb000">
+         <widget class="PushButton" name="tb000">
           <property name="enabled">
            <bool>true</bool>
           </property>
@@ -343,6 +275,74 @@
             <width>16</width>
             <height>16</height>
            </size>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="3">
+         <widget class="PushButton" name="tb001">
+          <property name="enabled">
+           <bool>true</bool>
+          </property>
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="minimumSize">
+           <size>
+            <width>20</width>
+            <height>20</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>20</width>
+            <height>20</height>
+           </size>
+          </property>
+          <property name="font">
+           <font>
+            <pointsize>8</pointsize>
+           </font>
+          </property>
+          <property name="toolTip">
+           <string>Select all components with the same material.  
+ If nothing is selected; search all geometry.</string>
+          </property>
+          <property name="text">
+           <string/>
+          </property>
+          <property name="iconSize">
+           <size>
+            <width>16</width>
+            <height>16</height>
+           </size>
+          </property>
+         </widget>
+        </item>
+        <item row="6" column="1">
+         <widget class="PushButton" name="tb002">
+          <property name="enabled">
+           <bool>true</bool>
+          </property>
+          <property name="minimumSize">
+           <size>
+            <width>116</width>
+            <height>20</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>116</width>
+            <height>20</height>
+           </size>
+          </property>
+          <property name="toolTip">
+           <string>Assign stored material shader ID</string>
+          </property>
+          <property name="text">
+           <string>Assign Current</string>
           </property>
          </widget>
         </item>
@@ -384,11 +384,6 @@
  </widget>
  <customwidgets>
   <customwidget>
-   <class>ToolButton</class>
-   <extends>QToolButton</extends>
-   <header>widgets.toolbutton.h</header>
-  </customwidget>
-  <customwidget>
    <class>PushButtonDraggable</class>
    <extends>QPushButton</extends>
    <header>widgets.pushbuttondraggable.h</header>
@@ -397,6 +392,11 @@
    <class>ProgressBar</class>
    <extends>QProgressBar</extends>
    <header>widgets.progressbar.h</header>
+  </customwidget>
+  <customwidget>
+   <class>PushButton</class>
+   <extends>QPushButton</extends>
+   <header>widgets.pushbutton.h</header>
   </customwidget>
   <customwidget>
    <class>ComboBox</class>

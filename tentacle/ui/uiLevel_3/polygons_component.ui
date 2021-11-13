@@ -474,40 +474,6 @@
               </property>
              </widget>
             </item>
-            <item row="7" column="1">
-             <widget class="ToolButton" name="tb005">
-              <property name="enabled">
-               <bool>true</bool>
-              </property>
-              <property name="minimumSize">
-               <size>
-                <width>0</width>
-                <height>20</height>
-               </size>
-              </property>
-              <property name="maximumSize">
-               <size>
-                <width>999</width>
-                <height>20</height>
-               </size>
-              </property>
-              <property name="toolTip">
-               <string>Detach selected components</string>
-              </property>
-              <property name="whatsThis">
-               <string/>
-              </property>
-              <property name="text">
-               <string>Detach</string>
-              </property>
-              <property name="iconSize">
-               <size>
-                <width>18</width>
-                <height>18</height>
-               </size>
-              </property>
-             </widget>
-            </item>
             <item row="7" column="0">
              <widget class="QPushButton" name="b022">
               <property name="enabled">
@@ -653,8 +619,8 @@
               </property>
              </widget>
             </item>
-            <item row="0" column="0" colspan="2">
-             <widget class="ToolButton" name="tb003">
+            <item row="2" column="0" colspan="2">
+             <widget class="PushButton" name="tb001">
               <property name="enabled">
                <bool>true</bool>
               </property>
@@ -666,15 +632,15 @@
               </property>
               <property name="maximumSize">
                <size>
-                <width>999</width>
+                <width>125</width>
                 <height>20</height>
                </size>
               </property>
               <property name="toolTip">
-               <string>Extrude the selected component</string>
+               <string>Create a bridge between two sets of edges or faces</string>
               </property>
               <property name="text">
-               <string>Extrude</string>
+               <string>Bridge</string>
               </property>
               <property name="iconSize">
                <size>
@@ -685,7 +651,7 @@
              </widget>
             </item>
             <item row="1" column="0" colspan="2">
-             <widget class="ToolButton" name="tb004">
+             <widget class="PushButton" name="tb004">
               <property name="enabled">
                <bool>true</bool>
               </property>
@@ -715,8 +681,8 @@
               </property>
              </widget>
             </item>
-            <item row="2" column="0" colspan="2">
-             <widget class="ToolButton" name="tb001">
+            <item row="7" column="1">
+             <widget class="PushButton" name="tb005">
               <property name="enabled">
                <bool>true</bool>
               </property>
@@ -728,15 +694,49 @@
               </property>
               <property name="maximumSize">
                <size>
-                <width>125</width>
+                <width>999</width>
                 <height>20</height>
                </size>
               </property>
               <property name="toolTip">
-               <string>Create a bridge between two sets of edges or faces</string>
+               <string>Detach selected components</string>
+              </property>
+              <property name="whatsThis">
+               <string/>
               </property>
               <property name="text">
-               <string>Bridge</string>
+               <string>Detach</string>
+              </property>
+              <property name="iconSize">
+               <size>
+                <width>18</width>
+                <height>18</height>
+               </size>
+              </property>
+             </widget>
+            </item>
+            <item row="0" column="0" colspan="2">
+             <widget class="PushButton" name="tb003">
+              <property name="enabled">
+               <bool>true</bool>
+              </property>
+              <property name="minimumSize">
+               <size>
+                <width>0</width>
+                <height>20</height>
+               </size>
+              </property>
+              <property name="maximumSize">
+               <size>
+                <width>999</width>
+                <height>20</height>
+               </size>
+              </property>
+              <property name="toolTip">
+               <string>Extrude the selected component</string>
+              </property>
+              <property name="text">
+               <string>Extrude</string>
               </property>
               <property name="iconSize">
                <size>
@@ -800,11 +800,6 @@
  </widget>
  <customwidgets>
   <customwidget>
-   <class>ToolButton</class>
-   <extends>QToolButton</extends>
-   <header>widgets.toolbutton.h</header>
-  </customwidget>
-  <customwidget>
    <class>PushButtonDraggable</class>
    <extends>QPushButton</extends>
    <header>widgets.pushbuttondraggable.h</header>
@@ -813,6 +808,11 @@
    <class>ProgressBar</class>
    <extends>QProgressBar</extends>
    <header>widgets.progressbar.h</header>
+  </customwidget>
+  <customwidget>
+   <class>PushButton</class>
+   <extends>QPushButton</extends>
+   <header>widgets.pushbutton.h</header>
   </customwidget>
  </customwidgets>
  <resources/>

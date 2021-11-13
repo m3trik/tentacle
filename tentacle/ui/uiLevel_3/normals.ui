@@ -212,68 +212,6 @@
               </property>
              </widget>
             </item>
-            <item row="3" column="0" colspan="3">
-             <widget class="ToolButton" name="tb002">
-              <property name="enabled">
-               <bool>true</bool>
-              </property>
-              <property name="minimumSize">
-               <size>
-                <width>0</width>
-                <height>20</height>
-               </size>
-              </property>
-              <property name="maximumSize">
-               <size>
-                <width>999</width>
-                <height>20</height>
-               </size>
-              </property>
-              <property name="toolTip">
-               <string>Set normal angle</string>
-              </property>
-              <property name="text">
-               <string>By Angle</string>
-              </property>
-              <property name="iconSize">
-               <size>
-                <width>18</width>
-                <height>18</height>
-               </size>
-              </property>
-             </widget>
-            </item>
-            <item row="4" column="0" colspan="3">
-             <widget class="ToolButton" name="tb001">
-              <property name="enabled">
-               <bool>true</bool>
-              </property>
-              <property name="minimumSize">
-               <size>
-                <width>0</width>
-                <height>20</height>
-               </size>
-              </property>
-              <property name="maximumSize">
-               <size>
-                <width>999</width>
-                <height>20</height>
-               </size>
-              </property>
-              <property name="toolTip">
-               <string>Harden all creased edges on the selected object.</string>
-              </property>
-              <property name="text">
-               <string>Harden Creased</string>
-              </property>
-              <property name="iconSize">
-               <size>
-                <width>18</width>
-                <height>18</height>
-               </size>
-              </property>
-             </widget>
-            </item>
             <item row="5" column="0" colspan="3">
              <widget class="QPushButton" name="b009">
               <property name="enabled">
@@ -308,16 +246,10 @@
               </property>
              </widget>
             </item>
-            <item row="6" column="0">
-             <widget class="QPushButton" name="chk002">
+            <item row="4" column="0" colspan="3">
+             <widget class="PushButton" name="tb001">
               <property name="enabled">
                <bool>true</bool>
-              </property>
-              <property name="sizePolicy">
-               <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                <horstretch>0</horstretch>
-                <verstretch>0</verstretch>
-               </sizepolicy>
               </property>
               <property name="minimumSize">
                <size>
@@ -327,15 +259,15 @@
               </property>
               <property name="maximumSize">
                <size>
-                <width>20</width>
+                <width>999</width>
                 <height>20</height>
                </size>
               </property>
               <property name="toolTip">
-               <string>Lock/Unlock: unlock</string>
+               <string>Harden all creased edges on the selected object.</string>
               </property>
               <property name="text">
-               <string>Un</string>
+               <string>Harden Creased</string>
               </property>
               <property name="iconSize">
                <size>
@@ -343,16 +275,41 @@
                 <height>18</height>
                </size>
               </property>
-              <property name="checkable">
+             </widget>
+            </item>
+            <item row="3" column="0" colspan="3">
+             <widget class="PushButton" name="tb002">
+              <property name="enabled">
                <bool>true</bool>
               </property>
-              <property name="checked">
-               <bool>false</bool>
+              <property name="minimumSize">
+               <size>
+                <width>0</width>
+                <height>20</height>
+               </size>
+              </property>
+              <property name="maximumSize">
+               <size>
+                <width>999</width>
+                <height>20</height>
+               </size>
+              </property>
+              <property name="toolTip">
+               <string>Set normal angle</string>
+              </property>
+              <property name="text">
+               <string>By Angle</string>
+              </property>
+              <property name="iconSize">
+               <size>
+                <width>18</width>
+                <height>18</height>
+               </size>
               </property>
              </widget>
             </item>
-            <item row="6" column="1" colspan="2">
-             <widget class="ToolButton" name="tb003">
+            <item row="6" column="0" colspan="3">
+             <widget class="PushButton" name="tb003">
               <property name="enabled">
                <bool>true</bool>
               </property>
@@ -372,7 +329,7 @@
                <string>Lock Normals: lock/Unlock all normals from the selected object or object containing a selected vertice</string>
               </property>
               <property name="text">
-               <string>Lock Normals</string>
+               <string>Un/Lock Normals</string>
               </property>
               <property name="iconSize">
                <size>
@@ -383,7 +340,7 @@
              </widget>
             </item>
             <item row="1" column="0" colspan="3">
-             <widget class="ToolButton" name="tb004">
+             <widget class="PushButton" name="tb004">
               <property name="enabled">
                <bool>true</bool>
               </property>
@@ -537,7 +494,7 @@
              <number>0</number>
             </property>
             <item>
-             <widget class="ToolButton" name="tb000">
+             <widget class="PushButton" name="tb000">
               <property name="enabled">
                <bool>true</bool>
               </property>
@@ -684,11 +641,6 @@
  </widget>
  <customwidgets>
   <customwidget>
-   <class>ToolButton</class>
-   <extends>QToolButton</extends>
-   <header>widgets.toolbutton.h</header>
-  </customwidget>
-  <customwidget>
    <class>PushButtonDraggable</class>
    <extends>QPushButton</extends>
    <header>widgets.pushbuttondraggable.h</header>
@@ -697,6 +649,11 @@
    <class>ProgressBar</class>
    <extends>QProgressBar</extends>
    <header>widgets.progressbar.h</header>
+  </customwidget>
+  <customwidget>
+   <class>PushButton</class>
+   <extends>QPushButton</extends>
+   <header>widgets.pushbutton.h</header>
   </customwidget>
  </customwidgets>
  <resources/>

@@ -37,8 +37,8 @@ class Materials(Init):
 
 		if state is 'setMenu':
 			dh.contextMenu.add(self.tcl.wgts.ComboBox, setObjectName='cmb000', setToolTip='3dsMax Material Editors')
-			dh.contextMenu.add(self.tcl.wgts.ToolButton, setText='Relink Scene Bitmaps', setObjectName='tb003', setToolTip='Repair broken bitmap file links for any scene materials. If no materials are selected, all scene materials will be used.')
-			dh.contextMenu.add(self.tcl.wgts.ToolButton, setText='Relink Library Bitmaps', setObjectName='tb004', setToolTip='Repair broken bitmap file links for all libraries in a given directory.')
+			dh.contextMenu.add(self.tcl.wgts.PushButton, setText='Relink Scene Bitmaps', setObjectName='tb003', setToolTip='Repair broken bitmap file links for any scene materials. If no materials are selected, all scene materials will be used.')
+			dh.contextMenu.add(self.tcl.wgts.PushButton, setText='Relink Library Bitmaps', setObjectName='tb004', setToolTip='Repair broken bitmap file links for all libraries in a given directory.')
 			return
 
 
@@ -96,8 +96,8 @@ class Materials(Init):
 			return
  
 		try:
-			sceneMaterials = tb.menu_.chk000.isChecked()
-			idMapMaterials = tb.menu_.chk001.isChecked()
+			sceneMaterials = tb.contextMenu.chk000.isChecked()
+			idMapMaterials = tb.contextMenu.chk001.isChecked()
 		except: #if the toolbox hasn't been built yet: default to sceneMaterials
 			sceneMaterials = True
 
@@ -155,19 +155,19 @@ class Materials(Init):
 		'''
 		tb = self.current_ui.tb000
 		if state is 'setMenu':
-			tb.menu_.add('QCheckBox', setText='Current Material', setObjectName='chk010', setChecked=True, setToolTip='Use the current material, <br>else use the current viewport selection to get a material.')
-			tb.menu_.add('QCheckBox', setText='All Objects', setObjectName='chk003', setToolTip='Search all scene objects, or only those currently selected.')
-			tb.menu_.add('QCheckBox', setText='Shell', setObjectName='chk005', setToolTip='Select entire shell.')
-			tb.menu_.add('QCheckBox', setText='Invert', setObjectName='chk006', setToolTip='Invert Selection.')
+			tb.contextMenu.add('QCheckBox', setText='Current Material', setObjectName='chk010', setChecked=True, setToolTip='Use the current material, <br>else use the current viewport selection to get a material.')
+			tb.contextMenu.add('QCheckBox', setText='All Objects', setObjectName='chk003', setToolTip='Search all scene objects, or only those currently selected.')
+			tb.contextMenu.add('QCheckBox', setText='Shell', setObjectName='chk005', setToolTip='Select entire shell.')
+			tb.contextMenu.add('QCheckBox', setText='Invert', setObjectName='chk006', setToolTip='Invert Selection.')
 			return
 
 		if not self.currentMat:
 			return 'Error: No Material Selection.'
 
-		shell = tb.menu_.chk005.isChecked() #Select by material: shell
-		invert = tb.menu_.chk006.isChecked() #Select by material: invert
-		allObjects = tb.menu_.chk003.isChecked() #Search all scene objects
-		currentMaterial = tb.menu_.chk010.isChecked() #Use the current material instead of the material of the current viewport selection.
+		shell = tb.contextMenu.chk005.isChecked() #Select by material: shell
+		invert = tb.contextMenu.chk006.isChecked() #Select by material: invert
+		allObjects = tb.contextMenu.chk003.isChecked() #Search all scene objects
+		currentMaterial = tb.contextMenu.chk010.isChecked() #Use the current material instead of the material of the current viewport selection.
 
 		objects = rt.selection if not allObjects else None
 		material = self.currentMat if currentMaterial else None
@@ -180,16 +180,16 @@ class Materials(Init):
 		'''
 		tb = self.materials_ui.tb001
 		if state is 'setMenu':
-			tb.menu_.add('QRadioButton', setText='All Scene Materials', setObjectName='chk000', setChecked=True, setToolTip='List all scene materials.') #Material mode: Stored Materials
-			tb.menu_.add('QRadioButton', setText='ID Map Materials', setObjectName='chk001', setToolTip='List ID map materials.') #Material mode: ID Map Materials
+			tb.contextMenu.add('QRadioButton', setText='All Scene Materials', setObjectName='chk000', setChecked=True, setToolTip='List all scene materials.') #Material mode: Stored Materials
+			tb.contextMenu.add('QRadioButton', setText='ID Map Materials', setObjectName='chk001', setToolTip='List ID map materials.') #Material mode: ID Map Materials
 
-			self.connect_([tb.menu_.chk000, tb.menu_.chk001], 'toggled', [self.cmb002, self.tb001])
+			self.connect_([tb.contextMenu.chk000, tb.contextMenu.chk001], 'toggled', [self.cmb002, self.tb001])
 			return
 
-		if tb.menu_.chk000.isChecked():
-			self.materials_ui.group000.setTitle(tb.menu_.chk000.text())
-		elif tb.menu_.chk001.isChecked():
-			self.materials_ui.group000.setTitle(tb.menu_.chk001.text())
+		if tb.contextMenu.chk000.isChecked():
+			self.materials_ui.group000.setTitle(tb.contextMenu.chk000.text())
+		elif tb.contextMenu.chk001.isChecked():
+			self.materials_ui.group000.setTitle(tb.contextMenu.chk001.text())
 
 
 	@Slots.message
@@ -198,16 +198,16 @@ class Materials(Init):
 		'''
 		tb = self.materials_ui.tb002
 		if state is 'setMenu':
-			tb.menu_.add('QRadioButton', setText='Current Material', setObjectName='chk007', setChecked=True, setToolTip='Re-Assign the current stored material.')
-			tb.menu_.add('QRadioButton', setText='New Material', setObjectName='chk009', setToolTip='Assign a new material.')
-			tb.menu_.add('QRadioButton', setText='New Random Material', setObjectName='chk008', setToolTip='Assign a new random ID material.')
+			tb.contextMenu.add('QRadioButton', setText='Current Material', setObjectName='chk007', setChecked=True, setToolTip='Re-Assign the current stored material.')
+			tb.contextMenu.add('QRadioButton', setText='New Material', setObjectName='chk009', setToolTip='Assign a new material.')
+			tb.contextMenu.add('QRadioButton', setText='New Random Material', setObjectName='chk008', setToolTip='Assign a new random ID material.')
 			return
 
 		selection = rt.selection
 
-		assignCurrent = tb.menu_.chk007.isChecked()
-		assignRandom = tb.menu_.chk008.isChecked()
-		assignNew = tb.menu_.chk009.isChecked()
+		assignCurrent = tb.contextMenu.chk007.isChecked()
+		assignRandom = tb.contextMenu.chk008.isChecked()
+		assignNew = tb.contextMenu.chk009.isChecked()
 
 		if assignRandom: #Assign New random mat ID
 			if selection:
@@ -242,10 +242,10 @@ class Materials(Init):
 		'''
 		tb = self.materials_ui.tb003
 		if state is 'setMenu':
-			tb.menu_.add('QLineEdit', setPlaceholderText='Set Bitmaps Directory:', setText=r'\\m3trik-Server\NAS\Graphics\_materials', setObjectName='l000', setToolTip='Location to search for missing bitmaps.') #
+			tb.contextMenu.add('QLineEdit', setPlaceholderText='Set Bitmaps Directory:', setText=r'\\m3trik-Server\NAS\Graphics\_materials', setObjectName='l000', setToolTip='Location to search for missing bitmaps.') #
 			return
 
-		mat_dir = tb.menu_.l000.text()
+		mat_dir = tb.contextMenu.l000.text()
 		mats = Materials.getNodesSME(selected=True) #find bitmaps for any currently selected nodes in the slate material editor, else relink all scene nodes.
 		if not mats:
 			mats = None
@@ -258,12 +258,12 @@ class Materials(Init):
 		'''
 		tb = self.materials_ui.tb004
 		if state is 'setMenu':
-			tb.menu_.add('QLineEdit', setPlaceholderText='Set Bitmaps Directory:', setText=r'\\m3trik-Server\NAS\Graphics\_materials', setObjectName='l001', setToolTip='Location to search for missing bitmaps.') #
-			tb.menu_.add('QLineEdit', setPlaceholderText='Set Material Library Directory:', setText=r'\\m3trik-Server\NAS\Graphics\_materials\libraries', setObjectName='l002', setToolTip='Location of material libraries.') #
+			tb.contextMenu.add('QLineEdit', setPlaceholderText='Set Bitmaps Directory:', setText=r'\\m3trik-Server\NAS\Graphics\_materials', setObjectName='l001', setToolTip='Location to search for missing bitmaps.') #
+			tb.contextMenu.add('QLineEdit', setPlaceholderText='Set Material Library Directory:', setText=r'\\m3trik-Server\NAS\Graphics\_materials\libraries', setObjectName='l002', setToolTip='Location of material libraries.') #
 			return
 
-		library_dir = tb.menu_.l001.text()
-		mat_dir = tb.menu_.l002.text()
+		library_dir = tb.contextMenu.l001.text()
+		mat_dir = tb.contextMenu.l002.text()
 
 		self.relinkMatLibBitmaps(library_dir, mat_dir, replaceTxWithTif=True)
 

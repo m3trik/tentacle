@@ -155,7 +155,7 @@
      <string>Face</string>
     </property>
    </widget>
-   <widget class="ToolButton" name="tb006">
+   <widget class="PushButton" name="tb006">
     <property name="enabled">
      <bool>true</bool>
     </property>
@@ -190,9 +190,9 @@
  </widget>
  <customwidgets>
   <customwidget>
-   <class>ToolButton</class>
-   <extends>QToolButton</extends>
-   <header>widgets.toolbutton.h</header>
+   <class>PushButton</class>
+   <extends>QPushButton</extends>
+   <header>widgets.pushbutton.h</header>
   </customwidget>
  </customwidgets>
  <resources/>

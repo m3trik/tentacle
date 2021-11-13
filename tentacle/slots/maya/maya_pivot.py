@@ -44,12 +44,12 @@ class Pivot(Init):
 		'''
 		tb = self.current_ui.tb000
 		if state is 'setMenu':
-			tb.menu_.add('QCheckBox', setText='Reset Pivot Position', setObjectName='chk000', setChecked=True, setToolTip='')
-			tb.menu_.add('QCheckBox', setText='Reset Pivot Orientation', setObjectName='chk001', setChecked=True, setToolTip='')
+			tb.contextMenu.add('QCheckBox', setText='Reset Pivot Position', setObjectName='chk000', setChecked=True, setToolTip='')
+			tb.contextMenu.add('QCheckBox', setText='Reset Pivot Orientation', setObjectName='chk001', setChecked=True, setToolTip='')
 			return
 
-		resetPivotPosition = tb.menu_.chk000.isChecked() #Reset Pivot Position
-		resetPivotOrientation = tb.menu_.chk001.isChecked() #Reset Pivot Orientation
+		resetPivotPosition = tb.contextMenu.chk000.isChecked() #Reset Pivot Position
+		resetPivotOrientation = tb.contextMenu.chk001.isChecked() #Reset Pivot Orientation
 
 		mel.eval('manipPivotReset({0},{1})'.format(int(resetPivotPosition), int(resetPivotOrientation)))
 		return 'Reset Pivot Position <hl>{0}</hl>.<br>Reset Pivot Orientation <hl>{1}</hl>.'.format(resetPivotPosition, resetPivotOrientation)
@@ -60,14 +60,14 @@ class Pivot(Init):
 		'''
 		tb = self.pivot_ui.tb001
 		if state is 'setMenu':
-			tb.menu_.add('QRadioButton', setText='Component', setObjectName='chk002', setToolTip='Center the pivot on the center of the selected component\'s bounding box')
-			tb.menu_.add('QRadioButton', setText='Object', setObjectName='chk003', setChecked=True, setToolTip='Center the pivot on the center of the object\'s bounding box')
-			tb.menu_.add('QRadioButton', setText='World', setObjectName='chk004', setToolTip='Center the pivot on world origin.')
+			tb.contextMenu.add('QRadioButton', setText='Component', setObjectName='chk002', setToolTip='Center the pivot on the center of the selected component\'s bounding box')
+			tb.contextMenu.add('QRadioButton', setText='Object', setObjectName='chk003', setChecked=True, setToolTip='Center the pivot on the center of the object\'s bounding box')
+			tb.contextMenu.add('QRadioButton', setText='World', setObjectName='chk004', setToolTip='Center the pivot on world origin.')
 			return
 
-		component = tb.menu_.chk002.isChecked()
-		object_ = tb.menu_.chk003.isChecked()
-		world = tb.menu_.chk004.isChecked()
+		component = tb.contextMenu.chk002.isChecked()
+		object_ = tb.contextMenu.chk003.isChecked()
+		world = tb.contextMenu.chk004.isChecked()
 
 		if component: #Set pivot points to the center of the component's bounding box.
 			pm.xform(centerPivotsOnComponents=1)
@@ -81,7 +81,7 @@ class Pivot(Init):
 		'''Center Pivot: Object
 		'''
 		tb = self.pivot_ui.tb001
-		tb.menu_.chk003.setChecked(True)
+		tb.contextMenu.chk003.setChecked(True)
 		self.tb001()
 
 
@@ -89,7 +89,7 @@ class Pivot(Init):
 		'''Center Pivot: Component
 		'''
 		tb = self.pivot_ui.tb001
-		tb.menu_.chk002.setChecked(True)
+		tb.contextMenu.chk002.setChecked(True)
 		self.tb001()
 
 
@@ -97,7 +97,7 @@ class Pivot(Init):
 		'''Center Pivot: World
 		'''
 		tb = self.pivot_ui.tb001
-		tb.menu_.chk004.setChecked(True)
+		tb.contextMenu.chk004.setChecked(True)
 		self.tb001()
 
 

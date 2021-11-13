@@ -46,10 +46,10 @@ class Normals(Init):
 		'''
 		tb = self.current_ui.tb000
 		if state is 'setMenu':
-			tb.menu_.add('QSpinBox', setPrefix='Display Size: ', setObjectName='s001', setMinMax_='1-100 step1', setValue=1, setToolTip='Normal display size.')
+			tb.contextMenu.add('QSpinBox', setPrefix='Display Size: ', setObjectName='s001', setMinMax_='1-100 step1', setValue=1, setToolTip='Normal display size.')
 			return
 
-		size = float(tb.menu_.s001.value())
+		size = float(tb.contextMenu.s001.value())
 		# state = pm.polyOptions (query=True, displayNormal=True)
 		state = self.cycle([1,2,3,0], 'displayNormals')
 		if state ==0: #off
@@ -78,7 +78,7 @@ class Normals(Init):
 		'''
 		tb = self.current_ui.tb001
 		if state is 'setMenu':
-			tb.menu_.add('QCheckBox', setText='Soften non-creased', setObjectName='chk000', setToolTip='Soften all non-creased edges.')
+			tb.contextMenu.add('QCheckBox', setText='Soften non-creased', setObjectName='chk000', setToolTip='Soften all non-creased edges.')
 			return
 
 		mel.eval("PolySelectConvert 2")
@@ -88,7 +88,7 @@ class Normals(Init):
 		pm.undoInfo(openChunk=1)
 		self.mainProgressBar(len(edges))
 
-		soften = tb.menu_.chk000.isChecked()
+		soften = tb.contextMenu.chk000.isChecked()
 
 		for edge in edges:
 			pm.progressBar("progressBar_", edit=1, step=1)
@@ -109,10 +109,10 @@ class Normals(Init):
 		'''
 		tb = self.current_ui.tb002
 		if state is 'setMenu':
-			tb.menu_.add('QSpinBox', setPrefix='Angle: ', setObjectName='s000', setMinMax_='1-180 step1', setValue=60, setToolTip='Angle degree.')
+			tb.contextMenu.add('QSpinBox', setPrefix='Angle: ', setObjectName='s000', setMinMax_='1-180 step1', setValue=60, setToolTip='Angle degree.')
 			return
 
-		normalAngle = str(tb.menu_.s000.value())
+		normalAngle = str(tb.contextMenu.s000.value())
 		subObjectLevel = rt.subObjectLevel
 
 
@@ -140,15 +140,18 @@ class Normals(Init):
 	def tb003(self, state=None):
 		'''Lock/Unlock Vertex Normals
 		'''
-		tb = tb = self.normals_ui.tb003
+		tb = self.normals_ui.tb003
 		if state is 'setMenu':
-			tb.menu_.add('QCheckBox', setText='All', setObjectName='chk001', setChecked=True, setToolTip='Lock/Unlock: all.')
+			tb.contextMenu.add('QCheckBox', setText='Lock', setObjectName='chk002', setChecked=True, setToolTip='Toggle Lock/Unlock.')
+			tb.contextMenu.add('QCheckBox', setText='All', setObjectName='chk001', setChecked=True, setToolTip='Lock/Unlock: all.')
+
+			tb.contextMenu.chk002.toggled.connect(lambda state, w=tb.contextMenu.chk002: w.setText('Lock') if state else w.setText('Unlock')) 
 			return
 
-		print('Error: No 3ds Version.')
+		'No 3ds Version.'
 		tb.setDisabled(True)
-		# all_ = tb.menu_.chk001.isChecked()
-		# state = self.normals_ui.chk002.isChecked()#pm.polyNormalPerVertex(vertex, query=1, freezeNormal=1)
+		# all_ = tb.contextMenu.chk001.isChecked()
+		# state = tb.contextMenu.chk002.isChecked() #pm.polyNormalPerVertex(vertex, query=1, freezeNormal=1)
 		# selection = pm.ls (selection=1, objectsOnly=1)
 		# maskObject = pm.selectMode (query=1, object=1)
 		# maskVertex = pm.selectType (query=1, vertex=1)
@@ -159,25 +162,25 @@ class Normals(Init):
 		# 			count = pm.polyEvaluate(obj, vertex=1) #get number of vertices
 		# 			vertices = [vertices.append(str(obj) + ".vtx ["+str(num)+"]") for num in range(count)] #geometry.vtx[0]
 		# 			for vertex in vertices:
-		# 				if state:
+		# 				if not state:
 		# 					pm.polyNormalPerVertex(vertex, unFreezeNormal=1)
 		# 				else:
 		# 					pm.polyNormalPerVertex(vertex, freezeNormal=1)
-		# 			if state:
-		# 				return 'Normals <hl>UnLocked</hl>.'
+		# 			if not state:
+		# 				self.viewPortMessage("Normals <hl>UnLocked</hl>.")
 		# 			else:
-		# 				return 'Normals <hl>Locked</hl>.'
+		# 				self.viewPortMessage("Normals <hl>Locked</hl>.")
 		# 	elif maskVertex and not maskObject:
-		# 		if state:
+		# 		if not state:
 		# 			pm.polyNormalPerVertex(unFreezeNormal=1)
-		# 			return 'Normals <hl>UnLocked</hl>.'
+		# 			self.viewPortMessage("Normals <hl>UnLocked</hl>.")
 		# 		else:
 		# 			pm.polyNormalPerVertex(freezeNormal=1)
-		# 			return 'Normals <hl>Locked</hl>.'
+		# 			self.viewPortMessage("Normals <hl>Locked</hl>.")
 		# 	else:
-		# 		return 'Error: Selection must be object or vertex.'
+		# 		return 'Warning: Selection must be object or vertex.'
 		# else:
-		# 	return Error: No object selected.'
+		# 	return 'Warning: No object selected.'
 
 
 	def tb004(self, state=None):
@@ -185,10 +188,10 @@ class Normals(Init):
 		'''
 		tb = self.current_ui.tb004
 		if state is 'setMenu':
-			tb.menu_.add('QCheckBox', setText='By UV Shell', setObjectName='chk003', setToolTip='Average the normals of each object\'s faces per UV shell.')
+			tb.contextMenu.add('QCheckBox', setText='By UV Shell', setObjectName='chk003', setToolTip='Average the normals of each object\'s faces per UV shell.')
 			return
 
-		byUvShell = tb.menu_.chk003.isChecked()
+		byUvShell = tb.contextMenu.chk003.isChecked()
 
 		if byUvShell:
 			sets_ = Init.getUvShellSets(obj)

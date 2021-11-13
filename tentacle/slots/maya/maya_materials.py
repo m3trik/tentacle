@@ -96,9 +96,9 @@ class Materials(Init):
 			return
 
 		try:
-			sceneMaterials = tb.menu_.chk000.isChecked()
-			idMapMaterials = tb.menu_.chk001.isChecked()
-			favoriteMaterials = tb.menu_.chk002.isChecked()
+			sceneMaterials = tb.contextMenu.chk000.isChecked()
+			idMapMaterials = tb.contextMenu.chk001.isChecked()
+			favoriteMaterials = tb.contextMenu.chk002.isChecked()
 		except: #if the toolbox hasn't been constructed yet: default to sceneMaterials
 			sceneMaterials = True
 
@@ -135,19 +135,19 @@ class Materials(Init):
 		'''
 		tb = self.current_ui.tb000
 		if state is 'setMenu':
-			tb.menu_.add('QCheckBox', setText='Current Material', setObjectName='chk010', setChecked=True, setToolTip='Use the current material, <br>else use the current viewport selection to get a material.')
-			tb.menu_.add('QCheckBox', setText='All Objects', setObjectName='chk003', setToolTip='Search all scene objects, or only those currently selected.')
-			tb.menu_.add('QCheckBox', setText='Shell', setObjectName='chk005', setToolTip='Select entire shell.')
-			tb.menu_.add('QCheckBox', setText='Invert', setObjectName='chk006', setToolTip='Invert Selection.')
+			tb.contextMenu.add('QCheckBox', setText='Current Material', setObjectName='chk010', setChecked=True, setToolTip='Use the current material, <br>else use the current viewport selection to get a material.')
+			tb.contextMenu.add('QCheckBox', setText='All Objects', setObjectName='chk003', setToolTip='Search all scene objects, or only those currently selected.')
+			tb.contextMenu.add('QCheckBox', setText='Shell', setObjectName='chk005', setToolTip='Select entire shell.')
+			tb.contextMenu.add('QCheckBox', setText='Invert', setObjectName='chk006', setToolTip='Invert Selection.')
 			return
 
 		if not self.currentMat:
 			return 'Error: No Material Selection.'
 
-		shell = tb.menu_.chk005.isChecked() #Select by material: shell
-		invert = tb.menu_.chk006.isChecked() #Select by material: invert
-		allObjects = tb.menu_.chk003.isChecked() #Search all scene objects
-		currentMaterial = tb.menu_.chk010.isChecked() #Use the current material instead of the material of the current viewport selection.
+		shell = tb.contextMenu.chk005.isChecked() #Select by material: shell
+		invert = tb.contextMenu.chk006.isChecked() #Select by material: invert
+		allObjects = tb.contextMenu.chk003.isChecked() #Search all scene objects
+		currentMaterial = tb.contextMenu.chk010.isChecked() #Use the current material instead of the material of the current viewport selection.
 
 		objects = pm.ls(sl=1, objectsOnly=1) if not allObjects else None
 		material = self.currentMat if currentMaterial else None
@@ -161,20 +161,20 @@ class Materials(Init):
 		'''
 		tb = self.materials_ui.tb001
 		if state is 'setMenu':
-			tb.menu_.add('QRadioButton', setText='All Scene Materials', setObjectName='chk000', setChecked=True, setToolTip='List all scene materials.') #Material mode: Scene Materials
-			tb.menu_.add('QRadioButton', setText='ID Map Materials', setObjectName='chk001', setToolTip='List ID map materials.') #Material mode: ID Map Materials
-			tb.menu_.add('QRadioButton', setText='Favorite Materials', setObjectName='chk002', setToolTip='List Favorite materials.') #Material mode: Favorite Materials
+			tb.contextMenu.add('QRadioButton', setText='All Scene Materials', setObjectName='chk000', setChecked=True, setToolTip='List all scene materials.') #Material mode: Scene Materials
+			tb.contextMenu.add('QRadioButton', setText='ID Map Materials', setObjectName='chk001', setToolTip='List ID map materials.') #Material mode: ID Map Materials
+			tb.contextMenu.add('QRadioButton', setText='Favorite Materials', setObjectName='chk002', setToolTip='List Favorite materials.') #Material mode: Favorite Materials
 
-			self.connect_([tb.menu_.chk000, tb.menu_.chk001], 'toggled', [self.cmb002, self.tb001])
+			self.connect_([tb.contextMenu.chk000, tb.contextMenu.chk001], 'toggled', [self.cmb002, self.tb001])
 			return
 
 		#set the groupbox title to reflect the current mode.
-		if tb.menu_.chk000.isChecked():
-			self.materials_ui.group000.setTitle(tb.menu_.chk000.text())
-		elif tb.menu_.chk001.isChecked():
-			self.materials_ui.group000.setTitle(tb.menu_.chk001.text())
-		elif tb.menu_.chk002.isChecked():
-			self.materials_ui.group000.setTitle(tb.menu_.chk002.text())
+		if tb.contextMenu.chk000.isChecked():
+			self.materials_ui.group000.setTitle(tb.contextMenu.chk000.text())
+		elif tb.contextMenu.chk001.isChecked():
+			self.materials_ui.group000.setTitle(tb.contextMenu.chk001.text())
+		elif tb.contextMenu.chk002.isChecked():
+			self.materials_ui.group000.setTitle(tb.contextMenu.chk002.text())
 
 
 	@Slots.message
@@ -183,18 +183,18 @@ class Materials(Init):
 		'''
 		tb = self.materials_ui.tb002
 		if state is 'setMenu':
-			tb.menu_.add('QRadioButton', setText='Current Material', setObjectName='chk007', setChecked=True, setToolTip='Re-Assign the current stored material.')
-			tb.menu_.add('QRadioButton', setText='New Material', setObjectName='chk009', setToolTip='Assign a new material.')
-			tb.menu_.add('QRadioButton', setText='New Random Material', setObjectName='chk008', setToolTip='Assign a new random ID material.')
+			tb.contextMenu.add('QRadioButton', setText='Current Material', setObjectName='chk007', setChecked=True, setToolTip='Re-Assign the current stored material.')
+			tb.contextMenu.add('QRadioButton', setText='New Material', setObjectName='chk009', setToolTip='Assign a new material.')
+			tb.contextMenu.add('QRadioButton', setText='New Random Material', setObjectName='chk008', setToolTip='Assign a new random ID material.')
 			return
 
 		selection = pm.ls(selection=1, flatten=1)
 		if not selection:
 			return 'Error: No renderable object is selected for assignment.'
 
-		assignCurrent = tb.menu_.chk007.isChecked()
-		assignRandom = tb.menu_.chk008.isChecked()
-		assignNew = tb.menu_.chk009.isChecked()
+		assignCurrent = tb.contextMenu.chk007.isChecked()
+		assignRandom = tb.contextMenu.chk008.isChecked()
+		assignNew = tb.contextMenu.chk009.isChecked()
 
 		if assignCurrent: #Assign current mat
 			self.assignMaterial(selection, self.currentMat)

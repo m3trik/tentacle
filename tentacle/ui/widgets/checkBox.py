@@ -28,7 +28,7 @@ class CheckBox(QtWidgets.QCheckBox, MenuInstance, Attributes, RichText):
 		'''
 		'''
 		super().__init__(parent)
-		RichText.__init__(self)
+		# RichText.__init__(self)
 
 		self.setAttributes(**kwargs)
 

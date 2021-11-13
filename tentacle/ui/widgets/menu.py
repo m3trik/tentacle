@@ -9,20 +9,26 @@ from attributes import Attributes
 class Menu(QtWidgets.QMenu, Attributes):
 	'''
 	:Parameters:
+		menu_type (str) = Menu style. valid parameters are: 'standard', 'context', 'form'
+		title (str) = Text displayed at the menu's header.
+		padding (int) = Area surrounding the menu.
+		childHeight (int) = The minimum height of any child widgets (excluding the 'Apply' button).
+		preventHide (bool) = Prevent the menu from hiding.
 		position (str)(obj) = Desired menu position relative to it's parent. 
 			valid values are: 'cursorPos', 'center', 'top', 'bottom', 'right', 'left', 'topLeft', 'topRight', 'bottomRight', 'bottomLeft', or <QWidget>. 
 			Setting a widget to this property, positions the menu in relation to the given widget.
-		menu_type (str) = Menu style. valid parameters are: 'standard', 'context', 'form'
 	'''
-	def __init__(self, parent=None, menu_type='standard', title='', padding=8, position='bottomLeft', preventHide=False, **kwargs):
+	_applyButton = None
+
+	def __init__(self, parent=None, menu_type='standard', title='', padding=8, childHeight=16, position='bottomLeft', preventHide=False, **kwargs):
 		super().__init__(parent)
 
 		self.menu_type = menu_type
 		self.position = position
 		self.preventHide = preventHide
+		self.childHeight = childHeight
 
-		self.draggable_header.setText(title)
-
+		self.setTitle(title)
 		self.setWindowFlags(QtCore.Qt.Tool|QtCore.Qt.FramelessWindowHint|QtCore.Qt.WindowStaysOnTopHint)
 		self.setAttribute(QtCore.Qt.WA_TranslucentBackground)
 		self.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
@@ -95,21 +101,32 @@ class Menu(QtWidgets.QMenu, Attributes):
 		return self._formLayout
 
 
+	def setTitle(self, title):
+		'''Set the menu's title to the given string.
+
+		:Parameters:
+			title (str) = Text to apply to the menu's header.
+		'''
+		self.draggable_header.setText(title)
+
+
 	def addApplyButton(self):
 		'''Add a pushbutton that executes the parent object.
 
 		:Return:
 			(widget) The added pushbutton, or None if the process failed.
 		'''
-		try:
-			self.draggable_header.setText(self.parent().text())
-			objectName = self.parent().objectName()
-			w = self.add('QPushButton', setText='Apply', setObjectName=objectName)
-			w.setMinimumSize(119, 26)
-		except AttributeError as error:
-			w = None
+		if not self._applyButton:
+			try: #construct and add the apply button.
+				self.draggable_header.setText(self.parent().text().rstrip('*'))
+				objectName = self.parent().objectName()
+				self._applyButton = self.add('QPushButton', setText='Apply', setObjectName=objectName, setToolTip='Execute the command.')
+				self._applyButton.setMinimumSize(119, 26)
 
-		return w
+			except AttributeError as error:
+				print (error)
+
+		return self._applyButton
 
 
 	def add(self, widget, label='', checkableLabel=False, **kwargs):
@@ -165,12 +182,13 @@ class Menu(QtWidgets.QMenu, Attributes):
 				wAction.setDefaultWidget(w)
 				self.addAction(wAction)
 
-			try: #set minimum child height
-				w.setMinimumSize(w.sizeHint().width(), 16)
-				w.setMaximumSize(9999, 16)
-				l.setMinimumSize(l.sizeHint().width(), 16)
-				l.setMaximumSize(9999, 16)
-			except UnboundLocalError: #'l' does not exist. (not a form menu)
+			#set child height
+			w.setMinimumSize(w.sizeHint().width(), self.childHeight)
+			w.setMaximumSize(9999, self.childHeight)
+			try:
+				l.setMinimumSize(l.sizeHint().width(), self.childHeight)
+				l.setMaximumSize(9999, self.childHeight)
+			except UnboundLocalError as error: #'l' does not exist. (not a form menu)
 				pass
 
 			self.childWidgets.append(w) #add the widget to the childWidgets list.
@@ -302,7 +320,7 @@ class Menu(QtWidgets.QMenu, Attributes):
 		:Parameters:
 			event = <QEvent>
 		'''
-		self.resize(self.sizeHint()) #self.setMinimumSize(width, self.sizeHint().height()+5)
+		self.resize(self.sizeHint().width(), self.sizeHint().height()+10) #self.setMinimumSize(width, self.sizeHint().height()+5)
 
 		getCenter = lambda w, p: QtCore.QPoint(p.x()-(w.width()/2), p.y()-(w.height()/4)) #get widget center position.
 
@@ -320,7 +338,7 @@ class Menu(QtWidgets.QMenu, Attributes):
 			pos = self.parent().mapToGlobal(pos())
 			self.move(getCenter(self, pos))
 
-		return QtWidgets.QToolButton.showEvent(self, event)
+		return QtWidgets.QMenu.showEvent(self, event)
 
 
 
@@ -335,20 +353,24 @@ class MenuInstance(object):
 	def menu_(self):
 		'''Get the menu.
 		'''
-		if not hasattr(self, '_menu'):
-			self._menu = Menu(self)
+		try:
+			return self._menu
 
-		return self._menu
+		except AttributeError as error:
+			self._menu = Menu(self, position='cursorPos', menu_type='context')
+			return self._menu
 
 
 	@property
 	def contextMenu(self):
 		'''Get the context menu.
 		'''
-		if not hasattr(self, '_contextMenu'):
-			self._contextMenu = Menu(self, position='cursorPos', menu_type='context')
+		try:
+			return self._contextMenu
 
-		return self._contextMenu
+		except AttributeError as error:
+			self._contextMenu = Menu(self, position='cursorPos', menu_type='context')
+			return self._contextMenu
 
 
 

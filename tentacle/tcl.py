@@ -292,13 +292,13 @@ class Tcl(QtWidgets.QStackedWidget, StyleSheet):
 			if modifiers in (QtCore.Qt.ControlModifier, QtCore.Qt.ControlModifier | QtCore.Qt.AltModifier):
 				self.repeatLastCommand()
 			else:
-				self.repeatLastUi()
+				self.repeatLastCameraView()
 
 		elif event.button()==QtCore.Qt.MiddleButton:
 			pass
 
 		elif event.button()==QtCore.Qt.RightButton:
-			self.repeatLastCameraView()
+			self.repeatLastUi()
 
 		return QtWidgets.QStackedWidget.mouseDoubleClickEvent(self, event)
 

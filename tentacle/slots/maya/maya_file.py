@@ -22,7 +22,7 @@ class File(Init):
 
 		if state is 'setMenu':
 			dh.contextMenu.add(self.tcl.wgts.ComboBox, setObjectName='cmb000', setToolTip='')
-			dh.contextMenu.add(self.tcl.wgts.ToolButton, setObjectName='tb000', setText='Save', setToolTip='')
+			dh.contextMenu.add(self.tcl.wgts.PushButton, setObjectName='tb000', setText='Save', setToolTip='Save the current file.')
 			dh.contextMenu.add(self.tcl.wgts.Label, setObjectName='lbl001', setText='Minimize App', setToolTip='Minimize the main application.')
 			dh.contextMenu.add(self.tcl.wgts.Label, setObjectName='lbl002', setText='Maximize App', setToolTip='Restore the main application.')
 			dh.contextMenu.add(self.tcl.wgts.Label, setObjectName='lbl003', setText='Close App', setToolTip='Close the main application.')
@@ -89,17 +89,12 @@ class File(Init):
 			cmb.contextMenu.chk006.setChecked(pm.autoSave(query=1, enable=1)) #set the initial autosave state.
 			return
 
-		cmb.addItems_(File.getRecentAutosave(), 'Recent Autosave', clear=True)
+		cmb.addItems_(File.getRecentAutosave(appendDatetime=True), 'Recent Autosave', clear=True)
 
 		if index>0:
-			force=True
-			if str(pm.mel.file(query=1, sceneName=1, shortName=1)):
-				force=False #if sceneName, prompt user to save; else force open
-
-			pm.openFile(cmb.items[index], open=1, force=force)
+			file = Slots.fileTimeStamp(cmb.items[index], detach=True)
+			pm.openFile(file, open=1, force=True)
 			cmb.setCurrentIndex(0)
-
-			return cmb.items[index]
 
 
 	def cmb003(self, index=-1):
@@ -205,16 +200,16 @@ class File(Init):
 	def tb000(self, state=None):
 		'''Save
 		'''
-		tb = self.file_ui.draggable_header.contextMenu.tb000
+		tb = self.current_ui.draggable_header.contextMenu.tb000
 		if state is 'setMenu':
-			tb.menu_.add('QCheckBox', setText='Wireframe', setObjectName='chk000', setToolTip='Set view to wireframe before save.')
-			tb.menu_.add('QCheckBox', setText='Increment', setObjectName='chk001', setChecked=True, setToolTip='Append and increment a unique integer value.')
-			tb.menu_.add('QCheckBox', setText='Quit', setObjectName='chk002', setToolTip='Quit after save.')
+			tb.contextMenu.add('QCheckBox', setText='Wireframe', setObjectName='chk000', setToolTip='Set view to wireframe before save.')
+			tb.contextMenu.add('QCheckBox', setText='Increment', setObjectName='chk001', setChecked=True, setToolTip='Append and increment a unique integer value.')
+			tb.contextMenu.add('QCheckBox', setText='Quit', setObjectName='chk002', setToolTip='Quit after save.')
 			return
 
-		wireframe = tb.menu_.chk000.isChecked()
-		increment = tb.menu_.chk001.isChecked()
-		quit = tb.menu_.chk002.isChecked()
+		wireframe = tb.contextMenu.chk000.isChecked()
+		increment = tb.contextMenu.chk001.isChecked()
+		quit = tb.contextMenu.chk002.isChecked()
 
 		if wireframe:
 			pm.mel.DisplayWireframe()
@@ -371,8 +366,11 @@ class File(Init):
 
 
 	@staticmethod
-	def getRecentAutosave():
+	def getRecentAutosave(appendDatetime=False):
 		'''Get a list of autosave files.
+
+		:Parameters:
+			appendDatetime (bool) = Attach a modified timestamp and date to given file path(s).
 
 		:Return:
 			(list)
@@ -381,7 +379,10 @@ class File(Init):
 		dir2 = os.environ.get('MAYA_AUTOSAVE_FOLDER').split(';')[0] #get autosave dir path from env variable.
 
 		files = Init.getAbsoluteFilePaths(dir1, ['mb', 'ma']) + Init.getAbsoluteFilePaths(dir2, ['mb', 'ma'])
-		result = [Init.formatPath(f) for f in list(reversed(files))]
+		result = [Init.formatPath(f) for f in list(reversed(files))] #format and reverse the list.
+
+		if appendDatetime:  #attach modified timestamp
+			result = Slots.fileTimeStamp(result)
 
 		return result
 
@@ -410,16 +411,16 @@ print(os.path.splitext(os.path.basename(__file__))[0])
 	# 	'''
 	# 	tb = self.current_ui.tb000
 	# 	if state is 'setMenu':
-	# 		tb.menu_.add('QCheckBox', setText='ASCII', setObjectName='chk003', setChecked=True, setToolTip='Toggle ASCII or binary file type.')
-	# 		tb.menu_.add('QCheckBox', setText='Wireframe', setObjectName='chk000', setChecked=True, setToolTip='Set view to wireframe before save.')
-	# 		tb.menu_.add('QCheckBox', setText='Increment', setObjectName='chk001', setChecked=True, setToolTip='Append and increment a unique integer value.')
-	# 		tb.menu_.add('QCheckBox', setText='Quit', setObjectName='chk002', setToolTip='Quit after save.')
+	# 		tb.contextMenu.add('QCheckBox', setText='ASCII', setObjectName='chk003', setChecked=True, setToolTip='Toggle ASCII or binary file type.')
+	# 		tb.contextMenu.add('QCheckBox', setText='Wireframe', setObjectName='chk000', setChecked=True, setToolTip='Set view to wireframe before save.')
+	# 		tb.contextMenu.add('QCheckBox', setText='Increment', setObjectName='chk001', setChecked=True, setToolTip='Append and increment a unique integer value.')
+	# 		tb.contextMenu.add('QCheckBox', setText='Quit', setObjectName='chk002', setToolTip='Quit after save.')
 	# 		return
 
-	# 	increment = tb.menu_.chk001.isChecked()
-	# 	ASCII = tb.menu_.chk003.isChecked()
-	# 	wireframe = tb.menu_.chk000.isChecked()
-	# 	quit = tb.menu_.chk002.isChecked()
+	# 	increment = tb.contextMenu.chk001.isChecked()
+	# 	ASCII = tb.contextMenu.chk003.isChecked()
+	# 	wireframe = tb.contextMenu.chk000.isChecked()
+	# 	quit = tb.contextMenu.chk002.isChecked()
 
 	# 	preSaveScript = ''
 	# 	postSaveScript = ''

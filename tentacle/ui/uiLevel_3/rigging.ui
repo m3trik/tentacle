@@ -158,7 +158,7 @@
                 <number>0</number>
                </property>
                <item>
-                <widget class="ToolButton" name="tb003">
+                <widget class="PushButton" name="tb003">
                  <property name="minimumSize">
                   <size>
                    <width>0</width>
@@ -243,34 +243,6 @@
               </property>
              </widget>
             </item>
-            <item row="0" column="1">
-             <widget class="ToolButton" name="tb001">
-              <property name="sizePolicy">
-               <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
-                <horstretch>0</horstretch>
-                <verstretch>0</verstretch>
-               </sizepolicy>
-              </property>
-              <property name="minimumSize">
-               <size>
-                <width>0</width>
-                <height>20</height>
-               </size>
-              </property>
-              <property name="maximumSize">
-               <size>
-                <width>999</width>
-                <height>20</height>
-               </size>
-              </property>
-              <property name="toolTip">
-               <string>Orient Joint</string>
-              </property>
-              <property name="text">
-               <string>Orient</string>
-              </property>
-             </widget>
-            </item>
             <item row="1" column="0">
              <widget class="QPushButton" name="b001">
               <property name="minimumSize">
@@ -312,6 +284,34 @@
               </property>
               <property name="text">
                <string>Reroot</string>
+              </property>
+             </widget>
+            </item>
+            <item row="0" column="1">
+             <widget class="PushButton" name="tb001">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="minimumSize">
+               <size>
+                <width>0</width>
+                <height>20</height>
+               </size>
+              </property>
+              <property name="maximumSize">
+               <size>
+                <width>999</width>
+                <height>20</height>
+               </size>
+              </property>
+              <property name="toolTip">
+               <string>Orient Joint</string>
+              </property>
+              <property name="text">
+               <string>Orient</string>
               </property>
              </widget>
             </item>
@@ -391,7 +391,7 @@
              <number>0</number>
             </property>
             <item>
-             <widget class="ToolButton" name="tb000">
+             <widget class="PushButton" name="tb000">
               <property name="minimumSize">
                <size>
                 <width>0</width>
@@ -489,25 +489,6 @@
                  </property>
                  <property name="text">
                   <string>Aim</string>
-                 </property>
-                </widget>
-               </item>
-               <item row="1" column="0" colspan="2">
-                <widget class="ToolButton" name="tb002">
-                 <property name="minimumSize">
-                  <size>
-                   <width>0</width>
-                   <height>20</height>
-                  </size>
-                 </property>
-                 <property name="maximumSize">
-                  <size>
-                   <width>999</width>
-                   <height>20</height>
-                  </size>
-                 </property>
-                 <property name="text">
-                  <string>Parent</string>
                  </property>
                 </widget>
                </item>
@@ -645,6 +626,25 @@
                  </property>
                 </widget>
                </item>
+               <item row="1" column="0" colspan="2">
+                <widget class="PushButton" name="tb002">
+                 <property name="minimumSize">
+                  <size>
+                   <width>0</width>
+                   <height>20</height>
+                  </size>
+                 </property>
+                 <property name="maximumSize">
+                  <size>
+                   <width>999</width>
+                   <height>20</height>
+                  </size>
+                 </property>
+                 <property name="text">
+                  <string>Parent</string>
+                 </property>
+                </widget>
+               </item>
               </layout>
              </widget>
             </item>
@@ -685,7 +685,7 @@
              <number>0</number>
             </property>
             <item>
-             <widget class="ToolButton" name="tb004">
+             <widget class="PushButton" name="tb004">
               <property name="minimumSize">
                <size>
                 <width>0</width>
@@ -792,11 +792,6 @@
  </widget>
  <customwidgets>
   <customwidget>
-   <class>ToolButton</class>
-   <extends>QToolButton</extends>
-   <header>widgets.toolbutton.h</header>
-  </customwidget>
-  <customwidget>
    <class>PushButtonDraggable</class>
    <extends>QPushButton</extends>
    <header>widgets.pushbuttondraggable.h</header>
@@ -805,6 +800,11 @@
    <class>ProgressBar</class>
    <extends>QProgressBar</extends>
    <header>widgets.progressbar.h</header>
+  </customwidget>
+  <customwidget>
+   <class>PushButton</class>
+   <extends>QPushButton</extends>
+   <header>widgets.pushbutton.h</header>
   </customwidget>
   <customwidget>
    <class>ComboBox</class>

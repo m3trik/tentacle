@@ -31,7 +31,7 @@ class Transform(Init):
 			cmb.addItems_(files, '')
 			return
 
-		if inde>0:
+		if index>0:
 			text = cmb.items[index]
 			if text=='':
 				pass
@@ -260,16 +260,16 @@ class Transform(Init):
 	def tb000(self, state=None):
 		'''Drop To Grid
 		'''
-		tb = self.transform_ui.tb000
+		tb = self.current_ui.tb000
 		if state is 'setMenu':
-			tb.menu_.add('QComboBox', addItems=['Min','Mid','Max'], setObjectName='cmb004', setToolTip='Choose which point of the bounding box to align to.')
-			tb.menu_.add('QCheckBox', setText='Move to Origin', setObjectName='chk014', setChecked=True, setToolTip='Move to origin (xyz 0,0,0).')
-			tb.menu_.add('QCheckBox', setText='Center Pivot', setObjectName='chk016', setChecked=False, setToolTip='Center pivot on objects bounding box.')
+			tb.contextMenu.add('QComboBox', addItems=['Min','Mid','Max'], setObjectName='cmb004', setToolTip='Choose which point of the bounding box to align to.')
+			tb.contextMenu.add('QCheckBox', setText='Move to Origin', setObjectName='chk014', setChecked=True, setToolTip='Move to origin (xyz 0,0,0).')
+			tb.contextMenu.add('QCheckBox', setText='Center Pivot', setObjectName='chk016', setChecked=False, setToolTip='Center pivot on objects bounding box.')
 			return
 
-		align = tb.menu_.cmb004.currentText()
-		origin = tb.menu_.chk014.isChecked()
-		centerPivot = tb.menu_.chk016.isChecked()
+		align = tb.contextMenu.cmb004.currentText()
+		origin = tb.contextMenu.chk014.isChecked()
+		centerPivot = tb.contextMenu.chk016.isChecked()
 
 		objects = pm.ls(sl=1, objectsOnly=1)
 		Init.dropToGrid(objects, align, origin, centerPivot)
@@ -282,21 +282,21 @@ class Transform(Init):
 
 		Auto Align finds the axis with the largest variance, and set the axis checkboxes accordingly before performing a regular align.
 		'''
-		tb = self.transform_ui.tb001
+		tb = self.current_ui.tb001
 		if state is 'setMenu':
-			tb.menu_.add('QCheckBox', setText='X Axis', setObjectName='chk029', setDisabled=True, setToolTip='Align X axis')
-			tb.menu_.add('QCheckBox', setText='Y Axis', setObjectName='chk030', setDisabled=True, setToolTip='Align Y axis')
-			tb.menu_.add('QCheckBox', setText='Z Axis', setObjectName='chk031', setDisabled=True, setToolTip='Align Z axis')
-			tb.menu_.add('QCheckBox', setText='Between Two Components', setObjectName='chk013', setToolTip='Align the path along an edge loop between two selected vertices or edges.')
-			tb.menu_.add('QCheckBox', setText='Align Loop', setObjectName='chk007', setToolTip='Align entire edge loop from selected edge(s).')
-			tb.menu_.add('QCheckBox', setText='Average', setObjectName='chk006', setToolTip='Align to last selected object or average.')
-			tb.menu_.add('QCheckBox', setText='Auto Align', setObjectName='chk010', setChecked=True, setToolTip='')
-			tb.menu_.add('QCheckBox', setText='Auto Align: Two Axes', setObjectName='chk011', setToolTip='')
+			tb.contextMenu.add('QCheckBox', setText='X Axis', setObjectName='chk029', setDisabled=True, setToolTip='Align X axis')
+			tb.contextMenu.add('QCheckBox', setText='Y Axis', setObjectName='chk030', setDisabled=True, setToolTip='Align Y axis')
+			tb.contextMenu.add('QCheckBox', setText='Z Axis', setObjectName='chk031', setDisabled=True, setToolTip='Align Z axis')
+			tb.contextMenu.add('QCheckBox', setText='Between Two Components', setObjectName='chk013', setToolTip='Align the path along an edge loop between two selected vertices or edges.')
+			tb.contextMenu.add('QCheckBox', setText='Align Loop', setObjectName='chk007', setToolTip='Align entire edge loop from selected edge(s).')
+			tb.contextMenu.add('QCheckBox', setText='Average', setObjectName='chk006', setToolTip='Align to last selected object or average.')
+			tb.contextMenu.add('QCheckBox', setText='Auto Align', setObjectName='chk010', setChecked=True, setToolTip='')
+			tb.contextMenu.add('QCheckBox', setText='Auto Align: Two Axes', setObjectName='chk011', setToolTip='')
 			return
 
-		betweenTwoComponents = tb.menu_.chk013.isChecked()
-		autoAlign = tb.menu_.chk010.isChecked()
-		autoAlign2Axes = tb.menu_.chk011.isChecked() #Auto Align: Two Axes
+		betweenTwoComponents = tb.contextMenu.chk013.isChecked()
+		autoAlign = tb.contextMenu.chk010.isChecked()
+		autoAlign2Axes = tb.contextMenu.chk011.isChecked() #Auto Align: Two Axes
 
 		selection = pm.ls(orderedSelection=1)
 
@@ -342,27 +342,27 @@ class Transform(Init):
 
 				if autoAlign2Axes:
 					if axis==x: #"yz"
-						self.toggleWidgets(tb.menu_, setChecked='chk030-31', setUnChecked='chk029')
+						self.toggleWidgets(tb.contextMenu, setChecked='chk030-31', setUnChecked='chk029')
 					if axis==y: #"xz"
-						self.toggleWidgets(tb.menu_, setChecked='chk029,chk031', setUnChecked='chk030')
+						self.toggleWidgets(tb.contextMenu, setChecked='chk029,chk031', setUnChecked='chk030')
 					if axis==z: #"xy"
-						self.toggleWidgets(tb.menu_, setChecked='chk029-30', setUnChecked='chk031')
+						self.toggleWidgets(tb.contextMenu, setChecked='chk029-30', setUnChecked='chk031')
 				else:
 					if any ([axis==x and tangent==ty, axis==y and tangent==tx]): #"z"
-						self.toggleWidgets(tb.menu_, setChecked='chk031', setUnChecked='chk029-30')
+						self.toggleWidgets(tb.contextMenu, setChecked='chk031', setUnChecked='chk029-30')
 					if any ([axis==x and tangent==tz, axis==z and tangent==tx]): #"y"
-						self.toggleWidgets(tb.menu_, setChecked='chk030', setUnChecked='chk029,chk031')
+						self.toggleWidgets(tb.contextMenu, setChecked='chk030', setUnChecked='chk029,chk031')
 					if any ([axis==y and tangent==tz, axis==z and tangent==ty]): #"x"
-						self.toggleWidgets(tb.menu_, setChecked='chk029', setUnChecked='chk030-31')
+						self.toggleWidgets(tb.contextMenu, setChecked='chk029', setUnChecked='chk030-31')
 			else:
 				return 'Error: Operation requires a component selection.'
 
 		#align
-		x = tb.menu_.chk029.isChecked()
-		y = tb.menu_.chk030.isChecked()
-		z = tb.menu_.chk031.isChecked()
-		avg = tb.menu_.chk006.isChecked()
-		loop = tb.menu_.chk007.isChecked()
+		x = tb.contextMenu.chk029.isChecked()
+		y = tb.contextMenu.chk030.isChecked()
+		z = tb.contextMenu.chk031.isChecked()
+		avg = tb.contextMenu.chk006.isChecked()
+		loop = tb.contextMenu.chk007.isChecked()
 
 		if all ([x, not y, not z]): #align x
 			self.alignVertices(mode=3,average=avg,edgeloop=loop)

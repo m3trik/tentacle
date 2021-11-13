@@ -69,7 +69,7 @@ class Edit(Init):
 		'''Set the toolbutton's text according to the checkstates.
 		'''
 		tb = self.current_ui.tb003
-		axis = self.getAxisFromCheckBoxes('chk006-9', tb.menu_)
+		axis = self.getAxisFromCheckBoxes('chk006-9', tb.contextMenu)
 		tb.setText('Delete '+axis)
 
 
@@ -78,58 +78,58 @@ class Edit(Init):
 		'''
 		tb = self.current_ui.tb000
 		if state is 'setMenu':
-			tb.menu_.add('QCheckBox', setText='All Geometry', setObjectName='chk005', setToolTip='Clean All scene geometry.')
-			tb.menu_.add('QCheckBox', setText='Select Only', setObjectName='chk004', setToolTip='Repair matching geometry, else; only select.') #tb.menu_.add(self.tcl.wgts.CheckBox, setText='Select Only', setObjectName='chk004', setTristate=True, setCheckState_=2, setToolTip='Select and/or Repair matching geometry. <br>0: Repair Only<br>1: Repair and Select<br>2: Select Only')
-			tb.menu_.add('QCheckBox', setText='N-Gons', setObjectName='chk002', setChecked=True, setToolTip='Find N-gons.')
-			tb.menu_.add('QCheckBox', setText='Non-Manifold Geometry', setObjectName='chk017', setChecked=True, setToolTip='Check for nonmanifold polys.')
-			tb.menu_.add('QCheckBox', setText='Non-Manifold Vertex', setObjectName='chk021', setToolTip='A connected vertex of non-manifold geometry where the faces share a single vertex.')
-			tb.menu_.add('QCheckBox', setText='Quads', setObjectName='chk010', setToolTip='Check for quad sided polys.')
-			tb.menu_.add('QCheckBox', setText='Concave', setObjectName='chk011', setToolTip='Check for concave polys.')
-			tb.menu_.add('QCheckBox', setText='Non-Planar', setObjectName='chk003', setToolTip='Check for non-planar polys.')
-			tb.menu_.add('QCheckBox', setText='Holed', setObjectName='chk012', setToolTip='Check for holed polys.')
-			tb.menu_.add('QCheckBox', setText='Lamina', setObjectName='chk018', setToolTip='Check for lamina polys.')
-			tb.menu_.add('QCheckBox', setText='Shared UV\'s', setObjectName='chk016', setToolTip='Unshare uvs that are shared across vertices.')
-			# tb.menu_.add('QCheckBox', setText='Invalid Components', setObjectName='chk019', setToolTip='Check for invalid components.')
-			tb.menu_.add('QCheckBox', setText='Zero Face Area', setObjectName='chk013', setToolTip='Check for 0 area faces.')
-			tb.menu_.add('QDoubleSpinBox', setPrefix='Face Area Tolerance:   ', setObjectName='s006', setDisabled=True, setMinMax_='0.0-10 step.001', setValue=0.001, setToolTip='Tolerance for face areas.')
-			tb.menu_.add('QCheckBox', setText='Zero Length Edges', setObjectName='chk014', setToolTip='Check for 0 length edges.')
-			tb.menu_.add('QDoubleSpinBox', setPrefix='Edge Length Tolerance: ', setObjectName='s007', setDisabled=True, setMinMax_='0.0-10 step.001', setValue=0.001, setToolTip='Tolerance for edge length.')
-			tb.menu_.add('QCheckBox', setText='Zero UV Face Area', setObjectName='chk015', setToolTip='Check for 0 uv face area.')
-			tb.menu_.add('QDoubleSpinBox', setPrefix='UV Face Area Tolerance:', setObjectName='s008', setDisabled=True, setMinMax_='0.0-10 step.001', setValue=0.001, setToolTip='Tolerance for uv face areas.')
-			tb.menu_.add('QCheckBox', setText='Overlapping Duplicate Objects', setObjectName='chk022', setToolTip='Find any duplicate overlapping geometry at the object level.')
-			tb.menu_.add('QCheckBox', setText='Omit Selected Objects', setObjectName='chk023', setDisabled=True, setToolTip='Overlapping Duplicate Objects: Search for duplicates of any selected objects while omitting the initially selected objects.')
+			tb.contextMenu.add('QCheckBox', setText='All Geometry', setObjectName='chk005', setToolTip='Clean All scene geometry.')
+			tb.contextMenu.add('QCheckBox', setText='Select Only', setObjectName='chk004', setToolTip='Repair matching geometry, else; only select.') #tb.contextMenu.add(self.tcl.wgts.CheckBox, setText='Select Only', setObjectName='chk004', setTristate=True, setCheckState_=2, setToolTip='Select and/or Repair matching geometry. <br>0: Repair Only<br>1: Repair and Select<br>2: Select Only')
+			tb.contextMenu.add('QCheckBox', setText='N-Gons', setObjectName='chk002', setChecked=True, setToolTip='Find N-gons.')
+			tb.contextMenu.add('QCheckBox', setText='Non-Manifold Geometry', setObjectName='chk017', setChecked=True, setToolTip='Check for nonmanifold polys.')
+			tb.contextMenu.add('QCheckBox', setText='Non-Manifold Vertex', setObjectName='chk021', setToolTip='A connected vertex of non-manifold geometry where the faces share a single vertex.')
+			tb.contextMenu.add('QCheckBox', setText='Quads', setObjectName='chk010', setToolTip='Check for quad sided polys.')
+			tb.contextMenu.add('QCheckBox', setText='Concave', setObjectName='chk011', setToolTip='Check for concave polys.')
+			tb.contextMenu.add('QCheckBox', setText='Non-Planar', setObjectName='chk003', setToolTip='Check for non-planar polys.')
+			tb.contextMenu.add('QCheckBox', setText='Holed', setObjectName='chk012', setToolTip='Check for holed polys.')
+			tb.contextMenu.add('QCheckBox', setText='Lamina', setObjectName='chk018', setToolTip='Check for lamina polys.')
+			tb.contextMenu.add('QCheckBox', setText='Shared UV\'s', setObjectName='chk016', setToolTip='Unshare uvs that are shared across vertices.')
+			# tb.contextMenu.add('QCheckBox', setText='Invalid Components', setObjectName='chk019', setToolTip='Check for invalid components.')
+			tb.contextMenu.add('QCheckBox', setText='Zero Face Area', setObjectName='chk013', setToolTip='Check for 0 area faces.')
+			tb.contextMenu.add('QDoubleSpinBox', setPrefix='Face Area Tolerance:   ', setObjectName='s006', setDisabled=True, setMinMax_='0.0-10 step.001', setValue=0.001, setToolTip='Tolerance for face areas.')
+			tb.contextMenu.add('QCheckBox', setText='Zero Length Edges', setObjectName='chk014', setToolTip='Check for 0 length edges.')
+			tb.contextMenu.add('QDoubleSpinBox', setPrefix='Edge Length Tolerance: ', setObjectName='s007', setDisabled=True, setMinMax_='0.0-10 step.001', setValue=0.001, setToolTip='Tolerance for edge length.')
+			tb.contextMenu.add('QCheckBox', setText='Zero UV Face Area', setObjectName='chk015', setToolTip='Check for 0 uv face area.')
+			tb.contextMenu.add('QDoubleSpinBox', setPrefix='UV Face Area Tolerance:', setObjectName='s008', setDisabled=True, setMinMax_='0.0-10 step.001', setValue=0.001, setToolTip='Tolerance for uv face areas.')
+			tb.contextMenu.add('QCheckBox', setText='Overlapping Duplicate Objects', setObjectName='chk022', setToolTip='Find any duplicate overlapping geometry at the object level.')
+			tb.contextMenu.add('QCheckBox', setText='Omit Selected Objects', setObjectName='chk023', setDisabled=True, setToolTip='Overlapping Duplicate Objects: Search for duplicates of any selected objects while omitting the initially selected objects.')
 
-			tb.menu_.chk004.stateChanged.connect(lambda state: tb.menu_.chk004.setText('Repair' if state else 'Select Only')) #set button text to reflect current state.
-			tb.menu_.chk022.stateChanged.connect(lambda state: self.toggleWidgets(tb.menu_, setDisabled='chk002-3,chk005,chk010-21,s006-8', setEnabled='chk023') if state 
-															else self.toggleWidgets(tb.menu_, setEnabled='chk002-3,chk005,chk010-21,s006-8', setDisabled='chk023')) #disable non-relevant options.
-			tb.menu_.chk013.toggled.connect(lambda state: tb.menu_.s006.setEnabled(True if state else False))
-			tb.menu_.chk014.toggled.connect(lambda state: tb.menu_.s007.setEnabled(True if state else False))
-			tb.menu_.chk015.toggled.connect(lambda state: tb.menu_.s008.setEnabled(True if state else False))
+			tb.contextMenu.chk004.stateChanged.connect(lambda state: tb.contextMenu.chk004.setText('Repair' if state else 'Select Only')) #set button text to reflect current state.
+			tb.contextMenu.chk022.stateChanged.connect(lambda state: self.toggleWidgets(tb.contextMenu, setDisabled='chk002-3,chk005,chk010-21,s006-8', setEnabled='chk023') if state 
+															else self.toggleWidgets(tb.contextMenu, setEnabled='chk002-3,chk005,chk010-21,s006-8', setDisabled='chk023')) #disable non-relevant options.
+			tb.contextMenu.chk013.toggled.connect(lambda state: tb.contextMenu.s006.setEnabled(True if state else False))
+			tb.contextMenu.chk014.toggled.connect(lambda state: tb.contextMenu.s007.setEnabled(True if state else False))
+			tb.contextMenu.chk015.toggled.connect(lambda state: tb.contextMenu.s008.setEnabled(True if state else False))
 			return
 
-		allMeshes = int(tb.menu_.chk005.isChecked()) #[0] All selectable meshes
-		repair = tb.menu_.chk004.isChecked() #repair or select only
+		allMeshes = int(tb.contextMenu.chk005.isChecked()) #[0] All selectable meshes
+		repair = tb.contextMenu.chk004.isChecked() #repair or select only
 		historyOn = 1 #[2] keep construction history
-		quads = int(tb.menu_.chk010.isChecked()) #[3] check for quads polys
-		nsided = int(tb.menu_.chk002.isChecked()) #[4] check for n-sided polys
-		concave = int(tb.menu_.chk011.isChecked()) #[5] check for concave polys
-		holed = int(tb.menu_.chk012.isChecked()) #[6] check for holed polys
-		nonplanar = int(tb.menu_.chk003.isChecked()) #[7] check for non-planar polys
-		zeroGeom = int(tb.menu_.chk013.isChecked()) #[8] check for 0 area faces
-		zeroGeomTol = tb.menu_.s006.value() #[9] tolerance for face areas
-		zeroEdge = int(tb.menu_.chk014.isChecked()) #[10] check for 0 length edges
-		zeroEdgeTol = tb.menu_.s007.value() #[11] tolerance for edge length
-		zeroMap = int(tb.menu_.chk015.isChecked()) #[12] check for 0 uv face area
-		zeroMapTol = tb.menu_.s008.value() #[13] tolerance for uv face areas
-		sharedUVs = int(tb.menu_.chk016.isChecked()) #[14] Unshare uvs that are shared across vertices
-		nonmanifold = int(tb.menu_.chk017.isChecked()) #[15] check for nonmanifold polys
-		lamina = -int(tb.menu_.chk018.isChecked()) #[16] check for lamina polys [default -1]
-		splitNonManifoldVertex = tb.menu_.chk021.isChecked()
-		invalidComponents = 0 #int(tb.menu_.chk019.isChecked()) #[17] a guess what this arg does. not checked. default is 0.
-		overlappingDuplicateObjects = tb.menu_.chk022.isChecked() #find overlapping geometry at object level.
-		omitSelectedObjects = tb.menu_.chk023.isChecked() #Search for duplicates of any selected objects while omitting the initially selected objects.
+		quads = int(tb.contextMenu.chk010.isChecked()) #[3] check for quads polys
+		nsided = int(tb.contextMenu.chk002.isChecked()) #[4] check for n-sided polys
+		concave = int(tb.contextMenu.chk011.isChecked()) #[5] check for concave polys
+		holed = int(tb.contextMenu.chk012.isChecked()) #[6] check for holed polys
+		nonplanar = int(tb.contextMenu.chk003.isChecked()) #[7] check for non-planar polys
+		zeroGeom = int(tb.contextMenu.chk013.isChecked()) #[8] check for 0 area faces
+		zeroGeomTol = tb.contextMenu.s006.value() #[9] tolerance for face areas
+		zeroEdge = int(tb.contextMenu.chk014.isChecked()) #[10] check for 0 length edges
+		zeroEdgeTol = tb.contextMenu.s007.value() #[11] tolerance for edge length
+		zeroMap = int(tb.contextMenu.chk015.isChecked()) #[12] check for 0 uv face area
+		zeroMapTol = tb.contextMenu.s008.value() #[13] tolerance for uv face areas
+		sharedUVs = int(tb.contextMenu.chk016.isChecked()) #[14] Unshare uvs that are shared across vertices
+		nonmanifold = int(tb.contextMenu.chk017.isChecked()) #[15] check for nonmanifold polys
+		lamina = -int(tb.contextMenu.chk018.isChecked()) #[16] check for lamina polys [default -1]
+		splitNonManifoldVertex = tb.contextMenu.chk021.isChecked()
+		invalidComponents = 0 #int(tb.contextMenu.chk019.isChecked()) #[17] a guess what this arg does. not checked. default is 0.
+		overlappingDuplicateObjects = tb.contextMenu.chk022.isChecked() #find overlapping geometry at object level.
+		omitSelectedObjects = tb.contextMenu.chk023.isChecked() #Search for duplicates of any selected objects while omitting the initially selected objects.
 
-		# if tb.menu_.chk005.isChecked(): #All Geometry. Select components for cleanup from all visible geometry in the scene
+		# if tb.contextMenu.chk005.isChecked(): #All Geometry. Select components for cleanup from all visible geometry in the scene
 		# 	scene = pm.ls(visible=1, geometry=1)
 		# 	[pm.select (geometry, add=1) for geometry in scene]
 
@@ -165,14 +165,14 @@ class Edit(Init):
 		'''
 		tb = self.current_ui.tb001
 		if state is 'setMenu':
-			tb.menu_.add('QCheckBox', setText='For All Objects', setObjectName='chk018', setChecked=True, setToolTip='Delete history on All objects or just those selected.')
-			tb.menu_.add('QCheckBox', setText='Delete Unused Nodes', setObjectName='chk019', setChecked=True, setToolTip='Delete unused nodes.')
-			tb.menu_.add('QCheckBox', setText='Delete Deformers', setObjectName='chk020', setToolTip='Delete deformers.')
+			tb.contextMenu.add('QCheckBox', setText='For All Objects', setObjectName='chk018', setChecked=True, setToolTip='Delete history on All objects or just those selected.')
+			tb.contextMenu.add('QCheckBox', setText='Delete Unused Nodes', setObjectName='chk019', setChecked=True, setToolTip='Delete unused nodes.')
+			tb.contextMenu.add('QCheckBox', setText='Delete Deformers', setObjectName='chk020', setToolTip='Delete deformers.')
 			return
 
-		all_ = tb.menu_.chk018.isChecked()
-		unusedNodes = tb.menu_.chk019.isChecked()
-		deformers = tb.menu_.chk020.isChecked()
+		all_ = tb.contextMenu.chk018.isChecked()
+		unusedNodes = tb.contextMenu.chk019.isChecked()
+		deformers = tb.contextMenu.chk020.isChecked()
 		objects = pm.ls(selection=1, objectsOnly=1) if not all_ else pm.ls(typ="mesh")
 
 		try: #delete history
@@ -203,12 +203,12 @@ class Edit(Init):
 		'''
 		tb = self.current_ui.tb002
 		if state is 'setMenu':
-			tb.menu_.add('QCheckBox', setText='Delete Edge Loop', setObjectName='chk001', setToolTip='Delete the edge loops of any edges selected.')
-			tb.menu_.add('QCheckBox', setText='Delete Edge Ring', setObjectName='chk000', setToolTip='Delete the edge rings of any edges selected.')
+			tb.contextMenu.add('QCheckBox', setText='Delete Edge Loop', setObjectName='chk001', setToolTip='Delete the edge loops of any edges selected.')
+			tb.contextMenu.add('QCheckBox', setText='Delete Edge Ring', setObjectName='chk000', setToolTip='Delete the edge rings of any edges selected.')
 			return
 
-		deleteRing = tb.menu_.chk000.isChecked()
-		deleteLoop = tb.menu_.chk001.isChecked()
+		deleteRing = tb.contextMenu.chk000.isChecked()
+		deleteLoop = tb.contextMenu.chk001.isChecked()
 
 		# selectionMask = pm.selectMode (query=True, component=True)
 		maskVertex = pm.selectType (query=True, vertex=True)
@@ -244,15 +244,15 @@ class Edit(Init):
 		'''
 		tb = self.current_ui.tb003
 		if state is 'setMenu':
-			tb.menu_.add('QCheckBox', setText='-', setObjectName='chk006', setChecked=True, setToolTip='Perform delete along negative axis.')
-			tb.menu_.add('QRadioButton', setText='X', setObjectName='chk007', setChecked=True, setToolTip='Perform delete along X axis.')
-			tb.menu_.add('QRadioButton', setText='Y', setObjectName='chk008', setToolTip='Perform delete along Y axis.')
-			tb.menu_.add('QRadioButton', setText='Z', setObjectName='chk009', setToolTip='Perform delete along Z axis.')
+			tb.contextMenu.add('QCheckBox', setText='-', setObjectName='chk006', setChecked=True, setToolTip='Perform delete along negative axis.')
+			tb.contextMenu.add('QRadioButton', setText='X', setObjectName='chk007', setChecked=True, setToolTip='Perform delete along X axis.')
+			tb.contextMenu.add('QRadioButton', setText='Y', setObjectName='chk008', setToolTip='Perform delete along Y axis.')
+			tb.contextMenu.add('QRadioButton', setText='Z', setObjectName='chk009', setToolTip='Perform delete along Z axis.')
 
-			self.connect_('chk006-9', 'toggled', self.chk006_9, tb.menu_)
+			self.connect_('chk006-9', 'toggled', self.chk006_9, tb.contextMenu)
 			return
 
-		axis = self.getAxisFromCheckBoxes('chk006-9', tb.menu_)
+		axis = self.getAxisFromCheckBoxes('chk006-9', tb.contextMenu)
 
 		pm.undoInfo(openChunk=1)
 		objects = pm.ls(sl=1, objectsOnly=1)

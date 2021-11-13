@@ -32,7 +32,6 @@ class EventFactoryFilter(QtCore.QObject):
 				'QAction', 
 				'QLabel', 
 				'QPushButton', 
-				'QToolButton', 
 				'QListWidget', 
 				'QTreeWidget', 
 				'QComboBox', 
@@ -99,22 +98,24 @@ class EventFactoryFilter(QtCore.QObject):
 				widget.installEventFilter(self)
 				# print (widgetName if widgetName else widget)
 
-				if widgetType in ('ToolButton', 'PushButtonDraggable', 'ComboBox', 'TreeWidgetExpandableList', 'LineEdit'): #widget types to initialize menus|contextMenu's for.
-					if callable(method):
-						try: #attempt to clear any current menu items.
-							method.clear()
-						except (AttributeError):
-							pass
+				if widgetType in ('PushButton', 'PushButtonDraggable', 'ComboBox', 'TreeWidgetExpandableList', 'LineEdit'): #widget types to initialize menus|contextMenu's for.
+					try: #if callable(method): #attempt to clear any current menu items.
+						method.clear()
+					except AttributeError as error:
+						pass # print (__name__, error)
+
+					try: #attempt to construct the widget's contextMenu.
 						method('setMenu')
-						widget.menu_.addApplyButton()
+					except Exception as error:
+						pass # print (__name__, widgetName, error)
 
 					try: #add the child widgets of popup menus.
 						self.addWidgets(uiName, widget.menu_.childWidgets)
 						self.addWidgets(uiName, widget.contextMenu.childWidgets)
 					except AttributeError as error:
-						print (__name__, error)
+						pass # print (__name__, error)
 
-				if derivedType in ('QPushButton', 'QToolButton', 'QLabel'): #widget types to resize and center.
+				if derivedType in ('QPushButton', 'QLabel'): #widget types to resize and center.
 					if uiLevel<3:
 						EventFactoryFilter.resizeAndCenterWidget(widget)
 
@@ -342,7 +343,7 @@ class EventFactoryFilter(QtCore.QObject):
 			event = <QEvent>
 		'''
 		if self.widget.underMouse(): #if self.widget.rect().contains(event.pos()): #if mouse over widget:
-			if self.derivedType=='QPushButton' or self.derivedType=='QToolButton':
+			if self.derivedType=='QPushButton':
 				if self.tcl.sb.prefix(self.widget, 'i'): #ie. 'i012'
 					ui = self.tcl.setUi(self.widget.whatsThis()) #switch the stacked layout to the given ui.
 

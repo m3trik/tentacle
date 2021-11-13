@@ -11,6 +11,12 @@ class RichText(object):
 	:Parameters:
 		parent (obj) = parent widget.
 		alignment (str) = text alignment. valid values are: 'AlignLeft', 'AlignCenter', 'AlignRight'
+
+	ex. <hl style="color:red;">Error:</hl>
+	ex. '<p style="color:white;">'
+	ex. '<b style="font-weight: bold;">'
+	ex. '<strong style="font-weight: bold;">'
+	ex. '<mark style="background-color: grey">'
 	'''
 	def __init__(self, parent=None, alignment='AlignLeft', **kwargs):
 		'''
@@ -29,18 +35,22 @@ class RichText(object):
 		:Return:
 			(bool)
 		'''
-		if not hasattr(self, '_hasRichText'):
-			self._hasRichText=False
+		try:
+			return self._hasRichText
 
-		return self._hasRichText
+		except AttributeError as error:
+			self._hasRichText = False
+			return self._hasRichText
 
 
 	@property
 	def richTextLabel(self):
 		'''Return a QLabel and inside a QHBoxLayout.
 		'''
-		if not hasattr(self, '_richTextLabel'):
+		try:
+			return self._richTextLabel
 
+		except AttributeError as error:
 			self.__layout = QtWidgets.QHBoxLayout(self)
 			self.__layout.setContentsMargins(0, 0, 0, 0)
 			# self.__layout.setSpacing(0)
@@ -55,7 +65,7 @@ class RichText(object):
 
 			self.setRichTextStyle()
 
-		return self._richTextLabel
+			return self._richTextLabel
 
 
 	def setRichTextStyle(self, textColor='white'):
