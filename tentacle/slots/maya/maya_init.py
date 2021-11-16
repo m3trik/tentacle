@@ -136,8 +136,9 @@ class Init(Slots):
 		'''
 		def wrapper(*args, **kwargs):
 			pm.undoInfo(openChunk=True)
-			fn(*args, **kwargs)
+			rtn = fn(*args, **kwargs)
 			pm.undoInfo(closeChunk=True)
+			return rtn
 		return wrapper
 
 	# ----------------------------------------------------------------------
@@ -188,14 +189,14 @@ class Init(Slots):
 
 
 	@staticmethod
-	def getComponents(objects=None, componentType=None, selection=False, returnType='unicode', returnNodeType='shape', flatten=False):
+	def getComponents(objects=None, componentType=None, selection=False, returnType='str', returnNodeType='shape', flatten=False):
 		'''Get the components of the given type.
 
 		:Parameters:
 			objects (str)(obj)(list) = The object(s) to get the components of.
-			componentType (str)(int) = The desired component mask. (valid: 'vtx','vertex','vertices','Polygon Vertex',31(vertices), 'e','edge','edges','Polygon Edge',32(edges), 'f','face','faces','Polygon Face',34(faces), 'cv','control vertex','control vertices','Control Vertex',28(control vertices) (default:None).
+			componentType (str)(int) = The desired component mask. (valid: any type allowed in the 'convertComponentName' method)
 			selection (bool) = Filter to currently selected objects.
-			returnType (str) = The desired returned object type. (valid: 'unicode'(default), 'str', 'int', 'object')
+			returnType (str) = The desired returned object type. (valid: 'str', 'object', 'int')
 			returnNodeType (str) = Specify whether the components are returned with the transform or shape nodes (valid only with str and unicode returnTypes). (valid: 'transform', 'shape'(default)) ex. 'pCylinder1.f[0]' or 'pCylinderShape1.f[0]'
 			flatten (bool) = Flattens the returned list of objects so that each component is identified individually.
 
@@ -245,17 +246,14 @@ class Init(Slots):
 		if not components:
 			components=[]
 
-		if returnType=='unicode':
-			if returnNodeType=='transform':
-				result = [''.join(c.rsplit('Shape', 1)).decode('utf-8') for c in components]
-			else:
-				result = [c.decode('utf-8') for c in components]
-
-		elif returnType=='str':
+		if returnType=='str':
 			if returnNodeType=='transform':
 				result = [str(''.join(c.rsplit('Shape', 1))) for c in components]
 			else:
 				result = [str(c) for c in components]
+
+		elif returnType=='object':
+			result = pm.ls(components)
 
 		elif returnType=='int':
 			result={}
@@ -273,9 +271,6 @@ class Init(Slots):
 					result[obj].append(componentNum)
 				else:
 					result[obj] = [componentNum]
-
-		elif returnType=='object':
-			result = pm.ls(components)
 
 		return result
 
@@ -1383,7 +1378,11 @@ class Init(Slots):
 			radius=int
 			center=[float3 list] - point location of circle center
 			mode(int) = 0 -no subdivisions, 1 -subdivide tris, 2 -subdivide quads
-		ex. self.createCircle(axis='x', numPoints=20, radius=8, mode='tri')
+
+		:Return:
+			(list) [transform node, history node] ex. [nt.Transform('polySurface1'), nt.PolyCreateFace('polyCreateFace1')]
+
+		ex. call: self.createCircle(axis='x', numPoints=20, radius=8, mode='tri')
 		'''
 		import math
 
@@ -1408,14 +1407,14 @@ class Init(Slots):
 
 			radian = radian+math.radians(degree) #increment by original radian value that was converted from degrees
 			#print(x,y,"\n")
-			
+
 		# pm.undoInfo (openChunk=True)
-		node = pm.polyCreateFacet (point=vertexPoints, name=name)
-		pm.polyNormal (node, normalMode=4) #4=reverse and propagate
+		node = pm.ls(pm.polyCreateFacet(point=vertexPoints, name=name)) #returns: ['Object name', 'node name']. pymel 'ls' converts those to objects.
+		pm.polyNormal(node, normalMode=4) #4=reverse and propagate
 		if mode==1:
-			pm.polySubdivideFacet (divisions=1, mode=1)
+			pm.polySubdivideFacet(divisions=1, mode=1)
 		if mode==2:
-			pm.polySubdivideFacet (divisions=1, mode=0)
+			pm.polySubdivideFacet(divisions=1, mode=0)
 		# pm.undoInfo (closeChunk=True)
 
 		return node
@@ -2186,7 +2185,11 @@ class Init(Slots):
 			shapeNodes = pm.ls(node, objectsOnly=1)
 			transforms = pm.listRelatives(shapeNodes, parent=1)
 			if not transforms: #from history
-				transforms = pm.listRelatives(pm.listHistory(node, future=1), parent=1)
+				try:
+					print ('getTransformNode: node:', node)
+					transforms = pm.listRelatives(pm.listHistory(node, future=1), parent=1)
+				except Exception as error:
+					transforms = []
 
 		if attributes:
 			transforms = pm.listAttr(transforms, read=1, hasData=1, string=regEx)
@@ -2231,7 +2234,11 @@ class Init(Slots):
 		shapes = pm.listRelatives(node, children=1, shapes=1) #get shape node from transform: returns list ie. [nt.Mesh('pConeShape1')]
 		connections = pm.listConnections(shapes, source=1, destination=0) #get incoming connections: returns list ie. [nt.PolyCone('polyCone1')]
 		if not connections:
-			connections = node.history()[-1]
+			try:
+				connections = node.history()[-1]
+			except AttributeError as error:
+				print ('error:', error)
+				connections = [] #object has no attribute 'history'
 
 		if attributes:
 			connections = pm.listAttr(connections, read=1, hasData=1, string=regEx)
@@ -2327,7 +2334,19 @@ class Init(Slots):
 				'primaryVisibility', 'tweak', 'relativeTweak', 'uvPivotX', 'uvPivotY', 'displayImmediate', 'displayColors', 'ignoreHwShader', 'holdOut', 'smoothShading', 
 				'boundingBoxScaleX', 'boundingBoxScaleY', 'boundingBoxScaleZ', 'featureDisplacement', 'randomSeed', 'compId', 'weight', 'gravityX', 'gravityY', 'gravityZ', 'attraction', 
 				'magnX', 'magnY', 'magnZ', 'maya2012', 'maya2018', 'newThickness', 'compBoundingBoxMinX', 'compBoundingBoxMinY', 'compBoundingBoxMinZ', 'compBoundingBoxMaxX', 
-				'compBoundingBoxMaxY', 'compBoundingBoxMaxZ', 
+				'compBoundingBoxMaxY', 'compBoundingBoxMaxZ', 'hyperLayout', 'borderConnections', 'isHierarchicalConnection', 'rmbCommand', 'templateName', 'templatePath', 'viewName', 
+				'iconName', 'customTreatment', 'creator', 'creationDate', 'containerType', 'boundingBoxMin', 'boundingBoxMax', 'boundingBoxSize', 'matrix', 'inverseMatrix', 'worldMatrix', 
+				'worldInverseMatrix', 'parentMatrix', 'parentInverseMatrix', 'instObjGroups', 'wireColorRGB', 'drawOverride', 'overrideColorRGB', 'renderInfo', 'ghostCustomSteps', 
+				'ghostsStep', 'ghostFrames', 'ghostOpacityRange', 'ghostColorPre', 'ghostColorPost', 'ghostDriver', 'outlinerColor', 'shadowRays', 'rayDepthLimit', 'centerOfIllumination', 
+				'pointCamera', 'pointCameraX', 'pointCameraY', 'pointCameraZ', 'matrixWorldToEye', 'matrixEyeToWorld', 'objectId', 'primitiveId', 'raySampler', 'rayDepth', 'renderState', 
+				'locatorScale', 'uvCoord', 'uCoord', 'vCoord', 'uvFilterSize', 'uvFilterSizeX', 'uvFilterSizeY', 'infoBits', 'lightData', 'lightDirectionX', 'lightDirectionY', 'lightDirectionZ', 
+				'lightIntensityR', 'lightIntensityG', 'lightIntensityB', 'lightShadowFraction', 'preShadowIntensity', 'lightBlindData', 'opticalFXvisibility', 'opticalFXvisibilityR', 
+				'opticalFXvisibilityG', 'opticalFXvisibilityB', 'rayInstance', 'ambientShade', 'objectType', 'shadowRadius', 'castSoftShadows', 'normalCamera', 'normalCameraX', 'normalCameraY', 
+				'normalCameraZ', 'color', 'shadowColor', 'decayRate', 'emitDiffuse', 'emitSpecular', 'lightRadius', 'reuseDmap', 'useMidDistDmap', 'dmapFilterSize', 'dmapResolution', 
+				'dmapFocus', 'dmapWidthFocus', 'useDmapAutoFocus', 'volumeShadowSamples', 'fogShadowIntensity', 'useDmapAutoClipping', 'dmapNearClipPlane', 'dmapFarClipPlane', 
+				'useOnlySingleDmap', 'useXPlusDmap', 'useXMinusDmap', 'useYPlusDmap', 'useYMinusDmap', 'useZPlusDmap', 'useZMinusDmap', 'dmapUseMacro', 'dmapName', 'dmapLightName', 
+				'dmapSceneName', 'dmapFrameExt', 'writeDmap', 'lastWrittenDmapAnimExtName', 'useLightPosition', 'lightAngle', 'pointWorld', 'pointWorldX', 'pointWorldY', 'pointWorldZ', 
+
 			]
 		# print('node:', node); print('attr:', pm.listAttr(node))
 		attributes={} 
@@ -2480,6 +2499,7 @@ class Init(Slots):
 				if not k in exclude and (k in include if include else k not in include)}
 		else:
 			attributes = self.getAttributesMEL(obj, include=include, exclude=exclude)
+		print (attributes.keys())
 
 		children = self.objAttrWindow(obj, attributes, checkableLabel=checkableLabel, fn=fn, fn_args=fn_args)
 

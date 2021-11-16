@@ -84,70 +84,88 @@ class Create(Init):
 		axis = [0,90,0]
 		type_ = self.create_ui.cmb001.currentText()
 		index = self.create_ui.cmb002.currentIndex()
-		name = ''
 
 		selection = pm.ls(selection=1)
 
 		#polygons
 		if type_=='Polygon':
 			if index==0: #cube:
-				node = pm.polyCube (axis=axis, width=5, height=5, depth=5, subdivisionsX=1, subdivisionsY=1, subdivisionsZ=1, name=name)
+				node = pm.polyCube(axis=axis, width=5, height=5, depth=5, subdivisionsX=1, subdivisionsY=1, subdivisionsZ=1)
 			elif index==1: #sphere:
-				node = pm.polySphere (axis=axis, radius=5, subdivisionsX=12, subdivisionsY=12, name=name)
+				node = pm.polySphere(axis=axis, radius=5, subdivisionsX=12, subdivisionsY=12)
 			elif index==2: #cylinder:
-				node = pm.polyCylinder (axis=axis, radius=5, height=10, subdivisionsX=12, subdivisionsY=1, subdivisionsZ=1, name=name)
+				node = pm.polyCylinder(axis=axis, radius=5, height=10, subdivisionsX=12, subdivisionsY=1, subdivisionsZ=1)
 			elif index==3: #plane:
-				node = pm.polyPlane (axis=axis, width=5, height=5, subdivisionsX=1, subdivisionsY=1, name=name)
+				node = pm.polyPlane(axis=axis, width=5, height=5, subdivisionsX=1, subdivisionsY=1)
 			elif index==4: #circle:
-				node = self.createCircle(axis=axis, numPoints=5, radius=5, mode=0, name=name)
+				node = self.createCircle(axis=axis, numPoints=12, radius=5, mode=0)
 			elif index==5: #Cone:
-				node = pm.polyCone (axis=axis, radius=5, height=5, subdivisionsX=1, subdivisionsY=1, subdivisionsZ=1, name=name)
+				node = pm.polyCone(axis=axis, radius=5, height=5, subdivisionsX=1, subdivisionsY=1, subdivisionsZ=1)
 			elif index==6: #Pyramid
-				node = pm.polyPyramid (axis=axis, sideLength=5, numberOfSides=5, subdivisionsHeight=1, subdivisionsCaps=1, name=name)
+				node = pm.polyPyramid(axis=axis, sideLength=5, numberOfSides=5, subdivisionsHeight=1, subdivisionsCaps=1)
 			elif index==7: #Torus:
-				node = pm.polyTorus (axis=axis, radius=10, sectionRadius=5, twist=0, subdivisionsX=5, subdivisionsY=5, name=name)
+				node = pm.polyTorus(axis=axis, radius=10, sectionRadius=5, twist=0, subdivisionsX=5, subdivisionsY=5)
 			elif index==8: #Pipe
-				node = pm.polyPipe (axis=axis, radius=5, height=5, thickness=2, subdivisionsHeight=1, subdivisionsCaps=1, name=name)
+				node = pm.polyPipe(axis=axis, radius=5, height=5, thickness=2, subdivisionsHeight=1, subdivisionsCaps=1)
 			elif index==9: #Soccer ball
-				node = pm.polyPrimitive(axis=axis, radius=5, sideLength=5, polyType=0, name=name)
+				node = pm.polyPrimitive(axis=axis, radius=5, sideLength=5, polyType=0)
 			elif index==10: #Platonic solids
-				node = mel.eval("performPolyPrimitive PlatonicSolid 0;"); pm.rename(node, name)
+				node = mel.eval("performPolyPrimitive PlatonicSolid 0;")
 
 		#nurbs
 		if type_=='NURBS':
 			if index==0: #Cube
-				node = pm.nurbsCube (ch=1, d=3, hr=1, p=(0, 0, 0), lr=1, w=1, v=1, ax=(0, 1, 0), u=1, name=name)
+				node = pm.nurbsCube(ch=1, d=3, hr=1, p=(0, 0, 0), lr=1, w=1, v=1, ax=(0, 1, 0), u=1)
 			elif index==1: #Sphere
-				node = pm.sphere (esw=360, ch=1, d=3, ut=0, ssw=0, p=(0, 0, 0), s=8, r=1, tol=0.01, nsp=4, ax=(0, 1, 0), name=name)
+				node = pm.sphere(esw=360, ch=1, d=3, ut=0, ssw=0, p=(0, 0, 0), s=8, r=1, tol=0.01, nsp=4, ax=(0, 1, 0))
 			elif index==2: #Cylinder
-				node = pm.cylinder (esw=360, ch=1, d=3, hr=2, ut=0, ssw=0, p=(0, 0, 0), s=8, r=1, tol=0.01, nsp=1, ax=(0, 1, 0), name=name)
+				node = pm.cylinder(esw=360, ch=1, d=3, hr=2, ut=0, ssw=0, p=(0, 0, 0), s=8, r=1, tol=0.01, nsp=1, ax=(0, 1, 0))
 			elif index==3: #Cone
-				node = pm.cone (esw=360, ch=1, d=3, hr=2, ut=0, ssw=0, p=(0, 0, 0), s=8, r=1, tol=0.01, nsp=1, ax=(0, 1, 0), name=name)
+				node = pm.cone(esw=360, ch=1, d=3, hr=2, ut=0, ssw=0, p=(0, 0, 0), s=8, r=1, tol=0.01, nsp=1, ax=(0, 1, 0))
 			elif index==4: #Plane
-				node = pm.nurbsPlane (ch=1, d=3, v=1, p=(0, 0, 0), u=1, w=1, ax=(0, 1, 0), lr=1, name=name)
+				node = pm.nurbsPlane(ch=1, d=3, v=1, p=(0, 0, 0), u=1, w=1, ax=(0, 1, 0), lr=1)
 			elif index==5: #Torus
-				node = pm.torus (esw=360, ch=1, d=3, msw=360, ut=0, ssw=0, hr=0.5, p=(0, 0, 0), s=8, r=1, tol=0.01, nsp=4, ax=(0, 1, 0), name=name)
+				node = pm.torus(esw=360, ch=1, d=3, msw=360, ut=0, ssw=0, hr=0.5, p=(0, 0, 0), s=8, r=1, tol=0.01, nsp=4, ax=(0, 1, 0))
 			elif index==6: #Circle
-				node = pm.circle (c=(0, 0, 0), ch=1, d=3, ut=0, sw=360, s=8, r=1, tol=0.01, nr=(0, 1, 0), name=name)
+				node = pm.circle(c=(0, 0, 0), ch=1, d=3, ut=0, sw=360, s=8, r=1, tol=0.01, nr=(0, 1, 0))
 			elif index==7: #Square
-				node = pm.nurbsSquare (c=(0, 0, 0), ch=1, d=3, sps=1, sl1=1, sl2=1, nr=(0, 1, 0), name=name)
+				node = pm.nurbsSquare(c=(0, 0, 0), ch=1, d=3, sps=1, sl1=1, sl2=1, nr=(0, 1, 0))
 
 		#lights
 		if type_=='Light':
-			if index==0: #
-				pass
+			if index==0: #Ambient
+				node = pm.ambientLight() #defaults: 1, 0.45, 1,1,1, "0", 0,0,0, "1"
+			elif index==1: #Directional
+				node = pm.directionalLight() #1, 1,1,1, "0", 0,0,0, 0
+			elif index==2: #Point
+				node = pm.pointLight() #1, 1,1,1, 0, 0, 0,0,0, 1
+			elif index==3: #Spot
+				node = pm.spotLight() #1, 1,1,1, 0, 40, 0, 0, 0, 0,0,0, 1, 0
+			elif index==4: #Area
+				node = pm.areaLight() #1, 1,1,1, 0, 0, 0,0,0, 1, 0
+			elif index==5: #Volume
+				node = pm.volumeLight() #1, 1,1,1, 0, 0, 0,0,0, 1
+			# elif index==6: #VRay Sphere
+			# 	node = pm.
+			# elif index==7: #VRay Dome
+			# 	node = pm.
+			# elif index==8: #VRay Rect
+			# 	node = pm.
+			# elif index==9: #VRay IES
+			# 	node = pm.
 
-		#if there is a current selection, move the object to that selection's bounding box center.
-		pos = pm.xform(selection, query=1, translation=1, worldSpace=1, absolute=1)
-		center_pos = [ #Get center by averaging of all x,y,z points.
-			sum(pos[0::3]) / len(pos[0::3]), 
-			sum(pos[1::3]) / len(pos[1::3]), 
-			sum(pos[2::3]) / len(pos[2::3])]
-		pm.xform(node, translation=center_pos, worldSpace=1, absolute=1)
+		if selection: #if there is a current selection, move the object to that selection's bounding box center.
+			pos = pm.xform(selection, query=1, translation=1, worldSpace=1, absolute=1)
+			center_pos = [ #Get center by averaging of all x,y,z points.
+				sum(pos[0::3]) / len(pos[0::3]), 
+				sum(pos[1::3]) / len(pos[1::3]), 
+				sum(pos[2::3]) / len(pos[2::3])]
+			pm.xform(node, translation=center_pos, worldSpace=1, absolute=1)
 
 		pm.selectMode(object=1) #place scene select type in object mode.
 		pm.select(node) #select the transform node so that you can see any edits
 
+		print (node, self.getHistoryNode(node))
 		return self.getHistoryNode(node)
 
 

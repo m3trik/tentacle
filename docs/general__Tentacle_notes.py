@@ -12,7 +12,6 @@ time: 0.0632666986347
 tk_slots_max_polygons
 time: 0.0816165578988
 
-
 #profile:
 tk_
 		 9633 function calls (9588 primitive calls) in 1.733 seconds
@@ -271,7 +270,7 @@ ncalls  tottime  percall  cumtime  percall filename:lineno(function)
 @Slots.sync				# Keep widgets (having the same objectName) in sync across parent and child uis. A decorator using the syncWidgets method. 'isChecked':'setChecked', 'isDisabled':'setDisabled', 'isEnabled':'setEnabled', 'value':'setValue', 'text':'setText', 'icon':'setIcon'
 @Slots.message		# Pop up a message box displaying the returned str. also: self.viewPortMessage("Display Local Rotation Axes:<hl>"+str(state)+"</hl>")
 @Slots.hideMain		# Hides the stacked widget main window.
-@Slots.progress		# Display a progress bar. (currently disabled)
+@Slots.progress		# Displays a progress bar. (currently disabled)
 @Init.attr				# Launch a popup window containing the given objects attributes. A Decorator for setAttributeWindow (objAttrWindow).
 @Init.undoChunk		# A decorator to place a function into Maya's undo chunk.
 
@@ -286,7 +285,7 @@ cmb.contextMenu.add('QPushButton', setObjectName='b002', setText='Delete All', s
 
 
 
-# creating additional connections:
+# creating additional connections for those widgets:
 cmb.returnPressed.connect(lambda: self.lbl001(setEditable=False))
 cmb.returnPressed.connect(lambda m=cmb.contextMenu.lastActiveChild: getattr(self, m(name=1))()) #connect to the last pressed child widget's corresponding method after return pressed. ie. self.lbl000 if cmb.lbl000 was clicked last.
 cmb.currentIndexChanged.connect(self.lbl005) #select current set on index change.
@@ -329,7 +328,7 @@ def tb002(self, state=None):
 def cmb000(self, index=-1):
 		'''Editors
 		'''
-		cmb = self.edit_ui.draggable_header.contextMenu.cmb000
+		cmb = self.edit_ui.cmb000
 
 		if index is 'setMenu':
 			list_ = ['Cleanup', 'Transfer: Attribute Values', 'Transfer: Shading Sets']
@@ -373,7 +372,7 @@ def cmb002(self, index=-1):
 def cmb006(self, index=-1):
 		'''Currently Selected Objects
 		'''
-		cmb = self.selection_ui.draggable_header.contextMenu.cmb006
+		cmb = self.selection_ui.cmb006
 
 		if index is 'setMenu':
 			cmb.setCurrentText('Current Selection') # cmb.insertItem(cmb.currentIndex(), 'Current Selection') #insert item at current index.
@@ -436,58 +435,8 @@ def tree000(self, wItem=None, column=None):
 # ======================================================================
 '''
 
-Traceback (most recent call last):
-	File "O:/Cloud/Code/_scripts/tentacle\tentacle\childEvents.py", line 237, in eventFilter
-		getattr(self, eventName)(event) #handle the event locally. #ie. self.enterEvent(event)
-	File "O:/Cloud/Code/_scripts/tentacle\tentacle\childEvents.py", line 263, in showEvent
-		self.tcl.sb.getMethod(self.uiName, self.widgetName)()
-	File "O:/Cloud/Code/_scripts/tentacle\tentacle\slots\max\max_file.py", line 195, in cmb006
-		list_ = [f for f in os.listdir(path)]
-NotADirectoryError: [WinError 267] The directory name is invalid: 'C:\\Users\\m3\\Documents\\3ds Max 2022\\3ds Max 2022.mxp'
-
 
 # attribute window breaks when reused in submenus
-
-
-# convert toolbuttons to pushbuttons with right click context menus. 
-
-
-# Traceback (most recent call last):
-#   File "O:/Cloud/Code/_scripts/tentacle\tentacle\slots\slots.py", line 493, in wrapper
-#     self.messageBox(fn(self, *args, **kwargs))
-#   File "O:/Cloud/Code/_scripts/tentacle\tentacle\slots\maya\maya_selection.py", line 534, in tb002
-#     similarFaces = self.getFacesWithSimilarNormals(selectedFaces, rangeX=rangeX, rangeY=rangeY, rangeZ=rangeZ)
-#   File "O:/Cloud/Code/_scripts/tentacle\tentacle\slots\maya\maya_init.py", line 1608, in getFacesWithSimilarNormals
-#     for f in Init.getComponents(node, 'faces', returnType=returnType, returnNodeType=returnNodeType, flatten=1):
-#   File "O:/Cloud/Code/_scripts/tentacle\tentacle\slots\maya\maya_init.py", line 250, in getComponents
-#     result = [''.join(c.rsplit('Shape', 1)).decode('utf-8') for c in components]
-#   File "O:/Cloud/Code/_scripts/tentacle\tentacle\slots\maya\maya_init.py", line 250, in <listcomp>
-#     result = [''.join(c.rsplit('Shape', 1)).decode('utf-8') for c in components]
-# AttributeError: 'str' object has no attribute 'decode'
-
-
-O:/Cloud/Code/_scripts/tentacle\tentacle\slots\maya\maya_file.py line 293, in b001
-self.draggable_header.contextMenu.cmb005(index=1)
-
-# AttributeError: 'function' object has no attribute 'contextMenu'
-
-
-max_edit.py", line 66, in tb000
-		self.meshCleanup(isolatedVerts=isolatedVerts, edgeAngle=edgeAngle, nGons=nGons, repair=repair)
-	File "O:\Cloud\__portable\_scripts/max/slots\tk_slots_max_edit.py", line 268, in meshCleanup
-		_nGons = Edit.findNGons(obj)
-	File "O:\Cloud\__portable\_scripts/max/slots\tk_slots_max_edit.py", line 184, in findNGons
-		nGons = [f for f in faces if rt.polyop.getFaceDeg(obj, f)>4]
-RuntimeError: MAXScript exception raised.
--- Runtime error: EPoly operation on non-Editable Poly: Editable Mesh
-Error: default isn't an editable poly or nothing is selected.
-Found 0 isolated vertices.
-
-max_edit.py", line 66, in tb000
-		self.meshCleanup(isolatedVerts=isolatedVerts, edgeAngle=edgeAngle, nGons=nGons, repair=repair)
-	File "O:\Cloud\__portable\_scripts/max/slots\tk_slots_max_edit.py", line 290, in meshCleanup
-		obj.EditablePoly.remove(selLevel='Vertex', flag=1)
-AttributeError: 'pymxs.MXSWrapperBase' object has no attribute 'EditablePoly'
 
 
 #maya_uv: transfer uv's
@@ -495,29 +444,11 @@ AttributeError: 'pymxs.MXSWrapperBase' object has no attribute 'EditablePoly'
 polyTransfer -uv 1 -v 0 -ao $souceMesh $destMesh[$i];
 
 
-#component ID display not working with nurbs curve:
-maya/slots\tk_slots_maya_display.py", line 169, in b011
-#     if visible[index] != True and index != 4:
-# TypeError: 'NoneType' object has no attribute '__getitem__'
-
-
-maya_normals.py", line 139, in tb003
-#     state = self.tk.ui.chk002.isChecked()#pm.polyNormalPerVertex(vertex, query=1, freezeNormal=1)
-# AttributeError: 'Tk_maya' object has no attribute 'ui'
-
-
-new tool:
-import image as plane
-
-
-create _high / _low layers with wireframe colors
-
-
 
 fix create> circle>  attributes
 
 
-scene> rename;  with selection, and find field empty, nothing is renamed. (an * in the find field returns correct result) 
+# ----------------------------------------------------------------------
 
 
 
@@ -526,12 +457,6 @@ scene> rename;  with selection, and find field empty, nothing is renamed. (an * 
 
 
 
-
-
-
-
-
-# -----------------------------------------------
 
 
 
@@ -1182,11 +1107,8 @@ proc batchExport (string $fileType)
 - da_KeyKeyedOnly: this script creates animation keys only on already animated channels
 - Control Constraint: this set of scripts constraint a controller to a single or multiple controlled object(s)
 
-
-
-
-
 '''
+# ----------------------------------------------------------------------
 
 
 
@@ -1196,15 +1118,9 @@ proc batchExport (string $fileType)
 
 
 
-
-
-
-
-
-# deprecated --------------------------------------------------------------------------------
-
-
-
+# ----------------------------------------------------------------------
+# deprecated
+# ----------------------------------------------------------------------
 
 
 # class DynWidgetEvents(QtCore.QObject):

@@ -136,43 +136,47 @@ class Display(Init):
 
 
 	def b010(self):
-		''''''
+		'''
+		'''
 		pass
 
 
+	@Slots.message
 	def b011(self):
 		'''Toggle Component Id Display
 		'''
 		index = self.cycle([0,1,2,3,4], 'componentID')
 
 		visible = pm.polyOptions(query=1, displayItemNumbers=1)
-		dinArray = [[1,0,0,0],[0,1,0,0],[0,0,1,0],[0,0,0,1]]
+		if not visible:
+			return '# Error: Nothing selected. #'
+		dinArray = [(1,0,0,0),(0,1,0,0),(0,0,1,0),(0,0,0,1)]
 
-		if index == 4:
+		if index==4:
 			i=0
 			for _ in range(4):
-				if visible[i] == True:
+				if visible[i]==True:
 					pm.polyOptions(relative=1, displayItemNumbers=dinArray[i], activeObjects=1)
 				i+=1
 
-		if visible[index] != True and index != 4:
+		elif visible[index]!=True and index!=4:
 			pm.polyOptions(relative=1, displayItemNumbers=dinArray[index], activeObjects=1)
 
 			i=0
 			for _ in range(4):
-				if visible[i] == True and i != index:
+				if visible[i]==True and i!=index:
 					pm.polyOptions(relative=1, displayItemNumbers=dinArray[i], activeObjects=1)
 				i+=1
 
-		if index == 0:
+		if index==0:
 			self.viewPortMessage("[1,0,0,0] <hl>vertIDs</hl>.")
-		if index == 1:
+		elif index==1:
 			self.viewPortMessage("[0,1,0,0] <hl>edgeIDs</hl>.")
-		if index == 2:
+		elif index==2:
 			self.viewPortMessage("[0,0,1,0] <hl>faceIDs</hl>.")
-		if index == 3:
+		elif index==3:
 			self.viewPortMessage("[0,0,0,1] <hl>compIDs(UV)</hl>.")
-		if index == 4:
+		elif index==4:
 			self.viewPortMessage("component ID <hl>Off</hl>.")
 
 
