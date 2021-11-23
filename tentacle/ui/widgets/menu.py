@@ -5,7 +5,6 @@ from PySide2 import QtCore, QtGui, QtWidgets
 from attributes import Attributes
 
 
-
 class Menu(QtWidgets.QMenu, Attributes):
 	'''
 	:Parameters:
@@ -746,4 +745,4 @@ Promoting a widget in designer to use a custom class:
 # 	except AttributeError:
 # 		pass
 
-# 	self.setAttributes({'setMinimum':0.0, 'setMaximum':10.0, 'setSingleStep':0.001, 'setDecimals':3, 'setButtonSymbols_':'NoButtons'}, action)                                                                                                                                                                                                                                                                          
+# 	self.setAttributes({'setMinimum':0.0, 'setMaximum':10.0, 'setSingleStep':0.001, 'setDecimals':3, 'setButtonSymbols_':'NoButtons'}, action)

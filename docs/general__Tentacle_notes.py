@@ -434,7 +434,6 @@ def tree000(self, wItem=None, column=None):
 	'BUGFIXES'
 # ======================================================================
 '''
-
 Scene> convert case:  use a combobox instead of a lineedit.
 
 
@@ -447,6 +446,8 @@ Scene> convert case:  use a combobox instead of a lineedit.
 #     if self.transform_ui.chk010.isChecked():
 # AttributeError: 'PySide2.QtWidgets.QMainWindow' object has no attribute 'chk010'
 
+
+Expandable tree widget now broken somehow.
 
 
 O:/Cloud/Code/_scripts/tentacle\tentacle\slots\maya\maya_transform.py line 166, in chk023

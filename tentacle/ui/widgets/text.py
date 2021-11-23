@@ -3,7 +3,6 @@
 from PySide2 import QtCore, QtGui, QtWidgets
 
 
-
 class RichText(object):
 	'''Rich text support for widgets.
 	Text with rich text formatting will be set as rich text, otherwise it will be handled as usual.
