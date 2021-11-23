@@ -25,7 +25,6 @@ Promoting a widget in designer to use a custom class:
 class PushButtonDraggable(QtWidgets.QPushButton, MenuInstance, Attributes, RichText):
 	'''Draggable/Checkable pushbutton.
 	'''
-
 	__mousePressPos = QtCore.QPoint()
 
 	def __init__(self, parent=None, **kwargs):

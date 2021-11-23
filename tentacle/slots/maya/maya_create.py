@@ -165,6 +165,7 @@ class Create(Init):
 		pm.selectMode(object=1) #place scene select type in object mode.
 		pm.select(node) #select the transform node so that you can see any edits
 
+		print (node, self.getHistoryNode(node))
 		return self.getHistoryNode(node)
 
 

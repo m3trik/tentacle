@@ -125,6 +125,7 @@ class Menu(QtWidgets.QMenu, Attributes):
 					title = self.parent().currentText().rstrip('*')
 				except AttributeError as error:
 					pass
+
 		self.draggable_header.setText(title)
 
 
@@ -745,4 +746,4 @@ Promoting a widget in designer to use a custom class:
 # 	except AttributeError:
 # 		pass
 
-# 	self.setAttributes({'setMinimum':0.0, 'setMaximum':10.0, 'setSingleStep':0.001, 'setDecimals':3, 'setButtonSymbols_':'NoButtons'}, action)
+# 	self.setAttributes({'setMinimum':0.0, 'setMaximum':10.0, 'setSingleStep':0.001, 'setDecimals':3, 'setButtonSymbols_':'NoButtons'}, action)                                                                                                                                                                                                                                                                          
