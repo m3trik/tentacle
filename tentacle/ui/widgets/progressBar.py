@@ -26,7 +26,7 @@ class ProgressBar(QtWidgets.QProgressBar, Attributes):
 				break
 	'''
 	def __init__(self, parent=None, **kwargs):
-		super().__init__(parent)
+		QtWidgets.QProgressBar.__init__(self, parent)
 
 		self.setVisible(False)
 

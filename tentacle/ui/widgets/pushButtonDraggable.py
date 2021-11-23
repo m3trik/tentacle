@@ -29,7 +29,7 @@ class PushButtonDraggable(QtWidgets.QPushButton, MenuInstance, Attributes, RichT
 	__mousePressPos = QtCore.QPoint()
 
 	def __init__(self, parent=None, **kwargs):
-		super().__init__(parent)
+		QtWidgets.QPushButton.__init__(self, parent)
 
 		self.setCheckable(True)
 
@@ -49,34 +49,12 @@ class PushButtonDraggable(QtWidgets.QPushButton, MenuInstance, Attributes, RichT
 
 		self.setCursor(QtGui.QCursor(QtCore.Qt.OpenHandCursor))
 
+		#override built-ins
+		self.text = self.richText
+		self.setText = self.setRichText
+		self.sizeHint = self.richTextSizeHint
+
 		self.setAttributes(**kwargs)
-
-
-	def setText(self, text):
-		'''Override setText to support rich text formatting.
-
-		:Parameters:
-			text (str) = The desired widget text.
-		'''
-		self.setRichText(text)
-
-
-	def text(self):
-		'''Override text to support rich text formatting.
-
-		:Return:
-			(str)
-		'''
-		return self.richText()
-
-
-	def sizeHint(self):
-		'''Override sizeHint to support rich text formatting.
-
-		:Return:
-			(QSize)
-		'''
-		return self.richTextSizeHint()
 
 
 	def mousePressEvent(self, event):
@@ -113,7 +91,7 @@ class PushButtonDraggable(QtWidgets.QPushButton, MenuInstance, Attributes, RichT
 
 			self.window().move(self.window().mapFromGlobal(curPos + diff))
 			self.__mouseMovePos = globalPos
-		except AttributeError:
+		except AttributeError as error:
 			pass
 
 		return QtWidgets.QPushButton.mouseMoveEvent(self, event)
@@ -138,6 +116,22 @@ class PushButtonDraggable(QtWidgets.QPushButton, MenuInstance, Attributes, RichT
 		self.window().hide()
 
 		return QtWidgets.QPushButton.mouseReleaseEvent(self, event)
+
+
+	def showEvent(self, event):
+		'''
+		:Parameters:
+			event = <QEvent>
+		'''
+		text = self.text().rstrip('*')
+		if self.menu_.containsMenuItems:
+			self.menu_.setTitle(text)
+
+		if self.contextMenu.containsMenuItems:
+			self.contextMenu.setTitle(text)
+			self.setText(text+'*')
+
+		return QtWidgets.QPushButton.showEvent(self, event)
 
 
 

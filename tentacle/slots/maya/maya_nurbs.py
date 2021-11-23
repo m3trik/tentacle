@@ -103,26 +103,26 @@ class Nurbs(Init):
 		'''
 		tb = self.nurbs_ui.tb000
 		if state is 'setMenu':
-			tb.menu_.add('QSpinBox', setPrefix='Degree:', setObjectName='s002', setValue=3, setMinMax_='0-9999 step1', setToolTip='The degree of the resulting surface.')
-			tb.menu_.add('QSpinBox', setPrefix='Start Sweep:', setObjectName='s003', setValue=3, setMinMax_='0-360 step1', setToolTip='	The value for the start sweep angle.')
-			tb.menu_.add('QSpinBox', setPrefix='End Sweep:', setObjectName='s004', setValue=3, setMinMax_='0-360 step1', setToolTip='The value for the end sweep angle.')
-			tb.menu_.add('QSpinBox', setPrefix='Sections:', setObjectName='s005', setValue=8, setMinMax_='0-9999 step1', setToolTip='The number of surface spans between consecutive curves in the loft.')
-			tb.menu_.add('QCheckBox', setText='Range', setObjectName='chk006', setChecked=False, setToolTip='Force a curve range on complete input curve.')
-			tb.menu_.add('QCheckBox', setText='Polygon', setObjectName='chk007', setChecked=True, setToolTip='The object created by this operation.')
-			tb.menu_.add('QCheckBox', setText='Auto Correct Normal', setObjectName='chk008', setChecked=False, setToolTip='Attempt to reverse the direction of the axis in case it is necessary to do so for the surface normals to end up pointing to the outside of the object.')
-			tb.menu_.add('QCheckBox', setText='Use Tolerance', setObjectName='chk009', setChecked=False, setToolTip='Use the tolerance, or the number of sections to control the sections.')
-			tb.menu_.add('QDoubleSpinBox', setPrefix='Tolerance:', setObjectName='s006', setValue=0.001, setMinMax_='0-9999 step.001', setToolTip='Tolerance to build to (if useTolerance attribute is set).')
+			tb.contextMenu.add('QSpinBox', setPrefix='Degree:', setObjectName='s002', setValue=3, setMinMax_='0-9999 step1', setToolTip='The degree of the resulting surface.')
+			tb.contextMenu.add('QSpinBox', setPrefix='Start Sweep:', setObjectName='s003', setValue=3, setMinMax_='0-360 step1', setToolTip='	The value for the start sweep angle.')
+			tb.contextMenu.add('QSpinBox', setPrefix='End Sweep:', setObjectName='s004', setValue=3, setMinMax_='0-360 step1', setToolTip='The value for the end sweep angle.')
+			tb.contextMenu.add('QSpinBox', setPrefix='Sections:', setObjectName='s005', setValue=8, setMinMax_='0-9999 step1', setToolTip='The number of surface spans between consecutive curves in the loft.')
+			tb.contextMenu.add('QCheckBox', setText='Range', setObjectName='chk006', setChecked=False, setToolTip='Force a curve range on complete input curve.')
+			tb.contextMenu.add('QCheckBox', setText='Polygon', setObjectName='chk007', setChecked=True, setToolTip='The object created by this operation.')
+			tb.contextMenu.add('QCheckBox', setText='Auto Correct Normal', setObjectName='chk008', setChecked=False, setToolTip='Attempt to reverse the direction of the axis in case it is necessary to do so for the surface normals to end up pointing to the outside of the object.')
+			tb.contextMenu.add('QCheckBox', setText='Use Tolerance', setObjectName='chk009', setChecked=False, setToolTip='Use the tolerance, or the number of sections to control the sections.')
+			tb.contextMenu.add('QDoubleSpinBox', setPrefix='Tolerance:', setObjectName='s006', setValue=0.001, setMinMax_='0-9999 step.001', setToolTip='Tolerance to build to (if useTolerance attribute is set).')
 			return
 
-		degree = tb.menu_.s002.value()
-		startSweep = tb.menu_.s003.value()
-		endSweep = tb.menu_.s004.value()
-		sections = tb.menu_.s005.value()
-		range_ = tb.menu_.chk006.isChecked()
-		polygon = 1 if tb.menu_.chk007.isChecked() else 0
-		autoCorrectNormal = tb.menu_.chk008.isChecked()
-		useTolerance = tb.menu_.chk009.isChecked()
-		tolerance = tb.menu_.s006.value()
+		degree = tb.contextMenu.s002.value()
+		startSweep = tb.contextMenu.s003.value()
+		endSweep = tb.contextMenu.s004.value()
+		sections = tb.contextMenu.s005.value()
+		range_ = tb.contextMenu.chk006.isChecked()
+		polygon = 1 if tb.contextMenu.chk007.isChecked() else 0
+		autoCorrectNormal = tb.contextMenu.chk008.isChecked()
+		useTolerance = tb.contextMenu.chk009.isChecked()
+		tolerance = tb.contextMenu.s006.value()
 
 		return pm.revolve(curves, po=polygon, rn=range_, ssw=startSweep, esw=endSweep, ut=useTolerance, tol=tolerance, degree=degree, s=sections, ulp=1, ax=[0,1,0])
 
@@ -133,28 +133,28 @@ class Nurbs(Init):
 		'''
 		tb = self.nurbs_ui.tb001
 		if state is 'setMenu':
-			tb.menu_.add('QCheckBox', setText='Uniform', setObjectName='chk000', setChecked=True, setToolTip='The resulting surface will have uniform parameterization in the loft direction. If set to false, the parameterization will be chord length.')
-			tb.menu_.add('QCheckBox', setText='Close', setObjectName='chk001', setChecked=False, setToolTip='The resulting surface will be closed (periodic) with the start (end) at the first curve. If set to false, the surface will remain open.')
-			tb.menu_.add('QSpinBox', setPrefix='Degree:', setObjectName='s000', setValue=3, setMinMax_='0-9999 step1', setToolTip='The degree of the resulting surface.')
-			tb.menu_.add('QCheckBox', setText='Auto Reverse', setObjectName='chk002', setChecked=False, setToolTip='The direction of the curves for the loft is computed automatically. If set to false, the values of the multi-use reverse flag are used instead.')
-			tb.menu_.add('QSpinBox', setPrefix='Section Spans:', setObjectName='s001', setValue=1, setMinMax_='0-9999 step1', setToolTip='The number of surface spans between consecutive curves in the loft.')
-			tb.menu_.add('QCheckBox', setText='Range', setObjectName='chk003', setChecked=False, setToolTip='Force a curve range on complete input curve.')
-			tb.menu_.add('QCheckBox', setText='Polygon', setObjectName='chk004', setChecked=True, setToolTip='The object created by this operation.')
-			tb.menu_.add('QCheckBox', setText='Reverse Surface Normals', setObjectName='chk005', setChecked=True, setToolTip='The surface normals on the output NURBS surface will be reversed. This is accomplished by swapping the U and V parametric directions.')
-			tb.menu_.add('QCheckBox', setText='Angle Loft Between Two Curves', setObjectName='chk010', setChecked=False, setToolTip='Perform a loft at an angle between two selected curves or polygon edges (that will be extracted as curves).')
-			tb.menu_.add('QSpinBox', setPrefix='Angle Loft: Spans:', setObjectName='s007', setValue=6, setMinMax_='2-9999 step1', setToolTip='Angle loft: Number of duplicated points (spans).')
+			tb.contextMenu.add('QCheckBox', setText='Uniform', setObjectName='chk000', setChecked=True, setToolTip='The resulting surface will have uniform parameterization in the loft direction. If set to false, the parameterization will be chord length.')
+			tb.contextMenu.add('QCheckBox', setText='Close', setObjectName='chk001', setChecked=False, setToolTip='The resulting surface will be closed (periodic) with the start (end) at the first curve. If set to false, the surface will remain open.')
+			tb.contextMenu.add('QSpinBox', setPrefix='Degree:', setObjectName='s000', setValue=3, setMinMax_='0-9999 step1', setToolTip='The degree of the resulting surface.')
+			tb.contextMenu.add('QCheckBox', setText='Auto Reverse', setObjectName='chk002', setChecked=False, setToolTip='The direction of the curves for the loft is computed automatically. If set to false, the values of the multi-use reverse flag are used instead.')
+			tb.contextMenu.add('QSpinBox', setPrefix='Section Spans:', setObjectName='s001', setValue=1, setMinMax_='0-9999 step1', setToolTip='The number of surface spans between consecutive curves in the loft.')
+			tb.contextMenu.add('QCheckBox', setText='Range', setObjectName='chk003', setChecked=False, setToolTip='Force a curve range on complete input curve.')
+			tb.contextMenu.add('QCheckBox', setText='Polygon', setObjectName='chk004', setChecked=True, setToolTip='The object created by this operation.')
+			tb.contextMenu.add('QCheckBox', setText='Reverse Surface Normals', setObjectName='chk005', setChecked=True, setToolTip='The surface normals on the output NURBS surface will be reversed. This is accomplished by swapping the U and V parametric directions.')
+			tb.contextMenu.add('QCheckBox', setText='Angle Loft Between Two Curves', setObjectName='chk010', setChecked=False, setToolTip='Perform a loft at an angle between two selected curves or polygon edges (that will be extracted as curves).')
+			tb.contextMenu.add('QSpinBox', setPrefix='Angle Loft: Spans:', setObjectName='s007', setValue=6, setMinMax_='2-9999 step1', setToolTip='Angle loft: Number of duplicated points (spans).')
 			return
 
-		uniform = tb.menu_.chk000.isChecked()
-		close = tb.menu_.chk001.isChecked()
-		degree = tb.menu_.s000.value()
-		autoReverse = tb.menu_.chk002.isChecked()
-		sectionSpans = tb.menu_.s001.value()
-		range_ = tb.menu_.chk003.isChecked()
-		polygon = 1 if tb.menu_.chk004.isChecked() else 0
-		reverseSurfaceNormals = tb.menu_.chk005.isChecked()
-		angleLoftBetweenTwoCurves = tb.menu_.chk010.isChecked()
-		angleLoftSpans = tb.menu_.s007.value()
+		uniform = tb.contextMenu.chk000.isChecked()
+		close = tb.contextMenu.chk001.isChecked()
+		degree = tb.contextMenu.s000.value()
+		autoReverse = tb.contextMenu.chk002.isChecked()
+		sectionSpans = tb.contextMenu.s001.value()
+		range_ = tb.contextMenu.chk003.isChecked()
+		polygon = 1 if tb.contextMenu.chk004.isChecked() else 0
+		reverseSurfaceNormals = tb.contextMenu.chk005.isChecked()
+		angleLoftBetweenTwoCurves = tb.contextMenu.chk010.isChecked()
+		angleLoftSpans = tb.contextMenu.s007.value()
 
 		Nurbs.loft(uniform=uniform, close=close, degree=degree, autoReverse=autoReverse, sectionSpans=sectionSpans, range_=range_, polygon=polygon, reverseSurfaceNormals=reverseSurfaceNormals, angleLoftBetweenTwoCurves=angleLoftBetweenTwoCurves, angleLoftSpans=angleLoftSpans)
 

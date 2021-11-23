@@ -105,20 +105,27 @@ class Slots(QtCore.QObject):
 				if attr and value]
 
 
-	def objAttrWindow(self, obj, attributes, fn=None, checkableLabel=False):
+	def objAttrWindow(self, obj, attributes, checkableLabel=False, fn=None, fn_args=[]):
 		'''Launch a popup window containing the given objects attributes.
 
 		:Parameters:
 			obj (obj) = The object to get the attributes of.
 			attributes (dict) = {'attribute':<value>}
-			fn (method) = Set an alternative method to call on widget signal. ex. fn(obj, {'attr':<value>})
 			checkableLabel (bool) = Set the attribute labels as checkable.
+			fn (method) = Set an alternative method to call on widget signal. ex. Init.setParameterValuesMEL
+			fn_args (list) = Any additonal args to pass to fn.
+				The first parameter of fn is always the given object, and the last parameter is the attribute:value pairs as a dict.
 
 		:Return:
-			(list) the menu's child widgets.
+			(obj) the menu widget. (use menu.childWidgets to get the menu's child widgets.)
+
+		ex. call: self.objAttrWindow(node, attrs, fn=Init.setParameterValuesMEL, fn_args='transformLimits')
+		ex. call: self.objAttrWindow(transform[0], include=['translateX','translateY','translateZ','rotateX','rotateY','rotateZ','scaleX','scaleY','scaleZ'], checkableLabel=True)
 		'''
-		if not fn:
-			fn = self.setAttributes
+		import ast
+
+		fn = fn if fn else self.setAttributes
+		fn_args = fn_args if isinstance(fn_args, (list, tuple, set)) else [fn_args]
 
 		try: #get the objects name to as the window title:
 			title = obj.name()
@@ -140,26 +147,30 @@ class Slots(QtCore.QObject):
 					v = float(f'{v:g}') ##remove any trailing zeros from the float value.
 					s = menu.add('QDoubleSpinBox', label=k, checkableLabel=checkableLabel, setSpinBoxByValue_=v, setDecimals=3)
 
-				s.valueChanged.connect(lambda value, obj=obj, attr=k: fn(obj, {attr:value}))
+				s.valueChanged.connect(lambda value, attr=k: fn(obj, *fn_args, {attr:value}))
 
-		self.tcl.childEvents.addWidgets(self.tcl.sb.getUiName(), menu.childWidgets)
+			else: #isinstance(v, (list, set, tuple)):
+				w = menu.add('QLineEdit', label=k, checkableLabel=checkableLabel, setText=str(v))
+				w.returnPressed.connect(lambda w=w, attr=k: fn(obj, *fn_args, {attr:ast.literal_eval(w.text())}))
+
+		self.tcl.setStyleSheet_(menu.childWidgets) # self.tcl.childEvents.addWidgets(self.tcl.sb.getUiName(), menu.childWidgets)
 		menu.show()
 
-		return menu.childWidgets
+		return menu
 
 
 	def connect_(self, widgets, signals, slots, class_=None):
 		'''Connect multiple signals to multiple slots at once.
 
 		:Parameters:
-			widgets (str)(obj)(list) = ie. 'chk000-2' or [tb.menu_.chk000, tb.menu_.chk001]
+			widgets (str)(obj)(list) = ie. 'chk000-2' or [tb.contextMenu.chk000, tb.contextMenu.chk001]
 			signals (str)(list) = ie. 'toggled' or ['toggled']
 			slots (obj)(list) = ie. self.cmb002 or [self.cmb002]
 			class_ (obj)(list) = if the widgets arg is given as a string, then the class_ it belongs to can be explicitly given. else, the current ui will be used.
 
-		ex call: self.connect_('chk000-2', 'toggled', self.cmb002, tb.menu_) 
-		*or self.connect_([tb.menu_.chk000, tb.menu_.chk001], 'toggled', self.cmb002)
-		*or self.connect_(tb.menu_.chk015, 'toggled', 
+		ex call: self.connect_('chk000-2', 'toggled', self.cmb002, tb.contextMenu.
+		*or self.connect_([tb.contextMenu.chk000, tb.contextMenu.chk001], 'toggled', self.cmb002)
+		*or self.connect_(tb.contextMenu.chk015, 'toggled', 
 				[lambda state: self.rigging_ui.tb004.setText('Unlock Transforms' if state else 'Lock Transforms'), 
 				lambda state: self.rigging_submenu_ui.tb004.setText('Unlock Transforms' if state else 'Lock Transforms')])
 		'''
@@ -194,7 +205,7 @@ class Slots(QtCore.QObject):
 		'isChecked':'setChecked', 'isDisabled':'setDisabled', 'isEnabled':'setEnabled', 
 		'value':'setValue', 'text':'setText', 'icon':'setIcon',}):
 		'''
-		Keep widgets (having the same objectName) in sync across parent and child uis
+		Keep widgets (having the same objectName) in sync across parent and child UIs.
 		If the second widget does not have an attribute it will be silently skipped.
 		Attributes starting with '__' are ignored.
 
@@ -1052,11 +1063,27 @@ class Slots(QtCore.QObject):
 
 
 	@staticmethod
-	def formatPath(dir_):
+	def formatPath(dir_, strip=''):
 		'''Assure a given directory path string is formatted correctly.
 		Replace any backslashes with forward slashes.
+
+		:Parameters:
+			dir_ (str) = A directory path. ie. 'C:/Users/m3/Documents/3ds Max 2022/3ds Max 2022.mxp'
+			strip (str) = Strip from the path string. (valid: 'file', 'path')
+
+		:Return:
+			(str)
 		'''
 		formatted_dir = dir_.replace('/', '\\') #assure any single slash is forward.
+
+		split = formatted_dir.split('\\')
+		file = split[-1]
+
+		if strip=='file':
+			formatted_dir = '\\'.join(split[:-1]) if '.' in file else formatted_dir
+
+		elif strip=='path':
+			formatted_dir = file if '.' in file else formatted_dir
 
 		return formatted_dir
 
@@ -1078,6 +1105,31 @@ class Slots(QtCore.QObject):
 				name = fullPath.split('\\')[-2]
 
 		return name
+
+
+	@staticmethod
+	def fileTimeStamp(files, detach=False):
+		'''Attach a modified timestamp and date to given file path(s).
+
+		:Parameters:
+			files (str)(list) = The full path to a file. ie. 'C:/Windows/Temp/__AUTO-SAVE__untitled.0001.mb'
+			detach (bool) = Return the full path to it's previous state.
+
+		:Return:
+			(list) ie. ['C:/Windows/Temp/__AUTO-SAVE__untitled.0001.mb  16:46  11-09-2021'] from ['C:/Windows/Temp/__AUTO-SAVE__untitled.0001.mb']
+		'''
+		from datetime import datetime
+
+		if not isinstance(files, (list, tuple, set)):
+			files = [files]
+
+		if detach:
+			result = [''.join(f.split()[:-2]) for f in files]
+		else:
+			result = [f+datetime.fromtimestamp(os.path.getmtime(f)).strftime('  %m-%d-%Y  %H:%M') for f in files] #attach modified timestamp
+
+		return result
+
 
 
 

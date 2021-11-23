@@ -90,10 +90,10 @@ class Polygons(Init):
 		'''
 		tb = self.current_ui.tb000
 		if state is 'setMenu':
-			tb.menu_.add('QDoubleSpinBox', setPrefix='Distance: ', setObjectName='s002', setMinMax_='0.0000-10 step.001', setValue=0.001, setToolTip='Merge Distance.')
+			tb.contextMenu.add('QDoubleSpinBox', setPrefix='Distance: ', setObjectName='s002', setMinMax_='0.0000-10 step.001', setValue=0.001, setToolTip='Merge Distance.')
 			return
 
-		tolerance = float(tb.menu_.s002.value())
+		tolerance = float(tb.contextMenu.s002.value())
 		selection = rt.selection
 
 		if selection:
@@ -117,10 +117,10 @@ class Polygons(Init):
 		'''
 		tb = self.current_ui.tb001
 		if state is 'setMenu':
-			tb.menu_.add('QSpinBox', setPrefix='Divisions: ', setObjectName='s003', setMinMax_='0-10000 step1', setValue=0.001, setToolTip='Divisions.')
+			tb.contextMenu.add('QSpinBox', setPrefix='Divisions: ', setObjectName='s003', setMinMax_='0-10000 step1', setValue=0.001, setToolTip='Divisions.')
 			return
 
-		divisions = tb.menu_.s003.value()
+		divisions = tb.contextMenu.s003.value()
 
 		for obj in rt.selection:
 			obj.EditablePoly.Bridge() #perform bridge
@@ -132,10 +132,10 @@ class Polygons(Init):
 		'''
 		tb = self.current_ui.tb002
 		if state is 'setMenu':
-			tb.menu_.add('QCheckBox', setText='Merge', setObjectName='chk000', setChecked=True, setToolTip='Combine selected meshes and merge any coincident verts/edges.')
+			tb.contextMenu.add('QCheckBox', setText='Merge', setObjectName='chk000', setChecked=True, setToolTip='Combine selected meshes and merge any coincident verts/edges.')
 			return
 
-		if tb.menu_.chk000.isChecked():
+		if tb.contextMenu.chk000.isChecked():
 			pass
 
 		sel = rt.selection
@@ -168,10 +168,10 @@ class Polygons(Init):
 		'''
 		tb = self.current_ui.tb003
 		if state is 'setMenu':
-			tb.menu_.add('QCheckBox', setText='Keep Faces Together', setObjectName='chk002', setChecked=True, setToolTip='Keep edges/faces together.')
+			tb.contextMenu.add('QCheckBox', setText='Keep Faces Together', setObjectName='chk002', setChecked=True, setToolTip='Keep edges/faces together.')
 			return
 
-		keepFacesTogether = tb.menu_.chk002.isChecked() #keep faces/edges together.
+		keepFacesTogether = tb.contextMenu.chk002.isChecked() #keep faces/edges together.
 
 		rt.macros.run('Ribbon - Modeling', 'EPoly_Extrude')
 		# for obj in rt.selection:
@@ -183,10 +183,10 @@ class Polygons(Init):
 		'''
 		tb = self.current_ui.tb004
 		if state is 'setMenu':
-			tb.menu_.add('QDoubleSpinBox', setPrefix='Width: ', setObjectName='s000', setMinMax_='0.00-100 step.01', setValue=0.01, setToolTip='Bevel Width.')
+			tb.contextMenu.add('QDoubleSpinBox', setPrefix='Width: ', setObjectName='s000', setMinMax_='0.00-100 step.01', setValue=0.01, setToolTip='Bevel Width.')
 			return
 
-		width = float(tb.menu_.s000.value())
+		width = float(tb.contextMenu.s000.value())
 
 		rt.macros.run('Ribbon - Modeling', 'EPoly_Chamfer')
 		# width = float(self.polygons_ui.s000.value())
@@ -203,7 +203,7 @@ class Polygons(Init):
 		'''
 		tb = self.current_ui.tb005
 		if state is 'setMenu':
-			tb.menu_.add('QCheckBox', setText='Delete Original', setObjectName='chk007', setChecked=True, setToolTip='Delete original selected faces.')
+			tb.contextMenu.add('QCheckBox', setText='Delete Original', setObjectName='chk007', setChecked=True, setToolTip='Delete original selected faces.')
 			return
 
 		#rt.macros.run('Ribbon - Modeling', 'GeometryDetach')
@@ -232,10 +232,10 @@ class Polygons(Init):
 		'''
 		tb = self.current_ui.tb006
 		if state is 'setMenu':
-			tb.menu_.add('QDoubleSpinBox', setPrefix='Offset: ', setObjectName='s001', setMinMax_='0.00-100 step.01', setValue=2.00, setToolTip='Offset amount.')
+			tb.contextMenu.add('QDoubleSpinBox', setPrefix='Offset: ', setObjectName='s001', setMinMax_='0.00-100 step.01', setValue=2.00, setToolTip='Offset amount.')
 			return
 
-		offset = float(tb.menu_.s001.value())
+		offset = float(tb.contextMenu.s001.value())
 		maxEval('''
 		Try 
 		(
@@ -253,23 +253,23 @@ class Polygons(Init):
 		'''
 		tb = self.current_ui.tb007
 		if state is 'setMenu':
-			tb.menu_.add('QCheckBox', setText='U', setObjectName='chk008', setChecked=True, setToolTip='Divide facet: U coordinate.')
-			tb.menu_.add('QCheckBox', setText='V', setObjectName='chk009', setChecked=True, setToolTip='Divide facet: V coordinate.')
-			tb.menu_.add('QCheckBox', setText='Tris', setObjectName='chk010', setToolTip='Divide facet: Tris.')
+			tb.contextMenu.add('QCheckBox', setText='U', setObjectName='chk008', setChecked=True, setToolTip='Divide facet: U coordinate.')
+			tb.contextMenu.add('QCheckBox', setText='V', setObjectName='chk009', setChecked=True, setToolTip='Divide facet: V coordinate.')
+			tb.contextMenu.add('QCheckBox', setText='Tris', setObjectName='chk010', setToolTip='Divide facet: Tris.')
 			return
 
 		dv=u=v=0
-		if tb.menu_.chk008.isChecked(): #Split U
+		if tb.contextMenu.chk008.isChecked(): #Split U
 			u=2
-		if tb.menu_.chk009.isChecked(): #Split V
+		if tb.contextMenu.chk009.isChecked(): #Split V
 			v=2
 
 		mode = 0 #The subdivision mode. 0=quads, 1=triangles
 		subdMethod = 1 #subdivision type: 0=exponential(traditional subdivision) 1=linear(number of faces per edge grows linearly)
-		if tb.menu_.chk010.isChecked(): #tris
+		if tb.contextMenu.chk010.isChecked(): #tris
 			mode=dv=1
 			subdMethod=0
-		if all([tb.menu_.chk008.isChecked(), tb.menu_.chk009.isChecked()]): #subdivide once into quads
+		if all([tb.contextMenu.chk008.isChecked(), tb.contextMenu.chk009.isChecked()]): #subdivide once into quads
 			dv=1
 			subdMethod=0
 			u=v=0
@@ -284,22 +284,22 @@ class Polygons(Init):
 		'''
 		tb = self.polygons_ui.tb008
 		if state is 'setMenu':
-			tb.menu_.add('QRadioButton', setText='Union', setObjectName='chk011', setToolTip='Fuse two objects together.')
-			tb.menu_.add('QRadioButton', setText='Difference', setObjectName='chk012', setChecked=True, setToolTip='Indents one object with the shape of another at the point of their intersection.')
-			tb.menu_.add('QRadioButton', setText='Intersection', setObjectName='chk013', setToolTip='Keep only the interaction point of two objects.')
+			tb.contextMenu.add('QRadioButton', setText='Union', setObjectName='chk011', setToolTip='Fuse two objects together.')
+			tb.contextMenu.add('QRadioButton', setText='Difference', setObjectName='chk012', setChecked=True, setToolTip='Indents one object with the shape of another at the point of their intersection.')
+			tb.contextMenu.add('QRadioButton', setText='Intersection', setObjectName='chk013', setToolTip='Keep only the interaction point of two objects.')
 			return
 
 		objects = list(Init.bitArrayToArray(rt.selection))
 
-		if tb.menu_.chk011.isChecked(): #union
+		if tb.contextMenu.chk011.isChecked(): #union
 			for obj in objects[:-1]:
 				objects[-1] + obj
 
-		if tb.menu_.chk012.isChecked(): #difference
+		if tb.contextMenu.chk012.isChecked(): #difference
 			for obj in objects[:-1]:
 				objects[-1] - obj
 
-		if tb.menu_.chk013.isChecked(): #intersection
+		if tb.contextMenu.chk013.isChecked(): #intersection
 			for obj in objects[:-1]:
 				objects[-1] * obj
 
@@ -310,12 +310,12 @@ class Polygons(Init):
 		'''
 		tb = self.polygons_ui.tb009
 		if state is 'setMenu':
-			tb.menu_.add('QDoubleSpinBox', setPrefix='Tolerance: ', setObjectName='s005', setMinMax_='.000-100 step.05', setValue=10, setToolTip='Set the max Snap Distance. Vertices with a distance exceeding this value will be ignored.')
-			tb.menu_.add('QCheckBox', setText='Freeze Transforms', setObjectName='chk016', setChecked=True, setToolTip='Freeze Transformations on the object that is being snapped to.')
+			tb.contextMenu.add('QDoubleSpinBox', setPrefix='Tolerance: ', setObjectName='s005', setMinMax_='.000-100 step.05', setValue=10, setToolTip='Set the max Snap Distance. Vertices with a distance exceeding this value will be ignored.')
+			tb.contextMenu.add('QCheckBox', setText='Freeze Transforms', setObjectName='chk016', setChecked=True, setToolTip='Freeze Transformations on the object that is being snapped to.')
 			return
 
-		tolerance = tb.menu_.s005.value()
-		freezetransforms = tb.menu_.chk016.isChecked()
+		tolerance = tb.contextMenu.s005.value()
+		freezetransforms = tb.contextMenu.chk016.isChecked()
 
 		selection = pm.ls(sl=1, objectsOnly=1)
 		if len(selection)>1:

@@ -47,21 +47,17 @@ class Transform(Init):
 
 		if index is 'setMenu':
 			cmb.popupStyle = 'qmenu'
-			cmb.contextMenu.add(self.tcl.wgts.Label, setText='Disable All', setObjectName='lbl001', setToolTip='Disable all transform snapping.')
 
-			try: #query and set current states:
-				edge_constraint = True if pm.xformConstraint(query=1, type=1)=='edge' else False
-				surface_constraint = True if pm.xformConstraint(query=1, type=1)=='surface' else False
-				live_object = True if pm.ls(live=1) else False
+			#query and set current states:
+			edge_constraint = True if pm.xformConstraint(query=1, type=1)=='edge' else False
+			surface_constraint = True if pm.xformConstraint(query=1, type=1)=='surface' else False
+			live_object = True if pm.ls(live=1) else False
 
-				values = [('chk024', 'Edge', edge_constraint),
-						('chk025', 'Surface', surface_constraint),
-						('chk026', 'Make Live', live_object)]
+			values = [('chk024', 'Edge', edge_constraint),
+					('chk025', 'Surface', surface_constraint),
+					('chk026', 'Make Live', live_object)]
 
-				widgets = [cmb.menu_.add(self.tcl.wgts.CheckBox, setObjectName=chk, setText=typ, setChecked=state) for chk, typ, state in values]
-
-			except NameError as error:
-				print(error)
+			[cmb.menu_.add(self.tcl.wgts.CheckBox, setObjectName=chk, setText=typ, setChecked=state) for chk, typ, state in values]
 			return
 
 
@@ -104,22 +100,17 @@ class Transform(Init):
 
 		if index is 'setMenu':
 			cmb.popupStyle = 'qmenu'
-			cmb.contextMenu.add(self.tcl.wgts.Label, setText='Disable All', setObjectName='lbl001', setToolTip='Disable all transform snapping.')
 
-			try:
-				moveValue = pm.manipMoveContext('Move', q=True, snapValue=True)
-				scaleValue = pm.manipScaleContext('Scale', q=True, snapValue=True)
-				rotateValue = pm.manipRotateContext('Rotate', q=True, snapValue=True)
+			moveValue = pm.manipMoveContext('Move', q=True, snapValue=True)
+			scaleValue = pm.manipScaleContext('Scale', q=True, snapValue=True)
+			rotateValue = pm.manipRotateContext('Rotate', q=True, snapValue=True)
 
-				values = [('chk021', 'Move <b>Off</b>'), ('s021', 'increment:', moveValue, '1.00-1000 step2.8125'), 
-						('chk022', 'Scale <b>Off</b>'), ('s022', 'increment:', scaleValue, '1.00-1000 step2.8125'), 
-						('chk023', 'Rotate <b>Off</b>'), ('s023', 'degrees:', rotateValue, '1.00-360 step2.8125')]
+			values = [('chk021', 'Move: <b>Off</b>'), ('s021', 'increment:', moveValue, '1.00-1000 step2.8125'), 
+					('chk022', 'Scale: <b>Off</b>'), ('s022', 'increment:', scaleValue, '1.00-1000 step2.8125'), 
+					('chk023', 'Rotate: <b>Off</b>'), ('s023', 'degrees:', rotateValue, '1.00-360 step2.8125')]
 
-				widgets = [cmb.menu_.add(self.tcl.wgts.CheckBox, setObjectName=i[0], setText=i[1], setTristate=1) if len(i) is 2 
-						else cmb.menu_.add('QDoubleSpinBox', setObjectName=i[0], setPrefix=i[1], setValue=i[2], setMinMax_=i[3], setDisabled=1) for i in values]
-
-			except NameError as error:
-				print(error)
+			widgets = [cmb.menu_.add(self.tcl.wgts.CheckBox, setObjectName=i[0], setText=i[1], setTristate=1) if len(i)==2 
+					else cmb.menu_.add('QDoubleSpinBox', setObjectName=i[0], setPrefix=i[1], setValue=i[2], setMinMax_=i[3], setDisabled=1) for i in values]
 			return
 
 
@@ -127,6 +118,7 @@ class Transform(Init):
 		'''Snap: Toggle Rotation
 		'''
 		cmb = self.transform_ui.cmb003
+
 		cmb.menu_.chk023.setChecked(True)
 		cmb.menu_.s023.setValue(11.25)
 		state = 1 if self.transform_submenu_ui.chk014.isChecked() else 0
@@ -136,44 +128,47 @@ class Transform(Init):
 	def chk021(self, state=None):
 		'''Transform Tool Snap Settings: Move
 		'''
-		text = {0:'Move <b>Off</b>', 1:'Move <b>Relative</b>', 2:'Move <b>Absolute</b>'}
-		self.transform_ui.chk021.setText(text[state])
-		self.transform_ui.s021.setEnabled(state)
+		cmb = self.transform_ui.cmb003
+		text = {0:'Move: <b>Off</b>', 1:'Move: <b>Relative</b>', 2:'Move: <b>Absolute</b>'}
+
+		cmb.menu_.chk021.setText(text[state])
+		cmb.menu_.s021.setEnabled(state)
 		pm.manipMoveContext('Move', edit=1, snap=False if state is 0 else True, snapRelative=True if state is 1 else False) #state: 0=off, 1=relative, 2=absolute
 		pm.texMoveContext('texMoveContext', edit=1, snap=False if state is 0 else True) #uv move context
 
-		cmb = self.transform_ui.cmb003
-		cmb.setCurrentText('Off') if not any((state, cmb.menu_.chk022.isChecked(), cmb.menu_.chk023.isChecked())) else cmb.setCurrentText('On')
+		cmb.setCurrentText('Snap: <hl style="color:white;">Off</hl>') if not any((state, cmb.menu_.chk022.isChecked(), cmb.menu_.chk023.isChecked())) else cmb.setCurrentText('Snap: <hl style="color:green;">On</hl>')
 
 
 	def chk022(self, state=None):
 		'''Transform Tool Snap Settings: Scale
 		'''
-		text = {0:'Scale <b>Off</b>', 1:'Scale <b>Relative</b>', 2:'Scale <b>Absolute</b>'}
-		self.transform_ui.chk022.setText(text[state])
-		self.transform_ui.s022.setEnabled(state)
+		cmb = self.transform_ui.cmb003
+		text = {0:'Scale: <b>Off</b>', 1:'Scale: <b>Relative</b>', 2:'Scale: <b>Absolute</b>'}
+
+		cmb.menu_.chk022.setText(text[state])
+		cmb.menu_.s022.setEnabled(state)
 		pm.manipScaleContext('Scale', edit=1, snap=False if state is 0 else True, snapRelative=True if state is 1 else False) #state: 0=off, 1=relative, 2=absolute
 		pm.texScaleContext('texScaleContext', edit=1, snap=False if state is 0 else True) #uv scale context
 
-		cmb = self.transform_ui.cmb003
-		cmb.setCurrentText('Off') if not any((state, cmb.menu_.chk021.isChecked(), cmb.menu_.chk023.isChecked())) else cmb.setCurrentText('On')
+		cmb.setCurrentText('Snap: <hl style="color:white;">Off</hl>') if not any((state, cmb.menu_.chk021.isChecked(), cmb.menu_.chk023.isChecked())) else cmb.setCurrentText('Snap: <hl style="color:green;">On</hl>')
 
 
 	def chk023(self, state=None):
 		'''Transform Tool Snap Settings: Rotate
 		'''
-		text = {0:'Rotate <b>Off</b>', 1:'Rotate <b>Relative</b>', 2:'Rotate <b>Absolute</b>'}
-		self.transform_ui.chk023.setText(text[state])
-		self.transform_ui.s023.setEnabled(state)
+		cmb = self.transform_ui.cmb003
+		text = {0:'Rotate: <b>Off</b>', 1:'Rotate: <b>Relative</b>', 2:'Rotate: <b>Absolute</b>'}
+
+		cmb.menu_.chk023.setText(text[state])
+		cmb.menu_.s023.setEnabled(state)
 		pm.manipRotateContext('Rotate', edit=1, snap=False if state is 0 else True, snapRelative=True if state is 1 else False) #state: 0=off, 1=relative, 2=absolute
 		pm.texRotateContext('texRotateContext', edit=1, snap=False if state is 0 else True) #uv rotate context
 
-		cmb = self.transform_ui.cmb003
-		cmb.setCurrentText('Off') if not any((state, cmb.menu_.chk021.isChecked(), cmb.menu_.chk022.isChecked())) else cmb.setCurrentText('On')
+		cmb.setCurrentText('Snap: <hl style="color:white;">Off</hl>') if not any((state, cmb.menu_.chk021.isChecked(), cmb.menu_.chk022.isChecked())) else cmb.setCurrentText('Snap: <hl style="color:green;">On</hl>')
 
 
 	def chk024(self, state=None):
-		'''Transform Contraints: Edge
+		'''Transform Constraints: Edge
 		'''
 		if state:
 			pm.xformConstraint(type='edge') #pm.manipMoveSetXformConstraint(edge=True);
@@ -181,7 +176,7 @@ class Transform(Init):
 			pm.xformConstraint(type='none') #pm.manipMoveSetXformConstraint(none=True);
 
 		cmb = self.transform_ui.cmb001
-		cmb.setCurrentText('Off') if not any((state, cmb.menu_.chk025.isChecked(), cmb.menu_.chk026.isChecked())) else cmb.setCurrentText('On')
+		cmb.setCurrentText('Constrain: <hl style="color:white;">Off</hl>') if not any((state, cmb.menu_.chk025.isChecked(), cmb.menu_.chk026.isChecked())) else cmb.setCurrentText('Constrain: <hl style="color:green;">On</hl>')
 
 
 	def chk025(self, state=None):
@@ -193,7 +188,7 @@ class Transform(Init):
 			pm.xformConstraint(type='none') #pm.manipMoveSetXformConstraint(none=True);
 
 		cmb = self.transform_ui.cmb001
-		cmb.setCurrentText('Off') if not any((state, cmb.menu_.chk024.isChecked(), cmb.menu_.chk026.isChecked())) else cmb.setCurrentText('On')
+		cmb.setCurrentText('Constrain: <hl style="color:white;">Off</hl>') if not any((state, cmb.menu_.chk024.isChecked(), cmb.menu_.chk026.isChecked())) else cmb.setCurrentText('Constrain: <hl style="color:green;">On</hl>')
 
 
 	def chk026(self, state=None):
@@ -213,7 +208,7 @@ class Transform(Init):
 			pm.makeLive(none=True)
 			# self.viewPortMessage('Make Live: <hl>Off</hl>')
 
-		cmb.setCurrentText('Off') if not any((state, cmb.menu_.chk024.isChecked(), cmb.menu_.chk025.isChecked())) else cmb.setCurrentText('On')
+		cmb.setCurrentText('Constrain: <hl style="color:white;">Off</hl>') if not any((state, cmb.menu_.chk024.isChecked(), cmb.menu_.chk025.isChecked())) else cmb.setCurrentText('Constrain: <hl style="color:green;">On</hl>')
 
 
 	def s021(self, value=None):
@@ -249,16 +244,16 @@ class Transform(Init):
 	def tb000(self, state=None):
 		'''Drop To Grid
 		'''
-		tb = self.transform_ui.tb000
+		tb = self.current_ui.tb000
 		if state is 'setMenu':
-			tb.menu_.add('QComboBox', addItems=['Min','Mid','Max'], setObjectName='cmb004', setToolTip='Choose which point of the bounding box to align to.')
-			tb.menu_.add('QCheckBox', setText='Move to Origin', setObjectName='chk014', setChecked=True, setToolTip='Move to origin (xyz 0,0,0).')
-			tb.menu_.add('QCheckBox', setText='Center Pivot', setObjectName='chk016', setChecked=False, setToolTip='Center pivot on objects bounding box.')
+			tb.contextMenu.add('QComboBox', addItems=['Min','Mid','Max'], setObjectName='cmb004', setToolTip='Choose which point of the bounding box to align to.')
+			tb.contextMenu.add('QCheckBox', setText='Move to Origin', setObjectName='chk014', setChecked=True, setToolTip='Move to origin (xyz 0,0,0).')
+			tb.contextMenu.add('QCheckBox', setText='Center Pivot', setObjectName='chk016', setChecked=False, setToolTip='Center pivot on objects bounding box.')
 			return
 
-		align = tb.menu_.cmb004.currentText()
-		origin = tb.menu_.chk014.isChecked()
-		centerPivot = tb.menu_.chk016.isChecked()
+		align = tb.contextMenu.cmb004.currentText()
+		origin = tb.contextMenu.chk014.isChecked()
+		centerPivot = tb.contextMenu.chk016.isChecked()
 
 		objects = pm.ls(sl=1, objectsOnly=1)
 		Init.dropToGrid(objects, align, origin, centerPivot)
@@ -271,21 +266,21 @@ class Transform(Init):
 
 		Auto Align finds the axis with the largest variance, and sets the axis checkboxes accordingly before performing a regular align.
 		'''
-		tb = self.transform_ui.tb001
+		tb = self.current_ui.tb001
 		if state is 'setMenu':
-			tb.menu_.add('QCheckBox', setText='X Axis', setObjectName='chk029', setDisabled=True, setToolTip='Align X axis')
-			tb.menu_.add('QCheckBox', setText='Y Axis', setObjectName='chk030', setDisabled=True, setToolTip='Align Y axis')
-			tb.menu_.add('QCheckBox', setText='Z Axis', setObjectName='chk031', setDisabled=True, setToolTip='Align Z axis')
-			tb.menu_.add('QCheckBox', setText='Between Two Components', setObjectName='chk013', setToolTip='Align the path along an edge loop between two selected vertices or edges.')
-			tb.menu_.add('QCheckBox', setText='Align Loop', setObjectName='chk007', setToolTip='Align entire edge loop from selected edge(s).')
-			tb.menu_.add('QCheckBox', setText='Average', setObjectName='chk006', setToolTip='Align to last selected object or average.')
-			tb.menu_.add('QCheckBox', setText='Auto Align', setObjectName='chk010', setChecked=True, setToolTip='')
-			tb.menu_.add('QCheckBox', setText='Auto Align: Two Axes', setObjectName='chk011', setToolTip='')
+			tb.contextMenu.add('QCheckBox', setText='X Axis', setObjectName='chk029', setDisabled=True, setToolTip='Align X axis')
+			tb.contextMenu.add('QCheckBox', setText='Y Axis', setObjectName='chk030', setDisabled=True, setToolTip='Align Y axis')
+			tb.contextMenu.add('QCheckBox', setText='Z Axis', setObjectName='chk031', setDisabled=True, setToolTip='Align Z axis')
+			tb.contextMenu.add('QCheckBox', setText='Between Two Components', setObjectName='chk013', setToolTip='Align the path along an edge loop between two selected vertices or edges.')
+			tb.contextMenu.add('QCheckBox', setText='Align Loop', setObjectName='chk007', setToolTip='Align entire edge loop from selected edge(s).')
+			tb.contextMenu.add('QCheckBox', setText='Average', setObjectName='chk006', setToolTip='Align to last selected object or average.')
+			tb.contextMenu.add('QCheckBox', setText='Auto Align', setObjectName='chk010', setChecked=True, setToolTip='')
+			tb.contextMenu.add('QCheckBox', setText='Auto Align: Two Axes', setObjectName='chk011', setToolTip='')
 			return
 
-		betweenTwoComponents = tb.menu_.chk013.isChecked()
-		autoAlign = tb.menu_.chk010.isChecked()
-		autoAlign2Axes = tb.menu_.chk011.isChecked() #Auto Align: Two Axes
+		betweenTwoComponents = tb.contextMenu.chk013.isChecked()
+		autoAlign = tb.contextMenu.chk010.isChecked()
+		autoAlign2Axes = tb.contextMenu.chk011.isChecked() #Auto Align: Two Axes
 
 		selection = pm.ls(orderedSelection=1, flatten=1)
 
@@ -331,27 +326,27 @@ class Transform(Init):
 
 				if autoAlign2Axes:
 					if axis==x: #"yz"
-						self.toggleWidgets(tb.menu_, setChecked='chk030-31', setUnChecked='chk029')
+						self.toggleWidgets(tb.contextMenu, setChecked='chk030-31', setUnChecked='chk029')
 					if axis==y: #"xz"
-						self.toggleWidgets(tb.menu_, setChecked='chk029,chk031', setUnChecked='chk030')
+						self.toggleWidgets(tb.contextMenu, setChecked='chk029,chk031', setUnChecked='chk030')
 					if axis==z: #"xy"
-						self.toggleWidgets(tb.menu_, setChecked='chk029-30', setUnChecked='chk031')
+						self.toggleWidgets(tb.contextMenu, setChecked='chk029-30', setUnChecked='chk031')
 				else:
 					if any ([axis==x and tangent==ty, axis==y and tangent==tx]): #"z"
-						self.toggleWidgets(tb.menu_, setChecked='chk031', setUnChecked='chk029-30')
+						self.toggleWidgets(tb.contextMenu, setChecked='chk031', setUnChecked='chk029-30')
 					if any ([axis==x and tangent==tz, axis==z and tangent==tx]): #"y"
-						self.toggleWidgets(tb.menu_, setChecked='chk030', setUnChecked='chk029,chk031')
+						self.toggleWidgets(tb.contextMenu, setChecked='chk030', setUnChecked='chk029,chk031')
 					if any ([axis==y and tangent==tz, axis==z and tangent==ty]): #"x"
-						self.toggleWidgets(tb.menu_, setChecked='chk029', setUnChecked='chk030-31')
+						self.toggleWidgets(tb.contextMenu, setChecked='chk029', setUnChecked='chk030-31')
 			else:
 				return 'Error: Operation requires a component selection.'
 
 		#align
-		x = tb.menu_.chk029.isChecked()
-		y = tb.menu_.chk030.isChecked()
-		z = tb.menu_.chk031.isChecked()
-		avg = tb.menu_.chk006.isChecked()
-		loop = tb.menu_.chk007.isChecked()
+		x = tb.contextMenu.chk029.isChecked()
+		y = tb.contextMenu.chk030.isChecked()
+		z = tb.contextMenu.chk031.isChecked()
+		avg = tb.contextMenu.chk006.isChecked()
+		loop = tb.contextMenu.chk007.isChecked()
 
 		if all ([x, not y, not z]): #align x
 			self.alignVertices(mode=3,average=avg,edgeloop=loop)
@@ -382,20 +377,17 @@ class Transform(Init):
 		cmb.setCurrentIndex(0)
 
 
-	def lbl001(self):
-		'''Transform Tool Snapping: Disable All
+	@Slots.message
+	@Slots.hideMain
+	def b000(self):
+		'''Object Transform Attributes
 		'''
-		cmb = self.transform_ui.cmb003
-		self.toggleWidgets(setUnChecked='chk021-23')
-		cmb.setCurrentText('Off') if not any((cmb.menu_.chk021.isChecked(), cmb.menu_.chk022.isChecked(), cmb.menu_.chk023.isChecked())) else cmb.setCurrentText('On')
+		node = pm.ls(sl=1, objectsOnly=1)
+		if not node:
+			return 'Error: Operation requires a single selected object.'
+		transform = Init.getTransformNode(node)
 
-
-	def lbl002(self):
-		'''Transform Tool Snapping: Disable All
-		'''
-		cmb = self.transform_ui.cmb001
-		self.toggleWidgets(setUnChecked='chk024-26')
-		cmb.setCurrentText('Off') if not any((cmb.menu_.chk024.isChecked(), cmb.menu_.chk025.isChecked(), cmb.menu_.chk026.isChecked())) else cmb.setCurrentText('On')
+		self.setAttributeWindow(transform[0], include=['translateX','translateY','translateZ','rotateX','rotateY','rotateZ','scaleX','scaleY','scaleZ'], checkableLabel=True)
 
 
 	def b002(self):
@@ -489,6 +481,23 @@ print(os.path.splitext(os.path.basename(__file__))[0])
 
 
 # deprecated ------------------------------------
+
+
+
+	# def lbl001(self):
+	# 	'''Transform Tool Snapping: Disable All
+	# 	'''
+	# 	cmb = self.transform_ui.cmb003
+	# 	self.toggleWidgets(setUnChecked='chk021-23')
+	# 	cmb.setCurrentText('Off') if not any((cmb.menu_.chk021.isChecked(), cmb.menu_.chk022.isChecked(), cmb.menu_.chk023.isChecked())) else cmb.setCurrentText('On')
+
+
+	# def lbl002(self):
+	# 	'''Transform Tool Snapping: Disable All
+	# 	'''
+	# 	cmb = self.transform_ui.cmb001
+	# 	self.toggleWidgets(setUnChecked='chk024-26')
+	# 	cmb.setCurrentText('Off') if not any((cmb.menu_.chk024.isChecked(), cmb.menu_.chk025.isChecked(), cmb.menu_.chk026.isChecked())) else cmb.setCurrentText('On')
 
 
 	# def s002(self, value=None):

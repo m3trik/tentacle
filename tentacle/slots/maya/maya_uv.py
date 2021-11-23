@@ -116,12 +116,12 @@ class Uv(Init):
 		'''
 		tb = self.current_ui.tb001
 		if state==0:
-			tb.menu_.chk001.setText('Scale Mode 0')
+			tb.contextMenu.chk001.setText('Scale Mode 0')
 		if state==1:
-			tb.menu_.chk001.setText('Scale Mode 1')
-			self.toggleWidgets(tb.menu_, setUnChecked='chk002-6')
+			tb.contextMenu.chk001.setText('Scale Mode 1')
+			self.toggleWidgets(tb.contextMenu, setUnChecked='chk002-6')
 		if state==2:
-			tb.menu_.chk001.setText('Scale Mode 2')
+			tb.contextMenu.chk001.setText('Scale Mode 2')
 
 
 	def chk014(self):
@@ -177,26 +177,26 @@ class Uv(Init):
 		'''
 		tb = self.current_ui.tb000
 		if state is 'setMenu':
-			tb.menu_.add(self.tcl.wgts.CheckBox, setText='Pre-Scale Mode: 1', setObjectName='chk025', setTristate=True, setCheckState_=1, setToolTip='Allow shell scaling during packing.')
-			tb.menu_.add(self.tcl.wgts.CheckBox, setText='Pre-Rotate Mode: 1', setObjectName='chk007', setTristate=True, setCheckState_=1, setToolTip='Allow shell rotation during packing.')
-			tb.menu_.add('QDoubleSpinBox', setPrefix='Rotate Step: ', setObjectName='s007', setMinMax_='0.0-360 step22.5', setValue=22.5, setToolTip='Set the allowed rotation increment contraint.')
-			tb.menu_.add(self.tcl.wgts.CheckBox, setText='Stack Similar: 2', setObjectName='chk026', setTristate=True, setCheckState_=2, setToolTip='Find Similar shells. <br>state 1: Find similar shells, and pack one of each, ommiting the rest.<br>state 2: Find similar shells, and stack during packing.')
-			tb.menu_.add('QDoubleSpinBox', setPrefix='Stack Similar Tolerance: ', setObjectName='s006', setMinMax_='0.0-10 step.1', setValue=1.0, setToolTip='Stack shells with uv\'s within the given range.')
-			tb.menu_.add('QSpinBox', setPrefix='UDIM: ', setObjectName='s004', setMinMax_='1001-1200 step1', setValue=1001, setToolTip='Set the desired UDIM tile space.')
-			tb.menu_.add('QSpinBox', setPrefix='Map Size: ', setObjectName='s005', setMinMax_='512-8192 step512', setValue=2048, setToolTip='UV map resolution.')
+			tb.contextMenu.add(self.tcl.wgts.CheckBox, setText='Pre-Scale Mode: 1', setObjectName='chk025', setTristate=True, setCheckState_=1, setToolTip='Allow shell scaling during packing.')
+			tb.contextMenu.add(self.tcl.wgts.CheckBox, setText='Pre-Rotate Mode: 1', setObjectName='chk007', setTristate=True, setCheckState_=1, setToolTip='Allow shell rotation during packing.')
+			tb.contextMenu.add('QDoubleSpinBox', setPrefix='Rotate Step: ', setObjectName='s007', setMinMax_='0.0-360 step22.5', setValue=22.5, setToolTip='Set the allowed rotation increment contraint.')
+			tb.contextMenu.add(self.tcl.wgts.CheckBox, setText='Stack Similar: 2', setObjectName='chk026', setTristate=True, setCheckState_=2, setToolTip='Find Similar shells. <br>state 1: Find similar shells, and pack one of each, ommiting the rest.<br>state 2: Find similar shells, and stack during packing.')
+			tb.contextMenu.add('QDoubleSpinBox', setPrefix='Stack Similar Tolerance: ', setObjectName='s006', setMinMax_='0.0-10 step.1', setValue=1.0, setToolTip='Stack shells with uv\'s within the given range.')
+			tb.contextMenu.add('QSpinBox', setPrefix='UDIM: ', setObjectName='s004', setMinMax_='1001-1200 step1', setValue=1001, setToolTip='Set the desired UDIM tile space.')
+			tb.contextMenu.add('QSpinBox', setPrefix='Map Size: ', setObjectName='s005', setMinMax_='512-8192 step512', setValue=2048, setToolTip='UV map resolution.')
 
-			tb.menu_.chk025.stateChanged.connect(lambda state: tb.menu_.chk025.setText('Pre-Scale Mode: '+str(state)))
-			tb.menu_.chk007.stateChanged.connect(lambda state: tb.menu_.chk007.setText('Pre-Rotate Mode: '+str(state)))
-			tb.menu_.chk026.stateChanged.connect(lambda state: tb.menu_.chk026.setText('Stack Similar: '+str(state)))
+			tb.contextMenu.chk025.stateChanged.connect(lambda state: tb.contextMenu.chk025.setText('Pre-Scale Mode: '+str(state)))
+			tb.contextMenu.chk007.stateChanged.connect(lambda state: tb.contextMenu.chk007.setText('Pre-Rotate Mode: '+str(state)))
+			tb.contextMenu.chk026.stateChanged.connect(lambda state: tb.contextMenu.chk026.setText('Stack Similar: '+str(state)))
 			return
 
-		scale = tb.menu_.chk025.isChecked()
-		rotate = tb.menu_.chk007.isChecked()
-		rotateStep = tb.menu_.s007.value()
-		UDIM = tb.menu_.s004.value()
-		mapSize = tb.menu_.s005.value()
-		similar = tb.menu_.chk026.checkState_()
-		tolerance = tb.menu_.s006.value()
+		scale = tb.contextMenu.chk025.isChecked()
+		rotate = tb.contextMenu.chk007.isChecked()
+		rotateStep = tb.contextMenu.s007.value()
+		UDIM = tb.contextMenu.s004.value()
+		mapSize = tb.contextMenu.s005.value()
+		similar = tb.contextMenu.chk026.checkState_()
+		tolerance = tb.contextMenu.s006.value()
 
 		U,D,I,M = [int(i) for i in str(UDIM)]
 
@@ -221,15 +221,15 @@ class Uv(Init):
 		'''
 		tb = self.current_ui.tb001
 		if state is 'setMenu':
-			tb.menu_.add('QRadioButton', setText='Standard', setObjectName='chk000', setChecked=True, setToolTip='Create UV texture coordinates for the selected object or faces by automatically finding the best UV placement using simultanious projections from multiple planes.')
-			tb.menu_.add('QCheckBox', setText='Scale Mode 1', setObjectName='chk001', setTristate=True, setChecked=True, setToolTip='0 - No scale is applied.<br>1 - Uniform scale to fit in unit square.<br>2 - Non proportional scale to fit in unit square.')
-			tb.menu_.add('QRadioButton', setText='Seam Only', setObjectName='chk002', setToolTip='Cut seams only.')
-			tb.menu_.add('QRadioButton', setText='Planar', setObjectName='chk003', setToolTip='Create UV texture coordinates for the current selection by using a planar projection shape.')
-			tb.menu_.add('QRadioButton', setText='Cylindrical', setObjectName='chk004', setToolTip='Create UV texture coordinates for the current selection, using a cylidrical projection that gets wrapped around the mesh.<br>Best suited for completely enclosed cylidrical shapes with no holes or projections on the surface.')
-			tb.menu_.add('QRadioButton', setText='Spherical', setObjectName='chk005', setToolTip='Create UV texture coordinates for the current selection, using a spherical projection that gets wrapped around the mesh.<br>Best suited for completely enclosed spherical shapes with no holes or projections on the surface.')
-			tb.menu_.add('QRadioButton', setText='Normal-Based', setObjectName='chk006', setToolTip='Create UV texture coordinates for the current selection by creating a planar projection based on the average vector of it\'s face normals.')
+			tb.contextMenu.add('QRadioButton', setText='Standard', setObjectName='chk000', setChecked=True, setToolTip='Create UV texture coordinates for the selected object or faces by automatically finding the best UV placement using simultanious projections from multiple planes.')
+			tb.contextMenu.add('QCheckBox', setText='Scale Mode 1', setObjectName='chk001', setTristate=True, setChecked=True, setToolTip='0 - No scale is applied.<br>1 - Uniform scale to fit in unit square.<br>2 - Non proportional scale to fit in unit square.')
+			tb.contextMenu.add('QRadioButton', setText='Seam Only', setObjectName='chk002', setToolTip='Cut seams only.')
+			tb.contextMenu.add('QRadioButton', setText='Planar', setObjectName='chk003', setToolTip='Create UV texture coordinates for the current selection by using a planar projection shape.')
+			tb.contextMenu.add('QRadioButton', setText='Cylindrical', setObjectName='chk004', setToolTip='Create UV texture coordinates for the current selection, using a cylidrical projection that gets wrapped around the mesh.<br>Best suited for completely enclosed cylidrical shapes with no holes or projections on the surface.')
+			tb.contextMenu.add('QRadioButton', setText='Spherical', setObjectName='chk005', setToolTip='Create UV texture coordinates for the current selection, using a spherical projection that gets wrapped around the mesh.<br>Best suited for completely enclosed spherical shapes with no holes or projections on the surface.')
+			tb.contextMenu.add('QRadioButton', setText='Normal-Based', setObjectName='chk006', setToolTip='Create UV texture coordinates for the current selection by creating a planar projection based on the average vector of it\'s face normals.')
 
-			# tb.menu_.chk001.toggled.connect(lambda state: self.toggleWidgets(tb.menu_, setUnChecked='chk002-3') if state==1 else None)
+			# tb.contextMenu.chk001.toggled.connect(lambda state: self.toggleWidgets(tb.contextMenu, setUnChecked='chk002-3') if state==1 else None)
 			return
 
 		standardUnwrap = self.uv_ui.chk000.isChecked()
@@ -280,14 +280,14 @@ class Uv(Init):
 		'''
 		tb = tb = self.uv_ui.tb002
 		if state is 'setMenu':
-			tb.menu_.add('QCheckBox', setText='Orient', setObjectName='chk021', setChecked=True, setToolTip='Orient UV shells to run parallel with the most adjacent U or V axis.')
-			tb.menu_.add('QCheckBox', setText='Stack Similar', setObjectName='chk022', setChecked=True, setToolTip='Stack only shells that fall within the set tolerance.')
-			tb.menu_.add('QDoubleSpinBox', setPrefix='Tolerance: ', setObjectName='s000', setMinMax_='0.0-10 step.1', setValue=1.0, setToolTip='Stack shells with uv\'s within the given range.')
+			tb.contextMenu.add('QCheckBox', setText='Orient', setObjectName='chk021', setChecked=True, setToolTip='Orient UV shells to run parallel with the most adjacent U or V axis.')
+			tb.contextMenu.add('QCheckBox', setText='Stack Similar', setObjectName='chk022', setChecked=True, setToolTip='Stack only shells that fall within the set tolerance.')
+			tb.contextMenu.add('QDoubleSpinBox', setPrefix='Tolerance: ', setObjectName='s000', setMinMax_='0.0-10 step.1', setValue=1.0, setToolTip='Stack shells with uv\'s within the given range.')
 			return
 
-		orient = tb.menu_.chk021.isChecked()
-		stackSimilar = tb.menu_.chk022.isChecked()
-		tolerance = tb.menu_.s000.value()
+		orient = tb.contextMenu.chk021.isChecked()
+		stackSimilar = tb.contextMenu.chk022.isChecked()
+		tolerance = tb.contextMenu.s000.value()
 		sel = Uv.UvShellSelection() #assure the correct selection mask.
 
 		if stackSimilar:
@@ -303,12 +303,12 @@ class Uv(Init):
 		'''
 		tb = tb = self.uv_ui.tb003
 		if state is 'setMenu':
-			tb.menu_.add('QRadioButton', setText='Back-Facing', setObjectName='chk008', setToolTip='Select all back-facing (using counter-clockwise winding order) components for the current selection.')
-			tb.menu_.add('QRadioButton', setText='Front-Facing', setObjectName='chk009', setToolTip='Select all front-facing (using counter-clockwise winding order) components for the current selection.')
-			tb.menu_.add('QRadioButton', setText='Overlapping', setObjectName='chk010', setToolTip='Select all components that share the same uv space.')
-			tb.menu_.add('QRadioButton', setText='Non-Overlapping', setObjectName='chk011', setToolTip='Select all components that do not share the same uv space.')
-			tb.menu_.add('QRadioButton', setText='Texture Borders', setObjectName='chk012', setToolTip='Select all components on the borders of uv shells.')
-			tb.menu_.add('QRadioButton', setText='Unmapped', setObjectName='chk013', setChecked=True, setToolTip='Select unmapped faces in the current uv set.')
+			tb.contextMenu.add('QRadioButton', setText='Back-Facing', setObjectName='chk008', setToolTip='Select all back-facing (using counter-clockwise winding order) components for the current selection.')
+			tb.contextMenu.add('QRadioButton', setText='Front-Facing', setObjectName='chk009', setToolTip='Select all front-facing (using counter-clockwise winding order) components for the current selection.')
+			tb.contextMenu.add('QRadioButton', setText='Overlapping', setObjectName='chk010', setToolTip='Select all components that share the same uv space.')
+			tb.contextMenu.add('QRadioButton', setText='Non-Overlapping', setObjectName='chk011', setToolTip='Select all components that do not share the same uv space.')
+			tb.contextMenu.add('QRadioButton', setText='Texture Borders', setObjectName='chk012', setToolTip='Select all components on the borders of uv shells.')
+			tb.contextMenu.add('QRadioButton', setText='Unmapped', setObjectName='chk013', setChecked=True, setToolTip='Select unmapped faces in the current uv set.')
 			return
 
 		back_facing = self.uv_ui.chk008.isChecked()
@@ -356,12 +356,12 @@ class Uv(Init):
 		'''
 		tb = self.current_ui.tb004
 		if state is 'setMenu':
-			tb.menu_.add('QCheckBox', setText='Optimize', setObjectName='chk017', setToolTip='The Optimize UV Tool evens out the spacing between UVs on a mesh, fixing areas of distortion (overlapping UVs).')
-			# tb.menu_.add('QSpinBox', setPrefix='Optimize Amount: ', setObjectName='s008', setMinMax_='0-100 step1', setValue=25, setToolTip='The number of times to run optimize on the unfolded mesh.')
+			tb.contextMenu.add('QCheckBox', setText='Optimize', setObjectName='chk017', setToolTip='The Optimize UV Tool evens out the spacing between UVs on a mesh, fixing areas of distortion (overlapping UVs).')
+			# tb.contextMenu.add('QSpinBox', setPrefix='Optimize Amount: ', setObjectName='s008', setMinMax_='0-100 step1', setValue=25, setToolTip='The number of times to run optimize on the unfolded mesh.')
 			return
 
-		optimize = tb.menu_.chk017.isChecked()
-		amount = 1#tb.menu_.s008.value()
+		optimize = tb.contextMenu.chk017.isChecked()
+		amount = 1#tb.contextMenu.s008.value()
 
 		pm.u3dUnfold(iterations=1, pack=0, borderintersection=1, triangleflip=1, mapsize=2048, roomspace=0) #pm.mel.performUnfold(0)
 
@@ -374,16 +374,16 @@ class Uv(Init):
 		'''
 		tb = tb = self.uv_ui.tb005
 		if state is 'setMenu':
-			tb.menu_.add('QSpinBox', setPrefix='Angle: ', setObjectName='s001', setMinMax_='0-360 step1', setValue=30, setToolTip='Set the maximum angle used for straightening uv\'s.')
-			tb.menu_.add('QCheckBox', setText='Straighten U', setObjectName='chk018', setChecked=True, setToolTip='Unfold UV\'s along a horizonal contraint.')
-			tb.menu_.add('QCheckBox', setText='Straighten V', setObjectName='chk019', setChecked=True, setToolTip='Unfold UV\'s along a vertical constaint.')
-			tb.menu_.add('QCheckBox', setText='Straighten Shell', setObjectName='chk020', setToolTip='Straighten a UV shell by unfolding UV\'s around a selected UV\'s edgeloop.')
+			tb.contextMenu.add('QSpinBox', setPrefix='Angle: ', setObjectName='s001', setMinMax_='0-360 step1', setValue=30, setToolTip='Set the maximum angle used for straightening uv\'s.')
+			tb.contextMenu.add('QCheckBox', setText='Straighten U', setObjectName='chk018', setChecked=True, setToolTip='Unfold UV\'s along a horizonal contraint.')
+			tb.contextMenu.add('QCheckBox', setText='Straighten V', setObjectName='chk019', setChecked=True, setToolTip='Unfold UV\'s along a vertical constaint.')
+			tb.contextMenu.add('QCheckBox', setText='Straighten Shell', setObjectName='chk020', setToolTip='Straighten a UV shell by unfolding UV\'s around a selected UV\'s edgeloop.')
 			return
 
-		u = tb.menu_.chk018.isChecked()
-		v = tb.menu_.chk019.isChecked()
-		angle = tb.menu_.s001.value()
-		straightenShell = tb.menu_.chk020.isChecked()
+		u = tb.contextMenu.chk018.isChecked()
+		v = tb.contextMenu.chk019.isChecked()
+		angle = tb.contextMenu.s001.value()
+		straightenShell = tb.contextMenu.chk020.isChecked()
 
 		if u and v:
 			pm.mel.texStraightenUVs('UV', angle)
@@ -401,12 +401,12 @@ class Uv(Init):
 		'''
 		tb = tb = self.uv_ui.tb006
 		if state is 'setMenu':
-			tb.menu_.add('QRadioButton', setText='Distribute U', setObjectName='chk023', setChecked=True, setToolTip='Distribute along U.')
-			tb.menu_.add('QRadioButton', setText='Distribute V', setObjectName='chk024', setToolTip='Distribute along V.')
+			tb.contextMenu.add('QRadioButton', setText='Distribute U', setObjectName='chk023', setChecked=True, setToolTip='Distribute along U.')
+			tb.contextMenu.add('QRadioButton', setText='Distribute V', setObjectName='chk024', setToolTip='Distribute along V.')
 			return
 
-		u = tb.menu_.chk023.isChecked()
-		v = tb.menu_.chk024.isChecked()
+		u = tb.contextMenu.chk023.isChecked()
+		v = tb.contextMenu.chk024.isChecked()
 		
 		if u:
 			pm.mel.texDistributeShells(0, 0, "right", []) #'left', 'right'
@@ -419,15 +419,15 @@ class Uv(Init):
 		'''
 		tb = tb = self.uv_ui.tb007
 		if state is 'setMenu':
-			tb.menu_.add('QSpinBox', setPrefix='Map Size: ', setObjectName='s002', setMinMax_='512-8192 step512', setValue=2048, setToolTip='Set the map used as reference when getting texel density.')
-			tb.menu_.add('QDoubleSpinBox', setPrefix='Texel Density: ', setObjectName='s003', setMinMax_='0.00-128 step8', setValue=32, setToolTip='Set the desired texel density.')
-			tb.menu_.add('QPushButton', setText='Get Texel Density', setObjectName='b099', setChecked=True, setToolTip='Get the average texel density of any selected faces.')
+			tb.contextMenu.add('QSpinBox', setPrefix='Map Size: ', setObjectName='s002', setMinMax_='512-8192 step512', setValue=2048, setToolTip='Set the map used as reference when getting texel density.')
+			tb.contextMenu.add('QDoubleSpinBox', setPrefix='Texel Density: ', setObjectName='s003', setMinMax_='0.00-128 step8', setValue=32, setToolTip='Set the desired texel density.')
+			tb.contextMenu.add('QPushButton', setText='Get Texel Density', setObjectName='b099', setChecked=True, setToolTip='Get the average texel density of any selected faces.')
 
-			tb.menu_.b099.released.connect(lambda: tb.menu_.s003.setValue(float(pm.mel.texGetTexelDensity(tb.menu_.s002.value())))) #get and set texel density value.
+			tb.contextMenu.b099.released.connect(lambda: tb.contextMenu.s003.setValue(float(pm.mel.texGetTexelDensity(tb.contextMenu.s002.value())))) #get and set texel density value.
 			return
 
-		mapSize = tb.menu_.s002.value()
-		density = tb.menu_.s003.value()
+		mapSize = tb.contextMenu.s002.value()
+		density = tb.contextMenu.s003.value()
 
 		pm.mel.texSetTexelDensity(density, mapSize)
 

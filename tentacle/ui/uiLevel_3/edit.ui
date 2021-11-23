@@ -163,7 +163,7 @@
              <number>0</number>
             </property>
             <item>
-             <widget class="ToolButton" name="tb000">
+             <widget class="PushButton" name="tb000">
               <property name="minimumSize">
                <size>
                 <width>0</width>
@@ -536,7 +536,7 @@
              <number>0</number>
             </property>
             <item>
-             <widget class="ToolButton" name="tb002">
+             <widget class="PushButton" name="tb002">
               <property name="minimumSize">
                <size>
                 <width>0</width>
@@ -567,7 +567,7 @@
              </widget>
             </item>
             <item>
-             <widget class="ToolButton" name="tb001">
+             <widget class="PushButton" name="tb001">
               <property name="minimumSize">
                <size>
                 <width>0</width>
@@ -595,7 +595,7 @@
              </widget>
             </item>
             <item>
-             <widget class="ToolButton" name="tb003">
+             <widget class="PushButton" name="tb003">
               <property name="minimumSize">
                <size>
                 <width>0</width>
@@ -658,77 +658,6 @@
                <property name="bottomMargin">
                 <number>0</number>
                </property>
-               <item>
-                <widget class="QPushButton" name="b000">
-                 <property name="minimumSize">
-                  <size>
-                   <width>0</width>
-                   <height>20</height>
-                  </size>
-                 </property>
-                 <property name="maximumSize">
-                  <size>
-                   <width>999</width>
-                   <height>20</height>
-                  </size>
-                 </property>
-                 <property name="palette">
-                  <palette>
-                   <active>
-                    <colorrole role="Highlight">
-                     <brush brushstyle="SolidPattern">
-                      <color alpha="255">
-                       <red>80</red>
-                       <green>138</green>
-                       <blue>255</blue>
-                      </color>
-                     </brush>
-                    </colorrole>
-                   </active>
-                   <inactive>
-                    <colorrole role="Highlight">
-                     <brush brushstyle="SolidPattern">
-                      <color alpha="255">
-                       <red>80</red>
-                       <green>138</green>
-                       <blue>255</blue>
-                      </color>
-                     </brush>
-                    </colorrole>
-                   </inactive>
-                   <disabled>
-                    <colorrole role="Highlight">
-                     <brush brushstyle="SolidPattern">
-                      <color alpha="255">
-                       <red>51</red>
-                       <green>153</green>
-                       <blue>255</blue>
-                      </color>
-                     </brush>
-                    </colorrole>
-                   </disabled>
-                  </palette>
-                 </property>
-                 <property name="toolTip">
-                  <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;List transform attributes for the currently selected object.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-                 </property>
-                 <property name="text">
-                  <string>Transform</string>
-                 </property>
-                 <property name="autoDefault">
-                  <bool>true</bool>
-                 </property>
-                 <property name="default">
-                  <bool>false</bool>
-                 </property>
-                 <property name="flat">
-                  <bool>false</bool>
-                 </property>
-                 <property name="bnabled" stdset="0">
-                  <bool>true</bool>
-                 </property>
-                </widget>
-               </item>
                <item>
                 <widget class="ComboBox" name="cmb001">
                  <property name="sizePolicy">
@@ -832,11 +761,6 @@
  </widget>
  <customwidgets>
   <customwidget>
-   <class>ToolButton</class>
-   <extends>QToolButton</extends>
-   <header>widgets.toolbutton.h</header>
-  </customwidget>
-  <customwidget>
    <class>PushButtonDraggable</class>
    <extends>QPushButton</extends>
    <header>widgets.pushbuttondraggable.h</header>
@@ -845,6 +769,11 @@
    <class>ProgressBar</class>
    <extends>QProgressBar</extends>
    <header>widgets.progressbar.h</header>
+  </customwidget>
+  <customwidget>
+   <class>PushButton</class>
+   <extends>QPushButton</extends>
+   <header>widgets.pushbutton.h</header>
   </customwidget>
   <customwidget>
    <class>ComboBox</class>

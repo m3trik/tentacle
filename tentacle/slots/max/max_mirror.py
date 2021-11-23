@@ -58,21 +58,21 @@ class Mirror(Init):
 		'''
 		tb = self.current_ui.tb000
 		if state is 'setMenu':
-			tb.menu_.add('QCheckBox', setText='-', setObjectName='chk000', setChecked=True, setToolTip='Perform mirror along negative axis.')
-			tb.menu_.add('QRadioButton', setText='X', setObjectName='chk001', setChecked=True, setToolTip='Perform mirror along X axis.')
-			tb.menu_.add('QRadioButton', setText='Y', setObjectName='chk002', setToolTip='Perform mirror along Y axis.')
-			tb.menu_.add('QRadioButton', setText='Z', setObjectName='chk003', setToolTip='Perform mirror along Z axis.')
-			tb.menu_.add('QCheckBox', setText='Instance', setObjectName='chk004', setToolTip='Instance object.')
-			tb.menu_.add('QCheckBox', setText='Cut', setObjectName='chk005', setChecked=True, setToolTip='Perform a delete along specified axis before mirror.')
-			tb.menu_.add('QDoubleSpinBox', setPrefix='Merge Threshold: ', setObjectName='s000', setMinMax_='0.000-10 step.001', setValue=0.005, setToolTip='Merge vertex distance.')
+			tb.contextMenu.add('QCheckBox', setText='-', setObjectName='chk000', setChecked=True, setToolTip='Perform mirror along negative axis.')
+			tb.contextMenu.add('QRadioButton', setText='X', setObjectName='chk001', setChecked=True, setToolTip='Perform mirror along X axis.')
+			tb.contextMenu.add('QRadioButton', setText='Y', setObjectName='chk002', setToolTip='Perform mirror along Y axis.')
+			tb.contextMenu.add('QRadioButton', setText='Z', setObjectName='chk003', setToolTip='Perform mirror along Z axis.')
+			tb.contextMenu.add('QCheckBox', setText='Instance', setObjectName='chk004', setToolTip='Instance object.')
+			tb.contextMenu.add('QCheckBox', setText='Cut', setObjectName='chk005', setChecked=True, setToolTip='Perform a delete along specified axis before mirror.')
+			tb.contextMenu.add('QDoubleSpinBox', setPrefix='Merge Threshold: ', setObjectName='s000', setMinMax_='0.000-10 step.001', setValue=0.005, setToolTip='Merge vertex distance.')
 
-			self.connect_('chk000-3', 'toggled', self.chk000_3, tb.menu_)
+			self.connect_('chk000-3', 'toggled', self.chk000_3, tb.contextMenu)
 			return
 
-		axis = self.getAxisFromCheckBoxes('chk000-3', tb.menu_)
-		cutMesh = tb.menu_.chk005.isChecked() #cut
-		instance = tb.menu_.chk004.isChecked()
-		mergeThreshold = tb.menu_.s000.value()
+		axis = self.getAxisFromCheckBoxes('chk000-3', tb.contextMenu)
+		cutMesh = tb.contextMenu.chk005.isChecked() #cut
+		instance = tb.contextMenu.chk004.isChecked()
+		mergeThreshold = tb.contextMenu.s000.value()
 
 		if axis=='X': #'x'
 			axisDirection = 0 #positive axis

@@ -114,10 +114,10 @@ class Rigging(Init):
 		'''
 		tb = self.current_ui.tb000
 		if state is 'setMenu':
-			tb.menu_.add('QCheckBox', setText='Joints', setObjectName='chk000', setChecked=True, setToolTip='Display Joints.')
-			tb.menu_.add('QCheckBox', setText='IK', setObjectName='chk001', setChecked=True, setToolTip='Display IK.')
-			tb.menu_.add('QCheckBox', setText='IK\\FK', setObjectName='chk002', setChecked=True, setToolTip='Display IK\\FK.')
-			tb.menu_.add('QDoubleSpinBox', setPrefix='Tolerance: ', setObjectName='s000', setMinMax_='0.00-10 step.5', setValue=1.0, setToolTip='Global Display Scale for the selected type.')
+			tb.contextMenu.add('QCheckBox', setText='Joints', setObjectName='chk000', setChecked=True, setToolTip='Display Joints.')
+			tb.contextMenu.add('QCheckBox', setText='IK', setObjectName='chk001', setChecked=True, setToolTip='Display IK.')
+			tb.contextMenu.add('QCheckBox', setText='IK\\FK', setObjectName='chk002', setChecked=True, setToolTip='Display IK\\FK.')
+			tb.contextMenu.add('QDoubleSpinBox', setPrefix='Tolerance: ', setObjectName='s000', setMinMax_='0.00-10 step.5', setValue=1.0, setToolTip='Global Display Scale for the selected type.')
 			
 			try:
 				self.chk000() #init scale joint value
@@ -128,7 +128,7 @@ class Rigging(Init):
 		joints = pm.ls(type="joint") #get all scene joints
 
 		state = pm.toggle(joints[0], query=1, localAxis=1)
-		if tb.menu_.isChecked():
+		if tb.contextMenu.isChecked():
 			if not state:
 				toggle=True
 		else:
@@ -146,11 +146,11 @@ class Rigging(Init):
 		'''
 		tb = self.current_ui.tb001
 		if state is 'setMenu':
-			tb.menu_.add('QCheckBox', setText='Align world', setObjectName='chk003', setToolTip='Align joints with the worlds transform.')
+			tb.contextMenu.add('QCheckBox', setText='Align world', setObjectName='chk003', setToolTip='Align joints with the worlds transform.')
 			return
 
 		orientJoint = 'xyz' #orient joints
-		if tb.menu_.isChecked():
+		if tb.contextMenu.isChecked():
 			orientJoint = 'none' #orient joint to world
 
 		pm.joint(edit=1, orientJoint=orientJoint, zeroScaleOrient=1, ch=1)
@@ -161,10 +161,10 @@ class Rigging(Init):
 		'''
 		tb = self.current_ui.tb002
 		if state is 'setMenu':
-			tb.menu_.add('QCheckBox', setText='Template Child', setObjectName='chk004', setChecked=False, setToolTip='Template child object(s) after parenting.')		
+			tb.contextMenu.add('QCheckBox', setText='Template Child', setObjectName='chk004', setChecked=False, setToolTip='Template child object(s) after parenting.')		
 			return
 
-		template = tb.menu_.chk004.isChecked()
+		template = tb.contextMenu.chk004.isChecked()
 
 		objects = pm.ls(sl=1, objectsOnly=1)
 
@@ -183,33 +183,33 @@ class Rigging(Init):
 		'''
 		tb = self.current_ui.tb003
 		if state is 'setMenu':
-			tb.menu_.add('QLineEdit', setPlaceholderText='Suffix:', setText='', setObjectName='t000', setToolTip='A string appended to the end of the created locators name.')
-			tb.menu_.add('QCheckBox', setText='Strip Digits', setObjectName='chk005', setChecked=True, setToolTip='Strip numeric characters from the string. If the resulting name is not unique, maya will append a trailing digit.')
-			tb.menu_.add('QLineEdit', setPlaceholderText='Strip:', setText='_GEO', setObjectName='t001', setToolTip='Strip a specific character set from the locator name. The locators name is based off of the selected objects name.')
-			tb.menu_.add('QDoubleSpinBox', setPrefix='Scale: ', setObjectName='s001', setMinMax_='.000-1000 step1', setValue=1, setToolTip='The scale of the locator.')
-			tb.menu_.add('QCheckBox', setText='Parent', setObjectName='chk006', setChecked=True, setToolTip='Parent to object to the locator.')
-			tb.menu_.add('QCheckBox', setText='Freeze Transforms', setObjectName='chk010', setChecked=True, setToolTip='Freeze transforms on the locator.')
-			tb.menu_.add('QCheckBox', setText='Bake Child Pivot', setObjectName='chk011', setChecked=True, setToolTip='Bake pivot positions on the child object.')
-			tb.menu_.add('QCheckBox', setText='Lock Child Translate', setObjectName='chk007', setChecked=True, setToolTip='Lock the translate values of the child object.')
-			tb.menu_.add('QCheckBox', setText='Lock Child Rotation', setObjectName='chk008', setChecked=True, setToolTip='Lock the rotation values of the child object.')
-			tb.menu_.add('QCheckBox', setText='Lock Child Scale', setObjectName='chk009', setChecked=False, setToolTip='Lock the scale values of the child object.')
-			tb.menu_.add('QCheckBox', setText='Remove Locators', setObjectName='chk015', setChecked=False, setToolTip='Removes the locator, and inverts the above process. (not valid with component selections)')
+			tb.contextMenu.add('QLineEdit', setPlaceholderText='Suffix:', setText='', setObjectName='t000', setToolTip='A string appended to the end of the created locators name.')
+			tb.contextMenu.add('QCheckBox', setText='Strip Digits', setObjectName='chk005', setChecked=True, setToolTip='Strip numeric characters from the string. If the resulting name is not unique, maya will append a trailing digit.')
+			tb.contextMenu.add('QLineEdit', setPlaceholderText='Strip:', setText='_GEO', setObjectName='t001', setToolTip='Strip a specific character set from the locator name. The locators name is based off of the selected objects name.')
+			tb.contextMenu.add('QDoubleSpinBox', setPrefix='Scale: ', setObjectName='s001', setMinMax_='.000-1000 step1', setValue=1, setToolTip='The scale of the locator.')
+			tb.contextMenu.add('QCheckBox', setText='Parent', setObjectName='chk006', setChecked=True, setToolTip='Parent to object to the locator.')
+			tb.contextMenu.add('QCheckBox', setText='Freeze Transforms', setObjectName='chk010', setChecked=True, setToolTip='Freeze transforms on the locator.')
+			tb.contextMenu.add('QCheckBox', setText='Bake Child Pivot', setObjectName='chk011', setChecked=True, setToolTip='Bake pivot positions on the child object.')
+			tb.contextMenu.add('QCheckBox', setText='Lock Child Translate', setObjectName='chk007', setChecked=True, setToolTip='Lock the translate values of the child object.')
+			tb.contextMenu.add('QCheckBox', setText='Lock Child Rotation', setObjectName='chk008', setChecked=True, setToolTip='Lock the rotation values of the child object.')
+			tb.contextMenu.add('QCheckBox', setText='Lock Child Scale', setObjectName='chk009', setChecked=False, setToolTip='Lock the scale values of the child object.')
+			tb.contextMenu.add('QCheckBox', setText='Remove Locators', setObjectName='chk015', setChecked=False, setToolTip='Removes the locator, and inverts the above process. (not valid with component selections)')
 			
-			tb.menu_.chk015.stateChanged.connect(lambda state: self.toggleWidgets(tb.menu_, setDisabled='t000-1,s001,chk005-11') if state 
-															else self.toggleWidgets(tb.menu_, setEnabled='t000-1,s001,chk005-11')) #disable non-relevant options.
+			tb.contextMenu.chk015.stateChanged.connect(lambda state: self.toggleWidgets(tb.contextMenu, setDisabled='t000-1,s001,chk005-11') if state 
+															else self.toggleWidgets(tb.contextMenu, setEnabled='t000-1,s001,chk005-11')) #disable non-relevant options.
 			return
 
-		suffix = tb.menu_.t000.text()
-		stripDigits = tb.menu_.chk005.isChecked()
-		strip = tb.menu_.t001.text()
-		parent = tb.menu_.chk006.isChecked()
-		scale = tb.menu_.s001.value()
-		lockTranslate = tb.menu_.chk007.isChecked()
-		lockRotation = tb.menu_.chk008.isChecked()
-		lockScale = tb.menu_.chk009.isChecked()
-		freezeTransforms = tb.menu_.chk010.isChecked()
-		bakeChildPivot = tb.menu_.chk011.isChecked()
-		remove = tb.menu_.chk015.isChecked()
+		suffix = tb.contextMenu.t000.text()
+		stripDigits = tb.contextMenu.chk005.isChecked()
+		strip = tb.contextMenu.t001.text()
+		parent = tb.contextMenu.chk006.isChecked()
+		scale = tb.contextMenu.s001.value()
+		lockTranslate = tb.contextMenu.chk007.isChecked()
+		lockRotation = tb.contextMenu.chk008.isChecked()
+		lockScale = tb.contextMenu.chk009.isChecked()
+		freezeTransforms = tb.contextMenu.chk010.isChecked()
+		bakeChildPivot = tb.contextMenu.chk011.isChecked()
+		remove = tb.contextMenu.chk015.isChecked()
 
 		selection = pm.ls(selection=True)
 		Rigging.createLocatorAtObject(selection, suffix=suffix, stripDigits=stripDigits, strip=strip, scale=scale, parent=parent, bakeChildPivot=bakeChildPivot, 
@@ -221,20 +221,20 @@ class Rigging(Init):
 		'''
 		tb = self.current_ui.tb004
 		if state is 'setMenu':
-			tb.menu_.add('QCheckBox', setText='Translate', setObjectName='chk012', setChecked=False, setToolTip='')
-			tb.menu_.add('QCheckBox', setText='Rotate', setObjectName='chk013', setChecked=False, setToolTip='')
-			tb.menu_.add('QCheckBox', setText='Scale', setObjectName='chk014', setChecked=False, setToolTip='')
+			tb.contextMenu.add('QCheckBox', setText='Translate', setObjectName='chk012', setChecked=False, setToolTip='')
+			tb.contextMenu.add('QCheckBox', setText='Rotate', setObjectName='chk013', setChecked=False, setToolTip='')
+			tb.contextMenu.add('QCheckBox', setText='Scale', setObjectName='chk014', setChecked=False, setToolTip='')
 
-			self.connect_((tb.menu_.chk012,tb.menu_.chk013,tb.menu_.chk014), 'toggled', 
+			self.connect_((tb.contextMenu.chk012,tb.contextMenu.chk013,tb.contextMenu.chk014), 'toggled', 
 				[lambda state: self.rigging_ui.tb004.setText('Lock Attributes' 
-					if any((tb.menu_.chk012.isChecked(),tb.menu_.chk013.isChecked(),tb.menu_.chk014.isChecked())) else 'Unlock Attributes'), 
+					if any((tb.contextMenu.chk012.isChecked(),tb.contextMenu.chk013.isChecked(),tb.contextMenu.chk014.isChecked())) else 'Unlock Attributes'), 
 				lambda state: self.rigging_submenu_ui.tb004.setText('Lock Transforms' 
-					if any((tb.menu_.chk012.isChecked(),tb.menu_.chk013.isChecked(),tb.menu_.chk014.isChecked())) else 'Unlock Attributes')])
+					if any((tb.contextMenu.chk012.isChecked(),tb.contextMenu.chk013.isChecked(),tb.contextMenu.chk014.isChecked())) else 'Unlock Attributes')])
 			return
 
-		lockTranslate = tb.menu_.chk012.isChecked()
-		lockRotation = tb.menu_.chk013.isChecked()
-		lockScale = tb.menu_.chk014.isChecked()
+		lockTranslate = tb.contextMenu.chk012.isChecked()
+		lockRotation = tb.contextMenu.chk013.isChecked()
+		lockScale = tb.contextMenu.chk014.isChecked()
 
 		sel = pm.ls(selection=True, transforms=1, long=True)
 		for obj in sel:
@@ -246,6 +246,23 @@ class Rigging(Init):
 			}
 
 			[[pm.setAttr('{}.{}'.format(obj, i), lock=v) for i in k] for k, v in attrs_and_state.items()]
+
+
+	@Slots.message
+	@Slots.hideMain
+	def b000(self):
+		'''Object Transform Limit Attributes
+		'''
+		node = pm.ls(sl=1, objectsOnly=1)
+		if not node:
+			return 'Error: Operation requires a single selected object.'
+
+		params = ['enableTranslationX','translationX','enableTranslationY','translationY','enableTranslationZ','translationZ',
+			'enableRotationX','rotationX','enableRotationY','rotationY','enableRotationZ','rotationZ',
+			'enableScaleX','scaleX','enableScaleY','scaleY','enableScaleZ','scaleZ']
+
+		attrs = Init.getParameterValuesMEL(node, 'transformLimits', params)
+		self.setAttributeWindow(node, attrs, fn=Init.setParameterValuesMEL, fn_args='transformLimits')
 
 
 	def b001(self):
@@ -322,8 +339,8 @@ class Rigging(Init):
 		'''
 		def _formatName(name, stripDigits=stripDigits, strip=strip, suffix=suffix):
 			if stripDigits:
-				name_ = ''.join([i for i in name if not i.isdigit()])	
-			return name_.replace(strip, '')+suffix
+				name = ''.join([i for i in name if not i.isdigit()])	
+			return name.replace(strip, '')+suffix
 
 		def _create_locator(obj, objName, stripDigits=stripDigits, strip=strip, suffix=suffix, scale=scale, _fullPath=_fullPath):
 			locName = _formatName(objName, stripDigits, strip, suffix)

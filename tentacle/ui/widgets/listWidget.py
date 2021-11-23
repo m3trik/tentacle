@@ -22,7 +22,7 @@ class ListWidget(QtWidgets.QListWidget, Attributes):
 	'''
 	'''
 	def __init__(self, parent=None, **kwargs):
-		super().__init__(parent) 
+		QtWidgets.QListWidget.__init__(self, parent)
 
 		# self.setViewMode(QtWidgets.QListView.IconMode)
 		self.clear()

@@ -7,10 +7,6 @@ from PySide2 import QtCore, QtGui, QtWidgets
 class Attributes(object):
 	'''Methods for setting widget Attributes.
 	'''
-	def __init__(self):
-		'''
-		'''
-
 	def setAttributes(self, obj=None, order=['setPosition_', 'setVisible'], **kwargs):
 		'''Works with attributes passed in as a dict or kwargs.
 		If attributes are passed in as a dict, kwargs are ignored.
@@ -85,7 +81,7 @@ class Attributes(object):
 			# w.resize(w.size().width(), value)
 
 		elif attr=='setPosition_':
-			if value is 'cursor':
+			if value=='cursor':
 				value = QtGui.QCursor.pos()
 			w.move(w.mapFromGlobal(value - w.rect().center())) #move and center
 

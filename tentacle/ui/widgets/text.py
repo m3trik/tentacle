@@ -8,58 +8,90 @@ class RichText(object):
 	'''Rich text support for widgets.
 	Text with rich text formatting will be set as rich text, otherwise it will be handled as usual.
 
-	:Parameters:
-		parent (obj) = parent widget.
-		alignment (str) = text alignment. valid values are: 'AlignLeft', 'AlignCenter', 'AlignRight'
+	ex. <hl style="color:red;">Error:</hl>
+	ex. '<p style="color:white;">'
+	ex. '<b style="font-weight: bold;">'
+	ex. '<strong style="font-weight: bold;">'
+	ex. '<mark style="background-color: grey">'
 	'''
-	def __init__(self, parent=None, alignment='AlignLeft', **kwargs):
-		'''
-		'''
-		self.alignment = getattr(QtCore.Qt, alignment)
-
-		self.setText = self.setRichText
-		self.text = self.richText
-		self.sizeHint = self.richTextSizeHint
-
+	hasRichText = False
 
 	@property
-	def hasRichText(self):
-		'''Query whether the widget contains rich text.
+	def richTextLabelDict(self):
+		'''Returns a list containing any rich text labels that have been created.
+		Item indices are used the keys to retrieve the label values.
 
 		:Return:
-			(bool)
+			(list)
 		'''
-		if not hasattr(self, '_hasRichText'):
-			self._hasRichText=False
+		try:
+			return self._richTextLabelDict
 
-		return self._hasRichText
+		except AttributeError as error:
+			self._richTextLabelDict = {}
+			return self._richTextLabelDict
 
 
 	@property
-	def richTextLabel(self):
+	def richTextSizeHintDict(self):
+		'''Returns a list containing the sizeHint any rich text labels that have been created.
+		Item indices are used the keys to retrieve the size values.
+
+		:Return:
+			(list)
+		'''
+		try:
+			return self._richTextSizeHintDict
+
+		except AttributeError as error:
+			self._richTextSizeHintDict = {}
+			return self._richTextSizeHintDict
+
+
+	def richTextSizeHint(self, index=0):
+		'''The richTextSizeHint is the sizeHint of the actual widget if it were containing the text.
+
+		:Return:
+			(str) the widget's or the label's sizeHint.
+		'''
+		if self.hasRichText:
+			return self._richTextSizeHintDict[index]
+
+		else:
+			return self.__class__.__base__.sizeHint(self) #return standard widget sizeHint
+
+
+	def _createRichTextLabel(self, index):
 		'''Return a QLabel and inside a QHBoxLayout.
 		'''
-		if not hasattr(self, '_richTextLabel'):
+		layout = QtWidgets.QHBoxLayout(self)
+		layout.setContentsMargins(0, 0, 0, 0)
+		# layout.setSpacing(0)
 
-			self.__layout = QtWidgets.QHBoxLayout(self)
-			self.__layout.setContentsMargins(0, 0, 0, 0)
-			# self.__layout.setSpacing(0)
+		label = QtWidgets.QLabel(self)
+		label.setTextFormat(QtCore.Qt.RichText)
+		self.richTextLabelDict[index] = label
 
-			self._richTextLabel = QtWidgets.QLabel(self)
-			self._richTextLabel.setAttribute(QtCore.Qt.WA_TranslucentBackground)
-			self._richTextLabel.setAttribute(QtCore.Qt.WA_TransparentForMouseEvents)
-			# self._richTextLabel.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
-			self._richTextLabel.setAlignment(self.alignment)
+		label.setAttribute(QtCore.Qt.WA_TranslucentBackground)
+		label.setAttribute(QtCore.Qt.WA_TransparentForMouseEvents)
+		# label.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
+		layout.addWidget(label)
 
-			self.__layout.addWidget(self._richTextLabel)
+		self.setRichTextStyle(index)
 
-			self.setRichTextStyle()
+		self.hasRichText = True
 
-		return self._richTextLabel
+		return label
 
 
-	def setRichTextStyle(self, textColor='white'):
-		self._richTextLabel.setStyleSheet('''
+	def setRichTextStyle(self, index=0, textColor='white'):
+		'''Set the stylesheet for a QLabel.
+
+		:Parameters:
+
+		'''
+		label = self.getRichTextLabel(index)
+		label.setStyleSheet('''
 			QLabel {{
 				color: {0};
 				margin: 3px 0px 0px 0px; /* top, right, bottom, left */
@@ -68,58 +100,99 @@ class RichText(object):
 		'''.format(textColor))
 
 
-	def setRichText(self, text):
+	def getRichTextLabel(self, index=0):
+		'''
+		'''
+		try:
+			label = self.richTextLabelDict[index]
+		except KeyError as error:
+			label = self._createRichTextLabel(index)
+
+		return label
+
+
+	def _text(self, index=0):
+		'''Gets the text for the widget or widget item.
+
+		:Parameters:
+			item (str)(int) = item text or item index
+		'''
+		try:
+			return self.__class__.__base__.text(self)
+
+		except AttributeError as error:
+			if index:
+				self.__class__.__base__.itemText(self, index)
+			else:
+				self.__class__.__base__.currentText(self)
+
+
+	def richText(self, index=0):
+		'''
+		:Return:
+			(str) the widget's or the label's text.
+		'''
+		if self.hasRichText:
+			label = self.richTextLabelDict[index]
+			return label.text()
+
+		else:
+			return self._text() #return standard widget text
+
+
+	def _setText(self, text, index=0):
+		'''Sets the text for the widget or widget item.
+
+		:Parameters:
+			item (str)(int) = item text or item index
+		'''
+		try:
+			self.__class__.__base__.setText(self, text)
+
+		except AttributeError as error:
+			self.__class__.__base__.setItemText(self, index, text)
+
+
+	def setRichText(self, text, index=0):
 		'''If the text string contains rich text formatting:
 			Set the rich text label text.
-			Add whitespace to the actual widget text until it matches the sizeHint of what it would containing the richTextLabel's text.
+			Add whitespace to the actual widget text until it matches the sizeHint of what it would containing the label's text.
 
 		:Parameters:
 			text (str) = The desired widget's display text.
+			index (int) = For setting text requires an index. ie. comboBox
 		'''
 		if text and all(i in text for i in ('<','>')): #check the text string for rich text formatting.
-			self.richTextLabel.setTextFormat(QtCore.Qt.RichText)
-			self.richTextLabel.setText(text)
+
+			label = self.getRichTextLabel(index)
+
+			label.setText(text)
 			self.updateGeometry()
 
-			self.__class__.__base__.setText(self, text) #temporarily set the text to get the sizeHint value.
-			self.__richTextSizeHint = self.__class__.__base__.sizeHint(self)
+			self._setText(text, index) #temporarily set the text to get the sizeHint value.
+			sizeHint = self.richTextSizeHintDict[index] = self.__class__.__base__.sizeHint(self)
 
-			self.__class__.__base__.setText(self, None) #clear the text, and add whitespaces until the sizeHint is the correct size.
+			self._setText(None, index) #clear the text, and add whitespaces until the sizeHint is the correct size.
 			whiteSpace=' '
-			while self.__richTextSizeHint.width()>self.__class__.__base__.sizeHint(self).width():
-				self.__class__.__base__.setText(self, whiteSpace)
+			while sizeHint.width() > self.__class__.__base__.sizeHint(self).width():
+				self._setText(whiteSpace, index)
 				whiteSpace += ' '
 
-			self._hasRichText=True
-
 		else:
-			self.__class__.__base__.setText(self, text) #set standard widget text
+			self._setText(text, index) #set standard widget text
 
 
-	def richText(self):
+	def setAlignment(self, alignment='AlignLeft', index=0):
+		'''Override setAlignment to accept string alignment arguments as well as QtCore.Qt.AlignmentFlags.
+
+		:Parameters:
+			alignment (str)(obj) = Text alignment. valid values are: 'AlignLeft', 'AlignCenter', 'AlignRight' or QtCore.Qt.AlignLeft etc.
 		'''
-		:Return:
-			(str) the widget's or the richTextLabel's text.
-		'''
-		if self.hasRichText:
-			text = self.richTextLabel.text()
-			return text
+		if isinstance(alignment, str):
+			alignment = getattr(QtCore.Qt, alignment)
 
-		else:
-			return self.__class__.__base__.text(self) #return standard widget text
-
-
-	def richTextSizeHint(self):
-		'''The richTextSizeHint is the sizeHint of the actual widget if it were containing the text.
-
-		:Return:
-			(str) the widget's or the richTextLabel's sizeHint.
-		'''
-		if self.hasRichText:
-			return self.__richTextSizeHint
-
-		else:
-			return self.__class__.__base__.sizeHint(self) #return standard widget sizeHint
+		label = self.getRichTextLabel(index)
+		label.setAlignment(alignment)
 
 
 

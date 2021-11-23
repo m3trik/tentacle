@@ -82,10 +82,10 @@ class Polygons(Init):
 		'''
 		tb = self.current_ui.tb000
 		if state is 'setMenu':
-			tb.menu_.add('QDoubleSpinBox', setPrefix='Distance: ', setObjectName='s002', setMinMax_='0.000-10 step.005', setValue=0.001, setHeight_=20, setToolTip='Merge Distance.')
+			tb.contextMenu.add('QDoubleSpinBox', setPrefix='Distance: ', setObjectName='s002', setMinMax_='0.000-10 step.005', setValue=0.001, setHeight_=20, setToolTip='Merge Distance.')
 			return
 
-		tolerance = float(tb.menu_.s002.value())
+		tolerance = float(tb.contextMenu.s002.value())
 		objects = pm.ls(selection=1, objectsOnly=1, flatten=1)
 		componentMode = pm.selectMode(query=1, component=1)
 
@@ -121,10 +121,10 @@ class Polygons(Init):
 		'''
 		tb = self.current_ui.tb001
 		if state is 'setMenu':
-			tb.menu_.add('QSpinBox', setPrefix='Divisions: ', setObjectName='s003', setMinMax_='0-10000 step1', setValue=0, setHeight_=20, setToolTip='Subdivision Amount.')
+			tb.contextMenu.add('QSpinBox', setPrefix='Divisions: ', setObjectName='s003', setMinMax_='0-10000 step1', setValue=0, setHeight_=20, setToolTip='Subdivision Amount.')
 			return
 
-		divisions = tb.menu_.s003.value()
+		divisions = tb.contextMenu.s003.value()
 
 		selection = pm.ls(sl=1)
 		edges = pm.filterExpand(selection, selectionMask=32, expand=1) #get edges from selection
@@ -140,11 +140,11 @@ class Polygons(Init):
 		'''
 		tb = self.current_ui.tb002
 		if state is 'setMenu':
-			tb.menu_.add('QCheckBox', setText='Merge', setObjectName='chk000', setChecked=True, setHeight_=20, setToolTip='Combine selected meshes and merge any coincident verts/edges.')
+			tb.contextMenu.add('QCheckBox', setText='Merge', setObjectName='chk000', setChecked=True, setHeight_=20, setToolTip='Combine selected meshes and merge any coincident verts/edges.')
 			return
 
 		# pm.polyUnite( 'plg1', 'plg2', 'plg3', name='result' ) #for future reference. if more functionality is needed use polyUnite
-		if tb.menu_.chk000.isChecked():
+		if tb.contextMenu.chk000.isChecked():
 			sel = pm.ls(sl=1, objectsOnly=1)
 			if not sel:
 				return '# Error: Nothing selected. #'
@@ -167,12 +167,12 @@ class Polygons(Init):
 		'''
 		tb = self.current_ui.tb003
 		if state is 'setMenu':
-			tb.menu_.add('QCheckBox', setText='Keep Faces Together', setObjectName='chk002', setChecked=True, setHeight_=20, setToolTip='Keep edges/faces together.')
-			tb.menu_.add('QSpinBox', setPrefix='Divisions: ', setObjectName='s004', setMinMax_='1-10000 step1', setValue=1, setHeight_=20, setToolTip='Subdivision Amount.')
+			tb.contextMenu.add('QCheckBox', setText='Keep Faces Together', setObjectName='chk002', setChecked=True, setHeight_=20, setToolTip='Keep edges/faces together.')
+			tb.contextMenu.add('QSpinBox', setPrefix='Divisions: ', setObjectName='s004', setMinMax_='1-10000 step1', setValue=1, setHeight_=20, setToolTip='Subdivision Amount.')
 			return
 
-		keepFacesTogether = tb.menu_.chk002.isChecked() #keep faces/edges together.
-		divisions = tb.menu_.s004.value()
+		keepFacesTogether = tb.contextMenu.chk002.isChecked() #keep faces/edges together.
+		divisions = tb.contextMenu.s004.value()
 
 		selection = pm.ls(sl=1)
 		if pm.selectType(query=1, facet=1): #face selection
@@ -197,10 +197,10 @@ class Polygons(Init):
 		'''
 		tb = self.current_ui.tb004
 		if state is 'setMenu':
-			tb.menu_.add('QDoubleSpinBox', setPrefix='Width: ', setObjectName='s000', setMinMax_='0.00-100 step.05', setValue=0.25, setHeight_=20, setToolTip='Bevel Width.')
+			tb.contextMenu.add('QDoubleSpinBox', setPrefix='Width: ', setObjectName='s000', setMinMax_='0.00-100 step.05', setValue=0.25, setHeight_=20, setToolTip='Bevel Width.')
 			return
 
-		width = float(tb.menu_.s000.value())
+		width = float(tb.contextMenu.s000.value())
 		chamfer = True
 		segments = 1
 
@@ -215,13 +215,13 @@ class Polygons(Init):
 		'''
 		tb = self.current_ui.tb005
 		if state is 'setMenu':
-			tb.menu_.add('QCheckBox', setText='Duplicate', setObjectName='chk014', setChecked=True, setToolTip='Duplicate any selected faces, leaving the originals.')
-			tb.menu_.add('QCheckBox', setText='Separate', setObjectName='chk015', setChecked=True, setToolTip='Separate mesh objects after detaching faces.')
-			# tb.menu_.add('QCheckBox', setText='Delete Original', setObjectName='chk007', setChecked=True, setToolTip='Delete original selected faces.')
+			tb.contextMenu.add('QCheckBox', setText='Duplicate', setObjectName='chk014', setChecked=True, setToolTip='Duplicate any selected faces, leaving the originals.')
+			tb.contextMenu.add('QCheckBox', setText='Separate', setObjectName='chk015', setChecked=True, setToolTip='Separate mesh objects after detaching faces.')
+			# tb.contextMenu.add('QCheckBox', setText='Delete Original', setObjectName='chk007', setChecked=True, setToolTip='Delete original selected faces.')
 			return
 
-		duplicate = tb.menu_.chk014.isChecked()
-		separate = tb.menu_.chk015.isChecked()
+		duplicate = tb.contextMenu.chk014.isChecked()
+		separate = tb.contextMenu.chk015.isChecked()
 
 		vertexMask = pm.selectType (query=True, vertex=True)
 		edgeMask = pm.selectType (query=True, edge=True)
@@ -254,10 +254,10 @@ class Polygons(Init):
 		'''
 		tb = self.current_ui.tb006
 		if state is 'setMenu':
-			tb.menu_.add('QDoubleSpinBox', setPrefix='Offset: ', setObjectName='s001', setMinMax_='0.00-100 step.01', setValue=2.00, setHeight_=20, setToolTip='Offset amount.')
+			tb.contextMenu.add('QDoubleSpinBox', setPrefix='Offset: ', setObjectName='s001', setMinMax_='0.00-100 step.01', setValue=2.00, setHeight_=20, setToolTip='Offset amount.')
 			return
 
-		offset = float(tb.menu_.s001.value())
+		offset = float(tb.contextMenu.s001.value())
 		return pm.polyExtrudeFacet (keepFacesTogether=1, pvx=0, pvy=40.55638003, pvz=33.53797107, divisions=1, twist=0, taper=1, offset=offset, thickness=0, smoothingAngle=30)
 
 
@@ -267,23 +267,23 @@ class Polygons(Init):
 		'''
 		tb = self.current_ui.tb007
 		if state is 'setMenu':
-			tb.menu_.add('QCheckBox', setText='U', setObjectName='chk008', setChecked=True, setHeight_=20, setToolTip='Divide facet: U coordinate.')
-			tb.menu_.add('QCheckBox', setText='V', setObjectName='chk009', setChecked=True, setHeight_=20, setToolTip='Divide facet: V coordinate.')
-			tb.menu_.add('QCheckBox', setText='Tris', setObjectName='chk010', setHeight_=20, setToolTip='Divide facet: Tris.')
+			tb.contextMenu.add('QCheckBox', setText='U', setObjectName='chk008', setChecked=True, setHeight_=20, setToolTip='Divide facet: U coordinate.')
+			tb.contextMenu.add('QCheckBox', setText='V', setObjectName='chk009', setChecked=True, setHeight_=20, setToolTip='Divide facet: V coordinate.')
+			tb.contextMenu.add('QCheckBox', setText='Tris', setObjectName='chk010', setHeight_=20, setToolTip='Divide facet: Tris.')
 			return
 
 		dv=u=v=0
-		if tb.menu_.chk008.isChecked(): #Split U
+		if tb.contextMenu.chk008.isChecked(): #Split U
 			u=2
-		if tb.menu_.chk009.isChecked(): #Split V
+		if tb.contextMenu.chk009.isChecked(): #Split V
 			v=2
 
 		mode = 0 #The subdivision mode. 0=quads, 1=triangles
 		subdMethod = 1 #subdivision type: 0=exponential(traditional subdivision) 1=linear(number of faces per edge grows linearly)
-		if tb.menu_.chk010.isChecked(): #tris
+		if tb.contextMenu.chk010.isChecked(): #tris
 			mode=dv=1
 			subdMethod=0
-		if all([tb.menu_.chk008.isChecked(), tb.menu_.chk009.isChecked()]): #subdivide once into quads
+		if all([tb.contextMenu.chk008.isChecked(), tb.contextMenu.chk009.isChecked()]): #subdivide once into quads
 			dv=1
 			subdMethod=0
 			u=v=0
@@ -301,18 +301,18 @@ class Polygons(Init):
 		'''
 		tb = self.polygons_ui.tb008
 		if state is 'setMenu':
-			tb.menu_.add('QRadioButton', setText='Union', setObjectName='chk011', setHeight_=20, setToolTip='Fuse two objects together.')
-			tb.menu_.add('QRadioButton', setText='Difference', setObjectName='chk012', setChecked=True, setHeight_=20, setToolTip='Indents one object with the shape of another at the point of their intersection.')
-			tb.menu_.add('QRadioButton', setText='Intersection', setObjectName='chk013', setHeight_=20, setToolTip='Keep only the interaction point of two objects.')
+			tb.contextMenu.add('QRadioButton', setText='Union', setObjectName='chk011', setHeight_=20, setToolTip='Fuse two objects together.')
+			tb.contextMenu.add('QRadioButton', setText='Difference', setObjectName='chk012', setChecked=True, setHeight_=20, setToolTip='Indents one object with the shape of another at the point of their intersection.')
+			tb.contextMenu.add('QRadioButton', setText='Intersection', setObjectName='chk013', setHeight_=20, setToolTip='Keep only the interaction point of two objects.')
 			return
 
-		if tb.menu_.chk011.isChecked(): #union
+		if tb.contextMenu.chk011.isChecked(): #union
 			pm.mel.PolygonBooleanIntersection()
 
-		if tb.menu_.chk012.isChecked(): #difference
+		if tb.contextMenu.chk012.isChecked(): #difference
 			pm.mel.PolygonBooleanDifference()
 
-		if tb.menu_.chk013.isChecked(): #intersection
+		if tb.contextMenu.chk013.isChecked(): #intersection
 			pm.mel.PolygonBooleanIntersection()
 
 
@@ -322,12 +322,12 @@ class Polygons(Init):
 		'''
 		tb = self.polygons_ui.tb009
 		if state is 'setMenu':
-			tb.menu_.add('QDoubleSpinBox', setPrefix='Tolerance: ', setObjectName='s005', setMinMax_='.000-100 step.05', setValue=10, setToolTip='Set the max Snap Distance. Vertices with a distance exceeding this value will be ignored.')
-			tb.menu_.add('QCheckBox', setText='Freeze Transforms', setObjectName='chk016', setChecked=True, setToolTip='Freeze Transformations on the object that is being snapped to.')
+			tb.contextMenu.add('QDoubleSpinBox', setPrefix='Tolerance: ', setObjectName='s005', setMinMax_='.000-100 step.05', setValue=10, setToolTip='Set the max Snap Distance. Vertices with a distance exceeding this value will be ignored.')
+			tb.contextMenu.add('QCheckBox', setText='Freeze Transforms', setObjectName='chk016', setChecked=True, setToolTip='Freeze Transformations on the object that is being snapped to.')
 			return
 
-		tolerance = tb.menu_.s005.value()
-		freezetransforms = tb.menu_.chk016.isChecked()
+		tolerance = tb.contextMenu.s005.value()
+		freezetransforms = tb.contextMenu.chk016.isChecked()
 
 		selection = pm.ls(sl=1, objectsOnly=1)
 		if len(selection)>1:
@@ -388,8 +388,10 @@ class Polygons(Init):
 	def b009(self):
 		'''Collapse Component
 		'''
-		# pm.mel.MergeToCenter() #collapse vertices
-		pm.mel.PolygonCollapse()
+		if pm.selectType(query=1, vertex=1):
+			pm.mel.MergeToCenter() #merge vertices
+		else:
+			pm.mel.PolygonCollapse()
 
 
 	@Init.attr
@@ -549,7 +551,7 @@ print(os.path.splitext(os.path.basename(__file__))[0])
 # 		'''
 # 		tb = self.current_ui.tb005
 # 		if state is 'setMenu':
-# 			# tb.menu_.add('QCheckBox', setText='Delete Original', setObjectName='chk007', setChecked=True, setToolTip='Delete original selected faces.')
+# 			# tb.contextMenu.add('QCheckBox', setText='Delete Original', setObjectName='chk007', setChecked=True, setToolTip='Delete original selected faces.')
 # 			return
 
 # 		vertexMask = pm.selectType (query=True, vertex=True)
@@ -580,7 +582,7 @@ print(os.path.splitext(os.path.basename(__file__))[0])
 # 					# print(sel)
 # 					# extractedObject = "extracted_"+sel[0]
 # 					# pm.duplicate (sel[0], name=extractedObject)
-# 					# if tb.menu_.chk007.isChecked(): #delete original
+# 					# if tb.contextMenu.chk007.isChecked(): #delete original
 # 					# 	pm.delete (selFace)
 
 # 					# allFace = [] #populate a list of all faces in the duplicated object

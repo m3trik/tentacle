@@ -28,7 +28,7 @@ class MessageBox(QtWidgets.QMessageBox, Attributes):
 		timeout (int) = time in seconds before the messagebox auto closes.
 	'''
 	def __init__(self, parent=None, location='topMiddle', timeout=2, **kwargs):
-		super().__init__(parent)
+		QtWidgets.QMessageBox.__init__(self, parent)
 
 		self.setWindowFlags(QtCore.Qt.Tool|QtCore.Qt.FramelessWindowHint|QtCore.Qt.WindowStaysOnTopHint) #QtCore.Qt.CustomizeWindowHint|QtCore.Qt.WindowTitleHint
 		self.setAttribute(QtCore.Qt.WA_TranslucentBackground)
@@ -81,7 +81,7 @@ class MessageBox(QtWidgets.QMessageBox, Attributes):
 		style = {
 		'Error:'	: '<hl style="color:red;">Error:</hl>',
 		'Warning:'	: '<hl style="color:yellow;">Warning:</hl>',
-		'Note:'	: '<hl style="color:blue;">Note:</hl>',
+		'Note:'		: '<hl style="color:blue;">Note:</hl>',
 		'Result:'	: '<hl style="color:green;">Result:</hl>',
 		}
 

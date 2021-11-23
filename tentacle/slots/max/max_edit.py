@@ -76,16 +76,16 @@ class Edit(Init):
 		'''
 		tb = self.current_ui.tb000
 		if state is 'setMenu':
-			tb.menu_.add('QCheckBox', setText='N-Gons', setObjectName='chk002', setToolTip='Find N-gons.')
-			tb.menu_.add('QCheckBox', setText='Isolated Vertex', setObjectName='chk003', setChecked=True, setToolTip='Find isolated vertices within specified angle threshold.')
-			tb.menu_.add('QSpinBox', setPrefix='Loose Vertex Angle: ', setObjectName='s006', setMinMax_='1-360 step1', setValue=15, setToolTip='Loose vertex search: Angle Threshold.')
-			tb.menu_.add('QCheckBox', setText='Repair', setObjectName='chk004', setToolTip='Repair matching geometry. (else: select)')
+			tb.contextMenu.add('QCheckBox', setText='N-Gons', setObjectName='chk002', setToolTip='Find N-gons.')
+			tb.contextMenu.add('QCheckBox', setText='Isolated Vertex', setObjectName='chk003', setChecked=True, setToolTip='Find isolated vertices within specified angle threshold.')
+			tb.contextMenu.add('QSpinBox', setPrefix='Loose Vertex Angle: ', setObjectName='s006', setMinMax_='1-360 step1', setValue=15, setToolTip='Loose vertex search: Angle Threshold.')
+			tb.contextMenu.add('QCheckBox', setText='Repair', setObjectName='chk004', setToolTip='Repair matching geometry. (else: select)')
 			return
 
-		isolatedVerts = tb.menu_.chk003.isChecked() #isolated vertices
-		edgeAngle = tb.menu_.s006.value()
-		nGons = tb.menu_.chk002.isChecked() #n-sided polygons
-		repair = tb.menu_.chk004.isChecked() #attempt auto repair errors
+		isolatedVerts = tb.contextMenu.chk003.isChecked() #isolated vertices
+		edgeAngle = tb.contextMenu.s006.value()
+		nGons = tb.contextMenu.chk002.isChecked() #n-sided polygons
+		repair = tb.contextMenu.chk004.isChecked() #attempt auto repair errors
 
 		self.meshCleanup(isolatedVerts=isolatedVerts, edgeAngle=edgeAngle, nGons=nGons, repair=repair)
 
@@ -96,14 +96,14 @@ class Edit(Init):
 		'''
 		tb = self.current_ui.tb001
 		if state is 'setMenu':
-			tb.menu_.add('QCheckBox', setText='For All Objects', setObjectName='chk018', setChecked=True, setToolTip='Delete history on All objects or just those selected.')
-			tb.menu_.add('QCheckBox', setText='Delete Unused Nodes', setObjectName='chk019', setChecked=True, setToolTip='Delete unused nodes.')
-			tb.menu_.add('QCheckBox', setText='Delete Deformers', setObjectName='chk020', setToolTip='Delete deformers.')
+			tb.contextMenu.add('QCheckBox', setText='For All Objects', setObjectName='chk018', setChecked=True, setToolTip='Delete history on All objects or just those selected.')
+			tb.contextMenu.add('QCheckBox', setText='Delete Unused Nodes', setObjectName='chk019', setChecked=True, setToolTip='Delete unused nodes.')
+			tb.contextMenu.add('QCheckBox', setText='Delete Deformers', setObjectName='chk020', setToolTip='Delete deformers.')
 			return
 
-		all_ = tb.menu_.chk018.isChecked()
-		unusedNodes = tb.menu_.chk019.isChecked()
-		deformers = tb.menu_.chk020.isChecked()
+		all_ = tb.contextMenu.chk018.isChecked()
+		unusedNodes = tb.contextMenu.chk019.isChecked()
+		deformers = tb.contextMenu.chk020.isChecked()
 
 		objects = pm.ls(selection=1)
 		if all_:
@@ -138,7 +138,7 @@ class Edit(Init):
 		'''
 		tb = self.current_ui.tb002
 		if state is 'setMenu':
-			tb.menu_.add('QCheckBox', setText='Delete Loop', setObjectName='chk001', setToolTip='Delete the entire edge loop of any components selected.')
+			tb.contextMenu.add('QCheckBox', setText='Delete Loop', setObjectName='chk001', setToolTip='Delete the entire edge loop of any components selected.')
 			return
 
 		level = rt.subObjectLevel
@@ -162,24 +162,6 @@ class Edit(Init):
 
 	@Slots.message
 	@Slots.hideMain
-	def b000(self):
-		'''Object Transform Attributes
-		'''
-		selection = list(rt.selection)
-		if not selection:
-			return 'Error: Operation requires a single selected object.'
-
-		obj = selection[0]
-
-		props = ['pos.x', 'pos.y', 'pos.z', 'rotation.x_rotation', 'rotation.y_rotation', 'rotation.z_rotation', 
-				'scale.x', 'scale.y', 'scale.z', 'center', 'pivot.x', 'pivot.y', 'pivot.z']
-		attrs = {p:getattr(obj, p) for p in props}
-
-		self.setAttributeWindow(obj, attributes=attrs)
-
-
-	@Slots.message
-	@Slots.hideMain
 	def b001(self):
 		'''Object History Attributes: get most recent node
 		'''
@@ -187,7 +169,7 @@ class Edit(Init):
 		if not selection:
 			return 'Error: Operation requires a single selected object.'
 
-		self.setAttributeWindow(selection)
+		self.setAttributeWindow(selection, checkableLabel=True)
 
 
 	def b021(self):
@@ -342,16 +324,16 @@ class Edit(Init):
 		'''
 		tb = self.current_ui.tb003
 		if state is 'setMenu':
-			tb.menu_.add('QCheckBox', setText='-', setObjectName='chk006', setChecked=True, setToolTip='Perform delete along negative axis.')
-			tb.menu_.add('QRadioButton', setText='X', setObjectName='chk007', setChecked=True, setToolTip='Perform delete along X axis.')
-			tb.menu_.add('QRadioButton', setText='Y', setObjectName='chk008', setToolTip='Perform delete along Y axis.')
-			tb.menu_.add('QRadioButton', setText='Z', setObjectName='chk009', setToolTip='Perform delete along Z axis.')
+			tb.contextMenu.add('QCheckBox', setText='-', setObjectName='chk006', setChecked=True, setToolTip='Perform delete along negative axis.')
+			tb.contextMenu.add('QRadioButton', setText='X', setObjectName='chk007', setChecked=True, setToolTip='Perform delete along X axis.')
+			tb.contextMenu.add('QRadioButton', setText='Y', setObjectName='chk008', setToolTip='Perform delete along Y axis.')
+			tb.contextMenu.add('QRadioButton', setText='Z', setObjectName='chk009', setToolTip='Perform delete along Z axis.')
 
-			self.connect_('chk006-9', 'toggled', self.chk006_9, tb.menu_)
+			self.connect_('chk006-9', 'toggled', self.chk006_9, tb.contextMenu)
 			return
 
 		# selection = pm.ls(sl=1, objectsOnly=1)
-		# axis = self.getAxisFromCheckBoxes('chk006-9', tb.menu_)
+		# axis = self.getAxisFromCheckBoxes('chk006-9', tb.contextMenu)
 
 		# pm.undoInfo(openChunk=1)
 		# for obj in selection:

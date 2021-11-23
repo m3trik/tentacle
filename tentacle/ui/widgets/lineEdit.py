@@ -28,7 +28,7 @@ class LineEdit(QtWidgets.QLineEdit, MenuInstance, Attributes):
 	hidden = QtCore.Signal()
 
 	def __init__(self, parent=None, **kwargs):
-		super().__init__(parent)
+		QtWidgets.QLineEdit.__init__(self, parent)
 
 		# self.setCursor(QtGui.QCursor(QtCore.Qt.ArrowCursor))
 		self.setAttributes(**kwargs)

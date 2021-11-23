@@ -103,30 +103,30 @@ class Selection(Init):
 		'''Select Island: tolerance x
 		'''
 		tb = self.current_ui.tb002
-		if tb.menu_.chk003.isChecked():
-			text = tb.menu_.s002.value()
-			tb.menu_.s004.setValue(text)
-			tb.menu_.s005.setValue(text)
+		if tb.contextMenu.chk003.isChecked():
+			text = tb.contextMenu.s002.value()
+			tb.contextMenu.s004.setValue(text)
+			tb.contextMenu.s005.setValue(text)
 
 
 	def s004(self, value=None):
 		'''Select Island: tolerance y
 		'''
 		tb = self.current_ui.tb002
-		if tb.menu_.chk003.isChecked():
-			text = tb.menu_.s004.value()
-			tb.menu_.s002.setValue(text)
-			tb.menu_.s005.setValue(text)
+		if tb.contextMenu.chk003.isChecked():
+			text = tb.contextMenu.s004.value()
+			tb.contextMenu.s002.setValue(text)
+			tb.contextMenu.s005.setValue(text)
 
 
 	def s005(self, value=None):
 		'''Select Island: tolerance z
 		'''
 		tb = self.current_ui.tb002
-		if tb.menu_.chk003.isChecked():
-			text = tb.menu_.s005.value()
-			tb.menu_.s002.setValue(text)
-			tb.menu_.s004.setValue(text)
+		if tb.contextMenu.chk003.isChecked():
+			text = tb.contextMenu.s005.value()
+			tb.contextMenu.s002.setValue(text)
+			tb.contextMenu.s004.setValue(text)
 
 
 	def chk000(self, state=None):
@@ -464,20 +464,20 @@ class Selection(Init):
 		'''
 		tb = self.current_ui.tb000
 		if state is 'setMenu':
-			tb.menu_.add('QRadioButton', setText='Component Ring', setObjectName='chk000', setToolTip='Select component ring.')
-			tb.menu_.add('QRadioButton', setText='Component Loop', setObjectName='chk001', setChecked=True, setToolTip='Select all contiguous components that form a loop with the current selection.')
-			tb.menu_.add('QRadioButton', setText='Path Along Loop', setObjectName='chk009', setToolTip='The path along loop between two selected edges, vertices or UV\'s.')
-			tb.menu_.add('QRadioButton', setText='Shortest Path', setObjectName='chk002', setToolTip='The shortest component path between two selected edges, vertices or UV\'s.')
-			tb.menu_.add('QRadioButton', setText='Border Edges', setObjectName='chk010', setToolTip='Select the object(s) border edges.')
-			tb.menu_.add('QSpinBox', setPrefix='Step: ', setObjectName='s003', setMinMax_='1-100 step1', setValue=1, setToolTip='Step Amount.')
+			tb.contextMenu.add('QRadioButton', setText='Component Ring', setObjectName='chk000', setToolTip='Select component ring.')
+			tb.contextMenu.add('QRadioButton', setText='Component Loop', setObjectName='chk001', setChecked=True, setToolTip='Select all contiguous components that form a loop with the current selection.')
+			tb.contextMenu.add('QRadioButton', setText='Path Along Loop', setObjectName='chk009', setToolTip='The path along loop between two selected edges, vertices or UV\'s.')
+			tb.contextMenu.add('QRadioButton', setText='Shortest Path', setObjectName='chk002', setToolTip='The shortest component path between two selected edges, vertices or UV\'s.')
+			tb.contextMenu.add('QRadioButton', setText='Border Edges', setObjectName='chk010', setToolTip='Select the object(s) border edges.')
+			tb.contextMenu.add('QSpinBox', setPrefix='Step: ', setObjectName='s003', setMinMax_='1-100 step1', setValue=1, setToolTip='Step Amount.')
 			return
 
-		edgeRing = tb.menu_.chk000.isChecked()
-		edgeLoop = tb.menu_.chk001.isChecked()
-		pathAlongLoop = tb.menu_.chk009.isChecked()
-		shortestPath = tb.menu_.chk002.isChecked()
-		borderEdges = tb.menu_.chk010.isChecked()
-		step = tb.menu_.s003.value()
+		edgeRing = tb.contextMenu.chk000.isChecked()
+		edgeLoop = tb.contextMenu.chk001.isChecked()
+		pathAlongLoop = tb.contextMenu.chk009.isChecked()
+		shortestPath = tb.contextMenu.chk002.isChecked()
+		borderEdges = tb.contextMenu.chk010.isChecked()
+		step = tb.contextMenu.s003.value()
 
 		selection = pm.ls(sl=1)
 
@@ -505,10 +505,10 @@ class Selection(Init):
 		'''
 		tb = self.current_ui.tb001
 		if state is 'setMenu':
-			tb.menu_.add('QDoubleSpinBox', setPrefix='Tolerance: ', setObjectName='s000', setMinMax_='0.0-10 step.1', setValue=0.3, setToolTip='Select similar objects or components, depending on selection mode.')
+			tb.contextMenu.add('QDoubleSpinBox', setPrefix='Tolerance: ', setObjectName='s000', setMinMax_='0.0-10 step.1', setValue=0.3, setToolTip='Select similar objects or components, depending on selection mode.')
 			return
 
-		tolerance = str(tb.menu_.s000.value()) #string value because mel.eval is sending a command string
+		tolerance = str(tb.contextMenu.s000.value()) #string value because mel.eval is sending a command string
 
 		mel.eval("doSelectSimilar 1 {\""+ tolerance +"\"}")
 
@@ -519,15 +519,15 @@ class Selection(Init):
 		'''
 		tb = self.current_ui.tb002
 		if state is 'setMenu':
-			tb.menu_.add('QCheckBox', setText='Lock Values', setObjectName='chk003', setChecked=True, setToolTip='Keep values in sync.')
-			tb.menu_.add('QDoubleSpinBox', setPrefix='x: ', setObjectName='s002', setMinMax_='0.00-1 step.01', setValue=0.05, setToolTip='Normal X range.')
-			tb.menu_.add('QDoubleSpinBox', setPrefix='y: ', setObjectName='s004', setMinMax_='0.00-1 step.01', setValue=0.05, setToolTip='Normal Y range.')
-			tb.menu_.add('QDoubleSpinBox', setPrefix='z: ', setObjectName='s005', setMinMax_='0.00-1 step.01', setValue=0.05, setToolTip='Normal Z range.')
+			tb.contextMenu.add('QCheckBox', setText='Lock Values', setObjectName='chk003', setChecked=True, setToolTip='Keep values in sync.')
+			tb.contextMenu.add('QDoubleSpinBox', setPrefix='x: ', setObjectName='s002', setMinMax_='0.00-1 step.01', setValue=0.05, setToolTip='Normal X range.')
+			tb.contextMenu.add('QDoubleSpinBox', setPrefix='y: ', setObjectName='s004', setMinMax_='0.00-1 step.01', setValue=0.05, setToolTip='Normal Y range.')
+			tb.contextMenu.add('QDoubleSpinBox', setPrefix='z: ', setObjectName='s005', setMinMax_='0.00-1 step.01', setValue=0.05, setToolTip='Normal Z range.')
 			return
 
-		rangeX = float(tb.menu_.s002.value())
-		rangeY = float(tb.menu_.s004.value())
-		rangeZ = float(tb.menu_.s005.value())
+		rangeX = float(tb.contextMenu.s002.value())
+		rangeY = float(tb.contextMenu.s004.value())
+		rangeZ = float(tb.contextMenu.s005.value())
 
 		selectedFaces = pm.filterExpand(sm=34)
 		if selectedFaces:
@@ -544,12 +544,12 @@ class Selection(Init):
 		'''
 		tb = tb = self.selection_ui.tb003
 		if state is 'setMenu':
-			tb.menu_.add('QDoubleSpinBox', setPrefix='Angle Low:  ', setObjectName='s006', setMinMax_='0.0-180 step1', setValue=50, setToolTip='Normal angle low range.')
-			tb.menu_.add('QDoubleSpinBox', setPrefix='Angle High: ', setObjectName='s007', setMinMax_='0.0-180 step1', setValue=130, setToolTip='Normal angle high range.')
+			tb.contextMenu.add('QDoubleSpinBox', setPrefix='Angle Low:  ', setObjectName='s006', setMinMax_='0.0-180 step1', setValue=50, setToolTip='Normal angle low range.')
+			tb.contextMenu.add('QDoubleSpinBox', setPrefix='Angle High: ', setObjectName='s007', setMinMax_='0.0-180 step1', setValue=130, setToolTip='Normal angle high range.')
 			return
 
-		angleLow = tb.menu_.s006.value()
-		angleHigh = tb.menu_.s007.value()
+		angleLow = tb.contextMenu.s006.value()
+		angleHigh = tb.contextMenu.s007.value()
 
 		objects = pm.ls(sl=1, objectsOnly=1)
 		edges = Init.getEdgesByNormalAngle(objects, lowAngle=angleLow, highAngle=angleHigh)

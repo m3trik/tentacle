@@ -28,7 +28,7 @@ class TextEdit(QtWidgets.QTextEdit, Attributes, MenuInstance):
 	hidden = QtCore.Signal()
 
 	def __init__(self, parent=None, **kwargs):
-		super().__init__(parent)
+		QtWidgets.QTextEdit.__init__(self, parent)
 
 		self.setCursor(QtGui.QCursor(QtCore.Qt.ArrowCursor))
 

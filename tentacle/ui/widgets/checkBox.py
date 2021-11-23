@@ -23,21 +23,25 @@ Promoting a widget in designer to use a custom class:
 
 
 class CheckBox(QtWidgets.QCheckBox, MenuInstance, Attributes, RichText):
-	''''''
+	'''
+	'''
 	def __init__(self, parent=None, **kwargs):
-		'''
-		'''
-		super().__init__(parent)
-		RichText.__init__(self)
-
-		self.setAttributes(**kwargs)
+		QtWidgets.QCheckBox.__init__(self, parent)
 
 		self.setCheckBoxRichTextStyle(self.isChecked()) #set the initial style for rich text depending on the current state.
 		self.stateChanged.connect(lambda state: self.setCheckBoxRichTextStyle(state)) #set the style on future state changes.
 
+		#override built-ins
+		self.text = self.richText
+		self.setText = self.setRichText
+		self.sizeHint = self.richTextSizeHint
+
+		self.setAttributes(**kwargs)
+
 
 	def setCheckBoxRichTextStyle(self, state):
-		''''''
+		'''
+		'''
 		if self.hasRichText:
 			self.setRichTextStyle(textColor='black' if state>0 else 'white')
 

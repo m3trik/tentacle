@@ -28,7 +28,7 @@ class Label(QtWidgets.QLabel, MenuInstance, Attributes):
 	released = QtCore.Signal()
 
 	def __init__(self, parent=None, **kwargs):
-		super().__init__(parent)
+		QtWidgets.QLabel.__init__(self, parent)
 
 		self.setTextFormat(QtCore.Qt.RichText)
 		self.setAttributes(**kwargs)

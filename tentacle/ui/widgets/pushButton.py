@@ -23,24 +23,72 @@ Promoting a widget in designer to use a custom class:
 
 
 class PushButton(QtWidgets.QPushButton, MenuInstance, Attributes, RichText):
-	''''''
-	def __init__(self, parent=None, **kwargs):
-		super().__init__(parent)
-		RichText.__init__(self, alignment='AlignCenter')
+	'''
+	'''
+	def __init__(self, parent=None, showMenuOnMouseOver=False, **kwargs):
+		QtWidgets.QPushButton.__init__(self, parent)
+
+		self.menu_.position = 'topRight'
+		self.showMenuOnMouseOver = showMenuOnMouseOver
+
+		self.setAttribute(QtCore.Qt.WA_SetStyle) #Indicates that the widget has a style of its own.
+
+		#override built-ins
+		self.text = self.richText
+		self.setText = self.setRichText
+		self.sizeHint = self.richTextSizeHint
 
 		self.setAttributes(**kwargs)
+
+
+	def enterEvent(self, event):
+		'''
+		:Parameters:
+			event = <QEvent>
+		'''
+		if self.showMenuOnMouseOver:
+			self.menu_.show()
+
+		return QtWidgets.QPushButton.enterEvent(self, event)
 
 
 	def mousePressEvent(self, event):
 		'''
 		:Parameters:
-			event=<QEvent>
+			event = <QEvent>
 		'''
 		if event.button()==QtCore.Qt.RightButton:
-			if self.contextMenu:
-				self.contextMenu.show()
+			self.contextMenu.show()
 
 		return QtWidgets.QPushButton.mousePressEvent(self, event)
+
+
+	def leaveEvent(self, event):
+		'''
+		:Parameters:
+			event = <QEvent>
+		'''
+		if self.showMenuOnMouseOver:
+			self.menu_.hide()
+
+		return QtWidgets.QPushButton.leaveEvent(self, event)
+
+
+	def showEvent(self, event):
+		'''
+		:Parameters:
+			event = <QEvent>
+		'''
+		text = self.text().rstrip('*')
+		if self.menu_.containsMenuItems:
+			self.menu_.setTitle(text)
+
+		if self.contextMenu.containsMenuItems:
+			self.contextMenu.setTitle(text)
+			self.setText(text+'*')
+			b = self.contextMenu.addApplyButton()
+
+		return QtWidgets.QPushButton.showEvent(self, event)
 
 
 
@@ -51,8 +99,9 @@ class PushButton(QtWidgets.QPushButton, MenuInstance, Attributes, RichText):
 
 
 if __name__ == "__main__":
-	from PySide2.QtCore import QSize
 	import sys
+	from PySide2.QtCore import QSize
+
 	qApp = QtWidgets.QApplication.instance() #get the qApp instance if it exists.
 	if not qApp:
 		qApp = QtWidgets.QApplication(sys.argv)
@@ -63,8 +112,10 @@ if __name__ == "__main__":
 		setText='QPushButton <b>Rich Text</b>',
 		resize=QSize(125, 45),
 		setWhatsThis='',
-		setVisible=True,
+		# setVisible=True,
 	)
+
+	w.show()
 
 	# w.show()
 	sys.exit(qApp.exec_())

@@ -36,6 +36,7 @@ class StyleSheet(QtCore.QObject):
 			'TEXT_DISABLED'		: 'gray',
 			'TEXT_HOVER'		: 'white',
 			'TEXT_BACKGROUND'	: 'rgb(50,50,50)',
+			'BORDER'			: 'rgb(50,50,50)',
 		},
 
 		'dark': {
@@ -47,6 +48,7 @@ class StyleSheet(QtCore.QObject):
 			'TEXT_DISABLED'		: 'darkGray',
 			'TEXT_HOVER'		: 'white',
 			'TEXT_BACKGROUND'	: 'rgb(50,50,50)',
+			'BORDER'			: 'black',
 		}
 	}
 
@@ -71,7 +73,7 @@ class StyleSheet(QtCore.QObject):
 			QPushButton {
 				border-style: outset;
 				border-radius: 1px;
-				border: 1px solid black;
+				border: 1px solid {BORDER};
 				padding: 0px 5px 0px 5px; /* top, right, bottom, left */
 				background-color: {BACKGROUND};
 				color: {TEXT};
@@ -118,7 +120,7 @@ class StyleSheet(QtCore.QObject):
 			QToolButton {
 				border-style: outset;
 				border-radius: 1px;
-				border: 1px solid black;
+				border: 1px solid {BORDER};
 				padding: 0px 5px 0px 5px; /* top, right, bottom, left */
 				background-color: {BACKGROUND}; /* The background will not appear unless you set the border property. */
 				color: {TEXT};
@@ -231,7 +233,7 @@ class StyleSheet(QtCore.QObject):
 			QComboBox {
 				background: {BACKGROUND};
 				color: {TEXT};
-				border: 1px solid black;
+				border: 1px solid {BORDER};
 				padding: 1px 18px 1px 3px; /* top, right, bottom, left */
 				/* border-radius: 1px; */
 				/* min-width: 0em; */
@@ -240,13 +242,13 @@ class StyleSheet(QtCore.QObject):
 			QComboBox::hover {
 				background: {HOVER};
 				color: {TEXT_HOVER};
-				border: 1px solid black;
+				border: 1px solid {BORDER};
 			}
 
 			QComboBox::open {
 				background: {BACKGROUND};
 				color: {TEXT};
-				border: 1px solid black;
+				border: 1px solid {BORDER};
 				selection-background-color: {HOVER};
 				selection-color: {TEXT_CHECKED};
 			}
@@ -282,7 +284,7 @@ class StyleSheet(QtCore.QObject):
 			QSpinBox {
 			background: {BACKGROUND};
 			color: {TEXT};
-			border: 1px solid black;
+			border: 1px solid {BORDER};
 			}
 
 			QSpinBox::disabled {
@@ -292,7 +294,7 @@ class StyleSheet(QtCore.QObject):
 			QSpinBox::hover {
 				background-color: {HOVER};
 				color: {TEXT_HOVER};
-				border: 1px solid black;
+				border: 1px solid {BORDER};
 			} 
 			''',
 
@@ -300,7 +302,7 @@ class StyleSheet(QtCore.QObject):
 			QDoubleSpinBox {
 			background: {BACKGROUND};
 			color: {TEXT};
-			border: 1px solid black;
+			border: 1px solid {BORDER};
 			}
 
 			QDoubleSpinBox::disabled {
@@ -310,7 +312,7 @@ class StyleSheet(QtCore.QObject):
 			QDoubleSpinBox::hover {
 				background-color: {HOVER};
 				color: {TEXT_HOVER};
-				border: 1px solid black;
+				border: 1px solid {BORDER};
 			} 
 			''',
 
@@ -338,7 +340,7 @@ class StyleSheet(QtCore.QObject):
 			QCheckBox {
 				border-style: outset;
 				border-radius: 1px;
-				border: 1px solid black;
+				border: 1px solid {BORDER};
 				padding: 0px 5px 0px 5px; /* top, right, bottom, left */
 				background-color: {BACKGROUND};
 				color: {TEXT};
@@ -436,7 +438,7 @@ class StyleSheet(QtCore.QObject):
 			QRadioButton {
 				border-style: outset;
 				border-radius: 1px;
-				border: 1px solid black;
+				border: 1px solid {BORDER};
 				padding: 0px 5px 0px 5px; /* top, right, bottom, left */
 				background-color: {BACKGROUND};
 				color: {TEXT};
@@ -526,7 +528,7 @@ class StyleSheet(QtCore.QObject):
 
 		'QLineEdit': '''
 			QLineEdit {
-				border: 1px solid black;
+				border: 1px solid {BORDER};
 				border-radius: 1px;
 				padding: 0 8px;
 				background: {BACKGROUND};
@@ -915,14 +917,14 @@ class StyleSheet(QtCore.QObject):
 			QLabel {
 				background-color: {BACKGROUND};
 				color: {TEXT};
-				border: 1px solid black;
+				border: 1px solid {BORDER};
 				border-radius: 1px;
 				margin: 0px 0px 0px 0px; /* top, right, bottom, left */
 				padding: 0px 5px 0px 5px; /* top, right, bottom, left */
 			}
 
 			QLabel::hover {   
-				border: 1px solid black;
+				border: 1px solid {BORDER};
 				background-color: {HOVER};
 				color: {TEXT_HOVER};
 			}
@@ -1064,10 +1066,11 @@ class StyleSheet(QtCore.QObject):
 					s = self.getStyleSheet(derivedType)
 
 				try:
-					if widget.size().width() // len(widget.text()) if hasattr(widget, 'text') else len(str(widget.value())) > ratio: #ratio of widget size, text length (using integer division).
+					length = len(widget.text()) if hasattr(widget, 'text') else len(str(widget.value())) #a 'NoneType' error will be thrown if the widget does not contain text.
+					if widget.size().width() // length > ratio: #ratio of widget size, text length (using integer division).
 						s = s + self.adjustPadding(derivedType)
-				except (AttributeError, ZeroDivisionError):
-					pass
+				except (AttributeError, ZeroDivisionError) as error:
+					pass; # print (__name__, error, widget.text())
 
 				if widget.styleSheet(): #if the widget has an existing style sheet, append.
 					s = s+widget.styleSheet()

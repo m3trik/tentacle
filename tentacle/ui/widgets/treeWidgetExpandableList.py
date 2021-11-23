@@ -54,7 +54,7 @@ class TreeWidgetExpandableList(QtWidgets.QTreeWidget, Attributes):
 
 
 	def __init__(self, parent=None, stepColumns=True, expandOnHover=False, **kwargs):
-		super().__init__(parent)
+		QtWidgets.QTreeWidget.__init__(self, parent)
 
 		self.refresh=False
 		self._mouseGrabber=None

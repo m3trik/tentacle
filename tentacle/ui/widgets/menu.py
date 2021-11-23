@@ -9,20 +9,24 @@ from attributes import Attributes
 class Menu(QtWidgets.QMenu, Attributes):
 	'''
 	:Parameters:
-		position (str)(obj) = Desired menu position relative to it's parent. 
-			valid values are: 'cursorPos', 'center', 'top', 'bottom', 'right', 'left', 'topLeft', 'topRight', 'bottomRight', 'bottomLeft', or <QWidget>. 
-			Setting a widget to this property, positions the menu in relation to the given widget.
 		menu_type (str) = Menu style. valid parameters are: 'standard', 'context', 'form'
+		title (str) = Text displayed at the menu's header.
+		padding (int) = Area surrounding the menu.
+		childHeight (int) = The minimum height of any child widgets (excluding the 'Apply' button).
+		preventHide (bool) = Prevent the menu from hiding.
+		position (str) = Desired menu position. Valid values are: 
+			'center', 'top', 'bottom', 'right', 'left', 'topLeft', 'topRight', 'bottomRight', 'bottomLeft' (Positions relative to parent (requires parent))
+			'cursorPos' (Positions menu at the curson location)
 	'''
-	def __init__(self, parent=None, menu_type='standard', title='', padding=8, position='bottomLeft', preventHide=False, **kwargs):
-		super().__init__(parent)
+	def __init__(self, parent=None, menu_type='standard', title='', padding=8, childHeight=16, position='cursorPos', preventHide=False, **kwargs):
+		QtWidgets.QMenu.__init__(self, parent)
 
 		self.menu_type = menu_type
 		self.position = position
 		self.preventHide = preventHide
+		self.childHeight = childHeight
 
-		self.draggable_header.setText(title)
-
+		self.setTitle(title)
 		self.setWindowFlags(QtCore.Qt.Tool|QtCore.Qt.FramelessWindowHint|QtCore.Qt.WindowStaysOnTopHint)
 		self.setAttribute(QtCore.Qt.WA_TranslucentBackground)
 		self.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
@@ -52,15 +56,26 @@ class Menu(QtWidgets.QMenu, Attributes):
 		return state
 
 
-	@property
-	def childWidgets(self):
+	#property
+	def getChildWidgets(self, include=[], exclude=[]):
 		'''Get a list of the menu's child widgets.
+
+		:Parameters:
+			include (list) = Include only widgets of the given type(s). ie. ['QCheckBox', 'QRadioButton']
+			exclude (list) = Exclude widgets by type.
 
 		:Return:
 			(list) child widgets.
 		'''
 		if not hasattr(self, '_childWidgets'):
 			self._childWidgets=[]
+
+		if any((include, exclude)):
+			try:
+				self._childWidgets = [w for w in self._childWidgets if not w.__class__.__base__.__name__ in exclude 
+					and (w.__class__.__base__.__name__ in include if include else w.__class__.__base__.__name__ not in include)]
+			except Exception as error:
+				print (__name__+':', 'getChildWidgets:', error)
 
 		return self._childWidgets
 
@@ -95,21 +110,61 @@ class Menu(QtWidgets.QMenu, Attributes):
 		return self._formLayout
 
 
+	def setTitle(self, title=''):
+		'''Set the menu's title to the given string.
+		If no title is given, the fuction will attempt to use the menu parents text.
+
+		:Parameters:
+			title (str) = Text to apply to the menu's header.
+		'''
+		if not title:
+			try:
+				title = self.parent().text().rstrip('*')
+			except AttributeError as error:
+				try:
+					title = self.parent().currentText().rstrip('*')
+				except AttributeError as error:
+					pass
+		self.draggable_header.setText(title)
+
+
 	def addApplyButton(self):
-		'''Add a pushbutton that executes the parent object.
+		'''Add a pushbutton that executes the parent object when pressed.
 
 		:Return:
 			(widget) The added pushbutton, or None if the process failed.
 		'''
 		try:
-			self.draggable_header.setText(self.parent().text())
-			objectName = self.parent().objectName()
-			w = self.add('QPushButton', setText='Apply', setObjectName=objectName)
-			w.setMinimumSize(119, 26)
-		except AttributeError as error:
-			w = None
+			return self._applyButton
 
-		return w
+		except AttributeError as error: #construct and add the button.
+			try:
+				self._applyButton = self.add('QPushButton', setText='Apply', setObjectName=self.parent().objectName(), setToolTip='Execute the command.')
+				self._applyButton.released.connect(lambda p=self.parent(): p.released.emit()) #trigger the released signal on the parent when the apply button is released.
+				self._applyButton.setMinimumSize(119, 26)
+
+			except AttributeError as error: #parent has no signal 'released'.
+				self._applyButton = None
+
+			return self._applyButton
+		
+
+
+	def addUncheckAllButton(self):
+		'''Add a pushbutton that unchecks any checkBoxes when pressed.
+
+		:Return:
+			(widget) The added pushbutton, or None if the process failed.
+		'''
+		try:
+			return self._uncheckAllButton
+
+		except AttributeError as error: #construct and add the button.
+			self._uncheckAllButton = self.add('QPushButton', setText='Disable All', setObjectName='disableAll', setToolTip='Set all unchecked.')
+			self._uncheckAllButton.released.connect(lambda children=self.getChildWidgets(include=['QCheckBox']): [c.setChecked(False) for c in children]) #trigger the released signal on the parent when the apply button is released.
+			# self._uncheckAllButton.setMinimumSize(119, 26)
+
+			return self._uncheckAllButton
 
 
 	def add(self, widget, label='', checkableLabel=False, **kwargs):
@@ -165,12 +220,13 @@ class Menu(QtWidgets.QMenu, Attributes):
 				wAction.setDefaultWidget(w)
 				self.addAction(wAction)
 
-			try: #set minimum child height
-				w.setMinimumSize(w.sizeHint().width(), 16)
-				w.setMaximumSize(9999, 16)
-				l.setMinimumSize(l.sizeHint().width(), 16)
-				l.setMaximumSize(9999, 16)
-			except UnboundLocalError: #'l' does not exist. (not a form menu)
+			#set child height
+			w.setMinimumSize(125, self.childHeight)
+			w.setMaximumSize(125, self.childHeight)
+			try:
+				l.setMinimumSize(l.sizeHint().width(), self.childHeight)
+				l.setMaximumSize(9999, self.childHeight)
+			except UnboundLocalError as error: #'l' does not exist. (not a form menu)
 				pass
 
 			self.childWidgets.append(w) #add the widget to the childWidgets list.
@@ -256,7 +312,6 @@ class Menu(QtWidgets.QMenu, Attributes):
 		try:
 			contextMenuToolTip = '<b>{}</b> - {}'.format(menuItem.text(), menuItem.toolTip())
 			p.setToolTip('{}<br>{}'.format(p.toolTip(), contextMenuToolTip))
-
 		except AttributeError:
 			pass
 
@@ -302,7 +357,7 @@ class Menu(QtWidgets.QMenu, Attributes):
 		:Parameters:
 			event = <QEvent>
 		'''
-		self.resize(self.sizeHint()) #self.setMinimumSize(width, self.sizeHint().height()+5)
+		self.resize(self.sizeHint().width(), self.sizeHint().height()+10) #self.setMinimumSize(width, self.sizeHint().height()+5)
 
 		getCenter = lambda w, p: QtCore.QPoint(p.x()-(w.width()/2), p.y()-(w.height()/4)) #get widget center position.
 
@@ -311,44 +366,51 @@ class Menu(QtWidgets.QMenu, Attributes):
 			pos = QtGui.QCursor.pos() #global position
 			self.move(getCenter(self, pos)) #move to cursor position.
 
-		elif not isinstance(self.position, (type(None), str)): #if self.position is a widget:
+		elif not isinstance(self.position, (type(None), str)): #if a widget is passed to 'position' (move to the widget's position).
 			pos = getattr(self.positionRelativeTo.rect(), self.position)
 			self.move(self.positionRelativeTo.mapToGlobal(pos()))
 
-		elif self.parent(): #if parent: map to parent in the given position. default is 'bottomLeft'
-			pos = getattr(self.parent().rect(), self.position)
+		elif self.parent(): #if parent: map relative to parent.
+			pos = getattr(self.parent().rect(), self.position if not self.position=='cursorPos' else 'bottomLeft')
 			pos = self.parent().mapToGlobal(pos())
-			self.move(getCenter(self, pos))
+			self.move(pos) # self.move(getCenter(self, pos))
 
-		return QtWidgets.QToolButton.showEvent(self, event)
+			if self.getChildWidgets(include=['QCheckBox']): #if the menu contains checkboxes:
+				self.addUncheckAllButton()
+
+		return QtWidgets.QMenu.showEvent(self, event)
+
+
+	#assign properties
+	childWidgets = property(getChildWidgets)
 
 
 
 class MenuInstance(object):
 	'''Get a Menu and contextMenu instance.
 	'''
-	def __init__(self):
-		'''
-		'''
-
 	@property
 	def menu_(self):
 		'''Get the menu.
 		'''
-		if not hasattr(self, '_menu'):
-			self._menu = Menu(self)
+		try:
+			return self._menu
 
-		return self._menu
+		except AttributeError as error:
+			self._menu = Menu(self, position='bottomLeft', menu_type='standard')
+			return self._menu
 
 
 	@property
 	def contextMenu(self):
 		'''Get the context menu.
 		'''
-		if not hasattr(self, '_contextMenu'):
-			self._contextMenu = Menu(self, position='cursorPos', menu_type='context')
+		try:
+			return self._contextMenu
 
-		return self._contextMenu
+		except AttributeError as error:
+			self._contextMenu = Menu(self, position='cursorPos', menu_type='context')
+			return self._contextMenu
 
 
 

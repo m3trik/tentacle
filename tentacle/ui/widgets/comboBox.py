@@ -3,6 +3,7 @@
 from PySide2 import QtCore, QtGui, QtWidgets
 
 from attributes import Attributes
+from text import RichText
 from menu import MenuInstance
 
 
@@ -21,7 +22,7 @@ Promoting a widget in designer to use a custom class:
 '''
 
 
-class ComboBox(QtWidgets.QComboBox, MenuInstance, Attributes):
+class ComboBox(QtWidgets.QComboBox, MenuInstance, Attributes, RichText):
 	'''
 	'''
 	returnPressed = QtCore.Signal()
@@ -29,15 +30,18 @@ class ComboBox(QtWidgets.QComboBox, MenuInstance, Attributes):
 	beforePopupHidden = QtCore.Signal()
 
 	def __init__(self, parent=None, popupStyle='modelView', **kwargs):
-		super().__init__(parent)
+		QtWidgets.QComboBox.__init__(self, parent)
 		'''
 		:Parameters:
 			popupStyle (str) = specify the type of popup menu. default is the standard 'modelView'.
 		'''
 		self.popupStyle = popupStyle
 
-		self.menu_.visible=False #built-in method isVisible() not working.
+		# self.menu_.visible = False #built-in method isVisible() not working.
 		self.view().installEventFilter(self)
+
+		#override built-ins
+		self.currentText = self.richText
 
 		self.setAttributes(**kwargs)
 
@@ -51,6 +55,21 @@ class ComboBox(QtWidgets.QComboBox, MenuInstance, Attributes):
 		return [self.itemText(i) for i in range(self.count())]
 
 
+	def blockSignals_(fn):
+		'''A decorator that blocks signals before executing a function, and unblocks them after.
+
+		:Parameters:
+			fn (obj) = The function to be decorated.
+		'''
+		def wrapper(self, *args, **kwargs):
+			self.blockSignals(True) #to keep clear from triggering currentIndexChanged
+			rtn = fn(self, *args, **kwargs)
+			self.blockSignals(False)
+			return rtn
+		return wrapper
+
+
+	@blockSignals_
 	def addItems_(self, items, header=None, clear=True, ascending=False):
 		'''Add items to the combobox's standard modelView without triggering any signals.
 
@@ -65,13 +84,11 @@ class ComboBox(QtWidgets.QComboBox, MenuInstance, Attributes):
 
 		ex call: comboBox.addItems_(["Import file", "Import Options"], "Import")
 		'''
-		self.blockSignals(True) #to keep clear from triggering currentIndexChanged
 		index = self.currentIndex() if self.currentIndex()>0 else 0 #get the current index before refreshing list. avoid negative values.
 
 		if clear:
 			self.clear()
 
-		# print (type(items))
 		if not isinstance(items, (list, tuple, set)):
 			items = [items]
 
@@ -83,39 +100,46 @@ class ComboBox(QtWidgets.QComboBox, MenuInstance, Attributes):
 					self.addItem(item)
 
 		self.setCurrentIndex(index)
-		self.blockSignals(False)
 
 		return items
 
 
-	def setCurrentItem(self, i):
-		'''Sets the current item from the given item text or index without triggering any signals.
-
-		:Parameters:
-			item (str)(int) = item text or item index
-		'''
-		self.blockSignals(True) #to keep clear from triggering currentIndexChanged
-
-		if isinstance(i, int): #set by item index:
-			self.setCurrentIndex(i)
-		else: #set by item text string:
-			self.setCurrentText(i)
-
-		self.blockSignals(False)
-
-
+	@blockSignals_
 	def setCurrentText(self, text):
 		'''Sets the text for the current index.
 
 		:Parameters:
-			item (str)(int) = item text or item index
+			item (str) = item text.
 		'''
-		self.blockSignals(True) #to keep clear from triggering currentIndexChanged
-
 		index = self.currentIndex()
-		self.setItemText(index, text)
+		self.setRichText(text, index)
 
-		self.blockSignals(False)
+
+	@blockSignals_
+	def setItemText(self, index, text):
+		'''Set the text at the given index.
+		Override for setItemText built-in method.
+
+		:Parameters:
+			item (str) = Item text.
+			index (int) = Item index
+		'''
+		self.setRichText(text, index)
+
+
+	@blockSignals_
+	def setCurrentItem(self, i):
+		'''Sets the current item from the given item text, or index without triggering any signals.
+
+		:Parameters:
+			i (str)(int) = item text or item index
+		'''
+		try: #set by item index:
+			self.setCurrentIndex(i)
+
+		except Exception as error: #set by item text:
+			print (__name__, 'setCurrentItem:', error)
+			self.setCurrentText(i)
 
 
 	def showPopup(self):
@@ -124,19 +148,19 @@ class ComboBox(QtWidgets.QComboBox, MenuInstance, Attributes):
 		self.beforePopupShown.emit()
 
 		if not self.popupStyle=='modelView':
-			if not self.menu_.visible:
+			if not self.menu_.isVisible():
 				self.menu_.show()
-				self.menu_.visible = True
+				# self.menu_.visible = True
 			else:
 				self.menu_.hide()
-				self.menu_.visible = False
+				# self.menu_.visible = False
 			return	
 
 		else:
 			width = self.sizeHint().width()
 			self.view().setMinimumWidth(width)
 
-		super(ComboBox, self).showPopup()
+		QtWidgets.QComboBox.showPopup(self)
 
 
 	def hidePopup(self):
@@ -145,9 +169,9 @@ class ComboBox(QtWidgets.QComboBox, MenuInstance, Attributes):
 
 		if not self.popupStyle=='modelView':
 			self.menu_.hide()
-			self.menu_.visible=False
+			# self.menu_.visible=False
 		else:
-			super(ComboBox, self).hidePopup()
+			QtWidgets.QComboBox.hidePopup(self)
 
 
 	def clear(self):
@@ -155,7 +179,7 @@ class ComboBox(QtWidgets.QComboBox, MenuInstance, Attributes):
 		if not self.popupStyle=='modelView':
 			self.menu_.clear()
 		else:
-			super(ComboBox, self).clear()
+			QtWidgets.QComboBox.clear(self)
 
 
 	def enterEvent(self, event):
@@ -205,6 +229,10 @@ class ComboBox(QtWidgets.QComboBox, MenuInstance, Attributes):
 		:Parameters:
 			event=<QEvent>
 		'''
+		text = self.itemText(0).rstrip('*')
+		if self.contextMenu.containsMenuItems:
+			self.contextMenu.setTitle(text)
+			self.setItemText(0, text+'*') #set text: comboBox
 
 		return QtWidgets.QComboBox.showEvent(self, event)
 
@@ -219,7 +247,7 @@ class ComboBox(QtWidgets.QComboBox, MenuInstance, Attributes):
 			if self.parent().__class__.__name__=='Menu':
 				self.parent().hide()
 
-		return super(ComboBox, self).eventFilter(widget, event)
+		return QtWidgets.QComboBox.eventFilter(self, widget, event)
 
 
 
@@ -235,7 +263,7 @@ if __name__ == "__main__":
 	if not qApp:
 		qApp = QtWidgets.QApplication(sys.argv)
 
-	w=ComboBox(popupStyle='qmenu')
+	w = ComboBox(popupStyle='qmenu')
 	w.show()
 	sys.exit(qApp.exec_())
 
@@ -504,7 +532,7 @@ Promoting a widget in designer to use a custom class:
 	# 		if event.key()==QtCore.Qt.Key_Enter:
 	# 			self.setEditable(False)
 
-	# 	return super(ComboBox, self).eventFilter(widget, event)
+	# 	return QtWidgets.QComboBox.eventFilter(widget, event)
 
 
 
