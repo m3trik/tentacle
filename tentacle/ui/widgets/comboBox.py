@@ -40,9 +40,6 @@ class ComboBox(QtWidgets.QComboBox, MenuInstance, Attributes, RichText):
 		# self.menu_.visible = False #built-in method isVisible() not working.
 		self.view().installEventFilter(self)
 
-		#override built-ins
-		self.currentText = self.richText
-
 		self.setAttributes(**kwargs)
 
 
@@ -102,6 +99,16 @@ class ComboBox(QtWidgets.QComboBox, MenuInstance, Attributes, RichText):
 		self.setCurrentIndex(index)
 
 		return items
+
+
+	@blockSignals_
+	def currentText(self):
+		'''Get the text at the current index.
+
+		:Parameters:
+			item (str) = item text.
+		'''
+		return self.richText()
 
 
 	@blockSignals_

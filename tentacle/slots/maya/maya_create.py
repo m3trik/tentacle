@@ -113,7 +113,7 @@ class Create(Init):
 				node = mel.eval("performPolyPrimitive PlatonicSolid 0;")
 
 		#nurbs
-		if type_=='NURBS':
+		elif type_=='NURBS':
 			if index==0: #Cube
 				node = pm.nurbsCube(ch=1, d=3, hr=1, p=(0, 0, 0), lr=1, w=1, v=1, ax=(0, 1, 0), u=1)
 			elif index==1: #Sphere
@@ -132,7 +132,7 @@ class Create(Init):
 				node = pm.nurbsSquare(c=(0, 0, 0), ch=1, d=3, sps=1, sl1=1, sl2=1, nr=(0, 1, 0))
 
 		#lights
-		if type_=='Light':
+		elif type_=='Light':
 			if index==0: #Ambient
 				node = pm.ambientLight() #defaults: 1, 0.45, 1,1,1, "0", 0,0,0, "1"
 			elif index==1: #Directional
@@ -165,7 +165,6 @@ class Create(Init):
 		pm.selectMode(object=1) #place scene select type in object mode.
 		pm.select(node) #select the transform node so that you can see any edits
 
-		print (node, self.getHistoryNode(node))
 		return self.getHistoryNode(node)
 
 

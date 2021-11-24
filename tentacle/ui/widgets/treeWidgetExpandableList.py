@@ -57,9 +57,9 @@ class TreeWidgetExpandableList(QtWidgets.QTreeWidget, Attributes):
 		QtWidgets.QTreeWidget.__init__(self, parent)
 
 		self.refresh=False
-		self._mouseGrabber=None
 		self.widgets={}
 		self._gcWidgets={}
+		self._mouseGrabber=None
 
 		# self.setMouseTracking(True)
 
@@ -88,7 +88,7 @@ class TreeWidgetExpandableList(QtWidgets.QTreeWidget, Attributes):
 			    background-color: none;
 			}''')
 
-		self.setAttributes(**kwargs)
+		# self.setAttributes(**kwargs)
 
 
 	def add(self, widget, header='root', childHeader=None, refresh=False, **kwargs):

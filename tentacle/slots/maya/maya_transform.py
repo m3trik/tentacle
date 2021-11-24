@@ -235,7 +235,7 @@ class Transform(Init):
 	def chk010(self, state=None):
 		'''Align Vertices: Auto Align
 		'''
-		if self.transform_ui.chk010.isChecked():
+		if self.transform_ui.tb001.contextMenu.chk010.isChecked():
 			self.toggleWidgets(setDisabled='chk029-31')
 		else:
 			self.toggleWidgets(setEnabled='chk029-31')

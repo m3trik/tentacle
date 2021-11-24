@@ -105,7 +105,7 @@ class Cameras(Init):
 			[tree.add('QLabel', 'Options', setText=s) for s in l]
 			return
 
-		if not any([wItem, column]): #refresh list items -----------------------------
+		if not any([wItem, column]): # code here will run before each show event. generally used to refresh tree contents. -----------------------------
 			try:
 				l = [str(cam.name) for cam in rt.cameras if 'Target' not in cam.name] #List scene Cameras
 			except AttributeError:

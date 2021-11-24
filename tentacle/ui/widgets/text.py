@@ -110,7 +110,7 @@ class RichText(object):
 		return label
 
 
-	def _text(self, index=0):
+	def _text(self, index=None):
 		'''Gets the text for the widget or widget item.
 
 		:Parameters:
@@ -121,22 +121,24 @@ class RichText(object):
 
 		except AttributeError as error:
 			if index:
-				self.__class__.__base__.itemText(self, index)
+				return self.__class__.__base__.itemText(self, index)
 			else:
-				self.__class__.__base__.currentText(self)
+				return self.__class__.__base__.currentText(self)
 
 
-	def richText(self, index=0):
+	def richText(self, index=None):
 		'''
 		:Return:
 			(str) the widget's or the label's text.
 		'''
-		if self.hasRichText:
+		try:
+			index = index if index else 0
 			label = self.richTextLabelDict[index]
 			return label.text()
+		except KeyError as error: #no rich text at that index. return standard text.
+			pass
 
-		else:
-			return self._text() #return standard widget text
+		return self._text(index) #return standard widget text
 
 
 	def _setText(self, text, index=0):

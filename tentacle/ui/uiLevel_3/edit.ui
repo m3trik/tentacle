@@ -625,85 +625,85 @@
               </property>
              </widget>
             </item>
+           </layout>
+          </widget>
+         </item>
+         <item>
+          <widget class="QGroupBox" name="transfer_crease_sets_2">
+           <property name="minimumSize">
+            <size>
+             <width>125</width>
+             <height>0</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>125</width>
+             <height>999</height>
+            </size>
+           </property>
+           <property name="title">
+            <string>Attributes</string>
+           </property>
+           <layout class="QVBoxLayout" name="verticalLayout_5">
+            <property name="spacing">
+             <number>0</number>
+            </property>
+            <property name="leftMargin">
+             <number>0</number>
+            </property>
+            <property name="topMargin">
+             <number>0</number>
+            </property>
+            <property name="rightMargin">
+             <number>0</number>
+            </property>
+            <property name="bottomMargin">
+             <number>0</number>
+            </property>
             <item>
-             <widget class="QGroupBox" name="transfer_crease_sets_2">
+             <widget class="ComboBox" name="cmb001">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
               <property name="minimumSize">
                <size>
-                <width>125</width>
-                <height>0</height>
+                <width>0</width>
+                <height>20</height>
                </size>
               </property>
               <property name="maximumSize">
                <size>
-                <width>125</width>
-                <height>999</height>
+                <width>999</width>
+                <height>20</height>
                </size>
               </property>
-              <property name="title">
-               <string>Attributes</string>
+              <property name="toolTip">
+               <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;History nodes for the currently selected object(s).&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
               </property>
-              <layout class="QVBoxLayout" name="verticalLayout_5">
-               <property name="spacing">
-                <number>0</number>
+              <property name="editable">
+               <bool>false</bool>
+              </property>
+              <property name="maxVisibleItems">
+               <number>40</number>
+              </property>
+              <property name="maxCount">
+               <number>200</number>
+              </property>
+              <property name="sizeAdjustPolicy">
+               <enum>QComboBox::AdjustToContentsOnFirstShow</enum>
+              </property>
+              <property name="frame">
+               <bool>true</bool>
+              </property>
+              <item>
+               <property name="text">
+                <string>History</string>
                </property>
-               <property name="leftMargin">
-                <number>0</number>
-               </property>
-               <property name="topMargin">
-                <number>0</number>
-               </property>
-               <property name="rightMargin">
-                <number>0</number>
-               </property>
-               <property name="bottomMargin">
-                <number>0</number>
-               </property>
-               <item>
-                <widget class="ComboBox" name="cmb001">
-                 <property name="sizePolicy">
-                  <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                   <horstretch>0</horstretch>
-                   <verstretch>0</verstretch>
-                  </sizepolicy>
-                 </property>
-                 <property name="minimumSize">
-                  <size>
-                   <width>0</width>
-                   <height>20</height>
-                  </size>
-                 </property>
-                 <property name="maximumSize">
-                  <size>
-                   <width>999</width>
-                   <height>20</height>
-                  </size>
-                 </property>
-                 <property name="toolTip">
-                  <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;History nodes for the currently selected object(s).&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-                 </property>
-                 <property name="editable">
-                  <bool>false</bool>
-                 </property>
-                 <property name="maxVisibleItems">
-                  <number>40</number>
-                 </property>
-                 <property name="maxCount">
-                  <number>200</number>
-                 </property>
-                 <property name="sizeAdjustPolicy">
-                  <enum>QComboBox::AdjustToContentsOnFirstShow</enum>
-                 </property>
-                 <property name="frame">
-                  <bool>true</bool>
-                 </property>
-                 <item>
-                  <property name="text">
-                   <string>History</string>
-                  </property>
-                 </item>
-                </widget>
-               </item>
-              </layout>
+              </item>
              </widget>
             </item>
            </layout>

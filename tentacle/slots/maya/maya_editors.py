@@ -40,7 +40,7 @@ class Editors(Init):
 
 			l = ['Modeling Toolkit', 'Paint Effects', 'UV Editor', 'XGen Editor', 'Crease Sets']
 			[tree.add('QLabel', 'Modeling Editors', setText=s) for s in l]
-			
+
 			l = ['Graph Editor', 'Time Editor', 'Trax Editor', 'Camera Sequencer', 'Dope Sheet', 'Quick Rig', 'HumanIK', 'Shape Editor', 'Pose Editor', 'Expression Editor']
 			[tree.add('QLabel', 'Animation Editors', setText=s) for s in l]
 
@@ -49,11 +49,9 @@ class Editors(Init):
 
 			l = ['Animation Layers', 'Camera Sets', 'Character Sets', 'Deformer Sets', 'Display Layers', 'Dynamic Relationships', 'Light Linking: Light Centric','Light Linking: Object Centric', 'Partitions', 'Render Pass Sets', 'Sets', 'UV Linking: Texture-Centric', 'UV Linking: UV-Centric', 'UV Linking: Paint Effects/UV', 'UV Linking: Hair/UV']
 			[tree.add('QLabel', 'Relationship Editors', setText=s) for s in l]
-
 			return
 
-		if not any([wItem, column]): #refresh list items -----------------------------
-
+		if not any([wItem, column]): # code here will run before each show event. generally used to refresh tree contents. -----------------------------
 			return
 
 		widget = tree.getWidget(wItem, column)
@@ -104,7 +102,7 @@ class Editors(Init):
 			if text=='Evaluation Toolkit':
 				pm.mel.EvaluationToolkit()
 
-		if header=='Modeling Editors':
+		elif header=='Modeling Editors':
 			if text=='Modeling Toolkit':
 				pm.mel.OpenModelingToolkit()
 			if text=='Paint Effects':
@@ -116,7 +114,7 @@ class Editors(Init):
 			if text=='Crease Sets':
 				pm.mel.OpenCreaseEditor()
 
-		if header=='Animation Editors':
+		elif header=='Animation Editors':
 			if text=='Graph Editor':
 				pm.mel.GraphEditor()
 			if text=='Time Editor':
@@ -138,7 +136,7 @@ class Editors(Init):
 			if text=='Expression Editor':
 				pm.mel.ExpressionEditor()
 
-		if header=='Rendering Editors':
+		elif header=='Rendering Editors':
 			if text=='Render View':
 				pm.mel.RenderViewWindow()
 			if text=='Render Settings':
@@ -156,7 +154,7 @@ class Editors(Init):
 			if text=='Shading Group Attributes':
 				pm.mel.ShadingGroupAttributeEditor()
 
-		if header=='Relationship Editors':
+		elif header=='Relationship Editors':
 			if text=='Animation Layers':
 				pm.mel.AnimLayerRelationshipEditor()
 			if text=='Camera Sets':

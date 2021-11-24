@@ -20,7 +20,7 @@ class Main(Init):
 			tree.convert(tree.getTopLevelItems(), 'QLabel') #construct the tree using the existing contents.
 			return
 
-		if not any([wItem, column]): #refresh list items -----------------------------
+		if not any([wItem, column]): # code here will run before each show event. generally used to refresh tree contents. -----------------------------
 			recentCommandInfo = self.tcl.sb.prevCommand(docString=1, toolTip=1, as_list=1) #Get a list of any recent command names and their toolTips
 			[tree.add('QLabel', 'Recent Commands', refresh=True, setText=s[0], setToolTip=s[1]) for s in recentCommandInfo]
 			return

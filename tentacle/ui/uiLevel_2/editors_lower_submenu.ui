@@ -65,10 +65,10 @@
       <widget class="TreeWidgetExpandableList" name="tree000">
        <property name="geometry">
         <rect>
-         <x>235</x>
+         <x>230</x>
          <y>190</y>
-         <width>111</width>
-         <height>371</height>
+         <width>119</width>
+         <height>391</height>
         </rect>
        </property>
        <property name="layoutDirection">

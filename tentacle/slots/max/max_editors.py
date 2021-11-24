@@ -66,7 +66,7 @@ class Editors(Init):
 
 			return
 
-		if not any([wItem, column]): #refresh list items -----------------------------
+		if not any([wItem, column]): # code here will run before each show event. generally used to refresh tree contents. -----------------------------
 
 			return
 

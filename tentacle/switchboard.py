@@ -68,26 +68,33 @@ class Switchboard(QtCore.QObject):
 	def sbDict(self):
 		'''Get the full switchboard dict.
 		'''
-		if not hasattr(self, '_sbDict'):
-			self._sbDict={}
+		try:
+			return self._sbDict
 
-		return self._sbDict
+		except AttributeError as error:
+			self._sbDict = {}
+			return self._sbDict
 
 
-	def addWidgets(self, name, widgets=None, **kwargs):
+	def addWidgets(self, name, widgets=None, include=[], exclude=[], filterByBaseType=False, **kwargs):
 		'''Extends the fuctionality of the 'addWidget' method to support adding multiple widgets.
 		If widgets is None; the method will attempt to add all widgets from the ui of the given name.
 
 		:Parameters:
 			name (str) = name of the parent ui to construct connections for.
 			widgets (list) = widget objects to be added. If none are given all objects from the ui will be added.
+			include (list) = Widget types to include. All other will be omitted. Exclude takes dominance over include. Meaning, if the same attribute is in both lists, it will be excluded.
+			exclude (list) = Widget types to exclude. ie. ['QWidget', 'QAction', 'QLabel', 'QPushButton', 'QListWidget']
+			filterByBaseType (bool) = When using include, or exclude; Filter by base class name, or derived class name. ie. 'QLayout'(base) or 'QGridLayout'(derived)
 		'''
 		if widgets is None:
 			ui = self.getUi(name)
 			widgets = ui.__dict__.values() #each object in the ui:
 
-		for widget in widgets:
-			self.addWidget(name, widget, **kwargs)
+		for w in widgets:
+			typ = w.__class__.__base__.__name__ if filterByBaseType else self._getDerivedType(w)
+			if not typ in exclude and (typ in include if include else typ not in include):
+				self.addWidget(name, w, **kwargs)
 
 
 	def addWidget(self, uiName, widget, **kwargs):
@@ -107,24 +114,24 @@ class Switchboard(QtCore.QObject):
 		'''
 		uiName = str(uiName) #prevent unicode
 
-		if widget in self.widgets(uiName):
-			print ('# Error: {}: {} already contains {}. Widget skipped. #'.format(__name__, uiName, widget))
+		if widget in self.widgets(uiName): 
+			print ('# Error: {}: in addWidget(): {} already contains {}. Widget skipped. #'.format(__name__, uiName, widget))
 			return
 
 		self.setAttributes(widget, **kwargs) #set any passed in keyword args for the widget.
 
 		objectName = str(widget.objectName())
 
-		class_ = self.getClassFromUiName(uiName) #get the corresponding slot class from the ui name.
+		class_ = self.getClassFromUiName(uiName) #get the corresponding slot class from the ui name. ie. class <Polygons> from uiName 'polygons'.
 		derivedType = self._getDerivedType(widget) #the base class of any custom widgets.  ie. 'QPushButton' from 'PushButton'
 		signalType = self.getDefaultSignalType(derivedType) #get the default signal type for the widget as a string. ie. 'released' from 'QPushButton'
 		signalInstance = getattr(widget, signalType, None) #add signal to widget. ie. <widget.valueChanged>
-		method = getattr(class_, objectName, None) #use 'objectName' to get the corresponding method of the same name. ie. get method <b006> from widget 'b006' else None
+		method = getattr(class_, objectName, None) #use 'objectName' to get the corresponding method of the same name. ie. method <b006> from widget 'b006' else None
 		docString = getattr(method, '__doc__', None)
 		prefix = self.prefix(objectName) #returns an string alphanumberic prefix if objectName startswith a series of alphanumberic chars, and is followed by three integers. ie. 'cmb' from 'cmb015'
+		isTracked = True if derivedType in ['QWidget', 'QLabel', 'QPushButton', 'QCheckBox','QMenu'] else False
 
-		#add values to widgets
-		self.widgets(uiName).update(
+		self.widgets(uiName).update( #add the widget and it's values.
 					{widget:{
 						'widgetName':objectName, 
 						'widgetType':widget.__class__.__name__,
@@ -132,8 +139,10 @@ class Switchboard(QtCore.QObject):
 						'signalInstance':signalInstance,
 						'method': method,
 						'prefix':prefix,
-						'docString':docString}})
-
+						'docString':docString,
+						'tracked':isTracked,
+						}
+					})
 		# print(self.sbDict[uiName]['widgets'][widget])
 		return self.sbDict[uiName]['widgets'][widget] #return the stored widget.
 
@@ -155,7 +164,8 @@ class Switchboard(QtCore.QObject):
 
 			try: #remove the widget attribute from the ui if it exists.
 				delattr(ui, w.objectName())
-			except: pass
+			except Exception as error:
+				pass; # print (__name__+':','removeWidgets():', widgets, uiName, error)
 
 
 	def widgets(self, uiName, query=False):
@@ -185,7 +195,7 @@ class Switchboard(QtCore.QObject):
 
 		if not self.widgets(uiName, query=True):
 			self.sbDict[uiName]['widgets'] = {}
-			self.addWidgets(uiName) #construct the signals and slots for the ui
+			self.addWidgets(uiName) #, exclude=['QLayout', 'QBoxLayout'], filterByBaseType=True) #construct the signals and slots for the ui
 
 		return self.sbDict[uiName]['widgets']
 
@@ -214,7 +224,7 @@ class Switchboard(QtCore.QObject):
 				getattr(obj, attr)(value)
 
 			except AttributeError:
-				pass
+				pass; # print (__name__+':','setAttributes():', obj, order, kwargs, error)
 
 
 	def setUniqueObjectName(self, widget, uiName=None, _num=None):
@@ -598,7 +608,7 @@ class Switchboard(QtCore.QObject):
 					if next((v for v in value['widgets'].values() if v['method'] is method), None):
 						return name
 				except KeyError:
-					pass
+					pass; # print (__name__+':','getUiNameFromMethod():', method, error)
 
 	#Generator
 	def getUiNameFromKey(self, nestedKey, _uiName=None, _nested_dict=None):
@@ -867,13 +877,14 @@ class Switchboard(QtCore.QObject):
 			return None
 
 	#Property
-	def getWidget(self, objectName=None, ui=None):
+	def getWidget(self, objectName=None, ui=None, tracked=False):
 		'''Case insensitive. Get the widget object/s from the given ui and objectName.
 
 		:Parameters:
 			objectName (str) = optional name of widget. ie. 'b000'
 			ui (str)(obj) = ui, or name of ui. ie. 'polygons'. If no nothing is given, the current ui will be used.
-						 	A ui object can be passed into this parameter, which will be used to get it's corresponding name. 
+						 	A ui object can be passed into this parameter, which will be used to get it's corresponding name.
+			tracked (bool) = Return only those widgets defined as 'tracked'. 
 
 		:Return:
 			(obj) if objectName:  widget object with the given name from the current ui.
@@ -890,8 +901,36 @@ class Switchboard(QtCore.QObject):
 
 		if objectName:
 			return next((w if shiboken2.isValid(w) else self.removeWidgets(w, ui) for w in self.sbDict[ui]['widgets'].values() if w['widgetName']==objectName), None)
+		elif tracked:
+			return [w for w in self.sbDict[ui]['widgets'].copy() if self.isTracked(w, ui) and shiboken2.isValid(w)]
 		else:
-			return [w if shiboken2.isValid(w) else self.removeWidgets(w, ui) for w in self.sbDict[ui]['widgets'].copy()] #'copy' is used in place of 'keys' RuntimeError: dictionary changed size during iteration
+			return [w for w in self.sbDict[ui]['widgets'].copy() if shiboken2.isValid(w)] #'copy' is used in place of 'keys' RuntimeError: dictionary changed size during iteration
+
+
+	def isTracked(self, widget, ui=None):
+		'''Query if the widget is mouse tracked.
+
+		:Parameters:
+			widget (obj) = The widget to query the tracking state of.
+			ui (str)(obj) = ui, or name of ui. ie. 'polygons'. If no nothing is given, the current ui will be used.
+						 	A ui object can be passed into this parameter, which will be used to get it's corresponding name.
+
+		:Return:
+			(bool)
+		'''
+		if not ui:
+			ui = self.getUiName()
+		if not isinstance(ui, str):
+			ui = self.getUiName(ui)
+
+		if not 'widgets' in self.sbDict[ui]:
+			self.widgets(ui) #construct the signals and slots for the ui
+
+		try:
+			return self.sbDict[ui]['widgets'][widget]['tracked']
+
+		except KeyError as error:
+			return False
 
 
 	def getWidgetFromMethod(self, method, existing=None):
@@ -1347,10 +1386,9 @@ class Switchboard(QtCore.QObject):
 			_nested_dict (dict) = internal use.
 
 		:Return:
-			(list) parent keys
+			(list) parent keys. ex. ['polygons', 'widgets', '<widgets.ComboBox.ComboBox object at 0x0000016B6C078908>', 'widgetName']
 
-		ex. call:
-		getParentKeys('cmb002') returns all parent keys of the given value. ex. ['polygons', 'widgets', '<widgets.ComboBox.ComboBox object at 0x0000016B6C078908>', 'widgetName'] ...
+		ex. call: getParentKeys('cmb002') returns all parent keys of the given value.
 		'''
 		if _nested_dict is None:
 			_nested_dict = self.sbDict
@@ -1464,14 +1502,14 @@ class Switchboard(QtCore.QObject):
 
 	@staticmethod
 	def getParentWidgets(widget, objectNames=False):
-		'''Get the parent widget at the top of the hierarchy for the given widget.
+		'''Get the all parent widgets of the given widget.
 
 		:Parameters:
 			widget (obj) = QWidget
-			index (int) = (optional) index. Last index is top level.
+			objectNames (bool) = Return as objectNames.
 
 		:Return:
-			(list)
+			(list) Object(s) or objectName(s)
 		'''
 		parentWidgets=[]
 		w = widget
@@ -1489,7 +1527,7 @@ class Switchboard(QtCore.QObject):
 
 		:Parameters:
 			widget (obj) = QWidget
-			index (int) = (optional) index. Last index is top level.
+			index (int) = Last index is top level.
 
 		:Return:
 			(QWidget)

@@ -27,7 +27,7 @@ class Tcl(QtWidgets.QStackedWidget, StyleSheet):
 	qApp = QtWidgets.QApplication
 
 	def __init__(self, parent=None, preventHide=False, key_show='Key_F12'):
-		super().__init__(parent)
+		QtWidgets.QStackedWidget.__init__(self, parent)
 
 		self.preventHide = preventHide
 		self.key_show = getattr(QtCore.Qt, key_show)

@@ -100,7 +100,7 @@ class Cameras(Init):
 			[tree.add('QLabel', 'Per Camera Visibility', setText=s) for s in l]
 			return
 
-		if not any([wItem, column]): #refresh list items -----------------------------
+		if not any([wItem, column]): # code here will run before each show event. generally used to refresh tree contents. -----------------------------
 			try:
 				cameras = pm.ls(type=('camera'), l=True) #Get all cameras
 				startup_cameras = [camera for camera in cameras if pm.camera(camera.parent(0), startupCamera=True, q=True)] #filter all startup / default cameras
@@ -108,6 +108,7 @@ class Cameras(Init):
 				non_startup_cameras_transform_pynodes = map(lambda x: x.parent(0), non_startup_cameras_pynodes) #get respective transform names
 				non_startup_cameras = map(str, non_startup_cameras_pynodes) #non-PyNode, regular string name list
 				non_startup_cameras_transforms = map(str, non_startup_cameras_transform_pynodes)
+
 			except AttributeError:
 				non_startup_cameras=[]
 			[tree.add('QLabel', 'Cameras', refresh=True, setText=s) for s in non_startup_cameras]
@@ -274,11 +275,12 @@ class Cameras(Init):
 
 
 	@staticmethod
+	@Slots.message
 	def groupCameras():
 		'''Group Cameras
 		'''
 		if pm.objExists('cameras'):
-			print("Group 'cameras' already exists")
+			return "# Error: Group 'cameras' already exists. #"
 
 		else:
 			pm.group('side', 'front', 'top', 'persp', world=1, name='cameras')
