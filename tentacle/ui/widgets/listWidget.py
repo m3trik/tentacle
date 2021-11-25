@@ -47,7 +47,7 @@ class ListWidget(QtWidgets.QListWidget, Attributes):
 			if callable(w):
 				w = w() #ex. QtWidgets.QAction(self) object.
 
-		self.setAttributes(kwargs, w) #set any additional given keyword args for the widget.
+		self.setAttributes(w, **kwargs) #set any additional given keyword args for the widget.
 
 		type_ = w.__class__.__name__
 

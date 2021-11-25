@@ -120,7 +120,7 @@ class RichText(object):
 			return self.__class__.__base__.text(self)
 
 		except AttributeError as error:
-			if index:
+			if index is not None:
 				return self.__class__.__base__.itemText(self, index)
 			else:
 				return self.__class__.__base__.currentText(self)

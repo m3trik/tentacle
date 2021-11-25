@@ -61,8 +61,6 @@ class TreeWidgetExpandableList(QtWidgets.QTreeWidget, Attributes):
 		self._gcWidgets={}
 		self._mouseGrabber=None
 
-		# self.setMouseTracking(True)
-
 		self.stepColumns=stepColumns
 		self.expandOnHover=expandOnHover
 
@@ -88,7 +86,7 @@ class TreeWidgetExpandableList(QtWidgets.QTreeWidget, Attributes):
 			    background-color: none;
 			}''')
 
-		# self.setAttributes(**kwargs)
+		self.setAttributes(**kwargs)
 
 
 	def add(self, widget, header='root', childHeader=None, refresh=False, **kwargs):
@@ -145,7 +143,7 @@ class TreeWidgetExpandableList(QtWidgets.QTreeWidget, Attributes):
 		widget.setObjectName(self._createObjectName(wItem, column)) #set an dynamically generated objectName.
 		widget.installEventFilter(self)
 
-		self.setAttributes(kwargs, widget) #set any additional given keyword args for the widget.
+		self.setAttributes(widget, **kwargs) #set any additional given keyword args for the widget.
 
 		return widget
 
@@ -236,9 +234,10 @@ class TreeWidgetExpandableList(QtWidgets.QTreeWidget, Attributes):
 		columnWidths=[]
 		for column in set(columns):
 			if column==0 and not resizeFirstColumn:
-				if not hasattr(self, '_columnWidth0'):
-					self._columnWidth0 = self.columnWidth(column)
-				columnWidth = self._columnWidth0
+				try: #if not hasattr(self, '_columnWidth0'):
+					columnWidth = self._columnWidth0
+				except AttributeError as error:
+					columnWidth = self._columnWidth0 = self.columnWidth(column)
 			else:
 				columnWidth = self.sizeHintForColumn(column) #else get the size hint
 			self.setColumnWidth(column, columnWidth)

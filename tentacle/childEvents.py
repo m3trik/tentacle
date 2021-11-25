@@ -99,21 +99,22 @@ class EventFactoryFilter(QtCore.QObject):
 				# print (widgetName if widgetName else widget)
 
 				if widgetType in ('PushButton', 'PushButtonDraggable', 'ComboBox', 'TreeWidgetExpandableList', 'LineEdit'): #widget types to initialize menus for.
-					try: #if callable(method): #attempt to clear any current menu items.
-						method.clear()
-					except AttributeError as error:
-						pass; #print ("# Error: {}: in initWidgets(): Call: {}.clear() failed: {}. #".format(__name__, method, error))
+					if method:
+						try: #if callable(method): #attempt to clear any current menu items.
+							method.clear()
+						except AttributeError as error:
+							pass; #print ("# Error: {}.EventFactoryFilter.initWidgets(): Call: {}.clear() failed: {}. #".format(__name__, method, error))
 
-					try: #attempt to construct the widget's contextMenu.
-						method('setMenu')
-					except Exception as error:
-						pass; #print ("# Error: {}: in initWidgets(): Call: {}('setMenu') failed: {}. #".format(__name__, method, error))
+						try: #attempt to construct the widget's contextMenu.
+							method('setMenu')
+						except Exception as error:
+							pass; print ("# Error: {}.EventFactoryFilter.initWidgets(): Call: {}('setMenu') failed: {}. #".format(__name__, method, error))
 
 					try: #add the child widgets of popup menus.
 						self.addWidgets(uiName, widget.menu_.childWidgets)
 						self.addWidgets(uiName, widget.contextMenu.childWidgets)
 					except AttributeError as error:
-						pass; #print ("# Error: {}: in initWidgets() at self.addWidgets: {}: {}: {}. #".format(__name__, uiName, widgetName, error))
+						pass; #print ("# Error: {}.EventFactoryFilter.initWidgets() at self.addWidgets: {}: {}: {}. #".format(__name__, uiName, widgetName, error))
 
 				if derivedType in ('QPushButton', 'QLabel'): #widget types to resize and center.
 					if uiLevel<3:
@@ -162,7 +163,7 @@ class EventFactoryFilter(QtCore.QObject):
 							ui.mainWindow.grabMouse()
 							self._mouseGrabber = ui.mainWindow
 			except (AttributeError, TypeError) as error:
-				pass; #print ('# Error: {}: in mouseTracking(): {}. #'.format(__name__, error))
+				pass; #print ('# Error: {}.EventFactoryFilter.mouseTracking(): {}. #'.format(__name__, error))
 
 
 		widgetsUnderMouse.sort(key=len) #sort 'widgetsUnderMouse' by ascending length so that lowest level child widgets get grabMouse last.
@@ -262,7 +263,7 @@ class EventFactoryFilter(QtCore.QObject):
 					self.tcl.sb.addWidget(self.uiName, self.widget)
 					self.tcl.sb.getMethod(self.uiName, self.widgetName)()
 				except (AttributeError, NameError, TypeError) as error:
-					print('# Error: {}: in ShowEvent(): Call to {}.{} failed: {}. #'.format(__name__, self.uiName, self.widgetName, error))
+					print ('# Error: {}.EventFactoryFilter.ShowEvent(): Call to {}.{} failed: {}. #'.format(__name__, self.uiName, self.widgetName, error))
 
 			if self.widgetType=='TreeWidgetExpandableList':
 				self.addWidgets(self.uiName, self.widget.newWidgets) #removeWidgets=self.widget._gcWidgets.keys()

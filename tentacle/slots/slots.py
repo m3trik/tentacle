@@ -65,11 +65,8 @@ class Slots(QtCore.QObject):
 		for name in Slots.unpackNames(objectNames):
 			try:
 				objects.append(getattr(class_, name)) #equivilent to:(self.current_ui.m000)
-			except AttributeError as error: 
-				if showError_:
-					print("slots: 'getObjects:' objects.append(getattr({0}, {1})) {2}".format(class_, name, error))
-				else:
-					pass
+			except AttributeError as error:
+				print("slots: 'getObjects:' objects.append(getattr({0}, {1})) {2}".format(class_, name, error)) if showError_ else None
 
 		return objects
 
