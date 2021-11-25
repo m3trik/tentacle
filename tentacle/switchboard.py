@@ -21,10 +21,7 @@ class Switchboard(QtCore.QObject):
 	Ui name/and it's corresponding slot class name should always be the same. (case insensitive) ie. 'polygons' (ui name) will look to build connections to 'Polygons' (class name). 
 	Widget objectName/corresponding class method name need to be the same. ie. 'b000' (widget objectName) will try to connect to <b000> class method.
 
-	Ui files are looked for in a sub dir named 'ui'. naming convention is: <ui name>.ui ie. polygons.ui
-	Custom widget modules are looked for in a sub directory named 'widgets'. naming convention: <name capital first char> widget class inside <name lowercase first char>.py module. ie. Label class inside label.py module.
-
-	A widgets dict is built as needed for each class when connectSlots (or any other dependant) is called.
+	A widgets dict is constructed as needed for each class when connectSlots (or any other dependant) is called.
 
 	nested dictionary structure:
 	_sbDict = {	
@@ -52,6 +49,31 @@ class Switchboard(QtCore.QObject):
 		'gcProtect' : [items protected from garbage collection]
 	}
 	'''
+
+	defaultSignals = { #the default signal to be associated with each widget type.
+		'QAction':'triggered',
+		'QLabel':'released',
+		'QPushButton':'released',
+		'QListWidget':'itemClicked',
+		'QTreeWidget':'itemClicked',
+		'QComboBox':'currentIndexChanged',
+		'QSpinBox':'valueChanged',
+		'QDoubleSpinBox':'valueChanged',
+		'QCheckBox':'stateChanged',
+		'QRadioButton':'toggled',
+		'QLineEdit':'returnPressed',
+		'QTextEdit':'textChanged',
+		'QProgressBar':'valueChanged',
+		}
+
+	trackedWidgets = [ #widget types for mouse tracking.
+		'QWidget', 
+		'QLabel', 
+		'QPushButton', 
+		'QCheckBox',
+		'QMenu',
+	]
+
 
 	def __init__(self, parent=None):
 		super().__init__(parent)
@@ -129,7 +151,7 @@ class Switchboard(QtCore.QObject):
 		method = getattr(class_, objectName, None) #use 'objectName' to get the corresponding method of the same name. ie. method <b006> from widget 'b006' else None
 		docString = getattr(method, '__doc__', None)
 		prefix = self.prefix(objectName) #returns an string alphanumberic prefix if objectName startswith a series of alphanumberic chars, and is followed by three integers. ie. 'cmb' from 'cmb015'
-		isTracked = True if derivedType in ['QWidget', 'QLabel', 'QPushButton', 'QCheckBox','QMenu'] else False
+		isTracked = True if derivedType in self.trackedWidgets else False
 
 		self.widgets(uiName).update( #add the widget and it's values.
 					{widget:{
@@ -252,9 +274,6 @@ class Switchboard(QtCore.QObject):
 			uiName = self.getUiName()
 
 		widgetType = widget.__class__.__name__
-		prefixTypes = {'QPushButton':'b', 'QPushButton':'v', 'QPushButton':'i', 'QPushButton':'tb', 'QComboBox':'cmb', 
-			'QCheckBox':'chk', 'QRadioButton':'chk', 'QPushButton(checkable)':'chk', 'QSpinBox':'s', 'QDoubleSpinBox':'s',
-			'QLabel':'lbl', 'QWidget':'w', 'QTreeWidget':'tree', 'QListWidget':'list', 'QLineEdit':'line', 'QTextEdit':'text'}
 
 		num=0
 		widgetName = self.setUniqueObjectName(_num=num)
@@ -322,24 +341,8 @@ class Switchboard(QtCore.QObject):
 		:Return:
 			(str) signal ie. 'released'
 		'''
-		signals = { #the default signal to be associated with each widget type.
-			'QAction':'triggered',
-			'QLabel':'released',
-			'QPushButton':'released',
-			'QListWidget':'itemClicked',
-			'QTreeWidget':'itemClicked',
-			'QComboBox':'currentIndexChanged',
-			'QSpinBox':'valueChanged',
-			'QDoubleSpinBox':'valueChanged',
-			'QCheckBox':'stateChanged',
-			'QRadioButton':'toggled',
-			'QLineEdit':'returnPressed',
-			'QTextEdit':'textChanged',
-			'QProgressBar':'valueChanged',
-		}
-
 		try: #if the widget type has a default signal assigned in the signals dict; get the signal.
-			signal = signals[widgetType]
+			signal = self.defaultSignals[widgetType]
 		except KeyError:
 			signal = ''
 
@@ -900,9 +903,11 @@ class Switchboard(QtCore.QObject):
 			self.widgets(ui) #construct the signals and slots for the ui
 
 		if objectName:
-			return next((w if shiboken2.isValid(w) else self.removeWidgets(w, ui) for w in self.sbDict[ui]['widgets'].values() if w['widgetName']==objectName), None)
+			return next((w if shiboken2.isValid(w) 
+				else self.removeWidgets(w, ui) for w in self.sbDict[ui]['widgets'].values() 
+					if w['widgetName']==objectName and self.isTracked(w, ui) if tracked), None)
 		elif tracked:
-			return [w for w in self.sbDict[ui]['widgets'].copy() if self.isTracked(w, ui) and shiboken2.isValid(w)]
+			return [w for w in self.sbDict[ui]['widgets'].copy() if (self.isTracked(w, ui) and shiboken2.isValid(w))]
 		else:
 			return [w for w in self.sbDict[ui]['widgets'].copy() if shiboken2.isValid(w)] #'copy' is used in place of 'keys' RuntimeError: dictionary changed size during iteration
 
@@ -914,7 +919,6 @@ class Switchboard(QtCore.QObject):
 			widget (obj) = The widget to query the tracking state of.
 			ui (str)(obj) = ui, or name of ui. ie. 'polygons'. If no nothing is given, the current ui will be used.
 						 	A ui object can be passed into this parameter, which will be used to get it's corresponding name.
-
 		:Return:
 			(bool)
 		'''
@@ -1432,9 +1436,13 @@ class Switchboard(QtCore.QObject):
 	def prefix(self, widget, prefix=None):
 		'''Get or Query the widgets prefix.
 		A valid prefix is returned when the given widget's objectName startswith an alphanumeric char, followed by at least three integers. ex. i000 (alphanum,int,int,int)
+		if the second 'prefix' arg is given, then the method checks if the given objectName has the prefix, and the return value is bool.
+
+		prefixTypes = {'QPushButton':'b', 'QPushButton':'v', 'QPushButton':'i', 'QPushButton':'tb', 'QComboBox':'cmb', 
+			'QCheckBox':'chk', 'QRadioButton':'chk', 'QPushButton(checkable)':'chk', 'QSpinBox':'s', 'QDoubleSpinBox':'s',
+			'QLabel':'lbl', 'QWidget':'w', 'QTreeWidget':'tree', 'QListWidget':'list', 'QLineEdit':'line', 'QTextEdit':'text'}
 
 		ex. prefix('b023') returns 'b'
-		if the second 'prefix' arg is given, then the method checks if the given objectName has the prefix, and the return value is bool.
 
 		:Parameters:
 			widget (str)(obj) = widget or it's objectName.
@@ -1446,7 +1454,7 @@ class Switchboard(QtCore.QObject):
 			else:
 				(str) alphanumeric 'string' 
 
-		ex call: sb.prefix(widget, ['b', 'chk', '_'])
+		ex call: sb.prefix(widget, ['b', 'chk', '_']) #return True if the given widget's objectName starts with 'b', 'chk', '_' and is followed by 3 or more integers, else False.
 		'''
 		if prefix is not None: #check the actual prefix against the given prefix and return bool.
 			prefix = self.list_(prefix) #if 'widgets' isn't a list, convert it to one.
