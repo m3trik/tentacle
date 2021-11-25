@@ -434,27 +434,7 @@ def tree000(self, wItem=None, column=None):
 	'BUGFIXES'
 # ======================================================================
 '''
-Scene> convert case:  use a combobox instead of a lineedit.
-
-
-# Traceback (most recent call last):
-#   File "O:/Cloud/Code/_scripts/tentacle\tentacle\slots\maya\maya_transform.py", line 238, in chk010
-#     if self.transform_ui.chk010.isChecked():
-# AttributeError: 'PySide2.QtWidgets.QMainWindow' object has no attribute 'chk010'
-# Traceback (most recent call last):
-#   File "O:/Cloud/Code/_scripts/tentacle\tentacle\slots\maya\maya_transform.py", line 238, in chk010
-#     if self.transform_ui.chk010.isChecked():
-# AttributeError: 'PySide2.QtWidgets.QMainWindow' object has no attribute 'chk010'
-
-
 Expandable tree widget now broken somehow.
-
-
-O:/Cloud/Code/_scripts/tentacle\tentacle\slots\maya\maya_transform.py line 166, in chk023
-#     self.transform_ui.chk023.setText(text[state])
-# AttributeError: 'PySide2.QtWidgets.QMainWindow' object has no attribute 'chk023'
-
-# attribute window breaks when reused in submenus
 
 
 #maya_uv: transfer uv's

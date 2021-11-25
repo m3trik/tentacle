@@ -84,10 +84,10 @@ class Scene(Init):
 		'''
 		tb = self.current_ui.tb000
 		if state is 'setMenu':
-			tb.contextMenu.add('QLineEdit', setPlaceholderText='Case', setText='capitalize', setObjectName='t004', setToolTip='Desired case using python case operators. valid: upper, lower, caplitalize, swapcase, title')
+			tb.contextMenu.add('QComboBox', addItems=['capitalize', 'upper', 'lower', 'swapcase', 'title'], setObjectName='cmb001', setToolTip='Set desired python case operator.')
 			return
 
-		case = tb.contextMenu.t004.text().lower()
+		case = tb.contextMenu.cmb001.currentText()
 
 		selection = pm.ls(sl=1)
 		objects = selection if selection else pm.ls(objectsOnly=1)

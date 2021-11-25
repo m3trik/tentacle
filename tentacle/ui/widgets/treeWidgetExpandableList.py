@@ -802,7 +802,7 @@ if __name__ == '__main__':
 	tree.add('QLabel', options, setText='Opt1')
 	tree.add('QLabel', options, setText='Opt2')
 
-	# tree.show()
+	tree.show()
 	sys.exit(qApp.exec_())
 
 
