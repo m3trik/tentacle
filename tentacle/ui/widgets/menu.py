@@ -26,7 +26,7 @@ class Menu(QtWidgets.QMenu, Attributes):
 		self.childHeight = childHeight
 
 		self.setTitle(title)
-		self.setWindowFlags(QtCore.Qt.Tool|QtCore.Qt.FramelessWindowHint|QtCore.Qt.WindowStaysOnTopHint)
+		self.setWindowFlags(QtCore.Qt.Tool|QtCore.Qt.FramelessWindowHint)
 		self.setAttribute(QtCore.Qt.WA_TranslucentBackground)
 		self.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
 

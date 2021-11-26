@@ -137,7 +137,7 @@ class Switchboard(QtCore.QObject):
 		uiName = str(uiName) #prevent unicode
 
 		if widget in self.widgets(uiName): 
-			print ('# Error: {}: in addWidget(): {} already contains {}. Widget skipped. #'.format(__name__, uiName, widget))
+			print ('# Error: {}.addWidget(): {} already contains {}. Widget skipped. #'.format(__name__, uiName, widget))
 			return
 
 		self.setAttributes(widget, **kwargs) #set any passed in keyword args for the widget.

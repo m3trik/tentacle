@@ -434,7 +434,25 @@ def tree000(self, wItem=None, column=None):
 	'BUGFIXES'
 # ======================================================================
 '''
-Expandable tree widget now broken somehow.
+
+# Traceback (most recent call last):
+#   File "O:/Cloud/Code/_scripts/tentacle\tentacle\childEvents.py", line 236, in eventFilter
+#     getattr(self, eventName)(event) #handle the event locally. #ie. self.enterEvent(event)
+#   File "O:/Cloud/Code/_scripts/tentacle\tentacle\childEvents.py", line 348, in mouseReleaseEvent
+#     ui = self.tcl.setUi(self.widget.whatsThis()) #switch the stacked layout to the given ui.
+#   File "O:/Cloud/Code/_scripts/tentacle\tentacle\tcl.py", line 83, in setUi
+#     ui = self.sb.getUi(name, setAsCurrent=True) #Get the ui of the given name, and set it as the current ui in the switchboard module, which amoung other things, sets connections.
+#   File "O:/Cloud/Code/_scripts/tentacle\tentacle\switchboard.py", line 489, in getUi
+#     self.uiName = uiName #set the property for the current ui name.
+#   File "O:/Cloud/Code/_scripts/tentacle\tentacle\switchboard.py", line 532, in setUiName
+#     index = self.getUiIndex(index) #get index using name
+#   File "O:/Cloud/Code/_scripts/tentacle\tentacle\switchboard.py", line 673, in getUiIndex
+#     return self.uiList(names=True).index(uiName)
+# ValueError: 'main_lower' is not in list
+
+
+maya_file
+# Error: tentacle.childEvents.EventFactoryFilter.initWidgets(): Call: <bound method File.tb000 of <maya_file.File(0x1e0b2f0ca40) at 0x000001E0DB9769C8>>('setMenu') failed: 'PySide2.QtWidgets.QMainWindow' object has no attribute 'draggable_header'. #
 
 
 #maya_uv: transfer uv's

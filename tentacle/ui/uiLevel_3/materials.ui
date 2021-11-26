@@ -150,7 +150,7 @@
         </size>
        </property>
        <property name="title">
-        <string> Scene Materials</string>
+        <string/>
        </property>
        <layout class="QGridLayout" name="gridLayout">
         <property name="leftMargin">
@@ -168,44 +168,32 @@
         <property name="spacing">
          <number>0</number>
         </property>
-        <item row="6" column="0">
-         <widget class="QPushButton" name="b002">
+        <item row="7" column="1">
+         <widget class="PushButton" name="tb002">
           <property name="enabled">
            <bool>true</bool>
           </property>
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
           <property name="minimumSize">
            <size>
-            <width>60</width>
+            <width>116</width>
             <height>20</height>
            </size>
           </property>
           <property name="maximumSize">
            <size>
-            <width>60</width>
+            <width>116</width>
             <height>20</height>
            </size>
           </property>
           <property name="toolTip">
-           <string>Set material shader ID from selection.</string>
+           <string>Assign stored material shader ID</string>
           </property>
           <property name="text">
-           <string>Get</string>
-          </property>
-          <property name="iconSize">
-           <size>
-            <width>18</width>
-            <height>18</height>
-           </size>
+           <string>Assign Current</string>
           </property>
          </widget>
         </item>
-        <item row="2" column="0" colspan="3">
+        <item row="3" column="0" colspan="4">
          <widget class="ComboBox" name="cmb002">
           <property name="sizePolicy">
            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
@@ -242,12 +230,12 @@
           </property>
           <item>
            <property name="text">
-            <string>Scene Materials</string>
+            <string>None</string>
            </property>
           </item>
          </widget>
         </item>
-        <item row="6" column="2" colspan="2">
+        <item row="7" column="2" colspan="2">
          <widget class="PushButton" name="tb000">
           <property name="enabled">
            <bool>true</bool>
@@ -278,8 +266,8 @@
           </property>
          </widget>
         </item>
-        <item row="2" column="3">
-         <widget class="PushButton" name="tb001">
+        <item row="7" column="0">
+         <widget class="QPushButton" name="b002">
           <property name="enabled">
            <bool>true</bool>
           </property>
@@ -291,59 +279,80 @@
           </property>
           <property name="minimumSize">
            <size>
-            <width>20</width>
+            <width>60</width>
             <height>20</height>
            </size>
           </property>
           <property name="maximumSize">
            <size>
-            <width>20</width>
+            <width>60</width>
             <height>20</height>
            </size>
           </property>
-          <property name="font">
-           <font>
-            <pointsize>8</pointsize>
-           </font>
-          </property>
           <property name="toolTip">
-           <string>Select all components with the same material.  
- If nothing is selected; search all geometry.</string>
+           <string>Set material shader ID from selection.</string>
           </property>
           <property name="text">
-           <string/>
+           <string>Get</string>
           </property>
           <property name="iconSize">
            <size>
-            <width>16</width>
-            <height>16</height>
+            <width>18</width>
+            <height>18</height>
            </size>
           </property>
          </widget>
         </item>
-        <item row="6" column="1">
-         <widget class="PushButton" name="tb002">
-          <property name="enabled">
-           <bool>true</bool>
+        <item row="2" column="0" colspan="4">
+         <widget class="ComboBox" name="cmb001">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
           </property>
           <property name="minimumSize">
            <size>
-            <width>116</width>
+            <width>233</width>
             <height>20</height>
            </size>
           </property>
           <property name="maximumSize">
            <size>
-            <width>116</width>
+            <width>999</width>
             <height>20</height>
            </size>
           </property>
           <property name="toolTip">
-           <string>Assign stored material shader ID</string>
+           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:10pt; font-weight:600;&quot;&gt;Set Material mode:&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Scene Materials: 	&lt;/span&gt;List all scene materials.&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;ID Map Materials:&lt;/span&gt; 	List ID map materials.&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Favorite Materials&lt;/span&gt;: 	List Favorite materials.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
           </property>
-          <property name="text">
-           <string>Assign Current</string>
+          <property name="maxVisibleItems">
+           <number>40</number>
           </property>
+          <property name="maxCount">
+           <number>500</number>
+          </property>
+          <property name="sizeAdjustPolicy">
+           <enum>QComboBox::AdjustToContents</enum>
+          </property>
+          <property name="frame">
+           <bool>true</bool>
+          </property>
+          <item>
+           <property name="text">
+            <string>Scene Materials</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>ID Map Materials</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>Favorite Materials</string>
+           </property>
+          </item>
          </widget>
         </item>
        </layout>

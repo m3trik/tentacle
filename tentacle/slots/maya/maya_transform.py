@@ -47,6 +47,7 @@ class Transform(Init):
 
 		if index is 'setMenu':
 			cmb.popupStyle = 'qmenu'
+			cmb.menu_.setTitle('Constaints')
 
 			#query and set current states:
 			edge_constraint = True if pm.xformConstraint(query=1, type=1)=='edge' else False
@@ -100,6 +101,7 @@ class Transform(Init):
 
 		if index is 'setMenu':
 			cmb.popupStyle = 'qmenu'
+			cmb.menu_.setTitle('Snap')
 
 			moveValue = pm.manipMoveContext('Move', q=True, snapValue=True)
 			scaleValue = pm.manipScaleContext('Scale', q=True, snapValue=True)

@@ -71,7 +71,7 @@ class ComboBox(QtWidgets.QComboBox, MenuInstance, Attributes, RichText):
 		'''Add items to the combobox's standard modelView without triggering any signals.
 
 		:Parameters:
-			items (str)(list) = A string or list of strings to fill the comboBox with.
+			items (str)(list)(dict) = A string, list of strings, or dict with 'string':data pairs to fill the comboBox with.
 			header (str) = An optional value for the first index of the comboBox's list.
 			clear (bool) = Clear any previous items before adding new.
 			ascending (bool) = Insert in ascending order. New item(s) will be added to the top of the list.
@@ -86,15 +86,20 @@ class ComboBox(QtWidgets.QComboBox, MenuInstance, Attributes, RichText):
 		if clear:
 			self.clear()
 
-		if not isinstance(items, (list, tuple, set)):
-			items = [items]
+		if header:
+			self.insertItem(-1, header)
 
-		for item in [header]+items:
+		if isinstance(items, str):
+			items = [items]
+		if isinstance(items, (list, tuple, set)):
+			items = {i:None for i in items}
+
+		for item, data in items.items():
 			if item is not None:
 				if ascending:
-					self.insertItem(0, item)
+					self.insertItem(0, item, data)
 				else:
-					self.addItem(item)
+					self.addItem(item, data)
 
 		self.setCurrentIndex(index)
 
@@ -108,7 +113,8 @@ class ComboBox(QtWidgets.QComboBox, MenuInstance, Attributes, RichText):
 		:Parameters:
 			item (str) = item text.
 		'''
-		return self.richText()
+		index = self.currentIndex()
+		return self.richText(index)
 
 
 	@blockSignals_

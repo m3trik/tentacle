@@ -35,10 +35,10 @@ class Edit(Init):
 			text = cmb.items[index]
 			if text=='Cleanup':
 				pm.mel.CleanupPolygonOptions()
-			if text=='Transfer: Attribute Values':
+			elif text=='Transfer: Attribute Values':
 				pm.mel.TransferAttributeValuesOptions()
 				# mel.eval('performTransferAttributes 1;') #Transfer Attributes Options
-			if text=='Transfer: Shading Sets':
+			elif text=='Transfer: Shading Sets':
 				pm.mel.performTransferShadingSets(1)
 			cmb.setCurrentIndex(0)
 

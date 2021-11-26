@@ -48,6 +48,8 @@ class Transform(Init):
 
 		if index is 'setMenu':
 			cmb.popupStyle = 'qmenu'
+			cmb.menu_.setTitle('Constaints')
+
 			cmb.contextMenu.add('QRadioButton', setObjectName='chk017', setText='Standard', setChecked=True, setToolTip='')
 			cmb.contextMenu.add('QRadioButton', setObjectName='chk018', setText='Body Shapes', setToolTip='')
 			cmb.contextMenu.add('QRadioButton', setObjectName='chk019', setText='NURBS', setToolTip='')
@@ -117,22 +119,21 @@ class Transform(Init):
 
 		if index is 'setMenu':
 			cmb.popupStyle = 'qmenu'
+			cmb.menu_.setTitle('Snap')
+
 			cmb.contextMenu.add(self.tcl.wgts.Label, setText='Disable All', setObjectName='lbl001', setToolTip='Disable all transform snapping.')
 
-			try:
-				moveValue = pm.manipMoveContext('Move', q=True, snapValue=True)
-				scaleValue = pm.manipScaleContext('Scale', q=True, snapValue=True)
-				rotateValue = pm.manipRotateContext('Rotate', q=True, snapValue=True)
+			moveValue = pm.manipMoveContext('Move', q=True, snapValue=True)
+			scaleValue = pm.manipScaleContext('Scale', q=True, snapValue=True)
+			rotateValue = pm.manipRotateContext('Rotate', q=True, snapValue=True)
 
-				list_ = [('chk021', 'Move <b>Off</b>'), ('s021', 'increment:', moveValue, '1.00-1000 step2.8125'), 
-						('chk022', 'Scale <b>Off</b>'), ('s022', 'increment:', scaleValue, '1.00-1000 step2.8125'), 
-						('chk023', 'Rotate <b>Off</b>'), ('s023', 'degrees:', rotateValue, '1.00-360 step2.8125')]
+			list_ = [('chk021', 'Move <b>Off</b>'), ('s021', 'increment:', moveValue, '1.00-1000 step2.8125'), 
+					('chk022', 'Scale <b>Off</b>'), ('s022', 'increment:', scaleValue, '1.00-1000 step2.8125'), 
+					('chk023', 'Rotate <b>Off</b>'), ('s023', 'degrees:', rotateValue, '1.00-360 step2.8125')]
 
-				widgets = [cmb.menu_.add(self.tcl.wgts.CheckBox, setObjectName=i[0], setText=i[1], setTristate=1) if len(i) is 2 
-						else cmb.menu_.add('QDoubleSpinBox', setObjectName=i[0], setPrefix=i[1], setValue=i[2], setMinMax_=i[3], setDisabled=1) for i in list_]
+			widgets = [cmb.menu_.add(self.tcl.wgts.CheckBox, setObjectName=i[0], setText=i[1], setTristate=1) if len(i) is 2 
+					else cmb.menu_.add('QDoubleSpinBox', setObjectName=i[0], setPrefix=i[1], setValue=i[2], setMinMax_=i[3], setDisabled=1) for i in list_]
 
-			except NameError as error:
-				print(error)
 			return
 
 

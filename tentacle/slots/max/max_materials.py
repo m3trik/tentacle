@@ -10,24 +10,9 @@ class Materials(Init):
 	def __init__(self, *args, **kwargs):
 		super().__init__(*args, **kwargs)
 
-		self.currentMats=None
 		self.randomMat=None
 
 		self.materials_submenu_ui.b003.setVisible(False)
-
-
-	@property
-	def currentMat(self):
-		'''Get the current material using the current index of the materials combobox.
-		'''
-		text = self.materials_ui.cmb002.currentText()
-
-		try:
-			result = self.currentMats[text]
-		except:
-			result = None
-
-		return result
 
 
 	def draggable_header(self, state=None):
@@ -40,24 +25,6 @@ class Materials(Init):
 			dh.contextMenu.add(self.tcl.wgts.PushButton, setText='Relink Scene Bitmaps', setObjectName='tb003', setToolTip='Repair broken bitmap file links for any scene materials. If no materials are selected, all scene materials will be used.')
 			dh.contextMenu.add(self.tcl.wgts.PushButton, setText='Relink Library Bitmaps', setObjectName='tb004', setToolTip='Repair broken bitmap file links for all libraries in a given directory.')
 			return
-
-
-	def chk007(self, state=None):
-		'''Assign Material: Current
-		'''
-		self.materials_ui.tb002.setText('Assign Current')
-
-
-	def chk008(self, state=None):
-		'''Assign Material: Random
-		'''
-		self.materials_ui.tb002.setText('Assign Random')
-
-
-	def chk009(self, state=None):
-		'''Assign Material: New
-		'''
-		self.materials_ui.tb002.setText('Assign New')
 
 
 	def cmb000(self, index=-1):
@@ -76,6 +43,18 @@ class Materials(Init):
 			cmb.setCurrentIndex(0)
 
 
+	def cmb001(self, index=-1):
+		'''Material list: Filter
+		'''
+		cmb = self.materials_ui.cmb001
+
+		if index is 'setMenu':
+			list_ = ['Scene Materials', 'ID Map Materials', 'Favorite Materials']
+			cmb.addItems_(list_)
+			cmb.currentIndexChanged.connect(self.cmb002) #refresh cmb002 contents.
+			return
+
+
 	def cmb002(self, index=-1):
 		'''Material list
 
@@ -83,7 +62,7 @@ class Materials(Init):
 			index (int) = parameter on activated, currentIndexChanged, and highlighted signals.
 		'''
 		cmb = self.materials_ui.cmb002
-		tb = self.materials_ui.tb001
+
 		b = self.materials_submenu_ui.b003
 
 		if index is 'setMenu':
@@ -91,28 +70,27 @@ class Materials(Init):
 			cmb.contextMenu.add(self.tcl.wgts.Label, setText='Rename', setObjectName='lbl001', setToolTip='Rename the current material.')
 			cmb.contextMenu.add(self.tcl.wgts.Label, setText='Delete', setObjectName='lbl002', setToolTip='Delete the current material.')
 			cmb.contextMenu.add(self.tcl.wgts.Label, setText='Delete All Unused Materials', setObjectName='lbl003', setToolTip='Delete All unused materials.')
-			cmb.beforePopupShown.connect(self.cmb002) #refresh comboBox contents before showing it's popup.
+			cmb.beforePopupShown.connect(self.cmb002) #refresh comboBox contents before showing it's menu.
 			cmb.returnPressed.connect(lambda: self.lbl001(setEditable=False))
+			cmb.currentIndexChanged.connect(lambda: cmb.contextMenu.setTitle(cmb.currentText())) #set the popup title to be the current materials name.
 			return
- 
-		try:
-			sceneMaterials = tb.contextMenu.chk000.isChecked()
-			idMapMaterials = tb.contextMenu.chk001.isChecked()
-		except: #if the toolbox hasn't been built yet: default to sceneMaterials
-			sceneMaterials = True
 
-		if sceneMaterials:
+		mode = self.materials_ui.cmb001.currentText()
+		if mode=='Scene Materials':
 			materials = self.getSceneMaterials()
 
-		elif idMapMaterials:
+		elif mode=='ID Map Materials':
 			materials = self.getSceneMaterials(startingWith=['ID_'])
 
+		if mode=='Favorite Materials':
+			currentMats = {m:m for m in ['standardMaterial']}
+		else:
+			currentMats = {mat.name:mat for mat in sorted(list(set(materials))) if hasattr(mat,'name')}
 
-		self.currentMats = {mat.name:mat for mat in sorted(list(set(materials))) if hasattr(mat,'name')}
-		cmb.addItems_(self.currentMats.keys(), clear=True)
+		cmb.addItems_(currentMats, clear=True)
 
 		#create and set icons with color swatch
-		for i, mat in enumerate(self.currentMats.keys()):
+		for i, mat in enumerate(cmb.items):
 			icon = Materials.getColorSwatchIcon(mat)
 			cmb.setItemIcon(i, icon) if icon else None
 
@@ -155,24 +133,22 @@ class Materials(Init):
 		'''
 		tb = self.current_ui.tb000
 		if state is 'setMenu':
-			tb.contextMenu.add('QCheckBox', setText='Current Material', setObjectName='chk010', setChecked=True, setToolTip='Use the current material, <br>else use the current viewport selection to get a material.')
 			tb.contextMenu.add('QCheckBox', setText='All Objects', setObjectName='chk003', setToolTip='Search all scene objects, or only those currently selected.')
 			tb.contextMenu.add('QCheckBox', setText='Shell', setObjectName='chk005', setToolTip='Select entire shell.')
 			tb.contextMenu.add('QCheckBox', setText='Invert', setObjectName='chk006', setToolTip='Invert Selection.')
 			return
 
-		if not self.currentMat:
+		mat = self.materials_ui.cmb002.currentData()
+		if not mat:
 			return 'Error: No Material Selection.'
 
 		shell = tb.contextMenu.chk005.isChecked() #Select by material: shell
 		invert = tb.contextMenu.chk006.isChecked() #Select by material: invert
 		allObjects = tb.contextMenu.chk003.isChecked() #Search all scene objects
-		currentMaterial = tb.contextMenu.chk010.isChecked() #Use the current material instead of the material of the current viewport selection.
 
 		objects = rt.selection if not allObjects else None
-		material = self.currentMat if currentMaterial else None
-
-		self.selectByMaterialID(self.currentMat, objects, shell=shell, invert=invert)
+		
+		self.selectByMaterialID(mat, objects, shell=shell, invert=invert)
 
 
 	def tb001(self, state=None):
@@ -201,6 +177,9 @@ class Materials(Init):
 			tb.contextMenu.add('QRadioButton', setText='Current Material', setObjectName='chk007', setChecked=True, setToolTip='Re-Assign the current stored material.')
 			tb.contextMenu.add('QRadioButton', setText='New Material', setObjectName='chk009', setToolTip='Assign a new material.')
 			tb.contextMenu.add('QRadioButton', setText='New Random Material', setObjectName='chk008', setToolTip='Assign a new random ID material.')
+			tb.contextMenu.chk007.clicked.connect(lambda state: tb.setText('Assign Current')) 
+			tb.contextMenu.chk009.clicked.connect(lambda state: tb.setText('Assign New'))
+			tb.contextMenu.chk008.clicked.connect(lambda state: tb.setText('Assign Random'))
 			return
 
 		selection = rt.selection
@@ -229,7 +208,10 @@ class Materials(Init):
 				return 'Error: No valid object/s selected.'
 
 		elif assignCurrent: #Assign current mat
-			self.assignMaterial(selection, self.currentMat)
+			try: #mat type as a string:
+				self.assignMaterial(selection, rt.Standard(name=mat.rstrip('*')))
+			except Exception as error: #mat object:
+				self.assignMaterial(selection, mat)
 
 		elif assignNew: #Assign New Material
 			pass
@@ -240,7 +222,7 @@ class Materials(Init):
 	def tb003(self, state=None):
 		'''Relink Scene Bitmaps
 		'''
-		tb = self.materials_ui.tb003
+		tb = self.materials_ui.draggable_header.contextMenu.tb003
 		if state is 'setMenu':
 			tb.contextMenu.add('QLineEdit', setPlaceholderText='Set Bitmaps Directory:', setText=r'\\m3trik-Server\NAS\Graphics\_materials', setObjectName='l000', setToolTip='Location to search for missing bitmaps.') #
 			return
@@ -256,7 +238,7 @@ class Materials(Init):
 	def tb004(self, state=None):
 		'''Relink Material Library Bitmaps
 		'''
-		tb = self.materials_ui.tb004
+		tb = self.materials_ui.draggable_header.contextMenu.tb004
 		if state is 'setMenu':
 			tb.contextMenu.add('QLineEdit', setPlaceholderText='Set Bitmaps Directory:', setText=r'\\m3trik-Server\NAS\Graphics\_materials', setObjectName='l001', setToolTip='Location to search for missing bitmaps.') #
 			tb.contextMenu.add('QLineEdit', setPlaceholderText='Set Material Library Directory:', setText=r'\\m3trik-Server\NAS\Graphics\_materials\libraries', setObjectName='l002', setToolTip='Location of material libraries.') #
@@ -272,18 +254,11 @@ class Materials(Init):
 	def lbl000(self):
 		'''Open material in editor
 		'''
-		if self.materials_ui.tb001.menu_.chk001.isChecked(): #ID map mode
-			try:
-				mat = self.currentMats[self.materials_ui.cmb002.currentText()] #get object from string key
-			except:
-				return 'Error: No stored material or no valid object selected.'
-		else: #Stored material mode
-			if not self.currentMat: #get material from selected scene object
-				if rt.selection:
-					self.currentMat = rt.selection[0].material
-				else:
-					return 'Error: No stored material or no valid object selected.'
-			mat = self.currentMat
+		try:
+			mat = self.materials_ui.cmb002.currentData() #get the mat obj from cmb002
+			rt.select(mat)
+		except Exception as error:
+			return 'Error: No stored material or no valid object selected.'
 
 		#open the slate material editor
 		if not rt.SME.isOpen():
@@ -308,9 +283,8 @@ class Materials(Init):
 		cmb = self.materials_ui.cmb002
 
 		if setEditable:
-			self._mat = self.currentMat
+			self._mat = self.materials_ui.cmb002.currentData()
 			cmb.setEditable(True)
-			# self.materials_ui.cmb002.lineEdit().returnPressed.connect(self.renameMaterial)
 			self.toggleWidgets(self.materials_ui, setDisabled='b002,lbl000,tb000,tb002')
 		else:
 			mat = self._mat
@@ -325,11 +299,11 @@ class Materials(Init):
 		'''
 		cmb = self.materials_ui.cmb002
 
-		mat = self.currentMat
-		mat = rt.Standard(name="Default Material") #replace with standard material
+		mat = self.materials_ui.cmb002.currentData()
+		default_mat = rt.Standard(mat, name="Default Material") #replace with standard material
 
 		index = cmb.currentIndex()
-		cmb.setItemText(index, mat.name) #self.materials_ui.cmb002.removeItem(index)
+		cmb.setItemText(index, default_mat.name) #self.materials_ui.cmb002.removeItem(index)
 
 
 	def lbl003(self):
@@ -367,18 +341,17 @@ class Materials(Init):
 		except IndexError:
 			return 'Error: Nothing selected.'
 
-		mat = self.getMaterial(obj)
+		mat = self.getMaterial()
 
-		self.materials_ui.tb001.menu_.chk000.setChecked(True) #set the combobox to show all scene materials
-		cmb = self.materials_ui.cmb002
-		self.cmb002() #refresh the combobox
-		cmb.setCurrentIndex(cmb.items.index(mat.name))
+		self.materials_ui.cmb001.setCurrentIndex(0) #set the combobox to show all scene materials
+		self.cmb002() #refresh the materials list comboBox
+		self.materials_ui.cmb002.setCurrentIndex(self.materials_ui.cmb002.items.index(mat.name()))
 
 
 	def b003(self):
 		'''Assign: Assign Current
 		'''
-		self.materials_ui.tb002.menu_.chk007.setChecked(True)
+		self.materials_ui.tb002.contextMenu.chk007.setChecked(True)
 		self.materials_ui.tb002.setText('Assign Current')
 		self.tb002()
 
@@ -386,7 +359,7 @@ class Materials(Init):
 	def b004(self):
 		'''Assign: Assign Random
 		'''
-		self.materials_ui.tb002.menu_.chk008.setChecked(True)
+		self.materials_ui.tb002.contextMenu.chk008.setChecked(True)
 		self.materials_ui.tb002.setText('Assign Random')
 		self.tb002()
 
@@ -394,7 +367,7 @@ class Materials(Init):
 	def b005(self):
 		'''Assign: Assign New
 		'''
-		self.materials_ui.tb002.menu_.chk009.setChecked(True)
+		self.materials_ui.tb002.contextMenu.chk009.setChecked(True)
 		self.materials_ui.tb002.setText('Assign New')
 		self.tb002()
 
@@ -792,4 +765,36 @@ print(os.path.splitext(os.path.basename(__file__))[0])
 # -----------------------------------------------
 
 
-# deprecated
+# deprecated: -----------------------------------
+
+
+	# @property
+	# def currentMat(self):
+	# 	'''Get the current material using the current index of the materials combobox.
+	# 	'''
+	# 	text = self.materials_ui.cmb002.currentText()
+
+	# 	try:
+	# 		result = self.currentMats[text]
+	# 	except:
+	# 		result = None
+
+	# 	return result
+
+
+	# def chk007(self, state=None):
+	# 	'''Assign Material: Current
+	# 	'''
+	# 	self.materials_ui.tb002.setText('Assign Current')
+
+
+	# def chk008(self, state=None):
+	# 	'''Assign Material: Random
+	# 	'''
+	# 	self.materials_ui.tb002.setText('Assign Random')
+
+
+	# def chk009(self, state=None):
+	# 	'''Assign Material: New
+	# 	'''
+	# 	self.materials_ui.tb002.setText('Assign New')
