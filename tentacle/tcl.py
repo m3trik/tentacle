@@ -324,7 +324,7 @@ class Tcl(QtWidgets.QStackedWidget, StyleSheet):
 		if name:
 			self.setUi(name)
 
-		super().show()
+		QtWidgets.QStackedWidget.show(self)
 		if active:
 			self.activateWindow()
 
@@ -349,7 +349,11 @@ class Tcl(QtWidgets.QStackedWidget, StyleSheet):
 			force (bool) = override preventHide.
 		'''
 		if force or not self.preventHide:
-			super().hide()
+			# self.grabMouse()
+			# self.releaseMouse() #Releases the mouse grab.
+			# print ('mouseGrabber:', self.mouseGrabber()) #Returns the widget that is currently grabbing the mouse input. else: None 
+
+			QtWidgets.QStackedWidget.hide(self)
 
 
 	def hideEvent(self, event):

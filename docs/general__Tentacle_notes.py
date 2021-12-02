@@ -435,6 +435,28 @@ def tree000(self, wItem=None, column=None):
 # ======================================================================
 '''
 
+normals
+combine 'harden creased', 'harden uv edges' with 'harden'
+
+
+# Error: tentacle.childEvents.EventFactoryFilter.initWidgets(): Call: <bound method File.tb000 of <maya_file.File(0x1e202a507a0) at 0x000001E26B4A1748>>('setMenu') failed: 'PySide2.QtWidgets.QMainWindow' object has no attribute 'draggable_header'. #
+
+
+# treewidgetExpandableList
+# mousegrab being lost after using treewidget
+# initial size incorrect (and first column not populating)
+
+
+maya_select
+select type not working
+
+
+# Traceback (most recent call last):
+#   File "O:/Cloud/Code/_scripts/tentacle\tentacle\slots\maya\maya_uv.py", line 366, in tb004
+#     pm.u3dUnfold(iterations=1, pack=0, borderintersection=1, triangleflip=1, mapsize=2048, roomspace=0) #pm.mel.performUnfold(0)
+# AttributeError: module 'pymel.core' has no attribute 'u3dUnfold'
+unfold -i 5000 -ss 0.001 -gb 0 -gmb 0.5 -pub 0 -ps  0 -oa  0 -us off pCylinder1.f[0:59];
+
 # Traceback (most recent call last):
 #   File "O:/Cloud/Code/_scripts/tentacle\tentacle\childEvents.py", line 236, in eventFilter
 #     getattr(self, eventName)(event) #handle the event locally. #ie. self.enterEvent(event)

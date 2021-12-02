@@ -192,6 +192,7 @@ class Slots(QtCore.QObject):
 	@classmethod
 	def sync(cls, fn):
 		'''A decorator using the syncWidgets method.
+		Does not work with staticmethods.
 		'''
 		def wrapper(self, *args, **kwargs):
 			fn(self, *args, **kwargs) #execute the method normally.
@@ -471,6 +472,7 @@ class Slots(QtCore.QObject):
 	# @classmethod
 	# def progress(cls, fn):
 	# 	'''A decorator for progressBar.
+	#	Does not work with staticmethods.
 	# 	'''
 	# 	def wrapper(self, *args, **kwargs):
 	# 		self.progressBar(fn(self, *args, **kwargs))
@@ -479,23 +481,25 @@ class Slots(QtCore.QObject):
 	def progressBar(self):
 		'''
 		'''
-		if not hasattr(self, '_progressBar'):
+		try:
+			return self._progressBar
+
+		except AttributeError as error:
 			from widgets.progressBar import ProgressBar
 			self._progressBar = ProgressBar(self.tcl)
 
-		try:
-			self.currentUi.progressBar.step1
-		except AttributeError:
-			pass
+			try:
+				self.currentUi.progressBar.step1
+			except AttributeError:
+				pass
 
-		# self._progressBar
-
-		return self._progressBar
+			return self._progressBar
 
 
 	@classmethod
 	def message(cls, fn):
 		'''A decorator for messageBox.
+		Does not work with staticmethods.
 		'''
 		def wrapper(self, *args, **kwargs):
 			self.messageBox(fn(self, *args, **kwargs))

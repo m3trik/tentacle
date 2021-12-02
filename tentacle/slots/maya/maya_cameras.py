@@ -261,7 +261,7 @@ class Cameras(Init):
 			pm.hide('alignToPoly')
 			
 		isPerspective = int(not pm.camera('alignToPoly', query=1, orthographic=1))
-		#check if camera view is orthoraphicz
+		#check if camera view is orthoraphic
 		if isPerspective:
 			pm.viewPlace('alignToPoly', ortho=1)
 
@@ -275,28 +275,23 @@ class Cameras(Init):
 
 
 	@staticmethod
-	@Slots.message
 	def groupCameras():
 		'''Group Cameras
 		'''
 		if pm.objExists('cameras'):
-			return "# Error: Group 'cameras' already exists. #"
+			print ("# Error: Group 'cameras' already exists. #")
+			return
 
-		else:
-			pm.group('side', 'front', 'top', 'persp', world=1, name='cameras')
-			pm.hide('cameras')
-			# Now add non-default cameras to group
-			if pm.objExists('back'):
-				pm.parent('back', 'cameras')
-				
-			if pm.objExists('bottom'):
-				pm.parent('bottom', 'cameras')
-				
-			if pm.objExists('left'):
-				pm.parent('left', 'cameras')
-				
-			if pm.objExists('alignToPoly'):
-				pm.parent('alignToPoly', 'cameras')
+		pm.group(world=1, name='cameras')
+		pm.hide('cameras')
+
+		cameras = ('side', 'front', 'top', 'persp', 'back', 'bottom', 'left', 'alignToPoly')
+
+		for c in cameras:
+			try:
+				pm.parent(c, 'cameras')
+			except Exception as error:
+				pass
 
 
 	@staticmethod

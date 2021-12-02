@@ -70,15 +70,41 @@ class Normals(Init):
 
 
 	def tb001(self, state=None):
-		'''Harden Creased Edges
+		'''Harden Edge Normals
 		'''
 		tb = self.current_ui.tb001
 		if state is 'setMenu':
-			tb.contextMenu.add('QCheckBox', setText='Soften non-creased', setObjectName='chk000', setToolTip='Soften all non-creased edges.')
+			tb.contextMenu.add('QSpinBox', setPrefix='Angle: ', setObjectName='s002', setMinMax_='0-180 step1', setValue=0, setToolTip='The normal angle in degrees.')
+			tb.contextMenu.add('QCheckBox', setText='Harden Creased Edges', setObjectName='chk001', setToolTip='Soften all non-creased edges.')
+			tb.contextMenu.add('QCheckBox', setText='Harden UV Borders', setObjectName='chk002', setToolTip='Harden UV shell border edges.')
+			tb.contextMenu.add('QCheckBox', setText='Soften All Other', setObjectName='chk000', setChecked=True, setToolTip='Soften all non-hard edges.')
 			return
 
+		hardAngle = tb.contextMenu.s002.value()
+		hardenCreased = tb.contextMenu.chk001.isChecked()
+		hardenUvBorders = tb.contextMenu.chk002.isChecked()
 		softenOther = tb.contextMenu.chk000.isChecked()
-		Normals.hardenCreasedEdges(softenOther)
+
+		objects = pm.ls(sl=True, objectsOnly=True)
+
+		for obj in objects:
+			selection = pm.ls(obj, sl=True, l=True)
+			selEdges = pm.ls(pm.polyListComponentConversion(selection, toEdge=1), flatten=1)
+			allEdges = edges = pm.ls(pm.polyListComponentConversion(obj, toEdge=1), flatten=1)
+
+			if hardenCreased:
+				creasedEdges = Normals.getCreasedEdges(allEdges)
+				selEdges = selEdges + creasedEdges if not selEdges==allEdges else creasedEdges
+
+			if hardenUvBorders:
+				uv_border_edges = Init.getUvShellBorderEdges(selection)
+				selEdges = selEdges + uv_border_edges if not selEdges==allEdges else uv_border_edges
+
+			pm.polySoftEdge(selEdges, angle=hardAngle, constructionHistory=0) #set hard edges.
+
+			if softenOther:
+				invEdges = [e for e in allEdges if e not in selEdges]
+				pm.polySoftEdge(invEdges, angle=180, constructionHistory=0) #set soft edges.
 
 
 	@Init.attr
@@ -87,7 +113,7 @@ class Normals(Init):
 		'''
 		tb = self.current_ui.tb002
 		if state is 'setMenu':
-			tb.contextMenu.add('QSpinBox', setPrefix='Angle: ', setObjectName='s000', setMinMax_='1-180 step1', setValue=60, setToolTip='Angle degree.')
+			tb.contextMenu.add('QSpinBox', setPrefix='Angle: ', setObjectName='s000', setMinMax_='0-180 step1', setValue=60, setToolTip='Angle degree.')
 			return
 
 		normalAngle = str(tb.contextMenu.s000.value())
@@ -159,15 +185,9 @@ class Normals(Init):
 
 
 	def b001(self):
-		'''Soften Edge Normal
+		'''Soften Edge Normals
 		'''
 		pm.polySoftEdge(angle=180, constructionHistory=0)
-
-
-	def b002(self):
-		'''Harden Edge Normal
-		'''
-		pm.polySoftEdge(angle=0, constructionHistory=0)
 
 
 	def b003(self):
@@ -190,17 +210,6 @@ class Normals(Init):
 		'''Set To Face
 		'''
 		pm.polySetToFaceNormal()
-
-
-	def b009(self):
-		'''Harden Uv Edges
-		'''
-		selection = pm.ls(sl=True, l=True)
-
-		uv_border_edges = Init.getUvShellBorderEdges(selection)
-		pm.polySoftEdge(uv_border_edges, angle=0, ch=1)
-
-		pm.select(uv_border_edges)
 
 
 	def b010(self):
@@ -238,34 +247,20 @@ class Normals(Init):
 
 
 	@staticmethod
-	@Init.undoChunk
-	def hardenCreasedEdges(softenOther=False):
-		'''Harden Creased Edges
+	def getCreasedEdges(edges):
+		'''Return any creased edges from a list of edges.
 
 		:Parameters:
-			softenOther (bool) = Soften all non-creased edges.
+			edges (str)(obj)(list) = The edges to check crease state on.
+
+		:Return:
+			(list) edges.
 		'''
-		mel.eval("PolySelectConvert 2")
-		edges = pm.polyListComponentConversion(toEdge=1)
-		edges = pm.ls(edges, flatten=1)
+		creased_edges = [e for e in pm.ls(edges, flatten=1) if pm.polyCrease(e, q=1, value=1)[0] > 0]
 
-		# pm.undoInfo(openChunk=1)
-		self.mainProgressBar(len(edges))
+		return creased_edges
 
-		for edge in edges:
-			pm.progressBar("progressBar_", edit=1, step=1)
-			if pm.progressBar("progressBar_", query=1, isCancelled=1):
-				break
 
-			crease = pm.polyCrease (edge, query=1, value=1)
-			# print(edge, crease[0])
-			if crease[0]>0:
-				pm.polySoftEdge (edge, angle=30)
-			elif soften:
-				pm.polySoftEdge (edge, angle=180)
-
-		pm.progressBar("progressBar_", edit=1, endProgress=1)
-		# pm.undoInfo(closeChunk=1)
 
 
 
