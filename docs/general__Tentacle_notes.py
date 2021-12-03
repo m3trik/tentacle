@@ -435,6 +435,26 @@ def tree000(self, wItem=None, column=None):
 # ======================================================================
 '''
 
+# Traceback (most recent call last):
+#   File "O:/Cloud/Code/_scripts/tentacle\tentacle\slots\slots.py", line 505, in wrapper
+#     self.messageBox(fn(self, *args, **kwargs))
+#   File "O:/Cloud/Code/_scripts/tentacle\tentacle\slots\maya\maya_normals.py", line 154, in tb003
+#     vertices = [vertices.append(str(obj) + ".vtx ["+str(num)+"]") for num in range(count)] #geometry.vtx[0]
+#   File "O:/Cloud/Code/_scripts/tentacle\tentacle\slots\maya\maya_normals.py", line 154, in <listcomp>
+#     vertices = [vertices.append(str(obj) + ".vtx ["+str(num)+"]") for num in range(count)] #geometry.vtx[0]
+# NameError: free variable 'vertices' referenced before assignment in enclosing scope
+
+
+# Traceback (most recent call last):
+#   File "O:/Cloud/Code/_scripts/tentacle\tentacle\slots\maya\maya_selection.py", line 555, in tb003
+#     edges = Init.getEdgesByNormalAngle(objects, lowAngle=angleLow, highAngle=angleHigh)
+#   File "O:/Cloud/Code/_scripts/tentacle\tentacle\slots\maya\maya_init.py", line 1261, in getEdgesByNormalAngle
+#     edges = Init.getComponents(objects, 'edges', selection=1, returnType=returnType, flatten=flatten)
+#   File "O:/Cloud/Code/_scripts/tentacle\tentacle\slots\maya\maya_init.py", line 275, in getComponents
+#     return result
+# UnboundLocalError: local variable 'result' referenced before assignment
+
+
 normals
 combine 'harden creased', 'harden uv edges' with 'harden'
 

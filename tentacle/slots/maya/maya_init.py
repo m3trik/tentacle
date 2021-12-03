@@ -255,7 +255,7 @@ class Init(Slots):
 		elif returnType=='object':
 			result = pm.ls(components)
 
-		elif returnType=='int':
+		else: #returnType=='int':
 			result={}
 			for c in components:
 				obj = pm.ls(c, objectsOnly=1)[0]
@@ -1241,7 +1241,7 @@ class Init(Slots):
 
 
 	@staticmethod
-	def getEdgesByNormalAngle(objects, lowAngle=50, highAngle=130, returnType='unicode', flatten=False):
+	def getEdgesByNormalAngle(objects, lowAngle=50, highAngle=130, returnType='str', flatten=False):
 		'''Get a list of edges having normals between the given high and low angles using maya's polySelectConstraint.
 
 		:Parameters:
@@ -1267,7 +1267,7 @@ class Init(Slots):
 
 
 	@staticmethod
-	def getComponentsByNumberOfConnected(components, num_of_connected=(0,2), connectedType=None, returnType='unicode', flatten=False):
+	def getComponentsByNumberOfConnected(components, num_of_connected=(0,2), connectedType=None, returnType='str', flatten=False):
 		'''Get a list of components filtered by the number of their connected components.
 
 		:Parameters:
@@ -1573,7 +1573,7 @@ class Init(Slots):
 
 
 	@staticmethod
-	def getFacesWithSimilarNormals(faces, transforms=[], similarFaces=[], rangeX=0.1, rangeY=0.1, rangeZ=0.1, returnType='unicode', returnNodeType='transform'):
+	def getFacesWithSimilarNormals(faces, transforms=[], similarFaces=[], rangeX=0.1, rangeY=0.1, rangeZ=0.1, returnType='str', returnNodeType='transform'):
 		'''Filter for faces with normals that fall within an X,Y,Z tolerance.
 
 		:Parameters:

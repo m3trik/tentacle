@@ -145,7 +145,7 @@ class Instance():
 		self.instances = {k:v for k,v in self.instances.items() if not any([v.isVisible(), v==self.activeWindow_])}
 
 		if self.activeWindow_ is None or self.activeWindow_.isVisible():
-			name = 'main'+str(len(self.instances))
+			name = 'tentacle'+str(len(self.instances))
 			setattr(self, name, Tcl_max(self.parent, self.preventHide, self.key_show))
 			self.activeWindow_ = getattr(self, name)
 			self.instances[name] = self.activeWindow_

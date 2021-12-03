@@ -106,6 +106,8 @@ class Normals(Init):
 				invEdges = [e for e in allEdges if e not in selEdges]
 				pm.polySoftEdge(invEdges, angle=180, constructionHistory=0) #set soft edges.
 
+			pm.select(selEdges)
+
 
 	@Init.attr
 	def tb002(self, state=None):
