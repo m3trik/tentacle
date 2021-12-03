@@ -200,7 +200,7 @@ class File(Init):
 	def tb000(self, state=None):
 		'''Save
 		'''
-		tb = self.current_ui.draggable_header.contextMenu.tb000
+		tb = self.file_ui.draggable_header.contextMenu.tb000
 		if state is 'setMenu':
 			tb.contextMenu.add('QCheckBox', setText='Wireframe', setObjectName='chk000', setToolTip='Set view to wireframe before save.')
 			tb.contextMenu.add('QCheckBox', setText='Increment', setObjectName='chk001', setChecked=True, setToolTip='Append and increment a unique integer value.')

@@ -445,21 +445,8 @@ def tree000(self, wItem=None, column=None):
 # NameError: free variable 'vertices' referenced before assignment in enclosing scope
 
 
-# Traceback (most recent call last):
-#   File "O:/Cloud/Code/_scripts/tentacle\tentacle\slots\maya\maya_selection.py", line 555, in tb003
-#     edges = Init.getEdgesByNormalAngle(objects, lowAngle=angleLow, highAngle=angleHigh)
-#   File "O:/Cloud/Code/_scripts/tentacle\tentacle\slots\maya\maya_init.py", line 1261, in getEdgesByNormalAngle
-#     edges = Init.getComponents(objects, 'edges', selection=1, returnType=returnType, flatten=flatten)
-#   File "O:/Cloud/Code/_scripts/tentacle\tentacle\slots\maya\maya_init.py", line 275, in getComponents
-#     return result
-# UnboundLocalError: local variable 'result' referenced before assignment
-
-
-normals
+normals (3ds max module still needs this change)
 combine 'harden creased', 'harden uv edges' with 'harden'
-
-
-# Error: tentacle.childEvents.EventFactoryFilter.initWidgets(): Call: <bound method File.tb000 of <maya_file.File(0x1e202a507a0) at 0x000001E26B4A1748>>('setMenu') failed: 'PySide2.QtWidgets.QMainWindow' object has no attribute 'draggable_header'. #
 
 
 # treewidgetExpandableList
