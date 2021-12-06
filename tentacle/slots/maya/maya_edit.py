@@ -16,7 +16,7 @@ class Edit(Init):
 		'''
 		dh = self.edit_ui.draggable_header
 
-		if state is 'setMenu':
+		if state=='setMenu':
 			dh.contextMenu.add(self.tcl.wgts.ComboBox, setObjectName='cmb000', setToolTip='Maya Editors')
 			return
 
@@ -26,7 +26,7 @@ class Edit(Init):
 		'''
 		cmb = self.edit_ui.draggable_header.contextMenu.cmb000
 
-		if index is 'setMenu':
+		if index=='setMenu':
 			list_ = ['Cleanup', 'Transfer: Attribute Values', 'Transfer: Shading Sets']
 			cmb.addItems_(list_, 'Maya Editors')
 			return
@@ -49,7 +49,7 @@ class Edit(Init):
 		'''
 		cmb = self.edit_ui.cmb001
 
-		if index is 'setMenu':
+		if index=='setMenu':
 			cmb.beforePopupShown.connect(self.cmb001) #refresh comboBox contents before showing it's popup.
 			return
 
@@ -77,9 +77,9 @@ class Edit(Init):
 		'''Mesh Cleanup
 		'''
 		tb = self.current_ui.tb000
-		if state is 'setMenu':
+		if state=='setMenu':
 			tb.contextMenu.add('QCheckBox', setText='All Geometry', setObjectName='chk005', setToolTip='Clean All scene geometry.')
-			tb.contextMenu.add('QCheckBox', setText='Select Only', setObjectName='chk004', setToolTip='Repair matching geometry, else; only select.') #tb.contextMenu.add(self.tcl.wgts.CheckBox, setText='Select Only', setObjectName='chk004', setTristate=True, setCheckState_=2, setToolTip='Select and/or Repair matching geometry. <br>0: Repair Only<br>1: Repair and Select<br>2: Select Only')
+			tb.contextMenu.add('QCheckBox', setText='Repair', setObjectName='chk004', setToolTip='Repair matching geometry. Else, select only.') #tb.contextMenu.add(self.tcl.wgts.CheckBox, setText='Select Only', setObjectName='chk004', setTristate=True, setCheckState_=2, setToolTip='Select and/or Repair matching geometry. <br>0: Repair Only<br>1: Repair and Select<br>2: Select Only')
 			tb.contextMenu.add('QCheckBox', setText='N-Gons', setObjectName='chk002', setChecked=True, setToolTip='Find N-gons.')
 			tb.contextMenu.add('QCheckBox', setText='Non-Manifold Geometry', setObjectName='chk017', setChecked=True, setToolTip='Check for nonmanifold polys.')
 			tb.contextMenu.add('QCheckBox', setText='Non-Manifold Vertex', setObjectName='chk021', setToolTip='A connected vertex of non-manifold geometry where the faces share a single vertex.')
@@ -99,7 +99,6 @@ class Edit(Init):
 			tb.contextMenu.add('QCheckBox', setText='Overlapping Duplicate Objects', setObjectName='chk022', setToolTip='Find any duplicate overlapping geometry at the object level.')
 			tb.contextMenu.add('QCheckBox', setText='Omit Selected Objects', setObjectName='chk023', setDisabled=True, setToolTip='Overlapping Duplicate Objects: Search for duplicates of any selected objects while omitting the initially selected objects.')
 
-			tb.contextMenu.chk004.stateChanged.connect(lambda state: tb.contextMenu.chk004.setText('Repair' if state else 'Select Only')) #set button text to reflect current state.
 			tb.contextMenu.chk022.stateChanged.connect(lambda state: self.toggleWidgets(tb.contextMenu, setDisabled='chk002-3,chk005,chk010-21,s006-8', setEnabled='chk023') if state 
 															else self.toggleWidgets(tb.contextMenu, setEnabled='chk002-3,chk005,chk010-21,s006-8', setDisabled='chk023')) #disable non-relevant options.
 			tb.contextMenu.chk013.toggled.connect(lambda state: tb.contextMenu.s006.setEnabled(True if state else False))
@@ -164,7 +163,7 @@ class Edit(Init):
 		'''Delete History
 		'''
 		tb = self.current_ui.tb001
-		if state is 'setMenu':
+		if state=='setMenu':
 			tb.contextMenu.add('QCheckBox', setText='For All Objects', setObjectName='chk018', setChecked=True, setToolTip='Delete history on All objects or just those selected.')
 			tb.contextMenu.add('QCheckBox', setText='Delete Unused Nodes', setObjectName='chk019', setChecked=True, setToolTip='Delete unused nodes.')
 			tb.contextMenu.add('QCheckBox', setText='Delete Deformers', setObjectName='chk020', setToolTip='Delete deformers.')
@@ -202,7 +201,7 @@ class Edit(Init):
 		'''Delete
 		'''
 		tb = self.current_ui.tb002
-		if state is 'setMenu':
+		if state=='setMenu':
 			tb.contextMenu.add('QCheckBox', setText='Delete Edge Loop', setObjectName='chk001', setToolTip='Delete the edge loops of any edges selected.')
 			tb.contextMenu.add('QCheckBox', setText='Delete Edge Ring', setObjectName='chk000', setToolTip='Delete the edge rings of any edges selected.')
 			return
@@ -243,7 +242,7 @@ class Edit(Init):
 		'''Delete Along Axis
 		'''
 		tb = self.current_ui.tb003
-		if state is 'setMenu':
+		if state=='setMenu':
 			tb.contextMenu.add('QCheckBox', setText='-', setObjectName='chk006', setChecked=True, setToolTip='Perform delete along negative axis.')
 			tb.contextMenu.add('QRadioButton', setText='X', setObjectName='chk007', setChecked=True, setToolTip='Perform delete along X axis.')
 			tb.contextMenu.add('QRadioButton', setText='Y', setObjectName='chk008', setToolTip='Perform delete along Y axis.')

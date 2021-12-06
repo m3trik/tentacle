@@ -16,7 +16,7 @@ class Normals(Init):
 		'''
 		dh = self.normals_ui.draggable_header
 
-		if state is 'setMenu':
+		if state=='setMenu':
 			dh.contextMenu.add(self.tcl.wgts.ComboBox, setObjectName='cmb000', setToolTip='')
 			return
 
@@ -26,7 +26,7 @@ class Normals(Init):
 		'''
 		cmb = self.normals_ui.draggable_header.contextMenu.cmb000
 
-		if index is 'setMenu':
+		if index=='setMenu':
 			list_ = ['']
 			cmb.addItems_(list_, '')
 			return
@@ -41,7 +41,7 @@ class Normals(Init):
 		'''Display Face Normals
 		'''
 		tb = self.current_ui.tb000
-		if state is 'setMenu':
+		if state=='setMenu':
 			tb.contextMenu.add('QSpinBox', setPrefix='Display Size: ', setObjectName='s001', setMinMax_='1-100 step1', setValue=1, setToolTip='Normal display size.')
 			return
 
@@ -73,7 +73,7 @@ class Normals(Init):
 		'''Harden Edge Normals
 		'''
 		tb = self.current_ui.tb001
-		if state is 'setMenu':
+		if state=='setMenu':
 			tb.contextMenu.add('QSpinBox', setPrefix='Angle: ', setObjectName='s002', setMinMax_='0-180 step1', setValue=0, setToolTip='The normal angle in degrees.')
 			tb.contextMenu.add('QCheckBox', setText='Harden Creased Edges', setObjectName='chk001', setToolTip='Soften all non-creased edges.')
 			tb.contextMenu.add('QCheckBox', setText='Harden UV Borders', setObjectName='chk002', setToolTip='Harden UV shell border edges.')
@@ -114,7 +114,7 @@ class Normals(Init):
 		'''Set Normals By Angle
 		'''
 		tb = self.current_ui.tb002
-		if state is 'setMenu':
+		if state=='setMenu':
 			tb.contextMenu.add('QSpinBox', setPrefix='Angle: ', setObjectName='s000', setMinMax_='0-180 step1', setValue=60, setToolTip='Angle degree.')
 			return
 
@@ -134,7 +134,7 @@ class Normals(Init):
 		'''Lock/Unlock Vertex Normals
 		'''
 		tb = self.normals_ui.tb003
-		if state is 'setMenu':
+		if state=='setMenu':
 			tb.contextMenu.add('QCheckBox', setText='Lock', setObjectName='chk002', setChecked=True, setToolTip='Toggle Lock/Unlock.')
 			tb.contextMenu.add('QCheckBox', setText='All', setObjectName='chk001', setChecked=True, setToolTip='Lock/Unlock All.')
 
@@ -178,7 +178,7 @@ class Normals(Init):
 		'''Average Normals
 		'''
 		tb = self.current_ui.tb004
-		if state is 'setMenu':
+		if state=='setMenu':
 			tb.contextMenu.add('QCheckBox', setText='By UV Shell', setObjectName='chk003', setToolTip='Average the normals of each object\'s faces per UV shell.')
 			return
 

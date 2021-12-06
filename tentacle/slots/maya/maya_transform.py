@@ -16,7 +16,7 @@ class Transform(Init):
 		'''
 		dh = self.transform_ui.draggable_header
 
-		if state is 'setMenu':
+		if state=='setMenu':
 			dh.contextMenu.add(self.tcl.wgts.ComboBox, setObjectName='cmb000', setToolTip='')
 			return
 
@@ -26,7 +26,7 @@ class Transform(Init):
 		'''
 		cmb = self.transform_ui.draggable_header.contextMenu.cmb000
 
-		if index is 'setMenu':
+		if index=='setMenu':
 			files = ['']
 			cmb.addItems_(files, '')
 			return
@@ -45,7 +45,7 @@ class Transform(Init):
 		'''
 		cmb = self.transform_ui.cmb001
 
-		if index is 'setMenu':
+		if index=='setMenu':
 			cmb.popupStyle = 'qmenu'
 			cmb.menu_.setTitle('Constaints')
 
@@ -67,7 +67,7 @@ class Transform(Init):
 		'''
 		cmb = self.transform_ui.cmb002
 
-		if index is 'setMenu':
+		if index=='setMenu':
 			list_ = ['Point to Point', '2 Points to 2 Points', '3 Points to 3 Points', 'Align Objects', 'Position Along Curve', 'Align Tool', 'Snap Together Tool', 'Orient to Vertex/Edge Tool']
 			cmb.addItems_(list_, 'Align To')
 			return
@@ -99,7 +99,7 @@ class Transform(Init):
 		'''
 		cmb = self.transform_ui.cmb003
 
-		if index is 'setMenu':
+		if index=='setMenu':
 			cmb.popupStyle = 'qmenu'
 			cmb.menu_.setTitle('Snap')
 
@@ -247,7 +247,7 @@ class Transform(Init):
 		'''Drop To Grid
 		'''
 		tb = self.current_ui.tb000
-		if state is 'setMenu':
+		if state=='setMenu':
 			tb.contextMenu.add('QComboBox', addItems=['Min','Mid','Max'], setObjectName='cmb004', setToolTip='Choose which point of the bounding box to align to.')
 			tb.contextMenu.add('QCheckBox', setText='Move to Origin', setObjectName='chk014', setChecked=True, setToolTip='Move to origin (xyz 0,0,0).')
 			tb.contextMenu.add('QCheckBox', setText='Center Pivot', setObjectName='chk016', setChecked=False, setToolTip='Center pivot on objects bounding box.')
@@ -269,7 +269,7 @@ class Transform(Init):
 		Auto Align finds the axis with the largest variance, and sets the axis checkboxes accordingly before performing a regular align.
 		'''
 		tb = self.current_ui.tb001
-		if state is 'setMenu':
+		if state=='setMenu':
 			tb.contextMenu.add('QCheckBox', setText='X Axis', setObjectName='chk029', setDisabled=True, setToolTip='Align X axis')
 			tb.contextMenu.add('QCheckBox', setText='Y Axis', setObjectName='chk030', setDisabled=True, setToolTip='Align Y axis')
 			tb.contextMenu.add('QCheckBox', setText='Z Axis', setObjectName='chk031', setDisabled=True, setToolTip='Align Z axis')
@@ -654,7 +654,7 @@ print(os.path.splitext(os.path.basename(__file__))[0])
 	# 	'''
 	# 	cmb = self.transform_ui.cmb001
 
-	# 	if index is 'setMenu':
+	# 	if index=='setMenu':
 	# 		cmb.contextMenu.add(self.tcl.wgts.Label, setObjectName='lbl000', setText='Disable All', setToolTip='Disable all constraints.')
 
 	# 		list_ = ['Edge', 'Surface', 'Make Live']

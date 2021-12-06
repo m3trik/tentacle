@@ -16,7 +16,7 @@ class Edit(Init):
 		'''
 		dh = self.edit_ui.draggable_header
 
-		if state is 'setMenu':
+		if state=='setMenu':
 			dh.contextMenu.add(self.tcl.wgts.ComboBox, setObjectName='cmb000', setToolTip='')
 			return
 
@@ -26,7 +26,7 @@ class Edit(Init):
 		'''
 		cmb = self.edit_ui.draggable_header.contextMenu.cmb000
 
-		if index is 'setMenu':
+		if index=='setMenu':
 			list_ = ['']
 			cmb.addItems_(list_, '')
 			return
@@ -44,7 +44,7 @@ class Edit(Init):
 		'''
 		cmb = self.edit_ui.cmb001
 
-		if index is 'setMenu':
+		if index=='setMenu':
 			cmb.beforePopupShown.connect(self.cmb001) #refresh comboBox contents before showing it's popup.
 			return
 
@@ -75,7 +75,7 @@ class Edit(Init):
 		'''Mesh Cleanup
 		'''
 		tb = self.current_ui.tb000
-		if state is 'setMenu':
+		if state=='setMenu':
 			tb.contextMenu.add('QCheckBox', setText='N-Gons', setObjectName='chk002', setToolTip='Find N-gons.')
 			tb.contextMenu.add('QCheckBox', setText='Isolated Vertex', setObjectName='chk003', setChecked=True, setToolTip='Find isolated vertices within specified angle threshold.')
 			tb.contextMenu.add('QSpinBox', setPrefix='Loose Vertex Angle: ', setObjectName='s006', setMinMax_='1-360 step1', setValue=15, setToolTip='Loose vertex search: Angle Threshold.')
@@ -95,7 +95,7 @@ class Edit(Init):
 		'''Delete History
 		'''
 		tb = self.current_ui.tb001
-		if state is 'setMenu':
+		if state=='setMenu':
 			tb.contextMenu.add('QCheckBox', setText='For All Objects', setObjectName='chk018', setChecked=True, setToolTip='Delete history on All objects or just those selected.')
 			tb.contextMenu.add('QCheckBox', setText='Delete Unused Nodes', setObjectName='chk019', setChecked=True, setToolTip='Delete unused nodes.')
 			tb.contextMenu.add('QCheckBox', setText='Delete Deformers', setObjectName='chk020', setToolTip='Delete deformers.')
@@ -137,7 +137,7 @@ class Edit(Init):
 		'''Delete
 		'''
 		tb = self.current_ui.tb002
-		if state is 'setMenu':
+		if state=='setMenu':
 			tb.contextMenu.add('QCheckBox', setText='Delete Loop', setObjectName='chk001', setToolTip='Delete the entire edge loop of any components selected.')
 			return
 
@@ -323,7 +323,7 @@ class Edit(Init):
 		'''Delete Along Axis
 		'''
 		tb = self.current_ui.tb003
-		if state is 'setMenu':
+		if state=='setMenu':
 			tb.contextMenu.add('QCheckBox', setText='-', setObjectName='chk006', setChecked=True, setToolTip='Perform delete along negative axis.')
 			tb.contextMenu.add('QRadioButton', setText='X', setObjectName='chk007', setChecked=True, setToolTip='Perform delete along X axis.')
 			tb.contextMenu.add('QRadioButton', setText='Y', setObjectName='chk008', setToolTip='Perform delete along Y axis.')

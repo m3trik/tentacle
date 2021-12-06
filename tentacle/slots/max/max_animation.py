@@ -16,7 +16,7 @@ class Animation(Init):
 		'''
 		dh = self.animation_ui.draggable_header
 
-		if state is 'setMenu':
+		if state=='setMenu':
 			dh.contextMenu.add(self.tcl.wgts.ComboBox, setObjectName='cmb000', setToolTip='')
 			return
 
@@ -26,7 +26,7 @@ class Animation(Init):
 		'''
 		cmb = self.animation_ui.draggable_header.contextMenu.cmb000
 
-		if index is 'setMenu':
+		if index=='setMenu':
 			list_ = ['Track View: Curve Editor','Track View: Dope Sheet','Track View: New Track View','Motion Mixer','Pose Mixer','MassFx Tools',
 			'Dynamics Explorer','Reaction Manager','Walkthrough Assistant']
 			cmb.addItems_(list_, 'Animation Editors')
@@ -59,7 +59,7 @@ class Animation(Init):
 		'''Set Current Frame
 		'''
 		tb = self.current_ui.tb000
-		if state is 'setMenu':
+		if state=='setMenu':
 			tb.contextMenu.add('QSpinBox', setPrefix='Frame: ', setObjectName='s000', setMinMax_='0-10000 step1', setValue=1, setToolTip='')
 			tb.contextMenu.add('QCheckBox', setText='Relative', setObjectName='chk000', setChecked=True, setToolTip='')
 			tb.contextMenu.add('QCheckBox', setText='Update', setObjectName='chk001', setChecked=True, setToolTip='')
@@ -77,7 +77,7 @@ class Animation(Init):
 		'''Invert Selected Keyframes
 		'''
 		tb = self.current_ui.tb001
-		if state is 'setMenu':
+		if state=='setMenu':
 			tb.contextMenu.add('QSpinBox', setPrefix='Time: ', setObjectName='s001', setMinMax_='0-10000 step1', setValue=1, setToolTip='The desired start time for the inverted keys.')
 			tb.contextMenu.add('QCheckBox', setText='Relative', setObjectName='chk002', setChecked=False, setToolTip='Start time position as relative or absolute.')
 			return

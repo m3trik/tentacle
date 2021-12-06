@@ -16,7 +16,7 @@ class Nurbs(Init):
 		'''
 		dh = self.nurbs_ui.draggable_header
 
-		if state is 'setMenu':
+		if state=='setMenu':
 			dh.contextMenu.add(self.tcl.wgts.ComboBox, setObjectName='cmb000', setToolTip='Maya Curve Operations')
 			return
 
@@ -26,7 +26,7 @@ class Nurbs(Init):
 		'''
 		cmb = self.nurbs_ui.draggable_header.contextMenu.cmb000
 
-		if index is 'setMenu':
+		if index=='setMenu':
 			list_ = ['Project Curve','Duplicate Curve','Create Curve from Poly','Bend Curve', 'Curl Curve','Modify Curve Curvature','Smooth Curve','Straighten Curves','Extrude Curves','Revolve Curves','Loft Curves','Planar Curves','Insert Isoparms','Insert Knot','Rebuild Curve','Extend Curve', 'Extend Curve On Surface']
 			cmb.addItems_(list_, 'Maya Curve Operations')
 			return
@@ -75,7 +75,7 @@ class Nurbs(Init):
 		'''
 		cmb = self.nurbs_ui.cmb001
 
-		if index is 'setMenu':
+		if index=='setMenu':
 			list_ = ['Ep Curve Tool','CV Curve Tool','Bezier Curve Tool','Pencil Curve Tool','2 Point Circular Arc','3 Point Circular Arc']
 			cmb.addItems_(list_, 'Create Curve')
 			return
@@ -102,7 +102,7 @@ class Nurbs(Init):
 		'''Revolve
 		'''
 		tb = self.nurbs_ui.tb000
-		if state is 'setMenu':
+		if state=='setMenu':
 			tb.contextMenu.add('QSpinBox', setPrefix='Degree', setObjectName='s002', setValue=3, setToolTip='The degree of the resulting surface.')
 			tb.contextMenu.add('QSpinBox', setPrefix='Start Sweep', setObjectName='s003', setValue=3, setMinMax_='0-360 step1', setToolTip='	The value for the start sweep angle.')
 			tb.contextMenu.add('QSpinBox', setPrefix='End Sweep', setObjectName='s004', setValue=3, setMinMax_='0-360 step1', setToolTip='The value for the end sweep angle.')
@@ -132,7 +132,7 @@ class Nurbs(Init):
 		'''Loft
 		'''
 		tb = self.nurbs_ui.tb001
-		if state is 'setMenu':
+		if state=='setMenu':
 			tb.contextMenu.add('QCheckBox', setText='Uniform', setObjectName='chk000', setChecked=True, setToolTip='The resulting surface will have uniform parameterization in the loft direction. If set to false, the parameterization will be chord length.')
 			tb.contextMenu.add('QCheckBox', setText='Close', setObjectName='chk001', setChecked=False, setToolTip='The resulting surface will be closed (periodic) with the start (end) at the first curve. If set to false, the surface will remain open.')
 			tb.contextMenu.add('QSpinBox', setPrefix='Degree', setObjectName='s000', setValue=3, setToolTip='The degree of the resulting surface.')

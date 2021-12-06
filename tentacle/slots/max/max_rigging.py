@@ -16,7 +16,7 @@ class Rigging(Init):
 		'''
 		dh = self.rigging_ui.draggable_header
 
-		if state is 'setMenu':
+		if state=='setMenu':
 			dh.contextMenu.add(self.tcl.wgts.ComboBox, setObjectName='cmb000', setToolTip='')
 			return
 
@@ -26,7 +26,7 @@ class Rigging(Init):
 		'''
 		cmb = self.rigging_ui.draggable_header.contextMenu.cmb000
 
-		if index is 'setMenu':
+		if index=='setMenu':
 			list_ = ['Bone Tools','Parameter Editor','Parameter Collector','Parameter Wire Dialog']
 			cmb.addItems_(list_, 'Rigging Editors')
 			return
@@ -49,7 +49,7 @@ class Rigging(Init):
 		'''
 		cmb = self.rigging_ui.cmb001
 
-		if index is 'setMenu':
+		if index=='setMenu':
 			list_ = ['Bones IK Chain','Point','Dummy','Grid','Expose Transform','Lattice','Biped']
 			cmb.addItems_(list_, "Create")
 			return
@@ -77,27 +77,27 @@ class Rigging(Init):
 		'''Scale Joint
 		'''
 		self.toggleWidgets(setUnChecked='chk001-2')
-		# self.rigging_ui.tb000.menu_.s000.setValue(pm.jointDisplayScale(query=1)) #init global joint display size
+		# self.rigging_ui.tb000.contextMenu.s000.setValue(pm.jointDisplayScale(query=1)) #init global joint display size
 
 
 	def chk001(self, state=None):
 		'''Scale IK
 		'''
 		self.toggleWidgets(setUnChecked='chk000, chk002')
-		# self.rigging_ui.s000.setValue(pm.ikHandleDisplayScale(query=1)) #init IK handle display size
+		# self.rigging_ui.tb000.contextMenu.setValue(pm.ikHandleDisplayScale(query=1)) #init IK handle display size
 		
 
 	def chk002(self, state=None):
 		'''Scale IK/FK
 		'''
 		self.toggleWidgets(setUnChecked='chk000-1')
-		# self.rigging_ui.s000.setValue(pm.jointDisplayScale(query=1, ikfk=1)) #init IKFK display size
+		# self.rigging_ui.tb000.contextMenu.setValue(pm.jointDisplayScale(query=1, ikfk=1)) #init IKFK display size
 
 
 	def s000(self, value=None):
 		'''Scale Joint/IK/FK
 		'''
-		value = self.rigging_ui.s000.value()
+		value = self.rigging_ui.tb000.contextMenu.value()
 
 		# if self.rigging_ui.chk000.isChecked():
 		# 	pm.jointDisplayScale(value) #set global joint display size
@@ -112,7 +112,7 @@ class Rigging(Init):
 		'''Toggle Display Local Rotation Axes
 		'''
 		tb = self.current_ui.tb000
-		if state is 'setMenu':
+		if state=='setMenu':
 			tb.contextMenu.add('QCheckBox', setText='Joints', setObjectName='chk000', setChecked=True, setToolTip='Display Joints.')
 			tb.contextMenu.add('QCheckBox', setText='IK', setObjectName='chk001', setChecked=True, setToolTip='Display IK.')
 			tb.contextMenu.add('QCheckBox', setText='IK\\FK', setObjectName='chk002', setChecked=True, setToolTip='Display IK\\FK.')
@@ -141,7 +141,7 @@ class Rigging(Init):
 		'''Orient Joints
 		'''
 		tb = self.current_ui.tb001
-		if state is 'setMenu':
+		if state=='setMenu':
 			tb.contextMenu.add('QCheckBox', setText='Align world', setObjectName='chk003', setToolTip='Align joints with the worlds transform.')
 			return
 
@@ -156,7 +156,7 @@ class Rigging(Init):
 		'''Constraint: Parent
 		'''
 		tb = self.current_ui.tb002
-		if state is 'setMenu':
+		if state=='setMenu':
 			tb.contextMenu.add('QCheckBox', setText='Template Child', setObjectName='chk004', setChecked=False, setToolTip='Template child object(s) after parenting.')		
 			return
 
@@ -176,7 +176,7 @@ class Rigging(Init):
 		'''Create Locator at Selection
 		'''
 		tb = self.current_ui.tb003
-		if state is 'setMenu':
+		if state=='setMenu':
 			tb.contextMenu.add('QLineEdit', setPlaceholderText='Suffix:', setText='', setObjectName='t000', setToolTip='A string appended to the end of the created locators name.')
 			tb.contextMenu.add('QCheckBox', setText='Strip Digits', setObjectName='chk005', setChecked=True, setToolTip='Strip numeric characters from the string. If the resulting name is not unique, maya will append a trailing digit.')
 			tb.contextMenu.add('QLineEdit', setPlaceholderText='Strip:', setText='_GEO', setObjectName='t001', setToolTip='Strip a specific character set from the locator name. The locators name is based off of the selected objects name.')
@@ -214,7 +214,7 @@ class Rigging(Init):
 		'''Lock/Unlock Attributes
 		'''
 		tb = self.current_ui.tb004
-		if state is 'setMenu':
+		if state=='setMenu':
 			tb.contextMenu.add('QCheckBox', setText='Translate', setObjectName='chk012', setChecked=False, setToolTip='')
 			tb.contextMenu.add('QCheckBox', setText='Rotate', setObjectName='chk013', setChecked=False, setToolTip='')
 			tb.contextMenu.add('QCheckBox', setText='Scale', setObjectName='chk014', setChecked=False, setToolTip='')

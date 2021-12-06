@@ -30,7 +30,7 @@ class Crease(Init):
 		'''
 		dh = self.crease_ui.draggable_header
 
-		if state is 'setMenu':
+		if state=='setMenu':
 			dh.contextMenu.add(self.tcl.wgts.ComboBox, setObjectName='cmb000', setToolTip='3ds Max Crease Modifiers')
 			return
 
@@ -40,7 +40,7 @@ class Crease(Init):
 		'''
 		cmb = self.crease_ui.draggable_header.contextMenu.cmb000
 
-		if index is 'setMenu':
+		if index=='setMenu':
 			list_ = ['Crease Modifier']
 			cmb.addItems_(list_, 'Crease Modifiers:')
 			return
@@ -114,7 +114,7 @@ class Crease(Init):
 		'''
 		tb = self.current_ui.tb000
 
-		if state is 'setMenu':
+		if state=='setMenu':
 			tb.contextMenu.add('QSpinBox', setPrefix='Crease Amount: ', setObjectName='s003', setMinMax_='0-10 step1', setValue=10, setToolTip='Crease amount 0-10. Overriden if "max" checked.')
 			tb.contextMenu.add('QCheckBox', setText='Toggle Max', setObjectName='chk003', setToolTip='Toggle crease amount from it\'s current value to the maximum amount.')
 			tb.contextMenu.add('QCheckBox', setText='Un-Crease', setObjectName='chk002', setToolTip='Un-crease selected components or If in object mode, uncrease all.')

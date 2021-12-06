@@ -238,8 +238,8 @@
     </property>
     <property name="geometry">
      <rect>
-      <x>190</x>
-      <y>330</y>
+      <x>270</x>
+      <y>200</y>
       <width>56</width>
       <height>19</height>
      </rect>

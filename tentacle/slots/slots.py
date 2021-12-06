@@ -505,6 +505,7 @@ class Slots(QtCore.QObject):
 			self.messageBox(fn(self, *args, **kwargs))
 		return wrapper
 
+
 	def messageBox(self, string, location='topMiddle', timeout=1):
 		'''Spawns a message box with the given text.
 		Prints a formatted version of the given string, stripped of html tags, to the console.

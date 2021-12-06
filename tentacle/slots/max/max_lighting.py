@@ -16,7 +16,7 @@ class Lighting(Init):
 		'''
 		dh = self.lighting_ui.draggable_header
 
-		if state is 'setMenu':
+		if state=='setMenu':
 			dh.contextMenu.add(self.tcl.wgts.ComboBox, setObjectName='cmb000', setToolTip='')
 			return
 
@@ -26,7 +26,7 @@ class Lighting(Init):
 		'''
 		cmb = self.lighting_ui.draggable_header.contextMenu.cmb000
 
-		if index is 'setMenu':
+		if index=='setMenu':
 			files = ['']
 			cmb.addItems_(files, '')
 			return

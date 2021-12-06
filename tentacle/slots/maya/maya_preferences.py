@@ -18,7 +18,7 @@ class Preferences(Init):
 		'''
 		dh = self.preferences_ui.draggable_header
 
-		if state is 'setMenu':
+		if state=='setMenu':
 			dh.contextMenu.add(self.tcl.wgts.ComboBox, setObjectName='cmb000', setToolTip='')
 			return
 
@@ -28,7 +28,7 @@ class Preferences(Init):
 		'''
 		cmb = self.preferences_ui.draggable_header.contextMenu.cmb000
 
-		if index is 'setMenu':
+		if index=='setMenu':
 			list_ = ['']
 			cmb.addItems_(list_, '')
 			return
@@ -45,7 +45,7 @@ class Preferences(Init):
 		'''
 		cmb = self.preferences_ui.cmb001
 
-		if index is 'setMenu':
+		if index=='setMenu':
 			list_ = ['millimeter','centimeter','meter','kilometer','inch','foot','yard','mile']
 			cmb.addItems_(list_)
 			try: #get/set current value
@@ -64,7 +64,7 @@ class Preferences(Init):
 		'''
 		cmb = self.preferences_ui.cmb002
 
-		if index is 'setMenu':
+		if index=='setMenu':
 			#store a corresponding value for each item in the comboBox list_.
 			l = {'15 fps: ':'game','24 fps: ':'film','25 fps: ':'pal','30 fps: ':'ntsc','48 fps: ':'show','50 fps: ':'palf','60 fps: ':'ntscf'}
 			list_ = [k+v for k,v in l.items()] #ie. ['15 fps: game','24 fps: film', ..etc]
@@ -86,7 +86,7 @@ class Preferences(Init):
 		'''
 		cmb = self.preferences_ui.cmb003
 
-		if index is 'setMenu':
+		if index=='setMenu':
 			from PySide2 import QtWidgets, QtCore
 			list_ = QtWidgets.QStyleFactory.keys() #get styles from QStyleFactory
 			cmb.addItems_(list_)

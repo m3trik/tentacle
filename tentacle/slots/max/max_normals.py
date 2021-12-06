@@ -18,7 +18,7 @@ class Normals(Init):
 		'''
 		dh = self.normals_ui.draggable_header
 
-		if state is 'setMenu':
+		if state=='setMenu':
 			dh.contextMenu.add(self.tcl.wgts.ComboBox, setObjectName='cmb000', setToolTip='')
 			return
 
@@ -28,7 +28,7 @@ class Normals(Init):
 		'''
 		cmb = self.normals_ui.draggable_header.contextMenu.cmb000
 
-		if index is 'setMenu':
+		if index=='setMenu':
 			list_ = ['']
 			cmb.addItems_(list_, '')
 			return
@@ -45,70 +45,85 @@ class Normals(Init):
 		'''Display Face Normals
 		'''
 		tb = self.current_ui.tb000
-		if state is 'setMenu':
+		if state=='setMenu':
 			tb.contextMenu.add('QSpinBox', setPrefix='Display Size: ', setObjectName='s001', setMinMax_='1-100 step1', setValue=1, setToolTip='Normal display size.')
 			return
 
 		size = float(tb.contextMenu.s001.value())
-		# state = pm.polyOptions (query=True, displayNormal=True)
-		state = self.cycle([1,2,3,0], 'displayNormals')
-		if state ==0: #off
-			pm.polyOptions (displayNormal=0, sizeNormal=0)
-			pm.polyOptions (displayTangent=False)
-			return 'Normals Display <hl>Off</hl>.'
 
-		elif state ==1: #facet
-			pm.polyOptions (displayNormal=1, facet=True, sizeNormal=size)
-			pm.polyOptions (displayTangent=False)
-			return '<hl>Facet</hl> Normals Display <hl>On</hl>.'
+		'No 3ds Version.'
+		tb.setDisabled(True)
+		# # state = pm.polyOptions (query=True, displayNormal=True)
+		# state = self.cycle([1,2,3,0], 'displayNormals')
+		# if state ==0: #off
+		# 	pm.polyOptions (displayNormal=0, sizeNormal=0)
+		# 	pm.polyOptions (displayTangent=False)
+		# 	return 'Normals Display <hl>Off</hl>.'
 
-		elif state ==2: #Vertex
-			pm.polyOptions (displayNormal=1, point=True, sizeNormal=size)
-			pm.polyOptions (displayTangent=False)
-			return '<hl>Vertex</hl> Normals Display <hl>On</hl>.'
+		# elif state ==1: #facet
+		# 	pm.polyOptions (displayNormal=1, facet=True, sizeNormal=size)
+		# 	pm.polyOptions (displayTangent=False)
+		# 	return '<hl>Facet</hl> Normals Display <hl>On</hl>.'
 
-		elif state ==3: #tangent
-			pm.polyOptions (displayTangent=True)
-			pm.polyOptions (displayNormal=0)
-			return '<hl>Tangent</hl> Display <hl>On</hl>.'
+		# elif state ==2: #Vertex
+		# 	pm.polyOptions (displayNormal=1, point=True, sizeNormal=size)
+		# 	pm.polyOptions (displayTangent=False)
+		# 	return '<hl>Vertex</hl> Normals Display <hl>On</hl>.'
+
+		# elif state ==3: #tangent
+		# 	pm.polyOptions (displayTangent=True)
+		# 	pm.polyOptions (displayNormal=0)
+		# 	return '<hl>Tangent</hl> Display <hl>On</hl>.'
 
 
 	def tb001(self, state=None):
-		'''Harden Creased Edges
+		'''Harden Edge Normals
 		'''
 		tb = self.current_ui.tb001
-		if state is 'setMenu':
-			tb.contextMenu.add('QCheckBox', setText='Soften non-creased', setObjectName='chk000', setToolTip='Soften all non-creased edges.')
+		if state=='setMenu':
+			# tb.contextMenu.add('QSpinBox', setPrefix='Angle: ', setObjectName='s002', setMinMax_='0-180 step1', setValue=0, setToolTip='The normal angle in degrees.')
+			# tb.contextMenu.add('QCheckBox', setText='Harden Creased Edges', setObjectName='chk001', setToolTip='Soften all non-creased edges.')
+			# tb.contextMenu.add('QCheckBox', setText='Harden UV Borders', setObjectName='chk002', setToolTip='Harden UV shell border edges.')
+			# tb.contextMenu.add('QCheckBox', setText='Soften All Other', setObjectName='chk000', setChecked=True, setToolTip='Soften all non-hard edges.')
 			return
 
-		mel.eval("PolySelectConvert 2")
-		edges = pm.polyListComponentConversion (toEdge=1)
-		edges = pm.ls(edges, flatten=1)
+		maxEval('$.EditablePoly.makeHardEdges 1')
 
-		pm.undoInfo(openChunk=1)
-		self.mainProgressBar(len(edges))
+		# hardAngle = tb.contextMenu.s002.value()
+		# hardenCreased = tb.contextMenu.chk001.isChecked()
+		# hardenUvBorders = tb.contextMenu.chk002.isChecked()
+		# softenOther = tb.contextMenu.chk000.isChecked()
 
-		soften = tb.contextMenu.chk000.isChecked()
+		# objects = rt.selection
 
-		for edge in edges:
-			pm.progressBar("progressBar_", edit=1, step=1)
-			if pm.progressBar("progressBar_", query=1, isCancelled=1):
-				break
-			crease = pm.polyCrease(edge, query=1, value=1)
-			# print(edge, crease[0])
-			if crease[0]>0:
-				pm.polySoftEdge(edge, angle=30)
-			elif soften:
-				pm.polySoftEdge(edge, angle=180)
-		pm.progressBar("progressBar_", edit=1, endProgress=1)
-		pm.undoInfo(closeChunk=1)
+		# for obj in objects:
+			# selection = pm.ls(obj, sl=True, l=True)
+			# selEdges = pm.ls(pm.polyListComponentConversion(selection, toEdge=1), flatten=1)
+			# allEdges = edges = pm.ls(pm.polyListComponentConversion(obj, toEdge=1), flatten=1)
+
+			# if hardenCreased:
+			# 	creasedEdges = Normals.getCreasedEdges(allEdges)
+			# 	selEdges = selEdges + creasedEdges if not selEdges==allEdges else creasedEdges
+
+			# if hardenUvBorders:
+			# 	uv_border_edges = Init.getUvShellBorderEdges(selection)
+			# 	selEdges = selEdges + uv_border_edges if not selEdges==allEdges else uv_border_edges
+
+			# obj.EditablePoly.makeHardEdges(1) #set hard edges.
+
+			# if softenOther:
+			# 	invEdges = [e for e in allEdges if e not in selEdges]
+			# 	pm.polySoftEdge(invEdges, angle=180, constructionHistory=0) #set soft edges.
+
+			# rt.select(selEdges)
 
 
+	@Slots.hideMain
 	def tb002(self, state=None):
 		'''Set Normal By Angle
 		'''
 		tb = self.current_ui.tb002
-		if state is 'setMenu':
+		if state=='setMenu':
 			tb.contextMenu.add('QSpinBox', setPrefix='Angle: ', setObjectName='s000', setMinMax_='1-180 step1', setValue=60, setToolTip='Angle degree.')
 			return
 
@@ -134,14 +149,12 @@ class Normals(Init):
 				index = [mod for mod in obj.modifiers].index(mod)+1 #add one to convert index from python to maxscript
 				rt.maxOps.CollapseNodeTo(obj, index, False)
 
-		self.tcl.hide()
-
 
 	def tb003(self, state=None):
 		'''Lock/Unlock Vertex Normals
 		'''
 		tb = self.normals_ui.tb003
-		if state is 'setMenu':
+		if state=='setMenu':
 			tb.contextMenu.add('QCheckBox', setText='Lock', setObjectName='chk002', setChecked=True, setToolTip='Toggle Lock/Unlock.')
 			tb.contextMenu.add('QCheckBox', setText='All', setObjectName='chk001', setChecked=True, setToolTip='Lock/Unlock: all.')
 
@@ -187,7 +200,7 @@ class Normals(Init):
 		'''Average Normals
 		'''
 		tb = self.current_ui.tb004
-		if state is 'setMenu':
+		if state=='setMenu':
 			tb.contextMenu.add('QCheckBox', setText='By UV Shell', setObjectName='chk003', setToolTip='Average the normals of each object\'s faces per UV shell.')
 			return
 
@@ -202,18 +215,11 @@ class Normals(Init):
 			maxEval('macros.run "PolyTools" "SmoothSelection"')
 
 
+	@Slots.hideMain
 	def b001(self):
 		'''Soften Edge Normal
 		'''
-		self.tcl.hide()
 		maxEval('$.EditablePoly.makeSmoothEdges 1')
-
-
-	def b002(self):
-		'''Harden Edge Normal
-		'''
-		self.tcl.hide()
-		maxEval('$.EditablePoly.makeHardEdges 1')
 
 
 	def b003(self):
@@ -234,47 +240,6 @@ class Normals(Init):
 		'''Set To Face
 		'''
 		maxEval('macros.run "PolyTools" "HardSelection"')
-
-
-	def b009(self):
-		'''Harden Uv Edges
-		'''
-		def createArrayFromSelection (): #(string sel[])	/* returns a string array of the selected transform nodes
-			pm.select (hierarchy=1)
-			nodes = pm.ls (selection=1, transforms=1)
-			groupedNodes = pm.listRelatives (type="transform") #if the nodes are grouped then just get the children
-
-			if groupedNodes[0] != "":	#check to see if the nodes are grouped
-				size = len(groupedNodes)
-				clear (nodes)
-				appendStringArray(nodes, groupedNodes, size)
-			return nodes
-
-		uvBorder=edgeUVs=finalBorder=[]
-		nodes = createArrayFromSelection()
-
-		for node in nodes:
-			pm.select (node, replace=1)
-			pm.polyNormalPerVertex (unFreezeNormal=True)
-			pm.polySoftEdge (node, angle=180, constructionHistory=1)
-			maxEval('select -replace '+node+'.map["*"];')
-
-			mel.eval("polySelectBorderShell 1;")
-
-			uvBorder = pm.polyListComponentConversion (toEdge=1, internal=1)
-			uvBorder = pm.ls (uvBorder, flatten=1)
-
-			pm.clear(finalBorder)
-
-			for curEdge in uvBorder:
-				edgeUVs = pm.polyListComponentConversion (curEdge, toUv=1)
-				edgeUVs = pm.ls (edgeUVs, flatten=1)
-
-				if len(edgeUVs) >2:
-					finalBorder[len(finalBorder)] = curEdge
-				pm.polySoftEdge (finalBorder, angle=0, constructionHistory=1)
-
-			pm.select (nodes, replace=1)
 
 
 	def b010(self):

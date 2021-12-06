@@ -16,7 +16,7 @@ class Rendering(Init):
 		'''
 		dh = self.rendering_ui.draggable_header
 
-		if state is 'setMenu':
+		if state=='setMenu':
 			dh.contextMenu.add(self.tcl.wgts.ComboBox, setObjectName='cmb000', setToolTip='')
 			return
 
@@ -26,7 +26,7 @@ class Rendering(Init):
 		'''
 		cmb = self.rendering_ui.draggable_header.contextMenu.cmb000
 		
-		if index is 'setMenu':
+		if index=='setMenu':
 			list_ = ['']
 			cmb.addItems_(list_, '')
 			return

@@ -20,7 +20,7 @@ class Materials(Init):
 		'''
 		dh = self.materials_ui.draggable_header
 
-		if state is 'setMenu':
+		if state=='setMenu':
 			dh.contextMenu.add(self.tcl.wgts.ComboBox, setObjectName='cmb000', setToolTip='3dsMax Material Editors')
 			dh.contextMenu.add(self.tcl.wgts.PushButton, setText='Relink Scene Bitmaps', setObjectName='tb003', setToolTip='Repair broken bitmap file links for any scene materials. If no materials are selected, all scene materials will be used.')
 			dh.contextMenu.add(self.tcl.wgts.PushButton, setText='Relink Library Bitmaps', setObjectName='tb004', setToolTip='Repair broken bitmap file links for all libraries in a given directory.')
@@ -31,7 +31,7 @@ class Materials(Init):
 		'''Editors
 		'''
 		cmb = self.materials_ui.draggable_header.contextMenu.cmb000
-		if index is 'setMenu':
+		if index=='setMenu':
 			list_ = ['Material Editor']
 			cmb.addItems_(list_, '3dsMax Material Editors')
 			return
@@ -48,7 +48,7 @@ class Materials(Init):
 		'''
 		cmb = self.materials_ui.cmb001
 
-		if index is 'setMenu':
+		if index=='setMenu':
 			list_ = ['Scene Materials', 'ID Map Materials', 'Favorite Materials']
 			cmb.addItems_(list_)
 			cmb.currentIndexChanged.connect(self.cmb002) #refresh cmb002 contents.
@@ -65,7 +65,7 @@ class Materials(Init):
 
 		b = self.materials_submenu_ui.b003
 
-		if index is 'setMenu':
+		if index=='setMenu':
 			cmb.contextMenu.add(self.tcl.wgts.Label, setText='Open in Editor', setObjectName='lbl000', setToolTip='Open material in editor.')
 			cmb.contextMenu.add(self.tcl.wgts.Label, setText='Rename', setObjectName='lbl001', setToolTip='Rename the current material.')
 			cmb.contextMenu.add(self.tcl.wgts.Label, setText='Delete', setObjectName='lbl002', setToolTip='Delete the current material.')
@@ -132,7 +132,7 @@ class Materials(Init):
 		'''Select By Material Id
 		'''
 		tb = self.current_ui.tb000
-		if state is 'setMenu':
+		if state=='setMenu':
 			tb.contextMenu.add('QCheckBox', setText='All Objects', setObjectName='chk003', setToolTip='Search all scene objects, or only those currently selected.')
 			tb.contextMenu.add('QCheckBox', setText='Shell', setObjectName='chk005', setToolTip='Select entire shell.')
 			tb.contextMenu.add('QCheckBox', setText='Invert', setObjectName='chk006', setToolTip='Invert Selection.')
@@ -155,7 +155,7 @@ class Materials(Init):
 		'''Stored Material Options
 		'''
 		tb = self.materials_ui.tb001
-		if state is 'setMenu':
+		if state=='setMenu':
 			tb.contextMenu.add('QRadioButton', setText='All Scene Materials', setObjectName='chk000', setChecked=True, setToolTip='List all scene materials.') #Material mode: Stored Materials
 			tb.contextMenu.add('QRadioButton', setText='ID Map Materials', setObjectName='chk001', setToolTip='List ID map materials.') #Material mode: ID Map Materials
 
@@ -173,7 +173,7 @@ class Materials(Init):
 		'''Assign Material
 		'''
 		tb = self.materials_ui.tb002
-		if state is 'setMenu':
+		if state=='setMenu':
 			tb.contextMenu.add('QRadioButton', setText='Current Material', setObjectName='chk007', setChecked=True, setToolTip='Re-Assign the current stored material.')
 			tb.contextMenu.add('QRadioButton', setText='New Material', setObjectName='chk009', setToolTip='Assign a new material.')
 			tb.contextMenu.add('QRadioButton', setText='New Random Material', setObjectName='chk008', setToolTip='Assign a new random ID material.')
@@ -223,7 +223,7 @@ class Materials(Init):
 		'''Relink Scene Bitmaps
 		'''
 		tb = self.materials_ui.draggable_header.contextMenu.tb003
-		if state is 'setMenu':
+		if state=='setMenu':
 			tb.contextMenu.add('QLineEdit', setPlaceholderText='Set Bitmaps Directory:', setText=r'\\m3trik-Server\NAS\Graphics\_materials', setObjectName='l000', setToolTip='Location to search for missing bitmaps.') #
 			return
 
@@ -239,7 +239,7 @@ class Materials(Init):
 		'''Relink Material Library Bitmaps
 		'''
 		tb = self.materials_ui.draggable_header.contextMenu.tb004
-		if state is 'setMenu':
+		if state=='setMenu':
 			tb.contextMenu.add('QLineEdit', setPlaceholderText='Set Bitmaps Directory:', setText=r'\\m3trik-Server\NAS\Graphics\_materials', setObjectName='l001', setToolTip='Location to search for missing bitmaps.') #
 			tb.contextMenu.add('QLineEdit', setPlaceholderText='Set Material Library Directory:', setText=r'\\m3trik-Server\NAS\Graphics\_materials\libraries', setObjectName='l002', setToolTip='Location of material libraries.') #
 			return

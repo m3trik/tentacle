@@ -16,7 +16,7 @@ class Create(Init):
 		'''
 		dh = self.create_ui.draggable_header
 
-		if state is 'setMenu':
+		if state=='setMenu':
 			dh.contextMenu.add(self.tcl.wgts.ComboBox, setObjectName='cmb000', setToolTip='')
 			return
 
@@ -26,7 +26,7 @@ class Create(Init):
 		'''
 		cmb = self.create_ui.draggable_header.contextMenu.cmb000
 
-		if index is 'setMenu':
+		if index=='setMenu':
 			list_ = ['']
 			cmb.addItems_(list_, '')
 			return
@@ -43,7 +43,7 @@ class Create(Init):
 		'''
 		cmb = self.create_ui.cmb001
 
-		if index is 'setMenu':
+		if index=='setMenu':
 			list_ = ['Mesh', 'Editable Poly', 'Editable Mesh', 'Editable Patch', 'NURBS', 'Light']
 			cmb.addItems_(list_)
 			return
@@ -56,7 +56,7 @@ class Create(Init):
 		''''''
 		cmb = self.create_ui.cmb002
 
-		if index is 'setMenu':
+		if index=='setMenu':
 			list_ = ["Cube", "Sphere", "Cylinder", "Plane", "Circle", "Cone", "Pyramid", "Torus", "Tube", "GeoSphere", "Text"] 
 			cmb.addItems_(list_, clear=True)
 			return
@@ -396,7 +396,7 @@ print(os.path.splitext(os.path.basename(__file__))[0])
 	# 	'''
 	# 	cmb = self.create_ui.cmb002
 
-	# 	if index is 'setMenu':
+	# 	if index=='setMenu':
 	# 		cmb.popupStyle = 'qmenu'
 	# 		return
 

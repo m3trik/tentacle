@@ -27,7 +27,7 @@ class Editors(Init):
 		'''
 		dh = self.editors_ui.draggable_header
 
-		if state is 'setMenu':
+		if state=='setMenu':
 			dh.contextMenu.add(self.tcl.wgts.ComboBox, setObjectName='cmb000', setToolTip='')
 			return
 

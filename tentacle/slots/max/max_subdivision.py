@@ -23,7 +23,7 @@ class Subdivision(Init):
 		'''
 		dh = self.subdivision_ui.draggable_header
 
-		if state is 'setMenu':
+		if state=='setMenu':
 			dh.contextMenu.add(self.tcl.wgts.ComboBox, setObjectName='cmb000', setToolTip='Subdivision Modifiers')
 			return
 
@@ -33,7 +33,7 @@ class Subdivision(Init):
 		'''
 		cmb = self.subdivision_ui.draggable_header.contextMenu.cmb000
 
-		if index is 'setMenu':
+		if index=='setMenu':
 			list_ = ['TurboSmooth','TurboSmooth Pro','OpenSubDiv','Subdivide','Subdivide (WSM)','MeshSmooth','Optimize','Pro Optimizer','Add Divisions']
 			cmb.addItems_(list_, '3dsMax Subdivision Modifiers')
 			return

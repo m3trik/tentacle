@@ -17,7 +17,7 @@ class Subdivision(Init):
 		'''
 		dh = self.subdivision_ui.draggable_header
 
-		if state is 'setMenu':
+		if state=='setMenu':
 			dh.contextMenu.add(self.tcl.wgts.ComboBox, setObjectName='cmb000', setToolTip='Maya Subdivision Editiors.')
 			dh.contextMenu.add(self.tcl.wgts.ComboBox, setObjectName='cmb001', setToolTip='Smooth Proxy.')
 			dh.contextMenu.add(self.tcl.wgts.ComboBox, setObjectName='cmb002', setToolTip='Maya Subdivision Operations.')
@@ -29,7 +29,7 @@ class Subdivision(Init):
 		'''
 		cmb = self.subdivision_ui.draggable_header.contextMenu.cmb000
 
-		if index is 'setMenu':
+		if index=='setMenu':
 			list_ = ['Polygon Display Options']
 			cmb.addItems_(list_, 'Subdivision Editiors')
 			return
@@ -46,7 +46,7 @@ class Subdivision(Init):
 		'''
 		cmb = self.subdivision_ui.draggable_header.contextMenu.cmb001
 		
-		if index is 'setMenu':
+		if index=='setMenu':
 			list_ = ['Create Subdiv Proxy','Remove Subdiv Proxy Mirror','Crease Tool','Toggle Subdiv Proxy Display', 'Both Proxy and Subdiv Display']
 			cmb.addItems_(list_, 'Smooth Proxy')
 			return
@@ -71,7 +71,7 @@ class Subdivision(Init):
 		'''
 		cmb = self.subdivision_ui.draggable_header.contextMenu.cmb002
 
-		if index is 'setMenu':
+		if index=='setMenu':
 			list_ = ['Reduce Polygons','Add Divisions','Smooth']
 			cmb.addItems_(list_, 'Maya Subdivision Operations')
 			return

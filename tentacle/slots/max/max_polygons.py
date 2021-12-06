@@ -16,7 +16,7 @@ class Polygons(Init):
 		'''
 		dh = self.polygons_ui.draggable_header
 
-		if state is 'setMenu':
+		if state=='setMenu':
 			dh.contextMenu.add(self.tcl.wgts.ComboBox, setObjectName='cmb000', setToolTip='')
 			return
 
@@ -44,7 +44,7 @@ class Polygons(Init):
 		'''
 		cmb = self.polygons_ui.draggable_header.contextMenu.cmb000
 
-		if index is 'setMenu':
+		if index=='setMenu':
 			list_ = ['Bridge','Extrude']
 			cmb.addItems_(list_, '3dsMax Polygon Operations')
 			return
@@ -89,7 +89,7 @@ class Polygons(Init):
 		'''Merge Vertices
 		'''
 		tb = self.current_ui.tb000
-		if state is 'setMenu':
+		if state=='setMenu':
 			tb.contextMenu.add('QDoubleSpinBox', setPrefix='Distance: ', setObjectName='s002', setMinMax_='0.0000-10 step.001', setValue=0.001, setToolTip='Merge Distance.')
 			return
 
@@ -116,7 +116,7 @@ class Polygons(Init):
 		'''Bridge
 		'''
 		tb = self.current_ui.tb001
-		if state is 'setMenu':
+		if state=='setMenu':
 			tb.contextMenu.add('QSpinBox', setPrefix='Divisions: ', setObjectName='s003', setMinMax_='0-10000 step1', setValue=0.001, setToolTip='Divisions.')
 			return
 
@@ -131,7 +131,7 @@ class Polygons(Init):
 		'''Combine
 		'''
 		tb = self.current_ui.tb002
-		if state is 'setMenu':
+		if state=='setMenu':
 			tb.contextMenu.add('QCheckBox', setText='Merge', setObjectName='chk000', setChecked=True, setToolTip='Combine selected meshes and merge any coincident verts/edges.')
 			return
 
@@ -167,7 +167,7 @@ class Polygons(Init):
 		'''Extrude
 		'''
 		tb = self.current_ui.tb003
-		if state is 'setMenu':
+		if state=='setMenu':
 			tb.contextMenu.add('QCheckBox', setText='Keep Faces Together', setObjectName='chk002', setChecked=True, setToolTip='Keep edges/faces together.')
 			return
 
@@ -182,7 +182,7 @@ class Polygons(Init):
 		'''Bevel (Chamfer)
 		'''
 		tb = self.current_ui.tb004
-		if state is 'setMenu':
+		if state=='setMenu':
 			tb.contextMenu.add('QDoubleSpinBox', setPrefix='Width: ', setObjectName='s000', setMinMax_='0.00-100 step.01', setValue=0.01, setToolTip='Bevel Width.')
 			return
 
@@ -202,7 +202,7 @@ class Polygons(Init):
 		'''Detach
 		'''
 		tb = self.current_ui.tb005
-		if state is 'setMenu':
+		if state=='setMenu':
 			tb.contextMenu.add('QCheckBox', setText='Delete Original', setObjectName='chk007', setChecked=True, setToolTip='Delete original selected faces.')
 			return
 
@@ -231,7 +231,7 @@ class Polygons(Init):
 		'''Inset Face Region
 		'''
 		tb = self.current_ui.tb006
-		if state is 'setMenu':
+		if state=='setMenu':
 			tb.contextMenu.add('QDoubleSpinBox', setPrefix='Offset: ', setObjectName='s001', setMinMax_='0.00-100 step.01', setValue=2.00, setToolTip='Offset amount.')
 			return
 
@@ -252,7 +252,7 @@ class Polygons(Init):
 		'''Divide Facet
 		'''
 		tb = self.current_ui.tb007
-		if state is 'setMenu':
+		if state=='setMenu':
 			tb.contextMenu.add('QCheckBox', setText='U', setObjectName='chk008', setChecked=True, setToolTip='Divide facet: U coordinate.')
 			tb.contextMenu.add('QCheckBox', setText='V', setObjectName='chk009', setChecked=True, setToolTip='Divide facet: V coordinate.')
 			tb.contextMenu.add('QCheckBox', setText='Tris', setObjectName='chk010', setToolTip='Divide facet: Tris.')
@@ -283,7 +283,7 @@ class Polygons(Init):
 		'''Boolean Operation
 		'''
 		tb = self.polygons_ui.tb008
-		if state is 'setMenu':
+		if state=='setMenu':
 			tb.contextMenu.add('QRadioButton', setText='Union', setObjectName='chk011', setToolTip='Fuse two objects together.')
 			tb.contextMenu.add('QRadioButton', setText='Difference', setObjectName='chk012', setChecked=True, setToolTip='Indents one object with the shape of another at the point of their intersection.')
 			tb.contextMenu.add('QRadioButton', setText='Intersection', setObjectName='chk013', setToolTip='Keep only the interaction point of two objects.')
@@ -309,7 +309,7 @@ class Polygons(Init):
 		'''Snap Closest Verts
 		'''
 		tb = self.polygons_ui.tb009
-		if state is 'setMenu':
+		if state=='setMenu':
 			tb.contextMenu.add('QDoubleSpinBox', setPrefix='Tolerance: ', setObjectName='s005', setMinMax_='.000-100 step.05', setValue=10, setToolTip='Set the max Snap Distance. Vertices with a distance exceeding this value will be ignored.')
 			tb.contextMenu.add('QCheckBox', setText='Freeze Transforms', setObjectName='chk016', setChecked=True, setToolTip='Freeze Transformations on the object that is being snapped to.')
 			return

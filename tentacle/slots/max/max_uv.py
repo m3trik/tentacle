@@ -32,7 +32,7 @@ class Uv(Init):
 		'''
 		dh = self.uv_ui.draggable_header
 
-		if state is 'setMenu':
+		if state=='setMenu':
 			dh.contextMenu.add(self.tcl.wgts.ComboBox, setObjectName='cmb000', setToolTip='Maya UV Editors')
 			dh.contextMenu.add('QPushButton', setText='Create UV Snapshot', setObjectName='b001', setToolTip='Save an image file of the current UV layout.')
 			return
@@ -43,7 +43,7 @@ class Uv(Init):
 		'''
 		cmb = self.uv_ui.draggable_header.contextMenu.cmb000
 
-		if index is 'setMenu':
+		if index=='setMenu':
 			list_ = ["UV Editor", "UV Set Editor", "UV Tool Kit", "UV Linking: Texture-Centric", "UV Linking: UV-Centric", "UV Linking: Paint Effects/UV", "UV Linking: Hair/UV"]
 			cmb.addItems_(list_, '3dsMax UV Editors')
 			return
@@ -72,7 +72,7 @@ class Uv(Init):
 		'''
 		cmb = self.uv_ui.cmb001
 
-		if index is 'setMenu':
+		if index=='setMenu':
 			cmb.popupStyle = 'qmenu'
 
 			try:
@@ -94,7 +94,7 @@ class Uv(Init):
 		'''
 		cmb = self.uv_ui.cmb002
 
-		if index is 'setMenu':
+		if index=='setMenu':
 			list_ = ['Flip U', 'Flip V', 'Align U Left', 'Align U Middle', 'Align U Right', 'Align V Top', 'Align V Middle', 'Align V Bottom', 'Linear Align']
 			cmb.addItems_(list_, 'Transform:')
 			return
@@ -173,7 +173,7 @@ class Uv(Init):
 		# --fillholes - determines whether smaller clusters will be put in the holes of the larger cluster.
 		'''
 		tb = self.current_ui.tb000
-		if state is 'setMenu':
+		if state=='setMenu':
 			tb.contextMenu.add('QCheckBox', setText='Scale', setObjectName='chk025', setChecked=True, setToolTip='Allow shell scaling during packing.')
 			tb.contextMenu.add('QCheckBox', setText='Rotate', setObjectName='chk007', setChecked=True, setToolTip='Allow shell rotation during packing.')
 			return
@@ -191,7 +191,7 @@ class Uv(Init):
 		'''Auto Unwrap
 		'''
 		tb = self.current_ui.tb001
-		if state is 'setMenu':
+		if state=='setMenu':
 			tb.contextMenu.add('QRadioButton', setText='Standard', setObjectName='chk000', setChecked=True, setToolTip='Create UV texture coordinates for the selected object or faces by automatically finding the best UV placement using simultanious projections from multiple planes.')
 			tb.contextMenu.add('QCheckBox', setText='Scale Mode 1', setObjectName='chk001', setTristate=True, setChecked=True, setToolTip='0 - No scale is applied.<br>1 - Uniform scale to fit in unit square.<br>2 - Non proportional scale to fit in unit square.')
 			tb.contextMenu.add('QRadioButton', setText='Seam Only', setObjectName='chk002', setToolTip='Cut seams only.')
@@ -226,7 +226,7 @@ class Uv(Init):
 		'''Stack
 		'''
 		tb = tb = self.uv_ui.tb002
-		if state is 'setMenu':
+		if state=='setMenu':
 			tb.contextMenu.add('QCheckBox', setText='Orient', setObjectName='chk021', setChecked=True, setToolTip='Orient UV shells to run parallel with the most adjacent U or V axis.')
 			tb.contextMenu.add('QCheckBox', setText='Stack Similar', setObjectName='chk022', setChecked=True, setToolTip='Stack only shells that fall within the set tolerance.')
 			tb.contextMenu.add('QDoubleSpinBox', setPrefix='Tolerance: ', setObjectName='s000', setMinMax_='0.0-10 step.05', setValue=0.05, setToolTip='Stack shells with uv\'s within the given range.')
@@ -249,7 +249,7 @@ class Uv(Init):
 		'''Select By Type
 		'''
 		tb = tb = self.uv_ui.tb003
-		if state is 'setMenu':
+		if state=='setMenu':
 			tb.contextMenu.add('QRadioButton', setText='Back-Facing', setObjectName='chk008', setToolTip='Select all back-facing (using counter-clockwise winding order) components for the current selection.')
 			tb.contextMenu.add('QRadioButton', setText='Front-Facing', setObjectName='chk009', setToolTip='Select all front-facing (using counter-clockwise winding order) components for the current selection.')
 			tb.contextMenu.add('QRadioButton', setText='Overlapping', setObjectName='chk010', setToolTip='Select all components that share the same uv space.')
@@ -283,7 +283,7 @@ class Uv(Init):
 		'''Unfold
 		'''
 		tb = self.current_ui.tb004
-		if state is 'setMenu':
+		if state=='setMenu':
 			tb.contextMenu.add('QCheckBox', setText='Optimize', setObjectName='chk017', setChecked=True, setToolTip='The Optimize UV Tool evens out the spacing between UVs on a mesh, fixing areas of distortion (overlapping UVs).')
 			return
 
@@ -299,7 +299,7 @@ class Uv(Init):
 		'''Straighten Uv
 		'''
 		tb = tb = self.uv_ui.tb005
-		if state is 'setMenu':
+		if state=='setMenu':
 			tb.contextMenu.add('QSpinBox', setPrefix='Angle: ', setObjectName='s001', setMinMax_='0-360 step1', setValue=30, setToolTip='Set the maximum angle used for straightening uv\'s.')
 			tb.contextMenu.add('QCheckBox', setText='Straighten U', setObjectName='chk018', setChecked=True, setToolTip='Unfold UV\'s along a horizonal contraint.')
 			tb.contextMenu.add('QCheckBox', setText='Straighten V', setObjectName='chk019', setChecked=True, setToolTip='Unfold UV\'s along a vertical constaint.')
@@ -326,7 +326,7 @@ class Uv(Init):
 		'''Distribute
 		'''
 		tb = tb = self.uv_ui.tb006
-		if state is 'setMenu':
+		if state=='setMenu':
 			tb.contextMenu.add('QRadioButton', setText='Distribute U', setObjectName='chk023', setChecked=True, setToolTip='Distribute along U.')
 			tb.contextMenu.add('QRadioButton', setText='Distribute V', setObjectName='chk024', setToolTip='Distribute along V.')
 			return
@@ -344,7 +344,7 @@ class Uv(Init):
 		'''Set Texel Density
 		'''
 		tb = self.current_ui.tb007
-		if state is 'setMenu':
+		if state=='setMenu':
 			tb.contextMenu.add('QSpinBox', setPrefix='Map Size: ', setObjectName='s002', setMinMax_='512-32768 step1024', setValue=2048, setToolTip='Set the map used as reference when getting texel density.')
 			tb.contextMenu.add('QDoubleSpinBox', setPrefix='Texel Density: ', setObjectName='s003', setMinMax_='0.00-128 step8', setValue=32, setToolTip='Set the desired texel density.')
 			tb.contextMenu.add('QPushButton', setText='Get Texel Density', setObjectName='b099', setChecked=True, setToolTip='Get the average texel density of any selected faces.')

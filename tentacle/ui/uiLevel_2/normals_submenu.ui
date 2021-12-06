@@ -109,7 +109,7 @@
      <string>Harden all creased edges on the selected object.</string>
     </property>
     <property name="text">
-     <string>Harden Creased</string>
+     <string>Harden Edges</string>
     </property>
     <property name="iconSize">
      <size>

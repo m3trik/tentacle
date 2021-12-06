@@ -291,15 +291,18 @@ cmb.returnPressed.connect(lambda m=cmb.contextMenu.lastActiveChild: getattr(self
 cmb.currentIndexChanged.connect(self.lbl005) #select current set on index change.
 cmb.beforePopupShown.connect(self.cmb001) #refresh comboBox contents before showing it's popup.
 cmb.contextMenu.chk006.setChecked(pm.autoSave(query=1, enable=1)) #set the initial autosave state.
+tb.contextMenu.chk013.toggled.connect(lambda state: tb.contextMenu.s006.setEnabled(True if state else False))
 tb.contextMenu.chk015.stateChanged.connect(lambda state: self.toggleWidgets(tb.contextMenu, setDisabled='t000-1,s001,chk005-11') if state 
-															else self.toggleWidgets(tb.contextMenu, setEnabled='t000-1,s001,chk005-11')) #disable non-relevant options.
+												else self.toggleWidgets(tb.contextMenu, setEnabled='t000-1,s001,chk005-11')) #disable non-relevant options.
+tb.contextMenu.chk004.stateChanged.connect(lambda state: tb.contextMenu.chk004.setText('Repair' if state else 'Select Only')) #set button text to reflect current state.
+tb.contextMenu.chk022.stateChanged.connect(lambda state: self.toggleWidgets(tb.contextMenu, setDisabled='chk002-3,chk005,chk010-21,s006-8', setEnabled='chk023') if state 
+												else self.toggleWidgets(tb.contextMenu, setEnabled='chk002-3,chk005,chk010-21,s006-8', setDisabled='chk023')) #disable non-relevant options.
 self.connect_('chk006-9', 'toggled', self.chk006_9, tb.contextMenu)
 self.connect_((tb.contextMenu.chk012,tb.contextMenu.chk013,tb.contextMenu.chk014), 'toggled', 
 				[lambda state: self.rigging_ui.tb004.setText('Lock Attributes' 
 					if any((tb.contextMenu.chk012.isChecked(),tb.contextMenu.chk013.isChecked(),tb.contextMenu.chk014.isChecked())) else 'Unlock Attributes'), 
 				lambda state: self.rigging_submenu_ui.tb004.setText('Lock Transforms' 
 					if any((tb.contextMenu.chk012.isChecked(),tb.contextMenu.chk013.isChecked(),tb.contextMenu.chk014.isChecked())) else 'Unlock Attributes')])
-
 
 
 # call a method from another class.
@@ -386,6 +389,36 @@ def cmb006(self, index=-1):
 
 
 
+def cmb002(self, index=-1):
+		'''Recent Autosave
+		'''
+		cmb = self.file_ui.cmb002
+
+		if index is 'setMenu':
+			state = rt.autosave.Enable
+			amount = rt.autosave.NumberOfFiles
+			interval = rt.autosave.Interval
+
+			cmb.contextMenu.add('QPushButton', setObjectName='b000', setText='Open Directory', setToolTip='Open the autosave directory.') #open directory
+			cmb.contextMenu.add('QPushButton', setObjectName='b002', setText='Delete All', setToolTip='Delete all autosave files.') #delete all
+			cmb.contextMenu.add('QCheckBox', setText='Autosave', setObjectName='chk006', setChecked=state, setToolTip='Set the autosave state as active or disabled.') #toggle autosave
+			cmb.contextMenu.add('QSpinBox', setPrefix='Amount: ', setObjectName='s000', setMinMax_='1-100 step1', setValue=amount, setHeight_=20, setToolTip='The number of autosave files to retain.') #autosave amount
+			cmb.contextMenu.add('QSpinBox', setPrefix='Interval: ', setObjectName='s001', setMinMax_='1-60 step1', setValue=interval, setHeight_=20, setToolTip='The autosave interval in minutes.') #autosave interval
+
+			cmb.contextMenu.chk006.toggled.connect(lambda s: rt.autosave.setmxsprop('Enable', s))
+			cmb.contextMenu.s000.valueChanged.connect(lambda v: rt.autosave.setmxsprop('NumberOfFiles', v))
+			cmb.contextMenu.s001.valueChanged.connect(lambda v: rt.autosave.setmxsprop('Interval', v))
+			return
+
+		items = cmb.addItems_(self.getRecentAutosave(appendDatetime=True), "Recent Autosave", clear=True)
+
+		if index>0:
+			file = Slots.fileTimeStamp(cmb.items[index], detach=True)[0] #cmb.items[index].split('\\')[-1]
+			rt.loadMaxFile(file)
+			cmb.setCurrentIndex(0)
+
+
+
 # expandable_treewidget:
 def tree000(self, wItem=None, column=None):
 	'''
@@ -435,6 +468,34 @@ def tree000(self, wItem=None, column=None):
 # ======================================================================
 '''
 
+
+# Traceback (most recent call last):
+#   File "O:/Cloud/Code/_scripts/tentacle\tentacle\slots\maya\maya_file.py", line 272, in b000
+#     os.startfile(self.formatPath(dir1))
+# FileNotFoundError: [WinError 2] The system cannot find the file specified: 'O:\\Dropbox (Moth+Flame)\\Moth+Flame Team Folder\\PRODUCTION\\AF\\C-295\\PRODUCTION\\MAYA\\Cockpit\\autosave'
+# Traceback (most recent call last):
+#   File "O:/Cloud/Code/_scripts/tentacle\tentacle\slots\maya\maya_file.py", line 272, in b000
+#     os.startfile(self.formatPath(dir1))
+# FileNotFoundError: [WinError 2] The system cannot find the file specified: 'O:\\Dropbox (Moth+Flame)\\Moth+Flame Team Folder\\PRODUCTION\\AF\\C-295\\PRODUCTION\\MAYA\\Cockpit\\autosave'
+
+
+# Traceback (most recent call last):
+#   File "O:/Cloud/Code/_scripts/tentacle\tentacle\slots\maya\maya_selection.py", line 48, in lbl000
+#     self.creatNewSelectionSet(name)
+#   File "O:/Cloud/Code/_scripts/tentacle\tentacle\slots\slots.py", line 505, in wrapper
+#     self.messageBox(fn(self, *args, **kwargs))
+#   File "O:/Cloud/Code/_scripts/tentacle\tentacle\slots\maya\maya_selection.py", line 602, in creatNewSelectionSet
+#     name = self.generateUniqueSetName()
+#   File "O:/Cloud/Code/_scripts/tentacle\tentacle\slots\maya\maya_selection.py", line 589, in generateUniqueSetName
+#     name = '{0}_Set{1}'.format(rt.selection[0].name, num) #ie. pCube1_Set0
+# NameError: name 'rt' is not defined
+
+
+create
+issue: primitive is not always created at the point of a selected object. (perhaps change to toolbutton, and make this an option)
+when creating primitives at an object's point, also scale to the bounding box the object at that point.
+
+
 # Traceback (most recent call last):
 #   File "O:/Cloud/Code/_scripts/tentacle\tentacle\slots\slots.py", line 505, in wrapper
 #     self.messageBox(fn(self, *args, **kwargs))
@@ -443,10 +504,6 @@ def tree000(self, wItem=None, column=None):
 #   File "O:/Cloud/Code/_scripts/tentacle\tentacle\slots\maya\maya_normals.py", line 154, in <listcomp>
 #     vertices = [vertices.append(str(obj) + ".vtx ["+str(num)+"]") for num in range(count)] #geometry.vtx[0]
 # NameError: free variable 'vertices' referenced before assignment in enclosing scope
-
-
-normals (3ds max module still needs this change)
-combine 'harden creased', 'harden uv edges' with 'harden'
 
 
 # treewidgetExpandableList

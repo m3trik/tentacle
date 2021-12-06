@@ -16,7 +16,7 @@ class Uv(Init):
 		'''
 		dh = self.uv_ui.draggable_header
 
-		if state is 'setMenu':
+		if state=='setMenu':
 			dh.contextMenu.add(self.tcl.wgts.ComboBox, setObjectName='cmb000', setToolTip='Maya UV Editors')
 			dh.contextMenu.add('QPushButton', setText='Create UV Snapshot', setObjectName='b001', setToolTip='Save an image file of the current UV layout.')
 			return
@@ -27,7 +27,7 @@ class Uv(Init):
 		'''
 		cmb = self.uv_ui.draggable_header.contextMenu.cmb000
 
-		if index is 'setMenu':
+		if index=='setMenu':
 			list_ = ['UV Editor','UV Set Editor','UV Tool Kit','UV Linking: Texture-Centric','UV Linking: UV-Centric','UV Linking: Paint Effects/UV','UV Linking: Hair/UV','Flip UV']
 			cmb.addItems_(list_, 'Maya UV Editors')
 			return
@@ -59,7 +59,7 @@ class Uv(Init):
 		'''
 		cmb = self.uv_ui.cmb001
 
-		if index is 'setMenu':
+		if index=='setMenu':
 			cmb.popupStyle = 'qmenu'
 
 			try:
@@ -82,7 +82,7 @@ class Uv(Init):
 		'''
 		cmb = self.uv_ui.cmb002
 
-		if index is 'setMenu':
+		if index=='setMenu':
 			list_ = ['Flip U', 'Flip V', 'Align U Left', 'Align U Middle', 'Align U Right', 'Align V Top', 'Align V Middle', 'Align V Bottom', 'Linear Align']
 			cmb.addItems_(list_, 'Transform:')
 			return
@@ -176,7 +176,7 @@ class Uv(Init):
 			translate (bool)
 		'''
 		tb = self.current_ui.tb000
-		if state is 'setMenu':
+		if state=='setMenu':
 			tb.contextMenu.add(self.tcl.wgts.CheckBox, setText='Pre-Scale Mode: 1', setObjectName='chk025', setTristate=True, setCheckState_=1, setToolTip='Allow shell scaling during packing.')
 			tb.contextMenu.add(self.tcl.wgts.CheckBox, setText='Pre-Rotate Mode: 1', setObjectName='chk007', setTristate=True, setCheckState_=1, setToolTip='Allow shell rotation during packing.')
 			tb.contextMenu.add('QDoubleSpinBox', setPrefix='Rotate Step: ', setObjectName='s007', setMinMax_='0.0-360 step22.5', setValue=22.5, setToolTip='Set the allowed rotation increment contraint.')
@@ -206,7 +206,8 @@ class Uv(Init):
 			dissimilarUVs = [s.split() for s in dissimilar] if dissimilar else []
 			dissimilarFaces = pm.polyListComponentConversion(dissimilarUVs, fromUV=1, toFace=1)
 			pm.u3dLayout(dissimilarFaces, resolution=mapSize, preScaleMode=scale, preRotateMode=rotate, rotateStep=rotateStep, shellSpacing=.005, tileMargin=.005, packBox=[M-1, D, I, U]) #layoutScaleMode (int), multiObject (bool), mutations (int), packBox (float, float, float, float), preRotateMode (int), preScaleMode (int), resolution (int), rotateMax (float), rotateMin (float), rotateStep (float), shellSpacing (float), tileAssignMode (int), tileMargin (float), tileU (int), tileV (int), translate (bool)
-		if similar is 2:
+
+		elif similar is 2:
 			pm.select(dissimilarFaces, toggle=1)
 			similarFaces = pm.ls(sl=1)
 			pm.polyUVStackSimilarShells(similarFaces, dissimilarFaces, tolerance=tolerance)
@@ -220,7 +221,7 @@ class Uv(Init):
 		'''Auto Unwrap
 		'''
 		tb = self.current_ui.tb001
-		if state is 'setMenu':
+		if state=='setMenu':
 			tb.contextMenu.add('QRadioButton', setText='Standard', setObjectName='chk000', setChecked=True, setToolTip='Create UV texture coordinates for the selected object or faces by automatically finding the best UV placement using simultanious projections from multiple planes.')
 			tb.contextMenu.add('QCheckBox', setText='Scale Mode 1', setObjectName='chk001', setTristate=True, setChecked=True, setToolTip='0 - No scale is applied.<br>1 - Uniform scale to fit in unit square.<br>2 - Non proportional scale to fit in unit square.')
 			tb.contextMenu.add('QRadioButton', setText='Seam Only', setObjectName='chk002', setToolTip='Cut seams only.')
@@ -279,7 +280,7 @@ class Uv(Init):
 		'''Stack
 		'''
 		tb = tb = self.uv_ui.tb002
-		if state is 'setMenu':
+		if state=='setMenu':
 			tb.contextMenu.add('QCheckBox', setText='Orient', setObjectName='chk021', setChecked=True, setToolTip='Orient UV shells to run parallel with the most adjacent U or V axis.')
 			tb.contextMenu.add('QCheckBox', setText='Stack Similar', setObjectName='chk022', setChecked=True, setToolTip='Stack only shells that fall within the set tolerance.')
 			tb.contextMenu.add('QDoubleSpinBox', setPrefix='Tolerance: ', setObjectName='s000', setMinMax_='0.0-10 step.1', setValue=1.0, setToolTip='Stack shells with uv\'s within the given range.')
@@ -302,7 +303,7 @@ class Uv(Init):
 		'''Select By Type
 		'''
 		tb = tb = self.uv_ui.tb003
-		if state is 'setMenu':
+		if state=='setMenu':
 			tb.contextMenu.add('QRadioButton', setText='Back-Facing', setObjectName='chk008', setToolTip='Select all back-facing (using counter-clockwise winding order) components for the current selection.')
 			tb.contextMenu.add('QRadioButton', setText='Front-Facing', setObjectName='chk009', setToolTip='Select all front-facing (using counter-clockwise winding order) components for the current selection.')
 			tb.contextMenu.add('QRadioButton', setText='Overlapping', setObjectName='chk010', setToolTip='Select all components that share the same uv space.')
@@ -355,7 +356,7 @@ class Uv(Init):
 		  -tf -triangleflip        on|off
 		'''
 		tb = self.current_ui.tb004
-		if state is 'setMenu':
+		if state=='setMenu':
 			tb.contextMenu.add('QCheckBox', setText='Optimize', setObjectName='chk017', setToolTip='The Optimize UV Tool evens out the spacing between UVs on a mesh, fixing areas of distortion (overlapping UVs).')
 			# tb.contextMenu.add('QSpinBox', setPrefix='Optimize Amount: ', setObjectName='s008', setMinMax_='0-100 step1', setValue=25, setToolTip='The number of times to run optimize on the unfolded mesh.')
 			return
@@ -373,7 +374,7 @@ class Uv(Init):
 		'''Straighten Uv
 		'''
 		tb = tb = self.uv_ui.tb005
-		if state is 'setMenu':
+		if state=='setMenu':
 			tb.contextMenu.add('QSpinBox', setPrefix='Angle: ', setObjectName='s001', setMinMax_='0-360 step1', setValue=30, setToolTip='Set the maximum angle used for straightening uv\'s.')
 			tb.contextMenu.add('QCheckBox', setText='Straighten U', setObjectName='chk018', setChecked=True, setToolTip='Unfold UV\'s along a horizonal contraint.')
 			tb.contextMenu.add('QCheckBox', setText='Straighten V', setObjectName='chk019', setChecked=True, setToolTip='Unfold UV\'s along a vertical constaint.')
@@ -400,7 +401,7 @@ class Uv(Init):
 		'''Distribute
 		'''
 		tb = tb = self.uv_ui.tb006
-		if state is 'setMenu':
+		if state=='setMenu':
 			tb.contextMenu.add('QRadioButton', setText='Distribute U', setObjectName='chk023', setChecked=True, setToolTip='Distribute along U.')
 			tb.contextMenu.add('QRadioButton', setText='Distribute V', setObjectName='chk024', setToolTip='Distribute along V.')
 			return
@@ -418,7 +419,7 @@ class Uv(Init):
 		'''Set Texel Density
 		'''
 		tb = tb = self.uv_ui.tb007
-		if state is 'setMenu':
+		if state=='setMenu':
 			tb.contextMenu.add('QSpinBox', setPrefix='Map Size: ', setObjectName='s002', setMinMax_='512-8192 step512', setValue=2048, setToolTip='Set the map used as reference when getting texel density.')
 			tb.contextMenu.add('QDoubleSpinBox', setPrefix='Texel Density: ', setObjectName='s003', setMinMax_='0.00-128 step8', setValue=32, setToolTip='Set the desired texel density.')
 			tb.contextMenu.add('QPushButton', setText='Get Texel Density', setObjectName='b099', setChecked=True, setToolTip='Get the average texel density of any selected faces.')
@@ -445,12 +446,13 @@ class Uv(Init):
 
 
 	@Init.undoChunk
+	@Slots.message
 	def b002(self):
 		'''Transfer Uv's
 		'''
 		sel = pm.ls(orderedSelection=1, flatten=1)
 		if len(sel)<2:
-			Slots.messageBox('Error: The operation requires the selection of two polygon objects.')
+			return 'Error: The operation requires the selection of two polygon objects.'
 
 		# pm.undoInfo(openChunk=1)
 		from_ = sel[0]
@@ -531,7 +533,7 @@ class Uv(Init):
 		'''
 		selection = pm.ls(sl=1)
 		if not selection:
-			Slots.messageBox('Error: Nothing selected.')
+			print('Error: Nothing selected.')
 
 		objects = pm.ls(selection, objectsOnly=1)
 		objectMode = pm.selectMode(query=1, object=1)

@@ -18,7 +18,7 @@ class Scene(Init):
 		'''
 		dh = self.scene_ui.draggable_header
 
-		if state is 'setMenu':
+		if state=='setMenu':
 			dh.contextMenu.add(self.tcl.wgts.ComboBox, setObjectName='cmb000', setToolTip='Maya Scene Editors')
 			return
 
@@ -28,7 +28,7 @@ class Scene(Init):
 		'''
 		cmb = self.scene_ui.draggable_header.contextMenu.cmb000
 
-		if index is 'setMenu':
+		if index=='setMenu':
 			items = ['Node Editor', 'Outlinder', 'Content Browser', 'Optimize Scene Size', 'Prefix Hierarchy Names', 'Search and Replace Names']
 			cmb.addItems_(items, 'Maya Scene Editors')
 			return
@@ -55,7 +55,7 @@ class Scene(Init):
 		'''
 		t000 = self.scene_ui.t000
 
-		if state is 'setMenu':
+		if state=='setMenu':
 			t000.contextMenu.add('QCheckBox', setText='Ignore Case', setObjectName='chk000', setToolTip='Search case insensitive.')
 			t000.contextMenu.add('QCheckBox', setText='Regular Expression', setObjectName='chk001', setToolTip='When checked, regular expression syntax is used instead of the default \'*\' and \'|\' wildcards.')
 			return
@@ -66,7 +66,7 @@ class Scene(Init):
 		'''
 		t001 = self.scene_ui.t001
 
-		if state is 'setMenu':
+		if state=='setMenu':
 			return
 
 		find = self.scene_ui.t000.text() #an asterisk denotes startswith*, *endswith, *contains* 
@@ -83,7 +83,7 @@ class Scene(Init):
 		'''Convert Case
 		'''
 		tb = self.current_ui.tb000
-		if state is 'setMenu':
+		if state=='setMenu':
 			tb.contextMenu.add('QComboBox', addItems=['capitalize', 'upper', 'lower', 'swapcase', 'title'], setObjectName='cmb001', setToolTip='Set desired python case operator.')
 			return
 
