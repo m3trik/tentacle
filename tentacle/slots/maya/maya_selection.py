@@ -18,7 +18,6 @@ class Selection(Init):
 
 		if state=='setMenu':
 			dh.contextMenu.add(self.tcl.wgts.ComboBox, setObjectName='cmb000', setToolTip='')
-			dh.contextMenu.add(self.tcl.wgts.ComboBox, setObjectName='cmb004', setToolTip='Set the select tool type.')
 			dh.contextMenu.add(self.tcl.wgts.ComboBox, setObjectName='cmb006', setToolTip='A list of currently selected objects.')
 			dh.contextMenu.add('QCheckBox', setText='Ignore Backfacing', setObjectName='chk004', setToolTip='Ignore backfacing components during selection.')
 			dh.contextMenu.add('QCheckBox', setText='Soft Selection', setObjectName='chk008', setToolTip='Toggle soft selection mode.')
@@ -147,6 +146,7 @@ class Selection(Init):
 		self.toggleWidgets(setUnChecked='chk000-1')
 
 
+	@Slots.hideMain
 	@Slots.message
 	def chk004(self, state=None):
 		'''Ignore Backfacing (Camera Based Selection)
@@ -157,33 +157,6 @@ class Selection(Init):
 		else:
 			pm.selectPref(useDepth=False)
 			return 'Camera-based selection <hl>Off</hl>.'
-
-
-	def chk005(self, state=None):
-		'''Select Style: Marquee
-		'''
-		self.setSelectionStyle('selectContext')
-		self.toggleWidgets(setChecked='chk005', setUnChecked='chk006-7')
-		self.selection_ui.draggable_header.contextMenu.cmb004.setCurrentIndex(0)
-		self.viewPortMessage('Select Style: <hl>Marquee</hl>')
-
-
-	def chk006(self, state=None):
-		'''Select Style: Lasso
-		'''
-		self.setSelectionStyle('lassoContext')
-		self.toggleWidgets(setChecked='chk006', setUnChecked='chk005,chk007')
-		self.selection_ui.draggable_header.contextMenu.cmb004.setCurrentIndex(1)
-		self.viewPortMessage('Select Style: <hl>Lasso</hl>')
-
-
-	def chk007(self, state=None):
-		'''Select Style: Paint
-		'''
-		self.setSelectionStyle('paintContext')
-		self.toggleWidgets(setChecked='chk007', setUnChecked='chk005-6')
-		self.selection_ui.draggable_header.contextMenu.cmb004.setCurrentIndex(2)
-		self.viewPortMessage('Select Style: <hl>Paint</hl>')
 
 
 	@Slots.message
@@ -198,15 +171,45 @@ class Selection(Init):
 			return 'Soft Select <hl>Off</hl>.'
 
 
-	def setSelectionStyle(self, ctx):
-		'''Set the selection style context.
-		:Parameters:
-			ctx (str) = Selection style context. Possible values include: 'marquee', 'lasso', 'drag'.
+	# @Slots.message
+	def chk005(self, state=None):
+		'''Select Style: Marquee
 		'''
+		self.toggleWidgets(setChecked='chk005', setUnChecked='chk006-7')
+		Selection.setSelectionStyle('marquee')
+		return 'Select Style: <hl>Marquee</hl>'
+
+
+	# @Slots.message
+	def chk006(self, state=None):
+		'''Select Style: Lasso
+		'''
+		self.toggleWidgets(setChecked='chk006', setUnChecked='chk005,chk007')
+		Selection.setSelectionStyle('lasso')
+		return 'Select Style: <hl>Lasso</hl>'
+
+
+	# @Slots.message
+	def chk007(self, state=None):
+		'''Select Style: Paint
+		'''
+		self.toggleWidgets(setChecked='chk007', setUnChecked='chk005-6')
+		Selection.setSelectionStyle('paint')
+		return 'Select Style: <hl>Paint</hl>'
+
+
+	@staticmethod
+	def setSelectionStyle(ctx):
+		'''Set the selection style context.
+
+		:Parameters:
+			ctx (str) = Selection style context. Possible values include: 'marquee', 'lasso', 'paint'.
+		'''
+		ctx = ctx+'Context'
 		if pm.contextInfo(ctx, exists=True):
 			pm.deleteUI(ctx)
 
-		if ctx=='selectContext':
+		if ctx=='marqueeContext':
 			ctx = pm.selectContext(ctx)
 		elif ctx=='lassoContext':
 			ctx = pm.lassoContext(ctx)
@@ -374,27 +377,6 @@ class Selection(Init):
 				mel.eval('polyConvertToShell;')
 			elif text=='Shell Border': #
 				mel.eval('polyConvertToShellBorder;')
-			cmb.setCurrentIndex(0)
-
-
-	def cmb004(self, index=-1):
-		'''Select Style: Set Context
-		'''
-		cmb = self.selection_ui.draggable_header.contextMenu.cmb004
-
-		if index=='setMenu':
-			items = ['Marquee', 'Lasso', 'Paint'] 
-			cmb.addItems_(items, 'Select Tool Style:')
-			return
-
-		if index>0:
-			text = cmb.items[index]
-			if text=='Marquee': #
-				self.chk005()
-			elif text=='Lasso': #
-				self.chk006()
-			elif text=='Paint': #
-				self.chk007()
 			cmb.setCurrentIndex(0)
 
 
@@ -580,13 +562,19 @@ class Selection(Init):
 		mel.eval('SelectEdgeRingSp;')
 
 
-	def generateUniqueSetName(self):
+	def generateUniqueSetName(self, obj=None):
 		'''Generate a generic name based on the object's name.
+
+		:Parameters:
+			obj (str)(obj)(list) = The maya scene object to derive a unique name from.
 
 		<objectName>_Set<int>
 		'''
+		if obj is None:
+			obj = pm.ls(sl=1)
 		num = self.cycle(list(range(99)), 'selectionSetNum')
-		name = '{0}_Set{1}'.format(rt.selection[0].name, num) #ie. pCube1_Set0
+		name = '{0}_Set{1}'.format(pm.ls(obj, objectsOnly=1, flatten=1)[0].name, num) #ie. pCube1_Set0
+
 		return name
 
 
@@ -594,7 +582,7 @@ class Selection(Init):
 	def creatNewSelectionSet(self, name=None):
 		'''Selection Sets: Create a new selection set.
 		'''
-		if pm.objExists (name):
+		if pm.objExists(name):
 			return 'Error: Set with name <hl>{}</hl> already exists.'.format(name)
 
 		else: #create set

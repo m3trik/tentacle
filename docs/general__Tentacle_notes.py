@@ -473,58 +473,14 @@ def tree000(self, wItem=None, column=None):
 # popup menu closes when focus lost, even when pinned.
 
 
-
-# Traceback (most recent call last):
-#   File "O:/Cloud/Code/_scripts/tentacle\tentacle\slots\maya\maya_file.py", line 272, in b000
-#     os.startfile(self.formatPath(dir1))
-
-# FileNotFoundError: [WinError 2] The system cannot find the file specified: 'O:\\Dropbox (Moth+Flame)\\Moth+Flame Team Folder\\PRODUCTION\\AF\\C-295\\PRODUCTION\\MAYA\\Cockpit\\autosave'
-# Traceback (most recent call last):
-
-#   File "O:/Cloud/Code/_scripts/tentacle\tentacle\slots\maya\maya_file.py", line 272, in b000
-#     os.startfile(self.formatPath(dir1))
-
-# FileNotFoundError: [WinError 2] The system cannot find the file specified: 'O:\\Dropbox (Moth+Flame)\\Moth+Flame Team Folder\\PRODUCTION\\AF\\C-295\\PRODUCTION\\MAYA\\Cockpit\\autosave'
-
-
-# Traceback (most recent call last):
-#   File "O:/Cloud/Code/_scripts/tentacle\tentacle\slots\maya\maya_selection.py", line 48, in lbl000
-#     self.creatNewSelectionSet(name)
-
-#   File "O:/Cloud/Code/_scripts/tentacle\tentacle\slots\slots.py", line 505, in wrapper
-#     self.messageBox(fn(self, *args, **kwargs))
-
-#   File "O:/Cloud/Code/_scripts/tentacle\tentacle\slots\maya\maya_selection.py", line 602, in creatNewSelectionSet
-#     name = self.generateUniqueSetName()
-
-#   File "O:/Cloud/Code/_scripts/tentacle\tentacle\slots\maya\maya_selection.py", line 589, in generateUniqueSetName
-#     name = '{0}_Set{1}'.format(rt.selection[0].name, num) #ie. pCube1_Set0
-
-# NameError: name 'rt' is not defined
-
-
 create
 issue: primitive is not always created at the point of a selected object. (perhaps change to toolbutton, and make this an option)
 when creating primitives at an object's point, also scale to the bounding box the object at that point.
 
 
-# Traceback (most recent call last):
-#   File "O:/Cloud/Code/_scripts/tentacle\tentacle\slots\slots.py", line 505, in wrapper
-#     self.messageBox(fn(self, *args, **kwargs))
-#   File "O:/Cloud/Code/_scripts/tentacle\tentacle\slots\maya\maya_normals.py", line 154, in tb003
-#     vertices = [vertices.append(str(obj) + ".vtx ["+str(num)+"]") for num in range(count)] #geometry.vtx[0]
-#   File "O:/Cloud/Code/_scripts/tentacle\tentacle\slots\maya\maya_normals.py", line 154, in <listcomp>
-#     vertices = [vertices.append(str(obj) + ".vtx ["+str(num)+"]") for num in range(count)] #geometry.vtx[0]
-# NameError: free variable 'vertices' referenced before assignment in enclosing scope
-
-
 # treewidgetExpandableList
 # mousegrab being lost after using treewidget
 # initial size incorrect (and first column not populating)
-
-
-maya_select
-select type not working
 
 
 # Traceback (most recent call last):

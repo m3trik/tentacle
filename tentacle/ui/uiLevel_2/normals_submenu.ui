@@ -93,9 +93,9 @@
     </property>
     <property name="geometry">
      <rect>
-      <x>290</x>
-      <y>370</y>
-      <width>96</width>
+      <x>360</x>
+      <y>270</y>
+      <width>91</width>
       <height>19</height>
      </rect>
     </property>
@@ -118,44 +118,13 @@
      </size>
     </property>
    </widget>
-   <widget class="PushButton" name="tb002">
-    <property name="enabled">
-     <bool>true</bool>
-    </property>
-    <property name="geometry">
-     <rect>
-      <x>370</x>
-      <y>310</y>
-      <width>66</width>
-      <height>19</height>
-     </rect>
-    </property>
-    <property name="maximumSize">
-     <size>
-      <width>999</width>
-      <height>19</height>
-     </size>
-    </property>
-    <property name="toolTip">
-     <string>Set normal angle</string>
-    </property>
-    <property name="text">
-     <string>By Angle</string>
-    </property>
-    <property name="iconSize">
-     <size>
-      <width>18</width>
-      <height>18</height>
-     </size>
-    </property>
-   </widget>
    <widget class="QPushButton" name="b010">
     <property name="enabled">
      <bool>true</bool>
     </property>
     <property name="geometry">
      <rect>
-      <x>325</x>
+      <x>295</x>
       <y>340</y>
       <width>111</width>
       <height>19</height>
@@ -180,45 +149,14 @@
      </size>
     </property>
    </widget>
-   <widget class="PushButton" name="tb000">
-    <property name="enabled">
-     <bool>true</bool>
-    </property>
-    <property name="geometry">
-     <rect>
-      <x>290</x>
-      <y>400</y>
-      <width>81</width>
-      <height>19</height>
-     </rect>
-    </property>
-    <property name="maximumSize">
-     <size>
-      <width>999</width>
-      <height>19</height>
-     </size>
-    </property>
-    <property name="toolTip">
-     <string>Display face normals</string>
-    </property>
-    <property name="text">
-     <string>Display Normal</string>
-    </property>
-    <property name="iconSize">
-     <size>
-      <width>18</width>
-      <height>18</height>
-     </size>
-    </property>
-   </widget>
    <widget class="QPushButton" name="b006">
     <property name="enabled">
      <bool>true</bool>
     </property>
     <property name="geometry">
      <rect>
-      <x>340</x>
-      <y>250</y>
+      <x>265</x>
+      <y>240</y>
       <width>76</width>
       <height>19</height>
      </rect>
@@ -248,8 +186,8 @@
     </property>
     <property name="geometry">
      <rect>
-      <x>370</x>
-      <y>280</y>
+      <x>355</x>
+      <y>240</y>
       <width>66</width>
       <height>19</height>
      </rect>
@@ -271,6 +209,43 @@
     </property>
     <property name="text">
      <string>Average</string>
+    </property>
+    <property name="iconSize">
+     <size>
+      <width>18</width>
+      <height>18</height>
+     </size>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="b001">
+    <property name="enabled">
+     <bool>true</bool>
+    </property>
+    <property name="geometry">
+     <rect>
+      <x>360</x>
+      <y>300</y>
+      <width>91</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="minimumSize">
+     <size>
+      <width>60</width>
+      <height>20</height>
+     </size>
+    </property>
+    <property name="maximumSize">
+     <size>
+      <width>999</width>
+      <height>20</height>
+     </size>
+    </property>
+    <property name="toolTip">
+     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; text-decoration: underline;&quot;&gt;Soften edge normals&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+    </property>
+    <property name="text">
+     <string>Soften Edges</string>
     </property>
     <property name="iconSize">
      <size>

@@ -147,31 +147,30 @@ class Normals(Init):
 		maskObject = pm.selectMode (query=1, object=1)
 		maskVertex = pm.selectType (query=1, vertex=1)
 
-		if len(selection)>0:
-			if (all_ and maskVertex) or maskObject:
-				for obj in selection:
-					count = pm.polyEvaluate(obj, vertex=1) #get number of vertices
-					vertices = [vertices.append(str(obj) + ".vtx ["+str(num)+"]") for num in range(count)] #geometry.vtx[0]
-					for vertex in vertices:
-						if not state:
-							pm.polyNormalPerVertex(vertex, unFreezeNormal=1)
-						else:
-							pm.polyNormalPerVertex(vertex, freezeNormal=1)
+		if not selection:
+			return 'Error: Operation requires at least one selected object.'
+
+		if (all_ and maskVertex) or maskObject:
+			for obj in selection:
+				vertices = Init.getComponents(obj, 'vertices', flatten=1)
+				for vertex in vertices:
 					if not state:
-						self.viewPortMessage("Normals <hl>UnLocked</hl>.")
+						pm.polyNormalPerVertex(vertex, unFreezeNormal=1)
 					else:
-						self.viewPortMessage("Normals <hl>Locked</hl>.")
-			elif maskVertex and not maskObject:
+						pm.polyNormalPerVertex(vertex, freezeNormal=1)
 				if not state:
-					pm.polyNormalPerVertex(unFreezeNormal=1)
 					self.viewPortMessage("Normals <hl>UnLocked</hl>.")
 				else:
-					pm.polyNormalPerVertex(freezeNormal=1)
 					self.viewPortMessage("Normals <hl>Locked</hl>.")
+		elif maskVertex and not maskObject:
+			if not state:
+				pm.polyNormalPerVertex(unFreezeNormal=1)
+				self.viewPortMessage("Normals <hl>UnLocked</hl>.")
 			else:
-				return 'Warning: Selection must be object or vertex.'
+				pm.polyNormalPerVertex(freezeNormal=1)
+				self.viewPortMessage("Normals <hl>Locked</hl>.")
 		else:
-			return 'Warning: No object selected.'
+			return 'Warning: Selection must be object or vertex.'
 
 
 	def tb004(self, state=None):

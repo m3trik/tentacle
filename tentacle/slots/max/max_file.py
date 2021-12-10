@@ -265,11 +265,16 @@ class File(Init):
 		os.startfile(dir_)
 
 
+	@Slots.message
 	def b000(self):
 		'''Autosave: Open Directory
 		'''
 		dir_ = rt.GetDir(rt.name('autoback'))
-		os.startfile(self.formatPath(dir_))
+			
+		try:
+			os.startfile(self.formatPath(dir_))
+		except FileNotFoundError as error:
+			return 'Error: The system cannot find the file specified.'
 
 
 	def b001(self):

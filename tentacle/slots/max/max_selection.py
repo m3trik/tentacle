@@ -18,7 +18,6 @@ class Selection(Init):
 
 		if state=='setMenu':
 			dh.contextMenu.add(self.tcl.wgts.ComboBox, setObjectName='cmb000', setToolTip='')
-			dh.contextMenu.add(self.tcl.wgts.ComboBox, setObjectName='cmb004', setToolTip='Set the select tool type.')
 			dh.contextMenu.add('QCheckBox', setText='Ignore Backfacing', setObjectName='chk004', setToolTip='Ignore backfacing components during selection.')
 			dh.contextMenu.add('QCheckBox', setText='Soft Selection', setObjectName='chk008', setToolTip='Toggle soft selection mode.')
 			dh.contextMenu.add(self.tcl.wgts.Label, setText='Grow Selection', setObjectName='lbl003', setToolTip='Grow the current selection.')
@@ -178,31 +177,50 @@ class Selection(Init):
 				return 'Camera-based selection <hl>Off</hl>.'
 
 
-	@Slots.message
+	# @Slots.message
 	def chk005(self, state=None):
 		'''Select Style: Marquee
 		'''
 		self.toggleWidgets(setChecked='chk005', setUnChecked='chk006-7')
-		self.selection_ui.draggable_header.contextMenu.cmb004.setCurrentIndex(0)
+		Selection.setSelectionStyle('marquee')
 		return 'Select Style: <hl>Marquee</hl>'
 
 
-	@Slots.message
+	# @Slots.message
 	def chk006(self, state=None):
 		'''Select Style: Lasso
 		'''
 		self.toggleWidgets(setChecked='chk006', setUnChecked='chk005,chk007')
-		self.selection_ui.draggable_header.contextMenu.cmb004.setCurrentIndex(3)
+		Selection.setSelectionStyle('lasso')
 		return 'Select Style: <hl>Lasso</hl>'
 
 
-	@Slots.message
+	# @Slots.message
 	def chk007(self, state=None):
 		'''Select Style: Paint
 		'''
 		self.toggleWidgets(setChecked='chk007', setUnChecked='chk005-6')
-		self.selection_ui.draggable_header.contextMenu.cmb004.setCurrentIndex(4)
+		Selection.setSelectionStyle('paint')
 		return 'Select Style: <hl>Paint</hl>'
+
+
+	@staticmethod
+	def setSelectionStyle(ctx):
+		'''Set the selection style context.
+
+		:Parameters:
+			ctx (str) = Selection style context. Possible values include: 'marquee', 'circular', 'fence', 'lasso', 'paint'.
+		'''
+		if ctx=='marquee':
+			maxEval('actionMan.executeAction 0 "59232"') #Rectangular select region
+		elif ctx=='circular':
+			maxEval('actionMan.executeAction 0 "59233"') #Circular select region
+		elif ctx=='fence':
+			maxEval('actionMan.executeAction 0 "59234"') #Fence select region
+		elif ctx=='lasso':
+			maxEval('actionMan.executeAction 0 "59235"') #Lasso select region
+		elif ctx=='paint':
+			maxEval('actionMan.executeAction 0 "59236"') #Paint select region
 
 
 	@Slots.message
@@ -304,31 +322,6 @@ class Selection(Init):
 						obj.convertSelection('CurrentLevel', i) #Convert current selection to index of string i
 						# rt.setSelectionLevel(obj, i) #Change component mode to i
 						rt.subObjectLevel = cmb.items.index(i) #the needed component level corresponds to the item's index.
-			cmb.setCurrentIndex(0)
-
-
-	def cmb004(self, index=-1):
-		'''Select Style: Set Context
-		'''
-		cmb = self.selection_ui.draggable_header.contextMenu.cmb004
-
-		if index=='setMenu':
-			list_ = ['Marquee', 'Circular', 'Fence', 'Lasso', 'Paint'] 
-			cmb.addItems_(list_, 'Select Tool Style:')
-			return
-
-		if index>0:
-			text = cmb.items[index]
-			if text=='Marquee':
-				maxEval('actionMan.executeAction 0 "59232"') #Rectangular select region
-			elif text=='Circular':
-				maxEval('actionMan.executeAction 0 "59233"') #Circular select region
-			elif text=='Fence':
-				maxEval('actionMan.executeAction 0 "59234"') #Fence select region
-			elif text=='Lasso':
-				maxEval('actionMan.executeAction 0 "59235"') #Lasso select region
-			elif text=='Paint':
-				maxEval('actionMan.executeAction 0 "59236"') #Paint select region
 			cmb.setCurrentIndex(0)
 
 
