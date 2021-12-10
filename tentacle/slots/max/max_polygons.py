@@ -380,12 +380,6 @@ class Polygons(Init):
 		# rt.macros.run('Ribbon - Modeling', 'GeometryCollapse')
 
 
-	def b010(self):
-		'''Extract Curve
-		'''
-		maxEval('')
-
-
 	def b012(self):
 		'''Multi-Cut Tool
 		'''

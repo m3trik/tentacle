@@ -203,13 +203,13 @@ class Uv(Init):
 			# tb.contextMenu.chk001.toggled.connect(lambda state: self.toggleWidgets(tb.contextMenu, setUnChecked='chk002-3') if state==1 else None)
 			return
 
-		standardUnwrap = self.uv_ui.chk000.isChecked()
-		scaleMode = self.uv_ui.chk001.isChecked()
-		seamOnly = self.uv_ui.chk002.isChecked()
-		planarUnwrap = self.uv_ui.chk003.isChecked()
-		cylindricalUnwrap = self.uv_ui.chk004.isChecked()
-		sphericalUnwrap = self.uv_ui.chk005.isChecked()
-		normalBasedUnwrap = self.uv_ui.chk006.isChecked()
+		standardUnwrap = tb.contextMenu.chk000.isChecked()
+		scaleMode = tb.contextMenu.chk001.isChecked()
+		seamOnly = tb.contextMenu.chk002.isChecked()
+		planarUnwrap = tb.contextMenu.chk003.isChecked()
+		cylindricalUnwrap = tb.contextMenu.chk004.isChecked()
+		sphericalUnwrap = tb.contextMenu.chk005.isChecked()
+		normalBasedUnwrap = tb.contextMenu.chk006.isChecked()
 
 		objects = rt.selection
 
@@ -225,7 +225,7 @@ class Uv(Init):
 	def tb002(self, state=None):
 		'''Stack
 		'''
-		tb = tb = self.uv_ui.tb002
+		tb = self.uv_ui.tb002
 		if state=='setMenu':
 			tb.contextMenu.add('QCheckBox', setText='Orient', setObjectName='chk021', setChecked=True, setToolTip='Orient UV shells to run parallel with the most adjacent U or V axis.')
 			tb.contextMenu.add('QCheckBox', setText='Stack Similar', setObjectName='chk022', setChecked=True, setToolTip='Stack only shells that fall within the set tolerance.')
@@ -248,7 +248,7 @@ class Uv(Init):
 	def tb003(self, state=None):
 		'''Select By Type
 		'''
-		tb = tb = self.uv_ui.tb003
+		tb = self.uv_ui.tb003
 		if state=='setMenu':
 			tb.contextMenu.add('QRadioButton', setText='Back-Facing', setObjectName='chk008', setToolTip='Select all back-facing (using counter-clockwise winding order) components for the current selection.')
 			tb.contextMenu.add('QRadioButton', setText='Front-Facing', setObjectName='chk009', setToolTip='Select all front-facing (using counter-clockwise winding order) components for the current selection.')
@@ -258,12 +258,12 @@ class Uv(Init):
 			tb.contextMenu.add('QRadioButton', setText='Unmapped', setObjectName='chk013', setChecked=True, setToolTip='Select unmapped faces in the current uv set.')
 			return
 
-		back_facing = self.uv_ui.chk008.isChecked()
-		front_facing = self.uv_ui.chk009.isChecked()
-		overlapping = self.uv_ui.chk010.isChecked()
-		nonOverlapping = self.uv_ui.chk011.isChecked()
-		textureBorders = self.uv_ui.chk012.isChecked()
-		unmapped = self.uv_ui.chk013.isChecked()
+		back_facing = tb.contextMenu.chk008.isChecked()
+		front_facing = tb.contextMenu.chk009.isChecked()
+		overlapping = tb.contextMenu.chk010.isChecked()
+		nonOverlapping = tb.contextMenu.chk011.isChecked()
+		textureBorders = tb.contextMenu.chk012.isChecked()
+		unmapped = tb.contextMenu.chk013.isChecked()
 
 		if back_facing:
 			pm.mel.selectUVFaceOrientationComponents({}, 0, 2, 1)
@@ -298,7 +298,7 @@ class Uv(Init):
 	def tb005(self, state=None):
 		'''Straighten Uv
 		'''
-		tb = tb = self.uv_ui.tb005
+		tb = self.uv_ui.tb005
 		if state=='setMenu':
 			tb.contextMenu.add('QSpinBox', setPrefix='Angle: ', setObjectName='s001', setMinMax_='0-360 step1', setValue=30, setToolTip='Set the maximum angle used for straightening uv\'s.')
 			tb.contextMenu.add('QCheckBox', setText='Straighten U', setObjectName='chk018', setChecked=True, setToolTip='Unfold UV\'s along a horizonal contraint.')
@@ -325,7 +325,7 @@ class Uv(Init):
 	def tb006(self, state=None):
 		'''Distribute
 		'''
-		tb = tb = self.uv_ui.tb006
+		tb = self.uv_ui.tb006
 		if state=='setMenu':
 			tb.contextMenu.add('QRadioButton', setText='Distribute U', setObjectName='chk023', setChecked=True, setToolTip='Distribute along U.')
 			tb.contextMenu.add('QRadioButton', setText='Distribute V', setObjectName='chk024', setToolTip='Distribute along V.')
@@ -356,12 +356,6 @@ class Uv(Init):
 		density = tb.contextMenu.s003.value()
 
 		pm.mel.texSetTexelDensity(density, mapSize)
-
-
-	def b000(self):
-		'''Cut Uv Hard Edges
-		'''
-		pass
 
 
 	def b001(self):

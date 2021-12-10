@@ -481,7 +481,7 @@ class Selection(Init):
 	def tb003(self, state=None):
 		'''Select Edges By Angle
 		'''
-		tb = tb = self.selection_ui.tb003
+		tb = self.selection_ui.tb003
 		if state=='setMenu':
 			tb.contextMenu.add('QDoubleSpinBox', setPrefix='Angle Low:  ', setObjectName='s006', setMinMax_='0.0-180 step1', setValue=50, setToolTip='Normal angle low range.')
 			tb.contextMenu.add('QDoubleSpinBox', setPrefix='Angle High: ', setObjectName='s007', setMinMax_='0.0-180 step1', setValue=130, setToolTip='Normal angle high range.')

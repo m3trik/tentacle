@@ -10,7 +10,7 @@
     <x>0</x>
     <y>0</y>
     <width>152</width>
-    <height>242</height>
+    <height>241</height>
    </rect>
   </property>
   <property name="minimumSize">
@@ -223,145 +223,6 @@
             <property name="spacing">
              <number>0</number>
             </property>
-            <item row="5" column="0" colspan="2">
-             <widget class="QPushButton" name="b010">
-              <property name="enabled">
-               <bool>true</bool>
-              </property>
-              <property name="minimumSize">
-               <size>
-                <width>0</width>
-                <height>20</height>
-               </size>
-              </property>
-              <property name="maximumSize">
-               <size>
-                <width>999</width>
-                <height>20</height>
-               </size>
-              </property>
-              <property name="toolTip">
-               <string>Create curve from polygon edges.</string>
-              </property>
-              <property name="text">
-               <string>Extract Curve</string>
-              </property>
-              <property name="autoDefault">
-               <bool>false</bool>
-              </property>
-              <property name="default">
-               <bool>false</bool>
-              </property>
-              <property name="flat">
-               <bool>false</bool>
-              </property>
-              <property name="balette" stdset="0">
-               <palette>
-                <active>
-                 <colorrole role="Highlight">
-                  <brush brushstyle="SolidPattern">
-                   <color alpha="255">
-                    <red>168</red>
-                    <green>152</green>
-                    <blue>250</blue>
-                   </color>
-                  </brush>
-                 </colorrole>
-                </active>
-                <inactive>
-                 <colorrole role="Highlight">
-                  <brush brushstyle="SolidPattern">
-                   <color alpha="255">
-                    <red>168</red>
-                    <green>152</green>
-                    <blue>250</blue>
-                   </color>
-                  </brush>
-                 </colorrole>
-                </inactive>
-                <disabled>
-                 <colorrole role="Highlight">
-                  <brush brushstyle="SolidPattern">
-                   <color alpha="255">
-                    <red>0</red>
-                    <green>120</green>
-                    <blue>215</blue>
-                   </color>
-                  </brush>
-                 </colorrole>
-                </disabled>
-               </palette>
-              </property>
-             </widget>
-            </item>
-            <item row="2" column="0" colspan="2">
-             <widget class="QPushButton" name="b051">
-              <property name="enabled">
-               <bool>true</bool>
-              </property>
-              <property name="minimumSize">
-               <size>
-                <width>0</width>
-                <height>20</height>
-               </size>
-              </property>
-              <property name="maximumSize">
-               <size>
-                <width>999</width>
-                <height>20</height>
-               </size>
-              </property>
-              <property name="toolTip">
-               <string>Offset edge loop tool</string>
-              </property>
-              <property name="text">
-               <string>Offset Edgeloop</string>
-              </property>
-              <property name="iconSize">
-               <size>
-                <width>18</width>
-                <height>18</height>
-               </size>
-              </property>
-              <property name="balette" stdset="0">
-               <palette>
-                <active>
-                 <colorrole role="Highlight">
-                  <brush brushstyle="SolidPattern">
-                   <color alpha="255">
-                    <red>168</red>
-                    <green>152</green>
-                    <blue>250</blue>
-                   </color>
-                  </brush>
-                 </colorrole>
-                </active>
-                <inactive>
-                 <colorrole role="Highlight">
-                  <brush brushstyle="SolidPattern">
-                   <color alpha="255">
-                    <red>168</red>
-                    <green>152</green>
-                    <blue>250</blue>
-                   </color>
-                  </brush>
-                 </colorrole>
-                </inactive>
-                <disabled>
-                 <colorrole role="Highlight">
-                  <brush brushstyle="SolidPattern">
-                   <color alpha="255">
-                    <red>0</red>
-                    <green>120</green>
-                    <blue>215</blue>
-                   </color>
-                  </brush>
-                 </colorrole>
-                </disabled>
-               </palette>
-              </property>
-             </widget>
-            </item>
             <item row="1" column="1">
              <widget class="QPushButton" name="b050">
               <property name="enabled">
@@ -430,8 +291,8 @@
               </property>
              </widget>
             </item>
-            <item row="3" column="0" colspan="2">
-             <widget class="QPushButton" name="b053">
+            <item row="1" column="0">
+             <widget class="QPushButton" name="b049">
               <property name="enabled">
                <bool>true</bool>
               </property>
@@ -448,10 +309,16 @@
                </size>
               </property>
               <property name="toolTip">
-               <string>Edit edges that respect surface curvature</string>
+               <string>Slide edge loops or paths along their neighboring edges</string>
               </property>
               <property name="text">
-               <string>Edit Edge Flow</string>
+               <string>Slide</string>
+              </property>
+              <property name="iconSize">
+               <size>
+                <width>18</width>
+                <height>18</height>
+               </size>
               </property>
               <property name="autoDefault">
                <bool>false</bool>
@@ -578,8 +445,8 @@
               </property>
              </widget>
             </item>
-            <item row="0" column="0" colspan="2">
-             <widget class="QPushButton" name="b047">
+            <item row="3" column="0" colspan="2">
+             <widget class="QPushButton" name="b053">
               <property name="enabled">
                <bool>true</bool>
               </property>
@@ -596,10 +463,81 @@
                </size>
               </property>
               <property name="toolTip">
-               <string>Split selected edge ring</string>
+               <string>Edit edges that respect surface curvature</string>
               </property>
               <property name="text">
-               <string>Insert Edgeloop</string>
+               <string>Edit Edge Flow</string>
+              </property>
+              <property name="autoDefault">
+               <bool>false</bool>
+              </property>
+              <property name="default">
+               <bool>false</bool>
+              </property>
+              <property name="flat">
+               <bool>false</bool>
+              </property>
+              <property name="balette" stdset="0">
+               <palette>
+                <active>
+                 <colorrole role="Highlight">
+                  <brush brushstyle="SolidPattern">
+                   <color alpha="255">
+                    <red>168</red>
+                    <green>152</green>
+                    <blue>250</blue>
+                   </color>
+                  </brush>
+                 </colorrole>
+                </active>
+                <inactive>
+                 <colorrole role="Highlight">
+                  <brush brushstyle="SolidPattern">
+                   <color alpha="255">
+                    <red>168</red>
+                    <green>152</green>
+                    <blue>250</blue>
+                   </color>
+                  </brush>
+                 </colorrole>
+                </inactive>
+                <disabled>
+                 <colorrole role="Highlight">
+                  <brush brushstyle="SolidPattern">
+                   <color alpha="255">
+                    <red>0</red>
+                    <green>120</green>
+                    <blue>215</blue>
+                   </color>
+                  </brush>
+                 </colorrole>
+                </disabled>
+               </palette>
+              </property>
+             </widget>
+            </item>
+            <item row="2" column="0" colspan="2">
+             <widget class="QPushButton" name="b051">
+              <property name="enabled">
+               <bool>true</bool>
+              </property>
+              <property name="minimumSize">
+               <size>
+                <width>0</width>
+                <height>20</height>
+               </size>
+              </property>
+              <property name="maximumSize">
+               <size>
+                <width>999</width>
+                <height>20</height>
+               </size>
+              </property>
+              <property name="toolTip">
+               <string>Offset edge loop tool</string>
+              </property>
+              <property name="text">
+               <string>Offset Edgeloop</string>
               </property>
               <property name="iconSize">
                <size>
@@ -646,8 +584,8 @@
               </property>
              </widget>
             </item>
-            <item row="1" column="0">
-             <widget class="QPushButton" name="b049">
+            <item row="0" column="0" colspan="2">
+             <widget class="QPushButton" name="b047">
               <property name="enabled">
                <bool>true</bool>
               </property>
@@ -664,25 +602,16 @@
                </size>
               </property>
               <property name="toolTip">
-               <string>Slide edge loops or paths along their neighboring edges</string>
+               <string>Split selected edge ring</string>
               </property>
               <property name="text">
-               <string>Slide</string>
+               <string>Insert Edgeloop</string>
               </property>
               <property name="iconSize">
                <size>
                 <width>18</width>
                 <height>18</height>
                </size>
-              </property>
-              <property name="autoDefault">
-               <bool>false</bool>
-              </property>
-              <property name="default">
-               <bool>false</bool>
-              </property>
-              <property name="flat">
-               <bool>false</bool>
               </property>
               <property name="balette" stdset="0">
                <palette>

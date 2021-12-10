@@ -43,18 +43,6 @@ class Materials(Init):
 			cmb.setCurrentIndex(0)
 
 
-	def cmb001(self, index=-1):
-		'''Material list: Filter
-		'''
-		cmb = self.materials_ui.cmb001
-
-		if index=='setMenu':
-			list_ = ['Scene Materials', 'ID Map Materials', 'Favorite Materials']
-			cmb.addItems_(list_)
-			cmb.currentIndexChanged.connect(self.cmb002) #refresh cmb002 contents.
-			return
-
-
 	def cmb002(self, index=-1):
 		'''Material list
 
@@ -62,10 +50,10 @@ class Materials(Init):
 			index (int) = parameter on activated, currentIndexChanged, and highlighted signals.
 		'''
 		cmb = self.materials_ui.cmb002
-
 		b = self.materials_submenu_ui.b003
 
 		if index=='setMenu':
+			cmb.contextMenu.add('QComboBox', setObjectName='cmb001', addItems=['Scene Materials', 'ID Map Materials', 'Favorite Materials'], setToolTip='Filter materials list based on type.')
 			cmb.contextMenu.add(self.tcl.wgts.Label, setText='Open in Editor', setObjectName='lbl000', setToolTip='Open material in editor.')
 			cmb.contextMenu.add(self.tcl.wgts.Label, setText='Rename', setObjectName='lbl001', setToolTip='Rename the current material.')
 			cmb.contextMenu.add(self.tcl.wgts.Label, setText='Delete', setObjectName='lbl002', setToolTip='Delete the current material.')
@@ -73,9 +61,11 @@ class Materials(Init):
 			cmb.beforePopupShown.connect(self.cmb002) #refresh comboBox contents before showing it's menu.
 			cmb.returnPressed.connect(lambda: self.lbl001(setEditable=False))
 			cmb.currentIndexChanged.connect(lambda: cmb.contextMenu.setTitle(cmb.currentText())) #set the popup title to be the current materials name.
+			cmb.contextMenu.cmb001.currentIndexChanged.connect(self.cmb002) #refresh cmb002 contents.
+			cmb.contextMenu.cmb001.currentIndexChanged.connect(lambda: self.materials_ui.group000.setTitle(cmb.contextMenu.cmb001.currentText())) #set the groupbox title to reflect the current filter.
 			return
 
-		mode = self.materials_ui.cmb001.currentText()
+		mode = cmb.contextMenu.cmb001.currentText()
 		if mode=='Scene Materials':
 			materials = self.getSceneMaterials()
 
@@ -208,9 +198,9 @@ class Materials(Init):
 				return 'Error: No valid object/s selected.'
 
 		elif assignCurrent: #Assign current mat
-			try: #mat type as a string:
+			if isinstance(mat, str): #new mat type as a string:
 				self.assignMaterial(selection, rt.Standard(name=mat.rstrip('*')))
-			except Exception as error: #mat object:
+			else: #existing mat object:
 				self.assignMaterial(selection, mat)
 
 		elif assignNew: #Assign New Material

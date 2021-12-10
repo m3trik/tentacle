@@ -8,6 +8,8 @@ hour = datetime.datetime.now().hour
 greeting = "morning" if 5<=hour<12 else "afternoon" if hour<18 else "evening"
 print("Good {}!".format(greeting))
 
+print ('You are using python interpreter version {}.{}.{}'.format(sys.version_info[0], sys.version_info[1], sys.version_info[2]))
+
 sys.path.append(os.path.dirname(os.path.abspath(__file__))) #append this dir to the system path.
 
 if __name__=='__main__':

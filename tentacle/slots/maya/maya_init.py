@@ -189,15 +189,64 @@ class Init(Slots):
 
 
 	@staticmethod
-	def getComponents(objects=None, componentType=None, selection=False, returnType='str', returnNodeType='shape', flatten=False):
+	def convertType(objects, returnType='str', returnNodeType='shape', flatten=False):
+		'''Convert objects to/from <obj>, 'strings', integers.
+
+		:Parameters:
+			objects (str)(obj)(list) = The object(s) to convert.
+			returnType (str) = The desired returned object type. (valid: 'str', 'obj', 'int') ('int' valid only at sub-object level).
+			returnNodeType (str) = Specify whether objects are returned with transform or shape nodes (valid only with str returnTypes). (valid: 'transform', 'shape'(default)) ex. 'pCylinder1.f[0]' or 'pCylinderShape1.f[0]'
+			flatten (bool) = Flattens the returned list of objects so that each component is identified individually.
+
+		:Return:
+			(list)(dict) Dependant on flags.
+
+		ex. call: Init.convertType(<edges>, 'str', flatten=True) #returns a list of string object names from a list of edge objects.
+		'''
+		if returnType=='str':
+			objects = pm.ls(objects, flatten=flatten)
+			result = [str(c) for c in objects]
+
+			if returnNodeType=='transform':
+				result = [str(''.join(c.rsplit('Shape', 1))) for c in result]
+
+
+		elif returnType=='obj':
+			result = pm.ls(objects, flatten=flatten)
+
+		else: #returnType=='int':
+			result={}
+			for c in pm.ls(objects, flatten=True):
+				obj = pm.ls(c, objectsOnly=1)[0]
+				num = c.split('[')[-1].rstrip(']')
+
+				try:
+					if flatten:
+						componentNum = int(num)
+					else:
+						n = [int(n) for n in num.split(':')]
+						componentNum = tuple(n) if len(n)>1 else n[0]
+
+					if obj in result: #append to existing object key.
+						result[obj].append(componentNum)
+					else:
+						result[obj] = [componentNum]
+				except ValueError as error: #incompatible object type.
+					break; print ('# Error: {}.convertType(): unable to convert {} {} to int. {}. #'.format(__name__, obj, num, error)) 
+
+		return result
+
+
+	@staticmethod
+	def getComponents(objects=None, componentType=None, returnType='str', returnNodeType='shape', selection=False, flatten=False):
 		'''Get the components of the given type.
 
 		:Parameters:
 			objects (str)(obj)(list) = The object(s) to get the components of.
 			componentType (str)(int) = The desired component mask. (valid: any type allowed in the 'convertComponentName' method)
+			returnType (str) = The desired returned object type. (valid: 'str', 'obj', 'int')
+			returnNodeType (str) = Specify whether the components are returned with the transform or shape nodes (valid only with str returnTypes). (valid: 'transform', 'shape'(default)) ex. 'pCylinder1.f[0]' or 'pCylinderShape1.f[0]'
 			selection (bool) = Filter to currently selected objects.
-			returnType (str) = The desired returned object type. (valid: 'str', 'object', 'int')
-			returnNodeType (str) = Specify whether the components are returned with the transform or shape nodes (valid only with str and unicode returnTypes). (valid: 'transform', 'shape'(default)) ex. 'pCylinder1.f[0]' or 'pCylinderShape1.f[0]'
 			flatten (bool) = Flattens the returned list of objects so that each component is identified individually.
 
 		:Return:
@@ -246,31 +295,7 @@ class Init(Slots):
 		if not components:
 			components=[]
 
-		if returnType=='str':
-			if returnNodeType=='transform':
-				result = [str(''.join(c.rsplit('Shape', 1))) for c in components]
-			else:
-				result = [str(c) for c in components]
-
-		elif returnType=='object':
-			result = pm.ls(components)
-
-		else: #returnType=='int':
-			result={}
-			for c in components:
-				obj = pm.ls(c, objectsOnly=1)[0]
-				num = c.split('[')[-1].rstrip(']')
-
-				if flatten:
-					componentNum = int(num)
-				else:
-					n = [int(n) for n in num.split(':')]
-					componentNum = tuple(n) if len(n)>1 else n[0]
-
-				if obj in result:
-					result[obj].append(componentNum)
-				else:
-					result[obj] = [componentNum]
+		result = Init.convertType(components, returnType=returnType, returnNodeType=returnNodeType, flatten=flatten)
 
 		return result
 
@@ -815,6 +840,7 @@ class Init(Slots):
 			vertices = Init.getComponents(obj1, 'vertices')
 			closestVerts = getClosestVertex(vertices, obj2, tolerance=10)
 		'''
+		vertices = [str(i) for i in pm.ls(vertices, flatten=1)]
 		# pm.undoInfo(openChunk=True)
 		if freezeTransforms:
 			pm.makeIdentity(obj, apply=True)
@@ -825,7 +851,7 @@ class Init(Slots):
 		pm.connectAttr(obj2Shape.outMesh, cpmNode.inMesh, force=1) #object's shape mesh output to the cpm node.
 
 		closestVerts={}
-		for v1 in pm.ls(vertices, flatten=1):
+		for v1 in vertices: #assure the list of vertices is a flattened list of stings. prevent unhashable type error when closestVerts[v1] = v2.  may not be needed with python versions 3.8+
 			v1Pos = pm.pointPosition(v1, world=True)
 			pm.setAttr(cpmNode.inPosition, v1Pos[0], v1Pos[1], v1Pos[2], type="double3") #set a compound attribute
 
@@ -947,7 +973,7 @@ class Init(Slots):
 		'''Locate a connected vertex of non-manifold geometry where the faces share a single vertex.
 
 		:Parameters:
-			objects (str)(obj) = A polygon mesh or a list of meshes.
+			objects (str)(obj) = A polygon mesh, or a list of meshes.
 			select (int) = Select any found non-manifold vertices. 0=off, 1=on, 2=on while keeping any existing vertex selections. (default: 1)
 
 		:Return:
@@ -967,14 +993,12 @@ class Init(Slots):
 			for face in connected_faces_flat:
 
 				connected_edges = pm.polyListComponentConversion(face, fromFace=1, toEdge=1) #pm.mel.PolySelectConvert(1) #convert to faces
-				connected_edges_flat = pm.ls(connected_edges, flatten=1) #selectedFaces = pm.ls(sl=1, flatten=1)
-
+				connected_edges_flat = [str(i) for i in pm.ls(connected_edges, flatten=1)] #selectedFaces = pm.ls(sl=1, flatten=1)
 				edges_sorted_by_face.append(connected_edges_flat)
-
 
 			out=[] #1) take first set A from list. 2) for each other set B in the list do if B has common element(s) with A join B into A; remove B from list. 3) repeat 2. until no more overlap with A. 4) put A into outpup. 5) repeat 1. with rest of list.
 			while len(edges_sorted_by_face)>0:
-				first, rest = edges_sorted_by_face[0], edges_sorted_by_face[1:] #first, *rest = edges
+				first, rest = edges_sorted_by_face[0], edges_sorted_by_face[1:] #first list, all other lists, of the list of lists.
 				first = set(first)
 
 				lf = -1
@@ -1024,14 +1048,12 @@ class Init(Slots):
 		for face in connected_faces_flat:
 
 			connected_verts = pm.polyListComponentConversion(face, fromFace=1, toVertex=1) #pm.mel.PolySelectConvert(1) #convert to faces
-			connected_verts_flat = pm.ls(connected_verts, flatten=1) #selectedFaces = pm.ls(sl=1, flatten=1)
-
+			connected_verts_flat = [str(i) for i in pm.ls(connected_verts, flatten=1)] #selectedFaces = pm.ls(sl=1, flatten=1)
 			verts_sorted_by_face.append(connected_verts_flat)
-
 
 		out=[] #1) take first set A from list. 2) for each other set B in the list do if B has common element(s) with A join B into A; remove B from list. 3) repeat 2. until no more overlap with A. 4) put A into outpup. 5) repeat 1. with rest of list.
 		while len(verts_sorted_by_face)>0:
-			first, rest = verts_sorted_by_face[0], verts_sorted_by_face[1:] #first, *rest = edges
+			first, rest = verts_sorted_by_face[0], verts_sorted_by_face[1:] #first, *rest = verts_sorted_by_face
 			first = set(first)
 
 			lf = -1
@@ -2194,7 +2216,7 @@ class Init(Slots):
 		if attributes:
 			transforms = pm.listAttr(transforms, read=1, hasData=1, string=regEx)
 
-		return transforms
+		return list(set(transforms))
 
 
 	@staticmethod
@@ -2212,11 +2234,17 @@ class Init(Slots):
 		shapes = pm.listRelatives(node, children=1, shapes=1) #get shape node from transform: returns list ie. [nt.Mesh('pConeShape1')]
 		if not shapes:
 			shapes = pm.ls(node, type='shape')
-		
+			if not shapes: #get shape from transform
+				try:
+					transforms = pm.listRelatives(pm.listHistory(node, future=1), parent=1)
+					shapes = Init.getShapeNode(transforms)
+				except Exception as error:
+					shapes = []
+
 		if attributes:
 			shapes = pm.listAttr(shapes, read=1, hasData=1, string=regEx)
 
-		return shapes
+		return list(set(shapes))
 
 
 	@staticmethod

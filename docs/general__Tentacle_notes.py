@@ -469,25 +469,37 @@ def tree000(self, wItem=None, column=None):
 '''
 
 
+
+# popup menu closes when focus lost, even when pinned.
+
+
+
 # Traceback (most recent call last):
 #   File "O:/Cloud/Code/_scripts/tentacle\tentacle\slots\maya\maya_file.py", line 272, in b000
 #     os.startfile(self.formatPath(dir1))
+
 # FileNotFoundError: [WinError 2] The system cannot find the file specified: 'O:\\Dropbox (Moth+Flame)\\Moth+Flame Team Folder\\PRODUCTION\\AF\\C-295\\PRODUCTION\\MAYA\\Cockpit\\autosave'
 # Traceback (most recent call last):
+
 #   File "O:/Cloud/Code/_scripts/tentacle\tentacle\slots\maya\maya_file.py", line 272, in b000
 #     os.startfile(self.formatPath(dir1))
+
 # FileNotFoundError: [WinError 2] The system cannot find the file specified: 'O:\\Dropbox (Moth+Flame)\\Moth+Flame Team Folder\\PRODUCTION\\AF\\C-295\\PRODUCTION\\MAYA\\Cockpit\\autosave'
 
 
 # Traceback (most recent call last):
 #   File "O:/Cloud/Code/_scripts/tentacle\tentacle\slots\maya\maya_selection.py", line 48, in lbl000
 #     self.creatNewSelectionSet(name)
+
 #   File "O:/Cloud/Code/_scripts/tentacle\tentacle\slots\slots.py", line 505, in wrapper
 #     self.messageBox(fn(self, *args, **kwargs))
+
 #   File "O:/Cloud/Code/_scripts/tentacle\tentacle\slots\maya\maya_selection.py", line 602, in creatNewSelectionSet
 #     name = self.generateUniqueSetName()
+
 #   File "O:/Cloud/Code/_scripts/tentacle\tentacle\slots\maya\maya_selection.py", line 589, in generateUniqueSetName
 #     name = '{0}_Set{1}'.format(rt.selection[0].name, num) #ie. pCube1_Set0
+
 # NameError: name 'rt' is not defined
 
 
@@ -546,6 +558,29 @@ maya_file
 polyTransfer -uv 1 -v 0 -ao $souceMesh $destMesh[$i];
 
 
+
+# get a menu to pop up directly:
+def hk_tentacle_show(profile=False, uiName='init'):
+	'''Display the tentacle marking menu.
+
+	:Parameters:
+		profile (bool) = Prints the total running time, times each function separately, and tells you how many times each function was called.
+	'''
+	if 'tentacle' not in globals():
+		global tentacle
+		from tcl_maya import Instance
+		tentacle = Instance(key_show='key_F12')
+
+	# if profile:
+	# 	import cProfile
+	# 	cProfile.run("tentacle.show('init')")
+	# else:
+	print (tentacle)
+	tentacle.show(uiName)
+	# tentacle.setUi(uiName)
+
+
+# hk_tentacle_show('init')
 
 
 

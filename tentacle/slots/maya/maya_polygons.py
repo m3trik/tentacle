@@ -394,23 +394,6 @@ class Polygons(Init):
 			pm.mel.PolygonCollapse()
 
 
-	@Init.attr
-	def b010(self):
-		'''Extract Curve
-		'''
-		objects = pm.ls(sl=1, objectsOnly=1)
-		sel_edges = Init.getComponents(objects, 'edges', selection=1, flatten=1)
-		edge_rings = Init.getContigiousEdges(sel_edges)
-		multi = len(edge_rings)>1
-
-		for edge_ring in edge_rings:
-			pm.select(edge_ring)
-			if multi:
-				pm.polyToCurve(form=2, degree=3, conformToSmoothMeshPreview=True) #degree: 1=linear,2= ,3=cubic,5= ,7=
-			else:
-				return pm.polyToCurve(form=2, degree=3, conformToSmoothMeshPreview=True) #degree: 1=linear,2= ,3=cubic,5= ,7=
-
-
 	def b012(self):
 		'''Multi-Cut Tool
 		'''

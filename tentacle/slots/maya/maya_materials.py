@@ -43,18 +43,6 @@ class Materials(Init):
 			cmb.setCurrentIndex(0)
 
 
-	def cmb001(self, index=-1):
-		'''Material list: Filter
-		'''
-		cmb = self.materials_ui.cmb001
-
-		if index=='setMenu':
-			list_ = ['Scene Materials', 'ID Map Materials', 'Favorite Materials']
-			cmb.addItems_(list_)
-			cmb.currentIndexChanged.connect(self.cmb002) #refresh cmb002 contents.
-			return
-
-
 	def cmb002(self, index=-1):
 		'''Material list
 
@@ -65,6 +53,7 @@ class Materials(Init):
 		b = self.materials_submenu_ui.b003
 
 		if index=='setMenu':
+			cmb.contextMenu.add('QComboBox', setObjectName='cmb001', addItems=['Scene Materials', 'ID Map Materials', 'Favorite Materials'], setToolTip='Filter materials list based on type.')
 			cmb.contextMenu.add(self.tcl.wgts.Label, setText='Open in Editor', setObjectName='lbl000', setToolTip='Open material in editor.')
 			cmb.contextMenu.add(self.tcl.wgts.Label, setText='Rename', setObjectName='lbl001', setToolTip='Rename the current material.')
 			cmb.contextMenu.add(self.tcl.wgts.Label, setText='Delete', setObjectName='lbl002', setToolTip='Delete the current material.')
@@ -72,9 +61,11 @@ class Materials(Init):
 			cmb.beforePopupShown.connect(self.cmb002) #refresh comboBox contents before showing it's menu.
 			cmb.returnPressed.connect(lambda: self.lbl001(setEditable=False))
 			cmb.currentIndexChanged.connect(lambda: cmb.contextMenu.setTitle(cmb.currentText())) #set the popup title to be the current materials name.
+			cmb.contextMenu.cmb001.currentIndexChanged.connect(self.cmb002) #refresh cmb002 contents.
+			cmb.contextMenu.cmb001.currentIndexChanged.connect(lambda: self.materials_ui.group000.setTitle(cmb.contextMenu.cmb001.currentText())) #set the groupbox title to reflect the current filter.
 			return
 
-		mode = self.materials_ui.cmb001.currentText()
+		mode = cmb.contextMenu.cmb001.currentText()
 		if mode=='Scene Materials':
 			materials = self.getSceneMaterials(exclude=['standardSurface'])
 
@@ -150,10 +141,9 @@ class Materials(Init):
 
 		if assignCurrent: #Assign current mat
 			mat = self.materials_ui.cmb002.currentData()
-			try: #mat type as a string:
+			if isinstance(mat, str): #new mat type as a string:
 				self.assignMaterial(selection, pm.createNode(mat.rstrip('*')))
-			except Exception as error: #mat object:
-				print (error)
+			else: #existing mat object:
 				self.assignMaterial(selection, mat)
 
 		elif assignRandom: #Assign New random mat ID
@@ -250,7 +240,7 @@ class Materials(Init):
 
 		mat = self.getMaterial()
 
-		self.materials_ui.cmb001.setCurrentIndex(0) #set the combobox to show all scene materials
+		self.materials_ui.cmb002.contextMenu.cmb001.setCurrentIndex(0) #set the combobox to show all scene materials
 		self.cmb002() #refresh the materials list comboBox
 		self.materials_ui.cmb002.setCurrentIndex(self.materials_ui.cmb002.items.index(mat.name()))
 

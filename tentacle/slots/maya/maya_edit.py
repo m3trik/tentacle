@@ -152,7 +152,7 @@ class Edit(Init):
 			if not repair: #select only
 				Init.findNonManifoldVertex(objects)
 			else:
-				nonManifoldVerts = Init.getComponents('vtx', objects, selection=1) #user selection
+				nonManifoldVerts = Init.getComponents(objects, 'vtx', selection=1) #user selection
 				if not nonManifoldVerts:
 					nonManifoldVerts = Init.findNonManifoldVertex(objects, select=2) #Select: 0=off, 1=on, 2=on while keeping any existing vertex selections. (default: 1)
 				for vertex in nonManifoldVerts:
