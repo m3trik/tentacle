@@ -477,7 +477,7 @@ class Selection(Init):
 			result = self.getShortestPath(selection, step=step)
 
 		elif borderEdges:
-			result = self.getBorderComponents(selection, returnType='edges')
+			result = self.getBorderComponents(selection, returnCompType='edges')
 
 		pm.select(result)
 
@@ -515,7 +515,8 @@ class Selection(Init):
 		if selectedFaces:
 			similarFaces = self.getFacesWithSimilarNormals(selectedFaces, rangeX=rangeX, rangeY=rangeY, rangeZ=rangeZ)
 			islands = self.getContigiousIslands(similarFaces)
-			pm.select((islands))
+			island = [i for i in islands if bool(set(i) & set(selectedFaces))]
+			pm.select(island)
 
 		else:
 			return 'Warning: No faces were selected.'

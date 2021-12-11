@@ -468,7 +468,9 @@ def tree000(self, wItem=None, column=None):
 # ======================================================================
 '''
 
+fix select: island
 
+maya_transform:  make live on submenu disables make live when first pressed.
 
 # popup menu closes when focus lost, even when pinned.
 

@@ -149,12 +149,8 @@ class Edit(Init):
 			mel.eval(command)
 
 		if splitNonManifoldVertex: #Split Non-Manifold Vertex
-			if not repair: #select only
-				Init.findNonManifoldVertex(objects)
-			else:
-				nonManifoldVerts = Init.getComponents(objects, 'vtx', selection=1) #user selection
-				if not nonManifoldVerts:
-					nonManifoldVerts = Init.findNonManifoldVertex(objects, select=2) #Select: 0=off, 1=on, 2=on while keeping any existing vertex selections. (default: 1)
+			nonManifoldVerts = Init.findNonManifoldVertex(objects, select=2) #Select: 0=off, 1=on, 2=on while keeping any existing vertex selections. (default: 1)
+			if repair:
 				for vertex in nonManifoldVerts:
 					Init.splitNonManifoldVertex(vertex, select=True) #select(bool): Select the vertex after the operation. (default: True)
 

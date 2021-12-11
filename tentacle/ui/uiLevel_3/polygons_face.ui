@@ -191,7 +191,7 @@
           <number>0</number>
          </property>
          <item>
-          <widget class="QGroupBox" name="Face">
+          <widget class="QGroupBox" name="face">
            <property name="minimumSize">
             <size>
              <width>125</width>
@@ -213,7 +213,7 @@
            <property name="title">
             <string>Face</string>
            </property>
-           <layout class="QVBoxLayout" name="verticalLayout_2">
+           <layout class="QVBoxLayout" name="verticalLayout_6">
             <property name="spacing">
              <number>0</number>
             </property>

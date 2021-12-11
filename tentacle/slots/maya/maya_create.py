@@ -155,12 +155,9 @@ class Create(Init):
 			# 	node = pm.
 
 		if selection: #if there is a current selection, move the object to that selection's bounding box center.
-			pos = pm.xform(selection, query=1, translation=1, worldSpace=1, absolute=1)
-			center_pos = [ #Get center by averaging of all x,y,z points.
-				sum(pos[0::3]) / len(pos[0::3]), 
-				sum(pos[1::3]) / len(pos[1::3]), 
-				sum(pos[2::3]) / len(pos[2::3])]
+			center_pos = Init.getCenterPoint(selection)
 			pm.xform(node, translation=center_pos, worldSpace=1, absolute=1)
+			boundingBoxScale = Init.matchScale(node, selection)
 
 		pm.selectMode(object=1) #place scene select type in object mode.
 		pm.select(node) #select the transform node so that you can see any edits

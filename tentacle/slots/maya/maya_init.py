@@ -503,8 +503,9 @@ class Init(Slots):
 		sets=[]
 		faces = pm.ls(faces, flatten=1)
 		for face in faces:
-			borderFaces = Init.getBorderComponents(face, returnType='faces', borderType='component', flatten=True)
-			set_ = set([f for f in borderFaces if f in faces])
+			edges = pm.polyListComponentConversion(face, fromFace=1, toEdge=1)
+			borderFaces = pm.ls(pm.polyListComponentConversion(edges, fromEdge=1, toFace=1), flatten=1)
+			set_ = set([str(f) for f in borderFaces if f in faces])
 			if set_:
 				sets.append(set_)
 
@@ -553,23 +554,22 @@ class Init(Slots):
 
 
 	@staticmethod
-	def getBorderComponents(x, returnType='default', borderType='object', flatten=False):
+	def getBorderComponents(x, returnCompType='default', borderType='object', returnType='str', flatten=False):
 		'''Get any object border components from given component(s) or a polygon object.
 
 		:Parameters:
 			x (obj)(list) = Component(s) (or a polygon object) to find any border components for.
-			returnType (str) = The desired returned component type. (valid: 'vertices','edges','faces','default'(the returnType will be the same as the given component type, or edges if an object is given))
+			returnCompType (str) = The desired returned component type. (valid: 'vertices','edges','faces','default'(the returnCompType will be the same as the given component type, or edges if an object is given))
 			borderType (str) = Get the components that border given components, or components on the border of an object. (valid: 'component', 'object'(default))
+			returnType (str) = Return objects or string names of the components. (valid: 'str', 'obj')
 			flatten (bool) = Flattens the returned list of objects so that each component is identified individually.
 
 		:Return:
 			(list)
 
-		ex. borderVertices = getBorderComponents(selection, returnType='vertices', borderType='component', flatten=True)
+		ex. borderVertices = getBorderComponents(selection, returnCompType='vertices', borderType='component', flatten=True)
 		'''
-		if not isinstance(x,(list,tuple,set)): #assure that x is iterable.
-			x = [x]
-
+		x = pm.ls(x)
 		object_type = Init.getObjectType(x[0])
 		if object_type=='Polygon':
 			x = Init.getComponents(x, 'edges')
@@ -595,15 +595,18 @@ class Init(Slots):
 						result.append(edge)
 						break
 
-		if returnType=='default': #if no returnType is specified, return the same type of component as given. in the case of 'Polygon' object, edges will be returned.
-			returnType = object_type if not object_type=='Polygon' else 'Polygon Edge'
+		if returnCompType=='default': #if no returnCompType is specified, return the same type of component as given. in the case of 'Polygon' object, edges will be returned.
+			returnCompType = object_type if not object_type=='Polygon' else 'Polygon Edge'
 		#convert back to the original component type and flatten /un-flatten list.
-		if returnType in ('Polygon Vertex', 'vertices', 'vertex', 'vtx'):
+		if returnCompType in ('Polygon Vertex', 'vertices', 'vertex', 'vtx'):
 			result = pm.ls(pm.polyListComponentConversion(result, fromEdge=1, toVertex=1), flatten=flatten) #vertices.
-		elif returnType in ('Polygon Edge', 'edges', 'edge', 'e'):
+		elif returnCompType in ('Polygon Edge', 'edges', 'edge', 'e'):
 			result = pm.ls(pm.polyListComponentConversion(result, fromEdge=1, toEdge=1), flatten=flatten) #edges.
-		elif returnType in ('Polygon Face', 'faces', 'face', 'f'):
+		elif returnCompType in ('Polygon Face', 'faces', 'face', 'f'):
 			result = pm.ls(pm.polyListComponentConversion(result, fromEdge=1, toFace=1), flatten=flatten) #faces.
+
+		if returnType=='str':
+			result = [str(i) for i in result]
 
 		return result
 
@@ -628,6 +631,80 @@ class Init(Slots):
 		distance = sqrt(pow((x1-x2),2) + pow((y1-y2),2) + pow((z1-z2),2))
 
 		return distance
+
+
+	@staticmethod
+	def getCenterPoint(objects):
+		'''Get the bounding box center point of any given object(s).
+		
+		:Parameters:
+			objects (str)(obj(list) = The objects or components to get the center of.
+
+		:Return:
+			(list) position as [x,y,z].
+		'''
+		objects = pm.ls(objects, flatten=True)
+		pos = [i for sublist in [pm.xform(s, q=1, translation=1, worldSpace=1, absolute=1) for s in objects] for i in sublist]
+		center_pos = [ #Get center by averaging of all x,y,z points.
+			sum(pos[0::3]) / len(pos[0::3]), 
+			sum(pos[1::3]) / len(pos[1::3]), 
+			sum(pos[2::3]) / len(pos[2::3])
+		]
+		return center_pos
+
+
+	@staticmethod
+	def matchScale(to, frm, scaleObjectsTogether=False, performScale=True):
+		'''Scale each of the given objects to the bounding box of a second set of objects.
+
+		:Parameters:
+			to (str)(obj)(list) = The object(s) to scale.
+			frm (str)(obj)(list) = The object(s) to get a bounding box size from.
+			scaleObjectsTogether (bool) = The objects are scaled as a group.
+			performScale (bool) = Scale the objects. Else, just return the scale value.
+
+		:Return:
+			(list) scale values as [x,y,z,x,y,z...] ('scaleObjectsTogether' returns a single scale value as [x,y,z])
+		'''
+		to = pm.ls(to, flatten=True)
+		frm = pm.ls(frm, flatten=True)
+
+		xmin, ymin, zmin, xmax, ymax, zmax = pm.exactWorldBoundingBox(frm)
+		ax, ay, az = aBoundBox = [xmax-xmin, ymax-ymin, zmax-zmin]
+
+		if scaleObjectsTogether:
+
+			xmin, ymin, zmin, xmax, ymax, zmax = pm.exactWorldBoundingBox(to)
+			bx, by, bz = bBoundBox = [xmax-xmin, ymax-ymin, zmax-zmin]
+
+			oldx, oldy, oldz = bScaleOld = [
+				sum([pm.xform(o, q=1, s=1, r=1)[0::3][0] for o in frm]), 
+				sum([pm.xform(o, q=1, s=1, r=1)[1::3][0] for o in frm]), 	
+				sum([pm.xform(o, q=1, s=1, r=1)[2::3][0] for o in frm])
+			]
+
+			diffx, diffy, diffz = boundDifference = [ax/bx, ay/by, az/bz]
+			result = bScaleNew = [oldx*diffx, oldy*diffy, oldz*diffz]
+
+			if performScale:
+				[pm.xform(o, scale=bScaleNew) for o in to]
+
+		else:
+			result=[]
+			for obj in to:
+
+				xmin, ymin, zmin, xmax, ymax, zmax = pm.exactWorldBoundingBox(obj)
+				bx, by, bz = bBoundBox = [xmax-xmin, ymax-ymin, zmax-zmin]
+
+				oldx, oldy, oldz = bScaleOld = pm.xform(obj, q=1, s=1, r=1)
+				diffx, diffy, diffz = boundDifference = [ax/bx, ay/by, az/bz]
+				bScaleNew = [oldx*diffx, oldy*diffy, oldz*diffz]
+				[result.append(i) for i in bScaleNew]
+
+				if performScale:
+					pm.xform(obj, scale=bScaleNew)
+
+		return result
 
 
 	@staticmethod

@@ -424,7 +424,7 @@ class Selection(Init):
 			pm.select(self.getShortestPath(selection, step=step))
 
 		elif borderEdges:
-			pm.select(self.getBorderComponents(selection, returnType='edges'))
+			pm.select(self.getBorderComponents(selection, returnCompType='edges'))
 
 
 	def tb001(self, state=None):
