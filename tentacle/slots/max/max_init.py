@@ -1143,7 +1143,7 @@ class Init(Slots):
 
 
 #module name
-print(os.path.splitext(os.path.basename(__file__))[0])
+print (__name__)
 # -----------------------------------------------
 # Notes
 # -----------------------------------------------

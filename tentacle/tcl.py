@@ -1,6 +1,6 @@
 # !/usr/bin/python
 # coding=utf-8
-import sys, os.path
+import sys
 
 from PySide2 import QtCore, QtGui, QtWidgets
 
@@ -426,7 +426,7 @@ if __name__ == '__main__':
 
 
 #module name
-print(os.path.splitext(os.path.basename(__file__))[0])
+print (__name__)
 # -----------------------------------------------
 # Notes
 # -----------------------------------------------

@@ -1,7 +1,5 @@
 # !/usr/bin/python
 # coding=utf-8
-import os
-
 from PySide2 import QtGui, QtWidgets, QtCore
 
 try: #Maya dependancies
@@ -654,17 +652,16 @@ class Init(Slots):
 
 
 	@staticmethod
-	def matchScale(to, frm, scaleObjectsTogether=False, performScale=True):
-		'''Scale each of the given objects to the bounding box of a second set of objects.
+	def matchScale(to, frm, scale=True):
+		'''Scale each of the given objects to the combined bounding box of a second set of objects.
 
 		:Parameters:
 			to (str)(obj)(list) = The object(s) to scale.
 			frm (str)(obj)(list) = The object(s) to get a bounding box size from.
-			scaleObjectsTogether (bool) = The objects are scaled as a group.
-			performScale (bool) = Scale the objects. Else, just return the scale value.
+			scale (bool) = Scale the objects. Else, just return the scale value.
 
 		:Return:
-			(list) scale values as [x,y,z,x,y,z...] ('scaleObjectsTogether' returns a single scale value as [x,y,z])
+			(list) scale values as [x,y,z,x,y,z...]
 		'''
 		to = pm.ls(to, flatten=True)
 		frm = pm.ls(frm, flatten=True)
@@ -672,37 +669,19 @@ class Init(Slots):
 		xmin, ymin, zmin, xmax, ymax, zmax = pm.exactWorldBoundingBox(frm)
 		ax, ay, az = aBoundBox = [xmax-xmin, ymax-ymin, zmax-zmin]
 
-		if scaleObjectsTogether:
+		result=[]
+		for obj in to:
 
-			xmin, ymin, zmin, xmax, ymax, zmax = pm.exactWorldBoundingBox(to)
+			xmin, ymin, zmin, xmax, ymax, zmax = pm.exactWorldBoundingBox(obj)
 			bx, by, bz = bBoundBox = [xmax-xmin, ymax-ymin, zmax-zmin]
 
-			oldx, oldy, oldz = bScaleOld = [
-				sum([pm.xform(o, q=1, s=1, r=1)[0::3][0] for o in frm]), 
-				sum([pm.xform(o, q=1, s=1, r=1)[1::3][0] for o in frm]), 	
-				sum([pm.xform(o, q=1, s=1, r=1)[2::3][0] for o in frm])
-			]
-
+			oldx, oldy, oldz = bScaleOld = pm.xform(obj, q=1, s=1, r=1)
 			diffx, diffy, diffz = boundDifference = [ax/bx, ay/by, az/bz]
-			result = bScaleNew = [oldx*diffx, oldy*diffy, oldz*diffz]
+			bScaleNew = [oldx*diffx, oldy*diffy, oldz*diffz]
+			[result.append(i) for i in bScaleNew]
 
-			if performScale:
-				[pm.xform(o, scale=bScaleNew) for o in to]
-
-		else:
-			result=[]
-			for obj in to:
-
-				xmin, ymin, zmin, xmax, ymax, zmax = pm.exactWorldBoundingBox(obj)
-				bx, by, bz = bBoundBox = [xmax-xmin, ymax-ymin, zmax-zmin]
-
-				oldx, oldy, oldz = bScaleOld = pm.xform(obj, q=1, s=1, r=1)
-				diffx, diffy, diffz = boundDifference = [ax/bx, ay/by, az/bz]
-				bScaleNew = [oldx*diffx, oldy*diffy, oldz*diffz]
-				[result.append(i) for i in bScaleNew]
-
-				if performScale:
-					pm.xform(obj, scale=bScaleNew)
+			if scale:
+				pm.xform(obj, scale=bScaleNew)
 
 		return result
 
@@ -2884,6 +2863,8 @@ class Init(Slots):
 
 	@staticmethod
 	def sourceScript(): #Source External Script file
+		import os.path
+
 		mel_checkBox = checkBox('mel_checkBox', query=1, value=1)
 		python_checkBox = checkBox('python_checkBox', query=1, value=1)
 
@@ -2933,7 +2914,7 @@ class Init(Slots):
 
 
 #module name
-print(os.path.splitext(os.path.basename(__file__))[0])
+print (__name__)
 # ======================================================================
 # Notes
 # ======================================================================

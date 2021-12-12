@@ -1,7 +1,5 @@
 # !/usr/bin/python
 # coding=utf-8
-import os.path
-
 from max_init import *
 
 
@@ -183,7 +181,7 @@ class Subdivision(Init):
 
 
 #module name
-print(os.path.splitext(os.path.basename(__file__))[0])
+print (__name__)
 # -----------------------------------------------
 # Notes
 # -----------------------------------------------

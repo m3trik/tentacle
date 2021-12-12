@@ -2,8 +2,6 @@
 # coding=utf-8
 from maya_init import *
 
-import os.path
-
 
 
 class Vfx(Init):
@@ -93,7 +91,7 @@ class Vfx(Init):
 
 
 #module name
-print(os.path.splitext(os.path.basename(__file__))[0])
+print (__name__)
 # -----------------------------------------------
 # Notes
 # -----------------------------------------------

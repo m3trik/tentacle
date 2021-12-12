@@ -1,7 +1,5 @@
 # !/usr/bin/python
 # coding=utf-8
-import os.path
-
 from maya_init import *
 
 
@@ -90,7 +88,7 @@ class Polygons(Init):
 		componentMode = pm.selectMode(query=1, component=1)
 
 		if not objects:
-			return 'Warning: <hl>Nothing selected</hl>.<br>Operation requires an object or vertex selection.'
+			return 'Error: <hl>Nothing selected</hl>.<br>Operation requires an object or vertex selection.'
 
 		for obj in objects:
 			object_vert_sel = pm.ls(obj, sl=1)
@@ -147,7 +145,7 @@ class Polygons(Init):
 		if tb.contextMenu.chk000.isChecked():
 			sel = pm.ls(sl=1, objectsOnly=1)
 			if not sel:
-				return '# Error: Nothing selected. #'
+				return 'Error: <hl>Nothing selected</hl>.'
 			objName = sel[0].name()
 			objParent = pm.listRelatives(objName, parent=1)
 			#combine
@@ -229,7 +227,7 @@ class Polygons(Init):
 
 		component_sel = pm.ls(sl=1)
 		if not component_sel:
-			return 'Error: Nothing selected.'
+			return 'Error: <hl>Nothing selected</hl>.'
 
 		if vertexMask:
 			pm.mel.polySplitVertex()
@@ -249,6 +247,7 @@ class Polygons(Init):
 
 
 	@Init.attr
+	@Slots.message
 	def tb006(self, state=None):
 		'''Inset Face Region
 		'''
@@ -257,8 +256,12 @@ class Polygons(Init):
 			tb.contextMenu.add('QDoubleSpinBox', setPrefix='Offset: ', setObjectName='s001', setMinMax_='0.00-100 step.01', setValue=2.00, setHeight_=20, setToolTip='Offset amount.')
 			return
 
+		selected_faces = pm.polyEvaluate(faceComponent=1)
+		if isinstance(selected_faces, str): #'Nothing counted : no polygonal object is selected.'
+			return 'Error: <hl>Nothing selected</hl>.<br>Operation requires a face selection.'
+
 		offset = float(tb.contextMenu.s001.value())
-		return pm.polyExtrudeFacet (keepFacesTogether=1, pvx=0, pvy=40.55638003, pvz=33.53797107, divisions=1, twist=0, taper=1, offset=offset, thickness=0, smoothingAngle=30)
+		return pm.polyExtrudeFacet(selected_faces, keepFacesTogether=1, pvx=0, pvy=40.55638003, pvz=33.53797107, divisions=1, twist=0, taper=1, offset=offset, thickness=0, smoothingAngle=30)
 
 
 	@Slots.message
@@ -293,7 +296,7 @@ class Polygons(Init):
 			for face in selectedFaces: #when performing polySubdivideFacet on multiple faces, adjacent subdivided faces will make the next face an n-gon and therefore not able to be subdivided. 
 				pm.polySubdivideFacet(face, divisions=0, divisionsU=2, divisionsV=2, mode=0, subdMethod=1)
 		else:
-			return 'Warning: No faces selected.'
+			return 'Error: <hl>Nothing selected</hl>.<br>Operation requires a face selection.'
 
 
 	def tb008(self, state=None):
@@ -334,7 +337,7 @@ class Polygons(Init):
 			obj1, obj2 = selection
 			Init.snapClosestVerts(obj1, obj2, tolerance, freezetransforms)
 		else:
-			return 'Error: Operation requires at least two selected objects.'
+			return 'Error: <hl>Nothing selected</hl>.<br>Operation requires at least two selected objects.'
 
 
 	@Init.attr
@@ -505,7 +508,7 @@ class Polygons(Init):
 	def b053(self):
 		'''Edit Edge Flow
 		'''
-		pm.mel.PolyEditEdgeFlow()
+		pm.polyEditEdgeFlow(adjustEdgeFlow=1)
 
 
 
@@ -519,7 +522,7 @@ class Polygons(Init):
 
 
 #module name
-print(os.path.splitext(os.path.basename(__file__))[0])
+print (__name__)
 # -----------------------------------------------
 # Notes
 # -----------------------------------------------
@@ -553,10 +556,10 @@ print(os.path.splitext(os.path.basename(__file__))[0])
 # 				selObj = pm.ls(objectsOnly=1, noIntermediate=1, sl=1) #to errorcheck if more than 1 obj selected
 
 # 				if len(selFace) < 1:
-# 					return 'Warning: Nothing selected.'
+# 					return 'Error: Nothing selected.'
 
 # 				# if len(selObj) > 1:
-# 				# 	return 'Warning: Only components from a single object can be extracted.'
+# 				# 	return 'Error: Only components from a single object can be extracted.'
 
 # 				else:
 # 					mel.eval("DetachComponent;")

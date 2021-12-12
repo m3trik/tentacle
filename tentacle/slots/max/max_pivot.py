@@ -1,7 +1,5 @@
 # !/usr/bin/python
 # coding=utf-8
-import os.path
-
 from max_init import *
 
 
@@ -143,7 +141,7 @@ class Pivot(Init):
 	def b004(self):
 		'''Bake Pivot
 		'''
-		print ('Command does not exist:', os.path.splitext(os.path.basename(__file__))[0])
+		print ('Command does not exist:', __name__)
 
 
 	@staticmethod
@@ -165,7 +163,7 @@ class Pivot(Init):
 
 
 #module name
-print(os.path.splitext(os.path.basename(__file__))[0])
+print (__name__)
 # -----------------------------------------------
 # Notes
 # -----------------------------------------------

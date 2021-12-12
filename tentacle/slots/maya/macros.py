@@ -1,6 +1,5 @@
 # !/usr/bin/python
 # coding=utf-8
-
 import pymel.core as pm
 import maya.mel as mel
 
@@ -9,7 +8,9 @@ from maya_init import Init
 
 
 class Macros(Init):
-	'''Custom scripts with assigned hotkeys.
+	'''Macro functions with assigned hotkeys.
+	
+	ex. call: from macros import Macros; Macros().setMacros()
 	'''
 	def __init__(self, *args, **kwargs):
 		super().__init__(*args, **kwargs)

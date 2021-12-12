@@ -1,7 +1,5 @@
 # !/usr/bin/python
 # coding=utf-8
-import os.path
-
 from maya_init import *
 
 
@@ -76,7 +74,7 @@ class Materials(Init):
 			fav_materials = self.getFavoriteMaterials()
 			currentMats = {matName:matName for matName in sorted(list(set(fav_materials)))}
 		else:
-			currentMats = {mat.name():mat for mat in sorted(list(set(materials))) if hasattr(mat,'name')} 
+			currentMats = {mat.name():mat for mat in sorted(list(set(materials))) if hasattr(mat, 'name')} 
 
 		cmb.addItems_(currentMats, clear=True)
 
@@ -374,7 +372,7 @@ class Materials(Init):
 		:Return:
 			(list) materials.
 		'''
-		import maya.app.general.tlfavorites as _fav
+		import maya.app.general.tlfavorites as _fav, os.path
 
 		path = os.path.expandvars(r"%USERPROFILE%/Documents/maya/2022/prefs/renderNodeTypeFavorites")
 		renderNodeTypeFavorites = _fav.readFavorites(path)
@@ -460,7 +458,7 @@ class Materials(Init):
 
 
 #module name
-print(os.path.splitext(os.path.basename(__file__))[0])
+print (__name__)
 # -----------------------------------------------
 # Notes
 # -----------------------------------------------

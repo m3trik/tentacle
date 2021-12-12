@@ -1,7 +1,5 @@
 # !/usr/bin/python
 # coding=utf-8
-import os.path
-
 from max_init import *
 
 
@@ -75,7 +73,7 @@ class Materials(Init):
 		if mode=='Favorite Materials':
 			currentMats = {m:m for m in ['standardMaterial']}
 		else:
-			currentMats = {mat.name:mat for mat in sorted(list(set(materials))) if hasattr(mat,'name')}
+			currentMats = {mat.name:mat for mat in sorted(list(set(materials))) if hasattr(mat, 'name')}
 
 		cmb.addItems_(currentMats, clear=True)
 
@@ -636,7 +634,7 @@ class Materials(Init):
 		:Return:
 			(dict) Any bitmaps that are not found. {bitmap object:filename}
 		'''
-		import fnmatch
+		import fnmatch, os
 
 		bitmaps = Materials.getBitmapFilenames(bitmaps, missing=True, returnType=dict)
 
@@ -671,6 +669,8 @@ class Materials(Init):
 			library_dir (str) = A path to a directory containing the library files.
 			mat_dir (str) = A path to a directory containing the material dependancies.
 		'''
+		import os
+
 		bitmaps=[]; tempLibs={}
 		for root, dirnames, filenames in os.walk(library_dir):
 			for filename in filenames:
@@ -749,7 +749,7 @@ class Materials(Init):
 
 
 #module name
-print(os.path.splitext(os.path.basename(__file__))[0])
+print (__name__)
 # -----------------------------------------------
 # Notes
 # -----------------------------------------------

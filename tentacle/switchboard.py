@@ -1,7 +1,5 @@
 # !/usr/bin/python
 # coding=utf-8
-import os.path
-
 from pydoc import locate
 
 from PySide2 import QtCore
@@ -42,7 +40,7 @@ class Switchboard(QtCore.QObject):
 								}
 					}
 		}
-		'name' : [string list]} Ui history. Tracks the order in which the uis are called. A new ui is placed at element[-1]. ie. ['previousName2', 'previousName1', 'currentName']
+		'uiNames' : [string list]} Ui history. Tracks the order in which the uis are called. A new ui is placed at element[-1]. ie. ['previousName2', 'previousName1', 'currentName']
 		'prevCommand' : [list of 2 element lists] - Command history. ie. [[<b000>, 'multi-cut tool']]
 		'prevCamera'  : [list of 2 element lists] - Camera history. ie. [[<v000>, 'camera: persp']]
 		'mainAppWindow' : parent application. ie. <maya Window object>
@@ -472,19 +470,10 @@ class Switchboard(QtCore.QObject):
 			if uiName: corresponding dynamic ui object of given name from the key 'uiList'.
 			else: current dynamic ui object
 		'''
+		uiName = self.getUiName(uiName, case='camelCase', level=level)
 		if uiName is None:
-			uiName = self.getUiName(case='camelCase')
-		elif not isinstance(uiName, (str)): #uiName as ui object
-			uiName = self.getUiName(uiName, case='camelCase')
-		if not uiName:
-			return None
+			return uiName
 
-		if level==2: #submenu
-			if 'submenu' not in uiName:
-				uiName = self.getUiName(uiName, level=2) #ie. polygons_submenu
-		elif level==3: #main menu
-			uiName = uiName.split('_')[0] #ie. 'polygons' from 'polygons_component_submenu'
-		#print ('3:', uiName, print(sys._getframe().f_back.f_code.co_name))
 		if setAsCurrent:
 			self.uiName = uiName #set the property for the current ui name.
 			self.setConnections(uiName) #connect signal/slot connections for the current ui, while disconnecting any previous.
@@ -517,7 +506,7 @@ class Switchboard(QtCore.QObject):
 
 	#Property
 	def setUiName(self, index):
-		'''The 'name' list is used for various things such as; maintaining a history of ui's that have been called.
+		'''The 'uiNames' list is used for various things such as; maintaining a history of ui's that have been called.
 
 		:Parameters:
 			index (int)(str) = index or name of the ui.
@@ -525,63 +514,60 @@ class Switchboard(QtCore.QObject):
 		:Return:
 			(str) corresponding ui name.
 		'''
-		if not 'name' in self.sbDict:
-			self.sbDict['name']=[]
+		if not 'uiNames' in self.sbDict:
+			self.sbDict['uiNames']=[]
 
 		if not type(index)==int:
 			index = self.getUiIndex(index) #get index using name
 
-		self.sbDict['name'].append(self.uiList(names=True)[index])
+		self.sbDict['uiNames'].append(self.uiList(names=True)[index])
 
-		return self.sbDict['name'][-1]
+		return self.sbDict['uiNames'][-1]
 
 	#Property
-	def getUiName(self, ui=None, case=None, level=None, all_=False):
+	def getUiName(self, ui=None, case=None, level=None, uiName=None):
 		'''Get the ui name as a string.
 		If no argument is given, the name for the current ui will be returned.
 
 		:Parameters:
-			ui (obj)(str) = Use ui object to get its corresponding name. (the default behavior is to return the current ui name)
-						also supports passing in a string value of a known name to use with the camelCase, pascalCase, and level parameters.
+			ui (obj)(str) = Use ui object (or ui name) to get its corresponding name, or return names for all ui as a list. 
+							(returns the current ui name if None is given) (valid: <ui>, '<uiName>', 'all')
 			case (str) = define the returned name's case structure. valid: 'camelCase'=first letter lowercase, 'pascalCase'=first letter capitalized. (default: None)
 			level (int) = Get the ui of the given level. (2:submenu, 3:main_menu)
-			all_ (bool) = Return names for all ui as a list.
 
 		:Return:
 			(str)(list) - ui name, or list of ui names.
 		'''
-		if not 'name' in self.sbDict:
-			self.sbDict['name']=[]
+		if not 'uiNames' in self.sbDict:
+			self.sbDict['uiNames']=[]
 
-		if all_:
+		if ui=='all':
 			return [self.getUiName(ui=uiName, case=case, level=level, all_=False) for uiName in self.sbDict 
 				if isinstance(self.sbDict[uiName], (dict)) and 'ui' in self.sbDict[uiName]]
 
-		if ui is None:
+		if ui is None: #get the ui name:
 			try:
-				name = self.sbDict['name'][-1]
-			except IndexError: #if index out of range (no value exists): return None
-				return None
+				uiName = self.sbDict['uiNames'][-1]
+			except IndexError as error: #if index out of range (no value exists): return None
+				print (__name__, 'getUiName():', error)
 		elif isinstance(ui, (str)):
-			name = ui
+			uiName = ui
 		else: #get the ui name string key from the ui value in uiList.
-			name = next(k for k, v in self.uiList().items() if v==ui)
+			uiName = next(k for k, v in self.uiList().items() if v==ui)
 
-		if name:
+		if uiName: #format the ui name to match the desired level.
 			if level==2: #submenu
-				if 'submenu' not in name:
-					name = '{}_submenu'.format(name)
+				if 'submenu' not in uiName:
+					uiName = '{}_submenu'.format(uiName)
 			elif level==3: #main menu
-				name = name.split('_')[0] #polygons from polygons_component_submenu
+				uiName = uiName.split('_')[0] #polygons from polygons_component_submenu
 
 			if case=='pascalCase':
-				name = name[:1].capitalize()+name[1:] #capitalize the first letter
+				uiName = uiName[:1].capitalize()+uiName[1:] #capitalize the first letter
 			elif case=='camelCase':
-				name = name[0].lower()+name[1:] #lowercase the first letter
-		else:
-			name = None
+				uiName = uiName[0].lower()+uiName[1:] #lowercase the first letter
 
-		return name
+		return uiName
 
 
 	def getUiNameFromWidget(self, widget):
@@ -1144,7 +1130,7 @@ class Switchboard(QtCore.QObject):
 	#Property
 	def previousName(self, previousIndex=False, allowDuplicates=False, allowCurrent=False, omitLevel=[], as_list=False):
 		'''Get the previously called ui name string, or a list of ui name strings ordered by use.
-		It does so by pulling from the 'name' list which keeps a list of the ui names as they are called. ie. ['previousName2', 'previousName1', 'currentName']
+		It does so by pulling from the 'uiNames' list which keeps a list of the ui names as they are called. ie. ['previousName2', 'previousName1', 'currentName']
 
 		:Parameters:
 			previousIndex (bool) = Return the index of the last valid previously opened ui name.
@@ -1158,12 +1144,12 @@ class Switchboard(QtCore.QObject):
 			if previousIndex: int - index of previously opened ui
 			if as_list: returns [list of string names]
 		'''
-		if not 'name' in self.sbDict:
-			self.sbDict['name'] = []
+		if not 'uiNames' in self.sbDict:
+			self.sbDict['uiNames'] = []
 
-		self.sbDict['name'] = self.sbDict['name'][-200:] #keep original list length restricted to last 200 elements
+		self.sbDict['uiNames'] = self.sbDict['uiNames'][-200:] #keep original list length restricted to last 200 elements
 
-		list_ = self.sbDict['name'] #work on a copy of the list, keeping the original intact
+		list_ = self.sbDict['uiNames'] #work on a copy of the list, keeping the original intact
 
 		if not allowCurrent:
 			list_ = list_[:-1] #remove the last index. (currentName)
@@ -1617,7 +1603,7 @@ if __name__=='__main__':
 
 
 #module name
-print(os.path.splitext(os.path.basename(__file__))[0])
+print (__name__)
 # -----------------------------------------------
 # Notes
 # -----------------------------------------------
@@ -1638,7 +1624,7 @@ sbDict={
 									'docString': '\n\t\tSelect All Of Type\n\t\t',
 									'method': '<bound method Polygons.cmb002 of <slots_max_polygons.Polygons object at 0x0000016B6BC26470>>'}, }},
 	'mainAppWindow': None,
-	'name': ['polygons'],
+	'uiNames': ['polygons'],
 	'prevCommand': [['b000', 'multi-cut tool']],
 	'prevCamera:': [['v000', 'Viewport: Persp']],
 	'gcProtect': ['<protected object>']}

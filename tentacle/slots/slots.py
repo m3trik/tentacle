@@ -1,6 +1,6 @@
 # !/usr/bin/python
 # coding=utf-8
-import os.path, sys
+import sys, os.path
 
 from PySide2 import QtCore
 
@@ -1141,7 +1141,7 @@ class Slots(QtCore.QObject):
 
 
 #module name
-print (os.path.splitext(os.path.basename(__file__))[0])
+print (__name__)
 # -----------------------------------------------
 # Notes
 # -----------------------------------------------

@@ -326,6 +326,23 @@ def tb002(self, state=None):
 		assignCurrent = tb.contextMenu.chk007.isChecked()
 
 
+@Init.attr
+@Slots.message
+def tb006(self, state=None):
+	'''Inset Face Region
+	'''
+	tb = self.current_ui.tb006
+	if state=='setMenu':
+		tb.contextMenu.add('QDoubleSpinBox', setPrefix='Offset: ', setObjectName='s001', setMinMax_='0.00-100 step.01', setValue=2.00, setHeight_=20, setToolTip='Offset amount.')
+		return
+
+	selected_faces = pm.polyEvaluate(faceComponent=1)
+	if isinstance(selected_faces, str): #'Nothing counted : no polygonal object is selected.'
+		return 'Error: <hl>Nothing selected</hl>.<br>Operation requires a face selection.'
+
+	offset = float(tb.contextMenu.s001.value())
+	return pm.polyExtrudeFacet(selected_faces, keepFacesTogether=1, pvx=0, pvy=40.55638003, pvz=33.53797107, divisions=1, twist=0, taper=1, offset=offset, thickness=0, smoothingAngle=30)
+
 
 # comboBox standard:
 def cmb000(self, index=-1):
@@ -468,16 +485,19 @@ def tree000(self, wItem=None, column=None):
 # ======================================================================
 '''
 
-fix select: island
+# Traceback (most recent call last):
+#   File "O:/Cloud/Code/_scripts/tentacle\tentacle\slots\maya\maya_polygons.py", line 511, in b053
+#     pm.polyEditEdgeFlow(adjustEdgeFlow=1)
+#   File "C:\Program Files\Autodesk\Maya2022\Python37\lib\site-packages\pymel\core\modeling.py", line 650, in polyEditEdgeFlow
+#     res = cmds.polyEditEdgeFlow(*args, **kwargs)
+#   File "C:\Program Files\Autodesk\Maya2022\Python37\lib\site-packages\pymel\internal\pmcmds.py", line 217, in polyEditEdgeFlow_wrapped
+#     res = new_cmd(*new_args, **new_kwargs)
+# TypeError: Error retrieving default arguments
+
 
 maya_transform:  make live on submenu disables make live when first pressed.
 
 # popup menu closes when focus lost, even when pinned.
-
-
-create
-issue: primitive is not always created at the point of a selected object. (perhaps change to toolbutton, and make this an option)
-when creating primitives at an object's point, also scale to the bounding box the object at that point.
 
 
 # treewidgetExpandableList
