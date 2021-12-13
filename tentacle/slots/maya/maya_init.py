@@ -1,5 +1,7 @@
 # !/usr/bin/python
 # coding=utf-8
+import os
+
 from PySide2 import QtGui, QtWidgets, QtCore
 
 try: #Maya dependancies
@@ -371,7 +373,7 @@ class Init(Slots):
 					pass
 
 		if returnType=='shells':
-			shells = shells.values()
+			shells = list(shells.values())
 		elif returnType=='shellIDs':
 			shells = shells.keys()
 
@@ -392,7 +394,7 @@ class Init(Slots):
 		for obj in pm.ls(objects, objectsOnly=1):
 			try: # Try to get edges from provided objects.
 				mesh_edges.extend(pm.ls(pm.polyListComponentConversion(obj, te=True), fl=True, l=True))
-			except:
+			except Exception as error:
 				pass
 
 		if len(mesh_edges)<=0: # Error if no valid objects were found
@@ -568,6 +570,10 @@ class Init(Slots):
 		ex. borderVertices = getBorderComponents(selection, returnCompType='vertices', borderType='component', flatten=True)
 		'''
 		x = pm.ls(x)
+		if not x:
+			print ('# Error: Operation requires an selected object or components. #')
+			return []
+
 		object_type = Init.getObjectType(x[0])
 		if object_type=='Polygon':
 			x = Init.getComponents(x, 'edges')
@@ -578,15 +584,16 @@ class Init(Slots):
 
 		result=[]
 		edges = pm.ls(x, flatten=1)
-		for edge in edges:
 
-			if borderType is 'object': #get edges that form the border of the object.
+		if borderType is 'object': #get edges that form the border of the object.
+			for edge in edges:
 				attachedFaces = pm.ls(pm.polyListComponentConversion(edge, fromEdge=1, toFace=1), flatten=1)
 				if len(attachedFaces)==1:
 					result.append(edge)
 
-			elif borderType is 'component' and not object_type=='Polygon': #get edges that form the border of the given components.
-				attachedFaces = pm.ls(pm.polyListComponentConversion(edge, fromEdge=1, toFace=1), flatten=0)
+		elif borderType is 'component' and not object_type=='Polygon': #get edges that form the border of the given components.
+			for edge in edges:
+				attachedFaces = pm.polyListComponentConversion(edge, fromEdge=1, toFace=1)
 				attachedEdges = pm.ls(pm.polyListComponentConversion(attachedFaces, fromFace=1, toEdge=1), flatten=1)
 				for e in attachedEdges:
 					if e not in edges:
@@ -808,7 +815,7 @@ class Init(Slots):
 
 		if len(result)==1:
 			try:
-				result = result.values()[0]
+				result = list(result.values())[0]
 			except (AttributeError, TypeError):
 				result = result[0]
 
@@ -841,7 +848,7 @@ class Init(Slots):
 			result[curve] = n1
 
 		if values:
-			result = result.values()
+			result = list(result.values())
 		return result
 
 
@@ -850,8 +857,8 @@ class Init(Slots):
 		'''Find the two closest vertices between the two sets of vertices.
 
 		:Parameters:
-			set1 (list) = The first set of vertices.
-			set2 (list) = The second set of vertices.
+			set1 (str)(list) = The first set of vertices.
+			set2 (str)(list) = The second set of vertices.
 			tolerance (int) = Maximum search distance.
 
 		:Return:
@@ -861,6 +868,8 @@ class Init(Slots):
 			verts2 = Init.getComponents(pCube2', 'vertices')
 			closestVerts = getClosestVerts(verts1, verts2)
 		'''
+		set1 = [str(i) for i in pm.ls(set1, flatten=1)]
+		set2 = [str(i) for i in pm.ls(set2, flatten=1)]
 		vertPairsAndDistance={}
 		for v1 in set1:
 			v1Pos = pm.pointPosition(v1, world=1)
@@ -1140,6 +1149,7 @@ class Init(Slots):
 	@staticmethod
 	def getEdgePath(components, returnType='edgeLoop'):
 		'''Query the polySelect command for the components along different edge paths.
+		Supports components from a single object.
 
 		:Parameters:
 			components (str)(obj)(list) = The components used for the query (dependant on the operation type).
@@ -1148,11 +1158,11 @@ class Init(Slots):
 		:Return:
 			(list) The components comprising the path.
 		'''
-		components = pm.ls(components, flatten=1)
-		obj = set(pm.ls(components, objectsOnly=1))
-		componentNumbers = Init.getComponents(obj, 'edges', returnType='int', flatten=1).values()[0] #get the vertex numbers as integer values. ie. [818, 1380]
+		obj = set(pm.ls(components, objectsOnly=1, flatten=1))[0]
 
-		edgesLong=None
+		result=[]
+		componentNumbers = list(Init.convertType(components, returnType='int', flatten=1).values())[0] #get the vertex numbers as integer values. ie. [818, 1380]
+
 		if returnType=='shortestEdgePath':
 			edgesLong = pm.polySelect(obj, query=1, shortestEdgePath=(componentNumbers[0], componentNumbers[1])) #(vtx, vtx)
 
@@ -1169,20 +1179,19 @@ class Init(Slots):
 			edgesLong = pm.polySelect(obj, query=1, edgeLoopPath=(componentNumbers[0], componentNumbers[1])) #(e, e)
 
 		if not edgesLong:
-			print('# Error: Unable to find path. #')
-			return []
+			print('# Error: Unable to find edge path: {}. #'.format(obj))
 
-		path = ['{}.e[{}]'.format(obj, int(edge)) for edge in edgesLong]
-		return path
+		[result.append('{}.e[{}]'.format(obj.name(), int(edge))) for edge in edgesLong]
+
+		return result
 
 
 	@staticmethod
-	def getShortestPath(components=None, step=1):
+	def getShortestPath(components=None):
 		'''Get the shortest path between to vertices or edges.
 
 		:Parameters:
 			components (obj) = A Pair of vertices or edges.
-			step (int) = step amount.
 
 		:Return:
 			(list) the components that comprise the path as strings.
@@ -1195,7 +1204,11 @@ class Init(Slots):
 
 			if type_=='Polygon Edge':
 				components = [pm.ls(pm.polyListComponentConversion(e, fromEdge=1, toVertex=1), flatten=1) for e in components]
-				closestVerts = Init.getClosestVerts(components[0], components[1])[0]
+				try:
+					closestVerts = Init.getClosestVerts(components[0], components[1])[0]
+				except IndexError as error:
+					print ('# Error: Operation requires exactly two selected edges. #')
+					return
 				edges = Init.getEdgePath(closestVerts, 'shortestEdgePath')
 				[result.append(e) for e in edges]
 
@@ -1209,12 +1222,11 @@ class Init(Slots):
 
 
 	@staticmethod
-	def getPathAlongLoop(components=None, step=1):
+	def getPathAlongLoop(components=None):
 		'''Get the shortest path between to vertices or edges along an edgeloop.
 
 		:Parameters:
 			components (obj) = A Pair of vertices, edges, or faces.
-			step (int) = step amount.
 
 		:Return:
 			(list) the components that comprise the path as strings.
@@ -1273,47 +1285,6 @@ class Init(Slots):
 
 				faces = pm.ls(pm.polyListComponentConversion(edges, fromEdge=1, toFace=1), flatten=1)
 				[result.append(f) for f in faces]
-
-		return result
-
-
-	@staticmethod
-	def getEdgeLoop(edges=None, step=1):
-		'''Get the corresponding edgeloop(s) from the given edges.
-
-		:Parameters:
-			edges (list) = Polygon Edges.
-			step (int) = step amount.
-
-		:Return:
-			(list) the edges that comprise the edgeloops as strings.
-		'''
-		result=[]
-		objects = set(pm.ls(edges, objectsOnly=1))
-		for obj in objects:
-			edges = Init.getEdgePath(pm.ls(edges, flatten=1), 'edgeLoop')
-			[result.append(i) for i in edges]
-
-		return result
-
-
-	@staticmethod
-	def getEdgeRing(edges=None, step=1):
-		'''Get the corresponding edgering(s) from the given edges.
-
-		:Parameters:
-			edges (list) = Polygon Edges.
-			step (int) = step amount.
-
-		:Return:
-			(list) the edges that comprise the edgerings as strings.
-		'''
-		result=[]
-		objects = set(pm.ls(edges, objectsOnly=1))
-		for obj in objects:
-
-			edges = Init.getEdgePath(pm.ls(edges, flatten=1), 'edgeRing')
-			[result.append(i) for i in edges]
 
 		return result
 
@@ -2625,7 +2596,6 @@ class Init(Slots):
 						step=stepAmount)
 
 
-
 	@staticmethod
 	def mainProgressBar(gMainProgressBar, numFaces, count):
 		''''''
@@ -2637,7 +2607,6 @@ class Init(Slots):
 			isInterruptable=True, 
 			maxValue=count, 
 			beginProgress=1)
-
 
 
 	@staticmethod
@@ -2664,7 +2633,6 @@ class Init(Slots):
 			pm.inViewMessage(statusMessage=statusMessage, position=position, fontSize=fontSize, fade=fade, fadeInTime=fadeInTime, fadeStayTime=fadeStayTime, fadeOutTime=fadeOutTime, alpha=alpha) #1000ms = 1 sec
 		elif assistMessage:
 			pm.inViewMessage(assistMessage=assistMessage, position=position, fontSize=fontSize, fade=fade, fadeInTime=fadeInTime, fadeStayTime=fadeStayTime, fadeOutTime=fadeOutTime, alpha=alpha) #1000ms = 1 sec
-
 
 
 	@staticmethod
@@ -2709,7 +2677,6 @@ class Init(Slots):
 	# 	return
 
 
-
 	@staticmethod
 	def outputscrollField (text, window_title, width, height):
 		'''Create an output scroll layout.
@@ -2734,7 +2701,6 @@ class Init(Slots):
 		pm.setParent('..')
 		pm.showWindow(window)
 		return
-
 
 
 	@staticmethod

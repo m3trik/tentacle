@@ -439,6 +439,7 @@ class Selection(Init):
 			pass
 
 
+	@Slots.message
 	def tb000(self, state=None):
 		'''Select Nth
 		'''
@@ -460,24 +461,26 @@ class Selection(Init):
 		step = tb.contextMenu.s003.value()
 
 		selection = pm.ls(sl=1)
+		if not selection:
+			return 'Error: Operation requires a valid selection.'
 
 		result=[]
 		if edgeRing:
-			result = self.getEdgeRing(selection, step=step)
+			result = self.getEdgePath(selection, 'edgeRing')
 
 		elif edgeLoop:
-			result = self.getEdgeLoop(selection, step=step)
+			result = self.getEdgePath(selection, 'edgeLoop')
 
 		elif pathAlongLoop:
-			result = self.getPathAlongLoop(selection, step=step)
+			result = self.getPathAlongLoop(selection)
 
 		elif shortestPath:
-			result = self.getShortestPath(selection, step=step)
+			result = self.getShortestPath(selection)
 
 		elif borderEdges:
 			result = self.getBorderComponents(selection, returnCompType='edges')
 
-		pm.select(result)
+		pm.select(result[::step])
 
 
 	def tb001(self, state=None):

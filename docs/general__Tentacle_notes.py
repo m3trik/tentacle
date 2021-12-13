@@ -485,6 +485,12 @@ def tree000(self, wItem=None, column=None):
 # ======================================================================
 '''
 
+add close all tentacle instances button.
+
+
+Slots.scene: naming needs clearer docstring w/example results. replace suffix is instead appending. should replace 1 occurance from right of anything in the find field, possibly only if searching for suffix.
+
+
 # Traceback (most recent call last):
 #   File "O:/Cloud/Code/_scripts/tentacle\tentacle\slots\maya\maya_polygons.py", line 511, in b053
 #     pm.polyEditEdgeFlow(adjustEdgeFlow=1)

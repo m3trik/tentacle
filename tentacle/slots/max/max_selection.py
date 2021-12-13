@@ -416,10 +416,10 @@ class Selection(Init):
 			Init.selectLoop(obj)
 
 		elif pathAlongLoop:
-			pm.select(self.getPathAlongLoop(selection, step=step))
+			pm.select(self.getPathAlongLoop(selection))
 
 		elif shortestPath:
-			pm.select(self.getShortestPath(selection, step=step))
+			pm.select(self.getShortestPath(selection))
 
 		elif borderEdges:
 			pm.select(self.getBorderComponents(selection, returnCompType='edges'))

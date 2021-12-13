@@ -214,7 +214,7 @@ class Duplicate(Init):
 			rotXYZ =  [float(self.duplicate_ui.s007.value()),float(self.duplicate_ui.s008.value()),float(self.duplicate_ui.s009.value())]
 			translateToComponent = self.duplicate_ui.chk007.isChecked()
 			alignToNormal = self.duplicate_ui.chk008.isChecked()
-			componentList = [self.duplicate_ui.draggable_header.contextMenu.cmb001.itemText(i) for i in range(self.duplicate_ui.draggable_header.contextMenu.cmb001.count())]
+			componentList = [self.duplicate_ui.cmb001.itemText(i) for i in range(self.duplicate_ui.cmb001.count())]
 
 			try:
 				pm.delete(duplicateObjList[1:]) #delete all the geometry in the list, except the original obj
@@ -372,7 +372,7 @@ class Duplicate(Init):
 	def b008(self):
 		'''Add Selected Components To cmb001
 		'''
-		self.comboBox (self.duplicate_ui.draggable_header.contextMenu.cmb001, pm.ls (selection=1, flatten=1))
+		self.comboBox (self.duplicate_ui.cmb001, pm.ls (selection=1, flatten=1))
 
 
 

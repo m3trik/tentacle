@@ -217,9 +217,9 @@ class Edit(Init):
 				if maskEdge:
 					edges = pm.ls(obj, sl=1, flatten=1)
 					if deleteRing:
-						[edges.append(i) for i in Init.getEdgeRing(edges)] # pm.polySelect(edges, edgeRing=True) #select the edge ring.
+						[edges.append(i) for i in self.getEdgePath(selection, 'edgeRing')] # pm.polySelect(edges, edgeRing=True) #select the edge ring.
 					if deleteLoop:
-						[edges.append(i) for i in Init.getEdgeLoop(edges)] # pm.polySelect(edges, edgeLoop=True) #select the edge loop.
+						[edges.append(i) for i in self.getEdgePath(selection, 'edgeLoop')] # pm.polySelect(edges, edgeLoop=True) #select the edge loop.
 					pm.polyDelEdge(edges, cleanVertices=True) #delete edges
 
 				elif maskVertex:

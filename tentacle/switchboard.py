@@ -542,7 +542,7 @@ class Switchboard(QtCore.QObject):
 			self.sbDict['uiNames']=[]
 
 		if ui=='all':
-			return [self.getUiName(ui=uiName, case=case, level=level, all_=False) for uiName in self.sbDict 
+			return [self.getUiName(ui=uiName, case=case, level=level) for uiName in self.sbDict 
 				if isinstance(self.sbDict[uiName], (dict)) and 'ui' in self.sbDict[uiName]]
 
 		if ui is None: #get the ui name:
