@@ -933,7 +933,7 @@ class Switchboard(QtCore.QObject):
 		:Return:
 			(obj) widget. ie. <b000 widget> from <b000 method>.
 		'''			
-		for uiName in self.getUiName(all_=True):
+		for uiName in self.getUiName('all'):
 
 			if not self.widgets(uiName, query=True):
 				if existing:
