@@ -7,7 +7,7 @@ from PySide2 import QtCore, QtWidgets
 try: from pymxs import runtime as rt
 except ImportError as e: print(e)
 
-from tentacle import Tcl
+from tentacle import Tcl, Instance
 
 
 
@@ -19,7 +19,7 @@ class Tcl_max(Tcl):
 	'''
 	qApp = QtWidgets.QApplication
 
-	def __init__(self, parent=None, preventHide=False, key_show='Key_F12'):
+	def __init__(self, parent=None, *args, **kwargs):
 		'''
 		'''
 		if not parent:
@@ -29,7 +29,7 @@ class Tcl_max(Tcl):
 			except Exception as error:
 				print(self.__class__.__name__, error)
 
-		super().__init__(parent)
+		super().__init__(parent, *args, **kwargs)
 
 
 	def getMainWindow(self):
@@ -124,50 +124,14 @@ class Tcl_max(Tcl):
 	# 			pymxs.run_undo()
 
 
-class Instance():
+class Instance(Instance):
 	'''Manage multiple instances of Tcl_max.
 	'''
-	instances={}
-
-	def __init__(self, parent=None, preventHide=False, key_show=QtCore.Qt.Key_F12):
+	def __init__(self, *args, **kwargs):
 		'''
 		'''
-		self.parent = parent
-		self.activeWindow_ = None
-		self.preventHide = preventHide
-		self.key_show = key_show
-
-
-	def _getInstance(self):
-		'''Internal use. Returns a new instance if one is running and currently visible.
-		Removes any old non-visible instances outside of the current 'activeWindow_'.
-		'''
-		self.instances = {k:v for k,v in self.instances.items() if not any([v.isVisible(), v==self.activeWindow_])}
-
-		if self.activeWindow_ is None or self.activeWindow_.isVisible():
-			name = 'tentacle'+str(len(self.instances))
-			setattr(self, name, Tcl_max(self.parent, self.preventHide, self.key_show))
-			self.activeWindow_ = getattr(self, name)
-			self.instances[name] = self.activeWindow_
-
-		return self.activeWindow_
-
-
-	def show(self, name=None, active=True):
-		'''Sets the widget as visible.
-
-		:Parameters:
-			name (str) = Show the ui of the given name.
-			active (bool) = Set as the active window.
-		'''
-		inst = self._getInstance()
-		inst.show(name=name, active=active)
-
-		# from PySide2 import QtGui
-		# # forward the keyPress event
-		# event = QtGui.QKeyEvent(QtCore.QEvent.KeyPress, instance.key_show, QtCore.Qt.NoModifier)
-		# instance.qApp.postEvent(instance, event)
-		# # instance.keyPressEvent(keyEvent)
+		super().__init__(*args, **kwargs)
+		self.Class = Tcl_max
 
 
 

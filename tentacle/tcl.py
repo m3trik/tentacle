@@ -287,18 +287,19 @@ class Tcl(QtWidgets.QStackedWidget, StyleSheet):
 		'''
 		modifiers = self.qApp.keyboardModifiers()
 
-		if event.button()==QtCore.Qt.LeftButton:
+		if self.sb.uiLevel<3:
+			if event.button()==QtCore.Qt.LeftButton:
 
-			if modifiers in (QtCore.Qt.ControlModifier, QtCore.Qt.ControlModifier | QtCore.Qt.AltModifier):
-				self.repeatLastCommand()
-			else:
-				self.repeatLastCameraView()
+				if modifiers in (QtCore.Qt.ControlModifier, QtCore.Qt.ControlModifier | QtCore.Qt.AltModifier):
+					self.repeatLastCommand()
+				else:
+					self.repeatLastCameraView()
 
-		elif event.button()==QtCore.Qt.MiddleButton:
-			pass
+			elif event.button()==QtCore.Qt.MiddleButton:
+				pass
 
-		elif event.button()==QtCore.Qt.RightButton:
-			self.repeatLastUi()
+			elif event.button()==QtCore.Qt.RightButton:
+				self.repeatLastUi()
 
 		return QtWidgets.QStackedWidget.mouseDoubleClickEvent(self, event)
 
@@ -409,7 +410,52 @@ class Tcl(QtWidgets.QStackedWidget, StyleSheet):
 
 
 
+class Instance():
+	'''Manage multiple instances of the Tcl ui.
+	'''
+	instances={}
 
+	def __init__(self, parent=None, preventHide=False, key_show='Key_F12'):
+		'''
+		'''
+		self.Class = Tcl
+
+		self.parent = parent
+		self.preventHide = preventHide
+		self.key_show = key_show
+
+		self.activeWindow_ = None
+
+
+	@property
+	def instances_(self):
+		'''Get all instances as a dictionary with the names as keys, and the window objects as values.
+		'''
+		return {k:v for k,v in self.instances.items() if not any([v.isVisible(), v==self.activeWindow_])}
+
+
+	def _getInstance(self):
+		'''Internal use. Returns a new instance if one is running and currently visible.
+		Removes any old non-visible instances outside of the current 'activeWindow_'.
+		'''
+		if self.activeWindow_ is None or self.activeWindow_.isVisible():
+			name = 'tentacle'+str(len(self.instances_))
+			setattr(self, name, self.Class(self.parent, self.preventHide, self.key_show)) #set the instance as a property using it's name.
+			self.activeWindow_ = getattr(self, name)
+			self.instances_[name] = self.activeWindow_
+
+		return self.activeWindow_
+
+
+	def show(self, name=None, active=True):
+		'''Sets the widget as visible.
+
+		:Parameters:
+			name (str) = Show the ui of the given name.
+			active (bool) = Set as the active window.
+		'''
+		inst = self._getInstance()
+		inst.show(name=name, active=active)
 
 
 

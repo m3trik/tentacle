@@ -74,14 +74,21 @@ class Create(Init):
 			cmb.addItems_(lights, clear=True)
 
 
-	@Slots.hideMain
 	@Init.attr
-	def b000(self):
-		'''Create Object
+	def tb000(self, state=None):
+		'''Drop To Grid
 		'''
+		tb = self.current_ui.tb000
+		if state=='setMenu':
+			tb.contextMenu.add('QCheckBox', setText='Translate', setObjectName='chk000', setChecked=True, setToolTip='Move the created object to the center point of any selected object(s).')
+			tb.contextMenu.add('QCheckBox', setText='Scale', setObjectName='chk001', setChecked=True, setToolTip='Uniformly scale the created object to match the averaged scale of any selected object(s).')
+			return
+
 		axis = [0,90,0]
 		type_ = self.create_ui.cmb001.currentText()
 		index = self.create_ui.cmb002.currentIndex()
+		translate = tb.contextMenu.chk000.isChecked()
+		scale = tb.contextMenu.chk001.isChecked()
 
 		selection = pm.ls(selection=1)
 
@@ -153,9 +160,11 @@ class Create(Init):
 			# 	node = pm.
 
 		if selection: #if there is a current selection, move the object to that selection's bounding box center.
-			center_pos = Init.getCenterPoint(selection)
-			pm.xform(node, translation=center_pos, worldSpace=1, absolute=1)
-			boundingBoxScale = Init.matchScale(node, selection)
+			if translate:
+				center_pos = Init.getCenterPoint(selection)
+				pm.xform(node, translation=center_pos, worldSpace=1, absolute=1)
+			if scale:
+				Init.matchScale(node[0], selection, average=True)
 
 		pm.selectMode(object=1) #place scene select type in object mode.
 		pm.select(node) #select the transform node so that you can see any edits

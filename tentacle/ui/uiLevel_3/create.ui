@@ -10,7 +10,7 @@
     <x>0</x>
     <y>0</y>
     <width>162</width>
-    <height>248</height>
+    <height>186</height>
    </rect>
   </property>
   <property name="minimumSize">
@@ -44,7 +44,7 @@
       <x>15</x>
       <y>10</y>
       <width>131</width>
-      <height>216</height>
+      <height>146</height>
      </rect>
     </property>
     <layout class="QGridLayout" name="gridLayout_2">
@@ -220,7 +220,7 @@
              </widget>
             </item>
             <item row="2" column="0" colspan="2">
-             <widget class="QPushButton" name="b000">
+             <widget class="PushButton" name="tb000">
               <property name="minimumSize">
                <size>
                 <width>0</width>
@@ -306,7 +306,7 @@
             </item>
            </layout>
            <zorder>cmb001</zorder>
-           <zorder>b000</zorder>
+           <zorder>tb000</zorder>
            <zorder>cmb002</zorder>
           </widget>
          </item>
@@ -375,6 +375,11 @@
    <class>ComboBox</class>
    <extends>QComboBox</extends>
    <header>widgets.combobox.h</header>
+  </customwidget>
+  <customwidget>
+   <class>PushButton</class>
+   <extends>QPushButton</extends>
+   <header>widgets.pushbutton.h</header>
   </customwidget>
  </customwidgets>
  <resources/>

@@ -659,13 +659,14 @@ class Init(Slots):
 
 
 	@staticmethod
-	def matchScale(to, frm, scale=True):
+	def matchScale(to, frm, scale=True, average=False):
 		'''Scale each of the given objects to the combined bounding box of a second set of objects.
 
 		:Parameters:
 			to (str)(obj)(list) = The object(s) to scale.
 			frm (str)(obj)(list) = The object(s) to get a bounding box size from.
 			scale (bool) = Scale the objects. Else, just return the scale value.
+			average (bool) = Average the result across all axes.
 
 		:Return:
 			(list) scale values as [x,y,z,x,y,z...]
@@ -685,10 +686,14 @@ class Init(Slots):
 			oldx, oldy, oldz = bScaleOld = pm.xform(obj, q=1, s=1, r=1)
 			diffx, diffy, diffz = boundDifference = [ax/bx, ay/by, az/bz]
 			bScaleNew = [oldx*diffx, oldy*diffy, oldz*diffz]
-			[result.append(i) for i in bScaleNew]
+
+			if average:
+				bScaleNew = [sum(bScaleNew)/len(bScaleNew) for _ in range(3)]
 
 			if scale:
 				pm.xform(obj, scale=bScaleNew)
+
+			[result.append(i) for i in bScaleNew]
 
 		return result
 
@@ -1876,7 +1881,7 @@ class Init(Slots):
 
 	@staticmethod
 	@undoChunk
-	def dropToGrid(objects, align='Mid', origin=False, centerPivot=False):
+	def dropToGrid(objects, align='Mid', origin=False, centerPivot=False, freezeTransforms=False):
 		'''Align objects to Y origin on the grid using a helper plane.
 
 		:Parameters:
@@ -1884,6 +1889,7 @@ class Init(Slots):
 			align (bool) = Specify which point of the object's bounding box to align with the grid. (valid: 'Max','Mid'(default),'Min')
 			origin (bool) = Move to world grid's center.
 			centerPivot (bool) = Center the object's pivot.
+			freezeTransforms (bool) = Reset the selected transform and all of its children down to the shape level.
 
 		ex. dropToGrid(obj, align='Min') #set the object onto the grid.
 		'''
@@ -1903,6 +1909,9 @@ class Init(Slots):
 
 			if not centerPivot:
 				pm.xform(obj, rotatePivot=osPivot, objectSpace=1) #return pivot to orig position.
+
+			if freezeTransforms:
+				pm.makeIdentity(obj, apply=True)
 		# pm.undoInfo (closeChunk=1)
 
 

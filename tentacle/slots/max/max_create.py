@@ -75,13 +75,20 @@ class Create(Init):
 
 
 	@Init.attr
-	@Slots.hideMain
-	def b000(self):
-		'''Create Object
+	def tb000(self, state=None):
+		'''Drop To Grid
 		'''
+		tb = self.current_ui.tb000
+		if state=='setMenu':
+			tb.contextMenu.add('QCheckBox', setText='Translate', setObjectName='chk000', setChecked=True, setToolTip='Move the created object to the center point of any selected object(s).')
+			# tb.contextMenu.add('QCheckBox', setText='Scale', setObjectName='chk001', setChecked=True, setToolTip='Uniformly scale the created object to match the averaged scale of any selected object(s).')
+			return
+
 		axis = [0,90,0]
 		type_ = self.create_ui.cmb001.currentText()
 		index = self.create_ui.cmb002.currentIndex()
+		translate = tb.contextMenu.chk000.isChecked()
+		# scale = tb.contextMenu.chk001.isChecked()
 
 		selection = list(rt.selection)
 
@@ -163,19 +170,18 @@ class Create(Init):
 			elif index==1:
 				pass
 
-		#translate the newly created node (add support for averaging multiple components)
-		if selection:
-			print (selection)
-			obj = selection[0]
-			if rt.subObjectLevel==1: #vertex
-				vertex = Init.bitArrayToArray(rt.polyop.getVertSelection(obj))
-				x, y, z = pos = rt.polyop.getVert(obj, vertex[0]) #Returns the position of the specified vertex.
-			else:
-				x, y, z = pos = obj.position
-		else:
-			x, y, z = pos = [0,0,0]
+		if selection: #if there is a current selection, move the object to that selection's bounding box center.
+			if translate:
+				obj = selection[0]
+				if rt.subObjectLevel==1: #vertex
+					vertex = Init.bitArrayToArray(rt.polyop.getVertSelection(obj))
+					x, y, z = pos = rt.polyop.getVert(obj, vertex[0]) #Returns the position of the specified vertex.
+				else:
+					x, y, z = pos = obj.position
+				node.pos = rt.point3(x, y, z)
 
-		node.pos = rt.point3(x, y, z)
+			# if scale:
+			# 	Init.matchScale(node, selection, average=True)
 
 		# if self.create_ui.cmb001.currentIndex() == 0: #if create type: polygon; convert to editable poly
 		# 	rt.convertTo(node, rt.PolyMeshObject) #convert after adding primitive attributes to spinboxes

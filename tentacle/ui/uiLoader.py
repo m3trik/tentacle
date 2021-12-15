@@ -2,44 +2,39 @@
 # coding=utf-8
 import sys, os.path
 
-from PySide2 import QtCore
-from PySide2.QtUiTools import QUiLoader
-from PySide2.QtWidgets import QApplication
+from PySide2 import QtCore, QtUiTools, QtWidgets
 
-from pydoc import locate
-
-
-
-#globals
-UI_DIR = 'ui'
-UI_LEVEL_PREFIX = 'uiLevel_'
 
 
 # ------------------------------------------------
 #	Load Dynamic Ui files
 # ------------------------------------------------
-class UiLoader(QUiLoader):
+class UiLoader(QtUiTools.QUiLoader):
 	'''Load and maintain a dict of loaded dynamic ui files and related info.
 
 	Ui files are searched for in the directory of this module.
-	Custom widget modules are searched for in a sub directory named 'widgets'. naming convention: <name capital first char> widget class inside <name lowercase first char>.py module. ie. Label class inside label.py module.
+	Custom widget modules are searched for in a sub directory named 'widgets'. 
+	naming convention for custom widgets: <first char lowercase>.py module. <first char uppercase> for the corresponding widget class. ie. calss Label in label.py module.
 
 	structure:
 		uiDict = {
 			'<uiName>':{'ui':<ui obj>, 'level':<int>}
 		}
 	'''
-	qApp = QApplication.instance() #get the qApp instance if it exists.
+	qApp = QtWidgets.QApplication.instance() #get the qApp instance if it exists.
 	if not qApp:
 		qApp = QApplication(sys.argv)
 
-	def __init__(self, parent=None):
-		super().__init__(parent)
+	def __init__(self, uiDir='ui', uiLevelPrefix='uiLevel_'):
+		QtUiTools.QUiLoader.__init__(self)
 		'''Load the ui files and any custom widgets.
 		'''
+		self.uiDir = uiDir
+		self.uiLevelPrefix = uiLevelPrefix
+
 		# register any custom widgets.
 		import tentacle.ui.widgets
-		widgets = tentacle.ui.widgets.__dict__.values()
+		widgets = [w for w in tentacle.ui.widgets.__dict__.values() if type(w).__name__=='ObjectType']
 		self.registerWidgets(widgets)
 
 		# initialize _sbDict by setting keys for the ui files.
@@ -53,10 +48,11 @@ class UiLoader(QUiLoader):
 	def uiDict(self):
 		'''Get the full ui dict.
 		'''
-		if not hasattr(self, '_uiDict'):
-			self._uiDict={}
-
-		return self._uiDict
+		try:
+			return self._uiDict
+		except AttributeError as error:
+			self._uiDict = {}
+			return self._uiDict
 
 
 	def registerWidgets(self, widgets):
@@ -64,10 +60,10 @@ class UiLoader(QUiLoader):
 		'''
 		for w in widgets:
 			try:
-				if type(w).__name__=='ObjectType':
-					self.registerCustomWidget(w)
-			except Exception as e:
-				print (e)
+				self.registerCustomWidget(w)
+
+			except Exception as error:
+				print (error)
 
 
 	def addUi(self, dirPath, uiFiles):
@@ -87,9 +83,9 @@ class UiLoader(QUiLoader):
 			ui = self.load(path)
 
 			#get the ui level from it's directory location.
-			d = dirPath.split('\\'+UI_DIR+'\\')[-1] #ie. base_menus from fullpath\ui\base_menus
+			d = dirPath.split('\\'+self.uiDir+'\\')[-1] #ie. base_menus from fullpath\ui\base_menus
 			try:
-				uiLevel = int(d.strip(UI_LEVEL_PREFIX))
+				uiLevel = int(d.strip(self.uiLevelPrefix))
 				self.uiDict[uiName] = {'ui':ui, 'level':uiLevel}
 
 			except KeyError: #not a valid ui dir.
@@ -119,7 +115,7 @@ print (__name__)
 # 		uiPath = os.path.dirname(os.path.abspath(__file__)) #get absolute path from dir of this module
 
 # 		# register any custom widgets.
-# 		widgetPath = os.path.join(os.path.dirname(uiPath), UI_DIR+'\\'+WIDGET_DIR) #get the path to the widget directory.
+# 		widgetPath = os.path.join(os.path.dirname(uiPath), uiDir+'\\'+WIDGET_DIR) #get the path to the widget directory.
 # 		moduleNames = [file_.replace('.py','',-1) for file_ in os.listdir(widgetPath) if file_.startswith(WIDGET_MODULE_PREFIX) and file_.endswith('.py')] #format names using the files in path.
 # 		self.registerWidgets(moduleNames)
 
