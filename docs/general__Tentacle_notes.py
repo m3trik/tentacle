@@ -269,6 +269,7 @@ ncalls  tottime  percall  cumtime  percall filename:lineno(function)
 # decorators:
 @Slots.sync				# Keep widgets (having the same objectName) in sync across parent and child uis. A decorator using the syncWidgets method. 'isChecked':'setChecked', 'isDisabled':'setDisabled', 'isEnabled':'setEnabled', 'value':'setValue', 'text':'setText', 'icon':'setIcon'
 @Slots.message		# Pop up a message box displaying the returned str. also: self.viewPortMessage("Display Local Rotation Axes:<hl>"+str(state)+"</hl>")
+									# ex. return 'Error: <hl>Nothing selected</hl>.<br>Operation requires an object or vertex selection.'
 @Slots.hideMain		# Hides the stacked widget main window.
 @Slots.progress		# Displays a progress bar. (currently disabled)
 @Init.attr				# Launch a popup window containing the given objects attributes. A Decorator for setAttributeWindow (objAttrWindow).
@@ -276,7 +277,7 @@ ncalls  tottime  percall  cumtime  percall filename:lineno(function)
 
 
 
-#add widgets to  menu|contextMenu:
+#add widgets to menu|contextMenu:
 tb.contextMenu.add('QRadioButton', setText='Current Material', setObjectName='chk007', setChecked=True, setToolTip='Re-Assign the current stored material.')
 tb.contextMenu.add('QCheckBox', setText='Current Material', setObjectName='chk010', setChecked=True, setToolTip='Use the current material, <br>else use the current viewport selection to get a material.')
 tb.contextMenu.add('QDoubleSpinBox', setPrefix='Width: ', setObjectName='s000', setMinMax_='0.00-100 step.05', setValue=0.25, setHeight_=20, setToolTip='Bevel Width.')
@@ -484,6 +485,11 @@ def tree000(self, wItem=None, column=None):
 	'BUGFIXES'
 # ======================================================================
 '''
+
+fix maya_mirror!!
+
+dynamic contextMenus.  use duplicate ui as test.
+
 
 add close all tentacle instances button.
 

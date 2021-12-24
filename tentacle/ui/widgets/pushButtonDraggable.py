@@ -112,7 +112,8 @@ class PushButtonDraggable(QtWidgets.QPushButton, MenuInstance, Attributes, RichT
 			self.setChecked(not self.isChecked()) #toggle check state
 
 		self.window().preventHide = self.isChecked()
-		self.window().hide()
+		if not self.window().preventHide: #prevent the parent window from hiding if checked.
+			self.window().hide()
 
 		return QtWidgets.QPushButton.mouseReleaseEvent(self, event)
 

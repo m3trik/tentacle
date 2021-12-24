@@ -20,7 +20,7 @@ if __name__=='__main__':
 from .switchboard import Switchboard
 from .childEvents import EventFactoryFilter
 from .overlay import OverlayFactoryFilter
-from .tcl import Tcl, Instance
+from .tcl import Tcl
 
 # print ('tentacle:', __name__, __package__, __file__)
 

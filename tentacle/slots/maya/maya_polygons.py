@@ -88,7 +88,7 @@ class Polygons(Init):
 		componentMode = pm.selectMode(query=1, component=1)
 
 		if not objects:
-			return 'Error: <hl>Nothing selected</hl>.<br>Operation requires an object or vertex selection.'
+			return 'Error: <strong>Nothing selected</strong>.<br>Operation requires an object or vertex selection.'
 
 		for obj in objects:
 			object_vert_sel = pm.ls(obj, sl=1)
@@ -145,7 +145,7 @@ class Polygons(Init):
 		if tb.contextMenu.chk000.isChecked():
 			sel = pm.ls(sl=1, objectsOnly=1)
 			if not sel:
-				return 'Error: <hl>Nothing selected</hl>.'
+				return 'Error: <strong>Nothing selected</strong>.'
 			objName = sel[0].name()
 			objParent = pm.listRelatives(objName, parent=1)
 			#combine
@@ -227,7 +227,7 @@ class Polygons(Init):
 
 		component_sel = pm.ls(sl=1)
 		if not component_sel:
-			return 'Error: <hl>Nothing selected</hl>.'
+			return 'Error: <strong>Nothing selected</strong>.'
 
 		if vertexMask:
 			pm.mel.polySplitVertex()
@@ -258,7 +258,7 @@ class Polygons(Init):
 
 		selected_faces = pm.polyEvaluate(faceComponent=1)
 		if isinstance(selected_faces, str): #'Nothing counted : no polygonal object is selected.'
-			return 'Error: <hl>Nothing selected</hl>.<br>Operation requires a face selection.'
+			return 'Error: <strong>Nothing selected</strong>.<br>Operation requires a face selection.'
 
 		offset = float(tb.contextMenu.s001.value())
 		return pm.polyExtrudeFacet(selected_faces, keepFacesTogether=1, pvx=0, pvy=40.55638003, pvz=33.53797107, divisions=1, twist=0, taper=1, offset=offset, thickness=0, smoothingAngle=30)
@@ -296,7 +296,7 @@ class Polygons(Init):
 			for face in selectedFaces: #when performing polySubdivideFacet on multiple faces, adjacent subdivided faces will make the next face an n-gon and therefore not able to be subdivided. 
 				pm.polySubdivideFacet(face, divisions=0, divisionsU=2, divisionsV=2, mode=0, subdMethod=1)
 		else:
-			return 'Error: <hl>Nothing selected</hl>.<br>Operation requires a face selection.'
+			return 'Error: <strong>Nothing selected</strong>.<br>Operation requires a face selection.'
 
 
 	def tb008(self, state=None):
@@ -337,7 +337,7 @@ class Polygons(Init):
 			obj1, obj2 = selection
 			Init.snapClosestVerts(obj1, obj2, tolerance, freezetransforms)
 		else:
-			return 'Error: <hl>Nothing selected</hl>.<br>Operation requires at least two selected objects.'
+			return 'Error: <strong>Nothing selected</strong>.<br>Operation requires at least two selected objects.'
 
 
 	@Init.attr

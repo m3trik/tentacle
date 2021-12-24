@@ -7,7 +7,7 @@ from PySide2 import QtWidgets, QtCore
 try: import shiboken2
 except: from PySide2 import shiboken2
 
-from tentacle import Tcl, Instance
+from tentacle import Tcl
 
 
 
@@ -83,17 +83,6 @@ class Tcl_maya(Tcl):
 
 
 
-class Instance(Instance):
-	'''Manage multiple instances of Tcl_maya.
-	'''
-	def __init__(self, *args, **kwargs):
-		'''
-		'''
-		super().__init__(*args, **kwargs)
-		self.Class = Tcl_maya
-
-
-
 
 
 
@@ -128,8 +117,8 @@ if __name__ == "__main__":
 	dummyParent.setObjectName('MayaWindow')
 
 	# import cProfile
-	# cProfile.run('Instance(dummyParent).show_()')
-	Instance(dummyParent).show('init') #Tcl_maya(dummyParent).show()
+	# cProfile.run('Tcl_maya(dummyParent).show_()')
+	Tcl_maya(dummyParent).show('init') #Tcl_maya(dummyParent).show()
 	sys.exit(qApp.exec_())
 
 
@@ -137,6 +126,34 @@ if __name__ == "__main__":
 # -----------------------------------------------
 # Notes
 # -----------------------------------------------
+
+# Example startup macro:
+
+	# def hk_tentacle_show():
+	# 	'''Display the tentacle marking menu.
+	# 	'''
+	# 	if 'tcl' not in globals():
+	# 		from tcl_maya import Tcl_maya
+	# 		global tcl
+	# 		tcl = Tcl_maya(key_show='Key_F12', profile=False)
+
+	# 	tcl.sendKeyPressEvent(tcl.key_show)
+
+
+
+# deprecated: -----------------------------------
+
+# class Instance(Instance):
+# 	'''Manage multiple instances of Tcl_maya.
+# 	'''
+# 	def __init__(self, *args, **kwargs):
+# 		'''
+# 		'''
+# 		super().__init__(*args, **kwargs)
+# 		self.Class = Tcl_maya
+
+
+
 
 
 # if not pm.runTimeCommand('Hk_main', exists=1):

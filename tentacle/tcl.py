@@ -23,16 +23,23 @@ class Tcl(QtWidgets.QStackedWidget, StyleSheet):
 
 	:Parameters:
 		parent (obj) = The parent application's top level window.
+		profile (bool) = Prints the total running time, times each function separately, and tells you how many times each function was called.
 	'''
 	qApp = QtWidgets.QApplication
 
-	def __init__(self, parent=None, preventHide=False, key_show='Key_F12'):
+	_key_show_press = QtCore.Signal(bool)
+	_key_show_release = QtCore.Signal(bool)
+
+	_popupWindows={}
+
+	def __init__(self, parent=None, key_show='Key_F12', preventHide=False, profile=False):
 		QtWidgets.QStackedWidget.__init__(self, parent)
 
-		self.preventHide = preventHide
 		self.key_show = getattr(QtCore.Qt, key_show)
 		self.key_undo = QtCore.Qt.Key_Z
 		self.key_close = QtCore.Qt.Key_Escape
+		self.profile = profile
+		self.preventHide = preventHide
 		# self.qApp.setDoubleClickInterval(400)
 		# self.qApp.setKeyboardInputInterval(400)
 
@@ -41,8 +48,6 @@ class Tcl(QtWidgets.QStackedWidget, StyleSheet):
 		self.setAttribute(QtCore.Qt.WA_SetStyle) #Indicates that the widget has a style of its own.
 
 		self.sb = Switchboard(self)
-		self.sb.setMainAppWindow(self.parent())
-		self.sb.setClassInstance(self)
 
 		self.childEvents = EventFactoryFilter(self)
 		self.overlay = OverlayFactoryFilter(self) #Paint events are handled by the overlay module.
@@ -51,48 +56,39 @@ class Tcl(QtWidgets.QStackedWidget, StyleSheet):
 
 		self.qApp.instance().focusChanged.connect(self.focusChanged)
 
-		self.centerPos = lambda: QtGui.QCursor.pos() - self.rect().center() #the center point of the widget at any given time.
+		self.centerPos = lambda: QtGui.QCursor.pos() - self.rect().center() #get the center point of this widget.
+		self.centerWidget = lambda w, p: w.move(QtCore.QPoint(p.x()-(w.width()/2), p.y()-(w.height()/4))) #center a given widget on a given position.
 
 
-	def initUi(self, name, level=None):
-		'''Adds the given ui to the stacked widget (if it has not been set before), and constructs any additional dependancies.
-
-		:Parameters:
-			name (str) = The name of the ui. ie. 'polygons_component_submenu'
-			level (int) = The desired returned ui level. If None, then the level will be derived from the name.
-
-		:Return:
-			(obj) ui.
-		'''
-		ui = self.sb.getUi(name, level=level) #get the parent ui.
-		name = self.sb.getUiName(name, level=level) #get the parent ui's name.
-
-		if self.indexOf(ui)==-1: #if the given widget is not a child of the QStackedWidget.
-			self.addWidget(ui) #add the ui to the stackedLayout.
-			self.childEvents.initWidgets(name)
-
-		return ui
-
-
-	def setUi(self, name):
+	def setUi(self, uiName):
 		'''Set the stacked Widget's index to the ui of the given name.
 
 		:Parameters:
-			name (str) = The name of the ui to set the stacked widget index to.
+			uiName (str) = The name of the ui to set the stacked widget index to.
 		'''
-		ui = self.sb.getUi(name, setAsCurrent=True) #Get the ui of the given name, and set it as the current ui in the switchboard module, which amoung other things, sets connections.
+		ui = self.sb.getUi(uiName, setAsCurrent=True) #Get the ui of the given name, and set it as the current ui in the switchboard module.
 
-		self.initUi(name) #add the ui to the stackedLayout (if it hasn't already been added).
+		if self.sb.uiState<1: #self.indexOf(ui)==-1: #if the given widget is not a child of the QStackedWidget, add the ui to the stackedLayout.
+			if self.sb.uiLevel<3:
+				self.addWidget(ui) #add the ui to the stackedLayout.
+			else:
+				ui.setParent(self.parent())
+
+				ui.setWindowFlags(QtCore.Qt.Tool|QtCore.Qt.FramelessWindowHint)
+				ui.setAttribute(QtCore.Qt.WA_TranslucentBackground)
+				ui.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
+
+			self.childEvents.initWidgets(uiName)
+			self.sb.uiState = 1
+
+		if self.sb.uiLevel<3:
+			self.setCurrentWidget(ui) #set the stacked widget to the given ui.
+		else:
+			ui.show()
 
 		self.resize(self.sb.sizeX, self.sb.sizeY) #The ui sizes for individual ui's are stored in sizeX and sizeY properties. Otherwise size would be constrained to the largest widget in the stack)
 
-		if self.sb.uiLevel>2:
-			self.move(self.centerPos().x(), self.centerPos().y()+(self.sb.sizeY/2.15)) #self.move(self.centerPos() - ui.draggable_header.mapToGlobal(ui.draggable_header.rect().center()))
-		# else:
-		# 	self.showFullScreen()
-		# print('keyboardGrabber:', self.keyboardGrabber())
-
-		self.setCurrentWidget(ui) #set the stacked widget to the given ui.
+		self.sb.setConnections(ui) #connect signal/slot connections for the current ui, while disconnecting any previous.
 
 		return ui
 
@@ -100,8 +96,7 @@ class Tcl(QtWidgets.QStackedWidget, StyleSheet):
 	def setPrevUi(self):
 		'''Return the stacked widget to it's starting index.
 		'''
-		# self.setWindowOpacity(0.0)
-		previous = self.sb.previousName(omitLevel=[2,3])
+		previous = self.sb.prevUiName(omitLevel=2)
 		self.setUi(previous) #return the stacked widget to it's previous ui.
 
 		self.move(self.drawPath[0] - self.rect().center())
@@ -109,34 +104,31 @@ class Tcl(QtWidgets.QStackedWidget, StyleSheet):
 		#Reset the lists that make up the draw and widget paths.
 		del self.drawPath[1:] #clear the draw path, while leaving the starting point.
 		del self.widgetPath[:] #clear the list of previous widgets.
-		# self.setWindowOpacity(1.0)
 
 
-	def setSubUi(self, widget, name):
+	def setSubUi(self, widget, uiName):
 		'''Set the stacked widget's index to the submenu associated with the given widget.
 		Positions the new ui to line up with the previous ui's button that called the new ui.
 
 		:Parameters:
 			widget (QWidget) = The widget that called this method.
-			name (str) = The name of the ui to set.
+			uiName (str) = The name of the ui to set.
 		'''
-		# self.setWindowOpacity(0.0)
 		p1 = widget.mapToGlobal(widget.rect().center()) #widget position before submenu change.
 
 		try: #set the ui to the submenu (if it exists).
-			self.initUi(name, level=3) #initialize the parent ui if not done so already.
-			self.setUi(name) #switch the stacked widget to the given submenu.
-		except ValueError: #if no submenu exists: ignore and return.
+			self.setUi(uiName) #switch the stacked widget to the given submenu.
+		except ValueError as error: #if no submenu exists: ignore and return.
 			return None
 
 		w = getattr(self.currentWidget(), widget.objectName()) #get the widget of the same name in the new ui.
 
 		#remove entrys from widget and draw paths when moving back down levels in the ui.
-		if len(self.sb.previousName(as_list=1))>2:
-			if name in self.sb.previousName(as_list=1): #if name is that of a previous ui:
-				self.removeFromPath(name)
+		if len(self.sb.prevUiName(as_list=1))>2:
+			if uiName in self.sb.prevUiName(as_list=1): #if uiName is that of a previous ui:
+				self.removeFromPath(uiName)
 
-		self.widgetPath.append([widget, p1, name]) #add the widget (<widget>, position, 'ui name') from the old ui to the widgetPath list so that it can be re-created in the new ui (in the same position).
+		self.widgetPath.append([widget, p1, uiName]) #add the widget (<widget>, position, 'ui name') from the old ui to the widgetPath list so that it can be re-created in the new ui (in the same position).
 		self.drawPath.append(QtGui.QCursor.pos()) #add the global cursor position to the drawPath list so that paint events can draw the path tangents.
 
 		p2 = w.mapToGlobal(w.rect().center()) #widget position after submenu change.
@@ -144,43 +136,51 @@ class Tcl(QtWidgets.QStackedWidget, StyleSheet):
 		self.resize(1, 1)
 		self.move(self.mapFromGlobal(currentPos +(p1 - p2))) #currentPos + difference
 
-		if name not in self.sb.previousName(as_list=1): #if the submenu ui called for the first time:
-			self.cloneWidgetsAlongPath(name) #re-construct any widgets from the previous ui that fall along the plotted path.
+		if uiName not in self.sb.prevUiName(as_list=1): #if the submenu ui called for the first time:
+			self.cloneWidgetsAlongPath(uiName) #re-construct any widgets from the previous ui that fall along the plotted path.
 
 		self.resize(self.sb.sizeX, self.sb.sizeY)
-		# self.setWindowOpacity(1.0)
 
 
-	def removeFromPath(self, name):
+	def showPopupWindow(self, uiName):
+		'''
+		'''
+		self.hide()
+		ui = self.setUi(uiName)
+
+		self.centerWidget(ui, QtGui.QCursor.pos()) #move to cursor position and offset slightly.
+
+
+	def removeFromPath(self, uiName):
 		'''Remove the last entry from the widget and draw paths for the given ui name.
 
 		:Parameters:
-			name (str) = The name of the ui to remove entry of.
+			uiName (str) = The name of the ui to remove entry of.
 		'''
-		names = [i[2] for i in self.widgetPath] #get the ui names in widgetPath. ie. 'edit_submenu'
+		uiNames = [i[2] for i in self.widgetPath] #get the ui names in widgetPath. ie. 'edit_submenu'
 
-		if name in names:
-			i = names[::-1].index(name) #reverse the list and get the index of the last occurrence of name.
+		if uiName in uiNames:
+			i = uiNames[::-1].index(uiName) #reverse the list and get the index of the last occurrence of uiName.
 			del self.drawPath[-i-1:]
 			del self.widgetPath[-2:]
 
 
-	def cloneWidgetsAlongPath(self, name):
+	def cloneWidgetsAlongPath(self, uiName):
 		'''Re-constructs the relevant buttons from the previous ui for the new ui, and positions them.
 		Initializes the new buttons by adding them to the switchboard dict, setting connections, event filters, and stylesheets.
 		The previous widget information is derived from the widget and draw paths.
 
 		:Parameters:
-			name (str) = The name of ui to duplicate the widgets to.
+			uiName (str) = The name of ui to duplicate the widgets to.
 		'''
-		w0 = self.wgts.PushButton(parent=self.sb.getUi(name), setObjectName='return_area', setSize_=(45, 45), setPosition_=self.drawPath[0]) #create an invisible return button at the start point.
-		self.childEvents.addWidgets(name, w0) #initialize the widget to set things like the event filter and styleSheet.
+		w0 = self.wgts.PushButton(parent=self.sb.getUi(uiName), setObjectName='return_area', setSize_=(45, 45), setPosition_=self.drawPath[0]) #create an invisible return button at the start point.
+		self.childEvents.addWidgets(uiName, w0) #initialize the widget to set things like the event filter and styleSheet.
 
-		if self.sb.getUiLevel(self.sb.previousName(omitLevel=3))==2: #if submenu: recreate widget/s from the previous ui that are in the current path.
+		if self.sb.getUiLevel(self.sb.prevUiName(omitLevel=3))==2: #if submenu: recreate widget/s from the previous ui that are in the current path.
 			for i in range(2, len(self.widgetPath)+1): #for index in widgetPath starting at 2:
 				prevWidget = self.widgetPath[-i][0] #assign the index a neg value to count from the back of the list (starting at -2).
-				w1 = self.wgts.PushButton(parent=self.sb.getUi(name), copy_=prevWidget, setPosition_=self.widgetPath[-i][1], setVisible=True)
-				self.childEvents.addWidgets(name, w1) #initialize the widget to set things like the event filter and styleSheet.
+				w1 = self.wgts.PushButton(parent=self.sb.getUi(uiName), copy_=prevWidget, setPosition_=self.widgetPath[-i][1], setVisible=True)
+				self.childEvents.addWidgets(uiName, w1) #initialize the widget to set things like the event filter and styleSheet.
 				self.childEvents._mouseOver.append(w1)
 				w1.grabMouse() #set widget to receive mouse events.
 				self.childEvents._mouseGrabber = w1
@@ -190,18 +190,31 @@ class Tcl(QtWidgets.QStackedWidget, StyleSheet):
 	# ------------------------------------------------
 	# 	Tcl widget events
 	# ------------------------------------------------
+	def sendKeyPressEvent(self, key, modifier=QtCore.Qt.NoModifier):
+		'''
+		:Parameters:
+			widget (obj) = 
+			key (obj) = 
+			modifier (obj = 
+		'''
+		event = QtGui.QKeyEvent(QtCore.QEvent.KeyPress, key, modifier)
+		self.keyPressEvent(event)
+
+
 	def keyPressEvent(self, event):
 		'''A widget must call setFocusPolicy() to accept focus initially, and have focus, in order to receive a key press event.
 
 		:Parameters:
 			event = <QEvent>
 		'''
+		# self._key_show_press.emit(True)
+
 		if not event.isAutoRepeat():
-			# print ('keyPressEvent:', event.key()==self.key_show)
 			modifiers = self.qApp.keyboardModifiers()
 
 			if event.key()==self.key_show:
-				self.show()
+				self._key_show_press.emit(True)
+				self.show(); print ('keyPressEvent:')
 
 			elif event.key()==self.key_close:
 				self.close()
@@ -217,9 +230,10 @@ class Tcl(QtWidgets.QStackedWidget, StyleSheet):
 		'''
 		if not event.isAutoRepeat():
 			modifiers = self.qApp.keyboardModifiers()
-			# print ('keyReleaseEvent:', event.key()==self.key_show)
+
 			if event.key()==self.key_show and not modifiers==QtCore.Qt.ControlModifier:
-				self.hide()
+				self._key_show_release.emit(True)
+				self.hide(); print ('keyReleaseEvent:')
 
 		return QtWidgets.QStackedWidget.keyReleaseEvent(self, event)
 
@@ -315,18 +329,21 @@ class Tcl(QtWidgets.QStackedWidget, StyleSheet):
 			self.hide()
 
 
-	def show(self, name=None, active=True):
+	def show(self, uiName='init', activate=True):
 		'''Sets the widget as visible.
 
 		:Parameters:
-			name (str) = Show the ui of the given name.
-			active (bool) = Set as the active window.
+			uiName (str) = Show the ui of the given name.
+			activate (bool) = Set as the active window.
 		'''
-		if name:
-			self.setUi(name)
+		if self.profile:
+			import cProfile
+			cProfile.run("self.setUi(uiName)")
+		else:
+			self.setUi(uiName)
 
 		QtWidgets.QStackedWidget.show(self)
-		if active:
+		if activate:
 			self.activateWindow()
 
 
@@ -365,6 +382,11 @@ class Tcl(QtWidgets.QStackedWidget, StyleSheet):
 		'''
 		# self.sb.gcProtect(clear=True) #clear any garbage protected items.
 
+		for ui in self._popupWindows.values():
+			print ('isChecked:', ui.draggable_header.isChecked())
+			if ui.draggable_header.isChecked():
+				ui.hide()
+
 		# if __name__ == "__main__":
 		# 	sys.exit() #assure that the sys processes are terminated during testing.
 
@@ -401,61 +423,16 @@ class Tcl(QtWidgets.QStackedWidget, StyleSheet):
 	def repeatLastUi(self):
 		'''Open the last used level 3 menu.
 		'''
-		previousName = self.sb.previousName(omitLevel=[0,1,2])
-		if previousName:
-			self.setUi(previousName)
+		prevUiName = self.sb.prevUiName(omitLevel=[0,1,2])
+		if prevUiName:
+			self.setUi(prevUiName)
 			self.move(self.drawPath[0] - self.rect().center())
 		else:
 			print('# Warning: No recent menus in history. #')
 
 
 
-class Instance():
-	'''Manage multiple instances of the Tcl ui.
-	'''
-	instances={}
 
-	def __init__(self, parent=None, preventHide=False, key_show='Key_F12'):
-		'''
-		'''
-		self.Class = Tcl
-
-		self.parent = parent
-		self.preventHide = preventHide
-		self.key_show = key_show
-
-		self.activeWindow_ = None
-
-
-	@property
-	def instances_(self):
-		'''Get all instances as a dictionary with the names as keys, and the window objects as values.
-		'''
-		return {k:v for k,v in self.instances.items() if not any([v.isVisible(), v==self.activeWindow_])}
-
-
-	def _getInstance(self):
-		'''Internal use. Returns a new instance if one is running and currently visible.
-		Removes any old non-visible instances outside of the current 'activeWindow_'.
-		'''
-		if self.activeWindow_ is None or self.activeWindow_.isVisible():
-			name = 'tentacle'+str(len(self.instances_))
-			setattr(self, name, self.Class(self.parent, self.preventHide, self.key_show)) #set the instance as a property using it's name.
-			self.activeWindow_ = getattr(self, name)
-			self.instances_[name] = self.activeWindow_
-
-		return self.activeWindow_
-
-
-	def show(self, name=None, active=True):
-		'''Sets the widget as visible.
-
-		:Parameters:
-			name (str) = Show the ui of the given name.
-			active (bool) = Set as the active window.
-		'''
-		inst = self._getInstance()
-		inst.show(name=name, active=active)
 
 
 
@@ -482,6 +459,56 @@ print (__name__)
 
 
 # Deprecated ----------------------------------------------------------------
+
+# class Instance():
+# 	'''Manage multiple instances of the Tcl ui.
+# 	'''
+# 	instances={}
+
+# 	def __init__(self, parent=None, preventHide=False, key_show='Key_F12'):
+# 		'''
+# 		'''
+# 		self.Class = Tcl
+
+# 		self.parent = parent
+# 		self.preventHide = preventHide
+# 		self.key_show = key_show
+
+# 		self.activeWindow_ = None
+
+
+# 	@property
+# 	def instances_(self):
+# 		'''Get all instances as a dictionary with the names as keys, and the window objects as values.
+# 		'''
+# 		return {k:v for k,v in self.instances.items() if not any([v.isVisible(), v==self.activeWindow_])}
+
+
+# 	def _getInstance(self):
+# 		'''Internal use. Returns a new instance if one is running and currently visible.
+# 		Removes any old non-visible instances outside of the current 'activeWindow_'.
+# 		'''
+# 		if self.activeWindow_ is None or self.activeWindow_.isVisible():
+# 			name = 'tentacle'+str(len(self.instances_))
+# 			setattr(self, name, self.Class(self.parent, self.preventHide, self.key_show)) #set the instance as a property using it's name.
+# 			self.activeWindow_ = getattr(self, name)
+# 			self.instances_[name] = self.activeWindow_
+
+# 		return self.activeWindow_
+
+
+# 	def show(self, uiName=None, active=True):
+# 		'''Sets the widget as visible.
+
+# 		:Parameters:
+# 			uiName (str) = Show the ui of the given name.
+# 			active (bool) = Set as the active window.
+# 		'''
+# 		inst = self._getInstance()
+# 		inst.show(uiName=uiName, active=active)
+
+
+
 
 
 
@@ -556,41 +583,3 @@ print (__name__)
 	# 			if self.addUi(ui_, query=True): #if the ui has not yet been added to the widget stack.
 	# 				self.addWidget(ui_) #add the ui to the stackedLayout.
 	# 				self.childEvents.initWidgets(name)
-
-
-# self.sb.setUiSize(name) #Set the size info for each ui (allows for resizing a stacked widget where otherwise resizing is constrained by the largest widget in the stack)
-	# if self.sb.getUiLevel(name)==2: #initialize the parent ui
-	# 	parentUi = self.sb.getUi(name, level=3) #get the parent ui.
-	# 	parentUiName = self.sb.getUiName(parentUi, level=3) #get the parent ui name.
-		# if not parentUiName in self.sb.previousName(as_list=1):
-			# self.addWidget(parentUi) #add the ui to the stackedLayout.
-			# self.childEvents.initWidgets(parentUiName)
-
-# if any([self.sb.uiName=='main', self.sb.uiName=='cameras', self.sb.uiName=='editors']):
-# 	drag = QtGui.QDrag(self)
-# 	drag.setMimeData(QtCore.QMimeData())
-
-# 	# drag.setHotSpot(event.pos())
-# 	# drag.setDragCursor(QtGui.QCursor(QtCore.Qt.CrossCursor).pixmap(), QtCore.Qt.MoveAction) #QtCore.Qt.CursorShape(2) #QtCore.Qt.DropAction
-# 	drag.start(QtCore.Qt.MoveAction) #drag.exec_(QtCore.Qt.MoveAction)
-# 	print(drag.target() #the widget where the drag object was dropped.)
-
-# @property
-# 	def sb(self):
-# 		if not hasattr(self, '_sb'):
-# 			self._sb = Switchboard()
-# 			self._sb.setMainAppWindow(self.parent)
-# 			self._sb.setClassInstance(self, 'main')
-# 		return self._sb
-
-# 	@property
-# 	def childEvents(self):
-# 		if not hasattr(self, '_childEvents'):
-# 			self._childEvents = EventFactoryFilter(self)
-# 		return self._childEvents
-
-# 	@property
-# 	def overlay(self):
-# 		if not hasattr(self, '_overlay'):
-# 			self._overlay = OverlayFactoryFilter(self) #Paint events are handled by the overlay module.
-# 		return self._overlay

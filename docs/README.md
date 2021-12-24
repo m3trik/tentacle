@@ -42,35 +42,28 @@
 For Maya:
 add these lines to a startup script:
 ```
-sys.path.append('path to /tentacle') --append the dir containing 'append_to_path.py' to the python path.
+sys.path.append('your path to /tentacle') --append the dir containing 'append_to_path.py' to the python path.
 import append_to_path as ap
 ap.appendPaths('maya', verbose=0)
 ```
 and to launch the menu, add a macro to a hotkey like the following:
 ```
-	def hk_tentacle_show(profile=False):
+	def hk_tentacle_show():
 		'''Display the tentacle marking menu.
-		
-		:Parameters:
-			profile (bool) = Prints the total running time, times each function separately, and tells you how many times each function was called.
 		'''
-		if 'tentacle' not in globals():
-			global tentacle
-			from tcl_maya import Instance
-			tentacle = Instance(key_show='key_F12')
+		if 'tcl' not in globals():
+			from tcl_maya import Tcl_maya
+			global tcl
+			tcl = Tcl_maya(key_show='Key_F12', profile=False)
 
-		if profile:
-			import cProfile
-			cProfile.run("tentacle.show('init')")
-		else:
-			tentacle.show('init')
+		tcl.sendKeyPressEvent(tcl.key_show)
 ```
 
 For 3ds Max:
 add these lines to a startup script:
 ```
 python.Init() --initalize python
-python.Execute("import sys; sys.path.append('path to /tentacle')") --append the dir containing 'append_to_path.py' to the python path.
+python.Execute("import sys; sys.path.append('your path to /tentacle')") --append the dir containing 'append_to_path.py' to the python path.
 python.Execute("import append_to_path as ap; ap.appendPaths('max', verbose=0)")
 ```
 and to launch the menu, add a macro to a hotkey like the following:
@@ -80,7 +73,7 @@ category: "_macros.ui"
 silentErrors: false
 autoUndoEnabled: false
 (
-	python.Execute "if 'tentacle' not in {**locals(), **globals()}: from tcl_max import Instance; tentacle = Instance(key_show='key_Z')" --create an instance
-	python.Execute "tentacle.show('init');"
+	python.Execute "if 'tcl' not in globals(): from tcl_max import Tcl_max; global tcl; tcl = Tcl_max(key_show='Key_Z')" --create an instance.
+	python.Execute "tcl.sendKeyPressEvent(tcl.key_show);" --show the instance.
 )
 ```

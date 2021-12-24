@@ -76,15 +76,14 @@ class Create(Init):
 
 	@Init.attr
 	def tb000(self, state=None):
-		'''Drop To Grid
+		'''Create Primitive
 		'''
-		tb = self.current_ui.tb000
+		tb = self.create_ui.tb000
 		if state=='setMenu':
 			tb.contextMenu.add('QCheckBox', setText='Translate', setObjectName='chk000', setChecked=True, setToolTip='Move the created object to the center point of any selected object(s).')
 			# tb.contextMenu.add('QCheckBox', setText='Scale', setObjectName='chk001', setChecked=True, setToolTip='Uniformly scale the created object to match the averaged scale of any selected object(s).')
 			return
 
-		axis = [0,90,0]
 		type_ = self.create_ui.cmb001.currentText()
 		index = self.create_ui.cmb002.currentIndex()
 		translate = tb.contextMenu.chk000.isChecked()
@@ -106,7 +105,7 @@ class Create(Init):
 			elif index==3: #plane:
 				node = rt.Plane(width=5, length=5, widthsegs=1, lengthsegs=1)
 			elif index==4: #circle:
-				node = self.createCircle(axis=axis, numPoints=5, radius=5, mode=None)
+				node = self.createCircle(axis=[0,90,0], numPoints=5, radius=5, mode=None)
 			elif index==5: #Cone:
 				node = rt.Cone(radius1=5, radius2=1, height=5, capsegs=1, heightsegs=1, sides=12, smooth=True)
 			elif index==6: #Pyramid
@@ -203,7 +202,7 @@ class Create(Init):
 
 		cmb001.setCurrentIndex(cmb001.findText(catagory1))
 		cmb002.setCurrentIndex(cmb002.findText(catagory2))
-		self.b000()
+		self.tb000()
 
 
 	def b001(self):

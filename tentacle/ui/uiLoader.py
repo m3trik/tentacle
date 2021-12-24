@@ -50,6 +50,7 @@ class UiLoader(QtUiTools.QUiLoader):
 		'''
 		try:
 			return self._uiDict
+
 		except AttributeError as error:
 			self._uiDict = {}
 			return self._uiDict
@@ -63,7 +64,7 @@ class UiLoader(QtUiTools.QUiLoader):
 				self.registerCustomWidget(w)
 
 			except Exception as error:
-				print (error)
+				print ('{}.registerWidgets(): {}'.format(__name__, error))
 
 
 	def addUi(self, dirPath, uiFiles):
@@ -88,8 +89,8 @@ class UiLoader(QtUiTools.QUiLoader):
 				uiLevel = int(d.strip(self.uiLevelPrefix))
 				self.uiDict[uiName] = {'ui':ui, 'level':uiLevel}
 
-			except KeyError: #not a valid ui dir.
-				pass
+			except KeyError as error: #not a valid ui dir.
+				pass; #print ('{}.addUi(): {}'.format(__name__, error))
 
 
 

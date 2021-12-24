@@ -7,7 +7,7 @@ from PySide2 import QtCore, QtWidgets
 try: from pymxs import runtime as rt
 except ImportError as e: print(e)
 
-from tentacle import Tcl, Instance
+from tentacle import Tcl
 
 
 
@@ -99,41 +99,6 @@ class Tcl_max(Tcl):
 		return Tcl.hideEvent(self, event) #super().hideEvent(event)
 
 
-	# import contextlib
-	# @contextlib.contextmanager
-	# def performAppUndo(self, enabled=True, message=''):
-	# 	'''
-	# 	Uses pymxs's undo mechanism, but doesn't silence exceptions raised
-	# 	in it.
-
-	# 	:Parameter:
-	# 		enabled (bool) = Turns undo functionality on.
-	# 		message (str) = Label for the undo item in the undo menu.
-	# 	'''
-	# 	print('undo')
-	# 	import pymxs
-	# 	import traceback
-	# 	e = None
-	# 	with pymxs.undo(enabled, message):
-	# 		try:
-	# 			yield
-	# 		except Exception as e:
-	# 			# print error, raise error then run undo 
-	# 			print(traceback.print_exc())
-	# 			raise(e)
-	# 			pymxs.run_undo()
-
-
-class Instance(Instance):
-	'''Manage multiple instances of Tcl_max.
-	'''
-	def __init__(self, *args, **kwargs):
-		'''
-		'''
-		super().__init__(*args, **kwargs)
-		self.Class = Tcl_max
-
-
 
 
 
@@ -151,21 +116,66 @@ if __name__ == "__main__":
 	dummyParent.setObjectName('MaxWindow')
 
 	import cProfile
-	cProfile.run("Instance(dummyParent).show('init')")
+	cProfile.run("Tcl_max(dummyParent).show('init')")
 	# Instance(dummyParent).show_() #Tcl_max(p).show()
 	sys.exit(app.exec_())
 
 
 
+#module name
+print (__name__)
 # -----------------------------------------------
 # Notes
 # -----------------------------------------------
 
-# macroScript main_max
-# category: "_macros.ui"
-# silentErrors: false
-# autoUndoEnabled: false
-# (
-# 	python.Execute "if 'tentacle' not in {**locals(), **globals()}: from tentacle_max import Instance; tentacle = Instance(key_show='key_F12')" --create an instance
-# 	python.Execute "tentacle.show('init');"
-# )
+# Example startup macro:
+
+	# macroScript main_max
+	# category: "_macros.ui"
+	# silentErrors: false
+	# autoUndoEnabled: false
+	# (
+	# 	python.Execute "if 'tentacle' not in globals(): from tcl_max import Tcl_max; global tcl; tcl = Tcl_max(key_show='Key_F12', profile=False)" --create an instance
+	# 	python.Execute "tcl.sendKeyPressEvent(tcl.key_show);"
+	# )
+
+
+
+
+# deprecated: -----------------------------------
+
+# class Instance(Instance):
+# 	'''Manage multiple instances of Tcl_max.
+# 	'''
+# 	def __init__(self, *args, **kwargs):
+# 		'''
+# 		'''
+# 		super().__init__(*args, **kwargs)
+# 		self.Class = Tcl_max
+
+
+
+
+# import contextlib
+# @contextlib.contextmanager
+# def performAppUndo(self, enabled=True, message=''):
+# 	'''
+# 	Uses pymxs's undo mechanism, but doesn't silence exceptions raised
+# 	in it.
+
+# 	:Parameter:
+# 		enabled (bool) = Turns undo functionality on.
+# 		message (str) = Label for the undo item in the undo menu.
+# 	'''
+# 	print('undo')
+# 	import pymxs
+# 	import traceback
+# 	e = None
+# 	with pymxs.undo(enabled, message):
+# 		try:
+# 			yield
+# 		except Exception as e:
+# 			# print error, raise error then run undo 
+# 			print(traceback.print_exc())
+# 			raise(e)
+# 			pymxs.run_undo()

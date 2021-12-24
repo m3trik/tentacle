@@ -97,7 +97,7 @@ class Init(Slots):
 		if prevCommand:
 			hud.insertText('Prev Command: <font style="color: Yellow;">{}'.format(prevCommand))  #get button text from last used command
 
-		# prevUi = self.tcl.sb.previousName(omitLevel=[0,1,2])
+		# prevUi = self.tcl.sb.prevUiName(omitLevel=[0,1,2])
 		# hud.insertText('Prev UI: {}'.format(prevUi.replace('_', '').title())) #get the last level 3 ui name string.
 
 		# prevCamera = self.tcl.sb.prevCamera(docString=True)

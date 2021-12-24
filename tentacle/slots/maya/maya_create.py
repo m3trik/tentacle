@@ -76,9 +76,9 @@ class Create(Init):
 
 	@Init.attr
 	def tb000(self, state=None):
-		'''Drop To Grid
+		'''Create Primitive
 		'''
-		tb = self.current_ui.tb000
+		tb = self.create_ui.tb000
 		if state=='setMenu':
 			tb.contextMenu.add('QCheckBox', setText='Translate', setObjectName='chk000', setChecked=True, setToolTip='Move the created object to the center point of any selected object(s).')
 			tb.contextMenu.add('QCheckBox', setText='Scale', setObjectName='chk001', setChecked=True, setToolTip='Uniformly scale the created object to match the averaged scale of any selected object(s).')
@@ -183,7 +183,7 @@ class Create(Init):
 
 		cmb001.setCurrentIndex(cmb001.findText(catagory1))
 		cmb002.setCurrentIndex(cmb002.findText(catagory2))
-		self.b000()
+		self.tb000()
 
 
 	def b001(self):

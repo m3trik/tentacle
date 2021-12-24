@@ -19,7 +19,7 @@ class Slots(QtCore.QObject):
 		super().__init__(parent)
 		'''
 		:Parameters: 
-			**kwargs (passed in via the switchboard module's 'getClassFromUiName' method.)
+			**kwargs (passed in via the switchboard module's 'getClassInstanceFromUiName' method.)
 				_current_ui (method) = Returns the current ui if it is either the parent or a child ui for the class; else, return the parent ui.
 				<name>_ui (ui) = ui of <name> ie. self.polygons for the ui of filename polygons.
 				<name>_submenu_ui (ui) = ui of <name_submenu> ie. self.polygons_submenu.
