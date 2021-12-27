@@ -366,7 +366,7 @@ class Duplicate(Init):
 	def b006(self):
 		'''
 		'''
-		self.tcl.showPopupWindow('duplicate_linear')
+		self.tcl.setUi('duplicate_linear')
 
 		self.duplicate_linear_ui.s002.valueChanged.connect(self.duplicateArray) #update duplicate array
 		self.duplicate_linear_ui.s003.valueChanged.connect(self.duplicateArray)
@@ -380,7 +380,7 @@ class Duplicate(Init):
 	def b007(self):
 		'''
 		'''
-		self.tcl.showPopupWindow('duplicate_radial')
+		self.tcl.setUi('duplicate_radial')
 
 		self.duplicate_radial_ui.s000.valueChanged.connect(self.radialArray) #update radial array
 		self.duplicate_radial_ui.s001.valueChanged.connect(self.radialArray) 
@@ -389,7 +389,12 @@ class Duplicate(Init):
 	def b008(self):
 		'''Add Selected Components To cmb001
 		'''
-		self.comboBox (self.duplicate_linear_ui.cmb001, pm.ls (selection=1, flatten=1))
+		cmb = self.duplicate_linear_ui.cmb001
+
+		selection = pm.ls (selection=1, flatten=1)
+
+		for obj in selection:
+			cmb.add(obj)
 
 
 

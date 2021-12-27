@@ -90,7 +90,7 @@ class Create(Init):
 		translate = tb.contextMenu.chk000.isChecked()
 		scale = tb.contextMenu.chk001.isChecked()
 
-		selection = pm.ls(selection=1)
+		selection = pm.ls(selection=1, transforms=1)
 
 		#polygons
 		if type_=='Polygon':

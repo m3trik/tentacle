@@ -223,7 +223,7 @@
         </size>
        </property>
        <property name="whatsThis">
-        <string>cameras_lower</string>
+        <string>cameras_lower_submenu</string>
        </property>
       </widget>
       <zorder>i000</zorder>

@@ -93,7 +93,7 @@
          </size>
         </property>
         <property name="whatsThis">
-         <string>main_lower</string>
+         <string>main_lower_submenu</string>
         </property>
         <property name="text">
          <string>History</string>

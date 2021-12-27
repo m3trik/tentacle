@@ -1,3 +1,4 @@
+
 # !/usr/bin/python
 # coding=utf-8
 import sys
@@ -27,10 +28,7 @@ class Tcl(QtWidgets.QStackedWidget, StyleSheet):
 	'''
 	qApp = QtWidgets.QApplication
 
-	_key_show_press = QtCore.Signal(bool)
-	_key_show_release = QtCore.Signal(bool)
-
-	_popupWindows={}
+	_key_show_release = QtCore.Signal()
 
 	def __init__(self, parent=None, key_show='Key_F12', preventHide=False, profile=False):
 		QtWidgets.QStackedWidget.__init__(self, parent)
@@ -60,6 +58,34 @@ class Tcl(QtWidgets.QStackedWidget, StyleSheet):
 		self.centerWidget = lambda w, p: w.move(QtCore.QPoint(p.x()-(w.width()/2), p.y()-(w.height()/4))) #center a given widget on a given position.
 
 
+	def initUi(self, uiName):
+		'''
+		'''
+		ui = self.sb.getUi(uiName)
+
+		if self.sb.uiLevel<3: #stacked ui.
+			self.addWidget(ui) #add the ui to the stackedLayout.
+
+		else: #popup ui.
+			ui.setParent(self.parent())
+
+			ui.setWindowFlags(QtCore.Qt.Tool|QtCore.Qt.FramelessWindowHint)
+			ui.setAttribute(QtCore.Qt.WA_TranslucentBackground)
+			ui.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
+
+			ui.hide = lambda w=ui: True if ui.preventHide else w.__class__.hide(w) #ui.setVisible(0)
+			self._key_show_release.connect(ui.hide)
+
+		parent_uiName = self.sb.getUiName(uiName, level=3)
+		if parent_uiName:
+			wgts = self.sb.getWidgetsByPrefix(['tb', 'cmb'], parent_uiName)
+			if wgts:
+				self.childEvents.initWidgets(parent_uiName, wgts)
+		self.childEvents.initWidgets(uiName)
+
+		self.sb.setUiState(uiName, 1)
+
+
 	def setUi(self, uiName):
 		'''Set the stacked Widget's index to the ui of the given name.
 
@@ -67,28 +93,24 @@ class Tcl(QtWidgets.QStackedWidget, StyleSheet):
 			uiName (str) = The name of the ui to set the stacked widget index to.
 		'''
 		ui = self.sb.getUi(uiName, setAsCurrent=True) #Get the ui of the given name, and set it as the current ui in the switchboard module.
+		self.sb.setConnections(ui) #connect signal/slot connections for the current ui, while disconnecting the previous.
+		ui.preventHide = False
 
-		if self.sb.uiState<1: #self.indexOf(ui)==-1: #if the given widget is not a child of the QStackedWidget, add the ui to the stackedLayout.
-			if self.sb.uiLevel<3:
-				self.addWidget(ui) #add the ui to the stackedLayout.
-			else:
-				ui.setParent(self.parent())
+		if self.sb.uiState<1: #self.indexOf(ui)==-1:
+			self.initUi(uiName)
 
-				ui.setWindowFlags(QtCore.Qt.Tool|QtCore.Qt.FramelessWindowHint)
-				ui.setAttribute(QtCore.Qt.WA_TranslucentBackground)
-				ui.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
-
-			self.childEvents.initWidgets(uiName)
-			self.sb.uiState = 1
-
-		if self.sb.uiLevel<3:
+		if self.sb.uiLevel<3: #stacked ui.
 			self.setCurrentWidget(ui) #set the stacked widget to the given ui.
-		else:
+
+		else: #popup ui.
+			self.hide()
 			ui.show()
+			ui.activateWindow()
 
+			self.childEvents.sendKeyPressEvent(self.key_show)
+
+			self.centerWidget(ui, QtGui.QCursor.pos()) #move to cursor position and offset slightly.
 		self.resize(self.sb.sizeX, self.sb.sizeY) #The ui sizes for individual ui's are stored in sizeX and sizeY properties. Otherwise size would be constrained to the largest widget in the stack)
-
-		self.sb.setConnections(ui) #connect signal/slot connections for the current ui, while disconnecting any previous.
 
 		return ui
 
@@ -142,15 +164,6 @@ class Tcl(QtWidgets.QStackedWidget, StyleSheet):
 		self.resize(self.sb.sizeX, self.sb.sizeY)
 
 
-	def showPopupWindow(self, uiName):
-		'''
-		'''
-		self.hide()
-		ui = self.setUi(uiName)
-
-		self.centerWidget(ui, QtGui.QCursor.pos()) #move to cursor position and offset slightly.
-
-
 	def removeFromPath(self, uiName):
 		'''Remove the last entry from the widget and draw paths for the given ui name.
 
@@ -197,6 +210,7 @@ class Tcl(QtWidgets.QStackedWidget, StyleSheet):
 			key (obj) = 
 			modifier (obj = 
 		'''
+		self.grabKeyboard()
 		event = QtGui.QKeyEvent(QtCore.QEvent.KeyPress, key, modifier)
 		self.keyPressEvent(event)
 
@@ -213,8 +227,7 @@ class Tcl(QtWidgets.QStackedWidget, StyleSheet):
 			modifiers = self.qApp.keyboardModifiers()
 
 			if event.key()==self.key_show:
-				self._key_show_press.emit(True)
-				self.show(); print ('keyPressEvent:')
+				self.show()
 
 			elif event.key()==self.key_close:
 				self.close()
@@ -232,8 +245,9 @@ class Tcl(QtWidgets.QStackedWidget, StyleSheet):
 			modifiers = self.qApp.keyboardModifiers()
 
 			if event.key()==self.key_show and not modifiers==QtCore.Qt.ControlModifier:
-				self._key_show_release.emit(True)
-				self.hide(); print ('keyReleaseEvent:')
+				self._key_show_release.emit()
+				self.releaseKeyboard()
+				self.hide()
 
 		return QtWidgets.QStackedWidget.keyReleaseEvent(self, event)
 
@@ -273,8 +287,7 @@ class Tcl(QtWidgets.QStackedWidget, StyleSheet):
 		:Parameters:
 			event = <QEvent>
 		'''
-		if self.sb.uiLevel<3:
-			self.childEvents.mouseTracking(self.sb.uiName)
+		self.childEvents.mouseTracking(self.sb.uiName)
 
 		return QtWidgets.QStackedWidget.mouseMoveEvent(self, event)
 
@@ -284,8 +297,7 @@ class Tcl(QtWidgets.QStackedWidget, StyleSheet):
 		:Parameters:
 			event = <QEvent>
 		'''
-		if self.sb.uiLevel>0 and self.sb.uiLevel<3:
-			self.setUi('init')
+		self.setUi('init')
 
 		return QtWidgets.QStackedWidget.mouseReleaseEvent(self, event)
 
@@ -329,7 +341,7 @@ class Tcl(QtWidgets.QStackedWidget, StyleSheet):
 			self.hide()
 
 
-	def show(self, uiName='init', activate=True):
+	def show(self, uiName='init'):
 		'''Sets the widget as visible.
 
 		:Parameters:
@@ -343,8 +355,8 @@ class Tcl(QtWidgets.QStackedWidget, StyleSheet):
 			self.setUi(uiName)
 
 		QtWidgets.QStackedWidget.show(self)
-		if activate:
-			self.activateWindow()
+
+		self.activateWindow()
 
 
 	def showEvent(self, event):
@@ -381,11 +393,6 @@ class Tcl(QtWidgets.QStackedWidget, StyleSheet):
 			event = <QEvent>
 		'''
 		# self.sb.gcProtect(clear=True) #clear any garbage protected items.
-
-		for ui in self._popupWindows.values():
-			print ('isChecked:', ui.draggable_header.isChecked())
-			if ui.draggable_header.isChecked():
-				ui.hide()
 
 		# if __name__ == "__main__":
 		# 	sys.exit() #assure that the sys processes are terminated during testing.
@@ -426,7 +433,7 @@ class Tcl(QtWidgets.QStackedWidget, StyleSheet):
 		prevUiName = self.sb.prevUiName(omitLevel=[0,1,2])
 		if prevUiName:
 			self.setUi(prevUiName)
-			self.move(self.drawPath[0] - self.rect().center())
+			# self.move(self.drawPath[0] - self.rect().center())
 		else:
 			print('# Warning: No recent menus in history. #')
 

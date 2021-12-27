@@ -486,12 +486,8 @@ def tree000(self, wItem=None, column=None):
 # ======================================================================
 '''
 
+
 fix maya_mirror!!
-
-dynamic contextMenus.  use duplicate ui as test.
-
-
-add close all tentacle instances button.
 
 
 Slots.scene: naming needs clearer docstring w/example results. replace suffix is instead appending. should replace 1 occurance from right of anything in the find field, possibly only if searching for suffix.

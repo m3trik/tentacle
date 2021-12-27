@@ -108,7 +108,7 @@ class EventFactoryFilter(QtCore.QObject):
 						try: #attempt to construct the widget's contextMenu.
 							method('setMenu')
 						except Exception as error:
-							pass; print ("# Error: {}.EventFactoryFilter.initWidgets: Call: {}('setMenu') failed: {}. #".format(__name__, widgetName, error))
+							pass; #print ("# Error: {}.EventFactoryFilter.initWidgets: Call: {}('setMenu') failed: {}. #".format(__name__, widgetName, error))
 
 					try: #add the child widgets of popup menus.
 						self.addWidgets(uiName, widget.menu_.childWidgets)
@@ -132,12 +132,12 @@ class EventFactoryFilter(QtCore.QObject):
 		:Parameters:
 			uiName (str) = ui name.
 		'''
-		# print([i.objectName() for i in self.tcl.sb.getWidget(ui=uiName) if uiName=='cameras']), '---'
 		ui = self.tcl.sb.getUi(uiName)
-		widgetsUnderMouse=[] #list of widgets currently under the mouse cursor and their parents. in hierarchical order. ie. [[<widgets.pushButton.PushButton object at 0x00000000045F6948>, <PySide2.QtWidgets.QMainWindow object at 0x00000000045AA8C8>, <__main__.Main_max object at 0x000000000361F508>, <PySide2.QtWidgets.QWidget object at 0x00000000036317C8>]]
+		widgetsUnderMouse = [] #list of widgets currently under the mouse cursor and their parents. in hierarchical order. ie. [[<widgets.pushButton.PushButton object at 0x00000000045F6948>, <PySide2.QtWidgets.QMainWindow object at 0x00000000045AA8C8>, <__main__.Main_max object at 0x000000000361F508>, <PySide2.QtWidgets.QWidget object at 0x00000000036317C8>]]
 		trackedWidgets = self.tcl.sb.getWidget(ui=uiName, tracked=True)
 
 		for widget in trackedWidgets: #get all widgets from the current ui.
+
 			try: # if hasattr(widget, 'rect'):
 				widgetName = self.tcl.sb.getWidgetName(widget, uiName)
 			except KeyError: #ignore any widgets not having the 'rect' attribute.
@@ -162,6 +162,7 @@ class EventFactoryFilter(QtCore.QObject):
 						if ui.mainWindow.isVisible():
 							ui.mainWindow.grabMouse()
 							self._mouseGrabber = ui.mainWindow
+
 			except (AttributeError, TypeError) as error:
 				pass; #print ('# Error: {}.EventFactoryFilter.mouseTracking: {}. #'.format(__name__, error))
 
@@ -218,8 +219,8 @@ class EventFactoryFilter(QtCore.QObject):
 			event = <QEvent>
 		'''
 		result = False #default to False (event not handled)
-
 		eventName = EventFactoryFilter.createEventName(event) #get 'mousePressEvent' from <QEvent>
+
 		if eventName in self.eventTypes: #handle only events listed in 'eventTypes'
 
 			self.widget = widget
@@ -234,7 +235,7 @@ class EventFactoryFilter(QtCore.QObject):
 
 			try: # if hasattr(self, eventName):
 				getattr(self, eventName)(event) #handle the event locally. #ie. self.enterEvent(event)
-				result = False #super().eventFilter(widget, event)
+				result = True
 			except AttributeError as error:
 				pass; print ('# Error: {}.eventFilter({}, {}): {} ui: {}. #'.format(__name__, widget.objectName(), event.__class__.__name__, self.uiName, error))
 
@@ -244,29 +245,12 @@ class EventFactoryFilter(QtCore.QObject):
 	# ------------------------------------------------
 	# Events
 	# ------------------------------------------------
-	def sendKeyPressEvent(self, key, modifier=QtCore.Qt.NoModifier):
-		'''
-		:Parameters:
-			widget (obj) = 
-			key (obj) = 
-			modifier (obj = 
-		'''
-		event = QtGui.QKeyEvent(QtCore.QEvent.KeyPress, key, modifier)
-		self.keyPressEvent(event)
-
-
 	def showEvent(self, event):
 		'''
 		:Parameters:
 			event = <QEvent>
 		'''
-		# print ('showEvent1:', self.widgetName, self.uiName)
-		if self.widgetName=='mainWindow':
-			if self.uiLevel>2:
-				print ('sendKeyPressEvent:', self.uiName)
-				self.sendKeyPressEvent(self.tcl.key_show)
-
-		elif self.widgetName=='info':
+		if self.widgetName=='info':
 			EventFactoryFilter.resizeAndCenterWidget(self.widget)
 
 		if self.widgetType in ('ComboBox', 'TreeWidgetExpandableList'):
@@ -282,6 +266,8 @@ class EventFactoryFilter(QtCore.QObject):
 			if self.widgetType=='TreeWidgetExpandableList':
 				self.addWidgets(self.uiName, self.widget.newWidgets) #removeWidgets=self.widget._gcWidgets.keys()
 
+		self.widget.__class__.showEvent(self.widget, event)
+
 
 	def hideEvent(self, event):
 		'''
@@ -292,6 +278,8 @@ class EventFactoryFilter(QtCore.QObject):
 			if self._mouseGrabber:
 				self._mouseGrabber.releaseMouse()
 				self._mouseGrabber = None
+
+		self.widget.__class__.hideEvent(self.widget, event)
 
 
 	def enterEvent(self, event):
@@ -318,6 +306,8 @@ class EventFactoryFilter(QtCore.QObject):
 			if self.tcl.sb.getUiLevel(self.uiName)==2: #if submenu:
 				self.widget.click()
 
+		self.widget.__class__.enterEvent(self.widget, event)
+
 
 	def leaveEvent(self, event):
 		'''
@@ -330,6 +320,8 @@ class EventFactoryFilter(QtCore.QObject):
 			if self.tcl.sb.prefix(self.widget, 'w'):
 				self.widget.setVisible(False) #set visibility
 
+		self.widget.__class__.leaveEvent(self.widget, event)
+
 
 	def mousePressEvent(self, event):
 		'''
@@ -338,6 +330,8 @@ class EventFactoryFilter(QtCore.QObject):
 		'''
 		self._mousePressPos = event.globalPos() #mouse positon at press
 		self.__mouseMovePos = event.globalPos() #mouse move position from last press
+
+		self.widget.__class__.mousePressEvent(self.widget, event)
 
 
 	def mouseMoveEvent(self, event):
@@ -350,6 +344,8 @@ class EventFactoryFilter(QtCore.QObject):
 			diff = globalPos -self.__mouseMovePos
 			self.__mouseMovePos = globalPos
 
+		self.widget.__class__.mouseMoveEvent(self.widget, event)
+
 
 	def mouseReleaseEvent(self, event):
 		'''
@@ -359,7 +355,7 @@ class EventFactoryFilter(QtCore.QObject):
 		if self.widget.underMouse(): #if self.widget.rect().contains(event.pos()): #if mouse over widget:
 			if self.derivedType=='QPushButton':
 				if self.tcl.sb.prefix(self.widget, 'i'): #ie. 'i012'
-					self.tcl.showPopupWindow(self.widget.whatsThis())
+					self.tcl.setUi(self.widget.whatsThis())
 
 				elif self.tcl.sb.prefix(self.widget, 'v'):
 					if self.uiName=='cameras':
@@ -373,6 +369,20 @@ class EventFactoryFilter(QtCore.QObject):
 					#add the buttons command info to the prevCommand list.
 					self.tcl.sb.prevCommand(add=self.method)
 
+		self.widget.__class__.mouseReleaseEvent(self.widget, event)
+
+
+	def sendKeyPressEvent(self, key, modifier=QtCore.Qt.NoModifier):
+		'''
+		:Parameters:
+			widget (obj) = 
+			key (obj) = 
+			modifier (obj = 
+		'''
+		self.widget.grabKeyboard()
+		event = QtGui.QKeyEvent(QtCore.QEvent.KeyPress, key, modifier)
+		self.keyPressEvent(event)
+
 
 	def keyPressEvent(self, event):
 		'''A widget must call setFocusPolicy() to accept focus initially, and have focus, in order to receive a key press event.
@@ -381,14 +391,13 @@ class EventFactoryFilter(QtCore.QObject):
 			event = <QEvent>
 		'''
 		if not event.isAutoRepeat():
+			# print ('keyPressEvent (childEvents): 0')
 			modifiers = self.tcl.qApp.keyboardModifiers()
 
-			if event.key()==self.tcl.key_show:
-				self.tcl._key_show_press.emit(True)
-				print ('keyPressEvent (childEvents):')
-
-			elif event.key()==self.key_close:
+			if event.key()==self.tcl.key_close:
 				self.close()
+
+		self.widget.__class__.keyPressEvent(self.widget, event)
 
 
 	def keyReleaseEvent(self, event):
@@ -398,12 +407,16 @@ class EventFactoryFilter(QtCore.QObject):
 			event = <QEvent>
 		'''
 		if not event.isAutoRepeat():
+			# print ('keyReleaseEvent (childEvents): 0')
 			modifiers = self.tcl.qApp.keyboardModifiers()
 
 			if event.key()==self.tcl.key_show and not modifiers==QtCore.Qt.ControlModifier:
-				self.tcl._key_show_release.emit(True)
-				print ('keyReleaseEvent (childEvents):')
-				self._key_show_release.emit(True)
+				if self.widgetName=='mainWindow':
+					if self.uiLevel>2:
+						self.tcl._key_show_release.emit()
+						self.widget.releaseKeyboard()
+
+		self.widget.__class__.keyReleaseEvent(self.widget, event)
 
 
 

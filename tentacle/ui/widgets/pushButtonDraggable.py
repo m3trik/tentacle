@@ -134,6 +134,16 @@ class PushButtonDraggable(QtWidgets.QPushButton, MenuInstance, Attributes, RichT
 		return QtWidgets.QPushButton.showEvent(self, event)
 
 
+	def hideEvent(self, event):
+		'''
+		:Parameters:
+			event = <QEvent>
+		'''
+		
+
+		return QtWidgets.QPushButton.hideEvent(self, event)
+
+
 
 
 

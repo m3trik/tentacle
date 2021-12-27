@@ -148,7 +148,7 @@
         </size>
        </property>
        <property name="whatsThis">
-        <string>main_lower</string>
+        <string>main_lower_submenu</string>
        </property>
       </widget>
       <zorder>i000</zorder>

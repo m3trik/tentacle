@@ -133,7 +133,7 @@
         </size>
        </property>
        <property name="whatsThis">
-        <string>editors_lower</string>
+        <string>editors_lower_submenu</string>
        </property>
       </widget>
       <zorder>i000</zorder>
