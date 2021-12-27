@@ -3,7 +3,7 @@
 
 ## Design:
 ######
-*This is a dynamic and modular marking menu style ui, with a QStackedWidget at it's core.  The switchboard module provides convenience methods that allow quick and easy lookups when getting/setting ui and widget data across modules.*
+*This is a dynamic and modular marking menu style ui, with a QStackedWidget at it's core.  The switchboard module provides convenience methods that allow quick and easy lookups when getting/setting relevant ui and widget data across modules.*
 
 ![alt text](https://raw.githubusercontent.com/m3trik/tentacle/master/docs/toolkit_demo.gif)
 *Example re-opening the last scene, renaming a material, and selecting geometry by that material.
