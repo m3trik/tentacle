@@ -119,25 +119,6 @@ class Switchboard(QtCore.QObject):
 			return self._sbDict
 
 
-	def getUiDict(self, uiName=None):
-		'''Get the ui dict from the main sbDict.
-
-		:Parameters:
-			ui (str)(obj) = The ui name, or ui object. ie. 'polygons' or <polygons>
-							If None is given, the current ui will be used.
-		:Return:
-			(dict)
-		'''
-		uiName = self.getUiName(ui)
-
-		try:
-			return self.sbDict[uiName]
-
-		except KeyError as error:
-			print ('# Error: {}.ui({}) {} #'.format(__name__, uiName, error))
-			return {}
-
-
 	def widgets(self, ui=None, query=False):
 		'''Get the widgets dict from the main sbDict.
 
@@ -932,30 +913,33 @@ class Switchboard(QtCore.QObject):
 		:Return:
 			(obj) The class instance.
 		'''
-		if isinstance(class_, (str)): #if arg given as string or unicode:
+		if not class_:
+			return None
+
+		if isinstance(class_, (str)): #if class_ is given as a class name.
 			mainAppWindowName = self.getMainAppWindow(objectName=True)
-			name = self.getUiName(class_, case='camelCase', level=[0,1,3])
-			className = self.getUiName(class_, case='pascalCase', level=[0,1,3])
+			name = class_ # name = self.getUiName(class_, case='camelCase', level=[0,1,3])
+			className = self.setCase(class_, case='pascalCase') # className = self.getUiName(class_, case='pascalCase', level=[0,1,3])
 			path = '{0}_{1}.{2}'.format(mainAppWindowName, name, className) #ie. 'maya_init.Init'
 			class_ = locate(path)
 			if class_==None:
 				print ('# Error: {}._setClassInstance({}): import {} failed. #'.format(__name__, class_, path))
-				return None
-
-		if not name:
+				# return None
+		else:
 			name = class_.__class__.__name__ #if arg as <object>:
 
-		name = self.setCase(name, 'camelCase') #lowercase the first letter.
-
-		if not name in self.sbDict:
-			self.sbDict[name] = {}
+		uiName = self.setCase(name, 'camelCase') #lowercase the first letter.
 
 		try:
-			self.sbDict[name]['class'] = class_(**kwargs)
+			result = class_(**kwargs)
 		except Exception as error:
-			self.sbDict[name]['class'] = class_
+			try:
+				result = class_()
+			except Exception as error:
+				result = None
 
-		return self.sbDict[name]['class']
+		self.sbDict[uiName]['class'] = result
+		return result
 
 
 	def getClassInstance(self, class_, **kwargs):
@@ -969,19 +953,22 @@ class Switchboard(QtCore.QObject):
 		:Return:
 			class object.
 		'''
-		if isinstance(class_, (str)): #if arg given as string.
-			name = self.getUiName(class_, case='camelCase', level=[0,1,3])
-
+		if isinstance(class_, str): #if class_ is given as a class name.
+			name = class_
 		else: #if arg as <object>:
-			try:
-				name = class_.__class__.__name__
-			except Exception as error:
-				return None
+			name = class_.__class__.__name__
 
 		try:
-			return self.sbDict[name]['class']
+			result = self.sbDict[name]['class']
 		except KeyError as error:
-			return self._setClassInstance(name, **kwargs) #set the class instance while passing in any keyword arguments into **kwargs.
+			# if isinstance(class_, (str)): #if arg given as string.
+			name = self.getUiName(name, case='camelCase') #look for class under the given name.
+			result = self._setClassInstance(name, **kwargs) #set the class instance while passing in any keyword arguments into **kwargs.
+			if not result: #else try using it's parent name.
+				name = self.getUiName(name, case='camelCase', level=[0,1,3])
+				result = self._setClassInstance(name, **kwargs) #set the class instance while passing in any keyword arguments into **kwargs.
+
+		return result
 
 
 	def isTracked(self, widget, ui=None):
@@ -1811,6 +1798,26 @@ sbDict = {
 
 # deprecated: -----------------------------------
 
+
+
+
+# def getUiDict(self, uiName=None):
+# 	'''Get the ui dict from the main sbDict.
+
+# 	:Parameters:
+# 		ui (str)(obj) = The ui name, or ui object. ie. 'polygons' or <polygons>
+# 						If None is given, the current ui will be used.
+# 	:Return:
+# 		(dict)
+# 	'''
+# 	uiName = self.getUiName(ui)
+
+# 	try:
+# 		return self.sbDict[uiName]
+
+# 	except KeyError as error:
+# 		print ('# Error: {}.ui({}) {} #'.format(__name__, uiName, error))
+# 		return {}
 
 
 		# #add the widget as an attribute of the ui if it is not already.

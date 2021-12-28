@@ -14,7 +14,7 @@ def appendPaths(app, verbose=False, exclude=('grepWin_backup', '__pycache__', 'd
 	if verbose:
 		print (path)
 
-	exclude = [i for i in exclude if i!=app] #exclude all other parent apps.
+	exclude = [i for i in exclude if i!=app] #exclude all other parent app directories.
 
 	# recursively append subdirectories to the system path.
 	for root, dirs, files in os.walk(path):
