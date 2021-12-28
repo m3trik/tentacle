@@ -3,7 +3,7 @@
 
 ## Design:
 ######
-*This is a cross-platform, modular, marking menu style ui based on a QStackedWidget. Constructed dynamically, naming convention and directory structure allow for a stacked ui to be constructed, and signals added/removed as needed. A master dictionary (switchboard module) provides convenience methods that allow for getting/setting of relevant data across modules.*
+*This is a dynamic and modular marking menu style ui, with a QStackedWidget at it's core.  The switchboard module provides convenience methods that allow quick and easy lookups when getting/setting relevant ui and widget data across modules.*
 
 ![alt text](https://raw.githubusercontent.com/m3trik/tentacle/master/docs/toolkit_demo.gif)
 *Example re-opening the last scene, renaming a material, and selecting geometry by that material.
