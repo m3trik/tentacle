@@ -922,9 +922,8 @@ class Switchboard(QtCore.QObject):
 			className = self.setCase(class_, case='pascalCase') # className = self.getUiName(class_, case='pascalCase', level=[0,1,3])
 			path = '{0}_{1}.{2}'.format(mainAppWindowName, name, className) #ie. 'maya_init.Init'
 			class_ = locate(path)
-			if class_==None:
-				print ('# Error: {}._setClassInstance({}): import {} failed. #'.format(__name__, class_, path))
-				# return None
+			# if class_==None:
+				# print ('# Error: {}._setClassInstance({}): import {} failed. #'.format(__name__, class_, path))
 		else:
 			name = class_.__class__.__name__ #if arg as <object>:
 
