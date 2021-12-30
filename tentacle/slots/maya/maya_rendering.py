@@ -6,7 +6,14 @@ from maya_init import *
 
 class Rendering(Init):
 	def __init__(self, *args, **kwargs):
-		super().__init__(*args, **kwargs)
+		Init.__init__(self, *args, **kwargs)
+
+		dh = self.rendering_ui.draggable_header
+		dh.contextMenu.add(self.tcl.wgts.ComboBox, setObjectName='cmb000', setToolTip='')
+
+		cmb = self.rendering_ui.draggable_header.contextMenu.cmb000
+		list_ = ['']
+		cmb.addItems_(list_, '')
 
 
 	def draggable_header(self, state=None):
@@ -14,20 +21,11 @@ class Rendering(Init):
 		'''
 		dh = self.rendering_ui.draggable_header
 
-		if state=='setMenu':
-			dh.contextMenu.add(self.tcl.wgts.ComboBox, setObjectName='cmb000', setToolTip='')
-			return
-
 
 	def cmb000(self, index=-1):
 		'''Editors
 		'''
 		cmb = self.rendering_ui.draggable_header.contextMenu.cmb000
-		
-		if index=='setMenu':
-			list_ = ['']
-			cmb.addItems_(list_, '')
-			return
 
 		if index>0:
 			text = cmb.items[index]

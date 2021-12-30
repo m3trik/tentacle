@@ -8,27 +8,25 @@ class DynLayout(Init):
 	def __init__(self, *args, **kwargs):
 		super().__init__(*args, **kwargs)
 
+		dh = self.dynLayout_ui.draggable_header
+		dh.contextMenu.add(self.tcl.wgts.ComboBox, setObjectName='cmb000', setToolTip='')
+		dh.contextMenu.add('QPushButton', setText='Delete History', setObjectName='b000', setToolTip='')
+
+		cmb = self.dynLayout_ui.draggable_header.contextMenu.cmb000
+		list_ = []
+		cmb.addItems_(list_, '')
+
 
 	def draggable_header(self, state=None):
 		'''Context menu
 		'''
 		dh = self.dynLayout_ui.draggable_header
 
-		if state=='setMenu':
-			dh.contextMenu.add(self.tcl.wgts.ComboBox, setObjectName='cmb000', setToolTip='')
-			dh.contextMenu.add('QPushButton', setText='Delete History', setObjectName='b000', setToolTip='')
-			return
-
 
 	def cmb000(self, index=-1):
 		'''Editors
 		'''
 		cmb = self.dynLayout_ui.draggable_header.contextMenu.cmb000
-		
-		if index=='setMenu':
-			list_ = []
-			cmb.addItems_(list_, '')
-			return
 
 		if index>0:
 			text = cmb.items[index]

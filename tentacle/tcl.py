@@ -62,8 +62,10 @@ class Tcl(QtWidgets.QStackedWidget, StyleSheet):
 		'''
 		'''
 		ui = self.sb.getUi(uiName)
+		ui.preventHide = False
+		self.childEvents.initWidgets(uiName)
 
-		if self.sb.uiLevel<3: #stacked ui.
+		if self.sb.getUiLevel(uiName)<3: #stacked ui.
 			self.addWidget(ui) #add the ui to the stackedLayout.
 
 		else: #popup ui.
@@ -76,13 +78,6 @@ class Tcl(QtWidgets.QStackedWidget, StyleSheet):
 			ui.hide = lambda w=ui: True if ui.preventHide else w.__class__.hide(w) #ui.setVisible(0)
 			self._key_show_release.connect(ui.hide)
 
-		parent_uiName = self.sb.getUiName(uiName, level=3)
-		if parent_uiName:
-			wgts = self.sb.getWidgetsByPrefix(['tb', 'cmb'], parent_uiName)
-			if wgts:
-				self.childEvents.initWidgets(parent_uiName, wgts)
-		self.childEvents.initWidgets(uiName)
-
 		self.sb.setUiState(uiName, 1)
 
 
@@ -91,10 +86,11 @@ class Tcl(QtWidgets.QStackedWidget, StyleSheet):
 
 		:Parameters:
 			uiName (str) = The name of the ui to set the stacked widget index to.
+
+		:Return:
+			(obj)
 		'''
 		ui = self.sb.getUi(uiName, setAsCurrent=True) #Get the ui of the given name, and set it as the current ui in the switchboard module.
-		self.sb.setConnections(ui) #connect signal/slot connections for the current ui, while disconnecting the previous.
-		ui.preventHide = False
 
 		if self.sb.uiState<1: #self.indexOf(ui)==-1:
 			self.initUi(uiName)
@@ -112,6 +108,9 @@ class Tcl(QtWidgets.QStackedWidget, StyleSheet):
 			self.centerWidget(ui, QtGui.QCursor.pos()) #move to cursor position and offset slightly.
 		self.resize(self.sb.sizeX, self.sb.sizeY) #The ui sizes for individual ui's are stored in sizeX and sizeY properties. Otherwise size would be constrained to the largest widget in the stack)
 
+		self.sb.setConnections(ui) #connect signal/slot connections for the current ui, while disconnecting the previous.
+		self.sb.setUiState(uiName, 2)
+
 		return ui
 
 
@@ -119,7 +118,7 @@ class Tcl(QtWidgets.QStackedWidget, StyleSheet):
 		'''Return the stacked widget to it's starting index.
 		'''
 		previous = self.sb.prevUiName(omitLevel=2)
-		self.setUi(previous) #return the stacked widget to it's previous ui.
+		ui = self.setUi(previous) #return the stacked widget to it's previous ui.
 
 		self.move(self.drawPath[0] - self.rect().center())
 
@@ -139,7 +138,7 @@ class Tcl(QtWidgets.QStackedWidget, StyleSheet):
 		p1 = widget.mapToGlobal(widget.rect().center()) #widget position before submenu change.
 
 		try: #set the ui to the submenu (if it exists).
-			self.setUi(uiName) #switch the stacked widget to the given submenu.
+			ui = self.setUi(uiName) #switch the stacked widget to the given submenu.
 		except ValueError as error: #if no submenu exists: ignore and return.
 			return None
 
@@ -187,13 +186,15 @@ class Tcl(QtWidgets.QStackedWidget, StyleSheet):
 			uiName (str) = The name of ui to duplicate the widgets to.
 		'''
 		w0 = self.wgts.PushButton(parent=self.sb.getUi(uiName), setObjectName='return_area', setSize_=(45, 45), setPosition_=self.drawPath[0]) #create an invisible return button at the start point.
-		self.childEvents.addWidgets(uiName, w0) #initialize the widget to set things like the event filter and styleSheet.
+		self.childEvents.initWidgets(uiName, w0) #initialize the widget to set things like the event filter and styleSheet.
+		self.sb.connectSlots(uiName, w0)
 
 		if self.sb.getUiLevel(self.sb.prevUiName(omitLevel=3))==2: #if submenu: recreate widget/s from the previous ui that are in the current path.
 			for i in range(2, len(self.widgetPath)+1): #for index in widgetPath starting at 2:
 				prevWidget = self.widgetPath[-i][0] #assign the index a neg value to count from the back of the list (starting at -2).
 				w1 = self.wgts.PushButton(parent=self.sb.getUi(uiName), copy_=prevWidget, setPosition_=self.widgetPath[-i][1], setVisible=True)
-				self.childEvents.addWidgets(uiName, w1) #initialize the widget to set things like the event filter and styleSheet.
+				self.childEvents.initWidgets(uiName, w1) #initialize the widget to set things like the event filter and styleSheet.
+				self.sb.connectSlots(uiName, w1)
 				self.childEvents._mouseOver.append(w1)
 				w1.grabMouse() #set widget to receive mouse events.
 				self.childEvents._mouseGrabber = w1

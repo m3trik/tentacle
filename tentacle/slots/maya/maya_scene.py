@@ -6,9 +6,23 @@ from maya_init import *
 
 class Scene(Init):
 	def __init__(self, *args, **kwargs):
-		super().__init__(*args, **kwargs)
+		Init.__init__(self, *args, **kwargs)
 
 		self.scene_ui.t000.returnPressed.connect(self.t001) #preform rename on returnPressed
+
+		dh = self.scene_ui.draggable_header
+		dh.contextMenu.add(self.tcl.wgts.ComboBox, setObjectName='cmb000', setToolTip='Maya Scene Editors')
+
+		cmb = self.scene_ui.draggable_header.contextMenu.cmb000
+		items = ['Node Editor', 'Outlinder', 'Content Browser', 'Optimize Scene Size', 'Prefix Hierarchy Names', 'Search and Replace Names']
+		cmb.addItems_(items, 'Maya Scene Editors')
+
+		t000 = self.scene_ui.t000
+		t000.contextMenu.add('QCheckBox', setText='Ignore Case', setObjectName='chk000', setToolTip='Search case insensitive.')
+		t000.contextMenu.add('QCheckBox', setText='Regular Expression', setObjectName='chk001', setToolTip='When checked, regular expression syntax is used instead of the default \'*\' and \'|\' wildcards.')
+
+		tb = self.scene_ui.tb000
+		tb.contextMenu.add('QComboBox', addItems=['capitalize', 'upper', 'lower', 'swapcase', 'title'], setObjectName='cmb001', setToolTip='Set desired python case operator.')
 
 
 	def draggable_header(self, state=None):
@@ -16,20 +30,11 @@ class Scene(Init):
 		'''
 		dh = self.scene_ui.draggable_header
 
-		if state=='setMenu':
-			dh.contextMenu.add(self.tcl.wgts.ComboBox, setObjectName='cmb000', setToolTip='Maya Scene Editors')
-			return
-
 
 	def cmb000(self, index=-1):
 		'''Editors
 		'''
 		cmb = self.scene_ui.draggable_header.contextMenu.cmb000
-
-		if index=='setMenu':
-			items = ['Node Editor', 'Outlinder', 'Content Browser', 'Optimize Scene Size', 'Prefix Hierarchy Names', 'Search and Replace Names']
-			cmb.addItems_(items, 'Maya Scene Editors')
-			return
 
 		if index>0:
 			text = cmb.items[index]
@@ -53,19 +58,11 @@ class Scene(Init):
 		'''
 		t000 = self.scene_ui.t000
 
-		if state=='setMenu':
-			t000.contextMenu.add('QCheckBox', setText='Ignore Case', setObjectName='chk000', setToolTip='Search case insensitive.')
-			t000.contextMenu.add('QCheckBox', setText='Regular Expression', setObjectName='chk001', setToolTip='When checked, regular expression syntax is used instead of the default \'*\' and \'|\' wildcards.')
-			return
-
 
 	def t001(self, state=None):
 		'''Replace
 		'''
 		t001 = self.scene_ui.t001
-
-		if state=='setMenu':
-			return
 
 		find = self.scene_ui.t000.text() #an asterisk denotes startswith*, *endswith, *contains* 
 		to = self.scene_ui.t001.text()
@@ -80,10 +77,7 @@ class Scene(Init):
 	def tb000(self, state=None):
 		'''Convert Case
 		'''
-		tb = self.current_ui.tb000
-		if state=='setMenu':
-			tb.contextMenu.add('QComboBox', addItems=['capitalize', 'upper', 'lower', 'swapcase', 'title'], setObjectName='cmb001', setToolTip='Set desired python case operator.')
-			return
+		tb = self.scene_ui.tb000
 
 		case = tb.contextMenu.cmb001.currentText()
 

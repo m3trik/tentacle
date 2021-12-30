@@ -6,7 +6,35 @@ from maya_init import *
 
 class Normals(Init):
 	def __init__(self, *args, **kwargs):
-		super().__init__(*args, **kwargs)
+		Init.__init__(self, *args, **kwargs)
+
+		dh = self.normals_ui.draggable_header
+		dh.contextMenu.add(self.tcl.wgts.ComboBox, setObjectName='cmb000', setToolTip='')
+
+		cmb = self.normals_ui.draggable_header.contextMenu.cmb000
+		list_ = ['']
+		cmb.addItems_(list_, '')
+
+		tb = self.normals_ui.tb000
+		tb.contextMenu.add('QSpinBox', setPrefix='Display Size: ', setObjectName='s001', setMinMax_='1-100 step1', setValue=1, setToolTip='Normal display size.')
+
+		tb = self.normals_ui.tb001
+		tb.contextMenu.add('QSpinBox', setPrefix='Angle: ', setObjectName='s002', setMinMax_='0-180 step1', setValue=0, setToolTip='The normal angle in degrees.')
+		tb.contextMenu.add('QCheckBox', setText='Harden Creased Edges', setObjectName='chk001', setToolTip='Soften all non-creased edges.')
+		tb.contextMenu.add('QCheckBox', setText='Harden UV Borders', setObjectName='chk002', setToolTip='Harden UV shell border edges.')
+		tb.contextMenu.add('QCheckBox', setText='Soften All Other', setObjectName='chk000', setChecked=True, setToolTip='Soften all non-hard edges.')
+
+		tb = self.normals_ui.tb002
+		tb.contextMenu.add('QSpinBox', setPrefix='Angle: ', setObjectName='s000', setMinMax_='0-180 step1', setValue=60, setToolTip='Angle degree.')
+
+		tb = self.normals_ui.tb003
+		tb.contextMenu.add('QCheckBox', setText='Lock', setObjectName='chk002', setChecked=True, setToolTip='Toggle Lock/Unlock.')
+		tb.contextMenu.add('QCheckBox', setText='All', setObjectName='chk001', setChecked=True, setToolTip='Lock/Unlock All.')
+
+		tb.contextMenu.chk002.toggled.connect(lambda state, w=tb.contextMenu.chk002: w.setText('Lock') if state else w.setText('Unlock')) 
+
+		tb = self.normals_ui.tb004
+		tb.contextMenu.add('QCheckBox', setText='By UV Shell', setObjectName='chk003', setToolTip='Average the normals of each object\'s faces per UV shell.')
 
 
 	def draggable_header(self, state=None):
@@ -14,20 +42,11 @@ class Normals(Init):
 		'''
 		dh = self.normals_ui.draggable_header
 
-		if state=='setMenu':
-			dh.contextMenu.add(self.tcl.wgts.ComboBox, setObjectName='cmb000', setToolTip='')
-			return
-
 
 	def cmb000(self, index=-1):
 		'''Editors
 		'''
 		cmb = self.normals_ui.draggable_header.contextMenu.cmb000
-
-		if index=='setMenu':
-			list_ = ['']
-			cmb.addItems_(list_, '')
-			return
 
 		if index>0:
 			if index==cmd.items.index(''):
@@ -38,10 +57,7 @@ class Normals(Init):
 	def tb000(self, state=None):
 		'''Display Face Normals
 		'''
-		tb = self.current_ui.tb000
-		if state=='setMenu':
-			tb.contextMenu.add('QSpinBox', setPrefix='Display Size: ', setObjectName='s001', setMinMax_='1-100 step1', setValue=1, setToolTip='Normal display size.')
-			return
+		tb = self.normals_ui.tb000
 
 		size = float(tb.contextMenu.s001.value())
 		# state = pm.polyOptions (query=True, displayNormal=True)
@@ -70,13 +86,7 @@ class Normals(Init):
 	def tb001(self, state=None):
 		'''Harden Edge Normals
 		'''
-		tb = self.current_ui.tb001
-		if state=='setMenu':
-			tb.contextMenu.add('QSpinBox', setPrefix='Angle: ', setObjectName='s002', setMinMax_='0-180 step1', setValue=0, setToolTip='The normal angle in degrees.')
-			tb.contextMenu.add('QCheckBox', setText='Harden Creased Edges', setObjectName='chk001', setToolTip='Soften all non-creased edges.')
-			tb.contextMenu.add('QCheckBox', setText='Harden UV Borders', setObjectName='chk002', setToolTip='Harden UV shell border edges.')
-			tb.contextMenu.add('QCheckBox', setText='Soften All Other', setObjectName='chk000', setChecked=True, setToolTip='Soften all non-hard edges.')
-			return
+		tb = self.normals_ui.tb001
 
 		hardAngle = tb.contextMenu.s002.value()
 		hardenCreased = tb.contextMenu.chk001.isChecked()
@@ -111,10 +121,7 @@ class Normals(Init):
 	def tb002(self, state=None):
 		'''Set Normals By Angle
 		'''
-		tb = self.current_ui.tb002
-		if state=='setMenu':
-			tb.contextMenu.add('QSpinBox', setPrefix='Angle: ', setObjectName='s000', setMinMax_='0-180 step1', setValue=60, setToolTip='Angle degree.')
-			return
+		tb = self.normals_ui.tb002
 
 		normalAngle = str(tb.contextMenu.s000.value())
 
@@ -132,12 +139,6 @@ class Normals(Init):
 		'''Lock/Unlock Vertex Normals
 		'''
 		tb = self.normals_ui.tb003
-		if state=='setMenu':
-			tb.contextMenu.add('QCheckBox', setText='Lock', setObjectName='chk002', setChecked=True, setToolTip='Toggle Lock/Unlock.')
-			tb.contextMenu.add('QCheckBox', setText='All', setObjectName='chk001', setChecked=True, setToolTip='Lock/Unlock All.')
-
-			tb.contextMenu.chk002.toggled.connect(lambda state, w=tb.contextMenu.chk002: w.setText('Lock') if state else w.setText('Unlock')) 
-			return
 
 		all_ = tb.contextMenu.chk001.isChecked()
 		state = tb.contextMenu.chk002.isChecked() #pm.polyNormalPerVertex(vertex, query=1, freezeNormal=1)
@@ -174,10 +175,7 @@ class Normals(Init):
 	def tb004(self, state=None):
 		'''Average Normals
 		'''
-		tb = self.current_ui.tb004
-		if state=='setMenu':
-			tb.contextMenu.add('QCheckBox', setText='By UV Shell', setObjectName='chk003', setToolTip='Average the normals of each object\'s faces per UV shell.')
-			return
+		tb = self.normals_ui.tb004
 
 		byUvShell = tb.contextMenu.chk003.isChecked()
 		Normals.averageNormals(byUvShell)

@@ -6,22 +6,27 @@ from maya_init import *
 
 class Symmetry(Init):
 	def __init__(self, *args, **kwargs):
-		super().__init__(*args, **kwargs)
+		Init.__init__(self, *args, **kwargs)
 
-		try: #symmetry: set initial checked state
-			state = pm.symmetricModelling(query=True, symmetry=True) #application symmetry state
-			axis = pm.symmetricModelling(query=True, axis=True)
-			if axis == "x":
-				self.symmetry_ui.chk000.setChecked(state)
-				self.symmetry_submenu_ui.chk000.setChecked(state)
-			if axis == "y":
-				self.symmetry_ui.chk001.setChecked(state)
-				self.symmetry_submenu_ui.chk001.setChecked(state)
-			if axis == "z":
-				self.symmetry_ui.chk002.setChecked(state)
-				self.symmetry_submenu_ui.chk002.setChecked(state)
-		except NameError:
-			pass
+		#symmetry: set initial checked state
+		state = pm.symmetricModelling(query=True, symmetry=True) #application symmetry state
+		axis = pm.symmetricModelling(query=True, axis=True)
+		if axis == "x":
+			self.symmetry_ui.chk000.setChecked(state)
+			self.symmetry_submenu_ui.chk000.setChecked(state)
+		if axis == "y":
+			self.symmetry_ui.chk001.setChecked(state)
+			self.symmetry_submenu_ui.chk001.setChecked(state)
+		if axis == "z":
+			self.symmetry_ui.chk002.setChecked(state)
+			self.symmetry_submenu_ui.chk002.setChecked(state)
+
+		dh = self.symmetry_ui.draggable_header
+		dh.contextMenu.add(self.tcl.wgts.ComboBox, setObjectName='cmb000', setToolTip='')
+
+		cmb = self.symmetry_ui.draggable_header.contextMenu.cmb000
+		list_ = ['']
+		cmb.addItems_(list_, '')
 
 
 	def draggable_header(self, state=None):
@@ -29,20 +34,11 @@ class Symmetry(Init):
 		'''
 		dh = self.symmetry_ui.draggable_header
 
-		if state=='setMenu':
-			dh.contextMenu.add(self.tcl.wgts.ComboBox, setObjectName='cmb000', setToolTip='')
-			return
-
 
 	def cmb000(self, index=-1):
 		'''Editors
 		'''
 		cmb = self.symmetry_ui.draggable_header.contextMenu.cmb000
-
-		if index=='setMenu':
-			list_ = ['']
-			cmb.addItems_(list_, '')
-			return
 
 		# if index>0:
 		# 	if index==cmd.items.index(''):
@@ -67,7 +63,7 @@ class Symmetry(Init):
 		'''Symmetry X
 		'''
 		self.toggleWidgets(setUnChecked='chk001,chk002')
-		state = self.current_ui.chk000.isChecked() #symmetry button state
+		state = self.symmetry_ui.chk000.isChecked() #symmetry button state
 		self.setSymmetry(state, 'x')
 
 
@@ -76,7 +72,7 @@ class Symmetry(Init):
 		'''Symmetry Y
 		'''
 		self.toggleWidgets(setUnChecked='chk000,chk002')
-		state = self.current_ui.chk001.isChecked() #symmetry button state
+		state = self.symmetry_ui.chk001.isChecked() #symmetry button state
 		self.setSymmetry(state, 'y')
 
 
@@ -85,7 +81,7 @@ class Symmetry(Init):
 		'''Symmetry Z
 		'''
 		self.toggleWidgets(setUnChecked='chk000,chk001')
-		state = self.current_ui.chk002.isChecked() #symmetry button state
+		state = self.symmetry_ui.chk002.isChecked() #symmetry button state
 		self.setSymmetry(state, 'z')
 
 

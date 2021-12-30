@@ -6,7 +6,23 @@ from maya_init import *
 
 class Pivot(Init):
 	def __init__(self, *args, **kwargs):
-		super().__init__(*args, **kwargs)
+		Init.__init__(self, *args, **kwargs)
+
+		dh = self.pivot_ui.draggable_header
+		dh.contextMenu.add(self.tcl.wgts.ComboBox, setObjectName='cmb000', setToolTip='')
+
+		cmb = self.pivot_ui.draggable_header.contextMenu.cmb000
+		list_ = ['']
+		cmb.addItems_(list_, '')
+
+		tb = self.pivot_ui.tb000
+		tb.contextMenu.add('QCheckBox', setText='Reset Pivot Position', setObjectName='chk000', setChecked=True, setToolTip='')
+		tb.contextMenu.add('QCheckBox', setText='Reset Pivot Orientation', setObjectName='chk001', setChecked=True, setToolTip='')
+
+		tb = self.pivot_ui.tb001
+		tb.contextMenu.add('QRadioButton', setText='Component', setObjectName='chk002', setToolTip='Center the pivot on the center of the selected component\'s bounding box')
+		tb.contextMenu.add('QRadioButton', setText='Object', setObjectName='chk003', setChecked=True, setToolTip='Center the pivot on the center of the object\'s bounding box')
+		tb.contextMenu.add('QRadioButton', setText='World', setObjectName='chk004', setToolTip='Center the pivot on world origin.')
 
 
 	def draggable_header(self, state=None):
@@ -14,20 +30,11 @@ class Pivot(Init):
 		'''
 		dh = self.pivot_ui.draggable_header
 
-		if state=='setMenu':
-			dh.contextMenu.add(self.tcl.wgts.ComboBox, setObjectName='cmb000', setToolTip='')
-			return
-
 
 	def cmb000(self, index=-1):
 		'''Editors
 		'''
 		cmb = self.pivot_ui.draggable_header.contextMenu.cmb000
-
-		if index=='setMenu':
-			list_ = ['']
-			cmb.addItems_(list_, '')
-			return
 
 		if index>0:
 			text = cmb.items[index]
@@ -40,11 +47,7 @@ class Pivot(Init):
 	def tb000(self, state=None):
 		'''Reset Pivot
 		'''
-		tb = self.current_ui.tb000
-		if state=='setMenu':
-			tb.contextMenu.add('QCheckBox', setText='Reset Pivot Position', setObjectName='chk000', setChecked=True, setToolTip='')
-			tb.contextMenu.add('QCheckBox', setText='Reset Pivot Orientation', setObjectName='chk001', setChecked=True, setToolTip='')
-			return
+		tb = self.pivot_ui.tb000
 
 		resetPivotPosition = tb.contextMenu.chk000.isChecked() #Reset Pivot Position
 		resetPivotOrientation = tb.contextMenu.chk001.isChecked() #Reset Pivot Orientation
@@ -57,11 +60,6 @@ class Pivot(Init):
 		'''Center Pivot
 		'''
 		tb = self.pivot_ui.tb001
-		if state=='setMenu':
-			tb.contextMenu.add('QRadioButton', setText='Component', setObjectName='chk002', setToolTip='Center the pivot on the center of the selected component\'s bounding box')
-			tb.contextMenu.add('QRadioButton', setText='Object', setObjectName='chk003', setChecked=True, setToolTip='Center the pivot on the center of the object\'s bounding box')
-			tb.contextMenu.add('QRadioButton', setText='World', setObjectName='chk004', setToolTip='Center the pivot on world origin.')
-			return
 
 		component = tb.contextMenu.chk002.isChecked()
 		object_ = tb.contextMenu.chk003.isChecked()

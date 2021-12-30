@@ -16,7 +16,7 @@ class Slots(QtCore.QObject):
 		return int(f)
 	'''
 	def __init__(self, parent=None, *args, **kwargs):
-		super().__init__(parent)
+		QtCore.QObject.__init__(self, parent)
 		'''
 		:Parameters: 
 			**kwargs (passed in via the switchboard module's 'getClassInstanceFromUiName' method.)

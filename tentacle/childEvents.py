@@ -55,35 +55,19 @@ class EventFactoryFilter(QtCore.QObject):
 		]
 
 
-	def addWidgets(self, uiName, widgets):
-		'''Convenience method for adding additional widgets to the switchboard dict,
-		and initializing them by setting connections, event filters, and stylesheets.
-
-		:Parameters:
-			uiName (str) = name of the parent ui.
-			widgets (obj)(list) = widget or list of widgets.
-		'''
-		widgets = self.tcl.sb.list_(widgets) #if 'widgets' isn't a list, convert it to one.
-
-		self.tcl.sb.addWidgets(uiName, widgets) #add the widgets to the switchboard dict.
-		self.tcl.sb.connectSlots(uiName, widgets)
-		self.initWidgets(uiName, widgets) #initialize the widget to set things like the event filter and styleSheet.
-
-
-	def initWidgets(self, uiName, widgets=None):
+	def initWidgets(self, ui, widgets=None):
 		'''Set Initial widget states.
 
 		:Parameters:
-			uiName (str) = ui name.
+			ui (str)(obj) = The ui name, or ui object. ie. 'polygons' or <polygons>
 			widgets (str)(list) = <QWidgets> if no arg is given, the operation will be performed on all widgets of the given ui name.
 		'''
-		if uiName is None:
-			uiName = self.tcl.sb.getUiName()
-		if widgets is None:
-			widgets = self.tcl.sb.getWidget(ui=uiName) #get all widgets for the given ui name.
-		widgets = self.tcl.sb.list_(widgets) #if 'widgets' isn't a list, convert it to one.
+		uiName = self.tcl.sb.getUiName(ui)
 
-		for widget in widgets: #get all widgets for the given ui name.
+		if widgets is None:
+			widgets = self.tcl.sb.widgets(uiName) #get all widgets for the given ui name.
+
+		for widget in self.tcl.sb.list_(widgets): #if 'widgets' isn't a list, convert it to one.
 			widgetName = self.tcl.sb.getWidgetName(widget, uiName)
 			widgetType = self.tcl.sb.getWidgetType(widget, uiName) #get the class type as string.
 			derivedType = self.tcl.sb.getDerivedType(widget, uiName) #get the derived class type as string.
@@ -95,26 +79,21 @@ class EventFactoryFilter(QtCore.QObject):
 
 			if derivedType in self.widgetTypes:
 				# print (widgetName if widgetName else widget)
-				if uiLevel<3 or widgetName=='mainWindow':
-					widget.installEventFilter(self)
+				# if uiLevel<3 or widgetName=='mainWindow':
+				widget.installEventFilter(self)
 
 				if widgetType in ('PushButton', 'PushButtonDraggable', 'ComboBox', 'TreeWidgetExpandableList', 'LineEdit'): #widget types to initialize menus for.
-					if method:
-						try: #if callable(method): #attempt to clear any current menu items.
-							method.clear()
-						except AttributeError as error:
-							pass; #print ("# Error: {}.EventFactoryFilter.initWidgets: Call: {}.clear() failed: {}. #".format(__name__, method, error))
-
-						try: #attempt to construct the widget's contextMenu.
-							method('setMenu')
-						except Exception as error:
-							pass; #print ("# Error: {}.EventFactoryFilter.initWidgets: Call: {}('setMenu') failed: {}. #".format(__name__, widgetName, error))
 
 					try: #add the child widgets of popup menus.
-						self.addWidgets(uiName, widget.menu_.childWidgets)
-						self.addWidgets(uiName, widget.contextMenu.childWidgets)
+						if widget.menu_.childWidgets:
+							self.initWidgets(uiName, widget.menu_.childWidgets) #initialize the widget to set things like the event filter and styleSheet.
+							self.tcl.sb.connectSlots(uiName, widget.menu_.childWidgets)
+
+						if widget.contextMenu.childWidgets:
+							self.initWidgets(uiName, widget.contextMenu.childWidgets)
+							self.tcl.sb.connectSlots(uiName, widget.contextMenu.childWidgets)
 					except AttributeError as error:
-						pass; #print ("# Error: {}.EventFactoryFilter.initWidgets() at self.addWidgets: {}: {}: {}. #".format(__name__, uiName, widgetName, error))
+						pass; #print ("# Error: {}.EventFactoryFilter.initWidgets({}, {}): {}. #".format(__name__, uiName, widgetName, error))
 
 				if derivedType in ('QPushButton', 'QLabel'): #widget types to resize and center.
 					if uiLevel<3:
@@ -125,14 +104,14 @@ class EventFactoryFilter(QtCore.QObject):
 						widget.setVisible(False)
 
 
-	def mouseTracking(self, uiName):
+	def mouseTracking(self, ui):
 		'''Get the widget(s) currently under the mouse cursor, and manage mouse grab and event handling for those widgets.
 		Used to trigger widget evemts while in the mouse button down state.
 
 		:Parameters:
-			uiName (str) = ui name.
+			ui (str)(obj) = The ui name, or ui object. ie. 'polygons' or <polygons>
 		'''
-		ui = self.tcl.sb.getUi(uiName)
+		uiName = self.tcl.sb.getUiName(ui)
 		widgetsUnderMouse = [] #list of widgets currently under the mouse cursor and their parents. in hierarchical order. ie. [[<widgets.pushButton.PushButton object at 0x00000000045F6948>, <PySide2.QtWidgets.QMainWindow object at 0x00000000045AA8C8>, <__main__.Main_max object at 0x000000000361F508>, <PySide2.QtWidgets.QWidget object at 0x00000000036317C8>]]
 		trackedWidgets = self.tcl.sb.getWidget(ui=uiName, tracked=True)
 
@@ -140,8 +119,9 @@ class EventFactoryFilter(QtCore.QObject):
 
 			try: # if hasattr(widget, 'rect'):
 				widgetName = self.tcl.sb.getWidgetName(widget, uiName)
-			except KeyError: #ignore any widgets not having the 'rect' attribute.
-				self.addWidgets(uiName, widget) #initialize the widget to set things like the event filter and styleSheet.
+			except KeyError as error: #ignore any widgets not having the 'rect' attribute.
+				self.initWidgets(uiName, widget) #initialize the widget to set things like the event filter and styleSheet.
+				self.tcl.sb.connectSlots(uiName, widget)
 				widgetName = self.tcl.sb.getWidgetName(widget, uiName)
 
 			try:
@@ -159,6 +139,7 @@ class EventFactoryFilter(QtCore.QObject):
 					if widget in self._mouseOver: #if widget is in the mouseOver list, but the mouse is no longer over the widget:
 						QtWidgets.QApplication.sendEvent(widget, self.leaveEvent_)
 						self._mouseOver.remove(widget)
+						ui = self.tcl.sb.getUi(ui)
 						if ui.mainWindow.isVisible():
 							ui.mainWindow.grabMouse()
 							self._mouseGrabber = ui.mainWindow
@@ -233,11 +214,11 @@ class EventFactoryFilter(QtCore.QObject):
 			self.method = self.tcl.sb.getMethod(self.uiName, self.widgetName)
 			# print (self.uiName, self.widgetType, self.widgetName, event.__class__.__name__, eventName)
 
-			try: # if hasattr(self, eventName):
-				getattr(self, eventName)(event) #handle the event locally. #ie. self.enterEvent(event)
-				result = True
-			except AttributeError as error:
-				pass; print ('# Error: {}.eventFilter({}, {}): {} ui: {}. #'.format(__name__, widget.objectName(), event.__class__.__name__, self.uiName, error))
+			# try: # if hasattr(self, eventName):
+			getattr(self, eventName)(event) #handle the event locally. #ie. self.enterEvent(event)
+			result = True
+			# except AttributeError as error:
+				# pass; print ('# Error: {}.eventFilter({}, {}): {} ui: {}. #'.format(__name__, widget, event.__class__.__name__, self.uiName, error))
 
 		return result
 
@@ -264,7 +245,8 @@ class EventFactoryFilter(QtCore.QObject):
 					print ('# Error: {}.EventFactoryFilter.ShowEvent: Call to {}.{} failed: {}. #'.format(__name__, self.uiName, self.widgetName, error))
 
 			if self.widgetType=='TreeWidgetExpandableList':
-				self.addWidgets(self.uiName, self.widget.newWidgets) #removeWidgets=self.widget._gcWidgets.keys()
+				self.initWidgets(self.uiName, self.widget.newWidgets) #initialize the widget to set things like the event filter and styleSheet.
+				self.tcl.sb.connectSlots(self.uiName, self.widget.newWidgets)
 
 		self.widget.__class__.showEvent(self.widget, event)
 
@@ -434,6 +416,19 @@ print (__name__)
 
 
 #deprecated:
+
+
+# try: #if callable(method): #attempt to clear any current menu items.
+	# 	method.clear()
+	# except AttributeError as error:
+	# 	pass; #print ("# Error: {}.EventFactoryFilter.initWidgets: Call: {}.clear() failed: {}. #".format(__name__, method, error))
+
+	# try: #attempt to construct the widget's contextMenu.
+	# 	print ('METHOD:', widgetName, method)
+	# 	method('setMenu')
+	# except Exception as error:
+	# 	pass; #print ("# Error: {}.EventFactoryFilter.initWidgets: Call: {}('setMenu') failed: {}. #".format(__name__, widgetName, error))
+
 
 # self.widgetClasses = [getattr(QtWidgets, t) for t in self.widgetTypes]
 

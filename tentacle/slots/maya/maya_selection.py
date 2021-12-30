@@ -8,20 +8,79 @@ class Selection(Init):
 	def __init__(self, *args, **kwargs):
 		super().__init__(*args, **kwargs)
 
+		dh = self.selection_ui.draggable_header
+		dh.contextMenu.add(self.tcl.wgts.ComboBox, setObjectName='cmb000', setToolTip='')
+		dh.contextMenu.add(self.tcl.wgts.ComboBox, setObjectName='cmb006', setToolTip='A list of currently selected objects.')
+		dh.contextMenu.add('QCheckBox', setText='Ignore Backfacing', setObjectName='chk004', setToolTip='Ignore backfacing components during selection.')
+		dh.contextMenu.add('QCheckBox', setText='Soft Selection', setObjectName='chk008', setToolTip='Toggle soft selection mode.')
+		dh.contextMenu.add(self.tcl.wgts.Label, setText='Grow Selection', setObjectName='lbl003', setToolTip='Grow the current selection.')
+		dh.contextMenu.add(self.tcl.wgts.Label, setText='Shrink Selection', setObjectName='lbl004', setToolTip='Shrink the current selection.')
+
+		cmb = self.selection_ui.draggable_header.contextMenu.cmb000
+		items = ['Polygon Selection Constraints']
+		cmb.addItems_(items, 'Selection Editors:')
+
+		cmb = self.selection_ui.cmb001
+		cmb.contextMenu.add(self.tcl.wgts.Label, setText='Select', setObjectName='lbl005', setToolTip='Select the current set elements.')
+		cmb.contextMenu.add(self.tcl.wgts.Label, setText='New', setObjectName='lbl000', setToolTip='Create a new selection set.')
+		cmb.contextMenu.add(self.tcl.wgts.Label, setText='Modify', setObjectName='lbl001', setToolTip='Modify the current set by renaming and/or changing the selection.')
+		cmb.contextMenu.add(self.tcl.wgts.Label, setText='Delete', setObjectName='lbl002', setToolTip='Delete the current set.')
+		cmb.returnPressed.connect(lambda m=cmb.contextMenu.lastActiveChild: getattr(self, m(name=1))()) #connect to the last pressed child widget's corresponding method after return pressed. ie. self.lbl000 if cmb.lbl000 was clicked last.
+		cmb.currentIndexChanged.connect(self.lbl005) #select current set on index change.
+		cmb.beforePopupShown.connect(self.cmb001) #refresh comboBox contents before showing it's popup.
+
+		cmb = self.selection_ui.cmb001
+		cmb.contextMenu.add(self.tcl.wgts.Label, setText='Select', setObjectName='lbl005', setToolTip='Select the current set elements.')
+		cmb.contextMenu.add(self.tcl.wgts.Label, setText='New', setObjectName='lbl000', setToolTip='Create a new selection set.')
+		cmb.contextMenu.add(self.tcl.wgts.Label, setText='Modify', setObjectName='lbl001', setToolTip='Modify the current set by renaming and/or changing the selection.')
+		cmb.contextMenu.add(self.tcl.wgts.Label, setText='Delete', setObjectName='lbl002', setToolTip='Delete the current set.')
+		cmb.returnPressed.connect(lambda m=cmb.contextMenu.lastActiveChild: getattr(self, m(name=1))()) #connect to the last pressed child widget's corresponding method after return pressed. ie. self.lbl000 if cmb.lbl000 was clicked last.
+		cmb.currentIndexChanged.connect(self.lbl005) #select current set on index change.
+		cmb.beforePopupShown.connect(self.cmb001) #refresh comboBox contents before showing it's popup.
+
+		cmb = self.selection_ui.cmb002
+		items = ['IK Handles','Joints','Clusters','Lattices','Sculpt Objects','Wires','Transforms','Geometry','NURBS Curves','NURBS Surfaces','Polygon Geometry','Cameras','Lights','Image Planes','Assets','Fluids','Particles','Rigid Bodies','Rigid Constraints','Brushes','Strokes','Dynamic Constraints','Follicles','nCloths','nParticles','nRigids']
+		cmb.addItems_(items, 'By Type:')
+
+		cmb = self.selection_ui.cmb003
+		items = ['Verts', 'Vertex Faces', 'Vertex Perimeter', 'Edges', 'Edge Loop', 'Edge Ring', 'Contained Edges', 'Edge Perimeter', 'Border Edges', 'Faces', 'Face Path', 'Contained Faces', 'Face Perimeter', 'UV\'s', 'UV Shell', 'UV Shell Border', 'UV Perimeter', 'UV Edge Loop', 'Shell', 'Shell Border'] 
+		cmb.addItems_(items, 'Convert To:')
+
+		cmb = self.selection_ui.cmb005
+		items = ['Angle', 'Border', 'Edge Loop', 'Edge Ring', 'Shell', 'UV Edge Loop']
+		items = cmb.addItems_(items, 'Off')
+
+		cmb = self.selection_ui.draggable_header.contextMenu.cmb006
+		cmb.setCurrentText('Current Selection') # cmb.insertItem(cmb.currentIndex(), 'Current Selection') #insert item at current index.
+		cmb.popupStyle = 'qmenu'
+		cmb.beforePopupShown.connect(self.cmb006) #refresh the comboBox contents before showing it's popup.
+
+		tb = self.selection_ui.tb000
+		tb.contextMenu.add('QRadioButton', setText='Component Ring', setObjectName='chk000', setToolTip='Select component ring.')
+		tb.contextMenu.add('QRadioButton', setText='Component Loop', setObjectName='chk001', setChecked=True, setToolTip='Select all contiguous components that form a loop with the current selection.')
+		tb.contextMenu.add('QRadioButton', setText='Path Along Loop', setObjectName='chk009', setToolTip='The path along loop between two selected edges, vertices or UV\'s.')
+		tb.contextMenu.add('QRadioButton', setText='Shortest Path', setObjectName='chk002', setToolTip='The shortest component path between two selected edges, vertices or UV\'s.')
+		tb.contextMenu.add('QRadioButton', setText='Border Edges', setObjectName='chk010', setToolTip='Select the object(s) border edges.')
+		tb.contextMenu.add('QSpinBox', setPrefix='Step: ', setObjectName='s003', setMinMax_='1-100 step1', setValue=1, setToolTip='Step Amount.')
+
+		tb = self.selection_ui.tb001
+		tb.contextMenu.add('QDoubleSpinBox', setPrefix='Tolerance: ', setObjectName='s000', setMinMax_='0.0-10 step.1', setValue=0.3, setToolTip='Select similar objects or components, depending on selection mode.')
+
+		tb = self.selection_ui.tb002
+		tb.contextMenu.add('QCheckBox', setText='Lock Values', setObjectName='chk003', setChecked=True, setToolTip='Keep values in sync.')
+		tb.contextMenu.add('QDoubleSpinBox', setPrefix='x: ', setObjectName='s002', setMinMax_='0.00-1 step.01', setValue=0.05, setToolTip='Normal X range.')
+		tb.contextMenu.add('QDoubleSpinBox', setPrefix='y: ', setObjectName='s004', setMinMax_='0.00-1 step.01', setValue=0.05, setToolTip='Normal Y range.')
+		tb.contextMenu.add('QDoubleSpinBox', setPrefix='z: ', setObjectName='s005', setMinMax_='0.00-1 step.01', setValue=0.05, setToolTip='Normal Z range.')
+
+		tb = self.selection_ui.tb003
+		tb.contextMenu.add('QDoubleSpinBox', setPrefix='Angle Low:  ', setObjectName='s006', setMinMax_='0.0-180 step1', setValue=50, setToolTip='Normal angle low range.')
+		tb.contextMenu.add('QDoubleSpinBox', setPrefix='Angle High: ', setObjectName='s007', setMinMax_='0.0-180 step1', setValue=130, setToolTip='Normal angle high range.')
+
 
 	def draggable_header(self, state=None):
 		'''Context menu
 		'''
 		dh = self.selection_ui.draggable_header
-
-		if state=='setMenu':
-			dh.contextMenu.add(self.tcl.wgts.ComboBox, setObjectName='cmb000', setToolTip='')
-			dh.contextMenu.add(self.tcl.wgts.ComboBox, setObjectName='cmb006', setToolTip='A list of currently selected objects.')
-			dh.contextMenu.add('QCheckBox', setText='Ignore Backfacing', setObjectName='chk004', setToolTip='Ignore backfacing components during selection.')
-			dh.contextMenu.add('QCheckBox', setText='Soft Selection', setObjectName='chk008', setToolTip='Toggle soft selection mode.')
-			dh.contextMenu.add(self.tcl.wgts.Label, setText='Grow Selection', setObjectName='lbl003', setToolTip='Grow the current selection.')
-			dh.contextMenu.add(self.tcl.wgts.Label, setText='Shrink Selection', setObjectName='lbl004', setToolTip='Shrink the current selection.')
-			return
 
 
 	def txt001(self):
@@ -99,7 +158,7 @@ class Selection(Init):
 	def s002(self, value=None):
 		'''Select Island: tolerance x
 		'''
-		tb = self.current_ui.tb002
+		tb = self.selection_ui.tb002
 		if tb.contextMenu.chk003.isChecked():
 			text = tb.contextMenu.s002.value()
 			tb.contextMenu.s004.setValue(text)
@@ -109,7 +168,7 @@ class Selection(Init):
 	def s004(self, value=None):
 		'''Select Island: tolerance y
 		'''
-		tb = self.current_ui.tb002
+		tb = self.selection_ui.tb002
 		if tb.contextMenu.chk003.isChecked():
 			text = tb.contextMenu.s004.value()
 			tb.contextMenu.s002.setValue(text)
@@ -119,7 +178,7 @@ class Selection(Init):
 	def s005(self, value=None):
 		'''Select Island: tolerance z
 		'''
-		tb = self.current_ui.tb002
+		tb = self.selection_ui.tb002
 		if tb.contextMenu.chk003.isChecked():
 			text = tb.contextMenu.s005.value()
 			tb.contextMenu.s002.setValue(text)
@@ -221,11 +280,6 @@ class Selection(Init):
 		'''Editors
 		'''
 		cmb = self.selection_ui.draggable_header.contextMenu.cmb000
-		
-		if index=='setMenu':
-			items = ['Polygon Selection Constraints']
-			cmb.addItems_(items, 'Selection Editors:')
-			return
 
 		if index>0:
 			text = cmb.items[index]
@@ -239,16 +293,6 @@ class Selection(Init):
 		'''
 		cmb = self.selection_ui.cmb001
 
-		if index=='setMenu':
-			cmb.contextMenu.add(self.tcl.wgts.Label, setText='Select', setObjectName='lbl005', setToolTip='Select the current set elements.')
-			cmb.contextMenu.add(self.tcl.wgts.Label, setText='New', setObjectName='lbl000', setToolTip='Create a new selection set.')
-			cmb.contextMenu.add(self.tcl.wgts.Label, setText='Modify', setObjectName='lbl001', setToolTip='Modify the current set by renaming and/or changing the selection.')
-			cmb.contextMenu.add(self.tcl.wgts.Label, setText='Delete', setObjectName='lbl002', setToolTip='Delete the current set.')
-			cmb.returnPressed.connect(lambda m=cmb.contextMenu.lastActiveChild: getattr(self, m(name=1))()) #connect to the last pressed child widget's corresponding method after return pressed. ie. self.lbl000 if cmb.lbl000 was clicked last.
-			cmb.currentIndexChanged.connect(self.lbl005) #select current set on index change.
-			cmb.beforePopupShown.connect(self.cmb001) #refresh comboBox contents before showing it's popup.
-			return
-
 		items = [str(s) for s in pm.ls(et='objectSet', flatten=1)]
 		cmb.addItems_(items, clear=True)
 
@@ -256,12 +300,7 @@ class Selection(Init):
 	def cmb002(self, index=-1):
 		'''Select by Type
 		'''
-		cmb = self.selection_ui.cmb002	
-
-		if index=='setMenu':
-			items = ['IK Handles','Joints','Clusters','Lattices','Sculpt Objects','Wires','Transforms','Geometry','NURBS Curves','NURBS Surfaces','Polygon Geometry','Cameras','Lights','Image Planes','Assets','Fluids','Particles','Rigid Bodies','Rigid Constraints','Brushes','Strokes','Dynamic Constraints','Follicles','nCloths','nParticles','nRigids']
-			cmb.addItems_(items, 'By Type:')
-			return
+		cmb = self.selection_ui.cmb002
 
 		if index>0:
 			text = cmb.items[index]
@@ -328,11 +367,6 @@ class Selection(Init):
 		'''
 		cmb = self.selection_ui.cmb003
 
-		if index=='setMenu':
-			items = ['Verts', 'Vertex Faces', 'Vertex Perimeter', 'Edges', 'Edge Loop', 'Edge Ring', 'Contained Edges', 'Edge Perimeter', 'Border Edges', 'Faces', 'Face Path', 'Contained Faces', 'Face Perimeter', 'UV\'s', 'UV Shell', 'UV Shell Border', 'UV Perimeter', 'UV Edge Loop', 'Shell', 'Shell Border'] 
-			cmb.addItems_(items, 'Convert To:')
-			return
-
 		if index>0:
 			text = cmb.items[index]
 			if text=='Verts': #Convert Selection To Vertices
@@ -383,11 +417,6 @@ class Selection(Init):
 		'''
 		cmb = self.selection_ui.cmb005
 
-		if index=='setMenu':
-			items = ['Angle', 'Border', 'Edge Loop', 'Edge Ring', 'Shell', 'UV Edge Loop']
-			items = cmb.addItems_(items, 'Off')
-			return
-
 		if index>0:
 			text = cmb.items[index]
 			if text=='Angle':
@@ -410,12 +439,6 @@ class Selection(Init):
 		'''Currently Selected Objects
 		'''
 		cmb = self.selection_ui.draggable_header.contextMenu.cmb006
-
-		if index=='setMenu':
-			cmb.setCurrentText('Current Selection') # cmb.insertItem(cmb.currentIndex(), 'Current Selection') #insert item at current index.
-			cmb.popupStyle = 'qmenu'
-			cmb.beforePopupShown.connect(self.cmb006) #refresh the comboBox contents before showing it's popup.
-			return
 
 		cmb.clear()
 		items = [str(i) for i in pm.ls(sl=1, flatten=1)]
@@ -443,15 +466,7 @@ class Selection(Init):
 	def tb000(self, state=None):
 		'''Select Nth
 		'''
-		tb = self.current_ui.tb000
-		if state=='setMenu':
-			tb.contextMenu.add('QRadioButton', setText='Component Ring', setObjectName='chk000', setToolTip='Select component ring.')
-			tb.contextMenu.add('QRadioButton', setText='Component Loop', setObjectName='chk001', setChecked=True, setToolTip='Select all contiguous components that form a loop with the current selection.')
-			tb.contextMenu.add('QRadioButton', setText='Path Along Loop', setObjectName='chk009', setToolTip='The path along loop between two selected edges, vertices or UV\'s.')
-			tb.contextMenu.add('QRadioButton', setText='Shortest Path', setObjectName='chk002', setToolTip='The shortest component path between two selected edges, vertices or UV\'s.')
-			tb.contextMenu.add('QRadioButton', setText='Border Edges', setObjectName='chk010', setToolTip='Select the object(s) border edges.')
-			tb.contextMenu.add('QSpinBox', setPrefix='Step: ', setObjectName='s003', setMinMax_='1-100 step1', setValue=1, setToolTip='Step Amount.')
-			return
+		tb = self.selection_ui.tb000
 
 		edgeRing = tb.contextMenu.chk000.isChecked()
 		edgeLoop = tb.contextMenu.chk001.isChecked()
@@ -486,10 +501,7 @@ class Selection(Init):
 	def tb001(self, state=None):
 		'''Select Similar
 		'''
-		tb = self.current_ui.tb001
-		if state=='setMenu':
-			tb.contextMenu.add('QDoubleSpinBox', setPrefix='Tolerance: ', setObjectName='s000', setMinMax_='0.0-10 step.1', setValue=0.3, setToolTip='Select similar objects or components, depending on selection mode.')
-			return
+		tb = self.selection_ui.tb001
 
 		tolerance = str(tb.contextMenu.s000.value()) #string value because mel.eval is sending a command string
 
@@ -500,13 +512,7 @@ class Selection(Init):
 	def tb002(self, state=None):
 		'''Select Island: Select Polygon Face Island
 		'''
-		tb = self.current_ui.tb002
-		if state=='setMenu':
-			tb.contextMenu.add('QCheckBox', setText='Lock Values', setObjectName='chk003', setChecked=True, setToolTip='Keep values in sync.')
-			tb.contextMenu.add('QDoubleSpinBox', setPrefix='x: ', setObjectName='s002', setMinMax_='0.00-1 step.01', setValue=0.05, setToolTip='Normal X range.')
-			tb.contextMenu.add('QDoubleSpinBox', setPrefix='y: ', setObjectName='s004', setMinMax_='0.00-1 step.01', setValue=0.05, setToolTip='Normal Y range.')
-			tb.contextMenu.add('QDoubleSpinBox', setPrefix='z: ', setObjectName='s005', setMinMax_='0.00-1 step.01', setValue=0.05, setToolTip='Normal Z range.')
-			return
+		tb = self.selection_ui.tb002
 
 		rangeX = float(tb.contextMenu.s002.value())
 		rangeY = float(tb.contextMenu.s004.value())
@@ -527,10 +533,6 @@ class Selection(Init):
 		'''Select Edges By Angle
 		'''
 		tb = self.selection_ui.tb003
-		if state=='setMenu':
-			tb.contextMenu.add('QDoubleSpinBox', setPrefix='Angle Low:  ', setObjectName='s006', setMinMax_='0.0-180 step1', setValue=50, setToolTip='Normal angle low range.')
-			tb.contextMenu.add('QDoubleSpinBox', setPrefix='Angle High: ', setObjectName='s007', setMinMax_='0.0-180 step1', setValue=130, setToolTip='Normal angle high range.')
-			return
 
 		angleLow = tb.contextMenu.s006.value()
 		angleHigh = tb.contextMenu.s007.value()

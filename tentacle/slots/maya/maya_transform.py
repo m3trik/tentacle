@@ -6,7 +6,64 @@ from maya_init import *
 
 class Transform(Init):
 	def __init__(self, *args, **kwargs):
-		super().__init__(*args, **kwargs)
+		Init.__init__(self, *args, **kwargs)
+
+		dh = self.transform_ui.draggable_header
+		dh.contextMenu.add(self.tcl.wgts.ComboBox, setObjectName='cmb000', setToolTip='')
+
+		cmb = self.transform_ui.draggable_header.contextMenu.cmb000
+		files = ['']
+		cmb.addItems_(files, '')
+
+		cmb = self.transform_ui.cmb001
+		cmb.popupStyle = 'qmenu'
+		cmb.menu_.setTitle('Constaints')
+
+		#query and set current states:
+		edge_constraint = True if pm.xformConstraint(query=1, type=1)=='edge' else False
+		surface_constraint = True if pm.xformConstraint(query=1, type=1)=='surface' else False
+		live_object = True if pm.ls(live=1) else False
+
+		values = [('chk024', 'Edge', edge_constraint),
+				('chk025', 'Surface', surface_constraint),
+				('chk026', 'Make Live', live_object)]
+
+		[cmb.menu_.add(self.tcl.wgts.CheckBox, setObjectName=chk, setText=typ, setChecked=state) for chk, typ, state in values]
+
+		cmb = self.transform_ui.cmb002
+		list_ = ['Point to Point', '2 Points to 2 Points', '3 Points to 3 Points', 'Align Objects', 'Position Along Curve', 'Align Tool', 'Snap Together Tool', 'Orient to Vertex/Edge Tool']
+		cmb.addItems_(list_, 'Align To')
+
+		cmb = self.transform_ui.cmb003
+		cmb.popupStyle = 'qmenu'
+		cmb.menu_.setTitle('Snap')
+
+		moveValue = pm.manipMoveContext('Move', q=True, snapValue=True)
+		scaleValue = pm.manipScaleContext('Scale', q=True, snapValue=True)
+		rotateValue = pm.manipRotateContext('Rotate', q=True, snapValue=True)
+
+		values = [('chk021', 'Move: <b>Off</b>'), ('s021', 'increment:', moveValue, '1.00-1000 step2.8125'), 
+				('chk022', 'Scale: <b>Off</b>'), ('s022', 'increment:', scaleValue, '1.00-1000 step2.8125'), 
+				('chk023', 'Rotate: <b>Off</b>'), ('s023', 'degrees:', rotateValue, '1.00-360 step2.8125')]
+
+		widgets = [cmb.menu_.add(self.tcl.wgts.CheckBox, setObjectName=i[0], setText=i[1], setTristate=1) if len(i)==2 
+				else cmb.menu_.add('QDoubleSpinBox', setObjectName=i[0], setPrefix=i[1], setValue=i[2], setMinMax_=i[3], setDisabled=1) for i in values]
+
+		tb = self.transform_ui.tb000
+		tb.contextMenu.add('QComboBox', addItems=['Min','Mid','Max'], setObjectName='cmb004', setToolTip='Choose which point of the bounding box to align to.')
+		tb.contextMenu.add('QCheckBox', setText='Move to Origin', setObjectName='chk014', setChecked=True, setToolTip='Move to origin (xyz 0,0,0).')
+		tb.contextMenu.add('QCheckBox', setText='Center Pivot', setObjectName='chk016', setChecked=False, setToolTip='Center pivot on objects bounding box.')
+		tb.contextMenu.add('QCheckBox', setText='Freeze Transforms', setObjectName='chk017', setChecked=False, setToolTip='Reset the selected transform and all of its children down to the shape level.')
+
+		tb = self.transform_ui.tb001
+		tb.contextMenu.add('QCheckBox', setText='X Axis', setObjectName='chk029', setDisabled=True, setToolTip='Align X axis')
+		tb.contextMenu.add('QCheckBox', setText='Y Axis', setObjectName='chk030', setDisabled=True, setToolTip='Align Y axis')
+		tb.contextMenu.add('QCheckBox', setText='Z Axis', setObjectName='chk031', setDisabled=True, setToolTip='Align Z axis')
+		tb.contextMenu.add('QCheckBox', setText='Between Two Components', setObjectName='chk013', setToolTip='Align the path along an edge loop between two selected vertices or edges.')
+		tb.contextMenu.add('QCheckBox', setText='Align Loop', setObjectName='chk007', setToolTip='Align entire edge loop from selected edge(s).')
+		tb.contextMenu.add('QCheckBox', setText='Average', setObjectName='chk006', setToolTip='Align to last selected object or average.')
+		tb.contextMenu.add('QCheckBox', setText='Auto Align', setObjectName='chk010', setChecked=True, setToolTip='')
+		tb.contextMenu.add('QCheckBox', setText='Auto Align: Two Axes', setObjectName='chk011', setToolTip='')
 
 
 	def draggable_header(self, state=None):
@@ -14,20 +71,11 @@ class Transform(Init):
 		'''
 		dh = self.transform_ui.draggable_header
 
-		if state=='setMenu':
-			dh.contextMenu.add(self.tcl.wgts.ComboBox, setObjectName='cmb000', setToolTip='')
-			return
-
 
 	def cmb000(self, index=-1):
 		'''Editors
 		'''
 		cmb = self.transform_ui.draggable_header.contextMenu.cmb000
-
-		if index=='setMenu':
-			files = ['']
-			cmb.addItems_(files, '')
-			return
 
 		if index>0:
 			if index==cmd.list.index(''):
@@ -43,32 +91,11 @@ class Transform(Init):
 		'''
 		cmb = self.transform_ui.cmb001
 
-		if index=='setMenu':
-			cmb.popupStyle = 'qmenu'
-			cmb.menu_.setTitle('Constaints')
-
-			#query and set current states:
-			edge_constraint = True if pm.xformConstraint(query=1, type=1)=='edge' else False
-			surface_constraint = True if pm.xformConstraint(query=1, type=1)=='surface' else False
-			live_object = True if pm.ls(live=1) else False
-
-			values = [('chk024', 'Edge', edge_constraint),
-					('chk025', 'Surface', surface_constraint),
-					('chk026', 'Make Live', live_object)]
-
-			[cmb.menu_.add(self.tcl.wgts.CheckBox, setObjectName=chk, setText=typ, setChecked=state) for chk, typ, state in values]
-			return
-
 
 	def cmb002(self, index=-1):
 		'''Align To
 		'''
 		cmb = self.transform_ui.cmb002
-
-		if index=='setMenu':
-			list_ = ['Point to Point', '2 Points to 2 Points', '3 Points to 3 Points', 'Align Objects', 'Position Along Curve', 'Align Tool', 'Snap Together Tool', 'Orient to Vertex/Edge Tool']
-			cmb.addItems_(list_, 'Align To')
-			return
 
 		if index>0:
 			text = cmb.items[index]
@@ -96,22 +123,6 @@ class Transform(Init):
 		'''Transform Tool Snapping
 		'''
 		cmb = self.transform_ui.cmb003
-
-		if index=='setMenu':
-			cmb.popupStyle = 'qmenu'
-			cmb.menu_.setTitle('Snap')
-
-			moveValue = pm.manipMoveContext('Move', q=True, snapValue=True)
-			scaleValue = pm.manipScaleContext('Scale', q=True, snapValue=True)
-			rotateValue = pm.manipRotateContext('Rotate', q=True, snapValue=True)
-
-			values = [('chk021', 'Move: <b>Off</b>'), ('s021', 'increment:', moveValue, '1.00-1000 step2.8125'), 
-					('chk022', 'Scale: <b>Off</b>'), ('s022', 'increment:', scaleValue, '1.00-1000 step2.8125'), 
-					('chk023', 'Rotate: <b>Off</b>'), ('s023', 'degrees:', rotateValue, '1.00-360 step2.8125')]
-
-			widgets = [cmb.menu_.add(self.tcl.wgts.CheckBox, setObjectName=i[0], setText=i[1], setTristate=1) if len(i)==2 
-					else cmb.menu_.add('QDoubleSpinBox', setObjectName=i[0], setPrefix=i[1], setValue=i[2], setMinMax_=i[3], setDisabled=1) for i in values]
-			return
 
 
 	def chk014(self, state=None):
@@ -244,13 +255,7 @@ class Transform(Init):
 	def tb000(self, state=None):
 		'''Drop To Grid
 		'''
-		tb = self.current_ui.tb000
-		if state=='setMenu':
-			tb.contextMenu.add('QComboBox', addItems=['Min','Mid','Max'], setObjectName='cmb004', setToolTip='Choose which point of the bounding box to align to.')
-			tb.contextMenu.add('QCheckBox', setText='Move to Origin', setObjectName='chk014', setChecked=True, setToolTip='Move to origin (xyz 0,0,0).')
-			tb.contextMenu.add('QCheckBox', setText='Center Pivot', setObjectName='chk016', setChecked=False, setToolTip='Center pivot on objects bounding box.')
-			tb.contextMenu.add('QCheckBox', setText='Freeze Transforms', setObjectName='chk017', setChecked=False, setToolTip='Reset the selected transform and all of its children down to the shape level.')
-			return
+		tb = self.transform_ui.tb000
 
 		align = tb.contextMenu.cmb004.currentText()
 		origin = tb.contextMenu.chk014.isChecked()
@@ -268,17 +273,7 @@ class Transform(Init):
 
 		Auto Align finds the axis with the largest variance, and sets the axis checkboxes accordingly before performing a regular align.
 		'''
-		tb = self.current_ui.tb001
-		if state=='setMenu':
-			tb.contextMenu.add('QCheckBox', setText='X Axis', setObjectName='chk029', setDisabled=True, setToolTip='Align X axis')
-			tb.contextMenu.add('QCheckBox', setText='Y Axis', setObjectName='chk030', setDisabled=True, setToolTip='Align Y axis')
-			tb.contextMenu.add('QCheckBox', setText='Z Axis', setObjectName='chk031', setDisabled=True, setToolTip='Align Z axis')
-			tb.contextMenu.add('QCheckBox', setText='Between Two Components', setObjectName='chk013', setToolTip='Align the path along an edge loop between two selected vertices or edges.')
-			tb.contextMenu.add('QCheckBox', setText='Align Loop', setObjectName='chk007', setToolTip='Align entire edge loop from selected edge(s).')
-			tb.contextMenu.add('QCheckBox', setText='Average', setObjectName='chk006', setToolTip='Align to last selected object or average.')
-			tb.contextMenu.add('QCheckBox', setText='Auto Align', setObjectName='chk010', setChecked=True, setToolTip='')
-			tb.contextMenu.add('QCheckBox', setText='Auto Align: Two Axes', setObjectName='chk011', setToolTip='')
-			return
+		tb = self.transform_ui.tb001
 
 		betweenTwoComponents = tb.contextMenu.chk013.isChecked()
 		autoAlign = tb.contextMenu.chk010.isChecked()

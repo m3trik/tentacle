@@ -72,12 +72,12 @@ class Switchboard(QtCore.QObject):
 	_classProperties = {} #{'<property name>':<property value>} - The additional properties of each of the slot classes.
 
 
-	def __init__(self, parent=None, debug=0):
-		super().__init__(parent)
+	def __init__(self, parent=None):
+		QtCore.QObject.__init__(self, parent)
 		'''
+		:Parameters:
+			parent (obj) = The parent widget instance.
 		'''
-		self.debug = debug
-
 		for uiName, v in UiLoader().uiDict.items(): #Initialize the sbDict with ui name, ui object, and ui base level.
 			self.sbDict[uiName] = { #ie. {'polygons':{'ui':<ui obj>, uiLevel:<int>}}
 				'ui': v['ui'], #the ui object.
@@ -88,30 +88,13 @@ class Switchboard(QtCore.QObject):
 		self.setMainAppWindow(parent.parent())
 
 
-	def getSbDict(self, debug=False):
+	def getSbDict(self):
 		'''Property:sbDict. Get the full switchboard dict.
-
-		:Parameters:
-			debug (bool) = Print a copy of the sbDict to console for a visual representation.
-						Some objects in the dict will be converted to strings in order to provide a working test example.
-						ie. <PySide2.QtWidgets.QMainWindow(0x1fa56db6310, name="QtUi") at 0x000001FA29138EC8> becomes: '<PySide2.QtWidgets.QMainWindow(0x1fa56db6310, name="QtUi") at 0x000001FA29138EC8>' 
 
 		:Return:
 			(dict)
 		'''
-		def convert(obj): #recursively convert items in sbDict for debugging.
-			if isinstance(obj, (list, set, tuple)):
-				return [convert(i) for i in obj]
-			elif isinstance(obj, dict):
-				return {convert(k):convert(v) for k, v in obj.items()}
-			elif not isinstance(obj, (float, int, str)):
-				return str(obj)
-			else:
-				return obj
-
 		try:
-			if debug:
-				return convert(self._sbDict)
 			return self._sbDict
 
 		except AttributeError as error:
@@ -128,19 +111,18 @@ class Switchboard(QtCore.QObject):
 			query (bool) = Check if there exists a 'widgets' key for the given class name.
 
 		:Return:
-			connection dict of given name with widget name string as key.
+			(dict) widgets of the given ui.
 
-		ex. {'widgets' : {
-						'<widget>':{
-									'widgetName':'objectName',
-									'signalInstance':<widget.signal>,
-									'widgetType':'<widgetClassName>',
-									'derivedType':'<derivedClassName>',
-
-									'method':<method>,
-									'prefix':'alphanumeric prefix',
-									'docString':'method docString'
-						}
+		ex. {'<widget>':{
+					'widgetName':'objectName',
+					'widgetType':'<widgetClassName>',
+					'derivedType':'<derivedClassName>',
+					'signalInstance':<widget.signal>,
+					'method':<method>,
+					'prefix':'alphanumeric prefix',
+					'docString':'method docString'
+					'tracked':isTracked,
+					}
 			}
 		'''
 		uiName = self.getUiName(ui)
@@ -152,8 +134,9 @@ class Switchboard(QtCore.QObject):
 			return self.sbDict[uiName]['widgets']
 
 		except KeyError as error:
+			# print ('init widgets dict:', uiName)
 			self.sbDict[uiName]['widgets'] = {}
-			self.addWidgets(uiName) #, exclude=['QLayout', 'QBoxLayout'], filterByBaseType=True) #construct the signals and slots for the ui
+			self.addWidgets(uiName) #construct the signals and slots for the ui.
 
 			return self.sbDict[uiName]['widgets']
 
@@ -171,15 +154,18 @@ class Switchboard(QtCore.QObject):
 		'''
 		if widgets is None:
 			ui = self.getUi(uiName)
-			widgets = ui.__dict__.values() #each object in the ui:
+			widgets = [w for w in ui.__dict__.values() if shiboken2.isValid(w)] #get each object in the ui:
 
-		for w in widgets:
-			typ = w.__class__.__base__.__name__ if filterByBaseType else self._getDerivedType(w)
+		for w in self.list_(widgets): #if 'widgets' isn't a list, convert it to one.
+			typ = w.__class__.__base__.__name__ if filterByBaseType else self.getDerivedType(w)
 			if not typ in exclude and (typ in include if include else typ not in include):
 				self.addWidget(uiName, w, **kwargs)
 
-		if self.debug:
-			print (self.getSbDict(debug=True))
+		# Debug: Print a copy of the sbDict to console for a visual representation.
+		#Some objects in the dict will be converted to strings in order to provide a working test example.
+		#ie. <PySide2.QtWidgets.QMainWindow(0x1fa56db6310, name="QtUi") at 0x000001FA29138EC8> becomes: '<PySide2.QtWidgets.QMainWindow(0x1fa56db6310, name="QtUi") at 0x000001FA29138EC8>' 
+		# print (self.convert(self.sbDict[uiName]))
+		# print (self.convert(self.sbDict))
 
 
 	def addWidget(self, uiName, widget, **kwargs):
@@ -196,14 +182,18 @@ class Switchboard(QtCore.QObject):
 		ex. sb.addWidget('polygons', <widget>, setVisible=False) #example using kwargs to set widget attributes when adding.
 		'''
 		if widget in self.widgets(uiName): 
-			# print ('# Error: {0}.addWidget({1}, {2}): Widget was previously added. Widget skipped. #'.format(__name__, uiName, widget))
+			print ('# Error: {0}.addWidget({1}, {2}): Widget was previously added. Widget skipped. #'.format(__name__, uiName, widget))
+			return
+
+		try:
+			objectName = widget.objectName()
+		except AttributeError as error: #not a valid widget.
 			return
 
 		self.setAttributes(widget, **kwargs) #set any passed in keyword args for the widget.
 
-		objectName = str(widget.objectName())
 		classInst = self.getClassInstance(uiName, **self.getClassProperties(uiName)) #get the corresponding slot class from the ui name. ie. class <Polygons> from uiName 'polygons'.
-		derivedType = self._getDerivedType(widget) #the base class of any custom widgets.  ie. 'QPushButton' from 'PushButton'
+		derivedType = self.getDerivedType(widget) #the base class of any custom widgets.  ie. 'QPushButton' from 'PushButton'
 		signalType = self.getDefaultSignalType(derivedType) #get the default signal type for the widget as a string. ie. 'released' from 'QPushButton'
 		signalInstance = getattr(widget, signalType, None) #add signal to widget. ie. <widget.valueChanged>
 		method = getattr(classInst, objectName, None) #use 'objectName' to get the corresponding method of the same name. ie. method <b006> from widget 'b006' else None
@@ -211,7 +201,7 @@ class Switchboard(QtCore.QObject):
 		prefix = self.prefix(objectName) #returns an string alphanumberic prefix if objectName startswith a series of alphanumberic chars, and is followed by three integers. ie. 'cmb' from 'cmb015'
 		isTracked = True if derivedType in self.trackedWidgets and self.getUiLevel(uiName)<3 else False
 
-		self.widgets(uiName).update( #add the widget and it's values.
+		self.widgets(uiName).update( #add the widget and a dict containing some properties.
 					{widget:{
 						'widgetName':objectName, 
 						'widgetType':widget.__class__.__name__,
@@ -399,19 +389,23 @@ class Switchboard(QtCore.QObject):
 		:Parameters:
 			ui (str)(obj) = The name of ui, or the ui itself. ie. 'polygons' or <polygons>
 		'''
+		uiName = self.getUiName(ui)
 		prevUiName = self.prevUiName(allowDuplicates=True)
+		if prevUiName==uiName:
+			return
+
 		if prevUiName and self.getUiLevel(prevUiName)<3:
 			self.disconnectSlots(prevUiName); #print ('disconnectSlots:', prevUiName) #remove signals from the previous ui.
 
 		level = self.getUiLevel(ui)
 		state = self.getUiState(ui)
 
-		if level<3 or state<1:
+		if level<3 or state<2:
 			self.connectSlots(ui); #print ('connectSlots:', self.getUiName(ui))
 
 
 	def connectSlots(self, ui, widgets=None):
-		'''Connects signals/slots from the widgets for the given ui.
+		'''Connect signals to slots for the widgets of the given ui.
 		Works with both single slots or multiple slots given as a list.
 
 		:Parameters:
@@ -419,16 +413,14 @@ class Switchboard(QtCore.QObject):
 			widgets (obj)(list) = QWidget(s)
 		'''
 		uiName = self.getUiName(ui)
-
+		# print ('connectSlots:', uiName)
 		if widgets is None:
 			widgets = self.widgets(uiName)
-		else:
-			widgets = self.list_(widgets) #convert 'widgets' to a list if it is not one already.
 
-		for widget in widgets:
-			signal = self.getSignal(uiName, widget)
-			slot = self.getMethod(uiName, widget)
-			# print('connectSlots: ', uiName, widget.objectName(), signal, slot)
+		for w in self.list_(widgets): #convert 'widgets' to a list if it is not one already.
+			signal = self.getSignal(uiName, w)
+			slot = self.getMethod(uiName, w)
+			# print ('           >:', w.objectName(), slot)
 			if slot and signal:
 				try:
 					if isinstance(slot, (list, set, tuple)):
@@ -437,11 +429,11 @@ class Switchboard(QtCore.QObject):
 						signal.connect(slot) #connect single slot (main and cameras ui)
 
 				except Exception as error:
-					print('Error: {0} {1} connectSlots: {2} {3}'.format(uiName, widget.objectName(), signal, slot), '\n', error)
+					print('Error: {0} {1} connectSlots: {2} {3}'.format(uiName, w.objectName(), signal, slot), '\n', error)
 
 
 	def disconnectSlots(self, ui, widgets=None):
-		'''Disconnects signals/slots from the widgets for the given ui.
+		'''Disconnect signals from slots for the widgets of the given ui.
 		Works with both single slots or multiple slots given as a list.
 
 		:Parameters:
@@ -449,16 +441,14 @@ class Switchboard(QtCore.QObject):
 			widgets (obj)(list) = QWidget
 		'''
 		uiName = self.getUiName(ui)
-
+		# print ('disconnectSlots:', uiName)
 		if widgets is None:
 			widgets = self.widgets(uiName)
-		else:
-			widgets = self.list_(widgets) #convert 'widgets' to a list if it is not one already.
 
-		for widget in widgets:
-			signal = self.getSignal(uiName, widget)
-			slot = self.getMethod(uiName, widget)
-			# print('disconnectSlots: ', uiName, widget.objectName(), signal, slot)
+		for w in self.list_(widgets):  #convert 'widgets' to a list if it is not one already.
+			signal = self.getSignal(uiName, w)
+			slot = self.getMethod(uiName, w)
+			# print ('           >:', w.objectName(), slot)
 			if slot and signal:
 				try:
 					if isinstance(slot, (list, set, tuple)):
@@ -467,7 +457,7 @@ class Switchboard(QtCore.QObject):
 						signal.disconnect(slot) #disconnect single slot (main and cameras ui)
 
 				except Exception as error:
-					print('Error: {0} {1} disconnectSlots: {2} {3} #'.format(uiName, widget.objectName(), signal, slot), '\n', error)
+					print('Error: {0} {1} disconnectSlots: {2} {3} #'.format(uiName, w.objectName(), signal, slot), '\n', error)
 
 
 	def getUi(self, uiName=None, level=None, setAsCurrent=False):
@@ -922,23 +912,24 @@ class Switchboard(QtCore.QObject):
 			className = self.setCase(class_, case='pascalCase') # className = self.getUiName(class_, case='pascalCase', level=[0,1,3])
 			path = '{0}_{1}.{2}'.format(mainAppWindowName, name, className) #ie. 'maya_init.Init'
 			class_ = locate(path)
-			# if class_==None:
-				# print ('# Error: {}._setClassInstance({}): import {} failed. #'.format(__name__, class_, path))
 		else:
 			name = class_.__class__.__name__ #if arg as <object>:
 
 		uiName = self.setCase(name, 'camelCase') #lowercase the first letter.
 
 		try:
-			result = class_(**kwargs)
+			self.sbDict[uiName]['class'] = class_(**kwargs)
 		except Exception as error:
 			try:
-				result = class_()
+				self.sbDict[uiName]['class'] = class_()
 			except Exception as error:
-				result = None
+				parent_name = self.getUiName(name, case='camelCase', level=[0,1,3])
+				result = self.getClassInstance(parent_name, **kwargs) #get the parent class.
+				self.sbDict[uiName]['class'] = result
+				if not result:
+					[print ('# Error: {}.getClassInstance({}): import {} failed. #'.format(__name__, class_, self.getUiName(n, case='pascalCase'))) for n in [name, parent_name]]
 
-		self.sbDict[uiName]['class'] = result
-		return result
+		return self.sbDict[uiName]['class']
 
 
 	def getClassInstance(self, class_, **kwargs):
@@ -958,16 +949,10 @@ class Switchboard(QtCore.QObject):
 			name = class_.__class__.__name__
 
 		try:
-			result = self.sbDict[name]['class']
-		except KeyError as error:
-			# if isinstance(class_, (str)): #if arg given as string.
-			name = self.getUiName(name, case='camelCase') #look for class under the given name.
-			result = self._setClassInstance(name, **kwargs) #set the class instance while passing in any keyword arguments into **kwargs.
-			if not result: #else try using it's parent name.
-				name = self.getUiName(name, case='camelCase', level=[0,1,3])
-				result = self._setClassInstance(name, **kwargs) #set the class instance while passing in any keyword arguments into **kwargs.
+			return self.sbDict[name]['class']
 
-		return result
+		except KeyError as error:
+			return self._setClassInstance(name, **kwargs)
 
 
 	def isTracked(self, widget, ui=None):
@@ -1040,20 +1025,21 @@ class Switchboard(QtCore.QObject):
 		return [w for w, d in self.widgets(uiName).items() if d[key] in self.list_(types)]
 
 
-	def getWidgetsByPrefix(self, prefix, ui=None):
+	def getWidgetsByPrefix(self, prefix, ui=None, widgets=[]):
 		'''Get widgets having names using the given prefix.
 
 		:Parameters:
 			prefix (str)(list) = A widget prefix, or list of prefixes. ie. 'b' or ['b', 'tb']
 			ui (str)(obj) = Parent ui name, or ui object. ie. 'polygons' or <polygons>
 							If no name is given, the current ui will be used.
+			widgets (list) = If a list of widgets is given the result will be filtered for only those widgets in the given list.
 
 		:Return:
 			(list)
 		'''	
 		uiName = self.getUiName(ui)
 
-		return [w for w, d in self.widgets(uiName).items() if d['prefix'] in self.list_(prefix)]
+		return [w for w, d in self.widgets(uiName).items() if d['prefix'] in self.list_(prefix) and w in widgets if widgets]
 
 
 	def getWidgetFromMethod(self, method, existing=None):
@@ -1140,23 +1126,6 @@ class Switchboard(QtCore.QObject):
 			return None
 
 
-	def _getDerivedType(self, widget):
-		'''Internal use. Get the base class of a custom widget.
-		If the type is a standard widget, the derived type will be that widget's type.
-
-		:Parameters:
-			widget (obj) = QWidget. ie. widget with class name: 'PushButton'
-
-		:Return:
-			(string) base class name. ie. 'QPushButton'
-		'''
-		# print(widget.__class__.__mro__)
-		for c in widget.__class__.__mro__:
-			if c.__module__=='PySide2.QtWidgets': #check for the first built-in class.
-				derivedType = c.__name__ #Then use it as the derived class.
-				return derivedType
-
-
 	def getDerivedType(self, widget, ui=None):
 		'''Get the base class of a custom widget.
 		If the type is a standard widget, the derived type will be that widget's type.
@@ -1171,23 +1140,22 @@ class Switchboard(QtCore.QObject):
 		'''
 		uiName = self.getUiName(ui)
 
-		if isinstance(widget, (str)):
+		if isinstance(widget, str):
 			objectName = self.widgets(uiName)[widget] #use the stored objectName as a more reliable key.
 			widget = self.getWidget(objectName, uiName) #use the objectName to get a string key for 'widget'
-
-		if not uiName:
-			uiName = self.getUiName()
 
 		if not self.widgets(uiName, query=True):
 			self.widgets(uiName) #construct the signals and slots for the ui
 
 		try:
-			if not widget in self.widgets(uiName):
-				self.addWidget(uiName, widget)
 			return self.widgets(uiName)[widget]['derivedType']
 
 		except KeyError:
-			return None
+			# print(widget.__class__.__mro__)
+			for c in widget.__class__.__mro__:
+				if c.__module__=='PySide2.QtWidgets': #check for the first built-in class.
+					derivedType = c.__name__ #Then use it as the derived class.
+					return derivedType
 
 
 	def getMethod(self, ui, widget=None):
@@ -1212,17 +1180,17 @@ class Switchboard(QtCore.QObject):
 			return [w['method'] for w in self.sbDict[name]['widgets'].values()]
 
 		try:
-			if type(widget) is str:
+			if isinstance(widget, str):
 				return next(w['method'][0] for w in self.sbDict[name]['widgets'].values() if w['widgetName']==widget) #if there are event filters attached (as a list), just get the method (at index 0).
 			
 			elif not widget in self.sbDict[name]['widgets']:
 				self.addWidget(name, widget)
 			return self.sbDict[name]['widgets'][widget]['method'][0] #if there are event filters attached (as a list), just get the method (at index 0).
 
-		except:
-			if type(widget) is str:
+		except Exception as error:
+			if isinstance(widget, str):
 				return next((w['method'] for w in self.sbDict[name]['widgets'].values() if w['widgetName']==widget), None)
-			
+
 			elif not widget in self.sbDict[name]['widgets']:
 				self.addWidget(name, widget)
 			return self.sbDict[name]['widgets'][widget]['method']
@@ -1542,7 +1510,7 @@ class Switchboard(QtCore.QObject):
 			return self.sbDict[uiName]['uiLevel']['base']
 
 		except Exception as error:
-			print ('{}.getUiLevel({}): {}'.format(__name__, uiName, error))
+			print ('{}.getUiLevel({}): {}'.format(__name__, ui, error))
 			return None
 
 
@@ -1611,6 +1579,26 @@ class Switchboard(QtCore.QObject):
 
 
 	@staticmethod
+	def convert(obj):
+		'''Recursively convert items in sbDict for debugging.
+
+		:Parameters:
+			obj (dict) = The dictionary to convert.
+
+		:Return:
+			(dict)
+		'''
+		if isinstance(obj, (list, set, tuple)):
+			return [Switchboard.convert(i) for i in obj]
+		elif isinstance(obj, dict):
+			return {Switchboard.convert(k):Switchboard.convert(v) for k, v in obj.items()}
+		elif not isinstance(obj, (float, int, str)):
+			return str(obj)
+		else:
+			return obj
+
+
+	@staticmethod
 	def list_(x):
 		'''Convert a given obj to a list if it isn't a list, set, or tuple already.
 
@@ -1620,7 +1608,12 @@ class Switchboard(QtCore.QObject):
 		:Return:
 			(list)
 		'''
-		return x if isinstance(x, (list, tuple, set)) else [x]
+		if isinstance(x, (list, tuple, set)):
+			return x
+		elif isinstance(x, dict):
+			return list(x)
+		else:
+			return [x]
 
 
 	@staticmethod

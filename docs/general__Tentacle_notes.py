@@ -482,9 +482,13 @@ def tree000(self, wItem=None, column=None):
 
 
 # ======================================================================
-	'BUGFIXES'
+	'KNOWN BUGS'
 # ======================================================================
 '''
+
+
+tcl: submenus are being cropped when positioned.
+
 
 
 fix maya_mirror!!

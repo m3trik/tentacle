@@ -6,11 +6,57 @@ from max_init import *
 
 class File(Init):
 	def __init__(self, *args, **kwargs):
-		super().__init__(*args, **kwargs)
+		Init.__init__(self, *args, **kwargs)
 
 		#set the text for the open last file button to the last file's name.
 		mostRecentFile = self.getRecentFiles(0)
 		self.file_submenu_ui.b001.setText(self.getNameFromFullPath(mostRecentFile)) if mostRecentFile else self.file_submenu_ui.b001.setVisible(False)
+
+		dh = self.file_ui.draggable_header
+		dh.contextMenu.add(self.tcl.wgts.ComboBox, setObjectName='cmb000', setToolTip='')
+		dh.contextMenu.add(self.tcl.wgts.PushButton, setObjectName='tb000', setText='Save', setToolTip='Save the current file.')
+		dh.contextMenu.add(self.tcl.wgts.Label, setObjectName='lbl001', setText='Minimize App', setToolTip='Minimize the main application.')
+		dh.contextMenu.add(self.tcl.wgts.Label, setObjectName='lbl002', setText='Maximize App', setToolTip='Restore the main application.')
+		dh.contextMenu.add(self.tcl.wgts.Label, setObjectName='lbl003', setText='Close App', setToolTip='Close the main application.')
+
+		cmb = self.file_ui.draggable_header.contextMenu.cmb000
+		list_ = ['Schematic View']
+		cmb.addItems_(list_, '3dsMax File Editors')
+
+		cmb = self.file_ui.cmb002
+		state = rt.autosave.Enable
+		amount = rt.autosave.NumberOfFiles
+		interval = rt.autosave.Interval
+
+		cmb.contextMenu.add('QPushButton', setObjectName='b000', setText='Open Directory', setToolTip='Open the autosave directory.') #open directory
+		cmb.contextMenu.add('QPushButton', setObjectName='b002', setText='Delete All', setToolTip='Delete all autosave files.') #delete all
+		cmb.contextMenu.add('QCheckBox', setText='Autosave', setObjectName='chk006', setChecked=state, setToolTip='Set the autosave state as active or disabled.') #toggle autosave
+		cmb.contextMenu.add('QSpinBox', setPrefix='Amount: ', setObjectName='s000', setMinMax_='1-100 step1', setValue=amount, setHeight_=20, setToolTip='The number of autosave files to retain.') #autosave amount
+		cmb.contextMenu.add('QSpinBox', setPrefix='Interval: ', setObjectName='s001', setMinMax_='1-60 step1', setValue=interval, setHeight_=20, setToolTip='The autosave interval in minutes.') #autosave interval
+
+		cmb.contextMenu.chk006.toggled.connect(lambda s: rt.autosave.setmxsprop('Enable', s))
+		cmb.contextMenu.s000.valueChanged.connect(lambda v: rt.autosave.setmxsprop('NumberOfFiles', v))
+		cmb.contextMenu.s001.valueChanged.connect(lambda v: rt.autosave.setmxsprop('Interval', v))
+
+		cmb = self.file_ui.cmb003
+		cmb.addItems_(['Import file', 'Import Options', 'Merge', 'Replace', 'Link Revit', 'Link FBX', 'Link AutoCAD'], 'Import')
+
+		cmb = self.file_ui.cmb004
+		list_ = ["Export Selection", "Export Options", "Unreal", "Unity", "GoZ", "Send to Maya: New Scene", "Send to Maya: Update Scene", "Send to Maya: Add to Scene"]
+		cmb.addItems_(list_, "Export")
+
+		cmb = self.file_ui.cmb005
+		cmb.contextMenu.add('QPushButton', setObjectName='b001', setText='Last', setToolTip='Open the most recent file.')
+
+		cmb = self.file_ui.cmb006
+		cmb.contextMenu.add(self.tcl.wgts.ComboBox, setObjectName='cmb001', setToolTip='Current project directory root.')
+		cmb.contextMenu.add(self.tcl.wgts.Label, setObjectName='lbl000', setText='Set', setToolTip='Set the project directory.')
+		cmb.contextMenu.add(self.tcl.wgts.Label, setObjectName='lbl004', setText='Root', setToolTip='Open the project directory.')
+
+		tb = self.current_ui.draggable_header.contextMenu.tb000
+		tb.contextMenu.add('QCheckBox', setText='Wireframe', setObjectName='chk000', setToolTip='Set view to wireframe before save.')
+		tb.contextMenu.add('QCheckBox', setText='Increment', setObjectName='chk001', setChecked=True, setToolTip='Append and increment a unique integer value.')
+		tb.contextMenu.add('QCheckBox', setText='Quit', setObjectName='chk002', setToolTip='Quit after save.')
 
 
 	def draggable_header(self, state=None):
@@ -18,24 +64,11 @@ class File(Init):
 		'''
 		dh = self.file_ui.draggable_header
 
-		if state=='setMenu':
-			dh.contextMenu.add(self.tcl.wgts.ComboBox, setObjectName='cmb000', setToolTip='')
-			dh.contextMenu.add(self.tcl.wgts.PushButton, setObjectName='tb000', setText='Save', setToolTip='Save the current file.')
-			dh.contextMenu.add(self.tcl.wgts.Label, setObjectName='lbl001', setText='Minimize App', setToolTip='Minimize the main application.')
-			dh.contextMenu.add(self.tcl.wgts.Label, setObjectName='lbl002', setText='Maximize App', setToolTip='Restore the main application.')
-			dh.contextMenu.add(self.tcl.wgts.Label, setObjectName='lbl003', setText='Close App', setToolTip='Close the main application.')
-			return
-
 
 	def cmb000(self, index=-1):
 		'''Editors
 		'''
 		cmb = self.file_ui.draggable_header.contextMenu.cmb000
-
-		if index=='setMenu':
-			list_ = ['Schematic View']
-			cmb.addItems_(list_, '3dsMax File Editors')
-			return
 
 		if index>0:
 			text = cmb.items[index]
@@ -49,9 +82,6 @@ class File(Init):
 		'''
 		cmb = self.file_ui.cmb006.contextMenu.cmb001
 
-		if index=='setMenu':
-			return
-
 		items = cmb.addItems_(self.getRecentProjects(), "Recent Projects", clear=True)
 
 		if index>0:
@@ -63,22 +93,6 @@ class File(Init):
 		'''Recent Autosave
 		'''
 		cmb = self.file_ui.cmb002
-
-		if index=='setMenu':
-			state = rt.autosave.Enable
-			amount = rt.autosave.NumberOfFiles
-			interval = rt.autosave.Interval
-
-			cmb.contextMenu.add('QPushButton', setObjectName='b000', setText='Open Directory', setToolTip='Open the autosave directory.') #open directory
-			cmb.contextMenu.add('QPushButton', setObjectName='b002', setText='Delete All', setToolTip='Delete all autosave files.') #delete all
-			cmb.contextMenu.add('QCheckBox', setText='Autosave', setObjectName='chk006', setChecked=state, setToolTip='Set the autosave state as active or disabled.') #toggle autosave
-			cmb.contextMenu.add('QSpinBox', setPrefix='Amount: ', setObjectName='s000', setMinMax_='1-100 step1', setValue=amount, setHeight_=20, setToolTip='The number of autosave files to retain.') #autosave amount
-			cmb.contextMenu.add('QSpinBox', setPrefix='Interval: ', setObjectName='s001', setMinMax_='1-60 step1', setValue=interval, setHeight_=20, setToolTip='The autosave interval in minutes.') #autosave interval
-
-			cmb.contextMenu.chk006.toggled.connect(lambda s: rt.autosave.setmxsprop('Enable', s))
-			cmb.contextMenu.s000.valueChanged.connect(lambda v: rt.autosave.setmxsprop('NumberOfFiles', v))
-			cmb.contextMenu.s001.valueChanged.connect(lambda v: rt.autosave.setmxsprop('Interval', v))
-			return
 
 		items = cmb.addItems_(self.getRecentAutosave(appendDatetime=True), "Recent Autosave", clear=True)
 
@@ -92,10 +106,6 @@ class File(Init):
 		'''Import
 		'''
 		cmb = self.file_ui.cmb003
-
-		if index=='setMenu':
-			cmb.addItems_(['Import file', 'Import Options', 'Merge', 'Replace', 'Link Revit', 'Link FBX', 'Link AutoCAD'], 'Import')
-			return
 
 		if index>0: #hide then perform operation
 			self.tcl.hide(force=1)
@@ -120,11 +130,6 @@ class File(Init):
 		'''Export
 		'''
 		cmb = self.file_ui.cmb004
-
-		if index=='setMenu':
-			list_ = ["Export Selection", "Export Options", "Unreal", "Unity", "GoZ", "Send to Maya: New Scene", "Send to Maya: Update Scene", "Send to Maya: Add to Scene"]
-			cmb.addItems_(list_, "Export")
-			return
 
 		if index>0: #hide then perform operation
 			self.tcl.hide(force=1)
@@ -159,10 +164,6 @@ class File(Init):
 		'''
 		cmb = self.file_ui.cmb005
 
-		if index=='setMenu':
-			cmb.contextMenu.add('QPushButton', setObjectName='b001', setText='Last', setToolTip='Open the most recent file.')
-			return
-
 		items = cmb.addItems_(self.getRecentFiles(), 'Recent Files:', clear=True)
 
 		if index>0:
@@ -174,12 +175,6 @@ class File(Init):
 		'''Project Folder
 		'''
 		cmb = self.file_ui.cmb006
-
-		if index=='setMenu':
-			cmb.contextMenu.add(self.tcl.wgts.ComboBox, setObjectName='cmb001', setToolTip='Current project directory root.')
-			cmb.contextMenu.add(self.tcl.wgts.Label, setObjectName='lbl000', setText='Set', setToolTip='Set the project directory.')
-			cmb.contextMenu.add(self.tcl.wgts.Label, setObjectName='lbl004', setText='Root', setToolTip='Open the project directory.')
-			return
 
 		path = self.formatPath(rt.pathconfig.getCurrentProjectFolderPath(), strip='file') #current project path.
 		list_ = [f for f in os.listdir(path)]
@@ -198,12 +193,6 @@ class File(Init):
 		'''Save
 		'''
 		tb = self.current_ui.draggable_header.contextMenu.tb000
-
-		if state=='setMenu':
-			tb.contextMenu.add('QCheckBox', setText='Wireframe', setObjectName='chk000', setToolTip='Set view to wireframe before save.')
-			tb.contextMenu.add('QCheckBox', setText='Increment', setObjectName='chk001', setChecked=True, setToolTip='Append and increment a unique integer value.')
-			tb.contextMenu.add('QCheckBox', setText='Quit', setObjectName='chk002', setToolTip='Quit after save.')
-			return
 
 		wireframe = tb.contextMenu.chk000.isChecked()
 		increment = tb.contextMenu.chk001.isChecked()

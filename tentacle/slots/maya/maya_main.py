@@ -6,18 +6,19 @@ from maya_init import *
 
 class Main(Init):
 	def __init__(self, *args, **kwargs):
-		super().__init__(*args, **kwargs)
+		Init.__init__(self, *args, **kwargs)
+
+		self.main_lower_ui = self.tcl.sb.getUi('main_lower_submenu')
+
+		tree = self.main_lower_ui.tree000
+		tree.expandOnHover = True
+		tree.convert(tree.getTopLevelItems(), 'QLabel') #construct the tree using the existing contents.
 
 
 	def tree000(self, wItem=None, column=None):
 		'''
 		'''
-		tree = self.current_ui.tree000
-
-		if wItem=='setMenu':
-			tree.expandOnHover = True
-			tree.convert(tree.getTopLevelItems(), 'QLabel') #construct the tree using the existing contents.
-			return
+		tree = self.main_lower_ui.tree000
 
 		if not any([wItem, column]): # code here will run before each show event. generally used to refresh tree contents. -----------------------------
 			#command history

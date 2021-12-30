@@ -22,7 +22,7 @@ class Init(Slots):
 	'''App specific methods inherited by all other slot classes.
 	'''
 	def __init__(self, *args, **kwargs):
-		super().__init__(*args, **kwargs)
+		Slots.__init__(self, *args, **kwargs)
 
 		try:
 			self.init_ui.hud.shown.connect(self.construct_hud)
@@ -684,7 +684,12 @@ class Init(Slots):
 			bx, by, bz = bBoundBox = [xmax-xmin, ymax-ymin, zmax-zmin]
 
 			oldx, oldy, oldz = bScaleOld = pm.xform(obj, q=1, s=1, r=1)
-			diffx, diffy, diffz = boundDifference = [ax/bx, ay/by, az/bz]
+
+			try:
+				diffx, diffy, diffz = boundDifference = [ax/bx, ay/by, az/bz]
+			except ZeroDivisionError as error:
+				diffx, diffy, diffz = boundDifference = [1, 1, 1]
+
 			bScaleNew = [oldx*diffx, oldy*diffy, oldz*diffz]
 
 			if average:

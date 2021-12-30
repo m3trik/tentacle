@@ -6,7 +6,26 @@ from maya_init import *
 
 class Create(Init):
 	def __init__(self, *args, **kwargs):
-		super().__init__(*args, **kwargs)
+		Init.__init__(self, *args, **kwargs)
+
+		dh = self.create_ui.draggable_header
+		dh.contextMenu.add(self.tcl.wgts.ComboBox, setObjectName='cmb000', setToolTip='')
+
+		cmb = self.create_ui.draggable_header.contextMenu.cmb000
+		list_ = ['']
+		cmb.addItems_(list_, '')
+
+		cmb = self.create_ui.cmb001
+		list_ = ['Polygon', 'NURBS', 'Light']
+		cmb.addItems_(list_)
+
+		cmb = self.create_ui.cmb002
+		list_ = ["Cube", "Sphere", "Cylinder", "Plane", "Circle", "Cone", "Pyramid", "Torus", "Tube", "GeoSphere", "Platonic Solids", "Text"]
+		cmb.addItems_(list_)
+
+		tb = self.create_ui.tb000
+		tb.contextMenu.add('QCheckBox', setText='Translate', setObjectName='chk000', setChecked=True, setToolTip='Move the created object to the center point of any selected object(s).')
+		tb.contextMenu.add('QCheckBox', setText='Scale', setObjectName='chk001', setChecked=True, setToolTip='Uniformly scale the created object to match the averaged scale of any selected object(s).')
 
 
 	def draggable_header(self, state=None):
@@ -14,20 +33,11 @@ class Create(Init):
 		'''
 		dh = self.create_ui.draggable_header
 
-		if state=='setMenu':
-			dh.contextMenu.add(self.tcl.wgts.ComboBox, setObjectName='cmb000', setToolTip='')
-			return
-
 
 	def cmb000(self, index=-1):
 		'''Editors
 		'''
 		cmb = self.create_ui.draggable_header.contextMenu.cmb000
-		
-		if index=='setMenu':
-			list_ = ['']
-			cmb.addItems_(list_, '')
-			return
 
 		if index>0:
 			text = cmb.items[index]
@@ -41,11 +51,6 @@ class Create(Init):
 		'''
 		cmb = self.create_ui.cmb001
 
-		if index=='setMenu':
-			list_ = ['Polygon', 'NURBS', 'Light']
-			cmb.addItems_(list_)
-			return
-
 		if index>=0:
 			self.cmb002(index)
 
@@ -54,11 +59,6 @@ class Create(Init):
 		'''
 		'''
 		cmb = self.create_ui.cmb002
-
-		if index=='setMenu':
-			list_ = ["Cube", "Sphere", "Cylinder", "Plane", "Circle", "Cone", "Pyramid", "Torus", "Tube", "GeoSphere", "Platonic Solids", "Text"]
-			cmb.addItems_(list_)
-			return
 
 		polygons = ["Cube", "Sphere", "Cylinder", "Plane", "Circle", "Cone", "Pyramid", "Torus", "Tube", "GeoSphere", "Platonic Solids", "Text"]
 		nurbs = ["Cube", "Sphere", "Cylinder", "Cone", "Plane", "Torus", "Circle", "Square"]
@@ -79,10 +79,6 @@ class Create(Init):
 		'''Create Primitive
 		'''
 		tb = self.create_ui.tb000
-		if state=='setMenu':
-			tb.contextMenu.add('QCheckBox', setText='Translate', setObjectName='chk000', setChecked=True, setToolTip='Move the created object to the center point of any selected object(s).')
-			tb.contextMenu.add('QCheckBox', setText='Scale', setObjectName='chk001', setChecked=True, setToolTip='Uniformly scale the created object to match the averaged scale of any selected object(s).')
-			return
 
 		axis = [0,90,0]
 		type_ = self.create_ui.cmb001.currentText()

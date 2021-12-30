@@ -6,7 +6,19 @@ from maya_init import *
 
 class Cameras(Init):
 	def __init__(self, *args, **kwargs):
-		super().__init__(*args, **kwargs)
+		Init.__init__(self, *args, **kwargs)
+
+		self.cameras_lower_ui = self.tcl.sb.getUi('cameras_lower_submenu')
+
+		tree = self.cameras_lower_ui.tree000
+		tree.expandOnHover = True
+		tree.convert(tree.getTopLevelItems(), 'QLabel') #construct the tree using the existing contents.
+
+		l = ['Camera Sequencer', 'Camera Set Editor']
+		[tree.add('QLabel', 'Editors', setText=s) for s in l]
+
+		l = ['Exclusive to Camera', 'Hidden from Camera', 'Remove from Exclusive', 'Remove from Hidden', 'Remove All for Camera', 'Remove All']
+		[tree.add('QLabel', 'Per Camera Visibility', setText=s) for s in l]
 
 
 	@property
@@ -17,8 +29,7 @@ class Cameras(Init):
 			(obj) menu as a property.
 		'''
 		if not hasattr(self, '_clippingMenu'):
-			self._clippingMenu = wgts.Menu(self.current_ui, position='cursorPos')
-
+			self._clippingMenu = self.tcl.wgts.Menu(self.cameras_ui, position='cursorPos')
 			self._clippingMenu.add('QPushButton', setText='Auto Clip', setObjectName='chk000', setCheckable=True, setToolTip='When Auto Clip is ON, geometry closer to the camera than 3 units is not displayed. Turn OFF to manually define.')
 			self._clippingMenu.add('QDoubleSpinBox', setPrefix='Far Clip:  ', setObjectName='s000', setMinMax_='.01-10 step.1', setToolTip='Adjust the current cameras near clipping plane.')
 			self._clippingMenu.add('QSpinBox', setPrefix='Near Clip: ', setObjectName='s001', setMinMax_='10-10000 step1', setToolTip='Adjust the current cameras far clipping plane.')
@@ -84,19 +95,7 @@ class Cameras(Init):
 	def tree000(self, wItem=None, column=None):
 		'''
 		'''
-		tree = self.current_ui.tree000
-
-		if wItem=='setMenu':
-			tree.expandOnHover = True
-			tree.convert(tree.getTopLevelItems(), 'QLabel') #construct the tree using the existing contents.
-
-			l = ['Camera Sequencer', 'Camera Set Editor']
-			[tree.add('QLabel', 'Editors', setText=s) for s in l]
-			return
-
-			l = ['Exclusive to Camera', 'Hidden from Camera', 'Remove from Exclusive', 'Remove from Hidden', 'Remove All for Camera', 'Remove All']
-			[tree.add('QLabel', 'Per Camera Visibility', setText=s) for s in l]
-			return
+		tree = self.cameras_lower_ui.tree000
 
 		if not any([wItem, column]): # code here will run before each show event. generally used to refresh tree contents. -----------------------------
 			try:
@@ -358,7 +357,7 @@ print (__name__)
 # 		'''
 
 # 		'''
-# 		tree = self.current_ui.tree000
+# 		tree = self.cameras_ui.tree000
 
 # 		if not any([wItem, column]):
 # 			if not tree.refresh: #static list items -----------
@@ -422,7 +421,7 @@ print (__name__)
 	# 	Camera Editors
 
 	# 	'''
-	# 	cmb = self.current_ui.draggable_header.contextMenu.cmb000
+	# 	cmb = self.cameras_ui.draggable_header.contextMenu.cmb000
 		
 	# 	list_ = ['Camera Sequencer', 'Camera Set Editor']
 	# 	contents = cmb.addItems_(list_, '')
@@ -454,7 +453,7 @@ print (__name__)
 	# 	non_startup_cameras = map(str, non_startup_cameras_pynodes)
 	# 	non_startup_cameras_transforms = map(str, non_startup_cameras_transform_pynodes)
 
-	# 	cmb = self.current_ui.cmb001
+	# 	cmb = self.cameras_ui.cmb001
 		
 	# 	contents = cmb.addItems_(non_startup_cameras, "Cameras")
 
@@ -470,7 +469,7 @@ print (__name__)
 	# 	Create
 
 	# 	'''
-	# 	cmb = self.current_ui.cmb002
+	# 	cmb = self.cameras_ui.cmb002
 		
 	# 	list_ = ['Custom Camera', 'Set Custom Camera', 'Camera From View']
 	# 	contents = cmb.addItems_(list_, "Create")
@@ -492,7 +491,7 @@ print (__name__)
 	# 	Options
 
 	# 	'''
-	# 	cmb = self.current_ui.cmb003
+	# 	cmb = self.cameras_ui.cmb003
 		
 	# 	list_ = ['Group Cameras']
 	# 	contents = cmb.addItems_(list_, "Options")

@@ -6,7 +6,23 @@ from maya_init import *
 
 class Animation(Init):
 	def __init__(self, *args, **kwargs):
-		super().__init__(*args, **kwargs)
+		Init.__init__(self, *args, **kwargs)
+
+		dh = self.animation_ui.draggable_header
+		dh.contextMenu.add(self.tcl.wgts.ComboBox, setObjectName='cmb000', setToolTip='')
+
+		cmb = self.animation_ui.draggable_header.contextMenu.cmb000
+		list_ = ['']
+		cmb.addItems_(list_, '')
+
+		tb = self.animation_ui.tb000
+		tb.contextMenu.add('QSpinBox', setPrefix='Frame: ', setObjectName='s000', setMinMax_='0-10000 step1', setValue=1, setToolTip='')
+		tb.contextMenu.add('QCheckBox', setText='Relative', setObjectName='chk000', setChecked=True, setToolTip='')
+		tb.contextMenu.add('QCheckBox', setText='Update', setObjectName='chk001', setChecked=True, setToolTip='')
+
+		tb = self.animation_ui.tb001
+		tb.contextMenu.add('QSpinBox', setPrefix='Time: ', setObjectName='s001', setMinMax_='0-10000 step1', setValue=1, setToolTip='The desired start time for the inverted keys.')
+		tb.contextMenu.add('QCheckBox', setText='Relative', setObjectName='chk002', setChecked=False, setToolTip='Start time position as relative or absolute.')
 
 
 	def draggable_header(self, state=None):
@@ -14,20 +30,11 @@ class Animation(Init):
 		'''
 		dh = self.animation_ui.draggable_header
 
-		if state=='setMenu':
-			dh.contextMenu.add(self.tcl.wgts.ComboBox, setObjectName='cmb000', setToolTip='')
-			return
-
 
 	def cmb000(self, index=-1):
 		'''Editors
 		'''
 		cmb = self.animation_ui.draggable_header.contextMenu.cmb000
-		
-		if index=='setMenu':
-			list_ = ['']
-			cmb.addItems_(list_, '')
-			return
 
 		if index>0:
 			text = cmb.items[index]
@@ -40,12 +47,7 @@ class Animation(Init):
 	def tb000(self, state=None):
 		'''Set Current Frame
 		'''
-		tb = self.current_ui.tb000
-		if state=='setMenu':
-			tb.contextMenu.add('QSpinBox', setPrefix='Frame: ', setObjectName='s000', setMinMax_='0-10000 step1', setValue=1, setToolTip='')
-			tb.contextMenu.add('QCheckBox', setText='Relative', setObjectName='chk000', setChecked=True, setToolTip='')
-			tb.contextMenu.add('QCheckBox', setText='Update', setObjectName='chk001', setChecked=True, setToolTip='')
-			return
+		tb = self.animation_ui.tb000
 
 		frame = self.invertOnModifier(tb.contextMenu.s000.value())
 		relative = tb.contextMenu.chk000.isChecked()
@@ -59,22 +61,12 @@ class Animation(Init):
 	def tb001(self, state=None):
 		'''Invert Selected Keyframes
 		'''
-		tb = self.current_ui.tb001
-		if state=='setMenu':
-			tb.contextMenu.add('QSpinBox', setPrefix='Time: ', setObjectName='s001', setMinMax_='0-10000 step1', setValue=1, setToolTip='The desired start time for the inverted keys.')
-			tb.contextMenu.add('QCheckBox', setText='Relative', setObjectName='chk002', setChecked=False, setToolTip='Start time position as relative or absolute.')
-			return
+		tb = self.animation_ui.tb001
 
 		time = tb.contextMenu.s001.value()
 		relative = tb.contextMenu.chk002.isChecked()
 
 		return Animation.invertSelectedKeyframes(time=time, relative=relative)
-
-
-	def b000(self):
-		'''
-		'''
-		pass
 
 
 	@staticmethod
