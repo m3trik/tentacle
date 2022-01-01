@@ -1,22 +1,23 @@
 # !/usr/bin/python
 # coding=utf-8
-from max_init import *
+from slots.max import *
 
 
 
-class Main(Init):
+class Main(Slots_max):
 	def __init__(self, *args, **kwargs):
-		super().__init__(*args, **kwargs)
+		Slots_max.__init__(self, *args, **kwargs)
+
+		self.main_lower_ui = self.tcl.sb.getUi('main_lower_submenu')
+
+		tree = self.main_lower_ui.tree000
+		tree.expandOnHover = True
+		tree.convert(tree.getTopLevelItems(), 'QLabel') #construct the tree using the existing contents.
 
 
 	def tree000(self, wItem=None, column=None):
 		''''''
 		tree = self.current_ui.tree000
-
-		if wItem=='setMenu':
-			tree.expandOnHover = True
-			tree.convert(tree.getTopLevelItems(), 'QLabel') #construct the tree using the existing contents.
-			return
 
 		if not any([wItem, column]): # code here will run before each show event. generally used to refresh tree contents. -----------------------------
 			recentCommandInfo = self.tcl.sb.prevCommand(docString=1, toolTip=1, as_list=1) #Get a list of any recent command names and their toolTips

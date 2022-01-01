@@ -1,22 +1,32 @@
 # !/usr/bin/python
 # coding=utf-8
-from max_init import *
+from slots.max import *
 
 
 
-class Symmetry(Init):
+class Symmetry(Slots_max):
 	def __init__(self, *args, **kwargs):
-		super().__init__(*args, **kwargs)
+		Slots_max.__init__(self, *args, **kwargs)
 
 		#symmetry: set initial checked state
 		# state = pm.symmetricModelling(query=True, symmetry=True) #application symmetry state
 		# axis = pm.symmetricModelling(query=True, axis=True)
 		# if axis == "x":
 		# 	self.symmetry_ui.chk000.setChecked(state)
+		# 	self.symmetry_submenu_ui.chk000.setChecked(state)
 		# if axis == "y":
 		# 	self.symmetry_ui.chk001.setChecked(state)
+		# 	self.symmetry_submenu_ui.chk001.setChecked(state)
 		# if axis == "z":
 		# 	self.symmetry_ui.chk002.setChecked(state)
+		# 	self.symmetry_submenu_ui.chk002.setChecked(state)
+
+		ctx = self.symmetry_ui.draggable_header.contextMenu
+		ctx.add(self.tcl.wgts.ComboBox, setObjectName='cmb000', setToolTip='')
+
+		cmb = self.symmetry_ui.draggable_header.contextMenu.cmb000
+		list_ = ['']
+		cmb.addItems_(list_, '')
 
 
 	def draggable_header(self, state=None):
@@ -24,20 +34,11 @@ class Symmetry(Init):
 		'''
 		dh = self.symmetry_ui.draggable_header
 
-		if state=='setMenu':
-			dh.contextMenu.add(self.tcl.wgts.ComboBox, setObjectName='cmb000', setToolTip='')
-			return
-
 
 	def cmb000(self, index=-1):
 		'''Editors
 		'''
 		cmb = self.symmetry_ui.draggable_header.contextMenu.cmb000
-
-		if index=='setMenu':
-			list_ = ['']
-			cmb.addItems_(list_, '')
-			return
 
 		if index>0:
 			text = cmb.items[index]

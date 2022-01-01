@@ -1,12 +1,12 @@
 # !/usr/bin/python
 # coding=utf-8
-from max_init import *
+from slots.max import *
 
 
 
-class Editors(Init):
+class Editors(Slots_max):
 	def __init__(self, *args, **kwargs):
-		super().__init__(*args, **kwargs)
+		Slots_max.__init__(self, *args, **kwargs)
 
 		self.dynLayout_ui = self.tcl.sb.getUi('dynLayout')
 		self.stackedWidget = self.dynLayout_ui.stackedWidget
@@ -18,6 +18,33 @@ class Editors(Init):
 		self.editors_ui.v004.setText('Channel Info')
 		self.editors_ui.v005.setText('Schematic View')
 		self.editors_ui.v006.setText('Asset Tracking')
+
+		tree = self.current_ui.tree000
+		tree.expandOnHover = True
+
+		l = ['General Editors', 'Modeling Editors', 'Animation Editors', 'Rendering Editors', 'Relationship Editors']
+		[tree.add('QLabel', childHeader=s, setText=s) for s in l] #root
+
+		l = ['Channel Info','Rename Objects','Layer Explorer','Scene Explorer','Property Explorer','Container Explorer','Max Creation Graph',
+		'Max Creation Graph Editor','Asset Tracking','Missing Objects Explorer','Particle View','Maxscript: Editor','Maxscript: Listener',
+		'Maxscript: Debugger Dialog','Visual Maxscript Editor','Units Setup','Customize User Interface','Configure Project Paths',
+		'Configure User and System Paths','Hotkey Editor','Plug-in Manager','Preferences']
+		[tree.add('QLabel', 'General Editors', setText=s) for s in l]
+
+		l = ['Grid and Snap Settings']
+		[tree.add('QLabel', 'Modeling Editors', setText=s) for s in l]
+		
+		l = ['Track View: Curve Editor','Track View: Dope Sheet','Track View: New Track View','Motion Mixer','Bone Tools','Pose Mixer','MassFx Tools',
+		'Dynamics Explorer','Parameter Editor','Parameter Collector','Parameter Wire Dialog','Reaction Manager','Walkthrough Assistant']
+		[tree.add('QLabel', 'Animation Editors', setText=s) for s in l]
+
+		l = ['Render Setup','Render Window','State Sets','Camera Sequencer','Light Tracer','Light Explorer','light Lister','Scene Converter','Environment',
+		'Material Editor: Compact','Material Editor: Slate','Material/Map Browser','Material Explorer','Video Post','Panorama Explorer','Print Size Assistant',
+		'Gamma/LUT Setup','Compare Midia in RAM Player']
+		[tree.add('QLabel', 'Rendering Editors', setText=s) for s in l]
+
+		l = ['Schematic View','schematic View: New']
+		[tree.add('QLabel', 'Relationship Editors', setText=s) for s in l]
 
 
 	def draggable_header(self, state=None):
@@ -34,35 +61,6 @@ class Editors(Init):
 		'''All Editors
 		'''
 		tree = self.current_ui.tree000
-
-		if wItem=='setMenu':
-			tree.expandOnHover = True
-
-			l = ['General Editors', 'Modeling Editors', 'Animation Editors', 'Rendering Editors', 'Relationship Editors']
-			[tree.add('QLabel', childHeader=s, setText=s) for s in l] #root
-
-			l = ['Channel Info','Rename Objects','Layer Explorer','Scene Explorer','Property Explorer','Container Explorer','Max Creation Graph',
-			'Max Creation Graph Editor','Asset Tracking','Missing Objects Explorer','Particle View','Maxscript: Editor','Maxscript: Listener',
-			'Maxscript: Debugger Dialog','Visual Maxscript Editor','Units Setup','Customize User Interface','Configure Project Paths',
-			'Configure User and System Paths','Hotkey Editor','Plug-in Manager','Preferences']
-			[tree.add('QLabel', 'General Editors', setText=s) for s in l]
-
-			l = ['Grid and Snap Settings']
-			[tree.add('QLabel', 'Modeling Editors', setText=s) for s in l]
-			
-			l = ['Track View: Curve Editor','Track View: Dope Sheet','Track View: New Track View','Motion Mixer','Bone Tools','Pose Mixer','MassFx Tools',
-			'Dynamics Explorer','Parameter Editor','Parameter Collector','Parameter Wire Dialog','Reaction Manager','Walkthrough Assistant']
-			[tree.add('QLabel', 'Animation Editors', setText=s) for s in l]
-
-			l = ['Render Setup','Render Window','State Sets','Camera Sequencer','Light Tracer','Light Explorer','light Lister','Scene Converter','Environment',
-			'Material Editor: Compact','Material Editor: Slate','Material/Map Browser','Material Explorer','Video Post','Panorama Explorer','Print Size Assistant',
-			'Gamma/LUT Setup','Compare Midia in RAM Player']
-			[tree.add('QLabel', 'Rendering Editors', setText=s) for s in l]
-
-			l = ['Schematic View','schematic View: New']
-			[tree.add('QLabel', 'Relationship Editors', setText=s) for s in l]
-
-			return
 
 		if not any([wItem, column]): # code here will run before each show event. generally used to refresh tree contents. -----------------------------
 

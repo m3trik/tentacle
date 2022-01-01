@@ -1,12 +1,24 @@
 # !/usr/bin/python
 # coding=utf-8
-from max_init import *
+from slots.max import *
 
 
 
-class Cameras(Init):
+class Cameras(Slots_max):
 	def __init__(self, *args, **kwargs):
-		super().__init__(*args, **kwargs)
+		Slots_max.__init__(self, *args, **kwargs)
+
+		self.cameras_lower_ui = self.tcl.sb.getUi('cameras_lower_submenu')
+
+		tree = self.cameras_lower_ui.tree000
+		tree.expandOnHover = True
+		tree.convert(tree.getTopLevelItems(), 'QLabel') #convert any existing contents.
+
+		l = []
+		[tree.add('QLabel', 'Editors', setText=s) for s in l]
+
+		l = ['Create Camera Point']
+		[tree.add('QLabel', 'Options', setText=s) for s in l]
 
 
 	@property
@@ -91,17 +103,6 @@ class Cameras(Init):
 		'''Camera Menu
 		'''
 		tree = self.current_ui.tree000
-
-		if wItem=='setMenu':
-			tree.expandOnHover = True
-			tree.convert(tree.getTopLevelItems(), 'QLabel') #convert any existing contents.
-
-			l = []
-			[tree.add('QLabel', 'Editors', setText=s) for s in l]
-
-			l = ['Create Camera Point']
-			[tree.add('QLabel', 'Options', setText=s) for s in l]
-			return
 
 		if not any([wItem, column]): # code here will run before each show event. generally used to refresh tree contents. -----------------------------
 			try:

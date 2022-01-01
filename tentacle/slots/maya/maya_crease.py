@@ -1,34 +1,35 @@
 # !/usr/bin/python
 # coding=utf-8
-from maya_init import *
+from slots.maya import *
 
 
 
-class Crease(Init):
+class Crease(Slots_maya):
 	def __init__(self, *args, **kwargs):
-		Init.__init__(self, *args, **kwargs)
+		Slots_maya.__init__(self, *args, **kwargs)
 
 		self.creaseValue = 10
 
-		dh = self.crease_ui.draggable_header
-		dh.contextMenu.add(self.tcl.wgts.ComboBox, setObjectName='cmb000', setToolTip='Maya Crease Editors')
+		ctx = self.crease_ui.draggable_header.contextMenu
+		ctx.add(self.tcl.wgts.ComboBox, setObjectName='cmb000', setToolTip='Maya Crease Editors')
 
 		cmb = self.crease_ui.draggable_header.contextMenu.cmb000
-		list_ = ['Crease Set Editor']
-		cmb.addItems_(list_, 'Crease Editors:')
+		items = ['Crease Set Editor']
+		cmb.addItems_(items, 'Crease Editors:')
 
-		tb = self.crease_ui.tb000
-		tb.contextMenu.add('QSpinBox', setPrefix='Crease Amount: ', setObjectName='s003', setMinMax_='0-10 step1', setValue=10, setToolTip='Crease amount 0-10. Overriden if "max" checked.')
-		tb.contextMenu.add('QCheckBox', setText='Toggle Max', setObjectName='chk003', setToolTip='Toggle crease amount from it\'s current value to the maximum amount.')
-		tb.contextMenu.add('QCheckBox', setText='Un-Crease', setObjectName='chk002', setToolTip='Un-crease selected components or If in object mode, uncrease all.')
-		tb.contextMenu.add('QCheckBox', setText='Perform Normal Edge Hardness', setObjectName='chk005', setChecked=True, setToolTip='Toggle perform normal edge hardness.')
-		tb.contextMenu.add('QSpinBox', setPrefix='Hardness Angle: ', setObjectName='s004', setMinMax_='0-180 step1', setValue=30, setToolTip='Normal edge hardness 0-180.')
-		tb.contextMenu.add('QCheckBox', setText='Crease Vertex Points', setObjectName='chk004', setChecked=True, setToolTip='Crease vertex points.')
-		tb.contextMenu.add('QCheckBox', setText='Auto Crease', setObjectName='chk011', setToolTip='Auto crease selected object(s) within the set angle tolerance.')
-		tb.contextMenu.add('QSpinBox', setPrefix='Auto Crease: Low: ', setObjectName='s005', setMinMax_='0-180 step1', setValue=85, setToolTip='Auto crease: low angle constraint.')
-		tb.contextMenu.add('QSpinBox', setPrefix='Auto Crease: high: ', setObjectName='s006', setMinMax_='0-180 step1', setValue=95, setToolTip='Auto crease: max angle constraint.')
+		ctx = self.crease_ui.tb000.contextMenu
+		ctx.add('QSpinBox', setPrefix='Crease Amount: ', setObjectName='s003', setMinMax_='0-10 step1', setValue=10, setToolTip='Crease amount 0-10. Overriden if "max" checked.')
+		ctx.add('QCheckBox', setText='Toggle Max', setObjectName='chk003', setToolTip='Toggle crease amount from it\'s current value to the maximum amount.')
+		ctx.add('QCheckBox', setText='Un-Crease', setObjectName='chk002', setToolTip='Un-crease selected components or If in object mode, uncrease all.')
+		ctx.add('QCheckBox', setText='Perform Normal Edge Hardness', setObjectName='chk005', setChecked=True, setToolTip='Toggle perform normal edge hardness.')
+		ctx.add('QSpinBox', setPrefix='Hardness Angle: ', setObjectName='s004', setMinMax_='0-180 step1', setValue=30, setToolTip='Normal edge hardness 0-180.')
+		ctx.add('QCheckBox', setText='Crease Vertex Points', setObjectName='chk004', setChecked=True, setToolTip='Crease vertex points.')
+		ctx.add('QCheckBox', setText='Auto Crease', setObjectName='chk011', setToolTip='Auto crease selected object(s) within the set angle tolerance.')
+		ctx.add('QSpinBox', setPrefix='Auto Crease: Low: ', setObjectName='s005', setMinMax_='0-180 step1', setValue=85, setToolTip='Auto crease: low angle constraint.')
+		ctx.add('QSpinBox', setPrefix='Auto Crease: high: ', setObjectName='s006', setMinMax_='0-180 step1', setValue=95, setToolTip='Auto crease: max angle constraint.')
 
-		self.toggleWidgets(tb.contextMenu, setDisabled='s005,s006')
+		self.toggleWidgets(ctx, setDisabled='s005,s006')
+
 
 	@Slots.sync
 	def s003(self, value=None):
@@ -189,7 +190,7 @@ class Crease(Init):
 			self.crease_ui.b000.setText("Crease Set")
 
 
-	@Init.undoChunk
+	@Slots_maya.undoChunk
 	def b002(self):
 		'''Transfer Crease Edges
 		'''

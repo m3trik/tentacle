@@ -1,14 +1,43 @@
 # !/usr/bin/python
 # coding=utf-8
-from max_init import *
+from slots.max import *
 
 
 
-class Preferences(Init):
+class Preferences(Slots_max):
 	def __init__(self, *args, **kwargs):
-		super().__init__(*args, **kwargs)
+		Slots_max.__init__(self, *args, **kwargs)
 
 		self.preferences_ui.b010.setText('3dsMax Preferences')
+
+		ctx = self.preferences_ui.draggable_header.contextMenu
+		ctx.add(self.tcl.wgts.ComboBox, setObjectName='cmb000', setToolTip='')
+
+		cmb = self.preferences_ui.draggable_header.contextMenu.cmb000
+		items = ['']
+		cmb.addItems_(items, '')
+
+		cmb = self.preferences_ui.cmb001
+		items = ['millimeter','centimeter','meter','kilometer','inch','foot','mile']
+		cmb.addItems_(items)
+		# index = cmb.items.index(pm.currentUnit(query=1, fullName=1, linear=1)) #get/set current linear value.
+		# cmb.setCurrentIndex(index)
+
+		cmb = self.preferences_ui.cmb002
+		#store a corresponding value for each item in the comboBox list_.
+		l = {'15 fps: ':'game','24 fps: ':'film','25 fps: ':'pal','30 fps: ':'ntsc','48 fps: ':'show','50 fps: ':'palf','60 fps: ':'ntscf'}
+		items = [k+v for k,v in l.items()] #ie. ['15 fps: game','24 fps: film', ..etc]
+		values = [i[1] for i in l] #ie. ['game','film', ..etc]
+		cmb.addItems_(items)
+		# index = cmb.items.index(pm.currentUnit(query=1, fullName=1, time=1)) #get/set current time value.
+		# cmb.setCurrentIndex(index)
+
+		cmb = self.preferences_ui.cmb003
+		from PySide2 import QtWidgets, QtCore
+		items = QtWidgets.QStyleFactory.keys() #get styles from QStyleFactory
+		cmb.addItems_(items)
+		index = self.styleComboBox.findText(QtGui.qApp.style().objectName(), QtCore.Qt.MatchFixedString) #get/set current value
+		cmb.setCurrentIndex(index)
 
 
 	def draggable_header(self, state=None):
@@ -16,20 +45,11 @@ class Preferences(Init):
 		'''
 		dh = self.preferences_ui.draggable_header
 
-		if state=='setMenu':
-			dh.contextMenu.add(self.tcl.wgts.ComboBox, setObjectName='cmb000', setToolTip='')
-			return
-
 
 	def cmb000(self, index=-1):
 		'''Editors
 		'''
 		cmb = self.preferences_ui.draggable_header.contextMenu.cmb000
-
-		if index=='setMenu':
-			list_ = ['']
-			cmb.addItems_(list_, '')
-			return
 
 		if index>0:
 			if index==cmd.items.index(''):
@@ -41,16 +61,6 @@ class Preferences(Init):
 		'''Preferences:App - Set Working Units: Linear
 		'''
 		cmb = self.preferences_ui.cmb001
-
-		if index=='setMenu':
-			list_ = ['millimeter','centimeter','meter','kilometer','inch','foot','mile']
-			cmb.addItems_(list_)
-			try:
-				index = cmb.items.index(pm.currentUnit(query=1, fullName=1, linear=1)) #get/set current linear value
-				cmb.setCurrentIndex(index)
-			except:
-				pass
-			return
 
 		if index is not None:
 			if index is 'millimeter':
@@ -74,19 +84,6 @@ class Preferences(Init):
 		'''
 		cmb = self.preferences_ui.cmb002
 
-		if index=='setMenu':
-			#store a corresponding value for each item in the comboBox list_.
-			l = [('15 fps: ','game'),('24 fps: ','film'),('25 fps: ','pal'),('30 fps: ','ntsc'),('48 fps: ','show'),('50 fps: ','palf'),('60 fps: ','ntscf')]
-			list_ = [i[0]+i[1] for i in l] #ie. ['15 fps: game','24 fps: film', ..etc]
-			values = [i[1] for i in l] #ie. ['game','film', ..etc]
-			cmb.addItems_(list_)
-			try:
-				index = cmb.items.index(pm.currentUnit(query=1, fullName=1, time=1)) #get/set current time value
-				cmb.setCurrentIndex(index)
-			except:
-				pass
-			return
-
 		if index is not None:
 			pm.currentUnit(time=cmb.items[index]) #game | film | pal | ntsc | show | palf | ntscf
 
@@ -95,17 +92,6 @@ class Preferences(Init):
 		'''Ui Style: Set main ui style using QStyleFactory
 		'''
 		cmb = self.preferences_ui.cmb003
-
-		if index=='setMenu':
-			from PySide2 import QtWidgets, QtCore
-			list_ = QtWidgets.QStyleFactory.keys() #get styles from QStyleFactory
-			cmb.addItems_(list_)
-			try:
-				index = self.styleComboBox.findText(QtGui.qApp.style().objectName(), QtCore.Qt.MatchFixedString)
-				cmb.setCurrentIndex(index)
-			except:
-				pass
-			return
 
 		if index is not None:
 			QtGui.qApp.setStyle(cmb.items[index])

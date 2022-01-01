@@ -1,49 +1,50 @@
 # !/usr/bin/python
 # coding=utf-8
-from maya_init import *
+from slots.maya import *
 
 
 
-class Materials(Init):
+class Materials(Slots_maya):
 	def __init__(self, *args, **kwargs):
-		Init.__init__(self, *args, **kwargs)
+		Slots_maya.__init__(self, *args, **kwargs)
 
 		self.randomMat=None
 
 		self.materials_submenu_ui.b003.setVisible(False)
 
-		dh = self.materials_ui.draggable_header
-		dh.contextMenu.add(self.tcl.wgts.ComboBox, setObjectName='cmb000', setToolTip='Maya Material Editors')
-		dh.contextMenu.add(self.tcl.wgts.Label, setText='Material Attributes', setObjectName='lbl004', setToolTip='Show the material attributes in the attribute editor.')
+		ctx = self.materials_ui.draggable_header.contextMenu
+		ctx.add(self.tcl.wgts.ComboBox, setObjectName='cmb000', setToolTip='Maya Material Editors')
+		ctx.add(self.tcl.wgts.Label, setText='Material Attributes', setObjectName='lbl004', setToolTip='Show the material attributes in the attribute editor.')
 
 		cmb = self.materials_ui.draggable_header.contextMenu.cmb000
-		files = ['Hypershade']
-		cmb.addItems_(files, 'Maya Material Editors')
+		items = ['Hypershade']
+		cmb.addItems_(items, 'Maya Material Editors')
 
 		cmb = self.materials_ui.cmb002
-		cmb.contextMenu.add('QComboBox', setObjectName='cmb001', addItems=['Scene Materials', 'ID Map Materials', 'Favorite Materials'], setToolTip='Filter materials list based on type.')
-		cmb.contextMenu.add(self.tcl.wgts.Label, setText='Open in Editor', setObjectName='lbl000', setToolTip='Open material in editor.')
-		cmb.contextMenu.add(self.tcl.wgts.Label, setText='Rename', setObjectName='lbl001', setToolTip='Rename the current material.')
-		cmb.contextMenu.add(self.tcl.wgts.Label, setText='Delete', setObjectName='lbl002', setToolTip='Delete the current material.')
-		cmb.contextMenu.add(self.tcl.wgts.Label, setText='Delete All Unused Materials', setObjectName='lbl003', setToolTip='Delete All unused materials.')
+		ctx = cmb.contextMenu
+		ctx.add('QComboBox', setObjectName='cmb001', addItems=['Scene Materials', 'ID Map Materials', 'Favorite Materials'], setToolTip='Filter materials list based on type.')
+		ctx.add(self.tcl.wgts.Label, setText='Open in Editor', setObjectName='lbl000', setToolTip='Open material in editor.')
+		ctx.add(self.tcl.wgts.Label, setText='Rename', setObjectName='lbl001', setToolTip='Rename the current material.')
+		ctx.add(self.tcl.wgts.Label, setText='Delete', setObjectName='lbl002', setToolTip='Delete the current material.')
+		ctx.add(self.tcl.wgts.Label, setText='Delete All Unused Materials', setObjectName='lbl003', setToolTip='Delete All unused materials.')
 		cmb.beforePopupShown.connect(self.cmb002) #refresh comboBox contents before showing it's menu.
 		cmb.returnPressed.connect(lambda: self.lbl001(setEditable=False))
-		cmb.currentIndexChanged.connect(lambda: cmb.contextMenu.setTitle(cmb.currentText())) #set the popup title to be the current materials name.
-		cmb.contextMenu.cmb001.currentIndexChanged.connect(self.cmb002) #refresh cmb002 contents.
-		cmb.contextMenu.cmb001.currentIndexChanged.connect(lambda: self.materials_ui.group000.setTitle(cmb.contextMenu.cmb001.currentText())) #set the groupbox title to reflect the current filter.
+		cmb.currentIndexChanged.connect(lambda: ctx.setTitle(cmb.currentText())) #set the popup title to be the current materials name.
+		ctx.cmb001.currentIndexChanged.connect(self.cmb002) #refresh cmb002 contents.
+		ctx.cmb001.currentIndexChanged.connect(lambda: self.materials_ui.group000.setTitle(ctx.cmb001.currentText())) #set the groupbox title to reflect the current filter.
 
-		tb = self.materials_ui.tb000
-		tb.contextMenu.add('QCheckBox', setText='All Objects', setObjectName='chk003', setToolTip='Search all scene objects, or only those currently selected.')
-		tb.contextMenu.add('QCheckBox', setText='Shell', setObjectName='chk005', setToolTip='Select entire shell.')
-		tb.contextMenu.add('QCheckBox', setText='Invert', setObjectName='chk006', setToolTip='Invert Selection.')
+		ctx = self.materials_ui.tb000.contextMenu
+		ctx.add('QCheckBox', setText='All Objects', setObjectName='chk003', setToolTip='Search all scene objects, or only those currently selected.')
+		ctx.add('QCheckBox', setText='Shell', setObjectName='chk005', setToolTip='Select entire shell.')
+		ctx.add('QCheckBox', setText='Invert', setObjectName='chk006', setToolTip='Invert Selection.')
 
-		tb = self.materials_ui.tb002
-		tb.contextMenu.add('QRadioButton', setText='Current Material', setObjectName='chk007', setChecked=True, setToolTip='Re-Assign the current stored material.')
-		tb.contextMenu.add('QRadioButton', setText='New Material', setObjectName='chk009', setToolTip='Assign a new material.')
-		tb.contextMenu.add('QRadioButton', setText='New Random Material', setObjectName='chk008', setToolTip='Assign a new random ID material.')
-		tb.contextMenu.chk007.clicked.connect(lambda state: tb.setText('Assign Current')) 
-		tb.contextMenu.chk009.clicked.connect(lambda state: tb.setText('Assign New'))
-		tb.contextMenu.chk008.clicked.connect(lambda state: tb.setText('Assign Random'))
+		ctx = self.materials_ui.tb002.contextMenu
+		ctx.add('QRadioButton', setText='Current Material', setObjectName='chk007', setChecked=True, setToolTip='Re-Assign the current stored material.')
+		ctx.add('QRadioButton', setText='New Material', setObjectName='chk009', setToolTip='Assign a new material.')
+		ctx.add('QRadioButton', setText='New Random Material', setObjectName='chk008', setToolTip='Assign a new random ID material.')
+		ctx.chk007.clicked.connect(lambda state: tb.setText('Assign Current')) 
+		ctx.chk009.clicked.connect(lambda state: tb.setText('Assign New'))
+		ctx.chk008.clicked.connect(lambda state: tb.setText('Assign Random'))
 
 
 	def draggable_header(self, state=None):
@@ -425,7 +426,7 @@ class Materials(Init):
 
 
 	@Slots.message
-	@Init.undoChunk
+	@Slots_maya.undoChunk
 	def assignMaterial(self, objects, mat):
 		'''Assign Material
 

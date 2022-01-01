@@ -1,15 +1,15 @@
 # !/usr/bin/python
 # coding=utf-8
-from maya_init import *
+from slots.maya import *
 
 
 
-class Display(Init):
+class Display(Slots_maya):
 	def __init__(self, *args, **kwargs):
-		super().__init__(*args, **kwargs)
+		Slots_maya.__init__(self, *args, **kwargs)
 
-		dh = self.display_ui.draggable_header
-		dh.contextMenu.add(self.tcl.wgts.ComboBox, setObjectName='cmb000', setToolTip='')
+		ctx = self.display_ui.draggable_header.contextMenu
+		ctx.add(self.tcl.wgts.ComboBox, setObjectName='cmb000', setToolTip='')
 
 		cmb = self.display_ui.draggable_header.contextMenu.cmb000
 		list_ = ['']

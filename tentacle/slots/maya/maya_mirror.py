@@ -1,31 +1,31 @@
 # !/usr/bin/python
 # coding=utf-8
-from maya_init import *
+from slots.maya import *
 
 
 
-class Mirror(Init):
+class Mirror(Slots_maya):
 	def __init__(self, *args, **kwargs):
-		Init.__init__(self, *args, **kwargs)
+		Slots_maya.__init__(self, *args, **kwargs)
 
-		dh = self.mirror_ui.draggable_header
-		dh.contextMenu.add(self.tcl.wgts.ComboBox, setObjectName='cmb000', setToolTip='')
+		ctx = self.mirror_ui.draggable_header.contextMenu
+		ctx.add(self.tcl.wgts.ComboBox, setObjectName='cmb000', setToolTip='')
 
 		cmb = self.mirror_ui.draggable_header.contextMenu.cmb000
-		list_ = ['']
-		cmb.addItems_(list_, '')
+		items = ['']
+		cmb.addItems_(items, '')
 
-		tb = self.mirror_ui.tb000
-		tb.contextMenu.add('QCheckBox', setText='-', setObjectName='chk000', setChecked=True, setToolTip='Perform mirror along negative axis.')
-		tb.contextMenu.add('QRadioButton', setText='X', setObjectName='chk001', setChecked=True, setToolTip='Perform mirror along X axis.')
-		tb.contextMenu.add('QRadioButton', setText='Y', setObjectName='chk002', setToolTip='Perform mirror along Y axis.')
-		tb.contextMenu.add('QRadioButton', setText='Z', setObjectName='chk003', setToolTip='Perform mirror along Z axis.')
-		tb.contextMenu.add('QCheckBox', setText='Instance', setObjectName='chk004', setToolTip='Instance the mirrored object(s).')
-		tb.contextMenu.add('QCheckBox', setText='Cut', setObjectName='chk005', setChecked=True, setToolTip='Perform a delete along specified axis before mirror.')
-		tb.contextMenu.add('QDoubleSpinBox', setPrefix='Merge Threshold: ', setObjectName='s000', setMinMax_='0.000-10 step.001', setValue=0.005, setToolTip='Merge vertex distance.')
-		tb.contextMenu.add('QCheckBox', setText='Delete History', setObjectName='chk006', setChecked=True, setToolTip='Delete non-deformer history on the object before performing the operation.')
+		ctx = self.mirror_ui.tb000.contextMenu
+		ctx.add('QCheckBox', setText='-', setObjectName='chk000', setChecked=True, setToolTip='Perform mirror along negative axis.')
+		ctx.add('QRadioButton', setText='X', setObjectName='chk001', setChecked=True, setToolTip='Perform mirror along X axis.')
+		ctx.add('QRadioButton', setText='Y', setObjectName='chk002', setToolTip='Perform mirror along Y axis.')
+		ctx.add('QRadioButton', setText='Z', setObjectName='chk003', setToolTip='Perform mirror along Z axis.')
+		ctx.add('QCheckBox', setText='Instance', setObjectName='chk004', setToolTip='Instance the mirrored object(s).')
+		ctx.add('QCheckBox', setText='Cut', setObjectName='chk005', setChecked=True, setToolTip='Perform a delete along specified axis before mirror.')
+		ctx.add('QDoubleSpinBox', setPrefix='Merge Threshold: ', setObjectName='s000', setMinMax_='0.000-10 step.001', setValue=0.005, setToolTip='Merge vertex distance.')
+		ctx.add('QCheckBox', setText='Delete History', setObjectName='chk006', setChecked=True, setToolTip='Delete non-deformer history on the object before performing the operation.')
 
-		self.connect_('chk000-3', 'toggled', self.chk000_3, tb.contextMenu)
+		self.connect_('chk000-3', 'toggled', self.chk000_3, ctx)
 
 
 	def draggable_header(self, state=None):
@@ -60,7 +60,7 @@ class Mirror(Init):
 
 
 	@Slots.message
-	@Init.attr
+	@Slots_maya.attr
 	def tb000(self, state=None):
 		'''Mirror Geometry
 
@@ -82,7 +82,7 @@ class Mirror(Init):
 
 
 	@staticmethod
-	@Init.undoChunk
+	@Slots_maya.undoChunk
 	def mirrorGeometry(objects=None, axis='-X', cutMesh=False, instance=False, mergeThreshold=0.005, deleteHistory=True):
 		'''Mirror geometry across a given axis.
 

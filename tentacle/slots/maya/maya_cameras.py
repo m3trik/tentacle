@@ -1,12 +1,12 @@
 # !/usr/bin/python
 # coding=utf-8
-from maya_init import *
+from slots.maya import *
 
 
 
-class Cameras(Init):
+class Cameras(Slots_maya):
 	def __init__(self, *args, **kwargs):
-		Init.__init__(self, *args, **kwargs)
+		Slots_maya.__init__(self, *args, **kwargs)
 
 		self.cameras_lower_ui = self.tcl.sb.getUi('cameras_lower_submenu')
 

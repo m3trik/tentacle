@@ -56,13 +56,13 @@ class TreeWidgetExpandableList(QtWidgets.QTreeWidget, Attributes):
 	def __init__(self, parent=None, stepColumns=True, expandOnHover=False, **kwargs):
 		QtWidgets.QTreeWidget.__init__(self, parent)
 
-		self.refresh=False
-		self.widgets={}
-		self._gcWidgets={}
-		self._mouseGrabber=None
+		self.refresh = False
+		self.widgets = {}
+		self._gcWidgets = {}
+		self._mouseGrabber = None
 
-		self.stepColumns=stepColumns
-		self.expandOnHover=expandOnHover
+		self.stepColumns = stepColumns
+		self.expandOnHover = expandOnHover
 
 		self.setHeaderHidden(True)
 		self.setIndentation(0)

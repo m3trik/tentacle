@@ -1,21 +1,19 @@
 # !/usr/bin/python
 # coding=utf-8
-from max_init import *
+from slots.max import *
 
 
 
-class Scripting(Init):
+class Scripting(Slots_max):
 	def __init__(self, *args, **kwargs):
-		super().__init__(*args, **kwargs)
+		Slots_max.__init__(self, *args, **kwargs)
 
-		# cmdScrollFieldReporter_ = pm.cmdScrollFieldReporter (
-		# 														height=35,
-		# 														backgroundColor=[0,0,0],
-		# 														highlightColor=[0,0,0],
-		# 														echoAllCommands=False,
-		# 														filterSourceType="")
+		ctx = self.scripting_ui.draggable_header.contextMenu
+		ctx.add(self.tcl.wgts.ComboBox, setObjectName='cmb000', setToolTip='')
 
-		# self.scripting_ui.plainTextEdit.appendPlainText(cmdScrollFieldReporter_)
+		cmb = self.scripting_ui.draggable_header.contextMenu.cmb000
+		files = ['']
+		contents = cmb.addItems_(files, '')
 		
 
 	def draggable_header(self, state=None):
@@ -23,20 +21,11 @@ class Scripting(Init):
 		'''
 		dh = self.scripting_ui.draggable_header
 
-		if state=='setMenu':
-			dh.contextMenu.add(self.tcl.wgts.ComboBox, setObjectName='cmb000', setToolTip='')
-			return
-
 
 	def cmb000(self, index=-1):
 		'''Editors
 		'''
 		cmb = self.scripting_ui.draggable_header.contextMenu.cmb000
-
-		if index=='setMenu':
-			files = ['']
-			cmb.addItems_(files, '')
-			return
 
 		if index>0:
 			if index==cmd.items.index(''):
@@ -124,3 +113,13 @@ print (__name__)
 # -----------------------------------------------
 # Notes
 # -----------------------------------------------
+
+
+# cmdScrollFieldReporter_ = pm.cmdScrollFieldReporter (
+		# 														height=35,
+		# 														backgroundColor=[0,0,0],
+		# 														highlightColor=[0,0,0],
+		# 														echoAllCommands=False,
+		# 														filterSourceType="")
+
+		# self.scripting_ui.plainTextEdit.appendPlainText(cmdScrollFieldReporter_)

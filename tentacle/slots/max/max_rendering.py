@@ -1,12 +1,19 @@
 # !/usr/bin/python
 # coding=utf-8
-from max_init import *
+from slots.max import *
 
 
 
-class Rendering(Init):
+class Rendering(Slots_max):
 	def __init__(self, *args, **kwargs):
-		super().__init__(*args, **kwargs)
+		Slots_max.__init__(self, *args, **kwargs)
+
+		ctx = self.rendering_ui.draggable_header.contextMenu
+		ctx.add(self.tcl.wgts.ComboBox, setObjectName='cmb000', setToolTip='')
+
+		cmb = self.rendering_ui.draggable_header.contextMenu.cmb000
+		list_ = ['']
+		cmb.addItems_(list_, '')
 
 
 	def draggable_header(self, state=None):
@@ -14,20 +21,11 @@ class Rendering(Init):
 		'''
 		dh = self.rendering_ui.draggable_header
 
-		if state=='setMenu':
-			dh.contextMenu.add(self.tcl.wgts.ComboBox, setObjectName='cmb000', setToolTip='')
-			return
-
 
 	def cmb000(self, index=-1):
 		'''Editors
 		'''
 		cmb = self.rendering_ui.draggable_header.contextMenu.cmb000
-
-		if index=='setMenu':
-			list_ = ['']
-			cmb.addItems_(list_, '')
-			return
 
 		if index>0:
 			text = cmb.items[index]
@@ -40,9 +38,6 @@ class Rendering(Init):
 		'''Render: camera
 		'''
 		cmb = self.rendering_ui.cmb001
-
-		if index=='setMenu':
-			return
 
 		self.cams = [cam for cam in rt.cameras if 'Target' not in str(cam)]
 		if self.cams:

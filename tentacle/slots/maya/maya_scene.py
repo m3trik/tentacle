@@ -1,28 +1,28 @@
 # !/usr/bin/python
 # coding=utf-8
-from maya_init import *
+from slots.maya import *
 
 
 
-class Scene(Init):
+class Scene(Slots_maya):
 	def __init__(self, *args, **kwargs):
-		Init.__init__(self, *args, **kwargs)
+		Slots_maya.__init__(self, *args, **kwargs)
 
 		self.scene_ui.t000.returnPressed.connect(self.t001) #preform rename on returnPressed
 
-		dh = self.scene_ui.draggable_header
-		dh.contextMenu.add(self.tcl.wgts.ComboBox, setObjectName='cmb000', setToolTip='Maya Scene Editors')
+		ctx = self.scene_ui.draggable_header.contextMenu
+		ctx.add(self.tcl.wgts.ComboBox, setObjectName='cmb000', setToolTip='Maya Scene Editors')
 
 		cmb = self.scene_ui.draggable_header.contextMenu.cmb000
 		items = ['Node Editor', 'Outlinder', 'Content Browser', 'Optimize Scene Size', 'Prefix Hierarchy Names', 'Search and Replace Names']
 		cmb.addItems_(items, 'Maya Scene Editors')
 
-		t000 = self.scene_ui.t000
-		t000.contextMenu.add('QCheckBox', setText='Ignore Case', setObjectName='chk000', setToolTip='Search case insensitive.')
-		t000.contextMenu.add('QCheckBox', setText='Regular Expression', setObjectName='chk001', setToolTip='When checked, regular expression syntax is used instead of the default \'*\' and \'|\' wildcards.')
+		ctx = self.scene_ui.t000.contextMenu
+		ctx.add('QCheckBox', setText='Ignore Case', setObjectName='chk000', setToolTip='Search case insensitive.')
+		ctx.add('QCheckBox', setText='Regular Expression', setObjectName='chk001', setToolTip='When checked, regular expression syntax is used instead of the default \'*\' and \'|\' wildcards.')
 
-		tb = self.scene_ui.tb000
-		tb.contextMenu.add('QComboBox', addItems=['capitalize', 'upper', 'lower', 'swapcase', 'title'], setObjectName='cmb001', setToolTip='Set desired python case operator.')
+		ctx = self.scene_ui.tb000.contextMenu
+		ctx.add('QComboBox', addItems=['capitalize', 'upper', 'lower', 'swapcase', 'title'], setObjectName='cmb001', setToolTip='Set desired python case operator.')
 
 
 	def draggable_header(self, state=None):
@@ -87,7 +87,7 @@ class Scene(Init):
 
 
 	@staticmethod
-	@Init.undoChunk
+	@Slots_maya.undoChunk
 	def rename(frm, to, objects=[], regEx=False, ignoreCase=False):
 		'''Rename scene objects.
 
@@ -133,7 +133,7 @@ class Scene(Init):
 
 
 	@staticmethod
-	@Init.undoChunk
+	@Slots_maya.undoChunk
 	def setCase(objects=[], case='caplitalize'):
 		'''Rename objects following the given case.
 

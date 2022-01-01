@@ -1,28 +1,28 @@
 # !/usr/bin/python
 # coding=utf-8
-from maya_init import *
+from slots.maya import *
 
 
 
-class Animation(Init):
+class Animation(Slots_maya):
 	def __init__(self, *args, **kwargs):
-		Init.__init__(self, *args, **kwargs)
+		Slots_maya.__init__(self, *args, **kwargs)
 
-		dh = self.animation_ui.draggable_header
-		dh.contextMenu.add(self.tcl.wgts.ComboBox, setObjectName='cmb000', setToolTip='')
+		ctx = self.animation_ui.draggable_header.contextMenu
+		ctx.add(self.tcl.wgts.ComboBox, setObjectName='cmb000', setToolTip='')
 
 		cmb = self.animation_ui.draggable_header.contextMenu.cmb000
 		list_ = ['']
 		cmb.addItems_(list_, '')
 
-		tb = self.animation_ui.tb000
-		tb.contextMenu.add('QSpinBox', setPrefix='Frame: ', setObjectName='s000', setMinMax_='0-10000 step1', setValue=1, setToolTip='')
-		tb.contextMenu.add('QCheckBox', setText='Relative', setObjectName='chk000', setChecked=True, setToolTip='')
-		tb.contextMenu.add('QCheckBox', setText='Update', setObjectName='chk001', setChecked=True, setToolTip='')
+		ctx = self.animation_ui.tb000.contextMenu
+		ctx.add('QSpinBox', setPrefix='Frame: ', setObjectName='s000', setMinMax_='0-10000 step1', setValue=1, setToolTip='')
+		ctx.add('QCheckBox', setText='Relative', setObjectName='chk000', setChecked=True, setToolTip='')
+		ctx.add('QCheckBox', setText='Update', setObjectName='chk001', setChecked=True, setToolTip='')
 
-		tb = self.animation_ui.tb001
-		tb.contextMenu.add('QSpinBox', setPrefix='Time: ', setObjectName='s001', setMinMax_='0-10000 step1', setValue=1, setToolTip='The desired start time for the inverted keys.')
-		tb.contextMenu.add('QCheckBox', setText='Relative', setObjectName='chk002', setChecked=False, setToolTip='Start time position as relative or absolute.')
+		ctx = self.animation_ui.tb001.contextMenu
+		ctx.add('QSpinBox', setPrefix='Time: ', setObjectName='s001', setMinMax_='0-10000 step1', setValue=1, setToolTip='The desired start time for the inverted keys.')
+		ctx.add('QCheckBox', setText='Relative', setObjectName='chk002', setChecked=False, setToolTip='Start time position as relative or absolute.')
 
 
 	def draggable_header(self, state=None):
@@ -57,7 +57,7 @@ class Animation(Init):
 
 
 	@Slots.message
-	@Init.undoChunk
+	@Slots_maya.undoChunk
 	def tb001(self, state=None):
 		'''Invert Selected Keyframes
 		'''
@@ -89,7 +89,7 @@ class Animation(Init):
 		pm.currentTime(currentTime+frame, edit=True, update=update)
 
 
-	@Init.undoChunk
+	@Slots_maya.undoChunk
 	@staticmethod
 	def invertSelectedKeyframes(time=1, relative=True):
 		'''Duplicate any selected keyframes and paste them inverted at the given time.

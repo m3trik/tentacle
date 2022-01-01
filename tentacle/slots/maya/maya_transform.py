@@ -1,15 +1,15 @@
 # !/usr/bin/python
 # coding=utf-8
-from maya_init import *
+from slots.maya import *
 
 
 
-class Transform(Init):
+class Transform(Slots_maya):
 	def __init__(self, *args, **kwargs):
-		Init.__init__(self, *args, **kwargs)
+		Slots_maya.__init__(self, *args, **kwargs)
 
-		dh = self.transform_ui.draggable_header
-		dh.contextMenu.add(self.tcl.wgts.ComboBox, setObjectName='cmb000', setToolTip='')
+		ctx = self.transform_ui.draggable_header.contextMenu
+		ctx.add(self.tcl.wgts.ComboBox, setObjectName='cmb000', setToolTip='')
 
 		cmb = self.transform_ui.draggable_header.contextMenu.cmb000
 		files = ['']
@@ -49,21 +49,21 @@ class Transform(Init):
 		widgets = [cmb.menu_.add(self.tcl.wgts.CheckBox, setObjectName=i[0], setText=i[1], setTristate=1) if len(i)==2 
 				else cmb.menu_.add('QDoubleSpinBox', setObjectName=i[0], setPrefix=i[1], setValue=i[2], setMinMax_=i[3], setDisabled=1) for i in values]
 
-		tb = self.transform_ui.tb000
-		tb.contextMenu.add('QComboBox', addItems=['Min','Mid','Max'], setObjectName='cmb004', setToolTip='Choose which point of the bounding box to align to.')
-		tb.contextMenu.add('QCheckBox', setText='Move to Origin', setObjectName='chk014', setChecked=True, setToolTip='Move to origin (xyz 0,0,0).')
-		tb.contextMenu.add('QCheckBox', setText='Center Pivot', setObjectName='chk016', setChecked=False, setToolTip='Center pivot on objects bounding box.')
-		tb.contextMenu.add('QCheckBox', setText='Freeze Transforms', setObjectName='chk017', setChecked=False, setToolTip='Reset the selected transform and all of its children down to the shape level.')
+		ctx = self.transform_ui.tb000.contextMenu
+		ctx.add('QComboBox', addItems=['Min','Mid','Max'], setObjectName='cmb004', setToolTip='Choose which point of the bounding box to align to.')
+		ctx.add('QCheckBox', setText='Move to Origin', setObjectName='chk014', setChecked=True, setToolTip='Move to origin (xyz 0,0,0).')
+		ctx.add('QCheckBox', setText='Center Pivot', setObjectName='chk016', setChecked=False, setToolTip='Center pivot on objects bounding box.')
+		ctx.add('QCheckBox', setText='Freeze Transforms', setObjectName='chk017', setChecked=False, setToolTip='Reset the selected transform and all of its children down to the shape level.')
 
-		tb = self.transform_ui.tb001
-		tb.contextMenu.add('QCheckBox', setText='X Axis', setObjectName='chk029', setDisabled=True, setToolTip='Align X axis')
-		tb.contextMenu.add('QCheckBox', setText='Y Axis', setObjectName='chk030', setDisabled=True, setToolTip='Align Y axis')
-		tb.contextMenu.add('QCheckBox', setText='Z Axis', setObjectName='chk031', setDisabled=True, setToolTip='Align Z axis')
-		tb.contextMenu.add('QCheckBox', setText='Between Two Components', setObjectName='chk013', setToolTip='Align the path along an edge loop between two selected vertices or edges.')
-		tb.contextMenu.add('QCheckBox', setText='Align Loop', setObjectName='chk007', setToolTip='Align entire edge loop from selected edge(s).')
-		tb.contextMenu.add('QCheckBox', setText='Average', setObjectName='chk006', setToolTip='Align to last selected object or average.')
-		tb.contextMenu.add('QCheckBox', setText='Auto Align', setObjectName='chk010', setChecked=True, setToolTip='')
-		tb.contextMenu.add('QCheckBox', setText='Auto Align: Two Axes', setObjectName='chk011', setToolTip='')
+		ctx = self.transform_ui.tb001.contextMenu
+		ctx.add('QCheckBox', setText='X Axis', setObjectName='chk029', setDisabled=True, setToolTip='Align X axis')
+		ctx.add('QCheckBox', setText='Y Axis', setObjectName='chk030', setDisabled=True, setToolTip='Align Y axis')
+		ctx.add('QCheckBox', setText='Z Axis', setObjectName='chk031', setDisabled=True, setToolTip='Align Z axis')
+		ctx.add('QCheckBox', setText='Between Two Components', setObjectName='chk013', setToolTip='Align the path along an edge loop between two selected vertices or edges.')
+		ctx.add('QCheckBox', setText='Align Loop', setObjectName='chk007', setToolTip='Align entire edge loop from selected edge(s).')
+		ctx.add('QCheckBox', setText='Average', setObjectName='chk006', setToolTip='Align to last selected object or average.')
+		ctx.add('QCheckBox', setText='Auto Align', setObjectName='chk010', setChecked=True, setToolTip='')
+		ctx.add('QCheckBox', setText='Auto Align: Two Axes', setObjectName='chk011', setToolTip='')
 
 
 	def draggable_header(self, state=None):

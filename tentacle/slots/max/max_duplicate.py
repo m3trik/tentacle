@@ -1,23 +1,19 @@
 # !/usr/bin/python
 # coding=utf-8
-from max_init import *
+from slots.max import *
 
 
 
-class Duplicate(Init):
+class Duplicate(Slots_max):
 	def __init__(self, *args, **kwargs):
-		super().__init__(*args, **kwargs)
+		Slots_max.__init__(self, *args, **kwargs)
 
-		self.duplicate_ui.s000.valueChanged.connect(self.radialArray) #update radial array
-		self.duplicate_ui.s001.valueChanged.connect(self.radialArray) 
+		ctx = self.duplicate_ui.draggable_header.contextMenu
+		ctx.add(self.tcl.wgts.ComboBox, setObjectName='cmb000', setToolTip='')
 
-		self.duplicate_ui.s002.valueChanged.connect(self.duplicateArray) #update duplicate array
-		self.duplicate_ui.s003.valueChanged.connect(self.duplicateArray)
-		self.duplicate_ui.s004.valueChanged.connect(self.duplicateArray)
-		self.duplicate_ui.s005.valueChanged.connect(self.duplicateArray)
-		self.duplicate_ui.s007.valueChanged.connect(self.duplicateArray) 
-		self.duplicate_ui.s008.valueChanged.connect(self.duplicateArray)
-		self.duplicate_ui.s009.valueChanged.connect(self.duplicateArray)
+		cmb = self.duplicate_ui.draggable_header.contextMenu.cmb000
+		list_ = []
+		cmb.addItems_(list_, '')
 
 
 	def draggable_header(self, state=None):
@@ -25,21 +21,11 @@ class Duplicate(Init):
 		'''
 		dh = self.duplicate_ui.draggable_header
 
-		if state=='setMenu':
-			dh.contextMenu.add(self.tcl.wgts.ComboBox, setObjectName='cmb000', setToolTip='')
-
-			return
-
 
 	def cmb000(self, index=-1):
 		'''Editors
 		'''
 		cmb = self.duplicate_ui.draggable_header.contextMenu.cmb000
-		
-		if index=='setMenu':
-			files = ['']
-			cmb.addItems_(files, '')
-			return
 
 		if index>0:
 			text = cmb.items[index]
@@ -392,6 +378,29 @@ class Duplicate(Init):
 		for obj in rt.selection:
 			if i.CanMakeObjectsUnique(obj):
 				i.MakeObjectsUnique(obj, 'prompt') #uninstance obj.  enums: {#prompt | #individual | #group}
+
+
+	def b006(self):
+		'''
+		'''
+		self.tcl.setUi('duplicate_linear')
+
+		self.duplicate_linear_ui.s002.valueChanged.connect(self.duplicateArray) #update duplicate array
+		self.duplicate_linear_ui.s003.valueChanged.connect(self.duplicateArray)
+		self.duplicate_linear_ui.s004.valueChanged.connect(self.duplicateArray)
+		self.duplicate_linear_ui.s005.valueChanged.connect(self.duplicateArray)
+		self.duplicate_linear_ui.s007.valueChanged.connect(self.duplicateArray) 
+		self.duplicate_linear_ui.s008.valueChanged.connect(self.duplicateArray)
+		self.duplicate_linear_ui.s009.valueChanged.connect(self.duplicateArray)
+
+
+	def b007(self):
+		'''
+		'''
+		self.tcl.setUi('duplicate_radial')
+
+		self.duplicate_radial_ui.s000.valueChanged.connect(self.radialArray) #update radial array
+		self.duplicate_radial_ui.s001.valueChanged.connect(self.radialArray) 
 
 
 	def b008(self):

@@ -1,15 +1,15 @@
 # !/usr/bin/python
 # coding=utf-8
-from maya_init import *
+from slots.maya import *
 
 
 
-class Create(Init):
+class Create(Slots_maya):
 	def __init__(self, *args, **kwargs):
-		Init.__init__(self, *args, **kwargs)
+		Slots_maya.__init__(self, *args, **kwargs)
 
-		dh = self.create_ui.draggable_header
-		dh.contextMenu.add(self.tcl.wgts.ComboBox, setObjectName='cmb000', setToolTip='')
+		ctx = self.create_ui.draggable_header.contextMenu
+		ctx.add(self.tcl.wgts.ComboBox, setObjectName='cmb000', setToolTip='')
 
 		cmb = self.create_ui.draggable_header.contextMenu.cmb000
 		list_ = ['']
@@ -23,9 +23,9 @@ class Create(Init):
 		list_ = ["Cube", "Sphere", "Cylinder", "Plane", "Circle", "Cone", "Pyramid", "Torus", "Tube", "GeoSphere", "Platonic Solids", "Text"]
 		cmb.addItems_(list_)
 
-		tb = self.create_ui.tb000
-		tb.contextMenu.add('QCheckBox', setText='Translate', setObjectName='chk000', setChecked=True, setToolTip='Move the created object to the center point of any selected object(s).')
-		tb.contextMenu.add('QCheckBox', setText='Scale', setObjectName='chk001', setChecked=True, setToolTip='Uniformly scale the created object to match the averaged scale of any selected object(s).')
+		ctx = self.create_ui.tb000.contextMenu
+		ctx.add('QCheckBox', setText='Translate', setObjectName='chk000', setChecked=True, setToolTip='Move the created object to the center point of any selected object(s).')
+		ctx.add('QCheckBox', setText='Scale', setObjectName='chk001', setChecked=True, setToolTip='Uniformly scale the created object to match the averaged scale of any selected object(s).')
 
 
 	def draggable_header(self, state=None):
@@ -74,7 +74,7 @@ class Create(Init):
 			cmb.addItems_(lights, clear=True)
 
 
-	@Init.attr
+	@Slots_maya.attr
 	def tb000(self, state=None):
 		'''Create Primitive
 		'''

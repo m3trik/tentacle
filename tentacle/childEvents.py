@@ -79,21 +79,17 @@ class EventFactoryFilter(QtCore.QObject):
 
 			if derivedType in self.widgetTypes:
 				# print (widgetName if widgetName else widget)
-				# if uiLevel<3 or widgetName=='mainWindow':
-				widget.installEventFilter(self)
+				if uiLevel<3 or widgetName=='mainWindow':
+					widget.installEventFilter(self)
 
-				if widgetType in ('PushButton', 'PushButtonDraggable', 'ComboBox', 'TreeWidgetExpandableList', 'LineEdit'): #widget types to initialize menus for.
+				try: #add the child widgets of popup menus.
+					if widget.menu_.childWidgets:
+						self.tcl.setStyleSheet_(widget.menu_.childWidgets, uiName)
 
-					try: #add the child widgets of popup menus.
-						if widget.menu_.childWidgets:
-							self.initWidgets(uiName, widget.menu_.childWidgets) #initialize the widget to set things like the event filter and styleSheet.
-							self.tcl.sb.connectSlots(uiName, widget.menu_.childWidgets)
-
-						if widget.contextMenu.childWidgets:
-							self.initWidgets(uiName, widget.contextMenu.childWidgets)
-							self.tcl.sb.connectSlots(uiName, widget.contextMenu.childWidgets)
-					except AttributeError as error:
-						pass; #print ("# Error: {}.EventFactoryFilter.initWidgets({}, {}): {}. #".format(__name__, uiName, widgetName, error))
+					if widget.contextMenu.childWidgets:
+						self.tcl.setStyleSheet_(widget.contextMenu.childWidgets, uiName)
+				except AttributeError as error:
+					pass; #print ("# Error: {}.EventFactoryFilter.initWidgets({}, {}): {}. #".format(__name__, uiName, widgetName, error))
 
 				if derivedType in ('QPushButton', 'QLabel'): #widget types to resize and center.
 					if uiLevel<3:
@@ -416,6 +412,17 @@ print (__name__)
 
 
 #deprecated:
+
+
+# if widget.menu_.childWidgets:
+# 	self.tcl.setStyleSheet_(widget.menu_.childWidgets, uiName)
+# 	# self.initWidgets(uiName, widget.menu_.childWidgets) #initialize the widget to set things like the event filter and styleSheet.
+# 	# self.tcl.sb.connectSlots(uiName, widget.menu_.childWidgets)
+
+# if widget.contextMenu.childWidgets:
+# 	self.tcl.setStyleSheet_(widget.contextMenu.childWidgets, uiName)
+# 	# self.initWidgets(uiName, widget.contextMenu.childWidgets)
+# 	# self.tcl.sb.connectSlots(uiName, widget.contextMenu.childWidgets)
 
 
 # try: #if callable(method): #attempt to clear any current menu items.

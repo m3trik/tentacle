@@ -1,12 +1,12 @@
 # !/usr/bin/python
 # coding=utf-8
-from max_init import *
+from slots.max import *
 
 
 
-class Subdivision(Init):
+class Subdivision(Slots_max):
 	def __init__(self, *args, **kwargs):
-		super().__init__(*args, **kwargs)
+		Slots_max.__init__(self, *args, **kwargs)
 
 		#Set 3ds Max specific naming
 		self.subdivision_ui.gb000.setTitle('TurboSmooth')
@@ -15,26 +15,34 @@ class Subdivision(Init):
 		self.subdivision_ui.s000.setValue(0)
 		self.subdivision_ui.s001.setValue(0)
 
+		ctx = self.subdivision_ui.draggable_header.contextMenu
+		ctx.add(self.tcl.wgts.ComboBox, setObjectName='cmb000', setToolTip='Max Subdivision Editiors.')
+		# ctx.add(self.tcl.wgts.ComboBox, setObjectName='cmb001', setToolTip='Smooth Proxy.')
+		# ctx.add(self.tcl.wgts.ComboBox, setObjectName='cmb002', setToolTip='Maya Subdivision Operations.')
+
+		cmb = self.subdivision_ui.draggable_header.contextMenu.cmb000
+		list_ = ['TurboSmooth','TurboSmooth Pro','OpenSubDiv','Subdivide','Subdivide (WSM)','MeshSmooth','Optimize','Pro Optimizer','Add Divisions']
+		cmb.addItems_(list_, '3dsMax Subdivision Modifiers')
+
+		# cmb = self.subdivision_ui.draggable_header.contextMenu.cmb001
+		# list_ = ['Create Subdiv Proxy','Remove Subdiv Proxy Mirror','Crease Tool','Toggle Subdiv Proxy Display', 'Both Proxy and Subdiv Display']
+		# cmb.addItems_(list_, 'Smooth Proxy')
+
+		# cmb = self.subdivision_ui.draggable_header.contextMenu.cmb002
+		# list_ = ['Reduce Polygons','Add Divisions','Smooth']
+		# cmb.addItems_(list_, 'Maya Subdivision Operations')
+
 
 	def draggable_header(self, state=None):
 		'''Context menu
 		'''
 		dh = self.subdivision_ui.draggable_header
 
-		if state=='setMenu':
-			dh.contextMenu.add(self.tcl.wgts.ComboBox, setObjectName='cmb000', setToolTip='Subdivision Modifiers')
-			return
-
 
 	def cmb000(self, index=-1):
 		'''Editors
 		'''
 		cmb = self.subdivision_ui.draggable_header.contextMenu.cmb000
-
-		if index=='setMenu':
-			list_ = ['TurboSmooth','TurboSmooth Pro','OpenSubDiv','Subdivide','Subdivide (WSM)','MeshSmooth','Optimize','Pro Optimizer','Add Divisions']
-			cmb.addItems_(list_, '3dsMax Subdivision Modifiers')
-			return
 
 		if index>0:
 			text = cmb.items[index]

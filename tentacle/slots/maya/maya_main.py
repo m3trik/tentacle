@@ -1,12 +1,12 @@
 # !/usr/bin/python
 # coding=utf-8
-from maya_init import *
+from slots.maya import *
 
 
 
-class Main(Init):
+class Main(Slots_maya):
 	def __init__(self, *args, **kwargs):
-		Init.__init__(self, *args, **kwargs)
+		Slots_maya.__init__(self, *args, **kwargs)
 
 		self.main_lower_ui = self.tcl.sb.getUi('main_lower_submenu')
 

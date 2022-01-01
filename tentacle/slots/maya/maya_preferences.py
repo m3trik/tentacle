@@ -1,43 +1,43 @@
 # !/usr/bin/python
 # coding=utf-8
-from maya_init import *
+from slots.maya import *
 
 
 
-class Preferences(Init):
+class Preferences(Slots_maya):
 	def __init__(self, *args, **kwargs):
-		Init.__init__(self, *args, **kwargs)
+		Slots_maya.__init__(self, *args, **kwargs)
 
 		self.preferences_ui.b010.setText('Maya Preferences')
 
-		dh = self.preferences_ui.draggable_header
-		dh.contextMenu.add(self.tcl.wgts.ComboBox, setObjectName='cmb000', setToolTip='')
+		ctx = self.preferences_ui.draggable_header.contextMenu
+		ctx.add(self.tcl.wgts.ComboBox, setObjectName='cmb000', setToolTip='')
 
 		cmb = self.preferences_ui.draggable_header.contextMenu.cmb000
-		list_ = ['']
-		cmb.addItems_(list_, '')
+		items = ['']
+		cmb.addItems_(items, '')
 
 		cmb = self.preferences_ui.cmb001
-		list_ = ['millimeter','centimeter','meter','kilometer','inch','foot','yard','mile']
-		cmb.addItems_(list_)
+		items = ['millimeter','centimeter','meter','kilometer','inch','foot','yard','mile']
+		cmb.addItems_(items)
 		index = cmb.items.index(pm.currentUnit(query=1, fullName=1, linear=1)) #get/set current linear value.
 		cmb.setCurrentIndex(index)
 
-		cmb = self.preferences_ui.cmb002
-		#store a corresponding value for each item in the comboBox list_.
-		l = {'15 fps: ':'game','24 fps: ':'film','25 fps: ':'pal','30 fps: ':'ntsc','48 fps: ':'show','50 fps: ':'palf','60 fps: ':'ntscf'}
-		list_ = [k+v for k,v in l.items()] #ie. ['15 fps: game','24 fps: film', ..etc]
-		values = [i[1] for i in l] #ie. ['game','film', ..etc]
-		cmb.addItems_(list_)
-		index = cmb.items.index(pm.currentUnit(query=1, fullName=1, time=1)) #get/set current time value.
-		cmb.setCurrentIndex(index)
+		# cmb = self.preferences_ui.cmb002
+		# #store a corresponding value for each item in the comboBox list_.
+		# l = {'15 fps: ':'game','24 fps: ':'film','25 fps: ':'pal','30 fps: ':'ntsc','48 fps: ':'show','50 fps: ':'palf','60 fps: ':'ntscf'}
+		# items = [k+v for k,v in l.items()] #ie. ['15 fps: game','24 fps: film', ..etc]
+		# values = [i[1] for i in l] #ie. ['game','film', ..etc]
+		# cmb.addItems_(items)
+		# index = cmb.items.index(pm.currentUnit(query=1, fullName=1, time=1)) #get/set current time value.
+		# cmb.setCurrentIndex(index)
 
-		cmb = self.preferences_ui.cmb003
-		from PySide2 import QtWidgets, QtCore
-		list_ = QtWidgets.QStyleFactory.keys() #get styles from QStyleFactory
-		cmb.addItems_(list_)
-		index = self.styleComboBox.findText(QtGui.qApp.style().objectName(), QtCore.Qt.MatchFixedString) #get/set current value
-		cmb.setCurrentIndex(index)
+		# cmb = self.preferences_ui.cmb003
+		# from PySide2 import QtWidgets, QtCore
+		# items = QtWidgets.QStyleFactory.keys() #get styles from QStyleFactory
+		# cmb.addItems_(items)
+		# index = self.styleComboBox.findText(QtGui.qApp.style().objectName(), QtCore.Qt.MatchFixedString) #get/set current value
+		# cmb.setCurrentIndex(index)
 
 
 	def draggable_header(self, state=None):

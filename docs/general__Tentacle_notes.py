@@ -287,10 +287,10 @@ cmb.contextMenu.add('QPushButton', setObjectName='b002', setText='Delete All', s
 
 
 # creating additional connections for those widgets:
+cmb.beforePopupShown.connect(self.cmb001) #refresh comboBox contents before showing it's popup.
 cmb.returnPressed.connect(lambda: self.lbl001(setEditable=False))
 cmb.returnPressed.connect(lambda m=cmb.contextMenu.lastActiveChild: getattr(self, m(name=1))()) #connect to the last pressed child widget's corresponding method after return pressed. ie. self.lbl000 if cmb.lbl000 was clicked last.
 cmb.currentIndexChanged.connect(self.lbl005) #select current set on index change.
-cmb.beforePopupShown.connect(self.cmb001) #refresh comboBox contents before showing it's popup.
 cmb.contextMenu.chk006.setChecked(pm.autoSave(query=1, enable=1)) #set the initial autosave state.
 tb.contextMenu.chk013.toggled.connect(lambda state: tb.contextMenu.s006.setEnabled(True if state else False))
 tb.contextMenu.chk015.stateChanged.connect(lambda state: self.toggleWidgets(tb.contextMenu, setDisabled='t000-1,s001,chk005-11') if state 
@@ -485,6 +485,11 @@ def tree000(self, wItem=None, column=None):
 	'KNOWN BUGS'
 # ======================================================================
 '''
+
+ctx menu's commented out because of issues:
+	maya_file
+	maya_preferences
+
 
 
 tcl: submenus are being cropped when positioned.

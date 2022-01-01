@@ -1,14 +1,34 @@
 # !/usr/bin/python
 # coding=utf-8
-from max_init import *
+from slots.max import *
 
 
 
-class Crease(Init):
+class Crease(Slots_max):
 	def __init__(self, *args, **kwargs):
-		super().__init__(*args, **kwargs)
+		Slots_max.__init__(self, *args, **kwargs)
 
 		self.creaseValue = 10
+
+		ctx = self.crease_ui.draggable_header.contextMenu
+		ctx.add(self.tcl.wgts.ComboBox, setObjectName='cmb000', setToolTip='Maya Crease Editors')
+
+		cmb = self.crease_ui.draggable_header.contextMenu.cmb000
+		list_ = ['Crease Modifier']
+		cmb.addItems_(list_, 'Crease Modifiers:')
+
+		ctx = self.crease_ui.tb000.contextMenu
+		ctx.add('QSpinBox', setPrefix='Crease Amount: ', setObjectName='s003', setMinMax_='0-10 step1', setValue=10, setToolTip='Crease amount 0-10. Overriden if "max" checked.')
+		ctx.add('QCheckBox', setText='Toggle Max', setObjectName='chk003', setToolTip='Toggle crease amount from it\'s current value to the maximum amount.')
+		ctx.add('QCheckBox', setText='Un-Crease', setObjectName='chk002', setToolTip='Un-crease selected components or If in object mode, uncrease all.')
+		ctx.add('QCheckBox', setText='Perform Normal Edge Hardness', setObjectName='chk005', setChecked=True, setToolTip='Toggle perform normal edge hardness.')
+		ctx.add('QSpinBox', setPrefix='Hardness Angle: ', setObjectName='s004', setMinMax_='0-180 step1', setValue=30, setToolTip='Normal edge hardness 0-180.')
+		ctx.add('QCheckBox', setText='Crease Vertex Points', setObjectName='chk004', setChecked=True, setToolTip='Crease vertex points.')
+		ctx.add('QCheckBox', setText='Auto Crease', setObjectName='chk011', setToolTip='Auto crease selected object(s) within the set angle tolerance.')
+		ctx.add('QSpinBox', setPrefix='Auto Crease: Low: ', setObjectName='s005', setMinMax_='0-180 step1', setValue=85, setToolTip='Auto crease: low angle constraint.')
+		ctx.add('QSpinBox', setPrefix='Auto Crease: high: ', setObjectName='s006', setMinMax_='0-180 step1', setValue=95, setToolTip='Auto crease: max angle constraint.')
+
+		self.toggleWidgets(ctx, setDisabled='s005,s006')
 
 
 	@Slots.sync
@@ -28,20 +48,11 @@ class Crease(Init):
 		'''
 		dh = self.crease_ui.draggable_header
 
-		if state=='setMenu':
-			dh.contextMenu.add(self.tcl.wgts.ComboBox, setObjectName='cmb000', setToolTip='3ds Max Crease Modifiers')
-			return
-
 
 	def cmb000(self, index=-1):
 		'''Editors
 		'''
 		cmb = self.crease_ui.draggable_header.contextMenu.cmb000
-
-		if index=='setMenu':
-			list_ = ['Crease Modifier']
-			cmb.addItems_(list_, 'Crease Modifiers:')
-			return
 
 		if index>0:
 			text = cmb.items[index]
@@ -111,20 +122,6 @@ class Crease(Init):
 		'''Crease
 		'''
 		tb = self.current_ui.tb000
-
-		if state=='setMenu':
-			tb.contextMenu.add('QSpinBox', setPrefix='Crease Amount: ', setObjectName='s003', setMinMax_='0-10 step1', setValue=10, setToolTip='Crease amount 0-10. Overriden if "max" checked.')
-			tb.contextMenu.add('QCheckBox', setText='Toggle Max', setObjectName='chk003', setToolTip='Toggle crease amount from it\'s current value to the maximum amount.')
-			tb.contextMenu.add('QCheckBox', setText='Un-Crease', setObjectName='chk002', setToolTip='Un-crease selected components or If in object mode, uncrease all.')
-			tb.contextMenu.add('QCheckBox', setText='Perform Normal Edge Hardness', setObjectName='chk005', setChecked=True, setToolTip='Toggle perform normal edge hardness.')
-			tb.contextMenu.add('QSpinBox', setPrefix='Hardness Angle: ', setObjectName='s004', setMinMax_='0-180 step1', setValue=30, setToolTip='Normal edge hardness 0-180.')
-			tb.contextMenu.add('QCheckBox', setText='Crease Vertex Points', setObjectName='chk004', setToolTip='Crease vertex points.')
-			tb.contextMenu.add('QCheckBox', setText='Auto Crease', setObjectName='chk011', setToolTip='Auto crease selected object(s) within the set angle tolerance.')
-			tb.contextMenu.add('QSpinBox', setPrefix='Auto Crease: Low: ', setObjectName='s005', setMinMax_='0-180 step1', setValue=85, setToolTip='Auto crease: low angle constraint.')
-			tb.contextMenu.add('QSpinBox', setPrefix='Auto Crease: high: ', setObjectName='s006', setMinMax_='0-180 step1', setValue=95, setToolTip='Auto crease: max angle constraint.')
-			
-			self.toggleWidgets(tb.contextMenu, setDisabled='s005,s006')
-			return
 
 		creaseAmount = int(tb.contextMenu.s003.value())
 		normalAngle = int(tb.contextMenu.s004.value())

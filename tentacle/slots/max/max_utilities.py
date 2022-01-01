@@ -1,12 +1,19 @@
 # !/usr/bin/python
 # coding=utf-8
-from max_init import *
+from slots.max import *
 
 
 
-class Utilities(Init):
+class Utilities(Slots_max):
 	def __init__(self, *args, **kwargs):
-		super().__init__(*args, **kwargs)
+		Slots_max.__init__(self, *args, **kwargs)
+
+		ctx = self.utilities_ui.draggable_header.contextMenu
+		ctx.add(self.tcl.wgts.ComboBox, setObjectName='cmb000', setToolTip='')
+
+		cmb = self.utilities_ui.draggable_header.contextMenu.cmb000
+		files = ['']
+		cmb.addItems_(files, '')
 
 
 	def draggable_header(self, state=None):
@@ -14,20 +21,11 @@ class Utilities(Init):
 		'''
 		dh = self.utilities_ui.draggable_header
 
-		if state=='setMenu':
-			dh.contextMenu.add(self.tcl.wgts.ComboBox, setObjectName='cmb000', setToolTip='')
-			return
-
 
 	def cmb000(self, index=-1):
 		'''Editors
 		'''
 		cmb = self.utilities_ui.draggable_header.contextMenu.cmb000
-
-		if index=='setMenu':
-			list_ = ['']
-			items = cmb.addItems_(list_, '')
-			return
 
 		if index>0:
 			text = cmb.items[index]
@@ -59,35 +57,6 @@ class Utilities(Init):
 		'''
 		mel.eval('greasePencilCtx;')
 
-
-	def b004(self):
-		''''''
-		pass
-
-
-	def b005(self):
-		''''''
-		pass
-
-
-	def b006(self):
-		''''''
-		pass
-
-
-	def b007(self):
-		''''''
-		pass
-
-
-	def b008(self):
-		''''''
-		pass
-
-
-	def b009(self):
-		''''''
-		pass
 
 
 

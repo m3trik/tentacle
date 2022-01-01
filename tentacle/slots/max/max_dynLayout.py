@@ -1,12 +1,20 @@
 # !/usr/bin/python
 # coding=utf-8
-from max_init import *
+from slots.max import *
 
 
 
-class DynLayout(Init):
+class DynLayout(Slots_max):
 	def __init__(self, *args, **kwargs):
-		super().__init__(*args, **kwargs)
+		Slots_max.__init__(self, *args, **kwargs)
+
+		ctx = self.dynLayout_ui.draggable_header.contextMenu
+		ctx.add(self.tcl.wgts.ComboBox, setObjectName='cmb000', setToolTip='')
+		ctx.add('QPushButton', setText='Delete History', setObjectName='b000', setToolTip='')
+
+		cmb = self.dynLayout_ui.draggable_header.contextMenu.cmb000
+		list_ = []
+		cmb.addItems_(list_, '')
 
 
 	def draggable_header(self, state=None):
@@ -14,20 +22,11 @@ class DynLayout(Init):
 		'''
 		dh = self.dynLayout_ui.draggable_header
 
-		if state=='setMenu':
-			dh.contextMenu.add(self.tcl.wgts.ComboBox, setObjectName='cmb000', setToolTip='')
-			return
-
 
 	def cmb000(self, index=-1):
 		'''Editors
 		'''
 		cmb = self.dynLayout_ui.draggable_header.contextMenu.cmb000
-
-		if index=='setMenu':
-			list_ = ['']
-			cmb.addItems_(list_, '')
-			return
 
 		if index>0:
 			text = cmb.items[index]
@@ -37,8 +36,13 @@ class DynLayout(Init):
 
 
 	def b000(self):
-		'''pass
 		'''
+		'''
+		self.tcl.sb.getMethod('edit', 'tb001')()
+
+
+
+
 
 
 

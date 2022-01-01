@@ -1,19 +1,19 @@
 # !/usr/bin/python
 # coding=utf-8
-from maya_init import *
+from slots.maya import *
 
 
 
-class Lighting(Init):
+class Lighting(Slots_maya):
 	def __init__(self, *args, **kwargs):
-		super().__init__(*args, **kwargs)
+		Slots_maya.__init__(self, *args, **kwargs)
 
-		dh = self.lighting_ui.draggable_header
-		dh.contextMenu.add(self.tcl.wgts.ComboBox, setObjectName='cmb000', setToolTip='')
+		ctx = self.lighting_ui.draggable_header.contextMenu
+		ctx.add(self.tcl.wgts.ComboBox, setObjectName='cmb000', setToolTip='')
 
 		cmb = self.lighting_ui.draggable_header.contextMenu.cmb000
-		list_ = ['']
-		cmb.addItems_(list_, '')
+		items = ['']
+		cmb.addItems_(items, '')
 
 
 	def draggable_header(self, state=None):
@@ -33,54 +33,7 @@ class Lighting(Init):
 		# 	cmb.setCurrentIndex(0)
 
 
-	def b000(self):
-		''''''
-		pass
 
-
-	def b001(self):
-		''''''
-		pass
-
-
-	def b002(self):
-		''''''
-		pass
-
-
-	def b003(self):
-		''''''
-		pass
-
-
-	def b004(self):
-		''''''
-		pass
-
-
-	def b005(self):
-		''''''
-		pass
-
-
-	def b006(self):
-		''''''
-		pass
-
-
-	def b007(self):
-		''''''
-		pass
-
-
-	def b008(self):
-		''''''
-		mel.eval("")
-
-
-	def b009(self):
-		''''''
-		pass
 
 
 

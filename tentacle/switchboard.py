@@ -528,6 +528,10 @@ class Switchboard(QtCore.QObject):
 		'''Get the initialization state of the given ui as an int.
 
 		:Parameters:
+			ui (str)(obj) = The ui, or ui name to set the state for.
+			states (int) = Set the state of the given ui. (valid: 0: uninitialized, 1: initialized, 2: connected)
+
+		:Parameters:
 			ui (str)(obj) = The ui name, or ui object. ie. 'polygons' or <polygons>
 							If None is given, the current ui will be used.
 			state (int) = The desired initialization state value.
@@ -541,9 +545,16 @@ class Switchboard(QtCore.QObject):
 		'''Get the initialization state of the given ui as an int.
 
 		:Parameters:
+			ui (str)(obj) = The ui, or ui name to set the state of.
+
+		states:
+			0: uninitialized.
+			1: initialized.
+			2: connected.
+
+		:Parameters:
 			ui (str)(obj) = The ui name, or ui object. ie. 'polygons' or <polygons>
 							If None is given, the current ui will be used.
-
 		:Return:
 			(int)
 		'''

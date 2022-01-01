@@ -1,12 +1,45 @@
 # !/usr/bin/python
 # coding=utf-8
-from max_init import *
+from slots.max import *
 
 
 
-class Edit(Init):
+class Edit(Slots_max):
 	def __init__(self, *args, **kwargs):
-		super().__init__(*args, **kwargs)
+		Slots_max.__init__(self, *args, **kwargs)
+
+		ctx = self.edit_ui.draggable_header.contextMenu
+		ctx.add(self.tcl.wgts.ComboBox, setObjectName='cmb000', setToolTip='Max Editors')
+
+		cmb = self.edit_ui.draggable_header.contextMenu.cmb000
+		items = []
+		cmb.addItems_(items, 'Max Editors')
+
+		cmb = self.edit_ui.cmb001
+		cmb.beforePopupShown.connect(self.cmb001) #refresh comboBox contents before showing it's popup.
+
+		ctx = self.edit_ui.tb000.contextMenu
+		ctx.add('QCheckBox', setText='N-Gons', setObjectName='chk002', setToolTip='Find N-gons.')
+		ctx.add('QCheckBox', setText='Isolated Vertex', setObjectName='chk003', setChecked=True, setToolTip='Find isolated vertices within specified angle threshold.')
+		ctx.add('QSpinBox', setPrefix='Loose Vertex Angle: ', setObjectName='s006', setMinMax_='1-360 step1', setValue=15, setToolTip='Loose vertex search: Angle Threshold.')
+		ctx.add('QCheckBox', setText='Repair', setObjectName='chk004', setToolTip='Repair matching geometry. (else: select)')
+
+		ctx = self.edit_ui.tb001.contextMenu
+		ctx.add('QCheckBox', setText='For All Objects', setObjectName='chk018', setChecked=True, setToolTip='Delete history on All objects or just those selected.')
+		ctx.add('QCheckBox', setText='Delete Unused Nodes', setObjectName='chk019', setChecked=True, setToolTip='Delete unused nodes.')
+		ctx.add('QCheckBox', setText='Delete Deformers', setObjectName='chk020', setToolTip='Delete deformers.')
+
+		ctx = self.edit_ui.tb002.contextMenu
+		ctx.add('QCheckBox', setText='Delete Edge Loop', setObjectName='chk001', setToolTip='Delete the edge loops of any edges selected.')
+		# ctx.add('QCheckBox', setText='Delete Edge Ring', setObjectName='chk000', setToolTip='Delete the edge rings of any edges selected.')
+
+		ctx = self.edit_ui.tb003.contextMenu
+		ctx.add('QCheckBox', setText='-', setObjectName='chk006', setChecked=True, setToolTip='Perform delete along negative axis.')
+		ctx.add('QRadioButton', setText='X', setObjectName='chk007', setChecked=True, setToolTip='Perform delete along X axis.')
+		ctx.add('QRadioButton', setText='Y', setObjectName='chk008', setToolTip='Perform delete along Y axis.')
+		ctx.add('QRadioButton', setText='Z', setObjectName='chk009', setToolTip='Perform delete along Z axis.')
+
+		self.connect_('chk006-9', 'toggled', self.chk006_9, ctx)
 
 
 	def draggable_header(self, state=None):
@@ -14,20 +47,11 @@ class Edit(Init):
 		'''
 		dh = self.edit_ui.draggable_header
 
-		if state=='setMenu':
-			dh.contextMenu.add(self.tcl.wgts.ComboBox, setObjectName='cmb000', setToolTip='')
-			return
-
 
 	def cmb000(self, index=-1):
 		'''Editors
 		'''
 		cmb = self.edit_ui.draggable_header.contextMenu.cmb000
-
-		if index=='setMenu':
-			list_ = ['']
-			cmb.addItems_(list_, '')
-			return
 
 		if index>0:
 			text = cmb.items[index]
@@ -36,15 +60,11 @@ class Edit(Init):
 			cmb.setCurrentIndex(0)
 
 
-	@Init.attr
+	@Slots_max.attr
 	def cmb001(self, index=-1):
 		'''Object History Attributes
 		'''
 		cmb = self.edit_ui.cmb001
-
-		if index=='setMenu':
-			cmb.beforePopupShown.connect(self.cmb001) #refresh comboBox contents before showing it's popup.
-			return
 
 		sel = list(rt.selection)
 		if sel:
@@ -73,12 +93,6 @@ class Edit(Init):
 		'''Mesh Cleanup
 		'''
 		tb = self.current_ui.tb000
-		if state=='setMenu':
-			tb.contextMenu.add('QCheckBox', setText='N-Gons', setObjectName='chk002', setToolTip='Find N-gons.')
-			tb.contextMenu.add('QCheckBox', setText='Isolated Vertex', setObjectName='chk003', setChecked=True, setToolTip='Find isolated vertices within specified angle threshold.')
-			tb.contextMenu.add('QSpinBox', setPrefix='Loose Vertex Angle: ', setObjectName='s006', setMinMax_='1-360 step1', setValue=15, setToolTip='Loose vertex search: Angle Threshold.')
-			tb.contextMenu.add('QCheckBox', setText='Repair', setObjectName='chk004', setToolTip='Repair matching geometry. (else: select)')
-			return
 
 		isolatedVerts = tb.contextMenu.chk003.isChecked() #isolated vertices
 		edgeAngle = tb.contextMenu.s006.value()
@@ -93,11 +107,6 @@ class Edit(Init):
 		'''Delete History
 		'''
 		tb = self.current_ui.tb001
-		if state=='setMenu':
-			tb.contextMenu.add('QCheckBox', setText='For All Objects', setObjectName='chk018', setChecked=True, setToolTip='Delete history on All objects or just those selected.')
-			tb.contextMenu.add('QCheckBox', setText='Delete Unused Nodes', setObjectName='chk019', setChecked=True, setToolTip='Delete unused nodes.')
-			tb.contextMenu.add('QCheckBox', setText='Delete Deformers', setObjectName='chk020', setToolTip='Delete deformers.')
-			return
 
 		all_ = tb.contextMenu.chk018.isChecked()
 		unusedNodes = tb.contextMenu.chk019.isChecked()
@@ -135,9 +144,6 @@ class Edit(Init):
 		'''Delete
 		'''
 		tb = self.current_ui.tb002
-		if state=='setMenu':
-			tb.contextMenu.add('QCheckBox', setText='Delete Loop', setObjectName='chk001', setToolTip='Delete the entire edge loop of any components selected.')
-			return
 
 		level = rt.subObjectLevel
 
@@ -321,14 +327,6 @@ class Edit(Init):
 		'''Delete Along Axis
 		'''
 		tb = self.current_ui.tb003
-		if state=='setMenu':
-			tb.contextMenu.add('QCheckBox', setText='-', setObjectName='chk006', setChecked=True, setToolTip='Perform delete along negative axis.')
-			tb.contextMenu.add('QRadioButton', setText='X', setObjectName='chk007', setChecked=True, setToolTip='Perform delete along X axis.')
-			tb.contextMenu.add('QRadioButton', setText='Y', setObjectName='chk008', setToolTip='Perform delete along Y axis.')
-			tb.contextMenu.add('QRadioButton', setText='Z', setObjectName='chk009', setToolTip='Perform delete along Z axis.')
-
-			self.connect_('chk006-9', 'toggled', self.chk006_9, tb.contextMenu)
-			return
 
 		# selection = pm.ls(sl=1, objectsOnly=1)
 		# axis = self.getAxisFromCheckBoxes('chk006-9', tb.contextMenu)

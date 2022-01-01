@@ -1,12 +1,23 @@
 # !/usr/bin/python
 # coding=utf-8
-from max_init import *
+from slots.max import *
 
 
 
-class Convert(Init):
+class Convert(Slots_max):
 	def __init__(self, *args, **kwargs):
-		super().__init__(*args, **kwargs)
+		Slots_max.__init__(self, *args, **kwargs)
+
+		ctx = self.convert_ui.draggable_header.contextMenu
+		ctx.add(self.tcl.wgts.ComboBox, setObjectName='cmb000', setToolTip='')
+
+		cmb = self.convert_ui.draggable_header.contextMenu.cmb000
+		list_ = ['']
+		cmb.addItems_(list_, '')
+
+		cmb = self.convert_ui.cmb001
+		list_ = ['NURBS to Polygons', 'NURBS to Subdiv', 'Polygons to Subdiv', 'Smooth Mesh Preview to Polygons', 'Polygon Edges to Curve', 'Type to Curves', 'Subdiv to Polygons', 'Subdiv to NURBS', 'NURBS Curve to Bezier', 'Bezier Curve to NURBS', 'Paint Effects to NURBS', 'Paint Effects to Curves', 'Texture to Geometry', 'Displacement to Polygons', 'Displacement to Polygons with History', 'Fluid to Polygons', 'nParticle to Polygons', 'Instance to Object', 'Geometry to Bounding Box', 'Convert XGen Primitives to Polygons'] 
+		contents = cmb.addItems_(list_, 'Convert To')
 
 
 	def draggable_header(self, state=None):
@@ -14,20 +25,11 @@ class Convert(Init):
 		'''
 		dh = self.convert_ui.draggable_header
 
-		if state=='setMenu':
-			dh.contextMenu.add(self.tcl.wgts.ComboBox, setObjectName='cmb000', setToolTip='')
-			return
-
 
 	def cmb000(self, index=-1):
 		'''Editors
 		'''
 		cmb = self.convert_ui.draggable_header.contextMenu.cmb000
-
-		if index=='setMenu':
-			list_ = ['']
-			cmb.addItems_(list_, '')
-			return
 
 		if index>0:
 			text = cmb.items[index]
@@ -117,34 +119,6 @@ class Convert(Init):
 		self.cmb001(index=4)
 
 
-	def b004(self):
-		''''''
-		pass
-
-
-	def b005(self):
-		''''''
-		pass
-
-
-	def b006(self):
-		''''''
-		pass
-
-
-	def b007(self):
-		''''''
-		pass
-
-
-	def b008(self):
-		''''''
-		pass
-
-
-	def b009(self):
-		''''''
-		pass
 
 
 

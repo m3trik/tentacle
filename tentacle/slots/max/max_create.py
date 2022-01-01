@@ -1,12 +1,31 @@
 # !/usr/bin/python
 # coding=utf-8
-from max_init import *
+from slots.max import *
 
 
 
-class Create(Init):
+class Create(Slots_max):
 	def __init__(self, *args, **kwargs):
-		super().__init__(*args, **kwargs)
+		Slots_max.__init__(self, *args, **kwargs)
+
+		ctx = self.create_ui.draggable_header.contextMenu
+		ctx.add(self.tcl.wgts.ComboBox, setObjectName='cmb000', setToolTip='')
+
+		cmb = self.create_ui.draggable_header.contextMenu.cmb000
+		list_ = ['']
+		cmb.addItems_(list_, '')
+
+		cmb = self.create_ui.cmb001
+		list_ = ['Mesh', 'Editable Poly', 'Editable Mesh', 'Editable Patch', 'NURBS', 'Light']
+		cmb.addItems_(list_)
+
+		cmb = self.create_ui.cmb002
+		list_ = ["Cube", "Sphere", "Cylinder", "Plane", "Circle", "Cone", "Pyramid", "Torus", "Tube", "GeoSphere", "Text"] 
+		cmb.addItems_(list_)
+
+		ctx = self.create_ui.tb000.contextMenu
+		ctx.add('QCheckBox', setText='Translate', setObjectName='chk000', setChecked=True, setToolTip='Move the created object to the center point of any selected object(s).')
+		# ctx.add('QCheckBox', setText='Scale', setObjectName='chk001', setChecked=True, setToolTip='Uniformly scale the created object to match the averaged scale of any selected object(s).')
 
 
 	def draggable_header(self, state=None):
@@ -14,20 +33,11 @@ class Create(Init):
 		'''
 		dh = self.create_ui.draggable_header
 
-		if state=='setMenu':
-			dh.contextMenu.add(self.tcl.wgts.ComboBox, setObjectName='cmb000', setToolTip='')
-			return
-
 
 	def cmb000(self, index=-1):
 		'''Editors
 		'''
 		cmb = self.create_ui.draggable_header.contextMenu.cmb000
-
-		if index=='setMenu':
-			list_ = ['']
-			cmb.addItems_(list_, '')
-			return
 
 		if index>0:
 			text = cmb.items[index]
@@ -41,11 +51,6 @@ class Create(Init):
 		'''
 		cmb = self.create_ui.cmb001
 
-		if index=='setMenu':
-			list_ = ['Mesh', 'Editable Poly', 'Editable Mesh', 'Editable Patch', 'NURBS', 'Light']
-			cmb.addItems_(list_)
-			return
-
 		if index>=0:
 			self.cmb001(index)
 
@@ -53,11 +58,6 @@ class Create(Init):
 	def cmb001(self, index=-1):
 		''''''
 		cmb = self.create_ui.cmb002
-
-		if index=='setMenu':
-			list_ = ["Cube", "Sphere", "Cylinder", "Plane", "Circle", "Cone", "Pyramid", "Torus", "Tube", "GeoSphere", "Text"] 
-			cmb.addItems_(list_, clear=True)
-			return
 
 		primitives = ["Cube", "Sphere", "Cylinder", "Plane", "Circle", "Cone", "Pyramid", "Torus", "Tube", "GeoSphere", "Text"] 
 		extendedPrimitives = ['Hedra', 'Torus Knot', 'Chamfer Box', 'Chamfer Cylinder', 'Oil Tank', 'Capsule', 'Spindle', 'L-Extrusion', 'Gengon', 'C-Extrusion', 'RingWave', 'Hose', 'Prism'] #Extended Primitives:
@@ -74,15 +74,11 @@ class Create(Init):
 			cmb.addItems_(lights, clear=True)
 
 
-	@Init.attr
+	@Slots_max.attr
 	def tb000(self, state=None):
 		'''Create Primitive
 		'''
 		tb = self.create_ui.tb000
-		if state=='setMenu':
-			tb.contextMenu.add('QCheckBox', setText='Translate', setObjectName='chk000', setChecked=True, setToolTip='Move the created object to the center point of any selected object(s).')
-			# tb.contextMenu.add('QCheckBox', setText='Scale', setObjectName='chk001', setChecked=True, setToolTip='Uniformly scale the created object to match the averaged scale of any selected object(s).')
-			return
 
 		type_ = self.create_ui.cmb001.currentText()
 		index = self.create_ui.cmb002.currentIndex()

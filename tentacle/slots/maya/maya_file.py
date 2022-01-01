@@ -1,70 +1,67 @@
 # !/usr/bin/python
 # coding=utf-8
-from maya_init import *
+from slots.maya import *
 
 
 
-class File(Init):
+class File(Slots_maya):
 	def __init__(self, *args, **kwargs):
-		Init.__init__(self, *args, **kwargs)
+		Slots_maya.__init__(self, *args, **kwargs)
 
 		#set the text for the open last file button to the last file's name.
-		mostRecentFile = self.getRecentFiles(0)
-		self.file_submenu_ui.b001.setText(self.getNameFromFullPath(mostRecentFile)) if mostRecentFile else self.file_submenu_ui.b001.setVisible(False)
+		# mostRecentFile = self.getRecentFiles(0)
+		# self.file_submenu_ui.b001.setText(self.getNameFromFullPath(mostRecentFile)) if mostRecentFile else self.file_submenu_ui.b001.setVisible(False)
 
-		dh = self.file_ui.draggable_header
-		dh.contextMenu.add(self.tcl.wgts.ComboBox, setObjectName='cmb000', setToolTip='')
-		dh.contextMenu.add(self.tcl.wgts.PushButton, setObjectName='tb000', setText='Save', setToolTip='Save the current file.')
-		dh.contextMenu.add(self.tcl.wgts.Label, setObjectName='lbl001', setText='Minimize App', setToolTip='Minimize the main application.')
-		dh.contextMenu.add(self.tcl.wgts.Label, setObjectName='lbl002', setText='Maximize App', setToolTip='Restore the main application.')
-		dh.contextMenu.add(self.tcl.wgts.Label, setObjectName='lbl003', setText='Close App', setToolTip='Close the main application.')
+		ctx = self.file_ui.draggable_header.contextMenu
+		ctx.add(self.tcl.wgts.ComboBox, setObjectName='cmb000', setToolTip='')
+		ctx.add(self.tcl.wgts.PushButton, setObjectName='tb000', setText='Save', setToolTip='Save the current file.')
+		ctx.add(self.tcl.wgts.Label, setObjectName='lbl001', setText='Minimize App', setToolTip='Minimize the main application.')
+		ctx.add(self.tcl.wgts.Label, setObjectName='lbl002', setText='Maximize App', setToolTip='Restore the main application.')
+		ctx.add(self.tcl.wgts.Label, setObjectName='lbl003', setText='Close App', setToolTip='Close the main application.')
 
 		cmb = self.file_ui.draggable_header.contextMenu.cmb000
-		list_ = []
-		cmb.addItems_(list_, 'Maya File Editors')
+		items = []
+		cmb.addItems_(items, 'Maya File Editors')
 
-		cmb = self.file_ui.cmb002
-		autoSaveState = pm.autoSave(q=True, enable=True) #set the initial autosave state.
-		autoSaveInterval = pm.autoSave(q=True, int=True)
-		autoSaveAmount = pm.autoSave(q=True, maxBackups=True)
-
-		cmb.contextMenu.add('QPushButton', setObjectName='b000', setText='Open Directory', setToolTip='Open the autosave directory.') #open directory
-		cmb.contextMenu.add('QPushButton', setObjectName='b002', setText='Delete All', setToolTip='Delete all autosave files.') #delete all
-		cmb.contextMenu.add('QCheckBox', setText='Autosave', setObjectName='chk006', setChecked=autoSaveState, setToolTip='Set the autosave state as active or disabled.') #toggle autosave
-		cmb.contextMenu.add('QSpinBox', setPrefix='Amount: ', setObjectName='s000', setMinMax_='1-100 step1', setValue=autoSaveAmount, setHeight_=20, setToolTip='The number of autosave files to retain.') #autosave amount
-		cmb.contextMenu.add('QSpinBox', setPrefix='Interval: ', setObjectName='s001', setMinMax_='1-60 step1', setValue=autoSaveInterval/60, setHeight_=20, setToolTip='The autosave interval in minutes.') #autosave interval
-
-		cmb.contextMenu.chk006.toggled.connect(lambda s: pm.autoSave(enable=s, limitBackups=True))
-		cmb.contextMenu.s000.valueChanged.connect(lambda v: pm.autoSave(maxBackups=v, limitBackups=True))
-		cmb.contextMenu.s001.valueChanged.connect(lambda v: pm.autoSave(int=v*60, limitBackups=True))
-
-		cmb = self.file_ui.cmb002
-		cmb.addItems_(File.getRecentAutosave(appendDatetime=True), 'Recent Autosave', clear=True)
+		# cmb = self.file_ui.cmb002
+		# ctx = cmb.contextMenu
+		# autoSaveState = pm.autoSave(q=True, enable=True) #set the initial autosave state.
+		# autoSaveInterval = pm.autoSave(q=True, int=True)
+		# autoSaveAmount = pm.autoSave(q=True, maxBackups=True)
+		# ctx.add('QPushButton', setObjectName='b000', setText='Open Directory', setToolTip='Open the autosave directory.') #open directory
+		# ctx.add('QPushButton', setObjectName='b002', setText='Delete All', setToolTip='Delete all autosave files.') #delete all
+		# ctx.add('QCheckBox', setText='Autosave', setObjectName='chk006', setChecked=autoSaveState, setToolTip='Set the autosave state as active or disabled.') #toggle autosave
+		# ctx.add('QSpinBox', setPrefix='Amount: ', setObjectName='s000', setMinMax_='1-100 step1', setValue=autoSaveAmount, setHeight_=20, setToolTip='The number of autosave files to retain.') #autosave amount
+		# ctx.add('QSpinBox', setPrefix='Interval: ', setObjectName='s001', setMinMax_='1-60 step1', setValue=autoSaveInterval/60, setHeight_=20, setToolTip='The autosave interval in minutes.') #autosave interval
+		# ctx.chk006.toggled.connect(lambda s: pm.autoSave(enable=s, limitBackups=True))
+		# ctx.s000.valueChanged.connect(lambda v: pm.autoSave(maxBackups=v, limitBackups=True))
+		# ctx.s001.valueChanged.connect(lambda v: pm.autoSave(int=v*60, limitBackups=True))
+		# cmb.addItems_(File.getRecentAutosave(appendDatetime=True), 'Recent Autosave', clear=True)
 
 		cmb = self.file_ui.cmb003
 		cmb.addItems_(['Import file', 'Import Options', 'FBX Import Presets', 'Obj Import Presets'], "Import")
 
 		cmb = self.file_ui.cmb004
-		list_ = ['Export Selection', 'Send to Unreal', 'Send to Unity', 'GoZ', 'Send to 3dsMax: As New Scene', 'Send to 3dsMax: Update Current', 
+		items = ['Export Selection', 'Send to Unreal', 'Send to Unity', 'GoZ', 'Send to 3dsMax: As New Scene', 'Send to 3dsMax: Update Current', 
 				'Send to 3dsMax: Add to Current', 'Export to Offline File', 'Export Options', 'FBX Export Presets', 'Obj Export Presets']
-		cmb.addItems_(list_, 'Export')
+		cmb.addItems_(items, 'Export')
 
-		cmb = self.file_ui.cmb005
-		cmb.addItems_(self.getRecentFiles(), "Recent Files", clear=True)
-		cmb.contextMenu.add('QPushButton', setObjectName='b001', setText='Last', setToolTip='Open the most recent file.')
+		# cmb = self.file_ui.cmb005
+		# cmb.addItems_(self.getRecentFiles(), "Recent Files", clear=True)
+		# ctx.add('QPushButton', setObjectName='b001', setText='Last', setToolTip='Open the most recent file.')
 
-		cmb = self.file_ui.cmb006
-		cmb.contextMenu.add(self.tcl.wgts.ComboBox, setObjectName='cmb001', setToolTip='Current project directory root.')
-		cmb.contextMenu.add(self.tcl.wgts.Label, setObjectName='lbl000', setText='Set', setToolTip='Set the project directory.')
-		cmb.contextMenu.add(self.tcl.wgts.Label, setObjectName='lbl004', setText='Root', setToolTip='Open the project directory.')
+		cmb = self.file_ui.cmb006.contextMenu
+		ctx.add(self.tcl.wgts.ComboBox, setObjectName='cmb001', setToolTip='Current project directory root.')
+		ctx.add(self.tcl.wgts.Label, setObjectName='lbl000', setText='Set', setToolTip='Set the project directory.')
+		ctx.add(self.tcl.wgts.Label, setObjectName='lbl004', setText='Root', setToolTip='Open the project directory.')
 
-		cmb = self.file_ui.cmb006.contextMenu.cmb001
-		cmb.addItems_(File.getRecentProjects(), "Recent Projects", clear=True)
+		# cmb = self.file_ui.cmb006.contextMenu.cmb001
+		# cmb.addItems_(File.getRecentProjects(), "Recent Projects", clear=True)
 
-		tb = self.file_ui.draggable_header.contextMenu.tb000
-		tb.contextMenu.add('QCheckBox', setText='Wireframe', setObjectName='chk000', setToolTip='Set view to wireframe before save.')
-		tb.contextMenu.add('QCheckBox', setText='Increment', setObjectName='chk001', setChecked=True, setToolTip='Append and increment a unique integer value.')
-		tb.contextMenu.add('QCheckBox', setText='Quit', setObjectName='chk002', setToolTip='Quit after save.')
+		ctx = self.file_ui.draggable_header.contextMenu.tb000.contextMenu
+		ctx.add('QCheckBox', setText='Wireframe', setObjectName='chk000', setToolTip='Set view to wireframe before save.')
+		ctx.add('QCheckBox', setText='Increment', setObjectName='chk001', setChecked=True, setToolTip='Append and increment a unique integer value.')
+		ctx.add('QCheckBox', setText='Quit', setObjectName='chk002', setToolTip='Quit after save.')
 
 
 	def draggable_header(self, state=None):

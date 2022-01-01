@@ -1,17 +1,17 @@
 # !/usr/bin/python
 # coding=utf-8
-from maya_init import *
+from slots.maya import *
 
 
 
-class Subdivision(Init):
+class Subdivision(Slots_maya):
 	def __init__(self, *args, **kwargs):
-		super().__init__(*args, **kwargs)
+		Slots_maya.__init__(self, *args, **kwargs)
 
-		dh = self.subdivision_ui.draggable_header
-		dh.contextMenu.add(self.tcl.wgts.ComboBox, setObjectName='cmb000', setToolTip='Maya Subdivision Editiors.')
-		dh.contextMenu.add(self.tcl.wgts.ComboBox, setObjectName='cmb001', setToolTip='Smooth Proxy.')
-		dh.contextMenu.add(self.tcl.wgts.ComboBox, setObjectName='cmb002', setToolTip='Maya Subdivision Operations.')
+		ctx = self.subdivision_ui.draggable_header.contextMenu
+		ctx.add(self.tcl.wgts.ComboBox, setObjectName='cmb000', setToolTip='Maya Subdivision Editiors.')
+		ctx.add(self.tcl.wgts.ComboBox, setObjectName='cmb001', setToolTip='Smooth Proxy.')
+		ctx.add(self.tcl.wgts.ComboBox, setObjectName='cmb002', setToolTip='Maya Subdivision Operations.')
 
 		cmb = self.subdivision_ui.draggable_header.contextMenu.cmb000
 		list_ = ['Polygon Display Options']

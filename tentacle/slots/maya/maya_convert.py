@@ -1,15 +1,15 @@
 # !/usr/bin/python
 # coding=utf-8
-from maya_init import *
+from slots.maya import *
 
 
 
-class Convert(Init):
+class Convert(Slots_maya):
 	def __init__(self, *args, **kwargs):
-		super().__init__(*args, **kwargs)
+		Slots_maya.__init__(self, *args, **kwargs)
 
-		dh = self.convert_ui.draggable_header
-		dh.contextMenu.add(self.tcl.wgts.ComboBox, setObjectName='cmb000', setToolTip='')
+		ctx = self.convert_ui.draggable_header.contextMenu
+		ctx.add(self.tcl.wgts.ComboBox, setObjectName='cmb000', setToolTip='')
 
 		cmb = self.convert_ui.draggable_header.contextMenu.cmb000
 		list_ = ['']
@@ -114,34 +114,6 @@ class Convert(Init):
 		self.cmb001(index=4)
 
 
-	def b004(self):
-		''''''
-		pass
-
-
-	def b005(self):
-		''''''
-		pass
-
-
-	def b006(self):
-		''''''
-		pass
-
-
-	def b007(self):
-		''''''
-		pass
-
-
-	def b008(self):
-		''''''
-		pass
-
-
-	def b009(self):
-		''''''
-		pass
 
 
 

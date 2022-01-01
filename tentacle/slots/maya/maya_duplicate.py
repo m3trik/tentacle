@@ -1,15 +1,15 @@
 # !/usr/bin/python
 # coding=utf-8
-from maya_init import *
+from slots.maya import *
 
 
 
-class Duplicate(Init):
+class Duplicate(Slots_maya):
 	def __init__(self, *args, **kwargs):
-		super().__init__(*args, **kwargs)
+		Slots_maya.__init__(self, *args, **kwargs)
 
-		dh = self.duplicate_ui.draggable_header
-		dh.contextMenu.add(self.tcl.wgts.ComboBox, setObjectName='cmb000', setToolTip='')
+		ctx = self.duplicate_ui.draggable_header.contextMenu
+		ctx.add(self.tcl.wgts.ComboBox, setObjectName='cmb000', setToolTip='')
 
 		cmb = self.duplicate_ui.draggable_header.contextMenu.cmb000
 		list_ = ['Duplicate Special']
@@ -108,7 +108,7 @@ class Duplicate(Init):
 	global radialArrayObjList
 	radialArrayObjList=[]
 	@Slots.message
-	@Init.undoChunk
+	@Slots_maya.undoChunk
 	def chk015(self, create=False):
 		'''Radial Array: Preview
 		'''
@@ -186,7 +186,7 @@ class Duplicate(Init):
 	global duplicateObjList
 	duplicateObjList=[]
 	@Slots.message
-	@Init.undoChunk
+	@Slots_maya.undoChunk
 	def chk016(self, create=False):
 		'''Duplicate: Preview
 		'''

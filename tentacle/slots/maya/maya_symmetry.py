@@ -1,12 +1,12 @@
 # !/usr/bin/python
 # coding=utf-8
-from maya_init import *
+from slots.maya import *
 
 
 
-class Symmetry(Init):
+class Symmetry(Slots_maya):
 	def __init__(self, *args, **kwargs):
-		Init.__init__(self, *args, **kwargs)
+		Slots_maya.__init__(self, *args, **kwargs)
 
 		#symmetry: set initial checked state
 		state = pm.symmetricModelling(query=True, symmetry=True) #application symmetry state
@@ -21,8 +21,8 @@ class Symmetry(Init):
 			self.symmetry_ui.chk002.setChecked(state)
 			self.symmetry_submenu_ui.chk002.setChecked(state)
 
-		dh = self.symmetry_ui.draggable_header
-		dh.contextMenu.add(self.tcl.wgts.ComboBox, setObjectName='cmb000', setToolTip='')
+		ctx = self.symmetry_ui.draggable_header.contextMenu
+		ctx.add(self.tcl.wgts.ComboBox, setObjectName='cmb000', setToolTip='')
 
 		cmb = self.symmetry_ui.draggable_header.contextMenu.cmb000
 		list_ = ['']
