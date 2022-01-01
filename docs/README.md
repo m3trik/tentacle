@@ -27,7 +27,7 @@
 ###### *tracks cursor position and ui hierarchy to generate paint events that overlay the main widget.*
 
 #### switchboard:
-###### *contains a master dictionary for widget related info as well as convienience classes for interacting with the dict.*
+###### *contains a master dictionary for widget related info as well as convenience classes for interacting with the dict.*
 
 #### slots:
 ###### *parent class holding methods that are inherited across all parent app specific slot class modules.*
