@@ -285,7 +285,7 @@ class Transform(Slots_max):
 		centerPivot = tb.contextMenu.chk016.isChecked()
 
 		objects = pm.ls(sl=1, objectsOnly=1)
-		Init.dropToGrid(objects, align, origin, centerPivot)
+		Slots_max.dropToGrid(objects, align, origin, centerPivot)
 		pm.select(objects) #reselect the original selection.
 
 
@@ -305,7 +305,7 @@ class Transform(Slots_max):
 
 		if betweenTwoComponents:
 			if len(selection)>1:
-				componentsOnPath = Init.getPathAlongLoop([selection[0], selection[-1]])
+				componentsOnPath = Slots_max.getPathAlongLoop([selection[0], selection[-1]])
 				pm.select(componentsOnPath)
 
 		if autoAlign: #set coordinates for auto align:

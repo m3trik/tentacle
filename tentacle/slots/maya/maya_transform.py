@@ -263,7 +263,7 @@ class Transform(Slots_maya):
 		freezeTransforms = tb.contextMenu.chk017.isChecked()
 
 		objects = pm.ls(sl=1, objectsOnly=1)
-		Init.dropToGrid(objects, align, origin, centerPivot, freezeTransforms)
+		Slots_maya.dropToGrid(objects, align, origin, centerPivot, freezeTransforms)
 		pm.select(objects) #reselect the original selection.
 
 
@@ -283,7 +283,7 @@ class Transform(Slots_maya):
 
 		if betweenTwoComponents:
 			if len(selection)>1:
-				componentsOnPath = Init.getPathAlongLoop([selection[0], selection[-1]])
+				componentsOnPath = Slots_maya.getPathAlongLoop([selection[0], selection[-1]])
 				pm.select(componentsOnPath)
 
 		if autoAlign: #set coordinates for auto align:
@@ -382,7 +382,7 @@ class Transform(Slots_maya):
 		node = pm.ls(sl=1, objectsOnly=1)
 		if not node:
 			return 'Error: Operation requires a single selected object.'
-		transform = Init.getTransformNode(node)
+		transform = Slots_maya.getTransformNode(node)
 
 		self.setAttributeWindow(transform[0], include=['translateX','translateY','translateZ','rotateX','rotateY','rotateZ','scaleX','scaleY','scaleZ'], checkableLabel=True)
 
@@ -395,7 +395,7 @@ class Transform(Slots_maya):
 		node = pm.ls(sl=1, objectsOnly=1)
 		if not node:
 			return 'Error: Operation requires a single selected object.'
-		transform = Init.getTransformNode(node)
+		transform = Slots_maya.getTransformNode(node)
 
 		self.setAttributeWindow(transform[0], include=['translateX','translateY','translateZ','rotateX','rotateY','rotateZ','scaleX','scaleY','scaleZ'], checkableLabel=True)
 

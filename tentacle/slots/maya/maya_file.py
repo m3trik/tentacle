@@ -9,8 +9,8 @@ class File(Slots_maya):
 		Slots_maya.__init__(self, *args, **kwargs)
 
 		#set the text for the open last file button to the last file's name.
-		# mostRecentFile = self.getRecentFiles(0)
-		# self.file_submenu_ui.b001.setText(self.getNameFromFullPath(mostRecentFile)) if mostRecentFile else self.file_submenu_ui.b001.setVisible(False)
+		mostRecentFile = File.getRecentFiles(0)
+		self.file_submenu_ui.b001.setText(self.getNameFromFullPath(mostRecentFile)) if mostRecentFile else self.file_submenu_ui.b001.setVisible(False)
 
 		ctx = self.file_ui.draggable_header.contextMenu
 		ctx.add(self.tcl.wgts.ComboBox, setObjectName='cmb000', setToolTip='')
@@ -23,20 +23,20 @@ class File(Slots_maya):
 		items = []
 		cmb.addItems_(items, 'Maya File Editors')
 
-		# cmb = self.file_ui.cmb002
-		# ctx = cmb.contextMenu
-		# autoSaveState = pm.autoSave(q=True, enable=True) #set the initial autosave state.
-		# autoSaveInterval = pm.autoSave(q=True, int=True)
-		# autoSaveAmount = pm.autoSave(q=True, maxBackups=True)
-		# ctx.add('QPushButton', setObjectName='b000', setText='Open Directory', setToolTip='Open the autosave directory.') #open directory
-		# ctx.add('QPushButton', setObjectName='b002', setText='Delete All', setToolTip='Delete all autosave files.') #delete all
-		# ctx.add('QCheckBox', setText='Autosave', setObjectName='chk006', setChecked=autoSaveState, setToolTip='Set the autosave state as active or disabled.') #toggle autosave
-		# ctx.add('QSpinBox', setPrefix='Amount: ', setObjectName='s000', setMinMax_='1-100 step1', setValue=autoSaveAmount, setHeight_=20, setToolTip='The number of autosave files to retain.') #autosave amount
-		# ctx.add('QSpinBox', setPrefix='Interval: ', setObjectName='s001', setMinMax_='1-60 step1', setValue=autoSaveInterval/60, setHeight_=20, setToolTip='The autosave interval in minutes.') #autosave interval
-		# ctx.chk006.toggled.connect(lambda s: pm.autoSave(enable=s, limitBackups=True))
-		# ctx.s000.valueChanged.connect(lambda v: pm.autoSave(maxBackups=v, limitBackups=True))
-		# ctx.s001.valueChanged.connect(lambda v: pm.autoSave(int=v*60, limitBackups=True))
-		# cmb.addItems_(File.getRecentAutosave(appendDatetime=True), 'Recent Autosave', clear=True)
+		cmb = self.file_ui.cmb002
+		ctx = cmb.contextMenu
+		autoSaveState = pm.autoSave(q=True, enable=True) #set the initial autosave state.
+		autoSaveInterval = pm.autoSave(q=True, int=True)
+		autoSaveAmount = pm.autoSave(q=True, maxBackups=True)
+		ctx.add('QPushButton', setObjectName='b000', setText='Open Directory', setToolTip='Open the autosave directory.') #open directory
+		ctx.add('QPushButton', setObjectName='b002', setText='Delete All', setToolTip='Delete all autosave files.') #delete all
+		ctx.add('QCheckBox', setText='Autosave', setObjectName='chk006', setChecked=autoSaveState, setToolTip='Set the autosave state as active or disabled.') #toggle autosave
+		ctx.add('QSpinBox', setPrefix='Amount: ', setObjectName='s000', setMinMax_='1-100 step1', setValue=autoSaveAmount, setHeight_=20, setToolTip='The number of autosave files to retain.') #autosave amount
+		ctx.add('QSpinBox', setPrefix='Interval: ', setObjectName='s001', setMinMax_='1-60 step1', setValue=autoSaveInterval/60, setHeight_=20, setToolTip='The autosave interval in minutes.') #autosave interval
+		ctx.chk006.toggled.connect(lambda s: pm.autoSave(enable=s, limitBackups=True))
+		ctx.s000.valueChanged.connect(lambda v: pm.autoSave(maxBackups=v, limitBackups=True))
+		ctx.s001.valueChanged.connect(lambda v: pm.autoSave(int=v*60, limitBackups=True))
+		cmb.addItems_(File.getRecentAutosave(appendDatetime=True), 'Recent Autosave', clear=True)
 
 		cmb = self.file_ui.cmb003
 		cmb.addItems_(['Import file', 'Import Options', 'FBX Import Presets', 'Obj Import Presets'], "Import")
@@ -46,17 +46,18 @@ class File(Slots_maya):
 				'Send to 3dsMax: Add to Current', 'Export to Offline File', 'Export Options', 'FBX Export Presets', 'Obj Export Presets']
 		cmb.addItems_(items, 'Export')
 
-		# cmb = self.file_ui.cmb005
-		# cmb.addItems_(self.getRecentFiles(), "Recent Files", clear=True)
-		# ctx.add('QPushButton', setObjectName='b001', setText='Last', setToolTip='Open the most recent file.')
+		cmb = self.file_ui.cmb005
+		ctx = cmb.contextMenu
+		cmb.addItems_(File.getRecentFiles(), "Recent Files", clear=True)
+		ctx.add('QPushButton', setObjectName='b001', setText='Last', setToolTip='Open the most recent file.')
 
-		cmb = self.file_ui.cmb006.contextMenu
+		ctx = self.file_ui.cmb006.contextMenu
 		ctx.add(self.tcl.wgts.ComboBox, setObjectName='cmb001', setToolTip='Current project directory root.')
 		ctx.add(self.tcl.wgts.Label, setObjectName='lbl000', setText='Set', setToolTip='Set the project directory.')
 		ctx.add(self.tcl.wgts.Label, setObjectName='lbl004', setText='Root', setToolTip='Open the project directory.')
 
-		# cmb = self.file_ui.cmb006.contextMenu.cmb001
-		# cmb.addItems_(File.getRecentProjects(), "Recent Projects", clear=True)
+		cmb = self.file_ui.cmb006.contextMenu.cmb001
+		cmb.addItems_(File.getRecentProjects(), "Recent Projects", clear=True)
 
 		ctx = self.file_ui.draggable_header.contextMenu.tb000.contextMenu
 		ctx.add('QCheckBox', setText='Wireframe', setObjectName='chk000', setToolTip='Set view to wireframe before save.')
@@ -338,7 +339,7 @@ class File(Slots_maya):
 			(list)(str)
 		'''
 		files = pm.optionVar(query='RecentFilesList')
-		result = [Init.formatPath(f) for f in list(reversed(files)) 
+		result = [Slots_maya.formatPath(f) for f in list(reversed(files)) 
 					if "Autosave" not in f] if files else []
 
 		try:
@@ -355,7 +356,7 @@ class File(Slots_maya):
 			(list)
 		'''
 		files = pm.optionVar(query='RecentProjectsList')
-		result = [Init.formatPath(f) for f in list(reversed(files))]
+		result = [Slots_maya.formatPath(f) for f in list(reversed(files))]
 
 		return result
 
@@ -373,8 +374,8 @@ class File(Slots_maya):
 		dir1 = str(pm.workspace(query=1, rd=1))+'autosave' #current project path.
 		dir2 = os.environ.get('MAYA_AUTOSAVE_FOLDER').split(';')[0] #get autosave dir path from env variable.
 
-		files = Init.getAbsoluteFilePaths(dir1, ['mb', 'ma']) + Init.getAbsoluteFilePaths(dir2, ['mb', 'ma'])
-		result = [Init.formatPath(f) for f in list(reversed(files))] #format and reverse the list.
+		files = Slots_maya.getAbsoluteFilePaths(dir1, ['mb', 'ma']) + Slots_maya.getAbsoluteFilePaths(dir2, ['mb', 'ma'])
+		result = [Slots_maya.formatPath(f) for f in list(reversed(files))] #format and reverse the list.
 
 		if appendDatetime:  #attach modified timestamp
 			result = Slots.fileTimeStamp(result)

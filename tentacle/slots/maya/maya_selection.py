@@ -540,7 +540,7 @@ class Selection(Slots_maya):
 		angleHigh = tb.contextMenu.s007.value()
 
 		objects = pm.ls(sl=1, objectsOnly=1)
-		edges = Init.getEdgesByNormalAngle(objects, lowAngle=angleLow, highAngle=angleHigh)
+		edges = Slots_maya.getEdgesByNormalAngle(objects, lowAngle=angleLow, highAngle=angleHigh)
 		pm.select(edges)
 
 

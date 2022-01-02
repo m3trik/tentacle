@@ -426,11 +426,11 @@ class Selection(Slots_max):
 
 		if edgeRing: # rt.macros.run('PolyTools', 'Ring')
 			obj = rt.selection[0]
-			Init.selectRing(obj)
+			Slots_max.selectRing(obj)
 
 		elif edgeLoop: #rt.macros.run('PolyTools', 'Loop')
 			obj = rt.selection[0]
-			Init.selectLoop(obj)
+			Slots_max.selectLoop(obj)
 
 		elif pathAlongLoop:
 			pm.select(self.getPathAlongLoop(selection))
@@ -486,7 +486,7 @@ class Selection(Slots_max):
 		angleHigh = tb.contextMenu.s007.value()
 
 		objects = pm.ls(sl=1, objectsOnly=1)
-		edges = Init.getEdgesByNormalAngle(objects, lowAngle=angleLow, highAngle=angleHigh)
+		edges = Slots_max.getEdgesByNormalAngle(objects, lowAngle=angleLow, highAngle=angleHigh)
 		rt.select(edges)
 
 

@@ -73,7 +73,7 @@ print (__name__)
 		# 		for node in history:
 		# 			parent = tree.add('QLabel', 'History', childHeader=node.name(), refresh=1, setText=node.name())
 		# 			# print(parent, node.name())
-		# 			attributes = Init.getAttributesMEL(node) #get dict containing attributes:values of the history node.
+		# 			attributes = Slots_maya.getAttributesMEL(node) #get dict containing attributes:values of the history node.
 		# 			spinboxes = [tree.add('QDoubleSpinBox', parent, refresh=1, setSpinBoxByValue_=[k, v])
 		# 				for k, v in attributes.items() 
 		# 					if isinstance(v, (float, int, bool))]

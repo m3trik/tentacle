@@ -105,7 +105,7 @@ class Normals(Slots_maya):
 				selEdges = selEdges + creasedEdges if not selEdges==allEdges else creasedEdges
 
 			if hardenUvBorders:
-				uv_border_edges = Init.getUvShellBorderEdges(selection)
+				uv_border_edges = Slots_maya.getUvShellBorderEdges(selection)
 				selEdges = selEdges + uv_border_edges if not selEdges==allEdges else uv_border_edges
 
 			pm.polySoftEdge(selEdges, angle=hardAngle, constructionHistory=0) #set hard edges.
@@ -151,7 +151,7 @@ class Normals(Slots_maya):
 
 		if (all_ and maskVertex) or maskObject:
 			for obj in selection:
-				vertices = Init.getComponents(obj, 'vertices', flatten=1)
+				vertices = Slots_maya.getComponents(obj, 'vertices', flatten=1)
 				for vertex in vertices:
 					if not state:
 						pm.polyNormalPerVertex(vertex, unFreezeNormal=1)
@@ -230,7 +230,7 @@ class Normals(Slots_maya):
 
 			if byUvShell:
 				obj = pm.ls(obj, transforms=1)
-				sets_ = Init.getUvShellSets(obj)
+				sets_ = Slots_maya.getUvShellSets(obj)
 				for set_ in sets_:
 					pm.polySetToFaceNormal(set_)
 					pm.polyAverageNormal(set_)

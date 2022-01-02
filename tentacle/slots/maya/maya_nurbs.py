@@ -174,8 +174,8 @@ class Nurbs(Slots_maya):
 
 		except Exception as error:
 			objects = pm.ls(sl=1, objectsOnly=1)
-			sel_edges = Init.getComponents(objects, 'edges', selection=1, flatten=1)
-			edge_rings = Init.getContigiousEdges(sel_edges)
+			sel_edges = Slots_maya.getComponents(objects, 'edges', selection=1, flatten=1)
+			edge_rings = Slots_maya.getContigiousEdges(sel_edges)
 			multi = len(edge_rings)>1
 
 			for edge_ring in edge_rings:
@@ -341,7 +341,7 @@ class Nurbs(Slots_maya):
 		if len(sel)>1:
 			if angleLoftBetweenTwoCurves:
 				start, end = sel[:2] #get the first two selected edge loops or curves.
-				result = Init.angleLoftBetweenTwoCurves(start, end, count=angleLoftSpans, cleanup=True, uniform=uniform, close=close, autoReverse=autoReverse, degree=degree, sectionSpans=sectionSpans, range=range_, polygon=0, reverseSurfaceNormals=reverseSurfaceNormals)
+				result = Slots_maya.angleLoftBetweenTwoCurves(start, end, count=angleLoftSpans, cleanup=True, uniform=uniform, close=close, autoReverse=autoReverse, degree=degree, sectionSpans=sectionSpans, range=range_, polygon=0, reverseSurfaceNormals=reverseSurfaceNormals)
 			else:
 				result = pm.loft(sel, u=uniform, c=close, ar=autoReverse, d=degree, ss=sectionSpans, rn=range_, po=0, rsn=reverseSurfaceNormals)
 		else:

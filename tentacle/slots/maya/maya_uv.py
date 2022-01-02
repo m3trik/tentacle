@@ -266,9 +266,9 @@ class Uv(Slots_maya):
 						unwrapType = 'Cylindrical'
 					elif sphericalUnwrap:
 						unwrapType = 'Spherical'
-					objFaces = Init.getComponents('f', obj, selection=1)
+					objFaces = Slots_maya.getComponents('f', obj, selection=1)
 					if not objFaces:
-						objFaces = Init.getComponents('f', obj)
+						objFaces = Slots_maya.getComponents('f', obj)
 					pm.polyProjection(objFaces, type=unwrapType, insertBeforeDeformers=1, smartFit=1)
 
 				elif normalBasedUnwrap:
@@ -519,7 +519,7 @@ class Uv(Slots_maya):
 			for obj in objects:
 				pm.selectMode(component=1)
 				pm.selectType(meshUVShell=1)
-				selection = Init.getComponents('f', obj, flatten=False)
+				selection = Slots_maya.getComponents('f', obj, flatten=False)
 				pm.select(selection, add=True)
 
 		return selection

@@ -98,7 +98,7 @@ class Scene(Slots_max):
 		ex. rename(r'Cube', '**001', regEx=True) #append chars on any object with a name that contains 'Cube'. ie. 'polyCube1001' from 'polyCube1'
 		'''
 		pm.undoInfo (openChunk=1)
-		names = Init.findStrAndFormat(frm, to, [obj.name for obj in rt.objects], regEx=regEx, ignoreCase=ignoreCase) #[o for o in rt.objects if rt.matchPattern(o.name, pattern=f, ignoreCase=0)]
+		names = Slots_max.findStrAndFormat(frm, to, [obj.name for obj in rt.objects], regEx=regEx, ignoreCase=ignoreCase) #[o for o in rt.objects if rt.matchPattern(o.name, pattern=f, ignoreCase=0)]
 		print ('# Rename: Found {} matches. #'.format(len(names)))
 
 		for oldName, newName in names:

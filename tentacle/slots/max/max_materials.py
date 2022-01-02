@@ -384,7 +384,7 @@ class Materials(Slots_max):
 				if shell: #set to base object level
 					rt.modPanel.setCurrentObject(obj.baseObject)
 				else: #set object level to face
-					Init.setSubObjectLevel(4)
+					Slots_max.setSubObjectLevel(4)
 				m = obj.material
 				multimaterial = rt.getNumSubMtls(m)
 

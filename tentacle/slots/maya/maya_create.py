@@ -157,10 +157,10 @@ class Create(Slots_maya):
 
 		if selection: #if there is a current selection, move the object to that selection's bounding box center.
 			if translate:
-				center_pos = Init.getCenterPoint(selection)
+				center_pos = Slots_maya.getCenterPoint(selection)
 				pm.xform(node, translation=center_pos, worldSpace=1, absolute=1)
 			if scale:
-				Init.matchScale(node[0], selection, average=True)
+				Slots_maya.matchScale(node[0], selection, average=True)
 
 		pm.selectMode(object=1) #place scene select type in object mode.
 		pm.select(node) #select the transform node so that you can see any edits
@@ -230,7 +230,7 @@ print (__name__)
 	# def node(self):
 	# 	'''Get the Transform Node
 	# 	'''
-	# 	transform = Init.getTransformNode()
+	# 	transform = Slots_maya.getTransformNode()
 	# 	if transform:
 	# 		if not self.create_ui.txt003.text()==transform[0].name(): #make sure the same field reflects the current working node.
 	# 			self.create_ui.txt003.setText(transform[0].name())

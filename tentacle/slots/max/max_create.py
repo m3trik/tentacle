@@ -169,14 +169,14 @@ class Create(Slots_max):
 			if translate:
 				obj = selection[0]
 				if rt.subObjectLevel==1: #vertex
-					vertex = Init.bitArrayToArray(rt.polyop.getVertSelection(obj))
+					vertex = Slots_max.bitArrayToArray(rt.polyop.getVertSelection(obj))
 					x, y, z = pos = rt.polyop.getVert(obj, vertex[0]) #Returns the position of the specified vertex.
 				else:
 					x, y, z = pos = obj.position
 				node.pos = rt.point3(x, y, z)
 
 			# if scale:
-			# 	Init.matchScale(node, selection, average=True)
+			# 	Slots_max.matchScale(node, selection, average=True)
 
 		# if self.create_ui.cmb001.currentIndex() == 0: #if create type: polygon; convert to editable poly
 		# 	rt.convertTo(node, rt.PolyMeshObject) #convert after adding primitive attributes to spinboxes
@@ -366,7 +366,7 @@ print (__name__)
 	# 	obj = rt.selection[0]
 	# 	if obj:
 	# 		if rt.subObjectLevel==1: #vertex
-	# 			vertex = Init.bitArrayToArray(rt.polyop.getVertSelection(obj))
+	# 			vertex = Slots_max.bitArrayToArray(rt.polyop.getVertSelection(obj))
 	# 			point = rt.polyop.getVert(obj, vertex[0]) #Returns the position of the specified vertex.
 	# 			self.point = point
 	# 		else:

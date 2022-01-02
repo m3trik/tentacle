@@ -236,7 +236,7 @@ print (__name__)
 
 # 		shells={}
 # 		for obj in objects:
-# 			faces = Init.getComponents(obj, 'f')
+# 			faces = Slots_maya.getComponents(obj, 'f')
 # 			for face in faces:
 # 				shell_Id = pm.polyEvaluate(face, uvShellIds=True)
 
@@ -292,7 +292,7 @@ print (__name__)
 # 			v1Pos = pm.pointPosition(v1, world=1)
 # 			for v2 in set2:
 # 				v2Pos = pm.pointPosition(v2, world=1)
-# 				distance = Init.getDistanceBetweenTwoPoints(v1Pos, v2Pos)
+# 				distance = Slots_maya.getDistanceBetweenTwoPoints(v1Pos, v2Pos)
 
 # 				if distance < closestDistance:
 # 					closestDistance = distance
@@ -346,7 +346,7 @@ print (__name__)
 	# 		vertices (list) = The vertices to snap.
 	# 		tolerance (float) = Max distance.
 	# 	'''
-	# 	Init.loadPlugin('nearestPointOnMesh')
+	# 	Slots_maya.loadPlugin('nearestPointOnMesh')
 	# 	nearestPointOnMeshNode = mel.eval('{} {}'.format('nearestPointOnMesh', obj))
 	# 	pm.delete(nearestPointOnMeshNode)
 
@@ -365,7 +365,7 @@ print (__name__)
 	# 			associatedVtx = pm.polyListComponentConversion(vtxsFace, fromVertexFace=True, toVertex=True)
 	# 			associatedVtxPosition = pm.pointPosition(associatedVtx, world=True)
 				
-	# 			distance = Init.getDistanceBetweenTwoPoints(vertexPosition, associatedVtxPosition)
+	# 			distance = Slots_maya.getDistanceBetweenTwoPoints(vertexPosition, associatedVtxPosition)
 
 	# 			if distance<closestDistance:
 	# 				closestDistance = distance
@@ -406,7 +406,7 @@ print (__name__)
 # 			except:
 # 				break
 
-# 		adjFaces = [f for f in Init.getBorderComponents(face) if not f in prevFaces and f in faces]
+# 		adjFaces = [f for f in Slots_maya.getBorderComponents(face) if not f in prevFaces and f in faces]
 # 		prevFaces.append(face)
 # 		# print '-face     ','   *',face
 # 		# print '-adjFaces ','  **',adjFaces

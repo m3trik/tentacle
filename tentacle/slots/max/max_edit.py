@@ -210,9 +210,9 @@ class Edit(Slots_max):
 		:Return:
 			(list) list containing any found N-Gons		
 		'''
-		faces = Init.getComponents(obj, 'faces')
+		faces = Slots_max.getComponents(obj, 'faces')
 
-		Init.setSubObjectLevel(4)
+		Slots_max.setSubObjectLevel(4)
 				
 		nGons = [f for f in faces if rt.polyop.getFaceDeg(obj, f)>4]
 		return nGons
@@ -229,9 +229,9 @@ class Edit(Slots_max):
 		'''
 		for vertex in vertices:
 			try:
-				edges = Init.bitArrayToArray(rt.polyop.getEdgesUsingVert(obj, vertex)) #get the edges that use the vertice
+				edges = Slots_max.bitArrayToArray(rt.polyop.getEdgesUsingVert(obj, vertex)) #get the edges that use the vertice
 			except:
-				edges = Init.bitArrayToArray(rt.getEdgesUsingVert(obj, vertex)) #get the edges that use the vertice
+				edges = Slots_max.bitArrayToArray(rt.getEdgesUsingVert(obj, vertex)) #get the edges that use the vertice
 
 			if len(edges)==2:
 				try:
@@ -240,9 +240,9 @@ class Edit(Slots_max):
 					vertexPosition = rt.getVert(obj, vertex)
 
 				try:
-					edgeVerts = Init.bitArrayToArray([rt.polyop.getVertsUsingEdge(obj, e) for e in edges])
+					edgeVerts = Slots_max.bitArrayToArray([rt.polyop.getVertsUsingEdge(obj, e) for e in edges])
 				except:
-					edgeVerts = Init.bitArrayToArray([rt.getVertsUsingEdge(obj, e) for e in edges])
+					edgeVerts = Slots_max.bitArrayToArray([rt.getVertsUsingEdge(obj, e) for e in edges])
 
 				edgeVerts = [v for v in edgeVerts if not v==vertex]
 
@@ -267,7 +267,7 @@ class Edit(Slots_max):
 		:Return:
 			(list) list containing any found isolated verts.		
 		'''
-		vertices = Init.getComponents(obj, 'vertices') #get all vertices for the given object
+		vertices = Slots_max.getComponents(obj, 'vertices') #get all vertices for the given object
 
 		isolatedVerts=[]
 		vectors = Edit.getVertexVectors(obj, vertices)
@@ -308,7 +308,7 @@ class Edit(Slots_max):
 			if isolatedVerts: #delete loose vertices
 				_isolatedVerts = Edit.findIsolatedVertices(obj)
 
-				Init.undo(True)
+				Slots_max.undo(True)
 				try:
 					rt.polyop.setVertSelection(obj, _isolatedVerts)
 				except:
@@ -320,7 +320,7 @@ class Edit(Slots_max):
 					obj.EditablePoly.remove(selLevel='Vertex', flag=1)
 					obj.selectMode = 0 #multi-component selection preview off
 				rt.redrawViews()
-				Init.undo(False)
+				Slots_max.undo(False)
 
 
 	def tb003(self, state=None):
@@ -333,7 +333,7 @@ class Edit(Slots_max):
 
 		# pm.undoInfo(openChunk=1)
 		# for obj in selection:
-		# 	self.deleteAlongAxis(obj, axis) #Init.deleteAlongAxis - no max version.
+		# 	self.deleteAlongAxis(obj, axis) #Slots_max.deleteAlongAxis - no max version.
 		# pm.undoInfo(closeChunk=1)
 
 

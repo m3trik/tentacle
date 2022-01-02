@@ -153,7 +153,7 @@ class Nurbs(Slots_max):
 
 		if angleLoftBetweenTwoCurves:
 			start, end = pm.ls(sl=1)[:2] #get the first two selected edge loops or curves.
-			return Init.angleLoftBetweenTwoCurves(start, end, count=angleLoftSpans, cleanup=True, uniform=uniform, close=close, autoReverse=autoReverse, degree=degree, sectionSpans=sectionSpans, range=range_, polygon=polygon, reverseSurfaceNormals=reverseSurfaceNormals)
+			return Slots_max.angleLoftBetweenTwoCurves(start, end, count=angleLoftSpans, cleanup=True, uniform=uniform, close=close, autoReverse=autoReverse, degree=degree, sectionSpans=sectionSpans, range=range_, polygon=polygon, reverseSurfaceNormals=reverseSurfaceNormals)
 
 		return pm.loft(curves, u=uniform, c=close, ar=autoReverse, d=degree, ss=sectionSpans, rn=range_, po=polygon, rsn=reverseSurfaceNormals)
 

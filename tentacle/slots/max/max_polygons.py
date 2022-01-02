@@ -6,7 +6,7 @@ from slots.max import *
 
 class Polygons(Slots_max):
 	def __init__(self, *args, **kwargs):
-		Init.__init__(self, *args, **kwargs)
+		Slots_max.__init__(self, *args, **kwargs)
 
 		ctx = self.polygons_ui.draggable_header.contextMenu
 		if not ctx.containsMenuItems:
@@ -309,7 +309,7 @@ class Polygons(Slots_max):
 		'''
 		tb = self.polygons_ui.tb008
 
-		objects = list(Init.bitArrayToArray(rt.selection))
+		objects = list(Slots_max.bitArrayToArray(rt.selection))
 
 		if tb.contextMenu.chk011.isChecked(): #union
 			for obj in objects[:-1]:
@@ -336,7 +336,7 @@ class Polygons(Slots_max):
 		selection = pm.ls(sl=1, objectsOnly=1)
 		if len(selection)>1:
 			obj1, obj2 = selection
-			Init.snapClosestVerts(obj1, obj2, tolerance, freezetransforms)
+			Slots_max.snapClosestVerts(obj1, obj2, tolerance, freezetransforms)
 		else:
 			return 'Error: Operation requires at least two selected objects.'
 
@@ -347,7 +347,7 @@ class Polygons(Slots_max):
 		obj = rt.selection[0]
 		vertices = rt.polyop.getVertSelection(obj)
 		
-		Init.circularize(vertices)
+		Slots_max.circularize(vertices)
 
 
 	def b001(self):
@@ -475,7 +475,7 @@ class Polygons(Slots_max):
 				position = 0.5
 
 				edges = rt.getEdgeSelection(obj)
-				for edge in Init.bitArrayToArray(edges):
+				for edge in Slots_max.bitArrayToArray(edges):
 					rt.polyop.divideEdge(obj, edge, position)
 
 			if level==4:

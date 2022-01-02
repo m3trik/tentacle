@@ -53,28 +53,28 @@ class Init(Slots_max):
 					if objType==rt.Editable_Poly or objType==rt.Edit_Poly:
 						if level==1: #get vertex info
 							type_ = 'Verts'
-							components = Init.bitArrayToArray(rt.polyop.getVertSelection(obj))
+							components = Slots_max.bitArrayToArray(rt.polyop.getVertSelection(obj))
 							total_num = rt.polyop.getNumVerts(obj)
 
 						elif level==2: #get edge info
 							type_ = 'Edges'
-							components = Init.bitArrayToArray(rt.polyop.getEdgeSelection(obj))
+							components = Slots_max.bitArrayToArray(rt.polyop.getEdgeSelection(obj))
 							total_num = rt.polyop.getNumEdges(obj)
 
 						elif level==3: #get border info
 							type_ = 'Borders'
 							# rt.polyop.SetSelection #Edge ((polyOp.getOpenEdges $) as bitarray)
-							components = Init.bitArrayToArray(rt.polyop.getBorderSelection(obj))
+							components = Slots_max.bitArrayToArray(rt.polyop.getBorderSelection(obj))
 							total_num = rt.polyop.getNumBorders(obj)
 
 						elif level==4: #get face info
 							type_ = 'Faces'
-							components = Init.bitArrayToArray(rt.polyop.getFaceSelection(obj))
+							components = Slots_max.bitArrayToArray(rt.polyop.getFaceSelection(obj))
 							total_num = rt.polyop.getNumFaces(obj)
 
 						elif level==5: #get element info
 							type_ = 'Elements'
-							components = Init.bitArrayToArray(rt.polyop.getElementSelection(obj))
+							components = Slots_max.bitArrayToArray(rt.polyop.getElementSelection(obj))
 							total_num = rt.polyop.getNumElements(obj)
 
 						try:
@@ -155,9 +155,9 @@ print (__name__)
 	# 		(list) vertex list.		
 	# 	'''
 	# 	try:
-	# 		vertices = Init.bitArrayToArray(rt.polyop.getVertSelection(obj)) #polygon
+	# 		vertices = Slots_max.bitArrayToArray(rt.polyop.getVertSelection(obj)) #polygon
 	# 	except:
-	# 		vertices = Init.bitArrayToArray(rt.getVertSelection(obj)) #mesh
+	# 		vertices = Slots_max.bitArrayToArray(rt.getVertSelection(obj)) #mesh
 
 	# 	return vertices
 
@@ -209,9 +209,9 @@ print (__name__)
 	# 		(list) edge list.		
 	# 	'''
 	# 	try:
-	# 		edges = Init.bitArrayToArray(rt.polyop.getEdgeSelection(obj)) #polygon
+	# 		edges = Slots_max.bitArrayToArray(rt.polyop.getEdgeSelection(obj)) #polygon
 	# 	except:
-	# 		edges = Init.bitArrayToArray(rt.getEdgeSelection(obj)) #mesh
+	# 		edges = Slots_max.bitArrayToArray(rt.getEdgeSelection(obj)) #mesh
 
 	# 	return edges
 
@@ -245,9 +245,9 @@ print (__name__)
 	# 		(list) facet list.		
 	# 	'''
 	# 	try:
-	# 		faces = Init.bitArrayToArray(rt.polyop.getFaceSelection(obj)) #polygon
+	# 		faces = Slots_max.bitArrayToArray(rt.polyop.getFaceSelection(obj)) #polygon
 	# 	except:
-	# 		faces = Init.bitArrayToArray(rt.getFaceSelection(obj)) #mesh
+	# 		faces = Slots_max.bitArrayToArray(rt.getFaceSelection(obj)) #mesh
 
 	# 	return faces
 
@@ -269,9 +269,9 @@ print (__name__)
 
 	# 	#get a list for the vertices of each face that is connected to the original vertex.
 	# 	verts_sorted_by_face=[]
-	# 	for face in Init.bitArrayToArray(connected_faces):
+	# 	for face in Slots_max.bitArrayToArray(connected_faces):
 	# 		connected_verts = rt.polyop.getVertsUsingFace(obj, face)
-	# 		verts_sorted_by_face.append(Init.bitArrayToArray(connected_verts))
+	# 		verts_sorted_by_face.append(Slots_max.bitArrayToArray(connected_verts))
 
 
 	# 	out=[] #1) take first set A from list. 2) for each other set B in the list do if B has common element(s) with A join B into A; remove B from list. 3) repeat 2. until no more overlap with A. 4) put A into outpup. 5) repeat 1. with rest of list.

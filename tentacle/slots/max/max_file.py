@@ -9,7 +9,7 @@ class File(Slots_max):
 		Slots_max.__init__(self, *args, **kwargs)
 
 		#set the text for the open last file button to the last file's name.
-		mostRecentFile = self.getRecentFiles(0)
+		mostRecentFile = File.getRecentFiles(0)
 		self.file_submenu_ui.b001.setText(self.getNameFromFullPath(mostRecentFile)) if mostRecentFile else self.file_submenu_ui.b001.setVisible(False)
 
 		ctx = self.file_ui.draggable_header.contextMenu
@@ -34,20 +34,25 @@ class File(Slots_max):
 		ctx.s001.valueChanged.connect(lambda v: rt.autosave.setmxsprop('Interval', v))
 		cmb.addItems_(File.getRecentAutosave(appendDatetime=True), 'Recent Autosave', clear=True)
 
-		ctx = self.file_ui.cmb003.contextMenu
-		ctx.addItems_(['Import file', 'Import Options', 'Merge', 'Replace', 'Link Revit', 'Link FBX', 'Link AutoCAD'], 'Import')
+		cmb = self.file_ui.cmb003
+		cmb.addItems_(['Import file', 'Import Options', 'Merge', 'Replace', 'Link Revit', 'Link FBX', 'Link AutoCAD'], 'Import')
 
 		cmb = self.file_ui.cmb004
 		items = ["Export Selection", "Export Options", "Unreal", "Unity", "GoZ", "Send to Maya: New Scene", "Send to Maya: Update Scene", "Send to Maya: Add to Scene"]
 		cmb.addItems_(items, "Export")
 
-		ctx = self.file_ui.cmb005.contextMenu
+		cmb = self.file_ui.cmb005
+		ctx = cmb.contextMenu
+		cmb.addItems_(File.getRecentFiles(), "Recent Files", clear=True)
 		ctx.add('QPushButton', setObjectName='b001', setText='Last', setToolTip='Open the most recent file.')
 
 		ctx = self.file_ui.cmb006.contextMenu
 		ctx.add(self.tcl.wgts.ComboBox, setObjectName='cmb001', setToolTip='Current project directory root.')
 		ctx.add(self.tcl.wgts.Label, setObjectName='lbl000', setText='Set', setToolTip='Set the project directory.')
 		ctx.add(self.tcl.wgts.Label, setObjectName='lbl004', setText='Root', setToolTip='Open the project directory.')
+
+		# cmb = self.file_ui.cmb006.contextMenu.cmb001
+		# cmb.addItems_(File.getRecentProjects(), "Recent Projects", clear=True)
 
 		ctx = self.current_ui.draggable_header.contextMenu.tb000.contextMenu
 		ctx.add('QCheckBox', setText='Wireframe', setObjectName='chk000', setToolTip='Set view to wireframe before save.')
@@ -348,7 +353,7 @@ class File(Slots_max):
 		)
 		''')
 		files = rt._getRecentFiles()
-		result = [Init.formatPath(f) for f in files]
+		result = [Slots_max.formatPath(f) for f in files]
 
 		try:
 			return result[index]
@@ -364,7 +369,7 @@ class File(Slots_max):
 			(list)
 		'''
 		files = ['No 3ds max function']
-		result = [Init.formatPath(f) for f in list(reversed(files))]
+		result = [Slots_max.formatPath(f) for f in list(reversed(files))]
 
 		return result
 
@@ -383,7 +388,7 @@ class File(Slots_max):
 
 		path = rt.GetDir(rt.name('autoback'))
 		files = [r'{}\{}'.format(path, f) for f in os.listdir(path) if f.endswith('.max') or f.endswith('.bak')] #get list of max autosave files
-		result = [Init.formatPath(f) for f in list(reversed(files))] #format and reverse the list.
+		result = [Slots_max.formatPath(f) for f in list(reversed(files))] #format and reverse the list.
 
 		if appendDatetime:  #attach modified timestamp
 			result = Slots.fileTimeStamp(result)

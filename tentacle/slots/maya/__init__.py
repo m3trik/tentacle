@@ -111,7 +111,7 @@ class Slots_maya(Slots):
 		:Return:
 			(list)(dict) Dependant on flags.
 
-		ex. call: Init.convertType(<edges>, 'str', flatten=True) #returns a list of string object names from a list of edge objects.
+		ex. call: Slots_maya.convertType(<edges>, 'str', flatten=True) #returns a list of string object names from a list of edge objects.
 		'''
 		if returnType=='str':
 			objects = pm.ls(objects, flatten=flatten)
@@ -167,17 +167,17 @@ class Slots_maya(Slots):
 		if not componentType: #get component type from the current selection.
 			if selection:
 				o = pm.ls(sl=1)
-				t = Init.getObjectType(o)
-				componentType = Init.convertComponentName(t, returnType='full')
+				t = Slots_maya.getObjectType(o)
+				componentType = Slots_maya.convertComponentName(t, returnType='full')
 				if not componentType: #get all components of the given objects.
-					all_components = [Init.getComponents(objects, typ) for typ in ('vtx', 'e', 'f', 'cv')]
+					all_components = [Slots_maya.getComponents(objects, typ) for typ in ('vtx', 'e', 'f', 'cv')]
 					return all_components
 			else:
 				return
 		else: #get the correct componentType variable from possible args.
-			componentType = Init.convertComponentName(componentType, returnType='abv')
+			componentType = Slots_maya.convertComponentName(componentType, returnType='abv')
 
-		mask = Init.convertComponentName(componentType, returnType='int')
+		mask = Slots_maya.convertComponentName(componentType, returnType='int')
 		components=[]
 
 		if selection:
@@ -188,7 +188,7 @@ class Slots_maya(Slots):
 					for obj in transforms:
 						selected_shapes+=pm.ls('{}.{}[*]'.format(obj, componentType), flatten=flatten)
 				else: #get selected components, FILTERING for those of the given tranform object(s).
-					shapes = Init.getShapeNode(objects)
+					shapes = Slots_maya.getShapeNode(objects)
 					selected_shapes = pm.ls(shapes, sl=1)
 				components = pm.filterExpand(selected_shapes, selectionMask=mask, expand=flatten)
 			else:
@@ -205,7 +205,7 @@ class Slots_maya(Slots):
 		if not components:
 			components=[]
 
-		result = Init.convertType(components, returnType=returnType, returnNodeType=returnNodeType, flatten=flatten)
+		result = Slots_maya.convertType(components, returnType=returnType, returnNodeType=returnNodeType, flatten=flatten)
 
 		return result
 
@@ -224,7 +224,7 @@ class Slots_maya(Slots):
 		:Return:
 			(list) Polygon components.
 		'''
-		componentType = Init.convertComponentName(componentType, returnType='hex')
+		componentType = Slots_maya.convertComponentName(componentType, returnType='hex')
 
 		orig_selection = pm.ls(sl=1) #get currently selected objects in order to re-select them after the contraint operation.
 
@@ -239,7 +239,7 @@ class Slots_maya(Slots):
 		else:
 			pm.selectType(polymeshUV=True) #pm.selectType(texture=True)
 
-		result = Init.getComponents(objects, selection=1, returnType=returnType, flatten=flatten)
+		result = Slots_maya.getComponents(objects, selection=1, returnType=returnType, flatten=flatten)
 
 		pm.polySelectConstraint(random=False) # turn off the random constraint
 		pm.select(orig_selection) #re-select any originally selected objects.
@@ -264,11 +264,11 @@ class Slots_maya(Slots):
 		if not isinstance(objects, (list, set, tuple)):
 			objects=[objects]
 
-		objectType = Init.getObjectType(objects[0])
+		objectType = Slots_maya.getObjectType(objects[0])
 		if objectType=='Polygon Face':
 			faces = objects
 		else:
-			faces = Init.getComponents(objects, 'faces')
+			faces = Slots_maya.getComponents(objects, 'faces')
 
 		shells={}
 		for face in faces:
@@ -355,7 +355,7 @@ class Slots_maya(Slots):
 				pm.polySelectConstraint(disable=1)
 				#Populate an in-view message
 				nGons = pm.polyEvaluate(faceComponent=1)
-				Init.viewPortMessage("<hl>"+str(nGons[0])+"</hl> N-Gon(s) found.")
+				Slots_maya.viewPortMessage("<hl>"+str(nGons[0])+"</hl> N-Gon(s) found.")
 
 
 	@staticmethod
@@ -484,9 +484,9 @@ class Slots_maya(Slots):
 			print ('# Error: Operation requires an selected object or components. #')
 			return []
 
-		object_type = Init.getObjectType(x[0])
+		object_type = Slots_maya.getObjectType(x[0])
 		if object_type=='Polygon':
-			x = Init.getComponents(x, 'edges')
+			x = Slots_maya.getComponents(x, 'edges')
 		elif object_type=='Polygon Vertex':
 			x = pm.polyListComponentConversion(x, fromVertex=1, toEdge=1)
 		elif object_type=='Polygon Face':
@@ -626,7 +626,7 @@ class Slots_maya(Slots):
 		:Return:
 			(dict) closest vertex/cv pairs (one pair for each given curve) ex. {<vertex from set1>:<vertex from set2>}.
 
-		ex. vertices = Init.getComponents(objects, 'vertices')
+		ex. vertices = Slots_maya.getComponents(objects, 'vertices')
 			closestVerts = getClosestCV(curve0, curves)
 		'''
 		# pm.undoInfo(openChunk=True)
@@ -646,7 +646,7 @@ class Slots_maya(Slots):
 					pos = i
 				pm.setAttr(npcNode.inPosition, pos)
 
-				distance = Init.getDistanceBetweenTwoPoints(pos, pm.getAttr(npcNode.position))
+				distance = Slots_maya.getDistanceBetweenTwoPoints(pos, pm.getAttr(npcNode.position))
 				p = pm.getAttr(npcNode.parameter)
 				if not tolerance:
 					result[i] = p
@@ -690,7 +690,7 @@ class Slots_maya(Slots):
 			else: #if curve(s) given
 				cvs = curve.cv
 
-			parameters = Init.getClosestCV(cvs, curve) #use getClosestCV to get the parameter location for each of the curves CVs.
+			parameters = Slots_maya.getClosestCV(cvs, curve) #use getClosestCV to get the parameter location for each of the curves CVs.
 			for cv, p in parameters.items():
 
 				if returnType=='position': # Get cv position
@@ -712,7 +712,7 @@ class Slots_maya(Slots):
 				elif returnType=='parameter': # Return the CVs parameter.
 					v = p
 				elif returnType=='count': # total number of cv's for the curve.
-					result[curve] = len(Init.getCvInfo(curve))
+					result[curve] = len(Slots_maya.getCvInfo(curve))
 					break
 				elif returnType=='index': # index of the cv
 					s = str(cv)
@@ -758,12 +758,12 @@ class Slots_maya(Slots):
 		for curve in pm.ls(curves):
 			p0 = pm.objectCenter(curve)
 
-			cvs = Init.getComponents(curve, 'cv', returnType='object', flatten=1)
-			cvPos = Init.getCvInfo(curve, 'position')
+			cvs = Slots_maya.getComponents(curve, 'cv', returnType='object', flatten=1)
+			cvPos = Slots_maya.getCvInfo(curve, 'position')
 			p1 = cvPos[cvs[0]]
 			p2 = cvPos[cvs[(len(cvs)/2)]]
 
-			n1 = Init.getCrossProduct(p0, p1, p2, normalize=normalize)
+			n1 = Slots_maya.getCrossProduct(p0, p1, p2, normalize=normalize)
 
 			result[curve] = n1
 
@@ -784,8 +784,8 @@ class Slots_maya(Slots):
 		:Return:
 			(list) closest vertex pairs by order of distance (excluding those not meeting the tolerance). (<vertex from set1>, <vertex from set2>).
 
-		ex. verts1 = Init.getComponents('pCube1', 'vertices')
-			verts2 = Init.getComponents(pCube2', 'vertices')
+		ex. verts1 = Slots_maya.getComponents('pCube1', 'vertices')
+			verts2 = Slots_maya.getComponents(pCube2', 'vertices')
 			closestVerts = getClosestVerts(verts1, verts2)
 		'''
 		set1 = [str(i) for i in pm.ls(set1, flatten=1)]
@@ -795,7 +795,7 @@ class Slots_maya(Slots):
 			v1Pos = pm.pointPosition(v1, world=1)
 			for v2 in set2:
 				v2Pos = pm.pointPosition(v2, world=1)
-				distance = Init.getDistanceBetweenTwoPoints(v1Pos, v2Pos)
+				distance = Slots_maya.getDistanceBetweenTwoPoints(v1Pos, v2Pos)
 				if distance<tolerance:
 					vertPairsAndDistance[(v1, v2)] = distance
 
@@ -822,7 +822,7 @@ class Slots_maya(Slots):
 			(dict) closest vertex pairs {<vertex from set1>:<vertex from set2>}.
 
 		ex. obj1, obj2 = selection
-			vertices = Init.getComponents(obj1, 'vertices')
+			vertices = Slots_maya.getComponents(obj1, 'vertices')
 			closestVerts = getClosestVertex(vertices, obj2, tolerance=10)
 		'''
 		vertices = [str(i) for i in pm.ls(vertices, flatten=1)]
@@ -844,7 +844,7 @@ class Slots_maya(Slots):
 			v2 = obj2Shape.vtx[index]
 
 			v2Pos = pm.pointPosition(v2, world=True)
-			distance = Init.getDistanceBetweenTwoPoints(v1Pos, v2Pos)
+			distance = Slots_maya.getDistanceBetweenTwoPoints(v1Pos, v2Pos)
 
 			if not tolerance:
 				closestVerts[v1] = v2
@@ -868,8 +868,8 @@ class Slots_maya(Slots):
 			tolerance (float) = Maximum search distance.
 			freezeTransforms (bool) = Reset the selected transform and all of its children down to the shape level.
 		'''
-		vertices = Init.getComponents(obj1, 'vertices')
-		closestVerts = Init.getClosestVertex(vertices, obj2, tolerance=tolerance, freezeTransforms=freezeTransforms)
+		vertices = Slots_maya.getComponents(obj1, 'vertices')
+		closestVerts = Slots_maya.getClosestVertex(vertices, obj2, tolerance=tolerance, freezeTransforms=freezeTransforms)
 
 		progressBar = mel.eval("$container=$gMainProgressBar");
 		pm.progressBar(progressBar, edit=True, beginProgress=True, isInterruptable=True, status="Snapping Vertices ...", maxValue=len(closestVerts)) 
@@ -926,8 +926,8 @@ class Slots_maya(Slots):
 
 		if len(selection)<2:
 			if len(selection)==0:
-				Init.viewPortMessage("No vertices selected")
-			Init.viewPortMessage("Selection must contain at least two vertices")
+				Slots_maya.viewPortMessage("No vertices selected")
+			Slots_maya.viewPortMessage("Selection must contain at least two vertices")
 
 		for vertex in selection:
 			vertexXYZ = pm.xform(vertex, query=1, translation=1, worldSpace=1)
@@ -967,7 +967,7 @@ class Slots_maya(Slots):
 		# pm.undoInfo(openChunk=True)
 		nonManifoldVerts=set()
 
-		vertices = Init.getComponents(objects, 'vertices')
+		vertices = Slots_maya.getComponents(objects, 'vertices')
 		for vertex in vertices:
 
 			connected_faces = pm.polyListComponentConversion(vertex, fromVertex=1, toFace=1) #pm.mel.PolySelectConvert(1) #convert to faces
@@ -1081,7 +1081,7 @@ class Slots_maya(Slots):
 		obj = set(pm.ls(components, objectsOnly=1, flatten=1))[0]
 
 		result=[]
-		componentNumbers = list(Init.convertType(components, returnType='int', flatten=1).values())[0] #get the vertex numbers as integer values. ie. [818, 1380]
+		componentNumbers = list(Slots_maya.convertType(components, returnType='int', flatten=1).values())[0] #get the vertex numbers as integer values. ie. [818, 1380]
 
 		if returnType=='shortestEdgePath':
 			edgesLong = pm.polySelect(obj, query=1, shortestEdgePath=(componentNumbers[0], componentNumbers[1])) #(vtx, vtx)
@@ -1116,7 +1116,7 @@ class Slots_maya(Slots):
 		:Return:
 			(list) the components that comprise the path as strings.
 		'''
-		type_ = Init.getObjectType(components[0])
+		type_ = Slots_maya.getObjectType(components[0])
 		
 		result=[]
 		objects = set(pm.ls(components, objectsOnly=1))
@@ -1125,16 +1125,16 @@ class Slots_maya(Slots):
 			if type_=='Polygon Edge':
 				components = [pm.ls(pm.polyListComponentConversion(e, fromEdge=1, toVertex=1), flatten=1) for e in components]
 				try:
-					closestVerts = Init.getClosestVerts(components[0], components[1])[0]
+					closestVerts = Slots_maya.getClosestVerts(components[0], components[1])[0]
 				except IndexError as error:
 					print ('# Error: Operation requires exactly two selected edges. #')
 					return
-				edges = Init.getEdgePath(closestVerts, 'shortestEdgePath')
+				edges = Slots_maya.getEdgePath(closestVerts, 'shortestEdgePath')
 				[result.append(e) for e in edges]
 
 			elif type_=='Polygon Vertex':
-				closestVerts = Init.getClosestVerts(components[0], components[1])[0]
-				edges = Init.getEdgePath(closestVerts, 'shortestEdgePath')
+				closestVerts = Slots_maya.getClosestVerts(components[0], components[1])[0]
+				edges = Slots_maya.getEdgePath(closestVerts, 'shortestEdgePath')
 				vertices = pm.ls(pm.polyListComponentConversion(edges, fromEdge=1, toVertex=1), flatten=1)
 				[result.append(v) for v in vertices]
 
@@ -1151,7 +1151,7 @@ class Slots_maya(Slots):
 		:Return:
 			(list) the components that comprise the path as strings.
 		'''
-		type_ = Init.getObjectType(components[0])
+		type_ = Slots_maya.getObjectType(components[0])
 		
 		result=[]
 		objects = set(pm.ls(components, objectsOnly=1))
@@ -1164,7 +1164,7 @@ class Slots_maya(Slots):
 					_vertices = pm.ls(pm.polyListComponentConversion(edges, fromEdge=1, toVertex=1), flatten=1)
 					vertices.append(_vertices)
 
-				closestVerts = Init.getClosestVerts(vertices[0], vertices[1])[0]
+				closestVerts = Slots_maya.getClosestVerts(vertices[0], vertices[1])[0]
 				_edges = pm.ls(pm.polyListComponentConversion(list(components)+list(closestVerts), fromVertex=1, toEdge=1), flatten=1)
 
 				edges=[]
@@ -1173,14 +1173,14 @@ class Slots_maya(Slots):
 					if closestVerts[0] in verts and components[0] in verts or closestVerts[1] in verts and components[1] in verts:
 						edges.append(edge)
 
-				edges = Init.getEdgePath(edges, 'edgeLoopPath')
+				edges = Slots_maya.getEdgePath(edges, 'edgeLoopPath')
 
 				vertices = [pm.ls(pm.polyListComponentConversion(edges, fromEdge=1, toVertex=1), flatten=1)]
 				[result.append(v) for v in vertices]
 
 
 			elif type_=='Polygon Edge':
-				edges = Init.getEdgePath(components, 'edgeLoopPath')
+				edges = Slots_maya.getEdgePath(components, 'edgeLoopPath')
 				[result.append(e) for e in edges]
 
 
@@ -1191,8 +1191,8 @@ class Slots_maya(Slots):
 					_vertices = pm.ls(pm.polyListComponentConversion(edges, fromEdge=1, toVertex=1), flatten=1)
 					vertices.append(_vertices)
 
-				closestVerts1 = Init.getClosestVerts(vertices[0], vertices[1])[0]
-				closestVerts2 = Init.getClosestVerts(vertices[0], vertices[1])[1] #get the next pair of closest verts
+				closestVerts1 = Slots_maya.getClosestVerts(vertices[0], vertices[1])[0]
+				closestVerts2 = Slots_maya.getClosestVerts(vertices[0], vertices[1])[1] #get the next pair of closest verts
 
 				_edges = pm.ls(pm.polyListComponentConversion(closestVerts1+closestVerts2, fromVertex=1, toEdge=1), flatten=1)
 				edges=[]
@@ -1201,7 +1201,7 @@ class Slots_maya(Slots):
 					if closestVerts1[0] in verts and closestVerts2[0] in verts or closestVerts1[1] in verts and closestVerts2[1] in verts:
 						edges.append(edge)
 
-				edges = Init.getEdgePath(edges, 'edgeRingPath')
+				edges = Slots_maya.getEdgePath(edges, 'edgeRingPath')
 
 				faces = pm.ls(pm.polyListComponentConversion(edges, fromEdge=1, toFace=1), flatten=1)
 				[result.append(f) for f in faces]
@@ -1227,7 +1227,7 @@ class Slots_maya(Slots):
 
 		pm.polySelectConstraint(angle=True, anglebound=(lowAngle, highAngle), mode=3, type=0x8000) #Constrain that selection to only edges of a certain Angle
 		pm.selectType(polymeshEdge=True)
-		edges = Init.getComponents(objects, 'edges', selection=1, returnType=returnType, flatten=flatten)
+		edges = Slots_maya.getComponents(objects, 'edges', selection=1, returnType=returnType, flatten=flatten)
 
 		pm.polySelectConstraint(mode=0) #Remove the selection constraint.
 		pm.select(orig_selection) #re-select any originally selected objects.
@@ -1249,10 +1249,10 @@ class Slots_maya(Slots):
 		:Return:
 			(list) Polygon vertices.
 
-		ex. components = Init.getComponents(objects, 'faces', selection=1)
+		ex. components = Slots_maya.getComponents(objects, 'faces', selection=1)
 			faces = getComponentsByNumberOfConnected(components, 4, 'Polygon Edge') #returns faces with four connected edges (four sided faces).
 
-		ex. components = Init.getComponents(objects, 'vertices', selection=1)
+		ex. components = Slots_maya.getComponents(objects, 'vertices', selection=1)
 			verts = getComponentsByNumberOfConnected(components, (0,2), 'Polygon Edge') #returns vertices with up to two connected edges.
 		'''
 		if connectedType in ('vtx', 'vertex', 'vertices', 'Polygon Vertex', 31, 0x0001):
@@ -1267,7 +1267,7 @@ class Slots_maya(Slots):
 		else:
 			lowRange = highRange = num_of_connected
 
-		component_type = Init.getObjectType(components)
+		component_type = Slots_maya.getObjectType(components)
 		if not connectedType:
 			connectedType = component_type
 
@@ -1398,13 +1398,13 @@ class Slots_maya(Slots):
 			axis (str) = Axis to delete on. ie. '-x' Components belonging to the mesh object given in the 'obj' arg, that fall on this axis, will be deleted. 
 		'''
 		for node in [n for n in pm.listRelatives(obj, allDescendents=1) if pm.objectType(n, isType='mesh')]: #get any mesh type child nodes of obj.
-			faces = Init.getAllFacesOnAxis(node, axis)
+			faces = Slots_maya.getAllFacesOnAxis(node, axis)
 			if len(faces)==pm.polyEvaluate(node, face=1): #if all faces fall on the specified axis.
 				pm.delete(node) #delete entire node
 			else:
 				pm.delete(faces) #else, delete any individual faces.
 
-		Init.viewPortMessage("Delete faces on <hl>"+axis.upper()+"</hl>.")
+		Slots_maya.viewPortMessage("Delete faces on <hl>"+axis.upper()+"</hl>.")
 
 
 	@staticmethod
@@ -1425,7 +1425,7 @@ class Slots_maya(Slots):
 		scene_objs = pm.ls(transforms=1, geometry=1) #get all scene geometry
 
 		#attach a unique identifier consisting each objects polyEvaluate attributes, and it's bounding box center point in world space.
-		scene_objs = {i:str(pm.objectCenter(i))+str(pm.polyEvaluate(i)) for i in scene_objs if not Init.isGroup(i)}
+		scene_objs = {i:str(pm.objectCenter(i))+str(pm.polyEvaluate(i)) for i in scene_objs if not Slots_maya.isGroup(i)}
 		selected_objs = pm.ls(scene_objs.keys(), sl=1) if not objects else objects
 
 		objs_inverted={} #invert the dict, combining objects with like identifiers.
@@ -1562,7 +1562,7 @@ class Slots_maya(Slots):
 		'''
 		faces = pm.ls(faces, flatten=1) #work on a copy of the argument so that removal of elements doesn't effect the passed in list.
 		for face in faces:
-			normals = Init.getNormalVector(face)
+			normals = Slots_maya.getNormalVector(face)
 
 			for k, v in normals.items():
 				sX = v[0]
@@ -1570,12 +1570,12 @@ class Slots_maya(Slots):
 				sZ = v[2]
 
 				if not transforms:
-					transforms = Init.getObjectFromComponent(face)
+					transforms = Slots_maya.getObjectFromComponent(face)
 
 				for node in transforms:
-					for f in Init.getComponents(node, 'faces', returnType=returnType, returnNodeType=returnNodeType, flatten=1):
+					for f in Slots_maya.getComponents(node, 'faces', returnType=returnType, returnNodeType=returnNodeType, flatten=1):
 
-						n = Init.getNormalVector(f)
+						n = Slots_maya.getNormalVector(f)
 						for k, v in n.items():
 							nX = v[0]
 							nY = v[1]
@@ -1630,7 +1630,7 @@ class Slots_maya(Slots):
 			target_pos (tuple) = An (x,y,z) world position.
 		'''
 		obj = pm.ls(obj)[0]
-		Init.aimObjectAtPoint(obj, target_pos)
+		Slots_maya.aimObjectAtPoint(obj, target_pos)
 
 		try:
 			c = obj.v[:]
@@ -1740,7 +1740,7 @@ class Slots_maya(Slots):
 		# pm.undoInfo(openChunk=1)
 		for obj in pm.ls(objects):
 			pos = pm.objectCenter(obj) #get the object's current position.
-			Init.dropToGrid(obj, origin=1, centerPivot=1) #move to origin and center pivot.
+			Slots_maya.dropToGrid(obj, origin=1, centerPivot=1) #move to origin and center pivot.
 			pm.makeIdentity(obj, apply=1, t=1, r=1, s=1, n=0, pn=1) #bake transforms
 			pm.xform(obj, translation=pos) #move the object back to it's original position.
 		# pm.undoInfo(closeChunk=1)
@@ -1845,35 +1845,35 @@ class Slots_maya(Slots):
 		# pm.undoInfo(openChunk=1)
 		p1 = pm.objectCenter(start)
 		p2 = pm.objectCenter(end)
-		hypotenuse = Init.getDistanceBetweenTwoPoints(p1, p2)
+		hypotenuse = Slots_maya.getDistanceBetweenTwoPoints(p1, p2)
 
-		v1, v2 = Init.getCrossProductOfCurves([start, end], normalize=1, values=1)
-		v3a = Init.getVectorFromTwoPoints(p1, p2)
-		v3b = Init.getVectorFromTwoPoints(p2, p1)
+		v1, v2 = Slots_maya.getCrossProductOfCurves([start, end], normalize=1, values=1)
+		v3a = Slots_maya.getVectorFromTwoPoints(p1, p2)
+		v3b = Slots_maya.getVectorFromTwoPoints(p2, p1)
 
-		a1 = Init.getAngleFrom2Vectors(v1, v3a, degree=1) #Init.getAngleFrom3Points(v1, p1, p2, degree=1)
-		a2 = Init.getAngleFrom2Vectors(v2, v3b, degree=1) #Init.getAngleFrom3Points(v2, p1, p2, degree=1)
-		a3 = Init.getAngleFrom2Vectors(v1, v2, degree=1)
+		a1 = Slots_maya.getAngleFrom2Vectors(v1, v3a, degree=1) #Slots_maya.getAngleFrom3Points(v1, p1, p2, degree=1)
+		a2 = Slots_maya.getAngleFrom2Vectors(v2, v3b, degree=1) #Slots_maya.getAngleFrom3Points(v2, p1, p2, degree=1)
+		a3 = Slots_maya.getAngleFrom2Vectors(v1, v2, degree=1)
 
-		d1, d2 = Init.getTwoSidesOfASATriangle(a2, a1, hypotenuse) #get length of sides 1 and 2.
+		d1, d2 = Slots_maya.getTwoSidesOfASATriangle(a2, a1, hypotenuse) #get length of sides 1 and 2.
 
-		p_from_v1 = Init.movePointAlongVectorTowardPoint(p1, p2, v1, d1)
-		p_from_v2 = Init.movePointAlongVectorTowardPoint(p2, p1, v2, d2)
-		p3 = Init.getCenterPointBetweenTwoPoints(p_from_v1, p_from_v2)
+		p_from_v1 = Slots_maya.movePointAlongVectorTowardPoint(p1, p2, v1, d1)
+		p_from_v2 = Slots_maya.movePointAlongVectorTowardPoint(p2, p1, v2, d2)
+		p3 = Slots_maya.getCenterPointBetweenTwoPoints(p_from_v1, p_from_v2)
 
 		if d1<d2:
 			min_dist = d1
-			max_vect = Init.getVectorFromTwoPoints(p2, p3)
+			max_vect = Slots_maya.getVectorFromTwoPoints(p2, p3)
 		else:
 			min_dist = d2
-			max_vect = Init.getVectorFromTwoPoints(p1, p3)
+			max_vect = Slots_maya.getVectorFromTwoPoints(p1, p3)
 			p1, p2 = p2, p1
 
 		# pm.spaceLocator(position=p1); pm.spaceLocator(position=p2); pm.spaceLocator(position=p3)
 
-		p4 = Init.movePointRelative(p3, min_dist, max_vect); #pm.spaceLocator(position=p4)
-		p5 = Init.getCenterPointBetweenTwoPoints(p4, p1); #pm.spaceLocator(position=p5)
-		p6 = Init.getCenterPointBetweenTwoPoints(p3, p5); #pm.spaceLocator(position=p6)
+		p4 = Slots_maya.movePointRelative(p3, min_dist, max_vect); #pm.spaceLocator(position=p4)
+		p5 = Slots_maya.getCenterPointBetweenTwoPoints(p4, p1); #pm.spaceLocator(position=p5)
+		p6 = Slots_maya.getCenterPointBetweenTwoPoints(p3, p5); #pm.spaceLocator(position=p6)
 
 		#add weighting to the curve points.
 		p1w, p3w, p4w, p2w = [
@@ -1954,14 +1954,14 @@ class Slots_maya(Slots):
 		# pm.undoInfo(openChunk=1)
 		if pm.objectType(start)=='mesh': #vs. 'nurbsCurve'
 			start, startNode = pm.polyToCurve(start, form=2, degree=3, conformToSmoothMeshPreview=1) #extract curve from mesh
-		Init.resetXform(start) #reset the transforms to world origin.
+		Slots_maya.resetXform(start) #reset the transforms to world origin.
 
 		if pm.objectType(end)=='mesh': #vs. 'nurbsCurve'
 			end, endNode = pm.polyToCurve(end, form=2, degree=3, conformToSmoothMeshPreview=1) #extract curve from mesh
-		Init.resetXform(end) #reset the transforms to world origin.
+		Slots_maya.resetXform(end) #reset the transforms to world origin.
 
-		path = Init.createCurveBetweenTwoObjects(start, end)
-		curves = Init.duplicateAlongCurve(path, start, count=count)
+		path = Slots_maya.createCurveBetweenTwoObjects(start, end)
+		curves = Slots_maya.duplicateAlongCurve(path, start, count=count)
 
 		#align end
 		# find curve start using closestPointOnCurve method, 
@@ -2188,7 +2188,7 @@ class Slots_maya(Slots):
 			if not shapes: #get shape from transform
 				try:
 					transforms = pm.listRelatives(pm.listHistory(node, future=1), parent=1)
-					shapes = Init.getShapeNode(transforms)
+					shapes = Slots_maya.getShapeNode(transforms)
 				except Exception as error:
 					shapes = []
 
@@ -2463,7 +2463,7 @@ class Slots_maya(Slots):
 			fn_args (list) = Any additonal args to pass to fn.
 				The first parameter of fn is always the given object, and the last parameter is the attribute:value pairs as a dict.
 
-		ex. call: self.setAttributeWindow(node, attrs, fn=Init.setParameterValuesMEL, fn_args='transformLimits') #set attributes for the Maya command transformLimits.
+		ex. call: self.setAttributeWindow(node, attrs, fn=Slots_maya.setParameterValuesMEL, fn_args='transformLimits') #set attributes for the Maya command transformLimits.
 		ex. call: self.setAttributeWindow(transform[0], include=['translateX','translateY','translateZ','rotateX','rotateY','rotateZ','scaleX','scaleY','scaleZ'], checkableLabel=True)
 		'''
 		if not obj:
@@ -2931,7 +2931,7 @@ print (__name__)
 
 # 		shells={}
 # 		for obj in objects:
-# 			faces = Init.getComponents(obj, 'f')
+# 			faces = Slots_maya.getComponents(obj, 'f')
 # 			for face in faces:
 # 				shell_Id = pm.polyEvaluate(face, uvShellIds=True)
 
@@ -2987,7 +2987,7 @@ print (__name__)
 # 			v1Pos = pm.pointPosition(v1, world=1)
 # 			for v2 in set2:
 # 				v2Pos = pm.pointPosition(v2, world=1)
-# 				distance = Init.getDistanceBetweenTwoPoints(v1Pos, v2Pos)
+# 				distance = Slots_maya.getDistanceBetweenTwoPoints(v1Pos, v2Pos)
 
 # 				if distance < closestDistance:
 # 					closestDistance = distance
@@ -3041,7 +3041,7 @@ print (__name__)
 	# 		vertices (list) = The vertices to snap.
 	# 		tolerance (float) = Max distance.
 	# 	'''
-	# 	Init.loadPlugin('nearestPointOnMesh')
+	# 	Slots_maya.loadPlugin('nearestPointOnMesh')
 	# 	nearestPointOnMeshNode = mel.eval('{} {}'.format('nearestPointOnMesh', obj))
 	# 	pm.delete(nearestPointOnMeshNode)
 
@@ -3060,7 +3060,7 @@ print (__name__)
 	# 			associatedVtx = pm.polyListComponentConversion(vtxsFace, fromVertexFace=True, toVertex=True)
 	# 			associatedVtxPosition = pm.pointPosition(associatedVtx, world=True)
 				
-	# 			distance = Init.getDistanceBetweenTwoPoints(vertexPosition, associatedVtxPosition)
+	# 			distance = Slots_maya.getDistanceBetweenTwoPoints(vertexPosition, associatedVtxPosition)
 
 	# 			if distance<closestDistance:
 	# 				closestDistance = distance
@@ -3101,7 +3101,7 @@ print (__name__)
 # 			except:
 # 				break
 
-# 		adjFaces = [f for f in Init.getBorderComponents(face) if not f in prevFaces and f in faces]
+# 		adjFaces = [f for f in Slots_maya.getBorderComponents(face) if not f in prevFaces and f in faces]
 # 		prevFaces.append(face)
 # 		# print '-face     ','   *',face
 # 		# print '-adjFaces ','  **',adjFaces

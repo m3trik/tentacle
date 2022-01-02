@@ -263,13 +263,13 @@ class Slots_max(Slots):
 		if level in (0, None): #objs
 			s = [i for i in sel]
 		elif level==1: #verts
-			s = Init.getComponents(sel[0], 'vertices', selection=True)
+			s = Slots_max.getComponents(sel[0], 'vertices', selection=True)
 		elif level==2: #edges
-			s = Init.getComponents(sel[0], 'edges', selection=True)
+			s = Slots_max.getComponents(sel[0], 'edges', selection=True)
 		elif level==3: #borders
 			s = rt.getBorderSelection(sel[0])
 		elif level==4: #faces
-			s = Init.getComponents(sel[0], 'faces', selection=True)
+			s = Slots_max.getComponents(sel[0], 'faces', selection=True)
 
 		return rt.array(*s) #unpack list s and convert to an array.
 
@@ -333,11 +333,11 @@ class Slots_max(Slots):
 					c = range(1, obj.faces.count)
 
 		if returnType in ('Array', 'List'):
-			result = Init.bitArrayToArray(c)
+			result = Slots_max.bitArrayToArray(c)
 			if returnType is 'List':
 				result = list(result)
 		else:
-			result = Init.arrayToBitArray(c)
+			result = Slots_max.arrayToBitArray(c)
 
 		return result
 
@@ -364,7 +364,7 @@ class Slots_max(Slots):
 		if not obj:
 			obj = rt.selection[0]
 		if not components:
-			components = Init.getComponents(obj, convertFrom)
+			components = Slots_max.getComponents(obj, convertFrom)
 
 		if not any((rt.isKindOf(obj, rt.Editable_Mesh), rt.isKindOf(obj, rt.Editable_Poly))): #filter for valid objects.
 			return '# Error: Invalid object type: {} #'.format(obj)
@@ -391,11 +391,11 @@ class Slots_max(Slots):
 			return '# Error: Cannot convert from {} to type: {}: #'.format(convertFrom, convertTo)
 
 		if returnType in ('Array', 'List'):
-			result = Init.bitArrayToArray(c)
+			result = Slots_max.bitArrayToArray(c)
 			if returnType is 'List':
 				result = list(result)
 		else:
-			result = Init.arrayToBitArray(c)
+			result = Slots_max.arrayToBitArray(c)
 
 		return result
 
@@ -883,7 +883,7 @@ class Slots_max(Slots):
 
 		if toggle==0: #preview off
 			rt.showEndResult = False
-			Init.displayWireframeOnMesh(True)
+			Slots_max.displayWireframeOnMesh(True)
 
 			for obj in geometry:
 				try:
@@ -894,7 +894,7 @@ class Slots_max(Slots):
 
 		else: #preview on
 			rt.showEndResult = True
-			Init.displayWireframeOnMesh(False)
+			Slots_max.displayWireframeOnMesh(False)
 
 			for obj in geometry:
 				try:
@@ -1109,9 +1109,9 @@ print (__name__)
 	# 		(list) vertex list.		
 	# 	'''
 	# 	try:
-	# 		vertices = Init.bitArrayToArray(rt.polyop.getVertSelection(obj)) #polygon
+	# 		vertices = Slots_max.bitArrayToArray(rt.polyop.getVertSelection(obj)) #polygon
 	# 	except:
-	# 		vertices = Init.bitArrayToArray(rt.getVertSelection(obj)) #mesh
+	# 		vertices = Slots_max.bitArrayToArray(rt.getVertSelection(obj)) #mesh
 
 	# 	return vertices
 
@@ -1163,9 +1163,9 @@ print (__name__)
 	# 		(list) edge list.		
 	# 	'''
 	# 	try:
-	# 		edges = Init.bitArrayToArray(rt.polyop.getEdgeSelection(obj)) #polygon
+	# 		edges = Slots_max.bitArrayToArray(rt.polyop.getEdgeSelection(obj)) #polygon
 	# 	except:
-	# 		edges = Init.bitArrayToArray(rt.getEdgeSelection(obj)) #mesh
+	# 		edges = Slots_max.bitArrayToArray(rt.getEdgeSelection(obj)) #mesh
 
 	# 	return edges
 
@@ -1199,9 +1199,9 @@ print (__name__)
 	# 		(list) facet list.		
 	# 	'''
 	# 	try:
-	# 		faces = Init.bitArrayToArray(rt.polyop.getFaceSelection(obj)) #polygon
+	# 		faces = Slots_max.bitArrayToArray(rt.polyop.getFaceSelection(obj)) #polygon
 	# 	except:
-	# 		faces = Init.bitArrayToArray(rt.getFaceSelection(obj)) #mesh
+	# 		faces = Slots_max.bitArrayToArray(rt.getFaceSelection(obj)) #mesh
 
 	# 	return faces
 
@@ -1223,9 +1223,9 @@ print (__name__)
 
 	# 	#get a list for the vertices of each face that is connected to the original vertex.
 	# 	verts_sorted_by_face=[]
-	# 	for face in Init.bitArrayToArray(connected_faces):
+	# 	for face in Slots_max.bitArrayToArray(connected_faces):
 	# 		connected_verts = rt.polyop.getVertsUsingFace(obj, face)
-	# 		verts_sorted_by_face.append(Init.bitArrayToArray(connected_verts))
+	# 		verts_sorted_by_face.append(Slots_max.bitArrayToArray(connected_verts))
 
 
 	# 	out=[] #1) take first set A from list. 2) for each other set B in the list do if B has common element(s) with A join B into A; remove B from list. 3) repeat 2. until no more overlap with A. 4) put A into outpup. 5) repeat 1. with rest of list.

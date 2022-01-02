@@ -183,7 +183,7 @@ class Rigging(Slots_max):
 
 		template = tb.contextMenu.chk004.isChecked()
 
-		objects = list(Init.bitArrayToArray(rt.selection))
+		objects = list(Slots_max.bitArrayToArray(rt.selection))
 
 		for obj in objects[:-1]:
 			obj.parent = objects[-1]
@@ -244,13 +244,13 @@ class Rigging(Slots_max):
 		node = rt.selection
 		if not node:
 			return 'Error: Operation requires a single selected object.'
-		'finish converting from Maya version.  Init.getParameterValuesMax is not likely doable in the same sense getParameterValuesMEL was'
+		'finish converting from Maya version.  Slots_max.getParameterValuesMax is not likely doable in the same sense getParameterValuesMEL was'
 		params = ['enableTranslationX','translationX','enableTranslationY','translationY','enableTranslationZ','translationZ',
 			'enableRotationX','rotationX','enableRotationY','rotationY','enableRotationZ','rotationZ',
 			'enableScaleX','scaleX','enableScaleY','scaleY','enableScaleZ','scaleZ']
 
-		attrs = Init.getParameterValuesMax(node, 'transformLimits', params)
-		self.setAttributeWindow(node, attrs, fn=Init.setParameterValuesMax, fn_args='transformLimits')
+		attrs = Slots_max.getParameterValuesMax(node, 'transformLimits', params)
+		self.setAttributeWindow(node, attrs, fn=Slots_max.setParameterValuesMax, fn_args='transformLimits')
 
 
 	def b001(self):

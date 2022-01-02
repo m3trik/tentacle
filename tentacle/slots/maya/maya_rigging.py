@@ -252,8 +252,8 @@ class Rigging(Slots_maya):
 			'enableRotationX','rotationX','enableRotationY','rotationY','enableRotationZ','rotationZ',
 			'enableScaleX','scaleX','enableScaleY','scaleY','enableScaleZ','scaleZ']
 
-		attrs = Init.getParameterValuesMEL(node, 'transformLimits', params)
-		self.setAttributeWindow(node, attrs, fn=Init.setParameterValuesMEL, fn_args='transformLimits')
+		attrs = Slots_maya.getParameterValuesMEL(node, 'transformLimits', params)
+		self.setAttributeWindow(node, attrs, fn=Slots_maya.setParameterValuesMEL, fn_args='transformLimits')
 
 
 	def b001(self):

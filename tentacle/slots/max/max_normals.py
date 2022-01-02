@@ -114,7 +114,7 @@ class Normals(Slots_max):
 			# 	selEdges = selEdges + creasedEdges if not selEdges==allEdges else creasedEdges
 
 			# if hardenUvBorders:
-			# 	uv_border_edges = Init.getUvShellBorderEdges(selection)
+			# 	uv_border_edges = Slots_max.getUvShellBorderEdges(selection)
 			# 	selEdges = selEdges + uv_border_edges if not selEdges==allEdges else uv_border_edges
 
 			# obj.EditablePoly.makeHardEdges(1) #set hard edges.
@@ -204,7 +204,7 @@ class Normals(Slots_max):
 
 		if byUvShell:
 			print ('# Error: No 3ds Version of this flag yet. #')
-			sets_ = Init.getUvShellSets(obj)
+			sets_ = Slots_max.getUvShellSets(obj)
 			for set_ in sets_:
 				pm.polySetToFaceNormal(set_)
 				pm.polyAverageNormal(set_)

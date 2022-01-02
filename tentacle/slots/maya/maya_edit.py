@@ -145,7 +145,7 @@ class Edit(Slots_maya):
 		objects = pm.ls(sl=1, transforms=1)
 
 		if overlappingDuplicateObjects:
-			duplicates = Init.getOverlappingDuplicateObjects(omitInitialObjects=omitSelectedObjects, select=True, verbose=True)
+			duplicates = Slots_maya.getOverlappingDuplicateObjects(omitInitialObjects=omitSelectedObjects, select=True, verbose=True)
 			if repair: #repair
 				pm.delete(duplicates)
 			return
@@ -159,10 +159,10 @@ class Edit(Slots_maya):
 			mel.eval(command)
 
 		if splitNonManifoldVertex: #Split Non-Manifold Vertex
-			nonManifoldVerts = Init.findNonManifoldVertex(objects, select=2) #Select: 0=off, 1=on, 2=on while keeping any existing vertex selections. (default: 1)
+			nonManifoldVerts = Slots_maya.findNonManifoldVertex(objects, select=2) #Select: 0=off, 1=on, 2=on while keeping any existing vertex selections. (default: 1)
 			if repair:
 				for vertex in nonManifoldVerts:
-					Init.splitNonManifoldVertex(vertex, select=True) #select(bool): Select the vertex after the operation. (default: True)
+					Slots_maya.splitNonManifoldVertex(vertex, select=True) #select(bool): Select the vertex after the operation. (default: True)
 
 
 	def tb001(self, state=None):
