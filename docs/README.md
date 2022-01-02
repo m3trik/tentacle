@@ -32,7 +32,8 @@
 
 #### switchboard:
 
-###### *contains a master dictionary for widget related info as well as convienience methods for interacting with the dict.*
+###### *contains a master dictionary for widget related info as well as convenience methods for interacting with the dict.*
+
 
 #### slots:
 
