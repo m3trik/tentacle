@@ -23,9 +23,10 @@ class Switchboard(QtCore.QObject):
 	_sbDict = {	
 		'<uiName>' : {
 					'ui' : <ui object>,
-					'uiLevel' : {'base' : <int>}
+					'uiLevel' : {'base' : <int>},
+					'state' : int,
 					'class' : <Class>,
-					'size' : [int, int]
+					'size' : [int, int],
 					'widgets' : {
 								'<widget>':{
 											'widgetName' : 'objectName',
@@ -36,9 +37,9 @@ class Switchboard(QtCore.QObject):
 											'prefix' : 'alphanumeric prefix',
 											'docString' : 'method docString',
 											'tracked' : <bool>,
-								}
-					}
-		}
+								},
+					},
+		},
 	}
 	'''
 	defaultSignals = { #the default signal to be associated with each widget type.
@@ -74,7 +75,7 @@ class Switchboard(QtCore.QObject):
 
 	def __init__(self, parent=None):
 		QtCore.QObject.__init__(self, parent)
-		'''
+		'''Initialize _sbDict using UiLoader's uiDict.
 		:Parameters:
 			parent (obj) = The parent widget instance.
 		'''
@@ -82,6 +83,7 @@ class Switchboard(QtCore.QObject):
 			self.sbDict[uiName] = { #ie. {'polygons':{'ui':<ui obj>, uiLevel:<int>}}
 				'ui': v['ui'], #the ui object.
 				'uiLevel': {'base' : v['level']}, #the ui level as an integer value. (the ui level is it's hierarchy)
+				'size': [v['ui'].frameGeometry().width(), v['ui'].frameGeometry().height()],
 				'state': 0, #initialization state.
 			}
 
@@ -760,24 +762,19 @@ class Switchboard(QtCore.QObject):
 		return self.getUiName('all').index(uiName)
 
 
-	def setUiSize(self, ui=None, size=None): #store ui size.
+	def setUiSize(self, size, ui=None): #store ui size.
 		'''Property:size. Set the size of a ui.
 		If no size is given, the minimum ui size needed to frame its
 		contents will be used. If no uiName is given, the current ui will be used.
 
 		:Parameters:
+			size (list) = The width and height as integers. [width, height]
 			ui (str)(obj) = The ui name, or ui object. ie. 'polygons' or <polygons>
 							If None is given, the current ui will be used.
-			size = [int, int] - optional width and height as an integer list. [width, height]
-
 		:Return:
-			ui size info as integer values in a list. [width, hight]
+			(list) ui size info as integer values in a list. [width, hight]
 		'''
 		uiName = self.getUiName(ui)
-
-		if not size:
-			ui = self.getUi(uiName)
-			size = [ui.frameGeometry().width(), ui.frameGeometry().height()]
 
 		self.sbDict[uiName]['size'] = size
 		return self.sbDict[uiName]['size']
@@ -792,19 +789,19 @@ class Switchboard(QtCore.QObject):
 			width (int) = X size as an int
 		'''
 		height = self.getUiSize(ui=ui, height=True) #get the hight value.
-		self.setUiSize(ui=ui, width=width, height=height)
+		self.setUiSize([width, height], ui)
 
 
 	def setUiSizeY(self, height, ui=None):
 		'''Property:sizeY. Set the Y (height) value for the current ui.
 
 		:Parameters:
+			height (int) = Y size as an int
 			ui (str)(obj) = The ui name, or ui object. ie. 'polygons' or <polygons>
 							If None is given, the current ui will be used.
-			height (int) = Y size as an int
 		'''
 		width = self.getUiSize(ui=ui, width=True) #get the width value.
-		self.setUiSize(ui=ui, height=height, width=width)
+		self.setUiSize([width, height], ui)
 
 
 	def getUiSize(self, ui=None, width=None, percentWidth=None, height=None, percentHeight=None): #get current ui size info.
