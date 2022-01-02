@@ -6,9 +6,6 @@ from tentacle import EventFactoryFilter
 
 
 
-
-
-
 # ------------------------------------------------
 # PaintEvent Overlay
 # ------------------------------------------------
@@ -37,7 +34,6 @@ class Overlay(QtWidgets.QWidget):
 			self.painter = QtGui.QPainter() #Initialize self.painter
 
 
-
 	def paintEvent(self, event):
 		'''
 		:Parameters:
@@ -58,7 +54,6 @@ class Overlay(QtWidgets.QWidget):
 			self.painter.end()
 
 
-
 	def drawTangent(self, start_point, end_point):
 		'''draw a segment between two points with the given self.painter.
 		'''
@@ -77,7 +72,6 @@ class Overlay(QtWidgets.QWidget):
 			# self.painter.drawEllipse(end_point, 5, 5)
 
 
-
 	def mousePressEvent(self, event):
 		'''
 		:Parameters:
@@ -86,7 +80,6 @@ class Overlay(QtWidgets.QWidget):
 		# self.painter.eraseRect(self.rect())
 		self.mouseEventPos = event.pos()
 		self.update()
-
 
 
 	def mouseMoveEvent(self, event):
@@ -105,14 +98,13 @@ class Overlay(QtWidgets.QWidget):
 class OverlayFactoryFilter(QtCore.QObject):
 	'''Relay events from the parent widget to the overlay.
 	'''
-	def __init__(self, parent=None):
+	def __init__(self, parent=None, antialiasing=False):
 		super(OverlayFactoryFilter, self).__init__(parent)
 
-		self.overlay = Overlay(parent)
+		self.overlay = Overlay(parent, antialiasing)
 
 		if parent:
 			parent.installEventFilter(self)
-
 
 
 	def eventFilter(self, widget, event):
@@ -144,6 +136,9 @@ class OverlayFactoryFilter(QtCore.QObject):
 			self.overlay.raise_()
 
 		return super(OverlayFactoryFilter, self).eventFilter(widget, event)
+
+
+
 
 
 

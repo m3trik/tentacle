@@ -13,8 +13,8 @@ class Polygons(Slots_max):
 			ctx.add(self.tcl.wgts.ComboBox, setObjectName='cmb000', setToolTip='')
 
 		cmb = self.polygons_ui.draggable_header.contextMenu.cmb000
-		list_ = ['Bridge','Extrude']
-		cmb.addItems_(list_, '3dsMax Polygon Operations')
+		items = ['Bridge','Extrude']
+		cmb.addItems_(items, '3dsMax Polygon Operations')
 
 		ctx = self.polygons_ui.tb000.contextMenu
 		if not ctx.containsMenuItems:

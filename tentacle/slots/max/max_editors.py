@@ -52,10 +52,6 @@ class Editors(Slots_max):
 		'''
 		dh = self.editors_ui.draggable_header
 
-		if state=='setMenu':
-			dh.contextMenu.add(self.tcl.wgts.ComboBox, setObjectName='cmb000', setToolTip='')
-			return
-
 
 	def tree000(self, wItem=None, column=None):
 		'''All Editors
@@ -63,7 +59,6 @@ class Editors(Slots_max):
 		tree = self.current_ui.tree000
 
 		if not any([wItem, column]): # code here will run before each show event. generally used to refresh tree contents. -----------------------------
-
 			return
 
 		widget = tree.getWidget(wItem, column)
@@ -271,6 +266,7 @@ class Editors(Slots_max):
 		'''Dependancy Graph
 		'''
 		maxEval('macros.run "Asset Tracking System" "AssetTrackingSystemToggle"') #Asset Tracking
+
 
 
 

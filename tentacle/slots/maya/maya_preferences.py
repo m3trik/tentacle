@@ -11,7 +11,8 @@ class Preferences(Slots_maya):
 		self.preferences_ui.b010.setText('Maya Preferences')
 
 		ctx = self.preferences_ui.draggable_header.contextMenu
-		ctx.add(self.tcl.wgts.ComboBox, setObjectName='cmb000', setToolTip='')
+		if not ctx.containsMenuItems:
+			ctx.add(self.tcl.wgts.ComboBox, setObjectName='cmb000', setToolTip='')
 
 		cmb = self.preferences_ui.draggable_header.contextMenu.cmb000
 		items = ['']

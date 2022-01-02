@@ -9,68 +9,73 @@ class Transform(Slots_max):
 		Slots_max.__init__(self, *args, **kwargs)
 
 		ctx = self.transform_ui.draggable_header.contextMenu
-		ctx.add(self.tcl.wgts.ComboBox, setObjectName='cmb000', setToolTip='')
+		if not ctx.containsMenuItems:
+			ctx.add(self.tcl.wgts.ComboBox, setObjectName='cmb000', setToolTip='')
 
 		cmb = self.transform_ui.draggable_header.contextMenu.cmb000
-		files = ['']
-		cmb.addItems_(files, '')
+		items = ['']
+		cmb.addItems_(items, '')
 
 		cmb = self.transform_ui.cmb001
 		cmb.popupStyle = 'qmenu'
-		cmb.menu_.setTitle('Constaints')
+		menu = cmb.menu_
+		if not menu.containsMenuItems:
+			menu.setTitle('Constaints')
+			cmb.contextMenu.add('QRadioButton', setObjectName='chk017', setText='Standard', setChecked=True, setToolTip='')
+			cmb.contextMenu.add('QRadioButton', setObjectName='chk018', setText='Body Shapes', setToolTip='')
+			cmb.contextMenu.add('QRadioButton', setObjectName='chk019', setText='NURBS', setToolTip='')
+			cmb.contextMenu.add('QRadioButton', setObjectName='chk020', setText='Point Cloud Shapes', setToolTip='')
+			cmb.contextMenu.add(self.tcl.wgts.Label, setObjectName='lbl000', setText='Disable All', setToolTip='Disable all constraints.')
+			self.connect_('chk017-20', 'toggled', self.cmb001, cmb.contextMenu) #connect to this method on toggle
+			#query and set current states:
+			edge_constraint = True if pm.xformConstraint(query=1, type=1)=='edge' else False
+			surface_constraint = True if pm.xformConstraint(query=1, type=1)=='surface' else False
+			live_object = True if pm.ls(live=1) else False
 
-		cmb.contextMenu.add('QRadioButton', setObjectName='chk017', setText='Standard', setChecked=True, setToolTip='')
-		cmb.contextMenu.add('QRadioButton', setObjectName='chk018', setText='Body Shapes', setToolTip='')
-		cmb.contextMenu.add('QRadioButton', setObjectName='chk019', setText='NURBS', setToolTip='')
-		cmb.contextMenu.add('QRadioButton', setObjectName='chk020', setText='Point Cloud Shapes', setToolTip='')
-		cmb.contextMenu.add(self.tcl.wgts.Label, setObjectName='lbl000', setText='Disable All', setToolTip='Disable all constraints.')
-		self.connect_('chk017-20', 'toggled', self.cmb001, cmb.contextMenu) #connect to this method on toggle
+			values = [('chk024', 'Edge', edge_constraint),
+					('chk025', 'Surface', surface_constraint),
+					('chk026', 'Make Live', live_object)]
 
-		#query and set current states:
-		edge_constraint = True if pm.xformConstraint(query=1, type=1)=='edge' else False
-		surface_constraint = True if pm.xformConstraint(query=1, type=1)=='surface' else False
-		live_object = True if pm.ls(live=1) else False
-
-		values = [('chk024', 'Edge', edge_constraint),
-				('chk025', 'Surface', surface_constraint),
-				('chk026', 'Make Live', live_object)]
-
-		[cmb.menu_.add(self.tcl.wgts.CheckBox, setObjectName=chk, setText=typ, setChecked=state) for chk, typ, state in values]
+			[menu.add(self.tcl.wgts.CheckBox, setObjectName=chk, setText=typ, setChecked=state) for chk, typ, state in values]
 
 		cmb = self.transform_ui.cmb002
-		list_ = ['Point to Point', '2 Points to 2 Points', '3 Points to 3 Points', 'Align Objects', 'Position Along Curve', 'Align Tool', 'Snap Together Tool']
-		cmb.addItems_(list_, 'Align To')
+		items = ['Point to Point', '2 Points to 2 Points', '3 Points to 3 Points', 'Align Objects', 'Position Along Curve', 'Align Tool', 'Snap Together Tool']
+		cmb.addItems_(items, 'Align To')
 
 		cmb = self.transform_ui.cmb003
 		cmb.popupStyle = 'qmenu'
-		cmb.menu_.setTitle('Snap')
+		menu = cmb.menu_
+		if not menu.containsMenuItems:
+			menu.setTitle('Snap')
 
-		moveValue = pm.manipMoveContext('Move', q=True, snapValue=True)
-		scaleValue = pm.manipScaleContext('Scale', q=True, snapValue=True)
-		rotateValue = pm.manipRotateContext('Rotate', q=True, snapValue=True)
+			moveValue = pm.manipMoveContext('Move', q=True, snapValue=True)
+			scaleValue = pm.manipScaleContext('Scale', q=True, snapValue=True)
+			rotateValue = pm.manipRotateContext('Rotate', q=True, snapValue=True)
 
-		values = [('chk021', 'Move: <b>Off</b>'), ('s021', 'increment:', moveValue, '1.00-1000 step2.8125'), 
-				('chk022', 'Scale: <b>Off</b>'), ('s022', 'increment:', scaleValue, '1.00-1000 step2.8125'), 
-				('chk023', 'Rotate: <b>Off</b>'), ('s023', 'degrees:', rotateValue, '1.00-360 step2.8125')]
+			values = [('chk021', 'Move: <b>Off</b>'), ('s021', 'increment:', moveValue, '1.00-1000 step2.8125'), 
+					('chk022', 'Scale: <b>Off</b>'), ('s022', 'increment:', scaleValue, '1.00-1000 step2.8125'), 
+					('chk023', 'Rotate: <b>Off</b>'), ('s023', 'degrees:', rotateValue, '1.00-360 step2.8125')]
 
-		widgets = [cmb.menu_.add(self.tcl.wgts.CheckBox, setObjectName=i[0], setText=i[1], setTristate=1) if len(i)==2 
-				else cmb.menu_.add('QDoubleSpinBox', setObjectName=i[0], setPrefix=i[1], setValue=i[2], setMinMax_=i[3], setDisabled=1) for i in values]
+			widgets = [menu.add(self.tcl.wgts.CheckBox, setObjectName=i[0], setText=i[1], setTristate=1) if len(i)==2 
+					else menu.add('QDoubleSpinBox', setObjectName=i[0], setPrefix=i[1], setValue=i[2], setMinMax_=i[3], setDisabled=1) for i in values]
 
 		ctx = self.transform_ui.tb000.contextMenu
-		ctx.add('QComboBox', addItems=['Min','Mid','Max'], setObjectName='cmb004', setToolTip='Choose which point of the bounding box to align to.')
-		ctx.add('QCheckBox', setText='Move to Origin', setObjectName='chk014', setChecked=True, setToolTip='Move to origin (xyz 0,0,0).')
-		ctx.add('QCheckBox', setText='Center Pivot', setObjectName='chk016', setChecked=False, setToolTip='Center pivot on objects bounding box.')
-		# ctx.add('QCheckBox', setText='Freeze Transforms', setObjectName='chk017', setChecked=False, setToolTip='Reset the selected transform and all of its children down to the shape level.')
+		if not ctx.containsMenuItems:
+			ctx.add('QComboBox', addItems=['Min','Mid','Max'], setObjectName='cmb004', setToolTip='Choose which point of the bounding box to align to.')
+			ctx.add('QCheckBox', setText='Move to Origin', setObjectName='chk014', setChecked=True, setToolTip='Move to origin (xyz 0,0,0).')
+			ctx.add('QCheckBox', setText='Center Pivot', setObjectName='chk016', setChecked=False, setToolTip='Center pivot on objects bounding box.')
+			# ctx.add('QCheckBox', setText='Freeze Transforms', setObjectName='chk017', setChecked=False, setToolTip='Reset the selected transform and all of its children down to the shape level.')
 
 		ctx = self.transform_ui.tb001.contextMenu
-		ctx.add('QCheckBox', setText='X Axis', setObjectName='chk029', setDisabled=True, setToolTip='Align X axis')
-		ctx.add('QCheckBox', setText='Y Axis', setObjectName='chk030', setDisabled=True, setToolTip='Align Y axis')
-		ctx.add('QCheckBox', setText='Z Axis', setObjectName='chk031', setDisabled=True, setToolTip='Align Z axis')
-		ctx.add('QCheckBox', setText='Between Two Components', setObjectName='chk013', setToolTip='Align the path along an edge loop between two selected vertices or edges.')
-		ctx.add('QCheckBox', setText='Align Loop', setObjectName='chk007', setToolTip='Align entire edge loop from selected edge(s).')
-		ctx.add('QCheckBox', setText='Average', setObjectName='chk006', setToolTip='Align to last selected object or average.')
-		ctx.add('QCheckBox', setText='Auto Align', setObjectName='chk010', setChecked=True, setToolTip='')
-		ctx.add('QCheckBox', setText='Auto Align: Two Axes', setObjectName='chk011', setToolTip='')
+		if not ctx.containsMenuItems:
+			ctx.add('QCheckBox', setText='X Axis', setObjectName='chk029', setDisabled=True, setToolTip='Align X axis')
+			ctx.add('QCheckBox', setText='Y Axis', setObjectName='chk030', setDisabled=True, setToolTip='Align Y axis')
+			ctx.add('QCheckBox', setText='Z Axis', setObjectName='chk031', setDisabled=True, setToolTip='Align Z axis')
+			ctx.add('QCheckBox', setText='Between Two Components', setObjectName='chk013', setToolTip='Align the path along an edge loop between two selected vertices or edges.')
+			ctx.add('QCheckBox', setText='Align Loop', setObjectName='chk007', setToolTip='Align entire edge loop from selected edge(s).')
+			ctx.add('QCheckBox', setText='Average', setObjectName='chk006', setToolTip='Align to last selected object or average.')
+			ctx.add('QCheckBox', setText='Auto Align', setObjectName='chk010', setChecked=True, setToolTip='')
+			ctx.add('QCheckBox', setText='Auto Align: Two Axes', setObjectName='chk011', setToolTip='')
 
 
 	def draggable_header(self, state=None):

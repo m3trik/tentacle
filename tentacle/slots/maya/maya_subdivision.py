@@ -9,21 +9,22 @@ class Subdivision(Slots_maya):
 		Slots_maya.__init__(self, *args, **kwargs)
 
 		ctx = self.subdivision_ui.draggable_header.contextMenu
-		ctx.add(self.tcl.wgts.ComboBox, setObjectName='cmb000', setToolTip='Maya Subdivision Editiors.')
-		ctx.add(self.tcl.wgts.ComboBox, setObjectName='cmb001', setToolTip='Smooth Proxy.')
-		ctx.add(self.tcl.wgts.ComboBox, setObjectName='cmb002', setToolTip='Maya Subdivision Operations.')
+		if not ctx.containsMenuItems:
+			ctx.add(self.tcl.wgts.ComboBox, setObjectName='cmb000', setToolTip='Maya Subdivision Editiors.')
+			ctx.add(self.tcl.wgts.ComboBox, setObjectName='cmb001', setToolTip='Smooth Proxy.')
+			ctx.add(self.tcl.wgts.ComboBox, setObjectName='cmb002', setToolTip='Maya Subdivision Operations.')
 
 		cmb = self.subdivision_ui.draggable_header.contextMenu.cmb000
-		list_ = ['Polygon Display Options']
-		cmb.addItems_(list_, 'Subdivision Editiors')
+		items = ['Polygon Display Options']
+		cmb.addItems_(items, 'Subdivision Editiors')
 
 		cmb = self.subdivision_ui.draggable_header.contextMenu.cmb001
-		list_ = ['Create Subdiv Proxy','Remove Subdiv Proxy Mirror','Crease Tool','Toggle Subdiv Proxy Display', 'Both Proxy and Subdiv Display']
-		cmb.addItems_(list_, 'Smooth Proxy')
+		items = ['Create Subdiv Proxy','Remove Subdiv Proxy Mirror','Crease Tool','Toggle Subdiv Proxy Display', 'Both Proxy and Subdiv Display']
+		cmb.addItems_(items, 'Smooth Proxy')
 
 		cmb = self.subdivision_ui.draggable_header.contextMenu.cmb002
-		list_ = ['Reduce Polygons','Add Divisions','Smooth']
-		cmb.addItems_(list_, 'Maya Subdivision Operations')
+		items = ['Reduce Polygons','Add Divisions','Smooth']
+		cmb.addItems_(items, 'Maya Subdivision Operations')
 
 
 	def draggable_header(self, state=None):

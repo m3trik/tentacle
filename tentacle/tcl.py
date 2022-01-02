@@ -48,7 +48,7 @@ class Tcl(QtWidgets.QStackedWidget, StyleSheet):
 		self.sb = Switchboard(self)
 
 		self.childEvents = EventFactoryFilter(self)
-		self.overlay = OverlayFactoryFilter(self) #Paint events are handled by the overlay module.
+		self.overlay = OverlayFactoryFilter(self, antialiasing=True) #Paint events are handled by the overlay module.
 
 		self.wgts = wgts
 

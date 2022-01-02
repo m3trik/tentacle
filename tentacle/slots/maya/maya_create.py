@@ -9,7 +9,8 @@ class Create(Slots_maya):
 		Slots_maya.__init__(self, *args, **kwargs)
 
 		ctx = self.create_ui.draggable_header.contextMenu
-		ctx.add(self.tcl.wgts.ComboBox, setObjectName='cmb000', setToolTip='')
+		if not ctx.containsMenuItems:
+			ctx.add(self.tcl.wgts.ComboBox, setObjectName='cmb000', setToolTip='')
 
 		cmb = self.create_ui.draggable_header.contextMenu.cmb000
 		list_ = ['']
@@ -24,8 +25,9 @@ class Create(Slots_maya):
 		cmb.addItems_(list_)
 
 		ctx = self.create_ui.tb000.contextMenu
-		ctx.add('QCheckBox', setText='Translate', setObjectName='chk000', setChecked=True, setToolTip='Move the created object to the center point of any selected object(s).')
-		ctx.add('QCheckBox', setText='Scale', setObjectName='chk001', setChecked=True, setToolTip='Uniformly scale the created object to match the averaged scale of any selected object(s).')
+		if not ctx.containsMenuItems:
+			ctx.add('QCheckBox', setText='Translate', setObjectName='chk000', setChecked=True, setToolTip='Move the created object to the center point of any selected object(s).')
+			ctx.add('QCheckBox', setText='Scale', setObjectName='chk001', setChecked=True, setToolTip='Uniformly scale the created object to match the averaged scale of any selected object(s).')
 
 
 	def draggable_header(self, state=None):

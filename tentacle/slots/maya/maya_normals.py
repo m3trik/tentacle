@@ -9,32 +9,37 @@ class Normals(Slots_maya):
 		Slots_maya.__init__(self, *args, **kwargs)
 
 		ctx = self.normals_ui.draggable_header.contextMenu
-		ctx.add(self.tcl.wgts.ComboBox, setObjectName='cmb000', setToolTip='')
+		if not ctx.containsMenuItems:
+			ctx.add(self.tcl.wgts.ComboBox, setObjectName='cmb000', setToolTip='')
 
 		cmb = self.normals_ui.draggable_header.contextMenu.cmb000
 		items = ['']
 		cmb.addItems_(items, '')
 
 		ctx = self.normals_ui.tb000.contextMenu
-		ctx.add('QSpinBox', setPrefix='Display Size: ', setObjectName='s001', setMinMax_='1-100 step1', setValue=1, setToolTip='Normal display size.')
+		if not ctx.containsMenuItems:
+			ctx.add('QSpinBox', setPrefix='Display Size: ', setObjectName='s001', setMinMax_='1-100 step1', setValue=1, setToolTip='Normal display size.')
 
 		ctx = self.normals_ui.tb001.contextMenu
-		ctx.add('QSpinBox', setPrefix='Angle: ', setObjectName='s002', setMinMax_='0-180 step1', setValue=0, setToolTip='The normal angle in degrees.')
-		ctx.add('QCheckBox', setText='Harden Creased Edges', setObjectName='chk001', setToolTip='Soften all non-creased edges.')
-		ctx.add('QCheckBox', setText='Harden UV Borders', setObjectName='chk002', setToolTip='Harden UV shell border edges.')
-		ctx.add('QCheckBox', setText='Soften All Other', setObjectName='chk000', setChecked=True, setToolTip='Soften all non-hard edges.')
+		if not ctx.containsMenuItems:
+			ctx.add('QSpinBox', setPrefix='Angle: ', setObjectName='s002', setMinMax_='0-180 step1', setValue=0, setToolTip='The normal angle in degrees.')
+			ctx.add('QCheckBox', setText='Harden Creased Edges', setObjectName='chk001', setToolTip='Soften all non-creased edges.')
+			ctx.add('QCheckBox', setText='Harden UV Borders', setObjectName='chk002', setToolTip='Harden UV shell border edges.')
+			ctx.add('QCheckBox', setText='Soften All Other', setObjectName='chk000', setChecked=True, setToolTip='Soften all non-hard edges.')
 
 		ctx = self.normals_ui.tb002.contextMenu
-		ctx.add('QSpinBox', setPrefix='Angle: ', setObjectName='s000', setMinMax_='0-180 step1', setValue=60, setToolTip='Angle degree.')
+		if not ctx.containsMenuItems:
+			ctx.add('QSpinBox', setPrefix='Angle: ', setObjectName='s000', setMinMax_='0-180 step1', setValue=60, setToolTip='Angle degree.')
 
 		ctx = self.normals_ui.tb003.contextMenu
-		ctx.add('QCheckBox', setText='Lock', setObjectName='chk002', setChecked=True, setToolTip='Toggle Lock/Unlock.')
-		ctx.add('QCheckBox', setText='All', setObjectName='chk001', setChecked=True, setToolTip='Lock/Unlock All.')
-
-		ctx.chk002.toggled.connect(lambda state, w=ctx.chk002: w.setText('Lock') if state else w.setText('Unlock')) 
+		if not ctx.containsMenuItems:
+			ctx.add('QCheckBox', setText='Lock', setObjectName='chk002', setChecked=True, setToolTip='Toggle Lock/Unlock.')
+			ctx.add('QCheckBox', setText='All', setObjectName='chk001', setChecked=True, setToolTip='Lock/Unlock All.')
+			ctx.chk002.toggled.connect(lambda state, w=ctx.chk002: w.setText('Lock') if state else w.setText('Unlock')) 
 
 		ctx = self.normals_ui.tb004.contextMenu
-		ctx.add('QCheckBox', setText='By UV Shell', setObjectName='chk003', setToolTip='Average the normals of each object\'s faces per UV shell.')
+		if not ctx.containsMenuItems:
+			ctx.add('QCheckBox', setText='By UV Shell', setObjectName='chk003', setToolTip='Average the normals of each object\'s faces per UV shell.')
 
 
 	def draggable_header(self, state=None):

@@ -22,11 +22,12 @@ class Symmetry(Slots_max):
 		# 	self.symmetry_submenu_ui.chk002.setChecked(state)
 
 		ctx = self.symmetry_ui.draggable_header.contextMenu
-		ctx.add(self.tcl.wgts.ComboBox, setObjectName='cmb000', setToolTip='')
+		if not ctx.containsMenuItems:
+			ctx.add(self.tcl.wgts.ComboBox, setObjectName='cmb000', setToolTip='')
 
 		cmb = self.symmetry_ui.draggable_header.contextMenu.cmb000
-		list_ = ['']
-		cmb.addItems_(list_, '')
+		items = ['']
+		cmb.addItems_(items, '')
 
 
 	def draggable_header(self, state=None):

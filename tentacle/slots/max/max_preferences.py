@@ -11,7 +11,8 @@ class Preferences(Slots_max):
 		self.preferences_ui.b010.setText('3dsMax Preferences')
 
 		ctx = self.preferences_ui.draggable_header.contextMenu
-		ctx.add(self.tcl.wgts.ComboBox, setObjectName='cmb000', setToolTip='')
+		if not ctx.containsMenuItems:
+			ctx.add(self.tcl.wgts.ComboBox, setObjectName='cmb000', setToolTip='')
 
 		cmb = self.preferences_ui.draggable_header.contextMenu.cmb000
 		items = ['']
@@ -23,21 +24,21 @@ class Preferences(Slots_max):
 		# index = cmb.items.index(pm.currentUnit(query=1, fullName=1, linear=1)) #get/set current linear value.
 		# cmb.setCurrentIndex(index)
 
-		cmb = self.preferences_ui.cmb002
-		#store a corresponding value for each item in the comboBox list_.
-		l = {'15 fps: ':'game','24 fps: ':'film','25 fps: ':'pal','30 fps: ':'ntsc','48 fps: ':'show','50 fps: ':'palf','60 fps: ':'ntscf'}
-		items = [k+v for k,v in l.items()] #ie. ['15 fps: game','24 fps: film', ..etc]
-		values = [i[1] for i in l] #ie. ['game','film', ..etc]
-		cmb.addItems_(items)
-		# index = cmb.items.index(pm.currentUnit(query=1, fullName=1, time=1)) #get/set current time value.
-		# cmb.setCurrentIndex(index)
+		# cmb = self.preferences_ui.cmb002
+		# #store a corresponding value for each item in the comboBox list_.
+		# l = {'15 fps: ':'game','24 fps: ':'film','25 fps: ':'pal','30 fps: ':'ntsc','48 fps: ':'show','50 fps: ':'palf','60 fps: ':'ntscf'}
+		# items = [k+v for k,v in l.items()] #ie. ['15 fps: game','24 fps: film', ..etc]
+		# values = [i[1] for i in l] #ie. ['game','film', ..etc]
+		# cmb.addItems_(items)
+		# # index = cmb.items.index(pm.currentUnit(query=1, fullName=1, time=1)) #get/set current time value.
+		# # cmb.setCurrentIndex(index)
 
-		cmb = self.preferences_ui.cmb003
-		from PySide2 import QtWidgets, QtCore
-		items = QtWidgets.QStyleFactory.keys() #get styles from QStyleFactory
-		cmb.addItems_(items)
-		index = self.styleComboBox.findText(QtGui.qApp.style().objectName(), QtCore.Qt.MatchFixedString) #get/set current value
-		cmb.setCurrentIndex(index)
+		# cmb = self.preferences_ui.cmb003
+		# from PySide2 import QtWidgets, QtCore
+		# items = QtWidgets.QStyleFactory.keys() #get styles from QStyleFactory
+		# cmb.addItems_(items)
+		# index = self.styleComboBox.findText(QtGui.qApp.style().objectName(), QtCore.Qt.MatchFixedString) #get/set current value
+		# cmb.setCurrentIndex(index)
 
 
 	def draggable_header(self, state=None):

@@ -9,20 +9,23 @@ class Animation(Slots_max):
 		Slots_max.__init__(self, *args, **kwargs)
 
 		ctx = self.animation_ui.draggable_header.contextMenu
-		ctx.add(self.tcl.wgts.ComboBox, setObjectName='cmb000', setToolTip='')
+		if not ctx.containsMenuItems:
+			ctx.add(self.tcl.wgts.ComboBox, setObjectName='cmb000', setToolTip='')
 
 		cmb = self.animation_ui.draggable_header.contextMenu.cmb000
-		list_ = ['Track View: Curve Editor','Track View: Dope Sheet','Track View: New Track View','Motion Mixer','Pose Mixer','MassFx Tools', 'Dynamics Explorer','Reaction Manager','Walkthrough Assistant']
-		cmb.addItems_(list_, 'Animation Editors')
+		items = ['Track View: Curve Editor','Track View: Dope Sheet','Track View: New Track View','Motion Mixer','Pose Mixer','MassFx Tools', 'Dynamics Explorer','Reaction Manager','Walkthrough Assistant']
+		cmb.addItems_(items, 'Animation Editors')
 
 		ctx = self.animation_ui.tb000.contextMenu
-		ctx.add('QSpinBox', setPrefix='Frame: ', setObjectName='s000', setMinMax_='0-10000 step1', setValue=1, setToolTip='')
-		ctx.add('QCheckBox', setText='Relative', setObjectName='chk000', setChecked=True, setToolTip='')
-		ctx.add('QCheckBox', setText='Update', setObjectName='chk001', setChecked=True, setToolTip='')
+		if not ctx.containsMenuItems:
+			ctx.add('QSpinBox', setPrefix='Frame: ', setObjectName='s000', setMinMax_='0-10000 step1', setValue=1, setToolTip='')
+			ctx.add('QCheckBox', setText='Relative', setObjectName='chk000', setChecked=True, setToolTip='')
+			ctx.add('QCheckBox', setText='Update', setObjectName='chk001', setChecked=True, setToolTip='')
 
 		ctx = self.animation_ui.tb001.contextMenu
-		ctx.add('QSpinBox', setPrefix='Time: ', setObjectName='s001', setMinMax_='0-10000 step1', setValue=1, setToolTip='The desired start time for the inverted keys.')
-		ctx.add('QCheckBox', setText='Relative', setObjectName='chk002', setChecked=False, setToolTip='Start time position as relative or absolute.')
+		if not ctx.containsMenuItems:
+			ctx.add('QSpinBox', setPrefix='Time: ', setObjectName='s001', setMinMax_='0-10000 step1', setValue=1, setToolTip='The desired start time for the inverted keys.')
+			ctx.add('QCheckBox', setText='Relative', setObjectName='chk002', setChecked=False, setToolTip='Start time position as relative or absolute.')
 
 
 	def draggable_header(self, state=None):

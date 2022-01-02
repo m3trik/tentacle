@@ -11,18 +11,21 @@ class Scene(Slots_maya):
 		self.scene_ui.t000.returnPressed.connect(self.t001) #preform rename on returnPressed
 
 		ctx = self.scene_ui.draggable_header.contextMenu
-		ctx.add(self.tcl.wgts.ComboBox, setObjectName='cmb000', setToolTip='Maya Scene Editors')
+		if not ctx.containsMenuItems:
+			ctx.add(self.tcl.wgts.ComboBox, setObjectName='cmb000', setToolTip='Maya Scene Editors')
 
 		cmb = self.scene_ui.draggable_header.contextMenu.cmb000
 		items = ['Node Editor', 'Outlinder', 'Content Browser', 'Optimize Scene Size', 'Prefix Hierarchy Names', 'Search and Replace Names']
 		cmb.addItems_(items, 'Maya Scene Editors')
 
 		ctx = self.scene_ui.t000.contextMenu
-		ctx.add('QCheckBox', setText='Ignore Case', setObjectName='chk000', setToolTip='Search case insensitive.')
-		ctx.add('QCheckBox', setText='Regular Expression', setObjectName='chk001', setToolTip='When checked, regular expression syntax is used instead of the default \'*\' and \'|\' wildcards.')
+		if not ctx.containsMenuItems:
+			ctx.add('QCheckBox', setText='Ignore Case', setObjectName='chk000', setToolTip='Search case insensitive.')
+			ctx.add('QCheckBox', setText='Regular Expression', setObjectName='chk001', setToolTip='When checked, regular expression syntax is used instead of the default \'*\' and \'|\' wildcards.')
 
 		ctx = self.scene_ui.tb000.contextMenu
-		ctx.add('QComboBox', addItems=['capitalize', 'upper', 'lower', 'swapcase', 'title'], setObjectName='cmb001', setToolTip='Set desired python case operator.')
+		if not ctx.containsMenuItems:
+			ctx.add('QComboBox', addItems=['capitalize', 'upper', 'lower', 'swapcase', 'title'], setObjectName='cmb001', setToolTip='Set desired python case operator.')
 
 
 	def draggable_header(self, state=None):

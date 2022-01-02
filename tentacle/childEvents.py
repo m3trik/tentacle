@@ -83,11 +83,11 @@ class EventFactoryFilter(QtCore.QObject):
 					widget.installEventFilter(self)
 
 				try: #add the child widgets of popup menus.
-					if widget.menu_.childWidgets:
-						self.tcl.setStyleSheet_(widget.menu_.childWidgets, uiName)
+					self.initWidgets(uiName, widget.menu_.childWidgets) #initialize the widget to set things like the event filter and styleSheet.
+					self.tcl.sb.connectSlots(uiName, widget.menu_.childWidgets)
 
-					if widget.contextMenu.childWidgets:
-						self.tcl.setStyleSheet_(widget.contextMenu.childWidgets, uiName)
+					self.initWidgets(uiName, widget.contextMenu.childWidgets)
+					self.tcl.sb.connectSlots(uiName, widget.contextMenu.childWidgets)
 				except AttributeError as error:
 					pass; #print ("# Error: {}.EventFactoryFilter.initWidgets({}, {}): {}. #".format(__name__, uiName, widgetName, error))
 
@@ -412,17 +412,6 @@ print (__name__)
 
 
 #deprecated:
-
-
-# if widget.menu_.childWidgets:
-# 	self.tcl.setStyleSheet_(widget.menu_.childWidgets, uiName)
-# 	# self.initWidgets(uiName, widget.menu_.childWidgets) #initialize the widget to set things like the event filter and styleSheet.
-# 	# self.tcl.sb.connectSlots(uiName, widget.menu_.childWidgets)
-
-# if widget.contextMenu.childWidgets:
-# 	self.tcl.setStyleSheet_(widget.contextMenu.childWidgets, uiName)
-# 	# self.initWidgets(uiName, widget.contextMenu.childWidgets)
-# 	# self.tcl.sb.connectSlots(uiName, widget.contextMenu.childWidgets)
 
 
 # try: #if callable(method): #attempt to clear any current menu items.

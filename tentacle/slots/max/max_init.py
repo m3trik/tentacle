@@ -12,6 +12,7 @@ class Init(Slots_max):
 
 		try:
 			self.init_ui.hud.shown.connect(self.construct_hud)
+
 		except AttributeError: #(an inherited class)
 			pass
 

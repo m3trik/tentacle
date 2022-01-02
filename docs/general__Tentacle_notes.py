@@ -192,14 +192,11 @@ def tree000(self, wItem=None, column=None):
 # ======================================================================
 '''
 
+Treewidgets not registering click on mouse release.
+
+
 ctx menu's commented out because of issues:
-	maya_file
 	maya_preferences
-
-
-
-tcl: submenus are being cropped when positioned.
-
 
 
 fix maya_mirror!!
@@ -219,8 +216,6 @@ Slots.scene: naming needs clearer docstring w/example results. replace suffix is
 
 
 maya_transform:  make live on submenu disables make live when first pressed.
-
-# popup menu closes when focus lost, even when pinned.
 
 
 # treewidgetExpandableList
