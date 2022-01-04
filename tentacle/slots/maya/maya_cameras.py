@@ -68,6 +68,7 @@ class Cameras(Slots_maya):
 		pm.viewClipPlane(activeCamera, autoClipPlane=True)
 
 
+	@Slots.message
 	def s000(self, value=None):
 		'''Camera Clipping: Near Clip
 		'''
@@ -80,6 +81,7 @@ class Cameras(Slots_maya):
 		pm.viewClipPlane(activeCamera, nearClipPlane=widget.value())
 
 
+	@Slots.message
 	def s001(self, value=None):
 		'''Camera Clipping: Far Clip
 		'''
@@ -159,123 +161,128 @@ class Cameras(Slots_maya):
 	def v000(self):
 		'''Cameras: Back View
 		'''
-		if pm.objExists('back'):
+		try: #if pm.objExists('back'):
 			pm.lookThru('back')
 
-		else:
-			cameraName=pm.camera()
-			#create camera
-			#cameraName[0] = camera node
-			#cameraName[1] = camera shape node
-			#rename camera node
-			pm.rename(cameraName[0], "back")
-			pm.lookThru('back')
+		except Exception as error:
+			cam, camShape = pm.camera() #create camera
+			pm.lookThru(cam)
 
-			#initialize the camera view
-			pm.viewSet(back=1)
+			pm.rename(cam, 'back')
+			pm.viewSet(back=1) #initialize the camera view
+			pm.hide(cam)
 
-			#add to camera group
-			if pm.objExists('cameras'):
-				pm.parent('back', 'cameras')
+			grp = pm.ls('cameras', transforms=1)
+			if grp and self.isGroup(grp[0]): #add the new cam to 'cameras' group (if it exists).
+				pm.parent(cam, 'cameras')
 
 
 	def v001(self):
 		'''Cameras: Top View
 		'''
-		pm.lookThru("topShape")
+		try:
+			pm.lookThru('topShape')
+		except Exception as error:
+			pm.lookThru('|top')
 
 
 	def v002(self):
 		'''Cameras: Right View
 		'''
-		pm.lookThru("sideShape")
+		try:
+			pm.lookThru('sideShape')
+		except Exception as error:
+			pm.lookThru('|side')
 
 
 	def v003(self):
 		'''Cameras: Left View
 		'''
-		if pm.objExists('left'):
+		try: #if pm.objExists('back'):
 			pm.lookThru('left')
 
-		else:
-			cameraName = pm.camera()
-			#cameraName[0] = camera node
-			#cameraName[1] = camera shape node
-			pm.rename(cameraName[0], "left")
-			pm.lookThru('left')
+		except Exception as error:
+			cam, camShape = pm.camera() #create camera
+			pm.lookThru(cam)
 
-			#initialize the camera view
-			pm.viewSet(leftSide=1)
+			pm.rename(cam, 'left')
+			pm.viewSet(leftSide=1) #initialize the camera view
+			pm.hide(cam)
 
-			#add to camera group
-			if pm.objExists('cameras'):
-				pm.parent('left', 'cameras')
+			grp = pm.ls('cameras', transforms=1)
+			if grp and self.isGroup(grp[0]): #add the new cam to 'cameras' group (if it exists).
+				pm.parent(cam, 'cameras')
 
 
 	def v004(self):
 		'''Cameras: Perspective View
 		'''
-		pm.lookThru("perspShape")
+		try:
+			pm.lookThru('perspShape')
+		except Exception as error:
+			pm.lookThru('|persp')
 
 
 	def v005(self):
 		'''Cameras: Front View
 		'''
-		pm.lookThru("frontShape")
+		try:
+			pm.lookThru('frontShape')
+		except Exception as error:
+			pm.lookThru('|front')
 
 
 	def v006(self):
 		'''Cameras: Bottom View
 		'''
-		if pm.objExists('bottom'):
+		try: #if pm.objExists('back'):
 			pm.lookThru('bottom')
 
-		else:
-			cameraName = pm.camera()
-			#create camera
-			#cameraName[0] = camera node
-			#cameraName[1] = camera shape node
-			pm.rename(cameraName[0], "bottom") #rename camera node
-			pm.lookThru('bottom')
+		except Exception as error:
+			cam, camShape = pm.camera() #create camera
+			pm.lookThru(cam)
 
-			#initialize the camera view
-			pm.viewSet(bottom=1)
-			#add to camera group
-			if pm.objExists('cameras'):
-				pm.parent('bottom', 'cameras')
+			pm.rename(cam, 'bottom')
+			pm.viewSet(bottom=1) #initialize the camera view
+			pm.hide(cam)
+
+			grp = pm.ls('cameras', transforms=1)
+			if grp and self.isGroup(grp[0]): #add the new cam to 'cameras' group (if it exists).
+				pm.parent(cam, 'cameras')
 
 
+	@Slots.message
 	def v007(self):
 		'''Cameras: Align View
 		'''
-		cameraExists = pm.objExists('alignToPoly')
+		selection = pm.ls(sl=1)
+		if not selection:
+			return 'Error: Nothing Selected.'
 
-		if cameraExists != 1: #if no camera exists; create camera
-			camera = pm.camera()
-			cameraShape = camera[1]
-			pm.rename(camera[0], 
-				("alignToPoly"))
-			pm.hide('alignToPoly')
-			
-		isPerspective = int(not pm.camera('alignToPoly', query=1, orthographic=1))
-		#check if camera view is orthoraphic
-		if isPerspective:
+		if not pm.objExists('alignToPoly'): #if no camera exists; create camera
+			cam, camShape = pm.camera()
+			pm.rename(cam, 'alignToPoly')
+			pm.hide(cam)
+
+			grp = pm.ls('cameras', transforms=1)
+			if grp and self.isGroup(grp[0]): #add the new cam to 'cameras' group (if it exists).
+				pm.parent(cam, 'cameras')
+
+		ortho = int(pm.camera('alignToPoly', query=1, orthographic=1)) #check if camera view is orthoraphic
+		if not ortho:
 			pm.viewPlace('alignToPoly', ortho=1)
 
 		pm.lookThru('alignToPoly')
 		pm.AlignCameraToPolygon()
 		pm.viewFit(fitFactor=5.0)
 
-		#add to camera group
-		if pm.objExists('cameras'):
-			pm.parent('alignToPoly', 'cameras')
-
 
 	@staticmethod
 	def groupCameras():
 		'''Group Cameras
 		'''
-		if pm.objExists('cameras'):
+		grp = pm.ls('cameras', transforms=1)
+		if grp and self.isGroup(grp[0]): #add the new cam to 'cameras' group (if it exists).
 			print ("# Error: Group 'cameras' already exists. #")
 			return
 
