@@ -8,6 +8,8 @@ class Uv(Slots_maya):
 	def __init__(self, *args, **kwargs):
 		Slots_maya.__init__(self, *args, **kwargs)
 
+		Slots_maya.loadPlugin('Unfold3D.mll')
+
 		ctx = self.uv_ui.draggable_header.contextMenu
 		if not ctx.containsMenuItems:
 			ctx.add(self.tcl.wgts.ComboBox, setObjectName='cmb000', setToolTip='Maya UV Editors')
@@ -33,8 +35,16 @@ class Uv(Slots_maya):
 
 		ctx = self.uv_ui.tb000.contextMenu
 		if not ctx.containsMenuItems:
-			ctx.add('QCheckBox', setText='Scale', setObjectName='chk025', setChecked=True, setToolTip='Allow shell scaling during packing.')
-			ctx.add('QCheckBox', setText='Rotate', setObjectName='chk007', setChecked=True, setToolTip='Allow shell rotation during packing.')
+			ctx.add(self.tcl.wgts.CheckBox, setText='Pre-Scale Mode: 1', setObjectName='chk025', setTristate=True, setCheckState_=1, setToolTip='Allow shell scaling during packing.')
+			ctx.add(self.tcl.wgts.CheckBox, setText='Pre-Rotate Mode: 1', setObjectName='chk007', setTristate=True, setCheckState_=1, setToolTip='Allow shell rotation during packing.')
+			ctx.add('QDoubleSpinBox', setPrefix='Rotate Step: ', setObjectName='s007', setMinMax_='0.0-360 step22.5', setValue=22.5, setToolTip='Set the allowed rotation increment contraint.')
+			ctx.add(self.tcl.wgts.CheckBox, setText='Stack Similar: 2', setObjectName='chk026', setTristate=True, setCheckState_=2, setToolTip='Find Similar shells. <br>state 1: Find similar shells, and pack one of each, ommiting the rest.<br>state 2: Find similar shells, and stack during packing.')
+			ctx.add('QDoubleSpinBox', setPrefix='Stack Similar Tolerance: ', setObjectName='s006', setMinMax_='0.0-10 step.1', setValue=1.0, setToolTip='Stack shells with uv\'s within the given range.')
+			ctx.add('QSpinBox', setPrefix='UDIM: ', setObjectName='s004', setMinMax_='1001-1200 step1', setValue=1001, setToolTip='Set the desired UDIM tile space.')
+			ctx.add('QSpinBox', setPrefix='Map Size: ', setObjectName='s005', setMinMax_='512-8192 step512', setValue=2048, setToolTip='UV map resolution.')
+			ctx.chk025.stateChanged.connect(lambda state: ctx.chk025.setText('Pre-Scale Mode: '+str(state)))
+			ctx.chk007.stateChanged.connect(lambda state: ctx.chk007.setText('Pre-Rotate Mode: '+str(state)))
+			ctx.chk026.stateChanged.connect(lambda state: ctx.chk026.setText('Stack Similar: '+str(state)))
 
 		ctx = self.uv_ui.tb001.contextMenu
 		if not ctx.containsMenuItems:

@@ -26,8 +26,6 @@ class Tcl(QtWidgets.QStackedWidget, StyleSheet):
 		parent (obj) = The parent application's top level window.
 		profile (bool) = Prints the total running time, times each function separately, and tells you how many times each function was called.
 	'''
-	qApp = QtWidgets.QApplication
-
 	_key_show_release = QtCore.Signal()
 
 	def __init__(self, parent=None, key_show='Key_F12', preventHide=False, profile=False):
@@ -52,7 +50,8 @@ class Tcl(QtWidgets.QStackedWidget, StyleSheet):
 
 		self.wgts = wgts
 
-		self.qApp.instance().focusChanged.connect(self.focusChanged)
+		self.qApp = QtWidgets.QApplication.instance()
+		self.qApp.focusChanged.connect(self.focusChanged)
 
 		self.centerPos = lambda: QtGui.QCursor.pos() - self.rect().center() #get the center point of this widget.
 		self.centerWidget = lambda w, p: w.move(QtCore.QPoint(p.x()-(w.width()/2), p.y()-(w.height()/4))) #center a given widget on a given position.
@@ -340,6 +339,11 @@ class Tcl(QtWidgets.QStackedWidget, StyleSheet):
 		'''
 		if not self.isActiveWindow():
 			self.hide()
+
+		try:
+			new.grabKeyboard()
+		except AttributeError as error: #'new' is NoneType.
+			pass
 
 
 	def show(self, uiName='init'):
