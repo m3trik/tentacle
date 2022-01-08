@@ -32,8 +32,8 @@ class Materials(Slots_maya):
 			cmb.beforePopupShown.connect(self.cmb002) #refresh comboBox contents before showing it's menu.
 			cmb.returnPressed.connect(lambda: self.lbl001(setEditable=False))
 			cmb.currentIndexChanged.connect(lambda: ctx.setTitle(cmb.currentText())) #set the popup title to be the current materials name.
-			ctx.cmb001.currentIndexChanged.connect(self.cmb002) #refresh cmb002 contents.
 			ctx.cmb001.currentIndexChanged.connect(lambda: self.materials_ui.group000.setTitle(ctx.cmb001.currentText())) #set the groupbox title to reflect the current filter.
+			ctx.cmb001.currentIndexChanged.connect(self.cmb002) #refresh cmb002 contents.
 			self.cmb002() #initialize the materials list
 
 		ctx = self.materials_ui.tb000.contextMenu
@@ -42,7 +42,8 @@ class Materials(Slots_maya):
 			ctx.add('QCheckBox', setText='Shell', setObjectName='chk005', setToolTip='Select entire shell.')
 			ctx.add('QCheckBox', setText='Invert', setObjectName='chk006', setToolTip='Invert Selection.')
 
-		ctx = self.materials_ui.tb002.contextMenu
+		tb = self.materials_ui.tb002
+		ctx = tb.contextMenu
 		if not ctx.containsMenuItems:
 			ctx.add('QRadioButton', setText='Current Material', setObjectName='chk007', setChecked=True, setToolTip='Re-Assign the current stored material.')
 			ctx.add('QRadioButton', setText='New Material', setObjectName='chk009', setToolTip='Assign a new material.')

@@ -35,16 +35,13 @@ class Uv(Slots_maya):
 
 		ctx = self.uv_ui.tb000.contextMenu
 		if not ctx.containsMenuItems:
-			ctx.add(self.tcl.wgts.CheckBox, setText='Pre-Scale Mode: 1', setObjectName='chk025', setTristate=True, setCheckState_=1, setToolTip='Allow shell scaling during packing.')
-			ctx.add(self.tcl.wgts.CheckBox, setText='Pre-Rotate Mode: 1', setObjectName='chk007', setTristate=True, setCheckState_=1, setToolTip='Allow shell rotation during packing.')
+			ctx.add('QSpinBox', setPrefix='Pre-Scale Mode: ', setObjectName='s009', setMinMax_='0-2 step1', setValue=1, setToolTip='Allow shell scaling during packing.')
+			ctx.add('QSpinBox', setPrefix='Pre-Rotate Mode: ', setObjectName='s010', setMinMax_='0-2 step1', setValue=1, setToolTip='Allow shell rotation during packing.')
 			ctx.add('QDoubleSpinBox', setPrefix='Rotate Step: ', setObjectName='s007', setMinMax_='0.0-360 step22.5', setValue=22.5, setToolTip='Set the allowed rotation increment contraint.')
-			ctx.add(self.tcl.wgts.CheckBox, setText='Stack Similar: 2', setObjectName='chk026', setTristate=True, setCheckState_=2, setToolTip='Find Similar shells. <br>state 1: Find similar shells, and pack one of each, ommiting the rest.<br>state 2: Find similar shells, and stack during packing.')
-			ctx.add('QDoubleSpinBox', setPrefix='Stack Similar Tolerance: ', setObjectName='s006', setMinMax_='0.0-10 step.1', setValue=1.0, setToolTip='Stack shells with uv\'s within the given range.')
+			ctx.add('QSpinBox', setPrefix='Stack Similar: ', setObjectName='s011', setMinMax_='0-2 step1', setValue=0, setToolTip='Find Similar shells. <br>state 1: Find similar shells, and pack one of each, ommiting the rest.<br>state 2: Find similar shells, and stack during packing.')
+			ctx.add('QDoubleSpinBox', setPrefix='Tolerance: ', setObjectName='s006', setMinMax_='0.0-10 step.1', setValue=1.0, setToolTip='Stack Similar: Stack shells with uv\'s within the given range.')
 			ctx.add('QSpinBox', setPrefix='UDIM: ', setObjectName='s004', setMinMax_='1001-1200 step1', setValue=1001, setToolTip='Set the desired UDIM tile space.')
 			ctx.add('QSpinBox', setPrefix='Map Size: ', setObjectName='s005', setMinMax_='512-8192 step512', setValue=2048, setToolTip='UV map resolution.')
-			ctx.chk025.stateChanged.connect(lambda state: ctx.chk025.setText('Pre-Scale Mode: '+str(state)))
-			ctx.chk007.stateChanged.connect(lambda state: ctx.chk007.setText('Pre-Rotate Mode: '+str(state)))
-			ctx.chk026.stateChanged.connect(lambda state: ctx.chk026.setText('Stack Similar: '+str(state)))
 
 		ctx = self.uv_ui.tb001.contextMenu
 		if not ctx.containsMenuItems:
@@ -231,24 +228,24 @@ class Uv(Slots_maya):
 		'''
 		tb = self.uv_ui.tb000
 
-		scale = tb.contextMenu.chk025.isChecked()
-		rotate = tb.contextMenu.chk007.isChecked()
+		scale = tb.contextMenu.s009.value()
+		rotate = tb.contextMenu.s010.value()
 		rotateStep = tb.contextMenu.s007.value()
 		UDIM = tb.contextMenu.s004.value()
 		mapSize = tb.contextMenu.s005.value()
-		similar = tb.contextMenu.chk026.checkState_()
+		similar = tb.contextMenu.s011.value()
 		tolerance = tb.contextMenu.s006.value()
 
 		U,D,I,M = [int(i) for i in str(UDIM)]
 
 		sel = Uv.UvShellSelection() #assure the correct selection mask.
-		if similar > 0:
+		if similar>0:
 			dissimilar = pm.polyUVStackSimilarShells(sel, tolerance=tolerance, onlyMatch=True)
 			dissimilarUVs = [s.split() for s in dissimilar] if dissimilar else []
 			dissimilarFaces = pm.polyListComponentConversion(dissimilarUVs, fromUV=1, toFace=1)
 			pm.u3dLayout(dissimilarFaces, resolution=mapSize, preScaleMode=scale, preRotateMode=rotate, rotateStep=rotateStep, shellSpacing=.005, tileMargin=.005, packBox=[M-1, D, I, U]) #layoutScaleMode (int), multiObject (bool), mutations (int), packBox (float, float, float, float), preRotateMode (int), preScaleMode (int), resolution (int), rotateMax (float), rotateMin (float), rotateStep (float), shellSpacing (float), tileAssignMode (int), tileMargin (float), tileU (int), tileV (int), translate (bool)
 
-		elif similar is 2:
+		elif similar==2:
 			pm.select(dissimilarFaces, toggle=1)
 			similarFaces = pm.ls(sl=1)
 			pm.polyUVStackSimilarShells(similarFaces, dissimilarFaces, tolerance=tolerance)
@@ -440,17 +437,19 @@ class Uv(Slots_maya):
 	def b002(self):
 		'''Transfer Uv's
 		'''
-		sel = pm.ls(orderedSelection=1, flatten=1)
-		if len(sel)<2:
-			return 'Error: The operation requires the selection of two polygon objects.'
+		selection = pm.ls(orderedSelection=1, flatten=1)
+		if len(selection)<2:
+			return 'Error: <b>Nothing selected.</b><br>The operation requires the selection of two polygon objects.'
 
 		# pm.undoInfo(openChunk=1)
-		from_ = sel[0]
-		to = sel[1:]
+		set1 = pm.listRelatives(selection[0], children=1)
+		set2 = pm.listRelatives(selection[1:], children=1)
 
-		for i in to: # 0:no UV sets, 1:single UV set (specified by sourceUVSet and targetUVSet args), and 2:all UV sets are transferred.
-			pm.transferAttributes(from_, i, transferUVs=2)
-			print('Result: UV sets transferred from: {} to: {}.'.format(from_.name(), i.name()))
+		for frm in set1:
+			for to in set2:
+				# if pm.polyEvaluate(frm)==pm.polyEvaluate(to):
+				pm.transferAttributes(frm, to, transferUVs=2, sampleSpace=4) #-transferNormals 0 -transferUVs 2 -transferColors 2 -sourceUvSpace "map1" -targetUvSpace "map1" -searchMethod 3-flipUVs 0 -colorBorders 1 ;
+				# print('Result: UV sets transferred from: {} to: {}.'.format(frm.name(), to.name()))
 		# pm.undoInfo(closeChunk=1)
 
 

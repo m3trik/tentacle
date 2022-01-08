@@ -43,7 +43,8 @@ class Materials(Slots_max):
 			ctx.add('QCheckBox', setText='Shell', setObjectName='chk005', setToolTip='Select entire shell.')
 			ctx.add('QCheckBox', setText='Invert', setObjectName='chk006', setToolTip='Invert Selection.')
 
-		ctx = self.materials_ui.tb002.contextMenu
+		tb = self.materials_ui.tb002
+		ctx = tb.contextMenu
 		if not ctx.containsMenuItems:
 			ctx.add('QRadioButton', setText='Current Material', setObjectName='chk007', setChecked=True, setToolTip='Re-Assign the current stored material.')
 			ctx.add('QRadioButton', setText='New Material', setObjectName='chk009', setToolTip='Assign a new material.')

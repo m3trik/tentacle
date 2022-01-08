@@ -42,7 +42,10 @@ s000.valueChanged.connect(lambda v: rt.autosave.setmxsprop('NumberOfFiles', v))
 chk013.toggled.connect(lambda state: ctx.s006.setEnabled(True if state else False))
 chk015.stateChanged.connect(lambda state: self.toggleWidgets(ctx, setDisabled='t000-1,s001,chk005-11') if state 
 												else self.toggleWidgets(ctx, setEnabled='t000-1,s001,chk005-11')) #disable non-relevant options.
+
+#setText on state change.
 chk004.stateChanged.connect(lambda state: ctx.chk004.setText('Repair' if state else 'Select Only')) #set button text to reflect current state.
+ctx.chk026.stateChanged.connect(lambda state: ctx.chk026.setText('Stack Similar: '+str(state)))
 
 #set multiple connections using the Slots.connect_ method.
 self.connect_('chk006-9', 'toggled', self.chk006_9, ctx)
@@ -191,6 +194,7 @@ def tree000(self, wItem=None, column=None):
 	'KNOWN BUGS'
 # ======================================================================
 '''
+
 
 Treewidgets not registering click on mouse release.
 

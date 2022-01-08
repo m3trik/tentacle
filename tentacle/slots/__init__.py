@@ -659,45 +659,45 @@ class Slots(QtCore.QObject):
 		to_ = to.strip('*').rstrip('*') #remove any modifiers from the left and right end chars.
 
 		result=[]
-		for obj in where:
+		for name in where:
 
 			#modifiers
 			if to.startswith('*') and to.endswith('*'): #replace chars
 				if ignoreCase:
-					n = re.sub(frm_, to_, obj, flags=re.IGNORECASE) #remove frm_ from the string (case in-sensitive).
+					n = re.sub(frm_, to_, name, flags=re.IGNORECASE) #remove frm_ from the string (case in-sensitive).
 				else:
-					n = obj.replace(frm_, to_)
+					n = name.replace(frm_, to_)
 
 			elif to.startswith('**'): #append suffix
-				n = obj+to_
+				n = name+to_
 
 			elif to.startswith('*'): #replace suffix
 				if ignoreCase:
-					index = re.search(frm_, obj, flags=re.IGNORECASE).end()
-					n = obj[:index]+to_
+					end_index = re.search(frm_, name, flags=re.IGNORECASE).start() #get the starting index of 'frm_'.
+					n = name[:index]+to_
 				else:
-					n = obj.split(frm_)[0]+frm_+to_
+					n = name.split(frm_)[0]+to_
 
 			elif to.endswith('**'): #append prefix
-				n = to_+obj
+				n = to_+name
 
 			elif to.endswith('*'): #replace prefix
 				if ignoreCase:
-					index = re.search(frm_, obj, flags=re.IGNORECASE).start()
-					n = to_+obj[index:]
+					end_index = re.search(frm_, name, flags=re.IGNORECASE).end() #get the ending index of 'frm_'.
+					n = to_+name[index:]
 				else:
-					n = to_+frm_+obj.split(frm_)[-1]
+					n = to_+frm_+name.split(frm_)[-1]
 
 			else:
 				if not to_: #if 'to_' is an empty string:
 					if ignoreCase:
-						n = re.sub(frm_, '', obj, flags=re.IGNORECASE) #remove frm_ from the string (case in-sensitive).
+						n = re.sub(frm_, '', name, flags=re.IGNORECASE) #remove frm_ from the string (case in-sensitive).
 					else:
-						n = obj.replace(frm_, '') #remove frm_ from the string.
+						n = name.replace(frm_, '') #remove frm_ from the string.
 				else: #else; replace whole name
 					n = to_
 
-			result.append((obj, n))
+			result.append((name, n))
 
 		return result
 

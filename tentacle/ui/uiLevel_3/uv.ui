@@ -458,7 +458,7 @@
                </size>
               </property>
               <property name="toolTip">
-               <string>Pack UV's</string>
+               <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Transfer UV sets from the first selected object to the remaining.&lt;/p&gt;&lt;p&gt;If the selected objects are groups, then the operation will be performed on the group's children.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
               </property>
               <property name="text">
                <string>Transfer UV Sets</string>

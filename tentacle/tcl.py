@@ -334,15 +334,24 @@ class Tcl(QtWidgets.QStackedWidget, StyleSheet):
 		'''Called on focus events.
 
 		:Parameters:
-			old (obj) = The previously focused widget.
-			new (obj) = The current widget with focus.
+			old (obj) = The widget with previous focus.
+			new (obj) = The widget with current focus.
 		'''
 		if not self.isActiveWindow():
 			self.hide()
 
+		# try:
+		# 	self._key_show_release.disconnect(old.grabKeyboard)
+		# except Exception as error:
+		# 	pass
+		# try:
+		# 	self._key_show_release.connect(new.grabKeyboard)
+		# except Exception as error:
+		# 	pass
+
 		try:
 			new.grabKeyboard()
-		except AttributeError as error: #'new' is NoneType.
+		except:
 			pass
 
 

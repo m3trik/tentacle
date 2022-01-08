@@ -281,10 +281,24 @@ class Duplicate(Slots_maya):
 
 
 	@Slots.message
+	def b000(self):
+		'''Create Instances
+		'''
+		selection = pm.ls(sl=1, transforms=1)
+		if not selection:
+			return 'Error: <strong>Nothing selected</strong>.<br>Operation requires an object selection.'
+
+		instances = [pm.instance(obj, name=obj.name()+'_inst') 
+							for obj in selection]
+
+		pm.select(instances)
+
+
+	@Slots.message
 	def b001(self):
 		'''Convert to Instances
 		'''
-		selection = pm.ls(sl=1)
+		selection = pm.ls(sl=1, transforms=1)
 		if not selection:
 			return 'Error: <strong>Nothing selected</strong>.<br>Operation requires an object selection.'
 

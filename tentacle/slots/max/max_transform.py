@@ -401,7 +401,7 @@ class Transform(Slots_max):
 		'''
 		selection = list(rt.selection)
 		if not selection:
-			return 'Error: Operation requires a single selected object.'
+			return 'Error: <b>Nothing selected.</b><br>The operation requires a single selected object.'
 
 		obj = selection[0]
 
@@ -410,6 +410,20 @@ class Transform(Slots_max):
 		attrs = {p:getattr(obj, p) for p in props}
 
 		self.setAttributeWindow(obj, attributes=attrs, checkableLabel=True)
+
+
+	@Slots.message
+	def b001(self):
+		'''Match Scale
+		'''
+		selection = list(rt.selection)
+		if not selection:
+			return 'Error: <b>Nothing selected.</b><br>The operation requires at least two selected object.'
+
+		frm = selection[0]
+		to = selection[1:]
+
+		Slots_maya.matchScale(to, frm)
 
 
 	def lbl000(self):

@@ -60,7 +60,7 @@ class Selection(Slots_max):
 		cmb.popupStyle = 'qmenu'
 		cmb.beforePopupShown.connect(self.cmb006) #refresh the comboBox contents before showing it's popup.
 
-		tb = self.selection_ui.tb000.contextMenu
+		ctx = self.selection_ui.tb000.contextMenu
 		if not ctx.containsMenuItems:
 			ctx.add('QRadioButton', setText='Component Ring', setObjectName='chk000', setToolTip='Select component ring.')
 			ctx.add('QRadioButton', setText='Component Loop', setObjectName='chk001', setChecked=True, setToolTip='Select all contiguous components that form a loop with the current selection.')
@@ -69,18 +69,18 @@ class Selection(Slots_max):
 			ctx.add('QRadioButton', setText='Border Edges', setObjectName='chk010', setToolTip='Select the object(s) border edges.')
 			ctx.add('QSpinBox', setPrefix='Step: ', setObjectName='s003', setMinMax_='1-100 step1', setValue=1, setToolTip='Step Amount.')
 
-		tb = self.selection_ui.tb001.contextMenu
+		ctx = self.selection_ui.tb001.contextMenu
 		if not ctx.containsMenuItems:
 			ctx.add('QDoubleSpinBox', setPrefix='Tolerance: ', setObjectName='s000', setMinMax_='0.0-10 step.1', setValue=0.3, setToolTip='Select similar objects or components, depending on selection mode.')
 
-		tb = self.selection_ui.tb002.contextMenu
+		ctx = self.selection_ui.tb002.contextMenu
 		if not ctx.containsMenuItems:
 			ctx.add('QCheckBox', setText='Lock Values', setObjectName='chk003', setChecked=True, setToolTip='Keep values in sync.')
 			ctx.add('QDoubleSpinBox', setPrefix='x: ', setObjectName='s002', setMinMax_='0.00-1 step.01', setValue=0.05, setToolTip='Normal X range.')
 			ctx.add('QDoubleSpinBox', setPrefix='y: ', setObjectName='s004', setMinMax_='0.00-1 step.01', setValue=0.05, setToolTip='Normal Y range.')
 			ctx.add('QDoubleSpinBox', setPrefix='z: ', setObjectName='s005', setMinMax_='0.00-1 step.01', setValue=0.05, setToolTip='Normal Z range.')
 
-		tb = self.selection_ui.tb003.contextMenu
+		ctx = self.selection_ui.tb003.contextMenu
 		if not ctx.containsMenuItems:
 			ctx.add('QDoubleSpinBox', setPrefix='Angle Low:  ', setObjectName='s006', setMinMax_='0.0-180 step1', setValue=50, setToolTip='Normal angle low range.')
 			ctx.add('QDoubleSpinBox', setPrefix='Angle High: ', setObjectName='s007', setMinMax_='0.0-180 step1', setValue=130, setToolTip='Normal angle high range.')

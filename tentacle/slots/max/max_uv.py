@@ -35,8 +35,8 @@ class Uv(Slots_max):
 
 		ctx = self.uv_ui.tb000.contextMenu
 		if not ctx.containsMenuItems:
-			ctx.add('QCheckBox', setText='Scale', setObjectName='chk025', setChecked=True, setToolTip='Allow shell scaling during packing.')
-			ctx.add('QCheckBox', setText='Rotate', setObjectName='chk007', setChecked=True, setToolTip='Allow shell rotation during packing.')
+			ctx.add('QSpinBox', setPrefix='Pre-Scale Mode: ', setObjectName='s009', setMinMax_='0-1 step1', setValue=1, setToolTip='Allow shell scaling during packing.')
+			ctx.add('QSpinBox', setPrefix='Pre-Rotate Mode: ', setObjectName='s010', setMinMax_='0-1 step1', setValue=1, setToolTip='Allow shell rotation during packing.')
 
 		ctx = self.uv_ui.tb001.contextMenu
 		if not ctx.containsMenuItems:
@@ -220,13 +220,9 @@ class Uv(Slots_max):
 		# --fillholes - determines whether smaller clusters will be put in the holes of the larger cluster.
 		'''
 		tb = self.current_ui.tb000
-		if state=='setMenu':
-			tb.contextMenu.add('QCheckBox', setText='Scale', setObjectName='chk025', setChecked=True, setToolTip='Allow shell scaling during packing.')
-			tb.contextMenu.add('QCheckBox', setText='Rotate', setObjectName='chk007', setChecked=True, setToolTip='Allow shell rotation during packing.')
-			return
 
-		scale = tb.contextMenu.chk025.isChecked()
-		rotate = tb.contextMenu.chk007.isChecked()
+		scale = tb.contextMenu.s009.value()
+		rotate = tb.contextMenu.s010.value()
 
 		obj = rt.selection[0]
 

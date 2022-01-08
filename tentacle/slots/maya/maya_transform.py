@@ -42,7 +42,7 @@ class Transform(Slots_maya):
 		[cmb.menu_.add(self.tcl.wgts.CheckBox, setObjectName=i[0], setText=i[1], setTristate=1) if len(i)==2 
 			else cmb.menu_.add('QDoubleSpinBox', setObjectName=i[0], setPrefix=i[1], setValue=i[2], setMinMax_=i[3], setDisabled=1) for i in values]
 
-		ctx = self.transform_ui.tb000.contextMenu
+		ctx = self.transform_ui.tb000.contextMenu #drop to grid.
 		if not ctx.containsMenuItems:
 			ctx.add('QComboBox', addItems=['Min','Mid','Max'], setObjectName='cmb004', setToolTip='Choose which point of the bounding box to align to.')
 			ctx.add('QCheckBox', setText='Move to Origin', setObjectName='chk014', setChecked=True, setToolTip='Move to origin (xyz 0,0,0).')
@@ -139,8 +139,8 @@ class Transform(Slots_maya):
 
 		cmb.menu_.chk021.setText(text[state])
 		cmb.menu_.s021.setEnabled(state)
-		pm.manipMoveContext('Move', edit=1, snap=False if state is 0 else True, snapRelative=True if state is 1 else False) #state: 0=off, 1=relative, 2=absolute
-		pm.texMoveContext('texMoveContext', edit=1, snap=False if state is 0 else True) #uv move context
+		pm.manipMoveContext('Move', edit=1, snap=False if state==0 else True, snapRelative=True if state==1 else False) #state: 0=off, 1=relative, 2=absolute
+		pm.texMoveContext('texMoveContext', edit=1, snap=False if state==0 else True) #uv move context
 
 		cmb.setCurrentText('Snap: <hl style="color:white;">Off</hl>') if not any((state, cmb.menu_.chk022.isChecked(), cmb.menu_.chk023.isChecked())) else cmb.setCurrentText('Snap: <hl style="color:green;">On</hl>')
 
@@ -153,8 +153,8 @@ class Transform(Slots_maya):
 
 		cmb.menu_.chk022.setText(text[state])
 		cmb.menu_.s022.setEnabled(state)
-		pm.manipScaleContext('Scale', edit=1, snap=False if state is 0 else True, snapRelative=True if state is 1 else False) #state: 0=off, 1=relative, 2=absolute
-		pm.texScaleContext('texScaleContext', edit=1, snap=False if state is 0 else True) #uv scale context
+		pm.manipScaleContext('Scale', edit=1, snap=False if state==0 else True, snapRelative=True if state==1 else False) #state: 0=off, 1=relative, 2=absolute
+		pm.texScaleContext('texScaleContext', edit=1, snap=False if state==0 else True) #uv scale context
 
 		cmb.setCurrentText('Snap: <hl style="color:white;">Off</hl>') if not any((state, cmb.menu_.chk021.isChecked(), cmb.menu_.chk023.isChecked())) else cmb.setCurrentText('Snap: <hl style="color:green;">On</hl>')
 
@@ -167,8 +167,8 @@ class Transform(Slots_maya):
 
 		cmb.menu_.chk023.setText(text[state])
 		cmb.menu_.s023.setEnabled(state)
-		pm.manipRotateContext('Rotate', edit=1, snap=False if state is 0 else True, snapRelative=True if state is 1 else False) #state: 0=off, 1=relative, 2=absolute
-		pm.texRotateContext('texRotateContext', edit=1, snap=False if state is 0 else True) #uv rotate context
+		pm.manipRotateContext('Rotate', edit=1, snap=False if state==0 else True, snapRelative=True if state==1 else False) #state: 0=off, 1=relative, 2=absolute
+		pm.texRotateContext('texRotateContext', edit=1, snap=False if state==0 else True) #uv rotate context
 
 		cmb.setCurrentText('Snap: <hl style="color:white;">Off</hl>') if not any((state, cmb.menu_.chk021.isChecked(), cmb.menu_.chk022.isChecked())) else cmb.setCurrentText('Snap: <hl style="color:green;">On</hl>')
 
@@ -376,23 +376,24 @@ class Transform(Slots_maya):
 		'''
 		node = pm.ls(sl=1, objectsOnly=1)
 		if not node:
-			return 'Error: Operation requires a single selected object.'
+			return 'Error: <b>Nothing selected.</b><br>The operation requires a single selected object.'
 		transform = Slots_maya.getTransformNode(node)
 
 		self.setAttributeWindow(transform[0], include=['translateX','translateY','translateZ','rotateX','rotateY','rotateZ','scaleX','scaleY','scaleZ'], checkableLabel=True)
 
 
 	@Slots.message
-	@Slots.hideMain
-	def b000(self):
-		'''Object Transform Attributes
+	def b001(self):
+		'''Match Scale
 		'''
-		node = pm.ls(sl=1, objectsOnly=1)
-		if not node:
-			return 'Error: Operation requires a single selected object.'
-		transform = Slots_maya.getTransformNode(node)
+		selection = pm.ls(sl=1)
+		if not selection:
+			return 'Error: <b>Nothing selected.</b><br>The operation requires at least two selected object.'
 
-		self.setAttributeWindow(transform[0], include=['translateX','translateY','translateZ','rotateX','rotateY','rotateZ','scaleX','scaleY','scaleZ'], checkableLabel=True)
+		frm = selection[0]
+		to = selection[1:]
+
+		Slots_maya.matchScale(to, frm)
 
 
 	def b002(self):
@@ -410,12 +411,12 @@ class Transform(Slots_maya):
 	def b005(self):
 		'''Move To
 		'''
-		sel = rt.getCurrentSelection()
+		sel = pm.ls(sl=1, transforms=1)
 
-		source = sel[0]
-		target = sel[1]
-		#move object to center of the last selected items bounding box
-		source.center = target.center
+		source = sel[:-1]
+		target = sel[-1]
+
+		Transform.moveTo(source, target, targetCenter=1) #move object to center of the last selected items bounding box
 
 
 	def b012(self):
@@ -468,6 +469,26 @@ class Transform(Slots_maya):
 			pm.xform(cp=1)
 			
 		pm.manipPivot(ro=1, rp=1)
+
+
+	@staticmethod
+	def moveTo(obj, target, targetCenter=True):
+		'''Move an object(s) to the given target.
+
+		:Parameters:
+			obj (str)(obj)(list) = The objects to move.
+			target (str)(obj) = The object to move to.
+			targetCenter (bool) = Move to target pivot pos, or the bounding box center of the target.
+		'''
+		if targetCenter: #temporarily move the targets pivot to it's bounding box center.
+			orig_target_piv = pm.xform(target, q=1, worldSpace=1, rp=1) #get target pivot position.
+			pm.xform(target, centerPivots=1) #center target pivot.
+			target_pos = pm.xform(target, q=1, worldSpace=1, rp=1) #get the pivot position at center of object.
+			pm.xform(target, worldSpace=1, rp=orig_target_piv) #return the target pivot to it's orig position.
+		else:
+			target_pos = pm.xform(target, q=1, worldSpace=1, rp=1) #get the pivot position.
+
+		pm.xform(obj, translation=target_pos, worldSpace=1, relative=1)
 
 
 
