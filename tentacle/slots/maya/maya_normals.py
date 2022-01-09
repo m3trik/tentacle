@@ -106,11 +106,11 @@ class Normals(Slots_maya):
 			allEdges = edges = pm.ls(pm.polyListComponentConversion(obj, toEdge=1), flatten=1)
 
 			if hardenCreased:
-				creasedEdges = Normals.getCreasedEdges(allEdges)
+				creasedEdges = self.tcl.sb.getClassInstance('crease').getCreasedEdges(allEdges)
 				selEdges = selEdges + creasedEdges if not selEdges==allEdges else creasedEdges
 
 			if hardenUvBorders:
-				uv_border_edges = Slots_maya.getUvShellBorderEdges(selection)
+				uv_border_edges = self.tcl.sb.getClassInstance('uv').getUvShellBorderEdges(selection)
 				selEdges = selEdges + uv_border_edges if not selEdges==allEdges else uv_border_edges
 
 			pm.polySoftEdge(selEdges, angle=hardAngle, constructionHistory=0) #set hard edges.
@@ -183,7 +183,7 @@ class Normals(Slots_maya):
 		tb = self.normals_ui.tb004
 
 		byUvShell = tb.contextMenu.chk003.isChecked()
-		Normals.averageNormals(byUvShell)
+		self.averageNormals(byUvShell)
 
 
 	def b001(self):
@@ -221,9 +221,8 @@ class Normals(Slots_maya):
 		pm.polyNormal(sel, normalMode=3, userNormalMode=1) #3: reverse and cut a new shell on selected face(s). 4: reverse and propagate; Reverse the normal(s) and propagate this direction to all other faces in the shell.
 
 
-	@staticmethod
 	@Slots_maya.undoChunk
-	def averageNormals(byUvShell=False):
+	def averageNormals(self, byUvShell=False):
 		'''Average Normals
 
 		:Parameters:
@@ -235,7 +234,7 @@ class Normals(Slots_maya):
 
 			if byUvShell:
 				obj = pm.ls(obj, transforms=1)
-				sets_ = Slots_maya.getUvShellSets(obj)
+				sets_ = self.tcl.sb.getClassInstance('uv').getUvShellSets(obj)
 				for set_ in sets_:
 					pm.polySetToFaceNormal(set_)
 					pm.polyAverageNormal(set_)
@@ -248,27 +247,94 @@ class Normals(Slots_maya):
 		# pm.undoInfo(closeChunk=1)
 
 
-	@staticmethod
-	def getCreasedEdges(edges):
-		'''Return any creased edges from a list of edges.
+	def getNormalVector(self, name=None):
+		'''Get the normal vectors from the given poly object.
+		If no argument is given the normals for the current selection will be returned.
+		:Parameters:
+			name (str) = polygon mesh or component.
+		:Return:
+			dict - {int:[float, float, float]} face id & vector xyz.
+		'''
+		type_ = pm.objectType(name)
+
+		if type_=='mesh': #get face normals
+			normals = pm.polyInfo(name, faceNormals=1)
+
+		elif type_=='transform': #get all normals for the given obj
+			numFaces = pm.polyEvaluate(name, face=1) #returns number of faces as an integer
+			normals=[]
+			for n in range(0, numFaces): #for (number of faces):
+				array = pm.polyInfo('{0}[{1}]'.format(name, n) , faceNormals=1) #get normal info from the rest of the object's faces
+				string = ' '.join(array)
+				n.append(str(string))
+
+		else: #get face normals from the user component selection.
+			normals = pm.polyInfo(faceNormals=1) #returns the face normals of selected faces
+
+		regEx = "[A-Z]*_[A-Z]* *[0-9]*: "
+
+		dict_={}
+		for n in normals:
+			l = list(s.replace(regEx,'') for s in n.split() if s) #['FACE_NORMAL', '150:', '0.935741', '0.110496', '0.334931\n']
+
+			key = int(l[1].strip(':')) #int face number as key ie. 150
+			value = list(float(i) for i in l[-3:])  #vector list as value. ie. [[0.935741, 0.110496, 0.334931]]
+			dict_[key] = value
+
+		return dict_
+
+
+	def getFacesWithSimilarNormals(self, faces, transforms=[], similarFaces=[], rangeX=0.1, rangeY=0.1, rangeZ=0.1, returnType='str', returnNodeType='transform'):
+		'''Filter for faces with normals that fall within an X,Y,Z tolerance.
 
 		:Parameters:
-			edges (str)(obj)(list) = The edges to check crease state on.
+			faces (list) = ['polygon faces'] - faces to find similar normals for.
+			similarFaces (list) = optional ability to add faces from previous calls to the return value.
+			transforms (list) = [<shape nodes>] - objects to check faces on. If none are given the objects containing the given faces will be used.
+			rangeX = float - x axis tolerance
+			rangeY = float - y axis tolerance
+			rangeZ = float - z axis tolerance
+			returnType (str) = The desired returned object type. (valid: 'unicode'(default), 'str', 'int', 'object')
+			returnNodeType (str) = Specify whether the components are returned with the transform or shape nodes (valid only with str and unicode returnTypes). (valid: 'transform', 'shape'(default)) ex. 'pCylinder1.f[0]' or 'pCylinderShape1.f[0]'
 
 		:Return:
-			(list) edges.
-		'''
-		creased_edges = [e for e in pm.ls(edges, flatten=1) if pm.polyCrease(e, q=1, value=1)[0] > 0]
+			(list) faces that fall within the given normal range.
 
-		return creased_edges
+		ex. getFacesWithSimilarNormals(selectedFaces, rangeX=0.5, rangeY=0.5, rangeZ=0.5)
+		'''
+		faces = pm.ls(faces, flatten=1) #work on a copy of the argument so that removal of elements doesn't effect the passed in list.
+		for face in faces:
+			normals = self.getNormalVector(face)
+
+			for k, v in normals.items():
+				sX = v[0]
+				sY = v[1]
+				sZ = v[2]
+
+				if not transforms:
+					transforms = Slots_maya.getObjectFromComponent(face)
+
+				for node in transforms:
+					for f in Slots_maya.getComponents(node, 'faces', returnType=returnType, returnNodeType=returnNodeType, flatten=1):
+
+						n = self.getNormalVector(f)
+						for k, v in n.items():
+							nX = v[0]
+							nY = v[1]
+							nZ = v[2]
+
+							if sX<=nX + rangeX and sX>=nX - rangeX and sY<=nY + rangeY and sY>=nY - rangeY and sZ<=nZ + rangeZ and sZ>=nZ - rangeZ:
+								similarFaces.append(f)
+								if f in faces: #If the face is in the loop que, remove it, as has already been evaluated.
+									faces.remove(f)
+
+		return similarFaces
 
 
 
 
 
 		
-
-
 
 
 

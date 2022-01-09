@@ -349,7 +349,7 @@ class Polygons(Slots_maya):
 		selection = pm.ls(sl=1, objectsOnly=1)
 		if len(selection)>1:
 			obj1, obj2 = selection
-			Slots_maya.snapClosestVerts(obj1, obj2, tolerance, freezetransforms)
+			self.snapClosestVerts(obj1, obj2, tolerance, freezetransforms)
 		else:
 			return 'Error: <strong>Nothing selected</strong>.<br>Operation requires at least two selected objects.'
 
@@ -523,6 +523,37 @@ class Polygons(Slots_maya):
 		'''Edit Edge Flow
 		'''
 		pm.polyEditEdgeFlow(adjustEdgeFlow=1)
+
+
+	@Slots_maya.undoChunk
+	def snapClosestVerts(self, obj1, obj2, tolerance=10.0, freezeTransforms=False):
+		'''Snap the vertices from object one to the closest verts on object two.
+
+		:Parameters:
+			obj1 (obj) = The object in which the vertices are moved from.
+			obj2 (obj) = The object in which the vertices are moved to.
+			tolerance (float) = Maximum search distance.
+			freezeTransforms (bool) = Reset the selected transform and all of its children down to the shape level.
+		'''
+		vertices = Slots_maya.getComponents(obj1, 'vertices')
+		closestVerts = Slots_maya.getClosestVertex(vertices, obj2, tolerance=tolerance, freezeTransforms=freezeTransforms)
+
+		progressBar = mel.eval("$container=$gMainProgressBar");
+		pm.progressBar(progressBar, edit=True, beginProgress=True, isInterruptable=True, status="Snapping Vertices ...", maxValue=len(closestVerts)) 
+
+		# pm.undoInfo(openChunk=True)
+		for v1, v2 in closestVerts.items():
+			if pm.progressBar(progressBar, query=True, isCancelled=True):
+				break
+
+			v2Pos = pm.pointPosition(v2, world=True)
+			pm.xform(v1, translation=v2Pos, worldSpace=True)
+
+			pm.progressBar(progressBar, edit=True, step=1)
+		# pm.undoInfo(closeChunk=True)
+
+		pm.progressBar(progressBar, edit=True, endProgress=True)
+
 
 
 

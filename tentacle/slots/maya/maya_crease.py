@@ -226,6 +226,20 @@ class Crease(Slots_maya):
 		# self.crease_ui.b001.setText("Object")
 
 
+	def getCreasedEdges(self, edges):
+		'''Return any creased edges from a list of edges.
+
+		:Parameters:
+			edges (str)(obj)(list) = The edges to check crease state on.
+
+		:Return:
+			(list) edges.
+		'''
+		creased_edges = [e for e in pm.ls(edges, flatten=1) if pm.polyCrease(e, q=1, value=1)[0] > 0]
+
+		return creased_edges
+
+
 
 
 

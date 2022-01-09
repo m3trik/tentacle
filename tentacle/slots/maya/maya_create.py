@@ -30,6 +30,20 @@ class Create(Slots_maya):
 			ctx.add('QCheckBox', setText='Scale', setObjectName='chk001', setChecked=True, setToolTip='Uniformly scale the created object to match the averaged scale of any selected object(s).')
 
 
+	def createPrimitive(self, catagory1, catagory2):
+		'''ie. createPrimitive('Polygons', 'Cube')
+		:Parameters:
+			type1 (str) = 
+			type2 (str) = 
+		'''
+		cmb001 = self.create_ui.cmb001
+		cmb002 = self.create_ui.cmb002
+
+		cmb001.setCurrentIndex(cmb001.findText(catagory1))
+		cmb002.setCurrentIndex(cmb002.findText(catagory2))
+		self.tb000()
+
+
 	def draggable_header(self, state=None):
 		'''Context menu
 		'''
@@ -159,29 +173,15 @@ class Create(Slots_maya):
 
 		if selection: #if there is a current selection, move the object to that selection's bounding box center.
 			if translate:
-				center_pos = Slots_maya.getCenterPoint(selection)
+				center_pos = self.tcl.sb.getClassInstance('transform').getCenterPoint(selection)
 				pm.xform(node, translation=center_pos, worldSpace=1, absolute=1)
 			if scale:
-				Slots_maya.matchScale(node[0], selection, average=True)
+				self.tcl.sb.getClassInstance('transform').matchScale(node[0], selection, average=True)
 
 		pm.selectMode(object=1) #place scene select type in object mode.
 		pm.select(node) #select the transform node so that you can see any edits
 
 		return self.getHistoryNode(node)
-
-
-	def createPrimitive(self, catagory1, catagory2):
-		'''ie. createPrimitive('Polygons', 'Cube')
-		:Parameters:
-			type1 (str) = 
-			type2 (str) = 
-		'''
-		cmb001 = self.create_ui.cmb001
-		cmb002 = self.create_ui.cmb002
-
-		cmb001.setCurrentIndex(cmb001.findText(catagory1))
-		cmb002.setCurrentIndex(cmb002.findText(catagory2))
-		self.tb000()
 
 
 	def b001(self):
@@ -206,6 +206,58 @@ class Create(Slots_maya):
 		'''Create poly plane
 		'''
 		self.createPrimitive('Polygon', 'Plane')
+
+
+	@Slots_maya.undoChunk
+	def createCircle(self, axis='y', numPoints=5, radius=5, center=[0,0,0], mode=0, name='pCircle'):
+		'''Create a circular polygon plane.
+
+		:Parameters:
+			axis (str) = 'x','y','z' 
+			numPoints(int) = number of outer points
+			radius=int
+			center=[float3 list] - point location of circle center
+			mode(int) = 0 -no subdivisions, 1 -subdivide tris, 2 -subdivide quads
+
+		:Return:
+			(list) [transform node, history node] ex. [nt.Transform('polySurface1'), nt.PolyCreateFace('polyCreateFace1')]
+
+		ex. call: self.createCircle(axis='x', numPoints=20, radius=8, mode='tri')
+		'''
+		import math
+
+		degree = 360/float(numPoints)
+		radian = math.radians(degree) #or math.pi*degree/180 (pi * degrees / 180)
+
+		vertexPoints=[]
+		for _ in range(numPoints):
+			# print("deg:", degree,"\n", "cos:",math.cos(radian),"\n", "sin:",math.sin(radian),"\n", "rad:",radian)
+			if axis =='x': #x axis
+				y = center[2] + (math.cos(radian) *radius)
+				z = center[1] + (math.sin(radian) *radius)
+				vertexPoints.append([0,y,z])
+			if axis =='y': #y axis
+				x = center[2] + (math.cos(radian) *radius)
+				z = center[0] + (math.sin(radian) *radius)
+				vertexPoints.append([x,0,z])
+			else: # z axis
+				x = center[0] + (math.cos(radian) *radius)
+				y = center[1] + (math.sin(radian) *radius)
+				vertexPoints.append([x,y,0]) #not working.
+
+			radian = radian+math.radians(degree) #increment by original radian value that was converted from degrees
+			#print(x,y,"\n")
+
+		# pm.undoInfo (openChunk=True)
+		node = pm.ls(pm.polyCreateFacet(point=vertexPoints, name=name)) #returns: ['Object name', 'node name']. pymel 'ls' converts those to objects.
+		pm.polyNormal(node, normalMode=4) #4=reverse and propagate
+		if mode==1:
+			pm.polySubdivideFacet(divisions=1, mode=1)
+		if mode==2:
+			pm.polySubdivideFacet(divisions=1, mode=0)
+		# pm.undoInfo (closeChunk=True)
+
+		return node
 
 
 

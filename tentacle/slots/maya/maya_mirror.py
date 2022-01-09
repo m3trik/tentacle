@@ -79,12 +79,11 @@ class Mirror(Slots_maya):
 		mergeThreshold = tb.contextMenu.s000.value()
 		deleteHistory = tb.contextMenu.chk006.isChecked() #delete the object's non-deformer history.
 
-		Mirror.mirrorGeometry(axis=axis, cutMesh=cutMesh, instance=instance, mergeThreshold=mergeThreshold, deleteHistory=deleteHistory)
+		return self.mirrorGeometry(axis=axis, cutMesh=cutMesh, instance=instance, mergeThreshold=mergeThreshold, deleteHistory=deleteHistory)
 
 
-	@staticmethod
 	@Slots_maya.undoChunk
-	def mirrorGeometry(objects=None, axis='-X', cutMesh=False, instance=False, mergeThreshold=0.005, deleteHistory=True):
+	def mirrorGeometry(self, objects=None, axis='-X', cutMesh=False, instance=False, mergeThreshold=0.005, deleteHistory=True):
 		'''Mirror geometry across a given axis.
 
 		:Parameters:
@@ -96,7 +95,7 @@ class Mirror(Slots_maya):
 			deleteHistory = Delete non-deformer history on the object before performing the operation.
 
 		:Return:
-			(obj) The polyMirrorFace history node.
+			(obj) The polyMirrorFace history node if a single object, else None.
 		'''
 		direction = {
 			 'X': (0, 0,-1, 1, 1),
@@ -106,14 +105,14 @@ class Mirror(Slots_maya):
 			 'Z': (0, 4, 1, 1,-1),
 			'-Z': (1, 5, 1, 1,-1)
 		}
-		print (axis, type(axis))
+
 		axisDirection, axis_as_int, x, y, z = direction[str(axis)] #ex. axisDirection=1, axis_as_int=5, x=1; y=1; z=-1
 
 		pm.ls(objects, objectsOnly=1)
 		if not objects:
 			objects = pm.ls(sl=1, objectsOnly=1)
 			if not objects:
-				return 'Warning: No object(s) given, or nothing selected.'
+				return 'Error: <b>Nothing selected.<b><br>Operation requires at least one selected polygon object.'
 
 		# pm.undoInfo(openChunk=1)
 		for obj in objects:
@@ -121,7 +120,7 @@ class Mirror(Slots_maya):
 				pm.mel.BakeNonDefHistory(obj)
 
 			if cutMesh:
-				Slots_maya.deleteAlongAxis(obj, axis) #delete mesh faces that fall inside the specified axis.
+				self.tcl.sb.getClassInstance('edit').deleteAlongAxis(obj, axis) #delete mesh faces that fall inside the specified axis.
 
 			if instance: #create instance and scale negatively
 				inst = pm.instance(obj) # bt_convertToMirrorInstanceMesh(0); #x=0, y=1, z=2, -x=3, -y=4, -z=5
@@ -130,7 +129,13 @@ class Mirror(Slots_maya):
 
 			else: #mirror
 				polyMirrorFace = pm.polyMirrorFace(obj, mirrorAxis=axisDirection, direction=axis_as_int, mergeMode=1, mergeThresholdType=1, mergeThreshold=mergeThreshold, worldSpace=0, smoothingAngle=30, flipUVs=0, ch=1) #mirrorPosition x, y, z - This flag specifies the position of the custom mirror axis plane
-				return polyMirrorFace if len(objects)==1 else polyMirrorFace
+
+			try:
+				if len(objects)==1:
+					node = pm.ls(polyMirrorFace)
+					return node[0]
+			except AttributeError as error:
+				return None
 		# pm.undoInfo(closeChunk=1)
 
 

@@ -258,7 +258,7 @@ class Transform(Slots_maya):
 		freezeTransforms = tb.contextMenu.chk017.isChecked()
 
 		objects = pm.ls(sl=1, objectsOnly=1)
-		Slots_maya.dropToGrid(objects, align, origin, centerPivot, freezeTransforms)
+		self.dropToGrid(objects, align, origin, centerPivot, freezeTransforms)
 		pm.select(objects) #reselect the original selection.
 
 
@@ -393,7 +393,7 @@ class Transform(Slots_maya):
 		frm = selection[0]
 		to = selection[1:]
 
-		Slots_maya.matchScale(to, frm)
+		self.matchScale(to, frm)
 
 
 	def b002(self):
@@ -416,7 +416,7 @@ class Transform(Slots_maya):
 		source = sel[:-1]
 		target = sel[-1]
 
-		Transform.moveTo(source, target, targetCenter=1) #move object to center of the last selected items bounding box
+		self.moveTo(source, target, targetCenter=1) #move object to center of the last selected items bounding box
 
 
 	def b012(self):
@@ -471,8 +471,23 @@ class Transform(Slots_maya):
 		pm.manipPivot(ro=1, rp=1)
 
 
-	@staticmethod
-	def moveTo(obj, target, targetCenter=True):
+	@Slots_maya.undoChunk
+	def resetXform(self, objects):
+		'''Reset the transformations on the given object(s).
+
+		:Parameters:
+			objects (str)(obj)(list) = The object(s) to reset transforms for.
+		'''
+		# pm.undoInfo(openChunk=1)
+		for obj in pm.ls(objects):
+			pos = pm.objectCenter(obj) #get the object's current position.
+			self.dropToGrid(obj, origin=1, centerPivot=1) #move to origin and center pivot.
+			pm.makeIdentity(obj, apply=1, t=1, r=1, s=1, n=0, pn=1) #bake transforms
+			pm.xform(obj, translation=pos) #move the object back to it's original position.
+		# pm.undoInfo(closeChunk=1)
+
+
+	def moveTo(self, obj, target, targetCenter=True):
 		'''Move an object(s) to the given target.
 
 		:Parameters:
@@ -489,6 +504,358 @@ class Transform(Slots_maya):
 			target_pos = pm.xform(target, q=1, worldSpace=1, rp=1) #get the pivot position.
 
 		pm.xform(obj, translation=target_pos, worldSpace=1, relative=1)
+
+
+	@Slots_maya.undoChunk
+	def dropToGrid(self, objects, align='Mid', origin=False, centerPivot=False, freezeTransforms=False):
+		'''Align objects to Y origin on the grid using a helper plane.
+
+		:Parameters:
+			objects (str)(obj)(list) = The objects to translate.
+			align (bool) = Specify which point of the object's bounding box to align with the grid. (valid: 'Max','Mid'(default),'Min')
+			origin (bool) = Move to world grid's center.
+			centerPivot (bool) = Center the object's pivot.
+			freezeTransforms (bool) = Reset the selected transform and all of its children down to the shape level.
+
+		ex. dropToGrid(obj, align='Min') #set the object onto the grid.
+		'''
+		# pm.undoInfo(openChunk=1)
+		for obj in pm.ls(objects, transforms=1):
+			osPivot = pm.xform(obj, query=1, rotatePivot=1, objectSpace=1) #save the object space obj pivot.
+			wsPivot = pm.xform(obj, query=1, rotatePivot=1, worldSpace=1) #save the world space obj pivot.
+
+			pm.xform(obj, centerPivots=1) #center pivot
+			plane = pm.polyPlane(name='temp#')
+
+			if not origin:
+				pm.xform(plane, translation=(wsPivot[0], 0, wsPivot[2]), absolute=1, ws=1) #move the object to the pivot location
+
+			pm.align(obj, plane, atl=1, x='Mid', y=align, z='Mid')
+			pm.delete(plane)
+
+			if not centerPivot:
+				pm.xform(obj, rotatePivot=osPivot, objectSpace=1) #return pivot to orig position.
+
+			if freezeTransforms:
+				pm.makeIdentity(obj, apply=True)
+		# pm.undoInfo (closeChunk=1)
+
+
+	def setTranslationToPivot(self, node):
+		'''Set an object’s translation value from its pivot location.
+		:Parameters:
+			node (str)(obj) = An object, or it's name.
+		'''
+		x, y, z = pivot = pm.xform(node, query=True, worldSpace=True, rotatePivot=True)
+		pm.xform(node, relative=True, translation=[-x,-y,-z])
+		pm.makeIdentity(node, apply=True, translate=True)
+		pm.xform(node, translation=[x, y, z])
+
+
+	@Slots_maya.undoChunk
+	def alignPivotToSelection(self, alignFrom=[], alignTo=[], translate=True):
+		'''Align one objects pivot point to another using 3 point align.
+		:Parameters:
+			alignFrom (list) = At minimum; 1 object, 1 Face, 2 Edges, or 3 Vertices.
+			alignTo (list) = The object to align with.
+			translate (bool) = Move the object with it's pivot.
+		'''
+		# pm.undoInfo(openChunk=1)
+		pos = pm.xform(alignTo, q=1, translation=True, worldSpace=True)
+		center_pos = [ #Get center by averaging of all x,y,z points.
+			sum(pos[0::3]) / len(pos[0::3]), 
+			sum(pos[1::3]) / len(pos[1::3]), 
+			sum(pos[2::3]) / len(pos[2::3])]
+
+		vertices = pm.ls(pm.polyListComponentConversion(alignTo, toVertex=True), flatten=True)
+		if len(vertices) < 3:
+			return
+
+		for obj in pm.ls(alignFrom, flatten=1):
+
+			plane = pm.polyPlane(name="_hptemp#", width=1, height=1, subdivisionsX=1, subdivisionsY=1, axis=[0, 1, 0], createUVs=2, constructionHistory=True)[0] #Create and align helper plane.
+
+			pm.select("%s.vtx[0:2]" % plane, vertices[0:3])
+			pm.mel.snap3PointsTo3Points(0)
+
+			pm.xform(obj, rotation=pm.xform(plane, q=True, rotation=True, worldSpace=True), worldSpace=True)
+
+			if translate:
+				pm.xform(obj, translation=center_pos, worldSpace=True)
+				
+			pm.delete(plane)
+		# pm.undoInfo(closeChunk=1)
+
+
+	def aimObjectAtPoint(self, obj, target_pos, aim_vect=(1,0,0), up_vect=(0,1,0)):
+		'''Aim the given object at the given world space position.
+
+		Args:
+			obj (str)(obj) = Transform node.
+			target_pos (tuple) = The (x,y,z) world position to aim at.
+			aim_vect (tuple) = Local axis to aim at the target position.
+			up_vect (tuple) = Secondary axis aim vector.
+		 '''
+		target = pm.createNode('transform')
+
+		pm.xform(target, translation=target_pos, absolute=True)
+		const = pm.aimConstraint((target, obj), aim=aim_vect, worldUpVector=up_vect, worldUpType="vector")
+
+		pm.delete(const, target)
+
+
+	def rotateAxis(self, obj, target_pos):
+		''' Aim the given object at the given world space position.
+		All rotations in rotated channel, geometry is transformed so it does not appear to move during this transformation
+
+		Args:
+			obj (str)(obj) = Transform node.
+			target_pos (tuple) = An (x,y,z) world position.
+		'''
+		obj = pm.ls(obj)[0]
+		self.aimObjectAtPoint(obj, target_pos)
+
+		try:
+			c = obj.v[:]
+		except TypeError:
+			c = obj.cv[:]
+
+		wim = pm.getAttr(obj.worldInverseMatrix)
+		pm.xform(c, matrix=wim)
+
+		pos = pm.xform(obj, q=True, translation=True, absolute=True, worldSpace=True)
+		pm.xform(c, translation=pos, relative=True, worldSpace=True)
+
+
+	def getOrientation(self, obj, returnType='point'):
+		'''Get an objects orientation.
+
+		:Parameters:
+			obj (str)(obj) = The object to get the orientation of.
+			returnType (str) = The desired returned value type. (valid: 'point', 'vector')(default: 'point')
+
+		:Return:
+			(tuple)
+		'''
+		obj = pm.ls(obj)[0]
+
+		world_matrix = pm.xform(obj, q=True, matrix=True, worldSpace=True)
+		rAxis = pm.getAttr(obj.rotateAxis)
+		if any((rAxis[0], rAxis[1], rAxis[2])):
+			print('# Warning: {} has a modified .rotateAxis of {} which is included in the result. #'.format(obj, rAxis))
+
+		if returnType=='vector':
+			from maya.api.OpenMaya import MVector
+
+			result = (
+				MVector(world_matrix[0:3]),
+				MVector(world_matrix[4:7]),
+				MVector(world_matrix[8:11])
+			)
+
+		else:
+			result = (
+				world_matrix[0:3],
+				world_matrix[4:7],
+				world_matrix[8:11]
+			)
+
+		return result
+
+
+	def getDistanceBetweenTwoObjects(self, obj1, obj2):
+		'''Get the magnatude of a vector using the center points of two given objects.
+
+		:Parameters:
+			obj1 (obj)(str) = Object, object name, or point (x,y,z).
+			obj2 (obj)(str) = Object, object name, or point (x,y,z).
+
+		:Return:
+			(float)
+
+		# xmin, ymin, zmin, xmax, ymax, zmax = pm.exactWorldBoundingBox(startAndEndCurves)
+		'''
+		x1, y1, z1 = pm.objectCenter(obj1)
+		x2, y2, z2 = pm.objectCenter(obj2)
+
+		from math import sqrt
+		distance = sqrt(pow((x1-x2),2) + pow((y1-y2),2) + pow((z1-z2),2))
+
+		return distance
+
+
+	def getCenterPoint(self, objects):
+		'''Get the bounding box center point of any given object(s).
+		
+		:Parameters:
+			objects (str)(obj(list) = The objects or components to get the center of.
+
+		:Return:
+			(list) position as [x,y,z].
+		'''
+		objects = pm.ls(objects, flatten=True)
+		pos = [i for sublist in [pm.xform(s, q=1, translation=1, worldSpace=1, absolute=1) for s in objects] for i in sublist]
+		center_pos = [ #Get center by averaging of all x,y,z points.
+			sum(pos[0::3]) / len(pos[0::3]), 
+			sum(pos[1::3]) / len(pos[1::3]), 
+			sum(pos[2::3]) / len(pos[2::3])
+		]
+		return center_pos
+
+
+	def getComponentPoint(self, component, alignToNormal=False):
+		'''Get the center point from the given component.
+
+		:Parameters:
+			component (str)(obj) = Object component.
+			alignToNormal (bool) = Constain to normal vector.
+
+		:Return: [float list] - x, y, z  coordinate values.
+		'''
+		if ".vtx" in str(component):
+			x = pm.polyNormalPerVertex (component, query=1, x=1)
+			y = pm.polyNormalPerVertex (component, query=1, y=1)
+			z = pm.polyNormalPerVertex (component, query=1, z=1)
+			xyz = [sum(x) / float(len(x)), sum(y) / float(len(y)), sum(z) / float(len(z))] #get average
+		elif ".e" in str(component):
+			componentName = str(component).split(".")[0]
+			vertices = pm.polyInfo (component, edgeToVertex=1)[0]
+			vertices = vertices.split()
+			vertices = [componentName+".vtx["+vertices[2]+"]",componentName+".vtx["+vertices[3]+"]"]
+			x=[];y=[];z=[]
+			for vertex in vertices:
+				x_ = pm.polyNormalPerVertex (vertex, query=1, x=1)
+				x.append(sum(x_) / float(len(x_)))
+				y_ = pm.polyNormalPerVertex (vertex, query=1, y=1)
+				x.append(sum(y_) / float(len(y_)))
+				z_ = pm.polyNormalPerVertex (vertex, query=1, z=1)
+				x.append(sum(z_) / float(len(z_)))
+			xyz = [sum(x) / float(len(x)), sum(y) / float(len(y)), sum(z) / float(len(z))] #get average
+		else:# elif ".f" in str(component):
+			xyz = pm.polyInfo (component, faceNormals=1)
+			xyz = xyz[0].split()
+			xyz = [float(xyz[2]), float(xyz[3]), float(xyz[4])]
+
+		if alignToNormal: #normal constraint
+			normal = mel.eval("unit <<"+str(xyz[0])+", "+str(xyz[1])+", "+str(xyz[2])+">>;") #normalize value using MEL
+			# normal = [round(i-min(xyz)/(max(xyz)-min(xyz)),6) for i in xyz] #normalize and round value using python
+
+			constraint = pm.normalConstraint(component, object_,aimVector=normal,upVector=[0,1,0],worldUpVector=[0,1,0],worldUpType="vector") # "scene","object","objectrotation","vector","none"
+			pm.delete(constraint) #orient object_ then remove constraint.
+
+		vertexPoint = pm.xform (component, query=1, translation=1) #average vertex points on destination to get component center.
+		x = vertexPoint [0::3]
+		y = vertexPoint [1::3]
+		z = vertexPoint [2::3]
+
+		return list(round(sum(x) / float(len(x)),4), round(sum(y) / float(len(y)),4), round(sum(z) / float(len(z)),4))
+
+
+	def matchScale(self, to, frm, scale=True, average=False):
+		'''Scale each of the given objects to the combined bounding box of a second set of objects.
+
+		:Parameters:
+			to (str)(obj)(list) = The object(s) to scale.
+			frm (str)(obj)(list) = The object(s) to get a bounding box size from.
+			scale (bool) = Scale the objects. Else, just return the scale value.
+			average (bool) = Average the result across all axes.
+
+		:Return:
+			(list) scale values as [x,y,z,x,y,z...]
+		'''
+		to = pm.ls(to, flatten=True)
+		frm = pm.ls(frm, flatten=True)
+
+		xmin, ymin, zmin, xmax, ymax, zmax = pm.exactWorldBoundingBox(frm)
+		ax, ay, az = aBoundBox = [xmax-xmin, ymax-ymin, zmax-zmin]
+
+		result=[]
+		for obj in to:
+
+			xmin, ymin, zmin, xmax, ymax, zmax = pm.exactWorldBoundingBox(obj)
+			bx, by, bz = bBoundBox = [xmax-xmin, ymax-ymin, zmax-zmin]
+
+			oldx, oldy, oldz = bScaleOld = pm.xform(obj, q=1, s=1, r=1)
+
+			try:
+				diffx, diffy, diffz = boundDifference = [ax/bx, ay/by, az/bz]
+			except ZeroDivisionError as error:
+				diffx, diffy, diffz = boundDifference = [1, 1, 1]
+
+			bScaleNew = [oldx*diffx, oldy*diffy, oldz*diffz]
+
+			if average:
+				bScaleNew = [sum(bScaleNew)/len(bScaleNew) for _ in range(3)]
+
+			if scale:
+				pm.xform(obj, scale=bScaleNew)
+
+			[result.append(i) for i in bScaleNew]
+
+		return result
+
+
+	@Slots_maya.undoChunk
+	def alignVertices(self, mode, average=False, edgeloop=False):
+		'''Align vertices.
+
+		:Parameters:
+			mode (int) = possible values are align: 0-YZ, 1-XZ, 2-XY, 3-X, 4-Y, 5-Z, 6-XYZ 
+			average (bool) = align to average of all selected vertices. else, align to last selected
+			edgeloop (bool) = align vertices in edgeloop from a selected edge
+
+		ex. call: alignVertices(mode=3, average=True, edgeloop=True)
+		'''
+		# pm.undoInfo (openChunk=True)
+		selectTypeEdge = pm.selectType (query=True, edge=True)
+
+		if edgeloop:
+			pm.mel.SelectEdgeLoopSp() #select edgeloop
+
+		pm.mel.PolySelectConvert(3) #convert to vertices
+
+		selection = pm.ls(selection=1, flatten=1)
+		lastSelected = pm.ls(tail=1, selection=1, flatten=1)
+		alignTo = pm.xform(lastSelected, query=1, translation=1, worldSpace=1)
+		alignX = alignTo[0]
+		alignY = alignTo[1]
+		alignZ = alignTo[2]
+		
+		if average:
+			xyz = pm.xform(selection, query=1, translation=1, worldSpace=1)
+			x = xyz[0::3]
+			y = xyz[1::3]
+			z = xyz[2::3]
+			alignX = float(sum(x))/(len(xyz)/3)
+			alignY = float(sum(y))/(len(xyz)/3)
+			alignZ = float(sum(z))/(len(xyz)/3)
+
+		if len(selection)<2:
+			if len(selection)==0:
+				Slots_maya.viewPortMessage("No vertices selected")
+			Slots_maya.viewPortMessage("Selection must contain at least two vertices")
+
+		for vertex in selection:
+			vertexXYZ = pm.xform(vertex, query=1, translation=1, worldSpace=1)
+			vertX = vertexXYZ[0]
+			vertY = vertexXYZ[1]
+			vertZ = vertexXYZ[2]
+			
+			modes = {
+				0:(vertX, alignY, alignZ), #align YZ
+				1:(alignX, vertY, alignZ), #align XZ
+				2:(alignX, alignY, vertZ), #align XY
+				3:(alignX, vertY, vertZ),
+				4:(vertX, alignY, vertZ),
+				5:(vertX, vertY, alignZ),
+				6:(alignX, alignY, alignZ), #align XYZ
+			}
+
+			pm.xform(vertex, translation=modes[mode], worldSpace=1)
+
+		if selectTypeEdge:
+			pm.selectType (edge=True)
+		# pm.undoInfo (closeChunk=True)
 
 
 

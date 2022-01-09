@@ -62,7 +62,37 @@ class Slots_maya(Slots):
 
 
 	# ======================================================================
-		'GEOMETRY'
+		'MATH'
+	# ======================================================================
+
+	def getVectorFromComponents(components):
+		'''Get a vector using the averaged vertex normals of the given components.
+
+		:Parameters:
+			components (list) = A list of component to get normals of.
+
+		:Return:
+			(vector) ex. [-4.5296159711938344e-08, 1.0, 1.6846732009412335e-08]
+		'''
+		vertices = pm.polyListComponentConversion(components, toVertex=1)
+
+		norm = pm.polyNormalPerVertex(vertices, query=True, xyz=True)
+		normal_vector = [sum(norm[0::3])/len(norm[0::3]), sum(norm[1::3])/len(norm[1::3]), sum(norm[2::3])/len(norm[2::3])] #averaging of all x,y,z points.
+
+		return normal_vector
+
+	# ----------------------------------------------------------------------
+
+
+
+
+
+
+
+
+
+	# ======================================================================
+		'COMPONENT LEVEL'
 	# ======================================================================
 
 	@staticmethod
@@ -75,7 +105,7 @@ class Slots_maya(Slots):
 			returnType (str) = The desired returned alias. (valid: 'abv', 'singular', 'plural', 'full', 'int', 'hex')
 
 		:Return:
-			(str)
+			(str)(int)(hex)(None) dependant on returnType argument.
 
 		ex. call: convertComponentName('control vertex', 'hex')
 		'''
@@ -248,117 +278,6 @@ class Slots_maya(Slots):
 
 
 	@staticmethod
-	def getUvShellSets(objects=None, returnType='shells'):
-		'''Get All UV shells and their corresponding sets of faces.
-
-		:Parameters:
-			objects (obj)(list) = Polygon object(s) or Polygon face(s).
-			returnType (str) = The desired returned type. valid values are: 'shells', 'shellIDs'. If None is given, the full dict will be returned.
-
-		:Return:
-			(list)(dict) dependant on the given returnType arg. ex. {0L:[[MeshFace(u'pShape.f[0]'), MeshFace(u'pShape.f[1]')], 1L:[[MeshFace(u'pShape.f[2]'), MeshFace(u'pShape.f[3]')]}
-		'''
-		if not objects:
-			objects = pm.ls(selection=1, objectsOnly=1, transforms=1, flatten=1)
-
-		if not isinstance(objects, (list, set, tuple)):
-			objects=[objects]
-
-		objectType = Slots_maya.getObjectType(objects[0])
-		if objectType=='Polygon Face':
-			faces = objects
-		else:
-			faces = Slots_maya.getComponents(objects, 'faces')
-
-		shells={}
-		for face in faces:
-			shell_Id = pm.polyEvaluate(face, uvShellIds=True)
-
-			try:
-				shells[shell_Id[0]].append(face)
-			except KeyError:
-				try:
-					shells[shell_Id[0]]=[face]
-				except IndexError:
-					pass
-
-		if returnType=='shells':
-			shells = list(shells.values())
-		elif returnType=='shellIDs':
-			shells = shells.keys()
-
-		return shells
-
-
-	@staticmethod
-	def getUvShellBorderEdges(objects):
-		'''Get the edges that make up any UV islands of the given objects.
-
-		:Parameters:
-			objects (str)(obj)(list) = Polygon mesh objects.
-
-		:Return:
-			(list) uv border edges.
-		'''
-		mesh_edges=[]
-		for obj in pm.ls(objects, objectsOnly=1):
-			try: # Try to get edges from provided objects.
-				mesh_edges.extend(pm.ls(pm.polyListComponentConversion(obj, te=True), fl=True, l=True))
-			except Exception as error:
-				pass
-
-		if len(mesh_edges)<=0: # Error if no valid objects were found
-			raise RuntimeError('No valid mesh objects or components were provided.')
-
-		pm.progressWindow(t='Find UV Border Edges', pr=0, max=len(mesh_edges), ii=True) # Start progressWindow
-		
-		uv_border_edges = list() # Find and return uv border edges
-		for edge in mesh_edges:  # Filter through the mesh(s) edges.
-
-			if pm.progressWindow(q=True, ic=True): # Kill if progress window is cancelled
-				pm.progressWindow(ep=True)  # End progressWindow
-				raise RuntimeError('Cancelled by user.')
-
-			pm.progressWindow(e=True, s=1, st=edge) # Update the progress window status
-			
-			edge_uvs = pm.ls(pm.polyListComponentConversion(edge, tuv=True), fl=True)
-			edge_faces = pm.ls(pm.polyListComponentConversion(edge, tf=True), fl=True)
-			if len(edge_uvs) > 2:  # If an edge has more than two uvs, it is a uv border edge.
-				uv_border_edges.append(edge)
-			elif len(edge_faces) < 2:  # If an edge has less than 2 faces, it is a border edge.
-				uv_border_edges.append(edge)
-
-		pm.progressWindow(ep=True) # End progressWindow
-
-		return uv_border_edges
-
-
-	@staticmethod
-	def getNGons(obj, repair=False):
-		'''Get any N-Gons from the given object.
-		'''
-		if nGons: #N-Sided Faces
-			if repair: #Maya Bonus Tools: Convert N-Sided Faces To Quads
-				try:
-					mel.eval('bt_polyNSidedToQuad;')
-				except:
-					print('Maya Bonus Tools: Convert N-Sided Faces To Quads not found. (bt_polyNSidedToQuad;)')
-
-			else: #Find And Select N-Gons
-				pm.select(obj)
-				#Change to Component mode to retain object highlighting for better visibility
-				pm.changeSelectMode(component=1)
-				#Change to Face Component Mode
-				pm.selectType(smp=0, sme=1, smf=0, smu=0, pv=0, pe=1, pf=0, puv=0)
-				#Select Object/s and Run Script to highlight N-Gons
-				pm.polySelectConstraint(mode=3, type=0x0008, size=3)
-				pm.polySelectConstraint(disable=1)
-				#Populate an in-view message
-				nGons = pm.polyEvaluate(faceComponent=1)
-				Slots_maya.viewPortMessage("<hl>"+str(nGons[0])+"</hl> N-Gon(s) found.")
-
-
-	@staticmethod
 	def getContigiousEdges(edges):
 		'''Get a list containing sets of adjacent edges.
 
@@ -442,28 +361,6 @@ class Slots_maya(Slots):
 
 
 	@staticmethod
-	def getAllFacesOnAxis(obj, axis="-x", localspace=False):
-		'''Get all faces on a specified axis
-
-		:Parameters:
-			obj=<geometry> - object to perform the operation on. 
-			axis (str) = representing axis ie. "x"
-			localspace=bool - specify world or local space
-		ex. self.getAllFacesOnAxis(polyObject, 'y')
-		'''
-		i=0 #'x'
-		if any ([axis=="y",axis=="-y"]):
-			i=1
-		if any ([axis=="z",axis=="-z"]):
-			i=2
-
-		if axis.startswith('-'): #any([axis=="-x", axis=="-y", axis=="-z"]):
-			return list(face for face in pm.filterExpand(obj+'.f[*]', sm=34) if pm.exactWorldBoundingBox(face)[i] < -0.00001)
-		else:
-			return list(face for face in pm.filterExpand(obj+'.f[*]', sm=34) if pm.exactWorldBoundingBox(face)[i] > -0.00001)
-
-
-	@staticmethod
 	def getBorderComponents(x, returnCompType='default', borderType='object', returnType='str', flatten=False):
 		'''Get any object border components from given component(s) or a polygon object.
 
@@ -527,252 +424,6 @@ class Slots_maya(Slots):
 
 
 	@staticmethod
-	def getDistanceBetweenTwoObjects(obj1, obj2):
-		'''Get the magnatude of a vector using the center points of two given objects.
-
-		:Parameters:
-			obj1 (obj)(str) = Object, object name, or point (x,y,z).
-			obj2 (obj)(str) = Object, object name, or point (x,y,z).
-
-		:Return:
-			(float)
-
-		# xmin, ymin, zmin, xmax, ymax, zmax = pm.exactWorldBoundingBox(startAndEndCurves)
-		'''
-		x1, y1, z1 = pm.objectCenter(obj1)
-		x2, y2, z2 = pm.objectCenter(obj2)
-
-		from math import sqrt
-		distance = sqrt(pow((x1-x2),2) + pow((y1-y2),2) + pow((z1-z2),2))
-
-		return distance
-
-
-	@staticmethod
-	def getCenterPoint(objects):
-		'''Get the bounding box center point of any given object(s).
-		
-		:Parameters:
-			objects (str)(obj(list) = The objects or components to get the center of.
-
-		:Return:
-			(list) position as [x,y,z].
-		'''
-		objects = pm.ls(objects, flatten=True)
-		pos = [i for sublist in [pm.xform(s, q=1, translation=1, worldSpace=1, absolute=1) for s in objects] for i in sublist]
-		center_pos = [ #Get center by averaging of all x,y,z points.
-			sum(pos[0::3]) / len(pos[0::3]), 
-			sum(pos[1::3]) / len(pos[1::3]), 
-			sum(pos[2::3]) / len(pos[2::3])
-		]
-		return center_pos
-
-
-	@staticmethod
-	def matchScale(to, frm, scale=True, average=False):
-		'''Scale each of the given objects to the combined bounding box of a second set of objects.
-
-		:Parameters:
-			to (str)(obj)(list) = The object(s) to scale.
-			frm (str)(obj)(list) = The object(s) to get a bounding box size from.
-			scale (bool) = Scale the objects. Else, just return the scale value.
-			average (bool) = Average the result across all axes.
-
-		:Return:
-			(list) scale values as [x,y,z,x,y,z...]
-		'''
-		to = pm.ls(to, flatten=True)
-		frm = pm.ls(frm, flatten=True)
-
-		xmin, ymin, zmin, xmax, ymax, zmax = pm.exactWorldBoundingBox(frm)
-		ax, ay, az = aBoundBox = [xmax-xmin, ymax-ymin, zmax-zmin]
-
-		result=[]
-		for obj in to:
-
-			xmin, ymin, zmin, xmax, ymax, zmax = pm.exactWorldBoundingBox(obj)
-			bx, by, bz = bBoundBox = [xmax-xmin, ymax-ymin, zmax-zmin]
-
-			oldx, oldy, oldz = bScaleOld = pm.xform(obj, q=1, s=1, r=1)
-
-			try:
-				diffx, diffy, diffz = boundDifference = [ax/bx, ay/by, az/bz]
-			except ZeroDivisionError as error:
-				diffx, diffy, diffz = boundDifference = [1, 1, 1]
-
-			bScaleNew = [oldx*diffx, oldy*diffy, oldz*diffz]
-
-			if average:
-				bScaleNew = [sum(bScaleNew)/len(bScaleNew) for _ in range(3)]
-
-			if scale:
-				pm.xform(obj, scale=bScaleNew)
-
-			[result.append(i) for i in bScaleNew]
-
-		return result
-
-
-	@staticmethod
-	@undoChunk
-	def getClosestCV(x, curves, tolerance=0.0):
-		'''Find the closest control vertex between the given vertices, CVs, or objects and each of the given curves.
-
-		:Parameters:
-			x (str)(obj)(list) = Polygon vertices, control vertices, objects, or points given as (x,y,z) tuples.
-			curves (str)(obj)(list) = The reference object in which to find the closest CV for each vertex in the list of given vertices.
-			tolerance (int)(float) = Maximum search distance. Default is 0.0, which turns off the tolerance flag.
-
-		:Return:
-			(dict) closest vertex/cv pairs (one pair for each given curve) ex. {<vertex from set1>:<vertex from set2>}.
-
-		ex. vertices = Slots_maya.getComponents(objects, 'vertices')
-			closestVerts = getClosestCV(curve0, curves)
-		'''
-		# pm.undoInfo(openChunk=True)
-		x = pm.ls(x, flatten=1) #assure x arg is a list (if given as str or single object).
-
-		npcNode = pm.ls(pm.createNode('nearestPointOnCurve'))[0] #create a nearestPointOnCurve node.
-
-		result={}
-		for curve in pm.ls(curves):
-
-			pm.connectAttr(curve.worldSpace, npcNode.inputCurve, force=1) #Connect the curve's worldSpace geometry to the npc node.
-
-			for i in x:
-				if not isinstance(i, (tuple, list, set)):
-					pos = pm.pointPosition(i)
-				else:
-					pos = i
-				pm.setAttr(npcNode.inPosition, pos)
-
-				distance = Slots_maya.getDistanceBetweenTwoPoints(pos, pm.getAttr(npcNode.position))
-				p = pm.getAttr(npcNode.parameter)
-				if not tolerance:
-					result[i] = p
-				elif distance < tolerance:
-					result[i] = p
-
-		pm.delete(npcNode)
-		# pm.undoInfo(closeChunk=True)
-
-		return result
-
-
-	@staticmethod
-	def getCvInfo(c, returnType='cv', filter_=[]):
-		'''Get a dict containing CV's of the given curve(s) and their corresponding point positions (based on Maya's pointOnCurve command).
-
-		:Parameters:
-			- c (str)(obj)(list) = Curves or CVs to get CV info from.
-			- returnType (str) = The desired returned values. Default is 'cv'.
-				valid values are: 
-					'cv' = Return a list of all CV's for the given curves.
-					'count' = Return an integer representing the total number of cvs for each of the curves given.
-					'parameter', 'position', 'index', 'localPosition', 'tangent', 'normalizedTangent', 'normal', 'normalizedNormal', 'curvatureRadius', 'curvatureCenter'
-					= Return a dict with CV's as keys and the returnType as their corresponding values.
-				ex. {NurbsCurveCV(u'polyToCurveShape7.cv[5]'): [-12.186520865542082, 15.260936896515751, -369.6159740743584]}
-			- filter_ (str)(obj)(list) = Value(s) to filter for in the returned results.
-
-		:Return:
-			(dict)(list)(int) dependant on returnType.
-
-		ex. cv_tan = getCvInfo(curve.cv[0:2],'tangent') #get CV tangents for cvs 0-2.
-		ex. cvParam = getCvInfo(curve, 'parameters') #get the curves CVs and their corresponding U parameter values.
-		ex. filtered = getCvInfo(<curve>, 'normal', <normal>) #filter results for those that match the given value.
-		'''
-		result={}
-		for curve in pm.ls(c):
-
-			if '.cv' in str(curve): #if CV given.
-				cvs = curve
-				curve = pm.listRelatives(cvs, parent=1)
-			else: #if curve(s) given
-				cvs = curve.cv
-
-			parameters = Slots_maya.getClosestCV(cvs, curve) #use getClosestCV to get the parameter location for each of the curves CVs.
-			for cv, p in parameters.items():
-
-				if returnType=='position': # Get cv position
-					v = pm.pointOnCurve(curve, parameter=p, position=True)
-				elif returnType=='localPosition':
-					v = pm.getAttr(cv) # local cv position
-				elif returnType=='tangent': # Get cv tangent
-					v = pm.pointOnCurve(curve, parameter=p, tangent=True)
-				elif returnType=='normalizedTangent':
-					v = pm.pointOnCurve(curve, parameter=p, normalizedTangent=True)
-				elif returnType=='normal': # Get cv normal
-					v = pm.pointOnCurve(curve, parameter=p, normal=True)
-				elif returnType=='normalizedNormal':
-					v = pm.pointOnCurve(curve, parameter=p, normalizedNormal=True) #Returns the (x,y,z) normalized normal of curve1 at parameter 0.5.
-				elif returnType=='curvatureRadius': # Get cv curvature
-					v = pm.pointOnCurve(curve, parameter=p, curvatureRadius=True) #Returns the curvature radius of curve1 at parameter 0.5.
-				elif returnType=='curvatureCenter':
-					v = pm.pointOnCurve(curve, parameter=p, curvatureCenter=True)
-				elif returnType=='parameter': # Return the CVs parameter.
-					v = p
-				elif returnType=='count': # total number of cv's for the curve.
-					result[curve] = len(Slots_maya.getCvInfo(curve))
-					break
-				elif returnType=='index': # index of the cv
-					s = str(cv)
-					v = int(s[s.index('[')+1:s.index(']')])
-				else:
-					v = None
-
-				result[cv] = v
-
-		if returnType=='cv':
-			result = result.keys()
-
-		if filter_:
-			if not isinstance(filter_, (tuple, set, list)):
-				filter_ = list(filter_)
-			try:
-				result = {k:v for k,v in result.items() if any((v in filter_, v==filter_))}
-			except AttributeError:
-				result = [i for i in result if any((i in filter_, i==filter_))]
-
-		if len(result)==1:
-			try:
-				result = list(result.values())[0]
-			except (AttributeError, TypeError):
-				result = result[0]
-
-		return result
-
-
-	@staticmethod
-	def getCrossProductOfCurves(curves, normalize=1, values=False):
-		'''Get the cross product of two vectors using points derived from the given curves.
-
-		:Parameters:
-			curves (str)(obj)(list) = Nurbs curve(s).
-			normalize (float) = (0) Do not normalize. (1) Normalize standard. (value other than 0 or 1) Normalize using the given float value as desired length.
-			values (bool) = Return only a list of the cross product vector values [(<Vx>, <Vy>, <Vz>)] instead of the full dict {<curve1>:(<Vx>, <Vy>, <Vz>)}.
-
-		:Return:
-			(dict)(list)
-		'''
-		result={}
-		for curve in pm.ls(curves):
-			p0 = pm.objectCenter(curve)
-
-			cvs = Slots_maya.getComponents(curve, 'cv', returnType='object', flatten=1)
-			cvPos = Slots_maya.getCvInfo(curve, 'position')
-			p1 = cvPos[cvs[0]]
-			p2 = cvPos[cvs[(len(cvs)/2)]]
-
-			n1 = Slots_maya.getCrossProduct(p0, p1, p2, normalize=normalize)
-
-			result[curve] = n1
-
-		if values:
-			result = list(result.values())
-		return result
-
-
-	@staticmethod
 	def getClosestVerts(set1, set2, tolerance=100):
 		'''Find the two closest vertices between the two sets of vertices.
 
@@ -795,7 +446,7 @@ class Slots_maya(Slots):
 			v1Pos = pm.pointPosition(v1, world=1)
 			for v2 in set2:
 				v2Pos = pm.pointPosition(v2, world=1)
-				distance = Slots_maya.getDistanceBetweenTwoPoints(v1Pos, v2Pos)
+				distance = Slots.getDistanceBetweenTwoPoints(v1Pos, v2Pos)
 				if distance<tolerance:
 					vertPairsAndDistance[(v1, v2)] = distance
 
@@ -844,7 +495,7 @@ class Slots_maya(Slots):
 			v2 = obj2Shape.vtx[index]
 
 			v2Pos = pm.pointPosition(v2, world=True)
-			distance = Slots_maya.getDistanceBetweenTwoPoints(v1Pos, v2Pos)
+			distance = Slots.getDistanceBetweenTwoPoints(v1Pos, v2Pos)
 
 			if not tolerance:
 				closestVerts[v1] = v2
@@ -855,215 +506,6 @@ class Slots_maya(Slots):
 		# pm.undoInfo(closeChunk=True)
 
 		return closestVerts
-
-
-	@staticmethod
-	@undoChunk
-	def snapClosestVerts(obj1, obj2, tolerance=10.0, freezeTransforms=False):
-		'''Snap the vertices from object one to the closest verts on object two.
-
-		:Parameters:
-			obj1 (obj) = The object in which the vertices are moved from.
-			obj2 (obj) = The object in which the vertices are moved to.
-			tolerance (float) = Maximum search distance.
-			freezeTransforms (bool) = Reset the selected transform and all of its children down to the shape level.
-		'''
-		vertices = Slots_maya.getComponents(obj1, 'vertices')
-		closestVerts = Slots_maya.getClosestVertex(vertices, obj2, tolerance=tolerance, freezeTransforms=freezeTransforms)
-
-		progressBar = mel.eval("$container=$gMainProgressBar");
-		pm.progressBar(progressBar, edit=True, beginProgress=True, isInterruptable=True, status="Snapping Vertices ...", maxValue=len(closestVerts)) 
-
-		# pm.undoInfo(openChunk=True)
-		for v1, v2 in closestVerts.items():
-			if pm.progressBar(progressBar, query=True, isCancelled=True):
-				break
-
-			v2Pos = pm.pointPosition(v2, world=True)
-			pm.xform(v1, translation=v2Pos, worldSpace=True)
-
-			pm.progressBar(progressBar, edit=True, step=1)
-		# pm.undoInfo(closeChunk=True)
-
-		pm.progressBar(progressBar, edit=True, endProgress=True)
-
-
-	@staticmethod
-	@undoChunk
-	def alignVertices (mode, average=False, edgeloop=False):
-		'''Align vertices.
-
-		:Parameters:
-			mode (int) = possible values are align: 0-YZ, 1-XZ, 2-XY, 3-X, 4-Y, 5-Z, 6-XYZ 
-			average (bool) = align to average of all selected vertices. else, align to last selected
-			edgeloop (bool) = align vertices in edgeloop from a selected edge
-
-		ex. self.alignVertices(mode=3, average=True, edgeloop=True)
-		'''
-		# pm.undoInfo (openChunk=True)
-		selectTypeEdge = pm.selectType (query=True, edge=True)
-
-		if edgeloop:
-			mel.eval("SelectEdgeLoopSp;") #select edgeloop
-
-		mel.eval('PolySelectConvert 3;') #convert to vertices
-		
-		selection = pm.ls(selection=1, flatten=1)
-		lastSelected = pm.ls(tail=1, selection=1, flatten=1)
-		alignTo = pm.xform(lastSelected, query=1, translation=1, worldSpace=1)
-		alignX = alignTo[0]
-		alignY = alignTo[1]
-		alignZ = alignTo[2]
-		
-		if average:
-			xyz = pm.xform(selection, query=1, translation=1, worldSpace=1)
-			x = xyz[0::3]
-			y = xyz[1::3]
-			z = xyz[2::3]
-			alignX = float(sum(x))/(len(xyz)/3)
-			alignY = float(sum(y))/(len(xyz)/3)
-			alignZ = float(sum(z))/(len(xyz)/3)
-
-		if len(selection)<2:
-			if len(selection)==0:
-				Slots_maya.viewPortMessage("No vertices selected")
-			Slots_maya.viewPortMessage("Selection must contain at least two vertices")
-
-		for vertex in selection:
-			vertexXYZ = pm.xform(vertex, query=1, translation=1, worldSpace=1)
-			vertX = vertexXYZ[0]
-			vertY = vertexXYZ[1]
-			vertZ = vertexXYZ[2]
-			
-			modes = {
-				0:(vertX, alignY, alignZ), #align YZ
-				1:(alignX, vertY, alignZ), #align XZ
-				2:(alignX, alignY, vertZ), #align XY
-				3:(alignX, vertY, vertZ),
-				4:(vertX, alignY, vertZ),
-				5:(vertX, vertY, alignZ),
-				6:(alignX, alignY, alignZ), #align XYZ
-			}
-
-			pm.xform(vertex, translation=modes[mode], worldSpace=1)
-
-		if selectTypeEdge:
-			pm.selectType (edge=True)
-		# pm.undoInfo (closeChunk=True)
-
-
-	@staticmethod
-	@undoChunk
-	def findNonManifoldVertex(objects, select=1):
-		'''Locate a connected vertex of non-manifold geometry where the faces share a single vertex.
-
-		:Parameters:
-			objects (str)(obj) = A polygon mesh, or a list of meshes.
-			select (int) = Select any found non-manifold vertices. 0=off, 1=on, 2=on while keeping any existing vertex selections. (default: 1)
-
-		:Return:
-			(list) any found non-manifold verts.
-		'''
-		# pm.undoInfo(openChunk=True)
-		nonManifoldVerts=set()
-
-		vertices = Slots_maya.getComponents(objects, 'vertices')
-		for vertex in vertices:
-
-			connected_faces = pm.polyListComponentConversion(vertex, fromVertex=1, toFace=1) #pm.mel.PolySelectConvert(1) #convert to faces
-			connected_faces_flat = pm.ls(connected_faces, flatten=1) #selectedFaces = pm.ls(sl=1, flatten=1)
-
-			#get a list of the edges of each face that is connected to the original vertex.
-			edges_sorted_by_face=[]
-			for face in connected_faces_flat:
-
-				connected_edges = pm.polyListComponentConversion(face, fromFace=1, toEdge=1) #pm.mel.PolySelectConvert(1) #convert to faces
-				connected_edges_flat = [str(i) for i in pm.ls(connected_edges, flatten=1)] #selectedFaces = pm.ls(sl=1, flatten=1)
-				edges_sorted_by_face.append(connected_edges_flat)
-
-			out=[] #1) take first set A from list. 2) for each other set B in the list do if B has common element(s) with A join B into A; remove B from list. 3) repeat 2. until no more overlap with A. 4) put A into outpup. 5) repeat 1. with rest of list.
-			while len(edges_sorted_by_face)>0:
-				first, rest = edges_sorted_by_face[0], edges_sorted_by_face[1:] #first list, all other lists, of the list of lists.
-				first = set(first)
-
-				lf = -1
-				while len(first)>lf:
-					lf = len(first)
-
-					rest2=[]
-					for r in rest:
-						if len(first.intersection(set(r)))>0:
-							first |= set(r)
-						else:
-							rest2.append(r)     
-					rest = rest2
-
-				out.append(first)
-				edges_sorted_by_face = rest
-
-			if len(out)>1:
-				nonManifoldVerts.add(vertex)
-		# pm.undoInfo(closeChunk=True)
-
-		if select==2:
-			pm.select(nonManifoldVerts, add=1)
-		elif select==1:
-			pm.select(nonManifoldVerts)
-
-		return nonManifoldVerts
-
-
-	@staticmethod
-	@undoChunk
-	def splitNonManifoldVertex(vertex, select=True):
-		'''Separate a connected vertex of non-manifold geometry where the faces share a single vertex.
-
-		:Parameters:
-			vertex (str)(obj) = A single polygon vertex.
-			select (bool) = Select the vertex after the operation. (default is True)
-		'''
-		# pm.undoInfo(openChunk=True)
-		connected_faces = pm.polyListComponentConversion(vertex, fromVertex=1, toFace=1) #pm.mel.PolySelectConvert(1) #convert to faces
-		connected_faces_flat = pm.ls(connected_faces, flatten=1) #selectedFaces = pm.ls(sl=1, flatten=1)
-
-		pm.polySplitVertex(vertex)
-
-		#get a list for the vertices of each face that is connected to the original vertex.
-		verts_sorted_by_face=[]
-		for face in connected_faces_flat:
-
-			connected_verts = pm.polyListComponentConversion(face, fromFace=1, toVertex=1) #pm.mel.PolySelectConvert(1) #convert to faces
-			connected_verts_flat = [str(i) for i in pm.ls(connected_verts, flatten=1)] #selectedFaces = pm.ls(sl=1, flatten=1)
-			verts_sorted_by_face.append(connected_verts_flat)
-
-		out=[] #1) take first set A from list. 2) for each other set B in the list do if B has common element(s) with A join B into A; remove B from list. 3) repeat 2. until no more overlap with A. 4) put A into outpup. 5) repeat 1. with rest of list.
-		while len(verts_sorted_by_face)>0:
-			first, rest = verts_sorted_by_face[0], verts_sorted_by_face[1:] #first, *rest = verts_sorted_by_face
-			first = set(first)
-
-			lf = -1
-			while len(first)>lf:
-				lf = len(first)
-
-				rest2=[]
-				for r in rest:
-					if len(first.intersection(set(r)))>0:
-						first |= set(r)
-					else:
-						rest2.append(r)     
-				rest = rest2
-
-			out.append(first)
-			verts_sorted_by_face = rest
-
-
-		for vertex_set in out:
-			pm.polyMergeVertex(vertex_set, distance=0.001)
-
-		pm.select(vertex_set, deselect=1) #deselect the vertices that were selected during the polyMergeVertex operation.
-		if select:
-			pm.select(vertex, add=1)
-		# pm.undoInfo(closeChunk=True)
 
 
 	@staticmethod
@@ -1286,209 +728,6 @@ class Slots_maya(Slots):
 
 		return result
 
-
-	@staticmethod
-	def getComponentPoint(component, alignToNormal=False):
-		'''Get the center point from the given component.
-
-		:Parameters:
-			component (str)(obj) = Object component.
-			alignToNormal (bool) = Constain to normal vector.
-
-		:Return: [float list] - x, y, z  coordinate values.
-		'''
-		if ".vtx" in str(component):
-			x = pm.polyNormalPerVertex (component, query=1, x=1)
-			y = pm.polyNormalPerVertex (component, query=1, y=1)
-			z = pm.polyNormalPerVertex (component, query=1, z=1)
-			xyz = [sum(x) / float(len(x)), sum(y) / float(len(y)), sum(z) / float(len(z))] #get average
-		elif ".e" in str(component):
-			componentName = str(component).split(".")[0]
-			vertices = pm.polyInfo (component, edgeToVertex=1)[0]
-			vertices = vertices.split()
-			vertices = [componentName+".vtx["+vertices[2]+"]",componentName+".vtx["+vertices[3]+"]"]
-			x=[];y=[];z=[]
-			for vertex in vertices:
-				x_ = pm.polyNormalPerVertex (vertex, query=1, x=1)
-				x.append(sum(x_) / float(len(x_)))
-				y_ = pm.polyNormalPerVertex (vertex, query=1, y=1)
-				x.append(sum(y_) / float(len(y_)))
-				z_ = pm.polyNormalPerVertex (vertex, query=1, z=1)
-				x.append(sum(z_) / float(len(z_)))
-			xyz = [sum(x) / float(len(x)), sum(y) / float(len(y)), sum(z) / float(len(z))] #get average
-		else:# elif ".f" in str(component):
-			xyz = pm.polyInfo (component, faceNormals=1)
-			xyz = xyz[0].split()
-			xyz = [float(xyz[2]), float(xyz[3]), float(xyz[4])]
-
-		if alignToNormal: #normal constraint
-			normal = mel.eval("unit <<"+str(xyz[0])+", "+str(xyz[1])+", "+str(xyz[2])+">>;") #normalize value using MEL
-			# normal = [round(i-min(xyz)/(max(xyz)-min(xyz)),6) for i in xyz] #normalize and round value using python
-
-			constraint = pm.normalConstraint(component, object_,aimVector=normal,upVector=[0,1,0],worldUpVector=[0,1,0],worldUpType="vector") # "scene","object","objectrotation","vector","none"
-			pm.delete(constraint) #orient object_ then remove constraint.
-
-		vertexPoint = pm.xform (component, query=1, translation=1) #average vertex points on destination to get component center.
-		x = vertexPoint [0::3]
-		y = vertexPoint [1::3]
-		z = vertexPoint [2::3]
-
-		return list(round(sum(x) / float(len(x)),4), round(sum(y) / float(len(y)),4), round(sum(z) / float(len(z)),4))
-
-
-	@staticmethod
-	@undoChunk
-	def createCircle(axis='y', numPoints=5, radius=5, center=[0,0,0], mode=0, name='pCircle'):
-		'''Create a circular polygon plane.
-
-		:Parameters:
-			axis (str) = 'x','y','z' 
-			numPoints(int) = number of outer points
-			radius=int
-			center=[float3 list] - point location of circle center
-			mode(int) = 0 -no subdivisions, 1 -subdivide tris, 2 -subdivide quads
-
-		:Return:
-			(list) [transform node, history node] ex. [nt.Transform('polySurface1'), nt.PolyCreateFace('polyCreateFace1')]
-
-		ex. call: self.createCircle(axis='x', numPoints=20, radius=8, mode='tri')
-		'''
-		import math
-
-		degree = 360/float(numPoints)
-		radian = math.radians(degree) #or math.pi*degree/180 (pi * degrees / 180)
-
-		vertexPoints=[]
-		for _ in range(numPoints):
-			# print("deg:", degree,"\n", "cos:",math.cos(radian),"\n", "sin:",math.sin(radian),"\n", "rad:",radian)
-			if axis =='x': #x axis
-				y = center[2] + (math.cos(radian) *radius)
-				z = center[1] + (math.sin(radian) *radius)
-				vertexPoints.append([0,y,z])
-			if axis =='y': #y axis
-				x = center[2] + (math.cos(radian) *radius)
-				z = center[0] + (math.sin(radian) *radius)
-				vertexPoints.append([x,0,z])
-			else: # z axis
-				x = center[0] + (math.cos(radian) *radius)
-				y = center[1] + (math.sin(radian) *radius)
-				vertexPoints.append([x,y,0]) #not working.
-
-			radian = radian+math.radians(degree) #increment by original radian value that was converted from degrees
-			#print(x,y,"\n")
-
-		# pm.undoInfo (openChunk=True)
-		node = pm.ls(pm.polyCreateFacet(point=vertexPoints, name=name)) #returns: ['Object name', 'node name']. pymel 'ls' converts those to objects.
-		pm.polyNormal(node, normalMode=4) #4=reverse and propagate
-		if mode==1:
-			pm.polySubdivideFacet(divisions=1, mode=1)
-		if mode==2:
-			pm.polySubdivideFacet(divisions=1, mode=0)
-		# pm.undoInfo (closeChunk=True)
-
-		return node
-
-
-	@staticmethod
-	def deleteAlongAxis(obj, axis):
-		'''Delete components of the given mesh object along the specified axis.
-
-		:Parameters:
-			obj (obj) = Mesh object.
-			axis (str) = Axis to delete on. ie. '-x' Components belonging to the mesh object given in the 'obj' arg, that fall on this axis, will be deleted. 
-		'''
-		for node in [n for n in pm.listRelatives(obj, allDescendents=1) if pm.objectType(n, isType='mesh')]: #get any mesh type child nodes of obj.
-			faces = Slots_maya.getAllFacesOnAxis(node, axis)
-			if len(faces)==pm.polyEvaluate(node, face=1): #if all faces fall on the specified axis.
-				pm.delete(node) #delete entire node
-			else:
-				pm.delete(faces) #else, delete any individual faces.
-
-		Slots_maya.viewPortMessage("Delete faces on <hl>"+axis.upper()+"</hl>.")
-
-
-	@staticmethod
-	def getOverlappingDuplicateObjects(objects=[], omitInitialObjects=False, select=False, verbose=False):
-		'''Find any duplicate overlapping geometry at the object level.
-
-		:Parameters:
-			objects (list) = A list of objects to find duplicate overlapping geometry for. Default is selected objects, or all if nothing is selected.
-			omitInitialObjects (bool) = Search only for duplicates of the given objects (or any selected objects if None given), and omit them from the return results.
-			select (bool) = Select any found duplicate objects.
-			verbose (bool) = Print each found object to console.
-
-		:Return:
-			(set)
-
-		ex call: duplicates = getOverlappingDuplicateObjects(omitInitialObjects=True, select=True, verbose=True)
-		'''
-		scene_objs = pm.ls(transforms=1, geometry=1) #get all scene geometry
-
-		#attach a unique identifier consisting each objects polyEvaluate attributes, and it's bounding box center point in world space.
-		scene_objs = {i:str(pm.objectCenter(i))+str(pm.polyEvaluate(i)) for i in scene_objs if not Slots_maya.isGroup(i)}
-		selected_objs = pm.ls(scene_objs.keys(), sl=1) if not objects else objects
-
-		objs_inverted={} #invert the dict, combining objects with like identifiers.
-		for k, v in scene_objs.items():
-			objs_inverted[v] = objs_inverted.get(v, []) + [k]
-
-		duplicates=set()
-		for k, v in objs_inverted.items():
-			if len(v)>1:
-				if selected_objs: #limit scope to only selected objects.
-					if set(selected_objs) & set(v): #if any selected objects in found duplicates:
-						if omitInitialObjects:
-						    [duplicates.add(i) for i in v if i not in selected_objs] #add any duplicated of that object, omitting the selected object.
-						else:
-							[duplicates.add(i) for i in v[1:]] #add all but the first object to the set of duplicates.
-				else:
-					[duplicates.add(i) for i in v[1:]] #add all but the first object to the set of duplicates.
-
-		if verbose:
-			for i in duplicates:
-				print (' # Found: overlapping duplicate object: {} #'.format(i))
-		print (' # {} overlapping duplicate objects found. #'.format(len(duplicates)))
-
-		if select:
-			pm.select(duplicates)
-
-		return duplicates
-
-
-	@staticmethod
-	@undoChunk
-	def convertToInstances(objects=[], leaf=False):
-		'''The first selected object will be instanced across all other selected objects.
-
-		:Parameters:
-			objects (list) = A list of objects to convert to instances. The first object will be the instance parent.
-			leaf (bool) = Instances leaf-level objects. Acts like duplicate except leaf-level objects are instanced.
-
-		ex. call: convertToInstances(pm.ls(sl=1))
-		'''
-		# pm.undoInfo(openChunk=1)
-		p0x, p0y, p0z = pm.xform(objects[0], query=1, rotatePivot=1, worldSpace=1) #get the world space obj pivot.
-		pivot = pm.xform(objects[0], query=1, rotatePivot=1, objectSpace=1) #get the obj pivot.
-		print (objects[0])
-		for obj in objects[1:]:
-
-			pm.xform(obj, rotatePivot=pivot, objectSpace=1) #set pivot to match object[0]
-
-			p1x, p1y, p1z = wsPivot = pm.xform(obj, query=1, rotatePivot=1, worldSpace=1) #get the world space obj pivot.
-			pos = [p1x-p0x, p1y-p0y, p1z-p0z]
-
-			name = obj.name()
-			objParent = pm.listRelatives(obj, parent=1)
-			pm.delete(obj, constructionHistory=True) #delete history for the object so that the namespace is cleared.
-			pm.delete(obj)
-
-			instance = pm.instance(objects[0], name=name, leaf=leaf)
-
-			pm.xform(instance, translation=pos, worldSpace=1, relative=1) #move to the original objects location.
-
-			pm.parent(instance, objParent) #parent the instance under the original objects parent.
-		# pm.undoInfo(closeChunk=1)
-
 	# ----------------------------------------------------------------------
 
 
@@ -1500,558 +739,7 @@ class Slots_maya(Slots):
 
 
 	# ======================================================================
-		'Normals'
-	# ======================================================================
-
-	@staticmethod
-	def getNormalVector(name=None):
-		'''Get the normal vectors from the given poly object.
-		If no argument is given the normals for the current selection will be returned.
-		:Parameters:
-			name (str) = polygon mesh or component.
-		:Return:
-			dict - {int:[float, float, float]} face id & vector xyz.
-		'''
-		type_ = pm.objectType(name)
-
-		if type_=='mesh': #get face normals
-			normals = pm.polyInfo(name, faceNormals=1)
-
-		elif type_=='transform': #get all normals for the given obj
-			numFaces = pm.polyEvaluate(name, face=1) #returns number of faces as an integer
-			normals=[]
-			for n in range(0, numFaces): #for (number of faces):
-				array = pm.polyInfo('{0}[{1}]'.format(name, n) , faceNormals=1) #get normal info from the rest of the object's faces
-				string = ' '.join(array)
-				n.append(str(string))
-
-		else: #get face normals from the user component selection.
-			normals = pm.polyInfo(faceNormals=1) #returns the face normals of selected faces
-
-		regEx = "[A-Z]*_[A-Z]* *[0-9]*: "
-
-		dict_={}
-		for n in normals:
-			l = list(s.replace(regEx,'') for s in n.split() if s) #['FACE_NORMAL', '150:', '0.935741', '0.110496', '0.334931\n']
-
-			key = int(l[1].strip(':')) #int face number as key ie. 150
-			value = list(float(i) for i in l[-3:])  #vector list as value. ie. [[0.935741, 0.110496, 0.334931]]
-			dict_[key] = value
-
-		return dict_
-
-
-	@staticmethod
-	def getFacesWithSimilarNormals(faces, transforms=[], similarFaces=[], rangeX=0.1, rangeY=0.1, rangeZ=0.1, returnType='str', returnNodeType='transform'):
-		'''Filter for faces with normals that fall within an X,Y,Z tolerance.
-
-		:Parameters:
-			faces (list) = ['polygon faces'] - faces to find similar normals for.
-			similarFaces (list) = optional ability to add faces from previous calls to the return value.
-			transforms (list) = [<shape nodes>] - objects to check faces on. If none are given the objects containing the given faces will be used.
-			rangeX = float - x axis tolerance
-			rangeY = float - y axis tolerance
-			rangeZ = float - z axis tolerance
-			returnType (str) = The desired returned object type. (valid: 'unicode'(default), 'str', 'int', 'object')
-			returnNodeType (str) = Specify whether the components are returned with the transform or shape nodes (valid only with str and unicode returnTypes). (valid: 'transform', 'shape'(default)) ex. 'pCylinder1.f[0]' or 'pCylinderShape1.f[0]'
-
-		:Return:
-			(list) faces that fall within the given normal range.
-
-		ex. getFacesWithSimilarNormals(selectedFaces, rangeX=0.5, rangeY=0.5, rangeZ=0.5)
-		'''
-		faces = pm.ls(faces, flatten=1) #work on a copy of the argument so that removal of elements doesn't effect the passed in list.
-		for face in faces:
-			normals = Slots_maya.getNormalVector(face)
-
-			for k, v in normals.items():
-				sX = v[0]
-				sY = v[1]
-				sZ = v[2]
-
-				if not transforms:
-					transforms = Slots_maya.getObjectFromComponent(face)
-
-				for node in transforms:
-					for f in Slots_maya.getComponents(node, 'faces', returnType=returnType, returnNodeType=returnNodeType, flatten=1):
-
-						n = Slots_maya.getNormalVector(f)
-						for k, v in n.items():
-							nX = v[0]
-							nY = v[1]
-							nZ = v[2]
-
-							if sX<=nX + rangeX and sX>=nX - rangeX and sY<=nY + rangeY and sY>=nY - rangeY and sZ<=nZ + rangeZ and sZ>=nZ - rangeZ:
-								similarFaces.append(f)
-								if f in faces: #If the face is in the loop que, remove it, as has already been evaluated.
-									faces.remove(f)
-
-		return similarFaces
-
-	# ----------------------------------------------------------------------
-
-
-
-
-
-
-
-
-
-	# ======================================================================
-		'TRANSFORMATION'
-	# ======================================================================
-
-	@staticmethod
-	def aimObjectAtPoint(obj, target_pos, aim_vect=(1,0,0), up_vect=(0,1,0)):
-		'''Aim the given object at the given world space position.
-
-		Args:
-			obj (str)(obj) = Transform node.
-			target_pos (tuple) = The (x,y,z) world position to aim at.
-			aim_vect (tuple) = Local axis to aim at the target position.
-			up_vect (tuple) = Secondary axis aim vector.
-		 '''
-		target = pm.createNode('transform')
-
-		pm.xform(target, translation=target_pos, absolute=True)
-		const = pm.aimConstraint((target, obj), aim=aim_vect, worldUpVector=up_vect, worldUpType="vector")
-
-		pm.delete(const, target)
-
-
-	@staticmethod
-	def rotateAxis(obj, target_pos):
-		''' Aim the given object at the given world space position.
-		All rotations in rotated channel, geometry is transformed so it does not appear to move during this transformation
-
-		Args:
-			obj (str)(obj) = Transform node.
-			target_pos (tuple) = An (x,y,z) world position.
-		'''
-		obj = pm.ls(obj)[0]
-		Slots_maya.aimObjectAtPoint(obj, target_pos)
-
-		try:
-			c = obj.v[:]
-		except TypeError:
-			c = obj.cv[:]
-
-		wim = pm.getAttr(obj.worldInverseMatrix)
-		pm.xform(c, matrix=wim)
-
-		pos = pm.xform(obj, q=True, translation=True, absolute=True, worldSpace=True)
-		pm.xform(c, translation=pos, relative=True, worldSpace=True)
-
-
-	@staticmethod
-	def getOrientation(obj, returnType='point'):
-		'''Get an objects orientation.
-
-		:Parameters:
-			obj (str)(obj) = The object to get the orientation of.
-			returnType (str) = The desired returned value type. (valid: 'point', 'vector')(default: 'point')
-
-		:Return:
-			(tuple)
-		'''
-		obj = pm.ls(obj)[0]
-
-		world_matrix = pm.xform(obj, q=True, matrix=True, worldSpace=True)
-		rAxis = pm.getAttr(obj.rotateAxis)
-		if any((rAxis[0], rAxis[1], rAxis[2])):
-			print('# Warning: {} has a modified .rotateAxis of {} which is included in the result. #'.format(obj, rAxis))
-
-		if returnType=='vector':
-			from maya.api.OpenMaya import MVector
-
-			result = (
-				MVector(world_matrix[0:3]),
-				MVector(world_matrix[4:7]),
-				MVector(world_matrix[8:11])
-			)
-
-		else:
-			result = (
-				world_matrix[0:3],
-				world_matrix[4:7],
-				world_matrix[8:11]
-			)
-
-		return result
-
-
-	@staticmethod
-	@undoChunk
-	def createLRAGroup(objects=[], name='', makeIdentity=True):
-		'''Creates a group using the first object to define the local rotation axis.
-
-		:Parameters:
-			objects (list) = The objects to group. The first object will be used to define the groups LRA.
-			name (str) = The group name.
-			makeIdentity (bool) = Freeze transforms on group child objects.
-		'''
-		objects = pm.ls(objects, transforms=1)
-		if not objects:
-			error = '# Error: createLRAGroup operation requires at least one object. #'; print (error)
-			return error
-		obj = objects[0]
-
-		pm.mel.BakeCustomPivot(obj) #bake the pivot on the object that will define the LRA.
-
-		grp = pm.group(empty=True)
-
-		pm.parent(grp, obj)
-
-		pm.setAttr(grp.translate, (0,0,0))
-		pm.setAttr(grp.rotate, (0,0,0))
-
-		objParent = pm.listRelatives(obj, parent=1)
-		pm.parent(grp, []) #parent the instance under the original objects parent.
-
-		try:
-			pm.parent(obj, grp)
-		except: #root level objects
-			pm.parent(grp, world=True)
-			pm.parent(obj, grp)
-
-		for o in objects[1:]: #parent any other objects to the new group.
-			print (objects)
-			pm.parent(o, grp)
-			if makeIdentity:
-				pm.makeIdentity(o, apply=True) #freeze transforms on child objects.
-
-		if not name and objParent: #name the group.
-			pm.rename(grp, objParent[0].name())
-		elif not name:
-			pm.rename(grp, obj.name())
-		else:
-			pm.rename(grp, name)
-
-
-	@staticmethod
-	@undoChunk
-	def resetXform(objects):
-		'''Reset the transformations on the given object(s).
-
-		:Parameters:
-			objects (str)(obj)(list) = The object(s) to reset transforms for.
-		'''
-		# pm.undoInfo(openChunk=1)
-		for obj in pm.ls(objects):
-			pos = pm.objectCenter(obj) #get the object's current position.
-			Slots_maya.dropToGrid(obj, origin=1, centerPivot=1) #move to origin and center pivot.
-			pm.makeIdentity(obj, apply=1, t=1, r=1, s=1, n=0, pn=1) #bake transforms
-			pm.xform(obj, translation=pos) #move the object back to it's original position.
-		# pm.undoInfo(closeChunk=1)
-
-
-	@staticmethod
-	@undoChunk
-	def alignPivotToSelection(alignFrom=[], alignTo=[], translate=True):
-		'''Align one objects pivot point to another using 3 point align.
-		:Parameters:
-			alignFrom (list) = At minimum; 1 object, 1 Face, 2 Edges, or 3 Vertices.
-			alignTo (list) = The object to align with.
-			translate (bool) = Move the object with it's pivot.
-		'''
-		# pm.undoInfo(openChunk=1)
-		pos = pm.xform(alignTo, q=1, translation=True, worldSpace=True)
-		center_pos = [ #Get center by averaging of all x,y,z points.
-			sum(pos[0::3]) / len(pos[0::3]), 
-			sum(pos[1::3]) / len(pos[1::3]), 
-			sum(pos[2::3]) / len(pos[2::3])]
-
-		vertices = pm.ls(pm.polyListComponentConversion(alignTo, toVertex=True), flatten=True)
-		if len(vertices) < 3:
-			return
-
-		for obj in pm.ls(alignFrom, flatten=1):
-
-			plane = pm.polyPlane(name="_hptemp#", width=1, height=1, subdivisionsX=1, subdivisionsY=1, axis=[0, 1, 0], createUVs=2, constructionHistory=True)[0] #Create and align helper plane.
-
-			pm.select("%s.vtx[0:2]" % plane, vertices[0:3])
-			pm.mel.snap3PointsTo3Points(0)
-
-			pm.xform(obj, rotation=pm.xform(plane, q=True, rotation=True, worldSpace=True), worldSpace=True)
-
-			if translate:
-				pm.xform(obj, translation=center_pos, worldSpace=True)
-				
-			pm.delete(plane)
-		# pm.undoInfo(closeChunk=1)
-
-
-	@staticmethod
-	def setTranslationToPivot(node):
-		'''Set an object’s translation value from its pivot location.
-		:Parameters:
-			node (str)(obj) = An object, or it's name.
-		'''
-		x, y, z = pivot = pm.xform(node, query=True, worldSpace=True, rotatePivot=True)
-		pm.xform(node, relative=True, translation=[-x,-y,-z])
-		pm.makeIdentity(node, apply=True, translate=True)
-		pm.xform(node, translation=[x, y, z])
-
-
-	@staticmethod
-	@undoChunk
-	def dropToGrid(objects, align='Mid', origin=False, centerPivot=False, freezeTransforms=False):
-		'''Align objects to Y origin on the grid using a helper plane.
-
-		:Parameters:
-			objects (str)(obj)(list) = The objects to translate.
-			align (bool) = Specify which point of the object's bounding box to align with the grid. (valid: 'Max','Mid'(default),'Min')
-			origin (bool) = Move to world grid's center.
-			centerPivot (bool) = Center the object's pivot.
-			freezeTransforms (bool) = Reset the selected transform and all of its children down to the shape level.
-
-		ex. dropToGrid(obj, align='Min') #set the object onto the grid.
-		'''
-		# pm.undoInfo(openChunk=1)
-		for obj in pm.ls(objects, transforms=1):
-			osPivot = pm.xform(obj, query=1, rotatePivot=1, objectSpace=1) #save the object space obj pivot.
-			wsPivot = pm.xform(obj, query=1, rotatePivot=1, worldSpace=1) #save the world space obj pivot.
-
-			pm.xform(obj, centerPivots=1) #center pivot
-			plane = pm.polyPlane(name='temp#')
-
-			if not origin:
-				pm.xform(plane, translation=(wsPivot[0], 0, wsPivot[2]), absolute=1, ws=1) #move the object to the pivot location
-
-			pm.align(obj, plane, atl=1, x='Mid', y=align, z='Mid')
-			pm.delete(plane)
-
-			if not centerPivot:
-				pm.xform(obj, rotatePivot=osPivot, objectSpace=1) #return pivot to orig position.
-
-			if freezeTransforms:
-				pm.makeIdentity(obj, apply=True)
-		# pm.undoInfo (closeChunk=1)
-
-
-	@staticmethod
-	@undoChunk
-	def createCurveBetweenTwoObjects(start, end):
-		'''Create a bezier curve between starting and end object(s).
-
-		:Parameters:
-			start () = Starting object(s).
-			end () = Ending object(s).
-
-		:Return:
-			(obj) Bezier curve. 
-		'''
-		# pm.undoInfo(openChunk=1)
-		p1 = pm.objectCenter(start)
-		p2 = pm.objectCenter(end)
-		hypotenuse = Slots_maya.getDistanceBetweenTwoPoints(p1, p2)
-
-		v1, v2 = Slots_maya.getCrossProductOfCurves([start, end], normalize=1, values=1)
-		v3a = Slots_maya.getVectorFromTwoPoints(p1, p2)
-		v3b = Slots_maya.getVectorFromTwoPoints(p2, p1)
-
-		a1 = Slots_maya.getAngleFrom2Vectors(v1, v3a, degree=1) #Slots_maya.getAngleFrom3Points(v1, p1, p2, degree=1)
-		a2 = Slots_maya.getAngleFrom2Vectors(v2, v3b, degree=1) #Slots_maya.getAngleFrom3Points(v2, p1, p2, degree=1)
-		a3 = Slots_maya.getAngleFrom2Vectors(v1, v2, degree=1)
-
-		d1, d2 = Slots_maya.getTwoSidesOfASATriangle(a2, a1, hypotenuse) #get length of sides 1 and 2.
-
-		p_from_v1 = Slots_maya.movePointAlongVectorTowardPoint(p1, p2, v1, d1)
-		p_from_v2 = Slots_maya.movePointAlongVectorTowardPoint(p2, p1, v2, d2)
-		p3 = Slots_maya.getCenterPointBetweenTwoPoints(p_from_v1, p_from_v2)
-
-		if d1<d2:
-			min_dist = d1
-			max_vect = Slots_maya.getVectorFromTwoPoints(p2, p3)
-		else:
-			min_dist = d2
-			max_vect = Slots_maya.getVectorFromTwoPoints(p1, p3)
-			p1, p2 = p2, p1
-
-		# pm.spaceLocator(position=p1); pm.spaceLocator(position=p2); pm.spaceLocator(position=p3)
-
-		p4 = Slots_maya.movePointRelative(p3, min_dist, max_vect); #pm.spaceLocator(position=p4)
-		p5 = Slots_maya.getCenterPointBetweenTwoPoints(p4, p1); #pm.spaceLocator(position=p5)
-		p6 = Slots_maya.getCenterPointBetweenTwoPoints(p3, p5); #pm.spaceLocator(position=p6)
-
-		#add weighting to the curve points.
-		p1w, p3w, p4w, p2w = [
-			(p1[0], p1[1], p1[2], 1),
-			(p3[0], p3[1], p3[2], 4),
-			(p4[0], p4[1], p4[2], 10),
-			(p2[0], p2[1], p2[2], 1),
-		]
-
-		result = pm.curve(pw=[p1w, p3w, p4w, p2w], k=[0,0,0,1,1,1], bezier=1)
-		# pm.undoInfo(closeChunk=1)
-
-		return result
-
-
-	@staticmethod
-	@undoChunk
-	def duplicateAlongCurve(path, start, count=6, geometry='Instancer'):
-		'''Duplicate objects along a given curve using MASH.
-
-		:Parameters:
-			path (obj) = The curve to use as a path.
-			start () = Starting object.
-			count (int) = The number of duplicated objects. (point count on the MASH network)
-			geometry (str) = Particle instancer or mesh instancer (Repro node). (valid: 'Mesh' (default), 'Instancer')
-
-		:Return:
-			(list) The duplicated objects in order of start to end.
-		'''
-		# pm.undoInfo(openChunk=1)
-		#create a MASH network
-		import MASH_tools, MASH.api as mapi
-		mashNW = mapi.Network()
-		mashNW.MTcreateNetwork(start, geometry=geometry, hideOnCreate=False) #MASH_tools module (derived from 'createNetwork')
-
-		curveNode = pm.ls(mashNW.addNode('MASH_Curve').name)[0]
-		pm.connectAttr(path.worldSpace[0], curveNode.inCurves[0], force=1)
-
-		pm.setAttr(curveNode.stopAtEnd, 1) #0=off, 1=on
-		pm.setAttr(curveNode.clipStart, 0)
-		pm.setAttr(curveNode.clipEnd, 1)
-		pm.setAttr(curveNode.equalSpacing, 1)
-		pm.setAttr(curveNode.timeStep, 1)
-		pm.setAttr(curveNode.curveLengthAffectsSpeed, 1)
-
-		distNode = pm.ls(mashNW.distribute)[0]
-		pm.setAttr(distNode.pointCount, count)
-		pm.setAttr(distNode.amplitudeX, 0)
-
-		instNode = pm.ls(mashNW.instancer)[0]
-		baked_curves = mashNW.MTbakeInstancer(instNode) #MASH_tools module (derived from 'MASHbakeInstancer')
-
-		result=[start]
-		for curve in reversed(baked_curves):
-			result.append(curve)
-
-		pm.delete(mashNW.waiter.name()) #delete the MASH network.
-		# pm.undoInfo(closeChunk=1)
-
-		return result
-
-
-	@staticmethod
-	@undoChunk
-	def angleLoftBetweenTwoCurves(start, end, count=6, cleanup=False, 
-		uniform=1, close=0, autoReverse=0, degree=3, sectionSpans=1, range=0, polygon=1, reverseSurfaceNormals=0):
-		'''Perform a loft between two nurbs curves or polygon sets of edges (that will be extracted as curves).
-
-		:Parameters:
-			start (list) = Starting edges.
-			end (list) = Ending edges.
-			count (int) = Section count.
-			cleanup (bool) = Delete the start, end, and any additional construction curves upon completion.
-
-		:Return:
-			(list) Loft object name and node name.
-		'''
-		# pm.undoInfo(openChunk=1)
-		if pm.objectType(start)=='mesh': #vs. 'nurbsCurve'
-			start, startNode = pm.polyToCurve(start, form=2, degree=3, conformToSmoothMeshPreview=1) #extract curve from mesh
-		Slots_maya.resetXform(start) #reset the transforms to world origin.
-
-		if pm.objectType(end)=='mesh': #vs. 'nurbsCurve'
-			end, endNode = pm.polyToCurve(end, form=2, degree=3, conformToSmoothMeshPreview=1) #extract curve from mesh
-		Slots_maya.resetXform(end) #reset the transforms to world origin.
-
-		path = Slots_maya.createCurveBetweenTwoObjects(start, end)
-		curves = Slots_maya.duplicateAlongCurve(path, start, count=count)
-
-		#align end
-		# find curve start using closestPointOnCurve method, 
-		# and rebuild the end curve to match the duplicated curves.
-		# then reverse.
-		# pm.reverseCurve(end, rpo=1)
-
-		result = pm.loft(curves, u=uniform, c=close, ar=autoReverse, d=degree, ss=sectionSpans, rn=range, po=polygon, rsn=reverseSurfaceNormals)
-
-		if cleanup: #perform cleanup by deleting construction curves.
-			try:
-				curves_parent = pm.listRelatives(curves[1], parent=1)
-				pm.delete(curves_parent)
-				pm.delete(end)
-				pm.delete(path)
-				pm.delete(start)
-			except Exception as e:
-				print(e)
-		# pm.undoInfo(closeChunk=1)
-
-		return result
-
-	# ----------------------------------------------------------------------
-
-
-
-
-
-
-
-
-
-	# ======================================================================
-		'MATH'
-	# ======================================================================
-
-	def getVectorFromComponents(components):
-		'''Get a vector using the averaged vertex normals of the given components.
-
-		:Parameters:
-			components (list) = A list of component to get normals of.
-
-		:Return:
-			(vector) ex. [-4.5296159711938344e-08, 1.0, 1.6846732009412335e-08]
-		'''
-		vertices = pm.polyListComponentConversion(components, toVertex=1)
-		norm = pm.polyNormalPerVertex(vertices, query=True, xyz=True)
-		normal_vector = [sum(norm[0::3])/len(norm[0::3]), sum(norm[1::3])/len(norm[1::3]), sum(norm[2::3])/len(norm[2::3])] #averaging of all x,y,z points.
-		return normal_vector
-
-	# ----------------------------------------------------------------------
-
-
-
-
-
-
-
-
-
-	# ======================================================================
-		'ANIMATION'
-	# ======================================================================
-
-	@staticmethod
-	def getSelectedChannels():
-		'''Get any attributes (channels) that are selected in the channel box.
-
-		:Return:
-			(str) list of any selected attributes as strings. (ie. ['tx', ry', 'sz'])
-		'''
-		channelBox = mel.eval('global string $gChannelBoxName; $temp=$gChannelBoxName;') #fetch maya's main channelbox
-		attrs = pm.channelBox(channelBox, q=True, sma=True)
-
-		if attrs is None:
-			attrs=[]
-		return attrs
-
-	# ----------------------------------------------------------------------
-
-
-
-
-
-
-
-
-
-	# ======================================================================
-		'DAG'
+		'OBJECT LEVEL'
 	# ======================================================================
 
 	@staticmethod
@@ -2234,6 +922,19 @@ class Slots_maya(Slots):
 
 		return objects[0].split("|")
 
+	# ----------------------------------------------------------------------
+
+
+
+
+
+
+
+
+
+	# ======================================================================
+		'ATTRIBUTES:'
+	# ======================================================================
 
 	@staticmethod
 	def getParameterValuesMEL(node, cmd, parameters):
@@ -2398,6 +1099,21 @@ class Slots_maya(Slots):
 	# ======================================================================
 
 	@staticmethod
+	def getSelectedChannels():
+		'''Get any attributes (channels) that are selected in the channel box.
+
+		:Return:
+			(str) list of any selected attributes as strings. (ie. ['tx', ry', 'sz'])
+		'''
+		channelBox = mel.eval('global string $gChannelBoxName; $temp=$gChannelBoxName;') #fetch maya's main channelbox
+		attrs = pm.channelBox(channelBox, q=True, sma=True)
+
+		if attrs is None:
+			attrs=[]
+		return attrs
+
+
+	@staticmethod
 	def getMayaMainWindow():
 		'''Get the main Maya window as a QtWidgets.QMainWindow instance
 
@@ -2454,7 +1170,7 @@ class Slots_maya(Slots):
 		'''Launch a popup window containing the given objects attributes.
 
 		:Parameters:
-			obj (obj)(list) = The object to get the attributes of.
+			obj (str)(obj)(list) = The object to get the attributes of, or it's name. If given as a list, only the first index will be used.
 			attributes (dict) = Explicitly pass in attribute:values pairs. Else, attributes will be pulled from self.getAttributesMax for the given obj.
 			include (list) = Attributes to include. All other will be omitted. Exclude takes dominance over include. Meaning, if the same attribute is in both lists, it will be excluded.
 			exclude (list) = Attributes to exclude from the returned dictionay. ie. ['Position','Rotation','Scale','renderable','isHidden','isFrozen','selected']
@@ -2466,10 +1182,10 @@ class Slots_maya(Slots):
 		ex. call: self.setAttributeWindow(node, attrs, fn=Slots_maya.setParameterValuesMEL, fn_args='transformLimits') #set attributes for the Maya command transformLimits.
 		ex. call: self.setAttributeWindow(transform[0], include=['translateX','translateY','translateZ','rotateX','rotateY','rotateZ','scaleX','scaleY','scaleZ'], checkableLabel=True)
 		'''
-		if not obj:
-			return
-		elif isinstance(obj, (list, set, tuple)):
-			obj = obj[0] # pm.warning("'setAttributeWindow' only works with one object at a time.")
+		try:
+			obj = pm.ls(obj)[0]
+		except Exception as error:
+			return 'Error: {}.setAttributeWindow: Invalid Object: {}'.format(__name__, obj)
 
 		fn = fn if fn else self.setAttributesMEL
 
@@ -2910,40 +1626,6 @@ print (__name__)
 
 
 	# 	return selectedComponents
-
-
-# @staticmethod
-# 	def getUvShellSets(objects=None):
-# 		'''
-# 		Get All UV shells and their corresponding sets of faces.
-
-# 		:Parameters:
-# 			objects (obj)(list) = Polygon object(s).
-
-# 		:Return:
-# 			(dict) ex. {0L:[[MeshFace(u'pShape.f[0]'), MeshFace(u'pShape.f[1]')], 1L:[[MeshFace(u'pShape.f[2]'), MeshFace(u'pShape.f[3]')]}
-# 		'''
-# 		if not objects:
-# 			objects = pm.ls(selection=1, objectsOnly=1, transforms=1, flatten=1)
-
-# 		if not isinstance(objects, (list, set, tuple)):
-# 			objects=[objects]
-
-# 		shells={}
-# 		for obj in objects:
-# 			faces = Slots_maya.getComponents(obj, 'f')
-# 			for face in faces:
-# 				shell_Id = pm.polyEvaluate(face, uvShellIds=True)
-
-# 				try:
-# 					shells[shell_Id[0]].append(face)
-# 				except KeyError:
-# 					try:
-# 						shells[shell_Id[0]]=[face]
-# 					except IndexError:
-# 						pass
-
-# 		return shells
 
 
 

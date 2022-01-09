@@ -238,7 +238,7 @@ class Uv(Slots_maya):
 
 		U,D,I,M = [int(i) for i in str(UDIM)]
 
-		sel = Uv.UvShellSelection() #assure the correct selection mask.
+		sel = self.UvShellSelection() #assure the correct selection mask.
 		if similar>0:
 			dissimilar = pm.polyUVStackSimilarShells(sel, tolerance=tolerance, onlyMatch=True)
 			dissimilarUVs = [s.split() for s in dissimilar] if dissimilar else []
@@ -311,7 +311,7 @@ class Uv(Slots_maya):
 		orient = tb.contextMenu.chk021.isChecked()
 		stackSimilar = tb.contextMenu.chk022.isChecked()
 		tolerance = tb.contextMenu.s000.value()
-		sel = Uv.UvShellSelection() #assure the correct selection mask.
+		sel = self.UvShellSelection() #assure the correct selection mask.
 
 		if stackSimilar:
 			pm.polyUVStackSimilarShells(sel, tolerance=tolerance)
@@ -477,29 +477,28 @@ class Uv(Slots_maya):
 	def b023(self):
 		'''Move To Uv Space: Left
 		'''
-		Uv.moveSelectedToUvSpace(-1, 0) #move left
+		self.moveSelectedToUvSpace(-1, 0) #move left
 
 
 	def b024(self):
 		'''Move To Uv Space: Down
 		'''
-		Uv.moveSelectedToUvSpace(0, -1) #move down
+		self.moveSelectedToUvSpace(0, -1) #move down
 
 
 	def b025(self):
 		'''Move To Uv Space: Up
 		'''
-		Uv.moveSelectedToUvSpace(0, 1) #move up
+		self.moveSelectedToUvSpace(0, 1) #move up
 
 
 	def b026(self):
 		'''Move To Uv Space: Right
 		'''
-		Uv.moveSelectedToUvSpace(1, 0) #move right
+		self.moveSelectedToUvSpace(1, 0) #move right
 
 
-	@staticmethod
-	def moveSelectedToUvSpace(u, v, relative=True):
+	def moveSelectedToUvSpace(self, u, v, relative=True):
 		'''Move sny selected objects to the given u and v coordinates.
 
 		:Parameters:
@@ -507,13 +506,13 @@ class Uv(Slots_maya):
 			v (int) = v coordinate.
 			relative (bool) = Move relative or absolute.
 		'''
-		sel = Uv.UvShellSelection() #assure the correct selection mask.
+		sel = self.UvShellSelection() #assure the correct selection mask.
 
 		pm.polyEditUV(sel, u=u, v=v, relative=relative)
 
 
-	@staticmethod
-	def UvShellSelection():
+	@Slots.message
+	def UvShellSelection(self):
 		'''Select all faces of any selected geometry, and switch the component mode to uv shell,
 		if the current selection is not maskFacet, maskUv, or maskUvShell.
 
@@ -522,7 +521,7 @@ class Uv(Slots_maya):
 		'''
 		selection = pm.ls(sl=1)
 		if not selection:
-			print('Error: Nothing selected.')
+			return 'Error: <b>Nothing selected.<b><br>The operation requires at lease one selected object.'
 
 		objects = pm.ls(selection, objectsOnly=1)
 		objectMode = pm.selectMode(query=1, object=1)
@@ -540,6 +539,91 @@ class Uv(Slots_maya):
 				pm.select(selection, add=True)
 
 		return selection
+
+
+	def getUvShellSets(self, objects=None, returnType='shells'):
+		'''Get All UV shells and their corresponding sets of faces.
+
+		:Parameters:
+			objects (obj)(list) = Polygon object(s) or Polygon face(s).
+			returnType (str) = The desired returned type. valid values are: 'shells', 'shellIDs'. If None is given, the full dict will be returned.
+
+		:Return:
+			(list)(dict) dependant on the given returnType arg. ex. {0L:[[MeshFace(u'pShape.f[0]'), MeshFace(u'pShape.f[1]')], 1L:[[MeshFace(u'pShape.f[2]'), MeshFace(u'pShape.f[3]')]}
+		'''
+		if not objects:
+			objects = pm.ls(selection=1, objectsOnly=1, transforms=1, flatten=1)
+
+		if not isinstance(objects, (list, set, tuple)):
+			objects=[objects]
+
+		objectType = Slots_maya.getObjectType(objects[0])
+		if objectType=='Polygon Face':
+			faces = objects
+		else:
+			faces = Slots_maya.getComponents(objects, 'faces')
+
+		shells={}
+		for face in faces:
+			shell_Id = pm.polyEvaluate(face, uvShellIds=True)
+
+			try:
+				shells[shell_Id[0]].append(face)
+			except KeyError:
+				try:
+					shells[shell_Id[0]]=[face]
+				except IndexError:
+					pass
+
+		if returnType=='shells':
+			shells = list(shells.values())
+		elif returnType=='shellIDs':
+			shells = shells.keys()
+
+		return shells
+
+
+	def getUvShellBorderEdges(self, objects):
+		'''Get the edges that make up any UV islands of the given objects.
+
+		:Parameters:
+			objects (str)(obj)(list) = Polygon mesh objects.
+
+		:Return:
+			(list) uv border edges.
+		'''
+		mesh_edges=[]
+		for obj in pm.ls(objects, objectsOnly=1):
+			try: # Try to get edges from provided objects.
+				mesh_edges.extend(pm.ls(pm.polyListComponentConversion(obj, te=True), fl=True, l=True))
+			except Exception as error:
+				pass
+
+		if len(mesh_edges)<=0: # Error if no valid objects were found
+			raise RuntimeError('No valid mesh objects or components were provided.')
+
+		pm.progressWindow(t='Find UV Border Edges', pr=0, max=len(mesh_edges), ii=True) # Start progressWindow
+		
+		uv_border_edges = list() # Find and return uv border edges
+		for edge in mesh_edges:  # Filter through the mesh(s) edges.
+
+			if pm.progressWindow(q=True, ic=True): # Kill if progress window is cancelled
+				pm.progressWindow(ep=True)  # End progressWindow
+				raise RuntimeError('Cancelled by user.')
+
+			pm.progressWindow(e=True, s=1, st=edge) # Update the progress window status
+			
+			edge_uvs = pm.ls(pm.polyListComponentConversion(edge, tuv=True), fl=True)
+			edge_faces = pm.ls(pm.polyListComponentConversion(edge, tf=True), fl=True)
+			if len(edge_uvs) > 2:  # If an edge has more than two uvs, it is a uv border edge.
+				uv_border_edges.append(edge)
+			elif len(edge_faces) < 2:  # If an edge has less than 2 faces, it is a border edge.
+				uv_border_edges.append(edge)
+
+		pm.progressWindow(ep=True) # End progressWindow
+
+		return uv_border_edges
+
 
 
 

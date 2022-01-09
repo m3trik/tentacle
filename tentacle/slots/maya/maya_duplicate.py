@@ -224,7 +224,7 @@ class Duplicate(Slots_maya):
 			if translateToComponent:
 				if componentList:
 					for num, component in componentList.iteritems():
-						vertexPoint = self.getComponentPoint(component)
+						vertexPoint = self.tcl.sb.getClassInstance('transform').getComponentPoint(component)
 
 						pm.xform (obj, rotation=[rotXYZ[0], rotXYZ[1], rotXYZ[2]])
 						pm.xform (obj, translation=[vertexPoint[0]+transXYZ[0], vertexPoint[1]+transXYZ[1], vertexPoint[2]+transXYZ[2]])
@@ -321,33 +321,6 @@ class Duplicate(Slots_maya):
 		self.chk015(create=True)
 
 
-	@staticmethod
-	def getInstances(object_=None):
-		'''get any intances of given object, or if no object given, get all instanced objects in the scene.
-		:Parameters:
-			object=<scene object>
-		:Return:
-			any instances.
-		'''
-		instances=[]
-
-		if not object_: #get all instanced objects in the scene.
-			import maya.OpenMaya as om
-
-			iterDag = om.MItDag(om.MItDag.kBreadthFirst)
-			while not iterDag.isDone():
-				instanced = om.MItDag.isInstanced(iterDag)
-				if instanced:
-					instances.append(iterDag.fullPathName())
-				iterDag.next()
-		else:
-			pm.select (object_, deselect=1)
-			shapes = pm.listRelatives(object_, s=1)
-			instances = listRelatives('+shapes[0]+', ap=1)
-
-		return instances
-
-
 	def b004(self):
 		'''Select Instanced Objects
 		'''
@@ -407,6 +380,66 @@ class Duplicate(Slots_maya):
 
 		for obj in selection:
 			cmb.add(obj)
+
+
+	def getInstances(self, object_=None):
+		'''get any intances of given object, or if no object given, get all instanced objects in the scene.
+		:Parameters:
+			object=<scene object>
+		:Return:
+			any instances.
+		'''
+		instances=[]
+
+		if not object_: #get all instanced objects in the scene.
+			import maya.OpenMaya as om
+
+			iterDag = om.MItDag(om.MItDag.kBreadthFirst)
+			while not iterDag.isDone():
+				instanced = om.MItDag.isInstanced(iterDag)
+				if instanced:
+					instances.append(iterDag.fullPathName())
+				iterDag.next()
+		else:
+			pm.select (object_, deselect=1)
+			shapes = pm.listRelatives(object_, s=1)
+			instances = listRelatives('+shapes[0]+', ap=1)
+
+		return instances
+
+
+	@Slots_maya.undoChunk
+	def convertToInstances(self, objects=[], leaf=False):
+		'''The first selected object will be instanced across all other selected objects.
+
+		:Parameters:
+			objects (list) = A list of objects to convert to instances. The first object will be the instance parent.
+			leaf (bool) = Instances leaf-level objects. Acts like duplicate except leaf-level objects are instanced.
+
+		ex. call: convertToInstances(pm.ls(sl=1))
+		'''
+		# pm.undoInfo(openChunk=1)
+		p0x, p0y, p0z = pm.xform(objects[0], query=1, rotatePivot=1, worldSpace=1) #get the world space obj pivot.
+		pivot = pm.xform(objects[0], query=1, rotatePivot=1, objectSpace=1) #get the obj pivot.
+		print (objects[0])
+		for obj in objects[1:]:
+
+			pm.xform(obj, rotatePivot=pivot, objectSpace=1) #set pivot to match object[0]
+
+			p1x, p1y, p1z = wsPivot = pm.xform(obj, query=1, rotatePivot=1, worldSpace=1) #get the world space obj pivot.
+			pos = [p1x-p0x, p1y-p0y, p1z-p0z]
+
+			name = obj.name()
+			objParent = pm.listRelatives(obj, parent=1)
+			pm.delete(obj, constructionHistory=True) #delete history for the object so that the namespace is cleared.
+			pm.delete(obj)
+
+			instance = pm.instance(objects[0], name=name, leaf=leaf)
+
+			pm.xform(instance, translation=pos, worldSpace=1, relative=1) #move to the original objects location.
+
+			pm.parent(instance, objParent) #parent the instance under the original objects parent.
+		# pm.undoInfo(closeChunk=1)
 
 
 
