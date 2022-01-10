@@ -65,7 +65,7 @@ class Animation(Slots_max):
 	def tb000(self, state=None):
 		'''Set Current Frame
 		'''
-		tb = self.current_ui.tb000
+		tb = self.animation_ui.tb000
 
 		frame = self.invertOnModifier(tb.contextMenu.s000.value())
 		relative = tb.contextMenu.chk000.isChecked()
@@ -78,7 +78,7 @@ class Animation(Slots_max):
 	def tb001(self, state=None):
 		'''Invert Selected Keyframes
 		'''
-		tb = self.current_ui.tb001
+		tb = self.animation_ui.tb001
 
 		time = tb.contextMenu.s001.value()
 		relative = tb.contextMenu.chk002.isChecked()

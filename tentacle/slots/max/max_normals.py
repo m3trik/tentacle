@@ -66,7 +66,7 @@ class Normals(Slots_max):
 	def tb000(self, state=None):
 		'''Display Face Normals
 		'''
-		tb = self.current_ui.tb000
+		tb = self.normals_ui.tb000
 
 		size = float(tb.contextMenu.s001.value())
 
@@ -98,7 +98,7 @@ class Normals(Slots_max):
 	def tb001(self, state=None):
 		'''Harden Edge Normals
 		'''
-		tb = self.current_ui.tb001
+		tb = self.normals_ui.tb001
 
 		maxEval('$.EditablePoly.makeHardEdges 1')
 
@@ -135,7 +135,7 @@ class Normals(Slots_max):
 	def tb002(self, state=None):
 		'''Set Normal By Angle
 		'''
-		tb = self.current_ui.tb002
+		tb = self.normals_ui.tb002
 
 		normalAngle = str(tb.contextMenu.s000.value())
 		subObjectLevel = rt.subObjectLevel
@@ -203,7 +203,7 @@ class Normals(Slots_max):
 	def tb004(self, state=None):
 		'''Average Normals
 		'''
-		tb = self.current_ui.tb004
+		tb = self.normals_ui.tb004
 
 		byUvShell = tb.contextMenu.chk003.isChecked()
 

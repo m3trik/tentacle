@@ -137,7 +137,7 @@ class Materials(Slots_max):
 	def tb000(self, state=None):
 		'''Select By Material Id
 		'''
-		tb = self.current_ui.tb000
+		tb = self.materials_ui.tb000
 
 		mat = self.materials_ui.cmb002.currentData()
 		if not mat:

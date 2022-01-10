@@ -219,7 +219,7 @@ class Uv(Slots_max):
 		# --rotate - determines whether a cluster will be rotated so it takes up less space.
 		# --fillholes - determines whether smaller clusters will be put in the holes of the larger cluster.
 		'''
-		tb = self.current_ui.tb000
+		tb = self.uv_ui.tb000
 
 		scale = tb.contextMenu.s009.value()
 		rotate = tb.contextMenu.s010.value()
@@ -233,7 +233,7 @@ class Uv(Slots_max):
 	def tb001(self, state=None):
 		'''Auto Unwrap
 		'''
-		tb = self.current_ui.tb001
+		tb = self.uv_ui.tb001
 
 		standardUnwrap = tb.contextMenu.chk000.isChecked()
 		scaleMode = tb.contextMenu.chk001.isChecked()
@@ -301,7 +301,7 @@ class Uv(Slots_max):
 	def tb004(self, state=None):
 		'''Unfold
 		'''
-		tb = self.current_ui.tb004
+		tb = self.uv_ui.tb004
 
 		optimize = self.tb.contextMenu.chk017.isChecked()
 
@@ -349,7 +349,7 @@ class Uv(Slots_max):
 	def tb007(self, state=None):
 		'''Set Texel Density
 		'''
-		tb = self.current_ui.tb007
+		tb = self.uv_ui.tb007
 
 		mapSize = tb.contextMenu.s002.value()
 		density = tb.contextMenu.s003.value()

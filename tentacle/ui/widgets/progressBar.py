@@ -22,7 +22,7 @@ Promoting a widget in designer to use a custom class:
 
 class ProgressBar(QtWidgets.QProgressBar, Attributes):
 	'''ex. for n, i in enumerate(list_):
-			if not self.current_ui.progressBar.step(n, len(list_)): #register progress while checking for cancellation:
+			if not self.current_ui().progressBar.step(n, len(list_)): #register progress while checking for cancellation:
 				break
 	'''
 	def __init__(self, parent=None, **kwargs):

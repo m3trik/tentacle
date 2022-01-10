@@ -29,7 +29,7 @@ class Cameras(Slots_max):
 			(obj) menu as a property.
 		'''
 		if not hasattr(self, '_clippingMenu'):
-			self._clippingMenu = wgts.Menu(self.current_ui, position='cursorPos')
+			self._clippingMenu = wgts.Menu(self.cameras_ui, position='cursorPos')
 
 			self._clippingMenu.add(self.tcl.wgts.Label, setText='Viewport Clip', setObjectName='lbl000', setToolTip='Toggle the clipping controls for the current viewport camera.')
 			self._clippingMenu.add('QPushButton', setText='Auto Clip', setObjectName='chk000', setCheckable=True, setToolTip='When Auto Clip is ON, geometry closer to the camera than 3 units is not displayed. Turn OFF to manually define.')
@@ -102,7 +102,7 @@ class Cameras(Slots_max):
 	def tree000(self, wItem=None, column=None):
 		'''Camera Menu
 		'''
-		tree = self.current_ui.tree000
+		tree = self.cameras_ui.tree000
 
 		if not any([wItem, column]): # code here will run before each show event. generally used to refresh tree contents. -----------------------------
 			try:

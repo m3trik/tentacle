@@ -102,22 +102,25 @@ class Normals(Slots_maya):
 
 		for obj in objects:
 			selection = pm.ls(obj, sl=True, l=True)
+			if not selection:
+				continue
 			selEdges = pm.ls(pm.polyListComponentConversion(selection, toEdge=1), flatten=1)
 			allEdges = edges = pm.ls(pm.polyListComponentConversion(obj, toEdge=1), flatten=1)
 
 			if hardenCreased:
-				creasedEdges = self.tcl.sb.getClassInstance('crease').getCreasedEdges(allEdges)
+				creasedEdges = self.crease().getCreasedEdges(allEdges)
 				selEdges = selEdges + creasedEdges if not selEdges==allEdges else creasedEdges
 
 			if hardenUvBorders:
-				uv_border_edges = self.tcl.sb.getClassInstance('uv').getUvShellBorderEdges(selection)
+				uv_border_edges = self.uv().getUvShellBorderEdges(selection)
 				selEdges = selEdges + uv_border_edges if not selEdges==allEdges else uv_border_edges
 
 			pm.polySoftEdge(selEdges, angle=hardAngle, constructionHistory=0) #set hard edges.
 
 			if softenOther:
 				invEdges = [e for e in allEdges if e not in selEdges]
-				pm.polySoftEdge(invEdges, angle=180, constructionHistory=0) #set soft edges.
+				if invEdges:
+					pm.polySoftEdge(invEdges, angle=180, constructionHistory=0) #set soft edges.
 
 			pm.select(selEdges)
 
@@ -234,7 +237,7 @@ class Normals(Slots_maya):
 
 			if byUvShell:
 				obj = pm.ls(obj, transforms=1)
-				sets_ = self.tcl.sb.getClassInstance('uv').getUvShellSets(obj)
+				sets_ = self.uv().getUvShellSets(obj)
 				for set_ in sets_:
 					pm.polySetToFaceNormal(set_)
 					pm.polyAverageNormal(set_)

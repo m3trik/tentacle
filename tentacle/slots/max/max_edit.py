@@ -96,7 +96,7 @@ class Edit(Slots_max):
 	def tb000(self, state=None):
 		'''Mesh Cleanup
 		'''
-		tb = self.current_ui.tb000
+		tb = self.edit_ui.tb000
 
 		isolatedVerts = tb.contextMenu.chk003.isChecked() #isolated vertices
 		edgeAngle = tb.contextMenu.s006.value()
@@ -110,7 +110,7 @@ class Edit(Slots_max):
 	def tb001(self, state=None):
 		'''Delete History
 		'''
-		tb = self.current_ui.tb001
+		tb = self.edit_ui.tb001
 
 		all_ = tb.contextMenu.chk018.isChecked()
 		unusedNodes = tb.contextMenu.chk019.isChecked()
@@ -147,7 +147,7 @@ class Edit(Slots_max):
 	def tb002(self, state=None):
 		'''Delete
 		'''
-		tb = self.current_ui.tb002
+		tb = self.edit_ui.tb002
 
 		level = rt.subObjectLevel
 
@@ -330,7 +330,7 @@ class Edit(Slots_max):
 	def tb003(self, state=None):
 		'''Delete Along Axis
 		'''
-		tb = self.current_ui.tb003
+		tb = self.edit_ui.tb003
 
 		# selection = pm.ls(sl=1, objectsOnly=1)
 		# axis = self.getAxisFromCheckBoxes('chk006-9', tb.contextMenu)

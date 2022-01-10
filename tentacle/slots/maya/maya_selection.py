@@ -529,7 +529,7 @@ class Selection(Slots_maya):
 
 		selectedFaces = pm.filterExpand(sm=34)
 		if selectedFaces:
-			similarFaces = self.tcl.sb.getClassInstance('normals').getFacesWithSimilarNormals(selectedFaces, rangeX=rangeX, rangeY=rangeY, rangeZ=rangeZ)
+			similarFaces = self.normals().getFacesWithSimilarNormals(selectedFaces, rangeX=rangeX, rangeY=rangeY, rangeZ=rangeZ)
 			islands = self.getContigiousIslands(similarFaces)
 			island = [i for i in islands if bool(set(i) & set(selectedFaces))]
 			pm.select(island)

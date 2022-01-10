@@ -173,10 +173,10 @@ class Create(Slots_maya):
 
 		if selection: #if there is a current selection, move the object to that selection's bounding box center.
 			if translate:
-				center_pos = self.tcl.sb.getClassInstance('transform').getCenterPoint(selection)
+				center_pos = self.transform().getCenterPoint(selection)
 				pm.xform(node, translation=center_pos, worldSpace=1, absolute=1)
 			if scale:
-				self.tcl.sb.getClassInstance('transform').matchScale(node[0], selection, average=True)
+				self.transform().matchScale(node[0], selection, average=True)
 
 		pm.selectMode(object=1) #place scene select type in object mode.
 		pm.select(node) #select the transform node so that you can see any edits

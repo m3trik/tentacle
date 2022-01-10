@@ -40,8 +40,8 @@ class Crease(Slots_max):
 		if not self.crease_ui.chk002.isChecked(): #un-crease
 			if not self.crease_ui.chk003.isChecked(): #toggle max
 				self.creaseValue = self.crease_ui.s003.value()
-				text = self.current_ui.tb000.text().split()[0]
-				self.current_ui.tb000.setText('{} {}'.format(text, self.creaseValue))
+				text = self.crease_ui.tb000.text().split()[0]
+				self.crease_ui.tb000.setText('{} {}'.format(text, self.creaseValue))
 
 
 	def draggable_header(self, state=None):
@@ -75,7 +75,7 @@ class Crease(Slots_max):
 	def chk002(self, state=None):
 		'''Un-Crease
 		'''
-		if self.current_ui.tb000.contextMenu.chk002.isChecked():
+		if self.crease_ui.tb000.contextMenu.chk002.isChecked():
 			self.crease_ui.tb000.contextMenu.s003.setValue(0) #crease value
 			self.crease_ui.tb000.contextMenu.s004.setValue(180) #normal angle
 			self.toggleWidgets(self.crease_ui.tb000.contextMenu, self.crease_submenu_ui.tb000.contextMenu, setChecked='chk002', setUnChecked='chk003')
@@ -87,14 +87,14 @@ class Crease(Slots_max):
 			self.crease_ui.tb000.contextMenu.s003.setEnabled(True)
 			text = '{} {}'.format('Crease', self.creaseValue)
 
-		self.current_ui.tb000.setText(text)
+		self.crease_ui.tb000.setText(text)
 
 
 	@Slots.sync
 	def chk003(self, state=None):
 		'''Crease: Max
 		'''
-		if self.current_ui.tb000.contextMenu.chk003.isChecked():
+		if self.crease_ui.tb000.contextMenu.chk003.isChecked():
 			self.crease_ui.tb000.contextMenu.s003.setValue(10) #crease value
 			self.crease_ui.tb000.contextMenu.s004.setValue(30) #normal angle
 			self.toggleWidgets(self.crease_ui.tb000.contextMenu, self.crease_submenu_ui.tb000.contextMenu, setChecked='chk003', setUnChecked='chk002')
@@ -106,14 +106,14 @@ class Crease(Slots_max):
 			self.crease_ui.tb000.contextMenu.s003.setEnabled(True)
 			text = '{} {}'.format('Crease', self.creaseValue)
 
-		self.current_ui.tb000.setText(text)
+		self.crease_ui.tb000.setText(text)
 
 
 	@Slots.sync
 	def chk011(self, state=None):
 		'''Crease: Auto
 		'''
-		if self.current_ui.tb000.contextMenu.chk011.isChecked():
+		if self.crease_ui.tb000.contextMenu.chk011.isChecked():
 			self.toggleWidgets(self.crease_ui.tb000.contextMenu, setEnabled='s005,s006')
 		else:
 			self.toggleWidgets(self.crease_ui.tb000.contextMenu, setDisabled='s005,s006')
@@ -122,7 +122,7 @@ class Crease(Slots_max):
 	def tb000(self, state=None):
 		'''Crease
 		'''
-		tb = self.current_ui.tb000
+		tb = self.crease_ui.tb000
 
 		creaseAmount = int(tb.contextMenu.s003.value())
 		normalAngle = int(tb.contextMenu.s004.value())

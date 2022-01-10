@@ -150,7 +150,7 @@ class Rigging(Slots_max):
 	def tb000(self, state=None):
 		'''Toggle Display Local Rotation Axes
 		'''
-		tb = self.current_ui.tb000
+		tb = self.rigging_ui.tb000
 
 		# joints = pm.ls(type="joint") #get all scene joints
 
@@ -171,7 +171,7 @@ class Rigging(Slots_max):
 	def tb001(self, state=None):
 		'''Orient Joints
 		'''
-		tb = self.current_ui.tb001
+		tb = self.rigging_ui.tb001
 
 		# orientJoint = 'xyz' #orient joints
 		# if tb.contextMenu.isChecked():
@@ -183,7 +183,7 @@ class Rigging(Slots_max):
 	def tb002(self, state=None):
 		'''Constraint: Parent
 		'''
-		tb = self.current_ui.tb002
+		tb = self.rigging_ui.tb002
 
 		template = tb.contextMenu.chk004.isChecked()
 
@@ -200,7 +200,7 @@ class Rigging(Slots_max):
 	def tb003(self, state=None):
 		'''Create Locator at Selection
 		'''
-		tb = self.current_ui.tb003
+		tb = self.rigging_ui.tb003
 
 		suffix = tb.contextMenu.t000.text()
 		stripDigits = tb.contextMenu.chk005.isChecked()
@@ -222,7 +222,7 @@ class Rigging(Slots_max):
 	def tb004(self, state=None):
 		'''Lock/Unlock Attributes
 		'''
-		tb = self.current_ui.tb004
+		tb = self.rigging_ui.tb004
 
 		lockTranslate = tb.contextMenu.chk012.isChecked()
 		lockRotation = tb.contextMenu.chk013.isChecked()

@@ -139,7 +139,7 @@ class Polygons(Slots_max):
 	def tb000(self, state=None):
 		'''Merge Vertices
 		'''
-		tb = self.current_ui.tb000
+		tb = self.polygons_ui.tb000
 
 		tolerance = float(tb.contextMenu.s002.value())
 		selection = rt.selection
@@ -163,7 +163,7 @@ class Polygons(Slots_max):
 	def tb001(self, state=None):
 		'''Bridge
 		'''
-		tb = self.current_ui.tb001
+		tb = self.polygons_ui.tb001
 
 		divisions = tb.contextMenu.s003.value()
 
@@ -175,7 +175,7 @@ class Polygons(Slots_max):
 	def tb002(self, state=None):
 		'''Combine
 		'''
-		tb = self.current_ui.tb002
+		tb = self.polygons_ui.tb002
 
 		if tb.contextMenu.chk000.isChecked():
 			pass
@@ -208,7 +208,7 @@ class Polygons(Slots_max):
 	def tb003(self, state=None):
 		'''Extrude
 		'''
-		tb = self.current_ui.tb003
+		tb = self.polygons_ui.tb003
 
 		keepFacesTogether = tb.contextMenu.chk002.isChecked() #keep faces/edges together.
 
@@ -220,7 +220,7 @@ class Polygons(Slots_max):
 	def tb004(self, state=None):
 		'''Bevel (Chamfer)
 		'''
-		tb = self.current_ui.tb004
+		tb = self.polygons_ui.tb004
 
 		width = float(tb.contextMenu.s000.value())
 
@@ -237,7 +237,7 @@ class Polygons(Slots_max):
 	def tb005(self, state=None):
 		'''Detach
 		'''
-		tb = self.current_ui.tb005
+		tb = self.polygons_ui.tb005
 
 		#rt.macros.run('Ribbon - Modeling', 'GeometryDetach')
 		level = rt.subObjectLevel
@@ -263,7 +263,7 @@ class Polygons(Slots_max):
 	def tb006(self, state=None):
 		'''Inset Face Region
 		'''
-		tb = self.current_ui.tb006
+		tb = self.polygons_ui.tb006
 
 		offset = float(tb.contextMenu.s001.value())
 		maxEval('''
@@ -281,7 +281,7 @@ class Polygons(Slots_max):
 	def tb007(self, state=None):
 		'''Divide Facet
 		'''
-		tb = self.current_ui.tb007
+		tb = self.polygons_ui.tb007
 
 		dv=u=v=0
 		if tb.contextMenu.chk008.isChecked(): #Split U

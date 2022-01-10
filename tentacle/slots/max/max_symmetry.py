@@ -87,7 +87,7 @@ class Symmetry(Slots_max):
 		'''
 		print('chk000')
 		self.toggleWidgets(self.childUi, setUnChecked='chk001,chk002')
-		state = self.current_ui.chk000.isChecked() #symmetry button state
+		state = self.symmetry_ui.chk000.isChecked() #symmetry button state
 		self.setSymmetry(state, 'x')
 
 
@@ -96,7 +96,7 @@ class Symmetry(Slots_max):
 		'''Symmetry Y
 		'''
 		self.toggleWidgets(self.childUi, setUnChecked='chk000,chk002')
-		state = self.current_ui.chk001.isChecked() #symmetry button state
+		state = self.symmetry_ui.chk001.isChecked() #symmetry button state
 		self.setSymmetry(state, 'y')
 
 
@@ -105,7 +105,7 @@ class Symmetry(Slots_max):
 		'''Symmetry Z
 		'''
 		self.toggleWidgets(self.childUi, setUnChecked='chk000,chk001')
-		state = self.current_ui.chk002.isChecked() #symmetry button state
+		state = self.symmetry_ui.chk002.isChecked() #symmetry button state
 		self.setSymmetry(state, 'z')
 
 

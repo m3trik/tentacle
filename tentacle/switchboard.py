@@ -70,7 +70,7 @@ class Switchboard(QtCore.QObject):
 	_commandHistory = [] #[list of 2 element lists] - Command history. ie. [[<b000>, 'multi-cut tool']]
 	_cameraHistory = [] #[list of 2 element lists] - Camera history. ie. [[<v000>, 'camera: persp']]
 	_gcProtect = [] #[list] - Items protected from garbage collection
-	_classProperties = {} #{'<property name>':<property value>} - The additional properties of each of the slot classes.
+	_classKwargs = {} #{'<property name>':<property value>} - The additional properties of each of the slot classes.
 
 
 	def __init__(self, parent=None):
@@ -194,7 +194,7 @@ class Switchboard(QtCore.QObject):
 
 		self.setAttributes(widget, **kwargs) #set any passed in keyword args for the widget.
 
-		classInst = self.getClassInstance(uiName, **self.getClassProperties(uiName)) #get the corresponding slot class from the ui name. ie. class <Polygons> from uiName 'polygons'.
+		classInst = self.getClassInstance(uiName) #get the corresponding slot class from the ui name. ie. class <Polygons> from uiName 'polygons'.
 		derivedType = self.getDerivedType(widget) #the base class of any custom widgets.  ie. 'QPushButton' from 'PushButton'
 		signalType = self.getDefaultSignalType(derivedType) #get the default signal type for the widget as a string. ie. 'released' from 'QPushButton'
 		signalInstance = getattr(widget, signalType, None) #add signal to widget. ie. <widget.valueChanged>
@@ -302,7 +302,7 @@ class Switchboard(QtCore.QObject):
 		return widget.objectName()
 
 
-	def getClassProperties(self, ui):
+	def getClassKwargs(self, ui):
 		'''Get properties as keyword arguments for the given ui.
 
 		:Parameters:
@@ -313,35 +313,43 @@ class Switchboard(QtCore.QObject):
 		'''
 		uiName = self.getUiName(ui)
 
-		try: #return kwargs for the given ui, if already stored in '_classProperties' dict.
-			return self._classProperties[uiName]
+		try: #return kwargs for the given ui, if already stored in '_classKwargs' dict.
+			return self._classKwargs[uiName]
 
 		except KeyError as error:
 
 			kwargs = {}
 
-			ln_name = self.getUiName(ui, level=[0, 1, 3]) #main menu
-			kwargs['{}_ui'.format(ln_name)] = self.getUi(ln_name) #ie. 'polygons_ui': <PySide2.QtWidgets.QMainWindow object at 0x000001D97BCEB0C8>
-	
-			l2_name = self.getUiName(ui, level=2) #submenu
-			if l2_name:
-				kwargs['{}_ui'.format(l2_name)] = self.getUi(l2_name) #ie. 'polygons_submenu_ui': <PySide2.QtWidgets.QMainWindow object at 0x000001D978D8A708>
-
-			kwargs['_current_ui'] = lambda: self.getUi() if self.getUi() in (d['ui'] for n, d in self.sbDict.items() if ln_name in n) else self.getUi(ln_name) #if the current ui is not one of the parent ui's children or the parent ui itself, default to the parent ui.
-
+			kwargs['current_ui'] = lambda: self.getUi() if self.getUi() in (d['ui'] for n, d in self.sbDict.items() if ln_name in n) else self.getUi(ln_name) #if the current ui is not one of the parent ui's children or the parent ui itself, default to the parent ui.
 			kwargs['tcl'] = self.parent() #tcl instance
 
+			ln_name = self.getUiName(ui, level=[0, 1, 3]) #main menu
+			attr = '{}_ui'.format(ln_name)
+			value = self.getUi(ln_name) #ie. 'polygons_ui': <PySide2.QtWidgets.QMainWindow object at 0x000001D97BCEB0C8>
+			kwargs[attr] = value
+
+			l2_name = self.getUiName(ui, level=2) #submenu
+			if l2_name:
+				attr = '{}_ui'.format(l2_name)
+				value = self.getUi(l2_name) #ie. 'polygons_submenu_ui': <PySide2.QtWidgets.QMainWindow object at 0x000001D978D8A708>
+				kwargs[attr] = value
 
 			try: #if there is a list of level 4 ui's add them.
 				l4_names = self.getUiName(ui, level=4)
 				for n in l4_names:
-					kwargs['{}_ui'.format(n)] = self.getUi(n)
+					attr = '{}_ui'.format(n)
+					value = self.getUi(n)
+					kwargs[attr] = value
 			except TypeError as error:
 				pass
 
-			self._classProperties[uiName] = kwargs
+			for attr in self.getUiName('all'):
+				value = lambda c=attr: self.getClassInstance(c) #assign a function that gets the class instance.
+				kwargs[attr] = value
 
-			return self._classProperties[uiName]
+			self._classKwargs[uiName] = kwargs
+
+			return self._classKwargs[uiName]
 
 
 	def getDefaultSignalType(self, widgetType):
@@ -905,8 +913,7 @@ class Switchboard(QtCore.QObject):
 		If the name is a submenu, the parent class will be returned. ie. <Polygons> from 'polygons_submenu'
 
 		:Parameters:
-			class_ (str)(obj) = The class or class name to import, create an instance of, and store. 
-					ie. 'polygons', 'slots_max_polygons.Polygons', or <slots_max_polygons.Polygons>
+			class_ (str)(obj) = The class to import and store an instance of. ie. 'Polygons' or <Polygons>
 
 		:Return:
 			(obj) The class instance.
@@ -925,34 +932,36 @@ class Switchboard(QtCore.QObject):
 
 		uiName = self.setCase(name, 'camelCase') #lowercase the first letter.
 
+		if not kwargs:
+			kwargs = self.getClassKwargs(uiName)
+
 		try:
-			self.sbDict[uiName]['class'] = class_(**kwargs)
+			result = self.sbDict[uiName]['class'] = class_(**kwargs)
+
 		except Exception as error:
-			try:
-				self.sbDict[uiName]['class'] = class_()
-			except Exception as error:
-				parent_name = self.getUiName(name, case='camelCase', level=[0,1,3])
-				result = self.getClassInstance(parent_name, **kwargs) #get the parent class.
-				self.sbDict[uiName]['class'] = result
-				if not result:
-					[print ('# Error: {}.getClassInstance({}): import {} failed. #'.format(__name__, class_, self.getUiName(n, case='pascalCase'))) for n in [name, parent_name]]
+			parent_name = self.getUiName(name, case='camelCase', level=[0,1,3])
+			result = self.sbDict[uiName]['class'] = self.getClassInstance(parent_name) #get the parent class.
+			if not result:
+				[print ('# Error: {}.getClassInstance({}): import {} failed. #'.format(__name__, class_, self.getUiName(n, case='pascalCase'))) for n in [name, parent_name]]
 
-		return self.sbDict[uiName]['class']
+		return result
 
 
-	def getClassInstance(self, class_, **kwargs):
+	def getClassInstance(self, class_):
 		'''Property:classInst. Case insensitive. (Class string keys are lowercase and any given string will be converted automatically)
 		If class is not in self.sbDict, getClassInstance will attempt to use _setClassInstance() to first store the class.
 
 		:Parameters:
-			class_ (str)(obj) = module name.class to import and store class.
-				ie. 'polygons', 'slots_max_polygons.Polygons', or <slots_max_polygons.Polygons>
+			class_ (str)(obj) = The class, or class name to import and store an instance of. ie. 'Polygons' or <Polygons>
 
 		:Return:
-			class object.
+			(obj) The class instance.
 		'''
 		if isinstance(class_, str): #if class_ is given as a class name.
-			name = class_
+			if class_=='all':
+				return [self.getClassInstance(n) for n in self.getUiName('all')]
+			else:
+				name = class_
 		else: #if arg as <object>:
 			name = class_.__class__.__name__
 
@@ -960,7 +969,7 @@ class Switchboard(QtCore.QObject):
 			return self.sbDict[name]['class']
 
 		except KeyError as error:
-			return self._setClassInstance(name, **kwargs)
+			return self._setClassInstance(name)
 
 
 	def isTracked(self, widget, ui=None):

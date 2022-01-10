@@ -194,6 +194,7 @@ def tree000(self, wItem=None, column=None):
 	'KNOWN BUGS'
 # ======================================================================
 '''
+move slots.max methods to their corresponding sub-classes.
 
 
 Treewidgets not registering click on mouse release.
@@ -202,8 +203,6 @@ Treewidgets not registering click on mouse release.
 ctx menu's commented out because of issues:
 	maya_preferences
 
-
-fix maya_mirror!!
 
 
 Slots.scene: naming needs clearer docstring w/example results. replace suffix is instead appending. should replace 1 occurance from right of anything in the find field, possibly only if searching for suffix.

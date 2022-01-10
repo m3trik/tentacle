@@ -59,7 +59,7 @@ class Pivot(Slots_max):
 	def tb000(self, state=None):
 		'''Reset Pivot
 		'''
-		tb = self.current_ui.tb000
+		tb = self.pivot_ui.tb000
 
 		if tb.contextMenu.chk000: #Reset Pivot Scale
 			rt.ResetScale(rt.selection) #Same as Hierarchy/Pivot/Reset Scale.

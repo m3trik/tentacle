@@ -20,21 +20,16 @@ class Slots(QtCore.QObject):
 		'''
 		:Parameters: 
 			**kwargs (passed in via the switchboard module's 'getClassInstanceFromUiName' method.)
-				_current_ui (lambda function) = Returns the current ui if it is either the parent or a child ui for the class; else, return the parent ui.
-				<name>_ui (ui object) = ui of <name> ie. self.polygons for the ui of filename polygons.
-				<name>_submenu_ui (ui object) = ui of <name_submenu> ie. self.polygons_submenu.
-				tcl (class instance) = tentacle stacked widget instance.
+				properties:
+					tcl (class instance) = The tentacle stacked widget instance. ie. self.tcl
+					<name>_ui (ui object) = The ui of <name> ie. self.polygons for the ui of filename polygons. ie. self.polygons_ui
+					<name>_submenu_ui (ui object) = The ui of <name_submenu> ie. self.polygons_submenu. ie. self.polygons_submenu_ui
+				functions:
+					current_ui (lambda function) = Returns the current ui if it is either the parent or a child ui for the class; else, return the parent ui. ie. self.current_ui()
+					'<class name>' (lambda function) = Returns the class instance of that name.  ie. self.polygons()
 		'''
 		for k, v in kwargs.items():
 			setattr(self, k, v)
-
-
-	@property
-	def current_ui(self):
-		'''Get the current ui if it is either the parent, or
-		a child ui for the class; else, return the parent ui for the class.
-		'''
-		return self._current_ui()
 
 
 	def hideMain(fn):
@@ -64,7 +59,7 @@ class Slots(QtCore.QObject):
 		objects=[]
 		for name in Slots.unpackNames(objectNames):
 			try:
-				objects.append(getattr(class_, name)) #equivilent to:(self.current_ui.m000)
+				objects.append(getattr(class_, name)) #equivilent to:(self.current_ui().m000)
 			except AttributeError as error:
 				print("slots: 'getObjects:' objects.append(getattr({0}, {1})) {2}".format(class_, name, error)) if showError_ else None
 
@@ -1363,7 +1358,7 @@ print (__name__)
 
 	# 	:Return:
 	# 		comboBox's current item list minus any title.
-	# 	ex. comboBox (self.current_ui.cmb003, ["Import file", "Import Options"], "Import")
+	# 	ex. comboBox (self.current_ui().cmb003, ["Import file", "Import Options"], "Import")
 	# 	'''
 	# 	comboBox.blockSignals(True) #to keep clear from triggering currentIndexChanged
 	# 	index = comboBox.currentIndex() #get current index before refreshing list

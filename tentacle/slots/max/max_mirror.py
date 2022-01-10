@@ -65,7 +65,7 @@ class Mirror(Slots_max):
 	def tb000(self, state=None):
 		'''Mirror Geometry
 		'''
-		tb = self.current_ui.tb000
+		tb = self.mirror_ui.tb000
 
 		axis = self.getAxisFromCheckBoxes('chk000-3', tb.contextMenu)
 		cutMesh = tb.contextMenu.chk005.isChecked() #cut

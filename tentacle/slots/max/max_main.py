@@ -17,7 +17,7 @@ class Main(Slots_max):
 
 	def tree000(self, wItem=None, column=None):
 		''''''
-		tree = self.current_ui.tree000
+		tree = self.main_lower_ui.tree000
 
 		if not any([wItem, column]): # code here will run before each show event. generally used to refresh tree contents. -----------------------------
 			recentCommandInfo = self.tcl.sb.prevCommand(docString=1, toolTip=1, as_list=1) #Get a list of any recent command names and their toolTips

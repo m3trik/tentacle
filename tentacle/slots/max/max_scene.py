@@ -67,7 +67,7 @@ class Scene(Slots_max):
 	def tb000(self, state=None):
 		'''Convert Case
 		'''
-		tb = self.current_ui.tb000
+		tb = self.scene_ui.tb000
 
 		case = tb.contextMenu.cmb001.currentText()
 

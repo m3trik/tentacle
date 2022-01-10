@@ -283,7 +283,7 @@ class Transform(Slots_max):
 	def tb000(self, state=None):
 		'''Drop To Grid
 		'''
-		tb = self.current_ui.tb000
+		tb = self.transform_ui.tb000
 
 		align = tb.contextMenu.cmb004.currentText()
 		origin = tb.contextMenu.chk014.isChecked()
@@ -300,7 +300,7 @@ class Transform(Slots_max):
 
 		Auto Align finds the axis with the largest variance, and set the axis checkboxes accordingly before performing a regular align.
 		'''
-		tb = self.current_ui.tb001
+		tb = self.transform_ui.tb001
 
 		betweenTwoComponents = tb.contextMenu.chk013.isChecked()
 		autoAlign = tb.contextMenu.chk010.isChecked()

@@ -186,7 +186,7 @@ class Selection(Slots_max):
 	def s002(self, value=None):
 		'''Select Island: tolerance x
 		'''
-		tb = self.current_ui.tb002
+		tb = self.selection_ui.tb002
 		if tb.contextMenu.chk003.isChecked():
 			text = tb.contextMenu.s002.value()
 			tb.contextMenu.s004.setValue(text)
@@ -196,7 +196,7 @@ class Selection(Slots_max):
 	def s004(self, value=None):
 		'''Select Island: tolerance y
 		'''
-		tb = self.current_ui.tb002
+		tb = self.selection_ui.tb002
 		if tb.contextMenu.chk003.isChecked():
 			text = tb.contextMenu.s004.value()
 			tb.contextMenu.s002.setValue(text)
@@ -206,7 +206,7 @@ class Selection(Slots_max):
 	def s005(self, value=None):
 		'''Select Island: tolerance z
 		'''
-		tb = self.current_ui.tb002
+		tb = self.selection_ui.tb002
 		if tb.contextMenu.chk003.isChecked():
 			text = tb.contextMenu.s005.value()
 			tb.contextMenu.s002.setValue(text)
@@ -421,7 +421,7 @@ class Selection(Slots_max):
 	def tb000(self, state=None):
 		'''Select Nth
 		'''
-		tb = self.current_ui.tb000
+		tb = self.selection_ui.tb000
 
 		edgeRing = tb.contextMenu.chk000.isChecked()
 		edgeLoop = tb.contextMenu.chk001.isChecked()
@@ -452,7 +452,7 @@ class Selection(Slots_max):
 	def tb001(self, state=None):
 		'''Select Similar
 		'''
-		tb = self.current_ui.tb001
+		tb = self.selection_ui.tb001
 
 		tolerance = str(tb.contextMenu.s000.value()) #string value because mel.eval is sending a command string
 		
@@ -466,7 +466,7 @@ class Selection(Slots_max):
 	def tb002(self, state=None):
 		'''Select Island: Select Polygon Face Island
 		'''
-		tb = self.current_ui.tb002
+		tb = self.selection_ui.tb002
 
 		rangeX = float(tb.contextMenu.s002.value())
 		rangeY = float(tb.contextMenu.s004.value())

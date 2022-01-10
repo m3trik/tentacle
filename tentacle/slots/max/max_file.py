@@ -59,7 +59,7 @@ class File(Slots_max):
 		# cmb = self.file_ui.cmb006.contextMenu.cmb001
 		# cmb.addItems_(File.getRecentProjects(), "Recent Projects", clear=True)
 
-		ctx = self.current_ui.draggable_header.contextMenu.tb000.contextMenu
+		ctx = self.file_ui.draggable_header.contextMenu.tb000.contextMenu
 		if not ctx.containsMenuItems:
 			ctx.add('QCheckBox', setText='Wireframe', setObjectName='chk000', setToolTip='Set view to wireframe before save.')
 			ctx.add('QCheckBox', setText='Increment', setObjectName='chk001', setChecked=True, setToolTip='Append and increment a unique integer value.')
@@ -199,7 +199,7 @@ class File(Slots_max):
 	def tb000(self, state=None):
 		'''Save
 		'''
-		tb = self.current_ui.draggable_header.contextMenu.tb000
+		tb = self.file_ui.draggable_header.contextMenu.tb000
 
 		wireframe = tb.contextMenu.chk000.isChecked()
 		increment = tb.contextMenu.chk001.isChecked()
