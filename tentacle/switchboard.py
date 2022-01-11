@@ -323,29 +323,9 @@ class Switchboard(QtCore.QObject):
 			kwargs['current_ui'] = lambda: self.getUi() if self.getUi() in (d['ui'] for n, d in self.sbDict.items() if ln_name in n) else self.getUi(ln_name) #if the current ui is not one of the parent ui's children or the parent ui itself, default to the parent ui.
 			kwargs['tcl'] = self.parent() #tcl instance
 
-			ln_name = self.getUiName(ui, level=[0, 1, 3]) #main menu
-			attr = '{}_ui'.format(ln_name)
-			value = self.getUi(ln_name) #ie. 'polygons_ui': <PySide2.QtWidgets.QMainWindow object at 0x000001D97BCEB0C8>
-			kwargs[attr] = value
-
-			l2_name = self.getUiName(ui, level=2) #submenu
-			if l2_name:
-				attr = '{}_ui'.format(l2_name)
-				value = self.getUi(l2_name) #ie. 'polygons_submenu_ui': <PySide2.QtWidgets.QMainWindow object at 0x000001D978D8A708>
-				kwargs[attr] = value
-
-			try: #if there is a list of level 4 ui's add them.
-				l4_names = self.getUiName(ui, level=4)
-				for n in l4_names:
-					attr = '{}_ui'.format(n)
-					value = self.getUi(n)
-					kwargs[attr] = value
-			except TypeError as error:
-				pass
-
-			for attr in self.getUiName('all'):
-				value = lambda c=attr: self.getClassInstance(c) #assign a function that gets the class instance.
-				kwargs[attr] = value
+			for uiName in self.getUiName('all'):
+				kwargs[uiName] = lambda n=uiName: self.getClassInstance(n) #assign a function that gets the class instance.
+				kwargs['{}_ui'.format(uiName)] = self.getUi(uiName)
 
 			self._classKwargs[uiName] = kwargs
 
@@ -953,6 +933,7 @@ class Switchboard(QtCore.QObject):
 
 		:Parameters:
 			class_ (str)(obj) = The class, or class name to import and store an instance of. ie. 'Polygons' or <Polygons>
+								A value of 'all' will return all of the class instances. 
 
 		:Return:
 			(obj) The class instance.
@@ -1808,6 +1789,26 @@ sbDict = {
 # deprecated: -----------------------------------
 
 
+
+			# ln_name = self.getUiName(ui, level=[0, 1, 3]) #main menu
+			# attr = '{}_ui'.format(ln_name)
+			# value = self.getUi(ln_name) #ie. 'polygons_ui': <PySide2.QtWidgets.QMainWindow object at 0x000001D97BCEB0C8>
+			# kwargs[attr] = value
+
+			# l2_name = self.getUiName(ui, level=2) #submenu
+			# if l2_name:
+			# 	attr = '{}_ui'.format(l2_name)
+			# 	value = self.getUi(l2_name) #ie. 'polygons_submenu_ui': <PySide2.QtWidgets.QMainWindow object at 0x000001D978D8A708>
+			# 	kwargs[attr] = value
+
+			# try: #if there is a list of level 4 ui's add them.
+			# 	l4_names = self.getUiName(ui, level=4)
+			# 	for n in l4_names:
+			# 		attr = '{}_ui'.format(n)
+			# 		value = self.getUi(n)
+			# 		kwargs[attr] = value
+			# except TypeError as error:
+			# 	pass
 
 
 # def getUiDict(self, uiName=None):

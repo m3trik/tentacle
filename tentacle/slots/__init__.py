@@ -23,10 +23,9 @@ class Slots(QtCore.QObject):
 				properties:
 					tcl (class instance) = The tentacle stacked widget instance. ie. self.tcl
 					<name>_ui (ui object) = The ui of <name> ie. self.polygons for the ui of filename polygons. ie. self.polygons_ui
-					<name>_submenu_ui (ui object) = The ui of <name_submenu> ie. self.polygons_submenu. ie. self.polygons_submenu_ui
 				functions:
 					current_ui (lambda function) = Returns the current ui if it is either the parent or a child ui for the class; else, return the parent ui. ie. self.current_ui()
-					'<class name>' (lambda function) = Returns the class instance of that name.  ie. self.polygons()
+					'<name>' (lambda function) = Returns the class instance of that name.  ie. self.polygons()
 		'''
 		for k, v in kwargs.items():
 			setattr(self, k, v)
