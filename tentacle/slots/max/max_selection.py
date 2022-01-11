@@ -86,6 +86,32 @@ class Selection(Slots_max):
 			ctx.add('QDoubleSpinBox', setPrefix='Angle High: ', setObjectName='s007', setMinMax_='0.0-180 step1', setValue=130, setToolTip='Normal angle high range.')
 
 
+	@property
+	def currentSelection(self):
+		'''Gets the currently selected objects or object components.
+
+		:Return:
+			(array) current selection as a maxscript array.
+		'''
+		sel = rt.selection
+		if not sel:
+			return 'Error: Nothing Selected.'
+
+		level = rt.subObjectLevel
+		if level in (0, None): #objs
+			s = [i for i in sel]
+		elif level==1: #verts
+			s = Slots_max.getComponents(sel[0], 'vertices', selection=True)
+		elif level==2: #edges
+			s = Slots_max.getComponents(sel[0], 'edges', selection=True)
+		elif level==3: #borders
+			s = rt.getBorderSelection(sel[0])
+		elif level==4: #faces
+			s = Slots_max.getComponents(sel[0], 'faces', selection=True)
+
+		return rt.array(*s) #unpack list s and convert to an array.
+
+
 	def draggable_header(self, state=None):
 		'''Context menu
 		'''
@@ -433,11 +459,11 @@ class Selection(Slots_max):
 
 		if edgeRing: # rt.macros.run('PolyTools', 'Ring')
 			obj = rt.selection[0]
-			Slots_max.selectRing(obj)
+			self.selectRing(obj)
 
 		elif edgeLoop: #rt.macros.run('PolyTools', 'Loop')
 			obj = rt.selection[0]
-			Slots_max.selectLoop(obj)
+			self.selectLoop(obj)
 
 		elif pathAlongLoop:
 			pm.select(self.getPathAlongLoop(selection))
@@ -673,6 +699,58 @@ class Selection(Slots_max):
 			sets = {}
 
 		return sets
+
+
+	def selectLoop(self, obj):
+		'''Select a component loop from two or more selected adjacent components (or a single edge).
+
+		:Parameters:
+			obj (obj) = An Editable polygon object.
+
+		ex. obj = rt.selection[0]
+			selectLoop(obj)
+		'''
+		level = rt.subObjectLevel
+		if level is 1: #vertex
+			obj.convertselection('Vertex',  'Edge', requireAll=True)
+			obj.SelectEdgeLoop()
+			obj.convertselection('Edge', 'Vertex')
+
+		elif level is 2: #edge
+			obj.SelectEdgeLoop()
+
+		elif level is 4: #face
+			obj.convertselection('Face', 'Edge', requireAll=True)
+			obj.SelectEdgeRing()
+			obj.convertselection('Edge', 'Face')
+
+		rt.redrawViews()
+
+
+	def selectRing(self, obj):
+		'''Select a component ring from two or more selected adjacent components (or a single edge).
+
+		:Parameters:
+			obj (obj) = An Editable polygon object.
+
+		ex. obj = rt.selection[0]
+			selectRing(obj)
+		'''
+		level = rt.subObjectLevel
+		if level is 1: #vertex
+			obj.convertselection('Vertex',  'Edge', requireAll=True)
+			obj.SelectEdgeRing()
+			obj.convertselection('Edge', 'Vertex')
+
+		elif level is 2: #edge
+			obj.SelectEdgeRing()
+
+		elif level is 4: #face
+			obj.convertselection('Face', 'Edge', requireAll=True)
+			obj.SelectEdgeLoop()
+			obj.convertselection('Edge', 'Face')
+
+		rt.redrawViews()
 
 
 

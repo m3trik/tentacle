@@ -90,39 +90,22 @@ class Tcl_maya(Tcl):
 
 
 if __name__ == "__main__":
-	qApp = QtWidgets.QApplication.instance() #get the qApp instance if it exists.
-	if not qApp:
-		qApp = QtWidgets.QApplication(sys.argv)
-
-	# import os, sys
-	# VERSION = '2022'
-
-	# os.environ["MAYA_LOCATION"] = "C:\\Program Files\\Autodesk\\Maya{}".format(VERSION)
-	# os.environ["PYTHONHOME"]    = "C:\\Program Files\\Autodesk\\Maya{}\\Python37".format(VERSION)
-	# os.environ["PATH"] = "C:\\Program Files\\Autodesk\\Maya{}\\bin;{}".format(VERSION, os.environ["PATH"])
-
-	# path = "C:\\Program Files\\Autodesk\\Maya{}\\Python37".format(VERSION)
-
-	# for root, subdirs, files in os.walk(path):
-	# 	for subdir in subdirs:
-	# 		path_ = os.path.join(root, subdir)
-	# 		sys.path.append(path_)
-	# 		# print (path_)
-
-	# import maya.standalone as standalone
-	# standalone.initialize(name="python")
+	app = QtWidgets.QApplication.instance() #get the qApp instance if it exists.
+	if not app:
+		app = QtWidgets.QApplication(sys.argv)
 
 	#create a generic parent object to run the code outside of maya.
 	dummyParent = QtWidgets.QWidget()
 	dummyParent.setObjectName('MayaWindow')
 
-	# import cProfile
-	# cProfile.run('Tcl_maya(dummyParent).show_()')
 	Tcl_maya(dummyParent).show('init') #Tcl_maya(dummyParent).show()
-	sys.exit(qApp.exec_())
+
+	sys.exit(app.exec_())
 
 
 
+#module name
+print (__name__)
 # -----------------------------------------------
 # Notes
 # -----------------------------------------------

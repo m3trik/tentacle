@@ -22,8 +22,8 @@ class Slots_max(Slots):
 		Slots.__init__(self, *args, **kwargs)
 
 
-	# # ------------------------------------------------
-	' DAG Objects'
+	# --------------------------------------------------
+		'ATTRIBUTES:'
 	# --------------------------------------------------
 	@staticmethod
 	def getAttributesMax(node, include=[], exclude=[]):
@@ -70,62 +70,8 @@ class Slots_max(Slots):
 
 
 	# ------------------------------------------------
-	' Geometry'
+		'COMPONENT LEVEL:'
 	# ------------------------------------------------
-
-	@staticmethod
-	def selectLoop(obj):
-		'''Select a component loop from two or more selected adjacent components (or a single edge).
-
-		:Parameters:
-			obj (obj) = An Editable polygon object.
-
-		ex. obj = rt.selection[0]
-			selectLoop(obj)
-		'''
-		level = rt.subObjectLevel
-		if level is 1: #vertex
-			obj.convertselection('Vertex',  'Edge', requireAll=True)
-			obj.SelectEdgeLoop()
-			obj.convertselection('Edge', 'Vertex')
-
-		elif level is 2: #edge
-			obj.SelectEdgeLoop()
-
-		elif level is 4: #face
-			obj.convertselection('Face', 'Edge', requireAll=True)
-			obj.SelectEdgeRing()
-			obj.convertselection('Edge', 'Face')
-
-		rt.redrawViews()
-
-
-	@staticmethod
-	def selectRing(obj):
-		'''Select a component ring from two or more selected adjacent components (or a single edge).
-
-		:Parameters:
-			obj (obj) = An Editable polygon object.
-
-		ex. obj = rt.selection[0]
-			selectRing(obj)
-		'''
-		level = rt.subObjectLevel
-		if level is 1: #vertex
-			obj.convertselection('Vertex',  'Edge', requireAll=True)
-			obj.SelectEdgeRing()
-			obj.convertselection('Edge', 'Vertex')
-
-		elif level is 2: #edge
-			obj.SelectEdgeRing()
-
-		elif level is 4: #face
-			obj.convertselection('Face', 'Edge', requireAll=True)
-			obj.SelectEdgeLoop()
-			obj.convertselection('Edge', 'Face')
-
-		rt.redrawViews()
-
 
 	@staticmethod
 	def getFacesByNormal(normal, tolerance, includeBackFaces):
@@ -155,37 +101,6 @@ class Slots_max(Slots):
 
 
 	@staticmethod
-	def circularize(self):
-		'''Circularize a set of vertices on a circle or an elipse.
-
-		tm = (matrix3 [-0.99596,0.022911,-0.0868241] [-0.0229109,0.870065,0.492404] [0.086824,0.492404,-0.866025] [-18.3751,-66.1508,30.969])
-		c = [-18.3751,-66.1508,30.969]
-		s = [-123.81,-63.7254,21.7775]
-		u = [0.086824,0.492404,-0.866025]
-
-		pCircle = pointCircle c s u 20
-		'''
-		maxEval('''
-		fn pointCircle center startPoint upVector n = (
-			rad = distance center startPoint
-			dir = normalize (startPoint - center)
-			crossVector = normalize (cross (normalize (startPoint - center)) upVector)
-			tm = (matrix3 upVector crossVector dir center)
-
-			p3Array = #()
-
-			for i = 1 to n do (
-				preRotateX tm (360.0 / n)
-				append p3Array ([0,0,rad] * tm)
-			)
-
-			return p3Array
-		)
-		pointCircle()
-		''')
-
-
-	@staticmethod
 	def getEdgesByAngle(minAngle, maxAngle):
 		'''Get edges between min and max angle.
 
@@ -211,67 +126,6 @@ class Slots_max(Slots):
 						edgelist.append(edge)
 
 			return edgelist
-
-
-	@Slots.message
-	def detachElement(self, obj):
-		'''Detach editable_mesh elements into new objects.
-
-		:Parameters:
-			obj (obj) = polygon object.
-
-		:Return:
-			(list) detached objects.
-		'''
-		elementArray = []
-
-		print(obj[0]) #object
-		print(obj[6]) #baseObject class TYPE |string|
-		print(obj[7]) #isValidNode
-
-		if (obj[4] == rt.Editable_Poly and obj[7]): #or obj[6] == "Shape" or obj[6] == "Geometry" 
-
-			rename = obj[0].name	
-			rename += "_ele"
-			#~ maxEval("undo \"DetachToElement\" on")
-			while ((rt.polyOp.getNumFaces(obj[0])) > 0):
-				elementToDetach = rt.polyOp.getElementsUsingFace(obj[0],[1]) #(1)
-				rt.polyOp.detachFaces(obj[0], elementToDetach, delete=True, asNode=True, name=rename)
-			rt.delete(obj[0])
-			elementArray = rt.execute("$"+rename+"*")
-
-			rt.select(elementArray)
-
-		else:
-			return 'Error: Object must be an Editable_Poly.'
-		
-		return elementArray
-
-
-	@property
-	def currentSelection(self):
-		'''Gets the currently selected objects or object components.
-
-		:Return:
-			(array) current selection as a maxscript array.
-		'''
-		sel = rt.selection
-		if not sel:
-			return 'Error: Nothing Selected.'
-
-		level = rt.subObjectLevel
-		if level in (0, None): #objs
-			s = [i for i in sel]
-		elif level==1: #verts
-			s = Slots_max.getComponents(sel[0], 'vertices', selection=True)
-		elif level==2: #edges
-			s = Slots_max.getComponents(sel[0], 'edges', selection=True)
-		elif level==3: #borders
-			s = rt.getBorderSelection(sel[0])
-		elif level==4: #faces
-			s = Slots_max.getComponents(sel[0], 'faces', selection=True)
-
-		return rt.array(*s) #unpack list s and convert to an array.
 
 
 	@staticmethod
@@ -400,373 +254,17 @@ class Slots_max(Slots):
 		return result
 
 
-	@Slots.message
-	def alignVertices(self, selection, mode):
-		'''Align Vertices
-
-		Align all vertices at once by putting each vert index and coordinates in a dict (or two arrays) then if when iterating through a vert falls within the tolerance specified in a textfield align that vert in coordinate. then repeat the process for the other coordinates x,y,z specified by checkboxes. using edges may be a better approach. or both with a subObjectLevel check
-		create edge alignment tool and then use subObjectLevel check to call either that function or this one from the same buttons.
-		to save ui space; have a single align button, x, y, z, and align 'all' checkboxes and a tolerance textfield.
-
-		:Parameters:
-			selection (list) = vertex selection
-			mode (int) = valid values are: 0 (YZ), 1 (XZ), 2 (XY), 3 (X), 4 (Y), 5 (Z)
-
-		notes:
-		'vertex.pos.x = vertPosX' ect doesnt work. had to use maxscript
-		'''
-		# maxEval('undo "alignVertices" on')
-		componentArray = selection.selectedVerts
-		
-		if len(componentArray) == 0:
-			return 'Error: No vertices selected.'
-		
-		if len(componentArray) < 2:
-			return 'Error: Selection must contain at least two vertices.'
-
-		lastSelected = componentArray[-1]#3ds max re-orders array by vert index, so this doesnt work for aligning to last selected
-		#~ print(lastSelected.pos)
-		aX = lastSelected.pos[0]
-		aY = lastSelected.pos[1]
-		aZ = lastSelected.pos[2]
-		
-		for vertex in componentArray:
-			#~ print(vertex.pos)
-			vX = vertex.pos[0]
-			vY = vertex.pos[1]
-			vZ = vertex.pos[2]
-
-			maxEval('global alignXYZ')
-			
-			if mode == 0: #align YZ
-				maxEval('''
-				fn alignXYZ mode vertex vX vY vZ aX aY aZ=
-				(
-					vertex.pos.x = vX
-					vertex.pos.y = aY
-					vertex.pos.z = aZ
-				)
-				''')
-				
-			if mode == 1: #align XZ
-				maxEval('''
-				fn alignXYZ mode vertex vX vY vZ aX aY aZ=
-				(
-					vertex.pos.x = aX
-					vertex.pos.y = vY
-					vertex.pos.z = aZ
-				)
-				''')
-			
-			if mode == 2: #align XY
-				maxEval('''
-				fn alignXYZ mode vertex vX vY vZ aX aY aZ=
-				(
-					vertex.pos.x = aX
-					vertex.pos.y = aY
-					vertex.pos.z = vZ
-				)
-				''')
-			
-			if mode == 3: #X
-				maxEval('''
-				fn alignXYZ mode vertex vX vY vZ aX aY aZ=
-				(
-					vertex.pos.x = aX
-					vertex.pos.y = vY
-					vertex.pos.z = vZ
-				)
-				''')
-			
-			if mode == 4: #Y
-				maxEval('''
-				fn alignXYZ mode vertex vX vY vZ aX aY aZ=
-				(
-					vertex.pos.x = vX
-					vertex.pos.y = aY
-					vertex.pos.z = vZ
-				)
-				''')
-			
-			if mode == 5: #Z
-				maxEval('''
-				fn alignXYZ mode vertex vX vY vZ aX aY aZ=
-				(
-					vertex.pos.x = vX
-					vertex.pos.y = vY
-					vertex.pos.z = aZ
-				)
-				''')
-			
-			print(100*"-")
-			print("vertex.index:", vertex.index)
-			print("position:", vX, vY, vZ)
-			print("align:   ", aX, aY, aZ)
-			
-			rt.alignXYZ(mode, vertex, vX, vY, vZ, aX, aY, aZ)
-
-			return '{0}{1}{2}{3}'.format("result: ", vertex.pos[0], vertex.pos[1], vertex.pos[2])
-
-
-	@staticmethod
-	def scaleObject (size, x, y ,z):
-		'''
-		:Parameters:
-			size (float) = Scale amount
-			x (bool) = Scale in the x direction.
-			y (bool) = Scale in the y direction.
-			z (bool) = Scale in the z direction.
-
-		Basically working except for final 'obj.scale([s, s, s])' command in python. variable definitions included for debugging.
-		to get working an option is to use the maxEval method in the alignVertices function.
-		'''
-		textField_000 = 1.50
-		isChecked_002 = True
-		isChecked_003 = True
-		isChecked_004 = True
-
-		s = textField_000
-		x = isChecked_002
-		y = isChecked_003
-		z = isChecked_004
-		#-------------------------
-		s = size
-		selection = rt.selection
-
-		for obj in selection:
-			if (isChecked_002 and isChecked_003 and isChecked_004):
-				obj.scale([s, s, s])
-			if (not isChecked_002 and isChecked_003 and isChecked_004):
-				obj.scale([1, s, s])
-			if (isChecked_002 (not isChecked_003) and isChecked_004):
-				obj.scale([s, 1, s])
-			if (isChecked_002 and isChecked_003 (not isChecked_004)):
-				obj.scale([s, s, 1])
-			if (not isChecked_002 (not isChecked_003) and isChecked_004):
-				obj.scale([1, 1, s])
-			if (isChecked_002 (not isChecked_003) (not isChecked_004)):
-				obj.scale([s, 1, 1])
-			if (isChecked_002 and isChecked_003 and isChecked_004):
-				obj.scale([1, s, 1])
-			if (not isChecked_002 (not isChecked_003) (not isChecked_004)):
-				obj.scale([1, 1, 1])
-
-
-	@staticmethod
-	def compareSize(obj1, obj2, factor):
-		'''Compares two point3 sizes from obj bounding boxes.
-
-		:Parameters:
-			obj1 (obj) = 
-			obj2 (obj) = 
-			factor () = 
-		'''
-		maxEval('''
-		s1 = obj1.max - obj1.min --determine bounding boxes
-		s2 = obj2.max - obj2.min
-		
-		if (s2.x >= (s1.x*(1-factor)) AND s2.x <= (s1.x*(1+factor))) OR (s2.x >= (s1.y*(1-factor)) AND s2.x <= (s1.y*(1+factor))) OR (s2.x >= (s1.z*(1-factor)) AND s2.x <= (s1.z*(1+factor)))THEN
-			if (s2.y >= (s1.y*(1-factor)) AND s2.y <= (s1.y*(1+factor))) OR (s2.y >= (s1.x*(1-factor)) AND s2.y <= (s1.x*(1+factor))) OR (s2.y >= (s1.z*(1-factor)) AND s2.y <= (s1.z*(1+factor))) THEN
-				if (s2.z >= (s1.z*(1-factor)) AND s2.z <= (s1.z*(1+factor))) OR (s2.z >= (s1.x*(1-factor)) AND s2.z <= (s1.x*(1+factor))) OR (s2.z >= (s1.y*(1-factor)) AND s2.z <= (s1.y*(1+factor))) THEN
-				(
-					dbgSelSim ("  Size match on '" + obj1.name + "' with '" + obj2.name + "'")
-					return true
-				)
-				else return false
-			else return false
-		else return false			
-		''')
-
-
-	@staticmethod
-	def compareMesh(obj1, obj2, factor):
-		'''Compares vert/face/edges counts.
-
-		:Parameters:
-			obj1 (obj) = 
-			obj2 (obj) = 
-			factor () = 
-		'''
-		maxEval('''
-		if superclassof obj1 == GeometryClass then	--if object is a geometry type (mesh)
-		(
-			o1v = obj1.mesh.verts.count	--store object 1 and 2 vert / face / edge counts
-			o1f = obj1.mesh.faces.count
-			o1e = obj1.mesh.edges.count
-			o2v = obj2.mesh.verts.count
-			o2f = obj2.mesh.faces.count
-			o2e = obj2.mesh.edges.count
-			
-			if o2v >= o1v*(1-factor) AND o2v <= o1v*(1+factor) THEN 		--simpler than it looks. the 'factor' aka 'ratio' in the ui is 
-				if o2f >= o1f*(1-factor) AND o2f <= o1f*(1+factor) THEN		--allows for slop in the comparison. 0.1 is a 10% difference so comparing
-					if o2e >= o1e*(1-factor) AND o2e <= o1e*(1+factor) THEN	--face*(1-factor) is the same as saying face*0.9 in our example
-					(
-						dbgSelSim ("  Mesh match on '" + obj1.name + "' with '" + obj2.name + "' | V: " + o1v as string + ", " + o2v as string + " | F: " + o1f as string + ", " + o2f as string + " | E: " + o1e as string + ", " + o2e as string)
-						return true
-					)
-					else return false
-				else return false
-			else return false
-		)
-		else if superclassof obj1 == shape then
-		(
-			o1v = numKnots obj1
-			o2v = numKnots obj2
-			
-			if o2v >= o1v*(1-factor) AND o2v <= o1v*(1+factor) THEN
-				return true
-			else return false
-		)
-		''')
-	
-
-	@staticmethod
-	def compareMats(obj1, obj2):
-		'''Compare material names. unlike other properties, this is a simple true/false comparison, it doesn't find 'similar' names.
-
-		:Parameters:
-			obj1 (obj) = 
-			obj2 (obj) = 
-		'''
-		maxEval('''
-		m1 = obj1.material
-		m2 = obj2.material
-		
-		if m1 != undefined and m2 != undefined then --verify both objects have a material assigned
-		(
-			if m1.name == m2.name then 
-			(
-				dbgSelSim ("  Material match on object: '" + obj1.name + "' with '" + obj2.name + "'")
-				true	--check if material names are the same, if they are, return a true value
-			)
-			else false --uh oh. material names aren't the same. return false.
-		)
-		else false	--one or both objects do not have a material assigned. returning false.
-		''')
-
-
-	#--ExtrudeObject------------------------------------------------------------------------
-
-	#extrudes one object at a time but can be called repeatedly for an array of selected objects
-	#takes classString as an argument which is an array containing the object and class information
-	#	[0] --object
-	#	[1] --baseObject
-	#	[4] --baseObject class
-	#	[6] --baseObject class type string. eg. Editable,Shape,Geometry
-	#notes: in another function; if selection (subobjectlevel) is == face or edge, store that face if necessary in an array and then extrude by a certain amount (if needed surface normal direction). then switch to move tool (calling a center pivot on component if needed) so that the extrude can be manipulated with widget instead of spinner.
-	# @staticmethod
-	# def extrudeObject (objects):
-	# 	if (objects == rt.undefined or objects == "noSelection"):
-	# 		print "# Error: Nothing selected. Returned string: noSelection #"
-	# 		return "noSelection"
-
-	# 	for obj in objects:
-			
-	# 		classString = classInfo(obj)
-			
-	# 		if (classString[6] == "Editable_Poly" or classString[4] == rt.Editable_mesh): #had to add Editable_mesh explicitly, here and in the error catch, because the keyword was unknown to pymxs.runtime. added it to the called function anyhow in case they fix it at some point
-	# 			maxEval('macros.run "Modifiers" "Face_Extrude")
-	# 			print classString[4]
-				
-	# 		if (classString[6] == "Shape"):
-	# 			#if 'convert to mesh object' checkbox true convert currently selected:
-	# 			if (isChecked_000 == True):
-	# 				maxEval('''
-	# 				convertTo $ PolyMeshObject; --convert to poly
-	# 				macros.run "Modifiers" "Face_Extrude"; --extrude modifier
-	# 				''')
-	# 			else:
-	# 				maxEval('macros.run "Modifiers" "Extrude")
-	# 			print classString[4]
-
-	# 		if (classString[6] == "Geometry"):
-	# 			#if 'convert to mesh object' checkbox true convert currently selected:
-	# 			if (isChecked_000 == True):
-	# 				maxEval('''
-	# 				convertTo $ TriMeshGeometry; --convert to mesh object
-	# 				maxEval('macros.run "Modifiers" "Face_Extrude"; --extrude
-	# 				''')
-
-	# 		#else, if undefined..
-	# 		else:
-	# 			print "::unknown object type::"
-	# 			print classString[4]
-
-	# 		if (objects.count > 1):
-	# 			rt.deselect(classString[0])
-			
-	# 	if (objects.count > 1): #reselect all initially selected nodes
-	# 		rt.clearSelection()
-	# 		for obj in objects:
-	# 			rt.selectMore(obj)
 
 
 
-	#--centerPivotOnSelection----------------------------------------------------------------
-
-	# @staticmethod
-	# def centerPivotOnSelection ():
-
-		#Get the face vertices, add their positions together, divide by the number of the vertices 
-		#- that's your centerpoint.
-
-		# the above method will get you the average position of the vertices that constitute the 
-		#faces in question. For the center of the bounds of these vertices (if that's of interest 
-		#to you), you'll need to get the min position and the max position of the vertex set and 
-		#then calculate the median position:
-		#p3_minPosition + P3_maxPosition / 2 -- The min and the max position values contain the 
-		#minimum x, y and z values and the maximum x, y and z values of the vertex set 
-		#respectively. That is to say, for example, that the min x value may come from a 
-		#different vert than the min y value.
-
-		#component bounding box method:
-		#two bits of code written by anubis will need cleaning up, but might be helpful
-	# 	(	
-	# 	if selection.count == 1 and classOf (curO = selection[1]) == Editable_Poly do
-	# 	(
-	# 		if (selFacesBA = polyop.getFaceSelection curO).numberset != 0 do
-	# 		(
-	# 			faceVertsBA = polyop.getVertsUsingFace curO selFacesBA
-	# 			with redraw off 
-	# 			(
-	# 				tMesh = mesh mesh:curO.mesh
-	# 				tMesh.pos = curO.pos
-	# 				tMesh.objectOffsetPos = curO.objectOffsetPos
-	# 				if faceVertsBA.count > 0 do 
-	# 				(
-	# 					delete tMesh.verts[((tMesh.verts as BitArray) - (faceVertsBA))]
-	# 				)
-	# 				c = snapshot tMesh
-	# 				c.transform = matrix3 1
-	# 				d = dummy boxsize:(c.max - c.min)
-	# 				delete c
-	# 				d.transform = tMesh.transform
-	# 				d.pos = tMesh.center
-	# 				d.name = tMesh.name + "_box"
-	# 				delete tMesh
-	# 			)
-	# 		)
-	# 	)
-	# )
 
 
-	@Slots.message
-	def deleteAlongAxis(self, obj, axis):
-		'''Delete components of the given mesh object along the specified axis.
 
-		:Parameters:
-			obj (obj) = Mesh object.
-			axis (str) = Axis to delete on. ie. '-x' Components belonging to the mesh object given in the 'obj' arg, that fall on this axis, will be deleted. 
-		'''
-		# for node in [n for n in pm.listRelatives(obj, allDescendents=1) if pm.objectType(n, isType='mesh')]: #get any mesh type child nodes of obj.
-		# 	faces = self.getAllFacesOnAxis(node, axis)
-		# 	if len(faces)==pm.polyEvaluate(node, face=1): #if all faces fall on the specified axis.
-		# 		pm.delete(node) #delete entire node
-		# 	else:
-		# 		pm.delete(faces) #else, delete any individual faces.
 
-		# return 'Delete faces on <hl>'+axis.upper()+'</hl>.'
 
+	# -------------------------------------------------------------
+		':'
+	# -------------------------------------------------------------
 
 	@staticmethod
 	def arrayToBitArray(array):
@@ -795,44 +293,6 @@ class Slots_max(Slots):
 
 
 	@staticmethod
-	def convertToEditPoly(prompt=False):
-		'''
-		:Parameters:
-			prompt=bool - prompt user before execution
-		'''
-		for obj in rt.selection:
-			if prompt:
-				if not rt.queryBox('Convert Object to Editable Poly?'):
-					return
-			
-			rt.modPanel.setCurrentObject (obj.baseObject)
-			
-			mod = rt.Edit_Poly()
-			rt.modpanel.addModToSelection(mod)
-
-			index = rt.modPanel.getModifierIndex(obj, mod)
-			rt.maxOps.CollapseNodeTo(obj, index, False)
-
-
-	@staticmethod
-	def toggleXraySelected():
-		''''''
-		toggle = Slots.cycle([0,1], 'toggleXraySelected') #toggle 0/1
-
-		for obj in rt.selection:
-			obj.xray = toggle
-
-
-	@staticmethod
-	def toggleBackfaceCull():
-		''''''
-		toggle = Slots.cycle([0,1], 'toggleBackfaceCull') #toggle 0/1
-
-		for obj in rt.Geometry:
-			obj.backfacecull = toggle
-
-
-	@staticmethod
 	def toggleMaterialOverride(checker=False):
 		'''Toggle override all materials in the scene.
 
@@ -848,63 +308,6 @@ class Slots_max(Slots):
 			else:	
 				rt.actionMan.executeAction(0, "63572") #Views: Override with Fast Shader
 		rt.redrawViews
-
-
-	@staticmethod
-	def displayWireframeOnMesh(state=None, query=False):
-		'''
-		:Parameters:
-			state=bool - display wireframe on mesh in viewport True/False
-			query=bool - return current state
-		:Return:
-			bool (current state) if query
-		'''
-		graphicsManager = rt.NitrousGraphicsManager.GetActiveViewportSetting()
-		currentState = graphicsManager.ShowEdgedFacesEnabled
-		if query:
-			return currentState
-		if state:
-			graphicsManager.ShowEdgedFacesEnabled = state
-		else:
-			graphicsManager.ShowEdgedFacesEnabled = not currentState
-
-
-	previousSmoothPreviewLevel=int
-	@staticmethod
-	def toggleSmoothPreview():
-		''''''
-		global previousSmoothPreviewLevel
-		toggle = Slots.cycle([0,1], 'toggleSmoothPreview') #toggle 0/1
-
-		geometry = rt.selection #if there is a selection; perform operation on those object/s
-		if not len(geometry): #else: perform operation on all scene geometry.
-			geometry = rt.geometry
-
-
-		if toggle==0: #preview off
-			rt.showEndResult = False
-			Slots_max.displayWireframeOnMesh(True)
-
-			for obj in geometry:
-				try:
-					mod = obj.modifiers['TurboSmooth'] or obj.modifiers['TurboSmooth_Pro'] or obj.modifiers['OpenSubDiv']
-					mod.iterations = 0 #set subdivision levels to 0.
-					obj.showcage = True #Show cage on
-				except: pass
-
-		else: #preview on
-			rt.showEndResult = True
-			Slots_max.displayWireframeOnMesh(False)
-
-			for obj in geometry:
-				try:
-					mod = obj.modifiers['TurboSmooth'] or obj.modifiers['TurboSmooth_Pro'] or obj.modifiers['OpenSubDiv']
-					renderIters = mod.renderIterations #get renderIter value.
-					mod.iterations = renderIters #apply to iterations value.
-					obj.showcage = False #Show cage off
-				except: pass
-
-		rt.redrawViews() #refresh viewport. only those parts of the view that have changed are redrawn.
 
 
 	@staticmethod
@@ -972,7 +375,7 @@ class Slots_max(Slots):
 
 
 	# ------------------------------------------------
-	' Ui'
+		'UI:'
 	# ------------------------------------------------
 
 	@classmethod

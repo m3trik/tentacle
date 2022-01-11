@@ -341,6 +341,47 @@ class Edit(Slots_max):
 		# pm.undoInfo(closeChunk=1)
 
 
+	def compareMesh(self, obj1, obj2, factor):
+		'''Compares vert/face/edges counts.
+
+		:Parameters:
+			obj1 (obj) = 
+			obj2 (obj) = 
+			factor () = 
+		'''
+		maxEval('''
+		if superclassof obj1 == GeometryClass then	--if object is a geometry type (mesh)
+		(
+			o1v = obj1.mesh.verts.count	--store object 1 and 2 vert / face / edge counts
+			o1f = obj1.mesh.faces.count
+			o1e = obj1.mesh.edges.count
+			o2v = obj2.mesh.verts.count
+			o2f = obj2.mesh.faces.count
+			o2e = obj2.mesh.edges.count
+			
+			if o2v >= o1v*(1-factor) AND o2v <= o1v*(1+factor) THEN 		--simpler than it looks. the 'factor' aka 'ratio' in the ui is 
+				if o2f >= o1f*(1-factor) AND o2f <= o1f*(1+factor) THEN		--allows for slop in the comparison. 0.1 is a 10% difference so comparing
+					if o2e >= o1e*(1-factor) AND o2e <= o1e*(1+factor) THEN	--face*(1-factor) is the same as saying face*0.9 in our example
+					(
+						dbgSelSim ("  Mesh match on '" + obj1.name + "' with '" + obj2.name + "' | V: " + o1v as string + ", " + o2v as string + " | F: " + o1f as string + ", " + o2f as string + " | E: " + o1e as string + ", " + o2e as string)
+						return true
+					)
+					else return false
+				else return false
+			else return false
+		)
+		else if superclassof obj1 == shape then
+		(
+			o1v = numKnots obj1
+			o2v = numKnots obj2
+			
+			if o2v >= o1v*(1-factor) AND o2v <= o1v*(1+factor) THEN
+				return true
+			else return false
+		)
+		''')
+
+
 
 
 

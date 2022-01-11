@@ -347,7 +347,7 @@ class Polygons(Slots_max):
 		obj = rt.selection[0]
 		vertices = rt.polyop.getVertSelection(obj)
 		
-		Slots_max.circularize(vertices)
+		self.circularize(vertices)
 
 
 	def b001(self):
@@ -356,11 +356,13 @@ class Polygons(Slots_max):
 		rt.macros.run('Modifiers', 'Cap_Holes')
 
 
+	@Slots.message
 	def b002(self):
 		'''Separate
 		'''
-		pass
-		# rt.detachElement(obj)
+		obj = rt.selection[0]
+
+		self.detachElement(obj)
 
 
 	def b003(self):
@@ -519,6 +521,70 @@ class Polygons(Slots_max):
 		'''Edit Edge Flow
 		'''
 		mel.eval("PolyEditEdgeFlow;")
+
+
+	def circularize(self):
+		'''Circularize a set of vertices on a circle or an elipse.
+
+		tm = (matrix3 [-0.99596,0.022911,-0.0868241] [-0.0229109,0.870065,0.492404] [0.086824,0.492404,-0.866025] [-18.3751,-66.1508,30.969])
+		c = [-18.3751,-66.1508,30.969]
+		s = [-123.81,-63.7254,21.7775]
+		u = [0.086824,0.492404,-0.866025]
+
+		pCircle = pointCircle c s u 20
+		'''
+		maxEval('''
+		fn pointCircle center startPoint upVector n = (
+			rad = distance center startPoint
+			dir = normalize (startPoint - center)
+			crossVector = normalize (cross (normalize (startPoint - center)) upVector)
+			tm = (matrix3 upVector crossVector dir center)
+
+			p3Array = #()
+
+			for i = 1 to n do (
+				preRotateX tm (360.0 / n)
+				append p3Array ([0,0,rad] * tm)
+			)
+
+			return p3Array
+		)
+		pointCircle()
+		''')
+
+
+	def detachElement(self, obj):
+		'''Detach editable_mesh elements into new objects.
+
+		:Parameters:
+			obj (obj) = A polygon object.
+
+		:Return:
+			(list) detached objects.
+		'''
+		elementArray = []
+
+		print(obj[0]) #object
+		print(obj[6]) #baseObject class TYPE |string|
+		print(obj[7]) #isValidNode
+
+		if (obj[4] == rt.Editable_Poly and obj[7]): #or obj[6] == "Shape" or obj[6] == "Geometry" 
+
+			rename = obj[0].name	
+			rename += "_ele"
+			#~ maxEval("undo \"DetachToElement\" on")
+			while ((rt.polyOp.getNumFaces(obj[0])) > 0):
+				elementToDetach = rt.polyOp.getElementsUsingFace(obj[0],[1]) #(1)
+				rt.polyOp.detachFaces(obj[0], elementToDetach, delete=True, asNode=True, name=rename)
+			rt.delete(obj[0])
+			elementArray = rt.execute("$"+rename+"*")
+
+			rt.select(elementArray)
+
+		else:
+			return 'Error: Object must be an Editable_Poly.'
+		
+		return elementArray
 
 
 

@@ -729,6 +729,30 @@ class Materials(Slots_max):
 		return result
 
 
+	def compareMats(self, obj1, obj2):
+		'''Compare material names. unlike other properties, this is a simple true/false comparison, it doesn't find 'similar' names.
+
+		:Parameters:
+			obj1 (obj) = 
+			obj2 (obj) = 
+		'''
+		maxEval('''
+			m1 = obj1.material
+			m2 = obj2.material
+			
+			if m1 != undefined and m2 != undefined then --verify both objects have a material assigned
+			(
+				if m1.name == m2.name then 
+				(
+					dbgSelSim ("  Material match on object: '" + obj1.name + "' with '" + obj2.name + "'")
+					true	--check if material names are the same, if they are, return a true value
+				)
+				else false --uh oh. material names aren't the same. return false.
+			)
+			else false	--one or both objects do not have a material assigned. returning false.
+			''')
+
+
 
 
 

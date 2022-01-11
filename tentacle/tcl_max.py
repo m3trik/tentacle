@@ -92,10 +92,6 @@ class Tcl_max(Tcl):
 		except Exception as error:
 			print(error)
 
-		if __name__ == "__main__":
-			self.qApp.instance().quit()
-			sys.exit() #assure that the sys processes are terminated.
-
 		return Tcl.hideEvent(self, event) #super().hideEvent(event)
 
 
@@ -115,9 +111,8 @@ if __name__ == "__main__":
 	dummyParent = QtWidgets.QWidget()
 	dummyParent.setObjectName('MaxWindow')
 
-	import cProfile
-	cProfile.run("Tcl_max(dummyParent).show('init')")
-	# Instance(dummyParent).show_() #Tcl_max(p).show()
+	Tcl_max(dummyParent).show('init')
+
 	sys.exit(app.exec_())
 
 

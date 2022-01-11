@@ -408,8 +408,9 @@ class Tcl(QtWidgets.QStackedWidget, StyleSheet):
 		'''
 		# self.sb.gcProtect(clear=True) #clear any garbage protected items.
 
-		# if __name__ == "__main__":
-		# 	sys.exit() #assure that the sys processes are terminated during testing.
+		if __name__ == "__main__":
+			self.qApp.quit()
+			sys.exit() #assure that the sys processes are terminated during testing.
 
 		return QtWidgets.QStackedWidget.hideEvent(self, event)
 

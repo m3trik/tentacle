@@ -393,7 +393,7 @@ class Transform(Slots_maya):
 		frm = selection[0]
 		to = selection[1:]
 
-		self.matchScale(to, frm)
+		self.matchScale(frm, to)
 
 
 	def b002(self):

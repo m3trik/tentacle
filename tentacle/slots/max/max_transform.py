@@ -501,6 +501,182 @@ class Transform(Slots_max):
 			''')
 
 
+	@Slots.message
+	def alignVertices(self, selection, mode):
+		'''Align Vertices
+
+		Align all vertices at once by putting each vert index and coordinates in a dict (or two arrays) then if when iterating through a vert falls within the tolerance specified in a textfield align that vert in coordinate. then repeat the process for the other coordinates x,y,z specified by checkboxes. using edges may be a better approach. or both with a subObjectLevel check
+		create edge alignment tool and then use subObjectLevel check to call either that function or this one from the same buttons.
+		to save ui space; have a single align button, x, y, z, and align 'all' checkboxes and a tolerance textfield.
+
+		:Parameters:
+			selection (list) = vertex selection
+			mode (int) = valid values are: 0 (YZ), 1 (XZ), 2 (XY), 3 (X), 4 (Y), 5 (Z)
+
+		notes:
+		'vertex.pos.x = vertPosX' ect doesnt work. had to use maxscript
+		'''
+		# maxEval('undo "alignVertices" on')
+		componentArray = selection.selectedVerts
+		
+		if len(componentArray) == 0:
+			return 'Error: No vertices selected.'
+		
+		if len(componentArray) < 2:
+			return 'Error: Selection must contain at least two vertices.'
+
+		lastSelected = componentArray[-1]#3ds max re-orders array by vert index, so this doesnt work for aligning to last selected
+		#~ print(lastSelected.pos)
+		aX = lastSelected.pos[0]
+		aY = lastSelected.pos[1]
+		aZ = lastSelected.pos[2]
+		
+		for vertex in componentArray:
+			#~ print(vertex.pos)
+			vX = vertex.pos[0]
+			vY = vertex.pos[1]
+			vZ = vertex.pos[2]
+
+			maxEval('global alignXYZ')
+			
+			if mode == 0: #align YZ
+				maxEval('''
+				fn alignXYZ mode vertex vX vY vZ aX aY aZ=
+				(
+					vertex.pos.x = vX
+					vertex.pos.y = aY
+					vertex.pos.z = aZ
+				)
+				''')
+				
+			if mode == 1: #align XZ
+				maxEval('''
+				fn alignXYZ mode vertex vX vY vZ aX aY aZ=
+				(
+					vertex.pos.x = aX
+					vertex.pos.y = vY
+					vertex.pos.z = aZ
+				)
+				''')
+			
+			if mode == 2: #align XY
+				maxEval('''
+				fn alignXYZ mode vertex vX vY vZ aX aY aZ=
+				(
+					vertex.pos.x = aX
+					vertex.pos.y = aY
+					vertex.pos.z = vZ
+				)
+				''')
+			
+			if mode == 3: #X
+				maxEval('''
+				fn alignXYZ mode vertex vX vY vZ aX aY aZ=
+				(
+					vertex.pos.x = aX
+					vertex.pos.y = vY
+					vertex.pos.z = vZ
+				)
+				''')
+			
+			if mode == 4: #Y
+				maxEval('''
+				fn alignXYZ mode vertex vX vY vZ aX aY aZ=
+				(
+					vertex.pos.x = vX
+					vertex.pos.y = aY
+					vertex.pos.z = vZ
+				)
+				''')
+			
+			if mode == 5: #Z
+				maxEval('''
+				fn alignXYZ mode vertex vX vY vZ aX aY aZ=
+				(
+					vertex.pos.x = vX
+					vertex.pos.y = vY
+					vertex.pos.z = aZ
+				)
+				''')
+			
+			print(100*"-")
+			print("vertex.index:", vertex.index)
+			print("position:", vX, vY, vZ)
+			print("align:   ", aX, aY, aZ)
+			
+			rt.alignXYZ(mode, vertex, vX, vY, vZ, aX, aY, aZ)
+
+			return '{0}{1}{2}{3}'.format("result: ", vertex.pos[0], vertex.pos[1], vertex.pos[2])
+
+
+	def scaleObject(self, size, x, y ,z):
+		'''
+		:Parameters:
+			size (float) = Scale amount
+			x (bool) = Scale in the x direction.
+			y (bool) = Scale in the y direction.
+			z (bool) = Scale in the z direction.
+
+		Basically working except for final 'obj.scale([s, s, s])' command in python. variable definitions included for debugging.
+		to get working an option is to use the maxEval method in the alignVertices function.
+		'''
+		textField_000 = 1.50
+		isChecked_002 = True
+		isChecked_003 = True
+		isChecked_004 = True
+
+		s = textField_000
+		x = isChecked_002
+		y = isChecked_003
+		z = isChecked_004
+		#-------------------------
+		s = size
+		selection = rt.selection
+
+		for obj in selection:
+			if (isChecked_002 and isChecked_003 and isChecked_004):
+				obj.scale([s, s, s])
+			if (not isChecked_002 and isChecked_003 and isChecked_004):
+				obj.scale([1, s, s])
+			if (isChecked_002 (not isChecked_003) and isChecked_004):
+				obj.scale([s, 1, s])
+			if (isChecked_002 and isChecked_003 (not isChecked_004)):
+				obj.scale([s, s, 1])
+			if (not isChecked_002 (not isChecked_003) and isChecked_004):
+				obj.scale([1, 1, s])
+			if (isChecked_002 (not isChecked_003) (not isChecked_004)):
+				obj.scale([s, 1, 1])
+			if (isChecked_002 and isChecked_003 and isChecked_004):
+				obj.scale([1, s, 1])
+			if (not isChecked_002 (not isChecked_003) (not isChecked_004)):
+				obj.scale([1, 1, 1])
+
+
+	def compareSize(self, obj1, obj2, factor):
+		'''Compares two point3 sizes from obj bounding boxes.
+
+		:Parameters:
+			obj1 (obj) = 
+			obj2 (obj) = 
+			factor () = 
+		'''
+		maxEval('''
+		s1 = obj1.max - obj1.min --determine bounding boxes
+		s2 = obj2.max - obj2.min
+		
+		if (s2.x >= (s1.x*(1-factor)) AND s2.x <= (s1.x*(1+factor))) OR (s2.x >= (s1.y*(1-factor)) AND s2.x <= (s1.y*(1+factor))) OR (s2.x >= (s1.z*(1-factor)) AND s2.x <= (s1.z*(1+factor)))THEN
+			if (s2.y >= (s1.y*(1-factor)) AND s2.y <= (s1.y*(1+factor))) OR (s2.y >= (s1.x*(1-factor)) AND s2.y <= (s1.x*(1+factor))) OR (s2.y >= (s1.z*(1-factor)) AND s2.y <= (s1.z*(1+factor))) THEN
+				if (s2.z >= (s1.z*(1-factor)) AND s2.z <= (s1.z*(1+factor))) OR (s2.z >= (s1.x*(1-factor)) AND s2.z <= (s1.x*(1+factor))) OR (s2.z >= (s1.y*(1-factor)) AND s2.z <= (s1.y*(1+factor))) THEN
+				(
+					dbgSelSim ("  Size match on '" + obj1.name + "' with '" + obj2.name + "'")
+					return true
+				)
+				else return false
+			else return false
+		else return false			
+		''')
+
+
 
 
 	
