@@ -194,7 +194,9 @@ def tree000(self, wItem=None, column=None):
 	'KNOWN BUGS'
 # ======================================================================
 '''
-move slots.max methods to their corresponding sub-classes.
+maya.macros: isolate selected: incorrect mod panel.
+# Error: line 1: RuntimeError: file C:\Program Files\Autodesk\Maya2022\Python37\lib\site-packages\pymel\internal\pmcmds.py line 217: model panel 'outlinerPanel1' does not exist #
+
 
 
 Treewidgets not registering click on mouse release.

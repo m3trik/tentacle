@@ -23,8 +23,8 @@ class Normals(Slots_maya):
 		ctx = self.normals_ui.tb001.contextMenu
 		if not ctx.containsMenuItems:
 			ctx.add('QSpinBox', setPrefix='Angle: ', setObjectName='s002', setMinMax_='0-180 step1', setValue=0, setToolTip='The normal angle in degrees.')
-			ctx.add('QCheckBox', setText='Harden Creased Edges', setObjectName='chk001', setToolTip='Soften all non-creased edges.')
-			ctx.add('QCheckBox', setText='Harden UV Borders', setObjectName='chk002', setToolTip='Harden UV shell border edges.')
+			ctx.add('QCheckBox', setText='Harden Creased Edges', setObjectName='chk001', setChecked=True, setToolTip='Soften all non-creased edges.')
+			ctx.add('QCheckBox', setText='Harden UV Borders', setObjectName='chk002', setChecked=True, setToolTip='Harden UV shell border edges.')
 			ctx.add('QCheckBox', setText='Soften All Other', setObjectName='chk000', setChecked=True, setToolTip='Soften all non-hard edges.')
 
 		ctx = self.normals_ui.tb002.contextMenu

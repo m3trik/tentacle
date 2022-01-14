@@ -447,9 +447,10 @@ class Uv(Slots_maya):
 
 		for frm in set1:
 			for to in set2:
-				# if pm.polyEvaluate(frm)==pm.polyEvaluate(to):
-				pm.transferAttributes(frm, to, transferUVs=2, sampleSpace=4) #-transferNormals 0 -transferUVs 2 -transferColors 2 -sourceUvSpace "map1" -targetUvSpace "map1" -searchMethod 3-flipUVs 0 -colorBorders 1 ;
-				# print('Result: UV sets transferred from: {} to: {}.'.format(frm.name(), to.name()))
+				if pm.polyEvaluate(frm)==pm.polyEvaluate(to):
+					pm.transferAttributes(frm, to, transferUVs=2, sampleSpace=4) #-transferNormals 0 -transferUVs 2 -transferColors 2 -sourceUvSpace "map1" -targetUvSpace "map1" -searchMethod 3-flipUVs 0 -colorBorders 1 ;
+					print('Result: UV sets transferred from: {} to: {}.'.format(frm.name(), to.name()))
+					pm.bakePartialHistory(frm, prePostDeformers=1)
 		# pm.undoInfo(closeChunk=1)
 
 
