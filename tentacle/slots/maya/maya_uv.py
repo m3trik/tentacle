@@ -435,7 +435,7 @@ class Uv(Slots_maya):
 	@Slots_maya.undoChunk
 	@Slots.message
 	def b002(self):
-		'''Transfer Uv's
+		'''Transfer UV's
 		'''
 		selection = pm.ls(orderedSelection=1, flatten=1)
 		if len(selection)<2:
@@ -449,13 +449,19 @@ class Uv(Slots_maya):
 			for to in set2:
 				if pm.polyEvaluate(frm)==pm.polyEvaluate(to):
 					pm.transferAttributes(frm, to, transferUVs=2, sampleSpace=4) #-transferNormals 0 -transferUVs 2 -transferColors 2 -sourceUvSpace "map1" -targetUvSpace "map1" -searchMethod 3-flipUVs 0 -colorBorders 1 ;
-					print('Result: UV sets transferred from: {} to: {}.'.format(frm.name(), to.name()))
-					pm.bakePartialHistory(frm, prePostDeformers=1)
+					pm.bakePartialHistory(to, prePostDeformers=1)
+					set2.remove(to) #remove the obj from the transfer list when an exact match is found.
+				elif pm.polyEvaluate(frm, face=1)==pm.polyEvaluate(to, face=1) and pm.polyEvaluate(frm, boundingBox=1)==pm.polyEvaluate(to, boundingBox=1):
+					pm.transferAttributes(frm, to, transferUVs=2, sampleSpace=4) #transfer to the object if it is similar, but keep in transfer list in case an exact match is found later.
+					pm.bakePartialHistory(to, prePostDeformers=1)
+
+		for remaining in set2:
+			print('Error: No match found for: {}.'.format(remaining.name()))
 		# pm.undoInfo(closeChunk=1)
 
 
 	def b005(self):
-		'''Cut Uv'S
+		'''Cut UV's
 		'''
 		objects = pm.ls(selection=1, objectsOnly=1, shapes=1, flatten=1)
 
@@ -465,7 +471,7 @@ class Uv(Slots_maya):
 
 
 	def b011(self):
-		'''Sew Uv'S
+		'''Sew UV's
 		'''
 		objects = pm.ls(selection=1, objectsOnly=1, shapes=1, flatten=1)
 
