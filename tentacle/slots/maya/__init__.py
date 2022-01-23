@@ -7,7 +7,7 @@ from PySide2 import QtGui, QtWidgets, QtCore
 try: #Maya dependancies
 	import maya.mel as mel
 	import pymel.core as pm
-	import maya.OpenMayaUI as OpenMayaUI
+	import maya.OpenMayaUI as omui
 
 	import shiboken2
 
@@ -1120,7 +1120,7 @@ class Slots_maya(Slots):
 		:Return:
 			QtGui.QMainWindow instance of the top level Maya windows
 		'''
-		ptr = OpenMayaUI.MQtUtil.mainWindow()
+		ptr = omui.MQtUtil.mainWindow()
 		if ptr:
 			return shiboken2.wrapInstance(long(ptr), QtWidgets.QWidget)
 
@@ -1153,7 +1153,7 @@ class Slots_maya(Slots):
 			(QWidget) If the object does not exist, returns None
 		'''
 		for f in ('findControl', 'findLayout', 'findMenuItem'):
-			ptr = getattr(OpenMayaUI.MQtUtil, f)(name) #equivalent to: ex. OpenMayaUI.MQtUtil.findControl(name)
+			ptr = getattr(omui.MQtUtil, f)(name) #equivalent to: ex. omui.MQtUtil.findControl(name)
 			if ptr:
 				return shiboken2.wrapInstance(long(ptr), QtWidgets.QWidget)
 

@@ -905,7 +905,7 @@ class Switchboard(QtCore.QObject):
 			mainAppWindowName = self.getMainAppWindow(objectName=True)
 			name = class_ # name = self.getUiName(class_, case='camelCase', level=[0,1,3])
 			className = self.setCase(class_, case='pascalCase') # className = self.getUiName(class_, case='pascalCase', level=[0,1,3])
-			path = '{0}_{1}.{2}'.format(mainAppWindowName, name, className) #ie. 'maya_init.Init'
+			path = '{0}_{1}.{2}'.format(name, mainAppWindowName, className) #ie. 'init_maya.Init'
 			class_ = locate(path)
 		else:
 			name = class_.__class__.__name__ #if arg as <object>:

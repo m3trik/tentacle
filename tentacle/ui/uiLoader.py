@@ -25,7 +25,7 @@ class UiLoader(QtUiTools.QUiLoader):
 	if not qApp:
 		qApp = QApplication(sys.argv)
 
-	def __init__(self, uiDir='ui', uiLevelPrefix='uiLevel_'):
+	def __init__(self, uiDir='ui\\dynamic', uiLevelPrefix='uiLevel_'):
 		QtUiTools.QUiLoader.__init__(self)
 		'''Load the ui files and any custom widgets.
 		'''

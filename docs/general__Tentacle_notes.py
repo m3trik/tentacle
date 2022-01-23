@@ -195,6 +195,18 @@ def tree000(self, wItem=None, column=None):
 # ======================================================================
 '''
 
+# Traceback (most recent call last):
+#   File "O:/Cloud/Code/_scripts/tentacle\tentacle\slots\__init__.py", line 499, in wrapper
+#     self.messageBox(fn(self, *args, **kwargs))
+#   File "O:/Cloud/Code/_scripts/tentacle\tentacle\slots\maya\__init__.py", line 57, in wrapper
+#     rtn = fn(*args, **kwargs)
+#   File "O:/Cloud/Code/_scripts/tentacle\tentacle\slots\maya\maya_animation.py", line 53, in tb001
+#     return Animation.invertSelectedKeyframes(time=time, relative=relative)
+#   File "O:/Cloud/Code/_scripts/tentacle\tentacle\slots\maya\__init__.py", line 57, in wrapper
+#     rtn = fn(*args, **kwargs)
+# TypeError: 'staticmethod' object is not callable
+
+
 change '*' to small arrow for context menu indicator.
 
 
