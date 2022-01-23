@@ -1,13 +1,15 @@
 # !/usr/bin/python
 # coding=utf-8
 from slots.maya import *
+from slots.polygons import Polygons
 from ui.static.maya.polygons_ui_maya import Polygons_ui_maya
 
 
-class Polygons(Slots_maya):
+class Polygons_maya(Slots_maya):
 	def __init__(self, *args, **kwargs):
 		Slots_maya.__init__(self, *args, **kwargs)
 		Polygons_ui_maya.__init__(self, *args, **kwargs)
+		Polygons.__init__(self, *args, **kwargs)
 
 
 	def draggable_header(self, state=None):

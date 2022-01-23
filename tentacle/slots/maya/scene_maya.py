@@ -1,14 +1,16 @@
 # !/usr/bin/python
 # coding=utf-8
 from slots.maya import *
+from slots.scene import Scene
 from ui.static.maya.scene_ui_maya import Scene_ui_maya
 
 
 
-class Scene(Slots_maya):
+class Scene_maya(Slots_maya):
 	def __init__(self, *args, **kwargs):
 		Slots_maya.__init__(self, *args, **kwargs)
 		Scene_ui_maya.__init__(self, *args, **kwargs)
+		Scene.__init__(self, *args, **kwargs)
 
 		self.scene_ui.t000.returnPressed.connect(self.t001) #preform rename on returnPressed
 

@@ -1,57 +1,20 @@
 # !/usr/bin/python
 # coding=utf-8
 from slots.max import *
+from slots.materials import Materials
+from ui.static.max.materials_ui_max import Materials_ui_max
 
 
 
 class Materials(Slots_max):
 	def __init__(self, *args, **kwargs):
 		Slots_max.__init__(self, *args, **kwargs)
+		Materials_ui_max.__init__(self, *args, **kwargs)
+		Materials.__init__(self, *args, **kwargs)
 
 		self.randomMat=None
 
 		self.materials_submenu_ui.b003.setVisible(False)
-
-		ctx = self.materials_ui.draggable_header.contextMenu
-		if not ctx.containsMenuItems:
-			ctx.add(self.tcl.wgts.ComboBox, setObjectName='cmb000', setToolTip='3dsMax Material Editors')
-			ctx.add(self.tcl.wgts.PushButton, setText='Relink Scene Bitmaps', setObjectName='tb003', setToolTip='Repair broken bitmap file links for any scene materials. If no materials are selected, all scene materials will be used.')
-			ctx.add(self.tcl.wgts.PushButton, setText='Relink Library Bitmaps', setObjectName='tb004', setToolTip='Repair broken bitmap file links for all libraries in a given directory.')
-
-		cmb = self.materials_ui.draggable_header.contextMenu.cmb000
-		items = ['Material Editor']
-		cmb.addItems_(items, '3dsMax Material Editors')
-
-		cmb = self.materials_ui.cmb002
-		ctx = cmb.contextMenu
-		if not ctx.containsMenuItems:
-			ctx.add('QComboBox', setObjectName='cmb001', addItems=['Scene Materials', 'ID Map Materials', 'Favorite Materials'], setToolTip='Filter materials list based on type.')
-			ctx.add(self.tcl.wgts.Label, setText='Open in Editor', setObjectName='lbl000', setToolTip='Open material in editor.')
-			ctx.add(self.tcl.wgts.Label, setText='Rename', setObjectName='lbl001', setToolTip='Rename the current material.')
-			ctx.add(self.tcl.wgts.Label, setText='Delete', setObjectName='lbl002', setToolTip='Delete the current material.')
-			ctx.add(self.tcl.wgts.Label, setText='Delete All Unused Materials', setObjectName='lbl003', setToolTip='Delete All unused materials.')
-			cmb.beforePopupShown.connect(self.cmb002) #refresh comboBox contents before showing it's menu.
-			cmb.returnPressed.connect(lambda: self.lbl001(setEditable=False))
-			cmb.currentIndexChanged.connect(lambda: ctx.setTitle(cmb.currentText())) #set the popup title to be the current materials name.
-			ctx.cmb001.currentIndexChanged.connect(self.cmb002) #refresh cmb002 contents.
-			ctx.cmb001.currentIndexChanged.connect(lambda: self.materials_ui.group000.setTitle(ctx.cmb001.currentText())) #set the groupbox title to reflect the current filter.
-			self.cmb002() #initialize the materials list
-
-		ctx = self.materials_ui.tb000.contextMenu
-		if not ctx.containsMenuItems:
-			ctx.add('QCheckBox', setText='All Objects', setObjectName='chk003', setToolTip='Search all scene objects, or only those currently selected.')
-			ctx.add('QCheckBox', setText='Shell', setObjectName='chk005', setToolTip='Select entire shell.')
-			ctx.add('QCheckBox', setText='Invert', setObjectName='chk006', setToolTip='Invert Selection.')
-
-		tb = self.materials_ui.tb002
-		ctx = tb.contextMenu
-		if not ctx.containsMenuItems:
-			ctx.add('QRadioButton', setText='Current Material', setObjectName='chk007', setChecked=True, setToolTip='Re-Assign the current stored material.')
-			ctx.add('QRadioButton', setText='New Material', setObjectName='chk009', setToolTip='Assign a new material.')
-			ctx.add('QRadioButton', setText='New Random Material', setObjectName='chk008', setToolTip='Assign a new random ID material.')
-			ctx.chk007.clicked.connect(lambda state: tb.setText('Assign Current')) 
-			ctx.chk009.clicked.connect(lambda state: tb.setText('Assign New'))
-			ctx.chk008.clicked.connect(lambda state: tb.setText('Assign Random'))
 
 
 	def draggable_header(self, state=None):

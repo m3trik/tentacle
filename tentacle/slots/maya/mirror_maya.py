@@ -1,14 +1,16 @@
 # !/usr/bin/python
 # coding=utf-8
 from slots.maya import *
+from slots.mirror import Mirror
 from ui.static.maya.mirror_ui_maya import Mirror_ui_maya
 
 
 
-class Mirror(Slots_maya):
+class Mirror_maya(Slots_maya):
 	def __init__(self, *args, **kwargs):
 		Slots_maya.__init__(self, *args, **kwargs)
 		Mirror_ui_maya.__init__(self, *args, **kwargs)
+		Mirror.__init__(self, *args, **kwargs)
 
 
 	def draggable_header(self, state=None):

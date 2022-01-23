@@ -1,31 +1,16 @@
 # !/usr/bin/python
 # coding=utf-8
 from slots.max import *
+from slots.animation import Animation
+from ui.static.max.animation_ui_max import Animation_ui_max
 
 
 
 class Animation(Slots_max):
 	def __init__(self, *args, **kwargs):
 		Slots_max.__init__(self, *args, **kwargs)
-
-		ctx = self.animation_ui.draggable_header.contextMenu
-		if not ctx.containsMenuItems:
-			ctx.add(self.tcl.wgts.ComboBox, setObjectName='cmb000', setToolTip='')
-
-		cmb = self.animation_ui.draggable_header.contextMenu.cmb000
-		items = ['Track View: Curve Editor','Track View: Dope Sheet','Track View: New Track View','Motion Mixer','Pose Mixer','MassFx Tools', 'Dynamics Explorer','Reaction Manager','Walkthrough Assistant']
-		cmb.addItems_(items, 'Animation Editors')
-
-		ctx = self.animation_ui.tb000.contextMenu
-		if not ctx.containsMenuItems:
-			ctx.add('QSpinBox', setPrefix='Frame: ', setObjectName='s000', setMinMax_='0-10000 step1', setValue=1, setToolTip='')
-			ctx.add('QCheckBox', setText='Relative', setObjectName='chk000', setChecked=True, setToolTip='')
-			ctx.add('QCheckBox', setText='Update', setObjectName='chk001', setChecked=True, setToolTip='')
-
-		ctx = self.animation_ui.tb001.contextMenu
-		if not ctx.containsMenuItems:
-			ctx.add('QSpinBox', setPrefix='Time: ', setObjectName='s001', setMinMax_='0-10000 step1', setValue=1, setToolTip='The desired start time for the inverted keys.')
-			ctx.add('QCheckBox', setText='Relative', setObjectName='chk002', setChecked=False, setToolTip='Start time position as relative or absolute.')
+		Animation_ui_max.__init__(self, *args, **kwargs)
+		Animation.__init__(self, *args, **kwargs)
 
 
 	def draggable_header(self, state=None):

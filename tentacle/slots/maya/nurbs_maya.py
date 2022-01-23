@@ -1,14 +1,16 @@
 # !/usr/bin/python
 # coding=utf-8
 from slots.maya import *
+from slots.nurbs import Nurbs
 from ui.static.maya.nurbs_ui_maya import Nurbs_ui_maya
 
 
 
-class Nurbs(Slots_maya):
+class Nurbs_maya(Slots_maya):
 	def __init__(self, *args, **kwargs):
 		Slots_maya.__init__(self, *args, **kwargs)
 		Nurbs_ui_maya.__init__(self, *args, **kwargs)
+		Nurbs.__init__(self, *args, **kwargs)
 
 
 	def draggable_header(self, state=None):

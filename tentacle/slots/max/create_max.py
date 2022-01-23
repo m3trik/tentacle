@@ -1,35 +1,17 @@
 # !/usr/bin/python
 # coding=utf-8
 from slots.max import *
-
+from slots.create import Create
+from ui.static.max.create_ui_max import Create_ui_max
 
 
 class Create(Slots_max):
 	def __init__(self, *args, **kwargs):
 		Slots_max.__init__(self, *args, **kwargs)
+		Create_ui_max.__init__(self, *args, **kwargs)
+		Create.__init__(self, *args, **kwargs)
 
-		ctx = self.create_ui.draggable_header.contextMenu
-		if not ctx.containsMenuItems:
-			ctx.add(self.tcl.wgts.ComboBox, setObjectName='cmb000', setToolTip='')
-
-		cmb = self.create_ui.draggable_header.contextMenu.cmb000
-		items = ['']
-		cmb.addItems_(items, '')
-
-		cmb = self.create_ui.cmb001
-		items = ['Mesh', 'Editable Poly', 'Editable Mesh', 'Editable Patch', 'NURBS', 'Light']
-		cmb.addItems_(items)
-
-		cmb = self.create_ui.cmb002
-		items = ["Cube", "Sphere", "Cylinder", "Plane", "Circle", "Cone", "Pyramid", "Torus", "Tube", "GeoSphere", "Text"] 
-		cmb.addItems_(items)
-
-		ctx = self.create_ui.tb000.contextMenu
-		if not ctx.containsMenuItems:
-			ctx.add('QCheckBox', setText='Translate', setObjectName='chk000', setChecked=True, setToolTip='Move the created object to the center point of any selected object(s).')
-			# ctx.add('QCheckBox', setText='Scale', setObjectName='chk001', setChecked=True, setToolTip='Uniformly scale the created object to match the averaged scale of any selected object(s).')
-
-
+		
 	def draggable_header(self, state=None):
 		'''Context menu
 		'''

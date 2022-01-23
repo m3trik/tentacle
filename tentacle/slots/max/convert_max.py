@@ -1,24 +1,16 @@
 # !/usr/bin/python
 # coding=utf-8
 from slots.max import *
+from slots.convert import Convert
+from ui.static.max.convert_ui_max import Convert_ui_max
 
 
 
 class Convert(Slots_max):
 	def __init__(self, *args, **kwargs):
 		Slots_max.__init__(self, *args, **kwargs)
-
-		ctx = self.convert_ui.draggable_header.contextMenu
-		if not ctx.containsMenuItems:
-			ctx.add(self.tcl.wgts.ComboBox, setObjectName='cmb000', setToolTip='')
-
-		cmb = self.convert_ui.draggable_header.contextMenu.cmb000
-		items = ['']
-		cmb.addItems_(items, '')
-
-		cmb = self.convert_ui.cmb001
-		items = ['NURBS to Polygons', 'NURBS to Subdiv', 'Polygons to Subdiv', 'Smooth Mesh Preview to Polygons', 'Polygon Edges to Curve', 'Type to Curves', 'Subdiv to Polygons', 'Subdiv to NURBS', 'NURBS Curve to Bezier', 'Bezier Curve to NURBS', 'Paint Effects to NURBS', 'Paint Effects to Curves', 'Texture to Geometry', 'Displacement to Polygons', 'Displacement to Polygons with History', 'Fluid to Polygons', 'nParticle to Polygons', 'Instance to Object', 'Geometry to Bounding Box', 'Convert XGen Primitives to Polygons'] 
-		contents = cmb.addItems_(items, 'Convert To')
+		Convert_ui_max.__init__(self, *args, **kwargs)
+		Convert.__init__(self, *args, **kwargs)
 
 
 	def draggable_header(self, state=None):

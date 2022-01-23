@@ -1,14 +1,16 @@
 # !/usr/bin/python
 # coding=utf-8
 from slots.maya import *
+from slots.materials import Materials
 from ui.static.maya.materials_ui_maya import Materials_ui_maya
 
 
 
-class Materials(Slots_maya):
+class Materials_maya(Slots_maya):
 	def __init__(self, *args, **kwargs):
 		Slots_maya.__init__(self, *args, **kwargs)
 		Materials_ui_maya.__init__(self, *args, **kwargs)
+		Materials.__init__(self, *args, **kwargs)
 
 		self.randomMat=None
 
@@ -59,12 +61,12 @@ class Materials(Slots_maya):
 
 		#create and set icons with color swatch
 		for i, mat in enumerate(cmb.items):
-			icon = Materials.getColorSwatchIcon(mat)
+			icon = self.getColorSwatchIcon(mat)
 			cmb.setItemIcon(i, icon) if icon else None
 
 		#set submenu assign material button attributes
 		b.setText('Assign '+cmb.currentText())
-		icon = Materials.getColorSwatchIcon(cmb.currentText(), [15, 15])
+		icon = self.getColorSwatchIcon(cmb.currentText(), [15, 15])
 		b.setIcon(icon) if icon else None
 		b.setMinimumWidth(b.minimumSizeHint().width()+25)
 		b.setVisible(True if cmb.currentText() else False)
@@ -233,8 +235,7 @@ class Materials(Slots_maya):
 		self.tb002()
 
 
-	@staticmethod
-	def getColorSwatchIcon(mat, size=[20, 20]):
+	def getColorSwatchIcon(self, mat, size=[20, 20]):
 		'''Get an icon with a color fill matching the given materials RBG value.
 
 		:Parameters:

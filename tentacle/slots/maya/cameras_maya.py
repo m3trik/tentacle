@@ -1,14 +1,16 @@
 # !/usr/bin/python
 # coding=utf-8
 from slots.maya import *
+from slots.cameras import Cameras
 from ui.static.maya.cameras_ui_maya import Cameras_ui_maya
 
 
 
-class Cameras(Slots_maya):
+class Cameras_maya(Slots_maya):
 	def __init__(self, *args, **kwargs):
 		Slots_maya.__init__(self, *args, **kwargs)
 		Cameras_ui_maya.__init__(self, *args, **kwargs)
+		Cameras.__init__(self, *args, **kwargs)
 
 
 	@property

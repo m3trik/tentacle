@@ -1,20 +1,18 @@
 # !/usr/bin/python
 # coding=utf-8
 from slots.max import *
+from slots.main import Main
+from ui.static.max.main_ui_max import Main_ui_max
 
 
 
 class Main(Slots_max):
 	def __init__(self, *args, **kwargs):
 		Slots_max.__init__(self, *args, **kwargs)
+		Main_ui_max.__init__(self, *args, **kwargs)
+		Main.__init__(self, *args, **kwargs)
 
-		self.main_lower_ui = self.tcl.sb.getUi('main_lower_submenu')
-
-		tree = self.main_lower_submenu_ui.tree000
-		tree.expandOnHover = True
-		tree.convert(tree.getTopLevelItems(), 'QLabel') #construct the tree using the existing contents.
-
-
+		
 	def tree000(self, wItem=None, column=None):
 		''''''
 		tree = self.main_lower_submenu_ui.tree000

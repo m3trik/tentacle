@@ -1,14 +1,16 @@
 # !/usr/bin/python
 # coding=utf-8
 from slots.maya import *
+from slots.pivot import Pivot
 from ui.static.maya.pivot_ui_maya import Pivot_ui_maya
 
 
 
-class Pivot(Slots_maya):
+class Pivot_maya(Slots_maya):
 	def __init__(self, *args, **kwargs):
 		Slots_maya.__init__(self, *args, **kwargs)
 		Pivot_ui_maya.__init__(self, *args, **kwargs)
+		Pivot.__init__(self, *args, **kwargs)
 
 
 	def draggable_header(self, state=None):

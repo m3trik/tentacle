@@ -1,32 +1,16 @@
 # !/usr/bin/python
 # coding=utf-8
 from slots.max import *
+from slots.mirror import Mirror
+from ui.static.max.mirror_ui_max import Mirror_ui_max
 
 
 
 class Mirror(Slots_max):
 	def __init__(self, *args, **kwargs):
 		Slots_max.__init__(self, *args, **kwargs)
-
-		ctx = self.mirror_ui.draggable_header.contextMenu
-		if not ctx.containsMenuItems:
-			ctx.add(self.tcl.wgts.ComboBox, setObjectName='cmb000', setToolTip='')
-
-		cmb = self.mirror_ui.draggable_header.contextMenu.cmb000
-		items = ['']
-		cmb.addItems_(items, '')
-
-		ctx = self.mirror_ui.tb000.contextMenu
-		if not ctx.containsMenuItems:
-			ctx.add('QCheckBox', setText='-', setObjectName='chk000', setChecked=True, setToolTip='Perform mirror along negative axis.')
-			ctx.add('QRadioButton', setText='X', setObjectName='chk001', setChecked=True, setToolTip='Perform mirror along X axis.')
-			ctx.add('QRadioButton', setText='Y', setObjectName='chk002', setToolTip='Perform mirror along Y axis.')
-			ctx.add('QRadioButton', setText='Z', setObjectName='chk003', setToolTip='Perform mirror along Z axis.')
-			ctx.add('QCheckBox', setText='Instance', setObjectName='chk004', setToolTip='Instance the mirrored object(s).')
-			ctx.add('QCheckBox', setText='Cut', setObjectName='chk005', setChecked=True, setToolTip='Perform a delete along specified axis before mirror.')
-			ctx.add('QDoubleSpinBox', setPrefix='Merge Threshold: ', setObjectName='s000', setMinMax_='0.000-10 step.001', setValue=0.005, setToolTip='Merge vertex distance.')
-			# ctx.add('QCheckBox', setText='Delete History', setObjectName='chk006', setChecked=True, setToolTip='Delete non-deformer history on the object before performing the operation.')
-			self.connect_('chk000-3', 'toggled', self.chk000_3, ctx)
+		Mirror_ui_max.__init__(self, *args, **kwargs)
+		Mirror.__init__(self, *args, **kwargs)
 
 
 	def draggable_header(self, state=None):

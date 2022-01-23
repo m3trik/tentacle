@@ -1,45 +1,16 @@
 # !/usr/bin/python
 # coding=utf-8
 from slots.max import *
+from slots.transform import Transform
+from ui.static.max.transform_ui_max import Transform_ui_max
 
 
 
 class Transform(Slots_max):
 	def __init__(self, *args, **kwargs):
 		Slots_max.__init__(self, *args, **kwargs)
-
-		cmb = self.transform_ui.draggable_header.contextMenu.cmb000
-		items = ['']
-		cmb.addItems_(items, '')
-
-		cmb = self.transform_ui.cmb001
-		cmb.popupStyle = 'qmenu'
-		menu = cmb.menu_
-		if not menu.containsMenuItems:
-			menu.setTitle('Constaints')
-			cmb.contextMenu.add('QRadioButton', setObjectName='chk017', setText='Standard', setChecked=True, setToolTip='')
-			cmb.contextMenu.add('QRadioButton', setObjectName='chk018', setText='Body Shapes', setToolTip='')
-			cmb.contextMenu.add('QRadioButton', setObjectName='chk019', setText='NURBS', setToolTip='')
-			cmb.contextMenu.add('QRadioButton', setObjectName='chk020', setText='Point Cloud Shapes', setToolTip='')
-			cmb.contextMenu.add(self.tcl.wgts.Label, setObjectName='lbl000', setText='Disable All', setToolTip='Disable all constraints.')
-			self.connect_('chk017-20', 'toggled', self.cmb001, cmb.contextMenu) #connect to this method on toggle
-			#query and set current states:
-			edge_constraint = True if pm.xformConstraint(query=1, type=1)=='edge' else False
-			surface_constraint = True if pm.xformConstraint(query=1, type=1)=='surface' else False
-			live_object = True if pm.ls(live=1) else False
-
-			values = [('chk024', 'Edge', edge_constraint),
-					('chk025', 'Surface', surface_constraint),
-					('chk026', 'Make Live', live_object)]
-
-			[menu.add(self.tcl.wgts.CheckBox, setObjectName=chk, setText=typ, setChecked=state) for chk, typ, state in values]
-
-		cmb = self.transform_ui.cmb002
-		items = ['Point to Point', '2 Points to 2 Points', '3 Points to 3 Points', 'Align Objects', 'Position Along Curve', 'Align Tool', 'Snap Together Tool']
-		cmb.addItems_(items, 'Align To')
-
-		ctx = self.transform_ui.tb000.contextMenu #drop to grid.
-		ctx.chk017.setDisabled(True) #disable 'freeze transformations' option.
+		Transform_ui_max.__init__(self, *args, **kwargs)
+		Transform.__init__(self, *args, **kwargs)
 
 
 	def draggable_header(self, state=None):

@@ -1,14 +1,16 @@
 # !/usr/bin/python
 # coding=utf-8
 from slots.maya import *
+from slots.dynLayout import DynLayout
 from ui.static.maya.dynLayout_ui_maya import DynLayout_ui_maya
 
 
 
-class DynLayout(Slots_maya):
+class DynLayout_maya(Slots_maya):
 	def __init__(self, *args, **kwargs):
 		Slots_maya.__init__(self, *args, **kwargs)
-		Duplicate_ui_maya.__init__(self, *args, **kwargs)
+		DynLayout_ui_maya.__init__(self, *args, **kwargs)
+		DynLayout.__init__(self, *args, **kwargs)
 
 
 	def draggable_header(self, state=None):

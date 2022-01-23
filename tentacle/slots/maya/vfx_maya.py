@@ -1,14 +1,16 @@
 # !/usr/bin/python
 # coding=utf-8
 from slots.maya import *
+from slots.vfx import Vfx
 from ui.static.maya.vfx_ui_maya import Vfx_ui_maya
 
 
 
-class Vfx(Slots_maya):
+class Vfx_maya(Slots_maya):
 	def __init__(self, *args, **kwargs):
 		Slots_maya.__init__(self, *args, **kwargs)
 		Vfx_ui_maya.__init__(self, *args, **kwargs)
+		Vfx.__init__(self, *args, **kwargs)
 
 
 	def draggable_header(self, state=None):

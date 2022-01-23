@@ -1,20 +1,16 @@
 # !/usr/bin/python
 # coding=utf-8
 from slots.max import *
+from slots.vfx import Vfx
+from ui.static.max.vfx_ui_max import Vfx_ui_max
 
 
 
 class Vfx(Slots_max):
 	def __init__(self, *args, **kwargs):
 		Slots_max.__init__(self, *args, **kwargs)
-
-		ctx = self.vfx_ui.draggable_header.contextMenu
-		if not ctx.containsMenuItems:
-			ctx.add(self.tcl.wgts.ComboBox, setObjectName='cmb000', setToolTip='')
-
-		cmb = self.vfx_ui.draggable_header.contextMenu.cmb000
-		items = ['']
-		cmb.addItems_(items, '')
+		Vfx_ui_max.__init__(self, *args, **kwargs)
+		Vfx.__init__(self, *args, **kwargs)
 
 
 	def draggable_header(self, state=None):

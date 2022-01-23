@@ -1,14 +1,16 @@
 # !/usr/bin/python
 # coding=utf-8
 from slots.maya import *
+from slots.create import Create
 from ui.static.maya.create_ui_maya import Create_ui_maya
 
 
 
-class Create(Slots_maya):
+class Create_maya(Slots_maya):
 	def __init__(self, *args, **kwargs):
 		Slots_maya.__init__(self, *args, **kwargs)
 		Create_ui_maya.__init__(self, *args, **kwargs)
+		Create.__init__(self, *args, **kwargs)
 
 
 	def createPrimitive(self, catagory1, catagory2):

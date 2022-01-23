@@ -1,17 +1,19 @@
 # !/usr/bin/python
 # coding=utf-8
 from slots.maya import *
+from slots.file import File
 from ui.static.maya.file_ui_maya import File_ui_maya
 
 
 
-class File(Slots_maya):
+class File_maya(Slots_maya):
 	def __init__(self, *args, **kwargs):
 		Slots_maya.__init__(self, *args, **kwargs)
 		File_ui_maya.__init__(self, *args, **kwargs)
+		File.__init__(self, *args, **kwargs)
 
 		#set the text for the open last file button to the last file's name.
-		mostRecentFile = File.getRecentFiles(0)
+		mostRecentFile = self.getRecentFiles(0)
 		self.file_submenu_ui.b001.setText(self.getNameFromFullPath(mostRecentFile)) if mostRecentFile else self.file_submenu_ui.b001.setVisible(False)
 
 
@@ -232,7 +234,7 @@ class File(Slots_maya):
 	def b002(self):
 		'''Autosave: Delete All
 		'''
-		files = File.getRecentAutosave()
+		files = self.getRecentAutosave()
 		for file in files:
 			try:
 				os.remove(file)

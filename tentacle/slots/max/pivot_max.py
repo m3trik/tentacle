@@ -1,42 +1,18 @@
 # !/usr/bin/python
 # coding=utf-8
 from slots.max import *
+from slots.pivot import Pivot
+from ui.static.max.pivot_ui_max import Pivot_ui_max
 
 
 
 class Pivot(Slots_max):
 	def __init__(self, *args, **kwargs):
 		Slots_max.__init__(self, *args, **kwargs)
+		Pivot_ui_max.__init__(self, *args, **kwargs)
+		Pivot.__init__(self, *args, **kwargs)
 
-		ctx = self.pivot_ui.draggable_header.contextMenu
-		if not ctx.containsMenuItems:
-			ctx.add(self.tcl.wgts.ComboBox, setObjectName='cmb000', setToolTip='')
-
-		cmb = self.pivot_ui.draggable_header.contextMenu.cmb000
-		items = ['']
-		cmb.addItems_(items, '')
-
-		ctx = self.pivot_ui.tb000.contextMenu
-		if not ctx.containsMenuItems:
-			ctx.add('QCheckBox', setText='Reset Pivot Position', setObjectName='chk000', setChecked=True, setToolTip='')
-			ctx.add('QCheckBox', setText='Reset Pivot Orientation', setObjectName='chk001', setChecked=True, setToolTip='')
-			ctx.add('QCheckBox', setText='Reset XForm', setObjectName='chk013', setToolTip='')
-
-		ctx = self.pivot_ui.tb001.contextMenu
-		if not ctx.containsMenuItems:
-			ctx.add('QRadioButton', setText='Component', setObjectName='chk002', setToolTip='Center the pivot on the center of the selected component\'s bounding box')
-			ctx.add('QRadioButton', setText='Object', setObjectName='chk003', setChecked=True, setToolTip='Center the pivot on the center of the object\'s bounding box')
-			ctx.add('QRadioButton', setText='World', setObjectName='chk004', setToolTip='Center the pivot on world origin.')
-			ctx.add('QRadioButton', setText='Object Top', setObjectName='chk005', setToolTip='Move the pivot to the top of the object.')
-			ctx.add('QRadioButton', setText='Object Bottom', setObjectName='chk006', setToolTip='Move the pivot to the bottom of the object.')
-			ctx.add('QRadioButton', setText='Object Center Left', setObjectName='chk007', setToolTip='Move the pivot to the center left of the object.')
-			ctx.add('QRadioButton', setText='Object Center Right', setObjectName='chk008', setToolTip='Move the pivot to the center right of the object.')
-			ctx.add('QRadioButton', setText='Object Bottom Left', setObjectName='chk009', setToolTip='Move the pivot to the bottom left of the object.')
-			ctx.add('QRadioButton', setText='Object Bottom Right', setObjectName='chk010', setToolTip='Move the pivot to the bottom right of the object.')
-			ctx.add('QRadioButton', setText='Object Top Left', setObjectName='chk011', setToolTip='Move the pivot to the top left of the object.')
-			ctx.add('QRadioButton', setText='Object Top Right', setObjectName='chk012', setToolTip='Move the pivot to the top right of the object.')
-
-
+		
 	def draggable_header(self, state=None):
 		'''Context menu
 		'''

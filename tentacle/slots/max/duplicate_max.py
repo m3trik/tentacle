@@ -1,20 +1,16 @@
 # !/usr/bin/python
 # coding=utf-8
 from slots.max import *
+from slots.duplicate import Duplicate
+from ui.static.max.duplicate_ui_max import Duplicate_ui_max
 
 
 
 class Duplicate(Slots_max):
 	def __init__(self, *args, **kwargs):
 		Slots_max.__init__(self, *args, **kwargs)
-
-		ctx = self.duplicate_ui.draggable_header.contextMenu
-		if not ctx.containsMenuItems:
-			ctx.add(self.tcl.wgts.ComboBox, setObjectName='cmb000', setToolTip='')
-
-		cmb = self.duplicate_ui.draggable_header.contextMenu.cmb000
-		items = []
-		cmb.addItems_(items, '')
+		Duplicate_ui_max.__init__(self, *args, **kwargs)
+		Duplicate.__init__(self, *args, **kwargs)
 
 
 	def draggable_header(self, state=None):

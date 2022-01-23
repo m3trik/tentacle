@@ -1,27 +1,16 @@
 # !/usr/bin/python
 # coding=utf-8
 from slots.maya import *
+from slots.symmetry import Symmetry
 from ui.static.maya.symmetry_ui_maya import Symmetry_ui_maya
 
 
 
-class Symmetry(Slots_maya):
+class Symmetry_maya(Slots_maya):
 	def __init__(self, *args, **kwargs):
 		Slots_maya.__init__(self, *args, **kwargs)
 		Symmetry_ui_maya.__init__(self, *args, **kwargs)
-
-		#set initial checked state
-		state = pm.symmetricModelling(query=True, symmetry=True) #application symmetry state
-		axis = pm.symmetricModelling(query=True, axis=True)
-		if axis == "x":
-			self.symmetry_ui.chk000.setChecked(state)
-			self.symmetry_submenu_ui.chk000.setChecked(state)
-		if axis == "y":
-			self.symmetry_ui.chk001.setChecked(state)
-			self.symmetry_submenu_ui.chk001.setChecked(state)
-		if axis == "z":
-			self.symmetry_ui.chk002.setChecked(state)
-			self.symmetry_submenu_ui.chk002.setChecked(state)
+		Symmetry.__init__(self, *args, **kwargs)
 
 
 	def draggable_header(self, state=None):

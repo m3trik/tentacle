@@ -20,7 +20,7 @@ class Display_ui_max(Display_ui):
 	def __init__(self, *args, **kwargs):
 		'''
 		:Parameters: 
-			**kwargs (passed in via the switchboard module's 'getClassInstanceFromUiName' method.)
+			**kwargs (inherited from this class's respective slot child class, and originating from switchboard.setClassInstanceFromUiName)
 				properties:
 					tcl (class instance) = The tentacle stacked widget instance. ie. self.tcl
 					<name>_ui (ui object) = The ui of <name> ie. self.polygons for the ui of filename polygons. ie. self.polygons_ui

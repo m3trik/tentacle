@@ -1,16 +1,18 @@
 # !/usr/bin/python
 # coding=utf-8
 from slots.maya import *
+from slots.transform import Transform
 from ui.static.maya.transform_ui_maya import Transform_ui_maya
 
 
 
-class Transform(Slots_maya):
+class Transform_maya(Slots_maya):
 	def __init__(self, *args, **kwargs):
 		'''
 		'''
 		Slots_maya.__init__(self, *args, **kwargs)
 		Transform_ui_maya.__init__(self, *args, **kwargs)
+		Transform.__init__(self, *args, **kwargs)
 
 
 	def draggable_header(self, state=None):

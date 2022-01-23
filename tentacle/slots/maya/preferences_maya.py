@@ -1,14 +1,16 @@
 # !/usr/bin/python
 # coding=utf-8
 from slots.maya import *
+from slots.preferences import Preferences
 from ui.static.maya.preferences_ui_maya import Preferences_ui_maya
 
 
 
-class Preferences(Slots_maya):
+class Preferences_maya(Slots_maya):
 	def __init__(self, *args, **kwargs):
 		Slots_maya.__init__(self, *args, **kwargs)
 		Preferences_ui_maya.__init__(self, *args, **kwargs)
+		Preferences.__init__(self, *args, **kwargs)
 
 		self.preferences_ui.b010.setText('Maya Preferences')
 

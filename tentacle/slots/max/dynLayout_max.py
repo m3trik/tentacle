@@ -1,21 +1,16 @@
 # !/usr/bin/python
 # coding=utf-8
 from slots.max import *
+from slots.dynLayout import DynLayout
+from ui.static.max.dynLayout_ui_max import DynLayout_ui_max
 
 
 
 class DynLayout(Slots_max):
 	def __init__(self, *args, **kwargs):
 		Slots_max.__init__(self, *args, **kwargs)
-
-		ctx = self.dynLayout_ui.draggable_header.contextMenu
-		if not ctx.containsMenuItems:
-			ctx.add(self.tcl.wgts.ComboBox, setObjectName='cmb000', setToolTip='')
-			ctx.add('QPushButton', setText='Delete History', setObjectName='b000', setToolTip='')
-
-		cmb = self.dynLayout_ui.draggable_header.contextMenu.cmb000
-		list_ = []
-		cmb.addItems_(list_, '')
+		DynLayout_ui_max.__init__(self, *args, **kwargs)
+		DynLayout.__init__(self, *args, **kwargs)
 
 
 	def draggable_header(self, state=None):

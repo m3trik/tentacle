@@ -1,69 +1,20 @@
 # !/usr/bin/python
 # coding=utf-8
 from slots.max import *
+from slots.file import File
+from ui.static.max.file_ui_max import File_ui_max
 
 
 
 class File(Slots_max):
 	def __init__(self, *args, **kwargs):
 		Slots_max.__init__(self, *args, **kwargs)
+		File_ui_max.__init__(self, *args, **kwargs)
+		File.__init__(self, *args, **kwargs)
 
 		#set the text for the open last file button to the last file's name.
-		mostRecentFile = File.getRecentFiles(0)
+		mostRecentFile = self.getRecentFiles(0)
 		self.file_submenu_ui.b001.setText(self.getNameFromFullPath(mostRecentFile)) if mostRecentFile else self.file_submenu_ui.b001.setVisible(False)
-
-		ctx = self.file_ui.draggable_header.contextMenu
-		if not ctx.containsMenuItems:
-			ctx.add(self.tcl.wgts.ComboBox, setObjectName='cmb000', setToolTip='')
-			ctx.add(self.tcl.wgts.PushButton, setObjectName='tb000', setText='Save', setToolTip='Save the current file.')
-			ctx.add(self.tcl.wgts.Label, setObjectName='lbl001', setText='Minimize App', setToolTip='Minimize the main application.')
-			ctx.add(self.tcl.wgts.Label, setObjectName='lbl002', setText='Maximize App', setToolTip='Restore the main application.')
-			ctx.add(self.tcl.wgts.Label, setObjectName='lbl003', setText='Close App', setToolTip='Close the main application.')
-
-		cmb = self.file_ui.draggable_header.contextMenu.cmb000
-		items = ['Schematic View']
-		cmb.addItems_(items, '3dsMax File Editors')
-
-		cmb = self.file_ui.cmb002
-		ctx = cmb.contextMenu
-		if not ctx.containsMenuItems:
-			ctx.add('QPushButton', setObjectName='b000', setText='Open Directory', setToolTip='Open the autosave directory.') #open directory
-			ctx.add('QPushButton', setObjectName='b002', setText='Delete All', setToolTip='Delete all autosave files.') #delete all
-			ctx.add('QCheckBox', setText='Autosave', setObjectName='chk006', setChecked=rt.autosave.Enable, setToolTip='Set the autosave state as active or disabled.') #toggle autosave
-			ctx.add('QSpinBox', setPrefix='Amount: ', setObjectName='s000', setMinMax_='1-100 step1', setValue=rt.autosave.NumberOfFiles, setHeight_=20, setToolTip='The number of autosave files to retain.') #autosave amount
-			ctx.add('QSpinBox', setPrefix='Interval: ', setObjectName='s001', setMinMax_='1-60 step1', setValue=rt.autosave.Interval, setHeight_=20, setToolTip='The autosave interval in minutes.') #autosave interval
-			ctx.chk006.toggled.connect(lambda s: rt.autosave.setmxsprop('Enable', s))
-			ctx.s000.valueChanged.connect(lambda v: rt.autosave.setmxsprop('NumberOfFiles', v))
-			ctx.s001.valueChanged.connect(lambda v: rt.autosave.setmxsprop('Interval', v))
-			cmb.addItems_(File.getRecentAutosave(appendDatetime=True), 'Recent Autosave', clear=True)
-
-		cmb = self.file_ui.cmb003
-		cmb.addItems_(['Import file', 'Import Options', 'Merge', 'Replace', 'Link Revit', 'Link FBX', 'Link AutoCAD'], 'Import')
-
-		cmb = self.file_ui.cmb004
-		items = ["Export Selection", "Export Options", "Unreal", "Unity", "GoZ", "Send to Maya: New Scene", "Send to Maya: Update Scene", "Send to Maya: Add to Scene"]
-		cmb.addItems_(items, "Export")
-
-		cmb = self.file_ui.cmb005
-		ctx = cmb.contextMenu
-		if not ctx.containsMenuItems:
-			cmb.addItems_(File.getRecentFiles(), "Recent Files", clear=True)
-			ctx.add('QPushButton', setObjectName='b001', setText='Last', setToolTip='Open the most recent file.')
-
-		ctx = self.file_ui.cmb006.contextMenu
-		if not ctx.containsMenuItems:
-			ctx.add(self.tcl.wgts.ComboBox, setObjectName='cmb001', setToolTip='Current project directory root.')
-			ctx.add(self.tcl.wgts.Label, setObjectName='lbl000', setText='Set', setToolTip='Set the project directory.')
-			ctx.add(self.tcl.wgts.Label, setObjectName='lbl004', setText='Root', setToolTip='Open the project directory.')
-
-		# cmb = self.file_ui.cmb006.contextMenu.cmb001
-		# cmb.addItems_(File.getRecentProjects(), "Recent Projects", clear=True)
-
-		ctx = self.file_ui.draggable_header.contextMenu.tb000.contextMenu
-		if not ctx.containsMenuItems:
-			ctx.add('QCheckBox', setText='Wireframe', setObjectName='chk000', setToolTip='Set view to wireframe before save.')
-			ctx.add('QCheckBox', setText='Increment', setObjectName='chk001', setChecked=True, setToolTip='Append and increment a unique integer value.')
-			ctx.add('QCheckBox', setText='Quit', setObjectName='chk002', setToolTip='Quit after save.')
 
 
 	def draggable_header(self, state=None):
@@ -284,7 +235,7 @@ class File(Slots_max):
 	def b002(self):
 		'''Autosave: Delete All
 		'''
-		files = File.getRecentAutosave()
+		files = self.getRecentAutosave()
 		for file in files:
 			try:
 				os.remove(file)

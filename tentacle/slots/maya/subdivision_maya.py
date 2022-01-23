@@ -1,14 +1,16 @@
 # !/usr/bin/python
 # coding=utf-8
 from slots.maya import *
+from slots.subdivision import Subdivision
 from ui.static.maya.subdivision_ui_maya import Subdivision_ui_maya
 
 
 
-class Subdivision(Slots_maya):
+class Subdivision_maya(Slots_maya):
 	def __init__(self, *args, **kwargs):
 		Slots_maya.__init__(self, *args, **kwargs)
 		Subdivision_ui_maya.__init__(self, *args, **kwargs)
+		Subdivision.__init__(self, *args, **kwargs)
 
 
 	def draggable_header(self, state=None):

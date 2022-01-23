@@ -1,14 +1,16 @@
 # !/usr/bin/python
 # coding=utf-8
 from slots.maya import *
+from slots.main import Main
 from ui.static.maya.main_ui_maya import Main_ui_maya
 
 
 
-class Main(Slots_maya):
+class Main_maya(Slots_maya):
 	def __init__(self, *args, **kwargs):
 		Slots_maya.__init__(self, *args, **kwargs)
 		Main_ui_maya.__init__(self, *args, **kwargs)
+		Main.__init__(self, *args, **kwargs)
 
 
 	def tree000(self, wItem=None, column=None):

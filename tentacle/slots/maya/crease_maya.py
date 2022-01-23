@@ -1,14 +1,16 @@
 # !/usr/bin/python
 # coding=utf-8
 from slots.maya import *
+from slots.crease import Crease
 from ui.static.maya.crease_ui_maya import Crease_ui_maya
 
 
 
-class Crease(Slots_maya):
+class Crease_maya(Slots_maya):
 	def __init__(self, *args, **kwargs):
 		Slots_maya.__init__(self, *args, **kwargs)
 		Crease_ui_maya.__init__(self, *args, **kwargs)
+		Crease.__init__(self, *args, **kwargs)
 
 		self.creaseValue = 10
 

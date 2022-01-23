@@ -1,24 +1,16 @@
 # !/usr/bin/python
 # coding=utf-8
 from slots.max import *
+from slots.cameras import Cameras
+from ui.static.max.cameras_ui_max import Cameras_ui_max
 
 
 
 class Cameras(Slots_max):
 	def __init__(self, *args, **kwargs):
 		Slots_max.__init__(self, *args, **kwargs)
-
-		self.cameras_lower_ui = self.tcl.sb.getUi('cameras_lower_submenu')
-
-		tree = self.cameras_lower_submenu_ui.tree000
-		tree.expandOnHover = True
-		tree.convert(tree.getTopLevelItems(), 'QLabel') #convert any existing contents.
-
-		l = []
-		[tree.add('QLabel', 'Editors', setText=s) for s in l]
-
-		l = ['Create Camera Point']
-		[tree.add('QLabel', 'Options', setText=s) for s in l]
+		Cameras_ui_max.__init__(self, *args, **kwargs)
+		Cameras.__init__(self, *args, **kwargs)
 
 
 	@property

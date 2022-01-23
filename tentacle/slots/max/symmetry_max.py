@@ -1,33 +1,16 @@
 # !/usr/bin/python
 # coding=utf-8
 from slots.max import *
+from slots.symmetry import Symmetry
+from ui.static.max.symmetry_ui_max import Symmetry_ui_max
 
 
 
 class Symmetry(Slots_max):
 	def __init__(self, *args, **kwargs):
 		Slots_max.__init__(self, *args, **kwargs)
-
-		#symmetry: set initial checked state
-		# state = pm.symmetricModelling(query=True, symmetry=True) #application symmetry state
-		# axis = pm.symmetricModelling(query=True, axis=True)
-		# if axis == "x":
-		# 	self.symmetry_ui.chk000.setChecked(state)
-		# 	self.symmetry_submenu_ui.chk000.setChecked(state)
-		# if axis == "y":
-		# 	self.symmetry_ui.chk001.setChecked(state)
-		# 	self.symmetry_submenu_ui.chk001.setChecked(state)
-		# if axis == "z":
-		# 	self.symmetry_ui.chk002.setChecked(state)
-		# 	self.symmetry_submenu_ui.chk002.setChecked(state)
-
-		ctx = self.symmetry_ui.draggable_header.contextMenu
-		if not ctx.containsMenuItems:
-			ctx.add(self.tcl.wgts.ComboBox, setObjectName='cmb000', setToolTip='')
-
-		cmb = self.symmetry_ui.draggable_header.contextMenu.cmb000
-		items = ['']
-		cmb.addItems_(items, '')
+		Symmetry_ui_max.__init__(self, *args, **kwargs)
+		Symmetry.__init__(self, *args, **kwargs)
 
 
 	def draggable_header(self, state=None):

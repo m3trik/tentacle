@@ -1,14 +1,16 @@
 # !/usr/bin/python
 # coding=utf-8
 from slots.maya import *
+from slots.uv import Uv
 from ui.static.maya.uv_ui_maya import Uv_ui_maya
 
 
 
-class Uv(Slots_maya):
+class Uv_maya(Slots_maya):
 	def __init__(self, *args, **kwargs):
 		Slots_maya.__init__(self, *args, **kwargs)
 		Uv_ui_maya.__init__(self, *args, **kwargs)
+		Uv.__init__(self, *args, **kwargs)
 
 		Slots_maya.loadPlugin('Unfold3D.mll')
 
