@@ -1,9 +1,10 @@
 # !/usr/bin/python
 # coding=utf-8
+from slots import Slots
 
 
 
-class Subdivision():
+class Subdivision(Slots):
 	'''
 	'''
 	def __init__(self, *args, **kwargs):
@@ -18,3 +19,9 @@ class Subdivision():
 					'<name>' (lambda function) = Returns the class instance of that name.  ie. self.polygons()
 		'''
 	
+
+	def draggable_header(self, state=None):
+		'''Context menu
+		'''
+		dh = self.subdivision_ui.draggable_header
+

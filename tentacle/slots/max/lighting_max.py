@@ -2,15 +2,17 @@
 # coding=utf-8
 from slots.max import *
 from slots.lighting import Lighting
-from ui.static.max.lighting_ui_max import Lighting_ui_max
 
 
 
-class Lighting(Slots_max):
+class Lighting_max(Lighting):
 	def __init__(self, *args, **kwargs):
 		Slots_max.__init__(self, *args, **kwargs)
-		Lighting_ui_max.__init__(self, *args, **kwargs)
 		Lighting.__init__(self, *args, **kwargs)
+
+		cmb = self.lighting_ui.draggable_header.contextMenu.cmb000
+		items = ['']
+		cmb.addItems_(items, '')
 
 
 	def draggable_header(self, state=None):

@@ -2,15 +2,30 @@
 # coding=utf-8
 from slots.max import *
 from slots.selection import Selection
-from ui.static.max.selection_ui_max import Selection_ui_max
 
 
 
-class Selection(Slots_max):
+class Selection_max(Selection):
 	def __init__(self, *args, **kwargs):
 		Slots_max.__init__(self, *args, **kwargs)
-		Selection_ui_max.__init__(self, *args, **kwargs)
 		Selection.__init__(self, *args, **kwargs)
+
+		cmb = self.selection_ui.draggable_header.contextMenu.cmb000
+		items = ['Selection Set Editor']
+		cmb.addItems_(items, 'Selection Editors:')
+
+		cmb = self.selection_ui.cmb002
+		items = ['Geometry', 'Shapes', 'Lights', 'Cameras', 'Helpers', 'Space Warps', 'Particle Systems', 'Bone Objects']
+		cmb.addItems_(items, 'Select by Type:')
+
+		cmb = self.selection_ui.cmb003
+		items = ['Vertex', 'Edge', 'Border', 'Face', 'Element']
+		cmb.addItems_(items, 'Convert To:')
+
+		cmb = self.selection_ui.cmb005
+		items = ['Angle', 'Border', 'Edge Loop', 'Edge Ring', 'Shell', 'UV Edge Loop']
+		cmb.addItems_(items, 'Off')
+
 
 	@property
 	def currentSelection(self):
@@ -36,12 +51,6 @@ class Selection(Slots_max):
 			s = Slots_max.getComponents(sel[0], 'faces', selection=True)
 
 		return rt.array(*s) #unpack list s and convert to an array.
-
-
-	def draggable_header(self, state=None):
-		'''Context menu
-		'''
-		dh = self.selection_ui.draggable_header
 
 
 	def txt001(self):
@@ -135,54 +144,6 @@ class Selection(Slots_max):
 		rt.redrawViews()
 
 
-	def s002(self, value=None):
-		'''Select Island: tolerance x
-		'''
-		tb = self.selection_ui.tb002
-		if tb.contextMenu.chk003.isChecked():
-			text = tb.contextMenu.s002.value()
-			tb.contextMenu.s004.setValue(text)
-			tb.contextMenu.s005.setValue(text)
-
-
-	def s004(self, value=None):
-		'''Select Island: tolerance y
-		'''
-		tb = self.selection_ui.tb002
-		if tb.contextMenu.chk003.isChecked():
-			text = tb.contextMenu.s004.value()
-			tb.contextMenu.s002.setValue(text)
-			tb.contextMenu.s005.setValue(text)
-
-
-	def s005(self, value=None):
-		'''Select Island: tolerance z
-		'''
-		tb = self.selection_ui.tb002
-		if tb.contextMenu.chk003.isChecked():
-			text = tb.contextMenu.s005.value()
-			tb.contextMenu.s002.setValue(text)
-			tb.contextMenu.s004.setValue(text)
-
-
-	def chk000(self, state=None):
-		'''Select Nth: uncheck other checkboxes
-		'''
-		self.toggleWidgets(setUnChecked='chk001-2')
-
-
-	def chk001(self, state=None):
-		'''Select Nth: uncheck other checkboxes
-		'''
-		self.toggleWidgets(setUnChecked='chk000,chk002')
-
-
-	def chk002(self, state=None):
-		'''Select Nth: uncheck other checkboxes
-		'''
-		self.toggleWidgets(setUnChecked='chk000-1')
-
-
 	@Slots.message
 	def chk004(self, state=None):
 		'''Ignore Backfacing (Camera Based Selection)
@@ -194,52 +155,6 @@ class Selection(Slots_max):
 			else:
 				sel.ignoreBackfacing = False
 				return 'Camera-based selection <hl>Off</hl>.'
-
-
-	# @Slots.message
-	def chk005(self, state=None):
-		'''Select Style: Marquee
-		'''
-		self.toggleWidgets(setChecked='chk005', setUnChecked='chk006-7')
-		Selection.setSelectionStyle('marquee')
-		return 'Select Style: <hl>Marquee</hl>'
-
-
-	# @Slots.message
-	def chk006(self, state=None):
-		'''Select Style: Lasso
-		'''
-		self.toggleWidgets(setChecked='chk006', setUnChecked='chk005,chk007')
-		Selection.setSelectionStyle('lasso')
-		return 'Select Style: <hl>Lasso</hl>'
-
-
-	# @Slots.message
-	def chk007(self, state=None):
-		'''Select Style: Paint
-		'''
-		self.toggleWidgets(setChecked='chk007', setUnChecked='chk005-6')
-		Selection.setSelectionStyle('paint')
-		return 'Select Style: <hl>Paint</hl>'
-
-
-	@staticmethod
-	def setSelectionStyle(ctx):
-		'''Set the selection style context.
-
-		:Parameters:
-			ctx (str) = Selection style context. Possible values include: 'marquee', 'circular', 'fence', 'lasso', 'paint'.
-		'''
-		if ctx=='marquee':
-			maxEval('actionMan.executeAction 0 "59232"') #Rectangular select region
-		elif ctx=='circular':
-			maxEval('actionMan.executeAction 0 "59233"') #Circular select region
-		elif ctx=='fence':
-			maxEval('actionMan.executeAction 0 "59234"') #Fence select region
-		elif ctx=='lasso':
-			maxEval('actionMan.executeAction 0 "59235"') #Lasso select region
-		elif ctx=='paint':
-			maxEval('actionMan.executeAction 0 "59236"') #Paint select region
 
 
 	@Slots.message
@@ -271,7 +186,7 @@ class Selection(Slots_max):
 		'''
 		cmb = self.selection_ui.cmb001
 
-		sets_ = Selection.getSelectionSets(rt.geometry)
+		sets_ = self.getSelectionSets(rt.geometry)
 		cmb.addItems_([s for s in sets_], clear=True)
 
 
@@ -449,6 +364,24 @@ class Selection(Slots_max):
 		rt.select(edges)
 
 
+	def setSelectionStyle(self, ctx):
+		'''Set the selection style context.
+
+		:Parameters:
+			ctx (str) = Selection style context. Possible values include: 'marquee', 'circular', 'fence', 'lasso', 'paint'.
+		'''
+		if ctx=='marquee':
+			maxEval('actionMan.executeAction 0 "59232"') #Rectangular select region
+		elif ctx=='circular':
+			maxEval('actionMan.executeAction 0 "59233"') #Circular select region
+		elif ctx=='fence':
+			maxEval('actionMan.executeAction 0 "59234"') #Fence select region
+		elif ctx=='lasso':
+			maxEval('actionMan.executeAction 0 "59235"') #Lasso select region
+		elif ctx=='paint':
+			maxEval('actionMan.executeAction 0 "59236"') #Paint select region
+
+
 	def generateUniqueSetName(self):
 		'''Generate a generic name based on the object's name.
 
@@ -478,7 +411,7 @@ class Selection(Slots_max):
 				try: #object level set.
 					rt.selectionSets[name] = sel #create a standard object set.
 				except IndexError: #sub-object level set.
-					set_array = Selection.getSetArray(rt.selection[0], rt.subObjectLevel) #ie. rt.selection[0].faces
+					set_array = self.getSetArray(rt.selection[0], rt.subObjectLevel) #ie. rt.selection[0].faces
 					set_array[name] = sel #create a sub-object level set for the selected currently selected components.
 			else:
 				return 'Error: Nothing selected.'
@@ -529,7 +462,7 @@ class Selection(Slots_max):
 		'''
 		if not objects:
 			objects = rt.geometry
-		sets = Selection.getSelectionSets(objects)
+		sets = self.getSelectionSets(objects)
 
 		try:
 			if index in ('set', 0):
@@ -546,8 +479,7 @@ class Selection(Slots_max):
 		return value
 
 
-	@staticmethod
-	def getSelectionSets(objects=[], includeEmptySets=True):
+	def getSelectionSets(self, objects=[], includeEmptySets=True):
 		'''Get selection sets for a group of objects in the given list.
 		Returns Object and Sub-Object Level sets.
 
@@ -563,16 +495,15 @@ class Selection(Slots_max):
 		sets={}
 		for level in [0,1,2,4]: #range(5) omitting 'borders' because of attribute error: <obj.borders>
 			for obj in objects:
-				_sets = Selection.selectionSets(obj, level)
+				_sets = self.selectionSets(obj, level)
 				for setName, set_ in _sets.items():
-					set_array = Selection.getSetArray(obj, level)
+					set_array = self.getSetArray(obj, level)
 					sets[str(setName)] = [set_, obj, level, set_array]
 
 		return sets
 
 
-	@staticmethod
-	def getSetArray(obj=None, index=0):
+	def getSetArray(self, obj=None, index=0):
 		'''Get the array containing a set by array type.
 
 		:Parameters:
@@ -592,8 +523,7 @@ class Selection(Slots_max):
 		return _set_array
 
 
-	@staticmethod
-	def selectionSets(obj=None, level=None):
+	def selectionSets(self, obj=None, level=None):
 		'''Gets any existing selection sets for the given object.
 
 		:Parameters:
@@ -606,7 +536,7 @@ class Selection(Slots_max):
 		if level is None: #if level isn't given:
 			level = rt.subObjectLevel #use the current object level.
 
-		set_array = Selection.getSetArray(obj, level)
+		set_array = self.getSetArray(obj, level)
 
 		try:
 			if obj is None: #empty sets

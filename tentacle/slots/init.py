@@ -1,9 +1,10 @@
 # !/usr/bin/python
 # coding=utf-8
+from slots import Slots
 
 
 
-class Init():
+class Init(Slots):
 	'''
 	'''
 	def __init__(self, *args, **kwargs):

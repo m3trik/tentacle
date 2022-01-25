@@ -2,21 +2,17 @@
 # coding=utf-8
 from slots.maya import *
 from slots.normals import Normals
-from ui.static.maya.normals_ui_maya import Normals_ui_maya
 
 
 
-class Normals_maya(Slots_maya):
+class Normals_maya(Normals):
 	def __init__(self, *args, **kwargs):
 		Slots_maya.__init__(self, *args, **kwargs)
-		Normals_ui_maya.__init__(self, *args, **kwargs)
 		Normals.__init__(self, *args, **kwargs)
 
-
-	def draggable_header(self, state=None):
-		'''Context menu
-		'''
-		dh = self.normals_ui.draggable_header
+		cmb = self.normals_ui.draggable_header.contextMenu.cmb000
+		items = ['']
+		cmb.addItems_(items, '')
 
 
 	def cmb000(self, index=-1):

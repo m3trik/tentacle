@@ -2,15 +2,20 @@
 # coding=utf-8
 from slots.max import *
 from slots.cameras import Cameras
-from ui.static.max.cameras_ui_max import Cameras_ui_max
 
 
 
-class Cameras(Slots_max):
+class Cameras_max(Cameras):
 	def __init__(self, *args, **kwargs):
 		Slots_max.__init__(self, *args, **kwargs)
-		Cameras_ui_max.__init__(self, *args, **kwargs)
 		Cameras.__init__(self, *args, **kwargs)
+
+		tree = self.cameras_lower_submenu_ui.tree000
+		l = []
+		[tree.add('QLabel', 'Editors', setText=s) for s in l]
+
+		l = ['Create Camera Point']
+		[tree.add('QLabel', 'Options', setText=s) for s in l]
 
 
 	@property
@@ -22,7 +27,6 @@ class Cameras(Slots_max):
 		'''
 		if not hasattr(self, '_clippingMenu'):
 			self._clippingMenu = wgts.Menu(self.cameras_ui, position='cursorPos')
-
 			self._clippingMenu.add(self.tcl.wgts.Label, setText='Viewport Clip', setObjectName='lbl000', setToolTip='Toggle the clipping controls for the current viewport camera.')
 			self._clippingMenu.add('QPushButton', setText='Auto Clip', setObjectName='chk000', setCheckable=True, setToolTip='When Auto Clip is ON, geometry closer to the camera than 3 units is not displayed. Turn OFF to manually define.')
 			self._clippingMenu.add('QDoubleSpinBox', setPrefix='Far Clip:  ', setObjectName='s000', setMinMax_='.01-10 step.1', setToolTip='Adjust the current cameras near clipping plane.')
@@ -179,19 +183,9 @@ class Cameras(Slots_max):
 		'''Cameras: Align View
 		'''
 		maxEval('''
-		max vpt iso user
-		max align camera
+			max vpt iso user
+			max align camera
 		''')
-
-
-	def v008(self):
-		''''''
-		pass
-
-
-	def v009(self):
-		''''''
-		pass
 
 
 	def v010(self):
@@ -218,18 +212,7 @@ class Cameras(Slots_max):
 		maxEval("max pancamera")
 
 
-	def v014(self):
-		''''''
-		pass
-
-
-	def v015(self):
-		''''''
-		pass
-
-
-	@staticmethod
-	def groupCameras():
+	def groupCameras(self):
 		'''Group Cameras
 		'''
 		cameras = [cam for cam in rt.cameras] #List scene Cameras

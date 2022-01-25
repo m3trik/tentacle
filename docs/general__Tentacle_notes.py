@@ -191,9 +191,22 @@ def tree000(self, wItem=None, column=None):
 
 
 # ======================================================================
-	'KNOWN BUGS'
+	'KNOWN BUGS AND GENERAL TO-DO'
 # ======================================================================
 '''
+add: maya selection: camera based selection
+selectPref -useDepth true;
+
+
+# Traceback (most recent call last):
+#   File "O:/Cloud/Code/_scripts/tentacle\tentacle\slots\maya\crease_maya.py", line 50, in tb000
+#     pm.polySoftEdge (angle=0, constructionHistory=0) #Harden edge normal
+#   File "C:\Program Files\Autodesk\Maya2022\Python37\lib\site-packages\pymel\core\modeling.py", line 987, in polySoftEdge
+#     res = cmds.polySoftEdge(*args, **kwargs)
+#   File "C:\Program Files\Autodesk\Maya2022\Python37\lib\site-packages\pymel\internal\pmcmds.py", line 217, in polySoftEdge_wrapped
+#     res = new_cmd(*new_args, **new_kwargs)
+# TypeError: Error retrieving default arguments
+
 
 # Traceback (most recent call last):
 #   File "O:/Cloud/Code/_scripts/tentacle\tentacle\slots\__init__.py", line 499, in wrapper

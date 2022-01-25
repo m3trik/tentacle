@@ -1,9 +1,10 @@
 # !/usr/bin/python
 # coding=utf-8
+from slots import Slots
 
 
 
-class Preferences():
+class Preferences(Slots):
 	'''
 	'''
 	def __init__(self, *args, **kwargs):
@@ -17,3 +18,21 @@ class Preferences():
 					current (lambda function) = Returns the current ui if it is either the parent or a child ui for the class; else, return the parent ui. ie. self.current()
 					'<name>' (lambda function) = Returns the class instance of that name.  ie. self.polygons()
 		'''
+		ctx = self.preferences_ui.draggable_header.contextMenu
+		if not ctx.containsMenuItems:
+			ctx.add(self.tcl.wgts.ComboBox, setObjectName='cmb000', setToolTip='')
+
+
+	def draggable_header(self, state=None):
+		'''Context menu
+		'''
+		dh = self.preferences_ui.draggable_header
+
+
+	def cmb003(self, index=-1):
+		'''Ui Style: Set main ui style using QStyleFactory
+		'''
+		cmb = self.preferences_ui.cmb003
+
+		if index>0:
+			self.tcl.qApp.setStyle(cmb.items[index])

@@ -2,16 +2,14 @@
 # coding=utf-8
 from slots.maya import *
 from slots.init import Init
-from ui.static.maya.init_ui_maya import Init_ui_maya
 
 
 
-class Init_maya(Slots_maya):
+class Init_maya(Init):
 	'''
 	'''
 	def __init__(self, *args, **kwargs):
 		Slots_maya.__init__(self, *args, **kwargs)
-		Init_ui_maya.__init__(self, *args, **kwargs)
 		Init.__init__(self, *args, **kwargs)
 
 		try:

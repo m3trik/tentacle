@@ -2,21 +2,38 @@
 # coding=utf-8
 from slots.max import *
 from slots.subdivision import Subdivision
-from ui.static.max.subdivision_ui_max import Subivision_ui_max
 
 
 
-class Subdivision(Slots_max):
+class Subdivision_max(Subdivision):
 	def __init__(self, *args, **kwargs):
 		Slots_max.__init__(self, *args, **kwargs)
-		Subdivision_ui_max.__init__(self, *args, **kwargs)
 		Subdivision.__init__(self, *args, **kwargs)
 
+		#Set 3ds Max specific naming
+		self.subdivision_ui.gb000.setTitle('TurboSmooth')
+		self.subdivision_ui.s000.setPrefix('Iterations:  ')
+		self.subdivision_ui.s001.setPrefix('RenderIters: ')
+		self.subdivision_ui.s000.setValue(0)
+		self.subdivision_ui.s001.setValue(0)
 
-	def draggable_header(self, state=None):
-		'''Context menu
-		'''
-		dh = self.subdivision_ui.draggable_header
+		ctx = self.subdivision_ui.draggable_header.contextMenu
+		if not ctx.containsMenuItems:
+			ctx.add(self.tcl.wgts.ComboBox, setObjectName='cmb000', setToolTip='Max Subdivision Editiors.')
+			# ctx.add(self.tcl.wgts.ComboBox, setObjectName='cmb001', setToolTip='Smooth Proxy.')
+			# ctx.add(self.tcl.wgts.ComboBox, setObjectName='cmb002', setToolTip='Maya Subdivision Operations.')
+
+		cmb = self.subdivision_ui.draggable_header.contextMenu.cmb000
+		items = ['TurboSmooth','TurboSmooth Pro','OpenSubDiv','Subdivide','Subdivide (WSM)','MeshSmooth','Optimize','Pro Optimizer','Add Divisions']
+		cmb.addItems_(items, '3dsMax Subdivision Modifiers')
+
+		# cmb = self.subdivision_ui.draggable_header.contextMenu.cmb001
+		# items = ['Create Subdiv Proxy','Remove Subdiv Proxy Mirror','Crease Tool','Toggle Subdiv Proxy Display', 'Both Proxy and Subdiv Display']
+		# cmb.addItems_(items, 'Smooth Proxy')
+
+		# cmb = self.subdivision_ui.draggable_header.contextMenu.cmb002
+		# items = ['Reduce Polygons','Add Divisions','Smooth']
+		# cmb.addItems_(items, 'Maya Subdivision Operations')
 
 
 	def cmb000(self, index=-1):

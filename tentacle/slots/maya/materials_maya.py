@@ -2,25 +2,25 @@
 # coding=utf-8
 from slots.maya import *
 from slots.materials import Materials
-from ui.static.maya.materials_ui_maya import Materials_ui_maya
 
 
 
-class Materials_maya(Slots_maya):
+class Materials_maya(Materials):
 	def __init__(self, *args, **kwargs):
 		Slots_maya.__init__(self, *args, **kwargs)
-		Materials_ui_maya.__init__(self, *args, **kwargs)
 		Materials.__init__(self, *args, **kwargs)
 
 		self.randomMat=None
 
 		self.materials_submenu_ui.b003.setVisible(False)
 
+		ctx = self.materials_ui.draggable_header.contextMenu
+		if not ctx.containsMenuItems:
+			ctx.add(self.tcl.wgts.Label, setText='Material Attributes', setObjectName='lbl004', setToolTip='Show the material attributes in the attribute editor.')
 
-	def draggable_header(self, state=None):
-		'''Context menu
-		'''
-		dh = self.materials_ui.draggable_header
+		cmb = self.materials_ui.draggable_header.contextMenu.cmb000
+		items = ['Hypershade']
+		cmb.addItems_(items, 'Material Editors')
 
 
 	def cmb000(self, index=-1):
@@ -209,30 +209,6 @@ class Materials_maya(Slots_maya):
 		self.materials_ui.cmb002.contextMenu.cmb001.setCurrentIndex(0) #set the combobox to show all scene materials
 		self.cmb002() #refresh the materials list comboBox
 		self.materials_ui.cmb002.setCurrentIndex(self.materials_ui.cmb002.items.index(mat.name()))
-
-
-	def b003(self):
-		'''Assign: Assign Current
-		'''
-		self.materials_ui.tb002.contextMenu.chk007.setChecked(True)
-		self.materials_ui.tb002.setText('Assign Current')
-		self.tb002()
-
-
-	def b004(self):
-		'''Assign: Assign Random
-		'''
-		self.materials_ui.tb002.contextMenu.chk008.setChecked(True)
-		self.materials_ui.tb002.setText('Assign Random')
-		self.tb002()
-
-
-	def b005(self):
-		'''Assign: Assign New
-		'''
-		self.materials_ui.tb002.contextMenu.chk009.setChecked(True)
-		self.materials_ui.tb002.setText('Assign New')
-		self.tb002()
 
 
 	def getColorSwatchIcon(self, mat, size=[20, 20]):

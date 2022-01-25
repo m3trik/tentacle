@@ -2,20 +2,28 @@
 # coding=utf-8
 from slots.maya import *
 from slots.selection import Selection
-from ui.static.maya.selection_ui_maya import Selection_ui_maya
 
 
-class Selection_maya(Slots_maya):
+class Selection_maya(Selection):
 	def __init__(self, *args, **kwargs):
 		Slots_maya.__init__(self, *args, **kwargs)
-		Selection_ui_maya.__init__(self, *args, **kwargs)
 		Selection.__init__(self, *args, **kwargs)
 
+		cmb = self.selection_ui.draggable_header.contextMenu.cmb000
+		items = ['Polygon Selection Constraints']
+		cmb.addItems_(items, 'Selection Editors:')
 
-	def draggable_header(self, state=None):
-		'''Context menu
-		'''
-		dh = self.selection_ui.draggable_header
+		cmb = self.selection_ui.cmb002
+		items = ['IK Handles','Joints','Clusters','Lattices','Sculpt Objects','Wires','Transforms','Geometry','NURBS Curves','NURBS Surfaces','Polygon Geometry','Cameras','Lights','Image Planes','Assets','Fluids','Particles','Rigid Bodies','Rigid Constraints','Brushes','Strokes','Dynamic Constraints','Follicles','nCloths','nParticles','nRigids']
+		cmb.addItems_(items, 'By Type:')
+
+		cmb = self.selection_ui.cmb003
+		items = ['Verts', 'Vertex Faces', 'Vertex Perimeter', 'Edges', 'Edge Loop', 'Edge Ring', 'Contained Edges', 'Edge Perimeter', 'Border Edges', 'Faces', 'Face Path', 'Contained Faces', 'Face Perimeter', 'UV\'s', 'UV Shell', 'UV Shell Border', 'UV Perimeter', 'UV Edge Loop', 'Shell', 'Shell Border'] 
+		cmb.addItems_(items, 'Convert To:')
+
+		cmb = self.selection_ui.cmb005
+		items = ['Angle', 'Border', 'Edge Loop', 'Edge Ring', 'Shell', 'UV Edge Loop']
+		items = cmb.addItems_(items, 'Off')
 
 
 	def txt001(self):
@@ -90,54 +98,6 @@ class Selection_maya(Slots_maya):
 			pm.select(name) # pm.select(name, noExpand=1) #Select The Selection Set Itself (Not Members Of) (noExpand=select set)
 
 
-	def s002(self, value=None):
-		'''Select Island: tolerance x
-		'''
-		tb = self.selection_ui.tb002
-		if tb.contextMenu.chk003.isChecked():
-			text = tb.contextMenu.s002.value()
-			tb.contextMenu.s004.setValue(text)
-			tb.contextMenu.s005.setValue(text)
-
-
-	def s004(self, value=None):
-		'''Select Island: tolerance y
-		'''
-		tb = self.selection_ui.tb002
-		if tb.contextMenu.chk003.isChecked():
-			text = tb.contextMenu.s004.value()
-			tb.contextMenu.s002.setValue(text)
-			tb.contextMenu.s005.setValue(text)
-
-
-	def s005(self, value=None):
-		'''Select Island: tolerance z
-		'''
-		tb = self.selection_ui.tb002
-		if tb.contextMenu.chk003.isChecked():
-			text = tb.contextMenu.s005.value()
-			tb.contextMenu.s002.setValue(text)
-			tb.contextMenu.s004.setValue(text)
-
-
-	def chk000(self, state=None):
-		'''Select Nth: uncheck other checkboxes
-		'''
-		self.toggleWidgets(setUnChecked='chk001-2')
-
-
-	def chk001(self, state=None):
-		'''Select Nth: uncheck other checkboxes
-		'''
-		self.toggleWidgets(setUnChecked='chk000,chk002')
-
-
-	def chk002(self, state=None):
-		'''Select Nth: uncheck other checkboxes
-		'''
-		self.toggleWidgets(setUnChecked='chk000-1')
-
-
 	@Slots.hideMain
 	@Slots.message
 	def chk004(self, state=None):
@@ -161,33 +121,6 @@ class Selection_maya(Slots_maya):
 		else:
 			pm.softSelect(edit=1, softSelectEnabled=False)
 			return 'Soft Select <hl>Off</hl>.'
-
-
-	# @Slots.message
-	def chk005(self, state=None):
-		'''Select Style: Marquee
-		'''
-		self.toggleWidgets(setChecked='chk005', setUnChecked='chk006-7')
-		Selection.setSelectionStyle('marquee')
-		return 'Select Style: <hl>Marquee</hl>'
-
-
-	# @Slots.message
-	def chk006(self, state=None):
-		'''Select Style: Lasso
-		'''
-		self.toggleWidgets(setChecked='chk006', setUnChecked='chk005,chk007')
-		Selection.setSelectionStyle('lasso')
-		return 'Select Style: <hl>Lasso</hl>'
-
-
-	# @Slots.message
-	def chk007(self, state=None):
-		'''Select Style: Paint
-		'''
-		self.toggleWidgets(setChecked='chk007', setUnChecked='chk005-6')
-		Selection.setSelectionStyle('paint')
-		return 'Select Style: <hl>Paint</hl>'
 
 
 	@staticmethod

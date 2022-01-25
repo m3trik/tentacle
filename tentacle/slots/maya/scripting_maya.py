@@ -2,21 +2,17 @@
 # coding=utf-8
 from slots.maya import *
 from slots.scripting import Scripting
-from ui.static.maya.scripting_ui_maya import Scripting_ui_maya
 
 
 
-class Scripting_maya(Slots_maya):
+class Scripting_maya(Scripting):
 	def __init__(self, *args, **kwargs):
 		Slots_maya.__init__(self, *args, **kwargs)
-		Scripting_ui_maya.__init__(self, *args, **kwargs)
 		Scripting.__init__(self, *args, **kwargs)
 
-
-	def draggable_header(self, state=None):
-		'''Context menu
-		'''
-		dh = self.scripting_ui.draggable_header
+		cmb = self.scripting_ui.draggable_header.contextMenu.cmb000
+		files = ['']
+		contents = cmb.addItems_(files, '')
 
 
 	def cmb000(self, index=-1):
@@ -28,15 +24,6 @@ class Scripting_maya(Slots_maya):
 			if index==cmd.items.index(''):
 				pass
 			cmb.setCurrentIndex(0)
-
-
-	def chk000(self, state=None):
-		'''Toggle Mel/Python
-		'''
-		if self.scripting_ui.chk000.isChecked():
-			self.scripting_ui.chk000.setText("python")
-		else:
-			self.scripting_ui.chk000.setText("MEL")
 
 
 	def b000(self):

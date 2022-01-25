@@ -2,35 +2,34 @@
 # coding=utf-8
 from slots.maya import *
 from slots.create import Create
-from ui.static.maya.create_ui_maya import Create_ui_maya
 
 
 
-class Create_maya(Slots_maya):
+class Create_maya(Create):
 	def __init__(self, *args, **kwargs):
 		Slots_maya.__init__(self, *args, **kwargs)
-		Create_ui_maya.__init__(self, *args, **kwargs)
 		Create.__init__(self, *args, **kwargs)
 
+		ctx = self.create_ui.draggable_header.contextMenu
+		if not ctx.containsMenuItems:
+			ctx.add(self.tcl.wgts.ComboBox, setObjectName='cmb000', setToolTip='')
 
-	def createPrimitive(self, catagory1, catagory2):
-		'''ie. createPrimitive('Polygons', 'Cube')
-		:Parameters:
-			type1 (str) = 
-			type2 (str) = 
-		'''
-		cmb001 = self.create_ui.cmb001
-		cmb002 = self.create_ui.cmb002
+		cmb = self.create_ui.draggable_header.contextMenu.cmb000
+		list_ = ['']
+		cmb.addItems_(list_, '')
 
-		cmb001.setCurrentIndex(cmb001.findText(catagory1))
-		cmb002.setCurrentIndex(cmb002.findText(catagory2))
-		self.tb000()
+		cmb = self.create_ui.cmb001
+		list_ = ['Polygon', 'NURBS', 'Light']
+		cmb.addItems_(list_)
 
+		cmb = self.create_ui.cmb002
+		list_ = ["Cube", "Sphere", "Cylinder", "Plane", "Circle", "Cone", "Pyramid", "Torus", "Tube", "GeoSphere", "Platonic Solids", "Text"]
+		cmb.addItems_(list_)
 
-	def draggable_header(self, state=None):
-		'''Context menu
-		'''
-		dh = self.create_ui.draggable_header
+		ctx = self.create_ui.tb000.contextMenu
+		if not ctx.containsMenuItems:
+			ctx.add('QCheckBox', setText='Translate', setObjectName='chk000', setChecked=True, setToolTip='Move the created object to the center point of any selected object(s).')
+			ctx.add('QCheckBox', setText='Scale', setObjectName='chk001', setChecked=True, setToolTip='Uniformly scale the created object to match the averaged scale of any selected object(s).')
 
 
 	def cmb000(self, index=-1):
@@ -165,30 +164,6 @@ class Create_maya(Slots_maya):
 		pm.select(node) #select the transform node so that you can see any edits
 
 		return self.getHistoryNode(node)
-
-
-	def b001(self):
-		'''Create poly cube
-		'''
-		self.createPrimitive('Polygon', 'Cube')
-
-
-	def b002(self):
-		'''Create poly sphere
-		'''
-		self.createPrimitive('Polygon', 'Sphere')
-
-
-	def b003(self):
-		'''Create poly cylinder
-		'''
-		self.createPrimitive('Polygon', 'Cylinder')
-
-
-	def b004(self):
-		'''Create poly plane
-		'''
-		self.createPrimitive('Polygon', 'Plane')
 
 
 	@Slots_maya.undoChunk

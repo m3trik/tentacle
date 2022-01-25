@@ -2,21 +2,27 @@
 # coding=utf-8
 from slots.max import *
 from slots.edit import Edit
-from ui.static.max.edit_ui_max import Edit_ui_max
 
 
 
-class Edit(Slots_max):
+class Edit_max(Edit):
 	def __init__(self, *args, **kwargs):
 		Slots_max.__init__(self, *args, **kwargs)
-		Edit_ui_max.__init__(self, *args, **kwargs)
 		Edit.__init__(self, *args, **kwargs)
 
-		
-	def draggable_header(self, state=None):
-		'''Context menu
-		'''
-		dh = self.edit_ui.draggable_header
+		cmb = self.edit_ui.draggable_header.contextMenu.cmb000
+		items = []
+		cmb.addItems_(items, 'Max Editors')
+
+		ctx = self.edit_ui.tb000.contextMenu
+		if not ctx.containsMenuItems:
+			ctx.add('QCheckBox', setText='N-Gons', setObjectName='chk002', setToolTip='Find N-gons.')
+			ctx.add('QCheckBox', setText='Isolated Vertex', setObjectName='chk003', setChecked=True, setToolTip='Find isolated vertices within specified angle threshold.')
+			ctx.add('QSpinBox', setPrefix='Loose Vertex Angle: ', setObjectName='s006', setMinMax_='1-360 step1', setValue=15, setToolTip='Loose vertex search: Angle Threshold.')
+			ctx.add('QCheckBox', setText='Repair', setObjectName='chk004', setToolTip='Repair matching geometry. (else: select)')
+
+		ctx = self.edit_ui.tb002.contextMenu
+		ctx.chk000.setDisabled(True) #disable: Delete Edge Ring.
 
 
 	def cmb000(self, index=-1):
@@ -51,13 +57,6 @@ class Edit(Slots_max):
 				objName, attrName = cmb.items[index].split('.')
 				obj = rt.getNodeByName(objName)
 				return getattr(obj, attrName)
-
-
-	def chk006_9(self):
-		'''Set the toolbutton's text according to the checkstates.
-		'''
-		axis = self.getAxisFromCheckBoxes('chk006-9')
-		self.edit_ui.tb003.setText('Delete '+axis)
 
 
 	def tb000(self, state=None):
@@ -171,8 +170,7 @@ class Edit(Slots_max):
 		print('no function')
 
 
-	@staticmethod
-	def findNGons(obj):
+	def findNGons(self, obj):
 		'''Get a list of faces of a given object having more than four sides.
 
 		:Parameters:
@@ -189,12 +187,11 @@ class Edit(Slots_max):
 		return nGons
 
 
-	@staticmethod
-	def getVertexVectors(obj, vertices):
+	def getVertexVectors(self, obj, vertices):
 		'''Generator to query vertex vector angles.
 
 		ex.
-		vectors = Edit.getVertexVectors(obj, vertices)
+		vectors = getVertexVectors(obj, vertices)
 		for _ in range(len(vertices)):
 			vector = vectors.next()
 		'''
@@ -228,8 +225,7 @@ class Edit(Slots_max):
 				yield vector
 
 
-	@staticmethod
-	def findIsolatedVertices(obj):
+	def findIsolatedVertices(self, obj):
 		'''Get a list of isolated vertices of a given object.
 
 		:Parameters:
@@ -241,7 +237,7 @@ class Edit(Slots_max):
 		vertices = Slots_max.getComponents(obj, 'vertices') #get all vertices for the given object
 
 		isolatedVerts=[]
-		vectors = Edit.getVertexVectors(obj, vertices)
+		vectors = self.getVertexVectors(obj, vertices)
 		for _ in range(len(vertices)):
 			vector = vectors.next()
 			if vector and vector <= float(edgeAngle) / 50:
@@ -266,7 +262,7 @@ class Edit(Slots_max):
 			obj.selectMode = 2 #multi-component selection preview
 
 			if nGons: #Convert N-Sided Faces To Quads
-				_nGons = Edit.findNGons(obj)
+				_nGons = self.findNGons(obj)
 
 				print('Found '+str(len(_nGons))+' N-gons.')
 
@@ -277,7 +273,7 @@ class Edit(Slots_max):
 
 
 			if isolatedVerts: #delete loose vertices
-				_isolatedVerts = Edit.findIsolatedVertices(obj)
+				_isolatedVerts = self.findIsolatedVertices(obj)
 
 				Slots_max.undo(True)
 				try:

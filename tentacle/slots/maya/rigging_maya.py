@@ -2,21 +2,21 @@
 # coding=utf-8
 from slots.maya import *
 from slots.rigging import Rigging
-from ui.static.maya.rigging_ui_maya import Rigging_ui_maya
 
 
 
-class Rigging_maya(Slots_maya):
+class Rigging_maya(Rigging):
 	def __init__(self, *args, **kwargs):
 		Slots_maya.__init__(self, *args, **kwargs)
-		Rigging_ui_maya.__init__(self, *args, **kwargs)
 		Rigging.__init__(self, *args, **kwargs)
 
+		cmb = self.rigging_ui.draggable_header.contextMenu.cmb000
+		items = ['Quick Rig','HumanIK','Expression Editor','Shape Editor','Connection Editor','Channel Control Editor','Set Driven Key']
+		cmb.addItems_(items, 'Rigging Editors')
 
-	def draggable_header(self, state=None):
-		'''Context menu
-		'''
-		dh = self.rigging_ui.draggable_header
+		cmb = self.rigging_ui.cmb001
+		items = ['Joints','Locator','IK Handle', 'Lattice', 'Cluster']
+		cmb.addItems_(items, "Create")
 
 
 	def cmb000(self, index=-1):
@@ -167,7 +167,7 @@ class Rigging_maya(Slots_maya):
 		remove = tb.contextMenu.chk015.isChecked()
 
 		selection = pm.ls(selection=True)
-		Rigging.createLocatorAtObject(selection, suffix=suffix, stripDigits=stripDigits, strip=strip, scale=scale, parent=parent, bakeChildPivot=bakeChildPivot, 
+		self.createLocatorAtObject(selection, suffix=suffix, stripDigits=stripDigits, strip=strip, scale=scale, parent=parent, bakeChildPivot=bakeChildPivot, 
 			freezeTransforms=freezeTransforms, lockTranslate=lockTranslate, lockRotation=lockRotation, lockScale=lockScale, remove=remove)
 
 
@@ -257,9 +257,8 @@ class Rigging_maya(Slots_maya):
 		pm.orientConstraint(offset=[0,0,0], weight=1)
 
 
-	@staticmethod
 	@Slots_maya.undoChunk
-	def createLocatorAtObject(objects, suffix='_LOC', stripDigits=False, strip='', scale=1, parent=False, freezeTransforms=True, 
+	def createLocatorAtObject(self, objects, suffix='_LOC', stripDigits=False, strip='', scale=1, parent=False, freezeTransforms=True, 
 					bakeChildPivot=True, lockTranslate=False, lockRotation=False, lockScale=False, remove=False, _fullPath=False):
 		'''Create locators with the same transforms as any selected object(s).
 		If there are vertices selected it will create a locator at the center of the selected vertices bounding box.
@@ -345,7 +344,7 @@ class Rigging_maya(Slots_maya):
 
 		type_ = lambda obj: pm.listRelatives(obj, shapes=1)[0].type()
 
-		_retry_using_fullPath = lambda: Rigging.createLocatorAtObject(suffix=suffix, stripDigits=stripDigits, strip=strip, 
+		_retry_using_fullPath = lambda: self.createLocatorAtObject(suffix=suffix, stripDigits=stripDigits, strip=strip, 
 			parent=parent, scale=scale, lockTranslate=lockTranslate, lockRotation=lockRotation, lockScale=lockScale, _fullPath=1)
 
 		# pm.undoInfo(openChunk=1)
@@ -460,7 +459,7 @@ print (__name__)
 # 		if lockScale: #lock scale values
 # 			setAttrs(('sx','sy','sz'))
 
-# 	_fullPath = lambda: Rigging.createLocatorAtSelection(suffix=suffix, stripDigits=stripDigits, 
+# 	_fullPath = lambda: self.createLocatorAtSelection(suffix=suffix, stripDigits=stripDigits, 
 # 				strip=strip, parent=parent, scale=scale, _fullPath=True, 
 # 				lockTranslate=lockTranslate, lockRotation=lockRotation, lockScale=lockScale)
 

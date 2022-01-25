@@ -2,21 +2,17 @@
 # coding=utf-8
 from slots.maya import *
 from slots.display import Display
-from ui.static.maya.display_ui_maya import Display_ui_maya
 
 
 
-class Display_maya(Slots_maya):
+class Display_maya(Display):
 	def __init__(self, *args, **kwargs):
 		Slots_maya.__init__(self, *args, **kwargs)
-		Display_ui_maya.__init__(self, *args, **kwargs)
 		Display.__init__(self, *args, **kwargs)
 
-
-	def draggable_header(self, state=None):
-		'''Context menu
-		'''
-		dh = self.display_ui.draggable_header
+		cmb = self.display_ui.draggable_header.contextMenu.cmb000
+		list_ = ['']
+		cmb.addItems_(list_, '')
 
 
 	def cmb000(self, index=-1):
@@ -124,12 +120,6 @@ class Display_maya(Slots_maya):
 		state = pm.modelEditor(currentPanel, query=1, useDefaultMaterial=1)
 		pm.modelEditor(currentPanel, edit=1, useDefaultMaterial=not state)
 		self.viewPortMessage('Default Material Override: <hl>{}</hl>.'.format(state))
-
-
-	def b010(self):
-		'''
-		'''
-		pass
 
 
 	@Slots.message

@@ -2,21 +2,21 @@
 # coding=utf-8
 from slots.max import *
 from slots.rigging import Rigging
-from ui.static.max.rigging_ui_max import Rigging_ui_max
 
 
 
-class Rigging(Slots_max):
+class Rigging_max(Rigging):
 	def __init__(self, *args, **kwargs):
 		Slots_max.__init__(self, *args, **kwargs)
-		Rigging_ui_max.__init__(self, *args, **kwargs)
 		Rigging.__init__(self, *args, **kwargs)
 
-		
-	def draggable_header(self, state=None):
-		'''Context menu
-		'''
-		dh = self.rigging_ui.draggable_header
+		cmb = self.rigging_ui.draggable_header.contextMenu.cmb000
+		items = ['Bone Tools','Parameter Editor','Parameter Collector','Parameter Wire Dialog']
+		cmb.addItems_(items, 'Rigging Editors')
+
+		cmb = self.rigging_ui.cmb001
+		items = ['Bones IK Chain','Point','Dummy','Grid','Expose Transform','Lattice','Biped']
+		cmb.addItems_(items, "Create")
 
 
 	def cmb000(self, index=-1):

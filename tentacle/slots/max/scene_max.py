@@ -2,21 +2,17 @@
 # coding=utf-8
 from slots.max import *
 from slots.scene import Scene
-from ui.static.max.scene_ui_max import Scene_ui_max
 
 
 
-class Scene(Slots_max):
+class Scene_max(Scene):
 	def __init__(self, *args, **kwargs):
 		Slots_max.__init__(self, *args, **kwargs)
-		Scene_ui_max.__init__(self, *args, **kwargs)
 		Scene.__init__(self, *args, **kwargs)
 
-		
-	def draggable_header(self, state=None):
-		'''Context menu
-		'''
-		dh = self.scene_ui.draggable_header
+		cmb = self.scene_ui.draggable_header.contextMenu.cmb000
+		items = []
+		cmb.addItems_(items, 'Scene Editors')
 
 
 	def cmb000(self, index=-1):
@@ -31,12 +27,6 @@ class Scene(Slots_max):
 			cmb.setCurrentIndex(0)
 
 
-	def t000(self, state=None):
-		'''Find
-		'''
-		t000 = self.scene_ui.t000
-
-
 	def t001(self, state=None):
 		'''Replace
 		'''
@@ -47,7 +37,7 @@ class Scene(Slots_max):
 		regEx = self.scene_ui.t000.contextMenu.chk001.isChecked()
 		ignoreCase = self.scene_ui.t000.contextMenu.chk000.isChecked()
 
-		Scene.rename(find, to, regEx=regEx, ignoreCase=ignoreCase)
+		self.rename(find, to, regEx=regEx, ignoreCase=ignoreCase)
 
 
 	def tb000(self, state=None):
@@ -59,11 +49,10 @@ class Scene(Slots_max):
 
 		selection = pm.ls(sl=1)
 		objects = selection if selection else pm.ls(objectsOnly=1)
-		Scene.setCase(objects, case)
+		self.setCase(objects, case)
 
 
-	@staticmethod
-	def rename(frm, to, regEx=False, ignoreCase=False):
+	def rename(self, frm, to, regEx=False, ignoreCase=False):
 		'''Rename scene objects.
 
 		:Parameters:
@@ -86,7 +75,6 @@ class Scene(Slots_max):
 		ex. rename(r'Cube', '*001', regEx=True) #replace chars after frm on any object with a name that contains 'Cube'. ie. 'polyCube001' from 'polyCube'
 		ex. rename(r'Cube', '**001', regEx=True) #append chars on any object with a name that contains 'Cube'. ie. 'polyCube1001' from 'polyCube1'
 		'''
-		pm.undoInfo (openChunk=1)
 		names = Slots_max.findStrAndFormat(frm, to, [obj.name for obj in rt.objects], regEx=regEx, ignoreCase=ignoreCase) #[o for o in rt.objects if rt.matchPattern(o.name, pattern=f, ignoreCase=0)]
 		print ('# Rename: Found {} matches. #'.format(len(names)))
 
@@ -101,11 +89,9 @@ class Scene(Slots_max):
 
 			except Exception as e:
 				print ('# Error: Attempt to rename "{}" to "{}" failed. {} #'.format(oldName, newName, str(e).rstrip()))
-		pm.undoInfo (closeChunk=1)
 
 
-	@staticmethod
-	def setCase(objects=[], case='caplitalize'):
+	def setCase(self, objects=[], case='caplitalize'):
 		'''Rename objects following the given case.
 
 		:Parameters:

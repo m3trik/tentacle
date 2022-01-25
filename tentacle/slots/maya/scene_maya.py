@@ -2,23 +2,17 @@
 # coding=utf-8
 from slots.maya import *
 from slots.scene import Scene
-from ui.static.maya.scene_ui_maya import Scene_ui_maya
 
 
 
-class Scene_maya(Slots_maya):
+class Scene_maya(Scene):
 	def __init__(self, *args, **kwargs):
 		Slots_maya.__init__(self, *args, **kwargs)
-		Scene_ui_maya.__init__(self, *args, **kwargs)
 		Scene.__init__(self, *args, **kwargs)
 
-		self.scene_ui.t000.returnPressed.connect(self.t001) #preform rename on returnPressed
-
-
-	def draggable_header(self, state=None):
-		'''Context menu
-		'''
-		dh = self.scene_ui.draggable_header
+		cmb = self.scene_ui.draggable_header.contextMenu.cmb000
+		items = ['Node Editor', 'Outlinder', 'Content Browser', 'Optimize Scene Size', 'Prefix Hierarchy Names', 'Search and Replace Names']
+		cmb.addItems_(items, 'Maya Scene Editors')
 
 
 	def cmb000(self, index=-1):
@@ -43,12 +37,6 @@ class Scene_maya(Slots_maya):
 			cmb.setCurrentIndex(0)
 
 
-	def t000(self, state=None):
-		'''Find
-		'''
-		t000 = self.scene_ui.t000
-
-
 	def t001(self, state=None):
 		'''Replace
 		'''
@@ -61,7 +49,7 @@ class Scene_maya(Slots_maya):
 
 		selection = pm.ls(sl=1)
 		objects = selection if selection else pm.ls(objectsOnly=1)
-		Scene.rename(find, to, objects, regEx=regEx, ignoreCase=ignoreCase)
+		self.rename(find, to, objects, regEx=regEx, ignoreCase=ignoreCase)
 
 
 	def tb000(self, state=None):
@@ -73,12 +61,11 @@ class Scene_maya(Slots_maya):
 
 		selection = pm.ls(sl=1)
 		objects = selection if selection else pm.ls(objectsOnly=1)
-		Scene.setCase(objects, case)
+		self.setCase(objects, case)
 
 
-	@staticmethod
 	@Slots_maya.undoChunk
-	def rename(frm, to, objects=[], regEx=False, ignoreCase=False):
+	def rename(self, frm, to, objects=[], regEx=False, ignoreCase=False):
 		'''Rename scene objects.
 
 		:Parameters:
@@ -122,9 +109,8 @@ class Scene_maya(Slots_maya):
 		# pm.undoInfo (closeChunk=1)
 
 
-	@staticmethod
 	@Slots_maya.undoChunk
-	def setCase(objects=[], case='caplitalize'):
+	def setCase(self, objects=[], case='caplitalize'):
 		'''Rename objects following the given case.
 
 		:Parameters:

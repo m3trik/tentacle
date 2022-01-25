@@ -2,21 +2,17 @@
 # coding=utf-8
 from slots.max import *
 from slots.scripting import Scripting
-from ui.static.max.scripting_ui_max import Scripting_ui_max
 
 
 
-class Scripting(Slots_max):
+class Scripting_max(Scripting):
 	def __init__(self, *args, **kwargs):
 		Slots_max.__init__(self, *args, **kwargs)
-		Scripting_ui_max.__init__(self, *args, **kwargs)
 		Scripting.__init__(self, *args, **kwargs)
 
-
-	def draggable_header(self, state=None):
-		'''Context menu
-		'''
-		dh = self.scripting_ui.draggable_header
+		cmb = self.scripting_ui.draggable_header.contextMenu.cmb000
+		items = ['']
+		contents = cmb.addItems_(items, '')
 
 
 	def cmb000(self, index=-1):
@@ -28,15 +24,6 @@ class Scripting(Slots_max):
 			if index==cmd.items.index(''):
 				pass
 			cmb.setCurrentIndex(0)
-
-
-	def chk000(self, state=None):
-		'''Toggle Mel/Python
-		'''
-		if self.scripting_ui.chk000.isChecked():
-			self.scripting_ui.chk000.setText("python")
-		else:
-			self.scripting_ui.chk000.setText("MEL")
 
 
 	def b000(self):
@@ -75,29 +62,6 @@ class Scripting(Slots_max):
 		self.scripting_ui.tabWidget.removeTab(index)
 
 
-	def b005(self):
-		''''''
-		pass
-
-
-	def b006(self):
-		''''''
-		pass
-
-
-	def b007(self):
-		''''''
-		pass
-
-	def b008(self):
-		''''''
-		pass
-
-	def b009(self):
-		''''''
-		pass
-
-
 
 
 
@@ -112,11 +76,3 @@ print (__name__)
 # -----------------------------------------------
 
 
-# cmdScrollFieldReporter_ = pm.cmdScrollFieldReporter (
-		# 														height=35,
-		# 														backgroundColor=[0,0,0],
-		# 														highlightColor=[0,0,0],
-		# 														echoAllCommands=False,
-		# 														filterSourceType="")
-
-		# self.scripting_ui.plainTextEdit.appendPlainText(cmdScrollFieldReporter_)

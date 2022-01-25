@@ -2,15 +2,34 @@
 # coding=utf-8
 from slots.maya import *
 from slots.editors import Editors
-from ui.static.maya.editors_ui_maya import Editors_ui_maya
 
 
 
-class Editors_maya(Slots_maya):
+class Editors_maya(Editors):
 	def __init__(self, *args, **kwargs):
 		Slots_maya.__init__(self, *args, **kwargs)
-		Editors_ui_maya.__init__(self, *args, **kwargs)
 		Editors.__init__(self, *args, **kwargs)
+
+		tree = self.editors_lower_submenu_ui.tree000
+		tree.expandOnHover = True
+
+		l = ['General Editors', 'Modeling Editors', 'Animation Editors', 'Rendering Editors', 'Relationship Editors']
+		[tree.add('QLabel', childHeader=s, setText=s) for s in l] #root
+
+		l = ['Attribute Editor', 'Channel Box', 'Layer Editor', 'Content Browser', 'Tool Settings', 'Hypergraph: Hierarchy', 'Hypergraph: Connections', 'Viewport', 'Adobe After Effects Live Link', 'Asset Editor', 'Attribute Spread Sheet', 'Component Editor', 'Channel Control', 'Display Layer Editor', 'File Path Editor', 'Namespace Editor', 'Script Editor', 'Command Shell', 'Profiler', 'Evaluation Toolkit']
+		[tree.add('QLabel', 'General Editors', setText=s) for s in l]
+
+		l = ['Modeling Toolkit', 'Paint Effects', 'UV Editor', 'XGen Editor', 'Crease Sets']
+		[tree.add('QLabel', 'Modeling Editors', setText=s) for s in l]
+
+		l = ['Graph Editor', 'Time Editor', 'Trax Editor', 'Camera Sequencer', 'Dope Sheet', 'Quick Rig', 'HumanIK', 'Shape Editor', 'Pose Editor', 'Expression Editor']
+		[tree.add('QLabel', 'Animation Editors', setText=s) for s in l]
+
+		l = ['Render View', 'Render Settings', 'Hypershade', 'Render Setup', 'Light Editor', 'Custom Stereo Rig Editor', 'Rendering Flags', 'Shading Group Attributes']
+		[tree.add('QLabel', 'Rendering Editors', setText=s) for s in l]
+
+		l = ['Animation Layers', 'Camera Sets', 'Character Sets', 'Deformer Sets', 'Display Layers', 'Dynamic Relationships', 'Light Linking: Light Centric','Light Linking: Object Centric', 'Partitions', 'Render Pass Sets', 'Sets', 'UV Linking: Texture-Centric', 'UV Linking: UV-Centric', 'UV Linking: Paint Effects/UV', 'UV Linking: Hair/UV']
+		[tree.add('QLabel', 'Relationship Editors', setText=s) for s in l]
 
 
 	def tree000(self, wItem=None, column=None):

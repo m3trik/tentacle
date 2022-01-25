@@ -2,21 +2,63 @@
 # coding=utf-8
 from slots.max import *
 from slots.transform import Transform
-from ui.static.max.transform_ui_max import Transform_ui_max
 
 
 
-class Transform(Slots_max):
+class Transform_max(Transform):
 	def __init__(self, *args, **kwargs):
 		Slots_max.__init__(self, *args, **kwargs)
-		Transform_ui_max.__init__(self, *args, **kwargs)
 		Transform.__init__(self, *args, **kwargs)
 
+		cmb = self.transform_ui.draggable_header.contextMenu.cmb000
+		items = ['']
+		cmb.addItems_(items, '')
 
-	def draggable_header(self, state=None):
-		'''Context menu
-		'''
-		dh = self.transform_ui.draggable_header
+		cmb = self.transform_ui.cmb001
+		cmb.popupStyle = 'qmenu'
+		menu = cmb.menu_
+		if not menu.containsMenuItems:
+			menu.setTitle('Constaints')
+			cmb.contextMenu.add('QRadioButton', setObjectName='chk017', setText='Standard', setChecked=True, setToolTip='')
+			cmb.contextMenu.add('QRadioButton', setObjectName='chk018', setText='Body Shapes', setToolTip='')
+			cmb.contextMenu.add('QRadioButton', setObjectName='chk019', setText='NURBS', setToolTip='')
+			cmb.contextMenu.add('QRadioButton', setObjectName='chk020', setText='Point Cloud Shapes', setToolTip='')
+			cmb.contextMenu.add(self.tcl.wgts.Label, setObjectName='lbl000', setText='Disable All', setToolTip='Disable all constraints.')
+			self.connect_('chk017-20', 'toggled', self.cmb001, cmb.contextMenu) #connect to this method on toggle
+			#query and set current states:
+			edge_constraint = True if pm.xformConstraint(query=1, type=1)=='edge' else False
+			surface_constraint = True if pm.xformConstraint(query=1, type=1)=='surface' else False
+			live_object = True if pm.ls(live=1) else False
+
+			values = [('chk024', 'Edge', edge_constraint),
+					('chk025', 'Surface', surface_constraint),
+					('chk026', 'Make Live', live_object)]
+
+			[menu.add(self.tcl.wgts.CheckBox, setObjectName=chk, setText=typ, setChecked=state) for chk, typ, state in values]
+
+		cmb = self.transform_ui.cmb002
+		items = ['Point to Point', '2 Points to 2 Points', '3 Points to 3 Points', 'Align Objects', 'Position Along Curve', 'Align Tool', 'Snap Together Tool']
+		cmb.addItems_(items, 'Align To')
+
+		cmb = self.transform_ui.cmb003
+		cmb.popupStyle = 'qmenu'
+		menu = cmb.menu_
+		if not menu.containsMenuItems:
+			menu.setTitle('Snap')
+
+			moveValue = pm.manipMoveContext('Move', q=True, snapValue=True)
+			scaleValue = pm.manipScaleContext('Scale', q=True, snapValue=True)
+			rotateValue = pm.manipRotateContext('Rotate', q=True, snapValue=True)
+
+			values = [('chk021', 'Move: <b>Off</b>'), ('s021', 'increment:', moveValue, '1.00-1000 step2.8125'), 
+					('chk022', 'Scale: <b>Off</b>'), ('s022', 'increment:', scaleValue, '1.00-1000 step2.8125'), 
+					('chk023', 'Rotate: <b>Off</b>'), ('s023', 'degrees:', rotateValue, '1.00-360 step2.8125')]
+
+			widgets = [menu.add(self.tcl.wgts.CheckBox, setObjectName=i[0], setText=i[1], setTristate=1) if len(i)==2 
+					else menu.add('QDoubleSpinBox', setObjectName=i[0], setPrefix=i[1], setValue=i[2], setMinMax_=i[3], setDisabled=1) for i in values]
+
+		ctx = self.transform_ui.tb000.contextMenu
+		ctx.chk017.setDisabled(True)
 
 
 	def cmb000(self, index=-1):
@@ -94,55 +136,6 @@ class Transform(Slots_max):
 		cmb = self.transform_ui.cmb003
 
 
-	def chk014(self, state=None):
-		'''Snap: Toggle Rotation
-		'''
-		cmb = self.transform_ui.cmb003
-		cmb.menu_.chk023.setChecked(True)
-		cmb.menu_.s023.setValue(11.25)
-		state = 1 if self.transform_submenu_ui.chk014.isChecked() else 0
-		self.chk023(state=state)
-
-
-	def chk021(self, state=None):
-		'''Transform Tool Snap Settings: Move
-		'''
-		text = {0:'Move <b>Off</b>', 1:'Move <b>Relative</b>', 2:'Move <b>Absolute</b>'}
-		self.transform_ui.chk021.setText(text[state])
-		self.transform_ui.s021.setEnabled(state)
-		pm.manipMoveContext('Move', edit=1, snap=False if state is 0 else True, snapRelative=True if state is 1 else False) #state: 0=off, 1=relative, 2=absolute
-		pm.texMoveContext('texMoveContext', edit=1, snap=False if state is 0 else True) #uv move context
-
-		cmb = self.transform_ui.cmb003
-		cmb.setCurrentText('Off') if not any((state, cmb.menu_.chk022.isChecked(), cmb.menu_.chk023.isChecked())) else cmb.setCurrentText('On')
-
-
-	def chk022(self, state=None):
-		'''Transform Tool Snap Settings: Scale
-		'''
-		text = {0:'Scale <b>Off</b>', 1:'Scale <b>Relative</b>', 2:'Scale <b>Absolute</b>'}
-		self.transform_ui.chk022.setText(text[state])
-		self.transform_ui.s022.setEnabled(state)
-		pm.manipScaleContext('Scale', edit=1, snap=False if state is 0 else True, snapRelative=True if state is 1 else False) #state: 0=off, 1=relative, 2=absolute
-		pm.texScaleContext('texScaleContext', edit=1, snap=False if state is 0 else True) #uv scale context
-
-		cmb = self.transform_ui.cmb003
-		cmb.setCurrentText('Off') if not any((state, cmb.menu_.chk021.isChecked(), cmb.menu_.chk023.isChecked())) else cmb.setCurrentText('On')
-
-
-	def chk023(self, state=None):
-		'''Transform Tool Snap Settings: Rotate
-		'''
-		text = {0:'Rotate <b>Off</b>', 1:'Rotate <b>Relative</b>', 2:'Rotate <b>Absolute</b>'}
-		self.transform_ui.chk023.setText(text[state])
-		self.transform_ui.s023.setEnabled(state)
-		pm.manipRotateContext('Rotate', edit=1, snap=False if state is 0 else True, snapRelative=True if state is 1 else False) #state: 0=off, 1=relative, 2=absolute
-		pm.texRotateContext('texRotateContext', edit=1, snap=False if state is 0 else True) #uv rotate context
-
-		cmb = self.transform_ui.cmb003
-		cmb.setCurrentText('Off') if not any((state, cmb.menu_.chk021.isChecked(), cmb.menu_.chk022.isChecked())) else cmb.setCurrentText('On')
-
-
 	def s021(self, value=None):
 		'''Transform Tool Snap Settings: Spinboxes
 		'''
@@ -168,51 +161,9 @@ class Transform(Slots_max):
 		'''Transform Constraints: Constraint CheckBoxes
 		'''
 		try:
-			Transform.setSnapState(kwargs['widget'].text(), kwargs['state'])
+			self.setSnapState(kwargs['widget'].text(), kwargs['state'])
 		except KeyError:
 			pass
-
-
-	@staticmethod
-	def setSnapState(fn, state):
-		'''Grid and Snap Settings: Modify grid and snap states.
-
-		:Parameters:
-			fn (str) = Snap string name.
-			state (bool) = Desired snap state.
-
-		Valid fn arguments for snap name:
-			Body Shapes: (1) 'Vertex_', 'Edge', 'Face_', 'End Edge', 'Edge Midpoint'
-			NURBS: (2) 'CV', 'Curve Center', 'Curve Tangent', 'Curve End', 'Surface Normal', 'Point', 'Curve Normal', 'Curve Edge', 'Surface Center','Surface Edge'
-			Point Cloud Shapes: (3) 'Point Cloud Vertex'
-			Standard: (4,5,6,7) 'Grid Points', 'Pivot', 'Perpendicular', 'Vertex', 'Edge/Segment', 'Face', 'Grid Lines', 'Bounding Box', 'Tangent', 'Endpoint', 'Midpoint', 'Center Face'
-
-		ex. setSnapState('Edge', True)
-		'''
-		snaps = {
-			1:['Vertex_', 'Edge', 'Face_', 'End Edge', 'Edge Midpoint'], #Body Shapes
-			2:['CV', 'Curve Center', 'Curve Tangent', 'Curve End', 'Surface Normal', 'Point', 'Curve Normal', 'Curve Edge', 'Surface Center','Surface Edge'], #NURBS
-			3:['Point Cloud Vertex'], #Point Cloud Shapes
-			4:['Grid Points', 'Pivot'], #Standard
-			5:['Perpendicular', 'Vertex'], #Standard
-			6:['Edge/Segment', 'Face'], #Standard
-			7:['Grid Lines', 'Bounding Box', 'Tangent', 'Endpoint', 'Midpoint', 'Center Face'] #Standard
-		}
-
-		for category, list_ in snaps.items():
-			if fn in list_:
-				index = list_.index(fn)+1 #add 1 to align with max array.
-				rt.snapmode.setOSnapItemActive(category, index, state) #ie. rt.snapmode.setOSnapItemActive(3, 1, False) #'Point Cloud Shapes'->'Point Cloud Vertex'->Off
-				print (fn, '|', state)
-
-
-	def chk010(self, state=None):
-		'''Align Vertices: Auto Align
-		'''
-		if self.transform_ui.chk010.isChecked():
-			self.toggleWidgets(setDisabled='chk029-31')
-		else:
-			self.toggleWidgets(setEnabled='chk029-31')
 
 
 	def tb000(self, state=None):
@@ -436,6 +387,38 @@ class Transform(Slots_max):
 			''')
 
 
+	def setSnapState(self, fn, state):
+		'''Grid and Snap Settings: Modify grid and snap states.
+
+		:Parameters:
+			fn (str) = Snap string name.
+			state (bool) = Desired snap state.
+
+		Valid fn arguments for snap name:
+			Body Shapes: (1) 'Vertex_', 'Edge', 'Face_', 'End Edge', 'Edge Midpoint'
+			NURBS: (2) 'CV', 'Curve Center', 'Curve Tangent', 'Curve End', 'Surface Normal', 'Point', 'Curve Normal', 'Curve Edge', 'Surface Center','Surface Edge'
+			Point Cloud Shapes: (3) 'Point Cloud Vertex'
+			Standard: (4,5,6,7) 'Grid Points', 'Pivot', 'Perpendicular', 'Vertex', 'Edge/Segment', 'Face', 'Grid Lines', 'Bounding Box', 'Tangent', 'Endpoint', 'Midpoint', 'Center Face'
+
+		ex. setSnapState('Edge', True)
+		'''
+		snaps = {
+			1:['Vertex_', 'Edge', 'Face_', 'End Edge', 'Edge Midpoint'], #Body Shapes
+			2:['CV', 'Curve Center', 'Curve Tangent', 'Curve End', 'Surface Normal', 'Point', 'Curve Normal', 'Curve Edge', 'Surface Center','Surface Edge'], #NURBS
+			3:['Point Cloud Vertex'], #Point Cloud Shapes
+			4:['Grid Points', 'Pivot'], #Standard
+			5:['Perpendicular', 'Vertex'], #Standard
+			6:['Edge/Segment', 'Face'], #Standard
+			7:['Grid Lines', 'Bounding Box', 'Tangent', 'Endpoint', 'Midpoint', 'Center Face'] #Standard
+		}
+
+		for category, list_ in snaps.items():
+			if fn in list_:
+				index = list_.index(fn)+1 #add 1 to align with max array.
+				rt.snapmode.setOSnapItemActive(category, index, state) #ie. rt.snapmode.setOSnapItemActive(3, 1, False) #'Point Cloud Shapes'->'Point Cloud Vertex'->Off
+				print (fn, '|', state)
+
+
 	@Slots.message
 	def alignVertices(self, selection, mode):
 		'''Align Vertices
@@ -614,7 +597,7 @@ class Transform(Slots_max):
 
 
 
-	
+
 
 
 

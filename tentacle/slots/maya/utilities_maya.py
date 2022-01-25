@@ -2,21 +2,17 @@
 # coding=utf-8
 from slots.maya import *
 from slots.utilities import Utilities
-from ui.static.maya.utilities_ui_maya import Utilities_ui_maya
 
 
 
-class Utilities_maya(Slots_maya):
+class Utilities_maya(Utilities):
 	def __init__(self, *args, **kwargs):
 		Slots_maya.__init__(self, *args, **kwargs)
-		Utilities_ui_maya.__init__(self, *args, **kwargs)
 		Utilities.__init__(self, *args, **kwargs)
 
-
-	def draggable_header(self, state=None):
-		'''Context menu
-		'''
-		dh = self.utilities_ui.draggable_header
+		cmb = self.utilities_ui.draggable_header.contextMenu.cmb000
+		files = ['']
+		cmb.addItems_(files, '')
 
 
 	def cmb000(self, index=-1):

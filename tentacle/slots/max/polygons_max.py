@@ -2,39 +2,17 @@
 # coding=utf-8
 from slots.max import *
 from slots.polygons import Polygons
-from ui.static.max.polygons_ui_max import Polygons_ui_max
 
 
 
-class Polygons(Slots_max):
+class Polygons_max(Polygons):
 	def __init__(self, *args, **kwargs):
 		Slots_max.__init__(self, *args, **kwargs)
-		Polygons_ui_max.__init__(self, *args, **kwargs)
 		Polygons.__init__(self, *args, **kwargs)
 
-
-	def draggable_header(self, state=None):
-		'''Context menu
-		'''
-		dh = self.polygons_ui.draggable_header
-
-
-	def chk008(self, state=None):
-		'''Divide Facet: Split U
-		'''
-		self.toggleWidgets(setUnChecked='chk010')
-
-
-	def chk009(self, state=None):
-		'''Divide Facet: Split V
-		'''
-		self.toggleWidgets(setUnChecked='chk010')
-
-
-	def chk010(self, state=None):
-		'''Divide Facet: Tris
-		'''
-		self.toggleWidgets(setUnChecked='chk008,chk009')
+		cmb = self.polygons_ui.draggable_header.contextMenu.cmb000
+		items = ['Bridge','Extrude']
+		cmb.addItems_(items, 'Polygon Editors')
 
 
 	def cmb000(self, index=-1):

@@ -2,16 +2,14 @@
 # coding=utf-8
 from slots.max import *
 from slots.init import Init
-from ui.static.max.init_ui_max import Init_ui_max
 
 
 
-class Init(Slots_max):
+class Init_max(Init):
 	'''
 	'''
 	def __init__(self, *args, **kwargs):
 		Slots_max.__init__(self, *args, **kwargs)
-		Init_ui_max.__init__(self, *args, **kwargs)
 		Init.__init__(self, *args, **kwargs)
 
 		try:

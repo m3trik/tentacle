@@ -2,21 +2,17 @@
 # coding=utf-8
 from slots.max import *
 from slots.animation import Animation
-from ui.static.max.animation_ui_max import Animation_ui_max
 
 
 
-class Animation(Slots_max):
+class Animation_max(Animation):
 	def __init__(self, *args, **kwargs):
 		Slots_max.__init__(self, *args, **kwargs)
-		Animation_ui_max.__init__(self, *args, **kwargs)
 		Animation.__init__(self, *args, **kwargs)
 
-
-	def draggable_header(self, state=None):
-		'''Context menu
-		'''
-		dh = self.animation_ui.draggable_header
+		cmb = self.animation_ui.draggable_header.contextMenu.cmb000
+		items = ['Track View: Curve Editor','Track View: Dope Sheet','Track View: New Track View','Motion Mixer','Pose Mixer','MassFx Tools', 'Dynamics Explorer','Reaction Manager','Walkthrough Assistant']
+		cmb.addItems_(items, 'Animation Editors')
 
 
 	def cmb000(self, index=-1):
@@ -47,38 +43,13 @@ class Animation(Slots_max):
 			cmb.setCurrentIndex(0)
 
 
-	def tb000(self, state=None):
-		'''Set Current Frame
-		'''
-		tb = self.animation_ui.tb000
-
-		frame = self.invertOnModifier(tb.contextMenu.s000.value())
-		relative = tb.contextMenu.chk000.isChecked()
-		update = tb.contextMenu.chk001.isChecked()
-
-		Animation.setCurrentFrame(frame, relative=relative, update=update)
-
-
-	@Slots.message
-	def tb001(self, state=None):
-		'''Invert Selected Keyframes
-		'''
-		tb = self.animation_ui.tb001
-
-		time = tb.contextMenu.s001.value()
-		relative = tb.contextMenu.chk002.isChecked()
-
-		Animation.invertSelectedKeyframes(time=time, relative=relative)
-
-
 	def b000(self):
 		'''Delete Keys on Selected
 		'''
 		rt.deleteKeys(rt.selection)
 
 
-	@staticmethod
-	def getSubAnimControllers(node, keyable=False, _result=[]):
+	def getSubAnimControllers(self, node, keyable=False, _result=[]):
 		'''Returns a list of all the subanim controllers for a given node.
 
 		:Parameters:
@@ -96,16 +67,15 @@ class Animation(Slots_max):
 
 		for i in range(1, node.numsubs):
 			ctrl = rt.getSubAnim(node, i)
-			Animation.getSubAnimControllers(ctrl, _result)
+			self.getSubAnimControllers(ctrl, _result)
 
 		if keyable:
-			_result = Animation.getKeyableControllers(_result)
+			_result = self.getKeyableControllers(_result)
 
 		return _result
 
 
-	@staticmethod
-	def getKeyableControllers(controllers):
+	def getKeyableControllers(self, controllers):
 		'''Filters a given list for controllers that are keyable.
 		You can get the initial list of controllers using getSubAnimControllers.
 
@@ -129,8 +99,7 @@ class Animation(Slots_max):
 		return result
 
 
-	@staticmethod
-	def AssignController(currentController, newController):
+	def AssignController(self, currentController, newController):
 		'''Attempts at assigning a given controller.
 
 		:Parameters:
@@ -156,8 +125,7 @@ class Animation(Slots_max):
 			print("# Error: Unable to assign new controller: {} #".format(error))
 
 
-	@staticmethod
-	def setCurrentFrame(frame=1, relative=False, update=True):
+	def setCurrentFrame(self, frame=1, relative=False, update=True):
 		'''Set the current frame on the timeslider.
 
 		:Parameters:
@@ -176,8 +144,8 @@ class Animation(Slots_max):
 		pm.currentTime(currentTime+frame, edit=True, update=update)
 
 
-	@staticmethod
-	def invertSelectedKeyframes(time=1, relative=True):
+	@Slots_maya.undoChunk
+	def invertSelectedKeyframes(self, time=1, relative=True):
 		'''Duplicate any selected keyframes and paste them inverted at the given time.
 
 		:Parameters:

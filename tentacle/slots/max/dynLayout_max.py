@@ -2,21 +2,17 @@
 # coding=utf-8
 from slots.max import *
 from slots.dynLayout import DynLayout
-from ui.static.max.dynLayout_ui_max import DynLayout_ui_max
 
 
 
-class DynLayout(Slots_max):
+class DynLayout_max(DynLayout):
 	def __init__(self, *args, **kwargs):
 		Slots_max.__init__(self, *args, **kwargs)
-		DynLayout_ui_max.__init__(self, *args, **kwargs)
 		DynLayout.__init__(self, *args, **kwargs)
 
-
-	def draggable_header(self, state=None):
-		'''Context menu
-		'''
-		dh = self.dynLayout_ui.draggable_header
+		cmb = self.dynLayout_ui.draggable_header.contextMenu.cmb000
+		list_ = []
+		cmb.addItems_(list_, '')
 
 
 	def cmb000(self, index=-1):
@@ -29,12 +25,6 @@ class DynLayout(Slots_max):
 			if text=='':
 				pass
 			cmb.setCurrentIndex(0)
-
-
-	def b000(self):
-		'''
-		'''
-		self.tcl.sb.getMethod('edit', 'tb001')()
 
 
 

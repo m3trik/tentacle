@@ -2,21 +2,28 @@
 # coding=utf-8
 from slots.maya import *
 from slots.pivot import Pivot
-from ui.static.maya.pivot_ui_maya import Pivot_ui_maya
 
 
 
-class Pivot_maya(Slots_maya):
+class Pivot_maya(Pivot):
 	def __init__(self, *args, **kwargs):
 		Slots_maya.__init__(self, *args, **kwargs)
-		Pivot_ui_maya.__init__(self, *args, **kwargs)
 		Pivot.__init__(self, *args, **kwargs)
 
+		cmb = self.pivot_ui.draggable_header.contextMenu.cmb000
+		items = ['']
+		cmb.addItems_(items, '')
 
-	def draggable_header(self, state=None):
-		'''Context menu
-		'''
-		dh = self.pivot_ui.draggable_header
+		ctx = self.pivot_ui.tb000.contextMenu
+		if not ctx.containsMenuItems:
+			ctx.add('QCheckBox', setText='Reset Pivot Position', setObjectName='chk000', setChecked=True, setToolTip='')
+			ctx.add('QCheckBox', setText='Reset Pivot Orientation', setObjectName='chk001', setChecked=True, setToolTip='')
+
+		ctx = self.pivot_ui.tb001.contextMenu
+		if not ctx.containsMenuItems:
+			ctx.add('QRadioButton', setText='Component', setObjectName='chk002', setToolTip='Center the pivot on the center of the selected component\'s bounding box')
+			ctx.add('QRadioButton', setText='Object', setObjectName='chk003', setChecked=True, setToolTip='Center the pivot on the center of the object\'s bounding box')
+			ctx.add('QRadioButton', setText='World', setObjectName='chk004', setToolTip='Center the pivot on world origin.')
 
 
 	def cmb000(self, index=-1):
@@ -59,30 +66,6 @@ class Pivot_maya(Slots_maya):
 			pm.xform(centerPivots=1)
 		elif world:
 			pm.xform(worldSpace=1, pivots=[0,0,0])
-
-
-	def b000(self):
-		'''Center Pivot: Object
-		'''
-		tb = self.pivot_ui.tb001
-		tb.contextMenu.chk003.setChecked(True)
-		self.tb001()
-
-
-	def b001(self):
-		'''Center Pivot: Component
-		'''
-		tb = self.pivot_ui.tb001
-		tb.contextMenu.chk002.setChecked(True)
-		self.tb001()
-
-
-	def b002(self):
-		'''Center Pivot: World
-		'''
-		tb = self.pivot_ui.tb001
-		tb.contextMenu.chk004.setChecked(True)
-		self.tb001()
 
 
 	def b004(self):

@@ -2,21 +2,30 @@
 # coding=utf-8
 from slots.max import *
 from slots.symmetry import Symmetry
-from ui.static.max.symmetry_ui_max import Symmetry_ui_max
 
 
 
-class Symmetry(Slots_max):
+class Symmetry_max(Symmetry):
 	def __init__(self, *args, **kwargs):
 		Slots_max.__init__(self, *args, **kwargs)
-		Symmetry_ui_max.__init__(self, *args, **kwargs)
 		Symmetry.__init__(self, *args, **kwargs)
 
+		cmb = self.symmetry_ui.draggable_header.contextMenu.cmb000
+		items = ['']
+		cmb.addItems_(items, '')
 
-	def draggable_header(self, state=None):
-		'''Context menu
-		'''
-		dh = self.symmetry_ui.draggable_header
+		#symmetry: set initial checked state
+		# state = pm.symmetricModelling(query=True, symmetry=True) #application symmetry state
+		# axis = pm.symmetricModelling(query=True, axis=True)
+		# if axis == "x":
+		# 	self.symmetry_ui.chk000.setChecked(state)
+		# 	self.symmetry_submenu_ui.chk000.setChecked(state)
+		# if axis == "y":
+		# 	self.symmetry_ui.chk001.setChecked(state)
+		# 	self.symmetry_submenu_ui.chk001.setChecked(state)
+		# if axis == "z":
+		# 	self.symmetry_ui.chk002.setChecked(state)
+		# 	self.symmetry_submenu_ui.chk002.setChecked(state)
 
 
 	def cmb000(self, index=-1):
@@ -29,6 +38,17 @@ class Symmetry(Slots_max):
 			if text=='':
 				pass
 			cmb.setCurrentIndex(0)
+
+
+	@Slots.message
+	def chk005(self, state=None):
+		'''Symmetry: Topo
+		'''
+		self.symmetry_ui.chk004.setChecked(False) #uncheck symmetry:object space
+		# if any ([self.symmetry_ui.chk000.isChecked(), self.symmetry_ui.chk001.isChecked(), self.symmetry_ui.chk002.isChecked()]): #(symmetry)
+		# 	pm.symmetricModelling(edit=True, symmetry=False)
+		# 	self.toggleWidgets(setUnChecked='chk000-2')
+		# 	return 'Note: First select a seam edge and then check the symmetry button to enable topographic symmetry'
 
 
 	@Slots.message
@@ -62,51 +82,6 @@ class Symmetry(Slots_max):
 
 		rt.redrawViews()
 		return 'Symmetry: '+axis.capitalize()+' <hl>'+str(state)+'</hl>'
-
-
-	@Slots.sync
-	def chk000(self, state=None):
-		'''Symmetry X
-		'''
-		print('chk000')
-		self.toggleWidgets(self.childUi, setUnChecked='chk001,chk002')
-		state = self.symmetry_ui.chk000.isChecked() #symmetry button state
-		self.setSymmetry(state, 'x')
-
-
-	@Slots.sync
-	def chk001(self, state=None):
-		'''Symmetry Y
-		'''
-		self.toggleWidgets(self.childUi, setUnChecked='chk000,chk002')
-		state = self.symmetry_ui.chk001.isChecked() #symmetry button state
-		self.setSymmetry(state, 'y')
-
-
-	@Slots.sync
-	def chk002(self, state=None):
-		'''Symmetry Z
-		'''
-		self.toggleWidgets(self.childUi, setUnChecked='chk000,chk001')
-		state = self.symmetry_ui.chk002.isChecked() #symmetry button state
-		self.setSymmetry(state, 'z')
-
-
-	def chk004(self, state=None):
-		'''Symmetry: Object
-		'''
-		self.symmetry_ui.chk005.setChecked(False) #uncheck symmetry:topological
-	
-
-	@Slots.message
-	def chk005(self, state=None):
-		'''Symmetry: Topo
-		'''
-		self.symmetry_ui.chk004.setChecked(False) #uncheck symmetry:object space
-		# if any ([self.symmetry_ui.chk000.isChecked(), self.symmetry_ui.chk001.isChecked(), self.symmetry_ui.chk002.isChecked()]): #(symmetry)
-		# 	pm.symmetricModelling(edit=True, symmetry=False)
-		# 	self.toggleWidgets(setUnChecked='chk000-2')
-		# 	return 'Note: First select a seam edge and then check the symmetry button to enable topographic symmetry'
 
 
 

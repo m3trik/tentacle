@@ -2,15 +2,37 @@
 # coding=utf-8
 from slots.max import *
 from slots.uv import Uv
-from ui.static.max.uv_ui_max import Uv_ui_max
 
 
 
-class Uv(Slots_max):
+class Uv_max(Uv):
 	def __init__(self, *args, **kwargs):
 		Slots_max.__init__(self, *args, **kwargs)
-		Uv_ui_max.__init__(self, *args, **kwargs)
 		Uv.__init__(self, *args, **kwargs)
+
+		cmb = self.uv_ui.draggable_header.contextMenu.cmb000
+		items = ['UV Editor','UV Set Editor','UV Tool Kit','UV Linking: Texture-Centric','UV Linking: UV-Centric','UV Linking: Paint Effects/UV','UV Linking: Hair/UV']
+		cmb.addItems_(items, '3dsMax UV Editors')
+
+		cmb = self.uv_ui.cmb002
+		items = ['Flip U', 'Flip V', 'Align U Left', 'Align U Middle', 'Align U Right', 'Align V Top', 'Align V Middle', 'Align V Bottom', 'Linear Align']
+		cmb.addItems_(items, 'Transform:')
+
+		ctx = self.uv_ui.tb000.contextMenu
+		if not ctx.containsMenuItems:
+			ctx.add('QSpinBox', setPrefix='Pre-Scale Mode: ', setObjectName='s009', setMinMax_='0-1 step1', setValue=1, setToolTip='Allow shell scaling during packing.')
+			ctx.add('QSpinBox', setPrefix='Pre-Rotate Mode: ', setObjectName='s010', setMinMax_='0-1 step1', setValue=1, setToolTip='Allow shell rotation during packing.')
+
+		ctx = self.uv_ui.tb001.contextMenu
+		if not ctx.containsMenuItems:
+			ctx.add('QRadioButton', setText='Standard', setObjectName='chk000', setChecked=True, setToolTip='Create UV texture coordinates for the selected object or faces by automatically finding the best UV placement using simultanious projections from multiple planes.')
+			ctx.add('QCheckBox', setText='Scale Mode 1', setObjectName='chk001', setTristate=True, setChecked=True, setToolTip='0 - No scale is applied.<br>1 - Uniform scale to fit in unit square.<br>2 - Non proportional scale to fit in unit square.')
+			ctx.add('QRadioButton', setText='Seam Only', setObjectName='chk002', setToolTip='Cut seams only.')
+			ctx.add('QRadioButton', setText='Planar', setObjectName='chk003', setToolTip='Create UV texture coordinates for the current selection by using a planar projection shape.')
+			ctx.add('QRadioButton', setText='Cylindrical', setObjectName='chk004', setToolTip='Create UV texture coordinates for the current selection, using a cylidrical projection that gets wrapped around the mesh.<br>Best suited for completely enclosed cylidrical shapes with no holes or projections on the surface.')
+			ctx.add('QRadioButton', setText='Spherical', setObjectName='chk005', setToolTip='Create UV texture coordinates for the current selection, using a spherical projection that gets wrapped around the mesh.<br>Best suited for completely enclosed spherical shapes with no holes or projections on the surface.')
+			ctx.add('QRadioButton', setText='Normal-Based', setObjectName='chk006', setToolTip='Create UV texture coordinates for the current selection by creating a planar projection based on the average vector of it\'s face normals.')
+			# ctx.chk001.toggled.connect(lambda state: self.toggleWidgets(ctx, setUnChecked='chk002-3') if state==1 else None)
 
 
 	@property
@@ -27,12 +49,6 @@ class Uv(Slots_max):
 
 		mod = self.getModifier(selection[0], 'Unwrap_UVW', -1) #get/set the uv xform modifier.
 		return mod
-
-
-	def draggable_header(self, state=None):
-		'''Context menu
-		'''
-		dh = self.uv_ui.draggable_header
 
 
 	def cmb000(self, index=-1):
@@ -92,12 +108,6 @@ class Uv(Slots_max):
 			elif text=='Linear Align':
 				pm.mel.performLinearAlignUV()
 			cmb.setCurrentIndex(0)
-
-
-	def chk001(self, state):
-		'''Auto Unwrap: Scale Mode CheckBox
-		'''
-		pass
 
 
 	def chk014(self):
@@ -186,7 +196,7 @@ class Uv(Slots_max):
 		orient = tb.contextMenu.chk021.isChecked()
 		stackSimilar = tb.contextMenu.chk022.isChecked()
 		tolerance = tb.contextMenu.s000.value()
-		sel = Uv.UvShellSelection() #assure the correct selection mask.
+		sel = self.UvShellSelection() #assure the correct selection mask.
 
 		if stackSimilar:
 			pm.polyUVStackSimilarShells(sel, tolerance=tolerance)
@@ -312,32 +322,7 @@ class Uv(Slots_max):
 		self.uv_uiModifier.stitchVerts(True, 1.0) #(align, bias) --Bias of 0.0 the vertices will move to the source and 1.0 they will move to the target. 
 
 
-	def b023(self):
-		'''Move To Uv Space: Left
-		'''
-		Uv.moveSelectedToUvSpace(-1, 0) #move left
-
-
-	def b024(self):
-		'''Move To Uv Space: Down
-		'''
-		Uv.moveSelectedToUvSpace(0, -1) #move down
-
-
-	def b025(self):
-		'''Move To Uv Space: Up
-		'''
-		Uv.moveSelectedToUvSpace(0, 1) #move up
-
-
-	def b026(self):
-		'''Move To Uv Space: Right
-		'''
-		Uv.moveSelectedToUvSpace(1, 0) #move right
-
-
-	@staticmethod
-	def moveSelectedToUvSpace(u, v, relative=True):
+	def moveSelectedToUvSpace(self, u, v, relative=True):
 		'''Move sny selected objects to the given u and v coordinates.
 
 		:Parameters:
@@ -350,8 +335,7 @@ class Uv(Slots_max):
 		pm.polyEditUV(sel, u=u, v=v, relative=relative)
 
 
-	@staticmethod
-	def flipUV(objects=None):
+	def flipUV(self, objects=None):
 		''''''
 		u = 1
 		v = 0

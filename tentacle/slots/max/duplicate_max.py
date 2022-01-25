@@ -2,21 +2,17 @@
 # coding=utf-8
 from slots.max import *
 from slots.duplicate import Duplicate
-from ui.static.max.duplicate_ui_max import Duplicate_ui_max
 
 
 
-class Duplicate(Slots_max):
+class Duplicate_max(Duplicate):
 	def __init__(self, *args, **kwargs):
 		Slots_max.__init__(self, *args, **kwargs)
-		Duplicate_ui_max.__init__(self, *args, **kwargs)
 		Duplicate.__init__(self, *args, **kwargs)
 
-
-	def draggable_header(self, state=None):
-		'''Context menu
-		'''
-		dh = self.duplicate_ui.draggable_header
+		cmb = self.duplicate_ui.draggable_header.contextMenu.cmb000
+		list_ = ['Duplicate Special']
+		cmb.addItems_(list_, 'Maya Menus')
 
 
 	def cmb000(self, index=-1):
@@ -29,28 +25,6 @@ class Duplicate(Slots_max):
 			if text=='':
 				pass
 			cmb.setCurrentIndex(0)
-
-
-	def radialArray(self):
-		'''Radial Array: Reset
-		'''
-		self.chk015() #calling chk015 directly from valueChanged would pass the returned spinbox value to the create arg
-
-
-	def duplicateArray(self):
-		'''Duplicate: Reset
-		'''
-		self.chk016() #calling chk015 directly from valueChanged would pass the returned spinbox value to the create arg
-
-
-	def chk007(self, state=None):
-		'''Duplicate: Translate To Components
-		'''
-		if self.duplicate_ui.chk007.isChecked():
-			self.toggleWidgets(setEnabled='chk008,b034,cmb001', setDisabled='chk000,chk009,s005')
-			self.b034()
-		else:
-			self.toggleWidgets(setEnabled='chk000,chk009,s005', setDisabled='chk008,b034,cmb001')
 
 
 	@Slots.message
@@ -75,33 +49,6 @@ class Duplicate(Slots_max):
 		else:
 			del radialPivot[:]
 			self.duplicate_ui.chk010.setText("Set Pivot")
-
-
-	def chk011(self, state=None):
-		'''Radial Array: Instance/Duplicate Toggle
-		'''
-		self.chk015() #calling chk015 directly from valueChanged would pass the returned spinbox value to the create arg
-
-
-	def chk012(self, state=None):
-		'''Radial Array: X Axis
-		'''
-		self.toggleWidgets(setChecked='chk012', setUnChecked='chk013,chk014')
-		self.chk015()
-
-
-	def chk013(self, state=None):
-		'''Radial Array: Y Axis
-		'''
-		self.toggleWidgets(setChecked='chk013', setUnChecked='chk012,chk014')
-		self.chk015()
-
-
-	def chk014(self, state=None):
-		'''Radial Array: Z Axis
-		'''
-		self.toggleWidgets(setChecked='chk014', setUnChecked='chk012,chk013')
-		self.chk015()
 
 
 	global radialArrayObjList
@@ -342,19 +289,6 @@ class Duplicate(Slots_max):
 		self.convertToInstances(pm.ls(sl=1))
 
 
-	def b002(self):
-		'''Duplicate: Create
-		'''
-		self.duplicate_ui.chk016.setChecked(False) #must be in the false unchecked state to catch the create flag in chk015
-		self.chk016(create=True)
-
-
-	def b003(self):
-		'''Radial Array: Create
-		'''
-		self.duplicate_ui.chk015.setChecked(False) #must be in the false unchecked state to catch the create flag in chk015
-		self.chk015(create=True)
-
 
 	@Slots.message
 	def b004(self):
@@ -384,40 +318,12 @@ class Duplicate(Slots_max):
 	def b005(self):
 		'''Uninstance Selected Objects
 		'''
-		i=rt.instancemgr
+		i = rt.instancemgr
 
 		for obj in rt.selection:
 			if i.CanMakeObjectsUnique(obj):
 				i.MakeObjectsUnique(obj, 'prompt') #uninstance obj.  enums: {#prompt | #individual | #group}
 
-
-	def b006(self):
-		'''
-		'''
-		self.tcl.setUi('duplicate_linear')
-
-		self.duplicate_linear_ui.s002.valueChanged.connect(self.duplicateArray) #update duplicate array
-		self.duplicate_linear_ui.s003.valueChanged.connect(self.duplicateArray)
-		self.duplicate_linear_ui.s004.valueChanged.connect(self.duplicateArray)
-		self.duplicate_linear_ui.s005.valueChanged.connect(self.duplicateArray)
-		self.duplicate_linear_ui.s007.valueChanged.connect(self.duplicateArray) 
-		self.duplicate_linear_ui.s008.valueChanged.connect(self.duplicateArray)
-		self.duplicate_linear_ui.s009.valueChanged.connect(self.duplicateArray)
-
-
-	def b007(self):
-		'''
-		'''
-		self.tcl.setUi('duplicate_radial')
-
-		self.duplicate_radial_ui.s000.valueChanged.connect(self.radialArray) #update radial array
-		self.duplicate_radial_ui.s001.valueChanged.connect(self.radialArray) 
-
-
-	def b008(self):
-		'''Add Selected Components To cmb001
-		'''
-		self.comboBox(self.duplicate_ui.cmb001, pm.ls(selection=1, flatten=1))
 
 
 

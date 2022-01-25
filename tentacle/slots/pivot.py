@@ -1,9 +1,10 @@
 # !/usr/bin/python
 # coding=utf-8
+from slots import Slots
 
 
 
-class Pivot():
+class Pivot(Slots):
 	'''
 	'''
 	def __init__(self, *args, **kwargs):
@@ -17,3 +18,36 @@ class Pivot():
 					current (lambda function) = Returns the current ui if it is either the parent or a child ui for the class; else, return the parent ui. ie. self.current()
 					'<name>' (lambda function) = Returns the class instance of that name.  ie. self.polygons()
 		'''
+		ctx = self.pivot_ui.draggable_header.contextMenu
+		if not ctx.containsMenuItems:
+			ctx.add(self.tcl.wgts.ComboBox, setObjectName='cmb000', setToolTip='')
+
+
+	def draggable_header(self, state=None):
+		'''Context menu
+		'''
+		dh = self.pivot_ui.draggable_header
+
+
+	def b000(self):
+		'''Center Pivot: Object
+		'''
+		tb = self.pivot_ui.tb001
+		tb.contextMenu.chk003.setChecked(True)
+		self.tb001()
+
+
+	def b001(self):
+		'''Center Pivot: Component
+		'''
+		tb = self.pivot_ui.tb001
+		tb.contextMenu.chk002.setChecked(True)
+		self.tb001()
+
+
+	def b002(self):
+		'''Center Pivot: World
+		'''
+		tb = self.pivot_ui.tb001
+		tb.contextMenu.chk004.setChecked(True)
+		self.tb001()

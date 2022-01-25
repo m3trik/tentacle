@@ -2,22 +2,46 @@
 # coding=utf-8
 from slots.maya import *
 from slots.edit import Edit
-from ui.static.maya.edit_ui_maya import Edit_ui_maya
 
 
 
-class Edit_maya(Slots_maya):
+class Edit_maya(Edit):
 	def __init__(self, *args, **kwargs):
 		Slots_maya.__init__(self, *args, **kwargs)
-		Edit_ui_maya.__init__(self, *args, **kwargs)
 		Edit.__init__(self, *args, **kwargs)
 
+		cmb = self.edit_ui.draggable_header.contextMenu.cmb000
+		items = ['Cleanup', 'Transfer: Attribute Values', 'Transfer: Shading Sets']
+		cmb.addItems_(items, 'Maya Editors')
 
-	def draggable_header(self, state=None):
-		'''Context menu
-		'''
-		dh = self.edit_ui.draggable_header
 
+		ctx = self.edit_ui.tb000.contextMenu
+		if not ctx.containsMenuItems:
+			ctx.add('QCheckBox', setText='All Geometry', setObjectName='chk005', setToolTip='Clean All scene geometry.')
+			ctx.add('QCheckBox', setText='Repair', setObjectName='chk004', setToolTip='Repair matching geometry. Else, select only.') #add(self.tcl.wgts.CheckBox, setText='Select Only', setObjectName='chk004', setTristate=True, setCheckState_=2, setToolTip='Select and/or Repair matching geometry. <br>0: Repair Only<br>1: Repair and Select<br>2: Select Only')
+			ctx.add('QCheckBox', setText='N-Gons', setObjectName='chk002', setChecked=True, setToolTip='Find N-gons.')
+			ctx.add('QCheckBox', setText='Non-Manifold Geometry', setObjectName='chk017', setChecked=True, setToolTip='Check for nonmanifold polys.')
+			ctx.add('QCheckBox', setText='Non-Manifold Vertex', setObjectName='chk021', setToolTip='A connected vertex of non-manifold geometry where the faces share a single vertex.')
+			ctx.add('QCheckBox', setText='Quads', setObjectName='chk010', setToolTip='Check for quad sided polys.')
+			ctx.add('QCheckBox', setText='Concave', setObjectName='chk011', setToolTip='Check for concave polys.')
+			ctx.add('QCheckBox', setText='Non-Planar', setObjectName='chk003', setToolTip='Check for non-planar polys.')
+			ctx.add('QCheckBox', setText='Holed', setObjectName='chk012', setToolTip='Check for holed polys.')
+			ctx.add('QCheckBox', setText='Lamina', setObjectName='chk018', setToolTip='Check for lamina polys.')
+			ctx.add('QCheckBox', setText='Shared UV\'s', setObjectName='chk016', setToolTip='Unshare uvs that are shared across vertices.')
+			# ctx.add('QCheckBox', setText='Invalid Components', setObjectName='chk019', setToolTip='Check for invalid components.')
+			ctx.add('QCheckBox', setText='Zero Face Area', setObjectName='chk013', setToolTip='Check for 0 area faces.')
+			ctx.add('QDoubleSpinBox', setPrefix='Face Area Tolerance:   ', setObjectName='s006', setDisabled=True, setMinMax_='0.0-10 step.001', setValue=0.001, setToolTip='Tolerance for face areas.')
+			ctx.add('QCheckBox', setText='Zero Length Edges', setObjectName='chk014', setToolTip='Check for 0 length edges.')
+			ctx.add('QDoubleSpinBox', setPrefix='Edge Length Tolerance: ', setObjectName='s007', setDisabled=True, setMinMax_='0.0-10 step.001', setValue=0.001, setToolTip='Tolerance for edge length.')
+			ctx.add('QCheckBox', setText='Zero UV Face Area', setObjectName='chk015', setToolTip='Check for 0 uv face area.')
+			ctx.add('QDoubleSpinBox', setPrefix='UV Face Area Tolerance:', setObjectName='s008', setDisabled=True, setMinMax_='0.0-10 step.001', setValue=0.001, setToolTip='Tolerance for uv face areas.')
+			ctx.add('QCheckBox', setText='Overlapping Duplicate Objects', setObjectName='chk022', setToolTip='Find any duplicate overlapping geometry at the object level.')
+			ctx.add('QCheckBox', setText='Omit Selected Objects', setObjectName='chk023', setDisabled=True, setToolTip='Overlapping Duplicate Objects: Search for duplicates of any selected objects while omitting the initially selected objects.')
+			ctx.chk013.toggled.connect(lambda state: ctx.s006.setEnabled(True if state else False))
+			ctx.chk014.toggled.connect(lambda state: ctx.s007.setEnabled(True if state else False))
+			ctx.chk015.toggled.connect(lambda state: ctx.s008.setEnabled(True if state else False))
+			ctx.chk022.stateChanged.connect(lambda state: self.toggleWidgets(ctx, setDisabled='chk002-3,chk005,chk010-21,s006-8', setEnabled='chk023') if state 
+															else self.toggleWidgets(ctx, setEnabled='chk002-3,chk005,chk010-21,s006-8', setDisabled='chk023')) #disable non-relevant options.
 
 	def cmb000(self, index=-1):
 		'''Editors
@@ -52,14 +76,6 @@ class Edit_maya(Slots_maya):
 		if index>0:
 			if cmb.items[index]!='No selection.':
 				return pm.ls(cmb.items[index])
-
-
-	def chk006_9(self):
-		'''Set the toolbutton's text according to the checkstates.
-		'''
-		tb = self.edit_ui.tb003
-		axis = self.getAxisFromCheckBoxes('chk006-9', tb.contextMenu)
-		tb.setText('Delete '+axis)
 
 
 	def tb000(self, state=None):
@@ -240,7 +256,6 @@ class Edit_maya(Slots_maya):
 		pm.mel.performTransferShadingSets(0)
 
 
-	@staticmethod
 	def getOverlappingDuplicateObjects(self, objects=[], omitInitialObjects=False, select=False, verbose=False):
 		'''Find any duplicate overlapping geometry at the object level.
 

@@ -2,21 +2,21 @@
 # coding=utf-8
 from slots.max import *
 from slots.nurbs import Nurbs
-from ui.static.max.nurbs_ui_max import Nurbs_ui_max
 
 
 
-class Nurbs(Slots_max):
+class Nurbs_max(Nurbs):
 	def __init__(self, *args, **kwargs):
 		Slots_max.__init__(self, *args, **kwargs)
-		Nurbs_ui_max.__init__(self, *args, **kwargs)
 		Nurbs.__init__(self, *args, **kwargs)
 
-		
-	def draggable_header(self, state=None):
-		'''Context menu
-		'''
-		dh = self.nurbs_ui.draggable_header
+		cmb = self.nurbs_ui.draggable_header.contextMenu.cmb000
+		items = []
+		cmb.addItems_(items, 'Curve Editors')
+
+		cmb = self.nurbs_ui.cmb001
+		items = []
+		cmb.addItems_(items, 'Create Curve')
 
 
 	def cmb000(self, index=-1):

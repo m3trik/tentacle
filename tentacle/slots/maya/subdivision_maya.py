@@ -2,21 +2,31 @@
 # coding=utf-8
 from slots.maya import *
 from slots.subdivision import Subdivision
-from ui.static.maya.subdivision_ui_maya import Subdivision_ui_maya
 
 
 
-class Subdivision_maya(Slots_maya):
+class Subdivision_maya(Subdivision):
 	def __init__(self, *args, **kwargs):
 		Slots_maya.__init__(self, *args, **kwargs)
-		Subdivision_ui_maya.__init__(self, *args, **kwargs)
 		Subdivision.__init__(self, *args, **kwargs)
 
+		ctx = self.subdivision_ui.draggable_header.contextMenu
+		if not ctx.containsMenuItems:
+			ctx.add(self.tcl.wgts.ComboBox, setObjectName='cmb000', setToolTip='Subdivision Editiors.')
+			ctx.add(self.tcl.wgts.ComboBox, setObjectName='cmb001', setToolTip='Smooth Proxy.')
+			ctx.add(self.tcl.wgts.ComboBox, setObjectName='cmb002', setToolTip='Maya Subdivision Operations.')
 
-	def draggable_header(self, state=None):
-		'''Context menu
-		'''
-		dh = self.subdivision_ui.draggable_header
+		cmb = self.subdivision_ui.draggable_header.contextMenu.cmb000
+		items = ['Polygon Display Options']
+		cmb.addItems_(items, 'Subdivision Editiors')
+
+		cmb = self.subdivision_ui.draggable_header.contextMenu.cmb001
+		items = ['Create Subdiv Proxy','Remove Subdiv Proxy Mirror','Crease Tool','Toggle Subdiv Proxy Display', 'Both Proxy and Subdiv Display']
+		cmb.addItems_(items, 'Smooth Proxy')
+
+		cmb = self.subdivision_ui.draggable_header.contextMenu.cmb002
+		items = ['Reduce Polygons','Add Divisions','Smooth']
+		cmb.addItems_(items, 'Maya Subdivision Operations')
 
 
 	def cmb000(self, index=-1):
@@ -100,29 +110,17 @@ class Subdivision_maya(Slots_maya):
 		# pm.mel.ReducePolygon()
 
 
-	def b006(self):
-		''''''
-		pass
-
-
-	def b007(self):
-		''''''
-		pass
-
-
 	def b008(self):
 		'''Add Divisions - Subdivide Mesh
 		'''
 		pm.mel.SubdividePolygon()
+
 
 	def b009(self):
 		'''Smooth
 		'''
 		pm.mel.SmoothPolygon()
 
-	def b010(self):
-		''''''
-		pass
 
 	def b011(self):
 		'''Apply Smooth Preview

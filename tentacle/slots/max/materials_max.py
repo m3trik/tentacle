@@ -2,25 +2,26 @@
 # coding=utf-8
 from slots.max import *
 from slots.materials import Materials
-from ui.static.max.materials_ui_max import Materials_ui_max
 
 
 
-class Materials(Slots_max):
+class Materials_max(Materials):
 	def __init__(self, *args, **kwargs):
 		Slots_max.__init__(self, *args, **kwargs)
-		Materials_ui_max.__init__(self, *args, **kwargs)
 		Materials.__init__(self, *args, **kwargs)
 
 		self.randomMat=None
 
 		self.materials_submenu_ui.b003.setVisible(False)
 
+		ctx = self.materials_ui.draggable_header.contextMenu
+		if not ctx.containsMenuItems:
+			ctx.add(self.tcl.wgts.PushButton, setText='Relink Scene Bitmaps', setObjectName='tb003', setToolTip='Repair broken bitmap file links for any scene materials. If no materials are selected, all scene materials will be used.')
+			ctx.add(self.tcl.wgts.PushButton, setText='Relink Library Bitmaps', setObjectName='tb004', setToolTip='Repair broken bitmap file links for all libraries in a given directory.')
 
-	def draggable_header(self, state=None):
-		'''Context menu
-		'''
-		dh = self.materials_ui.draggable_header
+		cmb = self.materials_ui.draggable_header.contextMenu.cmb000
+		items = ['Material Editor']
+		cmb.addItems_(items, 'Material Editors')
 
 
 	def cmb000(self, index=-1):
@@ -60,40 +61,15 @@ class Materials(Slots_max):
 
 		#create and set icons with color swatch
 		for i, mat in enumerate(cmb.items):
-			icon = Materials.getColorSwatchIcon(mat)
+			icon = self.getColorSwatchIcon(mat)
 			cmb.setItemIcon(i, icon) if icon else None
 
 		#set submenu assign material button attributes
 		b.setText('Assign '+cmb.currentText())
-		icon = Materials.getColorSwatchIcon(cmb.currentText(), [15, 15])
+		icon = self.getColorSwatchIcon(cmb.currentText(), [15, 15])
 		b.setIcon(icon) if icon else None
 		b.setMinimumWidth(b.minimumSizeHint().width()+25)
 		b.setVisible(True if cmb.currentText() else False)
-
-
-	@staticmethod
-	def getColorSwatchIcon(mat, size=[20, 20]):
-		'''Get an icon with a color fill matching the given materials RBG value.
-
-		:Parameters:
-			mat (obj)(str) = The material or the material's name.
-			size (list) = Desired icon size. [width, height]
-
-		:Return:
-			(obj) pixmap icon.
-		'''
-		try:
-			mat = next(m for m in Materials.getSceneMaterials() if m.name==mat) if isinstance(mat, (str)) else mat #get the mat object if a string name is given.
-			r = int(mat.diffuse.r) #convert from float value
-			g = int(mat.diffuse.g)
-			b = int(mat.diffuse.b)
-			pixmap = QtGui.QPixmap(size[0],size[1])
-			pixmap.fill(QtGui.QColor.fromRgb(r, g, b))
-
-			return QtGui.QIcon(pixmap)
-
-		except (StopIteration, AttributeError):
-			pass
 
 
 	@Slots.message
@@ -167,7 +143,7 @@ class Materials(Slots_max):
 			return
 
 		mat_dir = tb.contextMenu.l000.text()
-		mats = Materials.getNodesSME(selected=True) #find bitmaps for any currently selected nodes in the slate material editor, else relink all scene nodes.
+		mats = self.getNodesSME(selected=True) #find bitmaps for any currently selected nodes in the slate material editor, else relink all scene nodes.
 		if not mats:
 			mats = None
 
@@ -259,18 +235,6 @@ class Materials(Slots_max):
 			rt.freeSceneBitmaps()
 
 
-	def b000(self):
-		'''Material List: Delete
-		'''
-		self.lbl002()
-
-
-	def b001(self):
-		'''Material List: Edit
-		'''
-		self.lbl000()
-
-
 	@Slots.message
 	def b002(self):
 		'''Set Material: Set the Currently Selected Material as the currentMaterial.
@@ -287,28 +251,28 @@ class Materials(Slots_max):
 		self.materials_ui.cmb002.setCurrentIndex(self.materials_ui.cmb002.items.index(mat.name()))
 
 
-	def b003(self):
-		'''Assign: Assign Current
+	def getColorSwatchIcon(self, mat, size=[20, 20]):
+		'''Get an icon with a color fill matching the given materials RBG value.
+
+		:Parameters:
+			mat (obj)(str) = The material or the material's name.
+			size (list) = Desired icon size. [width, height]
+
+		:Return:
+			(obj) pixmap icon.
 		'''
-		self.materials_ui.tb002.contextMenu.chk007.setChecked(True)
-		self.materials_ui.tb002.setText('Assign Current')
-		self.tb002()
+		try:
+			mat = next(m for m in self.getSceneMaterials() if m.name==mat) if isinstance(mat, (str)) else mat #get the mat object if a string name is given.
+			r = int(mat.diffuse.r) #convert from float value
+			g = int(mat.diffuse.g)
+			b = int(mat.diffuse.b)
+			pixmap = QtGui.QPixmap(size[0],size[1])
+			pixmap.fill(QtGui.QColor.fromRgb(r, g, b))
 
+			return QtGui.QIcon(pixmap)
 
-	def b004(self):
-		'''Assign: Assign Random
-		'''
-		self.materials_ui.tb002.contextMenu.chk008.setChecked(True)
-		self.materials_ui.tb002.setText('Assign Random')
-		self.tb002()
-
-
-	def b005(self):
-		'''Assign: Assign New
-		'''
-		self.materials_ui.tb002.contextMenu.chk009.setChecked(True)
-		self.materials_ui.tb002.setText('Assign New')
-		self.tb002()
+		except (StopIteration, AttributeError):
+			pass
 
 
 	def renameMaterial(self, mat, newMatName):
@@ -402,8 +366,7 @@ class Materials(Slots_max):
 				# print other
 
 
-	@staticmethod
-	def getSceneMaterials(startingWith=['']):
+	def getSceneMaterials(self.startingWith=['']):
 		'''Get All Materials from the current scene.
 
 		:Parameters:
@@ -460,8 +423,7 @@ class Materials(Slots_max):
 		return mat
 
 
-	@staticmethod
-	def createRandomMaterial(name=None, prefix=''):
+	def createRandomMaterial(self, name=None, prefix=''):
 		'''Creates a random material.
 
 		:Parameters:
@@ -505,8 +467,7 @@ class Materials(Slots_max):
 		rt.redrawViews()
 
 
-	@staticmethod
-	def getMaterialBitmaps(mats=None, missing=False, processChildren=True):
+	def getMaterialBitmaps(self, mats=None, missing=False, processChildren=True):
 		'''Get any bitmaps from a given material(s), or from all scene materials.
 
 		:Parameters:
@@ -532,8 +493,7 @@ class Materials(Slots_max):
 		return result
 
 
-	@staticmethod
-	def getBitmapFilenames(bitmaps=None, missing=False, returnType=list):
+	def getBitmapFilenames(self, bitmaps=None, missing=False, returnType=list):
 		'''Get the file paths for the given bitmaps. If no bitmaps are given all bitmaps in the scene will be used.
 
 		:Parameters:
@@ -549,7 +509,7 @@ class Materials(Slots_max):
 		import fnmatch
 
 		if not bitmaps: #if no bitmaps are given, use all scene bitmaps.
-			bitmaps = Materials.getMaterialBitmaps(missing=missing)
+			bitmaps = self.getMaterialBitmaps(missing=missing)
 
 		result = {bitmap:bitmap.filename.rsplit('\\')[-1] for bitmap in bitmaps}
 
@@ -559,8 +519,7 @@ class Materials(Slots_max):
 		return result
 
 
-	@staticmethod
-	def setBitmapFilenames(dict_, reload=False):
+	def setBitmapFilenames(self, dict_, reload=False):
 		'''Set the file paths for the given bitmaps. Bitmaps are given as a dict of bitmaps as keys, and filenames as values.
 
 		:Parameters:
@@ -573,8 +532,7 @@ class Materials(Slots_max):
 				bitmap.reload()
 
 
-	@staticmethod
-	def relinkBitmaps(dir_, bitmaps=None, replaceTxWithTif=False):
+	def relinkBitmaps(self, dir_, bitmaps=None, replaceTxWithTif=False):
 		'''Find the first valid path in the given dir for each bitmap in a given dict. If no bitmaps are given all bitmaps in the scene will be used.
 
 		:Parameters:
@@ -587,7 +545,7 @@ class Materials(Slots_max):
 		'''
 		import fnmatch, os
 
-		bitmaps = Materials.getBitmapFilenames(bitmaps, missing=True, returnType=dict)
+		bitmaps = self.getBitmapFilenames(bitmaps, missing=True, returnType=dict)
 
 		if replaceTxWithTif:
 			for bitmap,filename in bitmaps.items():
@@ -605,15 +563,14 @@ class Materials(Slots_max):
 					bitmaps.pop(bitmap, None)
 					print ('# Result: {}: {}: {} #'.format(filename, bitmap.name, path))
 
-		Materials.setBitmapFilenames(result, reload=True)
+		self.setBitmapFilenames(result, reload=True)
 
 		if bitmaps:
 			for bitmap,filename in bitmaps.items():
 				print ('# Error: {}: {} #'.format(bitmap.name, filename))
 
 
-	@staticmethod
-	def relinkMatLibBitmaps(library_dir, mat_dir, replaceTxWithTif=False):
+	def relinkMatLibBitmaps(self, library_dir, mat_dir, replaceTxWithTif=False):
 		'''Repair broken bitmap file links for all libraries in a given directory.
 
 		:Parameters:
@@ -630,7 +587,7 @@ class Materials(Slots_max):
 						path = os.path.join(root, filename)
 						tempLib = rt.loadTempMaterialLibrary(path)
 
-						for bitmap in Materials.getMaterialBitmaps(tempLib):
+						for bitmap in self.getMaterialBitmaps(tempLib):
 							bitmaps.append(bitmap)
 
 						tempLibs[tempLib] = path
@@ -638,26 +595,24 @@ class Materials(Slots_max):
 						print ('# Error: {}: {} #'.format(filename, e))
 
 		if bitmaps:
-			Materials.relinkBitmaps(mat_dir, bitmaps, replaceTxWithTif=replaceTxWithTif)
+			self.relinkBitmaps(mat_dir, bitmaps, replaceTxWithTif=replaceTxWithTif)
 			{rt.saveTempMaterialLibrary(lib, name) for lib,name in tempLibs.items()}
 
 
-	@staticmethod
-	def relinkSceneBitmaps(mat_dir, mats=None, replaceTxWithTif=False):
+	def relinkSceneBitmaps(self, mat_dir, mats=None, replaceTxWithTif=False):
 		'''Repair broken bitmap file links.  If no mats are given, all scene bitmaps will be used.
 
 		:Parameters:
 			mats (obj)(list) = Specify material(s) to get bitmaps for. If none are given, all scene materials will be used.
 			replaceTxWithTif (bool) = Look instead for a .tif file of the same name, to replace a previoud .tx format.
 		'''
-		bitmaps = Materials.getMaterialBitmaps(mats)
+		bitmaps = self.getMaterialBitmaps(mats)
 
 		if bitmaps:
-			Materials.relinkBitmaps(mat_dir, bitmaps, replaceTxWithTif=True)
+			self.relinkBitmaps(mat_dir, bitmaps, replaceTxWithTif=True)
 
 
-	@staticmethod
-	def getNodesSME(nodeType=None, selected=False):
+	def getNodesSME(self, nodeType=None, selected=False):
 		'''Get any nodes in the slate material editor that are currently selected.
 
 		:Parameters:

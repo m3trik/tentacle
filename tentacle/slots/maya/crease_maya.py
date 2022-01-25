@@ -2,35 +2,19 @@
 # coding=utf-8
 from slots.maya import *
 from slots.crease import Crease
-from ui.static.maya.crease_ui_maya import Crease_ui_maya
 
 
 
-class Crease_maya(Slots_maya):
+class Crease_maya(Crease):
 	def __init__(self, *args, **kwargs):
 		Slots_maya.__init__(self, *args, **kwargs)
-		Crease_ui_maya.__init__(self, *args, **kwargs)
 		Crease.__init__(self, *args, **kwargs)
 
 		self.creaseValue = 10
 
-
-	@Slots.sync
-	def s003(self, value=None):
-		'''Crease Amount
-		Tracks the standard crease amount while toggles such as un-crease, and crease max temporarily change the spinbox value. 
-		'''
-		if not self.crease_ui.tb000.contextMenu.chk002.isChecked(): #un-crease
-			if not self.crease_ui.tb000.contextMenu.chk003.isChecked(): #toggle max
-				self.creaseValue = self.crease_ui.tb000.contextMenu.s003.value()
-				text = self.crease_ui.tb000.text().split()[0]
-				self.crease_ui.tb000.setText('{} {}'.format(text, self.creaseValue))
-
-
-	def draggable_header(self, state=None):
-		'''Context menu
-		'''
-		dh = self.crease_ui.draggable_header
+		cmb = self.crease_ui.draggable_header.contextMenu.cmb000
+		items = ['Crease Set Editor']
+		cmb.addItems_(items, 'Crease Editors:')
 
 
 	def cmb000(self, index=-1):
@@ -45,54 +29,6 @@ class Crease_maya(Slots_maya):
 				creaseSetEditor.showCreaseSetEditor()
 
 			cmb.setCurrentIndex(0)
-
-
-	@Slots.sync
-	def chk002(self, state=None):
-		'''Un-Crease
-		'''
-		if self.crease_ui.tb000.contextMenu.chk002.isChecked():
-			self.crease_ui.tb000.contextMenu.s003.setValue(0) #crease value
-			self.crease_ui.tb000.contextMenu.s004.setValue(180) #normal angle
-			self.toggleWidgets(self.crease_ui.tb000.contextMenu, self.crease_submenu_ui.tb000.contextMenu, setChecked='chk002', setUnChecked='chk003')
-			self.crease_ui.tb000.contextMenu.s003.setDisabled(True)
-			text = 'Un-Crease 0'
-		else:
-			self.crease_ui.tb000.contextMenu.s003.setValue(self.creaseValue) #crease value
-			self.crease_ui.tb000.contextMenu.s004.setValue(30) #normal angle
-			self.crease_ui.tb000.contextMenu.s003.setEnabled(True)
-			text = '{} {}'.format('Crease', self.creaseValue)
-
-		self.crease_ui.tb000.setText(text)
-
-
-	@Slots.sync
-	def chk003(self, state=None):
-		'''Crease: Max
-		'''
-		if self.crease_ui.tb000.contextMenu.chk003.isChecked():
-			self.crease_ui.tb000.contextMenu.s003.setValue(10) #crease value
-			self.crease_ui.tb000.contextMenu.s004.setValue(30) #normal angle
-			self.toggleWidgets(self.crease_ui.tb000.contextMenu, self.crease_submenu_ui.tb000.contextMenu, setChecked='chk003', setUnChecked='chk002')
-			self.crease_ui.tb000.contextMenu.s003.setDisabled(True)
-			text = 'Un-Crease 0'
-		else:
-			self.crease_ui.tb000.contextMenu.s003.setValue(self.creaseValue) #crease value
-			self.crease_ui.tb000.contextMenu.s004.setValue(60) #normal angle
-			self.crease_ui.tb000.contextMenu.s003.setEnabled(True)
-			text = '{} {}'.format('Crease', self.creaseValue)
-
-		self.crease_ui.tb000.setText(text)
-
-
-	@Slots.sync
-	def chk011(self, state=None):
-		'''Crease: Auto
-		'''
-		if self.crease_ui.tb000.contextMenu.chk011.isChecked():
-			self.toggleWidgets(self.crease_ui.tb000.contextMenu, setEnabled='s005,s006')
-		else:
-			self.toggleWidgets(self.crease_ui.tb000.contextMenu, setDisabled='s005,s006')
 
 
 	def tb000(self, state=None):
@@ -130,48 +66,6 @@ class Crease_maya(Slots_maya):
 
 		if tb.contextMenu.chk011.isChecked(): #crease: Auto
 			pm.polySelectConstraint( angle=False ) # turn off angle constraint
-
-
-	def b000(self):
-		'''Crease Set Transfer: Transform Node
-		'''
-		if self.crease_ui.b001.isChecked():
-			newObject = str(pm.ls(selection=1)) #ex. [nt.Transform(u'pSphere1')]
-
-			index1 = newObject.find("u")
-			index2 = newObject.find(")")
-			newObject = newObject[index1+1:index2].strip("'") #ex. pSphere1
-
-			if newObject != "[":
-				self.crease_ui.b001.setText(newObject)
-			else:
-				self.crease_ui.b001.setText("must select obj first")
-				self.toggleWidgets(setUnChecked='b001')
-			if self.crease_ui.b000.isChecked():
-				self.toggleWidgets(setEnabled='b052')
-		else:
-			self.crease_ui.b001.setText("Object")
-
-
-	def b001(self):
-		'''Crease Set Transfer: Crease Set
-		'''
-		if self.crease_ui.b000.isChecked():
-			creaseSet = str(pm.ls(selection=1)) #ex. [nt.CreaseSet(u'creaseSet1')]
-
-			index1 = creaseSet.find("u")
-			index2 = creaseSet.find(")")
-			creaseSet = creaseSet[index1+1:index2].strip("'") #ex. creaseSet1
-
-			if creaseSet != "[":
-				self.crease_ui.b000.setText(creaseSet)
-			else:
-				self.crease_ui.b000.setText("must select set first")
-				self.toggleWidgets(setUnChecked='b000')
-			if self.crease_ui.b001.isChecked():
-				self.toggleWidgets(setEnabled='b052')
-		else:
-			self.crease_ui.b000.setText("Crease Set")
 
 
 	@Slots_maya.undoChunk

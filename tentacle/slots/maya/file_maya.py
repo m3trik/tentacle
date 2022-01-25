@@ -2,25 +2,42 @@
 # coding=utf-8
 from slots.maya import *
 from slots.file import File
-from ui.static.maya.file_ui_maya import File_ui_maya
 
 
 
-class File_maya(Slots_maya):
+class File_maya(File):
 	def __init__(self, *args, **kwargs):
 		Slots_maya.__init__(self, *args, **kwargs)
-		File_ui_maya.__init__(self, *args, **kwargs)
 		File.__init__(self, *args, **kwargs)
 
-		#set the text for the open last file button to the last file's name.
-		mostRecentFile = self.getRecentFiles(0)
-		self.file_submenu_ui.b001.setText(self.getNameFromFullPath(mostRecentFile)) if mostRecentFile else self.file_submenu_ui.b001.setVisible(False)
 
+		cmb = self.file_ui.draggable_header.contextMenu.cmb000
+		items = []
+		cmb.addItems_(items, 'File Editors')
 
-	def draggable_header(self, state=None):
-		'''Context menu
-		'''
-		dh = self.file_ui.draggable_header
+		cmb = self.file_ui.cmb002
+		ctx = cmb.contextMenu
+		if not ctx.containsMenuItems:
+			autoSaveState = pm.autoSave(q=True, enable=True) #set the initial autosave state.
+			autoSaveInterval = pm.autoSave(q=True, int=True)
+			autoSaveAmount = pm.autoSave(q=True, maxBackups=True)
+			ctx.add('QPushButton', setObjectName='b000', setText='Open Directory', setToolTip='Open the autosave directory.') #open directory
+			ctx.add('QPushButton', setObjectName='b002', setText='Delete All', setToolTip='Delete all autosave files.') #delete all
+			ctx.add('QCheckBox', setText='Autosave', setObjectName='chk006', setChecked=autoSaveState, setToolTip='Set the autosave state as active or disabled.') #toggle autosave
+			ctx.add('QSpinBox', setPrefix='Amount: ', setObjectName='s000', setMinMax_='1-100 step1', setValue=autoSaveAmount, setHeight_=20, setToolTip='The number of autosave files to retain.') #autosave amount
+			ctx.add('QSpinBox', setPrefix='Interval: ', setObjectName='s001', setMinMax_='1-60 step1', setValue=autoSaveInterval/60, setHeight_=20, setToolTip='The autosave interval in minutes.') #autosave interval
+			ctx.chk006.toggled.connect(lambda s: pm.autoSave(enable=s, limitBackups=True))
+			ctx.s000.valueChanged.connect(lambda v: pm.autoSave(maxBackups=v, limitBackups=True))
+			ctx.s001.valueChanged.connect(lambda v: pm.autoSave(int=v*60, limitBackups=True))
+			cmb.addItems_(self.getRecentAutosave(appendDatetime=True), 'Recent Autosave', clear=True)
+
+		cmb = self.file_ui.cmb003
+		cmb.addItems_(['Import file', 'Import Options', 'FBX Import Presets', 'Obj Import Presets'], "Import")
+
+		cmb = self.file_ui.cmb004
+		items = ['Export Selection', 'Send to Unreal', 'Send to Unity', 'GoZ', 'Send to 3dsMax: As New Scene', 'Send to 3dsMax: Update Current', 
+				'Send to 3dsMax: Add to Current', 'Export to Offline File', 'Export Options', 'FBX Export Presets', 'Obj Export Presets']
+		cmb.addItems_(items, 'Export')
 
 
 	def cmb000(self, index=-1):
@@ -217,20 +234,6 @@ class File_maya(Slots_maya):
 			return 'Error: The system cannot find the file specified.'
 
 
-	@Slots.hideMain
-	def b001(self):
-		'''Recent Files: Open Last
-		'''
-		# files = [file_ for file_ in (list(reversed(pm.optionVar(query='RecentFilesList')))) if "Autosave" not in file_]
-
-		# force=True
-		# if str(mel.eval("file -query -sceneName -shortName;")):
-		# 	force=False #if sceneName, prompt user to save; else force open
-		# pm.openFile(files[0], open=1, force=force)
-
-		self.cmb005(index=1)
-
-
 	def b002(self):
 		'''Autosave: Delete All
 		'''
@@ -240,20 +243,6 @@ class File_maya(Slots_maya):
 				os.remove(file)
 			except Exception as error:
 				print (error)
-
-
-	@Slots.hideMain
-	def b007(self):
-		'''Import file
-		'''
-		self.cmb003(index=1)
-
-
-	@Slots.hideMain
-	def b008(self):
-		'''Export Selection
-		'''
-		self.cmb004(index=1)
 
 
 	def b015(self):
@@ -280,8 +269,7 @@ class File_maya(Slots_maya):
 			pm.rename(obj, newName) #Rename the object with the new name
 
 
-	@staticmethod
-	def getRecentFiles(index=None):
+	def getRecentFiles(self, index=None):
 		'''Get a list of recent files.
 
 		:Parameters:
@@ -300,8 +288,7 @@ class File_maya(Slots_maya):
 			return result
 
 
-	@staticmethod
-	def getRecentProjects():
+	def getRecentProjects(self):
 		'''Get a list of recently set projects.
 
 		:Return:
@@ -313,8 +300,7 @@ class File_maya(Slots_maya):
 		return result
 
 
-	@staticmethod
-	def getRecentAutosave(appendDatetime=False):
+	def getRecentAutosave(self, appendDatetime=False):
 		'''Get a list of autosave files.
 
 		:Parameters:

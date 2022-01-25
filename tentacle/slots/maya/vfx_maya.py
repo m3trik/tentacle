@@ -2,21 +2,17 @@
 # coding=utf-8
 from slots.maya import *
 from slots.vfx import Vfx
-from ui.static.maya.vfx_ui_maya import Vfx_ui_maya
 
 
 
-class Vfx_maya(Slots_maya):
+class Vfx_maya(Vfx):
 	def __init__(self, *args, **kwargs):
 		Slots_maya.__init__(self, *args, **kwargs)
-		Vfx_ui_maya.__init__(self, *args, **kwargs)
 		Vfx.__init__(self, *args, **kwargs)
 
-
-	def draggable_header(self, state=None):
-		'''Context menu
-		'''
-		dh = self.vfx_ui.draggable_header
+		cmb = self.vfx_ui.draggable_header.contextMenu.cmb000
+		list_ = ['']
+		cmb.addItems_(list_, '')
 
 
 	def cmb000(self, index=-1):

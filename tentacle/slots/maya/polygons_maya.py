@@ -2,38 +2,17 @@
 # coding=utf-8
 from slots.maya import *
 from slots.polygons import Polygons
-from ui.static.maya.polygons_ui_maya import Polygons_ui_maya
 
 
-class Polygons_maya(Slots_maya):
+
+class Polygons_maya(Polygons):
 	def __init__(self, *args, **kwargs):
 		Slots_maya.__init__(self, *args, **kwargs)
-		Polygons_ui_maya.__init__(self, *args, **kwargs)
 		Polygons.__init__(self, *args, **kwargs)
 
-
-	def draggable_header(self, state=None):
-		'''Context menu
-		'''
-		dh = self.polygons_ui.draggable_header
-
-
-	def chk008(self, state=None):
-		'''Divide Facet: Split U
-		'''
-		self.toggleWidgets(setUnChecked='chk010')
-
-
-	def chk009(self, state=None):
-		'''Divide Facet: Split V
-		'''
-		self.toggleWidgets(setUnChecked='chk010')
-
-
-	def chk010(self, state=None):
-		'''Divide Facet: Tris
-		'''
-		self.toggleWidgets(setUnChecked='chk008-9')
+		cmb = self.polygons_ui.draggable_header.contextMenu.cmb000
+		items = ['Extrude','Bevel','Bridge','Combine','Merge Vertex','Offset Edgeloop','Edit Edgeflow','Extract Curve','Poke','Wedge','Assign Invisible']
+		cmb.addItems_(items, 'Polygon Editors')
 
 
 	def cmb000(self, index=-1):

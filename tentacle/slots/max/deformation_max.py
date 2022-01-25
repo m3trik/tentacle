@@ -2,21 +2,17 @@
 # coding=utf-8
 from slots.max import *
 from slots.deformation import Deformation
-from ui.static.max.deformation_ui_max import Deformation_ui_max
 
 
 
-class Deformation(Slots_max):
+class Deformation_max(Deformation):
 	def __init__(self, *args, **kwargs):
 		Slots_max.__init__(self, *args, **kwargs)
-		Deformation_ui_max.__init__(self, *args, **kwargs)
 		Deformation.__init__(self, *args, **kwargs)
 
-
-	def draggable_header(self, state=None):
-		'''Context menu
-		'''
-		dh = self.deformation_ui.draggable_header
+		cmb = self.deformation_ui.draggable_header.contextMenu.cmb000
+		list_ = []
+		cmb.addItems_(list_, '')
 
 
 	def cmb000(self, index=-1):

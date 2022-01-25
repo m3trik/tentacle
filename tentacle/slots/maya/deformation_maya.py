@@ -2,21 +2,17 @@
 # coding=utf-8
 from slots.maya import *
 from slots.deformation import Deformation
-from ui.static.maya.deformation_ui_maya import Deformation_ui_maya
 
 
 
-class Deformation_maya(Slots_maya):
+class Deformation_maya(Deformation):
 	def __init__(self, *args, **kwargs):
 		Slots_maya.__init__(self, *args, **kwargs)
-		Deformation_ui_maya.__init__(self, *args, **kwargs)
 		Deformation.__init__(self, *args, **kwargs)
 
-
-	def draggable_header(self, state=None):
-		'''Context menu
-		'''
-		dh = self.deformation_ui.draggable_header
+		cmb = self.deformation_ui.draggable_header.contextMenu.cmb000
+		list_ = []
+		cmb.addItems_(list_, '')
 
 
 	def cmb000(self, index=-1):

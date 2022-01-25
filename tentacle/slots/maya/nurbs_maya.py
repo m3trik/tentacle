@@ -2,21 +2,21 @@
 # coding=utf-8
 from slots.maya import *
 from slots.nurbs import Nurbs
-from ui.static.maya.nurbs_ui_maya import Nurbs_ui_maya
 
 
 
-class Nurbs_maya(Slots_maya):
+class Nurbs_maya(Nurbs):
 	def __init__(self, *args, **kwargs):
 		Slots_maya.__init__(self, *args, **kwargs)
-		Nurbs_ui_maya.__init__(self, *args, **kwargs)
 		Nurbs.__init__(self, *args, **kwargs)
 
+		cmb = self.nurbs_ui.draggable_header.contextMenu.cmb000
+		items = ['Project Curve','Duplicate Curve','Create Curve from Poly','Bend Curve', 'Curl Curve','Modify Curve Curvature','Smooth Curve','Straighten Curves','Extrude Curves','Revolve Curves','Loft Curves','Planar Curves','Insert Isoparms','Insert Knot','Rebuild Curve','Extend Curve', 'Extend Curve On Surface']
+		cmb.addItems_(items, 'Curve Editors')
 
-	def draggable_header(self, state=None):
-		'''Context menu
-		'''
-		dh = self.nurbs_ui.draggable_header
+		cmb = self.nurbs_ui.cmb001
+		items = ['Ep Curve Tool','CV Curve Tool','Bezier Curve Tool','Pencil Curve Tool','2 Point Circular Arc','3 Point Circular Arc']
+		cmb.addItems_(items, 'Create Curve')
 
 
 	def cmb000(self, index=-1):

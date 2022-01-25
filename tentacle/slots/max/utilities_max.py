@@ -2,21 +2,17 @@
 # coding=utf-8
 from slots.max import *
 from slots.utilities import Utilities
-from ui.static.max.utilities_ui_max import Utilities_ui_max
 
 
 
-class Utilities(Slots_max):
+class Utilities_max(Utilities):
 	def __init__(self, *args, **kwargs):
 		Slots_max.__init__(self, *args, **kwargs)
-		Utilities_ui_max.__init__(self, *args, **kwargs)
 		Utilities.__init__(self, *args, **kwargs)
 
-
-	def draggable_header(self, state=None):
-		'''Context menu
-		'''
-		dh = self.utilities_ui.draggable_header
+		cmb = self.utilities_ui.draggable_header.contextMenu.cmb000
+		files = ['']
+		cmb.addItems_(files, '')
 
 
 	def cmb000(self, index=-1):

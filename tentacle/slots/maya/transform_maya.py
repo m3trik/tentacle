@@ -2,23 +2,45 @@
 # coding=utf-8
 from slots.maya import *
 from slots.transform import Transform
-from ui.static.maya.transform_ui_maya import Transform_ui_maya
 
 
 
-class Transform_maya(Slots_maya):
+class Transform_maya(Transform):
 	def __init__(self, *args, **kwargs):
 		'''
 		'''
 		Slots_maya.__init__(self, *args, **kwargs)
-		Transform_ui_maya.__init__(self, *args, **kwargs)
 		Transform.__init__(self, *args, **kwargs)
 
+		cmb = self.transform_ui.draggable_header.contextMenu.cmb000
+		files = ['']
+		cmb.addItems_(files, '')
 
-	def draggable_header(self, state=None):
-		'''Context menu
-		'''
-		dh = self.transform_ui.draggable_header
+		cmb = self.transform_ui.cmb001
+		cmb.popupStyle = 'qmenu'
+		cmb.menu_.setTitle('Constaints')
+		#query and set current states:
+		edge_constraint = True if pm.xformConstraint(query=1, type=1)=='edge' else False
+		surface_constraint = True if pm.xformConstraint(query=1, type=1)=='surface' else False
+		live_object = True if pm.ls(live=1) else False
+		values = [('chk024', 'Edge', edge_constraint), ('chk025', 'Surface', surface_constraint), ('chk026', 'Make Live', live_object)]
+		[cmb.menu_.add(self.tcl.wgts.CheckBox, setObjectName=chk, setText=typ, setChecked=state) for chk, typ, state in values]
+
+		cmb = self.transform_ui.cmb002
+		items = ['Point to Point', '2 Points to 2 Points', '3 Points to 3 Points', 'Align Objects', 'Position Along Curve', 'Align Tool', 'Snap Together Tool', 'Orient to Vertex/Edge Tool']
+		cmb.addItems_(items, 'Align To')
+
+		cmb = self.transform_ui.cmb003
+		cmb.popupStyle = 'qmenu'
+		cmb.menu_.setTitle('Snap')
+		moveValue = pm.manipMoveContext('Move', q=True, snapValue=True)
+		scaleValue = pm.manipScaleContext('Scale', q=True, snapValue=True)
+		rotateValue = pm.manipRotateContext('Rotate', q=True, snapValue=True)
+		values = [('chk021', 'Move: <b>Off</b>'), ('s021', 'increment:', moveValue, '1.00-1000 step2.8125'), 
+				('chk022', 'Scale: <b>Off</b>'), ('s022', 'increment:', scaleValue, '1.00-1000 step2.8125'), 
+				('chk023', 'Rotate: <b>Off</b>'), ('s023', 'degrees:', rotateValue, '1.00-360 step2.8125')]
+		[cmb.menu_.add(self.tcl.wgts.CheckBox, setObjectName=i[0], setText=i[1], setTristate=1) if len(i)==2 
+			else cmb.menu_.add('QDoubleSpinBox', setObjectName=i[0], setPrefix=i[1], setValue=i[2], setMinMax_=i[3], setDisabled=1) for i in values]
 
 
 	def cmb000(self, index=-1):
@@ -72,59 +94,6 @@ class Transform_maya(Slots_maya):
 		'''Transform Tool Snapping
 		'''
 		cmb = self.transform_ui.cmb003
-
-
-	def chk014(self, state=None):
-		'''Snap: Toggle Rotation
-		'''
-		cmb = self.transform_ui.cmb003
-
-		cmb.menu_.chk023.setChecked(True)
-		cmb.menu_.s023.setValue(11.25)
-		state = 1 if self.transform_submenu_ui.chk014.isChecked() else 0
-		self.chk023(state=state)
-
-
-	def chk021(self, state=None):
-		'''Transform Tool Snap Settings: Move
-		'''
-		cmb = self.transform_ui.cmb003
-		text = {0:'Move: <b>Off</b>', 1:'Move: <b>Relative</b>', 2:'Move: <b>Absolute</b>'}
-
-		cmb.menu_.chk021.setText(text[state])
-		cmb.menu_.s021.setEnabled(state)
-		pm.manipMoveContext('Move', edit=1, snap=False if state==0 else True, snapRelative=True if state==1 else False) #state: 0=off, 1=relative, 2=absolute
-		pm.texMoveContext('texMoveContext', edit=1, snap=False if state==0 else True) #uv move context
-
-		cmb.setCurrentText('Snap: <hl style="color:white;">Off</hl>') if not any((state, cmb.menu_.chk022.isChecked(), cmb.menu_.chk023.isChecked())) else cmb.setCurrentText('Snap: <hl style="color:green;">On</hl>')
-
-
-	def chk022(self, state=None):
-		'''Transform Tool Snap Settings: Scale
-		'''
-		cmb = self.transform_ui.cmb003
-		text = {0:'Scale: <b>Off</b>', 1:'Scale: <b>Relative</b>', 2:'Scale: <b>Absolute</b>'}
-
-		cmb.menu_.chk022.setText(text[state])
-		cmb.menu_.s022.setEnabled(state)
-		pm.manipScaleContext('Scale', edit=1, snap=False if state==0 else True, snapRelative=True if state==1 else False) #state: 0=off, 1=relative, 2=absolute
-		pm.texScaleContext('texScaleContext', edit=1, snap=False if state==0 else True) #uv scale context
-
-		cmb.setCurrentText('Snap: <hl style="color:white;">Off</hl>') if not any((state, cmb.menu_.chk021.isChecked(), cmb.menu_.chk023.isChecked())) else cmb.setCurrentText('Snap: <hl style="color:green;">On</hl>')
-
-
-	def chk023(self, state=None):
-		'''Transform Tool Snap Settings: Rotate
-		'''
-		cmb = self.transform_ui.cmb003
-		text = {0:'Rotate: <b>Off</b>', 1:'Rotate: <b>Relative</b>', 2:'Rotate: <b>Absolute</b>'}
-
-		cmb.menu_.chk023.setText(text[state])
-		cmb.menu_.s023.setEnabled(state)
-		pm.manipRotateContext('Rotate', edit=1, snap=False if state==0 else True, snapRelative=True if state==1 else False) #state: 0=off, 1=relative, 2=absolute
-		pm.texRotateContext('texRotateContext', edit=1, snap=False if state==0 else True) #uv rotate context
-
-		cmb.setCurrentText('Snap: <hl style="color:white;">Off</hl>') if not any((state, cmb.menu_.chk021.isChecked(), cmb.menu_.chk022.isChecked())) else cmb.setCurrentText('Snap: <hl style="color:green;">On</hl>')
 
 
 	def chk024(self, state=None):
@@ -190,15 +159,6 @@ class Transform_maya(Slots_maya):
 		'''
 		pm.manipRotateContext('Rotate', edit=1, snapValue=value)
 		pm.texRotateContext('texRotateContext', edit=1, snapValue=value) #uv rotate context
-
-
-	def chk010(self, state=None):
-		'''Align Vertices: Auto Align
-		'''
-		if self.transform_ui.tb001.contextMenu.chk010.isChecked():
-			self.toggleWidgets(setDisabled='chk029-31')
-		else:
-			self.toggleWidgets(setEnabled='chk029-31')
 
 
 	def tb000(self, state=None):

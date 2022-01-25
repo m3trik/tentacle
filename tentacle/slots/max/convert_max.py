@@ -2,21 +2,21 @@
 # coding=utf-8
 from slots.max import *
 from slots.convert import Convert
-from ui.static.max.convert_ui_max import Convert_ui_max
 
 
 
-class Convert(Slots_max):
+class Convert_max(Convert):
 	def __init__(self, *args, **kwargs):
 		Slots_max.__init__(self, *args, **kwargs)
-		Convert_ui_max.__init__(self, *args, **kwargs)
 		Convert.__init__(self, *args, **kwargs)
 
+		cmb = self.convert_ui.draggable_header.contextMenu.cmb000
+		list_ = ['']
+		cmb.addItems_(list_, '')
 
-	def draggable_header(self, state=None):
-		'''Context menu
-		'''
-		dh = self.convert_ui.draggable_header
+		cmb = self.convert_ui.cmb001
+		list_ = [] 
+		contents = cmb.addItems_(list_, 'Convert To')
 
 
 	def cmb000(self, index=-1):
@@ -35,11 +35,6 @@ class Convert(Slots_max):
 		'''Convert To
 		'''
 		cmb = self.convert_ui.cmb001
-
-		if index=='setMenu':
-			list_ = ['NURBS to Polygons', 'NURBS to Subdiv', 'Polygons to Subdiv', 'Smooth Mesh Preview to Polygons', 'Polygon Edges to Curve', 'Type to Curves', 'Subdiv to Polygons', 'Subdiv to NURBS', 'NURBS Curve to Bezier', 'Bezier Curve to NURBS', 'Paint Effects to NURBS', 'Paint Effects to Curves', 'Texture to Geometry', 'Displacement to Polygons', 'Displacement to Polygons with History', 'Fluid to Polygons', 'nParticle to Polygons', 'Instance to Object', 'Geometry to Bounding Box', 'Convert XGen Primitives to Polygons'] 
-			cmb.addItems_(list_, 'Convert To')
-			return
 
 		if index>0:
 			text = cmb.items[index]
@@ -86,30 +81,6 @@ class Convert(Slots_max):
 				cpp.convertPrimToPolygon(False)
 
 			cmb.setCurrentIndex(0)
-
-
-	def b000(self):
-		'''Polygon Edges to Curve
-		'''
-		self.cmb001(index=5)
-
-
-	def b001(self):
-		'''Instance to Object
-		'''
-		self.cmb001(index=18)
-
-
-	def b002(self):
-		'''NURBS to Polygons
-		'''
-		self.cmb001(index=1)
-
-
-	def b003(self):
-		'''Smooth Mesh Preview to Polygons
-		'''
-		self.cmb001(index=4)
 
 
 

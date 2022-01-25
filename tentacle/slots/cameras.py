@@ -1,9 +1,10 @@
 # !/usr/bin/python
 # coding=utf-8
+from slots import Slots
 
 
 
-class Cameras():
+class Cameras(Slots):
 	'''
 	'''
 	def __init__(self, *args, **kwargs):
@@ -17,3 +18,8 @@ class Cameras():
 					current (lambda function) = Returns the current ui if it is either the parent or a child ui for the class; else, return the parent ui. ie. self.current()
 					'<name>' (lambda function) = Returns the class instance of that name.  ie. self.polygons()
 		'''
+		tree = self.cameras_lower_submenu_ui.tree000
+		tree.expandOnHover = True
+		tree.convert(tree.getTopLevelItems(), 'QLabel') #construct the tree using the existing contents.
+
+		

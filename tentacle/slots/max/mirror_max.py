@@ -2,21 +2,20 @@
 # coding=utf-8
 from slots.max import *
 from slots.mirror import Mirror
-from ui.static.max.mirror_ui_max import Mirror_ui_max
 
 
 
-class Mirror(Slots_max):
+class Mirror_max(Mirror):
 	def __init__(self, *args, **kwargs):
 		Slots_max.__init__(self, *args, **kwargs)
-		Mirror_ui_max.__init__(self, *args, **kwargs)
 		Mirror.__init__(self, *args, **kwargs)
 
+		cmb = self.mirror_ui.draggable_header.contextMenu.cmb000
+		items = ['']
+		cmb.addItems_(items, '')
 
-	def draggable_header(self, state=None):
-		'''Context menu
-		'''
-		dh = self.mirror_ui.draggable_header
+		ctx = self.mirror_ui.tb000.contextMenu
+		ctx.chk006.setDisabled(True) #disable: delete history.
 
 
 	def cmb000(self, index=-1):
@@ -29,20 +28,6 @@ class Mirror(Slots_max):
 			if text=='':
 				pass
 			cmb.setCurrentIndex(0)
-
-
-	def chk000_3(self):
-		'''Set the tb000's text according to the checkstates.
-		'''
-		axis = self.getAxisFromCheckBoxes('chk000-3')
-		self.mirror_ui.tb000.setText('Mirror '+axis)
-
-
-	@Slots.sync
-	def chk005(self, state=None):
-		'''Mirror: Cut
-		'''
-		pass
 
 
 	@Slots.message

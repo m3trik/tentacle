@@ -2,15 +2,20 @@
 # coding=utf-8
 from slots.maya import *
 from slots.cameras import Cameras
-from ui.static.maya.cameras_ui_maya import Cameras_ui_maya
 
 
 
-class Cameras_maya(Slots_maya):
+class Cameras_maya(Cameras):
 	def __init__(self, *args, **kwargs):
 		Slots_maya.__init__(self, *args, **kwargs)
-		Cameras_ui_maya.__init__(self, *args, **kwargs)
 		Cameras.__init__(self, *args, **kwargs)
+
+		tree = self.cameras_lower_submenu_ui.tree000
+		l = ['Camera Sequencer', 'Camera Set Editor']
+		[tree.add('QLabel', 'Editors', setText=s) for s in l]
+
+		l = ['Exclusive to Camera', 'Hidden from Camera', 'Remove from Exclusive', 'Remove from Hidden', 'Remove All for Camera', 'Remove All']
+		[tree.add('QLabel', 'Per Camera Visibility', setText=s) for s in l]
 
 
 	@property
@@ -115,7 +120,7 @@ class Cameras_maya(Slots_maya):
 			if text=='Set Custom Camera':
 				mel.eval('string $homeName = `cameraView -camera persp`;') #cameraView -edit -camera persp -setCamera $homeName;
 			if text=='Camera From View':
-				Cameras.createCameraFromView()
+				self.createCameraFromView()
 
 		if header=='Cameras':
 			pm.select(text)
@@ -269,8 +274,7 @@ class Cameras_maya(Slots_maya):
 		pm.viewFit(fitFactor=5.0)
 
 
-	@staticmethod
-	def groupCameras():
+	def groupCameras(self):
 		'''Group Cameras
 		'''
 		grp = pm.ls('cameras', transforms=1)
@@ -290,11 +294,10 @@ class Cameras_maya(Slots_maya):
 				pass
 
 
-	@staticmethod
-	def toggleSafeFrames():
+	def toggleSafeFrames(self):
 		'''Toggle display of the film gate for the current camera.
 		'''
-		camera = Cameras.getCurrentCam()
+		camera = self.getCurrentCam()
 
 		state = pm.camera(camera, query=1, displayResolution=1)
 		if state:
@@ -303,8 +306,7 @@ class Cameras_maya(Slots_maya):
 			pm.camera(camera, edit=1, displayFilmGate=False, displayResolution=True, overscan=1.3)
 
 
-	@staticmethod
-	def getCurrentCam():
+	def getCurrentCam(self):
 		'''Get the currently active camera.
 		'''
 		import maya.OpenMaya as OpenMaya
@@ -317,8 +319,7 @@ class Cameras_maya(Slots_maya):
 		return camPath
 
 
-	@staticmethod
-	def createCameraFromView():
+	def createCameraFromView(self):
 		'''Create a new camera base on the current view.
 		'''
 		from maya.cmds import getPanel #pymel getPanel is broken in ver: 2022.

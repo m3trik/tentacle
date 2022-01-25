@@ -1,9 +1,10 @@
 # !/usr/bin/python
 # coding=utf-8
+from slots import Slots
 
 
 
-class Symmetry():
+class Symmetry(Slots):
 	'''
 	'''
 	def __init__(self, *args, **kwargs):
@@ -17,4 +18,47 @@ class Symmetry():
 					current (lambda function) = Returns the current ui if it is either the parent or a child ui for the class; else, return the parent ui. ie. self.current()
 					'<name>' (lambda function) = Returns the class instance of that name.  ie. self.polygons()
 		'''
+		ctx = self.symmetry_ui.draggable_header.contextMenu
+		if not ctx.containsMenuItems:
+			ctx.add(self.tcl.wgts.ComboBox, setObjectName='cmb000', setToolTip='')
+
+	
+	def draggable_header(self, state=None):
+		'''Context menu
+		'''
+		dh = self.symmetry_ui.draggable_header
+
+
+	@Slots.sync
+	def chk000(self, state=None):
+		'''Symmetry X
+		'''
+		self.toggleWidgets(setUnChecked='chk001,chk002')
+		state = self.symmetry_ui.chk000.isChecked() #symmetry button state
+		self.setSymmetry(state, 'x')
+
+
+	@Slots.sync
+	def chk001(self, state=None):
+		'''Symmetry Y
+		'''
+		self.toggleWidgets(setUnChecked='chk000,chk002')
+		state = self.symmetry_ui.chk001.isChecked() #symmetry button state
+		self.setSymmetry(state, 'y')
+
+
+	@Slots.sync
+	def chk002(self, state=None):
+		'''Symmetry Z
+		'''
+		self.toggleWidgets(setUnChecked='chk000,chk001')
+		state = self.symmetry_ui.chk002.isChecked() #symmetry button state
+		self.setSymmetry(state, 'z')
+
+
+	def chk004(self, state=None):
+		'''Symmetry: Object
+		'''
+		self.symmetry_ui.chk005.setChecked(False) #uncheck symmetry:topological
+
 	

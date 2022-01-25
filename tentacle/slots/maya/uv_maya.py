@@ -2,25 +2,41 @@
 # coding=utf-8
 from slots.maya import *
 from slots.uv import Uv
-from ui.static.maya.uv_ui_maya import Uv_ui_maya
 
 
 
-class Uv_maya(Slots_maya):
+class Uv_maya(Uv):
 	def __init__(self, *args, **kwargs):
 		Slots_maya.__init__(self, *args, **kwargs)
-		Uv_ui_maya.__init__(self, *args, **kwargs)
 		Uv.__init__(self, *args, **kwargs)
 
 		Slots_maya.loadPlugin('Unfold3D.mll')
 
+		cmb = self.uv_ui.draggable_header.contextMenu.cmb000
+		items = ['UV Editor','UV Set Editor','UV Tool Kit','UV Linking: Texture-Centric','UV Linking: UV-Centric','UV Linking: Paint Effects/UV','UV Linking: Hair/UV','Flip UV']
+		cmb.addItems_(items, 'Maya UV Editors')
 
-	def draggable_header(self, state=None):
-		'''Context menu
-		'''
-		dh = self.uv_ui.draggable_header
+		cmb = self.uv_ui.cmb001
+		panel = pm.getPanel(scriptType='polyTexturePlacementPanel')
+		cmb.menu_.chk014.setChecked(pm.textureWindow(panel, displayCheckered=1, query=1)) #checkered state
+		cmb.menu_.chk015.setChecked(True if pm.polyOptions(query=1, displayMapBorder=1) else False) #borders state
+		cmb.menu_.chk016.setChecked(pm.textureWindow(panel, query=1, displayDistortion=1)) #distortion state
 
+		cmb = self.uv_ui.cmb002
+		items = ['Flip U', 'Flip V', 'Align U Left', 'Align U Middle', 'Align U Right', 'Align V Top', 'Align V Middle', 'Align V Bottom', 'Linear Align']
+		cmb.addItems_(items, 'Transform:')
 
+		ctx = self.uv_ui.tb000.contextMenu
+		if not ctx.containsMenuItems:
+			ctx.add('QSpinBox', setPrefix='Pre-Scale Mode: ', setObjectName='s009', setMinMax_='0-2 step1', setValue=1, setToolTip='Allow shell scaling during packing.')
+			ctx.add('QSpinBox', setPrefix='Pre-Rotate Mode: ', setObjectName='s010', setMinMax_='0-2 step1', setValue=1, setToolTip='Allow shell rotation during packing.')
+			ctx.add('QDoubleSpinBox', setPrefix='Rotate Step: ', setObjectName='s007', setMinMax_='0.0-360 step22.5', setValue=22.5, setToolTip='Set the allowed rotation increment contraint.')
+			ctx.add('QSpinBox', setPrefix='Stack Similar: ', setObjectName='s011', setMinMax_='0-2 step1', setValue=0, setToolTip='Find Similar shells. <br>state 1: Find similar shells, and pack one of each, ommiting the rest.<br>state 2: Find similar shells, and stack during packing.')
+			ctx.add('QDoubleSpinBox', setPrefix='Tolerance: ', setObjectName='s006', setMinMax_='0.0-10 step.1', setValue=1.0, setToolTip='Stack Similar: Stack shells with uv\'s within the given range.')
+			ctx.add('QSpinBox', setPrefix='UDIM: ', setObjectName='s004', setMinMax_='1001-1200 step1', setValue=1001, setToolTip='Set the desired UDIM tile space.')
+			ctx.add('QSpinBox', setPrefix='Map Size: ', setObjectName='s005', setMinMax_='512-8192 step512', setValue=2048, setToolTip='UV map resolution.')
+
+		
 	def cmb000(self, index=-1):
 		'''Editors
 		'''
@@ -81,19 +97,6 @@ class Uv_maya(Slots_maya):
 			elif text=='Linear Align':
 				pm.mel.performLinearAlignUV()
 			cmb.setCurrentIndex(0)
-
-
-	def chk001(self, state):
-		'''Auto Unwrap: Scale Mode CheckBox
-		'''
-		tb = self.uv_ui.tb001
-		if state==0:
-			tb.contextMenu.chk001.setText('Scale Mode 0')
-		if state==1:
-			tb.contextMenu.chk001.setText('Scale Mode 1')
-			self.toggleWidgets(tb.contextMenu, setUnChecked='chk002-6')
-		if state==2:
-			tb.contextMenu.chk001.setText('Scale Mode 2')
 
 
 	def chk014(self):
@@ -401,30 +404,6 @@ class Uv_maya(Slots_maya):
 
 			pm.polyMapSew(sel) if len(objects)==1 else pm.polyMapSew(sel)
  
-
-	def b023(self):
-		'''Move To Uv Space: Left
-		'''
-		self.moveSelectedToUvSpace(-1, 0) #move left
-
-
-	def b024(self):
-		'''Move To Uv Space: Down
-		'''
-		self.moveSelectedToUvSpace(0, -1) #move down
-
-
-	def b025(self):
-		'''Move To Uv Space: Up
-		'''
-		self.moveSelectedToUvSpace(0, 1) #move up
-
-
-	def b026(self):
-		'''Move To Uv Space: Right
-		'''
-		self.moveSelectedToUvSpace(1, 0) #move right
-
 
 	def moveSelectedToUvSpace(self, u, v, relative=True):
 		'''Move sny selected objects to the given u and v coordinates.
