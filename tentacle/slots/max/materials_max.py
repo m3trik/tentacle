@@ -5,7 +5,7 @@ from slots.materials import Materials
 
 
 
-class Materials_max(Materials):
+class Materials_max(Materials, Slots_max):
 	def __init__(self, *args, **kwargs):
 		Slots_max.__init__(self, *args, **kwargs)
 		Materials.__init__(self, *args, **kwargs)
@@ -124,7 +124,7 @@ class Materials_max(Materials):
 
 		elif assignCurrent: #Assign current mat
 			if isinstance(mat, str): #new mat type as a string:
-				self.assignMaterial(selection, rt.Standard(name=mat.rstrip('*')))
+				self.assignMaterial(selection, rt.Standard(name=mat.rstrip(' ⧉')))
 			else: #existing mat object:
 				self.assignMaterial(selection, mat)
 
@@ -423,7 +423,7 @@ class Materials_max(Materials):
 		return mat
 
 
-	def createRandomMaterial(self, name=None, prefix=''):
+	def createRandomMaterial(self, name='', prefix=''):
 		'''Creates a random material.
 
 		:Parameters:
@@ -436,9 +436,8 @@ class Materials_max(Materials):
 		import random
 		rgb = [random.randint(0, 255) for _ in range(3)] #generate a list containing 3 values between 0-255
 
-		if name is None: #create name from rgb values
-			name = '_'.join([prefix, str(rgb[0]), str(rgb[1]), str(rgb[2])])
-		
+		name = '{}{}_{}_{}_{}'.format(prefix, name, str(rgb[0]), str(rgb[1]), str(rgb[2]))
+
 		#create shader
 		mat = rt.StandardMaterial()
 		mat.name = name

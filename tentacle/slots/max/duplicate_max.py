@@ -5,7 +5,7 @@ from slots.duplicate import Duplicate
 
 
 
-class Duplicate_max(Duplicate):
+class Duplicate_max(Duplicate, Slots_max):
 	def __init__(self, *args, **kwargs):
 		Slots_max.__init__(self, *args, **kwargs)
 		Duplicate.__init__(self, *args, **kwargs)

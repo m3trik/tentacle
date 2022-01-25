@@ -5,7 +5,7 @@ from slots.lighting import Lighting
 
 
 
-class Lighting_maya(Lighting):
+class Lighting_maya(Lighting, Slots_maya):
 	def __init__(self, *args, **kwargs):
 		Slots_maya.__init__(self, *args, **kwargs)
 		Lighting.__init__(self, *args, **kwargs)

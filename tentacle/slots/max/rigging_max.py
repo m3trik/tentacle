@@ -5,7 +5,7 @@ from slots.rigging import Rigging
 
 
 
-class Rigging_max(Rigging):
+class Rigging_max(Rigging, Slots_max):
 	def __init__(self, *args, **kwargs):
 		Slots_max.__init__(self, *args, **kwargs)
 		Rigging.__init__(self, *args, **kwargs)

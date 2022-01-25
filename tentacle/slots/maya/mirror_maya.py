@@ -5,7 +5,7 @@ from slots.mirror import Mirror
 
 
 
-class Mirror_maya(Mirror):
+class Mirror_maya(Mirror, Slots_maya):
 	def __init__(self, *args, **kwargs):
 		Slots_maya.__init__(self, *args, **kwargs)
 		Mirror.__init__(self, *args, **kwargs)

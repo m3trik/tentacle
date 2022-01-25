@@ -5,7 +5,7 @@ from slots.edit import Edit
 
 
 
-class Edit_max(Edit):
+class Edit_max(Edit, Slots_max):
 	def __init__(self, *args, **kwargs):
 		Slots_max.__init__(self, *args, **kwargs)
 		Edit.__init__(self, *args, **kwargs)

@@ -5,7 +5,7 @@ from slots.symmetry import Symmetry
 
 
 
-class Symmetry_maya(Symmetry):
+class Symmetry_maya(Symmetry, Slots_maya):
 	def __init__(self, *args, **kwargs):
 		Slots_maya.__init__(self, *args, **kwargs)
 		Symmetry.__init__(self, *args, **kwargs)

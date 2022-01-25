@@ -5,7 +5,7 @@ from slots.normals import Normals
 
 
 
-class Normals_max(Normals):
+class Normals_max(Normals, Slots_max):
 	def __init__(self, *args, **kwargs):
 		Slots_max.__init__(self, *args, **kwargs)
 		Normals.__init__(self, *args, **kwargs)

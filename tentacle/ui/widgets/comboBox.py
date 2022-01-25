@@ -242,10 +242,10 @@ class ComboBox(QtWidgets.QComboBox, MenuInstance, Attributes, RichText):
 		:Parameters:
 			event=<QEvent>
 		'''
-		text = self.itemText(0).rstrip('*')
+		text = self.itemText(0).rstrip(' ⧉')
 		if self.contextMenu.containsMenuItems:
 			self.contextMenu.setTitle(text)
-			self.setItemText(0, text+'*') #set text: comboBox
+			self.setItemText(0, text+' ⧉') #set text: comboBox
 
 		return QtWidgets.QComboBox.showEvent(self, event)
 

@@ -5,7 +5,7 @@ from slots.materials import Materials
 
 
 
-class Materials_maya(Materials):
+class Materials_maya(Materials, Slots_maya):
 	def __init__(self, *args, **kwargs):
 		Slots_maya.__init__(self, *args, **kwargs)
 		Materials.__init__(self, *args, **kwargs)
@@ -105,25 +105,26 @@ class Materials_maya(Materials):
 		assignRandom = tb.contextMenu.chk008.isChecked()
 		assignNew = tb.contextMenu.chk009.isChecked()
 
-		if assignCurrent: #Assign current mat
-			mat = self.materials_ui.cmb002.currentData()
-			if isinstance(mat, str): #new mat type as a string:
-				self.assignMaterial(selection, pm.createNode(mat.rstrip('*')))
-			else: #existing mat object:
-				self.assignMaterial(selection, mat)
+		for obj in selection:
+			if assignCurrent: #Assign current mat
+				mat = self.materials_ui.cmb002.currentData()
+				if isinstance(mat, str): #new mat type as a string:
+					self.assignMaterial(obj, pm.createNode(mat.rstrip(' ⧉')))
+				else: #existing mat object:
+					self.assignMaterial(obj, mat)
 
-		elif assignRandom: #Assign New random mat ID
-			mat = self.createRandomMaterial(prefix='ID_')
-			self.assignMaterial(selection, mat)
+			elif assignRandom: #Assign New random mat ID
+				mat = self.createRandomMaterial(prefix='ID_')
+				self.assignMaterial(obj, mat)
 
-			self.randomMat = mat
+				self.randomMat = mat
 
-			self.cmb002() #refresh the materials list comboBox
-			self.materials_ui.cmb002.setCurrentItem(mat.name()) #set the combobox index to the new mat #self.cmb002.setCurrentIndex(self.cmb002.findText(name))
+				self.cmb002() #refresh the materials list comboBox
+				self.materials_ui.cmb002.setCurrentItem(mat.name()) #set the combobox index to the new mat #self.cmb002.setCurrentIndex(self.cmb002.findText(name))
 
-		elif assignNew: #Assign New Material
-			mel.eval('buildObjectMenuItemsNow "MainPane|viewPanes|modelPanel4|modelPanel4|modelPanel4|modelPanel4ObjectPop";')
-			mel.eval('createAssignNewMaterialTreeLister "";')
+			elif assignNew: #Assign New Material
+				mel.eval('buildObjectMenuItemsNow "MainPane|viewPanes|modelPanel4|modelPanel4|modelPanel4|modelPanel4ObjectPop";')
+				mel.eval('createAssignNewMaterialTreeLister "";')
 
 
 	@Slots.message
@@ -342,7 +343,7 @@ class Materials_maya(Materials):
 
 
 	@staticmethod
-	def createRandomMaterial(name=None, prefix=''):
+	def createRandomMaterial(name='', prefix=''):
 		'''Creates a random material.
 
 		:Parameters:
@@ -350,13 +351,12 @@ class Materials_maya(Materials):
 			prefix (str) = Optional string to be appended to the beginning of the name.
 
 		:Return:
-			(obj) material
+			(obj) material.
 		'''
 		import random
 		rgb = [random.randint(0, 255) for _ in range(3)] #generate a list containing 3 values between 0-255
 
-		if name is None: #create name from rgb values
-			name = '_'.join([prefix, str(rgb[0]), str(rgb[1]), str(rgb[2])])
+		name = '{}{}_{}_{}_{}'.format(prefix, name, str(rgb[0]), str(rgb[1]), str(rgb[2]))
 
 		#create shader
 		mat = pm.shadingNode('lambert', asShader=1, name=name)
@@ -387,7 +387,7 @@ class Materials_maya(Materials):
 			mat = pm.shadingNode(mat, asShader=1)
 
 		# pm.undoInfo(openChunk=1)
-		for obj in objects:
+		for obj in pm.ls(objects):
 			pm.select(obj) #hyperShade works more reliably with an explicit selection.
 			pm.hyperShade(obj, assign=mat)
 		# pm.undoInfo(closeChunk=1)

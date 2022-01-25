@@ -5,7 +5,7 @@ from slots.scripting import Scripting
 
 
 
-class Scripting_max(Scripting):
+class Scripting_max(Scripting, Slots_max):
 	def __init__(self, *args, **kwargs):
 		Slots_max.__init__(self, *args, **kwargs)
 		Scripting.__init__(self, *args, **kwargs)

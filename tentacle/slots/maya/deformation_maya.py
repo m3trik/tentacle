@@ -5,7 +5,7 @@ from slots.deformation import Deformation
 
 
 
-class Deformation_maya(Deformation):
+class Deformation_maya(Deformation, Slots_maya):
 	def __init__(self, *args, **kwargs):
 		Slots_maya.__init__(self, *args, **kwargs)
 		Deformation.__init__(self, *args, **kwargs)

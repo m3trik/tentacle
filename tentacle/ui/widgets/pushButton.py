@@ -79,13 +79,13 @@ class PushButton(QtWidgets.QPushButton, MenuInstance, Attributes, RichText):
 		:Parameters:
 			event = <QEvent>
 		'''
-		text = self.text().rstrip('*')
+		text = self.text().rstrip(' ⧉')
 		if self.menu_.containsMenuItems:
 			self.menu_.setTitle(text)
 
 		if self.contextMenu.containsMenuItems:
 			self.contextMenu.setTitle(text)
-			self.setText(text+'*')
+			self.setText(text+' ⧉')
 			b = self.contextMenu.addApplyButton()
 
 		return QtWidgets.QPushButton.showEvent(self, event)

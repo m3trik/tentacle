@@ -5,7 +5,7 @@ from slots.symmetry import Symmetry
 
 
 
-class Symmetry_max(Symmetry):
+class Symmetry_max(Symmetry, Slots_max):
 	def __init__(self, *args, **kwargs):
 		Slots_max.__init__(self, *args, **kwargs)
 		Symmetry.__init__(self, *args, **kwargs)

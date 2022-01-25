@@ -5,7 +5,7 @@ from slots.vfx import Vfx
 
 
 
-class Vfx_max(Vfx):
+class Vfx_max(Vfx, Slots_max):
 	def __init__(self, *args, **kwargs):
 		Slots_max.__init__(self, *args, **kwargs)
 		Vfx.__init__(self, *args, **kwargs)

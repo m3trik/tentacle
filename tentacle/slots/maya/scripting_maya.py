@@ -5,7 +5,7 @@ from slots.scripting import Scripting
 
 
 
-class Scripting_maya(Scripting):
+class Scripting_maya(Scripting, Slots_maya):
 	def __init__(self, *args, **kwargs):
 		Slots_maya.__init__(self, *args, **kwargs)
 		Scripting.__init__(self, *args, **kwargs)

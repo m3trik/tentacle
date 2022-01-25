@@ -5,7 +5,7 @@ from slots.create import Create
 
 
 
-class Create_max(Create):
+class Create_max(Create, Slots_max):
 	def __init__(self, *args, **kwargs):
 		Slots_max.__init__(self, *args, **kwargs)
 		Create.__init__(self, *args, **kwargs)

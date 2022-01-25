@@ -5,7 +5,7 @@ from slots.normals import Normals
 
 
 
-class Normals_maya(Normals):
+class Normals_maya(Normals, Slots_maya):
 	def __init__(self, *args, **kwargs):
 		Slots_maya.__init__(self, *args, **kwargs)
 		Normals.__init__(self, *args, **kwargs)

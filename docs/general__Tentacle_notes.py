@@ -220,9 +220,6 @@ selectPref -useDepth true;
 # TypeError: 'staticmethod' object is not callable
 
 
-change '*' to small arrow for context menu indicator.
-
-
 maya.macros: isolate selected: incorrect mod panel.
 # Error: line 1: RuntimeError: file C:\Program Files\Autodesk\Maya2022\Python37\lib\site-packages\pymel\internal\pmcmds.py line 217: model panel 'outlinerPanel1' does not exist #
 

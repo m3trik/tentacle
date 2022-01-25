@@ -5,7 +5,7 @@ from slots.animation import Animation
 
 
 
-class Animation_maya(Animation):
+class Animation_maya(Animation, Slots_maya):
 	def __init__(self, *args, **kwargs):
 		Slots_maya.__init__(self, *args, **kwargs)
 		Animation.__init__(self, *args, **kwargs)

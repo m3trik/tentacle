@@ -5,7 +5,7 @@ from slots.crease import Crease
 
 
 
-class Crease_maya(Crease):
+class Crease_maya(Crease, Slots_maya):
 	def __init__(self, *args, **kwargs):
 		Slots_maya.__init__(self, *args, **kwargs)
 		Crease.__init__(self, *args, **kwargs)

@@ -5,7 +5,7 @@ from slots.subdivision import Subdivision
 
 
 
-class Subdivision_max(Subdivision):
+class Subdivision_max(Subdivision, Slots_max):
 	def __init__(self, *args, **kwargs):
 		Slots_max.__init__(self, *args, **kwargs)
 		Subdivision.__init__(self, *args, **kwargs)

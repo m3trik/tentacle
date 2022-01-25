@@ -5,7 +5,7 @@ from slots.rigging import Rigging
 
 
 
-class Rigging_maya(Rigging):
+class Rigging_maya(Rigging, Slots_maya):
 	def __init__(self, *args, **kwargs):
 		Slots_maya.__init__(self, *args, **kwargs)
 		Rigging.__init__(self, *args, **kwargs)

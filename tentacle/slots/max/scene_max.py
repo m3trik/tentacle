@@ -5,7 +5,7 @@ from slots.scene import Scene
 
 
 
-class Scene_max(Scene):
+class Scene_max(Scene, Slots_max):
 	def __init__(self, *args, **kwargs):
 		Slots_max.__init__(self, *args, **kwargs)
 		Scene.__init__(self, *args, **kwargs)

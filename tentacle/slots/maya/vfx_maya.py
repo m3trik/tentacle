@@ -5,7 +5,7 @@ from slots.vfx import Vfx
 
 
 
-class Vfx_maya(Vfx):
+class Vfx_maya(Vfx, Slots_maya):
 	def __init__(self, *args, **kwargs):
 		Slots_maya.__init__(self, *args, **kwargs)
 		Vfx.__init__(self, *args, **kwargs)

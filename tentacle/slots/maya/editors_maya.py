@@ -5,7 +5,7 @@ from slots.editors import Editors
 
 
 
-class Editors_maya(Editors):
+class Editors_maya(Editors, Slots_maya):
 	def __init__(self, *args, **kwargs):
 		Slots_maya.__init__(self, *args, **kwargs)
 		Editors.__init__(self, *args, **kwargs)

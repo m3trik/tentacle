@@ -5,7 +5,7 @@ from slots.pivot import Pivot
 
 
 
-class Pivot_max(Pivot):
+class Pivot_max(Pivot, Slots_max):
 	def __init__(self, *args, **kwargs):
 		Slots_max.__init__(self, *args, **kwargs)
 		Pivot.__init__(self, *args, **kwargs)

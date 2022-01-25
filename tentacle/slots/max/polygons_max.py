@@ -5,7 +5,7 @@ from slots.polygons import Polygons
 
 
 
-class Polygons_max(Polygons):
+class Polygons_max(Polygons, Slots_max):
 	def __init__(self, *args, **kwargs):
 		Slots_max.__init__(self, *args, **kwargs)
 		Polygons.__init__(self, *args, **kwargs)

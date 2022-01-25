@@ -5,7 +5,7 @@ from slots.init import Init
 
 
 
-class Init_maya(Init):
+class Init_maya(Init, Slots_maya):
 	'''
 	'''
 	def __init__(self, *args, **kwargs):

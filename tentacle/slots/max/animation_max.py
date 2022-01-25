@@ -5,7 +5,7 @@ from slots.animation import Animation
 
 
 
-class Animation_max(Animation):
+class Animation_max(Animation, Slots_max):
 	def __init__(self, *args, **kwargs):
 		Slots_max.__init__(self, *args, **kwargs)
 		Animation.__init__(self, *args, **kwargs)

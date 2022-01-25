@@ -5,7 +5,7 @@ from slots.convert import Convert
 
 
 
-class Convert_max(Convert):
+class Convert_max(Convert, Slots_max):
 	def __init__(self, *args, **kwargs):
 		Slots_max.__init__(self, *args, **kwargs)
 		Convert.__init__(self, *args, **kwargs)

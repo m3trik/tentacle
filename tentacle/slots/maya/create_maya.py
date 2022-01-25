@@ -5,7 +5,7 @@ from slots.create import Create
 
 
 
-class Create_maya(Create):
+class Create_maya(Create, Slots_maya):
 	def __init__(self, *args, **kwargs):
 		Slots_maya.__init__(self, *args, **kwargs)
 		Create.__init__(self, *args, **kwargs)

@@ -5,7 +5,7 @@ from slots.utilities import Utilities
 
 
 
-class Utilities_max(Utilities):
+class Utilities_max(Utilities, Slots_max):
 	def __init__(self, *args, **kwargs):
 		Slots_max.__init__(self, *args, **kwargs)
 		Utilities.__init__(self, *args, **kwargs)

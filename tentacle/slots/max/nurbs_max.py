@@ -5,7 +5,7 @@ from slots.nurbs import Nurbs
 
 
 
-class Nurbs_max(Nurbs):
+class Nurbs_max(Nurbs, Slots_max):
 	def __init__(self, *args, **kwargs):
 		Slots_max.__init__(self, *args, **kwargs)
 		Nurbs.__init__(self, *args, **kwargs)

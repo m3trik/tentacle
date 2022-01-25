@@ -5,7 +5,7 @@ from slots.mirror import Mirror
 
 
 
-class Mirror_max(Mirror):
+class Mirror_max(Mirror, Slots_max):
 	def __init__(self, *args, **kwargs):
 		Slots_max.__init__(self, *args, **kwargs)
 		Mirror.__init__(self, *args, **kwargs)

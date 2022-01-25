@@ -5,7 +5,7 @@ from slots.convert import Convert
 
 
 
-class Convert_maya(Convert):
+class Convert_maya(Convert, Slots_maya):
 	def __init__(self, *args, **kwargs):
 		Slots_maya.__init__(self, *args, **kwargs)
 		Convert.__init__(self, *args, **kwargs)

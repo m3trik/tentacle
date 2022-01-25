@@ -5,7 +5,7 @@ from slots.crease import Crease
 
 
 
-class Crease_max(Crease):
+class Crease_max(Crease, Slots_max):
 	def __init__(self, *args, **kwargs):
 		Slots_max.__init__(self, *args, **kwargs)
 		Crease.__init__(self, *args, **kwargs)

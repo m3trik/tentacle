@@ -118,10 +118,10 @@ class Menu(QtWidgets.QMenu, Attributes):
 		'''
 		if not title:
 			try:
-				title = self.parent().text().rstrip('*')
+				title = self.parent().text().rstrip(' ⧉')
 			except AttributeError as error:
 				try:
-					title = self.parent().currentText().rstrip('*')
+					title = self.parent().currentText().rstrip(' ⧉')
 				except AttributeError as error:
 					pass
 

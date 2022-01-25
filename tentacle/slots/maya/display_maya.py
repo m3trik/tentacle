@@ -5,7 +5,7 @@ from slots.display import Display
 
 
 
-class Display_maya(Display):
+class Display_maya(Display, Slots_maya):
 	def __init__(self, *args, **kwargs):
 		Slots_maya.__init__(self, *args, **kwargs)
 		Display.__init__(self, *args, **kwargs)

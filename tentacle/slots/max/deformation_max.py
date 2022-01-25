@@ -5,7 +5,7 @@ from slots.deformation import Deformation
 
 
 
-class Deformation_max(Deformation):
+class Deformation_max(Deformation, Slots_max):
 	def __init__(self, *args, **kwargs):
 		Slots_max.__init__(self, *args, **kwargs)
 		Deformation.__init__(self, *args, **kwargs)

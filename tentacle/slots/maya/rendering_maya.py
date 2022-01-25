@@ -5,7 +5,7 @@ from slots.rendering import Rendering
 
 
 
-class Rendering_maya(Rendering):
+class Rendering_maya(Rendering, Slots_maya):
 	def __init__(self, *args, **kwargs):
 		Slots_maya.__init__(self, *args, **kwargs)
 		Rendering.__init__(self, *args, **kwargs)

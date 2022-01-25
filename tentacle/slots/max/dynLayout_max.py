@@ -5,7 +5,7 @@ from slots.dynLayout import DynLayout
 
 
 
-class DynLayout_max(DynLayout):
+class DynLayout_max(DynLayout, Slots_max):
 	def __init__(self, *args, **kwargs):
 		Slots_max.__init__(self, *args, **kwargs)
 		DynLayout.__init__(self, *args, **kwargs)

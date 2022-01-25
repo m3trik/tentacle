@@ -5,7 +5,7 @@ from slots.polygons import Polygons
 
 
 
-class Polygons_maya(Polygons):
+class Polygons_maya(Polygons, Slots_maya):
 	def __init__(self, *args, **kwargs):
 		Slots_maya.__init__(self, *args, **kwargs)
 		Polygons.__init__(self, *args, **kwargs)

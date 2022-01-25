@@ -5,7 +5,7 @@ from slots.cameras import Cameras
 
 
 
-class Cameras_maya(Cameras):
+class Cameras_maya(Cameras, Slots_maya):
 	def __init__(self, *args, **kwargs):
 		Slots_maya.__init__(self, *args, **kwargs)
 		Cameras.__init__(self, *args, **kwargs)

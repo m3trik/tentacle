@@ -5,7 +5,7 @@ from slots.preferences import Preferences
 
 
 
-class Preferences_maya(Preferences):
+class Preferences_maya(Preferences, Slots_maya):
 	def __init__(self, *args, **kwargs):
 		Slots_maya.__init__(self, *args, **kwargs)
 		Preferences.__init__(self, *args, **kwargs)

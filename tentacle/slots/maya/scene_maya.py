@@ -5,7 +5,7 @@ from slots.scene import Scene
 
 
 
-class Scene_maya(Scene):
+class Scene_maya(Scene, Slots_maya):
 	def __init__(self, *args, **kwargs):
 		Slots_maya.__init__(self, *args, **kwargs)
 		Scene.__init__(self, *args, **kwargs)

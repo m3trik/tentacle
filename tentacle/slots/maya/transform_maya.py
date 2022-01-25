@@ -5,7 +5,7 @@ from slots.transform import Transform
 
 
 
-class Transform_maya(Transform):
+class Transform_maya(Transform, Slots_maya):
 	def __init__(self, *args, **kwargs):
 		'''
 		'''
@@ -330,10 +330,11 @@ class Transform_maya(Transform):
 		if not sel:
 			return 'Error: <b>Nothing selected.</b><br>The operation requires at least two selected objects.'
 
-		frm = sel[:-1]
-		to = sel[-1]
+		objects = sel[:-1]
+		target = sel[-1]
 
-		pm.matchTransform(frm, to, position=1, rotation=1, scale=0, pivots=1) #move object to center of the last selected items bounding box
+		pm.matchTransform(objects, target, position=1, rotation=1, scale=0, pivots=1) #move object to center of the last selected items bounding box
+		pm.select(objects)
 
 
 	def b012(self):

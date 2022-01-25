@@ -5,7 +5,7 @@ from slots.uv import Uv
 
 
 
-class Uv_maya(Uv):
+class Uv_maya(Uv, Slots_maya):
 	def __init__(self, *args, **kwargs):
 		Slots_maya.__init__(self, *args, **kwargs)
 		Uv.__init__(self, *args, **kwargs)

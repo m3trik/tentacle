@@ -5,7 +5,7 @@ from slots.init import Init
 
 
 
-class Init_max(Init):
+class Init_max(Init, Slots_max):
 	'''
 	'''
 	def __init__(self, *args, **kwargs):

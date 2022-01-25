@@ -5,7 +5,7 @@ from slots.file import File
 
 
 
-class File_max(File):
+class File_max(File, Slots_max):
 	def __init__(self, *args, **kwargs):
 		Slots_max.__init__(self, *args, **kwargs)
 		File.__init__(self, *args, **kwargs)

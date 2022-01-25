@@ -5,7 +5,7 @@ from slots.dynLayout import DynLayout
 
 
 
-class DynLayout_maya(DynLayout):
+class DynLayout_maya(DynLayout, Slots_maya):
 	def __init__(self, *args, **kwargs):
 		Slots_maya.__init__(self, *args, **kwargs)
 		DynLayout.__init__(self, *args, **kwargs)

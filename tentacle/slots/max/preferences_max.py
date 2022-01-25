@@ -5,7 +5,7 @@ from slots.preferences import Preferences
 
 
 
-class Preferences_max(Preferences):
+class Preferences_max(Preferences, Slots_max):
 	def __init__(self, *args, **kwargs):
 		Slots_max.__init__(self, *args, **kwargs)
 		Preferences.__init__(self, *args, **kwargs)

@@ -5,7 +5,7 @@ from slots.duplicate import Duplicate
 
 
 
-class Duplicate_maya(Duplicate):
+class Duplicate_maya(Duplicate, Slots_maya):
 	def __init__(self, *args, **kwargs):
 		Slots_maya.__init__(self, *args, **kwargs)
 		Duplicate.__init__(self, *args, **kwargs)
@@ -320,24 +320,25 @@ class Duplicate_maya(Duplicate):
 		# pm.undoInfo(openChunk=1)
 		p0x, p0y, p0z = pm.xform(objects[0], query=1, rotatePivot=1, worldSpace=1) #get the world space obj pivot.
 		pivot = pm.xform(objects[0], query=1, rotatePivot=1, objectSpace=1) #get the obj pivot.
-		print (objects[0])
+
 		for obj in objects[1:]:
-
-			pm.xform(obj, rotatePivot=pivot, objectSpace=1) #set pivot to match object[0]
-
-			p1x, p1y, p1z = wsPivot = pm.xform(obj, query=1, rotatePivot=1, worldSpace=1) #get the world space obj pivot.
-			pos = [p1x-p0x, p1y-p0y, p1z-p0z]
+			# pm.xform(obj, rotatePivot=pivot, objectSpace=1) #set pivot to match object[0]
+			# p1x, p1y, p1z = wsPivot = pm.xform(obj, query=1, rotatePivot=1, worldSpace=1) #get the world space obj pivot.
+			# pos = [p1x-p0x, p1y-p0y, p1z-p0z]
 
 			name = obj.name()
 			objParent = pm.listRelatives(obj, parent=1)
-			pm.delete(obj, constructionHistory=True) #delete history for the object so that the namespace is cleared.
-			pm.delete(obj)
 
-			instance = pm.instance(objects[0], name=name+append, leaf=leaf)
+			instance = pm.instance(objects[0], leaf=leaf)
 
-			pm.xform(instance, translation=pos, worldSpace=1, relative=1) #move to the original objects location.
+			pm.matchTransform(instance, obj, position=1, rotation=1, scale=0, pivots=1) #move object to center of the last selected items bounding box # pm.xform(instance, translation=pos, worldSpace=1, relative=1) #move to the original objects location.
 
 			pm.parent(instance, objParent) #parent the instance under the original objects parent.
+	
+			pm.delete(obj, constructionHistory=True) #delete history for the object so that the namespace is cleared.
+			pm.delete(obj)
+			pm.rename(instance, name+append)
+		pm.select(objects[1:])
 		# pm.undoInfo(closeChunk=1)
 
 

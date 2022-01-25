@@ -5,7 +5,7 @@ from slots.edit import Edit
 
 
 
-class Edit_maya(Edit):
+class Edit_maya(Edit, Slots_maya):
 	def __init__(self, *args, **kwargs):
 		Slots_maya.__init__(self, *args, **kwargs)
 		Edit.__init__(self, *args, **kwargs)

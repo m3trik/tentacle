@@ -5,7 +5,7 @@ from slots.rendering import Rendering
 
 
 
-class Rendering_max(Rendering):
+class Rendering_max(Rendering, Slots_max):
 	def __init__(self, *args, **kwargs):
 		Slots_max.__init__(self, *args, **kwargs)
 		Rendering.__init__(self, *args, **kwargs)

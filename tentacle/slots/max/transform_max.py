@@ -5,7 +5,7 @@ from slots.transform import Transform
 
 
 
-class Transform_max(Transform):
+class Transform_max(Transform, Slots_max):
 	def __init__(self, *args, **kwargs):
 		Slots_max.__init__(self, *args, **kwargs)
 		Transform.__init__(self, *args, **kwargs)

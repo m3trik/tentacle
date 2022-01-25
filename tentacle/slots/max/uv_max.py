@@ -5,7 +5,7 @@ from slots.uv import Uv
 
 
 
-class Uv_max(Uv):
+class Uv_max(Uv, Slots_max):
 	def __init__(self, *args, **kwargs):
 		Slots_max.__init__(self, *args, **kwargs)
 		Uv.__init__(self, *args, **kwargs)
