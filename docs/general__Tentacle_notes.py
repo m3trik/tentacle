@@ -13,9 +13,7 @@
 # ======================================================================
 
 # decorators:
-@Slots.sync				# Keep widgets (having the same objectName) in sync across parent and child uis. A decorator using the syncWidgets method. 'isChecked':'setChecked', 'isDisabled':'setDisabled', 'isEnabled':'setEnabled', 'value':'setValue', 'text':'setText', 'icon':'setIcon'
-@Slots.message		# Pop up a message box displaying the returned str. also: self.viewPortMessage("Display Local Rotation Axes:<hl>"+str(state)+"</hl>")
-									# ex. return 'Error: <hl>Nothing selected</hl>.<br>Operation requires an object or vertex selection.'
+@Slots.message		# Pop up a message box displaying the returned str. also: self.viewPortMessage("Display Local Rotation Axes:<hl>"+str(state)+"</hl>")									# ex. return 'Error: <hl>Nothing selected</hl>.<br>Operation requires an object or vertex selection.'
 @Slots.hideMain		# Hides the stacked widget main window.
 @Slots.progress		# Displays a progress bar. (currently disabled)
 @Slots_maya.attr				# Launch a popup window containing the given objects attributes. A Decorator for setAttributeWindow (objAttrWindow).
@@ -194,6 +192,13 @@ def tree000(self, wItem=None, column=None):
 	'KNOWN BUGS AND GENERAL TO-DO'
 # ======================================================================
 '''
+
+overlay widgets with label ' ⧉' for option menus.
+
+
+Maya materials: rename no longer woring.
+
+
 add: maya selection: camera based selection
 selectPref -useDepth true;
 

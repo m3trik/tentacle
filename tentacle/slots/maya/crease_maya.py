@@ -17,7 +17,7 @@ class Crease_maya(Crease, Slots_maya):
 		cmb.addItems_(items, 'Crease Editors:')
 
 
-	def cmb000(self, index=-1):
+	def cmb000(self, index=None):
 		'''Editors
 		'''
 		cmb = self.crease_ui.draggable_header.contextMenu.cmb000

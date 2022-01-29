@@ -35,7 +35,7 @@ class Pivot_max(Pivot, Slots_max):
 			ctx.add('QRadioButton', setText='Object Top Right', setObjectName='chk012', setToolTip='Move the pivot to the top right of the object.')
 
 
-	def cmb000(self, index=-1):
+	def cmb000(self, index=None):
 		'''Editors
 		'''
 		cmb = self.pivot_ui.draggable_header.contextMenu.cmb000

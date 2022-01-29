@@ -15,7 +15,7 @@ class Vfx_max(Vfx, Slots_max):
 		cmb.addItems_(list_, '')
 
 
-	def cmb000(self, index=-1):
+	def cmb000(self, index=None):
 		'''Editors
 		'''
 		cmb = self.vfx_ui.draggable_header.contextMenu.cmb000

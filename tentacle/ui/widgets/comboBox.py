@@ -148,10 +148,10 @@ class ComboBox(QtWidgets.QComboBox, MenuInstance, Attributes, RichText):
 			i (str)(int) = item text or item index
 		'''
 		try: #set by item index:
-			self.setCurrentIndex(i)
+			self.setCurrentIndex(self.items.index(i))
 
 		except Exception as error: #set by item text:
-			print (__name__, 'setCurrentItem:', error)
+			print ('{}.setCurrentItem({}): {}'.format(__name__, i, error))
 			self.setCurrentText(i)
 
 
@@ -242,10 +242,10 @@ class ComboBox(QtWidgets.QComboBox, MenuInstance, Attributes, RichText):
 		:Parameters:
 			event=<QEvent>
 		'''
-		text = self.itemText(0).rstrip(' ⧉')
+		text = self.itemText(0)
 		if self.contextMenu.containsMenuItems:
 			self.contextMenu.setTitle(text)
-			self.setItemText(0, text+' ⧉') #set text: comboBox
+			self.setItemText(0, text) #set text: comboBox
 
 		return QtWidgets.QComboBox.showEvent(self, event)
 

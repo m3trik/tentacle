@@ -25,7 +25,7 @@ class Edit_max(Edit, Slots_max):
 		ctx.chk000.setDisabled(True) #disable: Delete Edge Ring.
 
 
-	def cmb000(self, index=-1):
+	def cmb000(self, index=None):
 		'''Editors
 		'''
 		cmb = self.edit_ui.draggable_header.contextMenu.cmb000
@@ -38,7 +38,7 @@ class Edit_max(Edit, Slots_max):
 
 
 	@Slots_max.attr
-	def cmb001(self, index=-1):
+	def cmb001(self, index=None):
 		'''Object History Attributes
 		'''
 		cmb = self.edit_ui.cmb001

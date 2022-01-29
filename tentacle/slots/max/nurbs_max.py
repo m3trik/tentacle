@@ -19,7 +19,7 @@ class Nurbs_max(Nurbs, Slots_max):
 		cmb.addItems_(items, 'Create Curve')
 
 
-	def cmb000(self, index=-1):
+	def cmb000(self, index=None):
 		'''Maya Curve Operations
 		'''
 		cmb = self.nurbs_ui.draggable_header.contextMenu.cmb000
@@ -63,7 +63,7 @@ class Nurbs_max(Nurbs, Slots_max):
 			cmb.setCurrentIndex(0)
 
 
-	def cmb001(self, index=-1):
+	def cmb001(self, index=None):
 		'''Create: Curve
 		'''
 		cmb = self.nurbs_ui.cmb001

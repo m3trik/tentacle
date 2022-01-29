@@ -12,19 +12,17 @@ class Materials_max(Materials, Slots_max):
 
 		self.randomMat=None
 
-		self.materials_submenu_ui.b003.setVisible(False)
+		dh = self.materials_ui.draggable_header
+		dh.contextMenu.add(self.tcl.wgts.ComboBox, setObjectName='cmb000', setToolTip='Maya Material Editors')
+		dh.contextMenu.add(self.tcl.wgts.PushButton, setText='Relink Scene Bitmaps', setObjectName='tb003', setToolTip='Repair broken bitmap file links for any scene materials. If no materials are selected, all scene materials will be used.')
+		dh.contextMenu.add(self.tcl.wgts.PushButton, setText='Relink Library Bitmaps', setObjectName='tb004', setToolTip='Repair broken bitmap file links for all libraries in a given directory.')
 
-		ctx = self.materials_ui.draggable_header.contextMenu
-		if not ctx.containsMenuItems:
-			ctx.add(self.tcl.wgts.PushButton, setText='Relink Scene Bitmaps', setObjectName='tb003', setToolTip='Repair broken bitmap file links for any scene materials. If no materials are selected, all scene materials will be used.')
-			ctx.add(self.tcl.wgts.PushButton, setText='Relink Library Bitmaps', setObjectName='tb004', setToolTip='Repair broken bitmap file links for all libraries in a given directory.')
-
-		cmb = self.materials_ui.draggable_header.contextMenu.cmb000
+		cmb000 = self.materials_ui.draggable_header.contextMenu.cmb000
 		items = ['Material Editor']
-		cmb.addItems_(items, 'Material Editors')
+		cmb000.addItems_(items, 'Material Editors')
 
 
-	def cmb000(self, index=-1):
+	def cmb000(self, index=None):
 		'''Editors
 		'''
 		cmb = self.materials_ui.draggable_header.contextMenu.cmb000
@@ -36,7 +34,7 @@ class Materials_max(Materials, Slots_max):
 			cmb.setCurrentIndex(0)
 
 
-	def cmb002(self, index=-1):
+	def cmb002(self, index=None):
 		'''Material list
 
 		:Parameters:

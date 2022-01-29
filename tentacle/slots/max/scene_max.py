@@ -15,7 +15,7 @@ class Scene_max(Scene, Slots_max):
 		cmb.addItems_(items, 'Scene Editors')
 
 
-	def cmb000(self, index=-1):
+	def cmb000(self, index=None):
 		'''Editors
 		'''
 		cmb = self.scene_ui.draggable_header.contextMenu.cmb000

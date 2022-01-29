@@ -21,7 +21,7 @@ class Lighting_maya(Lighting, Slots_maya):
 		dh = self.lighting_ui.draggable_header
 
 
-	def cmb000(self, index=-1):
+	def cmb000(self, index=None):
 		'''Editors
 		'''
 		cmb = self.lighting_ui.draggable_header.contextMenu.cmb000

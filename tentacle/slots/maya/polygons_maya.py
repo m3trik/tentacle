@@ -10,12 +10,12 @@ class Polygons_maya(Polygons, Slots_maya):
 		Slots_maya.__init__(self, *args, **kwargs)
 		Polygons.__init__(self, *args, **kwargs)
 
-		cmb = self.polygons_ui.draggable_header.contextMenu.cmb000
+		cmb000 = self.polygons_ui.draggable_header.contextMenu.cmb000
 		items = ['Extrude','Bevel','Bridge','Combine','Merge Vertex','Offset Edgeloop','Edit Edgeflow','Extract Curve','Poke','Wedge','Assign Invisible']
-		cmb.addItems_(items, 'Polygon Editors')
+		cmb000.addItems_(items, 'Polygon Editors')
 
 
-	def cmb000(self, index=-1):
+	def cmb000(self, index=None):
 		'''Editors
 		'''
 		cmb = self.polygons_ui.draggable_header.contextMenu.cmb000

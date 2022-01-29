@@ -15,7 +15,7 @@ class Display_max(Display, Slots_max):
 		cmb.addItems_(list_, '')
 
 
-	def cmb000(self, index=-1):
+	def cmb000(self, index=None):
 		'''Editors
 		'''
 		cmb = self.display_ui.draggable_header.contextMenu.cmb000

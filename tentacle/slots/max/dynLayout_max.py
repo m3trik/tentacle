@@ -15,7 +15,7 @@ class DynLayout_max(DynLayout, Slots_max):
 		cmb.addItems_(list_, '')
 
 
-	def cmb000(self, index=-1):
+	def cmb000(self, index=None):
 		'''Editors
 		'''
 		cmb = self.dynLayout_ui.draggable_header.contextMenu.cmb000

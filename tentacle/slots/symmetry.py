@@ -18,18 +18,20 @@ class Symmetry(Slots):
 					current (lambda function) = Returns the current ui if it is either the parent or a child ui for the class; else, return the parent ui. ie. self.current()
 					'<name>' (lambda function) = Returns the class instance of that name.  ie. self.polygons()
 		'''
-		ctx = self.symmetry_ui.draggable_header.contextMenu
-		if not ctx.containsMenuItems:
-			ctx.add(self.tcl.wgts.ComboBox, setObjectName='cmb000', setToolTip='')
+		dh = self.symmetry_ui.draggable_header
+		dh.contextMenu.add(self.tcl.wgts.ComboBox, setObjectName='cmb000', setToolTip='')
 
-	
+		# w2 = self.tcl.sb.getWidget('chk002', self.tcl.sb.getUi('symmetry', level=3))
+		# print ('here ----->', w2)
+		# self.symmetry_submenu_ui.chk002.toggled.connect(lambda w2=w2: self.tcl.sb.syncAttributes(self.symmetry_submenu_ui.chk002, w2))
+
+
 	def draggable_header(self, state=None):
 		'''Context menu
 		'''
 		dh = self.symmetry_ui.draggable_header
 
 
-	@Slots.sync
 	def chk000(self, state=None):
 		'''Symmetry X
 		'''
@@ -38,7 +40,6 @@ class Symmetry(Slots):
 		self.setSymmetry(state, 'x')
 
 
-	@Slots.sync
 	def chk001(self, state=None):
 		'''Symmetry Y
 		'''
@@ -47,7 +48,6 @@ class Symmetry(Slots):
 		self.setSymmetry(state, 'y')
 
 
-	@Slots.sync
 	def chk002(self, state=None):
 		'''Symmetry Z
 		'''

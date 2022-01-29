@@ -15,7 +15,7 @@ class Duplicate_max(Duplicate, Slots_max):
 		cmb.addItems_(list_, 'Maya Menus')
 
 
-	def cmb000(self, index=-1):
+	def cmb000(self, index=None):
 		'''Editors
 		'''
 		cmb = self.duplicate_ui.draggable_header.contextMenu.cmb000

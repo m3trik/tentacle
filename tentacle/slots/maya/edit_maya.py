@@ -43,7 +43,7 @@ class Edit_maya(Edit, Slots_maya):
 			ctx.chk022.stateChanged.connect(lambda state: self.toggleWidgets(ctx, setDisabled='chk002-3,chk005,chk010-21,s006-8', setEnabled='chk023') if state 
 															else self.toggleWidgets(ctx, setEnabled='chk002-3,chk005,chk010-21,s006-8', setDisabled='chk023')) #disable non-relevant options.
 
-	def cmb000(self, index=-1):
+	def cmb000(self, index=None):
 		'''Editors
 		'''
 		cmb = self.edit_ui.draggable_header.contextMenu.cmb000
@@ -61,7 +61,7 @@ class Edit_maya(Edit, Slots_maya):
 
 
 	@Slots_maya.attr
-	def cmb001(self, index=-1):
+	def cmb001(self, index=None):
 		'''Object History Attributes
 		'''
 		cmb = self.edit_ui.cmb001

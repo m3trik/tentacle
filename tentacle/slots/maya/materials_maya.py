@@ -10,20 +10,18 @@ class Materials_maya(Materials, Slots_maya):
 		Slots_maya.__init__(self, *args, **kwargs)
 		Materials.__init__(self, *args, **kwargs)
 
-		self.randomMat=None
+		self.randomMat = None
 
-		self.materials_submenu_ui.b003.setVisible(False)
+		dh = self.materials_ui.draggable_header
+		dh.contextMenu.add(self.tcl.wgts.ComboBox, setObjectName='cmb000', setToolTip='Material Editors')
+		dh.contextMenu.add(self.tcl.wgts.Label, setText='Material Attributes', setObjectName='lbl004', setToolTip='Show the material attributes in the attribute editor.')
 
-		ctx = self.materials_ui.draggable_header.contextMenu
-		if not ctx.containsMenuItems:
-			ctx.add(self.tcl.wgts.Label, setText='Material Attributes', setObjectName='lbl004', setToolTip='Show the material attributes in the attribute editor.')
-
-		cmb = self.materials_ui.draggable_header.contextMenu.cmb000
+		cmb000 = self.materials_ui.draggable_header.contextMenu.cmb000
 		items = ['Hypershade']
-		cmb.addItems_(items, 'Material Editors')
+		cmb000.addItems_(items, 'Material Editors')
 
 
-	def cmb000(self, index=-1):
+	def cmb000(self, index=None):
 		'''Editors
 		'''
 		cmb = self.materials_ui.draggable_header.contextMenu.cmb000
@@ -35,7 +33,7 @@ class Materials_maya(Materials, Slots_maya):
 			cmb.setCurrentIndex(0)
 
 
-	def cmb002(self, index=-1):
+	def cmb002(self, index=None):
 		'''Material list
 
 		:Parameters:
@@ -105,26 +103,25 @@ class Materials_maya(Materials, Slots_maya):
 		assignRandom = tb.contextMenu.chk008.isChecked()
 		assignNew = tb.contextMenu.chk009.isChecked()
 
-		for obj in selection:
-			if assignCurrent: #Assign current mat
-				mat = self.materials_ui.cmb002.currentData()
-				if isinstance(mat, str): #new mat type as a string:
-					self.assignMaterial(obj, pm.createNode(mat.rstrip(' ⧉')))
-				else: #existing mat object:
-					self.assignMaterial(obj, mat)
+		if assignCurrent: #Assign current mat
+			mat = self.materials_ui.cmb002.currentData()
+			if isinstance(mat, str): #new mat type as a string:
+				self.assignMaterial(selection, pm.createNode(mat.rstrip(' ⧉')))
+			else: #existing mat object:
+				self.assignMaterial(selection, mat)
 
-			elif assignRandom: #Assign New random mat ID
-				mat = self.createRandomMaterial(prefix='ID_')
-				self.assignMaterial(obj, mat)
+		elif assignRandom: #Assign New random mat ID
+			mat = self.createRandomMaterial(prefix='ID_')
+			self.assignMaterial(selection, mat)
 
-				self.randomMat = mat
+			self.randomMat = mat
 
-				self.cmb002() #refresh the materials list comboBox
-				self.materials_ui.cmb002.setCurrentItem(mat.name()) #set the combobox index to the new mat #self.cmb002.setCurrentIndex(self.cmb002.findText(name))
+			self.cmb002() #refresh the materials list comboBox
+			self.materials_ui.cmb002.setCurrentItem(mat.name()) #set the combobox index to the new mat #self.cmb002.setCurrentIndex(self.cmb002.findText(name))
 
-			elif assignNew: #Assign New Material
-				mel.eval('buildObjectMenuItemsNow "MainPane|viewPanes|modelPanel4|modelPanel4|modelPanel4|modelPanel4ObjectPop";')
-				mel.eval('createAssignNewMaterialTreeLister "";')
+		elif assignNew: #Assign New Material
+			mel.eval('buildObjectMenuItemsNow "MainPane|viewPanes|modelPanel4|modelPanel4|modelPanel4|modelPanel4ObjectPop";')
+			mel.eval('createAssignNewMaterialTreeLister "";')
 
 
 	@Slots.message
@@ -209,7 +206,7 @@ class Materials_maya(Materials, Slots_maya):
 
 		self.materials_ui.cmb002.contextMenu.cmb001.setCurrentIndex(0) #set the combobox to show all scene materials
 		self.cmb002() #refresh the materials list comboBox
-		self.materials_ui.cmb002.setCurrentIndex(self.materials_ui.cmb002.items.index(mat.name()))
+		self.materials_ui.cmb002.setCurrentItem(mat.name())
 
 
 	def getColorSwatchIcon(self, mat, size=[20, 20]):
@@ -245,10 +242,11 @@ class Materials_maya(Materials, Slots_maya):
 		if curMatName!=newMatName:
 			cmb.setItemText(cmb.currentIndex(), newMatName)
 			try:
+				print (curMatName, newMatName)
 				pm.rename(curMatName, newMatName)
 
 			except RuntimeError as error:
-				cmb.setItemText(cmb.currentIndex(), str(error.strip('\n')))
+				cmb.setItemText(cmb.currentIndex(), str(error).strip('\n'))
 
 
 	@Slots.message
@@ -293,8 +291,7 @@ class Materials_maya(Materials, Slots_maya):
 				pm.select(list(set(allFaces)-set(faces)), add=1) #get inverse of previously selected faces from allFaces
 
 
-	@staticmethod
-	def getSceneMaterials(startingWith=[''], exclude=[]):
+	def getSceneMaterials(self, startingWith=[''], exclude=[]):
 		'''Get All Materials from the current scene.
 
 		:Parameters:
@@ -309,8 +306,7 @@ class Materials_maya(Materials, Slots_maya):
 		return materials
 
 
-	@staticmethod
-	def getFavoriteMaterials():
+	def getFavoriteMaterials(self):
 		'''Get Maya Favorite Materials List.
 
 		:Return:
@@ -326,8 +322,7 @@ class Materials_maya(Materials, Slots_maya):
 		return materials
 
 
-	@staticmethod
-	def getMaterial(obj=''):
+	def getMaterial(self, obj=''):
 		'''Get the material from the selected face.
 
 		:Parameters:
@@ -342,8 +337,7 @@ class Materials_maya(Materials, Slots_maya):
 		return mats[0]
 
 
-	@staticmethod
-	def createRandomMaterial(name='', prefix=''):
+	def createRandomMaterial(self, name='', prefix=''):
 		'''Creates a random material.
 
 		:Parameters:
@@ -445,7 +439,7 @@ print (__name__)
 # 	else:
 # 		self.currentMat = mat
 
-# def cmb000(self, index=-1):
+# def cmb000(self, index=None):
 	# 	'''
 	# 	Existing Materials
 

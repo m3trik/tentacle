@@ -15,7 +15,7 @@ class Vfx_maya(Vfx, Slots_maya):
 		cmb.addItems_(list_, '')
 
 
-	def cmb000(self, index=-1):
+	def cmb000(self, index=None):
 		'''Editors
 		'''
 		cmb = self.vfx_ui.draggable_header.contextMenu.cmb000

@@ -15,7 +15,7 @@ class Polygons_max(Polygons, Slots_max):
 		cmb.addItems_(items, 'Polygon Editors')
 
 
-	def cmb000(self, index=-1):
+	def cmb000(self, index=None):
 		'''Editors
 		'''
 		cmb = self.polygons_ui.draggable_header.contextMenu.cmb000

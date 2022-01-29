@@ -10,25 +10,19 @@ class Symmetry_max(Symmetry, Slots_max):
 		Slots_max.__init__(self, *args, **kwargs)
 		Symmetry.__init__(self, *args, **kwargs)
 
-		cmb = self.symmetry_ui.draggable_header.contextMenu.cmb000
+		cmb000 = self.symmetry_ui.draggable_header.contextMenu
 		items = ['']
-		cmb.addItems_(items, '')
+		cmb000.addItems_(items, '')
 
-		#symmetry: set initial checked state
+		#set initial checked state
 		# state = pm.symmetricModelling(query=True, symmetry=True) #application symmetry state
 		# axis = pm.symmetricModelling(query=True, axis=True)
-		# if axis == "x":
-		# 	self.symmetry_ui.chk000.setChecked(state)
-		# 	self.symmetry_submenu_ui.chk000.setChecked(state)
-		# if axis == "y":
-		# 	self.symmetry_ui.chk001.setChecked(state)
-		# 	self.symmetry_submenu_ui.chk001.setChecked(state)
-		# if axis == "z":
-		# 	self.symmetry_ui.chk002.setChecked(state)
-		# 	self.symmetry_submenu_ui.chk002.setChecked(state)
+		# widget = 'chk000' if axis=='x' else 'chk001' if axis=='y' else 'chk002'
+		# getattr(self.symmetry_ui, widget).setChecked(state)
+		# getattr(self.symmetry_submenu_ui, widget).setChecked(state)
 
 
-	def cmb000(self, index=-1):
+	def cmb000(self, index=None):
 		'''Editors
 		'''
 		cmb = self.symmetry_ui.draggable_header.contextMenu.cmb000

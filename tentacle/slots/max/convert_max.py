@@ -19,7 +19,7 @@ class Convert_max(Convert, Slots_max):
 		contents = cmb.addItems_(list_, 'Convert To')
 
 
-	def cmb000(self, index=-1):
+	def cmb000(self, index=None):
 		'''Editors
 		'''
 		cmb = self.convert_ui.draggable_header.contextMenu.cmb000
@@ -31,7 +31,7 @@ class Convert_max(Convert, Slots_max):
 			cmb.setCurrentIndex(0)
 
 
-	def cmb001(self, index=-1):
+	def cmb001(self, index=None):
 		'''Convert To
 		'''
 		cmb = self.convert_ui.cmb001

@@ -169,7 +169,7 @@ class Selection_max(Selection, Slots_max):
 			return 'Soft Select <hl>Off</hl>.'
 
 
-	def cmb000(self, index=-1):
+	def cmb000(self, index=None):
 		'''Editors
 		'''
 		cmb = self.selection_ui.draggable_header.contextMenu.cmb000
@@ -181,7 +181,7 @@ class Selection_max(Selection, Slots_max):
 			cmb.setCurrentIndex(0)
 
 
-	def cmb001(self, index=-1):
+	def cmb001(self, index=None):
 		'''Selection Sets
 		'''
 		cmb = self.selection_ui.cmb001
@@ -190,7 +190,7 @@ class Selection_max(Selection, Slots_max):
 		cmb.addItems_([s for s in sets_], clear=True)
 
 
-	def cmb002(self, index=-1):
+	def cmb002(self, index=None):
 		'''Select All Of Type
 		'''
 		cmb = self.selection_ui.cmb002
@@ -217,7 +217,7 @@ class Selection_max(Selection, Slots_max):
 			cmb.setCurrentIndex(0)
 
 
-	def cmb003(self, index=-1):
+	def cmb003(self, index=None):
 		'''Convert To
 		'''
 		cmb = self.selection_ui.cmb003
@@ -233,7 +233,7 @@ class Selection_max(Selection, Slots_max):
 			cmb.setCurrentIndex(0)
 
 
-	def cmb005(self, index=-1):
+	def cmb005(self, index=None):
 		'''Selection Contraints
 		'''
 		cmb = self.selection_ui.cmb005
@@ -256,7 +256,7 @@ class Selection_max(Selection, Slots_max):
 			mel.eval('dR_selConstraintOff;') #dR_DoCmd("selConstraintOff");
 
 
-	def cmb006(self, index=-1):
+	def cmb006(self, index=None):
 		'''Currently Selected Objects
 		'''
 		cmb = self.selection_ui.draggable_header.contextMenu.cmb006

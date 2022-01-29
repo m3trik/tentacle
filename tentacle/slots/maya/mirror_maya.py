@@ -15,7 +15,7 @@ class Mirror_maya(Mirror, Slots_maya):
 		cmb.addItems_(items, '')
 
 
-	def cmb000(self, index=-1):
+	def cmb000(self, index=None):
 		'''Editors
 		'''
 		cmb = self.mirror_ui.draggable_header.contextMenu.cmb000

@@ -26,7 +26,7 @@ class Pivot_maya(Pivot, Slots_maya):
 			ctx.add('QRadioButton', setText='World', setObjectName='chk004', setToolTip='Center the pivot on world origin.')
 
 
-	def cmb000(self, index=-1):
+	def cmb000(self, index=None):
 		'''Editors
 		'''
 		cmb = self.pivot_ui.draggable_header.contextMenu.cmb000

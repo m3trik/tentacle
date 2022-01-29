@@ -10,34 +10,36 @@ class Uv_maya(Uv, Slots_maya):
 		Slots_maya.__init__(self, *args, **kwargs)
 		Uv.__init__(self, *args, **kwargs)
 
-		Slots_maya.loadPlugin('Unfold3D.mll')
+		Slots_maya.loadPlugin('Unfold3D.mll') #assure the maya UV plugin is loaded.
 
-		cmb = self.uv_ui.draggable_header.contextMenu.cmb000
+		cmb000 = self.uv_ui.draggable_header.contextMenu.cmb000
 		items = ['UV Editor','UV Set Editor','UV Tool Kit','UV Linking: Texture-Centric','UV Linking: UV-Centric','UV Linking: Paint Effects/UV','UV Linking: Hair/UV','Flip UV']
-		cmb.addItems_(items, 'Maya UV Editors')
+		cmb000.addItems_(items, 'Maya UV Editors')
 
-		cmb = self.uv_ui.cmb001
+		cmb001 = self.uv_ui.cmb001
 		panel = pm.getPanel(scriptType='polyTexturePlacementPanel')
-		cmb.menu_.chk014.setChecked(pm.textureWindow(panel, displayCheckered=1, query=1)) #checkered state
-		cmb.menu_.chk015.setChecked(True if pm.polyOptions(query=1, displayMapBorder=1) else False) #borders state
-		cmb.menu_.chk016.setChecked(pm.textureWindow(panel, query=1, displayDistortion=1)) #distortion state
+		cmb001.contextMenu.menu_.chk014.setChecked(pm.textureWindow(panel, displayCheckered=1, query=1)) #checkered state
+		cmb001.contextMenu.menu_.chk015.setChecked(True if pm.polyOptions(query=1, displayMapBorder=1) else False) #borders state
+		cmb001.contextMenu.menu_.chk016.setChecked(pm.textureWindow(panel, query=1, displayDistortion=1)) #distortion state
 
-		cmb = self.uv_ui.cmb002
+		cmb002 = self.uv_ui.cmb002
 		items = ['Flip U', 'Flip V', 'Align U Left', 'Align U Middle', 'Align U Right', 'Align V Top', 'Align V Middle', 'Align V Bottom', 'Linear Align']
-		cmb.addItems_(items, 'Transform:')
+		cmb002.addItems_(items, 'Transform:')
 
-		ctx = self.uv_ui.tb000.contextMenu
-		if not ctx.containsMenuItems:
-			ctx.add('QSpinBox', setPrefix='Pre-Scale Mode: ', setObjectName='s009', setMinMax_='0-2 step1', setValue=1, setToolTip='Allow shell scaling during packing.')
-			ctx.add('QSpinBox', setPrefix='Pre-Rotate Mode: ', setObjectName='s010', setMinMax_='0-2 step1', setValue=1, setToolTip='Allow shell rotation during packing.')
-			ctx.add('QDoubleSpinBox', setPrefix='Rotate Step: ', setObjectName='s007', setMinMax_='0.0-360 step22.5', setValue=22.5, setToolTip='Set the allowed rotation increment contraint.')
-			ctx.add('QSpinBox', setPrefix='Stack Similar: ', setObjectName='s011', setMinMax_='0-2 step1', setValue=0, setToolTip='Find Similar shells. <br>state 1: Find similar shells, and pack one of each, ommiting the rest.<br>state 2: Find similar shells, and stack during packing.')
-			ctx.add('QDoubleSpinBox', setPrefix='Tolerance: ', setObjectName='s006', setMinMax_='0.0-10 step.1', setValue=1.0, setToolTip='Stack Similar: Stack shells with uv\'s within the given range.')
-			ctx.add('QSpinBox', setPrefix='UDIM: ', setObjectName='s004', setMinMax_='1001-1200 step1', setValue=1001, setToolTip='Set the desired UDIM tile space.')
-			ctx.add('QSpinBox', setPrefix='Map Size: ', setObjectName='s005', setMinMax_='512-8192 step512', setValue=2048, setToolTip='UV map resolution.')
+		tb000 = self.uv_ui.tb000
+		tb000.contextMenu.add('QSpinBox', setPrefix='Pre-Scale Mode: ', setObjectName='s009', setMinMax_='0-2 step1', setValue=1, setToolTip='Allow shell scaling during packing.')
+		tb000.contextMenu.add('QSpinBox', setPrefix='Pre-Rotate Mode: ', setObjectName='s010', setMinMax_='0-2 step1', setValue=1, setToolTip='Allow shell rotation during packing.')
+		tb000.contextMenu.add('QDoubleSpinBox', setPrefix='Rotate Step: ', setObjectName='s007', setMinMax_='0.0-360 step22.5', setValue=22.5, setToolTip='Set the allowed rotation increment contraint.')
+		tb000.contextMenu.add('QSpinBox', setPrefix='Stack Similar: ', setObjectName='s011', setMinMax_='0-2 step1', setValue=0, setToolTip='Find Similar shells. <br>state 1: Find similar shells, and pack one of each, ommiting the rest.<br>state 2: Find similar shells, and stack during packing.')
+		tb000.contextMenu.add('QDoubleSpinBox', setPrefix='Tolerance: ', setObjectName='s006', setMinMax_='0.0-10 step.1', setValue=1.0, setToolTip='Stack Similar: Stack shells with uv\'s within the given range.')
+		tb000.contextMenu.add('QSpinBox', setPrefix='UDIM: ', setObjectName='s004', setMinMax_='1001-1200 step1', setValue=1001, setToolTip='Set the desired UDIM tile space.')
+		tb000.contextMenu.add('QSpinBox', setPrefix='Map Size: ', setObjectName='s005', setMinMax_='512-8192 step512', setValue=2048, setToolTip='UV map resolution.')
+
+		tb007 = self.uv_ui.tb007
+		tb007.contextMenu.b099.released.connect(lambda: tb007.contextMenu.s003.setValue(float(pm.mel.texGetTexelDensity(tb007.contextMenu.s002.value())))) #get and set texel density value.
 
 		
-	def cmb000(self, index=-1):
+	def cmb000(self, index=None):
 		'''Editors
 		'''
 		cmb = self.uv_ui.draggable_header.contextMenu.cmb000
@@ -64,13 +66,13 @@ class Uv_maya(Uv, Slots_maya):
 			cmb.setCurrentIndex(0)
 
 
-	def cmb001(self, index=-1):
+	def cmb001(self, index=None):
 		'''Display
 		'''
 		cmb = self.uv_ui.cmb001
 
 
-	def cmb002(self, index=-1):
+	def cmb002(self, index=None):
 		'''Transform
 		'''
 		cmb = self.uv_ui.cmb002

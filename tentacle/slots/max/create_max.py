@@ -26,7 +26,7 @@ class Create_max(Create, Slots_max):
 		ctx.chk001.setDisabled(True)
 
 
-	def cmb000(self, index=-1):
+	def cmb000(self, index=None):
 		'''Editors
 		'''
 		cmb = self.create_ui.draggable_header.contextMenu.cmb000
@@ -38,7 +38,7 @@ class Create_max(Create, Slots_max):
 			cmb.setCurrentIndex(0)
 
 
-	def cmb001(self, index=-1):
+	def cmb001(self, index=None):
 		'''Create: Select Base Type
 		'''
 		cmb = self.create_ui.cmb001
@@ -47,7 +47,7 @@ class Create_max(Create, Slots_max):
 			self.cmb001(index)
 
 
-	def cmb001(self, index=-1):
+	def cmb001(self, index=None):
 		''''''
 		cmb = self.create_ui.cmb002
 

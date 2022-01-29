@@ -15,7 +15,7 @@ class Scene_maya(Scene, Slots_maya):
 		cmb.addItems_(items, 'Maya Scene Editors')
 
 
-	def cmb000(self, index=-1):
+	def cmb000(self, index=None):
 		'''Editors
 		'''
 		cmb = self.scene_ui.draggable_header.contextMenu.cmb000

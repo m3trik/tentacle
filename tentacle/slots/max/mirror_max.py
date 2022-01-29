@@ -18,7 +18,7 @@ class Mirror_max(Mirror, Slots_max):
 		ctx.chk006.setDisabled(True) #disable: delete history.
 
 
-	def cmb000(self, index=-1):
+	def cmb000(self, index=None):
 		'''Editors
 		'''
 		cmb = self.mirror_ui.draggable_header.contextMenu.cmb000

@@ -39,7 +39,7 @@ class Preferences_max(Preferences, Slots_max):
 		# cmb.setCurrentIndex(index)
 
 
-	def cmb000(self, index=-1):
+	def cmb000(self, index=None):
 		'''Editors
 		'''
 		cmb = self.preferences_ui.draggable_header.contextMenu.cmb000
@@ -50,7 +50,7 @@ class Preferences_max(Preferences, Slots_max):
 			cmb.setCurrentIndex(0)
 
 
-	def cmb001(self, index=-1):
+	def cmb001(self, index=None):
 		'''Preferences:App - Set Working Units: Linear
 		'''
 		cmb = self.preferences_ui.cmb001
@@ -72,7 +72,7 @@ class Preferences_max(Preferences, Slots_max):
 				maxEval('units.SystemType = #Miles')
 
 
-	def cmb002(self, index=-1):
+	def cmb002(self, index=None):
 		'''Preferences:App - Set Working Units: Time
 		'''
 		cmb = self.preferences_ui.cmb002
@@ -119,7 +119,7 @@ print (__name__)
 # -----------------------------------------------
 
 
-	# def cmb000(self, index=-1):
+	# def cmb000(self, index=None):
 	# 	'''
 	# 	Custom Menu Set
 	# 	'''
