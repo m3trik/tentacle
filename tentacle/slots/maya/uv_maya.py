@@ -10,7 +10,7 @@ class Uv_maya(Uv, Slots_maya):
 		Slots_maya.__init__(self, *args, **kwargs)
 		Uv.__init__(self, *args, **kwargs)
 
-		Slots_maya.loadPlugin('Unfold3D.mll') #assure the maya UV plugin is loaded.
+		self.preferences().loadPlugin('Unfold3D.mll') #assure the maya UV plugin is loaded.
 
 		cmb000 = self.uv_ui.draggable_header.contextMenu.cmb000
 		items = ['UV Editor','UV Set Editor','UV Tool Kit','UV Linking: Texture-Centric','UV Linking: UV-Centric','UV Linking: Paint Effects/UV','UV Linking: Hair/UV','Flip UV']
@@ -18,9 +18,9 @@ class Uv_maya(Uv, Slots_maya):
 
 		cmb001 = self.uv_ui.cmb001
 		panel = pm.getPanel(scriptType='polyTexturePlacementPanel')
-		cmb001.contextMenu.menu_.chk014.setChecked(pm.textureWindow(panel, displayCheckered=1, query=1)) #checkered state
-		cmb001.contextMenu.menu_.chk015.setChecked(True if pm.polyOptions(query=1, displayMapBorder=1) else False) #borders state
-		cmb001.contextMenu.menu_.chk016.setChecked(pm.textureWindow(panel, query=1, displayDistortion=1)) #distortion state
+		cmb001.menu_.chk014.setChecked(pm.textureWindow(panel, displayCheckered=1, query=1)) #checkered state
+		cmb001.menu_.chk015.setChecked(True if pm.polyOptions(query=1, displayMapBorder=1) else False) #borders state
+		cmb001.menu_.chk016.setChecked(pm.textureWindow(panel, query=1, displayDistortion=1)) #distortion state
 
 		cmb002 = self.uv_ui.cmb002
 		items = ['Flip U', 'Flip V', 'Align U Left', 'Align U Middle', 'Align U Right', 'Align V Top', 'Align V Middle', 'Align V Bottom', 'Linear Align']
@@ -38,7 +38,7 @@ class Uv_maya(Uv, Slots_maya):
 		tb007 = self.uv_ui.tb007
 		tb007.contextMenu.b099.released.connect(lambda: tb007.contextMenu.s003.setValue(float(pm.mel.texGetTexelDensity(tb007.contextMenu.s002.value())))) #get and set texel density value.
 
-		
+
 	def cmb000(self, index=None):
 		'''Editors
 		'''

@@ -216,12 +216,25 @@ class Switchboard(QtCore.QObject):
 						}
 					})
 
+		if self.getUiLevel(uiName)==2: #sync submenu widgets with their main menu counterparts.
+			
+			w2 = self.getWidget(widgetName, self.getUi(uiName, level=3))
 
-		if self.getUiLevel(uiName)==2:
 			try:
-				w2 = self.getWidget(widgetName, self.getUi(uiName, level=3))
 				widget.toggled.connect(lambda: self.syncAttributes(widget, w2))
 				w2.toggled.connect(lambda: self.syncAttributes(w2, widget))
+			except AttributeError as error:
+				pass
+
+			try:
+				widget.valueChanged.connect(lambda: self.syncAttributes(widget, w2))
+				w2.valueChanged.connect(lambda: self.syncAttributes(w2, widget))
+			except AttributeError as error:
+				pass
+
+			try:
+				widget.textChanged.connect(lambda: self.syncAttributes(widget, w2))
+				w2.textChanged.connect(lambda: self.syncAttributes(w2, widget))
 			except AttributeError as error:
 				pass
 
@@ -297,7 +310,7 @@ class Switchboard(QtCore.QObject):
 	def syncAttributes(self, frm, to, attributeTypes = {
 		'isChecked':'setChecked', 'isDisabled':'setDisabled', 'isEnabled':'setEnabled', 
 		'value':'setValue', 'text':'setText', 'icon':'setIcon',}):
-		'''Keep widgets in sync.
+		'''Sync the given attributes between the two given widgets.
 		If a widget does not have an attribute it will be silently skipped.
 
 		:Parameters:
@@ -305,13 +318,6 @@ class Switchboard(QtCore.QObject):
 			to (obj) = The widget to transfer attribute values to.
 			attributeTypes (dict) = Which attributes to sync. the dict contains gettr:settr pairs. ie. {'isChecked':'setChecked'}
 		'''
-		attributes = {}
-		for gettr, settr in attributeTypes.items():
-			try:
-				attributes[settr] = getattr(frm, gettr)()
-			except AttributeError as error:
-				pass
-
 		attributes = {}
 		for gettr, settr in attributeTypes.items():
 			try:

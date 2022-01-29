@@ -23,7 +23,7 @@ class Uv(Slots):
 		dh.contextMenu.add('QPushButton', setText='Create UV Snapshot', setObjectName='b001', setToolTip='Save an image file of the current UV layout.')
 
 		cmb001 = self.uv_ui.cmb001
-		cmb.popupStyle = 'qmenu'
+		cmb001.popupStyle = 'qmenu'
 		cmb001.menu_.add(self.tcl.wgts.CheckBox, setObjectName='chk014', setText='Checkered', setToolTip='')
 		cmb001.menu_.add(self.tcl.wgts.CheckBox, setObjectName='chk015', setText='Borders', setToolTip='')
 		cmb001.menu_.add(self.tcl.wgts.CheckBox, setObjectName='chk016', setText='Distortion', setToolTip='')
@@ -69,7 +69,6 @@ class Uv(Slots):
 		tb007.contextMenu.add('QSpinBox', setPrefix='Map Size: ', setObjectName='s002', setMinMax_='512-8192 step512', setValue=2048, setToolTip='Set the map used as reference when getting texel density.')
 		tb007.contextMenu.add('QDoubleSpinBox', setPrefix='Texel Density: ', setObjectName='s003', setMinMax_='0.00-128 step8', setValue=32, setToolTip='Set the desired texel density.')
 		tb007.contextMenu.add('QPushButton', setText='Get Texel Density', setObjectName='b099', setChecked=True, setToolTip='Get the average texel density of any selected faces.')
-		
 
 
 	def draggable_header(self, state=None):

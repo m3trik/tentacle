@@ -25,18 +25,6 @@ class Slots_maya(Slots):
 		Slots.__init__(self, *args, **kwargs)
 
 
-	@staticmethod
-	def loadPlugin(plugin):
-		'''Loads A Plugin.
-		
-		:Parameters:
-			plugin (str) = The desired plugin to load.
-
-		ex. loadPlugin('nearestPointOnMesh')
-		'''
-		not pm.pluginInfo(plugin, query=True, loaded=True) and pm.loadPlugin(plugin)
-
-
 	def undoChunk(fn):
 		'''A decorator to place a function into Maya's undo chunk.
 		Prevents the undo queue from breaking entirely if an exception is raised within the given function.

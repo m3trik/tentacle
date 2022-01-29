@@ -97,6 +97,17 @@ class Preferences_maya(Preferences, Slots_maya):
 		mel.eval("PreferencesWindow;")
 
 
+	def loadPlugin(self, plugin):
+		'''Loads A Plugin.
+		
+		:Parameters:
+			plugin (str) = The desired plugin to load.
+
+		ex. loadPlugin('nearestPointOnMesh')
+		'''
+		not pm.pluginInfo(plugin, query=True, loaded=True) and pm.loadPlugin(plugin)
+
+
 
 
 
