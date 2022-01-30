@@ -187,27 +187,27 @@ class Slots(QtCore.QObject):
 		'''Set multiple boolean properties, for multiple widgets, on multiple ui's at once.
 
 		:Parameters:
-			*args = dynamic ui object/s. If no ui's are given, then the parent and child uis will be used.
+			*args = dynamic ui object/s. If no ui's are given, then the current UI will be used.
 			*kwargs = keyword: - the property to modify. ex. setChecked, setUnChecked, setEnabled, setDisabled, setVisible, setHidden
 					value: string of objectNames - objectNames separated by ',' ie. 'b000-12,b022'
 
 		ex.	self.toggleWidgets(<ui1>, <ui2>, setDisabled='b000', setUnChecked='chk009-12', setVisible='b015,b017')
 		'''
 		if not args:
-			childUi = self.tcl.sb.getUi(level=2)
-			parentUi = self.tcl.sb.getUi(level=3)
-			args = [parentUi, childUi]
+			parentUi = self.tcl.sb.getUi(self.current_ui(), level=3)
+			childUi = self.tcl.sb.getUi(self.current_ui(), level=2)
+			args = [childUi, parentUi]
 
 		for ui in args:
-			for property_ in kwargs: #property_ ie. setUnChecked
-				widgets = Slots.getObjects(ui, kwargs[property_]) #getObjects returns a widget list from a string of objectNames.
+			for k in kwargs: #property_ ie. setUnChecked
+				widgets = Slots.getObjects(ui, kwargs[k]) #getObjects returns a widget list from a string of objectNames.
 
 				state = True
-				if 'Un' in property_: #strips 'Un' and sets the state from True to False. ie. 'setUnChecked' becomes 'setChecked' (False)
-					property_ = property_.replace('Un', '')
+				if 'Un' in k: #strips 'Un' and sets the state from True to False. ie. 'setUnChecked' becomes 'setChecked' (False)
+					k = k.replace('Un', '')
 					state = False
 
-				[getattr(w, property_)(state) for w in widgets] #set the property state for each widget in the list.
+				[getattr(w, k)(state) for w in widgets] #set the property state for each widget in the list.
 
 
 	def setWidgetKwargs(self, *args, **kwargs):

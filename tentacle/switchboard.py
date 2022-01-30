@@ -51,8 +51,8 @@ class Switchboard(QtCore.QObject):
 		'QComboBox':'currentIndexChanged',
 		'QSpinBox':'valueChanged',
 		'QDoubleSpinBox':'valueChanged',
-		'QCheckBox':'stateChanged',
-		'QRadioButton':'toggled',
+		'QCheckBox':'clicked',
+		'QRadioButton':'released',
 		'QLineEdit':'returnPressed',
 		'QTextEdit':'textChanged',
 		'QProgressBar':'valueChanged',
@@ -217,26 +217,8 @@ class Switchboard(QtCore.QObject):
 					})
 
 		if self.getUiLevel(uiName)==2: #sync submenu widgets with their main menu counterparts.
-			
 			w2 = self.getWidget(widgetName, self.getUi(uiName, level=3))
-
-			try:
-				widget.toggled.connect(lambda: self.syncAttributes(widget, w2))
-				w2.toggled.connect(lambda: self.syncAttributes(w2, widget))
-			except AttributeError as error:
-				pass
-
-			try:
-				widget.valueChanged.connect(lambda: self.syncAttributes(widget, w2))
-				w2.valueChanged.connect(lambda: self.syncAttributes(w2, widget))
-			except AttributeError as error:
-				pass
-
-			try:
-				widget.textChanged.connect(lambda: self.syncAttributes(widget, w2))
-				w2.textChanged.connect(lambda: self.syncAttributes(w2, widget))
-			except AttributeError as error:
-				pass
+			self.setSyncAttributesConnections(widget, w2)
 
 		# print(self.widgets(uiName)[widget])
 		return self.widgets(uiName)[widget] #return the stored widget.
@@ -307,7 +289,24 @@ class Switchboard(QtCore.QObject):
 							and (attr in include if include else attr not in include)}
 
 
-	def syncAttributes(self, frm, to, attributeTypes = {
+	def setSyncAttributesConnections(self, w1, w2):
+		'''Set the initial signal connections that will call the _syncAttributes function on state changes.
+
+		:Parameters:
+			w1 (obj) = A QWidget that will synced with w2.
+			w2 (obj) = A QWidget that will synced with w1.
+		'''
+		try:
+			s1 = self.defaultSignals[self.getDerivedType(w1)] #get the default signal for the given widget.
+			s2 = self.defaultSignals[self.getDerivedType(w2)]
+
+			getattr(w1, s1).connect(lambda: self._syncAttributes(w1, w2))
+			getattr(w2, s2).connect(lambda: self._syncAttributes(w2, w1))
+		except (KeyError, AttributeError) as error:
+			pass
+
+
+	def _syncAttributes(self, frm, to, attributeTypes = {
 		'isChecked':'setChecked', 'isDisabled':'setDisabled', 'isEnabled':'setEnabled', 
 		'value':'setValue', 'text':'setText', 'icon':'setIcon',}):
 		'''Sync the given attributes between the two given widgets.
@@ -382,8 +381,7 @@ class Switchboard(QtCore.QObject):
 		except KeyError as error:
 
 			kwargs = {}
-
-			kwargs['current_ui'] = lambda: self.getUi() if self.getUi() in (d['ui'] for n, d in self.sbDict.items() if ln_name in n) else self.getUi(ln_name) #if the current ui is not one of the parent ui's children or the parent ui itself, default to the parent ui.
+			kwargs['current_ui'] = lambda n=uiName: self.getUi(next((i for i in reversed(self._uiHistory) if i in self.getUiName(n, level=(0,1,2,3,4))), self.getUi()))
 			kwargs['tcl'] = self.parent() #tcl instance
 
 			for uiName in self.getUiName('all'):
@@ -527,8 +525,7 @@ class Switchboard(QtCore.QObject):
 			(str)(list) the corresponding ui(s).
 		'''
 		if uiName=='all':
-			if level is None:
-				level = [0,1,2,3,4]
+			level = level if level!=None else (0,1,2,3,4)
 			return [d['ui'] for k, d in self.sbDict.items() if d['uiLevel']['base'] in self.list_(level)]
 
 		uiName = self.getUiName(uiName, case='camelCase', level=level, setAsCurrent=setAsCurrent)
@@ -661,8 +658,7 @@ class Switchboard(QtCore.QObject):
 
 		elif isinstance(ui, (str)):
 			if ui=='all': #get all ui of the given level(s).
-				if level is None:
-					level = [0,1,2,3,4]
+				level = level if level!=None else (0,1,2,3,4)
 				return [self.setCase(n, case) for n in self.sbDict if self.getUiLevel(n) in level]
 			else:  #get the ui name from ui name.
 				uiName = ui

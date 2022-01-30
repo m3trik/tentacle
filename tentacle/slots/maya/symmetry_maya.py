@@ -52,6 +52,8 @@ class Symmetry_maya(Symmetry, Slots_maya):
 		elif self.symmetry_ui.chk005.isChecked(): #topological symmetry
 			space = "topo"
 
+		state = state if state==0 else 1 #for case when checkbox gives a state of 2.
+
 		tolerance = 0.25
 		pm.symmetricModelling(edit=True, symmetry=state, axis=axis, about=space, tolerance=tolerance)
 		if state:

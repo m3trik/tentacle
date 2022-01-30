@@ -21,10 +21,6 @@ class Symmetry(Slots):
 		dh = self.symmetry_ui.draggable_header
 		dh.contextMenu.add(self.tcl.wgts.ComboBox, setObjectName='cmb000', setToolTip='')
 
-		# w2 = self.tcl.sb.getWidget('chk002', self.tcl.sb.getUi('symmetry', level=3))
-		# print ('here ----->', w2)
-		# self.symmetry_submenu_ui.chk002.toggled.connect(lambda w2=w2: self.tcl.sb.syncAttributes(self.symmetry_submenu_ui.chk002, w2))
-
 
 	def draggable_header(self, state=None):
 		'''Context menu
@@ -36,7 +32,6 @@ class Symmetry(Slots):
 		'''Symmetry X
 		'''
 		self.toggleWidgets(setUnChecked='chk001,chk002')
-		state = self.symmetry_ui.chk000.isChecked() #symmetry button state
 		self.setSymmetry(state, 'x')
 
 
@@ -44,7 +39,6 @@ class Symmetry(Slots):
 		'''Symmetry Y
 		'''
 		self.toggleWidgets(setUnChecked='chk000,chk002')
-		state = self.symmetry_ui.chk001.isChecked() #symmetry button state
 		self.setSymmetry(state, 'y')
 
 
@@ -52,7 +46,6 @@ class Symmetry(Slots):
 		'''Symmetry Z
 		'''
 		self.toggleWidgets(setUnChecked='chk000,chk001')
-		state = self.symmetry_ui.chk002.isChecked() #symmetry button state
 		self.setSymmetry(state, 'z')
 
 

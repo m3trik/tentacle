@@ -61,6 +61,8 @@ class Symmetry_max(Symmetry, Slots_max):
 		if axis=='z':
 			_axis=2
 
+		state = state if state==0 else 1 #for case when checkbox gives a state of 2.
+
 		for obj in rt.selection:
 			#check if modifier exists
 			mod = obj.modifiers[rt.Symmetry]
