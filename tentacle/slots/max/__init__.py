@@ -12,6 +12,9 @@ except ImportError as error:
 	print(__file__, error); rt=None; maxEval=lambda s: None
 
 from slots import Slots
+from .staticUi_max import StaticUi_max
+
+staticUiInitialized = False
 
 
 
@@ -20,6 +23,11 @@ class Slots_max(Slots):
 	'''
 	def __init__(self, *args, **kwargs):
 		Slots.__init__(self, *args, **kwargs)
+
+		global staticUiInitialized
+		if not staticUiInitialized:
+			StaticUi_max.__init__(self, *args, **kwargs)
+			staticUiInitialized = True
 
 
 	# --------------------------------------------------
