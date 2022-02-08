@@ -9,7 +9,7 @@ if __name__=='__main__':
 	globals()['__package__'] = 'tentacle.ui'
 
 
-from . import icons, uiLevel_0, uiLevel_1, uiLevel_2, uiLevel_3
+from . import uiLevel_0, uiLevel_1, uiLevel_2, uiLevel_3
 from .uiLoader import UiLoader
 from .styleSheet import StyleSheet
 

@@ -84,7 +84,7 @@
      <string>Symmetry</string>
     </property>
    </widget>
-   <widget class="QPushButton" name="chk000">
+   <widget class="QCheckBox" name="chk000">
     <property name="enabled">
      <bool>true</bool>
     </property>
@@ -120,17 +120,8 @@
     <property name="checked">
      <bool>false</bool>
     </property>
-    <property name="autoDefault">
-     <bool>false</bool>
-    </property>
-    <property name="default">
-     <bool>false</bool>
-    </property>
-    <property name="flat">
-     <bool>false</bool>
-    </property>
    </widget>
-   <widget class="QPushButton" name="chk001">
+   <widget class="QCheckBox" name="chk001">
     <property name="enabled">
      <bool>true</bool>
     </property>
@@ -166,17 +157,8 @@
     <property name="checked">
      <bool>false</bool>
     </property>
-    <property name="autoDefault">
-     <bool>false</bool>
-    </property>
-    <property name="default">
-     <bool>false</bool>
-    </property>
-    <property name="flat">
-     <bool>false</bool>
-    </property>
    </widget>
-   <widget class="QPushButton" name="chk002">
+   <widget class="QCheckBox" name="chk002">
     <property name="enabled">
      <bool>true</bool>
     </property>
@@ -210,15 +192,6 @@
      <bool>true</bool>
     </property>
     <property name="checked">
-     <bool>false</bool>
-    </property>
-    <property name="autoDefault">
-     <bool>false</bool>
-    </property>
-    <property name="default">
-     <bool>false</bool>
-    </property>
-    <property name="flat">
      <bool>false</bool>
     </property>
    </widget>

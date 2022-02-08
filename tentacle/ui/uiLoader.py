@@ -25,12 +25,11 @@ class UiLoader(QtUiTools.QUiLoader):
 	if not qApp:
 		qApp = QApplication(sys.argv)
 
-	def __init__(self, uiDir='ui', uiLevelPrefix='uiLevel_'):
+	def __init__(self, uiDir='ui'):
 		QtUiTools.QUiLoader.__init__(self)
 		'''Load the ui files and any custom widgets.
 		'''
 		self.uiDir = uiDir
-		self.uiLevelPrefix = uiLevelPrefix
 
 		# register any custom widgets.
 		import tentacle.ui.widgets
@@ -86,7 +85,7 @@ class UiLoader(QtUiTools.QUiLoader):
 			#get the ui level from it's directory location.
 			d = dirPath.split('\\'+self.uiDir+'\\')[-1] #ie. base_menus from fullpath\ui\base_menus
 			try:
-				uiLevel = int(d.strip(self.uiLevelPrefix))
+				uiLevel = int(d.strip('uiLevel_'))
 				self.uiDict[uiName] = {'ui':ui, 'level':uiLevel}
 
 			except KeyError as error: #not a valid ui dir.

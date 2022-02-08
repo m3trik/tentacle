@@ -13,9 +13,7 @@
 # ======================================================================
 
 # decorators:
-@Slots.sync				# Keep widgets (having the same objectName) in sync across parent and child uis. A decorator using the syncWidgets method. 'isChecked':'setChecked', 'isDisabled':'setDisabled', 'isEnabled':'setEnabled', 'value':'setValue', 'text':'setText', 'icon':'setIcon'
-@Slots.message		# Pop up a message box displaying the returned str. also: self.viewPortMessage("Display Local Rotation Axes:<hl>"+str(state)+"</hl>")
-									# ex. return 'Error: <hl>Nothing selected</hl>.<br>Operation requires an object or vertex selection.'
+@Slots.message		# Pop up a message box displaying the returned str. also: self.viewPortMessage("Display Local Rotation Axes:<hl>"+str(state)+"</hl>")									# ex. return 'Error: <hl>Nothing selected</hl>.<br>Operation requires an object or vertex selection.'
 @Slots.hideMain		# Hides the stacked widget main window.
 @Slots.progress		# Displays a progress bar. (currently disabled)
 @Slots_maya.attr				# Launch a popup window containing the given objects attributes. A Decorator for setAttributeWindow (objAttrWindow).
@@ -191,10 +189,44 @@ def tree000(self, wItem=None, column=None):
 
 
 # ======================================================================
-	'KNOWN BUGS'
+	'KNOWN BUGS AND GENERAL TO-DO'
 # ======================================================================
 '''
-move slots.max methods to their corresponding sub-classes.
+
+overlay widgets with label ' ⧉' for option menus.
+
+
+Maya materials: rename no longer woring.
+
+
+add: maya selection: camera based selection
+selectPref -useDepth true;
+
+
+# Traceback (most recent call last):
+#   File "O:/Cloud/Code/_scripts/tentacle\tentacle\slots\maya\crease_maya.py", line 50, in tb000
+#     pm.polySoftEdge (angle=0, constructionHistory=0) #Harden edge normal
+#   File "C:\Program Files\Autodesk\Maya2022\Python37\lib\site-packages\pymel\core\modeling.py", line 987, in polySoftEdge
+#     res = cmds.polySoftEdge(*args, **kwargs)
+#   File "C:\Program Files\Autodesk\Maya2022\Python37\lib\site-packages\pymel\internal\pmcmds.py", line 217, in polySoftEdge_wrapped
+#     res = new_cmd(*new_args, **new_kwargs)
+# TypeError: Error retrieving default arguments
+
+
+# Traceback (most recent call last):
+#   File "O:/Cloud/Code/_scripts/tentacle\tentacle\slots\__init__.py", line 499, in wrapper
+#     self.messageBox(fn(self, *args, **kwargs))
+#   File "O:/Cloud/Code/_scripts/tentacle\tentacle\slots\maya\__init__.py", line 57, in wrapper
+#     rtn = fn(*args, **kwargs)
+#   File "O:/Cloud/Code/_scripts/tentacle\tentacle\slots\maya\maya_animation.py", line 53, in tb001
+#     return Animation.invertSelectedKeyframes(time=time, relative=relative)
+#   File "O:/Cloud/Code/_scripts/tentacle\tentacle\slots\maya\__init__.py", line 57, in wrapper
+#     rtn = fn(*args, **kwargs)
+# TypeError: 'staticmethod' object is not callable
+
+
+maya.macros: isolate selected: incorrect mod panel.
+# Error: line 1: RuntimeError: file C:\Program Files\Autodesk\Maya2022\Python37\lib\site-packages\pymel\internal\pmcmds.py line 217: model panel 'outlinerPanel1' does not exist #
 
 
 Treewidgets not registering click on mouse release.

@@ -238,7 +238,7 @@ class EventFactoryFilter(QtCore.QObject):
 					self.tcl.sb.addWidget(self.uiName, self.widget)
 					self.tcl.sb.getMethod(self.uiName, self.widgetName)()
 				except (AttributeError, NameError, TypeError) as error:
-					print ('# Error: {}.EventFactoryFilter.ShowEvent: Call to {}.{} failed: {}. #'.format(__name__, self.uiName, self.widgetName, error))
+					pass; #print ('# Error: {}.EventFactoryFilter.ShowEvent: Call to {}.{} failed: {}. #'.format(__name__, self.uiName, self.widgetName, error))
 
 			if self.widgetType=='TreeWidgetExpandableList':
 				self.initWidgets(self.uiName, self.widget.newWidgets) #initialize the widget to set things like the event filter and styleSheet.

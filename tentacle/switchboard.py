@@ -51,8 +51,8 @@ class Switchboard(QtCore.QObject):
 		'QComboBox':'currentIndexChanged',
 		'QSpinBox':'valueChanged',
 		'QDoubleSpinBox':'valueChanged',
-		'QCheckBox':'stateChanged',
-		'QRadioButton':'toggled',
+		'QCheckBox':'clicked',
+		'QRadioButton':'released',
 		'QLineEdit':'returnPressed',
 		'QTextEdit':'textChanged',
 		'QProgressBar':'valueChanged',
@@ -188,7 +188,7 @@ class Switchboard(QtCore.QObject):
 			return
 
 		try:
-			objectName = widget.objectName()
+			widgetName = widget.objectName()
 		except AttributeError as error: #not a valid widget.
 			return
 
@@ -198,14 +198,14 @@ class Switchboard(QtCore.QObject):
 		derivedType = self.getDerivedType(widget) #the base class of any custom widgets.  ie. 'QPushButton' from 'PushButton'
 		signalType = self.getDefaultSignalType(derivedType) #get the default signal type for the widget as a string. ie. 'released' from 'QPushButton'
 		signalInstance = getattr(widget, signalType, None) #add signal to widget. ie. <widget.valueChanged>
-		method = getattr(classInst, objectName, None) #use 'objectName' to get the corresponding method of the same name. ie. method <b006> from widget 'b006' else None
+		method = getattr(classInst, widgetName, None) #use 'widgetName' to get the corresponding method of the same name. ie. method <b006> from widget 'b006' else None
 		docString = getattr(method, '__doc__', None)
-		prefix = self.prefix(objectName) #returns an string alphanumberic prefix if objectName startswith a series of alphanumberic chars, and is followed by three integers. ie. 'cmb' from 'cmb015'
+		prefix = self.prefix(widgetName) #returns an string alphanumberic prefix if widgetName startswith a series of alphanumberic chars, and is followed by three integers. ie. 'cmb' from 'cmb015'
 		isTracked = True if derivedType in self.trackedWidgets and self.getUiLevel(uiName)<3 else False
 
 		self.widgets(uiName).update( #add the widget and a dict containing some properties.
 					{widget:{
-						'widgetName':objectName, 
+						'widgetName':widgetName, 
 						'widgetType':widget.__class__.__name__,
 						'derivedType':derivedType,
 						'signalInstance':signalInstance,
@@ -215,6 +215,11 @@ class Switchboard(QtCore.QObject):
 						'tracked':isTracked,
 						}
 					})
+
+		if self.getUiLevel(uiName)==2: #sync submenu widgets with their main menu counterparts.
+			w2 = self.getWidget(widgetName, self.getUi(uiName, level=3))
+			self.setSyncAttributesConnections(widget, w2)
+
 		# print(self.widgets(uiName)[widget])
 		return self.widgets(uiName)[widget] #return the stored widget.
 
@@ -243,7 +248,7 @@ class Switchboard(QtCore.QObject):
 	def setAttributes(self, obj=None, order=['setVisible'], **kwargs):
 		'''
 		:Parameters:
-			obj (obj) = the child obj or widgetAction to set attributes for. (default=self)
+			obj (obj) = the child obj, or widgetAction to set attributes for. (default=self)
 			order (list) = List of string keywords. ie. ['move', 'setVisible']. attributes in this list will be set last, in order of the list. an example would be setting move positions after setting resize arguments.
 			**kwargs = The keyword arguments to set.
 		'''
@@ -265,6 +270,63 @@ class Switchboard(QtCore.QObject):
 
 			except AttributeError:
 				pass; # print (__name__+':','setAttributes:', obj, order, kwargs, error)
+
+
+	def getAttributes(obj, include=[], exclude=[]):
+		'''Get attributes for a given object.
+
+		:Parameters:
+			obj (obj) = The object to get the attributes of.
+			include (list) = Attributes to include. All other will be omitted. Exclude takes dominance over include. Meaning, if the same attribute is in both lists, it will be excluded.
+			exclude (list) = Attributes to exclude from the returned dictionay. ie. [u'Position',u'Rotation',u'Scale',u'renderable',u'isHidden',u'isFrozen',u'selected']
+
+		:Return:
+			(dict) {'string attribute': current value}
+		'''
+		return {attr:getattr(obj, attr) 
+					for attr in dir(obj)
+						if not attr in exclude 
+							and (attr in include if include else attr not in include)}
+
+
+	def setSyncAttributesConnections(self, w1, w2):
+		'''Set the initial signal connections that will call the _syncAttributes function on state changes.
+
+		:Parameters:
+			w1 (obj) = A QWidget that will synced with w2.
+			w2 (obj) = A QWidget that will synced with w1.
+		'''
+		try:
+			s1 = self.defaultSignals[self.getDerivedType(w1)] #get the default signal for the given widget.
+			s2 = self.defaultSignals[self.getDerivedType(w2)]
+
+			getattr(w1, s1).connect(lambda: self._syncAttributes(w1, w2))
+			getattr(w2, s2).connect(lambda: self._syncAttributes(w2, w1))
+		except (KeyError, AttributeError) as error:
+			pass
+
+
+	def _syncAttributes(self, frm, to, attributeTypes = {
+		'isChecked':'setChecked', 'isDisabled':'setDisabled', 'isEnabled':'setEnabled', 
+		'value':'setValue', 'text':'setText', 'icon':'setIcon',}):
+		'''Sync the given attributes between the two given widgets.
+		If a widget does not have an attribute it will be silently skipped.
+
+		:Parameters:
+			frm (obj) = The widget to transfer attribute values from.
+			to (obj) = The widget to transfer attribute values to.
+			attributeTypes (dict) = Which attributes to sync. the dict contains gettr:settr pairs. ie. {'isChecked':'setChecked'}
+		'''
+		attributes = {}
+		for gettr, settr in attributeTypes.items():
+			try:
+				attributes[settr] = getattr(frm, gettr)()
+			except AttributeError as error:
+				pass
+
+		[getattr(to, attr)(value) 
+			for attr, value in attributes.items() 
+				if hasattr(to, attr)] #set the second widget's attributes from the first.
 
 
 	def setUniqueObjectName(self, widget, ui=None, _num=None):
@@ -319,8 +381,7 @@ class Switchboard(QtCore.QObject):
 		except KeyError as error:
 
 			kwargs = {}
-
-			kwargs['current_ui'] = lambda: self.getUi() if self.getUi() in (d['ui'] for n, d in self.sbDict.items() if ln_name in n) else self.getUi(ln_name) #if the current ui is not one of the parent ui's children or the parent ui itself, default to the parent ui.
+			kwargs['current_ui'] = lambda n=uiName: self.getUi(next((i for i in reversed(self._uiHistory) if i in self.getUiName(n, level=(0,1,2,3,4))), self.getUi()))
 			kwargs['tcl'] = self.parent() #tcl instance
 
 			for uiName in self.getUiName('all'):
@@ -464,8 +525,7 @@ class Switchboard(QtCore.QObject):
 			(str)(list) the corresponding ui(s).
 		'''
 		if uiName=='all':
-			if level is None:
-				level = [0,1,2,3,4]
+			level = level if level!=None else (0,1,2,3,4)
 			return [d['ui'] for k, d in self.sbDict.items() if d['uiLevel']['base'] in self.list_(level)]
 
 		uiName = self.getUiName(uiName, case='camelCase', level=level, setAsCurrent=setAsCurrent)
@@ -598,8 +658,7 @@ class Switchboard(QtCore.QObject):
 
 		elif isinstance(ui, (str)):
 			if ui=='all': #get all ui of the given level(s).
-				if level is None:
-					level = [0,1,2,3,4]
+				level = level if level!=None else (0,1,2,3,4)
 				return [self.setCase(n, case) for n in self.sbDict if self.getUiLevel(n) in level]
 			else:  #get the ui name from ui name.
 				uiName = ui
@@ -902,10 +961,10 @@ class Switchboard(QtCore.QObject):
 			return None
 
 		if isinstance(class_, (str)): #if class_ is given as a class name.
-			mainAppWindowName = self.getMainAppWindow(objectName=True)
+			parentAppName = self.getMainAppWindow(objectName=True)
 			name = class_ # name = self.getUiName(class_, case='camelCase', level=[0,1,3])
-			className = self.setCase(class_, case='pascalCase') # className = self.getUiName(class_, case='pascalCase', level=[0,1,3])
-			path = '{0}_{1}.{2}'.format(mainAppWindowName, name, className) #ie. 'maya_init.Init'
+			className = '{}_{}'.format(self.setCase(class_, case='pascalCase'), parentAppName) #className = self.getUiName(class_, case='pascalCase', level=[0,1,3])
+			path = '{0}_{1}.{2}'.format(name, parentAppName, className) #ie. 'init_maya.Init'
 			class_ = locate(path)
 		else:
 			name = class_.__class__.__name__ #if arg as <object>:
@@ -963,45 +1022,52 @@ class Switchboard(QtCore.QObject):
 		:Return:
 			(bool)
 		'''
-		ui = self.getUiName(ui)
+		uiName = self.getUiName(ui)
 
-		if not 'widgets' in self.sbDict[ui]:
-			self.widgets(ui) #construct the signals and slots for the ui
+		if not 'widgets' in self.sbDict[uiName]:
+			self.widgets(uiName) #construct the signals and slots for the ui
 
 		try:
-			return self.sbDict[ui]['widgets'][widget]['tracked']
+			return self.sbDict[uiName]['widgets'][widget]['tracked']
 
 		except KeyError as error:
 			return False
 
 
-	def getWidget(self, objectName=None, ui=None, tracked=False):
-		'''Property:getWidgets. Case insensitive. Get the widget object/s from the given ui and objectName.
+	def getWidget(self, widgetName=None, ui=None, tracked=False):
+		'''Property:getWidgets. Case insensitive. Get the widget object/s from the given ui and widgetName.
 
 		:Parameters:
-			objectName (str) = optional name of widget. ie. 'b000'
+			widgetName (str) = The object name of the widget. ie. 'b000'
 			ui (str)(obj) = ui, or name of ui. ie. 'polygons'. If no nothing is given, the current ui will be used.
 							A ui object can be passed into this parameter, which will be used to get it's corresponding name.
 			tracked (bool) = Return only those widgets defined as 'tracked'. 
 
 		:Return:
-			(obj) if objectName:  widget object with the given name from the current ui.
-				  if ui and objectName: widget object with the given name from the given ui name.
+			(obj) if widgetName:  widget object with the given name from the current ui.
+				  if ui and widgetName: widget object with the given name from the given ui name.
 			(list) if ui: all widgets for the given ui.
 		'''
-		ui = self.getUiName(ui)
+		uiName = self.getUiName(ui)
 
-		if not 'widgets' in self.sbDict[ui]:
-			self.widgets(ui) #construct the signals and slots for the ui
+		if not 'widgets' in self.sbDict[uiName]:
+			self.widgets(uiName) #construct the signals and slots for the ui
 
-		if objectName:
-			return next((w if shiboken2.isValid(w) 
-				else self.removeWidgets(w, ui) for w in self.sbDict[ui]['widgets'].values() 
-					if w['widgetName']==objectName and self.isTracked(w, ui) if tracked), None)
-		elif tracked:
-			return [w for w in self.sbDict[ui]['widgets'].copy() if (self.isTracked(w, ui) and shiboken2.isValid(w))]
+		if tracked:
+			if widgetName:
+				return next((w if shiboken2.isValid(w) else self.removeWidgets(w, uiName) 
+							for w, d in self.widgets(uiName).items()
+								if d['widgetName']==widgetName and self.isTracked(w, uiName)), None)
+
+			return [w for w in self.widgets(uiName).copy() if (self.isTracked(w, uiName) and shiboken2.isValid(w))]
+
 		else:
-			return [w for w in self.sbDict[ui]['widgets'].copy() if shiboken2.isValid(w)] #'copy' is used in place of 'keys' RuntimeError: dictionary changed size during iteration
+			if widgetName:
+				return next((w if shiboken2.isValid(w) else self.removeWidgets(w, uiName) 
+							for w, d in self.widgets(uiName).items()
+								if d['widgetName']==widgetName), None)
+
+			return [w for w in self.widgets(uiName).copy() if shiboken2.isValid(w)] #'copy' is used in place of 'keys' RuntimeError: dictionary changed size during iteration
 
 
 	def getWidgetsByType(self, types, ui=None, derivedType=False):

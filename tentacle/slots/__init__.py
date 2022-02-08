@@ -19,7 +19,7 @@ class Slots(QtCore.QObject):
 		QtCore.QObject.__init__(self, parent)
 		'''
 		:Parameters: 
-			**kwargs (passed in via the switchboard module's 'getClassInstanceFromUiName' method.)
+			**kwargs (inherited from this class's respective slot child class, and originating from switchboard.setClassInstanceFromUiName)
 				properties:
 					tcl (class instance) = The tentacle stacked widget instance. ie. self.tcl
 					<name>_ui (ui object) = The ui of <name> ie. self.polygons for the ui of filename polygons. ie. self.polygons_ui
@@ -60,7 +60,7 @@ class Slots(QtCore.QObject):
 			try:
 				objects.append(getattr(class_, name)) #equivilent to:(self.current_ui().m000)
 			except AttributeError as error:
-				print("slots: 'getObjects:' objects.append(getattr({0}, {1})) {2}".format(class_, name, error)) if showError_ else None
+				print("slots: '{}.getObjects:' objects.append(getattr({0}, {1})) {2}".format(__name__, class_, name, error)) if showError_ else None
 
 		return objects
 
@@ -92,7 +92,7 @@ class Slots(QtCore.QObject):
 			attributes = dictionary {'string attribute': value} - attributes and their correponding value to set
 		'''
 		[setattr(obj, attr, value) 
-			for attr, value in attributes.iteritems() 
+			for attr, value in attributes.items() 
 				if attr and value]
 
 
@@ -183,94 +183,31 @@ class Slots(QtCore.QObject):
 					signal.connect(slot)
 
 
-	@classmethod
-	def sync(cls, fn):
-		'''A decorator using the syncWidgets method.
-		Does not work with staticmethods.
-		'''
-		def wrapper(self, *args, **kwargs):
-			fn(self, *args, **kwargs) #execute the method normally.
-			self.syncWidgets(fn.__name__) #Get the state of the widget in the current ui and set any widgets (having the methods name) in child or parent ui's accordingly.
-		return wrapper
-
-	def syncWidgets(self, widgets, from_ui=None, op=2, attributeTypes = {
-		'isChecked':'setChecked', 'isDisabled':'setDisabled', 'isEnabled':'setEnabled', 
-		'value':'setValue', 'text':'setText', 'icon':'setIcon',}):
-		'''
-		Keep widgets (having the same objectName) in sync across parent and child UIs.
-		If the second widget does not have an attribute it will be silently skipped.
-		Attributes starting with '__' are ignored.
-
-		:Parameters:
-			widgets (str)(list) = Widget objectNames as string or list of widget objects. string shorthand style: ie. 'b000-12,b022'
-			from_ui (obj) = The ui to sync to. default is the current ui.
-			op (int) = Which widgets to sync. 1) the given widgets, 2) the given widgets and their parents, 3) all widgets.
-			attributeTypes (dict) = Which attributes to sync. the dict contains gettr:settr pairs. ie. {'isChecked':'setChecked'}
-
-		self.syncWidgets('chk002-6')
-		'''
-		if not from_ui:
-			from_ui = self.tcl.sb.getUi()
-
-		to_ui = self.tcl.sb.getUi(from_ui, level=2) if self.tcl.sb.getUiLevel(from_ui)==3 else self.tcl.sb.getUi(from_ui, level=3)#get either it's parent or submenu, depending on the given ui.
-
-		if op in (0, 1): #
-			if isinstance(widgets, (str)):
-				from_widgets = Slots.getObjects(from_ui, widgets) #returns a list of widget objects from a string of objectNames.  ie. [<b000>, <b001>, ..] from 'b000-12,b022'
-				to_widgets = Slots.getObjects(to_ui, widgets)
-			else: #if list of widget objects:
-				from_widgets = widgets
-				to_widgets = [self.tcl.sb.getWidget(w.objectName(), ui=to_ui) for w in widgets]
-
-		if op==1: #get parents of the given widgets
-			from_widgets += [w.parent() for w in from_widgets]
-			to_widgets += [w.parent() for w in to_widgets]
-
-		else: #get all widgets
-			if not op in (0, 1):
-				from_widgets = self.tcl.sb.getWidget(ui=from_ui)
-				to_widgets = self.tcl.sb.getWidget(ui=to_ui)
-
-		from_widgets = {w.objectName():w for w in from_widgets}; #print ('from_widgets:', [i for i in from_widgets.values() if 'QRadioButton' in str(i)])
-		to_widgets = {w.objectName():w for w in to_widgets}; #print ('to_widgets:  ', [i for i in to_widgets.values() if 'QRadioButton' in str(i)])
-
-		_widgets = {from_widgets[i]:to_widgets[i] for i in from_widgets if i in to_widgets} #{<from_widget>:<to_widget>}
-		for from_widget, to_widget in _widgets.items():
-
-			attributes = {settr:getattr(from_widget, gettr)() 
-							for gettr, settr in attributeTypes.items() 
-								if hasattr(from_widget, gettr)} #get the from_widget's {attribute:value} ie. {'setChecked':True}
-			
-			[getattr(to_widget, attr)(value) 
-				for attr, value in attributes.items() 
-					if hasattr(to_widget, attr)] #set the second widget's attributes from the first.
-
-
 	def toggleWidgets(self, *args, **kwargs):
 		'''Set multiple boolean properties, for multiple widgets, on multiple ui's at once.
 
 		:Parameters:
-			*args = dynamic ui object/s. If no ui's are given, then the parent and child uis will be used.
+			*args = dynamic ui object/s. If no ui's are given, then the current UI will be used.
 			*kwargs = keyword: - the property to modify. ex. setChecked, setUnChecked, setEnabled, setDisabled, setVisible, setHidden
 					value: string of objectNames - objectNames separated by ',' ie. 'b000-12,b022'
 
 		ex.	self.toggleWidgets(<ui1>, <ui2>, setDisabled='b000', setUnChecked='chk009-12', setVisible='b015,b017')
 		'''
 		if not args:
-			childUi = self.tcl.sb.getUi(level=2)
-			parentUi = self.tcl.sb.getUi(level=3)
-			args = [parentUi, childUi]
+			parentUi = self.tcl.sb.getUi(self.current_ui(), level=3)
+			childUi = self.tcl.sb.getUi(self.current_ui(), level=2)
+			args = [childUi, parentUi]
 
 		for ui in args:
-			for property_ in kwargs: #property_ ie. setUnChecked
-				widgets = Slots.getObjects(ui, kwargs[property_]) #getObjects returns a widget list from a string of objectNames.
+			for k in kwargs: #property_ ie. setUnChecked
+				widgets = Slots.getObjects(ui, kwargs[k]) #getObjects returns a widget list from a string of objectNames.
 
 				state = True
-				if 'Un' in property_: #strips 'Un' and sets the state from True to False. ie. 'setUnChecked' becomes 'setChecked' (False)
-					property_ = property_.replace('Un', '')
+				if 'Un' in k: #strips 'Un' and sets the state from True to False. ie. 'setUnChecked' becomes 'setChecked' (False)
+					k = k.replace('Un', '')
 					state = False
 
-				[getattr(w, property_)(state) for w in widgets] #set the property state for each widget in the list.
+				[getattr(w, k)(state) for w in widgets] #set the property state for each widget in the list.
 
 
 	def setWidgetKwargs(self, *args, **kwargs):
@@ -1142,6 +1079,74 @@ print (__name__)
 
 
 #depricated:
+
+
+# @classmethod
+# def sync(cls, fn):
+# 	'''A decorator using the syncWidgets method.
+# 	Does not work with staticmethods.
+# 	'''
+# 	def wrapper(self, *args, **kwargs):
+# 		fn(self, *args, **kwargs) #execute the method normally.
+# 		self.syncWidgets(fn.__name__) #Get the state of the widget in the current ui and set any widgets (having the methods name) in child or parent ui's accordingly.
+# 	return wrapper
+
+
+
+
+
+# def syncWidgets(self, widgets, from_ui=None, op=2, attributeTypes = {
+# 	'isChecked':'setChecked', 'isDisabled':'setDisabled', 'isEnabled':'setEnabled', 
+# 	'value':'setValue', 'text':'setText', 'icon':'setIcon',}):
+# 	'''Keep widgets (having the same objectName) in sync across parent and child UIs.
+# 	If the second widget does not have an attribute it will be silently skipped.
+# 	Attributes starting with '__' are ignored.
+
+# 	:Parameters:
+# 		widgets (str)(list) = Widget objectNames as string or list of widget objects. string shorthand style: ie. 'b000-12,b022'
+# 		from_ui (obj) = The ui to sync to. default is the current ui.
+# 		op (int) = Which widgets to sync. 1) the given widgets, 2) the given widgets, and their parents, 3) all widgets.
+# 		attributeTypes (dict) = Which attributes to sync. the dict contains gettr:settr pairs. ie. {'isChecked':'setChecked'}
+
+# 	self.syncWidgets('chk002-6')
+# 	'''
+# 	if not from_ui:
+# 		from_ui = self.tcl.sb.getUi()
+
+# 	to_ui = self.tcl.sb.getUi(from_ui, level=2) if self.tcl.sb.getUiLevel(from_ui)==3 else self.tcl.sb.getUi(from_ui, level=3)#get either it's parent or submenu, depending on the given ui.
+
+# 	if op in (0, 1): #
+# 		if isinstance(widgets, (str)):
+# 			from_widgets = Slots.getObjects(from_ui, widgets) #returns a list of widget objects from a string of objectNames.  ie. [<b000>, <b001>, ..] from 'b000-12,b022'
+# 			to_widgets = Slots.getObjects(to_ui, widgets)
+# 		else: #if list of widget objects:
+# 			from_widgets = widgets
+# 			to_widgets = [self.tcl.sb.getWidget(w.objectName(), ui=to_ui) for w in widgets]
+
+# 	if op==1: #get parents of the given widgets
+# 		from_widgets += [w.parent() for w in from_widgets]
+# 		to_widgets += [w.parent() for w in to_widgets]
+
+# 	else: #get all widgets
+# 		if not op in (0, 1):
+# 			from_widgets = self.tcl.sb.getWidget(ui=from_ui)
+# 			to_widgets = self.tcl.sb.getWidget(ui=to_ui)
+
+# 	from_widgets = {w.objectName():w for w in from_widgets}; #print ('from_widgets:', [i for i in from_widgets.values() if 'QRadioButton' in str(i)])
+# 	to_widgets = {w.objectName():w for w in to_widgets}; #print ('to_widgets:  ', [i for i in to_widgets.values() if 'QRadioButton' in str(i)])
+
+# 	_widgets = {from_widgets[i]:to_widgets[i] for i in from_widgets if i in to_widgets} #{<from_widget>:<to_widget>}
+# 	for from_widget, to_widget in _widgets.items():
+
+# 		attributes = {settr:getattr(from_widget, gettr)() 
+# 						for gettr, settr in attributeTypes.items() 
+# 							if hasattr(from_widget, gettr)} #get the from_widget's {attribute:value} ie. {'setChecked':True}
+		
+# 		[getattr(to_widget, attr)(value) 
+# 			for attr, value in attributes.items() 
+# 				if hasattr(to_widget, attr)] #set the second widget's attributes from the first.
+
+
 
 
 	# def callMethod(self, name, method, *args, **kwargs):

@@ -123,13 +123,13 @@ class PushButtonDraggable(QtWidgets.QPushButton, MenuInstance, Attributes, RichT
 		:Parameters:
 			event = <QEvent>
 		'''
-		text = self.text().rstrip('*')
+		text = self.text().rstrip(' ⧉')
 		if self.menu_.containsMenuItems:
 			self.menu_.setTitle(text)
 
 		if self.contextMenu.containsMenuItems:
 			self.contextMenu.setTitle(text)
-			self.setText(text+'*')
+			self.setText(text+' ⧉')
 
 		return QtWidgets.QPushButton.showEvent(self, event)
 
