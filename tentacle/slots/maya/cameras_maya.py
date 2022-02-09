@@ -179,6 +179,7 @@ class Cameras_maya(Cameras, Slots_maya):
 		'''
 		try:
 			pm.lookThru('topShape')
+
 		except Exception as error:
 			pm.lookThru('|top')
 
@@ -188,6 +189,7 @@ class Cameras_maya(Cameras, Slots_maya):
 		'''
 		try:
 			pm.lookThru('sideShape')
+
 		except Exception as error:
 			pm.lookThru('|side')
 
@@ -216,6 +218,7 @@ class Cameras_maya(Cameras, Slots_maya):
 		'''
 		try:
 			pm.lookThru('perspShape')
+
 		except Exception as error:
 			pm.lookThru('|persp')
 
@@ -225,6 +228,7 @@ class Cameras_maya(Cameras, Slots_maya):
 		'''
 		try:
 			pm.lookThru('frontShape')
+
 		except Exception as error:
 			pm.lookThru('|front')
 
@@ -275,7 +279,7 @@ class Cameras_maya(Cameras, Slots_maya):
 
 
 	def groupCameras(self):
-		'''Group Cameras
+		'''Group Default Cameras
 		'''
 		grp = pm.ls('cameras', transforms=1)
 		if grp and self.isGroup(grp[0]): #add the new cam to 'cameras' group (if it exists).
@@ -309,11 +313,11 @@ class Cameras_maya(Cameras, Slots_maya):
 	def getCurrentCam(self):
 		'''Get the currently active camera.
 		'''
-		import maya.OpenMaya as OpenMaya
-		import maya.OpenMayaUI as OpenMayaUI
+		import maya.OpenMaya as om
+		import maya.OpenMayaUI as omui
 
-		view = OpenMayaUI.M3dView.active3dView()
-		cam = OpenMaya.MDagPath()
+		view = omui.M3dView.active3dView()
+		cam = om.MDagPath()
 		view.getCamera(cam)
 		camPath = cam.fullPathName()
 		return camPath
@@ -323,6 +327,7 @@ class Cameras_maya(Cameras, Slots_maya):
 		'''Create a new camera base on the current view.
 		'''
 		from maya.cmds import getPanel #pymel getPanel is broken in ver: 2022.
+
 		curPanel = getPanel(withFocus=True)
 		if getPanel(typeOf=curPanel) == "modelPanel":
 			camera = pm.modelPanel(curPanel, q=1, cam=1)
