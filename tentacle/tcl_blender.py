@@ -7,7 +7,7 @@ from PySide2 import QtWidgets, QtCore
 try: import shiboken2
 except: from PySide2 import shiboken2
 
-from tentacle import Tcl, Instance
+from tentacle import Tcl
 
 
 
@@ -29,12 +29,7 @@ class Tcl_blender(Tcl):
 			except Exception as error:
 				print(self.__class__.__name__, error)
 
-		# progressIndicator = self.tcl.wgts.WidgetProgressIndicator()
-		# progressIndicator.start()
-
 		super().__init__(parent, *args, **kwargs)
-
-		# progressIndicator.stop()
 
 
 	def getMainWindow(self):
@@ -48,13 +43,28 @@ class Tcl_blender(Tcl):
 		return main_window
 
 
+	def keyPressEvent(self, event):
+		'''
+		:Parameters:
+			event = <QEvent>
+		'''
+		if not event.isAutoRepeat():
+			modifiers = self.qApp.keyboardModifiers()
+
+			if event.key()==self.key_undo and modifiers==QtCore.Qt.ControlModifier:
+				import bpy
+				bpy.ops.ed.undo()
+
+		return Tcl.keyPressEvent(self, event)
+
+
 	def showEvent(self, event):
 		'''
 		:Parameters:
 			event = <QEvent>
 		'''
 
-		return Tcl.showEvent(self, event) #super(Tcl, self).showEvent(event)
+		return Tcl.showEvent(self, event) #super().showEvent(event)
 
 
 	def hideEvent(self, event):
@@ -66,18 +76,7 @@ class Tcl_blender(Tcl):
 			self.qApp.instance().quit()
 			sys.exit() #assure that the sys processes are terminated.
 
-		return Tcl.hideEvent(self, event) #super(Tcl, self).hideEvent(event)
-
-
-
-class Instance(Instance):
-	'''Manage multiple instances of Tcl_blender.
-	'''
-	def __init__(self, *args, **kwargs):
-		'''
-		'''
-		super().__init__(*args, **kwargs)
-		self.Class = Tcl_blender
+		return Tcl.hideEvent(self, event) #super().hideEvent(event)
 
 
 
@@ -88,24 +87,38 @@ class Instance(Instance):
 
 
 if __name__ == "__main__":
-	qApp = QtWidgets.QApplication.instance() #get the qApp instance if it exists.
-	if not qApp:
-		qApp = QtWidgets.QApplication(sys.argv)
+	app = QtWidgets.QApplication.instance() #get the qApp instance if it exists.
+	if not app:
+		app = QtWidgets.QApplication(sys.argv)
 
-	#create a generic parent object to run the code outside of blender.
+	#create a generic parent object to run the code outside of maya.
 	dummyParent = QtWidgets.QWidget()
 	dummyParent.setObjectName('BlenderWindow')
 
-	import cProfile
-	cProfile.run("Instance(dummyParent).show('init')")
-	# Instance(dummyParent).show_() #Tcl_blender(dummyParent).show()
-	sys.exit(qApp.exec_())
+	Tcl_blender(dummyParent).show('init') #Tcl_maya(dummyParent).show()
+
+	sys.exit(app.exec_())
 
 
 
+#module name
+print (__name__)
 # -----------------------------------------------
 # Notes
 # -----------------------------------------------
 
+# Example startup macro:
 
-# run = if 'tentacle' not in {**locals(), **globals()}: tentacle = Tcl_blender.createInstance(); tentacle.hide(); tentacle.show(),
+	# def hk_tentacle_show():
+	# 	'''Display the tentacle marking menu.
+	# 	'''
+	# 	if 'tcl' not in globals():
+	# 		from tcl_maya import Tcl_maya
+	# 		global tcl
+	# 		tcl = Tcl_maya(key_show='Key_F12', profile=False)
+
+	# 	tcl.sendKeyPressEvent(tcl.key_show)
+
+
+
+# deprecated: -----------------------------------

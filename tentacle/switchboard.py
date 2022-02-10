@@ -200,7 +200,7 @@ class Switchboard(QtCore.QObject):
 		signalInstance = getattr(widget, signalType, None) #add signal to widget. ie. <widget.valueChanged>
 		method = getattr(classInst, widgetName, None) #use 'widgetName' to get the corresponding method of the same name. ie. method <b006> from widget 'b006' else None
 		docString = getattr(method, '__doc__', None)
-		prefix = self.prefix(widgetName) #returns an string alphanumberic prefix if widgetName startswith a series of alphanumberic chars, and is followed by three integers. ie. 'cmb' from 'cmb015'
+		prefix = self.prefix(widgetName) #returns an string alphanumberic prefix if widgetName startswith a series of alphanumberic charsinst is followed by three integers. ie. 'cmb' from 'cmb015'
 		isTracked = True if derivedType in self.trackedWidgets and self.getUiLevel(uiName)<3 else False
 
 		self.widgets(uiName).update( #add the widget and a dict containing some properties.
@@ -947,69 +947,59 @@ class Switchboard(QtCore.QObject):
 			return app
 
 
-	def _setClassInstance(self, class_, **kwargs):
+	def _setClassInstance(self, ui):
 		'''Property:classInst. Stores an instance of a class.
-		If the name is a submenu, the parent class will be returned. ie. <Polygons> from 'polygons_submenu'
+		If the name is a submenuinst a class is not found, the parent class will be returned. ie. <Polygons> from 'polygons_submenu'
 
 		:Parameters:
-			class_ (str)(obj) = The class to import and store an instance of. ie. 'Polygons' or <Polygons>
+			ui (str)(obj) = ui, or name of ui. ie. 'polygons'. If no nothing is given, the current ui will be used.
+							A ui object can be passed into this parameter, which will be used to get it's corresponding name.
 
 		:Return:
 			(obj) The class instance.
 		'''
-		if not class_:
-			return None
+		uiName = self.getUiName(ui)
 
-		if isinstance(class_, (str)): #if class_ is given as a class name.
-			parentAppName = self.getMainAppWindow(objectName=True)
-			name = class_ # name = self.getUiName(class_, case='camelCase', level=[0,1,3])
-			className = '{}_{}'.format(self.setCase(class_, case='pascalCase'), parentAppName) #className = self.getUiName(class_, case='pascalCase', level=[0,1,3])
-			path = '{0}_{1}.{2}'.format(name, parentAppName, className) #ie. 'init_maya.Init'
-			class_ = locate(path)
-		else:
-			name = class_.__class__.__name__ #if arg as <object>:
+		parentAppName = self.getMainAppWindow(objectName=True)
+		className = '{}_{}'.format(self.setCase(uiName, case='camelCase'), parentAppName) #ie. 'polygons_maya'
 
-		uiName = self.setCase(name, 'camelCase') #lowercase the first letter.
-
-		if not kwargs:
+		try: #import the module and get the class instance.
+			module = __import__(className)
+			class_ = getattr(module, self.setCase(className, case='pascalCase')) #ie. <Polygons_maya> from 'Polygons_maya'
 			kwargs = self.getClassKwargs(uiName)
-
-		try:
 			result = self.sbDict[uiName]['class'] = class_(**kwargs)
 
-		except Exception as error:
-			parent_name = self.getUiName(name, case='camelCase', level=[0,1,3])
+		except (ModuleNotFoundError, TypeError) as error: #Error: 'NoneType' object is not callable
+			parent_name = self.getUiName(uiName, case='camelCase', level=[0,1,3])
+			if uiName==parent_name: #prevent recursion.
+				raise error
 			result = self.sbDict[uiName]['class'] = self.getClassInstance(parent_name) #get the parent class.
-			if not result:
-				[print ('# Error: {}.getClassInstance({}): import {} failed. #'.format(__name__, class_, self.getUiName(n, case='pascalCase'))) for n in [name, parent_name]]
 
 		return result
 
 
-	def getClassInstance(self, class_):
+	def getClassInstance(self, ui):
 		'''Property:classInst. Case insensitive. (Class string keys are lowercase and any given string will be converted automatically)
 		If class is not in self.sbDict, getClassInstance will attempt to use _setClassInstance() to first store the class.
 
 		:Parameters:
-			class_ (str)(obj) = The class, or class name to import and store an instance of. ie. 'Polygons' or <Polygons>
-								A value of 'all' will return all of the class instances. 
+			ui (str)(obj) = ui, or name of ui. ie. 'polygons'. If no nothing is given, the current ui will be used.
+							A ui object can be passed into this parameter, which will be used to get it's corresponding name.
+							A value of 'all' will return all of the class instances. 
 
 		:Return:
 			(obj) The class instance.
 		'''
-		if isinstance(class_, str): #if class_ is given as a class name.
-			if class_=='all':
-				return [self.getClassInstance(n) for n in self.getUiName('all')]
-			else:
-				name = class_
-		else: #if arg as <object>:
-			name = class_.__class__.__name__
+		uiName = self.getUiName(ui)
+
+		if ui=='all':
+			return [self.getClassInstance(n) for n in uiName]
 
 		try:
-			return self.sbDict[name]['class']
+			return self.sbDict[uiName]['class']
 
 		except KeyError as error:
-			return self._setClassInstance(name)
+			return self._setClassInstance(uiName)
 
 
 	def isTracked(self, widget, ui=None):
@@ -1581,7 +1571,7 @@ class Switchboard(QtCore.QObject):
 	def prefix(self, widget, prefix=None, ui=None):
 		'''Query a widgets prefix.
 		A valid prefix is returned when the given widget's objectName startswith an alphanumeric char, followed by at least three integers. ex. i000 (alphanum,int,int,int)
-		if the second 'prefix' arg is given, then the method checks if the given objectName has the prefix, and the return value is bool.
+		if the second 'prefix' arg is given, then the method checks if the given objectName has the prefixinst the return value is bool.
 		ex. prefix('b023') returns 'b'. #get prefix.
 		ex. prefix('b023', prefix='b') returns True. #query prefix match.
 

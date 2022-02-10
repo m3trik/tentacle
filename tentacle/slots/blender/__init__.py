@@ -21,6 +21,21 @@ class Slots_blender(Slots):
 		Slots.__init__(self, *args, **kwargs)
 
 
+	def undoChunk(fn):
+		'''A decorator to place a function into Maya's undo chunk.
+		Prevents the undo queue from breaking entirely if an exception is raised within the given function.
+
+		:Parameters:
+			fn (obj) = The decorated python function that will be placed into the undo que as a single entry.
+		'''
+		def wrapper(*args, **kwargs):
+			# pm.undoInfo(openChunk=True)
+			rtn = fn(*args, **kwargs)
+			# pm.undoInfo(closeChunk=True)
+			return rtn
+		return wrapper
+
+
 
 
 

@@ -1,13 +1,13 @@
 # !/usr/bin/python
 # coding=utf-8
-from slots.maya import *
+from slots.blender import *
 from slots.file import File
 
 
 
-class File_maya(File, Slots_maya):
+class File_blender(File, Slots_blender):
 	def __init__(self, *args, **kwargs):
-		Slots_maya.__init__(self, *args, **kwargs)
+		Slots_blender.__init__(self, *args, **kwargs)
 		File.__init__(self, *args, **kwargs)
 
 
@@ -16,25 +16,24 @@ class File_maya(File, Slots_maya):
 		cmb000.addItems_(items, 'File Editors')
 
 		cmb002 = self.file_ui.cmb002
-		autoSaveState = pm.autoSave(q=True, enable=True) #set the initial autosave state.
-		autoSaveInterval = pm.autoSave(q=True, int=True)
-		autoSaveAmount = pm.autoSave(q=True, maxBackups=True)
-		cmb002.contextMenu.add('QPushButton', setObjectName='b000', setText='Open Directory', setToolTip='Open the autosave directory.') #open directory
-		cmb002.contextMenu.add('QPushButton', setObjectName='b002', setText='Delete All', setToolTip='Delete all autosave files.') #delete all
-		cmb002.contextMenu.add('QCheckBox', setText='Autosave', setObjectName='chk006', setChecked=autoSaveState, setToolTip='Set the autosave state as active or disabled.') #toggle autosave
-		cmb002.contextMenu.add('QSpinBox', setPrefix='Amount: ', setObjectName='s000', setMinMax_='1-100 step1', setValue=autoSaveAmount, setHeight_=20, setToolTip='The number of autosave files to retain.') #autosave amount
-		cmb002.contextMenu.add('QSpinBox', setPrefix='Interval: ', setObjectName='s001', setMinMax_='1-60 step1', setValue=autoSaveInterval/60, setHeight_=20, setToolTip='The autosave interval in minutes.') #autosave interval
-		cmb002.contextMenu.chk006.toggled.connect(lambda s: pm.autoSave(enable=s, limitBackups=True))
-		cmb002.contextMenu.s000.valueChanged.connect(lambda v: pm.autoSave(maxBackups=v, limitBackups=True))
-		cmb002.contextMenu.s001.valueChanged.connect(lambda v: pm.autoSave(int=v*60, limitBackups=True))
-		cmb002.addItems_(self.getRecentAutosave(appendDatetime=True), 'Recent Autosave', clear=True)
+		# autoSaveState = pm.autoSave(q=True, enable=True) #set the initial autosave state.
+		# autoSaveInterval = pm.autoSave(q=True, int=True)
+		# autoSaveAmount = pm.autoSave(q=True, maxBackups=True)
+		# cmb002.contextMenu.add('QPushButton', setObjectName='b000', setText='Open Directory', setToolTip='Open the autosave directory.') #open directory
+		# cmb002.contextMenu.add('QPushButton', setObjectName='b002', setText='Delete All', setToolTip='Delete all autosave files.') #delete all
+		# cmb002.contextMenu.add('QCheckBox', setText='Autosave', setObjectName='chk006', setChecked=autoSaveState, setToolTip='Set the autosave state as active or disabled.') #toggle autosave
+		# cmb002.contextMenu.add('QSpinBox', setPrefix='Amount: ', setObjectName='s000', setMinMax_='1-100 step1', setValue=autoSaveAmount, setHeight_=20, setToolTip='The number of autosave files to retain.') #autosave amount
+		# cmb002.contextMenu.add('QSpinBox', setPrefix='Interval: ', setObjectName='s001', setMinMax_='1-60 step1', setValue=autoSaveInterval/60, setHeight_=20, setToolTip='The autosave interval in minutes.') #autosave interval
+		# cmb002.contextMenu.chk006.toggled.connect(lambda s: pm.autoSave(enable=s, limitBackups=True))
+		# cmb002.contextMenu.s000.valueChanged.connect(lambda v: pm.autoSave(maxBackups=v, limitBackups=True))
+		# cmb002.contextMenu.s001.valueChanged.connect(lambda v: pm.autoSave(int=v*60, limitBackups=True))
+		# cmb002.addItems_(self.getRecentAutosave(appendDatetime=True), 'Recent Autosave', clear=True)
 
 		cmb003 = self.file_ui.cmb003
-		cmb003.addItems_(['Import file', 'Import Options', 'FBX Import Presets', 'Obj Import Presets'], "Import")
+		cmb003.addItems_([], "Import")
 
 		cmb004 = self.file_ui.cmb004
-		items = ['Export Selection', 'Send to Unreal', 'Send to Unity', 'GoZ', 'Send to 3dsMax: As New Scene', 'Send to 3dsMax: Update Current', 
-				'Send to 3dsMax: Add to Current', 'Export to Offline File', 'Export Options', 'FBX Export Presets', 'Obj Export Presets']
+		items = []
 		cmb004.addItems_(items, 'Export')
 
 
@@ -277,7 +276,7 @@ class File_maya(File, Slots_maya):
 			(list)(str)
 		'''
 		files = pm.optionVar(query='RecentFilesList')
-		result = [Slots_maya.formatPath(f) for f in list(reversed(files)) 
+		result = [Slots_blender.formatPath(f) for f in list(reversed(files)) 
 					if "Autosave" not in f] if files else []
 
 		try:
@@ -293,7 +292,7 @@ class File_maya(File, Slots_maya):
 			(list)
 		'''
 		files = pm.optionVar(query='RecentProjectsList')
-		result = [Slots_maya.formatPath(f) for f in list(reversed(files))]
+		result = [Slots_blender.formatPath(f) for f in list(reversed(files))]
 
 		return result
 
@@ -310,8 +309,8 @@ class File_maya(File, Slots_maya):
 		dir1 = str(pm.workspace(query=1, rd=1))+'autosave' #current project path.
 		dir2 = os.environ.get('MAYA_AUTOSAVE_FOLDER').split(';')[0] #get autosave dir path from env variable.
 
-		files = Slots_maya.getAbsoluteFilePaths(dir1, ['mb', 'ma']) + Slots_maya.getAbsoluteFilePaths(dir2, ['mb', 'ma'])
-		result = [Slots_maya.formatPath(f) for f in list(reversed(files))] #format and reverse the list.
+		files = Slots_blender.getAbsoluteFilePaths(dir1, ['mb', 'ma']) + Slots_blender.getAbsoluteFilePaths(dir2, ['mb', 'ma'])
+		result = [Slots_blender.formatPath(f) for f in list(reversed(files))] #format and reverse the list.
 
 		if appendDatetime:  #attach modified timestamp
 			result = Slots.fileTimeStamp(result)
@@ -365,10 +364,10 @@ print (__name__)
 	# 		mel.eval('DisplayWireframe;')
 
 	# 	#get scene name and file path
-	# 	fullPath = str(mel.eval('file -query -sceneName;')) #ie. O:/Cloud/____Graphics/______project_files/elise.proj/elise.scenes/.maya/elise_mid.009.mb
+	# 	fullPath = str(mel.eval('file -query -sceneName;')) #ie. O:/Cloud/____Graphics/______project_files/elise.proj/elise.scenes/.blender/elise_mid.009.mb
 	# 	index = fullPath.rfind('/')+1
 	# 	curFullName = fullPath[index:] #ie. elise_mid.009.mb
-	# 	path = fullPath[:index] #ie. O:/Cloud/____Graphics/______project_files/elise.proj/elise.scenes/.maya/
+	# 	path = fullPath[:index] #ie. O:/Cloud/____Graphics/______project_files/elise.proj/elise.scenes/.blender/
 
 	# 	if increment: #increment filename
 	# 		newName = self.incrementFileName(curFullName)

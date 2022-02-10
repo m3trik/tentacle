@@ -23,7 +23,7 @@ class UiLoader(QtUiTools.QUiLoader):
 	'''
 	qApp = QtWidgets.QApplication.instance() #get the qApp instance if it exists.
 	if not qApp:
-		qApp = QApplication(sys.argv)
+		qApp = QtWidgets.QApplication(sys.argv)
 
 	def __init__(self, uiDir='ui'):
 		QtUiTools.QUiLoader.__init__(self)
