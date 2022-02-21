@@ -3,7 +3,7 @@
 from PySide2 import QtCore, QtGui, QtWidgets
 
 from attributes import Attributes
-from text import RichText
+from text import RichText, TextOverlay
 from menu import MenuInstance
 
 
@@ -22,7 +22,7 @@ Promoting a widget in designer to use a custom class:
 '''
 
 
-class PushButtonDraggable(QtWidgets.QPushButton, MenuInstance, Attributes, RichText):
+class PushButtonDraggable(QtWidgets.QPushButton, MenuInstance, Attributes, RichText, TextOverlay):
 	'''Draggable/Checkable pushbutton.
 	'''
 	__mousePressPos = QtCore.QPoint()
@@ -123,13 +123,13 @@ class PushButtonDraggable(QtWidgets.QPushButton, MenuInstance, Attributes, RichT
 		:Parameters:
 			event = <QEvent>
 		'''
-		text = self.text().rstrip(' ⧉')
 		if self.menu_.containsMenuItems:
-			self.menu_.setTitle(text)
+			self.menu_.setTitle(self.text())
 
 		if self.contextMenu.containsMenuItems:
-			self.contextMenu.setTitle(text)
-			self.setText(text+' ⧉')
+			self.contextMenu.setTitle(self.text())
+			self.setTextOverlay('⧉') #self.setText(text+' ⧉')
+			self.setTextOverlayAlignment('AlignRight')
 
 		return QtWidgets.QPushButton.showEvent(self, event)
 

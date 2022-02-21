@@ -203,6 +203,86 @@ class RichText(object):
 
 
 
+class TextOverlay(object):
+	'''
+	'''
+	hasTextOverlay = False
+
+
+	@property
+	def textOverlayLabel(self):
+		'''Return a QLabel inside a QHBoxLayout.
+		'''
+		try:
+			return self._textOverlayLabel
+
+		except AttributeError as error:
+
+			layout = QtWidgets.QHBoxLayout(self)
+			layout.setContentsMargins(0, 0, 0, 0)
+
+			self._textOverlayLabel = QtWidgets.QLabel(self)
+			self._textOverlayLabel.setTextFormat(QtCore.Qt.RichText)
+
+			self._textOverlayLabel.setAttribute(QtCore.Qt.WA_TranslucentBackground)
+			self._textOverlayLabel.setAttribute(QtCore.Qt.WA_TransparentForMouseEvents)
+			layout.addWidget(self._textOverlayLabel)
+
+			self._textOverlayLabel.setStyleSheet('''
+					QLabel {
+						margin: 3px 0px 0px 0px; /* top, right, bottom, left */
+						padding: 0px 2px 0px 2px; /* top, right, bottom, left */
+					}''')
+
+			self.hasTextOverlay = True
+
+			return self._textOverlayLabel
+
+
+	def setTextOverlay(self, text):
+		'''If the text string contains rich text formatting:
+			Set the rich text label text.
+			Add whitespace to the actual widget text until it matches the sizeHint of what it would containing the label's text.
+
+		:Parameters:
+			text (str) = The desired widget's display text.
+			index (int) = For setting text requires an index. ie. comboBox
+		'''
+		self.textOverlayLabel.setText(text)
+
+
+	def setTextOverlayAlignment(self, alignment='AlignLeft'):
+		'''Override setAlignment to accept string alignment arguments as well as QtCore.Qt.AlignmentFlags.
+
+		:Parameters:
+			alignment (str)(obj) = Text alignment. valid values are: 'AlignLeft', 'AlignCenter', 'AlignRight' or QtCore.Qt.AlignLeft etc.
+		'''
+		if isinstance(alignment, str):
+			alignment = getattr(QtCore.Qt, alignment)
+
+		self.textOverlayLabel.setAlignment(alignment)
+
+
+	def setTextOverlayColor(self, color):
+		'''Set the stylesheet for a QLabel.
+
+		:Parameters:
+			color (str) =  The desired text color.
+		'''
+		label.setStyleSheet('''
+				QLabel {{
+					color: {0};
+				}}
+			'''.format(color))
+
+
+
+
+
+
+
+
+
 if __name__ == "__main__":
 	import sys
 	qApp = QtWidgets.QApplication(sys.argv)

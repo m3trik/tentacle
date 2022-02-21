@@ -106,7 +106,7 @@ class Materials_blender(Materials, Slots_blender):
 		if assignCurrent: #Assign current mat
 			mat = self.materials_ui.cmb002.currentData()
 			if isinstance(mat, str): #new mat type as a string:
-				self.assignMaterial(selection, pm.createNode(mat.rstrip(' ⧉')))
+				self.assignMaterial(selection, pm.createNode(mat))
 			else: #existing mat object:
 				self.assignMaterial(selection, mat)
 

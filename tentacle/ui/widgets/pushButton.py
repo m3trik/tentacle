@@ -3,7 +3,7 @@
 from PySide2 import QtWidgets, QtCore
 
 from attributes import Attributes
-from text import RichText
+from text import RichText, TextOverlay
 from menu import MenuInstance
 
 
@@ -22,7 +22,7 @@ Promoting a widget in designer to use a custom class:
 '''
 
 
-class PushButton(QtWidgets.QPushButton, MenuInstance, Attributes, RichText):
+class PushButton(QtWidgets.QPushButton, MenuInstance, Attributes, RichText, TextOverlay):
 	'''
 	'''
 	def __init__(self, parent=None, showMenuOnMouseOver=False, **kwargs):
@@ -79,13 +79,13 @@ class PushButton(QtWidgets.QPushButton, MenuInstance, Attributes, RichText):
 		:Parameters:
 			event = <QEvent>
 		'''
-		text = self.text().rstrip(' ⧉')
 		if self.menu_.containsMenuItems:
-			self.menu_.setTitle(text)
+			self.menu_.setTitle(self.text())
 
 		if self.contextMenu.containsMenuItems:
-			self.contextMenu.setTitle(text)
-			self.setText(text+' ⧉')
+			self.contextMenu.setTitle(self.text())
+			self.setTextOverlay('⧉') #self.setText(text+' ⧉')
+			self.setTextOverlayAlignment('AlignRight')
 			b = self.contextMenu.addApplyButton()
 
 		return QtWidgets.QPushButton.showEvent(self, event)

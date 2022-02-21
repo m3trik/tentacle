@@ -3,7 +3,7 @@
 from PySide2 import QtCore, QtGui, QtWidgets
 
 from attributes import Attributes
-from text import RichText
+from text import RichText, TextOverlay
 from menu import MenuInstance
 
 
@@ -22,7 +22,7 @@ Promoting a widget in designer to use a custom class:
 '''
 
 
-class ComboBox(QtWidgets.QComboBox, MenuInstance, Attributes, RichText):
+class ComboBox(QtWidgets.QComboBox, MenuInstance, Attributes, RichText, TextOverlay):
 	'''
 	'''
 	returnPressed = QtCore.Signal()
@@ -242,10 +242,11 @@ class ComboBox(QtWidgets.QComboBox, MenuInstance, Attributes, RichText):
 		:Parameters:
 			event=<QEvent>
 		'''
-		text = self.itemText(0)
 		if self.contextMenu.containsMenuItems:
-			self.contextMenu.setTitle(text)
-			self.setItemText(0, text) #set text: comboBox
+			self.contextMenu.setTitle(self.itemText(0))
+			self.setTextOverlay('⧉') #self.setText(text+' ⧉')
+			self.setTextOverlayAlignment('AlignRight')
+			self.setItemText(0, self.itemText(0)) #set text: comboBox
 
 		return QtWidgets.QComboBox.showEvent(self, event)
 

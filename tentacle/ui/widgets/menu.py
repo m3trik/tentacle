@@ -118,10 +118,10 @@ class Menu(QtWidgets.QMenu, Attributes):
 		'''
 		if not title:
 			try:
-				title = self.parent().text().rstrip(' ⧉')
+				title = self.parent().text()
 			except AttributeError as error:
 				try:
-					title = self.parent().currentText().rstrip(' ⧉')
+					title = self.parent().currentText()
 				except AttributeError as error:
 					pass
 
@@ -470,6 +470,21 @@ Promoting a widget in designer to use a custom class:
 '''
 
 # depricated ------------------------------------------------------------------------
+
+
+
+# try:
+# 	text = self.parent().text()
+# except AttributeError as error:
+# 	text = self.parent().itemText(0)
+
+# self.setTitle(text)
+
+
+# if self.menu_type='context':
+# 	self.setTextOverlay('⧉', self.parent()) #self.setText(text+' ⧉')
+# 	self.setTextOverlayAlignment('AlignRight', self.parent())
+# 	self.setTextOverlayStyle(textColor='black', self.parent())
 
 
 	# def children_(self, index=None, include=[], exclude=['QAction', 'QWidgetAction', 'QHBoxLayout', 'QVBoxLayout', 'QFormLayout', 'QValidator']):

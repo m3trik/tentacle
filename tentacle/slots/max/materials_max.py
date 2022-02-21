@@ -122,7 +122,7 @@ class Materials_max(Materials, Slots_max):
 
 		elif assignCurrent: #Assign current mat
 			if isinstance(mat, str): #new mat type as a string:
-				self.assignMaterial(selection, rt.Standard(name=mat.rstrip(' ⧉')))
+				self.assignMaterial(selection, rt.Standard(name=mat))
 			else: #existing mat object:
 				self.assignMaterial(selection, mat)
 
