@@ -28,6 +28,7 @@ class StyleSheet(QtCore.QObject):
 		'standard': {
 			'BACKGROUND'		: 'rgb(100,100,100)',
 			'PRESSED'			: 'rgb(125,125,125)',
+			'HIGHLIGHT'			: 'yellow',
 			'HOVER'				: 'rgb(82,133,166)',
 			'TEXT'				: 'white',
 			'TEXT_CHECKED'		: 'black',
@@ -38,10 +39,11 @@ class StyleSheet(QtCore.QObject):
 		},
 
 		'dark': {
-			'BACKGROUND'		: 'rgb(50,50,50)',
+			'BACKGROUND'		: 'rgb(60,60,60)',
 			'PRESSED'			: 'rgb(125,125,125)',
+			'HIGHLIGHT'			: 'yellow',
 			'HOVER'				: 'rgb(82,133,166)',
-			'TEXT'				: 'gray',
+			'TEXT'				: 'rgb(185,185,185)',
 			'TEXT_CHECKED'		: 'black',
 			'TEXT_DISABLED'		: 'darkGray',
 			'TEXT_HOVER'		: 'white',
@@ -1007,8 +1009,26 @@ class StyleSheet(QtCore.QObject):
 		'QRubberBand': '''
 			QRubberBand {
 				color: 0px solid gray;
-			} 
-		''',
+			}
+			''',
+
+		'QVBoxLayout': '''
+			'QVBoxLayout' {
+
+			}
+			''',
+
+		'QHBoxLayout': '''
+			'QHBoxLayout' {
+
+			}
+			''',
+
+		'QGridLayout': '''
+			'QGridLayout' {
+
+			}
+			''',
 		}
 
 
@@ -1041,27 +1061,27 @@ class StyleSheet(QtCore.QObject):
 		return css
 
 
-	def setStyleSheet_(self, widgets, name=None, ratio=6):
+	def setStyleSheet_(self, widgets, uiName=None, ratio=6, style='standard', hideMenuButton=False):
 		'''Set the styleSheet for the given widgets.
 		Set the style for a specific widget by using the '#' syntax and the widget's objectName. ie. QWidget#mainWindow
 
 		:Parameters:
-			widgets (obj)(list) = widget or list of widgets.
-			name (str) = name of the parent ui. If None is given, the current ui will be used.
+			widgets (obj)(list) = A widget or list of widgets.
+			uiName (str) = The name of the parent ui. If None is given, the current ui will be used.
 			ratio (int) = The ratio of widget size, text length in relation to the amount of padding applied.
+			style (str) = 
+			hideMenuButton (boool) = 
 		'''
-		name = name if name else self.sb.getUiName()
-		uiLevel = self.sb.getUiLevel(name)
+		uiName = uiName if uiName else self.sb.getUiName()
+		uiLevel = self.sb.getUiLevel(uiName)
 
 		for widget in self.sb.list_(widgets):
-			derivedType = self.sb.getDerivedType(widget, name) #get the derived class type as string.
+			derivedType = self.sb.getDerivedType(widget, uiName) #get the derived class type as string.
 
-			if hasattr(widget, 'styleSheet'):
-				if uiLevel==2 and not self.sb.prefix(widget, 'i'): #if submenu and objectName doesn't start with 'i':
-					s = self.getStyleSheet(derivedType, style='dark') #s+StyleSheet.dark(derivedType) #override with the dark version on uiLevel 2 (submenus).
+			try: #if hasattr(widget, 'styleSheet'):
+				s = self.getStyleSheet(derivedType, style=style)
+				if hideMenuButton:
 					s = s + self.hideMenuButton(derivedType)
-				else:
-					s = self.getStyleSheet(derivedType)
 
 				try:
 					length = len(widget.text()) if hasattr(widget, 'text') else len(str(widget.value())) #a 'NoneType' error will be thrown if the widget does not contain text.
@@ -1073,6 +1093,9 @@ class StyleSheet(QtCore.QObject):
 				if widget.styleSheet(): #if the widget has an existing style sheet, append.
 					s = s+widget.styleSheet()
 				widget.setStyleSheet(s)
+
+			except AttributeError as error: #given widget has no attribute 'styleSheet'.
+				pass
 
 
 	def adjustPadding(self, derivedType):

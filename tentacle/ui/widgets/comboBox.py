@@ -244,8 +244,7 @@ class ComboBox(QtWidgets.QComboBox, MenuInstance, Attributes, RichText, TextOver
 		'''
 		if self.contextMenu.containsMenuItems:
 			self.contextMenu.setTitle(self.itemText(0))
-			self.setTextOverlay('⧉') #self.setText(text+' ⧉')
-			self.setTextOverlayAlignment('AlignRight')
+			self.setTextOverlay('⧉', alignment='AlignRight')
 			self.setItemText(0, self.itemText(0)) #set text: comboBox
 
 		return QtWidgets.QComboBox.showEvent(self, event)

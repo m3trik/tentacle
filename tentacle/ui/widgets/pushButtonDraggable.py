@@ -128,8 +128,7 @@ class PushButtonDraggable(QtWidgets.QPushButton, MenuInstance, Attributes, RichT
 
 		if self.contextMenu.containsMenuItems:
 			self.contextMenu.setTitle(self.text())
-			self.setTextOverlay('⧉') #self.setText(text+' ⧉')
-			self.setTextOverlayAlignment('AlignRight')
+			self.setTextOverlay('⧉', alignment='AlignRight')
 
 		return QtWidgets.QPushButton.showEvent(self, event)
 

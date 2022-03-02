@@ -75,7 +75,16 @@ class EventFactoryFilter(QtCore.QObject):
 			uiLevel = self.tcl.sb.getUiLevel(uiName)
 			method = self.tcl.sb.getMethod(uiName, widgetName)
 
-			self.tcl.setStyleSheet_(widget, uiName)
+			#set stylesheet
+			if uiLevel==2 and not self.tcl.sb.prefix(widget, 'i'): #if submenu and objectName doesn't start with 'i':
+				self.tcl.setStyleSheet_(widget, uiName, style='dark', hideMenuButton=True)
+
+			elif uiLevel>2: #main menus
+				self.tcl.setStyleSheet_(widget, uiName, style='dark')
+
+			else:
+				self.tcl.setStyleSheet_(widget, uiName)
+
 
 			if derivedType in self.widgetTypes:
 				# print (widgetName if widgetName else widget)

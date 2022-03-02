@@ -239,7 +239,7 @@ class TextOverlay(object):
 			return self._textOverlayLabel
 
 
-	def setTextOverlay(self, text):
+	def setTextOverlay(self, text, color=None, alignment=None):
 		'''If the text string contains rich text formatting:
 			Set the rich text label text.
 			Add whitespace to the actual widget text until it matches the sizeHint of what it would containing the label's text.
@@ -247,8 +247,16 @@ class TextOverlay(object):
 		:Parameters:
 			text (str) = The desired widget's display text.
 			index (int) = For setting text requires an index. ie. comboBox
+			color (str) =  The desired text color.
+			alignment (str)(obj) = Text alignment. valid values are: 'AlignLeft', 'AlignCenter', 'AlignRight' or QtCore.Qt.AlignLeft etc.
 		'''
 		self.textOverlayLabel.setText(text)
+
+		if color is not None:
+			self.setTextOverlayColor(color)
+
+		if alignment is not None:
+			self.setTextOverlayAlignment(alignment)
 
 
 	def setTextOverlayAlignment(self, alignment='AlignLeft'):
@@ -268,6 +276,8 @@ class TextOverlay(object):
 
 		:Parameters:
 			color (str) =  The desired text color.
+
+		ex. call: setTextOverlayColor('rgb(185,185,185)')
 		'''
 		label.setStyleSheet('''
 				QLabel {{
