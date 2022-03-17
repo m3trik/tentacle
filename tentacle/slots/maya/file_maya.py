@@ -277,7 +277,7 @@ class File_maya(File, Slots_maya):
 			(list)(str)
 		'''
 		files = pm.optionVar(query='RecentFilesList')
-		result = [Slots_maya.formatPath(f) for f in list(reversed(files)) 
+		result = [self.formatPath(f) for f in list(reversed(files)) 
 					if "Autosave" not in f] if files else []
 
 		try:
@@ -293,7 +293,7 @@ class File_maya(File, Slots_maya):
 			(list)
 		'''
 		files = pm.optionVar(query='RecentProjectsList')
-		result = [Slots_maya.formatPath(f) for f in list(reversed(files))]
+		result = [self.formatPath(f) for f in list(reversed(files))]
 
 		return result
 
@@ -310,11 +310,11 @@ class File_maya(File, Slots_maya):
 		dir1 = str(pm.workspace(query=1, rd=1))+'autosave' #current project path.
 		dir2 = os.environ.get('MAYA_AUTOSAVE_FOLDER').split(';')[0] #get autosave dir path from env variable.
 
-		files = Slots_maya.getAbsoluteFilePaths(dir1, ['mb', 'ma']) + Slots_maya.getAbsoluteFilePaths(dir2, ['mb', 'ma'])
-		result = [Slots_maya.formatPath(f) for f in list(reversed(files))] #format and reverse the list.
+		files = self.getAbsoluteFilePaths(dir1, ['mb', 'ma']) + self.getAbsoluteFilePaths(dir2, ['mb', 'ma'])
+		result = [self.formatPath(f) for f in list(reversed(files))] #format and reverse the list.
 
 		if appendDatetime:  #attach modified timestamp
-			result = Slots.fileTimeStamp(result)
+			result = self.fileTimeStamp(result)
 
 		return result
 

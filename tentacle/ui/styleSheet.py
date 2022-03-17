@@ -292,7 +292,7 @@ class StyleSheet(QtCore.QObject):
 			}
 
 			QSpinBox::hover {
-				background-color: {HOVER};
+				background-color: {BACKGROUND};
 				color: {TEXT_HOVER};
 				border: 1px solid {BORDER};
 			} 
@@ -310,7 +310,7 @@ class StyleSheet(QtCore.QObject):
 			}
 
 			QDoubleSpinBox::hover {
-				background-color: {HOVER};
+				background-color: {BACKGROUND};
 				color: {TEXT_HOVER};
 				border: 1px solid {BORDER};
 			} 

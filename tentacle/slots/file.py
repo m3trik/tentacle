@@ -84,3 +84,94 @@ class File(Slots):
 		'''Export Selection
 		'''
 		self.cmb004(index=1)
+
+
+	@staticmethod
+	def getAbsoluteFilePaths(directory, endingWith=[]):
+		'''Get the absolute paths of all the files in a directory and it's sub-folders.
+
+		directory (str) = Root directory path.
+		endingWith (list) = Extension types (as strings) to include. ex. ['mb', 'ma']
+		
+		:Return:
+			(list) absolute file paths
+		'''
+		import os
+
+		paths=[]
+		for dirpath, _, filenames in os.walk(directory):
+			for f in filenames:
+				if f.split('.')[-1] in endingWith:
+					paths.append(os.path.abspath(os.path.join(dirpath, f)))
+
+		return paths
+
+
+	@staticmethod
+	def formatPath(dir_, strip=''):
+		'''Assure a given directory path string is formatted correctly.
+		Replace any backslashes with forward slashes.
+
+		:Parameters:
+			dir_ (str) = A directory path. ie. 'C:/Users/m3/Documents/3ds Max 2022/3ds Max 2022.mxp'
+			strip (str) = Strip from the path string. (valid: 'file', 'path')
+
+		:Return:
+			(str)
+		'''
+		formatted_dir = dir_.replace('/', '\\') #assure any single slash is forward.
+
+		split = formatted_dir.split('\\')
+		file = split[-1]
+
+		if strip=='file':
+			formatted_dir = '\\'.join(split[:-1]) if '.' in file else formatted_dir
+
+		elif strip=='path':
+			formatted_dir = file if '.' in file else formatted_dir
+
+		return formatted_dir
+
+
+	@staticmethod
+	def getNameFromFullPath(fullPath):
+		'''Extract the file or dir name from a path string.
+
+		:Parameters:
+			fullPath (str) = A full path including file name.
+
+		:Return:
+			(str) the dir or file name including extension.
+		'''
+		name = fullPath.split('/')[-1]
+		if len(fullPath)==len(name):
+			name = fullPath.split('\\')[-1]
+			if not name:
+				name = fullPath.split('\\')[-2]
+
+		return name
+
+
+	@staticmethod
+	def fileTimeStamp(files, detach=False):
+		'''Attach a modified timestamp and date to given file path(s).
+
+		:Parameters:
+			files (str)(list) = The full path to a file. ie. 'C:/Windows/Temp/__AUTO-SAVE__untitled.0001.mb'
+			detach (bool) = Return the full path to it's previous state.
+
+		:Return:
+			(list) ie. ['C:/Windows/Temp/__AUTO-SAVE__untitled.0001.mb  16:46  11-09-2021'] from ['C:/Windows/Temp/__AUTO-SAVE__untitled.0001.mb']
+		'''
+		from datetime import datetime
+		import os.path
+
+		if not isinstance(files, (list, tuple, set)):
+			files = [files]
+
+		if detach:
+			result = [''.join(f.split()[:-2]) for f in files]
+		else:
+			result = [f+datetime.fromtimestamp(os.path.getmtime(f)).strftime('  %m-%d-%Y  %H:%M') for f in files] #attach modified timestamp
+
+		return result

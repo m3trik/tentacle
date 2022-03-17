@@ -276,7 +276,7 @@ class File_blender(File, Slots_blender):
 			(list)(str)
 		'''
 		files = pm.optionVar(query='RecentFilesList')
-		result = [Slots_blender.formatPath(f) for f in list(reversed(files)) 
+		result = [self.formatPath(f) for f in list(reversed(files)) 
 					if "Autosave" not in f] if files else []
 
 		try:
@@ -292,7 +292,7 @@ class File_blender(File, Slots_blender):
 			(list)
 		'''
 		files = pm.optionVar(query='RecentProjectsList')
-		result = [Slots_blender.formatPath(f) for f in list(reversed(files))]
+		result = [self.formatPath(f) for f in list(reversed(files))]
 
 		return result
 
@@ -310,7 +310,7 @@ class File_blender(File, Slots_blender):
 		dir2 = os.environ.get('MAYA_AUTOSAVE_FOLDER').split(';')[0] #get autosave dir path from env variable.
 
 		files = Slots_blender.getAbsoluteFilePaths(dir1, ['mb', 'ma']) + Slots_blender.getAbsoluteFilePaths(dir2, ['mb', 'ma'])
-		result = [Slots_blender.formatPath(f) for f in list(reversed(files))] #format and reverse the list.
+		result = [self.formatPath(f) for f in list(reversed(files))] #format and reverse the list.
 
 		if appendDatetime:  #attach modified timestamp
 			result = Slots.fileTimeStamp(result)

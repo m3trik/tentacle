@@ -159,7 +159,7 @@ class Slots(QtCore.QObject):
 			slots (obj)(list) = ie. self.cmb002 or [self.cmb002]
 			class_ (obj)(list) = if the widgets arg is given as a string, then the class_ it belongs to can be explicitly given. else, the current ui will be used.
 
-		ex call: self.connect_('chk000-2', 'toggled', self.cmb002, tb.contextMenu.
+		ex call: self.connect_('chk000-2', 'toggled', self.cmb002, tb.contextMenu)
 		*or self.connect_([tb.contextMenu.chk000, tb.contextMenu.chk001], 'toggled', self.cmb002)
 		*or self.connect_(tb.contextMenu.chk015, 'toggled', 
 				[lambda state: self.rigging_ui.tb004.setText('Unlock Transforms' if state else 'Lock Transforms'), 
@@ -219,10 +219,12 @@ class Slots(QtCore.QObject):
 			*kwargs = keyword: - the property to modify. ex. setText, setValue, setEnabled, setDisabled, setVisible, setHidden
 					value: - intended value.
 
-		ex.	self.setWidgetAttr('chk003', <ui1>, <ui2>, setText='Un-Crease')
+		ex.	self.setWidgetKwargs('chk003', <ui1>, <ui2>, setText='Un-Crease')
 		'''
 		if not args[1:]:
-			args = args+[self.parentUi, self.childUi]
+			parentUi = self.tcl.sb.getUi(self.current_ui(), level=3)
+			childUi = self.tcl.sb.getUi(self.current_ui(), level=2)
+			args = args+(parentUi, childUi)
 
 		for ui in args[1:]:
 			widgets = Slots.getObjects(ui, args[0]) #getObjects returns a widget list from a string of objectNames.
@@ -318,17 +320,28 @@ class Slots(QtCore.QObject):
 
 		:Return:
 			unpacked names. ie. ['v000','b004','b005','b006']
+
+		ex. call: unpackNames('chk021-23, 25, tb001')
 		'''
-		packed_names = [n.strip() for n in nameString.split(',') if '-' in n] #build list of all widgets passed in containing '-'
-		otherNames = [n.strip() for n in nameString.split(',') if '-' not in n] #all widgets passed in not containing '-'
+		packed_names = [n.strip() for n in nameString.split(',') #build list of all widgets passed in containing '-' 
+							if '-' in n or n.strip().isdigit()]
+
+		otherNames = [n.strip() for n in nameString.split(',') #all widgets passed in not containing '-'
+							if '-' not in n and not n.strip().isdigit()]
 
 		unpacked_names=[] #unpack the packed names:
 		for name in packed_names:
-			name = name.split('-') #ex. split 'b000-8'
-			prefix = name[0].strip('0123456789') #ex. split 'b' from 'b000'
-			start = int(name[0].strip('abcdefghijklmnopqrstuvwxyz') or 0) #start range. #ex. '000' #converting int('000') returns None, if case; assign 0.
-			stop = int(name[1])+1 #end range. #ex. '8' from 'b000-8' becomes 9, for range up to 9 but not including 9.
-			unpacked_names.extend([str(prefix)+'000'[:-len(str(num))]+str(num) for num in range(start,stop)]) #build list of name strings within given range
+			if '-' in name:
+				name = name.split('-') #ex. split 'b000-8'
+				prefix = name[0].strip('0123456789') #ex. split 'b' from 'b000'
+				start = int(name[0].strip('abcdefghijklmnopqrstuvwxyz') or 0) #start range. #ex. '000' #converting int('000') returns None, if case; assign 0.
+				stop = int(name[1])+1 #end range. #ex. '8' from 'b000-8' becomes 9, for range up to 9 but not including 9.
+				unpacked_names.extend([str(prefix)+'000'[:-len(str(num))]+str(num) for num in range(start,stop)]) #build list of name strings within given range
+				last_name = name
+				last_prefix = prefix
+			else:
+				num = name
+				unpacked_names.extend([str(last_prefix)+'000'[:-len(str(num))]+str(num)])
 
 		return otherNames+unpacked_names
 
@@ -377,6 +390,27 @@ class Slots(QtCore.QObject):
 			collapsedList = ', '.join(collapsedList)
 
 		return collapsedList
+
+
+	@staticmethod
+	def bitArrayToList(bitArray):
+		'''Convert a binary bitArray to a python list.
+
+		:Parameters:
+			bitArray=bit array
+				*or list of bit arrays
+
+		:Return:
+			(list) containing values of the indices of the on (True) bits.
+		'''
+		if len(bitArray):
+			if type(bitArray[0])!=bool: #if list of bitArrays: flatten
+				list_=[]
+				for array in bitArray:
+					list_.append([i+1 for i, bit in enumerate(array) if bit==1])
+				return [bit for array in list_ for bit in array]
+
+			return [i+1 for i, bit in enumerate(bitArray) if bit==1]
 
 
 	def invertOnModifier(self, value):
@@ -459,199 +493,6 @@ class Slots(QtCore.QObject):
 
 			self._messageBox.setText(string)
 			self._messageBox.exec_()
-
-
-	@staticmethod
-	def getTrailingIntegers(string, inc=0):
-		'''Returns any integers from the end of the given string.
-
-		:Parameters:
-			inc (int) = Increment by a step amount. 0 does not increment and returns the original number. (default: 0)
-
-		"Return:
-			(int)
-
-		ex. n = getTrailingIntegers('p001Cube1', inc=1) #returns: 2
-		'''
-		import re
-
-		m = re.findall(r"\d+\s*$", string)
-		result = int(m[0])+inc if m else None
-
-		return result
-
-
-	@staticmethod
-	def findStr(what, where, regEx=False, ignoreCase=False):
-		'''Find matches of a string in a list.
-
-		:Parameters:
-			what (str) = The search string. An asterisk denotes startswith*, *endswith, *contains*, and multiple search strings can be separated by pipe chars.
-				wildcards:
-					*what* - search contains chars.
-					*what - search endswith chars.
-					what* - search startswith chars.
-					what|what - search any of.  can be used in conjuction with other modifiers.
-				regular expressions (if regEx True):
-					(.) match any char. ex. re.match('1..', '1111') #returns the regex object <111>
-					(^) match start. ex. re.match('^11', '011') #returns None
-					($) match end. ex. re.match('11$', '011') #returns the regex object <11>
-					(|) or. ex. re.match('1|0', '011') #returns the regex object <0>
-					(\A,\Z) beginning of a string and end of a string. ex. re.match(r'\A011\Z', '011') #
-					(\b) empty string. (\B matches the empty string anywhere else). ex. re.match(r'\b(011)\b', '011 011 011') #
-			where (list) = The string list to search in.
-			ignoreCase (bool) = Search case insensitive.
-
-		:Return:
-			(list)
-
-		ex. list_ = ['invertVertexWeights', 'keepCreaseEdgeWeight', 'keepBorder', 'keepBorderWeight', 'keepColorBorder', 'keepColorBorderWeight']
-			findStr('*Weight*', list_) #find any element that contains the string 'Weight'.
-			findStr('Weight$|Weights$', list_, regEx=True) #find any element that endswith 'Weight' or 'Weights'.
-		'''
-		if regEx: #search using a regular expression.
-			import re
-
-			try:
-				if ignoreCase:
-					result = [i for i in where if re.search(what, i, re.IGNORECASE)]
-				else:
-					result = [i for i in where if re.search(what, i)]
-			except Exception as e:
-				print ('# Error findStr: in {}: {}. #'.format(what, e))
-				result = []
-
-		else: #search using wildcards.
-			for w in what.split('|'): #split at pipe chars.
-				w_ = w.strip('*').rstrip('*') #remove any modifiers from the left and right end chars.
-
-				#modifiers
-				if w.startswith('*') and w.endswith('*'): #contains
-					if ignoreCase:				
-						result = [i for i in where if w_.lower() in i.lower()] #case insensitive.
-					else:
-						result = [i for i in where if w_ in i]
-
-				elif w.startswith('*'): #prefix
-					if ignoreCase:
-						result = [i for i in where if i.lower().endswith(w_.lower())] #case insensitive.
-					else:
-						result = [i for i in where if i.endswith(w_)]
-
-				elif w.endswith('*'): #suffix
-					if ignoreCase:
-						result = [i for i in where if i.lower().startswith(w_.lower())] #case insensitive.
-					else:
-						result = [i for i in where if i.startswith(w_)]
-
-				else: #exact match
-					if ignoreCase:
-						result = [i for i in where if i.lower()==w_.lower()] #case insensitive.
-					else:
-						result = [i for i in where if i==w_]
-
-		return result
-
-
-	@staticmethod
-	def findStrAndFormat(frm, to, where, regEx=False, ignoreCase=False):
-		'''Search a list for matching strings and re-format them.
-		Useful for things such as finding and renaming objects.
-
-		:Parameters:
-			frm (str) = Current name. An asterisk denotes startswith*, *endswith, *contains*, and multiple search strings can be separated by pipe ('|') chars.
-				*frm* - Search contains chars.
-				*frm - Search endswith chars.
-				frm* - Search startswith chars.
-				frm|frm - Search any of.  can be used in conjuction with other modifiers.
-			to (str) = Desired name: An optional asterisk modifier can be used for formatting. An empty to string will attempt to remove the part of the string designated in the from argument.
-				"" - (empty string) - strip chars.
-				*to* - replace only.
-				*to - replace suffix.
-				**to - append suffix.
-				to* - replace prefix.
-				to** - append prefix.
-			where (list) = A list of string objects to search.
-			regEx (bool) = If True, regex syntax is used instead of '*' and '|'.
-			ignoreCase (bool) = Ignore case when searching. Applies only to the 'frm' parameter's search.
-
-		:Return:
-			(list) list of two element tuples containing the original and modified string pairs. [('frm','to')]
-
-		ex. findStrAndFormat(r'Cube', '*001', regEx=True) #replace chars after frm on any object with a name that contains 'Cube'. ie. 'polyCube001' from 'polyCube'
-		ex. findStrAndFormat(r'Cube', '*001', regEx=True) #append chars on any object with a name that contains 'Cube'. ie. 'polyCube1001' from 'polyCube1'
-		'''
-		import re
-
-		if frm: #filter for matching strings if a frm argument is given. else; use all.
-			where = Slots.findStr(frm, where, regEx=regEx, ignoreCase=ignoreCase)
-
-		frm_ = re.sub('[^A-Za-z0-9_:]+', '', frm) #strip any special chars other than '_'.
-		to_ = to.strip('*').rstrip('*') #remove any modifiers from the left and right end chars.
-
-		result=[]
-		for name in where:
-
-			#modifiers
-			if to.startswith('*') and to.endswith('*'): #replace chars
-				if ignoreCase:
-					n = re.sub(frm_, to_, name, flags=re.IGNORECASE) #remove frm_ from the string (case in-sensitive).
-				else:
-					n = name.replace(frm_, to_)
-
-			elif to.startswith('**'): #append suffix
-				n = name+to_
-
-			elif to.startswith('*'): #replace suffix
-				if ignoreCase:
-					end_index = re.search(frm_, name, flags=re.IGNORECASE).start() #get the starting index of 'frm_'.
-					n = name[:index]+to_
-				else:
-					n = name.split(frm_)[0]+to_
-
-			elif to.endswith('**'): #append prefix
-				n = to_+name
-
-			elif to.endswith('*'): #replace prefix
-				if ignoreCase:
-					end_index = re.search(frm_, name, flags=re.IGNORECASE).end() #get the ending index of 'frm_'.
-					n = to_+name[index:]
-				else:
-					n = to_+frm_+name.split(frm_)[-1]
-
-			else:
-				if not to_: #if 'to_' is an empty string:
-					if ignoreCase:
-						n = re.sub(frm_, '', name, flags=re.IGNORECASE) #remove frm_ from the string (case in-sensitive).
-					else:
-						n = name.replace(frm_, '') #remove frm_ from the string.
-				else: #else; replace whole name
-					n = to_
-
-			result.append((name, n))
-
-		return result
-
-
-	@staticmethod
-	def bitArrayToList(bitArray):
-		'''Convert a binary bitArray to a python list.
-
-		:Parameters:
-			bitArray=bit array
-				*or list of bit arrays
-
-		:Return:
-			(list) containing values of the indices of the on (True) bits.
-		'''
-		if len(bitArray):
-			if type(bitArray[0])!=bool: #if list of bitArrays: flatten
-				list_=[]
-				for array in bitArray:
-					list_.append([i+1 for i, bit in enumerate(array) if bit==1])
-				return [bit for array in list_ for bit in array]
-
-			return [i+1 for i, bit in enumerate(bitArray) if bit==1]
 
 
 
@@ -964,102 +805,6 @@ class Slots(QtCore.QObject):
 			(s/sin(a3)) * sin(a1),
 			(s/sin(a3)) * sin(a2)
 		)
-
-		return result
-
-
-
-
-
-
-	# ------------------------------------------------
-	'FILE'
-	# ------------------------------------------------
-
-	@staticmethod
-	def getAbsoluteFilePaths(directory, endingWith=[]):
-		'''Get the absolute paths of all the files in a directory and it's sub-folders.
-
-		directory (str) = Root directory path.
-		endingWith (list) = Extension types (as strings) to include. ex. ['mb', 'ma']
-		
-		:Return:
-			(list) absolute file paths
-		'''
-		paths=[]
-		for dirpath, _, filenames in os.walk(directory):
-			for f in filenames:
-				if f.split('.')[-1] in endingWith:
-					paths.append(os.path.abspath(os.path.join(dirpath, f)))
-
-		return paths
-
-
-	@staticmethod
-	def formatPath(dir_, strip=''):
-		'''Assure a given directory path string is formatted correctly.
-		Replace any backslashes with forward slashes.
-
-		:Parameters:
-			dir_ (str) = A directory path. ie. 'C:/Users/m3/Documents/3ds Max 2022/3ds Max 2022.mxp'
-			strip (str) = Strip from the path string. (valid: 'file', 'path')
-
-		:Return:
-			(str)
-		'''
-		formatted_dir = dir_.replace('/', '\\') #assure any single slash is forward.
-
-		split = formatted_dir.split('\\')
-		file = split[-1]
-
-		if strip=='file':
-			formatted_dir = '\\'.join(split[:-1]) if '.' in file else formatted_dir
-
-		elif strip=='path':
-			formatted_dir = file if '.' in file else formatted_dir
-
-		return formatted_dir
-
-
-	@staticmethod
-	def getNameFromFullPath(fullPath):
-		'''Extract the file or dir name from a path string.
-
-		:Parameters:
-			fullPath (str) = A full path including file name.
-
-		:Return:
-			(str) the dir or file name including extension.
-		'''
-		name = fullPath.split('/')[-1]
-		if len(fullPath)==len(name):
-			name = fullPath.split('\\')[-1]
-			if not name:
-				name = fullPath.split('\\')[-2]
-
-		return name
-
-
-	@staticmethod
-	def fileTimeStamp(files, detach=False):
-		'''Attach a modified timestamp and date to given file path(s).
-
-		:Parameters:
-			files (str)(list) = The full path to a file. ie. 'C:/Windows/Temp/__AUTO-SAVE__untitled.0001.mb'
-			detach (bool) = Return the full path to it's previous state.
-
-		:Return:
-			(list) ie. ['C:/Windows/Temp/__AUTO-SAVE__untitled.0001.mb  16:46  11-09-2021'] from ['C:/Windows/Temp/__AUTO-SAVE__untitled.0001.mb']
-		'''
-		from datetime import datetime
-
-		if not isinstance(files, (list, tuple, set)):
-			files = [files]
-
-		if detach:
-			result = [''.join(f.split()[:-2]) for f in files]
-		else:
-			result = [f+datetime.fromtimestamp(os.path.getmtime(f)).strftime('  %m-%d-%Y  %H:%M') for f in files] #attach modified timestamp
 
 		return result
 

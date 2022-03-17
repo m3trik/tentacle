@@ -52,6 +52,9 @@
       <number>0</number>
      </property>
      <item row="1" column="1" colspan="2">
+      <layout class="QGridLayout" name="gridLayout"/>
+     </item>
+     <item row="0" column="1" colspan="2">
       <widget class="PushButtonDraggable" name="draggable_header">
        <property name="minimumSize">
         <size>
@@ -81,9 +84,6 @@
       </widget>
      </item>
      <item row="2" column="1" colspan="2">
-      <layout class="QGridLayout" name="gridLayout"/>
-     </item>
-     <item row="3" column="1" colspan="2">
       <layout class="QHBoxLayout" name="horizontalLayout">
        <item>
         <layout class="QVBoxLayout" name="verticalLayout">
@@ -680,34 +680,6 @@
        </item>
       </layout>
      </item>
-     <item row="0" column="1" colspan="2">
-      <widget class="ProgressBar" name="progressBar_2">
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="Ignored" vsizetype="Fixed">
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
-       </property>
-       <property name="minimumSize">
-        <size>
-         <width>0</width>
-         <height>10</height>
-        </size>
-       </property>
-       <property name="maximumSize">
-        <size>
-         <width>16777215</width>
-         <height>10</height>
-        </size>
-       </property>
-       <property name="value">
-        <number>0</number>
-       </property>
-       <property name="textVisible">
-        <bool>false</bool>
-       </property>
-      </widget>
-     </item>
     </layout>
    </widget>
   </widget>
@@ -719,19 +691,14 @@
    <header>widgets.pushbuttondraggable.h</header>
   </customwidget>
   <customwidget>
-   <class>ProgressBar</class>
-   <extends>QProgressBar</extends>
-   <header>widgets.progressbar.h</header>
+   <class>ComboBox</class>
+   <extends>QComboBox</extends>
+   <header>widgets.combobox.h</header>
   </customwidget>
   <customwidget>
    <class>PushButton</class>
    <extends>QPushButton</extends>
    <header>widgets.pushbutton.h</header>
-  </customwidget>
-  <customwidget>
-   <class>ComboBox</class>
-   <extends>QComboBox</extends>
-   <header>widgets.combobox.h</header>
   </customwidget>
  </customwidgets>
  <resources/>

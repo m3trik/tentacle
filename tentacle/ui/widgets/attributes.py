@@ -36,6 +36,7 @@ class Attributes(object):
 				getattr(obj, attr)(value)
 
 			except:
+				#print ('setAttributes:', attr, value)
 				self.setCustomAttribute(obj, attr, value)
 
 

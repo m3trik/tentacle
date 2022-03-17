@@ -10,55 +10,29 @@ class Transform_max(Transform, Slots_max):
 		Slots_max.__init__(self, *args, **kwargs)
 		Transform.__init__(self, *args, **kwargs)
 
-		cmb = self.transform_ui.draggable_header.contextMenu.cmb000
+		cmb000 = self.transform_ui.draggable_header.contextMenu.cmb000
 		items = ['']
-		cmb.addItems_(items, '')
+		cmb000.addItems_(items, '')
 
-		cmb = self.transform_ui.cmb001
-		cmb.popupStyle = 'qmenu'
-		menu = cmb.menu_
-		if not menu.containsMenuItems:
-			menu.setTitle('Constaints')
-			cmb.contextMenu.add('QRadioButton', setObjectName='chk017', setText='Standard', setChecked=True, setToolTip='')
-			cmb.contextMenu.add('QRadioButton', setObjectName='chk018', setText='Body Shapes', setToolTip='')
-			cmb.contextMenu.add('QRadioButton', setObjectName='chk019', setText='NURBS', setToolTip='')
-			cmb.contextMenu.add('QRadioButton', setObjectName='chk020', setText='Point Cloud Shapes', setToolTip='')
-			cmb.contextMenu.add(self.tcl.wgts.Label, setObjectName='lbl000', setText='Disable All', setToolTip='Disable all constraints.')
-			self.connect_('chk017-20', 'toggled', self.cmb001, cmb.contextMenu) #connect to this method on toggle
-			#query and set current states:
-			edge_constraint = True if pm.xformConstraint(query=1, type=1)=='edge' else False
-			surface_constraint = True if pm.xformConstraint(query=1, type=1)=='surface' else False
-			live_object = True if pm.ls(live=1) else False
+		cmb001 = self.transform_ui.cmb001
+		cmb001.contextMenu.add('QRadioButton', setObjectName='chk017', setText='Standard', setChecked=True, setToolTip='')
+		cmb001.contextMenu.add('QRadioButton', setObjectName='chk018', setText='Body Shapes', setToolTip='')
+		cmb001.contextMenu.add('QRadioButton', setObjectName='chk019', setText='NURBS', setToolTip='')
+		cmb001.contextMenu.add('QRadioButton', setObjectName='chk020', setText='Point Cloud Shapes', setToolTip='')
+		cmb001.contextMenu.add(self.tcl.wgts.Label, setObjectName='lbl000', setText='Disable All', setToolTip='Disable all constraints.')
+		self.connect_('chk017-20', 'toggled', self.cmb001, cmb001.contextMenu) #connect to this method on toggle
 
-			values = [('chk024', 'Edge', edge_constraint),
-					('chk025', 'Surface', surface_constraint),
-					('chk026', 'Make Live', live_object)]
-
-			[menu.add(self.tcl.wgts.CheckBox, setObjectName=chk, setText=typ, setChecked=state) for chk, typ, state in values]
-
-		cmb = self.transform_ui.cmb002
+		cmb002 = self.transform_ui.cmb002
 		items = ['Point to Point', '2 Points to 2 Points', '3 Points to 3 Points', 'Align Objects', 'Position Along Curve', 'Align Tool', 'Snap Together Tool']
-		cmb.addItems_(items, 'Align To')
+		cmb002.addItems_(items, 'Align To')
 
-		cmb = self.transform_ui.cmb003
-		cmb.popupStyle = 'qmenu'
-		menu = cmb.menu_
-		if not menu.containsMenuItems:
-			menu.setTitle('Snap')
-
-			moveValue = pm.manipMoveContext('Move', q=True, snapValue=True)
-			scaleValue = pm.manipScaleContext('Scale', q=True, snapValue=True)
-			rotateValue = pm.manipRotateContext('Rotate', q=True, snapValue=True)
-
-			values = [('chk021', 'Move: <b>Off</b>'), ('s021', 'increment:', moveValue, '1.00-1000 step2.8125'), 
-					('chk022', 'Scale: <b>Off</b>'), ('s022', 'increment:', scaleValue, '1.00-1000 step2.8125'), 
-					('chk023', 'Rotate: <b>Off</b>'), ('s023', 'degrees:', rotateValue, '1.00-360 step2.8125')]
-
-			widgets = [menu.add(self.tcl.wgts.CheckBox, setObjectName=i[0], setText=i[1], setTristate=1) if len(i)==2 
-					else menu.add('QDoubleSpinBox', setObjectName=i[0], setPrefix=i[1], setValue=i[2], setMinMax_=i[3], setDisabled=1) for i in values]
-
-		ctx = self.transform_ui.tb000.contextMenu
-		ctx.chk017.setDisabled(True)
+		cmb003 = self.transform_ui.cmb003
+		# moveValue = pm.manipMoveContext('Move', q=True, snapValue=True)
+		# cmb003.menu_.s021.setValue(moveValue)
+		# scaleValue = pm.manipScaleContext('Scale', q=True, snapValue=True)
+		# cmb003.menu_.s022.setValue(scaleValue)
+		# rotateValue = pm.manipRotateContext('Rotate', q=True, snapValue=True)
+		# cmb003.menu_.s023.setValue(rotateValue)
 
 
 	def cmb000(self, index=None):
@@ -385,6 +359,26 @@ class Transform_max(Transform, Slots_max):
 			{ string $objs[] = `ls -sl -type transform -type geometryShape`;
 			if (size($objs) > 0) { xform -cp; } manipPivot -rp -ro; };
 			''')
+
+
+	def setTransformSnap(self, ctx, state):
+		'''Set the transform tool's move, rotate, and scale snap states.
+
+		:Parameters:
+			ctx (str) = valid: 'move', 'scale', 'rotate'
+			state (int) = valid: 0=off, 1=relative, 2=absolute
+		'''
+		if ctx=='move':
+			pm.manipMoveContext('Move', edit=1, snap=False if state==0 else True, snapRelative=True if state==1 else False) #state: 0=off, 1=relative, 2=absolute
+			pm.texMoveContext('texMoveContext', edit=1, snap=False if state==0 else True) #uv move context
+
+		elif ctx=='scale':
+			pm.manipScaleContext('Scale', edit=1, snap=False if state==0 else True, snapRelative=True if state==1 else False) #state: 0=off, 1=relative, 2=absolute
+			pm.texScaleContext('texScaleContext', edit=1, snap=False if state==0 else True) #uv scale context
+
+		elif ctx=='rotate':
+			pm.manipRotateContext('Rotate', edit=1, snap=False if state==0 else True, snapRelative=True if state==1 else False) #state: 0=off, 1=relative, 2=absolute
+			pm.texRotateContext('texRotateContext', edit=1, snap=False if state==0 else True) #uv rotate context
 
 
 	def setSnapState(self, fn, state):

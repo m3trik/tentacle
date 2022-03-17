@@ -193,7 +193,9 @@ def tree000(self, wItem=None, column=None):
 # ======================================================================
 '''
 
-overlay widgets with label ' ⧉' for option menus.
+Widgets.Menu:
+create a vboxlayout where the 'Disable All' button sits below a vboxlayout containing the dynamic menu, so that it doesn't have to be added last. 
+
 
 
 Maya materials: rename no longer woring.

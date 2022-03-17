@@ -12,35 +12,28 @@ class Transform_maya(Transform, Slots_maya):
 		Slots_maya.__init__(self, *args, **kwargs)
 		Transform.__init__(self, *args, **kwargs)
 
-		cmb = self.transform_ui.draggable_header.contextMenu.cmb000
-		files = ['']
-		cmb.addItems_(files, '')
+		cmb000 = self.transform_ui.draggable_header.contextMenu.cmb000
+		items = ['']
+		cmb000.addItems_(items, '')
 
-		cmb = self.transform_ui.cmb001
-		cmb.popupStyle = 'qmenu'
-		cmb.menu_.setTitle('Constaints')
-		#query and set current states:
+		cmb001 = self.transform_ui.cmb001
 		edge_constraint = True if pm.xformConstraint(query=1, type=1)=='edge' else False
 		surface_constraint = True if pm.xformConstraint(query=1, type=1)=='surface' else False
 		live_object = True if pm.ls(live=1) else False
 		values = [('chk024', 'Edge', edge_constraint), ('chk025', 'Surface', surface_constraint), ('chk026', 'Make Live', live_object)]
-		[cmb.menu_.add(self.tcl.wgts.CheckBox, setObjectName=chk, setText=typ, setChecked=state) for chk, typ, state in values]
+		[cmb001.menu_.add(self.tcl.wgts.CheckBox, setObjectName=chk, setText=typ, setChecked=state) for chk, typ, state in values]
 
-		cmb = self.transform_ui.cmb002
+		cmb002 = self.transform_ui.cmb002
 		items = ['Point to Point', '2 Points to 2 Points', '3 Points to 3 Points', 'Align Objects', 'Position Along Curve', 'Align Tool', 'Snap Together Tool', 'Orient to Vertex/Edge Tool']
-		cmb.addItems_(items, 'Align To')
+		cmb002.addItems_(items, 'Align To')
 
-		cmb = self.transform_ui.cmb003
-		cmb.popupStyle = 'qmenu'
-		cmb.menu_.setTitle('Snap')
+		cmb003 = self.transform_ui.cmb003
 		moveValue = pm.manipMoveContext('Move', q=True, snapValue=True)
+		cmb003.menu_.s021.setValue(moveValue)
 		scaleValue = pm.manipScaleContext('Scale', q=True, snapValue=True)
+		cmb003.menu_.s022.setValue(scaleValue)
 		rotateValue = pm.manipRotateContext('Rotate', q=True, snapValue=True)
-		values = [('chk021', 'Move: <b>Off</b>'), ('s021', 'increment:', moveValue, '1.00-1000 step2.8125'), 
-				('chk022', 'Scale: <b>Off</b>'), ('s022', 'increment:', scaleValue, '1.00-1000 step2.8125'), 
-				('chk023', 'Rotate: <b>Off</b>'), ('s023', 'degrees:', rotateValue, '1.00-360 step2.8125')]
-		[cmb.menu_.add(self.tcl.wgts.CheckBox, setObjectName=i[0], setText=i[1], setTristate=1) if len(i)==2 
-			else cmb.menu_.add('QDoubleSpinBox', setObjectName=i[0], setPrefix=i[1], setValue=i[2], setMinMax_=i[3], setDisabled=1) for i in values]
+		cmb003.menu_.s023.setValue(rotateValue)
 
 
 	def cmb000(self, index=None):
@@ -387,6 +380,26 @@ class Transform_maya(Transform, Slots_maya):
 			pm.xform(cp=1)
 			
 		pm.manipPivot(ro=1, rp=1)
+
+
+	def setTransformSnap(self, ctx, state):
+		'''Set the transform tool's move, rotate, and scale snap states.
+
+		:Parameters:
+			ctx (str) = valid: 'move', 'scale', 'rotate'
+			state (int) = valid: 0=off, 1=relative, 2=absolute
+		'''
+		if ctx=='move':
+			pm.manipMoveContext('Move', edit=1, snap=False if state==0 else True, snapRelative=True if state==1 else False) #state: 0=off, 1=relative, 2=absolute
+			pm.texMoveContext('texMoveContext', edit=1, snap=False if state==0 else True) #uv move context
+
+		elif ctx=='scale':
+			pm.manipScaleContext('Scale', edit=1, snap=False if state==0 else True, snapRelative=True if state==1 else False) #state: 0=off, 1=relative, 2=absolute
+			pm.texScaleContext('texScaleContext', edit=1, snap=False if state==0 else True) #uv scale context
+
+		elif ctx=='rotate':
+			pm.manipRotateContext('Rotate', edit=1, snap=False if state==0 else True, snapRelative=True if state==1 else False) #state: 0=off, 1=relative, 2=absolute
+			pm.texRotateContext('texRotateContext', edit=1, snap=False if state==0 else True) #uv rotate context
 
 
 	@Slots_maya.undoChunk

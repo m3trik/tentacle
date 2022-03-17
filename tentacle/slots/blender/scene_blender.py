@@ -91,7 +91,7 @@ class Scene_blender(Scene, Slots_blender):
 		'''
 		# pm.undoInfo (openChunk=1)
 		objects = pm.ls(objectsOnly=1) if not objects else objects
-		names = Slots.findStrAndFormat(frm, to, [obj.name() for obj in objects], regEx=regEx, ignoreCase=ignoreCase)
+		names = self.findStrAndFormat(frm, to, [obj.name() for obj in objects], regEx=regEx, ignoreCase=ignoreCase)
 		print ('# Rename: Found {} matches. #'.format(len(names)))
 
 		for oldName, newName in names:

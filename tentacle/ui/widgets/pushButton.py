@@ -85,7 +85,7 @@ class PushButton(QtWidgets.QPushButton, MenuInstance, Attributes, RichText, Text
 		if self.contextMenu.containsMenuItems:
 			self.contextMenu.setTitle(self.text())
 			self.setTextOverlay('⧉', alignment='AlignRight')
-			b = self.contextMenu.addApplyButton()
+			self.contextMenu.applyButton.show()
 
 		return QtWidgets.QPushButton.showEvent(self, event)
 

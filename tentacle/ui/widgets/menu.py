@@ -45,6 +45,10 @@ class Menu(QtWidgets.QMenu, Attributes):
 
 		self.setAttributes(**kwargs)
 
+		self.layouts = {} #a container for any created layouts.
+		self.uncheckAllButton = self._addUncheckAllButton()
+		self.applyButton = self._addApplyButton()
+
 
 	@property
 	def containsMenuItems(self):
@@ -67,12 +71,17 @@ class Menu(QtWidgets.QMenu, Attributes):
 			(list) child widgets.
 		'''
 		if not hasattr(self, '_childWidgets'):
-			self._childWidgets=[]
+			self._childWidgets = []
 
 		if any((include, exclude)):
 			try:
-				self._childWidgets = [w for w in self._childWidgets if not w.__class__.__base__.__name__ in exclude 
-					and (w.__class__.__base__.__name__ in include if include else w.__class__.__base__.__name__ not in include)]
+				self._childWidgets = [
+					w for w in self._childWidgets 
+						if not w.__class__.__base__.__name__ in exclude 
+							and (w.__class__.__base__.__name__ in include if include 
+								else w.__class__.__base__.__name__ not in include)
+				]
+
 			except Exception as error:
 				print (__name__+':', 'getChildWidgets:', error)
 
@@ -83,30 +92,19 @@ class Menu(QtWidgets.QMenu, Attributes):
 	def draggable_header(self):
 		'''Get the draggable header.
 		'''
-		if not hasattr(self, '_draggable_header'):
+		try:
+			return self._draggable_header
+
+		except AttributeError as error:
 			from pushButtonDraggable import PushButtonDraggable
-			self._draggable_header = PushButtonDraggable()
+			dh = PushButtonDraggable()
+
 			wAction = QtWidgets.QWidgetAction(self)
-			wAction.setDefaultWidget(self._draggable_header)
-			self.addAction(wAction)
+			wAction.setDefaultWidget(dh)
+			self.insertAction_(wAction)
 
-		return self._draggable_header
-
-
-	@property
-	def formLayout(self):
-		'''Get the menu's form layout.
-		'''
-		if not hasattr(self, '_formLayout'):
-			form = QtWidgets.QWidget(self)
-			form.setStyleSheet('QWidget {background-color:rgb(50,50,50);}')
-			self._formLayout = QtWidgets.QFormLayout(form)
-			self._formLayout.setVerticalSpacing(0)
-			wAction = QtWidgets.QWidgetAction(self)
-			wAction.setDefaultWidget(form)
-			self.addAction(wAction)
-
-		return self._formLayout
+			self._draggable_header = dh
+			return self._draggable_header
 
 
 	def setTitle(self, title=''):
@@ -128,43 +126,148 @@ class Menu(QtWidgets.QMenu, Attributes):
 		self.draggable_header.setText(title)
 
 
-	def addApplyButton(self):
+	def getActionAtIndex(self, index):
+		'''
+		'''
+		try:
+			return self.actions()[1:][index] #slice the actions list to omit the header and any built-in hidden buttons (ie. 'apply', 'uncheckAll').
+
+		except IndexError as error:
+			return None
+
+
+	def insertAction_(self, wAction, index=-1):
+		'''Extends insertAction to allow inserting by index.
+
+		:Parameters:
+			wAction (obj) = The widget action to insert.
+			index (int) = The desired index. (It appends the action if index is invalid)
+		'''
+		_wAction = self.getActionAtIndex(index)
+		self.insertAction(_wAction, wAction) #insert before _wAction. It appends the action if before is nullptr or before is not a valid action for this widget
+
+
+	def _addFormLayout(self, key='form', index=0):
+		'''Create a two column form layout that can later be referenced using a key.
+
+		:Parameters:
+			key (str)(int) = The key identifier for the layout.
+			index(int) = The index corresponding to the vertical positioning of the layout.
+
+		:Return:
+			(obj) QLayout.
+		'''
+		form = QtWidgets.QWidget(self)
+		form.setStyleSheet('QWidget {background-color:rgb(50,50,50);}')
+
+		layout = QtWidgets.QFormLayout(form)
+		layout.setVerticalSpacing(0)
+
+		wAction = QtWidgets.QWidgetAction(self)
+		wAction.setDefaultWidget(form)
+		self.insertAction_(wAction, index)
+
+		self.layouts[key] = layout
+		return self.layouts[key]
+
+
+	def getFormLayout(self, key='form'):
+		'''Get a two column form layout using a key.
+
+		:Parameters:
+			key (str)(int) = The key identifier for the layout.
+
+		:Return:
+			(obj) QLayout.
+		'''
+		try:
+			return self.layouts[key]
+
+		except (KeyError, AttributeError) as error: #create a layout at the given key.
+			self.layouts[key] = self._addFormLayout(key)
+			return self.layouts[key]
+
+
+	def _addVBoxLayout(self, key='vBox', index=0):
+		'''Create a single column vertical layout that can later be referenced using a key.
+
+		:Parameters:
+			key (str)(int) = The key identifier for the layout.
+			index(int) = The index corresponding to the vertical positioning of the layout.
+
+		:Return:
+			(obj) QLayout.
+		'''
+		form = QtWidgets.QWidget(self)
+		form.setStyleSheet('QWidget {background-color:rgb(50,50,50);}')
+
+		layout = QtWidgets.QVBoxLayout(form)
+		layout.setContentsMargins(0,0,0,0)
+		layout.setSpacing(0)
+
+		wAction = QtWidgets.QWidgetAction(self)
+		wAction.setDefaultWidget(form)
+		self.insertAction_(wAction, index)
+
+		self.layouts[key] = layout
+		return self.layouts[key]
+
+
+	def getVBoxLayout(self, key='vBox'):
+		'''Get a vertical box layout using a key.
+
+		:Parameters:
+			key (str)(int) = The key identifier for the layout.
+
+		:Return:
+			(obj) QLayout.
+		'''
+		try:
+			return self.layouts[key]
+
+		except (KeyError, AttributeError) as error: #create a layout at the given key.			
+			self.layouts[key] = self._addVBoxLayout(key)
+			return self.layouts[key]
+
+
+	def _addApplyButton(self):
 		'''Add a pushbutton that executes the parent object when pressed.
+		The button is hidden by default.
 
 		:Return:
-			(widget) The added pushbutton, or None if the process failed.
+			(widget)
 		'''
-		try:
-			return self._applyButton
+		w = QtWidgets.QPushButton('Apply') #self.add('QPushButton', setText='Apply', setObjectName=self.parent().objectName(), setToolTip='Execute the command.')
+		w.setObjectName(self.parent().objectName())
+		w.setToolTip('Execute the command.')
+		w.released.connect(lambda: self.parent().released.emit()) #trigger the released signal on the parent when the apply button is released.
+		w.setMinimumSize(119, 26)
 
-		except AttributeError as error: #construct and add the button.
-			try:
-				self._applyButton = self.add('QPushButton', setText='Apply', setObjectName=self.parent().objectName(), setToolTip='Execute the command.')
-				self._applyButton.released.connect(lambda p=self.parent(): p.released.emit()) #trigger the released signal on the parent when the apply button is released.
-				self._applyButton.setMinimumSize(119, 26)
+		layout = self.getVBoxLayout('menu_buttons') #get the 'menu_buttons' layout.
+		layout.addWidget(w)
+		w.hide()
 
-			except AttributeError as error: #parent has no signal 'released'.
-				self._applyButton = None
-
-			return self._applyButton
-		
+		return w
 
 
-	def addUncheckAllButton(self):
-		'''Add a pushbutton that unchecks any checkBoxes when pressed.
+	def _addUncheckAllButton(self):
+		'''Add a pushbutton that will uncheck any checkBoxes when pressed.
+		The button is hidden by default.
 
 		:Return:
-			(widget) The added pushbutton, or None if the process failed.
+			(widget)
 		'''
-		try:
-			return self._uncheckAllButton
+		w = QtWidgets.QPushButton('Uncheck All') #self.add('QPushButton', setText='Disable All', setObjectName='disableAll', setToolTip='Set all unchecked.')
+		w.setObjectName('uncheckAll')
+		w.setToolTip('Set all unchecked.')
+		w.released.connect(lambda: [c.setChecked(False) for c in self.getChildWidgets(include=['QCheckBox'])]) #trigger the released signal on the parent when the apply button is released.
+		w.setMinimumSize(119, 26)
 
-		except AttributeError as error: #construct and add the button.
-			self._uncheckAllButton = self.add('QPushButton', setText='Disable All', setObjectName='disableAll', setToolTip='Set all unchecked.')
-			self._uncheckAllButton.released.connect(lambda children=self.getChildWidgets(include=['QCheckBox']): [c.setChecked(False) for c in children]) #trigger the released signal on the parent when the apply button is released.
-			# self._uncheckAllButton.setMinimumSize(119, 26)
+		layout = self.getVBoxLayout('menu_buttons') #get the 'menu_buttons' layout.
+		layout.addWidget(w)
+		w.hide()
 
-			return self._uncheckAllButton
+		return w
 
 
 	def add(self, widget, label='', checkableLabel=False, **kwargs):
@@ -201,7 +304,7 @@ class Menu(QtWidgets.QMenu, Attributes):
 		type_ = w.__class__.__name__
 
 		if type_=='QAction': #add action item.
-			a = self.addAction(w)
+			self.insertAction_(wAction)
 
 		else:
 			if self.menu_type=='form': #add widgets to the form layout.
@@ -212,13 +315,13 @@ class Menu(QtWidgets.QMenu, Attributes):
 				if not checkableLabel:
 					l.setCheckable(False)
 					l.setStyleSheet('QCheckBox::hover {background-color: rgb(100,100,100); color: white;}')
-				self.formLayout.addRow(l, w)
+				layout = self.getFormLayout() #get the default form layout.
+				layout.addRow(l, w)
 				self.childWidgets.append(l) #add the widget to the childWidgets list.
 
 			else: #convert to action item, then add.
-				wAction = QtWidgets.QWidgetAction(self)
-				wAction.setDefaultWidget(w)
-				self.addAction(wAction)
+				layout = self.getVBoxLayout() #get the default vertical box layout.
+				layout.addWidget(w)
 
 			#set child height
 			w.setMinimumSize(125, self.childHeight)
@@ -233,18 +336,18 @@ class Menu(QtWidgets.QMenu, Attributes):
 
 			setattr(self, w.objectName(), w) #add the widget's objectName as a QMenu attribute.
 
-			self.addToContextMenuToolTip(w)
+			self._addToContextMenuToolTip(w)
 
-			#connect to 'setLastActiveChild' when signal activated.
+			#connect to '_setLastActiveChild' when signal activated.
 			if hasattr(w, 'released'):
-				w.released.connect(lambda w=w: self.setLastActiveChild(w))
+				w.released.connect(lambda w=w: self._setLastActiveChild(w))
 			elif hasattr(w, 'valueChanged'):
-				w.valueChanged.connect(lambda value, w=w: self.setLastActiveChild(value, w))
+				w.valueChanged.connect(lambda value, w=w: self._setLastActiveChild(value, w))
 
 		return w
 
 
-	def setLastActiveChild(self, widget, *args, **kwargs):
+	def _setLastActiveChild(self, widget, *args, **kwargs):
 		'''Set the given widget as the last active.
 		Maintains a list of the last 10 active child widgets.
 
@@ -285,17 +388,20 @@ class Menu(QtWidgets.QMenu, Attributes):
 
 		if name:
 			lastActive = str(self._lastActiveChild[-1].objectName())
+
 		elif name and as_list:
 			lastActive = [str(w.objectName()) for w in self._lastActiveChild]
+
 		elif as_list:
 			lastActive = [w for w in self._lastActiveChild]
+
 		else:
 			lastActive = self._lastActiveChild[-1]
 
 		return lastActive
 
 
-	def addToContextMenuToolTip(self, menuItem):
+	def _addToContextMenuToolTip(self, menuItem):
 		'''Add an item to the context menu toolTip.
 
 		:Parameters:
@@ -358,7 +464,6 @@ class Menu(QtWidgets.QMenu, Attributes):
 			event = <QEvent>
 		'''
 		self.resize(self.sizeHint().width(), self.sizeHint().height()+10) #self.setMinimumSize(width, self.sizeHint().height()+5)
-
 		getCenter = lambda w, p: QtCore.QPoint(p.x()-(w.width()/2), p.y()-(w.height()/4)) #get widget center position.
 
 		#set menu position
@@ -376,7 +481,7 @@ class Menu(QtWidgets.QMenu, Attributes):
 			self.move(pos) # self.move(getCenter(self, pos))
 
 			if self.getChildWidgets(include=['QCheckBox']): #if the menu contains checkboxes:
-				self.addUncheckAllButton()
+				self.uncheckAllButton.show()
 
 		return QtWidgets.QMenu.showEvent(self, event)
 
@@ -386,7 +491,7 @@ class Menu(QtWidgets.QMenu, Attributes):
 
 
 
-class MenuInstance(object):
+class MenuInstance():
 	'''Get a Menu and contextMenu instance.
 	'''
 	@property
@@ -471,7 +576,55 @@ Promoting a widget in designer to use a custom class:
 
 # depricated ------------------------------------------------------------------------
 
+				# wAction = QtWidgets.QWidgetAction(self)
+				# wAction.setDefaultWidget(w)
+				# self.insertAction_(wAction)
 
+
+# def getApplyButton(self):
+# 	'''Get a pushbutton that executes the parent object when pressed.
+
+# 	:Return:
+# 		(widget)
+# 	'''
+# 	try:
+# 		w = self._applyButton
+
+# 	except AttributeError as error: #construct and add the button.
+# 		w = self._addApplyButton()
+# 		self._applyButton = w
+
+# 	return w
+
+# def getUncheckAllButton(self):
+# 	'''Add a pushbutton that unchecks any checkBoxes when pressed.
+
+# 	:Return:
+# 		(widget)
+# 	'''
+# 	try:
+# 		w = self._uncheckAllButton
+
+# 	except AttributeError as error: #construct and add the button.
+# 		w = self._addUncheckAllButton()
+# 		self._uncheckAllButton = w
+
+# 	return w
+
+
+	# @property
+	# def layouts(self):
+	# 	'''A master dict that contains any created layouts.
+
+	# 	:Return:
+	# 		(dict)
+	# 	'''
+	# 	try:
+	# 		return self._layouts
+
+	# 	except AttributeError as error:
+	# 		self._layouts = {}
+	# 		return self._layouts
 
 # try:
 # 	text = self.parent().text()
