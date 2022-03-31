@@ -19,7 +19,7 @@ class Rigging_maya(Rigging, Slots_maya):
 		cmb.addItems_(items, "Create")
 
 
-	def cmb000(self, index=None):
+	def cmb000(self, index=-1):
 		'''Editors
 		'''
 		cmb = self.rigging_ui.draggable_header.contextMenu.cmb000
@@ -43,7 +43,7 @@ class Rigging_maya(Rigging, Slots_maya):
 			cmb.setCurrentIndex(0)
 
 
-	def cmb001(self, index=None):
+	def cmb001(self, index=-1):
 		'''Create
 		'''
 		cmb = self.rigging_ui.cmb001

@@ -22,7 +22,7 @@ class Symmetry_maya(Symmetry, Slots_maya):
 		getattr(self.symmetry_submenu_ui, widget).setChecked(state)
 
 
-	def cmb000(self, index=None):
+	def cmb000(self, index=-1):
 		'''Editors
 		'''
 		cmb = self.symmetry_ui.draggable_header.contextMenu.cmb000

@@ -66,8 +66,8 @@
     <property name="geometry">
      <rect>
       <x>285</x>
-      <y>330</y>
-      <width>56</width>
+      <y>350</y>
+      <width>71</width>
       <height>19</height>
      </rect>
     </property>
@@ -96,9 +96,9 @@
     </property>
     <property name="geometry">
      <rect>
-      <x>360</x>
+      <x>365</x>
       <y>290</y>
-      <width>56</width>
+      <width>71</width>
       <height>19</height>
      </rect>
     </property>
@@ -127,9 +127,9 @@
     </property>
     <property name="geometry">
      <rect>
-      <x>360</x>
+      <x>365</x>
       <y>320</y>
-      <width>56</width>
+      <width>71</width>
       <height>19</height>
      </rect>
     </property>
@@ -178,6 +178,43 @@
     </property>
     <property name="text">
      <string>Mesh</string>
+    </property>
+   </widget>
+   <widget class="PushButton" name="tb008">
+    <property name="enabled">
+     <bool>true</bool>
+    </property>
+    <property name="geometry">
+     <rect>
+      <x>345</x>
+      <y>250</y>
+      <width>66</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="minimumSize">
+     <size>
+      <width>0</width>
+      <height>20</height>
+     </size>
+    </property>
+    <property name="maximumSize">
+     <size>
+      <width>999</width>
+      <height>20</height>
+     </size>
+    </property>
+    <property name="toolTip">
+     <string>Preforms a boolean union on the selected polygon objects creating a new object</string>
+    </property>
+    <property name="text">
+     <string>Boolean</string>
+    </property>
+    <property name="iconSize">
+     <size>
+      <width>18</width>
+      <height>18</height>
+     </size>
     </property>
    </widget>
   </widget>

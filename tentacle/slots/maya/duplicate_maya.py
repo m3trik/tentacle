@@ -15,7 +15,7 @@ class Duplicate_maya(Duplicate, Slots_maya):
 		cmb.addItems_(list_, 'Maya Menus')
 
 
-	def cmb000(self, index=None):
+	def cmb000(self, index=-1):
 		'''Editors
 		'''
 		cmb = self.duplicate_ui.draggable_header.contextMenu.cmb000
@@ -43,7 +43,7 @@ class Duplicate_maya(Duplicate, Slots_maya):
 					bb = pm.xform (selection, query=1, boundingBox=1, worldSpace=1)
 					pivot = bb[0]+bb[3]/2, bb[1]+bb[4]/2, bb[2]+bb[5]/2 #get median of bounding box coordinates. from [min xyz, max xyz]
 			else:
-				self.toggleWidgets(setUnChecked='chk010')
+				self.toggleWidgets(self.duplicate_radial_ui, setUnChecked='chk010')
 				return 'Error: Nothing selected.'
 
 			# radialPivot.extend ([pivot[0],pivot[1],pivot[2]])
@@ -66,7 +66,7 @@ class Duplicate_maya(Duplicate, Slots_maya):
 		instance = self.duplicate_radial_ui.chk011.isChecked() #instance object
 
 		if self.duplicate_radial_ui.chk015.isChecked():
-			self.toggleWidgets(setEnabled='b003')
+			self.toggleWidgets(self.duplicate_radial_ui, setEnabled='b003')
 
 			selection = pm.ls (selection=1, type="transform", flatten=1)
 			if selection:
@@ -114,7 +114,7 @@ class Duplicate_maya(Duplicate, Slots_maya):
 					pm.select(objectName)
 					# pm.undoInfo (closeChunk=1)
 			else: #if both lists objects are empty:
-				self.toggleWidgets(setDisabled='b003', setUnChecked='chk015')
+				self.toggleWidgets(self.duplicate_radial_ui, setDisabled='b003', setUnChecked='chk015')
 				return 'Error: Nothing selected.'
 		else: #if chk015 is unchecked by user or by create button
 			if create:
@@ -130,7 +130,7 @@ class Duplicate_maya(Duplicate, Slots_maya):
 				pass
 			del radialArrayObjList[:] #clear the list
 
-			self.toggleWidgets(setDisabled='b003')
+			self.toggleWidgets(self.duplicate_radial_ui, setDisabled='b003')
 
 
 	global duplicateObjList
@@ -141,7 +141,7 @@ class Duplicate_maya(Duplicate, Slots_maya):
 		'''Duplicate: Preview
 		'''
 		if self.duplicate_linear_ui.chk016.isChecked():
-			self.toggleWidgets(setEnabled='b002')
+			self.toggleWidgets(self.duplicate_linear_ui, setEnabled='b002')
 
 			instance = self.duplicate_linear_ui.chk000.isChecked()
 			numOfDuplicates = int(self.duplicate_linear_ui.s005.value())
@@ -154,8 +154,8 @@ class Duplicate_maya(Duplicate, Slots_maya):
 
 			try:
 				pm.delete(duplicateObjList[1:]) #delete all the geometry in the list, except the original obj
-			except e as error:
-				print(e)
+			except Exception as error:
+				print(error)
 
 			del duplicateObjList[1:] #clear the list, leaving the original obj
 			selection = pm.ls(selection=1, flatten=1, objectsOnly=1) #there will only be a selection when first called. After, the last selected item will have been deleted with the other duplicated objects, leaving only the original un-selected.
@@ -226,7 +226,7 @@ class Duplicate_maya(Duplicate, Slots_maya):
 			pm.delete(duplicateObjList[1:]) #delete all the geometry in the list, except the original obj
 			pm.select(duplicateObjList[:1]) #re-select the original object
 			del duplicateObjList[:] #clear the list
-			self.toggleWidgets(setDisabled='b002')
+			self.toggleWidgets(self.duplicate_linear_ui, setDisabled='b002')
 
 
 	@Slots.message

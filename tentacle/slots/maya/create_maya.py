@@ -32,7 +32,7 @@ class Create_maya(Create, Slots_maya):
 			ctx.add('QCheckBox', setText='Scale', setObjectName='chk001', setChecked=True, setToolTip='Uniformly scale the created object to match the averaged scale of any selected object(s).')
 
 
-	def cmb000(self, index=None):
+	def cmb000(self, index=-1):
 		'''Editors
 		'''
 		cmb = self.create_ui.draggable_header.contextMenu.cmb000
@@ -44,7 +44,7 @@ class Create_maya(Create, Slots_maya):
 			cmb.setCurrentIndex(0)
 
 
-	def cmb001(self, index=None):
+	def cmb001(self, index=-1):
 		'''
 		'''
 		cmb = self.create_ui.cmb001
@@ -53,7 +53,7 @@ class Create_maya(Create, Slots_maya):
 			self.cmb002(index)
 
 
-	def cmb002(self, index=None):
+	def cmb002(self, index=-1):
 		'''
 		'''
 		cmb = self.create_ui.cmb002

@@ -15,7 +15,7 @@ class Scripting_maya(Scripting, Slots_maya):
 		contents = cmb.addItems_(files, '')
 
 
-	def cmb000(self, index=None):
+	def cmb000(self, index=-1):
 		'''Editors
 		'''
 		cmb = self.scripting_ui.draggable_header.contextMenu.cmb000

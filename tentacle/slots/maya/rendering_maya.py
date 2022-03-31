@@ -15,7 +15,7 @@ class Rendering_maya(Rendering, Slots_maya):
 		cmb.addItems_(items, '')
 
 
-	def cmb000(self, index=None):
+	def cmb000(self, index=-1):
 		'''Editors
 		'''
 		cmb = self.rendering_ui.draggable_header.contextMenu.cmb000
@@ -27,7 +27,7 @@ class Rendering_maya(Rendering, Slots_maya):
 			cmb.setCurrentIndex(0)
 
 
-	def cmb001(self, index=None):
+	def cmb001(self, index=-1):
 		'''Render: camera
 		'''
 		cmb = self.rendering_ui.cmb001

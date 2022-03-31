@@ -59,8 +59,10 @@ class Slots(QtCore.QObject):
 		for name in Slots.unpackNames(objectNames):
 			try:
 				objects.append(getattr(class_, name)) #equivilent to:(self.current_ui().m000)
+
 			except AttributeError as error:
-				print("slots: '{}.getObjects:' objects.append(getattr({0}, {1})) {2}".format(__name__, class_, name, error)) if showError_ else None
+				if showError_:
+					print("slots: '{}.getObjects:' objects.append(getattr({}, {})) {}".format(__name__, class_, name, error))
 
 		return objects
 
@@ -243,7 +245,7 @@ class Slots(QtCore.QObject):
 		'''
 		if isinstance(checkboxes, (str)):
 			if ui is None:
-				ui = self.currentUi
+				ui = self.current_ui()
 			checkboxes = Slots.getObjects(ui, checkboxes)
 
 		prefix = '-' if '-' in axis else '' #separate the prefix and axis
@@ -267,7 +269,7 @@ class Slots(QtCore.QObject):
 		'''
 		if isinstance(checkboxes, (str)):
 			if ui is None:
-				ui = self.currentUi
+				ui = self.current_ui()
 			checkboxes = Slots.getObjects(ui, checkboxes, showError_=1)
 
 		prefix=axis=''
@@ -454,7 +456,7 @@ class Slots(QtCore.QObject):
 			self._progressBar = ProgressBar(self.tcl)
 
 			try:
-				self.currentUi.progressBar.step1
+				self.current_ui().progressBar.step1
 			except AttributeError:
 				pass
 

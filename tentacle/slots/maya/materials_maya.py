@@ -21,7 +21,7 @@ class Materials_maya(Materials, Slots_maya):
 		cmb000.addItems_(items, 'Material Editors')
 
 
-	def cmb000(self, index=None):
+	def cmb000(self, index=-1):
 		'''Editors
 		'''
 		cmb = self.materials_ui.draggable_header.contextMenu.cmb000
@@ -33,7 +33,7 @@ class Materials_maya(Materials, Slots_maya):
 			cmb.setCurrentIndex(0)
 
 
-	def cmb002(self, index=None):
+	def cmb002(self, index=-1):
 		'''Material list
 
 		:Parameters:
@@ -439,7 +439,7 @@ print (__name__)
 # 	else:
 # 		self.currentMat = mat
 
-# def cmb000(self, index=None):
+# def cmb000(self, index=-1):
 	# 	'''
 	# 	Existing Materials
 

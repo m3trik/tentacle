@@ -15,7 +15,7 @@ class Duplicate_blender(Duplicate, Slots_blender):
 		cmb.addItems_(list_, 'Editors')
 
 
-	def cmb000(self, index=None):
+	def cmb000(self, index=-1):
 		'''Editors
 		'''
 		cmb = self.duplicate_ui.draggable_header.contextMenu.cmb000

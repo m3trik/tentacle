@@ -293,7 +293,7 @@ print (__name__)
 
 
 
-	# def cmb001(self, index=None):
+	# def cmb001(self, index=-1):
 	# 	'''
 	# 	Cameras
 	# 	'''
@@ -312,7 +312,7 @@ print (__name__)
 	# 		rt.redrawViews()
 
 
-	# def cmb002(self, index=None):
+	# def cmb002(self, index=-1):
 	# 	'''
 	# 	Create
 	# 	'''
@@ -333,7 +333,7 @@ print (__name__)
 	# 		cmb.setCurrentIndex(0)
 
 
-	# def cmb003(self, index=None):
+	# def cmb003(self, index=-1):
 	# 	'''
 	# 	Options
 	# 	'''

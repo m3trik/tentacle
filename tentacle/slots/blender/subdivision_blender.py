@@ -29,7 +29,7 @@ class Subdivision_blender(Subdivision, Slots_blender):
 		cmb.addItems_(items, 'Maya Subdivision Operations')
 
 
-	def cmb000(self, index=None):
+	def cmb000(self, index=-1):
 		'''Editors
 		'''
 		cmb = self.subdivision_ui.draggable_header.contextMenu.cmb000
@@ -41,7 +41,7 @@ class Subdivision_blender(Subdivision, Slots_blender):
 			cmb.setCurrentIndex(0)
 
 
-	def cmb001(self, index=None):
+	def cmb001(self, index=-1):
 		'''Smooth Proxy
 		'''
 		cmb = self.subdivision_ui.draggable_header.contextMenu.cmb001
@@ -61,7 +61,7 @@ class Subdivision_blender(Subdivision, Slots_blender):
 			cmb.setCurrentIndex(0)
 
 
-	def cmb002(self, index=None):
+	def cmb002(self, index=-1):
 		'''Maya Subdivision Operations
 		'''
 		cmb = self.subdivision_ui.draggable_header.contextMenu.cmb002

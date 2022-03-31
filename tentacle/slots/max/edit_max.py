@@ -25,7 +25,7 @@ class Edit_max(Edit, Slots_max):
 		ctx.chk000.setDisabled(True) #disable: Delete Edge Ring.
 
 
-	def cmb000(self, index=None):
+	def cmb000(self, index=-1):
 		'''Editors
 		'''
 		cmb = self.edit_ui.draggable_header.contextMenu.cmb000
@@ -38,7 +38,7 @@ class Edit_max(Edit, Slots_max):
 
 
 	@Slots_max.attr
-	def cmb001(self, index=None):
+	def cmb001(self, index=-1):
 		'''Object History Attributes
 		'''
 		cmb = self.edit_ui.cmb001
@@ -302,6 +302,52 @@ class Edit_max(Edit, Slots_max):
 		# for obj in selection:
 		# 	self.deleteAlongAxis(obj, axis) #Slots_max.deleteAlongAxis - no max version.
 		# pm.undoInfo(closeChunk=1)
+
+
+	def b000(self):
+		'''Clean: Repair
+		'''
+		self.cleanGeometry(repair=True, nsided=True, concave=False, nonplanar=False, zeroGeom=False, zeroEdge=False, zeroMap=False, 
+							sharedUVs=False, nonmanifold=True, invalidComponents=False, splitNonManifoldVertex=False)
+
+
+	@Slots.message
+	@Slots.hideMain
+	def b001(self):
+		'''Object History Attributes: get most recent node
+		'''
+		cmb = self.edit_ui.cmb001
+		self.cmb001() #refresh the contents of the combobox.
+
+		items = pm.ls(cmb.items[-1])
+		if items:
+			self.setAttributeWindow(items, checkableLabel=True)
+		else:
+			return 'Error: Found no items to list the history for.'
+
+
+	def b021(self):
+		'''Tranfer Maps
+		'''
+		pm.mel.performSurfaceSampling(1)
+
+
+	def b022(self):
+		'''Transfer Vertex Order
+		'''
+		pm.mel.TransferVertexOrder()
+
+
+	def b023(self):
+		'''Transfer Attribute Values
+		'''
+		pm.mel.TransferAttributeValues()
+
+
+	def b027(self):
+		'''Shading Sets
+		'''
+		pm.mel.performTransferShadingSets(0)
 
 
 	def compareMesh(self, obj1, obj2, factor):

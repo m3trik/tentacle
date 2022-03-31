@@ -15,7 +15,7 @@ class Utilities_maya(Utilities, Slots_maya):
 		cmb.addItems_(files, '')
 
 
-	def cmb000(self, index=None):
+	def cmb000(self, index=-1):
 		'''Editors
 		'''
 		cmb = self.utilities_ui.draggable_header.contextMenu.cmb000

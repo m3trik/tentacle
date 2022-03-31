@@ -42,8 +42,12 @@ class Edit_maya(Edit, Slots_maya):
 			ctx.chk015.toggled.connect(lambda state: ctx.s008.setEnabled(True if state else False))
 			ctx.chk022.stateChanged.connect(lambda state: self.toggleWidgets(ctx, setDisabled='chk002-3,chk005,chk010-21,s006-8', setEnabled='chk023') if state 
 															else self.toggleWidgets(ctx, setEnabled='chk002-3,chk005,chk010-21,s006-8', setDisabled='chk023')) #disable non-relevant options.
+			#sync widgets
+			ctx.chk004.toggled.connect(lambda state: self.edit_submenu_ui.chk004.setChecked(state))
+			self.edit_submenu_ui.chk004.toggled.connect(lambda state: ctx.chk004.setChecked(state))
 
-	def cmb000(self, index=None):
+
+	def cmb000(self, index=-1):
 		'''Editors
 		'''
 		cmb = self.edit_ui.draggable_header.contextMenu.cmb000
@@ -61,7 +65,7 @@ class Edit_maya(Edit, Slots_maya):
 
 
 	@Slots_maya.attr
-	def cmb001(self, index=None):
+	def cmb001(self, index=-1):
 		'''Object History Attributes
 		'''
 		cmb = self.edit_ui.cmb001
@@ -85,7 +89,6 @@ class Edit_maya(Edit, Slots_maya):
 
 		allMeshes = int(tb.contextMenu.chk005.isChecked()) #[0] All selectable meshes
 		repair = tb.contextMenu.chk004.isChecked() #repair or select only
-		historyOn = 1 #[2] keep construction history
 		quads = int(tb.contextMenu.chk010.isChecked()) #[3] check for quads polys
 		nsided = int(tb.contextMenu.chk002.isChecked()) #[4] check for n-sided polys
 		concave = int(tb.contextMenu.chk011.isChecked()) #[5] check for concave polys
@@ -117,19 +120,9 @@ class Edit_maya(Edit, Slots_maya):
 				pm.delete(duplicates)
 			return
 
-		if any((quads,nsided,concave,holed,nonplanar,zeroGeom,zeroEdge,zeroMap,sharedUVs,nonmanifold,invalidComponents)):
-			arg_list = '"{0}","{1}","{2}","{3}","{4}","{5}","{6}","{7}","{8}","{9}","{10}","{11}","{12}","{13}","{14}","{15}","{16}","{17}"'.format(
-					allMeshes, 1 if repair else 2, historyOn, quads, nsided, concave, holed, nonplanar, zeroGeom, zeroGeomTol, 
-					zeroEdge, zeroEdgeTol, zeroMap, zeroMapTol, sharedUVs, nonmanifold, lamina, invalidComponents)
-			command = 'polyCleanupArgList 4 {'+arg_list+'}' # command = 'polyCleanup '+arg_list #(not used because of arg count error, also the quotes in the arg list would need to be removed). 
-			print (command)
-			mel.eval(command)
-
-		if splitNonManifoldVertex: #Split Non-Manifold Vertex
-			nonManifoldVerts = self.findNonManifoldVertex(objects, select=2) #Select: 0=off, 1=on, 2=on while keeping any existing vertex selections. (default: 1)
-			if repair:
-				for vertex in nonManifoldVerts:
-					self.splitNonManifoldVertex(vertex, select=True) #select(bool): Select the vertex after the operation. (default: True)
+		self.cleanGeometry(allMeshes=allMeshes, repair=repair, quads=quads, nsided=nsided, concave=concave, holed=holed, nonplanar=nonplanar, 
+			zeroGeom=zeroGeom, zeroGeomTol=zeroGeomTol, zeroEdge=zeroEdge, zeroEdgeTol=zeroEdgeTol, zeroMap=zeroMap, zeroMapTol=zeroMapTol, 
+			sharedUVs=sharedUVs, nonmanifold=nonmanifold, invalidComponents=invalidComponents, splitNonManifoldVertex=splitNonManifoldVertex)
 
 
 	def tb001(self, state=None):
@@ -256,6 +249,28 @@ class Edit_maya(Edit, Slots_maya):
 		pm.mel.performTransferShadingSets(0)
 
 
+	def cleanGeometry(self, allMeshes=False, repair=False, quads=False, nsided=False, concave=False, holed=False, nonplanar=False, 
+					zeroGeom=False, zeroGeomTol=0.000010, zeroEdge=False, zeroEdgeTol=0.000010, zeroMap=False, zeroMapTol=0.000010, 
+					sharedUVs=False, nonmanifold=False, lamina=False, invalidComponents=False, splitNonManifoldVertex=False, historyOn=True):
+		'''Select or remove unwanted geometry from a polygon mesh.
+
+		:Parameters:
+			allMeshes (bool) = Clean all geomtry in the scene instead of only the current selection.
+			repair (bool) = Attempt to repair instead of just selecting geometry.
+		'''
+		arg_list = '"{0}","{1}","{2}","{3}","{4}","{5}","{6}","{7}","{8}","{9}","{10}","{11}","{12}","{13}","{14}","{15}","{16}","{17}"'.format(
+				allMeshes, 1 if repair else 2, historyOn, quads, nsided, concave, holed, nonplanar, zeroGeom, zeroGeomTol, 
+				zeroEdge, zeroEdgeTol, zeroMap, zeroMapTol, sharedUVs, nonmanifold, lamina, invalidComponents)
+		command = 'polyCleanupArgList 4 {'+arg_list+'}' # command = 'polyCleanup '+arg_list #(not used because of arg count error, also the quotes in the arg list would need to be removed). 
+		mel.eval(command); #print (command)
+
+		if splitNonManifoldVertex: #Split Non-Manifold Vertex
+			nonManifoldVerts = self.findNonManifoldVertex(objects, select=2) #Select: 0=off, 1=on, 2=on while keeping any existing vertex selections. (default: 1)
+			if repair:
+				for vertex in nonManifoldVerts:
+					self.splitNonManifoldVertex(vertex, select=True) #select(bool): Select the vertex after the operation. (default: True)
+
+
 	def getOverlappingDuplicateObjects(self, objects=[], omitInitialObjects=False, select=False, verbose=False):
 		'''Find any duplicate overlapping geometry at the object level.
 
@@ -321,24 +336,29 @@ class Edit_maya(Edit, Slots_maya):
 
 
 	def getAllFacesOnAxis(self, obj, axis="-x", localspace=False):
-		'''Get all faces on a specified axis
+		'''Get all faces on a specified axis.
 
 		:Parameters:
-			obj=<geometry> - object to perform the operation on. 
-			axis (str) = representing axis ie. "x"
-			localspace=bool - specify world or local space
-		ex. self.getAllFacesOnAxis(polyObject, 'y')
+			obj (str)(obj) = The name of the geometry.
+			axis (str) = The representing axis. case insensitive. (valid: 'x', '-x', 'y', '-y', 'z', '-z')
+			localspace (bool) = Specify world or local space.
+
+		ex call: self.getAllFacesOnAxis('polyObject', 'y')
 		'''
+		axis = axis.lower() #assure case.
+
 		i=0 #'x'
 		if any ([axis=="y",axis=="-y"]):
 			i=1
 		if any ([axis=="z",axis=="-z"]):
 			i=2
 
+		objName = pm.ls(obj)[0].name()
+
 		if axis.startswith('-'): #any([axis=="-x", axis=="-y", axis=="-z"]):
-			return list(face for face in pm.filterExpand(obj+'.f[*]', sm=34) if pm.exactWorldBoundingBox(face)[i] < -0.00001)
+			return list(face for face in pm.filterExpand(objName+'.f[*]', sm=34) if pm.exactWorldBoundingBox(face)[i] < -0.00001)
 		else:
-			return list(face for face in pm.filterExpand(obj+'.f[*]', sm=34) if pm.exactWorldBoundingBox(face)[i] > -0.00001)
+			return list(face for face in pm.filterExpand(objName+'.f[*]', sm=34) if pm.exactWorldBoundingBox(face)[i] > -0.00001)
 
 
 	@Slots_maya.undoChunk

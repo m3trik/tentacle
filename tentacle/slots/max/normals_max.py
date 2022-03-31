@@ -17,7 +17,7 @@ class Normals_max(Normals, Slots_max):
 		cmb.addItems_(items, '')
 
 
-	def cmb000(self, index=None):
+	def cmb000(self, index=-1):
 		'''Editors
 		'''
 		cmb = self.normals_ui.draggable_header.contextMenu.cmb000

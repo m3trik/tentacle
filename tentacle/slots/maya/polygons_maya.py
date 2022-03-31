@@ -15,7 +15,7 @@ class Polygons_maya(Polygons, Slots_maya):
 		cmb000.addItems_(items, 'Polygon Editors')
 
 
-	def cmb000(self, index=None):
+	def cmb000(self, index=-1):
 		'''Editors
 		'''
 		cmb = self.polygons_ui.draggable_header.contextMenu.cmb000
@@ -70,11 +70,7 @@ class Polygons_maya(Polygons, Slots_maya):
 
 			else: #if object mode. merge all vertices on the selected object.
 				for n, vert in enumerate(object_vert_sel):
-					if not self.polygons_ui.progressBar.step(n, len(object_vert_sel)): #register progress while checking for cancellation:
-						break
-
-					# get number of vertices
-					count = pm.polyEvaluate(obj, vertex=1)
+					count = pm.polyEvaluate(obj, vertex=1) #get vertex count.
 					vertices = str(obj) + ".vtx [0:" + str(count) + "]" # mel expression: select -r geometry.vtx[0:1135];
 					pm.polyMergeVertex(vertices, distance=tolerance, alwaysMergeTwoVertices=False, constructionHistory=False)
 

@@ -36,7 +36,7 @@ class Subdivision_max(Subdivision, Slots_max):
 		# cmb.addItems_(items, 'Maya Subdivision Operations')
 
 
-	def cmb000(self, index=None):
+	def cmb000(self, index=-1):
 		'''Editors
 		'''
 		cmb = self.subdivision_ui.draggable_header.contextMenu.cmb000

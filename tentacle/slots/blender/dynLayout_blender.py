@@ -15,7 +15,7 @@ class DynLayout_blender(DynLayout, Slots_blender):
 		cmb.addItems_(list_, '')
 
 
-	def cmb000(self, index=None):
+	def cmb000(self, index=-1):
 		'''Editors
 		'''
 		cmb = self.dynLayout_ui.draggable_header.contextMenu.cmb000

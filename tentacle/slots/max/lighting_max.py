@@ -21,7 +21,7 @@ class Lighting_max(Lighting, Slots_max):
 		dh = self.lighting_ui.draggable_header
 
 
-	def cmb000(self, index=None):
+	def cmb000(self, index=-1):
 		'''Editors
 		'''
 		cmb = self.lighting_ui.draggable_header.contextMenu.cmb000

@@ -43,7 +43,7 @@ class Transform_blender(Transform, Slots_blender):
 		# 	else cmb.menu_.add('QDoubleSpinBox', setObjectName=i[0], setPrefix=i[1], setValue=i[2], setMinMax_=i[3], setDisabled=1) for i in values]
 
 
-	def cmb000(self, index=None):
+	def cmb000(self, index=-1):
 		'''Editors
 		'''
 		cmb = self.transform_ui.draggable_header.contextMenu.cmb000
@@ -54,7 +54,7 @@ class Transform_blender(Transform, Slots_blender):
 			cmb.setCurrentIndex(0)
 
 
-	def cmb001(self, index=None):
+	def cmb001(self, index=-1):
 		'''Transform Constraints
 
 		constrain along normals #checkbox option for edge amd surface constaints
@@ -63,7 +63,7 @@ class Transform_blender(Transform, Slots_blender):
 		cmb = self.transform_ui.cmb001
 
 
-	def cmb002(self, index=None):
+	def cmb002(self, index=-1):
 		'''Align To
 		'''
 		cmb = self.transform_ui.cmb002
@@ -90,7 +90,7 @@ class Transform_blender(Transform, Slots_blender):
 				pm.mel.orientToTool() #Orient To Vertex/Edge
 
 
-	def cmb003(self, index=None):
+	def cmb003(self, index=-1):
 		'''Transform Tool Snapping
 		'''
 		cmb = self.transform_ui.cmb003
@@ -941,7 +941,7 @@ print (__name__)
 
 
 	# @Slots.message
-	# def cmb002(self, index=None):
+	# def cmb002(self, index=-1):
 	# 	'''
 	# 	Transform Contraints
 

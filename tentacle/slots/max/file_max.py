@@ -35,7 +35,7 @@ class File_max(File, Slots_max):
 		cmb.addItems_(items, "Export")
 
 
-	def cmb000(self, index=None):
+	def cmb000(self, index=-1):
 		'''Editors
 		'''
 		cmb = self.file_ui.draggable_header.contextMenu.cmb000
@@ -47,7 +47,7 @@ class File_max(File, Slots_max):
 			cmb.setCurrentIndex(0)
 
 
-	def cmb001(self, index=None):
+	def cmb001(self, index=-1):
 		'''Recent Projects
 		'''
 		cmb = self.file_ui.cmb006.contextMenu.cmb001
@@ -59,7 +59,7 @@ class File_max(File, Slots_max):
 			cmb.setCurrentIndex(0)
 
 
-	def cmb002(self, index=None):
+	def cmb002(self, index=-1):
 		'''Recent Autosave
 		'''
 		cmb = self.file_ui.cmb002
@@ -72,7 +72,7 @@ class File_max(File, Slots_max):
 			cmb.setCurrentIndex(0)
 
 
-	def cmb003(self, index=None):
+	def cmb003(self, index=-1):
 		'''Import
 		'''
 		cmb = self.file_ui.cmb003
@@ -96,7 +96,7 @@ class File_max(File, Slots_max):
 			cmb.setCurrentIndex(0)
 
 
-	def cmb004(self, index=None):
+	def cmb004(self, index=-1):
 		'''Export
 		'''
 		cmb = self.file_ui.cmb004
@@ -129,7 +129,7 @@ class File_max(File, Slots_max):
 			cmb.setCurrentIndex(0)
 
 
-	def cmb005(self, index=None):
+	def cmb005(self, index=-1):
 		'''Recent Files
 		'''
 		cmb = self.file_ui.cmb005
@@ -141,7 +141,7 @@ class File_max(File, Slots_max):
 			cmb.setCurrentIndex(0)
 
 
-	def cmb006(self, index=None):
+	def cmb006(self, index=-1):
 		'''Project Folder
 		'''
 		cmb = self.file_ui.cmb006

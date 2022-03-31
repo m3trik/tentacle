@@ -40,6 +40,9 @@ s000.valueChanged.connect(lambda v: rt.autosave.setmxsprop('NumberOfFiles', v))
 chk013.toggled.connect(lambda state: ctx.s006.setEnabled(True if state else False))
 chk015.stateChanged.connect(lambda state: self.toggleWidgets(ctx, setDisabled='t000-1,s001,chk005-11') if state 
 												else self.toggleWidgets(ctx, setEnabled='t000-1,s001,chk005-11')) #disable non-relevant options.
+#sync widgets
+ctx.chk008.toggled.connect(lambda state: self.mirror_submenu_ui.chk008.setChecked(state))
+self.mirror_submenu_ui.chk008.toggled.connect(lambda state: ctx.chk008.setChecked(state))
 
 #setText on state change.
 chk004.stateChanged.connect(lambda state: ctx.chk004.setText('Repair' if state else 'Select Only')) #set button text to reflect current state.
@@ -56,6 +59,7 @@ self.connect_((ctx.chk012,ctx.chk013,ctx.chk014), 'toggled',
 
 # call a method from another class.
 self.tcl.sb.getMethod('file', 'b005')()
+self.file().b005()
 
 
 
@@ -192,13 +196,90 @@ def tree000(self, wItem=None, column=None):
 	'KNOWN BUGS AND GENERAL TO-DO'
 # ======================================================================
 '''
+mirror_maya:
+fix mirror pivot using the method in test_004
+the axis parameter is new. may help fix the issue.
 
-Widgets.Menu:
-create a vboxlayout where the 'Disable All' button sits below a vboxlayout containing the dynamic menu, so that it doesn't have to be added last. 
+
+polygons_maya:
+add segments option to bevel.
+
+
+duplicate_maya:
+add axis position option to command, and possibly create some buttons to quick mirror different positions. 
+
+
+create_maya:
+use transform_maya: 'move to' to move the objects after creation.
+
+
+maya macros:
+'3' wireframe on shaded not working.
+extend 'ctl+d' to duplicate faces only when in face selection mode.
+
+
+# Traceback (most recent call last):
+#   File "O:/Cloud/Code/_scripts/tentacle\tentacle\slots\maya\__init__.py", line 1154, in wrapper
+#     self.setAttributeWindow(fn(self, *args, **kwargs))
+#   File "O:/Cloud/Code/_scripts/tentacle\tentacle\slots\__init__.py", line 472, in wrapper
+#     self.messageBox(fn(self, *args, **kwargs))
+#   File "O:/Cloud/Code/_scripts/tentacle\tentacle\slots\maya\polygons_maya.py", line 209, in tb006
+#     return pm.polyExtrudeFacet(selected_faces, keepFacesTogether=1, pvx=0, pvy=40.55638003, pvz=33.53797107, divisions=1, twist=0, taper=1, offset=offset, thickness=0, smoothingAngle=30)
+#   File "C:\Program Files\Autodesk\Maya2022\Python37\lib\site-packages\pymel\internal\pmcmds.py", line 217, in polyExtrudeFacet_wrapped
+#     res = new_cmd(*new_args, **new_kwargs)
+# TypeError: Object 1 is invalid
+
+
+make context menu overlay clickable, and change to left click menus.
+
+
+selection_maya:
+select island not working.
 
 
 
-Maya materials: rename no longer woring.
+file_maya:
+create reference
+pm.mel.CreateReference()
+
+
+maya_macros:
+'f3'
+ghost selected instead of ghost other.
+
+
+fix syntax highlighting
+
+
+# delete all keys:
+O:/Cloud/Code/_scripts/tentacle\tentacle\slots\maya\animation_maya.py
+line 34, in b000
+#     rt.deleteKeys(rt.selection)
+# NameError: name 'rt' is not defined
+cutKey -cl -t ":" -f ":" -at "tx" -at "ty" -at "tz" -at "rx" -at "ry" -at "rz" -at "sx" -at "sy" -at "sz" -at "v" polySurface1600;
+
+
+polygons_maya: (polygons_vertices_maya)
+merge vertex in object mode not working.
+
+
+transform:
+snap checkbox in submenu not unchecking main.
+
+duplicate_maya:
+convert to instances needs an undo chunk.
+also:  move to object center rather than object pivot.
+
+
+polygons_maya: (polygons_mesh_maya)
+add to mesh groupbox:
+Quadrangulate;
+performPolyQuadrangulate 0;
+pm.polyQuad(selection, angle=30, -kgb 1 -ktb 1 -khe 0 -ws 1 -ch 1)
+
+
+materials_maya: 
+rename not working.
 
 
 add: maya selection: camera based selection

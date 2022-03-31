@@ -29,7 +29,7 @@ class Preferences(Slots):
 		dh = self.preferences_ui.draggable_header
 
 
-	def cmb003(self, index=None):
+	def cmb003(self, index=-1):
 		'''Ui Style: Set main ui style using QStyleFactory
 		'''
 		cmb = self.preferences_ui.cmb003

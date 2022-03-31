@@ -15,7 +15,7 @@ class Animation_max(Animation, Slots_max):
 		cmb.addItems_(items, 'Animation Editors')
 
 
-	def cmb000(self, index=None):
+	def cmb000(self, index=-1):
 		'''Editors
 		'''
 		cmb = self.animation_ui.draggable_header.contextMenu.cmb000

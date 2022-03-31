@@ -36,7 +36,7 @@ class Transform_maya(Transform, Slots_maya):
 		cmb003.menu_.s023.setValue(rotateValue)
 
 
-	def cmb000(self, index=None):
+	def cmb000(self, index=-1):
 		'''Editors
 		'''
 		cmb = self.transform_ui.draggable_header.contextMenu.cmb000
@@ -47,7 +47,7 @@ class Transform_maya(Transform, Slots_maya):
 			cmb.setCurrentIndex(0)
 
 
-	def cmb001(self, index=None):
+	def cmb001(self, index=-1):
 		'''Transform Constraints
 
 		constrain along normals #checkbox option for edge amd surface constaints
@@ -56,7 +56,7 @@ class Transform_maya(Transform, Slots_maya):
 		cmb = self.transform_ui.cmb001
 
 
-	def cmb002(self, index=None):
+	def cmb002(self, index=-1):
 		'''Align To
 		'''
 		cmb = self.transform_ui.cmb002
@@ -83,7 +83,7 @@ class Transform_maya(Transform, Slots_maya):
 				pm.mel.orientToTool() #Orient To Vertex/Edge
 
 
-	def cmb003(self, index=None):
+	def cmb003(self, index=-1):
 		'''Transform Tool Snapping
 		'''
 		cmb = self.transform_ui.cmb003
@@ -954,7 +954,7 @@ print (__name__)
 
 
 	# @Slots.message
-	# def cmb002(self, index=None):
+	# def cmb002(self, index=-1):
 	# 	'''
 	# 	Transform Contraints
 

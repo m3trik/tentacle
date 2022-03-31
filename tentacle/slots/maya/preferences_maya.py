@@ -39,7 +39,7 @@ class Preferences_maya(Preferences, Slots_maya):
 		# cmb.setCurrentIndex(index)
 
 
-	def cmb000(self, index=None):
+	def cmb000(self, index=-1):
 		'''Editors
 		'''
 		cmb = self.preferences_ui.draggable_header.contextMenu.cmb000
@@ -51,7 +51,7 @@ class Preferences_maya(Preferences, Slots_maya):
 			cmb.setCurrentIndex(0)
 
 
-	def cmb001(self, index=None):
+	def cmb001(self, index=-1):
 		'''Set Working Units: Linear
 		'''
 		cmb = self.preferences_ui.cmb001
@@ -60,7 +60,7 @@ class Preferences_maya(Preferences, Slots_maya):
 			pm.currentUnit(linear=cmb.items[index]) #millimeter | centimeter | meter | kilometer | inch | foot | yard | mile
 
 
-	def cmb002(self, index=None):
+	def cmb002(self, index=-1):
 		'''Set Working Units: Time
 		'''
 		cmb = self.preferences_ui.cmb002

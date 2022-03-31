@@ -15,7 +15,7 @@ class Deformation_max(Deformation, Slots_max):
 		cmb.addItems_(list_, '')
 
 
-	def cmb000(self, index=None):
+	def cmb000(self, index=-1):
 		'''Editors
 		'''
 		cmb = self.deformation_ui.draggable_header.contextMenu.cmb000

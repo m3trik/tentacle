@@ -37,7 +37,7 @@ class Uv_blender(Uv, Slots_blender):
 		# tb007.contextMenu.b099.released.connect(lambda: tb007.contextMenu.s003.setValue(float(pm.mel.texGetTexelDensity(tb007.contextMenu.s002.value())))) #get and set texel density value.
 
 
-	def cmb000(self, index=None):
+	def cmb000(self, index=-1):
 		'''Editors
 		'''
 		cmb = self.uv_ui.draggable_header.contextMenu.cmb000
@@ -64,13 +64,13 @@ class Uv_blender(Uv, Slots_blender):
 			cmb.setCurrentIndex(0)
 
 
-	def cmb001(self, index=None):
+	def cmb001(self, index=-1):
 		'''Display
 		'''
 		cmb = self.uv_ui.cmb001
 
 
-	def cmb002(self, index=None):
+	def cmb002(self, index=-1):
 		'''Transform
 		'''
 		cmb = self.uv_ui.cmb002

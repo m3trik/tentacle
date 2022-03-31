@@ -18,73 +18,130 @@ class Mirror_max(Mirror, Slots_max):
 		ctx.chk006.setDisabled(True) #disable: delete history.
 
 
-	def cmb000(self, index=None):
+		def cmb000(self, index=-1):
 		'''Editors
 		'''
 		cmb = self.mirror_ui.draggable_header.contextMenu.cmb000
 
 		if index>0:
-			text = cmb.items[index]
-			if text=='':
+			if index==cmd.items.index(''):
 				pass
 			cmb.setCurrentIndex(0)
 
 
 	@Slots.message
+	@Slots_maya.attr
 	def tb000(self, state=None):
 		'''Mirror Geometry
+
+		values for the direction (dict): ex. 'X': (0, 0, -1, 1, 1)
+			key = axis (as str): 'X', '-X', 'Y', '-Y', 'Z', '-Z'
+			0 = axisDirection (int): (0, 1) #Specify a positive or negative axis.
+			1 = axis_as_int (as integer value): 0=-x, 1=x, 2=-y, 3=y, 4=-z, 5=z #Which axis to mirror.
+			2-4 = scale values (int): (0, 1) for each x; y; z; #Used for scaling an instance.
 		'''
 		tb = self.mirror_ui.tb000
 
 		axis = self.getAxisFromCheckBoxes('chk000-3', tb.contextMenu)
-		cutMesh = tb.contextMenu.chk005.isChecked() #cut
+		worldSpace = tb.contextMenu.chk008.isChecked()
+		cutMesh = tb.contextMenu.chk005.isChecked() #cut mesh on axis before mirror.
 		instance = tb.contextMenu.chk004.isChecked()
+		merge = tb.contextMenu.chk007.isChecked()
+		mergeMode = tb.contextMenu.s001.value()
 		mergeThreshold = tb.contextMenu.s000.value()
+		deleteHistory = tb.contextMenu.chk006.isChecked() #delete the object's non-deformer history.
 
-		if axis=='X': #'x'
-			axisDirection = 0 #positive axis
-			a = 0
-			x=-1; y=1; z=1
+		return self.mirrorGeometry(axis=axis, worldSpace=worldSpace, cutMesh=cutMesh, instance=instance, merge=merge, 
+			mergeMode=mergeMode, mergeThreshold=mergeThreshold, deleteHistory=deleteHistory)
 
-		elif axis=='-X': #'-x'
-			axisDirection = 1 #negative axis
-			a = 1 #0=-x, 1=x, 2=-y, 3=y, 4=-z, 5=z 
-			x=-1; y=1; z=1 #if instance: used to negatively scale
 
-		elif axis=='Y': #'y'
-			axisDirection = 0
-			a = 2
-			x=1; y=-1; z=1
+	def b000(self):
+		'''Mirror: X
+		'''
+		self.mirror_ui.tb000.contextMenu.chk001.setChecked(True)
+		self.tb000()
 
-		elif axis=='-Y': #'-y'
-			axisDirection = 1
-			a = 3
-			x=1; y=-1; z=1
 
-		elif axis=='Z': #'z'
-			axisDirection = 0
-			a = 4
-			x=1; y=1; z=-1
+	def b001(self):
+		'''Mirror: Y
+		'''
+		self.mirror_ui.tb000.contextMenu.chk002.setChecked(True)
+		self.tb000()
 
-		elif axis=='-Z': #'-z'
-			axisDirection = 1
-			a = 5
-			x=1; y=1; z=-1
 
-		selection = pm.ls(sl=1, objectsOnly=1)
-		if not selection:
-			return 'Warning: Nothing Selected.'
+	def b002(self):
+		'''Mirror: Z
+		'''
+		self.mirror_ui.tb000.contextMenu.chk003.setChecked(True)
+		self.tb000()
 
-		pm.undoInfo(openChunk=1)
-		for obj in [n for n in pm.listRelatives(selection, allDescendents=1) if pm.objectType(n, isType='mesh')]: #get any mesh type child nodes of obj.
+
+	@Slots_maya.undoChunk
+	def mirrorGeometry(self, objects=None, axis='-X', worldSpace=True, cutMesh=False, instance=False, 
+					merge=False, mergeMode=1, mergeThreshold=0.005, deleteHistory=True):
+		'''Mirror geometry across a given axis.
+
+		:Parameters:
+			objects (obj) = The objects to mirror. If None; any currently selected objects will be used.
+			axis (string) = The axis in which to perform the mirror along. case insensitive. (valid: 'X', '-X', 'Y', '-Y', 'Z', '-Z')
+			worldSpace (bool) = This flag specifies which reference to use. If True: all geometrical values are taken in world reference. If False: all geometrical values are taken in object reference.
+			cutMesh (bool) = Perform a delete along specified axis before mirror.
+			instance (bool) = Instance the mirrored object(s).
+			merge (bool) = Merge the mirrored geometry with the original.
+			mergeMode (int) = 0) Do not merge border edges. 1) Border edges merged. 2) Border edges extruded and connected.
+			mergeThreshold (float) = Merge vertex distance.
+			deleteHistory (bool) = Delete non-deformer history on the object before performing the operation.
+
+		:Return:
+			(obj) The polyMirrorFace history node if a single object, else None.
+		'''
+		direction = {
+			 'X': (0, 0,-1, 1, 1),
+			'-X': (1, 1,-1, 1, 1),
+			 'Y': (0, 2, 1,-1, 1),
+			'-Y': (1, 3, 1,-1, 1),
+			 'Z': (0, 4, 1, 1,-1),
+			'-Z': (1, 5, 1, 1,-1)
+		}
+
+		axis = axis.upper()
+		axisDirection, axis_as_int, x, y, z = direction[str(axis)] #ex. axisDirection=1, axis_as_int=5, x=1; y=1; z=-1
+
+		pm.ls(objects, objectsOnly=1)
+		if not objects:
+			objects = pm.ls(sl=1, objectsOnly=1)
+			if not objects:
+				return 'Error: <b>Nothing selected.<b><br>Operation requires at least one selected polygon object.'
+
+		# pm.undoInfo(openChunk=1)
+		for obj in objects:
+			if deleteHistory:
+				pm.mel.BakeNonDefHistory(obj)
+
 			if cutMesh:
-				self.deleteAlongAxis(obj, axis) #delete mesh faces that fall inside the specified axis.
+				self.edit().deleteAlongAxis(obj, axis) #delete mesh faces that fall inside the specified axis.
+
 			if instance: #create instance and scale negatively
 				inst = pm.instance(obj) # bt_convertToMirrorInstanceMesh(0); #x=0, y=1, z=2, -x=3, -y=4, -z=5
 				pm.xform(inst, scale=[x,y,z]) #pm.scale(z,x,y, pivot=(0,0,0), relative=1) #swap the xyz values to transform the instanced node
+				return inst if len(objects)==1 else inst 
+
 			else: #mirror
-				pm.polyMirrorFace(obj, mirrorAxis=axisDirection, direction=a, mergeMode=1, mergeThresholdType=1, mergeThreshold=mergeThreshold, worldSpace=0, smoothingAngle=30, flipUVs=0, ch=0) #mirrorPosition x, y, z - This flag specifies the position of the custom mirror axis plane
-		pm.undoInfo(closeChunk=1)
+				polyMirrorFaceNode = pm.ls(pm.polyMirrorFace(obj, mirrorAxis=axisDirection, direction=axis_as_int, mergeMode=mergeMode, 
+						mergeThresholdType=1, mergeThreshold=mergeThreshold, worldSpace=worldSpace, smoothingAngle=30, flipUVs=0, ch=1))[0] #mirrorPosition x, y, z - This flag specifies the position of the custom mirror axis plane
+
+				if not merge:
+					polySeparateNode = pm.ls(pm.polySeparate(obj, uss=1, inp=1))[2]
+
+					pm.connectAttr(polyMirrorFaceNode.firstNewFace, polySeparateNode.startFace, force=True) 
+					pm.connectAttr(polyMirrorFaceNode.lastNewFace, polySeparateNode.endFace, force=True)
+
+			try:
+				if len(objects)==1:
+					return polyMirrorFaceNode
+			except AttributeError as error:
+				return None
+		# pm.undoInfo(closeChunk=1)
 
 
 

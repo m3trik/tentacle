@@ -15,7 +15,7 @@ class Deformation_maya(Deformation, Slots_maya):
 		cmb.addItems_(list_, '')
 
 
-	def cmb000(self, index=None):
+	def cmb000(self, index=-1):
 		'''Editors
 		'''
 		cmb = self.deformation_ui.draggable_header.contextMenu.cmb000

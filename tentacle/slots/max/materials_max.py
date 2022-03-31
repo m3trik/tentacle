@@ -22,7 +22,7 @@ class Materials_max(Materials, Slots_max):
 		cmb000.addItems_(items, 'Material Editors')
 
 
-	def cmb000(self, index=None):
+	def cmb000(self, index=-1):
 		'''Editors
 		'''
 		cmb = self.materials_ui.draggable_header.contextMenu.cmb000
@@ -34,7 +34,7 @@ class Materials_max(Materials, Slots_max):
 			cmb.setCurrentIndex(0)
 
 
-	def cmb002(self, index=None):
+	def cmb002(self, index=-1):
 		'''Material list
 
 		:Parameters:

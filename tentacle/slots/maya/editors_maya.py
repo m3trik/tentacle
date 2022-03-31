@@ -173,7 +173,7 @@ class Editors_maya(Editors, Slots_maya):
 				pm.mel.HairUVSetLinkingEditor()
 
 
-	def cmb000(self, index=None):
+	def cmb000(self, index=-1):
 		'''Editors
 		'''
 		cmb = self.editors_ui.draggable_header.contextMenu.cmb000

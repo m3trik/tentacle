@@ -17,7 +17,7 @@ class Crease_max(Crease, Slots_max):
 		cmb.addItems_(items, 'Crease Modifiers:')
 
 
-	def cmb000(self, index=None):
+	def cmb000(self, index=-1):
 		'''Editors
 		'''
 		cmb = self.crease_ui.draggable_header.contextMenu.cmb000

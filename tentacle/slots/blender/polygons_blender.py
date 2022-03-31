@@ -15,7 +15,7 @@ class Polygons_blender(Polygons, Slots_blender):
 		cmb000.addItems_(items, 'Polygon Editors')
 
 
-	def cmb000(self, index=None):
+	def cmb000(self, index=-1):
 		'''Editors
 		'''
 		cmb = self.polygons_ui.draggable_header.contextMenu.cmb000

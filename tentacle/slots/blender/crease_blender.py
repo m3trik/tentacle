@@ -17,7 +17,7 @@ class Crease_blender(Crease, Slots_blender):
 		cmb.addItems_(items, 'Crease Editors:')
 
 
-	def cmb000(self, index=None):
+	def cmb000(self, index=-1):
 		'''Editors
 		'''
 		cmb = self.crease_ui.draggable_header.contextMenu.cmb000

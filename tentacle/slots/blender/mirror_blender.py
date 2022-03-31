@@ -15,7 +15,7 @@ class Mirror_blender(Mirror, Slots_blender):
 		cmb.addItems_(items, '')
 
 
-	def cmb000(self, index=None):
+	def cmb000(self, index=-1):
 		'''Editors
 		'''
 		cmb = self.mirror_ui.draggable_header.contextMenu.cmb000

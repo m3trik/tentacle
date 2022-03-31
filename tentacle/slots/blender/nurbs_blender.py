@@ -19,7 +19,7 @@ class Nurbs_blender(Nurbs, Slots_blender):
 		cmb.addItems_(items, 'Create Curve')
 
 
-	def cmb000(self, index=None):
+	def cmb000(self, index=-1):
 		'''Maya Curve Operations
 		'''
 		cmb = self.nurbs_ui.draggable_header.contextMenu.cmb000
@@ -63,7 +63,7 @@ class Nurbs_blender(Nurbs, Slots_blender):
 			cmb.setCurrentIndex(0)
 
 
-	def cmb001(self, index=None):
+	def cmb001(self, index=-1):
 		'''Create: Curve
 		'''
 		cmb = self.nurbs_ui.cmb001

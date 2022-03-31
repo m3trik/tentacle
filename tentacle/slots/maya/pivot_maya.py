@@ -26,7 +26,7 @@ class Pivot_maya(Pivot, Slots_maya):
 			ctx.add('QRadioButton', setText='World', setObjectName='chk004', setToolTip='Center the pivot on world origin.')
 
 
-	def cmb000(self, index=None):
+	def cmb000(self, index=-1):
 		'''Editors
 		'''
 		cmb = self.pivot_ui.draggable_header.contextMenu.cmb000
@@ -38,7 +38,8 @@ class Pivot_maya(Pivot, Slots_maya):
 			cmb.setCurrentIndex(0)
 
 
-	@Slots.message
+	@Slots.hideMain
+	# @Slots.message
 	def tb000(self, state=None):
 		'''Reset Pivot
 		'''
@@ -47,7 +48,7 @@ class Pivot_maya(Pivot, Slots_maya):
 		resetPivotPosition = tb.contextMenu.chk000.isChecked() #Reset Pivot Position
 		resetPivotOrientation = tb.contextMenu.chk001.isChecked() #Reset Pivot Orientation
 
-		mel.eval('manipPivotReset({0},{1})'.format(int(resetPivotPosition), int(resetPivotOrientation)))
+		pm.mel.manipPivotReset(int(resetPivotPosition), int(resetPivotOrientation))
 		return 'Reset Pivot Position <hl>{0}</hl>.<br>Reset Pivot Orientation <hl>{1}</hl>.'.format(resetPivotPosition, resetPivotOrientation)
 
 
@@ -59,6 +60,8 @@ class Pivot_maya(Pivot, Slots_maya):
 		component = tb.contextMenu.chk002.isChecked()
 		object_ = tb.contextMenu.chk003.isChecked()
 		world = tb.contextMenu.chk004.isChecked()
+
+		pm.mel.manipPivotReset(1, 1) #reset Pivot Position and Orientation.
 
 		if component: #Set pivot points to the center of the component's bounding box.
 			pm.xform(centerPivotsOnComponents=1)
@@ -78,7 +81,7 @@ class Pivot_maya(Pivot, Slots_maya):
 	def resetPivotTransforms(objects):
 		'''Reset Pivot Transforms
 		'''
-		objs = pm.ls(type=['transform', 'geometryShape'], sl=1)
+		objs = pm.ls(type=('transform', 'geometryShape'), sl=1)
 
 		if len(objs)>0:
 			pm.xform(cp=1)

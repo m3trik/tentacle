@@ -421,7 +421,7 @@ print (__name__)
 
 
 
-	# def cmb000(self, index=None):
+	# def cmb000(self, index=-1):
 	# 	'''
 	# 	Camera Editors
 
@@ -441,7 +441,7 @@ print (__name__)
 	# 		cmb.setCurrentIndex(0)
 
 
-	# def cmb001(self, index=None):
+	# def cmb001(self, index=-1):
 	# 	'''
 	# 	Additional Cameras
 
@@ -469,7 +469,7 @@ print (__name__)
 	# 		cmb.setCurrentIndex(0)
 
 
-	# def cmb002(self, index=None):
+	# def cmb002(self, index=-1):
 	# 	'''
 	# 	Create
 
@@ -491,7 +491,7 @@ print (__name__)
 	# 		cmb.setCurrentIndex(0)
 
 
-	# def cmb003(self, index=None):
+	# def cmb003(self, index=-1):
 	# 	'''
 	# 	Options
 
