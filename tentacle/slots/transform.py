@@ -42,8 +42,6 @@ class Transform(Slots):
 		cmb001.menu_.setTitle('Constaints')
 
 		cmb003 = self.transform_ui.cmb003
-		cmb003.popupStyle = 'qmenu'
-		cmb003.menu_.setTitle('Snap')
 		cmb003.menu_.add(self.tcl.wgts.CheckBox, setObjectName='chk021', setText='Move: <b>Off</b>', setTristate=True)
 		cmb003.menu_.add('QDoubleSpinBox', setObjectName='s021', setPrefix='increment:', setValue=0, setMinMax_='1.00-1000 step2.8125', setDisabled=True)
 		cmb003.menu_.add(self.tcl.wgts.CheckBox, setObjectName='chk022', setText='Scale: <b>Off</b>', setTristate=True)

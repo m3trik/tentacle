@@ -301,7 +301,7 @@ class Edit_maya(Edit, Slots_maya):
 				if selected_objs: #limit scope to only selected objects.
 					if set(selected_objs) & set(v): #if any selected objects in found duplicates:
 						if omitInitialObjects:
-						    [duplicates.add(i) for i in v if i not in selected_objs] #add any duplicated of that object, omitting the selected object.
+							[duplicates.add(i) for i in v if i not in selected_objs] #add any duplicated of that object, omitting the selected object.
 						else:
 							[duplicates.add(i) for i in v[1:]] #add all but the first object to the set of duplicates.
 				else:
@@ -495,6 +495,31 @@ class Edit_maya(Edit, Slots_maya):
 				#Populate an in-view message
 				nGons = pm.polyEvaluate(faceComponent=1)
 				Slots_maya.viewPortMessage("<hl>"+str(nGons[0])+"</hl> N-Gon(s) found.")
+
+
+	def getOverlappingVertices(objects, threshold=0.0003):
+		'''
+		'''
+		import maya.OpenMaya as om
+
+		points_list = om.MPointArray()
+		mfn_mesh.getPoints(points_list, om.MSpace.kWorld)
+
+		result=[]
+		for i in range(points_list.length()):
+			for ii in range(points_list.length()):
+				if i==ii:
+					continue
+
+				dist = points_list[i].distanceTo(points_list[ii])
+				if dist < threshold:
+					if i not in result:
+						result.append(i)
+
+					if ii not in result:
+						result.append(ii)
+
+		return result
 
 
 

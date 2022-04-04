@@ -10,7 +10,7 @@
     <x>0</x>
     <y>0</y>
     <width>288</width>
-    <height>222</height>
+    <height>239</height>
    </rect>
   </property>
   <property name="minimumSize">
@@ -44,7 +44,7 @@
       <x>10</x>
       <y>10</y>
       <width>264</width>
-      <height>181</height>
+      <height>193</height>
      </rect>
     </property>
     <layout class="QGridLayout" name="gridLayout_2">
@@ -594,6 +594,34 @@
               </item>
              </widget>
             </item>
+            <item>
+             <widget class="Label" name="lbl000">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="minimumSize">
+               <size>
+                <width>0</width>
+                <height>20</height>
+               </size>
+              </property>
+              <property name="maximumSize">
+               <size>
+                <width>999</width>
+                <height>20</height>
+               </size>
+              </property>
+              <property name="toolTip">
+               <string>Reference scenes in the workspace directory.</string>
+              </property>
+              <property name="text">
+               <string>Constrain: Off</string>
+              </property>
+             </widget>
+            </item>
            </layout>
           </widget>
          </item>
@@ -660,6 +688,34 @@
               </item>
              </widget>
             </item>
+            <item>
+             <widget class="Label" name="lbl001">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="minimumSize">
+               <size>
+                <width>0</width>
+                <height>20</height>
+               </size>
+              </property>
+              <property name="maximumSize">
+               <size>
+                <width>999</width>
+                <height>20</height>
+               </size>
+              </property>
+              <property name="toolTip">
+               <string>Reference scenes in the workspace directory.</string>
+              </property>
+              <property name="text">
+               <string>Snap: Off</string>
+              </property>
+             </widget>
+            </item>
            </layout>
           </widget>
          </item>
@@ -699,6 +755,11 @@
    <class>PushButton</class>
    <extends>QPushButton</extends>
    <header>widgets.pushbutton.h</header>
+  </customwidget>
+  <customwidget>
+   <class>Label</class>
+   <extends>QLabel</extends>
+   <header>widgets.label.h</header>
   </customwidget>
  </customwidgets>
  <resources/>

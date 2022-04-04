@@ -27,7 +27,7 @@ class File_maya(File, Slots_maya):
 		cmb002.contextMenu.chk006.toggled.connect(lambda s: pm.autoSave(enable=s, limitBackups=True))
 		cmb002.contextMenu.s000.valueChanged.connect(lambda v: pm.autoSave(maxBackups=v, limitBackups=True))
 		cmb002.contextMenu.s001.valueChanged.connect(lambda v: pm.autoSave(int=v*60, limitBackups=True))
-		cmb002.addItems_(self.getRecentAutosave(appendDatetime=True), 'Recent Autosave', clear=True)
+		cmb002.addItems_(self.getRecentAutosave(timestamp=True), 'Recent Autosave', clear=True)
 
 		cmb003 = self.file_ui.cmb003
 		cmb003.addItems_(['Import file', 'Import Options', 'FBX Import Presets', 'Obj Import Presets'], "Import")
@@ -36,6 +36,8 @@ class File_maya(File, Slots_maya):
 		items = ['Export Selection', 'Send to Unreal', 'Send to Unity', 'GoZ', 'Send to 3dsMax: As New Scene', 'Send to 3dsMax: Update Current', 
 				'Send to 3dsMax: Add to Current', 'Export to Offline File', 'Export Options', 'FBX Export Presets', 'Obj Export Presets']
 		cmb004.addItems_(items, 'Export')
+
+		self.cmb006() #init workspace items to reflect the current workspace.
 
 
 	def cmb000(self, index=-1):
@@ -46,11 +48,7 @@ class File_maya(File, Slots_maya):
 		if index>0:
 			text = cmb.items[index]
 			if text=='':
-				mel.eval('') #
-			if text=='':
-				mel.eval('') #
-			if text=='':
-				mel.eval('') #
+				pass
 			cmb.setCurrentIndex(0)
 
 
@@ -84,13 +82,13 @@ class File_maya(File, Slots_maya):
 		if index>0: #hide then perform operation
 			self.tcl.hide(force=1)
 			if index==1: #Import
-				mel.eval('Import;')
+				pm.mel.Import()
 			elif index==2: #Import options
-				mel.eval('ImportOptions;')
+				pm.mel.ImportOptions()
 			elif index==3: #FBX Import Presets
-				mel.eval('FBXUICallBack -1 editImportPresetInNewWindow fbx;') #Fbx Presets
+				pm.mel.FBXUICallBack(-1, 'editImportPresetInNewWindow', 'fbx') #Fbx Presets
 			elif index==4: #Obj Import Presets
-				mel.eval('FBXUICallBack -1 editImportPresetInNewWindow obj;') #Obj Presets
+				pm.mel.FBXUICallBack(-1, 'editImportPresetInNewWindow', 'obj') #Obj Presets
 			cmb.setCurrentIndex(0)
 
 
@@ -102,27 +100,27 @@ class File_maya(File, Slots_maya):
 		if index>0: #hide then perform operation
 			self.tcl.hide(force=1)
 			if index==1: #Export selection
-				mel.eval('ExportSelection;')
+				pm.mel.ExportSelection()
 			elif index==2: #Unreal
-				mel.eval('SendToUnrealSelection;')
+				pm.mel.SendToUnrealSelection()
 			elif index==3: #Unity 
-				mel.eval('SendToUnitySelection;')
+				pm.mel.SendToUnitySelection()
 			elif index==4: #GoZ
 				mel.eval('print("GoZ"); source"C:/Users/Public/Pixologic/GoZApps/Maya/GoZBrushFromMaya.mel"; source "C:/Users/Public/Pixologic/GoZApps/Maya/GoZScript.mel";')
 			elif index==5: #Send to 3dsMax: As New Scene
-				mel.eval('SendAsNewScene3dsMax;') #OneClickMenuExecute ("3ds Max", "SendAsNewScene"); doMaxFlow { "sendNew","perspShape","1" };
+				pm.mel.SendAsNewScene3dsMax() #OneClickMenuExecute ("3ds Max", "SendAsNewScene"); doMaxFlow { "sendNew","perspShape","1" };
 			elif index==6: #Send to 3dsMax: Update Current
-				mel.eval('UpdateCurrentScene3dsMax;') #OneClickMenuExecute ("3ds Max", "UpdateCurrentScene"); doMaxFlow { "update","perspShape","1" };
+				pm.mel.UpdateCurrentScene3dsMax() #OneClickMenuExecute ("3ds Max", "UpdateCurrentScene"); doMaxFlow { "update","perspShape","1" };
 			elif index==7: #Send to 3dsMax: Add to Current
-				mel.eval('AddToCurrentScene3dsMax;') #OneClickMenuExecute ("3ds Max", "AddToScene"); doMaxFlow { "add","perspShape","1" };
+				pm.mel.AddToCurrentScene3dsMax() #OneClickMenuExecute ("3ds Max", "AddToScene"); doMaxFlow { "add","perspShape","1" };
 			elif index==8: #Export to Offline File
-				mel.eval('ExportOfflineFileOptions;') #ExportOfflineFile
+				pm.mel.ExportOfflineFileOptions() #ExportOfflineFile
 			elif index==9: #Export options
-				mel.eval('ExportSelectionOptions;')
+				pm.mel.ExportSelectionOptions()
 			elif index==10: #FBX Export Presets
-				mel.eval('FBXUICallBack -1 editExportPresetInNewWindow fbx;') #Fbx Presets
+				pm.mel.FBXUICallBack(-1, 'editExportPresetInNewWindow', 'fbx') #Fbx Presets
 			elif index==11: #Obj Export Presets
-				mel.eval('FBXUICallBack -1 editExportPresetInNewWindow obj;') #Obj Presets
+				pm.mel.FBXUICallBack(-1, 'editExportPresetInNewWindow', 'obj') #Obj Presets
 			cmb.setCurrentIndex(0)
 
 
@@ -138,19 +136,18 @@ class File_maya(File, Slots_maya):
 
 
 	def cmb006(self, index=-1):
-		'''Project Folder
+		'''Workspace
 		'''
 		cmb = self.file_ui.cmb006
 
 		path = self.formatPath(pm.workspace(query=1, rd=1)) #current project path.
-		list_ = [f for f in os.listdir(path)]
-
+		items = [f for f in os.listdir(path)]
 		project = self.getNameFromFullPath(path) #add current project path string to label. strip path and trailing '/'
 
-		cmb.addItems_(list_, project, clear=True)
+		cmb.addItems_(items, header=project, clear=True)
 
 		if index>0:
-			os.startfile(path+list_[index-1])
+			os.startfile(path+items[index-1])
 			cmb.setCurrentIndex(0)
 
 
@@ -181,11 +178,11 @@ class File_maya(File, Slots_maya):
 
 
 	def lbl000(self):
-		'''Set Project
+		'''Set Workspace
 		'''
-		newProject = mel.eval("SetProject;")
-
-		self.cmb006() #refresh cmb006 items to reflect new project folder
+		newProject = pm.mel.SetProject()
+		self.cmb006() #refresh project items to reflect new workspace.
+		self.getReferenceSceneMenu(clear=True) #refresh reference items to reflect new workspace.
 
 
 	def lbl001(self):
@@ -207,7 +204,7 @@ class File_maya(File, Slots_maya):
 		# force=false #pymel has no attribute quit error.
 		# exitcode=""
 		sceneName = str(mel.eval("file -query -sceneName -shortName;")) #if sceneName prompt user to save; else force close
-		mel.eval("quit;") if sceneName else mel.eval("quit -f;")
+		pm.mel.quit() if sceneName else pm.mel.quit(force=True)
 		# pm.quit (force=force, exitcode=exitcode)
 
 
@@ -267,11 +264,12 @@ class File_maya(File, Slots_maya):
 			pm.rename(obj, newName) #Rename the object with the new name
 
 
-	def getRecentFiles(self, index=None):
+	def getRecentFiles(self, index=None, timestamp=False):
 		'''Get a list of recent files.
 
 		:Parameters:
 			index (int) = Return the recent file directory path at the given index. Index 0 would be the most recent file.
+			timestamp (bool) = Attach a modified timestamp and date to given file path(s).
 
 		:Return:
 			(list)(str)
@@ -279,11 +277,15 @@ class File_maya(File, Slots_maya):
 		files = pm.optionVar(query='RecentFilesList')
 		result = [self.formatPath(f) for f in list(reversed(files)) 
 					if "Autosave" not in f] if files else []
-
 		try:
-			return result[index]
+			result = result[index]
 		except (IndexError, TypeError) as error:
-			return result
+			pass
+
+		if timestamp:  #attach modified timestamp
+			result = self.fileTimeStamp(result)
+
+		return result
 
 
 	def getRecentProjects(self):
@@ -298,11 +300,11 @@ class File_maya(File, Slots_maya):
 		return result
 
 
-	def getRecentAutosave(self, appendDatetime=False):
+	def getRecentAutosave(self, timestamp=False):
 		'''Get a list of autosave files.
 
 		:Parameters:
-			appendDatetime (bool) = Attach a modified timestamp and date to given file path(s).
+			timestamp (bool) = Attach a modified timestamp and date to given file path(s).
 
 		:Return:
 			(list)
@@ -311,12 +313,47 @@ class File_maya(File, Slots_maya):
 		dir2 = os.environ.get('MAYA_AUTOSAVE_FOLDER').split(';')[0] #get autosave dir path from env variable.
 
 		files = self.getAbsoluteFilePaths(dir1, ['mb', 'ma']) + self.getAbsoluteFilePaths(dir2, ['mb', 'ma'])
-		result = [self.formatPath(f) for f in list(reversed(files))] #format and reverse the list.
+		result = [self.formatPath(f) for f in list(reversed(files))] #Replace any backslashes with forward slashes and reverse the list.
 
-		if appendDatetime:  #attach modified timestamp
+		if timestamp:  #attach modified timestamp
 			result = self.fileTimeStamp(result)
 
 		return result
+
+
+	def getWorkspaceScenes(self, fullPath=True):
+		'''Get a list of maya scene files from the current workspace directory.
+
+		:Parameters:
+			fullPath (bool) = Return the full path instead of just the filename.
+
+		:Return:
+			(list)
+		'''
+		workspace_dir = str(pm.workspace(query=1, rd=1)) #get current project path.
+
+		files = self.getAbsoluteFilePaths(workspace_dir, ['mb', 'ma'])
+		result = [self.formatPath(f) for f in files] #Replace any backslashes with forward slashes.
+
+		if not fullPath:
+			result = [f.split('\\')[-1] for f in result]
+
+		return result
+
+
+	def referenceScene(self, scene, remove=False):
+		''':Parameters::Parameters::Parameters::Parameters:
+
+		:Parameters:
+			remove (bool) = Remove a previously referenced scene.
+		'''
+		if remove: #unload reference.
+			# refNode = pm.referenceQuery(scene, referenceNode=True)
+			pm.mel.file(scene, removeReference=True)
+
+		else: #load reference.
+			namespace = scene.split('\\')[-1].rstrip('.mb').rstrip('.ma')
+			pm.mel.file(scene, reference=True, namespace=namespace, groupReference=True, lockReference=True, loadReferenceDepth='topOnly', force=True)
 
 
 

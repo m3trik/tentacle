@@ -406,9 +406,9 @@
     </property>
     <property name="geometry">
      <rect>
-      <x>170</x>
+      <x>145</x>
       <y>180</y>
-      <width>76</width>
+      <width>106</width>
       <height>19</height>
      </rect>
     </property>
@@ -425,7 +425,7 @@
      <enum>Qt::RightToLeft</enum>
     </property>
     <property name="text">
-     <string>Repair ±</string>
+     <string>Clean:Repair ±</string>
     </property>
     <property name="checkable">
      <bool>true</bool>

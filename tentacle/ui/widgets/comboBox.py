@@ -59,7 +59,7 @@ class ComboBox(QtWidgets.QComboBox, MenuInstance, Attributes, RichText, TextOver
 			fn (obj) = The function to be decorated.
 		'''
 		def wrapper(self, *args, **kwargs):
-			self.blockSignals(True) #to keep clear from triggering currentIndexChanged
+			self.blockSignals(True) #prevent triggering currentIndexChanged
 			rtn = fn(self, *args, **kwargs)
 			self.blockSignals(False)
 			return rtn
@@ -161,12 +161,7 @@ class ComboBox(QtWidgets.QComboBox, MenuInstance, Attributes, RichText, TextOver
 		self.beforePopupShown.emit()
 
 		if not self.popupStyle=='modelView':
-			if not self.menu_.isVisible():
-				self.menu_.show()
-				# self.menu_.visible = True
-			else:
-				self.menu_.hide()
-				# self.menu_.visible = False
+			self.menu_.show() if not self.menu_.isVisible() else self.menu_.hide()
 			return	
 
 		else:

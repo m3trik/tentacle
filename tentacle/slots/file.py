@@ -22,40 +22,62 @@ class File(Slots):
 		mostRecentFile = self.getRecentFiles(0)
 		self.file_submenu_ui.b001.setText(self.getNameFromFullPath(mostRecentFile)) if mostRecentFile else self.file_submenu_ui.b001.setVisible(False)
 
-		ctx = self.file_ui.draggable_header.contextMenu
-		if not ctx.containsMenuItems:
-			ctx.add(self.tcl.wgts.ComboBox, setObjectName='cmb000', setToolTip='')
-			ctx.add(self.tcl.wgts.PushButton, setObjectName='tb000', setText='Save', setToolTip='Save the current file.')
-			ctx.add(self.tcl.wgts.Label, setObjectName='lbl001', setText='Minimize App', setToolTip='Minimize the main application.')
-			ctx.add(self.tcl.wgts.Label, setObjectName='lbl002', setText='Maximize App', setToolTip='Restore the main application.')
-			ctx.add(self.tcl.wgts.Label, setObjectName='lbl003', setText='Close App', setToolTip='Close the main application.')
+		dh = self.file_ui.draggable_header
+		dh.contextMenu.add(self.tcl.wgts.ComboBox, setObjectName='cmb000', setToolTip='')
+		dh.contextMenu.add(self.tcl.wgts.PushButton, setObjectName='tb000', setText='Save', setToolTip='Save the current file.')
+		dh.contextMenu.add(self.tcl.wgts.Label, setObjectName='lbl001', setText='Minimize App', setToolTip='Minimize the main application.')
+		dh.contextMenu.add(self.tcl.wgts.Label, setObjectName='lbl002', setText='Maximize App', setToolTip='Restore the main application.')
+		dh.contextMenu.add(self.tcl.wgts.Label, setObjectName='lbl003', setText='Close App', setToolTip='Close the main application.')
 
-		cmb = self.file_ui.cmb005
-		ctx = cmb.contextMenu
-		if not ctx.containsMenuItems:
-			ctx.add('QPushButton', setObjectName='b001', setText='Last', setToolTip='Open the most recent file.')
-			cmb.addItems_(self.getRecentFiles(), "Recent Files", clear=True)
+		cmb005 = self.file_ui.cmb005
+		cmb005.contextMenu.add('QPushButton', setObjectName='b001', setText='Last', setToolTip='Open the most recent file.')
+		cmb005.addItems_(self.getRecentFiles(timestamp=True), "Recent Files", clear=True)
 
-		ctx = self.file_ui.cmb006.contextMenu
-		if not ctx.containsMenuItems:
-			ctx.add(self.tcl.wgts.ComboBox, setObjectName='cmb001', setToolTip='Current project directory root.')
-			ctx.add(self.tcl.wgts.Label, setObjectName='lbl000', setText='Set', setToolTip='Set the project directory.')
-			ctx.add(self.tcl.wgts.Label, setObjectName='lbl004', setText='Root', setToolTip='Open the project directory.')
+		cmb006 = self.file_ui.cmb006
+		cmb006.contextMenu.add(self.tcl.wgts.ComboBox, setObjectName='cmb001', setToolTip='Current project directory root.')
+		cmb006.contextMenu.add(self.tcl.wgts.Label, setObjectName='lbl000', setText='Set', setToolTip='Set the project directory.')
+		cmb006.contextMenu.add(self.tcl.wgts.Label, setObjectName='lbl004', setText='Root', setToolTip='Open the project directory.')
+		cmb006.contextMenu.cmb001.addItems_(self.getRecentProjects(), "Recent Projects", clear=True)
 
-		cmb = self.file_ui.cmb006.contextMenu.cmb001
-		cmb.addItems_(self.getRecentProjects(), "Recent Projects", clear=True)
+		tb000 = self.file_ui.draggable_header.contextMenu.tb000
+		tb000.contextMenu.add('QCheckBox', setText='Wireframe', setObjectName='chk000', setToolTip='Set view to wireframe before save.')
+		tb000.contextMenu.add('QCheckBox', setText='Increment', setObjectName='chk001', setChecked=True, setToolTip='Append and increment a unique integer value.')
+		tb000.contextMenu.add('QCheckBox', setText='Quit', setObjectName='chk002', setToolTip='Quit after save.')
 
-		ctx = self.file_ui.draggable_header.contextMenu.tb000.contextMenu
-		if not ctx.containsMenuItems:
-			ctx.add('QCheckBox', setText='Wireframe', setObjectName='chk000', setToolTip='Set view to wireframe before save.')
-			ctx.add('QCheckBox', setText='Increment', setObjectName='chk001', setChecked=True, setToolTip='Append and increment a unique integer value.')
-			ctx.add('QCheckBox', setText='Quit', setObjectName='chk002', setToolTip='Quit after save.')
+
+	def referenceSceneMenu(self, clear=False):
+		'''
+		'''
+		try:
+			if clear:
+				del self._referenceSceneMenu
+			return self._referenceSceneMenu
+
+		except AttributeError as error:
+			menu = self.tcl.wgts.Menu(self.file_ui.lbl005)
+			for i in self.getWorkspaceScenes(fullPath=True): #zip(self.getWorkspaceScenes(fullPath=False), self.getWorkspaceScenes(fullPath=True)):
+				chk = menu.add(self.tcl.wgts.CheckBox, setText=i)
+				chk.toggled.connect(lambda state, scene=i: self.referenceScene(scene, not state))
+
+				# if chk.sizeHint().width() > menu.sizeHint().width():
+				# 	chk.setMinimumSize(chk.sizeHint().width(), chk.sizeHint().height())
+
+			self.tcl.setStyleSheet_(menu.childWidgets, style='dark') # self.tcl.childEvents.addWidgets(self.tcl.sb.getUiName(), menu.childWidgets)
+
+			self._referenceSceneMenu = menu
+			return self._referenceSceneMenu
 
 
 	def draggable_header(self, state=None):
 		'''Context menu
 		'''
 		dh = self.file_ui.draggable_header
+
+
+	def lbl005(self):
+		'''Reference
+		'''
+		self.referenceSceneMenu().show()
 
 
 	@Slots.hideMain
@@ -153,25 +175,48 @@ class File(Slots):
 
 
 	@staticmethod
-	def fileTimeStamp(files, detach=False):
-		'''Attach a modified timestamp and date to given file path(s).
+	def fileTimeStamp(files, detach=False, stamp='%m-%d-%Y  %H:%M'):
+		'''Attach a modified timestamp and date to given file path(s) and sort accordingly.
 
 		:Parameters:
 			files (str)(list) = The full path to a file. ie. 'C:/Windows/Temp/__AUTO-SAVE__untitled.0001.mb'
-			detach (bool) = Return the full path to it's previous state.
+			detach (bool) = Remove a previously attached time stamp.
+			stamp (str) = The time stamp format.
 
 		:Return:
-			(list) ie. ['C:/Windows/Temp/__AUTO-SAVE__untitled.0001.mb  16:46  11-09-2021'] from ['C:/Windows/Temp/__AUTO-SAVE__untitled.0001.mb']
+			(list) ie. ['16:46  11-09-2021  C:/Windows/Temp/__AUTO-SAVE__untitled.0001.mb'] from ['C:/Windows/Temp/__AUTO-SAVE__untitled.0001.mb']
 		'''
 		from datetime import datetime
 		import os.path
 
-		if not isinstance(files, (list, tuple, set)):
-			files = [files]
+		files = [files] if not isinstance(files, (list, tuple, set)) else files
 
 		if detach:
-			result = [''.join(f.split()[:-2]) for f in files]
+			result = [''.join(f.split()[-1]) for f in files]
+
 		else:
-			result = [f+datetime.fromtimestamp(os.path.getmtime(f)).strftime('  %m-%d-%Y  %H:%M') for f in files] #attach modified timestamp
+			result=[]
+			for f in files:
+				try:
+					result.append('{}  {}'.format(datetime.fromtimestamp(os.path.getmtime(f)).strftime(stamp), f))
+				except FileNotFoundError as error:
+					continue
+			result = list(reversed(sorted(result)))
 
 		return result
+
+
+
+
+
+
+
+
+
+# -----------------------------------------------
+# Notes
+# -----------------------------------------------
+
+
+
+# deprecated:

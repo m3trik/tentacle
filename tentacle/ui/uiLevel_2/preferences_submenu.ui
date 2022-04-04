@@ -62,9 +62,9 @@
    <widget class="QPushButton" name="i022">
     <property name="geometry">
      <rect>
-      <x>270</x>
+      <x>250</x>
       <y>290</y>
-      <width>66</width>
+      <width>106</width>
       <height>21</height>
      </rect>
     </property>
@@ -76,7 +76,7 @@
     </property>
     <property name="maximumSize">
      <size>
-      <width>66</width>
+      <width>999</width>
       <height>21</height>
      </size>
     </property>
@@ -88,6 +88,84 @@
     </property>
     <property name="text">
      <string>Preferences</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="b010">
+    <property name="geometry">
+     <rect>
+      <x>310</x>
+      <y>330</y>
+      <width>123</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="minimumSize">
+     <size>
+      <width>0</width>
+      <height>20</height>
+     </size>
+    </property>
+    <property name="maximumSize">
+     <size>
+      <width>999</width>
+      <height>20</height>
+     </size>
+    </property>
+    <property name="text">
+     <string>App Preferences</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="b009">
+    <property name="geometry">
+     <rect>
+      <x>355</x>
+      <y>260</y>
+      <width>86</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="minimumSize">
+     <size>
+      <width>0</width>
+      <height>20</height>
+     </size>
+    </property>
+    <property name="maximumSize">
+     <size>
+      <width>999</width>
+      <height>20</height>
+     </size>
+    </property>
+    <property name="text">
+     <string>Plug-ins</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="b008">
+    <property name="geometry">
+     <rect>
+      <x>380</x>
+      <y>290</y>
+      <width>86</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="minimumSize">
+     <size>
+      <width>0</width>
+      <height>20</height>
+     </size>
+    </property>
+    <property name="maximumSize">
+     <size>
+      <width>999</width>
+      <height>20</height>
+     </size>
+    </property>
+    <property name="toolTip">
+     <string>Platonic solids</string>
+    </property>
+    <property name="text">
+     <string>Hotkeys</string>
     </property>
    </widget>
   </widget>

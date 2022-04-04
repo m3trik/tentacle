@@ -28,6 +28,9 @@
   <property name="windowTitle">
    <string>Toolkit</string>
   </property>
+  <property name="toolTip">
+   <string>Reference scenes in the workspace directory.</string>
+  </property>
   <property name="tabShape">
    <enum>QTabWidget::Triangular</enum>
   </property>
@@ -267,6 +270,34 @@
               </item>
              </widget>
             </item>
+            <item>
+             <widget class="Label" name="lbl005">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="minimumSize">
+               <size>
+                <width>0</width>
+                <height>20</height>
+               </size>
+              </property>
+              <property name="maximumSize">
+               <size>
+                <width>999</width>
+                <height>20</height>
+               </size>
+              </property>
+              <property name="toolTip">
+               <string>Reference scenes in the workspace directory.</string>
+              </property>
+              <property name="text">
+               <string>Reference</string>
+              </property>
+             </widget>
+            </item>
            </layout>
           </widget>
          </item>
@@ -377,7 +408,7 @@
           </property>
           <item>
            <property name="text">
-            <string>Current Project</string>
+            <string>Workspace</string>
            </property>
           </item>
          </widget>
@@ -399,6 +430,11 @@
    <class>ComboBox</class>
    <extends>QComboBox</extends>
    <header>widgets.combobox.h</header>
+  </customwidget>
+  <customwidget>
+   <class>Label</class>
+   <extends>QLabel</extends>
+   <header>widgets.label.h</header>
   </customwidget>
  </customwidgets>
  <resources/>

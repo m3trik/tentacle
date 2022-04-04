@@ -93,15 +93,15 @@
     </property>
     <property name="geometry">
      <rect>
-      <x>185</x>
+      <x>140</x>
       <y>250</y>
-      <width>111</width>
+      <width>141</width>
       <height>19</height>
      </rect>
     </property>
     <property name="maximumSize">
      <size>
-      <width>111</width>
+      <width>16777215</width>
       <height>19</height>
      </size>
     </property>
@@ -112,7 +112,7 @@
      <enum>Qt::RightToLeft</enum>
     </property>
     <property name="text">
-     <string>World Space ±</string>
+     <string>Mirror:World Space ±</string>
     </property>
     <property name="checkable">
      <bool>true</bool>
@@ -223,15 +223,15 @@
     </property>
     <property name="geometry">
      <rect>
-      <x>140</x>
+      <x>100</x>
       <y>280</y>
-      <width>111</width>
+      <width>141</width>
       <height>19</height>
      </rect>
     </property>
     <property name="maximumSize">
      <size>
-      <width>111</width>
+      <width>16777215</width>
       <height>19</height>
      </size>
     </property>
@@ -242,7 +242,7 @@
      <enum>Qt::RightToLeft</enum>
     </property>
     <property name="text">
-     <string>Negative Axis ±</string>
+     <string>Mirror:Negative Axis ±</string>
     </property>
     <property name="checkable">
      <bool>true</bool>

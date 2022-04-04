@@ -196,6 +196,15 @@ def tree000(self, wItem=None, column=None):
 	'KNOWN BUGS AND GENERAL TO-DO'
 # ======================================================================
 '''
+widgets: combobox:
+change comboboxes with custom menus to clickable labels. (transform menu)
+remove alt menu types from combobox.
+
+
+file_maya:
+workspace contextmenu> 'set' project method being called twice. :(
+
+
 mirror_maya:
 fix mirror pivot using the method in test_004
 the axis parameter is new. may help fix the issue.
@@ -203,6 +212,13 @@ the axis parameter is new. may help fix the issue.
 
 polygons_maya:
 add segments option to bevel.
+polygons_maya: (polygons_vertices_maya)
+merge vertex in object mode not working.
+polygons_maya: (polygons_mesh_maya)
+add to mesh groupbox:
+Quadrangulate;
+performPolyQuadrangulate 0;
+pm.polyQuad(selection, angle=30, -kgb 1 -ktb 1 -khe 0 -ws 1 -ch 1)
 
 
 duplicate_maya:
@@ -216,6 +232,10 @@ use transform_maya: 'move to' to move the objects after creation.
 maya macros:
 '3' wireframe on shaded not working.
 extend 'ctl+d' to duplicate faces only when in face selection mode.
+'f3' ghost selected instead of ghost other.
+maya.macros: isolate selected: incorrect mod panel.
+# Error: line 1: RuntimeError: file C:\Program Files\Autodesk\Maya2022\Python37\lib\site-packages\pymel\internal\pmcmds.py line 217: model panel 'outlinerPanel1' does not exist #
+
 
 
 # Traceback (most recent call last):
@@ -237,21 +257,17 @@ selection_maya:
 select island not working.
 
 
-
 file_maya:
 create reference
 pm.mel.CreateReference()
-
-
-maya_macros:
-'f3'
-ghost selected instead of ghost other.
+maya_file
+# Error: tentacle.childEvents.EventFactoryFilter.initWidgets(): Call: <bound method File.tb000 of <maya_file.File(0x1e0b2f0ca40) at 0x000001E0DB9769C8>>('setMenu') failed: 'PySide2.QtWidgets.QMainWindow' object has no attribute 'draggable_header'. #
 
 
 fix syntax highlighting
 
 
-# delete all keys:
+# animation_maya: delete all keys:
 O:/Cloud/Code/_scripts/tentacle\tentacle\slots\maya\animation_maya.py
 line 34, in b000
 #     rt.deleteKeys(rt.selection)
@@ -259,23 +275,13 @@ line 34, in b000
 cutKey -cl -t ":" -f ":" -at "tx" -at "ty" -at "tz" -at "rx" -at "ry" -at "rz" -at "sx" -at "sy" -at "sz" -at "v" polySurface1600;
 
 
-polygons_maya: (polygons_vertices_maya)
-merge vertex in object mode not working.
-
-
 transform:
 snap checkbox in submenu not unchecking main.
+
 
 duplicate_maya:
 convert to instances needs an undo chunk.
 also:  move to object center rather than object pivot.
-
-
-polygons_maya: (polygons_mesh_maya)
-add to mesh groupbox:
-Quadrangulate;
-performPolyQuadrangulate 0;
-pm.polyQuad(selection, angle=30, -kgb 1 -ktb 1 -khe 0 -ws 1 -ch 1)
 
 
 materials_maya: 
@@ -308,16 +314,11 @@ selectPref -useDepth true;
 # TypeError: 'staticmethod' object is not callable
 
 
-maya.macros: isolate selected: incorrect mod panel.
-# Error: line 1: RuntimeError: file C:\Program Files\Autodesk\Maya2022\Python37\lib\site-packages\pymel\internal\pmcmds.py line 217: model panel 'outlinerPanel1' does not exist #
-
-
 Treewidgets not registering click on mouse release.
 
 
 ctx menu's commented out because of issues:
 	maya_preferences
-
 
 
 Slots.scene: naming needs clearer docstring w/example results. replace suffix is instead appending. should replace 1 occurance from right of anything in the find field, possibly only if searching for suffix.
@@ -362,9 +363,6 @@ unfold -i 5000 -ss 0.001 -gb 0 -gmb 0.5 -pub 0 -ps  0 -oa  0 -us off pCylinder1.
 #     return self.uiList(names=True).index(uiName)
 # ValueError: 'main_lower' is not in list
 
-
-maya_file
-# Error: tentacle.childEvents.EventFactoryFilter.initWidgets(): Call: <bound method File.tb000 of <maya_file.File(0x1e0b2f0ca40) at 0x000001E0DB9769C8>>('setMenu') failed: 'PySide2.QtWidgets.QMainWindow' object has no attribute 'draggable_header'. #
 
 
 #maya_uv: transfer uv's

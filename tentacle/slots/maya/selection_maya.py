@@ -123,27 +123,6 @@ class Selection_maya(Selection, Slots_maya):
 			return 'Soft Select <hl>Off</hl>.'
 
 
-	@staticmethod
-	def setSelectionStyle(ctx):
-		'''Set the selection style context.
-
-		:Parameters:
-			ctx (str) = Selection style context. Possible values include: 'marquee', 'lasso', 'paint'.
-		'''
-		ctx = ctx+'Context'
-		if pm.contextInfo(ctx, exists=True):
-			pm.deleteUI(ctx)
-
-		if ctx=='marqueeContext':
-			ctx = pm.selectContext(ctx)
-		elif ctx=='lassoContext':
-			ctx = pm.lassoContext(ctx)
-		elif ctx=='paintContext':
-			ctx = pm.artSelectCtx(ctx)
-
-		pm.setToolTo(ctx)
-
-
 	def cmb000(self, index=-1):
 		'''Editors
 		'''
@@ -432,6 +411,27 @@ class Selection_maya(Selection, Slots_maya):
 		'''Convert Selection To Edge Ring
 		'''
 		mel.eval('SelectEdgeRingSp;')
+
+
+	@staticmethod
+	def setSelectionStyle(ctx):
+		'''Set the selection style context.
+
+		:Parameters:
+			ctx (str) = Selection style context. Possible values include: 'marquee', 'lasso', 'paint'.
+		'''
+		ctx = ctx+'Context'
+		if pm.contextInfo(ctx, exists=True):
+			pm.deleteUI(ctx)
+
+		if ctx=='marqueeContext':
+			ctx = pm.selectContext(ctx)
+		elif ctx=='lassoContext':
+			ctx = pm.lassoContext(ctx)
+		elif ctx=='paintContext':
+			ctx = pm.artSelectCtx(ctx)
+
+		pm.setToolTo(ctx)
 
 
 	def generateUniqueSetName(self, obj=None):
