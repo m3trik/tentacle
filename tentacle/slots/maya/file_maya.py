@@ -69,7 +69,7 @@ class File_maya(File, Slots_maya):
 		cmb = self.file_ui.cmb002
 
 		if index>0:
-			file = self.fileTimeStamp(cmb.items[index], detach=True)
+			file = self.fileNameTimeStamp(cmb.items[index], detach=True)
 			pm.openFile(file, open=1, force=True)
 			cmb.setCurrentIndex(0)
 
@@ -131,6 +131,7 @@ class File_maya(File, Slots_maya):
 
 		if index>0:
 			force=True; force if str(pm.mel.file(query=1, sceneName=1, shortName=1)) else not force #if sceneName prompt user to save; else force open
+			print (cmb.items[index])
 			pm.openFile(cmb.items[index], open=1, force=force)
 			cmb.setCurrentIndex(0)
 
@@ -203,9 +204,8 @@ class File_maya(File, Slots_maya):
 		'''
 		# force=false #pymel has no attribute quit error.
 		# exitcode=""
-		sceneName = str(mel.eval("file -query -sceneName -shortName;")) #if sceneName prompt user to save; else force close
-		pm.mel.quit() if sceneName else pm.mel.quit(force=True)
-		# pm.quit (force=force, exitcode=exitcode)
+		sceneName = str(pm.file(query=1, sceneName=1, shortName=1)) #if sceneName prompt user to save; else force close
+		pm.mel.quit() if sceneName else pm.mel.quit(force=True) #pm.quit (force=force, exitcode=exitcode)
 
 
 	def lbl004(self):
@@ -283,7 +283,7 @@ class File_maya(File, Slots_maya):
 			pass
 
 		if timestamp:  #attach modified timestamp
-			result = self.fileTimeStamp(result)
+			result = self.fileNameTimeStamp(result)
 
 		return result
 
@@ -316,7 +316,7 @@ class File_maya(File, Slots_maya):
 		result = [self.formatPath(f) for f in list(reversed(files))] #Replace any backslashes with forward slashes and reverse the list.
 
 		if timestamp:  #attach modified timestamp
-			result = self.fileTimeStamp(result)
+			result = self.fileNameTimeStamp(result)
 
 		return result
 

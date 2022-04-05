@@ -29,6 +29,8 @@ ctx.add(self.tcl.wgts.Label, setText='Open in Editor', setObjectName='lbl000', s
 ctx.add('QPushButton', setObjectName='b002', setText='Delete All', setToolTip='Delete all autosave files.') #delete all
 ctx.add('QSpinBox', setPrefix='Interval: ', setObjectName='s001', setMinMax_='1-60 step1', setValue=interval, setHeight_=20, setToolTip='The autosave interval in minutes.') #autosave interval
 
+#add items to a custom combobox:
+cmb.addItems_(zip(self.getRecentFiles(timestamp=True), self.getRecentFiles(timestamp=False)), "Recent Files", clear=True) #add item|data
 
 
 # creating additional connections for those widgets:

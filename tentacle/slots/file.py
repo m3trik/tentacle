@@ -31,7 +31,7 @@ class File(Slots):
 
 		cmb005 = self.file_ui.cmb005
 		cmb005.contextMenu.add('QPushButton', setObjectName='b001', setText='Last', setToolTip='Open the most recent file.')
-		cmb005.addItems_(self.getRecentFiles(timestamp=True), "Recent Files", clear=True)
+		cmb005.addItems_(dict(zip(self.getRecentFiles(timestamp=True), self.getRecentFiles(timestamp=False))), "Recent Files", clear=True)
 
 		cmb006 = self.file_ui.cmb006
 		cmb006.contextMenu.add(self.tcl.wgts.ComboBox, setObjectName='cmb001', setToolTip='Current project directory root.')
@@ -175,7 +175,7 @@ class File(Slots):
 
 
 	@staticmethod
-	def fileTimeStamp(files, detach=False, stamp='%m-%d-%Y  %H:%M'):
+	def fileNameTimeStamp(files, detach=False, stamp='%m-%d-%Y  %H:%M'):
 		'''Attach a modified timestamp and date to given file path(s) and sort accordingly.
 
 		:Parameters:
@@ -192,7 +192,7 @@ class File(Slots):
 		files = [files] if not isinstance(files, (list, tuple, set)) else files
 
 		if detach:
-			result = [''.join(f.split()[-1]) for f in files]
+			result = [''.join(f.split()[2:]) for f in files]
 
 		else:
 			result=[]

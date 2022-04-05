@@ -45,11 +45,11 @@ class ComboBox(QtWidgets.QComboBox, MenuInstance, Attributes, RichText, TextOver
 
 	@property
 	def items(self):
-		'''Get a list of each items's text from the standard model/view.
+		'''Get a list of each items's text or it's data if it exists from the standard model/view.
 		:Return:
 			(list)
 		'''
-		return [self.itemText(i) for i in range(self.count())]
+		return [self.itemData(i) if self.itemData(i) else self.itemText(i) for i in range(self.count())]
 
 
 	def blockSignals_(fn):
