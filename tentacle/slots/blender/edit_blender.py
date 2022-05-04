@@ -217,7 +217,6 @@ class Edit_blender(Edit, Slots_blender):
 		pm.undoInfo(closeChunk=1)
 
 
-	@Slots.message
 	@Slots.hideMain
 	def b001(self):
 		'''Object History Attributes: get most recent node

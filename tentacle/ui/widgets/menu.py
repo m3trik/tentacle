@@ -325,9 +325,8 @@ class Menu(QtWidgets.QMenu, Attributes):
 
 			#set child height
 			if w.sizeHint().width() > self.sizeHint().width():
-				w.setMinimumSize(w.sizeHint().width(), w.sizeHint().height())
-			# w.setMinimumSize(125, self.childHeight)
-			# w.setMaximumSize(125, self.childHeight)
+				width = w.sizeHint().width() if w.sizeHint().width() >125 else 125
+				w.setMinimumSize(width, w.sizeHint().height())
 			try:
 				l.setMinimumSize(l.sizeHint().width(), self.childHeight)
 				# l.setMaximumSize(999, self.childHeight)

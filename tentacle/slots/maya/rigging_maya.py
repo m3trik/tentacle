@@ -147,7 +147,6 @@ class Rigging_maya(Rigging, Slots_maya):
 					pm.toggle(obj, template=1, query=1)
 
 
-	@Slots.message
 	@Slots_maya.undoChunk
 	def tb003(self, state=None):
 		'''Create Locator at Selection
@@ -192,14 +191,14 @@ class Rigging_maya(Rigging, Slots_maya):
 			[[pm.setAttr('{}.{}'.format(obj, i), lock=v) for i in k] for k, v in attrs_and_state.items()]
 
 
-	@Slots.message
 	@Slots.hideMain
 	def b000(self):
 		'''Object Transform Limit Attributes
 		'''
 		node = pm.ls(sl=1, objectsOnly=1)
 		if not node:
-			return 'Error: Operation requires a single selected object.'
+			self.messageBox('Operation requires a single selected object.')
+			return
 
 		params = ['enableTranslationX','translationX','enableTranslationY','translationY','enableTranslationZ','translationZ',
 			'enableRotationX','rotationX','enableRotationY','rotationY','enableRotationZ','rotationZ',

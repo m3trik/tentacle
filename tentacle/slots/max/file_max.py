@@ -222,7 +222,6 @@ class File_max(File, Slots_max):
 		os.startfile(dir_)
 
 
-	@Slots.message
 	def b000(self):
 		'''Autosave: Open Directory
 		'''
@@ -231,7 +230,7 @@ class File_max(File, Slots_max):
 		try:
 			os.startfile(self.formatPath(dir_))
 		except FileNotFoundError as error:
-			return 'Error: The system cannot find the file specified.'
+			self.messageBox('The system cannot find the file specified.')
 
 
 	def b002(self):

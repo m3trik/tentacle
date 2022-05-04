@@ -63,7 +63,6 @@ class File_blender(File, Slots_blender):
 			cmb.setCurrentIndex(0)
 
 
-	@Slots.message
 	def cmb002(self, index=-1):
 		'''Recent Autosave
 		'''
@@ -217,7 +216,6 @@ class File_blender(File, Slots_blender):
 		os.startfile(self.formatPath(dir_))
 
 
-	@Slots.message
 	def b000(self):
 		'''Autosave: Open Directory
 		'''

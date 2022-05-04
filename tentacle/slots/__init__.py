@@ -463,25 +463,20 @@ class Slots(QtCore.QObject):
 			return self._progressBar
 
 
-	@classmethod
-	def message(cls, fn):
-		'''A decorator for messageBox.
-		Does not work with staticmethods.
-		'''
-		def wrapper(self, *args, **kwargs):
-			self.messageBox(fn(self, *args, **kwargs))
-		return wrapper
-
-
-	def messageBox(self, string, location='topMiddle', timeout=1):
+	def messageBox(self, string, messageType='Error', location='topMiddle', timeout=1):
 		'''Spawns a message box with the given text.
-		Prints a formatted version of the given string, stripped of html tags, to the console.
 		Supports HTML formatting.
+		Prints a formatted version of the given string to console, stripped of html tags, to the console.
 
 		:Parameters:
+			messageType (str) = The message context type. ex. 'Error', 'Warning', 'Note', 'Result'
 			location (str)(point) = move the messagebox to the specified location. Can be given as a qpoint or string value. default is: 'topMiddle'
 			timeout (int) = time in seconds before the messagebox auto closes.
 		'''
+		import subprocess
+
+		string = '{}: {}'.format(messageType, string)
+
 		if not hasattr(self, '_messageBox'):
 			from widgets.messageBox import MessageBox
 			self._messageBox = MessageBox(self.tcl.parent())
@@ -489,12 +484,11 @@ class Slots(QtCore.QObject):
 		self._messageBox.location = location
 		self._messageBox.timeout = timeout
 
-		if isinstance(string, (str)):
-			from re import sub
-			print(''+sub('<.*?>', '', string)+'') #strip everything between '<' and '>' (html tags)
+		from re import sub
+		print(''+sub('<.*?>', '', string)+'') #strip everything between '<' and '>' (html tags)
 
-			self._messageBox.setText(string)
-			self._messageBox.exec_()
+		self._messageBox.setText(string)
+		self._messageBox.exec_()
 
 
 
@@ -826,6 +820,15 @@ print (__name__)
 
 
 #depricated:
+
+	# @classmethod
+	# def message(cls, fn):
+	# 	'''A decorator for messageBox.
+	# 	Does not work with staticmethods.
+	# 	'''
+	# 	def wrapper(self, *args, **kwargs):
+	# 		self.messageBox(fn(self, *args, **kwargs))
+	# 	return wrapper
 
 
 # @classmethod

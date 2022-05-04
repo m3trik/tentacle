@@ -47,7 +47,6 @@ class Polygons_maya(Polygons, Slots_maya):
 			cmb.setCurrentIndex(0)
 
 
-	@Slots.message
 	def tb000(self, state=None):
 		'''Merge Vertices
 		'''
@@ -58,21 +57,21 @@ class Polygons_maya(Polygons, Slots_maya):
 		componentMode = pm.selectMode(query=1, component=1)
 
 		if not objects:
-			return 'Error: <strong>Nothing selected</strong>.<br>Operation requires an object or vertex selection.'
+			self.messageBox('<strong>Nothing selected</strong>.<br>Operation requires an object or vertex selection.')
+			return
 
-		for obj in objects:
-			object_vert_sel = pm.ls(obj, sl=1)
+		for obj in pm.ls(objects):
+
 			if componentMode: #merge selected components.
 				if pm.filterExpand(selectionMask=31): #selectionMask=vertices
-					pm.polyMergeVertex(object_vert_sel, distance=tolerance, alwaysMergeTwoVertices=True, constructionHistory=True)
+					sel = pm.ls(obj, sl=1)
+					pm.polyMergeVertex(sel, distance=tolerance, alwaysMergeTwoVertices=True, constructionHistory=True)
 				else: #if selection type =edges or facets:
 					pm.mel.MergeToCenter()
 
 			else: #if object mode. merge all vertices on the selected object.
-				for n, vert in enumerate(object_vert_sel):
-					count = pm.polyEvaluate(obj, vertex=1) #get vertex count.
-					vertices = str(obj) + ".vtx [0:" + str(count) + "]" # mel expression: select -r geometry.vtx[0:1135];
-					pm.polyMergeVertex(vertices, distance=tolerance, alwaysMergeTwoVertices=False, constructionHistory=False)
+				vertices = obj.vtx[:] # mel expression: select -r geometry.vtx[0:1135];
+				pm.polyMergeVertex(vertices, distance=tolerance, alwaysMergeTwoVertices=False, constructionHistory=False)
 
 				#return to original state
 				pm.select(clear=1)
@@ -95,7 +94,6 @@ class Polygons_maya(Polygons, Slots_maya):
 		return node
 
 
-	@Slots.message
 	def tb002(self, state=None):
 		'''Combine
 		'''
@@ -105,7 +103,9 @@ class Polygons_maya(Polygons, Slots_maya):
 		if tb.contextMenu.chk000.isChecked():
 			sel = pm.ls(sl=1, objectsOnly=1)
 			if not sel:
-				return 'Error: <strong>Nothing selected</strong>.'
+				self.messageBox('<strong>Nothing selected</strong>.')
+				return
+
 			objName = sel[0].name()
 			objParent = pm.listRelatives(objName, parent=1)
 			#combine
@@ -160,7 +160,6 @@ class Polygons_maya(Polygons, Slots_maya):
 			mergeVertices=1, mergeVertexTolerance=0.0001, miteringAngle=180, angleTolerance=180, ch=0)
 
 
-	@Slots.message
 	def tb005(self, state=None):
 		'''Detach
 		'''
@@ -175,7 +174,8 @@ class Polygons_maya(Polygons, Slots_maya):
 
 		component_sel = pm.ls(sl=1)
 		if not component_sel:
-			return 'Error: <strong>Nothing selected</strong>.'
+			self.messageBox('<strong>Nothing selected</strong>.')
+			return
 
 		if vertexMask:
 			pm.mel.polySplitVertex()
@@ -195,7 +195,6 @@ class Polygons_maya(Polygons, Slots_maya):
 
 
 	@Slots_maya.attr
-	@Slots.message
 	def tb006(self, state=None):
 		'''Inset Face Region
 		'''
@@ -203,13 +202,13 @@ class Polygons_maya(Polygons, Slots_maya):
 
 		selected_faces = pm.polyEvaluate(faceComponent=1)
 		if isinstance(selected_faces, str): #'Nothing counted : no polygonal object is selected.'
-			return 'Error: <strong>Nothing selected</strong>.<br>Operation requires a face selection.'
+			self.messageBox('<strong>Nothing selected</strong>.<br>Operation requires a face selection.')
+			return
 
 		offset = float(tb.contextMenu.s001.value())
 		return pm.polyExtrudeFacet(selected_faces, keepFacesTogether=1, pvx=0, pvy=40.55638003, pvz=33.53797107, divisions=1, twist=0, taper=1, offset=offset, thickness=0, smoothingAngle=30)
 
 
-	@Slots.message
 	def tb007(self, state=None):
 		'''Divide Facet
 		'''
@@ -236,7 +235,8 @@ class Polygons_maya(Polygons, Slots_maya):
 			for face in selectedFaces: #when performing polySubdivideFacet on multiple faces, adjacent subdivided faces will make the next face an n-gon and therefore not able to be subdivided. 
 				pm.polySubdivideFacet(face, divisions=0, divisionsU=2, divisionsV=2, mode=0, subdMethod=1)
 		else:
-			return 'Error: <strong>Nothing selected</strong>.<br>Operation requires a face selection.'
+			self.messageBox('<strong>Nothing selected</strong>.<br>Operation requires a face selection.')
+			return
 
 
 	def tb008(self, state=None):
@@ -254,7 +254,6 @@ class Polygons_maya(Polygons, Slots_maya):
 			pm.mel.PolygonBooleanIntersection()
 
 
-	@Slots.message
 	def tb009(self, state=None):
 		'''Snap Closest Verts
 		'''
@@ -268,7 +267,8 @@ class Polygons_maya(Polygons, Slots_maya):
 			obj1, obj2 = selection
 			self.snapClosestVerts(obj1, obj2, tolerance, freezetransforms)
 		else:
-			return 'Error: <strong>Nothing selected</strong>.<br>Operation requires at least two selected objects.'
+			self.messageBox('<strong>Nothing selected</strong>.<br>Operation requires at least two selected objects.')
+			return
 
 
 	@Slots_maya.attr
@@ -492,7 +492,6 @@ print (__name__)
 
 # deprecated:
 
-# @Slots.message
 # 	def tb005(self, state=None):
 # 		'''
 # 		Detach

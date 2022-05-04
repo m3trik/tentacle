@@ -169,7 +169,6 @@ class Transform_maya(Transform, Slots_maya):
 		pm.select(objects) #reselect the original selection.
 
 
-	@Slots.message
 	def tb001(self, state=None):
 		'''Align Components
 
@@ -189,56 +188,58 @@ class Transform_maya(Transform, Slots_maya):
 				pm.select(componentsOnPath)
 
 		if autoAlign: #set coordinates for auto align:
-			if len(selection)>1:
+			if not len(selection)>1:
+				self.messageBox('Operation requires a component selection.')
+				return
 
-				point = pm.xform(selection, q=True, t=True, ws=True)
-				#vertex point 1
-				x1 = round(point[0], 4)
-				y1 = round(point[1], 4)
-				z1 = round(point[2], 4)
+			point = pm.xform(selection, q=True, t=True, ws=True)
+			#vertex point 1
+			x1 = round(point[0], 4)
+			y1 = round(point[1], 4)
+			z1 = round(point[2], 4)
 
-				#vertex point 2
-				x2 = round(point[3], 4)
-				y2 = round(point[4], 4)
-				z2 = round(point[5], 4)
+			#vertex point 2
+			x2 = round(point[3], 4)
+			y2 = round(point[4], 4)
+			z2 = round(point[5], 4)
 
-				#find the axis with the largest variance to determine direction.
-				x = abs(x1-x2)
-				y = abs(y1-y2)
-				z = abs(z1-z2)
+			#find the axis with the largest variance to determine direction.
+			x = abs(x1-x2)
+			y = abs(y1-y2)
+			z = abs(z1-z2)
 
-				maskEdge = pm.selectType (query=True, edge=True)
-				if maskEdge:
-					selection = pm.polyListComponentConversion(fromEdge=1, toVertexFace=1)
+			maskEdge = pm.selectType (query=True, edge=True)
+			if maskEdge:
+				selection = pm.polyListComponentConversion(fromEdge=1, toVertexFace=1)
 
-				vertex = selection[0] if selection else None
-				if vertex is None:
-					return 'Error: Unable to get component path.'
-				vertexTangent = pm.polyNormalPerVertex(vertex, query=True, xyz=True)
+			vertex = selection[0] if selection else None
+			if vertex is None:
+				self.messageBox('Unable to get component path.')
+				return
 
-				tx = abs(round(vertexTangent[0], 4))
-				ty = abs(round(vertexTangent[1], 4))
-				tz = abs(round(vertexTangent[2], 4))
+			vertexTangent = pm.polyNormalPerVertex(vertex, query=True, xyz=True)
 
-				axis = max(x,y,z)
-				tangent = max(tx,ty,tz)
+			tx = abs(round(vertexTangent[0], 4))
+			ty = abs(round(vertexTangent[1], 4))
+			tz = abs(round(vertexTangent[2], 4))
 
-				if autoAlign2Axes:
-					if axis==x: #"yz"
-						self.toggleWidgets(tb.contextMenu, setChecked='chk030-31', setUnChecked='chk029')
-					if axis==y: #"xz"
-						self.toggleWidgets(tb.contextMenu, setChecked='chk029,chk031', setUnChecked='chk030')
-					if axis==z: #"xy"
-						self.toggleWidgets(tb.contextMenu, setChecked='chk029-30', setUnChecked='chk031')
-				else:
-					if any ([axis==x and tangent==ty, axis==y and tangent==tx]): #"z"
-						self.toggleWidgets(tb.contextMenu, setChecked='chk031', setUnChecked='chk029-30')
-					if any ([axis==x and tangent==tz, axis==z and tangent==tx]): #"y"
-						self.toggleWidgets(tb.contextMenu, setChecked='chk030', setUnChecked='chk029,chk031')
-					if any ([axis==y and tangent==tz, axis==z and tangent==ty]): #"x"
-						self.toggleWidgets(tb.contextMenu, setChecked='chk029', setUnChecked='chk030-31')
+			axis = max(x,y,z)
+			tangent = max(tx,ty,tz)
+
+			if autoAlign2Axes:
+				if axis==x: #"yz"
+					self.toggleWidgets(tb.contextMenu, setChecked='chk030-31', setUnChecked='chk029')
+				if axis==y: #"xz"
+					self.toggleWidgets(tb.contextMenu, setChecked='chk029,chk031', setUnChecked='chk030')
+				if axis==z: #"xy"
+					self.toggleWidgets(tb.contextMenu, setChecked='chk029-30', setUnChecked='chk031')
 			else:
-				return 'Error: Operation requires a component selection.'
+				if any ([axis==x and tangent==ty, axis==y and tangent==tx]): #"z"
+					self.toggleWidgets(tb.contextMenu, setChecked='chk031', setUnChecked='chk029-30')
+				if any ([axis==x and tangent==tz, axis==z and tangent==tx]): #"y"
+					self.toggleWidgets(tb.contextMenu, setChecked='chk030', setUnChecked='chk029,chk031')
+				if any ([axis==y and tangent==tz, axis==z and tangent==ty]): #"x"
+					self.toggleWidgets(tb.contextMenu, setChecked='chk029', setUnChecked='chk030-31')
 
 		#align
 		x = tb.contextMenu.chk029.isChecked()
@@ -276,26 +277,27 @@ class Transform_maya(Transform, Slots_maya):
 		cmb.setCurrentIndex(0)
 
 
-	@Slots.message
 	@Slots.hideMain
 	def b000(self):
 		'''Object Transform Attributes
 		'''
 		node = pm.ls(sl=1, objectsOnly=1)
 		if not node:
-			return 'Error: <b>Nothing selected.</b><br>The operation requires a single selected object.'
+			self.messageBox('<b>Nothing selected.</b><br>The operation requires a single selected object.')
+			return
+
 		transform = Slots_maya.getTransformNode(node)
 
 		self.setAttributeWindow(transform[0], include=['translateX','translateY','translateZ','rotateX','rotateY','rotateZ','scaleX','scaleY','scaleZ'], checkableLabel=True)
 
 
-	@Slots.message
 	def b001(self):
 		'''Match Scale
 		'''
 		selection = pm.ls(sl=1)
 		if not selection:
-			return 'Error: <b>Nothing selected.</b><br>The operation requires at least two selected objects.'
+			self.messageBox('<b>Nothing selected.</b><br>The operation requires at least two selected objects.')
+			return
 
 		frm = selection[0]
 		to = selection[1:]
@@ -315,13 +317,13 @@ class Transform_maya(Transform, Slots_maya):
 		pm.mel.CenterPivot()
 
 
-	@Slots.message
 	def b005(self):
 		'''Move To
 		'''
 		sel = pm.ls(sl=1, transforms=1)
 		if not sel:
-			return 'Error: <b>Nothing selected.</b><br>The operation requires at least two selected objects.'
+			self.messageBox('<b>Nothing selected.</b><br>The operation requires at least two selected objects.')
+			return
 
 		objects = sel[:-1]
 		target = sel[-1]
@@ -953,7 +955,6 @@ print (__name__)
 	# 		pm.xform(objects, relative=relative, worldSpace=worldspace, objectSpace=(not worldspace), rotation=(xyz[0], xyz[1], xyz[2]))
 
 
-	# @Slots.message
 	# def cmb002(self, index=-1):
 	# 	'''
 	# 	Transform Contraints

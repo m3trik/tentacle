@@ -33,7 +33,6 @@ class Symmetry_blender(Symmetry, Slots_blender):
 			cmb.setCurrentIndex(0)
 
 
-	@Slots.message
 	def chk005(self, state=None):
 		'''Symmetry: Topo
 		'''
@@ -44,7 +43,6 @@ class Symmetry_blender(Symmetry, Slots_blender):
 			return 'Note: First select a seam edge and then check the symmetry button to enable topographic symmetry'
 
 
-	@Slots.message
 	def setSymmetry(self, state, axis):
 		space = "world" #workd space
 		if self.symmetry_ui.chk004.isChecked(): #object space

@@ -24,7 +24,7 @@ class Polygons(Slots):
 
 		ctx = self.polygons_ui.tb000.contextMenu
 		if not ctx.containsMenuItems:
-			ctx.add('QDoubleSpinBox', setPrefix='Distance: ', setObjectName='s002', setMinMax_='0.000-10 step.005', setValue=0.001, setHeight_=20, setToolTip='Merge Distance.')
+			ctx.add('QDoubleSpinBox', setPrefix='Distance: ', setObjectName='s002', setMinMax_='0.0000-10 step.0005', setValue=0.0005, setHeight_=20, setToolTip='Merge Distance.')
 
 		ctx = self.polygons_ui.tb001.contextMenu
 		if not ctx.containsMenuItems:

@@ -26,7 +26,6 @@ class Duplicate_blender(Duplicate, Slots_blender):
 			cmb.setCurrentIndex(0)
 
 
-	@Slots.message
 	def chk010(self, state=None):
 		'''Radial Array: Set Pivot
 		'''
@@ -44,7 +43,8 @@ class Duplicate_blender(Duplicate, Slots_blender):
 					pivot = bb[0]+bb[3]/2, bb[1]+bb[4]/2, bb[2]+bb[5]/2 #get median of bounding box coordinates. from [min xyz, max xyz]
 			else:
 				self.toggleWidgets(setUnChecked='chk010')
-				return 'Error: Nothing selected.'
+				self.messageBox('Nothing selected.')
+				return
 
 			# radialPivot.extend ([pivot[0],pivot[1],pivot[2]])
 			radialPivot.extend(pivot) #extend the list contents
@@ -57,7 +57,6 @@ class Duplicate_blender(Duplicate, Slots_blender):
 
 	global radialArrayObjList
 	radialArrayObjList=[]
-	@Slots.message
 	@Slots_blender.undoChunk
 	def chk015(self, create=False):
 		'''Radial Array: Preview
@@ -115,7 +114,8 @@ class Duplicate_blender(Duplicate, Slots_blender):
 					# pm.undoInfo (closeChunk=1)
 			else: #if both lists objects are empty:
 				self.toggleWidgets(setDisabled='b003', setUnChecked='chk015')
-				return 'Error: Nothing selected.'
+				self.messageBox('Nothing selected.')
+				return
 		else: #if chk015 is unchecked by user or by create button
 			if create:
 				originalObj = radialArrayObjList[0][:radialArrayObjList[0].rfind("_")] #remove the trailing _ins# or _dup#. ie. pCube1 from pCube1_inst1
@@ -135,7 +135,6 @@ class Duplicate_blender(Duplicate, Slots_blender):
 
 	global duplicateObjList
 	duplicateObjList=[]
-	@Slots.message
 	@Slots_blender.undoChunk
 	def chk016(self, create=False):
 		'''Duplicate: Preview
@@ -167,7 +166,8 @@ class Duplicate_blender(Duplicate, Slots_blender):
 				obj = duplicateObjList[0]
 				pm.select(obj)
 			else:
-				return 'Error: Nothing selected.'
+				self.messageBox('Nothing selected.')
+				return
 
 			# pm.undoInfo (openChunk=1)
 			if translateToComponent:
@@ -229,13 +229,13 @@ class Duplicate_blender(Duplicate, Slots_blender):
 			self.toggleWidgets(setDisabled='b002')
 
 
-	@Slots.message
 	def b000(self):
 		'''Create Instances
 		'''
 		selection = pm.ls(sl=1, transforms=1)
 		if not selection:
-			return 'Error: <strong>Nothing selected</strong>.<br>Operation requires an object selection.'
+			self.messageBox('<strong>Nothing selected</strong>.<br>Operation requires an object selection.')
+			return
 
 		instances = [pm.instance(obj, name=obj.name()+'_INST') 
 							for obj in selection]
@@ -243,13 +243,13 @@ class Duplicate_blender(Duplicate, Slots_blender):
 		pm.select(instances)
 
 
-	@Slots.message
 	def b001(self):
 		'''Convert to Instances
 		'''
 		selection = pm.ls(sl=1, transforms=1)
 		if not selection:
-			return 'Error: <strong>Nothing selected</strong>.<br>Operation requires an object selection.'
+			self.messageBox('<strong>Nothing selected</strong>.<br>Operation requires an object selection.')
+			return
 
 		if not pm.selectPref(q=1, trackSelectionOrder=1): #if ordered selection is not on, turn it on. If off, the current selection is likely not ordered.
 			pm.selectPref(trackSelectionOrder=1)

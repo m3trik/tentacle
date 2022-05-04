@@ -311,7 +311,7 @@ print (__name__)
 	# 		self.rotateAbsolute(self.getAxis(), self.node)
 
 
-	# @Slots.message
+
 	# def chk005(self, state=None):
 	# 	'''Set Point
 	# 	'''

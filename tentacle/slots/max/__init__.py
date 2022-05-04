@@ -434,13 +434,17 @@ class Slots_max(Slots):
 						# c.setChecked(True)
 
 
-	@Slots.message
 	def maxUiSetChecked(self, id, table, item, state=True, query=False):
 		'''
 		:Parameters:
-			id (str) = actionMan ID
-			table (int) = actionMan table
-			item (int) = actionMan item number
+			id (str) = The actionMan ID
+			table (int) = The actionMan table
+			item (int) = The actionMan item number
+			state (bool) = Set the check state.
+			query (bool) = Query the check state.
+
+		:Return:
+			(bool) The check state.
 		'''
 		atbl = rt.actionMan.getActionTable(table)
 		if atbl:

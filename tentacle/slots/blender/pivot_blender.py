@@ -38,7 +38,6 @@ class Pivot_blender(Pivot, Slots_blender):
 			cmb.setCurrentIndex(0)
 
 
-	@Slots.message
 	def tb000(self, state=None):
 		'''Reset Pivot
 		'''

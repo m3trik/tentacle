@@ -29,12 +29,12 @@ class Edit_maya(Edit, Slots_maya):
 			ctx.add('QCheckBox', setText='Lamina', setObjectName='chk018', setToolTip='Check for lamina polys.')
 			ctx.add('QCheckBox', setText='Shared UV\'s', setObjectName='chk016', setToolTip='Unshare uvs that are shared across vertices.')
 			# ctx.add('QCheckBox', setText='Invalid Components', setObjectName='chk019', setToolTip='Check for invalid components.')
-			ctx.add('QCheckBox', setText='Zero Face Area', setObjectName='chk013', setToolTip='Check for 0 area faces.')
-			ctx.add('QDoubleSpinBox', setPrefix='Face Area Tolerance:   ', setObjectName='s006', setDisabled=True, setMinMax_='0.0-10 step.001', setValue=0.001, setToolTip='Tolerance for face areas.')
-			ctx.add('QCheckBox', setText='Zero Length Edges', setObjectName='chk014', setToolTip='Check for 0 length edges.')
-			ctx.add('QDoubleSpinBox', setPrefix='Edge Length Tolerance: ', setObjectName='s007', setDisabled=True, setMinMax_='0.0-10 step.001', setValue=0.001, setToolTip='Tolerance for edge length.')
+			ctx.add('QCheckBox', setText='Zero Face Area', setObjectName='chk013', setChecked=True, setToolTip='Check for 0 area faces.')
+			ctx.add('QDoubleSpinBox', setPrefix='Face Area Tolerance:   ', setObjectName='s006', setMinMax_='0.0-10 step.000010', setValue=0.000010, setToolTip='Tolerance for face areas.')
+			ctx.add('QCheckBox', setText='Zero Length Edges', setObjectName='chk014', setChecked=True, setToolTip='Check for 0 length edges.')
+			ctx.add('QDoubleSpinBox', setPrefix='Edge Length Tolerance: ', setObjectName='s007', setMinMax_='0.0-10 step.000010', setValue=0.000010, setToolTip='Tolerance for edge length.')
 			ctx.add('QCheckBox', setText='Zero UV Face Area', setObjectName='chk015', setToolTip='Check for 0 uv face area.')
-			ctx.add('QDoubleSpinBox', setPrefix='UV Face Area Tolerance:', setObjectName='s008', setDisabled=True, setMinMax_='0.0-10 step.001', setValue=0.001, setToolTip='Tolerance for uv face areas.')
+			ctx.add('QDoubleSpinBox', setPrefix='UV Face Area Tolerance:', setObjectName='s008', setDisabled=True, setMinMax_='0.0-10 step.000010', setValue=0.000010, setToolTip='Tolerance for uv face areas.')
 			ctx.add('QCheckBox', setText='Overlapping Duplicate Objects', setObjectName='chk022', setToolTip='Find any duplicate overlapping geometry at the object level.')
 			ctx.add('QCheckBox', setText='Omit Selected Objects', setObjectName='chk023', setDisabled=True, setToolTip='Overlapping Duplicate Objects: Search for duplicates of any selected objects while omitting the initially selected objects.')
 			ctx.chk013.toggled.connect(lambda state: ctx.s006.setEnabled(True if state else False))
@@ -210,7 +210,6 @@ class Edit_maya(Edit, Slots_maya):
 		pm.undoInfo(closeChunk=1)
 
 
-	@Slots.message
 	@Slots.hideMain
 	def b001(self):
 		'''Object History Attributes: get most recent node
@@ -222,7 +221,8 @@ class Edit_maya(Edit, Slots_maya):
 		if items:
 			self.setAttributeWindow(items, checkableLabel=True)
 		else:
-			return 'Error: Found no items to list the history for.'
+			self.messageBox('Found no items to list the history for.')
+			return
 
 
 	def b021(self):

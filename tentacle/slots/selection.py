@@ -65,8 +65,8 @@ class Selection(Slots):
 
 		ctx = self.selection_ui.tb003.contextMenu
 		if not ctx.containsMenuItems:
-			ctx.add('QDoubleSpinBox', setPrefix='Angle Low:  ', setObjectName='s006', setMinMax_='0.0-180 step1', setValue=50, setToolTip='Normal angle low range.')
-			ctx.add('QDoubleSpinBox', setPrefix='Angle High: ', setObjectName='s007', setMinMax_='0.0-180 step1', setValue=130, setToolTip='Normal angle high range.')
+			ctx.add('QDoubleSpinBox', setPrefix='Angle Low:  ', setObjectName='s006', setMinMax_='0.0-180 step1', setValue=70, setToolTip='Normal angle low range.')
+			ctx.add('QDoubleSpinBox', setPrefix='Angle High: ', setObjectName='s007', setMinMax_='0.0-180 step1', setValue=110, setToolTip='Normal angle high range.')
 
 
 	def draggable_header(self, state=None):
@@ -123,31 +123,28 @@ class Selection(Slots):
 		self.toggleWidgets(setUnChecked='chk000-1')
 
 
-	# @Slots.message
 	def chk005(self, state=None):
 		'''Select Style: Marquee
 		'''
 		self.toggleWidgets(setChecked='chk005', setUnChecked='chk006-7')
 		Selection.setSelectionStyle('marquee')
-		return 'Select Style: <hl>Marquee</hl>'
+		self.messageBox('Select Style: <hl>Marquee</hl>')
 
 
-	# @Slots.message
 	def chk006(self, state=None):
 		'''Select Style: Lasso
 		'''
 		self.toggleWidgets(setChecked='chk006', setUnChecked='chk005,chk007')
 		Selection.setSelectionStyle('lasso')
-		return 'Select Style: <hl>Lasso</hl>'
+		self.messageBox('Select Style: <hl>Lasso</hl>')
 
 
-	# @Slots.message
 	def chk007(self, state=None):
 		'''Select Style: Paint
 		'''
 		self.toggleWidgets(setChecked='chk007', setUnChecked='chk005-6')
 		Selection.setSelectionStyle('paint')
-		return 'Select Style: <hl>Paint</hl>'
+		self.messageBox('Select Style: <hl>Paint</hl>')
 
 
 	

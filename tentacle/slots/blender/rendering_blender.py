@@ -92,7 +92,6 @@ class Rendering_blender(Rendering, Slots_blender):
 			currentID+=1
 
 
-	@Slots.message
 	def b006(self):
 		'''Load Vray Plugin
 		'''

@@ -29,7 +29,6 @@ class Normals_max(Normals, Slots_max):
 			cmb.setCurrentIndex(0)
 
 
-	@Slots.message
 	def tb000(self, state=None):
 		'''Display Face Normals
 		'''
@@ -37,7 +36,7 @@ class Normals_max(Normals, Slots_max):
 
 		size = float(tb.contextMenu.s001.value())
 
-		'No 3ds Version.'
+		self.messageBox('No 3ds Version.')
 		tb.setDisabled(True)
 		# # state = pm.polyOptions (query=True, displayNormal=True)
 		# state = self.cycle([1,2,3,0], 'displayNormals')

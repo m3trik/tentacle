@@ -47,7 +47,6 @@ class Polygons_blender(Polygons, Slots_blender):
 			cmb.setCurrentIndex(0)
 
 
-	@Slots.message
 	def tb000(self, state=None):
 		'''Merge Vertices
 		'''
@@ -99,7 +98,6 @@ class Polygons_blender(Polygons, Slots_blender):
 		return node
 
 
-	@Slots.message
 	def tb002(self, state=None):
 		'''Combine
 		'''
@@ -164,7 +162,6 @@ class Polygons_blender(Polygons, Slots_blender):
 			mergeVertices=1, mergeVertexTolerance=0.0001, miteringAngle=180, angleTolerance=180, ch=0)
 
 
-	@Slots.message
 	def tb005(self, state=None):
 		'''Detach
 		'''
@@ -199,7 +196,6 @@ class Polygons_blender(Polygons, Slots_blender):
 
 
 	@Slots_blender.attr
-	@Slots.message
 	def tb006(self, state=None):
 		'''Inset Face Region
 		'''
@@ -213,7 +209,6 @@ class Polygons_blender(Polygons, Slots_blender):
 		return pm.polyExtrudeFacet(selected_faces, keepFacesTogether=1, pvx=0, pvy=40.55638003, pvz=33.53797107, divisions=1, twist=0, taper=1, offset=offset, thickness=0, smoothingAngle=30)
 
 
-	@Slots.message
 	def tb007(self, state=None):
 		'''Divide Facet
 		'''
@@ -258,7 +253,6 @@ class Polygons_blender(Polygons, Slots_blender):
 			pm.mel.PolygonBooleanIntersection()
 
 
-	@Slots.message
 	def tb009(self, state=None):
 		'''Snap Closest Verts
 		'''
@@ -496,7 +490,6 @@ print (__name__)
 
 # deprecated:
 
-# @Slots.message
 # 	def tb005(self, state=None):
 # 		'''
 # 		Detach

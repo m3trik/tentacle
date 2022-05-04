@@ -109,7 +109,6 @@ class Normals_maya(Normals, Slots_maya):
 				return polySoftEdge
 
 
-	@Slots.message
 	def tb003(self, state=None):
 		'''Lock/Unlock Vertex Normals
 		'''
@@ -122,7 +121,8 @@ class Normals_maya(Normals, Slots_maya):
 		maskVertex = pm.selectType (query=1, vertex=1)
 
 		if not selection:
-			return 'Error: Operation requires at least one selected object.'
+			self.messageBox('Operation requires at least one selected object.')
+			return
 
 		if (all_ and maskVertex) or maskObject:
 			for obj in selection:
@@ -144,7 +144,8 @@ class Normals_maya(Normals, Slots_maya):
 				pm.polyNormalPerVertex(freezeNormal=1)
 				self.viewPortMessage("Normals <hl>Locked</hl>.")
 		else:
-			return 'Warning: Selection must be object or vertex.'
+			self.messageBox('Selection must be object or vertex.', messageType='Warning')
+			return
 
 
 	def tb004(self, state=None):

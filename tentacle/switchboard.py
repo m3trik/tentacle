@@ -58,7 +58,7 @@ class Switchboard(QtCore.QObject):
 		'QProgressBar':'valueChanged',
 		}
 
-	trackedWidgets = [ #widget types for mouse tracking (uiLevels lower than 3).
+	trackedWidgets = [ #widget types for mouse tracking (on uiLevels lower than 3).
 		'QWidget', 
 		'QLabel', 
 		'QPushButton', 
@@ -568,6 +568,7 @@ class Switchboard(QtCore.QObject):
 		'''
 		if case=='pascalCase':
 			s = [n[:1].capitalize()+n[1:] for n in self.list_(s)] #capitalize the first letter.
+
 		elif case=='camelCase':
 			s = [n[0].lower()+n[1:] for n in self.list_(s)] #lowercase the first letter.
 

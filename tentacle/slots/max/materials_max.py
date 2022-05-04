@@ -70,7 +70,6 @@ class Materials_max(Materials, Slots_max):
 		b.setVisible(True if cmb.currentText() else False)
 
 
-	@Slots.message
 	def tb000(self, state=None):
 		'''Select By Material Id
 		'''
@@ -78,7 +77,8 @@ class Materials_max(Materials, Slots_max):
 
 		mat = self.materials_ui.cmb002.currentData()
 		if not mat:
-			return 'Error: No Material Selection.'
+			self.messageBox('No Material Selection.')
+			return
 
 		shell = tb.contextMenu.chk005.isChecked() #Select by material: shell
 		invert = tb.contextMenu.chk006.isChecked() #Select by material: invert
@@ -89,7 +89,6 @@ class Materials_max(Materials, Slots_max):
 		self.selectByMaterialID(mat, objects, shell=shell, invert=invert)
 
 
-	@Slots.message
 	def tb002(self, state=None):
 		'''Assign Material
 		'''
@@ -118,7 +117,8 @@ class Materials_max(Materials, Slots_max):
 					self.materials_ui.tb001.menu_.chk001.setChecked(True) #set comboBox to ID map mode. toggling the checkbox refreshes the combobox.
 				self.materials_ui.cmb002.setCurrentItem(mat.name) #set the comboBox index to the new mat #self.cmb002.setCurrentIndex(self.cmb002.findText(name))
 			else:
-				return 'Error: No valid object/s selected.'
+				self.messageBox('No valid object/s selected.')
+				return
 
 		elif assignCurrent: #Assign current mat
 			if isinstance(mat, str): #new mat type as a string:
@@ -163,7 +163,6 @@ class Materials_max(Materials, Slots_max):
 		self.relinkMatLibBitmaps(library_dir, mat_dir, replaceTxWithTif=True)
 
 
-	@Slots.message
 	def lbl000(self):
 		'''Open material in editor
 		'''
@@ -171,7 +170,8 @@ class Materials_max(Materials, Slots_max):
 			mat = self.materials_ui.cmb002.currentData() #get the mat obj from cmb002
 			rt.select(mat)
 		except Exception as error:
-			return 'Error: No stored material or no valid object selected.'
+			self.messageBox('No stored material or no valid object selected.')
+			return
 
 		#open the slate material editor
 		if not rt.SME.isOpen():
@@ -233,14 +233,14 @@ class Materials_max(Materials, Slots_max):
 			rt.freeSceneBitmaps()
 
 
-	@Slots.message
 	def b002(self):
 		'''Set Material: Set the Currently Selected Material as the currentMaterial.
 		'''
 		try: 
 			obj = rt.selection[0]
 		except IndexError:
-			return 'Error: Nothing selected.'
+			self.messageBox('Nothing selected.')
+			return
 
 		mat = self.getMaterial()
 
@@ -287,7 +287,6 @@ class Materials_max(Materials, Slots_max):
 				cmb.setItemText(cmb.currentIndex(), str(error.strip('\n')))
 
 
-	@Slots.message
 	def selectByMaterialID(self, material=None, objects=None, shell=False, invert=False):
 		'''Select By Material Id
 	
@@ -300,7 +299,8 @@ class Materials_max(Materials, Slots_max):
 		selectByMaterialID(material)
 		'''
 		if rt.getNumSubMtls(material): #if not a multimaterial
-			return 'Error: No valid stored material. If material is a multimaterial, select a submaterial.'
+			self.messageBox('No valid stored material. If material is a multimaterial, select a submaterial.')
+			return
 
 		if not material:
 			material = self.getMaterial()
@@ -385,7 +385,6 @@ class Materials_max(Materials, Slots_max):
 		return materials
 
 
-	@Slots.message
 	def getMaterial(self, obj=None, face=None):
 		'''Get the material from the given object or face components.
 
@@ -398,7 +397,8 @@ class Materials_max(Materials, Slots_max):
 		if not obj:
 			selection = rt.selection
 			if not selection:
-				return 'Error: Nothing selected. Select an object face, or choose the option: current material.'
+				self.messageBox('Nothing selected. Select an object face, or choose the option: current material.')
+				return
 			obj = selection[0]
 
 		mat = obj.material #get material from selection
@@ -414,7 +414,8 @@ class Materials_max(Materials, Slots_max):
 					try:
 						ID_ = rt.GetFaceId_(obj, face) #Returns the material ID of the specified face.
 					except RuntimeError:
-						return 'Error: Object must be of type Editable_Poly or Editable_mesh.'
+						self.messageBox('Object must be of type Editable_Poly or Editable_mesh.')
+						return
 
 				mat = rt.getSubMtl(mat, ID_) #get material from mat ID
 
@@ -444,7 +445,6 @@ class Materials_max(Materials, Slots_max):
 		return mat
 
 
-	@Slots.message
 	def assignMaterial(self, objects, mat):
 		'''Assign Material
 
@@ -452,7 +452,8 @@ class Materials_max(Materials, Slots_max):
 		material (obj) = The material to search and select for.
 		'''
 		if not mat:
-			return 'Error: Material Not Assigned. No material given.'
+			self.messageBox('Material Not Assigned. No material given.')
+			return
 
 		for obj in objects:
 			if rt.getNumSubMtls(mat): #if multimaterial

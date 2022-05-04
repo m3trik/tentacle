@@ -52,7 +52,6 @@ class Animation(Slots):
 		self.setCurrentFrame(frame, relative=relative, update=update)
 
 
-	@Slots.message
 	def tb001(self, state=None):
 		'''Invert Selected Keyframes
 		'''

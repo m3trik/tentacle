@@ -92,19 +92,35 @@ class Rendering_maya(Rendering, Slots_maya):
 			currentID+=1
 
 
-	@Slots.message
 	def b006(self):
 		'''Load Vray Plugin
 		'''
+		if loadVRayPlugin(query=True):
+			self.loadVRayPlugin(unload=True)
+		else:
+			self.loadVRayPlugin()
+
+
+	def loadVRayPlugin(self, unload=False, query=False):
+		'''Load/Unload the Maya Vray Plugin if it exists.
+
+		:Parameters:
+			unload (bool) = Unload the VRay plugin.
+			query (bool) = Query the state of the VRay Plugin.
+		'''
+		if query:
+			return True if pm.pluginInfo('vrayformaya.mll', query=1, loaded=1) else False
+
 		vray = ['vrayformaya.mll','vrayformayapatch.mll']
-		if pm.pluginInfo ('vrayformaya.mll', query=1, loaded=1):
+
+		if unload:
 			try:
 				pm.unloadPlugin(vray)
 			except:
 				pm.unloadPlugin(vray, force=1)
-				return '{0}{1}{2}'.format(" Result: Force unloadPlugin:", str(vray), " ")
+				self.messageBox('{0}{1}{2}'.format("Force unloadPlugin:", str(vray), " "), messageType='Result')
 		else:
-			pm.loadPlugin (vray)
+			pm.loadPlugin(vray)
 
 
 

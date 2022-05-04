@@ -122,7 +122,6 @@ class Display_maya(Display, Slots_maya):
 		self.viewPortMessage('Default Material Override: <hl>{}</hl>.'.format(state))
 
 
-	@Slots.message
 	def b011(self):
 		'''Toggle Component Id Display
 		'''
@@ -130,7 +129,9 @@ class Display_maya(Display, Slots_maya):
 
 		visible = pm.polyOptions(query=1, displayItemNumbers=1)
 		if not visible:
-			return '# Error: Nothing selected. #'
+			self.messageBox('Nothing selected.')
+			return
+
 		dinArray = [(1,0,0,0),(0,1,0,0),(0,0,1,0),(0,0,0,1)]
 
 		if index==4:

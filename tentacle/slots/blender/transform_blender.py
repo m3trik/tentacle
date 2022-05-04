@@ -176,7 +176,6 @@ class Transform_blender(Transform, Slots_blender):
 		pm.select(objects) #reselect the original selection.
 
 
-	@Slots.message
 	def tb001(self, state=None):
 		'''Align Components
 
@@ -283,7 +282,6 @@ class Transform_blender(Transform, Slots_blender):
 		cmb.setCurrentIndex(0)
 
 
-	@Slots.message
 	@Slots.hideMain
 	def b000(self):
 		'''Object Transform Attributes
@@ -296,7 +294,6 @@ class Transform_blender(Transform, Slots_blender):
 		self.setAttributeWindow(transform[0], include=['translateX','translateY','translateZ','rotateX','rotateY','rotateZ','scaleX','scaleY','scaleZ'], checkableLabel=True)
 
 
-	@Slots.message
 	def b001(self):
 		'''Match Scale
 		'''
@@ -322,7 +319,6 @@ class Transform_blender(Transform, Slots_blender):
 		pm.mel.CenterPivot()
 
 
-	@Slots.message
 	def b005(self):
 		'''Move To
 		'''
@@ -940,7 +936,6 @@ print (__name__)
 	# 		pm.xform(objects, relative=relative, worldSpace=worldspace, objectSpace=(not worldspace), rotation=(xyz[0], xyz[1], xyz[2]))
 
 
-	# @Slots.message
 	# def cmb002(self, index=-1):
 	# 	'''
 	# 	Transform Contraints

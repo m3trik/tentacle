@@ -147,7 +147,6 @@ class Rigging_blender(Rigging, Slots_blender):
 					pm.toggle(obj, template=1, query=1)
 
 
-	@Slots.message
 	@Slots_blender.undoChunk
 	def tb003(self, state=None):
 		'''Create Locator at Selection
@@ -192,7 +191,6 @@ class Rigging_blender(Rigging, Slots_blender):
 			[[pm.setAttr('{}.{}'.format(obj, i), lock=v) for i in k] for k, v in attrs_and_state.items()]
 
 
-	@Slots.message
 	@Slots.hideMain
 	def b000(self):
 		'''Object Transform Limit Attributes

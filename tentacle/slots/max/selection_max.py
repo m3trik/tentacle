@@ -144,29 +144,27 @@ class Selection_max(Selection, Slots_max):
 		rt.redrawViews()
 
 
-	@Slots.message
 	def chk004(self, state=None):
 		'''Ignore Backfacing (Camera Based Selection)
 		'''
 		for obj in rt.selection:
 			if self.selection_submenu_ui.chk004.isChecked():
 				sel.ignoreBackfacing = True
-				return 'Camera-based selection <hl>On</hl>.'
+				self.messageBox('Camera-based selection <hl>On</hl>.', messageType='Result')
 			else:
 				sel.ignoreBackfacing = False
-				return 'Camera-based selection <hl>Off</hl>.'
+				self.messageBox('Camera-based selection <hl>Off</hl>.', messageType='Result')
 
 
-	@Slots.message
 	def chk008(self, state=None):
 		'''Toggle Soft Selection
 		'''
 		if self.selection_submenu_ui.chk008.isChecked():
 			pm.softSelect(edit=1, softSelectEnabled=True)
-			return 'Soft Select <hl>On</hl>.'
+			self.messageBox('Soft Select <hl>On</hl>.', messageType='Result')
 		else:
 			pm.softSelect(edit=1, softSelectEnabled=False)
-			return 'Soft Select <hl>Off</hl>.'
+			self.messageBox('Soft Select <hl>Off</hl>.', messageType='Result')
 
 
 	def cmb000(self, index=-1):
@@ -392,7 +390,6 @@ class Selection_max(Selection, Slots_max):
 		return name
 
 
-	@Slots.message
 	def creatNewSelectionSet(self, name=None):
 		'''Selection Sets: Create a new selection set.
 
@@ -400,7 +397,8 @@ class Selection_max(Selection, Slots_max):
 			name (str) = The desired name of the new set.
 		'''
 		if rt.isValidObj(name): # obj!=rt.undefined
-			return 'Error: Set with name <hl>{}</hl> already exists.'.format(name)
+			self.messageBox('Set with name <hl>{}</hl> already exists.'.format(name))
+			return
 
 		else: #create set
 			sel = self.currentSelection
@@ -414,10 +412,10 @@ class Selection_max(Selection, Slots_max):
 					set_array = self.getSetArray(rt.selection[0], rt.subObjectLevel) #ie. rt.selection[0].faces
 					set_array[name] = sel #create a sub-object level set for the selected currently selected components.
 			else:
-				return 'Error: Nothing selected.'
+				self.messageBox('Nothing selected.')
+				return
 
 
-	@Slots.message
 	def modifySet(self, name):
 		'''Selection Sets: Modify Current by renaming or changing the set members.
 
@@ -441,7 +439,8 @@ class Selection_max(Selection, Slots_max):
 				# if not newName==name:
 				# 	rt.deleteItem(set_array, set_) #delete the old if a new set name is given.
 		else:
-			return 'Error: Nothing selected.'
+			self.messageBox('Nothing selected.')
+			return
 
 
 	def getSet(self, name, index=0, objects=[]):

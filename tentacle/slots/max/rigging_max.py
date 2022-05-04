@@ -95,7 +95,6 @@ class Rigging_max(Rigging, Slots_max):
 		# 	pm.jointDisplayScale(value, ikfk=1) #set global IKFK display size
 
 
-	@Slots.message
 	def tb000(self, state=None):
 		'''Toggle Display Local Rotation Axes
 		'''
@@ -114,7 +113,7 @@ class Rigging_max(Rigging, Slots_max):
 		# if toggle:
 		# 	pm.toggle(joints, localAxis=1) #set display off
 
-		# return 'Display Local Rotation Axes:<hl>'+str(state)+'</hl>'
+		# self.messageBox('Display Local Rotation Axes:<hl>'+str(state)+'</hl>')
 
 
 	def tb001(self, state=None):
@@ -145,7 +144,6 @@ class Rigging_max(Rigging, Slots_max):
 				obj.isFrozen = True
 
 
-	@Slots.message
 	def tb003(self, state=None):
 		'''Create Locator at Selection
 		'''
@@ -189,14 +187,15 @@ class Rigging_max(Rigging, Slots_max):
 			[[pm.setAttr('{}.{}'.format(obj, i), lock=v) for i in k] for k, v in attrs_and_state.items()]
 
 
-	@Slots.message
 	@Slots.hideMain
 	def b000(self):
 		'''Object Transform Limit Attributes
 		'''
 		node = rt.selection
 		if not node:
-			return 'Error: Operation requires a single selected object.'
+			self.messageBox('Operation requires a single selected object.')
+			return
+
 		'finish converting from Maya version.  Slots_max.getParameterValuesMax is not likely doable in the same sense getParameterValuesMEL was'
 		params = ['enableTranslationX','translationX','enableTranslationY','translationY','enableTranslationZ','translationZ',
 			'enableRotationX','rotationX','enableRotationY','rotationY','enableRotationZ','rotationZ',

@@ -26,7 +26,6 @@ class Mirror_blender(Mirror, Slots_blender):
 			cmb.setCurrentIndex(0)
 
 
-	@Slots.message
 	@Slots_blender.attr
 	def tb000(self, state=None):
 		'''Mirror Geometry

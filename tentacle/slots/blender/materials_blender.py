@@ -70,7 +70,6 @@ class Materials_blender(Materials, Slots_blender):
 		b.setVisible(True if cmb.currentText() else False)
 
 
-	@Slots.message
 	def tb000(self, state=None):
 		'''Select By Material Id
 		'''
@@ -89,7 +88,6 @@ class Materials_blender(Materials, Slots_blender):
 		self.selectByMaterialID(mat, objects, shell=shell, invert=invert)
 
 
-	@Slots.message
 	def tb002(self, state=None):
 		'''Assign Material
 		'''
@@ -124,7 +122,6 @@ class Materials_blender(Materials, Slots_blender):
 			mel.eval('createAssignNewMaterialTreeLister "";')
 
 
-	@Slots.message
 	def lbl000(self):
 		'''Open material in editor
 		'''
@@ -194,7 +191,6 @@ class Materials_blender(Materials, Slots_blender):
 		self.lbl000()
 
 
-	@Slots.message
 	def b002(self):
 		'''Set Material: Set the Currently Selected Material as the currentMaterial.
 		'''
@@ -249,7 +245,6 @@ class Materials_blender(Materials, Slots_blender):
 				cmb.setItemText(cmb.currentIndex(), str(error).strip('\n'))
 
 
-	@Slots.message
 	def selectByMaterialID(self, material=None, objects=None, shell=False, invert=False):
 		'''Select By Material Id
 	
@@ -364,7 +359,6 @@ class Materials_blender(Materials, Slots_blender):
 		return mat
 
 
-	@Slots.message
 	@Slots_blender.undoChunk
 	def assignMaterial(self, objects, mat):
 		'''Assign Material

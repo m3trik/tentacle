@@ -29,11 +29,11 @@ class Uv_maya(Uv, Slots_maya):
 		tb000 = self.uv_ui.tb000
 		tb000.contextMenu.add('QSpinBox', setPrefix='Pre-Scale Mode: ', setObjectName='s009', setMinMax_='0-2 step1', setValue=1, setToolTip='Allow shell scaling during packing.')
 		tb000.contextMenu.add('QSpinBox', setPrefix='Pre-Rotate Mode: ', setObjectName='s010', setMinMax_='0-2 step1', setValue=1, setToolTip='Allow shell rotation during packing.')
-		tb000.contextMenu.add('QDoubleSpinBox', setPrefix='Rotate Step: ', setObjectName='s007', setMinMax_='0.0-360 step22.5', setValue=22.5, setToolTip='Set the allowed rotation increment contraint.')
 		tb000.contextMenu.add('QSpinBox', setPrefix='Stack Similar: ', setObjectName='s011', setMinMax_='0-2 step1', setValue=0, setToolTip='Find Similar shells. <br>state 1: Find similar shells, and pack one of each, ommiting the rest.<br>state 2: Find similar shells, and stack during packing.')
 		tb000.contextMenu.add('QDoubleSpinBox', setPrefix='Tolerance: ', setObjectName='s006', setMinMax_='0.0-10 step.1', setValue=1.0, setToolTip='Stack Similar: Stack shells with uv\'s within the given range.')
 		tb000.contextMenu.add('QSpinBox', setPrefix='UDIM: ', setObjectName='s004', setMinMax_='1001-1200 step1', setValue=1001, setToolTip='Set the desired UDIM tile space.')
-		tb000.contextMenu.add('QSpinBox', setPrefix='Map Size: ', setObjectName='s005', setMinMax_='512-8192 step512', setValue=2048, setToolTip='UV map resolution.')
+		tb000.contextMenu.add('QSpinBox', setPrefix='Dilation: ', setObjectName='s012', setMinMax_='0-999 step1', setValue=16, setToolTip='Set the shell spacing amount.')
+		tb000.contextMenu.add('QSpinBox', setPrefix='Map Size: ', setObjectName='s005', setMinMax_='512-8192 step512', setValue=4096, setToolTip='UV map resolution.')
 
 		tb007 = self.uv_ui.tb007
 		tb007.contextMenu.b099.released.connect(lambda: tb007.contextMenu.s003.setValue(float(pm.mel.texGetTexelDensity(tb007.contextMenu.s002.value())))) #get and set texel density value.
@@ -156,20 +156,20 @@ class Uv_maya(Uv, Slots_maya):
 
 		scale = tb.contextMenu.s009.value()
 		rotate = tb.contextMenu.s010.value()
-		rotateStep = tb.contextMenu.s007.value()
 		UDIM = tb.contextMenu.s004.value()
 		mapSize = tb.contextMenu.s005.value()
+		dilation = tb.contextMenu.s012.value()
 		similar = tb.contextMenu.s011.value()
 		tolerance = tb.contextMenu.s006.value()
 
-		U,D,I,M = [int(i) for i in str(UDIM)]
+		U,D,I,M = [int(i) for i in str(UDIM)] #UDIM ex. '1001'
+		sel = self.uvShellSelection() #assure the correct selection mask.
 
-		sel = self.UvShellSelection() #assure the correct selection mask.
 		if similar>0:
 			dissimilar = pm.polyUVStackSimilarShells(sel, tolerance=tolerance, onlyMatch=True)
 			dissimilarUVs = [s.split() for s in dissimilar] if dissimilar else []
 			dissimilarFaces = pm.polyListComponentConversion(dissimilarUVs, fromUV=1, toFace=1)
-			pm.u3dLayout(dissimilarFaces, resolution=mapSize, preScaleMode=scale, preRotateMode=rotate, rotateStep=rotateStep, shellSpacing=.005, tileMargin=.005, packBox=[M-1, D, I, U]) #layoutScaleMode (int), multiObject (bool), mutations (int), packBox (float, float, float, float), preRotateMode (int), preScaleMode (int), resolution (int), rotateMax (float), rotateMin (float), rotateStep (float), shellSpacing (float), tileAssignMode (int), tileMargin (float), tileU (int), tileV (int), translate (bool)
+			pm.u3dLayout(dissimilarFaces, resolution=mapSize, shellSpacing=dilation, tileMargin=dilation/2, preScaleMode=scale, preRotateMode=rotate, packBox=[M-1, D, I, U]) #layoutScaleMode (int), multiObject (bool), mutations (int), packBox (float, float, float, float), preRotateMode (int), preScaleMode (int), resolution (int), rotateMax (float), rotateMin (float), rotateStep (float), shellSpacing (float), tileAssignMode (int), tileMargin (float), tileU (int), tileV (int), translate (bool)
 
 		elif similar==2:
 			pm.select(dissimilarFaces, toggle=1)
@@ -177,7 +177,7 @@ class Uv_maya(Uv, Slots_maya):
 			pm.polyUVStackSimilarShells(similarFaces, dissimilarFaces, tolerance=tolerance)
 
 		else:
-			pm.u3dLayout(sel, resolution=mapSize, preScaleMode=scale, preRotateMode=rotate, rotateStep=rotateStep, shellSpacing=.005, tileMargin=.005, packBox=[M-1, D, I, U]) #layoutScaleMode (int), multiObject (bool), mutations (int), packBox (float, float, float, float), preRotateMode (int), preScaleMode (int), resolution (int), rotateMax (float), rotateMin (float), rotateStep (float), shellSpacing (float), tileAssignMode (int), tileMargin (float), tileU (int), tileV (int), translate (bool)
+			pm.u3dLayout(sel, resolution=mapSize, shellSpacing=dilation, tileMargin=dilation/2, preScaleMode=scale, preRotateMode=rotate, packBox=[M-1, D, I, U]) #layoutScaleMode (int), multiObject (bool), mutations (int), packBox (float, float, float, float), preRotateMode (int), preScaleMode (int), resolution (int), rotateMax (float), rotateMin (float), rotateStep (float), shellSpacing (float), tileAssignMode (int), tileMargin (float), tileU (int), tileV (int), translate (bool)
 
 
 	@Slots_maya.attr
@@ -223,7 +223,8 @@ class Uv_maya(Uv, Slots_maya):
 						percentageSpace=0.2, #percentage of the texture area which is added around each UV piece.
 						worldSpace=0) #1=world reference. 0=object reference.
 
-					return polyAutoProjection if len(selection)==1 else polyAutoProjection
+					if len(selection)==1:
+						return polyAutoProjection
 
 			except Exception as error:
 				print(error)
@@ -237,7 +238,7 @@ class Uv_maya(Uv, Slots_maya):
 		orient = tb.contextMenu.chk021.isChecked()
 		stackSimilar = tb.contextMenu.chk022.isChecked()
 		tolerance = tb.contextMenu.s000.value()
-		sel = self.UvShellSelection() #assure the correct selection mask.
+		sel = self.uvShellSelection() #assure the correct selection mask.
 
 		if stackSimilar:
 			pm.polyUVStackSimilarShells(sel, tolerance=tolerance)
@@ -359,13 +360,13 @@ class Uv_maya(Uv, Slots_maya):
 
 
 	@Slots_maya.undoChunk
-	@Slots.message
 	def b002(self):
 		'''Transfer UV's
 		'''
 		selection = pm.ls(orderedSelection=1, flatten=1)
 		if len(selection)<2:
-			return 'Error: <b>Nothing selected.</b><br>The operation requires the selection of two polygon objects.'
+			self.messageBox('<b>Nothing selected.</b><br>The operation requires the selection of two polygon objects.')
+			return
 
 		# pm.undoInfo(openChunk=1)
 		set1 = pm.listRelatives(selection[0], children=1)
@@ -375,36 +376,46 @@ class Uv_maya(Uv, Slots_maya):
 			for to in set2:
 				if pm.polyEvaluate(frm)==pm.polyEvaluate(to):
 					pm.transferAttributes(frm, to, transferUVs=2, sampleSpace=4) #-transferNormals 0 -transferUVs 2 -transferColors 2 -sourceUvSpace "map1" -targetUvSpace "map1" -searchMethod 3-flipUVs 0 -colorBorders 1 ;
-					pm.bakePartialHistory(to, prePostDeformers=1)
 					set2.remove(to) #remove the obj from the transfer list when an exact match is found.
 				elif pm.polyEvaluate(frm, face=1)==pm.polyEvaluate(to, face=1) and pm.polyEvaluate(frm, boundingBox=1)==pm.polyEvaluate(to, boundingBox=1):
 					pm.transferAttributes(frm, to, transferUVs=2, sampleSpace=4) #transfer to the object if it is similar, but keep in transfer list in case an exact match is found later.
-					pm.bakePartialHistory(to, prePostDeformers=1)
 
 		for remaining in set2:
 			print('Error: No match found for: {}.'.format(remaining.name()))
+			pm.transferAttributes(set1, remaining, transferUVs=2, sampleSpace=4)
+
+		pm.delete(selection, constructionHistory=1)
 		# pm.undoInfo(closeChunk=1)
 
 
 	def b005(self):
 		'''Cut UV's
 		'''
-		objects = pm.ls(selection=1, objectsOnly=1, shapes=1, flatten=1)
+		objects = pm.ls(selection=1, objectsOnly=1, flatten=1)
 
 		for obj in objects:
-			sel = pm.ls(obj, sl=1)
-			pm.polyMapCut(sel)
+
+			if pm.selectMode(query=1, object=1): #use all edges when in object mode.
+				edges = obj.e[:]
+			else: #get any selected edges.
+				edges = pm.ls(obj, sl=1)
+
+			pm.polyMapCut(edges)
 
 
 	def b011(self):
 		'''Sew UV's
 		'''
-		objects = pm.ls(selection=1, objectsOnly=1, shapes=1, flatten=1)
+		objects = pm.ls(selection=1, objectsOnly=1, flatten=1)
 
 		for obj in objects:
-			sel = pm.ls(obj, sl=1)
 
-			pm.polyMapSew(sel) if len(objects)==1 else pm.polyMapSew(sel)
+			if pm.selectMode(query=1, object=1): #use all edges when in object mode.
+				edges = obj.e[:]
+			else: #get any selected edges.
+				edges = pm.ls(obj, sl=1)
+
+			pm.polyMapSew(edges)
  
 
 	def moveSelectedToUvSpace(self, u, v, relative=True):
@@ -415,13 +426,12 @@ class Uv_maya(Uv, Slots_maya):
 			v (int) = v coordinate.
 			relative (bool) = Move relative or absolute.
 		'''
-		sel = self.UvShellSelection() #assure the correct selection mask.
+		sel = self.uvShellSelection() #assure the correct selection mask.
 
 		pm.polyEditUV(sel, u=u, v=v, relative=relative)
 
 
-	@Slots.message
-	def UvShellSelection(self):
+	def uvShellSelection(self):
 		'''Select all faces of any selected geometry, and switch the component mode to uv shell,
 		if the current selection is not maskFacet, maskUv, or maskUvShell.
 
@@ -430,7 +440,8 @@ class Uv_maya(Uv, Slots_maya):
 		'''
 		selection = pm.ls(sl=1)
 		if not selection:
-			return 'Error: <b>Nothing selected.<b><br>The operation requires at lease one selected object.'
+			self.messageBox('<b>Nothing selected.<b><br>The operation requires at lease one selected object.')
+			return
 
 		objects = pm.ls(selection, objectsOnly=1)
 		objectMode = pm.selectMode(query=1, object=1)
@@ -440,12 +451,12 @@ class Uv_maya(Uv, Slots_maya):
 		maskUvShell = pm.selectType(query=1, meshUVShell=1)
 
 		if all((objects, objectMode)) or not any((objectMode, maskFacet, maskUv, maskUvShell)):
-
+			selection=[]
 			for obj in objects:
 				pm.selectMode(component=1)
 				pm.selectType(meshUVShell=1)
-				selection = Slots_maya.getComponents('f', obj, flatten=False)
-				pm.select(selection, add=True)
+				selection.append(obj.f[:]) #append all faces of the object.
+			pm.select(selection, add=True)
 
 		return selection
 

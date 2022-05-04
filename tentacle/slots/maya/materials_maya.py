@@ -70,7 +70,6 @@ class Materials_maya(Materials, Slots_maya):
 		b.setVisible(True if cmb.currentText() else False)
 
 
-	@Slots.message
 	def tb000(self, state=None):
 		'''Select By Material Id
 		'''
@@ -78,7 +77,8 @@ class Materials_maya(Materials, Slots_maya):
 
 		mat = self.materials_ui.cmb002.currentData()
 		if not mat:
-			return 'Error: No Material Selection.'
+			self.messageBox('No Material Selection.')
+			return
 
 		shell = tb.contextMenu.chk005.isChecked() #Select by material: shell
 		invert = tb.contextMenu.chk006.isChecked() #Select by material: invert
@@ -89,7 +89,6 @@ class Materials_maya(Materials, Slots_maya):
 		self.selectByMaterialID(mat, objects, shell=shell, invert=invert)
 
 
-	@Slots.message
 	def tb002(self, state=None):
 		'''Assign Material
 		'''
@@ -97,7 +96,8 @@ class Materials_maya(Materials, Slots_maya):
 
 		selection = pm.ls(selection=1, flatten=1)
 		if not selection:
-			return 'Error: No renderable object is selected for assignment.'
+			self.messageBox('No renderable object is selected for assignment.')
+			return
 
 		assignCurrent = tb.contextMenu.chk007.isChecked()
 		assignRandom = tb.contextMenu.chk008.isChecked()
@@ -120,11 +120,10 @@ class Materials_maya(Materials, Slots_maya):
 			self.materials_ui.cmb002.setCurrentItem(mat.name()) #set the combobox index to the new mat #self.cmb002.setCurrentIndex(self.cmb002.findText(name))
 
 		elif assignNew: #Assign New Material
-			mel.eval('buildObjectMenuItemsNow "MainPane|viewPanes|modelPanel4|modelPanel4|modelPanel4|modelPanel4ObjectPop";')
-			mel.eval('createAssignNewMaterialTreeLister "";')
+			pm.mel.buildObjectMenuItemsNow("MainPane|viewPanes|modelPanel4|modelPanel4|modelPanel4|modelPanel4ObjectPop")
+			pm.mel.createAssignNewMaterialTreeLister("")
 
 
-	@Slots.message
 	def lbl000(self):
 		'''Open material in editor
 		'''
@@ -132,7 +131,8 @@ class Materials_maya(Materials, Slots_maya):
 			mat = self.materials_ui.cmb002.currentData() #get the mat obj from cmb002
 			pm.select(mat)
 		except:
-			return 'Error: No stored material or no valid object selected.'
+			self.messageBox('No stored material or no valid object selected.')
+			return
 
 		pm.mel.HypershadeWindow() #open the hypershade editor
 
@@ -194,13 +194,13 @@ class Materials_maya(Materials, Slots_maya):
 		self.lbl000()
 
 
-	@Slots.message
 	def b002(self):
 		'''Set Material: Set the Currently Selected Material as the currentMaterial.
 		'''
 		selection = pm.ls(selection=1)
 		if not selection:
-			return 'Error: Nothing selected.'
+			self.messageBox('Nothing selected.')
+			return
 
 		mat = self.getMaterial()
 
@@ -249,7 +249,6 @@ class Materials_maya(Materials, Slots_maya):
 				cmb.setItemText(cmb.currentIndex(), str(error).strip('\n'))
 
 
-	@Slots.message
 	def selectByMaterialID(self, material=None, objects=None, shell=False, invert=False):
 		'''Select By Material Id
 	
@@ -262,11 +261,13 @@ class Materials_maya(Materials, Slots_maya):
 		selectByMaterialID(material)
 		'''
 		if pm.nodeType(material)=='VRayMultiSubTex': #if not a multimaterial
-			return 'Error: If material is a multimaterial, select a submaterial.'
+			self.messageBox('If material is a multimaterial, select a submaterial.')
+			return
 
 		if not material:
 			if not pm.ls(sl=1):
-				return 'Error: Nothing selected. Select an object face, or choose the option: current material.'
+				self.messageBox('Nothing selected. Select an object face, or choose the option: current material.')
+				return
 			material = self.getMaterial()
 
 		pm.select(material)
@@ -364,7 +365,6 @@ class Materials_maya(Materials, Slots_maya):
 		return mat
 
 
-	@Slots.message
 	@Slots_maya.undoChunk
 	def assignMaterial(self, objects, mat):
 		'''Assign Material
@@ -373,7 +373,8 @@ class Materials_maya(Materials, Slots_maya):
 		material (obj) = The material to search and select for.
 		'''
 		if not mat:
-			return 'Error: Material Not Assigned. No material given.'
+			self.messageBox('Material Not Assigned. No material given.')
+			return
 
 		try: #if the mat is a not a known type; try and create the material.
 			pm.nodeType(mat)

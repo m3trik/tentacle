@@ -33,7 +33,6 @@ class Symmetry_maya(Symmetry, Slots_maya):
 			cmb.setCurrentIndex(0)
 
 
-	@Slots.message
 	def chk005(self, state=None):
 		'''Symmetry: Topo
 		'''
@@ -41,10 +40,9 @@ class Symmetry_maya(Symmetry, Slots_maya):
 		if any ([self.symmetry_ui.chk000.isChecked(), self.symmetry_ui.chk001.isChecked(), self.symmetry_ui.chk002.isChecked()]): #(symmetry)
 			pm.symmetricModelling(edit=True, symmetry=False)
 			self.toggleWidgets(setUnChecked='chk000,chk001,chk002')
-			return 'Note: First select a seam edge and then check the symmetry button to enable topographic symmetry'
+			self.messageBox('First select a seam edge and then check the symmetry button to enable topographic symmetry', messageType='Note')
 
 
-	@Slots.message
 	def setSymmetry(self, state, axis):
 		space = "world" #workd space
 		if self.symmetry_ui.chk004.isChecked(): #object space
@@ -57,7 +55,7 @@ class Symmetry_maya(Symmetry, Slots_maya):
 		tolerance = 0.25
 		pm.symmetricModelling(edit=True, symmetry=state, axis=axis, about=space, tolerance=tolerance)
 		if state:
-			self.viewPortMessage('Symmetry: <hl>{}</hl>'.format(axis.upper()))
+			self.messageBox('Symmetry: <hl>{}</hl>'.format(axis.upper()))
 
 
 

@@ -109,7 +109,6 @@ class Normals_blender(Normals, Slots_blender):
 				return polySoftEdge
 
 
-	@Slots.message
 	def tb003(self, state=None):
 		'''Lock/Unlock Vertex Normals
 		'''

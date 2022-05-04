@@ -34,7 +34,6 @@ class Symmetry_max(Symmetry, Slots_max):
 			cmb.setCurrentIndex(0)
 
 
-	@Slots.message
 	def chk005(self, state=None):
 		'''Symmetry: Topo
 		'''
@@ -45,7 +44,6 @@ class Symmetry_max(Symmetry, Slots_max):
 		# 	return 'Note: First select a seam edge and then check the symmetry button to enable topographic symmetry'
 
 
-	@Slots.message
 	def setSymmetry(self, state, axis):
 		''''''
 		# space = "world" #workd space
@@ -77,7 +75,7 @@ class Symmetry_max(Symmetry, Slots_max):
 			mod.flip = negative
 
 		rt.redrawViews()
-		return 'Symmetry: '+axis.capitalize()+' <hl>'+str(state)+'</hl>'
+		self.messageBox('Symmetry: '+axis.capitalize()+' <hl>'+str(state)+'</hl>')
 
 
 

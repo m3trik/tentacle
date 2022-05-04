@@ -99,28 +99,26 @@ class Selection_maya(Selection, Slots_maya):
 
 
 	@Slots.hideMain
-	@Slots.message
 	def chk004(self, state=None):
 		'''Ignore Backfacing (Camera Based Selection)
 		'''
 		if self.selection_submenu_ui.chk004.isChecked():
 			pm.selectPref(useDepth=True)
-			return 'Camera-based selection <hl>On</hl>.'
+			self.messageBox('Camera-based selection <hl>On</hl>.', messageType='Result')
 		else:
 			pm.selectPref(useDepth=False)
-			return 'Camera-based selection <hl>Off</hl>.'
+			self.messageBox('Camera-based selection <hl>Off</hl>.', messageType='Result')
 
 
-	@Slots.message
 	def chk008(self, state=None):
 		'''Toggle Soft Selection
 		'''
 		if self.selection_submenu_ui.chk008.isChecked():
 			pm.softSelect(edit=1, softSelectEnabled=True)
-			return 'Soft Select <hl>On</hl>.'
+			self.messageBox('Soft Select <hl>On</hl>.', messageType='Result')
 		else:
 			pm.softSelect(edit=1, softSelectEnabled=False)
-			return 'Soft Select <hl>Off</hl>.'
+			self.messageBox('Soft Select <hl>Off</hl>.', messageType='Result')
 
 
 	def cmb000(self, index=-1):
@@ -309,7 +307,6 @@ class Selection_maya(Selection, Slots_maya):
 			pass
 
 
-	@Slots.message
 	def tb000(self, state=None):
 		'''Select Nth
 		'''
@@ -324,7 +321,8 @@ class Selection_maya(Selection, Slots_maya):
 
 		selection = pm.ls(sl=1)
 		if not selection:
-			return 'Error: Operation requires a valid selection.'
+			self.messageBox('Operation requires a valid selection.')
+			return
 
 		result=[]
 		if edgeRing:
@@ -355,7 +353,6 @@ class Selection_maya(Selection, Slots_maya):
 		mel.eval("doSelectSimilar 1 {\""+ tolerance +"\"}")
 
 
-	@Slots.message
 	def tb002(self, state=None):
 		'''Select Island: Select Polygon Face Island
 		'''
@@ -366,14 +363,14 @@ class Selection_maya(Selection, Slots_maya):
 		rangeZ = float(tb.contextMenu.s005.value())
 
 		selectedFaces = pm.filterExpand(sm=34)
-		if selectedFaces:
-			similarFaces = self.normals().getFacesWithSimilarNormals(selectedFaces, rangeX=rangeX, rangeY=rangeY, rangeZ=rangeZ)
-			islands = self.getContigiousIslands(similarFaces)
-			island = [i for i in islands if bool(set(i) & set(selectedFaces))]
-			pm.select(island)
+		if not selectedFaces:
+			self.messageBox('The operation requires a face selection.')
+			return
 
-		else:
-			return 'Warning: No faces were selected.'
+		similarFaces = self.normals().getFacesWithSimilarNormals(selectedFaces, rangeX=rangeX, rangeY=rangeY, rangeZ=rangeZ)
+		islands = self.getContigiousIslands(similarFaces)
+		island = [i for i in islands if bool(set(i) & set(selectedFaces))]
+		pm.select(island)
 
 
 	def tb003(self, state=None):
@@ -387,6 +384,9 @@ class Selection_maya(Selection, Slots_maya):
 		objects = pm.ls(sl=1, objectsOnly=1)
 		edges = Slots_maya.getEdgesByNormalAngle(objects, lowAngle=angleLow, highAngle=angleHigh)
 		pm.select(edges)
+
+		pm.selectMode(component=1)
+		pm.selectType(edge=1)
 
 
 	def b016(self):
@@ -450,12 +450,12 @@ class Selection_maya(Selection, Slots_maya):
 		return name
 
 
-	@Slots.message
 	def creatNewSelectionSet(self, name=None):
 		'''Selection Sets: Create a new selection set.
 		'''
 		if pm.objExists(name):
-			return 'Error: Set with name <hl>{}</hl> already exists.'.format(name)
+			self.messageBox('Set with name <hl>{}</hl> already exists.'.format(name))
+			return
 
 		else: #create set
 			if not name: #name=='set#Set': #generate a generic name based on obj.name
@@ -464,7 +464,6 @@ class Selection_maya(Selection, Slots_maya):
 			pm.sets(name=name, text="gCharacterSet")
 
 
-	@Slots.message
 	def modifySet(self, name):
 		'''Selection Sets: Modify Current by renaming or changing the set members.
 		'''

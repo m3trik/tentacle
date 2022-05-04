@@ -122,7 +122,6 @@ class Display_blender(Display, Slots_blender):
 		self.viewPortMessage('Default Material Override: <hl>{}</hl>.'.format(state))
 
 
-	@Slots.message
 	def b011(self):
 		'''Toggle Component Id Display
 		'''

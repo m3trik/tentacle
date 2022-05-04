@@ -357,7 +357,6 @@ class Uv_blender(Uv, Slots_blender):
 
 
 	@Slots_blender.undoChunk
-	@Slots.message
 	def b002(self):
 		'''Transfer UV's
 		'''
@@ -418,7 +417,6 @@ class Uv_blender(Uv, Slots_blender):
 		pm.polyEditUV(sel, u=u, v=v, relative=relative)
 
 
-	@Slots.message
 	def UvShellSelection(self):
 		'''Select all faces of any selected geometry, and switch the component mode to uv shell,
 		if the current selection is not maskFacet, maskUv, or maskUvShell.

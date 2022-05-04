@@ -90,8 +90,8 @@
    <widget class="QPushButton" name="b002">
     <property name="geometry">
      <rect>
-      <x>115</x>
-      <y>270</y>
+      <x>185</x>
+      <y>340</y>
       <width>97</width>
       <height>19</height>
      </rect>
@@ -109,8 +109,8 @@
    <widget class="QPushButton" name="b003">
     <property name="geometry">
      <rect>
-      <x>115</x>
-      <y>310</y>
+      <x>305</x>
+      <y>340</y>
       <width>97</width>
       <height>19</height>
      </rect>
@@ -128,15 +128,15 @@
    <widget class="QPushButton" name="b005">
     <property name="geometry">
      <rect>
-      <x>150</x>
-      <y>350</y>
-      <width>111</width>
+      <x>135</x>
+      <y>300</y>
+      <width>96</width>
       <height>19</height>
      </rect>
     </property>
     <property name="minimumSize">
      <size>
-      <width>111</width>
+      <width>0</width>
       <height>19</height>
      </size>
     </property>
@@ -147,8 +147,8 @@
    <widget class="QPushButton" name="b021">
     <property name="geometry">
      <rect>
-      <x>155</x>
-      <y>230</y>
+      <x>245</x>
+      <y>380</y>
       <width>111</width>
       <height>19</height>
      </rect>
@@ -166,15 +166,15 @@
    <widget class="QPushButton" name="b006">
     <property name="geometry">
      <rect>
-      <x>195</x>
-      <y>380</y>
-      <width>111</width>
+      <x>160</x>
+      <y>240</y>
+      <width>96</width>
       <height>19</height>
      </rect>
     </property>
     <property name="minimumSize">
      <size>
-      <width>111</width>
+      <width>0</width>
       <height>19</height>
      </size>
     </property>
@@ -185,15 +185,15 @@
    <widget class="QPushButton" name="b007">
     <property name="geometry">
      <rect>
-      <x>320</x>
-      <y>380</y>
-      <width>111</width>
+      <x>135</x>
+      <y>270</y>
+      <width>96</width>
       <height>19</height>
      </rect>
     </property>
     <property name="minimumSize">
      <size>
-      <width>111</width>
+      <width>0</width>
       <height>19</height>
      </size>
     </property>

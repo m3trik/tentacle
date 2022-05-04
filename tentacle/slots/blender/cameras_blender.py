@@ -49,7 +49,6 @@ class Cameras_blender(Cameras, Slots_blender):
 		return self._clippingMenu
 
 
-	@Slots.message
 	def chk000(self, state=None):
 		'''Camera Clipping: Auto Clip
 		'''
@@ -65,7 +64,6 @@ class Cameras_blender(Cameras, Slots_blender):
 		pm.viewClipPlane(activeCamera, autoClipPlane=True)
 
 
-	@Slots.message
 	def s000(self, value=None):
 		'''Camera Clipping: Near Clip
 		'''
@@ -78,7 +76,6 @@ class Cameras_blender(Cameras, Slots_blender):
 		pm.viewClipPlane(activeCamera, nearClipPlane=widget.value())
 
 
-	@Slots.message
 	def s001(self, value=None):
 		'''Camera Clipping: Far Clip
 		'''
@@ -252,7 +249,6 @@ class Cameras_blender(Cameras, Slots_blender):
 				pm.parent(cam, 'cameras')
 
 
-	@Slots.message
 	def v007(self):
 		'''Cameras: Align View
 		'''

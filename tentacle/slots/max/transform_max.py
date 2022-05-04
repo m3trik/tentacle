@@ -154,7 +154,6 @@ class Transform_max(Transform, Slots_max):
 		pm.select(objects) #reselect the original selection.
 
 
-	@Slots.message
 	def tb001(self, state=None):
 		'''Align Vertices
 
@@ -198,7 +197,9 @@ class Transform_max(Transform, Slots_max):
 
 				vertex = selection[0] if selection else None
 				if vertex is None:
-					return 'Error: Unable to get component path.'
+					self.messageBox('Unable to get component path.')
+					return
+
 				vertexTangent = pm.polyNormalPerVertex(vertex, query=True, xyz=True)
 
 				tx = abs(round(vertexTangent[0], 4))
@@ -223,7 +224,8 @@ class Transform_max(Transform, Slots_max):
 					if any ([axis==y and tangent==tz, axis==z and tangent==ty]): #"x"
 						self.toggleWidgets(tb.contextMenu, setChecked='chk029', setUnChecked='chk030-31')
 			else:
-				return 'Error: Operation requires a component selection.'
+				self.messageBox('Operation requires a component selection.')
+				return
 
 		#align
 		x = tb.contextMenu.chk029.isChecked()
@@ -254,14 +256,14 @@ class Transform_max(Transform, Slots_max):
 			self.alignVertices(mode=6,average=avg,edgeloop=loop)
 
 
-	@Slots.message
 	@Slots.hideMain
 	def b000(self):
 		'''Object Transform Attributes
 		'''
 		selection = list(rt.selection)
 		if not selection:
-			return 'Error: <b>Nothing selected.</b><br>The operation requires a single selected object.'
+			self.messageBox('<b>Nothing selected.</b><br>The operation requires a single selected object.')
+			return
 
 		obj = selection[0]
 
@@ -272,13 +274,13 @@ class Transform_max(Transform, Slots_max):
 		self.setAttributeWindow(obj, attributes=attrs, checkableLabel=True)
 
 
-	@Slots.message
 	def b001(self):
 		'''Match Scale
 		'''
 		selection = list(rt.selection)
 		if not selection:
-			return 'Error: <b>Nothing selected.</b><br>The operation requires at least two selected object.'
+			self.messageBox('<b>Nothing selected.</b><br>The operation requires at least two selected object.')
+			return
 
 		frm = selection[0]
 		to = selection[1:]
@@ -413,7 +415,6 @@ class Transform_max(Transform, Slots_max):
 				print (fn, '|', state)
 
 
-	@Slots.message
 	def alignVertices(self, selection, mode):
 		'''Align Vertices
 
@@ -432,10 +433,12 @@ class Transform_max(Transform, Slots_max):
 		componentArray = selection.selectedVerts
 		
 		if len(componentArray) == 0:
-			return 'Error: No vertices selected.'
-		
+			self.messageBox('No vertices selected.')
+			return
+
 		if len(componentArray) < 2:
-			return 'Error: Selection must contain at least two vertices.'
+			self.messageBox('Selection must contain at least two vertices.')
+			return
 
 		lastSelected = componentArray[-1]#3ds max re-orders array by vert index, so this doesnt work for aligning to last selected
 		#~ print(lastSelected.pos)
@@ -518,7 +521,7 @@ class Transform_max(Transform, Slots_max):
 			
 			rt.alignXYZ(mode, vertex, vX, vY, vZ, aX, aY, aZ)
 
-			return '{0}{1}{2}{3}'.format("result: ", vertex.pos[0], vertex.pos[1], vertex.pos[2])
+			self.messageBox('{0}{1}{2}{3}'.format("result: ", vertex.pos[0], vertex.pos[1], vertex.pos[2]))
 
 
 	def scaleObject(self, size, x, y ,z):

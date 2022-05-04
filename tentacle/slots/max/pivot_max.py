@@ -47,7 +47,6 @@ class Pivot_max(Pivot, Slots_max):
 			cmb.setCurrentIndex(0)
 
 
-	@Slots.message
 	def tb000(self, state=None):
 		'''Reset Pivot
 		'''
@@ -61,7 +60,8 @@ class Pivot_max(Pivot, Slots_max):
 
 		if tb.contextMenu.chk013: #reset XForm
 			rt.ResetXForm(rt.selection) #Same as the Reset XForm utility in the Utilities tab - applies XForm modifier to node, stores the current transformations in the gizmo and resets the object transformations.
-			return 'Result: ResetXForm '+str([obj.name for obj in rt.selection])
+			self.messageBox('ResetXForm '+str([obj.name for obj in rt.selection]))
+			return
 
 		# rt.ResetPivot(rt.selection) #Same as Hierarchy/Pivot/Reset Pivot.
 

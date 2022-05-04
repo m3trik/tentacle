@@ -99,7 +99,6 @@ class Selection_blender(Selection, Slots_blender):
 
 
 	@Slots.hideMain
-	@Slots.message
 	def chk004(self, state=None):
 		'''Ignore Backfacing (Camera Based Selection)
 		'''
@@ -111,7 +110,6 @@ class Selection_blender(Selection, Slots_blender):
 			return 'Camera-based selection <hl>Off</hl>.'
 
 
-	@Slots.message
 	def chk008(self, state=None):
 		'''Toggle Soft Selection
 		'''
@@ -330,7 +328,6 @@ class Selection_blender(Selection, Slots_blender):
 			pass
 
 
-	@Slots.message
 	def tb000(self, state=None):
 		'''Select Nth
 		'''
@@ -376,7 +373,6 @@ class Selection_blender(Selection, Slots_blender):
 		mel.eval("doSelectSimilar 1 {\""+ tolerance +"\"}")
 
 
-	@Slots.message
 	def tb002(self, state=None):
 		'''Select Island: Select Polygon Face Island
 		'''
@@ -450,7 +446,6 @@ class Selection_blender(Selection, Slots_blender):
 		return name
 
 
-	@Slots.message
 	def creatNewSelectionSet(self, name=None):
 		'''Selection Sets: Create a new selection set.
 		'''
@@ -464,7 +459,6 @@ class Selection_blender(Selection, Slots_blender):
 			pm.sets(name=name, text="gCharacterSet")
 
 
-	@Slots.message
 	def modifySet(self, name):
 		'''Selection Sets: Modify Current by renaming or changing the set members.
 		'''

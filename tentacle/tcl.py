@@ -423,6 +423,7 @@ class Tcl(QtWidgets.QStackedWidget, StyleSheet):
 		'''Repeat the last stored command.
 		'''
 		method = self.sb.prevCommand()
+
 		if callable(method):
 			method()
 		else:

@@ -49,7 +49,6 @@ class Cameras_maya(Cameras, Slots_maya):
 		return self._clippingMenu
 
 
-	@Slots.message
 	def chk000(self, state=None):
 		'''Camera Clipping: Auto Clip
 		'''
@@ -60,12 +59,12 @@ class Cameras_maya(Cameras, Slots_maya):
 
 		activeCamera = self.getCurrentCam()
 		if not activeCamera:
-			return 'Error: No Active Camera.'
+			self.messageBox('No Active Camera.')
+			return
 
 		pm.viewClipPlane(activeCamera, autoClipPlane=True)
 
 
-	@Slots.message
 	def s000(self, value=None):
 		'''Camera Clipping: Near Clip
 		'''
@@ -73,12 +72,12 @@ class Cameras_maya(Cameras, Slots_maya):
 
 		activeCamera = self.getCurrentCam()
 		if not activeCamera:
-			return 'Error: No Active Camera.'
+			self.messageBox('No Active Camera.')
+			return
 
 		pm.viewClipPlane(activeCamera, nearClipPlane=widget.value())
 
 
-	@Slots.message
 	def s001(self, value=None):
 		'''Camera Clipping: Far Clip
 		'''
@@ -86,7 +85,8 @@ class Cameras_maya(Cameras, Slots_maya):
 
 		activeCamera = self.getCurrentCam()
 		if not activeCamera:
-			return 'Error: No Active Camera.'
+			self.messageBox('No Active Camera.')
+			return
 
 		pm.viewClipPlane(activeCamera, farClipPlane=widget.value())
 
@@ -252,13 +252,13 @@ class Cameras_maya(Cameras, Slots_maya):
 				pm.parent(cam, 'cameras')
 
 
-	@Slots.message
 	def v007(self):
 		'''Cameras: Align View
 		'''
 		selection = pm.ls(sl=1)
 		if not selection:
-			return 'Error: Nothing Selected.'
+			self.messageBox('Nothing Selected.')
+			return
 
 		if not pm.objExists('alignToPoly'): #if no camera exists; create camera
 			cam, camShape = pm.camera()
@@ -283,7 +283,7 @@ class Cameras_maya(Cameras, Slots_maya):
 		'''
 		grp = pm.ls('cameras', transforms=1)
 		if grp and self.isGroup(grp[0]): #add the new cam to 'cameras' group (if it exists).
-			print ("# Error: Group 'cameras' already exists. #")
+			self.messageBox('Group \'cameras\' already exists.')
 			return
 
 		pm.group(world=1, name='cameras')

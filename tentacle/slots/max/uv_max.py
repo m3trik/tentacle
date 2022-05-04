@@ -37,7 +37,7 @@ class Uv_max(Uv, Slots_max):
 
 
 	@property
-	def uvModifier():
+	def uvModifier(self):
 		'''Get the UV modifier for the current object.
 		If one doesn't exist, a UV modifier will be added to the selected object.
 
@@ -46,7 +46,7 @@ class Uv_max(Uv, Slots_max):
 		'''
 		selection = rt.selection
 		if not selection:
-			Slots.messageBox('Error: Nothing selected.')
+			self.messageBox('Nothing selected.')
 
 		mod = self.getModifier(selection[0], 'Unwrap_UVW', -1) #get/set the uv xform modifier.
 		return mod
@@ -130,7 +130,6 @@ class Uv_max(Uv, Slots_max):
 		borders = pm.polyOptions(displayMapBorder=state, sizeBorder=borderWidth)
 
 
-	@Slots.message
 	def chk016(self):
 		'''Display: Distortion
 		'''
@@ -141,7 +140,7 @@ class Uv_max(Uv, Slots_max):
 		mod = self.uv_uiModifier #get/set the uv modifier.
 
 		mod.localDistortion = state
-		return '{0}{1}'.format('localDistortion:', state)
+		self.messageBox('{0}{1}'.format('localDistortion:', state))
 
 
 	def tb000(self, state=None):
@@ -303,12 +302,12 @@ class Uv_max(Uv, Slots_max):
 		'''
 		sel = pm.ls(orderedSelection=1, flatten=1)
 		if len(sel)<2:
-			Slots.messageBox('Error: The operation requires the selection of two polygon objects.')
+			self.messageBox('The operation requires the selection of two polygon objects.')
 
 		from_ = sel[0]
 		to = sel[-1]
 		pm.transferAttributes(from_, to, transferUVs=2) # 0:no UV sets, 1:single UV set (specified by sourceUVSet and targetUVSet args), and 2:all UV sets are transferred.
-		Slots.messageBox('Result: UV sets transferred from: {} to: {}.'.format(from_.name(), to.name()))
+		self.messageBox('UV sets transferred from: {} to: {}.'.format(from_.name(), to.name()), messageType='Result')
 
 
 	def b005(self):

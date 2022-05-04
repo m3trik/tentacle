@@ -55,7 +55,6 @@ class Polygons_max(Polygons, Slots_max):
 			cmb.setCurrentIndex(0)
 
 
-	@Slots.message
 	def tb000(self, state=None):
 		'''Merge Vertices
 		'''
@@ -77,7 +76,8 @@ class Polygons_max(Polygons, Slots_max):
 				else: #if object mode. merge all vertices on the selected object.
 					rt.polyop.weldVertsByThreshold(obj, obj.verts)
 		else:
-			return 'Error: No object selected.'
+			self.messageBox('No object selected.')
+			return
 
 
 	def tb001(self, state=None):
@@ -244,7 +244,6 @@ class Polygons_max(Polygons, Slots_max):
 				objects[-1] * obj
 
 
-	@Slots.message
 	def tb009(self, state=None):
 		'''Snap Closest Verts
 		'''
@@ -258,7 +257,8 @@ class Polygons_max(Polygons, Slots_max):
 			obj1, obj2 = selection
 			Slots_max.snapClosestVerts(obj1, obj2, tolerance, freezetransforms)
 		else:
-			return 'Error: Operation requires at least two selected objects.'
+			self.messageBox('Operation requires at least two selected objects.')
+			return
 
 
 	def b000(self):
@@ -276,7 +276,6 @@ class Polygons_max(Polygons, Slots_max):
 		rt.macros.run('Modifiers', 'Cap_Holes')
 
 
-	@Slots.message
 	def b002(self):
 		'''Separate
 		'''

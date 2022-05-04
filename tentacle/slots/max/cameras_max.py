@@ -55,7 +55,6 @@ class Cameras_max(Cameras, Slots_max):
 		maxEval('actionMan.executeAction 0 "374"') #Tools: Viewport Clipping
 
 
-	@Slots.message
 	def chk000(self, state=None):
 		'''Camera Clipping: Auto Clip
 		'''
@@ -66,7 +65,8 @@ class Cameras_max(Cameras, Slots_max):
 
 		activeCamera = rt.getActiveCamera()
 		if not activeCamera:
-			return 'Error: No Active Camera.'
+			self.messageBox('No Active Camera.')
+			return
 
 		activeCamera.clipManually(False)
 

@@ -26,7 +26,6 @@ class Mirror_maya(Mirror, Slots_maya):
 			cmb.setCurrentIndex(0)
 
 
-	@Slots.message
 	@Slots_maya.attr
 	def tb000(self, state=None):
 		'''Mirror Geometry
@@ -102,7 +101,8 @@ class Mirror_maya(Mirror, Slots_maya):
 		if not objects:
 			objects = pm.ls(sl=1, objectsOnly=1)
 			if not objects:
-				return 'Error: <b>Nothing selected.<b><br>Operation requires at least one selected polygon object.'
+				self.messageBox('<b>Nothing selected.<b><br>Operation requires at least one selected polygon object.')
+				return
 
 		# pm.undoInfo(openChunk=1)
 		for obj in objects:

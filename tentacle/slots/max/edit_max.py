@@ -72,7 +72,6 @@ class Edit_max(Edit, Slots_max):
 		self.meshCleanup(isolatedVerts=isolatedVerts, edgeAngle=edgeAngle, nGons=nGons, repair=repair)
 
 
-	@Slots.message
 	def tb001(self, state=None):
 		'''Delete History
 		'''
@@ -100,14 +99,18 @@ class Edit_max(Edit, Slots_max):
 		#display viewPort messages
 		if all_:
 			if deformers:
-				return 'Delete <hl>All</hl> History.'
+				self.messageBox('Delete <hl>All</hl> History.')
+				return
 			else:
-				return 'Delete <hl>All Non-Deformer</hl> History.'
+				self.messageBox('Delete <hl>All Non-Deformer</hl> History.')
+				return
 		else:
 			if deformers:
-				return 'Delete history on '+str(objects)
+				self.messageBox('Delete history on '+str(objects))
+				return
 			else:
-				return 'Delete <hl>Non-Deformer</hl> history on '+str(objects)
+				self.messageBox('Delete <hl>Non-Deformer</hl> history on '+str(objects))
+				return
 
 
 	def tb002(self, state=None):
@@ -134,14 +137,14 @@ class Edit_max(Edit, Slots_max):
 				rt.polyop.deleteFaces(obj, faces, delIsoVerts=1)
 
 
-	@Slots.message
 	@Slots.hideMain
 	def b001(self):
 		'''Object History Attributes: get most recent node
 		'''
 		selection = rt.modPanel.getCurrentObject()
 		if not selection:
-			return 'Error: Operation requires a single selected object.'
+			self.messageBox('Operation requires a single selected object.')
+			return
 
 		self.setAttributeWindow(selection, checkableLabel=True)
 
@@ -311,7 +314,6 @@ class Edit_max(Edit, Slots_max):
 							sharedUVs=False, nonmanifold=True, invalidComponents=False, splitNonManifoldVertex=False)
 
 
-	@Slots.message
 	@Slots.hideMain
 	def b001(self):
 		'''Object History Attributes: get most recent node
@@ -323,7 +325,8 @@ class Edit_max(Edit, Slots_max):
 		if items:
 			self.setAttributeWindow(items, checkableLabel=True)
 		else:
-			return 'Error: Found no items to list the history for.'
+			self.messageBox('Found no items to list the history for.')
+			return
 
 
 	def b021(self):

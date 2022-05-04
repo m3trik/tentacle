@@ -92,19 +92,11 @@ class Rendering_max(Rendering, Slots_max):
 			currentID+=1
 
 
-	@Slots.message
 	def b006(self):
 		'''Load Vray Plugin
 		'''
-		vray = ['vrayformaya.mll','vrayformayapatch.mll']
-		if pm.pluginInfo ('vrayformaya.mll', query=1, loaded=1):
-			try:
-				pm.unloadPlugin(vray)
-			except:
-				pm.unloadPlugin(vray, force=1)
-				return 'Result: Force unloadPlugin:'+str(vray)
-		else:
-			pm.loadPlugin (vray)
+		
+
 
 
 

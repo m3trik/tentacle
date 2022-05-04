@@ -124,7 +124,6 @@ class Display_max(Display, Slots_max):
 		pass
 
 
-	@Slots.message
 	def b011(self):
 		'''Toggle Component ID Display
 		'''
@@ -150,15 +149,20 @@ class Display_max(Display, Slots_max):
 				i+=1
 
 		if index == 0:
-			return '<hl>Vertex IDs</hl>.' #[1,0,0,0]
+			self.messageBox('<hl>Vertex IDs</hl>.') #[1,0,0,0]
+			return
 		elif index == 1:
-			return '<hl>Edge IDs</hl>.' #[0,1,0,0]
+			self.messageBox('<hl>Edge IDs</hl>.') #[0,1,0,0]
+			return
 		elif index == 2:
-			return '<hl>Face IDs</hl>.' #[0,0,1,0]
+			self.messageBox('<hl>Face IDs</hl>.') #[0,0,1,0]
+			return
 		elif index == 3:
-			return '<hl>Component IDs (UV)</hl>.' #[0,0,0,1]
+			self.messageBox('<hl>Component IDs (UV)</hl>.') #[0,0,0,1]
+			return
 		elif index == 4:
-			return 'Component ID <hl>Off</hl>.'
+			self.messageBox('Component ID <hl>Off</hl>.')
+			return
 
 
 	def b012(self):

@@ -27,7 +27,6 @@ class Duplicate_max(Duplicate, Slots_max):
 			cmb.setCurrentIndex(0)
 
 
-	@Slots.message
 	def chk010(self, state=None):
 		'''Radial Array: Set Pivot
 		'''
@@ -40,7 +39,8 @@ class Duplicate_max(Duplicate, Slots_max):
 				pivot = pm.xform (selection, query=1, translation=1, relative=1)
 			except:
 				self.toggleWidgets(setChecked='chk010')
-				return 'Error: Nothing Selected.'
+				self.messageBox('Nothing Selected.')
+				return
 
 			# radialPivot.extend ([pivot[0],pivot[1],pivot[2]])
 			radialPivot.extend (pivot) #extend the list contents
@@ -53,7 +53,6 @@ class Duplicate_max(Duplicate, Slots_max):
 
 	global radialArrayObjList
 	radialArrayObjList=[]
-	@Slots.message
 	def chk015(self, create=False):
 		'''Radial Array: Preview
 		'''
@@ -110,7 +109,8 @@ class Duplicate_max(Duplicate, Slots_max):
 					pm.undoInfo (closeChunk=1)
 			else: #if both lists objects are empty:
 				self.toggleWidgets(setDisabled='b003', setUnChecked='chk015')
-				return 'Error: Nothing Selected.'
+				self.messageBox('Nothing Selected.')
+				return
 
 		else: #if chk015 is unchecked by user or by create button
 			if create:
@@ -267,13 +267,13 @@ class Duplicate_max(Duplicate, Slots_max):
 			self.toggleWidgets(setDisabled='b002')
 
 
-	@Slots.message
 	def b000(self):
 		'''Create Instances
 		'''
 		selection = pm.ls(sl=1, transforms=1)
 		if not selection:
-			return 'Error: <strong>Nothing selected</strong>.<br>Operation requires an object selection.'
+			self.messageBox('<strong>Nothing selected</strong>.<br>Operation requires an object selection.')
+			return
 
 		instances = [pm.instance(obj, name=obj.name()+'_inst') 
 							for obj in selection]
@@ -290,7 +290,6 @@ class Duplicate_max(Duplicate, Slots_max):
 
 
 
-	@Slots.message
 	def b004(self):
 		'''Select Instanced Objects
 		'''
@@ -312,7 +311,8 @@ class Duplicate_max(Duplicate, Slots_max):
 				shapes = pm.listRelatives (selectedObj, s=1)
 				maxEval('select `listRelatives -ap '+shapes[0]+'`;')
 			except:
-				return 'Warning: No valid object selected.'
+				self.messageBox('No valid object selected.')
+				return
 
 
 	def b005(self):

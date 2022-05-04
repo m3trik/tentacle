@@ -13,11 +13,10 @@
 # ======================================================================
 
 # decorators:
-@Slots.message		# Pop up a message box displaying the returned str. also: self.viewPortMessage("Display Local Rotation Axes:<hl>"+str(state)+"</hl>")									# ex. return 'Error: <hl>Nothing selected</hl>.<br>Operation requires an object or vertex selection.'
 @Slots.hideMain		# Hides the stacked widget main window.
 @Slots.progress		# Displays a progress bar. (currently disabled)
-@Slots_maya.attr				# Launch a popup window containing the given objects attributes. A Decorator for setAttributeWindow (objAttrWindow).
-@Slots_maya.undoChunk		# A decorator to place a function into Maya's undo chunk.
+@Slots_maya.attr		# Launch a popup window containing the given objects attributes. A Decorator for setAttributeWindow (objAttrWindow).
+@Slots_maya.undoChunk	# A decorator to place a function into Maya's undo chunk.
 
 
 
@@ -198,18 +197,70 @@ def tree000(self, wItem=None, column=None):
 	'KNOWN BUGS AND GENERAL TO-DO'
 # ======================================================================
 '''
+build history window instead of using tree widget.
+replace other tree widget instances with popup windows.
+
+
 widgets: combobox:
 change comboboxes with custom menus to clickable labels. (transform menu)
 remove alt menu types from combobox.
 
 
+edit_maya:  
+clean: create a function that combines the existing geo with a new cube then deletes the cube, returning the geo to it's original state.
+
+
+normals_maya:
+not working with multiple objects.
+add option to enabble soft edge display on the object after operation.
+
+
+uv:
+change unfold button in submenu to a unfold and pack macro.
+editors combobox not working: other comboboxes are broken.
+make map size a universal top level spinbox that all commands pull the value from.
+use builtin stack similar from layout options menu.
+dilation setting does not seem to be working.
+add orient shells to the unfold options. (UVOrientShells;) pm.mel.texOrientShells();
+
+
+materials:
+separate 'assign current', 'assign new' to their own buttons.
+assign random:  give option to derive mat name from mesh name.
+link bitmaps script.
+
+
+transform:
+combine 'move to' and 'match scale' to 'match transforms'.  
+add duplicate and move match.
+add delete after move.
+use new window and class.
+
+
+create macro toolbutton where you are able to chain commands.
+
+
+selection_maya:
+add quick store current selection list menu.
+
+
+uv_maya:  select by type:  move to selection_maya: select by type.
+autounwrap needs undochunk
+
+
+selection_maya:
+bonus tools: select nth (use algorithm)
+
+
 file_maya:
+open recent:  opening wrong file. maybe because sorting by timestamp.
 workspace contextmenu> 'set' project method being called twice. :(
 
 
 mirror_maya:
 fix mirror pivot using the method in test_004
 the axis parameter is new. may help fix the issue.
+add center pivot on mirrored object option and set as default.
 
 
 polygons_maya:
@@ -221,10 +272,6 @@ add to mesh groupbox:
 Quadrangulate;
 performPolyQuadrangulate 0;
 pm.polyQuad(selection, angle=30, -kgb 1 -ktb 1 -khe 0 -ws 1 -ch 1)
-
-
-duplicate_maya:
-add axis position option to command, and possibly create some buttons to quick mirror different positions. 
 
 
 create_maya:
@@ -364,13 +411,6 @@ unfold -i 5000 -ss 0.001 -gb 0 -gmb 0.5 -pub 0 -ps  0 -oa  0 -us off pCylinder1.
 #   File "O:/Cloud/Code/_scripts/tentacle\tentacle\switchboard.py", line 673, in getUiIndex
 #     return self.uiList(names=True).index(uiName)
 # ValueError: 'main_lower' is not in list
-
-
-
-#maya_uv: transfer uv's
-#fix transfer UV's by trying new method below:
-polyTransfer -uv 1 -v 0 -ao $souceMesh $destMesh[$i];
-
 
 
 # get a menu to pop up directly:
