@@ -197,6 +197,12 @@ def tree000(self, wItem=None, column=None):
 	'KNOWN BUGS AND GENERAL TO-DO'
 # ======================================================================
 '''
+merge uiLoader and stylesheet varients.
+
+
+attribute windows pop up at left side of screen (away from cursor) and timeout after x seconds.
+
+
 build history window instead of using tree widget.
 replace other tree widget instances with popup windows.
 
@@ -204,6 +210,15 @@ replace other tree widget instances with popup windows.
 widgets: combobox:
 change comboboxes with custom menus to clickable labels. (transform menu)
 remove alt menu types from combobox.
+
+
+subdivision_maya:
+reduce not working.
+polyReduce  -ver 1 -trm 0 -shp 0 -keepBorder 1 -keepMapBorder 1 -keepColorBorder 1 -keepFaceGroupBorder 1 -keepHardEdge 1 -keepCreaseEdge 1 -keepBorderWeight 0.5 -keepMapBorderWeight 0.5 -keepColorBorderWeight 0.5 -keepFaceGroupBorderWeight 0.5 -keepHardEdgeWeight 0.5 -keepCreaseEdgeWeight 0.5 -useVirtualSymmetry 0 -symmetryTolerance 0.01 -sx 0 -sy 1 -sz 0 -sw 0 -preserveTopology 1 -keepQuadsWeight 1 -vertexMapName "" -cachingReduce 1 -ch 1 -p 50 -vct 0 -tct 0 -replaceOriginal 1 "|PaddingSeatsRampHandPump_module:Ac_CargoArea|PaddingSeatsRampHandPump_module:Wall_Padding_02";
+
+
+create_maya:
+replace selected geo with primitive tool.
 
 
 edit_maya:  
@@ -225,13 +240,20 @@ add orient shells to the unfold options. (UVOrientShells;) pm.mel.texOrientShell
 
 
 materials:
+modify the combobox custom widget to modify text fields on double click. (and change the rename function to work this way)
 separate 'assign current', 'assign new' to their own buttons.
 assign random:  give option to derive mat name from mesh name.
 link bitmaps script.
 
 
 transform:
-combine 'move to' and 'match scale' to 'match transforms'.  
+combine 'move to' and 'match scale' to 'match transforms'.
+get the functions for these maya commands:
+	pm.mel.performMatchTransform(0)
+	performMatchTranslate 0;
+	performMatchRotate 0;
+	performMatchScale 0;
+	performMatchPivots 0;
 add duplicate and move match.
 add delete after move.
 use new window and class.
@@ -240,6 +262,8 @@ use new window and class.
 create macro toolbutton where you are able to chain commands.
 
 
+selection:
+add convert to vertices and any other commonly used component type conversion to submenu.
 selection_maya:
 add quick store current selection list menu.
 
@@ -264,6 +288,8 @@ add center pivot on mirrored object option and set as default.
 
 
 polygons_maya:
+create 'weld all' button.
+target weld:  switch to vertex component selection on activation.
 add segments option to bevel.
 polygons_maya: (polygons_vertices_maya)
 merge vertex in object mode not working.

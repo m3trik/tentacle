@@ -12,6 +12,8 @@ class RichText(object):
 	ex. '<b style="font-weight: bold;">'
 	ex. '<strong style="font-weight: bold;">'
 	ex. '<mark style="background-color: grey">'
+	escape: '<' replace with &lt;
+	escape: '>' replace with &gt;
 	'''
 	hasRichText = False
 

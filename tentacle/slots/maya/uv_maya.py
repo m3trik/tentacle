@@ -177,7 +177,8 @@ class Uv_maya(Uv, Slots_maya):
 			pm.polyUVStackSimilarShells(similarFaces, dissimilarFaces, tolerance=tolerance)
 
 		else:
-			pm.u3dLayout(sel, resolution=mapSize, shellSpacing=dilation, tileMargin=dilation/2, preScaleMode=scale, preRotateMode=rotate, packBox=[M-1, D, I, U]) #layoutScaleMode (int), multiObject (bool), mutations (int), packBox (float, float, float, float), preRotateMode (int), preScaleMode (int), resolution (int), rotateMax (float), rotateMin (float), rotateStep (float), shellSpacing (float), tileAssignMode (int), tileMargin (float), tileU (int), tileV (int), translate (bool)
+			# u3dLayout -res 4096 -scl 1 -spc 0.00390625 -box 0 1 0 1
+			pm.u3dLayout(sel, resolution=mapSize, preScaleMode=scale, preRotateMode=rotate, packBox=[M-1, D, I, U]) #layoutScaleMode (int), multiObject (bool), mutations (int), packBox (float, float, float, float), preRotateMode (int), preScaleMode (int), resolution (int), rotateMax (float), rotateMin (float), rotateStep (float), shellSpacing (float), tileAssignMode (int), tileMargin (float), tileU (int), tileV (int), translate (bool)
 
 
 	@Slots_maya.attr

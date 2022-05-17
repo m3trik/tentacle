@@ -203,7 +203,7 @@ class File_maya(File, Slots_maya):
 		'''
 		# force=false #pymel has no attribute quit error.
 		# exitcode=""
-		sceneName = str(pm.file(query=1, sceneName=1, shortName=1)) #if sceneName prompt user to save; else force close
+		sceneName = str(pm.mel.file(query=1, sceneName=1, shortName=1)) #if sceneName prompt user to save; else force close
 		pm.mel.quit() if sceneName else pm.mel.quit(force=True) #pm.quit (force=force, exitcode=exitcode)
 
 

@@ -25,20 +25,20 @@ class UiLoader(QtUiTools.QUiLoader):
 	if not qApp:
 		qApp = QtWidgets.QApplication(sys.argv)
 
-	def __init__(self, uiDir='ui'):
+	def __init__(self, uiPath=os.path.dirname(os.path.abspath(__file__)), uiFolder='ui'):
 		QtUiTools.QUiLoader.__init__(self)
 		'''Load the ui files and any custom widgets.
 		'''
-		self.uiDir = uiDir
+		self.uiFolder = uiFolder
+		self.uiPath = uiPath
 
 		# register any custom widgets.
 		import tentacle.ui.widgets
 		widgets = [w for w in tentacle.ui.widgets.__dict__.values() if type(w).__name__=='ObjectType']
 		self.registerWidgets(widgets)
 
-		# initialize _sbDict by setting keys for the ui files.
-		uiPath = os.path.dirname(os.path.abspath(__file__)) #get absolute path from dir of this module
-		for dirPath, dirNames, filenames in os.walk(uiPath):
+		# initialize uiDict by setting keys for the ui files.
+		for dirPath, dirNames, filenames in os.walk(self.uiPath):
 			uiFiles = [f for f in filenames if f.endswith('.ui')]
 			self.addUi(dirPath, uiFiles)
 
@@ -71,10 +71,12 @@ class UiLoader(QtUiTools.QUiLoader):
 
 		:Parameters:
 			dirPath (str) = The absolute directory path to the uiFiles.
-			uiFiles (list) = A list of dynamic ui files.
+			uiFiles (str)(list) = Dynamic ui filename(s).
 
 		ie. {'polygons':{'ui':<ui obj>, 'level':<int>}} (the ui level is it's hierarchy based on the ui file's dir location)
 		'''
+		uiFiles = [uiFiles] if isinstance(uiFiles, str) else uiFiles
+
 		for filename in uiFiles:
 			uiName = filename.replace('.ui','') #get the name from fileName by removing the '.ui' extension.
 
@@ -83,7 +85,7 @@ class UiLoader(QtUiTools.QUiLoader):
 			ui = self.load(path)
 
 			#get the ui level from it's directory location.
-			d = dirPath.split('\\'+self.uiDir+'\\')[-1] #ie. base_menus from fullpath\ui\base_menus
+			d = dirPath.split('\\'+self.uiFolder+'\\')[-1] #ie. base_menus from fullpath\ui\base_menus
 			try:
 				uiLevel = int(d.strip('uiLevel_'))
 				self.uiDict[uiName] = {'ui':ui, 'level':uiLevel}
@@ -115,7 +117,7 @@ print (__name__)
 # 		uiPath = os.path.dirname(os.path.abspath(__file__)) #get absolute path from dir of this module
 
 # 		# register any custom widgets.
-# 		widgetPath = os.path.join(os.path.dirname(uiPath), uiDir+'\\'+WIDGET_DIR) #get the path to the widget directory.
+# 		widgetPath = os.path.join(os.path.dirname(uiPath), uiFolder+'\\'+WIDGET_DIR) #get the path to the widget directory.
 # 		moduleNames = [file_.replace('.py','',-1) for file_ in os.listdir(widgetPath) if file_.startswith(WIDGET_MODULE_PREFIX) and file_.endswith('.py')] #format names using the files in path.
 # 		self.registerWidgets(moduleNames)
 
