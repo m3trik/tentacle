@@ -24,49 +24,55 @@ class StyleSheet(QtCore.QObject):
 	# Set the style for a specific widget:
 		QWidget#mainWindow ('#' syntax, followed by the widget's objectName)
 	'''
-	colorValues = {
-		'standard': {
-			'BACKGROUND'		: 'rgb(100,100,100)',
-			'PRESSED'			: 'rgb(125,125,125)',
-			'HIGHLIGHT'			: 'yellow',
-			'HOVER'				: 'rgb(82,133,166)',
-			'TEXT'				: 'white',
-			'TEXT_CHECKED'		: 'black',
-			'TEXT_DISABLED'		: 'gray',
-			'TEXT_HOVER'		: 'white',
-			'TEXT_BACKGROUND'	: 'rgb(50,50,50)',
-			'BORDER'			: 'rgb(50,50,50)',
-		},
+	_colorValues = {
+			'standard': {
+				'BACKGROUND'		: 'rgb(100,100,100)',
+				'BACKGROUND_ALPHA'	: 'rgba(100,100,100,{ALPHA})',
+				'PRESSED'			: 'rgb(125,125,125)',
+				'HIGHLIGHT'			: 'yellow',
+				'HOVER'				: 'rgb(82,133,166)',
+				'TEXT'				: 'white',
+				'TEXT_CHECKED'		: 'black',
+				'TEXT_DISABLED'		: 'gray',
+				'TEXT_HOVER'		: 'white',
+				'TEXT_BACKGROUND'	: 'rgb(50,50,50)',
+				'BORDER'			: 'rgb(50,50,50)',
+			},
 
-		'dark': {
-			'BACKGROUND'		: 'rgb(60,60,60)',
-			'PRESSED'			: 'rgb(125,125,125)',
-			'HIGHLIGHT'			: 'yellow',
-			'HOVER'				: 'rgb(82,133,166)',
-			'TEXT'				: 'rgb(185,185,185)',
-			'TEXT_CHECKED'		: 'black',
-			'TEXT_DISABLED'		: 'darkGray',
-			'TEXT_HOVER'		: 'white',
-			'TEXT_BACKGROUND'	: 'rgb(50,50,50)',
-			'BORDER'			: 'black',
+			'dark': {
+				'BACKGROUND'		: 'rgb(60,60,60)',
+				'BACKGROUND_ALPHA'	: 'rgba(60,60,60,{ALPHA})',
+				'PRESSED'			: 'rgb(125,125,125)',
+				'HIGHLIGHT'			: 'yellow',
+				'HOVER'				: 'rgb(82,133,166)',
+				'TEXT'				: 'rgb(185,185,185)',
+				'TEXT_CHECKED'		: 'black',
+				'TEXT_DISABLED'		: 'darkGray',
+				'TEXT_HOVER'		: 'white',
+				'TEXT_BACKGROUND'	: 'rgb(50,50,50)',
+				'BORDER'			: 'black',
+			}
 		}
-	}
 
-	styleSheets = {
+	_styleSheets = {
 		'QWidget': '''
-			QWidget::item:selected {
-				background: {HOVER};
+			QWidget {
+				background: {BACKGROUND_ALPHA};
 			}
 
 			QWidget#mainWindow {
-				background: transparent;
+				background: {BACKGROUND_ALPHA};
 			} 
+
+			QWidget::item:selected {
+				background: {HOVER};
+			}
 			''',
 
 		'QStackedWidget': '''
 			QStackedWidget {
 
-			} 
+			}
 			''',
 
 		'QPushButton': '''
@@ -551,14 +557,16 @@ class StyleSheet(QtCore.QObject):
 			''',
 
 		'QTextEdit': '''
-			QTextEdit#info {
-				background-color: transparent';
+			QTextEdit#hud {
+				border: 0px solid transparent;
+				background-color: transparent;
 				color: white;
 				selection-background-color: {TEXT_BACKGROUND};
 				selection-color: white;
 			}
 
 			QTextEdit {
+				border: 1px solid {BORDER};
 				background-color: {BACKGROUND};
 				color: {TEXT};
 				selection-background-color: {HOVER};
@@ -1033,60 +1041,82 @@ class StyleSheet(QtCore.QObject):
 
 
 
-	def __init__(self, parent):
-		super(StyleSheet, self).__init__(parent)
+	def __init__(self, parent=None):
+		super(StyleSheet, self).__init__(parent=None)
+		'''
+		'''
 
-		self.sb = self.parent.sb
 
-
-	def getStyleSheet(self, widgetType, style='standard'):
-		'''Get the styleSheet for the given widgetType.
+	def getColorValues(self, style='standard', **kwargs):
+		'''Return the colorValues dict with any of the bracketed placeholders 
+		replaced by the value of any given kwargs of the same name.
 
 		:Parameters:
-			widgetType (str) = The class name of the widget. ie. 'QLabel'
+			style (str) = The color value set to use. valid values are: 'standard', 'dark'
+			**kwargs () = Keyword arguments matching the string of any bracketed placeholders.
+				case insensitive.  ex. alpha=255
+
+		:Return:
+			(dict)
+		'''
+		kwargs = {k.upper():v for k, v in kwargs.items()} #assure upper case keys.
+
+		colorValues_wAlpha = {
+			k:v.format(**kwargs)
+				for k, v in self._colorValues[style].items()
+		}
+
+		return colorValues_wAlpha
+
+
+	def getStyleSheet(self, widget_type, style='standard', backgroundOpacity=255):
+		'''Get the styleSheet for the given widget type.
+
+		:Parameters:
+			widget_type (str) = The class name of the widget. ie. 'QLabel'
 			style (str) = The color value set to use. valid values are: 'standard', 'dark'
 
 		:Return:
 			(str) css styleSheet
 		'''
 		try:
-			css = self.styleSheets[widgetType]
+			css = self._styleSheets[widget_type]
+
 		except KeyError as error:
 			print ('KeyError: {error} in {module} \'getStyleSheet\''.format(error=error, module=self.__class__.__name__))
 			return ''
 
-		for k, v in self.colorValues[style].items():
-			css = css.replace('{'+k+'}', v)
+		for k, v in self.getColorValues(style=style, alpha=backgroundOpacity).items():
+			css = css.replace('{'+k.upper()+'}', v)
 
 		return css
 
 
-	def setStyleSheet_(self, widgets, uiName=None, ratio=6, style='standard', hideMenuButton=False):
+	def setStyleSheet_(self, widgets, ratio=6, style='standard', hideMenuButton=False, backgroundOpacity=255):
 		'''Set the styleSheet for the given widgets.
 		Set the style for a specific widget by using the '#' syntax and the widget's objectName. ie. QWidget#mainWindow
 
 		:Parameters:
 			widgets (obj)(list) = A widget or list of widgets.
-			uiName (str) = The name of the parent ui. If None is given, the current ui will be used.
 			ratio (int) = The ratio of widget size, text length in relation to the amount of padding applied.
-			style (str) = 
-			hideMenuButton (boool) = 
+			style (str) = Color mode. ie. 'standard' or 'dark'
+			hideMenuButton (boool) = Hide the menu button of a widget that has one.
+			backgroundOpacity (int) = Set the background alpha transparency between 0 and 255.
 		'''
-		uiName = uiName if uiName else self.sb.getUiName()
-		uiLevel = self.sb.getUiLevel(uiName)
+		widgets = [widgets] if not isinstance(widgets, (list, tuple, set)) else widgets #assure widgets in a list.
 
-		for widget in self.sb.list_(widgets):
-			derivedType = self.sb.getDerivedType(widget, uiName) #get the derived class type as string.
+		for widget in widgets:
+			widget_type = self.getDerivedType(widget)
 
 			try: #if hasattr(widget, 'styleSheet'):
-				s = self.getStyleSheet(derivedType, style=style)
+				s = self.getStyleSheet(widget_type, style=style, backgroundOpacity=backgroundOpacity)
 				if hideMenuButton:
-					s = s + self.hideMenuButton(derivedType)
+					s = s + self.hideMenuButton(widget_type)
 
 				try:
 					length = len(widget.text()) if hasattr(widget, 'text') else len(str(widget.value())) #a 'NoneType' error will be thrown if the widget does not contain text.
 					if widget.size().width() // length > ratio: #ratio of widget size, text length (using integer division).
-						s = s + self.adjustPadding(derivedType)
+						s = s + self.adjustPadding(widget_type)
 				except (AttributeError, ZeroDivisionError) as error:
 					pass; # print (__name__, error, widget.text())
 
@@ -1098,16 +1128,16 @@ class StyleSheet(QtCore.QObject):
 				pass
 
 
-	def adjustPadding(self, derivedType):
+	def adjustPadding(self, widget_type):
 		'''Remove padding when the text length / widget width ratio is below a given amount.
 		'''
 		return '''
 			{0} {{
 				padding: 0px 0px 0px 0px;
-			}}'''.format(derivedType)
+			}}'''.format(widget_type)
 
 
-	def hideMenuButton(self, derivedType):
+	def hideMenuButton(self, widget_type):
 		'''Set the menu button as transparent.
 		'''
 		return '''
@@ -1117,7 +1147,26 @@ class StyleSheet(QtCore.QObject):
 
 			{0}::menu-button::hover {{
 				border: 1px solid transparent;
-			}}'''.format(derivedType)
+			}}'''.format(widget_type)
+
+
+	def getDerivedType(self, widget, ui=None):
+		'''Get the base class of a custom widget.
+		If the type is a standard widget, the derived type will be that widget's type.
+
+		:Parameters:
+			widget (str)(obj) = QWidget or it's objectName.
+			ui (str)(obj) = The ui name, or ui object. ie. 'polygons' or <polygons>
+							If None is given, the current ui will be used.
+
+		:Return:
+			(string) base class name. ie. 'QPushButton' from a custom widget with class name: 'PushButton'
+		'''
+		# print(widget.__class__.__mro__)
+		for c in widget.__class__.__mro__:
+			if c.__module__=='PySide2.QtWidgets': #check for the first built-in class.
+				derivedType = c.__name__ #Then use it as the derived class.
+				return derivedType
 
 
 
@@ -1125,6 +1174,14 @@ class StyleSheet(QtCore.QObject):
 
 
 
+
+
+
+if __name__ == "__main__":
+	pass
+
+else:
+	styleSheet = StyleSheet()
 
 #module name
 print (__name__)

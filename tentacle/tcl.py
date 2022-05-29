@@ -6,7 +6,8 @@ import sys
 from PySide2 import QtCore, QtGui, QtWidgets
 
 from tentacle import Switchboard, EventFactoryFilter, OverlayFactoryFilter
-from tentacle.ui import StyleSheet
+# from tentacle.ui import StyleSheet
+from tentacle.ui import styleSheet
 import tentacle.ui.widgets as wgts
 
 
@@ -14,7 +15,7 @@ import tentacle.ui.widgets as wgts
 # ------------------------------------------------
 # 	Construct the Widget Stack
 # ------------------------------------------------
-class Tcl(QtWidgets.QStackedWidget, StyleSheet):
+class Tcl(QtWidgets.QStackedWidget, styleSheet.StyleSheet):
 	'''Tcl is a marking menu based on a QStackedWidget.
 	Gets and sets signal connections (through the switchboard module).
 	Initializes events for child widgets using the childEvents module.

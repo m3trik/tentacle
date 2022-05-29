@@ -6,7 +6,8 @@ from PySide2 import QtCore
 try: import shiboken2
 except: from PySide2 import shiboken2
 
-from tentacle.ui import UiLoader
+from tentacle.ui.uiLoader import uiLoader
+import tentacle.ui.widgets
 
 
 
@@ -79,14 +80,6 @@ class Switchboard(QtCore.QObject):
 		:Parameters:
 			parent (obj) = The parent widget instance.
 		'''
-		for uiName, v in UiLoader().uiDict.items(): #Initialize the sbDict with ui name, ui object, and ui base level.
-			self.sbDict[uiName] = { #ie. {'polygons':{'ui':<ui obj>, uiLevel:<int>}}
-				'ui': v['ui'], #the ui object.
-				'uiLevel': {'base' : v['level']}, #the ui level as an integer value. (the ui level is it's hierarchy)
-				'size': [v['ui'].frameGeometry().width(), v['ui'].frameGeometry().height()],
-				'state': 0, #initialization state.
-			}
-
 		self.setMainAppWindow(parent.parent())
 
 
@@ -100,7 +93,10 @@ class Switchboard(QtCore.QObject):
 			return self._sbDict
 
 		except AttributeError as error:
-			self._sbDict = {}
+			# initialize uiDict by setting keys for the ui files.
+			widgets = [w for w in tentacle.ui.widgets.__dict__.values() if type(w).__name__=='ObjectType'] #get any custom widgets to register.
+			self._sbDict = uiLoader.loadUI(uiLoader.uiDir, widgets=widgets)
+
 			return self._sbDict
 
 
@@ -655,7 +651,7 @@ class Switchboard(QtCore.QObject):
 			try:
 				uiName = self._uiHistory[-1]
 			except IndexError as error: #if index out of range (no value exists) if uiName==n or (uiName in n and level==4)] if uiName==n or (uiName in n and level==4)]: return None
-				return None; print ('{}.getUiName({}, {}, {}): {}'.format(__name__, ui, case, level, error))
+				return None; print ('# IndexError: {}.getUiName({}, {}, {}): {} #'.format(__name__, ui, case, level, error))
 
 		elif isinstance(ui, (str)):
 			if ui=='all': #get all ui of the given level(s).
@@ -1564,8 +1560,8 @@ class Switchboard(QtCore.QObject):
 			uiName = self.setCase(n, 'camelCase') #lowercase the first letter of name.
 			return self.sbDict[uiName]['uiLevel']['base']
 
-		except Exception as error:
-			print ('{}.getUiLevel({}): {}'.format(__name__, ui, error))
+		except KeyError as error:
+			print ('# KeyError: {}.getUiLevel({}): {} #'.format(__name__, ui, error))
 			return None
 
 
