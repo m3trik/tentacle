@@ -95,7 +95,7 @@ class Switchboard(QtCore.QObject):
 		except AttributeError as error:
 			# initialize uiDict by setting keys for the ui files.
 			widgets = [w for w in tentacle.ui.widgets.__dict__.values() if type(w).__name__=='ObjectType'] #get any custom widgets to register.
-			self._sbDict = uiLoader.loadUI(uiLoader.uiDir, widgets=widgets)
+			self._sbDict = uiLoader.loadUiFromDir(uiLoader.uiDir, widgets=widgets)
 
 			return self._sbDict
 

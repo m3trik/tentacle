@@ -91,8 +91,8 @@ class UiLoader(QtUiTools.QUiLoader):
 
 
 	def getUiLevelFromPath(self, filePath):
-		'''Get the UI level using it's directory's naming convention.
-		The default level is 0.
+		'''Get the UI level by looking for trailing intergers in it's dir name.
+		If none are found a default level of 0 is used.
 
 		:Parameters:
 			filePath (str) = The ui's full filepath. ie. 'O:/Cloud/Code/_scripts/tentacle/tentacle/ui/uiLevel_0/init.ui'
@@ -103,9 +103,10 @@ class UiLoader(QtUiTools.QUiLoader):
 		uiFolder = self.formatFilepath(filePath, 'dir')
 
 		try:
-			uiLevel = int(uiFolder.strip('uiLevel_'))
+			import re
+			uiLevel = int(re.findall(r"\d+\s*$", uiFolder)[0]) #get trailing integers.
 
-		except KeyError as error: #not a valid ui dir.
+		except IndexError as error: #not an int.
 			uiLevel = 0
 
 		return uiLevel
@@ -122,13 +123,16 @@ class UiLoader(QtUiTools.QUiLoader):
 				print ('# Error: {}.registerWidgets(): {} #'.format(__name__, error))
 
 
-	def loadUI(self, uiDir='', widgets=[]):
+	def loadUiFromDir(self, uiDir='', widgets=[]):
 		'''Extends the fuctionality of the 'addUi' method to support adding all ui recursively from a given directory.
 
 		:Parameters:
 			uiDir (str) = The absolute directory path to the uiFiles. Default is the directory of this module.
 
-		ex. call: uiLoader.addAllUI(uiLoader.uiDir)
+		:Return:
+			{dict} uiDict. ex. {'some_ui':{'ui':<ui obj>, 'level':<int>}} (the ui level is it's hierarchy based on the ui file's dir location)
+
+		ex. call: uiDict = uiLoader.loadUiFromDir(uiLoader.uiDir)
 		'''
 		uiDir = uiDir if uiDir else self.uiDir
 
@@ -136,22 +140,29 @@ class UiLoader(QtUiTools.QUiLoader):
 
 		for dirPath, dirNames, filenames in os.walk(uiDir):
 			uiFiles = ['{}/{}'.format(dirPath, f) for f in filenames if f.endswith('.ui')]
-			self.addUi(uiFiles)
+			self.loadUi(uiFiles)
 
 		return self.uiDict
 
 
-	def addUi(self, ui, widgets=[]):
+	def loadUi(self, ui, path='', widgets=[]):
 		'''Load and add ui files to the uiDict.
 		If the ui's directory name is in the form of 'uiLevel_x' then a 'level' key will be added to the uiDict with a value of x.
 
 		:Parameters:
-			ui (str)(list) = The full path to a dynamic ui.
+			ui (str)(list) = The full path to a dynamic ui, or the filename of a dynamic ui if path arg given.
+			path (str) = Optional path to the given ui filename(s).
 
-		ie. {'polygons':{'ui':<ui obj>, 'level':<int>}} (the ui level is it's hierarchy based on the ui file's dir location)
-		ex. call: self.ui = uiLoader.loadUi(uiLoader.uiPath, 'imtools.ui')['imtools'] #load a single ui.
+		:Return:
+			{dict} uiDict. ex. {'some_ui':{'ui':<ui obj>, 'level':<int>}} (the ui level is it's hierarchy based on the ui file's dir location)
+
+		ex. call: uiDict = uiLoader.loadUi([list of ui's], 'path/to/ui/dir') #load specific ui from a directory.
+		ex. call: ui = uiLoader.loadUi('some_ui.ui', uiLoader.uiDir)['some_ui']['ui'] #load a single ui from the path of this module.
+		ex. call: ui = uiLoader.loadUi('some_ui.ui', path=__file__)['some_ui']['ui'] #load a single ui from the path of the calling module.
 		'''
-		uiFiles = [ui] if isinstance(ui, str) else ui  #assure uiFiles in a list.
+		path = self.formatFilepath(path, 'path') #assure the given path does not include a filename.
+		uiFiles = ui if not isinstance(ui, str) else [ui]  #assure uiFiles is a list.
+		uiFiles = uiFiles if not path else ['{}/{}'.format(path, i) for i in uiFiles] #format full filepath if path given separately.
 
 		self.registerWidgets(widgets)
 
@@ -171,6 +182,24 @@ class UiLoader(QtUiTools.QUiLoader):
 			}
 
 		return self.uiDict
+
+
+	def getUi(self, uiName):
+		'''Get a loaded ui object using it's name.
+
+		:Parameters:
+			uiName (str) = The name of the ui you are wanting to return.
+
+		:Return:
+			(obj) ui
+
+		ex. call: ui = uiLoader.getUi('some_ui')
+		'''
+		try:
+			return self.uiDict[uiName]['ui']
+
+		except KeyError as error:
+			return None
 
 
 
