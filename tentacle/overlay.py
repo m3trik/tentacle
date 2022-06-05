@@ -2,7 +2,7 @@
 # coding=utf-8
 from PySide2 import QtCore, QtGui, QtWidgets
 
-from tentacle import EventFactoryFilter
+from childEvents import EventFactoryFilter
 
 
 
@@ -147,7 +147,6 @@ class OverlayFactoryFilter(QtCore.QObject):
 
 #module name
 print (__name__)
-
 
 # -----------------------------------------------
 # Notes

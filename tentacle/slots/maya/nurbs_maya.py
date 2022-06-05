@@ -285,7 +285,7 @@ class Nurbs_maya(Nurbs, Slots_maya):
 		pm.mel.ExtendCurveOnSurface()
 
 
-	@Slots_maya.undoChunk
+	@Slots_maya.undo
 	def loft(self, uniform=True, close=False, degree=3, autoReverse=False, sectionSpans=1, range_=False, polygon=True, reverseSurfaceNormals=True, angleLoftBetweenTwoCurves=False, angleLoftSpans=6):
 		'''Create a loft between two selections.
 
@@ -329,7 +329,7 @@ class Nurbs_maya(Nurbs, Slots_maya):
 		return result
 
 
-	@Slots_maya.undoChunk
+	@Slots_maya.undo
 	def createCurveBetweenTwoObjects(self, start, end):
 		'''Create a bezier curve between starting and end object(s).
 
@@ -387,7 +387,7 @@ class Nurbs_maya(Nurbs, Slots_maya):
 		return result
 
 
-	@Slots_maya.undoChunk
+	@Slots_maya.undo
 	def duplicateAlongCurve(self, path, start, count=6, geometry='Instancer'):
 		'''Duplicate objects along a given curve using MASH.
 
@@ -433,7 +433,7 @@ class Nurbs_maya(Nurbs, Slots_maya):
 		return result
 
 
-	@Slots_maya.undoChunk
+	@Slots_maya.undo
 	def angleLoftBetweenTwoCurves(self, start, end, count=6, cleanup=False, uniform=1, close=0, autoReverse=0, 
 										degree=3, sectionSpans=1, range=0, polygon=1, reverseSurfaceNormals=0):
 		'''Perform a loft between two nurbs curves or polygon sets of edges (that will be extracted as curves).
@@ -481,7 +481,7 @@ class Nurbs_maya(Nurbs, Slots_maya):
 		return result
 
 
-	@Slots_maya.undoChunk
+	@Slots_maya.undo
 	def getClosestCV(self, x, curves, tolerance=0.0):
 		'''Find the closest control vertex between the given vertices, CVs, or objects and each of the given curves.
 

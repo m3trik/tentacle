@@ -66,7 +66,7 @@ class Mirror_maya(Mirror, Slots_maya):
 		self.tb000()
 
 
-	@Slots_maya.undoChunk
+	@Slots_maya.undo
 	def mirrorGeometry(self, objects=None, axis='-x', axisPivot=2, cutMesh=False, instance=False, 
 					merge=False, mergeMode=1, mergeThreshold=0.005, deleteHistory=True):
 		'''Mirror geometry across a given axis.

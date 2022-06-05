@@ -365,7 +365,7 @@ class Materials_maya(Materials, Slots_maya):
 		return mat
 
 
-	@Slots_maya.undoChunk
+	@Slots_maya.undo
 	def assignMaterial(self, objects, mat):
 		'''Assign Material
 

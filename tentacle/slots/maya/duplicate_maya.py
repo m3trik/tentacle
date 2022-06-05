@@ -57,7 +57,7 @@ class Duplicate_maya(Duplicate, Slots_maya):
 
 	global radialArrayObjList
 	radialArrayObjList=[]
-	@Slots_maya.undoChunk
+	@Slots_maya.undo
 	def chk015(self, create=False):
 		'''Radial Array: Preview
 		'''
@@ -135,7 +135,7 @@ class Duplicate_maya(Duplicate, Slots_maya):
 
 	global duplicateObjList
 	duplicateObjList=[]
-	@Slots_maya.undoChunk
+	@Slots_maya.undo
 	def chk016(self, create=False):
 		'''Duplicate: Preview
 		'''
@@ -309,7 +309,7 @@ class Duplicate_maya(Duplicate, Slots_maya):
 		return instances
 
 
-	@Slots_maya.undoChunk
+	@Slots_maya.undo
 	def convertToInstances(self, objects=[], leaf=False, append='_INST'):
 		'''The first selected object will be instanced across all other selected objects.
 

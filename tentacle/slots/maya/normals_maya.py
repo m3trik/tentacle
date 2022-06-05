@@ -192,7 +192,7 @@ class Normals_maya(Normals, Slots_maya):
 		pm.polyNormal(sel, normalMode=3, userNormalMode=1) #3: reverse and cut a new shell on selected face(s). 4: reverse and propagate; Reverse the normal(s) and propagate this direction to all other faces in the shell.
 
 
-	@Slots_maya.undoChunk
+	@Slots_maya.undo
 	def averageNormals(self, byUvShell=False):
 		'''Average Normals
 

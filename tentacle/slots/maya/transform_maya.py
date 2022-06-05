@@ -404,7 +404,7 @@ class Transform_maya(Transform, Slots_maya):
 			pm.texRotateContext('texRotateContext', edit=1, snap=False if state==0 else True) #uv rotate context
 
 
-	@Slots_maya.undoChunk
+	@Slots_maya.undo
 	def resetXform(self, objects):
 		'''Reset the transformations on the given object(s). (unfreeze transforms)
 
@@ -439,7 +439,7 @@ class Transform_maya(Transform, Slots_maya):
 		pm.xform(obj, translation=target_pos, worldSpace=1, relative=1)
 
 
-	@Slots_maya.undoChunk
+	@Slots_maya.undo
 	def dropToGrid(self, objects, align='Mid', origin=False, centerPivot=False, freezeTransforms=False):
 		'''Align objects to Y origin on the grid using a helper plane.
 
@@ -485,7 +485,7 @@ class Transform_maya(Transform, Slots_maya):
 		pm.xform(node, translation=[x, y, z])
 
 
-	@Slots_maya.undoChunk
+	@Slots_maya.undo
 	def alignPivotToSelection(self, alignFrom=[], alignTo=[], translate=True):
 		'''Align one objects pivot point to another using 3 point align.
 		:Parameters:
@@ -728,7 +728,7 @@ class Transform_maya(Transform, Slots_maya):
 		return result
 
 
-	@Slots_maya.undoChunk
+	@Slots_maya.undo
 	def alignVertices(self, mode, average=False, edgeloop=False):
 		'''Align vertices.
 

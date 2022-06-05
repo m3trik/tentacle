@@ -5,10 +5,12 @@ import sys
 
 from PySide2 import QtCore, QtGui, QtWidgets
 
-from tentacle import Switchboard, EventFactoryFilter, OverlayFactoryFilter
-# from tentacle.ui import StyleSheet
-from tentacle.ui import styleSheet
-import tentacle.ui.widgets as wgts
+from switchboard import Switchboard
+from childEvents import EventFactoryFilter
+from overlay import OverlayFactoryFilter
+
+from ui import styleSheet
+import ui.widgets as wgts
 
 
 
@@ -24,7 +26,7 @@ class Tcl(QtWidgets.QStackedWidget, styleSheet.StyleSheet):
 	The various ui's are set by calling 'setUi' with the intended ui name string. ex. Tcl().setUi('polygons')
 
 	:Parameters:
-		parent (obj) = The parent application's top level window.
+		parent (obj) = The parent application's top level window instance. ie. the Maya main window.
 		profile (bool) = Prints the total running time, times each function separately, and tells you how many times each function was called.
 	'''
 	_key_show_release = QtCore.Signal()
@@ -44,12 +46,12 @@ class Tcl(QtWidgets.QStackedWidget, styleSheet.StyleSheet):
 		self.setAttribute(QtCore.Qt.WA_TranslucentBackground)
 		self.setAttribute(QtCore.Qt.WA_SetStyle) #Indicates that the widget has a style of its own.
 
-		self.sb = Switchboard(self)
+		self.wgts = wgts
+
+		self.sb = Switchboard(self, widgetsToRegister=self.wgts.widgets, mainAppWindow=self.parent())
 
 		self.childEvents = EventFactoryFilter(self)
 		self.overlay = OverlayFactoryFilter(self, antialiasing=True) #Paint events are handled by the overlay module.
-
-		self.wgts = wgts
 
 		self.qApp = QtWidgets.QApplication.instance()
 		self.qApp.focusChanged.connect(self.focusChanged)
@@ -472,8 +474,14 @@ if __name__ == '__main__':
 
 
 
+
+
+
+
+
+
 #module name
-print (__name__)
+# print (__name__)
 # -----------------------------------------------
 # Notes
 # -----------------------------------------------

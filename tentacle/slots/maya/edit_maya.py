@@ -361,7 +361,7 @@ class Edit_maya(Edit, Slots_maya):
 			return list(face for face in pm.filterExpand(objName+'.f[*]', sm=34) if pm.exactWorldBoundingBox(face)[i] > -0.00001)
 
 
-	@Slots_maya.undoChunk
+	@Slots_maya.undo
 	def findNonManifoldVertex(self, objects, select=1):
 		'''Locate a connected vertex of non-manifold geometry where the faces share a single vertex.
 
@@ -421,7 +421,7 @@ class Edit_maya(Edit, Slots_maya):
 		return nonManifoldVerts
 
 
-	@Slots_maya.undoChunk
+	@Slots_maya.undo
 	def splitNonManifoldVertex(self, vertex, select=True):
 		'''Separate a connected vertex of non-manifold geometry where the faces share a single vertex.
 

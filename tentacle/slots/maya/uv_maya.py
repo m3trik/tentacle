@@ -28,11 +28,11 @@ class Uv_maya(Uv, Slots_maya):
 
 		tb000 = self.uv_ui.tb000
 		tb000.contextMenu.add('QSpinBox', setPrefix='Pre-Scale Mode: ', setObjectName='s009', setMinMax_='0-2 step1', setValue=1, setToolTip='Allow shell scaling during packing.')
-		tb000.contextMenu.add('QSpinBox', setPrefix='Pre-Rotate Mode: ', setObjectName='s010', setMinMax_='0-2 step1', setValue=1, setToolTip='Allow shell rotation during packing.')
+		tb000.contextMenu.add('QSpinBox', setPrefix='Pre-Rotate Mode: ', setObjectName='s010', setMinMax_='0-2 step1', setValue=0, setToolTip='Allow shell rotation during packing.')
 		tb000.contextMenu.add('QSpinBox', setPrefix='Stack Similar: ', setObjectName='s011', setMinMax_='0-2 step1', setValue=0, setToolTip='Find Similar shells. <br>state 1: Find similar shells, and pack one of each, ommiting the rest.<br>state 2: Find similar shells, and stack during packing.')
 		tb000.contextMenu.add('QDoubleSpinBox', setPrefix='Tolerance: ', setObjectName='s006', setMinMax_='0.0-10 step.1', setValue=1.0, setToolTip='Stack Similar: Stack shells with uv\'s within the given range.')
 		tb000.contextMenu.add('QSpinBox', setPrefix='UDIM: ', setObjectName='s004', setMinMax_='1001-1200 step1', setValue=1001, setToolTip='Set the desired UDIM tile space.')
-		tb000.contextMenu.add('QSpinBox', setPrefix='Dilation: ', setObjectName='s012', setMinMax_='0-999 step1', setValue=16, setToolTip='Set the shell spacing amount.')
+		tb000.contextMenu.add('QSpinBox', setPrefix='Padding: ', setObjectName='s012', setMinMax_='0-999 step1', setValue=16, setToolTip='Set the shell spacing amount.')
 		tb000.contextMenu.add('QSpinBox', setPrefix='Map Size: ', setObjectName='s005', setMinMax_='512-8192 step512', setValue=4096, setToolTip='UV map resolution.')
 
 		tb007 = self.uv_ui.tb007
@@ -158,18 +158,23 @@ class Uv_maya(Uv, Slots_maya):
 		rotate = tb.contextMenu.s010.value()
 		UDIM = tb.contextMenu.s004.value()
 		mapSize = tb.contextMenu.s005.value()
-		dilation = tb.contextMenu.s012.value()
+		padding = tb.contextMenu.s012.value()
 		similar = tb.contextMenu.s011.value()
 		tolerance = tb.contextMenu.s006.value()
 
 		U,D,I,M = [int(i) for i in str(UDIM)] #UDIM ex. '1001'
+		shellPadding = padding*0.000244140625
+		tilePadding = shellPadding/2
 		sel = self.uvShellSelection() #assure the correct selection mask.
+
+		if rotate==0:
+			self.orientShells(sel)
 
 		if similar>0:
 			dissimilar = pm.polyUVStackSimilarShells(sel, tolerance=tolerance, onlyMatch=True)
 			dissimilarUVs = [s.split() for s in dissimilar] if dissimilar else []
 			dissimilarFaces = pm.polyListComponentConversion(dissimilarUVs, fromUV=1, toFace=1)
-			pm.u3dLayout(dissimilarFaces, resolution=mapSize, shellSpacing=dilation, tileMargin=dilation/2, preScaleMode=scale, preRotateMode=rotate, packBox=[M-1, D, I, U]) #layoutScaleMode (int), multiObject (bool), mutations (int), packBox (float, float, float, float), preRotateMode (int), preScaleMode (int), resolution (int), rotateMax (float), rotateMin (float), rotateStep (float), shellSpacing (float), tileAssignMode (int), tileMargin (float), tileU (int), tileV (int), translate (bool)
+			pm.u3dLayout(dissimilarFaces, resolution=mapSize, shellSpacing=shellPadding, tileMargin=tilePadding, preScaleMode=scale, preRotateMode=rotate, packBox=[M-1, D, I, U]) #layoutScaleMode (int), multiObject (bool), mutations (int), packBox (float, float, float, float), preRotateMode (int), preScaleMode (int), resolution (int), rotateMax (float), rotateMin (float), rotateStep (float), shellSpacing (float), tileAssignMode (int), tileMargin (float), tileU (int), tileV (int), translate (bool)
 
 		elif similar==2:
 			pm.select(dissimilarFaces, toggle=1)
@@ -177,8 +182,7 @@ class Uv_maya(Uv, Slots_maya):
 			pm.polyUVStackSimilarShells(similarFaces, dissimilarFaces, tolerance=tolerance)
 
 		else:
-			# u3dLayout -res 4096 -scl 1 -spc 0.00390625 -box 0 1 0 1
-			pm.u3dLayout(sel, resolution=mapSize, preScaleMode=scale, preRotateMode=rotate, packBox=[M-1, D, I, U]) #layoutScaleMode (int), multiObject (bool), mutations (int), packBox (float, float, float, float), preRotateMode (int), preScaleMode (int), resolution (int), rotateMax (float), rotateMin (float), rotateStep (float), shellSpacing (float), tileAssignMode (int), tileMargin (float), tileU (int), tileV (int), translate (bool)
+			pm.u3dLayout(sel, resolution=mapSize, shellSpacing=shellPadding, tileMargin=tilePadding, preScaleMode=scale, preRotateMode=rotate, packBox=[M-1, D, I, U]) #layoutScaleMode (int), multiObject (bool), mutations (int), packBox (float, float, float, float), preRotateMode (int), preScaleMode (int), resolution (int), rotateMax (float), rotateMin (float), rotateStep (float), shellSpacing (float), tileAssignMode (int), tileMargin (float), tileU (int), tileV (int), translate (bool)
 
 
 	@Slots_maya.attr
@@ -360,7 +364,7 @@ class Uv_maya(Uv, Slots_maya):
 		pm.mel.UVCreateSnapshot()
 
 
-	@Slots_maya.undoChunk
+	@Slots_maya.undo
 	def b002(self):
 		'''Transfer UV's
 		'''
@@ -417,6 +421,26 @@ class Uv_maya(Uv, Slots_maya):
 				edges = pm.ls(obj, sl=1)
 
 			pm.polyMapSew(edges)
+
+
+	def orientShells(self, objects):
+		'''Rotate UV shells to run parallel with the most adjacent U or V axis of their bounding box.
+
+		:Parameters:
+			objects (str)(obj)(list) = Polygon mesh objects and/or components.
+		'''
+		for obj in pm.ls(objects, objectsOnly=1):
+
+			obj_compts = [i for i in objects if obj in pm.ls(i, objectsOnly=1)] #filter components for only this object.
+			pm.polyLayoutUV(obj_compts, 
+					flipReversed=0,
+					layout=0,
+					layoutMethod=1,
+					percentageSpace=0.2,
+					rotateForBestFit=3,
+					scale=0,
+					separate=0,
+			)
  
 
 	def moveSelectedToUvSpace(self, u, v, relative=True):

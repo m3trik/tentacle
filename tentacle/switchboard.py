@@ -1,22 +1,21 @@
 # !/usr/bin/python
 # coding=utf-8
-from pydoc import locate
+import importlib
+# import inspect
 
-from PySide2 import QtCore
 try: import shiboken2
 except: from PySide2 import shiboken2
 
-from tentacle.ui.uiLoader import uiLoader
-import tentacle.ui.widgets
+from ui.uiLoader import UiLoader
 
 
 
-# ------------------------------------------------
-#	Manage Ui element information.
-# ------------------------------------------------
-class Switchboard(QtCore.QObject):
-	'''Get/set elements across modules using convenience methods.
-	
+class Switchboard(UiLoader):
+	''' ---------------------------------------------
+		Manage widget dependancies.
+	 ------------------------------------------------
+	Get/set widget data across modules using convenience methods.
+
 	Ui name/and it's corresponding slot class name should always be the same. (case insensitive) ie. 'polygons' (ui name) will look to build connections to 'Polygons' (class name). 
 	Widget objectName/corresponding class method name need to be the same. ie. 'b000' (widget objectName) will try to connect to <b000> class method.
 	A widgets dict is constructed as needed for each class when connectSlots (or any other dependant) is called.
@@ -74,17 +73,22 @@ class Switchboard(QtCore.QObject):
 	_classKwargs = {} #{'<property name>':<property value>} - The additional properties of each of the slot classes.
 
 
-	def __init__(self, parent=None):
-		QtCore.QObject.__init__(self, parent)
-		'''Initialize _sbDict using UiLoader's uiDict.
+	def __init__(self, parent=None, uiToLoad=None, widgetsToRegister=None, mainAppWindow=None):
+		UiLoader.__init__(self, parent, uiToLoad, widgetsToRegister)
+		'''
 		:Parameters:
 			parent (obj) = The parent widget instance.
+			uiToLoad (str)(list) = The path to a directory containing ui files.
+			widgetsToRegister (str)(obj)(list) = A full filepath to a dir containing widgets or to the widget itself. ie. 'O:/Cloud/Code/_scripts/tentacle/tentacle/ui/widgets'
+						or the widget(s) themselves.
+			mainWindow (obj) = The parent application's top level window instance. ie. the Maya main window.
 		'''
-		self.setMainAppWindow(parent.parent())
+		self.setMainAppWindow(mainAppWindow)
 
 
-	def getSbDict(self):
-		'''Property:sbDict. Get the full switchboard dict.
+	@property
+	def sbDict(self):
+		'''Get the full switchboard dict.
 
 		:Return:
 			(dict)
@@ -93,10 +97,7 @@ class Switchboard(QtCore.QObject):
 			return self._sbDict
 
 		except AttributeError as error:
-			# initialize uiDict by setting keys for the ui files.
-			widgets = [w for w in tentacle.ui.widgets.__dict__.values() if type(w).__name__=='ObjectType'] #get any custom widgets to register.
-			self._sbDict = uiLoader.loadUiFromDir(uiLoader.uiDir, widgets=widgets)
-
+			self._sbDict = self.uiDict #initialize sbDict by using uiLoader's uiDict.
 			return self._sbDict
 
 
@@ -152,7 +153,7 @@ class Switchboard(QtCore.QObject):
 		'''
 		if widgets is None:
 			ui = self.getUi(uiName)
-			widgets = [w for w in ui.__dict__.values() if shiboken2.isValid(w)] #get each object in the ui:
+			widgets = ui.widgets() #get each widget object of the ui:
 
 		for w in self.list_(widgets): #if 'widgets' isn't a list, convert it to one.
 			typ = w.__class__.__base__.__name__ if filterByBaseType else self.getDerivedType(w)
@@ -289,8 +290,8 @@ class Switchboard(QtCore.QObject):
 		'''Set the initial signal connections that will call the _syncAttributes function on state changes.
 
 		:Parameters:
-			w1 (obj) = A QWidget that will synced with w2.
-			w2 (obj) = A QWidget that will synced with w1.
+			w1 (obj) = A QWidget that will stay synced with w2.
+			w2 (obj) = A QWidget that will stay synced with w1.
 		'''
 		try:
 			s1 = self.defaultSignals[self.getDerivedType(w1)] #get the default signal for the given widget.
@@ -378,7 +379,7 @@ class Switchboard(QtCore.QObject):
 
 			kwargs = {}
 			kwargs['current_ui'] = lambda n=uiName: self.getUi(next((i for i in reversed(self._uiHistory) if i in self.getUiName(n, level=(0,1,2,3,4))), self.getUi()))
-			kwargs['tcl'] = self.parent() #tcl instance
+			kwargs['tcl'] = self.parent() #parent instance
 
 			for uiName in self.getUiName('all'):
 				kwargs[uiName] = lambda n=uiName: self.getClassInstance(n) #assign a function that gets the class instance.
@@ -508,7 +509,10 @@ class Switchboard(QtCore.QObject):
 
 
 	def getUi(self, uiName=None, level=None, setAsCurrent=False):
-		'''Property:ui. Get a dynamic ui using its string name, or if no argument is given, return the current ui.
+		'''Get a dynamic ui using its string name, or if no argument is given, return the current ui.
+
+		:Property:
+			ui
 
 		:Parameters:
 			uiName (str)(obj) = The ui object, or ui name. (valid: <ui>, '<uiName>', 'all')
@@ -611,8 +615,11 @@ class Switchboard(QtCore.QObject):
 
 
 	def _setUiName(self, i):
-		'''Property:uiName. Register the uiName in history as current.
+		'''Register the uiName in history as current.
 		The '_uiHistory' list is used for various things such as; maintaining a history of ui's that have been called.
+
+		:Property:
+			uiName
 
 		:Parameters:
 			i (int)(str) = The index of, or name of the ui.
@@ -630,8 +637,11 @@ class Switchboard(QtCore.QObject):
 
 
 	def getUiName(self, ui=None, case=None, level=None, setAsCurrent=False):
-		'''Property:uiName. Get the ui name as a string.
+		'''Get the ui name as a string.
 		If no argument is given, the name for the current ui will be returned.
+
+		:Property:
+			uiName
 
 		:Parameters:
 			ui (str)(obj) = The ui object, or ui name. (valid: <ui>, '<uiName>', 'all')
@@ -791,7 +801,10 @@ class Switchboard(QtCore.QObject):
 
 
 	def getUiIndex(self, ui=None):
-		'''Property:uiIndex. Get the index of the given ui name.
+		'''Get the index of the given ui name.
+
+		:Property:
+			uiIndex
 
 		:Parameters:
 			ui (str)(obj) = The ui name, or ui object. ie. 'polygons' or <polygons>
@@ -807,9 +820,12 @@ class Switchboard(QtCore.QObject):
 
 
 	def setUiSize(self, size, ui=None): #store ui size.
-		'''Property:size. Set the size of a ui.
+		'''Set the size of a ui.
 		If no size is given, the minimum ui size needed to frame its
 		contents will be used. If no uiName is given, the current ui will be used.
+
+		:Property:
+			size
 
 		:Parameters:
 			size (list) = The width and height as integers. [width, height]
@@ -825,7 +841,10 @@ class Switchboard(QtCore.QObject):
 
 
 	def setUiSizeX(self, width, ui=None):
-		'''Property:sizeX. Set the X (width) value for the current ui.
+		'''Set the X (width) value for the current ui.
+
+		:Property:
+			sizeX
 
 		:Parameters:
 			ui (str)(obj) = The ui name, or ui object. ie. 'polygons' or <polygons>
@@ -837,7 +856,10 @@ class Switchboard(QtCore.QObject):
 
 
 	def setUiSizeY(self, height, ui=None):
-		'''Property:sizeY. Set the Y (height) value for the current ui.
+		'''Set the Y (height) value for the current ui.
+
+		:Property:
+			sizeY
 
 		:Parameters:
 			height (int) = Y size as an int
@@ -849,7 +871,10 @@ class Switchboard(QtCore.QObject):
 
 
 	def getUiSize(self, ui=None, width=None, percentWidth=None, height=None, percentHeight=None): #get current ui size info.
-		'''Property:size. Get the size info for each ui (allows for resizing a stacked widget where ordinarily resizing is constrained by the largest widget in the stack)
+		'''Get the size info for each ui (allows for resizing a stacked widget where ordinarily resizing is constrained by the largest widget in the stack)
+
+		:Property:
+			size
 
 		:Parameters:
 			ui (str)(obj) = The ui name, or ui object. ie. 'polygons' or <polygons>
@@ -885,7 +910,10 @@ class Switchboard(QtCore.QObject):
 
 
 	def getUiSizeX(self, ui=None):
-		'''Property:sizeX. Get the X (width) value for the current ui.
+		'''Get the X (width) value for the current ui.
+
+		:Property:
+			sizeX
 
 		:Parameters:
 			uiName (str) = ui uiName to get size from.
@@ -897,7 +925,10 @@ class Switchboard(QtCore.QObject):
 
 
 	def getUiSizeY(self, ui=None):
-		'''Property:sizeY. Get the Y (height) value for the current ui.
+		'''Get the Y (height) value for the current ui.
+
+		:Property:
+			sizeY
 
 		:Parameters:
 			ui (str)(obj) = The ui name, or ui object. ie. 'polygons' or <polygons>
@@ -910,7 +941,10 @@ class Switchboard(QtCore.QObject):
 
 
 	def setMainAppWindow(self, app):
-		'''Property:mainAppWindow. Set parent application.
+		'''Set parent application.
+
+		:Property:
+			mainAppWindow
 
 		:Parameters:
 			app = app object.
@@ -924,7 +958,10 @@ class Switchboard(QtCore.QObject):
 
 
 	def getMainAppWindow(self, objectName=False):
-		'''Property:mainAppWindow. Get parent application if any.
+		'''Get parent application if any.
+
+		:Property:
+			mainAppWindow
 
 		:Parameters:
 			objectName (bool) = get string name of app. (by default getMainAppWindow returns app object)
@@ -945,24 +982,26 @@ class Switchboard(QtCore.QObject):
 
 
 	def _setClassInstance(self, ui):
-		'''Property:classInst. Stores an instance of a class.
+		'''Stores an instance of a class.
 		If the name is a submenuinst a class is not found, the parent class will be returned. ie. <Polygons> from 'polygons_submenu'
+
+		:Property:
+			classInst
 
 		:Parameters:
 			ui (str)(obj) = ui, or name of ui. ie. 'polygons'. If no nothing is given, the current ui will be used.
 							A ui object can be passed into this parameter, which will be used to get it's corresponding name.
-
 		:Return:
 			(obj) The class instance.
 		'''
 		uiName = self.getUiName(ui)
 
 		parentAppName = self.getMainAppWindow(objectName=True)
-		className = '{}_{}'.format(self.setCase(uiName, case='camelCase'), parentAppName) #ie. 'polygons_maya'
+		mod_name = '{}_{}'.format(self.setCase(uiName, case='camelCase'), parentAppName) #ie. 'polygons_maya'
 
 		try: #import the module and get the class instance.
-			module = __import__(className)
-			class_ = getattr(module, self.setCase(className, case='pascalCase')) #ie. <Polygons_maya> from 'Polygons_maya'
+			module = importlib.import_module('slots.{}.{}'.format(parentAppName, mod_name)) # module = __import__(mod_name)
+			class_ = getattr(module, self.setCase(mod_name, case='pascalCase')) #ie. <Polygons_maya> from 'Polygons_maya'
 			kwargs = self.getClassKwargs(uiName)
 			result = self.sbDict[uiName]['class'] = class_(**kwargs)
 
@@ -976,14 +1015,16 @@ class Switchboard(QtCore.QObject):
 
 
 	def getClassInstance(self, ui):
-		'''Property:classInst. Case insensitive. (Class string keys are lowercase and any given string will be converted automatically)
+		'''Case insensitive. (Class string keys are lowercase and any given string will be converted automatically)
 		If class is not in self.sbDict, getClassInstance will attempt to use _setClassInstance() to first store the class.
+
+		:Property:
+			classInst
 
 		:Parameters:
 			ui (str)(obj) = ui, or name of ui. ie. 'polygons'. If no nothing is given, the current ui will be used.
 							A ui object can be passed into this parameter, which will be used to get it's corresponding name.
 							A value of 'all' will return all of the class instances. 
-
 		:Return:
 			(obj) The class instance.
 		'''
@@ -1022,7 +1063,10 @@ class Switchboard(QtCore.QObject):
 
 
 	def getWidget(self, widgetName=None, ui=None, tracked=False):
-		'''Property:getWidgets. Case insensitive. Get the widget object/s from the given ui and widgetName.
+		'''Case insensitive. Get the widget object/s from the given ui and widgetName.
+
+		:Property:
+			getWidgets
 
 		:Parameters:
 			widgetName (str) = The object name of the widget. ie. 'b000'
@@ -1116,7 +1160,10 @@ class Switchboard(QtCore.QObject):
 
 
 	def getWidgetName(self, widget=None, ui=None):
-		'''Property:getWidgetNames. Get the widget's stored string objectName.
+		'''Get the widget's stored string objectName.
+
+		:Property:
+			getWidgetNames
 
 		:Parameters:
 			widget (obj) = QWidget
@@ -1287,8 +1334,11 @@ class Switchboard(QtCore.QObject):
 
 
 	def prevUiName(self, previousIndex=False, allowDuplicates=False, allowCurrent=False, omitLevel=[], as_list=False):
-		'''Property:prevName. Get the previously called ui name string, or a list of ui name strings ordered by use.
+		'''Get the previously called ui name string, or a list of ui name strings ordered by use.
 		It does so by pulling from the 'uiNames' list which keeps a list of the ui names as they are called. ie. ['previousName2', 'previousName1', 'currentName']
+
+		:Property:
+			prevName
 
 		:Parameters:
 			previousIndex (bool) = Return the index of the last valid previously opened ui name.
@@ -1539,7 +1589,7 @@ class Switchboard(QtCore.QObject):
 
 
 	def getUiLevel(self, ui=None):
-		'''Property:uiLevel. Get the hierarcical level of a ui.
+		'''Get the hierarcical level of a ui.
 		If no argument is given, the level of current ui will be returned.
 
 		level 0: init (root) (parent class)
@@ -1547,6 +1597,9 @@ class Switchboard(QtCore.QObject):
 		level 2: sub_menus
 		level 3: main_menus
 		level 4: popup_menus
+
+		:Property:
+			uiLevel
 
 		:Parameters:
 			ui (str)(obj) = The ui name, or ui object. ie. 'polygons' or <polygons>
@@ -1650,24 +1703,6 @@ class Switchboard(QtCore.QObject):
 
 
 	@staticmethod
-	def list_(x):
-		'''Convert a given obj to a list if it isn't a list, set, or tuple already.
-
-		:Parameters:
-			x (unknown) = The object to convert to a list if not already a list, set, or tuple.
-
-		:Return:
-			(list)
-		'''
-		if isinstance(x, (list, tuple, set)):
-			return x
-		elif isinstance(x, dict):
-			return list(x)
-		else:
-			return [x]
-
-
-	@staticmethod
 	def getParentWidgets(widget, objectNames=False):
 		'''Get the all parent widgets of the given widget.
 
@@ -1739,7 +1774,7 @@ class Switchboard(QtCore.QObject):
 
 
 	#assign properties
-	sbDict = property(getSbDict)
+	# sbDict = property(getSbDict)
 	uiName = property(getUiName, _setUiName)
 	prevName = property(prevUiName)
 	ui = property(getUi)
@@ -1763,11 +1798,18 @@ class Switchboard(QtCore.QObject):
 
 
 if __name__=='__main__':
-	#initialize and create a Switchboard instance
+	import sys, os
 	from PySide2.QtWidgets import QApplication
+
+	path = os.path.abspath(os.path.dirname(__file__))
+	sb = Switchboard(uiToLoad=path+'/ui', widgetsToRegister=path+'/ui/widgets')
+
+	edit_ui = sb.edit
+	widgets = edit_ui.widgets()
+
+	edit_ui.show()
 	qApp = QApplication.instance() #get the qApp instance if it exists.
-	if not qApp:
-		qApp = QApplication(sys.argv)
+	sys.exit(qApp.exec_())
 
 
 

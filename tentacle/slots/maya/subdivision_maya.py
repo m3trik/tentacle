@@ -106,8 +106,40 @@ class Subdivision_maya(Subdivision, Slots_maya):
 	def b005(self):
 		'''Reduce
 		'''
-		pm.mel.polyReduce(version=1, keepCreaseEdgeWeight=1)
-		# pm.mel.ReducePolygon()
+		selection = pm.ls(sl=1, objectsOnly=1)
+
+		pm.polyReduce(selection,
+			ver=1,
+			trm=0,
+			shp=0,
+			keepBorder=1, 
+			keepMapBorder=1, 
+			keepColorBorder=1, 
+			keepFaceGroupBorder=1, 
+			keepHardEdge=1,
+			keepCreaseEdge=1,
+			keepBorderWeight=0.5,
+			keepMapBorderWeight=0.5,
+			keepColorBorderWeight=0.5,
+			keepFaceGroupBorderWeight=0.5,
+			keepHardEdgeWeight=0.5,
+			keepCreaseEdgeWeight=0.5,
+			useVirtualSymmetry=0,
+			symmetryTolerance=0.01,
+			sx=0,
+			sy=1,
+			sz=0,
+			sw=0,
+			preserveTopology=1,
+			keepQuadsWeight=1,
+			vertexMapName="",
+			cachingReduce=1,
+			ch=1,
+			p=50,
+			vct=0,
+			tct=0,
+			replaceOriginal=1
+		)
 
 
 	def b008(self):

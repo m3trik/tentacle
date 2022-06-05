@@ -12,7 +12,7 @@ try: #Maya dependancies
 	import shiboken2
 
 except ImportError as error:
-	print(__file__, error)
+	print('# Error: {}: {} #'.format(__file__, error))
 
 from slots import Slots
 
@@ -25,7 +25,7 @@ class Slots_maya(Slots):
 		Slots.__init__(self, *args, **kwargs)
 
 
-	def undoChunk(fn):
+	def undo(fn):
 		'''A decorator to place a function into Maya's undo chunk.
 		Prevents the undo queue from breaking entirely if an exception is raised within the given function.
 
@@ -175,7 +175,7 @@ class Slots_maya(Slots):
 			returnType (str) = The desired returned object type. (valid: 'str', 'obj', 'int')
 			returnNodeType (str) = Specify whether the components are returned with the transform or shape nodes (valid only with str returnTypes). (valid: 'transform', 'shape'(default)) ex. 'pCylinder1.f[0]' or 'pCylinderShape1.f[0]'
 			selection (bool) = Filter to currently selected objects.
-			flatten (bool) = Flattens the returned list of objects so that each component is identified individually.
+			flatten (bool) = Flattens the returned list of objects so that each component is it's own element.
 
 		:Return:
 			(list)(dict) Dependant on flags.
@@ -380,13 +380,13 @@ class Slots_maya(Slots):
 		result=[]
 		edges = pm.ls(x, flatten=1)
 
-		if borderType is 'object': #get edges that form the border of the object.
+		if borderType=='object': #get edges that form the border of the object.
 			for edge in edges:
 				attachedFaces = pm.ls(pm.polyListComponentConversion(edge, fromEdge=1, toFace=1), flatten=1)
 				if len(attachedFaces)==1:
 					result.append(edge)
 
-		elif borderType is 'component' and not object_type=='Polygon': #get edges that form the border of the given components.
+		elif borderType=='component' and not object_type=='Polygon': #get edges that form the border of the given components.
 			for edge in edges:
 				attachedFaces = pm.polyListComponentConversion(edge, fromEdge=1, toFace=1)
 				attachedEdges = pm.ls(pm.polyListComponentConversion(attachedFaces, fromFace=1, toEdge=1), flatten=1)
@@ -447,7 +447,7 @@ class Slots_maya(Slots):
 
 
 	@staticmethod
-	@undoChunk
+	@undo
 	def getClosestVertex(vertices, obj, tolerance=0.0, freezeTransforms=False):
 		'''Find the closest vertex of the given object for each vertex in the list of given vertices.
 
@@ -1508,7 +1508,7 @@ class Slots_maya(Slots):
 
 
 #module name
-print (__name__)
+# print (__name__)
 # ======================================================================
 # Notes
 # ======================================================================

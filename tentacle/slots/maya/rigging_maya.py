@@ -147,7 +147,7 @@ class Rigging_maya(Rigging, Slots_maya):
 					pm.toggle(obj, template=1, query=1)
 
 
-	@Slots_maya.undoChunk
+	@Slots_maya.undo
 	def tb003(self, state=None):
 		'''Create Locator at Selection
 		'''
@@ -256,7 +256,7 @@ class Rigging_maya(Rigging, Slots_maya):
 		pm.orientConstraint(offset=[0,0,0], weight=1)
 
 
-	@Slots_maya.undoChunk
+	@Slots_maya.undo
 	def createLocatorAtObject(self, objects, suffix='_LOC', stripDigits=False, strip='', scale=1, parent=False, freezeTransforms=True, 
 					bakeChildPivot=True, lockTranslate=False, lockRotation=False, lockScale=False, remove=False, _fullPath=False):
 		'''Create locators with the same transforms as any selected object(s).

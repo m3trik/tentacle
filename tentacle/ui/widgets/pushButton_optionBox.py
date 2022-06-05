@@ -3,7 +3,7 @@
 from PySide2 import QtWidgets, QtCore
 
 from attributes import Attributes
-from text import RichText, TextOverlay
+from text import RichText
 from menu import MenuInstance
 
 
@@ -22,22 +22,44 @@ Promoting a widget in designer to use a custom class:
 '''
 
 
-class PushButton(QtWidgets.QPushButton, MenuInstance, Attributes, RichText, TextOverlay):
+class PushButton_optionBox(QtWidgets.QPushButton, MenuInstance, Attributes, RichText):
 	'''
 	'''
-	def __init__(self, parent=None, showMenuOnMouseOver=False, **kwargs):
+	def __init__(self, parent, showMenuOnMouseOver=False, **kwargs):
 		QtWidgets.QPushButton.__init__(self, parent)
-
-		self.menu_.position = 'topRight'
-		self.showMenuOnMouseOver = showMenuOnMouseOver
-
-		self.setAttribute(QtCore.Qt.WA_SetStyle) #Indicates that the widget has a style of its own.
 
 		#override built-ins
 		self.text = self.richText
 		self.setText = self.setRichText
 		self.sizeHint = self.richTextSizeHint
 
+		self.menu_.position = 'topRight'
+		self.showMenuOnMouseOver = showMenuOnMouseOver
+
+		self.setText('<hl style="color:black;">⧉</hl>')
+		self.setObjectName('{}_optionBox'.format(parent.objectName()))
+		self.resize(self.parent().size().height(), self.parent().size().height())
+
+		self.setMaximumWidth(self.size().width())
+		self.parent().setMaximumWidth(20)#self.parent().size().width() - self.size().width())
+
+		print ('parent:  ', parent)
+		print ('g_parent:', self.parent().parent())
+		print ('\n')
+
+		# container = QtWidgets.QWidget(self.parent().parent())
+
+		layout = QtWidgets.QHBoxLayout()
+		layout.setContentsMargins(1,0,0,0)
+		layout.setSpacing(0)
+		layout.addWidget(self.parent())
+		layout.addWidget(self)
+
+		self.parent().parent().setLayout(layout)
+
+		self.parent().setText('opt')
+
+		self.setAttribute(QtCore.Qt.WA_SetStyle) #Indicates that the widget has a style of its own.
 		self.setAttributes(**kwargs)
 
 
@@ -57,8 +79,8 @@ class PushButton(QtWidgets.QPushButton, MenuInstance, Attributes, RichText, Text
 		:Parameters:
 			event = <QEvent>
 		'''
-		if event.button()==QtCore.Qt.RightButton:
-			self.contextMenu.show()
+		if event.button()==QtCore.Qt.LeftButton:
+			self.menu_.show()
 
 		return QtWidgets.QPushButton.mousePressEvent(self, event)
 
@@ -81,16 +103,7 @@ class PushButton(QtWidgets.QPushButton, MenuInstance, Attributes, RichText, Text
 		'''
 		if self.menu_.containsMenuItems:
 			self.menu_.setTitle(self.text())
-
-		if self.contextMenu.containsMenuItems:
-			self.contextMenu.setTitle(self.text())
-			self.setTextOverlay('⧉', alignment='AlignRight')
-			self.contextMenu.applyButton.show()
-
-		# from widgets import PushButton_optionBox
-
-		# ob = PushButton_optionBox(self)
-		# ob.show()
+			self.menu_.applyButton.show()
 
 		return QtWidgets.QPushButton.showEvent(self, event)
 
@@ -110,18 +123,18 @@ if __name__ == "__main__":
 	if not qApp:
 		qApp = QtWidgets.QApplication(sys.argv)
 
-	w = PushButton(
-		parent=None,
-		setObjectName='b000',
-		setText='<hl style="color:black;">A QPushButton <hl style="color:violet;"><b>with Rich Text</b></hl>',
-		resize=QSize(125, 45),
+	window = QtWidgets.QWidget()
+	parent = QtWidgets.QPushButton(window)
+
+	layout = QtWidgets.QHBoxLayout(window)
+
+	w = PushButton_optionBox(
+		parent=parent,
+		setText='<hl style="color:black;">⧉</hl>',
 		setWhatsThis='',
-		# setVisible=True,
 	)
 
-	w.show()
-
-	# w.show()
+	window.show()
 	sys.exit(qApp.exec_())
 
 

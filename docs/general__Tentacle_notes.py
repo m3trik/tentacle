@@ -16,7 +16,7 @@
 @Slots.hideMain		# Hides the stacked widget main window.
 @Slots.progress		# Displays a progress bar. (currently disabled)
 @Slots_maya.attr		# Launch a popup window containing the given objects attributes. A Decorator for setAttributeWindow (objAttrWindow).
-@Slots_maya.undoChunk	# A decorator to place a function into Maya's undo chunk.
+@Slots_maya.undo	# A decorator to allow undoing an executed function in one chunk.
 
 
 
@@ -197,46 +197,7 @@ def tree000(self, wItem=None, column=None):
 	'KNOWN BUGS AND GENERAL TO-DO'
 # ======================================================================
 '''
-maya file:  fail silently when there is a file not found error.
-# Traceback (most recent call last):
-#   File "O:/Cloud/Code/_scripts/tentacle\tentacle\childEvents.py", line 223, in eventFilter
-#     getattr(self, eventName)(event) #handle the event locally. #ie. self.enterEvent(event)
-#   File "O:/Cloud/Code/_scripts/tentacle\tentacle\childEvents.py", line 345, in mouseReleaseEvent
-#     self.tcl.setUi(self.widget.whatsThis())
-#   File "O:/Cloud/Code/_scripts/tentacle\tentacle\tcl.py", line 95, in setUi
-#     self.initUi(uiName)
-#   File "O:/Cloud/Code/_scripts/tentacle\tentacle\tcl.py", line 65, in initUi
-#     self.childEvents.initWidgets(uiName)
-#   File "O:/Cloud/Code/_scripts/tentacle\tentacle\childEvents.py", line 68, in initWidgets
-#     widgets = self.tcl.sb.widgets(uiName) #get all widgets for the given ui name.
-#   File "O:/Cloud/Code/_scripts/tentacle\tentacle\switchboard.py", line 141, in widgets
-#     self.addWidgets(uiName) #construct the signals and slots for the ui.
-#   File "O:/Cloud/Code/_scripts/tentacle\tentacle\switchboard.py", line 164, in addWidgets
-#     self.addWidget(uiName, w, **kwargs)
-#   File "O:/Cloud/Code/_scripts/tentacle\tentacle\switchboard.py", line 197, in addWidget
-#     classInst = self.getClassInstance(uiName) #get the corresponding slot class from the ui name. ie. class <Polygons> from uiName 'polygons'.
-#   File "O:/Cloud/Code/_scripts/tentacle\tentacle\switchboard.py", line 1003, in getClassInstance
-#     return self._setClassInstance(uiName)
-#   File "O:/Cloud/Code/_scripts/tentacle\tentacle\switchboard.py", line 971, in _setClassInstance
-#     result = self.sbDict[uiName]['class'] = class_(**kwargs)
-#   File "O:/Cloud/Code/_scripts/tentacle\tentacle\slots\maya\file_maya.py", line 11, in __init__
-#     File.__init__(self, *args, **kwargs)
-#   File "O:/Cloud/Code/_scripts/tentacle\tentacle\slots\file.py", line 34, in __init__
-#     cmb005.addItems_(dict(zip(self.getRecentFiles(timestamp=True), self.getRecentFiles(timestamp=False))), "Recent Files", clear=True)
-#   File "O:/Cloud/Code/_scripts/tentacle\tentacle\slots\maya\file_maya.py", line 286, in getRecentFiles
-#     result = self.fileNameTimeStamp(result)
-#   File "O:/Cloud/Code/_scripts/tentacle\tentacle\slots\file.py", line 201, in fileNameTimeStamp
-#     result.append('{}  {}'.format(datetime.fromtimestamp(os.path.getmtime(f)).strftime(stamp), f))
-#   File "C:/Program Files/Autodesk/Maya2022\Python37\lib\genericpath.py", line 55, in getmtime
-#     return os.stat(filename).st_mtime
-# OSError: [WinError 1920] The file cannot be accessed by the system: 'O:\\Dropbox (Moth+Flame)\\Dropbox (Moth+Flame)\\Moth+Flame Team Folder\\PRODUCTION\\AF\\C-17A\\Production\\Maya\\Emergency_Egress\\scenes\\modules\\WallssidechairsB\\WallssidechairsB_module.ma'
-
-
-
-merge uiLoader and stylesheet varients.
-
-
-attribute windows pop up at left side of screen (away from cursor) and timeout after x seconds.
+attribute windows pop up solution.  current pop up is far more annoying than useful.
 
 
 build history window instead of using tree widget.
@@ -246,11 +207,6 @@ replace other tree widget instances with popup windows.
 widgets: combobox:
 change comboboxes with custom menus to clickable labels. (transform menu)
 remove alt menu types from combobox.
-
-
-subdivision_maya:
-reduce not working.
-polyReduce  -ver 1 -trm 0 -shp 0 -keepBorder 1 -keepMapBorder 1 -keepColorBorder 1 -keepFaceGroupBorder 1 -keepHardEdge 1 -keepCreaseEdge 1 -keepBorderWeight 0.5 -keepMapBorderWeight 0.5 -keepColorBorderWeight 0.5 -keepFaceGroupBorderWeight 0.5 -keepHardEdgeWeight 0.5 -keepCreaseEdgeWeight 0.5 -useVirtualSymmetry 0 -symmetryTolerance 0.01 -sx 0 -sy 1 -sz 0 -sw 0 -preserveTopology 1 -keepQuadsWeight 1 -vertexMapName "" -cachingReduce 1 -ch 1 -p 50 -vct 0 -tct 0 -replaceOriginal 1 "|PaddingSeatsRampHandPump_module:Ac_CargoArea|PaddingSeatsRampHandPump_module:Wall_Padding_02";
 
 
 create_maya:
@@ -271,8 +227,6 @@ change unfold button in submenu to a unfold and pack macro.
 editors combobox not working: other comboboxes are broken.
 make map size a universal top level spinbox that all commands pull the value from.
 use builtin stack similar from layout options menu.
-dilation setting does not seem to be working.
-add orient shells to the unfold options. (UVOrientShells;) pm.mel.texOrientShells();
 
 
 materials:
@@ -284,6 +238,7 @@ link bitmaps script.
 
 transform:
 combine 'move to' and 'match scale' to 'match transforms'.
+match scale of multiple objects.
 get the functions for these maya commands:
 	pm.mel.performMatchTransform(0)
 	performMatchTranslate 0;

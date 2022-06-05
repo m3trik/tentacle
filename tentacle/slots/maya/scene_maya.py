@@ -64,7 +64,7 @@ class Scene_maya(Scene, Slots_maya):
 		self.setCase(objects, case)
 
 
-	@Slots_maya.undoChunk
+	@Slots_maya.undo
 	def rename(self, frm, to, objects=[], regEx=False, ignoreCase=False):
 		'''Rename scene objects.
 
@@ -109,7 +109,7 @@ class Scene_maya(Scene, Slots_maya):
 		# pm.undoInfo (closeChunk=1)
 
 
-	@Slots_maya.undoChunk
+	@Slots_maya.undo
 	def setCase(self, objects=[], case='caplitalize'):
 		'''Rename objects following the given case.
 

@@ -442,7 +442,7 @@ class Polygons_maya(Polygons, Slots_maya):
 		pm.polyEditEdgeFlow(adjustEdgeFlow=1)
 
 
-	@Slots_maya.undoChunk
+	@Slots_maya.undo
 	def snapClosestVerts(self, obj1, obj2, tolerance=10.0, freezeTransforms=False):
 		'''Snap the vertices from object one to the closest verts on object two.
 

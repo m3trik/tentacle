@@ -199,7 +199,7 @@ class File(Slots):
 			for f in files:
 				try:
 					result.append('{}  {}'.format(datetime.fromtimestamp(os.path.getmtime(f)).strftime(stamp), f))
-				except FileNotFoundError as error:
+				except (FileNotFoundError, OSError) as error:
 					continue
 			result = list(reversed(sorted(result)))
 

@@ -166,7 +166,7 @@ class Create_maya(Create, Slots_maya):
 		return self.getHistoryNode(node)
 
 
-	@Slots_maya.undoChunk
+	@Slots_maya.undo
 	def createCircle(self, axis='y', numPoints=5, radius=5, center=[0,0,0], mode=0, name='pCircle'):
 		'''Create a circular polygon plane.
 

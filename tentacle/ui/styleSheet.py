@@ -1079,11 +1079,14 @@ class StyleSheet(QtCore.QObject):
 		:Return:
 			(str) css styleSheet
 		'''
+		if not widget_type:
+			return ''
+
 		try:
 			css = self._styleSheets[widget_type]
 
 		except KeyError as error:
-			print ('KeyError: {error} in {module} \'getStyleSheet\''.format(error=error, module=self.__class__.__name__))
+			print ('KeyError: {}: {} in {} \'getStyleSheet\''.format(widget_type, error, self.__class__.__name__))
 			return ''
 
 		for k, v in self.getColorValues(style=style, alpha=backgroundOpacity).items():
@@ -1180,11 +1183,11 @@ class StyleSheet(QtCore.QObject):
 if __name__ == "__main__":
 	pass
 
-else:
-	styleSheet = StyleSheet()
+# else:
+# 	styleSheet = StyleSheet()
 
 #module name
-print (__name__)
+# print (__name__)
 # -----------------------------------------------
 # Notes
 # -----------------------------------------------
