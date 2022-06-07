@@ -72,10 +72,10 @@ class UiLoader(QtUiTools.QUiLoader):
 		ex. call:	from uiLoader import UiLoader
 
 					path = os.path.abspath(os.path.dirname(__file__))
-					uiLoader = UiLoader(uiToLoad=path, widgetsToRegister=path+'/widgets')
+					uiLoader = UiLoader(uiToLoad=path, widgetsToRegister=path+'/widgets') #load all ui in path. can also be a path to a single ui file. ie. path+'/transform.ui'
 
-					transform_ui = uiLoader.transform
-					widgets = transform_ui.widgets()
+					transform_ui = uiLoader.transform #get the loaded ui.
+					widgets = transform_ui.widgets() #get all widgets of the ui.
 
 					transform_ui.show()
 					qApp = QApplication.instance()
