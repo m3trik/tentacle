@@ -1,5 +1,7 @@
 # !/usr/bin/python
 # coding=utf-8
+import os, sys
+
 import importlib
 # import inspect
 
@@ -72,17 +74,21 @@ class Switchboard(UiLoader):
 	_gcProtect = [] #[list] - Items protected from garbage collection
 	_classKwargs = {} #{'<property name>':<property value>} - The additional properties of each of the slot classes.
 
+	defaultDir = os.path.abspath(os.path.dirname(__file__))
 
-	def __init__(self, parent=None, uiToLoad=None, widgetsToRegister=None, mainAppWindow=None):
+	def __init__(self, parent=None, uiToLoad=None, widgetsToRegister=None, slotsDir=defaultDir+'/slots', mainAppWindow=None):
 		UiLoader.__init__(self, parent, uiToLoad, widgetsToRegister)
 		'''
 		:Parameters:
 			parent (obj) = The parent widget instance.
-			uiToLoad (str)(list) = The path to a directory containing ui files.
+			uiToLoad (str)(list) = The path to a ui file or to a directory containing ui files. Default: '<uiLoader dir>'
 			widgetsToRegister (str)(obj)(list) = A full filepath to a dir containing widgets or to the widget itself. ie. 'O:/Cloud/Code/_scripts/tentacle/tentacle/ui/widgets'
-						or the widget(s) themselves.
+						or the widget(s) themselves. Default: '<uiLoader dir>/widgets'
+			slotsDir (str) = The path to where the slot modules are located. Default: '../slots'
 			mainWindow (obj) = The parent application's top level window instance. ie. the Maya main window.
 		'''
+		sys.path.append(slotsDir)
+
 		self.setMainAppWindow(mainAppWindow)
 
 
@@ -97,7 +103,7 @@ class Switchboard(UiLoader):
 			return self._sbDict
 
 		except AttributeError as error:
-			self._sbDict = self.uiDict #initialize sbDict by using uiLoader's uiDict.
+			self._sbDict = self.uiDict #initialize sbDict using uiLoader's uiDict.
 			return self._sbDict
 
 
@@ -1000,7 +1006,7 @@ class Switchboard(UiLoader):
 		mod_name = '{}_{}'.format(self.setCase(uiName, case='camelCase'), parentAppName) #ie. 'polygons_maya'
 
 		try: #import the module and get the class instance.
-			module = importlib.import_module('slots.{}.{}'.format(parentAppName, mod_name)) # module = __import__(mod_name)
+			module = importlib.import_module('{}.{}'.format(parentAppName, mod_name)) # module = __import__(mod_name)
 			class_ = getattr(module, self.setCase(mod_name, case='pascalCase')) #ie. <Polygons_maya> from 'Polygons_maya'
 			kwargs = self.getClassKwargs(uiName)
 			result = self.sbDict[uiName]['class'] = class_(**kwargs)

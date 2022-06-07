@@ -58,14 +58,16 @@ class UiLoader(QtUiTools.QUiLoader):
 	if not qApp:
 		qApp = QApplication(sys.argv)
 
+	defaultDir = os.path.abspath(os.path.dirname(__file__))
+
 	def __init__(self, parent=None, uiToLoad=None, widgetsToRegister=None):
 		QtUiTools.QUiLoader.__init__(self, parent)
 		'''Load dynamic ui files and any custom widgets.
 
 		:Parameters:
-			uiToLoad (str)(list) = The path to a directory containing ui files.
+			uiToLoad (str)(list) = The path to a ui file or to a directory containing ui files. Default: '..'
 			widgetsToRegister (str)(obj)(list) = A full filepath to a dir containing widgets or to the widget itself. ie. 'O:/Cloud/Code/_scripts/tentacle/tentacle/ui/widgets'
-						or the widget(s) themselves.
+						or the widget(s) themselves. Default: '../widgets'
 
 		ex. call:	from uiLoader import UiLoader
 
@@ -75,17 +77,17 @@ class UiLoader(QtUiTools.QUiLoader):
 					transform_ui = uiLoader.transform
 					widgets = transform_ui.widgets()
 
-					qApp = QApplication.instance()
 					transform_ui.show()
+					qApp = QApplication.instance()
 					sys.exit(qApp.exec_())
 		'''
-		self.defaultDir = os.path.abspath(os.path.dirname(__file__))
 		self.uiToLoad = uiToLoad if uiToLoad else self.defaultDir
-		self.widgetsToRegister = widgetsToRegister if widgetsToRegister else self.defaultDir
+		self.widgetsToRegister = widgetsToRegister if widgetsToRegister else self.defaultDir+'/widgets'
 		self.registeredWidgets=[] #maintain a list of previously registered widgets.
 
 		for path in self.list_(self.uiToLoad): #assure uiToLoad is a list.
-			self.setWorkingDirectory(path)
+
+			self.setWorkingDirectory(self.formatFilepath(path, 'path'))
 			self.loadUi(path)
 
 
@@ -106,7 +108,7 @@ class UiLoader(QtUiTools.QUiLoader):
 		If the ui's directory name is in the form of 'uiLevel_x' then a 'level' key will be added to the uiDict with a value of x.
 
 		:Parameters:
-			path (str)(list) = The full path(s) to a dynamic ui.
+			path (str)(list) = The path to a ui file or to a directory containing ui files.
 			widgets (str)(obj)(list) = A full filepath to a dir containing widgets or to the widget itself. ie. 'O:/Cloud/Code/_scripts/tentacle/tentacle/ui/widgets'
 						or the widget(s) themselves.
 			recursive (bool) = Search the given path(s) recursively.
@@ -226,7 +228,8 @@ class UiLoader(QtUiTools.QUiLoader):
 		mod_name = self.formatFilepath(path, 'name')
 		mod_ext = self.formatFilepath(path, 'ext')
 
-		self.addPluginPath(path) #sys.path.append(path)
+		self.addPluginPath(path)
+		sys.path.append(path)
 		modules={}
 
 		if mod_name: #if the path contains a module name, get only that module.
