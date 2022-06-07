@@ -1006,7 +1006,7 @@ class Switchboard(UiLoader):
 		mod_name = '{}_{}'.format(self.setCase(uiName, case='camelCase'), parentAppName) #ie. 'polygons_maya'
 
 		try: #import the module and get the class instance.
-			module = importlib.import_module('{}.{}'.format(parentAppName, mod_name)) # module = __import__(mod_name)
+			module = importlib.import_module(mod_name) # module = __import__(mod_name)
 			class_ = getattr(module, self.setCase(mod_name, case='pascalCase')) #ie. <Polygons_maya> from 'Polygons_maya'
 			kwargs = self.getClassKwargs(uiName)
 			result = self.sbDict[uiName]['class'] = class_(**kwargs)
