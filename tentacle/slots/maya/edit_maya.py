@@ -45,6 +45,7 @@ class Edit_maya(Edit, Slots_maya):
 			#sync widgets
 			ctx.chk004.toggled.connect(lambda state: self.edit_submenu_ui.chk004.setChecked(state))
 			self.edit_submenu_ui.chk004.toggled.connect(lambda state: ctx.chk004.setChecked(state))
+			self.edit_submenu_ui.chk010.toggled.connect(lambda state: ctx.chk010.setChecked(state))
 
 
 	def cmb000(self, index=-1):
@@ -133,7 +134,12 @@ class Edit_maya(Edit, Slots_maya):
 		all_ = tb.contextMenu.chk018.isChecked()
 		unusedNodes = tb.contextMenu.chk019.isChecked()
 		deformers = tb.contextMenu.chk020.isChecked()
+		optimize = tb.contextMenu.chk030.isChecked()
+
 		objects = pm.ls(selection=1, objectsOnly=1) if not all_ else pm.ls(typ="mesh")
+
+		if optimize:
+			pm.mel.OptimizeScene()
 
 		try: #delete history
 			if all_:

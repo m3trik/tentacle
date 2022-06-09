@@ -107,6 +107,7 @@ class Switchboard(QtUiTools.QUiLoader, styleSheet.StyleSheet):
 	_cameraHistory = [] #[list of 2 element lists] - Camera history. ie. [[<v000>, 'camera: persp']]
 	_gcProtect = [] #[list] - Items protected from garbage collection
 	_classKwargs = {} #{'<property name>':<property value>} - The additional properties of each of the slot classes.
+	_registeredWidgets=[] #maintain a list of previously registered custom widgets.
 
 	qApp = QApplication.instance() #get the qApp instance if it exists.
 	if not qApp:
@@ -115,7 +116,7 @@ class Switchboard(QtUiTools.QUiLoader, styleSheet.StyleSheet):
 	defaultDir = os.path.abspath(os.path.dirname(__file__))
 
 
-	def __init__(self, parent=None, uiToLoad=defaultDir+'/ui', widgetsToRegister=defaultDir+'/widgets', slotsDir=defaultDir+'/slots', mainAppWindow=None):
+	def __init__(self, parent=None, uiToLoad=defaultDir+'/ui', widgetsToRegister=defaultDir+'/ui/widgets', slotsDir=defaultDir+'/slots', mainAppWindow=None):
 		QtUiTools.QUiLoader.__init__(self, parent)
 		'''Instantiate switchboard with the directory locations of dynamic ui, custom widgets, slot modules and load the ui with any custom widgets.
 
@@ -130,24 +131,23 @@ class Switchboard(QtUiTools.QUiLoader, styleSheet.StyleSheet):
 		ex. call:	qApp = QtWidgets.QApplication.instance()
 
 					sb = Switchboard(uiToLoad=r'path to/ui', widgetsToRegister=r'path to/custom widgets', slotsDir=r'path to/slots')
+					ui = sb.edit(setAsCurrent=True) #same as: sb.getUi('edit', setAsCurrent=True)
 
-					ui = sb.getUi('<ui name>', setAsCurrent=True)
-
-					widgets = sb.getWidgets
-
-					sb.setStyleSheet_(widgets)
+					widgets = ui.widgets()
+					ui.setStyleSheet_(widgets)
 
 					ui.show()
+					qApp = QApplication.instance() #get the qApp instance if it exists.
 					sys.exit(qApp.exec_())
 		'''
-		self.uiToLoad = uiToLoad if uiToLoad else self.defaultDir
-		self.widgetsToRegister = widgetsToRegister if widgetsToRegister else self.defaultDir+'/widgets'
-		self.registeredWidgets=[] #maintain a list of previously registered widgets.
-
-		for path in self.list_(self.uiToLoad): #assure uiToLoad is a list.
+		for path in self.list_(uiToLoad): #assure uiToLoad is a list.
 
 			self.setWorkingDirectory(self.formatFilepath(path, 'path'))
-			self.loadUi(path)
+			try:
+				self.loadUi(path, widgets=widgetsToRegister)
+
+			except FileNotFoundError as error:
+				print ('# FileNotFoundError: {}.__init__(): {} #'.format(__name__, error))
 
 		sys.path.append(slotsDir)
 
@@ -186,8 +186,6 @@ class Switchboard(QtUiTools.QUiLoader, styleSheet.StyleSheet):
 		ex. call: uiDict = uiLoader.loadUi(uiLoader.defaultDir+'/some_ui.ui') #load a single ui using the path of this module.
 		ex. call: uiDict = uiLoader.loadUi(__file__+'/some_ui.ui') #load a single ui using the path of the calling module.
 		'''
-		widgets = widgets if widgets else self.widgetsToRegister
-
 		self.registerWidgets(widgets)
 
 		for path in self.list_(path): #assure path is a list.
@@ -196,12 +194,12 @@ class Switchboard(QtUiTools.QUiLoader, styleSheet.StyleSheet):
 
 			if uiName:
 				ui = self.load(path) #load the dynamic ui file.
-				uiLevel = self.getUiLevelFromDir(path)
+				uiLevel = self._getUiLevelFromDir(path)
 
 				#set attributes
-				setattr(self, uiName, ui) #set the ui as an attribute of the uiLoader so that it can be accessed as uiLoader.<some_ui>
-				ui.widgets = lambda ui=ui: self.getWidgetsFromUi(ui) #set a 'widgets' attribute to return the ui's widgets. ex. ui.widgets()
-				ui.setStyleSheet_ = lambda ui=ui: self.setStyleSheet_(ui)
+				setattr(self, uiName, lambda ui=ui, **kwargs: self.getUi(ui, **kwargs)) #set the ui as an attribute of switchboard so that it can be accessed as sb.<some_ui>()
+				ui.widgets = lambda ui=ui, **kwargs: self.list_(self.widgets(ui, **kwargs)) #set a 'widgets' attribute to return the ui's widgets. ex. ui.widgets()
+				ui.setStyleSheet_ = lambda ui=ui, **kwargs: self.setStyleSheet_(ui, **kwargs) #create a set stylesheet attribute for the ui. ex. ui.setStyleSheet_(style='dark')
 
 				self.sbDict[uiName] = {
 					'ui': ui, #the ui object.
@@ -277,13 +275,14 @@ class Switchboard(QtUiTools.QUiLoader, styleSheet.StyleSheet):
 
 			getattr(w1, s1).connect(lambda: self._syncAttributes(w1, w2))
 			getattr(w2, s2).connect(lambda: self._syncAttributes(w2, w1))
+
 		except (KeyError, AttributeError) as error:
+			# if w1 and w2: print ('# {}: {}.setSyncAttributesConnections({}, {}): {} is invalid.'.format('KeyError' if error==KeyError else 'AttributeError', __name__, w1, w2, error))
 			pass
 
 
-	def _syncAttributes(self, frm, to, attributeTypes = {
-		'isChecked':'setChecked', 'isDisabled':'setDisabled', 'isEnabled':'setEnabled', 
-		'value':'setValue', 'text':'setText', 'icon':'setIcon',}):
+	def _syncAttributes(self, frm, to, attributeTypes = {'isChecked':'setChecked', 'isDisabled':'setDisabled', 
+				'isEnabled':'setEnabled', 'value':'setValue', 'text':'setText', 'icon':'setIcon',}):
 		'''Sync the given attributes between the two given widgets.
 		If a widget does not have an attribute it will be silently skipped.
 
@@ -534,25 +533,6 @@ class Switchboard(QtUiTools.QUiLoader, styleSheet.StyleSheet):
 		return result
 
 
-	def setCase(self, s, case='camelCase'):
-		'''Format the given string(s) in the given case.
-		
-		:Parameters:
-			s (str)(list) = The string(s) to format.
-			case (str) = The desired return case.
-
-		:Return:
-			(str)(list)
-		'''
-		if case=='pascalCase':
-			s = [n[:1].capitalize()+n[1:] for n in self.list_(s)] #capitalize the first letter.
-
-		elif case=='camelCase':
-			s = [n[0].lower()+n[1:] for n in self.list_(s)] #lowercase the first letter.
-
-		return s[0] if len(s)==1 else s
-
-
 	def setUiState(self, ui=None, state=1):
 		'''Get the initialization state of the given ui as an int.
 
@@ -639,8 +619,11 @@ class Switchboard(QtUiTools.QUiLoader, styleSheet.StyleSheet):
 			try:
 				uiName = self._uiHistory[-1]
 			except IndexError as error: #if index out of range (no value exists) if uiName==n or (uiName in n and level==4)] if uiName==n or (uiName in n and level==4)]: return None
+				if len(self.sbDict)==1:
+					return next(iter(self.sbDict)) #if there is only one ui in sbDict return it; else raise error.
+
 				print ('# IndexError: {}.getUiName({}, {}, {}): {} #'.format(__name__, ui, case, level, error))
-				return None
+				raise IndexError('No UI in history. If there are muliple ui loaded, you must set one as the current ui either by using getUi() with setAsCurrent flag, or <switchboard>.<ui name>(setAsCurrent=True).')
 
 		elif isinstance(ui, (str)):
 			if ui=='all': #get all ui of the given level(s).
@@ -1023,12 +1006,8 @@ class Switchboard(QtUiTools.QUiLoader, styleSheet.StyleSheet):
 			return self._setClassInstance(uiName)
 
 
-	def getWidgetsFromUi(self, ui):
+	def _getWidgetsFromUi(self, ui):
 		'''Get all widgets of the given ui.
-		Used by the ui.widgets attribute and can be accessed using: some_ui.widgets()
-
-		:Property:
-			ui.widgets
 
 		:Parameters:
 			ui (obj)(str) = The ui, or name of the ui you are wanting to get widgets for.
@@ -1057,7 +1036,7 @@ class Switchboard(QtUiTools.QUiLoader, styleSheet.StyleSheet):
 		return hasattr(obj, 'objectName') and shiboken2.isValid(obj)
 
 
-	def getWidgetsFromDir(self, path):
+	def _getWidgetsFromDir(self, path):
 		'''Get all widget class objects from a given directory.
 
 		:Parameters:
@@ -1115,17 +1094,20 @@ class Switchboard(QtUiTools.QUiLoader, styleSheet.StyleSheet):
 		ex. call: registerWidgets(<class 'widgets.menu.Menu'>) #register using widget class object.
 		ex. call: registerWidgets('O:/Cloud/Code/_scripts/tentacle/tentacle/ui/widgets/menu.py') #register using path to widget module.
 		'''
+		if not widgets:
+			return
+
 		if isinstance(widgets, (str)):
-			widgets = self.getWidgetsFromDir(widgets)
+			widgets = self._getWidgetsFromDir(widgets)
 
 		for w in self.list_(widgets): #assure widgets is a list.
 
-			if w in self.registeredWidgets:
+			if w in self._registeredWidgets:
 				continue
 
 			try:
 				self.registerCustomWidget(w)
-				self.registeredWidgets.append(w)
+				self._registeredWidgets.append(w)
 
 			except Exception as error:
 				print ('# Error: {}.registerWidgets(): {} #'.format(__name__, error))
@@ -1144,7 +1126,7 @@ class Switchboard(QtUiTools.QUiLoader, styleSheet.StyleSheet):
 		'''
 		if widgets is None:
 			ui = self.getUi(uiName)
-			widgets = ui.widgets() #get each widget object of the ui:
+			widgets = self._getWidgetsFromUi(ui) #get all widgets of the ui:
 
 		for w in self.list_(widgets): #if 'widgets' isn't a list, convert it to one.
 			typ = w.__class__.__base__.__name__ if filterByBaseType else self.getDerivedType(w)
@@ -1205,7 +1187,7 @@ class Switchboard(QtUiTools.QUiLoader, styleSheet.StyleSheet):
 					})
 
 		if self.getUiLevel(uiName)==2: #sync submenu widgets with their main menu counterparts.
-			w2 = self.getWidget(widgetName, self.getUi(uiName, level=3))
+			w2 = self.getWidget(widgetName, self.getUi(uiName, level=3)) #w2 = getattr(self.getUi(uiName, level=3), widgetName) if hasattr(self.getUi(uiName, level=3), widgetName) else None
 			self.setSyncAttributesConnections(widget, w2)
 
 		# print(self.widgets(uiName)[widget])
@@ -1820,7 +1802,7 @@ class Switchboard(QtUiTools.QUiLoader, styleSheet.StyleSheet):
 				return [k]
 
 
-	def getUiLevelFromDir(self, filePath):
+	def _getUiLevelFromDir(self, filePath):
 		'''Get the UI level by looking for trailing intergers in it's dir name.
 		If none are found a default level of 0 is used.
 
@@ -1935,24 +1917,23 @@ class Switchboard(QtUiTools.QUiLoader, styleSheet.StyleSheet):
 				return prefix
 
 
-	@staticmethod
-	def convert(obj):
-		'''Recursively convert items in sbDict for debugging.
-
+	def setCase(self, s, case='camelCase'):
+		'''Format the given string(s) in the given case.
+		
 		:Parameters:
-			obj (dict) = The dictionary to convert.
+			s (str)(list) = The string(s) to format.
+			case (str) = The desired return case.
 
 		:Return:
-			(dict)
+			(str)(list)
 		'''
-		if isinstance(obj, (list, set, tuple)):
-			return [Switchboard.convert(i) for i in obj]
-		elif isinstance(obj, dict):
-			return {Switchboard.convert(k):Switchboard.convert(v) for k, v in obj.items()}
-		elif not isinstance(obj, (float, int, str)):
-			return str(obj)
-		else:
-			return obj
+		if case=='pascalCase':
+			s = [n[:1].capitalize()+n[1:] for n in self.list_(s)] #capitalize the first letter.
+
+		elif case=='camelCase':
+			s = [n[0].lower()+n[1:] for n in self.list_(s)] #lowercase the first letter.
+
+		return s[0] if len(s)==1 else s
 
 
 	@staticmethod
@@ -2085,6 +2066,26 @@ class Switchboard(QtUiTools.QUiLoader, styleSheet.StyleSheet):
 			return [x]
 
 
+	@staticmethod
+	def convert(obj):
+		'''Recursively convert items in sbDict for debugging.
+
+		:Parameters:
+			obj (dict) = The dictionary to convert.
+
+		:Return:
+			(dict)
+		'''
+		if isinstance(obj, (list, set, tuple)):
+			return [Switchboard.convert(i) for i in obj]
+		elif isinstance(obj, dict):
+			return {Switchboard.convert(k):Switchboard.convert(v) for k, v in obj.items()}
+		elif not isinstance(obj, (float, int, str)):
+			return str(obj)
+		else:
+			return obj
+
+
 	#assign properties
 	# sbDict = property(getSbDict)
 	uiName = property(getUiName, _setUiName)
@@ -2113,12 +2114,11 @@ if __name__=='__main__':
 	import sys, os
 	from PySide2.QtWidgets import QApplication
 
-	sb = Switchboard(widgetsToRegister=Switchboard.defaultDir+'/ui/widgets')
+	sb = Switchboard()
+	ui = sb.edit(setAsCurrent=True) #same as: sb.getUi('edit', setAsCurrent=True)
 
-	ui = sb.getUi('edit', setAsCurrent=True)
-
-	widgets = sb.getWidgets
-	sb.setStyleSheet_(widgets)
+	widgets = ui.widgets()
+	ui.setStyleSheet_(widgets)
 
 	ui.show()
 	qApp = QApplication.instance() #get the qApp instance if it exists.

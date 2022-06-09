@@ -30,6 +30,7 @@ class Edit(Slots):
 			ctx.add('QCheckBox', setText='For All Objects', setObjectName='chk018', setChecked=True, setToolTip='Delete history on All objects or just those selected.')
 			ctx.add('QCheckBox', setText='Delete Unused Nodes', setObjectName='chk019', setChecked=True, setToolTip='Delete unused nodes.')
 			ctx.add('QCheckBox', setText='Delete Deformers', setObjectName='chk020', setToolTip='Delete deformers.')
+			ctx.add('QCheckBox', setText='Optimize Scene', setObjectName='chk030', setToolTip='Remove unused scene objects.')
 
 		ctx = self.edit_ui.tb002.contextMenu
 		if not ctx.containsMenuItems:

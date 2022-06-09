@@ -23,6 +23,7 @@ class EventFactoryFilter(QtCore.QObject):
 		super(EventFactoryFilter, self).__init__(tcl)
 
 		self.tcl = tcl
+		self.sb = self.tcl.sb
 
 		self.widgetTypes = [ #install an event filter for the given widget types.
 				'QWidget', 
@@ -62,28 +63,27 @@ class EventFactoryFilter(QtCore.QObject):
 			ui (str)(obj) = The ui name, or ui object. ie. 'polygons' or <polygons>
 			widgets (str)(list) = <QWidgets> if no arg is given, the operation will be performed on all widgets of the given ui name.
 		'''
-		uiName = self.tcl.sb.getUiName(ui)
+		ui = self.sb.getUi(ui)
+		uiLevel = self.sb.getUiLevel(ui)
 
 		if widgets is None:
-			widgets = self.tcl.sb.widgets(uiName) #get all widgets for the given ui.
+			widgets = ui.widgets() #get all widgets for the given ui.
 
-		for widget in self.tcl.sb.list_(widgets): #if 'widgets' isn't a list, convert it to one.
-			widgetName = self.tcl.sb.getWidgetName(widget, uiName)
-			widgetType = self.tcl.sb.getWidgetType(widget, uiName) #get the class type as string.
-			derivedType = self.tcl.sb.getDerivedType(widget, uiName) #get the derived class type as string.
-			ui = self.tcl.sb.getUi(uiName)
-			uiLevel = self.tcl.sb.getUiLevel(uiName)
-			method = self.tcl.sb.getMethod(uiName, widgetName)
+		for widget in self.sb.list_(widgets): #if 'widgets' isn't a list, convert it to one.
+			widgetName = self.sb.getWidgetName(widget, ui)
+			widgetType = self.sb.getWidgetType(widget, ui) #get the class type as string.
+			derivedType = self.sb.getDerivedType(widget, ui) #get the derived class type as string.
+			method = self.sb.getMethod(ui, widgetName)
 
 			#set stylesheet
-			if uiLevel==2 and not self.tcl.sb.prefix(widget, 'i'): #if submenu and objectName doesn't start with 'i':
-				self.tcl.sb.setStyleSheet_(widget, style='dark', hideMenuButton=True, backgroundOpacity=0)
+			if uiLevel==2 and not self.sb.prefix(widget, 'i'): #if submenu and objectName doesn't start with 'i':
+				ui.setStyleSheet_(widget, style='dark', hideMenuButton=True, backgroundOpacity=0)
 
 			elif uiLevel>2: #main menus
-				self.tcl.sb.setStyleSheet_(widget, style='dark', backgroundOpacity=0)
+				ui.setStyleSheet_(widget, style='dark', backgroundOpacity=0)
 
 			else:
-				self.tcl.sb.setStyleSheet_(widget, backgroundOpacity=0)
+				ui.setStyleSheet_(widget, backgroundOpacity=0)
 
 
 			if derivedType in self.widgetTypes:
@@ -92,20 +92,20 @@ class EventFactoryFilter(QtCore.QObject):
 					widget.installEventFilter(self)
 
 				try: #add the child widgets of popup menus.
-					self.initWidgets(uiName, widget.menu_.childWidgets) #initialize the widget to set things like the event filter and styleSheet.
-					self.tcl.sb.connectSlots(uiName, widget.menu_.childWidgets)
+					self.initWidgets(ui, widget.menu_.childWidgets) #initialize the widget to set things like the event filter and styleSheet.
+					self.sb.connectSlots(ui, widget.menu_.childWidgets)
 
-					self.initWidgets(uiName, widget.contextMenu.childWidgets)
-					self.tcl.sb.connectSlots(uiName, widget.contextMenu.childWidgets)
+					self.initWidgets(ui, widget.contextMenu.childWidgets)
+					self.sb.connectSlots(ui, widget.contextMenu.childWidgets)
 				except AttributeError as error:
-					pass; #print ("# Error: {}.EventFactoryFilter.initWidgets({}, {}): {}. #".format(__name__, uiName, widgetName, error))
+					pass; #print ("# Error: {}.EventFactoryFilter.initWidgets({}, {}): {}. #".format(__name__, ui, widgetName, error))
 
 				if derivedType in ('QPushButton', 'QLabel'): #widget types to resize and center.
 					if uiLevel<3:
 						EventFactoryFilter.resizeAndCenterWidget(widget)
 
 				elif derivedType=='QWidget': #widget types to set an initial state as hidden.
-					if self.tcl.sb.prefix(widget, 'w') and uiLevel==1: #prefix returns True if widgetName startswith the given prefix, and is followed by three integers.
+					if self.sb.prefix(widget, 'w') and uiLevel==1: #prefix returns True if widgetName startswith the given prefix, and is followed by three integers.
 						widget.setVisible(False)
 
 
@@ -116,18 +116,18 @@ class EventFactoryFilter(QtCore.QObject):
 		:Parameters:
 			ui (str)(obj) = The ui name, or ui object. ie. 'polygons' or <polygons>
 		'''
-		uiName = self.tcl.sb.getUiName(ui)
+		ui = self.sb.getUi(ui)
 		widgetsUnderMouse = [] #list of widgets currently under the mouse cursor and their parents. in hierarchical order. ie. [[<widgets.pushButton.PushButton object at 0x00000000045F6948>, <PySide2.QtWidgets.QMainWindow object at 0x00000000045AA8C8>, <__main__.Main_max object at 0x000000000361F508>, <PySide2.QtWidgets.QWidget object at 0x00000000036317C8>]]
-		trackedWidgets = self.tcl.sb.getWidget(ui=uiName, tracked=True)
+		trackedWidgets = self.sb.getWidget(ui=ui, tracked=True)
 
 		for widget in trackedWidgets: #get all widgets from the current ui.
 
 			try: # if hasattr(widget, 'rect'):
-				widgetName = self.tcl.sb.getWidgetName(widget, uiName)
+				widgetName = self.sb.getWidgetName(widget, ui)
 			except KeyError as error: #ignore any widgets not having the 'rect' attribute.
-				self.initWidgets(uiName, widget) #initialize the widget to set things like the event filter and styleSheet.
-				self.tcl.sb.connectSlots(uiName, widget)
-				widgetName = self.tcl.sb.getWidgetName(widget, uiName)
+				self.initWidgets(ui, widget) #initialize the widget to set things like the event filter and styleSheet.
+				self.sb.connectSlots(ui, widget)
+				widgetName = self.sb.getWidgetName(widget, ui)
 
 			try:
 				if widget.rect().contains(widget.mapFromGlobal(QtGui.QCursor.pos())): #if mouse over widget:
@@ -138,13 +138,13 @@ class EventFactoryFilter(QtCore.QObject):
 
 						if not widgetName=='mainWindow':
 							if widget.underMouse() and widget.isEnabled():
-								parentWidgets = self.tcl.sb.getParentWidgets(widget)
+								parentWidgets = self.sb.getParentWidgets(widget)
 								widgetsUnderMouse.append(parentWidgets)
 				else:
 					if widget in self._mouseOver: #if widget is in the mouseOver list, but the mouse is no longer over the widget:
 						QtWidgets.QApplication.sendEvent(widget, self.leaveEvent_)
 						self._mouseOver.remove(widget)
-						ui = self.tcl.sb.getUi(ui)
+						ui = self.sb.getUi(ui)
 						if ui.mainWindow.isVisible():
 							ui.mainWindow.grabMouse()
 							self._mouseGrabber = ui.mainWindow
@@ -210,13 +210,13 @@ class EventFactoryFilter(QtCore.QObject):
 		if eventName in self.eventTypes: #handle only events listed in 'eventTypes'
 
 			self.widget = widget
-			self.uiName = self.tcl.sb.getUiNameFromWidget(self.widget) #get the name of the ui containing the given widget.
-			self.widgetName = self.tcl.sb.getWidgetName(self.widget, self.uiName) #get the stored objectName string (pyside objectName() returns unicode).
-			self.widgetType = self.tcl.sb.getWidgetType(self.widget, self.uiName)
-			self.derivedType = self.tcl.sb.getDerivedType(self.widget, self.uiName)
-			self.ui = self.tcl.sb.getUi(self.uiName)
-			self.uiLevel = self.tcl.sb.getUiLevel(self.uiName)
-			self.method = self.tcl.sb.getMethod(self.uiName, self.widgetName)
+			self.uiName = self.sb.getUiNameFromWidget(self.widget) #get the name of the ui containing the given widget.
+			self.widgetName = self.sb.getWidgetName(self.widget, self.uiName) #get the stored objectName string (pyside objectName() returns unicode).
+			self.widgetType = self.sb.getWidgetType(self.widget, self.uiName)
+			self.derivedType = self.sb.getDerivedType(self.widget, self.uiName)
+			self.ui = self.sb.getUi(self.uiName)
+			self.uiLevel = self.sb.getUiLevel(self.uiName)
+			self.method = self.sb.getMethod(self.uiName, self.widgetName)
 			# print (self.uiName, self.widgetType, self.widgetName, event.__class__.__name__, eventName)
 
 			# try: # if hasattr(self, eventName):
@@ -244,14 +244,14 @@ class EventFactoryFilter(QtCore.QObject):
 				self.method()
 			except:
 				try: #if call fails (ie. NoneType error); try adding the widget, and call again.
-					self.tcl.sb.addWidget(self.uiName, self.widget)
-					self.tcl.sb.getMethod(self.uiName, self.widgetName)()
+					self.sb.addWidget(self.uiName, self.widget)
+					self.sb.getMethod(self.uiName, self.widgetName)()
 				except (AttributeError, NameError, TypeError) as error:
 					pass; #print ('# Error: {}.EventFactoryFilter.ShowEvent: Call to {}.{} failed: {}. #'.format(__name__, self.uiName, self.widgetName, error))
 
 			if self.widgetType=='TreeWidgetExpandableList':
 				self.initWidgets(self.uiName, self.widget.newWidgets) #initialize the widget to set things like the event filter and styleSheet.
-				self.tcl.sb.connectSlots(self.uiName, self.widget.newWidgets)
+				self.sb.connectSlots(self.uiName, self.widget.newWidgets)
 
 		self.widget.__class__.showEvent(self.widget, event)
 
@@ -277,20 +277,20 @@ class EventFactoryFilter(QtCore.QObject):
 		self._mouseHover.emit(True)
 
 		if self.widgetType=='QWidget':
-			if self.tcl.sb.prefix(self.widget, 'w'):
+			if self.sb.prefix(self.widget, 'w'):
 				self.widget.setVisible(True) #set visibility
 
 		elif self.derivedType=='QPushButton':
-			if self.tcl.sb.prefix(self.widget, 'i'): #set the stacked widget.
-				submenu = self.tcl.sb.getUiName(self.widget.whatsThis(), level=2)
+			if self.sb.prefix(self.widget, 'i'): #set the stacked widget.
+				submenu = self.sb.getUiName(self.widget.whatsThis(), level=2)
 				if submenu and not self.uiName==submenu: #do not reopen the submenu if it is already open.
 					self.uiName = self.tcl.setSubUi(self.widget, submenu)
 
 			elif self.widgetName=='return_area':
 				self.tcl.setPrevUi()
 
-		if self.tcl.sb.prefix(self.widget, 'chk'):
-			if self.tcl.sb.getUiLevel(self.uiName)==2: #if submenu:
+		if self.sb.prefix(self.widget, 'chk'):
+			if self.sb.getUiLevel(self.uiName)==2: #if submenu:
 				self.widget.click()
 
 		self.widget.__class__.enterEvent(self.widget, event)
@@ -304,7 +304,7 @@ class EventFactoryFilter(QtCore.QObject):
 		self._mouseHover.emit(False)
 
 		if self.widgetType=='QWidget':
-			if self.tcl.sb.prefix(self.widget, 'w'):
+			if self.sb.prefix(self.widget, 'w'):
 				self.widget.setVisible(False) #set visibility
 
 		self.widget.__class__.leaveEvent(self.widget, event)
@@ -341,20 +341,20 @@ class EventFactoryFilter(QtCore.QObject):
 		'''
 		if self.widget.underMouse(): #if self.widget.rect().contains(event.pos()): #if mouse over widget:
 			if self.derivedType=='QPushButton':
-				if self.tcl.sb.prefix(self.widget, 'i'): #ie. 'i012'
+				if self.sb.prefix(self.widget, 'i'): #ie. 'i012'
 					self.tcl.setUi(self.widget.whatsThis())
 
-				elif self.tcl.sb.prefix(self.widget, 'v'):
+				elif self.sb.prefix(self.widget, 'v'):
 					if self.uiName=='cameras':
-						self.tcl.sb.prevCamera(add=self.method)
+						self.sb.prevCamera(add=self.method)
 					#send click signal on mouseRelease.
 					self.widget.click()
 
-				elif self.tcl.sb.prefix(self.widget, ['b','tb']):
-					if self.tcl.sb.getUiLevel(self.uiName)==2: #if submenu:
+				elif self.sb.prefix(self.widget, ['b','tb']):
+					if self.sb.getUiLevel(self.uiName)==2: #if submenu:
 						self.widget.click()
 					#add the buttons command info to the prevCommand list.
-					self.tcl.sb.prevCommand(add=self.method)
+					self.sb.prevCommand(add=self.method)
 
 		self.widget.__class__.mouseReleaseEvent(self.widget, event)
 
@@ -440,7 +440,7 @@ print (__name__)
 			#finally, add any of the widget's children.
 			# exclude = ['TreeWidgetExpandableList'] #'QObject', 'QBoxLayout', 'QFrame', 'QAbstractItemView', 'QHeaderView', 'QItemSelectionModel', 'QItemDelegate', 'QScrollBar', 'QScrollArea', 'QValidator', 'QStyledItemDelegate', 'QPropertyAnimation'] #, 'QAction', 'QWidgetAction'
 			# for c in widget.children(): #from itertools import chain; list(chain(*[widget.findChildren(t) for t in self.widgetClasses])) #get children and flatten list with itertools chain. # children = [i for sublist in [widget.findChildren(t) for t in self.widgetClasses] for i in sublist]
-			# 	typ = self.tcl.sb._getDerivedType(c) #get the derived type without adding.
+			# 	typ = self.sb._getDerivedType(c) #get the derived type without adding.
 			# 	if typ in self.widgetTypes and not typ in exclude:
 			# 		if c not in widgets:
 			# 			self.addWidgets(uiName, c) 
