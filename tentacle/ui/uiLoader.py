@@ -91,7 +91,6 @@ class UiLoader(QtUiTools.QUiLoader, styleSheet.StyleSheet):
 		for path in self.list_(self.uiToLoad): #assure uiToLoad is a list.
 
 			self.setWorkingDirectory(self.formatFilepath(path, 'path'))
-			print (self.defaultDir)
 			self.loadUi(path)
 
 
