@@ -3,43 +3,80 @@
 import os, sys
 
 import importlib
-# import inspect
+import inspect
 
-from ui.uiLoader import UiLoader
+from PySide2.QtWidgets import QApplication
+from PySide2 import QtUiTools
+
+try: import shiboken2
+except: from PySide2 import shiboken2
+
+from ui import styleSheet
 
 
 
-class Switchboard(UiLoader):
-	''' ---------------------------------------------
-		Manage widget dependancies.
-	 ------------------------------------------------
-	Get/set widget data across modules using convenience methods.
+class Switchboard(QtUiTools.QUiLoader, styleSheet.StyleSheet):
+	'''Load and Manage dynamic ui across modules using convenience methods.
+	Dynamically adds and removes slot connections using naming convention.
 
-	Ui name/and it's corresponding slot class name should always be the same. (case insensitive) ie. 'polygons' (ui name) will look to build connections to 'Polygons' (class name). 
+	Ui files are searched for in the directory of this module.
+	Custom widget modules are searched for in a sub directory named 'widgets'. 
+	naming convention for custom widgets: <first char lowercase>.py module. <first char uppercase> for the corresponding widget class. ie. calss Label in label.py module.
+
+	The ui name/and it's corresponding slot class name should always be the same. (case insensitive) ie. 'polygons' (ui name) will look to build connections to 'Polygons' (class name). 
 	Widget objectName/corresponding class method name need to be the same. ie. 'b000' (widget objectName) will try to connect to <b000> class method.
 	A widgets dict is constructed as needed for each class when connectSlots (or any other dependant) is called.
 
-	_sbDict = {	
-		'<uiName>' : {
-					'ui' : <ui object>,
-					'uiLevel' : {'base' : <int>},
-					'state' : int,
-					'class' : <Class>,
-					'size' : [int, int],
-					'widgets' : {
-								'<widget>':{
-											'widgetName' : 'objectName',
-											'signalInstance' : <widget.signal>,
-											'widgetType' : '<widgetClassName>',
-											'derivedType' : '<derivedClassName>',
-											'method' : <method>,
-											'prefix' : 'alphanumeric prefix',
-											'docString' : 'method docString',
-											'tracked' : <bool>,
-								},
-					},
-		},
-	}
+	:QuiLoader Functions:
+		workingDirectory() - Returns the working directory of the loader. Return type: QtCore.QDir
+		setWorkingDirectory(dir) - Sets the working directory of the loader to dir . The loader will look for other resources, such as icons and resource files, in paths relative to this directory.
+		pluginPaths() - Returns a list naming the paths in which the loader will search when locating custom widget plugins.
+		addPluginPath(str) - Adds the given path to the list of paths in which the loader will search when locating plugins.
+		clearPluginPaths() - Clears the list of paths in which the loader will search when locating plugins.
+		availableLayouts() - Returns a list of strings naming all available layouts that can be built using the createLayout() function.
+		availableWidgets() - Returns a list of strings naming all available widgets that can be built using the createWidget() function, i.e all the widgets specified within the given plugin paths.
+		registerCustomWidget(widget) - Returns a list naming the paths in which the loader will search when locating custom widget plugins.
+		load(str, parentWidget=None) - Loads a form from the given device and creates a new widget with the given parentWidget to hold its contents.
+		setLanguageChangeEnabled(enabled) - If enabled is true, user interfaces loaded by this loader will automatically retranslate themselves upon receiving a language change event.
+		setTranslationEnabled(enabled) - If enabled is true, user interfaces loaded by this loader will be translated. Otherwise, the user interfaces will not be translated.
+		isLanguageChangeEnabled() - Returns true if dynamic retranslation on language change is enabled; returns false otherwise.
+		isTranslationEnabled() - Returns true if translation is enabled; returns false otherwise.
+		errorString() - Returns a human-readable description (str) of the last error occurred in load()
+
+	:QuiLoader Virtual Functions:
+		createAction(parent=None, name='') - Creates a new action with the given parent and name.
+		createActionGroup(parent=None, name='') - Creates a new action group with the given parent and name.
+		createLayout(className, parent=None, name='') - Creates a new layout with the given parent and name using the class specified by className. You can use this function to create any layout returned by availableLayouts().
+		createWidget(className, parent=None, name='') - Creates a new widget with the given parent and name using the class specified by className. You can use this function to create any widget returned by availableWidgets().
+
+	:Ui levels: (for stacked layout hierarchy navigation)
+		init menu:	0 	The launch menu. Mouse and hotkey combos link to base menus.
+		base menu:	1	link to sub and main menus.
+		sub menu:	2 	Inherits slots from it's corresponding main menu unless a slot class is created matching the sub menu's name.
+		main menu:	3	Top level menu.
+	
+	:Structure:
+		_sbDict = {	
+			'<uiName>' : {
+						'ui' : <ui object>,
+						'uiLevel' : {'base' : <int>},
+						'state' : int,
+						'class' : <Class>,
+						'size' : [int, int],
+						'widgets' : {
+									'<widget>':{
+												'widgetName' : 'objectName',
+												'signalInstance' : <widget.signal>,
+												'widgetType' : '<widgetClassName>',
+												'derivedType' : '<derivedClassName>',
+												'method' : <method>,
+												'prefix' : 'alphanumeric prefix',
+												'docString' : 'method docString',
+												'tracked' : <bool>,
+									},
+						},
+			},
+		}
 	'''
 	defaultSignals = { #the default signal to be associated with each widget type.
 		'QAction':'triggered',
@@ -71,10 +108,17 @@ class Switchboard(UiLoader):
 	_gcProtect = [] #[list] - Items protected from garbage collection
 	_classKwargs = {} #{'<property name>':<property value>} - The additional properties of each of the slot classes.
 
+	qApp = QApplication.instance() #get the qApp instance if it exists.
+	if not qApp:
+		qApp = QApplication(sys.argv)
 
-	def __init__(self, parent=None, uiToLoad=UiLoader.defaultDir, widgetsToRegister=UiLoader.defaultDir+'/widgets', slotsDir=UiLoader.defaultDir+'/slots', mainAppWindow=None):
-		UiLoader.__init__(self, parent, uiToLoad, widgetsToRegister)
-		'''
+	defaultDir = os.path.abspath(os.path.dirname(__file__))
+
+
+	def __init__(self, parent=None, uiToLoad=defaultDir+'/ui', widgetsToRegister=defaultDir+'/widgets', slotsDir=defaultDir+'/slots', mainAppWindow=None):
+		QtUiTools.QUiLoader.__init__(self, parent)
+		'''Instantiate switchboard with the directory locations of dynamic ui, custom widgets, slot modules and load the ui with any custom widgets.
+
 		:Parameters:
 			parent (obj) = The parent widget instance.
 			uiToLoad (str)(list) = The path to a ui file or to a directory containing ui files. Default: '<uiLoader dir>'
@@ -82,7 +126,7 @@ class Switchboard(UiLoader):
 						or the widget(s) themselves. Default: '<uiLoader dir>/widgets'
 			slotsDir (str) = The path to where the slot modules are located. Default: '../slots'
 			mainWindow (obj) = The parent application's top level window instance. ie. the Maya main window.
-		
+
 		ex. call:	qApp = QtWidgets.QApplication.instance()
 
 					sb = Switchboard(uiToLoad=r'path to/ui', widgetsToRegister=r'path to/custom widgets', slotsDir=r'path to/slots')
@@ -96,6 +140,15 @@ class Switchboard(UiLoader):
 					ui.show()
 					sys.exit(qApp.exec_())
 		'''
+		self.uiToLoad = uiToLoad if uiToLoad else self.defaultDir
+		self.widgetsToRegister = widgetsToRegister if widgetsToRegister else self.defaultDir+'/widgets'
+		self.registeredWidgets=[] #maintain a list of previously registered widgets.
+
+		for path in self.list_(self.uiToLoad): #assure uiToLoad is a list.
+
+			self.setWorkingDirectory(self.formatFilepath(path, 'path'))
+			self.loadUi(path)
+
 		sys.path.append(slotsDir)
 
 		self.setMainAppWindow(mainAppWindow)
@@ -112,8 +165,59 @@ class Switchboard(UiLoader):
 			return self._sbDict
 
 		except AttributeError as error:
-			self._sbDict = self.uiDict #initialize sbDict using uiLoader's uiDict.
+			self._sbDict = {}
 			return self._sbDict
+
+
+	def loadUi(self, path, widgets=None, recursive=True):
+		'''Load and add ui files to the uiDict.
+		If the ui's directory name is in the form of 'uiLevel_x' then a 'level' key will be added to the uiDict with a value of x.
+
+		:Parameters:
+			path (str)(list) = The path to a ui file or to a directory containing ui files.
+			widgets (str)(obj)(list) = A full filepath to a dir containing widgets or to the widget itself. ie. 'O:/Cloud/Code/_scripts/tentacle/tentacle/ui/widgets'
+						or the widget(s) themselves.
+			recursive (bool) = Search the given path(s) recursively.
+
+		:Return:
+			{dict} uiDict. ex. {'some_ui':{'ui':<ui obj>, 'level':<int>}} (the ui level is it's hierarchy based on the ui file's dir location)
+
+		ex. call: uiDict = uiLoader.loadUi([list ui filepaths]) #load a list of ui's.
+		ex. call: uiDict = uiLoader.loadUi(uiLoader.defaultDir+'/some_ui.ui') #load a single ui using the path of this module.
+		ex. call: uiDict = uiLoader.loadUi(__file__+'/some_ui.ui') #load a single ui using the path of the calling module.
+		'''
+		widgets = widgets if widgets else self.widgetsToRegister
+
+		self.registerWidgets(widgets)
+
+		for path in self.list_(path): #assure path is a list.
+
+			uiName = self.formatFilepath(path, 'name')
+
+			if uiName:
+				ui = self.load(path) #load the dynamic ui file.
+				uiLevel = self.getUiLevelFromDir(path)
+
+				#set attributes
+				setattr(self, uiName, ui) #set the ui as an attribute of the uiLoader so that it can be accessed as uiLoader.<some_ui>
+				ui.widgets = lambda ui=ui: self.getWidgetsFromUi(ui) #set a 'widgets' attribute to return the ui's widgets. ex. ui.widgets()
+				ui.setStyleSheet_ = lambda ui=ui: self.setStyleSheet_(ui)
+
+				self.sbDict[uiName] = {
+					'ui': ui, #the ui object.
+					'uiLevel': {'base': uiLevel}, #the ui level as an integer value. (the ui level is it's hierarchy)
+					'size': [ui.frameGeometry().width(), ui.frameGeometry().height()], #store the initial size. (useful when trying to properly resize stacked widgets)
+					'state': 0, #initialization state.
+				}
+
+			else:
+				for dirPath, dirNames, filenames in os.walk(path):
+					uiFiles = ['{}/{}'.format(dirPath, f) for f in filenames if f.endswith('.ui')]
+					self.loadUi(uiFiles)
+					if not recursive:
+						break
+
+		return self.sbDict
 
 
 	def setAttributes(self, obj=None, order=['setVisible'], **kwargs):
@@ -919,6 +1023,114 @@ class Switchboard(UiLoader):
 			return self._setClassInstance(uiName)
 
 
+	def getWidgetsFromUi(self, ui):
+		'''Get all widgets of the given ui.
+		Used by the ui.widgets attribute and can be accessed using: some_ui.widgets()
+
+		:Property:
+			ui.widgets
+
+		:Parameters:
+			ui (obj)(str) = The ui, or name of the ui you are wanting to get widgets for.
+
+		:Return:
+			(list) widget objects
+		'''
+		ui = ui if not isinstance(ui, str) else self.getUi(ui)
+
+		try:
+			return [w for w in ui.__dict__.values() if self.isWidget(w)]
+
+		except AttributeError as error:
+			return []
+
+
+	def isWidget(self, obj):
+		'''Returns True if the given obj is a valid widget.
+
+		:Parameters:
+			obj (obj) = An object to query.
+
+		:Return:
+			(bool)
+		'''
+		return hasattr(obj, 'objectName') and shiboken2.isValid(obj)
+
+
+	def getWidgetsFromDir(self, path):
+		'''Get all widget class objects from a given directory.
+
+		:Parameters:
+			path (str) = A full filepath to a dir containing widgets or to the widget itself. ie. 'O:/Cloud/Code/_scripts/tentacle/tentacle/ui/widgets'
+
+		:Return:
+			(list) widgets
+		'''
+		path = self.formatFilepath(path, 'path')
+		mod_name = self.formatFilepath(path, 'name')
+		mod_ext = self.formatFilepath(path, 'ext')
+
+		self.addPluginPath(path)
+		sys.path.append(path)
+		modules={}
+
+		if mod_name: #if the path contains a module name, get only that module.
+			mod = importlib.import_module(mod_name)
+
+			cls_members = inspect.getmembers(sys.modules[mod_name], inspect.isclass)
+
+			for cls_name, cls_mem in cls_members:
+				modules[cls_name] = cls_mem
+
+
+		else: #get all modules in the given path.
+			for module in os.listdir(path):
+
+				mod_name = module[:-3]
+				mod_ext = module[-3:]
+
+				if module == '__init__.py' or mod_ext != '.py':
+					continue
+
+				mod = importlib.import_module(mod_name)
+
+				cls_members = inspect.getmembers(sys.modules[mod_name], inspect.isclass)
+
+				for cls_name, cls_mem in cls_members:
+					modules[cls_name] = cls_mem
+
+			del module
+
+		widgets = [w for w in modules.values() if type(w).__name__=='ObjectType' and self.isWidget(w)] #get all imported widget classes as a dict.
+		return widgets
+
+
+	def registerWidgets(self, widgets):
+		'''Register any custom widgets using the module names.
+
+		:Parameters:
+			widgets (str)(obj)(list) = A full filepath to a dir containing widgets or to the widget itself. ie. 'O:/Cloud/Code/_scripts/tentacle/tentacle/ui/widgets'
+						or the widget(s) themselves. 
+
+		ex. call: registerWidgets(<class 'widgets.menu.Menu'>) #register using widget class object.
+		ex. call: registerWidgets('O:/Cloud/Code/_scripts/tentacle/tentacle/ui/widgets/menu.py') #register using path to widget module.
+		'''
+		if isinstance(widgets, (str)):
+			widgets = self.getWidgetsFromDir(widgets)
+
+		for w in self.list_(widgets): #assure widgets is a list.
+
+			if w in self.registeredWidgets:
+				continue
+
+			try:
+				self.registerCustomWidget(w)
+				self.registeredWidgets.append(w)
+
+			except Exception as error:
+				print ('# Error: {}.registerWidgets(): {} #'.format(__name__, error))
+
+
 	def addWidgets(self, uiName, widgets=None, include=[], exclude=[], filterByBaseType=False, **kwargs):
 		'''Extends the fuctionality of the 'addWidget' method to support adding multiple widgets.
 		If widgets is None; the method will attempt to add all widgets from the ui of the given name.
@@ -1608,15 +1820,36 @@ class Switchboard(UiLoader):
 				return [k]
 
 
+	def getUiLevelFromDir(self, filePath):
+		'''Get the UI level by looking for trailing intergers in it's dir name.
+		If none are found a default level of 0 is used.
+
+		:Parameters:
+			filePath (str) = The ui's full filepath. ie. 'O:/Cloud/Code/_scripts/tentacle/tentacle/ui/uiLevel_0/init.ui'
+
+		:Return:
+			(int)
+		'''
+		uiFolder = self.formatFilepath(filePath, 'dir')
+
+		try:
+			import re
+			uiLevel = int(re.findall(r"\d+\s*$", uiFolder)[0]) #get trailing integers.
+
+		except IndexError as error: #not an int.
+			uiLevel = 0
+
+		return uiLevel
+
+
 	def getUiLevel(self, ui=None):
 		'''Get the hierarcical level of a ui.
 		If no argument is given, the level of current ui will be returned.
 
-		level 0: init (root) (parent class)
-		level 1: base_menus
-		level 2: sub_menus
-		level 3: main_menus
-		level 4: popup_menus
+		level 0: init (root)
+		level 1: base menus
+		level 2: sub menus
+		level 3: main menus
 
 		:Property:
 			uiLevel
@@ -1793,6 +2026,65 @@ class Switchboard(UiLoader):
 			return widgets
 
 
+	@staticmethod
+	def formatFilepath(string, returnType=''):
+		'''Format a full path to file string from '\' to '/'.
+		When a returnType arg is given, the correlating section of the string will be returned.
+
+		:Parameters:
+			string (str) = The file path string to be formatted.
+			returnType (str) = valid: 'path' (path without file), 'dir' (dir name), 'file'(name+ext), 'name', 'ext', if '' is given, the fullpath will be returned.
+
+		:Return:
+			(str)
+		'''
+		string = os.path.expandvars(string) #convert any env variables to their values.
+		string = '/'.join(string.split('\\')) #convert forward slashes to back slashes.
+
+		# issue: if a directory in fullpath contains '.' then results may not be accurate.
+		fullpath = string if '/' in string else ''
+		path = '/'.join(string.split('/')[:-1]) if '.' in string else string
+		filename = string.split('/')[-1] if '.' in string else ''
+		directory = string.split('/')[-2] if filename else string.split('/')[-1]
+		name = ''.join(filename.split('.')[:-1]) if '.' in string else '' if '/' in string else string
+		ext = filename.split('.')[-1]
+
+		if returnType=='path':
+			string = path
+
+		elif returnType=='dir':
+			string = directory
+
+		elif returnType=='file':
+			string = filename
+
+		elif returnType=='name':
+			string = name
+
+		elif returnType=='ext':
+			string = ext
+
+		return string #if '' is given, the fullpath will be returned.
+
+
+	@staticmethod
+	def list_(x):
+		'''Convert a given obj to a list if it isn't a list, set, or tuple already.
+
+		:Parameters:
+			x (unknown) = The object to convert to a list if not already a list, set, or tuple.
+
+		:Return:
+			(list)
+		'''
+		if isinstance(x, (list, tuple, set)):
+			return x
+		elif isinstance(x, dict):
+			return list(x)
+		else:
+			return [x]
+
+
 	#assign properties
 	# sbDict = property(getSbDict)
 	uiName = property(getUiName, _setUiName)
@@ -1821,8 +2113,7 @@ if __name__=='__main__':
 	import sys, os
 	from PySide2.QtWidgets import QApplication
 
-	path = os.path.abspath(os.path.dirname(__file__))
-	sb = Switchboard()
+	sb = Switchboard(widgetsToRegister=Switchboard.defaultDir+'/ui/widgets')
 
 	ui = sb.getUi('edit', setAsCurrent=True)
 
