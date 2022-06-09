@@ -213,7 +213,9 @@ create_maya:
 replace selected geo with primitive tool.
 
 
-edit_maya:  
+edit_maya:
+clean: submenu 'quads' checkbox not working like the 'repair' is.
+clean: optimize scene
 clean: create a function that combines the existing geo with a new cube then deletes the cube, returning the geo to it's original state.
 
 

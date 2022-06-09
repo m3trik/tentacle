@@ -11,12 +11,14 @@ from PySide2 import QtUiTools
 try: import shiboken2
 except: from PySide2 import shiboken2
 
+from ui import styleSheet
+
 
 
 # ------------------------------------------------
 #	Load Dynamic Ui files
 # ------------------------------------------------
-class UiLoader(QtUiTools.QUiLoader):
+class UiLoader(QtUiTools.QUiLoader, styleSheet.StyleSheet):
 	'''Load and maintain a dict of loaded dynamic ui files and related info.
 
 	Ui files are searched for in the directory of this module.
@@ -74,10 +76,11 @@ class UiLoader(QtUiTools.QUiLoader):
 					path = os.path.abspath(os.path.dirname(__file__))
 					uiLoader = UiLoader(uiToLoad=path, widgetsToRegister=path+'/widgets') #load all ui in path. can also be a path to a single ui file. ie. path+'/transform.ui'
 
-					transform_ui = uiLoader.transform #get the loaded ui.
-					widgets = transform_ui.widgets() #get all widgets of the ui.
+					ui = uiLoader.transform #get the loaded ui.
+					widgets = ui.widgets() #get all widgets of the ui.
+					ui.setStyleSheet()
 
-					transform_ui.show()
+					ui.show()
 					qApp = QApplication.instance()
 					sys.exit(qApp.exec_())
 		'''
@@ -88,6 +91,7 @@ class UiLoader(QtUiTools.QUiLoader):
 		for path in self.list_(self.uiToLoad): #assure uiToLoad is a list.
 
 			self.setWorkingDirectory(self.formatFilepath(path, 'path'))
+			print (self.defaultDir)
 			self.loadUi(path)
 
 
@@ -135,6 +139,7 @@ class UiLoader(QtUiTools.QUiLoader):
 				#set attributes
 				setattr(self, uiName, ui) #set the ui as an attribute of the uiLoader so that it can be accessed as uiLoader.<some_ui>
 				ui.widgets = lambda ui=ui: self.getWidgetsFromUi(ui) #set a 'widgets' attribute to return the ui's widgets. ex. ui.widgets()
+				ui.setStyleSheet_ = lambda ui=ui: self.setStyleSheet_(ui)
 
 				self.uiDict[uiName] = {
 					'ui': ui, #the ui object.
@@ -209,10 +214,22 @@ class UiLoader(QtUiTools.QUiLoader):
 		ui = ui if not isinstance(ui, str) else self.getUi(ui)
 
 		try:
-			return [w for w in ui.__dict__.values() if shiboken2.isValid(w)]
+			return [w for w in ui.__dict__.values() if self.isWidget(w)]
 
 		except AttributeError as error:
 			return []
+
+
+	def isWidget(self, obj):
+		'''Returns True if the given obj is a valid widget.
+
+		:Parameters:
+			obj (obj) = An object to query.
+
+		:Return:
+			(bool)
+		'''
+		return hasattr(obj, 'objectName') and shiboken2.isValid(obj)
 
 
 	def getWidgetsFromDir(self, path):
@@ -259,7 +276,7 @@ class UiLoader(QtUiTools.QUiLoader):
 
 			del module
 
-		widgets = [w for w in modules.values() if type(w).__name__=='ObjectType' and shiboken2.isValid(w)] #get all imported widget classes as a dict.
+		widgets = [w for w in modules.values() if type(w).__name__=='ObjectType' and self.isWidget(w)] #get all imported widget classes as a dict.
 		return widgets
 
 
@@ -359,10 +376,11 @@ if __name__ == "__main__":
 	path = os.path.abspath(os.path.dirname(__file__))
 	uiLoader = UiLoader(uiToLoad=path, widgetsToRegister=path+'/widgets')
 
-	transform_ui = uiLoader.transform
-	widgets = transform_ui.widgets()
+	ui = uiLoader.transform
+	widgets = ui.widgets()
+	ui.setStyleSheet_(widgets)
 
-	transform_ui.show()
+	ui.show()
 	qApp = QApplication.instance()
 	sys.exit(qApp.exec_())
 

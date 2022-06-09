@@ -9,7 +9,6 @@ from switchboard import Switchboard
 from childEvents import EventFactoryFilter
 from overlay import OverlayFactoryFilter
 
-from ui import styleSheet
 import ui.widgets as wgts
 
 
@@ -17,7 +16,7 @@ import ui.widgets as wgts
 # ------------------------------------------------
 # 	Construct the Widget Stack
 # ------------------------------------------------
-class Tcl(QtWidgets.QStackedWidget, styleSheet.StyleSheet):
+class Tcl(QtWidgets.QStackedWidget):
 	'''Tcl is a marking menu based on a QStackedWidget.
 	Gets and sets signal connections (through the switchboard module).
 	Initializes events for child widgets using the childEvents module.

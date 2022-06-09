@@ -5,9 +5,6 @@ import os, sys
 import importlib
 # import inspect
 
-try: import shiboken2
-except: from PySide2 import shiboken2
-
 from ui.uiLoader import UiLoader
 
 
@@ -74,9 +71,8 @@ class Switchboard(UiLoader):
 	_gcProtect = [] #[list] - Items protected from garbage collection
 	_classKwargs = {} #{'<property name>':<property value>} - The additional properties of each of the slot classes.
 
-	defaultDir = os.path.abspath(os.path.dirname(__file__))
 
-	def __init__(self, parent=None, uiToLoad=None, widgetsToRegister=None, slotsDir=defaultDir+'/slots', mainAppWindow=None):
+	def __init__(self, parent=None, uiToLoad=UiLoader.defaultDir, widgetsToRegister=UiLoader.defaultDir+'/widgets', slotsDir=UiLoader.defaultDir+'/slots', mainAppWindow=None):
 		UiLoader.__init__(self, parent, uiToLoad, widgetsToRegister)
 		'''
 		:Parameters:
@@ -86,6 +82,19 @@ class Switchboard(UiLoader):
 						or the widget(s) themselves. Default: '<uiLoader dir>/widgets'
 			slotsDir (str) = The path to where the slot modules are located. Default: '../slots'
 			mainWindow (obj) = The parent application's top level window instance. ie. the Maya main window.
+		
+		ex. call:	qApp = QtWidgets.QApplication.instance()
+
+					sb = Switchboard(uiToLoad=r'path to/ui', widgetsToRegister=r'path to/custom widgets', slotsDir=r'path to/slots')
+
+					ui = sb.getUi('<ui name>', setAsCurrent=True)
+
+					widgets = sb.getWidgets
+
+					sb.setStyleSheet_(widgets)
+
+					ui.show()
+					sys.exit(qApp.exec_())
 		'''
 		sys.path.append(slotsDir)
 
@@ -105,147 +114,6 @@ class Switchboard(UiLoader):
 		except AttributeError as error:
 			self._sbDict = self.uiDict #initialize sbDict using uiLoader's uiDict.
 			return self._sbDict
-
-
-	def widgets(self, ui=None, query=False):
-		'''Get the widgets dict from the main sbDict.
-
-		:Parameters:
-			ui (str)(obj) = The ui name, or ui object. ie. 'polygons' or <polygons>
-							If None is given, the current ui will be used.
-			query (bool) = Check if there exists a 'widgets' key for the given class name.
-
-		:Return:
-			(dict) widgets of the given ui.
-
-		ex. {'<widget>':{
-					'widgetName':'objectName',
-					'widgetType':'<widgetClassName>',
-					'derivedType':'<derivedClassName>',
-					'signalInstance':<widget.signal>,
-					'method':<method>,
-					'prefix':'alphanumeric prefix',
-					'docString':'method docString'
-					'tracked':isTracked,
-					}
-			}
-		'''
-		uiName = self.getUiName(ui)
-
-		if query:
-			return True if 'widgets' in self.sbDict[uiName] else False
-
-		try:
-			return self.sbDict[uiName]['widgets']
-
-		except KeyError as error:
-			# print ('init widgets dict:', uiName)
-			self.sbDict[uiName]['widgets'] = {}
-			self.addWidgets(uiName) #construct the signals and slots for the ui.
-
-			return self.sbDict[uiName]['widgets']
-
-
-	def addWidgets(self, uiName, widgets=None, include=[], exclude=[], filterByBaseType=False, **kwargs):
-		'''Extends the fuctionality of the 'addWidget' method to support adding multiple widgets.
-		If widgets is None; the method will attempt to add all widgets from the ui of the given name.
-
-		:Parameters:
-			uiName (str) = The name of the parent ui to construct connections for.
-			widgets (list) = widget objects to be added. If none are given all objects from the ui will be added.
-			include (list) = Widget types to include. All other will be omitted. Exclude takes dominance over include. Meaning, if the same attribute is in both lists, it will be excluded.
-			exclude (list) = Widget types to exclude. ie. ['QWidget', 'QAction', 'QLabel', 'QPushButton', 'QListWidget']
-			filterByBaseType (bool) = When using include, or exclude; Filter by base class name, or derived class name. ie. 'QLayout'(base) or 'QGridLayout'(derived)
-		'''
-		if widgets is None:
-			ui = self.getUi(uiName)
-			widgets = ui.widgets() #get each widget object of the ui:
-
-		for w in self.list_(widgets): #if 'widgets' isn't a list, convert it to one.
-			typ = w.__class__.__base__.__name__ if filterByBaseType else self.getDerivedType(w)
-			if not typ in exclude and (typ in include if include else typ not in include):
-				self.addWidget(uiName, w, **kwargs)
-
-		# Debug: Print a copy of the sbDict to console for a visual representation.
-		#Some objects in the dict will be converted to strings in order to provide a working test example.
-		#ie. <PySide2.QtWidgets.QMainWindow(0x1fa56db6310, name="QtUi") at 0x000001FA29138EC8> becomes: '<PySide2.QtWidgets.QMainWindow(0x1fa56db6310, name="QtUi") at 0x000001FA29138EC8>' 
-		# print (self.convert(self.sbDict[uiName]))
-		# print (self.convert(self.sbDict))
-
-
-	def addWidget(self, uiName, widget, **kwargs):
-		'''Adds a widget to the widgets dict under the given (ui) name.
-
-		:Parameters:
-			uiName (str) = The name of the parent ui to construct connections for.
-			widget (obj) = The widget to be added.
-			objectName (str) = Assign the widget a name. (kwargs)
-
-		:Return:
-			(obj) The added widget.
-
-		ex. sb.addWidget('polygons', <widget>, setVisible=False) #example using kwargs to set widget attributes when adding.
-		'''
-		if widget in self.widgets(uiName): 
-			print ('# Error: {0}.addWidget({1}, {2}): Widget was previously added. Widget skipped. #'.format(__name__, uiName, widget))
-			return
-
-		try:
-			widgetName = widget.objectName()
-		except AttributeError as error: #not a valid widget.
-			return
-
-		self.setAttributes(widget, **kwargs) #set any passed in keyword args for the widget.
-
-		classInst = self.getClassInstance(uiName) #get the corresponding slot class from the ui name. ie. class <Polygons> from uiName 'polygons'.
-		derivedType = self.getDerivedType(widget) #the base class of any custom widgets.  ie. 'QPushButton' from 'PushButton'
-		signalType = self.getDefaultSignalType(derivedType) #get the default signal type for the widget as a string. ie. 'released' from 'QPushButton'
-		signalInstance = getattr(widget, signalType, None) #add signal to widget. ie. <widget.valueChanged>
-		method = getattr(classInst, widgetName, None) #use 'widgetName' to get the corresponding method of the same name. ie. method <b006> from widget 'b006' else None
-		docString = getattr(method, '__doc__', None)
-		prefix = self.prefix(widgetName) #returns an string alphanumberic prefix if widgetName startswith a series of alphanumberic charsinst is followed by three integers. ie. 'cmb' from 'cmb015'
-		isTracked = True if derivedType in self.trackedWidgets and self.getUiLevel(uiName)<3 else False
-
-		self.widgets(uiName).update( #add the widget and a dict containing some properties.
-					{widget:{
-						'widgetName':widgetName, 
-						'widgetType':widget.__class__.__name__,
-						'derivedType':derivedType,
-						'signalInstance':signalInstance,
-						'method': method,
-						'prefix':prefix,
-						'docString':docString,
-						'tracked':isTracked,
-						}
-					})
-
-		if self.getUiLevel(uiName)==2: #sync submenu widgets with their main menu counterparts.
-			w2 = self.getWidget(widgetName, self.getUi(uiName, level=3))
-			self.setSyncAttributesConnections(widget, w2)
-
-		# print(self.widgets(uiName)[widget])
-		return self.widgets(uiName)[widget] #return the stored widget.
-
-
-	def removeWidgets(self, widgets, ui=None):
-		'''Remove widget keys from the widgets dict.
-
-		:Parameters:
-			widgets (obj)(list) = single or list of QWidgets.
-			ui (str)(obj) = The ui name, or ui object. ie. 'polygons' or <polygons>
-							If None is given, the current ui will be used.
-		'''
-		uiName = self.getUiName(ui)
-
-		widgets = self.list_(widgets) #if 'widgets' isn't a list, convert it to one.
-		for widget in widgets:
-			w = self.widgets(uiName).pop(widget, None)
-			self.gcProtect(w)
-
-			try: #remove the widget attribute from the ui if it exists.
-				delattr(ui, w.objectName())
-			except Exception as error:
-				pass; # print (__name__+':','removeWidgets:', widgets, uiName, error)
 
 
 	def setAttributes(self, obj=None, order=['setVisible'], **kwargs):
@@ -667,7 +535,8 @@ class Switchboard(UiLoader):
 			try:
 				uiName = self._uiHistory[-1]
 			except IndexError as error: #if index out of range (no value exists) if uiName==n or (uiName in n and level==4)] if uiName==n or (uiName in n and level==4)]: return None
-				return None; print ('# IndexError: {}.getUiName({}, {}, {}): {} #'.format(__name__, ui, case, level, error))
+				print ('# IndexError: {}.getUiName({}, {}, {}): {} #'.format(__name__, ui, case, level, error))
+				return None
 
 		elif isinstance(ui, (str)):
 			if ui=='all': #get all ui of the given level(s).
@@ -989,7 +858,7 @@ class Switchboard(UiLoader):
 
 	def _setClassInstance(self, ui):
 		'''Stores an instance of a class.
-		If the name is a submenuinst a class is not found, the parent class will be returned. ie. <Polygons> from 'polygons_submenu'
+		If the ui is a submenu (level 2) and a class is not found, the parent class will be returned. ie. <Polygons> from 'polygons_submenu'
 
 		:Property:
 			classInst
@@ -1012,10 +881,14 @@ class Switchboard(UiLoader):
 			result = self.sbDict[uiName]['class'] = class_(**kwargs)
 
 		except (ModuleNotFoundError, TypeError) as error: #Error: 'NoneType' object is not callable
-			parent_name = self.getUiName(uiName, case='camelCase', level=[0,1,3])
-			if uiName==parent_name: #prevent recursion.
-				raise error
-			result = self.sbDict[uiName]['class'] = self.getClassInstance(parent_name) #get the parent class.
+			if self.getUiLevel(ui) in [0,1,3]:
+				result = self.sbDict[uiName]['class'] = None #
+
+			else:
+				parent_name = self.getUiName(uiName, case='camelCase', level=[0,1,3])
+				if uiName==parent_name: #prevent recursion.
+					raise error
+				result = self.sbDict[uiName]['class'] = self.getClassInstance(parent_name) #get the parent class.
 
 		return result
 
@@ -1046,26 +919,124 @@ class Switchboard(UiLoader):
 			return self._setClassInstance(uiName)
 
 
-	def isTracked(self, widget, ui=None):
-		'''Query if the widget is mouse tracked.
+	def addWidgets(self, uiName, widgets=None, include=[], exclude=[], filterByBaseType=False, **kwargs):
+		'''Extends the fuctionality of the 'addWidget' method to support adding multiple widgets.
+		If widgets is None; the method will attempt to add all widgets from the ui of the given name.
 
 		:Parameters:
-			widget (obj) = The widget to query the tracking state of.
-			ui (str)(obj) = ui, or name of ui. ie. 'polygons'. If no nothing is given, the current ui will be used.
-							A ui object can be passed into this parameter, which will be used to get it's corresponding name.
+			uiName (str) = The name of the parent ui to construct connections for.
+			widgets (list) = widget objects to be added. If none are given all objects from the ui will be added.
+			include (list) = Widget types to include. All other will be omitted. Exclude takes dominance over include. Meaning, if the same attribute is in both lists, it will be excluded.
+			exclude (list) = Widget types to exclude. ie. ['QWidget', 'QAction', 'QLabel', 'QPushButton', 'QListWidget']
+			filterByBaseType (bool) = When using include, or exclude; Filter by base class name, or derived class name. ie. 'QLayout'(base) or 'QGridLayout'(derived)
+		'''
+		if widgets is None:
+			ui = self.getUi(uiName)
+			widgets = ui.widgets() #get each widget object of the ui:
+
+		for w in self.list_(widgets): #if 'widgets' isn't a list, convert it to one.
+			typ = w.__class__.__base__.__name__ if filterByBaseType else self.getDerivedType(w)
+			if not typ in exclude and (typ in include if include else typ not in include):
+				self.addWidget(uiName, w, **kwargs)
+
+		# Debug: Print a copy of the sbDict to console for a visual representation.
+		#Some objects in the dict will be converted to strings in order to provide a working test example.
+		#ie. <PySide2.QtWidgets.QMainWindow(0x1fa56db6310, name="QtUi") at 0x000001FA29138EC8> becomes: '<PySide2.QtWidgets.QMainWindow(0x1fa56db6310, name="QtUi") at 0x000001FA29138EC8>' 
+		# print (self.convert(self.sbDict[uiName]))
+		# print (self.convert(self.sbDict))
+
+
+	def addWidget(self, uiName, widget, **kwargs):
+		'''Adds a widget to the widgets dict under the given (ui) name.
+
+		:Parameters:
+			uiName (str) = The name of the parent ui to construct connections for.
+			widget (obj) = The widget to be added.
+			objectName (str) = Assign the widget a name. (kwargs)
+
 		:Return:
-			(bool)
+			(obj) The added widget.
+
+		ex. sb.addWidget('polygons', <widget>, setVisible=False) #example using kwargs to set widget attributes when adding.
+		'''
+		if widget in self.widgets(uiName): 
+			print ('# Error: {0}.addWidget({1}, {2}): Widget was previously added. Widget skipped. #'.format(__name__, uiName, widget))
+			return
+
+		try:
+			widgetName = widget.objectName()
+		except AttributeError as error: #not a valid widget.
+			return
+
+		self.setAttributes(widget, **kwargs) #set any passed in keyword args for the widget.
+
+		classInst = self.getClassInstance(uiName) #get the corresponding slot class from the ui name. ie. class <Polygons> from uiName 'polygons'.
+		derivedType = self.getDerivedType(widget) #the base class of any custom widgets.  ie. 'QPushButton' from 'PushButton'
+		signalType = self.getDefaultSignalType(derivedType) #get the default signal type for the widget as a string. ie. 'released' from 'QPushButton'
+		signalInstance = getattr(widget, signalType, None) #add signal to widget. ie. <widget.valueChanged>
+		method = getattr(classInst, widgetName, None) #use 'widgetName' to get the corresponding method of the same name. ie. method <b006> from widget 'b006' else None
+		docString = getattr(method, '__doc__', None)
+		prefix = self.prefix(widgetName) #returns an string alphanumberic prefix if widgetName startswith a series of alphanumberic charsinst is followed by three integers. ie. 'cmb' from 'cmb015'
+		isTracked = True if derivedType in self.trackedWidgets and self.getUiLevel(uiName)<3 else False
+
+		self.widgets(uiName).update( #add the widget and a dict containing some properties.
+					{widget:{
+						'widgetName':widgetName, 
+						'widgetType':widget.__class__.__name__,
+						'derivedType':derivedType,
+						'signalInstance':signalInstance,
+						'method': method,
+						'prefix':prefix,
+						'docString':docString,
+						'tracked':isTracked,
+						}
+					})
+
+		if self.getUiLevel(uiName)==2: #sync submenu widgets with their main menu counterparts.
+			w2 = self.getWidget(widgetName, self.getUi(uiName, level=3))
+			self.setSyncAttributesConnections(widget, w2)
+
+		# print(self.widgets(uiName)[widget])
+		return self.widgets(uiName)[widget] #return the stored widget.
+
+
+	def widgets(self, ui=None, query=False):
+		'''Get the widgets dict from the main sbDict.
+
+		:Parameters:
+			ui (str)(obj) = The ui name, or ui object. ie. 'polygons' or <polygons>
+							If None is given, the current ui will be used.
+			query (bool) = Check if there exists a 'widgets' key for the given class name.
+
+		:Return:
+			(dict) widgets of the given ui.
+
+		ex. {'<widget>':{
+					'widgetName':'objectName',
+					'widgetType':'<widgetClassName>',
+					'derivedType':'<derivedClassName>',
+					'signalInstance':<widget.signal>,
+					'method':<method>,
+					'prefix':'alphanumeric prefix',
+					'docString':'method docString'
+					'tracked':isTracked,
+					}
+			}
 		'''
 		uiName = self.getUiName(ui)
 
-		if not 'widgets' in self.sbDict[uiName]:
-			self.widgets(uiName) #construct the signals and slots for the ui
+		if query:
+			return True if 'widgets' in self.sbDict[uiName] else False
 
 		try:
-			return self.sbDict[uiName]['widgets'][widget]['tracked']
+			return self.sbDict[uiName]['widgets']
 
 		except KeyError as error:
-			return False
+			# print ('init widgets dict:', uiName)
+			self.sbDict[uiName]['widgets'] = {}
+			self.addWidgets(uiName) #construct the signals and slots for the ui.
+
+			return self.sbDict[uiName]['widgets']
 
 
 	def getWidget(self, widgetName=None, ui=None, tracked=False):
@@ -1092,19 +1063,19 @@ class Switchboard(UiLoader):
 
 		if tracked:
 			if widgetName:
-				return next((w if shiboken2.isValid(w) else self.removeWidgets(w, uiName) 
+				return next((w if self.isWidget(w) else self.removeWidgets(w, uiName) 
 							for w, d in self.widgets(uiName).items()
 								if d['widgetName']==widgetName and self.isTracked(w, uiName)), None)
 
-			return [w for w in self.widgets(uiName).copy() if (self.isTracked(w, uiName) and shiboken2.isValid(w))]
+			return [w for w in self.widgets(uiName).copy() if (self.isTracked(w, uiName) and self.isWidget(w))]
 
 		else:
 			if widgetName:
-				return next((w if shiboken2.isValid(w) else self.removeWidgets(w, uiName) 
+				return next((w if self.isWidget(w) else self.removeWidgets(w, uiName) 
 							for w, d in self.widgets(uiName).items()
 								if d['widgetName']==widgetName), None)
 
-			return [w for w in self.widgets(uiName).copy() if shiboken2.isValid(w)] #'copy' is used in place of 'keys' RuntimeError: dictionary changed size during iteration
+			return [w for w in self.widgets(uiName).copy() if self.isWidget(w)] #'copy' is used in place of 'keys' RuntimeError: dictionary changed size during iteration
 
 
 	def getWidgetsByType(self, types, ui=None, derivedType=False):
@@ -1197,6 +1168,49 @@ class Switchboard(UiLoader):
 			return [w['widgetName'] for w in self.widgets(uiName).values()]
 		else: #return all objectNames:
 			return [w['widgetName'] for k,w in self.sbDict.items() if k=='widgets']
+
+
+	def removeWidgets(self, widgets, ui=None):
+		'''Remove widget keys from the widgets dict.
+
+		:Parameters:
+			widgets (obj)(list) = single or list of QWidgets.
+			ui (str)(obj) = The ui name, or ui object. ie. 'polygons' or <polygons>
+							If None is given, the current ui will be used.
+		'''
+		uiName = self.getUiName(ui)
+
+		widgets = self.list_(widgets) #if 'widgets' isn't a list, convert it to one.
+		for widget in widgets:
+			w = self.widgets(uiName).pop(widget, None)
+			self.gcProtect(w)
+
+			try: #remove the widget attribute from the ui if it exists.
+				delattr(ui, w.objectName())
+			except Exception as error:
+				pass; # print (__name__+':','removeWidgets:', widgets, uiName, error)
+
+
+	def isTracked(self, widget, ui=None):
+		'''Query if the widget is mouse tracked.
+
+		:Parameters:
+			widget (obj) = The widget to query the tracking state of.
+			ui (str)(obj) = ui, or name of ui. ie. 'polygons'. If no nothing is given, the current ui will be used.
+							A ui object can be passed into this parameter, which will be used to get it's corresponding name.
+		:Return:
+			(bool)
+		'''
+		uiName = self.getUiName(ui)
+
+		if not 'widgets' in self.sbDict[uiName]:
+			self.widgets(uiName) #construct the signals and slots for the ui
+
+		try:
+			return self.sbDict[uiName]['widgets'][widget]['tracked']
+
+		except KeyError as error:
+			return False
 
 
 	def getWidgetType(self, widget, ui=None):
@@ -1808,12 +1822,14 @@ if __name__=='__main__':
 	from PySide2.QtWidgets import QApplication
 
 	path = os.path.abspath(os.path.dirname(__file__))
-	sb = Switchboard(uiToLoad=path+'/ui', widgetsToRegister=path+'/ui/widgets')
+	sb = Switchboard()
 
-	edit_ui = sb.edit
-	widgets = edit_ui.widgets()
+	ui = sb.getUi('edit', setAsCurrent=True)
 
-	edit_ui.show()
+	widgets = sb.getWidgets
+	sb.setStyleSheet_(widgets)
+
+	ui.show()
 	qApp = QApplication.instance() #get the qApp instance if it exists.
 	sys.exit(qApp.exec_())
 

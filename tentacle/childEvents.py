@@ -65,7 +65,7 @@ class EventFactoryFilter(QtCore.QObject):
 		uiName = self.tcl.sb.getUiName(ui)
 
 		if widgets is None:
-			widgets = self.tcl.sb.widgets(uiName) #get all widgets for the given ui name.
+			widgets = self.tcl.sb.widgets(uiName) #get all widgets for the given ui.
 
 		for widget in self.tcl.sb.list_(widgets): #if 'widgets' isn't a list, convert it to one.
 			widgetName = self.tcl.sb.getWidgetName(widget, uiName)
@@ -77,13 +77,13 @@ class EventFactoryFilter(QtCore.QObject):
 
 			#set stylesheet
 			if uiLevel==2 and not self.tcl.sb.prefix(widget, 'i'): #if submenu and objectName doesn't start with 'i':
-				self.tcl.setStyleSheet_(widget, style='dark', hideMenuButton=True, backgroundOpacity=0)
+				self.tcl.sb.setStyleSheet_(widget, style='dark', hideMenuButton=True, backgroundOpacity=0)
 
 			elif uiLevel>2: #main menus
-				self.tcl.setStyleSheet_(widget, style='dark', backgroundOpacity=0)
+				self.tcl.sb.setStyleSheet_(widget, style='dark', backgroundOpacity=0)
 
 			else:
-				self.tcl.setStyleSheet_(widget, backgroundOpacity=0)
+				self.tcl.sb.setStyleSheet_(widget, backgroundOpacity=0)
 
 
 			if derivedType in self.widgetTypes:

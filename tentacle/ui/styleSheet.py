@@ -1128,7 +1128,7 @@ class StyleSheet(QtCore.QObject):
 				widget.setStyleSheet(s)
 
 			except AttributeError as error: #given widget has no attribute 'styleSheet'.
-				pass
+				pass; #print (error)
 
 
 	def adjustPadding(self, widget_type):
