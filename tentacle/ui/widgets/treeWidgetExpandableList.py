@@ -64,6 +64,8 @@ class TreeWidgetExpandableList(QtWidgets.QTreeWidget, Attributes):
 		self.stepColumns = stepColumns
 		self.expandOnHover = expandOnHover
 
+		self.setStyleSheet(parent.styleSheet()) if parent else None
+
 		self.setHeaderHidden(True)
 		self.setIndentation(0)
 		self.setStyleSheet('''

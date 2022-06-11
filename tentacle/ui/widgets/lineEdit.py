@@ -30,6 +30,8 @@ class LineEdit(QtWidgets.QLineEdit, MenuInstance, Attributes):
 	def __init__(self, parent=None, **kwargs):
 		QtWidgets.QLineEdit.__init__(self, parent)
 
+		self.setStyleSheet(parent.styleSheet()) if parent else None
+
 		# self.setCursor(QtGui.QCursor(QtCore.Qt.ArrowCursor))
 		self.setAttributes(**kwargs)
 

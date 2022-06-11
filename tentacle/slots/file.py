@@ -62,7 +62,7 @@ class File(Slots):
 				# if chk.sizeHint().width() > menu.sizeHint().width():
 				# 	chk.setMinimumSize(chk.sizeHint().width(), chk.sizeHint().height())
 
-			self.tcl.setStyleSheet_(menu.childWidgets, style='dark') # self.tcl.childEvents.addWidgets(self.tcl.sb.getUiName(), menu.childWidgets)
+			self.sb.setStyleSheet_(menu.childWidgets, style='dark') # self.tcl.childEvents.addWidgets(self.tcl.sb.getUiName(), menu.childWidgets)
 
 			self._referenceSceneMenu = menu
 			return self._referenceSceneMenu

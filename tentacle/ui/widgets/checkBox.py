@@ -28,6 +28,8 @@ class CheckBox(QtWidgets.QCheckBox, MenuInstance, Attributes, RichText):
 	def __init__(self, parent=None, **kwargs):
 		QtWidgets.QCheckBox.__init__(self, parent)
 
+		self.setStyleSheet(parent.styleSheet()) if parent else None
+
 		self.setCheckBoxRichTextStyle(self.isChecked()) #set the initial style for rich text depending on the current state.
 		self.stateChanged.connect(lambda state: self.setCheckBoxRichTextStyle(state)) #set the style on future state changes.
 

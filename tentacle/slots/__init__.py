@@ -146,7 +146,7 @@ class Slots(QtCore.QObject):
 				w = menu.add('QLineEdit', label=k, checkableLabel=checkableLabel, setText=str(v))
 				w.returnPressed.connect(lambda w=w, attr=k: fn(obj, *fn_args, {attr:ast.literal_eval(w.text())}))
 
-		self.tcl.setStyleSheet_(menu.childWidgets) # self.tcl.childEvents.addWidgets(self.tcl.sb.getUiName(), menu.childWidgets)
+		self.sb.setStyleSheet_(menu.childWidgets) # self.tcl.childEvents.addWidgets(self.tcl.sb.getUiName(), menu.childWidgets)
 		menu.show()
 
 		return menu

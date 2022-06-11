@@ -30,6 +30,8 @@ class Label(QtWidgets.QLabel, MenuInstance, Attributes):
 	def __init__(self, parent=None, **kwargs):
 		QtWidgets.QLabel.__init__(self, parent)
 
+		self.setStyleSheet(parent.styleSheet()) if parent else None
+
 		self.setTextFormat(QtCore.Qt.RichText)
 		self.setAttributes(**kwargs)
 

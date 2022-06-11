@@ -37,6 +37,8 @@ class ComboBox(QtWidgets.QComboBox, MenuInstance, Attributes, RichText, TextOver
 		'''
 		self.popupStyle = popupStyle
 
+		self.setStyleSheet(parent.styleSheet()) if parent else None
+
 		# self.menu_.visible = False #built-in method isVisible() not working.
 		self.view().installEventFilter(self)
 
@@ -238,7 +240,7 @@ class ComboBox(QtWidgets.QComboBox, MenuInstance, Attributes, RichText, TextOver
 			event=<QEvent>
 		'''
 		if self.contextMenu.containsMenuItems:
-			self.contextMenu.setTitle(self.itemText(0))
+			# self.contextMenu.setTitle(self.itemText(0))
 			self.setTextOverlay('⧉', alignment='AlignRight')
 			self.setItemText(0, self.itemText(0)) #set text: comboBox
 

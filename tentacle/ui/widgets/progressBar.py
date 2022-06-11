@@ -28,6 +28,8 @@ class ProgressBar(QtWidgets.QProgressBar, Attributes):
 	def __init__(self, parent=None, **kwargs):
 		QtWidgets.QProgressBar.__init__(self, parent)
 
+		self.setStyleSheet(parent.styleSheet()) if parent else None
+
 		self.setVisible(False)
 
 		self.isCanceled = False

@@ -6,6 +6,9 @@ from attributes import Attributes
 from text import RichText, TextOverlay
 from menu import MenuInstance
 
+from pushButton_optionBox import PushButton_optionBox
+
+
 
 '''
 Promoting a widget in designer to use a custom class:
@@ -28,6 +31,8 @@ class PushButton(QtWidgets.QPushButton, MenuInstance, Attributes, RichText, Text
 	def __init__(self, parent=None, showMenuOnMouseOver=False, **kwargs):
 		QtWidgets.QPushButton.__init__(self, parent)
 
+		self.setStyleSheet(parent.styleSheet()) if parent else None
+
 		self.menu_.position = 'topRight'
 		self.showMenuOnMouseOver = showMenuOnMouseOver
 
@@ -37,6 +42,8 @@ class PushButton(QtWidgets.QPushButton, MenuInstance, Attributes, RichText, Text
 		self.text = self.richText
 		self.setText = self.setRichText
 		self.sizeHint = self.richTextSizeHint
+
+		self.optionBox = None
 
 		self.setAttributes(**kwargs)
 
@@ -74,23 +81,20 @@ class PushButton(QtWidgets.QPushButton, MenuInstance, Attributes, RichText, Text
 		return QtWidgets.QPushButton.leaveEvent(self, event)
 
 
+	def createOptionBox(self):
+		'''
+		'''
+		self.optionBox = PushButton_optionBox(self) #create an option box
+
+
 	def showEvent(self, event):
 		'''
 		:Parameters:
 			event = <QEvent>
 		'''
-		if self.menu_.containsMenuItems:
-			self.menu_.setTitle(self.text())
-
 		if self.contextMenu.containsMenuItems:
-			self.contextMenu.setTitle(self.text())
-			self.setTextOverlay('⧉', alignment='AlignRight')
-			self.contextMenu.applyButton.show()
-
-		# from widgets import PushButton_optionBox
-
-		# ob = PushButton_optionBox(self)
-		# ob.show()
+			if not self.optionBox:
+				self.createOptionBox()
 
 		return QtWidgets.QPushButton.showEvent(self, event)
 
@@ -106,9 +110,7 @@ if __name__ == "__main__":
 	import sys
 	from PySide2.QtCore import QSize
 
-	qApp = QtWidgets.QApplication.instance() #get the qApp instance if it exists.
-	if not qApp:
-		qApp = QtWidgets.QApplication(sys.argv)
+	qApp = QtWidgets.QApplication(sys.argv)
 
 	w = PushButton(
 		parent=None,
@@ -120,8 +122,6 @@ if __name__ == "__main__":
 	)
 
 	w.show()
-
-	# w.show()
 	sys.exit(qApp.exec_())
 
 

@@ -22,7 +22,7 @@ Promoting a widget in designer to use a custom class:
 '''
 
 
-class PushButton_optionBox(QtWidgets.QPushButton, MenuInstance, Attributes, RichText):
+class PushButton_optionBox(QtWidgets.QPushButton, Attributes, RichText):
 	'''
 	'''
 	def __init__(self, parent, showMenuOnMouseOver=False, **kwargs):
@@ -33,45 +33,47 @@ class PushButton_optionBox(QtWidgets.QPushButton, MenuInstance, Attributes, Rich
 		self.setText = self.setRichText
 		self.sizeHint = self.richTextSizeHint
 
-		self.menu_.position = 'topRight'
-		self.showMenuOnMouseOver = showMenuOnMouseOver
+		self.setStyleSheet(parent.styleSheet())
 
-		self.setText('<hl style="color:black;">⧉</hl>')
+		# font = self.font()
+		# font.setPointSize(font.pointSize()+3)
+		# self.setFont(font)
+
+		self.setText('⧉') #default option box text.
 		self.setObjectName('{}_optionBox'.format(parent.objectName()))
-		self.resize(self.parent().size().height(), self.parent().size().height())
 
-		self.setMaximumWidth(self.size().width())
-		self.parent().setMaximumWidth(20)#self.parent().size().width() - self.size().width())
+		self.setMaximumSize(parent.size().height(), parent.size().height())
+		parent.setMinimumSize(parent.size().width()-parent.size().height(), parent.size().height())
 
-		print ('parent:  ', parent)
-		print ('g_parent:', self.parent().parent())
-		print ('\n')
+		self.orig_parent = parent #the parent will change after adding a container and a layout, but we will need the original parent widget later.
+		g_parent = parent.parent()
+		container = QtWidgets.QWidget(g_parent)
+		container.setMaximumHeight(parent.size().height())
+		try:
+			removed_wItem = g_parent.layout().replaceWidget(parent, container)
+			g_parent.layout().update()
+		except AttributeError as error:
+			pass
 
-		# container = QtWidgets.QWidget(self.parent().parent())
-
-		layout = QtWidgets.QHBoxLayout()
-		layout.setContentsMargins(1,0,0,0)
+		layout = QtWidgets.QHBoxLayout(container)
+		layout.setContentsMargins(0,0,0,0)
 		layout.setSpacing(0)
-		layout.addWidget(self.parent())
-		layout.addWidget(self)
-
-		self.parent().parent().setLayout(layout)
-
-		self.parent().setText('opt')
+		layout.addWidget(self.orig_parent, 0)
+		layout.addWidget(self, 1)
 
 		self.setAttribute(QtCore.Qt.WA_SetStyle) #Indicates that the widget has a style of its own.
 		self.setAttributes(**kwargs)
 
 
-	def enterEvent(self, event):
-		'''
-		:Parameters:
-			event = <QEvent>
-		'''
-		if self.showMenuOnMouseOver:
-			self.menu_.show()
+	# def enterEvent(self, event):
+	# 	'''
+	# 	:Parameters:
+	# 		event = <QEvent>
+	# 	'''
+	# 	# if self.showMenuOnMouseOver:
+	# 	# 	self.menu_.show()
 
-		return QtWidgets.QPushButton.enterEvent(self, event)
+	# 	return QtWidgets.QPushButton.enterEvent(self, event)
 
 
 	def mousePressEvent(self, event):
@@ -80,32 +82,32 @@ class PushButton_optionBox(QtWidgets.QPushButton, MenuInstance, Attributes, Rich
 			event = <QEvent>
 		'''
 		if event.button()==QtCore.Qt.LeftButton:
-			self.menu_.show()
+			self.orig_parent.contextMenu.show()
 
 		return QtWidgets.QPushButton.mousePressEvent(self, event)
 
 
-	def leaveEvent(self, event):
-		'''
-		:Parameters:
-			event = <QEvent>
-		'''
-		if self.showMenuOnMouseOver:
-			self.menu_.hide()
+	# def leaveEvent(self, event):
+	# 	'''
+	# 	:Parameters:
+	# 		event = <QEvent>
+	# 	'''
+	# 	if self.showMenuOnMouseOver:
+	# 		self.menu_.hide()
 
-		return QtWidgets.QPushButton.leaveEvent(self, event)
+	# 	return QtWidgets.QPushButton.leaveEvent(self, event)
 
 
-	def showEvent(self, event):
-		'''
-		:Parameters:
-			event = <QEvent>
-		'''
-		if self.menu_.containsMenuItems:
-			self.menu_.setTitle(self.text())
-			self.menu_.applyButton.show()
+	# def showEvent(self, event):
+	# 	'''
+	# 	:Parameters:
+	# 		event = <QEvent>
+	# 	'''
+	# 	if self.menu_.containsMenuItems:
+	# 		self.menu_.setTitle(self.text())
+	# 		self.menu_.applyButton.show()
 
-		return QtWidgets.QPushButton.showEvent(self, event)
+	# 	return QtWidgets.QPushButton.showEvent(self, event)
 
 
 
@@ -117,21 +119,17 @@ class PushButton_optionBox(QtWidgets.QPushButton, MenuInstance, Attributes, Rich
 
 if __name__ == "__main__":
 	import sys
-	from PySide2.QtCore import QSize
 
-	qApp = QtWidgets.QApplication.instance() #get the qApp instance if it exists.
-	if not qApp:
-		qApp = QtWidgets.QApplication(sys.argv)
+	qApp = QtWidgets.QApplication(sys.argv)
 
 	window = QtWidgets.QWidget()
 	parent = QtWidgets.QPushButton(window)
+	parent.setText('Parent')
+	parent.resize(120, 20)
 
-	layout = QtWidgets.QHBoxLayout(window)
 
-	w = PushButton_optionBox(
-		parent=parent,
-		setText='<hl style="color:black;">⧉</hl>',
-		setWhatsThis='',
+	w = PushButton_optionBox(parent,
+		setText='<hl style="color:black;">⧉</hl>'
 	)
 
 	window.show()

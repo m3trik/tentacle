@@ -30,6 +30,8 @@ class PushButtonDraggable(QtWidgets.QPushButton, MenuInstance, Attributes, RichT
 	def __init__(self, parent=None, **kwargs):
 		QtWidgets.QPushButton.__init__(self, parent)
 
+		self.setStyleSheet(parent.styleSheet()) if parent else None
+
 		self.setCheckable(True)
 
 		self.setStyleSheet('''
@@ -123,11 +125,8 @@ class PushButtonDraggable(QtWidgets.QPushButton, MenuInstance, Attributes, RichT
 		:Parameters:
 			event = <QEvent>
 		'''
-		if self.menu_.containsMenuItems:
-			self.menu_.setTitle(self.text())
-
 		if self.contextMenu.containsMenuItems:
-			self.contextMenu.setTitle(self.text())
+			# self.contextMenu.setTitle(self.text())
 			self.setTextOverlay('⧉', alignment='AlignRight')
 
 		return QtWidgets.QPushButton.showEvent(self, event)

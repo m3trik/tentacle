@@ -24,6 +24,8 @@ class ListWidget(QtWidgets.QListWidget, Attributes):
 	def __init__(self, parent=None, **kwargs):
 		QtWidgets.QListWidget.__init__(self, parent)
 
+		self.setStyleSheet(parent.styleSheet()) if parent else None
+
 		# self.setViewMode(QtWidgets.QListView.IconMode)
 		self.clear()
 		self.setAttributes(**kwargs)

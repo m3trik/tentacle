@@ -25,6 +25,8 @@ class Menu(QtWidgets.QMenu, Attributes):
 		self.preventHide = preventHide
 		self.childHeight = childHeight
 
+		self.setStyleSheet(parent.styleSheet()) if parent else None
+
 		self.setTitle(title)
 		self.setWindowFlags(QtCore.Qt.Tool|QtCore.Qt.FramelessWindowHint)
 		self.setAttribute(QtCore.Qt.WA_TranslucentBackground)
@@ -442,11 +444,12 @@ class Menu(QtWidgets.QMenu, Attributes):
 		'''
 		if force or not self.preventHide:
 
-			for child in self.children():
+			for w in self.getChildWidgets():
 				try:
-					if child.view().isVisible():
+					if w.view().isVisible(): #comboBox menu open.
 						return
-				except AttributeError:
+
+				except AttributeError as error:
 					pass
 
 			return super().hide()
@@ -456,6 +459,13 @@ class Menu(QtWidgets.QMenu, Attributes):
 		'''Show the menu.
 		'''
 		if self.containsMenuItems: #prevent show if the menu is empty.
+
+			if not self.title():
+				self.setTitle()
+
+			if hasattr(self.parent(), 'released'):
+				self.applyButton.show()
+
 			return super().show()
 
 
@@ -576,6 +586,33 @@ Promoting a widget in designer to use a custom class:
 '''
 
 # depricated ------------------------------------------------------------------------
+
+
+# def hide(self, force=False):
+# 	'''Sets the widget as invisible.
+# 	Prevents hide event under certain circumstances.
+
+# 	:Parameters:
+# 		force (bool) = override preventHide.
+# 	'''
+# 	if force or not self.preventHide:
+
+# 		for child in self.children():
+# 			try:
+# 				if child.view().isVisible():
+# 					return
+
+# 			except AttributeError as error:
+# 				for c in child.children():
+# 					try:
+# 						if c.view().isVisible():
+# 							return
+# 					except AttributeError as error:
+# 						print ('error:', c, error)
+
+# 		return super().hide()
+
+
 
 				# wAction = QtWidgets.QWidgetAction(self)
 				# wAction.setDefaultWidget(w)

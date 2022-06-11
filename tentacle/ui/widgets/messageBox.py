@@ -30,6 +30,8 @@ class MessageBox(QtWidgets.QMessageBox, Attributes):
 	def __init__(self, parent=None, location='topMiddle', timeout=2, **kwargs):
 		QtWidgets.QMessageBox.__init__(self, parent)
 
+		self.setStyleSheet(parent.styleSheet()) if parent else None
+
 		self.setWindowFlags(QtCore.Qt.Tool|QtCore.Qt.FramelessWindowHint|QtCore.Qt.WindowStaysOnTopHint) #QtCore.Qt.CustomizeWindowHint|QtCore.Qt.WindowTitleHint
 		self.setAttribute(QtCore.Qt.WA_TranslucentBackground)
 		self.setAttribute(QtCore.Qt.WA_SetStyle) #Indicates that the widget has a style of its own.
