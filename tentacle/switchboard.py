@@ -107,7 +107,7 @@ class Switchboard(QtUiTools.QUiLoader, styleSheet.StyleSheet):
 	_cameraHistory = [] #[list of 2 element lists] - Camera history. ie. [[<v000>, 'camera: persp']]
 	_gcProtect = [] #[list] - Items protected from garbage collection
 	_classKwargs = {} #{'<property name>':<property value>} - The additional properties of each of the slot classes.
-	_registeredWidgets=[] #maintain a list of previously registered custom widgets.
+	_registeredWidgets = [] #maintain a list of previously registered custom widgets.
 
 	qApp = QApplication.instance() #get the qApp instance if it exists.
 	if not qApp:
@@ -345,7 +345,14 @@ class Switchboard(QtUiTools.QUiLoader, styleSheet.StyleSheet):
 			ui (str)(obj) = The ui, or ui name. ie. <Polygons> or 'polygons'
 
 		:Return:
-			(dict) packed keyword arguments. ie. {'_currentUi': <function <lambda> at 0x000001D97BCFCAC8>, '_ui': <function <lambda> at 0x000001D97BCFCA58>, 'tcl': <PySide2.QtWidgets.QWidget object at 0x000001D94E1E9D88>, 'polygons_submenu': <PySide2.QtWidgets.QMainWindow object at 0x000001D978D8A708>, 'sb': <switchboard.Switchboard object at 0x000001D97BD7D1C8>, 'polygons': <PySide2.QtWidgets.QMainWindow object at 0x000001D97BCEB0C8>}
+			(dict) packed keyword arguments. ie. {
+				'sb': <switchboard.Switchboard object at 0x000001D97BD7D1C8>, 
+				'_currentUi': <function <lambda> at 0x000001D97BCFCAC8>, 
+				'_ui': <function <lambda> at 0x000001D97BCFCA58>,
+				'polygons': <PySide2.QtWidgets.QMainWindow object at 0x000001D97BCEB0C8>
+				'polygons_submenu': <PySide2.QtWidgets.QMainWindow object at 0x000001D978D8A708>, 
+				'PushButton': <PySide2.QtWidgets.QPushButton object at 0x000001D978D8A705>,
+			}
 		'''
 		uiName = self.getUiName(ui)
 
@@ -356,11 +363,14 @@ class Switchboard(QtUiTools.QUiLoader, styleSheet.StyleSheet):
 
 			kwargs = {}
 			kwargs['current_ui'] = lambda n=uiName: self.getUi(next((i for i in reversed(self._uiHistory) if i in self.getUiName(n, level=(0,1,2,3,4))), self.getUi()))
-			kwargs['tcl'] = self.parent() #parent instance
+			kwargs['sb'] = self
 
 			for uiName in self.getUiName('all'):
 				kwargs[uiName] = lambda n=uiName: self.getClassInstance(n) #assign a function that gets the class instance.
 				kwargs['{}_ui'.format(uiName)] = self.getUi(uiName)
+
+			for widget in self._registeredWidgets: #add any registered widgets as properties.
+				kwargs[widget.__name__] = widget
 
 			self._classKwargs[uiName] = kwargs
 
@@ -1086,6 +1096,7 @@ class Switchboard(QtUiTools.QUiLoader, styleSheet.StyleSheet):
 
 	def registerWidgets(self, widgets):
 		'''Register any custom widgets using the module names.
+		Registered widgets can be accessed as properties. ex. sb.PushButton()
 
 		:Parameters:
 			widgets (str)(obj)(list) = A full filepath to a dir containing widgets or to the widget itself. ie. 'O:/Cloud/Code/_scripts/tentacle/tentacle/ui/widgets'
@@ -1108,6 +1119,7 @@ class Switchboard(QtUiTools.QUiLoader, styleSheet.StyleSheet):
 			try:
 				self.registerCustomWidget(w)
 				self._registeredWidgets.append(w)
+				setattr(self, w.__name__, w)
 
 			except Exception as error:
 				print ('# Error: {}.registerWidgets(): {} #'.format(__name__, error))

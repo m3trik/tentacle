@@ -29,7 +29,7 @@ for module in os.listdir(os.path.dirname(__file__)):
 del module
 
 
-widgets = [w for w in globals().values() if type(w).__name__=='ObjectType'] #get all imported widget classes as a dict.
+rwidgets = [w for w in globals().values() if type(w).__name__=='ObjectType'] #get all imported widget classes as a list.
 
 
 

@@ -12,31 +12,32 @@ class File(Slots):
 		:Parameters: 
 			**kwargs (inherited from this class's respective slot child class, and originating from switchboard.setClassInstanceFromUiName)
 				properties:
-					tcl (class instance) = The tentacle stacked widget instance. ie. self.tcl
-					<name> (ui object) = The ui of <name> ie. self.polygons for the ui of filename polygons. ie. self.polygons
+					sb (class instance) = The switchboard instance.  Allows access to ui and slot objects across modules.
+					<name>_ui (ui object) = The ui object of <name>. ie. self.polygons_ui
+					<widget> (registered widget) = Any widget previously registered in the switchboard module. ie. self.PushButton
 				functions:
-					current (lambda function) = Returns the current ui if it is either the parent or a child ui for the class; else, return the parent ui. ie. self.current()
-					'<name>' (lambda function) = Returns the class instance of that name.  ie. self.polygons()
+					current_ui (lambda function) = Returns the current ui if it is either the parent or a child ui for the class; else, return the parent ui. ie. self.current_ui()
+					<name> (lambda function) = Returns the slot class instance of that name.  ie. self.polygons()
 		'''
 		#set the text for the open last file button to the last file's name.
 		mostRecentFile = self.getRecentFiles(0)
 		self.file_submenu_ui.b001.setText(self.getNameFromFullPath(mostRecentFile)) if mostRecentFile else self.file_submenu_ui.b001.setVisible(False)
 
 		dh = self.file_ui.draggable_header
-		dh.contextMenu.add(self.tcl.wgts.ComboBox, setObjectName='cmb000', setToolTip='')
-		dh.contextMenu.add(self.tcl.wgts.PushButton, setObjectName='tb000', setText='Save', setToolTip='Save the current file.')
-		dh.contextMenu.add(self.tcl.wgts.Label, setObjectName='lbl001', setText='Minimize App', setToolTip='Minimize the main application.')
-		dh.contextMenu.add(self.tcl.wgts.Label, setObjectName='lbl002', setText='Maximize App', setToolTip='Restore the main application.')
-		dh.contextMenu.add(self.tcl.wgts.Label, setObjectName='lbl003', setText='Close App', setToolTip='Close the main application.')
+		dh.contextMenu.add(self.ComboBox, setObjectName='cmb000', setToolTip='')
+		dh.contextMenu.add(self.PushButton, setObjectName='tb000', setText='Save', setToolTip='Save the current file.')
+		dh.contextMenu.add(self.Label, setObjectName='lbl001', setText='Minimize App', setToolTip='Minimize the main application.')
+		dh.contextMenu.add(self.Label, setObjectName='lbl002', setText='Maximize App', setToolTip='Restore the main application.')
+		dh.contextMenu.add(self.Label, setObjectName='lbl003', setText='Close App', setToolTip='Close the main application.')
 
 		cmb005 = self.file_ui.cmb005
 		cmb005.contextMenu.add('QPushButton', setObjectName='b001', setText='Last', setToolTip='Open the most recent file.')
 		cmb005.addItems_(dict(zip(self.getRecentFiles(timestamp=True), self.getRecentFiles(timestamp=False))), "Recent Files", clear=True)
 
 		cmb006 = self.file_ui.cmb006
-		cmb006.contextMenu.add(self.tcl.wgts.ComboBox, setObjectName='cmb001', setToolTip='Current project directory root.')
-		cmb006.contextMenu.add(self.tcl.wgts.Label, setObjectName='lbl000', setText='Set', setToolTip='Set the project directory.')
-		cmb006.contextMenu.add(self.tcl.wgts.Label, setObjectName='lbl004', setText='Root', setToolTip='Open the project directory.')
+		cmb006.contextMenu.add(self.ComboBox, setObjectName='cmb001', setToolTip='Current project directory root.')
+		cmb006.contextMenu.add(self.Label, setObjectName='lbl000', setText='Set', setToolTip='Set the project directory.')
+		cmb006.contextMenu.add(self.Label, setObjectName='lbl004', setText='Root', setToolTip='Open the project directory.')
 		cmb006.contextMenu.cmb001.addItems_(self.getRecentProjects(), "Recent Projects", clear=True)
 
 		tb000 = self.file_ui.draggable_header.contextMenu.tb000
@@ -54,15 +55,15 @@ class File(Slots):
 			return self._referenceSceneMenu
 
 		except AttributeError as error:
-			menu = self.tcl.wgts.Menu(self.file_ui.lbl005)
+			menu = self.sb.Menu(self.file_ui.lbl005)
 			for i in self.getWorkspaceScenes(fullPath=True): #zip(self.getWorkspaceScenes(fullPath=False), self.getWorkspaceScenes(fullPath=True)):
-				chk = menu.add(self.tcl.wgts.CheckBox, setText=i)
+				chk = menu.add(self.CheckBox, setText=i)
 				chk.toggled.connect(lambda state, scene=i: self.referenceScene(scene, not state))
 
 				# if chk.sizeHint().width() > menu.sizeHint().width():
 				# 	chk.setMinimumSize(chk.sizeHint().width(), chk.sizeHint().height())
 
-			self.sb.setStyleSheet_(menu.childWidgets, style='dark') # self.tcl.childEvents.addWidgets(self.tcl.sb.getUiName(), menu.childWidgets)
+			self.sb.setStyleSheet_(menu.childWidgets, style='dark') # self.sb.parent().childEvents.addWidgets(self.sb.getUiName(), menu.childWidgets)
 
 			self._referenceSceneMenu = menu
 			return self._referenceSceneMenu

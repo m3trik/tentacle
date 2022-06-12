@@ -39,10 +39,14 @@ class Label(QtWidgets.QLabel, MenuInstance, Attributes):
 	def mousePressEvent(self, event):
 		'''
 		:Parameters:
-			event=<QEvent>
+			event (QEvent) = 
 		'''
 		if event.button()==QtCore.Qt.LeftButton:
 			self.clicked.emit()
+			self.menu_.show()
+
+		if event.button()==QtCore.Qt.RightButton:
+			self.contextMenu.show()
 
 		return QtWidgets.QLabel.mousePressEvent(self, event)
 
@@ -50,7 +54,7 @@ class Label(QtWidgets.QLabel, MenuInstance, Attributes):
 	def mouseReleaseEvent(self, event):
 		'''
 		:Parameters:
-			event=<QEvent>
+			event (QEvent) = 
 		'''
 		if event.button()==QtCore.Qt.LeftButton:
 			self.released.emit()

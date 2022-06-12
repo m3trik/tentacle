@@ -19,7 +19,7 @@ class Transform_max(Transform, Slots_max):
 		cmb001.contextMenu.add('QRadioButton', setObjectName='chk018', setText='Body Shapes', setToolTip='')
 		cmb001.contextMenu.add('QRadioButton', setObjectName='chk019', setText='NURBS', setToolTip='')
 		cmb001.contextMenu.add('QRadioButton', setObjectName='chk020', setText='Point Cloud Shapes', setToolTip='')
-		cmb001.contextMenu.add(self.tcl.wgts.Label, setObjectName='lbl000', setText='Disable All', setToolTip='Disable all constraints.')
+		cmb001.contextMenu.add(self.Label, setObjectName='lbl000', setText='Disable All', setToolTip='Disable all constraints.')
 		self.connect_('chk017-20', 'toggled', self.cmb001, cmb001.contextMenu) #connect to this method on toggle
 
 		cmb002 = self.transform_ui.cmb002

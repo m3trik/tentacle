@@ -12,20 +12,21 @@ class Materials(Slots):
 		:Parameters: 
 			**kwargs (inherited from this class's respective slot child class, and originating from switchboard.setClassInstanceFromUiName)
 				properties:
-					tcl (class instance) = The tentacle stacked widget instance. ie. self.tcl
-					<name> (ui object) = The ui of <name> ie. self.polygons for the ui of filename polygons. ie. self.polygons
+					sb (class instance) = The switchboard instance.  Allows access to ui and slot objects across modules.
+					<name>_ui (ui object) = The ui object of <name>. ie. self.polygons_ui
+					<widget> (registered widget) = Any widget previously registered in the switchboard module. ie. self.PushButton
 				functions:
-					current (lambda function) = Returns the current ui if it is either the parent or a child ui for the class; else, return the parent ui. ie. self.current()
-					'<name>' (lambda function) = Returns the class instance of that name.  ie. self.polygons()
+					current_ui (lambda function) = Returns the current ui if it is either the parent or a child ui for the class; else, return the parent ui. ie. self.current_ui()
+					<name> (lambda function) = Returns the slot class instance of that name.  ie. self.polygons()
 		'''
 		self.materials_submenu_ui.b003.setVisible(False) #hide the current material submenu button until a material is available.
 
 		cmb002 = self.materials_ui.cmb002
 		cmb002.contextMenu.add('QComboBox', setObjectName='cmb001', addItems=['Scene Materials', 'ID Map Materials', 'Favorite Materials'], setToolTip='Filter materials list based on type.')
-		cmb002.contextMenu.add(self.tcl.wgts.Label, setText='Open in Editor', setObjectName='lbl000', setToolTip='Open material in editor.')
-		cmb002.contextMenu.add(self.tcl.wgts.Label, setText='Rename', setObjectName='lbl001', setToolTip='Rename the current material.')
-		cmb002.contextMenu.add(self.tcl.wgts.Label, setText='Delete', setObjectName='lbl002', setToolTip='Delete the current material.')
-		cmb002.contextMenu.add(self.tcl.wgts.Label, setText='Delete All Unused Materials', setObjectName='lbl003', setToolTip='Delete All unused materials.')
+		cmb002.contextMenu.add(self.Label, setText='Open in Editor', setObjectName='lbl000', setToolTip='Open material in editor.')
+		cmb002.contextMenu.add(self.Label, setText='Rename', setObjectName='lbl001', setToolTip='Rename the current material.')
+		cmb002.contextMenu.add(self.Label, setText='Delete', setObjectName='lbl002', setToolTip='Delete the current material.')
+		cmb002.contextMenu.add(self.Label, setText='Delete All Unused Materials', setObjectName='lbl003', setToolTip='Delete All unused materials.')
 		cmb002.beforePopupShown.connect(self.cmb002) #refresh comboBox contents before showing it's menu.
 		cmb002.returnPressed.connect(lambda: self.lbl001(setEditable=False))
 		cmb002.currentIndexChanged.connect(lambda: cmb002.contextMenu.setTitle(cmb002.currentText())) #set the popup title to be the current materials name.

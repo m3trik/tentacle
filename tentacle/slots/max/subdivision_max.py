@@ -19,9 +19,9 @@ class Subdivision_max(Subdivision, Slots_max):
 
 		ctx = self.subdivision_ui.draggable_header.contextMenu
 		if not ctx.containsMenuItems:
-			ctx.add(self.tcl.wgts.ComboBox, setObjectName='cmb000', setToolTip='Max Subdivision Editiors.')
-			# ctx.add(self.tcl.wgts.ComboBox, setObjectName='cmb001', setToolTip='Smooth Proxy.')
-			# ctx.add(self.tcl.wgts.ComboBox, setObjectName='cmb002', setToolTip='Maya Subdivision Operations.')
+			ctx.add(self.ComboBox, setObjectName='cmb000', setToolTip='Max Subdivision Editiors.')
+			# ctx.add(self.ComboBox, setObjectName='cmb001', setToolTip='Smooth Proxy.')
+			# ctx.add(self.ComboBox, setObjectName='cmb002', setToolTip='Maya Subdivision Operations.')
 
 		cmb = self.subdivision_ui.draggable_header.contextMenu.cmb000
 		items = ['TurboSmooth','TurboSmooth Pro','OpenSubDiv','Subdivide','Subdivide (WSM)','MeshSmooth','Optimize','Pro Optimizer','Add Divisions']

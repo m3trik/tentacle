@@ -13,9 +13,9 @@ class Materials_max(Materials, Slots_max):
 		self.randomMat=None
 
 		dh = self.materials_ui.draggable_header
-		dh.contextMenu.add(self.tcl.wgts.ComboBox, setObjectName='cmb000', setToolTip='Maya Material Editors')
-		dh.contextMenu.add(self.tcl.wgts.PushButton, setText='Relink Scene Bitmaps', setObjectName='tb003', setToolTip='Repair broken bitmap file links for any scene materials. If no materials are selected, all scene materials will be used.')
-		dh.contextMenu.add(self.tcl.wgts.PushButton, setText='Relink Library Bitmaps', setObjectName='tb004', setToolTip='Repair broken bitmap file links for all libraries in a given directory.')
+		dh.contextMenu.add(self.ComboBox, setObjectName='cmb000', setToolTip='Maya Material Editors')
+		dh.contextMenu.add(self.PushButton, setText='Relink Scene Bitmaps', setObjectName='tb003', setToolTip='Repair broken bitmap file links for any scene materials. If no materials are selected, all scene materials will be used.')
+		dh.contextMenu.add(self.PushButton, setText='Relink Library Bitmaps', setObjectName='tb004', setToolTip='Repair broken bitmap file links for all libraries in a given directory.')
 
 		cmb000 = self.materials_ui.draggable_header.contextMenu.cmb000
 		items = ['Material Editor']

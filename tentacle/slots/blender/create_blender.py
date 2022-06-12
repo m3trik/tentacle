@@ -12,7 +12,7 @@ class Create_blender(Create, Slots_blender):
 
 		ctx = self.create_ui.draggable_header.contextMenu
 		if not ctx.containsMenuItems:
-			ctx.add(self.tcl.wgts.ComboBox, setObjectName='cmb000', setToolTip='')
+			ctx.add(self.ComboBox, setObjectName='cmb000', setToolTip='')
 
 		cmb = self.create_ui.draggable_header.contextMenu.cmb000
 		list_ = ['']

@@ -59,8 +59,8 @@ self.connect_((ctx.chk012,ctx.chk013,ctx.chk014), 'toggled',
 
 
 # call a method from another class.
-self.tcl.sb.getMethod('file', 'b005')()
-self.file().b005()
+self.sb.getMethod('file', 'b005')() #get method 'b005' from the file module.
+self.file().b005() #get method 'b005' from the file module.
 
 
 
@@ -206,11 +206,7 @@ replace other tree widget instances with popup windows.
 
 widgets: combobox:
 change comboboxes with custom menus to clickable labels. (transform menu)
-remove alt menu types from combobox.
 
-
-create_maya:
-replace selected geo with primitive tool.
 
 
 edit_maya:

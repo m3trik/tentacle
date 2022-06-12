@@ -26,7 +26,7 @@ class Cameras_maya(Cameras, Slots_maya):
 			(obj) menu as a property.
 		'''
 		if not hasattr(self, '_clippingMenu'):
-			self._clippingMenu = self.tcl.wgts.Menu(self.cameras_ui, position='cursorPos')
+			self._clippingMenu = self.sb.Menu(self.cameras_ui, position='cursorPos')
 			self._clippingMenu.add('QPushButton', setText='Auto Clip', setObjectName='chk000', setCheckable=True, setToolTip='When Auto Clip is ON, geometry closer to the camera than 3 units is not displayed. Turn OFF to manually define.')
 			self._clippingMenu.add('QDoubleSpinBox', setPrefix='Far Clip:  ', setObjectName='s000', setMinMax_='.01-10 step.1', setToolTip='Adjust the current cameras near clipping plane.')
 			self._clippingMenu.add('QSpinBox', setPrefix='Near Clip: ', setObjectName='s001', setMinMax_='10-10000 step1', setToolTip='Adjust the current cameras far clipping plane.')

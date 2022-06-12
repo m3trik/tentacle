@@ -92,14 +92,14 @@ class Init_maya(Init, Slots_maya):
 					pass
 
 
-		prevCommand = self.tcl.sb.prevCommand(docString=True)
+		prevCommand = self.sb.prevCommand(docString=True)
 		if prevCommand:
 			hud.insertText('Prev Command: <font style="color: Yellow;">{}'.format(prevCommand))  #get button text from last used command
 
-		# prevUi = self.tcl.sb.prevUiName(omitLevel=[0,1,2])
+		# prevUi = self.sb.prevUiName(omitLevel=[0,1,2])
 		# hud.insertText('Prev UI: {}'.format(prevUi.replace('_', '').title())) #get the last level 3 ui name string.
 
-		# prevCamera = self.tcl.sb.prevCamera(docString=True)
+		# prevCamera = self.sb.prevCamera(docString=True)
 		# hud.insertText('Prev Camera: {}'.format(prevCamera)) #get the previously used camera.
 
 

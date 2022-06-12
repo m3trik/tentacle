@@ -80,7 +80,7 @@ class File_blender(File, Slots_blender):
 		cmb = self.file_ui.cmb003
 
 		if index>0: #hide then perform operation
-			self.tcl.hide(force=1)
+			self.sb.parent().hide(force=1)
 			if index==1: #Import
 				mel.eval('Import;')
 			elif index==2: #Import options
@@ -98,7 +98,7 @@ class File_blender(File, Slots_blender):
 		cmb = self.file_ui.cmb004
 
 		if index>0: #hide then perform operation
-			self.tcl.hide(force=1)
+			self.sb.parent().hide(force=1)
 			if index==1: #Export selection
 				mel.eval('ExportSelection;')
 			elif index==2: #Unreal
@@ -190,7 +190,7 @@ class File_blender(File, Slots_blender):
 		'''Minimize Main Application
 		'''
 		mel.eval("minimizeApp;")
-		self.tcl.hide(force=1)
+		self.sb.parent().hide(force=1)
 
 
 	def lbl002(self):

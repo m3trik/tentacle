@@ -13,8 +13,8 @@ class Materials_blender(Materials, Slots_blender):
 		self.randomMat = None
 
 		dh = self.materials_ui.draggable_header
-		dh.contextMenu.add(self.tcl.wgts.ComboBox, setObjectName='cmb000', setToolTip='Material Editors')
-		dh.contextMenu.add(self.tcl.wgts.Label, setText='Material Attributes', setObjectName='lbl004', setToolTip='Show the material attributes in the attribute editor.')
+		dh.contextMenu.add(self.ComboBox, setObjectName='cmb000', setToolTip='Material Editors')
+		dh.contextMenu.add(self.Label, setText='Material Attributes', setObjectName='lbl004', setToolTip='Show the material attributes in the attribute editor.')
 
 		cmb000 = self.materials_ui.draggable_header.contextMenu.cmb000
 		items = []

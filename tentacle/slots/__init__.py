@@ -21,11 +21,11 @@ class Slots(QtCore.QObject):
 		:Parameters: 
 			**kwargs (inherited from this class's respective slot child class, and originating from switchboard.setClassInstanceFromUiName)
 				properties:
-					tcl (class instance) = The tentacle stacked widget instance. ie. self.tcl
+					sb (class instance) = The switchboard instance.  Allows access to ui and slot objects across modules.
 					<name>_ui (ui object) = The ui of <name> ie. self.polygons for the ui of filename polygons. ie. self.polygons_ui
 				functions:
 					current_ui (lambda function) = Returns the current ui if it is either the parent or a child ui for the class; else, return the parent ui. ie. self.current_ui()
-					'<name>' (lambda function) = Returns the class instance of that name.  ie. self.polygons()
+					<name> (lambda function) = Returns the slot class instance of that name.  ie. self.polygons()
 		'''
 		for k, v in kwargs.items():
 			setattr(self, k, v)
@@ -36,7 +36,7 @@ class Slots(QtCore.QObject):
 		'''
 		def wrapper(self, *args, **kwargs):
 			fn(self, *args, **kwargs) #execute the method normally.
-			self.tcl.hide() #Get the state of the widget in the current ui and set any widgets (having the methods name) in child or parent ui's accordingly.
+			self.sb.parent().hide() #Get the state of the widget in the current ui and set any widgets (having the methods name) in child or parent ui's accordingly.
 		return wrapper
 
 
@@ -128,7 +128,7 @@ class Slots(QtCore.QObject):
 			except:
 				title = str(obj)
 
-		menu = self.tcl.wgts.Menu(self.tcl, menu_type='form', padding=2, title=title, position='cursorPos')
+		menu = self.sb.Menu(self.sb.parent(), menu_type='form', padding=2, title=title, position='cursorPos')
 
 		for k, v in attributes.items():
 
@@ -146,7 +146,7 @@ class Slots(QtCore.QObject):
 				w = menu.add('QLineEdit', label=k, checkableLabel=checkableLabel, setText=str(v))
 				w.returnPressed.connect(lambda w=w, attr=k: fn(obj, *fn_args, {attr:ast.literal_eval(w.text())}))
 
-		self.sb.setStyleSheet_(menu.childWidgets) # self.tcl.childEvents.addWidgets(self.tcl.sb.getUiName(), menu.childWidgets)
+		self.sb.setStyleSheet_(menu.childWidgets) # self.sb.parent().childEvents.addWidgets(self.sb.getUiName(), menu.childWidgets)
 		menu.show()
 
 		return menu
@@ -171,12 +171,12 @@ class Slots(QtCore.QObject):
 			try:
 				widgets = Slots.getObjects(class_, widgets, showError_=True) #getObjects returns a widget list from a string of objectNames.
 			except:
-				widgets = Slots.getObjects(self.tcl.sb.getUi(), widgets, showError_=True)
+				widgets = Slots.getObjects(self.sb.getUi(), widgets, showError_=True)
 
 		#if the variables are not of a list type; convert them.
-		widgets = self.tcl.sb.list_(widgets)
-		signals = self.tcl.sb.list_(signals)
-		slots = self.tcl.sb.list_(slots)
+		widgets = self.sb.list_(widgets)
+		signals = self.sb.list_(signals)
+		slots = self.sb.list_(slots)
 
 		for widget in widgets:
 			for signal in signals:
@@ -196,8 +196,8 @@ class Slots(QtCore.QObject):
 		ex.	self.toggleWidgets(<ui1>, <ui2>, setDisabled='b000', setUnChecked='chk009-12', setVisible='b015,b017')
 		'''
 		if not args:
-			parentUi = self.tcl.sb.getUi(self.current_ui(), level=3)
-			childUi = self.tcl.sb.getUi(self.current_ui(), level=2)
+			parentUi = self.sb.getUi(self.current_ui(), level=3)
+			childUi = self.sb.getUi(self.current_ui(), level=2)
 			args = [childUi, parentUi]
 
 		for ui in args:
@@ -224,8 +224,8 @@ class Slots(QtCore.QObject):
 		ex.	self.setWidgetKwargs('chk003', <ui1>, <ui2>, setText='Un-Crease')
 		'''
 		if not args[1:]:
-			parentUi = self.tcl.sb.getUi(self.current_ui(), level=3)
-			childUi = self.tcl.sb.getUi(self.current_ui(), level=2)
+			parentUi = self.sb.getUi(self.current_ui(), level=3)
+			childUi = self.sb.getUi(self.current_ui(), level=2)
 			args = args+(parentUi, childUi)
 
 		for ui in args[1:]:
@@ -424,7 +424,7 @@ class Slots(QtCore.QObject):
 		:Return:
 			(int, float, bool)
 		'''
-		modifiers = self.tcl.qApp.keyboardModifiers()
+		modifiers = self.sb.parent().qApp.keyboardModifiers()
 		if not modifiers in (QtCore.Qt.AltModifier, QtCore.Qt.ControlModifier | QtCore.Qt.AltModifier):
 			return value
 
@@ -453,7 +453,7 @@ class Slots(QtCore.QObject):
 
 		except AttributeError as error:
 			from widgets.progressBar import ProgressBar
-			self._progressBar = ProgressBar(self.tcl)
+			self._progressBar = ProgressBar(self.sb.parent())
 
 			try:
 				self.current_ui().progressBar.step1
@@ -479,7 +479,7 @@ class Slots(QtCore.QObject):
 
 		if not hasattr(self, '_messageBox'):
 			from widgets.messageBox import MessageBox
-			self._messageBox = MessageBox(self.tcl.parent())
+			self._messageBox = MessageBox(self.sb.parent().parent())
 
 		self._messageBox.location = location
 		self._messageBox.timeout = timeout
@@ -861,9 +861,9 @@ class Slots(QtCore.QObject):
 # 	self.syncWidgets('chk002-6')
 # 	'''
 # 	if not from_ui:
-# 		from_ui = self.tcl.sb.getUi()
+# 		from_ui = self.sb.getUi()
 
-# 	to_ui = self.tcl.sb.getUi(from_ui, level=2) if self.tcl.sb.getUiLevel(from_ui)==3 else self.tcl.sb.getUi(from_ui, level=3)#get either it's parent or submenu, depending on the given ui.
+# 	to_ui = self.sb.getUi(from_ui, level=2) if self.sb.getUiLevel(from_ui)==3 else self.sb.getUi(from_ui, level=3)#get either it's parent or submenu, depending on the given ui.
 
 # 	if op in (0, 1): #
 # 		if isinstance(widgets, (str)):
@@ -871,7 +871,7 @@ class Slots(QtCore.QObject):
 # 			to_widgets = Slots.getObjects(to_ui, widgets)
 # 		else: #if list of widget objects:
 # 			from_widgets = widgets
-# 			to_widgets = [self.tcl.sb.getWidget(w.objectName(), ui=to_ui) for w in widgets]
+# 			to_widgets = [self.sb.getWidget(w.objectName(), ui=to_ui) for w in widgets]
 
 # 	if op==1: #get parents of the given widgets
 # 		from_widgets += [w.parent() for w in from_widgets]
@@ -879,8 +879,8 @@ class Slots(QtCore.QObject):
 
 # 	else: #get all widgets
 # 		if not op in (0, 1):
-# 			from_widgets = self.tcl.sb.getWidget(ui=from_ui)
-# 			to_widgets = self.tcl.sb.getWidget(ui=to_ui)
+# 			from_widgets = self.sb.getWidget(ui=from_ui)
+# 			to_widgets = self.sb.getWidget(ui=to_ui)
 
 # 	from_widgets = {w.objectName():w for w in from_widgets}; #print ('from_widgets:', [i for i in from_widgets.values() if 'QRadioButton' in str(i)])
 # 	to_widgets = {w.objectName():w for w in to_widgets}; #print ('to_widgets:  ', [i for i in to_widgets.values() if 'QRadioButton' in str(i)])
@@ -908,16 +908,16 @@ class Slots(QtCore.QObject):
 	# 		name (str) = ui name.
 	# 		method (str) = method name.
 	# 	'''
-	# 	ui = self.tcl.sb.getUi()
-	# 	temp = self.tcl.setUi(name)
-	# 	method = self.tcl.sb.getMethod(name, method)
+	# 	ui = self.sb.getUi()
+	# 	temp = self.sb.parent().setUi(name)
+	# 	method = self.sb.getMethod(name, method)
 
 	# 	try:
 	# 		method(*args, **kwargs)
 	# 	except Exception as error:
 	# 		print(error)
 
-	# 	self.tcl.setUi(ui)
+	# 	self.sb.parent().setUi(ui)
 
 
 	# def setSpinboxes(self, ui, spinboxes, attributes={}):

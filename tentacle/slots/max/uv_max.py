@@ -58,7 +58,7 @@ class Uv_max(Uv, Slots_max):
 		cmb = self.uv_ui.draggable_header.contextMenu.cmb000
 
 		if index>0: #hide hotbox then perform operation
-			self.tcl.hide()
+			self.sb.parent().hide()
 			if index==1: #UV Editor
 				maxEval('TextureViewWindow;') 
 			elif index==2: #UV Set Editor
@@ -89,7 +89,7 @@ class Uv_max(Uv, Slots_max):
 
 		if index>0:
 			text = cmb.items[index]
-			self.tcl.hide() #hide hotbox then perform operation
+			self.sb.parent().hide() #hide hotbox then perform operation
 			if text=='Flip U':
 				pm.polyFlipUV(flipType=0, local=1, usePivot=1, pivotU=0, pivotV=0)
 			elif text=='Flip V':

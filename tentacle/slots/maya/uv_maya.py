@@ -46,7 +46,7 @@ class Uv_maya(Uv, Slots_maya):
 
 		if index>0: #hide tentacle then perform operation
 			text = cmb.items[index]
-			self.tcl.hide()
+			self.sb.parent().hide()
 			if text=='UV Editor':
 				mel.eval('TextureViewWindow;') 
 			elif text=='UV Set Editor':
@@ -79,7 +79,7 @@ class Uv_maya(Uv, Slots_maya):
 
 		if index>0:
 			text = cmb.items[index]
-			self.tcl.hide() #hide hotbox then perform operation
+			self.sb.parent().hide() #hide hotbox then perform operation
 			if text=='Flip U':
 				pm.polyFlipUV(flipType=0, local=1, usePivot=1, pivotU=0, pivotV=0)
 			elif text=='Flip V':

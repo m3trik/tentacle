@@ -24,7 +24,7 @@ class Transform_blender(Transform, Slots_blender):
 		# surface_constraint = True if pm.xformConstraint(query=1, type=1)=='surface' else False
 		# live_object = True if pm.ls(live=1) else False
 		# values = [('chk024', 'Edge', edge_constraint), ('chk025', 'Surface', surface_constraint), ('chk026', 'Make Live', live_object)]
-		# [cmb.menu_.add(self.tcl.wgts.CheckBox, setObjectName=chk, setText=typ, setChecked=state) for chk, typ, state in values]
+		# [cmb.menu_.add(self.CheckBox, setObjectName=chk, setText=typ, setChecked=state) for chk, typ, state in values]
 
 		cmb = self.transform_ui.cmb002
 		items = []
@@ -39,7 +39,7 @@ class Transform_blender(Transform, Slots_blender):
 		# values = [('chk021', 'Move: <b>Off</b>'), ('s021', 'increment:', moveValue, '1.00-1000 step2.8125'), 
 		# 		('chk022', 'Scale: <b>Off</b>'), ('s022', 'increment:', scaleValue, '1.00-1000 step2.8125'), 
 		# 		('chk023', 'Rotate: <b>Off</b>'), ('s023', 'degrees:', rotateValue, '1.00-360 step2.8125')]
-		# [cmb.menu_.add(self.tcl.wgts.CheckBox, setObjectName=i[0], setText=i[1], setTristate=1) if len(i)==2 
+		# [cmb.menu_.add(self.CheckBox, setObjectName=i[0], setText=i[1], setTristate=1) if len(i)==2 
 		# 	else cmb.menu_.add('QDoubleSpinBox', setObjectName=i[0], setPrefix=i[1], setValue=i[2], setMinMax_=i[3], setDisabled=1) for i in values]
 
 
@@ -946,7 +946,7 @@ print (__name__)
 	# 	cmb = self.transform_ui.cmb001
 
 	# 	if index=='setMenu':
-	# 		cmb.contextMenu.add(self.tcl.wgts.Label, setObjectName='lbl000', setText='Disable All', setToolTip='Disable all constraints.')
+	# 		cmb.contextMenu.add(self.Label, setObjectName='lbl000', setText='Disable All', setToolTip='Disable all constraints.')
 
 	# 		list_ = ['Edge', 'Surface', 'Make Live']
 	# 		cmb.addItems_(list_, 'Off')

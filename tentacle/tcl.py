@@ -9,7 +9,7 @@ from switchboard import Switchboard
 from childEvents import EventFactoryFilter
 from overlay import OverlayFactoryFilter
 
-import ui.widgets as wgts
+from ui.widgets import rwidgets
 
 
 
@@ -45,9 +45,7 @@ class Tcl(QtWidgets.QStackedWidget):
 		self.setAttribute(QtCore.Qt.WA_TranslucentBackground)
 		self.setAttribute(QtCore.Qt.WA_SetStyle) #Indicates that the widget has a style of its own.
 
-		self.wgts = wgts
-
-		self.sb = Switchboard(self, widgetsToRegister=self.wgts.widgets, mainAppWindow=self.parent())
+		self.sb = Switchboard(self, widgetsToRegister=rwidgets, mainAppWindow=self.parent())
 
 		self.childEvents = EventFactoryFilter(self)
 		self.overlay = OverlayFactoryFilter(self, antialiasing=True) #Paint events are handled by the overlay module.
@@ -186,14 +184,14 @@ class Tcl(QtWidgets.QStackedWidget):
 		:Parameters:
 			uiName (str) = The name of ui to duplicate the widgets to.
 		'''
-		w0 = self.wgts.PushButton(parent=self.sb.getUi(uiName), setObjectName='return_area', setSize_=(45, 45), setPosition_=self.drawPath[0]) #create an invisible return button at the start point.
+		w0 = self.sb.PushButton(self.sb.getUi(uiName), setObjectName='return_area', setSize_=(45, 45), setPosition_=self.drawPath[0]) #create an invisible return button at the start point.
 		self.childEvents.initWidgets(uiName, w0) #initialize the widget to set things like the event filter and styleSheet.
 		self.sb.connectSlots(uiName, w0)
 
 		if self.sb.getUiLevel(self.sb.prevUiName(omitLevel=3))==2: #if submenu: recreate widget/s from the previous ui that are in the current path.
 			for i in range(2, len(self.widgetPath)+1): #for index in widgetPath starting at 2:
 				prevWidget = self.widgetPath[-i][0] #assign the index a neg value to count from the back of the list (starting at -2).
-				w1 = self.wgts.PushButton(parent=self.sb.getUi(uiName), copy_=prevWidget, setPosition_=self.widgetPath[-i][1], setVisible=True)
+				w1 = self.sb.PushButton(self.sb.getUi(uiName), copy_=prevWidget, setPosition_=self.widgetPath[-i][1], setVisible=True)
 				self.childEvents.initWidgets(uiName, w1) #initialize the widget to set things like the event filter and styleSheet.
 				self.sb.connectSlots(uiName, w1)
 				self.childEvents._mouseOver.append(w1)
@@ -576,8 +574,8 @@ if __name__ == '__main__':
 # self.worker.finished.connect(self.thread.quit)
 # self.thread.started.connect(self.worker.start)
 
-# # self.loadingIndicator = self.wgts.LoadingIndicator(color='white', start=True, setPosition_='cursor')
-# self.loadingIndicator = self.wgts.GifPlayer(setPosition_='cursor')
+# # self.loadingIndicator = self.sb.LoadingIndicator(color='white', start=True, setPosition_='cursor')
+# self.loadingIndicator = self.sb.GifPlayer(setPosition_='cursor')
 # self.worker.started.connect(self.loadingIndicator.start)
 # self.worker.finished.connect(self.loadingIndicator.stop)
 # self.thread.start()

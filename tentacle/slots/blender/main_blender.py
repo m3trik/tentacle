@@ -43,7 +43,7 @@ print (__name__)
 		# 					if isinstance(v, (float, int, bool))]
 
 		# 			set signal/slot connections:
-		# 			wgts.= [tree.add(self.tcl.wgts.MultiWidget, parent, refresh=1, set_by_value=[k, v])
+		# 			wgts.= [tree.add(self.MultiWidget, parent, refresh=1, set_by_value=[k, v])
 		# 				for k, v in attributes.items() 
 		# 					if isinstance(v, (float, int, bool))]
 

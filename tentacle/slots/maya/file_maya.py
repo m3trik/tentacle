@@ -79,7 +79,7 @@ class File_maya(File, Slots_maya):
 		cmb = self.file_ui.cmb003
 
 		if index>0: #hide then perform operation
-			self.tcl.hide(force=1)
+			self.sb.parent().hide(force=1)
 			if index==1: #Import
 				pm.mel.Import()
 			elif index==2: #Import options
@@ -97,7 +97,7 @@ class File_maya(File, Slots_maya):
 		cmb = self.file_ui.cmb004
 
 		if index>0: #hide then perform operation
-			self.tcl.hide(force=1)
+			self.sb.parent().hide(force=1)
 			if index==1: #Export selection
 				pm.mel.ExportSelection()
 			elif index==2: #Unreal
@@ -189,7 +189,7 @@ class File_maya(File, Slots_maya):
 		'''Minimize Main Application
 		'''
 		mel.eval("minimizeApp;")
-		self.tcl.hide(force=1)
+		self.sb.parent().hide(force=1)
 
 
 	def lbl002(self):

@@ -44,7 +44,7 @@ class Editors_maya(Editors, Slots_maya):
 		text = tree.getWidgetText(wItem, column)
 		header = tree.getHeaderFromColumn(column)
 
-		self.tcl.hide() #hide the menu before opening an external editor.
+		self.sb.parent().hide() #hide the menu before opening an external editor.
 
 		if header=='General Editors':
 			if text=='Attribute Editor':
@@ -213,10 +213,10 @@ class Editors_maya(Editors, Slots_maya):
 		'''
 		w = self.getEditorWidget(name)
 
-		self.tcl.setUi('dynLayout')
+		self.sb.parent().setUi('dynLayout')
 		self.stackedWidget.setCurrentWidget(w)
-		self.tcl.resize(width, height)
-		# self.tcl.move(self.tcl.centerPos().x(), self.tcl.centerPos().y()+(self.tcl.sb.sizeY/2.5))
+		self.sb.parent().resize(width, height)
+		# self.sb.parent().move(self.sb.parent().centerPos().x(), self.sb.parent().centerPos().y()+(self.sb.sizeY/2.5))
 		return w
 
 

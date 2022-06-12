@@ -16,16 +16,16 @@ class Transform_maya(Transform, Slots_maya):
 		items = ['']
 		cmb000.addItems_(items, '')
 
+		cmb002 = self.transform_ui.cmb002
+		items = ['Point to Point', '2 Points to 2 Points', '3 Points to 3 Points', 'Align Objects', 'Position Along Curve', 'Align Tool', 'Snap Together Tool', 'Orient to Vertex/Edge Tool']
+		cmb002.addItems_(items, 'Align To')
+
 		cmb001 = self.transform_ui.cmb001
 		edge_constraint = True if pm.xformConstraint(query=1, type=1)=='edge' else False
 		surface_constraint = True if pm.xformConstraint(query=1, type=1)=='surface' else False
 		live_object = True if pm.ls(live=1) else False
 		values = [('chk024', 'Edge', edge_constraint), ('chk025', 'Surface', surface_constraint), ('chk026', 'Make Live', live_object)]
-		[cmb001.menu_.add(self.tcl.wgts.CheckBox, setObjectName=chk, setText=typ, setChecked=state) for chk, typ, state in values]
-
-		cmb002 = self.transform_ui.cmb002
-		items = ['Point to Point', '2 Points to 2 Points', '3 Points to 3 Points', 'Align Objects', 'Position Along Curve', 'Align Tool', 'Snap Together Tool', 'Orient to Vertex/Edge Tool']
-		cmb002.addItems_(items, 'Align To')
+		[cmb001.menu_.add(self.CheckBox, setObjectName=chk, setText=typ, setChecked=state) for chk, typ, state in values]
 
 		cmb003 = self.transform_ui.cmb003
 		moveValue = pm.manipMoveContext('Move', q=True, snapValue=True)
@@ -45,15 +45,6 @@ class Transform_maya(Transform, Slots_maya):
 			if index==cmd.list.index(''):
 				pass
 			cmb.setCurrentIndex(0)
-
-
-	def cmb001(self, index=-1):
-		'''Transform Constraints
-
-		constrain along normals #checkbox option for edge amd surface constaints
-		setXformConstraintAlongNormal false;
-		'''
-		cmb = self.transform_ui.cmb001
 
 
 	def cmb002(self, index=-1):
@@ -81,12 +72,6 @@ class Transform_maya(Transform, Slots_maya):
 				pm.mel.SetSnapTogetherToolOptions() #setToolTo snapTogetherToolCtx; toolPropertyWindow;) Snap two objects together.
 			elif text=='Orient to Vertex/Edge Tool':
 				pm.mel.orientToTool() #Orient To Vertex/Edge
-
-
-	def cmb003(self, index=-1):
-		'''Transform Tool Snapping
-		'''
-		cmb = self.transform_ui.cmb003
 
 
 	def chk024(self, state=None):
@@ -273,8 +258,22 @@ class Transform_maya(Transform, Slots_maya):
 	def lbl000(self):
 		'''Transform Constraints: Disable All
 		'''
+		self.transform_ui.cmb001.setCurrentIndex(0)
+
+
+	def cmb001(self, index=-1):
+		'''Transform Constraints
+
+		constrain along normals #checkbox option for edge amd surface constaints
+		setXformConstraintAlongNormal false;
+		'''
 		cmb = self.transform_ui.cmb001
-		cmb.setCurrentIndex(0)
+
+
+	def cmb003(self, index=-1):
+		'''Transform Tool Snapping
+		'''
+		cmb = self.transform_ui.cmb003
 
 
 	@Slots.hideMain
@@ -335,7 +334,7 @@ class Transform_maya(Transform, Slots_maya):
 	def b012(self):
 		'''Make Live (Toggle)
 		'''
-		cmb = self.transform_ui.cmb001
+		cmb = self.transform_ui.lbl000
 		selection = pm.ls(sl=1, objectsOnly=1)
 
 		if selection:
@@ -810,7 +809,7 @@ print (__name__)
 
 
 
-	# def lbl001(self):
+	# def cmb003(self):
 	# 	'''Transform Tool Snapping: Disable All
 	# 	'''
 	# 	cmb = self.transform_ui.cmb003
@@ -818,10 +817,10 @@ print (__name__)
 	# 	cmb.setCurrentText('Off') if not any((cmb.menu_.chk021.isChecked(), cmb.menu_.chk022.isChecked(), cmb.menu_.chk023.isChecked())) else cmb.setCurrentText('On')
 
 
-	# def lbl002(self):
+	# def cmb003(self):
 	# 	'''Transform Tool Snapping: Disable All
 	# 	'''
-	# 	cmb = self.transform_ui.cmb001
+	# 	cmb = self.transform_ui.lbl000
 	# 	self.toggleWidgets(setUnChecked='chk024-26')
 	# 	cmb.setCurrentText('Off') if not any((cmb.menu_.chk024.isChecked(), cmb.menu_.chk025.isChecked(), cmb.menu_.chk026.isChecked())) else cmb.setCurrentText('On')
 
@@ -962,10 +961,10 @@ print (__name__)
 	# 	constrain along normals #checkbox option for edge amd surface constaints
 	# 	setXformConstraintAlongNormal false;
 	# 	'''
-	# 	cmb = self.transform_ui.cmb001
+	# 	cmb = self.transform_ui.lbl000
 
 	# 	if index=='setMenu':
-	# 		cmb.contextMenu.add(self.tcl.wgts.Label, setObjectName='lbl000', setText='Disable All', setToolTip='Disable all constraints.')
+	# 		cmb.contextMenu.add(self.sb.Label, setObjectName='lbl000', setText='Disable All', setToolTip='Disable all constraints.')
 
 	# 		list_ = ['Edge', 'Surface', 'Make Live']
 	# 		cmb.addItems_(list_, 'Off')

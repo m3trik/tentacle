@@ -66,7 +66,7 @@ class Editors_max(Editors, Slots_max):
 		text = tree.getWidgetText(wItem, column)
 		header = tree.getHeaderFromColumn(column)
 
-		self.tcl.hide() #hide the menu before opening an external editor.
+		self.sb.parent().hide() #hide the menu before opening an external editor.
 
 		if header=='General Editors':
 			if text=='Channel Info':
@@ -219,10 +219,10 @@ class Editors_max(Editors, Slots_max):
 		'''
 		w = self.getEditorWidget(name)
 
-		self.tcl.setUi('dynLayout')
+		self.sb.parent().setUi('dynLayout')
 		self.stackedWidget.setCurrentWidget(w)
-		self.tcl.resize(width, height)
-		self.tcl.move(QtGui.QCursor.pos() - self.tcl.rect().center()) #move window to cursor position and offset from left corner to center
+		self.sb.parent().resize(width, height)
+		self.sb.parent().move(QtGui.QCursor.pos() - self.sb.parent().rect().center()) #move window to cursor position and offset from left corner to center
 
 		return w
 

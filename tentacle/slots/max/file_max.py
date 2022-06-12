@@ -78,7 +78,7 @@ class File_max(File, Slots_max):
 		cmb = self.file_ui.cmb003
 
 		if index>0: #hide then perform operation
-			self.tcl.hide(force=1)
+			self.sb.parent().hide(force=1)
 			if index == 1: #Import
 				maxEval('max file import')
 			elif index == 2: #Import options
@@ -102,7 +102,7 @@ class File_max(File, Slots_max):
 		cmb = self.file_ui.cmb004
 
 		if index>0: #hide then perform operation
-			self.tcl.hide(force=1)
+			self.sb.parent().hide(force=1)
 			if index==1: #Export selection
 				maxEval('actionMan.executeAction 0 "40373"') #max file export
 			elif index==2: #Export options
@@ -199,7 +199,7 @@ class File_max(File, Slots_max):
 		maxEval('minimizeAll app')
 		maxEval('undoMinimizeAll app')
 		rt.releaseOLEObject(app)
-		self.tcl.hide(force=1)
+		self.sb.parent().hide(force=1)
 
 
 	def lbl002(self):

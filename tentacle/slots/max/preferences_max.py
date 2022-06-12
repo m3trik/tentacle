@@ -130,7 +130,7 @@ print (__name__)
 
 	# 	if not index:
 			# index = cmb.currentIndex()
-	# 	buttons = self.getObjects(self.tcl.sb.getUi('main'), 'v000-11') #the ui in which the changes are to be made.
+	# 	buttons = self.getObjects(self.sb.getUi('main'), 'v000-11') #the ui in which the changes are to be made.
 	# 	for i, button in enumerate(buttons):
 	# 		if index==1: #set the text for each button.
 	# 			button.setText(['','','','','','','','','','','',''][i])
