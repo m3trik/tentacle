@@ -26,6 +26,8 @@ class Transform_maya(Transform, Slots_maya):
 		live_object = True if pm.ls(live=1) else False
 		values = [('chk024', 'Edge', edge_constraint), ('chk025', 'Surface', surface_constraint), ('chk026', 'Make Live', live_object)]
 		[cmb001.menu_.add(self.CheckBox, setObjectName=chk, setText=typ, setChecked=state) for chk, typ, state in values]
+		self.sb.setSyncAttributesConnections(cmb001.menu_.chk024, self.transform_submenu_ui.chk024)
+		self.sb.setSyncAttributesConnections(cmb001.menu_.chk025, self.transform_submenu_ui.chk025)
 
 		cmb003 = self.transform_ui.cmb003
 		moveValue = pm.manipMoveContext('Move', q=True, snapValue=True)
@@ -77,24 +79,28 @@ class Transform_maya(Transform, Slots_maya):
 	def chk024(self, state=None):
 		'''Transform Constraints: Edge
 		'''
+		cmb = self.transform_ui.cmb001
+		state = cmb.menu_.chk024.isChecked() #explicit because state not being passed from submenu checkboxes.
+
 		if state:
 			pm.xformConstraint(type='edge') #pm.manipMoveSetXformConstraint(edge=True);
 		else:
 			pm.xformConstraint(type='none') #pm.manipMoveSetXformConstraint(none=True);
 
-		cmb = self.transform_ui.cmb001
 		cmb.setCurrentText('Constrain: <hl style="color:white;">Off</hl>') if not any((state, cmb.menu_.chk025.isChecked(), cmb.menu_.chk026.isChecked())) else cmb.setCurrentText('Constrain: <hl style="color:green;">On</hl>')
 
 
 	def chk025(self, state=None):
 		'''Transform Contraints: Surface
 		'''
+		cmb = self.transform_ui.cmb001
+		state = cmb.menu_.chk025.isChecked()
+
 		if state:
 			pm.xformConstraint(type='surface') #pm.manipMoveSetXformConstraint(surface=True);
 		else:
 			pm.xformConstraint(type='none') #pm.manipMoveSetXformConstraint(none=True);
 
-		cmb = self.transform_ui.cmb001
 		cmb.setCurrentText('Constrain: <hl style="color:white;">Off</hl>') if not any((state, cmb.menu_.chk024.isChecked(), cmb.menu_.chk026.isChecked())) else cmb.setCurrentText('Constrain: <hl style="color:green;">On</hl>')
 
 
@@ -102,7 +108,7 @@ class Transform_maya(Transform, Slots_maya):
 		'''Transform Contraints: Make Live
 		'''
 		cmb = self.transform_ui.cmb001
-		chk = cmb.menu_.chk026
+		state = cmb.menu_.chk026.isChecked()
 
 		selection = pm.ls(sl=1, objectsOnly=1)
 		if state and selection:

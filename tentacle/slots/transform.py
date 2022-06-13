@@ -52,6 +52,7 @@ class Transform(Slots):
 		cmb003.menu_.add(self.CheckBox, setObjectName='chk023', setText='Rotate: <b>Off</b>', setTristate=True)
 		cmb003.menu_.add('QDoubleSpinBox', setObjectName='s023', setPrefix='Degrees:', setValue=0, setMinMax_='1.00-360 step2.8125', setDisabled=True)
 		# self.connect_('chk021-23', 'stateChanged', lambda state: self.setWidgetKwargs('chk021-23', setText='Off'))
+		self.sb.setSyncAttributesConnections(cmb003.menu_.chk023, self.transform_submenu_ui.chk023)
 
 
 	def draggable_header(self, state=None):
@@ -67,17 +68,6 @@ class Transform(Slots):
 			self.toggleWidgets(setDisabled='chk029-31')
 		else:
 			self.toggleWidgets(setEnabled='chk029-31')
-
-
-	def chk014(self, state=None):
-		'''Snap: Toggle Rotation
-		'''
-		cmb = self.transform_ui.cmb003
-
-		cmb.menu_.chk023.setChecked(True)
-		cmb.menu_.s023.setValue(11.25)
-		state = 1 if self.transform_submenu_ui.chk014.isChecked() else 0
-		self.chk023(state=state)
 
 
 	def chk021(self, state=None):
@@ -118,3 +108,28 @@ class Transform(Slots):
 
 		self.setTransformSnap('rotate', tri_state)
 
+
+
+
+
+
+
+
+
+# -----------------------------------------------
+# Notes
+# -----------------------------------------------
+
+
+
+# deprecated ------------------------------------
+
+# def chk014(self, state=None):
+	# 	'''Snap: Toggle Rotation
+	# 	'''
+	# 	cmb = self.transform_ui.cmb003
+
+	# 	cmb.menu_.chk023.setChecked(True)
+	# 	cmb.menu_.s023.setValue(11.25)
+	# 	state = 1 if self.transform_submenu_ui.chk014.isChecked() else 0
+	# 	self.chk023(state=state)

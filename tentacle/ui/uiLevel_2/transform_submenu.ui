@@ -146,7 +146,7 @@
      <string>Drop to Grid</string>
     </property>
    </widget>
-   <widget class="QPushButton" name="chk012">
+   <widget class="QPushButton" name="chk024">
     <property name="enabled">
      <bool>true</bool>
     </property>
@@ -294,7 +294,7 @@
      </size>
     </property>
    </widget>
-   <widget class="QPushButton" name="chk013">
+   <widget class="QPushButton" name="chk025">
     <property name="enabled">
      <bool>true</bool>
     </property>
@@ -337,7 +337,7 @@
      <bool>false</bool>
     </property>
    </widget>
-   <widget class="QPushButton" name="chk014">
+   <widget class="QPushButton" name="chk023">
     <property name="enabled">
      <bool>true</bool>
     </property>
