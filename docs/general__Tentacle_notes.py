@@ -42,6 +42,8 @@ chk013.toggled.connect(lambda state: ctx.s006.setEnabled(True if state else Fals
 chk015.stateChanged.connect(lambda state: self.toggleWidgets(ctx, setDisabled='t000-1,s001,chk005-11') if state 
 												else self.toggleWidgets(ctx, setEnabled='t000-1,s001,chk005-11')) #disable non-relevant options.
 #sync widgets
+self.sb.setSyncAttributesConnections(cmb003.menu_.chk023, self.transform_submenu_ui.chk023, attributes='setChecked')
+#alt method
 ctx.chk008.toggled.connect(lambda state: self.mirror_submenu_ui.chk008.setChecked(state))
 self.mirror_submenu_ui.chk008.toggled.connect(lambda state: ctx.chk008.setChecked(state))
 
@@ -197,25 +199,30 @@ def tree000(self, wItem=None, column=None):
 	'KNOWN BUGS AND GENERAL TO-DO'
 # ======================================================================
 '''
+fix syntax highlighting
+
+
 attribute windows pop up solution.  current pop up is far more annoying than useful.
 
 
+create macro toolbutton where you are able to chain commands.
+
+
+Treewidgets not registering click on mouse release.
+# treewidgetExpandableList
+# mousegrab being lost after using treewidget
+# initial size incorrect (and first column not populating)
 build history window instead of using tree widget.
 replace other tree widget instances with popup windows.
 
 
-widgets: combobox:
-change comboboxes with custom menus to clickable labels. (transform menu)
+maya macros:
+'3' wireframe on shaded not working.
+extend 'ctl+d' to duplicate faces only when in face selection mode.
+'f3' ghost selected instead of ghost other.
+maya.macros: isolate selected: incorrect mod panel.
+# Error: line 1: RuntimeError: file C:\Program Files\Autodesk\Maya2022\Python37\lib\site-packages\pymel\internal\pmcmds.py line 217: model panel 'outlinerPanel1' does not exist #
 
-
-
-edit_maya:
-clean: create a function that combines the existing geo with a new cube then deletes the cube, returning the geo to it's original state.
-
-
-normals_maya:
-not working with multiple objects.
-add option to enabble soft edge display on the object after operation.
 
 
 uv:
@@ -223,6 +230,8 @@ change unfold button in submenu to a unfold and pack macro.
 editors combobox not working: other comboboxes are broken.
 make map size a universal top level spinbox that all commands pull the value from.
 use builtin stack similar from layout options menu.
+uv_maya:  select by type:  move to selection_maya: select by type.
+autounwrap needs undochunk
 
 
 materials:
@@ -230,6 +239,8 @@ modify the combobox custom widget to modify text fields on double click. (and ch
 separate 'assign current', 'assign new' to their own buttons.
 assign random:  give option to derive mat name from mesh name.
 link bitmaps script.
+materials_maya: 
+rename not working.
 
 
 transform:
@@ -244,28 +255,29 @@ get the functions for these maya commands:
 add duplicate and move match.
 add delete after move.
 use new window and class.
+maya_transform:  make live on submenu disables make live when first pressed.
 
-
-create macro toolbutton where you are able to chain commands.
 
 
 selection:
 add convert to vertices and any other commonly used component type conversion to submenu.
 selection_maya:
 add quick store current selection list menu.
-
-
-uv_maya:  select by type:  move to selection_maya: select by type.
-autounwrap needs undochunk
-
-
 selection_maya:
+select island not working.
 bonus tools: select nth (use algorithm)
+add: maya selection: camera based selection
+selectPref -useDepth true;
 
 
 file_maya:
-open recent:  opening wrong file. maybe because sorting by timestamp.
 workspace contextmenu> 'set' project method being called twice. :(
+file_maya:
+create reference
+pm.mel.CreateReference()
+maya_file
+# Error: tentacle.childEvents.EventFactoryFilter.initWidgets(): Call: <bound method File.tb000 of <maya_file.File(0x1e0b2f0ca40) at 0x000001E0DB9769C8>>('setMenu') failed: 'PySide2.QtWidgets.QMainWindow' object has no attribute 'draggable_header'. #
+
 
 
 mirror_maya:
@@ -291,13 +303,27 @@ create_maya:
 use transform_maya: 'move to' to move the objects after creation.
 
 
-maya macros:
-'3' wireframe on shaded not working.
-extend 'ctl+d' to duplicate faces only when in face selection mode.
-'f3' ghost selected instead of ghost other.
-maya.macros: isolate selected: incorrect mod panel.
-# Error: line 1: RuntimeError: file C:\Program Files\Autodesk\Maya2022\Python37\lib\site-packages\pymel\internal\pmcmds.py line 217: model panel 'outlinerPanel1' does not exist #
+# animation_maya: delete all keys:
+O:/Cloud/Code/_scripts/tentacle\tentacle\slots\maya\animation_maya.py
+line 34, in b000
+#     rt.deleteKeys(rt.selection)
+# NameError: name 'rt' is not defined
+cutKey -cl -t ":" -f ":" -at "tx" -at "ty" -at "tz" -at "rx" -at "ry" -at "rz" -at "sx" -at "sy" -at "sz" -at "v" polySurface1600;
 
+
+
+duplicate_maya:
+convert to instances needs an undo chunk.
+also:  move to object center rather than object pivot.
+
+
+
+maya_preferences:
+ctx menu's commented out because of issues:
+	
+
+scene: 
+naming needs clearer docstring w/example results. replace suffix is instead appending. should replace 1 occurance from right of anything in the find field, possibly only if searching for suffix.
 
 
 # Traceback (most recent call last):
@@ -310,48 +336,6 @@ maya.macros: isolate selected: incorrect mod panel.
 #   File "C:\Program Files\Autodesk\Maya2022\Python37\lib\site-packages\pymel\internal\pmcmds.py", line 217, in polyExtrudeFacet_wrapped
 #     res = new_cmd(*new_args, **new_kwargs)
 # TypeError: Object 1 is invalid
-
-
-make context menu overlay clickable, and change to left click menus.
-
-
-selection_maya:
-select island not working.
-
-
-file_maya:
-create reference
-pm.mel.CreateReference()
-maya_file
-# Error: tentacle.childEvents.EventFactoryFilter.initWidgets(): Call: <bound method File.tb000 of <maya_file.File(0x1e0b2f0ca40) at 0x000001E0DB9769C8>>('setMenu') failed: 'PySide2.QtWidgets.QMainWindow' object has no attribute 'draggable_header'. #
-
-
-fix syntax highlighting
-
-
-# animation_maya: delete all keys:
-O:/Cloud/Code/_scripts/tentacle\tentacle\slots\maya\animation_maya.py
-line 34, in b000
-#     rt.deleteKeys(rt.selection)
-# NameError: name 'rt' is not defined
-cutKey -cl -t ":" -f ":" -at "tx" -at "ty" -at "tz" -at "rx" -at "ry" -at "rz" -at "sx" -at "sy" -at "sz" -at "v" polySurface1600;
-
-
-transform:
-snap checkbox in submenu not unchecking main.
-
-
-duplicate_maya:
-convert to instances needs an undo chunk.
-also:  move to object center rather than object pivot.
-
-
-materials_maya: 
-rename not working.
-
-
-add: maya selection: camera based selection
-selectPref -useDepth true;
 
 
 # Traceback (most recent call last):
@@ -376,16 +360,6 @@ selectPref -useDepth true;
 # TypeError: 'staticmethod' object is not callable
 
 
-Treewidgets not registering click on mouse release.
-
-
-ctx menu's commented out because of issues:
-	maya_preferences
-
-
-Slots.scene: naming needs clearer docstring w/example results. replace suffix is instead appending. should replace 1 occurance from right of anything in the find field, possibly only if searching for suffix.
-
-
 # Traceback (most recent call last):
 #   File "O:/Cloud/Code/_scripts/tentacle\tentacle\slots\maya\maya_polygons.py", line 511, in b053
 #     pm.polyEditEdgeFlow(adjustEdgeFlow=1)
@@ -394,14 +368,6 @@ Slots.scene: naming needs clearer docstring w/example results. replace suffix is
 #   File "C:\Program Files\Autodesk\Maya2022\Python37\lib\site-packages\pymel\internal\pmcmds.py", line 217, in polyEditEdgeFlow_wrapped
 #     res = new_cmd(*new_args, **new_kwargs)
 # TypeError: Error retrieving default arguments
-
-
-maya_transform:  make live on submenu disables make live when first pressed.
-
-
-# treewidgetExpandableList
-# mousegrab being lost after using treewidget
-# initial size incorrect (and first column not populating)
 
 
 # Traceback (most recent call last):

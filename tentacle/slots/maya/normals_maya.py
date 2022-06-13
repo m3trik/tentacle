@@ -61,9 +61,10 @@ class Normals_maya(Normals, Slots_maya):
 		tb = self.normals_ui.tb001
 
 		hardAngle = tb.contextMenu.s002.value()
-		hardenCreased = tb.contextMenu.chk001.isChecked()
-		hardenUvBorders = tb.contextMenu.chk002.isChecked()
-		softenOther = tb.contextMenu.chk000.isChecked()
+		hardenCreased = tb.contextMenu.chk005.isChecked()
+		hardenUvBorders = tb.contextMenu.chk006.isChecked()
+		softenOther = tb.contextMenu.chk004.isChecked()
+		softEdgeDisplay = tb.contextMenu.chk007.isChecked()
 
 		objects = pm.ls(sl=True, objectsOnly=True)
 
@@ -89,7 +90,10 @@ class Normals_maya(Normals, Slots_maya):
 				if invEdges:
 					pm.polySoftEdge(invEdges, angle=180, constructionHistory=0) #set soft edges.
 
-			pm.select(selEdges)
+			if softEdgeDisplay:
+				pm.polyOptions(obj, se=1)
+
+			pm.select(selEdges, add=True)
 
 
 	@Slots_maya.attr

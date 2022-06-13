@@ -52,7 +52,7 @@ class Transform(Slots):
 		cmb003.menu_.add(self.CheckBox, setObjectName='chk023', setText='Rotate: <b>Off</b>', setTristate=True)
 		cmb003.menu_.add('QDoubleSpinBox', setObjectName='s023', setPrefix='Degrees:', setValue=0, setMinMax_='1.00-360 step2.8125', setDisabled=True)
 		# self.connect_('chk021-23', 'stateChanged', lambda state: self.setWidgetKwargs('chk021-23', setText='Off'))
-		self.sb.setSyncAttributesConnections(cmb003.menu_.chk023, self.transform_submenu_ui.chk023)
+		self.sb.setSyncAttributesConnections(cmb003.menu_.chk023, self.transform_submenu_ui.chk023, attributes='setChecked')
 
 
 	def draggable_header(self, state=None):

@@ -102,6 +102,15 @@ class Switchboard(QtUiTools.QUiLoader, styleSheet.StyleSheet):
 		'QMenu',
 	]
 
+	attributeGetSetters = {
+		'isChecked':'setChecked', 
+		'isDisabled':'setDisabled', 
+		'isEnabled':'setEnabled', 
+		'value':'setValue', 
+		'text':'setText', 
+		'icon':'setIcon',
+	}
+
 	_uiHistory = [] #[str list] - Tracks the order in which the uis are called. A new ui is placed at element[-1]. ie. ['previousName2', 'previousName1', 'currentName']
 	_commandHistory = [] #[list of 2 element lists] - Command history. ie. [[<b000>, 'multi-cut tool']]
 	_cameraHistory = [] #[list of 2 element lists] - Camera history. ie. [[<v000>, 'camera: persp']]
@@ -262,7 +271,7 @@ class Switchboard(QtUiTools.QUiLoader, styleSheet.StyleSheet):
 							and (attr in include if include else attr not in include)}
 
 
-	def setSyncAttributesConnections(self, w1, w2):
+	def setSyncAttributesConnections(self, w1, w2, **kwargs):
 		'''Set the initial signal connections that will call the _syncAttributes function on state changes.
 
 		:Parameters:
@@ -273,26 +282,35 @@ class Switchboard(QtUiTools.QUiLoader, styleSheet.StyleSheet):
 			s1 = self.defaultSignals[self.getDerivedType(w1)] #get the default signal for the given widget.
 			s2 = self.defaultSignals[self.getDerivedType(w2)]
 
-			getattr(w1, s1).connect(lambda: self._syncAttributes(w1, w2))
-			getattr(w2, s2).connect(lambda: self._syncAttributes(w2, w1))
+			getattr(w1, s1).connect(lambda: self._syncAttributes(w1, w2, **kwargs))
+			getattr(w2, s2).connect(lambda: self._syncAttributes(w2, w1, **kwargs))
 
 		except (KeyError, AttributeError) as error:
 			# if w1 and w2: print ('# {}: {}.setSyncAttributesConnections({}, {}): {} is invalid.'.format('KeyError' if error==KeyError else 'AttributeError', __name__, w1, w2, error))
 			pass
 
 
-	def _syncAttributes(self, frm, to, attributeTypes = {'isChecked':'setChecked', 'isDisabled':'setDisabled', 
-				'isEnabled':'setEnabled', 'value':'setValue', 'text':'setText', 'icon':'setIcon',}):
+	def _syncAttributes(self, frm, to, attributes=[]):
 		'''Sync the given attributes between the two given widgets.
 		If a widget does not have an attribute it will be silently skipped.
 
 		:Parameters:
 			frm (obj) = The widget to transfer attribute values from.
 			to (obj) = The widget to transfer attribute values to.
-			attributeTypes (dict) = Which attributes to sync. the dict contains gettr:settr pairs. ie. {'isChecked':'setChecked'}
+			attributes (str)(list)(dict) = The attribute(s) to sync. ie. a setter attribute 'setChecked' or a dict containing getter:setter pairs. ie. {'isChecked':'setChecked'}
 		'''
+		if not isinstance(attributes, dict):
+			attributes = {next((k for k,v in self.attributeGetSetters.items() if v==i), None):i #construct a gettr setter pair dict using only the given setter values.
+				 for i in self.list_(attributes)
+			}
+
+		print ('attributes:', attributes)
+
+		if not attributes:
+			attributes = self.attributeGetSetters
+
 		attributes = {}
-		for gettr, settr in attributeTypes.items():
+		for gettr, settr in attributes.items():
 			try:
 				attributes[settr] = getattr(frm, gettr)()
 			except AttributeError as error:
