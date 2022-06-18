@@ -155,8 +155,9 @@ class Create_maya(Create, Slots_maya):
 
 		if selection: #if there is a current selection, move the object to that selection's bounding box center.
 			if translate:
-				center_pos = self.transform().getCenterPoint(selection)
-				pm.xform(node, translation=center_pos, worldSpace=1, absolute=1)
+				self.transform().moveTo(node, selection)
+				# center_pos = self.transform().getCenterPoint(selection)
+				# pm.xform(node, translation=center_pos, worldSpace=1, absolute=1)
 			if scale:
 				self.transform().matchScale(node[0], selection, average=True)
 

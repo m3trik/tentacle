@@ -374,6 +374,7 @@ class Polygons_maya(Polygons, Slots_maya):
 	def b043(self):
 		'''Target Weld
 		'''
+		pm.mel.ConvertSelectionToVertices()
 		pm.select(deselect=True)
 		pm.mel.dR_targetWeldTool()
 

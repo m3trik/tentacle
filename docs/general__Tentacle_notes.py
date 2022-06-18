@@ -42,10 +42,7 @@ chk013.toggled.connect(lambda state: ctx.s006.setEnabled(True if state else Fals
 chk015.stateChanged.connect(lambda state: self.toggleWidgets(ctx, setDisabled='t000-1,s001,chk005-11') if state 
 												else self.toggleWidgets(ctx, setEnabled='t000-1,s001,chk005-11')) #disable non-relevant options.
 #sync widgets
-self.sb.setSyncAttributesConnections(cmb003.menu_.chk023, self.transform_submenu_ui.chk023, attributes='setChecked')
-#alt method
-ctx.chk008.toggled.connect(lambda state: self.mirror_submenu_ui.chk008.setChecked(state))
-self.mirror_submenu_ui.chk008.toggled.connect(lambda state: ctx.chk008.setChecked(state))
+self.sb.setSyncAttributesConnections(cmb003.menu_.chk023, self.transform_submenu_ui.chk023, attributes='setChecked') #sync check state between submenu and static menu item.
 
 #setText on state change.
 chk004.stateChanged.connect(lambda state: ctx.chk004.setText('Repair' if state else 'Select Only')) #set button text to reflect current state.
@@ -199,6 +196,10 @@ def tree000(self, wItem=None, column=None):
 	'KNOWN BUGS AND GENERAL TO-DO'
 # ======================================================================
 '''
+
+instead of using sb.setSyncAttributesConnections to sync widgets, add the static ui widgets to sb dict so that they are auto synced.
+
+
 fix syntax highlighting
 
 

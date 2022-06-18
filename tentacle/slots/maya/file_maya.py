@@ -316,7 +316,7 @@ class File_maya(File, Slots_maya):
 		result = [self.formatPath(f) for f in list(reversed(files))] #Replace any backslashes with forward slashes and reverse the list.
 
 		if timestamp:  #attach modified timestamp
-			result = self.fileNameTimeStamp(result)
+			result = self.fileNameTimeStamp(result, sort=True)
 
 		return result
 

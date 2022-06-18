@@ -176,13 +176,14 @@ class File(Slots):
 
 
 	@staticmethod
-	def fileNameTimeStamp(files, detach=False, stamp='%m-%d-%Y  %H:%M'):
+	def fileNameTimeStamp(files, detach=False, stamp='%m-%d-%Y  %H:%M', sort=False):
 		'''Attach a modified timestamp and date to given file path(s) and sort accordingly.
 
 		:Parameters:
 			files (str)(list) = The full path to a file. ie. 'C:/Windows/Temp/__AUTO-SAVE__untitled.0001.mb'
 			detach (bool) = Remove a previously attached time stamp.
 			stamp (str) = The time stamp format.
+			sort (bool) = Reorder the list of files by time. (most recent first)
 
 		:Return:
 			(list) ie. ['16:46  11-09-2021  C:/Windows/Temp/__AUTO-SAVE__untitled.0001.mb'] from ['C:/Windows/Temp/__AUTO-SAVE__untitled.0001.mb']
@@ -202,7 +203,11 @@ class File(Slots):
 					result.append('{}  {}'.format(datetime.fromtimestamp(os.path.getmtime(f)).strftime(stamp), f))
 				except (FileNotFoundError, OSError) as error:
 					continue
-			result = list(reversed(sorted(result)))
+
+			if sort:
+				result = list(reversed(sorted(result)))
+
+			result = result
 
 		return result
 

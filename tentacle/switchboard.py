@@ -6,16 +6,16 @@ import importlib
 import inspect
 
 from PySide2.QtWidgets import QApplication
-from PySide2 import QtUiTools
+from PySide2.QtUiTools import QUiLoader
 
 try: import shiboken2
 except: from PySide2 import shiboken2
 
-from ui import styleSheet
+from ui.styleSheet import StyleSheet
 
 
 
-class Switchboard(QtUiTools.QUiLoader, styleSheet.StyleSheet):
+class Switchboard(QUiLoader, StyleSheet):
 	'''Load and Manage dynamic ui across modules using convenience methods.
 	Dynamically adds and removes slot connections using naming convention.
 
@@ -102,7 +102,7 @@ class Switchboard(QtUiTools.QUiLoader, styleSheet.StyleSheet):
 		'QMenu',
 	]
 
-	attributeGetSetters = {
+	attributesGetSet = {
 		'isChecked':'setChecked', 
 		'isDisabled':'setDisabled', 
 		'isEnabled':'setEnabled', 
@@ -123,10 +123,12 @@ class Switchboard(QtUiTools.QUiLoader, styleSheet.StyleSheet):
 		qApp = QApplication(sys.argv)
 
 	defaultDir = os.path.abspath(os.path.dirname(__file__))
+	defaultUiDir = defaultDir+'/ui'
+	defaultWgtsDir = defaultDir+'/ui/widgets'
+	defaultSlotsDir = defaultDir+'/slots'
 
-
-	def __init__(self, parent=None, uiToLoad=defaultDir+'/ui', widgetsToRegister=defaultDir+'/ui/widgets', slotsDir=defaultDir+'/slots', mainAppWindow=None):
-		QtUiTools.QUiLoader.__init__(self, parent)
+	def __init__(self, parent=None, uiToLoad=defaultUiDir, widgetsToRegister=defaultWgtsDir, slotsDir=defaultSlotsDir, mainAppWindow=None):
+		QUiLoader.__init__(self, parent)
 		'''Instantiate switchboard with the directory locations of dynamic ui, custom widgets, slot modules and load the ui with any custom widgets.
 
 		:Parameters:
@@ -152,11 +154,11 @@ class Switchboard(QtUiTools.QUiLoader, styleSheet.StyleSheet):
 		for path in self.list_(uiToLoad): #assure uiToLoad is a list.
 
 			self.setWorkingDirectory(self.formatFilepath(path, 'path'))
-			try:
-				self.loadUi(path, widgets=widgetsToRegister)
+			# try:
+			self.loadUi(path, widgets=widgetsToRegister)
 
-			except FileNotFoundError as error:
-				print ('# FileNotFoundError: {}.__init__(): {} #'.format(__name__, error))
+			# except FileNotFoundError as error:
+			# 	print ('# FileNotFoundError: {}.__init__(): {} #'.format(__name__, error))
 
 		sys.path.append(slotsDir)
 
@@ -299,25 +301,23 @@ class Switchboard(QtUiTools.QUiLoader, styleSheet.StyleSheet):
 			to (obj) = The widget to transfer attribute values to.
 			attributes (str)(list)(dict) = The attribute(s) to sync. ie. a setter attribute 'setChecked' or a dict containing getter:setter pairs. ie. {'isChecked':'setChecked'}
 		'''
-		if not isinstance(attributes, dict):
-			attributes = {next((k for k,v in self.attributeGetSetters.items() if v==i), None):i #construct a gettr setter pair dict using only the given setter values.
+		if not attributes:
+			attributes = self.attributesGetSet
+
+		elif not isinstance(attributes, dict):
+			attributes = {next((k for k,v in self.attributesGetSet.items() if v==i), None):i #construct a gettr setter pair dict using only the given setter values.
 				 for i in self.list_(attributes)
 			}
 
-		print ('attributes:', attributes)
-
-		if not attributes:
-			attributes = self.attributeGetSetters
-
-		attributes = {}
+		_attributes = {}
 		for gettr, settr in attributes.items():
 			try:
-				attributes[settr] = getattr(frm, gettr)()
+				_attributes[settr] = getattr(frm, gettr)()
 			except AttributeError as error:
 				pass
 
 		[getattr(to, attr)(value) 
-			for attr, value in attributes.items() 
+			for attr, value in _attributes.items() 
 				if hasattr(to, attr)] #set the second widget's attributes from the first.
 
 
@@ -1091,7 +1091,13 @@ class Switchboard(QtUiTools.QUiLoader, styleSheet.StyleSheet):
 
 
 		else: #get all modules in the given path.
-			for module in os.listdir(path):
+			try:
+				_path = os.listdir(path)
+			except FileNotFoundError as error:
+				print ('# FileNotFoundError: {}._getWidgetsFromDir(): {} #'.format(__name__, error))
+				return
+
+			for module in _path:
 
 				mod_name = module[:-3]
 				mod_ext = module[-3:]

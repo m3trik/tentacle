@@ -19,32 +19,26 @@ class Mirror(Slots):
 					current_ui (lambda function) = Returns the current ui if it is either the parent or a child ui for the class; else, return the parent ui. ie. self.current_ui()
 					<name> (lambda function) = Returns the slot class instance of that name.  ie. self.polygons()
 		'''
-		ctx = self.mirror_ui.draggable_header.contextMenu
-		if not ctx.containsMenuItems:
-			ctx.add(self.ComboBox, setObjectName='cmb000', setToolTip='')
+		dh = self.mirror_ui.draggable_header
+		dh.contextMenu.add(self.ComboBox, setObjectName='cmb000', setToolTip='')
 
-		ctx = self.mirror_ui.tb000.contextMenu
-		if not ctx.containsMenuItems:
-			ctx.add('QCheckBox', setText='-', setObjectName='chk000', setChecked=True, setToolTip='Perform mirror along negative axis.')
-			ctx.add('QRadioButton', setText='X', setObjectName='chk001', setChecked=True, setToolTip='Perform mirror along X axis.')
-			ctx.add('QRadioButton', setText='Y', setObjectName='chk002', setToolTip='Perform mirror along Y axis.')
-			ctx.add('QRadioButton', setText='Z', setObjectName='chk003', setToolTip='Perform mirror along Z axis.')
-			ctx.add('QCheckBox', setText='World Space', setObjectName='chk008', setChecked=True, setToolTip='Mirror in world space instead of object space.')
-			ctx.add('QCheckBox', setText='Instance', setObjectName='chk004', setToolTip='Instance the mirrored object(s).')
-			ctx.add('QCheckBox', setText='Cut', setObjectName='chk005', setToolTip='Perform a delete along specified axis before mirror.')
-			ctx.add('QCheckBox', setText='Merge', setObjectName='chk007', setToolTip='Merge the mirrored geometry with the original.')
-			ctx.add('QSpinBox', setPrefix='Merge Mode: ', setObjectName='s001', setMinMax_='0-2 step1', setValue=0, setToolTip='0) Do not merge border edges.<br>1) Border edges merged.<br>2) Border edges extruded and connected.')
-			ctx.add('QDoubleSpinBox', setPrefix='Merge Threshold: ', setObjectName='s000', setMinMax_='0.000-10 step.001', setValue=0.005, setToolTip='Merge vertex distance.')
-			ctx.add('QCheckBox', setText='Delete History', setObjectName='chk006', setChecked=True, setToolTip='Delete non-deformer history on the object before performing the operation.')
+		tb000 = self.mirror_ui.tb000
+		tb000.contextMenu.add('QCheckBox', setText='-', setObjectName='chk000', setChecked=True, setToolTip='Perform mirror along the negative axis.')
+		tb000.contextMenu.add('QRadioButton', setText='X', setObjectName='chk001', setChecked=True, setToolTip='Perform mirror along X axis.')
+		tb000.contextMenu.add('QRadioButton', setText='Y', setObjectName='chk002', setToolTip='Perform mirror along Y axis.')
+		tb000.contextMenu.add('QRadioButton', setText='Z', setObjectName='chk003', setToolTip='Perform mirror along Z axis.')
+		tb000.contextMenu.add('QCheckBox', setText='World Space', setObjectName='chk008', setChecked=True, setToolTip='Mirror in world space instead of object space.')
+		tb000.contextMenu.add('QCheckBox', setText='Instance', setObjectName='chk004', setToolTip='Instance the mirrored object(s).')
+		tb000.contextMenu.add('QCheckBox', setText='Cut', setObjectName='chk005', setToolTip='Perform a delete along specified axis before mirror.')
+		tb000.contextMenu.add('QCheckBox', setText='Merge', setObjectName='chk007', setChecked=True, setToolTip='Merge the mirrored geometry with the original.')
+		tb000.contextMenu.add('QSpinBox', setPrefix='Merge Mode: ', setObjectName='s001', setMinMax_='0-2 step1', setValue=0, setToolTip='0) Do not merge border edges.<br>1) Border edges merged.<br>2) Border edges extruded and connected.')
+		tb000.contextMenu.add('QDoubleSpinBox', setPrefix='Merge Threshold: ', setObjectName='s000', setMinMax_='0.000-10 step.001', setValue=0.005, setToolTip='Merge vertex distance.')
+		tb000.contextMenu.add('QCheckBox', setText='Delete History', setObjectName='chk006', setChecked=True, setToolTip='Delete non-deformer history on the object before performing the operation.')
 
-			#sync widgets
-			ctx.chk008.toggled.connect(lambda state: self.mirror_submenu_ui.chk008.setChecked(state))
-			self.mirror_submenu_ui.chk008.toggled.connect(lambda state: ctx.chk008.setChecked(state))
-
-			ctx.chk000.toggled.connect(lambda state: self.mirror_submenu_ui.chk000.setChecked(state))
-			self.mirror_submenu_ui.chk000.toggled.connect(lambda state: ctx.chk000.setChecked(state))
-
-
+		#sync widgets
+		self.sb.setSyncAttributesConnections(tb000.contextMenu.chk000, self.mirror_submenu_ui.chk000, attributes='setChecked')
+		self.sb.setSyncAttributesConnections(tb000.contextMenu.chk007, self.mirror_submenu_ui.chk007, attributes='setChecked')
+		self.sb.setSyncAttributesConnections(tb000.contextMenu.chk008, self.mirror_submenu_ui.chk008, attributes='setChecked')
 
 
 	def draggable_header(self, state=None):

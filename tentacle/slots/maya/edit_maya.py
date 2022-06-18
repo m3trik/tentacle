@@ -10,42 +10,42 @@ class Edit_maya(Edit, Slots_maya):
 		Slots_maya.__init__(self, *args, **kwargs)
 		Edit.__init__(self, *args, **kwargs)
 
-		cmb = self.edit_ui.draggable_header.contextMenu.cmb000
+		dh = self.edit_ui.draggable_header
 		items = ['Cleanup', 'Transfer: Attribute Values', 'Transfer: Shading Sets']
-		cmb.addItems_(items, 'Maya Editors')
+		dh.contextMenu.cmb000.addItems_(items, 'Maya Editors')
 
 
-		ctx = self.edit_ui.tb000.contextMenu
-		if not ctx.containsMenuItems:
-			ctx.add('QCheckBox', setText='All Geometry', setObjectName='chk005', setToolTip='Clean All scene geometry.')
-			ctx.add('QCheckBox', setText='Repair', setObjectName='chk004', setToolTip='Repair matching geometry. Else, select only.') #add(self.sb.CheckBox, setText='Select Only', setObjectName='chk004', setTristate=True, setCheckState_=2, setToolTip='Select and/or Repair matching geometry. <br>0: Repair Only<br>1: Repair and Select<br>2: Select Only')
-			ctx.add('QCheckBox', setText='N-Gons', setObjectName='chk002', setChecked=True, setToolTip='Find N-gons.')
-			ctx.add('QCheckBox', setText='Non-Manifold Geometry', setObjectName='chk017', setChecked=True, setToolTip='Check for nonmanifold polys.')
-			ctx.add('QCheckBox', setText='Non-Manifold Vertex', setObjectName='chk021', setToolTip='A connected vertex of non-manifold geometry where the faces share a single vertex.')
-			ctx.add('QCheckBox', setText='Quads', setObjectName='chk010', setToolTip='Check for quad sided polys.')
-			ctx.add('QCheckBox', setText='Concave', setObjectName='chk011', setToolTip='Check for concave polys.')
-			ctx.add('QCheckBox', setText='Non-Planar', setObjectName='chk003', setToolTip='Check for non-planar polys.')
-			ctx.add('QCheckBox', setText='Holed', setObjectName='chk012', setToolTip='Check for holed polys.')
-			ctx.add('QCheckBox', setText='Lamina', setObjectName='chk018', setToolTip='Check for lamina polys.')
-			ctx.add('QCheckBox', setText='Shared UV\'s', setObjectName='chk016', setToolTip='Unshare uvs that are shared across vertices.')
-			# ctx.add('QCheckBox', setText='Invalid Components', setObjectName='chk019', setToolTip='Check for invalid components.')
-			ctx.add('QCheckBox', setText='Zero Face Area', setObjectName='chk013', setChecked=True, setToolTip='Check for 0 area faces.')
-			ctx.add('QDoubleSpinBox', setPrefix='Face Area Tolerance:   ', setObjectName='s006', setMinMax_='0.0-10 step.000010', setValue=0.000010, setToolTip='Tolerance for face areas.')
-			ctx.add('QCheckBox', setText='Zero Length Edges', setObjectName='chk014', setChecked=True, setToolTip='Check for 0 length edges.')
-			ctx.add('QDoubleSpinBox', setPrefix='Edge Length Tolerance: ', setObjectName='s007', setMinMax_='0.0-10 step.000010', setValue=0.000010, setToolTip='Tolerance for edge length.')
-			ctx.add('QCheckBox', setText='Zero UV Face Area', setObjectName='chk015', setToolTip='Check for 0 uv face area.')
-			ctx.add('QDoubleSpinBox', setPrefix='UV Face Area Tolerance:', setObjectName='s008', setDisabled=True, setMinMax_='0.0-10 step.000010', setValue=0.000010, setToolTip='Tolerance for uv face areas.')
-			ctx.add('QCheckBox', setText='Overlapping Duplicate Objects', setObjectName='chk022', setToolTip='Find any duplicate overlapping geometry at the object level.')
-			ctx.add('QCheckBox', setText='Omit Selected Objects', setObjectName='chk023', setDisabled=True, setToolTip='Overlapping Duplicate Objects: Search for duplicates of any selected objects while omitting the initially selected objects.')
-			ctx.chk013.toggled.connect(lambda state: ctx.s006.setEnabled(True if state else False))
-			ctx.chk014.toggled.connect(lambda state: ctx.s007.setEnabled(True if state else False))
-			ctx.chk015.toggled.connect(lambda state: ctx.s008.setEnabled(True if state else False))
-			ctx.chk022.stateChanged.connect(lambda state: self.toggleWidgets(ctx, setDisabled='chk002-3,chk005,chk010-21,s006-8', setEnabled='chk023') if state 
-															else self.toggleWidgets(ctx, setEnabled='chk002-3,chk005,chk010-21,s006-8', setDisabled='chk023')) #disable non-relevant options.
-			#sync widgets
-			ctx.chk004.toggled.connect(lambda state: self.edit_submenu_ui.chk004.setChecked(state))
-			self.edit_submenu_ui.chk004.toggled.connect(lambda state: ctx.chk004.setChecked(state))
-			self.edit_submenu_ui.chk010.toggled.connect(lambda state: ctx.chk010.setChecked(state))
+		tb000 = self.edit_ui.tb000
+		tb000.contextMenu.add('QCheckBox', setText='All Geometry', setObjectName='chk005', setToolTip='Clean All scene geometry.')
+		tb000.contextMenu.add('QCheckBox', setText='Repair', setObjectName='chk004', setToolTip='Repair matching geometry. Else, select only.') #add(self.sb.CheckBox, setText='Select Only', setObjectName='chk004', setTristate=True, setCheckState_=2, setToolTip='Select and/or Repair matching geometry. <br>0: Repair Only<br>1: Repair and Select<br>2: Select Only')
+		tb000.contextMenu.add('QCheckBox', setText='Merge vertices', setObjectName='chk024', setChecked=True, setToolTip='Merge overlapping vertices on the object(s) before executing the clean command.')
+		tb000.contextMenu.add('QCheckBox', setText='N-Gons', setObjectName='chk002', setChecked=True, setToolTip='Find N-gons.')
+		tb000.contextMenu.add('QCheckBox', setText='Non-Manifold Geometry', setObjectName='chk017', setChecked=True, setToolTip='Check for nonmanifold polys.')
+		tb000.contextMenu.add('QCheckBox', setText='Non-Manifold Vertex', setObjectName='chk021', setToolTip='A connected vertex of non-manifold geometry where the faces share a single vertex.')
+		tb000.contextMenu.add('QCheckBox', setText='Quads', setObjectName='chk010', setToolTip='Check for quad sided polys.')
+		tb000.contextMenu.add('QCheckBox', setText='Concave', setObjectName='chk011', setToolTip='Check for concave polys.')
+		tb000.contextMenu.add('QCheckBox', setText='Non-Planar', setObjectName='chk003', setToolTip='Check for non-planar polys.')
+		tb000.contextMenu.add('QCheckBox', setText='Holed', setObjectName='chk012', setToolTip='Check for holed polys.')
+		tb000.contextMenu.add('QCheckBox', setText='Lamina', setObjectName='chk018', setChecked=True, setToolTip='Check for lamina polys.')
+		tb000.contextMenu.add('QCheckBox', setText='Shared UV\'s', setObjectName='chk016', setToolTip='Unshare uvs that are shared across vertices.')
+		# tb000.contextMenu.add('QCheckBox', setText='Invalid Components', setObjectName='chk019', setToolTip='Check for invalid components.')
+		tb000.contextMenu.add('QCheckBox', setText='Zero Face Area', setObjectName='chk013', setChecked=True, setToolTip='Check for 0 area faces.')
+		tb000.contextMenu.add('QDoubleSpinBox', setPrefix='Face Area Tolerance:   ', setObjectName='s006', setMinMax_='0.0-10 step.000010', setValue=0.000010, setToolTip='Tolerance for face areas.')
+		tb000.contextMenu.add('QCheckBox', setText='Zero Length Edges', setObjectName='chk014', setChecked=True, setToolTip='Check for 0 length edges.')
+		tb000.contextMenu.add('QDoubleSpinBox', setPrefix='Edge Length Tolerance: ', setObjectName='s007', setMinMax_='0.0-10 step.000010', setValue=0.000010, setToolTip='Tolerance for edge length.')
+		tb000.contextMenu.add('QCheckBox', setText='Zero UV Face Area', setObjectName='chk015', setToolTip='Check for 0 uv face area.')
+		tb000.contextMenu.add('QDoubleSpinBox', setPrefix='UV Face Area Tolerance:', setObjectName='s008', setDisabled=True, setMinMax_='0.0-10 step.000010', setValue=0.000010, setToolTip='Tolerance for uv face areas.')
+		tb000.contextMenu.add('QCheckBox', setText='Overlapping Faces', setObjectName='chk025', setToolTip='Find any overlapping duplicate faces. (can be very slow on dense objects)')
+		tb000.contextMenu.add('QCheckBox', setText='Overlapping Duplicate Objects', setObjectName='chk022', setToolTip='Find any duplicate overlapping geometry at the object level.')
+		tb000.contextMenu.add('QCheckBox', setText='Omit Selected Objects', setObjectName='chk023', setDisabled=True, setToolTip='Overlapping Duplicate Objects: Search for duplicates of any selected objects while omitting the initially selected objects.')
+		tb000.contextMenu.chk013.toggled.connect(lambda state: tb000.contextMenu.s006.setEnabled(True if state else False))
+		tb000.contextMenu.chk014.toggled.connect(lambda state: tb000.contextMenu.s007.setEnabled(True if state else False))
+		tb000.contextMenu.chk015.toggled.connect(lambda state: tb000.contextMenu.s008.setEnabled(True if state else False))
+		tb000.contextMenu.chk022.stateChanged.connect(lambda state: self.toggleWidgets(tb000.contextMenu, setDisabled='chk002-3,chk005,chk010-21,chk024,s006-8', setEnabled='chk023') if state 
+														else self.toggleWidgets(tb000.contextMenu, setEnabled='chk002-3,chk005,chk010-21,s006-8', setDisabled='chk023')) #disable non-relevant options.
+		#sync widgets
+		self.sb.setSyncAttributesConnections(tb000.contextMenu.chk004, self.edit_submenu_ui.chk004, attributes='setChecked')
+		self.sb.setSyncAttributesConnections(tb000.contextMenu.chk010, self.edit_submenu_ui.chk010, attributes='setChecked')
 
 
 	def cmb000(self, index=-1):
@@ -91,6 +91,7 @@ class Edit_maya(Edit, Slots_maya):
 		allMeshes = int(tb.contextMenu.chk005.isChecked()) #[0] All selectable meshes
 		repair = tb.contextMenu.chk004.isChecked() #repair or select only
 		quads = int(tb.contextMenu.chk010.isChecked()) #[3] check for quads polys
+		mergeVertices = tb.contextMenu.chk024.isChecked()
 		nsided = int(tb.contextMenu.chk002.isChecked()) #[4] check for n-sided polys
 		concave = int(tb.contextMenu.chk011.isChecked()) #[5] check for concave polys
 		holed = int(tb.contextMenu.chk012.isChecked()) #[6] check for holed polys
@@ -106,22 +107,28 @@ class Edit_maya(Edit, Slots_maya):
 		lamina = -int(tb.contextMenu.chk018.isChecked()) #[16] check for lamina polys [default -1]
 		splitNonManifoldVertex = tb.contextMenu.chk021.isChecked()
 		invalidComponents = 0 #int(tb.contextMenu.chk019.isChecked()) #[17] a guess what this arg does. not checked. default is 0.
+		overlappingFaces = tb.contextMenu.chk025.isChecked()
 		overlappingDuplicateObjects = tb.contextMenu.chk022.isChecked() #find overlapping geometry at object level.
 		omitSelectedObjects = tb.contextMenu.chk023.isChecked() #Search for duplicates of any selected objects while omitting the initially selected objects.
-
-		# if tb.contextMenu.chk005.isChecked(): #All Geometry. Select components for cleanup from all visible geometry in the scene
-		# 	scene = pm.ls(visible=1, geometry=1)
-		# 	[pm.select (geometry, add=1) for geometry in scene]
 
 		objects = pm.ls(sl=1, transforms=1)
 
 		if overlappingDuplicateObjects:
 			duplicates = self.getOverlappingDuplicateObjects(omitInitialObjects=omitSelectedObjects, select=True, verbose=True)
-			if repair: #repair
-				pm.delete(duplicates)
+			self.messageBox('Found {} duplicate overlapping objects.'.format(len(duplicates)), messageType='Result')
+			pm.delete(duplicates) if repair else pm.select(duplicates)
 			return
 
-		self.cleanGeometry(allMeshes=allMeshes, repair=repair, quads=quads, nsided=nsided, concave=concave, holed=holed, nonplanar=nonplanar, 
+		if mergeVertices:
+			[print (obj.vtx[:]) for obj in objects]
+			[pm.polyMergeVertex(obj.vtx[:], distance=0.0001) for obj in objects] #merge vertices on each object.
+
+		if overlappingFaces:
+			duplicates = self.getOverlappingFaces(objects)
+			self.messageBox('Found {} duplicate overlapping faces.'.format(len(duplicates)), messageType='Result')
+			pm.delete(duplicates) if repair else pm.select(duplicates, add=1)
+
+		self.cleanGeometry(objects, allMeshes=allMeshes, repair=repair, quads=quads, nsided=nsided, concave=concave, holed=holed, nonplanar=nonplanar, 
 			zeroGeom=zeroGeom, zeroGeomTol=zeroGeomTol, zeroEdge=zeroEdge, zeroEdgeTol=zeroEdgeTol, zeroMap=zeroMap, zeroMapTol=zeroMapTol, 
 			sharedUVs=sharedUVs, nonmanifold=nonmanifold, invalidComponents=invalidComponents, splitNonManifoldVertex=splitNonManifoldVertex)
 
@@ -255,12 +262,13 @@ class Edit_maya(Edit, Slots_maya):
 		pm.mel.performTransferShadingSets(0)
 
 
-	def cleanGeometry(self, allMeshes=False, repair=False, quads=False, nsided=False, concave=False, holed=False, nonplanar=False, 
+	def cleanGeometry(self, objects, allMeshes=False, repair=False, quads=False, nsided=False, concave=False, holed=False, nonplanar=False, 
 					zeroGeom=False, zeroGeomTol=0.000010, zeroEdge=False, zeroEdgeTol=0.000010, zeroMap=False, zeroMapTol=0.000010, 
 					sharedUVs=False, nonmanifold=False, lamina=False, invalidComponents=False, splitNonManifoldVertex=False, historyOn=True):
 		'''Select or remove unwanted geometry from a polygon mesh.
 
 		:Parameters:
+			objects (str)(obj)(list) = The polygon objects to clean.
 			allMeshes (bool) = Clean all geomtry in the scene instead of only the current selection.
 			repair (bool) = Attempt to repair instead of just selecting geometry.
 		'''
@@ -268,13 +276,15 @@ class Edit_maya(Edit, Slots_maya):
 				allMeshes, 1 if repair else 2, historyOn, quads, nsided, concave, holed, nonplanar, zeroGeom, zeroGeomTol, 
 				zeroEdge, zeroEdgeTol, zeroMap, zeroMapTol, sharedUVs, nonmanifold, lamina, invalidComponents)
 		command = 'polyCleanupArgList 4 {'+arg_list+'}' # command = 'polyCleanup '+arg_list #(not used because of arg count error, also the quotes in the arg list would need to be removed). 
-		mel.eval(command); #print (command)
 
 		if splitNonManifoldVertex: #Split Non-Manifold Vertex
 			nonManifoldVerts = self.findNonManifoldVertex(objects, select=2) #Select: 0=off, 1=on, 2=on while keeping any existing vertex selections. (default: 1)
 			if repair:
 				for vertex in nonManifoldVerts:
 					self.splitNonManifoldVertex(vertex, select=True) #select(bool): Select the vertex after the operation. (default: True)
+
+		pm.select(objects)
+		mel.eval(command); #print (command)
 
 
 	def getOverlappingDuplicateObjects(self, objects=[], omitInitialObjects=False, select=False, verbose=False):
@@ -503,7 +513,7 @@ class Edit_maya(Edit, Slots_maya):
 				Slots_maya.viewPortMessage("<hl>"+str(nGons[0])+"</hl> N-Gon(s) found.")
 
 
-	def getOverlappingVertices(objects, threshold=0.0003):
+	def getOverlappingVertices(self, objects, threshold=0.0003):
 		'''
 		'''
 		import maya.OpenMaya as om
@@ -526,6 +536,40 @@ class Edit_maya(Edit, Slots_maya):
 						result.append(ii)
 
 		return result
+
+
+	def getOverlappingFaces(self, objects):
+		'''Get any duplicate overlapping faces of the given objects.
+
+		::Parameters:
+			objects (str)(obj)(list) = Faces or polygon objects.
+
+		:Return:
+			(list) duplicate overlapping faces.
+
+		ex. call: pm.select(getOverlappingFaces(selection))
+		'''
+		if not pm.nodeType(objects[0])=='mesh': #if the objects are not faces.
+			duplicates = [self.getOverlappingFaces(obj.faces) for obj in pm.ls(objects, objectsOnly=1)]
+			return [i for sublist in duplicates for i in sublist] #flatten list.
+
+		duplicates=[]
+
+		face = pm.ls(objects)[0]
+		face_vtx_positions = [v.getPosition() for v in pm.ls(pm.polyListComponentConversion(face, toVertex=1), flatten=1)]
+
+		otherFaces = [f for f in objects if f!=face]
+		for otherFace in otherFaces:
+			otherFace_vtx_positions = [v.getPosition() for v in pm.ls(pm.polyListComponentConversion(otherFace, toVertex=1), flatten=1)]
+
+			if face_vtx_positions==otherFace_vtx_positions: #duplicate found.
+				duplicates.append(otherFace)
+				otherFaces.remove(otherFace)
+
+		if otherFaces:
+			duplicates+=self.getOverlappingFaces(otherFaces) #after adding any found duplicates, call again with any remaining faces.
+
+		return duplicates
 
 
 

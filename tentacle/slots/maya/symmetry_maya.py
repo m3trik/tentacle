@@ -54,8 +54,8 @@ class Symmetry_maya(Symmetry, Slots_maya):
 
 		tolerance = 0.25
 		pm.symmetricModelling(edit=True, symmetry=state, axis=axis, about=space, tolerance=tolerance)
-		if state:
-			self.messageBox('Symmetry: <hl>{}</hl>'.format(axis.upper()))
+		# if state:
+		# 	self.messageBox('Symmetry: <hl>{}</hl>'.format(axis.upper(), messageType='Result'))
 
 
 

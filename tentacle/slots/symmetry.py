@@ -55,4 +55,22 @@ class Symmetry(Slots):
 		'''
 		self.symmetry_ui.chk005.setChecked(False) #uncheck symmetry:topological
 
-	
+
+
+
+
+
+
+
+
+# -----------------------------------------------
+# Notes
+# -----------------------------------------------
+
+
+
+#deprecated:
+		#sync widgets
+		# self.sb.setSyncAttributesConnections(self.transform_ui.menu_.chk000, self.transform_submenu_ui.chk000, attributes='setChecked')
+		# self.sb.setSyncAttributesConnections(self.transform_ui.menu_.chk001, self.transform_submenu_ui.chk001, attributes='setChecked')
+		# self.sb.setSyncAttributesConnections(self.transform_ui.menu_.chk002, self.transform_submenu_ui.chk002, attributes='setChecked')

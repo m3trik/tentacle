@@ -93,8 +93,8 @@
     </property>
     <property name="geometry">
      <rect>
-      <x>140</x>
-      <y>250</y>
+      <x>105</x>
+      <y>290</y>
       <width>141</width>
       <height>19</height>
      </rect>
@@ -106,7 +106,7 @@
      </size>
     </property>
     <property name="toolTip">
-     <string>Mirror: Toggle object space and world space.</string>
+     <string>Mirror: Mirror in world space instead of object space.</string>
     </property>
     <property name="layoutDirection">
      <enum>Qt::RightToLeft</enum>
@@ -223,8 +223,8 @@
     </property>
     <property name="geometry">
      <rect>
-      <x>100</x>
-      <y>280</y>
+      <x>105</x>
+      <y>320</y>
       <width>141</width>
       <height>19</height>
      </rect>
@@ -236,13 +236,59 @@
      </size>
     </property>
     <property name="toolTip">
-     <string>Mirror: Toggle object space and world space.</string>
+     <string>Mirror: Perform mirror along the negative axis.</string>
     </property>
     <property name="layoutDirection">
      <enum>Qt::RightToLeft</enum>
     </property>
     <property name="text">
      <string>Mirror:Negative Axis ±</string>
+    </property>
+    <property name="checkable">
+     <bool>true</bool>
+    </property>
+    <property name="checked">
+     <bool>true</bool>
+    </property>
+    <property name="autoDefault">
+     <bool>false</bool>
+    </property>
+    <property name="default">
+     <bool>false</bool>
+    </property>
+    <property name="flat">
+     <bool>false</bool>
+    </property>
+    <property name="bnabled" stdset="0">
+     <bool>true</bool>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="chk007">
+    <property name="enabled">
+     <bool>true</bool>
+    </property>
+    <property name="geometry">
+     <rect>
+      <x>105</x>
+      <y>260</y>
+      <width>141</width>
+      <height>19</height>
+     </rect>
+    </property>
+    <property name="maximumSize">
+     <size>
+      <width>16777215</width>
+      <height>19</height>
+     </size>
+    </property>
+    <property name="toolTip">
+     <string>Mirror: Merge the mirrored geometry with the original.</string>
+    </property>
+    <property name="layoutDirection">
+     <enum>Qt::RightToLeft</enum>
+    </property>
+    <property name="text">
+     <string>Mirror:Merge ±</string>
     </property>
     <property name="checkable">
      <bool>true</bool>

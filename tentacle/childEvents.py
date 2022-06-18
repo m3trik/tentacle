@@ -101,7 +101,7 @@ class EventFactoryFilter(QtCore.QObject):
 					pass; #print ("# Error: {}.EventFactoryFilter.initWidgets({}, {}): {}. #".format(__name__, ui, widgetName, error))
 
 				if derivedType in ('QPushButton', 'QLabel'): #widget types to resize and center.
-					if uiLevel<3:
+					if uiLevel<=2:
 						EventFactoryFilter.resizeAndCenterWidget(widget)
 
 				elif derivedType=='QWidget': #widget types to set an initial state as hidden.
@@ -111,7 +111,7 @@ class EventFactoryFilter(QtCore.QObject):
 
 	def mouseTracking(self, ui):
 		'''Get the widget(s) currently under the mouse cursor, and manage mouse grab and event handling for those widgets.
-		Used to trigger widget evemts while in the mouse button down state.
+		Primarily used to trigger widget events while moving the cursor in the mouse button down state.
 
 		:Parameters:
 			ui (str)(obj) = The ui name, or ui object. ie. 'polygons' or <polygons>
@@ -120,45 +120,39 @@ class EventFactoryFilter(QtCore.QObject):
 		widgetsUnderMouse = [] #list of widgets currently under the mouse cursor and their parents. in hierarchical order. ie. [[<widgets.pushButton.PushButton object at 0x00000000045F6948>, <PySide2.QtWidgets.QMainWindow object at 0x00000000045AA8C8>, <__main__.Main_max object at 0x000000000361F508>, <PySide2.QtWidgets.QWidget object at 0x00000000036317C8>]]
 		trackedWidgets = self.sb.getWidget(ui=ui, tracked=True)
 
-		for widget in trackedWidgets: #get all widgets from the current ui.
-
-			try: # if hasattr(widget, 'rect'):
-				widgetName = self.sb.getWidgetName(widget, ui)
-			except KeyError as error: #ignore any widgets not having the 'rect' attribute.
-				self.initWidgets(ui, widget) #initialize the widget to set things like the event filter and styleSheet.
-				self.sb.connectSlots(ui, widget)
-				widgetName = self.sb.getWidgetName(widget, ui)
+		for widget in trackedWidgets: #get all tracked widgets of the current ui.
+			widgetName = self.sb.getWidgetName(widget, ui)
 
 			try:
 				if widget.rect().contains(widget.mapFromGlobal(QtGui.QCursor.pos())): #if mouse over widget:
-					# print (widget.objectName(), 'mouseTracking')
+					# print ('mouseTracking: {}.{}'.format(self.sb.getUiName(ui), widgetName))
 					if not widget in self._mouseOver: #if widget is already in the mouseOver list, no need to re-process the events.
 						QtWidgets.QApplication.sendEvent(widget, self.enterEvent_)
 						self._mouseOver.append(widget)
 
-						if not widgetName=='mainWindow':
-							if widget.underMouse() and widget.isEnabled():
-								parentWidgets = self.sb.getParentWidgets(widget)
-								widgetsUnderMouse.append(parentWidgets)
+						if widget.underMouse() and widget.isEnabled():
+							parentWidgets = self.sb.getParentWidgets(widget)
+							widgetsUnderMouse.append(parentWidgets)
 				else:
 					if widget in self._mouseOver: #if widget is in the mouseOver list, but the mouse is no longer over the widget:
 						QtWidgets.QApplication.sendEvent(widget, self.leaveEvent_)
 						self._mouseOver.remove(widget)
 						ui = self.sb.getUi(ui)
 						if ui.mainWindow.isVisible():
-							ui.mainWindow.grabMouse()
 							self._mouseGrabber = ui.mainWindow
+							self._mouseGrabber.grabMouse()
 
 			except (AttributeError, TypeError) as error:
 				pass; #print ('# Error: {}.EventFactoryFilter.mouseTracking: {}. #'.format(__name__, error))
 
 
 		widgetsUnderMouse.sort(key=len) #sort 'widgetsUnderMouse' by ascending length so that lowest level child widgets get grabMouse last.
-		for widgetList in widgetsUnderMouse:
-			widget = widgetList[0]
-			widget.grabMouse() #set widget to receive mouse events.
-			self._mouseGrabber = widget
-			break; #print (widget.objectName()); # print('grab:', widget.mouseGrabber().objectName(), '(childEvents)')
+		try:
+			self._mouseGrabber = widgetsUnderMouse[-1][0]
+			self._mouseGrabber.grabMouse() #set widget to receive mouse events.
+			# print ('_mouseGrabber:', self.tcl.mouseGrabber().objectName(), widgetsUnderMouse)
+		except IndexError as error:
+			pass
 
 
 	@staticmethod
@@ -284,7 +278,7 @@ class EventFactoryFilter(QtCore.QObject):
 			if self.sb.prefix(self.widget, 'i'): #set the stacked widget.
 				submenu = self.sb.getUiName(self.widget.whatsThis(), level=2)
 				if submenu and not self.uiName==submenu: #do not reopen the submenu if it is already open.
-					self.uiName = self.tcl.setSubUi(self.widget, submenu)
+					self.uiName = self.tcl.setSubUi(submenu, self.widget)
 
 			elif self.widgetName=='return_area':
 				self.tcl.setPrevUi()
@@ -362,7 +356,6 @@ class EventFactoryFilter(QtCore.QObject):
 	def sendKeyPressEvent(self, key, modifier=QtCore.Qt.NoModifier):
 		'''
 		:Parameters:
-			widget (obj) = 
 			key (obj) = 
 			modifier (obj = 
 		'''
