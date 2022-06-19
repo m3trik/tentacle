@@ -10,7 +10,7 @@ class EventFactoryFilter(QtCore.QObject):
 	:Parameters:
 		tcl (obj) = tcl widget instance.
 	'''
-	_mouseOver=[] #list of widgets currently under the mouse cursor.
+	_mouseOver=[] #list of widgets currently under the mouse cursor. (Limited to those widgets set as mouse tracked)
 	_mouseGrabber=None
 	_mouseHover = QtCore.Signal(bool)
 	_mousePressPos = QtCore.QPoint()
@@ -117,42 +117,31 @@ class EventFactoryFilter(QtCore.QObject):
 			ui (str)(obj) = The ui name, or ui object. ie. 'polygons' or <polygons>
 		'''
 		ui = self.sb.getUi(ui)
-		widgetsUnderMouse = [] #list of widgets currently under the mouse cursor and their parents. in hierarchical order. ie. [[<widgets.pushButton.PushButton object at 0x00000000045F6948>, <PySide2.QtWidgets.QMainWindow object at 0x00000000045AA8C8>, <__main__.Main_max object at 0x000000000361F508>, <PySide2.QtWidgets.QWidget object at 0x00000000036317C8>]]
 		trackedWidgets = self.sb.getWidget(ui=ui, tracked=True)
 
-		for widget in trackedWidgets: #get all tracked widgets of the current ui.
-			widgetName = self.sb.getWidgetName(widget, ui)
+		mouseOver = [w for w in trackedWidgets if w.rect().contains(w.mapFromGlobal(QtGui.QCursor.pos()))] #get all widgets currently under mouse cursor.
+		#[print ('mouseOver:', w.objectName()) for w in trackedWidgets if w.rect().contains(w.mapFromGlobal(QtGui.QCursor.pos()))] #debug
 
-			try:
-				if widget.rect().contains(widget.mapFromGlobal(QtGui.QCursor.pos())): #if mouse over widget:
-					# print ('mouseTracking: {}.{}'.format(self.sb.getUiName(ui), widgetName))
-					if not widget in self._mouseOver: #if widget is already in the mouseOver list, no need to re-process the events.
-						QtWidgets.QApplication.sendEvent(widget, self.enterEvent_)
-						self._mouseOver.append(widget)
+		#send enter / leave events.
+		[QtWidgets.QApplication.sendEvent(w, self.leaveEvent_) for w in self._mouseOver if not w in mouseOver] #send leave events for widgets no longer in mouseOver.
+		[QtWidgets.QApplication.sendEvent(w, self.enterEvent_) for w in mouseOver if not w in self._mouseOver] #send enter events for any new widgets in mouseOver. 
 
-						if widget.underMouse() and widget.isEnabled():
-							parentWidgets = self.sb.getParentWidgets(widget)
-							widgetsUnderMouse.append(parentWidgets)
-				else:
-					if widget in self._mouseOver: #if widget is in the mouseOver list, but the mouse is no longer over the widget:
-						QtWidgets.QApplication.sendEvent(widget, self.leaveEvent_)
-						self._mouseOver.remove(widget)
-						ui = self.sb.getUi(ui)
-						if ui.mainWindow.isVisible():
-							self._mouseGrabber = ui.mainWindow
-							self._mouseGrabber.grabMouse()
-
-			except (AttributeError, TypeError) as error:
-				pass; #print ('# Error: {}.EventFactoryFilter.mouseTracking: {}. #'.format(__name__, error))
-
-
-		widgetsUnderMouse.sort(key=len) #sort 'widgetsUnderMouse' by ascending length so that lowest level child widgets get grabMouse last.
 		try:
-			self._mouseGrabber = widgetsUnderMouse[-1][0]
+			index = -1
+			self._mouseGrabber = mouseOver[index]
 			self._mouseGrabber.grabMouse() #set widget to receive mouse events.
-			# print ('_mouseGrabber:', self.tcl.mouseGrabber().objectName(), widgetsUnderMouse)
+			while not self._mouseGrabber.underMouse():
+				index-=1
+				self._mouseGrabber = mouseOver[index]
+				self._mouseGrabber.grabMouse() #set widget to receive mouse events.
+			# print ('\n_mouseGrabber:', self.tcl.mouseGrabber().objectName()); [print(w) for w in self._mouseOver] #debug
+
 		except IndexError as error:
-			pass
+			# if ui.mainWindow.isVisible():
+			self._mouseGrabber = ui.mainWindow
+			self._mouseGrabber.grabMouse()
+
+		self._mouseOver = mouseOver
 
 
 	@staticmethod
@@ -414,6 +403,31 @@ print (__name__)
 
 
 #deprecated:
+
+
+		# for w in trackedWidgets: #get all tracked widgets of the current ui.
+
+		# 	# try:
+		# 	if w.rect().contains(w.mapFromGlobal(QtGui.QCursor.pos())): #if mouse cursor is over widget:
+		# 		# print ('mouseTracking: {}.{}'.format(self.sb.getUiName(ui), self.sb.getWidgetName(widget, ui))) #debug
+		# 		if not w in self._mouseOver: #if widget already in mouseOver list, do not re-process the events.
+		# 			self._mouseOver.append(w)
+		# 			QtWidgets.QApplication.sendEvent(w, self.enterEvent_)
+
+		# 	else:
+		# 		try:
+		# 			self._mouseOver.remove(w)
+		# 			QtWidgets.QApplication.sendEvent(w, self.leaveEvent_)
+		# 		except ValueError as error:
+		# 			pass
+
+			# except (AttributeError, TypeError) as error:
+			# 	pass; #print ('# Error: {}.EventFactoryFilter.mouseTracking: {}. #'.format(__name__, error)) #debug
+
+
+# if widget.underMouse() and widget.isEnabled():
+# 	parentWidgets = self.sb.getParentWidgets(widget)
+# 	widgetsUnderMouse.append(parentWidgets)
 
 
 # try: #if callable(method): #attempt to clear any current menu items.

@@ -94,7 +94,7 @@ class Switchboard(QUiLoader, StyleSheet):
 		'QProgressBar':'valueChanged',
 		}
 
-	trackedWidgets = [ #widget types for mouse tracking (on uiLevels lower than 3).
+	trackedWidgets = [ #widget types for mouse tracking.
 		'QWidget', 
 		'QLabel', 
 		'QPushButton', 
@@ -1207,7 +1207,7 @@ class Switchboard(QUiLoader, StyleSheet):
 		method = getattr(classInst, widgetName, None) #use 'widgetName' to get the corresponding method of the same name. ie. method <b006> from widget 'b006' else None
 		docString = getattr(method, '__doc__', None)
 		prefix = self.prefix(widgetName) #returns an string alphanumberic prefix if widgetName startswith a series of alphanumberic charsinst is followed by three integers. ie. 'cmb' from 'cmb015'
-		isTracked = True if derivedType in self.trackedWidgets and self.getUiLevel(uiName)<3 else False
+		isTracked = True if derivedType in self.trackedWidgets else False # and self.getUiLevel(uiName)<3
 
 		self.widgets(uiName).update( #add the widget and a dict containing some properties.
 					{widget:{
