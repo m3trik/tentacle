@@ -151,8 +151,6 @@ class Tcl(QtWidgets.QStackedWidget):
 			self.cloneWidgetsAlongPath(uiName) #re-construct any widgets from the previous ui that fall along the plotted path.
 
 		self.resize(self.sb.sizeX, self.sb.sizeY)
-		QtWidgets.QApplication.sendEvent(w, self.childEvents.enterEvent_)
-		w.grabMouse() #set widget to receive mouse events.
 
 
 	def setPrevUi(self):

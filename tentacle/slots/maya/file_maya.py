@@ -341,8 +341,8 @@ class File_maya(File, Slots_maya):
 		return result
 
 
-	def referenceScene(self, scene, remove=False):
-		''':Parameters::Parameters::Parameters::Parameters:
+	def referenceScene(self, scene, remove=False, lockReference=False):
+		'''Create a reference to a Maya scene.
 
 		:Parameters:
 			remove (bool) = Remove a previously referenced scene.
@@ -352,8 +352,8 @@ class File_maya(File, Slots_maya):
 			pm.mel.file(scene, removeReference=True)
 
 		else: #load reference.
-			namespace = scene.split('\\')[-1].rstrip('.mb').rstrip('.ma')
-			pm.mel.file(scene, reference=True, namespace=namespace, groupReference=True, lockReference=True, loadReferenceDepth='topOnly', force=True)
+			namespace = scene.split('\\')[-1].rstrip('.mb').rstrip('.ma') #ex. 'sceneName' from 'sceneName.mb'
+			pm.mel.file(scene, reference=True, namespace=namespace, groupReference=True, lockReference=lockReference, loadReferenceDepth='topOnly', force=True)
 
 
 

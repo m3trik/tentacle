@@ -45,8 +45,8 @@ chk015.stateChanged.connect(lambda state: self.toggleWidgets(ctx, setDisabled='t
 self.sb.setSyncAttributesConnections(cmb003.menu_.chk023, self.transform_submenu_ui.chk023, attributes='setChecked') #sync check state between submenu and static menu item.
 
 #setText on state change.
-chk004.stateChanged.connect(lambda state: ctx.chk004.setText('Repair' if state else 'Select Only')) #set button text to reflect current state.
-ctx.chk026.stateChanged.connect(lambda state: ctx.chk026.setText('Stack Similar: '+str(state)))
+chk004.stateChanged.connect(lambda state: chk004.setText('Repair' if state else 'Select Only')) #set button text to reflect current state.
+chk026.stateChanged.connect(lambda state: chk026.setText('Stack Similar: '+str(state)))
 
 #set multiple connections using the Slots.connect_ method.
 self.connect_('chk006-9', 'toggled', self.chk006_9, ctx)

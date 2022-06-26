@@ -9,21 +9,21 @@ class Selection_maya(Selection, Slots_maya):
 		Slots_maya.__init__(self, *args, **kwargs)
 		Selection.__init__(self, *args, **kwargs)
 
-		cmb = self.selection_ui.draggable_header.contextMenu.cmb000
+		dh = self.selection_ui.draggable_header
 		items = ['Polygon Selection Constraints']
-		cmb.addItems_(items, 'Selection Editors:')
+		dh.contextMenu.cmb000.addItems_(items, 'Selection Editors:')
 
-		cmb = self.selection_ui.cmb002
+		cmb002 = self.selection_ui.cmb002
 		items = ['IK Handles','Joints','Clusters','Lattices','Sculpt Objects','Wires','Transforms','Geometry','NURBS Curves','NURBS Surfaces','Polygon Geometry','Cameras','Lights','Image Planes','Assets','Fluids','Particles','Rigid Bodies','Rigid Constraints','Brushes','Strokes','Dynamic Constraints','Follicles','nCloths','nParticles','nRigids']
-		cmb.addItems_(items, 'By Type:')
+		cmb002.addItems_(items, 'By Type:')
 
-		cmb = self.selection_ui.cmb003
+		cmb003 = self.selection_ui.cmb003
 		items = ['Verts', 'Vertex Faces', 'Vertex Perimeter', 'Edges', 'Edge Loop', 'Edge Ring', 'Contained Edges', 'Edge Perimeter', 'Border Edges', 'Faces', 'Face Path', 'Contained Faces', 'Face Perimeter', 'UV\'s', 'UV Shell', 'UV Shell Border', 'UV Perimeter', 'UV Edge Loop', 'Shell', 'Shell Border'] 
-		cmb.addItems_(items, 'Convert To:')
+		cmb003.addItems_(items, 'Convert To:')
 
-		cmb = self.selection_ui.cmb005
+		cmb005 = self.selection_ui.cmb005
 		items = ['Angle', 'Border', 'Edge Loop', 'Edge Ring', 'Shell', 'UV Edge Loop']
-		items = cmb.addItems_(items, 'Off')
+		cmb005.addItems_(items, 'Off')
 
 
 	def txt001(self):

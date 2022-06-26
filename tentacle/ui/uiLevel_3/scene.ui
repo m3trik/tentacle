@@ -10,7 +10,7 @@
     <x>0</x>
     <y>0</y>
     <width>279</width>
-    <height>163</height>
+    <height>198</height>
    </rect>
   </property>
   <property name="minimumSize">
@@ -109,10 +109,41 @@
                </size>
               </property>
               <property name="toolTip">
-               <string>Convert the case of scene object names.</string>
+               <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Convert the case of scene object names.&lt;/p&gt;&lt;p&gt;If nothing is selected all scene objects will be renamed.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
               </property>
               <property name="text">
                <string>Convert Case</string>
+              </property>
+              <property name="iconSize">
+               <size>
+                <width>18</width>
+                <height>18</height>
+               </size>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="PushButton" name="tb001">
+              <property name="enabled">
+               <bool>true</bool>
+              </property>
+              <property name="minimumSize">
+               <size>
+                <width>0</width>
+                <height>20</height>
+               </size>
+              </property>
+              <property name="maximumSize">
+               <size>
+                <width>999</width>
+                <height>20</height>
+               </size>
+              </property>
+              <property name="toolTip">
+               <string>Rename objects with a suffix defined by its location from origin.</string>
+              </property>
+              <property name="text">
+               <string>Suffix By Location</string>
               </property>
               <property name="iconSize">
                <size>
@@ -196,7 +227,7 @@
                </size>
               </property>
               <property name="toolTip">
-               <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Rename: Find&lt;/p&gt;&lt;p&gt;Find matches to rename from all scene objects.&lt;/p&gt;&lt;p&gt;standard wildcards:&lt;/p&gt;&lt;p&gt;frm - Search exact.&lt;/p&gt;&lt;p&gt;*frm* - Search contains chars.*frm - Search endswith chars.&lt;/p&gt;&lt;p&gt;*frm - Search endswith chars.&lt;/p&gt;&lt;p&gt;frm* - Search startswith chars.&lt;/p&gt;&lt;p&gt;frm|frm - Search any of. can be used in conjuction with other modifiers.&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;regex syntax:&lt;/p&gt;&lt;p&gt;(.) match any char. ex. '1..', '1111' #returns the regex object &amp;lt;111&amp;gt;&lt;/p&gt;&lt;p&gt;(^) match start. ex. '^11', '011' #returns None&lt;/p&gt;&lt;p&gt;($) match end. ex. '11$', '011' #returns the regex object &amp;lt;11&amp;gt;&lt;/p&gt;&lt;p&gt;(|) or. ex. re.match('1|0', '011') #returns the regex object &amp;lt;0&amp;gt;&lt;/p&gt;&lt;p&gt;(\A,\Z) beginning of a string and end of a string. ex. '\A011\Z', '011' #&lt;/p&gt;&lt;p&gt;(\b) empty string. (\B matches the empty string anywhere else). '\b(011)\b', '011 011 011' #&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+               <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Rename: &lt;span style=&quot; font-weight:600;&quot;&gt;Find&lt;/span&gt;&lt;/p&gt;&lt;p&gt;Find matches to rename from all scene objects.&lt;/p&gt;&lt;p&gt;If no objects are selected, all scene objects will be renamed.&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; text-decoration: underline;&quot;&gt;standard wildcards:&lt;/span&gt;&lt;/p&gt;&lt;p&gt;string - Search exact.&lt;/p&gt;&lt;p&gt;*string* - Search contains chars.*frm - Search endswith chars.&lt;/p&gt;&lt;p&gt;*string - Search endswith chars.&lt;/p&gt;&lt;p&gt;string* - Search startswith chars.&lt;/p&gt;&lt;p&gt;string|string - Search any of. can be used in conjuction with other modifiers.&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;regex syntax:&lt;/p&gt;&lt;p&gt;(.) match any char. ex. '1..', '1111' #returns the regex object &amp;lt;111&amp;gt;&lt;/p&gt;&lt;p&gt;(^) match start. ex. '^11', '011' #returns None&lt;/p&gt;&lt;p&gt;($) match end. ex. '11$', '011' #returns the regex object &amp;lt;11&amp;gt;&lt;/p&gt;&lt;p&gt;(|) or. ex. re.match('1|0', '011') #returns the regex object &amp;lt;0&amp;gt;&lt;/p&gt;&lt;p&gt;(\A,\Z) beginning of a string and end of a string. ex. '\A011\Z', '011' #&lt;/p&gt;&lt;p&gt;(\b) empty string. (\B matches the empty string anywhere else). '\b(011)\b', '011 011 011' #&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
               </property>
               <property name="layoutDirection">
                <enum>Qt::RightToLeft</enum>
@@ -236,7 +267,7 @@
                </size>
               </property>
               <property name="toolTip">
-               <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Rename: Replace with&lt;/p&gt;&lt;p&gt;wildcards:&lt;/p&gt;&lt;p&gt;'' (empty string) - strip from the result.&lt;/p&gt;&lt;p&gt;to - replace all.&lt;/p&gt;&lt;p&gt;*to* - replace only.&lt;/p&gt;&lt;p&gt;*to - replace suffix.&lt;/p&gt;&lt;p&gt;**to - append suffix.&lt;/p&gt;&lt;p&gt;to* - replace prefix.&lt;/p&gt;&lt;p&gt;to** - append prefix.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+               <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Rename: &lt;span style=&quot; font-weight:600;&quot;&gt;Replace with&lt;/span&gt;&lt;/p&gt;&lt;p&gt;If no objects are selected, all scene objects will be renamed.&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; text-decoration: underline;&quot;&gt;wildcards:&lt;/span&gt;&lt;/p&gt;&lt;p&gt;'' (empty string) - strip from the result.&lt;/p&gt;&lt;p&gt;string - replace all.&lt;/p&gt;&lt;p&gt;*string* - replace only.&lt;/p&gt;&lt;p&gt;*string - replace suffix.&lt;/p&gt;&lt;p&gt;**string - append suffix.&lt;/p&gt;&lt;p&gt;string* - replace prefix.&lt;/p&gt;&lt;p&gt;string** - append prefix.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
               </property>
               <property name="layoutDirection">
                <enum>Qt::RightToLeft</enum>

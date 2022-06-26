@@ -386,7 +386,7 @@ class Transform_blender(Transform, Slots_blender):
 
 
 	@Slots_blender.undoChunk
-	def resetXform(self, objects):
+	def resetTranslation(self, objects):
 		'''Reset the transformations on the given object(s). (unfreeze transforms)
 
 		:Parameters:

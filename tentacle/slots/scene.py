@@ -21,18 +21,20 @@ class Scene(Slots):
 		'''
 		self.scene_ui.t000.returnPressed.connect(self.t001) #preform rename on returnPressed
 
-		ctx = self.scene_ui.draggable_header.contextMenu
-		if not ctx.containsMenuItems:
-			ctx.add(self.ComboBox, setObjectName='cmb000', setToolTip='Scene Editors')
+		dh = self.scene_ui.draggable_header
+		dh.contextMenu.add(self.ComboBox, setObjectName='cmb000', setToolTip='Scene Editors')
 
-		ctx = self.scene_ui.t000.contextMenu
-		if not ctx.containsMenuItems:
-			ctx.add('QCheckBox', setText='Ignore Case', setObjectName='chk000', setToolTip='Search case insensitive.')
-			ctx.add('QCheckBox', setText='Regular Expression', setObjectName='chk001', setToolTip='When checked, regular expression syntax is used instead of the default \'*\' and \'|\' wildcards.')
+		t000 = self.scene_ui.t000
+		t000.contextMenu.add('QCheckBox', setText='Ignore Case', setObjectName='chk000', setToolTip='Search case insensitive.')
+		t000.contextMenu.add('QCheckBox', setText='Regular Expression', setObjectName='chk001', setToolTip='When checked, regular expression syntax is used instead of the default \'*\' and \'|\' wildcards.')
 
-		ctx = self.scene_ui.tb000.contextMenu
-		if not ctx.containsMenuItems:
-			ctx.add('QComboBox', addItems=['capitalize', 'upper', 'lower', 'swapcase', 'title'], setObjectName='cmb001', setToolTip='Set desired python case operator.')
+		tb000 = self.scene_ui.tb000
+		tb000.contextMenu.add('QComboBox', addItems=['capitalize', 'upper', 'lower', 'swapcase', 'title'], setObjectName='cmb001', setToolTip='Set desired python case operator.')
+
+		tb001 = self.scene_ui.tb001
+		tb001.contextMenu.add('QCheckBox', setText='Strip Trailing Integers', setObjectName='chk002', setChecked=True, setToolTip="Strip any trailing integers. ie. '123' of 'cube123'")
+		tb001.contextMenu.add('QCheckBox', setText='Strip Trailing Alphanumeric', setObjectName='chk003', setChecked=True, setToolTip="Strip any trailing uppercase alphanumeric chars that are prefixed with an underscore.  ie. 'A' of 'cube_A'")
+		tb001.contextMenu.add('QCheckBox', setText='Reverse', setObjectName='chk004', setToolTip='Reverse the naming order. (Farthest object first)')
 
 
 	def draggable_header(self, state=None):
@@ -205,18 +207,36 @@ class Scene(Slots):
 				else:
 					n = to_+frm_+name.split(frm_)[-1]
 
-			else:
-				if not to_: #if 'to_' is an empty string:
+			elif not to_: #if 'to_' is an empty string:
+				if frm.endswith('*') and not frm.startswith('*'): #strip only beginning chars.
+					if ignoreCase:
+						n = re.sub(frm_, '', name, 1, flags=re.IGNORECASE) #remove the first instance of frm_ from the string (case in-sensitive).
+					else:
+						n = name.replace(frm_, '', 1) #remove first instance of frm_ from the string.
+
+				elif frm.startswith('*') and not frm.endswith('*'): #strip only ending chars.
+					if ignoreCase:
+						n = re.sub(r'(.*)'+frm_, r'\1', name, flags=re.IGNORECASE) #remove the last instance of frm_ from the string (case in-sensitive).
+					else:
+						n = ''.join(name.rsplit(frm_, 1)) #remove last instance of frm_ from the string.
+
+				else:
 					if ignoreCase:
 						n = re.sub(frm_, '', name, flags=re.IGNORECASE) #remove frm_ from the string (case in-sensitive).
 					else:
 						n = name.replace(frm_, '') #remove frm_ from the string.
-				else: #else; replace whole name
-					n = to_
+			else: #else; replace whole name
+				n = to_
 
 			result.append((name, n))
 
 		return result
 
 
-	
+
+# -----------------------------------------------
+# Notes
+# -----------------------------------------------
+
+
+#deprecated:

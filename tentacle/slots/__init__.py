@@ -518,6 +518,34 @@ class Slots(QtCore.QObject):
 		return result
 
 
+	def clamp(x=0.0, minimum=0.0, maximum=1.0):
+		'''Clamps the value x between min and max.
+
+		:Parameters:
+			x (float) = 
+			minimum (float) = 
+			maximum (float) = 
+
+		:Return:
+			(float)
+		'''
+		if minimum < maximum:
+			realmin = minimum
+			realmax = maximum
+		else:
+			realmin = maximum
+			realmax = minimum
+
+		if x < realmin:
+			result = realmin
+		elif x > realmax:
+			result = realmax
+		else:
+			result = x
+
+		return result
+
+
 	@staticmethod
 	def normalize(vector, amount=1):
 		'''Normalize a vector
@@ -575,6 +603,56 @@ class Slots(QtCore.QObject):
 		length = sqrt(x**2 + y**2 + z**2)
 
 		return length
+
+
+	@staticmethod
+	def dotProduct(v1, v2, normalizeInputs=False):
+		'''Returns the dot product of two 3D float arrays.  If $normalizeInputs
+		is set then the vectors are normalized before the dot product is calculated.
+
+		:Parameters:
+			v1 (list) = The first 3 point vector. 
+			v2 (list) = The second 3 point vector.
+			normalizeInputs (int) = Normalize v1, v2 before calculating the point float list.
+
+		:Return:
+			(float) Dot product of the two vectors.
+		'''
+		if normalizeInputs: #normalize the input vectors
+			v1 = Slots.normalize(v1)
+			v2 = Slots.normalize(v2)
+
+		return sum((a*b) for a, b in zip(v1, v2)) #the dot product
+
+
+	@staticmethod
+	def crossProduct(v1, v2, normalizeInputs=False, normalizeResult=False):
+		'''Given two float arrays of 3 values each, this procedure returns
+		the cross product of the two arrays as a float array of size 3.
+
+		:Parmeters:
+			v1 (list) = The first 3 point vector. 
+			v2 (list) = The second 3 point vector.
+			normalizeInputs (bool) = Normalize v1, v2 before calculating the point float list.
+			normalizeResult (bool) = Normalize the return value.
+
+		:Return:
+			(list) The cross product of the two vectors.
+		'''
+		if normalizeInputs: #normalize the input vectors
+			v1 = Slots.normalize(v1)
+			v2 = Slots.normalize(v2)
+
+		cross = [ #the cross product
+			v1[1]*v2[2] - v1[2]*v2[1],
+			v1[2]*v2[0] - v1[0]*v2[2],
+			v1[0]*v2[1] - v1[1]*v2[0]
+		]
+
+		if normalizeResult: #normalize the cross product result
+			cross = Slots.normalize(cross)
+
+		return cross
 
 
 	@staticmethod
@@ -730,13 +808,10 @@ class Slots(QtCore.QObject):
 		'''
 		from math import acos, degrees
 
-		def dotproduct(v1, v2):
-			return sum((a*b) for a, b in zip(v1, v2))
-
 		def length(v):
-			return (dotproduct(v, v))**0.5
+			return (Slots.dotProduct(v, v))**0.5
 
-		result = acos(dotproduct(v1, v2) / (length(v1) * length(v2)))
+		result = acos(Slots.dotProduct(v1, v2) / (length(v1) * length(v2)))
 
 		if degree:
 			result = round(degrees(result), 2)
@@ -802,6 +877,81 @@ class Slots(QtCore.QObject):
 		)
 
 		return result
+
+
+	@staticmethod
+	def xyzRotation(theta, axis, rotation=[]):
+		'''Get the rotation about the X,Y,Z axes (in rotation) given 
+		an angle for rotation (in radians) and an axis about which to 
+		do the rotation.
+
+		:Parameters:
+			theta (float) = 
+			axis (list) = X, Y, Z float values.
+			rotation (list) = 
+
+		:Return:
+			(list) 3 point rotation.
+		'''
+		import math
+
+		#set up the xyzw quaternion values
+		theta *= 0.5
+		w = math.cos(theta)
+		factor = math.sin(theta)
+		axisLen2 = Slots.dotProduct(axis, axis, 0)
+
+		if (axisLen2 != 1.0 and axisLen2 != 0.0):
+			factor /= math.sqrt(axisLen2)
+		x, y, z = factor * axis[0], factor * axis[1], factor * axis[2]
+
+		#setup rotation in a matrix
+		ww, xx, yy, zz = w*w, x*x, y*y, z*z
+		s = 2.0 / (ww + xx + yy + zz)
+		xy, xz, yz, wx, wy, wz = x*y, x*z, y*z, w*x, w*y, w*z
+		matrix = [
+			1.0 - s * (yy + zz),
+			s * (xy + wz),
+			s * (xz - wy),
+			None, None,
+			1.0 - s * (xx + zz),
+			s * (yz + wx),
+			None, None,
+			s * (yz - wx),
+			1.0 - s * (xx + yy)
+		]
+
+		#get x,y,z values for rotation
+		cosB = math.sqrt(matrix[0]*matrix[0] + matrix[1]*matrix[1])
+		if (cosB > 1.0e-10):
+			pi = 3.14159265
+	 
+			a, b, c = solution1 = [
+				math.atan2(matrix[6], matrix[10]),
+				math.atan2(-matrix[2], cosB),
+				math.atan2(matrix[1], matrix[0])
+			]
+
+			solution2 = [
+				a + (pi if a < pi else -pi),
+				(pi if b > -pi else -pi) - b,
+				c + (pi if c < pi else -pi)
+			]
+
+			if sum([abs(solution2[0]), abs(solution2[1]), abs(solution2[2])]) < sum([abs(solution1[0]), abs(solution1[1]), abs(solution1[2])]):
+
+				rotation = solution2
+			else:
+				rotation = solution1
+
+		else:
+			rotation = [
+				math.atan2(-matrix[9], matrix[5]),
+				math.atan2(-matrix[2], cosB),
+				0.0
+			]
+
+		return rotation
 
 
 

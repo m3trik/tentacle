@@ -64,6 +64,19 @@ class Scene_maya(Scene, Slots_maya):
 		self.setCase(objects, case)
 
 
+	def tb001(self, state=None):
+		'''Convert Case
+		'''
+		tb = self.scene_ui.tb001
+
+		stripTrailingInts = tb.contextMenu.chk002.isChecked()
+		stripTrailingAlpha = tb.contextMenu.chk003.isChecked()
+		reverse = tb.contextMenu.chk004.isChecked()
+
+		selection = pm.ls(sl=1, objectsOnly=1)
+		self.setSuffixByObjLocation(selection, stripTrailingInts=stripTrailingInts, stripTrailingAlpha=stripTrailingAlpha, reverse=reverse)
+
+
 	@Slots_maya.undo
 	def rename(self, frm, to, objects=[], regEx=False, ignoreCase=False):
 		'''Rename scene objects.
@@ -131,6 +144,45 @@ class Scene_maya(Scene, Slots_maya):
 				if not pm.ls(obj, readOnly=True)==[]: #ignore read-only errors.
 					print (name+': ', error)
 		# pm.undoInfo(closeChunk=1)
+
+
+	@Slots_maya.undo
+	def setSuffixByObjLocation(self, objects, stripTrailingInts=True, stripTrailingAlpha=True, reverse=False):
+		'''Rename objects with a suffix defined by its location from origin.
+
+		:Parameters:
+			objects (str)(int)(list) = The object(s) to rename.
+			stripTrailingInts (bool) = Strip any trailing integers. ie. 'cube123'
+			stripTrailingAlpha (bool) = Strip any trailing uppercase alphanumeric chars that are prefixed with an underscore.  ie. 'cube_A'
+			reverse (bool) = Reverse the naming order. (Farthest object first)
+		'''
+		import string
+		import re
+
+		length = len(objects)
+		if length<=26:
+			suffix = string.ascii_lowercase.upper()
+		else:
+			suffix = [str(n).zfill(len(str(length))) for n in range(length)]
+
+		ordered_objs = self.transform().orderByDistance(objects, reverse=reverse)
+
+		for n, obj in enumerate(ordered_objs):
+
+			current_name = obj.name()
+
+			if stripTrailingAlpha:
+				while len(current_name)>2 and current_name[-2]=='_' and current_name[-1].isupper():
+					current_name = current_name.rstrip(current_name[-2:])
+
+			if stripTrailingInts:
+				try:
+					trailing_ints = re.findall(r"\d+\s*$", current_name)[0]
+					current_name = current_name.rstrip(trailing_ints)
+				except IndexError as error:
+					pass
+
+			pm.rename(obj, current_name+'_'+suffix[n])
 
 
 

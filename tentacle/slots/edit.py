@@ -19,32 +19,33 @@ class Edit(Slots):
 					current_ui (lambda function) = Returns the current ui if it is either the parent or a child ui for the class; else, return the parent ui. ie. self.current_ui()
 					<name> (lambda function) = Returns the slot class instance of that name.  ie. self.polygons()
 		'''
-		ctx = self.edit_ui.draggable_header.contextMenu
-		if not ctx.containsMenuItems:
-			ctx.add(self.ComboBox, setObjectName='cmb000', setToolTip='Editors')
+		dh = self.edit_ui.draggable_header
+		dh.contextMenu.add(self.ComboBox, setObjectName='cmb000', setToolTip='Editors')
 
-		cmb = self.edit_ui.cmb001
-		cmb.beforePopupShown.connect(self.cmb001) #refresh comboBox contents before showing it's popup.
+		cmb001 = self.edit_ui.cmb001
+		cmb001.beforePopupShown.connect(self.cmb001) #refresh comboBox contents before showing it's popup.
 
-		ctx = self.edit_ui.tb001.contextMenu
-		if not ctx.containsMenuItems:
-			ctx.add('QCheckBox', setText='For All Objects', setObjectName='chk018', setChecked=True, setToolTip='Delete history on All objects or just those selected.')
-			ctx.add('QCheckBox', setText='Delete Unused Nodes', setObjectName='chk019', setChecked=True, setToolTip='Delete unused nodes.')
-			ctx.add('QCheckBox', setText='Delete Deformers', setObjectName='chk020', setToolTip='Delete deformers.')
-			ctx.add('QCheckBox', setText='Optimize Scene', setObjectName='chk030', setToolTip='Remove unused scene objects.')
+		tb001 = self.edit_ui.tb001
+		tb001.contextMenu.add('QCheckBox', setText='For All Objects', setObjectName='chk018', setChecked=True, setToolTip='Delete history on All objects or just those selected.')
+		tb001.contextMenu.add('QCheckBox', setText='Delete Unused Nodes', setObjectName='chk019', setChecked=True, setToolTip='Delete unused nodes.')
+		tb001.contextMenu.add('QCheckBox', setText='Delete Deformers', setObjectName='chk020', setToolTip='Delete deformers.')
+		tb001.contextMenu.add('QCheckBox', setText='Optimize Scene', setObjectName='chk030', setToolTip='Remove unused scene objects.')
 
-		ctx = self.edit_ui.tb002.contextMenu
-		if not ctx.containsMenuItems:
-			ctx.add('QCheckBox', setText='Delete Edge Loop', setObjectName='chk001', setToolTip='Delete the edge loops of any edges selected.')
-			ctx.add('QCheckBox', setText='Delete Edge Ring', setObjectName='chk000', setToolTip='Delete the edge rings of any edges selected.')
+		tb002 = self.edit_ui.tb002
+		tb002.contextMenu.add('QCheckBox', setText='Delete Edge Loop', setObjectName='chk001', setToolTip='Delete the edge loops of any edges selected.')
+		tb002.contextMenu.add('QCheckBox', setText='Delete Edge Ring', setObjectName='chk000', setToolTip='Delete the edge rings of any edges selected.')
 
-		ctx = self.edit_ui.tb003.contextMenu
-		if not ctx.containsMenuItems:
-			ctx.add('QCheckBox', setText='-', setObjectName='chk006', setChecked=True, setToolTip='Perform delete along negative axis.')
-			ctx.add('QRadioButton', setText='X', setObjectName='chk007', setChecked=True, setToolTip='Perform delete along X axis.')
-			ctx.add('QRadioButton', setText='Y', setObjectName='chk008', setToolTip='Perform delete along Y axis.')
-			ctx.add('QRadioButton', setText='Z', setObjectName='chk009', setToolTip='Perform delete along Z axis.')
-			self.connect_('chk006-9', 'toggled', self.chk006_9, ctx)
+		tb003 = self.edit_ui.tb003
+		tb003.contextMenu.add('QCheckBox', setText='-', setObjectName='chk006', setChecked=True, setToolTip='Perform delete along negative axis.')
+		tb003.contextMenu.add('QRadioButton', setText='X', setObjectName='chk007', setChecked=True, setToolTip='Perform delete along X axis.')
+		tb003.contextMenu.add('QRadioButton', setText='Y', setObjectName='chk008', setToolTip='Perform delete along Y axis.')
+		tb003.contextMenu.add('QRadioButton', setText='Z', setObjectName='chk009', setToolTip='Perform delete along Z axis.')
+		self.connect_('chk006-9', 'toggled', self.chk006_9, tb003.contextMenu)
+
+		tb004 = self.edit_ui.tb004
+		tb004.contextMenu.add('QCheckBox', setText='All Nodes', setObjectName='chk026', setToolTip='Effect all nodes or only those currently selected.')
+		tb004.contextMenu.add('QCheckBox', setText='UnLock', setObjectName='chk027', setChecked=True, setToolTip='Unlock nodes (else lock).')
+		tb004.contextMenu.chk027.toggled.connect(lambda state: tb004.setText('Unlock Nodes' if state else 'Lock Nodes'))
 
 
 	def draggable_header(self, state=None):

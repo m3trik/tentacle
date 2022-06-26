@@ -223,6 +223,22 @@ class Edit_maya(Edit, Slots_maya):
 		pm.undoInfo(closeChunk=1)
 
 
+	@Slots_maya.undo
+	def tb004(self, state=None):
+		'''Delete Along Axis
+		'''
+		tb = self.edit_ui.tb004
+
+		allNodes = tb.contextMenu.chk026.isChecked()
+		unlock = tb.contextMenu.chk027.isChecked()
+
+		# pm.undoInfo(openChunk=1)
+		nodes = pm.ls() if allNodes else pm.ls(selection=1)
+		for node in nodes:
+			pm.lockNode(node, lock=not unlock)
+		# pm.undoInfo(closeChunk=1)
+
+
 	@Slots.hideMain
 	def b001(self):
 		'''Object History Attributes: get most recent node

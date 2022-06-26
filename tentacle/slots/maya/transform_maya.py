@@ -74,6 +74,7 @@ class Transform_maya(Transform, Slots_maya):
 				pm.mel.SetSnapTogetherToolOptions() #setToolTo snapTogetherToolCtx; toolPropertyWindow;) Snap two objects together.
 			elif text=='Orient to Vertex/Edge Tool':
 				pm.mel.orientToTool() #Orient To Vertex/Edge
+			cmb.setCurrentIndex(0)
 
 
 	def chk024(self, state=None):
@@ -410,17 +411,17 @@ class Transform_maya(Transform, Slots_maya):
 
 
 	@Slots_maya.undo
-	def resetXform(self, objects):
-		'''Reset the transformations on the given object(s). (unfreeze transforms)
+	def resetTranslation(self, objects):
+		'''Reset the translation transformations on the given object(s).
 
 		:Parameters:
-			objects (str)(obj)(list) = The object(s) to reset transforms for.
+			objects (str)(obj)(list) = The object(s) to reset the translation values for.
 		'''
 		# pm.undoInfo(openChunk=1)
 		for obj in pm.ls(objects):
 			pos = pm.objectCenter(obj) #get the object's current position.
 			self.dropToGrid(obj, origin=1, centerPivot=1) #move to origin and center pivot.
-			pm.makeIdentity(obj, apply=1, t=1, r=1, s=1, n=0, pn=1) #bake transforms
+			pm.makeIdentity(obj, apply=1, t=1, r=0, s=0, n=0, pn=1) #bake transforms
 			pm.xform(obj, translation=pos) #move the object back to it's original position.
 		# pm.undoInfo(closeChunk=1)
 
@@ -481,6 +482,7 @@ class Transform_maya(Transform, Slots_maya):
 
 	def setTranslationToPivot(self, node):
 		'''Set an object’s translation value from its pivot location.
+
 		:Parameters:
 			node (str)(obj) = An object, or it's name.
 		'''
@@ -794,6 +796,120 @@ class Transform_maya(Transform, Slots_maya):
 		if selectTypeEdge:
 			pm.selectType (edge=True)
 		# pm.undoInfo (closeChunk=True)
+
+
+	def orderByDistance(self, objects, point=[0, 0, 0], reverse=False):
+		'''Order the given objects by their distance from the given point.
+
+		:Parameters:
+			objects (str)(int)(list) = The object(s) to order.
+			point (list) = A three value float list x, y, z.
+			reverse (bool) = Reverse the naming order. (Farthest object first)
+
+		:Return:
+			(list) ordered objects
+		'''
+		distance={}
+		for obj in pm.ls(objects, flatten=1):
+			xmin, ymin, zmin, xmax, ymax, zmax = pm.xform(obj, q=1, boundingBox=1)
+			bb_pos = ((xmin + xmax) / 2, (ymin + ymax) / 2, (zmin + zmax) / 2)
+			bb_dist = self.getDistanceBetweenTwoPoints(point, bb_pos)
+
+			distance[bb_dist] = obj
+
+		result = [distance[i] for i in sorted(distance)]
+		return reversed(result) if reverse else result
+
+
+	@staticmethod
+	def snap3PointsTo3Points(vertices):
+		'''Move and align the object defined by the first 3 points to the last 3 points.
+
+		:Parameters:
+			vertices (list) = The first 3 points must be on the same object (i.e. it is the 
+						object to be transformed). The second set of points define 
+						the position and plane to transform to.
+		'''
+		import math
+
+		vertices = pm.ls(vertices, flatten=True)
+		objectToMove = pm.ls(vertices[:3], objectsOnly=True)
+
+		# get the world space position of each selected point object
+		p0, p1, p2 = [pm.pointPosition(v) for v in vertices[:3]]
+		p3, p4, p5 = [pm.pointPosition(v) for v in vertices[3:]]
+
+		dx, dy, dz = distance = [ # calculate the translation amount - the first point on each pair is the point to use for translation.
+			p3[0] - p0[0],
+			p3[1] - p0[1],
+			p3[2] - p0[2]
+		]
+
+		pm.move(dx, dy, dz, objectToMove, relative=1) # move the first object by that amount.
+
+		a1x, a1y, a1z = axis1 = [ # define the two vectors for each pair of points.
+			p1[0] - p0[0],
+			p1[1] - p0[1],
+			p1[2] - p0[2]
+		]
+		a2x, a2y, a2z = axis2 = [
+			p4[0] - p3[0],
+			p4[1] - p3[1],
+			p4[2] - p3[2]
+		]
+
+		# get the angle (in radians) between the two vectors and the axis of rotation. This is used to move axis1 to match axis2
+		dp = Slots.dotProduct(axis1, axis2, 1)
+		dp = Slots.clamp(-1.0, 1.0, dp)
+		angle = math.acos(dp)
+		crossProduct = Slots.crossProduct(axis1, axis2, 1, 1)
+
+	 	# rotate the first object about the pivot point (the pivot is defined by the first point from the second pair of points. i.e. point 3 from the inputs above)
+		rotation = Slots.xyzRotation(angle, crossProduct)
+		pm.rotate(objectToMove, str(rotation[0])+'rad', str(rotation[1])+'rad', str(rotation[2])+'rad', pivot=p3, relative=1)
+
+		# Get these points again since they may have moved
+		p2 = pm.pointPosition(vertices[2])
+		p5 = pm.pointPosition(vertices[5])
+
+		axis3 = [
+			p2[0] - p4[0],
+			p2[1] - p4[1],
+			p2[2] - p4[2]
+		]
+		axis4 = [
+			p5[0] - p4[0],
+			p5[1] - p4[1],
+			p5[2] - p4[2]
+		]
+
+		axis2 = Slots.normalize(axis2)
+
+		# Get the dot product of axis3 on axis2
+		dp = Slots.dotProduct(axis3, axis2, 0)
+		axis3[0] = p2[0] - p4[0] + dp * axis2[0]
+		axis3[1] = p2[1] - p4[1] + dp * axis2[1]
+		axis3[2] = p2[2] - p4[2] + dp * axis2[2]
+
+		# Get the dot product of axis4 on axis2
+		dp = Slots.dotProduct(axis4, axis2, 0)
+		axis4[0] = p5[0] - p4[0] + dp * axis2[0]
+		axis4[1] = p5[1] - p4[1] + dp * axis2[1]
+		axis4[2] = p5[2] - p4[2] + dp * axis2[2]
+
+		# rotate the first object again, this time about the 2nd axis so that the 3rd point is in the same plane. ie. match up axis3 with axis4.
+		dp = Slots.dotProduct(axis3, axis4, 1)
+		dp = Slots.clamp(-1.0, 1.0, dp)
+		angle = math.acos(dp)
+
+		# reverse the angle if the cross product is in the -ve axis direction
+		crossProduct = Slots.crossProduct(axis3, axis4, 1, 1)
+		dp = Slots.dotProduct(crossProduct, axis2, 0)
+		if dp < 0:
+			angle = -angle
+
+		rotation = Slots.xyzRotation(angle, axis2)
+		pm.rotate(objectToMove, str(rotation[0])+'rad', str(rotation[1])+'rad', str(rotation[2])+'rad', pivot=p4, relative=1)
 
 
 

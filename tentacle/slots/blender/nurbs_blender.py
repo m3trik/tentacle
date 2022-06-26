@@ -450,11 +450,11 @@ class Nurbs_blender(Nurbs, Slots_blender):
 		# pm.undoInfo(openChunk=1)
 		if pm.objectType(start)=='mesh': #vs. 'nurbsCurve'
 			start, startNode = pm.polyToCurve(start, form=2, degree=3, conformToSmoothMeshPreview=1) #extract curve from mesh
-		self.transform().resetXform(start) #reset the transforms to world origin.
+		self.transform().resetTranslation(start) #reset the transforms to world origin.
 
 		if pm.objectType(end)=='mesh': #vs. 'nurbsCurve'
 			end, endNode = pm.polyToCurve(end, form=2, degree=3, conformToSmoothMeshPreview=1) #extract curve from mesh
-		self.transform().resetXform(end) #reset the transforms to world origin.
+		self.transform().resetTranslation(end) #reset the transforms to world origin.
 
 		path = self.createCurveBetweenTwoObjects(start, end)
 		curves = self.duplicateAlongCurve(path, start, count=count)

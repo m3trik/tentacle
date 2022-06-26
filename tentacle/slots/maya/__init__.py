@@ -33,10 +33,9 @@ class Slots_maya(Slots):
 			fn (obj) = The decorated python function that will be placed into the undo que as a single entry.
 		'''
 		def wrapper(*args, **kwargs):
-			pm.undoInfo(openChunk=True)
-			rtn = fn(*args, **kwargs)
-			pm.undoInfo(closeChunk=True)
-			return rtn
+			with pm.UndoChunk():
+				rtn = fn(*args, **kwargs)
+				return rtn
 		return wrapper
 
 	# ----------------------------------------------------------------------
@@ -1116,7 +1115,7 @@ class Slots_maya(Slots):
 	@staticmethod
 	def getPanel(*args, **kwargs):
 		'''Returns panel and panel configuration information.
-		A fix for broken pymel class.
+		A fix for the broken pymel command of the same name.
 
 		:Parameters:
 			[allConfigs=boolean], [allPanels=boolean], [allScriptedTypes=boolean], [allTypes=boolean], [configWithLabel=string], [containing=string], [invisiblePanels=boolean], [scriptType=string], [type=string], [typeOf=string], [underPointer=boolean], [visiblePanels=boolean], [withFocus=boolean], [withLabel=string])

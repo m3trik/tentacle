@@ -90,8 +90,8 @@
    <widget class="QPushButton" name="b004">
     <property name="geometry">
      <rect>
-      <x>360</x>
-      <y>270</y>
+      <x>370</x>
+      <y>260</y>
       <width>111</width>
       <height>19</height>
      </rect>
@@ -131,8 +131,8 @@
     <property name="geometry">
      <rect>
       <x>360</x>
-      <y>310</y>
-      <width>111</width>
+      <y>330</y>
+      <width>126</width>
       <height>19</height>
      </rect>
     </property>
@@ -193,6 +193,98 @@
     </property>
     <property name="text">
      <string>Mirror</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="b001">
+    <property name="geometry">
+     <rect>
+      <x>320</x>
+      <y>230</y>
+      <width>123</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="minimumSize">
+     <size>
+      <width>0</width>
+      <height>20</height>
+     </size>
+    </property>
+    <property name="maximumSize">
+     <size>
+      <width>999</width>
+      <height>20</height>
+     </size>
+    </property>
+    <property name="toolTip">
+     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;The first selected object will be instanced across all other selected objects.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+    </property>
+    <property name="text">
+     <string>Convert to Instances</string>
+    </property>
+    <property name="iconSize">
+     <size>
+      <width>18</width>
+      <height>18</height>
+     </size>
+    </property>
+    <property name="autoDefault">
+     <bool>false</bool>
+    </property>
+    <property name="default">
+     <bool>false</bool>
+    </property>
+    <property name="flat">
+     <bool>false</bool>
+    </property>
+    <property name="bnabled" stdset="0">
+     <bool>true</bool>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="b000">
+    <property name="geometry">
+     <rect>
+      <x>370</x>
+      <y>300</y>
+      <width>123</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="minimumSize">
+     <size>
+      <width>0</width>
+      <height>20</height>
+     </size>
+    </property>
+    <property name="maximumSize">
+     <size>
+      <width>999</width>
+      <height>20</height>
+     </size>
+    </property>
+    <property name="toolTip">
+     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Create instances of any selected objects.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+    </property>
+    <property name="text">
+     <string>Instance Selected</string>
+    </property>
+    <property name="iconSize">
+     <size>
+      <width>18</width>
+      <height>18</height>
+     </size>
+    </property>
+    <property name="autoDefault">
+     <bool>false</bool>
+    </property>
+    <property name="default">
+     <bool>false</bool>
+    </property>
+    <property name="flat">
+     <bool>false</bool>
+    </property>
+    <property name="bnabled" stdset="0">
+     <bool>true</bool>
     </property>
    </widget>
   </widget>

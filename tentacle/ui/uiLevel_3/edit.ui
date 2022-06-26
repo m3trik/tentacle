@@ -638,7 +638,7 @@
             </size>
            </property>
            <property name="title">
-            <string>Attributes</string>
+            <string>Nodes</string>
            </property>
            <layout class="QVBoxLayout" name="verticalLayout_5">
             <property name="spacing">
@@ -656,6 +656,34 @@
             <property name="bottomMargin">
              <number>0</number>
             </property>
+            <item>
+             <widget class="PushButton" name="tb004">
+              <property name="minimumSize">
+               <size>
+                <width>0</width>
+                <height>20</height>
+               </size>
+              </property>
+              <property name="maximumSize">
+               <size>
+                <width>999</width>
+                <height>20</height>
+               </size>
+              </property>
+              <property name="toolTip">
+               <string>Lock or Unlock Nodes.</string>
+              </property>
+              <property name="text">
+               <string>UnLock Nodes</string>
+              </property>
+              <property name="iconSize">
+               <size>
+                <width>18</width>
+                <height>18</height>
+               </size>
+              </property>
+             </widget>
+            </item>
             <item>
              <widget class="ComboBox" name="cmb001">
               <property name="sizePolicy">
