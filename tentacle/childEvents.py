@@ -134,7 +134,7 @@ class EventFactoryFilter(QtCore.QObject):
 				index-=1
 				self._mouseGrabber = mouseOver[index]
 				self._mouseGrabber.grabMouse() #set widget to receive mouse events.
-			print ('\n_mouseGrabber:', self.tcl.mouseGrabber().objectName()); [print(w) for w in self._mouseOver] #debug
+			# print ('\n_mouseGrabber:', self.tcl.mouseGrabber().objectName()); [print(w) for w in self._mouseOver] #debug
 
 		except IndexError as error:
 			# if ui.mainWindow.isVisible():

@@ -196,6 +196,14 @@ def tree000(self, wItem=None, column=None):
 	'KNOWN BUGS AND GENERAL TO-DO'
 # ======================================================================
 '''
+dockable windows
+
+
+scene:
+add another while loop so that the command doesnt have to execute more than once to get the desired result.
+add invert option to naming find field combobox.
+check if all or most of the names end in _L or _R and do not strip.
+
 
 instead of using sb.setSyncAttributesConnections to sync widgets, add the static ui widgets to sb dict so that they are auto synced.
 
@@ -218,7 +226,7 @@ replace other tree widget instances with popup windows.
 
 
 maya macros:
-'3' wireframe on shaded not working.
+'3' wireframe on shaded not working. (works after manually turning on)
 extend 'ctl+d' to duplicate faces only when in face selection mode.
 'f3' ghost selected instead of ghost other.
 maya.macros: isolate selected: incorrect mod panel.
@@ -227,12 +235,9 @@ maya.macros: isolate selected: incorrect mod panel.
 
 
 uv:
-change unfold button in submenu to a unfold and pack macro.
-editors combobox not working: other comboboxes are broken.
-make map size a universal top level spinbox that all commands pull the value from.
-use builtin stack similar from layout options menu.
 uv_maya:  select by type:  move to selection_maya: select by type.
-autounwrap needs undochunk
+pack partial box by using float values in box arg:  u3dLayout -res 4096 -scl 1 -spc 0.00390625 -box 0 1 0.5 1 (top=0 1 0.5 1,  bottom=0 1 0 0.5, topleft=0 0.5 0.5 1, topright=0.5 1 0.5 1, bottomleft=0 0.5 0 0.5, bottomright=0.5 1 0 0.5)
+
 
 
 materials:

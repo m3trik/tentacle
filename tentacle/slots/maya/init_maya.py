@@ -29,18 +29,26 @@ class Init_maya(Init, Slots_maya):
 		except NameError:
 			return
 
-		symmetry = pm.symmetricModelling(query=1, symmetry=1);
-		if symmetry:
-			axis = pm.symmetricModelling(query=1, axis=1)
-			hud.insertText('Symmetry Axis: <font style="color: Yellow;">{}'.format(axis.upper())) #symmetry axis
+		if not selection:
+			autoSaveState = pm.autoSave(q=True, enable=True)
+			if not autoSaveState:
+				hud.insertText('Autosave: <font style="color: {};">{}'.format('Green' if autoSaveState else 'Red', 'On' if autoSaveState else 'Off')) #symmetry axis
 
-		xformConstraint = pm.xformConstraint(query=True, type=True)
-		if xformConstraint=='none':
-			xformConstraint=None
-		if xformConstraint:
-			hud.insertText('Xform Constrait: <font style="color: Yellow;">{}'.format(xformConstraint)) #transform constraits
+			sceneUnits = pm.currentUnit(query=1, fullName=1, linear=1)
+			hud.insertText('Units: <font style="color: Yellow;">{}'.format(sceneUnits)) #symmetry axis
 
-		if selection:
+			symmetry = pm.symmetricModelling(query=1, symmetry=1);
+			if symmetry:
+				axis = pm.symmetricModelling(query=1, axis=1)
+				hud.insertText('Symmetry Axis: <font style="color: Yellow;">{}'.format(axis.upper())) #symmetry axis
+
+			xformConstraint = pm.xformConstraint(query=True, type=True)
+			if xformConstraint=='none':
+				xformConstraint=None
+			if xformConstraint:
+				hud.insertText('Xform Constrait: <font style="color: Yellow;">{}'.format(xformConstraint)) #transform constraits
+
+		else:
 			if pm.selectMode(query=1, object=1): #object mode:
 				if pm.selectType(query=1, allObjects=1): #get object/s
 

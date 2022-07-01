@@ -9,13 +9,13 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>282</width>
-    <height>192</height>
+    <width>147</width>
+    <height>229</height>
    </rect>
   </property>
   <property name="minimumSize">
    <size>
-    <width>120</width>
+    <width>0</width>
     <height>0</height>
    </size>
   </property>
@@ -41,383 +41,343 @@
    <set>QMainWindow::AllowNestedDocks|QMainWindow::AllowTabbedDocks|QMainWindow::AnimatedDocks|QMainWindow::ForceTabbedDocks</set>
   </property>
   <widget class="QWidget" name="mainWindow">
-   <widget class="QWidget" name="layoutWidget_2">
-    <property name="geometry">
-     <rect>
-      <x>8</x>
-      <y>6</y>
-      <width>264</width>
-      <height>161</height>
-     </rect>
-    </property>
-    <layout class="QGridLayout" name="gridLayout_2">
-     <property name="spacing">
-      <number>0</number>
-     </property>
-     <item row="3" column="1" colspan="2">
-      <layout class="QHBoxLayout" name="horizontalLayout">
-       <item>
-        <layout class="QVBoxLayout" name="verticalLayout">
+   <layout class="QVBoxLayout" name="verticalLayout_2">
+    <item>
+     <layout class="QVBoxLayout" name="verticalLayout">
+      <property name="spacing">
+       <number>0</number>
+      </property>
+      <item>
+       <widget class="PushButtonDraggable" name="draggable_header">
+        <property name="minimumSize">
+         <size>
+          <width>19</width>
+          <height>17</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>999</width>
+          <height>17</height>
+         </size>
+        </property>
+        <property name="font">
+         <font>
+          <weight>75</weight>
+          <bold>true</bold>
+          <underline>true</underline>
+         </font>
+        </property>
+        <property name="text">
+         <string>FILE</string>
+        </property>
+        <property name="checkable">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QGroupBox" name="Project">
+        <property name="minimumSize">
+         <size>
+          <width>0</width>
+          <height>0</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>999</width>
+          <height>999</height>
+         </size>
+        </property>
+        <property name="title">
+         <string>Project</string>
+        </property>
+        <layout class="QVBoxLayout" name="verticalLayout_5">
          <property name="spacing">
           <number>0</number>
          </property>
+         <property name="leftMargin">
+          <number>0</number>
+         </property>
+         <property name="topMargin">
+          <number>0</number>
+         </property>
+         <property name="rightMargin">
+          <number>0</number>
+         </property>
+         <property name="bottomMargin">
+          <number>0</number>
+         </property>
          <item>
-          <widget class="QGroupBox" name="File">
+          <widget class="ComboBox" name="cmb006">
            <property name="minimumSize">
             <size>
-             <width>125</width>
-             <height>0</height>
+             <width>0</width>
+             <height>20</height>
             </size>
            </property>
            <property name="maximumSize">
             <size>
-             <width>125</width>
-             <height>999</height>
+             <width>999</width>
+             <height>20</height>
             </size>
            </property>
-           <property name="title">
-            <string>File</string>
+           <property name="maxVisibleItems">
+            <number>40</number>
            </property>
-           <layout class="QVBoxLayout" name="verticalLayout_3">
-            <property name="spacing">
-             <number>0</number>
+           <property name="sizeAdjustPolicy">
+            <enum>QComboBox::AdjustToContents</enum>
+           </property>
+           <property name="frame">
+            <bool>false</bool>
+           </property>
+           <item>
+            <property name="text">
+             <string>Workspace</string>
             </property>
-            <property name="leftMargin">
-             <number>0</number>
-            </property>
-            <property name="topMargin">
-             <number>0</number>
-            </property>
-            <property name="rightMargin">
-             <number>0</number>
-            </property>
-            <property name="bottomMargin">
-             <number>0</number>
-            </property>
-            <item>
-             <widget class="ComboBox" name="cmb005">
-              <property name="minimumSize">
-               <size>
-                <width>0</width>
-                <height>20</height>
-               </size>
-              </property>
-              <property name="maximumSize">
-               <size>
-                <width>999</width>
-                <height>20</height>
-               </size>
-              </property>
-              <property name="maxVisibleItems">
-               <number>30</number>
-              </property>
-              <property name="sizeAdjustPolicy">
-               <enum>QComboBox::AdjustToContentsOnFirstShow</enum>
-              </property>
-              <property name="frame">
-               <bool>false</bool>
-              </property>
-              <item>
-               <property name="text">
-                <string>Recent Files</string>
-               </property>
-              </item>
-             </widget>
-            </item>
-            <item>
-             <widget class="ComboBox" name="cmb002">
-              <property name="minimumSize">
-               <size>
-                <width>0</width>
-                <height>20</height>
-               </size>
-              </property>
-              <property name="maximumSize">
-               <size>
-                <width>999</width>
-                <height>20</height>
-               </size>
-              </property>
-              <property name="maxVisibleItems">
-               <number>30</number>
-              </property>
-              <property name="sizeAdjustPolicy">
-               <enum>QComboBox::AdjustToContentsOnFirstShow</enum>
-              </property>
-              <property name="frame">
-               <bool>false</bool>
-              </property>
-              <item>
-               <property name="text">
-                <string>Recent Autosave</string>
-               </property>
-              </item>
-             </widget>
-            </item>
-           </layout>
+           </item>
           </widget>
          </item>
-         <item>
-          <spacer name="verticalSpacer">
-           <property name="orientation">
-            <enum>Qt::Vertical</enum>
-           </property>
-           <property name="sizeHint" stdset="0">
-            <size>
-             <width>20</width>
-             <height>40</height>
-            </size>
-           </property>
-          </spacer>
-         </item>
         </layout>
-       </item>
-       <item>
-        <layout class="QVBoxLayout" name="verticalLayout_2">
+       </widget>
+      </item>
+      <item>
+       <widget class="QGroupBox" name="File">
+        <property name="minimumSize">
+         <size>
+          <width>125</width>
+          <height>0</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>125</width>
+          <height>999</height>
+         </size>
+        </property>
+        <property name="title">
+         <string>File</string>
+        </property>
+        <layout class="QVBoxLayout" name="verticalLayout_3">
          <property name="spacing">
           <number>0</number>
          </property>
+         <property name="leftMargin">
+          <number>0</number>
+         </property>
+         <property name="topMargin">
+          <number>0</number>
+         </property>
+         <property name="rightMargin">
+          <number>0</number>
+         </property>
+         <property name="bottomMargin">
+          <number>0</number>
+         </property>
          <item>
-          <widget class="QGroupBox" name="Import_Export">
+          <widget class="ComboBox" name="cmb005">
            <property name="minimumSize">
             <size>
-             <width>125</width>
-             <height>0</height>
+             <width>0</width>
+             <height>20</height>
             </size>
            </property>
            <property name="maximumSize">
             <size>
-             <width>125</width>
-             <height>999</height>
+             <width>999</width>
+             <height>20</height>
             </size>
            </property>
-           <property name="title">
-            <string>Import/Export</string>
+           <property name="maxVisibleItems">
+            <number>30</number>
            </property>
-           <layout class="QVBoxLayout" name="verticalLayout_4">
-            <property name="spacing">
-             <number>0</number>
+           <property name="sizeAdjustPolicy">
+            <enum>QComboBox::AdjustToContentsOnFirstShow</enum>
+           </property>
+           <property name="frame">
+            <bool>false</bool>
+           </property>
+           <item>
+            <property name="text">
+             <string>Recent Files</string>
             </property>
-            <property name="leftMargin">
-             <number>0</number>
-            </property>
-            <property name="topMargin">
-             <number>0</number>
-            </property>
-            <property name="rightMargin">
-             <number>0</number>
-            </property>
-            <property name="bottomMargin">
-             <number>0</number>
-            </property>
-            <item>
-             <widget class="ComboBox" name="cmb003">
-              <property name="minimumSize">
-               <size>
-                <width>0</width>
-                <height>20</height>
-               </size>
-              </property>
-              <property name="maximumSize">
-               <size>
-                <width>999</width>
-                <height>20</height>
-               </size>
-              </property>
-              <property name="maxVisibleItems">
-               <number>30</number>
-              </property>
-              <property name="sizeAdjustPolicy">
-               <enum>QComboBox::AdjustToContentsOnFirstShow</enum>
-              </property>
-              <property name="frame">
-               <bool>false</bool>
-              </property>
-              <item>
-               <property name="text">
-                <string>Import</string>
-               </property>
-              </item>
-             </widget>
-            </item>
-            <item>
-             <widget class="ComboBox" name="cmb004">
-              <property name="minimumSize">
-               <size>
-                <width>0</width>
-                <height>20</height>
-               </size>
-              </property>
-              <property name="maximumSize">
-               <size>
-                <width>999</width>
-                <height>20</height>
-               </size>
-              </property>
-              <property name="maxVisibleItems">
-               <number>30</number>
-              </property>
-              <property name="sizeAdjustPolicy">
-               <enum>QComboBox::AdjustToContentsOnFirstShow</enum>
-              </property>
-              <property name="frame">
-               <bool>false</bool>
-              </property>
-              <item>
-               <property name="text">
-                <string>Export</string>
-               </property>
-              </item>
-             </widget>
-            </item>
-            <item>
-             <widget class="Label" name="lbl005">
-              <property name="sizePolicy">
-               <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
-                <horstretch>0</horstretch>
-                <verstretch>0</verstretch>
-               </sizepolicy>
-              </property>
-              <property name="minimumSize">
-               <size>
-                <width>0</width>
-                <height>20</height>
-               </size>
-              </property>
-              <property name="maximumSize">
-               <size>
-                <width>999</width>
-                <height>20</height>
-               </size>
-              </property>
-              <property name="toolTip">
-               <string>Reference scenes in the workspace directory.</string>
-              </property>
-              <property name="text">
-               <string>Reference</string>
-              </property>
-             </widget>
-            </item>
-           </layout>
+           </item>
           </widget>
          </item>
          <item>
-          <spacer name="verticalSpacer_2">
-           <property name="orientation">
-            <enum>Qt::Vertical</enum>
-           </property>
-           <property name="sizeHint" stdset="0">
+          <widget class="ComboBox" name="cmb002">
+           <property name="minimumSize">
             <size>
-             <width>122</width>
-             <height>78</height>
+             <width>0</width>
+             <height>20</height>
             </size>
            </property>
-          </spacer>
+           <property name="maximumSize">
+            <size>
+             <width>999</width>
+             <height>20</height>
+            </size>
+           </property>
+           <property name="maxVisibleItems">
+            <number>30</number>
+           </property>
+           <property name="sizeAdjustPolicy">
+            <enum>QComboBox::AdjustToContentsOnFirstShow</enum>
+           </property>
+           <property name="frame">
+            <bool>false</bool>
+           </property>
+           <item>
+            <property name="text">
+             <string>Recent Autosave</string>
+            </property>
+           </item>
+          </widget>
          </item>
         </layout>
-       </item>
-      </layout>
-     </item>
-     <item row="0" column="1" colspan="2">
-      <widget class="PushButtonDraggable" name="draggable_header">
-       <property name="minimumSize">
-        <size>
-         <width>19</width>
-         <height>17</height>
-        </size>
-       </property>
-       <property name="maximumSize">
-        <size>
-         <width>999</width>
-         <height>17</height>
-        </size>
-       </property>
-       <property name="font">
-        <font>
-         <weight>75</weight>
-         <bold>true</bold>
-         <underline>true</underline>
-        </font>
-       </property>
-       <property name="text">
-        <string>FILE</string>
-       </property>
-       <property name="checkable">
-        <bool>true</bool>
-       </property>
-      </widget>
-     </item>
-     <item row="1" column="1" colspan="2">
-      <layout class="QGridLayout" name="gridLayout"/>
-     </item>
-     <item row="2" column="1" colspan="2">
-      <widget class="QGroupBox" name="Project">
-       <property name="minimumSize">
-        <size>
-         <width>0</width>
-         <height>0</height>
-        </size>
-       </property>
-       <property name="maximumSize">
-        <size>
-         <width>999</width>
-         <height>999</height>
-        </size>
-       </property>
-       <property name="title">
-        <string>Project</string>
-       </property>
-       <layout class="QVBoxLayout" name="verticalLayout_5">
-        <property name="spacing">
-         <number>0</number>
+       </widget>
+      </item>
+      <item>
+       <widget class="QGroupBox" name="Import_Export">
+        <property name="minimumSize">
+         <size>
+          <width>125</width>
+          <height>0</height>
+         </size>
         </property>
-        <property name="leftMargin">
-         <number>0</number>
+        <property name="maximumSize">
+         <size>
+          <width>125</width>
+          <height>999</height>
+         </size>
         </property>
-        <property name="topMargin">
-         <number>0</number>
+        <property name="title">
+         <string>Import/Export</string>
         </property>
-        <property name="rightMargin">
-         <number>0</number>
-        </property>
-        <property name="bottomMargin">
-         <number>0</number>
-        </property>
-        <item>
-         <widget class="ComboBox" name="cmb006">
-          <property name="minimumSize">
-           <size>
-            <width>0</width>
-            <height>20</height>
-           </size>
-          </property>
-          <property name="maximumSize">
-           <size>
-            <width>999</width>
-            <height>20</height>
-           </size>
-          </property>
-          <property name="maxVisibleItems">
-           <number>40</number>
-          </property>
-          <property name="sizeAdjustPolicy">
-           <enum>QComboBox::AdjustToContents</enum>
-          </property>
-          <property name="frame">
-           <bool>false</bool>
-          </property>
-          <item>
+        <layout class="QVBoxLayout" name="verticalLayout_4">
+         <property name="spacing">
+          <number>0</number>
+         </property>
+         <property name="leftMargin">
+          <number>0</number>
+         </property>
+         <property name="topMargin">
+          <number>0</number>
+         </property>
+         <property name="rightMargin">
+          <number>0</number>
+         </property>
+         <property name="bottomMargin">
+          <number>0</number>
+         </property>
+         <item>
+          <widget class="ComboBox" name="cmb003">
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>20</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>999</width>
+             <height>20</height>
+            </size>
+           </property>
+           <property name="maxVisibleItems">
+            <number>30</number>
+           </property>
+           <property name="sizeAdjustPolicy">
+            <enum>QComboBox::AdjustToContentsOnFirstShow</enum>
+           </property>
+           <property name="frame">
+            <bool>false</bool>
+           </property>
+           <item>
+            <property name="text">
+             <string>Import</string>
+            </property>
+           </item>
+          </widget>
+         </item>
+         <item>
+          <widget class="ComboBox" name="cmb004">
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>20</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>999</width>
+             <height>20</height>
+            </size>
+           </property>
+           <property name="maxVisibleItems">
+            <number>30</number>
+           </property>
+           <property name="sizeAdjustPolicy">
+            <enum>QComboBox::AdjustToContentsOnFirstShow</enum>
+           </property>
+           <property name="frame">
+            <bool>false</bool>
+           </property>
+           <item>
+            <property name="text">
+             <string>Export</string>
+            </property>
+           </item>
+          </widget>
+         </item>
+         <item>
+          <widget class="Label" name="lbl005">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>20</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>999</width>
+             <height>20</height>
+            </size>
+           </property>
+           <property name="toolTip">
+            <string>Reference scenes in the workspace directory.</string>
+           </property>
            <property name="text">
-            <string>Workspace</string>
+            <string>Reference</string>
            </property>
-          </item>
-         </widget>
-        </item>
-       </layout>
-      </widget>
-     </item>
-    </layout>
-   </widget>
+          </widget>
+         </item>
+        </layout>
+       </widget>
+      </item>
+      <item>
+       <spacer name="verticalSpacer">
+        <property name="orientation">
+         <enum>Qt::Vertical</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>20</width>
+          <height>40</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+     </layout>
+    </item>
+   </layout>
   </widget>
  </widget>
  <customwidgets>

@@ -4,9 +4,6 @@ from PySide2 import QtCore
 
 
 
-# ------------------------------------------------
-#' MainWindow StyleSheet'
-# ------------------------------------------------
 class StyleSheet(QtCore.QObject):
 	'''# css commenting:
 		/* multi-line */
@@ -243,6 +240,10 @@ class StyleSheet(QtCore.QObject):
 				padding: 1px 18px 1px 3px; /* top, right, bottom, left */
 				/* border-radius: 1px; */
 				/* min-width: 0em; */
+			}
+
+			QComboBox QAbstractItemView {
+			min-width: 150px;
 			}
 
 			QComboBox::hover {
@@ -507,6 +508,7 @@ class StyleSheet(QtCore.QObject):
 				selection-background-color: {HOVER};
 				selection-color: {BACKGROUND};
 				alternate-background-color: {BACKGROUND};
+				min-width: 200px;
 			} 
 			''',
 

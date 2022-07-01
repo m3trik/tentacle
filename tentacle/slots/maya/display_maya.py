@@ -36,25 +36,27 @@ class Display_maya(Display, Slots_maya):
 	def b001(self):
 		'''Toggle Visibility
 		'''
-		mel.eval('ToggleVisibilityAndKeepSelection();')
+		pm.mel.ToggleVisibilityAndKeepSelection()
 
 
 	def b002(self):
 		'''Hide Selected
 		'''
-		mel.eval('HideSelectedObjects;')
+		selection = pm.ls(selection=1)
+		pm.hide(selection) #pm.mel.HideSelectedObjects()
 
 
 	def b003(self):
 		'''Show Selected
 		'''
-		mel.eval('ShowSelectedObjects;')
+		selection = pm.ls(selection=1)
+		pm.showHidden(selection) #pm.mel.ShowSelectedObjects()
 
 
 	def b004(self):
 		'''Show Geometry
 		'''
-		mel.eval('hideShow -geometry -show;')
+		pm.mel.hideShow(geometry=1, show=1)
 
 
 	def b005(self):
@@ -109,7 +111,7 @@ class Display_maya(Display, Slots_maya):
 	def b008(self):
 		'''Filter Objects
 		'''
-		mel.eval("bt_filterActionWindow;")
+		pm.mel.bt_filterActionWindow()
 
 
 	def b009(self):

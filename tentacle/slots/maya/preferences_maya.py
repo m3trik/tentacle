@@ -73,28 +73,28 @@ class Preferences_maya(Preferences, Slots_maya):
 		'''Color Settings
 
 		'''
-		mel.eval('colorPrefWnd;')
+		pm.mel.colorPrefWnd()
 
 
 	def b008(self):
 		'''Hotkeys
 
 		'''
-		mel.eval("HotkeyPreferencesWindow;")
+		pm.mel.HotkeyPreferencesWindow()
 
 
 	def b009(self):
 		'''Plug-In Manager
 
 		'''
-		mel.eval('PluginManager;')
+		pm.mel.PluginManager()
 
 
 	def b010(self):
 		'''Settings/Preferences
 
 		'''
-		mel.eval("PreferencesWindow;")
+		pm.mel.PreferencesWindow()
 
 
 	def loadPlugin(self, plugin):

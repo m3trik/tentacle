@@ -151,6 +151,10 @@ class Switchboard(QUiLoader, StyleSheet):
 					qApp = QApplication.instance() #get the qApp instance if it exists.
 					sys.exit(qApp.exec_())
 		'''
+		self.uiToLoad = uiToLoad
+		self.widgetsToRegister = widgetsToRegister
+		self.slotsDir = slotsDir
+
 		for path in self.list_(uiToLoad): #assure uiToLoad is a list.
 
 			self.setWorkingDirectory(self.formatFilepath(path, 'path'))
@@ -159,8 +163,6 @@ class Switchboard(QUiLoader, StyleSheet):
 
 			# except FileNotFoundError as error:
 			# 	print ('# FileNotFoundError: {}.__init__(): {} #'.format(__name__, error))
-
-		sys.path.append(slotsDir)
 
 		self.setMainAppWindow(mainAppWindow)
 
@@ -384,7 +386,7 @@ class Switchboard(QUiLoader, StyleSheet):
 			kwargs['sb'] = self
 
 			for uiName in self.getUiName('all'):
-				kwargs[uiName] = lambda n=uiName: self.getClassInstance(n) #assign a function that gets the class instance.
+				kwargs[uiName] = lambda n=uiName: self.getSlotInstance(n) #assign a function that gets the class instance.
 				kwargs['{}_ui'.format(uiName)] = self.getUi(uiName)
 
 			for widget in self._registeredWidgets: #add any registered widgets as properties.
@@ -971,12 +973,12 @@ class Switchboard(QUiLoader, StyleSheet):
 			return app
 
 
-	def _setClassInstance(self, ui):
-		'''Stores an instance of a class.
+	def _setSlotInstance(self, ui):
+		'''Stores an instance of a slot class.
 		If the ui is a submenu (level 2) and a class is not found, the parent class will be returned. ie. <Polygons> from 'polygons_submenu'
 
 		:Property:
-			classInst
+			slotInstance
 
 		:Parameters:
 			ui (str)(obj) = ui, or name of ui. ie. 'polygons'. If no nothing is given, the current ui will be used.
@@ -987,33 +989,42 @@ class Switchboard(QUiLoader, StyleSheet):
 		uiName = self.getUiName(ui)
 
 		parentAppName = self.getMainAppWindow(objectName=True)
-		mod_name = '{}_{}'.format(self.setCase(uiName, case='camelCase'), parentAppName) #ie. 'polygons_maya'
+		mod_name = '{}_{}'.format(self.setCase(uiName, case='camelCase'), parentAppName).rstrip('_') #ie. 'polygons_maya' or 'polygons' if parentAppName is None.
+
+		sys.path.append(self.slotsDir)
 
 		try: #import the module and get the class instance.
 			module = importlib.import_module(mod_name) # module = __import__(mod_name)
+			# print ('module:', module)
 			class_ = getattr(module, self.setCase(mod_name, case='pascalCase')) #ie. <Polygons_maya> from 'Polygons_maya'
 			kwargs = self.getClassKwargs(uiName)
-			result = self.sbDict[uiName]['class'] = class_(**kwargs)
+			for k, v in kwargs.items():
+				setattr(self, k, v)
+			try:
+				result = self.sbDict[uiName]['class'] = class_(**kwargs)
+			except:  #the module has no '**kwargs' keyword arg.
+				result = self.sbDict[uiName]['class'] = class_()
 
-		except (ModuleNotFoundError, TypeError) as error: #Error: 'NoneType' object is not callable
-			if self.getUiLevel(ui) in [0,1,3]:
+		except (ModuleNotFoundError, TypeError) as error: #TypeError: 'NoneType' object is not callable
+			if self.getUiLevel(ui) in (0,1,3):
 				result = self.sbDict[uiName]['class'] = None #
 
 			else:
 				parent_name = self.getUiName(uiName, case='camelCase', level=[0,1,3])
 				if uiName==parent_name: #prevent recursion.
 					raise error
-				result = self.sbDict[uiName]['class'] = self.getClassInstance(parent_name) #get the parent class.
+				result = self.sbDict[uiName]['class'] = self.getSlotInstance(parent_name) #get the parent class.
 
+		# print ('result:', result)
 		return result
 
 
-	def getClassInstance(self, ui):
+	def getSlotInstance(self, ui):
 		'''Case insensitive. (Class string keys are lowercase and any given string will be converted automatically)
-		If class is not in self.sbDict, getClassInstance will attempt to use _setClassInstance() to first store the class.
+		If class is not in self.sbDict, getSlotInstance will attempt to use _setSlotInstance() to first store the class.
 
 		:Property:
-			classInst
+			slotInstance
 
 		:Parameters:
 			ui (str)(obj) = ui, or name of ui. ie. 'polygons'. If no nothing is given, the current ui will be used.
@@ -1025,13 +1036,13 @@ class Switchboard(QUiLoader, StyleSheet):
 		uiName = self.getUiName(ui)
 
 		if ui=='all':
-			return [self.getClassInstance(n) for n in uiName]
+			return [self.getSlotInstance(n) for n in uiName]
 
 		try:
 			return self.sbDict[uiName]['class']
 
 		except KeyError as error:
-			return self._setClassInstance(uiName)
+			return self._setSlotInstance(uiName)
 
 
 	def _getWidgetsFromUi(self, ui):
@@ -1200,11 +1211,11 @@ class Switchboard(QUiLoader, StyleSheet):
 
 		self.setAttributes(widget, **kwargs) #set any passed in keyword args for the widget.
 
-		classInst = self.getClassInstance(uiName) #get the corresponding slot class from the ui name. ie. class <Polygons> from uiName 'polygons'.
+		slotInstance = self.getSlotInstance(uiName) #get the corresponding slot class from the ui name. ie. class <Polygons> from uiName 'polygons'.
 		derivedType = self.getDerivedType(widget) #the base class of any custom widgets.  ie. 'QPushButton' from 'PushButton'
 		signalType = self.getDefaultSignalType(derivedType) #get the default signal type for the widget as a string. ie. 'released' from 'QPushButton'
 		signalInstance = getattr(widget, signalType, None) #add signal to widget. ie. <widget.valueChanged>
-		method = getattr(classInst, widgetName, None) #use 'widgetName' to get the corresponding method of the same name. ie. method <b006> from widget 'b006' else None
+		method = getattr(slotInstance, widgetName, None) #use 'widgetName' to get the corresponding method of the same name. ie. method <b006> from widget 'b006' else None
 		docString = getattr(method, '__doc__', None)
 		prefix = self.prefix(widgetName) #returns an string alphanumberic prefix if widgetName startswith a series of alphanumberic charsinst is followed by three integers. ie. 'cmb' from 'cmb015'
 		isTracked = True if derivedType in self.trackedWidgets else False # and self.getUiLevel(uiName)<3
@@ -2133,7 +2144,7 @@ class Switchboard(QUiLoader, StyleSheet):
 	size = property(getUiSize, setUiSize)
 	sizeX = property(getUiSizeX, setUiSizeX)
 	sizeY = property(getUiSizeY, setUiSizeY)
-	classInst = property(getClassInstance, _setClassInstance)
+	slotInstance = property(getSlotInstance, _setSlotInstance)
 	mainAppWindow = property(getMainAppWindow, setMainAppWindow)
 	getWidgets = property(getWidget)
 	getWidgetNames = property(getWidgetName)

@@ -33,10 +33,9 @@ class Uv_maya(Uv, Slots_maya):
 		tb000.contextMenu.add('QDoubleSpinBox', setPrefix='Tolerance: ', setObjectName='s006', setMinMax_='0.0-10 step.1', setValue=1.0, setToolTip='Stack Similar: Stack shells with uv\'s within the given range.')
 		tb000.contextMenu.add('QSpinBox', setPrefix='UDIM: ', setObjectName='s004', setMinMax_='1001-1200 step1', setValue=1001, setToolTip='Set the desired UDIM tile space.')
 		tb000.contextMenu.add('QSpinBox', setPrefix='Padding: ', setObjectName='s012', setMinMax_='0-999 step1', setValue=16, setToolTip='Set the shell spacing amount.')
-		tb000.contextMenu.add('QSpinBox', setPrefix='Map Size: ', setObjectName='s005', setMinMax_='512-8192 step512', setValue=4096, setToolTip='UV map resolution.')
 
 		tb007 = self.uv_ui.tb007
-		tb007.contextMenu.b099.released.connect(lambda: tb007.contextMenu.s003.setValue(float(pm.mel.texGetTexelDensity(tb007.contextMenu.s002.value())))) #get and set texel density value.
+		tb007.contextMenu.b099.released.connect(lambda: tb007.contextMenu.s003.setValue(float(pm.mel.texGetTexelDensity(self.getMapSize())))) #get and set texel density value.
 
 
 	def cmb000(self, index=-1):
@@ -157,32 +156,32 @@ class Uv_maya(Uv, Slots_maya):
 		scale = tb.contextMenu.s009.value()
 		rotate = tb.contextMenu.s010.value()
 		UDIM = tb.contextMenu.s004.value()
-		mapSize = tb.contextMenu.s005.value()
 		padding = tb.contextMenu.s012.value()
 		similar = tb.contextMenu.s011.value()
 		tolerance = tb.contextMenu.s006.value()
+		mapSize = self.getMapSize()
 
 		U,D,I,M = [int(i) for i in str(UDIM)] #UDIM ex. '1001'
 		shellPadding = padding*0.000244140625
 		tilePadding = shellPadding/2
 		sel = self.uvShellSelection() #assure the correct selection mask.
 
-		if rotate==0:
-			self.orientShells(sel)
+		# if rotate==0:
+		# 	self.orientShells(sel)
 
-		if similar>0:
-			dissimilar = pm.polyUVStackSimilarShells(sel, tolerance=tolerance, onlyMatch=True)
-			dissimilarUVs = [s.split() for s in dissimilar] if dissimilar else []
-			dissimilarFaces = pm.polyListComponentConversion(dissimilarUVs, fromUV=1, toFace=1)
-			pm.u3dLayout(dissimilarFaces, resolution=mapSize, shellSpacing=shellPadding, tileMargin=tilePadding, preScaleMode=scale, preRotateMode=rotate, packBox=[M-1, D, I, U]) #layoutScaleMode (int), multiObject (bool), mutations (int), packBox (float, float, float, float), preRotateMode (int), preScaleMode (int), resolution (int), rotateMax (float), rotateMin (float), rotateStep (float), shellSpacing (float), tileAssignMode (int), tileMargin (float), tileU (int), tileV (int), translate (bool)
+		# if similar>0:
+		# 	dissimilar = pm.polyUVStackSimilarShells(sel, tolerance=tolerance, onlyMatch=True)
+		# 	dissimilarUVs = [s.split() for s in dissimilar] if dissimilar else []
+		# 	dissimilarFaces = pm.polyListComponentConversion(dissimilarUVs, fromUV=1, toFace=1)
+		# 	pm.u3dLayout(dissimilarFaces, resolution=mapSize, shellSpacing=shellPadding, tileMargin=tilePadding, preScaleMode=scale, preRotateMode=rotate, packBox=[M-1, D, I, U]) #layoutScaleMode (int), multiObject (bool), mutations (int), packBox (float, float, float, float), preRotateMode (int), preScaleMode (int), resolution (int), rotateMax (float), rotateMin (float), rotateStep (float), shellSpacing (float), tileAssignMode (int), tileMargin (float), tileU (int), tileV (int), translate (bool)
 
-		elif similar==2:
-			pm.select(dissimilarFaces, toggle=1)
-			similarFaces = pm.ls(sl=1)
-			pm.polyUVStackSimilarShells(similarFaces, dissimilarFaces, tolerance=tolerance)
+		# elif similar==2:
+		# 	pm.select(dissimilarFaces, toggle=1)
+		# 	similarFaces = pm.ls(sl=1)
+		# 	pm.polyUVStackSimilarShells(similarFaces, dissimilarFaces, tolerance=tolerance)
 
-		else:
-			pm.u3dLayout(sel, resolution=mapSize, shellSpacing=shellPadding, tileMargin=tilePadding, preScaleMode=scale, preRotateMode=rotate, packBox=[M-1, D, I, U]) #layoutScaleMode (int), multiObject (bool), mutations (int), packBox (float, float, float, float), preRotateMode (int), preScaleMode (int), resolution (int), rotateMax (float), rotateMin (float), rotateStep (float), shellSpacing (float), tileAssignMode (int), tileMargin (float), tileU (int), tileV (int), translate (bool)
+		# else:
+		pm.u3dLayout(sel, scl=similar, resolution=mapSize, shellSpacing=shellPadding, tileMargin=tilePadding, preScaleMode=scale, preRotateMode=rotate, packBox=[M-1, D, I, U]) #layoutScaleMode (int), multiObject (bool), mutations (int), packBox (float, float, float, float), preRotateMode (int), preScaleMode (int), resolution (int), rotateMax (float), rotateMin (float), rotateStep (float), shellSpacing (float), tileAssignMode (int), tileMargin (float), tileU (int), tileV (int), translate (bool)
 
 
 	@Slots_maya.attr
@@ -233,24 +232,6 @@ class Uv_maya(Uv, Slots_maya):
 
 			except Exception as error:
 				print(error)
-
-
-	def tb002(self, state=None):
-		'''Stack
-		'''
-		tb = self.uv_ui.tb002
-
-		orient = tb.contextMenu.chk021.isChecked()
-		stackSimilar = tb.contextMenu.chk022.isChecked()
-		tolerance = tb.contextMenu.s000.value()
-		sel = self.uvShellSelection() #assure the correct selection mask.
-
-		if stackSimilar:
-			pm.polyUVStackSimilarShells(sel, tolerance=tolerance)
-		else:
-			pm.mel.texStackShells([])
-		if orient:
-			pm.mel.texOrientShells()
 
 
 	def tb003(self, state=None):
@@ -304,12 +285,21 @@ class Uv_maya(Uv, Slots_maya):
 		tb = self.uv_ui.tb004
 
 		optimize = tb.contextMenu.chk017.isChecked()
-		amount = 1#tb.contextMenu.s008.value()
+		orient = tb.contextMenu.chk007.isChecked()
+		stackSimilar = tb.contextMenu.chk022.isChecked()
+		tolerance = tb.contextMenu.s000.value()
+		mapSize = self.getMapSize()
 
-		pm.u3dUnfold(iterations=1, pack=0, borderintersection=1, triangleflip=1, mapsize=2048, roomspace=0) #pm.mel.performUnfold(0)
+		pm.u3dUnfold(iterations=1, pack=0, borderintersection=1, triangleflip=1, mapsize=mapSize, roomspace=0) #pm.mel.performUnfold(0)
 
 		if optimize:
-			pm.u3dOptimize(iterations=amount, power=1, surfangle=1, borderintersection=0, triangleflip=1, mapsize=2048, roomspace=0) #pm.mel.performPolyOptimizeUV(0)
+			pm.u3dOptimize(iterations=10, power=1, surfangle=1, borderintersection=0, triangleflip=1, mapsize=mapSize, roomspace=0) #pm.mel.performPolyOptimizeUV(0)
+
+		if orient:
+			pm.mel.texOrientShells()
+
+		if stackSimilar:
+			pm.polyUVStackSimilarShells(tolerance=tolerance)
 
 
 	def tb005(self, state=None):
@@ -352,8 +342,8 @@ class Uv_maya(Uv, Slots_maya):
 		'''
 		tb = self.uv_ui.tb007
 
-		mapSize = tb.contextMenu.s002.value()
 		density = tb.contextMenu.s003.value()
+		mapSize = self.getMapSize()
 
 		pm.mel.texSetTexelDensity(density, mapSize)
 
@@ -498,15 +488,14 @@ class Uv_maya(Uv, Slots_maya):
 		'''
 		if not objects:
 			objects = pm.ls(selection=1, objectsOnly=1, transforms=1, flatten=1)
-
-		if not isinstance(objects, (list, set, tuple)):
-			objects=[objects]
+		else:
+			objects = pm.ls(objects, selection=1, objectsOnly=1, transforms=1, flatten=1)
 
 		objectType = Slots_maya.getObjectType(objects[0])
 		if objectType=='Polygon Face':
 			faces = objects
 		else:
-			faces = Slots_maya.getComponents(objects, 'faces')
+			faces = Slots_maya.getComponents(objects, 'faces', flatten=1)
 
 		shells={}
 		for face in faces:

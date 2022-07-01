@@ -195,7 +195,7 @@
      <string>Mirror</string>
     </property>
    </widget>
-   <widget class="QPushButton" name="b001">
+   <widget class="PushButton" name="tb000">
     <property name="geometry">
      <rect>
       <x>320</x>
@@ -289,6 +289,13 @@
    </widget>
   </widget>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>PushButton</class>
+   <extends>QPushButton</extends>
+   <header>widgets.pushbutton.h</header>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections/>
  <designerdata>

@@ -41,7 +41,7 @@ class Normals(Slots):
 		tb003.contextMenu.chk002.toggled.connect(lambda state, w=tb003.contextMenu.chk002: w.setText('Lock') if state else w.setText('Unlock')) 
 
 		tb004 = self.normals_ui.tb004
-		tb004.contextMenu.add('QCheckBox', setText='By UV Shell', setObjectName='chk003', setToolTip='Average the normals of each object\'s faces per UV shell.')
+		tb004.contextMenu.add('QCheckBox', setText='By UV Shell', setObjectName='chk003', setChecked=True, setToolTip='Average the normals of each object\'s faces per UV shell.')
 
 
 	def draggable_header(self, state=None):

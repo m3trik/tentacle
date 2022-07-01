@@ -10,9 +10,12 @@ class Duplicate_maya(Duplicate, Slots_maya):
 		Slots_maya.__init__(self, *args, **kwargs)
 		Duplicate.__init__(self, *args, **kwargs)
 
-		cmb = self.duplicate_ui.draggable_header.contextMenu.cmb000
-		list_ = ['Duplicate Special']
-		cmb.addItems_(list_, 'Maya Menus')
+		dh = self.duplicate_ui.draggable_header
+		items = ['Duplicate Special']
+		dh.contextMenu.cmb000.addItems_(items, 'Maya Menus')
+
+		tb000 = self.duplicate_ui.tb000
+		# tb000.contextMenu.add('QCheckBox', setText='Match Vertex Orientaion', setObjectName='chk001', setChecked=False, setToolTip='Attempt to match 3 points of the source to the same 3 points of the target.')
 
 
 	def cmb000(self, index=-1):
@@ -230,6 +233,23 @@ class Duplicate_maya(Duplicate, Slots_maya):
 			self.toggleWidgets(self.duplicate_linear_ui, setDisabled='b002')
 
 
+	def tb000(self, state=None):
+		'''Convert to Instances
+		'''
+		tb = self.duplicate_ui.tb000
+
+		# transformByVertexOrder = tb.contextMenu.chk001.isChecked()
+
+		selection = pm.ls(sl=1, transforms=1)
+		if not selection:
+			self.messageBox('<strong>Nothing selected</strong>.<br>Operation requires an object selection.')
+			return
+
+		if not pm.selectPref(q=1, trackSelectionOrder=1): #if ordered selection is not on, turn it on. If off, the current selection is likely not ordered.
+			pm.selectPref(trackSelectionOrder=1)
+		self.convertToInstances(selection)
+
+
 	def b000(self):
 		'''Create Instances
 		'''
@@ -242,19 +262,6 @@ class Duplicate_maya(Duplicate, Slots_maya):
 							for obj in selection]
 
 		pm.select(instances)
-
-
-	def b001(self):
-		'''Convert to Instances
-		'''
-		selection = pm.ls(sl=1, transforms=1)
-		if not selection:
-			self.messageBox('<strong>Nothing selected</strong>.<br>Operation requires an object selection.')
-			return
-
-		if not pm.selectPref(q=1, trackSelectionOrder=1): #if ordered selection is not on, turn it on. If off, the current selection is likely not ordered.
-			pm.selectPref(trackSelectionOrder=1)
-		self.convertToInstances(selection)
 
 
 	def b004(self):
@@ -310,13 +317,15 @@ class Duplicate_maya(Duplicate, Slots_maya):
 
 
 	@Slots_maya.undo
-	def convertToInstances(self, objects=[], leaf=False, append='_INST'):
+	def convertToInstances(self, objects=[], append=''):
 		'''The first selected object will be instanced across all other selected objects.
 
 		:Parameters:
 			objects (list) = A list of objects to convert to instances. The first object will be the instance parent.
-			leaf (bool) = Instances leaf-level objects. Acts like duplicate except leaf-level objects are instanced.
-			append (str) = Append a string to the end of any instanced objects.
+			append (str) = Append a string to the end of any instanced objects. ie. '_INST'
+
+		:Return:
+			(list) The instanced objects.
 
 		ex. call: convertToInstances(pm.ls(sl=1))
 		'''
@@ -325,23 +334,26 @@ class Duplicate_maya(Duplicate, Slots_maya):
 		pivot = pm.xform(objects[0], query=1, rotatePivot=1, objectSpace=1) #get the obj pivot.
 
 		for obj in objects[1:]:
-			# pm.xform(obj, rotatePivot=pivot, objectSpace=1) #set pivot to match object[0]
-			# p1x, p1y, p1z = wsPivot = pm.xform(obj, query=1, rotatePivot=1, worldSpace=1) #get the world space obj pivot.
-			# pos = [p1x-p0x, p1y-p0y, p1z-p0z]
 
 			name = obj.name()
 			objParent = pm.listRelatives(obj, parent=1)
 
-			instance = pm.instance(objects[0], leaf=leaf)
+			instance = pm.instance(objects[0])
 
-			pm.matchTransform(instance, obj, position=1, rotation=1, scale=0, pivots=1) #move object to center of the last selected items bounding box # pm.xform(instance, translation=pos, worldSpace=1, relative=1) #move to the original objects location.
+			self.unInstance(obj)
+			pm.makeIdentity(obj, apply=1, translate=1, rotate=0, scale=0)
+			pm.matchTransform(instance, obj, position=1, rotation=1, scale=1, pivots=1) #move object to center of the last selected items bounding box # pm.xform(instance, translation=pos, worldSpace=1, relative=1) #move to the original objects location.
 
-			pm.parent(instance, objParent) #parent the instance under the original objects parent.
+			try:
+				pm.parent(instance, objParent) #parent the instance under the original objects parent.
+			except RuntimeError as error: #It is already a child of the parent.
+				pass
 	
 			pm.delete(obj, constructionHistory=True) #delete history for the object so that the namespace is cleared.
 			pm.delete(obj)
 			pm.rename(instance, name+append)
 		pm.select(objects[1:])
+		return objects[1:]
 		# pm.undoInfo(closeChunk=1)
 
 

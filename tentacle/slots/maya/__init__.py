@@ -116,7 +116,7 @@ class Slots_maya(Slots):
 
 
 	@staticmethod
-	def convertType(objects, returnType='str', returnNodeType='shape', flatten=False):
+	def convertReturnType(objects, returnType='str', returnNodeType='shape', flatten=False):
 		'''Convert objects to/from <obj>, 'strings', integers.
 
 		:Parameters:
@@ -128,7 +128,7 @@ class Slots_maya(Slots):
 		:Return:
 			(list)(dict) Dependant on flags.
 
-		ex. call: Slots_maya.convertType(<edges>, 'str', flatten=True) #returns a list of string object names from a list of edge objects.
+		ex. call: Slots_maya.convertReturnType(<edges>, 'str', flatten=True) #returns a list of string object names from a list of edge objects.
 		'''
 		if returnType=='str':
 			objects = pm.ls(objects, flatten=flatten)
@@ -159,7 +159,7 @@ class Slots_maya(Slots):
 					else:
 						result[obj] = [componentNum]
 				except ValueError as error: #incompatible object type.
-					break; print ('# Error: {}.convertType(): unable to convert {} {} to int. {}. #'.format(__name__, obj, num, error)) 
+					break; print ('# Error: {}.convertReturnType(): unable to convert {} {} to int. {}. #'.format(__name__, obj, num, error)) 
 
 		return result
 
@@ -222,7 +222,7 @@ class Slots_maya(Slots):
 		if not components:
 			components=[]
 
-		result = Slots_maya.convertType(components, returnType=returnType, returnNodeType=returnNodeType, flatten=flatten)
+		result = Slots_maya.convertReturnType(components, returnType=returnType, returnNodeType=returnNodeType, flatten=flatten)
 
 		return result
 
@@ -411,7 +411,7 @@ class Slots_maya(Slots):
 
 
 	@staticmethod
-	def getClosestVerts(set1, set2, tolerance=100):
+	def getClosestVerts(set1, set2, tolerance=1000):
 		'''Find the two closest vertices between the two sets of vertices.
 
 		:Parameters:
@@ -507,10 +507,10 @@ class Slots_maya(Slots):
 		:Return:
 			(list) The components comprising the path.
 		'''
-		obj = set(pm.ls(components, objectsOnly=1, flatten=1))[0]
+		obj = pm.ls(components, objectsOnly=1)[0]
 
 		result=[]
-		componentNumbers = list(Slots_maya.convertType(components, returnType='int', flatten=1).values())[0] #get the vertex numbers as integer values. ie. [818, 1380]
+		componentNumbers = list(Slots_maya.convertReturnType(components, returnType='int', flatten=1).values())[0] #get the vertex numbers as integer values. ie. [818, 1380]
 
 		if returnType=='shortestEdgePath':
 			edgesLong = pm.polySelect(obj, query=1, shortestEdgePath=(componentNumbers[0], componentNumbers[1])) #(vtx, vtx)

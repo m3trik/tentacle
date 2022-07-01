@@ -87,7 +87,7 @@
      <string>UV</string>
     </property>
    </widget>
-   <widget class="QPushButton" name="b018">
+   <widget class="QPushButton" name="b000">
     <property name="enabled">
      <bool>true</bool>
     </property>
@@ -95,21 +95,21 @@
      <rect>
       <x>305</x>
       <y>240</y>
-      <width>51</width>
+      <width>121</width>
       <height>19</height>
      </rect>
     </property>
     <property name="maximumSize">
      <size>
-      <width>111</width>
+      <width>999</width>
       <height>19</height>
      </size>
     </property>
     <property name="toolTip">
-     <string>Select a poly object or UV's to be unfolded.</string>
+     <string>Unfold and layout the selected UV's</string>
     </property>
     <property name="text">
-     <string>Unfold</string>
+     <string>Unfold and Pack</string>
     </property>
     <property name="autoDefault">
      <bool>true</bool>
@@ -155,7 +155,7 @@
      <bool>false</bool>
     </property>
    </widget>
-   <widget class="QPushButton" name="b000">
+   <widget class="QPushButton" name="b003">
     <property name="enabled">
      <bool>true</bool>
     </property>
@@ -163,18 +163,18 @@
      <rect>
       <x>430</x>
       <y>270</y>
-      <width>111</width>
+      <width>141</width>
       <height>19</height>
      </rect>
     </property>
     <property name="maximumSize">
      <size>
-      <width>111</width>
+      <width>999</width>
       <height>19</height>
      </size>
     </property>
     <property name="toolTip">
-     <string>Cut all UV seams at hard edges</string>
+     <string>Cut all UV seams at hard edges.</string>
     </property>
     <property name="text">
      <string>Cut UV Hard Edges</string>
@@ -187,43 +187,6 @@
     </property>
     <property name="flat">
      <bool>false</bool>
-    </property>
-   </widget>
-   <widget class="QPushButton" name="b012">
-    <property name="enabled">
-     <bool>true</bool>
-    </property>
-    <property name="geometry">
-     <rect>
-      <x>380</x>
-      <y>240</y>
-      <width>81</width>
-      <height>19</height>
-     </rect>
-    </property>
-    <property name="sizePolicy">
-     <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-      <horstretch>0</horstretch>
-      <verstretch>0</verstretch>
-     </sizepolicy>
-    </property>
-    <property name="maximumSize">
-     <size>
-      <width>111</width>
-      <height>19</height>
-     </size>
-    </property>
-    <property name="toolTip">
-     <string>A tool for automatically unfolding UV</string>
-    </property>
-    <property name="text">
-     <string>Auto Unwrap</string>
-    </property>
-    <property name="iconSize">
-     <size>
-      <width>18</width>
-      <height>18</height>
-     </size>
     </property>
    </widget>
    <widget class="QPushButton" name="b011">

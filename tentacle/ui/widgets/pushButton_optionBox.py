@@ -61,6 +61,16 @@ class PushButton_optionBox(QtWidgets.QPushButton, Attributes, RichText):
 		layout.addWidget(self.orig_parent, 0)
 		layout.addWidget(self, 1)
 
+		# self.setStyleSheet('''
+		# 	QPushButton {border: 0px solid transparent;}
+		# 	''')
+		# self.orig_parent.setStyleSheet('''
+		# 	QPushButton {border: 0px solid transparent;}
+		# 	''')
+		# container.setStyleSheet('''
+		# 	QWidget {border: 1px solid rgb(50,50,50);}
+		# 	''')
+
 		self.setAttribute(QtCore.Qt.WA_SetStyle) #Indicates that the widget has a style of its own.
 		self.setAttributes(**kwargs)
 

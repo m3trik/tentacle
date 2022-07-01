@@ -158,7 +158,9 @@ class Normals_maya(Normals, Slots_maya):
 		tb = self.normals_ui.tb004
 
 		byUvShell = tb.contextMenu.chk003.isChecked()
-		self.averageNormals(byUvShell)
+
+		objects = pm.ls(selection=1, objectsOnly=1, flatten=1)
+		self.averageNormals(objects, byUvShell=byUvShell)
 
 
 	def b001(self):
@@ -197,14 +199,13 @@ class Normals_maya(Normals, Slots_maya):
 
 
 	@Slots_maya.undo
-	def averageNormals(self, byUvShell=False):
+	def averageNormals(self, objects, byUvShell=False):
 		'''Average Normals
 
 		:Parameters:
 			byUvShell (bool) = Average each UV shell individually.
 		'''
 		# pm.undoInfo(openChunk=1)
-		objects = pm.ls(selection=1, objectsOnly=1, flatten=1)
 		for obj in objects:
 
 			if byUvShell:

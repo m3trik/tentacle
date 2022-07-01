@@ -323,6 +323,13 @@ class Transform_maya(Transform, Slots_maya):
 		pm.mel.CenterPivot()
 
 
+	def b004(self):
+		'''Freeze Transformations and center pivot
+		'''
+		pm.makeIdentity(apply=True, translate=True, rotate=True, scale=True) #this is the same as pm.makeIdentity(apply=True)
+		pm.xform(centerPivots=1)
+
+
 	def b005(self):
 		'''Move To
 		'''
@@ -426,11 +433,11 @@ class Transform_maya(Transform, Slots_maya):
 		# pm.undoInfo(closeChunk=1)
 
 
-	def moveTo(self, obj, target, targetCenter=True):
+	def moveTo(self, source, target, targetCenter=True):
 		'''Move an object(s) to the given target.
 
 		:Parameters:
-			obj (str)(obj)(list) = The objects to move.
+			source (str)(obj)(list) = The objects to move.
 			target (str)(obj) = The object to move to.
 			targetCenter (bool) = Move to target pivot pos, or the bounding box center of the target.
 		'''
@@ -442,7 +449,7 @@ class Transform_maya(Transform, Slots_maya):
 		else:
 			target_pos = pm.xform(target, q=1, worldSpace=1, rp=1) #get the pivot position.
 
-		pm.xform(obj, translation=target_pos, worldSpace=1, relative=1)
+		pm.xform(source, translation=target_pos, worldSpace=1, relative=1)
 
 
 	@Slots_maya.undo
@@ -568,7 +575,7 @@ class Transform_maya(Transform, Slots_maya):
 
 
 	def getOrientation(self, obj, returnType='point'):
-		'''Get an objects orientation.
+		'''Get an objects orientation as a point of vector.
 
 		:Parameters:
 			obj (str)(obj) = The object to get the orientation of.
@@ -818,7 +825,21 @@ class Transform_maya(Transform, Slots_maya):
 			distance[bb_dist] = obj
 
 		result = [distance[i] for i in sorted(distance)]
-		return reversed(result) if reverse else result
+		return list(reversed(result)) if reverse else result
+
+
+	@staticmethod
+	def matchTransformByVertexOrder(source, target):
+		'''Match transform and rotation by using 3 vertices from each object.
+
+		:Parameters:
+			source (str)(obj) = The object to move from.
+			target (str)(obj) = The object to move to.
+		'''
+		source_verts = [pm.ls(source, objectsOnly=1)[0].verts[i] for i in range(3)]
+		target_verts = [pm.ls(target, objectsOnly=1)[0].verts[i] for i in range(3)]
+
+		Transform_maya.snap3PointsTo3Points(source_verts+target_verts)
 
 
 	@staticmethod
@@ -836,8 +857,8 @@ class Transform_maya(Transform, Slots_maya):
 		objectToMove = pm.ls(vertices[:3], objectsOnly=True)
 
 		# get the world space position of each selected point object
-		p0, p1, p2 = [pm.pointPosition(v) for v in vertices[:3]]
-		p3, p4, p5 = [pm.pointPosition(v) for v in vertices[3:]]
+		p0, p1, p2 = [pm.pointPosition(v) for v in vertices[0:3]]
+		p3, p4, p5 = [pm.pointPosition(v) for v in vertices[3:6]]
 
 		dx, dy, dz = distance = [ # calculate the translation amount - the first point on each pair is the point to use for translation.
 			p3[0] - p0[0],
@@ -910,6 +931,26 @@ class Transform_maya(Transform, Slots_maya):
 
 		rotation = Slots.xyzRotation(angle, axis2)
 		pm.rotate(objectToMove, str(rotation[0])+'rad', str(rotation[1])+'rad', str(rotation[2])+'rad', pivot=p4, relative=1)
+
+
+	@staticmethod
+	def isOverlapping(obj1, obj2, tolerance=0.001):
+		'''Check if the vertices in obj1 and obj2 are overlapping within the given tolerance.
+
+		:Parameters:
+			obj1 (str)(obj) = The first object to check. Object can be a component.
+			obj2 (str)(obj) = The second object to check. Object can be a component.
+			tolerance (float) = The maximum search distance before a vertex is considered not overlapping.
+
+		:Return:
+			(bool)
+		'''
+		vert_set1 = pm.ls(pm.polyListComponentConversion(obj1, toVertex=1), flatten=1)
+		vert_set2 = pm.ls(pm.polyListComponentConversion(obj2, toVertex=1), flatten=1)
+
+		closestVerts = Slots_maya.getClosestVerts(vert_set1, vert_set2, tolerance=tolerance)
+
+		return True if vert_set1 and len(closestVerts)==len(vert_set1) else False
 
 
 

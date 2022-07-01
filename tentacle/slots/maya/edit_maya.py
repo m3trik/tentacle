@@ -120,8 +120,7 @@ class Edit_maya(Edit, Slots_maya):
 			return
 
 		if mergeVertices:
-			[print (obj.vtx[:]) for obj in objects]
-			[pm.polyMergeVertex(obj.vtx[:], distance=0.0001) for obj in objects] #merge vertices on each object.
+			[pm.polyMergeVertex(obj.verts, distance=0.0001) for obj in objects] #merge vertices on each object.
 
 		if overlappingFaces:
 			duplicates = self.getOverlappingFaces(objects)

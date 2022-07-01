@@ -32,6 +32,7 @@ class Scene(Slots):
 		tb000.contextMenu.add('QComboBox', addItems=['capitalize', 'upper', 'lower', 'swapcase', 'title'], setObjectName='cmb001', setToolTip='Set desired python case operator.')
 
 		tb001 = self.scene_ui.tb001
+		tb001.contextMenu.add('QCheckBox', setText='Alphanumeric', setObjectName='chk005', setToolTip='When True use an alphanumeric character as a suffix when there is less than 26 objects else use integers.')
 		tb001.contextMenu.add('QCheckBox', setText='Strip Trailing Integers', setObjectName='chk002', setChecked=True, setToolTip="Strip any trailing integers. ie. '123' of 'cube123'")
 		tb001.contextMenu.add('QCheckBox', setText='Strip Trailing Alphanumeric', setObjectName='chk003', setChecked=True, setToolTip="Strip any trailing uppercase alphanumeric chars that are prefixed with an underscore.  ie. 'A' of 'cube_A'")
 		tb001.contextMenu.add('QCheckBox', setText='Reverse', setObjectName='chk004', setToolTip='Reverse the naming order. (Farthest object first)')

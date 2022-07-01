@@ -223,29 +223,29 @@
      <bool>false</bool>
     </property>
    </widget>
-   <widget class="QPushButton" name="b002">
+   <widget class="QPushButton" name="b004">
     <property name="enabled">
      <bool>true</bool>
     </property>
     <property name="geometry">
      <rect>
-      <x>100</x>
-      <y>290</y>
-      <width>126</width>
+      <x>15</x>
+      <y>280</y>
+      <width>201</width>
       <height>19</height>
      </rect>
     </property>
     <property name="maximumSize">
      <size>
-      <width>126</width>
+      <width>999</width>
       <height>19</height>
      </size>
     </property>
     <property name="toolTip">
-     <string>Freeze transformations on any selected objects</string>
+     <string>Freeze transformations on any selected objects and center the pivot on each objects bounding box.</string>
     </property>
     <property name="text">
-     <string>Freeze Transformations</string>
+     <string>Freeze Transf and Center Pivot</string>
     </property>
     <property name="iconSize">
      <size>

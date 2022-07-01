@@ -201,6 +201,31 @@
      <string>Xray Other</string>
     </property>
    </widget>
+   <widget class="QPushButton" name="b004">
+    <property name="geometry">
+     <rect>
+      <x>415</x>
+      <y>340</y>
+      <width>123</width>
+      <height>19</height>
+     </rect>
+    </property>
+    <property name="minimumSize">
+     <size>
+      <width>0</width>
+      <height>19</height>
+     </size>
+    </property>
+    <property name="maximumSize">
+     <size>
+      <width>999</width>
+      <height>19</height>
+     </size>
+    </property>
+    <property name="text">
+     <string>Show Geometry</string>
+    </property>
+   </widget>
   </widget>
  </widget>
  <resources/>

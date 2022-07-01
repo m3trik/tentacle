@@ -69,12 +69,13 @@ class Scene_maya(Scene, Slots_maya):
 		'''
 		tb = self.scene_ui.tb001
 
+		alphanumeric = tb.contextMenu.chk005.isChecked()
 		stripTrailingInts = tb.contextMenu.chk002.isChecked()
 		stripTrailingAlpha = tb.contextMenu.chk003.isChecked()
 		reverse = tb.contextMenu.chk004.isChecked()
 
 		selection = pm.ls(sl=1, objectsOnly=1)
-		self.setSuffixByObjLocation(selection, stripTrailingInts=stripTrailingInts, stripTrailingAlpha=stripTrailingAlpha, reverse=reverse)
+		self.setSuffixByObjLocation(selection, alphanumeric=alphanumeric, stripTrailingInts=stripTrailingInts, stripTrailingAlpha=stripTrailingAlpha, reverse=reverse)
 
 
 	@Slots_maya.undo
@@ -147,11 +148,12 @@ class Scene_maya(Scene, Slots_maya):
 
 
 	@Slots_maya.undo
-	def setSuffixByObjLocation(self, objects, stripTrailingInts=True, stripTrailingAlpha=True, reverse=False):
+	def setSuffixByObjLocation(self, objects, alphanumeric=False, stripTrailingInts=True, stripTrailingAlpha=True, reverse=False):
 		'''Rename objects with a suffix defined by its location from origin.
 
 		:Parameters:
 			objects (str)(int)(list) = The object(s) to rename.
+			alphanumeric (str) = When True use an alphanumeric character as a suffix when there is less than 26 objects else use integers.
 			stripTrailingInts (bool) = Strip any trailing integers. ie. 'cube123'
 			stripTrailingAlpha (bool) = Strip any trailing uppercase alphanumeric chars that are prefixed with an underscore.  ie. 'cube_A'
 			reverse (bool) = Reverse the naming order. (Farthest object first)
@@ -160,29 +162,32 @@ class Scene_maya(Scene, Slots_maya):
 		import re
 
 		length = len(objects)
-		if length<=26:
-			suffix = string.ascii_lowercase.upper()
+		if alphanumeric:
+			if length<=26:
+				suffix = string.ascii_lowercase.upper()
 		else:
 			suffix = [str(n).zfill(len(str(length))) for n in range(length)]
 
 		ordered_objs = self.transform().orderByDistance(objects, reverse=reverse)
 
+		newNames={} #the object with the new name set as a key.
 		for n, obj in enumerate(ordered_objs):
 
 			current_name = obj.name()
 
-			if stripTrailingAlpha:
-				while len(current_name)>2 and current_name[-2]=='_' and current_name[-1].isupper():
-					current_name = current_name.rstrip(current_name[-2:])
+			while ((current_name[-1]=='_' or current_name[-1].isdigit()) and stripTrailingInts) or ((current_name[-2]=='_' and current_name[-1].isupper()) and stripTrailingAlpha):
+				if (current_name[-2]=='_' and current_name[-1].isupper()) and stripTrailingAlpha: #trailing underscore and uppercase alphanumeric char.
+					current_name = re.sub(re.escape(current_name[-2:]) + '$', '', current_name)
 
-			if stripTrailingInts:
-				try:
-					trailing_ints = re.findall(r"\d+\s*$", current_name)[0]
-					current_name = current_name.rstrip(trailing_ints)
-				except IndexError as error:
-					pass
+				if (current_name[-1]=='_' or current_name[-1].isdigit()) and stripTrailingInts: #trailing underscore and integers.
+					current_name = re.sub(re.escape(current_name[-1:]) + '$', '', current_name)
 
-			pm.rename(obj, current_name+'_'+suffix[n])
+			newNames[obj] = current_name+'_'+suffix[n]
+
+		#rename all with a placeholder first so that there are no conflicts.
+		[pm.rename(obj, 'p0000000000') for obj in ordered_objs]
+		#rename all with the new names.
+		[pm.rename(obj, newNames[obj]) for obj in ordered_objs]
 
 
 
