@@ -38,6 +38,12 @@ class Transform(Slots):
 		tb001.contextMenu.add('QCheckBox', setText='Auto Align', setObjectName='chk010', setChecked=True, setToolTip='')
 		tb001.contextMenu.add('QCheckBox', setText='Auto Align: Two Axes', setObjectName='chk011', setToolTip='')
 
+		tb002 = self.transform_ui.tb002
+		tb002.contextMenu.add('QCheckBox', setText='Translate', setObjectName='chk032', setChecked=True, setToolTip='The translation will be changed to 0, 0, 0.')
+		tb002.contextMenu.add('QCheckBox', setText='Rotate', setObjectName='chk033', setToolTip='The rotation will be changed to 0, 0, 0.')
+		tb002.contextMenu.add('QCheckBox', setText='Scale', setObjectName='chk034', setChecked=True, setToolTip='The scale factor will be changed to 1, 1, 1.')
+		tb002.contextMenu.add('QCheckBox', setText='Center Pivot', setObjectName='chk035', setChecked=True, setToolTip="Move the objects pivot to the center of it's bounding box.")
+
 		cmb001 = self.transform_ui.cmb001
 		cmb001.popupStyle = 'qmenu'
 		cmb001.menu_.setTitle('Constaints')

@@ -190,12 +190,13 @@ class Edit_maya(Edit, Slots_maya):
 
 			elif pm.objectType(obj, isType='mesh'): 
 				if maskEdge:
-					edges = pm.ls(obj, sl=1, flatten=1)
+					selection = pm.ls(obj, sl=1, flatten=1)
 					if deleteRing:
-						[edges.append(i) for i in self.getEdgePath(selection, 'edgeRing')] # pm.polySelect(edges, edgeRing=True) #select the edge ring.
+						pm.polyDelEdge(self.getEdgePath(selection, 'edgeRing'), cleanVertices=True) # pm.polySelect(edges, edgeRing=True) #select the edge ring.
 					if deleteLoop:
-						[edges.append(i) for i in self.getEdgePath(selection, 'edgeLoop')] # pm.polySelect(edges, edgeLoop=True) #select the edge loop.
-					pm.polyDelEdge(edges, cleanVertices=True) #delete edges
+						pm.polyDelEdge(self.getEdgePath(selection, 'edgeLoop'), cleanVertices=True) # pm.polySelect(edges, edgeLoop=True) #select the edge loop.
+					else:
+						pm.polyDelEdge(selection, cleanVertices=True) #delete edges
 
 				elif maskVertex:
 					pm.polyDelVertex() #try delete vertices

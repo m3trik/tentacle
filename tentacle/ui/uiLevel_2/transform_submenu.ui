@@ -223,15 +223,15 @@
      <bool>false</bool>
     </property>
    </widget>
-   <widget class="QPushButton" name="b004">
+   <widget class="PushButton" name="tb002">
     <property name="enabled">
      <bool>true</bool>
     </property>
     <property name="geometry">
      <rect>
-      <x>15</x>
+      <x>75</x>
       <y>280</y>
-      <width>201</width>
+      <width>136</width>
       <height>19</height>
      </rect>
     </property>
@@ -245,7 +245,7 @@
      <string>Freeze transformations on any selected objects and center the pivot on each objects bounding box.</string>
     </property>
     <property name="text">
-     <string>Freeze Transf and Center Pivot</string>
+     <string>Freeze Transforms</string>
     </property>
     <property name="iconSize">
      <size>

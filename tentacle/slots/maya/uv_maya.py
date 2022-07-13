@@ -184,6 +184,7 @@ class Uv_maya(Uv, Slots_maya):
 		pm.u3dLayout(sel, scl=similar, resolution=mapSize, shellSpacing=shellPadding, tileMargin=tilePadding, preScaleMode=scale, preRotateMode=rotate, packBox=[M-1, D, I, U]) #layoutScaleMode (int), multiObject (bool), mutations (int), packBox (float, float, float, float), preRotateMode (int), preScaleMode (int), resolution (int), rotateMax (float), rotateMin (float), rotateStep (float), shellSpacing (float), tileAssignMode (int), tileMargin (float), tileU (int), tileV (int), translate (bool)
 
 
+	@Slots_maya.undo
 	@Slots_maya.attr
 	def tb001(self, state=None):
 		'''Auto Unwrap

@@ -86,12 +86,12 @@ class Mirror_maya(Mirror, Slots_maya):
 			(obj) The polyMirrorFace history node if a single object, else None.
 		'''
 		direction = {
-			 'x': (0, 0,(-1, 1, 1)),	# the direction dict:
-			'-x': (1, 3,(-1, 1, 1)),	# 	first index: axisDirection: 0) negative axis, 1) positive.
-			 'y': (0, 1, (1,-1, 1)),	# 	second index: axis_as_int: 0=x, 1=y, 2=z, 3=-x, 4=-y, 5=-z.
-			'-y': (1, 4, (1,-1, 1)),	# 	remaining three are (x, y, z) scale values. #Used only when scaling an instance.
-			 'z': (0, 2, (1, 1,-1)),
-			'-z': (1, 5, (1, 1,-1))
+			'-x': (0, 0,(-1, 1, 1)),	# the direction dict:
+			 'x': (1, 0,(-1, 1, 1)),	# 	first index: axis direction: 0=negative axis, 1=positive.
+			'-y': (0, 1, (1,-1, 1)),	# 	second index: axis_as_int: 0=x, 1=y, 2=z
+			 'y': (1, 1, (1,-1, 1)),	# 	remaining three are (x, y, z) scale values. #Used only when scaling an instance.
+			'-z': (0, 2, (1, 1,-1)),
+			 'z': (1, 2, (1, 1,-1)),
 		}
 
 		axis = axis.lower() #assure case.

@@ -262,10 +262,20 @@ class Transform_maya(Transform, Slots_maya):
 			self.alignVertices(mode=6,average=avg,edgeloop=loop)
 
 
-	def lbl000(self):
-		'''Transform Constraints: Disable All
+	def tb002(self, state=None):
+		'''Freeze Transformations
 		'''
-		self.transform_ui.cmb001.setCurrentIndex(0)
+		tb = self.transform_ui.tb002
+
+		translate = tb.contextMenu.chk032.isChecked()
+		rotate = tb.contextMenu.chk033.isChecked()
+		scale = tb.contextMenu.chk034.isChecked()
+		centerPivot = tb.contextMenu.chk035.isChecked()
+
+		if centerPivot:
+			pm.xform(centerPivots=1)
+
+		pm.makeIdentity(apply=True, translate=translate, rotate=rotate, scale=scale) #this is the same as pm.makeIdentity(apply=True)
 
 
 	def cmb001(self, index=-1):
@@ -311,23 +321,10 @@ class Transform_maya(Transform, Slots_maya):
 		self.matchScale(frm, to)
 
 
-	def b002(self):
-		'''Freeze Transformations
-		'''
-		pm.makeIdentity(apply=True, translate=True, rotate=True, scale=True) #this is the same as pm.makeIdentity(apply=True)
-
-
 	def b003(self):
 		'''Center Pivot Object
 		'''
 		pm.mel.CenterPivot()
-
-
-	def b004(self):
-		'''Freeze Transformations and center pivot
-		'''
-		pm.makeIdentity(apply=True, translate=True, rotate=True, scale=True) #this is the same as pm.makeIdentity(apply=True)
-		pm.xform(centerPivots=1)
 
 
 	def b005(self):
@@ -348,7 +345,7 @@ class Transform_maya(Transform, Slots_maya):
 	def b012(self):
 		'''Make Live (Toggle)
 		'''
-		cmb = self.transform_ui.lbl000
+		cmb = self.transform_ui.cmb001
 		selection = pm.ls(sl=1, objectsOnly=1)
 
 		if selection:
