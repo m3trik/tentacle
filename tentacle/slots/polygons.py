@@ -26,6 +26,7 @@ class Polygons(Slots):
 		ctx = self.polygons_ui.tb000.contextMenu
 		if not ctx.containsMenuItems:
 			ctx.add('QDoubleSpinBox', setPrefix='Distance: ', setObjectName='s002', setMinMax_='0.0000-10 step.0005', setValue=0.0005, setHeight_=20, setToolTip='Merge Distance.')
+			ctx.add('QPushButton', setText='Set Distance', setObjectName='b005', setHeight_=20, setToolTip='Set the distance using two selected vertices.\nElse; return the Distance to it\'s default value')
 
 		ctx = self.polygons_ui.tb001.contextMenu
 		if not ctx.containsMenuItems:
@@ -95,3 +96,10 @@ class Polygons(Slots):
 		'''
 		self.toggleWidgets(setUnChecked='chk008,chk009')
 
+
+	def setMergeVertexDistance(self, p1, p2):
+		'''Merge Vertices: Set Distance
+		'''
+		s = self.polygons_ui.tb000.contextMenu.s002
+		dist = Slots.getDistanceBetweenTwoPoints(p1, p2)
+		s.setValue(dist)

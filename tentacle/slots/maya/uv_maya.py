@@ -359,29 +359,11 @@ class Uv_maya(Uv, Slots_maya):
 	def b002(self):
 		'''Transfer UV's
 		'''
-		selection = pm.ls(orderedSelection=1, flatten=1)
-		if len(selection)<2:
+		sel = pm.ls(orderedSelection=1, flatten=1)
+		try:
+			Uv_maya.transferUVs(sel[0], sel[1:])
+		except IndexError as error:
 			self.messageBox('<b>Nothing selected.</b><br>The operation requires the selection of two polygon objects.')
-			return
-
-		# pm.undoInfo(openChunk=1)
-		set1 = pm.listRelatives(selection[0], children=1)
-		set2 = pm.listRelatives(selection[1:], children=1)
-
-		for frm in set1:
-			for to in set2:
-				if pm.polyEvaluate(frm)==pm.polyEvaluate(to):
-					pm.transferAttributes(frm, to, transferUVs=2, sampleSpace=4) #-transferNormals 0 -transferUVs 2 -transferColors 2 -sourceUvSpace "map1" -targetUvSpace "map1" -searchMethod 3-flipUVs 0 -colorBorders 1 ;
-					set2.remove(to) #remove the obj from the transfer list when an exact match is found.
-				elif pm.polyEvaluate(frm, face=1)==pm.polyEvaluate(to, face=1) and pm.polyEvaluate(frm, boundingBox=1)==pm.polyEvaluate(to, boundingBox=1):
-					pm.transferAttributes(frm, to, transferUVs=2, sampleSpace=4) #transfer to the object if it is similar, but keep in transfer list in case an exact match is found later.
-
-		for remaining in set2:
-			print('Error: No match found for: {}.'.format(remaining.name()))
-			pm.transferAttributes(set1, remaining, transferUVs=2, sampleSpace=4)
-
-		pm.delete(selection, constructionHistory=1)
-		# pm.undoInfo(closeChunk=1)
 
 
 	def b005(self):
@@ -558,6 +540,31 @@ class Uv_maya(Uv, Slots_maya):
 		pm.progressWindow(ep=True) # End progressWindow
 
 		return uv_border_edges
+
+
+	@staticmethod
+	def transferUVs(frm, to):
+		'''
+		'''
+		# pm.undoInfo(openChunk=1)
+		set1 = pm.listRelatives(frm, children=1)
+		set2 = pm.listRelatives(to, children=1)
+
+		for frm in set1:
+			for to in set2:
+				if pm.polyEvaluate(frm)==pm.polyEvaluate(to):
+					pm.polyTransfer(frm, alternateObject=to, uvSets=True) # pm.transferAttributes(frm, to, transferUVs=2, sampleSpace=4) #-transferNormals 0 -transferUVs 2 -transferColors 2 -sourceUvSpace "map1" -targetUvSpace "map1" -searchMethod 3-flipUVs 0 -colorBorders 1 ;
+					set2.remove(to) #remove the obj from the transfer list when an exact match is found.
+				elif pm.polyEvaluate(frm, face=1)==pm.polyEvaluate(to, face=1) and pm.polyEvaluate(frm, boundingBox=1)==pm.polyEvaluate(to, boundingBox=1):
+					print (frm, to, pm.polyEvaluate(frm, face=1), pm.polyEvaluate(frm))
+					pm.transferAttributes(frm, to, transferUVs=2, sampleSpace=4) #transfer to the object if it is similar, but keep in transfer list in case an exact match is found later.
+
+		for remaining in set2:
+			print('Error: No match found for: {}.'.format(remaining.name()))
+			pm.transferAttributes(set1, remaining, transferUVs=2, sampleSpace=4)
+
+		pm.delete(to, constructionHistory=1)
+		# pm.undoInfo(closeChunk=1)
 
 
 

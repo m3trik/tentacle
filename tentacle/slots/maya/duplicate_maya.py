@@ -15,7 +15,7 @@ class Duplicate_maya(Duplicate, Slots_maya):
 		dh.contextMenu.cmb000.addItems_(items, 'Maya Menus')
 
 		tb000 = self.duplicate_ui.tb000
-		# tb000.contextMenu.add('QCheckBox', setText='Match Vertex Orientaion', setObjectName='chk001', setChecked=False, setToolTip='Attempt to match 3 points of the source to the same 3 points of the target.')
+		tb000.contextMenu.add('QCheckBox', setText='Match Vertex Orientaion', setObjectName='chk001', setChecked=False, setToolTip='Attempt to match 3 points of the source to the same 3 points of the target.')
 
 
 	def cmb000(self, index=-1):
@@ -149,7 +149,8 @@ class Duplicate_maya(Duplicate, Slots_maya):
 			numOfDuplicates = int(self.duplicate_linear_ui.s005.value())
 			keepFacesTogether = self.duplicate_linear_ui.chk009.isChecked()
 			transXYZ = [float(self.duplicate_linear_ui.s002.value()),float(self.duplicate_linear_ui.s003.value()),float(self.duplicate_linear_ui.s004.value())]
-			rotXYZ =  [float(self.duplicate_linear_ui.s007.value()),float(self.duplicate_linear_ui.s008.value()),float(self.duplicate_linear_ui.s009.value())]
+			rotXYZ = [float(self.duplicate_linear_ui.s007.value()),float(self.duplicate_linear_ui.s008.value()),float(self.duplicate_linear_ui.s009.value())]
+			scaleXYZ = [float(self.duplicate_linear_ui.s010.value()),float(self.duplicate_linear_ui.s011.value()),float(self.duplicate_linear_ui.s012.value())]
 			translateToComponent = self.duplicate_linear_ui.chk007.isChecked()
 			alignToNormal = self.duplicate_linear_ui.chk008.isChecked()
 			componentList = [self.duplicate_linear_ui.cmb001.itemText(i) for i in range(self.duplicate_linear_ui.cmb001.count())]
@@ -170,6 +171,7 @@ class Duplicate_maya(Duplicate, Slots_maya):
 				pm.select(obj)
 			else:
 				self.messageBox('Nothing selected.')
+
 				return
 
 			# pm.undoInfo (openChunk=1)
@@ -180,6 +182,7 @@ class Duplicate_maya(Duplicate, Slots_maya):
 
 						pm.xform (obj, rotation=[rotXYZ[0], rotXYZ[1], rotXYZ[2]])
 						pm.xform (obj, translation=[vertexPoint[0]+transXYZ[0], vertexPoint[1]+transXYZ[1], vertexPoint[2]+transXYZ[2]])
+						pm.xform (obj, scale=[scaleXYZ[0], scaleXYZ[1], scaleXYZ[2]])
 
 						if component != componentList[len(componentList)-1]: #if not at the end of the list, create a new instance of the obj.
 							name = str(obj)+'_INST'+str(num)
@@ -189,6 +192,7 @@ class Duplicate_maya(Duplicate, Slots_maya):
 						duplicateObjList.append(duplicatedObject) #append duplicated object to list
 				else:
 					self.messageBox('Component list empty.')
+					self.toggleWidgets(self.duplicate_linear_ui, setDisabled='b002', setChecked='chk016')
 					return
 			else:
 				for _ in range(numOfDuplicates):
@@ -213,6 +217,7 @@ class Duplicate_maya(Duplicate, Slots_maya):
 
 					pm.xform (duplicatedObject, rotation=rotXYZ, relative=1)
 					pm.xform (duplicatedObject, translation=transXYZ, relative=1)
+					pm.xform (duplicatedObject, scale=scaleXYZ, relative=1)
 
 					duplicateObjList.append(duplicatedObject) #append duplicated object to list
 					pm.select(duplicatedObject)
@@ -238,7 +243,7 @@ class Duplicate_maya(Duplicate, Slots_maya):
 		'''
 		tb = self.duplicate_ui.tb000
 
-		# transformByVertexOrder = tb.contextMenu.chk001.isChecked()
+		transformByVertexOrder = tb.contextMenu.chk001.isChecked()
 
 		selection = pm.ls(sl=1, transforms=1)
 		if not selection:
@@ -247,7 +252,7 @@ class Duplicate_maya(Duplicate, Slots_maya):
 
 		if not pm.selectPref(q=1, trackSelectionOrder=1): #if ordered selection is not on, turn it on. If off, the current selection is likely not ordered.
 			pm.selectPref(trackSelectionOrder=1)
-		self.convertToInstances(selection)
+		self.convertToInstances(selection, transformByVertexOrder=transformByVertexOrder)
 
 
 	def b000(self):
@@ -317,12 +322,13 @@ class Duplicate_maya(Duplicate, Slots_maya):
 
 
 	@Slots_maya.undo
-	def convertToInstances(self, objects=[], append=''):
+	def convertToInstances(self, objects=[], transformByVertexOrder=False, append=''):
 		'''The first selected object will be instanced across all other selected objects.
 
 		:Parameters:
 			objects (list) = A list of objects to convert to instances. The first object will be the instance parent.
 			append (str) = Append a string to the end of any instanced objects. ie. '_INST'
+			transformByVertexOrder (bool) = Transform the instanced object by matching the transforms of the vertices between the two objects.
 
 		:Return:
 			(list) The instanced objects.
@@ -342,7 +348,13 @@ class Duplicate_maya(Duplicate, Slots_maya):
 
 			self.unInstance(obj)
 			pm.makeIdentity(obj, apply=1, translate=1, rotate=0, scale=0)
-			pm.matchTransform(instance, obj, position=1, rotation=1, scale=1, pivots=1) #move object to center of the last selected items bounding box # pm.xform(instance, translation=pos, worldSpace=1, relative=1) #move to the original objects location.
+			
+			if transformByVertexOrder:
+				self.transform().matchTransformByVertexOrder(instance, obj)
+				if not self.transform().isOverlapping(instance, obj):
+					print ('# {}: Unable to match {} transforms. #'.format(instance, obj))
+			else:
+				pm.matchTransform(instance, obj, position=1, rotation=1, scale=1, pivots=1) #move object to center of the last selected items bounding box # pm.xform(instance, translation=pos, worldSpace=1, relative=1) #move to the original objects location.
 
 			try:
 				pm.parent(instance, objParent) #parent the instance under the original objects parent.
@@ -390,3 +402,52 @@ print (__name__)
 # Notes
 # -----------------------------------------------
 	# b008, b009, b011
+
+
+#deprecated:
+
+	# @Slots_maya.undo
+	# def convertToInstances(self, objects=[], leaf=False, append=''):
+	# 	'''The first selected object will be instanced across all other selected objects.
+
+	# 	:Parameters:
+	# 		objects (list) = A list of objects to convert to instances. The first object will be the instance parent.
+	# 		leaf (bool) = Instances leaf-level objects. Acts like duplicate except leaf-level objects are instanced.
+	# 		append (str) = Append a string to the end of any instanced objects. ie. '_INST'
+	# 		transformByVertexOrder (bool) = Transform the instanced object by matching the transforms of the vertices between the two objects.
+
+	# 	:Return:
+	# 		(list) The instanced objects.
+
+	# 	ex. call: convertToInstances(pm.ls(sl=1))
+	# 	'''
+	# 	# pm.undoInfo(openChunk=1)
+	# 	p0x, p0y, p0z = pm.xform(objects[0], query=1, rotatePivot=1, worldSpace=1) #get the world space obj pivot.
+	# 	pivot = pm.xform(objects[0], query=1, rotatePivot=1, objectSpace=1) #get the obj pivot.
+
+	# 	for obj in objects[1:]:
+
+	# 		name = obj.name()
+	# 		objParent = pm.listRelatives(obj, parent=1)
+
+	# 		instance = pm.instance(objects[0], leaf=leaf)
+
+	# 		# if transformByVertexOrder:
+	# 		# 	self.transform().matchTransformByVertexOrder(instance, obj)
+	# 		# 	if not self.transform().isOverlapping(instance, obj):
+	# 		# 		print ('# {}: Unable to match {} transforms. #'.format(instance, obj))
+	# 		# else:
+	# 		self.transform().moveTo(instance, obj) #source, target
+	# 		pm.matchTransform(instance, obj, position=0, rotation=1, scale=0, pivots=0) #move object to center of the last selected items bounding box # pm.xform(instance, translation=pos, worldSpace=1, relative=1) #move to the original objects location.
+
+	# 		try:
+	# 			pm.parent(instance, objParent) #parent the instance under the original objects parent.
+	# 		except RuntimeError as error: #It is already a child of the parent.
+	# 			pass
+	
+	# 		pm.delete(obj, constructionHistory=True) #delete history for the object so that the namespace is cleared.
+	# 		pm.delete(obj)
+	# 		pm.rename(instance, name+append)
+	# 	pm.select(objects[1:])
+	# 	return objects[1:]
+	# 	# pm.undoInfo(closeChunk=1)

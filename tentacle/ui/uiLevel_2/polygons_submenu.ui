@@ -106,7 +106,7 @@
      </size>
     </property>
     <property name="whatsThis">
-     <string>polygons_mesh</string>
+     <string>polygons#mesh</string>
     </property>
     <property name="text">
      <string>Mesh</string>
@@ -134,7 +134,7 @@
      </size>
     </property>
     <property name="whatsThis">
-     <string>polygons_vertex</string>
+     <string>polygons#vertex</string>
     </property>
     <property name="text">
      <string>Vertex</string>
@@ -162,7 +162,7 @@
      </size>
     </property>
     <property name="whatsThis">
-     <string>polygons_edge</string>
+     <string>polygons#edge</string>
     </property>
     <property name="text">
      <string>Edge</string>
@@ -190,7 +190,7 @@
      </size>
     </property>
     <property name="whatsThis">
-     <string>polygons_face</string>
+     <string>polygons#face</string>
     </property>
     <property name="text">
      <string>Face</string>
@@ -218,7 +218,7 @@
      </size>
     </property>
     <property name="whatsThis">
-     <string>polygons_component</string>
+     <string>polygons#component</string>
     </property>
     <property name="text">
      <string>Component</string>

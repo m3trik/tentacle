@@ -194,8 +194,9 @@ class Normals_maya(Normals, Slots_maya):
 	def b010(self):
 		'''Reverse Normals
 		'''
-		sel = pm.ls(sl=1)
-		pm.polyNormal(sel, normalMode=3, userNormalMode=1) #3: reverse and cut a new shell on selected face(s). 4: reverse and propagate; Reverse the normal(s) and propagate this direction to all other faces in the shell.
+		for obj in pm.ls(sl=1, objectsOnly=1):
+			sel = pm.ls(obj, sl=1)
+			pm.polyNormal(sel, normalMode=3, userNormalMode=1) #3: reverse and cut a new shell on selected face(s). 4: reverse and propagate; Reverse the normal(s) and propagate this direction to all other faces in the shell.
 
 
 	@Slots_maya.undo

@@ -319,6 +319,20 @@ class Polygons_maya(Polygons, Slots_maya):
 		return pm.polyCut(component_sel, cuttingDirection=cuttingDirection, ch=1)
 
 
+	def b005(self):
+		'''Merge Vertices: Set Distance
+		'''
+		verts = pm.ls(sl=1, flatten=1)
+
+		try:
+			p1 = pm.pointPosition(verts[0], world=True)
+			p2 = pm.pointPosition(verts[1], world=True)
+		except IndexError as error:
+			p1, p2 = [(0.0005, 0, 0), (0, 0, 0)] #arbitrary points that will return the spinbox to it's default value of 0.0005.
+
+		self.setMergeVertexDistance(p1, p2)
+
+
 	def b009(self):
 		'''Collapse Component
 		'''

@@ -149,7 +149,7 @@
      </size>
     </property>
     <property name="whatsThis">
-     <string>polygons_face</string>
+     <string>polygons#face</string>
     </property>
     <property name="text">
      <string>Face</string>

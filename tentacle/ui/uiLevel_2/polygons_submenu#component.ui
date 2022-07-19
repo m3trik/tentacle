@@ -458,7 +458,7 @@
      </size>
     </property>
     <property name="whatsThis">
-     <string>polygons_component</string>
+     <string>polygons#component</string>
     </property>
     <property name="text">
      <string>Component</string>

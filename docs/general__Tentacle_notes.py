@@ -222,7 +222,17 @@ def tree000(self, wItem=None, column=None):
 # AttributeError: nt.Transform('|group') has no attribute or method named 'f'
 
 
+
+macros:
+turn on transform constraints while modifier key down.
+
+
+ui:
+hide groupboxes in menus where the contents are a subsection of a previous menu instead of having actual duplicate menus. ex. polygons_vertices would hide everything but the vertices groupbox. 
 dockable windows
+
+
+double left click always toggles between current and perspective cameras.
 
 
 scene:

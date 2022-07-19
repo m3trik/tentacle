@@ -828,11 +828,14 @@ class Transform_maya(Transform, Slots_maya):
 	@staticmethod
 	def matchTransformByVertexOrder(source, target):
 		'''Match transform and rotation by using 3 vertices from each object.
+		The vertex order is transferred to the target object(s).
 
 		:Parameters:
 			source (str)(obj) = The object to move from.
 			target (str)(obj) = The object to move to.
 		'''
+		pm.polyTransfer(source, alternateObject=target, vertices=2) #vertices positions are copied from the target object.
+
 		source_verts = [pm.ls(source, objectsOnly=1)[0].verts[i] for i in range(3)]
 		target_verts = [pm.ls(target, objectsOnly=1)[0].verts[i] for i in range(3)]
 

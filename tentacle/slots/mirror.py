@@ -28,11 +28,13 @@ class Mirror(Slots):
 		tb000.contextMenu.add('QRadioButton', setText='Y', setObjectName='chk002', setToolTip='Perform mirror along Y axis.')
 		tb000.contextMenu.add('QRadioButton', setText='Z', setObjectName='chk003', setToolTip='Perform mirror along Z axis.')
 		tb000.contextMenu.add('QCheckBox', setText='World Space', setObjectName='chk008', setChecked=True, setToolTip='Mirror in world space instead of object space.')
+		tb000.contextMenu.add('QCheckBox', setText='Un-Instance', setObjectName='chk009', setChecked=True, setToolTip='Un-Instance any previously instanced objects before mirroring.')
 		tb000.contextMenu.add('QCheckBox', setText='Instance', setObjectName='chk004', setToolTip='Instance the mirrored object(s).')
 		tb000.contextMenu.add('QCheckBox', setText='Cut', setObjectName='chk005', setToolTip='Perform a delete along specified axis before mirror.')
 		tb000.contextMenu.add('QCheckBox', setText='Merge', setObjectName='chk007', setChecked=True, setToolTip='Merge the mirrored geometry with the original.')
 		tb000.contextMenu.add('QSpinBox', setPrefix='Merge Mode: ', setObjectName='s001', setMinMax_='0-2 step1', setValue=0, setToolTip='0) Do not merge border edges.<br>1) Border edges merged.<br>2) Border edges extruded and connected.')
 		tb000.contextMenu.add('QDoubleSpinBox', setPrefix='Merge Threshold: ', setObjectName='s000', setMinMax_='0.000-10 step.001', setValue=0.005, setToolTip='Merge vertex distance.')
+		tb000.contextMenu.add('QCheckBox', setText='Delete Original', setObjectName='chk010', setToolTip='Delete the original objects after mirroring.')
 		tb000.contextMenu.add('QCheckBox', setText='Delete History', setObjectName='chk006', setChecked=True, setToolTip='Delete non-deformer history on the object before performing the operation.')
 
 		#sync widgets

@@ -105,6 +105,9 @@ class Duplicate(Slots):
 		self.duplicate_linear_ui.s007.valueChanged.connect(self.duplicateArray) 
 		self.duplicate_linear_ui.s008.valueChanged.connect(self.duplicateArray)
 		self.duplicate_linear_ui.s009.valueChanged.connect(self.duplicateArray)
+		self.duplicate_linear_ui.s010.valueChanged.connect(self.duplicateArray) 
+		self.duplicate_linear_ui.s011.valueChanged.connect(self.duplicateArray)
+		self.duplicate_linear_ui.s012.valueChanged.connect(self.duplicateArray)
 
 
 	def b007(self):

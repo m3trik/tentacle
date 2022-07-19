@@ -690,7 +690,9 @@ class Switchboard(QUiLoader, StyleSheet):
 					try:
 						l2 = self.sbDict[uiName]['uiLevel'][2]
 					except KeyError as error:
-						c = uiName.split('_submenu')[0] + '_submenu'
+						uiName, *tags = uiName.replace('_submenu', '').split('#', 1)
+						tags = '#'+'#'.join(tags) if tags else ''
+						c = '{}_submenu{}'.format(uiName, tags) #c = uiName.split('_submenu')[0] + '_submenu'
 						l2 = self.sbDict[uiName]['uiLevel'][2] = [n for n in self.sbDict
 																	if all((c==n, self.getUiLevel(n)==2))]
 				if 3 in level:
@@ -862,8 +864,8 @@ class Switchboard(QUiLoader, StyleSheet):
 		self.setUiSize([width, height], ui)
 
 
-	def getUiSize(self, ui=None, width=None, percentWidth=None, height=None, percentHeight=None): #get current ui size info.
-		'''Get the size info for each ui (allows for resizing a stacked widget where ordinarily resizing is constrained by the largest widget in the stack)
+	def getUiSize(self, ui=None, width=None, percentWidth=None, height=None, percentHeight=None):
+		'''Get the stored size info for each ui (allows for resizing a stacked widget where ordinarily resizing is constrained by the largest widget in the stack)
 
 		:Property:
 			size
@@ -878,10 +880,10 @@ class Switchboard(QUiLoader, StyleSheet):
 
 		:Return:
 			(int)(list)
-			if width: returns width as int
-			elif height: returns height as int
-			elif percentWidth: returns the percentage of the width as an int
-			elif percentHeight: returns the percentage of the height as an int
+			width: returns width as int
+			height: returns height as int
+			percentWidth: returns the percentage of the width as an int
+			percentHeight: returns the percentage of the height as an int
 			else: ui size info as integer values in a list. [width, hight]
 		'''
 		uiName = self.getUiName(ui)
@@ -1273,9 +1275,11 @@ class Switchboard(QUiLoader, StyleSheet):
 			return self.sbDict[uiName]['widgets']
 
 		except KeyError as error:
-			# print ('init widgets dict:', uiName)
-			self.sbDict[uiName]['widgets'] = {}
-			self.addWidgets(uiName) #construct the signals and slots for the ui.
+			try:
+				self.sbDict[uiName]['widgets'] = {}
+				self.addWidgets(uiName) #construct the signals and slots for the ui.
+			except KeyError as error:
+				return
 
 			return self.sbDict[uiName]['widgets']
 

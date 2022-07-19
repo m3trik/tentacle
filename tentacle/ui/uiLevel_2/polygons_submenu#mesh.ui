@@ -174,7 +174,7 @@
      </size>
     </property>
     <property name="whatsThis">
-     <string>polygons_mesh</string>
+     <string>polygons#mesh</string>
     </property>
     <property name="text">
      <string>Mesh</string>

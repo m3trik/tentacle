@@ -99,15 +99,15 @@ class Tcl(QtWidgets.QStackedWidget):
 
 		if self.sb.uiLevel<3: #stacked ui top level window.
 			self.setCurrentWidget(ui) #set the stacked widget to the given ui.
+			self.resize(self.sb.sizeX, self.sb.sizeY) #The ui sizes for individual ui's are stored in sizeX and sizeY properties. Otherwise size would be constrained to the largest widget in the stack)
 
 		else: #popup ui.
 			ui.show()
+			ui.resize(ui.minimumSizeHint()) #ui.adjustSize()
 			self.moveToAndCenter(ui, QtGui.QCursor.pos()) #move to cursor position and offset slightly.
 			self.childEvents.sendKeyPressEvent(self.key_show) #forward the keypress event.
 			ui.activateWindow() #activate the popup ui before hiding the stacked layout.
 			self.hide()
-
-		self.resize(self.sb.sizeX, self.sb.sizeY) #The ui sizes for individual ui's are stored in sizeX and sizeY properties. Otherwise size would be constrained to the largest widget in the stack)
 
 		self.sb.setConnections(ui) #connect signal/slot connections for the current ui, while disconnecting the previous.
 		self.sb.setUiState(ui, 2)
@@ -130,7 +130,7 @@ class Tcl(QtWidgets.QStackedWidget):
 		try: #set the ui to the submenu (if it exists).
 			ui = self.setUi(ui) #switch the stacked widget to the given submenu.
 		except ValueError as error: #if no submenu exists: ignore and return.
-			return None
+			return
 
 		w = getattr(self.currentWidget(), widget.objectName()) #get the widget of the same name in the new ui.
 

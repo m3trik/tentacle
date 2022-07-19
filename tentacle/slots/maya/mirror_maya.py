@@ -35,14 +35,20 @@ class Mirror_maya(Mirror, Slots_maya):
 		axis = self.getAxisFromCheckBoxes('chk000-3', tb.contextMenu)
 		axisPivot = 2 if tb.contextMenu.chk008.isChecked() else 1 #1) object space, 2) world space.
 		cutMesh = tb.contextMenu.chk005.isChecked() #cut mesh on axis before mirror.
+		uninstance = tb.contextMenu.chk009.isChecked() #Un-Instance any previously instanced objects before mirroring.
 		instance = tb.contextMenu.chk004.isChecked()
 		merge = tb.contextMenu.chk007.isChecked()
 		mergeMode = tb.contextMenu.s001.value()
 		mergeThreshold = tb.contextMenu.s000.value()
+		deleteOriginal = tb.contextMenu.chk010.isChecked() #delete the original objects after mirroring.
 		deleteHistory = tb.contextMenu.chk006.isChecked() #delete the object's non-deformer history.
 
-		return self.mirrorGeometry(axis=axis, axisPivot=axisPivot, cutMesh=cutMesh, instance=instance, merge=merge, 
-			mergeMode=mergeMode, mergeThreshold=mergeThreshold, deleteHistory=deleteHistory)
+		objects = pm.ls(sl=1)
+
+		self.duplicate().unInstance(objects)
+
+		return self.mirrorGeometry(objects, axis=axis, axisPivot=axisPivot, cutMesh=cutMesh, instance=instance, merge=merge, 
+			mergeMode=mergeMode, mergeThreshold=mergeThreshold, deleteOriginal=deleteOriginal, deleteHistory=deleteHistory)
 
 
 	def b000(self):
@@ -68,7 +74,7 @@ class Mirror_maya(Mirror, Slots_maya):
 
 	@Slots_maya.undo
 	def mirrorGeometry(self, objects=None, axis='-x', axisPivot=2, cutMesh=False, instance=False, 
-					merge=False, mergeMode=1, mergeThreshold=0.005, deleteHistory=True):
+					merge=False, mergeMode=1, mergeThreshold=0.005, deleteOriginal=False, deleteHistory=True):
 		'''Mirror geometry across a given axis.
 
 		:Parameters:
@@ -80,6 +86,7 @@ class Mirror_maya(Mirror, Slots_maya):
 			merge (bool) = Merge the mirrored geometry with the original.
 			mergeMode (int) = 0) Do not merge border edges. 1) Border edges merged. 2) Border edges extruded and connected.
 			mergeThreshold (float) = Merge vertex distance.
+			deleteOriginal (bool) = Delete the original objects after mirroring.
 			deleteHistory (bool) = Delete non-deformer history on the object before performing the operation.
 
 		:Return:
@@ -97,15 +104,14 @@ class Mirror_maya(Mirror, Slots_maya):
 		axis = axis.lower() #assure case.
 		axisDirection, axis_as_int, scale = direction[axis] #ex. (1, 5, (1, 1,-1)) broken down as: axisDirection=1, axis_as_int=5, scale: (x=1, y=1, z=-1)
 
-		pm.ls(objects, objectsOnly=1)
 		if not objects:
-			objects = pm.ls(sl=1, objectsOnly=1)
+			objects = pm.ls(sl=1)
 			if not objects:
 				self.messageBox('<b>Nothing selected.<b><br>Operation requires at least one selected polygon object.')
 				return
 
 		# pm.undoInfo(openChunk=1)
-		for obj in objects:
+		for obj in pm.ls(objects, objectsOnly=1):
 			if deleteHistory:
 				pm.mel.BakeNonDefHistory(obj)
 
@@ -128,11 +134,14 @@ class Mirror_maya(Mirror, Slots_maya):
 					pm.connectAttr(polyMirrorFaceNode.firstNewFace, polySeparateNode.startFace, force=True) 
 					pm.connectAttr(polyMirrorFaceNode.lastNewFace, polySeparateNode.endFace, force=True)
 
-			try:
-				if len(objects)==1:
-					return polyMirrorFaceNode
-			except AttributeError as error:
-				return None
+		if deleteOriginal and not merge:
+			for obj in objects:
+				pm.delete(obj)
+		try:
+			if len(objects)==1:
+				return polyMirrorFaceNode
+		except AttributeError as error:
+			return None
 		# pm.undoInfo(closeChunk=1)
 
 
