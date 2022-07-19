@@ -588,6 +588,44 @@ class Edit_maya(Edit, Slots_maya):
 		return duplicates
 
 
+	def getSimilarMesh(self, obj, **kwargs):
+		'''Find similar geometry objects using the polyEvaluate command.
+		Default behaviour is to compare all flags.
+
+		:parameters:
+			nodes (str)(obj)(list) = The object to find similar for.
+			kwargs (bool) = Any keyword argument 'polyEvaluate' takes. Used to filter the results.
+				ex: vertex, edge, face, uvcoord, triangle, shell, boundingBox, boundingBox2d, 
+				vertexComponent, boundingBoxComponent, boundingBoxComponent2d, area, worldArea
+		:return:
+			(list) Similar objects (excluding the given obj)
+
+		ex. call: getSimilarMesh(selection, vertex=1, area=1)
+		'''
+		obj, *other = pm.ls(obj, long=True, transforms=True)
+		objectProps = pm.polyEvaluate(obj, format=True, **kwargs)
+
+		otherSceneMeshes = set(pm.filterExpand(pm.ls(long=True, typ='transform'), selectionMask=12)) #polygon selection mask.
+		return pm.ls([m for m in otherSceneMeshes if pm.polyEvaluate(m, format=True, **kwargs)==objectProps and m!=obj])
+
+
+	def getSimilarTopo(self, obj, **kwargs):
+		'''Find similar geometry objects using the polyCompare command.
+		Default behaviour is to compare all flags.
+
+		:parameters:
+			nodes (str)(obj)(list) = The object to find similar for.
+			kwargs (bool) = Any keyword argument 'polyCompare' takes. Used to filter the results.
+				ex: vertices, edges, faceDesc, uvSets, uvSetIndices, colorSets, colorSetIndices, userNormals
+		:return:
+			(list) Similar objects (excluding the given obj)
+		'''
+		obj, *other = pm.filterExpand(pm.ls(obj, long=True, tr=True), selectionMask=12) #polygon selection mask.
+
+		otherSceneMeshes = set(pm.filterExpand(pm.ls(long=True, typ='transform'), sm=12))
+		return pm.ls([m for m in otherSceneMeshes if pm.polyCompare(obj, m, **kwargs)==0 and m!=obj])
+
+
 
 
 
