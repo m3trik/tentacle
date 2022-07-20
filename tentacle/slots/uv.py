@@ -70,6 +70,10 @@ class Uv(Slots):
 		tb007.contextMenu.add('QPushButton', setText='Get Texel Density', setObjectName='b099', setChecked=True, setToolTip='Get the average texel density of any selected faces.')
 		tb007.contextMenu.add('QDoubleSpinBox', setPrefix='Texel Density: ', setObjectName='s003', setMinMax_='0.00-128 step8', setValue=32, setToolTip='Set the desired texel density.')
 
+		tb008 = self.uv_ui.tb008
+		tb008.contextMenu.add('QCheckBox', setText='To Similar', setObjectName='chk025', setToolTip='Instead of manually selecting what to transfer to; search the scene for similar objects.')
+		tb008.contextMenu.add('QCheckBox', setText='Delete History', setObjectName='chk026', setChecked=True, setToolTip='Remove construction history for the objects transferring from.\nOtherwise, the UV\'s will be lost should any of the frm objects be deleted.')
+
 
 	def draggable_header(self, state=None):
 		'''Context menu

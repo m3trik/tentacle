@@ -531,7 +531,7 @@
           <number>0</number>
          </property>
          <item row="0" column="0">
-          <widget class="QPushButton" name="b002">
+          <widget class="PushButton" name="tb008">
            <property name="enabled">
             <bool>true</bool>
            </property>

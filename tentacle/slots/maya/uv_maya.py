@@ -349,21 +349,28 @@ class Uv_maya(Uv, Slots_maya):
 		pm.mel.texSetTexelDensity(density, mapSize)
 
 
+	@Slots_maya.undo
+	def tb008(self, state=None):
+		'''Transfer UV's
+		'''
+		tb = self.uv_ui.tb008
+
+		toSimilar = tb.contextMenu.chk025.isChecked()
+		deleteConstHist = tb.contextMenu.chk026.isChecked()
+
+		frm, *to = pm.ls(orderedSelection=1, flatten=1)
+		if toSimilar:
+			to = 'similar'
+		elif not to:
+			return self.messageBox('<b>Nothing selected.</b><br>The operation requires the selection of two polygon objects.')
+
+		self.transferUVs(frm, to, deleteConstHist=deleteConstHist)
+
+
 	def b001(self):
 		'''Create UV Snapshot
 		'''
 		pm.mel.UVCreateSnapshot()
-
-
-	@Slots_maya.undo
-	def b002(self):
-		'''Transfer UV's
-		'''
-		try:
-			frm, *to = pm.ls(orderedSelection=1, flatten=1)
-			self.transferUVs(frm, to)
-		except IndexError as error:
-			self.messageBox('<b>Nothing selected.</b><br>The operation requires the selection of two polygon objects.')
 
 
 	def b005(self):
@@ -543,17 +550,19 @@ class Uv_maya(Uv, Slots_maya):
 
 
 	@Slots_maya.undo
-	def transferUVs(self, frm, to=[]):
+	def transferUVs(self, frm, to='similar', deleteConstHist=True):
 		'''Transfer UV's from one group of objects to another.
 
 		:parameters:
 			frm (str)(obj)(list) = The objects to transfer uv's from.
-			to (str)(obj)(list) = The objects to transfer uv's to. If an empty list is given, the scene will be searched for similar objects.
-					If nothing is given, all similar mesh objects will be used.
+			to (str)(obj)(list) = The objects to transfer uv's to.
+					If 'similar' is given, the scene will be searched for similar objects.
+			deleteConstHist (bool) = Remove construction history for the objects transferring from.
+					Otherwise, the UV's will be lost should any of the frm objects be deleted.
 		'''
 		# pm.undoInfo(openChunk=1)
 		for i in pm.ls(frm):
-			if not to:
+			if to=='similar':
 				to = self.edit().getSimilarMesh(i, vertex=1, area=1)
 
 			for ii in pm.ls(to):
@@ -561,13 +570,13 @@ class Uv_maya(Uv, Slots_maya):
 					pm.polyTransfer(ii, alternateObject=i, uvSets=True) # pm.transferAttributes(i, ii, transferUVs=2, sampleSpace=4) #-transferNormals 0 -transferUVs 2 -transferColors 2 -sourceUvSpace "map1" -targetUvSpace "map1" -searchMethod 3-flipUVs 0 -colorBorders 1 ;
 					to.remove(ii) #remove the obj from the transfer list when an exact match is found.
 				elif pm.polyEvaluate(i, vertex=1, area=1, format=True)==pm.polyEvaluate(ii, vertex=1, area=1, format=True):
-					pm.transferAttributes(i, ii, transferUVs=2, sampleSpace=4) #transfer ii the object if it is similar, but keep in transfer list in case an exact match is found later.
+					pm.transferAttributes(i, ii, transferUVs=2, sampleSpace=4) #transfer to the object if it is similar, but keep in transfer list in case an exact match is found later.
 
 		for remaining in to:
 			print('Result: No match found for: {}.'.format(remaining.name()))
 			pm.transferAttributes(frm, remaining, transferUVs=2, sampleSpace=4)
 
-		# pm.delete(ii, constructionHistory=1)
+		pm.delete(frm, constructionHistory=deleteConstHist)
 		# # pm.undoInfo(closeChunk=1)
 
 
