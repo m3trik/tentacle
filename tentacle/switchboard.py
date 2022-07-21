@@ -687,12 +687,12 @@ class Switchboard(QUiLoader, StyleSheet):
 						l1 = self.sbDict[uiName]['uiLevel'][1] = [n for n in self.sbDict
 																	if all((c==n, self.getUiLevel(n)==1))]
 				if 2 in level:
+					n, *tags = uiName.replace('_submenu', '').split('#', 1)
+					tags = '#'+'#'.join(tags) if tags else ''
+					c = uiName = '{}_submenu{}'.format(n, tags) #c = uiName.split('_submenu')[0] + '_submenu'
 					try:
 						l2 = self.sbDict[uiName]['uiLevel'][2]
 					except KeyError as error:
-						uiName, *tags = uiName.replace('_submenu', '').split('#', 1)
-						tags = '#'+'#'.join(tags) if tags else ''
-						c = '{}_submenu{}'.format(uiName, tags) #c = uiName.split('_submenu')[0] + '_submenu'
 						l2 = self.sbDict[uiName]['uiLevel'][2] = [n for n in self.sbDict
 																	if all((c==n, self.getUiLevel(n)==2))]
 				if 3 in level:

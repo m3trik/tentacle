@@ -265,13 +265,10 @@ class EventFactoryFilter(QtCore.QObject):
 
 		elif self.derivedType=='QPushButton':
 			if self.sb.prefix(self.widget, 'i'): #set the stacked widget.
-				n = self.widget.whatsThis() #get submenu name.
-				n, *tags = n.split('#', 1)
-				tags = '#'+'#'.join(tags) if tags else ''
-				n = '{}_submenu{}'.format(n, tags)
-				submenu = self.sb.getUiName(n, level=2)
-				if submenu and not self.uiName==submenu: #do not reopen the submenu if it is already open.
-					self.uiName = self.tcl.setSubUi(submenu, self.widget)
+				submenu = self.sb.getUiName(self.widget.whatsThis(), level=2)
+				if submenu and self.uiName!=submenu: #do not reopen the submenu if it is already open.
+					# print ('setSubUi:', submenu)
+					self.tcl.setSubUi(submenu, self.widget)
 
 			elif self.widgetName=='return_area':
 				self.tcl.setPrevUi()
@@ -333,7 +330,7 @@ class EventFactoryFilter(QtCore.QObject):
 					uiName, *groupBoxNames = self.widget.whatsThis().split('#') #get any groupbox names that were prefixed by '#'.
 					groupBoxes = self.sb.getWidgetsByType('QGroupBox', uiName)
 					[gb.hide() if groupBoxNames and not gb.objectName() in groupBoxNames else gb.show() for gb in groupBoxes] #show only groupboxes with those names if any were given, else show all.
-					self.tcl.qApp.processEvents() #the minimum size is not computed until some events are processed in the event loop.
+					# self.tcl.qApp.processEvents() #the minimum size is not computed until some events are processed in the event loop.
 					self.tcl.setUi(uiName)
 
 				elif self.sb.prefix(self.widget, 'v'):

@@ -88,9 +88,6 @@ class Tcl(QtWidgets.QStackedWidget):
 
 		:Parameters:
 			ui (str)(obj) = The ui or name of the ui to set the stacked widget index to.
-
-		:Return:
-			(obj)
 		'''
 		ui = self.sb.getUi(ui, setAsCurrent=True) #Get the ui of the given name, and set it as the current ui in the switchboard module.
 
@@ -111,8 +108,6 @@ class Tcl(QtWidgets.QStackedWidget):
 
 		self.sb.setConnections(ui) #connect signal/slot connections for the current ui, while disconnecting the previous.
 		self.sb.setUiState(ui, 2)
-
-		return ui
 
 
 	def setSubUi(self, ui, widget):
@@ -135,9 +130,9 @@ class Tcl(QtWidgets.QStackedWidget):
 		w = getattr(self.currentWidget(), widget.objectName()) #get the widget of the same name in the new ui.
 
 		#remove entrys from widget and draw paths when moving back down levels in the ui.
-		if len(self.sb.prevUiName(as_list=1))>2:
-			if uiName in self.sb.prevUiName(as_list=1): #if uiName is that of a previous ui:
-				self.removeFromPath(uiName)
+		# if len(self.sb.prevUiName(as_list=1))>2:
+		# 	if uiName in self.sb.prevUiName(as_list=1): #if uiName is that of a previous ui:
+		self.removeFromPath(uiName)
 
 		self.widgetPath.append([widget, p1, uiName]) #add the widget (<widget>, position, 'ui name') from the old ui to the widgetPath list so that it can be re-created in the new ui (in the same position).
 		self.drawPath.append(QtGui.QCursor.pos()) #add the global cursor position to the drawPath list so that paint events can draw the path tangents.

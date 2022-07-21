@@ -62,9 +62,9 @@
    <widget class="QPushButton" name="i020">
     <property name="geometry">
      <rect>
-      <x>270</x>
+      <x>250</x>
       <y>290</y>
-      <width>66</width>
+      <width>106</width>
       <height>21</height>
      </rect>
     </property>
@@ -76,7 +76,7 @@
     </property>
     <property name="maximumSize">
      <size>
-      <width>16777215</width>
+      <width>999</width>
       <height>21</height>
      </size>
     </property>

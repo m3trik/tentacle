@@ -93,7 +93,7 @@
          </size>
         </property>
         <property name="whatsThis">
-         <string>main_lower_submenu</string>
+         <string>main_lower</string>
         </property>
         <property name="text">
          <string>History</string>
@@ -398,9 +398,6 @@
          <width>306</width>
          <height>101</height>
         </rect>
-       </property>
-       <property name="whatsThis">
-        <string>main_lower</string>
        </property>
       </widget>
       <widget class="QWidget" name="w001" native="true">

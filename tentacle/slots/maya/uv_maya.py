@@ -566,14 +566,14 @@ class Uv_maya(Uv, Slots_maya):
 				to = self.edit().getSimilarMesh(i, vertex=1, area=1)
 
 			for ii in pm.ls(to):
-				if pm.polyEvaluate(i, vertex=1, face=1, area=1, format=True)==pm.polyEvaluate(ii, vertex=1, face=1, area=1, format=True):
+				if pm.polyEvaluate(i, vertex=1, area=1, format=True)==pm.polyEvaluate(ii, vertex=1, area=1, format=True):
 					pm.polyTransfer(ii, alternateObject=i, uvSets=True) # pm.transferAttributes(i, ii, transferUVs=2, sampleSpace=4) #-transferNormals 0 -transferUVs 2 -transferColors 2 -sourceUvSpace "map1" -targetUvSpace "map1" -searchMethod 3-flipUVs 0 -colorBorders 1 ;
 					to.remove(ii) #remove the obj from the transfer list when an exact match is found.
-				elif pm.polyEvaluate(i, vertex=1, area=1, format=True)==pm.polyEvaluate(ii, vertex=1, area=1, format=True):
+				elif pm.polyEvaluate(i, area=1, format=True)==pm.polyEvaluate(ii, area=1, format=True):
 					pm.transferAttributes(i, ii, transferUVs=2, sampleSpace=4) #transfer to the object if it is similar, but keep in transfer list in case an exact match is found later.
 
 		for remaining in to:
-			print('Result: No match found for: {}.'.format(remaining.name()))
+			print('Result: No Exact match found for: {}. Making final attempt ..'.format(remaining.name()))
 			pm.transferAttributes(frm, remaining, transferUVs=2, sampleSpace=4)
 
 		pm.delete(frm, constructionHistory=deleteConstHist)
