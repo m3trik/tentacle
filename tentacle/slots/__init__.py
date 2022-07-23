@@ -361,13 +361,11 @@ class Slots(QtCore.QObject):
 		:Return:
 			(list) or (str) if 'returnAsString'.
 		'''
-		list_ = [str(x) for x in list_] #make sure the list is made up of strings.
-
 		ranges=[]
-		for x in list_:
+		for x in map(str, list_): #make sure the list is made up of strings.
 			if not ranges:
 				ranges.append([x])
-			elif int(x)-prev_x == 1:
+			elif int(x)-prev_x==1:
 				ranges[-1].append(x)
 			else:
 				ranges.append([x])
@@ -490,6 +488,25 @@ class Slots(QtCore.QObject):
 		self._messageBox.exec_()
 
 
+	@staticmethod
+	def areSimilar(a, b, tol=0.0):
+		'''Check if the two numberical values are within a given tolerance.
+		Supports nested lists.
+
+		:parameters:
+			a (obj)(list) = The first object(s) to compare.
+			b (obj)(list) = The second object(s) to compare.
+			tol (float) = The maximum allowed variation between the values.
+
+		:return:
+			(bool)
+		'''
+		list_ = lambda x: list(x) if isinstance(x, (list, tuple, set, dict)) else [x] #assure that the arg is a list.
+
+		func = lambda a, b: abs(a-b)<=tol if isinstance(a, (int, float)) else True if isinstance(a, (list, set, tuple)) and areSimilar(a, b, tol) else a==b
+		return all(map(func, list_(a), list_(b)))
+
+
 
 	# ----------------------------------------------------------------------------------------------------------
 	' MATH '
@@ -518,6 +535,7 @@ class Slots(QtCore.QObject):
 		return result
 
 
+	@staticmethod
 	def clamp(x=0.0, minimum=0.0, maximum=1.0):
 		'''Clamps the value x between min and max.
 

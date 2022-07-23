@@ -348,9 +348,26 @@ class Selection_maya(Selection, Slots_maya):
 		'''
 		tb = self.selection_ui.tb001
 
-		tolerance = str(tb.contextMenu.s000.value()) #string value because mel.eval is sending a command string
+		tol = tb.contextMenu.s000.value() #tolerance
+		v = tb.contextMenu.chk011.isChecked() #vertex
+		e = tb.contextMenu.chk012.isChecked() #edge
+		f = tb.contextMenu.chk013.isChecked() #face
+		t = tb.contextMenu.chk014.isChecked() #triangle
+		s = tb.contextMenu.chk015.isChecked() #shell
+		uv = tb.contextMenu.chk016.isChecked() #uvcoord
+		a = tb.contextMenu.chk017.isChecked() #area
+		b = tb.contextMenu.chk018.isChecked() #bounding box
+		inc = tb.contextMenu.chk019.isChecked() #select the original objects
 
-		mel.eval("doSelectSimilar 1 {\""+ tolerance +"\"}")
+		objMode = pm.selectMode(query=1, object=1)
+		if objMode:
+			selection = pm.ls(sl=1, objectsOnly=1)
+			pm.select(clear=1)
+			for obj in selection:
+				similar = self.edit().getSimilarMesh(obj, tol=tol, includeOrig=inc, vertex=v, edge=e, face=a, uvcoord=uv, triangle=t, shell=s, boundingBox=b, area=a)
+				pm.select(similar, add=True)
+		else:
+			pm.mel.doSelectSimilar(1, {tol})
 
 
 	def tb002(self, state=None):

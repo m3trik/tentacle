@@ -2109,12 +2109,7 @@ class Switchboard(QUiLoader, StyleSheet):
 		:Return:
 			(list)
 		'''
-		if isinstance(x, (list, tuple, set)):
-			return x
-		elif isinstance(x, dict):
-			return list(x)
-		else:
-			return [x]
+		return list(x) if isinstance(x, (list, tuple, set, dict)) else [x]
 
 
 	@staticmethod

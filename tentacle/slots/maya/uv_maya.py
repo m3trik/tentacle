@@ -356,6 +356,7 @@ class Uv_maya(Uv, Slots_maya):
 		tb = self.uv_ui.tb008
 
 		toSimilar = tb.contextMenu.chk025.isChecked()
+		similarTol = tb.contextMenu.s013.value()
 		deleteConstHist = tb.contextMenu.chk026.isChecked()
 
 		frm, *to = pm.ls(orderedSelection=1, flatten=1)
@@ -364,7 +365,7 @@ class Uv_maya(Uv, Slots_maya):
 		elif not to:
 			return self.messageBox('<b>Nothing selected.</b><br>The operation requires the selection of two polygon objects.')
 
-		self.transferUVs(frm, to, deleteConstHist=deleteConstHist)
+		self.transferUVs(frm, to, tol=similarTol, deleteConstHist=deleteConstHist)
 
 
 	def b001(self):
@@ -550,20 +551,21 @@ class Uv_maya(Uv, Slots_maya):
 
 
 	@Slots_maya.undo
-	def transferUVs(self, frm, to='similar', deleteConstHist=True):
+	def transferUVs(self, frm, to='similar', tol=0.0, deleteConstHist=True):
 		'''Transfer UV's from one group of objects to another.
 
 		:parameters:
 			frm (str)(obj)(list) = The objects to transfer uv's from.
 			to (str)(obj)(list) = The objects to transfer uv's to.
 					If 'similar' is given, the scene will be searched for similar objects.
+			tol (float) = 
 			deleteConstHist (bool) = Remove construction history for the objects transferring from.
 					Otherwise, the UV's will be lost should any of the frm objects be deleted.
 		'''
 		# pm.undoInfo(openChunk=1)
 		for i in pm.ls(frm):
 			if to=='similar':
-				to = self.edit().getSimilarMesh(i, vertex=1, area=1)
+				to = self.edit().getSimilarMesh(i, tol=tol, vertex=1, area=1)
 
 			for ii in pm.ls(to):
 				if pm.polyEvaluate(i, vertex=1, area=1, format=True)==pm.polyEvaluate(ii, vertex=1, area=1, format=True):

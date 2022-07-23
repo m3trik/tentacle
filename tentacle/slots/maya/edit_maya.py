@@ -588,12 +588,14 @@ class Edit_maya(Edit, Slots_maya):
 		return duplicates
 
 
-	def getSimilarMesh(self, obj, **kwargs):
+	def getSimilarMesh(self, obj, tol=0.0, includeOrig=False, **kwargs):
 		'''Find similar geometry objects using the polyEvaluate command.
 		Default behaviour is to compare all flags.
 
 		:parameters:
-			nodes (str)(obj)(list) = The object to find similar for.
+			obj (str)(obj)(list) = The object to find similar for.
+			tol (float) = The allowed difference in any of the given polyEvalute flag results (that return an int, float (or list of the int or float) value(s)).
+			includeOrig (bool) = Include the original given obj with the return results.
 			kwargs (bool) = Any keyword argument 'polyEvaluate' takes. Used to filter the results.
 				ex: vertex, edge, face, uvcoord, triangle, shell, boundingBox, boundingBox2d, 
 				vertexComponent, boundingBoxComponent, boundingBoxComponent2d, area, worldArea
@@ -602,19 +604,23 @@ class Edit_maya(Edit, Slots_maya):
 
 		ex. call: getSimilarMesh(selection, vertex=1, area=1)
 		'''
+		list_ = lambda x: list(x) if isinstance(x, (list, tuple, set)) else list(x.values()) if isinstance(x, dict) else [x] #assure the returned result from polyEvaluate is a list of values.
+
 		obj, *other = pm.ls(obj, long=True, transforms=True)
-		objectProps = pm.polyEvaluate(obj, format=True, **kwargs)
+		objProps = list_(pm.polyEvaluate(obj, **kwargs))
 
 		otherSceneMeshes = set(pm.filterExpand(pm.ls(long=True, typ='transform'), selectionMask=12)) #polygon selection mask.
-		return pm.ls([m for m in otherSceneMeshes if pm.polyEvaluate(m, format=True, **kwargs)==objectProps and m!=obj])
+		similar = pm.ls([m for m in otherSceneMeshes if Slots.areSimilar(objProps, list_(pm.polyEvaluate(m, **kwargs)), tol=tol) and m!=obj])
+		return similar+[obj] if includeOrig else similar
 
 
-	def getSimilarTopo(self, obj, **kwargs):
+	def getSimilarTopo(self, obj, includeOrig=False, **kwargs):
 		'''Find similar geometry objects using the polyCompare command.
 		Default behaviour is to compare all flags.
 
 		:parameters:
-			nodes (str)(obj)(list) = The object to find similar for.
+			obj (str)(obj)(list) = The object to find similar for.
+			includeOrig (bool) = Include the original given obj with the return results.
 			kwargs (bool) = Any keyword argument 'polyCompare' takes. Used to filter the results.
 				ex: vertices, edges, faceDesc, uvSets, uvSetIndices, colorSets, colorSetIndices, userNormals
 		:return:
@@ -623,8 +629,8 @@ class Edit_maya(Edit, Slots_maya):
 		obj, *other = pm.filterExpand(pm.ls(obj, long=True, tr=True), selectionMask=12) #polygon selection mask.
 
 		otherSceneMeshes = set(pm.filterExpand(pm.ls(long=True, typ='transform'), sm=12))
-		return pm.ls([m for m in otherSceneMeshes if pm.polyCompare(obj, m, **kwargs)==0 and m!=obj])
-
+		similar = pm.ls([m for m in otherSceneMeshes if pm.polyCompare(obj, m, **kwargs)==0 and m!=obj]) #0:equal,Verts:1,Edges:2,Faces:4,UVSets:8,UVIndices:16,ColorSets:32,ColorIndices:64,UserNormals=128. So a return value of 3 indicates both vertices and edges are different.
+		return similar+[obj] if includeOrig else similar
 
 
 

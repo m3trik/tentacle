@@ -72,6 +72,7 @@ class Uv(Slots):
 
 		tb008 = self.uv_ui.tb008
 		tb008.contextMenu.add('QCheckBox', setText='To Similar', setObjectName='chk025', setToolTip='Instead of manually selecting what to transfer to; search the scene for similar objects.')
+		tb008.contextMenu.add('QDoubleSpinBox', setPrefix='Tolerance: ', setObjectName='s013', setMinMax_='0.0-1000 step.5', setValue=0.00, setToolTip='The maximum attribute value tolerance to use when searching for similar objects.')
 		tb008.contextMenu.add('QCheckBox', setText='Delete History', setObjectName='chk026', setChecked=True, setToolTip='Remove construction history for the objects transferring from.\nOtherwise, the UV\'s will be lost should any of the frm objects be deleted.')
 
 
