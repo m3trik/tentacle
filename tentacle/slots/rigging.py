@@ -41,16 +41,17 @@ class Rigging(Slots):
 
 		ctx = self.rigging_ui.tb003.contextMenu
 		if not ctx.containsMenuItems:
-			ctx.add('QLineEdit', setPlaceholderText='Suffix:', setText='', setObjectName='t000', setToolTip='A string appended to the end of the created locators name.')
-			ctx.add('QCheckBox', setText='Strip Digits', setObjectName='chk005', setChecked=True, setToolTip='Strip numeric characters from the string. If the resulting name is not unique, maya will append a trailing digit.')
-			ctx.add('QLineEdit', setPlaceholderText='Strip:', setText='_GEO', setObjectName='t001', setToolTip='Strip a specific character set from the locator name. The locators name is based off of the selected objects name.')
+			ctx.add('QLineEdit', setPlaceholderText='Locator Suffix:', setText='_LCTR', setObjectName='t000', setToolTip='A string appended to the end of the created locators name.')
+			ctx.add('QLineEdit', setPlaceholderText='Geometry Suffix:', setText='_GEO', setObjectName='t001', setToolTip='A string appended to the end of the existing geometry\'s name.')
+			ctx.add('QCheckBox', setText='Strip Suffix', setObjectName='chk016', setChecked=True, setToolTip='Strip any trailing alphanumeric chars from the name that are preceeded by the last underscore.\nIf an underscore does not exist nothing will be stripped.')
+			ctx.add('QCheckBox', setText='Strip Digits', setObjectName='chk005', setChecked=True, setToolTip='Strip any trailing numeric characters from the name.\nIf the resulting name is not unique, maya will append a trailing digit.')
 			ctx.add('QDoubleSpinBox', setPrefix='Scale: ', setObjectName='s001', setMinMax_='.000-1000 step1', setValue=1, setToolTip='The scale of the locator.')
 			ctx.add('QCheckBox', setText='Parent', setObjectName='chk006', setChecked=True, setToolTip='Parent to object to the locator.')
 			ctx.add('QCheckBox', setText='Freeze Transforms', setObjectName='chk010', setChecked=True, setToolTip='Freeze transforms on the locator.')
 			ctx.add('QCheckBox', setText='Bake Child Pivot', setObjectName='chk011', setChecked=True, setToolTip='Bake pivot positions on the child object.')
-			ctx.add('QCheckBox', setText='Lock Child Translate', setObjectName='chk007', setChecked=True, setToolTip='Lock the translate values of the child object.')
-			ctx.add('QCheckBox', setText='Lock Child Rotation', setObjectName='chk008', setChecked=True, setToolTip='Lock the rotation values of the child object.')
-			ctx.add('QCheckBox', setText='Lock Child Scale', setObjectName='chk009', setChecked=False, setToolTip='Lock the scale values of the child object.')
+			ctx.add('QCheckBox', setText='Lock Child Translate', setObjectName='chk007', setToolTip='Lock the translate values of the child object.')
+			ctx.add('QCheckBox', setText='Lock Child Rotation', setObjectName='chk008', setToolTip='Lock the rotation values of the child object.')
+			ctx.add('QCheckBox', setText='Lock Child Scale', setObjectName='chk009', setToolTip='Lock the scale values of the child object.')
 			ctx.add('QCheckBox', setText='Remove Locators', setObjectName='chk015', setChecked=False, setToolTip='Removes the locator, and inverts the above process. (not valid with component selections)')
 			ctx.chk015.stateChanged.connect(lambda state: self.toggleWidgets(ctx, setDisabled='t000-1,s001,chk005-11') if state 
 															else self.toggleWidgets(ctx, setEnabled='t000-1,s001,chk005-11')) #disable non-relevant options.

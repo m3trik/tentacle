@@ -50,17 +50,19 @@ class Selection(Slots):
 		tb000.contextMenu.add('QSpinBox', setPrefix='Step: ', setObjectName='s003', setMinMax_='1-100 step1', setValue=1, setToolTip='Step Amount.')
 
 		tb001 = self.selection_ui.tb001
-		tb001.contextMenu.add('QDoubleSpinBox', setPrefix='Tolerance: ', setObjectName='s000', setMinMax_='0.000-9999 step1.0', setValue=0.0, setToolTip='The allowed difference in any of the compared results.')
+		tb001.contextMenu.add('QDoubleSpinBox', setPrefix='Tolerance: ', setObjectName='s000', setMinMax_='0.000-9999 step1.0', setValue=0.0, setToolTip='The allowed difference in any of the compared results.\nie. A tolerance of 4 allows for a difference of 4 components.\nie. A tolerance of 0.05 allows for that amount of variance between any of the bounding box values.')
 		tb001.contextMenu.add('QCheckBox', setText='Vertex', setObjectName='chk011', setChecked=True, setToolTip='The number of vertices.')
 		tb001.contextMenu.add('QCheckBox', setText='Edge', setObjectName='chk012', setChecked=True, setToolTip='The number of edges.')
 		tb001.contextMenu.add('QCheckBox', setText='Face', setObjectName='chk013', setChecked=True, setToolTip='The number of faces.')
 		tb001.contextMenu.add('QCheckBox', setText='Triangle', setObjectName='chk014', setToolTip='The number of triangles.')
 		tb001.contextMenu.add('QCheckBox', setText='Shell', setObjectName='chk015', setToolTip='The number of shells shells (disconnected pieces).')
 		tb001.contextMenu.add('QCheckBox', setText='Uv Coord', setObjectName='chk016', setToolTip='The number of uv coordinates (for the current map).')
-		tb001.contextMenu.add('QCheckBox', setText='Area', setObjectName='chk017', setChecked=True, setToolTip='The surface area of the object\'s faces in local space.')
-		tb001.contextMenu.add('QCheckBox', setText='Bounding Box', setObjectName='chk018', setToolTip='The object\'s bounding box in 3d space.')
-		tb001.contextMenu.add('QCheckBox', setText='Include Original', setObjectName='chk019', setToolTip='Include the original selected object(s) in the final selection.')
-
+		tb001.contextMenu.add('QCheckBox', setText='Area', setObjectName='chk017', setToolTip='The surface area of the object\'s faces in local space.')
+		tb001.contextMenu.add('QCheckBox', setText='World Area', setObjectName='chk018', setChecked=True, setToolTip='The surface area of the object\'s faces in world space.')
+		tb001.contextMenu.add('QCheckBox', setText='Bounding Box', setObjectName='chk019', setToolTip='The object\'s bounding box in 3d space.\nCannot be used with the topological flags.')
+		tb001.contextMenu.add('QCheckBox', setText='Include Original', setObjectName='chk020', setToolTip='Include the original selected object(s) in the final selection.')
+		tb001.contextMenu.chk018.stateChanged.connect(lambda state: self.toggleWidgets(tb001.contextMenu, setDisabled='chk011-18') if state 
+															else self.toggleWidgets(tb001.contextMenu, setEnabled='chk011-18')) #disable non-relevant options.
 		tb002 = self.selection_ui.tb002
 		tb002.contextMenu.add('QCheckBox', setText='Lock Values', setObjectName='chk003', setChecked=True, setToolTip='Keep values in sync.')
 		tb002.contextMenu.add('QDoubleSpinBox', setPrefix='x: ', setObjectName='s002', setMinMax_='0.00-1 step.01', setValue=0.05, setToolTip='Normal X range.')

@@ -167,16 +167,18 @@ class Slots(QtCore.QObject):
 				[lambda state: self.rigging_ui.tb004.setText('Unlock Transforms' if state else 'Lock Transforms'), 
 				lambda state: self.rigging_submenu_ui.tb004.setText('Unlock Transforms' if state else 'Lock Transforms')])
 		'''
+		list_ = lambda x: list(x) if isinstance(x, (list, tuple, set, dict)) else [x] #assure the arg is a list.
+
 		if isinstance(widgets, (str)):
 			try:
 				widgets = Slots.getObjects(class_, widgets, showError_=True) #getObjects returns a widget list from a string of objectNames.
-			except:
+			except Exception as error:
 				widgets = Slots.getObjects(self.sb.getUi(), widgets, showError_=True)
 
 		#if the variables are not of a list type; convert them.
-		widgets = self.sb.list_(widgets)
-		signals = self.sb.list_(signals)
-		slots = self.sb.list_(slots)
+		widgets = list_(widgets)
+		signals = list_(signals)
+		slots = list_(slots)
 
 		for widget in widgets:
 			for signal in signals:
@@ -501,7 +503,7 @@ class Slots(QtCore.QObject):
 		:return:
 			(bool)
 		'''
-		list_ = lambda x: list(x) if isinstance(x, (list, tuple, set, dict)) else [x] #assure that the arg is a list.
+		list_ = lambda x: list(x) if isinstance(x, (list, tuple, set, dict)) else [x] #assure the arg is a list.
 
 		func = lambda a, b: abs(a-b)<=tol if isinstance(a, (int, float)) else True if isinstance(a, (list, set, tuple)) and areSimilar(a, b, tol) else a==b
 		return all(map(func, list_(a), list_(b)))
