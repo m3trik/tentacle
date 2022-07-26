@@ -49,8 +49,8 @@ class Rigging(Slots):
 			ctx.add('QCheckBox', setText='Parent', setObjectName='chk006', setChecked=True, setToolTip='Parent to object to the locator.')
 			ctx.add('QCheckBox', setText='Freeze Transforms', setObjectName='chk010', setChecked=True, setToolTip='Freeze transforms on the locator.')
 			ctx.add('QCheckBox', setText='Bake Child Pivot', setObjectName='chk011', setChecked=True, setToolTip='Bake pivot positions on the child object.')
-			ctx.add('QCheckBox', setText='Lock Child Translate', setObjectName='chk007', setToolTip='Lock the translate values of the child object.')
-			ctx.add('QCheckBox', setText='Lock Child Rotation', setObjectName='chk008', setToolTip='Lock the rotation values of the child object.')
+			ctx.add('QCheckBox', setText='Lock Child Translate', setObjectName='chk007', setChecked=True, setToolTip='Lock the translate values of the child object.')
+			ctx.add('QCheckBox', setText='Lock Child Rotation', setObjectName='chk008', setChecked=True, setToolTip='Lock the rotation values of the child object.')
 			ctx.add('QCheckBox', setText='Lock Child Scale', setObjectName='chk009', setToolTip='Lock the scale values of the child object.')
 			ctx.add('QCheckBox', setText='Remove Locators', setObjectName='chk015', setChecked=False, setToolTip='Removes the locator, and inverts the above process. (not valid with component selections)')
 			ctx.chk015.stateChanged.connect(lambda state: self.toggleWidgets(ctx, setDisabled='t000-1,s001,chk005-11') if state 
