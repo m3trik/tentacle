@@ -12,16 +12,12 @@ class CreateLocatorAtObject(object):
 		'''
 		self.isLocator = lambda obj: self.getType(obj)=='locator'
 		self.isGroup = lambda obj: all([type(c)==pm.nodetypes.Transform for c in obj.getChildren()])
+		self.unlock_attrs = lambda obj: self.set_lock_state(obj, translate=1, rotate=1, scale=1, state=0)
 		self.list_ = lambda x: list(x) if isinstance(x, (list, tuple, set, dict)) else [x] #assure that the arg is a list.
 
 
 	def create_locator(self, scale=1):
-		'''Create a locator with the given scale.
-		:parameters:
-			scale (int) = The desired scale of the locator.
-
-		:return:
-			(obj) locator
+		'''
 		'''
 		loc = pm.spaceLocator()
 		pm.scale(loc, scale, scale, scale) #scale the locator
@@ -29,12 +25,7 @@ class CreateLocatorAtObject(object):
 
 
 	def remove_locator(self, obj):
-		'''Remove a parented locator from the child object.
-		:parameters:
-			obj (str)(obj)(list) = The child object or the locator itself.
-
-		:return:
-			(bool) True if successful
+		'''
 		'''
 		if not self.isLocator(obj):
 			try:
@@ -48,17 +39,28 @@ class CreateLocatorAtObject(object):
 		return True
 
 
-	def formatName(self, name, stripTrailingInts=False, stripTrailingAlpha=False, strip='', suffix=''):
+	def set_lock_state(self, obj, translate=False, rotate=False, scale=False, state=1):
+		'''
+		'''
+		if self.isLocator(obj):
+			obj = pm.listRelatives(obj, children=1, type='transform')[0]
+
+		if translate: #lock translation values
+			[pm.setAttr(getattr(obj, attr), lock=state) for attr in ('tx','ty','tz')] #pm.setAttr(obj[0].translate, lock=state)
+		if rotate: #lock rotation values
+			[pm.setAttr(getattr(obj, attr), lock=state) for attr in ('rx','ry','rz')]
+		if scale: #lock scale values
+			[pm.setAttr(getattr(obj, attr), lock=state) for attr in ('sx','sy','sz')]
+
+
+	def format_name(self, name, stripTrailingInts=False, stripTrailingAlpha=False, strip='', suffix=''):
 		'''
 		:parameters:
-			name (str)(obj) = The name string to format or the object itself (from which the name will be pulled).
-			stripTrailingInts (bool) = Strip all trailing integers.
-			stripTrailingAlpha (bool) = Strip all upper-case letters preceeded by an underscore.
-			strip (str)(list) = Specific string(s) to strip. All occurances will be removed.
-			suffix (str) = A suffix to apply to the end result.
-
-		:return:
-			(str)
+			name (str)(obj) = The string to format or the object itself.
+			stripTrailingInts (bool) = 
+			stripTrailingAlpha (bool) = 
+			strip (str)(list) = 
+			suffix (str) = 
 		'''
 		import re
 
@@ -67,8 +69,7 @@ class CreateLocatorAtObject(object):
 		except Exception as error:
 			n = name.name().split('|')[-1]
 
-		for s in strip:
-			n = n.replace(s, '')
+		n = ''.join([n.replace(s, '') for s in self.list_(strip)])
 
 		while ((n[-1]=='_' or n[-1].isdigit()) and stripTrailingInts) or ('_' in n and (n=='_' or n[-1].isupper())) and stripTrailingAlpha:
 
@@ -79,39 +80,6 @@ class CreateLocatorAtObject(object):
 				n = re.sub(re.escape(n[-1:]) + '$', '', n)
 
 		return n+suffix
-
-
-	def unlockAttributes(self, obj, translate=False, rotate=False, scale=False):
-		'''Extends the functionality of the 'lockAttributes' method to unlock.
-
-		:parameters:
-			obj (str)(obj)(list) = The object to lock/unlock attributes of.
-			translate (bool) = Unlock the translate x,y,z values.
-			rotate (bool) = Unlock the rotate x,y,z values.
-			scale (bool) = Unlock the scale x,y,z values.
-		'''
-		self.lockAttributes(obj, translate=translate, rotate=rotate, scale=scale, _state=0)
-
-
-	def lockAttributes(self, obj, translate=False, rotate=False, scale=False, _state=1):
-		'''Lock the translate, rotate, and scale attributes for the given objects.
-
-		:parameters:
-			obj (str)(obj)(list) = The object to lock/unlock attributes of.
-			translate (bool) = Lock the translate x,y,z values.
-			rotate (bool) = Lock the rotate x,y,z values.
-			scale (bool) = Lock the scale x,y,z values.
-			_state (int) = Internal use. The lock state. A value of 0 unlocks the attributes. (default:1)
-		'''
-		if self.isLocator(obj):
-			obj = pm.listRelatives(obj, children=1, type='transform')[0]
-
-		if translate: #lock translation values
-			[pm.setAttr(getattr(obj, attr), lock=_state) for attr in ('tx','ty','tz')] #pm.setAttr(obj[0].translate, lock=state)
-		if rotate: #lock rotation values
-			[pm.setAttr(getattr(obj, attr), lock=_state) for attr in ('rx','ry','rz')]
-		if scale: #lock scale values
-			[pm.setAttr(getattr(obj, attr), lock=_state) for attr in ('sx','sy','sz')]
 
 
 	@staticmethod
@@ -126,22 +94,21 @@ class CreateLocatorAtObject(object):
 
 
 	@staticmethod
-	def createGroup(objects, name='', zeroTranslation=False, zeroRotation=False):
+	def createGroup(objects, name=''):
 		'''
 		'''
-		grp = pm.group(empty=True, n=name)
+		grp = pm.group(empty=True, name=name)
 		pm.parent(grp, objects)
 
-		if zeroTranslation:
-			[pm.setAttr(getattr(grp, attr), 0) for attr in ('tx','ty','tz')] #pm.setAttr(node.translate, 0)
-		if zeroRotation:
-			[pm.setAttr(getattr(grp, attr), 0) for attr in ('rx','ry','rz')]
+		for axis in ('X', 'Y', 'Z'):
+			for transform in ('.translate', '.rotate'):
+				pm.setAttr(grp + transform + axis, 0)
 
 		pm.parent(grp, world=True)
 		return grp
 
 
-	def main(self, objects, parent=False, freezeTransforms=False, bakeChildPivot=False, grpSuffix='_GRP#', locSuffix='_LOC#', objSuffix='_GEO#', 
+	def main(self, objects, parent=False, freezeTransforms=False, bakeChildPivot=False, locSuffix='_LOC#', objSuffix='_GEO#', 
 		stripDigits=False, stripSuffix=False, scale=1, lockTranslate=False, lockRotation=False, lockScale=False, remove=False):
 		'''Create locators with the same transforms as any selected object(s).
 		If there are vertices selected it will create a locator at the center of the selected vertices bounding box.
@@ -151,7 +118,6 @@ class CreateLocatorAtObject(object):
 			parent (bool) = Parent the object to the locator. (default=False)
 			freezeTransforms (bool) = Freeze transforms on the locator. (default=True)
 			bakeChildPivot (bool) = Bake pivot positions on the child object. (default=True)
-			grpSuffix (str) = A string appended to the end of the created groups name. (default: '_GRP#')
 			locSuffix (str) = A string appended to the end of the created locators name. (default: '_LOC#')
 			objSuffix (str) = A string appended to the end of the existing objects name. (default: '_GEO#')
 			stripDigits (bool) = Strip numeric characters from the string. If the resulting name is not unique, maya will append a trailing digit. (default=False)
@@ -186,7 +152,7 @@ class CreateLocatorAtObject(object):
 			else: #object
 				if remove:
 					if pm.objExists(obj): #if the locator hasn't already been deleted by another child.
-						self.unlockAttributes(obj, translate=1, rotate=1, scale=1) #unlock all.
+						self.unlock_attrs(obj) #unlock all.
 						self.remove_locator(obj)
 					continue
 
@@ -196,27 +162,28 @@ class CreateLocatorAtObject(object):
 				pm.delete(tempConst)
 
 			try:
+				objParent = pm.listRelatives(obj, parent=1)
+				if not objParent:
+					n = self.format_name(obj, stripTrailingInts=stripDigits, strip=(locSuffix, objSuffix), suffix='_GRP')
+					objParent = self.createGroup(obj, name=n)
 				if parent:
-					origParent = pm.listRelatives(obj, parent=1)
-					grpName = self.formatName(obj, stripTrailingInts=stripDigits, strip=(locSuffix, objSuffix), suffix=grpSuffix)
-					grp = self.createGroup(obj, name=grpName, zeroTranslation=1, zeroRotation=1)
 					pm.parent(obj, loc)
-					pm.parent(loc, grp)
-					pm.parent(grp, origParent)
+					if objParent:
+						pm.parent(loc, objParent)
 
 				if freezeTransforms: #freeze transforms before baking pivot.
-					self.unlockAttributes(obj, translate=1, rotate=1, scale=1) #assure attributes are unlocked.
+					self.unlock_attrs(obj) #assure attributes are unlocked.
 					pm.makeIdentity(obj, apply=True, normal=1)
 					pm.makeIdentity(loc, apply=True, normal=1) #1=the normals on polygonal objects will be frozen. 2=the normals on polygonal objects will be frozen only if its a non-rigid transformation matrix.
 
-				pm.rename(loc, self.formatName(obj, stripTrailingInts=stripDigits, strip=(locSuffix, objSuffix, grpSuffix) if stripSuffix else '', suffix=locSuffix))
-				pm.rename(obj, self.formatName(obj, stripTrailingInts=stripDigits, strip=(locSuffix, objSuffix, grpSuffix) if stripSuffix else '', suffix=objSuffix if not self.isLocator(obj) else locSuffix))
+				pm.rename(loc, self.format_name(obj, stripTrailingInts=stripDigits, strip=(locSuffix, objSuffix), suffix=locSuffix))
+				pm.rename(obj, self.format_name(obj, stripTrailingInts=stripDigits, strip=(locSuffix, objSuffix), suffix=objSuffix if not self.isLocator(obj) else locSuffix))
 
-				self.lockAttributes(obj, translate=lockTranslate, rotate=lockRotation, scale=lockScale)
+				self.set_lock_state(obj, translate=lockTranslate, rotate=lockRotation, scale=lockScale, state=1)
 
 			except Exception as error:
+				print ('# Error: {}: {} #'.format(obj.name(), error))
 				pm.delete(loc)
-				raise (error)
 
 		pm.undoInfo(closeChunk=1)
 
@@ -237,9 +204,8 @@ if __name__=='__main__':
 		parent=1,
 		freezeTransforms=1,
 		bakeChildPivot=1,
-		grpSuffix='_GRP_',
-		locSuffix='_LCTR_',
-		objSuffix='_GEO_',
+		locSuffix='_LCTR',
+		objSuffix='_GEO',
 		stripDigits=1,
 		stripSuffix=1,
 		scale=1,

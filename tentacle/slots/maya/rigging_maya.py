@@ -10,13 +10,13 @@ class Rigging_maya(Rigging, Slots_maya):
 		Slots_maya.__init__(self, *args, **kwargs)
 		Rigging.__init__(self, *args, **kwargs)
 
-		cmb = self.rigging_ui.draggable_header.contextMenu.cmb000
+		dh = self.rigging_ui.draggable_header
 		items = ['Quick Rig','HumanIK','Expression Editor','Shape Editor','Connection Editor','Channel Control Editor','Set Driven Key']
-		cmb.addItems_(items, 'Rigging Editors')
+		dh.contextMenu.cmb000.addItems_(items, 'Rigging Editors')
 
-		cmb = self.rigging_ui.cmb001
+		cmb001 = self.rigging_ui.cmb001
 		items = ['Joints','Locator','IK Handle', 'Lattice', 'Cluster']
-		cmb.addItems_(items, "Create")
+		cmb001.addItems_(items, "Create")
 
 
 	def cmb000(self, index=-1):
@@ -153,23 +153,25 @@ class Rigging_maya(Rigging, Slots_maya):
 		'''
 		tb = self.rigging_ui.tb003
 
+		grpSuffix = tb.contextMenu.t002.text()
 		locSuffix = tb.contextMenu.t000.text()
 		objSuffix = tb.contextMenu.t001.text()
+		parent = tb.contextMenu.chk006.isChecked()
+		freezeTransforms = tb.contextMenu.chk010.isChecked()
+		bakeChildPivot = tb.contextMenu.chk011.isChecked()
+		scale = tb.contextMenu.s001.value()
 		stripDigits = tb.contextMenu.chk005.isChecked()
 		stripSuffix = tb.contextMenu.chk016.isChecked()
-		parent = tb.contextMenu.chk006.isChecked()
-		scale = tb.contextMenu.s001.value()
 		lockTranslate = tb.contextMenu.chk007.isChecked()
 		lockRotation = tb.contextMenu.chk008.isChecked()
 		lockScale = tb.contextMenu.chk009.isChecked()
-		freezeTransforms = tb.contextMenu.chk010.isChecked()
-		bakeChildPivot = tb.contextMenu.chk011.isChecked()
 		remove = tb.contextMenu.chk015.isChecked()
 
 		from rigging_tools import createLocatorAtObject
 		selection = pm.ls(selection=True)
-		createLocatorAtObject(selection, locSuffix=locSuffix, objSuffix=objSuffix, stripDigits=stripDigits, stripSuffix=stripSuffix, scale=scale, parent=parent, bakeChildPivot=bakeChildPivot, 
-			freezeTransforms=freezeTransforms, lockTranslate=lockTranslate, lockRotation=lockRotation, lockScale=lockScale, remove=remove)
+		createLocatorAtObject(selection, parent=parent, freezeTransforms=freezeTransforms, bakeChildPivot=bakeChildPivot, 
+			scale=scale, grpSuffix=grpSuffix, locSuffix=locSuffix, objSuffix=objSuffix, stripDigits=stripDigits, stripSuffix=stripSuffix, 
+			lockTranslate=lockTranslate, lockRotation=lockRotation, lockScale=lockScale, remove=remove)
 
 
 	def tb004(self, state=None):
