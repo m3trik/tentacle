@@ -223,6 +223,11 @@ def tree000(self, wItem=None, column=None):
 
 
 
+tool:
+use the 3 point align function to quickly align two objects using two selected faces, 
+then click through the various vertex combinatons to get the correct alignment.
+
+
 macros:
 turn on transform constraints while modifier key down.
 

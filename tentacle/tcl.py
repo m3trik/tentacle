@@ -91,7 +91,7 @@ class Tcl(QtWidgets.QStackedWidget):
 		'''
 		ui = self.sb.getUi(ui, setAsCurrent=True) #Get the ui of the given name, and set it as the current ui in the switchboard module.
 
-		if self.sb.uiState<1: #if the ui state is 0, it has not been initialized.
+		if self.sb.uiState==0: #if the ui state is 0, it has not been initialized.
 			self.initUi(ui)
 
 		if self.sb.uiLevel<3: #stacked ui top level window.

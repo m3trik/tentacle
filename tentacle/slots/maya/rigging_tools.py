@@ -187,7 +187,9 @@ class CreateLocatorAtObject(object):
 				if remove:
 					if pm.objExists(obj): #if the locator hasn't already been deleted by another child.
 						self.unlockAttributes(obj, translate=1, rotate=1, scale=1) #unlock all.
-						self.remove_locator(obj)
+						locator_removed = self.remove_locator(obj)
+						if not locator_removed:
+							pm.inViewMessage(statusMessage="Unable to remove locator for {}.".format(obj.name()), pos='topCenter', fade=True)
 					continue
 
 				loc = self.create_locator(scale)

@@ -48,7 +48,8 @@ class Pivot_maya(Pivot, Slots_maya):
 		resetPivotOrientation = tb.contextMenu.chk001.isChecked() #Reset Pivot Orientation
 
 		pm.mel.manipPivotReset(int(resetPivotPosition), int(resetPivotOrientation))
-		self.messageBox('Reset Pivot Position <hl>{0}</hl>.<br>Reset Pivot Orientation <hl>{1}</hl>.'.format(resetPivotPosition, resetPivotOrientation))
+		pm.inViewMessage(statusMessage='Reset Pivot Position <hl>{0}</hl>.<br>Reset Pivot Orientation <hl>{1}</hl>.'.format(resetPivotPosition, resetPivotOrientation), pos='topCenter', fade=True)
+		# self.messageBox('Reset Pivot Position <hl>{0}</hl>.<br>Reset Pivot Orientation <hl>{1}</hl>.'.format(resetPivotPosition, resetPivotOrientation))
 
 
 	def tb001(self, state=None):

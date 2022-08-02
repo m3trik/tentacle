@@ -331,6 +331,7 @@ class EventFactoryFilter(QtCore.QObject):
 					groupBoxes = self.sb.getWidgetsByType('QGroupBox', uiName)
 					[gb.hide() if groupBoxNames and not gb.objectName() in groupBoxNames else gb.show() for gb in groupBoxes] #show only groupboxes with those names if any were given, else show all.
 					# self.tcl.qApp.processEvents() #the minimum size is not computed until some events are processed in the event loop.
+					print (uiName)
 					self.tcl.setUi(uiName)
 
 				elif self.sb.prefix(self.widget, 'v'):

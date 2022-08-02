@@ -151,9 +151,9 @@ class Polygons_maya(Polygons, Slots_maya):
 		'''
 		tb = self.polygons_ui.tb004
 
-		width = float(tb.contextMenu.s000.value())
+		width = tb.contextMenu.s000.value()
 		chamfer = True
-		segments = 1
+		segments = tb.contextMenu.s006.value()
 
 		return pm.polyBevel3(fraction=width, offsetAsFraction=1, autoFit=1, depth=1, mitering=0, 
 			miterAlong=0, chamfer=chamfer, segments=segments, worldSpace=1, smoothingAngle=30, subdivideNgons=1,

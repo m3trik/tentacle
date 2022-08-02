@@ -365,7 +365,7 @@ class Switchboard(QUiLoader, StyleSheet):
 			ui (str)(obj) = The ui, or ui name. ie. <Polygons> or 'polygons'
 
 		:Return:
-			(dict) packed keyword arguments. ie. {
+			(dict) packed keyword arguments. ex. {
 				'sb': <switchboard.Switchboard object at 0x000001D97BD7D1C8>, 
 				'_currentUi': <function <lambda> at 0x000001D97BCFCAC8>, 
 				'_ui': <function <lambda> at 0x000001D97BCFCA58>,

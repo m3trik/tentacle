@@ -182,7 +182,7 @@ class File_maya(File, Slots_maya):
 		'''
 		newProject = pm.mel.SetProject()
 		self.cmb006() #refresh project items to reflect new workspace.
-		self.getReferenceSceneMenu(clear=True) #refresh reference items to reflect new workspace.
+		self.referenceSceneMenu(clear=True) #refresh reference items to reflect new workspace.
 
 
 	def lbl001(self):

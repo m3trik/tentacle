@@ -827,7 +827,7 @@ class Transform_maya(Transform, Slots_maya):
 
 	@staticmethod
 	def matchTransformByVertexOrder(source, target):
-		'''Match transform and rotation by using 3 vertices from each object.
+		'''Match transform and rotation on like objects by using 3 vertices from each object.
 		The vertex order is transferred to the target object(s).
 
 		:Parameters:

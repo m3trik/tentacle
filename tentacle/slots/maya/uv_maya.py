@@ -32,7 +32,7 @@ class Uv_maya(Uv, Slots_maya):
 		tb000.contextMenu.add('QSpinBox', setPrefix='Stack Similar: ', setObjectName='s011', setMinMax_='0-2 step1', setValue=0, setToolTip='Find Similar shells. <br>state 1: Find similar shells, and pack one of each, ommiting the rest.<br>state 2: Find similar shells, and stack during packing.')
 		tb000.contextMenu.add('QDoubleSpinBox', setPrefix='Tolerance: ', setObjectName='s006', setMinMax_='0.0-10 step.1', setValue=1.0, setToolTip='Stack Similar: Stack shells with uv\'s within the given range.')
 		tb000.contextMenu.add('QSpinBox', setPrefix='UDIM: ', setObjectName='s004', setMinMax_='1001-1200 step1', setValue=1001, setToolTip='Set the desired UDIM tile space.')
-		tb000.contextMenu.add('QSpinBox', setPrefix='Padding: ', setObjectName='s012', setMinMax_='0-999 step1', setValue=16, setToolTip='Set the shell spacing amount.')
+		tb000.contextMenu.add('QSpinBox', setPrefix='Padding: ', setObjectName='s012', setMinMax_='0-999 step1', setValue=self.getMapSize()/256*2, setToolTip='Set the shell spacing amount.')
 
 		tb007 = self.uv_ui.tb007
 		tb007.contextMenu.b099.released.connect(lambda: tb007.contextMenu.s003.setValue(float(pm.mel.texGetTexelDensity(self.getMapSize())))) #get and set texel density value.
@@ -563,16 +563,16 @@ class Uv_maya(Uv, Slots_maya):
 					Otherwise, the UV's will be lost should any of the frm objects be deleted.
 		'''
 		# pm.undoInfo(openChunk=1)
-		for i in pm.ls(frm):
+		for frm in pm.ls(frm):
 			if to=='similar':
-				to = self.edit().getSimilarMesh(i, tol=tol, vertex=1, area=1)
+				to = self.edit().getSimilarMesh(frm, tol=tol, face=1, area=1)
 
-			for ii in pm.ls(to):
-				if pm.polyEvaluate(i, vertex=1, area=1, format=True)==pm.polyEvaluate(ii, vertex=1, area=1, format=True):
-					pm.polyTransfer(ii, alternateObject=i, uvSets=True) # pm.transferAttributes(i, ii, transferUVs=2, sampleSpace=4) #-transferNormals 0 -transferUVs 2 -transferColors 2 -sourceUvSpace "map1" -targetUvSpace "map1" -searchMethod 3-flipUVs 0 -colorBorders 1 ;
-					to.remove(ii) #remove the obj from the transfer list when an exact match is found.
-				elif pm.polyEvaluate(i, area=1, format=True)==pm.polyEvaluate(ii, area=1, format=True):
-					pm.transferAttributes(i, ii, transferUVs=2, sampleSpace=4) #transfer to the object if it is similar, but keep in transfer list in case an exact match is found later.
+			for to in pm.ls(to):
+				if pm.polyEvaluate(frm, face=1, area=1, format=True)==pm.polyEvaluate(to, face=1, area=1, format=True):
+					pm.polyTransfer(to, alternateObject=frm, uvSets=True) # pm.transferAttributes(frm, to, transferUVs=2, sampleSpace=4) #-transferNormals 0 -transferUVs 2 -transferColors 2 -sourceUvSpace "map1" -targetUvSpace "map1" -searchMethod 3-flipUVs 0 -colorBorders 1 ;
+					to.remove(to) #remove the obj from the transfer list when an exact match is found.
+				elif pm.polyEvaluate(frm, face=1, format=True)==pm.polyEvaluate(to, face=1, format=True):
+					pm.transferAttributes(frm, to, transferPositions=0, transferNormals=0, transferUVs=2, transferColors=2, sampleSpace=5, sourceUvSpace='map1', searchMethod=3, flipUVs=0, colorBorders=1) #transfer to the object if it is similar, but keep in transfer list in case an exact match is found later.
 
 		for remaining in to:
 			print('Result: No Exact match found for: {}. Making final attempt ..'.format(remaining.name()))

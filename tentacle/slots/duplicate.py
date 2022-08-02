@@ -97,7 +97,6 @@ class Duplicate(Slots):
 		'''
 		'''
 		self.sb.parent().setUi('duplicate_linear')
-
 		self.duplicate_linear_ui.s002.valueChanged.connect(self.duplicateArray) #update duplicate array
 		self.duplicate_linear_ui.s003.valueChanged.connect(self.duplicateArray)
 		self.duplicate_linear_ui.s004.valueChanged.connect(self.duplicateArray)

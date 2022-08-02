@@ -44,6 +44,7 @@ class Polygons(Slots):
 		ctx = self.polygons_ui.tb004.contextMenu
 		if not ctx.containsMenuItems:
 			ctx.add('QDoubleSpinBox', setPrefix='Width: ', setObjectName='s000', setMinMax_='0.00-100 step.05', setValue=0.25, setHeight_=20, setToolTip='Bevel Width.')
+			ctx.add('QDoubleSpinBox', setPrefix='Segments: ', setObjectName='s006', setMinMax_='1-100 step1', setValue=1, setHeight_=20, setToolTip='Bevel Segments.')
 
 		ctx = self.polygons_ui.tb005.contextMenu
 		if not ctx.containsMenuItems:
