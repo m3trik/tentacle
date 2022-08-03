@@ -169,6 +169,13 @@ class Normals_maya(Normals, Slots_maya):
 		pm.polySoftEdge(angle=180, constructionHistory=0)
 
 
+	def b002(self):
+		'''Transfer Normals
+		'''
+		source, *target = pm.ls(sl=1)
+		self.transferNormals(source, target)
+
+
 	def b003(self):
 		'''Soft Edge Display
 		'''
@@ -308,6 +315,42 @@ class Normals_maya(Normals, Slots_maya):
 		return similarFaces
 
 
+	@Slots_maya.undo
+	def transferNormals(self, source, target):
+		'''Transfer normal information from one object to another.
+
+		:parameters:
+			source (str)(obj)(list) = The transform node to copy normals from.
+			target (str)(obj)(list) = The transform node(s) to copy normals to.
+		'''
+		# pm.undoInfo(openChunk=1)
+		s, *other = pm.ls(source)
+		#store source transforms
+		sourcePos = pm.xform(s, q=1, t=1, ws=1)
+		sourceRot = pm.xform(s, q=1, ro=1, ws=1)
+		sourceScale = pm.xform(s, q=1, s=1, ws=1)
+
+		for t in pm.ls(target):
+			#store target transforms
+			targetPos = pm.xform(t, q=1, t=1, ws=1)
+			targetRot = pm.xform(t, q=1, ro=1, ws=1)
+			targetScale = pm.xform(t, q=1, s=1, ws=1)
+
+			#move target to source position
+			pm.xform(t, t=sourcePos, ws=1)
+			pm.xform(t, ro=sourceRot, ws=1)
+			pm.xform(t, s=sourceScale, ws=1)
+
+			#copy normals
+			pm.polyNormalPerVertex(t, ufn=0)
+			pm.transferAttributes(s, t, pos=0, nml=1, uvs=0, col=0, spa=0, sm=3, clb=1)
+			pm.delete(t, ch=1)
+
+			#restore t position
+			pm.xform(t, t=targetPos, ws=1)
+			pm.xform(t, ro=targetRot, ws=1)
+			pm.xform(t, s=targetScale, ws=1)
+		# pm.undoInfo(closeChunk=1)
 
 
 

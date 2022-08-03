@@ -124,8 +124,8 @@
     </property>
     <property name="geometry">
      <rect>
-      <x>295</x>
-      <y>340</y>
+      <x>290</x>
+      <y>210</y>
       <width>111</width>
       <height>19</height>
      </rect>
@@ -246,6 +246,43 @@
     </property>
     <property name="text">
      <string>Soften Edges</string>
+    </property>
+    <property name="iconSize">
+     <size>
+      <width>18</width>
+      <height>18</height>
+     </size>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="b002">
+    <property name="enabled">
+     <bool>true</bool>
+    </property>
+    <property name="geometry">
+     <rect>
+      <x>290</x>
+      <y>340</y>
+      <width>116</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="minimumSize">
+     <size>
+      <width>60</width>
+      <height>20</height>
+     </size>
+    </property>
+    <property name="maximumSize">
+     <size>
+      <width>999</width>
+      <height>20</height>
+     </size>
+    </property>
+    <property name="toolTip">
+     <string>Transfer the normal information from the first selected object to all remaining.</string>
+    </property>
+    <property name="text">
+     <string>Transfer Normals</string>
     </property>
     <property name="iconSize">
      <size>
