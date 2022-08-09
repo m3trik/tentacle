@@ -205,9 +205,9 @@ class Uv_blender(Uv, Slots_blender):
 						unwrapType = 'Cylindrical'
 					elif sphericalUnwrap:
 						unwrapType = 'Spherical'
-					objFaces = Slots_blender.getComponents('f', obj, selection=1)
+					objFaces = self.getComponents('f')
 					if not objFaces:
-						objFaces = Slots_blender.getComponents('f', obj)
+						objFaces = self.getComponents(obj, 'f')
 					pm.polyProjection(objFaces, type=unwrapType, insertBeforeDeformers=1, smartFit=1)
 
 				elif normalBasedUnwrap:
@@ -440,7 +440,7 @@ class Uv_blender(Uv, Slots_blender):
 			for obj in objects:
 				pm.selectMode(component=1)
 				pm.selectType(meshUVShell=1)
-				selection = Slots_blender.getComponents('f', obj, flatten=False)
+				selection = self.getComponents(obj, 'f', flatten=False)
 				pm.select(selection, add=True)
 
 		return selection
@@ -462,11 +462,11 @@ class Uv_blender(Uv, Slots_blender):
 		if not isinstance(objects, (list, set, tuple)):
 			objects=[objects]
 
-		objectType = Slots_blender.getObjectType(objects[0])
+		objectType = self.getType(objects[0])
 		if objectType=='Polygon Face':
 			faces = objects
 		else:
-			faces = Slots_blender.getComponents(objects, 'faces')
+			faces = self.getComponents(objects, 'faces')
 
 		shells={}
 		for face in faces:

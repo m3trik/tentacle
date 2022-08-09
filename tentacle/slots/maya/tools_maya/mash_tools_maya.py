@@ -1,10 +1,14 @@
 # !/usr/bin/python
 # coding=utf-8
 import os
-import MASH.api as mapi
+
+import pymel.core as pm
+
 import maya.OpenMaya as om
 import maya.OpenMayaFX as omfx
-import pymel.core as pm
+
+import MASH.api as mapi
+
 
 
 def MTcreateNetwork(network, objects, networkName='MASH#', geometry='Mesh', distType='linearNetwork', hideOnCreate=True):

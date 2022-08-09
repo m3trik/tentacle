@@ -144,8 +144,8 @@ class Nurbs_blender(Nurbs, Slots_blender):
 
 		except Exception as error:
 			objects = pm.ls(sl=1, objectsOnly=1)
-			sel_edges = Slots_blender.getComponents(objects, 'edges', selection=1, flatten=1)
-			edge_rings = Slots_blender.getContigiousEdges(sel_edges)
+			sel_edges = self.getComponents('edges', flatten=1)
+			edge_rings = self.getContigiousEdges(sel_edges)
 			multi = len(edge_rings)>1
 
 			for edge_ring in edge_rings:
@@ -402,9 +402,11 @@ class Nurbs_blender(Nurbs, Slots_blender):
 		'''
 		# pm.undoInfo(openChunk=1)
 		#create a MASH network
-		import MASH_tools, MASH.api as mapi
+		import MASH.api as mapi
+		import tools_maya.mash_tools_maya
+
 		mashNW = mapi.Network()
-		mashNW.MTcreateNetwork(start, geometry=geometry, hideOnCreate=False) #MASH_tools module (derived from 'createNetwork')
+		mashNW.MTcreateNetwork(start, geometry=geometry, hideOnCreate=False) #mash_tools_maya module (derived from 'createNetwork')
 
 		curveNode = pm.ls(mashNW.addNode('MASH_Curve').name)[0]
 		pm.connectAttr(path.worldSpace[0], curveNode.inCurves[0], force=1)
@@ -421,7 +423,7 @@ class Nurbs_blender(Nurbs, Slots_blender):
 		pm.setAttr(distNode.amplitudeX, 0)
 
 		instNode = pm.ls(mashNW.instancer)[0]
-		baked_curves = mashNW.MTbakeInstancer(instNode) #MASH_tools module (derived from 'MASHbakeInstancer')
+		baked_curves = mashNW.MTbakeInstancer(instNode) #mash_tools_maya module (derived from 'MASHbakeInstancer')
 
 		result=[start]
 		for curve in reversed(baked_curves):
@@ -493,7 +495,7 @@ class Nurbs_blender(Nurbs, Slots_blender):
 		:Return:
 			(dict) closest vertex/cv pairs (one pair for each given curve) ex. {<vertex from set1>:<vertex from set2>}.
 
-		ex. vertices = Slots_blender.getComponents(objects, 'vertices')
+		ex. vertices = getComponents(objects, 'vertices')
 			closestVerts = getClosestCV(curve0, curves)
 		'''
 		# pm.undoInfo(openChunk=True)
@@ -623,7 +625,7 @@ class Nurbs_blender(Nurbs, Slots_blender):
 		for curve in pm.ls(curves):
 			p0 = pm.objectCenter(curve)
 
-			cvs = Slots_blender.getComponents(curve, 'cv', returnType='object', flatten=1)
+			cvs = self.getComponents(curve, 'cv', returnType='object', flatten=1)
 			cvPos = self.getCvInfo(curve, 'position')
 			p1 = cvPos[cvs[0]]
 			p2 = cvPos[cvs[(len(cvs)/2)]]

@@ -167,7 +167,7 @@ class Rigging_maya(Rigging, Slots_maya):
 		lockScale = tb.contextMenu.chk009.isChecked()
 		remove = tb.contextMenu.chk015.isChecked()
 
-		from rigging_tools import createLocatorAtObject
+		from tools_maya.rigging_tools_maya import createLocatorAtObject
 		selection = pm.ls(selection=True)
 		createLocatorAtObject(selection, parent=parent, freezeTransforms=freezeTransforms, bakeChildPivot=bakeChildPivot, 
 			scale=scale, grpSuffix=grpSuffix, locSuffix=locSuffix, objSuffix=objSuffix, stripDigits=stripDigits, stripSuffix=stripSuffix, 

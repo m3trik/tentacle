@@ -354,7 +354,7 @@ class Edit_blender(Edit, Slots_blender):
 		# pm.undoInfo(openChunk=True)
 		nonManifoldVerts=set()
 
-		vertices = Slots_blender.getComponents(objects, 'vertices')
+		vertices = self.getComponents(objects, 'vertices')
 		for vertex in vertices:
 
 			connected_faces = pm.polyListComponentConversion(vertex, fromVertex=1, toFace=1) #pm.mel.PolySelectConvert(1) #convert to faces

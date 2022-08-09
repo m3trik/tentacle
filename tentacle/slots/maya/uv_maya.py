@@ -212,9 +212,9 @@ class Uv_maya(Uv, Slots_maya):
 						unwrapType = 'Cylindrical'
 					elif sphericalUnwrap:
 						unwrapType = 'Spherical'
-					objFaces = Slots_maya.getComponents('f', obj, selection=1)
+					objFaces = self.getComponents(componentType='f')
 					if not objFaces:
-						objFaces = Slots_maya.getComponents('f', obj)
+						objFaces = self.getComponents(obj, 'f')
 					pm.polyProjection(objFaces, type=unwrapType, insertBeforeDeformers=1, smartFit=1)
 
 				elif normalBasedUnwrap:
@@ -437,7 +437,8 @@ class Uv_maya(Uv, Slots_maya):
 		pm.polyEditUV(sel, u=u, v=v, relative=relative)
 
 
-	def uvShellSelection(self):
+	@classmethod
+	def uvShellSelection(cls):
 		'''Select all faces of any selected geometry, and switch the component mode to uv shell,
 		if the current selection is not maskFacet, maskUv, or maskUvShell.
 
@@ -446,7 +447,7 @@ class Uv_maya(Uv, Slots_maya):
 		'''
 		selection = pm.ls(sl=1)
 		if not selection:
-			self.messageBox('<b>Nothing selected.<b><br>The operation requires at lease one selected object.')
+			cls.messageBox('<b>Nothing selected.<b><br>The operation requires at lease one selected object.')
 			return
 
 		objects = pm.ls(selection, objectsOnly=1)
@@ -467,7 +468,8 @@ class Uv_maya(Uv, Slots_maya):
 		return selection
 
 
-	def getUvShellSets(self, objects=None, returnType='shells'):
+	@classmethod
+	def getUvShellSets(cls, objects=None, returnType='shells'):
 		'''Get All UV shells and their corresponding sets of faces.
 
 		:Parameters:
@@ -482,11 +484,11 @@ class Uv_maya(Uv, Slots_maya):
 		else:
 			objects = pm.ls(objects, selection=1, objectsOnly=1, transforms=1, flatten=1)
 
-		objectType = Slots_maya.getObjectType(objects[0])
+		objectType = cls.getType(objects[0])
 		if objectType=='Polygon Face':
 			faces = objects
 		else:
-			faces = Slots_maya.getComponents(objects, 'faces', flatten=1)
+			faces = cls.getComponents(objects, 'faces', flatten=1)
 
 		shells={}
 		for face in faces:
@@ -508,7 +510,8 @@ class Uv_maya(Uv, Slots_maya):
 		return shells
 
 
-	def getUvShellBorderEdges(self, objects):
+	@staticmethod
+	def getUvShellBorderEdges(objects):
 		'''Get the edges that make up any UV islands of the given objects.
 
 		:Parameters:

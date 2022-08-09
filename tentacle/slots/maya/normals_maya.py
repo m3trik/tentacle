@@ -130,7 +130,7 @@ class Normals_maya(Normals, Slots_maya):
 
 		if (all_ and maskVertex) or maskObject:
 			for obj in selection:
-				vertices = Slots_maya.getComponents(obj, 'vertices', flatten=1)
+				vertices = self.getComponents(obj, 'vertices', flatten=1)
 				for vertex in vertices:
 					if not state:
 						pm.polyNormalPerVertex(vertex, unFreezeNormal=1)
@@ -206,14 +206,13 @@ class Normals_maya(Normals, Slots_maya):
 			pm.polyNormal(sel, normalMode=3, userNormalMode=1) #3: reverse and cut a new shell on selected face(s). 4: reverse and propagate; Reverse the normal(s) and propagate this direction to all other faces in the shell.
 
 
-	@Slots_maya.undo
 	def averageNormals(self, objects, byUvShell=False):
 		'''Average Normals
 
 		:Parameters:
 			byUvShell (bool) = Average each UV shell individually.
 		'''
-		# pm.undoInfo(openChunk=1)
+		pm.undoInfo(openChunk=1)
 		for obj in objects:
 
 			if byUvShell:
@@ -228,32 +227,21 @@ class Normals_maya(Normals, Slots_maya):
 					sel = obj
 				pm.polySetToFaceNormal(sel)
 				pm.polyAverageNormal(sel)
-		# pm.undoInfo(closeChunk=1)
+		pm.undoInfo(closeChunk=1)
 
 
-	def getNormalVector(self, name=None):
-		'''Get the normal vectors from the given poly object.
-		If no argument is given the normals for the current selection will be returned.
+	@staticmethod
+	def getNormalVector(obj):
+		'''Get the normal vectors of the given poly object.
+
 		:Parameters:
-			name (str) = polygon mesh or component.
+			obj (str)(obj)(list) = A polygon mesh or it's component(s).
+
 		:Return:
 			dict - {int:[float, float, float]} face id & vector xyz.
 		'''
-		type_ = pm.objectType(name)
-
-		if type_=='mesh': #get face normals
-			normals = pm.polyInfo(name, faceNormals=1)
-
-		elif type_=='transform': #get all normals for the given obj
-			numFaces = pm.polyEvaluate(name, face=1) #returns number of faces as an integer
-			normals=[]
-			for n in range(0, numFaces): #for (number of faces):
-				array = pm.polyInfo('{0}[{1}]'.format(name, n) , faceNormals=1) #get normal info from the rest of the object's faces
-				string = ' '.join(array)
-				n.append(str(string))
-
-		else: #get face normals from the user component selection.
-			normals = pm.polyInfo(faceNormals=1) #returns the face normals of selected faces
+		obj = pm.ls(obj)
+		normals = pm.polyInfo(obj, faceNormals=1)
 
 		regEx = "[A-Z]*_[A-Z]* *[0-9]*: "
 
@@ -268,7 +256,8 @@ class Normals_maya(Normals, Slots_maya):
 		return dict_
 
 
-	def getFacesWithSimilarNormals(self, faces, transforms=[], similarFaces=[], rangeX=0.1, rangeY=0.1, rangeZ=0.1, returnType='str', returnNodeType='transform'):
+	@classmethod
+	def getFacesWithSimilarNormals(cls, faces, transforms=[], similarFaces=[], rangeX=0.1, rangeY=0.1, rangeZ=0.1, returnType='str', returnNodeType='transform'):
 		'''Filter for faces with normals that fall within an X,Y,Z tolerance.
 
 		:Parameters:
@@ -288,24 +277,20 @@ class Normals_maya(Normals, Slots_maya):
 		'''
 		faces = pm.ls(faces, flatten=1) #work on a copy of the argument so that removal of elements doesn't effect the passed in list.
 		for face in faces:
-			normals = self.getNormalVector(face)
+			normals = cls.getNormalVector(face)
 
 			for k, v in normals.items():
-				sX = v[0]
-				sY = v[1]
-				sZ = v[2]
+				sX, sY, sZ = v
 
 				if not transforms:
-					transforms = Slots_maya.getObjectFromComponent(face)
+					transforms = cls.getObjectFromComponent(face)
 
 				for node in transforms:
-					for f in Slots_maya.getComponents(node, 'faces', returnType=returnType, returnNodeType=returnNodeType, flatten=1):
+					for f in cls.getComponents(node, 'faces', returnType=returnType, returnNodeType=returnNodeType, flatten=1):
 
-						n = self.getNormalVector(f)
+						n = cls.getNormalVector(f)
 						for k, v in n.items():
-							nX = v[0]
-							nY = v[1]
-							nZ = v[2]
+							nX, nY, nZ = v
 
 							if sX<=nX + rangeX and sX>=nX - rangeX and sY<=nY + rangeY and sY>=nY - rangeY and sZ<=nZ + rangeZ and sZ>=nZ - rangeZ:
 								similarFaces.append(f)
@@ -315,15 +300,15 @@ class Normals_maya(Normals, Slots_maya):
 		return similarFaces
 
 
-	@Slots_maya.undo
-	def transferNormals(self, source, target):
+	@staticmethod
+	def transferNormals(source, target):
 		'''Transfer normal information from one object to another.
 
 		:parameters:
 			source (str)(obj)(list) = The transform node to copy normals from.
 			target (str)(obj)(list) = The transform node(s) to copy normals to.
 		'''
-		# pm.undoInfo(openChunk=1)
+		pm.undoInfo(openChunk=1)
 		s, *other = pm.ls(source)
 		#store source transforms
 		sourcePos = pm.xform(s, q=1, t=1, ws=1)
@@ -350,7 +335,7 @@ class Normals_maya(Normals, Slots_maya):
 			pm.xform(t, t=targetPos, ws=1)
 			pm.xform(t, ro=targetRot, ws=1)
 			pm.xform(t, s=targetScale, ws=1)
-		# pm.undoInfo(closeChunk=1)
+		pm.undoInfo(closeChunk=1)
 
 
 
@@ -363,3 +348,47 @@ print (__name__)
 # -----------------------------------------------
 # Notes
 # -----------------------------------------------
+
+
+#deprecated:
+
+
+# @staticmethod
+# 	def getNormalVector(obj):
+# 		'''Get the normal vectors from the given poly object.
+
+# 		:Parameters:
+# 			obj (str)(obj)(list) = A polygon mesh or component(s).
+
+# 		:Return:
+# 			dict - {int:[float, float, float]} face id & vector xyz.
+# 		'''
+# 		obj = pm.ls(obj)
+# 		type_ = pm.objectType(obj)
+
+# 		if type_=='mesh': #get face normals
+# 			normals = pm.polyInfo(obj, faceNormals=1)
+
+# 		elif type_=='transform': #get all normals for the given obj
+# 			numFaces = pm.polyEvaluate(obj, face=1) #returns number of faces as an integer
+# 			normals=[]
+# 			name = obj.name()
+# 			for n in range(0, numFaces): #for (number of faces):
+# 				array = pm.polyInfo('{0}[{1}]'.format(name, n) , faceNormals=1) #get normal info from the rest of the object's faces
+# 				string = ' '.join(array)
+# 				n.append(str(string))
+
+# 		else: #get face normals from the user component selection.
+# 			normals = pm.polyInfo(faceNormals=1) #returns the face normals of selected faces
+
+# 		regEx = "[A-Z]*_[A-Z]* *[0-9]*: "
+
+# 		dict_={}
+# 		for n in normals:
+# 			l = list(s.replace(regEx,'') for s in n.split() if s) #['FACE_NORMAL', '150:', '0.935741', '0.110496', '0.334931\n']
+
+# 			key = int(l[1].strip(':')) #int face number as key ie. 150
+# 			value = list(float(i) for i in l[-3:])  #vector list as value. ie. [[0.935741, 0.110496, 0.334931]]
+# 			dict_[key] = value
+
+# 		return dict_

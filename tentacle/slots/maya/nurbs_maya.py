@@ -143,9 +143,8 @@ class Nurbs_maya(Nurbs, Slots_maya):
 			pm.mel.CreateCurveFromPoly()
 
 		except Exception as error:
-			objects = pm.ls(sl=1, objectsOnly=1)
-			sel_edges = Slots_maya.getComponents(objects, 'edges', selection=1, flatten=1)
-			edge_rings = Slots_maya.getContigiousEdges(sel_edges)
+			sel_edges = self.getComponents(componentType='edges', flatten=1) #get edges from selection.
+			edge_rings = self.getContigiousEdges(sel_edges)
 			multi = len(edge_rings)>1
 
 			for edge_ring in edge_rings:
@@ -402,9 +401,11 @@ class Nurbs_maya(Nurbs, Slots_maya):
 		'''
 		# pm.undoInfo(openChunk=1)
 		#create a MASH network
-		import MASH_tools, MASH.api as mapi
+		import MASH.api as mapi
+		import tools_maya.mash_tools_maya
+
 		mashNW = mapi.Network()
-		mashNW.MTcreateNetwork(start, geometry=geometry, hideOnCreate=False) #MASH_tools module (derived from 'createNetwork')
+		mashNW.MTcreateNetwork(start, geometry=geometry, hideOnCreate=False) #mash_tools_maya module (derived from 'createNetwork')
 
 		curveNode = pm.ls(mashNW.addNode('MASH_Curve').name)[0]
 		pm.connectAttr(path.worldSpace[0], curveNode.inCurves[0], force=1)
@@ -421,7 +422,7 @@ class Nurbs_maya(Nurbs, Slots_maya):
 		pm.setAttr(distNode.amplitudeX, 0)
 
 		instNode = pm.ls(mashNW.instancer)[0]
-		baked_curves = mashNW.MTbakeInstancer(instNode) #MASH_tools module (derived from 'MASHbakeInstancer')
+		baked_curves = mashNW.MTbakeInstancer(instNode) #mash_tools_maya module (derived from 'MASHbakeInstancer')
 
 		result=[start]
 		for curve in reversed(baked_curves):
@@ -481,8 +482,8 @@ class Nurbs_maya(Nurbs, Slots_maya):
 		return result
 
 
-	@Slots_maya.undo
-	def getClosestCV(self, x, curves, tolerance=0.0):
+	@staticmethod
+	def getClosestCV(x, curves, tolerance=0.0):
 		'''Find the closest control vertex between the given vertices, CVs, or objects and each of the given curves.
 
 		:Parameters:
@@ -493,10 +494,10 @@ class Nurbs_maya(Nurbs, Slots_maya):
 		:Return:
 			(dict) closest vertex/cv pairs (one pair for each given curve) ex. {<vertex from set1>:<vertex from set2>}.
 
-		ex. vertices = Slots_maya.getComponents(objects, 'vertices')
+		ex. vertices = getComponents(objects, 'vertices')
 			closestVerts = getClosestCV(curve0, curves)
 		'''
-		# pm.undoInfo(openChunk=True)
+		pm.undoInfo(openChunk=True)
 		x = pm.ls(x, flatten=1) #assure x arg is a list (if given as str or single object).
 
 		npcNode = pm.ls(pm.createNode('nearestPointOnCurve'))[0] #create a nearestPointOnCurve node.
@@ -521,12 +522,13 @@ class Nurbs_maya(Nurbs, Slots_maya):
 					result[i] = p
 
 		pm.delete(npcNode)
-		# pm.undoInfo(closeChunk=True)
+		pm.undoInfo(closeChunk=True)
 
 		return result
 
 
-	def getCvInfo(self, c, returnType='cv', filter_=[]):
+	@classmethod
+	def getCvInfo(cls, c, returnType='cv', filter_=[]):
 		'''Get a dict containing CV's of the given curve(s) and their corresponding point positions (based on Maya's pointOnCurve command).
 
 		:Parameters:
@@ -556,7 +558,7 @@ class Nurbs_maya(Nurbs, Slots_maya):
 			else: #if curve(s) given
 				cvs = curve.cv
 
-			parameters = self.getClosestCV(cvs, curve) #use getClosestCV to get the parameter location for each of the curves CVs.
+			parameters = cls.getClosestCV(cvs, curve) #use getClosestCV to get the parameter location for each of the curves CVs.
 			for cv, p in parameters.items():
 
 				if returnType=='position': # Get cv position
@@ -578,7 +580,7 @@ class Nurbs_maya(Nurbs, Slots_maya):
 				elif returnType=='parameter': # Return the CVs parameter.
 					v = p
 				elif returnType=='count': # total number of cv's for the curve.
-					result[curve] = len(self.getCvInfo(curve))
+					result[curve] = len(cls.getCvInfo(curve))
 					break
 				elif returnType=='index': # index of the cv
 					s = str(cv)
@@ -608,7 +610,8 @@ class Nurbs_maya(Nurbs, Slots_maya):
 		return result
 
 
-	def getCrossProductOfCurves(self, curves, normalize=1, values=False):
+	@classmethod
+	def getCrossProductOfCurves(cls, curves, normalize=1, values=False):
 		'''Get the cross product of two vectors using points derived from the given curves.
 
 		:Parameters:
@@ -623,8 +626,8 @@ class Nurbs_maya(Nurbs, Slots_maya):
 		for curve in pm.ls(curves):
 			p0 = pm.objectCenter(curve)
 
-			cvs = Slots_maya.getComponents(curve, 'cv', returnType='object', flatten=1)
-			cvPos = self.getCvInfo(curve, 'position')
+			cvs = cls.getComponents(curve, 'cv', returnType='obj', flatten=1)
+			cvPos = cls.getCvInfo(curve, 'position')
 			p1 = cvPos[cvs[0]]
 			p2 = cvPos[cvs[(len(cvs)/2)]]
 

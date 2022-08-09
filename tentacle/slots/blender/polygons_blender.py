@@ -450,8 +450,8 @@ class Polygons_blender(Polygons, Slots_blender):
 			tolerance (float) = Maximum search distance.
 			freezeTransforms (bool) = Reset the selected transform and all of its children down to the shape level.
 		'''
-		vertices = Slots_blender.getComponents(obj1, 'vertices')
-		closestVerts = Slots_blender.getClosestVertex(vertices, obj2, tolerance=tolerance, freezeTransforms=freezeTransforms)
+		vertices = self.getComponents(obj1, 'vertices')
+		closestVerts = self.getClosestVertex(vertices, obj2, tolerance=tolerance, freezeTransforms=freezeTransforms)
 
 		progressBar = mel.eval("$container=$gMainProgressBar");
 		pm.progressBar(progressBar, edit=True, beginProgress=True, isInterruptable=True, status="Snapping Vertices ...", maxValue=len(closestVerts)) 

@@ -407,7 +407,7 @@ class Edit_maya(Edit, Slots_maya):
 		# pm.undoInfo(openChunk=True)
 		nonManifoldVerts=set()
 
-		vertices = Slots_maya.getComponents(objects, 'vertices')
+		vertices = self.getComponents(objects, 'vertices')
 		for vertex in vertices:
 
 			connected_faces = pm.polyListComponentConversion(vertex, fromVertex=1, toFace=1) #pm.mel.PolySelectConvert(1) #convert to faces

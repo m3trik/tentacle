@@ -467,7 +467,7 @@ class Polygons_maya(Polygons, Slots_maya):
 			tolerance (float) = Maximum search distance.
 			freezeTransforms (bool) = Reset the selected transform and all of its children down to the shape level.
 		'''
-		vertices = Slots_maya.getComponents(obj1, 'vertices')
+		vertices = self.getComponents(obj1, 'vertices')
 		closestVerts = Slots_maya.getClosestVertex(vertices, obj2, tolerance=tolerance, freezeTransforms=freezeTransforms)
 
 		progressBar = mel.eval("$container=$gMainProgressBar");

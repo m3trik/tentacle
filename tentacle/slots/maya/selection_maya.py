@@ -79,13 +79,13 @@ class Selection_maya(Selection, Slots_maya):
 	def lbl003(self):
 		'''Grow Selection
 		'''
-		mel.eval('GrowPolygonSelectionRegion;')
+		pm.mel.GrowPolygonSelectionRegion()
 
 
 	def lbl004(self):
 		'''Shrink Selection
 		'''
-		mel.eval('ShrinkPolygonSelectionRegion;')
+		pm.mel.ShrinkPolygonSelectionRegion()
 
 
 	def lbl005(self):
@@ -129,7 +129,7 @@ class Selection_maya(Selection, Slots_maya):
 		if index>0:
 			text = cmb.items[index]
 			if text=='Polygon Selection Constraints':
-				mel.eval('PolygonSelectionConstraints;')
+				pm.mel.PolygonSelectionConstraints()
 			cmb.setCurrentIndex(0)
 
 
@@ -215,45 +215,45 @@ class Selection_maya(Selection, Slots_maya):
 		if index>0:
 			text = cmb.items[index]
 			if text=='Verts': #Convert Selection To Vertices
-				mel.eval('PolySelectConvert 3;')
+				pm.mel.PolySelectConvert(3)
 			elif text=='Vertex Faces': #
-				mel.eval('PolySelectConvert 5;')
+				pm.mel.PolySelectConvert(5)
 			elif text=='Vertex Perimeter': #
-				mel.eval('ConvertSelectionToVertexPerimeter;')
+				pm.mel.ConvertSelectionToVertexPerimeter()
 			elif text=='Edges': #Convert Selection To Edges
-				mel.eval('PolySelectConvert 2;')
+				pm.mel.PolySelectConvert(2)
 			elif text=='Edge Loop': #
-				mel.eval('polySelectSp -loop;')
+				pm.mel.polySelectSp(loop=1)
 			elif text=='Edge Ring': #Convert Selection To Edge Ring
-				mel.eval('SelectEdgeRingSp;')
+				pm.mel.SelectEdgeRingSp()
 			elif text=='Contained Edges': #
-				mel.eval('PolySelectConvert 20;')
+				pm.mel.PolySelectConvert(20)
 			elif text=='Edge Perimeter': #
-				mel.eval('ConvertSelectionToEdgePerimeter;')
+				pm.mel.ConvertSelectionToEdgePerimeter()
 			elif text=='Border Edges': #
 				pm.select(self.getBorderEdgeFromFace())
 			elif text=='Faces': #Convert Selection To Faces
-				mel.eval('PolySelectConvert 1;')
+				pm.mel.PolySelectConvert(1)
 			elif text=='Face Path': #
-				mel.eval('polySelectEdges edgeRing;')
+				pm.mel.polySelectEdges('edgeRing')
 			elif text=='Contained Faces': #
-				mel.eval('PolySelectConvert 10;')
+				pm.mel.PolySelectConvert(10)
 			elif text=='Face Perimeter': #
-				mel.eval('polySelectFacePerimeter;')
+				pm.mel.polySelectFacePerimeter()
 			elif text=='UV\'s': #
-				mel.eval('PolySelectConvert 4;')
+				pm.mel.PolySelectConvert(4)
 			elif text=='UV Shell': #
-				mel.eval('polySelectBorderShell 0;')
+				pm.mel.polySelectBorderShell(0)
 			elif text=='UV Shell Border': #
-				mel.eval('polySelectBorderShell 1;')
+				pm.mel.polySelectBorderShell(1)
 			elif text=='UV Perimeter': #
-				mel.eval('ConvertSelectionToUVPerimeter;')
+				pm.mel.ConvertSelectionToUVPerimeter()
 			elif text=='UV Edge Loop': #
-				mel.eval('polySelectEdges edgeUVLoopOrBorder;')
+				pm.mel.polySelectEdges('edgeUVLoopOrBorder')
 			elif text=='Shell': #
-				mel.eval('polyConvertToShell;')
+				pm.mel.polyConvertToShell()
 			elif text=='Shell Border': #
-				mel.eval('polyConvertToShellBorder;')
+				pm.mel.polyConvertToShellBorder()
 			cmb.setCurrentIndex(0)
 
 
@@ -265,19 +265,19 @@ class Selection_maya(Selection, Slots_maya):
 		if index>0:
 			text = cmb.items[index]
 			if text=='Angle':
-				mel.eval('dR_selConstraintAngle;') #dR_DoCmd("selConstraintAngle");
+				pm.mel.dR_selConstraintAngle() #dR_DoCmd("selConstraintAngle");
 			elif text=='Border':
-				mel.eval('dR_selConstraintBorder;') #dR_DoCmd("selConstraintBorder");
+				pm.mel.dR_selConstraintBorder() #dR_DoCmd("selConstraintBorder");
 			elif text=='Edge Loop':
-				mel.eval('dR_selConstraintEdgeLoop;') #dR_DoCmd("selConstraintEdgeLoop");
+				pm.mel.dR_selConstraintEdgeLoop() #dR_DoCmd("selConstraintEdgeLoop");
 			elif text=='Edge Ring':
-				mel.eval('dR_selConstraintEdgeRing;') #dR_DoCmd("selConstraintEdgeRing");
+				pm.mel.dR_selConstraintEdgeRing() #dR_DoCmd("selConstraintEdgeRing");
 			elif text=='Shell':
-				mel.eval('dR_selConstraintElement;') #dR_DoCmd("selConstraintElement");
+				pm.mel.dR_selConstraintElement() #dR_DoCmd("selConstraintElement");
 			elif text=='UV Edge Loop':
-				mel.eval('dR_selConstraintUVEdgeLoop;') #dR_DoCmd("selConstraintUVEdgeLoop");
+				pm.mel.dR_selConstraintUVEdgeLoop() #dR_DoCmd("selConstraintUVEdgeLoop");
 		else:
-			mel.eval('dR_selConstraintOff;') #dR_DoCmd("selConstraintOff");
+			pm.mel.dR_selConstraintOff() #dR_DoCmd("selConstraintOff");
 
 
 	def cmb006(self, index=-1):
@@ -380,7 +380,7 @@ class Selection_maya(Selection, Slots_maya):
 		rangeY = float(tb.contextMenu.s004.value())
 		rangeZ = float(tb.contextMenu.s005.value())
 
-		selectedFaces = pm.filterExpand(sm=34)
+		selectedFaces = self.getComponents(componentType='faces')
 		if not selectedFaces:
 			self.messageBox('The operation requires a face selection.')
 			return
@@ -410,25 +410,25 @@ class Selection_maya(Selection, Slots_maya):
 	def b016(self):
 		'''Convert Selection To Vertices
 		'''
-		mel.eval('PolySelectConvert 3;')
+		pm.mel.PolySelectConvert(3)
 
 
 	def b017(self):
 		'''Convert Selection To Edges
 		'''
-		mel.eval('PolySelectConvert 2;')
+		pm.mel.PolySelectConvert(2)
 
 
 	def b018(self):
 		'''Convert Selection To Faces
 		'''
-		mel.eval('PolySelectConvert 1;')
+		pm.mel.PolySelectConvert(1)
 
 
 	def b019(self):
 		'''Convert Selection To Edge Ring
 		'''
-		mel.eval('SelectEdgeRingSp;')
+		pm.mel.SelectEdgeRingSp()
 
 
 	@staticmethod

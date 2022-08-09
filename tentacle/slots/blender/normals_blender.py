@@ -125,7 +125,7 @@ class Normals_blender(Normals, Slots_blender):
 
 		if (all_ and maskVertex) or maskObject:
 			for obj in selection:
-				vertices = Slots_blender.getComponents(obj, 'vertices', flatten=1)
+				vertices = self.getComponents(obj, 'vertices', flatten=1)
 				for vertex in vertices:
 					if not state:
 						pm.polyNormalPerVertex(vertex, unFreezeNormal=1)
@@ -216,7 +216,8 @@ class Normals_blender(Normals, Slots_blender):
 		# pm.undoInfo(closeChunk=1)
 
 
-	def getNormalVector(self, name=None):
+	@staticmethod
+	def getNormalVector(name=None):
 		'''Get the normal vectors from the given poly object.
 		If no argument is given the normals for the current selection will be returned.
 		:Parameters:
@@ -253,7 +254,8 @@ class Normals_blender(Normals, Slots_blender):
 		return dict_
 
 
-	def getFacesWithSimilarNormals(self, faces, transforms=[], similarFaces=[], rangeX=0.1, rangeY=0.1, rangeZ=0.1, returnType='str', returnNodeType='transform'):
+	@classmethod
+	def getFacesWithSimilarNormals(cls, faces, transforms=[], similarFaces=[], rangeX=0.1, rangeY=0.1, rangeZ=0.1, returnType='str', returnNodeType='transform'):
 		'''Filter for faces with normals that fall within an X,Y,Z tolerance.
 
 		:Parameters:
@@ -273,7 +275,7 @@ class Normals_blender(Normals, Slots_blender):
 		'''
 		faces = pm.ls(faces, flatten=1) #work on a copy of the argument so that removal of elements doesn't effect the passed in list.
 		for face in faces:
-			normals = self.getNormalVector(face)
+			normals = cls.getNormalVector(face)
 
 			for k, v in normals.items():
 				sX = v[0]
@@ -284,9 +286,9 @@ class Normals_blender(Normals, Slots_blender):
 					transforms = Slots_blender.getObjectFromComponent(face)
 
 				for node in transforms:
-					for f in Slots_blender.getComponents(node, 'faces', returnType=returnType, returnNodeType=returnNodeType, flatten=1):
+					for f in cls.getComponents(node, 'faces', returnType=returnType, returnNodeType=returnNodeType, flatten=1):
 
-						n = self.getNormalVector(f)
+						n = cls.getNormalVector(f)
 						for k, v in n.items():
 							nX = v[0]
 							nY = v[1]
