@@ -36,7 +36,7 @@
 
 #### slots:
 
-###### *parent class holding methods that are inherited across all app specific slot class modules.*
+###### *parent class housing methods that are inherited across all app specific slot class modules.*
 
 ## 
 
