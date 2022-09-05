@@ -32,12 +32,11 @@
 
 #### switchboard:
 
-###### *contains a master dictionary for widget related info as well as convenience methods for interacting with the dict.*
-
+###### *loads dynamic ui and any custom widgets and contains convenience methods for interacting with the ui.*
 
 #### slots:
 
-###### *parent class holding methods that are inherited across all parent app specific slot class modules.*
+###### *parent class housing methods that are inherited across all app specific slot class modules.*
 
 ## 
 
