@@ -10,26 +10,26 @@ class Create_max(Create, Slots_max):
 		Slots_max.__init__(self, *args, **kwargs)
 		Create.__init__(self, *args, **kwargs)
 
-		cmb = self.create_ui.draggable_header.contextMenu.cmb000
+		cmb = self.sb.create.draggable_header.contextMenu.cmb000
 		list_ = ['']
 		cmb.addItems_(list_, '')
 
-		cmb = self.create_ui.cmb001
+		cmb = self.sb.create.cmb001
 		items = ['Mesh', 'Editable Poly', 'Editable Mesh', 'Editable Patch', 'NURBS', 'Light']
 		cmb.addItems_(items)
 
-		cmb = self.create_ui.cmb002
+		cmb = self.sb.create.cmb002
 		items = ["Cube", "Sphere", "Cylinder", "Plane", "Circle", "Cone", "Pyramid", "Torus", "Tube", "GeoSphere", "Text"] 
 		cmb.addItems_(items)
 
-		ctx = self.create_ui.tb000.contextMenu
+		ctx = self.sb.create.tb000.contextMenu
 		ctx.chk001.setDisabled(True)
 
 
 	def cmb000(self, index=-1):
 		'''Editors
 		'''
-		cmb = self.create_ui.draggable_header.contextMenu.cmb000
+		cmb = self.sb.create.draggable_header.contextMenu.cmb000
 
 		if index>0:
 			text = cmb.items[index]
@@ -41,7 +41,7 @@ class Create_max(Create, Slots_max):
 	def cmb001(self, index=-1):
 		'''Create: Select Base Type
 		'''
-		cmb = self.create_ui.cmb001
+		cmb = self.sb.create.cmb001
 
 		if index>=0:
 			self.cmb001(index)
@@ -49,7 +49,7 @@ class Create_max(Create, Slots_max):
 
 	def cmb001(self, index=-1):
 		''''''
-		cmb = self.create_ui.cmb002
+		cmb = self.sb.create.cmb002
 
 		primitives = ["Cube", "Sphere", "Cylinder", "Plane", "Circle", "Cone", "Pyramid", "Torus", "Tube", "GeoSphere", "Text"] 
 		extendedPrimitives = ['Hedra', 'Torus Knot', 'Chamfer Box', 'Chamfer Cylinder', 'Oil Tank', 'Capsule', 'Spindle', 'L-Extrusion', 'Gengon', 'C-Extrusion', 'RingWave', 'Hose', 'Prism'] #Extended Primitives:
@@ -70,10 +70,10 @@ class Create_max(Create, Slots_max):
 	def tb000(self, state=None):
 		'''Create Primitive
 		'''
-		tb = self.create_ui.tb000
+		tb = self.sb.create.tb000
 
-		type_ = self.create_ui.cmb001.currentText()
-		index = self.create_ui.cmb002.currentIndex()
+		type_ = self.sb.create.cmb001.currentText()
+		index = self.sb.create.cmb002.currentIndex()
 		translate = tb.contextMenu.chk000.isChecked()
 		# scale = tb.contextMenu.chk001.isChecked()
 
@@ -170,7 +170,7 @@ class Create_max(Create, Slots_max):
 			# if scale:
 			# 	Slots_max.matchScale(node, selection, average=True)
 
-		# if self.create_ui.cmb001.currentIndex() == 0: #if create type: polygon; convert to editable poly
+		# if self.sb.create.cmb001.currentIndex() == 0: #if create type: polygon; convert to editable poly
 		# 	rt.convertTo(node, rt.PolyMeshObject) #convert after adding primitive attributes to spinboxes
 
 		rt.select(node) #select the transform node so that you can see any edits
@@ -209,21 +209,21 @@ print (__name__)
 	# 		return None
 
 	# 	transform = selection[0]
-	# 	if not self.create_ui.txt003.text()==transform.name: #make sure the same field reflects the current working node.
-	# 		self.create_ui.txt003.setText(transform.name)
+	# 	if not self.sb.create.txt003.text()==transform.name: #make sure the same field reflects the current working node.
+	# 		self.sb.create.txt003.setText(transform.name)
 	# 		self.constructAttributesForNode(transform) #update the attribute values for the current node.
 
 	# 	return transform
 
 	# def getAxis(self):
 	# 	''''''
-	# 	if self.create_ui.chk000.isChecked():
+	# 	if self.sb.create.chk000.isChecked():
 	# 		axis = 'x'
-	# 	elif self.create_ui.chk001.isChecked():
+	# 	elif self.sb.create.chk001.isChecked():
 	# 		axis = 'y'
-	# 	elif self.create_ui.chk002.isChecked():
+	# 	elif self.sb.create.chk002.isChecked():
 	# 		axis = 'z'
-	# 	if self.create_ui.chk003.isChecked(): #negative
+	# 	if self.sb.create.chk003.isChecked(): #negative
 	# 		axis = '-'+axis
 	# 	return axis
 
@@ -250,7 +250,7 @@ print (__name__)
 	# 	'''Set Translate X
 	# 	'''
 	# 	if self.node:
-	# 		self.point[0] = float(self.create_ui.s000.value())
+	# 		self.point[0] = float(self.sb.create.s000.value())
 	# 		self.node.pos = rt.point3(self.point[0], self.point[1], self.point[2])
 	# 		rt.redrawViews()
 
@@ -259,7 +259,7 @@ print (__name__)
 	# 	'''Set Translate Y
 	# 	'''
 	# 	if self.node:
-	# 		self.point[1] = float(self.create_ui.s001.value())
+	# 		self.point[1] = float(self.sb.create.s001.value())
 	# 		self.node.pos = rt.point3(self.point[0], self.point[1], self.point[2])
 	# 		rt.redrawViews()
 
@@ -268,7 +268,7 @@ print (__name__)
 	# 	'''Set Translate Z
 	# 	'''
 	# 	if self.node:
-	# 		self.point[2] = float(self.create_ui.s002.value())
+	# 		self.point[2] = float(self.sb.create.s002.value())
 	# 		self.node.pos = rt.point3(self.point[0], self.point[1], self.point[2])
 	# 		rt.redrawViews()
 
@@ -277,7 +277,7 @@ print (__name__)
 	# 	'''Set Name
 	# 	'''
 	# 	if self.node:
-	# 		self.node.name = self.create_ui.txt003.text()
+	# 		self.node.name = self.sb.create.txt003.text()
 
 
 	# def chk000(self, state=None):
@@ -329,9 +329,9 @@ print (__name__)
 	# 		error = 1
 	# 		self.point = [0,0,0]
 
-	# 	self.create_ui.s000.setValue(self.point[0])
-	# 	self.create_ui.s001.setValue(self.point[1])
-	# 	self.create_ui.s002.setValue(self.point[2])
+	# 	self.sb.create.s000.setValue(self.point[0])
+	# 	self.sb.create.s001.setValue(self.point[1])
+	# 	self.sb.create.s002.setValue(self.point[2])
 
 	# 	if error==1:
 	# 		return 'Error: Nothing selected. Point set to origin [0,0,0].'
@@ -347,7 +347,7 @@ print (__name__)
 	# 		clear (bool) = Clear any previous items.
 	# 		show (bool) = Show the popup menu immediately after adding items.
 	# 	'''
-	# 	cmb = self.create_ui.cmb002
+	# 	cmb = self.sb.create.cmb002
 
 	# 	if index=='setMenu':
 	# 		cmb.popupStyle = 'qmenu'
@@ -397,5 +397,5 @@ print (__name__)
 	# 	:Parameters:
 	# 		index(int) = optional index of the spinbox that called this function. ie. 5 from s005
 	# 	'''
-	# 	spinboxValues = {s.prefix().rstrip(': '):s.value() for s in self.create_ui.cmb002.children_()} #current spinbox values. ie. from s000 get the value of six and add it to the list
+	# 	spinboxValues = {s.prefix().rstrip(': '):s.value() for s in self.sb.create.cmb002.children_()} #current spinbox values. ie. from s000 get the value of six and add it to the list
 	# 	self.setAttributesMax(self.node, spinboxValues) #set attributes for the history node

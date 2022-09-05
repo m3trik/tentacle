@@ -11,27 +11,27 @@ class Subdivision_max(Subdivision, Slots_max):
 		Subdivision.__init__(self, *args, **kwargs)
 
 		#Set 3ds Max specific naming
-		self.subdivision_ui.gb000.setTitle('TurboSmooth')
-		self.subdivision_ui.s000.setPrefix('Iterations:  ')
-		self.subdivision_ui.s001.setPrefix('RenderIters: ')
-		self.subdivision_ui.s000.setValue(0)
-		self.subdivision_ui.s001.setValue(0)
+		self.sb.subdivision.gb000.setTitle('TurboSmooth')
+		self.sb.subdivision.s000.setPrefix('Iterations:  ')
+		self.sb.subdivision.s001.setPrefix('RenderIters: ')
+		self.sb.subdivision.s000.setValue(0)
+		self.sb.subdivision.s001.setValue(0)
 
-		ctx = self.subdivision_ui.draggable_header.contextMenu
+		ctx = self.sb.subdivision.draggable_header.contextMenu
 		if not ctx.containsMenuItems:
-			ctx.add(self.ComboBox, setObjectName='cmb000', setToolTip='Max Subdivision Editiors.')
-			# ctx.add(self.ComboBox, setObjectName='cmb001', setToolTip='Smooth Proxy.')
-			# ctx.add(self.ComboBox, setObjectName='cmb002', setToolTip='Maya Subdivision Operations.')
+			ctx.add(self.sb.ComboBox, setObjectName='cmb000', setToolTip='Max Subdivision Editiors.')
+			# ctx.add(self.sb.ComboBox, setObjectName='cmb001', setToolTip='Smooth Proxy.')
+			# ctx.add(self.sb.ComboBox, setObjectName='cmb002', setToolTip='Maya Subdivision Operations.')
 
-		cmb = self.subdivision_ui.draggable_header.contextMenu.cmb000
+		cmb = self.sb.subdivision.draggable_header.contextMenu.cmb000
 		items = ['TurboSmooth','TurboSmooth Pro','OpenSubDiv','Subdivide','Subdivide (WSM)','MeshSmooth','Optimize','Pro Optimizer','Add Divisions']
 		cmb.addItems_(items, '3dsMax Subdivision Modifiers')
 
-		# cmb = self.subdivision_ui.draggable_header.contextMenu.cmb001
+		# cmb = self.sb.subdivision.draggable_header.contextMenu.cmb001
 		# items = ['Create Subdiv Proxy','Remove Subdiv Proxy Mirror','Crease Tool','Toggle Subdiv Proxy Display', 'Both Proxy and Subdiv Display']
 		# cmb.addItems_(items, 'Smooth Proxy')
 
-		# cmb = self.subdivision_ui.draggable_header.contextMenu.cmb002
+		# cmb = self.sb.subdivision.draggable_header.contextMenu.cmb002
 		# items = ['Reduce Polygons','Add Divisions','Smooth']
 		# cmb.addItems_(items, 'Maya Subdivision Operations')
 
@@ -39,7 +39,7 @@ class Subdivision_max(Subdivision, Slots_max):
 	def cmb000(self, index=-1):
 		'''Editors
 		'''
-		cmb = self.subdivision_ui.draggable_header.contextMenu.cmb000
+		cmb = self.sb.subdivision.draggable_header.contextMenu.cmb000
 
 		if index>0:
 			text = cmb.items[index]
@@ -111,7 +111,7 @@ class Subdivision_max(Subdivision, Slots_max):
 	def s000(self, value=None):
 		'''Division Level
 		'''
-		value = self.subdivision_ui.s000.getValue()
+		value = self.sb.subdivision.s000.getValue()
 
 		geometry = rt.selection
 
@@ -124,7 +124,7 @@ class Subdivision_max(Subdivision, Slots_max):
 	def s001(self, value=None):
 		'''Tesselation Level
 		'''
-		value = self.subdivision_ui.s001.getValue()
+		value = self.sb.subdivision.s001.getValue()
 
 		geometry = rt.selection
 

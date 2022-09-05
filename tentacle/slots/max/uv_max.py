@@ -10,19 +10,19 @@ class Uv_max(Uv, Slots_max):
 		Slots_max.__init__(self, *args, **kwargs)
 		Uv.__init__(self, *args, **kwargs)
 
-		cmb000 = self.uv_ui.draggable_header.contextMenu.cmb000
+		cmb000 = self.sb.uv.draggable_header.contextMenu.cmb000
 		items = ['UV Editor','UV Set Editor','UV Tool Kit','UV Linking: Texture-Centric','UV Linking: UV-Centric','UV Linking: Paint Effects/UV','UV Linking: Hair/UV']
 		cmb000.addItems_(items, '3dsMax UV Editors')
 
-		cmb002 = self.uv_ui.cmb002
+		cmb002 = self.sb.uv.cmb002
 		items = ['Flip U', 'Flip V', 'Align U Left', 'Align U Middle', 'Align U Right', 'Align V Top', 'Align V Middle', 'Align V Bottom', 'Linear Align']
 		cmb002.addItems_(items, 'Transform:')
 
-		tb000 = self.uv_ui.tb000
+		tb000 = self.sb.uv.tb000
 		tb000.contextMenu.add('QSpinBox', setPrefix='Pre-Scale Mode: ', setObjectName='s009', setMinMax_='0-1 step1', setValue=1, setToolTip='Allow shell scaling during packing.')
 		tb000.contextMenu.add('QSpinBox', setPrefix='Pre-Rotate Mode: ', setObjectName='s010', setMinMax_='0-1 step1', setValue=1, setToolTip='Allow shell rotation during packing.')
 
-		tb001 = self.uv_ui.tb001
+		tb001 = self.sb.uv.tb001
 		tb001.contextMenu.add('QRadioButton', setText='Standard', setObjectName='chk000', setChecked=True, setToolTip='Create UV texture coordinates for the selected object or faces by automatically finding the best UV placement using simultanious projections from multiple planes.')
 		tb001.contextMenu.add('QCheckBox', setText='Scale Mode 1', setObjectName='chk001', setTristate=True, setChecked=True, setToolTip='0 - No scale is applied.<br>1 - Uniform scale to fit in unit square.<br>2 - Non proportional scale to fit in unit square.')
 		tb001.contextMenu.add('QRadioButton', setText='Seam Only', setObjectName='chk002', setToolTip='Cut seams only.')
@@ -32,7 +32,7 @@ class Uv_max(Uv, Slots_max):
 		tb001.contextMenu.add('QRadioButton', setText='Normal-Based', setObjectName='chk006', setToolTip='Create UV texture coordinates for the current selection by creating a planar projection based on the average vector of it\'s face normals.')
 		# tb001.contextMenu.chk001.toggled.connect(lambda state: self.toggleWidgets(tb001.contextMenu, setUnChecked='chk002-3') if state==1 else None)
 
-		# tb007 = self.uv_ui.tb007
+		# tb007 = self.sb.uv.tb007
 		# tb007.contextMenu.b099.released.connect(lambda: tb007.contextMenu.s003.setValue(float(pm.mel.texGetTexelDensity(tb007.contextMenu.s002.value())))) #get and set texel density value.
 
 
@@ -55,7 +55,7 @@ class Uv_max(Uv, Slots_max):
 	def cmb000(self, index=-1):
 		'''Editors
 		'''
-		cmb = self.uv_ui.draggable_header.contextMenu.cmb000
+		cmb = self.sb.uv.draggable_header.contextMenu.cmb000
 
 		if index>0: #hide hotbox then perform operation
 			self.sb.parent().hide()
@@ -79,13 +79,13 @@ class Uv_max(Uv, Slots_max):
 	def cmb001(self, index=-1):
 		'''Display
 		'''
-		cmb = self.uv_ui.cmb001
+		cmb = self.sb.uv.cmb001
 
 
 	def cmb002(self, index=-1):
 		'''Transform
 		'''
-		cmb = self.uv_ui.cmb002
+		cmb = self.sb.uv.cmb002
 
 		if index>0:
 			text = cmb.items[index]
@@ -114,7 +114,7 @@ class Uv_max(Uv, Slots_max):
 	def chk014(self):
 		'''Display: Checkered Pattern
 		'''
-		cmb = self.uv_ui.cmb001
+		cmb = self.sb.uv.cmb001
 		state = cmb.menu_.chk014.isChecked()
 
 		self.toggleMaterialOverride(checker=state)
@@ -123,7 +123,7 @@ class Uv_max(Uv, Slots_max):
 	def chk015(self):
 		'''Display: Borders
 		'''
-		cmb = self.uv_ui.cmb001
+		cmb = self.sb.uv.cmb001
 		state = cmb.menu_.chk015.isChecked()
 
 		borderWidth = pm.optionVar(query='displayPolyBorderEdgeSize')[1]
@@ -133,7 +133,7 @@ class Uv_max(Uv, Slots_max):
 	def chk016(self):
 		'''Display: Distortion
 		'''
-		cmb = self.uv_ui.cmb001
+		cmb = self.sb.uv.cmb001
 		state = cmb.menu_.chk016.isChecked()
 
 		# actionMan.executeAction 2077580866 "40177"  -- Unwrap UVW: Show Edge Distortion
@@ -153,7 +153,7 @@ class Uv_max(Uv, Slots_max):
 		# --rotate - determines whether a cluster will be rotated so it takes up less space.
 		# --fillholes - determines whether smaller clusters will be put in the holes of the larger cluster.
 		'''
-		tb = self.uv_ui.tb000
+		tb = self.sb.uv.tb000
 
 		scale = tb.contextMenu.s009.value()
 		rotate = tb.contextMenu.s010.value()
@@ -167,7 +167,7 @@ class Uv_max(Uv, Slots_max):
 	def tb001(self, state=None):
 		'''Auto Unwrap
 		'''
-		tb = self.uv_ui.tb001
+		tb = self.sb.uv.tb001
 
 		standardUnwrap = tb.contextMenu.chk000.isChecked()
 		scaleMode = tb.contextMenu.chk001.isChecked()
@@ -191,7 +191,7 @@ class Uv_max(Uv, Slots_max):
 	def tb002(self, state=None):
 		'''Stack
 		'''
-		tb = self.uv_ui.tb002
+		tb = self.sb.uv.tb002
 
 		orient = tb.contextMenu.chk021.isChecked()
 		stackSimilar = tb.contextMenu.chk022.isChecked()
@@ -209,7 +209,7 @@ class Uv_max(Uv, Slots_max):
 	def tb003(self, state=None):
 		'''Select By Type
 		'''
-		tb = self.uv_ui.tb003
+		tb = self.sb.uv.tb003
 
 		back_facing = tb.contextMenu.chk008.isChecked()
 		front_facing = tb.contextMenu.chk009.isChecked()
@@ -235,7 +235,7 @@ class Uv_max(Uv, Slots_max):
 	def tb004(self, state=None):
 		'''Unfold
 		'''
-		tb = self.uv_ui.tb004
+		tb = self.sb.uv.tb004
 
 		optimize = self.tb.contextMenu.chk017.isChecked()
 
@@ -248,7 +248,7 @@ class Uv_max(Uv, Slots_max):
 	def tb005(self, state=None):
 		'''Straighten Uv
 		'''
-		tb = self.uv_ui.tb005
+		tb = self.sb.uv.tb005
 
 		u = tb.contextMenu.chk018.isChecked()
 		v = tb.contextMenu.chk019.isChecked()
@@ -269,7 +269,7 @@ class Uv_max(Uv, Slots_max):
 	def tb006(self, state=None):
 		'''Distribute
 		'''
-		tb = self.uv_ui.tb006
+		tb = self.sb.uv.tb006
 
 		u = tb.contextMenu.chk023.isChecked()
 		v = tb.contextMenu.chk024.isChecked()
@@ -283,7 +283,7 @@ class Uv_max(Uv, Slots_max):
 	def tb007(self, state=None):
 		'''Set Texel Density
 		'''
-		tb = self.uv_ui.tb007
+		tb = self.sb.uv.tb007
 
 		mapSize = tb.contextMenu.s002.value()
 		density = tb.contextMenu.s003.value()

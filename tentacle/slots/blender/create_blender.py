@@ -10,23 +10,23 @@ class Create_blender(Create, Slots_blender):
 		Slots_blender.__init__(self, *args, **kwargs)
 		Create.__init__(self, *args, **kwargs)
 
-		ctx = self.create_ui.draggable_header.contextMenu
+		ctx = self.sb.create.draggable_header.contextMenu
 		if not ctx.containsMenuItems:
-			ctx.add(self.ComboBox, setObjectName='cmb000', setToolTip='')
+			ctx.add(self.sb.ComboBox, setObjectName='cmb000', setToolTip='')
 
-		cmb = self.create_ui.draggable_header.contextMenu.cmb000
+		cmb = self.sb.create.draggable_header.contextMenu.cmb000
 		list_ = ['']
 		cmb.addItems_(list_, '')
 
-		cmb = self.create_ui.cmb001
+		cmb = self.sb.create.cmb001
 		list_ = ['Polygon', 'NURBS', 'Light']
 		cmb.addItems_(list_)
 
-		cmb = self.create_ui.cmb002
+		cmb = self.sb.create.cmb002
 		list_ = ["Cube", "Sphere", "Cylinder", "Plane", "Circle", "Cone", "Pyramid", "Torus", "Tube", "GeoSphere", "Platonic Solids", "Text"]
 		cmb.addItems_(list_)
 
-		ctx = self.create_ui.tb000.contextMenu
+		ctx = self.sb.create.tb000.contextMenu
 		if not ctx.containsMenuItems:
 			ctx.add('QCheckBox', setText='Translate', setObjectName='chk000', setChecked=True, setToolTip='Move the created object to the center point of any selected object(s).')
 			ctx.add('QCheckBox', setText='Scale', setObjectName='chk001', setChecked=True, setToolTip='Uniformly scale the created object to match the averaged scale of any selected object(s).')
@@ -35,7 +35,7 @@ class Create_blender(Create, Slots_blender):
 	def cmb000(self, index=-1):
 		'''Editors
 		'''
-		cmb = self.create_ui.draggable_header.contextMenu.cmb000
+		cmb = self.sb.create.draggable_header.contextMenu.cmb000
 
 		if index>0:
 			text = cmb.items[index]
@@ -47,7 +47,7 @@ class Create_blender(Create, Slots_blender):
 	def cmb001(self, index=-1):
 		'''
 		'''
-		cmb = self.create_ui.cmb001
+		cmb = self.sb.create.cmb001
 
 		if index>=0:
 			self.cmb002(index)
@@ -56,7 +56,7 @@ class Create_blender(Create, Slots_blender):
 	def cmb002(self, index=-1):
 		'''
 		'''
-		cmb = self.create_ui.cmb002
+		cmb = self.sb.create.cmb002
 
 		polygons = ["Cube", "Sphere", "Cylinder", "Plane", "Circle", "Cone", "Pyramid", "Torus", "Tube", "GeoSphere", "Platonic Solids", "Text"]
 		nurbs = ["Cube", "Sphere", "Cylinder", "Cone", "Plane", "Torus", "Circle", "Square"]
@@ -76,11 +76,11 @@ class Create_blender(Create, Slots_blender):
 	def tb000(self, state=None):
 		'''Create Primitive
 		'''
-		tb = self.create_ui.tb000
+		tb = self.sb.create.tb000
 
 		axis = [0,90,0]
-		type_ = self.create_ui.cmb001.currentText()
-		index = self.create_ui.cmb002.currentIndex()
+		type_ = self.sb.create.cmb001.currentText()
+		index = self.sb.create.cmb002.currentIndex()
 		translate = tb.contextMenu.chk000.isChecked()
 		scale = tb.contextMenu.chk001.isChecked()
 
@@ -155,10 +155,10 @@ class Create_blender(Create, Slots_blender):
 
 		if selection: #if there is a current selection, move the object to that selection's bounding box center.
 			if translate:
-				center_pos = self.transform().getCenterPoint(selection)
+				center_pos = self.sb.transform.slots.getCenterPoint(selection)
 				pm.xform(node, translation=center_pos, worldSpace=1, absolute=1)
 			if scale:
-				self.transform().matchScale(node[0], selection, average=True)
+				self.sb.transform.slots.matchScale(node[0], selection, average=True)
 
 		pm.selectMode(object=1) #place scene select type in object mode.
 		pm.select(node) #select the transform node so that you can see any edits
@@ -244,8 +244,8 @@ print (__name__)
 	# 	'''
 	# 	transform = Slots_blender.getTransformNode()
 	# 	if transform:
-	# 		if not self.create_ui.txt003.text()==transform[0].name(): #make sure the same field reflects the current working node.
-	# 			self.create_ui.txt003.setText(transform[0].name())
+	# 		if not self.sb.create.txt003.text()==transform[0].name(): #make sure the same field reflects the current working node.
+	# 			self.sb.create.txt003.setText(transform[0].name())
 
 	# 	return transform
 
@@ -267,17 +267,17 @@ print (__name__)
 	# 	'''Set Name
 	# 	'''
 	# 	if self.node:
-	# 		pm.rename(self.node.name(), self.create_ui.txt003.text())
+	# 		pm.rename(self.node.name(), self.sb.create.txt003.text())
 
 	# def getAxis(self):
 	# 	''''''
-	# 	if self.create_ui.chk000.isChecked():
+	# 	if self.sb.create.chk000.isChecked():
 	# 		axis = 'x'
-	# 	elif self.create_ui.chk001.isChecked():
+	# 	elif self.sb.create.chk001.isChecked():
 	# 		axis = 'y'
-	# 	elif self.create_ui.chk002.isChecked():
+	# 	elif self.sb.create.chk002.isChecked():
 	# 		axis = 'z'
-	# 	if self.create_ui.chk003.isChecked(): #negative
+	# 	if self.sb.create.chk003.isChecked(): #negative
 	# 		axis = '-'+axis
 	# 	return axis
 
@@ -323,16 +323,16 @@ print (__name__)
 		# 	self.point = [0,0,0]
 		# 	print('Warning: Nothing selected. Point set to origin [0,0,0].')
 
-		# self.create_ui.s000.setValue(self.point[0])
-		# self.create_ui.s001.setValue(self.point[1])
-		# self.create_ui.s002.setValue(self.point[2])
+		# self.sb.create.s000.setValue(self.point[0])
+		# self.sb.create.s001.setValue(self.point[1])
+		# self.sb.create.s002.setValue(self.point[2])
 
 
 	# def s000(self, value=None):
 	# 	'''Set Translate X
 	# 	'''
 	# 	if self.node:
-	# 		self.point[0] = self.create_ui.s000.value()
+	# 		self.point[0] = self.sb.create.s000.value()
 	# 		pm.xform(self.node, translation=self.point, worldSpace=1, absolute=1)
 
 
@@ -340,7 +340,7 @@ print (__name__)
 	# 	'''Set Translate Y
 	# 	'''
 	# 	if self.node:
-	# 		self.point[1] = self.create_ui.s001.value()
+	# 		self.point[1] = self.sb.create.s001.value()
 	# 		pm.xform(self.node, translation=self.point, worldSpace=1, absolute=1)
 
 
@@ -348,5 +348,5 @@ print (__name__)
 	# 	'''Set Translate Z
 	# 	'''
 	# 	if self.node:
-	# 		self.point[2] = self.create_ui.s002.value()
+	# 		self.point[2] = self.sb.create.s002.value()
 	# 		pm.xform (self.node, translation=self.point, worldSpace=1, absolute=1)

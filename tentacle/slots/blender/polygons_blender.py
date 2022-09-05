@@ -10,7 +10,7 @@ class Polygons_blender(Polygons, Slots_blender):
 		Slots_blender.__init__(self, *args, **kwargs)
 		Polygons.__init__(self, *args, **kwargs)
 
-		cmb000 = self.polygons_ui.draggable_header.contextMenu.cmb000
+		cmb000 = self.sb.polygons.draggable_header.contextMenu.cmb000
 		items = ['Extrude','Bevel','Bridge','Combine','Merge Vertex','Offset Edgeloop','Edit Edgeflow','Extract Curve','Poke','Wedge','Assign Invisible']
 		cmb000.addItems_(items, 'Polygon Editors')
 
@@ -18,7 +18,7 @@ class Polygons_blender(Polygons, Slots_blender):
 	def cmb000(self, index=-1):
 		'''Editors
 		'''
-		cmb = self.polygons_ui.draggable_header.contextMenu.cmb000
+		cmb = self.sb.polygons.draggable_header.contextMenu.cmb000
 
 		if index>0:
 			text = cmb.items[index]
@@ -50,7 +50,7 @@ class Polygons_blender(Polygons, Slots_blender):
 	def tb000(self, state=None):
 		'''Merge Vertices
 		'''
-		tb = self.polygons_ui.tb000
+		tb = self.sb.polygons.tb000
 
 		tolerance = float(tb.contextMenu.s002.value())
 		objects = pm.ls(selection=1, objectsOnly=1, flatten=1)
@@ -69,7 +69,7 @@ class Polygons_blender(Polygons, Slots_blender):
 
 			else: #if object mode. merge all vertices on the selected object.
 				for n, vert in enumerate(object_vert_sel):
-					if not self.polygons_ui.progressBar.step(n, len(object_vert_sel)): #register progress while checking for cancellation:
+					if not self.sb.polygons.progressBar.step(n, len(object_vert_sel)): #register progress while checking for cancellation:
 						break
 
 					# get number of vertices
@@ -86,7 +86,7 @@ class Polygons_blender(Polygons, Slots_blender):
 	def tb001(self, state=None):
 		'''Bridge
 		'''
-		tb = self.polygons_ui.tb001
+		tb = self.sb.polygons.tb001
 
 		divisions = tb.contextMenu.s003.value()
 
@@ -101,7 +101,7 @@ class Polygons_blender(Polygons, Slots_blender):
 	def tb002(self, state=None):
 		'''Combine
 		'''
-		tb = self.polygons_ui.tb002
+		tb = self.sb.polygons.tb002
 
 		# pm.polyUnite( 'plg1', 'plg2', 'plg3', name='result' ) #for future reference. if more functionality is needed use polyUnite
 		if tb.contextMenu.chk000.isChecked():
@@ -125,7 +125,7 @@ class Polygons_blender(Polygons, Slots_blender):
 	def tb003(self, state=None):
 		'''Extrude
 		'''
-		tb = self.polygons_ui.tb003
+		tb = self.sb.polygons.tb003
 
 		keepFacesTogether = tb.contextMenu.chk002.isChecked() #keep faces/edges together.
 		divisions = tb.contextMenu.s004.value()
@@ -151,7 +151,7 @@ class Polygons_blender(Polygons, Slots_blender):
 	def tb004(self, state=None):
 		'''Bevel (Chamfer)
 		'''
-		tb = self.polygons_ui.tb004
+		tb = self.sb.polygons.tb004
 
 		width = float(tb.contextMenu.s000.value())
 		chamfer = True
@@ -165,7 +165,7 @@ class Polygons_blender(Polygons, Slots_blender):
 	def tb005(self, state=None):
 		'''Detach
 		'''
-		tb = self.polygons_ui.tb005
+		tb = self.sb.polygons.tb005
 
 		duplicate = tb.contextMenu.chk014.isChecked()
 		separate = tb.contextMenu.chk015.isChecked()
@@ -199,7 +199,7 @@ class Polygons_blender(Polygons, Slots_blender):
 	def tb006(self, state=None):
 		'''Inset Face Region
 		'''
-		tb = self.polygons_ui.tb006
+		tb = self.sb.polygons.tb006
 
 		selected_faces = pm.polyEvaluate(faceComponent=1)
 		if isinstance(selected_faces, str): #'Nothing counted : no polygonal object is selected.'
@@ -212,7 +212,7 @@ class Polygons_blender(Polygons, Slots_blender):
 	def tb007(self, state=None):
 		'''Divide Facet
 		'''
-		tb = self.polygons_ui.tb007
+		tb = self.sb.polygons.tb007
 
 		dv=u=v=0
 		if tb.contextMenu.chk008.isChecked(): #Split U
@@ -241,7 +241,7 @@ class Polygons_blender(Polygons, Slots_blender):
 	def tb008(self, state=None):
 		'''Boolean Operation
 		'''
-		tb = self.polygons_ui.tb008
+		tb = self.sb.polygons.tb008
 
 		if tb.contextMenu.chk011.isChecked(): #union
 			pm.mel.PolygonBooleanIntersection()
@@ -256,7 +256,7 @@ class Polygons_blender(Polygons, Slots_blender):
 	def tb009(self, state=None):
 		'''Snap Closest Verts
 		'''
-		tb = self.polygons_ui.tb009
+		tb = self.sb.polygons.tb009
 
 		tolerance = tb.contextMenu.s005.value()
 		freezetransforms = tb.contextMenu.chk016.isChecked()
@@ -494,7 +494,7 @@ print (__name__)
 # 		'''
 # 		Detach
 # 		'''
-# 		tb = self.polygons_ui.tb005
+# 		tb = self.sb.polygons.tb005
 # 		if state=='setMenu':
 # 			# tb.contextMenu.add('QCheckBox', setText='Delete Original', setObjectName='chk007', setChecked=True, setToolTip='Delete original selected faces.')
 # 			return

@@ -10,11 +10,11 @@ class File_max(File, Slots_max):
 		Slots_max.__init__(self, *args, **kwargs)
 		File.__init__(self, *args, **kwargs)
 
-		cmb = self.file_ui.draggable_header.contextMenu.cmb000
+		cmb = self.sb.file.draggable_header.contextMenu.cmb000
 		items = ['Schematic View']
 		cmb.addItems_(items, 'File Editors')
 
-		cmb = self.file_ui.cmb002
+		cmb = self.sb.file.cmb002
 		ctx = cmb.contextMenu
 		if not ctx.containsMenuItems:
 			ctx.add('QPushButton', setObjectName='b000', setText='Open Directory', setToolTip='Open the autosave directory.') #open directory
@@ -27,10 +27,10 @@ class File_max(File, Slots_max):
 			ctx.s001.valueChanged.connect(lambda v: rt.autosave.setmxsprop('Interval', v))
 			cmb.addItems_(self.getRecentAutosave(appendDatetime=True), 'Recent Autosave', clear=True)
 
-		cmb = self.file_ui.cmb003
+		cmb = self.sb.file.cmb003
 		cmb.addItems_(['Import file', 'Import Options', 'Merge', 'Replace', 'Link Revit', 'Link FBX', 'Link AutoCAD'], 'Import')
 
-		cmb = self.file_ui.cmb004
+		cmb = self.sb.file.cmb004
 		items = ["Export Selection", "Export Options", "Unreal", "Unity", "GoZ", "Send to Maya: New Scene", "Send to Maya: Update Scene", "Send to Maya: Add to Scene"]
 		cmb.addItems_(items, "Export")
 
@@ -38,7 +38,7 @@ class File_max(File, Slots_max):
 	def cmb000(self, index=-1):
 		'''Editors
 		'''
-		cmb = self.file_ui.draggable_header.contextMenu.cmb000
+		cmb = self.sb.file.draggable_header.contextMenu.cmb000
 
 		if index>0:
 			text = cmb.items[index]
@@ -50,7 +50,7 @@ class File_max(File, Slots_max):
 	def cmb001(self, index=-1):
 		'''Recent Projects
 		'''
-		cmb = self.file_ui.cmb006.contextMenu.cmb001
+		cmb = self.sb.file.cmb006.contextMenu.cmb001
 
 		items = cmb.addItems_(self.getRecentProjects(), "Recent Projects", clear=True)
 
@@ -62,7 +62,7 @@ class File_max(File, Slots_max):
 	def cmb002(self, index=-1):
 		'''Recent Autosave
 		'''
-		cmb = self.file_ui.cmb002
+		cmb = self.sb.file.cmb002
 
 		items = cmb.addItems_(self.getRecentAutosave(appendDatetime=True), "Recent Autosave", clear=True)
 
@@ -75,7 +75,7 @@ class File_max(File, Slots_max):
 	def cmb003(self, index=-1):
 		'''Import
 		'''
-		cmb = self.file_ui.cmb003
+		cmb = self.sb.file.cmb003
 
 		if index>0: #hide then perform operation
 			self.sb.parent().hide(force=1)
@@ -99,7 +99,7 @@ class File_max(File, Slots_max):
 	def cmb004(self, index=-1):
 		'''Export
 		'''
-		cmb = self.file_ui.cmb004
+		cmb = self.sb.file.cmb004
 
 		if index>0: #hide then perform operation
 			self.sb.parent().hide(force=1)
@@ -132,7 +132,7 @@ class File_max(File, Slots_max):
 	def cmb005(self, index=-1):
 		'''Recent Files
 		'''
-		cmb = self.file_ui.cmb005
+		cmb = self.sb.file.cmb005
 
 		items = cmb.addItems_(self.getRecentFiles(), 'Recent Files:', clear=True)
 
@@ -144,7 +144,7 @@ class File_max(File, Slots_max):
 	def cmb006(self, index=-1):
 		'''Project Folder
 		'''
-		cmb = self.file_ui.cmb006
+		cmb = self.sb.file.cmb006
 
 		path = self.formatPath(rt.pathconfig.getCurrentProjectFolderPath(), strip='file') #current project path.
 		list_ = [f for f in os.listdir(path)]
@@ -162,7 +162,7 @@ class File_max(File, Slots_max):
 	def tb000(self, state=None):
 		'''Save
 		'''
-		tb = self.file_ui.draggable_header.contextMenu.tb000
+		tb = self.sb.file.draggable_header.contextMenu.tb000
 
 		wireframe = tb.contextMenu.chk000.isChecked()
 		increment = tb.contextMenu.chk001.isChecked()
@@ -247,10 +247,10 @@ class File_max(File, Slots_max):
 	def b015(self):
 		'''Remove String From Object Names.
 		'''
-		from_ = str(self.file_ui.t000.text()) #asterisk denotes startswith*, *endswith, *contains* 
-		to = str(self.file_ui.t001.text())
-		replace = self.file_ui.chk004.isChecked()
-		selected = self.file_ui.chk005.isChecked()
+		from_ = str(self.sb.file.t000.text()) #asterisk denotes startswith*, *endswith, *contains* 
+		to = str(self.sb.file.t001.text())
+		replace = self.sb.file.chk004.isChecked()
+		selected = self.sb.file.chk005.isChecked()
 
 		# objects = pm.ls (from_) #Stores a list of all objects starting with 'from_'
 		# if selected:

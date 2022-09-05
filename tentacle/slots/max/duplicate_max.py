@@ -10,7 +10,7 @@ class Duplicate_max(Duplicate, Slots_max):
 		Slots_max.__init__(self, *args, **kwargs)
 		Duplicate.__init__(self, *args, **kwargs)
 
-		cmb = self.duplicate_ui.draggable_header.contextMenu.cmb000
+		cmb = self.sb.duplicate.draggable_header.contextMenu.cmb000
 		list_ = ['Duplicate Special']
 		cmb.addItems_(list_, 'Maya Menus')
 
@@ -18,7 +18,7 @@ class Duplicate_max(Duplicate, Slots_max):
 	def cmb000(self, index=-1):
 		'''Editors
 		'''
-		cmb = self.duplicate_ui.draggable_header.contextMenu.cmb000
+		cmb = self.sb.duplicate.draggable_header.contextMenu.cmb000
 
 		if index>0:
 			text = cmb.items[index]
@@ -33,7 +33,7 @@ class Duplicate_max(Duplicate, Slots_max):
 		global radialPivot
 		radialPivot=[]
 		#add support for averaging multiple components.
-		if self.duplicate_ui.chk010.isChecked():
+		if self.sb.duplicate.chk010.isChecked():
 			selection = pm.ls (selection=1, flatten=1)
 			try:
 				pivot = pm.xform (selection, query=1, translation=1, relative=1)
@@ -45,10 +45,10 @@ class Duplicate_max(Duplicate, Slots_max):
 			# radialPivot.extend ([pivot[0],pivot[1],pivot[2]])
 			radialPivot.extend (pivot) #extend the list contents
 			text = str(int(pivot[0]))+","+str(int(pivot[1]))+","+str(int(pivot[2])) #convert to int to
-			self.duplicate_ui.chk010.setText(text)
+			self.sb.duplicate.chk010.setText(text)
 		else:
 			del radialPivot[:]
-			self.duplicate_ui.chk010.setText("Set Pivot")
+			self.sb.duplicate.chk010.setText("Set Pivot")
 
 
 	global radialArrayObjList
@@ -56,10 +56,10 @@ class Duplicate_max(Duplicate, Slots_max):
 	def chk015(self, create=False):
 		'''Radial Array: Preview
 		'''
-		setPivot = self.duplicate_ui.chk010.isChecked() #set pivot point
-		instance = self.duplicate_ui.chk011.isChecked() #instance object
+		setPivot = self.sb.duplicate.chk010.isChecked() #set pivot point
+		instance = self.sb.duplicate.chk011.isChecked() #instance object
 
-		if self.duplicate_ui.chk015.isChecked():
+		if self.sb.duplicate.chk015.isChecked():
 			self.toggleWidgets(setEnabled='b003')
 
 			selection = pm.ls (selection=1, type="transform", flatten=1)
@@ -75,13 +75,13 @@ class Duplicate_max(Duplicate, Slots_max):
 					pm.select (object_)
 					objectName = str(object_)
 
-					numDuplicates = int(self.duplicate_ui.s000.value())
-					angle = float(self.duplicate_ui.s001.value())
+					numDuplicates = int(self.sb.duplicate.s000.value())
+					angle = float(self.sb.duplicate.s001.value())
 
 					x=y=z = 0
-					if self.duplicate_ui.chk012.isChecked(): x = angle
-					if self.duplicate_ui.chk013.isChecked(): y = angle
-					if self.duplicate_ui.chk014.isChecked(): z = angle
+					if self.sb.duplicate.chk012.isChecked(): x = angle
+					if self.sb.duplicate.chk013.isChecked(): y = angle
+					if self.sb.duplicate.chk014.isChecked(): z = angle
 
 					pm.undoInfo (openChunk=1)
 					for i in range(1,numDuplicates):
@@ -180,17 +180,17 @@ class Duplicate_max(Duplicate, Slots_max):
 	def chk016(self, create=False):
 		'''Duplicate: Preview
 		'''
-		if self.duplicate_ui.chk016.isChecked():
+		if self.sb.duplicate.chk016.isChecked():
 			self.toggleWidgets(setEnabled='b002')
 
-			instance = self.duplicate_ui.chk000.isChecked()
-			numOfDuplicates = int(self.duplicate_ui.s005.value())
-			keepFacesTogether = self.duplicate_ui.chk009.isChecked()
-			transXYZ = [float(self.duplicate_ui.s002.value()),float(self.duplicate_ui.s003.value()),float(self.duplicate_ui.s004.value())]
-			rotXYZ =  [float(self.duplicate_ui.s007.value()),float(self.duplicate_ui.s008.value()),float(self.duplicate_ui.s009.value())]
-			translateToComponent = self.duplicate_ui.chk007.isChecked()
-			alignToNormal = self.duplicate_ui.chk008.isChecked()
-			componentList = [self.duplicate_ui.cmb001.itemText(i) for i in range(self.duplicate_ui.cmb001.count())]
+			instance = self.sb.duplicate.chk000.isChecked()
+			numOfDuplicates = int(self.sb.duplicate.s005.value())
+			keepFacesTogether = self.sb.duplicate.chk009.isChecked()
+			transXYZ = [float(self.sb.duplicate.s002.value()),float(self.sb.duplicate.s003.value()),float(self.sb.duplicate.s004.value())]
+			rotXYZ =  [float(self.sb.duplicate.s007.value()),float(self.sb.duplicate.s008.value()),float(self.sb.duplicate.s009.value())]
+			translateToComponent = self.sb.duplicate.chk007.isChecked()
+			alignToNormal = self.sb.duplicate.chk008.isChecked()
+			componentList = [self.sb.duplicate.cmb001.itemText(i) for i in range(self.sb.duplicate.cmb001.count())]
 			
 			try: pm.delete(duplicateObjList[1:]) #delete all the geometry in the list, except the original obj
 			except e as error:
@@ -293,7 +293,7 @@ class Duplicate_max(Duplicate, Slots_max):
 	def b004(self):
 		'''Select Instanced Objects
 		'''
-		if self.duplicate_ui.chk016.isChecked(): #select all instances
+		if self.sb.duplicate.chk016.isChecked(): #select all instances
 			import maya.OpenMaya as om
 			#get all Instanced objects
 			instances = []

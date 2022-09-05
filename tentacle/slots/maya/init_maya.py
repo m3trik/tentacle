@@ -100,9 +100,9 @@ class Init_maya(Init, Slots_maya):
 					pass
 
 
-		prevCommand = self.sb.prevCommand(docString=True)
+		method = self.sb.prevCommand()
 		if prevCommand:
-			hud.insertText('Prev Command: <font style="color: Yellow;">{}'.format(prevCommand))  #get button text from last used command
+			hud.insertText('Prev Command: <font style="color: Yellow;">{}'.format(method.__doc__))  #get button text from last used command
 
 		# prevUi = self.sb.prevUiName(omitLevel=[0,1,2])
 		# hud.insertText('Prev UI: {}'.format(prevUi.replace('_', '').title())) #get the last level 3 ui name string.

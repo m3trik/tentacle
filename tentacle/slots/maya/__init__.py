@@ -5,14 +5,16 @@ import os
 from PySide2 import QtGui, QtWidgets, QtCore
 import shiboken2
 
-import maya.mel as mel
-import pymel.core as pm
-import maya.OpenMayaUI as omui
+try:
+	import maya.mel as mel
+	import pymel.core as pm
+	import maya.OpenMayaUI as omui
+except ImportError as error:
+	print (__file__, error)
 
 from slots import Slots
 from tools_maya.node_tools_maya import Node_tools_maya
 from tools_maya.component_tools_maya import Component_tools_maya
-
 
 
 

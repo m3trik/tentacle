@@ -9,13 +9,12 @@ class Edit_maya(Edit, Slots_maya):
 	def __init__(self, *args, **kwargs):
 		Slots_maya.__init__(self, *args, **kwargs)
 		Edit.__init__(self, *args, **kwargs)
-
-		dh = self.edit_ui.draggable_header
+		print ('child')
+		dh = self.sb.edit.draggable_header
 		items = ['Cleanup', 'Transfer: Attribute Values', 'Transfer: Shading Sets']
 		dh.contextMenu.cmb000.addItems_(items, 'Maya Editors')
 
-
-		tb000 = self.edit_ui.tb000
+		tb000 = self.sb.edit.tb000
 		tb000.contextMenu.add('QCheckBox', setText='All Geometry', setObjectName='chk005', setToolTip='Clean All scene geometry.')
 		tb000.contextMenu.add('QCheckBox', setText='Repair', setObjectName='chk004', setToolTip='Repair matching geometry. Else, select only.') #add(self.sb.CheckBox, setText='Select Only', setObjectName='chk004', setTristate=True, setCheckState_=2, setToolTip='Select and/or Repair matching geometry. <br>0: Repair Only<br>1: Repair and Select<br>2: Select Only')
 		tb000.contextMenu.add('QCheckBox', setText='Merge vertices', setObjectName='chk024', setChecked=True, setToolTip='Merge overlapping vertices on the object(s) before executing the clean command.')
@@ -44,14 +43,14 @@ class Edit_maya(Edit, Slots_maya):
 		tb000.contextMenu.chk022.stateChanged.connect(lambda state: self.toggleWidgets(tb000.contextMenu, setDisabled='chk002-3,chk005,chk010-21,chk024,s006-8', setEnabled='chk023') if state 
 														else self.toggleWidgets(tb000.contextMenu, setEnabled='chk002-3,chk005,chk010-21,s006-8', setDisabled='chk023')) #disable non-relevant options.
 		#sync widgets
-		self.sb.setSyncAttributesConnections(tb000.contextMenu.chk004, self.edit_submenu_ui.chk004, attributes='setChecked')
-		self.sb.setSyncAttributesConnections(tb000.contextMenu.chk010, self.edit_submenu_ui.chk010, attributes='setChecked')
+		self.sb.setSyncConnections(tb000.contextMenu.chk004, self.sb.edit_submenu.chk004, attributes='setChecked')
+		self.sb.setSyncConnections(tb000.contextMenu.chk010, self.sb.edit_submenu.chk010, attributes='setChecked')
 
 
 	def cmb000(self, index=-1):
 		'''Editors
 		'''
-		cmb = self.edit_ui.draggable_header.contextMenu.cmb000
+		cmb = self.sb.edit.draggable_header.contextMenu.cmb000
 
 		if index>0:
 			text = cmb.items[index]
@@ -69,7 +68,7 @@ class Edit_maya(Edit, Slots_maya):
 	def cmb001(self, index=-1):
 		'''Object History Attributes
 		'''
-		cmb = self.edit_ui.cmb001
+		cmb = self.sb.edit.cmb001
 
 		try:
 			list_ = list(set([n.name() for n in pm.listHistory(pm.ls(sl=1, objectsOnly=1), pruneDagObjects=1)])) #levels=1, interestLevel=2, 
@@ -86,7 +85,7 @@ class Edit_maya(Edit, Slots_maya):
 	def tb000(self, state=None):
 		'''Mesh Cleanup
 		'''
-		tb = self.edit_ui.tb000
+		tb = self.sb.edit.tb000
 
 		allMeshes = int(tb.contextMenu.chk005.isChecked()) #[0] All selectable meshes
 		repair = tb.contextMenu.chk004.isChecked() #repair or select only
@@ -135,7 +134,7 @@ class Edit_maya(Edit, Slots_maya):
 	def tb001(self, state=None):
 		'''Delete History
 		'''
-		tb = self.edit_ui.tb001
+		tb = self.sb.edit.tb001
 
 		all_ = tb.contextMenu.chk018.isChecked()
 		unusedNodes = tb.contextMenu.chk019.isChecked()
@@ -173,7 +172,7 @@ class Edit_maya(Edit, Slots_maya):
 	def tb002(self, state=None):
 		'''Delete
 		'''
-		tb = self.edit_ui.tb002
+		tb = self.sb.edit.tb002
 
 		deleteRing = tb.contextMenu.chk000.isChecked()
 		deleteLoop = tb.contextMenu.chk001.isChecked()
@@ -211,7 +210,7 @@ class Edit_maya(Edit, Slots_maya):
 	def tb003(self, state=None):
 		'''Delete Along Axis
 		'''
-		tb = self.edit_ui.tb003
+		tb = self.sb.edit.tb003
 
 		axis = self.getAxisFromCheckBoxes('chk006-9', tb.contextMenu)
 
@@ -227,7 +226,7 @@ class Edit_maya(Edit, Slots_maya):
 	def tb004(self, state=None):
 		'''Delete Along Axis
 		'''
-		tb = self.edit_ui.tb004
+		tb = self.sb.edit.tb004
 
 		allNodes = tb.contextMenu.chk026.isChecked()
 		unlock = tb.contextMenu.chk027.isChecked()
@@ -243,7 +242,7 @@ class Edit_maya(Edit, Slots_maya):
 	def b001(self):
 		'''Object History Attributes: get most recent node
 		'''
-		cmb = self.edit_ui.cmb001
+		cmb = self.sb.edit.cmb001
 		self.cmb001() #refresh the contents of the combobox.
 
 		items = pm.ls(cmb.items[-1])

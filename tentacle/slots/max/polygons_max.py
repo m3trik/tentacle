@@ -10,7 +10,7 @@ class Polygons_max(Polygons, Slots_max):
 		Slots_max.__init__(self, *args, **kwargs)
 		Polygons.__init__(self, *args, **kwargs)
 
-		cmb = self.polygons_ui.draggable_header.contextMenu.cmb000
+		cmb = self.sb.polygons.draggable_header.contextMenu.cmb000
 		items = ['Bridge','Extrude']
 		cmb.addItems_(items, 'Polygon Editors')
 
@@ -18,7 +18,7 @@ class Polygons_max(Polygons, Slots_max):
 	def cmb000(self, index=-1):
 		'''Editors
 		'''
-		cmb = self.polygons_ui.draggable_header.contextMenu.cmb000
+		cmb = self.sb.polygons.draggable_header.contextMenu.cmb000
 
 		if index>0:
 			text = cmb.items[index]
@@ -58,14 +58,14 @@ class Polygons_max(Polygons, Slots_max):
 	def tb000(self, state=None):
 		'''Merge Vertices
 		'''
-		tb = self.polygons_ui.tb000
+		tb = self.sb.polygons.tb000
 
 		tolerance = float(tb.contextMenu.s002.value())
 		selection = rt.selection
 
 		if selection:
 			for n, obj in enumerate(selection):
-				if not self.polygons_ui.progressBar.step(n, len(selection)): #register progress while checking for cancellation:
+				if not self.sb.polygons.progressBar.step(n, len(selection)): #register progress while checking for cancellation:
 					break
 
 				vertSelection = rt.getVertSelection(obj)
@@ -83,7 +83,7 @@ class Polygons_max(Polygons, Slots_max):
 	def tb001(self, state=None):
 		'''Bridge
 		'''
-		tb = self.polygons_ui.tb001
+		tb = self.sb.polygons.tb001
 
 		divisions = tb.contextMenu.s003.value()
 
@@ -95,7 +95,7 @@ class Polygons_max(Polygons, Slots_max):
 	def tb002(self, state=None):
 		'''Combine
 		'''
-		tb = self.polygons_ui.tb002
+		tb = self.sb.polygons.tb002
 
 		if tb.contextMenu.chk000.isChecked():
 			pass
@@ -128,7 +128,7 @@ class Polygons_max(Polygons, Slots_max):
 	def tb003(self, state=None):
 		'''Extrude
 		'''
-		tb = self.polygons_ui.tb003
+		tb = self.sb.polygons.tb003
 
 		keepFacesTogether = tb.contextMenu.chk002.isChecked() #keep faces/edges together.
 
@@ -140,12 +140,12 @@ class Polygons_max(Polygons, Slots_max):
 	def tb004(self, state=None):
 		'''Bevel (Chamfer)
 		'''
-		tb = self.polygons_ui.tb004
+		tb = self.sb.polygons.tb004
 
 		width = float(tb.contextMenu.s000.value())
 
 		rt.macros.run('Ribbon - Modeling', 'EPoly_Chamfer')
-		# width = float(self.polygons_ui.s000.value())
+		# width = float(self.sb.polygons.s000.value())
 		# chamfer = True
 
 		# if chamfer:
@@ -157,7 +157,7 @@ class Polygons_max(Polygons, Slots_max):
 	def tb005(self, state=None):
 		'''Detach
 		'''
-		tb = self.polygons_ui.tb005
+		tb = self.sb.polygons.tb005
 
 		#rt.macros.run('Ribbon - Modeling', 'GeometryDetach')
 		level = rt.subObjectLevel
@@ -183,7 +183,7 @@ class Polygons_max(Polygons, Slots_max):
 	def tb006(self, state=None):
 		'''Inset Face Region
 		'''
-		tb = self.polygons_ui.tb006
+		tb = self.sb.polygons.tb006
 
 		offset = float(tb.contextMenu.s001.value())
 		maxEval('''
@@ -201,7 +201,7 @@ class Polygons_max(Polygons, Slots_max):
 	def tb007(self, state=None):
 		'''Divide Facet
 		'''
-		tb = self.polygons_ui.tb007
+		tb = self.sb.polygons.tb007
 
 		dv=u=v=0
 		if tb.contextMenu.chk008.isChecked(): #Split U
@@ -227,7 +227,7 @@ class Polygons_max(Polygons, Slots_max):
 	def tb008(self, state=None):
 		'''Boolean Operation
 		'''
-		tb = self.polygons_ui.tb008
+		tb = self.sb.polygons.tb008
 
 		objects = list(Slots_max.bitArrayToArray(rt.selection))
 
@@ -247,7 +247,7 @@ class Polygons_max(Polygons, Slots_max):
 	def tb009(self, state=None):
 		'''Snap Closest Verts
 		'''
-		tb = self.polygons_ui.tb009
+		tb = self.sb.polygons.tb009
 
 		tolerance = tb.contextMenu.s005.value()
 		freezetransforms = tb.contextMenu.chk016.isChecked()

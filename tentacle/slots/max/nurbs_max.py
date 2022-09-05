@@ -10,11 +10,11 @@ class Nurbs_max(Nurbs, Slots_max):
 		Slots_max.__init__(self, *args, **kwargs)
 		Nurbs.__init__(self, *args, **kwargs)
 
-		cmb = self.nurbs_ui.draggable_header.contextMenu.cmb000
+		cmb = self.sb.nurbs.draggable_header.contextMenu.cmb000
 		items = []
 		cmb.addItems_(items, 'Curve Editors')
 
-		cmb = self.nurbs_ui.cmb001
+		cmb = self.sb.nurbs.cmb001
 		items = []
 		cmb.addItems_(items, 'Create Curve')
 
@@ -22,7 +22,7 @@ class Nurbs_max(Nurbs, Slots_max):
 	def cmb000(self, index=-1):
 		'''Maya Curve Operations
 		'''
-		cmb = self.nurbs_ui.draggable_header.contextMenu.cmb000
+		cmb = self.sb.nurbs.draggable_header.contextMenu.cmb000
 
 		if index>0:
 			text = cmb.items[index]
@@ -66,7 +66,7 @@ class Nurbs_max(Nurbs, Slots_max):
 	def cmb001(self, index=-1):
 		'''Create: Curve
 		'''
-		cmb = self.nurbs_ui.cmb001
+		cmb = self.sb.nurbs.cmb001
 
 		if index>0:
 			text = cmb.items[index]
@@ -89,7 +89,7 @@ class Nurbs_max(Nurbs, Slots_max):
 	def tb000(self, state=None):
 		'''Revolve
 		'''
-		tb = self.nurbs_ui.tb000
+		tb = self.sb.nurbs.tb000
 
 		degree = tb.contextMenu.s002.value()
 		startSweep = tb.contextMenu.s003.value()
@@ -108,7 +108,7 @@ class Nurbs_max(Nurbs, Slots_max):
 	def tb001(self, state=None):
 		'''Loft
 		'''
-		tb = self.nurbs_ui.tb001
+		tb = self.sb.nurbs.tb001
 
 		uniform = tb.contextMenu.chk000.isChecked()
 		close = tb.contextMenu.chk001.isChecked()

@@ -9,33 +9,24 @@ class Rigging(Slots):
 	'''
 	def __init__(self, *args, **kwargs):
 		'''
-		:Parameters: 
-			**kwargs (inherited from this class's respective slot child class, and originating from switchboard.setClassInstanceFromUiName)
-				properties:
-					sb (class instance) = The switchboard instance.  Allows access to ui and slot objects across modules.
-					<name>_ui (ui object) = The ui object of <name>. ie. self.polygons_ui
-					<widget> (registered widget) = Any widget previously registered in the switchboard module. ie. self.PushButton
-				functions:
-					current_ui (lambda function) = Returns the current ui if it is either the parent or a child ui for the class; else, return the parent ui. ie. self.current_ui()
-					<name> (lambda function) = Returns the slot class instance of that name.  ie. self.polygons()
 		'''
-		dh = self.rigging_ui.draggable_header
-		dh.contextMenu.add(self.ComboBox, setObjectName='cmb000', setToolTip='Rigging Editors')
+		dh = self.sb.rigging.draggable_header
+		dh.contextMenu.add(self.sb.ComboBox, setObjectName='cmb000', setToolTip='Rigging Editors')
 
-		tb000 = self.rigging_ui.tb000
+		tb000 = self.sb.rigging.tb000
 		tb000.contextMenu.add('QCheckBox', setText='Joints', setObjectName='chk000', setChecked=True, setToolTip='Display Joints.')
 		tb000.contextMenu.add('QCheckBox', setText='IK', setObjectName='chk001', setChecked=True, setToolTip='Display IK.')
 		tb000.contextMenu.add('QCheckBox', setText='IK\\FK', setObjectName='chk002', setChecked=True, setToolTip='Display IK\\FK.')
 		tb000.contextMenu.add('QDoubleSpinBox', setPrefix='Tolerance: ', setObjectName='s000', setMinMax_='0.00-10 step.5', setValue=1.0, setToolTip='Global Display Scale for the selected type.')
 		self.chk000() #init scale joint value
 
-		tb001 = self.rigging_ui.tb001
+		tb001 = self.sb.rigging.tb001
 		tb001.contextMenu.add('QCheckBox', setText='Align world', setObjectName='chk003', setToolTip='Align joints with the worlds transform.')
 
-		tb002 = self.rigging_ui.tb002
+		tb002 = self.sb.rigging.tb002
 		tb002.contextMenu.add('QCheckBox', setText='Template Child', setObjectName='chk004', setChecked=False, setToolTip='Template child object(s) after parenting.')		
 
-		tb003 = self.rigging_ui.tb003
+		tb003 = self.sb.rigging.tb003
 		tb003.contextMenu.add('QDoubleSpinBox', setPrefix='Locator Scale: ', setObjectName='s001', setMinMax_='.000-1000 step1', setValue=1, setToolTip='The scale of the locator.')
 		tb003.contextMenu.add('QLineEdit', setPlaceholderText='Locator Suffix:', setText='_GRP', setObjectName='t002', setToolTip='A string appended to the end of the created group\'s name.')
 		tb003.contextMenu.add('QLineEdit', setPlaceholderText='Locator Suffix:', setText='_LCTR', setObjectName='t000', setToolTip='A string appended to the end of the created locator\'s name.')
@@ -51,21 +42,21 @@ class Rigging(Slots):
 		tb003.contextMenu.add('QCheckBox', setText='Remove Locators', setObjectName='chk015', setChecked=False, setToolTip='Removes the locator, and inverts the above process. (not valid with component selections)')
 		tb003.contextMenu.chk015.stateChanged.connect(lambda state: self.toggleWidgets(tb003.contextMenu, setDisabled='t000-1,s001,chk005-11') if state 
 														else self.toggleWidgets(tb003.contextMenu, setEnabled='t000-1,s001,chk005-11')) #disable non-relevant options.
-		tb004 = self.rigging_ui.tb004
+		tb004 = self.sb.rigging.tb004
 		tb004.contextMenu.add('QCheckBox', setText='Translate', setObjectName='chk012', setChecked=False, setToolTip='')
 		tb004.contextMenu.add('QCheckBox', setText='Rotate', setObjectName='chk013', setChecked=False, setToolTip='')
 		tb004.contextMenu.add('QCheckBox', setText='Scale', setObjectName='chk014', setChecked=False, setToolTip='')
 		self.connect_((tb004.contextMenu.chk012, tb004.contextMenu.chk013, tb004.contextMenu.chk014), 'toggled', 
-			[lambda state: self.rigging_ui.tb004.setText('Lock Attributes' 
+			[lambda state: self.sb.rigging.tb004.setText('Lock Attributes' 
 				if any((tb004.contextMenu.chk012.isChecked(), tb004.contextMenu.chk013.isChecked(), tb004.contextMenu.chk014.isChecked())) else 'Unlock Attributes'), 
-			lambda state: self.rigging_submenu_ui.tb004.setText('Lock Transforms' 
+			lambda state: self.sb.rigging_submenu.tb004.setText('Lock Transforms' 
 				if any((tb004.contextMenu.chk012.isChecked(), tb004.contextMenu.chk013.isChecked(), tb004.contextMenu.chk014.isChecked())) else 'Unlock Attributes')])
 
 
 	def draggable_header(self, state=None):
 		'''Context menu
 		'''
-		dh = self.rigging_ui.draggable_header
+		dh = self.sb.rigging.draggable_header
 
 
 	

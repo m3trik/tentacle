@@ -9,38 +9,29 @@ class File(Slots):
 	'''
 	def __init__(self, *args, **kwargs):
 		'''
-		:Parameters: 
-			**kwargs (inherited from this class's respective slot child class, and originating from switchboard.setClassInstanceFromUiName)
-				properties:
-					sb (class instance) = The switchboard instance.  Allows access to ui and slot objects across modules.
-					<name>_ui (ui object) = The ui object of <name>. ie. self.polygons_ui
-					<widget> (registered widget) = Any widget previously registered in the switchboard module. ie. self.PushButton
-				functions:
-					current_ui (lambda function) = Returns the current ui if it is either the parent or a child ui for the class; else, return the parent ui. ie. self.current_ui()
-					<name> (lambda function) = Returns the slot class instance of that name.  ie. self.polygons()
 		'''
 		#set the text for the open last file button to the last file's name.
 		mostRecentFile = self.getRecentFiles(0)
-		self.file_submenu_ui.b001.setText(self.getNameFromFullPath(mostRecentFile)) if mostRecentFile else self.file_submenu_ui.b001.setVisible(False)
+		self.sb.file_submenu.b001.setText(self.getNameFromFullPath(mostRecentFile)) if mostRecentFile else self.sb.file_submenu.b001.setVisible(False)
 
-		dh = self.file_ui.draggable_header
-		dh.contextMenu.add(self.ComboBox, setObjectName='cmb000', setToolTip='')
-		dh.contextMenu.add(self.PushButton, setObjectName='tb000', setText='Save', setToolTip='Save the current file.')
-		dh.contextMenu.add(self.Label, setObjectName='lbl001', setText='Minimize App', setToolTip='Minimize the main application.')
-		dh.contextMenu.add(self.Label, setObjectName='lbl002', setText='Maximize App', setToolTip='Restore the main application.')
-		dh.contextMenu.add(self.Label, setObjectName='lbl003', setText='Close App', setToolTip='Close the main application.')
+		dh = self.sb.file.draggable_header
+		dh.contextMenu.add(self.sb.ComboBox, setObjectName='cmb000', setToolTip='')
+		dh.contextMenu.add(self.sb.PushButton, setObjectName='tb000', setText='Save', setToolTip='Save the current file.')
+		dh.contextMenu.add(self.sb.Label, setObjectName='lbl001', setText='Minimize App', setToolTip='Minimize the main application.')
+		dh.contextMenu.add(self.sb.Label, setObjectName='lbl002', setText='Maximize App', setToolTip='Restore the main application.')
+		dh.contextMenu.add(self.sb.Label, setObjectName='lbl003', setText='Close App', setToolTip='Close the main application.')
 
-		cmb005 = self.file_ui.cmb005
+		cmb005 = self.sb.file.cmb005
 		cmb005.contextMenu.add('QPushButton', setObjectName='b001', setText='Last', setToolTip='Open the most recent file.')
 		cmb005.addItems_(dict(zip(self.getRecentFiles(timestamp=True), self.getRecentFiles(timestamp=False))), "Recent Files", clear=True)
 
-		cmb006 = self.file_ui.cmb006
-		cmb006.contextMenu.add(self.ComboBox, setObjectName='cmb001', setToolTip='Current project directory root.')
-		cmb006.contextMenu.add(self.Label, setObjectName='lbl000', setText='Set', setToolTip='Set the project directory.')
-		cmb006.contextMenu.add(self.Label, setObjectName='lbl004', setText='Root', setToolTip='Open the project directory.')
+		cmb006 = self.sb.file.cmb006
+		cmb006.contextMenu.add(self.sb.ComboBox, setObjectName='cmb001', setToolTip='Current project directory root.')
+		cmb006.contextMenu.add(self.sb.Label, setObjectName='lbl000', setText='Set', setToolTip='Set the project directory.')
+		cmb006.contextMenu.add(self.sb.Label, setObjectName='lbl004', setText='Root', setToolTip='Open the project directory.')
 		cmb006.contextMenu.cmb001.addItems_(self.getRecentProjects(), "Recent Projects", clear=True)
 
-		tb000 = self.file_ui.draggable_header.contextMenu.tb000
+		tb000 = self.sb.file.draggable_header.contextMenu.tb000
 		tb000.contextMenu.add('QCheckBox', setText='Wireframe', setObjectName='chk000', setToolTip='Set view to wireframe before save.')
 		tb000.contextMenu.add('QCheckBox', setText='Increment', setObjectName='chk001', setChecked=True, setToolTip='Append and increment a unique integer value.')
 		tb000.contextMenu.add('QCheckBox', setText='Quit', setObjectName='chk002', setToolTip='Quit after save.')
@@ -55,9 +46,9 @@ class File(Slots):
 			return self._referenceSceneMenu
 
 		except AttributeError as error:
-			menu = self.sb.Menu(self.file_ui.lbl005)
+			menu = self.sb.Menu(self.sb.file.lbl005)
 			for i in self.getWorkspaceScenes(fullPath=True): #zip(self.getWorkspaceScenes(fullPath=False), self.getWorkspaceScenes(fullPath=True)):
-				chk = menu.add(self.CheckBox, setText=i)
+				chk = menu.add(self.sb.CheckBox, setText=i)
 				chk.toggled.connect(lambda state, scene=i: self.referenceScene(scene, not state))
 
 				# if chk.sizeHint().width() > menu.sizeHint().width():
@@ -72,7 +63,7 @@ class File(Slots):
 	def draggable_header(self, state=None):
 		'''Context menu
 		'''
-		dh = self.file_ui.draggable_header
+		dh = self.sb.file.draggable_header
 
 
 	def lbl005(self):

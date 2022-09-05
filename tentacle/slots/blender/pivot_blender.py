@@ -10,16 +10,16 @@ class Pivot_blender(Pivot, Slots_blender):
 		Slots_blender.__init__(self, *args, **kwargs)
 		Pivot.__init__(self, *args, **kwargs)
 
-		cmb = self.pivot_ui.draggable_header.contextMenu.cmb000
+		cmb = self.sb.pivot.draggable_header.contextMenu.cmb000
 		items = ['']
 		cmb.addItems_(items, '')
 
-		ctx = self.pivot_ui.tb000.contextMenu
+		ctx = self.sb.pivot.tb000.contextMenu
 		if not ctx.containsMenuItems:
 			ctx.add('QCheckBox', setText='Reset Pivot Position', setObjectName='chk000', setChecked=True, setToolTip='')
 			ctx.add('QCheckBox', setText='Reset Pivot Orientation', setObjectName='chk001', setChecked=True, setToolTip='')
 
-		ctx = self.pivot_ui.tb001.contextMenu
+		ctx = self.sb.pivot.tb001.contextMenu
 		if not ctx.containsMenuItems:
 			ctx.add('QRadioButton', setText='Component', setObjectName='chk002', setToolTip='Center the pivot on the center of the selected component\'s bounding box')
 			ctx.add('QRadioButton', setText='Object', setObjectName='chk003', setChecked=True, setToolTip='Center the pivot on the center of the object\'s bounding box')
@@ -29,7 +29,7 @@ class Pivot_blender(Pivot, Slots_blender):
 	def cmb000(self, index=-1):
 		'''Editors
 		'''
-		cmb = self.pivot_ui.draggable_header.contextMenu.cmb000
+		cmb = self.sb.pivot.draggable_header.contextMenu.cmb000
 
 		if index>0:
 			text = cmb.items[index]
@@ -41,7 +41,7 @@ class Pivot_blender(Pivot, Slots_blender):
 	def tb000(self, state=None):
 		'''Reset Pivot
 		'''
-		tb = self.pivot_ui.tb000
+		tb = self.sb.pivot.tb000
 
 		resetPivotPosition = tb.contextMenu.chk000.isChecked() #Reset Pivot Position
 		resetPivotOrientation = tb.contextMenu.chk001.isChecked() #Reset Pivot Orientation
@@ -53,7 +53,7 @@ class Pivot_blender(Pivot, Slots_blender):
 	def tb001(self, state=None):
 		'''Center Pivot
 		'''
-		tb = self.pivot_ui.tb001
+		tb = self.sb.pivot.tb001
 
 		component = tb.contextMenu.chk002.isChecked()
 		object_ = tb.contextMenu.chk003.isChecked()

@@ -10,11 +10,11 @@ class Convert_blender(Convert, Slots_blender):
 		Slots_blender.__init__(self, *args, **kwargs)
 		Convert.__init__(self, *args, **kwargs)
 
-		cmb = self.convert_ui.draggable_header.contextMenu.cmb000
+		cmb = self.sb.convert.draggable_header.contextMenu.cmb000
 		list_ = ['']
 		cmb.addItems_(list_, '')
 
-		cmb = self.convert_ui.cmb001
+		cmb = self.sb.convert.cmb001
 		list_ = [] 
 		contents = cmb.addItems_(list_, 'Convert To')
 
@@ -22,7 +22,7 @@ class Convert_blender(Convert, Slots_blender):
 	def cmb000(self, index=-1):
 		'''Editors
 		'''
-		cmb = self.convert_ui.draggable_header.contextMenu.cmb000
+		cmb = self.sb.convert.draggable_header.contextMenu.cmb000
 
 		if index>0:
 			text = cmb.items[index]
@@ -34,7 +34,7 @@ class Convert_blender(Convert, Slots_blender):
 	def cmb001(self, index=-1):
 		'''Convert To
 		'''
-		cmb = self.convert_ui.cmb001
+		cmb = self.sb.convert.cmb001
 
 		if index>0:
 			text = cmb.items[index]

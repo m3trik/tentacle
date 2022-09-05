@@ -9,21 +9,12 @@ class Nurbs(Slots):
 	'''
 	def __init__(self, *args, **kwargs):
 		'''
-		:Parameters: 
-			**kwargs (inherited from this class's respective slot child class, and originating from switchboard.setClassInstanceFromUiName)
-				properties:
-					sb (class instance) = The switchboard instance.  Allows access to ui and slot objects across modules.
-					<name>_ui (ui object) = The ui object of <name>. ie. self.polygons_ui
-					<widget> (registered widget) = Any widget previously registered in the switchboard module. ie. self.PushButton
-				functions:
-					current_ui (lambda function) = Returns the current ui if it is either the parent or a child ui for the class; else, return the parent ui. ie. self.current_ui()
-					<name> (lambda function) = Returns the slot class instance of that name.  ie. self.polygons()
 		'''
-		ctx = self.nurbs_ui.draggable_header.contextMenu
+		ctx = self.sb.nurbs.draggable_header.contextMenu
 		if not ctx.containsMenuItems:
-			ctx.add(self.ComboBox, setObjectName='cmb000', setToolTip='Maya Curve Operations')
+			ctx.add(self.sb.ComboBox, setObjectName='cmb000', setToolTip='Maya Curve Operations')
 
-		ctx = self.nurbs_ui.tb000.contextMenu
+		ctx = self.sb.nurbs.tb000.contextMenu
 		if not ctx.containsMenuItems:
 			ctx.add('QSpinBox', setPrefix='Degree:', setObjectName='s002', setValue=3, setMinMax_='0-9999 step1', setToolTip='The degree of the resulting surface.')
 			ctx.add('QSpinBox', setPrefix='Start Sweep:', setObjectName='s003', setValue=3, setMinMax_='0-360 step1', setToolTip='	The value for the start sweep angle.')
@@ -35,7 +26,7 @@ class Nurbs(Slots):
 			ctx.add('QCheckBox', setText='Use Tolerance', setObjectName='chk009', setChecked=False, setToolTip='Use the tolerance, or the number of sections to control the sections.')
 			ctx.add('QDoubleSpinBox', setPrefix='Tolerance:', setObjectName='s006', setValue=0.001, setMinMax_='0-9999 step.001', setToolTip='Tolerance to build to (if useTolerance attribute is set).')
 
-		ctx = self.nurbs_ui.tb001.contextMenu
+		ctx = self.sb.nurbs.tb001.contextMenu
 		if not ctx.containsMenuItems:
 			ctx.add('QCheckBox', setText='Uniform', setObjectName='chk000', setChecked=True, setToolTip='The resulting surface will have uniform parameterization in the loft direction. If set to false, the parameterization will be chord length.')
 			ctx.add('QCheckBox', setText='Close', setObjectName='chk001', setChecked=False, setToolTip='The resulting surface will be closed (periodic) with the start (end) at the first curve. If set to false, the surface will remain open.')
@@ -49,10 +40,10 @@ class Nurbs(Slots):
 			ctx.add('QSpinBox', setPrefix='Angle Loft: Spans:', setObjectName='s007', setValue=6, setMinMax_='2-9999 step1', setToolTip='Angle loft: Number of duplicated points (spans).')
 
 
-		cmb = self.nurbs_ui.draggable_header.contextMenu.cmb000
+		cmb = self.sb.nurbs.draggable_header.contextMenu.cmb000
 		items = ['Project Curve','Duplicate Curve','Create Curve from Poly','Bend Curve', 'Curl Curve','Modify Curve Curvature','Smooth Curve','Straighten Curves','Extrude Curves','Revolve Curves','Loft Curves','Planar Curves','Insert Isoparms','Insert Knot','Rebuild Curve','Extend Curve', 'Extend Curve On Surface']
 		cmb.addItems_(items, 'Maya Curve Operations')
 		
-		cmb = self.nurbs_ui.cmb001
+		cmb = self.sb.nurbs.cmb001
 		items = ['Ep Curve Tool','CV Curve Tool','Bezier Curve Tool','Pencil Curve Tool','2 Point Circular Arc','3 Point Circular Arc']
 		cmb.addItems_(items, 'Create Curve')

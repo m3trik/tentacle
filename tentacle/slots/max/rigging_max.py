@@ -10,11 +10,11 @@ class Rigging_max(Rigging, Slots_max):
 		Slots_max.__init__(self, *args, **kwargs)
 		Rigging.__init__(self, *args, **kwargs)
 
-		cmb = self.rigging_ui.draggable_header.contextMenu.cmb000
+		cmb = self.sb.rigging.draggable_header.contextMenu.cmb000
 		items = ['Bone Tools','Parameter Editor','Parameter Collector','Parameter Wire Dialog']
 		cmb.addItems_(items, 'Rigging Editors')
 
-		cmb = self.rigging_ui.cmb001
+		cmb = self.sb.rigging.cmb001
 		items = ['Bones IK Chain','Point','Dummy','Grid','Expose Transform','Lattice','Biped']
 		cmb.addItems_(items, "Create")
 
@@ -22,7 +22,7 @@ class Rigging_max(Rigging, Slots_max):
 	def cmb000(self, index=-1):
 		'''Editors
 		'''
-		cmb = self.rigging_ui.draggable_header.contextMenu.cmb000
+		cmb = self.sb.rigging.draggable_header.contextMenu.cmb000
 
 		if index>0:
 			text = cmb.items[index]
@@ -40,7 +40,7 @@ class Rigging_max(Rigging, Slots_max):
 	def cmb001(self, index=-1):
 		'''Create
 		'''
-		cmb = self.rigging_ui.cmb001
+		cmb = self.sb.rigging.cmb001
 
 		if index>0:
 			text = cmb.items[index]
@@ -65,40 +65,40 @@ class Rigging_max(Rigging, Slots_max):
 		'''Scale Joint
 		'''
 		self.toggleWidgets(setUnChecked='chk001-2')
-		# self.rigging_ui.tb000.contextMenu.s000.setValue(pm.jointDisplayScale(query=1)) #init global joint display size
+		# self.sb.rigging.tb000.contextMenu.s000.setValue(pm.jointDisplayScale(query=1)) #init global joint display size
 
 
 	def chk001(self, state=None):
 		'''Scale IK
 		'''
 		self.toggleWidgets(setUnChecked='chk000, chk002')
-		# self.rigging_ui.tb000.contextMenu.setValue(pm.ikHandleDisplayScale(query=1)) #init IK handle display size
+		# self.sb.rigging.tb000.contextMenu.setValue(pm.ikHandleDisplayScale(query=1)) #init IK handle display size
 		
 
 	def chk002(self, state=None):
 		'''Scale IK/FK
 		'''
 		self.toggleWidgets(setUnChecked='chk000-1')
-		# self.rigging_ui.tb000.contextMenu.setValue(pm.jointDisplayScale(query=1, ikfk=1)) #init IKFK display size
+		# self.sb.rigging.tb000.contextMenu.setValue(pm.jointDisplayScale(query=1, ikfk=1)) #init IKFK display size
 
 
 	def s000(self, value=None):
 		'''Scale Joint/IK/FK
 		'''
-		value = self.rigging_ui.tb000.contextMenu.value()
+		value = self.sb.rigging.tb000.contextMenu.value()
 
-		# if self.rigging_ui.chk000.isChecked():
+		# if self.sb.rigging.chk000.isChecked():
 		# 	pm.jointDisplayScale(value) #set global joint display size
-		# elif self.rigging_ui.chk001.isChecked():
+		# elif self.sb.rigging.chk001.isChecked():
 		# 	pm.ikHandleDisplayScale(value) #set global IK handle display size
-		# else: #self.rigging_ui.chk002.isChecked():
+		# else: #self.sb.rigging.chk002.isChecked():
 		# 	pm.jointDisplayScale(value, ikfk=1) #set global IKFK display size
 
 
 	def tb000(self, state=None):
 		'''Toggle Display Local Rotation Axes
 		'''
-		tb = self.rigging_ui.tb000
+		tb = self.sb.rigging.tb000
 
 		# joints = pm.ls(type="joint") #get all scene joints
 
@@ -119,7 +119,7 @@ class Rigging_max(Rigging, Slots_max):
 	def tb001(self, state=None):
 		'''Orient Joints
 		'''
-		tb = self.rigging_ui.tb001
+		tb = self.sb.rigging.tb001
 
 		# orientJoint = 'xyz' #orient joints
 		# if tb.contextMenu.isChecked():
@@ -131,7 +131,7 @@ class Rigging_max(Rigging, Slots_max):
 	def tb002(self, state=None):
 		'''Constraint: Parent
 		'''
-		tb = self.rigging_ui.tb002
+		tb = self.sb.rigging.tb002
 
 		template = tb.contextMenu.chk004.isChecked()
 
@@ -147,7 +147,7 @@ class Rigging_max(Rigging, Slots_max):
 	def tb003(self, state=None):
 		'''Create Locator at Selection
 		'''
-		tb = self.rigging_ui.tb003
+		tb = self.sb.rigging.tb003
 
 		suffix = tb.contextMenu.t000.text()
 		stripDigits = tb.contextMenu.chk005.isChecked()
@@ -169,7 +169,7 @@ class Rigging_max(Rigging, Slots_max):
 	def tb004(self, state=None):
 		'''Lock/Unlock Attributes
 		'''
-		tb = self.rigging_ui.tb004
+		tb = self.sb.rigging.tb004
 
 		lockTranslate = tb.contextMenu.chk012.isChecked()
 		lockRotation = tb.contextMenu.chk013.isChecked()

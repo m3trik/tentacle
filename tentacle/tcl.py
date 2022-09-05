@@ -1,7 +1,6 @@
-
 # !/usr/bin/python
 # coding=utf-8
-import sys
+import sys, os
 
 from PySide2 import QtCore, QtGui, QtWidgets
 
@@ -13,9 +12,6 @@ from ui.widgets import rwidgets
 
 
 
-# ------------------------------------------------
-# 	Construct the Widget Stack
-# ------------------------------------------------
 class Tcl(QtWidgets.QStackedWidget):
 	'''Tcl is a marking menu based on a QStackedWidget.
 	Gets and sets signal connections (through the switchboard module).
@@ -38,20 +34,22 @@ class Tcl(QtWidgets.QStackedWidget):
 		self.key_close = QtCore.Qt.Key_Escape
 		self.profile = profile
 		self.preventHide = preventHide
-		# self.qApp.setDoubleClickInterval(400)
-		# self.qApp.setKeyboardInputInterval(400)
+		# self.sb.qApp.setDoubleClickInterval(400)
+		# self.sb.qApp.setKeyboardInputInterval(400)
 
 		self.setWindowFlags(QtCore.Qt.Tool|QtCore.Qt.FramelessWindowHint)
 		self.setAttribute(QtCore.Qt.WA_TranslucentBackground)
 		self.setAttribute(QtCore.Qt.WA_SetStyle) #Indicates that the widget has a style of its own.
 
-		self.sb = Switchboard(self, widgetsToRegister=rwidgets, mainAppWindow=self.parent())
+		appName = self.parent().objectName().lower().rstrip('Window')
+		self.sb = Switchboard(self, appName)
+		self.sb.slotDir = os.path.join(self.sb.slotDir, appName)
+		self.sb.loadAllUi(widgets=rwidgets)
 
 		self.childEvents = EventFactoryFilter(self)
 		self.overlay = OverlayFactoryFilter(self, antialiasing=True) #Paint events are handled by the overlay module.
 
-		self.qApp = QtWidgets.QApplication.instance()
-		self.qApp.focusChanged.connect(self.focusChanged)
+		self.sb.qApp.focusChanged.connect(self.focusChanged)
 
 		self.centerPos = lambda: QtGui.QCursor.pos() - self.rect().center() #get the center point of this widget.
 		self.moveToAndCenter = lambda w, p: w.move(QtCore.QPoint(p.x()-(w.width()/2), p.y()-(w.height()/4))) #center a given widget on a given position.
@@ -61,26 +59,21 @@ class Tcl(QtWidgets.QStackedWidget):
 		'''Initialize the given ui.
 
 		:Parameters:
-			ui (str)(obj) = The ui or name of the ui.
+			ui (obj) = The ui to initialize.
 		'''
-		ui = self.sb.getUi(ui)
-		ui.preventHide = False
 		self.childEvents.initWidgets(ui)
 
-		if self.sb.getUiLevel(ui)<3: #stacked ui.
+		if ui.level<3: #stacked ui.
 			self.addWidget(ui) #add the ui to the stackedLayout.
 
 		else: #popup ui.
-			ui.setParent(self.parent())
-
 			ui.setWindowFlags(QtCore.Qt.Tool|QtCore.Qt.FramelessWindowHint)
 			ui.setAttribute(QtCore.Qt.WA_TranslucentBackground)
 			# ui.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
 
-			ui.hide = lambda: None if ui.preventHide else ui.__class__.hide(ui) #ui.setVisible(0)
 			self._key_show_release.connect(ui.hide)
 
-		self.sb.setUiState(ui, 1)
+		ui.isInitialized = True
 
 
 	def setUi(self, ui):
@@ -89,14 +82,15 @@ class Tcl(QtWidgets.QStackedWidget):
 		:Parameters:
 			ui (str)(obj) = The ui or name of the ui to set the stacked widget index to.
 		'''
-		ui = self.sb.getUi(ui, setAsCurrent=True) #Get the ui of the given name, and set it as the current ui in the switchboard module.
+		ui = self.sb.getUi(ui) #Get the ui of the given name, and set it as the current ui in the switchboard module.
+		ui.connected = True #connect the ui to it's slots.
 
-		if self.sb.uiState==0: #if the ui state is 0, it has not been initialized.
+		if not ui.isInitialized:
 			self.initUi(ui)
 
-		if self.sb.uiLevel<3: #stacked ui top level window.
+		if ui.level<3: #stacked ui top level window.
 			self.setCurrentWidget(ui) #set the stacked widget to the given ui.
-			self.resize(self.sb.sizeX, self.sb.sizeY) #The ui sizes for individual ui's are stored in sizeX and sizeY properties. Otherwise size would be constrained to the largest widget in the stack)
+			self.resize(ui.sizeX, ui.sizeY) #The ui sizes for individual ui's are stored in sizeX and sizeY properties. Otherwise size would be constrained to the largest widget in the stack)
 
 		else: #popup ui.
 			ui.show()
@@ -106,59 +100,44 @@ class Tcl(QtWidgets.QStackedWidget):
 			ui.activateWindow() #activate the popup ui before hiding the stacked layout.
 			self.hide()
 
-		self.sb.setConnections(ui) #connect signal/slot connections for the current ui, while disconnecting the previous.
-		self.sb.setUiState(ui, 2)
 
-
-	def setSubUi(self, ui, widget):
+	def setSubUi(self, ui, w):
 		'''Set the stacked widget's index to the submenu associated with the given widget.
 		Positions the new ui to line up with the previous ui's button that called the new ui.
 
 		:Parameters:
-			ui (str)(obj) = The ui or name of the ui to set.
-			widget (QWidget) = The widget that called this method.
+			ui (obj) = The submenu ui to set as current.
+			w (obj) = The widget that called this method.
 		'''
-		uiName = self.sb.getUiName(ui)
-
-		p1 = widget.mapToGlobal(widget.rect().center()) #widget position before submenu change.
-
-		try: #set the ui to the submenu (if it exists).
-			ui = self.setUi(ui) #switch the stacked widget to the given submenu.
-		except ValueError as error: #if no submenu exists: ignore and return.
+		if not ui or ui==self.sb.currentUi:
 			return
 
-		w = getattr(self.currentWidget(), widget.objectName()) #get the widget of the same name in the new ui.
+		p1 = w.mapToGlobal(w.rect().center()) #the widget position before submenu change.
 
-		#remove entrys from widget and draw paths when moving back down levels in the ui.
-		# if len(self.sb.prevUiName(as_list=1))>2:
-		# 	if uiName in self.sb.prevUiName(as_list=1): #if uiName is that of a previous ui:
-		self.removeFromPath(uiName)
+		self.setUi(ui) #switch the stacked widget to the given submenu.
 
-		self.widgetPath.append([widget, p1, uiName]) #add the widget (<widget>, position, 'ui name') from the old ui to the widgetPath list so that it can be re-created in the new ui (in the same position).
-		self.drawPath.append(QtGui.QCursor.pos()) #add the global cursor position to the drawPath list so that paint events can draw the path tangents.
-
-		p2 = w.mapToGlobal(w.rect().center()) #widget position after submenu change.
+		w2 = getattr(self.currentWidget(), w.name) #get the widget of the same name in the new ui.
+		p2 = w2.mapToGlobal(w2.rect().center()) #widget position after submenu change.
 		currentPos = self.mapToGlobal(self.pos())
-		self.resize(1, 1)
 		self.move(self.mapFromGlobal(currentPos +(p1 - p2))) #currentPos + difference
 
-		if uiName not in self.sb.prevUiName(as_list=1): #if the submenu ui called for the first time:
-			self.cloneWidgetsAlongPath(uiName) #re-construct any widgets from the previous ui that fall along the plotted path.
+		if ui not in self.sb.getPrevUi(asList=1): #if the submenu ui called for the first time:
+			self.cloneWidgetsAlongPath(ui) #re-construct any widgets from the previous ui that fall along the plotted path.
+		self.drawPath.append((w, p1, QtGui.QCursor.pos())) #add the (<widget>, position) from the old ui to the path so that it can be re-created in the new ui (in the same position).
+		self.removeFromPath(ui) #remove entrys from widget and draw paths when moving back down levels in the ui.
 
-		self.resize(self.sb.sizeX, self.sb.sizeY)
+		self.resize(ui.sizeX, ui.sizeY)
 
 
-	def setPrevUi(self):
+	def returnToStart(self):
 		'''Return the stacked widget to it's starting index.
 		'''
-		previous = self.sb.prevUiName(omitLevel=2)
-		ui = self.setUi(previous) #return the stacked widget to it's previous ui.
+		prevUi = self.sb.getPrevUi(omitLevel=2)
+		self.setUi(prevUi) #return the stacked widget to it's previous ui.
 
-		self.move(self.drawPath[0] - self.rect().center())
+		self.move(self.drawPath[0][2] - self.rect().center())
 
-		#Reset the lists that make up the draw and widget paths.
-		del self.drawPath[1:] #clear the draw path, while leaving the starting point.
-		del self.widgetPath[:] #clear the list of previous widgets.
+		del self.drawPath[1:] #Reset the list of previous widget and draw paths, while keeping the return point.
 
 
 	def cloneWidgetsAlongPath(self, ui):
@@ -167,43 +146,35 @@ class Tcl(QtWidgets.QStackedWidget):
 		The previous widget information is derived from the widget and draw paths.
 
 		:Parameters:
-			ui (str)(obj) = The ui or name of ui to duplicate the widgets to.
+			ui (obj) = The ui in which to copy the widgets to.
 		'''
-		ui = self.sb.getUi(ui)
-
-		w0 = self.sb.PushButton(ui, setObjectName='return_area', setSize_=(45, 45), setPosition_=self.drawPath[0]) #create an invisible return button at the start point.
+		w0 = self.sb.PushButton(ui, setObjectName='return_area', setSize_=(45, 45), setPosition_=self.drawPath[0][2]) #create an invisible return button at the start point.
 		self.childEvents.initWidgets(ui, w0) #initialize the widget to set things like the event filter and styleSheet.
 		self.sb.connectSlots(ui, w0)
 
-		if self.sb.getUiLevel(self.sb.prevUiName(omitLevel=3))==2: #if submenu: recreate widget/s from the previous ui that are in the current path.
-			for i in range(2, len(self.widgetPath)+1): #for index in widgetPath starting at 2:
-				prevWidget = self.widgetPath[-i][0] #assign the index a neg value to count from the back of the list (starting at -2).
-				w1 = self.sb.PushButton(ui, copy_=prevWidget, setPosition_=self.widgetPath[-i][1], setVisible=True)
-				self.childEvents.initWidgets(ui, w1) #initialize the widget to set things like the event filter and styleSheet.
-				self.sb.connectSlots(ui, w1)
-				self.childEvents._mouseOver.append(w1)
-				w1.grabMouse() #set widget to receive mouse events.
-				self.childEvents._mouseGrabber = w1
+		for prevWgt, prevPos, drawPos in self.drawPath[1:]:
+			w1 = self.sb.PushButton(ui, copy_=prevWgt, setPosition_=prevPos, setVisible=True)
+			self.childEvents.initWidgets(ui, w1) #initialize the widget to set things like the event filter and styleSheet.
+			self.sb.connectSlots(ui, w1)
 
 
 	def removeFromPath(self, ui):
 		'''Remove the last entry from the widget and draw paths for the given ui.
 
 		:Parameters:
-			ui (str)(obj) = The ui or name of the ui to remove entry of.
+			ui (obj) = The ui to remove.
 		'''
-		uiName = self.sb.getUiName(ui)
-		uiNames = [i[2] for i in self.widgetPath] #get the ui names in widgetPath. ie. 'edit_submenu'
+		uis = [w.ui for w, wpos, cpos in self.drawPath]
 
-		if uiName in uiNames:
-			i = uiNames[::-1].index(uiName) #reverse the list and get the index of the last occurrence of uiName.
+		if ui in uis:
+			i = uis[::-1].index(ui) #reverse the list and get the index of the last occurrence of name.
+			# print (ui.name, [(w.ui.name, cpos) for w, wpos, cpos in self.drawPath]) #debug
 			del self.drawPath[-i-1:]
-			del self.widgetPath[-2:]
 
 
 
 	# ------------------------------------------------
-	# 	Tcl widget events
+	# 	Event handling:
 	# ------------------------------------------------
 	def sendKeyPressEvent(self, key, modifier=QtCore.Qt.NoModifier):
 		'''
@@ -226,7 +197,7 @@ class Tcl(QtWidgets.QStackedWidget):
 		# self._key_show_press.emit(True)
 
 		if not event.isAutoRepeat():
-			modifiers = self.qApp.keyboardModifiers()
+			modifiers = self.sb.qApp.keyboardModifiers()
 
 			if event.key()==self.key_show:
 				self.show()
@@ -244,7 +215,7 @@ class Tcl(QtWidgets.QStackedWidget):
 			event = <QEvent>
 		'''
 		if not event.isAutoRepeat():
-			modifiers = self.qApp.keyboardModifiers()
+			modifiers = self.sb.qApp.keyboardModifiers()
 
 			if event.key()==self.key_show and not modifiers==QtCore.Qt.ControlModifier:
 				self._key_show_release.emit()
@@ -259,14 +230,13 @@ class Tcl(QtWidgets.QStackedWidget):
 		:Parameters:
 			event = <QEvent>
 		'''
-		modifiers = self.qApp.keyboardModifiers()
+		modifiers = self.sb.qApp.keyboardModifiers()
 
-		if self.sb.uiLevel<3:
+		if self.sb.currentUi.level<3:
 			self.move(self.centerPos())
 
-			self.widgetPath=[] #maintain a list of widgets and their location, as a path is plotted along the ui hierarchy. ie. [[<QPushButton object1>, QPoint(665, 396)], [<QPushButton object2>, QPoint(585, 356)]]
-			self.drawPath=[] #initiate the drawPath list that will contain points as the user moves along a hierarchical path.
-			self.drawPath.append(self.mapToGlobal(self.rect().center()))
+			w = self.sb.currentUi.mainWindow
+			self.drawPath = [(w, w.mapToGlobal(w.rect().center()), w.mapToGlobal(w.rect().center()))] #maintain a list of widgets, their location, and cursor positions, as a path is plotted along the ui hierarchy.
 
 			if not modifiers:
 				if event.button()==QtCore.Qt.LeftButton:
@@ -289,7 +259,7 @@ class Tcl(QtWidgets.QStackedWidget):
 		:Parameters:
 			event = <QEvent>
 		'''
-		self.childEvents.mouseTracking(self.sb.uiName)
+		self.childEvents.mouseTracking(self.sb.currentUi)
 
 		return QtWidgets.QStackedWidget.mouseMoveEvent(self, event)
 
@@ -313,9 +283,9 @@ class Tcl(QtWidgets.QStackedWidget):
 		:Parameters:
 			event = <QEvent>
 		'''
-		modifiers = self.qApp.keyboardModifiers()
+		modifiers = self.sb.qApp.keyboardModifiers()
 
-		if self.sb.uiLevel<3:
+		if self.sb.currentUi.level<3:
 			if event.button()==QtCore.Qt.LeftButton:
 
 				if modifiers in (QtCore.Qt.ControlModifier, QtCore.Qt.ControlModifier | QtCore.Qt.AltModifier):
@@ -365,7 +335,7 @@ class Tcl(QtWidgets.QStackedWidget):
 		'''
 		if self.profile:
 			import cProfile
-			cProfile.run('self.setUi({})'.format(self.sb.getUiName(ui)))
+			cProfile.run('self.setUi({})'.format(ui.name))
 		else:
 			self.setUi(ui)
 
@@ -380,7 +350,7 @@ class Tcl(QtWidgets.QStackedWidget):
 		:Parameters:
 			event = <QEvent>
 		'''
-		if self.sb.uiLevel==0:
+		if self.sb.currentUi.level==0:
 			self.move(self.centerPos())
 
 		return QtWidgets.QStackedWidget.showEvent(self, event)
@@ -407,10 +377,8 @@ class Tcl(QtWidgets.QStackedWidget):
 		:Parameters:
 			event = <QEvent>
 		'''
-		# self.sb.gcProtect(clear=True) #clear any garbage protected items.
-
 		if __name__ == "__main__":
-			self.qApp.quit()
+			self.sb.qApp.quit()
 			sys.exit() #assure that the sys processes are terminated during testing.
 
 		return QtWidgets.QStackedWidget.hideEvent(self, event)
@@ -434,25 +402,83 @@ class Tcl(QtWidgets.QStackedWidget):
 	def repeatLastCameraView(self):
 		'''Show the previous camera view.
 		'''
-		method = self.sb.prevCamera()
+		method = self.prevCamera()
 		if method:
 			method()
-			method_ = self.sb.prevCamera(allowCurrent=True, as_list=1)[-2][0]
+			method_ = self.prevCamera(allowCurrent=True, asList=1)[-2][0]
 		else:
-			method_ = self.sb.getMethod('cameras', 'v004') #get the persp camera.
+			method_ = self.sb.cameras.slots.v004 #get the persp camera.
 			method_()
-		self.sb.prevCamera(add=method_) #store the camera view
+		self.prevCamera(add=method_) #store the camera view
 
 
 	def repeatLastUi(self):
 		'''Open the last used level 3 menu.
 		'''
-		prevUiName = self.sb.prevUiName(omitLevel=[0,1,2])
-		if prevUiName:
-			self.setUi(prevUiName)
-			# self.move(self.drawPath[0] - self.rect().center())
+		prevUi = self.sb.getPrevUi(omitLevel=[0,1,2])
+		if prevUi:
+			self.setUi(prevUi)
 		else:
 			print('# Warning: No recent menus in history. #')
+
+
+	_cameraHistory = []
+	def prevCamera(self, docString=False, method=False, allowCurrent=False, asList=False, add=None):
+		'''
+		:Parameters:
+			docString (bool) = return the docString of last camera command. Default is off.
+			method (bool) = return the method of last camera command. Default is off.
+			allowCurrent (bool) = allow the current camera. Default is off.
+			add (str)(obj) = Add a method, or name of method to be used as the command to the current camera.  (if this flag is given, all other flags are invalidated)
+
+		:Return:
+			if docString: 'string' description (derived from the last used camera command's docString) (asList: [string list] all docStrings, in order of use)
+			if method: method of last used camera command. (asList: [<method object> list} all methods, in order of use)
+			if asList: list of lists with <method object> as first element and <docString> as second. ie. [[<v001>, 'camera: persp']]
+			else : <method object> of the last used command
+		'''
+		if add: #set the given method as the current camera.
+			if not callable(add):
+				add = self.sb.getMethod('cameras', add)
+			docString = add.__doc__
+			prevCameraList = self.prevCamera(allowCurrent=True, asList=1)
+			if not prevCameraList or not [add, docString]==prevCameraList[-1]: #ie. do not append perp cam if the prev cam was perp.
+				prevCameraList.append([add, docString]) #store the camera view
+			return
+
+		self._cameraHistory = self._cameraHistory[-20:] #keep original list length restricted to last 20 elements
+
+		list_ = self._cameraHistory
+		[list_.remove(l) for l in list_[:] if list_.count(l)>1] #remove any previous duplicates if they exist; keeping the last added element.
+
+		if not allowCurrent:
+			list_ = list_[:-1] #remove the last index. (currentName)
+
+		if asList:
+			if docString and not method:
+				try:
+					return [i[1] for i in list_]
+				except:
+					return None
+			elif method and not docString:
+				try:
+					return [i[0] for i in list_]
+				except:
+					return ['# No commands in history. #']
+			else:
+				return list_
+
+		elif docString:
+			try:
+				return list_[-1][1]
+			except:
+				return ''
+
+		else:
+			try:
+				return list_[-1][0]
+			except:
+				return None
 
 
 
@@ -467,8 +493,13 @@ if __name__ == '__main__':
 	if not qApp:
 		qApp = QtWidgets.QApplication(sys.argv)
 
-	tcl = Tcl()
+	#create a generic parent object to run the code using the Maya slots.
+	dummyParent = QtWidgets.QWidget()
+	dummyParent.setObjectName('MayaWindow')
+
+	tcl = Tcl(dummyParent)
 	tcl.sendKeyPressEvent(tcl.key_show) # Tcl().show('init')
+
 	sys.exit(qApp.exec_())
 
 

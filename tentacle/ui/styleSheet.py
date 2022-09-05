@@ -52,6 +52,8 @@ class StyleSheet(QtCore.QObject):
 		}
 
 	_styleSheets = {
+		# 'QMainWindow': ,
+
 		'QWidget': '''
 			QWidget {
 				background: {BACKGROUND_ALPHA};
@@ -1049,7 +1051,8 @@ class StyleSheet(QtCore.QObject):
 		'''
 
 
-	def getColorValues(self, style='standard', **kwargs):
+	@classmethod
+	def getColorValues(cls, style='standard', **kwargs):
 		'''Return the colorValues dict with any of the bracketed placeholders 
 		replaced by the value of any given kwargs of the same name.
 
@@ -1065,14 +1068,16 @@ class StyleSheet(QtCore.QObject):
 
 		colorValues_wAlpha = {
 			k:v.format(**kwargs)
-				for k, v in self._colorValues[style].items()
+				for k, v in cls._colorValues[style].items()
 		}
 
 		return colorValues_wAlpha
 
 
-	def getStyleSheet(self, widget_type, style='standard', backgroundOpacity=255):
+	@classmethod
+	def getStyleSheet(cls, widget_type=None, style='standard', backgroundOpacity=255):
 		'''Get the styleSheet for the given widget type.
+		By default it will return all stylesheets as one multi-line css string.
 
 		:Parameters:
 			widget_type (str) = The class name of the widget. ie. 'QLabel'
@@ -1081,23 +1086,24 @@ class StyleSheet(QtCore.QObject):
 		:Return:
 			(str) css styleSheet
 		'''
-		if not widget_type:
-			return ''
+		if widget_type==None:
+			return ''.join(cls._styleSheets.values())
 
 		try:
-			css = self._styleSheets[widget_type]
+			css = cls._styleSheets[widget_type]
 
 		except KeyError as error:
-			print ('KeyError: {}: {} in {} \'getStyleSheet\''.format(widget_type, error, self.__class__.__name__))
+			print ('KeyError: {}: {} in {} \'getStyleSheet\''.format(widget_type, error, cls.__class__.__name__))
 			return ''
 
-		for k, v in self.getColorValues(style=style, alpha=backgroundOpacity).items():
+		for k, v in cls.getColorValues(style=style, alpha=backgroundOpacity).items():
 			css = css.replace('{'+k.upper()+'}', v)
 
 		return css
 
 
-	def setStyleSheet_(self, widgets, ratio=6, style='standard', hideMenuButton=False, backgroundOpacity=255):
+	@classmethod
+	def setStyleSheet_(cls, widgets, ratio=6, style='standard', hideMenuButton=False, backgroundOpacity=255):
 		'''Set the styleSheet for the given widgets.
 		Set the style for a specific widget by using the '#' syntax and the widget's objectName. ie. QWidget#mainWindow
 
@@ -1108,20 +1114,20 @@ class StyleSheet(QtCore.QObject):
 			hideMenuButton (boool) = Hide the menu button of a widget that has one.
 			backgroundOpacity (int) = Set the background alpha transparency between 0 and 255.
 		'''
-		widgets = [widgets] if not isinstance(widgets, (list, tuple, set)) else widgets #assure widgets in a list.
+		widgets = [widgets] if not isinstance(widgets, (list, tuple, set, dict)) else widgets #assure widgets in a list.
 
 		for widget in widgets:
-			widget_type = self.getDerivedType(widget)
+			widget_type = cls.getDerivedType(widget)
 
 			try: #if hasattr(widget, 'styleSheet'):
-				s = self.getStyleSheet(widget_type, style=style, backgroundOpacity=backgroundOpacity)
+				s = cls.getStyleSheet(widget_type, style=style, backgroundOpacity=backgroundOpacity)
 				if hideMenuButton:
-					s = s + self.hideMenuButton(widget_type)
+					s = s + cls.hideMenuButton(widget_type)
 
 				try:
 					length = len(widget.text()) if hasattr(widget, 'text') else len(str(widget.value())) #a 'NoneType' error will be thrown if the widget does not contain text.
 					if widget.size().width() // length > ratio: #ratio of widget size, text length (using integer division).
-						s = s + self.adjustPadding(widget_type)
+						s = s + cls.adjustPadding(widget_type)
 				except (AttributeError, ZeroDivisionError) as error:
 					pass; # print (__name__, error, widget.text())
 
@@ -1133,7 +1139,8 @@ class StyleSheet(QtCore.QObject):
 				pass; #print (error)
 
 
-	def adjustPadding(self, widget_type):
+	@staticmethod
+	def adjustPadding(widget_type):
 		'''Remove padding when the text length / widget width ratio is below a given amount.
 		'''
 		return '''
@@ -1142,7 +1149,8 @@ class StyleSheet(QtCore.QObject):
 			}}'''.format(widget_type)
 
 
-	def hideMenuButton(self, widget_type):
+	@staticmethod
+	def hideMenuButton(widget_type):
 		'''Set the menu button as transparent.
 		'''
 		return '''
@@ -1155,7 +1163,8 @@ class StyleSheet(QtCore.QObject):
 			}}'''.format(widget_type)
 
 
-	def getDerivedType(self, widget, ui=None):
+	@staticmethod
+	def getDerivedType(widget, ui=None):
 		'''Get the base class of a custom widget.
 		If the type is a standard widget, the derived type will be that widget's type.
 

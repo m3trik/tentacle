@@ -10,11 +10,11 @@ class Nurbs_blender(Nurbs, Slots_blender):
 		Slots_blender.__init__(self, *args, **kwargs)
 		Nurbs.__init__(self, *args, **kwargs)
 
-		cmb = self.nurbs_ui.draggable_header.contextMenu.cmb000
+		cmb = self.sb.nurbs.draggable_header.contextMenu.cmb000
 		items = ['Project Curve','Duplicate Curve','Create Curve from Poly','Bend Curve', 'Curl Curve','Modify Curve Curvature','Smooth Curve','Straighten Curves','Extrude Curves','Revolve Curves','Loft Curves','Planar Curves','Insert Isoparms','Insert Knot','Rebuild Curve','Extend Curve', 'Extend Curve On Surface']
 		cmb.addItems_(items, 'Curve Editors')
 
-		cmb = self.nurbs_ui.cmb001
+		cmb = self.sb.nurbs.cmb001
 		items = ['Ep Curve Tool','CV Curve Tool','Bezier Curve Tool','Pencil Curve Tool','2 Point Circular Arc','3 Point Circular Arc']
 		cmb.addItems_(items, 'Create Curve')
 
@@ -22,7 +22,7 @@ class Nurbs_blender(Nurbs, Slots_blender):
 	def cmb000(self, index=-1):
 		'''Maya Curve Operations
 		'''
-		cmb = self.nurbs_ui.draggable_header.contextMenu.cmb000
+		cmb = self.sb.nurbs.draggable_header.contextMenu.cmb000
 
 		if index>0:
 			text = cmb.items[index]
@@ -66,7 +66,7 @@ class Nurbs_blender(Nurbs, Slots_blender):
 	def cmb001(self, index=-1):
 		'''Create: Curve
 		'''
-		cmb = self.nurbs_ui.cmb001
+		cmb = self.sb.nurbs.cmb001
 
 		if index>0:
 			text = cmb.items[index]
@@ -89,7 +89,7 @@ class Nurbs_blender(Nurbs, Slots_blender):
 	def tb000(self, state=None):
 		'''Revolve
 		'''
-		tb = self.nurbs_ui.tb000
+		tb = self.sb.nurbs.tb000
 
 		degree = tb.contextMenu.s002.value()
 		startSweep = tb.contextMenu.s003.value()
@@ -108,7 +108,7 @@ class Nurbs_blender(Nurbs, Slots_blender):
 	def tb001(self, state=None):
 		'''Loft
 		'''
-		tb = self.nurbs_ui.tb001
+		tb = self.sb.nurbs.tb001
 
 		uniform = tb.contextMenu.chk000.isChecked()
 		close = tb.contextMenu.chk001.isChecked()
@@ -452,11 +452,11 @@ class Nurbs_blender(Nurbs, Slots_blender):
 		# pm.undoInfo(openChunk=1)
 		if pm.objectType(start)=='mesh': #vs. 'nurbsCurve'
 			start, startNode = pm.polyToCurve(start, form=2, degree=3, conformToSmoothMeshPreview=1) #extract curve from mesh
-		self.transform().resetTranslation(start) #reset the transforms to world origin.
+		self.sb.transform.slots.resetTranslation(start) #reset the transforms to world origin.
 
 		if pm.objectType(end)=='mesh': #vs. 'nurbsCurve'
 			end, endNode = pm.polyToCurve(end, form=2, degree=3, conformToSmoothMeshPreview=1) #extract curve from mesh
-		self.transform().resetTranslation(end) #reset the transforms to world origin.
+		self.sb.transform.slots.resetTranslation(end) #reset the transforms to world origin.
 
 		path = self.createCurveBetweenTwoObjects(start, end)
 		curves = self.duplicateAlongCurve(path, start, count=count)

@@ -25,6 +25,7 @@ class Overlay(QtWidgets.QWidget):
 
 		if tcl:
 			self.tcl = tcl
+			self.sb = self.tcl.sb
 			self.antialiasing = antialiasing
 
 			self.setWindowFlags(QtCore.Qt.WindowStaysOnTopHint)
@@ -39,13 +40,13 @@ class Overlay(QtWidgets.QWidget):
 		:Parameters:
 			event=<QEvent>
 		'''
-		if self.tcl.sb.uiLevel>0 and self.tcl.sb.uiLevel<3:
+		if self.sb.currentUi.level in (1,2):
 
 			self.painter.begin(self)
 
-			for i, start_point in enumerate(self.tcl.drawPath): #plot and draw the points in the drawPath list.
+			for i, (w, wpos, start_point) in enumerate(self.tcl.drawPath): #plot and draw the points in the drawPath list.
 				try:
-					end_point = self.mapFromGlobal(self.tcl.drawPath[i+1])
+					end_point = self.mapFromGlobal(self.tcl.drawPath[i+1][2])
 				except:
 					end_point = self.mouseEventPos #after the list points are drawn, plot the current end_point, controlled by the mouse move event.
 

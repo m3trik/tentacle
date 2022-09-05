@@ -1,6 +1,9 @@
 # !/usr/bin/python
 # coding=utf-8
-import pymel.core as pm
+try:
+	import pymel.core as pm
+except ImportError as error:
+	print (__file__, error)
 
 
 
@@ -109,6 +112,8 @@ class Node_tools_maya():
 
 		:Return:
 			(list) node(s) or node attributes.
+
+		[pm.PyNode(n).getTransform() for n in objects]
 		'''
 		transforms = pm.ls(node, type='transform')
 		if not transforms: #from shape
@@ -116,7 +121,6 @@ class Node_tools_maya():
 			transforms = pm.listRelatives(shapeNodes, parent=1)
 			if not transforms: #from history
 				try:
-					print ('getTransformNode: node:', node)
 					transforms = pm.listRelatives(pm.listHistory(node, future=1), parent=1)
 				except Exception as error:
 					transforms = []
@@ -138,6 +142,8 @@ class Node_tools_maya():
 
 		:Return:
 			(list) node(s) or node attributes.
+
+		[pm.PyNode(n).getShape() for n in objects]
 		'''
 		shapes = pm.listRelatives(node, children=1, shapes=1) #get shape node from transform: returns list ie. [nt.Mesh('pConeShape1')]
 		if not shapes:
@@ -166,6 +172,8 @@ class Node_tools_maya():
 
 		:Return:
 			(list) node(s) or node attributes.
+
+		[pm.PyNode(n).getHistory() for n in objects]
 		'''
 		shapes = pm.listRelatives(node, children=1, shapes=1) #get shape node from transform: returns list ie. [nt.Mesh('pConeShape1')]
 		connections = pm.listConnections(shapes, source=1, destination=0) #get incoming connections: returns list ie. [nt.PolyCone('polyCone1')]

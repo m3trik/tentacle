@@ -10,7 +10,7 @@ class Normals_maya(Normals, Slots_maya):
 		Slots_maya.__init__(self, *args, **kwargs)
 		Normals.__init__(self, *args, **kwargs)
 
-		cmb = self.normals_ui.draggable_header.contextMenu.cmb000
+		cmb = self.sb.normals.draggable_header.contextMenu.cmb000
 		items = ['']
 		cmb.addItems_(items, '')
 
@@ -18,7 +18,7 @@ class Normals_maya(Normals, Slots_maya):
 	def cmb000(self, index=-1):
 		'''Editors
 		'''
-		cmb = self.normals_ui.draggable_header.contextMenu.cmb000
+		cmb = self.sb.normals.draggable_header.contextMenu.cmb000
 
 		if index>0:
 			if index==cmd.items.index(''):
@@ -29,7 +29,7 @@ class Normals_maya(Normals, Slots_maya):
 	def tb000(self, state=None):
 		'''Display Face Normals
 		'''
-		tb = self.normals_ui.tb000
+		tb = self.sb.normals.tb000
 
 		size = float(tb.contextMenu.s001.value())
 		# state = pm.polyOptions (query=True, displayNormal=True)
@@ -58,7 +58,7 @@ class Normals_maya(Normals, Slots_maya):
 	def tb001(self, state=None):
 		'''Harden Edge Normals
 		'''
-		tb = self.normals_ui.tb001
+		tb = self.sb.normals.tb001
 
 		hardAngle = tb.contextMenu.s002.value()
 		hardenCreased = tb.contextMenu.chk005.isChecked()
@@ -76,11 +76,11 @@ class Normals_maya(Normals, Slots_maya):
 			allEdges = edges = pm.ls(pm.polyListComponentConversion(obj, toEdge=1), flatten=1)
 
 			if hardenCreased:
-				creasedEdges = self.crease().getCreasedEdges(allEdges)
+				creasedEdges = self.sb.crease.slots.getCreasedEdges(allEdges)
 				selEdges = selEdges + creasedEdges if not selEdges==allEdges else creasedEdges
 
 			if hardenUvBorders:
-				uv_border_edges = self.uv().getUvShellBorderEdges(selection)
+				uv_border_edges = self.sb.uv.slots.getUvShellBorderEdges(selection)
 				selEdges = selEdges + uv_border_edges if not selEdges==allEdges else uv_border_edges
 
 			pm.polySoftEdge(selEdges, angle=hardAngle, constructionHistory=0) #set hard edges.
@@ -100,7 +100,7 @@ class Normals_maya(Normals, Slots_maya):
 	def tb002(self, state=None):
 		'''Set Normals By Angle
 		'''
-		tb = self.normals_ui.tb002
+		tb = self.sb.normals.tb002
 
 		normalAngle = str(tb.contextMenu.s000.value())
 
@@ -116,7 +116,7 @@ class Normals_maya(Normals, Slots_maya):
 	def tb003(self, state=None):
 		'''Lock/Unlock Vertex Normals
 		'''
-		tb = self.normals_ui.tb003
+		tb = self.sb.normals.tb003
 
 		all_ = tb.contextMenu.chk001.isChecked()
 		state = tb.contextMenu.chk002.isChecked() #pm.polyNormalPerVertex(vertex, query=1, freezeNormal=1)
@@ -155,7 +155,7 @@ class Normals_maya(Normals, Slots_maya):
 	def tb004(self, state=None):
 		'''Average Normals
 		'''
-		tb = self.normals_ui.tb004
+		tb = self.sb.normals.tb004
 
 		byUvShell = tb.contextMenu.chk003.isChecked()
 
@@ -217,7 +217,7 @@ class Normals_maya(Normals, Slots_maya):
 
 			if byUvShell:
 				obj = pm.ls(obj, transforms=1)
-				sets_ = self.uv().getUvShellSets(obj)
+				sets_ = self.sb.uv.slots.getUvShellSets(obj)
 				for set_ in sets_:
 					pm.polySetToFaceNormal(set_)
 					pm.polyAverageNormal(set_)

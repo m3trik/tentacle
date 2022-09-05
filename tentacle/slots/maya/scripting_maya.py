@@ -10,7 +10,7 @@ class Scripting_maya(Scripting, Slots_maya):
 		Slots_maya.__init__(self, *args, **kwargs)
 		Scripting.__init__(self, *args, **kwargs)
 
-		cmb = self.scripting_ui.draggable_header.contextMenu.cmb000
+		cmb = self.sb.scripting.draggable_header.contextMenu.cmb000
 		files = ['']
 		contents = cmb.addItems_(files, '')
 
@@ -18,7 +18,7 @@ class Scripting_maya(Scripting, Slots_maya):
 	def cmb000(self, index=-1):
 		'''Editors
 		'''
-		cmb = self.scripting_ui.draggable_header.contextMenu.cmb000
+		cmb = self.sb.scripting.draggable_header.contextMenu.cmb000
 
 		if index>0:
 			if index==cmd.items.index(''):
@@ -49,17 +49,17 @@ class Scripting_maya(Scripting, Slots_maya):
 		'''New Tab
 		'''
 		label = "MEL"
-		if self.scripting_ui.chk000.isChecked():
+		if self.sb.scripting.chk000.isChecked():
 			label = ".py"
-		# self.scripting_ui.tabWidget.addTab(label)
-		self.scripting_ui.tabWidget.insertTab(0, label)
+		# self.sb.scripting.tabWidget.addTab(label)
+		self.sb.scripting.tabWidget.insertTab(0, label)
 
 
 	def b004(self):
 		'''Delete Tab
 		'''
-		index = self.scripting_ui.tabWidget.currentIndex()
-		self.scripting_ui.tabWidget.removeTab(index)
+		index = self.sb.scripting.tabWidget.currentIndex()
+		self.sb.scripting.tabWidget.removeTab(index)
 
 
 

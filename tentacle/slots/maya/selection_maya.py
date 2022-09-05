@@ -9,19 +9,19 @@ class Selection_maya(Selection, Slots_maya):
 		Slots_maya.__init__(self, *args, **kwargs)
 		Selection.__init__(self, *args, **kwargs)
 
-		dh = self.selection_ui.draggable_header
+		dh = self.sb.selection.draggable_header
 		items = ['Polygon Selection Constraints']
 		dh.contextMenu.cmb000.addItems_(items, 'Selection Editors:')
 
-		cmb002 = self.selection_ui.cmb002
+		cmb002 = self.sb.selection.cmb002
 		items = ['IK Handles','Joints','Clusters','Lattices','Sculpt Objects','Wires','Transforms','Geometry','NURBS Curves','NURBS Surfaces','Polygon Geometry','Cameras','Lights','Image Planes','Assets','Fluids','Particles','Rigid Bodies','Rigid Constraints','Brushes','Strokes','Dynamic Constraints','Follicles','nCloths','nParticles','nRigids']
 		cmb002.addItems_(items, 'By Type:')
 
-		cmb003 = self.selection_ui.cmb003
+		cmb003 = self.sb.selection.cmb003
 		items = ['Verts', 'Vertex Faces', 'Vertex Perimeter', 'Edges', 'Edge Loop', 'Edge Ring', 'Contained Edges', 'Edge Perimeter', 'Border Edges', 'Faces', 'Face Path', 'Contained Faces', 'Face Perimeter', 'UV\'s', 'UV Shell', 'UV Shell Border', 'UV Perimeter', 'UV Edge Loop', 'Shell', 'Shell Border'] 
 		cmb003.addItems_(items, 'Convert To:')
 
-		cmb005 = self.selection_ui.cmb005
+		cmb005 = self.sb.selection.cmb005
 		items = ['Angle', 'Border', 'Edge Loop', 'Edge Ring', 'Shell', 'UV Edge Loop']
 		cmb005.addItems_(items, 'Off')
 
@@ -29,7 +29,7 @@ class Selection_maya(Selection, Slots_maya):
 	def txt001(self):
 		'''Select By Name
 		'''
-		searchStr = str(self.selection_ui.txt001.text()) #asterisk denotes startswith*, *endswith, *contains* 
+		searchStr = str(self.sb.selection.txt001.text()) #asterisk denotes startswith*, *endswith, *contains* 
 		if searchStr:
 			selection = pm.select(pm.ls (searchStr))
 
@@ -37,7 +37,7 @@ class Selection_maya(Selection, Slots_maya):
 	def lbl000(self):
 		'''Selection Sets: Create New
 		'''
-		cmb = self.selection_ui.cmb001
+		cmb = self.sb.selection.cmb001
 		if not cmb.isEditable():
 			cmb.addItems_('', ascending=True)
 			cmb.setEditable(True)
@@ -52,7 +52,7 @@ class Selection_maya(Selection, Slots_maya):
 	def lbl001(self):
 		'''Selection Sets: Modify Current
 		'''
-		cmb = self.selection_ui.cmb001
+		cmb = self.sb.selection.cmb001
 		if not cmb.isEditable():
 			name = cmb.currentText()
 			self._oldSetName = name
@@ -68,7 +68,7 @@ class Selection_maya(Selection, Slots_maya):
 	def lbl002(self):
 		'''Selection Sets: Delete Current
 		'''
-		cmb = self.selection_ui.cmb001
+		cmb = self.sb.selection.cmb001
 		name = cmb.currentText()
 
 		pm.delete(name)
@@ -91,7 +91,7 @@ class Selection_maya(Selection, Slots_maya):
 	def lbl005(self):
 		'''Selection Sets: Select Current
 		'''
-		cmb = self.selection_ui.cmb001
+		cmb = self.sb.selection.cmb001
 		name = cmb.currentText()
 
 		if cmb.currentIndex()>0:
@@ -124,7 +124,7 @@ class Selection_maya(Selection, Slots_maya):
 	def cmb000(self, index=-1):
 		'''Editors
 		'''
-		cmb = self.selection_ui.draggable_header.contextMenu.cmb000
+		cmb = self.sb.selection.draggable_header.contextMenu.cmb000
 
 		if index>0:
 			text = cmb.items[index]
@@ -136,7 +136,7 @@ class Selection_maya(Selection, Slots_maya):
 	def cmb001(self, index=-1):
 		'''Selection Sets
 		'''
-		cmb = self.selection_ui.cmb001
+		cmb = self.sb.selection.cmb001
 
 		items = [str(s) for s in pm.ls(et='objectSet', flatten=1)]
 		cmb.addItems_(items, clear=True)
@@ -145,7 +145,7 @@ class Selection_maya(Selection, Slots_maya):
 	def cmb002(self, index=-1):
 		'''Select by Type
 		'''
-		cmb = self.selection_ui.cmb002
+		cmb = self.sb.selection.cmb002
 
 		if index>0:
 			text = cmb.items[index]
@@ -210,7 +210,7 @@ class Selection_maya(Selection, Slots_maya):
 	def cmb003(self, index=-1):
 		'''Convert To
 		'''
-		cmb = self.selection_ui.cmb003
+		cmb = self.sb.selection.cmb003
 
 		if index>0:
 			text = cmb.items[index]
@@ -260,7 +260,7 @@ class Selection_maya(Selection, Slots_maya):
 	def cmb005(self, index=-1):
 		'''Selection Contraints
 		'''
-		cmb = self.selection_ui.cmb005
+		cmb = self.sb.selection.cmb005
 
 		if index>0:
 			text = cmb.items[index]
@@ -283,7 +283,7 @@ class Selection_maya(Selection, Slots_maya):
 	def cmb006(self, index=-1):
 		'''Currently Selected Objects
 		'''
-		cmb = self.selection_ui.draggable_header.contextMenu.cmb006
+		cmb = self.sb.selection.draggable_header.contextMenu.cmb006
 
 		cmb.clear()
 		items = [str(i) for i in pm.ls(sl=1, flatten=1)]
@@ -310,7 +310,7 @@ class Selection_maya(Selection, Slots_maya):
 	def tb000(self, state=None):
 		'''Select Nth
 		'''
-		tb = self.selection_ui.tb000
+		tb = self.sb.selection.tb000
 
 		edgeRing = tb.contextMenu.chk000.isChecked()
 		edgeLoop = tb.contextMenu.chk001.isChecked()
@@ -346,7 +346,7 @@ class Selection_maya(Selection, Slots_maya):
 	def tb001(self, state=None):
 		'''Select Similar
 		'''
-		tb = self.selection_ui.tb001
+		tb = self.sb.selection.tb001
 
 		tol = tb.contextMenu.s000.value() #tolerance
 		v = tb.contextMenu.chk011.isChecked() #vertex
@@ -365,7 +365,7 @@ class Selection_maya(Selection, Slots_maya):
 			selection = pm.ls(sl=1, objectsOnly=1)
 			pm.select(clear=1)
 			for obj in selection:
-				similar = self.edit().getSimilarMesh(obj, tol=tol, includeOrig=inc, vertex=v, edge=e, face=f, uvcoord=uv, triangle=t, shell=s, boundingBox=b, area=a, worldArea=wa)
+				similar = self.sb.edit.slots.getSimilarMesh(obj, tol=tol, includeOrig=inc, vertex=v, edge=e, face=f, uvcoord=uv, triangle=t, shell=s, boundingBox=b, area=a, worldArea=wa)
 				pm.select(similar, add=True)
 		else:
 			pm.mel.doSelectSimilar(1, {tol})
@@ -374,7 +374,7 @@ class Selection_maya(Selection, Slots_maya):
 	def tb002(self, state=None):
 		'''Select Island: Select Polygon Face Island
 		'''
-		tb = self.selection_ui.tb002
+		tb = self.sb.selection.tb002
 
 		rangeX = float(tb.contextMenu.s002.value())
 		rangeY = float(tb.contextMenu.s004.value())
@@ -385,7 +385,7 @@ class Selection_maya(Selection, Slots_maya):
 			self.messageBox('The operation requires a face selection.')
 			return
 
-		similarFaces = self.normals().getFacesWithSimilarNormals(selectedFaces, rangeX=rangeX, rangeY=rangeY, rangeZ=rangeZ)
+		similarFaces = self.sb.normals.slots.getFacesWithSimilarNormals(selectedFaces, rangeX=rangeX, rangeY=rangeY, rangeZ=rangeZ)
 		islands = self.getContigiousIslands(similarFaces)
 		island = [i for i in islands if bool(set(i) & set(selectedFaces))]
 		pm.select(island)
@@ -394,7 +394,7 @@ class Selection_maya(Selection, Slots_maya):
 	def tb003(self, state=None):
 		'''Select Edges By Angle
 		'''
-		tb = self.selection_ui.tb003
+		tb = self.sb.selection.tb003
 
 		angleLow = tb.contextMenu.s006.value()
 		angleHigh = tb.contextMenu.s007.value()
@@ -485,7 +485,7 @@ class Selection_maya(Selection, Slots_maya):
 	def modifySet(self, name):
 		'''Selection Sets: Modify Current by renaming or changing the set members.
 		'''
-		newName = self.selection_ui.cmb001.currentText()
+		newName = self.sb.selection.cmb001.currentText()
 		if not newName:
 			newName = self.generateUniqueSetName()
 		name = pm.rename(name, newName)

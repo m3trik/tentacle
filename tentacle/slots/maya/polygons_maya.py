@@ -10,7 +10,7 @@ class Polygons_maya(Polygons, Slots_maya):
 		Slots_maya.__init__(self, *args, **kwargs)
 		Polygons.__init__(self, *args, **kwargs)
 
-		cmb000 = self.polygons_ui.draggable_header.contextMenu.cmb000
+		cmb000 = self.sb.polygons.draggable_header.contextMenu.cmb000
 		items = ['Extrude','Bevel','Bridge','Combine','Merge Vertex','Offset Edgeloop','Edit Edgeflow','Extract Curve','Poke','Wedge','Assign Invisible']
 		cmb000.addItems_(items, 'Polygon Editors')
 
@@ -18,7 +18,7 @@ class Polygons_maya(Polygons, Slots_maya):
 	def cmb000(self, index=-1):
 		'''Editors
 		'''
-		cmb = self.polygons_ui.draggable_header.contextMenu.cmb000
+		cmb = self.sb.polygons.draggable_header.contextMenu.cmb000
 
 		if index>0:
 			text = cmb.items[index]
@@ -50,14 +50,14 @@ class Polygons_maya(Polygons, Slots_maya):
 	def tb000(self, state=None):
 		'''Merge Vertices
 		'''
-		tb = self.polygons_ui.tb000
+		tb = self.sb.polygons.tb000
 
 		tolerance = float(tb.contextMenu.s002.value())
 		objects = pm.ls(selection=1, objectsOnly=1, flatten=1)
 		componentMode = pm.selectMode(query=1, component=1)
 
 		if not objects:
-			self.messageBox('<strong>Nothing selected</strong>.<br>Operation requires an object or vertex selection.')
+			self.messageBox('<strong>Nothing selected</strong>.<br>Operation requires an object or vertex selection.', messageType='Error')
 			return
 
 		for obj in pm.ls(objects):
@@ -82,11 +82,13 @@ class Polygons_maya(Polygons, Slots_maya):
 	def tb001(self, state=None):
 		'''Bridge
 		'''
-		tb = self.polygons_ui.tb001
+		tb = self.sb.polygons.tb001
 
 		divisions = tb.contextMenu.s003.value()
 
 		selection = pm.ls(sl=1)
+		if not selection:
+			return self.messageBox('<strong>Nothing selected</strong>.<br>Operation requires a component selection.', messageType='Error')
 		edges = pm.filterExpand(selection, selectionMask=32, expand=1) #get edges from selection
 
 		node = pm.polyBridgeEdge(edges, divisions=divisions) #bridge edges
@@ -97,14 +99,13 @@ class Polygons_maya(Polygons, Slots_maya):
 	def tb002(self, state=None):
 		'''Combine
 		'''
-		tb = self.polygons_ui.tb002
+		tb = self.sb.polygons.tb002
 
 		# pm.polyUnite( 'plg1', 'plg2', 'plg3', name='result' ) #for future reference. if more functionality is needed use polyUnite
 		if tb.contextMenu.chk000.isChecked():
 			sel = pm.ls(sl=1, objectsOnly=1)
 			if not sel:
-				self.messageBox('<strong>Nothing selected</strong>.')
-				return
+				return self.messageBox('<strong>Nothing selected</strong>.<br>Operation requires the selection of at least two objects.', messageType='Error')
 
 			objName = sel[0].name()
 			objParent = pm.listRelatives(objName, parent=1)
@@ -123,39 +124,41 @@ class Polygons_maya(Polygons, Slots_maya):
 	def tb003(self, state=None):
 		'''Extrude
 		'''
-		tb = self.polygons_ui.tb003
+		tb = self.sb.polygons.tb003
 
 		keepFacesTogether = tb.contextMenu.chk002.isChecked() #keep faces/edges together.
 		divisions = tb.contextMenu.s004.value()
 
 		selection = pm.ls(sl=1)
+		if not selection:
+			return self.messageBox('<strong>Nothing selected</strong>.<br>Operation requires a component selection.', messageType='Error')
 		if pm.selectType(query=1, facet=1): #face selection
 			pm.polyExtrudeFacet(edit=1, keepFacesTogether=keepFacesTogether, divisions=divisions)
-			mel.eval('PolyExtrude;')
-			# return pm.polyExtrudeFacet(selection, ch=1, keepFacesTogether=keepFacesTogether, divisions=divisions)
+			pm.mel.PolyExtrude() #return pm.polyExtrudeFacet(selection, ch=1, keepFacesTogether=keepFacesTogether, divisions=divisions)
 
 		elif pm.selectType(query=1, edge=1): #edge selection
 			pm.polyExtrudeEdge(edit=1, keepFacesTogether=keepFacesTogether, divisions=divisions)
-			mel.eval('PolyExtrude;')
-			# return pm.polyExtrudeEdge(selection, ch=1, keepFacesTogether=keepFacesTogether, divisions=divisions)
+			pm.mel.PolyExtrude() #return pm.polyExtrudeEdge(selection, ch=1, keepFacesTogether=keepFacesTogether, divisions=divisions)
 
 		elif pm.selectType(query=1, vertex=1): #vertex selection
 			pm.polyExtrudeVertex(edit=1, width=0.5, length=1, divisions=divisions)
-			mel.eval('PolyExtrude;')
-			# return polyExtrudeVertex(selection, ch=1, width=0.5, length=1, divisions=divisions)
+			pm.mel.PolyExtrude() #return polyExtrudeVertex(selection, ch=1, width=0.5, length=1, divisions=divisions)
 
 
 	@Slots_maya.attr
 	def tb004(self, state=None):
 		'''Bevel (Chamfer)
 		'''
-		tb = self.polygons_ui.tb004
+		tb = self.sb.polygons.tb004
 
 		width = tb.contextMenu.s000.value()
 		chamfer = True
 		segments = tb.contextMenu.s006.value()
 
-		return pm.polyBevel3(fraction=width, offsetAsFraction=1, autoFit=1, depth=1, mitering=0, 
+		selection = pm.ls(sl=1)
+		if not selection:
+			return self.messageBox('<strong>Nothing selected</strong>.<br>Operation requires a component selection.', messageType='Error')
+		return pm.polyBevel3(selection, fraction=width, offsetAsFraction=1, autoFit=1, depth=1, mitering=0, 
 			miterAlong=0, chamfer=chamfer, segments=segments, worldSpace=1, smoothingAngle=30, subdivideNgons=1,
 			mergeVertices=1, mergeVertexTolerance=0.0001, miteringAngle=180, angleTolerance=180, ch=0)
 
@@ -163,7 +166,7 @@ class Polygons_maya(Polygons, Slots_maya):
 	def tb005(self, state=None):
 		'''Detach
 		'''
-		tb = self.polygons_ui.tb005
+		tb = self.sb.polygons.tb005
 
 		duplicate = tb.contextMenu.chk014.isChecked()
 		separate = tb.contextMenu.chk015.isChecked()
@@ -172,21 +175,20 @@ class Polygons_maya(Polygons, Slots_maya):
 		edgeMask = pm.selectType (query=True, edge=True)
 		facetMask = pm.selectType (query=True, facet=True)
 
-		component_sel = pm.ls(sl=1)
-		if not component_sel:
-			self.messageBox('<strong>Nothing selected</strong>.')
-			return
+		selection = pm.ls(sl=1)
+		if not selection:
+			return self.messageBox('<strong>Nothing selected</strong>.<br>Operation requires a component selection.', messageType='Error')
 
 		if vertexMask:
 			pm.mel.polySplitVertex()
 
 		elif facetMask:
-			extract = pm.polyChipOff(component_sel, ch=1, keepFacesTogether=1, dup=duplicate, off=0)
+			extract = pm.polyChipOff(selection, ch=1, keepFacesTogether=1, dup=duplicate, off=0)
 			if separate:
 				try:
-					splitObjects = pm.polySeparate(component_sel)
+					splitObjects = pm.polySeparate(selection)
 				except:
-					splitObjects = pm.polySeparate(pm.ls(component_sel, objectsOnly=1))
+					splitObjects = pm.polySeparate(pm.ls(selection, objectsOnly=1))
 			pm.select(splitObjects[-1])
 			return extract
 
@@ -198,11 +200,11 @@ class Polygons_maya(Polygons, Slots_maya):
 	def tb006(self, state=None):
 		'''Inset Face Region
 		'''
-		tb = self.polygons_ui.tb006
+		tb = self.sb.polygons.tb006
 
 		selected_faces = pm.polyEvaluate(faceComponent=1)
 		if isinstance(selected_faces, str): #'Nothing counted : no polygonal object is selected.'
-			self.messageBox('<strong>Nothing selected</strong>.<br>Operation requires a face selection.')
+			self.messageBox('<strong>Nothing selected</strong>.<br>Operation requires a face selection.', messageType='Error')
 			return
 
 		offset = float(tb.contextMenu.s001.value())
@@ -212,7 +214,7 @@ class Polygons_maya(Polygons, Slots_maya):
 	def tb007(self, state=None):
 		'''Divide Facet
 		'''
-		tb = self.polygons_ui.tb007
+		tb = self.sb.polygons.tb007
 
 		dv=u=v=0
 		if tb.contextMenu.chk008.isChecked(): #Split U
@@ -235,15 +237,18 @@ class Polygons_maya(Polygons, Slots_maya):
 			for face in selectedFaces: #when performing polySubdivideFacet on multiple faces, adjacent subdivided faces will make the next face an n-gon and therefore not able to be subdivided. 
 				pm.polySubdivideFacet(face, divisions=0, divisionsU=2, divisionsV=2, mode=0, subdMethod=1)
 		else:
-			self.messageBox('<strong>Nothing selected</strong>.<br>Operation requires a face selection.')
+			self.messageBox('<strong>Nothing selected</strong>.<br>Operation requires a face selection.', messageType='Error')
 			return
 
 
 	def tb008(self, state=None):
 		'''Boolean Operation
 		'''
-		tb = self.polygons_ui.tb008
+		tb = self.sb.polygons.tb008
 
+		selection = pm.ls(sl=1)
+		if not selection:
+			return self.messageBox('<strong>Nothing selected</strong>.<br>Operation requires the selection of at least two objects.', messageType='Error')
 		if tb.contextMenu.chk011.isChecked(): #union
 			pm.mel.PolygonBooleanIntersection()
 
@@ -257,7 +262,7 @@ class Polygons_maya(Polygons, Slots_maya):
 	def tb009(self, state=None):
 		'''Snap Closest Verts
 		'''
-		tb = self.polygons_ui.tb009
+		tb = self.sb.polygons.tb009
 
 		tolerance = tb.contextMenu.s005.value()
 		freezetransforms = tb.contextMenu.chk016.isChecked()
@@ -267,7 +272,7 @@ class Polygons_maya(Polygons, Slots_maya):
 			obj1, obj2 = selection
 			self.snapClosestVerts(obj1, obj2, tolerance, freezetransforms)
 		else:
-			self.messageBox('<strong>Nothing selected</strong>.<br>Operation requires at least two selected objects.')
+			self.messageBox('<strong>Nothing selected</strong>.<br>Operation requires at least two selected objects.', messageType='Error')
 			return
 
 
@@ -511,7 +516,7 @@ print (__name__)
 # 		'''
 # 		Detach
 # 		'''
-# 		tb = self.polygons_ui.tb005
+# 		tb = self.sb.polygons.tb005
 # 		if state=='setMenu':
 # 			# tb.contextMenu.add('QCheckBox', setText='Delete Original', setObjectName='chk007', setChecked=True, setToolTip='Delete original selected faces.')
 # 			return

@@ -12,24 +12,24 @@ class Transform_maya(Transform, Slots_maya):
 		Slots_maya.__init__(self, *args, **kwargs)
 		Transform.__init__(self, *args, **kwargs)
 
-		cmb000 = self.transform_ui.draggable_header.contextMenu.cmb000
+		cmb000 = self.sb.transform.draggable_header.contextMenu.cmb000
 		items = ['']
 		cmb000.addItems_(items, '')
 
-		cmb002 = self.transform_ui.cmb002
+		cmb002 = self.sb.transform.cmb002
 		items = ['Point to Point', '2 Points to 2 Points', '3 Points to 3 Points', 'Align Objects', 'Position Along Curve', 'Align Tool', 'Snap Together Tool', 'Orient to Vertex/Edge Tool']
 		cmb002.addItems_(items, 'Align To')
 
-		cmb001 = self.transform_ui.cmb001
+		cmb001 = self.sb.transform.cmb001
 		edge_constraint = True if pm.xformConstraint(query=1, type=1)=='edge' else False
 		surface_constraint = True if pm.xformConstraint(query=1, type=1)=='surface' else False
 		live_object = True if pm.ls(live=1) else False
 		values = [('chk024', 'Edge', edge_constraint), ('chk025', 'Surface', surface_constraint), ('chk026', 'Make Live', live_object)]
-		[cmb001.menu_.add(self.CheckBox, setObjectName=chk, setText=typ, setChecked=state) for chk, typ, state in values]
-		self.sb.setSyncAttributesConnections(cmb001.menu_.chk024, self.transform_submenu_ui.chk024, attributes='setChecked')
-		self.sb.setSyncAttributesConnections(cmb001.menu_.chk025, self.transform_submenu_ui.chk025, attributes='setChecked')
+		[cmb001.menu_.add(self.sb.CheckBox, setObjectName=chk, setText=typ, setChecked=state) for chk, typ, state in values]
+		self.sb.setSyncConnections(cmb001.menu_.chk024, self.sb.transform_submenu.chk024, attributes='setChecked')
+		self.sb.setSyncConnections(cmb001.menu_.chk025, self.sb.transform_submenu.chk025, attributes='setChecked')
 
-		cmb003 = self.transform_ui.cmb003
+		cmb003 = self.sb.transform.cmb003
 		moveValue = pm.manipMoveContext('Move', q=True, snapValue=True)
 		cmb003.menu_.s021.setValue(moveValue)
 		scaleValue = pm.manipScaleContext('Scale', q=True, snapValue=True)
@@ -41,7 +41,7 @@ class Transform_maya(Transform, Slots_maya):
 	def cmb000(self, index=-1):
 		'''Editors
 		'''
-		cmb = self.transform_ui.draggable_header.contextMenu.cmb000
+		cmb = self.sb.transform.draggable_header.contextMenu.cmb000
 
 		if index>0:
 			if index==cmd.list.index(''):
@@ -52,7 +52,7 @@ class Transform_maya(Transform, Slots_maya):
 	def cmb002(self, index=-1):
 		'''Align To
 		'''
-		cmb = self.transform_ui.cmb002
+		cmb = self.sb.transform.cmb002
 
 		if index>0:
 			text = cmb.items[index]
@@ -80,7 +80,7 @@ class Transform_maya(Transform, Slots_maya):
 	def chk024(self, state=None):
 		'''Transform Constraints: Edge
 		'''
-		cmb = self.transform_ui.cmb001
+		cmb = self.sb.transform.cmb001
 		state = cmb.menu_.chk024.isChecked() #explicit because state not being passed from submenu checkboxes.
 
 		if state:
@@ -94,7 +94,7 @@ class Transform_maya(Transform, Slots_maya):
 	def chk025(self, state=None):
 		'''Transform Contraints: Surface
 		'''
-		cmb = self.transform_ui.cmb001
+		cmb = self.sb.transform.cmb001
 		state = cmb.menu_.chk025.isChecked()
 
 		if state:
@@ -108,7 +108,7 @@ class Transform_maya(Transform, Slots_maya):
 	def chk026(self, state=None):
 		'''Transform Contraints: Make Live
 		'''
-		cmb = self.transform_ui.cmb001
+		cmb = self.sb.transform.cmb001
 		state = cmb.menu_.chk026.isChecked()
 
 		selection = pm.ls(sl=1, objectsOnly=1)
@@ -149,7 +149,7 @@ class Transform_maya(Transform, Slots_maya):
 	def tb000(self, state=None):
 		'''Drop To Grid
 		'''
-		tb = self.transform_ui.tb000
+		tb = self.sb.transform.tb000
 
 		align = tb.contextMenu.cmb004.currentText()
 		origin = tb.contextMenu.chk014.isChecked()
@@ -166,7 +166,7 @@ class Transform_maya(Transform, Slots_maya):
 
 		Auto Align finds the axis with the largest variance, and sets the axis checkboxes accordingly before performing a regular align.
 		'''
-		tb = self.transform_ui.tb001
+		tb = self.sb.transform.tb001
 
 		betweenTwoComponents = tb.contextMenu.chk013.isChecked()
 		autoAlign = tb.contextMenu.chk010.isChecked()
@@ -265,7 +265,7 @@ class Transform_maya(Transform, Slots_maya):
 	def tb002(self, state=None):
 		'''Freeze Transformations
 		'''
-		tb = self.transform_ui.tb002
+		tb = self.sb.transform.tb002
 
 		translate = tb.contextMenu.chk032.isChecked()
 		rotate = tb.contextMenu.chk033.isChecked()
@@ -284,13 +284,13 @@ class Transform_maya(Transform, Slots_maya):
 		constrain along normals #checkbox option for edge amd surface constaints
 		setXformConstraintAlongNormal false;
 		'''
-		cmb = self.transform_ui.cmb001
+		cmb = self.sb.transform.cmb001
 
 
 	def cmb003(self, index=-1):
 		'''Transform Tool Snapping
 		'''
-		cmb = self.transform_ui.cmb003
+		cmb = self.sb.transform.cmb003
 
 
 	@Slots.hideMain
@@ -345,7 +345,7 @@ class Transform_maya(Transform, Slots_maya):
 	def b012(self):
 		'''Make Live (Toggle)
 		'''
-		cmb = self.transform_ui.cmb001
+		cmb = self.sb.transform.cmb001
 		selection = pm.ls(sl=1, objectsOnly=1)
 
 		if selection:
@@ -975,7 +975,7 @@ print (__name__)
 	# def cmb003(self):
 	# 	'''Transform Tool Snapping: Disable All
 	# 	'''
-	# 	cmb = self.transform_ui.cmb003
+	# 	cmb = self.sb.transform.cmb003
 	# 	self.toggleWidgets(setUnChecked='chk021-23')
 	# 	cmb.setCurrentText('Off') if not any((cmb.menu_.chk021.isChecked(), cmb.menu_.chk022.isChecked(), cmb.menu_.chk023.isChecked())) else cmb.setCurrentText('On')
 
@@ -983,7 +983,7 @@ print (__name__)
 	# def cmb003(self):
 	# 	'''Transform Tool Snapping: Disable All
 	# 	'''
-	# 	cmb = self.transform_ui.lbl000
+	# 	cmb = self.sb.transform.lbl000
 	# 	self.toggleWidgets(setUnChecked='chk024-26')
 	# 	cmb.setCurrentText('Off') if not any((cmb.menu_.chk024.isChecked(), cmb.menu_.chk025.isChecked(), cmb.menu_.chk026.isChecked())) else cmb.setCurrentText('On')
 
@@ -992,8 +992,8 @@ print (__name__)
 	# 	'''
 	# 	Transform: Set Step
 	# 	'''
-	# 	value = self.transform_ui.s002.value()
-	# 	self.transform_ui.s000.setStep(value)
+	# 	value = self.sb.transform.s002.value()
+	# 	self.sb.transform.s000.setStep(value)
 
 	# def s000(self, value=None):
 		# '''
@@ -1009,8 +1009,8 @@ print (__name__)
 
 	# 	'''
 	# 	self.toggleWidgets(setUnChecked='chk008-9', setChecked='chk000-2')
-	# 	self.transform_ui.s000.setValue(2)
-	# 	self.transform_ui.s000.setSingleStep(1)
+	# 	self.sb.transform.s000.setValue(2)
+	# 	self.sb.transform.s000.setSingleStep(1)
 
 
 	# def chk008(self, state=None):
@@ -1019,8 +1019,8 @@ print (__name__)
 
 	# 	'''
 	# 	self.toggleWidgets(setUnChecked='chk005,chk009,chk000-2')
-	# 	self.transform_ui.s000.setValue(0.1)
-	# 	self.transform_ui.s000.setSingleStep(0.1)
+	# 	self.sb.transform.s000.setValue(0.1)
+	# 	self.sb.transform.s000.setSingleStep(0.1)
 
 
 	# def chk009(self, state=None):
@@ -1029,18 +1029,18 @@ print (__name__)
 
 	# 	'''
 	# 	self.toggleWidgets(setUnChecked='chk005,chk008,chk000-2')
-	# 	self.transform_ui.s000.setValue(45)
-	# 	self.transform_ui.s000.setSingleStep(5)
+	# 	self.sb.transform.s000.setValue(45)
+	# 	self.sb.transform.s000.setSingleStep(5)
 
 	# def b000(self):
 	# 	'''
 	# 	Transform negative axis
 	# 	'''
 	# 	#change the textfield to neg value and call performTransformations
-	# 	textfield = float(self.transform_ui.s000.value())
+	# 	textfield = float(self.sb.transform.s000.value())
 	# 	if textfield >=0:
 	# 		newText = -textfield
-	# 		self.transform_ui.s000.setValue(newText)
+	# 		self.sb.transform.s000.setValue(newText)
 	# 	self.performTransformations()
 
 
@@ -1049,10 +1049,10 @@ print (__name__)
 	# 	Transform positive axis
 	# 	'''
 	# 	#change the textfield to pos value and call performTransformations
-	# 	textfield = float(self.transform_ui.s000.value())
+	# 	textfield = float(self.sb.transform.s000.value())
 	# 	if textfield <0:
 	# 		newText = abs(textfield)
-	# 		self.transform_ui.s000.setValue(newText)
+	# 		self.sb.transform.s000.setValue(newText)
 	# 	self.performTransformations()
 
 
@@ -1060,12 +1060,12 @@ print (__name__)
 	# 	'''
 	# 	Get the XYZ transform values from the various ui wgts.
 	# 	'''
-	# 	x = self.transform_ui.chk000.isChecked()
-	# 	y = self.transform_ui.chk001.isChecked()
-	# 	z = self.transform_ui.chk002.isChecked()
-	# 	relative = self.transform_ui.chk005.isChecked()
+	# 	x = self.sb.transform.chk000.isChecked()
+	# 	y = self.sb.transform.chk001.isChecked()
+	# 	z = self.sb.transform.chk002.isChecked()
+	# 	relative = self.sb.transform.chk005.isChecked()
 
-	# 	amount = self.transform_ui.s002.value() #use the step as the transform amount
+	# 	amount = self.sb.transform.s002.value() #use the step as the transform amount
 	# 	floatX=floatY=floatZ = 0
 
 	# 	if relative: #else absolute.
@@ -1089,12 +1089,12 @@ print (__name__)
 	# 	'''
 
 	# 	'''
-	# 	relative = bool(self.transform_ui.chk003.isChecked())#Move absolute/relative toggle
-	# 	worldspace = bool(self.transform_ui.chk004.isChecked())#Move object/worldspace toggle
+	# 	relative = bool(self.sb.transform.chk003.isChecked())#Move absolute/relative toggle
+	# 	worldspace = bool(self.sb.transform.chk004.isChecked())#Move object/worldspace toggle
 		
-	# 	scale = self.transform_ui.chk005.isChecked()
-	# 	move = self.transform_ui.chk008.isChecked()
-	# 	rotate = self.transform_ui.chk009.isChecked()
+	# 	scale = self.sb.transform.chk005.isChecked()
+	# 	move = self.sb.transform.chk008.isChecked()
+	# 	rotate = self.sb.transform.chk009.isChecked()
 
 	# 	#Scale selected.
 	# 	if scale:
@@ -1124,7 +1124,7 @@ print (__name__)
 	# 	constrain along normals #checkbox option for edge amd surface constaints
 	# 	setXformConstraintAlongNormal false;
 	# 	'''
-	# 	cmb = self.transform_ui.lbl000
+	# 	cmb = self.sb.transform.lbl000
 
 	# 	if index=='setMenu':
 	# 		cmb.contextMenu.add(self.sb.Label, setObjectName='lbl000', setText='Disable All', setToolTip='Disable all constraints.')

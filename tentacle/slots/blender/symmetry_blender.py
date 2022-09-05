@@ -10,7 +10,7 @@ class Symmetry_blender(Symmetry, Slots_blender):
 		Slots_blender.__init__(self, *args, **kwargs)
 		Symmetry.__init__(self, *args, **kwargs)
 
-		cmb000 = self.symmetry_ui.draggable_header.contextMenu.cmb000
+		cmb000 = self.sb.symmetry.draggable_header.contextMenu.cmb000
 		items = ['']
 		cmb000.addItems_(items, '')
 
@@ -18,14 +18,14 @@ class Symmetry_blender(Symmetry, Slots_blender):
 		state = pm.symmetricModelling(query=True, symmetry=True) #application symmetry state
 		axis = pm.symmetricModelling(query=True, axis=True)
 		widget = 'chk000' if axis=='x' else 'chk001' if axis=='y' else 'chk002'
-		getattr(self.symmetry_ui, widget).setChecked(state)
-		getattr(self.symmetry_submenu_ui, widget).setChecked(state)
+		getattr(self.sb.symmetry, widget).setChecked(state)
+		getattr(self.sb.symmetry_submenu, widget).setChecked(state)
 
 
 	def cmb000(self, index=-1):
 		'''Editors
 		'''
-		cmb = self.symmetry_ui.draggable_header.contextMenu.cmb000
+		cmb = self.sb.symmetry.draggable_header.contextMenu.cmb000
 
 		if index>0:
 			if index==cmd.items.index(''):
@@ -36,8 +36,8 @@ class Symmetry_blender(Symmetry, Slots_blender):
 	def chk005(self, state=None):
 		'''Symmetry: Topo
 		'''
-		self.symmetry_ui.chk004.setChecked(False) #uncheck symmetry:object space
-		if any ([self.symmetry_ui.chk000.isChecked(), self.symmetry_ui.chk001.isChecked(), self.symmetry_ui.chk002.isChecked()]): #(symmetry)
+		self.sb.symmetry.chk004.setChecked(False) #uncheck symmetry:object space
+		if any ([self.sb.symmetry.chk000.isChecked(), self.sb.symmetry.chk001.isChecked(), self.sb.symmetry.chk002.isChecked()]): #(symmetry)
 			pm.symmetricModelling(edit=True, symmetry=False)
 			self.toggleWidgets(setUnChecked='chk000,chk001,chk002')
 			return 'Note: First select a seam edge and then check the symmetry button to enable topographic symmetry'
@@ -45,9 +45,9 @@ class Symmetry_blender(Symmetry, Slots_blender):
 
 	def setSymmetry(self, state, axis):
 		space = "world" #workd space
-		if self.symmetry_ui.chk004.isChecked(): #object space
+		if self.sb.symmetry.chk004.isChecked(): #object space
 			space = "object"
-		elif self.symmetry_ui.chk005.isChecked(): #topological symmetry
+		elif self.sb.symmetry.chk005.isChecked(): #topological symmetry
 			space = "topo"
 
 		state = state if state==0 else 1 #for case when checkbox gives a state of 2.

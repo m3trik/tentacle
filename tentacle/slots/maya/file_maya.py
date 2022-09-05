@@ -11,11 +11,11 @@ class File_maya(File, Slots_maya):
 		File.__init__(self, *args, **kwargs)
 
 
-		cmb000 = self.file_ui.draggable_header.contextMenu.cmb000
+		cmb000 = self.sb.file.draggable_header.contextMenu.cmb000
 		items = []
 		cmb000.addItems_(items, 'File Editors')
 
-		cmb002 = self.file_ui.cmb002
+		cmb002 = self.sb.file.cmb002
 		autoSaveState = pm.autoSave(q=True, enable=True) #set the initial autosave state.
 		autoSaveInterval = pm.autoSave(q=True, int=True)
 		autoSaveAmount = pm.autoSave(q=True, maxBackups=True)
@@ -29,10 +29,10 @@ class File_maya(File, Slots_maya):
 		cmb002.contextMenu.s001.valueChanged.connect(lambda v: pm.autoSave(int=v*60, limitBackups=True))
 		cmb002.addItems_(self.getRecentAutosave(timestamp=True), 'Recent Autosave', clear=True)
 
-		cmb003 = self.file_ui.cmb003
+		cmb003 = self.sb.file.cmb003
 		cmb003.addItems_(['Import file', 'Import Options', 'FBX Import Presets', 'Obj Import Presets'], "Import")
 
-		cmb004 = self.file_ui.cmb004
+		cmb004 = self.sb.file.cmb004
 		items = ['Export Selection', 'Send to Unreal', 'Send to Unity', 'GoZ', 'Send to 3dsMax: As New Scene', 'Send to 3dsMax: Update Current', 
 				'Send to 3dsMax: Add to Current', 'Export to Offline File', 'Export Options', 'FBX Export Presets', 'Obj Export Presets']
 		cmb004.addItems_(items, 'Export')
@@ -43,7 +43,7 @@ class File_maya(File, Slots_maya):
 	def cmb000(self, index=-1):
 		'''Editors
 		'''
-		cmb = self.file_ui.draggable_header.contextMenu.cmb000
+		cmb = self.sb.file.draggable_header.contextMenu.cmb000
 
 		if index>0:
 			text = cmb.items[index]
@@ -55,7 +55,7 @@ class File_maya(File, Slots_maya):
 	def cmb001(self, index=-1):
 		'''Recent Projects
 		'''
-		cmb = self.file_ui.cmb006.contextMenu.cmb001
+		cmb = self.sb.file.cmb006.contextMenu.cmb001
 
 		if index>0:
 			pm.mel.setProject(cmb.items[index]) #mel.eval('setProject "'+items[index]+'"')
@@ -65,7 +65,7 @@ class File_maya(File, Slots_maya):
 	def cmb002(self, index=-1):
 		'''Recent Autosave
 		'''
-		cmb = self.file_ui.cmb002
+		cmb = self.sb.file.cmb002
 
 		if index>0:
 			file = self.fileNameTimeStamp(cmb.items[index], detach=True)
@@ -76,7 +76,7 @@ class File_maya(File, Slots_maya):
 	def cmb003(self, index=-1):
 		'''Import
 		'''
-		cmb = self.file_ui.cmb003
+		cmb = self.sb.file.cmb003
 
 		if index>0: #hide then perform operation
 			self.sb.parent().hide(force=1)
@@ -94,7 +94,7 @@ class File_maya(File, Slots_maya):
 	def cmb004(self, index=-1):
 		'''Export
 		'''
-		cmb = self.file_ui.cmb004
+		cmb = self.sb.file.cmb004
 
 		if index>0: #hide then perform operation
 			self.sb.parent().hide(force=1)
@@ -126,7 +126,7 @@ class File_maya(File, Slots_maya):
 	def cmb005(self, index=-1):
 		'''Recent Files
 		'''
-		cmb = self.file_ui.cmb005
+		cmb = self.sb.file.cmb005
 
 		if index>0:
 			force=True; force if str(pm.mel.file(query=1, sceneName=1, shortName=1)) else not force #if sceneName prompt user to save; else force open
@@ -138,7 +138,7 @@ class File_maya(File, Slots_maya):
 	def cmb006(self, index=-1):
 		'''Workspace
 		'''
-		cmb = self.file_ui.cmb006
+		cmb = self.sb.file.cmb006
 
 		path = self.formatPath(pm.workspace(query=1, rd=1)) #current project path.
 		items = [f for f in os.listdir(path)]
@@ -154,7 +154,7 @@ class File_maya(File, Slots_maya):
 	def tb000(self, state=None):
 		'''Save
 		'''
-		tb = self.file_ui.draggable_header.contextMenu.tb000
+		tb = self.sb.file.draggable_header.contextMenu.tb000
 
 		wireframe = tb.contextMenu.chk000.isChecked()
 		increment = tb.contextMenu.chk001.isChecked()
@@ -243,10 +243,10 @@ class File_maya(File, Slots_maya):
 	def b015(self):
 		'''Remove String From Object Names.
 		'''
-		from_ = str(self.file_ui.t000.text()) #asterisk denotes startswith*, *endswith, *contains* 
-		to = str(self.file_ui.t001.text())
-		replace = self.file_ui.chk004.isChecked()
-		selected = self.file_ui.chk005.isChecked()
+		from_ = str(self.sb.file.t000.text()) #asterisk denotes startswith*, *endswith, *contains* 
+		to = str(self.sb.file.t001.text())
+		replace = self.sb.file.chk004.isChecked()
+		selected = self.sb.file.chk005.isChecked()
 
 		objects = pm.ls (from_) #Stores a list of all objects starting with 'from_'
 		if selected:
@@ -378,7 +378,7 @@ print (__name__)
 	# 	'''
 	# 	Save
 	# 	'''
-	# 	tb = self.file_ui.tb000
+	# 	tb = self.sb.file.tb000
 	# 	if state=='setMenu':
 	# 		tb.contextMenu.add('QCheckBox', setText='ASCII', setObjectName='chk003', setChecked=True, setToolTip='Toggle ASCII or binary file type.')
 	# 		tb.contextMenu.add('QCheckBox', setText='Wireframe', setObjectName='chk000', setChecked=True, setToolTip='Set view to wireframe before save.')

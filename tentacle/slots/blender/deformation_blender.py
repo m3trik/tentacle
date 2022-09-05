@@ -10,7 +10,7 @@ class Deformation_blender(Deformation, Slots_blender):
 		Slots_blender.__init__(self, *args, **kwargs)
 		Deformation.__init__(self, *args, **kwargs)
 
-		cmb = self.deformation_ui.draggable_header.contextMenu.cmb000
+		cmb = self.sb.deformation.draggable_header.contextMenu.cmb000
 		list_ = []
 		cmb.addItems_(list_, '')
 
@@ -18,7 +18,7 @@ class Deformation_blender(Deformation, Slots_blender):
 	def cmb000(self, index=-1):
 		'''Editors
 		'''
-		cmb = self.deformation_ui.draggable_header.contextMenu.cmb000
+		cmb = self.sb.deformation.draggable_header.contextMenu.cmb000
 
 		if index>0:
 			text = cmb.items[index]

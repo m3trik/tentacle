@@ -10,7 +10,7 @@ class Mirror_maya(Mirror, Slots_maya):
 		Slots_maya.__init__(self, *args, **kwargs)
 		Mirror.__init__(self, *args, **kwargs)
 
-		cmb = self.mirror_ui.draggable_header.contextMenu.cmb000
+		cmb = self.sb.mirror.draggable_header.contextMenu.cmb000
 		items = ['']
 		cmb.addItems_(items, '')
 
@@ -18,7 +18,7 @@ class Mirror_maya(Mirror, Slots_maya):
 	def cmb000(self, index=-1):
 		'''Editors
 		'''
-		cmb = self.mirror_ui.draggable_header.contextMenu.cmb000
+		cmb = self.sb.mirror.draggable_header.contextMenu.cmb000
 
 		if index>0:
 			if index==cmd.items.index(''):
@@ -30,7 +30,7 @@ class Mirror_maya(Mirror, Slots_maya):
 	def tb000(self, state=None):
 		'''Mirror Geometry
 		'''
-		tb = self.mirror_ui.tb000
+		tb = self.sb.mirror.tb000
 
 		axis = self.getAxisFromCheckBoxes('chk000-3', tb.contextMenu)
 		axisPivot = 2 if tb.contextMenu.chk008.isChecked() else 1 #1) object space, 2) world space.
@@ -45,7 +45,7 @@ class Mirror_maya(Mirror, Slots_maya):
 
 		objects = pm.ls(sl=1)
 
-		self.duplicate().unInstance(objects)
+		self.sb.duplicate.slots.unInstance(objects)
 
 		return self.mirrorGeometry(objects, axis=axis, axisPivot=axisPivot, cutMesh=cutMesh, instance=instance, merge=merge, 
 			mergeMode=mergeMode, mergeThreshold=mergeThreshold, deleteOriginal=deleteOriginal, deleteHistory=deleteHistory)
@@ -54,21 +54,21 @@ class Mirror_maya(Mirror, Slots_maya):
 	def b000(self):
 		'''Mirror: X
 		'''
-		self.mirror_ui.tb000.contextMenu.chk001.setChecked(True)
+		self.sb.mirror.tb000.contextMenu.chk001.setChecked(True)
 		self.tb000()
 
 
 	def b001(self):
 		'''Mirror: Y
 		'''
-		self.mirror_ui.tb000.contextMenu.chk002.setChecked(True)
+		self.sb.mirror.tb000.contextMenu.chk002.setChecked(True)
 		self.tb000()
 
 
 	def b002(self):
 		'''Mirror: Z
 		'''
-		self.mirror_ui.tb000.contextMenu.chk003.setChecked(True)
+		self.sb.mirror.tb000.contextMenu.chk003.setChecked(True)
 		self.tb000()
 
 
@@ -116,7 +116,7 @@ class Mirror_maya(Mirror, Slots_maya):
 				pm.mel.BakeNonDefHistory(obj)
 
 			if cutMesh:
-				self.edit().deleteAlongAxis(obj, axis) #delete mesh faces that fall inside the specified axis.
+				self.sb.edit.slots.deleteAlongAxis(obj, axis) #delete mesh faces that fall inside the specified axis.
 
 			if instance: #create instance and scale negatively
 				inst = pm.instance(obj) # bt_convertToMirrorInstanceMesh(0); #x=0, y=1, z=2, -x=3, -y=4, -z=5
@@ -198,14 +198,14 @@ print (__name__)
 	# 	Delete: Negative Axis. Set Text Mirror Axis
 	# 	'''
 	# 	axis = "X"
-	# 	if self.mirror_ui.chk002.isChecked():
+	# 	if self.sb.mirror.chk002.isChecked():
 	# 		axis = "Y"
-	# 	if self.mirror_ui.chk003.isChecked():
+	# 	if self.sb.mirror.chk003.isChecked():
 	# 		axis = "Z"
-	# 	if self.mirror_ui.chk000.isChecked():
+	# 	if self.sb.mirror.chk000.isChecked():
 	# 		axis = '-'+axis
-	# 	self.mirror_ui.tb000.setText('Mirror '+axis)
-	# 	self.mirror_ui.tb003.setText('Delete '+axis)
+	# 	self.sb.mirror.tb000.setText('Mirror '+axis)
+	# 	self.sb.mirror.tb003.setText('Delete '+axis)
 
 
 	# #set check states
@@ -215,10 +215,10 @@ print (__name__)
 	# 	'''
 	# 	self.toggleWidgets(setUnChecked='chk002,chk003')
 	# 	axis = "X"
-	# 	if self.mirror_ui.chk000.isChecked():
+	# 	if self.sb.mirror.chk000.isChecked():
 	# 		axis = '-'+axis
-	# 	self.mirror_ui.tb000.setText('Mirror '+axis)
-	# 	self.mirror_ui.tb003.setText('Delete '+axis)
+	# 	self.sb.mirror.tb000.setText('Mirror '+axis)
+	# 	self.sb.mirror.tb003.setText('Delete '+axis)
 
 
 	# def chk002(self, state=None):
@@ -227,10 +227,10 @@ print (__name__)
 	# 	'''
 	# 	self.toggleWidgets(setUnChecked='chk001,chk003')
 	# 	axis = "Y"
-	# 	if self.mirror_ui.chk000.isChecked():
+	# 	if self.sb.mirror.chk000.isChecked():
 	# 		axis = '-'+axis
-	# 	self.mirror_ui.tb000.setText('Mirror '+axis)
-	# 	self.mirror_ui.tb003.setText('Delete '+axis)
+	# 	self.sb.mirror.tb000.setText('Mirror '+axis)
+	# 	self.sb.mirror.tb003.setText('Delete '+axis)
 
 
 	# def chk003(self, state=None):
@@ -239,10 +239,10 @@ print (__name__)
 	# 	'''
 	# 	self.toggleWidgets(setUnChecked='chk001,chk002')
 	# 	axis = "Z"
-	# 	if self.mirror_ui.chk000.isChecked():
+	# 	if self.sb.mirror.chk000.isChecked():
 	# 		axis = '-'+axis
-	# 	self.mirror_ui.tb000.setText('Mirror '+axis)
-	# 	self.mirror_ui.tb003.setText('Delete '+axis)
+	# 	self.sb.mirror.tb000.setText('Mirror '+axis)
+	# 	self.sb.mirror.tb003.setText('Delete '+axis)
 
 
 	# def chk005(self, state=None):

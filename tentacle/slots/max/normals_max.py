@@ -10,9 +10,9 @@ class Normals_max(Normals, Slots_max):
 		Slots_max.__init__(self, *args, **kwargs)
 		Normals.__init__(self, *args, **kwargs)
 
-		self.normals_ui.b003.setText('Hard Edge Display')
+		self.sb.normals.b003.setText('Hard Edge Display')
 
-		cmb = self.normals_ui.draggable_header.contextMenu.cmb000
+		cmb = self.sb.normals.draggable_header.contextMenu.cmb000
 		items = ['']
 		cmb.addItems_(items, '')
 
@@ -20,7 +20,7 @@ class Normals_max(Normals, Slots_max):
 	def cmb000(self, index=-1):
 		'''Editors
 		'''
-		cmb = self.normals_ui.draggable_header.contextMenu.cmb000
+		cmb = self.sb.normals.draggable_header.contextMenu.cmb000
 
 		if index>0:
 			text = cmb.items[index]
@@ -32,7 +32,7 @@ class Normals_max(Normals, Slots_max):
 	def tb000(self, state=None):
 		'''Display Face Normals
 		'''
-		tb = self.normals_ui.tb000
+		tb = self.sb.normals.tb000
 
 		size = float(tb.contextMenu.s001.value())
 
@@ -64,7 +64,7 @@ class Normals_max(Normals, Slots_max):
 	def tb001(self, state=None):
 		'''Harden Edge Normals
 		'''
-		tb = self.normals_ui.tb001
+		tb = self.sb.normals.tb001
 
 		maxEval('$.EditablePoly.makeHardEdges 1')
 
@@ -101,7 +101,7 @@ class Normals_max(Normals, Slots_max):
 	def tb002(self, state=None):
 		'''Set Normal By Angle
 		'''
-		tb = self.normals_ui.tb002
+		tb = self.sb.normals.tb002
 
 		normalAngle = str(tb.contextMenu.s000.value())
 		subObjectLevel = rt.subObjectLevel
@@ -129,7 +129,7 @@ class Normals_max(Normals, Slots_max):
 	def tb003(self, state=None):
 		'''Lock/Unlock Vertex Normals
 		'''
-		tb = self.normals_ui.tb003
+		tb = self.sb.normals.tb003
 
 		print ('# Error: No 3ds Version of this command yet. #')
 		tb.setDisabled(True)
@@ -169,7 +169,7 @@ class Normals_max(Normals, Slots_max):
 	def tb004(self, state=None):
 		'''Average Normals
 		'''
-		tb = self.normals_ui.tb004
+		tb = self.sb.normals.tb004
 
 		byUvShell = tb.contextMenu.chk003.isChecked()
 

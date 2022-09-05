@@ -10,7 +10,7 @@ class Display_max(Display, Slots_max):
 		Slots_max.__init__(self, *args, **kwargs)
 		Display.__init__(self, *args, **kwargs)
 
-		cmb = self.display_ui.draggable_header.contextMenu.cmb000
+		cmb = self.sb.display.draggable_header.contextMenu.cmb000
 		list_ = ['']
 		cmb.addItems_(list_, '')
 
@@ -18,7 +18,7 @@ class Display_max(Display, Slots_max):
 	def cmb000(self, index=-1):
 		'''Editors
 		'''
-		cmb = self.display_ui.draggable_header.contextMenu.cmb000
+		cmb = self.sb.display.draggable_header.contextMenu.cmb000
 
 		if index>0:
 			text = cmb.items[index]
@@ -113,7 +113,7 @@ class Display_max(Display, Slots_max):
 	def b009(self):
 		'''Override Material
 		'''
-		if self.display_ui.chk000.isChecked(): #override with UV checker material
+		if self.sb.display.chk000.isChecked(): #override with UV checker material
 			self.toggleMaterialOverride(checker=1)
 		else:
 			self.toggleMaterialOverride()

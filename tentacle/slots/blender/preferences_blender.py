@@ -10,19 +10,19 @@ class Preferences_blender(Preferences, Slots_blender):
 		Slots_blender.__init__(self, *args, **kwargs)
 		Preferences.__init__(self, *args, **kwargs)
 
-		self.preferences_ui.b010.setText('Maya Preferences')
+		self.sb.preferences.b010.setText('Maya Preferences')
 
-		cmb = self.preferences_ui.draggable_header.contextMenu.cmb000
+		cmb = self.sb.preferences.draggable_header.contextMenu.cmb000
 		items = ['']
 		cmb.addItems_(items, '')
 
-		cmb = self.preferences_ui.cmb001
+		cmb = self.sb.preferences.cmb001
 		items = ['millimeter','centimeter','meter','kilometer','inch','foot','yard','mile']
 		cmb.addItems_(items)
 		index = cmb.items.index(pm.currentUnit(query=1, fullName=1, linear=1)) #get/set current linear value.
 		cmb.setCurrentIndex(index)
 
-		# cmb = self.preferences_ui.cmb002
+		# cmb = self.sb.preferences.cmb002
 		# #store a corresponding value for each item in the comboBox list_.
 		# l = {'15 fps: ':'game','24 fps: ':'film','25 fps: ':'pal','30 fps: ':'ntsc','48 fps: ':'show','50 fps: ':'palf','60 fps: ':'ntscf'}
 		# items = [k+v for k,v in l.items()] #ie. ['15 fps: game','24 fps: film', ..etc]
@@ -31,7 +31,7 @@ class Preferences_blender(Preferences, Slots_blender):
 		# index = cmb.items.index(pm.currentUnit(query=1, fullName=1, time=1)) #get/set current time value.
 		# cmb.setCurrentIndex(index)
 
-		# cmb = self.preferences_ui.cmb003
+		# cmb = self.sb.preferences.cmb003
 		# from PySide2 import QtWidgets, QtCore
 		# items = QtWidgets.QStyleFactory.keys() #get styles from QStyleFactory
 		# cmb.addItems_(items)
@@ -42,7 +42,7 @@ class Preferences_blender(Preferences, Slots_blender):
 	def cmb000(self, index=-1):
 		'''Editors
 		'''
-		cmb = self.preferences_ui.draggable_header.contextMenu.cmb000
+		cmb = self.sb.preferences.draggable_header.contextMenu.cmb000
 
 		if index>0:
 			text = cmb.items[index]
@@ -54,7 +54,7 @@ class Preferences_blender(Preferences, Slots_blender):
 	def cmb001(self, index=-1):
 		'''Set Working Units: Linear
 		'''
-		cmb = self.preferences_ui.cmb001
+		cmb = self.sb.preferences.cmb001
 
 		if index>0:
 			pm.currentUnit(linear=cmb.items[index]) #millimeter | centimeter | meter | kilometer | inch | foot | yard | mile
@@ -63,7 +63,7 @@ class Preferences_blender(Preferences, Slots_blender):
 	def cmb002(self, index=-1):
 		'''Set Working Units: Time
 		'''
-		cmb = self.preferences_ui.cmb002
+		cmb = self.sb.preferences.cmb002
 
 		if index>0:
 			pm.currentUnit(time=cmb.items[index].split()[-1]) #game | film | pal | ntsc | show | palf | ntscf
@@ -129,7 +129,7 @@ print (__name__)
 # 	'''
 # 	Custom Menu Set
 # 	'''
-# 	cmb = self.preferences_ui.draggable_header.contextMenu.cmb000
+# 	cmb = self.sb.preferences.draggable_header.contextMenu.cmb000
 	
 # 	list_ = ['Modeling', 'Normals', 'Materials', 'UV'] #combobox list menu corresponding to the button text sets.
 # 	contents = cmb.addItems_(list_, 'Menu Sets')

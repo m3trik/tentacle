@@ -10,23 +10,23 @@ class Uv_maya(Uv, Slots_maya):
 		Slots_maya.__init__(self, *args, **kwargs)
 		Uv.__init__(self, *args, **kwargs)
 
-		self.preferences().loadPlugin('Unfold3D.mll') #assure the maya UV plugin is loaded.
+		self.sb.preferences.slots.loadPlugin('Unfold3D.mll') #assure the maya UV plugin is loaded.
 
-		cmb000 = self.uv_ui.draggable_header.contextMenu.cmb000
+		cmb000 = self.sb.uv.draggable_header.contextMenu.cmb000
 		items = ['UV Editor','UV Set Editor','UV Tool Kit','UV Linking: Texture-Centric','UV Linking: UV-Centric','UV Linking: Paint Effects/UV','UV Linking: Hair/UV','Flip UV']
 		cmb000.addItems_(items, 'Maya UV Editors')
 
-		cmb001 = self.uv_ui.cmb001
+		cmb001 = self.sb.uv.cmb001
 		panel = pm.getPanel(scriptType='polyTexturePlacementPanel')
 		cmb001.menu_.chk014.setChecked(pm.textureWindow(panel, displayCheckered=1, query=1)) #checkered state
 		cmb001.menu_.chk015.setChecked(True if pm.polyOptions(query=1, displayMapBorder=1) else False) #borders state
 		cmb001.menu_.chk016.setChecked(pm.textureWindow(panel, query=1, displayDistortion=1)) #distortion state
 
-		cmb002 = self.uv_ui.cmb002
+		cmb002 = self.sb.uv.cmb002
 		items = ['Flip U', 'Flip V', 'Align U Left', 'Align U Middle', 'Align U Right', 'Align V Top', 'Align V Middle', 'Align V Bottom', 'Linear Align']
 		cmb002.addItems_(items, 'Transform:')
 
-		tb000 = self.uv_ui.tb000
+		tb000 = self.sb.uv.tb000
 		tb000.contextMenu.add('QSpinBox', setPrefix='Pre-Scale Mode: ', setObjectName='s009', setMinMax_='0-2 step1', setValue=1, setToolTip='Allow shell scaling during packing.')
 		tb000.contextMenu.add('QSpinBox', setPrefix='Pre-Rotate Mode: ', setObjectName='s010', setMinMax_='0-2 step1', setValue=0, setToolTip='Allow shell rotation during packing.')
 		tb000.contextMenu.add('QSpinBox', setPrefix='Stack Similar: ', setObjectName='s011', setMinMax_='0-2 step1', setValue=0, setToolTip='Find Similar shells. <br>state 1: Find similar shells, and pack one of each, ommiting the rest.<br>state 2: Find similar shells, and stack during packing.')
@@ -34,14 +34,14 @@ class Uv_maya(Uv, Slots_maya):
 		tb000.contextMenu.add('QSpinBox', setPrefix='UDIM: ', setObjectName='s004', setMinMax_='1001-1200 step1', setValue=1001, setToolTip='Set the desired UDIM tile space.')
 		tb000.contextMenu.add('QSpinBox', setPrefix='Padding: ', setObjectName='s012', setMinMax_='0-999 step1', setValue=self.getMapSize()/256*2, setToolTip='Set the shell spacing amount.')
 
-		tb007 = self.uv_ui.tb007
+		tb007 = self.sb.uv.tb007
 		tb007.contextMenu.b099.released.connect(lambda: tb007.contextMenu.s003.setValue(float(pm.mel.texGetTexelDensity(self.getMapSize())))) #get and set texel density value.
 
 
 	def cmb000(self, index=-1):
 		'''Editors
 		'''
-		cmb = self.uv_ui.draggable_header.contextMenu.cmb000
+		cmb = self.sb.uv.draggable_header.contextMenu.cmb000
 
 		if index>0: #hide tentacle then perform operation
 			text = cmb.items[index]
@@ -68,13 +68,13 @@ class Uv_maya(Uv, Slots_maya):
 	def cmb001(self, index=-1):
 		'''Display
 		'''
-		cmb = self.uv_ui.cmb001
+		cmb = self.sb.uv.cmb001
 
 
 	def cmb002(self, index=-1):
 		'''Transform
 		'''
-		cmb = self.uv_ui.cmb002
+		cmb = self.sb.uv.cmb002
 
 		if index>0:
 			text = cmb.items[index]
@@ -103,7 +103,7 @@ class Uv_maya(Uv, Slots_maya):
 	def chk014(self):
 		'''Display: Checkered Pattern
 		'''
-		cmb = self.uv_ui.cmb001
+		cmb = self.sb.uv.cmb001
 		state = cmb.menu_.chk014.isChecked()
 
 		panel = pm.getPanel(scriptType='polyTexturePlacementPanel')
@@ -113,7 +113,7 @@ class Uv_maya(Uv, Slots_maya):
 	def chk015(self):
 		'''Display: Borders
 		'''
-		cmb = self.uv_ui.cmb001
+		cmb = self.sb.uv.cmb001
 		state = cmb.menu_.chk015.isChecked()
 
 		borderWidth = pm.optionVar(query='displayPolyBorderEdgeSize')[1]
@@ -123,7 +123,7 @@ class Uv_maya(Uv, Slots_maya):
 	def chk016(self):
 		'''Display: Distortion
 		'''
-		cmb = self.uv_ui.cmb001
+		cmb = self.sb.uv.cmb001
 		state = cmb.menu_.chk016.isChecked()
 
 		panel = pm.getPanel(scriptType='polyTexturePlacementPanel')
@@ -151,7 +151,7 @@ class Uv_maya(Uv, Slots_maya):
 			tileV (int),
 			translate (bool)
 		'''
-		tb = self.uv_ui.tb000
+		tb = self.sb.uv.tb000
 
 		scale = tb.contextMenu.s009.value()
 		rotate = tb.contextMenu.s010.value()
@@ -189,7 +189,7 @@ class Uv_maya(Uv, Slots_maya):
 	def tb001(self, state=None):
 		'''Auto Unwrap
 		'''
-		tb = self.uv_ui.tb001
+		tb = self.sb.uv.tb001
 
 		standardUnwrap = tb.contextMenu.chk000.isChecked()
 		scaleMode = tb.contextMenu.chk001.isChecked()
@@ -238,7 +238,7 @@ class Uv_maya(Uv, Slots_maya):
 	def tb003(self, state=None):
 		'''Select By Type
 		'''
-		tb = self.uv_ui.tb003
+		tb = self.sb.uv.tb003
 
 		back_facing = tb.contextMenu.chk008.isChecked()
 		front_facing = tb.contextMenu.chk009.isChecked()
@@ -283,7 +283,7 @@ class Uv_maya(Uv, Slots_maya):
 		  -sa -surfangle           Float
 		  -tf -triangleflip        on|off
 		'''
-		tb = self.uv_ui.tb004
+		tb = self.sb.uv.tb004
 
 		optimize = tb.contextMenu.chk017.isChecked()
 		orient = tb.contextMenu.chk007.isChecked()
@@ -306,7 +306,7 @@ class Uv_maya(Uv, Slots_maya):
 	def tb005(self, state=None):
 		'''Straighten Uv
 		'''
-		tb = self.uv_ui.tb005
+		tb = self.sb.uv.tb005
 
 		u = tb.contextMenu.chk018.isChecked()
 		v = tb.contextMenu.chk019.isChecked()
@@ -327,7 +327,7 @@ class Uv_maya(Uv, Slots_maya):
 	def tb006(self, state=None):
 		'''Distribute
 		'''
-		tb = self.uv_ui.tb006
+		tb = self.sb.uv.tb006
 
 		u = tb.contextMenu.chk023.isChecked()
 		v = tb.contextMenu.chk024.isChecked()
@@ -341,7 +341,7 @@ class Uv_maya(Uv, Slots_maya):
 	def tb007(self, state=None):
 		'''Set Texel Density
 		'''
-		tb = self.uv_ui.tb007
+		tb = self.sb.uv.tb007
 
 		density = tb.contextMenu.s003.value()
 		mapSize = self.getMapSize()
@@ -353,7 +353,7 @@ class Uv_maya(Uv, Slots_maya):
 	def tb008(self, state=None):
 		'''Transfer UV's
 		'''
-		tb = self.uv_ui.tb008
+		tb = self.sb.uv.tb008
 
 		toSimilar = tb.contextMenu.chk025.isChecked()
 		similarTol = tb.contextMenu.s013.value()
@@ -568,7 +568,7 @@ class Uv_maya(Uv, Slots_maya):
 		# pm.undoInfo(openChunk=1)
 		for frm in pm.ls(frm):
 			if to=='similar':
-				to = self.edit().getSimilarMesh(frm, tol=tol, face=1, area=1)
+				to = self.sb.edit.slots.getSimilarMesh(frm, tol=tol, face=1, area=1)
 
 			for to in pm.ls(to):
 				if pm.polyEvaluate(frm, face=1, area=1, format=True)==pm.polyEvaluate(to, face=1, area=1, format=True):

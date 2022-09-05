@@ -12,12 +12,12 @@ class Materials_max(Materials, Slots_max):
 
 		self.randomMat=None
 
-		dh = self.materials_ui.draggable_header
-		dh.contextMenu.add(self.ComboBox, setObjectName='cmb000', setToolTip='Maya Material Editors')
-		dh.contextMenu.add(self.PushButton, setText='Relink Scene Bitmaps', setObjectName='tb003', setToolTip='Repair broken bitmap file links for any scene materials. If no materials are selected, all scene materials will be used.')
-		dh.contextMenu.add(self.PushButton, setText='Relink Library Bitmaps', setObjectName='tb004', setToolTip='Repair broken bitmap file links for all libraries in a given directory.')
+		dh = self.sb.materials.draggable_header
+		dh.contextMenu.add(self.sb.ComboBox, setObjectName='cmb000', setToolTip='Maya Material Editors')
+		dh.contextMenu.add(self.sb.PushButton, setText='Relink Scene Bitmaps', setObjectName='tb003', setToolTip='Repair broken bitmap file links for any scene materials. If no materials are selected, all scene materials will be used.')
+		dh.contextMenu.add(self.sb.PushButton, setText='Relink Library Bitmaps', setObjectName='tb004', setToolTip='Repair broken bitmap file links for all libraries in a given directory.')
 
-		cmb000 = self.materials_ui.draggable_header.contextMenu.cmb000
+		cmb000 = self.sb.materials.draggable_header.contextMenu.cmb000
 		items = ['Material Editor']
 		cmb000.addItems_(items, 'Material Editors')
 
@@ -25,7 +25,7 @@ class Materials_max(Materials, Slots_max):
 	def cmb000(self, index=-1):
 		'''Editors
 		'''
-		cmb = self.materials_ui.draggable_header.contextMenu.cmb000
+		cmb = self.sb.materials.draggable_header.contextMenu.cmb000
 
 		if index>0:
 			text = cmb.items[index]
@@ -40,8 +40,8 @@ class Materials_max(Materials, Slots_max):
 		:Parameters:
 			index (int) = parameter on activated, currentIndexChanged, and highlighted signals.
 		'''
-		cmb = self.materials_ui.cmb002
-		b = self.materials_submenu_ui.b003
+		cmb = self.sb.materials.cmb002
+		b = self.sb.materials_submenu.b003
 
 		mode = cmb.contextMenu.cmb001.currentText()
 		if mode=='Scene Materials':
@@ -73,9 +73,9 @@ class Materials_max(Materials, Slots_max):
 	def tb000(self, state=None):
 		'''Select By Material Id
 		'''
-		tb = self.materials_ui.tb000
+		tb = self.sb.materials.tb000
 
-		mat = self.materials_ui.cmb002.currentData()
+		mat = self.sb.materials.cmb002.currentData()
 		if not mat:
 			self.messageBox('No Material Selection.')
 			return
@@ -92,7 +92,7 @@ class Materials_max(Materials, Slots_max):
 	def tb002(self, state=None):
 		'''Assign Material
 		'''
-		tb = self.materials_ui.tb002
+		tb = self.sb.materials.tb002
 
 		selection = rt.selection
 
@@ -111,11 +111,11 @@ class Materials_max(Materials, Slots_max):
 
 				self.randomMat = mat
 
-				if self.materials_ui.tb001.menu_.chk001.isChecked(): #ID map materials mode.
+				if self.sb.materials.tb001.menu_.chk001.isChecked(): #ID map materials mode.
 					self.cmb002() #refresh the combobox
 				else:
-					self.materials_ui.tb001.menu_.chk001.setChecked(True) #set comboBox to ID map mode. toggling the checkbox refreshes the combobox.
-				self.materials_ui.cmb002.setCurrentItem(mat.name) #set the comboBox index to the new mat #self.cmb002.setCurrentIndex(self.cmb002.findText(name))
+					self.sb.materials.tb001.menu_.chk001.setChecked(True) #set comboBox to ID map mode. toggling the checkbox refreshes the combobox.
+				self.sb.materials.cmb002.setCurrentItem(mat.name) #set the comboBox index to the new mat #self.cmb002.setCurrentIndex(self.cmb002.findText(name))
 			else:
 				self.messageBox('No valid object/s selected.')
 				return
@@ -135,7 +135,7 @@ class Materials_max(Materials, Slots_max):
 	def tb003(self, state=None):
 		'''Relink Scene Bitmaps
 		'''
-		tb = self.materials_ui.draggable_header.contextMenu.tb003
+		tb = self.sb.materials.draggable_header.contextMenu.tb003
 		if state=='setMenu':
 			tb.contextMenu.add('QLineEdit', setPlaceholderText='Set Bitmaps Directory:', setText=r'\\m3trik-Server\NAS\Graphics\_materials', setObjectName='l000', setToolTip='Location to search for missing bitmaps.') #
 			return
@@ -151,7 +151,7 @@ class Materials_max(Materials, Slots_max):
 	def tb004(self, state=None):
 		'''Relink Material Library Bitmaps
 		'''
-		tb = self.materials_ui.draggable_header.contextMenu.tb004
+		tb = self.sb.materials.draggable_header.contextMenu.tb004
 		if state=='setMenu':
 			tb.contextMenu.add('QLineEdit', setPlaceholderText='Set Bitmaps Directory:', setText=r'\\m3trik-Server\NAS\Graphics\_materials', setObjectName='l001', setToolTip='Location to search for missing bitmaps.') #
 			tb.contextMenu.add('QLineEdit', setPlaceholderText='Set Material Library Directory:', setText=r'\\m3trik-Server\NAS\Graphics\_materials\libraries', setObjectName='l002', setToolTip='Location of material libraries.') #
@@ -167,7 +167,7 @@ class Materials_max(Materials, Slots_max):
 		'''Open material in editor
 		'''
 		try:
-			mat = self.materials_ui.cmb002.currentData() #get the mat obj from cmb002
+			mat = self.sb.materials.cmb002.currentData() #get the mat obj from cmb002
 			rt.select(mat)
 		except Exception as error:
 			self.messageBox('No stored material or no valid object selected.')
@@ -193,30 +193,30 @@ class Materials_max(Materials, Slots_max):
 	def lbl001(self, setEditable=True):
 		'''Rename Material: Set cmb002 as editable and disable wgts.
 		'''
-		cmb = self.materials_ui.cmb002
+		cmb = self.sb.materials.cmb002
 
 		if setEditable:
-			self._mat = self.materials_ui.cmb002.currentData()
+			self._mat = self.sb.materials.cmb002.currentData()
 			cmb.setEditable(True)
-			self.toggleWidgets(self.materials_ui, setDisabled='b002,lbl000,tb000,tb002')
+			self.toggleWidgets(self.sb.materials, setDisabled='b002,lbl000,tb000,tb002')
 		else:
 			mat = self._mat
 			newMatName = cmb.currentText()
 			self.renameMaterial(mat, newMatName)
 			cmb.setEditable(False)
-			self.toggleWidgets(self.materials_ui, setEnabled='b002,lbl000,tb000,tb002')
+			self.toggleWidgets(self.sb.materials, setEnabled='b002,lbl000,tb000,tb002')
 
 
 	def lbl002(self):
 		'''Delete Material
 		'''
-		cmb = self.materials_ui.cmb002
+		cmb = self.sb.materials.cmb002
 
-		mat = self.materials_ui.cmb002.currentData()
+		mat = self.sb.materials.cmb002.currentData()
 		default_mat = rt.Standard(mat, name="Default Material") #replace with standard material
 
 		index = cmb.currentIndex()
-		cmb.setItemText(index, default_mat.name) #self.materials_ui.cmb002.removeItem(index)
+		cmb.setItemText(index, default_mat.name) #self.sb.materials.cmb002.removeItem(index)
 
 
 	def lbl003(self):
@@ -244,9 +244,9 @@ class Materials_max(Materials, Slots_max):
 
 		mat = self.getMaterial()
 
-		self.materials_ui.cmb001.setCurrentIndex(0) #set the combobox to show all scene materials
+		self.sb.materials.cmb001.setCurrentIndex(0) #set the combobox to show all scene materials
 		self.cmb002() #refresh the materials list comboBox
-		self.materials_ui.cmb002.setCurrentIndex(self.materials_ui.cmb002.items.index(mat.name()))
+		self.sb.materials.cmb002.setCurrentIndex(self.sb.materials.cmb002.items.index(mat.name()))
 
 
 	def getColorSwatchIcon(self, mat, size=[20, 20]):
@@ -276,7 +276,7 @@ class Materials_max(Materials, Slots_max):
 	def renameMaterial(self, mat, newMatName):
 		'''Rename Material
 		'''
-		cmb = self.materials_ui.cmb002 #scene materials
+		cmb = self.sb.materials.cmb002 #scene materials
 
 		curMatName = mat.name
 		if curMatName!=newMatName:
@@ -690,7 +690,7 @@ print (__name__)
 	# def currentMat(self):
 	# 	'''Get the current material using the current index of the materials combobox.
 	# 	'''
-	# 	text = self.materials_ui.cmb002.currentText()
+	# 	text = self.sb.materials.cmb002.currentText()
 
 	# 	try:
 	# 		result = self.currentMats[text]
@@ -703,16 +703,16 @@ print (__name__)
 	# def chk007(self, state=None):
 	# 	'''Assign Material: Current
 	# 	'''
-	# 	self.materials_ui.tb002.setText('Assign Current')
+	# 	self.sb.materials.tb002.setText('Assign Current')
 
 
 	# def chk008(self, state=None):
 	# 	'''Assign Material: Random
 	# 	'''
-	# 	self.materials_ui.tb002.setText('Assign Random')
+	# 	self.sb.materials.tb002.setText('Assign Random')
 
 
 	# def chk009(self, state=None):
 	# 	'''Assign Material: New
 	# 	'''
-	# 	self.materials_ui.tb002.setText('Assign New')
+	# 	self.sb.materials.tb002.setText('Assign New')

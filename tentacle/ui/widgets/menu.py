@@ -373,7 +373,7 @@ class Menu(QtWidgets.QMenu, Attributes):
 		return self._lastActiveChild[-1]
 
 
-	def lastActiveChild(self, name=False, as_list=False):
+	def lastActiveChild(self, name=False, asList=False):
 		'''Get the given widget set as last active.
 		Contains a list of the last 10 active child widgets.
 
@@ -381,7 +381,7 @@ class Menu(QtWidgets.QMenu, Attributes):
 			name (bool) = Return the last active widgets name as a string.
 
 		:Return:
-			(obj) widget or (str) widget name.
+			(obj)(str)(list) dependant on flags.
 
 		ex. slot connection to the last active child widget:
 			cmb.returnPressed.connect(lambda m=cmb.contextMenu.lastActiveChild: getattr(self, m(name=1))()) #connect to the last pressed child widget's corresponding method after return pressed. ie. self.lbl000 if cmb.lbl000 was clicked last.
@@ -392,10 +392,10 @@ class Menu(QtWidgets.QMenu, Attributes):
 		if name:
 			lastActive = str(self._lastActiveChild[-1].objectName())
 
-		elif name and as_list:
+		elif name and asList:
 			lastActive = [str(w.objectName()) for w in self._lastActiveChild]
 
-		elif as_list:
+		elif asList:
 			lastActive = [w for w in self._lastActiveChild]
 
 		else:

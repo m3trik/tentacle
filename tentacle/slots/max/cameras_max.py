@@ -10,7 +10,7 @@ class Cameras_max(Cameras, Slots_max):
 		Slots_max.__init__(self, *args, **kwargs)
 		Cameras.__init__(self, *args, **kwargs)
 
-		tree = self.cameras_lower_submenu_ui.tree000
+		tree = self.sb.cameras_lower_submenu.tree000
 		l = []
 		[tree.add('QLabel', 'Editors', setText=s) for s in l]
 
@@ -26,8 +26,8 @@ class Cameras_max(Cameras, Slots_max):
 			(obj) menu as a property.
 		'''
 		if not hasattr(self, '_clippingMenu'):
-			self._clippingMenu = wgts.Menu(self.cameras_ui, position='cursorPos')
-			self._clippingMenu.add(self.Label, setText='Viewport Clip', setObjectName='lbl000', setToolTip='Toggle the clipping controls for the current viewport camera.')
+			self._clippingMenu = wgts.Menu(self.sb.cameras, position='cursorPos')
+			self._clippingMenu.add(self.sb.Label, setText='Viewport Clip', setObjectName='lbl000', setToolTip='Toggle the clipping controls for the current viewport camera.')
 			self._clippingMenu.add('QPushButton', setText='Auto Clip', setObjectName='chk000', setCheckable=True, setToolTip='When Auto Clip is ON, geometry closer to the camera than 3 units is not displayed. Turn OFF to manually define.')
 			self._clippingMenu.add('QDoubleSpinBox', setPrefix='Far Clip:  ', setObjectName='s000', setMinMax_='.01-10 step.1', setToolTip='Adjust the current cameras near clipping plane.')
 			self._clippingMenu.add('QSpinBox', setPrefix='Near Clip: ', setObjectName='s001', setMinMax_='10-10000 step1', setToolTip='Adjust the current cameras far clipping plane.')
@@ -98,7 +98,7 @@ class Cameras_max(Cameras, Slots_max):
 	def tree000(self, wItem=None, column=None):
 		'''Camera Menu
 		'''
-		tree = self.cameras_ui.tree000
+		tree = self.sb.cameras.tree000
 
 		if not any([wItem, column]): # code here will run before each show event. generally used to refresh tree contents. -----------------------------
 			try:
@@ -247,7 +247,7 @@ print (__name__)
 # 		'''
 		
 # 		'''
-# 		tree = self.cameras_ui.tree000
+# 		tree = self.sb.cameras.tree000
 
 # 		if not any([wItem, column]): #populate the tree columns.
 # 			if not tree.refresh: #static list items -----------
@@ -297,7 +297,7 @@ print (__name__)
 	# 	'''
 	# 	Cameras
 	# 	'''
-	# 	cmb = self.cameras_ui.cmb001
+	# 	cmb = self.sb.cameras.cmb001
 		
 	# 	cameras = [cam.name for cam in rt.cameras if 'Target' not in cam.name] #List scene Cameras
 	# 	contents = cmb.addItems_(cameras, "Cameras:")
@@ -316,7 +316,7 @@ print (__name__)
 	# 	'''
 	# 	Create
 	# 	'''
-	# 	cmb = self.cameras_ui.cmb002
+	# 	cmb = self.sb.cameras.cmb002
 		
 	# 	list_ = ['Custom Camera','Set Custom Camera','Camera From View']
 	# 	contents = cmb.addItems_(list_, "Create")
@@ -337,7 +337,7 @@ print (__name__)
 	# 	'''
 	# 	Options
 	# 	'''
-	# 	cmb = self.cameras_ui.cmb003
+	# 	cmb = self.sb.cameras.cmb003
 		
 	# 	list_ = ['Group Cameras']
 	# 	contents = cmb.addItems_(list_, "Options")

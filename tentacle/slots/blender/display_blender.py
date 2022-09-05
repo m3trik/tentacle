@@ -10,7 +10,7 @@ class Display_blender(Display, Slots_blender):
 		Slots_blender.__init__(self, *args, **kwargs)
 		Display.__init__(self, *args, **kwargs)
 
-		cmb = self.display_ui.draggable_header.contextMenu.cmb000
+		cmb = self.sb.display.draggable_header.contextMenu.cmb000
 		list_ = ['']
 		cmb.addItems_(list_, '')
 
@@ -18,7 +18,7 @@ class Display_blender(Display, Slots_blender):
 	def cmb000(self, index=-1):
 		'''Editors
 		'''
-		cmb = self.display_ui.draggable_header.contextMenu.cmb000
+		cmb = self.sb.display.draggable_header.contextMenu.cmb000
 
 		if index>0:
 			text = cmb.items[index]

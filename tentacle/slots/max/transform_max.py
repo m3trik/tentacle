@@ -10,23 +10,23 @@ class Transform_max(Transform, Slots_max):
 		Slots_max.__init__(self, *args, **kwargs)
 		Transform.__init__(self, *args, **kwargs)
 
-		cmb000 = self.transform_ui.draggable_header.contextMenu.cmb000
+		cmb000 = self.sb.transform.draggable_header.contextMenu.cmb000
 		items = ['']
 		cmb000.addItems_(items, '')
 
-		cmb001 = self.transform_ui.cmb001
+		cmb001 = self.sb.transform.cmb001
 		cmb001.contextMenu.add('QRadioButton', setObjectName='chk017', setText='Standard', setChecked=True, setToolTip='')
 		cmb001.contextMenu.add('QRadioButton', setObjectName='chk018', setText='Body Shapes', setToolTip='')
 		cmb001.contextMenu.add('QRadioButton', setObjectName='chk019', setText='NURBS', setToolTip='')
 		cmb001.contextMenu.add('QRadioButton', setObjectName='chk020', setText='Point Cloud Shapes', setToolTip='')
-		cmb001.contextMenu.add(self.Label, setObjectName='lbl000', setText='Disable All', setToolTip='Disable all constraints.')
+		cmb001.contextMenu.add(self.sb.Label, setObjectName='lbl000', setText='Disable All', setToolTip='Disable all constraints.')
 		self.connect_('chk017-20', 'toggled', self.cmb001, cmb001.contextMenu) #connect to this method on toggle
 
-		cmb002 = self.transform_ui.cmb002
+		cmb002 = self.sb.transform.cmb002
 		items = ['Point to Point', '2 Points to 2 Points', '3 Points to 3 Points', 'Align Objects', 'Position Along Curve', 'Align Tool', 'Snap Together Tool']
 		cmb002.addItems_(items, 'Align To')
 
-		cmb003 = self.transform_ui.cmb003
+		cmb003 = self.sb.transform.cmb003
 		# moveValue = pm.manipMoveContext('Move', q=True, snapValue=True)
 		# cmb003.menu_.s021.setValue(moveValue)
 		# scaleValue = pm.manipScaleContext('Scale', q=True, snapValue=True)
@@ -38,7 +38,7 @@ class Transform_max(Transform, Slots_max):
 	def cmb000(self, index=-1):
 		'''Editors
 		'''
-		cmb = self.transform_ui.draggable_header.contextMenu.cmb000
+		cmb = self.sb.transform.draggable_header.contextMenu.cmb000
 
 		if index>0:
 			text = cmb.items[index]
@@ -53,7 +53,7 @@ class Transform_max(Transform, Slots_max):
 		constrain along normals #checkbox option for edge amd surface constaints
 		setXformConstraintAlongNormal false;
 		'''
-		cmb = self.transform_ui.cmb001
+		cmb = self.sb.transform.cmb001
 
 		cmb.menu_.clear()
 		if cmb.contextMenu.chk017.isChecked(): #Standard
@@ -82,7 +82,7 @@ class Transform_max(Transform, Slots_max):
 	def cmb002(self, index=-1):
 		'''Align To
 		'''
-		cmb = self.transform_ui.cmb002
+		cmb = self.sb.transform.cmb002
 
 		if index>0:
 			text = cmb.items[index]
@@ -107,7 +107,7 @@ class Transform_max(Transform, Slots_max):
 	def cmb003(self, index=-1):
 		'''Transform Tool Snapping
 		'''
-		cmb = self.transform_ui.cmb003
+		cmb = self.sb.transform.cmb003
 
 
 	def s021(self, value=None):
@@ -143,7 +143,7 @@ class Transform_max(Transform, Slots_max):
 	def tb000(self, state=None):
 		'''Drop To Grid
 		'''
-		tb = self.transform_ui.tb000
+		tb = self.sb.transform.tb000
 
 		align = tb.contextMenu.cmb004.currentText()
 		origin = tb.contextMenu.chk014.isChecked()
@@ -159,7 +159,7 @@ class Transform_max(Transform, Slots_max):
 
 		Auto Align finds the axis with the largest variance, and set the axis checkboxes accordingly before performing a regular align.
 		'''
-		tb = self.transform_ui.tb001
+		tb = self.sb.transform.tb001
 
 		betweenTwoComponents = tb.contextMenu.chk013.isChecked()
 		autoAlign = tb.contextMenu.chk010.isChecked()
@@ -291,14 +291,14 @@ class Transform_max(Transform, Slots_max):
 	def lbl000(self):
 		'''Transform Constraints: Disable All
 		'''
-		widgets = self.transform_ui.cmb001.contextMenu.children_(of_type=['QCheckBox'])
+		widgets = self.sb.transform.cmb001.contextMenu.children_(of_type=['QCheckBox'])
 		[w.setChecked(False) for w in widgets if w.isChecked()]
 
 
 	def lbl001(self):
 		'''Transform Tool Snapping: Disable All
 		'''
-		cmb = self.transform_ui.cmb003
+		cmb = self.sb.transform.cmb003
 		self.toggleWidgets(setDisabled='chk021-23')
 		cmb.setCurrentText('Off') if not any((state, cmb.menu_.chk021.isChecked(), cmb.menu_.chk023.isChecked())) else cmb.setCurrentText('On')
 
@@ -618,10 +618,10 @@ print (__name__)
 	# 	Transform: negative
 	# 	'''
 	# 	#change the textfield to neg value and call performTransformations
-	# 	textfield = float(self.transform_ui.s000.value())
+	# 	textfield = float(self.sb.transform.s000.value())
 	# 	if textfield >=0:
 	# 		newText = -textfield
-	# 		self.transform_ui.s000.setValue(newText)
+	# 		self.sb.transform.s000.setValue(newText)
 	# 	self.performTransformations()
 
 
@@ -630,8 +630,8 @@ print (__name__)
 	# 	Transform: positive
 	# 	'''
 	# 	#change the textfield to pos value and call performTransformations
-	# 	textfield = float(self.transform_ui.s000.value())
+	# 	textfield = float(self.sb.transform.s000.value())
 	# 	if textfield <0:
 	# 		newText = abs(textfield)
-	# 		self.transform_ui.s000.setValue(newText)
+	# 		self.sb.transform.s000.setValue(newText)
 	# 	self.performTransformations()

@@ -10,7 +10,7 @@ class Duplicate_blender(Duplicate, Slots_blender):
 		Slots_blender.__init__(self, *args, **kwargs)
 		Duplicate.__init__(self, *args, **kwargs)
 
-		cmb = self.duplicate_ui.draggable_header.contextMenu.cmb000
+		cmb = self.sb.duplicate.draggable_header.contextMenu.cmb000
 		list_ = []
 		cmb.addItems_(list_, 'Editors')
 
@@ -18,7 +18,7 @@ class Duplicate_blender(Duplicate, Slots_blender):
 	def cmb000(self, index=-1):
 		'''Editors
 		'''
-		cmb = self.duplicate_ui.draggable_header.contextMenu.cmb000
+		cmb = self.sb.duplicate.draggable_header.contextMenu.cmb000
 
 		if index>0:
 			if index==cmd.items.index('Duplicate Special'):
@@ -173,7 +173,7 @@ class Duplicate_blender(Duplicate, Slots_blender):
 			if translateToComponent:
 				if componentList:
 					for num, component in componentList.iteritems():
-						vertexPoint = self.transform().getComponentPoint(component)
+						vertexPoint = self.sb.transform.slots.getComponentPoint(component)
 
 						pm.xform (obj, rotation=[rotXYZ[0], rotXYZ[1], rotXYZ[2]])
 						pm.xform (obj, translation=[vertexPoint[0]+transXYZ[0], vertexPoint[1]+transXYZ[1], vertexPoint[2]+transXYZ[2]])

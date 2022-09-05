@@ -10,7 +10,7 @@ class Animation_max(Animation, Slots_max):
 		Slots_max.__init__(self, *args, **kwargs)
 		Animation.__init__(self, *args, **kwargs)
 
-		cmb = self.animation_ui.draggable_header.contextMenu.cmb000
+		cmb = self.sb.animation.draggable_header.contextMenu.cmb000
 		items = ['Track View: Curve Editor','Track View: Dope Sheet','Track View: New Track View','Motion Mixer','Pose Mixer','MassFx Tools', 'Dynamics Explorer','Reaction Manager','Walkthrough Assistant']
 		cmb.addItems_(items, 'Animation Editors')
 
@@ -18,7 +18,7 @@ class Animation_max(Animation, Slots_max):
 	def cmb000(self, index=-1):
 		'''Editors
 		'''
-		cmb = self.animation_ui.draggable_header.contextMenu.cmb000
+		cmb = self.sb.animation.draggable_header.contextMenu.cmb000
 
 		if index>0:
 			text = cmb.items[index]

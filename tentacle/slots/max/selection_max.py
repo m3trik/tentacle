@@ -10,19 +10,19 @@ class Selection_max(Selection, Slots_max):
 		Slots_max.__init__(self, *args, **kwargs)
 		Selection.__init__(self, *args, **kwargs)
 
-		cmb = self.selection_ui.draggable_header.contextMenu.cmb000
+		cmb = self.sb.selection.draggable_header.contextMenu.cmb000
 		items = ['Selection Set Editor']
 		cmb.addItems_(items, 'Selection Editors:')
 
-		cmb = self.selection_ui.cmb002
+		cmb = self.sb.selection.cmb002
 		items = ['Geometry', 'Shapes', 'Lights', 'Cameras', 'Helpers', 'Space Warps', 'Particle Systems', 'Bone Objects']
 		cmb.addItems_(items, 'Select by Type:')
 
-		cmb = self.selection_ui.cmb003
+		cmb = self.sb.selection.cmb003
 		items = ['Vertex', 'Edge', 'Border', 'Face', 'Element']
 		cmb.addItems_(items, 'Convert To:')
 
-		cmb = self.selection_ui.cmb005
+		cmb = self.sb.selection.cmb005
 		items = ['Angle', 'Border', 'Edge Loop', 'Edge Ring', 'Shell', 'UV Edge Loop']
 		cmb.addItems_(items, 'Off')
 
@@ -56,7 +56,7 @@ class Selection_max(Selection, Slots_max):
 	def txt001(self):
 		'''Select By Name
 		'''
-		searchStr = str(self.selection_ui.txt001.text()) #asterisk denotes startswith*, *endswith, *contains* 
+		searchStr = str(self.sb.selection.txt001.text()) #asterisk denotes startswith*, *endswith, *contains* 
 		if searchStr:
 			selection = rt.select(searchStr)
 
@@ -64,7 +64,7 @@ class Selection_max(Selection, Slots_max):
 	def lbl000(self):
 		'''Selection Sets: Create New
 		'''
-		cmb = self.selection_ui.cmb001
+		cmb = self.sb.selection.cmb001
 		if not cmb.isEditable():
 			cmb.addItems_('', ascending=True)
 			cmb.setEditable(True)
@@ -79,7 +79,7 @@ class Selection_max(Selection, Slots_max):
 	def lbl001(self):
 		'''Selection Sets: Modify Current
 		'''
-		cmb = self.selection_ui.cmb001
+		cmb = self.sb.selection.cmb001
 		if not cmb.isEditable():
 			name = cmb.currentText()
 			self._oldSetName = name
@@ -95,7 +95,7 @@ class Selection_max(Selection, Slots_max):
 	def lbl002(self):
 		'''Selection Sets: Delete Current
 		'''
-		cmb = self.selection_ui.cmb001
+		cmb = self.sb.selection.cmb001
 		name = cmb.currentText()
 
 		set_ = self.getSet(name)
@@ -128,7 +128,7 @@ class Selection_max(Selection, Slots_max):
 	def lbl005(self):
 		'''Selection Sets: Select Current
 		'''
-		cmb = self.selection_ui.cmb001
+		cmb = self.sb.selection.cmb001
 		name = cmb.currentText()
 
 		set_ = self.getSet(name)
@@ -170,7 +170,7 @@ class Selection_max(Selection, Slots_max):
 	def cmb000(self, index=-1):
 		'''Editors
 		'''
-		cmb = self.selection_ui.draggable_header.contextMenu.cmb000
+		cmb = self.sb.selection.draggable_header.contextMenu.cmb000
 
 		if index>0:
 			text = cmb.items[index]
@@ -182,7 +182,7 @@ class Selection_max(Selection, Slots_max):
 	def cmb001(self, index=-1):
 		'''Selection Sets
 		'''
-		cmb = self.selection_ui.cmb001
+		cmb = self.sb.selection.cmb001
 
 		sets_ = self.getSelectionSets(rt.geometry)
 		cmb.addItems_([s for s in sets_], clear=True)
@@ -191,7 +191,7 @@ class Selection_max(Selection, Slots_max):
 	def cmb002(self, index=-1):
 		'''Select All Of Type
 		'''
-		cmb = self.selection_ui.cmb002
+		cmb = self.sb.selection.cmb002
 
 		if index>0:
 			text = cmb.items[index]
@@ -218,7 +218,7 @@ class Selection_max(Selection, Slots_max):
 	def cmb003(self, index=-1):
 		'''Convert To
 		'''
-		cmb = self.selection_ui.cmb003
+		cmb = self.sb.selection.cmb003
 
 		if index>0:
 			text = cmb.items[index]
@@ -234,7 +234,7 @@ class Selection_max(Selection, Slots_max):
 	def cmb005(self, index=-1):
 		'''Selection Contraints
 		'''
-		cmb = self.selection_ui.cmb005
+		cmb = self.sb.selection.cmb005
 
 		if index>0:
 			text = cmb.items[index]
@@ -257,7 +257,7 @@ class Selection_max(Selection, Slots_max):
 	def cmb006(self, index=-1):
 		'''Currently Selected Objects
 		'''
-		cmb = self.selection_ui.draggable_header.contextMenu.cmb006
+		cmb = self.sb.selection.draggable_header.contextMenu.cmb006
 
 		cmb.clear()
 		list_ = [str(i) for i in rt.selection]
@@ -286,7 +286,7 @@ class Selection_max(Selection, Slots_max):
 	def tb000(self, state=None):
 		'''Select Nth
 		'''
-		tb = self.selection_ui.tb000
+		tb = self.sb.selection.tb000
 
 		edgeRing = tb.contextMenu.chk000.isChecked()
 		edgeLoop = tb.contextMenu.chk001.isChecked()
@@ -317,7 +317,7 @@ class Selection_max(Selection, Slots_max):
 	def tb001(self, state=None):
 		'''Select Similar
 		'''
-		tb = self.selection_ui.tb001
+		tb = self.sb.selection.tb001
 
 		tolerance = str(tb.contextMenu.s000.value()) #string value because mel.eval is sending a command string
 		
@@ -331,7 +331,7 @@ class Selection_max(Selection, Slots_max):
 	def tb002(self, state=None):
 		'''Select Island: Select Polygon Face Island
 		'''
-		tb = self.selection_ui.tb002
+		tb = self.sb.selection.tb002
 
 		rangeX = float(tb.contextMenu.s002.value())
 		rangeY = float(tb.contextMenu.s004.value())
@@ -352,7 +352,7 @@ class Selection_max(Selection, Slots_max):
 	def tb003(self, state=None):
 		'''Select Edges By Angle
 		'''
-		tb = self.selection_ui.tb003
+		tb = self.sb.selection.tb003
 
 		angleLow = tb.contextMenu.s006.value()
 		angleHigh = tb.contextMenu.s007.value()
@@ -424,7 +424,7 @@ class Selection_max(Selection, Slots_max):
 		'''
 		sel = self.currentSelection
 		if sel:
-			newName = self.selection_ui.cmb001.currentText()
+			newName = self.sb.selection.cmb001.currentText()
 			if not newName:
 				newName = self.generateUniqueSetName()
 

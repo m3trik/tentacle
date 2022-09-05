@@ -10,7 +10,7 @@ class Lighting_blender(Lighting, Slots_blender):
 		Slots_blender.__init__(self, *args, **kwargs)
 		Lighting.__init__(self, *args, **kwargs)
 
-		cmb = self.lighting_ui.draggable_header.contextMenu.cmb000
+		cmb = self.sb.lighting.draggable_header.contextMenu.cmb000
 		items = ['']
 		cmb.addItems_(items, '')
 
@@ -18,13 +18,13 @@ class Lighting_blender(Lighting, Slots_blender):
 	def draggable_header(self, state=None):
 		'''Context menu
 		'''
-		dh = self.lighting_ui.draggable_header
+		dh = self.sb.lighting.draggable_header
 
 
 	def cmb000(self, index=-1):
 		'''Editors
 		'''
-		cmb = self.lighting_ui.draggable_header.contextMenu.cmb000
+		cmb = self.sb.lighting.draggable_header.contextMenu.cmb000
 
 		# if index>0:
 		# 	if index==cmd.items.index(''):

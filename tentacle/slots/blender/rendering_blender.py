@@ -10,7 +10,7 @@ class Rendering_blender(Rendering, Slots_blender):
 		Slots_blender.__init__(self, *args, **kwargs)
 		Rendering.__init__(self, *args, **kwargs)
 
-		cmb = self.rendering_ui.draggable_header.contextMenu.cmb000
+		cmb = self.sb.rendering.draggable_header.contextMenu.cmb000
 		items = ['']
 		cmb.addItems_(items, '')
 
@@ -18,7 +18,7 @@ class Rendering_blender(Rendering, Slots_blender):
 	def cmb000(self, index=-1):
 		'''Editors
 		'''
-		cmb = self.rendering_ui.draggable_header.contextMenu.cmb000
+		cmb = self.sb.rendering.draggable_header.contextMenu.cmb000
 
 		if index>0:
 			text = cmb.items[index]
@@ -30,7 +30,7 @@ class Rendering_blender(Rendering, Slots_blender):
 	def cmb001(self, index=-1):
 		'''Render: camera
 		'''
-		cmb = self.rendering_ui.cmb001
+		cmb = self.sb.rendering.cmb001
 
 		# self.cams = [cam for cam in rt.cameras if 'Target' not in str(cam)]
 		# if self.cams:
@@ -41,7 +41,7 @@ class Rendering_blender(Rendering, Slots_blender):
 	def b000(self):
 		'''Render Current Frame
 		'''
-		cmb = self.rendering_ui.cmb001
+		cmb = self.sb.rendering.cmb001
 		index = cmb.currentIndex()
 
 		try:

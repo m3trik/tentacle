@@ -10,12 +10,12 @@ class Edit_blender(Edit, Slots_blender):
 		Slots_blender.__init__(self, *args, **kwargs)
 		Edit.__init__(self, *args, **kwargs)
 
-		cmb = self.edit_ui.draggable_header.contextMenu.cmb000
+		cmb = self.sb.edit.draggable_header.contextMenu.cmb000
 		items = ['Cleanup', 'Transfer: Attribute Values', 'Transfer: Shading Sets']
 		cmb.addItems_(items, 'Maya Editors')
 
 
-		ctx = self.edit_ui.tb000.contextMenu
+		ctx = self.sb.edit.tb000.contextMenu
 		if not ctx.containsMenuItems:
 			ctx.add('QCheckBox', setText='All Geometry', setObjectName='chk005', setToolTip='Clean All scene geometry.')
 			ctx.add('QCheckBox', setText='Repair', setObjectName='chk004', setToolTip='Repair matching geometry. Else, select only.') #add(self.sb.CheckBox, setText='Select Only', setObjectName='chk004', setTristate=True, setCheckState_=2, setToolTip='Select and/or Repair matching geometry. <br>0: Repair Only<br>1: Repair and Select<br>2: Select Only')
@@ -46,7 +46,7 @@ class Edit_blender(Edit, Slots_blender):
 	def cmb000(self, index=-1):
 		'''Editors
 		'''
-		cmb = self.edit_ui.draggable_header.contextMenu.cmb000
+		cmb = self.sb.edit.draggable_header.contextMenu.cmb000
 
 		if index>0:
 			text = cmb.items[index]
@@ -64,7 +64,7 @@ class Edit_blender(Edit, Slots_blender):
 	def cmb001(self, index=-1):
 		'''Object History Attributes
 		'''
-		cmb = self.edit_ui.cmb001
+		cmb = self.sb.edit.cmb001
 
 		try:
 			list_ = list(set([n.name() for n in pm.listHistory(pm.ls(sl=1, objectsOnly=1), pruneDagObjects=1)])) #levels=1, interestLevel=2, 
@@ -81,7 +81,7 @@ class Edit_blender(Edit, Slots_blender):
 	def tb000(self, state=None):
 		'''Mesh Cleanup
 		'''
-		tb = self.edit_ui.tb000
+		tb = self.sb.edit.tb000
 
 		allMeshes = int(tb.contextMenu.chk005.isChecked()) #[0] All selectable meshes
 		repair = tb.contextMenu.chk004.isChecked() #repair or select only
@@ -135,7 +135,7 @@ class Edit_blender(Edit, Slots_blender):
 	def tb001(self, state=None):
 		'''Delete History
 		'''
-		tb = self.edit_ui.tb001
+		tb = self.sb.edit.tb001
 
 		all_ = tb.contextMenu.chk018.isChecked()
 		unusedNodes = tb.contextMenu.chk019.isChecked()
@@ -168,7 +168,7 @@ class Edit_blender(Edit, Slots_blender):
 	def tb002(self, state=None):
 		'''Delete
 		'''
-		tb = self.edit_ui.tb002
+		tb = self.sb.edit.tb002
 
 		deleteRing = tb.contextMenu.chk000.isChecked()
 		deleteLoop = tb.contextMenu.chk001.isChecked()
@@ -205,7 +205,7 @@ class Edit_blender(Edit, Slots_blender):
 	def tb003(self, state=None):
 		'''Delete Along Axis
 		'''
-		tb = self.edit_ui.tb003
+		tb = self.sb.edit.tb003
 
 		axis = self.getAxisFromCheckBoxes('chk006-9', tb.contextMenu)
 
@@ -221,7 +221,7 @@ class Edit_blender(Edit, Slots_blender):
 	def b001(self):
 		'''Object History Attributes: get most recent node
 		'''
-		cmb = self.edit_ui.cmb001
+		cmb = self.sb.edit.cmb001
 		self.cmb001() #refresh the contents of the combobox.
 
 		items = pm.ls(cmb.items[-1])

@@ -6,6 +6,7 @@
 class Math_tools():
 	'''
 	'''
+
 	@staticmethod
 	def areSimilar(a, b, tol=0.0):
 		'''Check if the two numberical values are within a given tolerance.

@@ -10,7 +10,7 @@ class Editors_max(Editors, Slots_max):
 		Slots_max.__init__(self, *args, **kwargs)
 		Editors.__init__(self, *args, **kwargs)
 
-		self.stackedWidget = self.dynLayout_ui.stackedWidget
+		self.stackedWidget = self.sb.dynLayout.stackedWidget
 
 		self.editors_ui.v000.setText('Command Panel')
 		self.editors_ui.v001.setText('Scene Explorer')

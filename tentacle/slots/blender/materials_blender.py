@@ -12,11 +12,11 @@ class Materials_blender(Materials, Slots_blender):
 
 		self.randomMat = None
 
-		dh = self.materials_ui.draggable_header
-		dh.contextMenu.add(self.ComboBox, setObjectName='cmb000', setToolTip='Material Editors')
-		dh.contextMenu.add(self.Label, setText='Material Attributes', setObjectName='lbl004', setToolTip='Show the material attributes in the attribute editor.')
+		dh = self.sb.materials.draggable_header
+		dh.contextMenu.add(self.sb.ComboBox, setObjectName='cmb000', setToolTip='Material Editors')
+		dh.contextMenu.add(self.sb.Label, setText='Material Attributes', setObjectName='lbl004', setToolTip='Show the material attributes in the attribute editor.')
 
-		cmb000 = self.materials_ui.draggable_header.contextMenu.cmb000
+		cmb000 = self.sb.materials.draggable_header.contextMenu.cmb000
 		items = []
 		cmb000.addItems_(items, 'Material Editors')
 
@@ -24,7 +24,7 @@ class Materials_blender(Materials, Slots_blender):
 	def cmb000(self, index=-1):
 		'''Editors
 		'''
-		cmb = self.materials_ui.draggable_header.contextMenu.cmb000
+		cmb = self.sb.materials.draggable_header.contextMenu.cmb000
 
 		if index>0:
 			text = cmb.items[index]
@@ -39,8 +39,8 @@ class Materials_blender(Materials, Slots_blender):
 		:Parameters:
 			index (int) = parameter on activated, currentIndexChanged, and highlighted signals.
 		'''
-		cmb = self.materials_ui.cmb002
-		b = self.materials_submenu_ui.b003
+		cmb = self.sb.materials.cmb002
+		b = self.sb.materials_submenu.b003
 
 		mode = cmb.contextMenu.cmb001.currentText()
 		if mode=='Scene Materials':
@@ -73,9 +73,9 @@ class Materials_blender(Materials, Slots_blender):
 	def tb000(self, state=None):
 		'''Select By Material Id
 		'''
-		tb = self.materials_ui.tb000
+		tb = self.sb.materials.tb000
 
-		mat = self.materials_ui.cmb002.currentData()
+		mat = self.sb.materials.cmb002.currentData()
 		if not mat:
 			return 'Error: No Material Selection.'
 
@@ -91,7 +91,7 @@ class Materials_blender(Materials, Slots_blender):
 	def tb002(self, state=None):
 		'''Assign Material
 		'''
-		tb = self.materials_ui.tb002
+		tb = self.sb.materials.tb002
 
 		selection = pm.ls(selection=1, flatten=1)
 		if not selection:
@@ -102,7 +102,7 @@ class Materials_blender(Materials, Slots_blender):
 		assignNew = tb.contextMenu.chk009.isChecked()
 
 		if assignCurrent: #Assign current mat
-			mat = self.materials_ui.cmb002.currentData()
+			mat = self.sb.materials.cmb002.currentData()
 			if isinstance(mat, str): #new mat type as a string:
 				self.assignMaterial(selection, pm.createNode(mat))
 			else: #existing mat object:
@@ -115,7 +115,7 @@ class Materials_blender(Materials, Slots_blender):
 			self.randomMat = mat
 
 			self.cmb002() #refresh the materials list comboBox
-			self.materials_ui.cmb002.setCurrentItem(mat.name()) #set the combobox index to the new mat #self.cmb002.setCurrentIndex(self.cmb002.findText(name))
+			self.sb.materials.cmb002.setCurrentItem(mat.name()) #set the combobox index to the new mat #self.cmb002.setCurrentIndex(self.cmb002.findText(name))
 
 		elif assignNew: #Assign New Material
 			mel.eval('buildObjectMenuItemsNow "MainPane|viewPanes|modelPanel4|modelPanel4|modelPanel4|modelPanel4ObjectPop";')
@@ -126,7 +126,7 @@ class Materials_blender(Materials, Slots_blender):
 		'''Open material in editor
 		'''
 		try:
-			mat = self.materials_ui.cmb002.currentData() #get the mat obj from cmb002
+			mat = self.sb.materials.cmb002.currentData() #get the mat obj from cmb002
 			pm.select(mat)
 		except:
 			return 'Error: No stored material or no valid object selected.'
@@ -137,28 +137,28 @@ class Materials_blender(Materials, Slots_blender):
 	def lbl001(self, setEditable=True):
 		'''Rename Material: Set cmb002 as editable and disable wgts.
 		'''
-		cmb = self.materials_ui.cmb002
+		cmb = self.sb.materials.cmb002
 
 		if setEditable:
-			self._mat = self.materials_ui.cmb002.currentData()
+			self._mat = self.sb.materials.cmb002.currentData()
 			cmb.setEditable(True)
-			self.toggleWidgets(self.materials_ui, setDisabled='b002,lbl000,tb000,tb002')
+			self.toggleWidgets(self.sb.materials, setDisabled='b002,lbl000,tb000,tb002')
 		else:
 			mat = self._mat
 			newMatName = cmb.currentText()
 			self.renameMaterial(mat, newMatName)
 			cmb.setEditable(False)
-			self.toggleWidgets(self.materials_ui, setEnabled='b002,lbl000,tb000,tb002')
+			self.toggleWidgets(self.sb.materials, setEnabled='b002,lbl000,tb000,tb002')
 
 
 	def lbl002(self):
 		'''Delete Material
 		'''
-		mat = self.materials_ui.cmb002.currentData()
+		mat = self.sb.materials.cmb002.currentData()
 		mat = pm.delete(mat)
 
-		index = self.materials_ui.cmb002.currentIndex()
-		self.materials_ui.cmb002.setItemText(index, 'None') #self.materials_ui.cmb002.removeItem(index)
+		index = self.sb.materials.cmb002.currentIndex()
+		self.sb.materials.cmb002.setItemText(index, 'None') #self.sb.materials.cmb002.removeItem(index)
 
 
 	def lbl003(self):
@@ -171,7 +171,7 @@ class Materials_blender(Materials, Slots_blender):
 	def lbl004(self):
 		'''Material Attributes: Show Material Attributes in the Attribute Editor.
 		'''
-		mat = self.materials_ui.cmb002.currentData()
+		mat = self.sb.materials.cmb002.currentData()
 		try:
 			mel.eval('showSG '+mat.name())
 
@@ -200,9 +200,9 @@ class Materials_blender(Materials, Slots_blender):
 
 		mat = self.getMaterial()
 
-		self.materials_ui.cmb002.contextMenu.cmb001.setCurrentIndex(0) #set the combobox to show all scene materials
+		self.sb.materials.cmb002.contextMenu.cmb001.setCurrentIndex(0) #set the combobox to show all scene materials
 		self.cmb002() #refresh the materials list comboBox
-		self.materials_ui.cmb002.setCurrentItem(mat.name())
+		self.sb.materials.cmb002.setCurrentItem(mat.name())
 
 
 	def getColorSwatchIcon(self, mat, size=[20, 20]):
@@ -232,7 +232,7 @@ class Materials_blender(Materials, Slots_blender):
 	def renameMaterial(self, mat, newMatName):
 		'''Rename Material
 		'''
-		cmb = self.materials_ui.cmb002 #scene materials
+		cmb = self.sb.materials.cmb002 #scene materials
 
 		curMatName = mat.name()
 		if curMatName!=newMatName:
@@ -401,7 +401,7 @@ print (__name__)
 	# def currentMat(self):
 	# 	'''Get the current material using the current index of the materials combobox.
 	# 	'''
-	# 	text = self.materials_ui.cmb002.currentText()
+	# 	text = self.sb.materials.cmb002.currentText()
 
 	# 	try:
 	# 		result = self.currentMats[text]
@@ -438,7 +438,7 @@ print (__name__)
 	# 	Existing Materials
 
 	# 	'''
-	# 	cmb = self.materials_ui.draggable_header.contextMenu.cmb000
+	# 	cmb = self.sb.materials.draggable_header.contextMenu.cmb000
 
 	# 	mats = [m for m in pm.ls(materials=1)]
 	# 	matNames = [m.name() for m in mats]

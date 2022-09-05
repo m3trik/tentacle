@@ -10,25 +10,25 @@ class Edit_max(Edit, Slots_max):
 		Slots_max.__init__(self, *args, **kwargs)
 		Edit.__init__(self, *args, **kwargs)
 
-		cmb = self.edit_ui.draggable_header.contextMenu.cmb000
+		cmb = self.sb.edit.draggable_header.contextMenu.cmb000
 		items = []
 		cmb.addItems_(items, 'Max Editors')
 
-		ctx = self.edit_ui.tb000.contextMenu
+		ctx = self.sb.edit.tb000.contextMenu
 		if not ctx.containsMenuItems:
 			ctx.add('QCheckBox', setText='N-Gons', setObjectName='chk002', setToolTip='Find N-gons.')
 			ctx.add('QCheckBox', setText='Isolated Vertex', setObjectName='chk003', setChecked=True, setToolTip='Find isolated vertices within specified angle threshold.')
 			ctx.add('QSpinBox', setPrefix='Loose Vertex Angle: ', setObjectName='s006', setMinMax_='1-360 step1', setValue=15, setToolTip='Loose vertex search: Angle Threshold.')
 			ctx.add('QCheckBox', setText='Repair', setObjectName='chk004', setToolTip='Repair matching geometry. (else: select)')
 
-		ctx = self.edit_ui.tb002.contextMenu
+		ctx = self.sb.edit.tb002.contextMenu
 		ctx.chk000.setDisabled(True) #disable: Delete Edge Ring.
 
 
 	def cmb000(self, index=-1):
 		'''Editors
 		'''
-		cmb = self.edit_ui.draggable_header.contextMenu.cmb000
+		cmb = self.sb.edit.draggable_header.contextMenu.cmb000
 
 		if index>0:
 			text = cmb.items[index]
@@ -41,7 +41,7 @@ class Edit_max(Edit, Slots_max):
 	def cmb001(self, index=-1):
 		'''Object History Attributes
 		'''
-		cmb = self.edit_ui.cmb001
+		cmb = self.sb.edit.cmb001
 
 		sel = list(rt.selection)
 		if sel:
@@ -62,7 +62,7 @@ class Edit_max(Edit, Slots_max):
 	def tb000(self, state=None):
 		'''Mesh Cleanup
 		'''
-		tb = self.edit_ui.tb000
+		tb = self.sb.edit.tb000
 
 		isolatedVerts = tb.contextMenu.chk003.isChecked() #isolated vertices
 		edgeAngle = tb.contextMenu.s006.value()
@@ -75,7 +75,7 @@ class Edit_max(Edit, Slots_max):
 	def tb001(self, state=None):
 		'''Delete History
 		'''
-		tb = self.edit_ui.tb001
+		tb = self.sb.edit.tb001
 
 		all_ = tb.contextMenu.chk018.isChecked()
 		unusedNodes = tb.contextMenu.chk019.isChecked()
@@ -116,7 +116,7 @@ class Edit_max(Edit, Slots_max):
 	def tb002(self, state=None):
 		'''Delete
 		'''
-		tb = self.edit_ui.tb002
+		tb = self.sb.edit.tb002
 
 		level = rt.subObjectLevel
 
@@ -296,7 +296,7 @@ class Edit_max(Edit, Slots_max):
 	def tb003(self, state=None):
 		'''Delete Along Axis
 		'''
-		tb = self.edit_ui.tb003
+		tb = self.sb.edit.tb003
 
 		# selection = pm.ls(sl=1, objectsOnly=1)
 		# axis = self.getAxisFromCheckBoxes('chk006-9', tb.contextMenu)
@@ -318,7 +318,7 @@ class Edit_max(Edit, Slots_max):
 	def b001(self):
 		'''Object History Attributes: get most recent node
 		'''
-		cmb = self.edit_ui.cmb001
+		cmb = self.sb.edit.cmb001
 		self.cmb001() #refresh the contents of the combobox.
 
 		items = pm.ls(cmb.items[-1])

@@ -10,7 +10,7 @@ class Utilities_max(Utilities, Slots_max):
 		Slots_max.__init__(self, *args, **kwargs)
 		Utilities.__init__(self, *args, **kwargs)
 
-		cmb = self.utilities_ui.draggable_header.contextMenu.cmb000
+		cmb = self.sb.utilities.draggable_header.contextMenu.cmb000
 		files = ['']
 		cmb.addItems_(files, '')
 
@@ -18,7 +18,7 @@ class Utilities_max(Utilities, Slots_max):
 	def cmb000(self, index=-1):
 		'''Editors
 		'''
-		cmb = self.utilities_ui.draggable_header.contextMenu.cmb000
+		cmb = self.sb.utilities.draggable_header.contextMenu.cmb000
 
 		if index>0:
 			text = cmb.items[index]

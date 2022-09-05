@@ -10,18 +10,18 @@ class Duplicate_maya(Duplicate, Slots_maya):
 		Slots_maya.__init__(self, *args, **kwargs)
 		Duplicate.__init__(self, *args, **kwargs)
 
-		dh = self.duplicate_ui.draggable_header
+		dh = self.sb.duplicate.draggable_header
 		items = ['Duplicate Special']
 		dh.contextMenu.cmb000.addItems_(items, 'Maya Menus')
 
-		tb000 = self.duplicate_ui.tb000
+		tb000 = self.sb.duplicate.tb000
 		tb000.contextMenu.add('QCheckBox', setText='Match Vertex Orientaion', setObjectName='chk001', setChecked=False, setToolTip='Attempt to match 3 points of the source to the same 3 points of the target.')
 
 
 	def cmb000(self, index=-1):
 		'''Editors
 		'''
-		cmb = self.duplicate_ui.draggable_header.contextMenu.cmb000
+		cmb = self.sb.duplicate.draggable_header.contextMenu.cmb000
 
 		if index>0:
 			if index==cmd.items.index('Duplicate Special'):
@@ -178,7 +178,7 @@ class Duplicate_maya(Duplicate, Slots_maya):
 			if translateToComponent:
 				if componentList:
 					for num, component in componentList.iteritems():
-						vertexPoint = self.transform().getComponentPoint(component)
+						vertexPoint = self.sb.transform.slots.getComponentPoint(component)
 
 						pm.xform (obj, rotation=[rotXYZ[0], rotXYZ[1], rotXYZ[2]])
 						pm.xform (obj, translation=[vertexPoint[0]+transXYZ[0], vertexPoint[1]+transXYZ[1], vertexPoint[2]+transXYZ[2]])
@@ -241,7 +241,7 @@ class Duplicate_maya(Duplicate, Slots_maya):
 	def tb000(self, state=None):
 		'''Convert to Instances
 		'''
-		tb = self.duplicate_ui.tb000
+		tb = self.sb.duplicate.tb000
 
 		transformByVertexOrder = tb.contextMenu.chk001.isChecked()
 
@@ -350,8 +350,8 @@ class Duplicate_maya(Duplicate, Slots_maya):
 			pm.makeIdentity(obj, apply=1, translate=1, rotate=0, scale=0)
 			
 			if transformByVertexOrder:
-				self.transform().matchTransformByVertexOrder(instance, obj)
-				if not self.transform().isOverlapping(instance, obj):
+				self.sb.transform.slots.matchTransformByVertexOrder(instance, obj)
+				if not self.sb.transform.slots.isOverlapping(instance, obj):
 					print ('# {}: Unable to match {} transforms. #'.format(instance, obj))
 			else:
 				pm.matchTransform(instance, obj, position=1, rotation=1, scale=1, pivots=1) #move object to center of the last selected items bounding box # pm.xform(instance, translation=pos, worldSpace=1, relative=1) #move to the original objects location.
@@ -433,11 +433,11 @@ print (__name__)
 	# 		instance = pm.instance(objects[0], leaf=leaf)
 
 	# 		# if transformByVertexOrder:
-	# 		# 	self.transform().matchTransformByVertexOrder(instance, obj)
-	# 		# 	if not self.transform().isOverlapping(instance, obj):
+	# 		# 	self.sb.transform.slots.matchTransformByVertexOrder(instance, obj)
+	# 		# 	if not self.sb.transform.slots.isOverlapping(instance, obj):
 	# 		# 		print ('# {}: Unable to match {} transforms. #'.format(instance, obj))
 	# 		# else:
-	# 		self.transform().moveTo(instance, obj) #source, target
+	# 		self.sb.transform.slots.moveTo(instance, obj) #source, target
 	# 		pm.matchTransform(instance, obj, position=0, rotation=1, scale=0, pivots=0) #move object to center of the last selected items bounding box # pm.xform(instance, translation=pos, worldSpace=1, relative=1) #move to the original objects location.
 
 	# 		try:

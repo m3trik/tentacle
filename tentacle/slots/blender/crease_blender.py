@@ -12,7 +12,7 @@ class Crease_blender(Crease, Slots_blender):
 
 		self.creaseValue = 10
 
-		cmb = self.crease_ui.draggable_header.contextMenu.cmb000
+		cmb = self.sb.crease.draggable_header.contextMenu.cmb000
 		items = []
 		cmb.addItems_(items, 'Crease Editors:')
 
@@ -20,7 +20,7 @@ class Crease_blender(Crease, Slots_blender):
 	def cmb000(self, index=-1):
 		'''Editors
 		'''
-		cmb = self.crease_ui.draggable_header.contextMenu.cmb000
+		cmb = self.sb.crease.draggable_header.contextMenu.cmb000
 
 		if index>0:
 			text = cmb.items[index]
@@ -34,7 +34,7 @@ class Crease_blender(Crease, Slots_blender):
 	def tb000(self, state=None):
 		'''Crease
 		'''
-		tb = self.crease_ui.tb000
+		tb = self.sb.crease.tb000
 
 		creaseAmount = float(tb.contextMenu.s003.value())
 		normalAngle = int(tb.contextMenu.s004.value()) 
@@ -76,8 +76,8 @@ class Crease_blender(Crease, Slots_blender):
 		# the use of separate buttons for donor and target mesh are deprecated.
 		# add pm.polySoftEdge (angle=0, constructionHistory=0); #harden edge, when applying crease.
 		
-		creaseSet = str(self.crease_ui.b000.text())
-		newObject = str(self.crease_ui.b001.text())
+		creaseSet = str(self.sb.crease.b000.text())
+		newObject = str(self.sb.crease.b001.text())
 
 		sets = pm.sets (creaseSet, query=1)
 
@@ -98,9 +98,9 @@ class Crease_blender(Crease, Slots_blender):
 			# print("crease:", name)
 		# pm.undoInfo (closeChunk=1)
 
-		self.toggleWidgets(setDisabled='b052', setUnChecked='b000')#,self.crease_ui.b001])
-		self.crease_ui.b000.setText("Crease Set")
-		# self.crease_ui.b001.setText("Object")
+		self.toggleWidgets(setDisabled='b052', setUnChecked='b000')#,self.sb.crease.b001])
+		self.sb.crease.b000.setText("Crease Set")
+		# self.sb.crease.b001.setText("Object")
 
 
 	def getCreasedEdges(self, edges):

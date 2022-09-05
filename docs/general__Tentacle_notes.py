@@ -204,8 +204,6 @@ def tree000(self, wItem=None, column=None):
 # IndexError: list index out of range
 
 
-
-
 # Traceback (most recent call last):
 #   File "O:/Cloud/Code/_scripts/tentacle\tentacle\slots\uv.py", line 97, in b000
 #     self.tb000() #perform pack
@@ -222,7 +220,6 @@ def tree000(self, wItem=None, column=None):
 # AttributeError: nt.Transform('|group') has no attribute or method named 'f'
 
 
-
 tool:
 use the 3 point align function to quickly align two objects using two selected faces, 
 then click through the various vertex combinatons to get the correct alignment.
@@ -233,7 +230,6 @@ turn on transform constraints while modifier key down.
 
 
 ui:
-hide groupboxes in menus where the contents are a subsection of a previous menu instead of having actual duplicate menus. ex. polygons_vertices would hide everything but the vertices groupbox. 
 dockable windows
 
 
@@ -241,15 +237,7 @@ double left click always toggles between current and perspective cameras.
 
 
 scene:
-add another while loop so that the command doesnt have to execute more than once to get the desired result.
 add invert option to naming find field combobox.
-check if all or most of the names end in _L or _R and do not strip.
-
-
-instead of using sb.setSyncAttributesConnections to sync widgets, add the static ui widgets to sb dict so that they are auto synced.
-
-
-fix syntax highlighting
 
 
 attribute windows pop up solution.  current pop up is far more annoying than useful.
@@ -267,7 +255,7 @@ replace other tree widget instances with popup windows.
 
 
 maya macros:
-'3' wireframe on shaded not working. (works after manually turning on)
+'3' wireframe on shaded not working. (works after manually turning toggled)
 extend 'ctl+d' to duplicate faces only when in face selection mode.
 'f3' ghost selected instead of ghost other.
 maya.macros: isolate selected: incorrect mod panel.

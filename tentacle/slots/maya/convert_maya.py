@@ -10,11 +10,11 @@ class Convert_maya(Convert, Slots_maya):
 		Slots_maya.__init__(self, *args, **kwargs)
 		Convert.__init__(self, *args, **kwargs)
 
-		cmb = self.convert_ui.draggable_header.contextMenu.cmb000
+		cmb = self.sb.convert.draggable_header.contextMenu.cmb000
 		list_ = ['']
 		cmb.addItems_(list_, '')
 
-		cmb = self.convert_ui.cmb001
+		cmb = self.sb.convert.cmb001
 		list_ = ['NURBS to Polygons', 'NURBS to Subdiv', 'Polygons to Subdiv', 'Smooth Mesh Preview to Polygons', 'Polygon Edges to Curve', 'Type to Curves', 'Subdiv to Polygons', 'Subdiv to NURBS', 'NURBS Curve to Bezier', 'Bezier Curve to NURBS', 'Paint Effects to NURBS', 'Paint Effects to Curves', 'Texture to Geometry', 'Displacement to Polygons', 'Displacement to Polygons with History', 'Fluid to Polygons', 'nParticle to Polygons', 'Instance to Object', 'Geometry to Bounding Box', 'Convert XGen Primitives to Polygons'] 
 		contents = cmb.addItems_(list_, 'Convert To')
 
@@ -22,7 +22,7 @@ class Convert_maya(Convert, Slots_maya):
 	def cmb000(self, index=-1):
 		'''Editors
 		'''
-		cmb = self.convert_ui.draggable_header.contextMenu.cmb000
+		cmb = self.sb.convert.draggable_header.contextMenu.cmb000
 
 		if index>0:
 			text = cmb.items[index]
@@ -34,7 +34,7 @@ class Convert_maya(Convert, Slots_maya):
 	def cmb001(self, index=-1):
 		'''Convert To
 		'''
-		cmb = self.convert_ui.cmb001
+		cmb = self.sb.convert.cmb001
 
 		if index>0:
 			text = cmb.items[index]

@@ -7,20 +7,6 @@ import inspect
 
 
 
-def greeting(version=True):
-	'''
-	'''
-	import datetime
-
-	#print greeting
-	hour = datetime.datetime.now().hour
-	greeting = "morning" if 5<=hour<12 else "afternoon" if hour<18 else "evening"
-	print("Good {}!".format(greeting))
-
-	if version:#print python version
-		print ('You are using python interpreter version {}.{}.{}'.format(sys.version_info[0], sys.version_info[1], sys.version_info[2]))
-
-
 def import_modules(importAll=False):
 	'''
 	'''
@@ -34,7 +20,6 @@ def import_modules(importAll=False):
 		if module == '__init__.py' or mod_ext != '.py':
 			continue
 
-		print (mod_name, mod_ext)
 		mod = importlib.import_module(mod_name)
 
 		if importAll:
@@ -56,11 +41,8 @@ def import_modules(importAll=False):
 		del module
 
 
-greeting()
-import_modules()
-# globals()['__package__'] = 'tentacle'
-
-
+import_modules(importAll=0)
+# globals()['__package__'] = 'tools'
 
 
 

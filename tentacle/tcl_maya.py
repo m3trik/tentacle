@@ -91,8 +91,6 @@ class Tcl_maya(Tcl):
 
 if __name__ == "__main__":
 	app = QtWidgets.QApplication.instance() #get the qApp instance if it exists.
-	if not app:
-		app = QtWidgets.QApplication(sys.argv)
 
 	#create a generic parent object to run the code outside of maya.
 	dummyParent = QtWidgets.QWidget()

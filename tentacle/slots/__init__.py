@@ -14,20 +14,12 @@ class Slots(QtCore.QObject, Math_tools):
 
 	If you need to create a invokable method that returns some value, declare it as a slot, e.g.:
 	@Slot(result=int, float)
-	def getFloatReturnInt(self, f):
-		return int(f)
+	ex. def getFloatReturnInt(self, f):
+			return int(f)
 	'''
 	def __init__(self, parent=None, *args, **kwargs):
 		QtCore.QObject.__init__(self, parent)
 		'''
-		:Parameters: 
-			**kwargs (inherited from this class's respective slot child class, and originating from switchboard.setClassInstanceFromUiName)
-				properties:
-					sb (class instance) = The switchboard instance.  Allows access to ui and slot objects across modules.
-					<name>_ui (ui object) = The ui of <name> ie. self.polygons for the ui of filename polygons. ie. self.polygons_ui
-				functions:
-					current_ui (lambda function) = Returns the current ui if it is either the parent or a child ui for the class; else, return the parent ui. ie. self.current_ui()
-					<name> (lambda function) = Returns the slot class instance of that name.  ie. self.polygons()
 		'''
 		for k, v in kwargs.items():
 			setattr(self, k, v)
@@ -43,7 +35,7 @@ class Slots(QtCore.QObject, Math_tools):
 
 
 	@staticmethod
-	def getObjects(class_, objectNames, showError_=False):
+	def getWidgets(class_, objectNames, showError_=False):
 		'''Get a list of corresponding objects from a shorthand string.
 		ie. 's000,b002,cmb011-15' would return object list: [<s000>, <b002>, <cmb011>, <cmb012>, <cmb013>, <cmb014>, <cmb015>]
 
@@ -55,16 +47,16 @@ class Slots(QtCore.QObject, Math_tools):
 		:Return:
 			(list) of corresponding objects
 
-		#ex call: getObjects(self.ui, 's000,b002,cmb011-15')
+		#ex call: getWidgets(self.ui, 's000,b002,cmb011-15')
 		'''
 		objects=[]
 		for name in Slots.unpackNames(objectNames):
 			try:
-				objects.append(getattr(class_, name)) #equivilent to:(self.current_ui().m000)
+				objects.append(getattr(class_, name)) #equivilent to:(self.sb.currentUi.m000)
 
 			except AttributeError as error:
 				if showError_:
-					print("slots: '{}.getObjects:' objects.append(getattr({}, {})) {}".format(__name__, class_, name, error))
+					print("slots: '{}.getWidgets:' objects.append(getattr({}, {})) {}".format(__name__, class_, name, error))
 
 		return objects
 
@@ -166,16 +158,16 @@ class Slots(QtCore.QObject, Math_tools):
 		ex call: self.connect_('chk000-2', 'toggled', self.cmb002, tb.contextMenu)
 		*or self.connect_([tb.contextMenu.chk000, tb.contextMenu.chk001], 'toggled', self.cmb002)
 		*or self.connect_(tb.contextMenu.chk015, 'toggled', 
-				[lambda state: self.rigging_ui.tb004.setText('Unlock Transforms' if state else 'Lock Transforms'), 
-				lambda state: self.rigging_submenu_ui.tb004.setText('Unlock Transforms' if state else 'Lock Transforms')])
+				[lambda state: self.sb.rigging.tb004.setText('Unlock Transforms' if state else 'Lock Transforms'), 
+				lambda state: self.sb.rigging_submenu.tb004.setText('Unlock Transforms' if state else 'Lock Transforms')])
 		'''
 		list_ = lambda x: list(x) if isinstance(x, (list, tuple, set, dict)) else [x] #assure the arg is a list.
 
 		if isinstance(widgets, (str)):
 			try:
-				widgets = Slots.getObjects(class_, widgets, showError_=True) #getObjects returns a widget list from a string of objectNames.
+				widgets = Slots.getWidgets(class_, widgets, showError_=True) #getWidgets returns a widget list from a string of objectNames.
 			except Exception as error:
-				widgets = Slots.getObjects(self.sb.getUi(), widgets, showError_=True)
+				widgets = Slots.getWidgets(self.sb.getUi(), widgets, showError_=True)
 
 		#if the variables are not of a list type; convert them.
 		widgets = list_(widgets)
@@ -200,13 +192,13 @@ class Slots(QtCore.QObject, Math_tools):
 		ex.	self.toggleWidgets(<ui1>, <ui2>, setDisabled='b000', setUnChecked='chk009-12', setVisible='b015,b017')
 		'''
 		if not args:
-			parentUi = self.sb.getUi(self.current_ui(), level=3)
-			childUi = self.sb.getUi(self.current_ui(), level=2)
+			parentUi = self.sb.currentUi.level3
+			childUi = self.sb.currentUi.level2
 			args = [childUi, parentUi]
 
 		for ui in args:
 			for k in kwargs: #property_ ie. setUnChecked
-				widgets = Slots.getObjects(ui, kwargs[k]) #getObjects returns a widget list from a string of objectNames.
+				widgets = Slots.getWidgets(ui, kwargs[k]) #getWidgets returns a widget list from a string of objectNames.
 
 				state = True
 				if 'Un' in k: #strips 'Un' and sets the state from True to False. ie. 'setUnChecked' becomes 'setChecked' (False)
@@ -228,12 +220,12 @@ class Slots(QtCore.QObject, Math_tools):
 		ex.	self.setWidgetKwargs('chk003', <ui1>, <ui2>, setText='Un-Crease')
 		'''
 		if not args[1:]:
-			parentUi = self.sb.getUi(self.current_ui(), level=3)
-			childUi = self.sb.getUi(self.current_ui(), level=2)
+			parentUi = self.sb.currentUi.level3
+			childUi = self.sb.currentUi.level2
 			args = args+(parentUi, childUi)
 
 		for ui in args[1:]:
-			widgets = Slots.getObjects(ui, args[0]) #getObjects returns a widget list from a string of objectNames.
+			widgets = Slots.getWidgets(ui, args[0]) #getWidgets returns a widget list from a string of objectNames.
 			for property_, value in kwargs.items():
 				[getattr(w, property_)(value) for w in widgets] #set the property state for each widget in the list.
 
@@ -249,8 +241,8 @@ class Slots(QtCore.QObject, Math_tools):
 		'''
 		if isinstance(checkboxes, (str)):
 			if ui is None:
-				ui = self.current_ui()
-			checkboxes = Slots.getObjects(ui, checkboxes)
+				ui = self.sb.currentUi
+			checkboxes = Slots.getWidgets(ui, checkboxes)
 
 		prefix = '-' if '-' in axis else '' #separate the prefix and axis
 		coord = axis.strip('-')
@@ -273,8 +265,8 @@ class Slots(QtCore.QObject, Math_tools):
 		'''
 		if isinstance(checkboxes, (str)):
 			if ui is None:
-				ui = self.current_ui()
-			checkboxes = Slots.getObjects(ui, checkboxes, showError_=1)
+				ui = self.sb.currentUi
+			checkboxes = Slots.getWidgets(ui, checkboxes, showError_=1)
 
 		prefix=axis=''
 		for chk in checkboxes:
@@ -319,7 +311,7 @@ class Slots(QtCore.QObject, Math_tools):
 	@staticmethod
 	def unpackNames(nameString):
 		'''Get a list of individual names from a single name string.
-		If you are looking to get multiple objects from a name string, call 'getObjects' directly instead.
+		If you are looking to get multiple objects from a name string, call 'getWidgets' directly instead.
 
 		:Parameters:
 			nameString = string consisting of widget names separated by commas. ie. 'v000, b004-6'
@@ -458,7 +450,7 @@ class Slots(QtCore.QObject, Math_tools):
 			self._progressBar = ProgressBar(self.sb.parent())
 
 			try:
-				self.current_ui().progressBar.step1
+				self.sb.currentUi.progressBar.step1
 			except AttributeError:
 				pass
 
@@ -554,8 +546,8 @@ class Slots(QtCore.QObject, Math_tools):
 
 # 	if op in (0, 1): #
 # 		if isinstance(widgets, (str)):
-# 			from_widgets = Slots.getObjects(from_ui, widgets) #returns a list of widget objects from a string of objectNames.  ie. [<b000>, <b001>, ..] from 'b000-12,b022'
-# 			to_widgets = Slots.getObjects(to_ui, widgets)
+# 			from_widgets = Slots.getWidgets(from_ui, widgets) #returns a list of widget objects from a string of objectNames.  ie. [<b000>, <b001>, ..] from 'b000-12,b022'
+# 			to_widgets = Slots.getWidgets(to_ui, widgets)
 # 		else: #if list of widget objects:
 # 			from_widgets = widgets
 # 			to_widgets = [self.sb.getWidget(w.objectName(), ui=to_ui) for w in widgets]
@@ -620,7 +612,7 @@ class Slots(QtCore.QObject, Math_tools):
 	# 	ex. self.setSpinboxes (self.ui, spinboxNames='s000', attributes={'size':5} #explicit;  set single s000 with a label 'size' and value of 5
 	# 	'''
 	# 	if isinstance(spinboxes, (str)):
-	# 		spinboxes = Slots.getObjects(ui, spinboxes) #get spinbox objects
+	# 		spinboxes = Slots.getWidgets(ui, spinboxes) #get spinbox objects
 
 	# 	#set values
 	# 	for index, (key, value) in enumerate(attributes.items()):
@@ -708,27 +700,27 @@ class Slots(QtCore.QObject, Math_tools):
 	# 	ex.	setButtons(self.ui, disable='b000', unchecked='chk009-12', invisible='b015')
 	# 	'''
 	# 	if checked:
-	# 		checked = Slots.getObjects(ui, checked)
+	# 		checked = Slots.getWidgets(ui, checked)
 	# 		[button.setChecked(True) for button in checked]
 			
 	# 	if unchecked:
-	# 		unchecked = Slots.getObjects(ui, unchecked)
+	# 		unchecked = Slots.getWidgets(ui, unchecked)
 	# 		[button.setChecked(False) for button in unchecked]
 			
 	# 	if enable:
-	# 		enable = Slots.getObjects(ui, enable)
+	# 		enable = Slots.getWidgets(ui, enable)
 	# 		[button.setEnabled(True) for button in enable]
 			
 	# 	if disable:
-	# 		disable = Slots.getObjects(ui, disable)
+	# 		disable = Slots.getWidgets(ui, disable)
 	# 		[button.setDisabled(True) for button in disable]
 			
 	# 	if visible:
-	# 		visible = Slots.getObjects(ui, visible)
+	# 		visible = Slots.getWidgets(ui, visible)
 	# 		[button.setVisible(True) for button in visible]
 			
 	# 	if invisible:
-	# 		invisible = Slots.getObjects(ui, invisible)
+	# 		invisible = Slots.getWidgets(ui, invisible)
 	# 		[button.setVisible(False) for button in invisible]
 
 
@@ -745,7 +737,7 @@ class Slots(QtCore.QObject, Math_tools):
 # 	ex. self.setSpinboxes (self.ui, values=[("width",1),("length ratio",1),("patches U",1),("patches V",1)]) #range. dict 'value's will be added to corresponding spinbox starting at s000 through s003.
 # 	ex. self.setSpinboxes (self.ui, spinboxNames='s000', values=[('size',5)]) #explicit;  set single s000 with a label 'size' and value of 5. multiple spinboxes can be set this way. specify a range of spinboxes using 's010-18'.
 # 	'''
-# 	spinboxes = Slots.getObjects(ui, spinboxNames) #get spinbox objects
+# 	spinboxes = Slots.getWidgets(ui, spinboxNames) #get spinbox objects
 
 # 	#clear previous values
 # 	for spinbox in spinboxes:
@@ -799,7 +791,7 @@ class Slots(QtCore.QObject, Math_tools):
 
 	# 	:Return:
 	# 		comboBox's current item list minus any title.
-	# 	ex. comboBox (self.current_ui().cmb003, ["Import file", "Import Options"], "Import")
+	# 	ex. comboBox (self.sb.currentUi.cmb003, ["Import file", "Import Options"], "Import")
 	# 	'''
 	# 	comboBox.blockSignals(True) #to keep clear from triggering currentIndexChanged
 	# 	index = comboBox.currentIndex() #get current index before refreshing list

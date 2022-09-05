@@ -10,21 +10,21 @@ class Subdivision_blender(Subdivision, Slots_blender):
 		Slots_blender.__init__(self, *args, **kwargs)
 		Subdivision.__init__(self, *args, **kwargs)
 
-		ctx = self.subdivision_ui.draggable_header.contextMenu
+		ctx = self.sb.subdivision.draggable_header.contextMenu
 		if not ctx.containsMenuItems:
-			ctx.add(self.ComboBox, setObjectName='cmb000', setToolTip='Subdivision Editiors.')
-			ctx.add(self.ComboBox, setObjectName='cmb001', setToolTip='Smooth Proxy.')
-			ctx.add(self.ComboBox, setObjectName='cmb002', setToolTip='Maya Subdivision Operations.')
+			ctx.add(self.sb.ComboBox, setObjectName='cmb000', setToolTip='Subdivision Editiors.')
+			ctx.add(self.sb.ComboBox, setObjectName='cmb001', setToolTip='Smooth Proxy.')
+			ctx.add(self.sb.ComboBox, setObjectName='cmb002', setToolTip='Maya Subdivision Operations.')
 
-		cmb = self.subdivision_ui.draggable_header.contextMenu.cmb000
+		cmb = self.sb.subdivision.draggable_header.contextMenu.cmb000
 		items = ['Polygon Display Options']
 		cmb.addItems_(items, 'Subdivision Editiors')
 
-		cmb = self.subdivision_ui.draggable_header.contextMenu.cmb001
+		cmb = self.sb.subdivision.draggable_header.contextMenu.cmb001
 		items = ['Create Subdiv Proxy','Remove Subdiv Proxy Mirror','Crease Tool','Toggle Subdiv Proxy Display', 'Both Proxy and Subdiv Display']
 		cmb.addItems_(items, 'Smooth Proxy')
 
-		cmb = self.subdivision_ui.draggable_header.contextMenu.cmb002
+		cmb = self.sb.subdivision.draggable_header.contextMenu.cmb002
 		items = ['Reduce Polygons','Add Divisions','Smooth']
 		cmb.addItems_(items, 'Maya Subdivision Operations')
 
@@ -32,7 +32,7 @@ class Subdivision_blender(Subdivision, Slots_blender):
 	def cmb000(self, index=-1):
 		'''Editors
 		'''
-		cmb = self.subdivision_ui.draggable_header.contextMenu.cmb000
+		cmb = self.sb.subdivision.draggable_header.contextMenu.cmb000
 
 		if index>0:
 			text = cmb.items[index]
@@ -44,7 +44,7 @@ class Subdivision_blender(Subdivision, Slots_blender):
 	def cmb001(self, index=-1):
 		'''Smooth Proxy
 		'''
-		cmb = self.subdivision_ui.draggable_header.contextMenu.cmb001
+		cmb = self.sb.subdivision.draggable_header.contextMenu.cmb001
 
 		if index>0:
 			text = cmb.items[index]
@@ -64,7 +64,7 @@ class Subdivision_blender(Subdivision, Slots_blender):
 	def cmb002(self, index=-1):
 		'''Maya Subdivision Operations
 		'''
-		cmb = self.subdivision_ui.draggable_header.contextMenu.cmb002
+		cmb = self.sb.subdivision.draggable_header.contextMenu.cmb002
 
 		if index>0:
 			if index is cmb.items.index('Reduce Polygons'):
@@ -79,7 +79,7 @@ class Subdivision_blender(Subdivision, Slots_blender):
 	def s000(self, value=None):
 		'''Division Level
 		'''
-		value = self.subdivision_ui.s000.value()
+		value = self.sb.subdivision.s000.value()
 
 		shapes = pm.ls(sl=1, dag=1, leaf=1)
 		transforms = pm.listRelatives(shapes, p=True)
@@ -93,7 +93,7 @@ class Subdivision_blender(Subdivision, Slots_blender):
 	def s001(self, value=None):
 		'''Tesselation Level
 		'''
-		value = self.subdivision_ui.s001.value()
+		value = self.sb.subdivision.s001.value()
 
 		shapes = pm.ls(sl=1, dag=1, leaf=1)
 		transforms = pm.listRelatives(shapes, p=True)
