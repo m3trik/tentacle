@@ -229,7 +229,7 @@ class Materials_maya(Materials, Slots_maya):
 
 			return QtGui.QIcon(pixmap)
 
-		except AttributeError:
+		except Exception as error:
 			pass
 
 

@@ -20,7 +20,7 @@ class Editors_max(Editors, Slots_max):
 		self.editors_ui.v005.setText('Schematic View')
 		self.editors_ui.v006.setText('Asset Tracking')
 
-		tree = self.editors_lower_submenu_ui.tree000
+		tree = self.sb.editors_lower_submenu.tree000
 		tree.expandOnHover = True
 
 		l = ['General Editors', 'Modeling Editors', 'Animation Editors', 'Rendering Editors', 'Relationship Editors']
@@ -57,7 +57,7 @@ class Editors_max(Editors, Slots_max):
 	def tree000(self, wItem=None, column=None):
 		'''All Editors
 		'''
-		tree = self.editors_lower_submenu_ui.tree000
+		tree = self.sb.editors_lower_submenu.tree000
 
 		if not any([wItem, column]): # code here will run before each show event. generally used to refresh tree contents. -----------------------------
 			return

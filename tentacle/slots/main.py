@@ -11,7 +11,7 @@ class Main(Slots):
 		'''
 		'''
 		# tree = self.sb.main_lower_submenu.tree000
-		tree = self.sb.getUi('main_lower_submenu').tree000
+		tree = self.sb.main_lower_submenu.tree000
 		tree.expandOnHover = True
 		tree.convert(tree.getTopLevelItems(), 'QLabel') #construct the tree using the existing contents.
 

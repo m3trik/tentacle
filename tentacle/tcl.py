@@ -26,6 +26,10 @@ class Tcl(QtWidgets.QStackedWidget):
 	'''
 	_key_show_release = QtCore.Signal()
 
+	qApp = QtWidgets.QApplication.instance() #get the qApp instance if it exists.
+	if not qApp:
+		qApp = QtWidgets.QApplication(sys.argv)
+
 	def __init__(self, parent=None, key_show='Key_F12', preventHide=False, profile=False):
 		QtWidgets.QStackedWidget.__init__(self, parent)
 
@@ -34,14 +38,14 @@ class Tcl(QtWidgets.QStackedWidget):
 		self.key_close = QtCore.Qt.Key_Escape
 		self.profile = profile
 		self.preventHide = preventHide
-		# self.sb.qApp.setDoubleClickInterval(400)
-		# self.sb.qApp.setKeyboardInputInterval(400)
+		# self.qApp.setDoubleClickInterval(400)
+		# self.qApp.setKeyboardInputInterval(400)
 
 		self.setWindowFlags(QtCore.Qt.Tool|QtCore.Qt.FramelessWindowHint)
 		self.setAttribute(QtCore.Qt.WA_TranslucentBackground)
 		self.setAttribute(QtCore.Qt.WA_SetStyle) #Indicates that the widget has a style of its own.
 
-		appName = self.parent().objectName().lower().rstrip('Window')
+		appName = self.parent().objectName().lower().rstrip('Window') if self.parent() else None
 		self.sb = Switchboard(self, appName)
 		self.sb.slotDir = os.path.join(self.sb.slotDir, appName)
 		self.sb.loadAllUi(widgets=rwidgets)
@@ -49,7 +53,7 @@ class Tcl(QtWidgets.QStackedWidget):
 		self.childEvents = EventFactoryFilter(self)
 		self.overlay = OverlayFactoryFilter(self, antialiasing=True) #Paint events are handled by the overlay module.
 
-		self.sb.qApp.focusChanged.connect(self.focusChanged)
+		self.qApp.focusChanged.connect(self.focusChanged)
 
 		self.centerPos = lambda: QtGui.QCursor.pos() - self.rect().center() #get the center point of this widget.
 		self.moveToAndCenter = lambda w, p: w.move(QtCore.QPoint(p.x()-(w.width()/2), p.y()-(w.height()/4))) #center a given widget on a given position.
@@ -67,6 +71,7 @@ class Tcl(QtWidgets.QStackedWidget):
 			self.addWidget(ui) #add the ui to the stackedLayout.
 
 		else: #popup ui.
+			ui.setParent(self)
 			ui.setWindowFlags(QtCore.Qt.Tool|QtCore.Qt.FramelessWindowHint)
 			ui.setAttribute(QtCore.Qt.WA_TranslucentBackground)
 			# ui.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
@@ -197,7 +202,7 @@ class Tcl(QtWidgets.QStackedWidget):
 		# self._key_show_press.emit(True)
 
 		if not event.isAutoRepeat():
-			modifiers = self.sb.qApp.keyboardModifiers()
+			modifiers = self.qApp.keyboardModifiers()
 
 			if event.key()==self.key_show:
 				self.show()
@@ -215,7 +220,7 @@ class Tcl(QtWidgets.QStackedWidget):
 			event = <QEvent>
 		'''
 		if not event.isAutoRepeat():
-			modifiers = self.sb.qApp.keyboardModifiers()
+			modifiers = self.qApp.keyboardModifiers()
 
 			if event.key()==self.key_show and not modifiers==QtCore.Qt.ControlModifier:
 				self._key_show_release.emit()
@@ -230,7 +235,7 @@ class Tcl(QtWidgets.QStackedWidget):
 		:Parameters:
 			event = <QEvent>
 		'''
-		modifiers = self.sb.qApp.keyboardModifiers()
+		modifiers = self.qApp.keyboardModifiers()
 
 		if self.sb.currentUi.level<3:
 			self.move(self.centerPos())
@@ -283,7 +288,7 @@ class Tcl(QtWidgets.QStackedWidget):
 		:Parameters:
 			event = <QEvent>
 		'''
-		modifiers = self.sb.qApp.keyboardModifiers()
+		modifiers = self.qApp.keyboardModifiers()
 
 		if self.sb.currentUi.level<3:
 			if event.button()==QtCore.Qt.LeftButton:
@@ -378,7 +383,7 @@ class Tcl(QtWidgets.QStackedWidget):
 			event = <QEvent>
 		'''
 		if __name__ == "__main__":
-			self.sb.qApp.quit()
+			self.qApp.quit()
 			sys.exit() #assure that the sys processes are terminated during testing.
 
 		return QtWidgets.QStackedWidget.hideEvent(self, event)

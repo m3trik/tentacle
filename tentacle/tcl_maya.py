@@ -17,7 +17,9 @@ class Tcl_maya(Tcl):
 	:Parameters:
 		parent = Application top level window instance.
 	'''
-	qApp = QtWidgets.QApplication
+	qApp = QtWidgets.QApplication.instance() #get the qApp instance if it exists.
+	if not qApp:
+		qApp = QtWidgets.QApplication(sys.argv)
 
 	def __init__(self, parent=None, *args, **kwargs):
 		'''

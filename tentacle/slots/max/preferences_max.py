@@ -119,22 +119,5 @@ print (__name__)
 # -----------------------------------------------
 
 
-	# def cmb000(self, index=-1):
-	# 	'''
-	# 	Custom Menu Set
-	# 	'''
-	# 	cmb = self.sb.preferences.draggable_header.contextMenu.cmb000
-		
-	# 	list_ = ['Modeling', 'Normals', 'Materials', 'UV'] #combobox list menu corresponding to the button text sets.
-	# 	contents = cmb.addItems_(list_, 'Menu Sets')
-
-	# 	if not index:
-			# index = cmb.currentIndex()
-	# 	buttons = self.getObjects(self.sb.getUi('main'), 'v000-11') #the ui in which the changes are to be made.
-	# 	for i, button in enumerate(buttons):
-	# 		if index==1: #set the text for each button.
-	# 			button.setText(['','','','','','','','','','','',''][i])
-
-	# 		if index==2:
-	# 			button.setText(['','','','','','','','','','','',''][i])
+# deprecated:
 

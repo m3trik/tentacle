@@ -10,7 +10,7 @@ class Editors_blender(Editors, Slots_blender):
 		Slots_blender.__init__(self, *args, **kwargs)
 		Editors.__init__(self, *args, **kwargs)
 
-		tree = self.editors_lower_submenu_ui.tree000
+		tree = self.sb.editors_lower_submenu.tree000
 		tree.expandOnHover = True
 
 		l = []
@@ -36,7 +36,7 @@ class Editors_blender(Editors, Slots_blender):
 	def tree000(self, wItem=None, column=None):
 		'''
 		'''
-		tree = self.editors_lower_submenu_ui.tree000
+		tree = self.sb.editors_lower_submenu.tree000
 
 		if not any([wItem, column]): # code here will run before each show event. generally used to refresh tree contents. -----------------------------
 			return

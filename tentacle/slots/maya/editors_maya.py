@@ -10,7 +10,7 @@ class Editors_maya(Editors, Slots_maya):
 		Slots_maya.__init__(self, *args, **kwargs)
 		Editors.__init__(self, *args, **kwargs)
 
-		tree = self.editors_lower_submenu_ui.tree000
+		tree = self.sb.editors_lower_submenu.tree000
 		tree.expandOnHover = True
 
 		l = ['General Editors', 'Modeling Editors', 'Animation Editors', 'Rendering Editors', 'Relationship Editors']
@@ -35,7 +35,7 @@ class Editors_maya(Editors, Slots_maya):
 	def tree000(self, wItem=None, column=None):
 		'''
 		'''
-		tree = self.editors_lower_submenu_ui.tree000
+		tree = self.sb.editors_lower_submenu.tree000
 
 		if not any([wItem, column]): # code here will run before each show event. generally used to refresh tree contents. -----------------------------
 			return

@@ -18,6 +18,7 @@ class EventFactoryFilter(QtCore.QObject):
 	enterEvent_ = QtCore.QEvent(QtCore.QEvent.Enter)
 	leaveEvent_ = QtCore.QEvent(QtCore.QEvent.Leave)
 
+	qApp = QtWidgets.QApplication.instance()
 
 	def __init__(self, tcl):
 		super(EventFactoryFilter, self).__init__(tcl)
@@ -312,7 +313,7 @@ class EventFactoryFilter(QtCore.QObject):
 					name, *gbNames = self.w.whatsThis().split('#') #get any groupbox names that were prefixed by '#'.
 					groupBoxes = self.sb.getWidgetsByType('QGroupBox', name)
 					[gb.hide() if gbNames and not gb.name in gbNames else gb.show() for gb in groupBoxes] #show only groupboxes with those names if any were given, else show all.
-					# self.sb.qApp.processEvents() #the minimum size is not computed until some events are processed in the event loop.
+					# self.qApp.processEvents() #the minimum size is not computed until some events are processed in the event loop.
 					self.tcl.setUi(name)
 
 				elif self.w.prefix=='v':
@@ -349,7 +350,7 @@ class EventFactoryFilter(QtCore.QObject):
 		'''
 		if not event.isAutoRepeat():
 			# print ('keyPressEvent (childEvents): 0')
-			modifiers = self.sb.qApp.keyboardModifiers()
+			modifiers = self.qApp.keyboardModifiers()
 
 			if event.key()==self.tcl.key_close:
 				self.close()
@@ -365,7 +366,7 @@ class EventFactoryFilter(QtCore.QObject):
 		'''
 		if not event.isAutoRepeat():
 			# print ('keyReleaseEvent (childEvents): 0')
-			modifiers = self.sb.qApp.keyboardModifiers()
+			modifiers = self.qApp.keyboardModifiers()
 
 			if event.key()==self.tcl.key_show and not modifiers==QtCore.Qt.ControlModifier:
 				if self.w.name=='mainWindow':#self.w.type=='QMainWindow':
@@ -393,71 +394,3 @@ print (__name__)
 
 #deprecated:
 
-
-		# for w in trackedWidgets: #get all tracked widgets of the current ui.
-
-		# 	# try:
-		# 	if w.rect().contains(w.mapFromGlobal(QtGui.QCursor.pos())): #if mouse cursor is over widget:
-		# 		# print ('mouseTracking: {}.{}'.format(self.sb.getUiName(ui), self.sb.getWidgetName(widget, ui))) #debug
-		# 		if not w in self._mouseOver: #if widget already in mouseOver list, do not re-process the events.
-		# 			self._mouseOver.append(w)
-		# 			QtWidgets.QApplication.sendEvent(w, self.enterEvent_)
-
-		# 	else:
-		# 		try:
-		# 			self._mouseOver.remove(w)
-		# 			QtWidgets.QApplication.sendEvent(w, self.leaveEvent_)
-		# 		except ValueError as error:
-		# 			pass
-
-			# except (AttributeError, TypeError) as error:
-			# 	pass; #print ('# Error: {}.EventFactoryFilter.mouseTracking: {}. #'.format(__name__, error)) #debug
-
-
-# if widget.underMouse() and widget.isEnabled():
-# 	parentWidgets = self.sb.getParentWidgets(widget)
-# 	widgetsUnderMouse.append(parentWidgets)
-
-
-# try: #if callable(method): #attempt to clear any current menu items.
-	# 	method.clear()
-	# except AttributeError as error:
-	# 	pass; #print ("# Error: {}.EventFactoryFilter.initWidgets: Call: {}.clear() failed: {}. #".format(__name__, method, error))
-
-	# try: #attempt to construct the widget's contextMenu.
-	# 	print ('METHOD:', widgetName, method)
-	# 	method('setMenu')
-	# except Exception as error:
-	# 	pass; #print ("# Error: {}.EventFactoryFilter.initWidgets: Call: {}('setMenu') failed: {}. #".format(__name__, widgetName, error))
-
-
-# self.widgetClasses = [getattr(QtWidgets, t) for t in self.widgetTypes]
-
-			#finally, add any of the widget's children.
-			# exclude = ['TreeWidgetExpandableList'] #'QObject', 'QBoxLayout', 'QFrame', 'QAbstractItemView', 'QHeaderView', 'QItemSelectionModel', 'QItemDelegate', 'QScrollBar', 'QScrollArea', 'QValidator', 'QStyledItemDelegate', 'QPropertyAnimation'] #, 'QAction', 'QWidgetAction'
-			# for c in widget.children(): #from itertools import chain; list(chain(*[widget.findChildren(t) for t in self.widgetClasses])) #get children and flatten list with itertools chain. # children = [i for sublist in [widget.findChildren(t) for t in self.widgetClasses] for i in sublist]
-			# 	typ = self.sb._getDerivedType(c) #get the derived type without adding.
-			# 	if typ in self.widgetTypes and not typ in exclude:
-			# 		if c not in widgets:
-			# 			self.addWidgets(uiName, c) 
-			# print(uiName, [w.objectName() for w in widget.children() if w not in widgets and not widgetType in exclude])
-
-
-# if event.type()==QtCore.QEvent.Destroy: return result
-
-# self.eventTypes = [ #the types of events to be handled here.
-# 				'QEvent',
-# 				'QChildEvent',
-# 				'QResizeEvent',
-# 				'QShowEvent',
-# 				'QHideEvent',
-# 				'QEnterEvent',
-# 				'QLeaveEvent',
-# 				'QKeyEvent',
-# 				'QMouseEvent',
-# 				'QMoveEvent',
-# 				'QHoverEvent',
-# 				'QContextMenuEvent',
-# 				'QDragEvent',
-# 				'QDropEvent',
-# 		]
