@@ -7,8 +7,7 @@ from slots.file import File
 
 class File_maya(File, Slots_maya):
 	def __init__(self, *args, **kwargs):
-		Slots_maya.__init__(self, *args, **kwargs)
-		File.__init__(self, *args, **kwargs)
+		super().__init__(*args, **kwargs)
 
 
 		cmb000 = self.sb.file.draggable_header.contextMenu.cmb000

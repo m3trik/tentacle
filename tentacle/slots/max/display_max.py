@@ -7,12 +7,11 @@ from slots.display import Display
 
 class Display_max(Display, Slots_max):
 	def __init__(self, *args, **kwargs):
-		Slots_max.__init__(self, *args, **kwargs)
-		Display.__init__(self, *args, **kwargs)
+		super().__init__(*args, **kwargs)
 
 		cmb = self.sb.display.draggable_header.contextMenu.cmb000
-		list_ = ['']
-		cmb.addItems_(list_, '')
+		items = ['']
+		cmb.addItems_(items, '')
 
 
 	def cmb000(self, index=-1):

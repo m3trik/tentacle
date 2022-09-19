@@ -71,9 +71,7 @@ class Label(QtWidgets.QLabel, MenuInstance, Attributes):
 
 if __name__ == "__main__":
 	import sys
-	qApp = QtWidgets.QApplication.instance() #get the qApp instance if it exists.
-	if not qApp:
-		qApp = QtWidgets.QApplication(sys.argv)
+	app = QtWidgets.QApplication(sys.argv)
 
 	w = Label(setText='QLabel', setVisible=True)
 	w.resize(w.sizeHint().width(), 19)
@@ -81,7 +79,7 @@ if __name__ == "__main__":
 	contextMenuItem = w.contextMenu.add(Label, setText='context menu item')
 	print (menuItem, contextMenuItem)
 	# w.show()
-	sys.exit(qApp.exec_())
+	sys.exit(app.exec_())
 
 
 

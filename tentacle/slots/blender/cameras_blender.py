@@ -34,11 +34,11 @@ class Cameras_blender(Cameras, Slots_blender):
 		#set widget states for the current activeCamera
 		activeCamera = self.getCurrentCam()
 		if not activeCamera:
-			self.toggleWidgets(self._clippingMenu, setDisabled='s000-1,chk000')
+			self.sb.toggleWidgets(self._clippingMenu, setDisabled='s000-1,chk000')
 
 		elif pm.viewClipPlane(activeCamera, query=1, autoClipPlane=1): #if autoClipPlane is active:
 			self._clippingMenu.chk000.setChecked(True)
-			self.toggleWidgets(self._clippingMenu, setDisabled='s000-1')
+			self.sb.toggleWidgets(self._clippingMenu, setDisabled='s000-1')
 
 		nearClip = pm.viewClipPlane(activeCamera, query=1, nearClipPlane=1) if activeCamera else 1.0
 		farClip = pm.viewClipPlane(activeCamera, query=1, farClipPlane=1) if activeCamera else 1000.0
@@ -53,9 +53,9 @@ class Cameras_blender(Cameras, Slots_blender):
 		'''Camera Clipping: Auto Clip
 		'''
 		if self.clippingMenu.chk000.isChecked():
-			self.toggleWidgets(self.clippingMenu, setDisabled='s000-1')
+			self.sb.toggleWidgets(self.clippingMenu, setDisabled='s000-1')
 		else:
-			self.toggleWidgets(self.clippingMenu, setEnabled='s000-1')
+			self.sb.toggleWidgets(self.clippingMenu, setEnabled='s000-1')
 
 		activeCamera = self.getCurrentCam()
 		if not activeCamera:
@@ -424,8 +424,8 @@ print (__name__)
 	# 	'''
 	# 	cmb = self.sb.cameras.draggable_header.contextMenu.cmb000
 		
-	# 	list_ = ['Camera Sequencer', 'Camera Set Editor']
-	# 	contents = cmb.addItems_(list_, '')
+	# 	items = ['Camera Sequencer', 'Camera Set Editor']
+	# 	contents = cmb.addItems_(items, '')
 
 	# 	if not index:
 	# 		index = cmb.currentIndex()
@@ -472,8 +472,8 @@ print (__name__)
 	# 	'''
 	# 	cmb = self.sb.cameras.cmb002
 		
-	# 	list_ = ['Custom Camera', 'Set Custom Camera', 'Camera From View']
-	# 	contents = cmb.addItems_(list_, "Create")
+	# 	items = ['Custom Camera', 'Set Custom Camera', 'Camera From View']
+	# 	contents = cmb.addItems_(items, "Create")
 
 	# 	if not index:
 	# 		index = cmb.currentIndex()
@@ -494,8 +494,8 @@ print (__name__)
 	# 	'''
 	# 	cmb = self.sb.cameras.cmb003
 		
-	# 	list_ = ['Group Cameras']
-	# 	contents = cmb.addItems_(list_, "Options")
+	# 	items = ['Group Cameras']
+	# 	contents = cmb.addItems_(items, "Options")
 
 	# 	if not index:
 	# 		index = cmb.currentIndex()

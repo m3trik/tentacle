@@ -23,7 +23,7 @@ class Preferences_blender(Preferences, Slots_blender):
 		cmb.setCurrentIndex(index)
 
 		# cmb = self.sb.preferences.cmb002
-		# #store a corresponding value for each item in the comboBox list_.
+		# #store a corresponding value for each item in the comboBox items.
 		# l = {'15 fps: ':'game','24 fps: ':'film','25 fps: ':'pal','30 fps: ':'ntsc','48 fps: ':'show','50 fps: ':'palf','60 fps: ':'ntscf'}
 		# items = [k+v for k,v in l.items()] #ie. ['15 fps: game','24 fps: film', ..etc]
 		# values = [i[1] for i in l] #ie. ['game','film', ..etc]
@@ -131,8 +131,8 @@ print (__name__)
 # 	'''
 # 	cmb = self.sb.preferences.draggable_header.contextMenu.cmb000
 	
-# 	list_ = ['Modeling', 'Normals', 'Materials', 'UV'] #combobox list menu corresponding to the button text sets.
-# 	contents = cmb.addItems_(list_, 'Menu Sets')
+# 	items = ['Modeling', 'Normals', 'Materials', 'UV'] #combobox list menu corresponding to the button text sets.
+# 	contents = cmb.addItems_(items, 'Menu Sets')
 
 # 	if not index:
 		# index = cmb.currentIndex()

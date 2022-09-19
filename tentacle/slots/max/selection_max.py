@@ -7,8 +7,7 @@ from slots.selection import Selection
 
 class Selection_max(Selection, Slots_max):
 	def __init__(self, *args, **kwargs):
-		Slots_max.__init__(self, *args, **kwargs)
-		Selection.__init__(self, *args, **kwargs)
+		super().__init__(*args, **kwargs)
 
 		cmb = self.sb.selection.draggable_header.contextMenu.cmb000
 		items = ['Selection Set Editor']
@@ -260,8 +259,8 @@ class Selection_max(Selection, Slots_max):
 		cmb = self.sb.selection.draggable_header.contextMenu.cmb006
 
 		cmb.clear()
-		list_ = [str(i) for i in rt.selection]
-		widgets = [cmb.menu_.add('QCheckBox', setText=t, setChecked=1) for t in list_[:50]] #selection list is capped with a slice at 50 elements.
+		items = [str(i) for i in rt.selection]
+		widgets = [cmb.menu_.add('QCheckBox', setText=t, setChecked=1) for t in items[:50]] #selection list is capped with a slice at 50 elements.
 
 		for w in widgets:
 			try:

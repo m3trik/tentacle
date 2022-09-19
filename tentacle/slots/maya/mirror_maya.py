@@ -7,8 +7,7 @@ from slots.mirror import Mirror
 
 class Mirror_maya(Mirror, Slots_maya):
 	def __init__(self, *args, **kwargs):
-		Slots_maya.__init__(self, *args, **kwargs)
-		Mirror.__init__(self, *args, **kwargs)
+		super().__init__(*args, **kwargs)
 
 		cmb = self.sb.mirror.draggable_header.contextMenu.cmb000
 		items = ['']
@@ -32,7 +31,7 @@ class Mirror_maya(Mirror, Slots_maya):
 		'''
 		tb = self.sb.mirror.tb000
 
-		axis = self.getAxisFromCheckBoxes('chk000-3', tb.contextMenu)
+		axis = self.sb.getAxisFromCheckBoxes('chk000-3', tb.contextMenu)
 		axisPivot = 2 if tb.contextMenu.chk008.isChecked() else 1 #1) object space, 2) world space.
 		cutMesh = tb.contextMenu.chk005.isChecked() #cut mesh on axis before mirror.
 		uninstance = tb.contextMenu.chk009.isChecked() #Un-Instance any previously instanced objects before mirroring.
@@ -213,7 +212,7 @@ print (__name__)
 	# 	'''
 	# 	Delete: X Axis
 	# 	'''
-	# 	self.toggleWidgets(setUnChecked='chk002,chk003')
+	# 	self.sb.toggleWidgets(setUnChecked='chk002,chk003')
 	# 	axis = "X"
 	# 	if self.sb.mirror.chk000.isChecked():
 	# 		axis = '-'+axis
@@ -225,7 +224,7 @@ print (__name__)
 	# 	'''
 	# 	Delete: Y Axis
 	# 	'''
-	# 	self.toggleWidgets(setUnChecked='chk001,chk003')
+	# 	self.sb.toggleWidgets(setUnChecked='chk001,chk003')
 	# 	axis = "Y"
 	# 	if self.sb.mirror.chk000.isChecked():
 	# 		axis = '-'+axis
@@ -237,7 +236,7 @@ print (__name__)
 	# 	'''
 	# 	Delete: Z Axis
 	# 	'''
-	# 	self.toggleWidgets(setUnChecked='chk001,chk002')
+	# 	self.sb.toggleWidgets(setUnChecked='chk001,chk002')
 	# 	axis = "Z"
 	# 	if self.sb.mirror.chk000.isChecked():
 	# 		axis = '-'+axis
@@ -251,6 +250,6 @@ print (__name__)
 		# '''
 		#keep menu and submenu in sync:
 		# if self.mirror_submenu.chk005.isChecked():
-		# 	self.toggleWidgets(setChecked='chk005')
+		# 	self.sb.toggleWidgets(setChecked='chk005')
 		# else:
-		# 	self.toggleWidgets(setUnChecked='chk005')
+		# 	self.sb.toggleWidgets(setUnChecked='chk005')

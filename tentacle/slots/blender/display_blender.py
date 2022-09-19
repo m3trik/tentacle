@@ -11,8 +11,8 @@ class Display_blender(Display, Slots_blender):
 		Display.__init__(self, *args, **kwargs)
 
 		cmb = self.sb.display.draggable_header.contextMenu.cmb000
-		list_ = ['']
-		cmb.addItems_(list_, '')
+		items = ['']
+		cmb.addItems_(items, '')
 
 
 	def cmb000(self, index=-1):

@@ -15,7 +15,7 @@
 # decorators:
 @Slots.hideMain		# Hides the stacked widget main window.
 @Slots.progress		# Displays a progress bar. (currently disabled)
-@Slots_maya.attr		# Launch a popup window containing the given objects attributes. A Decorator for setAttributeWindow (objAttrWindow).
+@Slots_maya.attr	# Launch a popup window containing the given objects attributes. A Decorator for setAttributeWindow (objAttrWindow).
 @Slots_maya.undo	# A decorator to allow undoing an executed function in one chunk.
 
 
@@ -58,8 +58,7 @@ self.connect_((ctx.chk012,ctx.chk013,ctx.chk014), 'toggled',
 
 
 # call a method from another class.
-self.sb.getMethod('file', 'b005')() #get method 'b005' from the file module.
-self.file().b005() #get method 'b005' from the file module.
+self.sb.file.slots.b005() #get method 'b005' from the 'file' module.
 
 
 
@@ -196,28 +195,21 @@ def tree000(self, wItem=None, column=None):
 	'KNOWN BUGS AND GENERAL TO-DO'
 # ======================================================================
 '''
-# Traceback (most recent call last):
-#   File "O:/Cloud/Code/_scripts/tentacle\tentacle\slots\maya\edit_maya.py", line 191, in tb002
-#     [edges.append(i) for i in self.getEdgePath(edges, 'edgeLoop')] # pm.polySelect(edges, edgeLoop=True) #select the edge loop.
-#   File "O:/Cloud/Code/_scripts/tentacle\tentacle\slots\maya\__init__.py", line 510, in getEdgePath
-#     obj = pm.ls(components, objectsOnly=1)[0]
-# IndexError: list index out of range
+
+all slot classes:
+super().__init__(*args, **kwargs)
 
 
-# Traceback (most recent call last):
-#   File "O:/Cloud/Code/_scripts/tentacle\tentacle\slots\uv.py", line 97, in b000
-#     self.tb000() #perform pack
-#   File "O:/Cloud/Code/_scripts/tentacle\tentacle\slots\maya\uv_maya.py", line 167, in tb000
-#     sel = self.uvShellSelection() #assure the correct selection mask.
-#   File "O:/Cloud/Code/_scripts/tentacle\tentacle\slots\maya\uv_maya.py", line 473, in uvShellSelection
-#     pm.selectType(meshUVShell=1)
-#   File "C:\Program Files\Autodesk\Maya2022\Python37\lib\site-packages\pymel\core\nodetypes.py", line 3782, in __getattr__
-#     raise e
-#   File "C:\Program Files\Autodesk\Maya2022\Python37\lib\site-packages\pymel\core\nodetypes.py", line 3774, in __getattr__
-#     res = DependNode.__getattr__(self, attr)
-#   File "C:\Program Files\Autodesk\Maya2022\Python37\lib\site-packages\pymel\core\nodetypes.py", line 579, in __getattr__
-#     raise AttributeError("%r has no attribute or method named '%s'" % (self, attr))
-# AttributeError: nt.Transform('|group') has no attribute or method named 'f'
+Internal C++ object (PySide2.QtWidgets.QMainWindow) already deleted.
+error after pop up message.  likely due to a parenting issue.
+
+
+the issue where some popup windows hide on key release and some do not is back.
+
+
+maya:
+interactive ncloth to static mesh tool
+interactive generate> attach brush to curves
 
 
 tool:

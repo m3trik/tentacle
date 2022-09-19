@@ -7,8 +7,7 @@ from slots.rigging import Rigging
 
 class Rigging_max(Rigging, Slots_max):
 	def __init__(self, *args, **kwargs):
-		Slots_max.__init__(self, *args, **kwargs)
-		Rigging.__init__(self, *args, **kwargs)
+		super().__init__(*args, **kwargs)
 
 		cmb = self.sb.rigging.draggable_header.contextMenu.cmb000
 		items = ['Bone Tools','Parameter Editor','Parameter Collector','Parameter Wire Dialog']
@@ -64,21 +63,21 @@ class Rigging_max(Rigging, Slots_max):
 	def chk000(self, state=None):
 		'''Scale Joint
 		'''
-		self.toggleWidgets(setUnChecked='chk001-2')
+		self.sb.toggleWidgets(setUnChecked='chk001-2')
 		# self.sb.rigging.tb000.contextMenu.s000.setValue(pm.jointDisplayScale(query=1)) #init global joint display size
 
 
 	def chk001(self, state=None):
 		'''Scale IK
 		'''
-		self.toggleWidgets(setUnChecked='chk000, chk002')
+		self.sb.toggleWidgets(setUnChecked='chk000, chk002')
 		# self.sb.rigging.tb000.contextMenu.setValue(pm.ikHandleDisplayScale(query=1)) #init IK handle display size
 		
 
 	def chk002(self, state=None):
 		'''Scale IK/FK
 		'''
-		self.toggleWidgets(setUnChecked='chk000-1')
+		self.sb.toggleWidgets(setUnChecked='chk000-1')
 		# self.sb.rigging.tb000.contextMenu.setValue(pm.jointDisplayScale(query=1, ikfk=1)) #init IKFK display size
 
 

@@ -231,18 +231,18 @@ class Transform_blender(Transform, Slots_blender):
 
 				if autoAlign2Axes:
 					if axis==x: #"yz"
-						self.toggleWidgets(tb.contextMenu, setChecked='chk030-31', setUnChecked='chk029')
+						self.sb.toggleWidgets(tb.contextMenu, setChecked='chk030-31', setUnChecked='chk029')
 					if axis==y: #"xz"
-						self.toggleWidgets(tb.contextMenu, setChecked='chk029,chk031', setUnChecked='chk030')
+						self.sb.toggleWidgets(tb.contextMenu, setChecked='chk029,chk031', setUnChecked='chk030')
 					if axis==z: #"xy"
-						self.toggleWidgets(tb.contextMenu, setChecked='chk029-30', setUnChecked='chk031')
+						self.sb.toggleWidgets(tb.contextMenu, setChecked='chk029-30', setUnChecked='chk031')
 				else:
 					if any ([axis==x and tangent==ty, axis==y and tangent==tx]): #"z"
-						self.toggleWidgets(tb.contextMenu, setChecked='chk031', setUnChecked='chk029-30')
+						self.sb.toggleWidgets(tb.contextMenu, setChecked='chk031', setUnChecked='chk029-30')
 					if any ([axis==x and tangent==tz, axis==z and tangent==tx]): #"y"
-						self.toggleWidgets(tb.contextMenu, setChecked='chk030', setUnChecked='chk029,chk031')
+						self.sb.toggleWidgets(tb.contextMenu, setChecked='chk030', setUnChecked='chk029,chk031')
 					if any ([axis==y and tangent==tz, axis==z and tangent==ty]): #"x"
-						self.toggleWidgets(tb.contextMenu, setChecked='chk029', setUnChecked='chk030-31')
+						self.sb.toggleWidgets(tb.contextMenu, setChecked='chk029', setUnChecked='chk030-31')
 			else:
 				return 'Error: Operation requires a component selection.'
 
@@ -795,7 +795,7 @@ print (__name__)
 	# 	'''Transform Tool Snapping: Disable All
 	# 	'''
 	# 	cmb = self.sb.transform.cmb003
-	# 	self.toggleWidgets(setUnChecked='chk021-23')
+	# 	self.sb.toggleWidgets(setUnChecked='chk021-23')
 	# 	cmb.setCurrentText('Off') if not any((cmb.menu_.chk021.isChecked(), cmb.menu_.chk022.isChecked(), cmb.menu_.chk023.isChecked())) else cmb.setCurrentText('On')
 
 
@@ -803,7 +803,7 @@ print (__name__)
 	# 	'''Transform Tool Snapping: Disable All
 	# 	'''
 	# 	cmb = self.sb.transform.cmb001
-	# 	self.toggleWidgets(setUnChecked='chk024-26')
+	# 	self.sb.toggleWidgets(setUnChecked='chk024-26')
 	# 	cmb.setCurrentText('Off') if not any((cmb.menu_.chk024.isChecked(), cmb.menu_.chk025.isChecked(), cmb.menu_.chk026.isChecked())) else cmb.setCurrentText('On')
 
 
@@ -827,7 +827,7 @@ print (__name__)
 	# 	Transform: Scale
 
 	# 	'''
-	# 	self.toggleWidgets(setUnChecked='chk008-9', setChecked='chk000-2')
+	# 	self.sb.toggleWidgets(setUnChecked='chk008-9', setChecked='chk000-2')
 	# 	self.sb.transform.s000.setValue(2)
 	# 	self.sb.transform.s000.setSingleStep(1)
 
@@ -837,7 +837,7 @@ print (__name__)
 	# 	Transform: Move
 
 	# 	'''
-	# 	self.toggleWidgets(setUnChecked='chk005,chk009,chk000-2')
+	# 	self.sb.toggleWidgets(setUnChecked='chk005,chk009,chk000-2')
 	# 	self.sb.transform.s000.setValue(0.1)
 	# 	self.sb.transform.s000.setSingleStep(0.1)
 
@@ -847,7 +847,7 @@ print (__name__)
 	# 	Transform: Rotate
 
 	# 	'''
-	# 	self.toggleWidgets(setUnChecked='chk005,chk008,chk000-2')
+	# 	self.sb.toggleWidgets(setUnChecked='chk005,chk008,chk000-2')
 	# 	self.sb.transform.s000.setValue(45)
 	# 	self.sb.transform.s000.setSingleStep(5)
 
@@ -948,8 +948,8 @@ print (__name__)
 	# 	if index=='setMenu':
 	# 		cmb.contextMenu.add(self.sb.Label, setObjectName='lbl000', setText='Disable All', setToolTip='Disable all constraints.')
 
-	# 		list_ = ['Edge', 'Surface', 'Make Live']
-	# 		cmb.addItems_(list_, 'Off')
+	# 		items = ['Edge', 'Surface', 'Make Live']
+	# 		cmb.addItems_(items, 'Off')
 	# 		return
 
 	# 	live_object = pm.ls(live=1)

@@ -57,9 +57,9 @@ class Mirror(Slots):
 	# def chk000_3(self):
 	# 	'''Set the tb000's text according to the checkstates.
 
-	# 	ex call: self.connect_('chk000-3', 'toggled', self.chk000_3, ctx)
+	# 	ex call: self.sb.connect('chk000-3', 'toggled', self.chk000_3, ctx)
 	# 	'''
-	# 	axis = self.getAxisFromCheckBoxes('chk000-3', self.sb.mirror.tb000.contextMenu)
+	# 	axis = self.sb.getAxisFromCheckBoxes('chk000-3', self.sb.mirror.tb000.contextMenu)
 	# 	self.sb.mirror.tb000.setText('Mirror '+axis)
 
 		

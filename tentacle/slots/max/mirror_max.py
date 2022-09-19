@@ -7,8 +7,7 @@ from slots.mirror import Mirror
 
 class Mirror_max(Mirror, Slots_max):
 	def __init__(self, *args, **kwargs):
-		Slots_max.__init__(self, *args, **kwargs)
-		Mirror.__init__(self, *args, **kwargs)
+		super().__init__(*args, **kwargs)
 
 		cmb = self.sb.mirror.draggable_header.contextMenu.cmb000
 		items = ['']
@@ -41,7 +40,7 @@ class Mirror_max(Mirror, Slots_max):
 		'''
 		tb = self.sb.mirror.tb000
 
-		axis = self.getAxisFromCheckBoxes('chk000-3', tb.contextMenu)
+		axis = self.sb.getAxisFromCheckBoxes('chk000-3', tb.contextMenu)
 		worldSpace = tb.contextMenu.chk008.isChecked()
 		cutMesh = tb.contextMenu.chk005.isChecked() #cut mesh on axis before mirror.
 		instance = tb.contextMenu.chk004.isChecked()
@@ -179,7 +178,7 @@ print (__name__)
 	# 	'''
 	# 	Delete: X Axis
 	# 	'''
-	# 	self.toggleWidgets(setUnChecked='chk002,chk003')
+	# 	self.sb.toggleWidgets(setUnChecked='chk002,chk003')
 	# 	axis = "X"
 	# 	if self.sb.mirror.chk000.isChecked():
 	# 		axis = '-'+axis
@@ -191,7 +190,7 @@ print (__name__)
 	# 	'''
 	# 	Delete: Y Axis
 	# 	'''
-	# 	self.toggleWidgets(setUnChecked='chk001,chk003')
+	# 	self.sb.toggleWidgets(setUnChecked='chk001,chk003')
 	# 	axis = "Y"
 	# 	if self.sb.mirror.chk000.isChecked():
 	# 		axis = '-'+axis
@@ -203,7 +202,7 @@ print (__name__)
 	# 	'''
 	# 	Delete: Z Axis
 	# 	'''
-	# 	self.toggleWidgets(setUnChecked='chk001,chk002')
+	# 	self.sb.toggleWidgets(setUnChecked='chk001,chk002')
 	# 	axis = "Z"
 	# 	if self.sb.mirror.chk000.isChecked():
 	# 		axis = '-'+axis

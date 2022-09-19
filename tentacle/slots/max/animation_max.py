@@ -7,8 +7,7 @@ from slots.animation import Animation
 
 class Animation_max(Animation, Slots_max):
 	def __init__(self, *args, **kwargs):
-		Slots_max.__init__(self, *args, **kwargs)
-		Animation.__init__(self, *args, **kwargs)
+		super().__init__(*args, **kwargs)
 
 		cmb = self.sb.animation.draggable_header.contextMenu.cmb000
 		items = ['Track View: Curve Editor','Track View: Dope Sheet','Track View: New Track View','Motion Mixer','Pose Mixer','MassFx Tools', 'Dynamics Explorer','Reaction Manager','Walkthrough Assistant']

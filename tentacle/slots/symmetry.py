@@ -23,21 +23,21 @@ class Symmetry(Slots):
 	def chk000(self, state=None):
 		'''Symmetry X
 		'''
-		self.toggleWidgets(setUnChecked='chk001,chk002')
+		self.sb.toggleWidgets(setUnChecked='chk001,chk002')
 		self.setSymmetry(state, 'x')
 
 
 	def chk001(self, state=None):
 		'''Symmetry Y
 		'''
-		self.toggleWidgets(setUnChecked='chk000,chk002')
+		self.sb.toggleWidgets(setUnChecked='chk000,chk002')
 		self.setSymmetry(state, 'y')
 
 
 	def chk002(self, state=None):
 		'''Symmetry Z
 		'''
-		self.toggleWidgets(setUnChecked='chk000,chk001')
+		self.sb.toggleWidgets(setUnChecked='chk000,chk001')
 		self.setSymmetry(state, 'z')
 
 

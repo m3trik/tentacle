@@ -11,8 +11,8 @@ class DynLayout_blender(DynLayout, Slots_blender):
 		DynLayout.__init__(self, *args, **kwargs)
 
 		cmb = self.sb.dynLayout.draggable_header.contextMenu.cmb000
-		list_ = []
-		cmb.addItems_(list_, '')
+		items = []
+		cmb.addItems_(items, '')
 
 
 	def cmb000(self, index=-1):

@@ -7,8 +7,7 @@ from slots.subdivision import Subdivision
 
 class Subdivision_maya(Subdivision, Slots_maya):
 	def __init__(self, *args, **kwargs):
-		Slots_maya.__init__(self, *args, **kwargs)
-		Subdivision.__init__(self, *args, **kwargs)
+		super().__init__(*args, **kwargs)
 
 		ctx = self.sb.subdivision.draggable_header.contextMenu
 		if not ctx.containsMenuItems:

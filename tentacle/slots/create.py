@@ -14,16 +14,16 @@ class Create(Slots):
 		dh.contextMenu.add(self.sb.ComboBox, setObjectName='cmb000', setToolTip='')
 
 		cmb000 = self.sb.create.draggable_header.contextMenu.cmb000
-		list_ = ['']
-		cmb000.addItems_(list_, '')
+		items = ['']
+		cmb000.addItems_(items, '')
 
 		cmb001 = self.sb.create.cmb001
-		list_ = ['Polygon', 'NURBS', 'Light']
-		cmb001.addItems_(list_)
+		items = ['Polygon', 'NURBS', 'Light']
+		cmb001.addItems_(items)
 
 		cmb002 = self.sb.create.cmb002
-		list_ = ["Cube", "Sphere", "Cylinder", "Plane", "Circle", "Cone", "Pyramid", "Torus", "Tube", "GeoSphere", "Platonic Solids", "Text"]
-		cmb002.addItems_(list_)
+		items = ["Cube", "Sphere", "Cylinder", "Plane", "Circle", "Cone", "Pyramid", "Torus", "Tube", "GeoSphere", "Platonic Solids", "Text"]
+		cmb002.addItems_(items)
 
 		tb000 = self.sb.create.tb000
 		tb000.contextMenu.add('QCheckBox', setText='Translate', setObjectName='chk000', setChecked=True, setToolTip='Move the created object to the center point of any selected object(s).')

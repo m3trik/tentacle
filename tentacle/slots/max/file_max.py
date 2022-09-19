@@ -7,8 +7,7 @@ from slots.file import File
 
 class File_max(File, Slots_max):
 	def __init__(self, *args, **kwargs):
-		Slots_max.__init__(self, *args, **kwargs)
-		File.__init__(self, *args, **kwargs)
+		super().__init__(*args, **kwargs)
 
 		cmb = self.sb.file.draggable_header.contextMenu.cmb000
 		items = ['Schematic View']
@@ -147,14 +146,14 @@ class File_max(File, Slots_max):
 		cmb = self.sb.file.cmb006
 
 		path = self.formatPath(rt.pathconfig.getCurrentProjectFolderPath(), strip='file') #current project path.
-		list_ = [f for f in os.listdir(path)]
+		items = [f for f in os.listdir(path)]
 
 		project = self.getNameFromFullPath(path) #add current project path string to label. strip path and trailing '/'
 
-		cmb.addItems_(list_, project, clear=True)
+		cmb.addItems_(items, project, clear=True)
 
 		if index>0:
-			dir_ = path+list_[index-1] #reformat for network address
+			dir_ = path+items[index-1] #reformat for network address
 			os.startfile(dir_)
 			cmb.setCurrentIndex(0)
 

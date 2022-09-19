@@ -7,12 +7,11 @@ from slots.vfx import Vfx
 
 class Vfx_maya(Vfx, Slots_maya):
 	def __init__(self, *args, **kwargs):
-		Slots_maya.__init__(self, *args, **kwargs)
-		Vfx.__init__(self, *args, **kwargs)
+		super().__init__(*args, **kwargs)
 
 		cmb = self.sb.vfx.draggable_header.contextMenu.cmb000
-		list_ = ['']
-		cmb.addItems_(list_, '')
+		items = ['']
+		cmb.addItems_(items, '')
 
 
 	def cmb000(self, index=-1):

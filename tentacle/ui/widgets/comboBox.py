@@ -82,6 +82,7 @@ class ComboBox(QtWidgets.QComboBox, MenuInstance, Attributes, RichText, TextOver
 			(list) comboBox's current item list minus any header.
 
 		ex call: comboBox.addItems_(["Import file", "Import Options"], "Import")
+		ex call: comboBox.addItems_({'Import file':<obj>, "Import Options":<obj>}, "Import") #example of adding items with data.
 		'''
 		index = self.currentIndex() if self.currentIndex()>0 else 0 #get the current index before refreshing list. avoid negative values.
 
@@ -269,13 +270,11 @@ class ComboBox(QtWidgets.QComboBox, MenuInstance, Attributes, RichText, TextOver
 
 if __name__ == "__main__":
 	import sys
-	qApp = QtWidgets.QApplication.instance() #get the qApp instance if it exists.
-	if not qApp:
-		qApp = QtWidgets.QApplication(sys.argv)
+	app = QtWidgets.QApplication(sys.argv)
 
 	w = ComboBox(popupStyle='qmenu')
 	w.show()
-	sys.exit(qApp.exec_())
+	sys.exit(app.exec_())
 
 
 

@@ -21,8 +21,8 @@ Promoting a widget in designer to use a custom class:
 
 
 class ProgressBar(QtWidgets.QProgressBar, Attributes):
-	'''ex. for n, i in enumerate(list_):
-			if not self.sb.currentUi.progressBar.step(n, len(list_)): #register progress while checking for cancellation:
+	'''ex. for n, i in enumerate(lst):
+			if not self.sb.currentUi.progressBar.step(n, len(lst)): #register progress while checking for cancellation:
 				break
 	'''
 	def __init__(self, parent=None, **kwargs):
@@ -99,13 +99,11 @@ class ProgressBar(QtWidgets.QProgressBar, Attributes):
 
 if __name__ == "__main__":
 	import sys
-	qApp = QtWidgets.QApplication.instance() #get the qApp instance if it exists.
-	if not qApp:
-		qApp = QtWidgets.QApplication(sys.argv)
+	app = QtWidgets.QApplication(sys.argv)
 		
 	w = ProgressBar()
 	w.show()
-	sys.exit(qApp.exec_())
+	sys.exit(app.exec_())
 
 
 

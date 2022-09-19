@@ -81,9 +81,7 @@ class TextEdit(QtWidgets.QTextEdit, Attributes, MenuInstance):
 
 if __name__ == "__main__":
 	import sys
-	qApp = QtWidgets.QApplication.instance() #get the qApp instance if it exists.
-	if not qApp:
-		qApp = QtWidgets.QApplication(sys.argv)
+	app = QtWidgets.QApplication(sys.argv)
 		
 	w = TextEdit()
 
@@ -91,7 +89,7 @@ if __name__ == "__main__":
 	w.insertText('Previous Camera: <font style="color: Yellow;">Perspective')
 
 	w.show()
-	sys.exit(qApp.exec_())
+	sys.exit(app.exec_())
 
 
 

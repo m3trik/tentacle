@@ -7,8 +7,7 @@ from slots.cameras import Cameras
 
 class Cameras_max(Cameras, Slots_max):
 	def __init__(self, *args, **kwargs):
-		Slots_max.__init__(self, *args, **kwargs)
-		Cameras.__init__(self, *args, **kwargs)
+		super().__init__(*args, **kwargs)
 
 		tree = self.sb.cameras_lower_submenu.tree000
 		l = []
@@ -35,10 +34,10 @@ class Cameras_max(Cameras, Slots_max):
 		#set widget states for the current activeCamera
 		activeCamera = rt.getActiveCamera()
 		if not activeCamera:
-			self.toggleWidgets(self._clippingMenu, setDisabled='s000-1,chk000')
+			self.sb.toggleWidgets(self._clippingMenu, setDisabled='s000-1,chk000')
 		elif activeCamera.clipManually: #if clipManually is active:
 			self._clippingMenu.chk000.setChecked(True)
-			self.toggleWidgets(self._clippingMenu, setDisabled='s000-1')
+			self.sb.toggleWidgets(self._clippingMenu, setDisabled='s000-1')
 
 		nearClip = activeCamera.nearClip if activeCamera else 1.0
 		farClip = activeCamera.farClip  if activeCamera else 1000.0
@@ -59,9 +58,9 @@ class Cameras_max(Cameras, Slots_max):
 		'''Camera Clipping: Auto Clip
 		'''
 		if self.clippingMenu.chk000.isChecked():
-			self.toggleWidgets(self.clippingMenu, setDisabled='s000-1')
+			self.sb.toggleWidgets(self.clippingMenu, setDisabled='s000-1')
 		else:
-			self.toggleWidgets(self.clippingMenu, setEnabled='s000-1')
+			self.sb.toggleWidgets(self.clippingMenu, setEnabled='s000-1')
 
 		activeCamera = rt.getActiveCamera()
 		if not activeCamera:
@@ -318,8 +317,8 @@ print (__name__)
 	# 	'''
 	# 	cmb = self.sb.cameras.cmb002
 		
-	# 	list_ = ['Custom Camera','Set Custom Camera','Camera From View']
-	# 	contents = cmb.addItems_(list_, "Create")
+	# 	items = ['Custom Camera','Set Custom Camera','Camera From View']
+	# 	contents = cmb.addItems_(items, "Create")
 
 	# 	if not index:
 	# 		index = cmb.currentIndex()
@@ -339,8 +338,8 @@ print (__name__)
 	# 	'''
 	# 	cmb = self.sb.cameras.cmb003
 		
-	# 	list_ = ['Group Cameras']
-	# 	contents = cmb.addItems_(list_, "Options")
+	# 	items = ['Group Cameras']
+	# 	contents = cmb.addItems_(items, "Options")
 
 	# 	if not index:
 	# 		index = cmb.currentIndex()

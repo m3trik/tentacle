@@ -13,16 +13,16 @@ except ImportError as error:
 	print (__file__, error)
 
 from slots import Slots
-from tools_maya.node_tools_maya import Node_tools_maya
-from tools_maya.component_tools_maya import Component_tools_maya
+from utils_maya.node_utils_maya import Node_utils_maya
+from utils_maya.component_utils_maya import Component_utils_maya
 
 
 
-class Slots_maya(Slots, Node_tools_maya, Component_tools_maya):
+class Slots_maya(Slots, Node_utils_maya, Component_utils_maya):
 	'''App specific methods inherited by all other slot classes.
 	'''
 	def __init__(self, *args, **kwargs):
-		Slots.__init__(self, *args, **kwargs)
+		super().__init__(*args, **kwargs)
 
 
 	def undo(fn):

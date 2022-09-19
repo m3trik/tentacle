@@ -7,9 +7,8 @@ from slots.edit import Edit
 
 class Edit_maya(Edit, Slots_maya):
 	def __init__(self, *args, **kwargs):
-		Slots_maya.__init__(self, *args, **kwargs)
-		Edit.__init__(self, *args, **kwargs)
-		print ('child')
+		super().__init__(*args, **kwargs)
+
 		dh = self.sb.edit.draggable_header
 		items = ['Cleanup', 'Transfer: Attribute Values', 'Transfer: Shading Sets']
 		dh.contextMenu.cmb000.addItems_(items, 'Maya Editors')
@@ -40,8 +39,8 @@ class Edit_maya(Edit, Slots_maya):
 		tb000.contextMenu.chk013.toggled.connect(lambda state: tb000.contextMenu.s006.setEnabled(True if state else False))
 		tb000.contextMenu.chk014.toggled.connect(lambda state: tb000.contextMenu.s007.setEnabled(True if state else False))
 		tb000.contextMenu.chk015.toggled.connect(lambda state: tb000.contextMenu.s008.setEnabled(True if state else False))
-		tb000.contextMenu.chk022.stateChanged.connect(lambda state: self.toggleWidgets(tb000.contextMenu, setDisabled='chk002-3,chk005,chk010-21,chk024,s006-8', setEnabled='chk023') if state 
-														else self.toggleWidgets(tb000.contextMenu, setEnabled='chk002-3,chk005,chk010-21,s006-8', setDisabled='chk023')) #disable non-relevant options.
+		tb000.contextMenu.chk022.stateChanged.connect(lambda state: self.sb.toggleWidgets(tb000.contextMenu, setDisabled='chk002-3,chk005,chk010-21,chk024,s006-8', setEnabled='chk023') if state 
+														else self.sb.toggleWidgets(tb000.contextMenu, setEnabled='chk002-3,chk005,chk010-21,s006-8', setDisabled='chk023')) #disable non-relevant options.
 		#sync widgets
 		self.sb.setSyncConnections(tb000.contextMenu.chk004, self.sb.edit_submenu.chk004, attributes='setChecked')
 		self.sb.setSyncConnections(tb000.contextMenu.chk010, self.sb.edit_submenu.chk010, attributes='setChecked')
@@ -71,10 +70,10 @@ class Edit_maya(Edit, Slots_maya):
 		cmb = self.sb.edit.cmb001
 
 		try:
-			list_ = list(set([n.name() for n in pm.listHistory(pm.ls(sl=1, objectsOnly=1), pruneDagObjects=1)])) #levels=1, interestLevel=2, 
+			items = list(set([n.name() for n in pm.listHistory(pm.ls(sl=1, objectsOnly=1), pruneDagObjects=1)])) #levels=1, interestLevel=2, 
 		except RuntimeError as error:
-			list_ = ['No selection.']
-		cmb.addItems_(list_, 'History')
+			items = ['No selection.']
+		cmb.addItems_(items, 'History')
 
 		cmb.setCurrentIndex(0)
 		if index>0:
@@ -212,7 +211,7 @@ class Edit_maya(Edit, Slots_maya):
 		'''
 		tb = self.sb.edit.tb003
 
-		axis = self.getAxisFromCheckBoxes('chk006-9', tb.contextMenu)
+		axis = self.sb.getAxisFromCheckBoxes('chk006-9', tb.contextMenu)
 
 		pm.undoInfo(openChunk=1)
 		objects = pm.ls(sl=1, objectsOnly=1)
@@ -603,13 +602,13 @@ class Edit_maya(Edit, Slots_maya):
 
 		ex. call: getSimilarMesh(selection, vertex=1, area=1)
 		'''
-		list_ = lambda x: list(x) if isinstance(x, (list, tuple, set)) else list(x.values()) if isinstance(x, dict) else [x] #assure the returned result from polyEvaluate is a list of values.
+		lst = lambda x: list(x) if isinstance(x, (list, tuple, set)) else list(x.values()) if isinstance(x, dict) else [x] #assure the returned result from polyEvaluate is a list of values.
 
 		obj, *other = pm.ls(obj, long=True, transforms=True)
-		objProps = list_(pm.polyEvaluate(obj, **kwargs))
+		objProps = lst(pm.polyEvaluate(obj, **kwargs))
 
 		otherSceneMeshes = set(pm.filterExpand(pm.ls(long=True, typ='transform'), selectionMask=12)) #polygon selection mask.
-		similar = pm.ls([m for m in otherSceneMeshes if Slots.areSimilar(objProps, list_(pm.polyEvaluate(m, **kwargs)), tol=tol) and m!=obj])
+		similar = pm.ls([m for m in otherSceneMeshes if Slots.areSimilar(objProps, lst(pm.polyEvaluate(m, **kwargs)), tol=tol) and m!=obj])
 		return similar+[obj] if includeOrig else similar
 
 

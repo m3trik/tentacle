@@ -7,8 +7,7 @@ from slots.rendering import Rendering
 
 class Rendering_maya(Rendering, Slots_maya):
 	def __init__(self, *args, **kwargs):
-		Slots_maya.__init__(self, *args, **kwargs)
-		Rendering.__init__(self, *args, **kwargs)
+		super().__init__(*args, **kwargs)
 
 		cmb = self.sb.rendering.draggable_header.contextMenu.cmb000
 		items = ['']
@@ -34,8 +33,8 @@ class Rendering_maya(Rendering, Slots_maya):
 
 		# self.cams = [cam for cam in rt.cameras if 'Target' not in str(cam)]
 		# if self.cams:
-		# 	list_ = [str(cam.name) for cam in self.cams] #camera names
-		# 	contents = cmb.addItems_(list_)
+		# 	lst = [str(cam.name) for cam in self.cams] #camera names
+		# 	contents = cmb.addItems_(lst)
 
 
 	def b000(self):

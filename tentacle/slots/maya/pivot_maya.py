@@ -7,8 +7,7 @@ from slots.pivot import Pivot
 
 class Pivot_maya(Pivot, Slots_maya):
 	def __init__(self, *args, **kwargs):
-		Slots_maya.__init__(self, *args, **kwargs)
-		Pivot.__init__(self, *args, **kwargs)
+		super().__init__(*args, **kwargs)
 
 		cmb = self.sb.pivot.draggable_header.contextMenu.cmb000
 		items = ['']

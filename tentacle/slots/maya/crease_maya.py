@@ -7,8 +7,7 @@ from slots.crease import Crease
 
 class Crease_maya(Crease, Slots_maya):
 	def __init__(self, *args, **kwargs):
-		Slots_maya.__init__(self, *args, **kwargs)
-		Crease.__init__(self, *args, **kwargs)
+		super().__init__(*args, **kwargs)
 
 		self.creaseValue = 10
 
@@ -98,7 +97,7 @@ class Crease_maya(Crease, Slots_maya):
 			# print("crease:", name)
 		# pm.undoInfo (closeChunk=1)
 
-		self.toggleWidgets(setDisabled='b052', setUnChecked='b000')#,self.sb.crease.b001])
+		self.sb.toggleWidgets(setDisabled='b052', setUnChecked='b000')#,self.sb.crease.b001])
 		self.sb.crease.b000.setText("Crease Set")
 		# self.sb.crease.b001.setText("Object")
 

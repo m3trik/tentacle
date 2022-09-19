@@ -7,12 +7,11 @@ from slots.create import Create
 
 class Create_max(Create, Slots_max):
 	def __init__(self, *args, **kwargs):
-		Slots_max.__init__(self, *args, **kwargs)
-		Create.__init__(self, *args, **kwargs)
+		super().__init__(*args, **kwargs)
 
 		cmb = self.sb.create.draggable_header.contextMenu.cmb000
-		list_ = ['']
-		cmb.addItems_(list_, '')
+		items = ['']
+		cmb.addItems_(items, '')
 
 		cmb = self.sb.create.cmb001
 		items = ['Mesh', 'Editable Poly', 'Editable Mesh', 'Editable Patch', 'NURBS', 'Light']
@@ -283,7 +282,7 @@ print (__name__)
 	# def chk000(self, state=None):
 	# 	'''Rotate X Axis
 	# 	'''
-	# 	self.toggleWidgets(setChecked='chk000', setUnChecked='chk001,chk002')
+	# 	self.sb.toggleWidgets(setChecked='chk000', setUnChecked='chk001,chk002')
 	# 	if self.node:
 	# 		self.rotateAbsolute(self.getAxis(), self.node)
 
@@ -291,7 +290,7 @@ print (__name__)
 	# def chk001(self, state=None):
 	# 	'''Rotate Y Axis
 	# 	'''
-	# 	self.toggleWidgets(setChecked='chk001', setUnChecked='chk000,chk002')
+	# 	self.sb.toggleWidgets(setChecked='chk001', setUnChecked='chk000,chk002')
 	# 	if self.node:
 	# 		self.rotateAbsolute(self.getAxis(), self.node)
 
@@ -299,7 +298,7 @@ print (__name__)
 	# def chk002(self, state=None):
 	# 	'''Rotate Z Axis
 	# 	'''
-	# 	self.toggleWidgets(setChecked='chk002', setUnChecked='chk001,chk000')
+	# 	self.sb.toggleWidgets(setChecked='chk002', setUnChecked='chk001,chk000')
 	# 	if self.node:
 	# 		self.rotateAbsolute(self.getAxis(), self.node)
 
@@ -369,7 +368,7 @@ print (__name__)
 	# 		self.setSpinboxes(cmb, names, attributes)
 
 	# 		#set signal/slot connections
-	# 		self.connect_(names, 'valueChanged', self.sXXX, cmb.menu_)
+	# 		self.sb.connect(names, 'valueChanged', self.sXXX, cmb.menu_)
 
 	# 		if show:
 	# 			cmb.showPopup()

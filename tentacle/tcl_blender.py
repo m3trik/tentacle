@@ -17,9 +17,7 @@ class Tcl_blender(Tcl):
 	:Parameters:
 		parent = Application top level window instance.
 	'''
-	qApp = QtWidgets.QApplication
-
-	def __init__(self, parent=None, *args, **kwargs):
+	def __init__(self, parent=None, slotDir='blender', *args, **kwargs):
 		'''
 		'''
 		if not parent:
@@ -27,12 +25,13 @@ class Tcl_blender(Tcl):
 				parent = self.getMainWindow()
 
 			except Exception as error:
-				print(self.__class__.__name__, error)
+				print(__file__, error)
 
-		super().__init__(parent, *args, **kwargs)
+		super().__init__(parent, slotDir=slotDir, *args, **kwargs)
 
 
-	def getMainWindow(self):
+	@classmethod
+	def getMainWindow(cls):
 		'''Get blender's main window object.
 
 		:Return:
@@ -49,7 +48,7 @@ class Tcl_blender(Tcl):
 			event = <QEvent>
 		'''
 		if not event.isAutoRepeat():
-			modifiers = self.qApp.keyboardModifiers()
+			modifiers = self.app.keyboardModifiers()
 
 			if event.key()==self.key_undo and modifiers==QtCore.Qt.ControlModifier:
 				import bpy
@@ -73,7 +72,7 @@ class Tcl_blender(Tcl):
 			event = <QEvent>
 		'''
 		if __name__ == "__main__":
-			self.qApp.instance().quit()
+			self.app.instance().quit()
 			sys.exit() #assure that the sys processes are terminated.
 
 		return Tcl.hideEvent(self, event) #super().hideEvent(event)
@@ -87,16 +86,10 @@ class Tcl_blender(Tcl):
 
 
 if __name__ == "__main__":
-	app = QtWidgets.QApplication.instance() #get the qApp instance if it exists.
-	if not app:
-		app = QtWidgets.QApplication(sys.argv)
 
-	#create a generic parent object to run the code outside of maya.
-	dummyParent = QtWidgets.QWidget()
-	dummyParent.setObjectName('BlenderWindow')
+	Tcl_blender().show('init') #Tcl_maya(dummyParent).show()
 
-	Tcl_blender(dummyParent).show('init') #Tcl_maya(dummyParent).show()
-
+	app = QtWidgets.QApplication.instance()
 	sys.exit(app.exec_())
 
 

@@ -7,12 +7,11 @@ from slots.duplicate import Duplicate
 
 class Duplicate_max(Duplicate, Slots_max):
 	def __init__(self, *args, **kwargs):
-		Slots_max.__init__(self, *args, **kwargs)
-		Duplicate.__init__(self, *args, **kwargs)
+		super().__init__(*args, **kwargs)
 
 		cmb = self.sb.duplicate.draggable_header.contextMenu.cmb000
-		list_ = ['Duplicate Special']
-		cmb.addItems_(list_, 'Maya Menus')
+		items = ['Duplicate Special']
+		cmb.addItems_(items, 'Maya Menus')
 
 
 	def cmb000(self, index=-1):
@@ -38,7 +37,7 @@ class Duplicate_max(Duplicate, Slots_max):
 			try:
 				pivot = pm.xform (selection, query=1, translation=1, relative=1)
 			except:
-				self.toggleWidgets(setChecked='chk010')
+				self.sb.toggleWidgets(setChecked='chk010')
 				self.messageBox('Nothing Selected.')
 				return
 
@@ -60,7 +59,7 @@ class Duplicate_max(Duplicate, Slots_max):
 		instance = self.sb.duplicate.chk011.isChecked() #instance object
 
 		if self.sb.duplicate.chk015.isChecked():
-			self.toggleWidgets(setEnabled='b003')
+			self.sb.toggleWidgets(setEnabled='b003')
 
 			selection = pm.ls (selection=1, type="transform", flatten=1)
 			if selection:
@@ -108,7 +107,7 @@ class Duplicate_max(Duplicate, Slots_max):
 					pm.select (objectName)
 					pm.undoInfo (closeChunk=1)
 			else: #if both lists objects are empty:
-				self.toggleWidgets(setDisabled='b003', setUnChecked='chk015')
+				self.sb.toggleWidgets(setDisabled='b003', setUnChecked='chk015')
 				self.messageBox('Nothing Selected.')
 				return
 
@@ -126,7 +125,7 @@ class Duplicate_max(Duplicate, Slots_max):
 				pass
 			del radialArrayObjList[:] #clear the list
 
-			self.toggleWidgets(setDisabled='b003')
+			self.sb.toggleWidgets(setDisabled='b003')
 
 
 	@staticmethod
@@ -181,7 +180,7 @@ class Duplicate_max(Duplicate, Slots_max):
 		'''Duplicate: Preview
 		'''
 		if self.sb.duplicate.chk016.isChecked():
-			self.toggleWidgets(setEnabled='b002')
+			self.sb.toggleWidgets(setEnabled='b002')
 
 			instance = self.sb.duplicate.chk000.isChecked()
 			numOfDuplicates = int(self.sb.duplicate.s005.value())
@@ -264,7 +263,7 @@ class Duplicate_max(Duplicate, Slots_max):
 			pm.delete(duplicateObjList[1:]) #delete all the geometry in the list, except the original obj
 			pm.select(duplicateObjList[:1]) #re-select the original object
 			del duplicateObjList[:] #clear the list
-			self.toggleWidgets(setDisabled='b002')
+			self.sb.toggleWidgets(setDisabled='b002')
 
 
 	def b000(self):

@@ -7,8 +7,7 @@ from slots.nurbs import Nurbs
 
 class Nurbs_max(Nurbs, Slots_max):
 	def __init__(self, *args, **kwargs):
-		Slots_max.__init__(self, *args, **kwargs)
-		Nurbs.__init__(self, *args, **kwargs)
+		super().__init__(*args, **kwargs)
 
 		cmb = self.sb.nurbs.draggable_header.contextMenu.cmb000
 		items = []

@@ -7,8 +7,7 @@ from slots.uv import Uv
 
 class Uv_maya(Uv, Slots_maya):
 	def __init__(self, *args, **kwargs):
-		Slots_maya.__init__(self, *args, **kwargs)
-		Uv.__init__(self, *args, **kwargs)
+		super().__init__(*args, **kwargs)
 
 		self.sb.preferences.slots.loadPlugin('Unfold3D.mll') #assure the maya UV plugin is loaded.
 
@@ -554,7 +553,7 @@ class Uv_maya(Uv, Slots_maya):
 
 
 	@Slots_maya.undo
-	def transferUVs(self, frm, to='similar', tol=0.0, deleteConstHist=True):
+	def transferUVs(self, frm, to='similar', tol=0.0, sampleSpace='component', deleteConstHist=True):
 		'''Transfer UV's from one group of objects to another.
 
 		:parameters:
@@ -562,28 +561,31 @@ class Uv_maya(Uv, Slots_maya):
 			to (str)(obj)(list) = The objects to transfer uv's to.
 					If 'similar' is given, the scene will be searched for similar objects.
 			tol (float) = 
+			sampleSpace (str) = Selects which space the attribute transfer is performed in. valid: 'world', 'local', 'component', 'topology'
 			deleteConstHist (bool) = Remove construction history for the objects transferring from.
 					Otherwise, the UV's will be lost should any of the frm objects be deleted.
 		'''
-		# pm.undoInfo(openChunk=1)
-		for frm in pm.ls(frm):
-			if to=='similar':
-				to = self.sb.edit.slots.getSimilarMesh(frm, tol=tol, face=1, area=1)
+		sampleSpace = {'world':0, 'local':1, 'component':4, 'topology':5}[sampleSpace]
 
-			for to in pm.ls(to):
-				if pm.polyEvaluate(frm, face=1, area=1, format=True)==pm.polyEvaluate(to, face=1, area=1, format=True):
-					pm.polyTransfer(to, alternateObject=frm, uvSets=True) # pm.transferAttributes(frm, to, transferUVs=2, sampleSpace=4) #-transferNormals 0 -transferUVs 2 -transferColors 2 -sourceUvSpace "map1" -targetUvSpace "map1" -searchMethod 3-flipUVs 0 -colorBorders 1 ;
-					to.remove(to) #remove the obj from the transfer list when an exact match is found.
-				elif pm.polyEvaluate(frm, face=1, format=True)==pm.polyEvaluate(to, face=1, format=True):
-					pm.transferAttributes(frm, to, transferPositions=0, transferNormals=0, transferUVs=2, transferColors=2, sampleSpace=5, sourceUvSpace='map1', searchMethod=3, flipUVs=0, colorBorders=1) #transfer to the object if it is similar, but keep in transfer list in case an exact match is found later.
+		frm = pm.ls(frm)
+		to = pm.ls(to)
+
+		# pm.undoInfo(openChunk=1)
+		for f in frm:
+			if to=='similar':
+				to = self.sb.edit.slots.getSimilarMesh(f, tol=tol, face=1, area=1)
+
+			for t in to:
+				if pm.polyEvaluate(f, face=1, format=True)==pm.polyEvaluate(t, face=1, format=True):
+					pm.transferAttributes(f, t, transferPositions=0, transferNormals=0, transferUVs=2, transferColors=2, sampleSpace=sampleSpace, sourceUvSpace='map1', searchMethod=3, flipUVs=0, colorBorders=1) #transfer to the object if it is similar, but keep in transfer list in case an exact match is found later.
+					to.remove(t) #remove the obj from the transfer list when an exact match is found.
 
 		for remaining in to:
 			print('Result: No Exact match found for: {}. Making final attempt ..'.format(remaining.name()))
-			pm.transferAttributes(frm, remaining, transferUVs=2, sampleSpace=4)
+			ss = 5 if sampleSpace != 5 else 4
+			pm.transferAttributes(frm, remaining, transferUVs=2, sampleSpace=ss)
 
 		pm.delete(frm, constructionHistory=deleteConstHist)
-		# # pm.undoInfo(closeChunk=1)
-
 
 
 
@@ -600,6 +602,24 @@ print (__name__)
 # -----------------------------------------------
 
 #deprecated:
+
+# for f in frm:
+		# 	if to=='similar':
+		# 		to = self.sb.edit.slots.getSimilarMesh(f, tol=tol, face=1, area=1)
+
+		# 	for t in to:
+		# 		if pm.polyEvaluate(f, face=1, area=1, format=True)==pm.polyEvaluate(t, face=1, area=1, format=True):
+		# 			pm.polyTransfer(t, alternateObject=f, uvSets=True) # pm.transferAttributes(frm, to, transferUVs=2, sampleSpace=4) #-transferNormals 0 -transferUVs 2 -transferColors 2 -sourceUvSpace "map1" -targetUvSpace "map1" -searchMethod 3-flipUVs 0 -colorBorders 1 ;
+		# 			to.remove(t) #remove the obj from the transfer list when an exact match is found.
+		# 		elif pm.polyEvaluate(f, face=1, format=True)==pm.polyEvaluate(t, face=1, format=True):
+		# 			pm.transferAttributes(f, t, transferPositions=0, transferNormals=0, transferUVs=2, transferColors=2, sampleSpace=5, sourceUvSpace='map1', searchMethod=3, flipUVs=0, colorBorders=1) #transfer to the object if it is similar, but keep in transfer list in case an exact match is found later.
+
+		# for remaining in to:
+		# 	print('Result: No Exact match found for: {}. Making final attempt ..'.format(remaining.name()))
+		# 	pm.transferAttributes(frm, remaining, transferUVs=2, sampleSpace=4)
+
+		# pm.delete(frm, constructionHistory=deleteConstHist)
+		# # pm.undoInfo(closeChunk=1)
 
 # def transferUVs(frm, to):
 # 		'''

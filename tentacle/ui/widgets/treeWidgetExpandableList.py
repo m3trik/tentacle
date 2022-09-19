@@ -604,31 +604,31 @@ class TreeWidgetExpandableList(QtWidgets.QTreeWidget, Attributes):
 		'''
 		if wItem:  #get widgets contained in the given widgetItem.
 			if columns:
-				list_ = [self.itemWidget(wItem, c) for c in columns]
+				lst = [self.itemWidget(wItem, c) for c in columns]
 			else:
-				list_ = [self.itemWidget(wItem, c) for c in self.getColumns()]
+				lst = [self.itemWidget(wItem, c) for c in self.getColumns()]
 
 		elif columns is not None:  #get widgets in the given columns.
 			if type(columns)==int:
-				list_ = [w for w, i in self.widgets.items() if i[1]==columns]
+				lst = [w for w, i in self.widgets.items() if i[1]==columns]
 			else:
-				list_ = [w for w, i in self.widgets.items() for c in columns if i[1]==c]
+				lst = [w for w, i in self.widgets.items() for c in columns if i[1]==c]
 
 		else: #get all widgets
-			list_ = [self.itemWidget(i, c) for c in self.getColumns() for i in self.getTopLevelItems()]
+			lst = [self.itemWidget(i, c) for c in self.getColumns() for i in self.getTopLevelItems()]
 
 		if refreshedWidgets:
-			list_ = [w for w in list_ if w is not None and self.isRefreshedHeader(self.getHeaderFromWidget(w))]
+			lst = [w for w in lst if w is not None and self.isRefreshedHeader(self.getHeaderFromWidget(w))]
 
 		if inverse:
 			if isinstance(inverse, (list, tuple, set)):
-				list_ = inverse
-			list_ = [i for i in self.getWidgets() if i not in list_]
+				lst = inverse
+			lst = [i for i in self.getWidgets() if i not in lst]
 
 		if removeNoneValues:
-			list_ = [i for i in list_ if not i==None]
+			lst = [i for i in lst if not i==None]
 
-		return list_
+		return lst
 
 
 	@property
@@ -721,13 +721,13 @@ class TreeWidgetExpandableList(QtWidgets.QTreeWidget, Attributes):
 		if type(columns)==int:
 			columns = [columns]
 		for c in columns:
-			list_ = [str(i.text(c)) for i in items] #get each widgetItem's text string.
+			lst = [str(i.text(c)) for i in items] #get each widgetItem's text string.
 
 			if c==0:
-				[self.add(w, childHeader=i, setText=i) for i in list_ if i]
+				[self.add(w, childHeader=i, setText=i) for i in lst if i]
 			else:
 				header = str(self.headerItem().text(c))
-				[self.add(w, header=header, setText=i) for i in list_ if i]
+				[self.add(w, header=header, setText=i) for i in lst if i]
 
 
 	def clear_(self, columns):
@@ -738,8 +738,8 @@ class TreeWidgetExpandableList(QtWidgets.QTreeWidget, Attributes):
 			for wItem in self.getTopLevelItems():
 				widget = self.itemWidget(wItem, column)
 				self.removeItemWidget(wItem, column)
-				list_ = self.widgets.pop(widget, None) #remove the widget from the widgets dict.
-				self._gcWidgets[widget] = list_
+				lst = self.widgets.pop(widget, None) #remove the widget from the widgets dict.
+				self._gcWidgets[widget] = lst
 				# if widget:
 				# 	shiboken2.delete(widget)
 
@@ -784,9 +784,7 @@ class TreeWidgetExpandableList(QtWidgets.QTreeWidget, Attributes):
 
 if __name__ == '__main__':
 	import sys
-	qApp = QtWidgets.QApplication.instance() #get the qApp instance if it exists.
-	if not qApp:
-		qApp = QtWidgets.QApplication(sys.argv)
+	app = QtWidgets.QApplication(sys.argv)
 
 	tree=TreeWidgetExpandableList(stepColumns=1, setVisible=True)
 
@@ -804,7 +802,7 @@ if __name__ == '__main__':
 	tree.add('QLabel', options, setText='Opt2')
 
 	tree.show()
-	sys.exit(qApp.exec_())
+	sys.exit(app.exec_())
 
 
 

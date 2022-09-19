@@ -6,8 +6,7 @@ from slots.selection import Selection
 
 class Selection_maya(Selection, Slots_maya):
 	def __init__(self, *args, **kwargs):
-		Slots_maya.__init__(self, *args, **kwargs)
-		Selection.__init__(self, *args, **kwargs)
+		super().__init__(*args, **kwargs)
 
 		dh = self.sb.selection.draggable_header
 		items = ['Polygon Selection Constraints']

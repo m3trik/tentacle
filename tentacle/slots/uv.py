@@ -31,7 +31,7 @@ class Uv(Slots):
 		tb001.contextMenu.add('QRadioButton', setText='Cylindrical', setObjectName='chk004', setToolTip='Create UV texture coordinates for the current selection, using a cylidrical projection that gets wrapped around the mesh.<br>Best suited for completely enclosed cylidrical shapes with no holes or projections on the surface.')
 		tb001.contextMenu.add('QRadioButton', setText='Spherical', setObjectName='chk005', setToolTip='Create UV texture coordinates for the current selection, using a spherical projection that gets wrapped around the mesh.<br>Best suited for completely enclosed spherical shapes with no holes or projections on the surface.')
 		tb001.contextMenu.add('QRadioButton', setText='Normal-Based', setObjectName='chk006', setToolTip='Create UV texture coordinates for the current selection by creating a planar projection based on the average vector of it\'s face normals.')
-		# tb001.contextMenu.chk001.toggled.connect(lambda state: self.toggleWidgets(tb001.contextMenu, setUnChecked='chk002-3') if state==1 else None)
+		# tb001.contextMenu.chk001.toggled.connect(lambda state: self.sb.toggleWidgets(tb001.contextMenu, setUnChecked='chk002-3') if state==1 else None)
 
 		tb003 = self.sb.uv.tb003
 		tb003.contextMenu.add('QRadioButton', setText='Back-Facing', setObjectName='chk008', setToolTip='Select all back-facing (using counter-clockwise winding order) components for the current selection.')
@@ -81,7 +81,7 @@ class Uv(Slots):
 			tb.contextMenu.chk001.setText('Scale Mode 0')
 		if state==1:
 			tb.contextMenu.chk001.setText('Scale Mode 1')
-			self.toggleWidgets(tb.contextMenu, setUnChecked='chk002-6')
+			self.sb.toggleWidgets(tb.contextMenu, setUnChecked='chk002-6')
 		if state==2:
 			tb.contextMenu.chk001.setText('Scale Mode 2')
 

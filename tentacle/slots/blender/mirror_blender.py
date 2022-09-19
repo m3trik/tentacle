@@ -38,7 +38,7 @@ class Mirror_blender(Mirror, Slots_blender):
 		'''
 		tb = self.sb.mirror.tb000
 
-		axis = self.getAxisFromCheckBoxes('chk000-3', tb.contextMenu)
+		axis = self.sb.getAxisFromCheckBoxes('chk000-3', tb.contextMenu)
 		cutMesh = tb.contextMenu.chk005.isChecked() #cut mesh on axis before mirror.
 		instance = tb.contextMenu.chk004.isChecked()
 		mergeThreshold = tb.contextMenu.s000.value()
@@ -172,7 +172,7 @@ print (__name__)
 	# 	'''
 	# 	Delete: X Axis
 	# 	'''
-	# 	self.toggleWidgets(setUnChecked='chk002,chk003')
+	# 	self.sb.toggleWidgets(setUnChecked='chk002,chk003')
 	# 	axis = "X"
 	# 	if self.sb.mirror.chk000.isChecked():
 	# 		axis = '-'+axis
@@ -184,7 +184,7 @@ print (__name__)
 	# 	'''
 	# 	Delete: Y Axis
 	# 	'''
-	# 	self.toggleWidgets(setUnChecked='chk001,chk003')
+	# 	self.sb.toggleWidgets(setUnChecked='chk001,chk003')
 	# 	axis = "Y"
 	# 	if self.sb.mirror.chk000.isChecked():
 	# 		axis = '-'+axis
@@ -196,7 +196,7 @@ print (__name__)
 	# 	'''
 	# 	Delete: Z Axis
 	# 	'''
-	# 	self.toggleWidgets(setUnChecked='chk001,chk002')
+	# 	self.sb.toggleWidgets(setUnChecked='chk001,chk002')
 	# 	axis = "Z"
 	# 	if self.sb.mirror.chk000.isChecked():
 	# 		axis = '-'+axis
@@ -210,6 +210,6 @@ print (__name__)
 		# '''
 		#keep menu and submenu in sync:
 		# if self.mirror_submenu.chk005.isChecked():
-		# 	self.toggleWidgets(setChecked='chk005')
+		# 	self.sb.toggleWidgets(setChecked='chk005')
 		# else:
-		# 	self.toggleWidgets(setUnChecked='chk005')
+		# 	self.sb.toggleWidgets(setUnChecked='chk005')

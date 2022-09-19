@@ -39,7 +39,7 @@ class Symmetry_blender(Symmetry, Slots_blender):
 		self.sb.symmetry.chk004.setChecked(False) #uncheck symmetry:object space
 		if any ([self.sb.symmetry.chk000.isChecked(), self.sb.symmetry.chk001.isChecked(), self.sb.symmetry.chk002.isChecked()]): #(symmetry)
 			pm.symmetricModelling(edit=True, symmetry=False)
-			self.toggleWidgets(setUnChecked='chk000,chk001,chk002')
+			self.sb.toggleWidgets(setUnChecked='chk000,chk001,chk002')
 			return 'Note: First select a seam edge and then check the symmetry button to enable topographic symmetry'
 
 

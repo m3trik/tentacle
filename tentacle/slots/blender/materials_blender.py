@@ -142,13 +142,13 @@ class Materials_blender(Materials, Slots_blender):
 		if setEditable:
 			self._mat = self.sb.materials.cmb002.currentData()
 			cmb.setEditable(True)
-			self.toggleWidgets(self.sb.materials, setDisabled='b002,lbl000,tb000,tb002')
+			self.sb.toggleWidgets(self.sb.materials, setDisabled='b002,lbl000,tb000,tb002')
 		else:
 			mat = self._mat
 			newMatName = cmb.currentText()
 			self.renameMaterial(mat, newMatName)
 			cmb.setEditable(False)
-			self.toggleWidgets(self.sb.materials, setEnabled='b002,lbl000,tb000,tb002')
+			self.sb.toggleWidgets(self.sb.materials, setEnabled='b002,lbl000,tb000,tb002')
 
 
 	def lbl002(self):

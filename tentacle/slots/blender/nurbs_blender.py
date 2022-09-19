@@ -403,10 +403,10 @@ class Nurbs_blender(Nurbs, Slots_blender):
 		# pm.undoInfo(openChunk=1)
 		#create a MASH network
 		import MASH.api as mapi
-		import tools_maya.mash_tools_maya
+		import utils_maya.mash_utils_maya
 
 		mashNW = mapi.Network()
-		mashNW.MTcreateNetwork(start, geometry=geometry, hideOnCreate=False) #mash_tools_maya module (derived from 'createNetwork')
+		mashNW.MTcreateNetwork(start, geometry=geometry, hideOnCreate=False) #mash_utils_maya module (derived from 'createNetwork')
 
 		curveNode = pm.ls(mashNW.addNode('MASH_Curve').name)[0]
 		pm.connectAttr(path.worldSpace[0], curveNode.inCurves[0], force=1)
@@ -423,7 +423,7 @@ class Nurbs_blender(Nurbs, Slots_blender):
 		pm.setAttr(distNode.amplitudeX, 0)
 
 		instNode = pm.ls(mashNW.instancer)[0]
-		baked_curves = mashNW.MTbakeInstancer(instNode) #mash_tools_maya module (derived from 'MASHbakeInstancer')
+		baked_curves = mashNW.MTbakeInstancer(instNode) #mash_utils_maya module (derived from 'MASHbakeInstancer')
 
 		result=[start]
 		for curve in reversed(baked_curves):

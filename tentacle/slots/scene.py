@@ -85,9 +85,9 @@ class Scene(Slots):
 		:Return:
 			(list)
 
-		ex. list_ = ['invertVertexWeights', 'keepCreaseEdgeWeight', 'keepBorder', 'keepBorderWeight', 'keepColorBorder', 'keepColorBorderWeight']
-			findStr('*Weight*', list_) #find any element that contains the string 'Weight'.
-			findStr('Weight$|Weights$', list_, regEx=True) #find any element that endswith 'Weight' or 'Weights'.
+		ex. lst = ['invertVertexWeights', 'keepCreaseEdgeWeight', 'keepBorder', 'keepBorderWeight', 'keepColorBorder', 'keepColorBorderWeight']
+			findStr('*Weight*', lst) #find any element that contains the string 'Weight'.
+			findStr('Weight$|Weights$', lst, regEx=True) #find any element that endswith 'Weight' or 'Weights'.
 		'''
 		if regEx: #search using a regular expression.
 			import re

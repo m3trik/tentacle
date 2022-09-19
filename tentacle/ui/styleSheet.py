@@ -1103,7 +1103,7 @@ class StyleSheet(QtCore.QObject):
 
 
 	@classmethod
-	def setStyleSheet_(cls, widgets, ratio=6, style='standard', hideMenuButton=False, backgroundOpacity=255):
+	def setStyle(cls, widgets, ratio=6, style='standard', hideMenuButton=False, backgroundOpacity=255):
 		'''Set the styleSheet for the given widgets.
 		Set the style for a specific widget by using the '#' syntax and the widget's objectName. ie. QWidget#mainWindow
 

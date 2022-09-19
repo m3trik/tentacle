@@ -17,9 +17,7 @@ class Tcl_max(Tcl):
 	:Parameters:
 		parent = main application top level window object.
 	'''
-	qApp = QtWidgets.QApplication
-
-	def __init__(self, parent=None, *args, **kwargs):
+	def __init__(self, parent=None, slotDir='max', *args, **kwargs):
 		'''
 		'''
 		if not parent:
@@ -27,12 +25,13 @@ class Tcl_max(Tcl):
 				parent = self.getMainWindow()
 
 			except Exception as error:
-				print(self.__class__.__name__, error)
+				print(__file__, error)
 
-		super().__init__(parent, *args, **kwargs)
+		super().__init__(parent, slotDir=slotDir, *args, **kwargs)
 
 
-	def getMainWindow(self):
+	@classmethod
+	def getMainWindow(cls):
 		'''Get the 3DS MAX main window.
 
 		Returns:
@@ -41,13 +40,15 @@ class Tcl_max(Tcl):
 		# import qtmax
 		# main_window = qtmax.GetQMaxMainWindow()
 
-		main_window = next((w.window() for w in self.qApp.instance().topLevelWidgets()
+		main_window = next((w.window() for w in cls.app.topLevelWidgets()
 			if w.inherits('QMainWindow') and w.metaObject().className()=='QmaxApplicationWindow'), 
 				lambda: (_ for _ in ()).throw(RuntimeError('Count not find QmaxApplicationWindow instance.'))
 			)
 
 		if not main_window.objectName():
 			main_window.setObjectName('MaxWindow')
+
+		setattr(QtWidgets.QApplication.instance(), 'MaxWindow', main_window)
 
 		return main_window
 
@@ -58,7 +59,7 @@ class Tcl_max(Tcl):
 			event = <QEvent>
 		'''
 		if not event.isAutoRepeat():
-			modifiers = self.qApp.keyboardModifiers()
+			modifiers = self.app.keyboardModifiers()
 
 			if event.key()==self.key_undo and modifiers==QtCore.Qt.ControlModifier:
 				import pymxs
@@ -103,16 +104,10 @@ class Tcl_max(Tcl):
 
 
 if __name__ == "__main__":
-	app = QtWidgets.QApplication.instance() #get the qApp instance if it exists.
-	if not app:
-		app = QtWidgets.QApplication(sys.argv)
 
-	#create a parent object to run the code outside of max.
-	dummyParent = QtWidgets.QWidget()
-	dummyParent.setObjectName('MaxWindow')
+	Tcl_max().show('init')
 
-	Tcl_max(dummyParent).show('init')
-
+	app = QtWidgets.QApplication.instance()
 	sys.exit(app.exec_())
 
 

@@ -109,8 +109,7 @@ class PushButton(QtWidgets.QPushButton, MenuInstance, Attributes, RichText, Text
 if __name__ == "__main__":
 	import sys
 	from PySide2.QtCore import QSize
-
-	qApp = QtWidgets.QApplication(sys.argv)
+	app = QtWidgets.QApplication(sys.argv)
 
 	w = PushButton(
 		parent=None,
@@ -122,7 +121,7 @@ if __name__ == "__main__":
 	)
 
 	w.show()
-	sys.exit(qApp.exec_())
+	sys.exit(app.exec_())
 
 
 

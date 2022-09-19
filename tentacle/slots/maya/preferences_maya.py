@@ -7,36 +7,32 @@ from slots.preferences import Preferences
 
 class Preferences_maya(Preferences, Slots_maya):
 	def __init__(self, *args, **kwargs):
-		Slots_maya.__init__(self, *args, **kwargs)
-		Preferences.__init__(self, *args, **kwargs)
+		super().__init__(*args, **kwargs)
 
 		self.sb.preferences.b010.setText('Maya Preferences')
 
-		cmb = self.sb.preferences.draggable_header.contextMenu.cmb000
+		cmb000 = self.sb.preferences.draggable_header.contextMenu.cmb000
 		items = ['']
-		cmb.addItems_(items, '')
+		cmb000.addItems_(items, '')
 
-		cmb = self.sb.preferences.cmb001
+		cmb001 = self.sb.preferences.cmb001
 		items = ['millimeter','centimeter','meter','kilometer','inch','foot','yard','mile']
-		cmb.addItems_(items)
-		index = cmb.items.index(pm.currentUnit(query=1, fullName=1, linear=1)) #get/set current linear value.
-		cmb.setCurrentIndex(index)
+		cmb001.addItems_(items)
+		index = cmb001.items.index(pm.currentUnit(query=1, fullName=1, linear=1)) #get/set current linear value.
+		cmb001.setCurrentIndex(index)
 
-		# cmb = self.sb.preferences.cmb002
-		# #store a corresponding value for each item in the comboBox list_.
-		# l = {'15 fps: ':'game','24 fps: ':'film','25 fps: ':'pal','30 fps: ':'ntsc','48 fps: ':'show','50 fps: ':'palf','60 fps: ':'ntscf'}
-		# items = [k+v for k,v in l.items()] #ie. ['15 fps: game','24 fps: film', ..etc]
-		# values = [i[1] for i in l] #ie. ['game','film', ..etc]
-		# cmb.addItems_(items)
-		# index = cmb.items.index(pm.currentUnit(query=1, fullName=1, time=1)) #get/set current time value.
-		# cmb.setCurrentIndex(index)
+		cmb002 = self.sb.preferences.cmb002
+		items = {'15 fps (game)':'game','24 fps (film)':'film','25 fps (pal)':'pal','30 fps (ntsc)':'ntsc','48 fps (show)':'show','50 fps (palf)':'palf','60 fps (ntscf)':'ntscf'}
+		cmb002.addItems_(items)
+		index = cmb002.items.index(pm.currentUnit(query=1, fullName=1, time=1)) #get/set current time value.
+		cmb002.setCurrentIndex(index)
 
-		# cmb = self.sb.preferences.cmb003
-		# from PySide2 import QtWidgets, QtCore
-		# items = QtWidgets.QStyleFactory.keys() #get styles from QStyleFactory
-		# cmb.addItems_(items)
-		# index = self.styleComboBox.findText(QtGui.qApp.style().objectName(), QtCore.Qt.MatchFixedString) #get/set current value
-		# cmb.setCurrentIndex(index)
+		cmb003 = self.sb.preferences.cmb003
+		from PySide2 import QtWidgets, QtGui, QtCore
+		items = QtWidgets.QStyleFactory.keys() #get styles from QStyleFactory
+		cmb003.addItems_(items)
+		index = cmb003.findText(self.sb.parent().app.style().objectName(), QtCore.Qt.MatchFixedString) #get/set current value
+		cmb003.setCurrentIndex(index)
 
 
 	def cmb000(self, index=-1):
@@ -131,8 +127,8 @@ print (__name__)
 # 	'''
 # 	cmb = self.sb.preferences.draggable_header.contextMenu.cmb000
 	
-# 	list_ = ['Modeling', 'Normals', 'Materials', 'UV'] #combobox list menu corresponding to the button text sets.
-# 	contents = cmb.addItems_(list_, 'Menu Sets')
+# 	items = ['Modeling', 'Normals', 'Materials', 'UV'] #combobox list menu corresponding to the button text sets.
+# 	contents = cmb.addItems_(items, 'Menu Sets')
 
 # 	if not index:
 		# index = cmb.currentIndex()

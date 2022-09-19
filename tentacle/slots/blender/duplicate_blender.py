@@ -11,8 +11,8 @@ class Duplicate_blender(Duplicate, Slots_blender):
 		Duplicate.__init__(self, *args, **kwargs)
 
 		cmb = self.sb.duplicate.draggable_header.contextMenu.cmb000
-		list_ = []
-		cmb.addItems_(list_, 'Editors')
+		items = []
+		cmb.addItems_(items, 'Editors')
 
 
 	def cmb000(self, index=-1):
@@ -42,7 +42,7 @@ class Duplicate_blender(Duplicate, Slots_blender):
 					bb = pm.xform (selection, query=1, boundingBox=1, worldSpace=1)
 					pivot = bb[0]+bb[3]/2, bb[1]+bb[4]/2, bb[2]+bb[5]/2 #get median of bounding box coordinates. from [min xyz, max xyz]
 			else:
-				self.toggleWidgets(setUnChecked='chk010')
+				self.sb.toggleWidgets(setUnChecked='chk010')
 				self.messageBox('Nothing selected.')
 				return
 
@@ -65,7 +65,7 @@ class Duplicate_blender(Duplicate, Slots_blender):
 		instance = self.duplicate_radial_ui.chk011.isChecked() #instance object
 
 		if self.duplicate_radial_ui.chk015.isChecked():
-			self.toggleWidgets(setEnabled='b003')
+			self.sb.toggleWidgets(setEnabled='b003')
 
 			selection = pm.ls (selection=1, type="transform", flatten=1)
 			if selection:
@@ -113,7 +113,7 @@ class Duplicate_blender(Duplicate, Slots_blender):
 					pm.select(objectName)
 					# pm.undoInfo (closeChunk=1)
 			else: #if both lists objects are empty:
-				self.toggleWidgets(setDisabled='b003', setUnChecked='chk015')
+				self.sb.toggleWidgets(setDisabled='b003', setUnChecked='chk015')
 				self.messageBox('Nothing selected.')
 				return
 		else: #if chk015 is unchecked by user or by create button
@@ -130,7 +130,7 @@ class Duplicate_blender(Duplicate, Slots_blender):
 				pass
 			del radialArrayObjList[:] #clear the list
 
-			self.toggleWidgets(setDisabled='b003')
+			self.sb.toggleWidgets(setDisabled='b003')
 
 
 	global duplicateObjList
@@ -140,7 +140,7 @@ class Duplicate_blender(Duplicate, Slots_blender):
 		'''Duplicate: Preview
 		'''
 		if self.duplicate_linear_ui.chk016.isChecked():
-			self.toggleWidgets(setEnabled='b002')
+			self.sb.toggleWidgets(setEnabled='b002')
 
 			instance = self.duplicate_linear_ui.chk000.isChecked()
 			numOfDuplicates = int(self.duplicate_linear_ui.s005.value())
@@ -226,7 +226,7 @@ class Duplicate_blender(Duplicate, Slots_blender):
 			pm.delete(duplicateObjList[1:]) #delete all the geometry in the list, except the original obj
 			pm.select(duplicateObjList[:1]) #re-select the original object
 			del duplicateObjList[:] #clear the list
-			self.toggleWidgets(setDisabled='b002')
+			self.sb.toggleWidgets(setDisabled='b002')
 
 
 	def b000(self):

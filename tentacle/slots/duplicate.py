@@ -37,10 +37,10 @@ class Duplicate(Slots):
 		'''Duplicate: Translate To Components
 		'''
 		if self.duplicate_linear_ui.chk007.isChecked():
-			self.toggleWidgets(setEnabled='chk008,b034,cmb001', setDisabled='chk000,chk009,s005')
+			self.sb.toggleWidgets(setEnabled='chk008,b034,cmb001', setDisabled='chk000,chk009,s005')
 			self.b008()
 		else:
-			self.toggleWidgets(setDisabled='chk008,b034,cmb001', setEnabled='chk000,chk009,s005')
+			self.sb.toggleWidgets(setDisabled='chk008,b034,cmb001', setEnabled='chk000,chk009,s005')
 
 
 	def chk011(self, state=None):
@@ -52,21 +52,21 @@ class Duplicate(Slots):
 	def chk012(self, state=None):
 		'''Radial Array: X Axis
 		'''
-		self.toggleWidgets(setChecked='chk012', setUnChecked='chk013,chk014')
+		self.sb.toggleWidgets(setChecked='chk012', setUnChecked='chk013,chk014')
 		self.chk015()
 
 
 	def chk013(self, state=None):
 		'''Radial Array: Y Axis
 		'''
-		self.toggleWidgets(setChecked='chk013', setUnChecked='chk012,chk014')
+		self.sb.toggleWidgets(setChecked='chk013', setUnChecked='chk012,chk014')
 		self.chk015()
 
 
 	def chk014(self, state=None):
 		'''Radial Array: Z Axis
 		'''
-		self.toggleWidgets(setChecked='chk014', setUnChecked='chk012,chk013')
+		self.sb.toggleWidgets(setChecked='chk014', setUnChecked='chk012,chk013')
 		self.chk015()
 
 

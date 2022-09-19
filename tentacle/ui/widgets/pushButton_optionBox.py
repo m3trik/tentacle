@@ -129,8 +129,7 @@ class PushButton_optionBox(QtWidgets.QPushButton, Attributes, RichText):
 
 if __name__ == "__main__":
 	import sys
-
-	qApp = QtWidgets.QApplication(sys.argv)
+	app = QtWidgets.QApplication(sys.argv)
 
 	window = QtWidgets.QWidget()
 	parent = QtWidgets.QPushButton(window)
@@ -143,7 +142,7 @@ if __name__ == "__main__":
 	)
 
 	window.show()
-	sys.exit(qApp.exec_())
+	sys.exit(app.exec_())
 
 
 

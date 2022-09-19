@@ -98,7 +98,7 @@ class Crease_blender(Crease, Slots_blender):
 			# print("crease:", name)
 		# pm.undoInfo (closeChunk=1)
 
-		self.toggleWidgets(setDisabled='b052', setUnChecked='b000')#,self.sb.crease.b001])
+		self.sb.toggleWidgets(setDisabled='b052', setUnChecked='b000')#,self.sb.crease.b001])
 		self.sb.crease.b000.setText("Crease Set")
 		# self.sb.crease.b001.setText("Object")
 

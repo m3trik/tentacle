@@ -6,11 +6,11 @@ import glob
 import importlib
 import inspect
 
-from PySide2 import QtCore, QtWidgets
+from PySide2 import QtCore, QtGui, QtWidgets
 from PySide2.QtUiTools import QUiLoader
 
 from ui.styleSheet import StyleSheet
-import tools
+import utils
 
 
 
@@ -94,45 +94,53 @@ class Switchboard(QUiLoader):
 	_loadedUi = []
 	_registeredWidgets = []
 	_uiHistory = []
-	_cmdHistory = []
+	_wgtHistory = []
 
 	defaultDir = os.path.abspath(os.path.dirname(__file__))
 	defaultUiDir = defaultDir+'/ui'
 	defaultWgtDir = defaultDir+'/ui/widgets'
 	defaultSlotDir = defaultDir+'/slots'
 
-	qApp = QtWidgets.QApplication.instance() #get the qApp instance if it exists.
-	if not qApp:
-		qApp = QtWidgets.QApplication(sys.argv)
 
-	def __init__(self, parent=None, appName='', uiDir=defaultUiDir, widgetDir=defaultWgtDir, slotDir=defaultSlotDir):
-		QUiLoader.__init__(self, parent)
+	def __init__(self, parent=None, uiDir=defaultUiDir, widgetDir=defaultWgtDir, slotDir=defaultSlotDir, parentAppName=''):
+		super().__init__(parent)
 		'''
 		'''
 		self.uiDir = uiDir
 		self.widgetDir = widgetDir
-		self.slotDir = slotDir
-		self.appName = appName
+		self.slotDir = slotDir if '/' or '\\' in slotDir else os.path.join(defaultSlotDir, slotDir) #if slotDir is not a full path, treat it as relative to the default path.
 
-		self.setStyle = StyleSheet.setStyleSheet_
+		self.setStyle = StyleSheet.setStyle
 		self._getDerivedType = StyleSheet.getDerivedType
-		self.setCase = tools.Txtools.setCase
-		self.formatFilepath = tools.Txtools.formatFilepath
-		self.list_ = tools.Lstools.list_
-		self.convertForDebugging = tools.Lstools.convertForDebugging
+		self.setCase = utils.Txtools.setCase
+		self.formatFilepath = utils.Fileutils.formatFilepath
+		self.list = utils.Iterutils.list
+		self.formatReturn = utils.Iterutils.formatReturn
+		self.convertForDebugging = utils.Iterutils.convertForDebugging
+
+		setattr(QtWidgets.QApplication.instance(), 'sb', self)
 
 
 	def __getattr__(self, attr):
-		'''If an unknown attribute matches the name of a ui in the current ui directory; load it.
+		'''If an unknown attribute matches the name of a ui in the current ui directory; load and return it.
+		Else, if an unknown attribute matches the name of a custom widget in the widgets directory; register and return it.
+
+		:return:
+			(obj) ui or widget else raise attribute error.
 		'''
-		path = self.uiDir
+		uiFullPath = next((f for f in glob.iglob('{}/**/{}.ui'.format(self.uiDir, attr), recursive=True)), None)
+		if uiFullPath:
+			ui = self.loadUi(uiFullPath) #load the dynamic ui file.
+			return ui
 
-		uiFullPath = next((f for f in glob.iglob('{}/**/{}.ui'.format(path, attr), recursive=True)), None)
-		if not uiFullPath:
-			raise AttributeError(__file__, attr)
+		wgtName = self.setCase(attr, 'camelCase')
+		pathToWidget = next((f for f in glob.iglob('{}/**/{}.py'.format(self.widgetDir, wgtName), recursive=True)), None)
+		if pathToWidget:
+			customWidget = self.registerWidgets(attr)
+			if customWidget:
+				return customWidget
 
-		ui = self.loadUi(uiFullPath) #load the dynamic ui file.
-		return ui
+		raise AttributeError(__file__, attr)
 
 
 	@staticmethod
@@ -169,7 +177,7 @@ class Switchboard(QUiLoader):
 			if l.strip() == '<{}>'.format(prop):
 				actual_prop_text = l
 				start = i+1
-			elif l == tools.Txtools.insert(actual_prop_text, '/', '<'):
+			elif l == utils.Txtools.insert(actual_prop_text, '/', '<'):
 				end = i
 
 				delimiters = '</', '<', '>', '\n', ' ',
@@ -250,12 +258,20 @@ class Switchboard(QUiLoader):
 		'''Get all widget class objects from a given directory.
 
 		:Parameters:
-			path (str) = A filepath to a dir containing widgets or to the widget itself. ie. 'O:/Cloud/Code/_scripts/tentacle/tentacle/ui/widgets'
-
+			path (str) = A filepath to a dir containing widgets or to the widget itself, 
+					or the name of a widget residing in the 'widgetDir'. 
+						ie. 'O:/Cloud/Code/_scripts/tentacle/tentacle/ui/widgets'
+						ie. 'O:/Cloud/Code/_scripts/tentacle/tentacle/ui/widgets/comboBox.py'
+						ie. 'ComboBox'
 		:Return:
 			(list) widgets
 		'''
 		mod_name = self.formatFilepath(path, 'name')
+
+		if not os.path.isfile(path) or os.path.isdir(path):
+			mod_name = self.setCase(mod_name, 'camelCase')
+			path = os.path.join(self.widgetDir, mod_name+'.py')
+
 		path_ = self.formatFilepath(path, 'path')
 
 		self.setWorkingDirectory(path_)
@@ -299,35 +315,6 @@ class Switchboard(QUiLoader):
 		return widgets
 
 
-	def registerWidgets(self, widgets):
-		'''Register any custom widgets using the module names.
-		Registered widgets can be accessed as properties. ex. sb.PushButton()
-
-		:Parameters:
-			widgets (str)(obj)(list) = A filepath to a dir containing widgets or to the widget itself. 
-						ie. 'O:/Cloud/Code/_scripts/tentacle/tentacle/ui/widgets' or the widget(s) themselves. 
-
-		ex. call: registerWidgets(<class 'widgets.menu.Menu'>) #register using widget class object.
-		ex. call: registerWidgets('O:/Cloud/Code/_scripts/tentacle/tentacle/ui/widgets/menu.py') #register using path to widget module.
-		'''
-		for w in self.list_(widgets): #assure widgets is a list.
-
-			if isinstance(w, str):
-				[self.registerWidgets(i) for i in self._getWidgetsFromDir(w)]
-				continue
-
-			if w in self._registeredWidgets:
-				continue
-
-			try:
-				self.registerCustomWidget(w)
-				self._registeredWidgets.append(w)
-				setattr(self, w.__name__, w)
-
-			except Exception as error:
-				print ('# Error: {}.registerWidgets(): {} #'.format(__file__, error))
-
-
 	def getSlotsInstance(self, ui):
 		'''Get the class instance of the ui's slots module if it exists.
 		'''
@@ -337,7 +324,7 @@ class Switchboard(QUiLoader):
 		except AttributeError as error:
 			class_ = self._importSlots(ui)
 			if not class_:
-				if ui.isSubmenu:
+				if ui.isSubmenu and ui.level3: #is a submenu with a parent menu.
 					return self.getSlotsInstance(ui.level3)
 
 			ui._slots = class_() if class_ else None
@@ -355,12 +342,15 @@ class Switchboard(QUiLoader):
 		:return:
 			(obj) class
 		'''
-		assert isinstance(ui, QtWidgets.QMainWindow), '{}: Incorrect datatype given for ui: {}: {}'.format(__file__, type(ui), ui)
+		assert isinstance(ui, QtWidgets.QMainWindow), 'Incorrect datatype: {}: {}'.format(type(ui), ui)
+
+		d = self.formatFilepath(self.slotDir, 'dir')
+		suffix = '' if d=='slots' else d
 
 		mod_name = '{}_{}'.format(
 							self.setCase(ui.name, case='camelCase'), 
-							self.setCase(self.appName, case='camelCase'),
-							).rstrip('_') #ie. 'polygons_maya' or 'polygons' if appName is None.
+							self.setCase(suffix, case='camelCase'),
+							).rstrip('_') #ie. 'polygons_maya' or 'polygons' if suffix is None.
 		if not path:
 			path = self.slotDir
 		sys.path.append(path)
@@ -374,6 +364,42 @@ class Switchboard(QUiLoader):
 
 		except ModuleNotFoundError as error:
 			return None
+
+
+	def registerWidgets(self, widgets):
+		'''Register any custom widgets using the module names.
+		Registered widgets can be accessed as properties. ex. sb.PushButton()
+
+		:Parameters:
+			widgets (str)(obj)(list) = A filepath to a dir containing widgets or to the widget itself. 
+						ie. 'O:/Cloud/Code/_scripts/tentacle/tentacle/ui/widgets' or the widget(s) themselves. 
+
+		:return:
+			(obj)(list) list only if multiple widgets given.
+
+		ex. call: registerWidgets(<class 'widgets.menu.Menu'>) #register using widget class object.
+		ex. call: registerWidgets('O:/Cloud/Code/_scripts/tentacle/tentacle/ui/widgets/menu.py') #register using path to widget module.
+		'''
+		result=[]
+		for w in self.list(widgets): #assure widgets is a list.
+
+			if isinstance(w, str):
+				[result.append(self.registerWidgets(i)) for i in self._getWidgetsFromDir(w)]
+				continue
+
+			if w in self._registeredWidgets:
+				continue
+
+			try:
+				self.registerCustomWidget(w)
+				self._registeredWidgets.append(w)
+				setattr(self, w.__name__, w)
+				result.append(w)
+
+			except Exception as error:
+				print ('# Error: {}.registerWidgets(): {} #'.format(__file__, error))
+
+		return self.formatReturn(result)
 
 
 	def loadAllUi(self, path=None, widgets=None, parent=None):
@@ -446,38 +472,39 @@ class Switchboard(QUiLoader):
 		ui.sizeX = ui.frameGeometry().width()
 		ui.sizeY = ui.frameGeometry().height()
 		ui._widgets = []
+		ui._trackedWidgets = []
 		ui.isInitialized = False #a convenience property not handled by this module.
 		ui.isConnected = False
 		ui.isSynced = False
 		ui.isSubmenu = ui.level==2
 		ui.preventHide = False
-		ui.hide = lambda: None if ui.preventHide else ui.__class__.hide(ui) #ui.setVisible(0) #ui.setVisible(0)
-		ui.sync = lambda: self._syncUi(ui)
+		ui.hide = lambda u=ui: u.__class__.hide(u) if not u.preventHide else None
+		ui.sync = lambda u=ui: self._syncUi(u)
 
 		#set properties
-		ui.__class__.addWidgets = lambda ui, *args, **kwargs: self.addWidgets(ui, *args, **kwargs)
+		ui.__class__.addWidgets = lambda u=ui, *args, **kwargs: self.addWidgets(u, *args, **kwargs)
 
 		ui.__class__.widgets = property(
-			lambda ui: ui._widgets if ui._widgets else ui.addWidgets()
+			lambda u: u._widgets if u._widgets else u.addWidgets()
 		)
 		ui.__class__.trackedWidgets = property(
-			lambda ui: [w for w in ui.widgets if w.isTracked]
+			lambda u: u._trackedWidgets if u._widgets else u.addWidgets()
 		)
 		ui.__class__.slots = property(
-			lambda ui: self.getSlotsInstance(ui)
+			lambda u: self.getSlotsInstance(u)
 		)
 		ui.__class__.connected = property(
-			lambda ui: True if ui.isConnected else False, 
-			lambda ui, state: setattr(self, 'currentUi', ui) if state else self.disconnect(ui)
+			lambda u: True if u.isConnected else False, 
+			lambda u, state: setattr(self, 'currentUi', u) if state else self.disconnect(u)
 		)
 		ui.__class__.isCurrent = property(
-			lambda ui: True if ui==self.currentUi else False
+			lambda u: True if u==self.currentUi else False
 		)
 		ui.__class__.level2 = property(
-			lambda ui: self.getUi(ui, 2)
+			lambda u: self.getUi(u, 2)
 		)
 		ui.__class__.level3 = property(
-			lambda ui: self.getUi(ui, 3)
+			lambda u: self.getUi(u, 3)
 		)
 
 		setattr(self, name, ui)
@@ -498,7 +525,7 @@ class Switchboard(QUiLoader):
 		if widgets=='all':
 			widgets = self._getWidgetsFromUi(ui) #get all widgets of the ui:
 
-		for w in self.list_(widgets): #assure 'widgets' is a list.
+		for w in self.list(widgets): #assure 'widgets' is a list.
 
 			derivedType = self._getDerivedType(w) #the base class of any custom widgets.  ie. 'QPushButton' from a custom pushbutton widget.
 			typ = w.__class__.__base__.__name__ if filterByBaseType else derivedType
@@ -529,143 +556,8 @@ class Switchboard(QUiLoader):
 			w.isSynced = False
 
 			ui._widgets.append(w)
-		return ui.widgets	
-
-
-	def setAttributes(self, obj=None, order=['setVisible'], **kwargs):
-		'''Set attributes for a given object.
-
-		:Parameters:
-			obj (obj) = the child obj, or widgetAction to set attributes for. (default=self)
-			order (list) = List of string keywords. ie. ['move', 'setVisible']. attributes in this list will be set last, in order of the list. an example would be setting move positions after setting resize arguments.
-			**kwargs = The keyword arguments to set.
-		'''
-		if not kwargs:
-			return
-
-		obj = obj if obj else self
-
-		for k in order:
-			v = kwargs.pop(k, None)
-			if v:
-				from collections import OrderedDict
-				kwargs = OrderedDict(kwargs)
-				kwargs[k] = v
-
-		for attr, value in kwargs.items():
-			try:
-				getattr(obj, attr)(value)
-
-			except AttributeError as error:
-				pass; # print (__name__+':','setAttributes:', obj, order, kwargs, error)
-
-
-	def getAttributes(obj, include=[], exclude=[]):
-		'''Get attributes for a given object.
-
-		:Parameters:
-			obj (obj) = The object to get the attributes of.
-			include (list) = Attributes to include. All other will be omitted. Exclude takes dominance over include. Meaning, if the same attribute is in both lists, it will be excluded.
-			exclude (list) = Attributes to exclude from the returned dictionay. ie. [u'Position',u'Rotation',u'Scale',u'renderable',u'isHidden',u'isFrozen',u'selected']
-
-		:Return:
-			(dict) {'string attribute': current value}
-		'''
-		return {attr:getattr(obj, attr) 
-					for attr in dir(obj)
-						if not attr in exclude 
-							and (attr in include if include else attr not in include)}
-
-
-	def _syncUi(self, submenu, **kwargs):
-		'''Extends setSynConnections method to set sync connections 
-		for all widgets of the given ui.
-
-		:Parameters:
-			ui1 (obj) = 
-		'''
-		if not submenu.isSubmenu or submenu.isSynced:
-			return
-
-		for w1 in submenu.widgets:
-			try:
-				w2 = getattr(submenu.level3, w1.name)
-			except AttributeError as error:
-				continue
-
-			self.setSyncConnections(w1, w2, **kwargs)
-
-		submenu.isSynced = True
-		submenu.level3.isSynced = True
-
-
-	def setSyncConnections(self, w1, w2, **kwargs):
-		'''Set the initial signal connections that will call the _syncAttributes function on state changes.
-
-		:Parameters:
-			w1 (obj) = The first widget to sync.
-			w2 (obj) = The second widget to sync.
-			kwargs = The attribute(s) to sync as keyword arguments.
-		'''
-		try:
-			s1 = self.defaultSignals[self.getDerivedType(w1)] #get the default signal for the given widget.
-			s2 = self.defaultSignals[self.getDerivedType(w2)]
-
-			getattr(w1, s1).connect(lambda: self._syncAttributes(w1, w2, **kwargs))
-			getattr(w2, s2).connect(lambda: self._syncAttributes(w2, w1, **kwargs))
-
-			w1.isSynced = True
-			w2.isSynced = True
-
-		except AttributeError as error:
-			# if w1 and w2: print ('# {}: {}.setSyncConnections({}, {}): {} is invalid.'.format('KeyError' if error==KeyError else 'AttributeError', __name__, w1, w2, error))
-			return
-
-
-	def _syncAttributes(self, frm, to, attributes=[]):
-		'''Sync the given attributes between the two given widgets.
-		If a widget does not have an attribute it will be silently skipped.
-
-		:Parameters:
-			frm (obj) = The widget to transfer attribute values from.
-			to (obj) = The widget to transfer attribute values to.
-			attributes (str)(list)(dict) = The attribute(s) to sync. ie. a setter attribute 'setChecked' or a dict containing getter:setter pairs. ie. {'isChecked':'setChecked'}
-		'''
-		if not attributes:
-			attributes = self.attributesGetSet
-
-		elif not isinstance(attributes, dict):
-			attributes = {next((k for k,v in self.attributesGetSet.items() if v==i), None):i #construct a gettr setter pair dict using only the given setter values.
-				 for i in self.list_(attributes)
-			}
-
-		_attributes = {}
-		for gettr, settr in attributes.items():
-			try:
-				_attributes[settr] = getattr(frm, gettr)()
-			except AttributeError as error:
-				pass
-
-		[getattr(to, attr)(value) 
-			for attr, value in _attributes.items() 
-				if hasattr(to, attr)] #set the second widget's attributes from the first.
-
-
-	def getDefaultSignalType(self, widgetType):
-		'''Get the default signal type for a given widget type.
-
-		:Parameters:
-			widgetType (str) = Widget class name. ie. 'QPushButton'
-
-		:Return:
-			(str) signal ie. 'released'
-		'''
-		try: #if the widget type has a default signal assigned in the signals dict; get the signal.
-			signal = self.defaultSignals[widgetType]
-		except KeyError:
-			signal = ''
-
-		return signal
+			ui._trackedWidgets.append(w) if w.isTracked else None
+		return ui.widgets
 
 
 	def getUi(self, ui=None, level=None):
@@ -687,21 +579,23 @@ class Switchboard(QUiLoader):
 				ui = self.getUi(ui)
 				ui = [u for u in self._loadedUi 
 						if all([
+							u!=None,
 							u.base==ui.base, 
-							u.tags==self.list_(tags), 
-							u.level in self.list_(level),
+							u.tags==self.list(tags), 
+							u.level in self.list(level),
 					])
 				]
 
 			else:
 				ui = [u for u in self._loadedUi 
 						if all([
+							u!=None,
 							u.base==ui.base, 
-							u.level in self.list_(level),
+							u.level in self.list(level),
 					])
 				]
 
-			return ui[0] if len(ui)==1 else ui
+			return self.formatReturn(ui)
 
 		elif isinstance(ui, str):
 			try:
@@ -778,7 +672,7 @@ class Switchboard(QUiLoader):
 			[hist.remove(u) for u in hist[:] if hist.count(u)>1] #remove any previous duplicates if they exist; keeping the last added element.
 
 		if omitLevel is not None:
-			hist = [u for u in hist if not u.level in self.list_(omitLevel)] #remove any items having a ui level of those in the omitLevel list.
+			hist = [u for u in hist if not u.level in self.list(omitLevel)] #remove any items having a ui level of those in the omitLevel list.
 
 		if asList:
 			return hist #return entire list after being modified by any flags such as 'allowDuplicates'.
@@ -787,6 +681,29 @@ class Switchboard(QUiLoader):
 				return hist[-1] #return the previous ui name if one exists.
 			except:
 				return None
+
+
+	@property
+	def prevCommand(self) -> object:
+		'''
+		'''
+		try:
+			return self.prevCommands[-1]
+		except IndexError as error:
+			return None
+
+
+	@property
+	def prevCommands(self):
+		'''Get previous commands and relevant information.
+
+		:Return:
+			(obj)(list) method, or list of methods.
+		'''
+		cmds = [w.method for w in self._wgtHistory[-10:]] #limit to last 10 elements and get methods from widget history.
+		hist = list(dict.fromkeys(cmds[::-1]))[::-1] #remove any duplicates (keeping the last element). [hist.remove(l) for l in hist[:] if hist.count(l)>1] #
+
+		return hist
 
 
 	def getWidget(self, name=None, ui=None, tracked=False):
@@ -828,7 +745,7 @@ class Switchboard(QUiLoader):
 			ui = self.getUi(ui)
 
 		typ = 'derivedType' if derivedType else 'type'
-		return [w for w in ui.widgets if getattr(w, typ) in self.list_(types)]
+		return [w for w in ui.widgets if getattr(w, typ) in self.list(types)]
 
 
 	def getWidgetName(self, widget=None, ui=None):
@@ -845,7 +762,7 @@ class Switchboard(QUiLoader):
 			if ui: the widget objectNames for widgets of the given ui name.
 			if not ui: the widget objectNames for widgets of the current ui.
 		'''
-		if isinstance(ui, (None, str)):
+		if not isinstance(ui, QtWidgets.QMainWindow):
 			ui = self.getUi(ui)
 
 		if widget:
@@ -864,7 +781,10 @@ class Switchboard(QUiLoader):
 		:Return:
 			(obj) widget. ie. <b000 widget> from <b000 method>.
 		'''
-		return next(iter(w for w in ui.widgets for ui in self._loadedUi if w.method==method), None)
+		if not method:
+			return None
+
+		return next(iter(w for u in self._loadedUi for w in u.widgets if w.method==method), None)
 
 
 	def getMethod(self, ui, widget=None):
@@ -880,7 +800,7 @@ class Switchboard(QUiLoader):
 
 		ex. sb.getMethod('polygons', <b022>)() #call method <b022> of the 'polygons' class
 		'''
-		if isinstance(ui, (None, str)):
+		if not isinstance(ui, QtWidgets.QMainWindow):
 			ui = self.getUi(ui)
 
 		if widget is None: #get all methods for the given ui name.
@@ -901,7 +821,7 @@ class Switchboard(QUiLoader):
 		:Parameters:
 			ui (obj) = A previously loaded dynamic ui object.
 		'''
-		# assert type(ui)!='PySide2.QtWidgets.QMainWindow', '{}: setConnections: incorrect arg type {}'.format(__file__, type(ui))
+		assert isinstance(ui, QtWidgets.QMainWindow), 'Incorrect datatype: {}: {}'.format(type(ui), ui)
 
 		prevUi = self.getPrevUi(allowDuplicates=True)
 		if prevUi==ui:
@@ -926,7 +846,7 @@ class Switchboard(QUiLoader):
 		if widgets is None:
 			widgets = ui.widgets
 
-		for w in self.list_(widgets): #convert 'widgets' to a list if it is not one already.
+		for w in self.list(widgets): #convert 'widgets' to a list if it is not one already.
 			# print ('           >:', w.name, w.method)
 			if w.method and w.signal:
 				try:
@@ -934,6 +854,8 @@ class Switchboard(QUiLoader):
 						map(w.signal.connect, w.method) #connect to multiple slots from a list.
 					else:
 						w.signal.connect(w.method) #connect single slot (main and cameras ui)
+
+					w.signal.connect(lambda w=w: self._wgtHistory.append(w)) #add the widget to the widget history list on signal.
 
 				except Exception as error:
 					print('Error: {0} {1} connectSlots: {2} {3}'.format(ui.name, w.name, w.signal, w.method), '\n', error)
@@ -953,7 +875,7 @@ class Switchboard(QUiLoader):
 		if widgets is None:
 			widgets = ui.widgets
 
-		for w in self.list_(widgets):  #convert 'widgets' to a list if it is not one already.
+		for w in self.list(widgets):  #convert 'widgets' to a list if it is not one already.
 			# print ('           >:', w.name, w.method)
 			if w.method and w.signal:
 				try:
@@ -968,33 +890,175 @@ class Switchboard(QUiLoader):
 		ui.isConnected = False #set ui state as slots disconnected.
 
 
-	def prevCommand(self, method=False, add=False, asList=False):
-		'''Get previous commands and relevant information.
+	def connect(self, widgets, signals, slots, class_=None):
+		'''Connect multiple signals to multiple slots at once.
 
 		:Parameters:
-			method (bool) = return the method of last command. Default is off.
-			add (bool) = Add a command (method) to the list.
-			asList (bool) = Return the full list. Not valid with 'asList' flag.
+			widgets (str)(obj)(list) = ie. 'chk000-2' or [tb.contextMenu.chk000, tb.contextMenu.chk001]
+			signals (str)(list) = ie. 'toggled' or ['toggled']
+			slots (obj)(list) = ie. self.cmb002 or [self.cmb002]
+			class_ (obj)(list) = if the widgets arg is given as a string, then the class_ it belongs to can be explicitly given. else, the current ui will be used.
 
-		:Return:
-			(obj)(list) method or list ob methods.
+		ex call: connect_('chk000-2', 'toggled', self.cmb002, tb.contextMenu)
+		*or connect_([tb.contextMenu.chk000, tb.contextMenu.chk001], 'toggled', self.cmb002)
+		*or connect_(tb.contextMenu.chk015, 'toggled', 
+				[lambda state: self.rigging.tb004.setText('Unlock Transforms' if state else 'Lock Transforms'), 
+				lambda state: self.rigging_submenu.tb004.setText('Unlock Transforms' if state else 'Lock Transforms')])
 		'''
-		if add:
-			w = self.getWidgetFromMethod(method)
-			self.prevCommand(asList=1).append(w) #store the method object and other relevant information about the command.
+		lst = lambda x: list(x) if isinstance(x, (list, tuple, set, dict)) else [x] #assure the arg is a list.
+
+		if isinstance(widgets, (str)):
+			try:
+				widgets = self.getWidgets(class_, widgets, showError_=True) #getWidgets returns a widget list from a string of objectNames.
+			except Exception as error:
+				widgets = self.getWidgets(self.currentUi, widgets, showError_=True)
+
+		#if the variables are not of a list type; convert them.
+		widgets = lst(widgets)
+		signals = lst(signals)
+		slots = lst(slots)
+
+		for widget in widgets:
+			for signal in signals:
+				signal = getattr(widget, signal)
+				for slot in slots:
+					signal.connect(slot)
+
+
+	def setAttributes(self, obj=None, order=['setVisible'], **kwargs):
+		'''Set attributes for a given object.
+
+		:Parameters:
+			obj (obj) = the child obj, or widgetAction to set attributes for. (default=self)
+			order (list) = List of string keywords. ie. ['move', 'setVisible']. attributes in this list will be set last, in order of the list. an example would be setting move positions after setting resize arguments.
+			**kwargs = The keyword arguments to set.
+		'''
+		if not kwargs:
 			return
 
-		self._cmdHistory = self._cmdHistory[-20:] #keep original list length restricted to last 20 elements
+		obj = obj if obj else self
 
-		hist = self._cmdHistory
-		[hist.remove(l) for l in hist[:] if hist.count(l)>1] #remove any previous duplicates if they exist; keeping the last added element.
+		for k in order:
+			v = kwargs.pop(k, None)
+			if v:
+				from collections import OrderedDict
+				kwargs = OrderedDict(kwargs)
+				kwargs[k] = v
 
-		if asList:
-			return hist
+		for attr, value in kwargs.items():
+			try:
+				getattr(obj, attr)(value)
+
+			except AttributeError as error:
+				pass; # print (__name__+':','setAttributes:', obj, order, kwargs, error)
+
+
+	def getAttributes(obj, include=[], exclude=[]):
+		'''Get attributes for a given object.
+
+		:Parameters:
+			obj (obj) = The object to get the attributes of.
+			include (list) = Attributes to include. All other will be omitted. Exclude takes dominance over include. Meaning, if the same attribute is in both lists, it will be excluded.
+			exclude (list) = Attributes to exclude from the returned dictionay. ie. [u'Position',u'Rotation',u'Scale',u'renderable',u'isHidden',u'isFrozen',u'selected']
+
+		:Return:
+			(dict) {'string attribute': current value}
+		'''
+		return {attr:getattr(obj, attr) 
+					for attr in dir(obj)
+						if not attr in exclude 
+							and (attr in include if include else attr not in include)}
+
+
+	def _syncUi(self, submenu, **kwargs):
+		'''Extends setSynConnections method to set sync connections 
+		for all widgets of the given ui.
+
+		:Parameters:
+			ui1 (obj) = 
+		'''
+		if any((not submenu.isSubmenu, submenu.isSynced, not submenu.level3)):
+			return #assure the ui is a unsynced submenu with a parent menu to sync with.
+
+		for w1 in submenu.widgets:
+			try:
+				w2 = getattr(submenu.level3, w1.name)
+			except AttributeError as error:
+				continue
+
+			self.setSyncConnections(w1, w2, **kwargs)
+
+		submenu.isSynced = True
+		submenu.level3.isSynced = True
+
+
+	def setSyncConnections(self, w1, w2, **kwargs):
+		'''Set the initial signal connections that will call the _syncAttributes function on state changes.
+
+		:Parameters:
+			w1 (obj) = The first widget to sync.
+			w2 (obj) = The second widget to sync.
+			kwargs = The attribute(s) to sync as keyword arguments.
+		'''
 		try:
-			return hist[-1]
-		except IndexError as error:
-			return None
+			s1 = self.defaultSignals[w1.derivedType] #get the default signal for the given widget.
+			s2 = self.defaultSignals[w2.derivedType]
+
+			getattr(w1, s1).connect(lambda: self._syncAttributes(w1, w2, **kwargs))
+			getattr(w2, s2).connect(lambda: self._syncAttributes(w2, w1, **kwargs))
+
+			w1.isSynced = True
+			w2.isSynced = True
+
+		except (AttributeError, KeyError) as error:
+			# if w1 and w2: print ('# {}: {}.setSyncConnections({}, {}): {} is invalid.'.format('KeyError' if error==KeyError else 'AttributeError', __name__, w1, w2, error))
+			return
+
+
+	def _syncAttributes(self, frm, to, attributes=[]):
+		'''Sync the given attributes between the two given widgets.
+		If a widget does not have an attribute it will be silently skipped.
+
+		:Parameters:
+			frm (obj) = The widget to transfer attribute values from.
+			to (obj) = The widget to transfer attribute values to.
+			attributes (str)(list)(dict) = The attribute(s) to sync. ie. a setter attribute 'setChecked' or a dict containing getter:setter pairs. ie. {'isChecked':'setChecked'}
+		'''
+		if not attributes:
+			attributes = self.attributesGetSet
+
+		elif not isinstance(attributes, dict):
+			attributes = {next((k for k,v in self.attributesGetSet.items() if v==i), None):i #construct a gettr setter pair dict using only the given setter values.
+				 for i in self.list(attributes)
+			}
+
+		_attributes = {}
+		for gettr, settr in attributes.items():
+			try:
+				_attributes[settr] = getattr(frm, gettr)()
+			except AttributeError as error:
+				pass
+
+		[getattr(to, attr)(value) 
+			for attr, value in _attributes.items() 
+				if hasattr(to, attr)] #set the second widget's attributes from the first.
+
+
+	def getDefaultSignalType(self, widgetType):
+		'''Get the default signal type for a given widget type.
+
+		:Parameters:
+			widgetType (str) = Widget class name. ie. 'QPushButton'
+
+		:Return:
+			(str) signal ie. 'released'
+		'''
+		try: #if the widget type has a default signal assigned in the signals dict; get the signal.
+			signal = self.defaultSignals[widgetType]
+		except KeyError:
+			signal = ''
+
+		return signal
 
 
 	_gcProtect = set()
@@ -1011,9 +1075,8 @@ class Switchboard(QUiLoader):
 		if clear:
 			self._gcProtect.clear()
 
-		for o in self.list_(obj):
-			if o is not None:
-				self._gcProtect.add(o)
+		for o in self.list(obj):
+			self._gcProtect.add(o)
 
 		return self._gcProtect
 
@@ -1105,6 +1168,212 @@ class Switchboard(QUiLoader):
 			return widgets
 
 
+	@staticmethod
+	def unpackNames(nameString):
+		'''Get a list of individual names from a single name string.
+		If you are looking to get multiple objects from a name string, call 'getWidgets' directly instead.
+
+		:Parameters:
+			nameString = string consisting of widget names separated by commas. ie. 'v000, b004-6'
+
+		:Return:
+			unpacked names. ie. ['v000','b004','b005','b006']
+
+		ex. call: unpackNames('chk021-23, 25, tb001')
+		'''
+		packed_names = [n.strip() for n in nameString.split(',') #build list of all widgets passed in containing '-' 
+							if '-' in n or n.strip().isdigit()]
+
+		otherNames = [n.strip() for n in nameString.split(',') #all widgets passed in not containing '-'
+							if '-' not in n and not n.strip().isdigit()]
+
+		unpacked_names=[] #unpack the packed names:
+		for name in packed_names:
+			if '-' in name:
+				name = name.split('-') #ex. split 'b000-8'
+				prefix = name[0].strip('0123456789') #ex. split 'b' from 'b000'
+				start = int(name[0].strip('abcdefghijklmnopqrstuvwxyz') or 0) #start range. #ex. '000' #converting int('000') returns None, if case; assign 0.
+				stop = int(name[1])+1 #end range. #ex. '8' from 'b000-8' becomes 9, for range up to 9 but not including 9.
+				unpacked_names.extend([str(prefix)+'000'[:-len(str(num))]+str(num) for num in range(start,stop)]) #build list of name strings within given range
+				last_name = name
+				last_prefix = prefix
+			else:
+				num = name
+				unpacked_names.extend([str(last_prefix)+'000'[:-len(str(num))]+str(num)])
+
+		return otherNames+unpacked_names
+
+
+	@classmethod
+	def getWidgets(cls, class_, objectNames, showError_=False):
+		'''Get a list of corresponding objects from a shorthand string.
+		ie. 's000,b002,cmb011-15' would return object list: [<s000>, <b002>, <cmb011>, <cmb012>, <cmb013>, <cmb014>, <cmb015>]
+
+		:Parameters:
+			class_ (obj) = Class object
+			objectNames (str) = Names separated by ','. ie. 's000,b004-7'. b004-7 specifies buttons b004-b007.  
+			showError (bool) = Show attribute error if item doesnt exist
+
+		:Return:
+			(list) of corresponding objects
+
+		#ex call: getWidgets(<ui>, 's000,b002,cmb011-15')
+		'''
+		objects=[]
+		for name in cls.unpackNames(objectNames):
+			try:
+				objects.append(getattr(class_, name)) #equivilent to:(self.currentUi.m000)
+
+			except AttributeError as error:
+				if showError_:
+					print("slots: '{}.getWidgets:' objects.append(getattr({}, {})) {}".format(__file__, class_, name, error))
+
+		return objects
+
+
+	@staticmethod
+	def getCenter(w):
+		'''Get the center point of a given widget.
+
+		:Parameters:
+			w (obj) = The widget to query.
+
+		:return:
+			(obj) QPoint
+		'''
+		return QtGui.QCursor.pos() - w.rect().center()
+
+
+	@staticmethod
+	def resizeAndCenterWidget(widget, paddingX=30, paddingY=6):
+		'''Adjust the given widget's size to fit contents and re-center.
+
+		:Parameters:
+			widget (obj) = The widget to resize.
+			paddingX (int) = Any additional width to be applied.
+			paddingY (int) = Any additional height to be applied.
+		'''
+		p1 = widget.rect().center()
+		widget.resize(widget.sizeHint().width()+paddingX, widget.sizeHint().height()+paddingY)
+		p2 = widget.rect().center()
+		diff = p1-p2
+		widget.move(widget.pos()+diff)
+
+
+	@staticmethod
+	def moveAndCenterWidget(w, p, offsetX=2, offsetY=2):
+		'''Move and center the given widget on the given point.
+
+		:Parameters:
+			w (obj) = The widget to resize.
+			p (obj) = A point to move to.
+			offsetX (int) = The desired offset on the x axis. 2 is center. 
+			offsetY (int) = The desired offset on the y axis.
+		'''
+		width = p.x()-(w.width()/offsetX)
+		height = p.y()-(w.height()/offsetY)
+
+		w.move(QtCore.QPoint(width, height)) #center a given widget at a given position.
+
+
+	def toggleWidgets(self, *args, **kwargs):
+		'''Set multiple boolean properties, for multiple widgets, on multiple ui's at once.
+
+		:Parameters:
+			*args = dynamic ui object/s. If no ui's are given, then the current UI will be used.
+			*kwargs = keyword: - the property to modify. ex. setChecked, setUnChecked, setEnabled, setDisabled, setVisible, setHidden
+					value: string of objectNames - objectNames separated by ',' ie. 'b000-12,b022'
+
+		ex.	toggleWidgets(<ui1>, <ui2>, setDisabled='b000', setUnChecked='chk009-12', setVisible='b015,b017')
+		'''
+		if not args:
+			parentUi = self.currentUi.level3
+			childUi = self.currentUi.level2
+			args = [childUi, parentUi]
+
+		for ui in args:
+			for k in kwargs: #property_ ie. setUnChecked
+				widgets = self.getWidgets(ui, kwargs[k]) #getWidgets returns a widget list from a string of objectNames.
+
+				state = True
+				if 'Un' in k: #strips 'Un' and sets the state from True to False. ie. 'setUnChecked' becomes 'setChecked' (False)
+					k = k.replace('Un', '')
+					state = False
+
+				[getattr(w, k)(state) for w in widgets] #set the property state for each widget in the list.
+
+
+	def setWidgetKwargs(self, *args, **kwargs):
+		'''Set multiple properties, for multiple widgets, on multiple ui's at once.
+
+		:Parameters:
+			*args = arg [0] (str) String of objectNames. - objectNames separated by ',' ie. 'b000-12,b022'
+					arg [1:] dynamic ui object/s.  If no ui's are given, then the parent and child uis will be used.
+			*kwargs = keyword: - the property to modify. ex. setText, setValue, setEnabled, setDisabled, setVisible, setHidden
+					value: - intended value.
+
+		ex.	setWidgetKwargs('chk003', <ui1>, <ui2>, setText='Un-Crease')
+		'''
+		if not args[1:]:
+			parentUi = self.currentUi.level3
+			childUi = self.currentUi.level2
+			args = args+(parentUi, childUi)
+
+		for ui in args[1:]:
+			widgets = self.getWidgets(ui, args[0]) #getWidgets returns a widget list from a string of objectNames.
+			for property_, value in kwargs.items():
+				[getattr(w, property_)(value) for w in widgets] #set the property state for each widget in the list.
+
+
+	def setAxisForCheckBoxes(self, checkboxes, axis, ui=None):
+		'''Set the given checkbox's check states to reflect the specified axis.
+
+		:Parameters:
+			checkboxes (str)(list) = 3 or 4 (or six with explicit negative values) checkboxes.
+			axis (str) = Axis to set. Valid text: '-','X','Y','Z','-X','-Y','-Z' ('-' indicates a negative axis in a four checkbox setup)
+
+		ex call: setAxisForCheckBoxes('chk000-3', '-X') #optional ui arg for the checkboxes
+		'''
+		if isinstance(checkboxes, (str)):
+			if ui is None:
+				ui = self.currentUi
+			checkboxes = self.getWidgets(ui, checkboxes)
+
+		prefix = '-' if '-' in axis else '' #separate the prefix and axis
+		coord = axis.strip('-')
+
+		for chk in checkboxes:
+			if any([chk.text()==prefix, chk.text()==coord, chk.text()==prefix+coord]):
+				chk.setChecked(True)
+
+
+	def getAxisFromCheckBoxes(self, checkboxes, ui=None):
+		'''Get the intended axis value as a string by reading the multiple checkbox's check states.
+
+		:Parameters:
+			checkboxes (str)(list) = 3 or 4 (or six with explicit negative values) checkboxes. Valid text: '-','X','Y','Z','-X','-Y','-Z' ('-' indicates a negative axis in a four checkbox setup)
+
+		:Return:
+			(str) axis value. ie. '-X'		
+
+		ex call: getAxisFromCheckBoxes('chk000-3')
+		'''
+		if isinstance(checkboxes, (str)):
+			if ui is None:
+				ui = self.currentUi
+			checkboxes = self.getWidgets(ui, checkboxes, showError_=1)
+
+		prefix=axis=''
+		for chk in checkboxes:
+			if chk.isChecked():
+				if chk.text()=='-':
+					prefix = '-'
+				else:
+					axis = chk.text()
+		# print ('prefix:', prefix, 'axis:', axis) #debug
+		return prefix+axis #ie. '-X'
+
+
 
 
 
@@ -1114,8 +1383,10 @@ class Switchboard(QUiLoader):
 
 if __name__=='__main__':
 
+	app = QtWidgets.QApplication(sys.argv)
+
 	sb = Switchboard()
-	sb.loadAllUi()
+	# sb.loadAllUi()
 	ui = sb.polygons #or sb.getUi('polygons')
 	sb.setStyle(ui.widgets)
 
@@ -1126,12 +1397,11 @@ if __name__=='__main__':
 	# print ('slots:', ui.slots)
 	print ('slot:', ui.tb000.method)
 	print ('mainWindow:', ui.mainWindow)
-	# print ('widget from method:', sb.getWidgetFromMethod(ui.tb000.method))
+	print ('widget from method:', sb.getWidgetFromMethod(ui.tb000.method))
 
 	ui.show()
 
-	qApp = QtWidgets.QApplication.instance() #get the qApp instance if it exists.
-	sys.exit(qApp.exec_())
+	sys.exit(app.exec_())
 
 
 

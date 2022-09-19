@@ -40,13 +40,13 @@ class Rigging(Slots):
 		tb003.contextMenu.add('QCheckBox', setText='Lock Child Rotation', setObjectName='chk008', setChecked=True, setToolTip='Lock the rotation values of the child object.')
 		tb003.contextMenu.add('QCheckBox', setText='Lock Child Scale', setObjectName='chk009', setToolTip='Lock the scale values of the child object.')
 		tb003.contextMenu.add('QCheckBox', setText='Remove Locators', setObjectName='chk015', setChecked=False, setToolTip='Removes the locator, and inverts the above process. (not valid with component selections)')
-		tb003.contextMenu.chk015.stateChanged.connect(lambda state: self.toggleWidgets(tb003.contextMenu, setDisabled='t000-1,s001,chk005-11') if state 
-														else self.toggleWidgets(tb003.contextMenu, setEnabled='t000-1,s001,chk005-11')) #disable non-relevant options.
+		tb003.contextMenu.chk015.stateChanged.connect(lambda state: self.sb.toggleWidgets(tb003.contextMenu, setDisabled='t000-1,s001,chk005-11') if state 
+														else self.sb.toggleWidgets(tb003.contextMenu, setEnabled='t000-1,s001,chk005-11')) #disable non-relevant options.
 		tb004 = self.sb.rigging.tb004
 		tb004.contextMenu.add('QCheckBox', setText='Translate', setObjectName='chk012', setChecked=False, setToolTip='')
 		tb004.contextMenu.add('QCheckBox', setText='Rotate', setObjectName='chk013', setChecked=False, setToolTip='')
 		tb004.contextMenu.add('QCheckBox', setText='Scale', setObjectName='chk014', setChecked=False, setToolTip='')
-		self.connect_((tb004.contextMenu.chk012, tb004.contextMenu.chk013, tb004.contextMenu.chk014), 'toggled', 
+		self.sb.connect((tb004.contextMenu.chk012, tb004.contextMenu.chk013, tb004.contextMenu.chk014), 'toggled', 
 			[lambda state: self.sb.rigging.tb004.setText('Lock Attributes' 
 				if any((tb004.contextMenu.chk012.isChecked(), tb004.contextMenu.chk013.isChecked(), tb004.contextMenu.chk014.isChecked())) else 'Unlock Attributes'), 
 			lambda state: self.sb.rigging_submenu.tb004.setText('Lock Transforms' 

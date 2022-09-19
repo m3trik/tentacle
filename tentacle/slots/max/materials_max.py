@@ -7,8 +7,7 @@ from slots.materials import Materials
 
 class Materials_max(Materials, Slots_max):
 	def __init__(self, *args, **kwargs):
-		Slots_max.__init__(self, *args, **kwargs)
-		Materials.__init__(self, *args, **kwargs)
+		super().__init__(*args, **kwargs)
 
 		self.randomMat=None
 
@@ -198,13 +197,13 @@ class Materials_max(Materials, Slots_max):
 		if setEditable:
 			self._mat = self.sb.materials.cmb002.currentData()
 			cmb.setEditable(True)
-			self.toggleWidgets(self.sb.materials, setDisabled='b002,lbl000,tb000,tb002')
+			self.sb.toggleWidgets(self.sb.materials, setDisabled='b002,lbl000,tb000,tb002')
 		else:
 			mat = self._mat
 			newMatName = cmb.currentText()
 			self.renameMaterial(mat, newMatName)
 			cmb.setEditable(False)
-			self.toggleWidgets(self.sb.materials, setEnabled='b002,lbl000,tb000,tb002')
+			self.sb.toggleWidgets(self.sb.materials, setEnabled='b002,lbl000,tb000,tb002')
 
 
 	def lbl002(self):

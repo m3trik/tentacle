@@ -255,7 +255,7 @@ class Normals_blender(Normals, Slots_blender):
 
 
 	@classmethod
-	def getFacesWithSimilarNormals(cls, faces, transforms=[], similarFaces=[], rangeX=0.1, rangeY=0.1, rangeZ=0.1, returnType='str', returnNodeType='transform'):
+	def getFacesWithSimilarNormals(cls, faces, transforms=[], similarFaces=[], rangeX=0.1, rangeY=0.1, rangeZ=0.1, returnType='str'):
 		'''Filter for faces with normals that fall within an X,Y,Z tolerance.
 
 		:Parameters:
@@ -266,7 +266,6 @@ class Normals_blender(Normals, Slots_blender):
 			rangeY = float - y axis tolerance
 			rangeZ = float - z axis tolerance
 			returnType (str) = The desired returned object type. (valid: 'unicode'(default), 'str', 'int', 'object')
-			returnNodeType (str) = Specify whether the components are returned with the transform or shape nodes (valid only with str and unicode returnTypes). (valid: 'transform', 'shape'(default)) ex. 'pCylinder1.f[0]' or 'pCylinderShape1.f[0]'
 
 		:Return:
 			(list) faces that fall within the given normal range.
@@ -286,7 +285,7 @@ class Normals_blender(Normals, Slots_blender):
 					transforms = Slots_blender.getObjectFromComponent(face)
 
 				for node in transforms:
-					for f in cls.getComponents(node, 'faces', returnType=returnType, returnNodeType=returnNodeType, flatten=1):
+					for f in cls.getComponents(node, 'faces', returnType=returnType, flatten=1):
 
 						n = cls.getNormalVector(f)
 						for k, v in n.items():

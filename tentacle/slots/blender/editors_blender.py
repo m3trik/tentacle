@@ -217,7 +217,6 @@ class Editors_blender(Editors, Slots_blender):
 		self.sb.parent().setUi('dynLayout')
 		self.stackedWidget.setCurrentWidget(w)
 		self.sb.parent().resize(width, height)
-		# self.sb.parent().move(self.sb.parent().centerPos().x(), self.sb.parent().centerPos().y()+(self.sb.sizeY/2.5))
 		return w
 
 

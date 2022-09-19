@@ -7,8 +7,7 @@ from slots.edit import Edit
 
 class Edit_max(Edit, Slots_max):
 	def __init__(self, *args, **kwargs):
-		Slots_max.__init__(self, *args, **kwargs)
-		Edit.__init__(self, *args, **kwargs)
+		super().__init__(*args, **kwargs)
 
 		cmb = self.sb.edit.draggable_header.contextMenu.cmb000
 		items = []
@@ -45,11 +44,11 @@ class Edit_max(Edit, Slots_max):
 
 		sel = list(rt.selection)
 		if sel:
-			list_ = ['{}.{}'.format(sel[0].name, m.name) for m in sel[0].modifiers]
-			list_.append('{}.{}'.format(sel[0].name, 'baseObject'))
+			items = ['{}.{}'.format(sel[0].name, m.name) for m in sel[0].modifiers]
+			items.append('{}.{}'.format(sel[0].name, 'baseObject'))
 		else:
-			list_ = ['No selection.']
-		cmb.addItems_(list_, 'History')
+			items = ['No selection.']
+		cmb.addItems_(items, 'History')
 
 		cmb.setCurrentIndex(0)
 		if index>0:
@@ -299,7 +298,7 @@ class Edit_max(Edit, Slots_max):
 		tb = self.sb.edit.tb003
 
 		# selection = pm.ls(sl=1, objectsOnly=1)
-		# axis = self.getAxisFromCheckBoxes('chk006-9', tb.contextMenu)
+		# axis = self.sb.getAxisFromCheckBoxes('chk006-9', tb.contextMenu)
 
 		# pm.undoInfo(openChunk=1)
 		# for obj in selection:

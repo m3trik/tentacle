@@ -10,7 +10,7 @@
     <x>0</x>
     <y>0</y>
     <width>147</width>
-    <height>394</height>
+    <height>360</height>
    </rect>
   </property>
   <property name="minimumSize">
@@ -254,7 +254,7 @@
             <string>Create at Selection</string>
            </property>
            <property name="checkable">
-            <bool>true</bool>
+            <bool>false</bool>
            </property>
           </widget>
          </item>
@@ -389,25 +389,6 @@
           </widget>
          </item>
         </layout>
-       </widget>
-      </item>
-      <item>
-       <widget class="QGroupBox" name="ik">
-        <property name="minimumSize">
-         <size>
-          <width>125</width>
-          <height>36</height>
-         </size>
-        </property>
-        <property name="maximumSize">
-         <size>
-          <width>125</width>
-          <height>999</height>
-         </size>
-        </property>
-        <property name="title">
-         <string>IK</string>
-        </property>
        </widget>
       </item>
       <item>

@@ -40,8 +40,8 @@ class Edit_blender(Edit, Slots_blender):
 			ctx.chk013.toggled.connect(lambda state: ctx.s006.setEnabled(True if state else False))
 			ctx.chk014.toggled.connect(lambda state: ctx.s007.setEnabled(True if state else False))
 			ctx.chk015.toggled.connect(lambda state: ctx.s008.setEnabled(True if state else False))
-			ctx.chk022.stateChanged.connect(lambda state: self.toggleWidgets(ctx, setDisabled='chk002-3,chk005,chk010-21,s006-8', setEnabled='chk023') if state 
-															else self.toggleWidgets(ctx, setEnabled='chk002-3,chk005,chk010-21,s006-8', setDisabled='chk023')) #disable non-relevant options.
+			ctx.chk022.stateChanged.connect(lambda state: self.sb.toggleWidgets(ctx, setDisabled='chk002-3,chk005,chk010-21,s006-8', setEnabled='chk023') if state 
+															else self.sb.toggleWidgets(ctx, setEnabled='chk002-3,chk005,chk010-21,s006-8', setDisabled='chk023')) #disable non-relevant options.
 
 	def cmb000(self, index=-1):
 		'''Editors
@@ -67,10 +67,10 @@ class Edit_blender(Edit, Slots_blender):
 		cmb = self.sb.edit.cmb001
 
 		try:
-			list_ = list(set([n.name() for n in pm.listHistory(pm.ls(sl=1, objectsOnly=1), pruneDagObjects=1)])) #levels=1, interestLevel=2, 
+			lst = list(set([n.name() for n in pm.listHistory(pm.ls(sl=1, objectsOnly=1), pruneDagObjects=1)])) #levels=1, interestLevel=2, 
 		except RuntimeError as error:
-			list_ = ['No selection.']
-		cmb.addItems_(list_, 'History')
+			lst = ['No selection.']
+		cmb.addItems_(lst, 'History')
 
 		cmb.setCurrentIndex(0)
 		if index>0:
@@ -207,7 +207,7 @@ class Edit_blender(Edit, Slots_blender):
 		'''
 		tb = self.sb.edit.tb003
 
-		axis = self.getAxisFromCheckBoxes('chk006-9', tb.contextMenu)
+		axis = self.sb.getAxisFromCheckBoxes('chk006-9', tb.contextMenu)
 
 		pm.undoInfo(openChunk=1)
 		objects = pm.ls(sl=1, objectsOnly=1)

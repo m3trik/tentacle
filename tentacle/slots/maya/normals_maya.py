@@ -7,8 +7,7 @@ from slots.normals import Normals
 
 class Normals_maya(Normals, Slots_maya):
 	def __init__(self, *args, **kwargs):
-		Slots_maya.__init__(self, *args, **kwargs)
-		Normals.__init__(self, *args, **kwargs)
+		super().__init__(*args, **kwargs)
 
 		cmb = self.sb.normals.draggable_header.contextMenu.cmb000
 		items = ['']
@@ -257,7 +256,7 @@ class Normals_maya(Normals, Slots_maya):
 
 
 	@classmethod
-	def getFacesWithSimilarNormals(cls, faces, transforms=[], similarFaces=[], rangeX=0.1, rangeY=0.1, rangeZ=0.1, returnType='str', returnNodeType='transform'):
+	def getFacesWithSimilarNormals(cls, faces, transforms=[], similarFaces=[], rangeX=0.1, rangeY=0.1, rangeZ=0.1, returnType='str'):
 		'''Filter for faces with normals that fall within an X,Y,Z tolerance.
 
 		:Parameters:
@@ -267,9 +266,8 @@ class Normals_maya(Normals, Slots_maya):
 			rangeX = float - x axis tolerance
 			rangeY = float - y axis tolerance
 			rangeZ = float - z axis tolerance
-			returnType (str) = The desired returned object type. (valid: 'unicode'(default), 'str', 'int', 'object')
-			returnNodeType (str) = Specify whether the components are returned with the transform or shape nodes (valid only with str and unicode returnTypes). (valid: 'transform', 'shape'(default)) ex. 'pCylinder1.f[0]' or 'pCylinderShape1.f[0]'
-
+			returnType (str) = The desired returned object type. 
+							valid: 'str'(default), 'obj'(shape object), 'transform'(as string), 'int'(valid only at sub-object level).
 		:Return:
 			(list) faces that fall within the given normal range.
 
@@ -286,7 +284,7 @@ class Normals_maya(Normals, Slots_maya):
 					transforms = cls.getObjectFromComponent(face)
 
 				for node in transforms:
-					for f in cls.getComponents(node, 'faces', returnType=returnType, returnNodeType=returnNodeType, flatten=1):
+					for f in cls.getComponents(node, 'faces', returnType=returnType, flatten=1):
 
 						n = cls.getNormalVector(f)
 						for k, v in n.items():

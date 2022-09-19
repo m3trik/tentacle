@@ -7,8 +7,7 @@ from slots.nurbs import Nurbs
 
 class Nurbs_maya(Nurbs, Slots_maya):
 	def __init__(self, *args, **kwargs):
-		Slots_maya.__init__(self, *args, **kwargs)
-		Nurbs.__init__(self, *args, **kwargs)
+		super().__init__(*args, **kwargs)
 
 		cmb = self.sb.nurbs.draggable_header.contextMenu.cmb000
 		items = ['Project Curve','Duplicate Curve','Create Curve from Poly','Bend Curve', 'Curl Curve','Modify Curve Curvature','Smooth Curve','Straighten Curves','Extrude Curves','Revolve Curves','Loft Curves','Planar Curves','Insert Isoparms','Insert Knot','Rebuild Curve','Extend Curve', 'Extend Curve On Surface']
@@ -402,10 +401,10 @@ class Nurbs_maya(Nurbs, Slots_maya):
 		# pm.undoInfo(openChunk=1)
 		#create a MASH network
 		import MASH.api as mapi
-		import tools_maya.mash_tools_maya
+		import utils_maya.mash_utils_maya
 
 		mashNW = mapi.Network()
-		mashNW.MTcreateNetwork(start, geometry=geometry, hideOnCreate=False) #mash_tools_maya module (derived from 'createNetwork')
+		mashNW.MTcreateNetwork(start, geometry=geometry, hideOnCreate=False) #mash_utils_maya module (derived from 'createNetwork')
 
 		curveNode = pm.ls(mashNW.addNode('MASH_Curve').name)[0]
 		pm.connectAttr(path.worldSpace[0], curveNode.inCurves[0], force=1)
@@ -422,7 +421,7 @@ class Nurbs_maya(Nurbs, Slots_maya):
 		pm.setAttr(distNode.amplitudeX, 0)
 
 		instNode = pm.ls(mashNW.instancer)[0]
-		baked_curves = mashNW.MTbakeInstancer(instNode) #mash_tools_maya module (derived from 'MASHbakeInstancer')
+		baked_curves = mashNW.MTbakeInstancer(instNode) #mash_utils_maya module (derived from 'MASHbakeInstancer')
 
 		result=[start]
 		for curve in reversed(baked_curves):

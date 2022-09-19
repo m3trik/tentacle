@@ -7,8 +7,7 @@ from slots.polygons import Polygons
 
 class Polygons_maya(Polygons, Slots_maya):
 	def __init__(self, *args, **kwargs):
-		Slots_maya.__init__(self, *args, **kwargs)
-		Polygons.__init__(self, *args, **kwargs)
+		super().__init__(*args, **kwargs)
 
 		cmb000 = self.sb.polygons.draggable_header.contextMenu.cmb000
 		items = ['Extrude','Bevel','Bridge','Combine','Merge Vertex','Offset Edgeloop','Edit Edgeflow','Extract Curve','Poke','Wedge','Assign Invisible']

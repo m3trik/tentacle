@@ -23,8 +23,8 @@ class Main(Slots):
 
 		if not any([wItem, column]): # code here will run before each show event. generally used to refresh tree contents. -----------------------------
 			#command history
-			recentCommandInfo = self.sb.prevCommand(asList=1) #Get a list of any recent command names and their toolTips
-			[tree.add('QLabel', 'Recent Commands', refresh=1, setText=w.name, setToolTip=w.toolTip()) for w in recentCommandInfo]
+			recentCommandInfo = [m.__name__ for m in self.sb.prevCommands] #Get a list of any recently called method names.
+			[tree.add('QLabel', 'Recent Commands', refresh=1, setText=m.__doc__) for m in recentCommandInfo]
 			return
 
 		# widget = tree.getWidget(wItem, column)
@@ -33,7 +33,7 @@ class Main(Slots):
 		index = tree.getIndexFromWItem(wItem, column)
 
 		if header=='Recent Commands':
-			recentCommands = self.sb.prevCommand(method=1, asList=1) #Get a list of any recent commands
+			recentCommands = self.sb.prevCommands #Get a list of any previously called slot methods.
 			method = recentCommands[index]
 			if callable(method):
 				method()

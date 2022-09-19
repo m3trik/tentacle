@@ -34,8 +34,8 @@ class Rendering_blender(Rendering, Slots_blender):
 
 		# self.cams = [cam for cam in rt.cameras if 'Target' not in str(cam)]
 		# if self.cams:
-		# 	list_ = [str(cam.name) for cam in self.cams] #camera names
-		# 	contents = cmb.addItems_(list_)
+		# 	items = [str(cam.name) for cam in self.cams] #camera names
+		# 	contents = cmb.addItems_(items)
 
 
 	def b000(self):

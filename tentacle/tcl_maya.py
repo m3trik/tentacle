@@ -17,11 +17,7 @@ class Tcl_maya(Tcl):
 	:Parameters:
 		parent = Application top level window instance.
 	'''
-	qApp = QtWidgets.QApplication.instance() #get the qApp instance if it exists.
-	if not qApp:
-		qApp = QtWidgets.QApplication(sys.argv)
-
-	def __init__(self, parent=None, *args, **kwargs):
+	def __init__(self, parent=None, slotDir='maya', *args, **kwargs):
 		'''
 		'''
 		if not parent:
@@ -29,12 +25,13 @@ class Tcl_maya(Tcl):
 				parent = self.getMainWindow()
 
 			except Exception as error:
-				print(self.__class__.__name__, error)
+				print(__file__, error)
 
-		super().__init__(parent, *args, **kwargs)
+		super().__init__(parent, slotDir=slotDir, *args, **kwargs)
 
 
-	def getMainWindow(self):
+	@classmethod
+	def getMainWindow(cls):
 		'''Get maya's main window object.
 
 		:Return:
@@ -43,7 +40,8 @@ class Tcl_maya(Tcl):
 		# ptr = OpenMayaUI.MQtUtil.mainWindow()
 		# main_window = shiboken2.wrapInstance(long(ptr), QtWidgets.QWidget)
 
-		main_window = next(w for w in self.qApp.instance().topLevelWidgets() if w.objectName()=='MayaWindow')
+		main_window = next(w for w in cls.app.topLevelWidgets() if w.objectName()=='MayaWindow')
+		setattr(QtWidgets.QApplication.instance(), 'MayaWindow', main_window)
 
 		return main_window
 
@@ -54,7 +52,7 @@ class Tcl_maya(Tcl):
 			event = <QEvent>
 		'''
 		if not event.isAutoRepeat():
-			modifiers = self.qApp.keyboardModifiers()
+			modifiers = self.app.keyboardModifiers()
 
 			if event.key()==self.key_undo and modifiers==QtCore.Qt.ControlModifier:
 				import Pymel.Core as pm
@@ -78,7 +76,7 @@ class Tcl_maya(Tcl):
 			event = <QEvent>
 		'''
 		if __name__ == "__main__":
-			self.qApp.instance().quit()
+			self.app.quit()
 			sys.exit() #assure that the sys processes are terminated.
 
 		return Tcl.hideEvent(self, event) #super().hideEvent(event)
@@ -92,14 +90,11 @@ class Tcl_maya(Tcl):
 
 
 if __name__ == "__main__":
-	app = QtWidgets.QApplication.instance() #get the qApp instance if it exists.
 
-	#create a generic parent object to run the code outside of maya.
-	dummyParent = QtWidgets.QWidget()
-	dummyParent.setObjectName('MayaWindow')
+	tcl = Tcl_maya()
+	tcl.show('init') #Tcl_maya(dummyParent).show()
 
-	Tcl_maya(dummyParent).show('init') #Tcl_maya(dummyParent).show()
-
+	app = QtWidgets.QApplication.instance()
 	sys.exit(app.exec_())
 
 

@@ -7,8 +7,7 @@ from slots.scripting import Scripting
 
 class Scripting_maya(Scripting, Slots_maya):
 	def __init__(self, *args, **kwargs):
-		Slots_maya.__init__(self, *args, **kwargs)
-		Scripting.__init__(self, *args, **kwargs)
+		super().__init__(*args, **kwargs)
 
 		cmb = self.sb.scripting.draggable_header.contextMenu.cmb000
 		files = ['']

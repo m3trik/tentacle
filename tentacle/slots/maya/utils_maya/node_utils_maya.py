@@ -7,7 +7,7 @@ except ImportError as error:
 
 
 
-class Node_tools_maya():
+class Node_utils_maya():
 	'''
 	'''
 

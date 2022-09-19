@@ -239,6 +239,8 @@ class Menu(QtWidgets.QMenu, Attributes):
 		:Return:
 			(widget)
 		'''
+		assert self.parent(), 'Menu: {}: _addApplyButton: operation requires a parent widget.'.format(self)
+
 		w = QtWidgets.QPushButton('Apply') #self.add('QPushButton', setText='Apply', setObjectName=self.parent().objectName(), setToolTip='Execute the command.')
 		w.setObjectName(self.parent().objectName())
 		w.setToolTip('Execute the command.')
@@ -537,9 +539,7 @@ class MenuInstance():
 
 if __name__ == "__main__":
 	import sys
-	qApp = QtWidgets.QApplication.instance() #get the qApp instance if it exists.
-	if not qApp:
-		qApp = QtWidgets.QApplication(sys.argv)
+	app = QtWidgets.QApplication(sys.argv)
 
 	# # create parent menu containing two submenus:
 	# m = Menu(position='cursorPos')
@@ -563,7 +563,7 @@ if __name__ == "__main__":
 	print (menu.childWidgets)
 
 	# m.exec_(parent=None)
-	sys.exit(qApp.exec_())
+	sys.exit(app.exec_())
 
 
 

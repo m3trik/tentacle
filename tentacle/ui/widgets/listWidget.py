@@ -76,9 +76,7 @@ class ListWidget(QtWidgets.QListWidget, Attributes):
 
 if __name__ == "__main__":
 	import sys
-	qApp = QtWidgets.QApplication.instance() #get the qApp instance if it exists.
-	if not qApp:
-		qApp = QtWidgets.QApplication(sys.argv)
+	app = QtWidgets.QApplication(sys.argv)
 
 	w = ListWidget()
 	w.add('QPushButton', setObjectName='b001', setText='Button1')
@@ -86,7 +84,7 @@ if __name__ == "__main__":
 	w.add('QLabel', setObjectName='lbl001', setText='Label1')
 
 	w.show()
-	sys.exit(qApp.exec_())
+	sys.exit(app.exec_())
 
 
 

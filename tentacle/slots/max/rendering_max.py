@@ -7,8 +7,7 @@ from slots.rendering import Rendering
 
 class Rendering_max(Rendering, Slots_max):
 	def __init__(self, *args, **kwargs):
-		Slots_max.__init__(self, *args, **kwargs)
-		Rendering.__init__(self, *args, **kwargs)
+		super().__init__(*args, **kwargs)
 
 		cmb = self.sb.rendering.draggable_header.contextMenu.cmb000
 		items = ['']
@@ -34,8 +33,8 @@ class Rendering_max(Rendering, Slots_max):
 
 		self.cams = [cam for cam in rt.cameras if 'Target' not in str(cam)]
 		if self.cams:
-			list_ = [str(cam.name) for cam in self.cams] #camera names
-			cmb.addItems_(list_, clear=True)
+			items = [str(cam.name) for cam in self.cams] #camera names
+			cmb.addItems_(items, clear=True)
 
 
 	def b000(self):

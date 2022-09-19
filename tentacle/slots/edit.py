@@ -31,7 +31,7 @@ class Edit(Slots):
 		tb003.contextMenu.add('QRadioButton', setText='X', setObjectName='chk007', setChecked=True, setToolTip='Perform delete along X axis.')
 		tb003.contextMenu.add('QRadioButton', setText='Y', setObjectName='chk008', setToolTip='Perform delete along Y axis.')
 		tb003.contextMenu.add('QRadioButton', setText='Z', setObjectName='chk009', setToolTip='Perform delete along Z axis.')
-		self.connect_('chk006-9', 'toggled', self.chk006_9, tb003.contextMenu)
+		self.sb.connect('chk006-9', 'toggled', self.chk006_9, tb003.contextMenu)
 
 		tb004 = self.sb.edit.tb004
 		tb004.contextMenu.add('QCheckBox', setText='All Nodes', setObjectName='chk026', setToolTip='Effect all nodes or only those currently selected.')
@@ -49,7 +49,7 @@ class Edit(Slots):
 		'''Set the toolbutton's text according to the checkstates.
 		'''
 		tb = self.sb.edit.tb003
-		axis = self.getAxisFromCheckBoxes('chk006-9', tb.contextMenu)
+		axis = self.sb.getAxisFromCheckBoxes('chk006-9', tb.contextMenu)
 		tb.setText('Delete '+axis)
 
 		

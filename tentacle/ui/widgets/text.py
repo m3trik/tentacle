@@ -297,9 +297,9 @@ class TextOverlay(object):
 
 if __name__ == "__main__":
 	import sys
-	qApp = QtWidgets.QApplication(sys.argv)
+	app = QtWidgets.QApplication(sys.argv)
 
-	sys.exit(qApp.exec_())
+	sys.exit(app.exec_())
 
 
 

@@ -141,14 +141,14 @@ class File_blender(File, Slots_blender):
 		cmb = self.sb.file.cmb006
 
 		path = self.formatPath(pm.workspace(query=1, rd=1)) #current project path.
-		list_ = [f for f in os.listdir(path)]
+		items = [f for f in os.listdir(path)]
 
 		project = self.getNameFromFullPath(path) #add current project path string to label. strip path and trailing '/'
 
-		cmb.addItems_(list_, project, clear=True)
+		cmb.addItems_(items, project, clear=True)
 
 		if index>0:
-			os.startfile(path+list_[index-1])
+			os.startfile(path+items[index-1])
 			cmb.setCurrentIndex(0)
 
 

@@ -3,7 +3,7 @@
 
 
 
-class Math_tools():
+class Mathutils():
 	'''
 	'''
 
@@ -20,10 +20,10 @@ class Math_tools():
 		:return:
 			(bool)
 		'''
-		list_ = lambda x: list(x) if isinstance(x, (list, tuple, set, dict)) else [x] #assure the arg is a list.
+		lst = lambda x: list(x) if isinstance(x, (list, tuple, set, dict)) else [x] #assure the arg is a list.
 
 		func = lambda a, b: abs(a-b)<=tol if isinstance(a, (int, float)) else True if isinstance(a, (list, set, tuple)) and areSimilar(a, b, tol) else a==b
-		return all(map(func, list_(a), list_(b)))
+		return all(map(func, lst(a), lst(b)))
 
 
 	@staticmethod

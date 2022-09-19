@@ -13,13 +13,15 @@ except ImportError as error:
 
 from PySide2 import QtWidgets
 
-import tools
+import utils
 
 
 
 class Imtools():
 	'''Helper methods for working with image file formats.
 	'''
+	formatFilepath = utils.Fileutils.formatFilepath
+	getDirectoryContents = utils.Fileutils.getDirectoryContents
 
 	@property
 	def mapTypes(self):
@@ -153,11 +155,11 @@ class Imtools():
 		exts = ['.'+e for e in image_types]
 
 		images={}
-		for f in tools.Txtools.getDirectoryContents(image_dir, returnType='filePaths'):
+		for f in self.getDirectoryContents(image_dir, returnType='filePaths'):
 
 			if any(map(f.endswith, exts)):
-				fullpath = tools.Txtools.formatFilepath(f)
-				filename = tools.Txtools.formatFilepath(f, 'file')
+				fullpath = self.formatFilepath(f)
+				filename = self.formatFilepath(f, 'file')
 				filename = min(map(filename.rstrip, exts), key=len)
 
 				im = Image.open(fullpath)
@@ -422,7 +424,7 @@ class Imtools():
 		:Return:
 			(str)
 		'''
-		name = tools.Txtools.formatFilepath(filename, 'name')
+		name = self.formatFilepath(filename, 'name')
 
 		if key:
 			return next((k for k, v in cls.mapTypes.items() for i in v if name.lower().endswith(i.lower())), None)

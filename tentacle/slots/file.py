@@ -54,7 +54,7 @@ class File(Slots):
 				# if chk.sizeHint().width() > menu.sizeHint().width():
 				# 	chk.setMinimumSize(chk.sizeHint().width(), chk.sizeHint().height())
 
-			self.sb.setStyleSheet_(menu.childWidgets, style='dark')
+			self.sb.setStyle(menu.childWidgets, style='dark')
 
 			self._referenceSceneMenu = menu
 			return self._referenceSceneMenu

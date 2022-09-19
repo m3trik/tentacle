@@ -7,8 +7,7 @@ from slots.utilities import Utilities
 
 class Utilities_maya(Utilities, Slots_maya):
 	def __init__(self, *args, **kwargs):
-		Slots_maya.__init__(self, *args, **kwargs)
-		Utilities.__init__(self, *args, **kwargs)
+		super().__init__(*args, **kwargs)
 
 		cmb = self.sb.utilities.draggable_header.contextMenu.cmb000
 		files = ['']

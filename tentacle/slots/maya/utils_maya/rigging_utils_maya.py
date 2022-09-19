@@ -12,7 +12,7 @@ class CreateLocatorAtObject(object):
 		'''
 		self.isLocator = lambda obj: self.getType(obj)=='locator'
 		self.isGroup = lambda obj: all([type(c)==pm.nodetypes.Transform for c in obj.getChildren()])
-		self.list_ = lambda x: list(x) if isinstance(x, (list, tuple, set, dict)) else [x] #assure that the arg is a list.
+		self.list = lambda x: list(x) if isinstance(x, (list, tuple, set, dict)) else [x] #assure that the arg is a list.
 
 
 	def create_locator(self, scale=1):

@@ -2,14 +2,10 @@
 # coding=utf-8
 from PySide2 import QtCore, QtGui, QtWidgets
 
-from childEvents import EventFactoryFilter
+from eventFilter import OverlayFactoryFilter
 
 
-
-# ------------------------------------------------
-# PaintEvent Overlay
-# ------------------------------------------------
-class Overlay(QtWidgets.QWidget):
+class Overlay(QtWidgets.QWidget, OverlayFactoryFilter):
 	'''Handles paint events as an overlay on top of an existing widget.
 
 	:Parameters:
@@ -19,40 +15,78 @@ class Overlay(QtWidgets.QWidget):
 	greyPen = QtGui.QPen(QtGui.QColor(115, 115, 115), 3, QtCore.Qt.SolidLine, QtCore.Qt.RoundCap, QtCore.Qt.RoundJoin)
 	blackPen = QtGui.QPen(QtGui.QColor(0, 0, 0), 1, QtCore.Qt.SolidLine, QtCore.Qt.RoundCap, QtCore.Qt.RoundJoin)
 
+	app = QtWidgets.QApplication.instance()
 
-	def __init__(self, tcl=None, antialiasing=False):
-		super(Overlay, self).__init__(tcl)
+	def __init__(self, parent=None, antialiasing=False):
+		super().__init__(parent)
 
-		if tcl:
-			self.tcl = tcl
-			self.sb = self.tcl.sb
-			self.antialiasing = antialiasing
+		self.antialiasing = antialiasing
+		self.drawEnabled = False
 
-			self.setWindowFlags(QtCore.Qt.WindowStaysOnTopHint)
-			self.setAttribute(QtCore.Qt.WA_NoSystemBackground) #takes a single arg
-			self.setAttribute(QtCore.Qt.WA_TransparentForMouseEvents)
+		self.setWindowFlags(QtCore.Qt.WindowStaysOnTopHint)
+		self.setAttribute(QtCore.Qt.WA_NoSystemBackground) #takes a single arg
+		self.setAttribute(QtCore.Qt.WA_TransparentForMouseEvents)
 
-			self.painter = QtGui.QPainter() #Initialize self.painter
+		self.painter = QtGui.QPainter() #Initialize self.painter
+
+		if parent:
+			parent.installEventFilter(self)
+
+
+	@property
+	def drawPath(self) -> list:
+		'''
+		'''
+		try:
+			return self._drawPath
+
+		except AttributeError as error:
+			self._drawPath = []
+			return self._drawPath
+
+
+	@drawPath.setter
+	def drawPath(self, lst) -> None:
+		'''
+		'''
+		self._drawPath = lst
+
+
+	@property
+	def returnArea(self) -> object:
+		'''
+		'''
+		try:
+			return self._returnArea
+
+		except AttributeError as error:
+			#create a return area widget. It's initial location does not matter, as it will later be re-created at cursor pos.
+			w = QtWidgets.QPushButton(self)
+			w.setObjectName('return_area')
+			w.resize(45, 45)
+			self._returnArea = w
+			return self._returnArea
 
 
 	def paintEvent(self, event):
 		'''
-		:Parameters:
-			event=<QEvent>
 		'''
-		if self.sb.currentUi.level in (1,2):
+		if not self.drawEnabled:
+			return
 
-			self.painter.begin(self)
+		self.painter.begin(self)
 
-			for i, (w, wpos, start_point) in enumerate(self.tcl.drawPath): #plot and draw the points in the drawPath list.
-				try:
-					end_point = self.mapFromGlobal(self.tcl.drawPath[i+1][2])
-				except:
-					end_point = self.mouseEventPos #after the list points are drawn, plot the current end_point, controlled by the mouse move event.
+		for i, (w, wpos, start_point) in enumerate(self.drawPath): #plot and draw the points in the drawPath list.
 
-				self.drawTangent(self.mapFromGlobal(start_point), end_point)
+			start_point = self.mapFromGlobal(start_point)
+			try:
+				end_point = self.mapFromGlobal(self.drawPath[i+1][2])
+			except IndexError as error:
+				end_point = self.mouseMovePos #after the list points are drawn, plot the current end_point, controlled by the mouse move event.
 
-			self.painter.end()
+			self.drawTangent(start_point, end_point)
+
+		self.painter.end()
 
 
 	def drawTangent(self, start_point, end_point):
@@ -73,70 +107,43 @@ class Overlay(QtWidgets.QWidget):
 			# self.painter.drawEllipse(end_point, 5, 5)
 
 
+	def keyReleaseEvent(self, event):
+		'''
+		'''
+		if event.isAutoRepeat():
+			return
+
+		# modifiers = self.app.keyboardModifiers()
+		del self.drawPath[:]
+
+		self.update()
+
+
 	def mousePressEvent(self, event):
 		'''
-		:Parameters:
-			event=<QEvent>
 		'''
-		# self.painter.eraseRect(self.rect())
-		self.mouseEventPos = event.pos()
+		del self.drawPath[:]
+		curPos = self.mapToGlobal(event.pos())
+		self.drawPath.append([self.returnArea, curPos, curPos]) #maintain a list of widgets, their location, and cursor positions, as a path is plotted along the ui hierarchy.
+
+		self.mouseMovePos = event.pos()
+		self.drawEnabled = True
+		self.update()
+
+
+	def mouseReleaseEvent(self, event):
+		'''
+		'''
+		self.drawEnabled = False
+		self.painter.eraseRect(self.rect())
 		self.update()
 
 
 	def mouseMoveEvent(self, event):
 		'''
-		:Parameters:
-			event=<QEvent>
 		'''
-		self.mouseEventPos = event.pos()
+		self.mouseMovePos = event.pos()
 		self.update()
-
-
-
-
-
-
-class OverlayFactoryFilter(QtCore.QObject):
-	'''Relay events from the parent widget to the overlay.
-	'''
-	def __init__(self, parent=None, antialiasing=False):
-		super(OverlayFactoryFilter, self).__init__(parent)
-
-		self.overlay = Overlay(parent, antialiasing)
-
-		if parent:
-			parent.installEventFilter(self)
-
-
-	def eventFilter(self, widget, event):
-		'''
-		:Parameters:
-			widget=<QWidget>
-			event=<QEvent>
-		'''
-		if not widget.isWidgetType():
-			return False
-
-		if event.type()==QtCore.QEvent.MouseButtonPress:
-			self.overlay.mousePressEvent(event)
-
-		elif event.type()==QtCore.QEvent.MouseButtonRelease:
-			self.overlay.mouseReleaseEvent(event)
-
-		elif event.type()==QtCore.QEvent.MouseMove:
-			self.overlay.mouseMoveEvent(event)
-
-		elif event.type()==QtCore.QEvent.MouseButtonDblClick:
-			self.overlay.mouseDoubleClickEvent(event)
-
-		elif event.type()==QtCore.QEvent.Resize:
-			if widget==self.overlay.parentWidget():
-				self.overlay.resize(widget.size())
-
-		elif event.type()==QtCore.QEvent.Show:
-			self.overlay.raise_()
-
-		return super(OverlayFactoryFilter, self).eventFilter(widget, event)
 
 
 

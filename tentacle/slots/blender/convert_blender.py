@@ -11,12 +11,12 @@ class Convert_blender(Convert, Slots_blender):
 		Convert.__init__(self, *args, **kwargs)
 
 		cmb = self.sb.convert.draggable_header.contextMenu.cmb000
-		list_ = ['']
-		cmb.addItems_(list_, '')
+		items = ['']
+		cmb.addItems_(items, '')
 
 		cmb = self.sb.convert.cmb001
-		list_ = [] 
-		contents = cmb.addItems_(list_, 'Convert To')
+		items = [] 
+		contents = cmb.addItems_(items, 'Convert To')
 
 
 	def cmb000(self, index=-1):

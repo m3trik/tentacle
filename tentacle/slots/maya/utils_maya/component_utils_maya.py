@@ -170,15 +170,15 @@ class GetComponents():
 		transforms = pm.ls(objects, transforms=1)
 
 		if transforms:
-			typ = componentType if componentType else Node_tools_maya.getType(transforms) #get component type from the current selection if it is not explicitly given.
+			typ = componentType if componentType else Node_utils_maya.getType(transforms) #get component type from the current selection if it is not explicitly given.
 			formattedType = cls.convertComponentName(typ, returnType='abv') #get the correct componentType variable from possible args.
 			components = ['{}.{}[*]'.format(i, formattedType) for i in transforms] #get ALL components, for each given transform object.
 		else: #the given objects are components.
 			components = cls.convertComponentType(objects, componentType) if componentType else objects
 
 		if randomize:
-			from math_tools import Math_tools
-			components = Math_tools.randomize(pm.ls(components, flatten=1), randomize)
+			from mathutils import Mathutils
+			components = Mathutils.randomize(pm.ls(components, flatten=1), randomize)
 
 		if exclude:
 			components = cls.excludeComponents(components, exclude)
@@ -189,7 +189,7 @@ class GetComponents():
 
 
 
-class Component_tools_maya(GetComponents):
+class Component_utils_maya(GetComponents):
 	'''
 	'''
 	@staticmethod
@@ -331,7 +331,7 @@ class Component_tools_maya(GetComponents):
 			print ('# Error: Operation requires an selected object or components. #')
 			return []
 
-		object_type = Node_tools_maya.getType(x[0])
+		object_type = Node_utils_maya.getType(x[0])
 		if object_type=='Polygon':
 			x = cls.getComponents(x, 'edges')
 		elif object_type=='Polygon Vertex':
@@ -394,8 +394,8 @@ class Component_tools_maya(GetComponents):
 			v1Pos = pm.pointPosition(v1, world=1)
 			for v2 in set2:
 				v2Pos = pm.pointPosition(v2, world=1)
-				from math_tools import Math_tools
-				distance = Math_tools.getDistanceBetweenTwoPoints(v1Pos, v2Pos)
+				from mathutils import Mathutils
+				distance = Mathutils.getDistanceBetweenTwoPoints(v1Pos, v2Pos)
 				if distance<tolerance:
 					vertPairsAndDistance[(v1, v2)] = distance
 
@@ -507,7 +507,7 @@ class Component_tools_maya(GetComponents):
 		:Return:
 			(list) the components that comprise the path as strings.
 		'''
-		type_ = Node_tools_maya.getType(components[0])
+		type_ = Node_utils_maya.getType(components[0])
 
 		result=[]
 		objects = set(pm.ls(components, objectsOnly=1))
@@ -542,7 +542,7 @@ class Component_tools_maya(GetComponents):
 		:Return:
 			(list) the components that comprise the path as strings.
 		'''
-		type_ = Node_tools_maya.getType(components[0])
+		type_ = Node_utils_maya.getType(components[0])
 
 		result=[]
 		objects = set(pm.ls(components, objectsOnly=1))
@@ -618,7 +618,7 @@ class Component_tools_maya(GetComponents):
 
 		pm.polySelectConstraint(angle=True, anglebound=(lowAngle, highAngle), mode=3, type=0x8000) #Constrain that selection to only edges of a certain Angle
 		pm.selectType(polymeshEdge=True)
-		edges = cls.getComponents('edges', returnType=returnType, flatten=flatten)
+		edges = cls.getComponents(componentType='edges', returnType=returnType, flatten=flatten) #get selected edges with constraint active.
 
 		pm.polySelectConstraint(mode=0) #Remove the selection constraint.
 		pm.select(orig_selection) #re-select any originally selected objects.
@@ -653,7 +653,7 @@ class Component_tools_maya(GetComponents):
 		else:
 			lowRange = highRange = num_of_connected
 
-		component_type = Node_tools_maya.getType(components)
+		component_type = Node_utils_maya.getType(components)
 		if not connectedType:
 			connectedType = component_type
 
@@ -688,61 +688,3 @@ class Component_tools_maya(GetComponents):
 
 #deprecated:
 
-	# @classmethod
-	# def getComponents(cls, objects=None, selection=False, componentType=None, returnType='str', returnNodeType='shape', flatten=False):
-	# 	'''Get the components of the given type.
-
-	# 	:Parameters:
-	# 		objects (str)(obj)(list) = The object(s) to get the components of.
-	# 		selection (bool) = Filter to currently selected objects.
-	# 		componentType (str)(int) = The desired component mask. (valid: any type allowed in the 'convertComponentName' method)
-	# 		returnType (str) = The desired returned object type. (valid: 'str', 'obj', 'int')
-	# 		returnNodeType (str) = Specify whether the components are returned with the transform or shape nodes (valid only with str returnTypes). (valid: 'transform', 'shape'(default)) ex. 'pCylinder1.f[0]' or 'pCylinderShape1.f[0]'
-	# 		flatten (bool) = Flattens the returned list of objects so that each component is it's own element.
-
-	# 	:Return:
-	# 		(list)(dict) Dependant on flags.
-
-	# 	ex. getComponents(objects, 'faces' returnType='object')
-	# 	'''
-	# 	if not componentType: #get component type from the current selection.
-	# 		if selection:
-	# 			componentType = Node_tools_maya.getType(pm.ls(sl=1))
-	# 			if componentType=='Polygon': #object level selection.
-	# 				all_components = [cls.getComponents(objects, typ) for typ in ('vtx', 'e', 'f', 'cv')]
-	# 				return all_components
-	# 		else:
-	# 			return
-
-	# 	componentType = cls.convertComponentName(componentType, returnType='abv') #get the correct componentType variable from possible args.
-	# 	mask = cls.convertComponentName(componentType, returnType='int')
-
-	# 	components=[]
-	# 	if selection:
-	# 		if objects:
-	# 			transforms = pm.ls(objects, sl=1, transforms=1)
-	# 			if transforms: #get ALL selected components, FILTERING for those of the given transform object(s).
-	# 				selected_shapes=[]
-	# 				for obj in transforms:
-	# 					selected_shapes+=pm.ls('{}.{}[*]'.format(obj, componentType), flatten=flatten)
-	# 			else: #get selected components, FILTERING for those of the given tranform object(s).
-	# 				shapes = Node_tools_maya.getShapeNode(objects)
-	# 				selected_shapes = pm.ls(shapes, sl=1)
-	# 			components = pm.filterExpand(selected_shapes, selectionMask=mask, expand=flatten)
-	# 		else:
-	# 			transforms = pm.ls(sl=1, transforms=1)
-	# 			if transforms:
-	# 				for obj in transforms: #get ALL selected components, for each selected transform object.
-	# 					components+=pm.ls('{}.{}[*]'.format(obj, componentType), flatten=flatten)
-	# 			else: #get selected components.
-	# 				components = pm.filterExpand(selectionMask=mask, expand=flatten)
-	# 	else:
-	# 		for obj in pm.ls(objects):
-	# 			components+=pm.ls('{}.{}[*]'.format(obj, componentType), flatten=flatten)
-
-	# 	# if not components:
-	# 	# 	components=[]
-
-	# 	result = cls.convertReturnType(components, returnType=returnType, returnNodeType=returnNodeType, flatten=flatten)
-
-	# 	return result

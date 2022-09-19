@@ -7,24 +7,23 @@ from slots.create import Create
 
 class Create_maya(Create, Slots_maya):
 	def __init__(self, *args, **kwargs):
-		Slots_maya.__init__(self, *args, **kwargs)
-		Create.__init__(self, *args, **kwargs)
+		super().__init__(*args, **kwargs)
 
 		ctx = self.sb.create.draggable_header.contextMenu
 		if not ctx.containsMenuItems:
 			ctx.add(self.sb.ComboBox, setObjectName='cmb000', setToolTip='')
 
 		cmb = self.sb.create.draggable_header.contextMenu.cmb000
-		list_ = ['']
-		cmb.addItems_(list_, '')
+		items = ['']
+		cmb.addItems_(items, '')
 
 		cmb = self.sb.create.cmb001
-		list_ = ['Polygon', 'NURBS', 'Light']
-		cmb.addItems_(list_)
+		items = ['Polygon', 'NURBS', 'Light']
+		cmb.addItems_(items)
 
 		cmb = self.sb.create.cmb002
-		list_ = ["Cube", "Sphere", "Cylinder", "Plane", "Circle", "Cone", "Pyramid", "Torus", "Tube", "GeoSphere", "Platonic Solids", "Text"]
-		cmb.addItems_(list_)
+		items = ["Cube", "Sphere", "Cylinder", "Plane", "Circle", "Cone", "Pyramid", "Torus", "Tube", "GeoSphere", "Platonic Solids", "Text"]
+		cmb.addItems_(items)
 
 		ctx = self.sb.create.tb000.contextMenu
 		if not ctx.containsMenuItems:
@@ -286,7 +285,7 @@ print (__name__)
 	# def chk000(self, state=None):
 	# 	'''Rotate X Axis
 	# 	'''
-	# 	self.toggleWidgets(setChecked='chk000', setUnChecked='chk001, chk002')
+	# 	self.sb.toggleWidgets(setChecked='chk000', setUnChecked='chk001, chk002')
 	# 	if self.node:
 	# 		self.rotateAbsolute(self.getAxis(), self.node)
 
@@ -294,7 +293,7 @@ print (__name__)
 	# def chk001(self, state=None):
 	# 	'''Rotate Y Axis
 	# 	'''
-	# 	self.toggleWidgets(setChecked='chk001', setUnChecked='chk000, chk002')
+	# 	self.sb.toggleWidgets(setChecked='chk001', setUnChecked='chk000, chk002')
 	# 	if self.node:
 	# 		self.rotateAbsolute(self.getAxis(), self.node)
 
@@ -302,7 +301,7 @@ print (__name__)
 	# def chk002(self, state=None):
 	# 	'''Rotate Z Axis
 	# 	'''
-	# 	self.toggleWidgets(setChecked='chk002', setUnChecked='chk000, chk001')
+	# 	self.sb.toggleWidgets(setChecked='chk002', setUnChecked='chk000, chk001')
 	# 	if self.node:
 	# 		self.rotateAbsolute(self.getAxis(), self.node)
 

@@ -13,7 +13,7 @@ class Init_blender(Init, Slots_blender):
 		Init.__init__(self, *args, **kwargs)
 
 		try:
-			self.init_ui.hud.shown.connect(self.construct_hud)
+			self.sb.init.hud.shown.connect(self.construct_hud)
 		except AttributeError: #(an inherited class)
 			pass
 
@@ -22,7 +22,7 @@ class Init_blender(Init, Slots_blender):
 		'''Add current scene attributes to the hud lineEdit.
 		Only those with relevant values will be displayed.
 		'''
-		hud = self.init_ui.hud
+		hud = self.sb.init.hud
 
 		try:
 			selection = pm.ls(selection=1)
@@ -92,8 +92,8 @@ class Init_blender(Init, Slots_blender):
 					pass
 
 
-		method = self.sb.prevCommand()
-		if prevCommand:
+		method = self.sb.prevCommand
+		if method:
 			hud.insertText('Prev Command: <font style="color: Yellow;">{}'.format(method.__doc__))  #get button text from last used command
 
 		# prevUi = self.sb.prevUiName(omitLevel=[0,1,2])

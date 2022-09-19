@@ -7,8 +7,7 @@ from slots.editors import Editors
 
 class Editors_maya(Editors, Slots_maya):
 	def __init__(self, *args, **kwargs):
-		Slots_maya.__init__(self, *args, **kwargs)
-		Editors.__init__(self, *args, **kwargs)
+		super().__init__(*args, **kwargs)
 
 		tree = self.sb.editors_lower_submenu.tree000
 		tree.expandOnHover = True
@@ -216,7 +215,6 @@ class Editors_maya(Editors, Slots_maya):
 		self.sb.parent().setUi('dynLayout')
 		self.stackedWidget.setCurrentWidget(w)
 		self.sb.parent().resize(width, height)
-		# self.sb.parent().move(self.sb.parent().centerPos().x(), self.sb.parent().centerPos().y()+(self.sb.sizeY/2.5))
 		return w
 
 

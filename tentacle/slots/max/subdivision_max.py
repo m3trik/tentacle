@@ -7,8 +7,7 @@ from slots.subdivision import Subdivision
 
 class Subdivision_max(Subdivision, Slots_max):
 	def __init__(self, *args, **kwargs):
-		Slots_max.__init__(self, *args, **kwargs)
-		Subdivision.__init__(self, *args, **kwargs)
+		super().__init__(*args, **kwargs)
 
 		#Set 3ds Max specific naming
 		self.sb.subdivision.gb000.setTitle('TurboSmooth')

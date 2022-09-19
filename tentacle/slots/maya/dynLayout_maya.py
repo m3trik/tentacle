@@ -7,12 +7,11 @@ from slots.dynLayout import DynLayout
 
 class DynLayout_maya(DynLayout, Slots_maya):
 	def __init__(self, *args, **kwargs):
-		Slots_maya.__init__(self, *args, **kwargs)
-		DynLayout.__init__(self, *args, **kwargs)
+		super().__init__(*args, **kwargs)
 
 		cmb = self.sb.dynLayout.draggable_header.contextMenu.cmb000
-		list_ = []
-		cmb.addItems_(list_, '')
+		items = []
+		cmb.addItems_(items, '')
 
 
 	def cmb000(self, index=-1):

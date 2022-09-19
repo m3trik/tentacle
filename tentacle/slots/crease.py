@@ -23,7 +23,7 @@ class Crease(Slots):
 		tb000.contextMenu.add('QCheckBox', setText='Auto Crease', setObjectName='chk011', setToolTip='Auto crease selected object(s) within the set angle tolerance.')
 		tb000.contextMenu.add('QSpinBox', setPrefix='Auto Crease: Low: ', setObjectName='s005', setMinMax_='0-180 step1', setValue=85, setToolTip='Auto crease: low angle constraint.')
 		tb000.contextMenu.add('QSpinBox', setPrefix='Auto Crease: high: ', setObjectName='s006', setMinMax_='0-180 step1', setValue=95, setToolTip='Auto crease: max angle constraint.')
-		self.toggleWidgets(tb000.contextMenu, setDisabled='s005,s006')
+		self.sb.toggleWidgets(tb000.contextMenu, setDisabled='s005,s006')
 
 
 	def s003(self, value=None):
@@ -49,7 +49,7 @@ class Crease(Slots):
 		if self.sb.crease.tb000.contextMenu.chk002.isChecked():
 			self.sb.crease.tb000.contextMenu.s003.setValue(0) #crease value
 			self.sb.crease.tb000.contextMenu.s004.setValue(180) #normal angle
-			self.toggleWidgets(self.sb.crease.tb000.contextMenu, self.crease_submenu_ui.tb000.contextMenu, setChecked='chk002', setUnChecked='chk003')
+			self.sb.toggleWidgets(self.sb.crease.tb000.contextMenu, self.crease_submenu_ui.tb000.contextMenu, setChecked='chk002', setUnChecked='chk003')
 			self.sb.crease.tb000.contextMenu.s003.setDisabled(True)
 			text = 'Un-Crease 0'
 		else:
@@ -67,7 +67,7 @@ class Crease(Slots):
 		if self.sb.crease.tb000.contextMenu.chk003.isChecked():
 			self.sb.crease.tb000.contextMenu.s003.setValue(10) #crease value
 			self.sb.crease.tb000.contextMenu.s004.setValue(30) #normal angle
-			self.toggleWidgets(self.sb.crease.tb000.contextMenu, self.crease_submenu_ui.tb000.contextMenu, setChecked='chk003', setUnChecked='chk002')
+			self.sb.toggleWidgets(self.sb.crease.tb000.contextMenu, self.crease_submenu_ui.tb000.contextMenu, setChecked='chk003', setUnChecked='chk002')
 			self.sb.crease.tb000.contextMenu.s003.setDisabled(True)
 			text = 'Un-Crease 0'
 		else:
@@ -83,9 +83,9 @@ class Crease(Slots):
 		'''Crease: Auto
 		'''
 		if self.sb.crease.tb000.contextMenu.chk011.isChecked():
-			self.toggleWidgets(self.sb.crease.tb000.contextMenu, setEnabled='s005,s006')
+			self.sb.toggleWidgets(self.sb.crease.tb000.contextMenu, setEnabled='s005,s006')
 		else:
-			self.toggleWidgets(self.sb.crease.tb000.contextMenu, setDisabled='s005,s006')
+			self.sb.toggleWidgets(self.sb.crease.tb000.contextMenu, setDisabled='s005,s006')
 
 
 	def b000(self):
@@ -102,9 +102,9 @@ class Crease(Slots):
 				self.sb.crease.b001.setText(newObject)
 			else:
 				self.sb.crease.b001.setText("must select obj first")
-				self.toggleWidgets(setUnChecked='b001')
+				self.sb.toggleWidgets(setUnChecked='b001')
 			if self.sb.crease.b000.isChecked():
-				self.toggleWidgets(setEnabled='b052')
+				self.sb.toggleWidgets(setEnabled='b052')
 		else:
 			self.sb.crease.b001.setText("Object")
 
@@ -123,9 +123,9 @@ class Crease(Slots):
 				self.sb.crease.b000.setText(creaseSet)
 			else:
 				self.sb.crease.b000.setText("must select set first")
-				self.toggleWidgets(setUnChecked='b000')
+				self.sb.toggleWidgets(setUnChecked='b000')
 			if self.sb.crease.b001.isChecked():
-				self.toggleWidgets(setEnabled='b052')
+				self.sb.toggleWidgets(setEnabled='b052')
 		else:
 			self.sb.crease.b000.setText("Crease Set")
 	

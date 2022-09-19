@@ -83,11 +83,9 @@ class CheckBox(QtWidgets.QCheckBox, MenuInstance, Attributes, RichText):
 
 
 if __name__ == "__main__":
-	from PySide2.QtCore import QSize
 	import sys
-	qApp = QtWidgets.QApplication.instance() #get the qApp instance if it exists.
-	if not qApp:
-		qApp = QtWidgets.QApplication(sys.argv)
+	from PySide2.QtCore import QSize
+	app = QtWidgets.QApplication(sys.argv)
 
 	w = CheckBox(
 		parent=None,
@@ -100,7 +98,7 @@ if __name__ == "__main__":
 	)
 
 	# w.show()
-	sys.exit(qApp.exec_())
+	sys.exit(app.exec_())
 
 
 

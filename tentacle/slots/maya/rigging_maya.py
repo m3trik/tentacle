@@ -7,8 +7,7 @@ from slots.rigging import Rigging
 
 class Rigging_maya(Rigging, Slots_maya):
 	def __init__(self, *args, **kwargs):
-		Slots_maya.__init__(self, *args, **kwargs)
-		Rigging.__init__(self, *args, **kwargs)
+		super().__init__(*args, **kwargs)
 
 		dh = self.sb.rigging.draggable_header
 		items = ['Quick Rig','HumanIK','Expression Editor','Shape Editor','Connection Editor','Channel Control Editor','Set Driven Key']
@@ -66,21 +65,21 @@ class Rigging_maya(Rigging, Slots_maya):
 	def chk000(self, state=None):
 		'''Scale Joint
 		'''
-		self.toggleWidgets(setUnChecked='chk001-2')
+		self.sb.toggleWidgets(setUnChecked='chk001-2')
 		self.sb.rigging.tb000.contextMenu.s000.setValue(pm.jointDisplayScale(query=1)) #init global joint display size
 
 
 	def chk001(self, state=None):
 		'''Scale IK
 		'''
-		self.toggleWidgets(setUnChecked='chk000, chk002')
+		self.sb.toggleWidgets(setUnChecked='chk000, chk002')
 		self.sb.rigging.tb000.contextMenu.setValue(pm.ikHandleDisplayScale(query=1)) #init IK handle display size
 		
 
 	def chk002(self, state=None):
 		'''Scale IK/FK
 		'''
-		self.toggleWidgets(setUnChecked='chk000-1')
+		self.sb.toggleWidgets(setUnChecked='chk000-1')
 		self.sb.rigging.tb000.contextMenu.setValue(pm.jointDisplayScale(query=1, ikfk=1)) #init IKFK display size
 
 
@@ -124,7 +123,8 @@ class Rigging_maya(Rigging, Slots_maya):
 		tb = self.sb.rigging.tb001
 
 		orientJoint = 'xyz' #orient joints
-		if tb.contextMenu.isChecked():
+		alignWorld = tb.contextMenu.chk003.isChecked()
+		if alignWorld:
 			orientJoint = 'none' #orient joint to world
 
 		pm.joint(edit=1, orientJoint=orientJoint, zeroScaleOrient=1, ch=1)
@@ -167,7 +167,7 @@ class Rigging_maya(Rigging, Slots_maya):
 		lockScale = tb.contextMenu.chk009.isChecked()
 		remove = tb.contextMenu.chk015.isChecked()
 
-		from tools_maya.rigging_tools_maya import createLocatorAtObject
+		from utils_maya.rigging_utils_maya import createLocatorAtObject
 		selection = pm.ls(selection=True)
 		createLocatorAtObject(selection, parent=parent, freezeTransforms=freezeTransforms, bakeChildPivot=bakeChildPivot, 
 			scale=scale, grpSuffix=grpSuffix, locSuffix=locSuffix, objSuffix=objSuffix, stripDigits=stripDigits, stripSuffix=stripSuffix, 

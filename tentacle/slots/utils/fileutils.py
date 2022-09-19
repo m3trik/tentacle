@@ -7,7 +7,7 @@ import json
 
 
 
-class Txtools():
+class Fileutils():
 	'''
 	'''
 
@@ -28,17 +28,19 @@ class Txtools():
 
 		:Return:
 			(str)
-
-		# known issue: if the path does not include a filename and a directory name contains '.' the results may not be accurate.
 		'''
+		assert isinstance(string, str), 'Incorrect datatype for string argument: {}: {}'.format(string, type(string))
+		isfile = os.path.isfile(string)
+		# isDir = os.path.isdir(string)
+
 		string = os.path.expandvars(string) #convert any env variables to their values.
 		string = '/'.join(string.split('\\')) #convert forward slashes to back slashes.
 
 		fullpath = string if '/' in string else ''
-		path = '/'.join(string.split('/')[:-1]) if '.' in string else string
-		filename = string.split('/')[-1] if '.' in string else ''
+		path = '/'.join(string.split('/')[:-1]) if isfile else string
+		filename = string.split('/')[-1] if isfile else ''
 		directory = string.split('/')[-2] if filename else string.split('/')[-1]
-		name = ''.join(filename.rsplit('.', 1)[:-1]) if '.' in string else '' if '/' in string else string
+		name = ''.join(filename.rsplit('.', 1)[:-1]) if isfile else '' if '/' in string else string
 		ext = filename.rsplit('.', 1)[-1]
 
 		if returnType=='path':
@@ -56,7 +58,7 @@ class Txtools():
 		elif returnType=='ext':
 			string = ext
 
-		return string #if '' is given, the fullpath will be returned.
+		return string #if no arg is given, the fullpath will be returned.
 
 
 	@staticmethod
@@ -153,7 +155,7 @@ class Txtools():
 
 
 	@staticmethod
-	def setJson(key, value, file='txtools.json'):
+	def setJson(key, value, file='fileutils.json'):
 		'''
 		'''
 		try:
@@ -170,7 +172,7 @@ class Txtools():
 
 
 	@staticmethod
-	def getJson(key, file='txtools.json'):
+	def getJson(key, file='fileutils.json'):
 		'''
 		'''
 		try:
@@ -180,62 +182,6 @@ class Txtools():
 
 		except (FileNotFoundError, KeyError, json.decoder.JSONDecodeError) as error:
 			return None
-
-
-	@staticmethod
-	def setCase(string, case='camelCase'):
-		'''Format the given string(s) in the given case.
-		
-		:Parameters:
-			string (str)(list) = The string(s) to format.
-			case (str) = The desired return case. Accepts all python case operators. 
-				valid: 'upper', 'lower', 'caplitalize' (default), 'swapcase', 'title', 'pascalCase', 'camelCase', None.
-
-		:Return:
-			(str)(list) returns a list if more than one string is given.
-		'''
-		if not string or not isinstance(string, str):
-			return string
-
-		list_ = lambda x: list(x) if isinstance(x, (list, tuple, set, dict)) else [x] #assure that the arg is a list.
-
-		if case=='pascalCase':
-			result = [s[:1].capitalize()+s[1:] for s in list_(string)] #capitalize the first letter.
-
-		elif case=='camelCase':
-			result = [s[0].lower()+s[1:] for s in list_(string)] #lowercase the first letter.
-
-		elif isinstance(case, str) and hasattr(string, case):
-			result = [getattr(s, case)() for s in list_(string)]
-
-		else: #return the original string(s).
-			return string
-
-		return result[0] if len(result)==1 else result
-
-
-	@classmethod
-	def insert(cls, src, ins, at, occurrence=1, before=False):
-		'''Insert character(s) into a string at a given location.
-		if the character doesn't exist, the original string will be returned.
-
-		:parameters:
-			src (str) = The source string.
-			ins (str) = The character(s) to insert.
-			at (str)(int) = The index or char(s) to insert at.
-			occurrence (int) = Valid only when 'at' is given as a string.
-						Specify which occurrence to insert at. default: first
-			before (bool) = Valid only when 'at' is given as a string.
-						Specify inserting before or after. default: after
-		:return:
-			(str)
-		'''
-		try:
-			return ''.join((src[:at], str(ins), src[at:]))
-
-		except TypeError:
-			i = src.replace(at, ' '*len(at), occurrence-1).find(at)
-			return cls.insert(src, str(ins), i if before else i+len(at)) if i!=-1 else src
 
 
 

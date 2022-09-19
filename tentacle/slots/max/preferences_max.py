@@ -7,8 +7,7 @@ from slots.preferences import Preferences
 
 class Preferences_max(Preferences, Slots_max):
 	def __init__(self, *args, **kwargs):
-		Slots_max.__init__(self, *args, **kwargs)
-		Preferences.__init__(self, *args, **kwargs)
+		super().__init__(*args, **kwargs)
 
 		self.sb.preferences.b010.setText('3dsMax Preferences')
 
@@ -23,7 +22,7 @@ class Preferences_max(Preferences, Slots_max):
 		# cmb.setCurrentIndex(index)
 
 		# cmb = self.sb.preferences.cmb002
-		# #store a corresponding value for each item in the comboBox list_.
+		# #store a corresponding value for each item in the comboBox items.
 		# l = {'15 fps: ':'game','24 fps: ':'film','25 fps: ':'pal','30 fps: ':'ntsc','48 fps: ':'show','50 fps: ':'palf','60 fps: ':'ntscf'}
 		# items = [k+v for k,v in l.items()] #ie. ['15 fps: game','24 fps: film', ..etc]
 		# values = [i[1] for i in l] #ie. ['game','film', ..etc]

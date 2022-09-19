@@ -7,8 +7,7 @@ from slots.lighting import Lighting
 
 class Lighting_max(Lighting, Slots_max):
 	def __init__(self, *args, **kwargs):
-		Slots_max.__init__(self, *args, **kwargs)
-		Lighting.__init__(self, *args, **kwargs)
+		super().__init__(*args, **kwargs)
 
 		cmb = self.sb.lighting.draggable_header.contextMenu.cmb000
 		items = ['']

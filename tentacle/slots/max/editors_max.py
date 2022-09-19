@@ -7,8 +7,7 @@ from slots.editors import Editors
 
 class Editors_max(Editors, Slots_max):
 	def __init__(self, *args, **kwargs):
-		Slots_max.__init__(self, *args, **kwargs)
-		Editors.__init__(self, *args, **kwargs)
+		super().__init__(*args, **kwargs)
 
 		self.stackedWidget = self.sb.dynLayout.stackedWidget
 

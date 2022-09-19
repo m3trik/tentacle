@@ -7,8 +7,7 @@ from slots.transform import Transform
 
 class Transform_max(Transform, Slots_max):
 	def __init__(self, *args, **kwargs):
-		Slots_max.__init__(self, *args, **kwargs)
-		Transform.__init__(self, *args, **kwargs)
+		super().__init__(*args, **kwargs)
 
 		cmb000 = self.sb.transform.draggable_header.contextMenu.cmb000
 		items = ['']
@@ -20,7 +19,7 @@ class Transform_max(Transform, Slots_max):
 		cmb001.contextMenu.add('QRadioButton', setObjectName='chk019', setText='NURBS', setToolTip='')
 		cmb001.contextMenu.add('QRadioButton', setObjectName='chk020', setText='Point Cloud Shapes', setToolTip='')
 		cmb001.contextMenu.add(self.sb.Label, setObjectName='lbl000', setText='Disable All', setToolTip='Disable all constraints.')
-		self.connect_('chk017-20', 'toggled', self.cmb001, cmb001.contextMenu) #connect to this method on toggle
+		self.sb.connect('chk017-20', 'toggled', self.cmb001, cmb001.contextMenu) #connect to this method on toggle
 
 		cmb002 = self.sb.transform.cmb002
 		items = ['Point to Point', '2 Points to 2 Points', '3 Points to 3 Points', 'Align Objects', 'Position Along Curve', 'Align Tool', 'Snap Together Tool']
@@ -58,18 +57,18 @@ class Transform_max(Transform, Slots_max):
 		cmb.menu_.clear()
 		if cmb.contextMenu.chk017.isChecked(): #Standard
 			cmb.setItemText(0,'Standard') #set cetagory title in standard model/view
-			list_ = ['Grid Points', 'Pivot', 'Perpendicular', 'Vertex', 'Edge/Segment', 'Face', 'Grid Lines', 'Bounding Box', 'Tangent', 'Endpoint', 'Midpoint', 'Center Face']
+			items = ['Grid Points', 'Pivot', 'Perpendicular', 'Vertex', 'Edge/Segment', 'Face', 'Grid Lines', 'Bounding Box', 'Tangent', 'Endpoint', 'Midpoint', 'Center Face']
 		if cmb.contextMenu.chk018.isChecked(): #Body Shapes
 			cmb.setItemText(0,'Body Shapes') #set category title in standard model/view
-			list_ = ['Vertex_', 'Edge', 'Face_', 'End Edge', 'Edge Midpoint']
+			items = ['Vertex_', 'Edge', 'Face_', 'End Edge', 'Edge Midpoint']
 		if cmb.contextMenu.chk019.isChecked(): #NURBS
 			cmb.setItemText(0,'NURBS') #set category title in standard model/view
-			list_ = ['CV', 'Curve Center', 'Curve Tangent', 'Curve End', 'Surface Normal', 'Point', 'Curve Normal', 'Curve Edge', 'Surface Center','Surface Edge']
+			items = ['CV', 'Curve Center', 'Curve Tangent', 'Curve End', 'Surface Normal', 'Point', 'Curve Normal', 'Curve Edge', 'Surface Center','Surface Edge']
 		if cmb.contextMenu.chk020.isChecked(): #Point Cloud Shapes
 			cmb.setItemText(0,'Point Cloud Shapes') #set category title in standard model/view
-			list_ = ['Point Cloud Vertex']
+			items = ['Point Cloud Vertex']
 
-		widgets = [cmb.menu_.add('QCheckBox', setText=t) for t in list_]
+		widgets = [cmb.menu_.add('QCheckBox', setText=t) for t in items]
 
 		for w in widgets:
 			try:
@@ -211,18 +210,18 @@ class Transform_max(Transform, Slots_max):
 
 				if autoAlign2Axes:
 					if axis==x: #"yz"
-						self.toggleWidgets(tb.contextMenu, setChecked='chk030-31', setUnChecked='chk029')
+						self.sb.toggleWidgets(tb.contextMenu, setChecked='chk030-31', setUnChecked='chk029')
 					if axis==y: #"xz"
-						self.toggleWidgets(tb.contextMenu, setChecked='chk029,chk031', setUnChecked='chk030')
+						self.sb.toggleWidgets(tb.contextMenu, setChecked='chk029,chk031', setUnChecked='chk030')
 					if axis==z: #"xy"
-						self.toggleWidgets(tb.contextMenu, setChecked='chk029-30', setUnChecked='chk031')
+						self.sb.toggleWidgets(tb.contextMenu, setChecked='chk029-30', setUnChecked='chk031')
 				else:
 					if any ([axis==x and tangent==ty, axis==y and tangent==tx]): #"z"
-						self.toggleWidgets(tb.contextMenu, setChecked='chk031', setUnChecked='chk029-30')
+						self.sb.toggleWidgets(tb.contextMenu, setChecked='chk031', setUnChecked='chk029-30')
 					if any ([axis==x and tangent==tz, axis==z and tangent==tx]): #"y"
-						self.toggleWidgets(tb.contextMenu, setChecked='chk030', setUnChecked='chk029,chk031')
+						self.sb.toggleWidgets(tb.contextMenu, setChecked='chk030', setUnChecked='chk029,chk031')
 					if any ([axis==y and tangent==tz, axis==z and tangent==ty]): #"x"
-						self.toggleWidgets(tb.contextMenu, setChecked='chk029', setUnChecked='chk030-31')
+						self.sb.toggleWidgets(tb.contextMenu, setChecked='chk029', setUnChecked='chk030-31')
 			else:
 				self.messageBox('Operation requires a component selection.')
 				return
@@ -299,7 +298,7 @@ class Transform_max(Transform, Slots_max):
 		'''Transform Tool Snapping: Disable All
 		'''
 		cmb = self.sb.transform.cmb003
-		self.toggleWidgets(setDisabled='chk021-23')
+		self.sb.toggleWidgets(setDisabled='chk021-23')
 		cmb.setCurrentText('Off') if not any((state, cmb.menu_.chk021.isChecked(), cmb.menu_.chk023.isChecked())) else cmb.setCurrentText('On')
 
 
@@ -408,9 +407,9 @@ class Transform_max(Transform, Slots_max):
 			7:['Grid Lines', 'Bounding Box', 'Tangent', 'Endpoint', 'Midpoint', 'Center Face'] #Standard
 		}
 
-		for category, list_ in snaps.items():
-			if fn in list_:
-				index = list_.index(fn)+1 #add 1 to align with max array.
+		for category, lst in snaps.items():
+			if fn in lst:
+				index = lst.index(fn)+1 #add 1 to align with max array.
 				rt.snapmode.setOSnapItemActive(category, index, state) #ie. rt.snapmode.setOSnapItemActive(3, 1, False) #'Point Cloud Shapes'->'Point Cloud Vertex'->Off
 				print (fn, '|', state)
 

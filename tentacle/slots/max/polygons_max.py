@@ -7,8 +7,7 @@ from slots.polygons import Polygons
 
 class Polygons_max(Polygons, Slots_max):
 	def __init__(self, *args, **kwargs):
-		Slots_max.__init__(self, *args, **kwargs)
-		Polygons.__init__(self, *args, **kwargs)
+		super().__init__(*args, **kwargs)
 
 		cmb = self.sb.polygons.draggable_header.contextMenu.cmb000
 		items = ['Bridge','Extrude']

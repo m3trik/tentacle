@@ -50,8 +50,8 @@ class Selection(Slots):
 		tb001.contextMenu.add('QCheckBox', setText='World Area', setObjectName='chk018', setChecked=True, setToolTip='The surface area of the object\'s faces in world space.')
 		tb001.contextMenu.add('QCheckBox', setText='Bounding Box', setObjectName='chk019', setToolTip='The object\'s bounding box in 3d space.\nCannot be used with the topological flags.')
 		tb001.contextMenu.add('QCheckBox', setText='Include Original', setObjectName='chk020', setToolTip='Include the original selected object(s) in the final selection.')
-		tb001.contextMenu.chk018.stateChanged.connect(lambda state: self.toggleWidgets(tb001.contextMenu, setDisabled='chk011-18') if state 
-															else self.toggleWidgets(tb001.contextMenu, setEnabled='chk011-18')) #disable non-relevant options.
+		tb001.contextMenu.chk018.stateChanged.connect(lambda state: self.sb.toggleWidgets(tb001.contextMenu, setDisabled='chk011-18') if state 
+															else self.sb.toggleWidgets(tb001.contextMenu, setEnabled='chk011-18')) #disable non-relevant options.
 		tb002 = self.sb.selection.tb002
 		tb002.contextMenu.add('QCheckBox', setText='Lock Values', setObjectName='chk003', setChecked=True, setToolTip='Keep values in sync.')
 		tb002.contextMenu.add('QDoubleSpinBox', setPrefix='x: ', setObjectName='s002', setMinMax_='0.00-1 step.01', setValue=0.05, setToolTip='Normal X range.')
@@ -102,25 +102,25 @@ class Selection(Slots):
 	def chk000(self, state=None):
 		'''Select Nth: uncheck other checkboxes
 		'''
-		self.toggleWidgets(setUnChecked='chk001-2')
+		self.sb.toggleWidgets(setUnChecked='chk001-2')
 
 
 	def chk001(self, state=None):
 		'''Select Nth: uncheck other checkboxes
 		'''
-		self.toggleWidgets(setUnChecked='chk000,chk002')
+		self.sb.toggleWidgets(setUnChecked='chk000,chk002')
 
 
 	def chk002(self, state=None):
 		'''Select Nth: uncheck other checkboxes
 		'''
-		self.toggleWidgets(setUnChecked='chk000-1')
+		self.sb.toggleWidgets(setUnChecked='chk000-1')
 
 
 	def chk005(self, state=None):
 		'''Select Style: Marquee
 		'''
-		self.toggleWidgets(setChecked='chk005', setUnChecked='chk006-7')
+		self.sb.toggleWidgets(setChecked='chk005', setUnChecked='chk006-7')
 		Selection.setSelectionStyle('marquee')
 		self.messageBox('Select Style: <hl>Marquee</hl>')
 
@@ -128,7 +128,7 @@ class Selection(Slots):
 	def chk006(self, state=None):
 		'''Select Style: Lasso
 		'''
-		self.toggleWidgets(setChecked='chk006', setUnChecked='chk005,chk007')
+		self.sb.toggleWidgets(setChecked='chk006', setUnChecked='chk005,chk007')
 		Selection.setSelectionStyle('lasso')
 		self.messageBox('Select Style: <hl>Lasso</hl>')
 
@@ -136,7 +136,7 @@ class Selection(Slots):
 	def chk007(self, state=None):
 		'''Select Style: Paint
 		'''
-		self.toggleWidgets(setChecked='chk007', setUnChecked='chk005-6')
+		self.sb.toggleWidgets(setChecked='chk007', setUnChecked='chk005-6')
 		Selection.setSelectionStyle('paint')
 		self.messageBox('Select Style: <hl>Paint</hl>')
 

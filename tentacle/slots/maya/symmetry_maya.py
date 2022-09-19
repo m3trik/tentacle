@@ -7,8 +7,7 @@ from slots.symmetry import Symmetry
 
 class Symmetry_maya(Symmetry, Slots_maya):
 	def __init__(self, *args, **kwargs):
-		Slots_maya.__init__(self, *args, **kwargs)
-		Symmetry.__init__(self, *args, **kwargs)
+		super().__init__(*args, **kwargs)
 
 		cmb000 = self.sb.symmetry.draggable_header.contextMenu.cmb000
 		items = ['']
@@ -39,7 +38,7 @@ class Symmetry_maya(Symmetry, Slots_maya):
 		self.sb.symmetry.chk004.setChecked(False) #uncheck symmetry:object space
 		if any ([self.sb.symmetry.chk000.isChecked(), self.sb.symmetry.chk001.isChecked(), self.sb.symmetry.chk002.isChecked()]): #(symmetry)
 			pm.symmetricModelling(edit=True, symmetry=False)
-			self.toggleWidgets(setUnChecked='chk000,chk001,chk002')
+			self.sb.toggleWidgets(setUnChecked='chk000,chk001,chk002')
 			self.messageBox('First select a seam edge and then check the symmetry button to enable topographic symmetry', messageType='Note')
 
 
