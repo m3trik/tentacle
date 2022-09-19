@@ -15,7 +15,8 @@ import utils
 
 
 class Switchboard(QUiLoader):
-	'''
+	'''The switchboard after being instanced can be accessed anywhere using; QtWidgets.QApplication.instance().sb
+
 	:properties:
 		sb = Passed to all slot class instances, sb is the instance of this class holding all of the properties below. ex. sb.ui.widgets
 		sb.<ui name> = Any ui located in the switchboard's ui directory.
@@ -102,7 +103,7 @@ class Switchboard(QUiLoader):
 	defaultSlotDir = defaultDir+'/slots'
 
 
-	def __init__(self, parent=None, uiDir=defaultUiDir, widgetDir=defaultWgtDir, slotDir=defaultSlotDir, parentAppName=''):
+	def __init__(self, parent=None, uiDir=defaultUiDir, widgetDir=defaultWgtDir, slotDir=defaultSlotDir):
 		super().__init__(parent)
 		'''
 		'''

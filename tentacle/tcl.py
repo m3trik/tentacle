@@ -14,14 +14,10 @@ from ui.widgets import rwidgets
 class Tcl(QtWidgets.QStackedWidget, EventFactoryFilter):
 	'''Tcl is a marking menu based on a QStackedWidget.
 	Gets and sets signal connections (through the switchboard module).
-	Initializes events for child widgets using the childEvents module.
+	Initializes events for child widgets using the eventFilter module.
 	Plots points for paint events in the overlay module.
 
 	The various ui's are set by calling 'setUi' with the intended ui name string. ex. Tcl().setUi('polygons')
-
-	:Parameters:
-		parent (obj) = The parent application's top level window instance. ie. the Maya main window.
-		profile (bool) = Prints the total running time, times each function separately, and tells you how many times each function was called.
 	'''
 	_mouseOver=[] #list of widgets currently under the mouse cursor. (Limited to those widgets set as mouse tracked)
 	_mouseGrabber=None
@@ -56,6 +52,11 @@ class Tcl(QtWidgets.QStackedWidget, EventFactoryFilter):
 		app = QtWidgets.QApplication(sys.argv)
 
 	def __init__(self, parent=None, key_show='Key_F12', preventHide=False, slotDir='', profile=False):
+		'''
+		:Parameters:
+			parent (obj) = The parent application's top level window instance. ie. the Maya main window.
+			profile (bool) = Prints the total running time, times each function separately, and tells you how many times each function was called.
+		'''
 		super().__init__(parent)
 
 		self.key_show = getattr(QtCore.Qt, key_show)
