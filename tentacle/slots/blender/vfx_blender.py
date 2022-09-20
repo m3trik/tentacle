@@ -10,7 +10,7 @@ class Vfx_blender(Vfx, Slots_blender):
 		Slots_blender.__init__(self, *args, **kwargs)
 		Vfx.__init__(self, *args, **kwargs)
 
-		cmb = self.sb.vfx.draggable_header.contextMenu.cmb000
+		cmb = self.sb.vfx.draggable_header.ctxMenu.cmb000
 		items = ['']
 		cmb.addItems_(items, '')
 
@@ -18,7 +18,7 @@ class Vfx_blender(Vfx, Slots_blender):
 	def cmb000(self, index=-1):
 		'''Editors
 		'''
-		cmb = self.sb.vfx.draggable_header.contextMenu.cmb000
+		cmb = self.sb.vfx.draggable_header.ctxMenu.cmb000
 
 		if index>0:
 			text = cmb.items[index]

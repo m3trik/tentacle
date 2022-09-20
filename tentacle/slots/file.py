@@ -15,26 +15,26 @@ class File(Slots):
 		self.sb.file_submenu.b001.setText(self.getNameFromFullPath(mostRecentFile)) if mostRecentFile else self.sb.file_submenu.b001.setVisible(False)
 
 		dh = self.sb.file.draggable_header
-		dh.contextMenu.add(self.sb.ComboBox, setObjectName='cmb000', setToolTip='')
-		dh.contextMenu.add(self.sb.PushButton, setObjectName='tb000', setText='Save', setToolTip='Save the current file.')
-		dh.contextMenu.add(self.sb.Label, setObjectName='lbl001', setText='Minimize App', setToolTip='Minimize the main application.')
-		dh.contextMenu.add(self.sb.Label, setObjectName='lbl002', setText='Maximize App', setToolTip='Restore the main application.')
-		dh.contextMenu.add(self.sb.Label, setObjectName='lbl003', setText='Close App', setToolTip='Close the main application.')
+		dh.ctxMenu.add(self.sb.ComboBox, setObjectName='cmb000', setToolTip='')
+		dh.ctxMenu.add(self.sb.PushButton, setObjectName='tb000', setText='Save', setToolTip='Save the current file.')
+		dh.ctxMenu.add(self.sb.Label, setObjectName='lbl001', setText='Minimize App', setToolTip='Minimize the main application.')
+		dh.ctxMenu.add(self.sb.Label, setObjectName='lbl002', setText='Maximize App', setToolTip='Restore the main application.')
+		dh.ctxMenu.add(self.sb.Label, setObjectName='lbl003', setText='Close App', setToolTip='Close the main application.')
 
 		cmb005 = self.sb.file.cmb005
-		cmb005.contextMenu.add('QPushButton', setObjectName='b001', setText='Last', setToolTip='Open the most recent file.')
+		cmb005.ctxMenu.add('QPushButton', setObjectName='b001', setText='Last', setToolTip='Open the most recent file.')
 		cmb005.addItems_(dict(zip(self.getRecentFiles(timestamp=True), self.getRecentFiles(timestamp=False))), "Recent Files", clear=True)
 
 		cmb006 = self.sb.file.cmb006
-		cmb006.contextMenu.add(self.sb.ComboBox, setObjectName='cmb001', setToolTip='Current project directory root.')
-		cmb006.contextMenu.add(self.sb.Label, setObjectName='lbl000', setText='Set', setToolTip='Set the project directory.')
-		cmb006.contextMenu.add(self.sb.Label, setObjectName='lbl004', setText='Root', setToolTip='Open the project directory.')
-		cmb006.contextMenu.cmb001.addItems_(self.getRecentProjects(), "Recent Projects", clear=True)
+		cmb006.ctxMenu.add(self.sb.ComboBox, setObjectName='cmb001', setToolTip='Current project directory root.')
+		cmb006.ctxMenu.add(self.sb.Label, setObjectName='lbl000', setText='Set', setToolTip='Set the project directory.')
+		cmb006.ctxMenu.add(self.sb.Label, setObjectName='lbl004', setText='Root', setToolTip='Open the project directory.')
+		cmb006.ctxMenu.cmb001.addItems_(self.getRecentProjects(), "Recent Projects", clear=True)
 
-		tb000 = self.sb.file.draggable_header.contextMenu.tb000
-		tb000.contextMenu.add('QCheckBox', setText='Wireframe', setObjectName='chk000', setToolTip='Set view to wireframe before save.')
-		tb000.contextMenu.add('QCheckBox', setText='Increment', setObjectName='chk001', setChecked=True, setToolTip='Append and increment a unique integer value.')
-		tb000.contextMenu.add('QCheckBox', setText='Quit', setObjectName='chk002', setToolTip='Quit after save.')
+		tb000 = self.sb.file.draggable_header.ctxMenu.tb000
+		tb000.ctxMenu.add('QCheckBox', setText='Wireframe', setObjectName='chk000', setToolTip='Set view to wireframe before save.')
+		tb000.ctxMenu.add('QCheckBox', setText='Increment', setObjectName='chk001', setChecked=True, setToolTip='Append and increment a unique integer value.')
+		tb000.ctxMenu.add('QCheckBox', setText='Quit', setObjectName='chk002', setToolTip='Quit after save.')
 
 
 	def referenceSceneMenu(self, clear=False):

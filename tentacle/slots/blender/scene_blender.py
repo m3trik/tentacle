@@ -10,7 +10,7 @@ class Scene_blender(Scene, Slots_blender):
 		Slots_blender.__init__(self, *args, **kwargs)
 		Scene.__init__(self, *args, **kwargs)
 
-		cmb = self.sb.scene.draggable_header.contextMenu.cmb000
+		cmb = self.sb.scene.draggable_header.ctxMenu.cmb000
 		items = ['Node Editor', 'Outlinder', 'Content Browser', 'Optimize Scene Size', 'Prefix Hierarchy Names', 'Search and Replace Names']
 		cmb.addItems_(items, 'Maya Scene Editors')
 
@@ -18,7 +18,7 @@ class Scene_blender(Scene, Slots_blender):
 	def cmb000(self, index=-1):
 		'''Editors
 		'''
-		cmb = self.sb.scene.draggable_header.contextMenu.cmb000
+		cmb = self.sb.scene.draggable_header.ctxMenu.cmb000
 
 		if index>0:
 			text = cmb.items[index]
@@ -44,8 +44,8 @@ class Scene_blender(Scene, Slots_blender):
 
 		find = self.sb.scene.t000.text() #an asterisk denotes startswith*, *endswith, *contains* 
 		to = self.sb.scene.t001.text()
-		regEx = self.sb.scene.t000.contextMenu.chk001.isChecked()
-		ignoreCase = self.sb.scene.t000.contextMenu.chk000.isChecked()
+		regEx = self.sb.scene.t000.ctxMenu.chk001.isChecked()
+		ignoreCase = self.sb.scene.t000.ctxMenu.chk000.isChecked()
 
 		selection = pm.ls(sl=1)
 		objects = selection if selection else pm.ls(objectsOnly=1)
@@ -57,7 +57,7 @@ class Scene_blender(Scene, Slots_blender):
 		'''
 		tb = self.sb.scene.tb000
 
-		case = tb.contextMenu.cmb001.currentText()
+		case = tb.ctxMenu.cmb001.currentText()
 
 		selection = pm.ls(sl=1)
 		objects = selection if selection else pm.ls(objectsOnly=1)

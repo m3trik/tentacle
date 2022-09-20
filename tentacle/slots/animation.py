@@ -10,17 +10,17 @@ class Animation(Slots):
 	def __init__(self, *args, **kwargs):
 		'''
 		'''
-		ctx = self.sb.animation.draggable_header.contextMenu
+		ctx = self.sb.animation.draggable_header.ctxMenu
 		if not ctx.containsMenuItems:
 			ctx.add(self.sb.ComboBox, setObjectName='cmb000', setToolTip='')
 
-		ctx = self.sb.animation.tb000.contextMenu
+		ctx = self.sb.animation.tb000.ctxMenu
 		if not ctx.containsMenuItems:
 			ctx.add('QSpinBox', setPrefix='Frame: ', setObjectName='s000', setMinMax_='0-10000 step1', setValue=1, setToolTip='')
 			ctx.add('QCheckBox', setText='Relative', setObjectName='chk000', setChecked=True, setToolTip='')
 			ctx.add('QCheckBox', setText='Update', setObjectName='chk001', setChecked=True, setToolTip='')
 
-		ctx = self.sb.animation.tb001.contextMenu
+		ctx = self.sb.animation.tb001.ctxMenu
 		if not ctx.containsMenuItems:
 			ctx.add('QSpinBox', setPrefix='Time: ', setObjectName='s001', setMinMax_='0-10000 step1', setValue=1, setToolTip='The desired start time for the inverted keys.')
 			ctx.add('QCheckBox', setText='Relative', setObjectName='chk002', setChecked=False, setToolTip='Start time position as relative or absolute.')
@@ -37,9 +37,9 @@ class Animation(Slots):
 		'''
 		tb = self.sb.animation.tb000
 
-		frame = self.invertOnModifier(tb.contextMenu.s000.value())
-		relative = tb.contextMenu.chk000.isChecked()
-		update = tb.contextMenu.chk001.isChecked()
+		frame = self.invertOnModifier(tb.ctxMenu.s000.value())
+		relative = tb.ctxMenu.chk000.isChecked()
+		update = tb.ctxMenu.chk001.isChecked()
 
 		self.setCurrentFrame(frame, relative=relative, update=update)
 
@@ -49,7 +49,7 @@ class Animation(Slots):
 		'''
 		tb = self.sb.animation.tb001
 
-		time = tb.contextMenu.s001.value()
-		relative = tb.contextMenu.chk002.isChecked()
+		time = tb.ctxMenu.s001.value()
+		relative = tb.ctxMenu.chk002.isChecked()
 
 		self.invertSelectedKeyframes(time=time, relative=relative)

@@ -9,7 +9,7 @@ class Lighting_maya(Lighting, Slots_maya):
 	def __init__(self, *args, **kwargs):
 		super().__init__(*args, **kwargs)
 
-		cmb = self.sb.lighting.draggable_header.contextMenu.cmb000
+		cmb = self.sb.lighting.draggable_header.ctxMenu.cmb000
 		items = ['']
 		cmb.addItems_(items, '')
 
@@ -23,7 +23,7 @@ class Lighting_maya(Lighting, Slots_maya):
 	def cmb000(self, index=-1):
 		'''Editors
 		'''
-		cmb = self.sb.lighting.draggable_header.contextMenu.cmb000
+		cmb = self.sb.lighting.draggable_header.ctxMenu.cmb000
 
 		# if index>0:
 		# 	if index==cmd.items.index(''):

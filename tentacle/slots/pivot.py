@@ -10,7 +10,7 @@ class Pivot(Slots):
 	def __init__(self, *args, **kwargs):
 		'''
 		'''
-		ctx = self.sb.pivot.draggable_header.contextMenu
+		ctx = self.sb.pivot.draggable_header.ctxMenu
 		if not ctx.containsMenuItems:
 			ctx.add(self.sb.ComboBox, setObjectName='cmb000', setToolTip='')
 
@@ -25,7 +25,7 @@ class Pivot(Slots):
 		'''Center Pivot: Object
 		'''
 		tb = self.sb.pivot.tb001
-		tb.contextMenu.chk003.setChecked(True)
+		tb.ctxMenu.chk003.setChecked(True)
 		self.tb001()
 
 
@@ -33,7 +33,7 @@ class Pivot(Slots):
 		'''Center Pivot: Component
 		'''
 		tb = self.sb.pivot.tb001
-		tb.contextMenu.chk002.setChecked(True)
+		tb.ctxMenu.chk002.setChecked(True)
 		self.tb001()
 
 
@@ -41,5 +41,5 @@ class Pivot(Slots):
 		'''Center Pivot: World
 		'''
 		tb = self.sb.pivot.tb001
-		tb.contextMenu.chk004.setChecked(True)
+		tb.ctxMenu.chk004.setChecked(True)
 		self.tb001()

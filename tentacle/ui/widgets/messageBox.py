@@ -154,7 +154,7 @@ class MessageBox(QtWidgets.QMessageBox, Attributes):
 		string = self._setBackgroundColor(string, backgroundColor)
 		string = self._setFontSize(string, fontSize)
 
-		return super(MessageBox, self).setText(string)
+		super().setText(string)
 
 
 	def exec_(self):
@@ -165,7 +165,7 @@ class MessageBox(QtWidgets.QMessageBox, Attributes):
 		self._tick()
 		self.timer.start()
 
-		return super(MessageBox, self).exec_()
+		super().exec_()
 
 
 	def showEvent(self, event):
@@ -175,7 +175,7 @@ class MessageBox(QtWidgets.QMessageBox, Attributes):
 		'''
 		self.move_(self.location)
 
-		return QtWidgets.QMessageBox.showEvent(self, event)
+		QtWidgets.QMessageBox.showEvent(self, event)
 
 
 	def hideEvent(self, event):
@@ -184,7 +184,7 @@ class MessageBox(QtWidgets.QMessageBox, Attributes):
 			event=<QEvent>
 		'''
 
-		return QtWidgets.QMessageBox.hideEvent(self, event)
+		QtWidgets.QMessageBox.hideEvent(self, event)
 
 
 

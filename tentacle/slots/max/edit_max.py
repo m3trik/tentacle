@@ -9,25 +9,25 @@ class Edit_max(Edit, Slots_max):
 	def __init__(self, *args, **kwargs):
 		super().__init__(*args, **kwargs)
 
-		cmb = self.sb.edit.draggable_header.contextMenu.cmb000
+		cmb = self.sb.edit.draggable_header.ctxMenu.cmb000
 		items = []
 		cmb.addItems_(items, 'Max Editors')
 
-		ctx = self.sb.edit.tb000.contextMenu
+		ctx = self.sb.edit.tb000.ctxMenu
 		if not ctx.containsMenuItems:
 			ctx.add('QCheckBox', setText='N-Gons', setObjectName='chk002', setToolTip='Find N-gons.')
 			ctx.add('QCheckBox', setText='Isolated Vertex', setObjectName='chk003', setChecked=True, setToolTip='Find isolated vertices within specified angle threshold.')
 			ctx.add('QSpinBox', setPrefix='Loose Vertex Angle: ', setObjectName='s006', setMinMax_='1-360 step1', setValue=15, setToolTip='Loose vertex search: Angle Threshold.')
 			ctx.add('QCheckBox', setText='Repair', setObjectName='chk004', setToolTip='Repair matching geometry. (else: select)')
 
-		ctx = self.sb.edit.tb002.contextMenu
+		ctx = self.sb.edit.tb002.ctxMenu
 		ctx.chk000.setDisabled(True) #disable: Delete Edge Ring.
 
 
 	def cmb000(self, index=-1):
 		'''Editors
 		'''
-		cmb = self.sb.edit.draggable_header.contextMenu.cmb000
+		cmb = self.sb.edit.draggable_header.ctxMenu.cmb000
 
 		if index>0:
 			text = cmb.items[index]
@@ -63,10 +63,10 @@ class Edit_max(Edit, Slots_max):
 		'''
 		tb = self.sb.edit.tb000
 
-		isolatedVerts = tb.contextMenu.chk003.isChecked() #isolated vertices
-		edgeAngle = tb.contextMenu.s006.value()
-		nGons = tb.contextMenu.chk002.isChecked() #n-sided polygons
-		repair = tb.contextMenu.chk004.isChecked() #attempt auto repair errors
+		isolatedVerts = tb.ctxMenu.chk003.isChecked() #isolated vertices
+		edgeAngle = tb.ctxMenu.s006.value()
+		nGons = tb.ctxMenu.chk002.isChecked() #n-sided polygons
+		repair = tb.ctxMenu.chk004.isChecked() #attempt auto repair errors
 
 		self.meshCleanup(isolatedVerts=isolatedVerts, edgeAngle=edgeAngle, nGons=nGons, repair=repair)
 
@@ -76,9 +76,9 @@ class Edit_max(Edit, Slots_max):
 		'''
 		tb = self.sb.edit.tb001
 
-		all_ = tb.contextMenu.chk018.isChecked()
-		unusedNodes = tb.contextMenu.chk019.isChecked()
-		deformers = tb.contextMenu.chk020.isChecked()
+		all_ = tb.ctxMenu.chk018.isChecked()
+		unusedNodes = tb.ctxMenu.chk019.isChecked()
+		deformers = tb.ctxMenu.chk020.isChecked()
 
 		objects = pm.ls(selection=1)
 		if all_:
@@ -298,7 +298,7 @@ class Edit_max(Edit, Slots_max):
 		tb = self.sb.edit.tb003
 
 		# selection = pm.ls(sl=1, objectsOnly=1)
-		# axis = self.sb.getAxisFromCheckBoxes('chk006-9', tb.contextMenu)
+		# axis = self.sb.getAxisFromCheckBoxes('chk006-9', tb.ctxMenu)
 
 		# pm.undoInfo(openChunk=1)
 		# for obj in selection:

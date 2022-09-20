@@ -10,12 +10,12 @@ class Edit_blender(Edit, Slots_blender):
 		Slots_blender.__init__(self, *args, **kwargs)
 		Edit.__init__(self, *args, **kwargs)
 
-		cmb = self.sb.edit.draggable_header.contextMenu.cmb000
+		cmb = self.sb.edit.draggable_header.ctxMenu.cmb000
 		items = ['Cleanup', 'Transfer: Attribute Values', 'Transfer: Shading Sets']
 		cmb.addItems_(items, 'Maya Editors')
 
 
-		ctx = self.sb.edit.tb000.contextMenu
+		ctx = self.sb.edit.tb000.ctxMenu
 		if not ctx.containsMenuItems:
 			ctx.add('QCheckBox', setText='All Geometry', setObjectName='chk005', setToolTip='Clean All scene geometry.')
 			ctx.add('QCheckBox', setText='Repair', setObjectName='chk004', setToolTip='Repair matching geometry. Else, select only.') #add(self.sb.CheckBox, setText='Select Only', setObjectName='chk004', setTristate=True, setCheckState_=2, setToolTip='Select and/or Repair matching geometry. <br>0: Repair Only<br>1: Repair and Select<br>2: Select Only')
@@ -46,7 +46,7 @@ class Edit_blender(Edit, Slots_blender):
 	def cmb000(self, index=-1):
 		'''Editors
 		'''
-		cmb = self.sb.edit.draggable_header.contextMenu.cmb000
+		cmb = self.sb.edit.draggable_header.ctxMenu.cmb000
 
 		if index>0:
 			text = cmb.items[index]
@@ -83,29 +83,29 @@ class Edit_blender(Edit, Slots_blender):
 		'''
 		tb = self.sb.edit.tb000
 
-		allMeshes = int(tb.contextMenu.chk005.isChecked()) #[0] All selectable meshes
-		repair = tb.contextMenu.chk004.isChecked() #repair or select only
+		allMeshes = int(tb.ctxMenu.chk005.isChecked()) #[0] All selectable meshes
+		repair = tb.ctxMenu.chk004.isChecked() #repair or select only
 		historyOn = 1 #[2] keep construction history
-		quads = int(tb.contextMenu.chk010.isChecked()) #[3] check for quads polys
-		nsided = int(tb.contextMenu.chk002.isChecked()) #[4] check for n-sided polys
-		concave = int(tb.contextMenu.chk011.isChecked()) #[5] check for concave polys
-		holed = int(tb.contextMenu.chk012.isChecked()) #[6] check for holed polys
-		nonplanar = int(tb.contextMenu.chk003.isChecked()) #[7] check for non-planar polys
-		zeroGeom = int(tb.contextMenu.chk013.isChecked()) #[8] check for 0 area faces
-		zeroGeomTol = tb.contextMenu.s006.value() #[9] tolerance for face areas
-		zeroEdge = int(tb.contextMenu.chk014.isChecked()) #[10] check for 0 length edges
-		zeroEdgeTol = tb.contextMenu.s007.value() #[11] tolerance for edge length
-		zeroMap = int(tb.contextMenu.chk015.isChecked()) #[12] check for 0 uv face area
-		zeroMapTol = tb.contextMenu.s008.value() #[13] tolerance for uv face areas
-		sharedUVs = int(tb.contextMenu.chk016.isChecked()) #[14] Unshare uvs that are shared across vertices
-		nonmanifold = int(tb.contextMenu.chk017.isChecked()) #[15] check for nonmanifold polys
-		lamina = -int(tb.contextMenu.chk018.isChecked()) #[16] check for lamina polys [default -1]
-		splitNonManifoldVertex = tb.contextMenu.chk021.isChecked()
-		invalidComponents = 0 #int(tb.contextMenu.chk019.isChecked()) #[17] a guess what this arg does. not checked. default is 0.
-		overlappingDuplicateObjects = tb.contextMenu.chk022.isChecked() #find overlapping geometry at object level.
-		omitSelectedObjects = tb.contextMenu.chk023.isChecked() #Search for duplicates of any selected objects while omitting the initially selected objects.
+		quads = int(tb.ctxMenu.chk010.isChecked()) #[3] check for quads polys
+		nsided = int(tb.ctxMenu.chk002.isChecked()) #[4] check for n-sided polys
+		concave = int(tb.ctxMenu.chk011.isChecked()) #[5] check for concave polys
+		holed = int(tb.ctxMenu.chk012.isChecked()) #[6] check for holed polys
+		nonplanar = int(tb.ctxMenu.chk003.isChecked()) #[7] check for non-planar polys
+		zeroGeom = int(tb.ctxMenu.chk013.isChecked()) #[8] check for 0 area faces
+		zeroGeomTol = tb.ctxMenu.s006.value() #[9] tolerance for face areas
+		zeroEdge = int(tb.ctxMenu.chk014.isChecked()) #[10] check for 0 length edges
+		zeroEdgeTol = tb.ctxMenu.s007.value() #[11] tolerance for edge length
+		zeroMap = int(tb.ctxMenu.chk015.isChecked()) #[12] check for 0 uv face area
+		zeroMapTol = tb.ctxMenu.s008.value() #[13] tolerance for uv face areas
+		sharedUVs = int(tb.ctxMenu.chk016.isChecked()) #[14] Unshare uvs that are shared across vertices
+		nonmanifold = int(tb.ctxMenu.chk017.isChecked()) #[15] check for nonmanifold polys
+		lamina = -int(tb.ctxMenu.chk018.isChecked()) #[16] check for lamina polys [default -1]
+		splitNonManifoldVertex = tb.ctxMenu.chk021.isChecked()
+		invalidComponents = 0 #int(tb.ctxMenu.chk019.isChecked()) #[17] a guess what this arg does. not checked. default is 0.
+		overlappingDuplicateObjects = tb.ctxMenu.chk022.isChecked() #find overlapping geometry at object level.
+		omitSelectedObjects = tb.ctxMenu.chk023.isChecked() #Search for duplicates of any selected objects while omitting the initially selected objects.
 
-		# if tb.contextMenu.chk005.isChecked(): #All Geometry. Select components for cleanup from all visible geometry in the scene
+		# if tb.ctxMenu.chk005.isChecked(): #All Geometry. Select components for cleanup from all visible geometry in the scene
 		# 	scene = pm.ls(visible=1, geometry=1)
 		# 	[pm.select (geometry, add=1) for geometry in scene]
 
@@ -137,9 +137,9 @@ class Edit_blender(Edit, Slots_blender):
 		'''
 		tb = self.sb.edit.tb001
 
-		all_ = tb.contextMenu.chk018.isChecked()
-		unusedNodes = tb.contextMenu.chk019.isChecked()
-		deformers = tb.contextMenu.chk020.isChecked()
+		all_ = tb.ctxMenu.chk018.isChecked()
+		unusedNodes = tb.ctxMenu.chk019.isChecked()
+		deformers = tb.ctxMenu.chk020.isChecked()
 		objects = pm.ls(selection=1, objectsOnly=1) if not all_ else pm.ls(typ="mesh")
 
 		try: #delete history
@@ -170,8 +170,8 @@ class Edit_blender(Edit, Slots_blender):
 		'''
 		tb = self.sb.edit.tb002
 
-		deleteRing = tb.contextMenu.chk000.isChecked()
-		deleteLoop = tb.contextMenu.chk001.isChecked()
+		deleteRing = tb.ctxMenu.chk000.isChecked()
+		deleteLoop = tb.ctxMenu.chk001.isChecked()
 
 		# selectionMask = pm.selectMode (query=True, component=True)
 		maskVertex = pm.selectType (query=True, vertex=True)
@@ -207,7 +207,7 @@ class Edit_blender(Edit, Slots_blender):
 		'''
 		tb = self.sb.edit.tb003
 
-		axis = self.sb.getAxisFromCheckBoxes('chk006-9', tb.contextMenu)
+		axis = self.sb.getAxisFromCheckBoxes('chk006-9', tb.ctxMenu)
 
 		pm.undoInfo(openChunk=1)
 		objects = pm.ls(sl=1, objectsOnly=1)

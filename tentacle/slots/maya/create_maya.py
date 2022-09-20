@@ -9,11 +9,11 @@ class Create_maya(Create, Slots_maya):
 	def __init__(self, *args, **kwargs):
 		super().__init__(*args, **kwargs)
 
-		ctx = self.sb.create.draggable_header.contextMenu
+		ctx = self.sb.create.draggable_header.ctxMenu
 		if not ctx.containsMenuItems:
 			ctx.add(self.sb.ComboBox, setObjectName='cmb000', setToolTip='')
 
-		cmb = self.sb.create.draggable_header.contextMenu.cmb000
+		cmb = self.sb.create.draggable_header.ctxMenu.cmb000
 		items = ['']
 		cmb.addItems_(items, '')
 
@@ -25,7 +25,7 @@ class Create_maya(Create, Slots_maya):
 		items = ["Cube", "Sphere", "Cylinder", "Plane", "Circle", "Cone", "Pyramid", "Torus", "Tube", "GeoSphere", "Platonic Solids", "Text"]
 		cmb.addItems_(items)
 
-		ctx = self.sb.create.tb000.contextMenu
+		ctx = self.sb.create.tb000.ctxMenu
 		if not ctx.containsMenuItems:
 			ctx.add('QCheckBox', setText='Translate', setObjectName='chk000', setChecked=True, setToolTip='Move the created object to the center point of any selected object(s).')
 			ctx.add('QCheckBox', setText='Scale', setObjectName='chk001', setChecked=True, setToolTip='Uniformly scale the created object to match the averaged scale of any selected object(s).')
@@ -34,7 +34,7 @@ class Create_maya(Create, Slots_maya):
 	def cmb000(self, index=-1):
 		'''Editors
 		'''
-		cmb = self.sb.create.draggable_header.contextMenu.cmb000
+		cmb = self.sb.create.draggable_header.ctxMenu.cmb000
 
 		if index>0:
 			text = cmb.items[index]
@@ -80,8 +80,8 @@ class Create_maya(Create, Slots_maya):
 		axis = [0,90,0]
 		type_ = self.sb.create.cmb001.currentText()
 		index = self.sb.create.cmb002.currentIndex()
-		translate = tb.contextMenu.chk000.isChecked()
-		scale = tb.contextMenu.chk001.isChecked()
+		translate = tb.ctxMenu.chk000.isChecked()
+		scale = tb.ctxMenu.chk001.isChecked()
 
 		selection = pm.ls(selection=1, transforms=1)
 

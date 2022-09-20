@@ -11,9 +11,9 @@ class Create(Slots):
 		'''
 		'''
 		dh = self.sb.create.draggable_header
-		dh.contextMenu.add(self.sb.ComboBox, setObjectName='cmb000', setToolTip='')
+		dh.ctxMenu.add(self.sb.ComboBox, setObjectName='cmb000', setToolTip='')
 
-		cmb000 = self.sb.create.draggable_header.contextMenu.cmb000
+		cmb000 = self.sb.create.draggable_header.ctxMenu.cmb000
 		items = ['']
 		cmb000.addItems_(items, '')
 
@@ -26,8 +26,8 @@ class Create(Slots):
 		cmb002.addItems_(items)
 
 		tb000 = self.sb.create.tb000
-		tb000.contextMenu.add('QCheckBox', setText='Translate', setObjectName='chk000', setChecked=True, setToolTip='Move the created object to the center point of any selected object(s).')
-		tb000.contextMenu.add('QCheckBox', setText='Scale', setObjectName='chk001', setChecked=True, setToolTip='Uniformly scale the created object to match the averaged scale of any selected object(s).')
+		tb000.ctxMenu.add('QCheckBox', setText='Translate', setObjectName='chk000', setChecked=True, setToolTip='Move the created object to the center point of any selected object(s).')
+		tb000.ctxMenu.add('QCheckBox', setText='Scale', setObjectName='chk001', setChecked=True, setToolTip='Uniformly scale the created object to match the averaged scale of any selected object(s).')
 
 
 	def draggable_header(self, state=None):

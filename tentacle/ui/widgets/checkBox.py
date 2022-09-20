@@ -69,10 +69,10 @@ class CheckBox(QtWidgets.QCheckBox, MenuInstance, Attributes, RichText):
 			(QEvent)
 		'''
 		if event.button()==QtCore.Qt.RightButton:
-			if self.contextMenu:
-				self.contextMenu.show()
+			if self.ctxMenu:
+				self.ctxMenu.show()
 
-		return QtWidgets.QCheckBox.mousePressEvent(self, event)
+		QtWidgets.QCheckBox.mousePressEvent(self, event)
 
 
 

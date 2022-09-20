@@ -10,7 +10,7 @@ class Uv_blender(Uv, Slots_blender):
 		Slots_blender.__init__(self, *args, **kwargs)
 		Uv.__init__(self, *args, **kwargs)
 
-		cmb000 = self.sb.uv.draggable_header.contextMenu.cmb000
+		cmb000 = self.sb.uv.draggable_header.ctxMenu.cmb000
 		items = []
 		cmb000.addItems_(items, 'UV Editors')
 
@@ -25,22 +25,22 @@ class Uv_blender(Uv, Slots_blender):
 		cmb002.addItems_(items, 'Transform:')
 
 		tb000 = self.sb.uv.tb000
-		tb000.contextMenu.add('QSpinBox', setPrefix='Pre-Scale Mode: ', setObjectName='s009', setMinMax_='0-2 step1', setValue=1, setToolTip='Allow shell scaling during packing.')
-		tb000.contextMenu.add('QSpinBox', setPrefix='Pre-Rotate Mode: ', setObjectName='s010', setMinMax_='0-2 step1', setValue=1, setToolTip='Allow shell rotation during packing.')
-		tb000.contextMenu.add('QDoubleSpinBox', setPrefix='Rotate Step: ', setObjectName='s007', setMinMax_='0.0-360 step22.5', setValue=22.5, setToolTip='Set the allowed rotation increment contraint.')
-		tb000.contextMenu.add('QSpinBox', setPrefix='Stack Similar: ', setObjectName='s011', setMinMax_='0-2 step1', setValue=0, setToolTip='Find Similar shells. <br>state 1: Find similar shells, and pack one of each, ommiting the rest.<br>state 2: Find similar shells, and stack during packing.')
-		tb000.contextMenu.add('QDoubleSpinBox', setPrefix='Tolerance: ', setObjectName='s006', setMinMax_='0.0-10 step.1', setValue=1.0, setToolTip='Stack Similar: Stack shells with uv\'s within the given range.')
-		tb000.contextMenu.add('QSpinBox', setPrefix='UDIM: ', setObjectName='s004', setMinMax_='1001-1200 step1', setValue=1001, setToolTip='Set the desired UDIM tile space.')
-		tb000.contextMenu.add('QSpinBox', setPrefix='Map Size: ', setObjectName='s005', setMinMax_='512-8192 step512', setValue=2048, setToolTip='UV map resolution.')
+		tb000.ctxMenu.add('QSpinBox', setPrefix='Pre-Scale Mode: ', setObjectName='s009', setMinMax_='0-2 step1', setValue=1, setToolTip='Allow shell scaling during packing.')
+		tb000.ctxMenu.add('QSpinBox', setPrefix='Pre-Rotate Mode: ', setObjectName='s010', setMinMax_='0-2 step1', setValue=1, setToolTip='Allow shell rotation during packing.')
+		tb000.ctxMenu.add('QDoubleSpinBox', setPrefix='Rotate Step: ', setObjectName='s007', setMinMax_='0.0-360 step22.5', setValue=22.5, setToolTip='Set the allowed rotation increment contraint.')
+		tb000.ctxMenu.add('QSpinBox', setPrefix='Stack Similar: ', setObjectName='s011', setMinMax_='0-2 step1', setValue=0, setToolTip='Find Similar shells. <br>state 1: Find similar shells, and pack one of each, ommiting the rest.<br>state 2: Find similar shells, and stack during packing.')
+		tb000.ctxMenu.add('QDoubleSpinBox', setPrefix='Tolerance: ', setObjectName='s006', setMinMax_='0.0-10 step.1', setValue=1.0, setToolTip='Stack Similar: Stack shells with uv\'s within the given range.')
+		tb000.ctxMenu.add('QSpinBox', setPrefix='UDIM: ', setObjectName='s004', setMinMax_='1001-1200 step1', setValue=1001, setToolTip='Set the desired UDIM tile space.')
+		tb000.ctxMenu.add('QSpinBox', setPrefix='Map Size: ', setObjectName='s005', setMinMax_='512-8192 step512', setValue=2048, setToolTip='UV map resolution.')
 
 		tb007 = self.sb.uv.tb007
-		# tb007.contextMenu.b099.released.connect(lambda: tb007.contextMenu.s003.setValue(float(pm.mel.texGetTexelDensity(tb007.contextMenu.s002.value())))) #get and set texel density value.
+		# tb007.ctxMenu.b099.released.connect(lambda: tb007.ctxMenu.s003.setValue(float(pm.mel.texGetTexelDensity(tb007.ctxMenu.s002.value())))) #get and set texel density value.
 
 
 	def cmb000(self, index=-1):
 		'''Editors
 		'''
-		cmb = self.sb.uv.draggable_header.contextMenu.cmb000
+		cmb = self.sb.uv.draggable_header.ctxMenu.cmb000
 
 		if index>0: #hide tentacle then perform operation
 			text = cmb.items[index]
@@ -152,13 +152,13 @@ class Uv_blender(Uv, Slots_blender):
 		'''
 		tb = self.sb.uv.tb000
 
-		scale = tb.contextMenu.s009.value()
-		rotate = tb.contextMenu.s010.value()
-		rotateStep = tb.contextMenu.s007.value()
-		UDIM = tb.contextMenu.s004.value()
-		mapSize = tb.contextMenu.s005.value()
-		similar = tb.contextMenu.s011.value()
-		tolerance = tb.contextMenu.s006.value()
+		scale = tb.ctxMenu.s009.value()
+		rotate = tb.ctxMenu.s010.value()
+		rotateStep = tb.ctxMenu.s007.value()
+		UDIM = tb.ctxMenu.s004.value()
+		mapSize = tb.ctxMenu.s005.value()
+		similar = tb.ctxMenu.s011.value()
+		tolerance = tb.ctxMenu.s006.value()
 
 		U,D,I,M = [int(i) for i in str(UDIM)]
 
@@ -184,13 +184,13 @@ class Uv_blender(Uv, Slots_blender):
 		'''
 		tb = self.sb.uv.tb001
 
-		standardUnwrap = tb.contextMenu.chk000.isChecked()
-		scaleMode = tb.contextMenu.chk001.isChecked()
-		seamOnly = tb.contextMenu.chk002.isChecked()
-		planarUnwrap = tb.contextMenu.chk003.isChecked()
-		cylindricalUnwrap = tb.contextMenu.chk004.isChecked()
-		sphericalUnwrap = tb.contextMenu.chk005.isChecked()
-		normalBasedUnwrap = tb.contextMenu.chk006.isChecked()
+		standardUnwrap = tb.ctxMenu.chk000.isChecked()
+		scaleMode = tb.ctxMenu.chk001.isChecked()
+		seamOnly = tb.ctxMenu.chk002.isChecked()
+		planarUnwrap = tb.ctxMenu.chk003.isChecked()
+		cylindricalUnwrap = tb.ctxMenu.chk004.isChecked()
+		sphericalUnwrap = tb.ctxMenu.chk005.isChecked()
+		normalBasedUnwrap = tb.ctxMenu.chk006.isChecked()
 
 		selection = pm.ls(selection=1, flatten=1)
 		for obj in selection:
@@ -232,9 +232,9 @@ class Uv_blender(Uv, Slots_blender):
 		'''
 		tb = self.sb.uv.tb002
 
-		orient = tb.contextMenu.chk021.isChecked()
-		stackSimilar = tb.contextMenu.chk022.isChecked()
-		tolerance = tb.contextMenu.s000.value()
+		orient = tb.ctxMenu.chk021.isChecked()
+		stackSimilar = tb.ctxMenu.chk022.isChecked()
+		tolerance = tb.ctxMenu.s000.value()
 		sel = self.UvShellSelection() #assure the correct selection mask.
 
 		if stackSimilar:
@@ -250,12 +250,12 @@ class Uv_blender(Uv, Slots_blender):
 		'''
 		tb = self.sb.uv.tb003
 
-		back_facing = tb.contextMenu.chk008.isChecked()
-		front_facing = tb.contextMenu.chk009.isChecked()
-		overlapping = tb.contextMenu.chk010.isChecked()
-		nonOverlapping = tb.contextMenu.chk011.isChecked()
-		textureBorders = tb.contextMenu.chk012.isChecked()
-		unmapped = tb.contextMenu.chk013.isChecked()
+		back_facing = tb.ctxMenu.chk008.isChecked()
+		front_facing = tb.ctxMenu.chk009.isChecked()
+		overlapping = tb.ctxMenu.chk010.isChecked()
+		nonOverlapping = tb.ctxMenu.chk011.isChecked()
+		textureBorders = tb.ctxMenu.chk012.isChecked()
+		unmapped = tb.ctxMenu.chk013.isChecked()
 
 		if back_facing:
 			pm.mel.selectUVFaceOrientationComponents({}, 0, 2, 1)
@@ -295,8 +295,8 @@ class Uv_blender(Uv, Slots_blender):
 		'''
 		tb = self.sb.uv.tb004
 
-		optimize = tb.contextMenu.chk017.isChecked()
-		amount = 1#tb.contextMenu.s008.value()
+		optimize = tb.ctxMenu.chk017.isChecked()
+		amount = 1#tb.ctxMenu.s008.value()
 
 		pm.u3dUnfold(iterations=1, pack=0, borderintersection=1, triangleflip=1, mapsize=2048, roomspace=0) #pm.mel.performUnfold(0)
 
@@ -309,10 +309,10 @@ class Uv_blender(Uv, Slots_blender):
 		'''
 		tb = self.sb.uv.tb005
 
-		u = tb.contextMenu.chk018.isChecked()
-		v = tb.contextMenu.chk019.isChecked()
-		angle = tb.contextMenu.s001.value()
-		straightenShell = tb.contextMenu.chk020.isChecked()
+		u = tb.ctxMenu.chk018.isChecked()
+		v = tb.ctxMenu.chk019.isChecked()
+		angle = tb.ctxMenu.s001.value()
+		straightenShell = tb.ctxMenu.chk020.isChecked()
 
 		if u and v:
 			pm.mel.texStraightenUVs('UV', angle)
@@ -330,8 +330,8 @@ class Uv_blender(Uv, Slots_blender):
 		'''
 		tb = self.sb.uv.tb006
 
-		u = tb.contextMenu.chk023.isChecked()
-		v = tb.contextMenu.chk024.isChecked()
+		u = tb.ctxMenu.chk023.isChecked()
+		v = tb.ctxMenu.chk024.isChecked()
 		
 		if u:
 			pm.mel.texDistributeShells(0, 0, "right", []) #'left', 'right'
@@ -344,8 +344,8 @@ class Uv_blender(Uv, Slots_blender):
 		'''
 		tb = self.sb.uv.tb007
 
-		mapSize = tb.contextMenu.s002.value()
-		density = tb.contextMenu.s003.value()
+		mapSize = tb.ctxMenu.s002.value()
+		density = tb.ctxMenu.s003.value()
 
 		pm.mel.texSetTexelDensity(density, mapSize)
 

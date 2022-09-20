@@ -9,7 +9,7 @@ class Duplicate_max(Duplicate, Slots_max):
 	def __init__(self, *args, **kwargs):
 		super().__init__(*args, **kwargs)
 
-		cmb = self.sb.duplicate.draggable_header.contextMenu.cmb000
+		cmb = self.sb.duplicate.draggable_header.ctxMenu.cmb000
 		items = ['Duplicate Special']
 		cmb.addItems_(items, 'Maya Menus')
 
@@ -17,7 +17,7 @@ class Duplicate_max(Duplicate, Slots_max):
 	def cmb000(self, index=-1):
 		'''Editors
 		'''
-		cmb = self.sb.duplicate.draggable_header.contextMenu.cmb000
+		cmb = self.sb.duplicate.draggable_header.ctxMenu.cmb000
 
 		if index>0:
 			text = cmb.items[index]

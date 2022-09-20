@@ -9,7 +9,7 @@ class Scripting_maya(Scripting, Slots_maya):
 	def __init__(self, *args, **kwargs):
 		super().__init__(*args, **kwargs)
 
-		cmb = self.sb.scripting.draggable_header.contextMenu.cmb000
+		cmb = self.sb.scripting.draggable_header.ctxMenu.cmb000
 		files = ['']
 		contents = cmb.addItems_(files, '')
 
@@ -17,7 +17,7 @@ class Scripting_maya(Scripting, Slots_maya):
 	def cmb000(self, index=-1):
 		'''Editors
 		'''
-		cmb = self.sb.scripting.draggable_header.contextMenu.cmb000
+		cmb = self.sb.scripting.draggable_header.ctxMenu.cmb000
 
 		if index>0:
 			if index==cmd.items.index(''):

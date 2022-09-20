@@ -36,16 +36,16 @@ class LineEdit(QtWidgets.QLineEdit, MenuInstance, Attributes):
 		self.setAttributes(**kwargs)
 
 
-	def contextMenuEvent(self, event):
+	def ctxMenuEvent(self, event):
 		'''Override the standard context menu if there is a custom one.
 
 		:Parameters:
 			event=<QEvent>
 		'''
-		if self.contextMenu:
-			self.contextMenu.show()
+		if self.ctxMenu:
+			self.ctxMenu.show()
 		else:
-			return QtWidgets.QLineEdit.contextMenuEvent(self, event)
+			QtWidgets.QLineEdit.ctxMenuEvent(self, event)
 
 
 	def showEvent(self, event):
@@ -55,7 +55,7 @@ class LineEdit(QtWidgets.QLineEdit, MenuInstance, Attributes):
 		'''
 		self.shown.emit()
 
-		return QtWidgets.QLineEdit.showEvent(self, event)
+		QtWidgets.QLineEdit.showEvent(self, event)
 
 
 	def hideEvent(self, event):
@@ -65,7 +65,7 @@ class LineEdit(QtWidgets.QLineEdit, MenuInstance, Attributes):
 		'''
 		self.hidden.emit()
 
-		return QtWidgets.QLineEdit.hideEvent(self, event)
+		QtWidgets.QLineEdit.hideEvent(self, event)
 
 
 

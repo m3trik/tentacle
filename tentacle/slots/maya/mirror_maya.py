@@ -9,7 +9,7 @@ class Mirror_maya(Mirror, Slots_maya):
 	def __init__(self, *args, **kwargs):
 		super().__init__(*args, **kwargs)
 
-		cmb = self.sb.mirror.draggable_header.contextMenu.cmb000
+		cmb = self.sb.mirror.draggable_header.ctxMenu.cmb000
 		items = ['']
 		cmb.addItems_(items, '')
 
@@ -17,7 +17,7 @@ class Mirror_maya(Mirror, Slots_maya):
 	def cmb000(self, index=-1):
 		'''Editors
 		'''
-		cmb = self.sb.mirror.draggable_header.contextMenu.cmb000
+		cmb = self.sb.mirror.draggable_header.ctxMenu.cmb000
 
 		if index>0:
 			if index==cmd.items.index(''):
@@ -31,16 +31,16 @@ class Mirror_maya(Mirror, Slots_maya):
 		'''
 		tb = self.sb.mirror.tb000
 
-		axis = self.sb.getAxisFromCheckBoxes('chk000-3', tb.contextMenu)
-		axisPivot = 2 if tb.contextMenu.chk008.isChecked() else 1 #1) object space, 2) world space.
-		cutMesh = tb.contextMenu.chk005.isChecked() #cut mesh on axis before mirror.
-		uninstance = tb.contextMenu.chk009.isChecked() #Un-Instance any previously instanced objects before mirroring.
-		instance = tb.contextMenu.chk004.isChecked()
-		merge = tb.contextMenu.chk007.isChecked()
-		mergeMode = tb.contextMenu.s001.value()
-		mergeThreshold = tb.contextMenu.s000.value()
-		deleteOriginal = tb.contextMenu.chk010.isChecked() #delete the original objects after mirroring.
-		deleteHistory = tb.contextMenu.chk006.isChecked() #delete the object's non-deformer history.
+		axis = self.sb.getAxisFromCheckBoxes('chk000-3', tb.ctxMenu)
+		axisPivot = 2 if tb.ctxMenu.chk008.isChecked() else 1 #1) object space, 2) world space.
+		cutMesh = tb.ctxMenu.chk005.isChecked() #cut mesh on axis before mirror.
+		uninstance = tb.ctxMenu.chk009.isChecked() #Un-Instance any previously instanced objects before mirroring.
+		instance = tb.ctxMenu.chk004.isChecked()
+		merge = tb.ctxMenu.chk007.isChecked()
+		mergeMode = tb.ctxMenu.s001.value()
+		mergeThreshold = tb.ctxMenu.s000.value()
+		deleteOriginal = tb.ctxMenu.chk010.isChecked() #delete the original objects after mirroring.
+		deleteHistory = tb.ctxMenu.chk006.isChecked() #delete the object's non-deformer history.
 
 		objects = pm.ls(sl=1)
 
@@ -53,21 +53,21 @@ class Mirror_maya(Mirror, Slots_maya):
 	def b000(self):
 		'''Mirror: X
 		'''
-		self.sb.mirror.tb000.contextMenu.chk001.setChecked(True)
+		self.sb.mirror.tb000.ctxMenu.chk001.setChecked(True)
 		self.tb000()
 
 
 	def b001(self):
 		'''Mirror: Y
 		'''
-		self.sb.mirror.tb000.contextMenu.chk002.setChecked(True)
+		self.sb.mirror.tb000.ctxMenu.chk002.setChecked(True)
 		self.tb000()
 
 
 	def b002(self):
 		'''Mirror: Z
 		'''
-		self.sb.mirror.tb000.contextMenu.chk003.setChecked(True)
+		self.sb.mirror.tb000.ctxMenu.chk003.setChecked(True)
 		self.tb000()
 
 

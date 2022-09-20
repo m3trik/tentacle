@@ -9,7 +9,7 @@ class Uv_max(Uv, Slots_max):
 	def __init__(self, *args, **kwargs):
 		super().__init__(*args, **kwargs)
 
-		cmb000 = self.sb.uv.draggable_header.contextMenu.cmb000
+		cmb000 = self.sb.uv.draggable_header.ctxMenu.cmb000
 		items = ['UV Editor','UV Set Editor','UV Tool Kit','UV Linking: Texture-Centric','UV Linking: UV-Centric','UV Linking: Paint Effects/UV','UV Linking: Hair/UV']
 		cmb000.addItems_(items, '3dsMax UV Editors')
 
@@ -18,21 +18,21 @@ class Uv_max(Uv, Slots_max):
 		cmb002.addItems_(items, 'Transform:')
 
 		tb000 = self.sb.uv.tb000
-		tb000.contextMenu.add('QSpinBox', setPrefix='Pre-Scale Mode: ', setObjectName='s009', setMinMax_='0-1 step1', setValue=1, setToolTip='Allow shell scaling during packing.')
-		tb000.contextMenu.add('QSpinBox', setPrefix='Pre-Rotate Mode: ', setObjectName='s010', setMinMax_='0-1 step1', setValue=1, setToolTip='Allow shell rotation during packing.')
+		tb000.ctxMenu.add('QSpinBox', setPrefix='Pre-Scale Mode: ', setObjectName='s009', setMinMax_='0-1 step1', setValue=1, setToolTip='Allow shell scaling during packing.')
+		tb000.ctxMenu.add('QSpinBox', setPrefix='Pre-Rotate Mode: ', setObjectName='s010', setMinMax_='0-1 step1', setValue=1, setToolTip='Allow shell rotation during packing.')
 
 		tb001 = self.sb.uv.tb001
-		tb001.contextMenu.add('QRadioButton', setText='Standard', setObjectName='chk000', setChecked=True, setToolTip='Create UV texture coordinates for the selected object or faces by automatically finding the best UV placement using simultanious projections from multiple planes.')
-		tb001.contextMenu.add('QCheckBox', setText='Scale Mode 1', setObjectName='chk001', setTristate=True, setChecked=True, setToolTip='0 - No scale is applied.<br>1 - Uniform scale to fit in unit square.<br>2 - Non proportional scale to fit in unit square.')
-		tb001.contextMenu.add('QRadioButton', setText='Seam Only', setObjectName='chk002', setToolTip='Cut seams only.')
-		tb001.contextMenu.add('QRadioButton', setText='Planar', setObjectName='chk003', setToolTip='Create UV texture coordinates for the current selection by using a planar projection shape.')
-		tb001.contextMenu.add('QRadioButton', setText='Cylindrical', setObjectName='chk004', setToolTip='Create UV texture coordinates for the current selection, using a cylidrical projection that gets wrapped around the mesh.<br>Best suited for completely enclosed cylidrical shapes with no holes or projections on the surface.')
-		tb001.contextMenu.add('QRadioButton', setText='Spherical', setObjectName='chk005', setToolTip='Create UV texture coordinates for the current selection, using a spherical projection that gets wrapped around the mesh.<br>Best suited for completely enclosed spherical shapes with no holes or projections on the surface.')
-		tb001.contextMenu.add('QRadioButton', setText='Normal-Based', setObjectName='chk006', setToolTip='Create UV texture coordinates for the current selection by creating a planar projection based on the average vector of it\'s face normals.')
-		# tb001.contextMenu.chk001.toggled.connect(lambda state: self.sb.toggleWidgets(tb001.contextMenu, setUnChecked='chk002-3') if state==1 else None)
+		tb001.ctxMenu.add('QRadioButton', setText='Standard', setObjectName='chk000', setChecked=True, setToolTip='Create UV texture coordinates for the selected object or faces by automatically finding the best UV placement using simultanious projections from multiple planes.')
+		tb001.ctxMenu.add('QCheckBox', setText='Scale Mode 1', setObjectName='chk001', setTristate=True, setChecked=True, setToolTip='0 - No scale is applied.<br>1 - Uniform scale to fit in unit square.<br>2 - Non proportional scale to fit in unit square.')
+		tb001.ctxMenu.add('QRadioButton', setText='Seam Only', setObjectName='chk002', setToolTip='Cut seams only.')
+		tb001.ctxMenu.add('QRadioButton', setText='Planar', setObjectName='chk003', setToolTip='Create UV texture coordinates for the current selection by using a planar projection shape.')
+		tb001.ctxMenu.add('QRadioButton', setText='Cylindrical', setObjectName='chk004', setToolTip='Create UV texture coordinates for the current selection, using a cylidrical projection that gets wrapped around the mesh.<br>Best suited for completely enclosed cylidrical shapes with no holes or projections on the surface.')
+		tb001.ctxMenu.add('QRadioButton', setText='Spherical', setObjectName='chk005', setToolTip='Create UV texture coordinates for the current selection, using a spherical projection that gets wrapped around the mesh.<br>Best suited for completely enclosed spherical shapes with no holes or projections on the surface.')
+		tb001.ctxMenu.add('QRadioButton', setText='Normal-Based', setObjectName='chk006', setToolTip='Create UV texture coordinates for the current selection by creating a planar projection based on the average vector of it\'s face normals.')
+		# tb001.ctxMenu.chk001.toggled.connect(lambda state: self.sb.toggleWidgets(tb001.ctxMenu, setUnChecked='chk002-3') if state==1 else None)
 
 		# tb007 = self.sb.uv.tb007
-		# tb007.contextMenu.b099.released.connect(lambda: tb007.contextMenu.s003.setValue(float(pm.mel.texGetTexelDensity(tb007.contextMenu.s002.value())))) #get and set texel density value.
+		# tb007.ctxMenu.b099.released.connect(lambda: tb007.ctxMenu.s003.setValue(float(pm.mel.texGetTexelDensity(tb007.ctxMenu.s002.value())))) #get and set texel density value.
 
 
 	@property
@@ -54,7 +54,7 @@ class Uv_max(Uv, Slots_max):
 	def cmb000(self, index=-1):
 		'''Editors
 		'''
-		cmb = self.sb.uv.draggable_header.contextMenu.cmb000
+		cmb = self.sb.uv.draggable_header.ctxMenu.cmb000
 
 		if index>0: #hide hotbox then perform operation
 			self.sb.parent().hide()
@@ -154,8 +154,8 @@ class Uv_max(Uv, Slots_max):
 		'''
 		tb = self.sb.uv.tb000
 
-		scale = tb.contextMenu.s009.value()
-		rotate = tb.contextMenu.s010.value()
+		scale = tb.ctxMenu.s009.value()
+		rotate = tb.ctxMenu.s010.value()
 
 		obj = rt.selection[0]
 
@@ -168,13 +168,13 @@ class Uv_max(Uv, Slots_max):
 		'''
 		tb = self.sb.uv.tb001
 
-		standardUnwrap = tb.contextMenu.chk000.isChecked()
-		scaleMode = tb.contextMenu.chk001.isChecked()
-		seamOnly = tb.contextMenu.chk002.isChecked()
-		planarUnwrap = tb.contextMenu.chk003.isChecked()
-		cylindricalUnwrap = tb.contextMenu.chk004.isChecked()
-		sphericalUnwrap = tb.contextMenu.chk005.isChecked()
-		normalBasedUnwrap = tb.contextMenu.chk006.isChecked()
+		standardUnwrap = tb.ctxMenu.chk000.isChecked()
+		scaleMode = tb.ctxMenu.chk001.isChecked()
+		seamOnly = tb.ctxMenu.chk002.isChecked()
+		planarUnwrap = tb.ctxMenu.chk003.isChecked()
+		cylindricalUnwrap = tb.ctxMenu.chk004.isChecked()
+		sphericalUnwrap = tb.ctxMenu.chk005.isChecked()
+		normalBasedUnwrap = tb.ctxMenu.chk006.isChecked()
 
 		objects = rt.selection
 
@@ -192,9 +192,9 @@ class Uv_max(Uv, Slots_max):
 		'''
 		tb = self.sb.uv.tb002
 
-		orient = tb.contextMenu.chk021.isChecked()
-		stackSimilar = tb.contextMenu.chk022.isChecked()
-		tolerance = tb.contextMenu.s000.value()
+		orient = tb.ctxMenu.chk021.isChecked()
+		stackSimilar = tb.ctxMenu.chk022.isChecked()
+		tolerance = tb.ctxMenu.s000.value()
 		sel = self.UvShellSelection() #assure the correct selection mask.
 
 		if stackSimilar:
@@ -210,12 +210,12 @@ class Uv_max(Uv, Slots_max):
 		'''
 		tb = self.sb.uv.tb003
 
-		back_facing = tb.contextMenu.chk008.isChecked()
-		front_facing = tb.contextMenu.chk009.isChecked()
-		overlapping = tb.contextMenu.chk010.isChecked()
-		nonOverlapping = tb.contextMenu.chk011.isChecked()
-		textureBorders = tb.contextMenu.chk012.isChecked()
-		unmapped = tb.contextMenu.chk013.isChecked()
+		back_facing = tb.ctxMenu.chk008.isChecked()
+		front_facing = tb.ctxMenu.chk009.isChecked()
+		overlapping = tb.ctxMenu.chk010.isChecked()
+		nonOverlapping = tb.ctxMenu.chk011.isChecked()
+		textureBorders = tb.ctxMenu.chk012.isChecked()
+		unmapped = tb.ctxMenu.chk013.isChecked()
 
 		if back_facing:
 			pm.mel.selectUVFaceOrientationComponents({}, 0, 2, 1)
@@ -236,7 +236,7 @@ class Uv_max(Uv, Slots_max):
 		'''
 		tb = self.sb.uv.tb004
 
-		optimize = self.tb.contextMenu.chk017.isChecked()
+		optimize = self.tb.ctxMenu.chk017.isChecked()
 
 		# if optimize:
 		# 	# self.uv_uiModifier.
@@ -249,10 +249,10 @@ class Uv_max(Uv, Slots_max):
 		'''
 		tb = self.sb.uv.tb005
 
-		u = tb.contextMenu.chk018.isChecked()
-		v = tb.contextMenu.chk019.isChecked()
-		angle = tb.contextMenu.s001.value()
-		straightenShell = tb.contextMenu.chk020.isChecked()
+		u = tb.ctxMenu.chk018.isChecked()
+		v = tb.ctxMenu.chk019.isChecked()
+		angle = tb.ctxMenu.s001.value()
+		straightenShell = tb.ctxMenu.chk020.isChecked()
 
 		# if u:
 		# 	contraint = 'U'
@@ -270,8 +270,8 @@ class Uv_max(Uv, Slots_max):
 		'''
 		tb = self.sb.uv.tb006
 
-		u = tb.contextMenu.chk023.isChecked()
-		v = tb.contextMenu.chk024.isChecked()
+		u = tb.ctxMenu.chk023.isChecked()
+		v = tb.ctxMenu.chk024.isChecked()
 		
 		if u:
 			pm.mel.texDistributeShells(0, 0, "right", []) #'left', 'right'
@@ -284,8 +284,8 @@ class Uv_max(Uv, Slots_max):
 		'''
 		tb = self.sb.uv.tb007
 
-		mapSize = tb.contextMenu.s002.value()
-		density = tb.contextMenu.s003.value()
+		mapSize = tb.ctxMenu.s002.value()
+		density = tb.ctxMenu.s003.value()
 
 		pm.mel.texSetTexelDensity(density, mapSize)
 

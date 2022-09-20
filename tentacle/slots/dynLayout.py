@@ -10,7 +10,7 @@ class DynLayout(Slots):
 	def __init__(self, *args, **kwargs):
 		'''
 		'''
-		ctx = self.sb.dynLayout.draggable_header.contextMenu
+		ctx = self.sb.dynLayout.draggable_header.ctxMenu
 		if not ctx.containsMenuItems:
 			ctx.add(self.sb.ComboBox, setObjectName='cmb000', setToolTip='')
 			ctx.add('QPushButton', setText='Delete History', setObjectName='b000', setToolTip='')

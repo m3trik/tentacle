@@ -71,9 +71,9 @@ class PushButtonDraggable(QtWidgets.QPushButton, MenuInstance, Attributes, RichT
 			self.window().preventHide = True
 
 		if event.button()==QtCore.Qt.RightButton:
-			self.contextMenu.show()
+			self.ctxMenu.show()
 
-		return QtWidgets.QPushButton.mousePressEvent(self, event)
+		QtWidgets.QPushButton.mousePressEvent(self, event)
 
 
 	def mouseMoveEvent(self, event):
@@ -95,7 +95,7 @@ class PushButtonDraggable(QtWidgets.QPushButton, MenuInstance, Attributes, RichT
 		except AttributeError as error:
 			pass
 
-		return QtWidgets.QPushButton.mouseMoveEvent(self, event)
+		QtWidgets.QPushButton.mouseMoveEvent(self, event)
 
 
 	def mouseReleaseEvent(self, event):
@@ -117,7 +117,7 @@ class PushButtonDraggable(QtWidgets.QPushButton, MenuInstance, Attributes, RichT
 		if not self.window().preventHide: #prevent the parent window from hiding if checked.
 			self.window().hide()
 
-		return QtWidgets.QPushButton.mouseReleaseEvent(self, event)
+		QtWidgets.QPushButton.mouseReleaseEvent(self, event)
 
 
 	def showEvent(self, event):
@@ -125,11 +125,11 @@ class PushButtonDraggable(QtWidgets.QPushButton, MenuInstance, Attributes, RichT
 		:Parameters:
 			event = <QEvent>
 		'''
-		if self.contextMenu.containsMenuItems:
-			# self.contextMenu.setTitle(self.text())
+		if self.ctxMenu.containsMenuItems:
+			# self.ctxMenu.setTitle(self.text())
 			self.setTextOverlay('⧉', alignment='AlignRight')
 
-		return QtWidgets.QPushButton.showEvent(self, event)
+		QtWidgets.QPushButton.showEvent(self, event)
 
 
 	def hideEvent(self, event):
@@ -137,9 +137,8 @@ class PushButtonDraggable(QtWidgets.QPushButton, MenuInstance, Attributes, RichT
 		:Parameters:
 			event = <QEvent>
 		'''
-		
 
-		return QtWidgets.QPushButton.hideEvent(self, event)
+		QtWidgets.QPushButton.hideEvent(self, event)
 
 
 

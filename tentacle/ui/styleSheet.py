@@ -1046,7 +1046,7 @@ class StyleSheet(QtCore.QObject):
 
 
 	def __init__(self, parent=None):
-		super(StyleSheet, self).__init__(parent=None)
+		super().__init__(parent)
 		'''
 		'''
 

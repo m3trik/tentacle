@@ -65,7 +65,7 @@ class Tcl_max(Tcl):
 				import pymxs
 				pymxs.undo(True)
 
-		return Tcl.keyPressEvent(self, event)
+		Tcl.keyPressEvent(self, event)
 
 
 	def showEvent(self, event):
@@ -79,7 +79,7 @@ class Tcl_max(Tcl):
 		except Exception as error:
 			print(error)
 
-		return Tcl.showEvent(self, event) #super().showEvent(event)
+		Tcl.showEvent(self, event) #super().showEvent(event)
 
 
 	def hideEvent(self, event):
@@ -93,7 +93,7 @@ class Tcl_max(Tcl):
 		except Exception as error:
 			print(error)
 
-		return Tcl.hideEvent(self, event) #super().hideEvent(event)
+		Tcl.hideEvent(self, event) #super().hideEvent(event)
 
 
 

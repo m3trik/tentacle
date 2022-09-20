@@ -9,7 +9,7 @@ class Create_max(Create, Slots_max):
 	def __init__(self, *args, **kwargs):
 		super().__init__(*args, **kwargs)
 
-		cmb = self.sb.create.draggable_header.contextMenu.cmb000
+		cmb = self.sb.create.draggable_header.ctxMenu.cmb000
 		items = ['']
 		cmb.addItems_(items, '')
 
@@ -21,14 +21,14 @@ class Create_max(Create, Slots_max):
 		items = ["Cube", "Sphere", "Cylinder", "Plane", "Circle", "Cone", "Pyramid", "Torus", "Tube", "GeoSphere", "Text"] 
 		cmb.addItems_(items)
 
-		ctx = self.sb.create.tb000.contextMenu
+		ctx = self.sb.create.tb000.ctxMenu
 		ctx.chk001.setDisabled(True)
 
 
 	def cmb000(self, index=-1):
 		'''Editors
 		'''
-		cmb = self.sb.create.draggable_header.contextMenu.cmb000
+		cmb = self.sb.create.draggable_header.ctxMenu.cmb000
 
 		if index>0:
 			text = cmb.items[index]
@@ -73,8 +73,8 @@ class Create_max(Create, Slots_max):
 
 		type_ = self.sb.create.cmb001.currentText()
 		index = self.sb.create.cmb002.currentIndex()
-		translate = tb.contextMenu.chk000.isChecked()
-		# scale = tb.contextMenu.chk001.isChecked()
+		translate = tb.ctxMenu.chk000.isChecked()
+		# scale = tb.ctxMenu.chk001.isChecked()
 
 		selection = list(rt.selection)
 

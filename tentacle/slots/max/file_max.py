@@ -9,12 +9,12 @@ class File_max(File, Slots_max):
 	def __init__(self, *args, **kwargs):
 		super().__init__(*args, **kwargs)
 
-		cmb = self.sb.file.draggable_header.contextMenu.cmb000
+		cmb = self.sb.file.draggable_header.ctxMenu.cmb000
 		items = ['Schematic View']
 		cmb.addItems_(items, 'File Editors')
 
 		cmb = self.sb.file.cmb002
-		ctx = cmb.contextMenu
+		ctx = cmb.ctxMenu
 		if not ctx.containsMenuItems:
 			ctx.add('QPushButton', setObjectName='b000', setText='Open Directory', setToolTip='Open the autosave directory.') #open directory
 			ctx.add('QPushButton', setObjectName='b002', setText='Delete All', setToolTip='Delete all autosave files.') #delete all
@@ -37,7 +37,7 @@ class File_max(File, Slots_max):
 	def cmb000(self, index=-1):
 		'''Editors
 		'''
-		cmb = self.sb.file.draggable_header.contextMenu.cmb000
+		cmb = self.sb.file.draggable_header.ctxMenu.cmb000
 
 		if index>0:
 			text = cmb.items[index]
@@ -49,7 +49,7 @@ class File_max(File, Slots_max):
 	def cmb001(self, index=-1):
 		'''Recent Projects
 		'''
-		cmb = self.sb.file.cmb006.contextMenu.cmb001
+		cmb = self.sb.file.cmb006.ctxMenu.cmb001
 
 		items = cmb.addItems_(self.getRecentProjects(), "Recent Projects", clear=True)
 
@@ -161,11 +161,11 @@ class File_max(File, Slots_max):
 	def tb000(self, state=None):
 		'''Save
 		'''
-		tb = self.sb.file.draggable_header.contextMenu.tb000
+		tb = self.sb.file.draggable_header.ctxMenu.tb000
 
-		wireframe = tb.contextMenu.chk000.isChecked()
-		increment = tb.contextMenu.chk001.isChecked()
-		quit = tb.contextMenu.chk002.isChecked()
+		wireframe = tb.ctxMenu.chk000.isChecked()
+		increment = tb.ctxMenu.chk001.isChecked()
+		quit = tb.ctxMenu.chk002.isChecked()
 
 		if wireframe:
 			pm.mel.DisplayWireframe()

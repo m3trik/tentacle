@@ -12,7 +12,7 @@ class Crease_blender(Crease, Slots_blender):
 
 		self.creaseValue = 10
 
-		cmb = self.sb.crease.draggable_header.contextMenu.cmb000
+		cmb = self.sb.crease.draggable_header.ctxMenu.cmb000
 		items = []
 		cmb.addItems_(items, 'Crease Editors:')
 
@@ -20,7 +20,7 @@ class Crease_blender(Crease, Slots_blender):
 	def cmb000(self, index=-1):
 		'''Editors
 		'''
-		cmb = self.sb.crease.draggable_header.contextMenu.cmb000
+		cmb = self.sb.crease.draggable_header.ctxMenu.cmb000
 
 		if index>0:
 			text = cmb.items[index]
@@ -36,19 +36,19 @@ class Crease_blender(Crease, Slots_blender):
 		'''
 		tb = self.sb.crease.tb000
 
-		creaseAmount = float(tb.contextMenu.s003.value())
-		normalAngle = int(tb.contextMenu.s004.value()) 
+		creaseAmount = float(tb.ctxMenu.s003.value())
+		normalAngle = int(tb.ctxMenu.s004.value()) 
 
-		if tb.contextMenu.chk011.isChecked(): #crease: Auto
-			angleLow = int(tb.contextMenu.s005.value()) 
-			angleHigh = int(tb.contextMenu.s006.value()) 
+		if tb.ctxMenu.chk011.isChecked(): #crease: Auto
+			angleLow = int(tb.ctxMenu.s005.value()) 
+			angleHigh = int(tb.ctxMenu.s006.value()) 
 
 			mel.eval("PolySelectConvert 2;") #convert selection to edges
 			contraint = pm.polySelectConstraint( mode=3, type=0x8000, angle=True, anglebound=(angleLow, angleHigh) ) # to get edges with angle between two degrees. mode=3 (All and Next) type=0x8000 (edge). 
 
 		operation = 0 #Crease selected components
 		pm.polySoftEdge (angle=0, constructionHistory=0) #Harden edge normal
-		if tb.contextMenu.chk002.isChecked():
+		if tb.ctxMenu.chk002.isChecked():
 			objectMode = pm.selectMode (query=True, object=True)
 			if objectMode: #if in object mode,
 				operation = 2 #2-Remove all crease values from mesh
@@ -56,15 +56,15 @@ class Crease_blender(Crease, Slots_blender):
 				operation = 1 #1-Remove crease from sel components
 				pm.polySoftEdge (angle=180, constructionHistory=0) #soften edge normal
 
-		if tb.contextMenu.chk004.isChecked(): #crease vertex point
+		if tb.ctxMenu.chk004.isChecked(): #crease vertex point
 			pm.polyCrease (value=creaseAmount, vertexValue=creaseAmount, createHistory=True, operation=operation)
 		else:
 			pm.polyCrease (value=creaseAmount, createHistory=True, operation=operation) #PolyCreaseTool;
 
-		if tb.contextMenu.chk005.isChecked(): #adjust normal angle
+		if tb.ctxMenu.chk005.isChecked(): #adjust normal angle
 			pm.polySoftEdge (angle=normalAngle)
 
-		if tb.contextMenu.chk011.isChecked(): #crease: Auto
+		if tb.ctxMenu.chk011.isChecked(): #crease: Auto
 			pm.polySelectConstraint( angle=False ) # turn off angle constraint
 
 

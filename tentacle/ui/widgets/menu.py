@@ -51,6 +51,9 @@ class Menu(QtWidgets.QMenu, Attributes):
 		self.uncheckAllButton = self._addUncheckAllButton()
 		self.applyButton = self._addApplyButton()
 
+		#assign properties
+		self.__class__.childWidgets = property(lambda self: self.getChildWidgets())
+
 
 	@property
 	def containsMenuItems(self):
@@ -239,12 +242,14 @@ class Menu(QtWidgets.QMenu, Attributes):
 		:Return:
 			(widget)
 		'''
-		assert self.parent(), 'Menu: {}: _addApplyButton: operation requires a parent widget.'.format(self)
+		if not self.parent():
+			# print ('# Error: {}: _addApplyButton(): operation requires a parent widget. #'.format(__file__))
+			return
 
 		w = QtWidgets.QPushButton('Apply') #self.add('QPushButton', setText='Apply', setObjectName=self.parent().objectName(), setToolTip='Execute the command.')
 		w.setObjectName(self.parent().objectName())
 		w.setToolTip('Execute the command.')
-		w.released.connect(lambda: self.parent().released.emit()) #trigger the released signal on the parent when the apply button is released.
+		# w.released.connect(lambda: self.parent().released.emit()) #trigger the released signal on the parent when the apply button is released.
 		w.setMinimumSize(119, 26)
 
 		layout = self.getVBoxLayout('menu_buttons') #get the 'menu_buttons' layout.
@@ -386,7 +391,7 @@ class Menu(QtWidgets.QMenu, Attributes):
 			(obj)(str)(list) dependant on flags.
 
 		ex. slot connection to the last active child widget:
-			cmb.returnPressed.connect(lambda m=cmb.contextMenu.lastActiveChild: getattr(self, m(name=1))()) #connect to the last pressed child widget's corresponding method after return pressed. ie. self.lbl000 if cmb.lbl000 was clicked last.
+			cmb.returnPressed.connect(lambda m=cmb.ctxMenu.lastActiveChild: getattr(self, m(name=1))()) #connect to the last pressed child widget's corresponding method after return pressed. ie. self.lbl000 if cmb.lbl000 was clicked last.
 		'''
 		if not hasattr(self, '_lastActiveChild'):
 			return None
@@ -434,7 +439,7 @@ class Menu(QtWidgets.QMenu, Attributes):
 		'''
 		self.hide()
 
-		return QtWidgets.QMenu.leaveEvent(self, event)
+		QtWidgets.QMenu.leaveEvent(self, event)
 
 
 	def hide(self, force=False):
@@ -496,16 +501,12 @@ class Menu(QtWidgets.QMenu, Attributes):
 			if self.getChildWidgets(include=['QCheckBox']): #if the menu contains checkboxes:
 				self.uncheckAllButton.show()
 
-		return QtWidgets.QMenu.showEvent(self, event)
-
-
-	#assign properties
-	childWidgets = property(getChildWidgets)
+		QtWidgets.QMenu.showEvent(self, event)
 
 
 
 class MenuInstance():
-	'''Get a Menu and contextMenu instance.
+	'''Get a Menu and ctxMenu instance.
 	'''
 	@property
 	def menu_(self):
@@ -520,7 +521,7 @@ class MenuInstance():
 
 
 	@property
-	def contextMenu(self):
+	def ctxMenu(self):
 		'''Get the context menu.
 		'''
 		try:

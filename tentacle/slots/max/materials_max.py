@@ -12,11 +12,11 @@ class Materials_max(Materials, Slots_max):
 		self.randomMat=None
 
 		dh = self.sb.materials.draggable_header
-		dh.contextMenu.add(self.sb.ComboBox, setObjectName='cmb000', setToolTip='Maya Material Editors')
-		dh.contextMenu.add(self.sb.PushButton, setText='Relink Scene Bitmaps', setObjectName='tb003', setToolTip='Repair broken bitmap file links for any scene materials. If no materials are selected, all scene materials will be used.')
-		dh.contextMenu.add(self.sb.PushButton, setText='Relink Library Bitmaps', setObjectName='tb004', setToolTip='Repair broken bitmap file links for all libraries in a given directory.')
+		dh.ctxMenu.add(self.sb.ComboBox, setObjectName='cmb000', setToolTip='Maya Material Editors')
+		dh.ctxMenu.add(self.sb.PushButton, setText='Relink Scene Bitmaps', setObjectName='tb003', setToolTip='Repair broken bitmap file links for any scene materials. If no materials are selected, all scene materials will be used.')
+		dh.ctxMenu.add(self.sb.PushButton, setText='Relink Library Bitmaps', setObjectName='tb004', setToolTip='Repair broken bitmap file links for all libraries in a given directory.')
 
-		cmb000 = self.sb.materials.draggable_header.contextMenu.cmb000
+		cmb000 = self.sb.materials.draggable_header.ctxMenu.cmb000
 		items = ['Material Editor']
 		cmb000.addItems_(items, 'Material Editors')
 
@@ -24,7 +24,7 @@ class Materials_max(Materials, Slots_max):
 	def cmb000(self, index=-1):
 		'''Editors
 		'''
-		cmb = self.sb.materials.draggable_header.contextMenu.cmb000
+		cmb = self.sb.materials.draggable_header.ctxMenu.cmb000
 
 		if index>0:
 			text = cmb.items[index]
@@ -42,7 +42,7 @@ class Materials_max(Materials, Slots_max):
 		cmb = self.sb.materials.cmb002
 		b = self.sb.materials_submenu.b003
 
-		mode = cmb.contextMenu.cmb001.currentText()
+		mode = cmb.ctxMenu.cmb001.currentText()
 		if mode=='Scene Materials':
 			materials = self.getSceneMaterials()
 
@@ -79,9 +79,9 @@ class Materials_max(Materials, Slots_max):
 			self.messageBox('No Material Selection.')
 			return
 
-		shell = tb.contextMenu.chk005.isChecked() #Select by material: shell
-		invert = tb.contextMenu.chk006.isChecked() #Select by material: invert
-		allObjects = tb.contextMenu.chk003.isChecked() #Search all scene objects
+		shell = tb.ctxMenu.chk005.isChecked() #Select by material: shell
+		invert = tb.ctxMenu.chk006.isChecked() #Select by material: invert
+		allObjects = tb.ctxMenu.chk003.isChecked() #Search all scene objects
 
 		objects = rt.selection if not allObjects else None
 		
@@ -95,9 +95,9 @@ class Materials_max(Materials, Slots_max):
 
 		selection = rt.selection
 
-		assignCurrent = tb.contextMenu.chk007.isChecked()
-		assignRandom = tb.contextMenu.chk008.isChecked()
-		assignNew = tb.contextMenu.chk009.isChecked()
+		assignCurrent = tb.ctxMenu.chk007.isChecked()
+		assignRandom = tb.ctxMenu.chk008.isChecked()
+		assignNew = tb.ctxMenu.chk009.isChecked()
 
 		if assignRandom: #Assign New random mat ID
 			if selection:
@@ -134,12 +134,12 @@ class Materials_max(Materials, Slots_max):
 	def tb003(self, state=None):
 		'''Relink Scene Bitmaps
 		'''
-		tb = self.sb.materials.draggable_header.contextMenu.tb003
+		tb = self.sb.materials.draggable_header.ctxMenu.tb003
 		if state=='setMenu':
-			tb.contextMenu.add('QLineEdit', setPlaceholderText='Set Bitmaps Directory:', setText=r'\\m3trik-Server\NAS\Graphics\_materials', setObjectName='l000', setToolTip='Location to search for missing bitmaps.') #
+			tb.ctxMenu.add('QLineEdit', setPlaceholderText='Set Bitmaps Directory:', setText=r'\\m3trik-Server\NAS\Graphics\_materials', setObjectName='l000', setToolTip='Location to search for missing bitmaps.') #
 			return
 
-		mat_dir = tb.contextMenu.l000.text()
+		mat_dir = tb.ctxMenu.l000.text()
 		mats = self.getNodesSME(selected=True) #find bitmaps for any currently selected nodes in the slate material editor, else relink all scene nodes.
 		if not mats:
 			mats = None
@@ -150,14 +150,14 @@ class Materials_max(Materials, Slots_max):
 	def tb004(self, state=None):
 		'''Relink Material Library Bitmaps
 		'''
-		tb = self.sb.materials.draggable_header.contextMenu.tb004
+		tb = self.sb.materials.draggable_header.ctxMenu.tb004
 		if state=='setMenu':
-			tb.contextMenu.add('QLineEdit', setPlaceholderText='Set Bitmaps Directory:', setText=r'\\m3trik-Server\NAS\Graphics\_materials', setObjectName='l001', setToolTip='Location to search for missing bitmaps.') #
-			tb.contextMenu.add('QLineEdit', setPlaceholderText='Set Material Library Directory:', setText=r'\\m3trik-Server\NAS\Graphics\_materials\libraries', setObjectName='l002', setToolTip='Location of material libraries.') #
+			tb.ctxMenu.add('QLineEdit', setPlaceholderText='Set Bitmaps Directory:', setText=r'\\m3trik-Server\NAS\Graphics\_materials', setObjectName='l001', setToolTip='Location to search for missing bitmaps.') #
+			tb.ctxMenu.add('QLineEdit', setPlaceholderText='Set Material Library Directory:', setText=r'\\m3trik-Server\NAS\Graphics\_materials\libraries', setObjectName='l002', setToolTip='Location of material libraries.') #
 			return
 
-		library_dir = tb.contextMenu.l001.text()
-		mat_dir = tb.contextMenu.l002.text()
+		library_dir = tb.ctxMenu.l001.text()
+		mat_dir = tb.ctxMenu.l002.text()
 
 		self.relinkMatLibBitmaps(library_dir, mat_dir, replaceTxWithTif=True)
 

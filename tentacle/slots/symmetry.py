@@ -11,7 +11,7 @@ class Symmetry(Slots):
 		'''
 		'''
 		dh = self.sb.symmetry.draggable_header
-		dh.contextMenu.add(self.sb.ComboBox, setObjectName='cmb000', setToolTip='')
+		dh.ctxMenu.add(self.sb.ComboBox, setObjectName='cmb000', setToolTip='')
 
 
 	def draggable_header(self, state=None):

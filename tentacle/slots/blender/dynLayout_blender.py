@@ -10,7 +10,7 @@ class DynLayout_blender(DynLayout, Slots_blender):
 		Slots_blender.__init__(self, *args, **kwargs)
 		DynLayout.__init__(self, *args, **kwargs)
 
-		cmb = self.sb.dynLayout.draggable_header.contextMenu.cmb000
+		cmb = self.sb.dynLayout.draggable_header.ctxMenu.cmb000
 		items = []
 		cmb.addItems_(items, '')
 
@@ -18,7 +18,7 @@ class DynLayout_blender(DynLayout, Slots_blender):
 	def cmb000(self, index=-1):
 		'''Editors
 		'''
-		cmb = self.sb.dynLayout.draggable_header.contextMenu.cmb000
+		cmb = self.sb.dynLayout.draggable_header.ctxMenu.cmb000
 
 		if index>0:
 			text = cmb.items[index]

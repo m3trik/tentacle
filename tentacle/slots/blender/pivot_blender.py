@@ -10,16 +10,16 @@ class Pivot_blender(Pivot, Slots_blender):
 		Slots_blender.__init__(self, *args, **kwargs)
 		Pivot.__init__(self, *args, **kwargs)
 
-		cmb = self.sb.pivot.draggable_header.contextMenu.cmb000
+		cmb = self.sb.pivot.draggable_header.ctxMenu.cmb000
 		items = ['']
 		cmb.addItems_(items, '')
 
-		ctx = self.sb.pivot.tb000.contextMenu
+		ctx = self.sb.pivot.tb000.ctxMenu
 		if not ctx.containsMenuItems:
 			ctx.add('QCheckBox', setText='Reset Pivot Position', setObjectName='chk000', setChecked=True, setToolTip='')
 			ctx.add('QCheckBox', setText='Reset Pivot Orientation', setObjectName='chk001', setChecked=True, setToolTip='')
 
-		ctx = self.sb.pivot.tb001.contextMenu
+		ctx = self.sb.pivot.tb001.ctxMenu
 		if not ctx.containsMenuItems:
 			ctx.add('QRadioButton', setText='Component', setObjectName='chk002', setToolTip='Center the pivot on the center of the selected component\'s bounding box')
 			ctx.add('QRadioButton', setText='Object', setObjectName='chk003', setChecked=True, setToolTip='Center the pivot on the center of the object\'s bounding box')
@@ -29,7 +29,7 @@ class Pivot_blender(Pivot, Slots_blender):
 	def cmb000(self, index=-1):
 		'''Editors
 		'''
-		cmb = self.sb.pivot.draggable_header.contextMenu.cmb000
+		cmb = self.sb.pivot.draggable_header.ctxMenu.cmb000
 
 		if index>0:
 			text = cmb.items[index]
@@ -43,8 +43,8 @@ class Pivot_blender(Pivot, Slots_blender):
 		'''
 		tb = self.sb.pivot.tb000
 
-		resetPivotPosition = tb.contextMenu.chk000.isChecked() #Reset Pivot Position
-		resetPivotOrientation = tb.contextMenu.chk001.isChecked() #Reset Pivot Orientation
+		resetPivotPosition = tb.ctxMenu.chk000.isChecked() #Reset Pivot Position
+		resetPivotOrientation = tb.ctxMenu.chk001.isChecked() #Reset Pivot Orientation
 
 		mel.eval('manipPivotReset({0},{1})'.format(int(resetPivotPosition), int(resetPivotOrientation)))
 		return 'Reset Pivot Position <hl>{0}</hl>.<br>Reset Pivot Orientation <hl>{1}</hl>.'.format(resetPivotPosition, resetPivotOrientation)
@@ -55,9 +55,9 @@ class Pivot_blender(Pivot, Slots_blender):
 		'''
 		tb = self.sb.pivot.tb001
 
-		component = tb.contextMenu.chk002.isChecked()
-		object_ = tb.contextMenu.chk003.isChecked()
-		world = tb.contextMenu.chk004.isChecked()
+		component = tb.ctxMenu.chk002.isChecked()
+		object_ = tb.ctxMenu.chk003.isChecked()
+		world = tb.ctxMenu.chk004.isChecked()
 
 		if component: #Set pivot points to the center of the component's bounding box.
 			pm.xform(centerPivotsOnComponents=1)

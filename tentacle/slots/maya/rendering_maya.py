@@ -9,7 +9,7 @@ class Rendering_maya(Rendering, Slots_maya):
 	def __init__(self, *args, **kwargs):
 		super().__init__(*args, **kwargs)
 
-		cmb = self.sb.rendering.draggable_header.contextMenu.cmb000
+		cmb = self.sb.rendering.draggable_header.ctxMenu.cmb000
 		items = ['']
 		cmb.addItems_(items, '')
 
@@ -17,7 +17,7 @@ class Rendering_maya(Rendering, Slots_maya):
 	def cmb000(self, index=-1):
 		'''Editors
 		'''
-		cmb = self.sb.rendering.draggable_header.contextMenu.cmb000
+		cmb = self.sb.rendering.draggable_header.ctxMenu.cmb000
 
 		if index>0:
 			text = cmb.items[index]

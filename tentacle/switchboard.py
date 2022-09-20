@@ -292,7 +292,7 @@ class Switchboard(QUiLoader):
 			try:
 				_path = os.listdir(path_)
 			except FileNotFoundError as error:
-				print ('# FileNotFoundError: {}._getWidgetsFromDir(): {} #'.format(__name__, error))
+				print ('# {}._getWidgetsFromDir(): {} #'.format(__file__, error))
 				return
 
 			for module in _path:
@@ -398,7 +398,7 @@ class Switchboard(QUiLoader):
 				result.append(w)
 
 			except Exception as error:
-				print ('# Error: {}.registerWidgets(): {} #'.format(__file__, error))
+				print ('# {}.registerWidgets(): {} #'.format(__file__, error))
 
 		return self.formatReturn(result)
 
@@ -577,10 +577,16 @@ class Switchboard(QUiLoader):
 		if level:
 			if isinstance(ui, str):
 				ui, *tags = ui.split('#')
-				ui = self.getUi(ui)
+
+				u = self.getUi(ui)
+				if not u:
+					u = self.getUi(ui+'_submenu') #in the case where a submenu exist without a parent menu.
+					if not u:
+						return None
+				ui = u
+
 				ui = [u for u in self._loadedUi 
 						if all([
-							u!=None,
 							u.base==ui.base, 
 							u.tags==self.list(tags), 
 							u.level in self.list(level),
@@ -590,7 +596,6 @@ class Switchboard(QUiLoader):
 			else:
 				ui = [u for u in self._loadedUi 
 						if all([
-							u!=None,
 							u.base==ui.base, 
 							u.level in self.list(level),
 					])
@@ -686,20 +691,24 @@ class Switchboard(QUiLoader):
 
 	@property
 	def prevCommand(self) -> object:
-		'''
+		'''Get the last called slot method.
+
+		:Return:
+			(obj) method.
 		'''
 		try:
 			return self.prevCommands[-1]
+
 		except IndexError as error:
 			return None
 
 
 	@property
-	def prevCommands(self):
-		'''Get previous commands and relevant information.
+	def prevCommands(self) -> list:
+		'''Get a list of previously called slot methods.
 
 		:Return:
-			(obj)(list) method, or list of methods.
+			(list) list of methods.
 		'''
 		cmds = [w.method for w in self._wgtHistory[-10:]] #limit to last 10 elements and get methods from widget history.
 		hist = list(dict.fromkeys(cmds[::-1]))[::-1] #remove any duplicates (keeping the last element). [hist.remove(l) for l in hist[:] if hist.count(l)>1] #
@@ -895,14 +904,14 @@ class Switchboard(QUiLoader):
 		'''Connect multiple signals to multiple slots at once.
 
 		:Parameters:
-			widgets (str)(obj)(list) = ie. 'chk000-2' or [tb.contextMenu.chk000, tb.contextMenu.chk001]
+			widgets (str)(obj)(list) = ie. 'chk000-2' or [tb.ctxMenu.chk000, tb.ctxMenu.chk001]
 			signals (str)(list) = ie. 'toggled' or ['toggled']
 			slots (obj)(list) = ie. self.cmb002 or [self.cmb002]
 			class_ (obj)(list) = if the widgets arg is given as a string, then the class_ it belongs to can be explicitly given. else, the current ui will be used.
 
-		ex call: connect_('chk000-2', 'toggled', self.cmb002, tb.contextMenu)
-		*or connect_([tb.contextMenu.chk000, tb.contextMenu.chk001], 'toggled', self.cmb002)
-		*or connect_(tb.contextMenu.chk015, 'toggled', 
+		ex call: connect_('chk000-2', 'toggled', self.cmb002, tb.ctxMenu)
+		*or connect_([tb.ctxMenu.chk000, tb.ctxMenu.chk001], 'toggled', self.cmb002)
+		*or connect_(tb.ctxMenu.chk015, 'toggled', 
 				[lambda state: self.rigging.tb004.setText('Unlock Transforms' if state else 'Lock Transforms'), 
 				lambda state: self.rigging_submenu.tb004.setText('Unlock Transforms' if state else 'Lock Transforms')])
 		'''
@@ -924,51 +933,6 @@ class Switchboard(QUiLoader):
 				signal = getattr(widget, signal)
 				for slot in slots:
 					signal.connect(slot)
-
-
-	def setAttributes(self, obj=None, order=['setVisible'], **kwargs):
-		'''Set attributes for a given object.
-
-		:Parameters:
-			obj (obj) = the child obj, or widgetAction to set attributes for. (default=self)
-			order (list) = List of string keywords. ie. ['move', 'setVisible']. attributes in this list will be set last, in order of the list. an example would be setting move positions after setting resize arguments.
-			**kwargs = The keyword arguments to set.
-		'''
-		if not kwargs:
-			return
-
-		obj = obj if obj else self
-
-		for k in order:
-			v = kwargs.pop(k, None)
-			if v:
-				from collections import OrderedDict
-				kwargs = OrderedDict(kwargs)
-				kwargs[k] = v
-
-		for attr, value in kwargs.items():
-			try:
-				getattr(obj, attr)(value)
-
-			except AttributeError as error:
-				pass; # print (__name__+':','setAttributes:', obj, order, kwargs, error)
-
-
-	def getAttributes(obj, include=[], exclude=[]):
-		'''Get attributes for a given object.
-
-		:Parameters:
-			obj (obj) = The object to get the attributes of.
-			include (list) = Attributes to include. All other will be omitted. Exclude takes dominance over include. Meaning, if the same attribute is in both lists, it will be excluded.
-			exclude (list) = Attributes to exclude from the returned dictionay. ie. [u'Position',u'Rotation',u'Scale',u'renderable',u'isHidden',u'isFrozen',u'selected']
-
-		:Return:
-			(dict) {'string attribute': current value}
-		'''
-		return {attr:getattr(obj, attr) 
-					for attr in dir(obj)
-						if not attr in exclude 
-							and (attr in include if include else attr not in include)}
 
 
 	def _syncUi(self, submenu, **kwargs):
@@ -1062,111 +1026,71 @@ class Switchboard(QUiLoader):
 		return signal
 
 
-	_gcProtect = set()
-	def gcProtect(self, obj=None, clear=False):
-		'''Protect the given object from garbage collection.
+	def setAttributes(self, obj=None, order=['setVisible'], **kwargs):
+		'''Set attributes for a given object.
 
 		:Parameters:
-			obj (obj)(list) = The obj(s) to add to the protected list.
-			clear (bool) = Clear the set before adding any given object(s).
-
-		:Return:
-			(list) protected objects.
+			obj (obj) = the child obj, or widgetAction to set attributes for. (default=self)
+			order (list) = List of string keywords. ie. ['move', 'setVisible']. attributes in this list will be set last, in order of the list. an example would be setting move positions after setting resize arguments.
+			**kwargs = The keyword arguments to set.
 		'''
-		if clear:
-			self._gcProtect.clear()
+		if not kwargs:
+			return
 
-		for o in self.list(obj):
-			self._gcProtect.add(o)
+		obj = obj if obj else self
 
-		return self._gcProtect
+		for k in order:
+			v = kwargs.pop(k, None)
+			if v:
+				from collections import OrderedDict
+				kwargs = OrderedDict(kwargs)
+				kwargs[k] = v
+
+		for attr, value in kwargs.items():
+			try:
+				getattr(obj, attr)(value)
+
+			except AttributeError as error:
+				pass; # print (__name__+':','setAttributes:', obj, order, kwargs, error)
 
 
-	@staticmethod
-	def isWidget(obj):
-		'''Returns True if the given obj is a valid widget.
+	def getAttributes(obj, include=[], exclude=[]):
+		'''Get attributes for a given object.
 
 		:Parameters:
-			obj (obj) = An object to query.
+			obj (obj) = The object to get the attributes of.
+			include (list) = Attributes to include. All other will be omitted. Exclude takes dominance over include. Meaning, if the same attribute is in both lists, it will be excluded.
+			exclude (list) = Attributes to exclude from the returned dictionay. ie. [u'Position',u'Rotation',u'Scale',u'renderable',u'isHidden',u'isFrozen',u'selected']
 
 		:Return:
-			(bool)
+			(dict) {'string attribute': current value}
 		'''
-		try: import shiboken2
-		except: from PySide2 import shiboken2
+		return {attr:getattr(obj, attr) 
+					for attr in dir(obj)
+						if not attr in exclude 
+							and (attr in include if include else attr not in include)}
 
-		return hasattr(obj, 'objectName') and shiboken2.isValid(obj)
 
-
-	@staticmethod
-	def getParentWidgets(widget, objectNames=False):
-		'''Get the all parent widgets of the given widget.
+	def setWidgetKwargs(self, *args, **kwargs):
+		'''Set multiple properties, for multiple widgets, on multiple ui's at once.
 
 		:Parameters:
-			widget (obj) = QWidget
-			objectNames (bool) = Return as objectNames.
+			*args = arg [0] (str) String of objectNames. - objectNames separated by ',' ie. 'b000-12,b022'
+					arg [1:] dynamic ui object/s.  If no ui's are given, then the parent and child uis will be used.
+			*kwargs = keyword: - the property to modify. ex. setText, setValue, setEnabled, setDisabled, setVisible, setHidden
+					value: - intended value.
 
-		:Return:
-			(list) Object(s) or objectName(s)
+		ex.	setWidgetKwargs('chk003', <ui1>, <ui2>, setText='Un-Crease')
 		'''
-		parentWidgets=[]
-		w = widget
-		while w:
-			parentWidgets.append(w)
-			w = w.parentWidget()
-		if objectNames:
-			return [str(w.objectName()) for w in parentWidgets]
-		return parentWidgets
+		if not args[1:]:
+			parentUi = self.currentUi.level3
+			childUi = self.currentUi.level2
+			args = args+(parentUi, childUi)
 
-
-	@staticmethod
-	def getTopLevelParent(widget, index=-1):
-		'''Get the parent widget at the top of the hierarchy for the given widget.
-
-		:Parameters:
-			widget (obj) = QWidget
-			index (int) = Last index is top level.
-
-		:Return:
-			(QWidget)
-		'''
-		return self.getParentWidgets[index]
-
-
-	@staticmethod
-	def qApp_getWindow(name=None):
-		'''Get Qt window/s
-
-		:Parameters:
-			name (str) = optional name of window (widget.objectName)
-
-		:Return:
-			if name: corresponding <window object>
-			else: return a dictionary of all windows {windowName:window}
-		'''
-		windows = {w.objectName():w for w in QApplication.allWindows()}
-		if name:
-			return windows[name]
-		else:
-			return windows
-
-
-	@staticmethod
-	def qApp_getWidget(name=None):
-		'''Get Qt widget/s
-
-		:Parameters:
-			name (str) = optional name of widget (widget.objectName)
-
-		:Return:
-			if name: corresponding <widget object>
-			else: return a dictionary of all widgets {objectName:widget}
-		'''
-		widgets = {w.objectName():w for w in QApplication.allWidgets()}
-		if name:
-			return widgets[name]
-		else:
-			return widgets
+		for ui in args[1:]:
+			widgets = self.getWidgets(ui, args[0]) #getWidgets returns a widget list from a string of objectNames.
+			for property_, value in kwargs.items():
+				[getattr(w, property_)(value) for w in widgets] #set the property state for each widget in the list.
 
 
 	@staticmethod
@@ -1277,6 +1201,14 @@ class Switchboard(QUiLoader):
 		w.move(QtCore.QPoint(width, height)) #center a given widget at a given position.
 
 
+	@staticmethod
+	def centerWidgetOnScreen(w):
+		'''
+		'''
+		centerPoint = QtGui.QScreen.availableGeometry(QtWidgets.QApplication.primaryScreen()).center()
+		w.move(centerPoint - w.frameGeometry().center())
+
+
 	def toggleWidgets(self, *args, **kwargs):
 		'''Set multiple boolean properties, for multiple widgets, on multiple ui's at once.
 
@@ -1302,28 +1234,6 @@ class Switchboard(QUiLoader):
 					state = False
 
 				[getattr(w, k)(state) for w in widgets] #set the property state for each widget in the list.
-
-
-	def setWidgetKwargs(self, *args, **kwargs):
-		'''Set multiple properties, for multiple widgets, on multiple ui's at once.
-
-		:Parameters:
-			*args = arg [0] (str) String of objectNames. - objectNames separated by ',' ie. 'b000-12,b022'
-					arg [1:] dynamic ui object/s.  If no ui's are given, then the parent and child uis will be used.
-			*kwargs = keyword: - the property to modify. ex. setText, setValue, setEnabled, setDisabled, setVisible, setHidden
-					value: - intended value.
-
-		ex.	setWidgetKwargs('chk003', <ui1>, <ui2>, setText='Un-Crease')
-		'''
-		if not args[1:]:
-			parentUi = self.currentUi.level3
-			childUi = self.currentUi.level2
-			args = args+(parentUi, childUi)
-
-		for ui in args[1:]:
-			widgets = self.getWidgets(ui, args[0]) #getWidgets returns a widget list from a string of objectNames.
-			for property_, value in kwargs.items():
-				[getattr(w, property_)(value) for w in widgets] #set the property state for each widget in the list.
 
 
 	def setAxisForCheckBoxes(self, checkboxes, axis, ui=None):
@@ -1373,6 +1283,113 @@ class Switchboard(QUiLoader):
 					axis = chk.text()
 		# print ('prefix:', prefix, 'axis:', axis) #debug
 		return prefix+axis #ie. '-X'
+
+
+	_gcProtect = set()
+	def gcProtect(self, obj=None, clear=False):
+		'''Protect the given object from garbage collection.
+
+		:Parameters:
+			obj (obj)(list) = The obj(s) to add to the protected list.
+			clear (bool) = Clear the set before adding any given object(s).
+
+		:Return:
+			(list) protected objects.
+		'''
+		if clear:
+			self._gcProtect.clear()
+
+		for o in self.list(obj):
+			self._gcProtect.add(o)
+
+		return self._gcProtect
+
+
+	@staticmethod
+	def isWidget(obj):
+		'''Returns True if the given obj is a valid widget.
+
+		:Parameters:
+			obj (obj) = An object to query.
+
+		:Return:
+			(bool)
+		'''
+		try: import shiboken2
+		except: from PySide2 import shiboken2
+
+		return hasattr(obj, 'objectName') and shiboken2.isValid(obj)
+
+
+	@staticmethod
+	def getParentWidgets(widget, objectNames=False):
+		'''Get the all parent widgets of the given widget.
+
+		:Parameters:
+			widget (obj) = QWidget
+			objectNames (bool) = Return as objectNames.
+
+		:Return:
+			(list) Object(s) or objectName(s)
+		'''
+		parentWidgets=[]
+		w = widget
+		while w:
+			parentWidgets.append(w)
+			w = w.parentWidget()
+		if objectNames:
+			return [str(w.objectName()) for w in parentWidgets]
+		return parentWidgets
+
+
+	@staticmethod
+	def getTopLevelParent(widget, index=-1):
+		'''Get the parent widget at the top of the hierarchy for the given widget.
+
+		:Parameters:
+			widget (obj) = QWidget
+			index (int) = Last index is top level.
+
+		:Return:
+			(QWidget)
+		'''
+		return self.getParentWidgets()[index]
+
+
+	@staticmethod
+	def qApp_getWindow(name=None):
+		'''Get Qt window/s
+
+		:Parameters:
+			name (str) = optional name of window (widget.objectName)
+
+		:Return:
+			if name: corresponding <window object>
+			else: return a dictionary of all windows {windowName:window}
+		'''
+		windows = {w.objectName():w for w in QApplication.allWindows()}
+		if name:
+			return windows[name]
+		else:
+			return windows
+
+
+	@staticmethod
+	def qApp_getWidget(name=None):
+		'''Get Qt widget/s
+
+		:Parameters:
+			name (str) = optional name of widget (widget.objectName)
+
+		:Return:
+			if name: corresponding <widget object>
+			else: return a dictionary of all widgets {objectName:widget}
+		'''
+		widgets = {w.objectName():w for w in QApplication.allWidgets()}
+		if name:
+			return widgets[name]
+		else:
+			return widgets
 
 
 

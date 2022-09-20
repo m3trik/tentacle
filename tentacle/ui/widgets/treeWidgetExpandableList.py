@@ -165,7 +165,8 @@ class TreeWidgetExpandableList(QtWidgets.QTreeWidget, Attributes):
 			try:
 				w = next(w for w in self.widgets.keys() if w.rect().contains(w.mapFromGlobal(QtGui.QCursor.pos())) and w.isVisible())
 			except StopIteration:
-				return QtWidgets.QApplication.sendEvent(self._mouseGrabber, self.hoverLeave)
+				QtWidgets.QApplication.sendEvent(self._mouseGrabber, self.hoverLeave)
+				return
 
 			if not w is self._mouseGrabber:
 				if self._mouseGrabber is not None:
@@ -750,7 +751,7 @@ class TreeWidgetExpandableList(QtWidgets.QTreeWidget, Attributes):
 		self.resizeAndShowColumns(reset=True)
 		self._mouseGrabber = self
 		
-		return QtWidgets.QTreeWidget.leaveEvent(self, event)
+		QtWidgets.QTreeWidget.leaveEvent(self, event)
 
 
 	def showEvent(self, event):
@@ -759,7 +760,7 @@ class TreeWidgetExpandableList(QtWidgets.QTreeWidget, Attributes):
 			event = <QEvent>
 		'''
 
-		return QtWidgets.QTreeWidget.showEvent(self, event)
+		QtWidgets.QTreeWidget.showEvent(self, event)
 
 
 	def hideEvent(self, event):
@@ -772,7 +773,7 @@ class TreeWidgetExpandableList(QtWidgets.QTreeWidget, Attributes):
 		if refreshedColumns:
 			self.clear_(refreshedColumns)
 
-		return QtWidgets.QTreeWidget.hideEvent(self, event)
+		QtWidgets.QTreeWidget.hideEvent(self, event)
 
 
 

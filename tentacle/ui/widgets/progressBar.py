@@ -81,7 +81,7 @@ class ProgressBar(QtWidgets.QProgressBar, Attributes):
 		self.isCanceled = False
 		self.setValue(0)
 
-		return QtWidgets.QProgressBar.showEvent(self, event)
+		QtWidgets.QProgressBar.showEvent(self, event)
 
 
 	def hideEvent(self, event):
@@ -90,7 +90,7 @@ class ProgressBar(QtWidgets.QProgressBar, Attributes):
 			event=<QEvent>
 		'''
 
-		return QtWidgets.QProgressBar.hideEvent(self, event)
+		QtWidgets.QProgressBar.hideEvent(self, event)
 
 
 

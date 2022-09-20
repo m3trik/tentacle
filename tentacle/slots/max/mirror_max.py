@@ -9,18 +9,18 @@ class Mirror_max(Mirror, Slots_max):
 	def __init__(self, *args, **kwargs):
 		super().__init__(*args, **kwargs)
 
-		cmb = self.sb.mirror.draggable_header.contextMenu.cmb000
+		cmb = self.sb.mirror.draggable_header.ctxMenu.cmb000
 		items = ['']
 		cmb.addItems_(items, '')
 
-		ctx = self.sb.mirror.tb000.contextMenu
+		ctx = self.sb.mirror.tb000.ctxMenu
 		ctx.chk006.setDisabled(True) #disable: delete history.
 
 
 		def cmb000(self, index=-1):
 		'''Editors
 		'''
-		cmb = self.sb.mirror.draggable_header.contextMenu.cmb000
+		cmb = self.sb.mirror.draggable_header.ctxMenu.cmb000
 
 		if index>0:
 			if index==cmd.items.index(''):
@@ -40,14 +40,14 @@ class Mirror_max(Mirror, Slots_max):
 		'''
 		tb = self.sb.mirror.tb000
 
-		axis = self.sb.getAxisFromCheckBoxes('chk000-3', tb.contextMenu)
-		worldSpace = tb.contextMenu.chk008.isChecked()
-		cutMesh = tb.contextMenu.chk005.isChecked() #cut mesh on axis before mirror.
-		instance = tb.contextMenu.chk004.isChecked()
-		merge = tb.contextMenu.chk007.isChecked()
-		mergeMode = tb.contextMenu.s001.value()
-		mergeThreshold = tb.contextMenu.s000.value()
-		deleteHistory = tb.contextMenu.chk006.isChecked() #delete the object's non-deformer history.
+		axis = self.sb.getAxisFromCheckBoxes('chk000-3', tb.ctxMenu)
+		worldSpace = tb.ctxMenu.chk008.isChecked()
+		cutMesh = tb.ctxMenu.chk005.isChecked() #cut mesh on axis before mirror.
+		instance = tb.ctxMenu.chk004.isChecked()
+		merge = tb.ctxMenu.chk007.isChecked()
+		mergeMode = tb.ctxMenu.s001.value()
+		mergeThreshold = tb.ctxMenu.s000.value()
+		deleteHistory = tb.ctxMenu.chk006.isChecked() #delete the object's non-deformer history.
 
 		return self.mirrorGeometry(axis=axis, worldSpace=worldSpace, cutMesh=cutMesh, instance=instance, merge=merge, 
 			mergeMode=mergeMode, mergeThreshold=mergeThreshold, deleteHistory=deleteHistory)
@@ -56,21 +56,21 @@ class Mirror_max(Mirror, Slots_max):
 	def b000(self):
 		'''Mirror: X
 		'''
-		self.sb.mirror.tb000.contextMenu.chk001.setChecked(True)
+		self.sb.mirror.tb000.ctxMenu.chk001.setChecked(True)
 		self.tb000()
 
 
 	def b001(self):
 		'''Mirror: Y
 		'''
-		self.sb.mirror.tb000.contextMenu.chk002.setChecked(True)
+		self.sb.mirror.tb000.ctxMenu.chk002.setChecked(True)
 		self.tb000()
 
 
 	def b002(self):
 		'''Mirror: Z
 		'''
-		self.sb.mirror.tb000.contextMenu.chk003.setChecked(True)
+		self.sb.mirror.tb000.ctxMenu.chk003.setChecked(True)
 		self.tb000()
 
 

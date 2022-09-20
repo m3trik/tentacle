@@ -11,16 +11,16 @@ class Duplicate_maya(Duplicate, Slots_maya):
 
 		dh = self.sb.duplicate.draggable_header
 		items = ['Duplicate Special']
-		dh.contextMenu.cmb000.addItems_(items, 'Maya Menus')
+		dh.ctxMenu.cmb000.addItems_(items, 'Maya Menus')
 
 		tb000 = self.sb.duplicate.tb000
-		tb000.contextMenu.add('QCheckBox', setText='Match Vertex Orientaion', setObjectName='chk001', setChecked=False, setToolTip='Attempt to match 3 points of the source to the same 3 points of the target.')
+		tb000.ctxMenu.add('QCheckBox', setText='Match Vertex Orientaion', setObjectName='chk001', setChecked=False, setToolTip='Attempt to match 3 points of the source to the same 3 points of the target.')
 
 
 	def cmb000(self, index=-1):
 		'''Editors
 		'''
-		cmb = self.sb.duplicate.draggable_header.contextMenu.cmb000
+		cmb = self.sb.duplicate.draggable_header.ctxMenu.cmb000
 
 		if index>0:
 			if index==cmd.items.index('Duplicate Special'):
@@ -242,7 +242,7 @@ class Duplicate_maya(Duplicate, Slots_maya):
 		'''
 		tb = self.sb.duplicate.tb000
 
-		transformByVertexOrder = tb.contextMenu.chk001.isChecked()
+		transformByVertexOrder = tb.ctxMenu.chk001.isChecked()
 
 		selection = pm.ls(sl=1, transforms=1)
 		if not selection:

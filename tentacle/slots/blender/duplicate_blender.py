@@ -10,7 +10,7 @@ class Duplicate_blender(Duplicate, Slots_blender):
 		Slots_blender.__init__(self, *args, **kwargs)
 		Duplicate.__init__(self, *args, **kwargs)
 
-		cmb = self.sb.duplicate.draggable_header.contextMenu.cmb000
+		cmb = self.sb.duplicate.draggable_header.ctxMenu.cmb000
 		items = []
 		cmb.addItems_(items, 'Editors')
 
@@ -18,7 +18,7 @@ class Duplicate_blender(Duplicate, Slots_blender):
 	def cmb000(self, index=-1):
 		'''Editors
 		'''
-		cmb = self.sb.duplicate.draggable_header.contextMenu.cmb000
+		cmb = self.sb.duplicate.draggable_header.ctxMenu.cmb000
 
 		if index>0:
 			if index==cmd.items.index('Duplicate Special'):

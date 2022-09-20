@@ -10,7 +10,7 @@ class Selection_maya(Selection, Slots_maya):
 
 		dh = self.sb.selection.draggable_header
 		items = ['Polygon Selection Constraints']
-		dh.contextMenu.cmb000.addItems_(items, 'Selection Editors:')
+		dh.ctxMenu.cmb000.addItems_(items, 'Selection Editors:')
 
 		cmb002 = self.sb.selection.cmb002
 		items = ['IK Handles','Joints','Clusters','Lattices','Sculpt Objects','Wires','Transforms','Geometry','NURBS Curves','NURBS Surfaces','Polygon Geometry','Cameras','Lights','Image Planes','Assets','Fluids','Particles','Rigid Bodies','Rigid Constraints','Brushes','Strokes','Dynamic Constraints','Follicles','nCloths','nParticles','nRigids']
@@ -123,7 +123,7 @@ class Selection_maya(Selection, Slots_maya):
 	def cmb000(self, index=-1):
 		'''Editors
 		'''
-		cmb = self.sb.selection.draggable_header.contextMenu.cmb000
+		cmb = self.sb.selection.draggable_header.ctxMenu.cmb000
 
 		if index>0:
 			text = cmb.items[index]
@@ -282,7 +282,7 @@ class Selection_maya(Selection, Slots_maya):
 	def cmb006(self, index=-1):
 		'''Currently Selected Objects
 		'''
-		cmb = self.sb.selection.draggable_header.contextMenu.cmb006
+		cmb = self.sb.selection.draggable_header.ctxMenu.cmb006
 
 		cmb.clear()
 		items = [str(i) for i in pm.ls(sl=1, flatten=1)]
@@ -311,12 +311,12 @@ class Selection_maya(Selection, Slots_maya):
 		'''
 		tb = self.sb.selection.tb000
 
-		edgeRing = tb.contextMenu.chk000.isChecked()
-		edgeLoop = tb.contextMenu.chk001.isChecked()
-		pathAlongLoop = tb.contextMenu.chk009.isChecked()
-		shortestPath = tb.contextMenu.chk002.isChecked()
-		borderEdges = tb.contextMenu.chk010.isChecked()
-		step = tb.contextMenu.s003.value()
+		edgeRing = tb.ctxMenu.chk000.isChecked()
+		edgeLoop = tb.ctxMenu.chk001.isChecked()
+		pathAlongLoop = tb.ctxMenu.chk009.isChecked()
+		shortestPath = tb.ctxMenu.chk002.isChecked()
+		borderEdges = tb.ctxMenu.chk010.isChecked()
+		step = tb.ctxMenu.s003.value()
 
 		selection = pm.ls(sl=1)
 		if not selection:
@@ -347,17 +347,17 @@ class Selection_maya(Selection, Slots_maya):
 		'''
 		tb = self.sb.selection.tb001
 
-		tol = tb.contextMenu.s000.value() #tolerance
-		v = tb.contextMenu.chk011.isChecked() #vertex
-		e = tb.contextMenu.chk012.isChecked() #edge
-		f = tb.contextMenu.chk013.isChecked() #face
-		t = tb.contextMenu.chk014.isChecked() #triangle
-		s = tb.contextMenu.chk015.isChecked() #shell
-		uv = tb.contextMenu.chk016.isChecked() #uvcoord
-		a = tb.contextMenu.chk017.isChecked() #area
-		wa = tb.contextMenu.chk018.isChecked() #world area
-		b = tb.contextMenu.chk019.isChecked() #bounding box
-		inc = tb.contextMenu.chk020.isChecked() #select the original objects
+		tol = tb.ctxMenu.s000.value() #tolerance
+		v = tb.ctxMenu.chk011.isChecked() #vertex
+		e = tb.ctxMenu.chk012.isChecked() #edge
+		f = tb.ctxMenu.chk013.isChecked() #face
+		t = tb.ctxMenu.chk014.isChecked() #triangle
+		s = tb.ctxMenu.chk015.isChecked() #shell
+		uv = tb.ctxMenu.chk016.isChecked() #uvcoord
+		a = tb.ctxMenu.chk017.isChecked() #area
+		wa = tb.ctxMenu.chk018.isChecked() #world area
+		b = tb.ctxMenu.chk019.isChecked() #bounding box
+		inc = tb.ctxMenu.chk020.isChecked() #select the original objects
 
 		objMode = pm.selectMode(query=1, object=1)
 		if objMode:
@@ -375,9 +375,9 @@ class Selection_maya(Selection, Slots_maya):
 		'''
 		tb = self.sb.selection.tb002
 
-		rangeX = float(tb.contextMenu.s002.value())
-		rangeY = float(tb.contextMenu.s004.value())
-		rangeZ = float(tb.contextMenu.s005.value())
+		rangeX = float(tb.ctxMenu.s002.value())
+		rangeY = float(tb.ctxMenu.s004.value())
+		rangeZ = float(tb.ctxMenu.s005.value())
 
 		selectedFaces = self.getComponents(componentType='faces')
 		if not selectedFaces:
@@ -395,8 +395,8 @@ class Selection_maya(Selection, Slots_maya):
 		'''
 		tb = self.sb.selection.tb003
 
-		angleLow = tb.contextMenu.s006.value()
-		angleHigh = tb.contextMenu.s007.value()
+		angleLow = tb.ctxMenu.s006.value()
+		angleHigh = tb.ctxMenu.s007.value()
 
 		objects = pm.ls(sl=1, objectsOnly=1)
 		edges = Slots_maya.getEdgesByNormalAngle(objects, lowAngle=angleLow, highAngle=angleHigh)

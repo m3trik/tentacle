@@ -20,7 +20,7 @@
 
 
 
-#add widgets to menu|contextMenu:
+#add widgets to menu|ctxMenu:
 ctx.add('QRadioButton', setText='Current Material', setObjectName='chk007', setChecked=True, setToolTip='Re-Assign the current stored material.')
 ctx.add('QCheckBox', setText='Current Material', setObjectName='chk010', setChecked=True, setToolTip='Use the current material, <br>else use the current viewport selection to get a material.')
 ctx.add('QDoubleSpinBox', setPrefix='Width: ', setObjectName='s000', setMinMax_='0.00-100 step.05', setValue=0.25, setHeight_=20, setToolTip='Bevel Width.')
@@ -63,7 +63,7 @@ self.sb.file.slots.b005() #get method 'b005' from the 'file' module.
 
 
 
-# pushButton w/contextMenu:
+# pushButton w/ctxMenu:
 def tb002(self, state=None):
 		'''Assign Material
 		'''
@@ -109,7 +109,7 @@ def cmb000(self, index=-1):
 			cmb.setCurrentIndex(0)
 
 
-# comboBox w/contextMenu
+# comboBox w/ctxMenu
 def cmb002(self, index=-1):
 		'''Material list
 
@@ -210,6 +210,7 @@ the issue where some popup windows hide on key release and some do not is back.
 maya:
 interactive ncloth to static mesh tool
 interactive generate> attach brush to curves
+additional interactive pipe tools using other methods
 
 
 tool:

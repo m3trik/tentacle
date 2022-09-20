@@ -218,7 +218,7 @@ class ComboBox(QtWidgets.QComboBox, MenuInstance, Attributes, RichText, TextOver
 			event=<QEvent>
 		'''
 		if event.button()==QtCore.Qt.RightButton:
-			self.contextMenu.show()
+			self.ctxMenu.show()
 
 		return QtWidgets.QComboBox.mousePressEvent(self, event)
 
@@ -240,8 +240,8 @@ class ComboBox(QtWidgets.QComboBox, MenuInstance, Attributes, RichText, TextOver
 		:Parameters:
 			event=<QEvent>
 		'''
-		if self.contextMenu.containsMenuItems:
-			# self.contextMenu.setTitle(self.itemText(0))
+		if self.ctxMenu.containsMenuItems:
+			# self.ctxMenu.setTitle(self.itemText(0))
 			self.setTextOverlay('⧉', alignment='AlignRight')
 			self.setItemText(0, self.itemText(0)) #set text: comboBox
 

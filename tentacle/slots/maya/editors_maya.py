@@ -175,7 +175,7 @@ class Editors_maya(Editors, Slots_maya):
 	def cmb000(self, index=-1):
 		'''Editors
 		'''
-		cmb = self.editors_ui.draggable_header.contextMenu.cmb000
+		cmb = self.editors_ui.draggable_header.ctxMenu.cmb000
 
 		if index>0:
 			text = cmb.items[index]

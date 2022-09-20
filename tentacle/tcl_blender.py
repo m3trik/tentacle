@@ -54,7 +54,7 @@ class Tcl_blender(Tcl):
 				import bpy
 				bpy.ops.ed.undo()
 
-		return Tcl.keyPressEvent(self, event)
+		Tcl.keyPressEvent(self, event)
 
 
 	def showEvent(self, event):
@@ -63,7 +63,7 @@ class Tcl_blender(Tcl):
 			event = <QEvent>
 		'''
 
-		return Tcl.showEvent(self, event) #super().showEvent(event)
+		Tcl.showEvent(self, event) #super().showEvent(event)
 
 
 	def hideEvent(self, event):
@@ -75,7 +75,7 @@ class Tcl_blender(Tcl):
 			self.app.instance().quit()
 			sys.exit() #assure that the sys processes are terminated.
 
-		return Tcl.hideEvent(self, event) #super().hideEvent(event)
+		Tcl.hideEvent(self, event) #super().hideEvent(event)
 
 
 

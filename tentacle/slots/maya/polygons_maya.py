@@ -9,7 +9,7 @@ class Polygons_maya(Polygons, Slots_maya):
 	def __init__(self, *args, **kwargs):
 		super().__init__(*args, **kwargs)
 
-		cmb000 = self.sb.polygons.draggable_header.contextMenu.cmb000
+		cmb000 = self.sb.polygons.draggable_header.ctxMenu.cmb000
 		items = ['Extrude','Bevel','Bridge','Combine','Merge Vertex','Offset Edgeloop','Edit Edgeflow','Extract Curve','Poke','Wedge','Assign Invisible']
 		cmb000.addItems_(items, 'Polygon Editors')
 
@@ -17,7 +17,7 @@ class Polygons_maya(Polygons, Slots_maya):
 	def cmb000(self, index=-1):
 		'''Editors
 		'''
-		cmb = self.sb.polygons.draggable_header.contextMenu.cmb000
+		cmb = self.sb.polygons.draggable_header.ctxMenu.cmb000
 
 		if index>0:
 			text = cmb.items[index]
@@ -51,7 +51,7 @@ class Polygons_maya(Polygons, Slots_maya):
 		'''
 		tb = self.sb.polygons.tb000
 
-		tolerance = float(tb.contextMenu.s002.value())
+		tolerance = float(tb.ctxMenu.s002.value())
 		objects = pm.ls(selection=1, objectsOnly=1, flatten=1)
 		componentMode = pm.selectMode(query=1, component=1)
 
@@ -83,7 +83,7 @@ class Polygons_maya(Polygons, Slots_maya):
 		'''
 		tb = self.sb.polygons.tb001
 
-		divisions = tb.contextMenu.s003.value()
+		divisions = tb.ctxMenu.s003.value()
 
 		selection = pm.ls(sl=1)
 		if not selection:
@@ -101,7 +101,7 @@ class Polygons_maya(Polygons, Slots_maya):
 		tb = self.sb.polygons.tb002
 
 		# pm.polyUnite( 'plg1', 'plg2', 'plg3', name='result' ) #for future reference. if more functionality is needed use polyUnite
-		if tb.contextMenu.chk000.isChecked():
+		if tb.ctxMenu.chk000.isChecked():
 			sel = pm.ls(sl=1, objectsOnly=1)
 			if not sel:
 				return self.messageBox('<strong>Nothing selected</strong>.<br>Operation requires the selection of at least two objects.', messageType='Error')
@@ -125,8 +125,8 @@ class Polygons_maya(Polygons, Slots_maya):
 		'''
 		tb = self.sb.polygons.tb003
 
-		keepFacesTogether = tb.contextMenu.chk002.isChecked() #keep faces/edges together.
-		divisions = tb.contextMenu.s004.value()
+		keepFacesTogether = tb.ctxMenu.chk002.isChecked() #keep faces/edges together.
+		divisions = tb.ctxMenu.s004.value()
 
 		selection = pm.ls(sl=1)
 		if not selection:
@@ -150,9 +150,9 @@ class Polygons_maya(Polygons, Slots_maya):
 		'''
 		tb = self.sb.polygons.tb004
 
-		width = tb.contextMenu.s000.value()
+		width = tb.ctxMenu.s000.value()
 		chamfer = True
-		segments = tb.contextMenu.s006.value()
+		segments = tb.ctxMenu.s006.value()
 
 		selection = pm.ls(sl=1)
 		if not selection:
@@ -167,8 +167,8 @@ class Polygons_maya(Polygons, Slots_maya):
 		'''
 		tb = self.sb.polygons.tb005
 
-		duplicate = tb.contextMenu.chk014.isChecked()
-		separate = tb.contextMenu.chk015.isChecked()
+		duplicate = tb.ctxMenu.chk014.isChecked()
+		separate = tb.ctxMenu.chk015.isChecked()
 
 		vertexMask = pm.selectType (query=True, vertex=True)
 		edgeMask = pm.selectType (query=True, edge=True)
@@ -206,7 +206,7 @@ class Polygons_maya(Polygons, Slots_maya):
 			self.messageBox('<strong>Nothing selected</strong>.<br>Operation requires a face selection.', messageType='Error')
 			return
 
-		offset = float(tb.contextMenu.s001.value())
+		offset = float(tb.ctxMenu.s001.value())
 		return pm.polyExtrudeFacet(selected_faces, keepFacesTogether=1, pvx=0, pvy=40.55638003, pvz=33.53797107, divisions=1, twist=0, taper=1, offset=offset, thickness=0, smoothingAngle=30)
 
 
@@ -216,17 +216,17 @@ class Polygons_maya(Polygons, Slots_maya):
 		tb = self.sb.polygons.tb007
 
 		dv=u=v=0
-		if tb.contextMenu.chk008.isChecked(): #Split U
+		if tb.ctxMenu.chk008.isChecked(): #Split U
 			u=2
-		if tb.contextMenu.chk009.isChecked(): #Split V
+		if tb.ctxMenu.chk009.isChecked(): #Split V
 			v=2
 
 		mode = 0 #The subdivision mode. 0=quads, 1=triangles
 		subdMethod = 1 #subdivision type: 0=exponential(traditional subdivision) 1=linear(number of faces per edge grows linearly)
-		if tb.contextMenu.chk010.isChecked(): #tris
+		if tb.ctxMenu.chk010.isChecked(): #tris
 			mode=dv=1
 			subdMethod=0
-		if all([tb.contextMenu.chk008.isChecked(), tb.contextMenu.chk009.isChecked()]): #subdivide once into quads
+		if all([tb.ctxMenu.chk008.isChecked(), tb.ctxMenu.chk009.isChecked()]): #subdivide once into quads
 			dv=1
 			subdMethod=0
 			u=v=0
@@ -248,13 +248,13 @@ class Polygons_maya(Polygons, Slots_maya):
 		selection = pm.ls(sl=1)
 		if not selection:
 			return self.messageBox('<strong>Nothing selected</strong>.<br>Operation requires the selection of at least two objects.', messageType='Error')
-		if tb.contextMenu.chk011.isChecked(): #union
+		if tb.ctxMenu.chk011.isChecked(): #union
 			pm.mel.PolygonBooleanIntersection()
 
-		if tb.contextMenu.chk012.isChecked(): #difference
+		if tb.ctxMenu.chk012.isChecked(): #difference
 			pm.mel.PolygonBooleanDifference()
 
-		if tb.contextMenu.chk013.isChecked(): #intersection
+		if tb.ctxMenu.chk013.isChecked(): #intersection
 			pm.mel.PolygonBooleanIntersection()
 
 
@@ -263,8 +263,8 @@ class Polygons_maya(Polygons, Slots_maya):
 		'''
 		tb = self.sb.polygons.tb009
 
-		tolerance = tb.contextMenu.s005.value()
-		freezetransforms = tb.contextMenu.chk016.isChecked()
+		tolerance = tb.ctxMenu.s005.value()
+		freezetransforms = tb.ctxMenu.chk016.isChecked()
 
 		selection = pm.ls(sl=1, objectsOnly=1)
 		if len(selection)>1:
@@ -517,7 +517,7 @@ print (__name__)
 # 		'''
 # 		tb = self.sb.polygons.tb005
 # 		if state=='setMenu':
-# 			# tb.contextMenu.add('QCheckBox', setText='Delete Original', setObjectName='chk007', setChecked=True, setToolTip='Delete original selected faces.')
+# 			# tb.ctxMenu.add('QCheckBox', setText='Delete Original', setObjectName='chk007', setChecked=True, setToolTip='Delete original selected faces.')
 # 			return
 
 # 		vertexMask = pm.selectType (query=True, vertex=True)
@@ -548,7 +548,7 @@ print (__name__)
 # 					# print(sel)
 # 					# extractedObject = "extracted_"+sel[0]
 # 					# pm.duplicate (sel[0], name=extractedObject)
-# 					# if tb.contextMenu.chk007.isChecked(): #delete original
+# 					# if tb.ctxMenu.chk007.isChecked(): #delete original
 # 					# 	pm.delete (selFace)
 
 # 					# allFace = [] #populate a list of all faces in the duplicated object

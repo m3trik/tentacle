@@ -57,7 +57,7 @@ class TextEdit(QtWidgets.QTextEdit, Attributes, MenuInstance):
 
 		# self.resize(self.sizeHint())
 
-		return QtWidgets.QTextEdit.showEvent(self, event)
+		QtWidgets.QTextEdit.showEvent(self, event)
 
 
 	def hideEvent(self, event):
@@ -69,7 +69,7 @@ class TextEdit(QtWidgets.QTextEdit, Attributes, MenuInstance):
 
 		self.clear()
 
-		return QtWidgets.QTextEdit.hideEvent(self, event)
+		QtWidgets.QTextEdit.hideEvent(self, event)
 
 
 

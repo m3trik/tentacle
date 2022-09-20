@@ -66,12 +66,12 @@ class EventFactoryFilter(QtCore.QObject):
 		eventName = self.createEventName(event) #get 'mousePressEvent' from <QEvent>
 
 		if eventName in self.events: #handle only events listed in 'eventTypes'
-			# try:
-			getattr(self, 'ef_'+eventName)(widget, event) #handle the event (in subclass. #ie. self.enterEvent(<widget>, <event>)
-			return True
+			try:
+				getattr(self, 'ef_'+eventName)(widget, event) #handle the event (in subclass. #ie. self.enterEvent(<widget>, <event>)
+				return True
 
-			# except AttributeError as error:
-			# 	print (__file__, error)
+			except AttributeError as error:
+				pass #print (__file__, error)
 
 		return False #event not handled
 

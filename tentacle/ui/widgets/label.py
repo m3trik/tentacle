@@ -46,9 +46,9 @@ class Label(QtWidgets.QLabel, MenuInstance, Attributes):
 			self.menu_.show()
 
 		if event.button()==QtCore.Qt.RightButton:
-			self.contextMenu.show()
+			self.ctxMenu.show()
 
-		return QtWidgets.QLabel.mousePressEvent(self, event)
+		QtWidgets.QLabel.mousePressEvent(self, event)
 
 
 	def mouseReleaseEvent(self, event):
@@ -59,7 +59,7 @@ class Label(QtWidgets.QLabel, MenuInstance, Attributes):
 		if event.button()==QtCore.Qt.LeftButton:
 			self.released.emit()
 
-		return QtWidgets.QLabel.mouseReleaseEvent(self, event)
+		QtWidgets.QLabel.mouseReleaseEvent(self, event)
 
 
 
@@ -76,8 +76,8 @@ if __name__ == "__main__":
 	w = Label(setText='QLabel', setVisible=True)
 	w.resize(w.sizeHint().width(), 19)
 	menuItem = w.menu_.add(Label, setText='menu item')
-	contextMenuItem = w.contextMenu.add(Label, setText='context menu item')
-	print (menuItem, contextMenuItem)
+	ctxMenuItem = w.ctxMenu.add(Label, setText='context menu item')
+	print (menuItem, ctxMenuItem)
 	# w.show()
 	sys.exit(app.exec_())
 

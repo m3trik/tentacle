@@ -9,17 +9,17 @@ class Pivot_max(Pivot, Slots_max):
 	def __init__(self, *args, **kwargs):
 		super().__init__(*args, **kwargs)
 
-		cmb = self.sb.pivot.draggable_header.contextMenu.cmb000
+		cmb = self.sb.pivot.draggable_header.ctxMenu.cmb000
 		items = ['']
 		cmb.addItems_(items, '')
 
-		ctx = self.sb.pivot.tb000.contextMenu
+		ctx = self.sb.pivot.tb000.ctxMenu
 		if not ctx.containsMenuItems:
 			ctx.add('QCheckBox', setText='Reset Pivot Position', setObjectName='chk000', setChecked=True, setToolTip='')
 			ctx.add('QCheckBox', setText='Reset Pivot Orientation', setObjectName='chk001', setChecked=True, setToolTip='')
 			ctx.add('QCheckBox', setText='Reset XForm', setObjectName='chk013', setToolTip='')
 
-		ctx = self.sb.pivot.tb001.contextMenu
+		ctx = self.sb.pivot.tb001.ctxMenu
 		if not ctx.containsMenuItems:
 			ctx.add('QRadioButton', setText='Component', setObjectName='chk002', setToolTip='Center the pivot on the center of the selected component\'s bounding box')
 			ctx.add('QRadioButton', setText='Object', setObjectName='chk003', setChecked=True, setToolTip='Center the pivot on the center of the object\'s bounding box')
@@ -37,7 +37,7 @@ class Pivot_max(Pivot, Slots_max):
 	def cmb000(self, index=-1):
 		'''Editors
 		'''
-		cmb = self.sb.pivot.draggable_header.contextMenu.cmb000
+		cmb = self.sb.pivot.draggable_header.ctxMenu.cmb000
 
 		if index>0:
 			text = cmb.items[index]
@@ -51,13 +51,13 @@ class Pivot_max(Pivot, Slots_max):
 		'''
 		tb = self.sb.pivot.tb000
 
-		if tb.contextMenu.chk000: #Reset Pivot Scale
+		if tb.ctxMenu.chk000: #Reset Pivot Scale
 			rt.ResetScale(rt.selection) #Same as Hierarchy/Pivot/Reset Scale.
 		
-		if tb.contextMenu.chk001: #Reset Pivot Transform
+		if tb.ctxMenu.chk001: #Reset Pivot Transform
 			rt.ResetTransform(rt.selection) #Same as Hierarchy/Pivot/Reset Transform.
 
-		if tb.contextMenu.chk013: #reset XForm
+		if tb.ctxMenu.chk013: #reset XForm
 			rt.ResetXForm(rt.selection) #Same as the Reset XForm utility in the Utilities tab - applies XForm modifier to node, stores the current transformations in the gizmo and resets the object transformations.
 			self.messageBox('ResetXForm '+str([obj.name for obj in rt.selection]))
 			return
@@ -70,17 +70,17 @@ class Pivot_max(Pivot, Slots_max):
 		'''
 		tb = self.sb.pivot.tb001
 
-		component = tb.contextMenu.chk002.isChecked()
-		object_ = tb.contextMenu.chk003.isChecked()
-		world = tb.contextMenu.chk004.isChecked()
-		objectTop = tb.contextMenu.chk005.isChecked()
-		objectBottom = tb.contextMenu.chk006.isChecked()
-		objectCenterLeft = tb.contextMenu.chk007.isChecked()
-		objectCenterRight = tb.contextMenu.chk008.isChecked()
-		objectBottomLeft = tb.contextMenu.chk009.isChecked()
-		objectBottomRight = tb.contextMenu.chk010.isChecked()
-		objectTopLeft = tb.contextMenu.chk011.isChecked()
-		objectTopRight = tb.contextMenu.chk012.isChecked()
+		component = tb.ctxMenu.chk002.isChecked()
+		object_ = tb.ctxMenu.chk003.isChecked()
+		world = tb.ctxMenu.chk004.isChecked()
+		objectTop = tb.ctxMenu.chk005.isChecked()
+		objectBottom = tb.ctxMenu.chk006.isChecked()
+		objectCenterLeft = tb.ctxMenu.chk007.isChecked()
+		objectCenterRight = tb.ctxMenu.chk008.isChecked()
+		objectBottomLeft = tb.ctxMenu.chk009.isChecked()
+		objectBottomRight = tb.ctxMenu.chk010.isChecked()
+		objectTopLeft = tb.ctxMenu.chk011.isChecked()
+		objectTopRight = tb.ctxMenu.chk012.isChecked()
 
 		if component: #Set pivot points to the center of the component's bounding box.
 			rt.CenterPivot(rt.selection) #Same as Hierarchy/Pivot/Affect Pivot Only - Center to Object.

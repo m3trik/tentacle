@@ -12,7 +12,7 @@ class Transform_blender(Transform, Slots_blender):
 		Slots_blender.__init__(self, *args, **kwargs)
 		Transform.__init__(self, *args, **kwargs)
 
-		cmb = self.sb.transform.draggable_header.contextMenu.cmb000
+		cmb = self.sb.transform.draggable_header.ctxMenu.cmb000
 		files = ['']
 		cmb.addItems_(files, '')
 
@@ -46,7 +46,7 @@ class Transform_blender(Transform, Slots_blender):
 	def cmb000(self, index=-1):
 		'''Editors
 		'''
-		cmb = self.sb.transform.draggable_header.contextMenu.cmb000
+		cmb = self.sb.transform.draggable_header.ctxMenu.cmb000
 
 		if index>0:
 			if index==cmd.list.index(''):
@@ -166,10 +166,10 @@ class Transform_blender(Transform, Slots_blender):
 		'''
 		tb = self.sb.transform.tb000
 
-		align = tb.contextMenu.cmb004.currentText()
-		origin = tb.contextMenu.chk014.isChecked()
-		centerPivot = tb.contextMenu.chk016.isChecked()
-		freezeTransforms = tb.contextMenu.chk017.isChecked()
+		align = tb.ctxMenu.cmb004.currentText()
+		origin = tb.ctxMenu.chk014.isChecked()
+		centerPivot = tb.ctxMenu.chk016.isChecked()
+		freezeTransforms = tb.ctxMenu.chk017.isChecked()
 
 		objects = pm.ls(sl=1, objectsOnly=1)
 		self.dropToGrid(objects, align, origin, centerPivot, freezeTransforms)
@@ -183,9 +183,9 @@ class Transform_blender(Transform, Slots_blender):
 		'''
 		tb = self.sb.transform.tb001
 
-		betweenTwoComponents = tb.contextMenu.chk013.isChecked()
-		autoAlign = tb.contextMenu.chk010.isChecked()
-		autoAlign2Axes = tb.contextMenu.chk011.isChecked() #Auto Align: Two Axes
+		betweenTwoComponents = tb.ctxMenu.chk013.isChecked()
+		autoAlign = tb.ctxMenu.chk010.isChecked()
+		autoAlign2Axes = tb.ctxMenu.chk011.isChecked() #Auto Align: Two Axes
 
 		selection = pm.ls(orderedSelection=1, flatten=1)
 
@@ -231,27 +231,27 @@ class Transform_blender(Transform, Slots_blender):
 
 				if autoAlign2Axes:
 					if axis==x: #"yz"
-						self.sb.toggleWidgets(tb.contextMenu, setChecked='chk030-31', setUnChecked='chk029')
+						self.sb.toggleWidgets(tb.ctxMenu, setChecked='chk030-31', setUnChecked='chk029')
 					if axis==y: #"xz"
-						self.sb.toggleWidgets(tb.contextMenu, setChecked='chk029,chk031', setUnChecked='chk030')
+						self.sb.toggleWidgets(tb.ctxMenu, setChecked='chk029,chk031', setUnChecked='chk030')
 					if axis==z: #"xy"
-						self.sb.toggleWidgets(tb.contextMenu, setChecked='chk029-30', setUnChecked='chk031')
+						self.sb.toggleWidgets(tb.ctxMenu, setChecked='chk029-30', setUnChecked='chk031')
 				else:
 					if any ([axis==x and tangent==ty, axis==y and tangent==tx]): #"z"
-						self.sb.toggleWidgets(tb.contextMenu, setChecked='chk031', setUnChecked='chk029-30')
+						self.sb.toggleWidgets(tb.ctxMenu, setChecked='chk031', setUnChecked='chk029-30')
 					if any ([axis==x and tangent==tz, axis==z and tangent==tx]): #"y"
-						self.sb.toggleWidgets(tb.contextMenu, setChecked='chk030', setUnChecked='chk029,chk031')
+						self.sb.toggleWidgets(tb.ctxMenu, setChecked='chk030', setUnChecked='chk029,chk031')
 					if any ([axis==y and tangent==tz, axis==z and tangent==ty]): #"x"
-						self.sb.toggleWidgets(tb.contextMenu, setChecked='chk029', setUnChecked='chk030-31')
+						self.sb.toggleWidgets(tb.ctxMenu, setChecked='chk029', setUnChecked='chk030-31')
 			else:
 				return 'Error: Operation requires a component selection.'
 
 		#align
-		x = tb.contextMenu.chk029.isChecked()
-		y = tb.contextMenu.chk030.isChecked()
-		z = tb.contextMenu.chk031.isChecked()
-		avg = tb.contextMenu.chk006.isChecked()
-		loop = tb.contextMenu.chk007.isChecked()
+		x = tb.ctxMenu.chk029.isChecked()
+		y = tb.ctxMenu.chk030.isChecked()
+		z = tb.ctxMenu.chk031.isChecked()
+		avg = tb.ctxMenu.chk006.isChecked()
+		loop = tb.ctxMenu.chk007.isChecked()
 
 		if all ([x, not y, not z]): #align x
 			self.alignVertices(mode=3,average=avg,edgeloop=loop)
@@ -946,7 +946,7 @@ print (__name__)
 	# 	cmb = self.sb.transform.cmb001
 
 	# 	if index=='setMenu':
-	# 		cmb.contextMenu.add(self.sb.Label, setObjectName='lbl000', setText='Disable All', setToolTip='Disable all constraints.')
+	# 		cmb.ctxMenu.add(self.sb.Label, setObjectName='lbl000', setText='Disable All', setToolTip='Disable all constraints.')
 
 	# 		items = ['Edge', 'Surface', 'Make Live']
 	# 		cmb.addItems_(items, 'Off')

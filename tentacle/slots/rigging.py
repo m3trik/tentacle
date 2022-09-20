@@ -11,46 +11,46 @@ class Rigging(Slots):
 		'''
 		'''
 		dh = self.sb.rigging.draggable_header
-		dh.contextMenu.add(self.sb.ComboBox, setObjectName='cmb000', setToolTip='Rigging Editors')
+		dh.ctxMenu.add(self.sb.ComboBox, setObjectName='cmb000', setToolTip='Rigging Editors')
 
 		tb000 = self.sb.rigging.tb000
-		tb000.contextMenu.add('QCheckBox', setText='Joints', setObjectName='chk000', setChecked=True, setToolTip='Display Joints.')
-		tb000.contextMenu.add('QCheckBox', setText='IK', setObjectName='chk001', setChecked=True, setToolTip='Display IK.')
-		tb000.contextMenu.add('QCheckBox', setText='IK\\FK', setObjectName='chk002', setChecked=True, setToolTip='Display IK\\FK.')
-		tb000.contextMenu.add('QDoubleSpinBox', setPrefix='Tolerance: ', setObjectName='s000', setMinMax_='0.00-10 step.5', setValue=1.0, setToolTip='Global Display Scale for the selected type.')
+		tb000.ctxMenu.add('QCheckBox', setText='Joints', setObjectName='chk000', setChecked=True, setToolTip='Display Joints.')
+		tb000.ctxMenu.add('QCheckBox', setText='IK', setObjectName='chk001', setChecked=True, setToolTip='Display IK.')
+		tb000.ctxMenu.add('QCheckBox', setText='IK\\FK', setObjectName='chk002', setChecked=True, setToolTip='Display IK\\FK.')
+		tb000.ctxMenu.add('QDoubleSpinBox', setPrefix='Tolerance: ', setObjectName='s000', setMinMax_='0.00-10 step.5', setValue=1.0, setToolTip='Global Display Scale for the selected type.')
 		self.chk000() #init scale joint value
 
 		tb001 = self.sb.rigging.tb001
-		tb001.contextMenu.add('QCheckBox', setText='Align world', setObjectName='chk003', setToolTip='Align joints with the worlds transform.')
+		tb001.ctxMenu.add('QCheckBox', setText='Align world', setObjectName='chk003', setToolTip='Align joints with the worlds transform.')
 
 		tb002 = self.sb.rigging.tb002
-		tb002.contextMenu.add('QCheckBox', setText='Template Child', setObjectName='chk004', setChecked=False, setToolTip='Template child object(s) after parenting.')		
+		tb002.ctxMenu.add('QCheckBox', setText='Template Child', setObjectName='chk004', setChecked=False, setToolTip='Template child object(s) after parenting.')		
 
 		tb003 = self.sb.rigging.tb003
-		tb003.contextMenu.add('QDoubleSpinBox', setPrefix='Locator Scale: ', setObjectName='s001', setMinMax_='.000-1000 step1', setValue=1, setToolTip='The scale of the locator.')
-		tb003.contextMenu.add('QLineEdit', setPlaceholderText='Locator Suffix:', setText='_GRP', setObjectName='t002', setToolTip='A string appended to the end of the created group\'s name.')
-		tb003.contextMenu.add('QLineEdit', setPlaceholderText='Locator Suffix:', setText='_LCTR', setObjectName='t000', setToolTip='A string appended to the end of the created locator\'s name.')
-		tb003.contextMenu.add('QLineEdit', setPlaceholderText='Geometry Suffix:', setText='_GEO', setObjectName='t001', setToolTip='A string appended to the end of the existing geometry\'s name.')
-		tb003.contextMenu.add('QCheckBox', setText='Strip Suffix', setObjectName='chk016', setChecked=True, setToolTip='Strip any of the given suffixes from the group name before appending the new ones.')
-		tb003.contextMenu.add('QCheckBox', setText='Strip Digits', setObjectName='chk005', setChecked=True, setToolTip='Strip any trailing numeric characters from the name.\nIf the resulting name is not unique, maya will append a trailing digit.')
-		tb003.contextMenu.add('QCheckBox', setText='Parent', setObjectName='chk006', setChecked=True, setToolTip='Parent to object to the locator.')
-		tb003.contextMenu.add('QCheckBox', setText='Freeze Transforms', setObjectName='chk010', setChecked=True, setToolTip='Freeze transforms on the locator.')
-		tb003.contextMenu.add('QCheckBox', setText='Bake Child Pivot', setObjectName='chk011', setChecked=True, setToolTip='Bake pivot positions on the child object.')
-		tb003.contextMenu.add('QCheckBox', setText='Lock Child Translate', setObjectName='chk007', setChecked=True, setToolTip='Lock the translate values of the child object.')
-		tb003.contextMenu.add('QCheckBox', setText='Lock Child Rotation', setObjectName='chk008', setChecked=True, setToolTip='Lock the rotation values of the child object.')
-		tb003.contextMenu.add('QCheckBox', setText='Lock Child Scale', setObjectName='chk009', setToolTip='Lock the scale values of the child object.')
-		tb003.contextMenu.add('QCheckBox', setText='Remove Locators', setObjectName='chk015', setChecked=False, setToolTip='Removes the locator, and inverts the above process. (not valid with component selections)')
-		tb003.contextMenu.chk015.stateChanged.connect(lambda state: self.sb.toggleWidgets(tb003.contextMenu, setDisabled='t000-1,s001,chk005-11') if state 
-														else self.sb.toggleWidgets(tb003.contextMenu, setEnabled='t000-1,s001,chk005-11')) #disable non-relevant options.
+		tb003.ctxMenu.add('QDoubleSpinBox', setPrefix='Locator Scale: ', setObjectName='s001', setMinMax_='.000-1000 step1', setValue=1, setToolTip='The scale of the locator.')
+		tb003.ctxMenu.add('QLineEdit', setPlaceholderText='Locator Suffix:', setText='_GRP', setObjectName='t002', setToolTip='A string appended to the end of the created group\'s name.')
+		tb003.ctxMenu.add('QLineEdit', setPlaceholderText='Locator Suffix:', setText='_LCTR', setObjectName='t000', setToolTip='A string appended to the end of the created locator\'s name.')
+		tb003.ctxMenu.add('QLineEdit', setPlaceholderText='Geometry Suffix:', setText='_GEO', setObjectName='t001', setToolTip='A string appended to the end of the existing geometry\'s name.')
+		tb003.ctxMenu.add('QCheckBox', setText='Strip Suffix', setObjectName='chk016', setChecked=True, setToolTip='Strip any of the given suffixes from the group name before appending the new ones.')
+		tb003.ctxMenu.add('QCheckBox', setText='Strip Digits', setObjectName='chk005', setChecked=True, setToolTip='Strip any trailing numeric characters from the name.\nIf the resulting name is not unique, maya will append a trailing digit.')
+		tb003.ctxMenu.add('QCheckBox', setText='Parent', setObjectName='chk006', setChecked=True, setToolTip='Parent to object to the locator.')
+		tb003.ctxMenu.add('QCheckBox', setText='Freeze Transforms', setObjectName='chk010', setChecked=True, setToolTip='Freeze transforms on the locator.')
+		tb003.ctxMenu.add('QCheckBox', setText='Bake Child Pivot', setObjectName='chk011', setChecked=True, setToolTip='Bake pivot positions on the child object.')
+		tb003.ctxMenu.add('QCheckBox', setText='Lock Child Translate', setObjectName='chk007', setChecked=True, setToolTip='Lock the translate values of the child object.')
+		tb003.ctxMenu.add('QCheckBox', setText='Lock Child Rotation', setObjectName='chk008', setChecked=True, setToolTip='Lock the rotation values of the child object.')
+		tb003.ctxMenu.add('QCheckBox', setText='Lock Child Scale', setObjectName='chk009', setToolTip='Lock the scale values of the child object.')
+		tb003.ctxMenu.add('QCheckBox', setText='Remove Locators', setObjectName='chk015', setChecked=False, setToolTip='Removes the locator, and inverts the above process. (not valid with component selections)')
+		tb003.ctxMenu.chk015.stateChanged.connect(lambda state: self.sb.toggleWidgets(tb003.ctxMenu, setDisabled='t000-1,s001,chk005-11') if state 
+														else self.sb.toggleWidgets(tb003.ctxMenu, setEnabled='t000-1,s001,chk005-11')) #disable non-relevant options.
 		tb004 = self.sb.rigging.tb004
-		tb004.contextMenu.add('QCheckBox', setText='Translate', setObjectName='chk012', setChecked=False, setToolTip='')
-		tb004.contextMenu.add('QCheckBox', setText='Rotate', setObjectName='chk013', setChecked=False, setToolTip='')
-		tb004.contextMenu.add('QCheckBox', setText='Scale', setObjectName='chk014', setChecked=False, setToolTip='')
-		self.sb.connect((tb004.contextMenu.chk012, tb004.contextMenu.chk013, tb004.contextMenu.chk014), 'toggled', 
+		tb004.ctxMenu.add('QCheckBox', setText='Translate', setObjectName='chk012', setChecked=False, setToolTip='')
+		tb004.ctxMenu.add('QCheckBox', setText='Rotate', setObjectName='chk013', setChecked=False, setToolTip='')
+		tb004.ctxMenu.add('QCheckBox', setText='Scale', setObjectName='chk014', setChecked=False, setToolTip='')
+		self.sb.connect((tb004.ctxMenu.chk012, tb004.ctxMenu.chk013, tb004.ctxMenu.chk014), 'toggled', 
 			[lambda state: self.sb.rigging.tb004.setText('Lock Attributes' 
-				if any((tb004.contextMenu.chk012.isChecked(), tb004.contextMenu.chk013.isChecked(), tb004.contextMenu.chk014.isChecked())) else 'Unlock Attributes'), 
+				if any((tb004.ctxMenu.chk012.isChecked(), tb004.ctxMenu.chk013.isChecked(), tb004.ctxMenu.chk014.isChecked())) else 'Unlock Attributes'), 
 			lambda state: self.sb.rigging_submenu.tb004.setText('Lock Transforms' 
-				if any((tb004.contextMenu.chk012.isChecked(), tb004.contextMenu.chk013.isChecked(), tb004.contextMenu.chk014.isChecked())) else 'Unlock Attributes')])
+				if any((tb004.ctxMenu.chk012.isChecked(), tb004.ctxMenu.chk013.isChecked(), tb004.ctxMenu.chk014.isChecked())) else 'Unlock Attributes')])
 
 
 	def draggable_header(self, state=None):

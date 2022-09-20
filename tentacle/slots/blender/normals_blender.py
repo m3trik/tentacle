@@ -10,7 +10,7 @@ class Normals_blender(Normals, Slots_blender):
 		Slots_blender.__init__(self, *args, **kwargs)
 		Normals.__init__(self, *args, **kwargs)
 
-		cmb = self.sb.normals.draggable_header.contextMenu.cmb000
+		cmb = self.sb.normals.draggable_header.ctxMenu.cmb000
 		items = ['']
 		cmb.addItems_(items, '')
 
@@ -18,7 +18,7 @@ class Normals_blender(Normals, Slots_blender):
 	def cmb000(self, index=-1):
 		'''Editors
 		'''
-		cmb = self.sb.normals.draggable_header.contextMenu.cmb000
+		cmb = self.sb.normals.draggable_header.ctxMenu.cmb000
 
 		if index>0:
 			if index==cmd.items.index(''):
@@ -31,7 +31,7 @@ class Normals_blender(Normals, Slots_blender):
 		'''
 		tb = self.sb.normals.tb000
 
-		size = float(tb.contextMenu.s001.value())
+		size = float(tb.ctxMenu.s001.value())
 		# state = pm.polyOptions (query=True, displayNormal=True)
 		state = self.cycle([1,2,3,0], 'displayNormals')
 		if state ==0: #off
@@ -60,10 +60,10 @@ class Normals_blender(Normals, Slots_blender):
 		'''
 		tb = self.sb.normals.tb001
 
-		hardAngle = tb.contextMenu.s002.value()
-		hardenCreased = tb.contextMenu.chk001.isChecked()
-		hardenUvBorders = tb.contextMenu.chk002.isChecked()
-		softenOther = tb.contextMenu.chk000.isChecked()
+		hardAngle = tb.ctxMenu.s002.value()
+		hardenCreased = tb.ctxMenu.chk001.isChecked()
+		hardenUvBorders = tb.ctxMenu.chk002.isChecked()
+		softenOther = tb.ctxMenu.chk000.isChecked()
 
 		objects = pm.ls(sl=True, objectsOnly=True)
 
@@ -98,7 +98,7 @@ class Normals_blender(Normals, Slots_blender):
 		'''
 		tb = self.sb.normals.tb002
 
-		normalAngle = str(tb.contextMenu.s000.value())
+		normalAngle = str(tb.ctxMenu.s000.value())
 
 		objects = pm.ls(selection=1, objectsOnly=1, flatten=1)
 		for obj in objects:
@@ -114,8 +114,8 @@ class Normals_blender(Normals, Slots_blender):
 		'''
 		tb = self.sb.normals.tb003
 
-		all_ = tb.contextMenu.chk001.isChecked()
-		state = tb.contextMenu.chk002.isChecked() #pm.polyNormalPerVertex(vertex, query=1, freezeNormal=1)
+		all_ = tb.ctxMenu.chk001.isChecked()
+		state = tb.ctxMenu.chk002.isChecked() #pm.polyNormalPerVertex(vertex, query=1, freezeNormal=1)
 		selection = pm.ls (selection=1, objectsOnly=1)
 		maskObject = pm.selectMode (query=1, object=1)
 		maskVertex = pm.selectType (query=1, vertex=1)
@@ -151,7 +151,7 @@ class Normals_blender(Normals, Slots_blender):
 		'''
 		tb = self.sb.normals.tb004
 
-		byUvShell = tb.contextMenu.chk003.isChecked()
+		byUvShell = tb.ctxMenu.chk003.isChecked()
 		self.averageNormals(byUvShell)
 
 

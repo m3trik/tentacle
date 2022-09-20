@@ -242,9 +242,7 @@ class Tcl(QtWidgets.QStackedWidget, EventFactoryFilter):
 				ui.addWidgets(w)
 
 			#set stylesheet
-			if ui.isSubmenu and not w.prefix=='i': #if submenu and objectName doesn't start with 'i':
-				self.sb.setStyle(w, style='dark', hideMenuButton=True, backgroundOpacity=0)
-			elif ui.level>2: #main menus
+			if ui.level>2 or ui.isSubmenu and not w.prefix=='i': #if submenu and objectName doesn't start with 'i':
 				self.sb.setStyle(w, style='dark', backgroundOpacity=0)
 			else:
 				self.sb.setStyle(w, backgroundOpacity=0)
@@ -254,14 +252,14 @@ class Tcl(QtWidgets.QStackedWidget, EventFactoryFilter):
 				if ui.level<3 or w.type=='QMainWindow':
 					w.installEventFilter(self)
 
-				try: #add the child widgets of popup menus.
-					self.initWidgets(ui, w.menu_.childWidgets) #initialize the widget to set things like the event filter and styleSheet.
-					self.sb.connectSlots(ui, w.menu_.childWidgets)
+				# try: #add the child widgets of popup menus.
+				# 	self.initWidgets(ui, w.menu_.childWidgets) #initialize the widget to set things like the event filter and styleSheet.
+				# 	self.sb.connectSlots(ui, w.menu_.childWidgets)
 
-					self.initWidgets(ui, w.contextMenu.childWidgets)
-					self.sb.connectSlots(ui, w.contextMenu.childWidgets)
-				except AttributeError as error:
-					pass; #print ("# Error: {}.ChildEvents.initWidgets({}, {}): {}. #".format(__name__, ui, widgetName, error))
+				# 	self.initWidgets(ui, w.ctxMenu.childWidgets)
+				# 	self.sb.connectSlots(ui, w.ctxMenu.childWidgets)
+				# except AttributeError as error:
+				# 	pass; #print ("# Error: {}.ChildEvents.initWidgets({}, {}): {}. #".format(__name__, ui, widgetName, error))
 
 				if w.derivedType in ('QPushButton', 'QLabel'): #widget types to resize and center.
 					if ui.level<=2:
@@ -298,7 +296,7 @@ class Tcl(QtWidgets.QStackedWidget, EventFactoryFilter):
 		elif event.key()==self.key_close:
 			self.close()
 
-		return QtWidgets.QStackedWidget.keyPressEvent(self, event)
+		QtWidgets.QStackedWidget.keyPressEvent(self, event)
 
 
 	def keyReleaseEvent(self, event):
@@ -314,7 +312,7 @@ class Tcl(QtWidgets.QStackedWidget, EventFactoryFilter):
 			self.releaseKeyboard()
 			self.hide()
 
-		return QtWidgets.QStackedWidget.keyReleaseEvent(self, event)
+		QtWidgets.QStackedWidget.keyReleaseEvent(self, event)
 
 
 	def mousePressEvent(self, event):
@@ -335,7 +333,7 @@ class Tcl(QtWidgets.QStackedWidget, EventFactoryFilter):
 				elif event.button()==QtCore.Qt.RightButton:
 					self.setUi('main')
 
-		return QtWidgets.QStackedWidget.mousePressEvent(self, event)
+		QtWidgets.QStackedWidget.mousePressEvent(self, event)
 
 
 	def mouseMoveEvent(self, event):
@@ -345,7 +343,7 @@ class Tcl(QtWidgets.QStackedWidget, EventFactoryFilter):
 		'''
 		self.mouseTracking(self.sb.currentUi)
 
-		return QtWidgets.QStackedWidget.mouseMoveEvent(self, event)
+		QtWidgets.QStackedWidget.mouseMoveEvent(self, event)
 
 
 	def mouseReleaseEvent(self, event):
@@ -353,7 +351,7 @@ class Tcl(QtWidgets.QStackedWidget, EventFactoryFilter):
 		'''
 		self.setUi('init')
 
-		return QtWidgets.QStackedWidget.mouseReleaseEvent(self, event)
+		QtWidgets.QStackedWidget.mouseReleaseEvent(self, event)
 
 
 	def mouseDoubleClickEvent(self, event):
@@ -378,7 +376,7 @@ class Tcl(QtWidgets.QStackedWidget, EventFactoryFilter):
 			elif event.button()==QtCore.Qt.RightButton:
 				self.repeatLastUi()
 
-		return QtWidgets.QStackedWidget.mouseDoubleClickEvent(self, event)
+		QtWidgets.QStackedWidget.mouseDoubleClickEvent(self, event)
 
 
 	def focusChanged(self, old, new):
@@ -420,7 +418,7 @@ class Tcl(QtWidgets.QStackedWidget, EventFactoryFilter):
 		if self.sb.currentUi.level==0:
 			self.move(self.sb.getCenter(self))
 
-		return QtWidgets.QStackedWidget.showEvent(self, event)
+		QtWidgets.QStackedWidget.showEvent(self, event)
 
 
 	def hide(self, force=False):
@@ -431,10 +429,7 @@ class Tcl(QtWidgets.QStackedWidget, EventFactoryFilter):
 			force (bool) = override preventHide.
 		'''
 		if force or not self.preventHide:
-			# self.grabMouse()
-			# self.releaseMouse() #Releases the mouse grab.
 			# print ('mouseGrabber:', self.mouseGrabber()) #Returns the widget that is currently grabbing the mouse input. else: None 
-
 			QtWidgets.QStackedWidget.hide(self)
 
 
@@ -445,7 +440,7 @@ class Tcl(QtWidgets.QStackedWidget, EventFactoryFilter):
 			self.app.quit()
 			sys.exit() #assure that the sys processes are terminated during testing.
 
-		return QtWidgets.QStackedWidget.hideEvent(self, event)
+		QtWidgets.QStackedWidget.hideEvent(self, event)
 
 
 
@@ -582,7 +577,7 @@ class Tcl(QtWidgets.QStackedWidget, EventFactoryFilter):
 		'''A widget must call setFocusPolicy() to accept focus initially, and have focus, in order to receive a key press event.
 		'''
 		if not event.isAutoRepeat():
-			print ('ef_keyPressEvent: {}: {}'.format(w, event))
+			# print ('ef_keyPressEvent: {}: {}'.format(w, event))
 			modifiers = self.app.keyboardModifiers()
 
 			if event.key()==self.key_close:
@@ -595,7 +590,7 @@ class Tcl(QtWidgets.QStackedWidget, EventFactoryFilter):
 		'''A widget must accept focus initially, and have focus, in order to receive a key release event.
 		'''
 		if not event.isAutoRepeat():
-			print ('ef_keyReleaseEvent: {}: {}'.format(w, event))
+			# print ('ef_keyReleaseEvent: {}: {}'.format(w, event))
 			modifiers = self.app.keyboardModifiers()
 
 			if event.key()==self.key_show and not modifiers==QtCore.Qt.ControlModifier:
@@ -618,7 +613,7 @@ class Tcl(QtWidgets.QStackedWidget, EventFactoryFilter):
 		if callable(method):
 			method()
 		else:
-			print('# Warning: No recent commands in history. #')
+			print('# Result: No recent commands in history. #')
 
 
 	def repeatLastCameraView(self):
@@ -641,7 +636,7 @@ class Tcl(QtWidgets.QStackedWidget, EventFactoryFilter):
 		if prevUi:
 			self.setUi(prevUi)
 		else:
-			print('# Warning: No recent menus in history. #')
+			print('# Result: No recent menus in history. #')
 
 
 	_cameraHistory = []

@@ -56,7 +56,7 @@ class PushButton(QtWidgets.QPushButton, MenuInstance, Attributes, RichText, Text
 		if self.showMenuOnMouseOver:
 			self.menu_.show()
 
-		return QtWidgets.QPushButton.enterEvent(self, event)
+		QtWidgets.QPushButton.enterEvent(self, event)
 
 
 	def mousePressEvent(self, event):
@@ -65,9 +65,9 @@ class PushButton(QtWidgets.QPushButton, MenuInstance, Attributes, RichText, Text
 			event = <QEvent>
 		'''
 		if event.button()==QtCore.Qt.RightButton:
-			self.contextMenu.show()
+			self.ctxMenu.show()
 
-		return QtWidgets.QPushButton.mousePressEvent(self, event)
+		QtWidgets.QPushButton.mousePressEvent(self, event)
 
 
 	def leaveEvent(self, event):
@@ -78,7 +78,7 @@ class PushButton(QtWidgets.QPushButton, MenuInstance, Attributes, RichText, Text
 		if self.showMenuOnMouseOver:
 			self.menu_.hide()
 
-		return QtWidgets.QPushButton.leaveEvent(self, event)
+		QtWidgets.QPushButton.leaveEvent(self, event)
 
 
 	def createOptionBox(self):
@@ -92,11 +92,11 @@ class PushButton(QtWidgets.QPushButton, MenuInstance, Attributes, RichText, Text
 		:Parameters:
 			event = <QEvent>
 		'''
-		if self.contextMenu.containsMenuItems:
+		if self.ctxMenu.containsMenuItems:
 			if not self.optionBox:
 				self.createOptionBox()
 
-		return QtWidgets.QPushButton.showEvent(self, event)
+		QtWidgets.QPushButton.showEvent(self, event)
 
 
 

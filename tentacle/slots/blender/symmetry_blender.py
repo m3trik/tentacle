@@ -10,7 +10,7 @@ class Symmetry_blender(Symmetry, Slots_blender):
 		Slots_blender.__init__(self, *args, **kwargs)
 		Symmetry.__init__(self, *args, **kwargs)
 
-		cmb000 = self.sb.symmetry.draggable_header.contextMenu.cmb000
+		cmb000 = self.sb.symmetry.draggable_header.ctxMenu.cmb000
 		items = ['']
 		cmb000.addItems_(items, '')
 
@@ -25,7 +25,7 @@ class Symmetry_blender(Symmetry, Slots_blender):
 	def cmb000(self, index=-1):
 		'''Editors
 		'''
-		cmb = self.sb.symmetry.draggable_header.contextMenu.cmb000
+		cmb = self.sb.symmetry.draggable_header.ctxMenu.cmb000
 
 		if index>0:
 			if index==cmd.items.index(''):

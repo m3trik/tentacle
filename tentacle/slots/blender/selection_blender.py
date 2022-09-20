@@ -9,7 +9,7 @@ class Selection_blender(Selection, Slots_blender):
 		Slots_blender.__init__(self, *args, **kwargs)
 		Selection.__init__(self, *args, **kwargs)
 
-		cmb = self.sb.selection.draggable_header.contextMenu.cmb000
+		cmb = self.sb.selection.draggable_header.ctxMenu.cmb000
 		items = []
 		cmb.addItems_(items, 'Selection Editors:')
 
@@ -145,7 +145,7 @@ class Selection_blender(Selection, Slots_blender):
 	def cmb000(self, index=-1):
 		'''Editors
 		'''
-		cmb = self.sb.selection.draggable_header.contextMenu.cmb000
+		cmb = self.sb.selection.draggable_header.ctxMenu.cmb000
 
 		if index>0:
 			text = cmb.items[index]
@@ -304,7 +304,7 @@ class Selection_blender(Selection, Slots_blender):
 	def cmb006(self, index=-1):
 		'''Currently Selected Objects
 		'''
-		cmb = self.sb.selection.draggable_header.contextMenu.cmb006
+		cmb = self.sb.selection.draggable_header.ctxMenu.cmb006
 
 		cmb.clear()
 		items = [str(i) for i in pm.ls(sl=1, flatten=1)]
@@ -333,12 +333,12 @@ class Selection_blender(Selection, Slots_blender):
 		'''
 		tb = self.sb.selection.tb000
 
-		edgeRing = tb.contextMenu.chk000.isChecked()
-		edgeLoop = tb.contextMenu.chk001.isChecked()
-		pathAlongLoop = tb.contextMenu.chk009.isChecked()
-		shortestPath = tb.contextMenu.chk002.isChecked()
-		borderEdges = tb.contextMenu.chk010.isChecked()
-		step = tb.contextMenu.s003.value()
+		edgeRing = tb.ctxMenu.chk000.isChecked()
+		edgeLoop = tb.ctxMenu.chk001.isChecked()
+		pathAlongLoop = tb.ctxMenu.chk009.isChecked()
+		shortestPath = tb.ctxMenu.chk002.isChecked()
+		borderEdges = tb.ctxMenu.chk010.isChecked()
+		step = tb.ctxMenu.s003.value()
 
 		selection = pm.ls(sl=1)
 		if not selection:
@@ -368,7 +368,7 @@ class Selection_blender(Selection, Slots_blender):
 		'''
 		tb = self.sb.selection.tb001
 
-		tolerance = str(tb.contextMenu.s000.value()) #string value because mel.eval is sending a command string
+		tolerance = str(tb.ctxMenu.s000.value()) #string value because mel.eval is sending a command string
 
 		mel.eval("doSelectSimilar 1 {\""+ tolerance +"\"}")
 
@@ -378,9 +378,9 @@ class Selection_blender(Selection, Slots_blender):
 		'''
 		tb = self.sb.selection.tb002
 
-		rangeX = float(tb.contextMenu.s002.value())
-		rangeY = float(tb.contextMenu.s004.value())
-		rangeZ = float(tb.contextMenu.s005.value())
+		rangeX = float(tb.ctxMenu.s002.value())
+		rangeY = float(tb.ctxMenu.s004.value())
+		rangeZ = float(tb.ctxMenu.s005.value())
 
 		selectedFaces = pm.filterExpand(sm=34)
 		if selectedFaces:
@@ -398,8 +398,8 @@ class Selection_blender(Selection, Slots_blender):
 		'''
 		tb = self.sb.selection.tb003
 
-		angleLow = tb.contextMenu.s006.value()
-		angleHigh = tb.contextMenu.s007.value()
+		angleLow = tb.ctxMenu.s006.value()
+		angleHigh = tb.ctxMenu.s007.value()
 
 		objects = pm.ls(sl=1, objectsOnly=1)
 		edges = Slots_blender.getEdgesByNormalAngle(objects, lowAngle=angleLow, highAngle=angleHigh)

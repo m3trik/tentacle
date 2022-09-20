@@ -11,7 +11,7 @@ class Rigging_maya(Rigging, Slots_maya):
 
 		dh = self.sb.rigging.draggable_header
 		items = ['Quick Rig','HumanIK','Expression Editor','Shape Editor','Connection Editor','Channel Control Editor','Set Driven Key']
-		dh.contextMenu.cmb000.addItems_(items, 'Rigging Editors')
+		dh.ctxMenu.cmb000.addItems_(items, 'Rigging Editors')
 
 		cmb001 = self.sb.rigging.cmb001
 		items = ['Joints','Locator','IK Handle', 'Lattice', 'Cluster']
@@ -21,7 +21,7 @@ class Rigging_maya(Rigging, Slots_maya):
 	def cmb000(self, index=-1):
 		'''Editors
 		'''
-		cmb = self.sb.rigging.draggable_header.contextMenu.cmb000
+		cmb = self.sb.rigging.draggable_header.ctxMenu.cmb000
 
 		if index>0:
 			text = cmb.items[index]
@@ -66,27 +66,27 @@ class Rigging_maya(Rigging, Slots_maya):
 		'''Scale Joint
 		'''
 		self.sb.toggleWidgets(setUnChecked='chk001-2')
-		self.sb.rigging.tb000.contextMenu.s000.setValue(pm.jointDisplayScale(query=1)) #init global joint display size
+		self.sb.rigging.tb000.ctxMenu.s000.setValue(pm.jointDisplayScale(query=1)) #init global joint display size
 
 
 	def chk001(self, state=None):
 		'''Scale IK
 		'''
 		self.sb.toggleWidgets(setUnChecked='chk000, chk002')
-		self.sb.rigging.tb000.contextMenu.setValue(pm.ikHandleDisplayScale(query=1)) #init IK handle display size
+		self.sb.rigging.tb000.ctxMenu.setValue(pm.ikHandleDisplayScale(query=1)) #init IK handle display size
 		
 
 	def chk002(self, state=None):
 		'''Scale IK/FK
 		'''
 		self.sb.toggleWidgets(setUnChecked='chk000-1')
-		self.sb.rigging.tb000.contextMenu.setValue(pm.jointDisplayScale(query=1, ikfk=1)) #init IKFK display size
+		self.sb.rigging.tb000.ctxMenu.setValue(pm.jointDisplayScale(query=1, ikfk=1)) #init IKFK display size
 
 
 	def s000(self, value=None):
 		'''Scale Joint/IK/FK
 		'''
-		value = self.sb.rigging.tb000.contextMenu.value()
+		value = self.sb.rigging.tb000.ctxMenu.value()
 
 		if self.sb.rigging.chk000.isChecked():
 			pm.jointDisplayScale(value) #set global joint display size
@@ -104,7 +104,7 @@ class Rigging_maya(Rigging, Slots_maya):
 		joints = pm.ls(type="joint") #get all scene joints
 
 		state = pm.toggle(joints[0], query=1, localAxis=1)
-		if tb.contextMenu.isChecked():
+		if tb.ctxMenu.isChecked():
 			if not state:
 				toggle=True
 		else:
@@ -123,7 +123,7 @@ class Rigging_maya(Rigging, Slots_maya):
 		tb = self.sb.rigging.tb001
 
 		orientJoint = 'xyz' #orient joints
-		alignWorld = tb.contextMenu.chk003.isChecked()
+		alignWorld = tb.ctxMenu.chk003.isChecked()
 		if alignWorld:
 			orientJoint = 'none' #orient joint to world
 
@@ -135,7 +135,7 @@ class Rigging_maya(Rigging, Slots_maya):
 		'''
 		tb = self.sb.rigging.tb002
 
-		template = tb.contextMenu.chk004.isChecked()
+		template = tb.ctxMenu.chk004.isChecked()
 
 		objects = pm.ls(sl=1, objectsOnly=1)
 
@@ -153,19 +153,19 @@ class Rigging_maya(Rigging, Slots_maya):
 		'''
 		tb = self.sb.rigging.tb003
 
-		grpSuffix = tb.contextMenu.t002.text()
-		locSuffix = tb.contextMenu.t000.text()
-		objSuffix = tb.contextMenu.t001.text()
-		parent = tb.contextMenu.chk006.isChecked()
-		freezeTransforms = tb.contextMenu.chk010.isChecked()
-		bakeChildPivot = tb.contextMenu.chk011.isChecked()
-		scale = tb.contextMenu.s001.value()
-		stripDigits = tb.contextMenu.chk005.isChecked()
-		stripSuffix = tb.contextMenu.chk016.isChecked()
-		lockTranslate = tb.contextMenu.chk007.isChecked()
-		lockRotation = tb.contextMenu.chk008.isChecked()
-		lockScale = tb.contextMenu.chk009.isChecked()
-		remove = tb.contextMenu.chk015.isChecked()
+		grpSuffix = tb.ctxMenu.t002.text()
+		locSuffix = tb.ctxMenu.t000.text()
+		objSuffix = tb.ctxMenu.t001.text()
+		parent = tb.ctxMenu.chk006.isChecked()
+		freezeTransforms = tb.ctxMenu.chk010.isChecked()
+		bakeChildPivot = tb.ctxMenu.chk011.isChecked()
+		scale = tb.ctxMenu.s001.value()
+		stripDigits = tb.ctxMenu.chk005.isChecked()
+		stripSuffix = tb.ctxMenu.chk016.isChecked()
+		lockTranslate = tb.ctxMenu.chk007.isChecked()
+		lockRotation = tb.ctxMenu.chk008.isChecked()
+		lockScale = tb.ctxMenu.chk009.isChecked()
+		remove = tb.ctxMenu.chk015.isChecked()
 
 		from utils_maya.rigging_utils_maya import createLocatorAtObject
 		selection = pm.ls(selection=True)
@@ -179,9 +179,9 @@ class Rigging_maya(Rigging, Slots_maya):
 		'''
 		tb = self.sb.rigging.tb004
 
-		lockTranslate = tb.contextMenu.chk012.isChecked()
-		lockRotation = tb.contextMenu.chk013.isChecked()
-		lockScale = tb.contextMenu.chk014.isChecked()
+		lockTranslate = tb.ctxMenu.chk012.isChecked()
+		lockRotation = tb.ctxMenu.chk013.isChecked()
+		lockScale = tb.ctxMenu.chk014.isChecked()
 
 		sel = pm.ls(selection=True, transforms=1, long=True)
 		for obj in sel:
