@@ -459,7 +459,7 @@ class Menu(QtWidgets.QMenu, Attributes):
 				except AttributeError as error:
 					pass
 
-			return super().hide()
+			super().hide()
 
 
 	def show(self):
@@ -473,7 +473,7 @@ class Menu(QtWidgets.QMenu, Attributes):
 			if hasattr(self.parent(), 'released'):
 				self.applyButton.show()
 
-			return super().show()
+			super().show()
 
 
 	def showEvent(self, event):

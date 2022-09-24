@@ -12,7 +12,7 @@ class EventFactoryFilter(QtCore.QObject):
 	:Parameters:
 		tcl (obj) = tcl widget instance.
 	'''
-	events=['showEvent',
+	events=['showEvent', #the types of events to be handled here.
 			'hideEvent',
 			'enterEvent',
 			'leaveEvent',
@@ -23,18 +23,14 @@ class EventFactoryFilter(QtCore.QObject):
 			'keyReleaseEvent',
 	]
 
-	# def __init__(self, parent=None, events=['showEvent',
-	# 										'hideEvent',
-	# 										'enterEvent',
-	# 										'leaveEvent',
-	# 										'mousePressEvent',
-	# 										'mouseMoveEvent',
-	# 										'mouseReleaseEvent',
-	# 										'keyPressEvent',
-	# 										'keyReleaseEvent',]):
-	# 	super().__init__(parent)
-	# 	print ('this has been called '*20)
-	# 	self.events = events #the types of events to be handled here.
+	eventNamePrefix = ''
+	forwardEventsTo = None
+
+	def __init__(self, parent=None, eventNamePrefix=eventNamePrefix, forwardEventsTo=forwardEventsTo, events=events):
+		super().__init__(parent)
+
+		self.eventNamePrefix = eventNamePrefix
+		self.forwardEventsTo = forwardEventsTo
 
 
 	def createEventName(self, event):
@@ -63,11 +59,14 @@ class EventFactoryFilter(QtCore.QObject):
 			widget = <QWidget>
 			event = <QEvent>
 		'''
+		if self.forwardEventsTo is None:
+			self.forwardEventsTo = self
+
 		eventName = self.createEventName(event) #get 'mousePressEvent' from <QEvent>
 
 		if eventName in self.events: #handle only events listed in 'eventTypes'
 			try:
-				getattr(self, 'ef_'+eventName)(widget, event) #handle the event (in subclass. #ie. self.enterEvent(<widget>, <event>)
+				getattr(self.forwardEventsTo, self.eventNamePrefix+eventName)(widget, event) #handle the event (in subclass. #ie. self.enterEvent(<widget>, <event>)
 				return True
 
 			except AttributeError as error:
@@ -115,7 +114,7 @@ class OverlayFactoryFilter(QtCore.QObject):
 		elif event.type()==QtCore.QEvent.Show:
 			self.raise_()
 
-		return super(OverlayFactoryFilter, self).eventFilter(widget, event)
+		return super().eventFilter(widget, event)
 
 
 

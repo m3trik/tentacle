@@ -42,7 +42,7 @@ class Switchboard(QUiLoader):
 		ui.trackedWidgets = A list of widgets that are being mousetracked.
 		ui.slots = The slots class instance.
 		ui.connected = True if the ui is connected. If set to True, the ui will be set as current and connections established.
-		ui.synced = True if the ui is synced. When set to True any submenu widgets will be synced with their parent menu's counterparts.
+		ui.isSynced = True if the ui is synced. When set to True any submenu widgets will be synced with their parent menu's counterparts.
 		ui.isCurrent = True if the ui is set as current.
 		ui.level3 = The parent menu of the ui (level 3).
 		ui.level2 = The submenu for the ui (level 2).
@@ -125,6 +125,7 @@ class Switchboard(QUiLoader):
 	def __getattr__(self, attr):
 		'''If an unknown attribute matches the name of a ui in the current ui directory; load and return it.
 		Else, if an unknown attribute matches the name of a custom widget in the widgets directory; register and return it.
+		If no match is found raise an attribute error.
 
 		:return:
 			(obj) ui or widget else raise attribute error.
@@ -194,7 +195,7 @@ class Switchboard(QUiLoader):
 
 	def _getUiLevelFromDir(self, filePath):
 		'''Get the UI level by looking for trailing intergers in it's dir name.
-		If none are found a default level of 4 (standalone menu) is used.
+		If none are found a default level of 3 (main menu) is used.
 
 		level 0: stackedwidget: init (root)
 		level 1: stackedwidget: base menus
@@ -217,7 +218,8 @@ class Switchboard(QUiLoader):
 			return 3
 
 
-	def _getPrefix(self, widget):
+	@staticmethod
+	def _getPrefix(widget):
 		'''Query a widgets prefix.
 		A valid prefix is returned when the given widget's objectName startswith an alphanumeric char, followed by at least three integers. ex. i000 (alphanum,int,int,int)
 		
@@ -242,7 +244,8 @@ class Switchboard(QUiLoader):
 			return prefix
 
 
-	def _getWidgetsFromUi(self, ui):
+	@staticmethod
+	def _getWidgetsFromUi(ui):
 		'''Get all widgets of the given ui.
 
 		:Parameters:
@@ -461,7 +464,7 @@ class Switchboard(QUiLoader):
 
 		#set attributes
 		ui.__class__.__slots__ = [
-			'name', 'base', 'path', 'tags', 'level', 'sizeX', 'sizeY', 'isConnected', 
+			'name', 'base', 'path', 'tags', 'level', 'sizeX', 'sizeY', 'isConnected', 'isInitialized',
 			'isSynced', 'isSubmenu', 'preventHide', 'hide', 'addWidgets', 'widgets', 
 			'trackedWidgets', 'slots', 'connected', 'sync', 'isCurrent', 'level2', 'level3',
 		]
@@ -697,7 +700,7 @@ class Switchboard(QUiLoader):
 			(obj) method.
 		'''
 		try:
-			return self.prevCommands[-1]
+			return self.getPrevCommands()[-1]
 
 		except IndexError as error:
 			return None
@@ -705,6 +708,15 @@ class Switchboard(QUiLoader):
 
 	@property
 	def prevCommands(self) -> list:
+		'''Get a list of previously called slot methods.
+
+		:Return:
+			(list) list of methods.
+		'''
+		return self.getPrevCommands()
+
+
+	def getPrevCommands(self):
 		'''Get a list of previously called slot methods.
 
 		:Return:
@@ -940,14 +952,14 @@ class Switchboard(QUiLoader):
 		for all widgets of the given ui.
 
 		:Parameters:
-			ui1 (obj) = 
+			submenu (obj) = A submenu (level 2) with a corresponding parent menu (level 3).
 		'''
 		if any((not submenu.isSubmenu, submenu.isSynced, not submenu.level3)):
 			return #assure the ui is a unsynced submenu with a parent menu to sync with.
 
 		for w1 in submenu.widgets:
 			try:
-				w2 = getattr(submenu.level3, w1.name)
+				w2 = self.getWidget(w1.name, submenu.level3)
 			except AttributeError as error:
 				continue
 
@@ -976,7 +988,7 @@ class Switchboard(QUiLoader):
 			w2.isSynced = True
 
 		except (AttributeError, KeyError) as error:
-			# if w1 and w2: print ('# {}: {}.setSyncConnections({}, {}): {} is invalid.'.format('KeyError' if error==KeyError else 'AttributeError', __name__, w1, w2, error))
+			# if w1 and w2: print ('# {}: {}.setSyncConnections({}, {}): {}. args: {}, {} #'.format('KeyError' if type(error)==KeyError else 'AttributeError', __name__, w1.objectName(), w2.objectName(), error, w1, w2))
 			return
 
 

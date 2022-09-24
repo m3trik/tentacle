@@ -24,7 +24,7 @@
 ctx.add('QRadioButton', setText='Current Material', setObjectName='chk007', setChecked=True, setToolTip='Re-Assign the current stored material.')
 ctx.add('QCheckBox', setText='Current Material', setObjectName='chk010', setChecked=True, setToolTip='Use the current material, <br>else use the current viewport selection to get a material.')
 ctx.add('QDoubleSpinBox', setPrefix='Width: ', setObjectName='s000', setMinMax_='0.00-100 step.05', setValue=0.25, setHeight_=20, setToolTip='Bevel Width.')
-ctx.add(self.tcl.wgts.Label, setText='Open in Editor', setObjectName='lbl000', setToolTip='Open material in editor.')
+ctx.add(self.sb.Label, setText='Open in Editor', setObjectName='lbl000', setToolTip='Open material in editor.')
 ctx.add('QPushButton', setObjectName='b002', setText='Delete All', setToolTip='Delete all autosave files.') #delete all
 ctx.add('QSpinBox', setPrefix='Interval: ', setObjectName='s001', setMinMax_='1-60 step1', setValue=interval, setHeight_=20, setToolTip='The autosave interval in minutes.') #autosave interval
 
@@ -41,16 +41,14 @@ s000.valueChanged.connect(lambda v: rt.autosave.setmxsprop('NumberOfFiles', v))
 chk013.toggled.connect(lambda state: ctx.s006.setEnabled(True if state else False))
 chk015.stateChanged.connect(lambda state: self.toggleWidgets(ctx, setDisabled='t000-1,s001,chk005-11') if state 
 												else self.toggleWidgets(ctx, setEnabled='t000-1,s001,chk005-11')) #disable non-relevant options.
-#sync widgets
-self.sb.setSyncAttributesConnections(cmb003.menu_.chk023, self.transform_submenu_ui.chk023, attributes='setChecked') #sync check state between submenu and static menu item.
 
 #setText on state change.
 chk004.stateChanged.connect(lambda state: chk004.setText('Repair' if state else 'Select Only')) #set button text to reflect current state.
 chk026.stateChanged.connect(lambda state: chk026.setText('Stack Similar: '+str(state)))
 
-#set multiple connections using the Slots.connect_ method.
-self.connect_('chk006-9', 'toggled', self.chk006_9, ctx)
-self.connect_((ctx.chk012,ctx.chk013,ctx.chk014), 'toggled', 
+#set multiple connections using the Slots.connect method.
+self.sb.connect('chk006-9', 'toggled', self.chk006_9, ctx)
+self.sb.connect((ctx.chk012,ctx.chk013,ctx.chk014), 'toggled', 
 				[lambda state: self.rigging_ui.tb004.setText('Lock Attributes' 
 					if any((ctx.chk012.isChecked(),ctx.chk013.isChecked(),ctx.chk014.isChecked())) else 'Unlock Attributes'), 
 				lambda state: self.rigging_submenu_ui.tb004.setText('Lock Transforms' 
@@ -62,33 +60,6 @@ self.sb.file.slots.b005() #get method 'b005' from the 'file' module.
 
 
 
-
-# pushButton w/ctxMenu:
-def tb002(self, state=None):
-		'''Assign Material
-		'''
-		tb = self.materials_ui.tb002
-
-		selection = pm.ls(selection=1, flatten=1)
-		if not selection:
-			return 'Error: No renderable object is selected for assignment.'
-
-		assignCurrent = ctx.chk007.isChecked()
-
-
-@Init.attr
-@Slots.message
-def tb006(self, state=None):
-	'''Inset Face Region
-	'''
-	tb = self.current_ui.tb006
-
-	selected_faces = pm.polyEvaluate(faceComponent=1)
-	if isinstance(selected_faces, str): #'Nothing counted : no polygonal object is selected.'
-		return 'Error: <hl>Nothing selected</hl>.<br>Operation requires a face selection.'
-
-	offset = float(ctx.s001.value())
-	return pm.polyExtrudeFacet(selected_faces, keepFacesTogether=1, pvx=0, pvy=40.55638003, pvz=33.53797107, divisions=1, twist=0, taper=1, offset=offset, thickness=0, smoothingAngle=30)
 
 
 # comboBox standard:
@@ -195,13 +166,12 @@ def tree000(self, wItem=None, column=None):
 	'KNOWN BUGS AND GENERAL TO-DO'
 # ======================================================================
 '''
-
-all slot classes:
-super().__init__(*args, **kwargs)
+fix transform snap
 
 
-Internal C++ object (PySide2.QtWidgets.QMainWindow) already deleted.
-error after pop up message.  likely due to a parenting issue.
+ui:
+dockable windows
+create a dockable pyside output window, with text highlighting and clickable links.
 
 
 the issue where some popup windows hide on key release and some do not is back.
@@ -211,9 +181,6 @@ maya:
 interactive ncloth to static mesh tool
 interactive generate> attach brush to curves
 additional interactive pipe tools using other methods
-
-
-tool:
 use the 3 point align function to quickly align two objects using two selected faces, 
 then click through the various vertex combinatons to get the correct alignment.
 
@@ -222,8 +189,7 @@ macros:
 turn on transform constraints while modifier key down.
 
 
-ui:
-dockable windows
+
 
 
 double left click always toggles between current and perspective cameras.
