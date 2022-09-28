@@ -5,7 +5,7 @@ import sys, os
 from PySide2 import QtCore, QtGui, QtWidgets
 
 from switchboard import Switchboard
-from eventFilter import EventFactoryFilter
+from events import EventFactoryFilter, MouseTracking
 from overlay import Overlay
 
 from ui.widgets import rwidgets
@@ -19,37 +19,13 @@ class Tcl(QtWidgets.QStackedWidget):
 
 	The various ui's are set by calling 'setUi' with the intended ui name string. ex. Tcl().setUi('polygons')
 	'''
-	_mouseOver=[] #list of widgets currently under the mouse cursor. (Limited to those widgets set as mouse tracked)
-	_mouseGrabber=None
-	_mouseHover = QtCore.Signal(bool)
 	_mousePressPos = QtCore.QPoint()
 	_key_show_release = QtCore.Signal()
-
-	enterEvent_ = QtCore.QEvent(QtCore.QEvent.Enter)
-	leaveEvent_ = QtCore.QEvent(QtCore.QEvent.Leave)
-
-	ef_widgetTypes = [ #install an event filter for the given widget types.
-		'QMainWindow',
-		'QWidget', 
-		'QAction', 
-		'QLabel', 
-		'QPushButton', 
-		'QListWidget', 
-		'QTreeWidget', 
-		'QComboBox', 
-		'QSpinBox',
-		'QDoubleSpinBox',
-		'QCheckBox',
-		'QRadioButton',
-		'QLineEdit',
-		'QTextEdit',
-		'QProgressBar',
-		'QMenu',
-	]
 
 	app = QtWidgets.QApplication.instance()
 	if not app:
 		app = QtWidgets.QApplication(sys.argv)
+
 
 	def __init__(self, parent=None, key_show='Key_F12', preventHide=False, slotDir='', profile=False):
 		'''
@@ -73,11 +49,12 @@ class Tcl(QtWidgets.QStackedWidget):
 		self.setAttribute(QtCore.Qt.WA_TranslucentBackground)
 		self.setAttribute(QtCore.Qt.WA_SetStyle) #Indicates that the widget has a style of its own.
 
-		self.overlay = Overlay(self, antialiasing=True) #Paint events are handled by the overlay module.
-		self.eventFilter = EventFactoryFilter(self, eventNamePrefix='ef_', forwardEventsTo=self)
-
 		self.sb = Switchboard(self, slotDir=slotDir)
 		self.sb.loadAllUi(widgets=rwidgets)
+
+		self.overlay = Overlay(self, antialiasing=True) #Paint events are handled by the overlay module.
+		self.eventFilter = EventFactoryFilter(self, eventNamePrefix='ef_', forwardEventsTo=self)
+		self.mouseTracking = MouseTracking(self)
 
 		setattr(QtWidgets.QApplication.instance(), 'tcl', self)
 
@@ -196,72 +173,6 @@ class Tcl(QtWidgets.QStackedWidget):
 			del self.overlay.drawPath[-i-1:]
 
 
-	def mouseTracking(self, ui):
-		'''Get the widget(s) currently under the mouse cursor, and manage mouse grab and event handling for those widgets.
-		Primarily used to trigger widget events while moving the cursor in the mouse button down state.
-
-		:Parameters:
-			ui (obj) = The ui to track widgets of.
-		'''
-		mouseOver = [w for w in ui.trackedWidgets if w.rect().contains(w.mapFromGlobal(QtGui.QCursor.pos()))] #get all widgets currently under mouse cursor.
-		#[print ('mouseOver:', w.objectName()) for w in ui.trackedWidgets if w.rect().contains(w.mapFromGlobal(QtGui.QCursor.pos()))] #debug
-
-		#send enter / leave events.
-		[self.app.sendEvent(w, self.leaveEvent_) for w in self._mouseOver if not w in mouseOver] #send leave events for widgets no longer in mouseOver.
-		[self.app.sendEvent(w, self.enterEvent_) for w in mouseOver if not w in self._mouseOver] #send enter events for any new widgets in mouseOver. 
-
-		try:
-			index = -1
-			self._mouseGrabber = mouseOver[index]
-			self._mouseGrabber.grabMouse() #set widget to receive mouse events.
-			while not self._mouseGrabber.underMouse():
-				index-=1
-				self._mouseGrabber = mouseOver[index]
-				self._mouseGrabber.grabMouse() #set widget to receive mouse events.
-			# print ('\n_mouseGrabber:', self.mouseGrabber().name); [print(w) for w in self._mouseOver] #debug
-
-		except IndexError as error:
-			self._mouseGrabber = ui.mainWindow
-			self._mouseGrabber.grabMouse()
-
-		self._mouseOver = mouseOver
-
-
-	def initWidgets(self, ui, widgets=None):
-		'''Set Initial widget states.
-
-		:Parameters:
-			ui (obj) = The ui to init widgets of.
-			widgets (str)(list) = <QWidgets> if no arg is given, the operation will be performed on all widgets of the given ui name.
-		'''
-		if widgets is None:
-			widgets = ui.widgets #get all widgets for the given ui.
-
-		for w in self.sb.list(widgets): #if 'widgets' isn't a list, convert it to one.
-
-			if w not in ui.widgets:
-				ui.addWidgets(w)
-
-			#set stylesheet
-			if ui.level>2 or ui.isSubmenu and not w.prefix=='i': #if submenu and objectName doesn't start with 'i':
-				self.sb.setStyle(w, style='dark', backgroundOpacity=0)
-			else:
-				self.sb.setStyle(w, backgroundOpacity=0)
-
-			if w.derivedType in self.ef_widgetTypes:
-				# print (widgetName if widgetName else widget)
-				if ui.level<3 or w.type=='QMainWindow':
-					w.installEventFilter(self.eventFilter)
-
-				if w.derivedType in ('QPushButton', 'QLabel'): #widget types to resize and center.
-					if ui.level<=2:
-						self.sb.resizeAndCenterWidget(w)
-
-				elif w.derivedType=='QWidget': #widget types to set an initial state as hidden.
-					if w.prefix=='w' and ui.level==1: #prefix returns True if widgetName startswith the given prefix, and is followed by three integers.
-						w.setVisible(False)
-
-
 
 	# ------------------------------------------------
 	# 	Stacked Widget Event handling:
@@ -333,7 +244,7 @@ class Tcl(QtWidgets.QStackedWidget):
 		a mouse button is pressed while the mouse is being moved. If mouse tracking 
 		is switched on, mouse move events occur even if no mouse button is pressed.
 		'''
-		self.mouseTracking(self.sb.currentUi)
+		self.mouseTracking.track([w for w in self.sb.currentUi.widgets])
 
 		super().mouseMoveEvent(event)
 
@@ -428,6 +339,11 @@ class Tcl(QtWidgets.QStackedWidget):
 	def hideEvent(self, event):
 		'''Hide events are sent to widgets immediately after they have been hidden.
 		'''
+		try:
+			self.mouseGrabber().releaseMouse()
+		except AttributeError as error: #'NoneType' object has no attribute 'releaseMouse'
+			pass
+
 		if __name__ == "__main__":
 			self.app.quit()
 			sys.exit() #assure that the sys processes are terminated during testing.
@@ -439,6 +355,59 @@ class Tcl(QtWidgets.QStackedWidget):
 	# ------------------------------------------------
 	# child widget event handling:
 	# ------------------------------------------------
+	ef_widgetTypes = [ #install an event filter for the given widget types.
+		'QMainWindow',
+		'QWidget', 
+		'QAction', 
+		'QLabel', 
+		'QPushButton', 
+		'QListWidget', 
+		'QTreeWidget', 
+		'QComboBox', 
+		'QSpinBox',
+		'QDoubleSpinBox',
+		'QCheckBox',
+		'QRadioButton',
+		'QLineEdit',
+		'QTextEdit',
+		'QProgressBar',
+		'QMenu',
+	]
+	def initWidgets(self, ui, widgets=None):
+		'''Set Initial widget states.
+
+		:Parameters:
+			ui (obj) = The ui to init widgets of.
+			widgets (str)(list) = <QWidgets> if no arg is given, the operation will be performed on all widgets of the given ui name.
+		'''
+		if widgets is None:
+			widgets = ui.widgets #get all widgets for the given ui.
+
+		for w in self.sb.list(widgets): #if 'widgets' isn't a list, convert it to one.
+
+			if w not in ui.widgets:
+				ui.addWidgets(w)
+
+			#set stylesheet
+			if ui.level>2 or ui.isSubmenu and not w.prefix=='i': #if submenu and objectName doesn't start with 'i':
+				self.sb.setStyle(w, style='dark', backgroundOpacity=0)
+			else:
+				self.sb.setStyle(w, backgroundOpacity=0)
+
+			if w.derivedType in self.ef_widgetTypes:
+				# print (widgetName if widgetName else widget)
+				if ui.level<3 or w.type=='QMainWindow':
+					w.installEventFilter(self.eventFilter)
+
+				if w.derivedType in ('QPushButton', 'QLabel'): #widget types to resize and center.
+					if ui.level<=2:
+						self.sb.resizeAndCenterWidget(w)
+
+				elif w.derivedType=='QWidget': #widget types to set an initial state as hidden.
+					if w.prefix=='w' and ui.level==1: #prefix returns True if widgetName startswith the given prefix, and is followed by three integers.
+						w.setVisible(False)
+
+
 	def ef_showEvent(self, w, event):
 		'''
 		'''
@@ -465,10 +434,6 @@ class Tcl(QtWidgets.QStackedWidget):
 	def ef_hideEvent(self, w, event):
 		'''
 		'''
-		if w.name=='mainWindow':#w.type=='QMainWindow':
-			if self._mouseGrabber:
-				self._mouseGrabber.releaseMouse()
-				self._mouseGrabber = None
 
 		w.__class__.hideEvent(w, event)
 
@@ -476,8 +441,6 @@ class Tcl(QtWidgets.QStackedWidget):
 	def ef_enterEvent(self, w, event):
 		'''
 		'''
-		self._mouseHover.emit(True)
-
 		if w.type=='QWidget':
 			if w.prefix=='w':
 				w.setVisible(True) #set visibility
@@ -500,8 +463,6 @@ class Tcl(QtWidgets.QStackedWidget):
 	def ef_leaveEvent(self, w, event):
 		'''
 		'''
-		self._mouseHover.emit(False)
-
 		if w.type=='QWidget':
 			if w.prefix=='w':
 				w.setVisible(False) #set visibility

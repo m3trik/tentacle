@@ -41,7 +41,7 @@ class Tcl_maya(Tcl):
 		# main_window = shiboken2.wrapInstance(long(ptr), QtWidgets.QWidget)
 
 		main_window = next(w for w in cls.app.topLevelWidgets() if w.objectName()=='MayaWindow')
-		setattr(QtWidgets.QApplication.instance(), 'MayaWindow', main_window)
+		setattr(QtWidgets.QApplication.instance(), 'mainAppWindow', main_window)
 
 		return main_window
 

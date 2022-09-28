@@ -166,8 +166,6 @@ def tree000(self, wItem=None, column=None):
 	'KNOWN BUGS AND GENERAL TO-DO'
 # ======================================================================
 '''
-fix transform snap
-
 
 ui:
 dockable windows
@@ -187,9 +185,6 @@ then click through the various vertex combinatons to get the correct alignment.
 
 macros:
 turn on transform constraints while modifier key down.
-
-
-
 
 
 double left click always toggles between current and perspective cameras.

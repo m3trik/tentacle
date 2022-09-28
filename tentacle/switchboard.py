@@ -39,7 +39,6 @@ class Switchboard(QUiLoader):
 
 		ui.addWidgets = (function) add widgets to the ui.
 		ui.widgets = All the widgets of the ui.
-		ui.trackedWidgets = A list of widgets that are being mousetracked.
 		ui.slots = The slots class instance.
 		ui.connected = True if the ui is connected. If set to True, the ui will be set as current and connections established.
 		ui.isSynced = True if the ui is synced. When set to True any submenu widgets will be synced with their parent menu's counterparts.
@@ -55,7 +54,6 @@ class Switchboard(QUiLoader):
 		w.signal = The signal. ie. <widget.valueChanged>. Used when establishing connections.
 		w.method = The corresponding method of the slot's class of the same name as the widget's object name. ie. method <b006> from widget 'b006' else None
 		w.prefix = The alphanumberic string prefix determining widget type. If the widget name starts with a series of alphanumberic chars and is followed by three integers. ie. 'cmb' from 'cmb015'
-		w.isTracked = True if the widget type is of those in the switchboard's trackedWidgets list.
 		w.isSynced = True if the widget is being synced between submenu and it's parent menu.
 	'''
 	defaultSignals = { #the default signal to be associated with each widget type.
@@ -72,24 +70,6 @@ class Switchboard(QUiLoader):
 		'QLineEdit':'returnPressed', 
 		'QTextEdit':'textChanged', 
 		'QProgressBar':'valueChanged', 
-	}
-
-	trackedWidgets = [ #widget types for mouse tracking.
-		'QMainWindow', 
-		'QWidget', 
-		'QLabel', 
-		'QPushButton', 
-		'QCheckBox', 
-		'QMenu', 
-	]
-
-	attributesGetSet = {
-		'isChecked':'setChecked', 
-		'isDisabled':'setDisabled', 
-		'isEnabled':'setEnabled', 
-		'value':'setValue', 
-		'text':'setText', 
-		'icon':'setIcon', 
 	}
 
 	_loadedUi = []
@@ -464,9 +444,9 @@ class Switchboard(QUiLoader):
 
 		#set attributes
 		ui.__class__.__slots__ = [
-			'name', 'base', 'path', 'tags', 'level', 'sizeX', 'sizeY', 'isConnected', 'isInitialized',
-			'isSynced', 'isSubmenu', 'preventHide', 'hide', 'addWidgets', 'widgets', 
-			'trackedWidgets', 'slots', 'connected', 'sync', 'isCurrent', 'level2', 'level3',
+			'name', 'base', 'path', 'tags', 'level', 'sizeX', 'sizeY', 'isConnected', 
+			'isInitialized', 'isSynced', 'isSubmenu', 'preventHide', 'hide', 'addWidgets', 
+			'widgets', 'slots', 'connected', 'sync', 'isCurrent', 'level2', 'level3',
 		]
 		ui.name = name
 		ui.base = next(iter(name.split('_')))
@@ -476,7 +456,6 @@ class Switchboard(QUiLoader):
 		ui.sizeX = ui.frameGeometry().width()
 		ui.sizeY = ui.frameGeometry().height()
 		ui._widgets = []
-		ui._trackedWidgets = []
 		ui.isInitialized = False #a convenience property not handled by this module.
 		ui.isConnected = False
 		ui.isSynced = False
@@ -490,9 +469,6 @@ class Switchboard(QUiLoader):
 
 		ui.__class__.widgets = property(
 			lambda u: u._widgets if u._widgets else u.addWidgets()
-		)
-		ui.__class__.trackedWidgets = property(
-			lambda u: u._trackedWidgets if u._widgets else u.addWidgets()
 		)
 		ui.__class__.slots = property(
 			lambda u: self.getSlotsInstance(u)
@@ -546,7 +522,7 @@ class Switchboard(QUiLoader):
 			#set attributes
 			w.__class__.__slots__ = [
 				'ui', 'name', 'type', 'derivedType', 'signalType', 'signal', 
-				'method', 'prefix', 'isTracked', 'isSynced',
+				'method', 'prefix', 'isSynced',
 			]
 			w.ui = ui
 			w.name = name
@@ -556,11 +532,9 @@ class Switchboard(QUiLoader):
 			w.signal = getattr(w, w.signalType, None) #add signal to widget. ie. <widget.valueChanged>
 			w.method = getattr(ui.slots, name, None) #use 'name' to get the corresponding method of the same name. ie. method <b006> from widget 'b006' else None
 			w.prefix = self._getPrefix(name) #returns an string alphanumberic prefix if name startswith a series of alphanumberic charsinst is followed by three integers. ie. 'cmb' from 'cmb015'
-			w.isTracked = True if derivedType in self.trackedWidgets else False
 			w.isSynced = False
 
 			ui._widgets.append(w)
-			ui._trackedWidgets.append(w) if w.isTracked else None
 		return ui.widgets
 
 
@@ -728,15 +702,13 @@ class Switchboard(QUiLoader):
 		return hist
 
 
-	def getWidget(self, name=None, ui=None, tracked=False):
+	def getWidget(self, name, ui=None):
 		'''Case insensitive. Get the widget object/s from the given ui and name.
 
 		:Parameters:
 			name (str) = The object name of the widget. ie. 'b000'
 			ui (str)(obj) = ui, or name of ui. ie. 'polygons'. If no nothing is given, the current ui will be used.
 							A ui object can be passed into this parameter, which will be used to get it's corresponding name.
-			tracked (bool) = Return only those widgets whose 'isTracked' property is True. 
-
 		:Return:
 			(obj) if name:  widget object with the given name from the current ui.
 				  if ui and name: widget object with the given name from the given ui name.
@@ -745,10 +717,7 @@ class Switchboard(QUiLoader):
 		if ui is None or isinstance(ui, str):
 			ui = self.getUi(ui)
 
-		if name:
-			return next((w for w in ui.widgets if (w.isTracked if tracked else True) and w.name==name), None)
-		else:
-			return [w for w in ui.widgets if (w.isTracked if tracked else True)]
+		return next((w for w in ui.widgets if w.name==name), None)
 
 
 	def getWidgetsByType(self, types, ui=None, derivedType=False):
@@ -931,9 +900,9 @@ class Switchboard(QUiLoader):
 
 		if isinstance(widgets, (str)):
 			try:
-				widgets = self.getWidgets(class_, widgets, showError_=True) #getWidgets returns a widget list from a string of objectNames.
+				widgets = self.getWidgetsFromStr(class_, widgets, showError=True) #getWidgetsFromStr returns a widget list from a string of objectNames.
 			except Exception as error:
-				widgets = self.getWidgets(self.currentUi, widgets, showError_=True)
+				widgets = self.getWidgetsFromStr(self.currentUi, widgets, showError=True)
 
 		#if the variables are not of a list type; convert them.
 		widgets = lst(widgets)
@@ -992,6 +961,14 @@ class Switchboard(QUiLoader):
 			return
 
 
+	attributesGetSet = {
+		'isChecked':'setChecked', 
+		'isDisabled':'setDisabled', 
+		'isEnabled':'setEnabled', 
+		'value':'setValue', 
+		'text':'setText', 
+		'icon':'setIcon', 
+	}
 	def _syncAttributes(self, frm, to, attributes=[]):
 		'''Sync the given attributes between the two given widgets.
 		If a widget does not have an attribute it will be silently skipped.
@@ -1100,7 +1077,7 @@ class Switchboard(QUiLoader):
 			args = args+(parentUi, childUi)
 
 		for ui in args[1:]:
-			widgets = self.getWidgets(ui, args[0]) #getWidgets returns a widget list from a string of objectNames.
+			widgets = self.getWidgetsFromStr(ui, args[0]) #getWidgetsFromStr returns a widget list from a string of objectNames.
 			for property_, value in kwargs.items():
 				[getattr(w, property_)(value) for w in widgets] #set the property state for each widget in the list.
 
@@ -1108,7 +1085,7 @@ class Switchboard(QUiLoader):
 	@staticmethod
 	def unpackNames(nameString):
 		'''Get a list of individual names from a single name string.
-		If you are looking to get multiple objects from a name string, call 'getWidgets' directly instead.
+		If you are looking to get multiple objects from a name string, call 'getWidgetsFromStr' directly instead.
 
 		:Parameters:
 			nameString = string consisting of widget names separated by commas. ie. 'v000, b004-6'
@@ -1142,30 +1119,31 @@ class Switchboard(QUiLoader):
 
 
 	@classmethod
-	def getWidgets(cls, class_, objectNames, showError_=False):
-		'''Get a list of corresponding objects from a shorthand string.
+	def getWidgetsFromStr(cls, ui, nameString, showError=False):
+		'''Get a list of corresponding widgets from a single shorthand formatted string.
 		ie. 's000,b002,cmb011-15' would return object list: [<s000>, <b002>, <cmb011>, <cmb012>, <cmb013>, <cmb014>, <cmb015>]
 
 		:Parameters:
-			class_ (obj) = Class object
-			objectNames (str) = Names separated by ','. ie. 's000,b004-7'. b004-7 specifies buttons b004-b007.  
-			showError (bool) = Show attribute error if item doesnt exist
+			ui (obj) = A previously loaded dynamic ui object.
+			nameString (str) = Widget object names separated by ','. ie. 's000,b004-7'. b004-7 specifies buttons b004-b007.
+			showError (bool) = Print an error message to the console if a widget is not found.
 
 		:Return:
-			(list) of corresponding objects
+			(list)
 
-		#ex call: getWidgets(<ui>, 's000,b002,cmb011-15')
+		#ex call: getWidgetsFromStr(<ui>, 's000,b002,cmb011-15')
 		'''
-		objects=[]
-		for name in cls.unpackNames(objectNames):
+		widgets=[]
+		for n in cls.unpackNames(nameString):
 			try:
-				objects.append(getattr(class_, name)) #equivilent to:(self.currentUi.m000)
-
+				w = getattr(ui, n)
+				widgets.append(w)
 			except AttributeError as error:
-				if showError_:
-					print("slots: '{}.getWidgets:' objects.append(getattr({}, {})) {}".format(__file__, class_, name, error))
+				if showError:
+					print (__file__, error)
+				pass
 
-		return objects
+		return widgets
 
 
 	@staticmethod
@@ -1238,7 +1216,7 @@ class Switchboard(QUiLoader):
 
 		for ui in args:
 			for k in kwargs: #property_ ie. setUnChecked
-				widgets = self.getWidgets(ui, kwargs[k]) #getWidgets returns a widget list from a string of objectNames.
+				widgets = self.getWidgetsFromStr(ui, kwargs[k]) #getWidgetsFromStr returns a widget list from a string of objectNames.
 
 				state = True
 				if 'Un' in k: #strips 'Un' and sets the state from True to False. ie. 'setUnChecked' becomes 'setChecked' (False)
@@ -1260,7 +1238,7 @@ class Switchboard(QUiLoader):
 		if isinstance(checkboxes, (str)):
 			if ui is None:
 				ui = self.currentUi
-			checkboxes = self.getWidgets(ui, checkboxes)
+			checkboxes = self.getWidgetsFromStr(ui, checkboxes)
 
 		prefix = '-' if '-' in axis else '' #separate the prefix and axis
 		coord = axis.strip('-')
@@ -1284,7 +1262,7 @@ class Switchboard(QUiLoader):
 		if isinstance(checkboxes, (str)):
 			if ui is None:
 				ui = self.currentUi
-			checkboxes = self.getWidgets(ui, checkboxes, showError_=1)
+			checkboxes = self.getWidgetsFromStr(ui, checkboxes, showError=True)
 
 		prefix=axis=''
 		for chk in checkboxes:

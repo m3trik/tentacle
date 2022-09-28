@@ -48,7 +48,7 @@ class Tcl_max(Tcl):
 		if not main_window.objectName():
 			main_window.setObjectName('MaxWindow')
 
-		setattr(QtWidgets.QApplication.instance(), 'MaxWindow', main_window)
+		setattr(QtWidgets.QApplication.instance(), 'mainAppWindow', main_window)
 
 		return main_window
 

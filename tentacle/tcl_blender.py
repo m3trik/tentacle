@@ -38,6 +38,7 @@ class Tcl_blender(Tcl):
 			(QWidget)
 		'''
 		main_window = QApplication.instance().blender_widget
+		setattr(QtWidgets.QApplication.instance(), 'mainAppWindow', main_window)
 
 		return main_window
 

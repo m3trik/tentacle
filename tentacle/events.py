@@ -2,7 +2,7 @@
 # coding=utf-8
 import os, sys
 
-from PySide2 import QtCore, QtWidgets
+from PySide2 import QtCore, QtGui, QtWidgets
 
 
 
@@ -115,6 +115,70 @@ class OverlayFactoryFilter(QtCore.QObject):
 			self.raise_()
 
 		return super().eventFilter(widget, event)
+
+
+
+class MouseTracking(QtCore.QObject):
+	'''
+	'''
+	_prevMouseOver=[] #list of widgets currently under the mouse cursor. (Limited to those widgets set as mouse tracked)
+
+	enterEvent_ = QtCore.QEvent(QtCore.QEvent.Enter)
+	leaveEvent_ = QtCore.QEvent(QtCore.QEvent.Leave)
+
+	app = QtWidgets.QApplication.instance()
+
+
+	def __init__(self, parent=None,):
+		'''
+		:Parameters:
+			parent (obj) = The parent application's top level window instance. ie. the Maya main window.
+			profile (bool) = Prints the total running time, times each function separately, and tells you how many times each function was called.
+		'''
+		super().__init__(parent)
+
+
+	def mouseOverFilter(self, widgets):
+		'''Get the widget(s) currently under the mouse cursor, and manage mouse grab and event handling for those widgets.
+		Primarily used to trigger widget events while moving the cursor in the mouse button down state.
+
+		:Parameters:
+			widgets (list) = The widgets to filter for those currently under the mouse cursor.
+
+		:Return:
+			(list) widgets currently under mouse.
+		'''
+		mouseOver=[]
+		for w in widgets: #get all widgets currently under mouse cursor and send enter|leave events accordingly.
+			try:
+				if w.rect().contains(w.mapFromGlobal(QtGui.QCursor.pos())):
+					mouseOver.append(w)
+
+			except AttributeError as error:
+				pass
+
+		return mouseOver
+
+
+	def track(self, widgets):
+		'''Get the widget(s) currently under the mouse cursor, and manage mouse grab and event handling for those widgets.
+		Primarily used to trigger widget events while moving the cursor in the mouse button down state.
+
+		:Parameters:
+			widgets (list) = The widgets to track.
+		'''
+		mouseOver = self.mouseOverFilter(widgets)
+
+		#send enter / leave events.
+		[self.app.sendEvent(w, self.leaveEvent_) for w in self._prevMouseOver if not w in mouseOver] #send leave events for widgets no longer in mouseOver.
+		[self.app.sendEvent(w, self.enterEvent_) for w in mouseOver if not w in self._prevMouseOver] #send enter events for any new widgets in mouseOver. 
+
+		try:
+			mouseOver[-1].grabMouse() #set widget to receive mouse events.
+		except IndexError as error:
+			self.app.activeWindow().grabMouse()
+
+		self._prevMouseOver = mouseOver
 
 
 

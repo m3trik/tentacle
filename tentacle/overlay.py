@@ -2,7 +2,7 @@
 # coding=utf-8
 from PySide2 import QtCore, QtGui, QtWidgets
 
-from eventFilter import OverlayFactoryFilter
+from events import OverlayFactoryFilter
 
 
 class Overlay(QtWidgets.QWidget, OverlayFactoryFilter):
