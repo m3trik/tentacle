@@ -7,26 +7,12 @@ from text import RichText
 from menu import MenuInstance
 
 
-'''
-Promoting a widget in designer to use a custom class:
->	In Qt Designer, select all the widgets you want to replace, 
-		then right-click them and select 'Promote to...'. 
-
->	In the dialog:
-		Base Class:		Class from which you inherit. ie. QWidget
-		Promoted Class:	Name of the class. ie. "MyWidget"
-		Header File:	Path of the file (changing the extension .py to .h)  ie. myfolder.mymodule.mywidget.h
-
->	Then click "Add", "Promote", 
-		and you will see the class change from "QWidget" to "MyWidget" in the Object Inspector pane.
-'''
-
 
 class PushButton_optionBox(QtWidgets.QPushButton, Attributes, RichText):
 	'''
 	'''
 	def __init__(self, parent, showMenuOnMouseOver=False, **kwargs):
-		QtWidgets.QPushButton.__init__(self, parent)
+		super().__init__(parent)
 
 		#override built-ins
 		self.text = self.richText
@@ -45,12 +31,19 @@ class PushButton_optionBox(QtWidgets.QPushButton, Attributes, RichText):
 		self.setMaximumSize(parent.size().height(), parent.size().height())
 		parent.setMinimumSize(parent.size().width()-parent.size().height(), parent.size().height())
 
-		self.orig_parent = parent #the parent will change after adding a container and a layout, but we will need the original parent widget later.
-		g_parent = parent.parent()
+		self.setAttribute(QtCore.Qt.WA_SetStyle) #Indicates that the widget has a style of its own.
+		self.setAttributes(**kwargs)
+
+
+	def create(self):
+		'''
+		'''
+		self.orig_parent = self.parent() #the parent will change after adding a container and a layout, but we will need the original parent widget later.
+		g_parent = self.parent().parent()
 		container = QtWidgets.QWidget(g_parent)
-		container.setMaximumHeight(parent.size().height())
+		container.setMaximumHeight(self.parent().size().height())
 		try:
-			removed_wItem = g_parent.layout().replaceWidget(parent, container)
+			removed_wItem = g_parent.layout().replaceWidget(self.parent(), container)
 			g_parent.layout().update()
 		except AttributeError as error:
 			pass
@@ -70,9 +63,6 @@ class PushButton_optionBox(QtWidgets.QPushButton, Attributes, RichText):
 		# container.setStyleSheet('''
 		# 	QWidget {border: 1px solid rgb(50,50,50);}
 		# 	''')
-
-		self.setAttribute(QtCore.Qt.WA_SetStyle) #Indicates that the widget has a style of its own.
-		self.setAttributes(**kwargs)
 
 
 	# def enterEvent(self, event):
@@ -164,5 +154,5 @@ Promoting a widget in designer to use a custom class:
 		and you will see the class change from "QWidget" to "MyWidget" in the Object Inspector pane.
 '''
 
-# Deprecated:
+# Deprecated: --------------------
 

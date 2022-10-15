@@ -7,7 +7,7 @@ import json
 
 
 
-class Fileutils():
+class File_utils():
 	'''
 	'''
 
@@ -155,7 +155,7 @@ class Fileutils():
 
 
 	@staticmethod
-	def setJson(key, value, file='fileutils.json'):
+	def setJson(key, value, file='file_utils.json'):
 		'''
 		'''
 		try:
@@ -172,7 +172,7 @@ class Fileutils():
 
 
 	@staticmethod
-	def getJson(key, file='fileutils.json'):
+	def getJson(key, file='file_utils.json'):
 		'''
 		'''
 		try:

@@ -10,21 +10,6 @@ from pushButton_optionBox import PushButton_optionBox
 
 
 
-'''
-Promoting a widget in designer to use a custom class:
->	In Qt Designer, select all the widgets you want to replace, 
-		then right-click them and select 'Promote to...'. 
-
->	In the dialog:
-		Base Class:		Class from which you inherit. ie. QWidget
-		Promoted Class:	Name of the class. ie. "MyWidget"
-		Header File:	Path of the file (changing the extension .py to .h)  ie. myfolder.mymodule.mywidget.h
-
->	Then click "Add", "Promote", 
-		and you will see the class change from "QWidget" to "MyWidget" in the Object Inspector pane.
-'''
-
-
 class PushButton(QtWidgets.QPushButton, MenuInstance, Attributes, RichText, TextOverlay):
 	'''
 	'''
@@ -85,6 +70,7 @@ class PushButton(QtWidgets.QPushButton, MenuInstance, Attributes, RichText, Text
 		'''
 		'''
 		self.optionBox = PushButton_optionBox(self) #create an option box
+		self.optionBox.create()
 
 
 	def showEvent(self, event):
@@ -143,5 +129,5 @@ Promoting a widget in designer to use a custom class:
 		and you will see the class change from "QWidget" to "MyWidget" in the Object Inspector pane.
 '''
 
-# Deprecated:
+# Deprecated: --------------------
 

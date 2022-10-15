@@ -85,21 +85,25 @@ class Switchboard(QUiLoader):
 
 	def __init__(self, parent=None, uiDir=defaultUiDir, widgetDir=defaultWgtDir, slotDir=defaultSlotDir):
 		super().__init__(parent)
+		setattr(QtWidgets.QApplication.instance(), 'sb', self)
 		'''
+		:parameters:
+			parent (obj) = 
+			uiDir (str) = 
+			widgetDir (str) = 
+			slotDir (str) = (if slotDir is not a full path, treat it as relative to the default path)
 		'''
 		self.uiDir = uiDir
 		self.widgetDir = widgetDir
-		self.slotDir = slotDir if '/' or '\\' in slotDir else os.path.join(defaultSlotDir, slotDir) #if slotDir is not a full path, treat it as relative to the default path.
 
+		self.slotDir = slotDir if '/' in slotDir or '\\' in slotDir else os.path.join(self.defaultSlotDir, slotDir) #if slotDir is not a full path, treat it as relative to the default path.
 		self.setStyle = StyleSheet.setStyle
 		self._getDerivedType = StyleSheet.getDerivedType
-		self.setCase = utils.Txtools.setCase
-		self.formatFilepath = utils.Fileutils.formatFilepath
-		self.list = utils.Iterutils.list
-		self.formatReturn = utils.Iterutils.formatReturn
-		self.convertForDebugging = utils.Iterutils.convertForDebugging
-
-		setattr(QtWidgets.QApplication.instance(), 'sb', self)
+		self.setCase = utils.Str_utils.setCase
+		self.formatFilepath = utils.File_utils.formatFilepath
+		self.list = utils.Iter_utils.list
+		self.formatReturn = utils.Iter_utils.formatReturn
+		self.convertForDebugging = utils.Iter_utils.convertForDebugging
 
 
 	def __getattr__(self, attr):
@@ -159,7 +163,7 @@ class Switchboard(QUiLoader):
 			if l.strip() == '<{}>'.format(prop):
 				actual_prop_text = l
 				start = i+1
-			elif l == utils.Txtools.insert(actual_prop_text, '/', '<'):
+			elif l == utils.Str_utils.insert(actual_prop_text, '/', '<'):
 				end = i
 
 				delimiters = '</', '<', '>', '\n', ' ',
@@ -308,10 +312,18 @@ class Switchboard(QUiLoader):
 		except AttributeError as error:
 			class_ = self._importSlots(ui)
 			if not class_:
-				if ui.isSubmenu and ui.level3: #is a submenu with a parent menu.
-					return self.getSlotsInstance(ui.level3)
+				# print (4, ui.name, ui.isSubmenu, ui.level3)
+				if ui.isSubmenu:
+					if ui.level3: #is a submenu that has a parent menu.
+						return self.getSlotsInstance(ui.level3)
+					elif ui.level1:
+						return self.getSlotsInstance(ui.level1)
 
-			ui._slots = class_() if class_ else None
+			try:
+				ui._slots = class_()
+			except Exception as error:
+				print (__file__+':', 'getSlotsInstance: '+class_.__name__+':', error)
+				ui._slots = None
 			return ui._slots
 
 
@@ -347,6 +359,7 @@ class Switchboard(QUiLoader):
 			return class_ #get the corresponding slot class from the ui name. 
 
 		except ModuleNotFoundError as error:
+			# print (__file__, error)
 			return None
 
 
@@ -443,10 +456,10 @@ class Switchboard(QUiLoader):
 			ui.setParent(parent, ui.windowFlags())
 
 		#set attributes
-		ui.__class__.__slots__ = [
+		ui.__slots__ = [
 			'name', 'base', 'path', 'tags', 'level', 'sizeX', 'sizeY', 'isConnected', 
 			'isInitialized', 'isSynced', 'isSubmenu', 'preventHide', 'hide', 'addWidgets', 
-			'widgets', 'slots', 'connected', 'sync', 'isCurrent', 'level2', 'level3',
+			'widgets', 'slots', 'connected', 'sync', 'isCurrent', 'level0', 'level1', 'level2', 'level3', 'level4',
 		]
 		ui.name = name
 		ui.base = next(iter(name.split('_')))
@@ -480,11 +493,20 @@ class Switchboard(QUiLoader):
 		ui.__class__.isCurrent = property(
 			lambda u: True if u==self.currentUi else False
 		)
+		ui.__class__.level0 = property(
+			lambda u: self.getUi(u, 0)
+		)
+		ui.__class__.level1 = property(
+			lambda u: self.getUi(u, 1)
+		)
 		ui.__class__.level2 = property(
 			lambda u: self.getUi(u, 2)
 		)
 		ui.__class__.level3 = property(
 			lambda u: self.getUi(u, 3)
+		)
+		ui.__class__.level4 = property(
+			lambda u: self.getUi(u, 4)
 		)
 
 		setattr(self, name, ui)
@@ -520,7 +542,7 @@ class Switchboard(QUiLoader):
 				return
 
 			#set attributes
-			w.__class__.__slots__ = [
+			w.__slots__ = [
 				'ui', 'name', 'type', 'derivedType', 'signalType', 'signal', 
 				'method', 'prefix', 'isSynced',
 			]
@@ -555,19 +577,19 @@ class Switchboard(QUiLoader):
 			if isinstance(ui, str):
 				ui, *tags = ui.split('#')
 
-				u = self.getUi(ui)
-				if not u:
-					u = self.getUi(ui+'_submenu') #in the case where a submenu exist without a parent menu.
-					if not u:
+				ui1 = self.getUi(ui)
+				if not ui1 or level==2:
+					submenu_name = '{}_{}#{}'.format(ui, 'submenu', '#'.join(tags)).rstrip('#') #reformat as submenu w/tags. ie. 'polygons_submenu#edge' from 'polygons'
+					ui1 = self.getUi(submenu_name) #in the case where a submenu exist without a parent menu.
+					if not ui1:
 						return None
-				ui = u
 
 				ui = [u for u in self._loadedUi 
 						if all([
-							u.base==ui.base, 
+							u.base==ui1.base, 
 							u.tags==self.list(tags), 
 							u.level in self.list(level),
-					])
+						])
 				]
 
 			else:
@@ -575,7 +597,7 @@ class Switchboard(QUiLoader):
 						if all([
 							u.base==ui.base, 
 							u.level in self.list(level),
-					])
+						])
 				]
 
 			return self.formatReturn(ui)
@@ -674,7 +696,7 @@ class Switchboard(QUiLoader):
 			(obj) method.
 		'''
 		try:
-			return self.getPrevCommands()[-1]
+			return self.prevCommands[-1]
 
 		except IndexError as error:
 			return None
@@ -682,15 +704,6 @@ class Switchboard(QUiLoader):
 
 	@property
 	def prevCommands(self) -> list:
-		'''Get a list of previously called slot methods.
-
-		:Return:
-			(list) list of methods.
-		'''
-		return self.getPrevCommands()
-
-
-	def getPrevCommands(self):
 		'''Get a list of previously called slot methods.
 
 		:Return:
@@ -833,9 +846,9 @@ class Switchboard(QUiLoader):
 			ui (obj) = A previously loaded dynamic ui object.
 			widgets (obj)(list) = QWidget(s)
 		'''
-		# print ('connectSlots:', ui.name)
 		if widgets is None:
 			widgets = ui.widgets
+		# print ('connectSlots:', ui.name, [w.objectName() for w in self.list(widgets)])
 
 		for w in self.list(widgets): #convert 'widgets' to a list if it is not one already.
 			# print ('           >:', w.name, w.method)
@@ -846,7 +859,7 @@ class Switchboard(QUiLoader):
 					else:
 						w.signal.connect(w.method) #connect single slot (main and cameras ui)
 
-					w.signal.connect(lambda w=w: self._wgtHistory.append(w)) #add the widget to the widget history list on signal.
+					w.signal.connect(lambda *args, w=w: self._wgtHistory.append(w)) #add the widget to the widget history list on connect. (*args prevents 'w' from being overwritten by the parameter emitted by the signal.)
 
 				except Exception as error:
 					print('Error: {0} {1} connectSlots: {2} {3}'.format(ui.name, w.name, w.signal, w.method), '\n', error)
@@ -962,12 +975,12 @@ class Switchboard(QUiLoader):
 
 
 	attributesGetSet = {
-		'isChecked':'setChecked', 
-		'isDisabled':'setDisabled', 
-		'isEnabled':'setEnabled', 
 		'value':'setValue', 
 		'text':'setText', 
 		'icon':'setIcon', 
+		'checkState':'setCheckState', 
+		'isChecked':'setChecked', 
+		'isDisabled':'setDisabled', 
 	}
 	def _syncAttributes(self, frm, to, attributes=[]):
 		'''Sync the given attributes between the two given widgets.
@@ -993,9 +1006,11 @@ class Switchboard(QUiLoader):
 			except AttributeError as error:
 				pass
 
-		[getattr(to, attr)(value) 
-			for attr, value in _attributes.items() 
-				if hasattr(to, attr)] #set the second widget's attributes from the first.
+		for attr, value in _attributes.items(): #set the second widget's attributes from the first.
+			try:
+				getattr(to, attr)(value)
+			except AttributeError as error:
+				pass
 
 
 	def getDefaultSignalType(self, widgetType):
@@ -1312,6 +1327,38 @@ class Switchboard(QUiLoader):
 
 
 	@staticmethod
+	def getWidgetAt(pos, topWidgetOnly=True):
+		'''Get any widget(s) located at the given position.
+
+		:Parameters:
+			pos (QPoint) = The global position at which to query.
+			topWidgetOnly (bool) = Return only the top-most widget, 
+				otherwise widgets are returned in the order in which they overlap.
+				Disabling this option will cause overlapping windows to flash as 
+				their attribute is changed and restored.
+		:Return:
+			(obj)(list) list if not topWidgetOnly.
+
+		ex. call: getWidgetAt(QtGui.QCursor.pos())
+		'''
+		w = QtWidgets.QApplication.widgetAt(pos)
+		if topWidgetOnly:
+			return w
+
+		widgets=[]
+		while w:
+			widgets.append(w)
+
+			w.setAttribute(QtCore.Qt.WA_TransparentForMouseEvents) #make widget invisible to further enquiries.
+			w = QtWidgets.QApplication.widgetAt(pos)
+
+		for w in widgets: #restore attribute.
+			w.setAttribute(QtCore.Qt.WA_TransparentForMouseEvents, False)
+
+		return widgets
+
+
+	@staticmethod
 	def getParentWidgets(widget, objectNames=False):
 		'''Get the all parent widgets of the given widget.
 
@@ -1328,7 +1375,7 @@ class Switchboard(QUiLoader):
 			parentWidgets.append(w)
 			w = w.parentWidget()
 		if objectNames:
-			return [str(w.objectName()) for w in parentWidgets]
+			return [w.objectName() for w in parentWidgets]
 		return parentWidgets
 
 
@@ -1357,7 +1404,7 @@ class Switchboard(QUiLoader):
 			if name: corresponding <window object>
 			else: return a dictionary of all windows {windowName:window}
 		'''
-		windows = {w.objectName():w for w in QApplication.allWindows()}
+		windows = {w.objectName():w for w in QtWidgets.QApplication.allWindows()}
 		if name:
 			return windows[name]
 		else:
@@ -1375,7 +1422,7 @@ class Switchboard(QUiLoader):
 			if name: corresponding <widget object>
 			else: return a dictionary of all widgets {objectName:widget}
 		'''
-		widgets = {w.objectName():w for w in QApplication.allWidgets()}
+		widgets = {w.objectName():w for w in QtWidgets.QApplication.allWidgets()}
 		if name:
 			return widgets[name]
 		else:

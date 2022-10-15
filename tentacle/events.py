@@ -127,6 +127,8 @@ class MouseTracking(QtCore.QObject):
 	leaveEvent_ = QtCore.QEvent(QtCore.QEvent.Leave)
 
 	app = QtWidgets.QApplication.instance()
+	if not app:
+		app = QtWidgets.QApplication(sys.argv)
 
 
 	def __init__(self, parent=None,):
@@ -170,12 +172,15 @@ class MouseTracking(QtCore.QObject):
 		mouseOver = self.mouseOverFilter(widgets)
 
 		#send enter / leave events.
-		[self.app.sendEvent(w, self.leaveEvent_) for w in self._prevMouseOver if not w in mouseOver] #send leave events for widgets no longer in mouseOver.
+		[self.app.sendEvent(w, self.leaveEvent_) and w.releaseMouse() for w in self._prevMouseOver if not w in mouseOver] #send leave events for widgets no longer in mouseOver.
 		[self.app.sendEvent(w, self.enterEvent_) for w in mouseOver if not w in self._prevMouseOver] #send enter events for any new widgets in mouseOver. 
 
 		try:
-			mouseOver[-1].grabMouse() #set widget to receive mouse events.
-		except IndexError as error:
+			topWidget = self.app.widgetAt(QtGui.QCursor.pos())
+			topWidget.grabMouse() #set widget to receive mouse events.
+			print (topWidget)
+
+		except AttributeError as error:
 			self.app.activeWindow().grabMouse()
 
 		self._prevMouseOver = mouseOver
@@ -198,3 +203,16 @@ print (__name__)
 
 #deprecated:
 
+# w = self.app.widgetAt(QtGui.QCursor.pos())
+
+# 		if not w==self._prevMouseOver:
+# 			try:
+# 				self._prevMouseOver.releaseMouse()
+# 				self.app.sendEvent(self._prevMouseOver, self.leaveEvent_)
+# 			except (TypeError, AttributeError) as error:
+# 				pass
+
+# 			w.grabMouse() #set widget to receive mouse events.
+# 			print ('grab:', w.objectName())
+# 			self.app.sendEvent(w, self.enterEvent_)
+# 			self._prevMouseOver = w

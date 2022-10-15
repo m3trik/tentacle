@@ -201,7 +201,7 @@ class Rigging_max(Rigging, Slots_max):
 			'enableScaleX','scaleX','enableScaleY','scaleY','enableScaleZ','scaleZ']
 
 		attrs = Slots_max.getParameterValuesMax(node, 'transformLimits', params)
-		self.setAttributeWindow(node, attrs, fn=Slots_max.setParameterValuesMax, fn_args='transformLimits')
+		self.setAttributeWindow(node, fn=Slots_max.setParameterValuesMax, 'transformLimits', **attrs)
 
 
 	def b001(self):

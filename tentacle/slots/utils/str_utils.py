@@ -1,11 +1,10 @@
 # !/usr/bin/python
 # coding=utf-8
-
 import sys, os
 
 
 
-class Txtools():
+class Str_utils():
 	'''
 	'''
 
@@ -39,6 +38,40 @@ class Txtools():
 			return string
 
 		return result[0] if len(result)==1 else result
+
+
+	@staticmethod
+	def formatName(name, stripTrailingInts=False, stripTrailingAlpha=False, strip='', suffix=''):
+		'''
+		:parameters:
+			name (str)(obj) = The name string to format or the object itself (from which the name will be pulled).
+			stripTrailingInts (bool) = Strip all trailing integers.
+			stripTrailingAlpha (bool) = Strip all upper-case letters preceeded by a non alphanumeric character.
+			strip (str)(list) = Specific string(s) to strip. All occurances will be removed.
+			suffix (str) = A suffix to apply to the end result.
+
+		:return:
+			(str)
+		'''
+		import re
+
+		try:
+			n = name.split('|')[-1]
+		except Exception as error:
+			n = name.name().split('|')[-1]
+
+		for s in strip:
+			n = n.replace(s, '')
+
+		while ((n[-1]=='_' or n[-1].isdigit()) and stripTrailingInts) or ('_' in n and (n=='_' or n[-1].isupper())) and stripTrailingAlpha:
+
+			if (n[-1]=='_' or n[-1].isdigit()) and stripTrailingInts: #trailing underscore and integers.
+				n = re.sub(re.escape(n[-1:]) + '$', '', n)
+
+			if ('_' in n and (n=='_' or n[-1].isupper())) and stripTrailingAlpha: #trailing underscore and uppercase alphanumeric char.
+				n = re.sub(re.escape(n[-1:]) + '$', '', n)
+
+		return n+suffix
 
 
 	@classmethod
@@ -82,4 +115,4 @@ if __name__=='__main__':
 
 
 
-# Deprecated -----------------------------------------------
+# Deprecated ---------------------

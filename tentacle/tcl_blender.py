@@ -28,6 +28,7 @@ class Tcl_blender(Tcl):
 				print(__file__, error)
 
 		super().__init__(parent, slotDir=slotDir, *args, **kwargs)
+		setattr(QtWidgets.QApplication.instance(), 'mainAppWindow', parent)
 
 
 	@classmethod
@@ -38,7 +39,6 @@ class Tcl_blender(Tcl):
 			(QWidget)
 		'''
 		main_window = QApplication.instance().blender_widget
-		setattr(QtWidgets.QApplication.instance(), 'mainAppWindow', main_window)
 
 		return main_window
 

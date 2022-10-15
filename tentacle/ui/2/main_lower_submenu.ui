@@ -10,7 +10,7 @@
     <x>0</x>
     <y>0</y>
     <width>600</width>
-    <height>600</height>
+    <height>604</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -62,13 +62,38 @@
    <layout class="QGridLayout" name="gridLayout">
     <item row="0" column="0">
      <widget class="QWidget" name="staticWindow" native="true">
-      <widget class="TreeWidgetExpandableList" name="tree000">
+      <widget class="QPushButton" name="i000">
        <property name="geometry">
         <rect>
-         <x>230</x>
-         <y>190</y>
-         <width>119</width>
-         <height>221</height>
+         <x>255</x>
+         <y>260</y>
+         <width>76</width>
+         <height>21</height>
+        </rect>
+       </property>
+       <property name="minimumSize">
+        <size>
+         <width>0</width>
+         <height>21</height>
+        </size>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>16777215</width>
+         <height>21</height>
+        </size>
+       </property>
+       <property name="whatsThis">
+        <string>main_lower_submenu</string>
+       </property>
+      </widget>
+      <widget class="ListWidget" name="lw000">
+       <property name="geometry">
+        <rect>
+         <x>225</x>
+         <y>260</y>
+         <width>136</width>
+         <height>41</height>
         </rect>
        </property>
        <property name="layoutDirection">
@@ -92,29 +117,9 @@
        <property name="selectionMode">
         <enum>QAbstractItemView::NoSelection</enum>
        </property>
-       <property name="indentation">
-        <number>0</number>
+       <property name="resizeMode">
+        <enum>QListView::Adjust</enum>
        </property>
-       <property name="itemsExpandable">
-        <bool>false</bool>
-       </property>
-       <property name="headerHidden">
-        <bool>true</bool>
-       </property>
-       <property name="expandsOnDoubleClick">
-        <bool>false</bool>
-       </property>
-       <property name="columnCount">
-        <number>1</number>
-       </property>
-       <attribute name="headerVisible">
-        <bool>false</bool>
-       </attribute>
-       <column>
-        <property name="text">
-         <string notr="true">root</string>
-        </property>
-       </column>
        <item>
         <property name="text">
          <string>Recent Commands</string>
@@ -126,33 +131,6 @@
         </property>
        </item>
       </widget>
-      <widget class="QPushButton" name="i000">
-       <property name="geometry">
-        <rect>
-         <x>250</x>
-         <y>190</y>
-         <width>76</width>
-         <height>21</height>
-        </rect>
-       </property>
-       <property name="minimumSize">
-        <size>
-         <width>0</width>
-         <height>21</height>
-        </size>
-       </property>
-       <property name="maximumSize">
-        <size>
-         <width>16777215</width>
-         <height>21</height>
-        </size>
-       </property>
-       <property name="whatsThis">
-        <string>main_lower_submenu</string>
-       </property>
-      </widget>
-      <zorder>i000</zorder>
-      <zorder>tree000</zorder>
      </widget>
     </item>
    </layout>
@@ -160,9 +138,9 @@
  </widget>
  <customwidgets>
   <customwidget>
-   <class>TreeWidgetExpandableList</class>
-   <extends>QTreeWidget</extends>
-   <header>qtreewidget_expandablelist.h</header>
+   <class>ListWidget</class>
+   <extends>QListWidget</extends>
+   <header>listwidget.h</header>
   </customwidget>
  </customwidgets>
  <resources/>

@@ -204,7 +204,7 @@ class Rigging_blender(Rigging, Slots_blender):
 			'enableScaleX','scaleX','enableScaleY','scaleY','enableScaleZ','scaleZ']
 
 		attrs = Slots_blender.getParameterValuesMEL(node, 'transformLimits', params)
-		self.setAttributeWindow(node, attrs, fn=Slots_blender.setParameterValuesMEL, fn_args='transformLimits')
+		self.setAttributeWindow(node, fn=Slots_blender.setParameterValuesMEL, 'transformLimits', **attrs)
 
 
 	def b001(self):

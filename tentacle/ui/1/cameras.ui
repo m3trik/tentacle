@@ -433,9 +433,6 @@
           <height>21</height>
          </size>
         </property>
-        <property name="toolTip">
-         <string/>
-        </property>
         <property name="whatsThis">
          <string>cameras_lower_submenu</string>
         </property>

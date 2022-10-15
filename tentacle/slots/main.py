@@ -10,36 +10,32 @@ class Main(Slots):
 	def __init__(self, *args, **kwargs):
 		'''
 		'''
-		# tree = self.sb.main_lower_submenu.tree000
-		tree = self.sb.main_lower_submenu.tree000
-		tree.expandOnHover = True
-		tree.convert(tree.getTopLevelItems(), 'QLabel') #construct the tree using the existing contents.
+		lw = self.sb.main_lower_submenu.lw000
+		print (lw.getItems())
+		print (lw.getItemWidgets())
 
 
-	def tree000(self, wItem=None, column=None):
+	def lw000(self, w=None):
 		'''
 		'''
-		tree = self.sb.main_lower_submenu.tree000
+		lw = self.sb.main_lower_submenu.lw000
 
-		if not any([wItem, column]): # code here will run before each show event. generally used to refresh tree contents. -----------------------------
+		if not w: # code here will run before each show event. generally used to refresh list contents. ------------------
 			#command history
 			recentCommandInfo = [m.__name__ for m in self.sb.prevCommands] #Get a list of any recently called method names.
-			[tree.add('QLabel', 'Recent Commands', refresh=1, setText=m.__doc__) for m in recentCommandInfo]
+			# w1 = lw.getItemWidgetsByText('Recent Commands')[0]
+			w1 = lw.getItemsByText('Recent Commands')[0]
+			print (0, w1)
+			lw._addList(w1)
+			print (1, w1.list)
+			w2 = w1.list.add('QPushButton', setObjectName='b004', setText='Button 4')
+			# [w1.list.add('QLabel', setText=m.__doc__) for m in recentCommandInfo]
 			return
 
-		# widget = tree.getWidget(wItem, column)
-		header = tree.getHeaderFromColumn(column)
-		text = tree.getWidgetText(wItem, column)
-		index = tree.getIndexFromWItem(wItem, column)
-
-		if header=='Recent Commands':
+		print (w.text(), w, w.list)
+		if w.text=='Recent Commands':
 			recentCommands = self.sb.prevCommands #Get a list of any previously called slot methods.
 			method = recentCommands[index]
 			if callable(method):
 				method()
 
-		# # if header=='':
-		# # 	if text=='':
-		# # 		pass
-		# # 	if text=='':
-		# # 		pass

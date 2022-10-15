@@ -12,31 +12,26 @@ class Node_utils_maya():
 	'''
 
 	@staticmethod
-	def getType(obj, returnType='str'):
-		'''Get the type of a given object.
-
-		:Parameters:
-			obj (obj) = A single maya component.
-			returnType (str) = Specify the desired return value type. (valid: 'str' (default), 'int')
-								'str' - will return the object type as a string.
-								'int' - will return the maya mask value as an integer.
-		:Return:
-			(str)(int) dependant on returnType parameter.
+	def getType(obj):
+		'''Get the object type as a string.
 		'''
-		types = {
-			0:'Handle', 9:'Nurbs Curve', 10:'Nurbs Surfaces', 11:'Nurbs Curves On Surface', 12:'Polygon', 
-			22:'Locator XYZ', 23:'Orientation Locator', 24:'Locator UV', 28:'Control Vertex', 30:'Edit Point', 
-			31:'Polygon Vertex', 32:'Polygon Edge', 34:'Polygon Face', 35:'Polygon UV', 36:'Subdivision Mesh Point', 
-			37:'Subdivision Mesh Edge', 38:'Subdivision Mesh Face', 39:'Curve Parameter Point', 40:'Curve Knot', 
-			41:'Surface Parameter Point', 42:'Surface Knot', 43:'Surface Range', 44:'Trim Surface Edge', 
-			45:'Surface Isoparm', 46:'Lattice Point', 47:'Particle', 49:'Scale Pivot', 50:'Rotate Pivot', 
-			51:'Select Handle', 68:'Subdivision Surface', 70:'Polygon Vertex Face', 72:'NURBS Surface Face', 
-			73:'Subdivision Mesh UV',
-		}
+		obj, *other = pm.ls(obj)
+		try:
+			return pm.listRelatives(obj, shapes=1)[0].type()
+		except IndexError as error:
+			return obj.type()
 
-		for k, v in types.items(): #get the matching type from the types dict.
-			if pm.filterExpand(obj, sm=k):
-				return k if returnType=='int' else v
+
+	@staticmethod
+	def isGroup(node):
+		'''Check if the given node is a group.
+		'''
+		return all([type(c)==pm.nodetypes.Transform for c in node.getChildren()])
+
+	# 	for child in node.getChildren():
+	# 		if type(child) is not pm.nodetypes.Transform:
+	# 			return False
+	# 	return True
 
 
 	@staticmethod
@@ -89,16 +84,6 @@ class Node_utils_maya():
 				result[node] = [component]
 
 		return result
-
-
-	@staticmethod
-	def isGroup(node):
-		'''Check if the given node is a group.
-		'''
-		for child in node.getChildren():
-			if type(child) is not pm.nodetypes.Transform:
-				return False
-		return True
 
 
 	@staticmethod
@@ -202,7 +187,7 @@ class Node_utils_maya():
 
 	@staticmethod
 	def getParameterValuesMEL(node, cmd, parameters):
-		'''Query a Maya command, and return a key(the parameter):value pair for each of the given parameters.
+		'''Query a Maya command, and return a key:value pair for each of the given parameters.
 
 		:Parameters:
 			node (str)(obj)(list) = The object to query attributes of.
@@ -211,7 +196,7 @@ class Node_utils_maya():
 		:Return:
 			(dict) {'parameter name':<value>} ie. {'enableTranslationX': [False, False], 'translationX': [-1.0, 1.0]}
 
-		ex. call: attrs = getParameterValuesMEL(obj, 'transformLimits', ['enableTranslationX','translationX'])
+		ex. call: getParameterValuesMEL(obj, 'transformLimits', ['enableTranslationX','translationX'])
 		'''
 		cmd = getattr(pm, cmd)
 		node = pm.ls(node)[0]
@@ -219,12 +204,6 @@ class Node_utils_maya():
 		result={}
 		for p in parameters:
 			values = cmd(node, **{'q':True, p:True}) #query the parameter to get it's value.
-
-			# for n, i in enumerate(values): #convert True|False to 1|0
-			# 	if i==True:
-			# 		values[n] = 1
-			# 	elif i==False:
-			# 		values[n] = 0
 
 			result[p] = values
 
@@ -260,41 +239,9 @@ class Node_utils_maya():
 		:Return:
 			(dict) {'string attribute': current value}
 		'''
-		if not all((include, exclude)):
-			exclude = ['message', 'caching', 'frozen', 'isHistoricallyInteresting', 'nodeState', 'binMembership', 'output', 'edgeIdMap', 'miterAlong', 'axis', 'axisX', 'axisY', 
-				'axisZ', 'paramWarn', 'uvSetName', 'createUVs', 'texture', 'maya70', 'inputPolymesh', 'maya2017Update1', 'manipMatrix', 'inMeshCache', 'faceIdMap', 'subdivideNgons', 
-				'useOldPolyArchitecture', 'inputComponents', 'vertexIdMap', 'binMembership', 'maya2015', 'cacheInput', 'inputMatrix', 'forceParallel', 'autoFit', 'maya2016SP3', 
-				'maya2017', 'caching', 'output', 'useInputComp', 'worldSpace', 'taperCurve_Position', 'taperCurve_FloatValue', 'taperCurve_Interp', 'componentTagCreate', 
-				'isCollapsed', 'blackBox', 'viewMode', 'templateVersion', 'uiTreatment', 'boundingBoxMinX', 'boundingBoxMinY', 'boundingBoxMinZ', 'boundingBoxMaxX', 'boundingBoxMaxY', 
-				'boundingBoxMaxZ', 'boundingBoxSizeX', 'boundingBoxSizeY', 'boundingBoxSizeZ', 'boundingBoxCenterX', 'boundingBoxCenterY', 'boundingBoxCenterZ', 'visibility', 
-				'intermediateObject', 'template', 'objectColorR', 'objectColorG', 'objectColorB', 'wireColorR', 'wireColorG', 'wireColorB', 'useObjectColor', 'objectColor', 
-				'overrideDisplayType', 'overrideLevelOfDetail', 'overrideShading', 'overrideTexturing', 'overridePlayback', 'overrideEnabled', 'overrideVisibility', 'hideOnPlayback', 
-				'overrideRGBColors', 'overrideColor', 'overrideColorR', 'overrideColorG', 'overrideColorB', 'lodVisibility', 'selectionChildHighlighting', 'identification', 
-				'layerRenderable', 'layerOverrideColor', 'ghosting', 'ghostingMode', 'ghostPreFrames', 'ghostPostFrames', 'ghostStep', 'ghostFarOpacity', 'ghostNearOpacity', 
-				'ghostColorPreR', 'ghostColorPreG', 'ghostColorPreB', 'ghostColorPostR', 'ghostColorPostG', 'ghostColorPostB', 'ghostUseDriver', 'hiddenInOutliner', 'useOutlinerColor', 
-				'outlinerColorR', 'outlinerColorG', 'outlinerColorB', 'renderType', 'renderVolume', 'visibleFraction', 'hardwareFogMultiplier', 'motionBlur', 'visibleInReflections', 
-				'visibleInRefractions', 'castsShadows', 'receiveShadows', 'asBackground', 'maxVisibilitySamplesOverrider', 'maxVisibilitySamples', 'geometryAntialiasingOverride', 
-				'antialiasingLevel', 'shadingSamplesOverride', 'shadingSamples', 'maxShadingSamples','volumeSamplesOverride', 'volumeSamples', 'depthJitter', 'IgnoreSelfShadowing', 
-				'primaryVisibility', 'tweak', 'relativeTweak', 'uvPivotX', 'uvPivotY', 'displayImmediate', 'displayColors', 'ignoreHwShader', 'holdOut', 'smoothShading', 
-				'boundingBoxScaleX', 'boundingBoxScaleY', 'boundingBoxScaleZ', 'featureDisplacement', 'randomSeed', 'compId', 'weight', 'gravityX', 'gravityY', 'gravityZ', 'attraction', 
-				'magnX', 'magnY', 'magnZ', 'maya2012', 'maya2018', 'newThickness', 'compBoundingBoxMinX', 'compBoundingBoxMinY', 'compBoundingBoxMinZ', 'compBoundingBoxMaxX', 
-				'compBoundingBoxMaxY', 'compBoundingBoxMaxZ', 'hyperLayout', 'borderConnections', 'isHierarchicalConnection', 'rmbCommand', 'templateName', 'templatePath', 'viewName', 
-				'iconName', 'customTreatment', 'creator', 'creationDate', 'containerType', 'boundingBoxMin', 'boundingBoxMax', 'boundingBoxSize', 'matrix', 'inverseMatrix', 'worldMatrix', 
-				'worldInverseMatrix', 'parentMatrix', 'parentInverseMatrix', 'instObjGroups', 'wireColorRGB', 'drawOverride', 'overrideColorRGB', 'renderInfo', 'ghostCustomSteps', 
-				'ghostsStep', 'ghostFrames', 'ghostOpacityRange', 'ghostColorPre', 'ghostColorPost', 'ghostDriver', 'outlinerColor', 'shadowRays', 'rayDepthLimit', 'centerOfIllumination', 
-				'pointCamera', 'pointCameraX', 'pointCameraY', 'pointCameraZ', 'matrixWorldToEye', 'matrixEyeToWorld', 'objectId', 'primitiveId', 'raySampler', 'rayDepth', 'renderState', 
-				'locatorScale', 'uvCoord', 'uCoord', 'vCoord', 'uvFilterSize', 'uvFilterSizeX', 'uvFilterSizeY', 'infoBits', 'lightData', 'lightDirectionX', 'lightDirectionY', 'lightDirectionZ', 
-				'lightIntensityR', 'lightIntensityG', 'lightIntensityB', 'lightShadowFraction', 'preShadowIntensity', 'lightBlindData', 'opticalFXvisibility', 'opticalFXvisibilityR', 
-				'opticalFXvisibilityG', 'opticalFXvisibilityB', 'rayInstance', 'ambientShade', 'objectType', 'shadowRadius', 'castSoftShadows', 'normalCamera', 'normalCameraX', 'normalCameraY', 
-				'normalCameraZ', 'color', 'shadowColor', 'decayRate', 'emitDiffuse', 'emitSpecular', 'lightRadius', 'reuseDmap', 'useMidDistDmap', 'dmapFilterSize', 'dmapResolution', 
-				'dmapFocus', 'dmapWidthFocus', 'useDmapAutoFocus', 'volumeShadowSamples', 'fogShadowIntensity', 'useDmapAutoClipping', 'dmapNearClipPlane', 'dmapFarClipPlane', 
-				'useOnlySingleDmap', 'useXPlusDmap', 'useXMinusDmap', 'useYPlusDmap', 'useYMinusDmap', 'useZPlusDmap', 'useZMinusDmap', 'dmapUseMacro', 'dmapName', 'dmapLightName', 
-				'dmapSceneName', 'dmapFrameExt', 'writeDmap', 'lastWrittenDmapAnimExtName', 'useLightPosition', 'lightAngle', 'pointWorld', 'pointWorldX', 'pointWorldY', 'pointWorldZ', 
-
-			]
-		# print('node:', node); print('attr:', pm.listAttr(node))
-		attributes={} 
-		for attr in pm.listAttr(node):
+		# print('node:', node); print('attr:', , read=1, hasData=1))
+		attributes={}
+		for attr in pm.listAttr(node, read=1, hasData=1):
 			if not attr in exclude and (attr in include if include else attr not in include): #ie. pm.getAttr('polyCube1.subdivisionsDepth')
 				try:
 					attributes[attr] = pm.getAttr(getattr(node, attr), silent=True) #get the attribute's value.
@@ -305,7 +252,7 @@ class Node_utils_maya():
 
 
 	@staticmethod
-	def setAttributesMEL(node, attributes):
+	def setAttributesMEL(node, **attributes):
 		'''Set node attribute values using a dict.
 
 		:Parameters:
@@ -315,9 +262,13 @@ class Node_utils_maya():
 		ex call:
 		self.setAttributesMEL(obj, {'smoothLevel':1})
 		'''
-		[pm.setAttr(getattr(node, attr), value)
-			for attr, value in attributes.items() 
-				if attr and value] #ie. pm.setAttr('polyCube1.subdivisionsDepth', 5)
+		for attr, value in attributes.items():
+			try:
+				a = getattr(node, attr)
+				pm.setAttr(a, value) #ie. pm.setAttr('polyCube1.subdivisionsDepth', 5)
+			except (AttributeError, TypeError) as error:
+				# print ('# Error:', __file__, error, node, attr, value, '#')
+				pass
 
 
 	@staticmethod
@@ -349,3 +300,121 @@ class Node_utils_maya():
 		pm.connectAttr((place + "." + attr), (file + "." + attr), f=1)
 
 
+	@classmethod
+	def createRenderNode(cls, nodeType, asType='asShader', flag='surfaceShader', name='', postCommand='', **kwargs):
+		'''Procedure to create the node classified as specified by the inputs.
+
+		:Parameters:
+			nodeType (str) = The type of node to be created. ie. 'StingrayPBS' or 'aiStandardSurface'
+			asType (str) = A flag specifying which how to classify the node created.
+				valid: as2DTexture, as3DTexture, asEnvTexture, asShader, asLight, asUtility
+			flag (str) = A secondary flag used to make decisions in combination with 'asType'
+				valid:	-asBump : defines a created texture as a bump
+						-asNoShadingGroup : for materials; create without a shading group
+						-asDisplacement : for anything; map the created node to a displacement material.
+						-asUtility : for anything; do whatever the $as flag says, but also classify as a utility
+						-asPostProcess : for any postprocess node
+			name (str) = The desired node name.
+			postCommand (str) = A command entered by the user when invoking createRenderNode.
+					The command will substitute the string %node with the name of the
+					node it creates.  createRenderWindow will be closed if a command
+					is not the null string ("").
+			kwargs () = Set additional node attributes after creation. ie. name
+
+		:Return:
+			(obj) node
+
+		ex. call: createRenderNode('StingrayPBS')
+		ex. call: createRenderNode('file', 'as2DTexture')
+		'''
+		node = pm.PyNode(pm.mel.createRenderNodeCB('-'+asType, flag, nodeType, postCommand))
+		if name:
+			try:
+				pm.rename(node, name)
+			except RuntimeError as error:
+				print ('# Error:', __file__, error, '#')
+		cls.setAttributesMEL(node, **kwargs)
+		return node
+
+
+	@classmethod
+	def createFileNode(cls, typ='file', tex='', place2dTexture=False, **kwargs):
+		'''
+		'''
+		if place2dTexture:
+			node = cls.createRenderNode('file', 'as2DTexture')
+		else:
+			node = pm.shadingNode('file', asTexture=True)
+		node.fileTextureName.set(tex)
+
+		cls.setAttributesMEL(node, **kwargs)
+
+		return node
+
+
+	@classmethod
+	def createEnvNode(cls, typ='aiSkyDomeLight', tex='', **kwargs):
+		'''
+		'''
+		node = pm.shadingNode(typ, asLight=True)#, name=name if name else typ)
+		file_node = cls.createRenderNode('file', 'as2DTexture')
+		file_node.fileTextureName.set(tex)
+		pm.connectAttr(file_node.outColor, node.color, force=True)
+
+		pm.rename(node, 'env')
+		cls.setAttributesMEL(node, **kwargs)
+
+		return node
+
+
+
+
+
+
+
+
+
+#module name
+# print (__name__)
+# -----------------------------------------------
+# Notes
+# -----------------------------------------------
+
+
+
+
+
+# Deprecated ------------------------------------
+
+		# if not all((include, exclude)):
+		# 	exclude = ['message', 'caching', 'frozen', 'isHistoricallyInteresting', 'nodeState', 'binMembership', 'output', 'edgeIdMap', 'miterAlong', 'axis', 'axisX', 'axisY', 
+		# 		'axisZ', 'paramWarn', 'uvSetName', 'createUVs', 'texture', 'maya70', 'inputPolymesh', 'maya2017Update1', 'manipMatrix', 'inMeshCache', 'faceIdMap', 'subdivideNgons', 
+		# 		'useOldPolyArchitecture', 'inputComponents', 'vertexIdMap', 'binMembership', 'maya2015', 'cacheInput', 'inputMatrix', 'forceParallel', 'autoFit', 'maya2016SP3', 
+		# 		'maya2017', 'caching', 'output', 'useInputComp', 'worldSpace', 'taperCurve_Position', 'taperCurve_FloatValue', 'taperCurve_Interp', 'componentTagCreate', 
+		# 		'isCollapsed', 'blackBox', 'viewMode', 'templateVersion', 'uiTreatment', 'boundingBoxMinX', 'boundingBoxMinY', 'boundingBoxMinZ', 'boundingBoxMaxX', 'boundingBoxMaxY', 
+		# 		'boundingBoxMaxZ', 'boundingBoxSizeX', 'boundingBoxSizeY', 'boundingBoxSizeZ', 'boundingBoxCenterX', 'boundingBoxCenterY', 'boundingBoxCenterZ', 'visibility', 
+		# 		'intermediateObject', 'template', 'objectColorR', 'objectColorG', 'objectColorB', 'wireColorR', 'wireColorG', 'wireColorB', 'useObjectColor', 'objectColor', 
+		# 		'overrideDisplayType', 'overrideLevelOfDetail', 'overrideShading', 'overrideTexturing', 'overridePlayback', 'overrideEnabled', 'overrideVisibility', 'hideOnPlayback', 
+		# 		'overrideRGBColors', 'overrideColor', 'overrideColorR', 'overrideColorG', 'overrideColorB', 'lodVisibility', 'selectionChildHighlighting', 'identification', 
+		# 		'layerRenderable', 'layerOverrideColor', 'ghosting', 'ghostingMode', 'ghostPreFrames', 'ghostPostFrames', 'ghostStep', 'ghostFarOpacity', 'ghostNearOpacity', 
+		# 		'ghostColorPreR', 'ghostColorPreG', 'ghostColorPreB', 'ghostColorPostR', 'ghostColorPostG', 'ghostColorPostB', 'ghostUseDriver', 'hiddenInOutliner', 'useOutlinerColor', 
+		# 		'outlinerColorR', 'outlinerColorG', 'outlinerColorB', 'renderType', 'renderVolume', 'visibleFraction', 'hardwareFogMultiplier', 'motionBlur', 'visibleInReflections', 
+		# 		'visibleInRefractions', 'castsShadows', 'receiveShadows', 'asBackground', 'maxVisibilitySamplesOverrider', 'maxVisibilitySamples', 'geometryAntialiasingOverride', 
+		# 		'antialiasingLevel', 'shadingSamplesOverride', 'shadingSamples', 'maxShadingSamples','volumeSamplesOverride', 'volumeSamples', 'depthJitter', 'IgnoreSelfShadowing', 
+		# 		'primaryVisibility', 'tweak', 'relativeTweak', 'uvPivotX', 'uvPivotY', 'displayImmediate', 'displayColors', 'ignoreHwShader', 'holdOut', 'smoothShading', 
+		# 		'boundingBoxScaleX', 'boundingBoxScaleY', 'boundingBoxScaleZ', 'featureDisplacement', 'randomSeed', 'compId', 'weight', 'gravityX', 'gravityY', 'gravityZ', 'attraction', 
+		# 		'magnX', 'magnY', 'magnZ', 'maya2012', 'maya2018', 'newThickness', 'compBoundingBoxMinX', 'compBoundingBoxMinY', 'compBoundingBoxMinZ', 'compBoundingBoxMaxX', 
+		# 		'compBoundingBoxMaxY', 'compBoundingBoxMaxZ', 'hyperLayout', 'borderConnections', 'isHierarchicalConnection', 'rmbCommand', 'templateName', 'templatePath', 'viewName', 
+		# 		'iconName', 'customTreatment', 'creator', 'creationDate', 'containerType', 'boundingBoxMin', 'boundingBoxMax', 'boundingBoxSize', 'matrix', 'inverseMatrix', 'worldMatrix', 
+		# 		'worldInverseMatrix', 'parentMatrix', 'parentInverseMatrix', 'instObjGroups', 'wireColorRGB', 'drawOverride', 'overrideColorRGB', 'renderInfo', 'ghostCustomSteps', 
+		# 		'ghostsStep', 'ghostFrames', 'ghostOpacityRange', 'ghostColorPre', 'ghostColorPost', 'ghostDriver', 'outlinerColor', 'shadowRays', 'rayDepthLimit', 'centerOfIllumination', 
+		# 		'pointCamera', 'pointCameraX', 'pointCameraY', 'pointCameraZ', 'matrixWorldToEye', 'matrixEyeToWorld', 'objectId', 'primitiveId', 'raySampler', 'rayDepth', 'renderState', 
+		# 		'locatorScale', 'uvCoord', 'uCoord', 'vCoord', 'uvFilterSize', 'uvFilterSizeX', 'uvFilterSizeY', 'infoBits', 'lightData', 'lightDirectionX', 'lightDirectionY', 'lightDirectionZ', 
+		# 		'lightIntensityR', 'lightIntensityG', 'lightIntensityB', 'lightShadowFraction', 'preShadowIntensity', 'lightBlindData', 'opticalFXvisibility', 'opticalFXvisibilityR', 
+		# 		'opticalFXvisibilityG', 'opticalFXvisibilityB', 'rayInstance', 'ambientShade', 'objectType', 'shadowRadius', 'castSoftShadows', 'normalCamera', 'normalCameraX', 'normalCameraY', 
+		# 		'normalCameraZ', 'color', 'shadowColor', 'decayRate', 'emitDiffuse', 'emitSpecular', 'lightRadius', 'reuseDmap', 'useMidDistDmap', 'dmapFilterSize', 'dmapResolution', 
+		# 		'dmapFocus', 'dmapWidthFocus', 'useDmapAutoFocus', 'volumeShadowSamples', 'fogShadowIntensity', 'useDmapAutoClipping', 'dmapNearClipPlane', 'dmapFarClipPlane', 
+		# 		'useOnlySingleDmap', 'useXPlusDmap', 'useXMinusDmap', 'useYPlusDmap', 'useYMinusDmap', 'useZPlusDmap', 'useZMinusDmap', 'dmapUseMacro', 'dmapName', 'dmapLightName', 
+		# 		'dmapSceneName', 'dmapFrameExt', 'writeDmap', 'lastWrittenDmapAnimExtName', 'useLightPosition', 'lightAngle', 'pointWorld', 'pointWorldX', 'pointWorldY', 'pointWorldZ', 
+
+		# 	]

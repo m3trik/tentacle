@@ -42,12 +42,12 @@ class Transform(Slots):
 		cmb003 = self.sb.transform.cmb003
 		cmb003.popupStyle = 'qmenu'
 		cmb003.menu_.setTitle('Snap')
-		cmb003.menu_.add(self.sb.CheckBox, setObjectName='chk021', setText='Move: <b>Off</b>', setTristate=True)
-		cmb003.menu_.add('QDoubleSpinBox', setObjectName='s021', setPrefix='Increment:', setValue=0, setMinMax_='1.00-1000 step2.8125', setDisabled=True)
-		cmb003.menu_.add(self.sb.CheckBox, setObjectName='chk022', setText='Scale: <b>Off</b>', setTristate=True)
-		cmb003.menu_.add('QDoubleSpinBox', setObjectName='s022', setPrefix='Increment:', setValue=0, setMinMax_='1.00-1000 step2.8125', setDisabled=True)
-		cmb003.menu_.add(self.sb.CheckBox, setObjectName='chk023', setText='Rotate: <b>Off</b>', setTristate=True)
-		cmb003.menu_.add('QDoubleSpinBox', setObjectName='s023', setPrefix='Degrees:', setValue=0, setMinMax_='1.00-360 step2.8125', setDisabled=True)
+		cmb003.menu_.add(self.sb.CheckBox, setObjectName='chk021', setText='Snap Move: Off', setTristate=True)
+		cmb003.menu_.add('QDoubleSpinBox', setObjectName='s021', setPrefix='Increment:', setValue=0, setMinMax_='1.0-1000 step1', setDisabled=True)
+		cmb003.menu_.add(self.sb.CheckBox, setObjectName='chk022', setText='Snap Scale: Off', setTristate=True)
+		cmb003.menu_.add('QDoubleSpinBox', setObjectName='s022', setPrefix='Increment:', setValue=0, setMinMax_='1.0-1000 step1', setDisabled=True)
+		cmb003.menu_.add(self.sb.CheckBox, setObjectName='chk023', setText='Snap Rotate: Off', setTristate=True)
+		cmb003.menu_.add('QDoubleSpinBox', setObjectName='s023', setPrefix='Degrees:', setValue=0, setMinMax_='1.40625-360 step1.40625', setDisabled=True)
 
 
 	def draggable_header(self, state=None):
@@ -70,10 +70,10 @@ class Transform(Slots):
 		'''
 		cmb = self.sb.transform.cmb003
 		tri_state = cmb.menu_.chk021.checkState_()
-		text = {0:'Move: <b>Off</b>', 1:'Move: <b>Relative</b>', 2:'Move: <b>Absolute</b>'}
+		text = {0:'Snap Move: Off', 1:'Snap Move: Relative', 2:'Snap Move: Absolute'}
 		cmb.menu_.chk021.setText(text[tri_state])
 		cmb.menu_.s021.setEnabled(tri_state)
-		cmb.setCurrentText('Snap: <hl style="color:white;">Off</hl>') if not any((tri_state, cmb.menu_.chk022.isChecked(), cmb.menu_.chk023.isChecked())) else cmb.setCurrentText('Snap: <hl style="color:green;">On</hl>')
+		cmb.setCurrentText('Snap: OFF') if not any((tri_state, cmb.menu_.chk022.isChecked(), cmb.menu_.chk023.isChecked())) else cmb.setCurrentText('Snap: ON')
 
 		self.setTransformSnap('move', tri_state)
 
@@ -83,10 +83,10 @@ class Transform(Slots):
 		'''
 		cmb = self.sb.transform.cmb003
 		tri_state = cmb.menu_.chk022.checkState_()
-		text = {0:'Scale: <b>Off</b>', 1:'Scale: <b>Relative</b>', 2:'Scale: <b>Absolute</b>'}
+		text = {0:'Snap Scale: Off', 1:'Snap Scale: Relative', 2:'Snap Scale: Absolute'}
 		cmb.menu_.chk022.setText(text[tri_state])
 		cmb.menu_.s022.setEnabled(tri_state)
-		cmb.setCurrentText('Snap: <hl style="color:white;">Off</hl>') if not any((tri_state, cmb.menu_.chk021.isChecked(), cmb.menu_.chk023.isChecked())) else cmb.setCurrentText('Snap: <hl style="color:green;">On</hl>')
+		cmb.setCurrentText('Snap: OFF') if not any((tri_state, cmb.menu_.chk021.isChecked(), cmb.menu_.chk023.isChecked())) else cmb.setCurrentText('Snap: ON')
 
 		self.setTransformSnap('scale', tri_state)
 
@@ -96,10 +96,10 @@ class Transform(Slots):
 		'''
 		cmb = self.sb.transform.cmb003
 		tri_state = cmb.menu_.chk023.checkState_()
-		text = {0:'Rotate: <b>Off</b>', 1:'Rotate: <b>Relative</b>', 2:'Rotate: <b>Absolute</b>'}
+		text = {0:'Snap Rotate: Off', 1:'Snap Rotate: Relative', 2:'Snap Rotate: Absolute'}
 		cmb.menu_.chk023.setText(text[tri_state])
 		cmb.menu_.s023.setEnabled(tri_state)
-		cmb.setCurrentText('Snap: <hl style="color:white;">Off</hl>') if not any((tri_state, cmb.menu_.chk021.isChecked(), cmb.menu_.chk022.isChecked())) else cmb.setCurrentText('Snap: <hl style="color:green;">On</hl>')
+		cmb.setCurrentText('Snap: OFF') if not any((tri_state, cmb.menu_.chk021.isChecked(), cmb.menu_.chk022.isChecked())) else cmb.setCurrentText('Snap: ON')
 
 		self.setTransformSnap('rotate', tri_state)
 

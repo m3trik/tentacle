@@ -270,7 +270,7 @@ class Transform_max(Transform, Slots_max):
 				'scale.x', 'scale.y', 'scale.z', 'center', 'pivot.x', 'pivot.y', 'pivot.z']
 		attrs = {p:getattr(obj, p) for p in props}
 
-		self.setAttributeWindow(obj, attributes=attrs, checkableLabel=True)
+		self.setAttributeWindow(obj, checkableLabel=True, **attrs)
 
 
 	def b001(self):

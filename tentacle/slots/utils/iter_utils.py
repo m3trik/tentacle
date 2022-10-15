@@ -5,7 +5,7 @@ import sys, os
 
 
 
-class Iterutils():
+class Iter_utils():
 	'''
 	'''
 
@@ -37,11 +37,22 @@ class Iterutils():
 		return lst[0] if len(lst)==1 else lst if lst else None
 
 
-	@staticmethod
+	@classmethod
 	def flatten(lst):
+		'''Flatten arbitrarily nested lists.
+
+		:Parameters:
+			lst (list) = A list with potentially nested lists.
+
+		:Return:
+			(list)
 		'''
-		'''
-		return [val for sublst in lst for val in sublst]
+		for i in lst:
+			if isinstance(i, (list,tuple,set)):
+				for ii in cls.flatten(i):
+					yield ii
+			else:
+				yield i
 
 
 	@staticmethod

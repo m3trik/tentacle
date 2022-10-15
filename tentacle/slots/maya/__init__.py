@@ -13,12 +13,11 @@ except ImportError as error:
 	print (__file__, error)
 
 from slots import Slots
-from utils_maya.node_utils_maya import Node_utils_maya
-from utils_maya.component_utils_maya import Component_utils_maya
+import utils_maya
 
 
 
-class Slots_maya(Slots, Node_utils_maya, Component_utils_maya):
+class Slots_maya(Slots, utils_maya.Node_utils_maya, utils_maya.Component_utils_maya):
 	'''App specific methods inherited by all other slot classes.
 	'''
 	def __init__(self, *args, **kwargs):
@@ -150,20 +149,20 @@ class Slots_maya(Slots, Node_utils_maya, Component_utils_maya):
 			self.setAttributeWindow(fn(self, *args, **kwargs))
 		return wrapper
 
-	def setAttributeWindow(self, obj, attributes={}, include=[], exclude=[], checkableLabel=False, fn=None, fn_args=[]):
+	def setAttributeWindow(self, obj, include=[], exclude=[], checkableLabel=False, fn=None, *fn_args, **attributes):
 		'''Launch a popup window containing the given objects attributes.
 
 		:Parameters:
 			obj (str)(obj)(list) = The object to get the attributes of, or it's name. If given as a list, only the first index will be used.
-			attributes (dict) = Explicitly pass in attribute:values pairs. Else, attributes will be pulled from self.getAttributesMax for the given obj.
 			include (list) = Attributes to include. All other will be omitted. Exclude takes dominance over include. Meaning, if the same attribute is in both lists, it will be excluded.
 			exclude (list) = Attributes to exclude from the returned dictionay. ie. ['Position','Rotation','Scale','renderable','isHidden','isFrozen','selected']
 			checkableLabel (bool) = Set the attribute labels as checkable.
-			fn (method) = Set an alternative method to call on widget signal. ex. fn(obj, {'attr':<value>})
-			fn_args (list) = Any additonal args to pass to fn.
-				The first parameter of fn is always the given object, and the last parameter is the attribute:value pairs as a dict.
+			fn (method) = Set an alternative method to call on widget signal. ex. setParameterValuesMEL
+					The first parameter of fn is always the given object. ex. fn(obj, {'attr':<value>})
+			fn_args (args) = Any additonal args to pass to fn.
+			attributes (kwargs) = Explicitly pass in attribute:values pairs. Else, attributes will be pulled from self.getAttributesMEL for the given obj.
 
-		ex. call: self.setAttributeWindow(node, attrs, fn=Slots_maya.setParameterValuesMEL, fn_args='transformLimits') #set attributes for the Maya command transformLimits.
+		ex. call: self.setAttributeWindow(node, attrs, fn=Slots_maya.setParameterValuesMEL, 'transformLimits') #set attributes for the Maya command transformLimits.
 		ex. call: self.setAttributeWindow(transform[0], include=['translateX','translateY','translateZ','rotateX','rotateY','rotateZ','scaleX','scaleY','scaleZ'], checkableLabel=True)
 		'''
 		try:
@@ -171,7 +170,7 @@ class Slots_maya(Slots, Node_utils_maya, Component_utils_maya):
 		except Exception as error:
 			return 'Error: {}.setAttributeWindow: Invalid Object: {}'.format(__name__, obj)
 
-		fn = fn if fn else self.setAttributesMEL
+		fn = fn if fn else utils_maya.Node_utils_maya.setAttributesMEL
 
 		if attributes:
 			attributes = {k:v for k, v in attributes.items() 
@@ -179,7 +178,7 @@ class Slots_maya(Slots, Node_utils_maya, Component_utils_maya):
 		else:
 			attributes = self.getAttributesMEL(obj, include=include, exclude=exclude)
 
-		menu = self.objAttrWindow(obj, attributes, checkableLabel=checkableLabel, fn=fn, fn_args=fn_args)
+		menu = self.objAttrWindow(obj, checkableLabel=checkableLabel, fn=fn, *fn_args, **attributes)
 
 		if checkableLabel:
 			for c in menu.childWidgets:

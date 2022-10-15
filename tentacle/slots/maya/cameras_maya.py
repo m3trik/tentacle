@@ -9,12 +9,12 @@ class Cameras_maya(Cameras, Slots_maya):
 	def __init__(self, *args, **kwargs):
 		super().__init__(*args, **kwargs)
 
-		tree = self.sb.cameras_lower_submenu.tree000
-		l = ['Camera Sequencer', 'Camera Set Editor']
-		[tree.add('QLabel', 'Editors', setText=s) for s in l]
+		# tree = self.sb.cameras_lower_submenu.tree000
+		# l = ['Camera Sequencer', 'Camera Set Editor']
+		# [tree.add('QLabel', 'Editors', setText=s) for s in l]
 
-		l = ['Exclusive to Camera', 'Hidden from Camera', 'Remove from Exclusive', 'Remove from Hidden', 'Remove All for Camera', 'Remove All']
-		[tree.add('QLabel', 'Per Camera Visibility', setText=s) for s in l]
+		# l = ['Exclusive to Camera', 'Hidden from Camera', 'Remove from Exclusive', 'Remove from Hidden', 'Remove All for Camera', 'Remove All']
+		# [tree.add('QLabel', 'Per Camera Visibility', setText=s) for s in l]
 
 
 	@property

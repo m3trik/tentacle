@@ -42,14 +42,9 @@ def import_modules(importAll=False):
 
 
 import_modules(importAll=0)
-# globals()['__package__'] = 'utils'
 
 
-
-
-
-
-
+# print (__package__, __file__)
 # -----------------------------------------------
 # Notes
 # -----------------------------------------------

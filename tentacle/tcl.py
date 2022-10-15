@@ -11,6 +11,7 @@ from overlay import Overlay
 from ui.widgets import rwidgets
 
 
+
 class Tcl(QtWidgets.QStackedWidget):
 	'''Tcl is a marking menu based on a QStackedWidget.
 	Gets and sets signal connections (through the switchboard module).
@@ -34,6 +35,7 @@ class Tcl(QtWidgets.QStackedWidget):
 			profile (bool) = Prints the total running time, times each function separately, and tells you how many times each function was called.
 		'''
 		super().__init__(parent)
+		setattr(QtWidgets.QApplication.instance(), 'tcl', self)
 
 		self.key_show = getattr(QtCore.Qt, key_show)
 		self.key_undo = QtCore.Qt.Key_Z
@@ -55,8 +57,6 @@ class Tcl(QtWidgets.QStackedWidget):
 		self.overlay = Overlay(self, antialiasing=True) #Paint events are handled by the overlay module.
 		self.eventFilter = EventFactoryFilter(self, eventNamePrefix='ef_', forwardEventsTo=self)
 		self.mouseTracking = MouseTracking(self)
-
-		setattr(QtWidgets.QApplication.instance(), 'tcl', self)
 
 
 	def initUi(self, ui):
@@ -116,6 +116,7 @@ class Tcl(QtWidgets.QStackedWidget):
 		if not ui or ui==self.sb.currentUi:
 			return
 
+		self.overlay.addToDrawPath(w)
 		p1 = w.mapToGlobal(w.rect().center()) #the widget position before submenu change.
 
 		self.setUi(ui) #switch the stacked widget to the given submenu.
@@ -125,12 +126,11 @@ class Tcl(QtWidgets.QStackedWidget):
 		currentPos = self.mapToGlobal(self.pos())
 		self.move(self.mapFromGlobal(currentPos +(p1 - p2))) #currentPos + difference
 
-		if ui not in self.sb.getPrevUi(asList=1): #if the submenu ui called for the first time:
+		if ui not in self.sb.getPrevUi(asList=True): #if the submenu ui called for the first time:
 			self.cloneWidgetsAlongPath(ui) #re-construct any widgets from the previous ui that fall along the plotted path.
-		self.overlay.drawPath.append((w, p1, QtGui.QCursor.pos())) #add the (<widget>, position) from the old ui to the path so that it can be re-created in the new ui (in the same position).
-		self.removeFromPath(ui) #remove entrys from widget and draw paths when moving back down levels in the ui.
 
-		self.resize(ui.sizeX, ui.sizeY)
+		self.overlay.removeFromPath(ui) #remove entrys from widget and draw paths when moving back down levels in the ui.
+		# self.resize(ui.sizeX, ui.sizeY)
 
 
 	def returnToStart(self):
@@ -139,9 +139,9 @@ class Tcl(QtWidgets.QStackedWidget):
 		prevUi = self.sb.getPrevUi(omitLevel=2)
 		self.setUi(prevUi) #return the stacked widget to it's previous ui.
 
-		self.move(self.overlay.drawPath[0][2] - self.rect().center())
+		self.move(self.overlay.drawPathStartPos - self.rect().center())
 
-		del self.overlay.drawPath[1:] #Reset the list of previous widget and draw paths, while keeping the return point.
+		self.overlay.clearDrawPath()
 
 
 	def cloneWidgetsAlongPath(self, ui):
@@ -157,20 +157,6 @@ class Tcl(QtWidgets.QStackedWidget):
 			w = self.sb.PushButton(ui, copy_=prevWgt, setPosition_=prevPos, setVisible=state)
 			self.initWidgets(ui, w) #initialize the widget to set things like the event filter and styleSheet.
 			self.sb.connectSlots(ui, w)
-
-
-	def removeFromPath(self, ui):
-		'''Remove the last entry from the widget and draw paths for the given ui.
-
-		:Parameters:
-			ui (obj) = The ui to remove.
-		'''
-		uis = [w.ui for w, wpos, cpos in self.overlay.drawPath[1:]]
-
-		if ui in uis:
-			i = uis[::-1].index(ui) #reverse the list and get the index of the last occurrence of name.
-			# print (ui.name, [(w.ui.name, cpos) for w, wpos, cpos in self.overlay.drawPath]) #debug
-			del self.overlay.drawPath[-i-1:]
 
 
 
@@ -244,7 +230,7 @@ class Tcl(QtWidgets.QStackedWidget):
 		a mouse button is pressed while the mouse is being moved. If mouse tracking 
 		is switched on, mouse move events occur even if no mouse button is pressed.
 		'''
-		self.mouseTracking.track([w for w in self.sb.currentUi.widgets])
+		self.mouseTracking.track(self.sb.currentUi.widgets)
 
 		super().mouseMoveEvent(event)
 
@@ -414,19 +400,12 @@ class Tcl(QtWidgets.QStackedWidget):
 		if w.name=='info':
 			self.sb.resizeAndCenterWidget(w)
 
-		if w.type in ('ComboBox', 'TreeWidgetExpandableList'):
+		if w.type in ('ComboBox', 'ListWidget'):
 			try: #call the class method associated with the current widget.
-				self.method()
-			except:
-				try: #if call fails (ie. NoneType error); try adding the widget, and call again.
-					self.sb.addWidgets(w.ui, w)
-					w.method()
-				except (AttributeError, NameError, TypeError) as error:
-					pass; #print ('# Error: {}.ChildEvents.ShowEvent: Call to {}.{} failed: {}. #'.format(__name__, self.uiName, self.widgetName, error))
-
-			if w.type=='TreeWidgetExpandableList':
-				self.initWidgets(w.ui, w.newWidgets) #initialize the widget to set things like the event filter and styleSheet.
-				self.sb.connectSlots(w.ui, w.newWidgets)
+				w.method()
+			except (AttributeError, TypeError) as error:
+				print ('# Error:', __file__, error, '#')
+				pass
 
 		w.__class__.showEvent(w, event)
 
@@ -514,6 +493,7 @@ class Tcl(QtWidgets.QStackedWidget):
 				elif w.prefix in ('b','tb'):
 					if w.ui.isSubmenu:
 						w.click()
+						self.hide()
 
 		w.__class__.mouseReleaseEvent(w, event)
 
@@ -671,9 +651,6 @@ if __name__ == '__main__':
 
 
 
-
-
-
 #module name
 # print (__name__)
 # -----------------------------------------------
@@ -684,7 +661,7 @@ if __name__ == '__main__':
 
 
 
-# Deprecated ----------------------------------------------------------------
+# Deprecated ------------------------------------
 
 
 				# try: #add the child widgets of popup menus.

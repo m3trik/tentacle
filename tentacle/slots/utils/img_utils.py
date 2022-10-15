@@ -17,17 +17,13 @@ import utils
 
 
 
-class Imtools():
+class Img_utils():
 	'''Helper methods for working with image file formats.
 	'''
-	formatFilepath = utils.Fileutils.formatFilepath
-	getDirectoryContents = utils.Fileutils.getDirectoryContents
+	formatFilepath = utils.File_utils.formatFilepath
+	getDirectoryContents = utils.File_utils.getDirectoryContents
 
-	@property
-	def mapTypes(self):
-		'''Get map type from filename suffix.
-		'''
-		return {
+	mapTypes = { #Get map type from filename suffix.
 			'Base_Color':('Base_Color', 'BaseColor', '_BC'),
 			'Roughness':('Roughness', 'Rough', '_R'),
 			'Metallic':('Metallic', 'Metal', '_M', 'Metalness'),
@@ -43,13 +39,9 @@ class Imtools():
 			'Displacement':('Displacement', '_DP', 'Displace', 'Disp', 'Dis', '_D'),
 			'Refraction':('_IOR', 'Refraction', 'IndexofRefraction'),
 			'Reflection':('Reflection', '_RF'),
-		}
+	}
 
-	@property
-	def mapBackgrounds(self):
-		'''Get default map backgrounds in RGBA format from map type.
-		'''
-		return {
+	mapBackgrounds = { #Get default map backgrounds in RGBA format from map type.
 			'Base_Color':(127, 127, 127, 255),
 			'Roughness':(255, 255, 255, 255),
 			'Metallic':(0, 0, 0, 255),
@@ -65,13 +57,9 @@ class Imtools():
 			'Displacement':(0, 0, 0, 255),
 			'Refraction':(0, 0, 0, 255),
 			'Reflection':(0, 0, 0, 255),
-		}
+	}
 
-	@property
-	def mapModes(self):
-		'''Get default map mode from map type.
-		'''
-		return {
+	mapModes = { #Get default map mode from map type.
 			'Base_Color':'RGB',
 			'Roughness':'L',
 			'Metallic':'L',
@@ -87,14 +75,9 @@ class Imtools():
 			'Displacement':'L',
 			'Refraction':'L',
 			'Reflection':'L',
-		}
+	}
 
-
-	@property
-	def bitDepth(self):
-		'''Get bit depth from mode.
-		'''
-		return {
+	bitDepth = { #Get bit depth from mode.
 			'1': 1, 
 			'L': 8, 
 			'P': 8, 
@@ -118,7 +101,7 @@ class Imtools():
 			'I;32S': 32, 
 			'I;32BS': 32, 
 			'I;32LS': 32
-		}
+	}
 
 
 	@staticmethod
@@ -136,9 +119,9 @@ class Imtools():
 		'''
 		'''
 		files = QtWidgets.QFileDialog.getOpenFileNames(None, 
-			"Select one or more image files to open", "/home", "Images (*.png *.jpg *.bmp *.tga *.tiff *.gif)")
+			"Select one or more image files to open", "/home", "Images (*.png *.jpg *.bmp *.tga *.tiff *.gif)")[0]
 
-		return {i:Image.open(i) for i in files[0]} #return fileNames:PIL image from: [fileNames, selectedFilter]. selectedFilter ex: "Images (*.png *.jpg *.bmp)"
+		return files
 
 
 	@staticmethod
@@ -415,16 +398,17 @@ class Imtools():
 
 
 	@classmethod
-	def getImageType(cls, filename, key=False):
+	def getImageType(cls, filename, key=True):
 		'''
 		:Parameters:
 			filename (str) = Filename, filepath, or map type suffix.
-			key (bool) = Get the corresponding key from the type in self.mapTypes. ie. Base_Color from <filename>_BC or BC.
+			key (bool) = Get the corresponding key from the type in 'mapTypes'. 
+				ie. Base_Color from <filename>_BC or BC. else: _BC from <filename>_BC.
 
 		:Return:
 			(str)
 		'''
-		name = self.formatFilepath(filename, 'name')
+		name = cls.formatFilepath(filename, 'name')
 
 		if key:
 			return next((k for k, v in cls.mapTypes.items() for i in v if name.lower().endswith(i.lower())), None)
@@ -490,7 +474,7 @@ class Imtools():
 
 
 
-if __name__ == "__main__":
+if __name__=='__main__':
 	pass
 
 
@@ -500,7 +484,7 @@ if __name__ == "__main__":
 
 
 
-# Deprecated -----------------------------------------------
+# Deprecated ---------------------
 
 
 # def getBitDepth(self, image):

@@ -167,11 +167,13 @@ class Rigging_maya(Rigging, Slots_maya):
 		lockScale = tb.ctxMenu.chk009.isChecked()
 		remove = tb.ctxMenu.chk015.isChecked()
 
-		from utils_maya.rigging_utils_maya import createLocatorAtObject
+		from utils_maya import Rigging_utils_maya
 		selection = pm.ls(selection=True)
-		createLocatorAtObject(selection, parent=parent, freezeTransforms=freezeTransforms, bakeChildPivot=bakeChildPivot, 
-			scale=scale, grpSuffix=grpSuffix, locSuffix=locSuffix, objSuffix=objSuffix, stripDigits=stripDigits, stripSuffix=stripSuffix, 
-			lockTranslate=lockTranslate, lockRotation=lockRotation, lockScale=lockScale, remove=remove)
+		Rigging_utils_maya.createLocatorAtObject(selection, 
+			parent=parent, freezeTransforms=freezeTransforms, bakeChildPivot=bakeChildPivot, scale=scale, 
+			grpSuffix=grpSuffix, locSuffix=locSuffix, objSuffix=objSuffix, stripDigits=stripDigits, stripSuffix=stripSuffix, 
+			lockTranslate=lockTranslate, lockRotation=lockRotation, lockScale=lockScale, remove=remove
+		)
 
 
 	def tb004(self, state=None):
@@ -209,7 +211,7 @@ class Rigging_maya(Rigging, Slots_maya):
 			'enableScaleX','scaleX','enableScaleY','scaleY','enableScaleZ','scaleZ']
 
 		attrs = Slots_maya.getParameterValuesMEL(node, 'transformLimits', params)
-		self.setAttributeWindow(node, attrs, fn=Slots_maya.setParameterValuesMEL, fn_args='transformLimits')
+		self.setAttributeWindow(node, fn=Slots_maya.setParameterValuesMEL, 'transformLimits', **attrs)
 
 
 	def b001(self):

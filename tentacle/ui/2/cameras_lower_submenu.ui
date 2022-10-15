@@ -59,12 +59,12 @@
    <layout class="QGridLayout" name="gridLayout">
     <item row="0" column="0">
      <widget class="QWidget" name="staticWindow" native="true">
-      <widget class="TreeWidgetExpandableList" name="tree000">
+      <widget class="ListWidget" name="lw000">
        <property name="geometry">
         <rect>
-         <x>230</x>
-         <y>190</y>
-         <width>119</width>
+         <x>240</x>
+         <y>30</y>
+         <width>96</width>
          <height>211</height>
         </rect>
        </property>
@@ -89,115 +89,24 @@
        <property name="selectionMode">
         <enum>QAbstractItemView::NoSelection</enum>
        </property>
-       <property name="indentation">
-        <number>0</number>
-       </property>
-       <property name="itemsExpandable">
-        <bool>false</bool>
-       </property>
-       <property name="headerHidden">
-        <bool>true</bool>
-       </property>
-       <property name="expandsOnDoubleClick">
-        <bool>false</bool>
-       </property>
-       <property name="columnCount">
-        <number>5</number>
-       </property>
-       <attribute name="headerVisible">
-        <bool>false</bool>
-       </attribute>
-       <column>
-        <property name="text">
-         <string notr="true">root</string>
-        </property>
-       </column>
-       <column>
-        <property name="text">
-         <string>Editors</string>
-        </property>
-       </column>
-       <column>
-        <property name="text">
-         <string>Cameras</string>
-        </property>
-       </column>
-       <column>
-        <property name="text">
-         <string>Create</string>
-        </property>
-       </column>
-       <column>
-        <property name="text">
-         <string>Options</string>
-        </property>
-       </column>
        <item>
         <property name="text">
          <string>Create</string>
-        </property>
-        <property name="text">
-         <string/>
-        </property>
-        <property name="text">
-         <string/>
-        </property>
-        <property name="text">
-         <string>Custom Camera</string>
-        </property>
-        <property name="text">
-         <string>Group Cameras</string>
         </property>
        </item>
        <item>
         <property name="text">
          <string>Cameras</string>
         </property>
-        <property name="text">
-         <string/>
-        </property>
-        <property name="text">
-         <string/>
-        </property>
-        <property name="text">
-         <string>Set Custom Camera</string>
-        </property>
-        <property name="text">
-         <string>Adjust Clipping</string>
-        </property>
        </item>
        <item>
         <property name="text">
          <string>Editors</string>
         </property>
-        <property name="text">
-         <string/>
-        </property>
-        <property name="text">
-         <string/>
-        </property>
-        <property name="text">
-         <string>Camera From View</string>
-        </property>
-        <property name="text">
-         <string>Toggle Safe Frames</string>
-        </property>
        </item>
        <item>
         <property name="text">
          <string>Options</string>
-        </property>
-        <property name="text">
-         <string/>
-        </property>
-        <property name="text">
-         <string/>
-        </property>
-        <property name="text">
-         <string/>
-        </property>
-        <property name="text">
-         <string/>
         </property>
        </item>
       </widget>
@@ -205,7 +114,7 @@
        <property name="geometry">
         <rect>
          <x>240</x>
-         <y>190</y>
+         <y>30</y>
          <width>96</width>
          <height>21</height>
         </rect>
@@ -227,7 +136,7 @@
        </property>
       </widget>
       <zorder>i000</zorder>
-      <zorder>tree000</zorder>
+      <zorder>lw000</zorder>
      </widget>
     </item>
    </layout>
@@ -235,9 +144,9 @@
  </widget>
  <customwidgets>
   <customwidget>
-   <class>TreeWidgetExpandableList</class>
-   <extends>QTreeWidget</extends>
-   <header>qtreewidget_expandablelist.h</header>
+   <class>ListWidget</class>
+   <extends>QListWidget</extends>
+   <header>listwidget.h</header>
   </customwidget>
  </customwidgets>
  <resources/>

@@ -552,75 +552,39 @@
                  </property>
                  <item>
                   <property name="text">
-                   <string>Constrain: Off</string>
+                   <string>Constrain: OFF</string>
                   </property>
                  </item>
                 </widget>
                </item>
                <item>
-                <widget class="QGroupBox" name="Snap">
+                <widget class="ComboBox" name="cmb003">
                  <property name="minimumSize">
                   <size>
-                   <width>125</width>
-                   <height>0</height>
+                   <width>0</width>
+                   <height>20</height>
                   </size>
                  </property>
                  <property name="maximumSize">
                   <size>
-                   <width>125</width>
-                   <height>999</height>
+                   <width>999</width>
+                   <height>20</height>
                   </size>
                  </property>
-                 <property name="title">
-                  <string>Snap</string>
+                 <property name="toolTip">
+                  <string>Transform tool snap settings.</string>
                  </property>
-                 <layout class="QVBoxLayout" name="verticalLayout_6">
-                  <property name="spacing">
-                   <number>0</number>
+                 <property name="editable">
+                  <bool>false</bool>
+                 </property>
+                 <property name="sizeAdjustPolicy">
+                  <enum>QComboBox::AdjustToContents</enum>
+                 </property>
+                 <item>
+                  <property name="text">
+                   <string>Snap: OFF</string>
                   </property>
-                  <property name="leftMargin">
-                   <number>0</number>
-                  </property>
-                  <property name="topMargin">
-                   <number>0</number>
-                  </property>
-                  <property name="rightMargin">
-                   <number>0</number>
-                  </property>
-                  <property name="bottomMargin">
-                   <number>0</number>
-                  </property>
-                  <item>
-                   <widget class="ComboBox" name="cmb003">
-                    <property name="minimumSize">
-                     <size>
-                      <width>0</width>
-                      <height>20</height>
-                     </size>
-                    </property>
-                    <property name="maximumSize">
-                     <size>
-                      <width>999</width>
-                      <height>20</height>
-                     </size>
-                    </property>
-                    <property name="toolTip">
-                     <string>Transform tool snap settings.</string>
-                    </property>
-                    <property name="editable">
-                     <bool>false</bool>
-                    </property>
-                    <property name="sizeAdjustPolicy">
-                     <enum>QComboBox::AdjustToContents</enum>
-                    </property>
-                    <item>
-                     <property name="text">
-                      <string>Snap: Off</string>
-                     </property>
-                    </item>
-                   </widget>
-                  </item>
-                 </layout>
+                 </item>
                 </widget>
                </item>
               </layout>
@@ -652,14 +616,14 @@
  </widget>
  <customwidgets>
   <customwidget>
-   <class>PushButtonDraggable</class>
-   <extends>QPushButton</extends>
-   <header>widgets.pushbuttondraggable.h</header>
-  </customwidget>
-  <customwidget>
    <class>PushButton</class>
    <extends>QPushButton</extends>
    <header>widgets.pushbutton.h</header>
+  </customwidget>
+  <customwidget>
+   <class>PushButtonDraggable</class>
+   <extends>QPushButton</extends>
+   <header>widgets.pushbuttondraggable.h</header>
   </customwidget>
   <customwidget>
    <class>ComboBox</class>

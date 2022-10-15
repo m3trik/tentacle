@@ -194,7 +194,7 @@ class Materials_maya(Materials, Slots_maya):
 
 
 	def b002(self):
-		'''Set Material: Set the Currently Selected Material as the currentMaterial.
+		'''Set Material: Set the currently selected material as the current material.
 		'''
 		selection = pm.ls(selection=1)
 		if not selection:
@@ -233,7 +233,7 @@ class Materials_maya(Materials, Slots_maya):
 
 
 	def renameMaterial(self, mat, newMatName):
-		'''Rename Material
+		'''Rename material
 		'''
 		cmb = self.sb.materials.cmb002 #scene materials
 
@@ -249,7 +249,7 @@ class Materials_maya(Materials, Slots_maya):
 
 
 	def selectByMaterialID(self, material=None, objects=None, shell=False, invert=False):
-		'''Select By Material Id
+		'''Select by material Id
 	
 		material (obj) = The material to search and select for.
 		objects (list) = Faces or mesh objects as a list. If no objects are given, all geometry in the scene will be searched.
@@ -292,7 +292,7 @@ class Materials_maya(Materials, Slots_maya):
 
 
 	def getSceneMaterials(self, startingWith=[''], exclude=[]):
-		'''Get All Materials from the current scene.
+		'''Get all materials from the current scene.
 
 		:Parameters:
 			startingWith (list) = Filters material names starting with any of the strings in the given list. ie. ['ID_']
@@ -307,7 +307,7 @@ class Materials_maya(Materials, Slots_maya):
 
 
 	def getFavoriteMaterials(self):
-		'''Get Maya Favorite Materials List.
+		'''Get Maya favorite materials list.
 
 		:Return:
 			(list) materials.
@@ -366,7 +366,7 @@ class Materials_maya(Materials, Slots_maya):
 
 	@Slots_maya.undo
 	def assignMaterial(self, objects, mat):
-		'''Assign Material
+		'''Assign material
 
 		objects (list) = Faces or mesh objects as a list.
 		material (obj) = The material to search and select for.

@@ -59,7 +59,7 @@ class Create_maya(Create, Slots_maya):
 
 		polygons = ["Cube", "Sphere", "Cylinder", "Plane", "Circle", "Cone", "Pyramid", "Torus", "Tube", "GeoSphere", "Platonic Solids", "Text"]
 		nurbs = ["Cube", "Sphere", "Cylinder", "Cone", "Plane", "Torus", "Circle", "Square"]
-		lights = ["Ambient", "Directional", "Point", "Spot", "Area", "Volume", "VRay Sphere", "VRay Dome", "VRay Rect", "VRay IES"]
+		lights = ["Ambient", "Directional", "Point", "Spot", "Area", "Volume"]
 
 		if index==0: #shared menu. later converted to the specified type.
 			cmb.addItems_(polygons, clear=True)
@@ -78,7 +78,7 @@ class Create_maya(Create, Slots_maya):
 		tb = self.sb.create.tb000
 
 		axis = [0,90,0]
-		type_ = self.sb.create.cmb001.currentText()
+		typ = self.sb.create.cmb001.currentText()
 		index = self.sb.create.cmb002.currentIndex()
 		translate = tb.ctxMenu.chk000.isChecked()
 		scale = tb.ctxMenu.chk001.isChecked()
@@ -86,7 +86,7 @@ class Create_maya(Create, Slots_maya):
 		selection = pm.ls(selection=1, transforms=1)
 
 		#polygons
-		if type_=='Polygon':
+		if typ=='Polygon':
 			if index==0: #cube:
 				node = pm.polyCube(axis=axis, width=5, height=5, depth=5, subdivisionsX=1, subdivisionsY=1, subdivisionsZ=1)
 			elif index==1: #sphere:
@@ -111,7 +111,7 @@ class Create_maya(Create, Slots_maya):
 				node = mel.eval("performPolyPrimitive PlatonicSolid 0;")
 
 		#nurbs
-		elif type_=='NURBS':
+		elif typ=='NURBS':
 			if index==0: #Cube
 				node = pm.nurbsCube(ch=1, d=3, hr=1, p=(0, 0, 0), lr=1, w=1, v=1, ax=(0, 1, 0), u=1)
 			elif index==1: #Sphere
@@ -130,7 +130,7 @@ class Create_maya(Create, Slots_maya):
 				node = pm.nurbsSquare(c=(0, 0, 0), ch=1, d=3, sps=1, sl1=1, sl2=1, nr=(0, 1, 0))
 
 		#lights
-		elif type_=='Light':
+		elif typ=='Light':
 			if index==0: #Ambient
 				node = pm.ambientLight() #defaults: 1, 0.45, 1,1,1, "0", 0,0,0, "1"
 			elif index==1: #Directional
@@ -140,17 +140,9 @@ class Create_maya(Create, Slots_maya):
 			elif index==3: #Spot
 				node = pm.spotLight() #1, 1,1,1, 0, 40, 0, 0, 0, 0,0,0, 1, 0
 			elif index==4: #Area
-				node = pm.areaLight() #1, 1,1,1, 0, 0, 0,0,0, 1, 0
+				node = pm.shadingNode('areaLight', asLight=True) #1, 1,1,1, 0, 0, 0,0,0, 1, 0
 			elif index==5: #Volume
-				node = pm.volumeLight() #1, 1,1,1, 0, 0, 0,0,0, 1
-			# elif index==6: #VRay Sphere
-			# 	node = pm.
-			# elif index==7: #VRay Dome
-			# 	node = pm.
-			# elif index==8: #VRay Rect
-			# 	node = pm.
-			# elif index==9: #VRay IES
-			# 	node = pm.
+				node = pm.shadingNode('volumeLight', asLight=True) #1, 1,1,1, 0, 0, 0,0,0, 1
 
 		if selection: #if there is a current selection, move the object to that selection's bounding box center.
 			if translate:

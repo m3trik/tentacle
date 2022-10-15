@@ -7,20 +7,6 @@ from text import RichText, TextOverlay
 from menu import MenuInstance
 
 
-'''
-Promoting a widget in designer to use a custom class:
->	In Qt Designer, select all the widgets you want to replace, 
-		then right-click them and select 'Promote to...'. 
-
->	In the dialog:
-		Base Class:		Class from which you inherit. ie. QWidget
-		Promoted Class:	Name of the class. ie. "MyWidget"
-		Header File:	Path of the file (changing the extension .py to .h)  ie. myfolder.mymodule.mywidget.h
-
->	Then click "Add", "Promote", 
-		and you will see the class change from "QWidget" to "MyWidget" in the Object Inspector pane.
-'''
-
 
 class ComboBox(QtWidgets.QComboBox, MenuInstance, Attributes, RichText, TextOverlay):
 	'''
@@ -30,7 +16,7 @@ class ComboBox(QtWidgets.QComboBox, MenuInstance, Attributes, RichText, TextOver
 	beforePopupHidden = QtCore.Signal()
 
 	def __init__(self, parent=None, popupStyle='modelView', **kwargs):
-		QtWidgets.QComboBox.__init__(self, parent)
+		super().__init__(parent)
 		'''
 		:Parameters:
 			popupStyle (str) = specify the type of popup menu. default is the standard 'modelView'.
@@ -171,7 +157,7 @@ class ComboBox(QtWidgets.QComboBox, MenuInstance, Attributes, RichText, TextOver
 			width = self.sizeHint().width()
 			self.view().setMinimumWidth(width)
 
-		QtWidgets.QComboBox.showPopup(self)
+		super().showPopup()
 
 
 	def hidePopup(self):
@@ -182,7 +168,7 @@ class ComboBox(QtWidgets.QComboBox, MenuInstance, Attributes, RichText, TextOver
 			self.menu_.hide()
 			# self.menu_.visible=False
 		else:
-			QtWidgets.QComboBox.hidePopup(self)
+			super().hidePopup()
 
 
 	def clear(self):
@@ -190,7 +176,7 @@ class ComboBox(QtWidgets.QComboBox, MenuInstance, Attributes, RichText, TextOver
 		if not self.popupStyle=='modelView':
 			self.menu_.clear()
 		else:
-			QtWidgets.QComboBox.clear(self)
+			super().clear()
 
 
 	def enterEvent(self, event):
@@ -199,7 +185,7 @@ class ComboBox(QtWidgets.QComboBox, MenuInstance, Attributes, RichText, TextOver
 			event=<QEvent>
 		'''
 
-		return QtWidgets.QComboBox.enterEvent(self, event)
+		super().enterEvent(event)
 
 
 	def leaveEvent(self, event):
@@ -209,7 +195,7 @@ class ComboBox(QtWidgets.QComboBox, MenuInstance, Attributes, RichText, TextOver
 		'''
 		# self.hidePopup()
 
-		return QtWidgets.QComboBox.leaveEvent(self, event)
+		super().leaveEvent(event)
 
 
 	def mousePressEvent(self, event):
@@ -220,7 +206,7 @@ class ComboBox(QtWidgets.QComboBox, MenuInstance, Attributes, RichText, TextOver
 		if event.button()==QtCore.Qt.RightButton:
 			self.ctxMenu.show()
 
-		return QtWidgets.QComboBox.mousePressEvent(self, event)
+		super().mousePressEvent(event)
 
 
 	def keyPressEvent(self, event):
@@ -232,7 +218,7 @@ class ComboBox(QtWidgets.QComboBox, MenuInstance, Attributes, RichText, TextOver
 			self.returnPressed.emit()
 			self.setEditable(False)
 
-		return QtWidgets.QComboBox.keyPressEvent(self, event)
+		super().keyPressEvent(event)
 
 
 	def showEvent(self, event):
@@ -245,7 +231,7 @@ class ComboBox(QtWidgets.QComboBox, MenuInstance, Attributes, RichText, TextOver
 			self.setTextOverlay('⧉', alignment='AlignRight')
 			self.setItemText(0, self.itemText(0)) #set text: comboBox
 
-		return QtWidgets.QComboBox.showEvent(self, event)
+		super().showEvent(event)
 
 
 	def eventFilter(self, widget, event):
@@ -258,7 +244,7 @@ class ComboBox(QtWidgets.QComboBox, MenuInstance, Attributes, RichText, TextOver
 			if self.parent().__class__.__name__=='Menu':
 				self.parent().hide()
 
-		return QtWidgets.QComboBox.eventFilter(self, widget, event)
+		return super().eventFilter(widget, event)
 
 
 

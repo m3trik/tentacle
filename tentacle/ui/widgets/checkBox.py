@@ -3,30 +3,16 @@
 from PySide2 import QtWidgets, QtCore
 
 from attributes import Attributes
-from text import RichText
+from text import RichText, TextOverlay
 from menu import MenuInstance
 
 
-'''
-Promoting a widget in designer to use a custom class:
->	In Qt Designer, select all the widgets you want to replace, 
-		then right-click them and select 'Promote to...'. 
 
->	In the dialog:
-		Base Class:		Class from which you inherit. ie. QWidget
-		Promoted Class:	Name of the class. ie. "MyWidget"
-		Header File:	Path of the file (changing the extension .py to .h)  ie. myfolder.mymodule.mywidget.h
-
->	Then click "Add", "Promote", 
-		and you will see the class change from "QWidget" to "MyWidget" in the Object Inspector pane.
-'''
-
-
-class CheckBox(QtWidgets.QCheckBox, MenuInstance, Attributes, RichText):
+class CheckBox(QtWidgets.QCheckBox, MenuInstance, Attributes, RichText, TextOverlay):
 	'''
 	'''
 	def __init__(self, parent=None, **kwargs):
-		QtWidgets.QCheckBox.__init__(self, parent)
+		super().__init__(parent)
 
 		self.setStyleSheet(parent.styleSheet()) if parent else None
 
@@ -60,6 +46,22 @@ class CheckBox(QtWidgets.QCheckBox, MenuInstance, Attributes, RichText):
 			return 1 if self.isChecked() else 0
 
 
+	def setCheckState_(self, state):
+		'''Set the state of a checkbox as an integer value.
+		Simplifies working with tri-state checkboxes.
+
+		:Parameters:
+			state (int)(bool) = 0 or False: unchecked, 1 or True: checked. 
+				If tri-state: 0: unchecked, 1: paritally checked, 2: checked.
+		'''
+		if self.isTristate():		
+			s = {0:QtCore.Qt.CheckState.Unchecked, 1:QtCore.Qt.CheckState.PartiallyChecked, 2:QtCore.Qt.CheckState.Checked}
+			return self.setCheckState(s[state])
+
+		else:
+			self.setChecked(state)
+
+
 	def mousePressEvent(self, event):
 		'''
 		:Parameters:
@@ -72,7 +74,17 @@ class CheckBox(QtWidgets.QCheckBox, MenuInstance, Attributes, RichText):
 			if self.ctxMenu:
 				self.ctxMenu.show()
 
-		QtWidgets.QCheckBox.mousePressEvent(self, event)
+		super().mousePressEvent(event)
+
+
+	def showEvent(self, event):
+		'''
+		:Parameters:
+			event=<QEvent>
+		'''
+		# self.setTextOverlay('±', alignment='AlignRight')
+
+		super().showEvent(event)
 
 
 

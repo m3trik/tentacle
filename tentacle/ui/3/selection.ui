@@ -9,8 +9,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>149</width>
-    <height>312</height>
+    <width>147</width>
+    <height>295</height>
    </rect>
   </property>
   <property name="minimumSize">
@@ -80,7 +80,7 @@
         </property>
         <property name="maximumSize">
          <size>
-          <width>999</width>
+          <width>125</width>
           <height>999</height>
          </size>
         </property>
@@ -531,14 +531,14 @@
    <header>widgets.pushbuttondraggable.h</header>
   </customwidget>
   <customwidget>
-   <class>PushButton</class>
-   <extends>QPushButton</extends>
-   <header>widgets.pushbutton.h</header>
-  </customwidget>
-  <customwidget>
    <class>ComboBox</class>
    <extends>QComboBox</extends>
    <header>widgets.combobox.h</header>
+  </customwidget>
+  <customwidget>
+   <class>PushButton</class>
+   <extends>QPushButton</extends>
+   <header>widgets.pushbutton.h</header>
   </customwidget>
  </customwidgets>
  <resources/>

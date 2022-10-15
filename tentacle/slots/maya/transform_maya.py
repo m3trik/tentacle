@@ -23,7 +23,7 @@ class Transform_maya(Transform, Slots_maya):
 		edge_constraint = True if pm.xformConstraint(query=1, type=1)=='edge' else False
 		surface_constraint = True if pm.xformConstraint(query=1, type=1)=='surface' else False
 		live_object = True if pm.ls(live=1) else False
-		values = [('chk024', 'Edge', edge_constraint), ('chk025', 'Surface', surface_constraint), ('chk026', 'Make Live', live_object)]
+		values = [('chk024', 'Contrain: Edge', edge_constraint), ('chk025', 'Constain: Surface', surface_constraint), ('chk026', 'Make Live', live_object)]
 		[cmb001.menu_.add(self.sb.CheckBox, setObjectName=chk, setText=typ, setChecked=state) for chk, typ, state in values]
 		self.sb.setSyncConnections(cmb001.menu_.chk024, self.sb.transform_submenu.chk024, attributes='setChecked')
 		self.sb.setSyncConnections(cmb001.menu_.chk025, self.sb.transform_submenu.chk025, attributes='setChecked')
@@ -87,7 +87,7 @@ class Transform_maya(Transform, Slots_maya):
 		else:
 			pm.xformConstraint(type='none') #pm.manipMoveSetXformConstraint(none=True);
 
-		cmb.setCurrentText('Constrain: <hl style="color:white;">Off</hl>') if not any((state, cmb.menu_.chk025.isChecked(), cmb.menu_.chk026.isChecked())) else cmb.setCurrentText('Constrain: <hl style="color:green;">On</hl>')
+		cmb.setCurrentText('Constrain: OFF') if not any((state, cmb.menu_.chk025.isChecked(), cmb.menu_.chk026.isChecked())) else cmb.setCurrentText('Constrain: ON')
 
 
 	def chk025(self, state=None):
@@ -101,7 +101,7 @@ class Transform_maya(Transform, Slots_maya):
 		else:
 			pm.xformConstraint(type='none') #pm.manipMoveSetXformConstraint(none=True);
 
-		cmb.setCurrentText('Constrain: <hl style="color:white;">Off</hl>') if not any((state, cmb.menu_.chk024.isChecked(), cmb.menu_.chk026.isChecked())) else cmb.setCurrentText('Constrain: <hl style="color:green;">On</hl>')
+		cmb.setCurrentText('Constrain: OFF') if not any((state, cmb.menu_.chk024.isChecked(), cmb.menu_.chk026.isChecked())) else cmb.setCurrentText('Constrain: ON')
 
 
 	def chk026(self, state=None):
@@ -121,7 +121,7 @@ class Transform_maya(Transform, Slots_maya):
 			pm.makeLive(none=True)
 			# self.viewPortMessage('Make Live: <hl>Off</hl>')
 
-		cmb.setCurrentText('Constrain: <hl style="color:white;">Off</hl>') if not any((state, cmb.menu_.chk024.isChecked(), cmb.menu_.chk025.isChecked())) else cmb.setCurrentText('Constrain: <hl style="color:green;">On</hl>')
+		cmb.setCurrentText('Constrain: OFF') if not any((state, cmb.menu_.chk024.isChecked(), cmb.menu_.chk025.isChecked())) else cmb.setCurrentText('Constrain: ON')
 
 
 	def s021(self, value=None):

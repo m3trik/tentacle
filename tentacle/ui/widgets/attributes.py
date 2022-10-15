@@ -7,29 +7,20 @@ from PySide2 import QtCore, QtGui, QtWidgets
 class Attributes(object):
 	'''Methods for setting widget Attributes.
 	'''
-	def setAttributes(self, obj=None, order=['setPosition_', 'setVisible'], **kwargs):
+
+	def setAttributes(self, obj=None, **kwargs):
 		'''Works with attributes passed in as a dict or kwargs.
 		If attributes are passed in as a dict, kwargs are ignored.
 
 		:Parameters:
 			obj (obj) = the child obj or widgetAction to set attributes for. (default=self)
-			order (list) = list of string keywords. ie. ['setPosition_', 'setVisible']. attributes in this list will be set last, by list order. an example would be setting move positions after setting resize arguments, or showing the widget only after other attributes have been set.
 			**kwargs = The keyword arguments to set.
-
-		kw:Parameters:
-			set any keyword arguments.
 		'''
 		if not kwargs: #if no attributes given.
 			return
 
-		obj = obj if obj else self
-
-		for k in order:
-			v = kwargs.pop(k, None)
-			if v:
-				from collections import OrderedDict
-				kwargs = OrderedDict(kwargs)
-				kwargs[k] = v
+		if not obj:
+			obj = self
 
 		for attr, value in kwargs.items():
 			try:

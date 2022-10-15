@@ -28,6 +28,7 @@ class Tcl_max(Tcl):
 				print(__file__, error)
 
 		super().__init__(parent, slotDir=slotDir, *args, **kwargs)
+		setattr(QtWidgets.QApplication.instance(), 'mainAppWindow', parent)
 
 
 	@classmethod
@@ -47,8 +48,6 @@ class Tcl_max(Tcl):
 
 		if not main_window.objectName():
 			main_window.setObjectName('MaxWindow')
-
-		setattr(QtWidgets.QApplication.instance(), 'mainAppWindow', main_window)
 
 		return main_window
 

@@ -28,6 +28,7 @@ class Tcl_maya(Tcl):
 				print(__file__, error)
 
 		super().__init__(parent, slotDir=slotDir, *args, **kwargs)
+		setattr(QtWidgets.QApplication.instance(), 'mainAppWindow', parent)
 
 
 	@classmethod
@@ -41,7 +42,6 @@ class Tcl_maya(Tcl):
 		# main_window = shiboken2.wrapInstance(long(ptr), QtWidgets.QWidget)
 
 		main_window = next(w for w in cls.app.topLevelWidgets() if w.objectName()=='MayaWindow')
-		setattr(QtWidgets.QApplication.instance(), 'mainAppWindow', main_window)
 
 		return main_window
 

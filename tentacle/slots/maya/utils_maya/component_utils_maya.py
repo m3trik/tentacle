@@ -18,16 +18,44 @@ class GetComponents():
 			('cv', 'control vertex', 'control vertices', 'Control Vertex', 28, None),
 			(None, None, None, 'Polygon Vertex Face', 70, None),
 			(None, None, None, 'Edit Point', 30, None),
-			('', '', '', '', 0, 0x0000),
+			(None, None, None, 'Handle', 0, None),
+			(None, None, None, 'Nurbs Curves On Surface', 11, None),
+			(None, None, None, 'Subdivision Mesh Point', 36, None),
+			(None, None, None, 'Subdivision Mesh Edge', 37, None), 
+			(None, None, None, 'Subdivision Mesh Face', 38, None), 
+			(None, None, None, 'Curve Parameter Point', 39, None), 
+			(None, None, None, 'Curve Knot', 40, None),
+			(None, None, None, 'Surface Parameter Point', 41, None),
+			(None, None, None, 'Surface Knot', 42, None),
+			(None, None, None, 'Surface Range', 43, None),
+			(None, None, None, 'Trim Surface Edge', 44, None),
+			(None, None, None, 'Surface Isoparm', 45, None),
+			(None, None, None, 'Lattice Point', 46, None),
+			(None, None, None, 'Particle', 47, None),
+			(None, None, None, 'Scale Pivot', 49, None),
+			(None, None, None, 'Rotate Pivot', 50, None),
+			(None, None, None, 'Select Handle', 51, None),
+			(None, None, None, 'NURBS Surface Face', 72, None),
+			(None, None, None, 'Subdivision Mesh UV', 73, None),
 	]
 
 	@classmethod
-	def getComponentType(cls, component):
-		'''
+	def getComponentType(cls, component, returnType='str'):
+		'''Get the type of a given component.
+
+		:Parameters:
+			obj (obj) = A single maya component.
+			returnType (str) = Specify the desired return value type. (valid: 'str' (default), 'int')
+								'abv' - the abreviated object type as a string.
+								'str' - the object type as a string.
+								'int' - the maya mask value as an integer.
+								'hex' - the hex value.
+		:Return:
+			(str)(int) dependant on 'returnType' arg.
 		'''
 		for a, s, p, f, i, h in cls.componentTypes:
 			if pm.filterExpand(component, sm=i):
-				return f
+				return f if returnType=='str' else i if returnType=='int' else a if returnType=='abv' else h
 		return None
 
 
@@ -177,8 +205,8 @@ class GetComponents():
 			components = cls.convertComponentType(objects, componentType) if componentType else objects
 
 		if randomize:
-			from mathutils import Mathutils
-			components = Mathutils.randomize(pm.ls(components, flatten=1), randomize)
+			from utils import Math_utils
+			components = Math_utils.randomize(pm.ls(components, flatten=1), randomize)
 
 		if exclude:
 			components = cls.excludeComponents(components, exclude)
@@ -394,8 +422,8 @@ class Component_utils_maya(GetComponents):
 			v1Pos = pm.pointPosition(v1, world=1)
 			for v2 in set2:
 				v2Pos = pm.pointPosition(v2, world=1)
-				from mathutils import Mathutils
-				distance = Mathutils.getDistanceBetweenTwoPoints(v1Pos, v2Pos)
+				from utils import Math_utils
+				distance = Math_utils.getDistanceBetweenTwoPoints(v1Pos, v2Pos)
 				if distance<tolerance:
 					vertPairsAndDistance[(v1, v2)] = distance
 

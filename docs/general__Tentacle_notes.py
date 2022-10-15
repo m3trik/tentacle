@@ -123,34 +123,7 @@ def cmb002(self, index=-1):
 
 
 
-# expandable_treewidget:
-def tree000(self, wItem=None, column=None):
-	'''
-	'''
-	tree = self.current_ui.tree000
 
-	if not any([wItem, column]): #refresh list items -----------------------------
-		#command history
-		recentCommandInfo = self.tcl.sb.prevCommand(docString=1, toolTip=1, as_list=1) #Get a list of any recent command names and their toolTips
-		[tree.add('QLabel', 'Recent Commands', refresh=1, setText=s[0], setToolTip=s[1]) for s in recentCommandInfo]
-		return
-
-	# widget = tree.getWidget(wItem, column)
-	header = tree.getHeaderFromColumn(column)
-	text = tree.getWidgetText(wItem, column)
-	index = tree.getIndexFromWItem(wItem, column)
-
-	if header=='Recent Commands':
-		recentCommands = self.tcl.sb.prevCommand(method=1, as_list=1) #Get a list of any recent commands
-		method = recentCommands[index]
-		if callable(method):
-			method()
-
-	# # if header=='':
-	# #   if text=='':
-	# #     pass
-	# #   if text=='':
-	# #     pass
 
 # ----------------------------------------------------------------------
 
@@ -166,6 +139,13 @@ def tree000(self, wItem=None, column=None):
 	'KNOWN BUGS AND GENERAL TO-DO'
 # ======================================================================
 '''
+
+maya normals:
+harden edge selection operation takes forever.
+
+maya uv:
+get/ set texel density broken.
+
 
 ui:
 dockable windows

@@ -3,7 +3,7 @@
 
 
 
-class Mathutils():
+class Math_utils():
 	'''
 	'''
 

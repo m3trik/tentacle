@@ -154,7 +154,7 @@
      <rect>
       <x>415</x>
       <y>310</y>
-      <width>106</width>
+      <width>126</width>
       <height>19</height>
      </rect>
     </property>
@@ -302,7 +302,7 @@
      <rect>
       <x>415</x>
       <y>280</y>
-      <width>106</width>
+      <width>136</width>
       <height>19</height>
      </rect>
     </property>
@@ -337,7 +337,7 @@
      <bool>false</bool>
     </property>
    </widget>
-   <widget class="QPushButton" name="chk023">
+   <widget class="CheckBox" name="chk023">
     <property name="enabled">
      <bool>true</bool>
     </property>
@@ -355,8 +355,11 @@
       <height>19</height>
      </size>
     </property>
+    <property name="mouseTracking">
+     <bool>false</bool>
+    </property>
     <property name="toolTip">
-     <string>Constrain to surface</string>
+     <string>Snap rotation.</string>
     </property>
     <property name="layoutDirection">
      <enum>Qt::LeftToRight</enum>
@@ -365,7 +368,7 @@
      <bool>true</bool>
     </property>
     <property name="text">
-     <string>Snap: Rotation 22.5  ±</string>
+     <string>Snap: Rotate  ±</string>
     </property>
     <property name="iconSize">
      <size>
@@ -378,6 +381,9 @@
     </property>
     <property name="checked">
      <bool>false</bool>
+    </property>
+    <property name="tristate">
+     <bool>true</bool>
     </property>
    </widget>
    <widget class="QPushButton" name="b000">
@@ -516,6 +522,11 @@
    <class>PushButton</class>
    <extends>QPushButton</extends>
    <header>widgets.pushbutton.h</header>
+  </customwidget>
+  <customwidget>
+   <class>CheckBox</class>
+   <extends>QCheckBox</extends>
+   <header>checkbox.h</header>
   </customwidget>
  </customwidgets>
  <resources/>

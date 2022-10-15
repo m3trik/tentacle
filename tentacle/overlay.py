@@ -53,6 +53,62 @@ class Overlay(QtWidgets.QWidget, OverlayFactoryFilter):
 
 
 	@property
+	def drawPathStartPos(self):
+		'''The starting widget ('returnArea') position stored in the drawPath.
+		'''
+		try:
+			return self.drawPath[0][2]
+		except IndexError as error:
+			return None
+
+
+	@property
+	def drawPathEndPos(self):
+		'''The ending widget position stored in the drawPath.
+		Returns None if not found.
+		'''
+		try:
+			return self.drawPath[-1][1]
+		except IndexError as error:
+			return None
+
+
+	def getWidgetPos(self, widget):
+		'''
+		'''
+		return next((wpos for w, wpos, cpos in self.drawPath if w==widget), None)
+
+
+	def clearDrawPath(self):
+		'''Reset the list of draw paths, while keeping the return point.
+		'''
+		del self.drawPath[1:]
+
+
+	def addToDrawPath(self, w):
+		'''Add a widget to the drawPath.
+		It's current position, as well as the current cursor position, will be logged at the time of adding.
+		'''
+		w_pos = w.mapToGlobal(w.rect().center()) #the widget position before submenu change.
+		self.drawPath.append((w, w_pos, QtGui.QCursor.pos())) #add the (<widget>, position) from the old ui to the path so that it can be re-created in the new ui (in the same position).
+		self.removeFromPath(w)
+
+
+	def removeFromPath(self, ui):
+		'''Remove the last entry from the widget and draw paths for the given ui.
+
+		:Parameters:
+			ui (obj) = The ui to remove.
+		'''
+		uis = [w.ui for w, wpos, cpos in self.drawPath[1:]]
+		# print ([w.name for w, wpos, cpos in self.drawPath[1:]])
+		if ui in uis:
+			i = uis[::-1].index(ui) #reverse the list and get the index of the last occurrence of name.
+			# print (i, -i-1, ui.name, [(w.ui.name, cpos) for w, wpos, cpos in self.drawPath]) #debug
+			del self.drawPath[-i-1:]
+
+
+	@property
 	def returnArea(self) -> object:
 		'''
 		'''
@@ -64,6 +120,7 @@ class Overlay(QtWidgets.QWidget, OverlayFactoryFilter):
 			w = QtWidgets.QPushButton(self)
 			w.setObjectName('return_area')
 			w.resize(45, 45)
+			w.move(QtCore.QPoint(self.pos().x()-w.width(), self.pos().y()-w.height())) #center the widget.
 			self._returnArea = w
 			return self._returnArea
 
@@ -153,9 +210,50 @@ class Overlay(QtWidgets.QWidget, OverlayFactoryFilter):
 
 
 
+if __name__ == '__main__':
+	import sys
+	overlay = Overlay()
+
+	app = QtWidgets.QApplication.instance()
+	sys.exit(app.exec_())
+
+
+
+
+
+
 #module name
 print (__name__)
 
 # -----------------------------------------------
 # Notes
 # -----------------------------------------------
+
+
+# Deprecated: -----------------------------------
+
+	# def getDrawPathWidget(self, index):
+	# 	'''
+	# 	'''
+	# 	try:
+	# 		return self.drawPath[index][0]
+	# 	except IndexError as error:
+	# 		return None
+
+
+	# def getDrawPathWidgetPos(self, index):
+	# 	'''
+	# 	'''
+	# 	try:
+	# 		return self.drawPath[index][1]
+	# 	except IndexError as error:
+	# 		return None
+
+
+	# def getDrawPathCursorPos(self, index):
+	# 	'''
+	# 	'''
+	# 	try:
+	# 		return self.drawPath[index][2]
+	# 	except IndexError as error:
+	# 		return None

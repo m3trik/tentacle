@@ -8,7 +8,7 @@ import utils
 
 
 
-class Slots(QtCore.QObject, utils.Mathutils):
+class Slots(QtCore.QObject, utils.Math_utils):
 	'''Provides methods that can be triggered by widgets in the ui.
 	Parent to the 'Init' slot class, which is in turn, inherited by every other slot class.
 
@@ -21,12 +21,12 @@ class Slots(QtCore.QObject, utils.Mathutils):
 		QtCore.QObject.__init__(self, parent)
 		'''
 		'''
-		for k, v in kwargs.items():
-			setattr(self, k, v)
+		for a, v in kwargs.items():
+			setattr(self, a, v)
 
-		self.collapseList = utils.Iterutils.collapseList
-		self.bitArrayToList = utils.Iterutils.bitArrayToList
-		self.cycle = utils.Iterutils.cycle
+		self.collapseList = utils.Iter_utils.collapseList
+		self.bitArrayToList = utils.Iter_utils.bitArrayToList
+		self.cycle = utils.Iter_utils.cycle
 
 
 	def hideMain(fn):
@@ -69,16 +69,16 @@ class Slots(QtCore.QObject, utils.Mathutils):
 				if attr and value]
 
 
-	def objAttrWindow(self, obj, attributes, checkableLabel=False, fn=None, fn_args=[]):
+	def objAttrWindow(self, obj, checkableLabel=False, fn=None, *fn_args, **attributes):
 		'''Launch a popup window containing the given objects attributes.
 
 		:Parameters:
 			obj (obj) = The object to get the attributes of.
-			attributes (dict) = {'attribute':<value>}
 			checkableLabel (bool) = Set the attribute labels as checkable.
-			fn (method) = Set an alternative method to call on widget signal. ex. Init.setParameterValuesMEL
-			fn_args (list) = Any additonal args to pass to fn.
-				The first parameter of fn is always the given object, and the last parameter is the attribute:value pairs as a dict.
+			fn (method) = Set an alternative method to call on widget signal. ex. setParameterValuesMEL
+					The first parameter of fn is always the given object. ex. fn(obj, {'attr':<value>})
+			fn_args (args) = Any additonal args to pass to fn.
+			attributes (kwargs) = Explicitly pass in attribute:values pairs. Else, attributes will be pulled from self.getAttributesMEL for the given obj.
 
 		:Return:
 			(obj) the menu widget. (use menu.childWidgets to get the menu's child widgets.)
@@ -89,7 +89,6 @@ class Slots(QtCore.QObject, utils.Mathutils):
 		import ast
 
 		fn = fn if fn else self.setAttributes
-		fn_args = fn_args if isinstance(fn_args, (list, tuple, set)) else [fn_args]
 
 		try: #get the objects name to as the window title:
 			title = obj.name()
@@ -101,21 +100,21 @@ class Slots(QtCore.QObject, utils.Mathutils):
 
 		menu = self.sb.Menu(self.sb.parent(), menu_type='form', padding=2, title=title, position='cursorPos')
 
-		for k, v in attributes.items():
+		for a, v in attributes.items():
 
 			if isinstance(v, (float, int, bool)):
 				if type(v)==int or type(v)==bool:
-					s = menu.add('QSpinBox', label=k, checkableLabel=checkableLabel, setSpinBoxByValue_=v)
+					s = menu.add('QSpinBox', label=a, checkableLabel=checkableLabel, setSpinBoxByValue_=v)
 
 				elif type(v)==float:
 					v = float(f'{v:g}') ##remove any trailing zeros from the float value.
-					s = menu.add('QDoubleSpinBox', label=k, checkableLabel=checkableLabel, setSpinBoxByValue_=v, setDecimals=3)
+					s = menu.add('QDoubleSpinBox', label=a, checkableLabel=checkableLabel, setSpinBoxByValue_=v, setDecimals=3)
 
-				s.valueChanged.connect(lambda value, attr=k: fn(obj, *fn_args, {attr:value}))
+				s.valueChanged.connect(lambda v, a=a: fn(obj, *fn_args, **{a:v}))
 
 			else: #isinstance(v, (list, set, tuple)):
-				w = menu.add('QLineEdit', label=k, checkableLabel=checkableLabel, setText=str(v))
-				w.returnPressed.connect(lambda w=w, attr=k: fn(obj, *fn_args, {attr:ast.literal_eval(w.text())}))
+				w = menu.add('QLineEdit', label=a, checkableLabel=checkableLabel, setText=str(v))
+				w.returnPressed.connect(lambda w=w, a=a: fn(obj, *fn_args, **{a:ast.literal_eval(w.text())}))
 
 		self.sb.setStyle(menu.childWidgets)
 		menu.show()

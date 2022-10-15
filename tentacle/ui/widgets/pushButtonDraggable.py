@@ -6,20 +6,7 @@ from attributes import Attributes
 from text import RichText, TextOverlay
 from menu import MenuInstance
 
-
-'''
-Promoting a widget in designer to use a custom class:
->	In Qt Designer, select all the widgets you want to replace, 
-		then right-click them and select 'Promote to...'. 
-
->	In the dialog:
-		Base Class:		Class from which you inherit. ie. QWidget
-		Promoted Class:	Name of the class. ie. "MyWidget"
-		Header File:	Path of the file (changing the extension .py to .h)  ie. myfolder.mymodule.mywidget.h
-
->	Then click "Add", "Promote", 
-		and you will see the class change from "QWidget" to "MyWidget" in the Object Inspector pane.
-'''
+from pushButton_optionBox import PushButton_optionBox
 
 
 class PushButtonDraggable(QtWidgets.QPushButton, MenuInstance, Attributes, RichText, TextOverlay):
@@ -54,6 +41,8 @@ class PushButtonDraggable(QtWidgets.QPushButton, MenuInstance, Attributes, RichT
 		self.text = self.richText
 		self.setText = self.setRichText
 		self.sizeHint = self.richTextSizeHint
+
+		self.optionBox = None
 
 		self.setAttributes(**kwargs)
 
@@ -120,6 +109,13 @@ class PushButtonDraggable(QtWidgets.QPushButton, MenuInstance, Attributes, RichT
 		QtWidgets.QPushButton.mouseReleaseEvent(self, event)
 
 
+	def createOptionBox(self):
+		'''
+		'''
+		self.optionBox = PushButton_optionBox(self) #create an option box
+		self.optionBox.create()
+
+
 	def showEvent(self, event):
 		'''
 		:Parameters:
@@ -127,7 +123,9 @@ class PushButtonDraggable(QtWidgets.QPushButton, MenuInstance, Attributes, RichT
 		'''
 		if self.ctxMenu.containsMenuItems:
 			# self.ctxMenu.setTitle(self.text())
-			self.setTextOverlay('⧉', alignment='AlignRight')
+			# self.setTextOverlay('⧉', alignment='AlignRight')
+			if not self.optionBox:
+				self.createOptionBox()
 
 		QtWidgets.QPushButton.showEvent(self, event)
 
@@ -177,5 +175,5 @@ Promoting a widget in designer to use a custom class:
 '''
 
 
-# Deprecated:
+# Deprecated: --------------------
 

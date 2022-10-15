@@ -93,7 +93,7 @@
    <widget class="QPushButton" name="i032">
     <property name="geometry">
      <rect>
-      <x>230</x>
+      <x>210</x>
       <y>340</y>
       <width>66</width>
       <height>21</height>
@@ -149,7 +149,7 @@
    <widget class="QPushButton" name="i022">
     <property name="geometry">
      <rect>
-      <x>315</x>
+      <x>325</x>
       <y>340</y>
       <width>91</width>
       <height>21</height>
@@ -180,8 +180,8 @@
    <widget class="QPushButton" name="i023">
     <property name="geometry">
      <rect>
-      <x>190</x>
-      <y>240</y>
+      <x>270</x>
+      <y>380</y>
       <width>66</width>
       <height>21</height>
      </rect>
@@ -236,8 +236,89 @@
      <string>Utilities</string>
     </property>
    </widget>
+   <widget class="PushButton" name="tb000">
+    <property name="enabled">
+     <bool>true</bool>
+    </property>
+    <property name="geometry">
+     <rect>
+      <x>145</x>
+      <y>250</y>
+      <width>123</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="minimumSize">
+     <size>
+      <width>0</width>
+      <height>20</height>
+     </size>
+    </property>
+    <property name="maximumSize">
+     <size>
+      <width>999</width>
+      <height>20</height>
+     </size>
+    </property>
+    <property name="toolTip">
+     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Convert the case of scene object names.&lt;/p&gt;&lt;p&gt;If nothing is selected all scene objects will be renamed.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+    </property>
+    <property name="text">
+     <string>Convert Case</string>
+    </property>
+    <property name="iconSize">
+     <size>
+      <width>18</width>
+      <height>18</height>
+     </size>
+    </property>
+   </widget>
+   <widget class="PushButton" name="tb001">
+    <property name="enabled">
+     <bool>true</bool>
+    </property>
+    <property name="geometry">
+     <rect>
+      <x>145</x>
+      <y>220</y>
+      <width>123</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="minimumSize">
+     <size>
+      <width>0</width>
+      <height>20</height>
+     </size>
+    </property>
+    <property name="maximumSize">
+     <size>
+      <width>999</width>
+      <height>20</height>
+     </size>
+    </property>
+    <property name="toolTip">
+     <string>Rename objects with a suffix defined by its location from origin.</string>
+    </property>
+    <property name="text">
+     <string>Suffix By Location</string>
+    </property>
+    <property name="iconSize">
+     <size>
+      <width>18</width>
+      <height>18</height>
+     </size>
+    </property>
+   </widget>
   </widget>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>PushButton</class>
+   <extends>QPushButton</extends>
+   <header>widgets.pushbutton.h</header>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections/>
  <designerdata>
