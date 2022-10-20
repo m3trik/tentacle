@@ -211,7 +211,7 @@ class Rigging_maya(Rigging, Slots_maya):
 			'enableScaleX','scaleX','enableScaleY','scaleY','enableScaleZ','scaleZ']
 
 		attrs = Slots_maya.getParameterValuesMEL(node, 'transformLimits', params)
-		self.setAttributeWindow(node, fn=Slots_maya.setParameterValuesMEL, 'transformLimits', **attrs)
+		self.setAttributeWindow(node, fn=Slots_maya.setParameterValuesMEL, fn_args='transformLimits', **attrs)
 
 
 	def b001(self):

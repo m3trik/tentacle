@@ -8,7 +8,7 @@ import utils
 
 
 
-class Slots(QtCore.QObject, utils.Math_utils):
+class Slots(QtCore.QObject, utils.Math_utils, utils.Iter_utils):
 	'''Provides methods that can be triggered by widgets in the ui.
 	Parent to the 'Init' slot class, which is in turn, inherited by every other slot class.
 
@@ -23,10 +23,6 @@ class Slots(QtCore.QObject, utils.Math_utils):
 		'''
 		for a, v in kwargs.items():
 			setattr(self, a, v)
-
-		self.collapseList = utils.Iter_utils.collapseList
-		self.bitArrayToList = utils.Iter_utils.bitArrayToList
-		self.cycle = utils.Iter_utils.cycle
 
 
 	def hideMain(fn):
@@ -69,7 +65,7 @@ class Slots(QtCore.QObject, utils.Math_utils):
 				if attr and value]
 
 
-	def objAttrWindow(self, obj, checkableLabel=False, fn=None, *fn_args, **attributes):
+	def objAttrWindow(self, obj, checkableLabel=False, fn=None, fn_args=[], **attributes):
 		'''Launch a popup window containing the given objects attributes.
 
 		:Parameters:
@@ -77,7 +73,7 @@ class Slots(QtCore.QObject, utils.Math_utils):
 			checkableLabel (bool) = Set the attribute labels as checkable.
 			fn (method) = Set an alternative method to call on widget signal. ex. setParameterValuesMEL
 					The first parameter of fn is always the given object. ex. fn(obj, {'attr':<value>})
-			fn_args (args) = Any additonal args to pass to fn.
+			fn_args (list) = Any additonal args to pass to fn.
 			attributes (kwargs) = Explicitly pass in attribute:values pairs. Else, attributes will be pulled from self.getAttributesMEL for the given obj.
 
 		:Return:
@@ -89,6 +85,7 @@ class Slots(QtCore.QObject, utils.Math_utils):
 		import ast
 
 		fn = fn if fn else self.setAttributes
+		fn_args = self.makeList(fn_args) #assure that fn_args is a list.
 
 		try: #get the objects name to as the window title:
 			title = obj.name()

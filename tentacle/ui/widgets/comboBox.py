@@ -70,6 +70,8 @@ class ComboBox(QtWidgets.QComboBox, MenuInstance, Attributes, RichText, TextOver
 		ex call: comboBox.addItems_(["Import file", "Import Options"], "Import")
 		ex call: comboBox.addItems_({'Import file':<obj>, "Import Options":<obj>}, "Import") #example of adding items with data.
 		'''
+		assert isinstance(items, (str, list, set, tuple, dict)), '{}: addItems_: Incorrect datatype: {}'.format(__file__, type(items).__name__) 
+
 		index = self.currentIndex() if self.currentIndex()>0 else 0 #get the current index before refreshing list. avoid negative values.
 
 		if clear:

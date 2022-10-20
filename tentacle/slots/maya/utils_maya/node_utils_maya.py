@@ -301,72 +301,125 @@ class Node_utils_maya():
 
 
 	@classmethod
-	def createRenderNode(cls, nodeType, asType='asShader', flag='surfaceShader', name='', postCommand='', **kwargs):
+	def createRenderNode(cls, nodeType, flag='asShader', flag2='surfaceShader', name='', tex='', place2dTexture=False, postCommand='', **kwargs):
 		'''Procedure to create the node classified as specified by the inputs.
 
 		:Parameters:
 			nodeType (str) = The type of node to be created. ie. 'StingrayPBS' or 'aiStandardSurface'
-			asType (str) = A flag specifying which how to classify the node created.
-				valid: as2DTexture, as3DTexture, asEnvTexture, asShader, asLight, asUtility
-			flag (str) = A secondary flag used to make decisions in combination with 'asType'
+			flag (str) = A flag specifying which how to classify the node created.
+				valid:	as2DTexture, as3DTexture, asEnvTexture, asShader, asLight, asUtility
+			flag2 (str) = A secondary flag used to make decisions in combination with 'asType'
 				valid:	-asBump : defines a created texture as a bump
 						-asNoShadingGroup : for materials; create without a shading group
 						-asDisplacement : for anything; map the created node to a displacement material.
 						-asUtility : for anything; do whatever the $as flag says, but also classify as a utility
 						-asPostProcess : for any postprocess node
 			name (str) = The desired node name.
+			tex (str) = The path to a texture file for those nodes that support one.
+			place2dTexture (bool) = If not needed, the place2dTexture node will be deleted after creation.
 			postCommand (str) = A command entered by the user when invoking createRenderNode.
 					The command will substitute the string %node with the name of the
 					node it creates.  createRenderWindow will be closed if a command
 					is not the null string ("").
-			kwargs () = Set additional node attributes after creation. ie. name
+			kwargs () = Set additional node attributes after creation. ie. colorSpace='Raw', alphaIsLuminance=1, ignoreColorSpaceFileRules=1
 
 		:Return:
 			(obj) node
 
 		ex. call: createRenderNode('StingrayPBS')
-		ex. call: createRenderNode('file', 'as2DTexture')
+		ex. call: createRenderNode('file', flag='as2DTexture', tex=f, place2dTexture=True, colorSpace='Raw', alphaIsLuminance=1, ignoreColorSpaceFileRules=1)
+		ex. call: createRenderNode('aiSkyDomeLight', tex=pathToHdrMap, name='env', camera=0, skyRadius=0) #turn off skydome and viewport visibility.
 		'''
-		node = pm.PyNode(pm.mel.createRenderNodeCB('-'+asType, flag, nodeType, postCommand))
+		node = pm.PyNode(pm.mel.createRenderNodeCB('-'+flag, flag2, nodeType, postCommand)) # node = pm.shadingNode(typ, asTexture=True)
+
+		if not place2dTexture:
+			pm.delete(pm.listConnections(node, type='place2dTexture', source=True, exactType=True))
+
+		if tex:
+			try:
+				node.fileTextureName.set(tex)
+			except Exception as error:
+				print ('# Error:', __file__, error, '#')
+
 		if name:
 			try:
 				pm.rename(node, name)
 			except RuntimeError as error:
 				print ('# Error:', __file__, error, '#')
+
 		cls.setAttributesMEL(node, **kwargs)
 		return node
 
 
-	@classmethod
-	def createFileNode(cls, typ='file', tex='', place2dTexture=False, **kwargs):
+	def getFirstIncomingNodeOfType(node, typ, exact=True):
+		'''Get the first connected node of the given type with an incoming connection to the given node.
+
+		:Parameters:
+			node (str)(obj) = A node with incoming connections.
+			typ (str) = The node type to search for. ie. 'StingrayPBS'
+			exact (bool) = Only consider nodes of the exact type. Otherwise, derived types are also taken into account.
+
+		:Return:
+			(obj)(None) node if found.
+
+		ex. call: srSG_node = getFirstOutgoingNodeOfType(sr_node, 'shadingEngine')
 		'''
+		node = next(iter(pm.listConnections(node, type=typ, source=True, exactType=exact)), None)
+		return pm.PyNode(node) if node else node
+
+
+	def getFirstOutgoingNodeOfType(node, typ, exact=True):
+		'''Get the first connected node of the given type with an outgoing connection to the given node.
+
+		:Parameters:
+			node (str)(obj) = A node with outgoing connections.
+			typ (str) = The node type to search for. ie. 'file'
+			exact (bool) = Only consider nodes of the exact type. Otherwise, derived types are also taken into account.
+
+		:Return:
+			(obj)(None) node if found.
+
+		ex. call: env_file_node = getFirstIncomingNodeOfType(env_node, 'file')
 		'''
-		if place2dTexture:
-			node = cls.createRenderNode('file', 'as2DTexture')
-		else:
-			node = pm.shadingNode('file', asTexture=True)
-		node.fileTextureName.set(tex)
-
-		cls.setAttributesMEL(node, **kwargs)
-
-		return node
+		node = next(iter(pm.listConnections(node, type=typ, destination=True, exactType=exact)), None)
+		return pm.PyNode(node) if node else node
 
 
-	@classmethod
-	def createEnvNode(cls, typ='aiSkyDomeLight', tex='', **kwargs):
+	def connectMultiAttr(*args, force=True):
+		'''Connect multiple node attributes at once.
+
+		:Parameters:
+			args (tuple) = Attributes as two element tuples. ie. (<connect from attribute>, <connect to attribute>)
+
+		ex. call: connectMultiAttr(
+			(node1.outColor, node2.aiSurfaceShader),
+			(node1.outColor, node3.baseColor),
+			(node4.outNormal, node5.normalCamera),
+		)
 		'''
+		for frm, to in args:
+			try:
+				pm.connectAttr(frm, to)
+			except Exception as error:
+				print ('# Error:', __file__, error, '#')
+
+
+	def nodeExists(n, search='name'):
+		'''Check if the node exists in the current scene.
+
+		:Parameters:
+			search (str) = The search parameters. valid: 'name', 'type', 'exactType'
+
+		:Return:
+			(bool)
 		'''
-		node = pm.shadingNode(typ, asLight=True)#, name=name if name else typ)
-		file_node = cls.createRenderNode('file', 'as2DTexture')
-		file_node.fileTextureName.set(tex)
-		pm.connectAttr(file_node.outColor, node.color, force=True)
-
-		pm.rename(node, 'env')
-		cls.setAttributesMEL(node, **kwargs)
-
-		return node
-
-
+		if search=='name':
+			return bool(pm.ls(n))
+		elif search=='type':
+			return bool(pm.ls(type=n))
+		elif search=='exactType':
+			return bool(pm.ls(exactType=n))
+		
 
 
 

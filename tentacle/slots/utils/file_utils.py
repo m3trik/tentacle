@@ -5,20 +5,22 @@ import sys, os
 
 import json
 
+import utils
+
 
 
 class File_utils():
 	'''
 	'''
-
 	@staticmethod
-	def formatFilepath(string, returnType=''):
+	def formatFilepath(string, section='', replace=''):
 		'''Format a full path to file string from '\' to '/'.
-		When a returnType arg is given, the correlating section of the string will be returned.
+		When a section arg is given, the correlating section of the string will be returned.
+		If a replace arg is given, the stated section will be replaced by the given value.
 
 		:Parameters:
 			string (str) = The file path string to be formatted.
-			returnType (str) = The desired subsection of the given path. 
+			section (str) = The desired subsection of the given path. 
 				'path' path - filename, 
 				'dir'  directory name, 
 				'file' filename + ext, 
@@ -29,36 +31,57 @@ class File_utils():
 		:Return:
 			(str)
 		'''
-		assert isinstance(string, str), 'Incorrect datatype for string argument: {}: {}'.format(string, type(string))
-		isfile = os.path.isfile(string)
-		# isDir = os.path.isdir(string)
+		assert isinstance(string, str), '{}: Incorrect datatype: {}'.format(__file__, type(string).__name__)
 
 		string = os.path.expandvars(string) #convert any env variables to their values.
-		string = '/'.join(string.split('\\')) #convert forward slashes to back slashes.
+		string = '/'.join(string.split('\\')).rstrip('/') #convert forward slashes to back slashes.
 
 		fullpath = string if '/' in string else ''
-		path = '/'.join(string.split('/')[:-1]) if isfile else string
-		filename = string.split('/')[-1] if isfile else ''
-		directory = string.split('/')[-2] if filename else string.split('/')[-1]
-		name = ''.join(filename.rsplit('.', 1)[:-1]) if isfile else '' if '/' in string else string
+		filename_ = string.split('/')[-1]
+		filename = filename_ if '.' in filename_ else ''
+		path = '/'.join(string.split('/')[:-1]) if filename else string
+		directory = string.split('/')[-2] if (filename and path) else string.split('/')[-1]
+		name = ''.join(filename.rsplit('.', 1)[:-1]) if filename else '' if fullpath else string
 		ext = filename.rsplit('.', 1)[-1]
 
-		if returnType=='path':
+		orig_str = string #the full original string (formatted with forwardslashes)
+
+		if section=='path':
 			string = path
 
-		elif returnType=='dir':
+		elif section=='dir':
 			string = directory
 
-		elif returnType=='file':
+		elif section=='file':
 			string = filename
 
-		elif returnType=='name':
+		elif section=='name':
 			string = name
 
-		elif returnType=='ext':
+		elif section=='ext':
 			string = ext
 
+		if replace:
+			string = utils.Str_utils.rreplace(orig_str, string, replace, 1)
+
 		return string #if no arg is given, the fullpath will be returned.
+
+
+	@staticmethod
+	def isValidPath(path):
+		'''Determine if the given filepath is valid.
+
+		:Parameters:
+			path (str) = A filepath.
+
+		:Return:
+			(list)
+		'''
+		if os.path.isfile(path):
+			return 'file'
+		if os.path.isdir(path):
+			return 'dir'
+		return None
 
 
 	@staticmethod
@@ -108,80 +131,123 @@ class File_utils():
 
 
 	@staticmethod
-	def getDirectoryContents(path, returnType='files', exclude=[], rootOnly=False, topdown=True):
+	def getDirectoryContents(path, rtn='files', exclude=[], recursive=False, topdown=True):
 		'''Get the contents of a directory and any of it's children.
 
 		:Parameters:
 			path (str) = The path to the directory.
-			returnType (str) = Return files, directories, files with full path, dirs with full path. 
+			rtn (str) = Return files, directories, files with full path, dirs with full path. 
 				multiple types can be given, separated by '|' ex. 'files | dirs'
 				(valid: 'files'(default), 'filePaths', 'dirs', 'dirPaths')
-			rootOnly (bool) = return the contents of the root dir only.
+			recursive (bool) = return the contents of the root dir only.
 			exclude (list) = Excluded child directories or files.
 			topDown (bool) = Scan directories from the top-down, or bottom-up.
 
 		:Return:
 			(list)
 
-		ex. getDirectoryContents(path, returnType='filePaths')
-		ex. getDirectoryContents(path, returnType='files|dirs')
+		ex. getDirectoryContents(path, rtn='filePaths')
+		ex. getDirectoryContents(path, rtn='files|dirs')
 		'''
 		path = os.path.expandvars(path) #translate any system variables that might have been used in the path.
-		returnTypes = [t.strip().rstrip('s') for t in returnType.split('|')] #strip any whitespace and trailing 's' of the types to allow for singular and plural to be used interchagably. ie. files | dirs becomes [file, dir]
+		types = [t.strip().rstrip('s') for t in rtn.split('|')] #strip any whitespace and trailing 's' of the types to allow for singular and plural to be used interchagably. ie. files | dirs becomes [file, dir]
 
 		result=[]
 		for root, dirs, files in os.walk(path, topdown=topdown):
 
-			if rootOnly:
-				if 'dir' in returnTypes:
+			if not recursive:
+				if 'dir' in types:
 					[result.append(d) for d in dirs] #get the dir contents before filtering for root.
-				elif 'dirPath' in returnTypes:
+				elif 'dirPath' in types:
 					[os.path.join(root, d) for d in dirs]
 				dirs[:] = [d for d in dirs if d is root] #remove all but the root dir.
 			else:
 				dirs[:] = [d for d in dirs if not d in exclude] #remove any directories in 'exclude'.
-				if 'dir' in returnTypes:
+				if 'dir' in types:
 					[result.append(d) for d in dirs]
-				elif 'dirPath' in returnTypes:
+				elif 'dirPath' in types:
 					[os.path.join(root, d) for d in dirs]
 
 			files[:] = [f for f in files if f not in exclude] #remove any files in 'exclude'.
-			if 'file' in returnTypes:
+			if 'file' in types:
 				[result.append(f) for f in files]
-			elif 'filePath' in returnTypes:
+			elif 'filePath' in types:
 				[result.append(os.path.join(root, f)) for f in files]
 
 		return result
 
 
-	@staticmethod
-	def setJson(key, value, file='file_utils.json'):
-		'''
+	@classmethod
+	def getJsonFile(cls, rtn=''):
+		'''Get the current json file path.
+
+		:Return:
+			(str)
 		'''
 		try:
+			return cls.formatFilepath(cls._json_file, rtn)
+		except AttributeError as error:
+			cls._json_file = '/'.join([os.path.dirname(__file__), 'file_utils.json'])
+			return cls._json_file
+
+
+	@classmethod
+	def setJsonFile(cls, string, subsection=''):
+		'''Set the json file path in full or modify any of it's subsections.
+
+		:Parameters:
+			string (str) = The desired replacement string.
+			subsection (str) = Modify only part of the file path.
+				(Any of the 'rtn' args in 'formatFilepath')
+				ex. 'path' path - filename,
+					'dir'  directory name, 
+					'file' filename + ext, 
+					'name', filename - ext,
+					'ext', file extension,
+		'''
+		cls._json_file = cls.formatFilepath(cls.getJsonFile(), subsection, string)
+
+
+	@classmethod
+	def setJson(cls, key, value):
+		'''
+		'''
+		file = cls.getJsonFile()
+		if not os.path.exists(file): #if the file doesn't exist, create it.
+			open(file, 'w').close()
+
+		try:
 			with open(file, 'r') as f:
-				dict_ = json.loads(f.read())
-				dict_[key] = value
+				dct = json.loads(f.read())
+				dct[key] = value
 		except json.decoder.JSONDecodeError as error:
-			dict_={}
-			dict_[key] = value
+			dct={}
+			dct[key] = value
 
 		with open(file, 'w') as f:
+			f.write(json.dumps(dct))
 
-			f.write(json.dumps(dict_))
 
-
-	@staticmethod
-	def getJson(key, file='file_utils.json'):
+	@classmethod
+	def getJson(cls, key):
 		'''
 		'''
+		file = cls.getJsonFile()
+
 		try:
 			with open(file, 'r') as f:
-
 				return json.loads(f.read())[key]
 
-		except (FileNotFoundError, KeyError, json.decoder.JSONDecodeError) as error:
-			return None
+		except KeyError as error:
+			# print ('# Error: {}: getJson: KeyError: {}'.format(__file__, error))
+			pass
+		except FileNotFoundError as error:
+			# print ('# Error: {}: getJson: FileNotFoundError: {}'.format(__file__, error))
+			pass
+		except json.decoder.JSONDecodeError as error:
+			print ('# Error: {}: getJson: JSONDecodeError: {}'.format(__file__, error))
+
+		return None
 
 
 

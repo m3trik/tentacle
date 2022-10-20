@@ -93,7 +93,8 @@ class Preferences_maya(Preferences, Slots_maya):
 		pm.mel.PreferencesWindow()
 
 
-	def loadPlugin(self, plugin):
+	@staticmethod
+	def loadPlugin(plugin):
 		'''Loads A Plugin.
 		
 		:Parameters:

@@ -98,6 +98,22 @@ class Str_utils():
 			return cls.insert(src, str(ins), i if before else i+len(at)) if i!=-1 else src
 
 
+	@staticmethod
+	def rreplace(string, old, new, count=None):
+		'''Return a copy of 'string' with all occurrences of substring 'old' replaced by 'new'.
+		If the optional argument count is given, only the first count occurrences are replaced.
+
+		:parameters:
+			string (str) = 
+			old (str) = 
+			new (str) = 
+			count (int) = 	
+
+		:return:
+			(str)
+		'''
+		return new.join(string.rsplit(old, count))
+
 
 
 

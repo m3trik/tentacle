@@ -52,7 +52,13 @@ class StyleSheet(QtCore.QObject):
 		}
 
 	_styleSheets = {
-		# 'QMainWindow': ,
+		# 'QMainWindow': '''
+		# 	QMainWindow {
+		# 		background: {BACKGROUND};
+		# 		color: {TEXT};
+		# 		border: 1px solid {BORDER};
+		# 	}
+		# 	''',
 
 		'QWidget': '''
 			QWidget {
@@ -1093,7 +1099,7 @@ class StyleSheet(QtCore.QObject):
 			css = cls._styleSheets[widget_type]
 
 		except KeyError as error:
-			print ('KeyError: {}: {} in {} \'getStyleSheet\''.format(widget_type, error, cls.__class__.__name__))
+			print ('Error: {}: getStyleSheet: KeyError: {} in {}'.format(__file__, widget_type, error))
 			return ''
 
 		for k, v in cls.getColorValues(style=style, alpha=backgroundOpacity).items():
@@ -1117,7 +1123,7 @@ class StyleSheet(QtCore.QObject):
 		widgets = [widgets] if not isinstance(widgets, (list, tuple, set, dict)) else widgets #assure widgets in a list.
 
 		for widget in widgets:
-			widget_type = cls.getDerivedType(widget)
+			widget_type = cls._getDerivedType(widget)
 
 			try: #if hasattr(widget, 'styleSheet'):
 				s = cls.getStyleSheet(widget_type, style=style, backgroundOpacity=backgroundOpacity)
@@ -1164,7 +1170,7 @@ class StyleSheet(QtCore.QObject):
 
 
 	@staticmethod
-	def getDerivedType(widget, ui=None):
+	def _getDerivedType(widget, ui=None):
 		'''Get the base class of a custom widget.
 		If the type is a standard widget, the derived type will be that widget's type.
 

@@ -17,7 +17,7 @@ class Tcl_max(Tcl):
 	:Parameters:
 		parent = main application top level window object.
 	'''
-	def __init__(self, parent=None, slotDir='max', *args, **kwargs):
+	def __init__(self, parent=None, slotLoc='max', *args, **kwargs):
 		'''
 		'''
 		if not parent:
@@ -27,7 +27,7 @@ class Tcl_max(Tcl):
 			except Exception as error:
 				print(__file__, error)
 
-		super().__init__(parent, slotDir=slotDir, *args, **kwargs)
+		super().__init__(parent, slotLoc=slotLoc, *args, **kwargs)
 		setattr(QtWidgets.QApplication.instance(), 'mainAppWindow', parent)
 
 

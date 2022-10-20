@@ -10,8 +10,8 @@ class Iter_utils():
 	'''
 
 	@staticmethod
-	def list(x):
-		'''Convert a given obj to a list if it isn't a list, set, or tuple already.
+	def makeList(x):
+		'''Convert the given obj to a list.
 
 		:Parameters:
 			x (unknown) = The object to convert to a list if not already a list, set, or tuple.
@@ -145,12 +145,18 @@ class Iter_utils():
 		:return:
 			(list)
 		'''
-		lst = lst if trailing else lst[::-1] #reverse the list when removing from the start of the list.
+		if trailing:
+			return list(dict.fromkeys(lst))
+		else:
+			return list(dict.fromkeys(lst[::-1]))[::-1] #reverse the list when removing from the start of the list.
 
-		found = set()
-		lst = [x for x in lst if x not in found and not found.add(x)]
+		# #alternate method:
+		# lst = lst if trailing else lst[::-1] #reverse the list when removing from the start of the list.
 
-		return lst if trailing else lst[::-1]
+		# found = set()
+		# lst = [x for x in lst if x not in found and not found.add(x)]
+
+		# return lst if trailing else lst[::-1]
 
 
 	@classmethod

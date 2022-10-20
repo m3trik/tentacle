@@ -28,7 +28,7 @@ class Tcl(QtWidgets.QStackedWidget):
 		app = QtWidgets.QApplication(sys.argv)
 
 
-	def __init__(self, parent=None, key_show='Key_F12', preventHide=False, slotDir='', profile=False):
+	def __init__(self, parent=None, key_show='Key_F12', preventHide=False, slotLoc='', profile=False):
 		'''
 		:Parameters:
 			parent (obj) = The parent application's top level window instance. ie. the Maya main window.
@@ -51,8 +51,7 @@ class Tcl(QtWidgets.QStackedWidget):
 		self.setAttribute(QtCore.Qt.WA_TranslucentBackground)
 		self.setAttribute(QtCore.Qt.WA_SetStyle) #Indicates that the widget has a style of its own.
 
-		self.sb = Switchboard(self, slotDir=slotDir)
-		self.sb.loadAllUi(widgets=rwidgets)
+		self.sb = Switchboard(self, uiLoc='ui', widgetLoc=rwidgets, slotLoc=slotLoc, preloadUi=True)
 
 		self.overlay = Overlay(self, antialiasing=True) #Paint events are handled by the overlay module.
 		self.eventFilter = EventFactoryFilter(self, eventNamePrefix='ef_', forwardEventsTo=self)
@@ -88,7 +87,7 @@ class Tcl(QtWidgets.QStackedWidget):
 			ui (str)(obj) = The ui or name of the ui to set the stacked widget index to.
 		'''
 		ui = self.sb.getUi(ui) #Get the ui of the given name, and set it as the current ui in the switchboard module.
-		ui.connected = True #connect the ui to it's slots.
+		ui.connected = True
 
 		if not ui.isInitialized:
 			self.initUi(ui)
@@ -369,7 +368,7 @@ class Tcl(QtWidgets.QStackedWidget):
 		if widgets is None:
 			widgets = ui.widgets #get all widgets for the given ui.
 
-		for w in self.sb.list(widgets): #if 'widgets' isn't a list, convert it to one.
+		for w in self.sb.makeList(widgets): #if 'widgets' isn't a list, convert it to one.
 
 			if w not in ui.widgets:
 				ui.addWidgets(w)
@@ -640,7 +639,7 @@ class Tcl(QtWidgets.QStackedWidget):
 
 if __name__ == '__main__':
 
-	tcl = Tcl(slotDir='maya')
+	tcl = Tcl(slotLoc='maya')
 	tcl.sendKeyPressEvent(tcl.key_show) # Tcl().show('init')
 
 	app = QtWidgets.QApplication.instance()

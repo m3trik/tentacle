@@ -149,7 +149,7 @@ class Slots_maya(Slots, utils_maya.Node_utils_maya, utils_maya.Component_utils_m
 			self.setAttributeWindow(fn(self, *args, **kwargs))
 		return wrapper
 
-	def setAttributeWindow(self, obj, include=[], exclude=[], checkableLabel=False, fn=None, *fn_args, **attributes):
+	def setAttributeWindow(self, obj, include=[], exclude=[], checkableLabel=False, fn=None, fn_args=[], **attributes):
 		'''Launch a popup window containing the given objects attributes.
 
 		:Parameters:
@@ -159,7 +159,7 @@ class Slots_maya(Slots, utils_maya.Node_utils_maya, utils_maya.Component_utils_m
 			checkableLabel (bool) = Set the attribute labels as checkable.
 			fn (method) = Set an alternative method to call on widget signal. ex. setParameterValuesMEL
 					The first parameter of fn is always the given object. ex. fn(obj, {'attr':<value>})
-			fn_args (args) = Any additonal args to pass to fn.
+			fn_args (str)(list) = Any additonal args to pass to the given fn.
 			attributes (kwargs) = Explicitly pass in attribute:values pairs. Else, attributes will be pulled from self.getAttributesMEL for the given obj.
 
 		ex. call: self.setAttributeWindow(node, attrs, fn=Slots_maya.setParameterValuesMEL, 'transformLimits') #set attributes for the Maya command transformLimits.
@@ -170,7 +170,7 @@ class Slots_maya(Slots, utils_maya.Node_utils_maya, utils_maya.Component_utils_m
 		except Exception as error:
 			return 'Error: {}.setAttributeWindow: Invalid Object: {}'.format(__name__, obj)
 
-		fn = fn if fn else utils_maya.Node_utils_maya.setAttributesMEL
+		fn = fn if fn else self.setAttributesMEL
 
 		if attributes:
 			attributes = {k:v for k, v in attributes.items() 
@@ -178,7 +178,7 @@ class Slots_maya(Slots, utils_maya.Node_utils_maya, utils_maya.Component_utils_m
 		else:
 			attributes = self.getAttributesMEL(obj, include=include, exclude=exclude)
 
-		menu = self.objAttrWindow(obj, checkableLabel=checkableLabel, fn=fn, *fn_args, **attributes)
+		menu = self.objAttrWindow(obj, checkableLabel=checkableLabel, fn=fn, fn_args=fn_args, **attributes)
 
 		if checkableLabel:
 			for c in menu.childWidgets:

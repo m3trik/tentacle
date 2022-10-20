@@ -5,13 +5,17 @@ import sys, os
 
 try:
 	import numpy as np
-
+except ImportError as error:
+	print ('# Error:', __file__, error, '#')
+try:
 	from PIL import Image
 	from PIL.ImageChops import invert
 except ImportError as error:
-	print (__file__, error)
-
-from PySide2 import QtWidgets
+	print ('# Error:', __file__, error, '#')
+try:
+	from PySide2 import QtWidgets
+except ImportError as error:
+	print ('# Error:', __file__, error, '#')
 
 import utils
 
@@ -26,19 +30,20 @@ class Img_utils():
 	mapTypes = { #Get map type from filename suffix.
 			'Base_Color':('Base_Color', 'BaseColor', '_BC'),
 			'Roughness':('Roughness', 'Rough', '_R'),
-			'Metallic':('Metallic', 'Metal', '_M', 'Metalness'),
+			'Metallic':('Metallic', 'Metal', 'Metalness', '_M'),
 			'Ambient_Occlusion':('Mixed_AO', 'AmbientOcclusion', 'Ambient_Occlusion', '_AO'),
 			'Normal':('Normal', 'Norm', '_N'),
 			'Normal_DirectX':('Normal_DirectX', 'NormalDirectX', 'NormalDX', '_NDX'),
 			'Normal_OpenGL':('Normal_OpenGL', 'NormalOpenGL', 'NormalGL', '_NGL'),
-			'Height':('Height', '_H', 'High'),
+			'Height':('Height', 'High', '_H'),
 			'Emissive':('Emissive', 'Emit', '_E'),
-			'Diffuse':('Diffuse', '_DF', '_D', 'Diff', 'Dif'),
-			'Specular':('Specular', '_S', 'Spec'),
+			'Diffuse':('Diffuse', '_DF', 'Diff', 'Dif', '_D'),
+			'Specular':('Specular', 'Spec', '_S'),
 			'Glossiness':('Glossiness', 'Gloss', 'Glos', 'Glo', '_G'),
 			'Displacement':('Displacement', '_DP', 'Displace', 'Disp', 'Dis', '_D'),
-			'Refraction':('_IOR', 'Refraction', 'IndexofRefraction'),
+			'Refraction':('Refraction', 'IndexofRefraction', '_IOR'),
 			'Reflection':('Reflection', '_RF'),
+			'Opacity':('Opacity', 'Transparancy', 'Alpha', 'Alpha_Mask', '_O'),
 	}
 
 	mapBackgrounds = { #Get default map backgrounds in RGBA format from map type.
@@ -124,8 +129,8 @@ class Img_utils():
 		return files
 
 
-	@staticmethod
-	def getImages(image_dir, image_types=['png', 'jpg', 'bmp', 'tga', 'tiff', 'gif']):
+	@classmethod
+	def getImages(cls, image_dir, image_types=['png', 'jpg', 'bmp', 'tga', 'tiff', 'gif']):
 		'''Get bitmap images from a given directory as PIL images.
 
 		:Parameters:
@@ -138,36 +143,17 @@ class Img_utils():
 		exts = ['.'+e for e in image_types]
 
 		images={}
-		for f in self.getDirectoryContents(image_dir, returnType='filePaths'):
+		for f in cls.getDirectoryContents(image_dir, 'filePaths'):
 
 			if any(map(f.endswith, exts)):
-				fullpath = self.formatFilepath(f)
-				filename = self.formatFilepath(f, 'file')
+				fullpath = cls.formatFilepath(f)
+				filename = cls.formatFilepath(f, 'file')
 				filename = min(map(filename.rstrip, exts), key=len)
 
 				im = Image.open(fullpath)
 				images[fullpath] = im
 
 		return images
-
-
-	@staticmethod
-	def invertChannels(image, channels='RGB'):
-		'''
-		'''
-		im = Image.open(image) if (isinstance(image, str)) else image
-		alpha = None
-
-		try:
-			r, g, b = im.split()
-		except ValueError as error:
-			r, g, b, a = im.split()
-
-		r = invert(r) if 'r' in channels.lower() else r
-		g = invert(g) if 'g' in channels.lower() else g
-		b = invert(b) if 'b' in channels.lower() else b
-
-		return Image.merge('RGB', (r, g, b))# if alpha else Image.merge('RGB', (red, green, blue))
 
 
 	@staticmethod
@@ -302,7 +288,7 @@ class Img_utils():
 
 		except ValueError as error: #convert from 'RGB'
 			
-			# data = self.convert_rgb_to_gray(data)
+			# data = cls.convert_rgb_to_gray(data)
 
 			# im32 = data.astype(np.int32)
 			# return Image.fromarray(im32, mode='I')
@@ -327,6 +313,16 @@ class Img_utils():
 
 		data = np.asarray(data, np.uint8) #np.uint8(data / 256)
 		return Image.fromarray(data)
+
+
+	@staticmethod
+	def all_pixels_identical(img):
+		'''Check if all pixels of an image are of the same pixel value.
+		As soon as any value is different from the first one; return False, else; True.
+		'''
+		bits = img.constBits()
+		a = bits[0]
+		return all(a==b for b in bits)
 
 
 	@staticmethod
@@ -379,36 +375,17 @@ class Img_utils():
 
 
 	@classmethod
-	def isNormalMap(cls, type_):
-		'''Check the map type for one of the normal values in mapTypes.
-		'''
-		return any((type_ in cls.mapTypes['Normal_DirectX'], 
-				type_ in cls.mapTypes['Normal_OpenGL'], 
-				type_ in cls.mapTypes['Normal']))
-
-
-	@staticmethod
-	def all_pixels_identical(img):
-		'''Check if all pixels of an image are of the same pixel value.
-		As soon as any value is different from the first one; return False, else; True.
-		'''
-		bits = img.constBits()
-		a = bits[0]
-		return all(a==b for b in bits)
-
-
-	@classmethod
-	def getImageType(cls, filename, key=True):
+	def getImageType(cls, file, key=True):
 		'''
 		:Parameters:
-			filename (str) = Filename, filepath, or map type suffix.
+			file (str) = Image filename, fullpath, or map type suffix.
 			key (bool) = Get the corresponding key from the type in 'mapTypes'. 
 				ie. Base_Color from <filename>_BC or BC. else: _BC from <filename>_BC.
 
 		:Return:
 			(str)
 		'''
-		name = cls.formatFilepath(filename, 'name')
+		name = cls.formatFilepath(file, 'name')
 
 		if key:
 			return next((k for k, v in cls.mapTypes.items() for i in v if name.lower().endswith(i.lower())), None)
@@ -417,26 +394,163 @@ class Img_utils():
 
 
 	@classmethod
-	def sortImagesByTag(cls, files):
+	def filterImagesByType(cls, files, typ=''):
 		'''
 		:Parameters:
-			
+			files (list) = A list of image filenames, fullpaths, or map type suffixes.
+			typ (str)(list) = Any of the keys in the 'map_types' dict.
+				ex. 'Base_Color','Roughness','Metallic','Ambient_Occlusion','Normal',
+					'Normal_DirectX','Normal_OpenGL','Height','Emissive','Diffuse','Specular',
+					'Glossiness','Displacement','Refraction','Reflection'
+
+		:Return:
+			(dict)
+		'''
+		types = utils.Iter_utils.makeList(typ)
+		return [f for f in files if cls.getImageType(f) in types]
+
+
+	@classmethod
+	def sortImagesByType(cls, files):
+		'''Sort images files by map type.
+		:Parameters:
+			files (list) = A list of image filenames, fullpaths, or map type suffixes.
 
 		:Return:
 			(dict)
 		'''
 		sorted_images={}
 		for file, image in files.items():
-			type_ = cls.getImageType(file)
-			if not type_:
+			typ = cls.getImageType(file)
+			if not typ:
 				continue
 
 			try:
-				sorted_images[type_].append((file, image))
+				sorted_images[typ].append((file, image))
 			except KeyError as error:
-				sorted_images[type_] = [(file, image)]
+				sorted_images[typ] = [(file, image)]
 
 		return sorted_images
+
+
+	@classmethod
+	def containsMapTypes(cls, files, map_types):
+		'''Check if the given images contain the given map types.
+
+		:Parameters:
+			files (list)(dict) = A list of image filenames, fullpaths, or map type suffixes.
+					Also can take a dictionary in the form of: {typ: (file, image)}
+			map_types (str)(list) = The map type(s) to query.
+
+		:Return:
+			(bool)
+		'''
+		if isinstance(files, list):
+			files = cls.sortImagesByType(files) #convert list to dict of the correct format.
+
+		result = next((True for i in files.keys() 
+			if Img_utils.getImageType(i) in utils.Iter_utils.makeList(map_types)), False)
+
+		return True if result else False
+
+
+	@classmethod
+	def isNormalMap(cls, file):
+		'''Check the map type for one of the normal values in mapTypes.
+
+		:Parameters:
+			file (str) = Image filename, fullpath, or map type suffix.
+
+		:Return:
+			(bool)
+		'''
+		typ = cls.getImageType(file)
+		return any((typ in cls.mapTypes['Normal_DirectX'], 
+				typ in cls.mapTypes['Normal_OpenGL'], 
+				typ in cls.mapTypes['Normal']))
+
+
+	@staticmethod
+	def invertChannels(image, channels='RGB'):
+		'''
+		'''
+		im = Image.open(image) if (isinstance(image, str)) else image
+		alpha = None
+
+		try:
+			r, g, b = im.split()
+		except ValueError as error:
+			r, g, b, a = im.split()
+
+		r = invert(r) if 'r' in channels.lower() else r
+		g = invert(g) if 'g' in channels.lower() else g
+		b = invert(b) if 'b' in channels.lower() else b
+
+		return Image.merge('RGB', (r, g, b))# if alpha else Image.merge('RGB', (red, green, blue))
+
+
+	@classmethod
+	def createDXFromGL(cls, file):
+		'''Create and save an OpenGL map using a given DirectX image.
+		The new map will be saved next to the existing map.
+
+		:Parameters:
+			file (str) = The fullpath to a DirectX normal map file.
+
+		:Return:
+			(str) filepath of the new image.
+		'''
+		inverted_image = cls.invertChannels(file, 'g')
+
+		output_dir = cls.formatFilepath(file, 'path')
+		name = cls.formatFilepath(file, 'name')
+		ext = cls.formatFilepath(file, 'ext')
+
+		typ = cls.getImageType(file, key=False)
+		try:
+			index = cls.mapTypes['Normal_OpenGL'].index(typ)
+			new_type = cls.mapTypes['Normal_DirectX'][index]
+		except IndexError as error:
+			print ('# Error: convertDXToGL:', __file__, error, '#')
+			new_type = 'Normal_DirectX'
+
+		name = name.rstrip(typ)
+		filepath = '{}/{}_{}.{}'.format(output_dir, name, new_type, ext)
+		inverted_image.save(filepath)
+
+		return filepath
+
+
+	@classmethod
+	def createGLFromDX(cls, file):
+		'''Create and save an DirectX map using a given OpenGL image.
+		The new map will be saved next to the existing map.
+
+		:Parameters:
+			file (str) = The fullpath to a OpenGL normal map file.
+
+		:Return:
+			(str) filepath of the new image.
+		'''
+		inverted_image = cls.invertChannels(file, 'g')
+
+		output_dir = cls.formatFilepath(file, 'path')
+		name = cls.formatFilepath(file, 'name')
+		ext = cls.formatFilepath(file, 'ext')
+
+		typ = cls.getImageType(file, key=False)
+		try:
+			index = cls.mapTypes['Normal_DirectX'].index(typ)
+			new_type = cls.mapTypes['Normal_OpenGL'][index]
+		except IndexError as error:
+			print ('# Error: createGLFromDX:', __file__, error, '#')
+			new_type = 'Normal_OpenGL'
+
+		name = name.rstrip(typ)
+		filepath = '{}/{}_{}.{}'.format(output_dir, name, new_type, ext)
+		inverted_image.save(filepath)
+
+		return filepath
 
 
 	@staticmethod
@@ -487,7 +601,7 @@ if __name__=='__main__':
 # Deprecated ---------------------
 
 
-# def getBitDepth(self, image):
+# def getBitDepth(cls, image):
 # 		'''
 # 		'''
 # 		im = Image.open(image) if (isinstance(image, str)) else image
@@ -514,7 +628,7 @@ if __name__=='__main__':
 		# return im.convert(mode)
 
 
-	# def isolateColor(self, image, color):
+	# def isolateColor(cls, image, color):
 	# 	'''Return an image with only pixels of the given color retained.
 	# 	'''
 	# 	im = Image.open(image) if (isinstance(image, str)) else image
@@ -526,45 +640,45 @@ if __name__=='__main__':
 	# 	return Image.fromarray(array.astype('uint8')) #Image.fromarray(converted.astype('uint8'))
 
 
-	# def createMask(self, image, mask):
+	# def createMask(cls, image, mask):
 	# 	'''
 	# 	'''
 	# 	im = Image.open(image) if (isinstance(image, str)) else image
 
-	# 	im = self.replaceColor(im, from_color=mask, to_color=(0, 177, 64, 255))
+	# 	im = cls.replaceColor(im, from_color=mask, to_color=(0, 177, 64, 255))
 
-	# 	# background = self.createImage(mode='RGBA', size=im.size, rgba=(0, 177, 64, 255))
+	# 	# background = cls.createImage(mode='RGBA', size=im.size, rgba=(0, 177, 64, 255))
 	# 	# im = Image.alpha_composite(background, im) #(background, foreground)
 
-	# 	# im = self.isolateColor(im, (0, 177, 64))
-	# 	# im = self.replaceColor(im, from_color=(0, 177, 64), to_color=(255, 255, 255, 255), background_color=(0, 0, 0, 255))
-	# 	# im = self.setContrast(im, 255)
+	# 	# im = cls.isolateColor(im, (0, 177, 64))
+	# 	# im = cls.replaceColor(im, from_color=(0, 177, 64), to_color=(255, 255, 255, 255), background_color=(0, 0, 0, 255))
+	# 	# im = cls.setContrast(im, 255)
 	# 	return im
 
 
 
-	# def convertDXToGL(self):
+	# def convertDXToGL(cls):
 	# 	'''
 	# 	'''
-	# 	files = self.getImageFiles()
+	# 	files = cls.getImageFiles()
 	# 	for file, image in files.items():
-	# 		inverted_image = self.invertChannels(image, 'g')
-	# 		# name = self.formatFilePath(file, remove='_DirectX', append='_OpenGL')
-	# 		# self.saveImageFile(inverted_image, name)
+	# 		inverted_image = cls.invertChannels(image, 'g')
+	# 		# name = cls.formatFilePath(file, remove='_DirectX', append='_OpenGL')
+	# 		# cls.saveImageFile(inverted_image, name)
 
 
-	# def convertGLToDX(self):
+	# def convertGLToDX(cls):
 	# 	'''
 	# 	'''
-	# 	files = self.getImageFiles()
+	# 	files = cls.getImageFiles()
 	# 	for file, image in files.items():
-	# 		inverted_image = self.invertChannels(image, 'g')
-	# 		# name = self.formatFilePath(file, remove='_OpenGL', append='_DirectX')
-	# 		# self.saveImageFile(inverted_image, name)
+	# 		inverted_image = cls.invertChannels(image, 'g')
+	# 		# name = cls.formatFilePath(file, remove='_OpenGL', append='_DirectX')
+	# 		# cls.saveImageFile(inverted_image, name)
 
 
 
-	# def changeColorDepth(self, image, depth):
+	# def changeColorDepth(cls, image, depth):
 	# 	'''
 	# 	'''
 		# return image.convert(image.mode, colors=depth)
