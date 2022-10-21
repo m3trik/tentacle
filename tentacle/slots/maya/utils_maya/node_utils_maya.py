@@ -5,6 +5,8 @@ try:
 except ImportError as error:
 	print (__file__, error)
 
+import utils
+
 
 
 class Node_utils_maya():
@@ -351,7 +353,7 @@ class Node_utils_maya():
 		return node
 
 
-	def getFirstIncomingNodeOfType(node, typ, exact=True):
+	def getIncomingNodeByType(node, typ, exact=True):
 		'''Get the first connected node of the given type with an incoming connection to the given node.
 
 		:Parameters:
@@ -362,14 +364,14 @@ class Node_utils_maya():
 		:Return:
 			(obj)(None) node if found.
 
-		ex. call: srSG_node = getFirstOutgoingNodeOfType(sr_node, 'shadingEngine')
+		ex. call: env_file_node = getIncomingNodeByType(env_node, 'file') #get the incoming file node.
 		'''
-		node = next(iter(pm.listConnections(node, type=typ, source=True, exactType=exact)), None)
-		return pm.PyNode(node) if node else node
+		nodes = pm.listConnections(node, type=typ, source=True, exactType=exact)
+		return utils.Iter_utils.formatReturn([pm.PyNode(n) for n in nodes])
 
 
-	def getFirstOutgoingNodeOfType(node, typ, exact=True):
-		'''Get the first connected node of the given type with an outgoing connection to the given node.
+	def getOutgoingNodeByType(node, typ, exact=True):
+		'''Get the connected node of the given type with an outgoing connection to the given node.
 
 		:Parameters:
 			node (str)(obj) = A node with outgoing connections.
@@ -377,12 +379,12 @@ class Node_utils_maya():
 			exact (bool) = Only consider nodes of the exact type. Otherwise, derived types are also taken into account.
 
 		:Return:
-			(obj)(None) node if found.
+			(list)(obj)(None) node(s)
 
-		ex. call: env_file_node = getFirstIncomingNodeOfType(env_node, 'file')
+		ex. call: srSG_node = getOutgoingNodeByType(sr_node, 'shadingEngine') #get the outgoing shadingEngine node.
 		'''
-		node = next(iter(pm.listConnections(node, type=typ, destination=True, exactType=exact)), None)
-		return pm.PyNode(node) if node else node
+		nodes = pm.listConnections(node, type=typ, destination=True, exactType=exact)
+		return utils.Iter_utils.formatReturn([pm.PyNode(n) for n in nodes])
 
 
 	def connectMultiAttr(*args, force=True):

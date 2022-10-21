@@ -86,7 +86,7 @@ class File_utils():
 
 	@staticmethod
 	def getFileContents(file):
-		'''Get each line of a file as indices of a list.
+		'''Get each line of a text file as indices of a list.
 
 		:Parameters:
 			file (str) = A path to a text based file.
@@ -136,9 +136,8 @@ class File_utils():
 
 		:Parameters:
 			path (str) = The path to the directory.
-			rtn (str) = Return files, directories, files with full path, dirs with full path. 
-				multiple types can be given, separated by '|' ex. 'files | dirs'
-				(valid: 'files'(default), 'filePaths', 'dirs', 'dirPaths')
+			rtn (str) = Return files and directories. Multiple types can be given using '|' 
+				ex. 'files|dirs' (valid: 'files'(default), 'filePaths', 'dirs', 'dirPaths')
 			recursive (bool) = return the contents of the root dir only.
 			exclude (list) = Excluded child directories or files.
 			topDown (bool) = Scan directories from the top-down, or bottom-up.

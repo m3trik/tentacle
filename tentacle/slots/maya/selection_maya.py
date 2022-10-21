@@ -4,6 +4,7 @@ from slots.maya import *
 from slots.selection import Selection
 
 
+
 class Selection_maya(Selection, Slots_maya):
 	def __init__(self, *args, **kwargs):
 		super().__init__(*args, **kwargs)

@@ -96,9 +96,6 @@ class Switchboard(QUiLoader, StyleSheet, utils.Str_utils, utils.File_utils, util
 	_wgtHistory = []
 
 	app = QtWidgets.QApplication.instance()
-	if not app:
-		app = QtWidgets.QApplication(sys.argv)
-
 
 	def __init__(self, parent=None, uiLoc='', widgetLoc='', slotLoc='', preloadUi=False):
 		QUiLoader.__init__(self, parent)
@@ -1081,11 +1078,13 @@ class Switchboard(QUiLoader, StyleSheet, utils.Str_utils, utils.File_utils, util
 			# print ('           >:', w.name, w.method)
 			if w.method and w.signals:
 				for s in w.signals:
+					if not s:
+						continue
 					try:
 						if isinstance(w.method, (list, set, tuple)):
 							map(s.connect, w.method) #connect to multiple slots from a list.
 						else:
-							s.connect(w.method) #connect single slot (main and cameras ui)
+							s.connect(w.method) #connect single slot (ex. main and cameras ui)
 
 						s.connect(lambda *args, w=w: self._wgtHistory.append(w)) #add the widget to the widget history list on connect. (*args prevents 'w' from being overwritten by the parameter emitted by the signal.)
 
@@ -1111,6 +1110,8 @@ class Switchboard(QUiLoader, StyleSheet, utils.Str_utils, utils.File_utils, util
 			# print ('           >:', w.name, w.method)
 			if w.method and w.signals:
 				for s in w.signals:
+					if not s:
+						continue
 					try:
 						if isinstance(w.method, (list, set, tuple)):
 							s.disconnect() #disconnect all #map(signal.disconnect, slot) #disconnect multiple slots from a list.
@@ -1651,6 +1652,10 @@ class Switchboard(QUiLoader, StyleSheet, utils.Str_utils, utils.File_utils, util
 
 if __name__=='__main__':
 
+	app = QtWidgets.QApplication.instance()
+	if not app:
+		app = QtWidgets.QApplication(sys.argv)
+
 	sb = Switchboard(uiLoc='ui', widgetLoc='ui/widgets', slotLoc='slots') #set relative paths.
 	# sb.loadAllUi()
 	ui = sb.polygons #or sb.getUi('polygons')
@@ -1667,7 +1672,7 @@ if __name__=='__main__':
 	print ('widget from method:', sb.getWidgetFromMethod(ui.tb000.method))
 
 
-	sys.exit(sb.app.exec_())
+	sys.exit(app.exec_())
 
 
 

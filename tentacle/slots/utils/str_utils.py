@@ -115,6 +115,30 @@ class Str_utils():
 		return new.join(string.rsplit(old, count))
 
 
+	@staticmethod
+	def truncate(string, length=75, beginning=True, insert='..'):
+		'''Shorten the given string to the given length.
+		An ellipsis will be added to the section trimmed.
+
+		:Parameters:
+			length (int) = The maximum allowed length before trunicating.
+			beginning (bool) = Trim starting chars, else; ending.
+			insert (str) = Chars to add at the trimmed area. (default: ellipsis)
+
+		:Return:
+			(str)
+
+		ex. call: truncate('12345678', 4)
+			returns: '..5678'
+		'''
+		if len(string)>length:
+			if beginning: #trim starting chars.
+				string = insert+string[-length:]
+			else: #trim ending chars.
+				string = string[:length]+insert
+		return string
+
+
 
 
 

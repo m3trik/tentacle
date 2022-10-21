@@ -34,6 +34,7 @@ class ComboBox(QtWidgets.QComboBox, MenuInstance, Attributes, RichText, TextOver
 	@property
 	def items(self):
 		'''Get a list of each items's text or it's data if it exists from the standard model/view.
+
 		:Return:
 			(list)
 		'''
@@ -77,9 +78,6 @@ class ComboBox(QtWidgets.QComboBox, MenuInstance, Attributes, RichText, TextOver
 		if clear:
 			self.clear()
 
-		if header:
-			self.insertItem(-1, header)
-
 		if isinstance(items, str):
 			items = [items]
 		if isinstance(items, (list, tuple, set)):
@@ -92,17 +90,42 @@ class ComboBox(QtWidgets.QComboBox, MenuInstance, Attributes, RichText, TextOver
 				else:
 					self.addItem(item, data)
 
+		if header:
+			self.insertItem(-1, header)
+
 		self.setCurrentIndex(index)
 
 		return items
 
 
 	@blockSignals_
+	def currentData(self):
+		'''Get the data at the current index.
+
+		:Return:
+			() data
+		'''
+		index = self.currentIndex()
+		return self.itemData(index)
+
+
+	@blockSignals_
+	def setCurrentData(self, value):
+		'''Sets the data for the current index.
+
+		:Parameters:
+			value () = The current item's data value.
+		'''
+		index = self.currentIndex()
+		self.setItemData(index, value)
+
+
+	@blockSignals_
 	def currentText(self):
 		'''Get the text at the current index.
 
-		:Parameters:
-			item (str) = item text.
+		:Return:
+			(str)
 		'''
 		index = self.currentIndex()
 		return self.richText(index)
@@ -113,7 +136,7 @@ class ComboBox(QtWidgets.QComboBox, MenuInstance, Attributes, RichText, TextOver
 		'''Sets the text for the current index.
 
 		:Parameters:
-			item (str) = item text.
+			item (str) = The current item's text value.
 		'''
 		index = self.currentIndex()
 		self.setRichText(text, index)
@@ -140,10 +163,12 @@ class ComboBox(QtWidgets.QComboBox, MenuInstance, Attributes, RichText, TextOver
 		'''
 		try: #set by item index:
 			self.setCurrentIndex(self.items.index(i))
-
 		except Exception as error: #set by item text:
-			print ('{}.setCurrentItem({}): {}'.format(__name__, i, error))
-			self.setCurrentText(i)
+			try:
+				self.setCurrentText(i)
+			except Exception as error:
+				if i:
+					print ('{}: setCurrentItem: {}'.format(__file__, error))
 
 
 	def showPopup(self):
