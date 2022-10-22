@@ -34,7 +34,10 @@ class Iter_utils():
 		:Return:
 			(obj)(list)(None)
 		'''
-		return lst[0] if len(lst)==1 else lst if lst else None
+		try:
+			return lst[0] if len(lst)==1 else lst if lst else None
+		except Exception as e:
+			return lst
 
 
 	@classmethod

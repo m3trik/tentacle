@@ -7,6 +7,7 @@ class RichText(object):
 	'''Rich text support for widgets.
 	Text with rich text formatting will be set as rich text, otherwise it will be handled as usual.
 
+	ex. <font style="color: rgb(80,180,100)">Operation successful.</font>
 	ex. <hl style="color:red;">Error:</hl>
 	ex. '<p style="color:white;">'
 	ex. '<b style="font-weight: bold;">'

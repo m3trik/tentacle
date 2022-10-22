@@ -8,6 +8,7 @@ try: import shiboken2
 except: from PySide2 import shiboken2
 
 from tcl import Tcl
+from utils_maya import Utils_maya
 
 
 
@@ -22,28 +23,13 @@ class Tcl_maya(Tcl):
 		'''
 		if not parent:
 			try:
-				parent = self.getMainWindow()
+				parent = Utils_maya.getMainWindow()
 
 			except Exception as error:
 				print(__file__, error)
 
 		super().__init__(parent, slotLoc=slotLoc, *args, **kwargs)
 		setattr(QtWidgets.QApplication.instance(), 'mainAppWindow', parent)
-
-
-	@classmethod
-	def getMainWindow(cls):
-		'''Get maya's main window object.
-
-		:Return:
-			(QWidget)
-		'''
-		# ptr = OpenMayaUI.MQtUtil.mainWindow()
-		# main_window = shiboken2.wrapInstance(long(ptr), QtWidgets.QWidget)
-
-		main_window = next(w for w in cls.app.topLevelWidgets() if w.objectName()=='MayaWindow')
-
-		return main_window
 
 
 	def keyPressEvent(self, event):

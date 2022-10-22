@@ -1,0 +1,157 @@
+{
+ "version": "auto-py-to-exe-configuration_v1",
+ "pyinstallerOptions": [
+  {
+   "optionDest": "noconfirm",
+   "value": true
+  },
+  {
+   "optionDest": "filenames",
+   "value": "O:/Cloud/Code/Python/_scripts/map_compositor.py"
+  },
+  {
+   "optionDest": "onefile",
+   "value": true
+  },
+  {
+   "optionDest": "console",
+   "value": false
+  },
+  {
+   "optionDest": "icon_file",
+   "value": "O:/Cloud/Windows/shortcuts/icons/prodigy_ant3.ico"
+  },
+  {
+   "optionDest": "ascii",
+   "value": false
+  },
+  {
+   "optionDest": "clean_build",
+   "value": true
+  },
+  {
+   "optionDest": "strip",
+   "value": false
+  },
+  {
+   "optionDest": "noupx",
+   "value": false
+  },
+  {
+   "optionDest": "disable_windowed_traceback",
+   "value": false
+  },
+  {
+   "optionDest": "embed_manifest",
+   "value": true
+  },
+  {
+   "optionDest": "uac_admin",
+   "value": false
+  },
+  {
+   "optionDest": "uac_uiaccess",
+   "value": false
+  },
+  {
+   "optionDest": "win_private_assemblies",
+   "value": false
+  },
+  {
+   "optionDest": "win_no_prefer_redirects",
+   "value": false
+  },
+  {
+   "optionDest": "bootloader_ignore_signals",
+   "value": false
+  },
+  {
+   "optionDest": "argv_emulation",
+   "value": false
+  },
+  {
+   "optionDest": "datas",
+   "value": "O:/Cloud/Code/Python/_scripts/map_compositor.ui;."
+  },
+  {
+   "optionDest": "datas",
+   "value": "O:/Cloud/Code/Python/_scripts/map_compositor.json;."
+  },
+  {
+   "optionDest": "datas",
+   "value": "O:/Cloud/Code/_scripts/tentacle/tentacle/slots/utils/file_utils.py;."
+  },
+  {
+   "optionDest": "datas",
+   "value": "O:/Cloud/Code/_scripts/tentacle/tentacle/slots/utils/img_utils.py;."
+  },
+  {
+   "optionDest": "datas",
+   "value": "O:/Cloud/Code/_scripts/tentacle/tentacle/slots/utils/iter_utils.py;."
+  },
+  {
+   "optionDest": "datas",
+   "value": "O:/Cloud/Code/_scripts/tentacle/tentacle/slots/utils/str_utils.py;."
+  },
+  {
+   "optionDest": "datas",
+   "value": "O:/Cloud/Code/_scripts/tentacle/tentacle/switchboard.py;."
+  },
+  {
+   "optionDest": "hiddenimports",
+   "value": "switchboard"
+  },
+  {
+   "optionDest": "pathex",
+   "value": "C:\\Users\\m3tri\\AppData\\Local\\Programs\\Python\\Python310\\Lib\\site-packages\\PySide2"
+  },
+  {
+   "optionDest": "hiddenimports",
+   "value": "QtUiTools.QUiLoader"
+  },
+  {
+   "optionDest": "pathex",
+   "value": "O:/Cloud/Code/_scripts/tentacle/tentacle/slots/utils"
+  },
+  {
+   "optionDest": "pathex",
+   "value": "O:/Cloud/Code/_scripts/tentacle/tentacle"
+  },
+  {
+   "optionDest": "pathex",
+   "value": "O:/Cloud/Code/_scripts/tentacle/tentacle/ui/widgets"
+  },
+  {
+   "optionDest": "pathex",
+   "value": "O:/Cloud/Code/Python/_scripts"
+  },
+  {
+   "optionDest": "pathex",
+   "value": "O:/Cloud/Code/_scripts/tentacle/tentacle/ui"
+  },
+  {
+   "optionDest": "datas",
+   "value": "O:/Cloud/Code/_scripts/tentacle/tentacle/ui/styleSheet.py;."
+  },
+  {
+   "optionDest": "datas",
+   "value": "O:/Cloud/Code/_scripts/tentacle/tentacle/ui/widgets;widgets/"
+  },
+  {
+   "optionDest": "datas",
+   "value": "O:/Cloud/Code/_scripts/tentacle/tentacle/slots/utils;utils/"
+  },
+  {
+   "optionDest": "hiddenimports",
+   "value": "ui.styleSheet"
+  },
+  {
+   "optionDest": "hiddenimports",
+   "value": "PySide2.QtUiTools"
+  }
+ ],
+ "nonPyinstallerOptions": {
+  "increaseRecursionLimit": false,
+  "manualArguments": ""
+ }
+}

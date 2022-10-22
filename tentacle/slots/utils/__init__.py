@@ -44,6 +44,48 @@ def import_modules(importAll=False):
 import_modules(importAll=0)
 
 
+
+class Utils(File_utils, Img_utils, Iter_utils, Math_utils, Str_utils):
+	'''
+	'''
+	@staticmethod
+	def getAttributes(obj, include=[], exclude=[]):
+		'''Get attributes for a given object.
+
+		:Parameters:
+			obj (obj) = The object to get the attributes of.
+			include (list) = Attributes to include. All other will be omitted. Exclude takes dominance over include. Meaning, if the same attribute is in both lists, it will be excluded.
+			exclude (list) = Attributes to exclude from the returned dictionay. ie. [u'Position',u'Rotation',u'Scale',u'renderable',u'isHidden',u'isFrozen',u'selected']
+
+		:Return:
+			(dict) {'string attribute': current value}
+		'''
+		return {attr:getattr(obj, attr) 
+					for attr in obj.__dict__ 
+						if not attr in exclude 
+						and (attr in include if include else attr not in include)}
+
+
+	@staticmethod
+	def setAttributes(obj, attributes):
+		'''Set attributes for a given object.
+
+		:Parameters:
+			obj (obj) = The object to set attributes for.
+			attributes = dictionary {'string attribute': value} - attributes and their correponding value to set
+		'''
+		[setattr(obj, attr, value) 
+			for attr, value in attributes.items() 
+				if attr and value]
+
+
+
+
+
+
+
+
+
 # print (__package__, __file__)
 # -----------------------------------------------
 # Notes

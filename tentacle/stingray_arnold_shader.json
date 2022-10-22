@@ -1,1 +1,1 @@
-{"hdr_map": {"old_bus_depot_4k.exr": "O:\\Cloud\\Code\\MEL\\_scripts\\_development\\stingray_arnold_shader_network/resources/hdr\\old_bus_depot_4k.exr"}, "mat_name": "C130_FCS_REMOVAL_RUDDER_MAT"}
+{"hdr_map": "industrial_pipe_and_valve_01_4k", "mat_name": "C130_FCS_REMOVAL_RUDDER_MAT", "normal_map_type": "OpenGL", "hdr_map_visibility": false}

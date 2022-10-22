@@ -131,7 +131,7 @@ class File_utils():
 
 
 	@staticmethod
-	def getDirectoryContents(path, rtn='files', exclude=[], recursive=False, topdown=True):
+	def getDirectoryContents(path, rtn='files', exclude=[], filetypes=[], recursive=False, topdown=True, stripExtension=False):
 		'''Get the contents of a directory and any of it's children.
 
 		:Parameters:
@@ -140,6 +140,8 @@ class File_utils():
 				ex. 'files|dirs' (valid: 'files'(default), 'filePaths', 'dirs', 'dirPaths')
 			recursive (bool) = return the contents of the root dir only.
 			exclude (list) = Excluded child directories or files.
+			filetypes (list) = When given, only files matching extensions of those given will be returned.
+			stripExtension (bool) = Return filenames without their extension.
 			topDown (bool) = Scan directories from the top-down, or bottom-up.
 
 		:Return:
@@ -167,7 +169,9 @@ class File_utils():
 				elif 'dirPath' in types:
 					[os.path.join(root, d) for d in dirs]
 
-			files[:] = [f for f in files if f not in exclude] #remove any files in 'exclude'.
+			files[:] = [f.rstrip('.'+utils.File_utils.formatFilepath(f, 'ext')) if stripExtension else f 
+						for f in files 
+							if f not in exclude and (utils.File_utils.formatFilepath(f, 'ext') in utils.Iter_utils.makeList(filetypes) if filetypes else True)] #remove any files in 'exclude', or not matching a given filetype.
 			if 'file' in types:
 				[result.append(f) for f in files]
 			elif 'filePath' in types:
@@ -266,4 +270,4 @@ if __name__=='__main__':
 
 
 
-# Deprecated -----------------------------------------------
+# Deprecated ---------------------

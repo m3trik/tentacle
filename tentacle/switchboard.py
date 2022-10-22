@@ -87,6 +87,7 @@ class Switchboard(QUiLoader, StyleSheet, utils.Str_utils, utils.File_utils, util
 		'QRadioButton':'released',
 		'QLineEdit':['editingFinished'],
 		'QTextEdit':'textChanged',
+		'QSlider':'sliderMoved',
 		'QProgressBar':'valueChanged',
 	}
 

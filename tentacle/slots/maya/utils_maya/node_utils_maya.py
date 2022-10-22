@@ -346,6 +346,7 @@ class Node_utils_maya():
 		if name:
 			try:
 				pm.rename(node, name)
+				# pm.rename(cls.getTransformNode(node), name)
 			except RuntimeError as error:
 				print ('# Error:', __file__, error, '#')
 

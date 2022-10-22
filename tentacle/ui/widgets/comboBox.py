@@ -156,7 +156,7 @@ class ComboBox(QtWidgets.QComboBox, MenuInstance, Attributes, RichText, TextOver
 
 	@blockSignals_
 	def setCurrentItem(self, i):
-		'''Sets the current item from the given item text, or index without triggering any signals.
+		'''Sets the current item from the given item text or index without triggering any signals.
 
 		:Parameters:
 			i (str)(int) = item text or item index
