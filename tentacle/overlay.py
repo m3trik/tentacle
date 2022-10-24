@@ -146,16 +146,22 @@ class Overlay(QtWidgets.QWidget, OverlayFactoryFilter):
 		self.painter.end()
 
 
-	def drawTangent(self, start_point, end_point):
-		'''draw a segment between two points with the given self.painter.
+	def drawTangent(self, start_point, end_point, color=(115, 115, 115), background=(127, 127, 127, 0), ellipseSize=7):
+		'''Draw a segment between two points.
 		'''
 		path = QtGui.QPainterPath()
-		path.addEllipse(QtCore.QPointF(start_point), 7, 7)
 
-		self.painter.fillRect(self.rect(), QtGui.QColor(127, 127, 127, 0)) #transparent overlay background.
+		#create QColors from the given arguments.
+		color = QtGui.QColor(*color)
+		bgColor = QtGui.QColor(*background)
+		#add ellipse if size is above 0.
+		if ellipseSize:
+			path.addEllipse(QtCore.QPointF(start_point), ellipseSize, ellipseSize)
+
+		self.painter.fillRect(self.rect(), bgColor) #transparent overlay background.
 		self.painter.setRenderHint(QtGui.QPainter.Antialiasing, self.antialiasing)
-		self.painter.setBrush(QtGui.QColor(115, 115, 115))
-		self.painter.fillPath(path, QtGui.QColor(115, 115, 115))
+		self.painter.setBrush(color)
+		self.painter.fillPath(path, color)
 		self.painter.setPen(self.blackPen)
 		self.painter.drawPath(path) #stroke
 		if not end_point.isNull():
@@ -172,7 +178,6 @@ class Overlay(QtWidgets.QWidget, OverlayFactoryFilter):
 
 		# modifiers = self.app.keyboardModifiers()
 		del self.drawPath[:]
-
 		self.update()
 
 
@@ -180,11 +185,12 @@ class Overlay(QtWidgets.QWidget, OverlayFactoryFilter):
 		'''
 		'''
 		del self.drawPath[:]
+		
 		curPos = self.mapToGlobal(event.pos())
+
 		self.drawPath.append([self.returnArea, curPos, curPos]) #maintain a list of widgets, their location, and cursor positions, as a path is plotted along the ui hierarchy.
 
-		self.mouseMovePos = event.pos()
-		self.drawEnabled = True
+		self.mouseMovePos = curPos
 		self.update()
 
 
@@ -192,16 +198,20 @@ class Overlay(QtWidgets.QWidget, OverlayFactoryFilter):
 		'''
 		'''
 		self.drawEnabled = False
-		self.painter.eraseRect(self.rect())
 		self.update()
 
 
 	def mouseMoveEvent(self, event):
 		'''
 		'''
+		self.drawEnabled = True
 		self.mouseMovePos = event.pos()
 		self.update()
 
+
+	def showEvent(self, event):
+		'''
+		'''
 
 
 

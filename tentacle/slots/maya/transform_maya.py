@@ -302,7 +302,6 @@ class Transform_maya(Transform, Slots_maya):
 			return
 
 		transform = Slots_maya.getTransformNode(node)
-
 		self.setAttributeWindow(transform[0], include=['translateX','translateY','translateZ','rotateX','rotateY','rotateZ','scaleX','scaleY','scaleZ'], checkableLabel=True)
 
 

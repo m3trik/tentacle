@@ -10,7 +10,7 @@
     <x>0</x>
     <y>0</y>
     <width>147</width>
-    <height>139</height>
+    <height>141</height>
    </rect>
   </property>
   <property name="minimumSize">
@@ -172,6 +172,37 @@
           </widget>
          </item>
          <item>
+          <widget class="PushButton" name="b002">
+           <property name="enabled">
+            <bool>true</bool>
+           </property>
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>20</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>999</width>
+             <height>20</height>
+            </size>
+           </property>
+           <property name="toolTip">
+            <string>Toggle the rotation axis pivot 90 degrees.</string>
+           </property>
+           <property name="text">
+            <string>Toggle Rotation Axis</string>
+           </property>
+           <property name="iconSize">
+            <size>
+             <width>18</width>
+             <height>18</height>
+            </size>
+           </property>
+          </widget>
+         </item>
+         <item>
           <widget class="PushButton" name="tb000">
            <property name="enabled">
             <bool>true</bool>
@@ -225,14 +256,14 @@
  </widget>
  <customwidgets>
   <customwidget>
-   <class>PushButtonDraggable</class>
-   <extends>QPushButton</extends>
-   <header>widgets.pushbuttondraggable.h</header>
-  </customwidget>
-  <customwidget>
    <class>PushButton</class>
    <extends>QPushButton</extends>
    <header>widgets.pushbutton.h</header>
+  </customwidget>
+  <customwidget>
+   <class>PushButtonDraggable</class>
+   <extends>QPushButton</extends>
+   <header>widgets.pushbuttondraggable.h</header>
   </customwidget>
  </customwidgets>
  <resources/>

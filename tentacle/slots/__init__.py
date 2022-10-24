@@ -8,7 +8,7 @@ import utils
 
 
 
-class Slots(QtCore.QObject, utils.Math_utils, utils.Iter_utils):
+class Slots(QtCore.QObject, utils.Utils):
 	'''Provides methods that can be triggered by widgets in the ui.
 	Parent to the 'Init' slot class, which is in turn, inherited by every other slot class.
 

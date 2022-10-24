@@ -162,55 +162,6 @@ class Iter_utils():
 		# return lst if trailing else lst[::-1]
 
 
-	@classmethod
-	def convertForDebugging(cls, obj):
-		'''Recursively convert items in sbDict for debugging.
-
-		:Parameters:
-			obj (dict) = The dictionary to convert.
-
-		:Return:
-			(dict)
-		'''
-		if isinstance(obj, (list, set, tuple)):
-			return [cls.convert(i) for i in obj]
-		elif isinstance(obj, dict):
-			return {cls.convert(k):cls.convert(v) for k, v in obj.items()}
-		elif not isinstance(obj, (float, int, str)):
-			return str(obj)
-		else:
-			return obj
-
-
-	global cycleDict
-	cycleDict={}
-	@staticmethod
-	def cycle(sequence, name=None, query=False):
-		'''Toggle between numbers in a given sequence.
-		Used for maintaining toggling sequences for multiple objects simultaniously.
-		Each time this function is called, it returns the next number in the sequence
-		using the name string as an identifier key.
-		
-		:Parameters:
-			sequence (list) = sequence to cycle through. ie. [1,2,3].
-			name (str) = identifier. used as a key to get the sequence value from the dict.
-			
-		ex. cycle([0,1,2,3,4], 'componentID')
-		'''
-		try:
-			if query: #return the value without changing it.
-				return cycleDict[name][-1] #get the current value ie. 0
-
-			value = cycleDict[name] #check if key exists. if so return the value. ie. value = [1,2,3]
-		
-		except KeyError: #else create sequence list for the given key
-			cycleDict[name] = [i for i in sequence] #ie. {name:[1,2,3]}
-
-		value = cycleDict[name][0] #get the current value. ie. 1
-		cycleDict[name] = cycleDict[name][1:]+[value] #move the current value to the end of the list. ie. [2,3,1]
-		return value #return current value. ie. 1
-
-
 
 
 
