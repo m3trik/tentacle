@@ -4,11 +4,10 @@ import sys, os.path
 
 from PySide2 import QtCore
 
-import utils
+from slots.utils import Utils
 
 
-
-class Slots(QtCore.QObject, utils.Utils):
+class Slots(QtCore.QObject, Utils):
 	'''Provides methods that can be triggered by widgets in the ui.
 	Parent to the 'Init' slot class, which is in turn, inherited by every other slot class.
 
@@ -102,7 +101,7 @@ class Slots(QtCore.QObject, utils.Utils):
 			string = '{}: {}'.format(messageType.capitalize(), string)
 
 		if not hasattr(self, '_messageBox'):
-			from widgets.messageBox import MessageBox
+			from ui.widgets.messageBox import MessageBox
 			self._messageBox = MessageBox(self.sb.parent().parent())
 
 		self._messageBox.location = location

@@ -5,8 +5,6 @@ import sys, os
 
 import json
 
-import utils
-
 
 
 class File_utils():
@@ -31,6 +29,7 @@ class File_utils():
 		:Return:
 			(str)
 		'''
+		from str_utils import Str_utils
 		assert isinstance(string, str), '{}: Incorrect datatype: {}'.format(__file__, type(string).__name__)
 
 		string = os.path.expandvars(string) #convert any env variables to their values.
@@ -62,7 +61,7 @@ class File_utils():
 			string = ext
 
 		if replace:
-			string = utils.Str_utils.rreplace(orig_str, string, replace, 1)
+			string = Str_utils.rreplace(orig_str, string, replace, 1)
 
 		return string #if no arg is given, the fullpath will be returned.
 
@@ -131,64 +130,81 @@ class File_utils():
 
 
 	@staticmethod
-	def getDirectoryContents(path, rtn='files', exclude=[], filetypes=[], recursive=False, topdown=True, stripExtension=False):
+	def getDirectoryContents(path, returnType='files', exclude=[], include=[], recursive=False, topdown=True, stripExtension=False):
 		'''Get the contents of a directory and any of it's children.
 
 		:Parameters:
 			path (str) = The path to the directory.
-			rtn (str) = Return files and directories. Multiple types can be given using '|' 
-				ex. 'files|dirs' (valid: 'files'(default), 'filePaths', 'dirs', 'dirPaths')
+			returnType (str) = Return files and directories. Multiple types can be given using '|' 
+						ex. 'files|dirs' (valid: 'files'(default), 'filepaths', 'dirs', 'dirpaths')
+						case insensitive. Can be singular or plural.
 			recursive (bool) = return the contents of the root dir only.
-			exclude (list) = Excluded child directories or files.
-			filetypes (list) = When given, only files matching extensions of those given will be returned.
+			exclude (str)(list) = Excluded specific child directories or files.
+						*.ext will exclude all files with the given extension.
+						exclude takes precedence over include.
+			include (str)(list) = Include specific child directories or files.
+						*.ext will include all files with the given extension.
+						exclude takes precedence over include.
 			stripExtension (bool) = Return filenames without their extension.
 			topDown (bool) = Scan directories from the top-down, or bottom-up.
 
 		:Return:
 			(list)
 
-		ex. getDirectoryContents(path, rtn='filePaths')
-		ex. getDirectoryContents(path, rtn='files|dirs')
+		ex. getDirectoryContents(path, returnType='filePaths')
+		ex. getDirectoryContents(path, returnType='files|dirs')
 		'''
+		from file_utils import File_utils
+		from iter_utils import Iter_utils
+
+		exclude = Iter_utils.makeList(exclude)
+		include = Iter_utils.makeList(include)
+
 		path = os.path.expandvars(path) #translate any system variables that might have been used in the path.
-		types = [t.strip().rstrip('s') for t in rtn.split('|')] #strip any whitespace and trailing 's' of the types to allow for singular and plural to be used interchagably. ie. files | dirs becomes [file, dir]
+		types = [t.strip().rstrip('s').lower() for t in returnType.split('|')] #strip any whitespace and trailing 's' of the types to allow for singular and plural to be used interchagably. ie. files | dirs becomes [file, dir]
 
 		result=[]
 		for root, dirs, files in os.walk(path, topdown=topdown):
 
+			dirs[:] = [d for d in dirs if not d in exclude] #remove any directories in 'exclude'.
+			if 'dir' in types:
+				for d in dirs:
+					result.append(d) #get the dir contents before filtering for root.
+			if 'dirpath' in types:
+				for d in dirs:
+					result.append(os.path.join(root, d))
 			if not recursive:
-				if 'dir' in types:
-					[result.append(d) for d in dirs] #get the dir contents before filtering for root.
-				elif 'dirPath' in types:
-					[os.path.join(root, d) for d in dirs]
 				dirs[:] = [d for d in dirs if d is root] #remove all but the root dir.
-			else:
-				dirs[:] = [d for d in dirs if not d in exclude] #remove any directories in 'exclude'.
-				if 'dir' in types:
-					[result.append(d) for d in dirs]
-				elif 'dirPath' in types:
-					[os.path.join(root, d) for d in dirs]
 
-			files[:] = [f.rstrip('.'+utils.File_utils.formatFilepath(f, 'ext')) if stripExtension else f 
-						for f in files 
-							if f not in exclude and (utils.File_utils.formatFilepath(f, 'ext') in utils.Iter_utils.makeList(filetypes) if filetypes else True)] #remove any files in 'exclude', or not matching a given filetype.
-			if 'file' in types:
-				[result.append(f) for f in files]
-			elif 'filePath' in types:
-				[result.append(os.path.join(root, f)) for f in files]
+			for f in files:
+				if stripExtension:
+					f.rstrip('.'+File_utils.formatFilepath(f, 'ext'))
+
+				ext = File_utils.formatFilepath(f, 'ext')
+				if f in exclude or '*.'+ext in exclude:
+					continue
+
+				if any(include): #filter include for None values so not to get a false positive.
+					if not f in include and not '*.'+ext in include:
+						continue
+
+				if 'file' in types:
+					result.append(f)
+				if 'filepath' in types:
+					result.append(os.path.join(root, f))
 
 		return result
 
 
 	@classmethod
-	def getJsonFile(cls, rtn=''):
+	def getJsonFile(cls, returnType=''):
 		'''Get the current json file path.
 
 		:Return:
 			(str)
 		'''
 		try:
-			return cls.formatFilepath(cls._json_file, rtn)
+			return cls.formatFilepath(cls._json_file, returnType)
 		except AttributeError as error:
 			cls._json_file = '/'.join([os.path.dirname(__file__), 'file_utils.json'])
 			return cls._json_file
@@ -201,7 +217,7 @@ class File_utils():
 		:Parameters:
 			string (str) = The desired replacement string.
 			subsection (str) = Modify only part of the file path.
-				(Any of the 'rtn' args in 'formatFilepath')
+				(Any of the 'returnType' args in 'formatFilepath')
 				ex. 'path' path - filename,
 					'dir'  directory name, 
 					'file' filename + ext, 

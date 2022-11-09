@@ -59,22 +59,7 @@ class Polygons_maya(Polygons, Slots_maya):
 			self.messageBox('<strong>Nothing selected</strong>.<br>Operation requires an object or vertex selection.', messageType='Error')
 			return
 
-		for obj in pm.ls(objects):
-
-			if componentMode: #merge selected components.
-				if pm.filterExpand(selectionMask=31): #selectionMask=vertices
-					sel = pm.ls(obj, sl=1)
-					pm.polyMergeVertex(sel, distance=tolerance, alwaysMergeTwoVertices=True, constructionHistory=True)
-				else: #if selection type =edges or facets:
-					pm.mel.MergeToCenter()
-
-			else: #if object mode. merge all vertices on the selected object.
-				vertices = obj.vtx[:] # mel expression: select -r geometry.vtx[0:1135];
-				pm.polyMergeVertex(vertices, distance=tolerance, alwaysMergeTwoVertices=False, constructionHistory=False)
-
-				#return to original state
-				pm.select(clear=1)
-				pm.select(objects)
+		self.mergeVertices(objects, selection=componentMode, tolerance=tolerance)
 
 
 	@Slots_maya.attr
@@ -154,12 +139,17 @@ class Polygons_maya(Polygons, Slots_maya):
 		chamfer = True
 		segments = tb.ctxMenu.s006.value()
 
-		selection = pm.ls(sl=1)
+		selection = pm.ls(sl=1, objectsOnly=1)
 		if not selection:
 			return self.messageBox('<strong>Nothing selected</strong>.<br>Operation requires a component selection.', messageType='Error')
-		return pm.polyBevel3(selection, fraction=width, offsetAsFraction=1, autoFit=1, depth=1, mitering=0, 
-			miterAlong=0, chamfer=chamfer, segments=segments, worldSpace=1, smoothingAngle=30, subdivideNgons=1,
-			mergeVertices=1, mergeVertexTolerance=0.0001, miteringAngle=180, angleTolerance=180, ch=0)
+
+		for obj in selection:
+			edges = pm.ls(obj, sl=1)
+			node = pm.polyBevel3(edges, fraction=width, offsetAsFraction=1, autoFit=1, depth=1, mitering=0, 
+				miterAlong=0, chamfer=chamfer, segments=segments, worldSpace=1, smoothingAngle=30, subdivideNgons=1,
+				mergeVertices=1, mergeVertexTolerance=0.0001, miteringAngle=180, angleTolerance=180, ch=0)
+			if len(selection)==1:
+				return node
 
 
 	def tb005(self, state=None):
@@ -305,6 +295,9 @@ class Polygons_maya(Polygons, Slots_maya):
 		'''Separate
 		'''
 		pm.mel.SeparatePolygon()
+		sel = pm.ls(sl=1, objectsOnly=True)
+		for obj in sel:
+			pm.xform(obj, centerPivots=1)
 
 
 	def b003(self):
@@ -335,6 +328,13 @@ class Polygons_maya(Polygons, Slots_maya):
 			p1, p2 = [(0.0005, 0, 0), (0, 0, 0)] #arbitrary points that will return the spinbox to it's default value of 0.0005.
 
 		self.setMergeVertexDistance(p1, p2)
+
+
+	def b006(self):
+		'''Merge Vertices: Merge All
+		'''
+		sel = pm.ls(sl=True, objectsOnly=True)
+		self.mergeVertices(sel, onlySelected=True)
 
 
 	def b009(self):
@@ -459,6 +459,32 @@ class Polygons_maya(Polygons, Slots_maya):
 		'''Edit Edge Flow
 		'''
 		pm.polyEditEdgeFlow(adjustEdgeFlow=1)
+
+
+	@staticmethod
+	def mergeVertices(objects, onlySelected=True, tolerance=0.001):
+		'''Merge Vertices on the given objects.
+
+		:Parameters:
+			objects (str)(obj)(list) = The object(s) to merge vertices on.
+			onlySelected (bool) = Merge only the currently selected components.
+			tolerance (float) = The maximum merge distance.
+		'''
+		for obj in pm.ls(objects):
+
+			if onlySelected: #merge selected components.
+				if pm.filterExpand(selectionMask=31): #selectionMask=vertices
+					sel = pm.ls(obj, sl=1)
+					pm.polyMergeVertex(sel, distance=tolerance, alwaysMergeTwoVertices=True, constructionHistory=True)
+				else: #if selection type =edges or facets:
+					pm.mel.MergeToCenter()
+
+			else: #merge all vertices on the object.
+				vertices = obj.vtx[:] # mel expression: select -r geometry.vtx[0:1135];
+				pm.polyMergeVertex(vertices, distance=tolerance, alwaysMergeTwoVertices=False, constructionHistory=False)
+				#return to original state
+				pm.select(clear=1)
+				pm.select(objects)
 
 
 	@Slots_maya.undo

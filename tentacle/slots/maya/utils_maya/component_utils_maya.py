@@ -40,36 +40,36 @@ class GetComponents():
 	]
 
 	@classmethod
-	def getComponentType(cls, component, rtn='str'):
+	def getComponentType(cls, component, returnType='str'):
 		'''Get the type of a given component.
 
 		:Parameters:
 			obj (obj) = A single maya component.
-			rtn (str) = Specify the desired return value type. (valid: 'str' (default), 'int')
+			returnType (str) = Specify the desired return value type. (valid: 'str' (default), 'int')
 								'abv' - the abreviated object type as a string.
 								'str' - the object type as a string.
 								'int' - the maya mask value as an integer.
 								'hex' - the hex value.
 		:Return:
-			(str)(int) dependant on 'rtn' arg.
+			(str)(int) dependant on 'returnType' arg.
 		'''
 		for a, s, p, f, i, h in cls.componentTypes:
 			if pm.filterExpand(component, sm=i):
-				return f if rtn=='str' else i if rtn=='int' else a if rtn=='abv' else h
+				return f if returnType=='str' else i if returnType=='int' else a if returnType=='abv' else h
 		return None
 
 
 	@classmethod
-	def convertComponentName(cls, componentType, rtn='abv'):
+	def convertComponentName(cls, componentType, returnType='abv'):
 		'''Return an alternate component alias for the given alias. ie. a hex value of 0x0001 for 'vertex'
 		If nothing is found, a value of 'None' will be returned.
 
 		:Parameters:
 			componentType (str) = Component type as a string.
-			rtn (str) = The desired returned alias. (valid: 'abv', 'singular', 'plural', 'full', 'int', 'hex')
+			returnType (str) = The desired returned alias. (valid: 'abv', 'singular', 'plural', 'full', 'int', 'hex')
 
 		:Return:
-			(str)(int)(hex)(None) dependant on rtn argument.
+			(str)(int)(hex)(None) dependant on returnType argument.
 
 		ex. call: convertComponentName('control vertex', 'hex')
 		'''
@@ -77,18 +77,18 @@ class GetComponents():
 
 		for t in cls.componentTypes:
 			if componentType in t:
-				index = rtypes.index(rtn)
+				index = rtypes.index(returnType)
 				return t[index]
 		return None
 
 
 	@classmethod
-	def convertReturnType(cls, objects, rtn='str', flatten=False):
+	def convertReturnType(cls, objects, returnType='str', flatten=False):
 		'''Convert the given objects to <obj>, 'str', or int values.
 
 		:Parameters:
 			objects (str)(obj)(list) = The object(s) to convert.
-			rtn (str) = The desired returned object type. 
+			returnType (str) = The desired returned object type. 
 				(valid: 'str'(default), 'obj'(shape object), 'transform'(as string), 'int'(valid only at sub-object level).
 			flatten (bool) = Flattens the returned list of objects so that each component is identified individually.
 
@@ -101,7 +101,7 @@ class GetComponents():
 			return objects
 		objects = pm.ls(objects, flatten=flatten)
 
-		if rtn=='int':
+		if returnType=='int':
 			result={}
 			for c in objects:
 				obj = pm.ls(c, objectsOnly=1)[0]
@@ -123,9 +123,9 @@ class GetComponents():
 		else:
 			result = pm.ls(objects, flatten=True)
 
-			if rtn=='transform':
+			if returnType=='transform':
 				result = list(map(lambda s: ''.join(s.rsplit('Shape', 1)), result))
-			elif rtn=='str':
+			elif returnType=='str':
 				result = list(map(str, result))
 
 		return result
@@ -136,7 +136,7 @@ class GetComponents():
 		'''
 		'''
 		d = {'vtx':'toVertex', 'e':'toEdge', 'uv':'toUV', 'f':'toFace'}
-		typ = cls.convertComponentName(componentType, rtn='abv') #get the correct componentType variable from possible args.
+		typ = cls.convertComponentName(componentType, returnType='abv') #get the correct componentType variable from possible args.
 		components = pm.polyListComponentConversion(components, **{d[typ.lower()]:True})
 		return components
 
@@ -165,31 +165,31 @@ class GetComponents():
 			if len(obj)>1:
 				return frm
 			componentType = cls.getComponentType(frm[0])
-			typ = cls.convertComponentName(componentType, rtn='abv') #get the correct componentType variable from possible args.
+			typ = cls.convertComponentName(componentType, returnType='abv') #get the correct componentType variable from possible args.
 			exclude = ["{}.{}[{}]".format(obj[0], typ, n) for n in exclude]
 
-		exclude = cls.convertReturnType(exclude, rtn=rtn, flatten=True) #assure both lists are of the same type for comparison.
+		exclude = cls.convertReturnType(exclude, returnType=rtn, flatten=True) #assure both lists are of the same type for comparison.
 		return [i for i in components if not i in exclude]
 
 
 	@classmethod
-	def getComponents(cls, objects=None, componentType=None, rtn='str', randomize=0, exclude=[], flatten=False):
+	def getComponents(cls, objects=None, componentType=None, returnType='str', randomize=0, exclude=[], flatten=False):
 		'''Get the components of the given type from the given object(s).
 		If no objects are given the current selection will be used.
 
 		:Parameters:
 			objects (str)(obj)(list) = The object(s) to get the components of. (Polygon, Polygon components)(default: current selection)
 			componentType (str)(int) = The desired component mask. (valid: any type allowed in the 'convertComponentName' method)
-			rtn (str) = The desired returned object type. 
+			returnType (str) = The desired returned object type. 
 				(valid: 'str'(default), 'obj'(shape object), 'transform'(as string), 'int'(valid only at sub-object level).
 			randomize (float) = If a 0.1-1 value is given, random components will be returned with a quantity determined by the given ratio. A value of 0.5 will return a 50% of the components of an object in random order.
-			exclude (list) = Exclude components from the result. List can be of any format the 'rtn' parameter takes.
+			exclude (list) = Exclude components from the result. List can be of any format the 'returnType' parameter takes.
 			flatten (bool) = Flattens the returned list of objects so that each component is it's own element.
 
 		:Return:
 			(list)(dict) Dependant on flags.
 
-		ex. getComponents(componentType='faces' rtn='obj', randomize=0.5) #return random faces from the selected object.
+		ex. getComponents(componentType='faces' returnType='obj', randomize=0.5) #return random faces from the selected object.
 		ex. getComponents('pCube1.f[14]', componentType('edge')) #return the edges of 'pCube1.f[14]'
 		'''
 		if objects is None:
@@ -199,7 +199,7 @@ class GetComponents():
 
 		if transforms:
 			typ = componentType if componentType else Node_utils_maya.getType(transforms) #get component type from the current selection if it is not explicitly given.
-			formattedType = cls.convertComponentName(typ, rtn='abv') #get the correct componentType variable from possible args.
+			formattedType = cls.convertComponentName(typ, returnType='abv') #get the correct componentType variable from possible args.
 			components = ['{}.{}[*]'.format(i, formattedType) for i in transforms] #get ALL components, for each given transform object.
 		else: #the given objects are components.
 			components = cls.convertComponentType(objects, componentType) if componentType else objects
@@ -211,7 +211,7 @@ class GetComponents():
 		if exclude:
 			components = cls.excludeComponents(components, exclude)
 
-		result = cls.convertReturnType(components, rtn=rtn, flatten=flatten)
+		result = cls.convertReturnType(components, returnType=returnType, flatten=flatten)
 
 		return result
 
@@ -304,12 +304,12 @@ class Component_utils_maya(GetComponents):
 
 
 	@staticmethod
-	def getIslands(obj, rtn='str', flatten=False):
+	def getIslands(obj, returnType='str', flatten=False):
 		'''Get the group of components in each separate island of a combined mesh.
 
 		:parameters:
 			obj (str)(obj)(list) = The object to get shells from.
-			rtn (bool) = Return the shell faces as a list of type: 'str' (default), 'int', or 'obj'.
+			returnType (bool) = Return the shell faces as a list of type: 'str' (default), 'int', or 'obj'.
 			flatten (bool) = Flattens the returned list of objects so that each component is it's own element.
 
 		:return:
@@ -325,27 +325,27 @@ class Component_utils_maya(GetComponents):
 			index = next(iter(unprocessed)) #face_index
 			faces = pm.polySelect(obj, extendToShell=index, noSelection=True) #shell faces
 
-			if rtn=='str':
+			if returnType=='str':
 				yield ["{}.f[{}]".format(obj, index) for index in faces]
 
-			elif rtn=='int':
+			elif returnType=='int':
 				yield [index for index in faces]
 
-			elif rtn=='obj':
+			elif returnType=='obj':
 				yield [pm.ls("{}.f[{}]".format(obj, index))[0] for index in faces]
 
 			unprocessed.difference_update(faces)
 
 
 	@classmethod
-	def getBorderComponents(cls, x, rtnCompType='default', borderType='object', rtn='str', flatten=False):
+	def getBorderComponents(cls, x, rtnCompType='default', borderType='object', returnType='str', flatten=False):
 		'''Get any object border components from given component(s) or a polygon object.
 
 		:Parameters:
 			x (obj)(list) = Component(s) (or a polygon object) to find any border components for.
 			rtnCompType (str) = The desired returned component type. (valid: 'vertices','edges','faces','default'(the rtnCompType will be the same as the given component type, or edges if an object is given))
 			borderType (str) = Get the components that border given components, or components on the border of an object. (valid: 'component', 'object'(default))
-			rtn (str) = The desired returned object type. 
+			returnType (str) = The desired returned object type. 
 				(valid: 'str'(default), 'obj'(shape object), 'transform'(as string), 'int'(valid only at sub-object level).
 			flatten (bool) = Flattens the returned list of objects so that each component is identified individually.
 
@@ -395,7 +395,7 @@ class Component_utils_maya(GetComponents):
 		elif rtnCompType in ('Polygon Face', 'faces', 'face', 'f'):
 			result = pm.polyListComponentConversion(result, fromEdge=1, toFace=1) #faces.
 
-		result = cls.convertReturnType(result, rtn=rtn, flatten=flatten)
+		result = cls.convertReturnType(result, returnType=returnType, flatten=flatten)
 		return result
 
 
@@ -486,13 +486,13 @@ class Component_utils_maya(GetComponents):
 
 
 	@classmethod
-	def getEdgePath(cls, components, rtn='edgeLoop'):
+	def getEdgePath(cls, components, returnType='edgeLoop'):
 		'''Query the polySelect command for the components along different edge paths.
 		Supports components from a single object.
 
 		:Parameters:
 			components (str)(obj)(list) = The components used for the query (dependant on the operation type).
-			rtn (str) = The desired return type. 'shortestEdgePath', 'edgeRing', 'edgeRingPath', 'edgeLoop', 'edgeLoopPath'.
+			returnType (str) = The desired return type. 'shortestEdgePath', 'edgeRing', 'edgeRingPath', 'edgeLoop', 'edgeLoopPath'.
 
 		:Return:
 			(list) The components comprising the path.
@@ -500,21 +500,21 @@ class Component_utils_maya(GetComponents):
 		obj, *other = pm.ls(components, objectsOnly=1)
 
 		result=[]
-		componentNumbers = list(cls.convertReturnType(components, rtn='int', flatten=1).values())[0] #get the vertex numbers as integer values. ie. [818, 1380]
+		componentNumbers = list(cls.convertReturnType(components, returnType='int', flatten=1).values())[0] #get the vertex numbers as integer values. ie. [818, 1380]
 
-		if rtn=='shortestEdgePath':
+		if returnType=='shortestEdgePath':
 			edgesLong = pm.polySelect(obj, query=1, shortestEdgePath=(componentNumbers[0], componentNumbers[1])) #(vtx, vtx)
 
-		elif rtn=='edgeRing':
+		elif returnType=='edgeRing':
 			edgesLong = pm.polySelect(obj, query=1, edgeRing=componentNumbers) #(e..)
 
-		elif rtn=='edgeRingPath':
+		elif returnType=='edgeRingPath':
 			edgesLong = pm.polySelect(obj, query=1, edgeRingPath=(componentNumbers[0], componentNumbers[1])) #(e, e)
 
-		elif rtn=='edgeLoop':
+		elif returnType=='edgeLoop':
 			edgesLong = pm.polySelect(obj, query=1, edgeLoop=componentNumbers) #(e..)
 
-		elif rtn=='edgeLoopPath':
+		elif returnType=='edgeLoopPath':
 			edgesLong = pm.polySelect(obj, query=1, edgeLoopPath=(componentNumbers[0], componentNumbers[1])) #(e, e)
 
 		if not edgesLong:
@@ -629,14 +629,14 @@ class Component_utils_maya(GetComponents):
 
 
 	@classmethod
-	def getEdgesByNormalAngle(cls, objects, lowAngle=50, highAngle=130, rtn='str', flatten=False):
+	def getEdgesByNormalAngle(cls, objects, lowAngle=50, highAngle=130, returnType='str', flatten=False):
 		'''Get a list of edges having normals between the given high and low angles using maya's polySelectConstraint.
 
 		:Parameters:
 			objects (str)(list)(obj) = The object(s) to get edges of.
 			lowAngle (int) = Normal angle low range.
 			highAngle (int) = Normal angle high range.
-			rtn (str) = The desired returned object type. (valid: 'unicode'(default), 'str', 'int', 'object')
+			returnType (str) = The desired returned object type. (valid: 'unicode'(default), 'str', 'int', 'object')
 			flatten (bool) = Flattens the returned list of objects so that each component is identified individually.
 
 		:Return:
@@ -646,7 +646,7 @@ class Component_utils_maya(GetComponents):
 
 		pm.polySelectConstraint(angle=True, anglebound=(lowAngle, highAngle), mode=3, type=0x8000) #Constrain that selection to only edges of a certain Angle
 		pm.selectType(polymeshEdge=True)
-		edges = cls.getComponents(componentType='edges', rtn=rtn, flatten=flatten) #get selected edges with constraint active.
+		edges = cls.getComponents(componentType='edges', returnType=returnType, flatten=flatten) #get selected edges with constraint active.
 
 		pm.polySelectConstraint(mode=0) #Remove the selection constraint.
 		pm.select(orig_selection) #re-select any originally selected objects.
@@ -655,14 +655,14 @@ class Component_utils_maya(GetComponents):
 
 
 	@classmethod
-	def getComponentsByNumberOfConnected(cls, components, num_of_connected=(0,2), connectedType=None, rtn='str', flatten=False):
+	def getComponentsByNumberOfConnected(cls, components, num_of_connected=(0,2), connectedType=None, returnType='str', flatten=False):
 		'''Get a list of components filtered by the number of their connected components.
 
 		:Parameters:
 			components (str)(list)(obj) = The components to filter.
 			num_of_connected (int)(tuple) = The number of connected components. Can be given as a range. (Default: (0,2))
 			connectedType (str)(int) = The desired component mask. (valid: 'vtx','vertex','vertices','Polygon Vertex',31,0x0001(vertices), 'e','edge','edges','Polygon Edge',32,0x8000(edges), 'f','face','faces','Polygon Face',34,0x0008(faces), 'uv','texture','texture coordinates','Polygon UV',35,0x0010(texture coordiantes).
-			rtn (str) = The desired returned object type. (valid: 'unicode'(default), 'str', 'int', 'object')
+			returnType (str) = The desired returned object type. (valid: 'unicode'(default), 'str', 'int', 'object')
 			flatten (bool) = Flattens the returned list of objects so that each component is identified individually.
 
 		:Return:
@@ -674,7 +674,7 @@ class Component_utils_maya(GetComponents):
 		ex. components = getComponents(objects, 'vertices', selection=1)
 			verts = getComponentsByNumberOfConnected(components, (0,2), 'Polygon Edge') #returns vertices with up to two connected edges.
 		'''
-		connectedType = cls.convertComponentName(componentType, rtn='full') #get the correct componentType variable from all possible args.
+		connectedType = cls.convertComponentName(componentType, returnType='full') #get the correct componentType variable from all possible args.
 
 		if isinstance(num_of_connected, (tuple, list, set)):
 			lowRange, highRange = num_of_connected
@@ -698,7 +698,7 @@ class Component_utils_maya(GetComponents):
 			if num>=lowRange and num<=highRange:
 				result.append(c)
 
-		result = cls.convertReturnType(result, rtn=rtn, flatten=flatten)
+		result = cls.convertReturnType(result, returnType=returnType, flatten=flatten)
 		return result
 
 

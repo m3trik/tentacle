@@ -8,6 +8,7 @@ class Nurbs(Slots):
 	'''
 	'''
 	def __init__(self, *args, **kwargs):
+		super().__init__(*args, **kwargs)
 		'''
 		'''
 		ctx = self.sb.nurbs.draggable_header.ctxMenu

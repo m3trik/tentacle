@@ -8,6 +8,7 @@ class Crease(Slots):
 	'''
 	'''
 	def __init__(self, *args, **kwargs):
+		super().__init__(*args, **kwargs)
 		'''
 		'''
 		dh = self.sb.crease.draggable_header
@@ -49,7 +50,7 @@ class Crease(Slots):
 		if self.sb.crease.tb000.ctxMenu.chk002.isChecked():
 			self.sb.crease.tb000.ctxMenu.s003.setValue(0) #crease value
 			self.sb.crease.tb000.ctxMenu.s004.setValue(180) #normal angle
-			self.sb.toggleWidgets(self.sb.crease.tb000.ctxMenu, self.crease_submenu_ui.tb000.ctxMenu, setChecked='chk002', setUnChecked='chk003')
+			self.sb.toggleWidgets(self.sb.crease.tb000.ctxMenu, self.crease_submenu.tb000.ctxMenu, setChecked='chk002', setUnChecked='chk003')
 			self.sb.crease.tb000.ctxMenu.s003.setDisabled(True)
 			text = 'Un-Crease 0'
 		else:
@@ -67,7 +68,7 @@ class Crease(Slots):
 		if self.sb.crease.tb000.ctxMenu.chk003.isChecked():
 			self.sb.crease.tb000.ctxMenu.s003.setValue(10) #crease value
 			self.sb.crease.tb000.ctxMenu.s004.setValue(30) #normal angle
-			self.sb.toggleWidgets(self.sb.crease.tb000.ctxMenu, self.crease_submenu_ui.tb000.ctxMenu, setChecked='chk003', setUnChecked='chk002')
+			self.sb.toggleWidgets(self.sb.crease.tb000.ctxMenu, self.crease_submenu.tb000.ctxMenu, setChecked='chk003', setUnChecked='chk002')
 			self.sb.crease.tb000.ctxMenu.s003.setDisabled(True)
 			text = 'Un-Crease 0'
 		else:

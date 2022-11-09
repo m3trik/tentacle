@@ -5,6 +5,7 @@ import sys, os
 import importlib
 import inspect
 
+import pymel.core as pm
 
 
 def import_modules(importAll=False):
@@ -279,7 +280,7 @@ class Stingray_arnold_shader_slots(Stingray_arnold_shader):
 		#add filenames|filepaths to the comboBox.
 		hdr_path = '{}/resources/hdr'.format(self.proj_root_dir)
 		hdr_filenames = Utils.getDirectoryContents(hdr_path, 'files', filetypes='exr', stripExtension=True)
-		hdr_fullpaths = Utils.getDirectoryContents(hdr_path, 'filePaths', filetypes='exr')
+		hdr_fullpaths = Utils.getDirectoryContents(hdr_path, 'filepaths', filetypes='exr')
 		self.ui.cmb000.addItems_(dict(zip(hdr_filenames, hdr_fullpaths)), ascending=False)
 
 		#initialize widgets with any saved values.
@@ -296,7 +297,7 @@ class Stingray_arnold_shader_slots(Stingray_arnold_shader):
 			self.ui.cmb001.setCurrentItem(normal_map_type)
 		node = self.hdr_env_transform
 		if node:
-			rotation = node[0].rotateY.get()
+			rotation = node.rotateY.get()
 			self.ui.slider000.setSliderPosition(rotation)
 
 
@@ -447,11 +448,14 @@ class Stingray_arnold_shader_slots(Stingray_arnold_shader):
 class Stingray_arnold_shader_main(Stingray_arnold_shader):
 	'''
 	'''
+	app = QtWidgets.QApplication.instance()
+	if not app:
+		app = QtWidgets.QApplication(sys.argv)
+
 	def __init__(self, parent=None):
 		super().__init__(parent)
 
-		self.sb = Switchboard(None, widgetLoc='O:/Cloud/Code/_scripts/tentacle/tentacle/ui/widgets', slotLoc=Stingray_arnold_shader_slots)
-		self.sb.uiLoc = self.proj_root_dir
+		self.sb = Switchboard(None, widgetLoc='ui/widgets', slotLoc=Stingray_arnold_shader_slots)
 		self.sb.setParent(self)
 		self.setParent(Utils_maya.getMainWindow())
 		self.ui = self.sb.stingray_arnold_shader
@@ -468,15 +472,11 @@ class Stingray_arnold_shader_main(Stingray_arnold_shader):
 
 
 if __name__ == "__main__":
-	import sys
-
-	app = QtWidgets.QApplication.instance()
-	if not app:
-		app = QtWidgets.QApplication(sys.argv)
 
 	main = Stingray_arnold_shader_main()
 
-	sys.exit(app.exec_())
+	# app = QtWidgets.QApplication.instance()
+	# sys.exit(app.exec_()) # run app, show window, wait for input, then terminate program with a status code returned from app.
 
 
 # --------------------------------

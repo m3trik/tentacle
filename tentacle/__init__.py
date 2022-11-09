@@ -2,63 +2,56 @@
 # coding=utf-8
 import sys, os.path
 
-import importlib
-import inspect
+__version__ = '0.509'
 
 
 
-def greeting(version=True):
+def greeting(hello=False, mod_version=False, py_version=False):
 	'''
 	'''
-	import datetime
+	string=''
 
-	#print greeting
-	hour = datetime.datetime.now().hour
-	greeting = "morning" if 5<=hour<12 else "afternoon" if hour<18 else "evening"
-	print("Good {}!".format(greeting))
+	if hello: #print greeting
+		import datetime
+		hour = datetime.datetime.now().hour
+		greeting = 'morning' if 5<=hour<12 else 'afternoon' if hour<18 else 'evening'
+		string+='\nGood {}!'.format(greeting)
 
-	if version:#print python version
-		print ('You are using python interpreter version {}.{}.{}'.format(sys.version_info[0], sys.version_info[1], sys.version_info[2]))
+	if py_version: #print python version
+		string+='\npython interpreter v{}.{}.{}'.format(sys.version_info[0], sys.version_info[1], sys.version_info[2])
+
+	if mod_version:
+		string+='\ntentacle v{}'.format(__version__)
+
+	return string
 
 
-def import_modules(importAll=False):
+def appendPaths(verbose=False, exclude=[]):
+	'''Append all sub-directories to the python path.
+
+	:Parameters:
+		exclude (list) = Exclude directories by name.
+		verbose (bool) = Output the results to the console. (Debug)
 	'''
-	'''
-	sys.path.append(os.path.dirname(os.path.abspath(__file__))) #append this dir to the system path.
+	path = (__file__.rstrip(__file__.split('\\')[-1])) #get the path to this module, and format it to get the path root.
 
-	for module in os.listdir(os.path.dirname(__file__)):
+	sys.path.insert(0, path)
+	if verbose:
+		print (path)
 
-		mod_name = module[:-3]
-		mod_ext = module[-3:]
-
-		if module == '__init__.py' or mod_ext != '.py':
-			continue
-
-		print (mod_name, mod_ext)
-		mod = importlib.import_module(mod_name)
-
-		if importAll:
-			if '__all__' in mod.__dict__: #is there an __all__?  if so respect it.
-				names = mod.__dict__['__all__']
-
-			else: #otherwise we import all names that don't begin with _.
-				names = [x for x in mod.__dict__ if not x.startswith('_')]
-
-			# now drag them in
-			globals().update({k: getattr(mod, k) for k in names})
-
-		else:
-			cls_members = inspect.getmembers(sys.modules[mod_name], inspect.isclass)
-
-			for cls_name, cls_mem in cls_members:
-				globals()[cls_name] = cls_mem
-
-		del module
+	# recursively append subdirectories to the system path.
+	for root, dirs, files in os.walk(path):
+		for dir_name in dirs:
+			if not any([(e in root or e==dir_name) for e in exclude]):
+				dir_path = os.path.join(root, dir_name)
+				sys.path.insert(0, dir_path)
+				if verbose:
+					print (dir_path)
 
 
-greeting()
-import_modules()
-# globals()['__package__'] = 'tentacle'
+
+print(greeting(hello=1, mod_version=1, py_version=1))
+appendPaths(verbose=0)
 
 
 
@@ -76,34 +69,3 @@ import_modules()
 # -----------------------------------------------
 # deprecated:
 # -----------------------------------------------
-
-
-# sys.path.append(os.path.dirname(os.path.abspath(__file__))) #append this dir to the system path.
-
-# if __name__=='__main__':
-# 	import tentacle
-# 	globals()['__package__'] = 'tentacle'
-
-
-# from .switchboard import Switchboard
-# from .childEvents import EventFactoryFilter
-# from .overlay import OverlayFactoryFilter
-# from .tcl import Tcl
-
-# print ('tentacle:', __name__, __package__, __file__)
-
-
-
-
-# import sys, os
-# this_module_dir = os.path.abspath(os.path.dirname(__file__))
-# sys.path.append(this_module_dir)
-# import sys; for p in sys.path: print (p)
-
-
-# import os
-# for module in os.listdir(os.path.dirname(__file__)):
-# 	if module == '__init__.py' or module[-3:] != '.py':
-# 		continue
-# 	__import__(module[:-3], locals(), globals())
-# del module

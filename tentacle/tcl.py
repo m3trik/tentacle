@@ -35,7 +35,7 @@ class Tcl(QtWidgets.QStackedWidget):
 			profile (bool) = Prints the total running time, times each function separately, and tells you how many times each function was called.
 		'''
 		super().__init__(parent)
-		setattr(QtWidgets.QApplication.instance(), 'tcl', self)
+		setattr(self.app, 'tcl', self)
 
 		self.key_show = getattr(QtCore.Qt, key_show)
 		self.key_undo = QtCore.Qt.Key_Z
@@ -403,7 +403,7 @@ class Tcl(QtWidgets.QStackedWidget):
 			try: #call the class method associated with the current widget.
 				w.method()
 			except (AttributeError, TypeError) as error:
-				print ('# Error:', __file__, error, '#')
+				print ('# Error: {}: ef_showEvent: {}. #'.format(__file__, error))
 				pass
 
 		w.__class__.showEvent(w, event)
@@ -643,7 +643,7 @@ if __name__ == '__main__':
 	tcl.sendKeyPressEvent(tcl.key_show) # Tcl().show('init')
 
 	app = QtWidgets.QApplication.instance()
-	sys.exit(app.exec_())
+	sys.exit(app.exec_()) # run app, show window, wait for input, then terminate program with a status code returned from app.
 
 
 

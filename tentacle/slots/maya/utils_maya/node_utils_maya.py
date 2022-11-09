@@ -5,8 +5,7 @@ try:
 except ImportError as error:
 	print (__file__, error)
 
-import utils
-
+from slots.utils import Utils
 
 
 class Node_utils_maya():
@@ -368,7 +367,7 @@ class Node_utils_maya():
 		ex. call: env_file_node = getIncomingNodeByType(env_node, 'file') #get the incoming file node.
 		'''
 		nodes = pm.listConnections(node, type=typ, source=True, exactType=exact)
-		return utils.Iter_utils.formatReturn([pm.PyNode(n) for n in nodes])
+		return Utils.formatReturn([pm.PyNode(n) for n in nodes])
 
 
 	def getOutgoingNodeByType(node, typ, exact=True):
@@ -385,7 +384,7 @@ class Node_utils_maya():
 		ex. call: srSG_node = getOutgoingNodeByType(sr_node, 'shadingEngine') #get the outgoing shadingEngine node.
 		'''
 		nodes = pm.listConnections(node, type=typ, destination=True, exactType=exact)
-		return utils.Iter_utils.formatReturn([pm.PyNode(n) for n in nodes])
+		return Utils.formatReturn([pm.PyNode(n) for n in nodes])
 
 
 	def connectMultiAttr(*args, force=True):

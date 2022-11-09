@@ -8,6 +8,7 @@ class Convert(Slots):
 	'''
 	'''
 	def __init__(self, *args, **kwargs):
+		super().__init__(*args, **kwargs)
 		'''
 		'''
 		ctx = self.sb.convert.draggable_header.ctxMenu

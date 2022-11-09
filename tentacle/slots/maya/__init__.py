@@ -3,7 +3,6 @@
 import os
 
 from PySide2 import QtGui, QtWidgets, QtCore
-import shiboken2
 
 try:
 	import maya.mel as mel
@@ -13,11 +12,10 @@ except ImportError as error:
 	print (__file__, error)
 
 from slots import Slots
-import utils_maya
+from slots.maya.utils_maya import Utils_maya
 
 
-
-class Slots_maya(Slots, utils_maya.Utils_maya):
+class Slots_maya(Slots, Utils_maya):
 	'''App specific methods inherited by all other slot classes.
 	'''
 	def __init__(self, *args, **kwargs):
@@ -70,6 +68,7 @@ class Slots_maya(Slots, utils_maya.Utils_maya):
 		:Return:
 			(QWidget) If the object does not exist, returns None
 		'''
+		import shiboken2
 		for f in ('findControl', 'findLayout', 'findMenuItem'):
 			ptr = getattr(omui.MQtUtil, f)(name) #equivalent to: ex. omui.MQtUtil.findControl(name)
 			if ptr:

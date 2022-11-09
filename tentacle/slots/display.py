@@ -8,6 +8,7 @@ class Display(Slots):
 	'''
 	'''
 	def __init__(self, *args, **kwargs):
+		super().__init__(*args, **kwargs)
 		'''
 		'''
 		ctx = self.sb.display.draggable_header.ctxMenu

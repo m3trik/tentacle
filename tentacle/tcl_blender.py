@@ -4,9 +4,6 @@ import sys
 
 from PySide2 import QtWidgets, QtCore
 
-try: import shiboken2
-except: from PySide2 import shiboken2
-
 from tcl import Tcl
 
 

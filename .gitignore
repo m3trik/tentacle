@@ -176,3 +176,4 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+update_package.cmd

@@ -5,8 +5,10 @@ import sys, os
 import importlib
 import inspect
 
-import pymel.core as pm
-
+try:
+	import pymel.core as pm
+except ImportError as error:
+	print (__file__, error)
 
 
 def import_modules(importAll=False):
@@ -56,8 +58,6 @@ class Utils_maya(Component_utils_maya, Node_utils_maya, Rigging_utils_maya):
 		:Return:
 			(QWidget)
 		'''
-		# ptr = OpenMayaUI.MQtUtil.mainWindow()
-		# main_window = shiboken2.wrapInstance(long(ptr), QtWidgets.QWidget)
 		from PySide2.QtWidgets import QApplication
 
 		app = QApplication.instance()

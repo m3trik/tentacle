@@ -8,6 +8,7 @@ class File(Slots):
 	'''
 	'''
 	def __init__(self, *args, **kwargs):
+		super().__init__(*args, **kwargs)
 		'''
 		'''
 		#set the text for the open last file button to the last file's name.

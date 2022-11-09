@@ -4,12 +4,8 @@ import sys
 
 from PySide2 import QtWidgets, QtCore
 
-try: import shiboken2
-except: from PySide2 import shiboken2
-
 from tcl import Tcl
-from utils_maya import Utils_maya
-
+from slots.maya.utils_maya import Utils_maya
 
 
 class Tcl_maya(Tcl):
@@ -18,7 +14,7 @@ class Tcl_maya(Tcl):
 	:Parameters:
 		parent = Application top level window instance.
 	'''
-	def __init__(self, parent=None, slotLoc='maya', *args, **kwargs):
+	def __init__(self, parent=None, slotLoc='slots/maya', *args, **kwargs):
 		'''
 		'''
 		if not parent:
@@ -81,7 +77,7 @@ if __name__ == "__main__":
 	tcl.show('init') #Tcl_maya(dummyParent).show()
 
 	app = QtWidgets.QApplication.instance()
-	sys.exit(app.exec_())
+	sys.exit(app.exec_()) # run app, show window, wait for input, then terminate program with a status code returned from app.
 
 
 

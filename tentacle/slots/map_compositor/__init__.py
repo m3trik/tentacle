@@ -6,7 +6,6 @@ import importlib
 import inspect
 
 
-
 def import_modules(importAll=False):
 	'''
 	'''
@@ -53,7 +52,7 @@ from PIL import Image
 from PIL.ImageChops import invert
 
 from switchboard import Switchboard
-from utils import Utils
+from slots.utils import Utils
 
 
 
@@ -508,6 +507,10 @@ class Map_compositor_slots(Map_compositor):
 class Map_compositor_main(Map_compositor):
 	'''
 	'''
+	app = QtWidgets.QApplication.instance()
+	if not app:
+		app = QtWidgets.QApplication(sys.argv)
+
 	def __init__(self, parent=None):
 		super().__init__(parent)
 
@@ -525,15 +528,11 @@ class Map_compositor_main(Map_compositor):
 
 
 if __name__ == "__main__":
-	import sys
-
-	app = QtWidgets.QApplication.instance()
-	if not app:
-		app = QtWidgets.QApplication(sys.argv)
 
 	main = Map_compositor_main()
 
-	sys.exit(app.exec_())
+	app = QtWidgets.QApplication.instance()
+	sys.exit(app.exec_()) # run app, show window, wait for input, then terminate program with a status code returned from app.
 
 
 # --------------------------------

@@ -2,12 +2,15 @@
 # coding=utf-8
 import os
 
-import pymel.core as pm
+try:
+	import pymel.core as pm
+	import maya.OpenMaya as om
+	import maya.OpenMayaFX as omfx
 
-import maya.OpenMaya as om
-import maya.OpenMayaFX as omfx
+	import MASH.api as mapi
 
-import MASH.api as mapi
+except ImportError as error:
+	print (__file__, error)
 
 
 
@@ -267,15 +270,18 @@ def MTbakeInstancer(network, instancer, bakeTranslate=True, bakeRotation=True, b
 		return result
 
 
+try:
+	# add each funtion as an network attribute.
+	for k, v in {
+		'MTcreateNetwork':MTcreateNetwork, 
+		'MTbakeInstancer':MTbakeInstancer,
+		}.items():
 
-# add each funtion as an network attribute.
-for k, v in {
-	'MTcreateNetwork':MTcreateNetwork, 
-	'MTbakeInstancer':MTbakeInstancer,
-	}.items():
+		if not hasattr(mapi.Network, k):
+			setattr(mapi.Network, k, v)
 
-	if not hasattr(mapi.Network, k):
-		setattr(mapi.Network, k, v)
+except NameError as error: #import mapi failed.
+	print (__file__, error)
 
 
 

@@ -104,7 +104,8 @@ class Tcl_max(Tcl):
 
 if __name__ == "__main__":
 
-	Tcl_max().show('init')
+	tcl = Tcl_max()
+	tcl.show('init')
 
 	app = QtWidgets.QApplication.instance()
 	sys.exit(app.exec_())

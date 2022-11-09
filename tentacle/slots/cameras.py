@@ -8,6 +8,7 @@ class Cameras(Slots):
 	'''
 	'''
 	def __init__(self, *args, **kwargs):
+		super().__init__(*args, **kwargs)
 		'''
 		'''
 		# tree = self.sb.cameras_lower_submenu.tree000

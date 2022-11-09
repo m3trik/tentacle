@@ -8,6 +8,7 @@ class Scene(Slots):
 	'''
 	'''
 	def __init__(self, *args, **kwargs):
+		super().__init__(*args, **kwargs)
 		'''
 		'''
 		self.sb.scene.t000.returnPressed.connect(self.t001) #preform rename on returnPressed

@@ -10,10 +10,11 @@ except ImportError as error:
 class Rigging_utils_maya(object):
 	'''
 	'''
-	import utils, utils_maya
-	formatName = utils.Str_utils.formatName
-	isGroup = utils_maya.Node_utils_maya.isGroup
-	getType = utils_maya.Node_utils_maya.getType
+	from utils import Utils
+	from node_utils_maya import Node_utils_maya
+	formatName = Utils.formatName
+	isGroup = Node_utils_maya.isGroup
+	getType = Node_utils_maya.getType
 
 
 	@classmethod

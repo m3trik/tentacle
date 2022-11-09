@@ -17,15 +17,15 @@ try:
 except ImportError as error:
 	print ('# Error:', __file__, error, '#')
 
-import utils
-
 
 
 class Img_utils():
 	'''Helper methods for working with image file formats.
 	'''
-	formatFilepath = utils.File_utils.formatFilepath
-	getDirectoryContents = utils.File_utils.getDirectoryContents
+	from file_utils import File_utils
+
+	formatFilepath = File_utils.formatFilepath
+	getDirectoryContents = File_utils.getDirectoryContents
 
 	mapTypes = { #Get map type from filename suffix.
 			'Base_Color':('Base_Color', 'BaseColor', '_BC'),
@@ -143,7 +143,7 @@ class Img_utils():
 		exts = ['.'+e for e in image_types]
 
 		images={}
-		for f in cls.getDirectoryContents(image_dir, 'filePaths'):
+		for f in cls.getDirectoryContents(image_dir, 'filepaths'):
 
 			if any(map(f.endswith, exts)):
 				fullpath = cls.formatFilepath(f)
@@ -406,7 +406,9 @@ class Img_utils():
 		:Return:
 			(dict)
 		'''
-		types = utils.Iter_utils.makeList(typ)
+		from iter_utils import Iter_utils
+
+		types = Iter_utils.makeList(typ)
 		return [f for f in files if cls.getImageType(f) in types]
 
 
@@ -445,11 +447,13 @@ class Img_utils():
 		:Return:
 			(bool)
 		'''
+		from iter_utils import Iter_utils
+
 		if isinstance(files, list):
 			files = cls.sortImagesByType(files) #convert list to dict of the correct format.
 
 		result = next((True for i in files.keys() 
-			if Img_utils.getImageType(i) in utils.Iter_utils.makeList(map_types)), False)
+			if cls.getImageType(i) in Iter_utils.makeList(map_types)), False)
 
 		return True if result else False
 

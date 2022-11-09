@@ -83,22 +83,6 @@ class Pivot_maya(Pivot, Slots_maya):
 		self.bakeCustomPivot(sel, position=1, orientation=1) #pm.mel.BakeCustomPivot()
 
 
-	@classmethod
-	def togglePivotAxis(cls):
-		'''Toggle the pivot rotation axis 90 degrees.
-		'''
-		i = cls.cycle(range(24), 'togglePivotAxis')
-		pos = [
-			(90,0,90), (0,0,90), (-90,0,90), (180,0,90), 
-			(180,0,180), (180,90,180), (180,180,180), (180,270,180),
-			(270,270,360), (270,180,360), (90,90,180), (90,180,180),
-			(90,0,270), (180,0,-90), (270,0,-90), (0,0,-90),
-			(0,0,-180), (0,90,180), (180,0,360), (180,-90,0),
-			(90,-90,0), (-90,0,180), (-90,90,180), (90,0,360),
-		]
-		pm.manipPivot(orientation=pos[i])
-
-
 	@staticmethod
 	def resetPivotTransforms(objects):
 		'''Reset Pivot Transforms

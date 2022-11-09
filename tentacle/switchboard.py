@@ -10,11 +10,11 @@ from PySide2 import QtCore, QtGui, QtWidgets
 from PySide2.QtUiTools import QUiLoader
 
 from ui.styleSheet import StyleSheet
-import utils
+from slots.utils import Utils
 
 
 
-class Switchboard(QUiLoader, StyleSheet, utils.Str_utils, utils.File_utils, utils.Iter_utils):
+class Switchboard(QUiLoader, StyleSheet, Utils):
 	'''The switchboard after being instanced can be accessed anywhere using; QtWidgets.QApplication.instance().sb
 
 	:properties:
@@ -91,16 +91,11 @@ class Switchboard(QUiLoader, StyleSheet, utils.Str_utils, utils.File_utils, util
 		'QProgressBar':'valueChanged',
 	}
 
-	_loadedUi = []
-	_registeredWidgets = []
-	_uiHistory = []
-	_wgtHistory = []
-
-	app = QtWidgets.QApplication.instance()
 
 	def __init__(self, parent=None, uiLoc='', widgetLoc='', slotLoc='', preloadUi=False):
 		QUiLoader.__init__(self, parent)
-		setattr(QtWidgets.QApplication.instance(), 'sb', self)
+		self.app = QtWidgets.QApplication.instance()
+		setattr(self.app, 'sb', self)
 		'''
 		:Parameters:
 			parent (obj) = A QtObject derived class.
@@ -121,7 +116,13 @@ class Switchboard(QUiLoader, StyleSheet, utils.Str_utils, utils.File_utils, util
 		self.widgetLoc = widgetLoc
 		self.slotLoc = slotLoc
 
-		if preloadUi: self.loadAllUi()
+		self._loadedUi = []
+		self._registeredWidgets = []
+		self._uiHistory = []
+		self._wgtHistory = []
+
+		if preloadUi:
+			self.loadAllUi()
 
 
 	def __getattr__(self, attr):
@@ -224,10 +225,11 @@ class Switchboard(QUiLoader, StyleSheet, utils.Str_utils, utils.File_utils, util
 		'''Get the directory where the slot classes will be imported from.
 
 		:Return:
-			(str) directory path.
+			(str)(obj) slots class directory path or slots class object.
 		'''
 		try:
 			return self._slotLoc
+
 		except AttributeError as error:
 			self._slotLoc = self.defaultDir
 			return self._slotLoc
@@ -282,7 +284,7 @@ class Switchboard(QUiLoader, StyleSheet, utils.Str_utils, utils.File_utils, util
 			if l.strip() == '<{}>'.format(prop):
 				actual_prop_text = l
 				start = i+1
-			elif l == utils.Str_utils.insert(actual_prop_text, '/', '<'):
+			elif l == Utils.insert(actual_prop_text, '/', '<'):
 				end = i
 
 				delimiters = '</', '<', '>', '\n', ' ',
@@ -427,21 +429,32 @@ class Switchboard(QUiLoader, StyleSheet, utils.Str_utils, utils.File_utils, util
 
 
 	def setSlots(self, ui, clss):
+		'''Explicitly set the slot class for a given ui.
+
+		:Parameters:
+			ui (obj) = A previously loaded dynamic ui object.
+			clss (obj) = A class or class instance to set as the slots location for the given ui. 
+
+		:Return:
+			(obj) class instance.
 		'''
-		'''
-		try:
+		if inspect.isclass(clss):
 			setattr(clss, 'sb', self)
-			ui._slots = clss()# if callable(clss) else clss
-		except AttributeError as error:
-			if clss:
-				print ('# Error: {}: setSlots: \'{}\': {}. #'.format(__file__, ui.name, error))
-			ui._slots = None
+			ui._slots = clss() if callable(clss) else clss
 
-		return ui._slots
+			return ui._slots
+		return None
 
 
-	def getSlots(self, ui):
+	def getSlots(self, ui, persist=False):
 		'''Get the class instance of the ui's slots module if it exists.
+
+		:Parameters:
+			ui (obj) = A previously loaded dynamic ui object.
+			persist (bool) = Do not assign the ui's slots attribute a None value when a class is not found.
+
+		:Return:
+			(obj) class instance.
 		'''
 		try:
 			return ui._slots
@@ -452,24 +465,28 @@ class Switchboard(QUiLoader, StyleSheet, utils.Str_utils, utils.File_utils, util
 			else: #if slotLoc is a class object.
 				clss = self.slotLoc
 			if not clss:
-				# print (4, ui.name, ui.isSubmenu, ui.level3)
 				if ui.isSubmenu:
 					if ui.level3: #is a submenu that has a parent menu.
 						return self.getSlots(ui.level3)
 					elif ui.level1:
 						return self.getSlots(ui.level1)
+		if clss and inspect.isclass(clss):
+			return self.setSlots(ui, clss)
+		elif not persist:
+			ui._slots = None
+		return None
 
-		return self.setSlots(ui, clss)
 
-
-	def _importSlots(self, ui, path=None):
+	def _importSlots(self, ui, path=None, recursive=True):
 		'''Import the slot class associated with the given ui.
 		ie. <Polygons> class from ui 'polygons',
 
 		:Parameters:
 			ui (obj) = A previously loaded dynamic ui object.
-			path (str) = Specify a parent directory.
+			path (str) = The directory location of the module.
 					If None is given, the slotLoc property will be used.
+			recursive (bool) = Search subfolders of the given path.
+
 		:Return:
 			(obj) class
 		'''
@@ -483,18 +500,30 @@ class Switchboard(QUiLoader, StyleSheet, utils.Str_utils, utils.File_utils, util
 							self.setCase(suffix, case='camelCase'),
 							).rstrip('_') #ie. 'polygons_maya' or 'polygons' if suffix is None.
 		if not path:
-			path = self.slotLoc
-		sys.path.append(path)
+			if isinstance(self.slotLoc, str):
+				path = self.slotLoc
+			else:
+				path = self.defaultDir
+		path = next((f for f in glob.iglob('{}/**/{}.py'.format(path, mod_name), recursive=recursive)), None)
+		if path:
+			try: #import the module and return the slots class object.
+				spec = importlib.util.spec_from_file_location(mod_name, path) #mod_name: ie. 'polygons_maya'. path: ie. 'full\path\to\maya/polygons_maya.py'
+				mod = importlib.util.module_from_spec(spec)
+				sys.modules[spec.name] = mod
+				spec.loader.exec_module(mod)
 
-		try: #import the module and get the class instance.
-			module = importlib.import_module(mod_name)
-			clss = getattr(module, self.setCase(mod_name, case='pascalCase')) #ie. <Polygons_maya> from 'Polygons_maya'
+				cls_name = self.setCase(mod_name, case='pascalCase')
+				try:
+					clss = getattr(mod, cls_name)
+				except AttributeError as error: #if a class by the same name as the module doesn't exist: (ex. <Polygons_maya> from module 'polygons_maya')
+					clsmembers = inspect.getmembers(mod, inspect.isclass)
+					clss = clsmembers[0][1] #just get the first class.
+					print ('# Warning: {}: _importSlots: {}.\nUsing {} instead. #'.format(__file__, error, clss))
+				return clss
 
-			return clss #get the corresponding slot class from the ui name. 
-
-		except ModuleNotFoundError as error:
-			# print (__file__, error)
-			return None
+			except (FileNotFoundError, ModuleNotFoundError) as error:
+				print ('# Error: {}: _importSlots: {}. #'.format(__file__, error))
+		return None
 
 
 	def registerWidgets(self, widgets):
@@ -531,7 +560,7 @@ class Switchboard(QUiLoader, StyleSheet, utils.Str_utils, utils.File_utils, util
 				result.append(w)
 
 			except Exception as error:
-				print ('# {}.registerWidgets(): {} #'.format(__file__, error))
+				print ('# {}: registerWidgets: {}. #'.format(__file__, error))
 
 		return self.formatReturn(result)
 
@@ -598,7 +627,8 @@ class Switchboard(QUiLoader, StyleSheet, utils.Str_utils, utils.File_utils, util
 		ui.__slots__ = [
 			'name', 'base', 'path', 'tags', 'level', 'connected', 'isConnected', 'isInitialized',
 			'isCurrent', 'isSubmenu', 'sync', 'isSynced', 'hide', 'preventHide', 'show', 'connectOnShow',
-			'slots', 'widgets', 'addWidgets', 'sizeX', 'sizeY', 'level0', 'level1', 'level2', 'level3', 'level4',
+			'addWidgets', 'widgets', '_widgets', 'slots', '_slots', 'sizeX', 'sizeY',
+			'level0', 'level1', 'level2', 'level3', 'level4',
 		]
 		ui.name = name
 		ui.base = next(iter(name.split('_')))
@@ -1090,7 +1120,7 @@ class Switchboard(QUiLoader, StyleSheet, utils.Str_utils, utils.File_utils, util
 						s.connect(lambda *args, w=w: self._wgtHistory.append(w)) #add the widget to the widget history list on connect. (*args prevents 'w' from being overwritten by the parameter emitted by the signal.)
 
 					except Exception as error:
-						print('Error: {0} {1} connectSlots: {2} {3}'.format(ui.name, w.name, s, w.method), '\n', error)
+						print('Error: {}: connectSlots: {} {} {} {}\n{}.'.format(__file__, ui.name, w.name, s, w.method, error))
 
 		ui.isConnected = True #set ui state as slots connected.
 
@@ -1120,7 +1150,7 @@ class Switchboard(QUiLoader, StyleSheet, utils.Str_utils, utils.File_utils, util
 							s.disconnect(w.method) #disconnect single slot (main and cameras ui)
 
 					except Exception as error:
-						print('Error: {0} {1} disconnectSlots: {2} {3} #'.format(ui.name, w.name, s, w.method), '\n', error)
+						print('Error: {}: disconnectSlots: {} {} {} {}\n{}. #'.format(__file__, ui.name, w.name, s, w.method, error))
 
 		ui.isConnected = False #set ui state as slots disconnected.
 
@@ -1370,7 +1400,7 @@ class Switchboard(QUiLoader, StyleSheet, utils.Str_utils, utils.File_utils, util
 				widgets.append(w)
 			except AttributeError as error:
 				if showError:
-					print (__file__, error)
+					print ('# Error: {}: getWidgetsFromStr: {}. #'.format(__file__, error))
 				pass
 
 		return widgets
@@ -1535,9 +1565,7 @@ class Switchboard(QUiLoader, StyleSheet, utils.Str_utils, utils.File_utils, util
 		:Return:
 			(bool)
 		'''
-		try: import shiboken2
-		except: from PySide2 import shiboken2
-
+		import shiboken2
 		return hasattr(obj, 'objectName') and shiboken2.isValid(obj)
 
 
@@ -1657,20 +1685,20 @@ if __name__=='__main__':
 	if not app:
 		app = QtWidgets.QApplication(sys.argv)
 
-	sb = Switchboard(uiLoc='ui', widgetLoc='ui/widgets', slotLoc='slots') #set relative paths.
-	# sb.loadAllUi()
-	ui = sb.polygons #or sb.getUi('polygons')
+	from slots.maya.polygons_maya import Polygons_maya
+	sb = Switchboard(uiLoc='ui', widgetLoc='ui/widgets', slotLoc=Polygons_maya) #set relative paths, and explicity set the slots class instead of providing a path like: slotLoc='slots/maya', which in this case would produce the same result with just a little more overhead.
+	ui = sb.polygons #get the ui by it's name.
 	sb.setStyle(ui.widgets)
 
 	ui.show()
 
-	print ('current ui:', sb.currentUi.name)
+	print ('current ui name:', sb.currentUi.name)
+	print ('current ui:', sb.currentUi)
 	print ('connected state:', ui.isConnected)
+	print ('slots:', ui.slots)
+	print ('method tb000:', ui.tb000.method)
+	print ('widget from method tb000:', sb.getWidgetFromMethod(ui.tb000.method))
 	# print ('widgets:', ui.widgets)
-	# print ('slots:', ui.slots)
-	print ('slot:', ui.tb000.method)
-	print ('mainWindow:', ui.mainWindow)
-	print ('widget from method:', sb.getWidgetFromMethod(ui.tb000.method))
 
 
 	sys.exit(app.exec_())

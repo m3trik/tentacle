@@ -8,6 +8,7 @@ class Create(Slots):
 	'''
 	'''
 	def __init__(self, *args, **kwargs):
+		super().__init__(*args, **kwargs)
 		'''
 		'''
 		dh = self.sb.create.draggable_header

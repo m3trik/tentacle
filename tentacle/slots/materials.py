@@ -8,6 +8,7 @@ class Materials(Slots):
 	'''
 	'''
 	def __init__(self, *args, **kwargs):
+		super().__init__(*args, **kwargs)
 		'''
 		'''
 		self.sb.materials_submenu.b003.setVisible(False) #hide the current material submenu button until a material is available.

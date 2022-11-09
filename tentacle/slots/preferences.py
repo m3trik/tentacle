@@ -8,6 +8,7 @@ class Preferences(Slots):
 	'''
 	'''
 	def __init__(self, *args, **kwargs):
+		super().__init__(*args, **kwargs)
 		'''
 		'''
 		ctx = self.sb.preferences.draggable_header.ctxMenu

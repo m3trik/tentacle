@@ -8,6 +8,7 @@ class Transform(Slots):
 	'''
 	'''
 	def __init__(self, *args, **kwargs):
+		super().__init__(*args, **kwargs)
 		'''
 		'''
 		dh = self.sb.transform.draggable_header
