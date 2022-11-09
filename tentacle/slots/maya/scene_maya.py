@@ -104,10 +104,16 @@ class Scene_maya(Scene, Slots_maya):
 		'''
 		# pm.undoInfo (openChunk=1)
 		objects = pm.ls(objectsOnly=1) if not objects else objects
-		names = self.findStrAndFormat(frm, to, [obj.name() for obj in objects], regEx=regEx, ignoreCase=ignoreCase)
+
+		#get the short names from the long in order to correctly format. ex. 'NUT_' from: 'CENTER_HINGE_FEMALE_GRP|NUT_'
+		long_names = [obj.name() for obj in objects]
+		short_names = [ii if ii else i for i, ii in self.splitAtChars(long_names)]
+
+		names = self.findStrAndFormat(frm, to, short_names, regEx=regEx, ignoreCase=ignoreCase)
 		print ('# Rename: Found {} matches. #'.format(len(names)))
 
-		for oldName, newName in names:
+		for i, (oldName, newName) in enumerate(names):
+			oldName = long_names[i] #use the long name to reference the object instead.
 			try:
 				if pm.objExists(oldName):
 					n = pm.rename(oldName, newName) #Rename the object with the new name

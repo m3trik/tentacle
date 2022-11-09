@@ -2,7 +2,7 @@
 # coding=utf-8
 import sys, os.path
 
-__version__ = '0.509'
+__version__ = '0.510'
 
 
 

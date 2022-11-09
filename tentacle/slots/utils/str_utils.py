@@ -74,6 +74,39 @@ class Str_utils():
 		return n+suffix
 
 
+	@staticmethod
+	def splitAtChars(strings, chars='|', occurance=-1):
+		'''Split a string containing the given chars at the given occurance and return
+		a two element tuple containing both halves.
+
+		:Parameters:
+			strings (str)(list) = The string(s) to operate on.
+			occurance (int) = The occurance of the pipe to split at from left.
+				ex. -1 would split at the last occurance. 0 would split at the first.
+					If the occurance is out of range, the full string will be 
+					returned as: ('original string', '')
+		:Return:
+			(list)
+
+		ex. call: splitAtChars(['str|ing', 'string']) returns: [('str', 'ing'), ('string', '')]
+		'''
+		from iter_utils import Iter_utils
+
+		result = []
+		for s in Iter_utils.makeList(strings):
+			try:
+				s2 = ''.join(s.split(chars)[occurance])
+				if chars in s:
+					s1 = chars.join(s.split(chars)[:occurance])
+				else:
+					s1, s2 = (s2, '')
+			except IndexError as error:
+				s1, s2 = (s, '')
+
+			result.append((s1, s2))
+		return result
+
+
 	@classmethod
 	def insert(cls, src, ins, at, occurrence=1, before=False):
 		'''Insert character(s) into a string at a given location.
