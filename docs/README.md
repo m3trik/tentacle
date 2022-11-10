@@ -48,7 +48,7 @@
 
 To install:
 Add the tentacle folder to a directory on your python path, or
-install via pip using:
+install via pip in a command line window using:
 ```
 python -m pip install tcl-toolkit
 ```
