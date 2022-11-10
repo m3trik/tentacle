@@ -80,4 +80,4 @@ autoUndoEnabled: false
 )
 ```
 
-See the switchboard module for a demo on how to launch stand alone dynamic ui.
+See the switchboard module for a demo on how to launch a stand alone dynamic ui.
