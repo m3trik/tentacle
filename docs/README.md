@@ -57,16 +57,14 @@ To launch the marking menu:
 For Maya:
 Add a macro to a hotkey similar to the following:
 ```
-	def hk_tentacle_show():
-		'''Display the tentacle marking menu.
-		'''
-		if 'tcl' not in globals():
-			import tentacle
-			from tentacle.tcl_maya import Tcl_maya
-			global tcl
-			tcl = Tcl_maya(key_show='Key_F12', profile=False)
+#Display the tentacle marking menu.
+if 'tcl' not in globals():
+	import tentacle
+	from tentacle.tcl_maya import Tcl_maya
+	global tcl
+	tcl = Tcl_maya(key_show='Key_F12', profile=False)
 
-		tcl.sendKeyPressEvent(tcl.key_show)
+tcl.sendKeyPressEvent(tcl.key_show)
 ```
 
 For 3ds Max:
