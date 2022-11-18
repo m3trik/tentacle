@@ -133,7 +133,7 @@ class Iter_utils():
 	@staticmethod
 	def rindex(lst, item):
 		'''Get the index of the first item to match the given item 
-		starting from the back of the list.
+		starting from the back (right side) of the list.
 
 		:Parameters:
 			lst (list) = The list to get the index from.
@@ -160,14 +160,6 @@ class Iter_utils():
 			return list(dict.fromkeys(lst))
 		else:
 			return list(dict.fromkeys(lst[::-1]))[::-1] #reverse the list when removing from the start of the list.
-
-		# #alternate method:
-		# lst = lst if trailing else lst[::-1] #reverse the list when removing from the start of the list.
-
-		# found = set()
-		# lst = [x for x in lst if x not in found and not found.add(x)]
-
-		# return lst if trailing else lst[::-1]
 
 
 

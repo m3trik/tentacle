@@ -1,6 +1,5 @@
 # !/usr/bin/python
 # coding=utf-8
-
 import sys, os
 
 try:
@@ -16,7 +15,6 @@ try:
 	from PySide2 import QtWidgets
 except ImportError as error:
 	print ('# Error:', __file__, error, '#')
-
 
 
 class Img_utils():

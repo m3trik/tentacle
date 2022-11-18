@@ -3,7 +3,7 @@ import os, sys
 import unittest
 import inspect
 
-from utils import Str_utils, Iter_utils
+from utils import *
 
 
 class Str_utils_test(unittest.TestCase, Str_utils):
@@ -240,6 +240,227 @@ class Iter_utils_test(unittest.TestCase, Iter_utils):
 
 
 
+class File_utils_test(unittest.TestCase, File_utils):
+
+	def perform_test(self, case):
+		'''
+		'''
+		for expression, expected_result in case.items():
+			m = expression.split('(')[0] #ie. 'self.setCase' from "self.setCase('xxx', 'upper')"
+	
+			try:
+				path = os.path.abspath(inspect.getfile(eval(m)))
+			except TypeError as error:
+				path = ''
+
+			result = eval(expression)
+			self.assertEqual(
+				result, 
+				expected_result, 
+				"\n\nError: {}\n  Call:     {}\n  Expected: {} {}\n  Returned: {} {}".format(path, expression.replace('self.', '', 1), type(expected_result), expected_result, type(result), result)
+		)
+
+
+	def test_formatPath(self):
+		'''
+		'''
+		p1 = r'X:\n/dir1/dir3'
+		p2 = r'X:\n/dir1/dir3/.vscode'
+		p3 = r'X:\n/dir1/dir3/.vscode/tasks.json'
+		p4 = r'\\192.168.1.240\nas/lost+found/file.ext'
+		p5 = r'%programfiles%'
+
+		self.perform_test({
+			"self.formatPath(r'{}')".format(p1): 'X:/n/dir1/dir3',
+			"self.formatPath(r'{}', 'path')".format(p1): 'X:/n/dir1/dir3',
+			"self.formatPath(r'{}', 'path')".format(p2): 'X:/n/dir1/dir3/.vscode',
+			"self.formatPath(r'{}', 'path')".format(p3): 'X:/n/dir1/dir3/.vscode',
+			"self.formatPath(r'{}', 'path')".format(p4): r'\\192.168.1.240/nas/lost+found',
+			"self.formatPath(r'{}', 'path')".format(p5): 'C:/Program Files',
+			"self.formatPath(r'{}', 'dir')".format(p1): 'dir3',
+			"self.formatPath(r'{}', 'dir')".format(p2): '.vscode',
+			"self.formatPath(r'{}', 'dir')".format(p3): '.vscode',
+			"self.formatPath(r'{}', 'dir')".format(p4): 'lost+found',
+			"self.formatPath(r'{}', 'dir')".format(p5): 'Program Files',
+			"self.formatPath(r'{}', 'file')".format(p1): '',
+			"self.formatPath(r'{}', 'file')".format(p2): '',
+			"self.formatPath(r'{}', 'file')".format(p3): 'tasks.json',
+			"self.formatPath(r'{}', 'file')".format(p4): 'file.ext',
+			"self.formatPath(r'{}', 'file')".format(p5): '',
+			"self.formatPath(r'{}', 'name')".format(p1): '',
+			"self.formatPath(r'{}', 'name')".format(p2): '',
+			"self.formatPath(r'{}', 'name')".format(p3): 'tasks',
+			"self.formatPath(r'{}', 'name')".format(p4): 'file',
+			"self.formatPath(r'{}', 'name')".format(p5): '',
+			"self.formatPath(r'{}', 'ext')".format(p1): '',
+			"self.formatPath(r'{}', 'ext')".format(p2): '',
+			"self.formatPath(r'{}', 'ext')".format(p3): 'json',
+			"self.formatPath(r'{}', 'ext')".format(p4): 'ext',
+			"self.formatPath(r'{}', 'ext')".format(p5): '',
+			"self.formatPath({}, 'dir')".format([p1, p2]): ['dir3', '.vscode'],
+		})
+
+
+	def test_timeStamp(self):
+		'''
+		'''
+		paths = [
+			r'%ProgramFiles%',
+			r'C:/',
+		]
+
+		self.perform_test({
+			# "self.timeStamp({})".format(paths): [],
+			# "self.timeStamp({}, False, '%m-%d-%Y  %H:%M', True)".format(paths): [],
+			# "self.timeStamp({}, True)".format(paths): [],
+		})
+
+
+	def test_isValidPath(self):
+		'''
+		'''
+		path = os.path.abspath(os.path.dirname(__file__))
+		p1 = r'{}/__init__.py'.format(path)
+		p2 = r'%userprofile%'
+
+		self.perform_test({
+			"self.isValidPath(r'{}')".format(p1): 'file',
+			"self.isValidPath(r'{}')".format(p2): 'dir',
+		})
+
+
+	def test_getFileContents(self):
+		'''
+		'''
+		path = os.path.abspath(os.path.dirname(__file__))
+		p1 = r'{}/__init__.py'.format(path)
+
+		self.perform_test({
+			# "self.getFileContents(r'{}')".format(p1): '',
+		})
+
+
+	def test_writeToFile(self):
+		'''
+		'''
+		path = os.path.abspath(os.path.dirname(__file__))
+		file = r'{}/utils_test/utils_test.txt'.format(path)
+
+		self.perform_test({
+			# "self.writeToFile(r'{}', '')".format(file): None,
+		})
+
+
+	def test_createBackupDirectory(self):
+		'''
+		'''
+		path = os.path.abspath(os.path.dirname(__file__))
+		dir_ = r'{}/utils_test'.format(path)
+
+		self.perform_test({
+			# "self.createBackupDirectory(r'{}', '')".format(dir_): None,
+		})
+
+
+	def test_getDirectoryContents(self):
+		'''
+		'''
+		path = os.path.abspath(os.path.dirname(__file__))
+		files = ['file_utils', 'img_utils', 'iter_utils', 'math_utils', 'str_utils', 'utils_test', '__init__']
+
+		self.perform_test({
+			# "self.getDirectoryContents(r'{}', 'filepaths')".format(path): [],
+			# "self.getDirectoryContents(r'{}', 'dirpaths')".format(path): [],
+			# "self.getDirectoryContents(r'{}', 'files|dirs')".format(path): [],
+			"self.getDirectoryContents(r'{}', 'files', '*.py', '', False, True, True)".format(path): files,
+			# "self.getDirectoryContents(r'{}', 'files', '*.py', reverse=True)".format(path): [],
+		})
+
+
+	def test_getFilepath(self):
+		'''
+		'''
+		path = os.path.abspath(os.path.dirname(__file__))
+
+		self.perform_test({
+			"self.getFilepath(__file__)": path,
+			"self.getFilepath(__file__, True)": __file__,
+		})
+
+
+	def test_setJsonFile(self):
+		'''
+		'''
+		path = os.path.abspath(os.path.dirname(__file__))
+
+		self.perform_test({
+			"self.setJsonFile(r'{}')".format(path+'/file_utils.json'): None,
+		})
+
+
+	def test_getJsonFile(self):
+		'''
+		'''
+		p = os.path.abspath(os.path.dirname(__file__))
+		path = '/'.join(p.split('\\')).rstrip('/')
+
+		self.perform_test({
+			"self.getJsonFile()": path+'/file_utils.json',
+			"self.getJsonFile('file')": 'file_utils.json',
+		})
+
+
+	def test_setJson(self):
+		'''
+		'''
+		self.perform_test({
+			"self.setJson('key', 'value')": None,
+		})
+
+
+	def test_getJson(self):
+		'''
+		'''
+		self.perform_test({
+			"self.getJson('key')": 'value',
+		})
+
+
+
+class Img_utils_test(unittest.TestCase, Img_utils):
+
+	def perform_test(self, case):
+		'''
+		'''
+		for expression, expected_result in case.items():
+			m = expression.split('(')[0] #ie. 'self.setCase' from "self.setCase('xxx', 'upper')"
+	
+			try:
+				path = os.path.abspath(inspect.getfile(eval(m)))
+			except TypeError as error:
+				path = ''
+
+			result = eval(expression)
+			self.assertEqual(
+				result, 
+				expected_result, 
+				"\n\nError: {}\n  Call:     {}\n  Expected: {} {}\n  Returned: {} {}".format(path, expression.replace('self.', '', 1), type(expected_result), expected_result, type(result), result)
+		)
+
+
+	def test_(self):
+		'''
+		'''
+		self.perform_test({
+			# "self.()": ,
+		})
+
+
+
+
+
+
+
 if __name__=='__main__':
 	unittest.main()
 
@@ -249,13 +470,13 @@ if __name__=='__main__':
 # Notes
 # --------------------------------
 
-
-# def test_(self):
-	# 	'''
-	# 	'''
-	# 	self.perform_test({
-	# 		"self.()": ,
-	# 	})
-
+"""
+def test_(self):
+		'''
+		'''
+		self.perform_test({
+			"self.()": ,
+		})
+"""
 
 # Deprecated ---------------------

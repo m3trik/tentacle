@@ -11,13 +11,13 @@ class File_utils():
 	'''
 	'''
 	@staticmethod
-	def formatPath(string, section='', replace=''):
-		'''Format a full path to file string from '\' to '/'.
+	def formatPath(strings, section='', replace=''):
+		'''Format a given filepath(s).
 		When a section arg is given, the correlating section of the string will be returned.
 		If a replace arg is given, the stated section will be replaced by the given value.
 
 		:Parameters:
-			string (str) = The file path string to be formatted.
+			strings (str)(list) = The filepath(s) to be formatted.
 			section (str) = The desired subsection of the given path. 
 					'path' path - filename, 
 					'dir'  directory name, 
@@ -26,48 +26,59 @@ class File_utils():
 					'ext', file extension,
 					(if '' is given, the fullpath will be returned)
 		:Return:
-			(str)
+			(str)(list) List if 'strings' given as list.
 		'''
 		from str_utils import Str_utils
-		assert isinstance(string, str), '{}: Incorrect datatype: {}'.format(__file__, type(string).__name__)
+		from iter_utils import Iter_utils
 
-		string = os.path.expandvars(string) #convert any env variables to their values.
-		string = '/'.join(string.split('\\')).rstrip('/') #convert forward slashes to back slashes.
+		assert isinstance(strings, (str, list, tuple, set, dict)), '{}: Incorrect datatype: {}'.format(__file__, type(strings).__name__)
 
-		fullpath = string if '/' in string else ''
-		filename_ = string.split('/')[-1]
-		filename = filename_ if '.' in filename_ else ''
-		path = '/'.join(string.split('/')[:-1]) if filename else string
-		directory = string.split('/')[-2] if (filename and path) else string.split('/')[-1]
-		name = ''.join(filename.rsplit('.', 1)[:-1]) if filename else '' if fullpath else string
-		ext = filename.rsplit('.', 1)[-1]
+		#if 'strings' is given as a list; return a list.
+		returnAsList = isinstance(strings, (list, tuple, set))
 
-		orig_str = string #the full original string (formatted with forwardslashes)
+		result=[]
+		for string in Iter_utils.makeList(strings):
+			string = os.path.expandvars(string) #convert any env variables to their values.
+			string = string[:2]+'/'.join(string[2:].split('\\')).rstrip('/') #convert forward slashes to back slashes.
 
-		if section=='path':
-			string = path
+			fullpath = string if '/' in string else ''
+			filename_ = string.split('/')[-1]
+			filename = filename_ if '.' in filename_ and not filename_.startswith('.') else ''
+			path = '/'.join(string.split('/')[:-1]) if filename else string
+			directory = string.split('/')[-2] if (filename and path) else string.split('/')[-1]
+			name = ''.join(filename.rsplit('.', 1)[:-1]) if filename else '' if fullpath else string
+			ext = filename.rsplit('.', 1)[-1]
 
-		elif section=='dir':
-			string = directory
+			orig_str = string #the full original string (formatted with forwardslashes)
 
-		elif section=='file':
-			string = filename
+			if section=='path':
+				string = path
 
-		elif section=='name':
-			string = name
+			elif section=='dir':
+				string = directory
 
-		elif section=='ext':
-			string = ext
+			elif section=='file':
+				string = filename
 
-		if replace:
-			string = Str_utils.rreplace(orig_str, string, replace, 1)
+			elif section=='name':
+				string = name
 
-		return string #if no arg is given, the fullpath will be returned.
+			elif section=='ext':
+				string = ext
+
+			if replace:
+				string = Str_utils.rreplace(orig_str, string, replace, 1)
+
+			result.append(string)
+
+		if returnAsList:
+			return result
+		return Iter_utils.formatReturn(result) #if no arg is given, the fullpath will be returned.
 
 
-	@staticmethod
-	def fileNameTimeStamp(files, detach=False, stamp='%m-%d-%Y  %H:%M', sort=False):
-		'''Attach a modified timestamp and date to given file path(s) and sort accordingly.
+	@classmethod
+	def timeStamp(cls, files, detach=False, stamp='%m-%d-%Y  %H:%M', sort=False):
+		'''Attach a modified timestamp and date to given file path(s).
 
 		:Parameters:
 			files (str)(list) = The full path to a file. ie. 'C:/Windows/Temp/__AUTO-SAVE__untitled.0001.mb'
@@ -82,12 +93,17 @@ class File_utils():
 		import os.path
 
 		files = [files] if not isinstance(files, (list, tuple, set)) else files
+		files = cls.formatPath(files)
 
+		result=[]
 		if detach:
-			result = [''.join(f.split()[2:]) for f in files]
-
+			for f in files:
+				if len(f)>2 and not any(['/'==f[2], '\\'==f[2], '\\\\'==f[:2]]): #attempt to decipher whether the path has a time stamp.
+					strip = ''.join(f.split()[2:])
+					result.append(strip)
+				else:
+					result.append(f)
 		else:
-			result=[]
 			for f in files:
 				try:
 					result.append('{}  {}'.format(datetime.fromtimestamp(os.path.getmtime(f)).strftime(stamp), f))
@@ -96,8 +112,6 @@ class File_utils():
 
 			if sort:
 				result = list(reversed(sorted(result)))
-
-			result = result
 
 		return result
 
@@ -112,9 +126,11 @@ class File_utils():
 		:Return:
 			(list)
 		'''
+		path = os.path.expandvars(path) #convert any env variables to their values.
+
 		if os.path.isfile(path):
 			return 'file'
-		if os.path.isdir(path):
+		elif os.path.isdir(path):
 			return 'dir'
 		return None
 
@@ -165,8 +181,8 @@ class File_utils():
 			print ('Error: Creating backup directory: '+dest)
 
 
-	@staticmethod
-	def getDirectoryContents(path, returnType='files', include=[], exclude=[], recursive=False, topdown=True, stripExtension=False):
+	@classmethod
+	def getDirectoryContents(cls, path, returnType='files', include=[], exclude=[], recursive=False, topdown=True, stripExtension=False, reverse=False):
 		'''Get the contents of a directory and any of it's children.
 
 		:Parameters:
@@ -183,14 +199,14 @@ class File_utils():
 						exclude takes precedence over include.
 			stripExtension (bool) = Return filenames without their extension.
 			topDown (bool) = Scan directories from the top-down, or bottom-up.
+			reverse (bool) = When True, reverse the final result.
 
 		:Return:
 			(list)
 
-		ex. getDirectoryContents(path, returnType='filePaths')
+		ex. getDirectoryContents(path, returnType='filepaths')
 		ex. getDirectoryContents(path, returnType='files|dirs')
 		'''
-		from file_utils import File_utils
 		from iter_utils import Iter_utils
 
 		exclude = Iter_utils.makeList(exclude)
@@ -213,10 +229,7 @@ class File_utils():
 				dirs[:] = [d for d in dirs if d is root] #remove all but the root dir.
 
 			for f in files:
-				if stripExtension:
-					f.rstrip('.'+File_utils.formatPath(f, 'ext'))
-
-				ext = File_utils.formatPath(f, 'ext')
+				ext = cls.formatPath(f, 'ext')
 				if f in exclude or '*.'+ext in exclude:
 					continue
 
@@ -224,11 +237,15 @@ class File_utils():
 					if not f in include and not '*.'+ext in include:
 						continue
 
+				if stripExtension:
+					f = f.rstrip('.'+cls.formatPath(f, 'ext'))
+
 				if 'file' in types:
 					result.append(f)
 				if 'filepath' in types:
 					result.append(os.path.join(root, f))
-
+		if reverse:
+			return result[::-1]
 		return result
 
 
@@ -259,27 +276,13 @@ class File_utils():
 
 
 	@classmethod
-	def getJsonFile(cls, returnType=''):
-		'''Get the current json file path.
-
-		:Return:
-			(str)
-		'''
-		try:
-			return cls.formatPath(cls._json_file, returnType)
-		except AttributeError as error:
-			cls._json_file = '/'.join([os.path.dirname(__file__), 'file_utils.json'])
-			return cls._json_file
-
-
-	@classmethod
 	def setJsonFile(cls, string, subsection=''):
 		'''Set the json file path in full or modify any of it's subsections.
 
 		:Parameters:
 			string (str) = The desired replacement string.
 			subsection (str) = Modify only part of the file path.
-				(Any of the 'returnType' args in 'formatPath')
+				(Any of the 'subsection' args in 'formatPath')
 				ex. 'path' path - filename,
 					'dir'  directory name, 
 					'file' filename + ext, 
@@ -290,8 +293,33 @@ class File_utils():
 
 
 	@classmethod
+	def getJsonFile(cls, subsection=''):
+		'''Get the current json file path.
+
+		:Parameters:
+			subsection (str) = Modify only part of the file path.
+				(Any of the 'subsection' args in 'formatPath')
+				ex. 'path' path - filename,
+					'dir'  directory name, 
+					'file' filename + ext, 
+					'name', filename - ext,
+					'ext', file extension,
+
+		:Return:
+			(str)
+		'''
+		try:
+			return cls.formatPath(cls._json_file, subsection)
+		except AttributeError as error:
+			#if a json file has not been set: use default location.
+			cls._json_file = '/'.join([os.path.dirname(__file__), 'file_utils.json'])
+			return cls.getJsonFile(subsection)
+
+
+	@classmethod
 	def setJson(cls, key, value):
 		'''
+		ex. call: setJson('hdr_map_visibility', state)
 		'''
 		file = cls.getJsonFile()
 		if not os.path.exists(file): #if the file doesn't exist, create it.
@@ -312,6 +340,7 @@ class File_utils():
 	@classmethod
 	def getJson(cls, key):
 		'''
+		ex. call: getJson('hdr_map_visibility') #returns: state
 		'''
 		file = cls.getJsonFile()
 

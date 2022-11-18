@@ -49,12 +49,10 @@ class Utils(File_utils, Img_utils, Iter_utils, Math_utils, Str_utils):
 	@staticmethod
 	def getAttributes(obj, include=[], exclude=[]):
 		'''Get attributes for a given object.
-
 		:Parameters:
 			obj (obj) = The object to get the attributes of.
 			include (list) = Attributes to include. All other will be omitted. Exclude takes dominance over include. Meaning, if the same attribute is in both lists, it will be excluded.
 			exclude (list) = Attributes to exclude from the returned dictionay. ie. [u'Position',u'Rotation',u'Scale',u'renderable',u'isHidden',u'isFrozen',u'selected']
-
 		:Return:
 			(dict) {'string attribute': current value}
 		'''
@@ -67,7 +65,6 @@ class Utils(File_utils, Img_utils, Iter_utils, Math_utils, Str_utils):
 	@staticmethod
 	def setAttributes(obj, attributes):
 		'''Set attributes for a given object.
-
 		:Parameters:
 			obj (obj) = The object to set attributes for.
 			attributes = dictionary {'string attribute': value} - attributes and their correponding value to set
@@ -81,10 +78,8 @@ class Utils(File_utils, Img_utils, Iter_utils, Math_utils, Str_utils):
 	def pipInstallOnError(module_name):
 		'''Import a module.
 		Attempt to pip install the module on ImportError.
-
 		:Parameters:
 			module_name (str) = The name of the module.
-
 		:Return:
 			(obj) The imported module.
 		'''
@@ -99,7 +94,6 @@ class Utils(File_utils, Img_utils, Iter_utils, Math_utils, Str_utils):
 	@staticmethod
 	def lazy_import(importer_name, to_import):
 		'''Return the importing module and a callable for lazy importing.
-
 		:Parmameters:
 			importer_name (str) = Represents the module performing the
 					import to help facilitate resolving relative imports.
@@ -107,7 +101,6 @@ class Utils(File_utils, Img_utils, Iter_utils, Math_utils, Str_utils):
 					or relative). The 'as' form of importing is also supported. e.g. 'pkg.mod as spam'
 		:Return:
 			(tuple) (importer module, the callable to be set to '__getattr__')
-
 		ex. call: mod, __getattr__ = lazy_import(__name__, modules_list)
 		'''
 		module = importlib.import_module(importer_name)
@@ -135,10 +128,8 @@ class Utils(File_utils, Img_utils, Iter_utils, Math_utils, Str_utils):
 	@classmethod
 	def convertForDebugging(cls, obj):
 		'''Recursively convert items in sbDict for debugging.
-
 		:Parameters:
 			obj (dict) = The dictionary to convert.
-
 		:Return:
 			(dict)
 		'''

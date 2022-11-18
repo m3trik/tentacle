@@ -67,7 +67,7 @@ class File_maya(File, Slots_maya):
 		cmb = self.sb.file.cmb002
 
 		if index>0:
-			file = self.fileNameTimeStamp(cmb.items[index], detach=True)
+			file = self.timeStamp(cmb.items[index], detach=True)
 			pm.openFile(file, open=1, force=True)
 			cmb.setCurrentIndex(0)
 
@@ -282,7 +282,7 @@ class File_maya(File, Slots_maya):
 			pass
 
 		if timestamp:  #attach modified timestamp
-			result = self.fileNameTimeStamp(result)
+			result = self.timeStamp(result)
 
 		return result
 
@@ -315,7 +315,7 @@ class File_maya(File, Slots_maya):
 		result = [self.formatPath(f) for f in list(reversed(files))] #Replace any backslashes with forward slashes and reverse the list.
 
 		if timestamp:  #attach modified timestamp
-			result = self.fileNameTimeStamp(result, sort=True)
+			result = self.timeStamp(result, sort=True)
 
 		return result
 

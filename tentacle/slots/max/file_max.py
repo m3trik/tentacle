@@ -66,7 +66,7 @@ class File_max(File, Slots_max):
 		items = cmb.addItems_(self.getRecentAutosave(appendDatetime=True), "Recent Autosave", clear=True)
 
 		if index>0:
-			file = Slots.fileNameTimeStamp(cmb.items[index], detach=True)[0] #cmb.items[index].split('\\')[-1]
+			file = Slots.timeStamp(cmb.items[index], detach=True)[0] #cmb.items[index].split('\\')[-1]
 			rt.loadMaxFile(file)
 			cmb.setCurrentIndex(0)
 
@@ -333,7 +333,7 @@ class File_max(File, Slots_max):
 		result = [self.formatPath(f) for f in list(reversed(files))] #format and reverse the list.
 
 		if appendDatetime:  #attach modified timestamp
-			result = Slots.fileNameTimeStamp(result)
+			result = Slots.timeStamp(result)
 
 		return result
 
