@@ -143,7 +143,7 @@ class File_blender(File, Slots_blender):
 		path = self.formatPath(pm.workspace(query=1, rd=1)) #current project path.
 		items = [f for f in os.listdir(path)]
 
-		project = self.getNameFromFullPath(path) #add current project path string to label. strip path and trailing '/'
+		project = self.formatPath(path, 'dir') #add current project path string to label. strip path and trailing '/'
 
 		cmb.addItems_(items, project, clear=True)
 
@@ -307,7 +307,7 @@ class File_blender(File, Slots_blender):
 		dir1 = str(pm.workspace(query=1, rd=1))+'autosave' #current project path.
 		dir2 = os.environ.get('MAYA_AUTOSAVE_FOLDER').split(';')[0] #get autosave dir path from env variable.
 
-		files = Slots_blender.getAbsoluteFilePaths(dir1, ['mb', 'ma']) + Slots_blender.getAbsoluteFilePaths(dir2, ['mb', 'ma'])
+		files = self.getDirectoryContents(dir1, 'filepaths', ('*.mb', '*.ma')) + self.getDirectoryContents(dir2, 'filepaths', ('*.mb', '*.ma'))
 		result = [self.formatPath(f) for f in list(reversed(files))] #format and reverse the list.
 
 		if appendDatetime:  #attach modified timestamp

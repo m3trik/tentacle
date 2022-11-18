@@ -59,7 +59,7 @@ class Polygons_maya(Polygons, Slots_maya):
 			self.messageBox('<strong>Nothing selected</strong>.<br>Operation requires an object or vertex selection.', messageType='Error')
 			return
 
-		self.mergeVertices(objects, selection=componentMode, tolerance=tolerance)
+		self.mergeVertices(objects, selected=componentMode, tolerance=tolerance)
 
 
 	@Slots_maya.attr
@@ -334,7 +334,7 @@ class Polygons_maya(Polygons, Slots_maya):
 		'''Merge Vertices: Merge All
 		'''
 		sel = pm.ls(sl=True, objectsOnly=True)
-		self.mergeVertices(sel, onlySelected=True)
+		self.mergeVertices(sel)
 
 
 	def b009(self):
@@ -462,17 +462,17 @@ class Polygons_maya(Polygons, Slots_maya):
 
 
 	@staticmethod
-	def mergeVertices(objects, onlySelected=True, tolerance=0.001):
+	def mergeVertices(objects, selected=False, tolerance=0.001):
 		'''Merge Vertices on the given objects.
 
 		:Parameters:
 			objects (str)(obj)(list) = The object(s) to merge vertices on.
-			onlySelected (bool) = Merge only the currently selected components.
+			selected (bool) = Merge only the currently selected components.
 			tolerance (float) = The maximum merge distance.
 		'''
 		for obj in pm.ls(objects):
 
-			if onlySelected: #merge selected components.
+			if selected: #merge selected components.
 				if pm.filterExpand(selectionMask=31): #selectionMask=vertices
 					sel = pm.ls(obj, sl=1)
 					pm.polyMergeVertex(sel, distance=tolerance, alwaysMergeTwoVertices=True, constructionHistory=True)

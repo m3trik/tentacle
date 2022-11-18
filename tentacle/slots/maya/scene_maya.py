@@ -36,21 +36,6 @@ class Scene_maya(Scene, Slots_maya):
 			cmb.setCurrentIndex(0)
 
 
-	def t001(self, state=None):
-		'''Replace
-		'''
-		t001 = self.sb.scene.t001
-
-		find = self.sb.scene.t000.text() #an asterisk denotes startswith*, *endswith, *contains* 
-		to = self.sb.scene.t001.text()
-		regEx = self.sb.scene.t000.ctxMenu.chk001.isChecked()
-		ignoreCase = self.sb.scene.t000.ctxMenu.chk000.isChecked()
-
-		selection = pm.ls(sl=1)
-		objects = selection if selection else pm.ls(objectsOnly=1)
-		self.rename(find, to, objects, regEx=regEx, ignoreCase=ignoreCase)
-
-
 	def tb000(self, state=None):
 		'''Convert Case
 		'''
@@ -75,6 +60,19 @@ class Scene_maya(Scene, Slots_maya):
 
 		selection = pm.ls(sl=1, objectsOnly=1)
 		self.setSuffixByObjLocation(selection, alphanumeric=alphanumeric, stripTrailingInts=stripTrailingInts, stripTrailingAlpha=stripTrailingAlpha, reverse=reverse)
+
+
+	def b000(self):
+		'''Rename
+		'''
+		find = self.sb.scene.t000.text() #an asterisk denotes startswith*, *endswith, *contains* 
+		to = self.sb.scene.t001.text()
+		regEx = self.sb.scene.t000.ctxMenu.chk001.isChecked()
+		ignoreCase = self.sb.scene.t000.ctxMenu.chk000.isChecked()
+
+		selection = pm.ls(sl=1)
+		objects = selection if selection else pm.ls(objectsOnly=1)
+		self.rename(find, to, objects, regEx=regEx, ignoreCase=ignoreCase)
 
 
 	@Slots_maya.undo
@@ -107,9 +105,9 @@ class Scene_maya(Scene, Slots_maya):
 
 		#get the short names from the long in order to correctly format. ex. 'NUT_' from: 'CENTER_HINGE_FEMALE_GRP|NUT_'
 		long_names = [obj.name() for obj in objects]
-		short_names = [ii if ii else i for i, ii in self.splitAtChars(long_names)]
+		short_names = [ii if ii else i for i, ii in self.splitAtChars(long_names)] #split the long names at the last '|' to get the short name.
 
-		names = self.findStrAndFormat(frm, to, short_names, regEx=regEx, ignoreCase=ignoreCase)
+		names = self.findStrAndFormat(frm, to, short_names, regEx=regEx, ignoreCase=ignoreCase, returnOldNames=True)
 		print ('# Rename: Found {} matches. #'.format(len(names)))
 
 		for i, (oldName, newName) in enumerate(names):

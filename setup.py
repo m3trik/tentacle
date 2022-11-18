@@ -1,8 +1,7 @@
 import os
 import setuptools
 
-from tentacle import __version__
-
+from tentacle import name, __version__
 from utils import Utils
 
 
@@ -18,7 +17,7 @@ def gen_data_files(dirs, exclude=[], include=[]):
 		for root, dirs, files in os.walk(src_dir):
 			filtered=[]
 			for f in files:
-				ext = Utils.formatFilepath(f, 'ext')
+				ext = Utils.formatPath(f, 'ext')
 				if f in exclude or '*.'+ext in exclude:
 					continue
 				if any(include): #filter include for None values so not to get a false positive.
@@ -37,7 +36,7 @@ with open('docs/README.md', 'r') as f:
 	long_description = f.read()
 
 setuptools.setup(
-	name='tcl-toolkit',
+	name=name,
 	version=__version__,
 	author='Ryan Simpson',
 	author_email='m3trik@outlook.com',

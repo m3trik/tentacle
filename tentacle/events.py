@@ -171,14 +171,21 @@ class MouseTracking(QtCore.QObject):
 		'''
 		mouseOver = self.mouseOverFilter(widgets)
 
-		#send enter / leave events.
-		[self.app.sendEvent(w, self.leaveEvent_) and w.releaseMouse() for w in self._prevMouseOver if not w in mouseOver] #send leave events for widgets no longer in mouseOver.
-		[self.app.sendEvent(w, self.enterEvent_) for w in mouseOver if not w in self._prevMouseOver] #send enter events for any new widgets in mouseOver. 
+		#send leave events for widgets no longer in mouseOver.
+		for w in self._prevMouseOver:
+			if not w in mouseOver:
+				self.app.sendEvent(w, self.leaveEvent_)
+				w.releaseMouse()
+
+		#send enter events for any new widgets in mouseOver.
+		for w in mouseOver:
+			if not w in self._prevMouseOver:
+				self.app.sendEvent(w, self.enterEvent_)
 
 		try:
 			topWidget = self.app.widgetAt(QtGui.QCursor.pos())
 			topWidget.grabMouse() #set widget to receive mouse events.
-			# print (topWidget)
+			# print ('mousegrabber:', topWidget)
 
 		except AttributeError as error:
 			self.app.activeWindow().grabMouse()

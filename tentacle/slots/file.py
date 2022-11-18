@@ -12,8 +12,11 @@ class File(Slots):
 		'''
 		'''
 		#set the text for the open last file button to the last file's name.
-		mostRecentFile = self.getRecentFiles(0)
-		self.sb.file_submenu.b001.setText(self.getNameFromFullPath(mostRecentFile)) if mostRecentFile else self.sb.file_submenu.b001.setVisible(False)
+		list000 = self.sb.file_submenu.list000
+		recentFiles = [self.formatPath(f, 'name') for f in self.getRecentFiles()[:6] if f]
+		# list000.setVisible(bool(recentFiles))
+		list000.addItems(recentFiles)
+		# self.sb.file_submenu.b001.setText(self.formatPath(mostRecentFile, 'name')) if mostRecentFile else self.sb.file_submenu.b001.setVisible(False)
 
 		dh = self.sb.file.draggable_header
 		dh.ctxMenu.add(self.sb.ComboBox, setObjectName='cmb000', setToolTip='')
@@ -99,109 +102,6 @@ class File(Slots):
 		'''Export Selection
 		'''
 		self.cmb004(index=1)
-
-
-	@staticmethod
-	def getAbsoluteFilePaths(directory, endingWith=[]):
-		'''Get the absolute paths of all the files in a directory and it's sub-folders.
-
-		directory (str) = Root directory path.
-		endingWith (list) = Extension types (as strings) to include. ex. ['mb', 'ma']
-		
-		:Return:
-			(list) absolute file paths
-		'''
-		import os
-
-		paths=[]
-		for dirpath, _, filenames in os.walk(directory):
-			for f in filenames:
-				if f.split('.')[-1] in endingWith:
-					paths.append(os.path.abspath(os.path.join(dirpath, f)))
-
-		return paths
-
-
-	@staticmethod
-	def formatPath(dir_, strip=''):
-		'''Assure a given directory path string is formatted correctly.
-		Replace any backslashes with forward slashes.
-
-		:Parameters:
-			dir_ (str) = A directory path. ie. 'C:/Users/m3/Documents/3ds Max 2022/3ds Max 2022.mxp'
-			strip (str) = Strip from the path string. (valid: 'file', 'path')
-
-		:Return:
-			(str)
-		'''
-		formatted_dir = dir_.replace('/', '\\') #assure any single slash is forward.
-
-		split = formatted_dir.split('\\')
-		file = split[-1]
-
-		if strip=='file':
-			formatted_dir = '\\'.join(split[:-1]) if '.' in file else formatted_dir
-
-		elif strip=='path':
-			formatted_dir = file if '.' in file else formatted_dir
-
-		return formatted_dir
-
-
-	@staticmethod
-	def getNameFromFullPath(fullPath):
-		'''Extract the file or dir name from a path string.
-
-		:Parameters:
-			fullPath (str) = A full path including file name.
-
-		:Return:
-			(str) the dir or file name including extension.
-		'''
-		name = fullPath.split('/')[-1]
-		if len(fullPath)==len(name):
-			name = fullPath.split('\\')[-1]
-			if not name:
-				name = fullPath.split('\\')[-2]
-
-		return name
-
-
-	@staticmethod
-	def fileNameTimeStamp(files, detach=False, stamp='%m-%d-%Y  %H:%M', sort=False):
-		'''Attach a modified timestamp and date to given file path(s) and sort accordingly.
-
-		:Parameters:
-			files (str)(list) = The full path to a file. ie. 'C:/Windows/Temp/__AUTO-SAVE__untitled.0001.mb'
-			detach (bool) = Remove a previously attached time stamp.
-			stamp (str) = The time stamp format.
-			sort (bool) = Reorder the list of files by time. (most recent first)
-
-		:Return:
-			(list) ie. ['16:46  11-09-2021  C:/Windows/Temp/__AUTO-SAVE__untitled.0001.mb'] from ['C:/Windows/Temp/__AUTO-SAVE__untitled.0001.mb']
-		'''
-		from datetime import datetime
-		import os.path
-
-		files = [files] if not isinstance(files, (list, tuple, set)) else files
-
-		if detach:
-			result = [''.join(f.split()[2:]) for f in files]
-
-		else:
-			result=[]
-			for f in files:
-				try:
-					result.append('{}  {}'.format(datetime.fromtimestamp(os.path.getmtime(f)).strftime(stamp), f))
-				except (FileNotFoundError, OSError) as error:
-					continue
-
-			if sort:
-				result = list(reversed(sorted(result)))
-
-			result = result
-
-		return result
 
 
 

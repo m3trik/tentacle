@@ -141,7 +141,7 @@ class File_maya(File, Slots_maya):
 
 		path = self.formatPath(pm.workspace(query=1, rd=1)) #current project path.
 		items = [f for f in os.listdir(path)]
-		project = self.getNameFromFullPath(path) #add current project path string to label. strip path and trailing '/'
+		project = self.formatPath(path, 'dir') #add current project path string to label. strip path and trailing '/'
 
 		cmb.addItems_(items, header=project, clear=True)
 
@@ -311,7 +311,7 @@ class File_maya(File, Slots_maya):
 		dir1 = str(pm.workspace(query=1, rd=1))+'autosave' #current project path.
 		dir2 = os.environ.get('MAYA_AUTOSAVE_FOLDER').split(';')[0] #get autosave dir path from env variable.
 
-		files = self.getAbsoluteFilePaths(dir1, ['mb', 'ma']) + self.getAbsoluteFilePaths(dir2, ['mb', 'ma'])
+		files = self.getDirectoryContents(dir1, 'filepaths', ('*.mb', '*.ma')) + self.getDirectoryContents(dir2, 'filepaths', ('*.mb', '*.ma'))
 		result = [self.formatPath(f) for f in list(reversed(files))] #Replace any backslashes with forward slashes and reverse the list.
 
 		if timestamp:  #attach modified timestamp
@@ -331,7 +331,7 @@ class File_maya(File, Slots_maya):
 		'''
 		workspace_dir = str(pm.workspace(query=1, rd=1)) #get current project path.
 
-		files = self.getAbsoluteFilePaths(workspace_dir, ['mb', 'ma'])
+		files = self.getDirectoryContents(workspace_dir, 'filepaths', ('*.mb', '*.ma'))
 		result = [self.formatPath(f) for f in files] #Replace any backslashes with forward slashes.
 
 		if not fullPath:

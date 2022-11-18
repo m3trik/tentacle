@@ -24,7 +24,7 @@ class Img_utils():
 	'''
 	from file_utils import File_utils
 
-	formatFilepath = File_utils.formatFilepath
+	formatPath = File_utils.formatPath
 	getDirectoryContents = File_utils.getDirectoryContents
 
 	mapTypes = { #Get map type from filename suffix.
@@ -146,8 +146,8 @@ class Img_utils():
 		for f in cls.getDirectoryContents(image_dir, 'filepaths'):
 
 			if any(map(f.endswith, exts)):
-				fullpath = cls.formatFilepath(f)
-				filename = cls.formatFilepath(f, 'file')
+				fullpath = cls.formatPath(f)
+				filename = cls.formatPath(f, 'file')
 				filename = min(map(filename.rstrip, exts), key=len)
 
 				im = Image.open(fullpath)
@@ -385,7 +385,7 @@ class Img_utils():
 		:Return:
 			(str)
 		'''
-		name = cls.formatFilepath(file, 'name')
+		name = cls.formatPath(file, 'name')
 
 		if key:
 			return next((k for k, v in cls.mapTypes.items() for i in v if name.lower().endswith(i.lower())), None)
@@ -506,9 +506,9 @@ class Img_utils():
 		'''
 		inverted_image = cls.invertChannels(file, 'g')
 
-		output_dir = cls.formatFilepath(file, 'path')
-		name = cls.formatFilepath(file, 'name')
-		ext = cls.formatFilepath(file, 'ext')
+		output_dir = cls.formatPath(file, 'path')
+		name = cls.formatPath(file, 'name')
+		ext = cls.formatPath(file, 'ext')
 
 		typ = cls.getImageType(file, key=False)
 		try:
@@ -538,9 +538,9 @@ class Img_utils():
 		'''
 		inverted_image = cls.invertChannels(file, 'g')
 
-		output_dir = cls.formatFilepath(file, 'path')
-		name = cls.formatFilepath(file, 'name')
-		ext = cls.formatFilepath(file, 'ext')
+		output_dir = cls.formatPath(file, 'path')
+		name = cls.formatPath(file, 'name')
+		ext = cls.formatPath(file, 'ext')
 
 		typ = cls.getImageType(file, key=False)
 		try:
@@ -667,7 +667,7 @@ if __name__=='__main__':
 	# 	files = cls.getImageFiles()
 	# 	for file, image in files.items():
 	# 		inverted_image = cls.invertChannels(image, 'g')
-	# 		# name = cls.formatFilePath(file, remove='_DirectX', append='_OpenGL')
+	# 		# name = cls.formatPath(file, remove='_DirectX', append='_OpenGL')
 	# 		# cls.saveImageFile(inverted_image, name)
 
 
@@ -677,7 +677,7 @@ if __name__=='__main__':
 	# 	files = cls.getImageFiles()
 	# 	for file, image in files.items():
 	# 		inverted_image = cls.invertChannels(image, 'g')
-	# 		# name = cls.formatFilePath(file, remove='_OpenGL', append='_DirectX')
+	# 		# name = cls.formatPath(file, remove='_OpenGL', append='_DirectX')
 	# 		# cls.saveImageFile(inverted_image, name)
 
 

@@ -26,19 +26,6 @@ class Scene_max(Scene, Slots_max):
 			cmb.setCurrentIndex(0)
 
 
-	def t001(self, state=None):
-		'''Replace
-		'''
-		t001 = self.sb.scene.t001
-
-		find = self.sb.scene.t000.text() #asterisk denotes startswith*, *endswith, *contains* 
-		to = self.sb.scene.t001.text()
-		regEx = self.sb.scene.t000.ctxMenu.chk001.isChecked()
-		ignoreCase = self.sb.scene.t000.ctxMenu.chk000.isChecked()
-
-		self.rename(find, to, regEx=regEx, ignoreCase=ignoreCase)
-
-
 	def tb000(self, state=None):
 		'''Convert Case
 		'''
@@ -49,6 +36,19 @@ class Scene_max(Scene, Slots_max):
 		selection = pm.ls(sl=1)
 		objects = selection if selection else pm.ls(objectsOnly=1)
 		self.setCase(objects, case)
+
+
+	def b000(self):
+		'''Rename
+		'''
+		find = self.sb.scene.t000.text() #an asterisk denotes startswith*, *endswith, *contains* 
+		to = self.sb.scene.t001.text()
+		regEx = self.sb.scene.t000.ctxMenu.chk001.isChecked()
+		ignoreCase = self.sb.scene.t000.ctxMenu.chk000.isChecked()
+
+		selection = pm.ls(sl=1)
+		objects = selection if selection else pm.ls(objectsOnly=1)
+		self.rename(find, to, objects, regEx=regEx, ignoreCase=ignoreCase)
 
 
 	def rename(self, frm, to, regEx=False, ignoreCase=False):
@@ -74,7 +74,7 @@ class Scene_max(Scene, Slots_max):
 		ex. rename(r'Cube', '*001', regEx=True) #replace chars after frm on any object with a name that contains 'Cube'. ie. 'polyCube001' from 'polyCube'
 		ex. rename(r'Cube', '**001', regEx=True) #append chars on any object with a name that contains 'Cube'. ie. 'polyCube1001' from 'polyCube1'
 		'''
-		names = self.findStrAndFormat(frm, to, [obj.name for obj in rt.objects], regEx=regEx, ignoreCase=ignoreCase) #[o for o in rt.objects if rt.matchPattern(o.name, pattern=f, ignoreCase=0)]
+		names = self.findStrAndFormat(frm, to, [obj.name for obj in rt.objects], regEx=regEx, ignoreCase=ignoreCase, returnOldNames=True) #[o for o in rt.objects if rt.matchPattern(o.name, pattern=f, ignoreCase=0)]
 		print ('# Rename: Found {} matches. #'.format(len(names)))
 
 		for oldName, newName in names:

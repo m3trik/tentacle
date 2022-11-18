@@ -148,7 +148,7 @@ class File_max(File, Slots_max):
 		path = self.formatPath(rt.pathconfig.getCurrentProjectFolderPath(), strip='file') #current project path.
 		items = [f for f in os.listdir(path)]
 
-		project = self.getNameFromFullPath(path) #add current project path string to label. strip path and trailing '/'
+		project = self.formatPath(path, 'dir') #add current project path string to label. strip path and trailing '/'
 
 		cmb.addItems_(items, project, clear=True)
 
@@ -297,7 +297,7 @@ class File_max(File, Slots_max):
 		)
 		''')
 		files = rt._getRecentFiles()
-		result = [Slots_max.formatPath(f) for f in files]
+		result = [self.formatPath(f) for f in files]
 
 		try:
 			return result[index]
@@ -312,7 +312,7 @@ class File_max(File, Slots_max):
 			(list)
 		'''
 		files = ['No 3ds max function']
-		result = [Slots_max.formatPath(f) for f in list(reversed(files))]
+		result = [self.formatPath(f) for f in list(reversed(files))]
 
 		return result
 
@@ -330,7 +330,7 @@ class File_max(File, Slots_max):
 
 		path = rt.GetDir(rt.name('autoback'))
 		files = [r'{}\{}'.format(path, f) for f in os.listdir(path) if f.endswith('.max') or f.endswith('.bak')] #get list of max autosave files
-		result = [Slots_max.formatPath(f) for f in list(reversed(files))] #format and reverse the list.
+		result = [self.formatPath(f) for f in list(reversed(files))] #format and reverse the list.
 
 		if appendDatetime:  #attach modified timestamp
 			result = Slots.fileNameTimeStamp(result)

@@ -37,21 +37,6 @@ class Scene_blender(Scene, Slots_blender):
 			cmb.setCurrentIndex(0)
 
 
-	def t001(self, state=None):
-		'''Replace
-		'''
-		t001 = self.sb.scene.t001
-
-		find = self.sb.scene.t000.text() #an asterisk denotes startswith*, *endswith, *contains* 
-		to = self.sb.scene.t001.text()
-		regEx = self.sb.scene.t000.ctxMenu.chk001.isChecked()
-		ignoreCase = self.sb.scene.t000.ctxMenu.chk000.isChecked()
-
-		selection = pm.ls(sl=1)
-		objects = selection if selection else pm.ls(objectsOnly=1)
-		self.rename(find, to, objects, regEx=regEx, ignoreCase=ignoreCase)
-
-
 	def tb000(self, state=None):
 		'''Convert Case
 		'''
@@ -91,7 +76,7 @@ class Scene_blender(Scene, Slots_blender):
 		'''
 		# pm.undoInfo (openChunk=1)
 		objects = pm.ls(objectsOnly=1) if not objects else objects
-		names = self.findStrAndFormat(frm, to, [obj.name() for obj in objects], regEx=regEx, ignoreCase=ignoreCase)
+		names = self.findStrAndFormat(frm, to, [obj.name() for obj in objects], regEx=regEx, ignoreCase=ignoreCase, returnOldNames=True)
 		print ('# Rename: Found {} matches. #'.format(len(names)))
 
 		for oldName, newName in names:

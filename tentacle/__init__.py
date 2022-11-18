@@ -2,8 +2,9 @@
 # coding=utf-8
 import sys, os.path
 
-__version__ = '0.510'
 
+name = 'tcl-toolkit'
+__version__ = '0.510'
 
 
 def greeting(hello=False, mod_version=False, py_version=False):

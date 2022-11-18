@@ -419,6 +419,7 @@ class Tcl(QtWidgets.QStackedWidget):
 	def ef_enterEvent(self, w, event):
 		'''
 		'''
+		print (1, self.sb.currentUi.name)
 		if w.type=='QWidget':
 			if w.prefix=='w':
 				w.setVisible(True) #set visibility

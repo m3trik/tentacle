@@ -693,6 +693,68 @@ class Transform_maya(Transform, Slots_maya):
 		return list(round(sum(x) / float(len(x)),4), round(sum(y) / float(len(y)),4), round(sum(z) / float(len(z)),4))
 
 
+	@classmethod
+	def getBoundingBoxValue(cls, obj, value='sizeX|sizeY|sizeZ'):
+		'''Get information of the given object(s) bounding box.
+
+		:Parameters:
+			obj (str)(obj)(list) = The object(s) to query.
+				Multiple objects will be treated as a combined bounding box.
+			value (str) = The type of value to return. Multiple types can be given
+				separated by '|'. The order given determines the return order.
+				valid (case insensitive): 'xmin', 'xmax', 'ymin', 'ymax', 
+				'zmin', 'zmax', 'sizex', 'sizey', 'sizez', 'volume', 'center'
+
+		:Return:
+			(float)(list) Dependant on args.
+
+		ex. call: getBoundingBoxValue(sel, 'center|volume') #returns: [[171.9106216430664, 93.622802734375, -1308.4896240234375], 743.2855185396038]
+		ex. call: getBoundingBoxValue(sel, 'sizeY') #returns: 144.71902465820312
+		'''
+		if '|' in value: #use recursion to construct the list using each value.
+			return [cls.getBoundingBoxValue(obj, i) for i in value.split('|')]
+
+		v = value.lower()
+		for o in pm.ls(obj, objectsOnly=True):
+			xmin, ymin, zmin, xmax, ymax, zmax = pm.exactWorldBoundingBox(o)
+			if v=='xmin': return xmin
+			elif v=='xmax': return xmax
+			elif v=='ymin': return ymin
+			elif v=='ymax': return ymax
+			elif v=='zmin': return zmin
+			elif v=='zmax': return zmax
+			elif v=='sizex': return xmax-xmin
+			elif v=='sizey': return ymax-ymin
+			elif v=='sizez': return zmax-zmin
+			elif v=='volume': return (xmax-xmin)*(ymax-ymin)*(zmax-zmin)
+			elif v=='center': return [(xmin+xmax)/2.0, (ymin+ymax)/2.0, (zmin+zmax)/2.0]
+
+
+	@classmethod
+	def sortByBoundingBoxValue(cls, objects, value='volume', descending=True, returnWithValue=False):
+		'''Sort the given objects by their bounding box value.
+
+		:Parameters:
+			objects (list) = The objects to sort.
+			value (str) = See 'getBoundingBoxInfo' 'value' parameter.
+					ex. 'xmin', 'xmax', 'sizex', 'volume', 'center' ..
+			descending (bool) = Sort the list from the largest value down.
+			returnWithValue (bool) = Instead of just the object; return a 
+					list of two element tuples as [(<value>, <obj>)].
+		:Return:
+			(list)
+		'''
+		valueAndObjs=[]
+		for obj in pm.ls(objects, objectsOnly=True):
+			v = cls.getBoundingBoxValue(obj, value)
+			valueAndObjs.append((v, obj))
+
+		sorted_ = sorted(valueAndObjs, key=lambda x: int(x[0]), reverse=descending)
+		if returnWithValue:
+			return sorted_
+		return [obj for v, obj in sorted_]
+
+
 	def matchScale(self, to, frm, scale=True, average=False):
 		'''Scale each of the given objects to the combined bounding box of a second set of objects.
 

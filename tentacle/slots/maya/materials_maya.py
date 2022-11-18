@@ -16,7 +16,7 @@ class Materials_maya(Materials, Slots_maya):
 		dh.ctxMenu.add(self.sb.Label, setText='Material Attributes', setObjectName='lbl004', setToolTip='Show the material attributes in the attribute editor.')
 
 		cmb000 = self.sb.materials.draggable_header.ctxMenu.cmb000
-		items = ['Hypershade']
+		items = ['Hypershade', 'Material Presets']
 		cmb000.addItems_(items, 'Material Editors')
 
 
@@ -27,8 +27,14 @@ class Materials_maya(Materials, Slots_maya):
 
 		if index>0:
 			text = cmb.items[index]
+
 			if text=='Hypershade':
 				mel.eval('HypershadeWindow;')
+
+			elif text=='Material Presets':
+				from shader_utils_maya import Stingray_arnold_shader_main
+				Stingray_arnold_shader_main()
+
 			cmb.setCurrentIndex(0)
 
 
@@ -175,7 +181,7 @@ class Materials_maya(Materials, Slots_maya):
 		'''
 		mat = self.sb.materials.cmb002.currentData()
 		try:
-			mel.eval('showSG '+mat.name())
+			pm.mel.showSG(mat.name())
 
 		except Exception as error:
 			print (error)

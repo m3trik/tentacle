@@ -177,3 +177,11 @@ dmypy.json
 # Pyre type checker
 .pyre/
 update_package.cmd
+*.exr
+*.exr
+*.exr
+*.exr
+tentacle/slots/maya/shader_utils_maya/resources/hdr/industrial_pipe_and_valve_01_4k.exr
+tentacle/slots/maya/shader_utils_maya/resources/hdr/aircraft_workshop_01_4k.exr
+*.tx
+*.swatch

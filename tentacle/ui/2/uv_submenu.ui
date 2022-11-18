@@ -87,7 +87,7 @@
      <string>UV</string>
     </property>
    </widget>
-   <widget class="QPushButton" name="b000">
+   <widget class="QPushButton" name="b021">
     <property name="enabled">
      <bool>true</bool>
     </property>
@@ -155,7 +155,7 @@
      <bool>false</bool>
     </property>
    </widget>
-   <widget class="QPushButton" name="b003">
+   <widget class="QPushButton" name="b022">
     <property name="enabled">
      <bool>true</bool>
     </property>

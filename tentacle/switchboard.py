@@ -13,12 +13,12 @@ from ui.styleSheet import StyleSheet
 from slots.utils import Utils
 
 
-
 class Switchboard(QUiLoader, StyleSheet, Utils):
-	'''The switchboard after being instanced can be accessed anywhere using; QtWidgets.QApplication.instance().sb
+	'''Load dynamic ui and assign properties.
+	Also inherits all utility classes from the utils package.
 
-	:properties:
-		sb = Passed to all slot class instances, sb is the instance of this class holding all of the properties below. ex. sb.ui.widgets
+	:Properties:
+		sb = The property 'sb' is automatically passed to all slot class instances, sb is the instance of this class holding all of the properties below. ex. sb.ui.widgets
 		sb.<uiFileName> = Any ui located in the switchboard's ui directory can be accessed using it's filename.
 		sb.<customWidgetClassName> = Any of the custom widgets in the widget directory.
 
@@ -95,7 +95,6 @@ class Switchboard(QUiLoader, StyleSheet, Utils):
 	def __init__(self, parent=None, uiLoc='', widgetLoc='', slotLoc='', preloadUi=False):
 		QUiLoader.__init__(self, parent)
 		self.app = QtWidgets.QApplication.instance()
-		setattr(self.app, 'sb', self)
 		'''
 		:Parameters:
 			parent (obj) = A QtObject derived class.
@@ -109,8 +108,7 @@ class Switchboard(QUiLoader, StyleSheet, Utils):
 			If any of the given filepaths are not a full path, it will be treated as relative to the 'defaultDir'.
 			ex. sb.slotLoc = 'maya' would become: '<sb.defaultDir>/maya'			
 		'''
-		filepath = inspect.getfile(parent.__class__) if parent else __file__
-		self.defaultDir = os.path.abspath(os.path.dirname(filepath))
+		self.defaultDir = self.getFilepath(parent) if parent else self.getFilepath(__file__) #use the filepath from the parent class if a parent is given.
 
 		self.uiLoc = uiLoc
 		self.widgetLoc = widgetLoc
@@ -314,7 +312,7 @@ class Switchboard(QUiLoader, StyleSheet, Utils):
 		:Return:
 			(int)
 		'''
-		uiFolder = self.formatFilepath(filePath, 'dir')
+		uiFolder = self.formatPath(filePath, 'dir')
 
 		try:
 			return int(re.findall(r"\d+\s*$", uiFolder)[0]) #get trailing integers.
@@ -375,13 +373,13 @@ class Switchboard(QUiLoader, StyleSheet, Utils):
 		:Return:
 			(list) widgets
 		'''
-		mod_name = self.formatFilepath(path, 'name')
+		mod_name = self.formatPath(path, 'name')
 
 		if not os.path.isfile(path) or os.path.isdir(path):
 			mod_name = self.setCase(mod_name, 'camelCase')
 			path = os.path.join(self.widgetLoc, mod_name+'.py')
 
-		path_ = self.formatFilepath(path, 'path')
+		path_ = self.formatPath(path, 'path')
 
 		self.setWorkingDirectory(path_)
 		self.addPluginPath(path_)
@@ -492,7 +490,7 @@ class Switchboard(QUiLoader, StyleSheet, Utils):
 		'''
 		assert isinstance(ui, QtWidgets.QMainWindow), 'Incorrect datatype: {}: {}'.format(type(ui), ui)
 
-		d = self.formatFilepath(self.slotLoc, 'dir')
+		d = self.formatPath(self.slotLoc, 'dir')
 		suffix = '' if d=='slots' else d
 
 		mod_name = '{}_{}'.format(
@@ -535,11 +533,14 @@ class Switchboard(QUiLoader, StyleSheet, Utils):
 						ie. 'O:/Cloud/Code/_scripts/tentacle/tentacle/ui/widgets' or the widget(s) themselves. 
 
 		:Return:
-			(obj)(list) list only if multiple widgets given.
+			(obj)(list) list if widgets given as a list.
 
 		ex. call: registerWidgets(<class 'widgets.menu.Menu'>) #register using widget class object.
 		ex. call: registerWidgets('O:/Cloud/Code/_scripts/tentacle/tentacle/ui/widgets/menu.py') #register using path to widget module.
 		'''
+		#if 'widgets' is given as a list; return a list.
+		returnAsList = isinstance(widgets, (list, tuple, set))
+
 		result=[]
 		for w in self.makeList(widgets): #assure widgets is a list.
 
@@ -562,6 +563,8 @@ class Switchboard(QUiLoader, StyleSheet, Utils):
 			except Exception as error:
 				print ('# {}: registerWidgets: {}. #'.format(__file__, error))
 
+		if returnAsList:
+			return result
 		return self.formatReturn(result)
 
 
@@ -597,8 +600,8 @@ class Switchboard(QUiLoader, StyleSheet, Utils):
 		:Return:
 			(obj) QMainWindow object.
 		'''
-		name = self.formatFilepath(file, 'name')
-		path = self.formatFilepath(file, 'path')
+		name = self.formatPath(file, 'name')
+		path = self.formatPath(file, 'path')
 		level = self._getUiLevelFromDir(file)
 
 		#register custom widgets
@@ -737,12 +740,15 @@ class Switchboard(QUiLoader, StyleSheet, Utils):
 			level (int)(list) = Integer(s) representing the level to include. ex. 2 for submenu, 3 for parent menu, or [2, 3] for both.
 
 		:Return:
-			(str)(list) list if multiple levels are given.
+			(str)(list) list if 'levels' given as a list.
 		'''
 		if not ui:
 			ui = self.currentUi
 
 		if level:
+			#if 'level' is given as a list; return a list.
+			returnAsList = isinstance(level, (list, tuple, set))
+
 			if isinstance(ui, str):
 				ui, *tags = ui.split('#')
 
@@ -769,6 +775,8 @@ class Switchboard(QUiLoader, StyleSheet, Utils):
 						])
 				]
 
+			if returnAsList:
+				return ui
 			return self.formatReturn(ui)
 
 		elif isinstance(ui, str):

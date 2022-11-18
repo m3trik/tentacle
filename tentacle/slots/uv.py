@@ -58,10 +58,6 @@ class Uv(Slots):
 		tb006.ctxMenu.add('QRadioButton', setText='Distribute U', setObjectName='chk023', setChecked=True, setToolTip='Distribute along U.')
 		tb006.ctxMenu.add('QRadioButton', setText='Distribute V', setObjectName='chk024', setToolTip='Distribute along V.')
 
-		tb007 = self.sb.uv.tb007
-		tb007.ctxMenu.add('QPushButton', setText='Get Texel Density', setObjectName='b099', setChecked=True, setToolTip='Get the average texel density of any selected faces.')
-		tb007.ctxMenu.add('QDoubleSpinBox', setPrefix='Texel Density: ', setObjectName='s003', setMinMax_='0.00-128 step1', setValue=5, setToolTip='Set the desired texel density.')
-
 		tb008 = self.sb.uv.tb008
 		tb008.ctxMenu.add('QCheckBox', setText='To Similar', setObjectName='chk025', setToolTip='Instead of manually selecting what to transfer to; search the scene for similar objects.')
 		tb008.ctxMenu.add('QDoubleSpinBox', setPrefix='Tolerance: ', setObjectName='s013', setMinMax_='0.0-1000 step.5', setValue=0.00, setToolTip='The maximum attribute value tolerance to use when searching for similar objects.')
@@ -87,14 +83,14 @@ class Uv(Slots):
 			tb.ctxMenu.chk001.setText('Scale Mode 2')
 
 
-	def b000(self):
+	def b021(self):
 		'''Unfold and Pack
 		'''
 		self.tb004() #perform unfold
 		self.tb000() #perform pack
 
 
-	def b003(self):
+	def b022(self):
 		'''Cut UV hard edges
 		'''
 		self.sb.selection.slots.tb003() #perform select edges by angle.

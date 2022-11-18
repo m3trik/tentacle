@@ -33,9 +33,6 @@ class Uv_maya(Uv, Slots_maya):
 		tb000.ctxMenu.add('QSpinBox', setPrefix='UDIM: ', setObjectName='s004', setMinMax_='1001-1200 step1', setValue=1001, setToolTip='Set the desired UDIM tile space.')
 		tb000.ctxMenu.add('QSpinBox', setPrefix='Padding: ', setObjectName='s012', setMinMax_='0-999 step1', setValue=self.getMapSize()/256*2, setToolTip='Set the shell spacing amount.')
 
-		tb007 = self.sb.uv.tb007
-		tb007.ctxMenu.b099.released.connect(lambda: tb007.ctxMenu.s003.setValue(float(pm.mel.texGetTexelDensity(self.getMapSize())))) #get and set texel density value.
-
 
 	def cmb000(self, index=-1):
 		'''Editors
@@ -337,17 +334,6 @@ class Uv_maya(Uv, Slots_maya):
 			pm.mel.texDistributeShells(0, 0, "down", []) #'up', 'down'
 
 
-	def tb007(self, state=None):
-		'''Set Texel Density
-		'''
-		tb = self.sb.uv.tb007
-
-		density = tb.ctxMenu.s003.value()
-		mapSize = self.getMapSize()
-
-		pm.mel.texSetTexelDensity(density, mapSize)
-
-
 	@Slots_maya.undo
 	def tb008(self, state=None):
 		'''Transfer UV's
@@ -373,6 +359,28 @@ class Uv_maya(Uv, Slots_maya):
 		pm.mel.UVCreateSnapshot()
 
 
+	def b002(self):
+		'''Stack Shells
+		'''
+		pm.mel.texStackShells({})
+		# pm.mel.texOrientShells()
+
+
+	def b003(self):
+		'''Get texel density.
+		'''
+		density = pm.mel.texGetTexelDensity(self.getMapSize())
+		self.sb.uv.s003.setValue(density)
+
+
+	def b004(self):
+		'''Set Texel Density
+		'''	
+		density = self.sb.uv.s003.value()
+		mapSize = self.getMapSize()
+		pm.mel.texSetTexelDensity(density, mapSize)
+
+
 	def b005(self):
 		'''Cut UV's
 		'''
@@ -386,6 +394,20 @@ class Uv_maya(Uv, Slots_maya):
 				edges = pm.ls(obj, sl=1)
 
 			pm.polyMapCut(edges)
+
+
+	def b006(self):
+		'''Rotate UV's 90
+		'''
+		angle = 45
+		# issue with getting rotate pivot; queries returning None instead of float values.
+		objects = pm.ls(selection=1, objectsOnly=1)
+		# for obj in objects:
+		# 	pu = pm.polyEditUV(obj, q=True, pivotU=True)
+		# 	pv = pm.polyEditUV(obj, q=True, pivotV=True)
+
+		# 	pm.polyEditUV(obj, pivotU=pu, pivotV=pv, angle=angle, relative=True)
+		pm.polyEditUV(objects, angle=angle,  rr=True)
 
 
 	def b011(self):
@@ -438,8 +460,9 @@ class Uv_maya(Uv, Slots_maya):
 
 	@classmethod
 	def uvShellSelection(cls):
-		'''Select all faces of any selected geometry, and switch the component mode to uv shell,
-		if the current selection is not maskFacet, maskUv, or maskUvShell.
+		'''Select all faces of any selected geometry.
+		If the current selection is not maskFacet, maskUv, or maskUvShell,
+		switch the component mode to uv shell.
 
 		:Return:
 			(list) the selected faces.

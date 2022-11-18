@@ -31,9 +31,6 @@ class Uv_max(Uv, Slots_max):
 		tb001.ctxMenu.add('QRadioButton', setText='Normal-Based', setObjectName='chk006', setToolTip='Create UV texture coordinates for the current selection by creating a planar projection based on the average vector of it\'s face normals.')
 		# tb001.ctxMenu.chk001.toggled.connect(lambda state: self.sb.toggleWidgets(tb001.ctxMenu, setUnChecked='chk002-3') if state==1 else None)
 
-		# tb007 = self.sb.uv.tb007
-		# tb007.ctxMenu.b099.released.connect(lambda: tb007.ctxMenu.s003.setValue(float(pm.mel.texGetTexelDensity(tb007.ctxMenu.s002.value())))) #get and set texel density value.
-
 
 	@property
 	def uvModifier(self):
@@ -279,15 +276,22 @@ class Uv_max(Uv, Slots_max):
 			pm.mel.texDistributeShells(0, 0, "down", []) #'up', 'down'
 
 
-	def tb007(self, state=None):
-		'''Set Texel Density
+	def tb008(self, state=None):
+		'''Transfer UV's
 		'''
-		tb = self.sb.uv.tb007
+		tb = self.sb.uv.tb008
 
-		mapSize = tb.ctxMenu.s002.value()
-		density = tb.ctxMenu.s003.value()
+		toSimilar = tb.ctxMenu.chk025.isChecked()
+		similarTol = tb.ctxMenu.s013.value()
+		deleteConstHist = tb.ctxMenu.chk026.isChecked()
 
-		pm.mel.texSetTexelDensity(density, mapSize)
+		frm, *to = pm.ls(orderedSelection=1, flatten=1)
+		if toSimilar:
+			to = 'similar'
+		elif not to:
+			return self.messageBox('<b>Nothing selected.</b><br>The operation requires the selection of two polygon objects.')
+
+		self.transferUVs(frm, to, tol=similarTol, deleteConstHist=deleteConstHist)
 
 
 	def b001(self):
@@ -297,16 +301,25 @@ class Uv_max(Uv, Slots_max):
 
 
 	def b002(self):
-		'''Transfer Uv's
+		'''Stack Shells
 		'''
-		sel = pm.ls(orderedSelection=1, flatten=1)
-		if len(sel)<2:
-			self.messageBox('The operation requires the selection of two polygon objects.')
+		pm.mel.texStackShells()
+		# pm.mel.texOrientShells()
 
-		from_ = sel[0]
-		to = sel[-1]
-		pm.transferAttributes(from_, to, transferUVs=2) # 0:no UV sets, 1:single UV set (specified by sourceUVSet and targetUVSet args), and 2:all UV sets are transferred.
-		self.messageBox('UV sets transferred from: {} to: {}.'.format(from_.name(), to.name()), messageType='Result')
+
+	def b003(self):
+		'''Get texel density.
+		'''
+		density = pm.mel.texGetTexelDensity(self.getMapSize())
+		self.sb.uv.s003.setValue(density)
+
+
+	def b004(self):
+		'''Set Texel Density
+		'''	
+		density = self.sb.uv.s003.value()
+		mapSize = self.getMapSize()
+		pm.mel.texSetTexelDensity(density, mapSize)
 
 
 	def b005(self):

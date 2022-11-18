@@ -11,7 +11,7 @@ class File_utils():
 	'''
 	'''
 	@staticmethod
-	def formatFilepath(string, section='', replace=''):
+	def formatPath(string, section='', replace=''):
 		'''Format a full path to file string from '\' to '/'.
 		When a section arg is given, the correlating section of the string will be returned.
 		If a replace arg is given, the stated section will be replaced by the given value.
@@ -19,13 +19,12 @@ class File_utils():
 		:Parameters:
 			string (str) = The file path string to be formatted.
 			section (str) = The desired subsection of the given path. 
-				'path' path - filename, 
-				'dir'  directory name, 
-				'file' filename + ext, 
-				'name', filename - ext,
-				'ext', file extension,
-				(if '' is given, the fullpath will be returned)
-
+					'path' path - filename, 
+					'dir'  directory name, 
+					'file' filename + ext, 
+					'name', filename - ext,
+					'ext', file extension,
+					(if '' is given, the fullpath will be returned)
 		:Return:
 			(str)
 		'''
@@ -64,6 +63,43 @@ class File_utils():
 			string = Str_utils.rreplace(orig_str, string, replace, 1)
 
 		return string #if no arg is given, the fullpath will be returned.
+
+
+	@staticmethod
+	def fileNameTimeStamp(files, detach=False, stamp='%m-%d-%Y  %H:%M', sort=False):
+		'''Attach a modified timestamp and date to given file path(s) and sort accordingly.
+
+		:Parameters:
+			files (str)(list) = The full path to a file. ie. 'C:/Windows/Temp/__AUTO-SAVE__untitled.0001.mb'
+			detach (bool) = Remove a previously attached time stamp.
+			stamp (str) = The time stamp format.
+			sort (bool) = Reorder the list of files by time. (most recent first)
+
+		:Return:
+			(list) ie. ['16:46  11-09-2021  C:/Windows/Temp/__AUTO-SAVE__untitled.0001.mb'] from ['C:/Windows/Temp/__AUTO-SAVE__untitled.0001.mb']
+		'''
+		from datetime import datetime
+		import os.path
+
+		files = [files] if not isinstance(files, (list, tuple, set)) else files
+
+		if detach:
+			result = [''.join(f.split()[2:]) for f in files]
+
+		else:
+			result=[]
+			for f in files:
+				try:
+					result.append('{}  {}'.format(datetime.fromtimestamp(os.path.getmtime(f)).strftime(stamp), f))
+				except (FileNotFoundError, OSError) as error:
+					continue
+
+			if sort:
+				result = list(reversed(sorted(result)))
+
+			result = result
+
+		return result
 
 
 	@staticmethod
@@ -130,7 +166,7 @@ class File_utils():
 
 
 	@staticmethod
-	def getDirectoryContents(path, returnType='files', exclude=[], include=[], recursive=False, topdown=True, stripExtension=False):
+	def getDirectoryContents(path, returnType='files', include=[], exclude=[], recursive=False, topdown=True, stripExtension=False):
 		'''Get the contents of a directory and any of it's children.
 
 		:Parameters:
@@ -139,11 +175,11 @@ class File_utils():
 						ex. 'files|dirs' (valid: 'files'(default), 'filepaths', 'dirs', 'dirpaths')
 						case insensitive. Can be singular or plural.
 			recursive (bool) = return the contents of the root dir only.
+			include (str)(list) = Include only specific child directories or files.
+						*.ext will isolate all files with the given extension.
+						exclude takes precedence over include.
 			exclude (str)(list) = Excluded specific child directories or files.
 						*.ext will exclude all files with the given extension.
-						exclude takes precedence over include.
-			include (str)(list) = Include specific child directories or files.
-						*.ext will include all files with the given extension.
 						exclude takes precedence over include.
 			stripExtension (bool) = Return filenames without their extension.
 			topDown (bool) = Scan directories from the top-down, or bottom-up.
@@ -178,9 +214,9 @@ class File_utils():
 
 			for f in files:
 				if stripExtension:
-					f.rstrip('.'+File_utils.formatFilepath(f, 'ext'))
+					f.rstrip('.'+File_utils.formatPath(f, 'ext'))
 
-				ext = File_utils.formatFilepath(f, 'ext')
+				ext = File_utils.formatPath(f, 'ext')
 				if f in exclude or '*.'+ext in exclude:
 					continue
 
@@ -196,6 +232,32 @@ class File_utils():
 		return result
 
 
+	@staticmethod
+	def getFilepath(obj, includeFilename=False):
+		'''Get the filepath from a class or module.
+
+		:Parameters:
+			obj (obj) = A python module, class, or the built-in __file__ variable.
+			includeFilename (bool) = Include the filename in the returned result.
+
+		:Return:
+			(str)
+		'''
+		from types import ModuleType
+
+		if isinstance(obj, str):
+			filepath = obj
+		elif isinstance(obj, ModuleType):
+			filepath = obj.__file__
+		else:
+			filepath = os.path.abspath(sys.modules[obj.__module__].__file__)
+
+		if includeFilename:
+			return filepath
+		else:
+			return os.path.abspath(os.path.dirname(filepath))
+
+
 	@classmethod
 	def getJsonFile(cls, returnType=''):
 		'''Get the current json file path.
@@ -204,7 +266,7 @@ class File_utils():
 			(str)
 		'''
 		try:
-			return cls.formatFilepath(cls._json_file, returnType)
+			return cls.formatPath(cls._json_file, returnType)
 		except AttributeError as error:
 			cls._json_file = '/'.join([os.path.dirname(__file__), 'file_utils.json'])
 			return cls._json_file
@@ -217,14 +279,14 @@ class File_utils():
 		:Parameters:
 			string (str) = The desired replacement string.
 			subsection (str) = Modify only part of the file path.
-				(Any of the 'returnType' args in 'formatFilepath')
+				(Any of the 'returnType' args in 'formatPath')
 				ex. 'path' path - filename,
 					'dir'  directory name, 
 					'file' filename + ext, 
 					'name', filename - ext,
 					'ext', file extension,
 		'''
-		cls._json_file = cls.formatFilepath(cls.getJsonFile(), subsection, string)
+		cls._json_file = cls.formatPath(cls.getJsonFile(), subsection, string)
 
 
 	@classmethod

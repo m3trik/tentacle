@@ -40,15 +40,22 @@ class Iter_utils():
 			return lst
 
 
+	@staticmethod
+	def hasNested(lst):
+		'''
+		'''
+		return any(isinstance(i, (list, tuple, set)) for i in lst)
+
+
 	@classmethod
-	def flatten(lst):
+	def flatten(cls, lst):
 		'''Flatten arbitrarily nested lists.
 
 		:Parameters:
 			lst (list) = A list with potentially nested lists.
 
 		:Return:
-			(list)
+			(generator)
 		'''
 		for i in lst:
 			if isinstance(i, (list,tuple,set)):
@@ -59,17 +66,18 @@ class Iter_utils():
 
 
 	@staticmethod
-	def collapseList(lst, limit=None, compress=True, returnAsString=True):
+	def collapseList(lst, limit=None, compress=True, toString=True):
 		'''Convert a list of integers to a collapsed sequential string format.
 		ie. [19,22,23,24,25,26] to ['19', '22..26']
 
 		:Parameters:
-			lst (list) = A list of integers
+			lst (list) = A list of integers.
+			limit (int) = limit the maximum length of the returned elements.
 			compress (bool) = Trim redundant chars from the second half of a compressed set. ie. ['19', '22-32', '1225-6'] from ['19', '22..32', '1225..1226']
-			returnAsString (bool) = Return a single string value instead of a list.
+			toString (bool) = Return a single string value instead of a list.
 
 		:Return:
-			(list) or (str) if 'returnAsString'.
+			(list)(str) string if 'toString'.
 		'''
 		ranges=[]
 		for x in map(str, lst): #make sure the list is made up of strings.
@@ -96,7 +104,7 @@ class Iter_utils():
 			l.append('...')
 			collapsedList = l
 		
-		if returnAsString:
+		if toString:
 			collapsedList = ', '.join(collapsedList)
 
 		return collapsedList
@@ -107,8 +115,7 @@ class Iter_utils():
 		'''Convert a binary bitArray to a python list.
 
 		:Parameters:
-			bitArray=bit array
-				*or list of bit arrays
+			bitArray () = A bit array or list of bit arrays.
 
 		:Return:
 			(list) containing values of the indices of the on (True) bits.
@@ -128,10 +135,11 @@ class Iter_utils():
 		'''Get the index of the first item to match the given item 
 		starting from the back of the list.
 
-		:parameters:
+		:Parameters:
 			lst (list) = The list to get the index from.
-			item () = The item to get the index of. 
-		:return:
+			item () = The item to get the index of.
+
+		:Return:
 			(int) -1 if element not found.
 		'''
 		return next(iter(i for i in range(len(lst)-1,-1,-1) if lst[i]==item), -1)
