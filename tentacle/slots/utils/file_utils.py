@@ -1,10 +1,6 @@
 # !/usr/bin/python
 # coding=utf-8
-
 import sys, os
-
-import json
-
 
 
 class File_utils():
@@ -31,10 +27,7 @@ class File_utils():
 		from str_utils import Str_utils
 		from iter_utils import Iter_utils
 
-		assert isinstance(strings, (str, list, tuple, set, dict)), '{}: Incorrect datatype: {}'.format(__file__, type(strings).__name__)
-
-		#if 'strings' is given as a list; return a list.
-		returnAsList = isinstance(strings, (list, tuple, set))
+		assert isinstance(strings, (str, list, tuple, set, dict)), 'Error: {}:\n  Incorrect datatype: {}'.format(__file__, type(strings).__name__)
 
 		result=[]
 		for string in Iter_utils.makeList(strings):
@@ -71,9 +64,7 @@ class File_utils():
 
 			result.append(string)
 
-		if returnAsList:
-			return result
-		return Iter_utils.formatReturn(result) #if no arg is given, the fullpath will be returned.
+		return Iter_utils.formatReturn(result, strings) #if 'strings' is given as a list; return a list.
 
 
 	@classmethod
@@ -136,49 +127,17 @@ class File_utils():
 
 
 	@staticmethod
-	def getFileContents(file):
-		'''Get each line of a text file as indices of a list.
+	def createDirectory(path):
+		'''Create a directory if one doesn't already exist.
 
 		:Parameters:
-			file (str) = A path to a text based file.
-
-		:Return:
-			(list)
-		'''
-		with open(file) as f:
-			return f.readlines()
-
-
-	@staticmethod
-	def writeToFile(file, lines, mode='w'):
-		'''Write the given list contents to the given file.
-
-		:Parameters:
-			file (str) = A path to a text based file.
-			lines (list) = A list of strings to write to the file.
-			mode (str) = "r" - Read - Default value. Opens a file for reading, error if the file does not exist
-				"a" - Append - Opens a file for appending, creates the file if it does not exist
-				"w" - Write - Opens a file for writing, creates the file if it does not exist
-				"x" - Create - Creates the specified file, returns an error if the file exist
-				"t" - Text - Default value. Text mode
-				"b" - Binary - Binary mode (e.g. images)
-		'''
-		with open(file, mode) as f:
-			f.writelines(lines)
-
-
-	@staticmethod
-	def createBackupDirectory(dest):
-		'''Create a backup directory if one doesn't already exist.
-
-		:Parameters:
-			dest (str) = The file path to the desired backup folder destination.
+			path (str) = The desired filepath.
 		'''
 		try:
-			if not os.path.exists(dest):
-				os.makedirs(dest)
-		except OSError:
-			print ('Error: Creating backup directory: '+dest)
+			if not os.path.exists(path):
+				os.makedirs(path)
+		except OSError as error:
+			print ('Error: {}: {}: {}'.format(__file__, error, path))
 
 
 	@classmethod
@@ -275,89 +234,62 @@ class File_utils():
 			return os.path.abspath(os.path.dirname(filepath))
 
 
-	@classmethod
-	def setJsonFile(cls, string, subsection=''):
-		'''Set the json file path in full or modify any of it's subsections.
+	@staticmethod
+	def createFile(path, mode='w', close=True):
+		'''Create a file if one doesn't already exist.
 
 		:Parameters:
-			string (str) = The desired replacement string.
-			subsection (str) = Modify only part of the file path.
-				(Any of the 'subsection' args in 'formatPath')
-				ex. 'path' path - filename,
-					'dir'  directory name, 
-					'file' filename + ext, 
-					'name', filename - ext,
-					'ext', file extension,
-		'''
-		cls._json_file = cls.formatPath(cls.getJsonFile(), subsection, string)
-
-
-	@classmethod
-	def getJsonFile(cls, subsection=''):
-		'''Get the current json file path.
-
-		:Parameters:
-			subsection (str) = Modify only part of the file path.
-				(Any of the 'subsection' args in 'formatPath')
-				ex. 'path' path - filename,
-					'dir'  directory name, 
-					'file' filename + ext, 
-					'name', filename - ext,
-					'ext', file extension,
+			path (str) = The desired filepath.
+			mode (str) = "r" - Read - Default value. Opens a file for reading, error if the file does not exist.
+				"a" - Append - Opens a file for appending, creates the file if it does not exist.
+				"w" - Write - Opens a file for writing, creates the file if it does not exist.
+				"x" - Create - Creates the specified file, returns an error if the file exists.
+				"t" - Text - Default value. Text mode
+				"b" - Binary - Binary mode (e.g. images)
+			close (bool) = Do not leave the file open for writing.
 
 		:Return:
-			(str)
+			(obj) file
 		'''
 		try:
-			return cls.formatPath(cls._json_file, subsection)
-		except AttributeError as error:
-			#if a json file has not been set: use default location.
-			cls._json_file = '/'.join([os.path.dirname(__file__), 'file_utils.json'])
-			return cls.getJsonFile(subsection)
+			f = open(path, mode)
+			if close:
+				f.close()
+			return f
+		except OSError as error:
+			print ('Error: {}: {}: {}'.format(__file__, error, path))
 
 
-	@classmethod
-	def setJson(cls, key, value):
+	@staticmethod
+	def writeToFile(file, lines, mode='w'):
+		'''Write the given list contents to the given file.
+
+		:Parameters:
+			file (str) = A path to a text based file.
+			lines (list) = A list of strings to write to the file.
+			mode (str) = "r" - Read - Default value. Opens a file for reading, error if the file does not exist
+						"a" - Append - Opens a file for appending, creates the file if it does not exist
+						"w" - Write - Opens a file for writing, creates the file if it does not exist
+						"x" - Create - Creates the specified file, returns an error if the file exist
+						"t" - Text - Default value. Text mode
+						"b" - Binary - Binary mode (e.g. images)
 		'''
-		ex. call: setJson('hdr_map_visibility', state)
+		with open(file, mode) as f:
+			f.writelines(lines)
+
+
+	@staticmethod
+	def getFileContents(file):
+		'''Get each line of a text file as indices of a list.
+
+		:Parameters:
+			file (str) = A path to a text based file.
+
+		:Return:
+			(list)
 		'''
-		file = cls.getJsonFile()
-		if not os.path.exists(file): #if the file doesn't exist, create it.
-			open(file, 'w').close()
-
-		try:
-			with open(file, 'r') as f:
-				dct = json.loads(f.read())
-				dct[key] = value
-		except json.decoder.JSONDecodeError as error:
-			dct={}
-			dct[key] = value
-
-		with open(file, 'w') as f:
-			f.write(json.dumps(dct))
-
-
-	@classmethod
-	def getJson(cls, key):
-		'''
-		ex. call: getJson('hdr_map_visibility') #returns: state
-		'''
-		file = cls.getJsonFile()
-
-		try:
-			with open(file, 'r') as f:
-				return json.loads(f.read())[key]
-
-		except KeyError as error:
-			# print ('# Error: {}: getJson: KeyError: {}'.format(__file__, error))
-			pass
-		except FileNotFoundError as error:
-			# print ('# Error: {}: getJson: FileNotFoundError: {}'.format(__file__, error))
-			pass
-		except json.decoder.JSONDecodeError as error:
-			print ('# Error: {}: getJson: JSONDecodeError: {}'.format(__file__, error))
-
-		return None
+		with open(file) as f:
+			return f.readlines()
 
 
 

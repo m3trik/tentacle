@@ -228,7 +228,7 @@ class Stingray_arnold_shader_slots(Stingray_arnold_shader):
 		self.imageFiles = None
 
 		#set json file location.
-		path = '{}/{}.json'.format(self.sb.defaultDir, 'stingray_arnold_shader')
+		path = '{}/stingray_arnold_shader.json'.format(self.sb.defaultDir)
 		Utils.setJsonFile(path) #set json file name
 
 		#add filenames|filepaths to the comboBox.

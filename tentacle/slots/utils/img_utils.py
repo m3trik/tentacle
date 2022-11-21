@@ -25,6 +25,10 @@ class Img_utils():
 	formatPath = File_utils.formatPath
 	getDirectoryContents = File_utils.getDirectoryContents
 
+	app = QtWidgets.QApplication.instance()
+	if not app:
+		app = QtWidgets.QApplication(sys.argv)
+
 	mapTypes = { #Get map type from filename suffix.
 			'Base_Color':('Base_Color', 'BaseColor', '_BC'),
 			'Roughness':('Roughness', 'Rough', '_R'),
@@ -109,7 +113,10 @@ class Img_utils():
 
 	@staticmethod
 	def getImageDirectory():
-		'''
+		'''Open a dialog prompt to choose a directory.
+
+		:Return:
+			(list)
 		'''
 		image_dir = QtWidgets.QFileDialog.getExistingDirectory(None, 
 			"Select a directory containing image files", "/home")
@@ -118,27 +125,33 @@ class Img_utils():
 
 
 	@staticmethod
-	def getImageFiles():
-		'''
+	def getImageFiles(fileTypes='*.png|*.jpg|*.bmp|*.tga|*.tiff|*.gif'):
+		'''Open a dialog prompt to choose image files of the given type(s).
+
+		:Parameters:
+			fileTypes (str) = The extensions of image types to include.
+
+		:Return:
+			(list)
 		'''
 		files = QtWidgets.QFileDialog.getOpenFileNames(None, 
-			"Select one or more image files to open", "/home", "Images (*.png *.jpg *.bmp *.tga *.tiff *.gif)")[0]
+			"Select one or more image files to open", "/home", "Images ({})".format(' '.join(fileTypes.split('|'))))[0]
 
 		return files
 
 
 	@classmethod
-	def getImages(cls, image_dir, image_types=['png', 'jpg', 'bmp', 'tga', 'tiff', 'gif']):
+	def getImages(cls, image_dir, fileTypes='*.png|*.jpg|*.bmp|*.tga|*.tiff|*.gif'):
 		'''Get bitmap images from a given directory as PIL images.
 
 		:Parameters:
-			image_dir (string) = A full path to a directory containing images with the given image_types.
-			image_types (list) = The extensions of image types to include.
+			image_dir (string) = A full path to a directory containing images with the given fileTypes.
+			fileTypes (str) = The extensions of image types to include.
 
 		:Return:
-			(dict) full file path:image object
+			(dict) {<full file path>:<image object>}
 		'''
-		exts = ['.'+e for e in image_types]
+		exts = [e.strip('*') for e in fileTypes.split('|')]
 
 		images={}
 		for f in cls.getDirectoryContents(image_dir, 'filepaths'):
@@ -191,6 +204,11 @@ class Img_utils():
 	@classmethod
 	def createMasks(cls, images, *args, **kwargs):
 		'''
+		:Parameters:
+			images (list) = A list of images or image paths.
+
+		:Return:
+			(list) image objects.
 		'''
 		masks=[]
 		for im in images:
@@ -203,6 +221,11 @@ class Img_utils():
 	@staticmethod
 	def createMask(image, mask, background=(0, 0, 0, 255), foreground=(255, 255, 255, 255)):
 		'''
+		:Parameters:
+			image (str)(obj) = An image or path to an image.
+
+		:Return:
+			(obj) image object.
 		'''
 		im = Image.open(image) if (isinstance(image, str)) else image
 		im = im.convert('RGBA')
@@ -230,6 +253,12 @@ class Img_utils():
 	@staticmethod
 	def fill(image, color=(0, 0, 0, 0)):
 		'''
+		:Parameters:
+			image (str)(obj) = An image or path to an image.
+			color (list) = RGB or RGBA color values.
+
+		:Return:
+			(obj) image object.
 		'''
 		im = Image.open(image) if (isinstance(image, str)) else image
 
@@ -242,6 +271,12 @@ class Img_utils():
 	@classmethod
 	def fillMaskedArea(cls, image, color, mask):
 		'''
+		:Parameters:
+			image (str)(obj) = An image or path to an image.
+			color (list) = RGB or RGBA color values.
+
+		:Return:
+			(obj) image object.
 		'''
 		im = Image.open(image) if (isinstance(image, str)) else image
 		mode = im.mode
@@ -276,6 +311,12 @@ class Img_utils():
 	@staticmethod
 	def convert_to_32bit_I(image):
 		'''Under construction.
+
+		:Parameters:
+			image (str)(obj) = An image or path to an image.
+
+		:Return:
+			(obj) image object.
 		'''
 		im = Image.open(image) if (isinstance(image, str)) else image
 		data = np.array(im)
@@ -314,11 +355,17 @@ class Img_utils():
 
 
 	@staticmethod
-	def all_pixels_identical(img):
+	def all_pixels_identical(image):
 		'''Check if all pixels of an image are of the same pixel value.
 		As soon as any value is different from the first one; return False, else; True.
+
+		:Parameters:
+			image (str)(obj) = An image or path to an image.
+
+		:Return:
+			(bool)
 		'''
-		bits = img.constBits()
+		bits = image.constBits()
 		a = bits[0]
 		return all(a==b for b in bits)
 
@@ -326,6 +373,11 @@ class Img_utils():
 	@staticmethod
 	def setPixelColor(image, x, y, color):
 		'''
+		:Parameters:
+			image (str)(obj) = An image or path to an image.
+			x () = X coordinate.
+			y () = Y coordinate.
+			color (list) = RGB or RGBA color values.
 		'''
 		im = Image.open(image) if (isinstance(image, str)) else image
 
@@ -335,7 +387,6 @@ class Img_utils():
 	@staticmethod
 	def replaceColor(image, from_color=(0, 0, 0, 0), to_color=(0, 0, 0, 0), mode=None):
 		'''
-
 		:Parameters:
 			image (str)(obj) = 
 			from_color (tuple) = 
@@ -363,6 +414,12 @@ class Img_utils():
 	@staticmethod
 	def setContrast(image, level=255):
 		'''
+		:Parameters:
+			image (str)(obj) = An image or path to an image.
+			level (int) = Contrast level from 0-255.
+
+		:Return:
+			(obj) image object.
 		'''
 		im = Image.open(image) if (isinstance(image, str)) else image
 
@@ -392,27 +449,28 @@ class Img_utils():
 
 
 	@classmethod
-	def filterImagesByType(cls, files, typ=''):
+	def filterImagesByType(cls, files, types=''):
 		'''
 		:Parameters:
 			files (list) = A list of image filenames, fullpaths, or map type suffixes.
-			typ (str)(list) = Any of the keys in the 'map_types' dict.
+			types (str) = Any of the keys in the 'map_types' dict.
+				Multiple types can be given separated by '|' ex. 'Base_Color|Roughness'
 				ex. 'Base_Color','Roughness','Metallic','Ambient_Occlusion','Normal',
 					'Normal_DirectX','Normal_OpenGL','Height','Emissive','Diffuse','Specular',
 					'Glossiness','Displacement','Refraction','Reflection'
-
 		:Return:
 			(dict)
 		'''
 		from iter_utils import Iter_utils
 
-		types = Iter_utils.makeList(typ)
+		types = Iter_utils.makeList(types.split('|'))
 		return [f for f in files if cls.getImageType(f) in types]
 
 
 	@classmethod
 	def sortImagesByType(cls, files):
 		'''Sort images files by map type.
+
 		:Parameters:
 			files (list) = A list of image filenames, fullpaths, or map type suffixes.
 
@@ -440,8 +498,11 @@ class Img_utils():
 		:Parameters:
 			files (list)(dict) = A list of image filenames, fullpaths, or map type suffixes.
 					Also can take a dictionary in the form of: {typ: (file, image)}
-			map_types (str)(list) = The map type(s) to query.
-
+			map_types (str) = The map type(s) to query. Any of the keys in the 'map_types' dict.
+					Multiple types can be given separated by '|' ex. 'Base_Color|Roughness'
+					ex. 'Base_Color','Roughness','Metallic','Ambient_Occlusion','Normal',
+						'Normal_DirectX','Normal_OpenGL','Height','Emissive','Diffuse','Specular',
+						'Glossiness','Displacement','Refraction','Reflection'
 		:Return:
 			(bool)
 		'''
@@ -451,7 +512,7 @@ class Img_utils():
 			files = cls.sortImagesByType(files) #convert list to dict of the correct format.
 
 		result = next((True for i in files.keys() 
-			if cls.getImageType(i) in Iter_utils.makeList(map_types)), False)
+			if cls.getImageType(i) in Iter_utils.makeList(map_types.split('|'))), False)
 
 		return True if result else False
 
@@ -475,6 +536,12 @@ class Img_utils():
 	@staticmethod
 	def invertChannels(image, channels='RGB'):
 		'''
+		:Parameters:
+			image (str)(obj) = An image or path to an image.
+			channels (str) = Specify which channels to invert.
+				valid: 'R','G','B' case insensitive.
+		:Return:
+			(obj) image object.
 		'''
 		im = Image.open(image) if (isinstance(image, str)) else image
 		alpha = None
@@ -558,6 +625,10 @@ class Img_utils():
 	@staticmethod
 	def resizeImage(image, x, y):
 		'''
+		:Parameters:
+			image (str)(obj) = An image or path to an image.
+			x (int) = Size in the x coordinate.
+			y (int) = Size in the y coordinate.
 		'''
 		im = Image.open(image) if (isinstance(image, str)) else image
 
@@ -565,10 +636,17 @@ class Img_utils():
 
 
 	@staticmethod
-	def createImage(mode='RGBA', size=(4096, 4096), rgba=(0, 0, 0, 255)):
+	def createImage(mode='RGBA', size=(4096, 4096), color=(0, 0, 0, 255)):
 		'''
+		:Parameters:
+			mode (str) = Image color mode. ex. 'RGBA'
+			size (tuple) = Size in x and y.
+			color (tuple) = RGB or RGBA color values.
+
+		:Return:
+			(obj) image object.
 		'''
-		return Image.new(mode, size, rgba)
+		return Image.new(mode, size, color)
 
 
 	@staticmethod

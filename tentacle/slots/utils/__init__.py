@@ -43,7 +43,7 @@ import_modules(importAll=0)
 
 
 
-class Utils(File_utils, Img_utils, Iter_utils, Math_utils, Str_utils):
+class Utils(File_utils, Img_utils, Iter_utils, Math_utils, Str_utils, Json_utils):
 	'''
 	'''
 	@staticmethod

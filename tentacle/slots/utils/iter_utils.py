@@ -4,7 +4,6 @@
 import sys, os
 
 
-
 class Iter_utils():
 	'''
 	'''
@@ -19,23 +18,30 @@ class Iter_utils():
 		:Return:
 			(list)
 		'''
-		return list(x) if isinstance(x, (list, tuple, set, dict)) else [x]
+		return list(x) if isinstance(x, (list, tuple, set, dict, range)) else [x]
 
 
-	@staticmethod
-	def formatReturn(lst):
+	@classmethod
+	def formatReturn(cls, lst, orig=None):
 		'''Return a single object if the given list only contains one element.
 		If the list is empty return None. If the list contains multiple elements,
 		return the full list.
 
 		:Parameters:
 			lst (list) = An iterable.
-
+			orig (obj) = Optionally; give the original value, and 
+					if it was a multi-value type; return a list.
 		:Return:
 			(obj)(list)(None)
 		'''
+		if orig is not None:
+			returnAsList = isinstance(orig, (list, tuple, set, dict, range))
+
 		try:
-			return lst[0] if len(lst)==1 else lst if lst else None
+			if len(lst)==1:
+				return lst[0]
+			else:
+				return lst
 		except Exception as e:
 			return lst
 

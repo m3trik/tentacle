@@ -9,11 +9,11 @@ class Str_utils():
 	'''
 
 	@staticmethod
-	def setCase(string, case='camelCase'):
+	def setCase(strings, case='camelCase'):
 		'''Format the given string(s) in the given case.
 		
 		:Parameters:
-			string (str)(list) = The string(s) to format.
+			strings (str)(list) = The string(s) to format.
 			case (str) = The desired return case. Accepts all python case operators. 
 				valid: 'upper', 'lower', 'capitalize' (default), 'swapcase', 'title', 'pascalCase', 'camelCase', None.
 
@@ -22,28 +22,23 @@ class Str_utils():
 		'''
 		from utils import Iter_utils
 
-		if not string or not isinstance(string, str):
-			return string
-
-		#if 'string' is given as a list; return a list.
-		returnAsList = isinstance(string, (list, tuple, set))
+		if not strings or not isinstance(strings, str):
+			return strings
 
 		if case=='pascalCase':
-			result = [s[:1].capitalize()+s[1:] for s in Iter_utils.makeList(string)] #capitalize the first letter.
+			result = [s[:1].capitalize()+s[1:] for s in Iter_utils.makeList(strings)] #capitalize the first letter.
 
 		elif case=='camelCase':
-			result = [s[0].lower()+s[1:] for s in Iter_utils.makeList(string)] #lowercase the first letter.
+			result = [s[0].lower()+s[1:] for s in Iter_utils.makeList(strings)] #lowercase the first letter.
 
 		else:
 			try:
-				result = [getattr(s, case)() for s in Iter_utils.makeList(string)]
+				result = [getattr(s, case)() for s in Iter_utils.makeList(strings)]
 
 			except AttributeError as error: #return the original string(s).
-				return string
+				return strings
 
-		if returnAsList:
-			return result
-		return Iter_utils.formatReturn(result)
+		return Iter_utils.formatReturn(result, strings) #if 'strings' is given as a list; return a list.
 
 
 	@staticmethod
@@ -65,9 +60,6 @@ class Str_utils():
 		'''
 		from iter_utils import Iter_utils
 
-		#if 'strings' is given as a list; return a list.
-		returnAsList = isinstance(strings, (list, tuple, set))
-
 		result = []
 		for s in Iter_utils.makeList(strings):
 			split = s.split(chars)
@@ -83,9 +75,7 @@ class Str_utils():
 
 			result.append((s1, s2))
 
-		if returnAsList:
-			return result
-		return Iter_utils.formatReturn(result)
+		return Iter_utils.formatReturn(result, strings) #if 'strings' is given as a list; return a list.
 
 
 	@classmethod

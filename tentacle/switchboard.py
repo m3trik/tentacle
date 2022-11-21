@@ -538,9 +538,6 @@ class Switchboard(QUiLoader, StyleSheet, Utils):
 		ex. call: registerWidgets(<class 'widgets.menu.Menu'>) #register using widget class object.
 		ex. call: registerWidgets('O:/Cloud/Code/_scripts/tentacle/tentacle/ui/widgets/menu.py') #register using path to widget module.
 		'''
-		#if 'widgets' is given as a list; return a list.
-		returnAsList = isinstance(widgets, (list, tuple, set))
-
 		result=[]
 		for w in self.makeList(widgets): #assure widgets is a list.
 
@@ -563,9 +560,7 @@ class Switchboard(QUiLoader, StyleSheet, Utils):
 			except Exception as error:
 				print ('# {}: registerWidgets: {}. #'.format(__file__, error))
 
-		if returnAsList:
-			return result
-		return self.formatReturn(result)
+		return self.formatReturn(result, widgets) #if 'widgets' is given as a list; return a list.
 
 
 	def loadAllUi(self, path=None, widgets=None, parent=None):
@@ -746,9 +741,6 @@ class Switchboard(QUiLoader, StyleSheet, Utils):
 			ui = self.currentUi
 
 		if level:
-			#if 'level' is given as a list; return a list.
-			returnAsList = isinstance(level, (list, tuple, set))
-
 			if isinstance(ui, str):
 				ui, *tags = ui.split('#')
 
@@ -775,9 +767,7 @@ class Switchboard(QUiLoader, StyleSheet, Utils):
 						])
 				]
 
-			if returnAsList:
-				return ui
-			return self.formatReturn(ui)
+			return self.formatReturn(ui, level) #if 'level' is given as a list; return a list.
 
 		elif isinstance(ui, str):
 			try:

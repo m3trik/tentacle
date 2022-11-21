@@ -6,14 +6,15 @@ import inspect
 from utils import *
 
 
-class Str_utils_test(unittest.TestCase, Str_utils):
-
+class Test(unittest.TestCase):
+	'''
+	'''
 	def perform_test(self, case):
 		'''
 		'''
 		for expression, expected_result in case.items():
 			m = expression.split('(')[0] #ie. 'self.setCase' from "self.setCase('xxx', 'upper')"
-	
+
 			try:
 				path = os.path.abspath(inspect.getfile(eval(m)))
 			except TypeError as error:
@@ -27,6 +28,10 @@ class Str_utils_test(unittest.TestCase, Str_utils):
 		)
 
 
+
+class Str_utils_test(Test, Str_utils):
+	'''
+	'''
 	def test_setCase(self):
 		'''
 		'''
@@ -140,27 +145,9 @@ class Str_utils_test(unittest.TestCase, Str_utils):
 
 
 
-class Iter_utils_test(unittest.TestCase, Iter_utils):
-
-	def perform_test(self, case):
-		'''
-		'''
-		for expression, expected_result in case.items():
-			m = expression.split('(')[0] #ie. 'self.setCase' from "self.setCase('xxx', 'upper')"
-	
-			try:
-				path = os.path.abspath(inspect.getfile(eval(m)))
-			except TypeError as error:
-				path = ''
-
-			result = eval(expression)
-			self.assertEqual(
-				result, 
-				expected_result, 
-				"\n\nError: {}\n  Call:     {}\n  Expected: {} {}\n  Returned: {} {}".format(path, expression.replace('self.', '', 1), type(expected_result), expected_result, type(result), result)
-		)
-
-
+class Iter_utils_test(Test, Iter_utils):
+	'''
+	'''
 	def test_makeList(self):
 		'''
 		'''
@@ -240,27 +227,9 @@ class Iter_utils_test(unittest.TestCase, Iter_utils):
 
 
 
-class File_utils_test(unittest.TestCase, File_utils):
-
-	def perform_test(self, case):
-		'''
-		'''
-		for expression, expected_result in case.items():
-			m = expression.split('(')[0] #ie. 'self.setCase' from "self.setCase('xxx', 'upper')"
-	
-			try:
-				path = os.path.abspath(inspect.getfile(eval(m)))
-			except TypeError as error:
-				path = ''
-
-			result = eval(expression)
-			self.assertEqual(
-				result, 
-				expected_result, 
-				"\n\nError: {}\n  Call:     {}\n  Expected: {} {}\n  Returned: {} {}".format(path, expression.replace('self.', '', 1), type(expected_result), expected_result, type(result), result)
-		)
-
-
+class File_utils_test(Test, File_utils):
+	'''
+	'''
 	def test_formatPath(self):
 		'''
 		'''
@@ -319,61 +288,57 @@ class File_utils_test(unittest.TestCase, File_utils):
 	def test_isValidPath(self):
 		'''
 		'''
-		path = os.path.abspath(os.path.dirname(__file__))
-		p1 = r'{}/__init__.py'.format(path)
-		p2 = r'%userprofile%'
+		path = os.path.abspath(os.path.dirname(__file__))+'/test_files'
+		file = path+'/file1.txt'
 
 		self.perform_test({
-			"self.isValidPath(r'{}')".format(p1): 'file',
-			"self.isValidPath(r'{}')".format(p2): 'dir',
-		})
-
-
-	def test_getFileContents(self):
-		'''
-		'''
-		path = os.path.abspath(os.path.dirname(__file__))
-		p1 = r'{}/__init__.py'.format(path)
-
-		self.perform_test({
-			# "self.getFileContents(r'{}')".format(p1): '',
+			"self.isValidPath(r'{}')".format(file): 'file',
+			"self.isValidPath(r'{}')".format(path): 'dir',
 		})
 
 
 	def test_writeToFile(self):
 		'''
 		'''
-		path = os.path.abspath(os.path.dirname(__file__))
-		file = r'{}/utils_test/utils_test.txt'.format(path)
+		path = os.path.abspath(os.path.dirname(__file__))+'/test_files'
+		file = path+'/file1.txt'
 
 		self.perform_test({
-			# "self.writeToFile(r'{}', '')".format(file): None,
+			"self.writeToFile(r'{}', 'some text')".format(file): None,
 		})
 
 
-	def test_createBackupDirectory(self):
+	def test_getFileContents(self):
 		'''
 		'''
-		path = os.path.abspath(os.path.dirname(__file__))
-		dir_ = r'{}/utils_test'.format(path)
+		path = os.path.abspath(os.path.dirname(__file__))+'/test_files'
+		file = path+'/file1.txt'
 
 		self.perform_test({
-			# "self.createBackupDirectory(r'{}', '')".format(dir_): None,
+			"self.getFileContents(r'{}')".format(file): ['some text'],
+		})
+
+
+	def test_createDirectory(self):
+		'''
+		'''
+		path = os.path.abspath(os.path.dirname(__file__))+'/test_files'
+
+		self.perform_test({
+			"self.createDirectory(r'{}')".format(path+'/sub-directory'): None,
 		})
 
 
 	def test_getDirectoryContents(self):
 		'''
 		'''
-		path = os.path.abspath(os.path.dirname(__file__))
-		files = ['file_utils', 'img_utils', 'iter_utils', 'math_utils', 'str_utils', 'utils_test', '__init__']
+		path = os.path.abspath(os.path.dirname(__file__))+'/test_files'
 
 		self.perform_test({
-			# "self.getDirectoryContents(r'{}', 'filepaths')".format(path): [],
-			# "self.getDirectoryContents(r'{}', 'dirpaths')".format(path): [],
-			# "self.getDirectoryContents(r'{}', 'files|dirs')".format(path): [],
-			"self.getDirectoryContents(r'{}', 'files', '*.py', '', False, True, True)".format(path): files,
-			# "self.getDirectoryContents(r'{}', 'files', '*.py', reverse=True)".format(path): [],
+			"self.getDirectoryContents(r'{}', 'dirpaths')".format(path): [path+'\\sub-directory'],
+			"self.getDirectoryContents(r'{}', 'files|dirs')".format(path): ['sub-directory', 'file1.txt', 'file2.txt', 'test.json'],
+			"self.getDirectoryContents(r'{}', 'files', '*.txt', '', False, True, True)".format(path): ['file1', 'file2'],
+			"self.getDirectoryContents(r'{}', 'files', '*.txt', reverse=True)".format(path): ['file2.txt', 'file1.txt'],
 		})
 
 
@@ -388,72 +353,428 @@ class File_utils_test(unittest.TestCase, File_utils):
 		})
 
 
-	def test_setJsonFile(self):
-		'''
-		'''
-		path = os.path.abspath(os.path.dirname(__file__))
 
-		self.perform_test({
-			"self.setJsonFile(r'{}')".format(path+'/file_utils.json'): None,
-		})
+class Json_utils_test(Test, Json_utils):
+	'''
+	'''
+	p = os.path.abspath(os.path.dirname(__file__))+'/test_files'
+	path = '/'.join(p.split('\\')).rstrip('/')
+	file = path+'/test.json'
 
-
-	def test_getJsonFile(self):
-		'''
-		'''
-		p = os.path.abspath(os.path.dirname(__file__))
-		path = '/'.join(p.split('\\')).rstrip('/')
-
-		self.perform_test({
-			"self.getJsonFile()": path+'/file_utils.json',
-			"self.getJsonFile('file')": 'file_utils.json',
-		})
-
-
-	def test_setJson(self):
+	def test(self):
 		'''
 		'''
 		self.perform_test({
+			"self.setJsonFile(r'{}')".format(self.file): None,
+			"self.getJsonFile()": self.file,
 			"self.setJson('key', 'value')": None,
-		})
-
-
-	def test_getJson(self):
-		'''
-		'''
-		self.perform_test({
 			"self.getJson('key')": 'value',
 		})
 
 
 
-class Img_utils_test(unittest.TestCase, Img_utils):
-
-	def perform_test(self, case):
-		'''
-		'''
-		for expression, expected_result in case.items():
-			m = expression.split('(')[0] #ie. 'self.setCase' from "self.setCase('xxx', 'upper')"
-	
-			try:
-				path = os.path.abspath(inspect.getfile(eval(m)))
-			except TypeError as error:
-				path = ''
-
-			result = eval(expression)
-			self.assertEqual(
-				result, 
-				expected_result, 
-				"\n\nError: {}\n  Call:     {}\n  Expected: {} {}\n  Returned: {} {}".format(path, expression.replace('self.', '', 1), type(expected_result), expected_result, type(result), result)
-		)
-
-
-	def test_(self):
+class Img_utils_test(Test, Img_utils):
+	'''
+	'''
+	def test_getImageDirectory(self):
 		'''
 		'''
 		self.perform_test({
-			# "self.()": ,
+			# "self.getImageDirectory()": '',
 		})
+
+
+	def test_getImageFiles(self):
+		'''
+		'''
+		self.perform_test({
+			# "self.getImageFiles('*.png|*.jpg')": '',
+		})
+
+
+	def test_getImages(self):
+		'''
+		'''
+		image_dir = r''
+
+		self.perform_test({
+			"self.getImages(r'{}')".format(image_dir): {},
+		})
+
+
+	def test_getImageBackground(self):
+		'''
+		'''
+		image_dir = r''
+
+		self.perform_test({
+			# "self.getImageBackground(r'{}', None, False)".format(image_dir): tuple(),
+		})
+
+
+	def test_createMasks(self):
+		'''
+		'''
+		images = []
+
+		self.perform_test({
+			"self.createMasks({})".format(images): [],
+		})
+
+
+	def test_fill(self):
+		'''
+		'''
+		image = r''
+
+		self.perform_test({
+			# "self.fill(r'{}', (0, 0, 0, 0))".format(image): '',
+		})
+
+
+	def test_fillMaskedArea(self):
+		'''
+		'''
+		image = r''
+		color = (0, 0, 0, 0)
+		mask = r''
+
+		self.perform_test({
+			# "self.fillMaskedArea(r'{}', {}, r'{}')".format(image, color, mask): '',
+		})
+
+
+	def test_convert_rgb_to_gray(self):
+		'''
+		'''
+		data = r''
+
+		self.perform_test({
+			# "self.convert_rgb_to_gray(r'{}')".format(data): (),
+		})
+
+
+	def test_convert_to_32bit_I(self):
+		'''
+		'''
+		image = r''
+
+		self.perform_test({
+			# "self.convert_to_32bit_I(r'{}')".format(image): '',
+		})
+
+
+	def test_convert_I_to_L(self):
+		'''
+		'''
+		image = r''
+
+		self.perform_test({
+			# "self.convert_I_to_L(r'{}')".format(image): '',
+		})
+
+
+	def test_all_pixels_identical(self):
+		'''
+		'''
+		image = r''
+
+		self.perform_test({
+			# "self.all_pixels_identical(r'{}')".format(image): False,
+		})
+
+
+	def test_setPixelColor(self):
+		'''
+		'''
+		image = r''
+
+		self.perform_test({
+			# "self.setPixelColor(r'{}', 150, 150, (255,255,255))".format(image): None,
+		})
+
+
+	def test_replaceColor(self):
+		'''
+		'''
+		image = r''
+
+		self.perform_test({
+			# "self.replaceColor(r'{}', (255,255,255), (0,0,0), 'RGBA')".format(image): '',
+		})
+
+
+	def test_setContrast(self):
+		'''
+		'''
+		image = r''
+
+		self.perform_test({
+			# "self.setContrast(r'{}', 255)".format(image): '',
+		})
+
+
+	def test_getImageType(self):
+		'''
+		'''
+		image = r''
+
+		self.perform_test({
+			# "self.getImageType(r'{}', False)".format(image): '',
+		})
+
+
+	def test_filterImagesByType(self):
+		'''
+		'''
+		image = r''
+
+		self.perform_test({
+			# "self.filterImagesByType(r'{}', '')".format(image): '',
+		})
+
+
+	def test_sortImagesByType(self):
+		'''
+		'''
+		images = [
+			r'',
+		]
+
+		self.perform_test({
+			# "self.sortImagesByType({})".format(images): {},
+		})
+
+
+	def test_containsMapTypes(self):
+		'''
+		'''
+		images = [
+			r'',
+		]
+
+		self.perform_test({
+			# "self.containsMapTypes({}, 'Normal_OpenGL|Normal_DirectX')".format(images): False,
+		})
+
+
+	def test_isNormalMap(self):
+		'''
+		'''
+		image = r''
+
+		self.perform_test({
+			"self.isNormalMap(r'{}')".format(image): False,
+		})
+
+
+	def test_invertChannels(self):
+		'''
+		'''
+		image = r''
+
+		self.perform_test({
+			# "self.invertChannels(r'{}', 'G')".format(image): '',
+		})
+
+
+	def test_createDXFromGL(self):
+		'''
+		'''
+		image = r''
+
+		self.perform_test({
+			# "self.createDXFromGL(r'{}')".format(image): '',
+		})
+
+
+	def test_createGLFromDX(self):
+		'''
+		'''
+		image = r''
+
+		self.perform_test({
+			# "self.createGLFromDX(r'{}')".format(image): '',
+		})
+
+
+	def test_resizeImage(self):
+		'''
+		'''
+		image = r''
+
+		self.perform_test({
+			# "self.resizeImage(r'{}', 150, 150)".format(image): None,
+		})
+
+
+	def test_createImage(self):
+		'''
+		'''
+		image = r''
+
+		self.perform_test({
+			# "self.createImage('RGBA', (4096, 4096), (0, 0, 0, 255))".format(image): '',
+		})
+
+
+	def test_saveImageFile(self):
+		'''
+		'''
+		image = r''
+		path = r''
+
+		self.perform_test({
+			# "self.saveImageFile(r'{}', {})".format(image, path): None,
+		})
+
+
+
+class Math_utils_test(Test, Math_utils):
+	'''
+	'''
+
+	def test_areSimilar(self):
+		'''
+		'''
+		self.perform_test({
+			"self.areSimilar(1, 10, 9)": True,
+			"self.areSimilar(1, 10, 8)": False,
+		})
+
+
+	def test_randomize(self):
+		'''
+		'''
+		self.perform_test({
+			# "self.randomize(range(10), 1.0)": [],
+			# "self.randomize(range(10), 0.5)": [],
+		})
+
+
+	def test_getVectorFromTwoPoints(self):
+		'''
+		'''
+		self.perform_test({
+			"self.getVectorFromTwoPoints((1, 2, 3), (1, 1, -1))": (0, -1, -4),
+		})
+
+
+	def test_clamp(self):
+		'''
+		'''
+		self.perform_test({
+			"self.clamp(range(10), 3, 7)": [3, 3, 3, 3, 4, 5, 6, 7, 7, 7],
+		})
+
+
+	def test_normalize(self):
+		'''
+		'''
+		self.perform_test({
+			"self.normalize((2, 3, 4))": (0.3713906763541037, 0.5570860145311556, 0.7427813527082074),
+			"self.normalize((2, 3))": (0.5547001962252291, 0.8320502943378437),
+			"self.normalize((2, 3, 4), 2)": (0.7427813527082074, 1.1141720290623112, 1.4855627054164149),
+		})
+
+
+	def test_getMagnitude(self):
+		'''
+		'''
+		self.perform_test({
+			"self.getMagnitude((2, 3, 4))": 5.385164807134504,
+			"self.getMagnitude((2, 3))": 3.605551275463989,
+		})
+
+
+	def test_dotProduct(self):
+		'''
+		'''
+		self.perform_test({
+			"self.dotProduct((1, 2, 3), (1, 1, -1))": 0,
+			"self.dotProduct((1, 2), (1, 1))": 3,
+			"self.dotProduct((1, 2, 3), (1, 1, -1), True)": 0,
+		})
+
+
+	def test_crossProduct(self):
+		'''
+		'''
+		self.perform_test({
+			"self.crossProduct((1, 2, 3), (1, 1, -1))": (-5, 4, -1),
+			"self.crossProduct((3, 1, 1), (1, 4, 2), (1, 3, 4))": (7, 4, 2),
+			"self.crossProduct((1, 2, 3), (1, 1, -1), None, 1)": (-0.7715167498104595, 0.6172133998483676, -0.1543033499620919),
+		})
+
+
+	def test_movePointRelative(self):
+		'''
+		'''
+		self.perform_test({
+			"self.movePointRelative((0, 5, 0), (0, 5, 0))": (0, 10, 0),
+			"self.movePointRelative((0, 5, 0), 5, (0, 1, 0))": (0, 10, 0),
+		})
+
+
+	def test_movePointAlongVectorTowardPoint(self):
+		'''
+		'''
+		self.perform_test({
+			"self.movePointAlongVectorTowardPoint((0, 0, 0), (0, 10, 0), (0, 1, 0), 5)": (0.0, 5.0, 0.0),
+		})
+
+
+	def test_getDistanceBetweenTwoPoints(self):
+		'''
+		'''
+		self.perform_test({
+			"self.getDistanceBetweenTwoPoints((0, 10, 0), (0, 5, 0))": 5.0,
+		})
+
+
+	def test_getCenterPointBetweenTwoPoints(self):
+		'''
+		'''
+		self.perform_test({
+			"self.getCenterPointBetweenTwoPoints((0, 10, 0), (0, 5, 0))": (0.0, 7.5, 0.0),
+		})
+
+
+	def test_getAngleFrom2Vectors(self):
+		'''
+		'''
+		self.perform_test({
+			"self.getAngleFrom2Vectors((1, 2, 3), (1, 1, -1))": 1.5707963267948966,
+			"self.getAngleFrom2Vectors((1, 2, 3), (1, 1, -1), True)": 90,
+		})
+
+
+	def test_getAngleFrom3Points(self):
+		'''
+		'''
+		self.perform_test({
+			"self.getAngleFrom3Points((1, 1, 1), (-1, 2, 3), (1, 4, -3))": 0.7904487543360762,
+			"self.getAngleFrom3Points((1, 1, 1), (-1, 2, 3), (1, 4, -3), True)": 45.29,
+		})
+
+
+	def test_getTwoSidesOfASATriangle(self):
+		'''
+		'''
+		self.perform_test({
+			"self.getTwoSidesOfASATriangle(60, 60, 100)": (100.00015320566493, 100.00015320566493),
+		})
+
+
+	def test_xyzRotation(self):
+		'''
+		'''
+		self.perform_test({
+			"self.xyzRotation(2, (0, 1, 0))": (3.589792907376932e-09, 1.9999999964102069, 3.589792907376932e-09),
+			"self.xyzRotation(2, (0, 1, 0), [], True)": (0.0, 114.59, 0.0),
+		})
+
+
 
 
 
