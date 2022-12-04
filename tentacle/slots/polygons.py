@@ -83,5 +83,5 @@ class Polygons(Slots):
 		'''Merge Vertices: Set Distance
 		'''
 		s = self.sb.polygons.tb000.ctxMenu.s002
-		dist = Slots.getDistanceBetweenTwoPoints(p1, p2)
+		dist = Slots.getDistBetweenTwoPoints(p1, p2)
 		s.setValue(dist)

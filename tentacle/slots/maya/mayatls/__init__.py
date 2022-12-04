@@ -1,16 +1,56 @@
 # !/usr/bin/python
 # coding=utf-8
+import sys, os
+
+import importlib
+import inspect
+
 try:
 	import pymel.core as pm
 except ImportError as error:
 	print (__file__, error)
 
-from slots.utils import Utils
+from slots.tls.itertls import formatReturn
 
 
-class Node_utils_maya():
+class Mayatls():
 	'''
 	'''
+	def undo(fn):
+		'''A decorator to place a function into Maya's undo chunk.
+		Prevents the undo queue from breaking entirely if an exception is raised within the given function.
+
+		:Parameters:
+			fn (obj) = The decorated python function that will be placed into the undo que as a single entry.
+		'''
+		def wrapper(*args, **kwargs):
+			with pm.UndoChunk():
+				rtn = fn(*args, **kwargs)
+				return rtn
+		return wrapper
+
+
+	@staticmethod
+	def getMainWindow():
+		'''Get maya's main window object.
+
+		:Return:
+			(QWidget)
+		'''
+		from PySide2.QtWidgets import QApplication
+
+		app = QApplication.instance()
+		if not app:
+			print ('# Warning: {}: getMainWindow: Could not find QApplication instance. #'.format(__file__))
+			return None
+
+		main_window = next(iter(w for w in app.topLevelWidgets() if w.objectName()=='MayaWindow'), None)
+		if not main_window:
+			print ('# Warning: {}: getMainWindow: Could not find main window instance. #'.format(__file__))
+			return None
+
+		return main_window
+
 
 	@staticmethod
 	def getType(obj):
@@ -33,6 +73,106 @@ class Node_utils_maya():
 	# 		if type(child) is not pm.nodetypes.Transform:
 	# 			return False
 	# 	return True
+
+
+	@staticmethod
+	def getTransformNode(node, attributes=False, regEx=''):
+		'''Get the transform node(s).
+
+		:Parameters:
+			node (str)(obj) = A relative of a transform Node.
+			attributes (bool) = Return the attributes of the node, rather then the node itself.
+			regEx (str) = List only the attributes that match the string(s) passed from this flag. String can be a regular expression.
+
+		:Return:
+			(obj)(list) node or node attributes.
+
+		pymel alternative: [pm.PyNode(n).getTransform() for n in objects]
+		'''
+		transforms = pm.ls(node, type='transform')
+		if not transforms: #from shape
+			shapeNodes = pm.ls(node, objectsOnly=1)
+			transforms = pm.listRelatives(shapeNodes, parent=1)
+			if not transforms: #from history
+				try:
+					transforms = pm.listRelatives(pm.listHistory(node, future=1), parent=1)
+				except Exception as error:
+					transforms = []
+
+		if attributes:
+			transforms = pm.listAttr(transforms, read=1, hasData=1, string=regEx)
+
+		return formatReturn(list(set(transforms)))
+
+
+	@classmethod
+	def getShapeNode(cls, node=None, attributes=False, regEx=''):
+		'''Get the shape node(s).
+
+		:Parameters:
+			node (str)(obj) = A relative of a shape Node.
+			attributes (bool) = Return the attributes of the node, rather then the node itself.
+			regEx (str) = 	List only the attributes that match the string(s) passed from this flag. String can be a regular expression.
+
+		:Return:
+			(obj)(list) node or node attributes.
+
+		[pm.PyNode(n).getShape() for n in objects]
+		'''
+		shapes = pm.listRelatives(node, children=1, shapes=1) #get shape node from transform: returns list ie. [nt.Mesh('pConeShape1')]
+		if not shapes:
+			shapes = pm.ls(node, type='shape')
+			if not shapes: #get shape from transform
+				try:
+					transforms = pm.listRelatives(pm.listHistory(node, future=1), parent=1)
+					shapes = cls.getShapeNode(transforms)
+				except Exception as error:
+					shapes = []
+
+		if attributes:
+			shapes = pm.listAttr(shapes, read=1, hasData=1, string=regEx)
+
+		return formatReturn(list(set(shapes)))
+
+
+	@staticmethod
+	def getHistoryNode(node=None, attributes=False, regEx=''):
+		'''Get the history node(s).
+
+		:Parameters:
+			node (str)(obj) = A relative of a history Node.
+			attributes (bool) = Return the attributes of the node, rather then the node itself.
+			regEx (str) = 	List only the attributes that match the string(s) passed from this flag. String can be a regular expression.
+
+		:Return:
+			(obj)(list) node or node attributes.
+
+		[pm.PyNode(n).getHistory() for n in objects]
+		'''
+		shapes = pm.listRelatives(node, children=1, shapes=1) #get shape node from transform: returns list ie. [nt.Mesh('pConeShape1')]
+		connections = pm.listConnections(shapes, source=1, destination=0) #get incoming connections: returns list ie. [nt.PolyCone('polyCone1')]
+
+		if not connections:
+			try:
+				connections = node.history()[-1]
+			except AttributeError as error:
+				print ('error:', error)
+				connections = [] #object has no attribute 'history'
+
+		if attributes:
+			connections = pm.listAttr(connections, read=1, hasData=1, string=regEx)
+
+		return formatReturn(connections)
+
+
+	@staticmethod
+	def getAllParents(node):
+		'''List ALL parents of an object
+		'''
+		objects = pm.ls(node, l=1)
+		tokens=[]
+
+		return objects[0].split("|")
 
 
 	@staticmethod
@@ -85,105 +225,6 @@ class Node_utils_maya():
 				result[node] = [component]
 
 		return result
-
-
-	@staticmethod
-	def getTransformNode(node, attributes=False, regEx=''):
-		'''Get the transform node(s).
-
-		:Parameters:
-			node (obj) = A relative of a transform Node.
-			attributes (bool) = Return the attributes of the node, rather then the node itself.
-			regEx (str) = List only the attributes that match the string(s) passed from this flag. String can be a regular expression.
-
-		:Return:
-			(list) node(s) or node attributes.
-
-		[pm.PyNode(n).getTransform() for n in objects]
-		'''
-		transforms = pm.ls(node, type='transform')
-		if not transforms: #from shape
-			shapeNodes = pm.ls(node, objectsOnly=1)
-			transforms = pm.listRelatives(shapeNodes, parent=1)
-			if not transforms: #from history
-				try:
-					transforms = pm.listRelatives(pm.listHistory(node, future=1), parent=1)
-				except Exception as error:
-					transforms = []
-
-		if attributes:
-			transforms = pm.listAttr(transforms, read=1, hasData=1, string=regEx)
-
-		return list(set(transforms))
-
-
-	@classmethod
-	def getShapeNode(cls, node=None, attributes=False, regEx=''):
-		'''Get the shape node(s).
-
-		:Parameters:
-			node (obj) = A relative of a shape Node.
-			attributes (bool) = Return the attributes of the node, rather then the node itself.
-			regEx (str) = 	List only the attributes that match the string(s) passed from this flag. String can be a regular expression.
-
-		:Return:
-			(list) node(s) or node attributes.
-
-		[pm.PyNode(n).getShape() for n in objects]
-		'''
-		shapes = pm.listRelatives(node, children=1, shapes=1) #get shape node from transform: returns list ie. [nt.Mesh('pConeShape1')]
-		if not shapes:
-			shapes = pm.ls(node, type='shape')
-			if not shapes: #get shape from transform
-				try:
-					transforms = pm.listRelatives(pm.listHistory(node, future=1), parent=1)
-					shapes = cls.getShapeNode(transforms)
-				except Exception as error:
-					shapes = []
-
-		if attributes:
-			shapes = pm.listAttr(shapes, read=1, hasData=1, string=regEx)
-
-		return list(set(shapes))
-
-
-	@staticmethod
-	def getHistoryNode(node=None, attributes=False, regEx=''):
-		'''Get the history node(s).
-
-		:Parameters:
-			node (obj) = A relative of a history Node.
-			attributes (bool) = Return the attributes of the node, rather then the node itself.
-			regEx (str) = 	List only the attributes that match the string(s) passed from this flag. String can be a regular expression.
-
-		:Return:
-			(list) node(s) or node attributes.
-
-		[pm.PyNode(n).getHistory() for n in objects]
-		'''
-		shapes = pm.listRelatives(node, children=1, shapes=1) #get shape node from transform: returns list ie. [nt.Mesh('pConeShape1')]
-		connections = pm.listConnections(shapes, source=1, destination=0) #get incoming connections: returns list ie. [nt.PolyCone('polyCone1')]
-		if not connections:
-			try:
-				connections = node.history()[-1]
-			except AttributeError as error:
-				print ('error:', error)
-				connections = [] #object has no attribute 'history'
-
-		if attributes:
-			connections = pm.listAttr(connections, read=1, hasData=1, string=regEx)
-
-		return connections
-
-
-	@staticmethod
-	def getAllParents(node):
-		'''List ALL parents of an object
-		'''
-		objects = pm.ls(node, l=1)
-		tokens=[]
-
-		return objects[0].split("|")
 
 
 	@staticmethod
@@ -253,23 +294,26 @@ class Node_utils_maya():
 
 
 	@staticmethod
-	def setAttributesMEL(node, **attributes):
-		'''Set node attribute values using a dict.
+	def setAttributesMEL(nodes, verbose=False, **attributes):
+		'''Set node attribute values.
 
 		:Parameters:
-			node (obj) = The node to set attributes for.
+			nodes (str)(obj)(list) = The node(s) to set attributes for.
+			verbose (bool) = Print feedback messages such as errors to the console.
 			attributes (dict) = Attributes and their correponding value to set. ie. {'string attribute': value}
 
-		ex call:
-		self.setAttributesMEL(obj, {'smoothLevel':1})
+		ex call: setAttributesMEL(node, translateY=6)
 		'''
-		for attr, value in attributes.items():
-			try:
-				a = getattr(node, attr)
-				pm.setAttr(a, value) #ie. pm.setAttr('polyCube1.subdivisionsDepth', 5)
-			except (AttributeError, TypeError) as error:
-				# print ('# Error:', __file__, error, node, attr, value, '#')
-				pass
+		for node in pm.ls(nodes):
+
+			for attr, value in attributes.items():
+				try:
+					a = getattr(node, attr)
+					pm.setAttr(a, value) #ie. pm.setAttr('polyCube1.subdivisionsDepth', 5)
+				except (AttributeError, TypeError) as error:
+					if verbose:
+						print ('# Error:', __file__, error, node, attr, value, '#')
+					pass
 
 
 	@staticmethod
@@ -281,24 +325,25 @@ class Node_utils_maya():
 			place () = 
 			file () = 
 
-		// Use convenience command to connect attributes which share 
-		// their names for both the placement and file nodes.
-		self.connectAttributes('coverage', 'place2d', fileNode')
-		self.connectAttributes('translateFrame', 'place2d', fileNode')
-		self.connectAttributes('rotateFrame', 'place2d', fileNode')
-		self.connectAttributes('mirror', 'place2d', fileNode')
-		self.connectAttributes('stagger', 'place2d', fileNode')
-		self.connectAttributes('wrap', 'place2d', fileNode')
-		self.connectAttributes('wrapV', 'place2d', fileNode')
-		self.connectAttributes('repeatUV', 'place2d', fileNode')
-		self.connectAttributes('offset', 'place2d', fileNode')
-		self.connectAttributes('rotateUV', 'place2d', fileNode')
+		ex. call:
+		Use convenience command to connect attributes which share 
+		their names for both the placement and file nodes.
+			connectAttributes('coverage', 'place2d', fileNode')
+			connectAttributes('translateFrame', 'place2d', fileNode')
+			connectAttributes('rotateFrame', 'place2d', fileNode')
+			connectAttributes('mirror', 'place2d', fileNode')
+			connectAttributes('stagger', 'place2d', fileNode')
+			connectAttributes('wrap', 'place2d', fileNode')
+			connectAttributes('wrapV', 'place2d', fileNode')
+			connectAttributes('repeatUV', 'place2d', fileNode')
+			connectAttributes('offset', 'place2d', fileNode')
+			connectAttributes('rotateUV', 'place2d', fileNode')
 
-		// These two are named differently.
-		connectAttr -f ( $place2d + ".outUV" ) ( $fileNode + ".uv" );
-		connectAttr -f ( $place2d + ".outUvFilterSize" ) ( $fileNode + ".uvFilterSize" );
+		These two are named differently.
+			connectAttr -f ( $place2d + ".outUV" ) ( $fileNode + ".uv" );
+			connectAttr -f ( $place2d + ".outUvFilterSize" ) ( $fileNode + ".uvFilterSize" );
 		'''
-		pm.connectAttr((place + "." + attr), (file + "." + attr), f=1)
+		pm.connectAttr('{}.{}'.format(place, attr), '{}.{}'.format(file, attr), f=1)
 
 
 	@classmethod
@@ -345,7 +390,7 @@ class Node_utils_maya():
 		if name:
 			try:
 				pm.rename(node, name)
-				# pm.rename(cls.getTransformNode(node), name)
+
 			except RuntimeError as error:
 				print ('# Error:', __file__, error, '#')
 
@@ -353,6 +398,7 @@ class Node_utils_maya():
 		return node
 
 
+	@staticmethod
 	def getIncomingNodeByType(node, typ, exact=True):
 		'''Get the first connected node of the given type with an incoming connection to the given node.
 
@@ -367,9 +413,10 @@ class Node_utils_maya():
 		ex. call: env_file_node = getIncomingNodeByType(env_node, 'file') #get the incoming file node.
 		'''
 		nodes = pm.listConnections(node, type=typ, source=True, exactType=exact)
-		return Utils.formatReturn([pm.PyNode(n) for n in nodes])
+		return formatReturn([pm.PyNode(n) for n in nodes])
 
 
+	@staticmethod
 	def getOutgoingNodeByType(node, typ, exact=True):
 		'''Get the connected node of the given type with an outgoing connection to the given node.
 
@@ -384,9 +431,10 @@ class Node_utils_maya():
 		ex. call: srSG_node = getOutgoingNodeByType(sr_node, 'shadingEngine') #get the outgoing shadingEngine node.
 		'''
 		nodes = pm.listConnections(node, type=typ, destination=True, exactType=exact)
-		return Utils.formatReturn([pm.PyNode(n) for n in nodes])
+		return formatReturn([pm.PyNode(n) for n in nodes])
 
 
+	@staticmethod
 	def connectMultiAttr(*args, force=True):
 		'''Connect multiple node attributes at once.
 
@@ -406,6 +454,7 @@ class Node_utils_maya():
 				print ('# Error:', __file__, error, '#')
 
 
+	@staticmethod
 	def nodeExists(n, search='name'):
 		'''Check if the node exists in the current scene.
 
@@ -421,55 +470,22 @@ class Node_utils_maya():
 			return bool(pm.ls(type=n))
 		elif search=='exactType':
 			return bool(pm.ls(exactType=n))
-		
+
+# -----------------------------------------------
+from tentacle import import_submodules, addMembers
+addMembers(__name__)
+import_submodules(__name__)
 
 
 
 
 
-
-
-#module name
-# print (__name__)
+# print (__package__, __file__)
 # -----------------------------------------------
 # Notes
 # -----------------------------------------------
 
 
-
-
-
-# Deprecated ------------------------------------
-
-		# if not all((include, exclude)):
-		# 	exclude = ['message', 'caching', 'frozen', 'isHistoricallyInteresting', 'nodeState', 'binMembership', 'output', 'edgeIdMap', 'miterAlong', 'axis', 'axisX', 'axisY', 
-		# 		'axisZ', 'paramWarn', 'uvSetName', 'createUVs', 'texture', 'maya70', 'inputPolymesh', 'maya2017Update1', 'manipMatrix', 'inMeshCache', 'faceIdMap', 'subdivideNgons', 
-		# 		'useOldPolyArchitecture', 'inputComponents', 'vertexIdMap', 'binMembership', 'maya2015', 'cacheInput', 'inputMatrix', 'forceParallel', 'autoFit', 'maya2016SP3', 
-		# 		'maya2017', 'caching', 'output', 'useInputComp', 'worldSpace', 'taperCurve_Position', 'taperCurve_FloatValue', 'taperCurve_Interp', 'componentTagCreate', 
-		# 		'isCollapsed', 'blackBox', 'viewMode', 'templateVersion', 'uiTreatment', 'boundingBoxMinX', 'boundingBoxMinY', 'boundingBoxMinZ', 'boundingBoxMaxX', 'boundingBoxMaxY', 
-		# 		'boundingBoxMaxZ', 'boundingBoxSizeX', 'boundingBoxSizeY', 'boundingBoxSizeZ', 'boundingBoxCenterX', 'boundingBoxCenterY', 'boundingBoxCenterZ', 'visibility', 
-		# 		'intermediateObject', 'template', 'objectColorR', 'objectColorG', 'objectColorB', 'wireColorR', 'wireColorG', 'wireColorB', 'useObjectColor', 'objectColor', 
-		# 		'overrideDisplayType', 'overrideLevelOfDetail', 'overrideShading', 'overrideTexturing', 'overridePlayback', 'overrideEnabled', 'overrideVisibility', 'hideOnPlayback', 
-		# 		'overrideRGBColors', 'overrideColor', 'overrideColorR', 'overrideColorG', 'overrideColorB', 'lodVisibility', 'selectionChildHighlighting', 'identification', 
-		# 		'layerRenderable', 'layerOverrideColor', 'ghosting', 'ghostingMode', 'ghostPreFrames', 'ghostPostFrames', 'ghostStep', 'ghostFarOpacity', 'ghostNearOpacity', 
-		# 		'ghostColorPreR', 'ghostColorPreG', 'ghostColorPreB', 'ghostColorPostR', 'ghostColorPostG', 'ghostColorPostB', 'ghostUseDriver', 'hiddenInOutliner', 'useOutlinerColor', 
-		# 		'outlinerColorR', 'outlinerColorG', 'outlinerColorB', 'renderType', 'renderVolume', 'visibleFraction', 'hardwareFogMultiplier', 'motionBlur', 'visibleInReflections', 
-		# 		'visibleInRefractions', 'castsShadows', 'receiveShadows', 'asBackground', 'maxVisibilitySamplesOverrider', 'maxVisibilitySamples', 'geometryAntialiasingOverride', 
-		# 		'antialiasingLevel', 'shadingSamplesOverride', 'shadingSamples', 'maxShadingSamples','volumeSamplesOverride', 'volumeSamples', 'depthJitter', 'IgnoreSelfShadowing', 
-		# 		'primaryVisibility', 'tweak', 'relativeTweak', 'uvPivotX', 'uvPivotY', 'displayImmediate', 'displayColors', 'ignoreHwShader', 'holdOut', 'smoothShading', 
-		# 		'boundingBoxScaleX', 'boundingBoxScaleY', 'boundingBoxScaleZ', 'featureDisplacement', 'randomSeed', 'compId', 'weight', 'gravityX', 'gravityY', 'gravityZ', 'attraction', 
-		# 		'magnX', 'magnY', 'magnZ', 'maya2012', 'maya2018', 'newThickness', 'compBoundingBoxMinX', 'compBoundingBoxMinY', 'compBoundingBoxMinZ', 'compBoundingBoxMaxX', 
-		# 		'compBoundingBoxMaxY', 'compBoundingBoxMaxZ', 'hyperLayout', 'borderConnections', 'isHierarchicalConnection', 'rmbCommand', 'templateName', 'templatePath', 'viewName', 
-		# 		'iconName', 'customTreatment', 'creator', 'creationDate', 'containerType', 'boundingBoxMin', 'boundingBoxMax', 'boundingBoxSize', 'matrix', 'inverseMatrix', 'worldMatrix', 
-		# 		'worldInverseMatrix', 'parentMatrix', 'parentInverseMatrix', 'instObjGroups', 'wireColorRGB', 'drawOverride', 'overrideColorRGB', 'renderInfo', 'ghostCustomSteps', 
-		# 		'ghostsStep', 'ghostFrames', 'ghostOpacityRange', 'ghostColorPre', 'ghostColorPost', 'ghostDriver', 'outlinerColor', 'shadowRays', 'rayDepthLimit', 'centerOfIllumination', 
-		# 		'pointCamera', 'pointCameraX', 'pointCameraY', 'pointCameraZ', 'matrixWorldToEye', 'matrixEyeToWorld', 'objectId', 'primitiveId', 'raySampler', 'rayDepth', 'renderState', 
-		# 		'locatorScale', 'uvCoord', 'uCoord', 'vCoord', 'uvFilterSize', 'uvFilterSizeX', 'uvFilterSizeY', 'infoBits', 'lightData', 'lightDirectionX', 'lightDirectionY', 'lightDirectionZ', 
-		# 		'lightIntensityR', 'lightIntensityG', 'lightIntensityB', 'lightShadowFraction', 'preShadowIntensity', 'lightBlindData', 'opticalFXvisibility', 'opticalFXvisibilityR', 
-		# 		'opticalFXvisibilityG', 'opticalFXvisibilityB', 'rayInstance', 'ambientShade', 'objectType', 'shadowRadius', 'castSoftShadows', 'normalCamera', 'normalCameraX', 'normalCameraY', 
-		# 		'normalCameraZ', 'color', 'shadowColor', 'decayRate', 'emitDiffuse', 'emitSpecular', 'lightRadius', 'reuseDmap', 'useMidDistDmap', 'dmapFilterSize', 'dmapResolution', 
-		# 		'dmapFocus', 'dmapWidthFocus', 'useDmapAutoFocus', 'volumeShadowSamples', 'fogShadowIntensity', 'useDmapAutoClipping', 'dmapNearClipPlane', 'dmapFarClipPlane', 
-		# 		'useOnlySingleDmap', 'useXPlusDmap', 'useXMinusDmap', 'useYPlusDmap', 'useYMinusDmap', 'useZPlusDmap', 'useZMinusDmap', 'dmapUseMacro', 'dmapName', 'dmapLightName', 
-		# 		'dmapSceneName', 'dmapFrameExt', 'writeDmap', 'lastWrittenDmapAnimExtName', 'useLightPosition', 'lightAngle', 'pointWorld', 'pointWorldX', 'pointWorldY', 'pointWorldZ', 
-
-		# 	]
+# -----------------------------------------------
+# deprecated:
+# -----------------------------------------------

@@ -199,6 +199,34 @@
      <string>Plane</string>
     </property>
    </widget>
+   <widget class="QPushButton" name="b005">
+    <property name="geometry">
+     <rect>
+      <x>125</x>
+      <y>360</y>
+      <width>101</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="minimumSize">
+     <size>
+      <width>0</width>
+      <height>21</height>
+     </size>
+    </property>
+    <property name="maximumSize">
+     <size>
+      <width>16777215</width>
+      <height>21</height>
+     </size>
+    </property>
+    <property name="whatsThis">
+     <string/>
+    </property>
+    <property name="text">
+     <string>6 Sided Cylinder</string>
+    </property>
+   </widget>
   </widget>
  </widget>
  <resources/>

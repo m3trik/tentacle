@@ -302,7 +302,7 @@ class Transform_maya(Transform, Slots_maya):
 			return
 
 		transform = Slots_maya.getTransformNode(node)
-		self.setAttributeWindow(transform[0], include=['translateX','translateY','translateZ','rotateX','rotateY','rotateZ','scaleX','scaleY','scaleZ'], checkableLabel=True)
+		self.setAttributeWindow(transform, include=['translateX','translateY','translateZ','rotateX','rotateY','rotateZ','scaleX','scaleY','scaleZ'], checkableLabel=True)
 
 
 	def b001(self):
@@ -877,7 +877,7 @@ class Transform_maya(Transform, Slots_maya):
 		for obj in pm.ls(objects, flatten=1):
 			xmin, ymin, zmin, xmax, ymax, zmax = pm.xform(obj, q=1, boundingBox=1)
 			bb_pos = ((xmin + xmax) / 2, (ymin + ymax) / 2, (zmin + zmax) / 2)
-			bb_dist = self.getDistanceBetweenTwoPoints(point, bb_pos)
+			bb_dist = self.getDistBetweenTwoPoints(point, bb_pos)
 
 			distance[bb_dist] = obj
 

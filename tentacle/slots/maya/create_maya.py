@@ -77,74 +77,61 @@ class Create_maya(Create, Slots_maya):
 		'''
 		tb = self.sb.create.tb000
 
-		axis = [0,90,0]
-		typ = self.sb.create.cmb001.currentText()
-		index = self.sb.create.cmb002.currentIndex()
-		translate = tb.ctxMenu.chk000.isChecked()
+		baseType = self.sb.create.cmb001.currentText()
+		subType = self.sb.create.cmb002.currentText()
 		scale = tb.ctxMenu.chk001.isChecked()
+		translate = tb.ctxMenu.chk000.isChecked()
+
+		return self.createDefaultPrimitive(baseType, subType, scale, translate)
+
+
+	def createDefaultPrimitive(self, baseType, subType, scale=False, translate=False, axis=[0,90,0]):
+		'''
+		'''
+		baseType = baseType.lower()
+		subType = subType.lower()
 
 		selection = pm.ls(selection=1, transforms=1)
 
-		#polygons
-		if typ=='Polygon':
-			if index==0: #cube:
-				node = pm.polyCube(axis=axis, width=5, height=5, depth=5, subdivisionsX=1, subdivisionsY=1, subdivisionsZ=1)
-			elif index==1: #sphere:
-				node = pm.polySphere(axis=axis, radius=5, subdivisionsX=12, subdivisionsY=12)
-			elif index==2: #cylinder:
-				node = pm.polyCylinder(axis=axis, radius=5, height=10, subdivisionsX=12, subdivisionsY=1, subdivisionsZ=1)
-			elif index==3: #plane:
-				node = pm.polyPlane(axis=axis, width=5, height=5, subdivisionsX=1, subdivisionsY=1)
-			elif index==4: #circle:
-				node = self.createCircle(axis=axis, numPoints=12, radius=5, mode=0)
-			elif index==5: #Cone:
-				node = pm.polyCone(axis=axis, radius=5, height=5, subdivisionsX=1, subdivisionsY=1, subdivisionsZ=1)
-			elif index==6: #Pyramid
-				node = pm.polyPyramid(axis=axis, sideLength=5, numberOfSides=5, subdivisionsHeight=1, subdivisionsCaps=1)
-			elif index==7: #Torus:
-				node = pm.polyTorus(axis=axis, radius=10, sectionRadius=5, twist=0, subdivisionsX=5, subdivisionsY=5)
-			elif index==8: #Pipe
-				node = pm.polyPipe(axis=axis, radius=5, height=5, thickness=2, subdivisionsHeight=1, subdivisionsCaps=1)
-			elif index==9: #Soccer ball
-				node = pm.polyPrimitive(axis=axis, radius=5, sideLength=5, polyType=0)
-			elif index==10: #Platonic solids
-				node = mel.eval("performPolyPrimitive PlatonicSolid 0;")
+		primitives = {	
+			'polygon': {
+				'cube': 'pm.polyCube(axis=axis, width=5, height=5, depth=5, subdivisionsX=1, subdivisionsY=1, subdivisionsZ=1)',
+				'sphere': 'pm.polySphere(axis=axis, radius=5, subdivisionsX=12, subdivisionsY=12)',
+				'cylinder': 'pm.polyCylinder(axis=axis, radius=5, height=10, subdivisionsX=12, subdivisionsY=1, subdivisionsZ=1)',
+				'plane': 'pm.polyPlane(axis=axis, width=5, height=5, subdivisionsX=1, subdivisionsY=1)',
+				'circle': 'self.createCircle(axis=axis, numPoints=12, radius=5, mode=0)',
+				'cone': 'pm.polyCone(axis=axis, radius=5, height=5, subdivisionsX=1, subdivisionsY=1, subdivisionsZ=1)',
+				'pyramid': 'pm.polyPyramid(axis=axis, sideLength=5, numberOfSides=5, subdivisionsHeight=1, subdivisionsCaps=1)',
+				'torus': 'pm.polyTorus(axis=axis, radius=10, sectionRadius=5, twist=0, subdivisionsX=5, subdivisionsY=5)',
+				'pipe': 'pm.polyPipe(axis=axis, radius=5, height=5, thickness=2, subdivisionsHeight=1, subdivisionsCaps=1)',
+				'soccer ball': 'pm.polyPrimitive(axis=axis, radius=5, sideLength=5, polyType=0)',
+				'platonic solids': 'mel.eval("performPolyPrimitive PlatonicSolid 0;")',
+			},
 
-		#nurbs
-		elif typ=='NURBS':
-			if index==0: #Cube
-				node = pm.nurbsCube(ch=1, d=3, hr=1, p=(0, 0, 0), lr=1, w=1, v=1, ax=(0, 1, 0), u=1)
-			elif index==1: #Sphere
-				node = pm.sphere(esw=360, ch=1, d=3, ut=0, ssw=0, p=(0, 0, 0), s=8, r=1, tol=0.01, nsp=4, ax=(0, 1, 0))
-			elif index==2: #Cylinder
-				node = pm.cylinder(esw=360, ch=1, d=3, hr=2, ut=0, ssw=0, p=(0, 0, 0), s=8, r=1, tol=0.01, nsp=1, ax=(0, 1, 0))
-			elif index==3: #Cone
-				node = pm.cone(esw=360, ch=1, d=3, hr=2, ut=0, ssw=0, p=(0, 0, 0), s=8, r=1, tol=0.01, nsp=1, ax=(0, 1, 0))
-			elif index==4: #Plane
-				node = pm.nurbsPlane(ch=1, d=3, v=1, p=(0, 0, 0), u=1, w=1, ax=(0, 1, 0), lr=1)
-			elif index==5: #Torus
-				node = pm.torus(esw=360, ch=1, d=3, msw=360, ut=0, ssw=0, hr=0.5, p=(0, 0, 0), s=8, r=1, tol=0.01, nsp=4, ax=(0, 1, 0))
-			elif index==6: #Circle
-				node = pm.circle(c=(0, 0, 0), ch=1, d=3, ut=0, sw=360, s=8, r=1, tol=0.01, nr=(0, 1, 0))
-			elif index==7: #Square
-				node = pm.nurbsSquare(c=(0, 0, 0), ch=1, d=3, sps=1, sl1=1, sl2=1, nr=(0, 1, 0))
+			'nurbs': {
+				'cube': 'pm.nurbsCube(ch=1, d=3, hr=1, p=(0, 0, 0), lr=1, w=1, v=1, ax=(0, 1, 0), u=1)',
+				'sphere': 'pm.sphere(esw=360, ch=1, d=3, ut=0, ssw=0, p=(0, 0, 0), s=8, r=1, tol=0.01, nsp=4, ax=(0, 1, 0))',
+				'cylinder': 'pm.cylinder(esw=360, ch=1, d=3, hr=2, ut=0, ssw=0, p=(0, 0, 0), s=8, r=1, tol=0.01, nsp=1, ax=(0, 1, 0))',
+				'cone': 'pm.cone(esw=360, ch=1, d=3, hr=2, ut=0, ssw=0, p=(0, 0, 0), s=8, r=1, tol=0.01, nsp=1, ax=(0, 1, 0))',
+				'plane': 'pm.nurbsPlane(ch=1, d=3, v=1, p=(0, 0, 0), u=1, w=1, ax=(0, 1, 0), lr=1)',
+				'torus': 'pm.torus(esw=360, ch=1, d=3, msw=360, ut=0, ssw=0, hr=0.5, p=(0, 0, 0), s=8, r=1, tol=0.01, nsp=4, ax=(0, 1, 0))',
+				'circle': 'pm.circle(c=(0, 0, 0), ch=1, d=3, ut=0, sw=360, s=8, r=1, tol=0.01, nr=(0, 1, 0))',
+				'square': 'pm.nurbsSquare(c=(0, 0, 0), ch=1, d=3, sps=1, sl1=1, sl2=1, nr=(0, 1, 0))',
+			},
 
-		#lights
-		elif typ=='Light':
-			if index==0: #Ambient
-				node = pm.ambientLight() #defaults: 1, 0.45, 1,1,1, "0", 0,0,0, "1"
-			elif index==1: #Directional
-				node = pm.directionalLight() #1, 1,1,1, "0", 0,0,0, 0
-			elif index==2: #Point
-				node = pm.pointLight() #1, 1,1,1, 0, 0, 0,0,0, 1
-			elif index==3: #Spot
-				node = pm.spotLight() #1, 1,1,1, 0, 40, 0, 0, 0, 0,0,0, 1, 0
-			elif index==4: #Area
-				node = pm.shadingNode('areaLight', asLight=True) #1, 1,1,1, 0, 0, 0,0,0, 1, 0
-			elif index==5: #Volume
-				node = pm.shadingNode('volumeLight', asLight=True) #1, 1,1,1, 0, 0, 0,0,0, 1
+			'light': {
+				'ambient': 'pm.ambientLight()', #defaults: 1, 0.45, 1,1,1, "0", 0,0,0, "1"
+				'directional': 'pm.directionalLight()', #1, 1,1,1, "0", 0,0,0, 0
+				'point': 'pm.pointLight()', #1, 1,1,1, 0, 0, 0,0,0, 1
+				'spot': 'pm.spotLight()', #1, 1,1,1, 0, 40, 0, 0, 0, 0,0,0, 1, 0
+				'area': 'pm.shadingNode("areaLight", asLight=True)', #1, 1,1,1, 0, 0, 0,0,0, 1, 0
+				'volume': 'pm.shadingNode("volumeLight", asLight=True)', #1, 1,1,1, 0, 0, 0,0,0, 1
+			},
+		}
 
-		if selection: #if there is a current selection, move the object to that selection's bounding box center.
+		node = eval(primitives[baseType][subType])
+
+		if selection: #if originally there was a selected object, move the object to that objects's bounding box center.
 			if translate:
 				self.sb.transform.slots.moveTo(node, selection)
 				# center_pos = self.sb.transform.slots.getCenterPoint(selection)
@@ -156,6 +143,13 @@ class Create_maya(Create, Slots_maya):
 		pm.select(node) #select the transform node so that you can see any edits
 
 		return self.getHistoryNode(node)
+
+
+	def b005(self):
+		'''Create 6 sided poly cylinder
+		'''
+		node = self.createPrimitive('Polygon', 'Cylinder')
+		self.setAttributesMEL(node, verbose=True, subdivisionsAxis=6)
 
 
 	@Slots_maya.undo

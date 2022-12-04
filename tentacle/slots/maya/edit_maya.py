@@ -602,13 +602,15 @@ class Edit_maya(Edit, Slots_maya):
 
 		ex. call: getSimilarMesh(selection, vertex=1, area=1)
 		'''
+		from slots.maya import mayatls as mtls
+
 		lst = lambda x: list(x) if isinstance(x, (list, tuple, set)) else list(x.values()) if isinstance(x, dict) else [x] #assure the returned result from polyEvaluate is a list of values.
 
 		obj, *other = pm.ls(obj, long=True, transforms=True)
 		objProps = lst(pm.polyEvaluate(obj, **kwargs))
 
 		otherSceneMeshes = set(pm.filterExpand(pm.ls(long=True, typ='transform'), selectionMask=12)) #polygon selection mask.
-		similar = pm.ls([m for m in otherSceneMeshes if Slots.areSimilar(objProps, lst(pm.polyEvaluate(m, **kwargs)), tol=tol) and m!=obj])
+		similar = pm.ls([m for m in otherSceneMeshes if mtls.areSimilar(objProps, lst(pm.polyEvaluate(m, **kwargs)), tol=tol) and m!=obj])
 		return similar+[obj] if includeOrig else similar
 
 

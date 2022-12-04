@@ -3,7 +3,6 @@
 from PySide2 import QtCore
 
 
-
 class StyleSheet(QtCore.QObject):
 	'''# css commenting:
 		/* multi-line */

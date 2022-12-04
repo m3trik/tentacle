@@ -2,8 +2,10 @@
 # coding=utf-8
 import sys, os
 
+import strtls, itertls
 
-class File_utils():
+
+class Filetls():
 	'''
 	'''
 	@staticmethod
@@ -24,13 +26,10 @@ class File_utils():
 		:Return:
 			(str)(list) List if 'strings' given as list.
 		'''
-		from str_utils import Str_utils
-		from iter_utils import Iter_utils
-
 		assert isinstance(strings, (str, list, tuple, set, dict)), 'Error: {}:\n  Incorrect datatype: {}'.format(__file__, type(strings).__name__)
 
 		result=[]
-		for string in Iter_utils.makeList(strings):
+		for string in itertls.makeList(strings):
 			string = os.path.expandvars(string) #convert any env variables to their values.
 			string = string[:2]+'/'.join(string[2:].split('\\')).rstrip('/') #convert forward slashes to back slashes.
 
@@ -64,7 +63,7 @@ class File_utils():
 
 			result.append(string)
 
-		return Iter_utils.formatReturn(result, strings) #if 'strings' is given as a list; return a list.
+		return itertls.formatReturn(result, strings) #if 'strings' is given as a list; return a list.
 
 
 	@classmethod
@@ -166,10 +165,8 @@ class File_utils():
 		ex. getDirectoryContents(path, returnType='filepaths')
 		ex. getDirectoryContents(path, returnType='files|dirs')
 		'''
-		from iter_utils import Iter_utils
-
-		exclude = Iter_utils.makeList(exclude)
-		include = Iter_utils.makeList(include)
+		exclude = itertls.makeList(exclude)
+		include = itertls.makeList(include)
 
 		path = os.path.expandvars(path) #translate any system variables that might have been used in the path.
 		types = [t.strip().rstrip('s').lower() for t in returnType.split('|')] #strip any whitespace and trailing 's' of the types to allow for singular and plural to be used interchagably. ie. files | dirs becomes [file, dir]
@@ -226,10 +223,15 @@ class File_utils():
 		elif isinstance(obj, ModuleType):
 			filepath = obj.__file__
 		else:
-			filepath = os.path.abspath(sys.modules[obj.__module__].__file__)
+			obj = obj if callable(obj) else obj.__class__
+			try:
+				filepath = sys.modules[obj.__module__].__file__
+			except AttributeError as error:
+				import inspect
+				filepath = inspect.getfile(obj)
 
 		if includeFilename:
-			return filepath
+			return os.path.abspath(filepath)
 		else:
 			return os.path.abspath(os.path.dirname(filepath))
 
@@ -292,6 +294,11 @@ class File_utils():
 			return f.readlines()
 
 
+# -----------------------------------------------
+from tentacle import addMembers
+addMembers(__name__)
+
+
 
 
 
@@ -303,10 +310,11 @@ if __name__=='__main__':
 	pass
 
 
-# --------------------------------
+
+# -----------------------------------------------
 # Notes
-# --------------------------------
+# -----------------------------------------------
 
 
 
-# Deprecated ---------------------
+# Deprecated ------------------------------------

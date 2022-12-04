@@ -1,7 +1,7 @@
 # !/usr/bin/python
 # coding=utf-8
 from slots import Slots
-
+from slots.tls import filetls
 
 
 class File(Slots):
@@ -13,10 +13,10 @@ class File(Slots):
 		'''
 		#set the text for the open last file button to the last file's name.
 		list000 = self.sb.file_submenu.list000
-		recentFiles = [self.formatPath(f, 'name') for f in self.getRecentFiles()[:6] if f]
+		recentFiles = [filetls.formatPath(f, 'name') for f in self.getRecentFiles()[:6] if f]
 		# list000.setVisible(bool(recentFiles))
 		list000.addItems(recentFiles)
-		# self.sb.file_submenu.b001.setText(self.formatPath(mostRecentFile, 'name')) if mostRecentFile else self.sb.file_submenu.b001.setVisible(False)
+		# self.sb.file_submenu.b001.setText(filetls.formatPath(mostRecentFile, 'name')) if mostRecentFile else self.sb.file_submenu.b001.setVisible(False)
 
 		dh = self.sb.file.draggable_header
 		dh.ctxMenu.add(self.sb.ComboBox, setObjectName='cmb000', setToolTip='')

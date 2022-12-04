@@ -10,12 +10,11 @@ from PySide2 import QtCore, QtGui, QtWidgets
 from PySide2.QtUiTools import QUiLoader
 
 from ui.styleSheet import StyleSheet
-from slots.utils import Utils
+from slots.tls import filetls, itertls, strtls
 
 
-class Switchboard(QUiLoader, StyleSheet, Utils):
+class Switchboard(QUiLoader, StyleSheet):
 	'''Load dynamic ui and assign properties.
-	Also inherits all utility classes from the utils package.
 
 	:Properties:
 		sb = The property 'sb' is automatically passed to all slot class instances, sb is the instance of this class holding all of the properties below. ex. sb.ui.widgets
@@ -108,7 +107,7 @@ class Switchboard(QUiLoader, StyleSheet, Utils):
 			If any of the given filepaths are not a full path, it will be treated as relative to the 'defaultDir'.
 			ex. sb.slotLoc = 'maya' would become: '<sb.defaultDir>/maya'			
 		'''
-		self.defaultDir = self.getFilepath(parent) if parent else self.getFilepath(__file__) #use the filepath from the parent class if a parent is given.
+		self.defaultDir = filetls.getFilepath(parent) if parent else filetls.getFilepath(__file__) #use the filepath from the parent class if a parent is given.
 
 		self.uiLoc = uiLoc
 		self.widgetLoc = widgetLoc
@@ -136,7 +135,7 @@ class Switchboard(QUiLoader, StyleSheet, Utils):
 			ui = self.loadUi(uiFullPath) #load the dynamic ui file.
 			return ui
 
-		wgtName = self.setCase(attr, 'camelCase')
+		wgtName = strtls.setCase(attr, 'camelCase')
 		pathToWidget = next((f for f in glob.iglob('{}/**/{}.py'.format(self.widgetLoc, wgtName), recursive=True)), None)
 		if pathToWidget:
 			customWidget = self.registerWidgets(attr)
@@ -282,7 +281,7 @@ class Switchboard(QUiLoader, StyleSheet, Utils):
 			if l.strip() == '<{}>'.format(prop):
 				actual_prop_text = l
 				start = i+1
-			elif l == Utils.insert(actual_prop_text, '/', '<'):
+			elif l == strtls.insert(actual_prop_text, '/', '<'):
 				end = i
 
 				delimiters = '</', '<', '>', '\n', ' ',
@@ -312,7 +311,7 @@ class Switchboard(QUiLoader, StyleSheet, Utils):
 		:Return:
 			(int)
 		'''
-		uiFolder = self.formatPath(filePath, 'dir')
+		uiFolder = filetls.formatPath(filePath, 'dir')
 
 		try:
 			return int(re.findall(r"\d+\s*$", uiFolder)[0]) #get trailing integers.
@@ -373,15 +372,15 @@ class Switchboard(QUiLoader, StyleSheet, Utils):
 		:Return:
 			(list) widgets
 		'''
-		mod_name = self.formatPath(path, 'name')
+		mod_name = filetls.formatPath(path, 'name')
 
-		if not os.path.isfile(path) or os.path.isdir(path):
-			mod_name = self.setCase(mod_name, 'camelCase')
+		if not filetls.isValidPath(path):
+			mod_name = strtls.setCase(mod_name, 'camelCase')
 			path = os.path.join(self.widgetLoc, mod_name+'.py')
 
-		path_ = self.formatPath(path, 'path')
+		path_ = filetls.formatPath(path, 'path')
 
-		self.setWorkingDirectory(path_)
+		self.setWorkingDirectory(path_) #set QUiLoader working paths.
 		self.addPluginPath(path_)
 		sys.path.append(path_)
 
@@ -490,12 +489,12 @@ class Switchboard(QUiLoader, StyleSheet, Utils):
 		'''
 		assert isinstance(ui, QtWidgets.QMainWindow), 'Incorrect datatype: {}: {}'.format(type(ui), ui)
 
-		d = self.formatPath(self.slotLoc, 'dir')
+		d = filetls.formatPath(self.slotLoc, 'dir')
 		suffix = '' if d=='slots' else d
 
 		mod_name = '{}_{}'.format(
-							self.setCase(ui.name, case='camelCase'), 
-							self.setCase(suffix, case='camelCase'),
+							strtls.setCase(ui.name, case='camelCase'), 
+							strtls.setCase(suffix, case='camelCase'),
 							).rstrip('_') #ie. 'polygons_maya' or 'polygons' if suffix is None.
 		if not path:
 			if isinstance(self.slotLoc, str):
@@ -510,7 +509,7 @@ class Switchboard(QUiLoader, StyleSheet, Utils):
 				sys.modules[spec.name] = mod
 				spec.loader.exec_module(mod)
 
-				cls_name = self.setCase(mod_name, case='pascalCase')
+				cls_name = strtls.setCase(mod_name, case='pascalCase')
 				try:
 					clss = getattr(mod, cls_name)
 				except AttributeError as error: #if a class by the same name as the module doesn't exist: (ex. <Polygons_maya> from module 'polygons_maya')
@@ -539,7 +538,7 @@ class Switchboard(QUiLoader, StyleSheet, Utils):
 		ex. call: registerWidgets('O:/Cloud/Code/_scripts/tentacle/tentacle/ui/widgets/menu.py') #register using path to widget module.
 		'''
 		result=[]
-		for w in self.makeList(widgets): #assure widgets is a list.
+		for w in itertls.makeList(widgets): #assure widgets is a list.
 
 			if isinstance(w, str):
 				widgets_ = self._getWidgetsFromDir(w)
@@ -560,7 +559,7 @@ class Switchboard(QUiLoader, StyleSheet, Utils):
 			except Exception as error:
 				print ('# {}: registerWidgets: {}. #'.format(__file__, error))
 
-		return self.formatReturn(result, widgets) #if 'widgets' is given as a list; return a list.
+		return itertls.formatReturn(result, widgets) #if 'widgets' is given as a list; return a list.
 
 
 	def loadAllUi(self, path=None, widgets=None, parent=None):
@@ -595,8 +594,8 @@ class Switchboard(QUiLoader, StyleSheet, Utils):
 		:Return:
 			(obj) QMainWindow object.
 		'''
-		name = self.formatPath(file, 'name')
-		path = self.formatPath(file, 'path')
+		name = filetls.formatPath(file, 'name')
+		path = filetls.formatPath(file, 'path')
 		level = self._getUiLevelFromDir(file)
 
 		#register custom widgets
@@ -613,7 +612,7 @@ class Switchboard(QUiLoader, StyleSheet, Utils):
 				except IndexError as error:
 					continue
 
-				mod_name = self.setCase(className, 'camelCase')
+				mod_name = strtls.setCase(className, 'camelCase')
 				fullpath = os.path.join(self.widgetLoc, mod_name+'.py')
 				self.registerWidgets(fullpath)
 		#load ui
@@ -696,7 +695,7 @@ class Switchboard(QUiLoader, StyleSheet, Utils):
 		if widgets=='all':
 			widgets = self._getWidgetsFromUi(ui) #get all widgets of the ui:
 
-		for w in self.makeList(widgets): #assure 'widgets' is a list.
+		for w in itertls.makeList(widgets): #assure 'widgets' is a list.
 
 			derivedType = self._getDerivedType(w) #the base class of any custom widgets.  ie. 'QPushButton' from a custom pushbutton widget.
 			typ = w.__class__.__base__.__name__ if filterByBaseType else derivedType
@@ -754,8 +753,8 @@ class Switchboard(QUiLoader, StyleSheet, Utils):
 				ui = [u for u in self._loadedUi 
 						if all([
 							u.base==ui1.base, 
-							u.tags==self.makeList(tags), 
-							u.level in self.makeList(level),
+							u.tags==itertls.makeList(tags), 
+							u.level in itertls.makeList(level),
 						])
 				]
 
@@ -763,11 +762,11 @@ class Switchboard(QUiLoader, StyleSheet, Utils):
 				ui = [u for u in self._loadedUi 
 						if all([
 							u.base==ui.base, 
-							u.level in self.makeList(level),
+							u.level in itertls.makeList(level),
 						])
 				]
 
-			return self.formatReturn(ui, level) #if 'level' is given as a list; return a list.
+			return itertls.formatReturn(ui, level) #if 'level' is given as a list; return a list.
 
 		elif isinstance(ui, str):
 			try:
@@ -871,7 +870,7 @@ class Switchboard(QUiLoader, StyleSheet, Utils):
 			[hist.remove(u) for u in hist[:] if hist.count(u)>1] #remove any previous duplicates if they exist; keeping the last added element.
 
 		if omitLevel is not None:
-			hist = [u for u in hist if not u.level in self.makeList(omitLevel)] #remove any items having a ui level of those in the omitLevel list.
+			hist = [u for u in hist if not u.level in itertls.makeList(omitLevel)] #remove any items having a ui level of those in the omitLevel list.
 
 		if asList:
 			return hist #return entire list after being modified by any flags such as 'allowDuplicates'.
@@ -943,7 +942,7 @@ class Switchboard(QUiLoader, StyleSheet, Utils):
 			ui = self.getUi(ui)
 
 		typ = 'derivedType' if derivedType else 'type'
-		return [w for w in ui.widgets if getattr(w, typ) in self.makeList(types)]
+		return [w for w in ui.widgets if getattr(w, typ) in itertls.makeList(types)]
 
 
 	def getWidgetName(self, widget=None, ui=None):
@@ -1063,7 +1062,7 @@ class Switchboard(QUiLoader, StyleSheet, Utils):
 		signals=[]
 		try: #if the widget type has a default signal assigned in the signals dict; get the signal.
 			signalTypes = self.defaultSignals[w.derivedType]
-			for s in self.makeList(signalTypes): #assure 'signalTypes' is a list.
+			for s in itertls.makeList(signalTypes): #assure 'signalTypes' is a list.
 				signal = getattr(w, s, None)
 				signals.append(signal)
 
@@ -1101,9 +1100,9 @@ class Switchboard(QUiLoader, StyleSheet, Utils):
 		'''
 		if widgets is None:
 			widgets = ui.widgets
-		# print ('connectSlots:', ui.name, [w.objectName() for w in self.makeList(widgets)])
+		# print ('connectSlots:', ui.name, [w.objectName() for w in itertls.makeList(widgets)])
 
-		for w in self.makeList(widgets): #convert 'widgets' to a list if it is not one already.
+		for w in itertls.makeList(widgets): #convert 'widgets' to a list if it is not one already.
 			# print ('           >:', w.name, w.method)
 			if w.method and w.signals:
 				for s in w.signals:
@@ -1135,7 +1134,7 @@ class Switchboard(QUiLoader, StyleSheet, Utils):
 		if widgets is None:
 			widgets = ui.widgets
 
-		for w in self.makeList(widgets):  #convert 'widgets' to a list if it is not one already.
+		for w in itertls.makeList(widgets):  #convert 'widgets' to a list if it is not one already.
 			# print ('           >:', w.name, w.method)
 			if w.method and w.signals:
 				for s in w.signals:
@@ -1168,8 +1167,6 @@ class Switchboard(QUiLoader, StyleSheet, Utils):
 				[lambda state: self.rigging.tb004.setText('Unlock Transforms' if state else 'Lock Transforms'), 
 				lambda state: self.rigging_submenu.tb004.setText('Unlock Transforms' if state else 'Lock Transforms')])
 		'''
-		lst = lambda x: list(x) if isinstance(x, (list, tuple, set, dict)) else [x] #assure the arg is a list.
-
 		if isinstance(widgets, (str)):
 			try:
 				widgets = self.getWidgetsFromStr(clss, widgets, showError=True) #getWidgetsFromStr returns a widget list from a string of objectNames.
@@ -1177,9 +1174,9 @@ class Switchboard(QUiLoader, StyleSheet, Utils):
 				widgets = self.getWidgetsFromStr(self.currentUi, widgets, showError=True)
 
 		#if the variables are not of a list type; convert them.
-		widgets = lst(widgets)
-		signals = lst(signals)
-		slots = lst(slots)
+		widgets = itertls.makeList(widgets)
+		signals = itertls.makeList(signals)
+		slots = itertls.makeList(slots)
 
 		for widget in widgets:
 			for signal in signals:
@@ -1256,7 +1253,7 @@ class Switchboard(QUiLoader, StyleSheet, Utils):
 
 		elif not isinstance(attributes, dict):
 			attributes = {next((k for k,v in self.attributesGetSet.items() if v==i), None):i #construct a gettr setter pair dict using only the given setter values.
-				 for i in self.makeList(attributes)
+				 for i in itertls.makeList(attributes)
 			}
 
 		_attributes = {}
@@ -1547,7 +1544,7 @@ class Switchboard(QUiLoader, StyleSheet, Utils):
 		if clear:
 			self._gcProtect.clear()
 
-		for o in self.makeList(obj):
+		for o in itertls.makeList(obj):
 			self._gcProtect.add(o)
 
 		return self._gcProtect

@@ -38,17 +38,22 @@ class Create(Slots):
 
 
 	def createPrimitive(self, catagory1, catagory2):
-		'''ie. createPrimitive('Polygons', 'Cube')
+		'''Create a primitive object.
+
 		:Parameters:
 			catagory1 (str) = type
 			catagory2 (str) = type
+		:Return:
+			(obj) node
+
+		ex. call: createPrimitive('Polygons', 'Cube')
 		'''
 		cmb001 = self.sb.create.cmb001
 		cmb002 = self.sb.create.cmb002
 
 		cmb001.setCurrentIndex(cmb001.findText(catagory1))
 		cmb002.setCurrentIndex(cmb002.findText(catagory2))
-		self.tb000()
+		return self.tb000()
 
 
 	def b001(self):

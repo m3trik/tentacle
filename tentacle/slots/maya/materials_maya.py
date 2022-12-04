@@ -4,7 +4,6 @@ from slots.maya import *
 from slots.materials import Materials
 
 
-
 class Materials_maya(Materials, Slots_maya):
 	def __init__(self, *args, **kwargs):
 		super().__init__(*args, **kwargs)
@@ -32,7 +31,7 @@ class Materials_maya(Materials, Slots_maya):
 				mel.eval('HypershadeWindow;')
 
 			elif text=='Material Presets':
-				from shader_utils_maya import Stingray_arnold_shader_main
+				from shadertls import Stingray_arnold_shader_main
 				Stingray_arnold_shader_main()
 
 			cmb.setCurrentIndex(0)

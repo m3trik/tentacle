@@ -1,10 +1,11 @@
 # !/usr/bin/python
 # coding=utf-8
-
 import sys, os
 
+import inspect
 
-class Iter_utils():
+
+class Itertls():
 	'''
 	'''
 
@@ -22,28 +23,27 @@ class Iter_utils():
 
 
 	@classmethod
-	def formatReturn(cls, lst, orig=None):
-		'''Return a single object if the given list only contains one element.
-		If the list is empty return None. If the list contains multiple elements,
-		return the full list.
+	def formatReturn(cls, rtn, orig=None):
+		'''Return the list element if the given iterable only contains a single element.
+		If the list contains multiple elements, always return the full list.
+		If the 'orig' arg is a multi-element type then the original format will always be returned.
 
 		:Parameters:
-			lst (list) = An iterable.
-			orig (obj) = Optionally; give the original value, and 
-					if it was a multi-value type; return a list.
+			rtn (list) = An iterable.
+			orig (obj) = Optionally; derive the return type form the original value.
+					ie. if it was a multi-value type; do not modify the return value.
 		:Return:
-			(obj)(list)(None)
+			(obj)(list) dependant on flags.
 		'''
-		if orig is not None:
-			returnAsList = isinstance(orig, (list, tuple, set, dict, range))
+		orig = isinstance(orig, (list, tuple, set, dict, range))
 
 		try:
-			if len(lst)==1:
-				return lst[0]
-			else:
-				return lst
+			if len(rtn)==1 and not orig and not isinstance(rtn, str):
+				return rtn[0]
+
 		except Exception as e:
-			return lst
+			pass
+		return rtn
 
 
 	@staticmethod
@@ -64,7 +64,7 @@ class Iter_utils():
 			(generator)
 		'''
 		for i in lst:
-			if isinstance(i, (list,tuple,set)):
+			if isinstance(i, (list, tuple, set)):
 				for ii in cls.flatten(i):
 					yield ii
 			else:
@@ -168,6 +168,30 @@ class Iter_utils():
 			return list(dict.fromkeys(lst[::-1]))[::-1] #reverse the list when removing from the start of the list.
 
 
+	@classmethod
+	def filterList(cls, lst, include=[], exclude=[]):
+		'''Filter the given list.
+
+		:Parameters:
+			lst (list) = The components(s) to filter.
+			include (str)(obj)(list) = The objects(s) to include.
+			exclude (str)(obj)(list) = The objects(s) to exclude.
+								(exlude take precidence over include)
+		:Return:
+			(list)
+
+		ex. call: filterList([0, 1, 2, 3, 2], [1, 2, 3], 2) #returns: [1, 3]
+		'''
+		include = cls.makeList(include)
+		exclude = cls.makeList(exclude)
+		return [i for i in lst if not i in exclude and (i in include if include else i not in include)]
+
+
+# -----------------------------------------------
+from tentacle import addMembers
+addMembers(__name__)
+
+
 
 
 
@@ -179,10 +203,11 @@ if __name__=='__main__':
 	pass
 
 
-# --------------------------------
+
+# -----------------------------------------------
 # Notes
-# --------------------------------
+# -----------------------------------------------
 
 
 
-# Deprecated -----------------------------------------------
+# Deprecated ------------------------------------

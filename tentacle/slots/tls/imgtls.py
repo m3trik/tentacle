@@ -16,15 +16,12 @@ try:
 except ImportError as error:
 	print ('# Error:', __file__, error, '#')
 
+from tls import filetls, itertls
 
-class Img_utils():
+
+class Imgtls():
 	'''Helper methods for working with image file formats.
 	'''
-	from file_utils import File_utils
-
-	formatPath = File_utils.formatPath
-	getDirectoryContents = File_utils.getDirectoryContents
-
 	app = QtWidgets.QApplication.instance()
 	if not app:
 		app = QtWidgets.QApplication(sys.argv)
@@ -154,11 +151,11 @@ class Img_utils():
 		exts = [e.strip('*') for e in fileTypes.split('|')]
 
 		images={}
-		for f in cls.getDirectoryContents(image_dir, 'filepaths'):
+		for f in filetls.getDirectoryContents(image_dir, 'filepaths'):
 
 			if any(map(f.endswith, exts)):
-				fullpath = cls.formatPath(f)
-				filename = cls.formatPath(f, 'file')
+				fullpath = filetls.formatPath(f)
+				filename = filetls.formatPath(f, 'file')
 				filename = min(map(filename.rstrip, exts), key=len)
 
 				im = Image.open(fullpath)
@@ -440,7 +437,7 @@ class Img_utils():
 		:Return:
 			(str)
 		'''
-		name = cls.formatPath(file, 'name')
+		name = filetls.formatPath(file, 'name')
 
 		if key:
 			return next((k for k, v in cls.mapTypes.items() for i in v if name.lower().endswith(i.lower())), None)
@@ -461,9 +458,7 @@ class Img_utils():
 		:Return:
 			(dict)
 		'''
-		from iter_utils import Iter_utils
-
-		types = Iter_utils.makeList(types.split('|'))
+		types = itertls.makeList(types.split('|'))
 		return [f for f in files if cls.getImageType(f) in types]
 
 
@@ -506,13 +501,11 @@ class Img_utils():
 		:Return:
 			(bool)
 		'''
-		from iter_utils import Iter_utils
-
 		if isinstance(files, list):
 			files = cls.sortImagesByType(files) #convert list to dict of the correct format.
 
 		result = next((True for i in files.keys() 
-			if cls.getImageType(i) in Iter_utils.makeList(map_types.split('|'))), False)
+			if cls.getImageType(i) in itertls.makeList(map_types.split('|'))), False)
 
 		return True if result else False
 
@@ -571,9 +564,9 @@ class Img_utils():
 		'''
 		inverted_image = cls.invertChannels(file, 'g')
 
-		output_dir = cls.formatPath(file, 'path')
-		name = cls.formatPath(file, 'name')
-		ext = cls.formatPath(file, 'ext')
+		output_dir = filetls.formatPath(file, 'path')
+		name = filetls.formatPath(file, 'name')
+		ext = filetls.formatPath(file, 'ext')
 
 		typ = cls.getImageType(file, key=False)
 		try:
@@ -603,9 +596,9 @@ class Img_utils():
 		'''
 		inverted_image = cls.invertChannels(file, 'g')
 
-		output_dir = cls.formatPath(file, 'path')
-		name = cls.formatPath(file, 'name')
-		ext = cls.formatPath(file, 'ext')
+		output_dir = filetls.formatPath(file, 'path')
+		name = filetls.formatPath(file, 'name')
+		ext = filetls.formatPath(file, 'ext')
 
 		typ = cls.getImageType(file, key=False)
 		try:
@@ -660,6 +653,10 @@ class Img_utils():
 
 		im.save(name)
 
+# -----------------------------------------------
+from tentacle import addMembers
+addMembers(__name__)
+
 
 
 
@@ -672,13 +669,14 @@ if __name__=='__main__':
 	pass
 
 
-# --------------------------------
+
+# -----------------------------------------------
 # Notes
-# --------------------------------
+# -----------------------------------------------
 
 
 
-# Deprecated ---------------------
+# Deprecated ------------------------------------
 
 
 # def getBitDepth(cls, image):
@@ -743,7 +741,7 @@ if __name__=='__main__':
 	# 	files = cls.getImageFiles()
 	# 	for file, image in files.items():
 	# 		inverted_image = cls.invertChannels(image, 'g')
-	# 		# name = cls.formatPath(file, remove='_DirectX', append='_OpenGL')
+	# 		# name = filetls.formatPath(file, remove='_DirectX', append='_OpenGL')
 	# 		# cls.saveImageFile(inverted_image, name)
 
 
@@ -753,7 +751,7 @@ if __name__=='__main__':
 	# 	files = cls.getImageFiles()
 	# 	for file, image in files.items():
 	# 		inverted_image = cls.invertChannels(image, 'g')
-	# 		# name = cls.formatPath(file, remove='_OpenGL', append='_DirectX')
+	# 		# name = filetls.formatPath(file, remove='_OpenGL', append='_DirectX')
 	# 		# cls.saveImageFile(inverted_image, name)
 
 

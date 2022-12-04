@@ -2,9 +2,10 @@
 # coding=utf-8
 import sys, os
 
+import itertls
 
 
-class Str_utils():
+class Strtls():
 	'''
 	'''
 
@@ -20,25 +21,23 @@ class Str_utils():
 		:Return:
 			(str)(list) List if 'string' given as list.
 		'''
-		from utils import Iter_utils
-
 		if not strings or not isinstance(strings, str):
 			return strings
 
 		if case=='pascalCase':
-			result = [s[:1].capitalize()+s[1:] for s in Iter_utils.makeList(strings)] #capitalize the first letter.
+			result = [s[:1].capitalize()+s[1:] for s in itertls.makeList(strings)] #capitalize the first letter.
 
 		elif case=='camelCase':
-			result = [s[0].lower()+s[1:] for s in Iter_utils.makeList(strings)] #lowercase the first letter.
+			result = [s[0].lower()+s[1:] for s in itertls.makeList(strings)] #lowercase the first letter.
 
 		else:
 			try:
-				result = [getattr(s, case)() for s in Iter_utils.makeList(strings)]
+				result = [getattr(s, case)() for s in itertls.makeList(strings)]
 
 			except AttributeError as error: #return the original string(s).
 				return strings
 
-		return Iter_utils.formatReturn(result, strings) #if 'strings' is given as a list; return a list.
+		return itertls.formatReturn(result, strings) #if 'strings' is given as a list; return a list.
 
 
 	@staticmethod
@@ -58,10 +57,8 @@ class Str_utils():
 
 		ex. call: splitAtChars(['str|ing', 'string']) returns: [('str', 'ing'), ('string', '')]
 		'''
-		from iter_utils import Iter_utils
-
 		result = []
-		for s in Iter_utils.makeList(strings):
+		for s in itertls.makeList(strings):
 			split = s.split(chars)
 
 			try:
@@ -75,7 +72,7 @@ class Str_utils():
 
 			result.append((s1, s2))
 
-		return Iter_utils.formatReturn(result, strings) #if 'strings' is given as a list; return a list.
+		return itertls.formatReturn(result, strings) #if 'strings' is given as a list; return a list.
 
 
 	@classmethod
@@ -362,8 +359,6 @@ class Str_utils():
 		'''
 		import re
 
-		from iter_utils import Iter_utils
-
 		try:
 			s = string.split('|')[-1]
 		except Exception as error:
@@ -371,7 +366,7 @@ class Str_utils():
 
 		# strip each set of chars in 'strip' from end of string.
 		if strip:
-			strip = tuple(Iter_utils.makeList(strip)) #assure 'strip' is a tuple.
+			strip = tuple(itertls.makeList(strip)) #assure 'strip' is a tuple.
 			while s.endswith(strip):
 				for chars in strip:
 					s = s.rstrip(chars)
@@ -386,6 +381,10 @@ class Str_utils():
 
 		return s+suffix
 
+# -----------------------------------------------
+from tentacle import addMembers
+addMembers(__name__)
+
 
 
 
@@ -399,10 +398,10 @@ if __name__=='__main__':
 
 
 
-# --------------------------------
+# -----------------------------------------------
 # Notes
-# --------------------------------
+# -----------------------------------------------
 
 
 
-# Deprecated ---------------------
+# Deprecated ------------------------------------

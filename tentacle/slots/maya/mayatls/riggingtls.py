@@ -5,23 +5,19 @@ try:
 except ImportError as error:
 	print (__file__, error)
 
+from slots.tls import strtls
 
 
-class Rigging_utils_maya(object):
+class Riggingtls(object):
 	'''
 	'''
-	from utils import Utils
-	from node_utils_maya import Node_utils_maya
-	formatSuffix = Utils.formatSuffix
-	isGroup = Node_utils_maya.isGroup
-	getType = Node_utils_maya.getType
-
-
-	@classmethod
-	def isLocator(cls, obj):
+	@staticmethod
+	def isLocator(obj):
 		'''
 		'''
-		return cls.getType(obj)=='locator'
+		from nodetls_maya import getType
+
+		return getType(obj)=='locator'
 
 
 	@staticmethod
@@ -170,7 +166,7 @@ class Rigging_utils_maya(object):
 			try:
 				if parent:
 					origParent = pm.listRelatives(obj, parent=1)
-					grpName = cls.formatSuffix(obj.name(), suffix=grpSuffix, stripTrailingInts=stripDigits, strip=(locSuffix, objSuffix))
+					grpName = strtls.formatSuffix(obj.name(), suffix=grpSuffix, stripTrailingInts=stripDigits, strip=(locSuffix, objSuffix))
 					grp = cls.createGroup(obj, name=grpName, zeroTranslation=1, zeroRotation=1)
 					pm.parent(obj, loc)
 					pm.parent(loc, grp)
@@ -181,8 +177,8 @@ class Rigging_utils_maya(object):
 					pm.makeIdentity(obj, apply=True, normal=1)
 					pm.makeIdentity(loc, apply=True, normal=1) #1=the normals on polygonal objects will be frozen. 2=the normals on polygonal objects will be frozen only if its a non-rigid transformation matrix.
 
-				pm.rename(loc, cls.formatSuffix(obj.name(), suffix=locSuffix, strip=(locSuffix, objSuffix, grpSuffix) if stripSuffix else '', stripTrailingInts=stripDigits))
-				pm.rename(obj, cls.formatSuffix(obj.name(), suffix=objSuffix if not cls.isLocator(obj) else locSuffix, strip=(locSuffix, objSuffix, grpSuffix) if stripSuffix else '', stripTrailingInts=stripDigits))
+				pm.rename(loc, strtls.formatSuffix(obj.name(), suffix=locSuffix, strip=(locSuffix, objSuffix, grpSuffix) if stripSuffix else '', stripTrailingInts=stripDigits))
+				pm.rename(obj, strtls.formatSuffix(obj.name(), suffix=objSuffix if not cls.isLocator(obj) else locSuffix, strip=(locSuffix, objSuffix, grpSuffix) if stripSuffix else '', stripTrailingInts=stripDigits))
 
 				cls.lockAttributes(obj, translate=lockTranslate, rotate=lockRotation, scale=lockScale)
 
@@ -221,16 +217,22 @@ if __name__=='__main__':
 		remove=0,
 	)
 
+# -----------------------------------------------
+from tentacle import addMembers
+addMembers(__name__)
 
 
-#module name
-# print (__name__)
+
+
+
+
+
+
+
+# print (__name__) #module name
 # -----------------------------------------------
 # Notes
 # -----------------------------------------------
 
 
-
-
-
-# Deprecated ------------------------------------
+# deprecated: -----------------------------------

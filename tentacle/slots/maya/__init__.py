@@ -2,7 +2,7 @@
 # coding=utf-8
 import os
 
-from PySide2 import QtGui, QtWidgets, QtCore
+from PySide2 import QtWidgets
 
 try:
 	import maya.mel as mel
@@ -12,12 +12,14 @@ except ImportError as error:
 	print (__file__, error)
 
 from slots import Slots
-from slots.maya.utils_maya import Utils_maya
+from slots.maya import mayatls as mtls
 
 
-class Slots_maya(Slots, Utils_maya):
+class Slots_maya(Slots, mtls.Componenttls, mtls.Riggingtls):
 	'''App specific methods inherited by all other slot classes.
 	'''
+	undo = mtls.undo
+
 	def __init__(self, *args, **kwargs):
 		super().__init__(*args, **kwargs)
 
@@ -80,7 +82,9 @@ class Slots_maya(Slots, Utils_maya):
 		'''A decorator for setAttributeWindow (objAttrWindow).
 		'''
 		def wrapper(self, *args, **kwargs):
-			self.setAttributeWindow(fn(self, *args, **kwargs))
+			rtn = fn(self, *args, **kwargs)
+			self.setAttributeWindow(rtn)
+			return rtn
 		return wrapper
 
 	def setAttributeWindow(self, obj, include=[], exclude=[], checkableLabel=False, fn=None, fn_args=[], **attributes):
@@ -442,7 +446,7 @@ class Slots_maya(Slots, Utils_maya):
 # 			v1Pos = pm.pointPosition(v1, world=1)
 # 			for v2 in set2:
 # 				v2Pos = pm.pointPosition(v2, world=1)
-# 				distance = Slots_maya.getDistanceBetweenTwoPoints(v1Pos, v2Pos)
+# 				distance = Slots_maya.getDistBetweenTwoPoints(v1Pos, v2Pos)
 
 # 				if distance < closestDistance:
 # 					closestDistance = distance
@@ -515,7 +519,7 @@ class Slots_maya(Slots, Utils_maya):
 	# 			associatedVtx = pm.polyListComponentConversion(vtxsFace, fromVertexFace=True, toVertex=True)
 	# 			associatedVtxPosition = pm.pointPosition(associatedVtx, world=True)
 				
-	# 			distance = Slots_maya.getDistanceBetweenTwoPoints(vertexPosition, associatedVtxPosition)
+	# 			distance = Slots_maya.getDistBetweenTwoPoints(vertexPosition, associatedVtxPosition)
 
 	# 			if distance<closestDistance:
 	# 				closestDistance = distance

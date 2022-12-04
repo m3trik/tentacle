@@ -13,7 +13,6 @@ except ImportError as error:
 	print (__file__, error)
 
 
-
 def MTcreateNetwork(network, objects, networkName='MASH#', geometry='Mesh', distType='linearNetwork', hideOnCreate=True):
 	'''This proceedure creates a new MASH network.
 
@@ -283,6 +282,9 @@ try:
 except NameError as error: #import mapi failed.
 	print (__file__, error)
 
+# -----------------------------------------------
+from tentacle import addMembers
+addMembers(__name__)
 
 
 
@@ -291,14 +293,11 @@ except NameError as error: #import mapi failed.
 
 
 
-#module name
-print (__name__)
+
+# print (__name__) #module name
 # -----------------------------------------------
 # Notes
 # -----------------------------------------------
 
 
-
-
-
-#deprecated -------------------------------------
+# deprecated: -----------------------------------

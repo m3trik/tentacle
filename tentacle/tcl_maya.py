@@ -5,7 +5,7 @@ import sys
 from PySide2 import QtWidgets, QtCore
 
 from tcl import Tcl
-from slots.maya.utils_maya import Utils_maya
+from slots.maya import mayatls as mtls
 
 
 class Tcl_maya(Tcl):
@@ -19,7 +19,7 @@ class Tcl_maya(Tcl):
 		'''
 		if not parent:
 			try:
-				parent = Utils_maya.getMainWindow()
+				parent = mtls.getMainWindow()
 
 			except Exception as error:
 				print(__file__, error)

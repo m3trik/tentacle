@@ -343,7 +343,7 @@ class Nurbs_blender(Nurbs, Slots_blender):
 		# pm.undoInfo(openChunk=1)
 		p1 = pm.objectCenter(start)
 		p2 = pm.objectCenter(end)
-		hypotenuse = Slots.getDistanceBetweenTwoPoints(p1, p2)
+		hypotenuse = Slots.getDistBetweenTwoPoints(p1, p2)
 
 		v1, v2 = self.getCrossProductOfCurves([start, end], normalize=1, values=1)
 		v3a = Slots.getVectorFromTwoPoints(p1, p2)
@@ -355,8 +355,8 @@ class Nurbs_blender(Nurbs, Slots_blender):
 
 		d1, d2 = Slots.getTwoSidesOfASATriangle(a2, a1, hypotenuse) #get length of sides 1 and 2.
 
-		p_from_v1 = Slots.movePointAlongVectorTowardPoint(p1, p2, v1, d1)
-		p_from_v2 = Slots.movePointAlongVectorTowardPoint(p2, p1, v2, d2)
+		p_from_v1 = Slots.movePointAlongVectorRelativeToPoint(p1, p2, v1, d1)
+		p_from_v2 = Slots.movePointAlongVectorRelativeToPoint(p2, p1, v2, d2)
 		p3 = Slots.getCenterPointBetweenTwoPoints(p_from_v1, p_from_v2)
 
 		if d1<d2:
@@ -515,7 +515,7 @@ class Nurbs_blender(Nurbs, Slots_blender):
 					pos = i
 				pm.setAttr(npcNode.inPosition, pos)
 
-				distance = Slots.getDistanceBetweenTwoPoints(pos, pm.getAttr(npcNode.position))
+				distance = Slots.getDistBetweenTwoPoints(pos, pm.getAttr(npcNode.position))
 				p = pm.getAttr(npcNode.parameter)
 				if not tolerance:
 					result[i] = p

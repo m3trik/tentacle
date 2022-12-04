@@ -1,58 +1,11 @@
 # !/usr/bin/python
 # coding=utf-8
+import itertls
 
 
-
-class Math_utils():
+class Mathtls():
 	'''
 	'''
-
-	@staticmethod
-	def areSimilar(a, b, tol=0.0):
-		'''Check if the two numberical values are within a given tolerance.
-		Supports nested lists.
-
-		:parameters:
-			a (obj)(tuple) = The first object(s) to compare.
-			b (obj)(tuple) = The second object(s) to compare.
-			tol (float) = The maximum allowed variation between the values.
-
-		:return:
-			(bool)
-
-		ex. call: areSimilar(1, 10, 9)" #returns: True
-		ex. call: areSimilar(1, 10, 8)" #returns: False
-		'''
-		lst = lambda x: list(x) if isinstance(x, (list, tuple, set, dict)) else [x] #assure the arg is a list.
-
-		func = lambda a, b: abs(a-b)<=tol if isinstance(a, (int, float)) else True if isinstance(a, (list, set, tuple)) and areSimilar(a, b, tol) else a==b
-		return all(map(func, lst(a), lst(b)))
-
-
-	@staticmethod
-	def randomize(lst, ratio=1.0):
-		'''Random elements from the given list will be returned with a quantity determined by the given ratio.
-		A value of 0.5 will return 50% of the original elements in random order.
-
-		:Parameters:
-			lst (tuple) = A list to randomize.
-			ratio (float) = A value of 0.0-1. (default: 100%) With 0 representing 0% and 
-					1 representing 100% of the given elements returned in random order.
-		:Return:
-			(list)
-
-		ex. call: randomize(range(10), 1.0) #returns: [8, 4, 7, 6, 0, 5, 9, 1, 3, 2]
-		ex. call: randomize(range(10), 0.5) #returns: [7, 6, 4, 2, 8]
-		'''
-		import random
-
-		lower, upper = 0.0, ratio if ratio<=1 else 1.0 #end result range.
-		normalized = lower + (upper - lower) * len(lst) #returns a float value.
-		randomized = random.sample(lst, int(normalized))
-
-		return randomized
-
-
 	@staticmethod
 	def getVectorFromTwoPoints(startPoint, endPoint):
 		'''Get a directional vector from a given start and end point.
@@ -86,13 +39,11 @@ class Math_utils():
 
 		ex. call: clamp(range(10), 3, 7) #returns: [3, 3, 3, 3, 4, 5, 6, 7, 7, 7]
 		'''
-		from iter_utils import Iter_utils
-
 		result=[]
-		for n_ in Iter_utils.makeList(n):
+		for n_ in itertls.makeList(n):
 			result.append(max(minimum, min(n_, maximum)))
 
-		return Iter_utils.formatReturn(result, n)
+		return itertls.formatReturn(result, n)
 
 
 	@classmethod
@@ -228,32 +179,34 @@ class Math_utils():
 
 
 	@classmethod
-	def movePointAlongVectorTowardPoint(cls, point, toward, vect, dist):
-		'''Move a point along a given vector in the direction of another point.
+	def movePointAlongVectorRelativeToPoint(cls, p1, p2, vect, dist, toward=True):
+		'''Move a point (p1) along a given vector toward or away from a given point (p2).
 
 		:Parameters:
-			point (tuple) = The point to move given as (x,y,z).
-			toward (tuple) = The point to move toward.
+			p1 (tuple) = The point to move given as (x,y,z).
+			p2 (tuple) = The point to move toward.
 			vect (tuple) = A vector to move the point along.
 			dist (float) = The linear amount to move the point.
+			toward (bool) = Move the point toward or away from.
 		
 		:Return:
 			(tuple) point.
 
-		ex. call: movePointAlongVectorTowardPoint((0, 0, 0), (0, 10, 0), (0, 1, 0), 5) #returns: (0.0, 5.0, 0.0)
+		ex. call: movePointAlongVectorRelativeToPoint((0, 0, 0), (0, 10, 0), (0, 1, 0), 5) #returns: (0.0, 5.0, 0.0)
+		ex. call: movePointAlongVectorRelativeToPoint((0, 0, 0), (0, 10, 0), (0, 1, 0), 5, False) #returns: (0.0, -15.0, 0.0)
 		'''
 		lowest=None
 		for i in [dist, -dist]: #move in pos and neg direction, and determine which is moving closer to the reference point.
-			p = cls.movePointRelative(point, i, vect)
-			d = cls.getDistanceBetweenTwoPoints(p, toward)
-			if lowest is None or d<lowest:
+			p = cls.movePointRelative(p1, i, vect)
+			d = cls.getDistBetweenTwoPoints(p, p2)
+			if lowest is None or (d<lowest if toward else d>lowest):
 				result, lowest = (p, d)
 
 		return result
 
 
 	@classmethod
-	def getDistanceBetweenTwoPoints(cls, p1, p2):
+	def getDistBetweenTwoPoints(cls, p1, p2):
 		'''Get the vector between two points, and return it's magnitude.
 
 		:Parameters:
@@ -263,7 +216,7 @@ class Math_utils():
 		:Return:
 			(float)
 
-		ex. call: getDistanceBetweenTwoPoints((0, 10, 0), (0, 5, 0)) #returns: 5.0
+		ex. call: getDistBetweenTwoPoints((0, 10, 0), (0, 5, 0)) #returns: 5.0
 		'''
 		from math import sqrt
 		
@@ -478,6 +431,10 @@ class Math_utils():
 			rotation = [round(degrees(r), 2) for r in rotation]
 		return tuple(rotation)
 
+# -----------------------------------------------
+from tentacle import addMembers
+addMembers(__name__)
+
 
 
 
@@ -491,14 +448,13 @@ if __name__=='__main__':
 
 
 
-# --------------------------------
+# -----------------------------------------------
 # Notes
-# --------------------------------
+# -----------------------------------------------
 
 
 
-
-# Deprecated ---------------------
+# Deprecated ------------------------------------
 
 # @classmethod
 # def normalize(cls, vector, amount=1):

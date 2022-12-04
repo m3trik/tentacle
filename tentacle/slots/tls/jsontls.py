@@ -4,10 +4,10 @@ import sys, os
 
 import json
 
-from file_utils import File_utils
+import filetls
 
 
-class Json_utils():
+class Jsontls():
 	'''
 	'''
 	@classmethod
@@ -18,7 +18,7 @@ class Json_utils():
 			file (str) = The filepath to a json file. If a file doesn't exist, it will be created.
 		'''
 		cls._jsonFile = file
-		File_utils.createFile(cls._jsonFile) #create the file if it does not exist.
+		filetls.createFile(cls._jsonFile) #create the file if it does not exist.
 
 
 	@classmethod
@@ -97,6 +97,10 @@ class Json_utils():
 		except json.decoder.JSONDecodeError as error:
 			print ('# Error: {}: getJson: JSONDecodeError: {}'.format(__file__, error))
 
+# -----------------------------------------------
+from tentacle import addMembers
+addMembers(__name__)
+
 
 
 
@@ -109,10 +113,11 @@ if __name__=='__main__':
 	pass
 
 
-# --------------------------------
+
+# -----------------------------------------------
 # Notes
-# --------------------------------
+# -----------------------------------------------
 
 
 
-# Deprecated ---------------------
+# Deprecated ------------------------------------

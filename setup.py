@@ -2,22 +2,22 @@ import os
 import setuptools
 
 from tentacle import name, __version__
-from utils import Utils
+from slots.tls import filetls, itertls
 
 
 def gen_data_files(dirs, exclude=[], include=[]):
 	'''
 	'''
-	dirs = Utils.makeList(dirs)
-	exclude = Utils.makeList(exclude)
-	include = Utils.makeList(include)
+	dirs = itertls.makeList(dirs)
+	exclude = itertls.makeList(exclude)
+	include = itertls.makeList(include)
 
 	results = []
 	for src_dir in dirs:
 		for root, dirs, files in os.walk(src_dir):
 			filtered=[]
 			for f in files:
-				ext = Utils.formatPath(f, 'ext')
+				ext = filetls.formatPath(f, 'ext')
 				if f in exclude or '*.'+ext in exclude:
 					continue
 				if any(include): #filter include for None values so not to get a false positive.

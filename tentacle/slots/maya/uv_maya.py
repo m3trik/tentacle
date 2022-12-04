@@ -208,7 +208,7 @@ class Uv_maya(Uv, Slots_maya):
 						unwrapType = 'Cylindrical'
 					elif sphericalUnwrap:
 						unwrapType = 'Spherical'
-					objFaces = self.getComponents(componentType='f')
+					objFaces = self.getComponents(obj, 'f')
 					if not objFaces:
 						objFaces = self.getComponents(obj, 'f')
 					pm.polyProjection(objFaces, type=unwrapType, insertBeforeDeformers=1, smartFit=1)

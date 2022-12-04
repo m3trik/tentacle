@@ -9,7 +9,7 @@ from events import EventFactoryFilter, MouseTracking
 from overlay import Overlay
 
 from ui.widgets import rwidgets
-
+from slots.tls import itertls
 
 
 class Tcl(QtWidgets.QStackedWidget):
@@ -368,7 +368,7 @@ class Tcl(QtWidgets.QStackedWidget):
 		if widgets is None:
 			widgets = ui.widgets #get all widgets for the given ui.
 
-		for w in self.sb.makeList(widgets): #if 'widgets' isn't a list, convert it to one.
+		for w in itertls.makeList(widgets): #if 'widgets' isn't a list, convert it to one.
 
 			if w not in ui.widgets:
 				ui.addWidgets(w)
@@ -419,7 +419,6 @@ class Tcl(QtWidgets.QStackedWidget):
 	def ef_enterEvent(self, w, event):
 		'''
 		'''
-		print (1, self.sb.currentUi.name)
 		if w.type=='QWidget':
 			if w.prefix=='w':
 				w.setVisible(True) #set visibility

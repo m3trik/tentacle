@@ -3,7 +3,7 @@ import os, sys
 import unittest
 import inspect
 
-from utils import *
+from slots.tls import *
 
 
 class Test(unittest.TestCase):
@@ -24,12 +24,71 @@ class Test(unittest.TestCase):
 			self.assertEqual(
 				result, 
 				expected_result, 
-				"\n\nError: {}\n  Call:     {}\n  Expected: {} {}\n  Returned: {} {}".format(path, expression.replace('self.', '', 1), type(expected_result), expected_result, type(result), result)
-		)
+				"\n\n{}\n\nError: {}\n  Call:     {}\n  Expected: {} {}\n  Returned: {} {}".format(m.__doc__, path, expression.replace('self.', '', 1), type(expected_result), expected_result, type(result), result)
+			)
 
 
+class Tls_test(Test, Tls):
+	'''
+	'''	
+	import slots.tls
+	from slots.tls import itertls
+	from slots.tls.itertls import makeList
 
-class Str_utils_test(Test, Str_utils):
+	def test_imports(self):
+		'''
+		'''
+		self.perform_test({
+			"str(self.slots.tls.itertls.makeList).rsplit(' ', 1)[0]": '<function Itertls.makeList at',
+			"str(self.itertls.makeList).rsplit(' ', 1)[0]": '<function Itertls.makeList at',
+			"str(self.makeList).rsplit(' ', 1)[0]": '<bound method Itertls.makeList of <__main__.Tls_test',
+		})
+
+
+	def test_getAttributes(self):
+		'''
+		'''
+		print ('getAttributes: untested.')
+
+
+	def test_setAttributes(self):
+		'''
+		'''
+		print ('setAttributes: untested.')
+
+
+	def test_convertForDebugging(self):
+		'''
+		'''
+		print ('convertForDebugging: untested.')
+
+
+	def test_cycle(self):
+		'''
+		'''
+		print ('cycle: untested.')
+
+
+	def test_areSimilar(self):
+		'''
+		'''
+		self.perform_test({
+			"self.areSimilar(1, 10, 9)": True,
+			"self.areSimilar(1, 10, 8)": False,
+		})
+
+
+	def test_randomize(self):
+		'''
+		'''
+		print ('randomize: skipped')
+		self.perform_test({
+			# "self.randomize(range(10), 1.0)": [],
+			# "self.randomize(range(10), 0.5)": [],
+		})
+
+
+class Strtls_test(Test, Strtls):
 	'''
 	'''
 	def test_setCase(self):
@@ -145,7 +204,7 @@ class Str_utils_test(Test, Str_utils):
 
 
 
-class Iter_utils_test(Test, Iter_utils):
+class Itertls_test(Test, Itertls):
 	'''
 	'''
 	def test_makeList(self):
@@ -164,6 +223,7 @@ class Iter_utils_test(Test, Iter_utils):
 		'''
 		self.perform_test({
 			"self.formatReturn([''])": '',
+			"self.formatReturn([''], [''])": [''],
 			"self.formatReturn(['', ''])": ['', ''],
 		})
 
@@ -226,8 +286,16 @@ class Iter_utils_test(Test, Iter_utils):
 		})
 
 
+	def test_filterList(self):
+		'''
+		'''
+		self.perform_test({
+			"self.filterList([0, 1, 2, 3, 2], [1, 2, 3], 2)": [1, 3],
+		})
 
-class File_utils_test(Test, File_utils):
+
+
+class Filetls_test(Test, Filetls):
 	'''
 	'''
 	def test_formatPath(self):
@@ -278,6 +346,7 @@ class File_utils_test(Test, File_utils):
 			r'C:/',
 		]
 
+		print ('timestamp: skipped')
 		self.perform_test({
 			# "self.timeStamp({})".format(paths): [],
 			# "self.timeStamp({}, False, '%m-%d-%Y  %H:%M', True)".format(paths): [],
@@ -354,7 +423,7 @@ class File_utils_test(Test, File_utils):
 
 
 
-class Json_utils_test(Test, Json_utils):
+class Jsontls_test(Test, Jsontls):
 	'''
 	'''
 	p = os.path.abspath(os.path.dirname(__file__))+'/test_files'
@@ -373,12 +442,13 @@ class Json_utils_test(Test, Json_utils):
 
 
 
-class Img_utils_test(Test, Img_utils):
+class Imgtls_test(Test, Imgtls):
 	'''
 	'''
 	def test_getImageDirectory(self):
 		'''
 		'''
+		print ('getImageDirectory: skipped')
 		self.perform_test({
 			# "self.getImageDirectory()": '',
 		})
@@ -387,6 +457,7 @@ class Img_utils_test(Test, Img_utils):
 	def test_getImageFiles(self):
 		'''
 		'''
+		print ('getImageFiles: skipped')
 		self.perform_test({
 			# "self.getImageFiles('*.png|*.jpg')": '',
 		})
@@ -396,7 +467,7 @@ class Img_utils_test(Test, Img_utils):
 		'''
 		'''
 		image_dir = r''
-
+		print ('getImageFiles: skipped')
 		self.perform_test({
 			"self.getImages(r'{}')".format(image_dir): {},
 		})
@@ -406,7 +477,7 @@ class Img_utils_test(Test, Img_utils):
 		'''
 		'''
 		image_dir = r''
-
+		print ('getImageBackground: untested.')
 		self.perform_test({
 			# "self.getImageBackground(r'{}', None, False)".format(image_dir): tuple(),
 		})
@@ -416,7 +487,7 @@ class Img_utils_test(Test, Img_utils):
 		'''
 		'''
 		images = []
-
+		print ('createMaskes: untested.')
 		self.perform_test({
 			"self.createMasks({})".format(images): [],
 		})
@@ -426,7 +497,7 @@ class Img_utils_test(Test, Img_utils):
 		'''
 		'''
 		image = r''
-
+		print ('fill: untested.')
 		self.perform_test({
 			# "self.fill(r'{}', (0, 0, 0, 0))".format(image): '',
 		})
@@ -438,7 +509,7 @@ class Img_utils_test(Test, Img_utils):
 		image = r''
 		color = (0, 0, 0, 0)
 		mask = r''
-
+		print ('fillMaskedArea: untested.')
 		self.perform_test({
 			# "self.fillMaskedArea(r'{}', {}, r'{}')".format(image, color, mask): '',
 		})
@@ -448,7 +519,7 @@ class Img_utils_test(Test, Img_utils):
 		'''
 		'''
 		data = r''
-
+		print ('convert_rgb_to_gray: untested.')
 		self.perform_test({
 			# "self.convert_rgb_to_gray(r'{}')".format(data): (),
 		})
@@ -458,7 +529,7 @@ class Img_utils_test(Test, Img_utils):
 		'''
 		'''
 		image = r''
-
+		print ('convert_to_32bit_I: untested.')
 		self.perform_test({
 			# "self.convert_to_32bit_I(r'{}')".format(image): '',
 		})
@@ -468,7 +539,7 @@ class Img_utils_test(Test, Img_utils):
 		'''
 		'''
 		image = r''
-
+		print ('convert_I_to_L: untested.')
 		self.perform_test({
 			# "self.convert_I_to_L(r'{}')".format(image): '',
 		})
@@ -478,7 +549,7 @@ class Img_utils_test(Test, Img_utils):
 		'''
 		'''
 		image = r''
-
+		print ('all_pixels_identical: untested.')
 		self.perform_test({
 			# "self.all_pixels_identical(r'{}')".format(image): False,
 		})
@@ -488,7 +559,7 @@ class Img_utils_test(Test, Img_utils):
 		'''
 		'''
 		image = r''
-
+		print ('setPixelColor: untested.')
 		self.perform_test({
 			# "self.setPixelColor(r'{}', 150, 150, (255,255,255))".format(image): None,
 		})
@@ -498,7 +569,7 @@ class Img_utils_test(Test, Img_utils):
 		'''
 		'''
 		image = r''
-
+		print ('replaceColor: untested.')
 		self.perform_test({
 			# "self.replaceColor(r'{}', (255,255,255), (0,0,0), 'RGBA')".format(image): '',
 		})
@@ -508,7 +579,7 @@ class Img_utils_test(Test, Img_utils):
 		'''
 		'''
 		image = r''
-
+		print ('setContrast: untested.')
 		self.perform_test({
 			# "self.setContrast(r'{}', 255)".format(image): '',
 		})
@@ -518,7 +589,7 @@ class Img_utils_test(Test, Img_utils):
 		'''
 		'''
 		image = r''
-
+		print ('getImageType: untested.')
 		self.perform_test({
 			# "self.getImageType(r'{}', False)".format(image): '',
 		})
@@ -528,7 +599,7 @@ class Img_utils_test(Test, Img_utils):
 		'''
 		'''
 		image = r''
-
+		print ('filterImagesByType: untested.')
 		self.perform_test({
 			# "self.filterImagesByType(r'{}', '')".format(image): '',
 		})
@@ -540,7 +611,7 @@ class Img_utils_test(Test, Img_utils):
 		images = [
 			r'',
 		]
-
+		print ('sortImagesByType: untested.')
 		self.perform_test({
 			# "self.sortImagesByType({})".format(images): {},
 		})
@@ -552,7 +623,7 @@ class Img_utils_test(Test, Img_utils):
 		images = [
 			r'',
 		]
-
+		print ('containsMapTypes: untested.')
 		self.perform_test({
 			# "self.containsMapTypes({}, 'Normal_OpenGL|Normal_DirectX')".format(images): False,
 		})
@@ -562,7 +633,7 @@ class Img_utils_test(Test, Img_utils):
 		'''
 		'''
 		image = r''
-
+		print ('isNormalMap: untested.')
 		self.perform_test({
 			"self.isNormalMap(r'{}')".format(image): False,
 		})
@@ -572,7 +643,7 @@ class Img_utils_test(Test, Img_utils):
 		'''
 		'''
 		image = r''
-
+		print ('invertChannels: untested.')
 		self.perform_test({
 			# "self.invertChannels(r'{}', 'G')".format(image): '',
 		})
@@ -582,7 +653,7 @@ class Img_utils_test(Test, Img_utils):
 		'''
 		'''
 		image = r''
-
+		print ('createDXFromGL: untested.')
 		self.perform_test({
 			# "self.createDXFromGL(r'{}')".format(image): '',
 		})
@@ -592,7 +663,7 @@ class Img_utils_test(Test, Img_utils):
 		'''
 		'''
 		image = r''
-
+		print ('createGLFromDX: untested.')
 		self.perform_test({
 			# "self.createGLFromDX(r'{}')".format(image): '',
 		})
@@ -602,7 +673,7 @@ class Img_utils_test(Test, Img_utils):
 		'''
 		'''
 		image = r''
-
+		print ('resizeImage: untested.')
 		self.perform_test({
 			# "self.resizeImage(r'{}', 150, 150)".format(image): None,
 		})
@@ -612,7 +683,7 @@ class Img_utils_test(Test, Img_utils):
 		'''
 		'''
 		image = r''
-
+		print ('createImage: untested.')
 		self.perform_test({
 			# "self.createImage('RGBA', (4096, 4096), (0, 0, 0, 255))".format(image): '',
 		})
@@ -623,34 +694,16 @@ class Img_utils_test(Test, Img_utils):
 		'''
 		image = r''
 		path = r''
-
+		print ('saveImageFile: untested.')
 		self.perform_test({
 			# "self.saveImageFile(r'{}', {})".format(image, path): None,
 		})
 
 
 
-class Math_utils_test(Test, Math_utils):
+class Mathtls_test(Test, Mathtls):
 	'''
 	'''
-
-	def test_areSimilar(self):
-		'''
-		'''
-		self.perform_test({
-			"self.areSimilar(1, 10, 9)": True,
-			"self.areSimilar(1, 10, 8)": False,
-		})
-
-
-	def test_randomize(self):
-		'''
-		'''
-		self.perform_test({
-			# "self.randomize(range(10), 1.0)": [],
-			# "self.randomize(range(10), 0.5)": [],
-		})
-
 
 	def test_getVectorFromTwoPoints(self):
 		'''
@@ -716,11 +769,12 @@ class Math_utils_test(Test, Math_utils):
 		})
 
 
-	def test_movePointAlongVectorTowardPoint(self):
+	def test_movePointAlongVectorRelativeToPoint(self):
 		'''
 		'''
 		self.perform_test({
-			"self.movePointAlongVectorTowardPoint((0, 0, 0), (0, 10, 0), (0, 1, 0), 5)": (0.0, 5.0, 0.0),
+			"self.movePointAlongVectorRelativeToPoint((0, 0, 0), (0, 10, 0), (0, 1, 0), 5)": (0.0, 5.0, 0.0),
+			"self.movePointAlongVectorRelativeToPoint((0, 0, 0), (0, 10, 0), (0, 1, 0), 5, False)": (0.0, -5.0, 0.0),
 		})
 
 
@@ -728,7 +782,7 @@ class Math_utils_test(Test, Math_utils):
 		'''
 		'''
 		self.perform_test({
-			"self.getDistanceBetweenTwoPoints((0, 10, 0), (0, 5, 0))": 5.0,
+			"self.getDistBetweenTwoPoints((0, 10, 0), (0, 5, 0))": 5.0,
 		})
 
 
@@ -783,7 +837,7 @@ class Math_utils_test(Test, Math_utils):
 
 
 if __name__=='__main__':
-	unittest.main()
+	unittest.main(exit=False)
 
 
 

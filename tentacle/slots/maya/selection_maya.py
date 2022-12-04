@@ -338,7 +338,7 @@ class Selection_maya(Selection, Slots_maya):
 			result = self.getShortestPath(selection)
 
 		elif borderEdges:
-			result = self.getBorderComponents(selection, returnCompType='edges')
+			result = self.getBorderComponents(selection, 'edges')
 
 		pm.select(result[::step])
 
@@ -380,7 +380,8 @@ class Selection_maya(Selection, Slots_maya):
 		rangeY = float(tb.ctxMenu.s004.value())
 		rangeZ = float(tb.ctxMenu.s005.value())
 
-		selectedFaces = self.getComponents(componentType='faces')
+		sel = pm.ls(sl=1)
+		selectedFaces = self.getComponents(sel, componentType='faces')
 		if not selectedFaces:
 			self.messageBox('The operation requires a face selection.')
 			return

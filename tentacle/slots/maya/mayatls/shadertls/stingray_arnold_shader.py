@@ -7,8 +7,8 @@ from PySide2 import QtCore, QtWidgets
 import pymel.core as pm
 
 from switchboard import Switchboard
-from utils import Utils
-from utils_maya import Utils_maya
+from slots.tls import filetls, imgtls, strtls, jsontls
+from slots.maya import mayatls as mtls
 
 
 __version__ = '0.503'
@@ -27,7 +27,7 @@ class Stingray_arnold_shader(QtCore.QObject):
 	'''
 	msg_completed = '<br><hl style="color:rgb(0, 255, 255);"><b>COMPLETED.</b></hl>'
 
-	proj_root_dir = Utils.getFilepath(__file__)
+	proj_root_dir = filetls.getFilepath(__file__)
 	hdr_env_name = 'aiSkyDomeLight_'
 
 	def __init__(self, parent=None):
@@ -48,15 +48,15 @@ class Stingray_arnold_shader(QtCore.QObject):
 	def hdr_env(self, tex) -> None:
 		'''
 		'''
-		node = self.hdr_env #Utils_maya.nodeExists('aiSkyDomeLight', search='exactType')
+		node = self.hdr_env #mtls.nodeExists('aiSkyDomeLight', search='exactType')
 		if not node:
-			node = Utils_maya.createRenderNode('aiSkyDomeLight', 'asLight', name=self.hdr_env_name, camera=0, skyRadius=0) #turn off skydome and viewport visibility.
+			node = mtls.createRenderNode('aiSkyDomeLight', 'asLight', name=self.hdr_env_name, camera=0, skyRadius=0) #turn off skydome and viewport visibility.
 			self.hdr_env_transform.hiddenInOutliner.set(1)
 			pm.outlinerEditor('outlinerPanel1', edit=True, refresh=True)
 
-		file_node = Utils_maya.getIncomingNodeByType(node, 'file')
+		file_node = mtls.getIncomingNodeByType(node, 'file')
 		if not file_node:
-			file_node = Utils_maya.createRenderNode('file', 'as2DTexture', place2dTexture=True)
+			file_node = mtls.createRenderNode('file', 'as2DTexture', place2dTexture=True)
 			pm.connectAttr(file_node.outColor, node.color, force=True)
 
 		file_node.fileTextureName.set(tex)
@@ -66,10 +66,10 @@ class Stingray_arnold_shader(QtCore.QObject):
 	def hdr_env_transform(self) -> object:
 		'''
 		'''
-		node = Utils_maya.getTransformNode(self.hdr_env)
+		node = mtls.getTransformNode(self.hdr_env)
 		if not node:
 			return None
-		return node[0]
+		return node
 
 
 	def setHdrMapVisibility(self, state):
@@ -80,10 +80,11 @@ class Stingray_arnold_shader(QtCore.QObject):
 			node.camera.set(state)
 
 
-	@Utils_maya.undo
 	def createNetwork(self, textures, name='', hdrMap='', hdrMapVisibility=False, normalMapType='OpenGL', callback=print):
 		'''
 		'''
+		pm.undoChunk(open=True)
+
 		normal_map_created_from_other_type = False
 		normalMapType = 'Normal_'+normalMapType.strip('Normal_') #assure normalMapType is formatted as 'Normal_OpenGL' whether given as 'OpenGL' or 'Normal_OpenGL'
 
@@ -94,34 +95,34 @@ class Stingray_arnold_shader(QtCore.QObject):
 			pm.loadPlugin('mtoa', quiet=True) #assure arnold plugin is loaded.
 			pm.loadPlugin('shaderFXPlugin', quiet=True) #assure stringray plugin is loaded.
 
-			sr_node = Utils_maya.createRenderNode('StingrayPBS', name=name)
-			ai_node = Utils_maya.createRenderNode('aiStandardSurface', name=name+'_ai' if name else '')
+			sr_node = mtls.createRenderNode('StingrayPBS', name=name)
+			ai_node = mtls.createRenderNode('aiStandardSurface', name=name+'_ai' if name else '')
 
-			opacityMap = Utils.filterImagesByType(textures, 'Opacity')
+			opacityMap = imgtls.filterImagesByType(textures, 'Opacity')
 			if opacityMap:
 				pm.shaderfx(sfxnode='StingrayPBS1', loadGraph=r'C:/_local/_test/shaderfx/Standard_Transparent.sfx')
 
-			openGLMap = Utils.filterImagesByType(textures, 'Normal_OpenGL')
-			directXMap = Utils.filterImagesByType(textures, 'Normal_DirectX')
+			openGLMap = imgtls.filterImagesByType(textures, 'Normal_OpenGL')
+			directXMap = imgtls.filterImagesByType(textures, 'Normal_DirectX')
 			if directXMap and not openGLMap and normalMapType=='Normal_OpenGL':
-				mapPath = Utils.createGLFromDX(directXMap[0])
+				mapPath = imgtls.createGLFromDX(directXMap[0])
 				textures.append(mapPath)
 				normal_map_created_from_other_type = True
-				callback('OpenGL map created using {}.'.format(Utils.truncate(directXMap[0], 20)))
+				callback('OpenGL map created using {}.'.format(strtls.truncate(directXMap[0], 20)))
 			if openGLMap and not directXMap and normalMapType=='Normal_DirectX':
-				mapPath = Utils.createDXFromGL(openGLMap[0])
+				mapPath = imgtls.createDXFromGL(openGLMap[0])
 				textures.append(mapPath)
 				normal_map_created_from_other_type = True
-				callback('DirectX map created using {}.'.format(Utils.truncate(openGLMap[0], 20)))
+				callback('DirectX map created using {}.'.format(strtls.truncate(openGLMap[0], 20)))
 
-			srSG_node = Utils_maya.getOutgoingNodeByType(sr_node, 'shadingEngine')
+			srSG_node = mtls.getOutgoingNodeByType(sr_node, 'shadingEngine')
 
 			aiMult_node = pm.shadingNode('aiMultiply', asShader=True)
 
 			bump_node = pm.shadingNode('bump2d', asShader=True)
 			bump_node.bumpInterp.set(1) #set bump node to 'tangent space normals'
 
-			Utils_maya.connectMultiAttr( #set node connections.
+			mtls.connectMultiAttr( #set node connections.
 				(ai_node.outColor, srSG_node.aiSurfaceShader),
 				(aiMult_node.outColor, ai_node.baseColor),
 				(bump_node.outNormal, ai_node.normalCamera),
@@ -130,7 +131,7 @@ class Stingray_arnold_shader(QtCore.QObject):
 			length = len(textures)
 			progress = 0
 			for f in textures:
-				typ = Utils.getImageType(f)
+				typ = imgtls.getImageType(f)
 
 				progress+=1
 
@@ -145,68 +146,68 @@ class Stingray_arnold_shader(QtCore.QObject):
 				callback('creating nodes and connections for <b>{}</b> map ..'.format(typ), [progress, length])
 
 				if typ=='Base_Color':
-					n1 = Utils_maya.createRenderNode('file', 'as2DTexture', tex=f)
+					n1 = mtls.createRenderNode('file', 'as2DTexture', tex=f)
 					pm.connectAttr(n1.outColor, sr_node.TEX_color_map, force=True)
 					sr_node.use_color_map.set(1)
 
-					n2 = Utils_maya.createRenderNode('file', 'as2DTexture', tex=f, place2dTexture=True)
+					n2 = mtls.createRenderNode('file', 'as2DTexture', tex=f, place2dTexture=True)
 					pm.connectAttr(n2.outColor, aiMult_node.input1, force=True)
 
 				elif typ=='Roughness':
-					n1 = Utils_maya.createRenderNode('file', 'as2DTexture', tex=f)
+					n1 = mtls.createRenderNode('file', 'as2DTexture', tex=f)
 					pm.connectAttr(n1.outColor, sr_node.TEX_roughness_map, force=True)
 					sr_node.use_roughness_map.set(1)
 
-					n2 = Utils_maya.createRenderNode('file', 'as2DTexture', tex=f, place2dTexture=True, colorSpace='Raw', alphaIsLuminance=1, ignoreColorSpaceFileRules=1)
+					n2 = mtls.createRenderNode('file', 'as2DTexture', tex=f, place2dTexture=True, colorSpace='Raw', alphaIsLuminance=1, ignoreColorSpaceFileRules=1)
 					pm.connectAttr(n2.outAlpha, ai_node.specularRoughness, force=True)
 					pm.connectAttr(n2.outAlpha, ai_node.transmissionExtraRoughness, force=True) #opacity: same roughness map used in Specular Roughness to provide additional bluriness of refraction.
 
 				elif typ=='Metallic':
-					n1 = Utils_maya.createRenderNode('file', 'as2DTexture', tex=f)
+					n1 = mtls.createRenderNode('file', 'as2DTexture', tex=f)
 					pm.connectAttr(n1.outColor, sr_node.TEX_metallic_map, force=True)
 					sr_node.use_metallic_map.set(1)
 
-					n2 = Utils_maya.createRenderNode('file', 'as2DTexture', tex=f, place2dTexture=True, colorSpace='Raw', alphaIsLuminance=1, ignoreColorSpaceFileRules=1)
+					n2 = mtls.createRenderNode('file', 'as2DTexture', tex=f, place2dTexture=True, colorSpace='Raw', alphaIsLuminance=1, ignoreColorSpaceFileRules=1)
 					pm.connectAttr(n2.outAlpha, ai_node.metalness, force=True)
 
 				elif typ=='Emissive':
-					n1 = Utils_maya.createRenderNode('file', 'as2DTexture', tex=f)
+					n1 = mtls.createRenderNode('file', 'as2DTexture', tex=f)
 					pm.connectAttr(n1.outColor, sr_node.TEX_emissive_map, force=True)
 					sr_node.use_emissive_map.set(1)
 
-					n2 = Utils_maya.createRenderNode('file', 'as2DTexture', tex=f, place2dTexture=True)
+					n2 = mtls.createRenderNode('file', 'as2DTexture', tex=f, place2dTexture=True)
 					pm.connectAttr(n2.outAlpha, ai_node.emission, force=True)
 					pm.connectAttr(n2.outColor, ai_node.emissionColor, force=True)
 
 				elif 'Normal' in typ:
-					n1 = Utils_maya.createRenderNode('file', 'as2DTexture', tex=f)
+					n1 = mtls.createRenderNode('file', 'as2DTexture', tex=f)
 					pm.connectAttr(n1.outColor, sr_node.TEX_normal_map, force=True)
 					sr_node.use_normal_map.set(1)
 
-					n2 = Utils_maya.createRenderNode('file', 'as2DTexture', tex=f, place2dTexture=True, colorSpace='Raw', alphaIsLuminance=1, ignoreColorSpaceFileRules=1)
+					n2 = mtls.createRenderNode('file', 'as2DTexture', tex=f, place2dTexture=True, colorSpace='Raw', alphaIsLuminance=1, ignoreColorSpaceFileRules=1)
 					pm.connectAttr(n2.outAlpha, bump_node.bumpValue, force=True)
 
 				elif typ=='Ambient_Occlusion':
-					n1 = Utils_maya.createRenderNode('file', 'as2DTexture', tex=f)
+					n1 = mtls.createRenderNode('file', 'as2DTexture', tex=f)
 					pm.connectAttr(n1.outColor, sr_node.TEX_ao_map, force=True)
 					sr_node.use_ao_map.set(1)
 
-					n2 = Utils_maya.createRenderNode('file', 'as2DTexture', tex=f, place2dTexture=True)
+					n2 = mtls.createRenderNode('file', 'as2DTexture', tex=f, place2dTexture=True)
 					pm.connectAttr(n2.outColor, aiMult_node.input2, force=True)
 
 				elif typ=='Opacity':
-					n1 = Utils_maya.createRenderNode('file', 'as2DTexture', tex=f)
+					n1 = mtls.createRenderNode('file', 'as2DTexture', tex=f)
 					pm.connectAttr(n1.outAlpha, sr_node.opacity, force=True)
 					sr_node.use_opacity_map.set(1)
 
-					n2 = Utils_maya.createRenderNode('file', 'as2DTexture', tex=f, place2dTexture=True, colorSpace='Raw', alphaIsLuminance=1, ignoreColorSpaceFileRules=1)
+					n2 = mtls.createRenderNode('file', 'as2DTexture', tex=f, place2dTexture=True, colorSpace='Raw', alphaIsLuminance=1, ignoreColorSpaceFileRules=1)
 					pm.connectAttr(n2.outAlpha, ai_node.transmission, force=True)
 					pm.connectAttr(n2.outColor, ai_node.opacity, force=True)
 
 				else:
 					if normal_map_created_from_other_type:
 						continue #do not show a warning for unconnected normal maps if it resulted from being converted to a different output type.
-					callback('<br><hl style="color:rgb(255, 100, 100);"><b>Map type: <b>{}</b> not connected:<br></hl>'.format(typ, Utils.truncate(f, 60)), [progress, length])
+					callback('<br><hl style="color:rgb(255, 100, 100);"><b>Map type: <b>{}</b> not connected:<br></hl>'.format(typ, strtls.truncate(f, 60)), [progress, length])
 					continue
 
 				callback('<font style="color: rgb(80,180,100)">{}..connected successfully.</font>'.format(typ))
@@ -215,6 +216,7 @@ class Stingray_arnold_shader(QtCore.QObject):
 
 		self.hdr_env = hdrMap
 		self.setHdrMapVisibility(hdrMapVisibility)
+		pm.undoChunk(close=True)
 
 
 
@@ -229,24 +231,24 @@ class Stingray_arnold_shader_slots(Stingray_arnold_shader):
 
 		#set json file location.
 		path = '{}/stingray_arnold_shader.json'.format(self.sb.defaultDir)
-		Utils.setJsonFile(path) #set json file name
+		jsontls.setJsonFile(path) #set json file name
 
 		#add filenames|filepaths to the comboBox.
 		hdr_path = '{}/resources/hdr'.format(self.proj_root_dir)
-		hdr_filenames = Utils.getDirectoryContents(hdr_path, 'files', include='*.exr', stripExtension=True)
-		hdr_fullpaths = Utils.getDirectoryContents(hdr_path, 'filepaths', include='*.exr')
+		hdr_filenames = filetls.getDirectoryContents(hdr_path, 'files', include='*.exr', stripExtension=True)
+		hdr_fullpaths = filetls.getDirectoryContents(hdr_path, 'filepaths', include='*.exr')
 		self.ui.cmb000.addItems_(dict(zip(hdr_filenames, hdr_fullpaths)), ascending=False)
 
 		#initialize widgets with any saved values.
-		self.ui.txt000.setText(Utils.getJson('mat_name'))
+		self.ui.txt000.setText(jsontls.getJson('mat_name'))
 		self.ui.txt001.setText(self.msg_intro)
-		hdr_map_visibility = Utils.getJson('hdr_map_visibility')
+		hdr_map_visibility = jsontls.getJson('hdr_map_visibility')
 		if hdr_map_visibility:
 			self.ui.chk000.setChecked(hdr_map_visibility)
-		hdr_map = Utils.getJson('hdr_map')
+		hdr_map = jsontls.getJson('hdr_map')
 		if hdr_map:
 			self.ui.cmb000.setCurrentItem(hdr_map)
-		normal_map_type = Utils.getJson('normal_map_type')
+		normal_map_type = jsontls.getJson('normal_map_type')
 		if normal_map_type:
 			self.ui.cmb001.setCurrentItem(normal_map_type)
 		node = self.hdr_env_transform
@@ -307,7 +309,7 @@ class Stingray_arnold_shader_slots(Stingray_arnold_shader):
 		data = cmb.currentData()
 
 		self.hdr_env = data #set the HDR map.
-		Utils.setJson('hdr_map', text)
+		jsontls.setJson('hdr_map', text)
 
 
 	def chk000(self, state):
@@ -316,7 +318,7 @@ class Stingray_arnold_shader_slots(Stingray_arnold_shader):
 		chk = self.ui.chk000
 
 		self.setHdrMapVisibility(state) #set the HDR map visibility.
-		Utils.setJson('hdr_map_visibility', state)
+		jsontls.setJson('hdr_map_visibility', state)
 
 
 	def cmb001(self, index):
@@ -324,7 +326,7 @@ class Stingray_arnold_shader_slots(Stingray_arnold_shader):
 		'''
 		cmb = self.ui.cmb001
 		text = cmb.currentText()
-		Utils.setJson('normal_map_type', text)
+		jsontls.setJson('normal_map_type', text)
 
 
 	def txt000(self, text=None):
@@ -332,14 +334,14 @@ class Stingray_arnold_shader_slots(Stingray_arnold_shader):
 		'''
 		txt = self.ui.txt000
 		text = txt.text()
-		Utils.setJson('mat_name', text)
+		jsontls.setJson('mat_name', text)
 
 
 	def slider000(self, value):
 		'''Rotate the HDR map.
 		'''
 		if self.hdr_env:
-			transform = Utils_maya.getTransformNode(self.hdr_env)
+			transform = mtls.getTransformNode(self.hdr_env)
 			pm.rotate(transform, value, rotateY=True, forceOrderXYZ=True, objectSpace=True, absolute=True)
 
 
@@ -363,14 +365,14 @@ class Stingray_arnold_shader_slots(Stingray_arnold_shader):
 	def b001(self):
 		'''Get texture maps.
 		'''
-		imageFiles = Utils.getImageFiles()
+		imageFiles = imgtls.getImageFiles()
 		if imageFiles:
 			self.imageFiles = imageFiles
 			self.ui.txt001.clear()
 
 			msg_mat_selection = self.imageFiles
 			for i in msg_mat_selection: #format msg_intro using the mapTypes in imtools.
-				self.callback(Utils.truncate(i, 60))
+				self.callback(strtls.truncate(i, 60))
 
 			self.ui.b000.setDisabled(False)
 		elif not self.imageFiles:
@@ -410,7 +412,7 @@ class Stingray_arnold_shader_main(Stingray_arnold_shader):
 		super().__init__(parent)
 
 		if not parent:
-			self.setParent(Utils_maya.getMainWindow())
+			self.setParent(mtls.getMainWindow())
 
 		self.sb = Switchboard(self, widgetLoc='ui/widgets', slotLoc=Stingray_arnold_shader_slots)
 
@@ -418,6 +420,8 @@ class Stingray_arnold_shader_main(Stingray_arnold_shader):
 		self.sb.setStyle(self.ui.widgets)
 		self.ui.setWindowFlags(QtCore.Qt.WindowStaysOnTopHint)
 		self.ui.show()
+
+# --------------------------------
 
 
 
