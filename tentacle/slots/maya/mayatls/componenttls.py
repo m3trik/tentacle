@@ -55,6 +55,11 @@ class GetComponents():
 						'abv' - abreviated object type as a string. ie. 'vtx'
 		:Return:
 			(str)(int) dependant on 'returnType' arg.
+
+		ex. call:
+		getComponentType('cyl.e[:]') #returns: 'Polygon Edge'
+		getComponentType('cyl.vtx[:]', 'abv') #returns: 'vtx'
+		getComponentType('cyl.e[:]', 'int') #returns: 32
 		'''
 		for a, s, p, f, i, h in cls.componentTypes:
 			if pm.filterExpand(component, sm=i):
@@ -76,7 +81,9 @@ class GetComponents():
 		:Return:
 			(str)(int)(hex)(None) dependant on returnType argument.
 
-		ex. call: convertComponentName('control vertex', 'hex')
+		ex. call:
+		convertComponentName('vertex', 'hex') #returns: 0x0001
+		convertComponentName(0x0001, 'str') #returns: 'Polygon Vertex'
 		'''
 		rtypes = ('abv', 'singular', 'plural', 'str', 'int', 'hex')
 
@@ -87,19 +94,46 @@ class GetComponents():
 		return None
 
 
-	@classmethod
-	def convertElementType(cls, objects, returnType='str', flatten=False, forceList=False):
-		'''Convert the given component(s) to <obj>, 'str', or int values.
+	@staticmethod
+	def getElementType(obj):
+		'''Determine if the given element(s) type.
 
 		:Parameters:
-			objects (str)(obj)(list) = The components(s) to convert.
-			returnType (str) = The desired returned object type. 
-				(valid: 'str'(default), 'obj'(shape object), 'transform'(as string), 'int'(valid only at sub-object level).
-			flatten (bool) = Flattens the returned list of objects so that each component is identified individually.
-			forceList (bool) = Always return a list. If more than 1 object is given along with an int 'returnType' 
-						possible overlap will occur in the results.
+			obj (str)(obj)(list) = The components(s) to query.
+
 		:Return:
-			(list)(dict) dependant on returnType argument. The 'forceList' arg forces the return of a list.
+			(list) 'str', 'obj'(shape node), 'transform'(as string), 'int'(valid only at sub-object level)
+
+		ex. call:
+		getElementType('cyl.vtx[0]') #returns: 'transform'
+		getElementType('cylShape.vtx[:]') #returns: 'str'
+		'''
+		try:
+			o = tls.itertls.makeList(obj)[0]
+		except IndexError as error:
+			# print ('{}\n# Error: getElementType: Operation requires at least one object. #\n	{}'.format(__file__, error))
+			return ''
+
+		if isinstance(o, str):
+			return 'str' if 'Shape' in o else 'transform'
+		elif isinstance(o, int):
+			return 'int'
+		else:
+			return 'obj'
+
+
+	@classmethod
+	def convertElementType(cls, lst, returnType='str', flatten=False):
+		'''Convert the given element(s) to <obj>, 'str', or int values.
+
+		:Parameters:
+			lst (str)(obj)(list) = The components(s) to convert.
+			returnType (str) = The desired returned object type. 
+				(valid: 'str'(default), 'obj'(shape node), 'transform'(as string), 'int'(valid only at sub-object level).
+			flatten (bool) = Flattens the returned list of objects so that each component is identified individually.
+
+		:Return:
+			(list)(dict) return a dict only with a return type of 'int' and more that one object given.
 
 		ex. call:
 		convertElementType('obj.vtx[:2]', 'str') #returns: ['objShape.vtx[0:2]']
@@ -111,13 +145,13 @@ class GetComponents():
 		convertElementType('obj.vtx[:2]', 'int')) #returns: {nt.Mesh('objShape'): [(0, 2)]}
 		convertElementType('obj.vtx[:2]', 'int', True)) #returns: {nt.Mesh('objShape'): [0, 1, 2]}
 		'''
-		objects = pm.ls(objects, flatten=flatten)
-		if not objects or isinstance(objects[0], int): #cannot convert objects of type int.
+		lst = pm.ls(lst, flatten=flatten)
+		if not lst or isinstance(lst[0], int):
 			return []
 
 		if returnType=='int':
 			result={}
-			for c in objects:
+			for c in lst:
 				obj = pm.ls(c, objectsOnly=1)[0]
 				num = c.split('[')[-1].rstrip(']')
 
@@ -133,23 +167,25 @@ class GetComponents():
 					else:
 						result[obj] = [componentNum]
 				except ValueError as error: #incompatible object type.
-					break; print ('# Error: {}.convertElementType(): unable to convert {} {} to int. {}. #'.format(__name__, obj, num, error))
-			if forceList: #flatten the dict values from 'result' and remove any duplicates.
+					break; print ('{}\n# Error: convertElementType(): unable to convert {} {} to int. {}. #'.format(__file__, obj, num, error))
+
+			objects = set(pm.ls(lst, objectsOnly=True))
+			if len(objects)==1: #flatten the dict values from 'result' and remove any duplicates.
 				flattened = tls.itertls.flatten(result.values())
 				result = tls.itertls.removeDuplicates(flattened)
 		else:
-			result = pm.ls(objects, flatten=flatten)
-
 			if returnType=='transform':
-				result = list(map(lambda s: ''.join(s.rsplit('Shape', 1)), result))
+				result = list(map(lambda s: ''.join(s.rsplit('Shape', 1)), lst))
 			elif returnType=='str':
-				result = list(map(str, result))
+				result = list(map(str, lst))
+			else:
+				result = lst
 
 		return result
 
 
 	@classmethod
-	def convertComponentType(cls, components, componentType, returnType='str', flatten=False, forceList=False):
+	def convertComponentType(cls, components, componentType, returnType='str', flatten=False):
 		'''Convert the given component(s) to their sub-components.
 
 		:Parameters:
@@ -160,10 +196,9 @@ class GetComponents():
 			returnType (str) = The desired returned object type. 
 				(valid: 'str'(default), 'obj'(shape object), 'transform'(as string), 'int'(valid only at sub-object level).
 			flatten (bool) = Flattens the returned list of objects so that each component is identified individually.
-			forceList (bool) = Always return a list. If more than 1 object is given along with an int 'returnType' 
-						possible overlap will occur in the results.
+
 		:Return:
-			(list)
+			(list)(dict)
 
 		ex. call:
 		convertComponentType('obj.vtx[:2]', 'vertex') #returns: ['obj.vtx[0:2]']
@@ -174,7 +209,38 @@ class GetComponents():
 		d = {'vtx':'toVertex', 'e':'toEdge', 'uv':'toUV', 'f':'toFace'}
 		typ = cls.convertComponentName(componentType, returnType='abv') #get the correct componentType variable from possible args.
 		components = pm.polyListComponentConversion(components, **{d[typ.lower()]:True})
-		return cls.convertElementType(components, returnType=returnType, flatten=flatten, forceList=forceList)
+		return cls.convertElementType(components, returnType=returnType, flatten=flatten)
+
+
+	@classmethod
+	def convertIntToComponent(cls, obj, integers, componentType, returnType='str', flatten=False):
+		'''Convert the given integers to components of the given object.
+
+		:Parameters:
+			obj (str)(obj)(list) = The object to convert to vertices of.
+			integers (list) = The integer(s) to convert.
+			componentType (str) = The desired returned component type. 
+				valid: 'vtx' (or 'vertex', 'vertices', 'Polygon Vertex', 31, 0x0001), 
+					and the same for each: 'edge', 'uv', 'face'.
+			returnType (str) = The desired returned object type. 
+				(valid: 'str'(default), 'obj'(shape object), 'transform'(as string), 'int'(valid only at sub-object level).
+			flatten (bool) = Flattens the returned list of objects so that each component is identified individually.
+
+		:Return:
+			(list)
+
+		ex. call:
+		'''
+		obj = pm.ls(obj, objectsOnly=True)[0]
+		objName = obj.name()
+
+		if not flatten:
+			n = lambda c: '{}:{}'.format(c[0], c[-1]) if len(c)>1 else str(c[0])
+			result = ['{}.{}[{}]'.format(objName, componentType, n(c)) for c in tls.itertls.splitList(integers, 'range')]
+		else:
+			result = ['{}.{}[{}]'.format(objName, componentType, c) for c in integers]
+
+		return cls.convertElementType(result, returnType=returnType, flatten=flatten)
 
 
 	@classmethod
@@ -183,9 +249,9 @@ class GetComponents():
 
 		:Parameters:
 			components (str)(obj)(list) = The components(s) to filter.
-			include (str)(obj)(list) = The component(s) to include.
-			exclude (str)(obj)(list) = The component(s) to exclude.
-								(exlude take precidence over include)
+			include (str)(int)(obj)(list) = The component(s) to include.
+			exclude (str)(int)(obj)(list) = The component(s) to exclude.
+						(exlude take precidence over include)
 			flatten (bool) = Flattens the returned list of objects so that each component is it's own element.
 
 		:Return:
@@ -193,22 +259,28 @@ class GetComponents():
 
 		ex. call: filterComponents('obj.vtx[:]', 'obj.vtx[:2]', 'obj.vtx[1:23]') #returns: [MeshVertex('objShape.vtx[0]')]
 		'''
-		#get the original type so that it can be converted back after the operation.
-		c = components[0]
-		if isinstance(c, str):
-			rtn = 'str' if 'Shape' in c else 'transform'
-		elif isinstance(c, int):
-			rtn = 'int'
-		else:
-			rtn = 'obj'
+		try:
+			obj = pm.ls(components, objectsOnly=True)[0]
+		except IndexError as error:
+			print ('{}\n# Error: filterComponents: Operation requires at least one component. #\n	{}'.format(__file__, error))
 
+		typ = cls.getComponentType(components, 'abv')
+		etyp = cls.getElementType(components)
+		etyp_include = cls.getElementType(include)
+		etyp_exclude = cls.getElementType(exclude)
+
+		if etyp_include=='int':
+			include = cls.convertIntToComponent(obj, include, typ)
 		include = pm.ls(include, flatten=True)
+
+		if etyp_exclude=='int':
+			exclude = cls.convertIntToComponent(obj, exclude, typ)
 		exclude = pm.ls(exclude, flatten=True)
+
 		components = pm.ls(components, flatten=True)
 
-		from slots.tls import itertls
-		filtered = itertls.filterList(components, include=include, exclude=exclude)
-		result = cls.convertElementType(filtered, returnType=rtn, flatten=flatten)
+		filtered = tls.itertls.filterList(components, include=include, exclude=exclude)
+		result = cls.convertElementType(filtered, returnType=etyp, flatten=flatten)
 		return result
 
 
@@ -401,7 +473,7 @@ class Componenttls(GetComponents):
 		ex. call:
 		'''
 		if not x:
-			print ('# Error: Operation requires a given object(s) or component(s). #')
+			print ('{}\n# Error: getBorderComponents: Operation requires a given object(s) or component(s). #'.format(__file__))
 			return []
 
 		origType = cls.getComponentType(x, returnType='abv')
@@ -525,7 +597,7 @@ class Componenttls(GetComponents):
 			v2Pos = pm.pointPosition(v2, world=True)
 			distance = getDistBetweenTwoPoints(v1Pos, v2Pos)
 
-			v2_convertedType = cls.convertElementType(v2, returnType=returnType, forceList=True)[0]
+			v2_convertedType = cls.convertElementType(v2, returnType=returnType)[0]
 			if not tolerance:
 				closestVerts[v1] = v2_convertedType
 			elif distance < tolerance:
@@ -553,10 +625,10 @@ class Componenttls(GetComponents):
 			(list) The components comprising the path.
 		'''
 		obj, *other = pm.ls(components, objectsOnly=1)
-		cnums = cls.convertComponentType(components, 'edge', returnType='int', flatten=True, forceList=True)
+		cnums = cls.convertComponentType(components, 'edge', returnType='int', flatten=True)
 
 		if len(cnums)<2 and path in ('edgeRingPath', 'edgeLoopPath'):
-			print ('# Error: getEdgePath: Operation requires at least two components. #')
+			print ('{}\n# Error: getEdgePath: Operation requires at least two components. #'.format(__file__))
 			return []
 
 		if path=='edgeRing':
@@ -573,11 +645,11 @@ class Componenttls(GetComponents):
 
 		objName = obj.name()
 		result = tls.itertls.removeDuplicates(['{}.e[{}]'.format(objName, e) for e in edgesLong])
-		return cls.convertElementType(result, returnType=returnType, flatten=flatten, forceList=True)
+		return cls.convertElementType(result, returnType=returnType, flatten=flatten)
 
 
 	@classmethod
-	def getShortestPath(cls, components):
+	def getShortestPath(cls, components, returnType='str', flatten=False):
 		'''Get the shortest path between two components.
 
 		:Parameters:
@@ -591,7 +663,7 @@ class Componenttls(GetComponents):
 		try:
 			A, B = components = cls.convertComponentType(components, ctype)[:2]
 		except ValueError as error:
-			print ('# Error: getShortestPath: Operation requires exactly two components. #\n	{}'.format(error))
+			print ('{}\n# Error: getShortestPath: Operation requires exactly two components. #\n	{}'.format(__file__, error))
 			return []
 
 		returnAsVerts=False
@@ -610,7 +682,7 @@ class Componenttls(GetComponents):
 			ctype = 'e'
 			returnAsVerts = True
 
-		compNums = cls.convertComponentType(components, ctype, returnType='int', flatten=True, forceList=True)
+		compNums = cls.convertComponentType(components, ctype, returnType='int', flatten=True)
 
 		kwargs = {
 			'shortestFacePath' if ctype=='f' 
@@ -619,11 +691,10 @@ class Componenttls(GetComponents):
 		}
 		compLong = set(pm.polySelect(obj, query=1, **kwargs) + compNums)
 
-		objName = obj.name()
-		result = ['{}.{}[{}]'.format(objName, ctype, c) for c in compLong]
+		result = cls.convertIntToComponent(obj, compLong, ctype, returnType=returnType, flatten=flatten)
 
 		if returnAsVerts:
-			result = cls.convertComponentType(result, 'vtx', flatten=1)
+			result = cls.convertComponentType(result, 'vtx', flatten=flatten)
 
 		return result
 

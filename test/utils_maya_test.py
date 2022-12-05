@@ -84,41 +84,38 @@ class Componenttls_test(Test, Componenttls):
 		pm.selectType(polymeshUV=1)
 		pm.selectType(meshUVShell=1)
 	'''
-	node_name = 'cyl'
-	if not pm.objExists(node_name):
-		n0 = pm.polyCylinder(radius=5, height=10, subdivisionsX=12, subdivisionsY=1, subdivisionsZ=1, name=node_name)
+	n0_name = 'cyl'
+	if not pm.objExists(n0_name):
+		n0 = pm.polyCylinder(radius=5, height=10, subdivisionsX=12, subdivisionsY=1, subdivisionsZ=1, name=n0_name)
 
-	cyl = pm.ls(node_name)[0]
-	verts = pm.ls(cyl.vtx[:], flatten=True)
-	edges = pm.ls(cyl.e[:], flatten=True)
-	edges_unflattened = pm.ls(edges, flatten=False)
-	faces = pm.ls(cyl.f[:], flatten=True)
-
-	node_name = 'cmb'
-	if not pm.objExists(node_name): #create two objects and combine them.
+	n1_name = 'cmb'
+	if not pm.objExists(n1_name): #create two objects and combine them.
 		n1 = pm.polyCylinder(radius=5, height=10, subdivisionsX=5, subdivisionsY=1, subdivisionsZ=1)
 		pm.move(0, 0, 25)
-		n2 = pm.polyCylinder(radius=5, height=6, subdivisionsX=5, subdivisionsY=1, subdivisionsZ=1)
+		n1_ = pm.polyCylinder(radius=5, height=6, subdivisionsX=5, subdivisionsY=1, subdivisionsZ=1)
 		pm.move(5, 0, 25)
-		pm.polyUnite(n1, n2, cp=1, name=node_name)
+		pm.polyUnite(n1, n1_, cp=1, name=n1_name)
 
-	node_name = 'pln'
-	if not pm.objExists(node_name): #create two objects and combine them.
-		n3 = pm.polyPlane(width=20, height=20, subdivisionsX=3, subdivisionsY=3, name=node_name)
+	n2_name = 'pln'
+	if not pm.objExists(n2_name): #create two objects and combine them.
+		n2 = pm.polyPlane(width=20, height=20, subdivisionsX=3, subdivisionsY=3, name=n2_name)
 		pm.move(0, 0, -25)
 
-	node_name = 'sph'
-	if not pm.objExists(node_name):
-		n4 = pm.polySphere(radius=8, subdivisionsX=6, subdivisionsY=6, name=node_name)
+	n3_name = 'sph'
+	if not pm.objExists(n3_name):
+		n3 = pm.polySphere(radius=8, subdivisionsX=6, subdivisionsY=6, name=n3_name)
 		pm.move(25, 0, 0)
+
+	pm.mel.DeleteAllHistory()
 
 	def test_getComponentType(self):
 		'''
 		'''
 		self.perform_test({
-			"self.getComponentType(self.edges)": 'Polygon Edge',
-			"self.getComponentType(self.edges, 'int')": 32,
-			"self.getComponentType(self.edges, 'hex')": 0x8000,
+			"self.getComponentType('cyl.e[:]')": 'Polygon Edge',
+			"self.getComponentType('cyl.vtx[:]', 'abv')": 'vtx',
+			"self.getComponentType('cyl.e[:]', 'int')": 32,
+			"self.getComponentType('cyl.e[:]', 'hex')": 0x8000,
 		})
 
 
@@ -128,6 +125,16 @@ class Componenttls_test(Test, Componenttls):
 		self.perform_test({
 			"self.convertComponentName('vertex', 'hex')": 0x0001,
 			"self.convertComponentName(0x0001, 'str')": 'Polygon Vertex',
+		})
+
+
+	def test_getElementType(self):
+		'''
+		'''
+		self.perform_test({
+			"self.getElementType('cyl.vtx[0]')": 'transform',
+			"self.getElementType('cylShape.vtx[:]')": 'str',
+			"self.getElementType(pm.ls('cylShape.vtx[:]'))": 'obj',
 		})
 
 
@@ -141,9 +148,9 @@ class Componenttls_test(Test, Componenttls):
 			"str(self.convertElementType('cyl.vtx[:2]', 'cyl', True))": "[MeshVertex('cylShape.vtx[0]'), MeshVertex('cylShape.vtx[1]'), MeshVertex('cylShape.vtx[2]')]",
 			"self.convertElementType('cyl.vtx[:2]', 'transform')": ['cyl.vtx[0:2]'],
 			"self.convertElementType('cyl.vtx[:2]', 'transform', True)": ['cyl.vtx[0]', 'cyl.vtx[1]', 'cyl.vtx[2]'],
-			"str(self.convertElementType('cyl.vtx[:2]', 'int'))": "{nt.Mesh('cylShape'): [(0, 2)]}",
-			"str(self.convertElementType('cyl.vtx[:2]', 'int', True))": "{nt.Mesh('cylShape'): [0, 1, 2]}",
-			"self.convertElementType('cyl.vtx[:10]', returnType='int', flatten=True, forceList=True)": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
+			"self.convertElementType('cyl.vtx[:2]', 'int')": [0, 2],
+			"self.convertElementType('cyl.vtx[:2]', 'int', True)": [0, 1, 2],
+			"self.convertElementType('cyl.vtx[:10]', returnType='int', flatten=True)": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
 		})
 
 
@@ -158,11 +165,21 @@ class Componenttls_test(Test, Componenttls):
 		})
 
 
+	def test_convertIntToComponent(self):
+		'''
+		'''
+		self.perform_test({
+			"self.convertIntToComponent('cyl', range(4), 'f')": ['cylShape.f[0:3]'],
+			"self.convertIntToComponent('cyl', range(4), 'f', 'int', flatten=True)": [0, 1, 2, 3],
+		})
+
+
 	def test_filterComponents(self):
 		'''
 		'''
 		self.perform_test({
 			"self.filterComponents('cyl.vtx[:]', 'cyl.vtx[:2]', 'cyl.vtx[1:23]')": ['cyl.vtx[0]'],
+			"self.filterComponents('cyl.f[:]', range(2), range(1, 23))": ['cyl.f[0]'],
 		})
 
 
@@ -172,7 +189,7 @@ class Componenttls_test(Test, Componenttls):
 		self.perform_test({
 			"self.getComponents('cyl', 'vertex', 'str', '', 'cyl.vtx[2:23]')": ['cylShape.vtx[0]', 'cylShape.vtx[1]', 'cylShape.vtx[24]', 'cylShape.vtx[25]'],
 			"str(self.getComponents('cyl', 'vertex', 'cyl', '', 'cyl.vtx[:23]'))": "[MeshVertex('cylShape.vtx[24]'), MeshVertex('cylShape.vtx[25]')]",
-			"str(self.getComponents('cyl', 'f', 'int'))": "{nt.Mesh('cylShape'): [(0, 35)]}",
+			"self.getComponents('cyl', 'f', 'int')": [0, 35],
 			"self.getComponents('cyl', 'edges')": ['cylShape.e[0:59]'],
 			"self.getComponents('cyl', 'edges', 'str', 'cyl.e[:2]')": ['cylShape.e[0]', 'cylShape.e[1]', 'cylShape.e[2]'],
 		})
@@ -245,7 +262,6 @@ class Componenttls_test(Test, Componenttls):
 			"self.getEdgePath('sph.e[12]', 'edgeRing')": ['sphShape.e[0]', 'sphShape.e[6]', 'sphShape.e[12]', 'sphShape.e[18]', 'sphShape.e[24]'],
 			"self.getEdgePath(['sph.e[43]', 'sph.e[46]'], 'edgeRingPath')": ['sphShape.e[43]', 'sphShape.e[42]', 'sphShape.e[47]', 'sphShape.e[46]'],
 			"self.getEdgePath(['sph.e[54]', 'sph.e[60]'], 'edgeLoopPath')": ['sphShape.e[60]', 'sphShape.e[48]', 'sphShape.e[42]', 'sphShape.e[36]', 'sphShape.e[30]', 'sphShape.e[54]'],
-			"self.getEdgePath(['sph.e[11]', 'sph.e[22]'], 'shortestEdgePath')": ['sphShape.e[46]', 'sphShape.e[16]', 'sphShape.e[41]'],
 		})
 
 

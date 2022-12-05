@@ -294,6 +294,17 @@ class Itertls_test(Test, Itertls):
 		})
 
 
+	def test_splitList(self):
+		'''
+		'''
+		self.perform_test({
+			"self.splitList([1, 2, 3, 5, 7, 8, 9], 2)": [[1, 2, 3], [5, 7, 8], [9]],
+			"self.splitList([1, 2, 3, 5, 7, 8, 9], 2, True)": [[1, 2], [3, 5], [7, 8], [9]],
+			"self.splitList([1, 2, 3, 5, 7, 8, 9], 'contigious')": [[1, 2, 3], [5], [7, 8, 9]],
+			"self.splitList([1, 2, 3, 5, 7, 8, 9], 'range')": [[1, 3], [5], [7, 9]],
+		})
+
+
 
 class Filetls_test(Test, Filetls):
 	'''

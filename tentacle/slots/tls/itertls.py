@@ -187,6 +187,43 @@ class Itertls():
 		return [i for i in lst if not i in exclude and (i in include if include else i not in include)]
 
 
+	@staticmethod
+	def splitList(lst, parts, asChunks=False):
+		'''Split a list into parts.
+
+		:Parameters:
+			parts (int)(str) = Split the list into parts defined by the given value.
+				if an integer is given, split the list into n parts with a trailing remainder.
+					(if you don't want a trailing remainder, you could use: [a.tolist() for a in np.array_split(lst, parts)])
+					ex. 2 returns:  [[1, 2, 3], [5, 7, 8], [9]] from [1,2,3,5,7,8,9]
+				if 'contigious' is given, the list will be split by contigious numerical values.
+					ex. 'contigious' returns: [[1,2,3], [5], [7,8,9]] from [1,2,3,5,7,8,9]
+				if 'range' is given, the values of 'contigious' will be limited to the high and low end of each range.
+					ex. 'range' returns: [[1,3], [5], [7,9]] from [1,2,3,5,7,8,9]
+			asChunks (bool) = When True and 'parts' given as int; Split into sublists of the of the given 'parts' size.
+					ex. 2 returns: [[1,2], [3,5], [7,8], [9]] from [1,2,3,5,7,8,9]
+		:Return:
+			(list)
+		'''
+		if parts=='contigious' or parts=='range':
+			from itertools import groupby
+			from operator import itemgetter
+
+			try:
+				contigious = [list(map(itemgetter(1), g)) for k, g in groupby(enumerate(lst), lambda x: int(x[0])-int(x[1]))]
+			except ValueError as error:
+				print ('{}\n# Error: splitlist: {} #\n	{}'.format(__file__, error, lst))
+				return lst
+			if parts=='range':
+				return [[i[0], i[-1]] if len(i)>1 else (i) for i in contigious]
+			return contigious
+
+		elif isinstance(parts, int):
+			if not asChunks:
+				parts = len(lst) // parts
+			return [lst[i:i+parts] for i in range(0, len(lst), parts)]
+
+
 # -----------------------------------------------
 from tentacle import addMembers
 addMembers(__name__)
