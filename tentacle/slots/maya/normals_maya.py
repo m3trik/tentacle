@@ -32,7 +32,7 @@ class Normals_maya(Normals, Slots_maya):
 
 		size = float(tb.ctxMenu.s001.value())
 		# state = pm.polyOptions (query=True, displayNormal=True)
-		state = self.cycle([1,2,3,0], 'displayNormals')
+		state = tls.cycle([1,2,3,0], 'displayNormals')
 		if state ==0: #off
 			pm.polyOptions (displayNormal=0, sizeNormal=0)
 			pm.polyOptions (displayTangent=False)

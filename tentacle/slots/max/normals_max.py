@@ -38,7 +38,7 @@ class Normals_max(Normals, Slots_max):
 		self.messageBox('No 3ds Version.')
 		tb.setDisabled(True)
 		# # state = pm.polyOptions (query=True, displayNormal=True)
-		# state = self.cycle([1,2,3,0], 'displayNormals')
+		# state = tls.cycle([1,2,3,0], 'displayNormals')
 		# if state ==0: #off
 		# 	pm.polyOptions (displayNormal=0, sizeNormal=0)
 		# 	pm.polyOptions (displayTangent=False)

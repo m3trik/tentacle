@@ -112,7 +112,7 @@ class Componenttls_test(Test, Componenttls):
 		'''
 		'''
 		self.perform_test({
-			"self.getComponentType('cyl.e[:]')": 'Polygon Edge',
+			"self.getComponentType('cyl.e[:]')": 'e',
 			"self.getComponentType('cyl.vtx[:]', 'abv')": 'vtx',
 			"self.getComponentType('cyl.e[:]', 'int')": 32,
 			"self.getComponentType('cyl.e[:]', 'hex')": 0x8000,
@@ -124,7 +124,7 @@ class Componenttls_test(Test, Componenttls):
 		'''
 		self.perform_test({
 			"self.convertComponentName('vertex', 'hex')": 0x0001,
-			"self.convertComponentName(0x0001, 'str')": 'Polygon Vertex',
+			"self.convertComponentName(0x0001, 'full')": 'Polygon Vertex',
 		})
 
 
@@ -265,35 +265,38 @@ class Componenttls_test(Test, Componenttls):
 		})
 
 
-	def test_(self):
+	def test_getEdgesByNormalAngle(self):
 		'''
 		'''
 		self.perform_test({
-			# "self.": '',
+			"self.getEdgesByNormalAngle('cyl', 50, 130)": ['cylShape.e[0:23]'],
 		})
 
 
-	def test_(self):
+	def test_getComponentsByNumberOfConnected(self):
 		'''
 		'''
 		self.perform_test({
-			# "self.": '',
+			"self.getComponentsByNumberOfConnected(['sph.f[18:23]', 'sph.f[30:35]'], 3, 'e')": ['sphShape.f[30]', 'sphShape.f[31]', 'sphShape.f[32]', 'sphShape.f[33]', 'sphShape.f[34]', 'sphShape.f[35]'],
+			"self.getComponentsByNumberOfConnected('pln.vtx[:]', (0,2), 'e')": ['plnShape.vtx[0]', 'plnShape.vtx[3]', 'plnShape.vtx[12]', 'plnShape.vtx[15]'],
 		})
 
 
-	def test_(self):
+	def test_getVertexNormal(self):
 		'''
 		'''
+		import maya.api.OpenMaya as om
 		self.perform_test({
-			# "self.": '',
+			"self.getVertexNormal('pln.vtx[2]', angleWeighted=False)": om.MVector(0, 1, 0),
 		})
 
 
-	def test_(self):
+	def test_getVectorFromComponents(self):
 		'''
 		'''
 		self.perform_test({
-			# "self.": '',
+			"self.getVectorFromComponents('pln.f[:]')": (0.0, 1.0, 0.0),
+			"self.getVectorFromComponents(['cyl.f[7]', 'cyl.f[8]'])": (0.0, 0.0, 0.43982641180356435),
 		})
 
 

@@ -332,7 +332,7 @@ class Selection_maya(Selection, Slots_maya):
 			result = self.getEdgePath(selection, 'edgeLoop')
 
 		elif pathAlongLoop:
-			result = self.getPathAlongLoop(selection)
+			result = self.getEdgePath(selection, 'edgeLoopPath')
 
 		elif shortestPath:
 			result = self.getShortestPath(selection)
@@ -463,7 +463,7 @@ class Selection_maya(Selection, Slots_maya):
 		'''
 		if obj is None:
 			obj = pm.ls(sl=1)
-		num = self.cycle(list(range(99)), 'selectionSetNum')
+		num = tls.cycle(list(range(99)), 'selectionSetNum')
 		name = '{0}_Set{1}'.format(pm.ls(obj, objectsOnly=1, flatten=1)[0].name, num) #ie. pCube1_Set0
 
 		return name

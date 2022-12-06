@@ -13,83 +13,93 @@ class GetComponents():
 	'''
 	'''
 	componentTypes = [
-			('vtx', 'vertex', 'vertices', 'Polygon Vertex', 31, 0x0001),
-			('e', 'edge', 'edges', 'Polygon Edge', 32, 0x8000),
-			('f', 'face', 'faces', 'Polygon Face', 34, 0x0008),
-			('uv', 'texture', 'texture coordinates', 'Polygon UV', 35, 0x0010),
-			('cv', 'control vertex', 'control vertices', 'Control Vertex', 28, None),
-			(None, None, None, 'Polygon Vertex Face', 70, None),
-			(None, None, None, 'Edit Point', 30, None),
-			(None, None, None, 'Handle', 0, None),
-			(None, None, None, 'Nurbs Curves On Surface', 11, None),
-			(None, None, None, 'Subdivision Mesh Point', 36, None),
-			(None, None, None, 'Subdivision Mesh Edge', 37, None), 
-			(None, None, None, 'Subdivision Mesh Face', 38, None), 
-			(None, None, None, 'Curve Parameter Point', 39, None), 
-			(None, None, None, 'Curve Knot', 40, None),
-			(None, None, None, 'Surface Parameter Point', 41, None),
-			(None, None, None, 'Surface Knot', 42, None),
-			(None, None, None, 'Surface Range', 43, None),
-			(None, None, None, 'Trim Surface Edge', 44, None),
-			(None, None, None, 'Surface Isoparm', 45, None),
-			(None, None, None, 'Lattice Point', 46, None),
-			(None, None, None, 'Particle', 47, None),
-			(None, None, None, 'Scale Pivot', 49, None),
-			(None, None, None, 'Rotate Pivot', 50, None),
-			(None, None, None, 'Select Handle', 51, None),
-			(None, None, None, 'NURBS Surface Face', 72, None),
-			(None, None, None, 'Subdivision Mesh UV', 73, None),
+			#abv 	singular 	plural 		full						int		hex 
+			('vtx', 'vertex', 	'vertices', 'Polygon Vertex', 			31, 	0x0001),
+			('e', 	'edge', 	'edges', 	'Polygon Edge', 			32,		0x8000),
+			('f', 	'face', 	'faces', 	'Polygon Face', 			34, 	0x0008),
+			('uv', 	'texture', 	'texture coordinates', 'Polygon UV', 	35, 	0x0010),
+			('cv', 	'control vertex', 'control vertices', 'Control Vertex', 28, None),
+			(None,	None, 		None, 		'Polygon Vertex Face', 		70, 	None),
+			(None, 	None, 		None, 		'Edit Point', 				30, 	None),
+			(None, 	None, 		None, 		'Handle', 					0, 		None),
+			(None, 	None, 		None, 		'Nurbs Curves On Surface', 	11, 	None),
+			(None, 	None, 		None, 		'Subdivision Mesh Point', 	36, 	None),
+			(None, 	None, 		None, 		'Subdivision Mesh Edge', 	37, 	None), 
+			(None, 	None, 		None, 		'Subdivision Mesh Face', 	38, 	None), 
+			(None, 	None, 		None, 		'Curve Parameter Point', 	39, 	None), 
+			(None, 	None, 		None, 		'Curve Knot', 				40, 	None),
+			(None, 	None, 		None, 		'Surface Parameter Point', 	41, 	None),
+			(None, 	None, 		None, 		'Surface Knot', 			42, 	None),
+			(None, 	None, 		None, 		'Surface Range', 			43, 	None),
+			(None, 	None, 		None, 		'Trim Surface Edge', 		44, 	None),
+			(None, 	None, 		None, 		'Surface Isoparm', 			45, 	None),
+			(None, 	None, 		None, 		'Lattice Point', 			46, 	None),
+			(None, 	None, 		None, 		'Particle', 				47, 	None),
+			(None, 	None, 		None, 		'Scale Pivot', 				49, 	None),
+			(None, 	None, 		None, 		'Rotate Pivot', 			50, 	None),
+			(None, 	None, 		None, 		'Select Handle', 			51, 	None),
+			(None, 	None, 		None, 		'NURBS Surface Face', 		72, 	None),
+			(None, 	None, 		None, 		'Subdivision Mesh UV', 		73, 	None),
 	]
 
 	@classmethod
-	def getComponentType(cls, component, returnType='str'):
+	def getComponentType(cls, component, nom='abv'):
 		'''Get the type of a given component.
 
 		:Parameters:
 			obj (str)(obj)(list) = A single maya component.
 				If multiple components are given, only the first will be sampled.
-			returnType (str) = Specify the desired return value type. (default: 'str')
-				(valid: 'str' - object type as a string.
+			nom (str) = Specify the desired return value type. (default: 'str')
+				(valid: 'full' - object type as a string.
 						'int' - maya mask value as an integer.
 						'hex' - hex value. ie. 0x0001
 						'abv' - abreviated object type as a string. ie. 'vtx'
 		:Return:
-			(str)(int) dependant on 'returnType' arg.
+			(str)(int) dependant on 'nom' arg.
 
 		ex. call:
-		getComponentType('cyl.e[:]') #returns: 'Polygon Edge'
+		getComponentType('cyl.e[:]') #returns: 'e'
 		getComponentType('cyl.vtx[:]', 'abv') #returns: 'vtx'
 		getComponentType('cyl.e[:]', 'int') #returns: 32
 		'''
 		for a, s, p, f, i, h in cls.componentTypes:
-			if pm.filterExpand(component, sm=i):
-				return f if returnType=='str' else i if returnType=='int' else a if returnType=='abv' else h
+			try:
+				if pm.filterExpand(component, sm=i):
+					if nom=='abv': return a
+					elif nom=='full': return f
+					elif nom=='int': return i
+					elif nom=='hex': return h
+					elif nom=='plural': return p
+					else: return s
+			except Exception as error:
+				print ('File "{}" in getComponentType\n# Error: Not a valid component. #\n	{}{}'.format(__file__, error, '(empty string)' if component=='' else ''))
+				break
 		return None
 
 
 	@classmethod
-	def convertComponentName(cls, componentType, returnType='abv'):
+	def convertComponentName(cls, componentType, nom='abv'):
 		'''Return an alternate component alias for the given alias. 
 		ie. a hex value of 0x0001 for 'vertex'
 		If nothing is found, a value of 'None' will be returned.
 
 		:Parameters:
 			componentType () = A component type. ex. 'vertex', 'vtx', 31, or 0x0001
-			returnType (str) = The desired returned alias.  (default: 'abv')
+			nom (str) = The desired returned alias.  (default: 'abv')
 				(valid: 'abv', 'singular', 'plural', 'str', 'int', 'hex')
 
 		:Return:
-			(str)(int)(hex)(None) dependant on returnType argument.
+			(str)(int)(hex)(None) dependant on 'nom' argument.
 
 		ex. call:
 		convertComponentName('vertex', 'hex') #returns: 0x0001
 		convertComponentName(0x0001, 'str') #returns: 'Polygon Vertex'
 		'''
-		rtypes = ('abv', 'singular', 'plural', 'str', 'int', 'hex')
+		rtypes = ('abv', 'singular', 'plural', 'full', 'int', 'hex')
 
 		for t in cls.componentTypes:
 			if componentType in t:
-				index = rtypes.index(returnType)
+				index = rtypes.index(nom)
 				return t[index]
 		return None
 
@@ -130,7 +140,7 @@ class GetComponents():
 			lst (str)(obj)(list) = The components(s) to convert.
 			returnType (str) = The desired returned object type. 
 				(valid: 'str'(default), 'obj'(shape node), 'transform'(as string), 'int'(valid only at sub-object level).
-			flatten (bool) = Flattens the returned list of objects so that each component is identified individually.
+			flatten (bool) = Flattens the returned list of objects so that each component is it's own element.
 
 		:Return:
 			(list)(dict) return a dict only with a return type of 'int' and more that one object given.
@@ -167,7 +177,7 @@ class GetComponents():
 					else:
 						result[obj] = [componentNum]
 				except ValueError as error: #incompatible object type.
-					break; print ('{}\n# Error: convertElementType(): unable to convert {} {} to int. {}. #'.format(__file__, obj, num, error))
+					break; print ('File "{}" in convertElementType\n# Error: unable to convert {} {} to int. {}. #'.format(__file__, obj, num, error))
 
 			objects = set(pm.ls(lst, objectsOnly=True))
 			if len(objects)==1: #flatten the dict values from 'result' and remove any duplicates.
@@ -186,7 +196,7 @@ class GetComponents():
 
 	@classmethod
 	def convertComponentType(cls, components, componentType, returnType='str', flatten=False):
-		'''Convert the given component(s) to their sub-components.
+		'''Convert component(s) to it's sub-components of the given type.
 
 		:Parameters:
 			components (str)(obj)(list) = The components(s) to convert.
@@ -195,7 +205,7 @@ class GetComponents():
 					and the same for each: 'edge', 'uv', 'face'.
 			returnType (str) = The desired returned object type. 
 				(valid: 'str'(default), 'obj'(shape object), 'transform'(as string), 'int'(valid only at sub-object level).
-			flatten (bool) = Flattens the returned list of objects so that each component is identified individually.
+			flatten (bool) = Flattens the returned list of objects so that each component is it's own element.
 
 		:Return:
 			(list)(dict)
@@ -207,7 +217,7 @@ class GetComponents():
 		convertComponentType('obj.vtx[:2]', 'uv') #returns: ['obj.map[0:2]', 'obj.map[12:14]', 'obj.map[24]']
 		'''
 		d = {'vtx':'toVertex', 'e':'toEdge', 'uv':'toUV', 'f':'toFace'}
-		typ = cls.convertComponentName(componentType, returnType='abv') #get the correct componentType variable from possible args.
+		typ = cls.convertComponentName(componentType) #get the correct componentType variable from possible args.
 		components = pm.polyListComponentConversion(components, **{d[typ.lower()]:True})
 		return cls.convertElementType(components, returnType=returnType, flatten=flatten)
 
@@ -224,12 +234,12 @@ class GetComponents():
 					and the same for each: 'edge', 'uv', 'face'.
 			returnType (str) = The desired returned object type. 
 				(valid: 'str'(default), 'obj'(shape object), 'transform'(as string), 'int'(valid only at sub-object level).
-			flatten (bool) = Flattens the returned list of objects so that each component is identified individually.
+			flatten (bool) = Flattens the returned list of objects so that each component is it's own element.
 
 		:Return:
 			(list)
 
-		ex. call:
+		ex. call: convertIntToComponent('cyl', range(4), 'f') #returns: ['cylShape.f[0:3]']
 		'''
 		obj = pm.ls(obj, objectsOnly=True)[0]
 		objName = obj.name()
@@ -257,17 +267,21 @@ class GetComponents():
 		:Return:
 			(list)
 
-		ex. call: filterComponents('obj.vtx[:]', 'obj.vtx[:2]', 'obj.vtx[1:23]') #returns: [MeshVertex('objShape.vtx[0]')]
+		ex. call:
+		filterComponents('cyl.vtx[:]', 'cyl.vtx[:2]', 'cyl.vtx[1:23]') #returns: ['cyl.vtx[0]']
+		filterComponents('cyl.f[:]', range(2), range(1, 23)) #returns: ['cyl.f[0]']
 		'''
-		try:
-			obj = pm.ls(components, objectsOnly=True)[0]
-		except IndexError as error:
-			print ('{}\n# Error: filterComponents: Operation requires at least one component. #\n	{}'.format(__file__, error))
-
-		typ = cls.getComponentType(components, 'abv')
+		typ = cls.getComponentType(components)
 		etyp = cls.getElementType(components)
 		etyp_include = cls.getElementType(include)
 		etyp_exclude = cls.getElementType(exclude)
+
+		if etyp_include=='int' or etyp_exclude=='int':
+			try:
+				obj = pm.ls(components, objectsOnly=True)[0]
+			except IndexError as error:
+				print ('File "{}" in filterComponents\n# Error: Operation requires at least one component. #\n	{}'.format(__file__, error))
+				return []
 
 		if etyp_include=='int':
 			include = cls.convertIntToComponent(obj, include, typ)
@@ -428,7 +442,7 @@ class Componenttls(GetComponents):
 		:return:
 			(generator)
 
-		ex. call: "list(self.getIslands('combined_obj'))": [['combined_obj.f[0]', 'combined_obj.f[5]', ..etc, ['combined_obj.f[15]', ..etc]] 
+		ex. call: getIslands('combined_obj') #returns: [['combined_obj.f[0]', 'combined_obj.f[5]', ..etc, ['combined_obj.f[15]', ..etc]] 
 		'''
 		num_shells = pm.polyEvaluate(obj, shell=True)
 		num_faces = pm.polyEvaluate(obj, face=True)
@@ -465,18 +479,23 @@ class Componenttls(GetComponents):
 				(valid: 'str'(default), 'obj'(shape object), 'transform'(as string), 'int'(valid only at sub-object level).
 			componentBorder (bool) = Get the components that border given components instead of the mesh border.
 				(valid: 'component', 'object'(default))
-			flatten (bool) = Flattens the returned list of objects so that each component is identified individually.
+			flatten (bool) = Flattens the returned list of objects so that each component is it's own element.
 
 		:Return:
 			(list) components that border an open edge.
 
 		ex. call:
+		getBorderComponents('pln', 'vtx') #returns: ['plnShape.vtx[0:4]', 'plnShape.vtx[7:8]', 'plnShape.vtx[11:15]'],
+		getBorderComponents('pln') #returns: ['plnShape.e[0:2]', 'plnShape.e[4]', 'plnShape.e[6]', 'plnShape.e[8]', 'plnShape.e[13]', 'plnShape.e[15]', 'plnShape.e[20:23]'],
+		getBorderComponents('pln.e[:]') #returns: ['plnShape.e[0:2]', 'plnShape.e[4]', 'plnShape.e[6]', 'plnShape.e[8]', 'plnShape.e[13]', 'plnShape.e[15]', 'plnShape.e[20:23]'],
+		getBorderComponents(['pln.e[9]','pln.e[10]', 'pln.e[12]', 'pln.e[16]'], 'f', componentBorder=True) #returns: ['plnShape.f[1]', 'plnShape.f[3:5]', 'plnShape.f[7]'],
+		getBorderComponents('pln.f[3:4]', 'vtx', componentBorder=True) #returns: ['plnShape.vtx[4:6]', 'plnShape.vtx[8:10]'],
 		'''
 		if not x:
-			print ('{}\n# Error: getBorderComponents: Operation requires a given object(s) or component(s). #'.format(__file__))
+			print ('File "{}" in getBorderComponents\n# Error: Operation requires a given object(s) or component(s). #'.format(__file__))
 			return []
 
-		origType = cls.getComponentType(x, returnType='abv')
+		origType = cls.getComponentType(x, 'abv')
 		if not origType:
 			origType, x = 'mesh', cls.getComponents(x, 'edges')
 		origVerts = cls.convertComponentType(x, 'vtx', flatten=True)
@@ -486,7 +505,7 @@ class Componenttls(GetComponents):
 		if not componentType: #if no component type is specified, return the same type of component as given. in the case of mesh object, edges will be returned.
 			componentType = origType if not origType=='mesh' else 'e'
 		else:
-			componentType = cls.convertComponentName(componentType, returnType='abv') #get the correct componentType variable from possible args.
+			componentType = cls.convertComponentName(componentType) #get the correct componentType variable from possible args.
 
 		result=[]
 		if componentBorder: #get edges Qthat form the border of the given components.
@@ -530,9 +549,7 @@ class Componenttls(GetComponents):
 		:Return:
 			(list) closest vertex pairs by order of distance (excluding those not meeting the tolerance). (<vertex from set1>, <vertex from set2>).
 
-		ex. verts1 = getComponents('pCube1', 'vertices')
-			verts2 = getComponents(pCube2', 'vertices')
-			closestVerts = getClosestVerts(verts1, verts2)
+		ex. call: getClosestVerts('pln.vtx[:10]', 'pln.vtx[11:]', 6.667) #returns: [('plnShape.vtx[7]', 'plnShape.vtx[11]'), ('plnShape.vtx[8]', 'plnShape.vtx[12]'), ('plnShape.vtx[9]', 'plnShape.vtx[13]'), ('plnShape.vtx[10]', 'plnShape.vtx[11]'), ('plnShape.vtx[10]', 'plnShape.vtx[14]')]
 		'''
 		from operator import itemgetter
 		from slots.tls.mathtls import getDistBetweenTwoPoints
@@ -569,9 +586,10 @@ class Componenttls(GetComponents):
 		:Return:
 			(dict) closest vertex pairs {<vertex from set1>:<vertex from set2>}.
 
-		ex. obj1, obj2 = selection
-			vertices = getComponents(obj1, 'vertices')
-			closestVerts = getClosestVertex(vertices, obj2, tolerance=10)
+		ex. call:
+		getClosestVertex('plnShape.vtx[0]', 'cyl', returnType='int') #returns: {'plnShape.vtx[0]': 3},
+		getClosestVertex('plnShape.vtx[0]', 'cyl') #returns: {'plnShape.vtx[0]': 'cylShape.vtx[3]'},
+		getClosestVertex('plnShape.vtx[2:3]', 'cyl') #returns: {'plnShape.vtx[2]': 'cylShape.vtx[2]', 'plnShape.vtx[3]': 'cylShape.vtx[1]'}
 		'''
 		from slots.tls.mathtls import getDistBetweenTwoPoints
 
@@ -616,19 +634,29 @@ class Componenttls(GetComponents):
 
 		:Parameters:
 			components (str)(obj)(list) = The components used for the query (dependant on the operation type).
-			path (str) = The desired return type. valid: 'edgeRing', 'edgeRingPath', 'edgeLoop', 'edgeLoopPath'.
+			path (str) = The desired return type. valid: 'edgeLoop': Select an edge loop starting at the given edge.
+				'edgeRing': Select an edge ring starting at the given edge.
+				'edgeRingPath', Given two edges that are on the same edge ring, this will select the shortest path between them on the ring.
+				'edgeLoopPath': Given two edges that are on the same edge loop, this will select the shortest path between them on the loop.
 			returnType (str) = The desired returned object type.
 				(valid: 'str'(default), 'obj'(shape object), 'transform'(as string), 'int'(valid only at sub-object level).
-			flatten (bool) = Flattens the returned list of objects so that each component is identified individually.
+			flatten (bool) = Flattens the returned list of objects so that each component is it's own element.
 
 		:Return:
 			(list) The components comprising the path.
+
+		ex. call:
+		getEdgePath('sph.e[12]', 'edgeLoop') #returns: ['sphShape.e[12]', 'sphShape.e[17]', 'sphShape.e[16]', 'sphShape.e[15]', 'sphShape.e[14]', 'sphShape.e[13]']
+		getEdgePath('sph.e[12]', 'edgeLoop', 'int') #returns: [12, 17, 16, 15, 14, 13]
+		getEdgePath('sph.e[12]', 'edgeRing') #returns: ['sphShape.e[0]', 'sphShape.e[6]', 'sphShape.e[12]', 'sphShape.e[18]', 'sphShape.e[24]']
+		getEdgePath(['sph.e[43]', 'sph.e[46]'], 'edgeRingPath') #returns: ['sphShape.e[43]', 'sphShape.e[42]', 'sphShape.e[47]', 'sphShape.e[46]']
+		getEdgePath(['sph.e[54]', 'sph.e[60]'], 'edgeLoopPath') #returns: ['sphShape.e[60]', 'sphShape.e[48]', 'sphShape.e[42]', 'sphShape.e[36]', 'sphShape.e[30]', 'sphShape.e[54]']
 		'''
 		obj, *other = pm.ls(components, objectsOnly=1)
 		cnums = cls.convertComponentType(components, 'edge', returnType='int', flatten=True)
 
 		if len(cnums)<2 and path in ('edgeRingPath', 'edgeLoopPath'):
-			print ('{}\n# Error: getEdgePath: Operation requires at least two components. #'.format(__file__))
+			print ('File "{}" in getEdgePath\n# Error: Operation requires at least two components. #\n	Edges given: {}'.format(__file__, cnums))
 			return []
 
 		if path=='edgeRing':
@@ -636,10 +664,15 @@ class Componenttls(GetComponents):
 
 		elif path=='edgeRingPath':
 			edgesLong = pm.polySelect(obj, query=1, edgeRingPath=(cnums[0], cnums[1])) #(e, e)
+			if not edgesLong:
+				print ('File "{}" in getEdgePath\n# Error: getEdgePath: Operation requires two edges that are on the same edge ring. #\n	Edges given: {}, {}'.format(__file__, cnums[0], cnums[1]))
+				return []
 
 		elif path=='edgeLoopPath':
 			edgesLong = pm.polySelect(obj, query=1, edgeLoopPath=(cnums[0], cnums[1])) #(e, e)
-
+			if not edgesLong:
+				print ('File "{}" in getEdgePath\n# Error: getEdgePath: Operation requires two edges that are on the same edge loop. #\n	Edges given: {}, {}'.format(__file__, cnums[0], cnums[1]))
+				return []
 		else: #'edgeLoop'
 			edgesLong = pm.polySelect(obj, query=1, edgeLoop=cnums) #(e..)
 
@@ -654,16 +687,26 @@ class Componenttls(GetComponents):
 
 		:Parameters:
 			components (obj) = A Pair of vertices or edges.
+			returnType (str) = The desired returned object type. 
+				(valid: 'str'(default), 'obj'(shape node), 'transform'(as string), 'int'(valid only at sub-object level).
+			flatten (bool) = Flattens the returned list of objects so that each component is it's own element.
 
 		:Return:
 			(list) the components that comprise the path as strings.
+
+		ex. call:
+		getEdgePath('sph.e[12]', 'edgeLoop') #returns: ['sphShape.e[12]', 'sphShape.e[17]', 'sphShape.e[16]', 'sphShape.e[15]', 'sphShape.e[14]', 'sphShape.e[13]']
+		getEdgePath('sph.e[12]', 'edgeLoop', 'int') #returns: [12, 17, 16, 15, 14, 13]
+		getEdgePath('sph.e[12]', 'edgeRing') #returns: ['sphShape.e[0]', 'sphShape.e[6]', 'sphShape.e[12]', 'sphShape.e[18]', 'sphShape.e[24]']
+		getEdgePath(['sph.e[43]', 'sph.e[46]'], 'edgeRingPath') #returns: ['sphShape.e[43]', 'sphShape.e[42]', 'sphShape.e[47]', 'sphShape.e[46]']
+		getEdgePath(['sph.e[54]', 'sph.e[60]'], 'edgeLoopPath') #returns: ['sphShape.e[60]', 'sphShape.e[48]', 'sphShape.e[42]', 'sphShape.e[36]', 'sphShape.e[30]', 'sphShape.e[54]']
 		'''
 		obj = pm.ls(components, objectsOnly=1)[0]
-		ctype = cls.getComponentType(components, returnType='abv')
+		ctype = cls.getComponentType(components)
 		try:
 			A, B = components = cls.convertComponentType(components, ctype)[:2]
 		except ValueError as error:
-			print ('{}\n# Error: getShortestPath: Operation requires exactly two components. #\n	{}'.format(__file__, error))
+			print ('File "{}" in getShortestPath\n# Error: Operation requires exactly two components. #\n	{}'.format(__file__, error))
 			return []
 
 		returnAsVerts=False
@@ -700,74 +743,6 @@ class Componenttls(GetComponents):
 
 
 	@classmethod
-	def getPathAlongLoop(cls, components=None):
-		'''Get the shortest path between to vertices or edges along an edgeloop.
-
-		:Parameters:
-			components (obj) = A Pair of vertices, edges, or faces.
-
-		:Return:
-			(list) the components that comprise the path as strings.
-		'''
-		typ = mtls.getType(components[0])
-
-		result=[]
-		objects = set(pm.ls(components, objectsOnly=1))
-		for obj in objects:
-
-			if typ=='Polygon Vertex':
-				vertices=[]
-				for component in components:
-					edges = pm.ls(pm.polyListComponentConversion(component, fromVertex=1, toEdge=1), flatten=1)
-					_vertices = pm.ls(pm.polyListComponentConversion(edges, fromEdge=1, toVertex=1), flatten=1)
-					vertices.append(_vertices)
-
-				closestVerts = cls.getClosestVerts(vertices[0], vertices[1])[0]
-				_edges = pm.ls(pm.polyListComponentConversion(list(components)+list(closestVerts), fromVertex=1, toEdge=1), flatten=1)
-
-				edges=[]
-				for edge in _edges:
-					verts = pm.ls(pm.polyListComponentConversion(edge, fromEdge=1, toVertex=1), flatten=1)
-					if closestVerts[0] in verts and components[0] in verts or closestVerts[1] in verts and components[1] in verts:
-						edges.append(edge)
-
-				edges = cls.getEdgePath(edges, 'edgeLoopPath')
-
-				vertices = [pm.ls(pm.polyListComponentConversion(edges, fromEdge=1, toVertex=1), flatten=1)]
-				[result.append(v) for v in vertices]
-
-
-			elif typ=='Polygon Edge':
-				edges = cls.getEdgePath(components, 'edgeLoopPath')
-				[result.append(e) for e in edges]
-
-
-			elif typ=='Polygon Face':
-				vertices=[]
-				for component in components:
-					edges = pm.ls(pm.polyListComponentConversion(component, fromFace=1, toEdge=1), flatten=1)
-					_vertices = pm.ls(pm.polyListComponentConversion(edges, fromEdge=1, toVertex=1), flatten=1)
-					vertices.append(_vertices)
-
-				closestVerts1 = cls.getClosestVerts(vertices[0], vertices[1])[0]
-				closestVerts2 = cls.getClosestVerts(vertices[0], vertices[1])[1] #get the next pair of closest verts
-
-				_edges = pm.ls(pm.polyListComponentConversion(closestVerts1+closestVerts2, fromVertex=1, toEdge=1), flatten=1)
-				edges=[]
-				for edge in _edges:
-					verts = pm.ls(pm.polyListComponentConversion(edge, fromEdge=1, toVertex=1), flatten=1)
-					if closestVerts1[0] in verts and closestVerts2[0] in verts or closestVerts1[1] in verts and closestVerts2[1] in verts:
-						edges.append(edge)
-
-				edges = cls.getEdgePath(edges, 'edgeRingPath')
-
-				faces = pm.ls(pm.polyListComponentConversion(edges, fromEdge=1, toFace=1), flatten=1)
-				[result.append(f) for f in faces]
-
-		return result
-
-
-	@classmethod
 	def getEdgesByNormalAngle(cls, objects, lowAngle=50, highAngle=130, returnType='str', flatten=False):
 		'''Get a list of edges having normals between the given high and low angles using maya's polySelectConstraint.
 
@@ -775,85 +750,111 @@ class Componenttls(GetComponents):
 			objects (str)(list)(obj) = The object(s) to get edges of.
 			lowAngle (int) = Normal angle low range.
 			highAngle (int) = Normal angle high range.
-			returnType (str) = The desired returned object type. (valid: 'unicode'(default), 'str', 'int', 'object')
-			flatten (bool) = Flattens the returned list of objects so that each component is identified individually.
+			returnType (str) = The desired returned object type. 
+				(valid: 'str'(default), 'obj'(shape node), 'transform'(as string), 'int'(valid only at sub-object level).
+			flatten (bool) = Flattens the returned list of objects so that each component is it's own element.
 
 		:Return:
 			(list) Polygon edges.
+
+		ex. call: getEdgesByNormalAngle('cyl', 50, 130) #returns: ['cylShape.e[0:23]']
 		'''
 		orig_selection = pm.ls(sl=1) #get currently selected objects in order to re-select them after the contraint operation.
 
+		pm.select(objects)
 		pm.polySelectConstraint(angle=True, anglebound=(lowAngle, highAngle), mode=3, type=0x8000) #Constrain that selection to only edges of a certain Angle
 		pm.selectType(polymeshEdge=True)
-		edges = cls.getComponents(componentType='edges', returnType=returnType, flatten=flatten) #get selected edges with constraint active.
 
+		mask = cls.convertComponentName('edges', 'int')
+		objects = pm.filterExpand(selectionMask=mask, expand=flatten)
+
+		edges = cls.getComponents(objects, componentType='edges', returnType=returnType, flatten=flatten) #get selected edges with constraint active.
 		pm.polySelectConstraint(mode=0) #Remove the selection constraint.
-		pm.select(orig_selection) #re-select any originally selected objects.
 
+		pm.select(orig_selection) #re-select any originally selected objects.
 		return edges
 
 
 	@classmethod
-	def getComponentsByNumberOfConnected(cls, components, num_of_connected=(0,2), connectedType=None, returnType='str', flatten=False):
+	def getComponentsByNumberOfConnected(cls, components, num_of_connected=(0,2), connectedType='', returnType='str'):
 		'''Get a list of components filtered by the number of their connected components.
 
 		:Parameters:
 			components (str)(list)(obj) = The components to filter.
 			num_of_connected (int)(tuple) = The number of connected components. Can be given as a range. (Default: (0,2))
 			connectedType (str)(int) = The desired component mask. (valid: 'vtx','vertex','vertices','Polygon Vertex',31,0x0001(vertices), 'e','edge','edges','Polygon Edge',32,0x8000(edges), 'f','face','faces','Polygon Face',34,0x0008(faces), 'uv','texture','texture coordinates','Polygon UV',35,0x0010(texture coordiantes).
-			returnType (str) = The desired returned object type. (valid: 'unicode'(default), 'str', 'int', 'object')
-			flatten (bool) = Flattens the returned list of objects so that each component is identified individually.
+			returnType (str) = The desired returned object type. 
+				(valid: 'str'(default), 'obj'(shape node), 'transform'(as string), 'int'(valid only at sub-object level).
 
 		:Return:
-			(list) Polygon vertices.
+			(list) flattened list.
 
-		ex. components = getComponents(objects, 'faces', selection=1)
-			faces = getComponentsByNumberOfConnected(components, 4, 'Polygon Edge') #returns faces with four connected edges (four sided faces).
-
-		ex. components = getComponents(objects, 'vertices', selection=1)
-			verts = getComponentsByNumberOfConnected(components, (0,2), 'Polygon Edge') #returns vertices with up to two connected edges.
+		ex. faces = getComponentsByNumberOfConnected('sph.f[:]', 4, 'e') #returns faces with four connected edges (four sided faces).
+		ex. verts = getComponentsByNumberOfConnected('pln.vtx[:]', (0,2), 'e') #returns vertices with up to two connected edges.
 		'''
-		connectedType = cls.convertComponentName(componentType, returnType='str') #get the correct componentType variable from all possible args.
-
-		if isinstance(num_of_connected, (tuple, list, set)):
+		try:
 			lowRange, highRange = num_of_connected
-		else:
+		except TypeError as error:
 			lowRange = highRange = num_of_connected
 
-		component_type = mtls.getType(components)
-		if not connectedType:
-			connectedType = component_type
+		typ = cls.getComponentType(components)
+		if connectedType:
+			ctype = cls.convertComponentName(connectedType)
+		else:
+			ctype = typ
 
 		result=[]
-		for c in pm.ls(components, flatten=1):
-			fm = {'Polygon Vertex':'fromVertex', 'Polygon Edge':'fromEdge', 'Polygon Face':'fromFace'}
-			to = {'Polygon Vertex':'toVertex', 'Polygon Edge':'toEdge', 'Polygon Face':'toFace'}
-			kwargs = {'fromVertex':False, 'fromEdge':False, 'fromFace':False, 'toVertex':False, 'toEdge':False, 'toFace':False}
+		for c in pm.ls(components, flatten=True):
 
-			kwargs[fm[component_type]] = True #ex. kwargs['fromVertex'] = True
-			kwargs[to[connectedType]] = True #ex. kwargs['toEdge'] = True
-
-			num = len(pm.ls(pm.polyListComponentConversion(c, **kwargs), flatten=1))
-			if num>=lowRange and num<=highRange:
+			attached = cls.convertComponentType(c, ctype, flatten=True)
+			n = len(attached)
+			if n>=lowRange and n<=highRange:
 				result.append(c)
 
-		result = cls.convertElementType(result, returnType=returnType, flatten=flatten)
+		result = cls.convertElementType(result, returnType=returnType)
 		return result
 
 
+	@classmethod
+	def getVertexNormal(cls, vertex, angleWeighted=False):
+		'''Return the normal at the given vertex. The returned normal is a single 
+		per-vertex normal, so unshared normals at a vertex will be averaged.
+
+		:Parameters:
+			vertex (str)(obj)(list) = A polygon vertex.
+			angleWeighted (bool) = Weight by the angle subtended by the face at the vertex. 
+				If angleWeighted is set to false, a simple average of surround face normals is returned.
+				The simple average evaluation is significantly faster than the angle-weighted average.
+		:Return:
+			(MVector)
+		'''
+		import maya.api.OpenMaya as om
+
+		mesh = pm.ls(vertex, objectsOnly=True)[0].name()
+		selectionList = om.MSelectionList() #empty selection list.
+		selectionList.add(mesh)
+
+		dagPath = selectionList.getDagPath(0) #create empty dag path object.
+		mesh = om.MFnMesh(dagPath) #get mesh.
+
+		vtxID = cls.convertElementType(vertex, 'int')[0]
+		return mesh.getVertexNormal(vtxID, angleWeighted, space=om.MSpace.kWorld) #get vertex normal and use om.MSpace.kObject for object space.
+
+
+	@staticmethod
 	def getVectorFromComponents(components):
-		'''Get a vector using the averaged vertex normals of the given components.
+		'''Get a vector representing the averaged and normalized vertex-face normals.
 
 		:Parameters:
 			components (list) = A list of component to get normals of.
 
 		:Return:
-			(vector) ex. [-4.5296159711938344e-08, 1.0, 1.6846732009412335e-08]
+			(tuple) vector ie. (-4.5296159711938344e-08, 1.0, 1.6846732009412335e-08)
 		'''
 		vertices = pm.polyListComponentConversion(components, toVertex=1)
 
-		norm = pm.polyNormalPerVertex(vertices, query=True, xyz=True)
-		normal_vector = [sum(norm[0::3])/len(norm[0::3]), sum(norm[1::3])/len(norm[1::3]), sum(norm[2::3])/len(norm[2::3])] #averaging of all x,y,z points.
+		norm = pm.polyNormalPerVertex(vertices, query=True, xyz=True) #return all of the normals associated with the vert.
+		normal_vector = (sum(norm[0::3])/len(norm[0::3]), sum(norm[1::3])/len(norm[1::3]), sum(norm[2::3])/len(norm[2::3])) #averaging of all x,y,z points.
 
 		return normal_vector
 
@@ -911,7 +912,7 @@ addMembers(__name__)
 # 			if len(obj)>1:
 # 				return frm
 # 			componentType = cls.getComponentType(frm[0])
-# 			typ = cls.convertComponentName(componentType, returnType='abv') #get the correct componentType variable from possible args.
+# 			typ = cls.convertComponentName(componentType) #get the correct componentType variable from possible args.
 # 			exclude = ["{}.{}[{}]".format(obj[0], typ, n) for n in exclude]
 
 # 		if include and isinstance(include[0], int): #attempt to create a component list from the given integers. warning: this will only exclude from a single object.
@@ -919,7 +920,7 @@ addMembers(__name__)
 # 			if len(obj)>1:
 # 				return frm
 # 			componentType = cls.getComponentType(frm[0])
-# 			typ = cls.convertComponentName(componentType, returnType='abv') #get the correct componentType variable from possible args.
+# 			typ = cls.convertComponentName(componentType) #get the correct componentType variable from possible args.
 # 			include = ["{}.{}[{}]".format(obj[0], typ, n) for n in include]
 
 # 		include = cls.convertElementType(include, returnType=rtn, flatten=True) #assure both lists are of the same type for comparison.

@@ -12,6 +12,7 @@ except ImportError as error:
 	print (__file__, error)
 
 from slots import Slots
+from slots import tls
 from slots.maya import mayatls as mtls
 
 

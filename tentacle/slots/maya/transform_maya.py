@@ -175,7 +175,7 @@ class Transform_maya(Transform, Slots_maya):
 
 		if betweenTwoComponents:
 			if len(selection)>1:
-				componentsOnPath = Slots_maya.getPathAlongLoop([selection[0], selection[-1]])
+				componentsOnPath = self.getEdgePath(selection, 'edgeLoopPath')
 				pm.select(componentsOnPath)
 
 		if autoAlign: #set coordinates for auto align:

@@ -125,7 +125,7 @@ class Display_blender(Display, Slots_blender):
 	def b011(self):
 		'''Toggle Component Id Display
 		'''
-		index = self.cycle([0,1,2,3,4], 'componentID')
+		index = tls.cycle([0,1,2,3,4], 'componentID')
 
 		visible = pm.polyOptions(query=1, displayItemNumbers=1)
 		if not visible:
