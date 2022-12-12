@@ -1,19 +1,26 @@
-#unit testing
+# !/usr/bin/python
+# coding=utf-8
 import os, sys
 import unittest
 import inspect
 
-from slots.tls import *
+from tentacle.slots.tk import *
 
 
-class Test(unittest.TestCase):
+class Main(unittest.TestCase):
 	'''
 	'''
+	# def __init__(self, m):
+	# 	'''
+	# 	'''
+		# print (m)
+		# methods = inspect.getmembers(self, inspect.isfunction)
+
 	def perform_test(self, case):
 		'''
 		'''
 		for expression, expected_result in case.items():
-			m = expression.split('(')[0] #ie. 'self.setCase' from "self.setCase('xxx', 'upper')"
+			m = str(expression).split('(')[0] #ie. 'self.setCase' from "self.setCase('xxx', 'upper')"
 
 			try:
 				path = os.path.abspath(inspect.getfile(eval(m)))
@@ -24,23 +31,23 @@ class Test(unittest.TestCase):
 			self.assertEqual(
 				result, 
 				expected_result, 
-				"\n\n{}\n\nError: {}\n  Call:     {}\n  Expected: {} {}\n  Returned: {} {}".format(m.__doc__, path, expression.replace('self.', '', 1), type(expected_result), expected_result, type(result), result)
+				"\n\nError: {}\n  Call:     {}\n  Expected: {} {}\n  Returned: {} {}".format(path, expression.replace('self.', '', 1), type(expected_result), expected_result, type(result), result)
 			)
 
 
-class Tls_test(Test, Tls):
+class Tls_test(Main, Tls):
 	'''
 	'''	
-	import slots.tls
-	from slots.tls import itertls
-	from slots.tls.itertls import makeList
+	import slots.tk
+	from slots.tk import itertk
+	from slots.tk.itertk import makeList
 
 	def test_imports(self):
 		'''
 		'''
 		self.perform_test({
-			"str(self.slots.tls.itertls.makeList).rsplit(' ', 1)[0]": '<function Itertls.makeList at',
-			"str(self.itertls.makeList).rsplit(' ', 1)[0]": '<function Itertls.makeList at',
+			"str(self.slots.tk.itertk.makeList).rsplit(' ', 1)[0]": '<function Itertls.makeList at',
+			"str(self.itertk.makeList).rsplit(' ', 1)[0]": '<function Itertls.makeList at',
 			"str(self.makeList).rsplit(' ', 1)[0]": '<bound method Itertls.makeList of <__main__.Tls_test',
 		})
 
@@ -88,7 +95,7 @@ class Tls_test(Test, Tls):
 		})
 
 
-class Strtls_test(Test, Strtls):
+class Strtls_test(Main, Strtls):
 	'''
 	'''
 	def test_setCase(self):
@@ -204,7 +211,7 @@ class Strtls_test(Test, Strtls):
 
 
 
-class Itertls_test(Test, Itertls):
+class Itertls_test(Main, Itertls):
 	'''
 	'''
 	def test_makeList(self):
@@ -306,7 +313,7 @@ class Itertls_test(Test, Itertls):
 
 
 
-class Filetls_test(Test, Filetls):
+class Filetls_test(Main, Filetls):
 	'''
 	'''
 	def test_formatPath(self):
@@ -415,10 +422,11 @@ class Filetls_test(Test, Filetls):
 		path = os.path.abspath(os.path.dirname(__file__))+'/test_files'
 
 		self.perform_test({
-			"self.getDirectoryContents(r'{}', 'dirpaths')".format(path): [path+'\\sub-directory'],
-			"self.getDirectoryContents(r'{}', 'files|dirs')".format(path): ['sub-directory', 'file1.txt', 'file2.txt', 'test.json'],
-			"self.getDirectoryContents(r'{}', 'files', '*.txt', '', False, True, True)".format(path): ['file1', 'file2'],
-			"self.getDirectoryContents(r'{}', 'files', '*.txt', reverse=True)".format(path): ['file2.txt', 'file1.txt'],
+			str(self.getDirectoryContents(path, 'dirpaths')): [path+'\\sub-directory'],
+			str(self.getDirectoryContents(path, 'files|dirs')): ['sub-directory', 'file1.txt', 'file2.txt', 'test.json'],
+			str(self.getDirectoryContents(path, 'files|dirs', excludeDirs=['sub*'])): ['file1.txt', 'file2.txt', 'test.json'],
+			str(self.getDirectoryContents(path, 'filenames', includeFiles='*.txt')): ['file1', 'file2'],
+			str(self.getDirectoryContents(path, 'files', includeFiles='*.txt', reverse=True)): ['file2.txt', 'file1.txt'],
 		})
 
 
@@ -434,7 +442,7 @@ class Filetls_test(Test, Filetls):
 
 
 
-class Jsontls_test(Test, Jsontls):
+class Jsontls_test(Main, Jsontls):
 	'''
 	'''
 	p = os.path.abspath(os.path.dirname(__file__))+'/test_files'
@@ -453,7 +461,7 @@ class Jsontls_test(Test, Jsontls):
 
 
 
-class Imgtls_test(Test, Imgtls):
+class Imgtls_test(Main, Imgtls):
 	'''
 	'''
 	def test_getImageDirectory(self):
@@ -712,7 +720,7 @@ class Imgtls_test(Test, Imgtls):
 
 
 
-class Mathtls_test(Test, Mathtls):
+class Mathtls_test(Main, Mathtls):
 	'''
 	'''
 
@@ -839,16 +847,15 @@ class Mathtls_test(Test, Mathtls):
 			"self.xyzRotation(2, (0, 1, 0), [], True)": (0.0, 114.59, 0.0),
 		})
 
-
-
-
-
-
-
-
+# --------------------------------
 
 if __name__=='__main__':
+
 	unittest.main(exit=False)
+
+
+
+
 
 
 

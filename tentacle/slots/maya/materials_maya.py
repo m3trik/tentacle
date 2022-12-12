@@ -1,7 +1,7 @@
 # !/usr/bin/python
 # coding=utf-8
-from slots.maya import *
-from slots.materials import Materials
+from tentacle.slots.maya import *
+from tentacle.slots.materials import Materials
 
 
 class Materials_maya(Materials, Slots_maya):

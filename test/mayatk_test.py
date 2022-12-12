@@ -1,35 +1,31 @@
-#unit testing
+# !/usr/bin/python
+# coding=utf-8
 import os, sys
 import unittest
 import inspect
 
+
 # ---------------------------------------
 # this is the missing stuff when running python.exe compared with mayapy.exe
 
-mayaver = 2022
-pythonver = 37
+# mayaver = 2022
+# pythonver = 37
 
-mayapath = '%ProgramFiles%/Autodesk/Maya{}'.format(mayaver)
+# mayapath = '%ProgramFiles%/Autodesk/Maya{}'.format(mayaver)
 
 # os.environ['MAYA_LOCATION'] = mayapath
 # os.environ['PYTHONHOME'] = mayapath+'/Python{}'.format(mayaver, pythonver)
 # os.environ['PATH'] = mayapath+'/bin;'.format(mayaver) + os.environ['PATH']
 
-# for d in Utils.getDirectoryContents(mayapath, 'dirpaths', recursive=True):
-# 	sys.path.append(d)
-
-# sys.path.append('%ProgramFiles%/Autodesk/Maya{}/Python{}/lib/site-packages'.format(mayaver, pythonver))
-# # sys.path.append('%ProgramFiles%/Autodesk/Maya{}/Python{}/lib/site-packages/pymel-1.0.0-py2.6.egg'.format(mayaver, pythonver))
-# # sys.path.append('%ProgramFiles%/Autodesk/Maya{}/Python{}/lib/site-packages/ipython-0.10.1-py2.6.egg'.format(mayaver, pythonver))
-# # sys.path.append('%ProgramFiles%/Autodesk/Maya{}/Python{}/lib/site-packages/ply-3.3-py2.6.egg'.format(mayaver, pythonver))                         
-# sys.path.append('%ProgramFiles%/Autodesk/Maya{}/bin'.format(mayaver))
-# sys.path.append('%ProgramFiles%/Autodesk/Maya{}/bin3'.format(mayaver))
-# sys.path.append('%ProgramFiles%/Autodesk/Maya{}/Python{}/DLLs'.format(mayaver, pythonver))
-# sys.path.append('%ProgramFiles%/Autodesk/Maya{}/Python{}/lib'.format(mayaver, pythonver))
-# sys.path.append('%ProgramFiles%/Autodesk/Maya{}/Python{}/lib/plat-win'.format(mayaver, pythonver))
-# sys.path.append('%ProgramFiles%/Autodesk/Maya{}/Python{}/lib/lib-tk'.format(mayaver, pythonver))
-# sys.path.append('%ProgramFiles%/Autodesk/Maya{}/Python{}'.format(mayaver, pythonver))
-# sys.path.append('%ProgramFiles%/Autodesk/Maya{}/Python{}/lib/site-packages'.format(mayaver, pythonver))
+# from tentacle.slots.tk import filetk
+# for d in [
+# 	'{}/bin'.format(mayapath), 
+# 	'{}/bin3'.format(mayapath), 
+# 	'{}/Python{}'.format(mayapath, pythonver)
+# 	]:
+# 	for dd in filetk.getDirectoryContents(d, 'dirpaths', excludeDirs='Python27',  recursive=True):
+# 		print (dd)
+# 		sys.path.append(dd)
 
 # import maya.standalone
 # maya.standalone.initialize(name='python')
@@ -37,22 +33,22 @@ mayapath = '%ProgramFiles%/Autodesk/Maya{}'.format(mayaver)
 import pymel.core as pm
 # # ---------------------------------------
 
-import tentacle
-from slots.maya.mayatls import *
+from tentacle.slots.maya.mayatk import *
+import test
 
 
 sfr = pm.melGlobals['cmdScrollFieldReporter']
 pm.cmdScrollFieldReporter(sfr, edit=1, clear=1)
 
 
-class Test(unittest.TestCase):
+class Main(unittest.TestCase):
 	'''
 	'''
 	def perform_test(self, case):
 		'''
 		'''
 		for expression, expected_result in case.items():
-			m = expression.split('(')[0] #ie. 'self.setCase' from "self.setCase('xxx', 'upper')"
+			m = str(expression).split('(')[0] #ie. 'self.setCase' from "self.setCase('xxx', 'upper')"
 
 			try:
 				path = os.path.abspath(inspect.getfile(eval(m)))
@@ -67,7 +63,7 @@ class Test(unittest.TestCase):
 			)
 
 
-class Componenttls_test(Test, Componenttls):
+class Componenttls_test(Main, Componenttls):
 	'''
 	set object mode:
 		pm.selectMode(object=1)
@@ -84,29 +80,24 @@ class Componenttls_test(Test, Componenttls):
 		pm.selectType(polymeshUV=1)
 		pm.selectType(meshUVShell=1)
 	'''
-	n0_name = 'cyl'
-	if not pm.objExists(n0_name):
-		n0 = pm.polyCylinder(radius=5, height=10, subdivisionsX=12, subdivisionsY=1, subdivisionsZ=1, name=n0_name)
+	#Tear down the any previous test by creating a new scene:
+	pm.mel.file(new=True, force=True)
 
-	n1_name = 'cmb'
-	if not pm.objExists(n1_name): #create two objects and combine them.
-		n1 = pm.polyCylinder(radius=5, height=10, subdivisionsX=5, subdivisionsY=1, subdivisionsZ=1)
-		pm.move(0, 0, 25)
-		n1_ = pm.polyCylinder(radius=5, height=6, subdivisionsX=5, subdivisionsY=1, subdivisionsZ=1)
-		pm.move(5, 0, 25)
-		pm.polyUnite(n1, n1_, cp=1, name=n1_name)
+	#create the test scene:
+	if not pm.objExists('cyl'):
+		cyl = pm.polyCylinder(radius=5, height=10, subdivisionsX=12, subdivisionsY=1, subdivisionsZ=1, name='cyl')
 
-	n2_name = 'pln'
-	if not pm.objExists(n2_name): #create two objects and combine them.
-		n2 = pm.polyPlane(width=20, height=20, subdivisionsX=3, subdivisionsY=3, name=n2_name)
-		pm.move(0, 0, -25)
+	if not pm.objExists('cmb'): #create two objects and combine them.
+		cmbA = pm.polyCylinder(radius=5, height=10, subdivisionsX=5, subdivisionsY=1, subdivisionsZ=1, name='cmbA')
+		cmbB = pm.polyCylinder(radius=5, height=6, subdivisionsX=5, subdivisionsY=1, subdivisionsZ=1, name='cmbB')
+		cmb = pm.polyUnite('cmbA', 'cmbB', ch=1, mergeUVSets=1, centerPivot=1, name='cmb')
 
-	n3_name = 'sph'
-	if not pm.objExists(n3_name):
-		n3 = pm.polySphere(radius=8, subdivisionsX=6, subdivisionsY=6, name=n3_name)
-		pm.move(25, 0, 0)
+	if not pm.objExists('pln'): #create two objects and combine them.
+		pln = pm.polyPlane(width=20, height=20, subdivisionsX=3, subdivisionsY=3, name='pln')
 
-	pm.mel.DeleteAllHistory()
+	if not pm.objExists('sph'):
+		sph = pm.polySphere(radius=8, subdivisionsX=6, subdivisionsY=6, name='sph')
+
 
 	def test_getComponentType(self):
 		'''
@@ -247,9 +238,9 @@ class Componenttls_test(Test, Componenttls):
 		'''
 		'''
 		self.perform_test({
-			"self.getClosestVertex('plnShape.vtx[0]', 'cyl', returnType='int')": {'plnShape.vtx[0]': 3},
-			"self.getClosestVertex('plnShape.vtx[0]', 'cyl')": {'plnShape.vtx[0]': 'cylShape.vtx[3]'},
-			"self.getClosestVertex('plnShape.vtx[2:3]', 'cyl')": {'plnShape.vtx[2]': 'cylShape.vtx[2]', 'plnShape.vtx[3]': 'cylShape.vtx[1]'},
+			"self.getClosestVertex('plnShape.vtx[0]', 'cyl', returnType='int')": {'plnShape.vtx[0]': 6},
+			"self.getClosestVertex('plnShape.vtx[0]', 'cyl')": {'plnShape.vtx[0]': 'cylShape.vtx[6]'},
+			"self.getClosestVertex('plnShape.vtx[2:3]', 'cyl')": {'plnShape.vtx[2]': 'cylShape.vtx[9]', 'plnShape.vtx[3]': 'cylShape.vtx[9]'},
 		})
 
 
@@ -301,14 +292,73 @@ class Componenttls_test(Test, Componenttls):
 
 
 
+class Riggingtls_test(Main, Riggingtls):
+	'''
+	'''
+	#Tear down the any previous test by creating a new scene:
+	# pm.mel.file(new=True, force=True)
+
+	#create the test scene:
+	if not pm.objExists('cyl1'):
+		cyl = pm.polyCylinder(radius=5, height=10, subdivisionsX=6, subdivisionsY=1, subdivisionsZ=1, name='cyl1')
 
 
+	def test_createLocator(self):
+		'''
+		'''
+		self.perform_test({
+			"self.createLocator('loc')": 'loc',
+		})
 
 
+	def test_isLocator(self):
+		'''
+		'''
+		self.perform_test({
+			"self.isLocator('cyl1')": False,
+			"self.isLocator('loc')": True,
+		})
 
+
+	def test_removeLocator(self):
+		'''
+		'''
+		self.perform_test({
+			"self.removeLocator('loc')": None,
+		})
+
+
+	def test_setAttrLockState(self):
+		'''
+		'''
+		self.perform_test({
+			"self.setAttrLockState('cyl')": None,
+		})
+
+
+	def test_createGroup(self):
+		'''
+		'''
+		self.perform_test({
+			"self.createGroup(name='emptyGrp').name()": 'emptyGrp',
+		})
+
+
+	def test_createLocatorAtObject(self):
+		'''
+		'''
+		self.perform_test({
+			"self.createLocatorAtObject('cyl')": None,
+		})
+
+# --------------------------------
 
 if __name__=='__main__':
+
 	unittest.main(exit=False)
+
+
+
 
 
 
@@ -316,37 +366,37 @@ if __name__=='__main__':
 # Notes
 # --------------------------------
 
-"""
-def test_(self):
-	'''
-	'''
-	self.perform_test({
-		# "self.": '',
-	})
+# """
+# def test_(self):
+# 	'''
+# 	'''
+# 	self.perform_test({
+# 		# "self.": '',
+# 	})
 
 
-def test_(self):
-	'''
-	'''
-	self.perform_test({
-		# "self.": '',
-	})
+# def test_(self):
+# 	'''
+# 	'''
+# 	self.perform_test({
+# 		# "self.": '',
+# 	})
 
 
-def test_(self):
-	'''
-	'''
-	self.perform_test({
-		# "self.": '',
-	})
+# def test_(self):
+# 	'''
+# 	'''
+# 	self.perform_test({
+# 		# "self.": '',
+# 	})
 
 
-def test_(self):
-	'''
-	'''
-	self.perform_test({
-		# "self.": '',
-	})
-"""
+# def test_(self):
+# 	'''
+# 	'''
+# 	self.perform_test({
+# 		# "self.": '',
+# 	})
+# """
 
-# Deprecated ---------------------
+# # Deprecated ---------------------

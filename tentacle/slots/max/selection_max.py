@@ -1,7 +1,7 @@
 # !/usr/bin/python
 # coding=utf-8
-from slots.max import *
-from slots.selection import Selection
+from tentacle.slots.max import *
+from tentacle.slots.selection import Selection
 
 
 
@@ -384,7 +384,7 @@ class Selection_max(Selection, Slots_max):
 
 		<objectName>_Set<int>
 		'''
-		num = tls.cycle(list(range(99)), 'selectionSetNum')
+		num = tk.cycle(list(range(99)), 'selectionSetNum')
 		name = '{0}_Set{1}'.format(rt.selection[0].name, num) #ie. pCube1_Set0
 		return name
 

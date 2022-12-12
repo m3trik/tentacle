@@ -1,7 +1,7 @@
 # !/usr/bin/python
 # coding=utf-8
-from slots.maya import *
-from slots.uv import Uv
+from tentacle.slots.maya import *
+from tentacle.slots.uv import Uv
 
 
 
@@ -506,7 +506,7 @@ class Uv_maya(Uv, Slots_maya):
 		else:
 			objects = pm.ls(objects, selection=1, objectsOnly=1, transforms=1, flatten=1)
 
-		objectType = cls.getType(objects[0])
+		objectType = mtk.getType(objects[0])
 		if objectType=='Polygon Face':
 			faces = objects
 		else:

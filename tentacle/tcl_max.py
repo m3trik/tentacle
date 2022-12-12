@@ -7,7 +7,7 @@ from PySide2 import QtCore, QtWidgets
 try: from pymxs import runtime as rt
 except ImportError as e: print(e)
 
-from tcl import Tcl
+from tentacle.tcl import Tcl
 
 
 

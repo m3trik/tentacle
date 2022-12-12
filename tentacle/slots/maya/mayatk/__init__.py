@@ -10,7 +10,7 @@ try:
 except ImportError as error:
 	print (__file__, error)
 
-from slots.tls.itertls import formatReturn
+from tentacle.slots.tk.itertk import formatReturn
 
 
 class Mayatls():
@@ -41,12 +41,12 @@ class Mayatls():
 
 		app = QApplication.instance()
 		if not app:
-			print ('# Warning: {}: getMainWindow: Could not find QApplication instance. #'.format(__file__))
+			print ('{} in getMainWindow\n# Warning: Could not find QApplication instance. #'.format(__file__))
 			return None
 
 		main_window = next(iter(w for w in app.topLevelWidgets() if w.objectName()=='MayaWindow'), None)
 		if not main_window:
-			print ('# Warning: {}: getMainWindow: Could not find main window instance. #'.format(__file__))
+			print ('{} in getMainWindow\n# Warning: Could not find main window instance. #'.format(__file__))
 			return None
 
 		return main_window
@@ -61,18 +61,6 @@ class Mayatls():
 			return pm.listRelatives(obj, shapes=1)[0].type()
 		except IndexError as error:
 			return obj.type()
-
-
-	@staticmethod
-	def isGroup(node):
-		'''Check if the given node is a group.
-		'''
-		return all([type(c)==pm.nodetypes.Transform for c in node.getChildren()])
-
-	# 	for child in node.getChildren():
-	# 		if type(child) is not pm.nodetypes.Transform:
-	# 			return False
-	# 	return True
 
 
 	@staticmethod
@@ -165,14 +153,69 @@ class Mayatls():
 		return formatReturn(connections)
 
 
-	@staticmethod
-	def getAllParents(node):
-		'''List ALL parents of an object
-		'''
-		objects = pm.ls(node, l=1)
-		tokens=[]
+	@classmethod
+	def isGroup(cls, node):
+		'''Check if the given object is a group.
 
-		return objects[0].split("|")
+		:Parameters:
+			node (str)(obj)(list) = The object to check.
+
+		:Return:
+			(bool)
+		'''
+		node = pm.ls(node)
+		if not node:
+			return False
+		return all([type(c)==pm.nodetypes.Transform for c in node[0].getChildren()])
+
+
+	@classmethod
+	def getGroups(cls, empty=False):
+		'''Get all groups in the scene.
+
+		:Parameters:
+			empty (bool) = Return only empty groups.
+
+		:Return:
+			(bool)
+		'''
+		transforms =  pm.ls(type='transform')
+
+		groups=[]
+		for t in transforms:
+			if cls.isGroup(t):
+				if empty:
+					children = pm.listRelatives(t, children=True)
+					if children:
+						continue
+				groups.append(t)
+
+		return groups
+
+
+	@staticmethod
+	def getParent(node, all=False):
+		'''List the parents of an object.
+		'''
+		if all:
+			objects = pm.ls(node, l=1)
+			tokens=[]
+			return objects[0].split("|")
+
+		try:
+			return pm.listRelatives(node, parent=True, type='transform')[0]
+		except IndexError as error:
+			return None
+
+
+	@staticmethod
+	def getChildren(node):
+		'''List the children of an object.
+		'''
+		try:
+			return  pm.listRelatives(node, children=True, type='transform')
+		except IndexError as error:
+			return []
 
 
 	@staticmethod
@@ -470,6 +513,7 @@ class Mayatls():
 			return bool(pm.ls(type=n))
 		elif search=='exactType':
 			return bool(pm.ls(exactType=n))
+
 
 # -----------------------------------------------
 from tentacle import import_submodules, addMembers

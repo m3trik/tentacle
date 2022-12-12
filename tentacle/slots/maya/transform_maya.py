@@ -1,7 +1,7 @@
 # !/usr/bin/python
 # coding=utf-8
-from slots.maya import *
-from slots.transform import Transform
+from tentacle.slots.maya import *
+from tentacle.slots.transform import Transform
 
 
 
@@ -113,7 +113,7 @@ class Transform_maya(Transform, Slots_maya):
 		selection = pm.ls(sl=1, objectsOnly=1)
 		if state and selection:
 			live_object = pm.ls(live=1)
-			shape = self.getShapeNode(selection[0])
+			shape = mtk.getShapeNode(selection[0])
 			if not shape in live_object:
 				pm.makeLive(selection) #construction planes, nurbs surfaces and polygon meshes can be made live. makeLive supports one live object at a time.
 				# self.viewPortMessage('Make Live: <hl>On</hl> {0}'.format(selection[0].name()))
@@ -301,7 +301,7 @@ class Transform_maya(Transform, Slots_maya):
 			self.messageBox('<b>Nothing selected.</b><br>The operation requires a single selected object.')
 			return
 
-		transform = Slots_maya.getTransformNode(node)
+		transform = mtk.getTransformNode(node)
 		self.setAttributeWindow(transform, include=['translateX','translateY','translateZ','rotateX','rotateY','rotateZ','scaleX','scaleY','scaleZ'], checkableLabel=True)
 
 
@@ -348,7 +348,7 @@ class Transform_maya(Transform, Slots_maya):
 
 		if selection:
 			live_object = pm.ls(live=1)
-			shape = self.getShapeNode(selection[0])
+			shape = mtk.getShapeNode(selection[0])
 			if not shape in live_object:
 				self.chk026(state=1)
 				cmb.menu_.chk026.setChecked(True)

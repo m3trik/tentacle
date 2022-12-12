@@ -1,7 +1,7 @@
 # !/usr/bin/python
 # coding=utf-8
-from slots.blender import *
-from slots.display import Display
+from tentacle.slots.blender import *
+from tentacle.slots.display import Display
 
 
 
@@ -125,7 +125,7 @@ class Display_blender(Display, Slots_blender):
 	def b011(self):
 		'''Toggle Component Id Display
 		'''
-		index = tls.cycle([0,1,2,3,4], 'componentID')
+		index = tk.cycle([0,1,2,3,4], 'componentID')
 
 		visible = pm.polyOptions(query=1, displayItemNumbers=1)
 		if not visible:

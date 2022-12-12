@@ -1,7 +1,7 @@
 # !/usr/bin/python
 # coding=utf-8
-from slots.maya import *
-from slots.utilities import Utilities
+from tentacle.slots.maya import *
+from tentacle.slots.utilities import Utilities
 
 
 

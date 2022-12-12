@@ -1,7 +1,7 @@
 # !/usr/bin/python
 # coding=utf-8
-from slots.maya import *
-from slots.main import Main
+from tentacle.slots.maya import *
+from tentacle.slots.main import Main
 
 
 
@@ -36,7 +36,7 @@ print (__name__)
 		# 		for node in history:
 		# 			parent = tree.add('QLabel', 'History', childHeader=node.name(), refresh=1, setText=node.name())
 		# 			# print(parent, node.name())
-		# 			attributes = Slots_maya.getAttributesMEL(node) #get dict containing attributes:values of the history node.
+		# 			attributes = mtk.getAttributesMEL(node) #get dict containing attributes:values of the history node.
 		# 			spinboxes = [tree.add('QDoubleSpinBox', parent, refresh=1, setSpinBoxByValue_=[k, v])
 		# 				for k, v in attributes.items() 
 		# 					if isinstance(v, (float, int, bool))]
@@ -53,8 +53,8 @@ print (__name__)
 
 		# 				if type_ in ['QSpinBox', 'QDoubleSpinBox']:
 		# 					w.valueChanged.connect(
-		# 						lambda value, widget=w, node=node: self.setAttributesMEL(node, {attr:w.value()}))
+		# 						lambda value, widget=w, node=node: mtk.setAttributesMEL(node, {attr:w.value()}))
 
 		# 			[w.valueChanged.connect(
-		# 				lambda value, widget=w, node=node: self.setAttributesMEL(node, {widget.prefix().rstrip(': '):value})) 
+		# 				lambda value, widget=w, node=node: mtk.setAttributesMEL(node, {widget.prefix().rstrip(': '):value})) 
 		# 					for w in spinboxes] #set signal/slot connections

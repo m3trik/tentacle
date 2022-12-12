@@ -248,10 +248,35 @@
             </size>
            </property>
            <property name="toolTip">
-            <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Create locators with the same transforms as any selected object(s).&lt;/p&gt;&lt;p&gt;If there are vertices selected it will create a locator at the center of the selected vertices bounding box.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+            <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Create locators with the same transforms as any selected object(s).&lt;/p&gt;&lt;p&gt;If there are vertices selected it will create a locator at the center of the selected vertices combined bounding box.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
            </property>
            <property name="text">
-            <string>Create at Selection</string>
+            <string>Create Locator</string>
+           </property>
+           <property name="checkable">
+            <bool>false</bool>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="b003">
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>20</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>999</width>
+             <height>20</height>
+            </size>
+           </property>
+           <property name="toolTip">
+            <string>Remove locators from the selected object(s).</string>
+           </property>
+           <property name="text">
+            <string>Remove Locator</string>
            </property>
            <property name="checkable">
             <bool>false</bool>

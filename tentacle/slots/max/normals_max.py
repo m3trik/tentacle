@@ -1,7 +1,7 @@
 # !/usr/bin/python
 # coding=utf-8
-from slots.max import *
-from slots.normals import Normals
+from tentacle.slots.max import *
+from tentacle.slots.normals import Normals
 
 
 
@@ -38,7 +38,7 @@ class Normals_max(Normals, Slots_max):
 		self.messageBox('No 3ds Version.')
 		tb.setDisabled(True)
 		# # state = pm.polyOptions (query=True, displayNormal=True)
-		# state = tls.cycle([1,2,3,0], 'displayNormals')
+		# state = tk.cycle([1,2,3,0], 'displayNormals')
 		# if state ==0: #off
 		# 	pm.polyOptions (displayNormal=0, sizeNormal=0)
 		# 	pm.polyOptions (displayTangent=False)

@@ -1,7 +1,7 @@
 # !/usr/bin/python
 # coding=utf-8
-from slots.max import *
-from slots.main import Main
+from tentacle.slots.max import *
+from tentacle.slots.main import Main
 
 
 

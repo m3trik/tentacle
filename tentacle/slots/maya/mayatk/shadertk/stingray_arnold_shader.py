@@ -6,9 +6,9 @@ from PySide2 import QtCore, QtWidgets
 
 import pymel.core as pm
 
-from switchboard import Switchboard
-from slots.tls import filetls, strtls, jsontls
-from slots.maya import mayatls as mtls
+from tentacle.switchboard import Switchboard
+from tentacle.slots.tk import filetk, imgtk, strtk, jsontk
+from tentacle.slots.maya import mayatk as mtk
 
 
 __version__ = '0.503'
@@ -27,7 +27,7 @@ class Stingray_arnold_shader(QtCore.QObject):
 	'''
 	msg_completed = '<br><hl style="color:rgb(0, 255, 255);"><b>COMPLETED.</b></hl>'
 
-	proj_root_dir = filetls.getFilepath(__file__)
+	proj_root_dir = filetk.getFilepath(__file__)
 	hdr_env_name = 'aiSkyDomeLight_'
 
 	def __init__(self, parent=None):
@@ -48,15 +48,15 @@ class Stingray_arnold_shader(QtCore.QObject):
 	def hdr_env(self, tex) -> None:
 		'''
 		'''
-		node = self.hdr_env #mtls.nodeExists('aiSkyDomeLight', search='exactType')
+		node = self.hdr_env #mtk.nodeExists('aiSkyDomeLight', search='exactType')
 		if not node:
-			node = mtls.createRenderNode('aiSkyDomeLight', 'asLight', name=self.hdr_env_name, camera=0, skyRadius=0) #turn off skydome and viewport visibility.
+			node = mtk.createRenderNode('aiSkyDomeLight', 'asLight', name=self.hdr_env_name, camera=0, skyRadius=0) #turn off skydome and viewport visibility.
 			self.hdr_env_transform.hiddenInOutliner.set(1)
 			pm.outlinerEditor('outlinerPanel1', edit=True, refresh=True)
 
-		file_node = mtls.getIncomingNodeByType(node, 'file')
+		file_node = mtk.getIncomingNodeByType(node, 'file')
 		if not file_node:
-			file_node = mtls.createRenderNode('file', 'as2DTexture', place2dTexture=True)
+			file_node = mtk.createRenderNode('file', 'as2DTexture', place2dTexture=True)
 			pm.connectAttr(file_node.outColor, node.color, force=True)
 
 		file_node.fileTextureName.set(tex)
@@ -66,7 +66,7 @@ class Stingray_arnold_shader(QtCore.QObject):
 	def hdr_env_transform(self) -> object:
 		'''
 		'''
-		node = mtls.getTransformNode(self.hdr_env)
+		node = mtk.getTransformNode(self.hdr_env)
 		if not node:
 			return None
 		return node
@@ -95,34 +95,34 @@ class Stingray_arnold_shader(QtCore.QObject):
 			pm.loadPlugin('mtoa', quiet=True) #assure arnold plugin is loaded.
 			pm.loadPlugin('shaderFXPlugin', quiet=True) #assure stringray plugin is loaded.
 
-			sr_node = mtls.createRenderNode('StingrayPBS', name=name)
-			ai_node = mtls.createRenderNode('aiStandardSurface', name=name+'_ai' if name else '')
+			sr_node = mtk.createRenderNode('StingrayPBS', name=name)
+			ai_node = mtk.createRenderNode('aiStandardSurface', name=name+'_ai' if name else '')
 
-			opacityMap = imgtls.filterImagesByType(textures, 'Opacity')
+			opacityMap = imgtk.filterImagesByType(textures, 'Opacity')
 			if opacityMap:
 				pm.shaderfx(sfxnode='StingrayPBS1', loadGraph=r'C:/_local/_test/shaderfx/Standard_Transparent.sfx')
 
-			openGLMap = imgtls.filterImagesByType(textures, 'Normal_OpenGL')
-			directXMap = imgtls.filterImagesByType(textures, 'Normal_DirectX')
+			openGLMap = imgtk.filterImagesByType(textures, 'Normal_OpenGL')
+			directXMap = imgtk.filterImagesByType(textures, 'Normal_DirectX')
 			if directXMap and not openGLMap and normalMapType=='Normal_OpenGL':
-				mapPath = imgtls.createGLFromDX(directXMap[0])
+				mapPath = imgtk.createGLFromDX(directXMap[0])
 				textures.append(mapPath)
 				normal_map_created_from_other_type = True
-				callback('OpenGL map created using {}.'.format(strtls.truncate(directXMap[0], 20)))
+				callback('OpenGL map created using {}.'.format(strtk.truncate(directXMap[0], 20)))
 			if openGLMap and not directXMap and normalMapType=='Normal_DirectX':
-				mapPath = imgtls.createDXFromGL(openGLMap[0])
+				mapPath = imgtk.createDXFromGL(openGLMap[0])
 				textures.append(mapPath)
 				normal_map_created_from_other_type = True
-				callback('DirectX map created using {}.'.format(strtls.truncate(openGLMap[0], 20)))
+				callback('DirectX map created using {}.'.format(strtk.truncate(openGLMap[0], 20)))
 
-			srSG_node = mtls.getOutgoingNodeByType(sr_node, 'shadingEngine')
+			srSG_node = mtk.getOutgoingNodeByType(sr_node, 'shadingEngine')
 
 			aiMult_node = pm.shadingNode('aiMultiply', asShader=True)
 
 			bump_node = pm.shadingNode('bump2d', asShader=True)
 			bump_node.bumpInterp.set(1) #set bump node to 'tangent space normals'
 
-			mtls.connectMultiAttr( #set node connections.
+			mtk.connectMultiAttr( #set node connections.
 				(ai_node.outColor, srSG_node.aiSurfaceShader),
 				(aiMult_node.outColor, ai_node.baseColor),
 				(bump_node.outNormal, ai_node.normalCamera),
@@ -131,7 +131,7 @@ class Stingray_arnold_shader(QtCore.QObject):
 			length = len(textures)
 			progress = 0
 			for f in textures:
-				typ = imgtls.getImageType(f)
+				typ = imgtk.getImageType(f)
 
 				progress+=1
 
@@ -146,68 +146,68 @@ class Stingray_arnold_shader(QtCore.QObject):
 				callback('creating nodes and connections for <b>{}</b> map ..'.format(typ), [progress, length])
 
 				if typ=='Base_Color':
-					n1 = mtls.createRenderNode('file', 'as2DTexture', tex=f)
+					n1 = mtk.createRenderNode('file', 'as2DTexture', tex=f)
 					pm.connectAttr(n1.outColor, sr_node.TEX_color_map, force=True)
 					sr_node.use_color_map.set(1)
 
-					n2 = mtls.createRenderNode('file', 'as2DTexture', tex=f, place2dTexture=True)
+					n2 = mtk.createRenderNode('file', 'as2DTexture', tex=f, place2dTexture=True)
 					pm.connectAttr(n2.outColor, aiMult_node.input1, force=True)
 
 				elif typ=='Roughness':
-					n1 = mtls.createRenderNode('file', 'as2DTexture', tex=f)
+					n1 = mtk.createRenderNode('file', 'as2DTexture', tex=f)
 					pm.connectAttr(n1.outColor, sr_node.TEX_roughness_map, force=True)
 					sr_node.use_roughness_map.set(1)
 
-					n2 = mtls.createRenderNode('file', 'as2DTexture', tex=f, place2dTexture=True, colorSpace='Raw', alphaIsLuminance=1, ignoreColorSpaceFileRules=1)
+					n2 = mtk.createRenderNode('file', 'as2DTexture', tex=f, place2dTexture=True, colorSpace='Raw', alphaIsLuminance=1, ignoreColorSpaceFileRules=1)
 					pm.connectAttr(n2.outAlpha, ai_node.specularRoughness, force=True)
 					pm.connectAttr(n2.outAlpha, ai_node.transmissionExtraRoughness, force=True) #opacity: same roughness map used in Specular Roughness to provide additional bluriness of refraction.
 
 				elif typ=='Metallic':
-					n1 = mtls.createRenderNode('file', 'as2DTexture', tex=f)
+					n1 = mtk.createRenderNode('file', 'as2DTexture', tex=f)
 					pm.connectAttr(n1.outColor, sr_node.TEX_metallic_map, force=True)
 					sr_node.use_metallic_map.set(1)
 
-					n2 = mtls.createRenderNode('file', 'as2DTexture', tex=f, place2dTexture=True, colorSpace='Raw', alphaIsLuminance=1, ignoreColorSpaceFileRules=1)
+					n2 = mtk.createRenderNode('file', 'as2DTexture', tex=f, place2dTexture=True, colorSpace='Raw', alphaIsLuminance=1, ignoreColorSpaceFileRules=1)
 					pm.connectAttr(n2.outAlpha, ai_node.metalness, force=True)
 
 				elif typ=='Emissive':
-					n1 = mtls.createRenderNode('file', 'as2DTexture', tex=f)
+					n1 = mtk.createRenderNode('file', 'as2DTexture', tex=f)
 					pm.connectAttr(n1.outColor, sr_node.TEX_emissive_map, force=True)
 					sr_node.use_emissive_map.set(1)
 
-					n2 = mtls.createRenderNode('file', 'as2DTexture', tex=f, place2dTexture=True)
+					n2 = mtk.createRenderNode('file', 'as2DTexture', tex=f, place2dTexture=True)
 					pm.connectAttr(n2.outAlpha, ai_node.emission, force=True)
 					pm.connectAttr(n2.outColor, ai_node.emissionColor, force=True)
 
 				elif 'Normal' in typ:
-					n1 = mtls.createRenderNode('file', 'as2DTexture', tex=f)
+					n1 = mtk.createRenderNode('file', 'as2DTexture', tex=f)
 					pm.connectAttr(n1.outColor, sr_node.TEX_normal_map, force=True)
 					sr_node.use_normal_map.set(1)
 
-					n2 = mtls.createRenderNode('file', 'as2DTexture', tex=f, place2dTexture=True, colorSpace='Raw', alphaIsLuminance=1, ignoreColorSpaceFileRules=1)
+					n2 = mtk.createRenderNode('file', 'as2DTexture', tex=f, place2dTexture=True, colorSpace='Raw', alphaIsLuminance=1, ignoreColorSpaceFileRules=1)
 					pm.connectAttr(n2.outAlpha, bump_node.bumpValue, force=True)
 
 				elif typ=='Ambient_Occlusion':
-					n1 = mtls.createRenderNode('file', 'as2DTexture', tex=f)
+					n1 = mtk.createRenderNode('file', 'as2DTexture', tex=f)
 					pm.connectAttr(n1.outColor, sr_node.TEX_ao_map, force=True)
 					sr_node.use_ao_map.set(1)
 
-					n2 = mtls.createRenderNode('file', 'as2DTexture', tex=f, place2dTexture=True)
+					n2 = mtk.createRenderNode('file', 'as2DTexture', tex=f, place2dTexture=True)
 					pm.connectAttr(n2.outColor, aiMult_node.input2, force=True)
 
 				elif typ=='Opacity':
-					n1 = mtls.createRenderNode('file', 'as2DTexture', tex=f)
+					n1 = mtk.createRenderNode('file', 'as2DTexture', tex=f)
 					pm.connectAttr(n1.outAlpha, sr_node.opacity, force=True)
 					sr_node.use_opacity_map.set(1)
 
-					n2 = mtls.createRenderNode('file', 'as2DTexture', tex=f, place2dTexture=True, colorSpace='Raw', alphaIsLuminance=1, ignoreColorSpaceFileRules=1)
+					n2 = mtk.createRenderNode('file', 'as2DTexture', tex=f, place2dTexture=True, colorSpace='Raw', alphaIsLuminance=1, ignoreColorSpaceFileRules=1)
 					pm.connectAttr(n2.outAlpha, ai_node.transmission, force=True)
 					pm.connectAttr(n2.outColor, ai_node.opacity, force=True)
 
 				else:
 					if normal_map_created_from_other_type:
 						continue #do not show a warning for unconnected normal maps if it resulted from being converted to a different output type.
-					callback('<br><hl style="color:rgb(255, 100, 100);"><b>Map type: <b>{}</b> not connected:<br></hl>'.format(typ, strtls.truncate(f, 60)), [progress, length])
+					callback('<br><hl style="color:rgb(255, 100, 100);"><b>Map type: <b>{}</b> not connected:<br></hl>'.format(typ, strtk.truncate(f, 60)), [progress, length])
 					continue
 
 				callback('<font style="color: rgb(80,180,100)">{}..connected successfully.</font>'.format(typ))
@@ -231,24 +231,24 @@ class Stingray_arnold_shader_slots(Stingray_arnold_shader):
 
 		#set json file location.
 		path = '{}/stingray_arnold_shader.json'.format(self.sb.defaultDir)
-		jsontls.setJsonFile(path) #set json file name
+		jsontk.setJsonFile(path) #set json file name
 
 		#add filenames|filepaths to the comboBox.
 		hdr_path = '{}/resources/hdr'.format(self.proj_root_dir)
-		hdr_filenames = filetls.getDirectoryContents(hdr_path, 'files', include='*.exr', stripExtension=True)
-		hdr_fullpaths = filetls.getDirectoryContents(hdr_path, 'filepaths', include='*.exr')
+		hdr_filenames = filetk.getDirectoryContents(hdr_path, 'files', includeFiles='*.exr', stripExtension=True)
+		hdr_fullpaths = filetk.getDirectoryContents(hdr_path, 'filepaths', includeFiles='*.exr')
 		self.ui.cmb000.addItems_(dict(zip(hdr_filenames, hdr_fullpaths)), ascending=False)
 
 		#initialize widgets with any saved values.
-		self.ui.txt000.setText(jsontls.getJson('mat_name'))
+		self.ui.txt000.setText(jsontk.getJson('mat_name'))
 		self.ui.txt001.setText(self.msg_intro)
-		hdr_map_visibility = jsontls.getJson('hdr_map_visibility')
+		hdr_map_visibility = jsontk.getJson('hdr_map_visibility')
 		if hdr_map_visibility:
 			self.ui.chk000.setChecked(hdr_map_visibility)
-		hdr_map = jsontls.getJson('hdr_map')
+		hdr_map = jsontk.getJson('hdr_map')
 		if hdr_map:
 			self.ui.cmb000.setCurrentItem(hdr_map)
-		normal_map_type = jsontls.getJson('normal_map_type')
+		normal_map_type = jsontk.getJson('normal_map_type')
 		if normal_map_type:
 			self.ui.cmb001.setCurrentItem(normal_map_type)
 		node = self.hdr_env_transform
@@ -309,7 +309,7 @@ class Stingray_arnold_shader_slots(Stingray_arnold_shader):
 		data = cmb.currentData()
 
 		self.hdr_env = data #set the HDR map.
-		jsontls.setJson('hdr_map', text)
+		jsontk.setJson('hdr_map', text)
 
 
 	def chk000(self, state):
@@ -318,7 +318,7 @@ class Stingray_arnold_shader_slots(Stingray_arnold_shader):
 		chk = self.ui.chk000
 
 		self.setHdrMapVisibility(state) #set the HDR map visibility.
-		jsontls.setJson('hdr_map_visibility', state)
+		jsontk.setJson('hdr_map_visibility', state)
 
 
 	def cmb001(self, index):
@@ -326,7 +326,7 @@ class Stingray_arnold_shader_slots(Stingray_arnold_shader):
 		'''
 		cmb = self.ui.cmb001
 		text = cmb.currentText()
-		jsontls.setJson('normal_map_type', text)
+		jsontk.setJson('normal_map_type', text)
 
 
 	def txt000(self, text=None):
@@ -334,14 +334,14 @@ class Stingray_arnold_shader_slots(Stingray_arnold_shader):
 		'''
 		txt = self.ui.txt000
 		text = txt.text()
-		jsontls.setJson('mat_name', text)
+		jsontk.setJson('mat_name', text)
 
 
 	def slider000(self, value):
 		'''Rotate the HDR map.
 		'''
 		if self.hdr_env:
-			transform = mtls.getTransformNode(self.hdr_env)
+			transform = mtk.getTransformNode(self.hdr_env)
 			pm.rotate(transform, value, rotateY=True, forceOrderXYZ=True, objectSpace=True, absolute=True)
 
 
@@ -365,14 +365,14 @@ class Stingray_arnold_shader_slots(Stingray_arnold_shader):
 	def b001(self):
 		'''Get texture maps.
 		'''
-		imageFiles = imgtls.getImageFiles()
+		imageFiles = imgtk.getImageFiles()
 		if imageFiles:
 			self.imageFiles = imageFiles
 			self.ui.txt001.clear()
 
 			msg_mat_selection = self.imageFiles
 			for i in msg_mat_selection: #format msg_intro using the mapTypes in imtools.
-				self.callback(strtls.truncate(i, 60))
+				self.callback(strtk.truncate(i, 60))
 
 			self.ui.b000.setDisabled(False)
 		elif not self.imageFiles:
@@ -412,7 +412,7 @@ class Stingray_arnold_shader_main(Stingray_arnold_shader):
 		super().__init__(parent)
 
 		if not parent:
-			self.setParent(mtls.getMainWindow())
+			self.setParent(mtk.getMainWindow())
 
 		self.sb = Switchboard(self, widgetLoc='ui/widgets', slotLoc=Stingray_arnold_shader_slots)
 
@@ -421,7 +421,7 @@ class Stingray_arnold_shader_main(Stingray_arnold_shader):
 		self.ui.setWindowFlags(QtCore.Qt.WindowStaysOnTopHint)
 		self.ui.show()
 
-# -----------------------------------------------
+# --------------------------------
 
 
 
@@ -439,11 +439,10 @@ if __name__ == "__main__":
 	# sys.exit(app.exec_()) # run app, show window, wait for input, then terminate program with a status code returned from app.
 
 
-
-# print (__name__) #module name
-# -----------------------------------------------
+# --------------------------------
 # Notes
-# -----------------------------------------------
+# --------------------------------
 
 
-# deprecated: -----------------------------------
+
+# Deprecated ---------------------

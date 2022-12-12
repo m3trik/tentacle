@@ -1,7 +1,7 @@
 # !/usr/bin/python
 # coding=utf-8
-from slots.blender import *
-from slots.file import File
+from tentacle.slots.blender import *
+from tentacle.slots.file import File
 
 
 
@@ -307,7 +307,7 @@ class File_blender(File, Slots_blender):
 		dir1 = str(pm.workspace(query=1, rd=1))+'autosave' #current project path.
 		dir2 = os.environ.get('MAYA_AUTOSAVE_FOLDER').split(';')[0] #get autosave dir path from env variable.
 
-		files = self.getDirectoryContents(dir1, 'filepaths', ('*.mb', '*.ma')) + self.getDirectoryContents(dir2, 'filepaths', ('*.mb', '*.ma'))
+		files = self.getDirectoryContents(dir1, 'filepaths', includeFiles=('*.mb', '*.ma')) + self.getDirectoryContents(dir2, 'filepaths', includeFiles=('*.mb', '*.ma'))
 		result = [self.formatPath(f) for f in list(reversed(files))] #format and reverse the list.
 
 		if appendDatetime:  #attach modified timestamp

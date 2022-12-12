@@ -1,7 +1,7 @@
 # !/usr/bin/python
 # coding=utf-8
-from slots.maya import *
-from slots.selection import Selection
+from tentacle.slots.maya import *
+from tentacle.slots.selection import Selection
 
 
 
@@ -463,7 +463,7 @@ class Selection_maya(Selection, Slots_maya):
 		'''
 		if obj is None:
 			obj = pm.ls(sl=1)
-		num = tls.cycle(list(range(99)), 'selectionSetNum')
+		num = tk.cycle(list(range(99)), 'selectionSetNum')
 		name = '{0}_Set{1}'.format(pm.ls(obj, objectsOnly=1, flatten=1)[0].name, num) #ie. pCube1_Set0
 
 		return name

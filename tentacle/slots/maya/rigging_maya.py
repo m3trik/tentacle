@@ -1,7 +1,7 @@
 # !/usr/bin/python
 # coding=utf-8
-from slots.maya import *
-from slots.rigging import Rigging
+from tentacle.slots.maya import *
+from tentacle.slots.rigging import Rigging
 
 
 
@@ -165,14 +165,15 @@ class Rigging_maya(Rigging, Slots_maya):
 		lockTranslate = tb.ctxMenu.chk007.isChecked()
 		lockRotation = tb.ctxMenu.chk008.isChecked()
 		lockScale = tb.ctxMenu.chk009.isChecked()
-		remove = tb.ctxMenu.chk015.isChecked()
 
-		from utils_maya import Rigging_utils_maya
 		selection = pm.ls(selection=True)
-		Rigging_utils_maya.createLocatorAtObject(selection, 
+		if not selection:
+			return mtk.riggingtls.createLocator(scale=scale)
+
+		mtk.riggingtls.createLocatorAtObject(selection, 
 			parent=parent, freezeTransforms=freezeTransforms, bakeChildPivot=bakeChildPivot, scale=scale, 
 			grpSuffix=grpSuffix, locSuffix=locSuffix, objSuffix=objSuffix, stripDigits=stripDigits, stripSuffix=stripSuffix, 
-			lockTranslate=lockTranslate, lockRotation=lockRotation, lockScale=lockScale, remove=remove
+			lockTranslate=lockTranslate, lockRotation=lockRotation, lockScale=lockScale
 		)
 
 
@@ -185,16 +186,8 @@ class Rigging_maya(Rigging, Slots_maya):
 		lockRotation = tb.ctxMenu.chk013.isChecked()
 		lockScale = tb.ctxMenu.chk014.isChecked()
 
-		sel = pm.ls(selection=True, transforms=1, long=True)
-		for obj in sel:
-
-			attrs_and_state = {
-				('tx','ty','tz'):lockTranslate, #attributes and state. ex. ('tx','ty','tz'):False
-				('rx','ry','rz'):lockRotation, 
-				('sx','sy','sz'):lockScale
-			}
-
-			[[pm.setAttr('{}.{}'.format(obj, i), lock=v) for i in k] for k, v in attrs_and_state.items()]
+		sel = pm.ls(sl=True)
+		mtk.riggingtls.setAttrLockState(sel, translate=lockTranslate, rotate=lockRotation, scale=lockScale)
 
 
 	@Slots.hideMain
@@ -210,7 +203,7 @@ class Rigging_maya(Rigging, Slots_maya):
 			'enableRotationX','rotationX','enableRotationY','rotationY','enableRotationZ','rotationZ',
 			'enableScaleX','scaleX','enableScaleY','scaleY','enableScaleZ','scaleZ']
 
-		attrs = Slots_maya.getParameterValuesMEL(node, 'transformLimits', params)
+		attrs = mtk.getParameterValuesMEL(node, 'transformLimits', params)
 		self.setAttributeWindow(node, fn=Slots_maya.setParameterValuesMEL, fn_args='transformLimits', **attrs)
 
 
@@ -224,6 +217,13 @@ class Rigging_maya(Rigging, Slots_maya):
 		'''Insert Joint Tool
 		'''
 		pm.setToolTo('insertJointContext') #insert joint tool
+
+
+	def b003(self):
+		'''Remove Locator
+		'''
+		selection = pm.ls(selection=True)
+		mtk.riggingtls.removeLocator(selection)
 
 
 	def b004(self):

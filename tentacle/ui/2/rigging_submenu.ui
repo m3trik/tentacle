@@ -167,10 +167,10 @@
    <widget class="QPushButton" name="b008">
     <property name="geometry">
      <rect>
-      <x>130</x>
+      <x>115</x>
       <y>310</y>
-      <width>96</width>
-      <height>19</height>
+      <width>111</width>
+      <height>20</height>
      </rect>
     </property>
     <property name="text">
@@ -180,10 +180,10 @@
    <widget class="QPushButton" name="b009">
     <property name="geometry">
      <rect>
-      <x>170</x>
+      <x>165</x>
       <y>340</y>
-      <width>86</width>
-      <height>19</height>
+      <width>91</width>
+      <height>20</height>
      </rect>
     </property>
     <property name="text">
@@ -215,10 +215,10 @@
      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Create locators with the same transforms as any selected object(s).&lt;/p&gt;&lt;p&gt;If there are vertices selected it will create a locator at the center of the selected vertices bounding box.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
     </property>
     <property name="text">
-     <string>Create Locator at Sel</string>
+     <string>Create Locator</string>
     </property>
     <property name="checkable">
-     <bool>true</bool>
+     <bool>false</bool>
     </property>
    </widget>
    <widget class="PushButton" name="tb004">
@@ -250,6 +250,22 @@
     </property>
     <property name="checkable">
      <bool>true</bool>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="b003">
+    <property name="geometry">
+     <rect>
+      <x>195</x>
+      <y>160</y>
+      <width>116</width>
+      <height>19</height>
+     </rect>
+    </property>
+    <property name="toolTip">
+     <string>Insert Joint</string>
+    </property>
+    <property name="text">
+     <string>Remove Locator</string>
     </property>
    </widget>
   </widget>

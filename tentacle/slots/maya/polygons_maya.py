@@ -1,7 +1,7 @@
 # !/usr/bin/python
 # coding=utf-8
-from slots.maya import *
-from slots.polygons import Polygons
+from tentacle.slots.maya import *
+from tentacle.slots.polygons import Polygons
 
 
 
@@ -85,7 +85,6 @@ class Polygons_maya(Polygons, Slots_maya):
 		'''
 		tb = self.sb.polygons.tb002
 
-		# pm.polyUnite( 'plg1', 'plg2', 'plg3', name='result' ) #for future reference. if more functionality is needed use polyUnite
 		if tb.ctxMenu.chk000.isChecked():
 			sel = pm.ls(sl=1, objectsOnly=1)
 			if not sel:

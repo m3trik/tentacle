@@ -1,7 +1,7 @@
 # !/usr/bin/python
 # coding=utf-8
-from slots.blender import *
-from slots.normals import Normals
+from tentacle.slots.blender import *
+from tentacle.slots.normals import Normals
 
 
 
@@ -33,7 +33,7 @@ class Normals_blender(Normals, Slots_blender):
 
 		size = float(tb.ctxMenu.s001.value())
 		# state = pm.polyOptions (query=True, displayNormal=True)
-		state = tls.cycle([1,2,3,0], 'displayNormals')
+		state = tk.cycle([1,2,3,0], 'displayNormals')
 		if state ==0: #off
 			pm.polyOptions (displayNormal=0, sizeNormal=0)
 			pm.polyOptions (displayTangent=False)

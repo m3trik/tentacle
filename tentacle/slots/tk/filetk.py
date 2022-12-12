@@ -2,7 +2,7 @@
 # coding=utf-8
 import sys, os
 
-import strtls, itertls
+import strtk, itertk
 
 
 class Filetls():
@@ -29,7 +29,7 @@ class Filetls():
 		assert isinstance(strings, (str, list, tuple, set, dict)), 'Error: {}:\n  Incorrect datatype: {}'.format(__file__, type(strings).__name__)
 
 		result=[]
-		for string in itertls.makeList(strings):
+		for string in itertk.makeList(strings):
 			string = os.path.expandvars(string) #convert any env variables to their values.
 			string = string[:2]+'/'.join(string[2:].split('\\')).rstrip('/') #convert forward slashes to back slashes.
 
@@ -63,7 +63,7 @@ class Filetls():
 
 			result.append(string)
 
-		return itertls.formatReturn(result, strings) #if 'strings' is given as a list; return a list.
+		return itertk.formatReturn(result, strings) #if 'strings' is given as a list; return a list.
 
 
 	@classmethod
@@ -140,65 +140,55 @@ class Filetls():
 
 
 	@classmethod
-	def getDirectoryContents(cls, path, returnType='files', include=[], exclude=[], recursive=False, topdown=True, stripExtension=False, reverse=False):
+	def getDirectoryContents(cls, path, returnType='files', recursive=False, topdown=True, reverse=False, 
+								includeFiles=[], excludeFiles=[], includeDirs=[], excludeDirs=[]):
 		'''Get the contents of a directory and any of it's children.
 
 		:Parameters:
 			path (str) = The path to the directory.
 			returnType (str) = Return files and directories. Multiple types can be given using '|' 
-						ex. 'files|dirs' (valid: 'files'(default), 'filepaths', 'dirs', 'dirpaths')
-						case insensitive. Can be singular or plural.
+					ex. 'files|dirs' (valid: 'files'(default), filenames, 'filepaths', 'dirs', 'dirpaths')
+					case insensitive. singular or plural.
 			recursive (bool) = return the contents of the root dir only.
-			include (str)(list) = Include only specific child directories or files.
-						*.ext will isolate all files with the given extension.
-						exclude takes precedence over include.
-			exclude (str)(list) = Excluded specific child directories or files.
-						*.ext will exclude all files with the given extension.
-						exclude takes precedence over include.
-			stripExtension (bool) = Return filenames without their extension.
 			topDown (bool) = Scan directories from the top-down, or bottom-up.
 			reverse (bool) = When True, reverse the final result.
-
+			includeFiles (str)(list) = Include only specific files.
+			excludeFiles (str)(list) = Excluded specific files.
+			includeDirs (str)(list) = Include only specific child directories.
+			excludeDirs (str)(list) = Excluded specific child directories.
+					supports using the '*' operator: startswith*, *endswith, *contains*
+					ex. *.ext will exclude all files with the given extension.
+					exclude takes precedence over include.
 		:Return:
 			(list)
 
 		ex. getDirectoryContents(path, returnType='filepaths')
 		ex. getDirectoryContents(path, returnType='files|dirs')
 		'''
-		exclude = itertls.makeList(exclude)
-		include = itertls.makeList(include)
-
 		path = os.path.expandvars(path) #translate any system variables that might have been used in the path.
-		types = [t.strip().rstrip('s').lower() for t in returnType.split('|')] #strip any whitespace and trailing 's' of the types to allow for singular and plural to be used interchagably. ie. files | dirs becomes [file, dir]
+		returnTypes = [t.strip().rstrip('s').lower() for t in returnType.split('|')] #strip any whitespace and trailing 's' of the types to allow for singular and plural to be used interchagably. ie. files | dirs becomes [file, dir]
 
 		result=[]
 		for root, dirs, files in os.walk(path, topdown=topdown):
+			dirs[:] = itertk.filterList(dirs, includeDirs, excludeDirs) #remove any directories in 'exclude'.
 
-			dirs[:] = [d for d in dirs if not d in exclude] #remove any directories in 'exclude'.
-			if 'dir' in types:
+			if 'dir' in returnTypes:
 				for d in dirs:
 					result.append(d) #get the dir contents before filtering for root.
-			if 'dirpath' in types:
+			if 'dirpath' in returnTypes:
 				for d in dirs:
 					result.append(os.path.join(root, d))
 			if not recursive:
 				dirs[:] = [d for d in dirs if d is root] #remove all but the root dir.
 
+			files[:] = itertk.filterList(files, includeFiles, excludeFiles) #remove any files in 'exclude'.
 			for f in files:
-				ext = cls.formatPath(f, 'ext')
-				if f in exclude or '*.'+ext in exclude:
-					continue
-
-				if any(include): #filter include for None values so not to get a false positive.
-					if not f in include and not '*.'+ext in include:
-						continue
-
-				if stripExtension:
-					f = f.rstrip('.'+cls.formatPath(f, 'ext'))
-
-				if 'file' in types:
+				if 'file' in returnTypes:
 					result.append(f)
-				if 'filepath' in types:
+				if 'filename' in returnTypes:
+					n = cls.formatPath(f, 'name')
+					result.append(n)
+				if 'filepath' in returnTypes:
 					result.append(os.path.join(root, f))
 		if reverse:
 			return result[::-1]

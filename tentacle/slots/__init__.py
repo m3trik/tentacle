@@ -40,16 +40,16 @@ class Slots(QtCore.QObject):
 			fn (method) = Set an alternative method to call on widget signal. ex. setParameterValuesMEL
 					The first parameter of fn is always the given object. ex. fn(obj, {'attr':<value>})
 			fn_args (list) = Any additonal args to pass to fn.
-			attributes (kwargs) = Explicitly pass in attribute:values pairs. Else, attributes will be pulled from self.getAttributesMEL for the given obj.
+			attributes (kwargs) = Explicitly pass in attribute:values pairs. Else, attributes will be pulled from mtk.getAttributesMEL for the given obj.
 
 		:Return:
 			(obj) the menu widget. (use menu.childWidgets to get the menu's child widgets.)
 
-		ex. call: self.objAttrWindow(node, attrs, fn=Init.setParameterValuesMEL, fn_args='transformLimits')
+		ex. call: self.objAttrWindow(node, attrs, fn=mtk.setParameterValuesMEL, fn_args='transformLimits')
 		ex. call: self.objAttrWindow(transform[0], include=['translateX','translateY','translateZ','rotateX','rotateY','rotateZ','scaleX','scaleY','scaleZ'], checkableLabel=True)
 		'''
 		import ast
-		from slots.tls.itertls import makeList
+		from tentacle.slots.tk.itertk import makeList
 
 		fn = fn if fn else self.setAttributes
 		fn_args = makeList(fn_args) #assure that fn_args is a list.
@@ -100,7 +100,7 @@ class Slots(QtCore.QObject):
 			string = '{}: {}'.format(messageType.capitalize(), string)
 
 		if not hasattr(self, '_messageBox'):
-			from ui.widgets.messageBox import MessageBox
+			from tentacle.ui.widgets.messageBox import MessageBox
 			self._messageBox = MessageBox(self.sb.parent().parent())
 
 		self._messageBox.location = location

@@ -1,7 +1,7 @@
 # !/usr/bin/python
 # coding=utf-8
-from slots.max import *
-from slots.crease import Crease
+from tentacle.slots.max import *
+from tentacle.slots.crease import Crease
 
 
 

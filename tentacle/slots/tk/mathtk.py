@@ -1,6 +1,6 @@
 # !/usr/bin/python
 # coding=utf-8
-import itertls
+import itertk
 
 
 class Mathtls():
@@ -40,10 +40,10 @@ class Mathtls():
 		ex. call: clamp(range(10), 3, 7) #returns: [3, 3, 3, 3, 4, 5, 6, 7, 7, 7]
 		'''
 		result=[]
-		for n_ in itertls.makeList(n):
+		for n_ in itertk.makeList(n):
 			result.append(max(minimum, min(n_, maximum)))
 
-		return itertls.formatReturn(result, n)
+		return itertk.formatReturn(result, n)
 
 
 	@classmethod

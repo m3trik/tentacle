@@ -43,10 +43,10 @@ class StyleSheet(QtCore.QObject):
 				'HOVER'				: 'rgb(82,133,166)',
 				'TEXT'				: 'rgb(185,185,185)',
 				'TEXT_CHECKED'		: 'black',
-				'TEXT_DISABLED'		: 'darkGray',
+				'TEXT_DISABLED'		: 'rgb(185,185,185,50)',
 				'TEXT_HOVER'		: 'white',
 				'TEXT_BACKGROUND'	: 'rgb(50,50,50)',
-				'BORDER'			: 'black',
+				'BORDER'			: 'rgb(40,40,40)',
 			}
 		}
 
@@ -371,12 +371,12 @@ class StyleSheet(QtCore.QObject):
 				color: {TEXT_HOVER};
 			}
 
+
 			QCheckBox::enabled {
 				color: {TEXT};
 			}
 
 			QCheckBox::disabled {
-				background-color: {BACKGROUND};
 				color: {TEXT_DISABLED};
 			}
 

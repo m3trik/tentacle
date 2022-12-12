@@ -4,7 +4,7 @@ import sys
 
 from PySide2 import QtWidgets, QtCore
 
-from tcl import Tcl
+from tentacle.tcl import Tcl
 
 
 

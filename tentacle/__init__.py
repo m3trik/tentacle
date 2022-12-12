@@ -6,7 +6,7 @@ import importlib
 import inspect
 
 
-name = 'tcl-toolkit'
+name = 'tcltk'
 __version__ = '0.511'
 
 
@@ -41,7 +41,7 @@ def greeting(string, outputToConsole=True):
 	return result
 
 
-def import_submodules(package, filetypes=('py', 'pyc', 'pyd'), ignoreStartingWith='_'):
+def import_submodules(package, filetypes=('py', 'pyc', 'pyd'), ignoreStartingWith=('.', '_')):
 	'''Import submodules to the given package, expose their classes at the package level
 	and their respective class methods at submodule level.
 
@@ -160,34 +160,33 @@ def lazy_import(importer_name, to_import):
 	return module, __getattr__
 
 
-def appendPaths(rootDir, verbose=False, exclude=[]):
+def appendPaths(rootDir, ignoreStartingWith=('.', '__'), verbose=False):
 	'''Append all sub-directories of the given 'rootDir' to the python path.
 
 	:Parameters:
 		rootDir (str) = Sub-directories of this directory will be appended to the system path.
-		exclude (list) = Exclude directories by name.
+		ignoreStartingWith (str)(tuple) = Ignore directories starting with the given chars.
 		verbose (bool) = Output the results to the console. (Debug)
 	'''
 	path = os.path.dirname(os.path.abspath(rootDir))
-
 	sys.path.insert(0, path)
 	if verbose:
 		print (path)
 
 	# recursively append subdirectories to the system path.
 	for root, dirs, files in os.walk(path):
+		dirs[:] = [d for d in dirs if not d.startswith(ignoreStartingWith)]
 		for dir_name in dirs:
-			if not any([(e in root or e==dir_name) for e in exclude]):
-				dir_path = os.path.join(root, dir_name)
-				sys.path.insert(0, dir_path)
-				if verbose:
-					print (dir_path)
+			dir_path = os.path.join(root, dir_name)
+			sys.path.insert(0, dir_path)
+			if verbose:
+				print (dir_path)
 
 
 # -----------------------------------------------
 greeting('Good {hr}! You are using {modver} with {pyver}.')
-appendPaths(__file__, verbose=0)
-# import_modules(__name__)
+# appendPaths(__file__, verbose=0)
+# import_submodules(__name__)
 
 
 

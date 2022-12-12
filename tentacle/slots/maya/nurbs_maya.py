@@ -1,7 +1,7 @@
 # !/usr/bin/python
 # coding=utf-8
-from slots.maya import *
-from slots.nurbs import Nurbs
+from tentacle.slots.maya import *
+from tentacle.slots.nurbs import Nurbs
 
 
 
@@ -402,10 +402,10 @@ class Nurbs_maya(Nurbs, Slots_maya):
 		# pm.undoInfo(openChunk=1)
 		#create a MASH network
 		import MASH.api as mapi
-		import utils_maya.mash_utils_maya
+		import slots.maya.tk.mashtls
 
 		mashNW = mapi.Network()
-		mashNW.MTcreateNetwork(start, geometry=geometry, hideOnCreate=False) #mash_utils_maya module (derived from 'createNetwork')
+		mashNW.MTcreateNetwork(start, geometry=geometry, hideOnCreate=False) #mashtls module (derived from 'createNetwork')
 
 		curveNode = pm.ls(mashNW.addNode('MASH_Curve').name)[0]
 		pm.connectAttr(path.worldSpace[0], curveNode.inCurves[0], force=1)
@@ -422,7 +422,7 @@ class Nurbs_maya(Nurbs, Slots_maya):
 		pm.setAttr(distNode.amplitudeX, 0)
 
 		instNode = pm.ls(mashNW.instancer)[0]
-		baked_curves = mashNW.MTbakeInstancer(instNode) #mash_utils_maya module (derived from 'MASHbakeInstancer')
+		baked_curves = mashNW.MTbakeInstancer(instNode) #mashtls module (derived from 'MASHbakeInstancer')
 
 		result=[start]
 		for curve in reversed(baked_curves):

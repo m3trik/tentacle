@@ -4,7 +4,7 @@ import sys, os
 
 import json
 
-import filetls
+import filetk
 
 
 class Jsontls():
@@ -18,7 +18,7 @@ class Jsontls():
 			file (str) = The filepath to a json file. If a file doesn't exist, it will be created.
 		'''
 		cls._jsonFile = file
-		filetls.createFile(cls._jsonFile) #create the file if it does not exist.
+		filetk.createFile(cls._jsonFile) #create the file if it does not exist.
 
 
 	@classmethod

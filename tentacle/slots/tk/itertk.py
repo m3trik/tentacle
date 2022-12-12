@@ -14,7 +14,7 @@ class Itertls():
 		'''Convert the given obj to a list.
 
 		:Parameters:
-			x (unknown) = The object to convert to a list if not already a list, set, or tuple.
+			x () = The object to convert to a list if not already a list, set, or tuple.
 
 		:Return:
 			(list)
@@ -171,20 +171,71 @@ class Itertls():
 	@classmethod
 	def filterList(cls, lst, include=[], exclude=[]):
 		'''Filter the given list.
+		An 'operator' value of 'None' filters without wildcards.
 
 		:Parameters:
 			lst (list) = The components(s) to filter.
 			include (str)(obj)(list) = The objects(s) to include.
+					supports using the '*' operator: startswith*, *endswith, *contains*
 			exclude (str)(obj)(list) = The objects(s) to exclude.
-								(exlude take precidence over include)
+					(exlude take precidence over include)
 		:Return:
 			(list)
 
-		ex. call: filterList([0, 1, 2, 3, 2], [1, 2, 3], 2) #returns: [1, 3]
+		ex. call:
+		filterList([0, 1, 2, 3, 2], [1, 2, 3], 2) #returns: [1, 3]
 		'''
-		include = cls.makeList(include)
 		exclude = cls.makeList(exclude)
-		return [i for i in lst if not i in exclude and (i in include if include else i not in include)]
+		include = cls.makeList(include)
+
+		if not any((i for i in include+exclude if isinstance(i, str) and '*' in i)): #if no wildcards used:
+			return [i for i in lst if not i in exclude and (i in include if include else i not in include)]
+
+		#else: split include and exclude lists into separate tuples according to wildcard positions. 
+		if exclude:
+			exc, excContains, excStartsWith, excEndsWith = [],[],[],[]
+			for i in exclude:
+				if isinstance(i, str) and '*' in i:
+					if i.startswith('*'):
+						if i.endswith('*'):
+							excContains.append(i[1:-1])
+						excEndsWith.append(i[1:])
+					elif i.endswith('*'):
+						excStartsWith.append(i[:-1])
+				else:
+					exc.append(i)
+		if include:
+			inc, incContains, incStartsWith, incEndsWith = [],[],[],[]
+			for i in include:
+				if isinstance(i, str) and '*' in i:
+					if i.startswith('*'):
+						if i.endswith('*'):
+							incContains.append(i[1:-1])
+						incEndsWith.append(i[1:])
+					elif i.endswith('*'):
+						incStartsWith.append(i[:-1])
+				else:
+					inc.append(i)
+
+		result=[]
+		for i in lst:
+
+			if exclude:
+				if i in exc or isinstance(i, str) and any((
+					i.startswith(tuple(excStartsWith)),
+					i.endswith(tuple(excEndsWith)),
+					next(iter(chars in i for chars in excContains), False))):
+					continue
+
+			if include:
+				if i not in inc and not isinstance(i, str) or not any(( 
+					i.startswith(tuple(incStartsWith)), 
+					i.endswith(tuple(incEndsWith)), 
+					next(iter(chars in i for chars in incContains), False))):
+					continue
+
+			result.append(i)
+		return result
 
 
 	@staticmethod

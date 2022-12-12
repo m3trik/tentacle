@@ -2,7 +2,7 @@
 # coding=utf-8
 import sys, os
 
-import itertls
+import itertk
 
 
 class Strtls():
@@ -25,19 +25,19 @@ class Strtls():
 			return strings
 
 		if case=='pascalCase':
-			result = [s[:1].capitalize()+s[1:] for s in itertls.makeList(strings)] #capitalize the first letter.
+			result = [s[:1].capitalize()+s[1:] for s in itertk.makeList(strings)] #capitalize the first letter.
 
 		elif case=='camelCase':
-			result = [s[0].lower()+s[1:] for s in itertls.makeList(strings)] #lowercase the first letter.
+			result = [s[0].lower()+s[1:] for s in itertk.makeList(strings)] #lowercase the first letter.
 
 		else:
 			try:
-				result = [getattr(s, case)() for s in itertls.makeList(strings)]
+				result = [getattr(s, case)() for s in itertk.makeList(strings)]
 
 			except AttributeError as error: #return the original string(s).
 				return strings
 
-		return itertls.formatReturn(result, strings) #if 'strings' is given as a list; return a list.
+		return itertk.formatReturn(result, strings) #if 'strings' is given as a list; return a list.
 
 
 	@staticmethod
@@ -58,7 +58,7 @@ class Strtls():
 		ex. call: splitAtChars(['str|ing', 'string']) returns: [('str', 'ing'), ('string', '')]
 		'''
 		result = []
-		for s in itertls.makeList(strings):
+		for s in itertk.makeList(strings):
 			split = s.split(chars)
 
 			try:
@@ -72,7 +72,7 @@ class Strtls():
 
 			result.append((s1, s2))
 
-		return itertls.formatReturn(result, strings) #if 'strings' is given as a list; return a list.
+		return itertk.formatReturn(result, strings) #if 'strings' is given as a list; return a list.
 
 
 	@classmethod
@@ -366,7 +366,7 @@ class Strtls():
 
 		# strip each set of chars in 'strip' from end of string.
 		if strip:
-			strip = tuple(itertls.makeList(strip)) #assure 'strip' is a tuple.
+			strip = tuple([i for i in itertk.makeList(strip) if not i=='']) #assure 'strip' is a tuple and does not contain any empty strings.
 			while s.endswith(strip):
 				for chars in strip:
 					s = s.rstrip(chars)

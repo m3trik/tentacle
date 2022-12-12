@@ -1,7 +1,7 @@
 # !/usr/bin/python
 # coding=utf-8
-from slots.blender import *
-from slots.rendering import Rendering
+from tentacle.slots.blender import *
+from tentacle.slots.rendering import Rendering
 
 
 

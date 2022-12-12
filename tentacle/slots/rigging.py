@@ -1,6 +1,6 @@
 # !/usr/bin/python
 # coding=utf-8
-from slots import Slots
+from tentacle.slots import Slots
 
 
 
@@ -29,10 +29,10 @@ class Rigging(Slots):
 
 		tb003 = self.sb.rigging.tb003
 		tb003.ctxMenu.add('QDoubleSpinBox', setPrefix='Locator Scale: ', setObjectName='s001', setMinMax_='.000-1000 step1', setValue=1, setToolTip='The scale of the locator.')
-		tb003.ctxMenu.add('QLineEdit', setPlaceholderText='Locator Suffix:', setText='_GRP', setObjectName='t002', setToolTip='A string appended to the end of the created group\'s name.')
-		tb003.ctxMenu.add('QLineEdit', setPlaceholderText='Locator Suffix:', setText='_LCTR', setObjectName='t000', setToolTip='A string appended to the end of the created locator\'s name.')
-		tb003.ctxMenu.add('QLineEdit', setPlaceholderText='Geometry Suffix:', setText='_GEO', setObjectName='t001', setToolTip='A string appended to the end of the existing geometry\'s name.')
-		tb003.ctxMenu.add('QCheckBox', setText='Strip Suffix', setObjectName='chk016', setChecked=True, setToolTip='Strip any of the given suffixes from the group name before appending the new ones.')
+		tb003.ctxMenu.add('QLineEdit', setPlaceholderText='Group Suffix:', setText='_GRP', setObjectName='t002', setToolTip='A string appended to the end of the created group\'s name.')
+		tb003.ctxMenu.add('QLineEdit', setPlaceholderText='Locator Suffix:', setText='', setObjectName='t000', setToolTip='A string appended to the end of the created locator\'s name.')
+		tb003.ctxMenu.add('QLineEdit', setPlaceholderText='Geometry Suffix:', setText='', setObjectName='t001', setToolTip='A string appended to the end of the existing geometry\'s name.')
+		tb003.ctxMenu.add('QCheckBox', setText='Strip Suffix', setObjectName='chk016', setToolTip='Strip any of preexisting suffixes from the group name before appending the new ones.\nA suffix is defined as anything trailing an underscore.\nAny user-defined suffixes are stripped by default.')
 		tb003.ctxMenu.add('QCheckBox', setText='Strip Digits', setObjectName='chk005', setChecked=True, setToolTip='Strip any trailing numeric characters from the name.\nIf the resulting name is not unique, maya will append a trailing digit.')
 		tb003.ctxMenu.add('QCheckBox', setText='Parent', setObjectName='chk006', setChecked=True, setToolTip='Parent to object to the locator.')
 		tb003.ctxMenu.add('QCheckBox', setText='Freeze Transforms', setObjectName='chk010', setChecked=True, setToolTip='Freeze transforms on the locator.')
@@ -40,9 +40,7 @@ class Rigging(Slots):
 		tb003.ctxMenu.add('QCheckBox', setText='Lock Child Translate', setObjectName='chk007', setChecked=True, setToolTip='Lock the translate values of the child object.')
 		tb003.ctxMenu.add('QCheckBox', setText='Lock Child Rotation', setObjectName='chk008', setChecked=True, setToolTip='Lock the rotation values of the child object.')
 		tb003.ctxMenu.add('QCheckBox', setText='Lock Child Scale', setObjectName='chk009', setToolTip='Lock the scale values of the child object.')
-		tb003.ctxMenu.add('QCheckBox', setText='Remove Locators', setObjectName='chk015', setChecked=False, setToolTip='Removes the locator, and inverts the above process. (not valid with component selections)')
-		tb003.ctxMenu.chk015.stateChanged.connect(lambda state: self.sb.toggleWidgets(tb003.ctxMenu, setDisabled='t000-1,s001,chk005-11') if state 
-														else self.sb.toggleWidgets(tb003.ctxMenu, setEnabled='t000-1,s001,chk005-11')) #disable non-relevant options.
+ 
 		tb004 = self.sb.rigging.tb004
 		tb004.ctxMenu.add('QCheckBox', setText='Translate', setObjectName='chk012', setChecked=False, setToolTip='')
 		tb004.ctxMenu.add('QCheckBox', setText='Rotate', setObjectName='chk013', setChecked=False, setToolTip='')

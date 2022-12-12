@@ -1,7 +1,7 @@
 # !/usr/bin/python
 # coding=utf-8
-from slots.max import *
-from slots.display import Display
+from tentacle.slots.max import *
+from tentacle.slots.display import Display
 
 
 
@@ -126,7 +126,7 @@ class Display_max(Display, Slots_max):
 	def b011(self):
 		'''Toggle Component ID Display
 		'''
-		index = tls.cycle([0,1,2,3,4], 'componentID')
+		index = tk.cycle([0,1,2,3,4], 'componentID')
 
 		visible = pm.polyOptions (query=1, displayItemNumbers=1)
 		dinArray = [[1,0,0,0],[0,1,0,0],[0,0,1,0],[0,0,0,1]]
@@ -169,7 +169,7 @@ class Display_max(Display, Slots_max):
 		'''
 		viewport = rt.viewport.activeViewport
 
-		state = tls.cycle([0,1], 'wireframeInactive')
+		state = tk.cycle([0,1], 'wireframeInactive')
 
 		if state:
 			if not rt.viewport.isWire():

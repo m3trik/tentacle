@@ -1,7 +1,7 @@
 # !/usr/bin/python
 # coding=utf-8
-from slots.maya import *
-from slots.normals import Normals
+from tentacle.slots.maya import *
+from tentacle.slots.normals import Normals
 
 
 
@@ -32,7 +32,7 @@ class Normals_maya(Normals, Slots_maya):
 
 		size = float(tb.ctxMenu.s001.value())
 		# state = pm.polyOptions (query=True, displayNormal=True)
-		state = tls.cycle([1,2,3,0], 'displayNormals')
+		state = tk.cycle([1,2,3,0], 'displayNormals')
 		if state ==0: #off
 			pm.polyOptions (displayNormal=0, sizeNormal=0)
 			pm.polyOptions (displayTangent=False)
@@ -281,7 +281,7 @@ class Normals_maya(Normals, Slots_maya):
 				sX, sY, sZ = v
 
 				if not transforms:
-					transforms = cls.getObjectFromComponent(face)
+					transforms = mtk.getObjectFromComponent(face)
 
 				for node in transforms:
 					for f in cls.getComponents(node, 'faces', returnType=returnType, flatten=1):

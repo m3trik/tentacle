@@ -185,3 +185,4 @@ tentacle/slots/maya/shader_utils_maya/resources/hdr/industrial_pipe_and_valve_01
 tentacle/slots/maya/shader_utils_maya/resources/hdr/aircraft_workshop_01_4k.exr
 *.tx
 *.swatch
+*.bak

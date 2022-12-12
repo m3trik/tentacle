@@ -16,7 +16,7 @@ try:
 except ImportError as error:
 	print ('# Error:', __file__, error, '#')
 
-from tls import filetls, itertls
+from tentacle.slots.tk import filetk, itertk
 
 
 class Imgtls():
@@ -151,11 +151,11 @@ class Imgtls():
 		exts = [e.strip('*') for e in fileTypes.split('|')]
 
 		images={}
-		for f in filetls.getDirectoryContents(image_dir, 'filepaths'):
+		for f in filetk.getDirectoryContents(image_dir, 'filepaths'):
 
 			if any(map(f.endswith, exts)):
-				fullpath = filetls.formatPath(f)
-				filename = filetls.formatPath(f, 'file')
+				fullpath = filetk.formatPath(f)
+				filename = filetk.formatPath(f, 'file')
 				filename = min(map(filename.rstrip, exts), key=len)
 
 				im = Image.open(fullpath)
@@ -437,7 +437,7 @@ class Imgtls():
 		:Return:
 			(str)
 		'''
-		name = filetls.formatPath(file, 'name')
+		name = filetk.formatPath(file, 'name')
 
 		if key:
 			return next((k for k, v in cls.mapTypes.items() for i in v if name.lower().endswith(i.lower())), None)
@@ -458,7 +458,7 @@ class Imgtls():
 		:Return:
 			(dict)
 		'''
-		types = itertls.makeList(types.split('|'))
+		types = itertk.makeList(types.split('|'))
 		return [f for f in files if cls.getImageType(f) in types]
 
 
@@ -505,7 +505,7 @@ class Imgtls():
 			files = cls.sortImagesByType(files) #convert list to dict of the correct format.
 
 		result = next((True for i in files.keys() 
-			if cls.getImageType(i) in itertls.makeList(map_types.split('|'))), False)
+			if cls.getImageType(i) in itertk.makeList(map_types.split('|'))), False)
 
 		return True if result else False
 
@@ -564,9 +564,9 @@ class Imgtls():
 		'''
 		inverted_image = cls.invertChannels(file, 'g')
 
-		output_dir = filetls.formatPath(file, 'path')
-		name = filetls.formatPath(file, 'name')
-		ext = filetls.formatPath(file, 'ext')
+		output_dir = filetk.formatPath(file, 'path')
+		name = filetk.formatPath(file, 'name')
+		ext = filetk.formatPath(file, 'ext')
 
 		typ = cls.getImageType(file, key=False)
 		try:
@@ -596,9 +596,9 @@ class Imgtls():
 		'''
 		inverted_image = cls.invertChannels(file, 'g')
 
-		output_dir = filetls.formatPath(file, 'path')
-		name = filetls.formatPath(file, 'name')
-		ext = filetls.formatPath(file, 'ext')
+		output_dir = filetk.formatPath(file, 'path')
+		name = filetk.formatPath(file, 'name')
+		ext = filetk.formatPath(file, 'ext')
 
 		typ = cls.getImageType(file, key=False)
 		try:
@@ -741,7 +741,7 @@ if __name__=='__main__':
 	# 	files = cls.getImageFiles()
 	# 	for file, image in files.items():
 	# 		inverted_image = cls.invertChannels(image, 'g')
-	# 		# name = filetls.formatPath(file, remove='_DirectX', append='_OpenGL')
+	# 		# name = filetk.formatPath(file, remove='_DirectX', append='_OpenGL')
 	# 		# cls.saveImageFile(inverted_image, name)
 
 
@@ -751,7 +751,7 @@ if __name__=='__main__':
 	# 	files = cls.getImageFiles()
 	# 	for file, image in files.items():
 	# 		inverted_image = cls.invertChannels(image, 'g')
-	# 		# name = filetls.formatPath(file, remove='_OpenGL', append='_DirectX')
+	# 		# name = filetk.formatPath(file, remove='_OpenGL', append='_DirectX')
 	# 		# cls.saveImageFile(inverted_image, name)
 
 

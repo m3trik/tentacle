@@ -1,7 +1,7 @@
 # !/usr/bin/python
 # coding=utf-8
-from slots.blender import *
-from slots.nurbs import Nurbs
+from tentacle.slots.blender import *
+from tentacle.slots.nurbs import Nurbs
 
 
 

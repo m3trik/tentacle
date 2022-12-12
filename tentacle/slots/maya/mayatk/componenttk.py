@@ -5,8 +5,7 @@ try:
 except ImportError as error:
 	print (__file__, error)
 
-from slots import tls
-import mayatls as mtls
+from tentacle.slots import tk
 
 
 class GetComponents():
@@ -119,7 +118,7 @@ class GetComponents():
 		getElementType('cylShape.vtx[:]') #returns: 'str'
 		'''
 		try:
-			o = tls.itertls.makeList(obj)[0]
+			o = tk.itertk.makeList(obj)[0]
 		except IndexError as error:
 			# print ('{}\n# Error: getElementType: Operation requires at least one object. #\n	{}'.format(__file__, error))
 			return ''
@@ -181,8 +180,8 @@ class GetComponents():
 
 			objects = set(pm.ls(lst, objectsOnly=True))
 			if len(objects)==1: #flatten the dict values from 'result' and remove any duplicates.
-				flattened = tls.itertls.flatten(result.values())
-				result = tls.itertls.removeDuplicates(flattened)
+				flattened = tk.itertk.flatten(result.values())
+				result = tk.itertk.removeDuplicates(flattened)
 		else:
 			if returnType=='transform':
 				result = list(map(lambda s: ''.join(s.rsplit('Shape', 1)), lst))
@@ -246,7 +245,7 @@ class GetComponents():
 
 		if not flatten:
 			n = lambda c: '{}:{}'.format(c[0], c[-1]) if len(c)>1 else str(c[0])
-			result = ['{}.{}[{}]'.format(objName, componentType, n(c)) for c in tls.itertls.splitList(integers, 'range')]
+			result = ['{}.{}[{}]'.format(objName, componentType, n(c)) for c in tk.itertk.splitList(integers, 'range')]
 		else:
 			result = ['{}.{}[{}]'.format(objName, componentType, c) for c in integers]
 
@@ -293,7 +292,7 @@ class GetComponents():
 
 		components = pm.ls(components, flatten=True)
 
-		filtered = tls.itertls.filterList(components, include=include, exclude=exclude)
+		filtered = tk.itertk.filterList(components, include=include, exclude=exclude)
 		result = cls.convertElementType(filtered, returnType=etyp, flatten=flatten)
 		return result
 
@@ -330,7 +329,7 @@ class GetComponents():
 			components = cls.filterComponents(components, include=include, exclude=exclude)
 
 		if randomize:
-			components = tls.randomize(pm.ls(components, flatten=1), randomize)
+			components = tk.randomize(pm.ls(components, flatten=1), randomize)
 
 		result = cls.convertElementType(components, returnType=returnType, flatten=flatten)
 		return result
@@ -552,7 +551,7 @@ class Componenttls(GetComponents):
 		ex. call: getClosestVerts('pln.vtx[:10]', 'pln.vtx[11:]', 6.667) #returns: [('plnShape.vtx[7]', 'plnShape.vtx[11]'), ('plnShape.vtx[8]', 'plnShape.vtx[12]'), ('plnShape.vtx[9]', 'plnShape.vtx[13]'), ('plnShape.vtx[10]', 'plnShape.vtx[11]'), ('plnShape.vtx[10]', 'plnShape.vtx[14]')]
 		'''
 		from operator import itemgetter
-		from slots.tls.mathtls import getDistBetweenTwoPoints
+		from tentacle.slots.tk.mathtk import getDistBetweenTwoPoints
 
 		set1 = cls.convertElementType(set1, returnType='str', flatten=True)
 		set2 = cls.convertElementType(set2, returnType='str', flatten=True)
@@ -591,7 +590,7 @@ class Componenttls(GetComponents):
 		getClosestVertex('plnShape.vtx[0]', 'cyl') #returns: {'plnShape.vtx[0]': 'cylShape.vtx[3]'},
 		getClosestVertex('plnShape.vtx[2:3]', 'cyl') #returns: {'plnShape.vtx[2]': 'cylShape.vtx[2]', 'plnShape.vtx[3]': 'cylShape.vtx[1]'}
 		'''
-		from slots.tls.mathtls import getDistBetweenTwoPoints
+		from tentacle.slots.tk.mathtk import getDistBetweenTwoPoints
 
 		vertices = cls.convertElementType(vertices, returnType='str', flatten=True)
 		pm.undoInfo(openChunk=True)
@@ -677,7 +676,7 @@ class Componenttls(GetComponents):
 			edgesLong = pm.polySelect(obj, query=1, edgeLoop=cnums) #(e..)
 
 		objName = obj.name()
-		result = tls.itertls.removeDuplicates(['{}.e[{}]'.format(objName, e) for e in edgesLong])
+		result = tk.itertk.removeDuplicates(['{}.e[{}]'.format(objName, e) for e in edgesLong])
 		return cls.convertElementType(result, returnType=returnType, flatten=flatten)
 
 

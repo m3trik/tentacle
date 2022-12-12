@@ -10,7 +10,7 @@ try: #Blender dependancies
 except ImportError as error:
 	print(__file__, error)
 
-from slots import Slots
+from tentacle.slots import Slots
 
 
 

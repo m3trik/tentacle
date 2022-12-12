@@ -11,15 +11,15 @@ try:
 except ImportError as error:
 	print (__file__, error)
 
-from slots import Slots
-from slots import tls
-from slots.maya import mayatls as mtls
+from tentacle.slots import Slots
+from tentacle.slots import tk
+from tentacle.slots.maya import mayatk as mtk
 
 
-class Slots_maya(Slots, mtls.Componenttls, mtls.Riggingtls):
+class Slots_maya(Slots, mtk.Componenttls, mtk.Riggingtls):
 	'''App specific methods inherited by all other slot classes.
 	'''
-	undo = mtls.undo
+	undo = mtk.undo
 
 	def __init__(self, *args, **kwargs):
 		super().__init__(*args, **kwargs)
@@ -99,9 +99,9 @@ class Slots_maya(Slots, mtls.Componenttls, mtls.Riggingtls):
 			fn (method) = Set an alternative method to call on widget signal. ex. setParameterValuesMEL
 					The first parameter of fn is always the given object. ex. fn(obj, {'attr':<value>})
 			fn_args (str)(list) = Any additonal args to pass to the given fn.
-			attributes (kwargs) = Explicitly pass in attribute:values pairs. Else, attributes will be pulled from self.getAttributesMEL for the given obj.
+			attributes (kwargs) = Explicitly pass in attribute:values pairs. Else, attributes will be pulled from mtk.getAttributesMEL for the given obj.
 
-		ex. call: self.setAttributeWindow(node, attrs, fn=Slots_maya.setParameterValuesMEL, 'transformLimits') #set attributes for the Maya command transformLimits.
+		ex. call: self.setAttributeWindow(node, attrs, fn=mtk.setParameterValuesMEL, 'transformLimits') #set attributes for the Maya command transformLimits.
 		ex. call: self.setAttributeWindow(transform[0], include=['translateX','translateY','translateZ','rotateX','rotateY','rotateZ','scaleX','scaleY','scaleZ'], checkableLabel=True)
 		'''
 		try:
@@ -109,13 +109,13 @@ class Slots_maya(Slots, mtls.Componenttls, mtls.Riggingtls):
 		except Exception as error:
 			return 'Error: {}.setAttributeWindow: Invalid Object: {}'.format(__name__, obj)
 
-		fn = fn if fn else self.setAttributesMEL
+		fn = fn if fn else mtk.setAttributesMEL
 
 		if attributes:
 			attributes = {k:v for k, v in attributes.items() 
 				if not k in exclude and (k in include if include else k not in include)}
 		else:
-			attributes = self.getAttributesMEL(obj, include=include, exclude=exclude)
+			attributes = mtk.getAttributesMEL(obj, include=include, exclude=exclude)
 
 		menu = self.objAttrWindow(obj, checkableLabel=checkableLabel, fn=fn, fn_args=fn_args, **attributes)
 

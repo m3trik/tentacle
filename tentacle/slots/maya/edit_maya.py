@@ -1,7 +1,7 @@
 # !/usr/bin/python
 # coding=utf-8
-from slots.maya import *
-from slots.edit import Edit
+from tentacle.slots.maya import *
+from tentacle.slots.edit import Edit
 
 
 
@@ -142,8 +142,11 @@ class Edit_maya(Edit, Slots_maya):
 
 		objects = pm.ls(selection=1, objectsOnly=1) if not all_ else pm.ls(typ="mesh")
 
-		if optimize:
-			pm.mel.OptimizeScene()
+		if unusedNodes:
+			pm.mel.MLdeleteUnused() #pm.mel.hyperShadePanelMenuCommand('hyperShadePanel1', 'deleteUnusedNodes')
+			#delete empty groups:
+			empty = mtk.getGroups(empty=True)
+			pm.delete(empty)
 
 		try: #delete history
 			if all_:
@@ -152,8 +155,9 @@ class Edit_maya(Edit, Slots_maya):
 				pm.bakePartialHistory(objects, prePostDeformers=1)
 		except:
 			pass
-		if unusedNodes:
-			pm.mel.MLdeleteUnused() #pm.mel.hyperShadePanelMenuCommand('hyperShadePanel1', 'deleteUnusedNodes')
+
+		if optimize:
+			pm.mel.OptimizeScene()
 
 		#display viewPort messages
 		if all_:
@@ -602,7 +606,7 @@ class Edit_maya(Edit, Slots_maya):
 
 		ex. call: getSimilarMesh(selection, vertex=1, area=1)
 		'''
-		from slots.maya import mayatls as mtls
+		from tentacle.slots.maya import mayatk as mtk
 
 		lst = lambda x: list(x) if isinstance(x, (list, tuple, set)) else list(x.values()) if isinstance(x, dict) else [x] #assure the returned result from polyEvaluate is a list of values.
 
@@ -610,7 +614,7 @@ class Edit_maya(Edit, Slots_maya):
 		objProps = lst(pm.polyEvaluate(obj, **kwargs))
 
 		otherSceneMeshes = set(pm.filterExpand(pm.ls(long=True, typ='transform'), selectionMask=12)) #polygon selection mask.
-		similar = pm.ls([m for m in otherSceneMeshes if mtls.areSimilar(objProps, lst(pm.polyEvaluate(m, **kwargs)), tol=tol) and m!=obj])
+		similar = pm.ls([m for m in otherSceneMeshes if mtk.areSimilar(objProps, lst(pm.polyEvaluate(m, **kwargs)), tol=tol) and m!=obj])
 		return similar+[obj] if includeOrig else similar
 
 

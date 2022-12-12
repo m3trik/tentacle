@@ -1,7 +1,7 @@
 # !/usr/bin/python
 # coding=utf-8
-from slots.maya import *
-from slots.create import Create
+from tentacle.slots.maya import *
+from tentacle.slots.create import Create
 
 
 
@@ -142,14 +142,14 @@ class Create_maya(Create, Slots_maya):
 		pm.selectMode(object=1) #place scene select type in object mode.
 		pm.select(node) #select the transform node so that you can see any edits
 
-		return self.getHistoryNode(node)
+		return mtk.getHistoryNode(node)
 
 
 	def b005(self):
 		'''Create 6 sided poly cylinder
 		'''
 		node = self.createPrimitive('Polygon', 'Cylinder')
-		self.setAttributesMEL(node, verbose=True, subdivisionsAxis=6)
+		mtk.setAttributesMEL(node, verbose=True, subdivisionsAxis=6)
 
 
 	@Slots_maya.undo
@@ -228,7 +228,7 @@ print (__name__)
 	# def node(self):
 	# 	'''Get the Transform Node
 	# 	'''
-	# 	transform = Slots_maya.getTransformNode()
+	# 	transform = mtk.getTransformNode()
 	# 	if transform:
 	# 		if not self.sb.create.txt003.text()==transform[0].name(): #make sure the same field reflects the current working node.
 	# 			self.sb.create.txt003.setText(transform[0].name())
