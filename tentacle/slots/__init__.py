@@ -49,10 +49,10 @@ class Slots(QtCore.QObject):
 		ex. call: self.objAttrWindow(transform[0], include=['translateX','translateY','translateZ','rotateX','rotateY','rotateZ','scaleX','scaleY','scaleZ'], checkableLabel=True)
 		'''
 		import ast
-		from tentacle.slots.tk.itertk import makeList
+		from tentacle.slots import tk
 
-		fn = fn if fn else self.setAttributes
-		fn_args = makeList(fn_args) #assure that fn_args is a list.
+		fn = fn if fn else tk.setAttributes
+		fn_args = tk.itertk.makeList(fn_args) #assure that fn_args is a list.
 
 		try: #get the objects name to as the window title:
 			title = obj.name()
@@ -160,6 +160,8 @@ class Slots(QtCore.QObject):
 
 		return result
 
+# -----------------------------------------------
+
 
 
 
@@ -175,4 +177,4 @@ class Slots(QtCore.QObject):
 # -----------------------------------------------
 
 
-# depricated:
+# depricated: -----------------------------------

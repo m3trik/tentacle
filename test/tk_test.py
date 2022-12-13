@@ -10,12 +10,6 @@ from tentacle.slots.tk import *
 class Main(unittest.TestCase):
 	'''
 	'''
-	# def __init__(self, m):
-	# 	'''
-	# 	'''
-		# print (m)
-		# methods = inspect.getmembers(self, inspect.isfunction)
-
 	def perform_test(self, case):
 		'''
 		'''
@@ -52,28 +46,30 @@ class Tls_test(Main, Tls):
 		})
 
 
-	def test_getAttributes(self):
-		'''
-		'''
-		print ('getAttributes: untested.')
-
-
 	def test_setAttributes(self):
 		'''
 		'''
-		print ('setAttributes: untested.')
+		self.perform_test({
+			"self.setAttributes(self, attr='value')": None,
+		})
 
 
-	def test_convertForDebugging(self):
+	def test_getAttributes(self):
 		'''
 		'''
-		print ('convertForDebugging: untested.')
+		self.perform_test({
+			"self.getAttributes(self, '_subtest')": {'_subtest': None},
+		})
 
 
 	def test_cycle(self):
 		'''
 		'''
-		print ('cycle: untested.')
+		self.perform_test({
+			"self.cycle([0,1], 'ID')": 0,
+			"self.cycle([0,1], 'ID')": 1,
+			"self.cycle([0,1], 'ID')": 0,
+		})
 
 
 	def test_areSimilar(self):

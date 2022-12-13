@@ -5,55 +5,43 @@ import sys, os.path
 import importlib
 import inspect
 
+from tentacle.slots import tk
+
 
 class Tls():
 	'''
 	'''
+	@staticmethod
+	def setAttributes(obj, **attributes):
+		'''Set attributes for a given object.
+
+		:Parameters:
+			obj (obj) = The object to set attributes for.
+			attributes (kwargs) = Attributes and their correponding values as keyword args.
+		'''
+		[setattr(obj, attr, value) for attr, value in attributes.items() 
+			if attr and value]
+
+
+	@staticmethod
 	def getAttributes(obj, include=[], exclude=[]):
 		'''Get attributes for a given object.
+
 		:Parameters:
 			obj (obj) = The object to get the attributes of.
 			include (list) = Attributes to include. All other will be omitted. Exclude takes dominance over include. Meaning, if the same attribute is in both lists, it will be excluded.
 			exclude (list) = Attributes to exclude from the returned dictionay. ie. [u'Position',u'Rotation',u'Scale',u'renderable',u'isHidden',u'isFrozen',u'selected']
+	
 		:Return:
 			(dict) {'string attribute': current value}
 		'''
-		return {attr:getattr(obj, attr) 
-					for attr in obj.__dict__ 
-						if not attr in exclude 
-						and (attr in include if include else attr not in include)}
-
-
-	def setAttributes(obj, attributes):
-		'''Set attributes for a given object.
-		:Parameters:
-			obj (obj) = The object to set attributes for.
-			attributes = dictionary {'string attribute': value} - attributes and their correponding value to set
-		'''
-		[setattr(obj, attr, value) 
-			for attr, value in attributes.items() 
-				if attr and value]
-
-
-	def convertForDebugging(obj):
-		'''Recursively convert items in sbDict for debugging.
-		:Parameters:
-			obj (dict) = The dictionary to convert.
-		:Return:
-			(dict)
-		'''
-		if isinstance(obj, (list, set, tuple)):
-			return [convert(i) for i in obj]
-		elif isinstance(obj, dict):
-			return {convert(k):convert(v) for k, v in obj.items()}
-		elif not isinstance(obj, (float, int, str)):
-			return str(obj)
-		else:
-			return obj
+		filtered = tk.itertk.filterList(obj.__dict__, include, exclude)
+		return {attr:getattr(obj, attr) for attr in filtered}
 
 
 	global cycleDict
 	cycleDict={}
+	@staticmethod
 	def cycle(sequence, name=None, query=False):
 		'''Toggle between numbers in a given sequence.
 		Used for maintaining toggling sequences for multiple objects simultaniously.
@@ -96,10 +84,8 @@ class Tls():
 		ex. call: areSimilar(1, 10, 9)" #returns: True
 		ex. call: areSimilar(1, 10, 8)" #returns: False
 		'''
-		import itertk
-
 		func = lambda a, b: abs(a-b)<=tol if isinstance(a, (int, float)) else True if isinstance(a, (list, set, tuple)) and cls.areSimilar(a, b, tol) else a==b
-		return all(map(func, itertk.makeList(a), itertk.makeList(b)))
+		return all(map(func, tk.itertk.makeList(a), tk.itertk.makeList(b)))
 
 
 	@staticmethod
@@ -129,6 +115,7 @@ class Tls():
 from tentacle import import_submodules, addMembers
 addMembers(__name__)
 import_submodules(__name__)
+
 
 
 
