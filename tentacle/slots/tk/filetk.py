@@ -5,7 +5,7 @@ import sys, os
 import strtk, itertk
 
 
-class Filetls():
+class Filetk():
 	'''
 	'''
 	@staticmethod
@@ -126,7 +126,7 @@ class Filetls():
 
 
 	@staticmethod
-	def createDirectory(path):
+	def createDir(path):
 		'''Create a directory if one doesn't already exist.
 
 		:Parameters:
@@ -140,7 +140,7 @@ class Filetls():
 
 
 	@classmethod
-	def getDirectoryContents(cls, path, returnType='files', recursive=False, topdown=True, reverse=False, 
+	def getDirContents(cls, path, returnType='files', recursive=False, topdown=True, reverse=False, 
 								includeFiles=[], excludeFiles=[], includeDirs=[], excludeDirs=[]):
 		'''Get the contents of a directory and any of it's children.
 
@@ -162,8 +162,8 @@ class Filetls():
 		:Return:
 			(list)
 
-		ex. getDirectoryContents(path, returnType='filepaths')
-		ex. getDirectoryContents(path, returnType='files|dirs')
+		ex. getDirContents(path, returnType='filepaths')
+		ex. getDirContents(path, returnType='files|dirs')
 		'''
 		path = os.path.expandvars(path) #translate any system variables that might have been used in the path.
 		returnTypes = [t.strip().rstrip('s').lower() for t in returnType.split('|')] #strip any whitespace and trailing 's' of the types to allow for singular and plural to be used interchagably. ie. files | dirs becomes [file, dir]

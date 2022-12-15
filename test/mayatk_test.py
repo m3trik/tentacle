@@ -23,7 +23,7 @@ import inspect
 # 	'{}/bin3'.format(mayapath), 
 # 	'{}/Python{}'.format(mayapath, pythonver)
 # 	]:
-# 	for dd in filetk.getDirectoryContents(d, 'dirpaths', excludeDirs='Python27',  recursive=True):
+# 	for dd in filetk.getDirContents(d, 'dirpaths', excludeDirs='Python27',  recursive=True):
 # 		print (dd)
 # 		sys.path.append(dd)
 

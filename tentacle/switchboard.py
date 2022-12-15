@@ -10,7 +10,7 @@ from PySide2 import QtCore, QtGui, QtWidgets
 from PySide2.QtUiTools import QUiLoader
 
 from tentacle.ui.styleSheet import StyleSheet
-from tentacle.slots import tk
+from tentacle.slots.tk import filetk, strtk, itertk, setAttributes
 
 
 class Switchboard(QUiLoader, StyleSheet):
@@ -107,7 +107,7 @@ class Switchboard(QUiLoader, StyleSheet):
 			If any of the given filepaths are not a full path, it will be treated as relative to the 'defaultDir'.
 			ex. sb.slotLoc = 'maya' would become: '<sb.defaultDir>/maya'			
 		'''
-		self.defaultDir = tk.filetk.getFilepath(parent) if parent else tk.filetk.getFilepath(__file__) #use the filepath from the parent class if a parent is given.
+		self.defaultDir = filetk.getFilepath(parent) if parent else filetk.getFilepath(__file__) #use the filepath from the parent class if a parent is given.
 
 		self.uiLoc = uiLoc
 		self.widgetLoc = widgetLoc
@@ -135,7 +135,7 @@ class Switchboard(QUiLoader, StyleSheet):
 			ui = self.loadUi(uiFullPath) #load the dynamic ui file.
 			return ui
 
-		wgtName = tk.strtk.setCase(attr, 'camelCase')
+		wgtName = strtk.setCase(attr, 'camelCase')
 		pathToWidget = next((f for f in glob.iglob('{}/**/{}.py'.format(self.widgetLoc, wgtName), recursive=True)), None)
 		if pathToWidget:
 			customWidget = self.registerWidgets(attr)
@@ -281,7 +281,7 @@ class Switchboard(QUiLoader, StyleSheet):
 			if l.strip() == '<{}>'.format(prop):
 				actual_prop_text = l
 				start = i+1
-			elif l == tk.strtk.insert(actual_prop_text, '/', '<'):
+			elif l == strtk.insert(actual_prop_text, '/', '<'):
 				end = i
 
 				delimiters = '</', '<', '>', '\n', ' ',
@@ -311,7 +311,7 @@ class Switchboard(QUiLoader, StyleSheet):
 		:Return:
 			(int)
 		'''
-		uiFolder = tk.filetk.formatPath(filePath, 'dir')
+		uiFolder = filetk.formatPath(filePath, 'dir')
 
 		try:
 			return int(re.findall(r"\d+\s*$", uiFolder)[0]) #get trailing integers.
@@ -372,13 +372,13 @@ class Switchboard(QUiLoader, StyleSheet):
 		:Return:
 			(list) widgets
 		'''
-		mod_name = tk.filetk.formatPath(path, 'name')
+		mod_name = filetk.formatPath(path, 'name')
 
-		if not tk.filetk.isValidPath(path):
-			mod_name = tk.strtk.setCase(mod_name, 'camelCase')
+		if not filetk.isValidPath(path):
+			mod_name = strtk.setCase(mod_name, 'camelCase')
 			path = os.path.join(self.widgetLoc, mod_name+'.py')
 
-		path_ = tk.filetk.formatPath(path, 'path')
+		path_ = filetk.formatPath(path, 'path')
 
 		self.setWorkingDirectory(path_) #set QUiLoader working paths.
 		self.addPluginPath(path_)
@@ -489,12 +489,12 @@ class Switchboard(QUiLoader, StyleSheet):
 		'''
 		assert isinstance(ui, QtWidgets.QMainWindow), 'Incorrect datatype: {}: {}'.format(type(ui), ui)
 
-		d = tk.filetk.formatPath(self.slotLoc, 'dir')
+		d = filetk.formatPath(self.slotLoc, 'dir')
 		suffix = '' if d=='slots' else d
 
 		mod_name = '{}_{}'.format(
-							tk.strtk.setCase(ui.name, case='camelCase'), 
-							tk.strtk.setCase(suffix, case='camelCase'),
+							strtk.setCase(ui.name, case='camelCase'), 
+							strtk.setCase(suffix, case='camelCase'),
 							).rstrip('_') #ie. 'polygons_maya' or 'polygons' if suffix is None.
 		if not path:
 			if isinstance(self.slotLoc, str):
@@ -509,7 +509,7 @@ class Switchboard(QUiLoader, StyleSheet):
 				sys.modules[spec.name] = mod
 				spec.loader.exec_module(mod)
 
-				cls_name = tk.strtk.setCase(mod_name, case='pascalCase')
+				cls_name = strtk.setCase(mod_name, case='pascalCase')
 				try:
 					clss = getattr(mod, cls_name)
 				except AttributeError as error: #if a class by the same name as the module doesn't exist: (ex. <Polygons_maya> from module 'polygons_maya')
@@ -538,7 +538,7 @@ class Switchboard(QUiLoader, StyleSheet):
 		ex. call: registerWidgets('O:/Cloud/Code/_scripts/tentacle/tentacle/ui/widgets/menu.py') #register using path to widget module.
 		'''
 		result=[]
-		for w in tk.itertk.makeList(widgets): #assure widgets is a list.
+		for w in itertk.makeList(widgets): #assure widgets is a list.
 
 			if isinstance(w, str):
 				widgets_ = self._getWidgetsFromDir(w)
@@ -559,7 +559,7 @@ class Switchboard(QUiLoader, StyleSheet):
 			except Exception as error:
 				print ('# {}: registerWidgets: {}. #'.format(__file__, error))
 
-		return tk.itertk.formatReturn(result, widgets) #if 'widgets' is given as a list; return a list.
+		return itertk.formatReturn(result, widgets) #if 'widgets' is given as a list; return a list.
 
 
 	def loadAllUi(self, path=None, widgets=None, parent=None):
@@ -594,8 +594,8 @@ class Switchboard(QUiLoader, StyleSheet):
 		:Return:
 			(obj) QMainWindow object.
 		'''
-		name = tk.filetk.formatPath(file, 'name')
-		path = tk.filetk.formatPath(file, 'path')
+		name = filetk.formatPath(file, 'name')
+		path = filetk.formatPath(file, 'path')
 		level = self._getUiLevelFromDir(file)
 
 		#register custom widgets
@@ -612,7 +612,7 @@ class Switchboard(QUiLoader, StyleSheet):
 				except IndexError as error:
 					continue
 
-				mod_name = tk.strtk.setCase(className, 'camelCase')
+				mod_name = strtk.setCase(className, 'camelCase')
 				fullpath = os.path.join(self.widgetLoc, mod_name+'.py')
 				self.registerWidgets(fullpath)
 		#load ui
@@ -695,14 +695,14 @@ class Switchboard(QUiLoader, StyleSheet):
 		if widgets=='all':
 			widgets = self._getWidgetsFromUi(ui) #get all widgets of the ui:
 
-		for w in tk.itertk.makeList(widgets): #assure 'widgets' is a list.
+		for w in itertk.makeList(widgets): #assure 'widgets' is a list.
 
 			derivedType = self._getDerivedType(w) #the base class of any custom widgets.  ie. 'QPushButton' from a custom pushbutton widget.
 			typ = w.__class__.__base__.__name__ if filterByBaseType else derivedType
 			if typ in exclude and (typ in include if include else typ not in include):
 				continue
 
-			tk.setAttributes(w, **kwargs) #set any passed in keyword args for the widget.
+			setAttributes(w, **kwargs) #set any passed in keyword args for the widget.
 
 			try:
 				name = w.objectName()
@@ -753,8 +753,8 @@ class Switchboard(QUiLoader, StyleSheet):
 				ui = [u for u in self._loadedUi 
 						if all([
 							u.base==ui1.base, 
-							u.tags==tk.itertk.makeList(tags), 
-							u.level in tk.itertk.makeList(level),
+							u.tags==itertk.makeList(tags), 
+							u.level in itertk.makeList(level),
 						])
 				]
 
@@ -762,11 +762,11 @@ class Switchboard(QUiLoader, StyleSheet):
 				ui = [u for u in self._loadedUi 
 						if all([
 							u.base==ui.base, 
-							u.level in tk.itertk.makeList(level),
+							u.level in itertk.makeList(level),
 						])
 				]
 
-			return tk.itertk.formatReturn(ui, level) #if 'level' is given as a list; return a list.
+			return itertk.formatReturn(ui, level) #if 'level' is given as a list; return a list.
 
 		elif isinstance(ui, str):
 			try:
@@ -870,7 +870,7 @@ class Switchboard(QUiLoader, StyleSheet):
 			[hist.remove(u) for u in hist[:] if hist.count(u)>1] #remove any previous duplicates if they exist; keeping the last added element.
 
 		if omitLevel is not None:
-			hist = [u for u in hist if not u.level in tk.itertk.makeList(omitLevel)] #remove any items having a ui level of those in the omitLevel list.
+			hist = [u for u in hist if not u.level in itertk.makeList(omitLevel)] #remove any items having a ui level of those in the omitLevel list.
 
 		if asList:
 			return hist #return entire list after being modified by any flags such as 'allowDuplicates'.
@@ -942,7 +942,7 @@ class Switchboard(QUiLoader, StyleSheet):
 			ui = self.getUi(ui)
 
 		typ = 'derivedType' if derivedType else 'type'
-		return [w for w in ui.widgets if getattr(w, typ) in tk.itertk.makeList(types)]
+		return [w for w in ui.widgets if getattr(w, typ) in itertk.makeList(types)]
 
 
 	def getWidgetName(self, widget=None, ui=None):
@@ -1062,7 +1062,7 @@ class Switchboard(QUiLoader, StyleSheet):
 		signals=[]
 		try: #if the widget type has a default signal assigned in the signals dict; get the signal.
 			signalTypes = self.defaultSignals[w.derivedType]
-			for s in tk.itertk.makeList(signalTypes): #assure 'signalTypes' is a list.
+			for s in itertk.makeList(signalTypes): #assure 'signalTypes' is a list.
 				signal = getattr(w, s, None)
 				signals.append(signal)
 
@@ -1100,9 +1100,9 @@ class Switchboard(QUiLoader, StyleSheet):
 		'''
 		if widgets is None:
 			widgets = ui.widgets
-		# print ('connectSlots:', ui.name, [w.objectName() for w in tk.itertk.makeList(widgets)])
+		# print ('connectSlots:', ui.name, [w.objectName() for w in itertk.makeList(widgets)])
 
-		for w in tk.itertk.makeList(widgets): #convert 'widgets' to a list if it is not one already.
+		for w in itertk.makeList(widgets): #convert 'widgets' to a list if it is not one already.
 			# print ('           >:', w.name, w.method)
 			if w.method and w.signals:
 				for s in w.signals:
@@ -1134,7 +1134,7 @@ class Switchboard(QUiLoader, StyleSheet):
 		if widgets is None:
 			widgets = ui.widgets
 
-		for w in tk.itertk.makeList(widgets):  #convert 'widgets' to a list if it is not one already.
+		for w in itertk.makeList(widgets):  #convert 'widgets' to a list if it is not one already.
 			# print ('           >:', w.name, w.method)
 			if w.method and w.signals:
 				for s in w.signals:
@@ -1174,9 +1174,9 @@ class Switchboard(QUiLoader, StyleSheet):
 				widgets = self.getWidgetsFromStr(self.currentUi, widgets, showError=True)
 
 		#if the variables are not of a list type; convert them.
-		widgets = tk.itertk.makeList(widgets)
-		signals = tk.itertk.makeList(signals)
-		slots = tk.itertk.makeList(slots)
+		widgets = itertk.makeList(widgets)
+		signals = itertk.makeList(signals)
+		slots = itertk.makeList(slots)
 
 		for widget in widgets:
 			for signal in signals:
@@ -1253,7 +1253,7 @@ class Switchboard(QUiLoader, StyleSheet):
 
 		elif not isinstance(attributes, dict):
 			attributes = {next((k for k,v in self.attributesGetSet.items() if v==i), None):i #construct a gettr setter pair dict using only the given setter values.
-				 for i in tk.itertk.makeList(attributes)
+				 for i in itertk.makeList(attributes)
 			}
 
 		_attributes = {}
@@ -1499,7 +1499,7 @@ class Switchboard(QUiLoader, StyleSheet):
 		if clear:
 			self._gcProtect.clear()
 
-		for o in tk.itertk.makeList(obj):
+		for o in itertk.makeList(obj):
 			self._gcProtect.add(o)
 
 		return self._gcProtect

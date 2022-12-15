@@ -5,10 +5,10 @@ import sys, os.path
 import importlib
 import inspect
 
-from tentacle.slots import tk
+from tentacle.slots.tk import itertk
 
 
-class Tls():
+class Tk():
 	'''
 	'''
 	@staticmethod
@@ -35,7 +35,7 @@ class Tls():
 		:Return:
 			(dict) {'string attribute': current value}
 		'''
-		filtered = tk.itertk.filterList(obj.__dict__, include, exclude)
+		filtered = itertk.filterList(obj.__dict__, include, exclude)
 		return {attr:getattr(obj, attr) for attr in filtered}
 
 
@@ -85,7 +85,7 @@ class Tls():
 		ex. call: areSimilar(1, 10, 8)" #returns: False
 		'''
 		func = lambda a, b: abs(a-b)<=tol if isinstance(a, (int, float)) else True if isinstance(a, (list, set, tuple)) and cls.areSimilar(a, b, tol) else a==b
-		return all(map(func, tk.itertk.makeList(a), tk.itertk.makeList(b)))
+		return all(map(func, itertk.makeList(a), itertk.makeList(b)))
 
 
 	@staticmethod

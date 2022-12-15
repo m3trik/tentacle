@@ -5,7 +5,7 @@ import sys, os
 import itertk
 
 
-class Strtls():
+class Strtk():
 	'''
 	'''
 
@@ -105,7 +105,7 @@ class Strtls():
 
 
 	@staticmethod
-	def rreplace(string, old, new, count=None):
+	def rreplace(string, old, new='', count=None):
 		'''Replace occurrances in a string from right to left.
 		The number of occurrances replaced can be limited by using the 'count' argument.
 

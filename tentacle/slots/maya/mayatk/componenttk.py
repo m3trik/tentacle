@@ -5,7 +5,7 @@ try:
 except ImportError as error:
 	print (__file__, error)
 
-from tentacle.slots import tk
+from tentacle.slots.tk import itertk, mathtk, randomize
 
 
 class GetComponents():
@@ -118,7 +118,7 @@ class GetComponents():
 		getElementType('cylShape.vtx[:]') #returns: 'str'
 		'''
 		try:
-			o = tk.itertk.makeList(obj)[0]
+			o = itertk.makeList(obj)[0]
 		except IndexError as error:
 			# print ('{}\n# Error: getElementType: Operation requires at least one object. #\n	{}'.format(__file__, error))
 			return ''
@@ -180,8 +180,8 @@ class GetComponents():
 
 			objects = set(pm.ls(lst, objectsOnly=True))
 			if len(objects)==1: #flatten the dict values from 'result' and remove any duplicates.
-				flattened = tk.itertk.flatten(result.values())
-				result = tk.itertk.removeDuplicates(flattened)
+				flattened = itertk.flatten(result.values())
+				result = itertk.removeDuplicates(flattened)
 		else:
 			if returnType=='transform':
 				result = list(map(lambda s: ''.join(s.rsplit('Shape', 1)), lst))
@@ -245,7 +245,7 @@ class GetComponents():
 
 		if not flatten:
 			n = lambda c: '{}:{}'.format(c[0], c[-1]) if len(c)>1 else str(c[0])
-			result = ['{}.{}[{}]'.format(objName, componentType, n(c)) for c in tk.itertk.splitList(integers, 'range')]
+			result = ['{}.{}[{}]'.format(objName, componentType, n(c)) for c in itertk.splitList(integers, 'range')]
 		else:
 			result = ['{}.{}[{}]'.format(objName, componentType, c) for c in integers]
 
@@ -292,7 +292,7 @@ class GetComponents():
 
 		components = pm.ls(components, flatten=True)
 
-		filtered = tk.itertk.filterList(components, include=include, exclude=exclude)
+		filtered = itertk.filterList(components, include=include, exclude=exclude)
 		result = cls.convertElementType(filtered, returnType=etyp, flatten=flatten)
 		return result
 
@@ -329,7 +329,7 @@ class GetComponents():
 			components = cls.filterComponents(components, include=include, exclude=exclude)
 
 		if randomize:
-			components = tk.randomize(pm.ls(components, flatten=1), randomize)
+			components = randomize(pm.ls(components, flatten=1), randomize)
 
 		result = cls.convertElementType(components, returnType=returnType, flatten=flatten)
 		return result
@@ -551,7 +551,6 @@ class Componenttls(GetComponents):
 		ex. call: getClosestVerts('pln.vtx[:10]', 'pln.vtx[11:]', 6.667) #returns: [('plnShape.vtx[7]', 'plnShape.vtx[11]'), ('plnShape.vtx[8]', 'plnShape.vtx[12]'), ('plnShape.vtx[9]', 'plnShape.vtx[13]'), ('plnShape.vtx[10]', 'plnShape.vtx[11]'), ('plnShape.vtx[10]', 'plnShape.vtx[14]')]
 		'''
 		from operator import itemgetter
-		from tentacle.slots.tk.mathtk import getDistBetweenTwoPoints
 
 		set1 = cls.convertElementType(set1, returnType='str', flatten=True)
 		set2 = cls.convertElementType(set2, returnType='str', flatten=True)
@@ -560,7 +559,7 @@ class Componenttls(GetComponents):
 			v1Pos = pm.pointPosition(v1, world=1)
 			for v2 in set2:
 				v2Pos = pm.pointPosition(v2, world=1)
-				distance = getDistBetweenTwoPoints(v1Pos, v2Pos)
+				distance = mathtk.getDistBetweenTwoPoints(v1Pos, v2Pos)
 				if distance<tolerance:
 					vertPairsAndDistance[(v1, v2)] = distance
 
@@ -590,7 +589,7 @@ class Componenttls(GetComponents):
 		getClosestVertex('plnShape.vtx[0]', 'cyl') #returns: {'plnShape.vtx[0]': 'cylShape.vtx[3]'},
 		getClosestVertex('plnShape.vtx[2:3]', 'cyl') #returns: {'plnShape.vtx[2]': 'cylShape.vtx[2]', 'plnShape.vtx[3]': 'cylShape.vtx[1]'}
 		'''
-		from tentacle.slots.tk.mathtk import getDistBetweenTwoPoints
+		from tentacle.slots.mathtk import getDistBetweenTwoPoints
 
 		vertices = cls.convertElementType(vertices, returnType='str', flatten=True)
 		pm.undoInfo(openChunk=True)
@@ -676,7 +675,7 @@ class Componenttls(GetComponents):
 			edgesLong = pm.polySelect(obj, query=1, edgeLoop=cnums) #(e..)
 
 		objName = obj.name()
-		result = tk.itertk.removeDuplicates(['{}.e[{}]'.format(objName, e) for e in edgesLong])
+		result = itertk.removeDuplicates(['{}.e[{}]'.format(objName, e) for e in edgesLong])
 		return cls.convertElementType(result, returnType=returnType, flatten=flatten)
 
 

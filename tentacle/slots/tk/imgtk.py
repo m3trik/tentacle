@@ -5,21 +5,22 @@ import sys, os
 try:
 	import numpy as np
 except ImportError as error:
-	print ('# Error:', __file__, error, '#')
+	print ('{}\n	# Error: {} #'.format(__file__, error))
 try:
 	from PIL import Image
+	from PIL import ImageDraw
 	from PIL.ImageChops import invert
 except ImportError as error:
-	print ('# Error:', __file__, error, '#')
+	print ('{}\n	# Error: {} #'.format(__file__, error))
 try:
 	from PySide2 import QtWidgets
 except ImportError as error:
-	print ('# Error:', __file__, error, '#')
+	print ('{}\n	# Error: {} #'.format(__file__, error))
 
 from tentacle.slots.tk import filetk, itertk
 
 
-class Imgtls():
+class Imgtk():
 	'''Helper methods for working with image file formats.
 	'''
 	app = QtWidgets.QApplication.instance()
@@ -109,16 +110,89 @@ class Imgtls():
 
 
 	@staticmethod
-	def getImageDirectory():
-		'''Open a dialog prompt to choose a directory.
+	def imhelp(a=None):
+		'''Get help documentation on a specific PIL image attribute 
+		or list all available attributes.
+
+		:Parameters:
+			a (str) = A specific PIL image attribute (ie. 'resize') 
+					or if None given; list all available attributes.
+		'''
+		im = Image.new('RGB', (32, 32))
+
+		if a is None:
+			for i in dir(im):
+				if i.startswith('_'):
+					continue
+				print (i)
+		else:
+			print (help(getattr(im, a)))
+
+		del(im)
+
+
+	@staticmethod
+	def createImage(mode, size=(4096, 4096), color=None):
+		'''Create a new image.
+
+		:Parameters:
+			mode (str) = Image color mode. ex. 'I', 'L', 'RGBA'
+			size (tuple) = Size as x and y coordinates.
+			color (int)(tuple) = Color values.
+					'I' mode image color must be int or single-element tuple.
+		:Return:
+			(obj) image.
+		'''
+		return Image.new(mode, size, color)
+
+
+	@staticmethod
+	def resizeImage(image, x, y):
+		'''Returns a resized copy of an image. It doesn't modify the original.
+
+		:Parameters:
+			image (str)(obj) = An image or path to an image.
+			x (int) = Size in the x coordinate.
+			y (int) = Size in the y coordinate.
 
 		:Return:
-			(list)
+			(obj) new image of the given size.
 		'''
-		image_dir = QtWidgets.QFileDialog.getExistingDirectory(None, 
-			"Select a directory containing image files", "/home")
+		im = Image.open(image) if (isinstance(image, str)) else image
+		return im.resize((x, y), Image.Resampling.LANCZOS)
 
-		return image_dir
+
+	@staticmethod
+	def saveImageFile(image, name):
+		'''
+		:Parameters:
+			image (obj) = PIL image object.
+			name (str) = Path + filename including extension. ie. new_image.png
+		'''
+		im = Image.open(image) if (isinstance(image, str)) else image
+		im.save(name)
+
+
+	@classmethod
+	def getImages(cls, directory, include='*.png|*.jpg|*.bmp|*.tga|*.tiff|*.gif', exclude=''):
+		'''Get bitmap images from a given directory as PIL images.
+
+		:Parameters:
+			directory (string) = A full path to a directory containing images with the given fileTypes.
+			include (str) = The files to include. 
+					supports using the '*' operator: startswith*, *endswith, *contains*
+			exclude (str) = The files to exclude.
+					(exlude take precidence over include)
+		:Return:
+			(dict) {<full file path>:<image object>}
+		'''
+		images={}
+		for f in filetk.getDirContents(directory, 'filepaths', includeFiles=include.split('|'), excludeFiles=exclude.split('|')):
+
+			with Image.open(f) as im:
+				images[f] = im
+
+		return images
 
 
 	@staticmethod
@@ -137,297 +211,21 @@ class Imgtls():
 		return files
 
 
-	@classmethod
-	def getImages(cls, image_dir, fileTypes='*.png|*.jpg|*.bmp|*.tga|*.tiff|*.gif'):
-		'''Get bitmap images from a given directory as PIL images.
-
-		:Parameters:
-			image_dir (string) = A full path to a directory containing images with the given fileTypes.
-			fileTypes (str) = The extensions of image types to include.
-
-		:Return:
-			(dict) {<full file path>:<image object>}
-		'''
-		exts = [e.strip('*') for e in fileTypes.split('|')]
-
-		images={}
-		for f in filetk.getDirectoryContents(image_dir, 'filepaths'):
-
-			if any(map(f.endswith, exts)):
-				fullpath = filetk.formatPath(f)
-				filename = filetk.formatPath(f, 'file')
-				filename = min(map(filename.rstrip, exts), key=len)
-
-				im = Image.open(fullpath)
-				images[fullpath] = im
-
-		return images
-
-
 	@staticmethod
-	def getImageBackground(image, mode=None, average=False):
-		'''Sample the pixel values of each corner of an image and if they are uniform, return the result.
-
-		:Parameters:
-			image (str)(obj) = 
-			mode (str) = Image color mode. ex. 'RGBA'
-			average (bool) = Average the sampled pixel values.
+	def getImageDirectory():
+		'''Open a dialog prompt to choose a directory.
 
 		:Return:
-			(tuple) ex. (211, 211, 211, 255)
+			(list)
 		'''
-		im = Image.open(image) if (isinstance(image, str)) else image
+		image_dir = QtWidgets.QFileDialog.getExistingDirectory(None, 
+			"Select a directory containing image files", "/home")
 
-		if mode:
-			im = im.convert(mode)
-
-		width, height = im.size
-
-		tl = im.getpixel((0, 0)) #get the pixel value at top left coordinate.
-		tr = im.getpixel((width-1, 0)) #			""	 top right coordinate.
-		br = im.getpixel((0, height-1)) #			""	 bottom right coordinate.
-		bl = im.getpixel((width-1, height-1)) #		""	 bottom left coordinate.
-
-		if len(set([tl, tr, br, bl]))==1: #list of pixel values are all identical.
-			return tl
-
-		elif average:
-			return tuple(int(np.mean(i)) for i in zip(*[tl, tr, br, bl]))
-
-		else:
-			return None #non-uniform background.
+		return image_dir
 
 
 	@classmethod
-	def createMasks(cls, images, *args, **kwargs):
-		'''
-		:Parameters:
-			images (list) = A list of images or image paths.
-
-		:Return:
-			(list) image objects.
-		'''
-		masks=[]
-		for im in images:
-			mask = cls.createMask(im, *args, **kwargs)
-			masks.append(mask)
-
-		return masks
-
-
-	@staticmethod
-	def createMask(image, mask, background=(0, 0, 0, 255), foreground=(255, 255, 255, 255)):
-		'''
-		:Parameters:
-			image (str)(obj) = An image or path to an image.
-
-		:Return:
-			(obj) image object.
-		'''
-		im = Image.open(image) if (isinstance(image, str)) else image
-		im = im.convert('RGBA')
-		width, height = im.size
-		data = np.array(im)
-
-		r1, g1, b1, a1 = mask if len(mask)==4 else mask+(None,)
-
-		r, g, b, a = data[:,:,0], data[:,:,1], data[:,:,2], data[:,:,3]
-
-		bool_list = ((r==r1) & (g==g1) & (b==b1) & (a==a1)) if len(mask)==4 else ((r==r1) & (g==g1) & (b==b1))
-
-		data[:,:,:4][bool_list.any()] = foreground
-		data[:,:,:4][bool_list] = background
-
-		#set the border to background color:
-		data[0, 0] = background #get the pixel value at top left coordinate.
-		data[width-1, 0] = background #			""	 top right coordinate.
-		data[0, height-1] = background #			""	 bottom right coordinate.
-		data[width-1, height-1] = background #		""	 bottom left coordinate.
-
-		return Image.fromarray(data).convert('L')
-
-
-	@staticmethod
-	def fill(image, color=(0, 0, 0, 0)):
-		'''
-		:Parameters:
-			image (str)(obj) = An image or path to an image.
-			color (list) = RGB or RGBA color values.
-
-		:Return:
-			(obj) image object.
-		'''
-		im = Image.open(image) if (isinstance(image, str)) else image
-
-		draw = ImageDraw.Draw(im)
-		draw.rectangle([(0,0), im.size], fill=color)
-
-		return im
-
-
-	@classmethod
-	def fillMaskedArea(cls, image, color, mask):
-		'''
-		:Parameters:
-			image (str)(obj) = An image or path to an image.
-			color (list) = RGB or RGBA color values.
-
-		:Return:
-			(obj) image object.
-		'''
-		im = Image.open(image) if (isinstance(image, str)) else image
-		mode = im.mode
-		im = im.convert('RGBA')
-
-		background = cls.createImage(mode=im.mode, size=im.size, rgba=color)
-
-		return Image.composite(im, background, mask).convert(mode)
-
-
-	@staticmethod
-	def convert_rgb_to_gray(data):
-		'''Convert an RGB Image data array to grayscale.
-
-		:Paramters:
-			image (array) = Image data as numpy array.
-
-		:Return:
-			(array)
-
-		# gray_data = np.average(data, weights=[0.299, 0.587, 0.114], axis=2)
-		# gray_data = (data[:,:,:3] * [0.2989, 0.5870, 0.1140]).sum(axis=2)
-		'''
-		gray_data = np.dot(data[...,:3], [0.2989, 0.5870, 0.1140])
-
-		# array = gray_data.reshape(gray_data.shape[0], gray_data.shape[1], 1)
-		#print (array.shape)
-
-		return gray_data
-
-
-	@staticmethod
-	def convert_to_32bit_I(image):
-		'''Under construction.
-
-		:Parameters:
-			image (str)(obj) = An image or path to an image.
-
-		:Return:
-			(obj) image object.
-		'''
-		im = Image.open(image) if (isinstance(image, str)) else image
-		data = np.array(im)
-
-		try: #convert from 'I'
-			im32 = data.astype(np.int32)
-			return Image.fromarray(im32, mode='I')
-
-		except ValueError as error: #convert from 'RGB'
-			
-			# data = cls.convert_rgb_to_gray(data)
-
-			# im32 = data.astype(np.int32)
-			# return Image.fromarray(im32, mode='I')
-
-			# from PIL import ImageMath
-			# return ImageMath.eval('im >> 32', im=im.convert('I'))
-			return im.convert('RGB')
-
-
-	@staticmethod
-	def convert_I_to_L(image):
-		'''Convert to 8 bit 'L' grayscale.
-
-		:Parameters:
-			image (str)(obj) = The PIL image to convert.
-
-		:Return:
-			(obj) PIL image.
-		'''
-		im = Image.open(image) if (isinstance(image, str)) else image
-		data = np.array(im)
-
-		data = np.asarray(data, np.uint8) #np.uint8(data / 256)
-		return Image.fromarray(data)
-
-
-	@staticmethod
-	def all_pixels_identical(image):
-		'''Check if all pixels of an image are of the same pixel value.
-		As soon as any value is different from the first one; return False, else; True.
-
-		:Parameters:
-			image (str)(obj) = An image or path to an image.
-
-		:Return:
-			(bool)
-		'''
-		bits = image.constBits()
-		a = bits[0]
-		return all(a==b for b in bits)
-
-
-	@staticmethod
-	def setPixelColor(image, x, y, color):
-		'''
-		:Parameters:
-			image (str)(obj) = An image or path to an image.
-			x () = X coordinate.
-			y () = Y coordinate.
-			color (list) = RGB or RGBA color values.
-		'''
-		im = Image.open(image) if (isinstance(image, str)) else image
-
-		im.putpixel((x, y), color)
-
-
-	@staticmethod
-	def replaceColor(image, from_color=(0, 0, 0, 0), to_color=(0, 0, 0, 0), mode=None):
-		'''
-		:Parameters:
-			image (str)(obj) = 
-			from_color (tuple) = 
-			to_color (tuple) = 
-			mode (str) = The image is converted to rgba for the operation specify the returned image mode. the original image mode will be returned if None is given. ex. 'RGBA' to return in rgba format.
-
-		:Return:
-			(obj) image.
-		'''
-		im = Image.open(image) if (isinstance(image, str)) else image
-		mode = mode if mode else im.mode
-		im = im.convert('RGBA')
-		data = np.array(im)
-
-		r1, g1, b1, a1 = from_color if len(from_color)==4 else from_color+(None,)
-
-		r, g, b, a = data[:,:,0], data[:,:,1], data[:,:,2], data[:,:,3]
-
-		mask = ((r==r1) & (g==g1) & (b==b1) & (a==a1)) if len(from_color)==4 else ((r==r1) & (g==g1) & (b==b1))
-		data[:,:,:4][mask] = to_color if len(to_color)==4 else to_color+(255,)
-
-		return Image.fromarray(data).convert('RGBA')
-
-
-	@staticmethod
-	def setContrast(image, level=255):
-		'''
-		:Parameters:
-			image (str)(obj) = An image or path to an image.
-			level (int) = Contrast level from 0-255.
-
-		:Return:
-			(obj) image object.
-		'''
-		im = Image.open(image) if (isinstance(image, str)) else image
-
-		factor = (259 * (level + 255)) / (255 * (259 - level))
-		_contrast = lambda c: int(max(0, min(255, 128 + factor * (c - 128)))) #make sure the contrast filter only return values within the range [0-255].
-
-		return im.point(_contrast)
-
-
-	@classmethod
-	def getImageType(cls, file, key=True):
+	def getImageTypeFromFilename(cls, file, key=True):
 		'''
 		:Parameters:
 			file (str) = Image filename, fullpath, or map type suffix.
@@ -440,9 +238,11 @@ class Imgtls():
 		name = filetk.formatPath(file, 'name')
 
 		if key:
-			return next((k for k, v in cls.mapTypes.items() for i in v if name.lower().endswith(i.lower())), None)
-
-		return next((i for v in cls.mapTypes.values() for i in v if name.lower().endswith(i.lower())), (''.join(name.split('_')[-1]) if '_' in name else None))
+			result = next((k for k, v in cls.mapTypes.items() for i in v if name.lower().endswith(i.lower())), None)
+		else:
+			result = next((i for v in cls.mapTypes.values() for i in v if name.lower().endswith(i.lower())), (''.join(name.split('_')[-1]) if '_' in name else None))
+		if result:
+			return result
 
 
 	@classmethod
@@ -459,7 +259,7 @@ class Imgtls():
 			(dict)
 		'''
 		types = itertk.makeList(types.split('|'))
-		return [f for f in files if cls.getImageType(f) in types]
+		return [f for f in files if cls.getImageTypeFromFilename(f) in types]
 
 
 	@classmethod
@@ -467,14 +267,17 @@ class Imgtls():
 		'''Sort images files by map type.
 
 		:Parameters:
-			files (list) = A list of image filenames, fullpaths, or map type suffixes.
-
+			files (list)(dict) = filenames, fullpaths, or map type suffixes as the first element 
+					of two element tuples or keys in a dictionary. ex. [('file', <image>)] or {'file': <image>}
 		:Return:
-			(dict)
+			(dict) ex. {Height:[('img_height.png', <image>)]}
 		'''
+		if not isinstance(files, (list, tuple, set)):
+			files = files.items()
+
 		sorted_images={}
-		for file, image in files.items():
-			typ = cls.getImageType(file)
+		for file, image in files:
+			typ = cls.getImageTypeFromFilename(file)
 			if not typ:
 				continue
 
@@ -491,8 +294,8 @@ class Imgtls():
 		'''Check if the given images contain the given map types.
 
 		:Parameters:
-			files (list)(dict) = A list of image filenames, fullpaths, or map type suffixes.
-					Also can take a dictionary in the form of: {typ: (file, image)}
+			files (list)(dict) = filenames, fullpaths, or map type suffixes as the first element 
+					of two element tuples or keys in a dictionary. ex. [('file', <image>)] or {'file': <image>} or {'type': ('file', <image>)}
 			map_types (str) = The map type(s) to query. Any of the keys in the 'map_types' dict.
 					Multiple types can be given separated by '|' ex. 'Base_Color|Roughness'
 					ex. 'Base_Color','Roughness','Metallic','Ambient_Occlusion','Normal',
@@ -501,11 +304,11 @@ class Imgtls():
 		:Return:
 			(bool)
 		'''
-		if isinstance(files, list):
+		if isinstance(files, (list, set, tuple)):
 			files = cls.sortImagesByType(files) #convert list to dict of the correct format.
 
 		result = next((True for i in files.keys() 
-			if cls.getImageType(i) in itertk.makeList(map_types.split('|'))), False)
+			if cls.getImageTypeFromFilename(i) in itertk.makeList(map_types.split('|'))), False)
 
 		return True if result else False
 
@@ -520,7 +323,7 @@ class Imgtls():
 		:Return:
 			(bool)
 		'''
-		typ = cls.getImageType(file)
+		typ = cls.getImageTypeFromFilename(file)
 		return any((typ in cls.mapTypes['Normal_DirectX'], 
 				typ in cls.mapTypes['Normal_OpenGL'], 
 				typ in cls.mapTypes['Normal']))
@@ -528,13 +331,14 @@ class Imgtls():
 
 	@staticmethod
 	def invertChannels(image, channels='RGB'):
-		'''
+		'''Invert RGB channels.
+
 		:Parameters:
 			image (str)(obj) = An image or path to an image.
 			channels (str) = Specify which channels to invert.
 				valid: 'R','G','B' case insensitive.
 		:Return:
-			(obj) image object.
+			(obj) image.
 		'''
 		im = Image.open(image) if (isinstance(image, str)) else image
 		alpha = None
@@ -568,16 +372,16 @@ class Imgtls():
 		name = filetk.formatPath(file, 'name')
 		ext = filetk.formatPath(file, 'ext')
 
-		typ = cls.getImageType(file, key=False)
+		typ = cls.getImageTypeFromFilename(file, key=False)
 		try:
 			index = cls.mapTypes['Normal_OpenGL'].index(typ)
 			new_type = cls.mapTypes['Normal_DirectX'][index]
-		except IndexError as error:
-			print ('# Error: convertDXToGL:', __file__, error, '#')
+		except (IndexError, ValueError) as error:
+			print ('{} in createDXFromGL\n	# Error: {} #'.format(__file__, error))
 			new_type = 'Normal_DirectX'
 
-		name = name.rstrip(typ)
-		filepath = '{}/{}_{}.{}'.format(output_dir, name, new_type, ext)
+		name = name.removesuffix(typ)
+		filepath = '{}/{}{}.{}'.format(output_dir, name, new_type, ext)
 		inverted_image.save(filepath)
 
 		return filepath
@@ -600,58 +404,251 @@ class Imgtls():
 		name = filetk.formatPath(file, 'name')
 		ext = filetk.formatPath(file, 'ext')
 
-		typ = cls.getImageType(file, key=False)
+		typ = cls.getImageTypeFromFilename(file, key=False)
 		try:
 			index = cls.mapTypes['Normal_DirectX'].index(typ)
 			new_type = cls.mapTypes['Normal_OpenGL'][index]
 		except IndexError as error:
-			print ('# Error: createGLFromDX:', __file__, error, '#')
+			print ('{} in createGLFromDX\n	# Error: {} #'.format(__file__, error))
 			new_type = 'Normal_OpenGL'
 
-		name = name.rstrip(typ)
-		filepath = '{}/{}_{}.{}'.format(output_dir, name, new_type, ext)
+		name = name.removesuffix(typ)
+		filepath = '{}/{}{}.{}'.format(output_dir, name, new_type, ext)
 		inverted_image.save(filepath)
 
 		return filepath
 
 
 	@staticmethod
-	def resizeImage(image, x, y):
+	def createMask(images, mask, background=(0, 0, 0, 255), foreground=(255, 255, 255, 255)):
+		'''Create mask(s) from the given image(s).
+
+		:Parameters:
+			images (str)(obj)(list) = Image(s) or path(s) to an image.
+			mask (tuple) = The color to isolate as a mask. (RGB) or (RGBA)
+			background (tuple) = Mask background color. (RGB) or (RGBA)
+			foreground (tuple) = Mask foreground color. (RGB) or (RGBA)
+
+		:Return:
+			(obj)(list) 'L' mode images. list if 'images' given as a list. else; single image.
+		'''
+		masks=[]
+		for image in itertk.makeList(images):
+			im = Image.open(image) if (isinstance(image, str)) else image
+			mode = im.mode
+			im = im.convert('RGBA')
+			width, height = im.size
+			data = np.array(im)
+
+			r1, g1, b1, a1 = mask if len(mask)==4 else mask+(None,)
+
+			r, g, b, a = data[:,:,0], data[:,:,1], data[:,:,2], data[:,:,3]
+
+			bool_list = ((r==r1) & (g==g1) & (b==b1) & (a==a1)) if len(mask)==4 else ((r==r1) & (g==g1) & (b==b1))
+
+			data[:,:,:4][bool_list.any()] = foreground
+			data[:,:,:4][bool_list] = background
+
+			#set the border to background color:
+			data[0, 0] = background #get the pixel value at top left coordinate.
+			data[width-1, 0] = background #			""	 top right coordinate.
+			data[0, height-1] = background #			""	 bottom right coordinate.
+			data[width-1, height-1] = background #		""	 bottom left coordinate.
+
+			mask = Image.fromarray(data).convert('L')
+			masks.append(mask)
+
+		return itertk.formatReturn(masks, images)
+
+
+	@classmethod
+	def fillMaskedArea(cls, image, color, mask):
 		'''
 		:Parameters:
 			image (str)(obj) = An image or path to an image.
-			x (int) = Size in the x coordinate.
-			y (int) = Size in the y coordinate.
-		'''
-		im = Image.open(image) if (isinstance(image, str)) else image
-
-		im.resize((x, y))
-
-
-	@staticmethod
-	def createImage(mode='RGBA', size=(4096, 4096), color=(0, 0, 0, 255)):
-		'''
-		:Parameters:
-			mode (str) = Image color mode. ex. 'RGBA'
-			size (tuple) = Size in x and y.
-			color (tuple) = RGB or RGBA color values.
+			color (list) = RGB or RGBA color values.
+			mask () = 
 
 		:Return:
-			(obj) image object.
+			(obj) image.
 		'''
-		return Image.new(mode, size, color)
+		im = Image.open(image) if (isinstance(image, str)) else image
+		mode = im.mode
+		im = im.convert('RGBA')
+
+		background = cls.createImage(mode=im.mode, size=im.size, color=color)
+
+		return Image.composite(im, background, mask).convert(mode)
 
 
 	@staticmethod
-	def saveImageFile(image, name):
+	def fill(image, color=(0, 0, 0, 0)):
 		'''
 		:Parameters:
-			image (obj) = PIL image object.
-			name (str) = Path + filename including extension. ie. new_image.png
+			image (str)(obj) = An image or path to an image.
+			color (list) = RGB or RGBA color values.
+
+		:Return:
+			(obj) image.
 		'''
 		im = Image.open(image) if (isinstance(image, str)) else image
 
-		im.save(name)
+		draw = ImageDraw.Draw(im)
+		draw.rectangle([(0,0), im.size], fill=color)
+
+		return im
+
+
+	@staticmethod
+	def getBackground(image, mode=None, average=False):
+		'''Sample the pixel values of each corner of an image and if they are uniform, return the result.
+
+		:Parameters:
+			image (str)(obj) = An image or path to an image.
+			mode (str) = The returned image color mode. ex. 'RGBA'
+					If None is given, the original mode will be returned.
+			average (bool) = Average the sampled pixel values.
+
+		:Return:
+			(int)(tuple) dependant on mode. ex. 32767 for mode 'I' or (211, 211, 211, 255) for 'RGBA' 
+		'''
+		im = Image.open(image) if (isinstance(image, str)) else image
+
+		if mode:
+			im = im.convert(mode)
+
+		width, height = im.size
+
+		tl = im.getpixel((0, 0)) #get the pixel value at top left coordinate.
+		tr = im.getpixel((width-1, 0)) #			""	 top right coordinate.
+		br = im.getpixel((0, height-1)) #			""	 bottom right coordinate.
+		bl = im.getpixel((width-1, height-1)) #		""	 bottom left coordinate.
+
+		if len(set([tl, tr, br, bl]))==1: #list of pixel values are all identical.
+			return tl
+
+		elif average:
+			return tuple(int(np.mean(i)) for i in zip(*[tl, tr, br, bl]))
+
+		else:
+			return None #non-uniform background.
+
+
+	@staticmethod
+	def replaceColor(image, from_color=(0, 0, 0, 0), to_color=(0, 0, 0, 0), mode=None):
+		'''
+		:Parameters:
+			image (str)(obj) = An image or path to an image.
+			from_color (tuple) = The starting color. (RGB) or (RGBA)
+			to_color (tuple) = The ending color. (RGB) or (RGBA)
+			mode (str) = The image is converted to rgba for the operation specify the returned image mode. the original image mode will be returned if None is given. ex. 'RGBA' to return in rgba format.
+
+		:Return:
+			(obj) image.
+		'''
+		im = Image.open(image) if (isinstance(image, str)) else image
+		mode = mode if mode else im.mode
+		im = im.convert('RGBA')
+		data = np.array(im)
+
+		r1, g1, b1, a1 = from_color if len(from_color)==4 else from_color+(None,)
+
+		r, g, b, a = data[:,:,0], data[:,:,1], data[:,:,2], data[:,:,3]
+
+		mask = ((r==r1) & (g==g1) & (b==b1) & (a==a1)) if len(from_color)==4 else ((r==r1) & (g==g1) & (b==b1))
+		data[:,:,:4][mask] = to_color if len(to_color)==4 else to_color+(255,)
+
+		return Image.fromarray(data).convert('RGBA')
+
+
+	@staticmethod
+	def setContrast(image, level=255):
+		'''
+		:Parameters:
+			image (str)(obj) = An image or path to an image.
+			level (int) = Contrast level from 0-255.
+
+		:Return:
+			(obj) image.
+		'''
+		im = Image.open(image) if (isinstance(image, str)) else image
+
+		factor = (259 * (level + 255)) / (255 * (259 - level))
+		_contrast = lambda c: int(max(0, min(255, 128 + factor * (c - 128)))) #make sure the contrast filter only return values within the range [0-255].
+
+		return im.point(_contrast)
+
+
+	@staticmethod
+	def convert_rgb_to_gray(data):
+		'''Convert an RGB Image data array to grayscale.
+
+		:Paramters:
+			data (str)(obj)(array) = An image, path to an image, or 
+					Image data as numpy array.
+		:Return:
+			(array)
+
+		# gray_data = np.average(data, weights=[0.299, 0.587, 0.114], axis=2)
+		# gray_data = (data[:,:,:3] * [0.2989, 0.5870, 0.1140]).sum(axis=2)
+		'''
+		if not isinstance(data, np.ndarray):
+			im = data.open(data) if (isinstance(data, str)) else data
+			data = np.array(im)
+
+		gray_data = np.dot(data[...,:3], [0.2989, 0.5870, 0.1140])
+
+		# array = gray_data.reshape(gray_data.shape[0], gray_data.shape[1], 1)
+		#print (array.shape)
+
+		return gray_data
+
+
+	@staticmethod
+	def convert_to_32bit_I(image):
+		'''Under construction.
+		ValueError: conversion from RGB to I;32 not supported
+
+		:Parameters:
+			image (str)(obj) = An image or path to an image.
+
+		:Return:
+			(obj) image.
+		'''
+		im = Image.open(image) if (isinstance(image, str)) else image
+		data = np.array(im)
+		# return im.convert('I;32')
+
+		try: #convert from 'I'
+			im32 = data.astype(np.int32)
+			return Image.fromarray(im32, mode='I')
+
+		except ValueError as error: #convert from 'RGB'
+			# data = cls.convert_rgb_to_gray(data)
+
+			# im32 = data.astype(np.int32)
+			# return Image.fromarray(im32, mode='I')
+
+			# from PIL import ImageMath
+			# return ImageMath.eval('im >> 32', im=im.convert('I'))
+			return im.convert('RGB')
+
+
+	@staticmethod
+	def convert_I_to_L(image):
+		'''Convert to 8 bit 'L' grayscale.
+
+		:Parameters:
+			image (str)(obj) = An image or path to an image.
+
+		:Return:
+			(obj) PIL image.
+		'''
+		im = Image.open(image) if (isinstance(image, str)) else image
+		data = np.array(im)
+
+		data = np.asarray(data, np.uint8) #np.uint8(data / 256)
+		return Image.fromarray(data)
 
 # -----------------------------------------------
 from tentacle import addMembers

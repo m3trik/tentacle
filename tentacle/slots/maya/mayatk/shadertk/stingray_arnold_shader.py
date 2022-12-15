@@ -131,7 +131,7 @@ class Stingray_arnold_shader(QtCore.QObject):
 			length = len(textures)
 			progress = 0
 			for f in textures:
-				typ = imgtk.getImageType(f)
+				typ = imgtk.getImageTypeFromFilename(f)
 
 				progress+=1
 
@@ -235,8 +235,8 @@ class Stingray_arnold_shader_slots(Stingray_arnold_shader):
 
 		#add filenames|filepaths to the comboBox.
 		hdr_path = '{}/resources/hdr'.format(self.proj_root_dir)
-		hdr_filenames = filetk.getDirectoryContents(hdr_path, 'files', includeFiles='*.exr', stripExtension=True)
-		hdr_fullpaths = filetk.getDirectoryContents(hdr_path, 'filepaths', includeFiles='*.exr')
+		hdr_filenames = filetk.getDirContents(hdr_path, 'files', includeFiles='*.exr', stripExtension=True)
+		hdr_fullpaths = filetk.getDirContents(hdr_path, 'filepaths', includeFiles='*.exr')
 		self.ui.cmb000.addItems_(dict(zip(hdr_filenames, hdr_fullpaths)), ascending=False)
 
 		#initialize widgets with any saved values.

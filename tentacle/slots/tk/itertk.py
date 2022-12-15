@@ -5,7 +5,7 @@ import sys, os
 import inspect
 
 
-class Itertls():
+class Itertk():
 	'''
 	'''
 
@@ -177,8 +177,11 @@ class Itertls():
 			lst (list) = The components(s) to filter.
 			include (str)(obj)(list) = The objects(s) to include.
 					supports using the '*' operator: startswith*, *endswith, *contains*
-			exclude (str)(obj)(list) = The objects(s) to exclude.
-					(exlude take precidence over include)
+					Will include all items that satisfy ANY of the given search terms.
+					meaning: '*.png' and '*Normal*' returns all strings ending in '.png' AND all 
+					strings containing 'Normal'. NOT strings satisfying both terms.
+			exclude (str)(obj)(list) = The objects(s) to exclude. Similar to include.
+					exlude take precidence over include.
 		:Return:
 			(list)
 
@@ -228,10 +231,10 @@ class Itertls():
 					continue
 
 			if include:
-				if i not in inc and not isinstance(i, str) or not any(( 
+				if i not in inc and not (isinstance(i, str) and any(( 
 					i.startswith(tuple(incStartsWith)), 
 					i.endswith(tuple(incEndsWith)), 
-					next(iter(chars in i for chars in incContains), False))):
+					next(iter(chars in i for chars in incContains), False)))):
 					continue
 
 			result.append(i)
@@ -239,41 +242,48 @@ class Itertls():
 
 
 	@staticmethod
-	def splitList(lst, parts, asChunks=False):
+	def splitList(lst, into):
 		'''Split a list into parts.
 
 		:Parameters:
-			parts (int)(str) = Split the list into parts defined by the given value.
-				if an integer is given, split the list into n parts with a trailing remainder.
-					(if you don't want a trailing remainder, you could use: [a.tolist() for a in np.array_split(lst, parts)])
+			into (str) = Split the list into parts defined by the following:
+				'<n>parts' - Split the list into n parts.
+					ex. 2 returns:  [[1, 2, 3, 5], [7, 8, 9]] from [1,2,3,5,7,8,9]
+				'<n>parts+' - Split the list into n equal parts with any trailing remainder.
 					ex. 2 returns:  [[1, 2, 3], [5, 7, 8], [9]] from [1,2,3,5,7,8,9]
-				if 'contigious' is given, the list will be split by contigious numerical values.
-					ex. 'contigious' returns: [[1,2,3], [5], [7,8,9]] from [1,2,3,5,7,8,9]
-				if 'range' is given, the values of 'contigious' will be limited to the high and low end of each range.
-					ex. 'range' returns: [[1,3], [5], [7,9]] from [1,2,3,5,7,8,9]
-			asChunks (bool) = When True and 'parts' given as int; Split into sublists of the of the given 'parts' size.
+				'<n>chunks' - Split into sublists of n size.
 					ex. 2 returns: [[1,2], [3,5], [7,8], [9]] from [1,2,3,5,7,8,9]
+				'contiguous' - The list will be split by contiguous numerical values.
+					ex. 'contiguous' returns: [[1,2,3], [5], [7,8,9]] from [1,2,3,5,7,8,9]
+				'range' - The values of 'contiguous' will be limited to the high and low end of each range.
+					ex. 'range' returns: [[1,3], [5], [7,9]] from [1,2,3,5,7,8,9]
 		:Return:
 			(list)
 		'''
-		if parts=='contigious' or parts=='range':
+		from string import digits, ascii_letters, punctuation
+		mode = into.lower().lstrip(digits)
+		digit = into.strip(ascii_letters+punctuation)
+		n = int(digit) if digit else None
+
+		if n:
+			if mode=='parts':
+				n = len(lst)*-1 // n*-1 #ceil
+			elif mode=='parts+':
+				n = len(lst) // n
+			return [lst[i:i+n] for i in range(0, len(lst), n)]
+
+		elif mode=='contiguous' or mode=='range':
 			from itertools import groupby
 			from operator import itemgetter
 
 			try:
-				contigious = [list(map(itemgetter(1), g)) for k, g in groupby(enumerate(lst), lambda x: int(x[0])-int(x[1]))]
+				contiguous = [list(map(itemgetter(1), g)) for k, g in groupby(enumerate(lst), lambda x: int(x[0])-int(x[1]))]
 			except ValueError as error:
-				print ('{}\n# Error: splitlist: {} #\n	{}'.format(__file__, error, lst))
+				print ('{} in splitList\n	# Error: {} #\n	{}'.format(__file__, error, lst))
 				return lst
-			if parts=='range':
-				return [[i[0], i[-1]] if len(i)>1 else (i) for i in contigious]
-			return contigious
-
-		elif isinstance(parts, int):
-			if not asChunks:
-				parts = len(lst) // parts
-			return [lst[i:i+parts] for i in range(0, len(lst), parts)]
-
+			if mode=='range':
+				return [[i[0], i[-1]] if len(i)>1 else (i) for i in contiguous]
+			return contiguous
 
 # -----------------------------------------------
 from tentacle import addMembers

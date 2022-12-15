@@ -3,7 +3,7 @@
 import itertk
 
 
-class Mathtls():
+class Mathtk():
 	'''
 	'''
 	@staticmethod

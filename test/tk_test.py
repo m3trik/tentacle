@@ -29,7 +29,7 @@ class Main(unittest.TestCase):
 			)
 
 
-class Tls_test(Main, Tls):
+class Tk_test(Main, Tk):
 	'''
 	'''	
 	import slots.tk
@@ -40,9 +40,9 @@ class Tls_test(Main, Tls):
 		'''
 		'''
 		self.perform_test({
-			"str(self.slots.tk.itertk.makeList).rsplit(' ', 1)[0]": '<function Itertls.makeList at',
-			"str(self.itertk.makeList).rsplit(' ', 1)[0]": '<function Itertls.makeList at',
-			"str(self.makeList).rsplit(' ', 1)[0]": '<bound method Itertls.makeList of <__main__.Tls_test',
+			"str(self.slots.tk.itertk.makeList).rsplit(' ', 1)[0]": '<function Itertk.makeList at',
+			"str(self.itertk.makeList).rsplit(' ', 1)[0]": '<function Itertk.makeList at',
+			"str(self.makeList).rsplit(' ', 1)[0]": '<bound method Itertk.makeList of <__main__.Tk_test',
 		})
 
 
@@ -84,14 +84,14 @@ class Tls_test(Main, Tls):
 	def test_randomize(self):
 		'''
 		'''
-		print ('randomize: skipped')
+		print ('\nrandomize: skipped')
 		self.perform_test({
 			# "self.randomize(range(10), 1.0)": [],
 			# "self.randomize(range(10), 0.5)": [],
 		})
 
 
-class Strtls_test(Main, Strtls):
+class Strtk_test(Main, Strtk):
 	'''
 	'''
 	def test_setCase(self):
@@ -207,7 +207,7 @@ class Strtls_test(Main, Strtls):
 
 
 
-class Itertls_test(Main, Itertls):
+class Itertk_test(Main, Itertk):
 	'''
 	'''
 	def test_makeList(self):
@@ -294,22 +294,32 @@ class Itertls_test(Main, Itertls):
 		'''
 		self.perform_test({
 			"self.filterList([0, 1, 2, 3, 2], [1, 2, 3], 2)": [1, 3],
+			"self.filterList([0, 1, 'file.txt', 'file.jpg'], ['*file*', 0], '*.txt')": [0, 'file.jpg'],
 		})
 
 
 	def test_splitList(self):
 		'''
 		'''
+		self.lA = [1, 2, 3, 5, 7, 8, 9]
+		self.lB = [1, '2', 3, 5, '7', 8, 9]
+
 		self.perform_test({
-			"self.splitList([1, 2, 3, 5, 7, 8, 9], 2)": [[1, 2, 3], [5, 7, 8], [9]],
-			"self.splitList([1, 2, 3, 5, 7, 8, 9], 2, True)": [[1, 2], [3, 5], [7, 8], [9]],
-			"self.splitList([1, 2, 3, 5, 7, 8, 9], 'contigious')": [[1, 2, 3], [5], [7, 8, 9]],
-			"self.splitList([1, 2, 3, 5, 7, 8, 9], 'range')": [[1, 3], [5], [7, 9]],
+			"self.splitList(self.lA, '2parts')": [[1, 2, 3, 5], [7, 8, 9]],
+			"self.splitList(self.lB, '2parts')": [[1, '2', 3, 5], ['7', 8, 9]],
+			"self.splitList(self.lA, '2parts+')": [[1, 2, 3], [5, 7, 8], [9]],
+			"self.splitList(self.lB, '2parts+')": [[1, '2', 3], [5, '7', 8], [9]],
+			"self.splitList(self.lA, '2chunks')": [[1, 2], [3, 5], [7, 8], [9]],
+			"self.splitList(self.lB, '2chunks')": [[1, '2'], [3, 5], ['7', 8], [9]],
+			"self.splitList(self.lA, 'contiguous')": [[1, 2, 3], [5], [7, 8, 9]],
+			"self.splitList(self.lB, 'contiguous')": [[1, '2', 3], [5], ['7', 8, 9]],
+			"self.splitList(self.lA, 'range')": [[1, 3], [5], [7, 9]],
+			"self.splitList(self.lB, 'range')": [[1, 3], [5], ['7', 9]],
 		})
 
 
 
-class Filetls_test(Main, Filetls):
+class Filetk_test(Main, Filetk):
 	'''
 	'''
 	def test_formatPath(self):
@@ -360,7 +370,7 @@ class Filetls_test(Main, Filetls):
 			r'C:/',
 		]
 
-		print ('timestamp: skipped')
+		print ('\ntimestamp: skipped')
 		self.perform_test({
 			# "self.timeStamp({})".format(paths): [],
 			# "self.timeStamp({}, False, '%m-%d-%Y  %H:%M', True)".format(paths): [],
@@ -371,12 +381,12 @@ class Filetls_test(Main, Filetls):
 	def test_isValidPath(self):
 		'''
 		'''
-		path = os.path.abspath(os.path.dirname(__file__))+'/test_files'
-		file = path+'/file1.txt'
+		self.path = os.path.abspath(os.path.dirname(__file__))+'/test_files'
+		self.file = self.path+'/file1.txt'
 
 		self.perform_test({
-			"self.isValidPath(r'{}')".format(file): 'file',
-			"self.isValidPath(r'{}')".format(path): 'dir',
+			"self.isValidPath(self.file)": 'file',
+			"self.isValidPath(self.path)": 'dir',
 		})
 
 
@@ -384,10 +394,10 @@ class Filetls_test(Main, Filetls):
 		'''
 		'''
 		path = os.path.abspath(os.path.dirname(__file__))+'/test_files'
-		file = path+'/file1.txt'
+		self.file = path+'/file1.txt'
 
 		self.perform_test({
-			"self.writeToFile(r'{}', 'some text')".format(file): None,
+			"self.writeToFile(self.file, 'some text')": None,
 		})
 
 
@@ -395,34 +405,34 @@ class Filetls_test(Main, Filetls):
 		'''
 		'''
 		path = os.path.abspath(os.path.dirname(__file__))+'/test_files'
-		file = path+'/file1.txt'
+		self.file = path+'/file1.txt'
 
 		self.perform_test({
-			"self.getFileContents(r'{}')".format(file): ['some text'],
+			"self.getFileContents(self.file)": ['some text'],
 		})
 
 
 	def test_createDirectory(self):
 		'''
 		'''
-		path = os.path.abspath(os.path.dirname(__file__))+'/test_files'
+		self.path = os.path.abspath(os.path.dirname(__file__))+'/test_files'
 
 		self.perform_test({
-			"self.createDirectory(r'{}')".format(path+'/sub-directory'): None,
+			"self.createDir(self.path+'/sub-directory')": None,
 		})
 
 
 	def test_getDirectoryContents(self):
 		'''
 		'''
-		path = os.path.abspath(os.path.dirname(__file__))+'/test_files'
+		self.path = os.path.abspath(os.path.dirname(__file__))+'/test_files'
 
 		self.perform_test({
-			str(self.getDirectoryContents(path, 'dirpaths')): [path+'\\sub-directory'],
-			str(self.getDirectoryContents(path, 'files|dirs')): ['sub-directory', 'file1.txt', 'file2.txt', 'test.json'],
-			str(self.getDirectoryContents(path, 'files|dirs', excludeDirs=['sub*'])): ['file1.txt', 'file2.txt', 'test.json'],
-			str(self.getDirectoryContents(path, 'filenames', includeFiles='*.txt')): ['file1', 'file2'],
-			str(self.getDirectoryContents(path, 'files', includeFiles='*.txt', reverse=True)): ['file2.txt', 'file1.txt'],
+			"self.getDirContents(self.path, 'dirpaths')": [self.path+'\\imgtk_test', self.path+'\\sub-directory'],
+			"self.getDirContents(self.path, 'files|dirs')": ['imgtk_test', 'sub-directory', 'file1.txt', 'file2.txt', 'test.json'],
+			"self.getDirContents(self.path, 'files|dirs', excludeDirs=['sub*'])": ['imgtk_test', 'file1.txt', 'file2.txt', 'test.json'],
+			"self.getDirContents(self.path, 'filenames', includeFiles='*.txt')": ['file1', 'file2'],
+			"self.getDirContents(self.path, 'files', includeFiles='*.txt', reverse=True)": ['file2.txt', 'file1.txt'],
 		})
 
 
@@ -438,7 +448,7 @@ class Filetls_test(Main, Filetls):
 
 
 
-class Jsontls_test(Main, Jsontls):
+class Jsontk_test(Main, Jsontk):
 	'''
 	'''
 	p = os.path.abspath(os.path.dirname(__file__))+'/test_files'
@@ -457,266 +467,225 @@ class Jsontls_test(Main, Jsontls):
 
 
 
-class Imgtls_test(Main, Imgtls):
+class Imgtk_test(Main, Imgtk):
 	'''
 	'''
-	def test_getImageDirectory(self):
+	im_h = Imgtk.createImage('RGB', (1024, 1024), (0, 0, 0))
+	im_n = Imgtk.createImage('RGB', (1024, 1024), (127, 127, 255))
+
+
+	def test_createImage(self):
 		'''
 		'''
-		print ('getImageDirectory: skipped')
 		self.perform_test({
-			# "self.getImageDirectory()": '',
-		})
-
-
-	def test_getImageFiles(self):
-		'''
-		'''
-		print ('getImageFiles: skipped')
-		self.perform_test({
-			# "self.getImageFiles('*.png|*.jpg')": '',
-		})
-
-
-	def test_getImages(self):
-		'''
-		'''
-		image_dir = r''
-		print ('getImageFiles: skipped')
-		self.perform_test({
-			"self.getImages(r'{}')".format(image_dir): {},
-		})
-
-
-	def test_getImageBackground(self):
-		'''
-		'''
-		image_dir = r''
-		print ('getImageBackground: untested.')
-		self.perform_test({
-			# "self.getImageBackground(r'{}', None, False)".format(image_dir): tuple(),
-		})
-
-
-	def test_createMasks(self):
-		'''
-		'''
-		images = []
-		print ('createMaskes: untested.')
-		self.perform_test({
-			"self.createMasks({})".format(images): [],
-		})
-
-
-	def test_fill(self):
-		'''
-		'''
-		image = r''
-		print ('fill: untested.')
-		self.perform_test({
-			# "self.fill(r'{}', (0, 0, 0, 0))".format(image): '',
-		})
-
-
-	def test_fillMaskedArea(self):
-		'''
-		'''
-		image = r''
-		color = (0, 0, 0, 0)
-		mask = r''
-		print ('fillMaskedArea: untested.')
-		self.perform_test({
-			# "self.fillMaskedArea(r'{}', {}, r'{}')".format(image, color, mask): '',
-		})
-
-
-	def test_convert_rgb_to_gray(self):
-		'''
-		'''
-		data = r''
-		print ('convert_rgb_to_gray: untested.')
-		self.perform_test({
-			# "self.convert_rgb_to_gray(r'{}')".format(data): (),
-		})
-
-
-	def test_convert_to_32bit_I(self):
-		'''
-		'''
-		image = r''
-		print ('convert_to_32bit_I: untested.')
-		self.perform_test({
-			# "self.convert_to_32bit_I(r'{}')".format(image): '',
-		})
-
-
-	def test_convert_I_to_L(self):
-		'''
-		'''
-		image = r''
-		print ('convert_I_to_L: untested.')
-		self.perform_test({
-			# "self.convert_I_to_L(r'{}')".format(image): '',
-		})
-
-
-	def test_all_pixels_identical(self):
-		'''
-		'''
-		image = r''
-		print ('all_pixels_identical: untested.')
-		self.perform_test({
-			# "self.all_pixels_identical(r'{}')".format(image): False,
-		})
-
-
-	def test_setPixelColor(self):
-		'''
-		'''
-		image = r''
-		print ('setPixelColor: untested.')
-		self.perform_test({
-			# "self.setPixelColor(r'{}', 150, 150, (255,255,255))".format(image): None,
-		})
-
-
-	def test_replaceColor(self):
-		'''
-		'''
-		image = r''
-		print ('replaceColor: untested.')
-		self.perform_test({
-			# "self.replaceColor(r'{}', (255,255,255), (0,0,0), 'RGBA')".format(image): '',
-		})
-
-
-	def test_setContrast(self):
-		'''
-		'''
-		image = r''
-		print ('setContrast: untested.')
-		self.perform_test({
-			# "self.setContrast(r'{}', 255)".format(image): '',
-		})
-
-
-	def test_getImageType(self):
-		'''
-		'''
-		image = r''
-		print ('getImageType: untested.')
-		self.perform_test({
-			# "self.getImageType(r'{}', False)".format(image): '',
-		})
-
-
-	def test_filterImagesByType(self):
-		'''
-		'''
-		image = r''
-		print ('filterImagesByType: untested.')
-		self.perform_test({
-			# "self.filterImagesByType(r'{}', '')".format(image): '',
-		})
-
-
-	def test_sortImagesByType(self):
-		'''
-		'''
-		images = [
-			r'',
-		]
-		print ('sortImagesByType: untested.')
-		self.perform_test({
-			# "self.sortImagesByType({})".format(images): {},
-		})
-
-
-	def test_containsMapTypes(self):
-		'''
-		'''
-		images = [
-			r'',
-		]
-		print ('containsMapTypes: untested.')
-		self.perform_test({
-			# "self.containsMapTypes({}, 'Normal_OpenGL|Normal_DirectX')".format(images): False,
-		})
-
-
-	def test_isNormalMap(self):
-		'''
-		'''
-		image = r''
-		print ('isNormalMap: untested.')
-		self.perform_test({
-			"self.isNormalMap(r'{}')".format(image): False,
-		})
-
-
-	def test_invertChannels(self):
-		'''
-		'''
-		image = r''
-		print ('invertChannels: untested.')
-		self.perform_test({
-			# "self.invertChannels(r'{}', 'G')".format(image): '',
-		})
-
-
-	def test_createDXFromGL(self):
-		'''
-		'''
-		image = r''
-		print ('createDXFromGL: untested.')
-		self.perform_test({
-			# "self.createDXFromGL(r'{}')".format(image): '',
-		})
-
-
-	def test_createGLFromDX(self):
-		'''
-		'''
-		image = r''
-		print ('createGLFromDX: untested.')
-		self.perform_test({
-			# "self.createGLFromDX(r'{}')".format(image): '',
+			"self.createImage('RGB', (1024, 1024), (0, 0, 0))": self.im_h,
 		})
 
 
 	def test_resizeImage(self):
 		'''
 		'''
-		image = r''
-		print ('resizeImage: untested.')
 		self.perform_test({
-			# "self.resizeImage(r'{}', 150, 150)".format(image): None,
-		})
-
-
-	def test_createImage(self):
-		'''
-		'''
-		image = r''
-		print ('createImage: untested.')
-		self.perform_test({
-			# "self.createImage('RGBA', (4096, 4096), (0, 0, 0, 255))".format(image): '',
+			"self.resizeImage(self.im_h, 32, 32).size": (32, 32),
 		})
 
 
 	def test_saveImageFile(self):
 		'''
 		'''
-		image = r''
-		path = r''
-		print ('saveImageFile: untested.')
 		self.perform_test({
-			# "self.saveImageFile(r'{}', {})".format(image, path): None,
+			"self.saveImageFile(self.im_h, 'test_files/imgtk_test/im_h.png')": None,
+			"self.saveImageFile(self.im_n, 'test_files/imgtk_test/im_n.png')": None,
+		})
+
+
+	def test_getImages(self):
+		'''
+		'''
+		# print (\n'test_getImages:', self.getImages('test_files/imgtk_test/'))
+		self.perform_test({
+			"list(self.getImages('test_files/imgtk_test/', '*Normal*').keys())": ['test_files/imgtk_test/im_Normal_DirectX.png', 'test_files/imgtk_test/im_Normal_OpenGL.png'],
+		})
+
+
+	def test_getImageFiles(self):
+		'''
+		'''
+		print ('\ngetImageFiles: skipped')
+		self.perform_test({
+			# "self.getImageFiles('*.png|*.jpg')": '',
+		})
+
+
+	def test_getImageDirectory(self):
+		'''
+		'''
+		print ('\ngetImageDirectory: skipped')
+		self.perform_test({
+			# "self.getImageDirectory()": '',
+		})
+
+
+	def test_getImageTypeFromFilename(self):
+		'''
+		'''
+		self.perform_test({
+			"self.getImageTypeFromFilename('test_files/imgtk_test/im_h.png')": 'Height',
+			"self.getImageTypeFromFilename('test_files/imgtk_test/im_h.png', key=False)": '_H',
+			"self.getImageTypeFromFilename('test_files/imgtk_test/im_n.png')": 'Normal',
+			"self.getImageTypeFromFilename('test_files/imgtk_test/im_n.png', key=False)": '_N',
+		})
+
+
+	def test_filterImagesByType(self):
+		'''
+		'''
+		self.perform_test({
+			"self.filterImagesByType(filetk.getDirContents('test_files/imgtk_test'), 'Height')": ['im_h.png', 'im_Height.png'],
+		})
+
+
+	def test_sortImagesByType(self):
+		'''
+		'''
+		self.perform_test({
+			"self.sortImagesByType([('im_h.png', '<im_h>'), ('im_n.png', '<im_n>')])": {'Height': [('im_h.png', '<im_h>')], 'Normal': [('im_n.png', '<im_n>')]},
+			"self.sortImagesByType({'im_h.png':'<im_h>', 'im_n.png':'<im_n>'})": {'Height': [('im_h.png', '<im_h>')], 'Normal': [('im_n.png', '<im_n>')]},
+		})
+
+
+	def test_containsMapTypes(self):
+		'''
+		'''
+		self.perform_test({
+			"self.containsMapTypes([('im_h.png', '<im_h>')], 'Height')": True,
+			"self.containsMapTypes({'im_h.png':'<im_h>', 'im_n.png':'<im_n>'}, 'Height')": True,
+			"self.containsMapTypes({'Height': [('im_h.png', '<im_h>')]}, 'Height')": True,
+		})
+
+
+	def test_isNormalMap(self):
+		'''
+		'''
+		self.perform_test({
+			"self.isNormalMap('im_h.png')": False,
+			"self.isNormalMap('im_n.png')": True,
+		})
+
+
+	def test_invertChannels(self):
+		'''
+		'''
+		self.perform_test({
+			"str(self.invertChannels(self.im_n, 'g').getchannel('G')).split('size')[0]": '<PIL.Image.Image image mode=L ',
+		})
+
+
+	def test_createDXFromGL(self):
+		'''
+		'''
+		self.perform_test({
+			"self.createDXFromGL('test_files/imgtk_test/im_Normal_OpenGL.png')": 'test_files/imgtk_test/im_Normal_DirectX.png',
+		})
+
+
+	def test_createGLFromDX(self):
+		'''
+		'''
+		self.perform_test({
+			"self.createGLFromDX('test_files/imgtk_test/im_Normal_DirectX.png')": 'test_files/imgtk_test/im_Normal_OpenGL.png',
+		})
+
+
+	def test_createMask(self):
+		'''
+		'''
+		self.bg = self.getBackground('test_files/imgtk_test/im_Base_color.png', 'RGB')
+		# self.createMask('test_files/imgtk_test/im_Base_color.png', self.bg).show()
+		self.perform_test({
+			"str(self.createMask('test_files/imgtk_test/im_Base_color.png', self.bg)).split('size')[0]": '<PIL.Image.Image image mode=L ',
+		})
+
+
+	def test_fillMaskedArea(self):
+		'''
+		'''
+		self.bg = self.getBackground('test_files/imgtk_test/im_Base_color.png', 'RGB')
+		self.mask = self.createMask('test_files/imgtk_test/im_Base_color.png', self.bg)
+		# self.fillMaskedArea('test_files/imgtk_test/im_Base_color.png', (0, 255, 0), self.mask).show()
+		self.perform_test({
+			"str(self.fillMaskedArea('test_files/imgtk_test/im_Base_color.png', (0, 255, 0), self.mask)).split('size')[0]": '<PIL.Image.Image image mode=RGB ',
+		})
+
+
+	def test_fill(self):
+		'''
+		'''
+		# self.fill(self.im_h, (255, 0, 0)).show()
+		self.perform_test({
+			"str(self.fill(self.im_h, (127, 127, 127))).split('size')[0]": '<PIL.Image.Image image mode=RGB ',
+		})
+
+
+	def test_getBackground(self):
+		'''
+		'''
+		self.perform_test({
+			"self.getBackground('test_files/imgtk_test/im_Height.png', 'I')": 32767,
+			"self.getBackground('test_files/imgtk_test/im_Height.png', 'L')": 255,
+			"self.getBackground('test_files/imgtk_test/im_n.png', 'RGB')": (127, 127, 255),
+		})
+
+
+	def test_replaceColor(self):
+		'''
+		'''
+		self.bg = self.getBackground('test_files/imgtk_test/im_Base_color.png', 'RGB')
+		# self.replaceColor('test_files/imgtk_test/im_Base_color.png', self.bg, (255, 0, 0)).show()
+		self.perform_test({
+			"str(self.replaceColor('test_files/imgtk_test/im_Base_color.png', self.bg, (255, 0, 0))).split('size')[0]": '<PIL.Image.Image image mode=RGBA ',
+		})
+
+
+	def test_setContrast(self):
+		'''
+		'''
+		# self.setContrast('test_files/imgtk_test/im_Mixed_AO.png', 255).show()
+		self.perform_test({
+			"str(self.setContrast('test_files/imgtk_test/im_Mixed_AO.png', 255)).split('size')[0]": '<PIL.Image.Image image mode=L ',
+		})
+
+
+	def test_convert_rgb_to_gray(self):
+		'''
+		'''
+		# print (\n'test_convert_rgb_to_gray:', self.convert_rgb_to_gray(self.im_h))
+		self.perform_test({
+			"str(type(self.convert_rgb_to_gray(self.im_h)))": "<class 'numpy.ndarray'>",
+		})
+
+
+	def test_convert_to_32bit_I(self):
+		'''
+		'''
+		print ('\nconvert_to_32bit_I: Not working.')
+		self.perform_test({
+			# "self.convert_to_32bit_I(self.im_h)": '',
+		})
+
+
+	def test_convert_I_to_L(self):
+		'''
+		'''
+		self.im = self.createImage('I', (32, 32))
+		# im = self.convert_I_to_L(self.im)
+		self.perform_test({
+			"self.convert_I_to_L(self.im).mode": 'L',
 		})
 
 
 
-class Mathtls_test(Main, Mathtls):
+class Mathtk_test(Main, Mathtk):
 	'''
 	'''
 

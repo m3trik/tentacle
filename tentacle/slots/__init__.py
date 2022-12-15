@@ -4,6 +4,8 @@ import sys, os.path
 
 from PySide2 import QtCore
 
+from tentacle.slots.tk import itertk, setAttributes
+
 
 class Slots(QtCore.QObject):
 	'''Provides methods that can be triggered by widgets in the ui.
@@ -49,10 +51,9 @@ class Slots(QtCore.QObject):
 		ex. call: self.objAttrWindow(transform[0], include=['translateX','translateY','translateZ','rotateX','rotateY','rotateZ','scaleX','scaleY','scaleZ'], checkableLabel=True)
 		'''
 		import ast
-		from tentacle.slots import tk
 
-		fn = fn if fn else tk.setAttributes
-		fn_args = tk.itertk.makeList(fn_args) #assure that fn_args is a list.
+		fn = fn if fn else setAttributes
+		fn_args = itertk.makeList(fn_args) #assure that fn_args is a list.
 
 		try: #get the objects name to as the window title:
 			title = obj.name()
