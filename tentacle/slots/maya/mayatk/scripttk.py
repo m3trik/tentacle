@@ -50,14 +50,14 @@ class Scriptingtls():
 	def commandHelp(command): #mel command help
 		#:Parameters: command (str) = mel command
 		command = ('help ' + command)
-		modtext = (mel.eval(command))
+		modtext = (pm.mel.eval(command))
 		outputscrollField (modtext, "command help", 1.0, 1.0) #text, window_title, width, height
 
 
 	def keywordSearch (keyword): #keyword command search
 		#:Parameters: keyword (str) = 
 		keyword = ('help -list' + '"*' + keyword + '*"')
-		array = sorted(mel.eval(keyword))
+		array = sorted(pm.mel.eval(keyword))
 		outputTextField(array, "keyword search")
 
 
@@ -66,10 +66,10 @@ class Scriptingtls():
 		catagory   = ('runTimeCommand -query -category '  + command + ';')
 		command	   = ('runTimeCommand -query -command '   + command + ';')
 		annotation = ('runTimeCommand -query -annotation '+ command + ';')
-		type = (mel.eval(type))
-		catagory = (mel.eval(catagory))
-		command = (mel.eval(command))
-		annotation = (mel.eval(annotation))
+		type = (pm.mel.eval(type))
+		catagory = (pm.mel.eval(catagory))
+		command = (pm.mel.eval(command))
+		annotation = (pm.mel.eval(annotation))
 		output_text = '{}\n\n{}\n{}\n\n{}\n{}\n\n{}\n{}\n\n{}\n{}'.format(command, "Type:", type, "Annotation:", annotation, "Catagory:", catagory, "Command:", command)
 		outputscrollField(output_text, "runTimeCommand", 1.0, 1.0) #text, window_title, width, height
 
@@ -90,7 +90,7 @@ class Scriptingtls():
 
 
 	def currentCtx(): #get current tool context
-		output_text = mel.eval('currentCtx;')
+		output_text = pm.mel.eval('currentCtx;')
 		outputscrollField(output_text, "currentCtx", 1.0, 1.0)
 
 
@@ -115,8 +115,8 @@ class Scriptingtls():
 
 
 	def globalVars(): #$g List all global mel variables in current scene
-		mel.eval('scriptEditorInfo -clearHistory')
-		array = sorted(mel.eval("env"))
+		pm.mel.eval('scriptEditorInfo -clearHistory')
+		array = sorted(pm.mel.eval("env"))
 		outputTextField(array, "Global Variables")
 
 

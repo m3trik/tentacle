@@ -4,7 +4,6 @@ from tentacle.slots.maya import *
 from tentacle.slots.editors import Editors
 
 
-
 class Editors_maya(Editors, Slots_maya):
 	def __init__(self, *args, **kwargs):
 		super().__init__(*args, **kwargs)
@@ -221,7 +220,7 @@ class Editors_maya(Editors, Slots_maya):
 	def v000(self):
 		'''Attributes
 		'''
-		# e = mel.eval('$tmp=$gAttributeEditorForm')
+		# e = pm.mel.eval('$tmp=$gAttributeEditorForm')
 		# self.showEditor(e, 640, 480)
 		pm.mel.AttributeEditor()
 
@@ -229,7 +228,7 @@ class Editors_maya(Editors, Slots_maya):
 	def v001(self):
 		'''Outliner
 		'''
-		# e = mel.eval('$tmp=$gOutlinerForm')
+		# e = pm.mel.eval('$tmp=$gOutlinerForm')
 
 		# if not hasattr(self, 'outlinerEditor_'):
 		# 	panel = pm.outlinerPanel()
@@ -248,7 +247,7 @@ class Editors_maya(Editors, Slots_maya):
 	def v002(self):
 		'''Tool
 		'''
-		# e = mel.eval('$tmp=$gToolSettingsForm')
+		# e = pm.mel.eval('$tmp=$gToolSettingsForm')
 		# self.showEditor(e, 461, 480)
 		pm.toolPropertyWindow()
 
@@ -256,7 +255,7 @@ class Editors_maya(Editors, Slots_maya):
 	def v003(self):
 		'''Layers
 		'''
-		# e = mel.eval('$tmp=$gLayerEditorForm')
+		# e = pm.mel.eval('$tmp=$gLayerEditorForm')
 		# self.showEditor(e, 320, 480)
 		# pm.mel.OpenLayerEditor()
 		pm.mel.OpenChannelsLayers()
@@ -265,7 +264,7 @@ class Editors_maya(Editors, Slots_maya):
 	def v004(self):
 		'''Channels
 		'''
-		# e = mel.eval('$tmp=$gChannelsForm')
+		# e = pm.mel.eval('$tmp=$gChannelsForm')
 		# self.showEditor(e, 320, 640)
 		# pm.mel.OpenChannelBox()
 		pm.mel.OpenChannelsLayers()
@@ -314,7 +313,7 @@ class Editors_maya(Editors, Slots_maya):
 			-showCachedConnections 0
 			$editorName // 
 		'''
-		#e = mel.eval('$tmp=$gHyperGraphPanel')
+		#e = pm.mel.eval('$tmp=$gHyperGraphPanel')
 		# self.showEditor(e, 640, 480)
 		pm.mel.HypergraphHierarchyWindow()
 

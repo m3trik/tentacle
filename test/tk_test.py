@@ -29,6 +29,7 @@ class Main(unittest.TestCase):
 			)
 
 
+
 class Tk_test(Main, Tk):
 	'''
 	'''	
@@ -45,7 +46,6 @@ class Tk_test(Main, Tk):
 			"str(self.makeList).rsplit(' ', 1)[0]": '<bound method Itertk.makeList of <__main__.Tk_test',
 		})
 
-
 	def test_setAttributes(self):
 		'''
 		'''
@@ -53,14 +53,12 @@ class Tk_test(Main, Tk):
 			"self.setAttributes(self, attr='value')": None,
 		})
 
-
 	def test_getAttributes(self):
 		'''
 		'''
 		self.perform_test({
 			"self.getAttributes(self, '_subtest')": {'_subtest': None},
 		})
-
 
 	def test_cycle(self):
 		'''
@@ -71,7 +69,6 @@ class Tk_test(Main, Tk):
 			"self.cycle([0,1], 'ID')": 0,
 		})
 
-
 	def test_areSimilar(self):
 		'''
 		'''
@@ -79,7 +76,6 @@ class Tk_test(Main, Tk):
 			"self.areSimilar(1, 10, 9)": True,
 			"self.areSimilar(1, 10, 8)": False,
 		})
-
 
 	def test_randomize(self):
 		'''
@@ -89,6 +85,7 @@ class Tk_test(Main, Tk):
 			# "self.randomize(range(10), 1.0)": [],
 			# "self.randomize(range(10), 0.5)": [],
 		})
+
 
 
 class Strtk_test(Main, Strtk):
@@ -109,7 +106,6 @@ class Strtk_test(Main, Strtk):
 			"self.setCase(None, 'camelCase')":None,
 		})
 
-
 	def test_splitAtChars(self):
 		'''
 		'''
@@ -117,7 +113,6 @@ class Strtk_test(Main, Strtk):
 			"self.splitAtChars(['str|ing', 'string'])": [('str', 'ing'), ('string', '')],
 			"self.splitAtChars('aCHARScCHARSd', 'CHARS', 0)": ('', 'a'),
 		})
-
 
 	def test_insert(self):
 		'''
@@ -129,7 +124,6 @@ class Strtk_test(Main, Strtk):
 			"self.insert('ins into str', 666, 0)": '666ins into str',
 		})
 
-
 	def test_rreplace(self):
 		'''
 		'''
@@ -139,7 +133,6 @@ class Strtk_test(Main, Strtk):
 			"self.rreplace('aabbccbb', 'bb', 22, 3)": 'aa22cc22',
 			"self.rreplace('aabbccbb', 'bb', 22, 0)": 'aabbccbb',
 		})
-
 
 	def test_truncate(self):
 		'''
@@ -151,7 +144,6 @@ class Strtk_test(Main, Strtk):
 			"self.truncate(None, 4)": None,
 		})
 
-
 	def test_getTrailingIntegers(self):
 		'''
 		'''
@@ -161,7 +153,6 @@ class Strtk_test(Main, Strtk):
 			"self.getTrailingIntegers('p001Cube1', 1)": 2,
 			"self.getTrailingIntegers(None)": None,
 		})
-
 
 	def test_findStr(self):
 		'''
@@ -175,7 +166,6 @@ class Strtk_test(Main, Strtk):
 			"self.findStr('*weight*', {}, False, True)".format(lst): rtn,
 			"self.findStr('*Weights|*Weight', {})".format(lst): rtn,
 		})
-
 
 	def test_findStrAndFormat(self):
 		'''
@@ -194,7 +184,6 @@ class Strtk_test(Main, Strtk):
 			"self.findStrAndFormat('*weights', 'new name', {}, False, True, True)".format(lst): [('invertVertexWeights', 'new name')],
 		})
 
-
 	def test_formatSuffix(self):
 		'''
 		'''
@@ -204,6 +193,7 @@ class Strtk_test(Main, Strtk):
 			"self.formatSuffix('p001Cube1', '_suffix', '', True)": 'p001Cube_suffix',
 			"self.formatSuffix('pCube_GEO1', '_suffix', '', True, True)": 'pCube_suffix',
 		})
+
 
 
 
@@ -220,7 +210,6 @@ class Itertk_test(Main, Itertk):
 			"self.makeList({'x':'y'})": ['x'],
 		})
 
-
 	def test_formatReturn(self):
 		'''
 		'''
@@ -230,7 +219,6 @@ class Itertk_test(Main, Itertk):
 			"self.formatReturn(['', ''])": ['', ''],
 		})
 
-
 	def test_hasNested(self):
 		'''
 		'''
@@ -239,14 +227,12 @@ class Itertk_test(Main, Itertk):
 			"self.hasNested([1, 2, 3, 4])": False,
 		})
 
-
 	def test_flatten(self):
 		'''
 		'''
 		self.perform_test({
 			"list(self.flatten([[1, 2], [3, 4]]))": [1, 2, 3, 4],
 		})
-
 
 	def test_collapseList(self):
 		'''
@@ -259,7 +245,6 @@ class Itertk_test(Main, Itertk):
 			"self.collapseList({}, None, False, False)".format(lst): ['19', '22..26'],
 		})
 
-
 	def test_bitArrayToList(self):
 		'''
 		'''
@@ -270,7 +255,6 @@ class Itertk_test(Main, Itertk):
 			"self.bitArrayToList({})".format(bits): [2, 3, 4, 5, 6, 8, 9, 10, 11, 12, 14, 15, 16],
 		})
 
-
 	def test_rindex(self):
 		'''
 		'''
@@ -278,7 +262,6 @@ class Itertk_test(Main, Itertk):
 			"self.rindex([0, 1, 2, 2, 3], 2)": 3,
 			"self.rindex([0, 1, 2, 2, 3], 4)": -1,
 		})
-
 
 	def test_removeDuplicates(self):
 		'''
@@ -288,7 +271,6 @@ class Itertk_test(Main, Itertk):
 			"self.removeDuplicates([0, 1, 2, 3, 2], False)": [0, 1, 3, 2],
 		})
 
-
 	def test_filterList(self):
 		'''
 		'''
@@ -296,7 +278,6 @@ class Itertk_test(Main, Itertk):
 			"self.filterList([0, 1, 2, 3, 2], [1, 2, 3], 2)": [1, 3],
 			"self.filterList([0, 1, 'file.txt', 'file.jpg'], ['*file*', 0], '*.txt')": [0, 'file.jpg'],
 		})
-
 
 	def test_splitList(self):
 		'''
@@ -361,7 +342,6 @@ class Filetk_test(Main, Filetk):
 			"self.formatPath({}, 'dir')".format([p1, p2]): ['dir3', '.vscode'],
 		})
 
-
 	def test_timeStamp(self):
 		'''
 		'''
@@ -377,7 +357,6 @@ class Filetk_test(Main, Filetk):
 			# "self.timeStamp({}, True)".format(paths): [],
 		})
 
-
 	def test_isValidPath(self):
 		'''
 		'''
@@ -389,7 +368,6 @@ class Filetk_test(Main, Filetk):
 			"self.isValidPath(self.path)": 'dir',
 		})
 
-
 	def test_writeToFile(self):
 		'''
 		'''
@@ -399,7 +377,6 @@ class Filetk_test(Main, Filetk):
 		self.perform_test({
 			"self.writeToFile(self.file, 'some text')": None,
 		})
-
 
 	def test_getFileContents(self):
 		'''
@@ -411,7 +388,6 @@ class Filetk_test(Main, Filetk):
 			"self.getFileContents(self.file)": ['some text'],
 		})
 
-
 	def test_createDirectory(self):
 		'''
 		'''
@@ -420,7 +396,6 @@ class Filetk_test(Main, Filetk):
 		self.perform_test({
 			"self.createDir(self.path+'/sub-directory')": None,
 		})
-
 
 	def test_getDirectoryContents(self):
 		'''
@@ -434,7 +409,6 @@ class Filetk_test(Main, Filetk):
 			"self.getDirContents(self.path, 'filenames', includeFiles='*.txt')": ['file1', 'file2'],
 			"self.getDirContents(self.path, 'files', includeFiles='*.txt', reverse=True)": ['file2.txt', 'file1.txt'],
 		})
-
 
 	def test_getFilepath(self):
 		'''
@@ -473,7 +447,6 @@ class Imgtk_test(Main, Imgtk):
 	im_h = Imgtk.createImage('RGB', (1024, 1024), (0, 0, 0))
 	im_n = Imgtk.createImage('RGB', (1024, 1024), (127, 127, 255))
 
-
 	def test_createImage(self):
 		'''
 		'''
@@ -481,14 +454,12 @@ class Imgtk_test(Main, Imgtk):
 			"self.createImage('RGB', (1024, 1024), (0, 0, 0))": self.im_h,
 		})
 
-
 	def test_resizeImage(self):
 		'''
 		'''
 		self.perform_test({
 			"self.resizeImage(self.im_h, 32, 32).size": (32, 32),
 		})
-
 
 	def test_saveImageFile(self):
 		'''
@@ -498,7 +469,6 @@ class Imgtk_test(Main, Imgtk):
 			"self.saveImageFile(self.im_n, 'test_files/imgtk_test/im_n.png')": None,
 		})
 
-
 	def test_getImages(self):
 		'''
 		'''
@@ -506,7 +476,6 @@ class Imgtk_test(Main, Imgtk):
 		self.perform_test({
 			"list(self.getImages('test_files/imgtk_test/', '*Normal*').keys())": ['test_files/imgtk_test/im_Normal_DirectX.png', 'test_files/imgtk_test/im_Normal_OpenGL.png'],
 		})
-
 
 	def test_getImageFiles(self):
 		'''
@@ -516,7 +485,6 @@ class Imgtk_test(Main, Imgtk):
 			# "self.getImageFiles('*.png|*.jpg')": '',
 		})
 
-
 	def test_getImageDirectory(self):
 		'''
 		'''
@@ -524,7 +492,6 @@ class Imgtk_test(Main, Imgtk):
 		self.perform_test({
 			# "self.getImageDirectory()": '',
 		})
-
 
 	def test_getImageTypeFromFilename(self):
 		'''
@@ -536,14 +503,12 @@ class Imgtk_test(Main, Imgtk):
 			"self.getImageTypeFromFilename('test_files/imgtk_test/im_n.png', key=False)": '_N',
 		})
 
-
 	def test_filterImagesByType(self):
 		'''
 		'''
 		self.perform_test({
 			"self.filterImagesByType(filetk.getDirContents('test_files/imgtk_test'), 'Height')": ['im_h.png', 'im_Height.png'],
 		})
-
 
 	def test_sortImagesByType(self):
 		'''
@@ -552,7 +517,6 @@ class Imgtk_test(Main, Imgtk):
 			"self.sortImagesByType([('im_h.png', '<im_h>'), ('im_n.png', '<im_n>')])": {'Height': [('im_h.png', '<im_h>')], 'Normal': [('im_n.png', '<im_n>')]},
 			"self.sortImagesByType({'im_h.png':'<im_h>', 'im_n.png':'<im_n>'})": {'Height': [('im_h.png', '<im_h>')], 'Normal': [('im_n.png', '<im_n>')]},
 		})
-
 
 	def test_containsMapTypes(self):
 		'''
@@ -563,7 +527,6 @@ class Imgtk_test(Main, Imgtk):
 			"self.containsMapTypes({'Height': [('im_h.png', '<im_h>')]}, 'Height')": True,
 		})
 
-
 	def test_isNormalMap(self):
 		'''
 		'''
@@ -572,14 +535,12 @@ class Imgtk_test(Main, Imgtk):
 			"self.isNormalMap('im_n.png')": True,
 		})
 
-
 	def test_invertChannels(self):
 		'''
 		'''
 		self.perform_test({
 			"str(self.invertChannels(self.im_n, 'g').getchannel('G')).split('size')[0]": '<PIL.Image.Image image mode=L ',
 		})
-
 
 	def test_createDXFromGL(self):
 		'''
@@ -588,14 +549,12 @@ class Imgtk_test(Main, Imgtk):
 			"self.createDXFromGL('test_files/imgtk_test/im_Normal_OpenGL.png')": 'test_files/imgtk_test/im_Normal_DirectX.png',
 		})
 
-
 	def test_createGLFromDX(self):
 		'''
 		'''
 		self.perform_test({
 			"self.createGLFromDX('test_files/imgtk_test/im_Normal_DirectX.png')": 'test_files/imgtk_test/im_Normal_OpenGL.png',
 		})
-
 
 	def test_createMask(self):
 		'''
@@ -605,7 +564,6 @@ class Imgtk_test(Main, Imgtk):
 		self.perform_test({
 			"str(self.createMask('test_files/imgtk_test/im_Base_color.png', self.bg)).split('size')[0]": '<PIL.Image.Image image mode=L ',
 		})
-
 
 	def test_fillMaskedArea(self):
 		'''
@@ -617,7 +575,6 @@ class Imgtk_test(Main, Imgtk):
 			"str(self.fillMaskedArea('test_files/imgtk_test/im_Base_color.png', (0, 255, 0), self.mask)).split('size')[0]": '<PIL.Image.Image image mode=RGB ',
 		})
 
-
 	def test_fill(self):
 		'''
 		'''
@@ -625,7 +582,6 @@ class Imgtk_test(Main, Imgtk):
 		self.perform_test({
 			"str(self.fill(self.im_h, (127, 127, 127))).split('size')[0]": '<PIL.Image.Image image mode=RGB ',
 		})
-
 
 	def test_getBackground(self):
 		'''
@@ -636,7 +592,6 @@ class Imgtk_test(Main, Imgtk):
 			"self.getBackground('test_files/imgtk_test/im_n.png', 'RGB')": (127, 127, 255),
 		})
 
-
 	def test_replaceColor(self):
 		'''
 		'''
@@ -646,7 +601,6 @@ class Imgtk_test(Main, Imgtk):
 			"str(self.replaceColor('test_files/imgtk_test/im_Base_color.png', self.bg, (255, 0, 0))).split('size')[0]": '<PIL.Image.Image image mode=RGBA ',
 		})
 
-
 	def test_setContrast(self):
 		'''
 		'''
@@ -654,7 +608,6 @@ class Imgtk_test(Main, Imgtk):
 		self.perform_test({
 			"str(self.setContrast('test_files/imgtk_test/im_Mixed_AO.png', 255)).split('size')[0]": '<PIL.Image.Image image mode=L ',
 		})
-
 
 	def test_convert_rgb_to_gray(self):
 		'''
@@ -664,15 +617,12 @@ class Imgtk_test(Main, Imgtk):
 			"str(type(self.convert_rgb_to_gray(self.im_h)))": "<class 'numpy.ndarray'>",
 		})
 
-
-	def test_convert_to_32bit_I(self):
+	def test_convert_RGB_to_HSV(self):
 		'''
 		'''
-		print ('\nconvert_to_32bit_I: Not working.')
 		self.perform_test({
-			# "self.convert_to_32bit_I(self.im_h)": '',
+			"str(self.convert_RGB_to_HSV(self.im_h)).split('size')[0]": '<PIL.Image.Image image mode=HSV ',
 		})
-
 
 	def test_convert_I_to_L(self):
 		'''
@@ -688,7 +638,6 @@ class Imgtk_test(Main, Imgtk):
 class Mathtk_test(Main, Mathtk):
 	'''
 	'''
-
 	def test_getVectorFromTwoPoints(self):
 		'''
 		'''
@@ -696,14 +645,12 @@ class Mathtk_test(Main, Mathtk):
 			"self.getVectorFromTwoPoints((1, 2, 3), (1, 1, -1))": (0, -1, -4),
 		})
 
-
 	def test_clamp(self):
 		'''
 		'''
 		self.perform_test({
 			"self.clamp(range(10), 3, 7)": [3, 3, 3, 3, 4, 5, 6, 7, 7, 7],
 		})
-
 
 	def test_normalize(self):
 		'''
@@ -714,7 +661,6 @@ class Mathtk_test(Main, Mathtk):
 			"self.normalize((2, 3, 4), 2)": (0.7427813527082074, 1.1141720290623112, 1.4855627054164149),
 		})
 
-
 	def test_getMagnitude(self):
 		'''
 		'''
@@ -722,7 +668,6 @@ class Mathtk_test(Main, Mathtk):
 			"self.getMagnitude((2, 3, 4))": 5.385164807134504,
 			"self.getMagnitude((2, 3))": 3.605551275463989,
 		})
-
 
 	def test_dotProduct(self):
 		'''
@@ -733,7 +678,6 @@ class Mathtk_test(Main, Mathtk):
 			"self.dotProduct((1, 2, 3), (1, 1, -1), True)": 0,
 		})
 
-
 	def test_crossProduct(self):
 		'''
 		'''
@@ -743,7 +687,6 @@ class Mathtk_test(Main, Mathtk):
 			"self.crossProduct((1, 2, 3), (1, 1, -1), None, 1)": (-0.7715167498104595, 0.6172133998483676, -0.1543033499620919),
 		})
 
-
 	def test_movePointRelative(self):
 		'''
 		'''
@@ -751,7 +694,6 @@ class Mathtk_test(Main, Mathtk):
 			"self.movePointRelative((0, 5, 0), (0, 5, 0))": (0, 10, 0),
 			"self.movePointRelative((0, 5, 0), 5, (0, 1, 0))": (0, 10, 0),
 		})
-
 
 	def test_movePointAlongVectorRelativeToPoint(self):
 		'''
@@ -761,7 +703,6 @@ class Mathtk_test(Main, Mathtk):
 			"self.movePointAlongVectorRelativeToPoint((0, 0, 0), (0, 10, 0), (0, 1, 0), 5, False)": (0.0, -5.0, 0.0),
 		})
 
-
 	def test_getDistanceBetweenTwoPoints(self):
 		'''
 		'''
@@ -769,14 +710,12 @@ class Mathtk_test(Main, Mathtk):
 			"self.getDistBetweenTwoPoints((0, 10, 0), (0, 5, 0))": 5.0,
 		})
 
-
 	def test_getCenterPointBetweenTwoPoints(self):
 		'''
 		'''
 		self.perform_test({
 			"self.getCenterPointBetweenTwoPoints((0, 10, 0), (0, 5, 0))": (0.0, 7.5, 0.0),
 		})
-
 
 	def test_getAngleFrom2Vectors(self):
 		'''
@@ -786,7 +725,6 @@ class Mathtk_test(Main, Mathtk):
 			"self.getAngleFrom2Vectors((1, 2, 3), (1, 1, -1), True)": 90,
 		})
 
-
 	def test_getAngleFrom3Points(self):
 		'''
 		'''
@@ -795,14 +733,12 @@ class Mathtk_test(Main, Mathtk):
 			"self.getAngleFrom3Points((1, 1, 1), (-1, 2, 3), (1, 4, -3), True)": 45.29,
 		})
 
-
 	def test_getTwoSidesOfASATriangle(self):
 		'''
 		'''
 		self.perform_test({
 			"self.getTwoSidesOfASATriangle(60, 60, 100)": (100.00015320566493, 100.00015320566493),
 		})
-
 
 	def test_xyzRotation(self):
 		'''

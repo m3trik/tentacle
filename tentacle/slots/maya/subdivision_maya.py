@@ -4,7 +4,6 @@ from tentacle.slots.maya import *
 from tentacle.slots.subdivision import Subdivision
 
 
-
 class Subdivision_maya(Subdivision, Slots_maya):
 	def __init__(self, *args, **kwargs):
 		super().__init__(*args, **kwargs)
@@ -36,7 +35,7 @@ class Subdivision_maya(Subdivision, Slots_maya):
 		if index>0:
 			text = cmb.items[index]
 			if text=='Polygon Display Options':
-				pm.mel.CustomPolygonDisplayOptions() #Polygon Display Options #mel.eval("polysDisplaySetup 1;")
+				pm.mel.CustomPolygonDisplayOptions() #Polygon Display Options #pm.mel.eval("polysDisplaySetup 1;")
 			cmb.setCurrentIndex(0)
 
 
@@ -169,7 +168,7 @@ class Subdivision_maya(Subdivision, Slots_maya):
 		pm.optionVar (intValue=["polySmoothLoInLayer",0])
 		pm.optionVar (intValue=["polySmoothHiInLayer",0])
 		#query smooth proxy state.
-		sel = pm.mel.polyCheckSelection("polySmoothProxy", "o", 0) #mel.eval("polyCheckSelection \"polySmoothProxy\" \"o\" 0")
+		sel = pm.mel.polyCheckSelection("polySmoothProxy", "o", 0) #pm.mel.eval("polyCheckSelection \"polySmoothProxy\" \"o\" 0")
 		
 		if len(sel)==0 and len(polySmoothBaseMesh)==0:
 			return 'Error: Nothing selected.'

@@ -4,7 +4,6 @@ from tentacle.slots.maya import *
 from tentacle.slots.utilities import Utilities
 
 
-
 class Utilities_maya(Utilities, Slots_maya):
 	def __init__(self, *args, **kwargs):
 		super().__init__(*args, **kwargs)
@@ -29,25 +28,25 @@ class Utilities_maya(Utilities, Slots_maya):
 	def b000(self):
 		'''Measure
 		'''
-		mel.eval("DistanceTool;")
+		pm.mel.eval("DistanceTool;")
 
 
 	def b001(self):
 		'''Annotation
 		'''
-		mel.eval('CreateAnnotateNode;')
+		pm.mel.eval('CreateAnnotateNode;')
 
 
 	def b002(self):
 		'''Calculator
 		'''
-		mel.eval('calculator;')
+		pm.mel.eval('calculator;')
 
 
 	def b003(self):
 		'''Grease Pencil
 		'''
-		mel.eval('greasePencilCtx;')
+		pm.mel.eval('greasePencilCtx;')
 
 
 

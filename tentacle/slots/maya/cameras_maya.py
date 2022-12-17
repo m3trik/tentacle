@@ -4,7 +4,6 @@ from tentacle.slots.maya import *
 from tentacle.slots.cameras import Cameras
 
 
-
 class Cameras_maya(Cameras, Slots_maya):
 	def __init__(self, *args, **kwargs):
 		super().__init__(*args, **kwargs)
@@ -115,9 +114,9 @@ class Cameras_maya(Cameras, Slots_maya):
 
 		if header=='Create':
 			if text=='Custom Camera':
-				mel.eval('camera -centerOfInterest 5 -focalLength 35 -lensSqueezeRatio 1 -cameraScale 1 -horizontalFilmAperture 1.41732 -horizontalFilmOffset 0 -verticalFilmAperture 0.94488 -verticalFilmOffset 0 -filmFit Fill -overscan 1 -motionBlur 0 -shutterAngle 144 -nearClipPlane 0.1 -farClipPlane 10000 -orthographic 0 -orthographicWidth 30 -panZoomEnabled 0 -horizontalPan 0 -verticalPan 0 -zoom 1; objectMoveCommand; cameraMakeNode 1 "";')
+				pm.mel.eval('camera -centerOfInterest 5 -focalLength 35 -lensSqueezeRatio 1 -cameraScale 1 -horizontalFilmAperture 1.41732 -horizontalFilmOffset 0 -verticalFilmAperture 0.94488 -verticalFilmOffset 0 -filmFit Fill -overscan 1 -motionBlur 0 -shutterAngle 144 -nearClipPlane 0.1 -farClipPlane 10000 -orthographic 0 -orthographicWidth 30 -panZoomEnabled 0 -horizontalPan 0 -verticalPan 0 -zoom 1; objectMoveCommand; cameraMakeNode 1 "";')
 			if text=='Set Custom Camera':
-				mel.eval('string $homeName = `cameraView -camera persp`;') #cameraView -edit -camera persp -setCamera $homeName;
+				pm.mel.eval('string $homeName = `cameraView -camera persp`;') #cameraView -edit -camera persp -setCamera $homeName;
 			if text=='Camera From View':
 				self.createCameraFromView()
 
@@ -127,23 +126,23 @@ class Cameras_maya(Cameras, Slots_maya):
 
 		if header=='Editors':
 			if text=='Camera Sequencer':
-				mel.eval('SequenceEditor;')
+				pm.mel.eval('SequenceEditor;')
 			if text=='Camera Set Editor':
-				mel.eval('cameraSetEditor;')
+				pm.mel.eval('cameraSetEditor;')
 
 		if header=='Per Camera Visibility':
 			if text=='Exclusive to Camera':
-				mel.eval('SetExclusiveToCamera;') #doPerCameraVisibility 0; Make selected objects exclusive to the selected (or current) camera.
+				pm.mel.eval('SetExclusiveToCamera;') #doPerCameraVisibility 0; Make selected objects exclusive to the selected (or current) camera.
 			if text=='Hidden from Camera':
-				mel.eval('SetHiddenFromCamera;') #doPerCameraVisibility 1; Make selected objects hidden from the selected (or current) camera.
+				pm.mel.eval('SetHiddenFromCamera;') #doPerCameraVisibility 1; Make selected objects hidden from the selected (or current) camera.
 			if text=='Remove from Exclusive':
-				mel.eval('CameraRemoveFromExclusive;') #doPerCameraVisibility 2; Remove selected objects from the selected (or current) camera's exclusive list.
+				pm.mel.eval('CameraRemoveFromExclusive;') #doPerCameraVisibility 2; Remove selected objects from the selected (or current) camera's exclusive list.
 			if text=='Remove from Hidden':
-				mel.eval('CameraRemoveFromHidden;') #doPerCameraVisibility 3; Remove the selected objects from the selected (or current) camera's hidden list.
+				pm.mel.eval('CameraRemoveFromHidden;') #doPerCameraVisibility 3; Remove the selected objects from the selected (or current) camera's hidden list.
 			if text=='Remove All for Camera': #Remove all hidden or exclusive objects for the selected (or current) camera.
-				mel.eval('CameraRemoveAll;') #doPerCameraVisibility 4; 
+				pm.mel.eval('CameraRemoveAll;') #doPerCameraVisibility 4; 
 			if text=='Remove All':
-				mel.eval('CameraRemoveAllForAll;') #doPerCameraVisibility 5; Remove all hidden or exclusive objects for all cameras.
+				pm.mel.eval('CameraRemoveAllForAll;') #doPerCameraVisibility 5; Remove all hidden or exclusive objects for all cameras.
 
 		if header=='Options':
 			if text=='Group Cameras':
@@ -394,9 +393,9 @@ print (__name__)
 
 # 		if header=='Create':
 # 			if text=='Custom Camera':
-# 				mel.eval('camera -centerOfInterest 5 -focalLength 35 -lensSqueezeRatio 1 -cameraScale 1 -horizontalFilmAperture 1.41732 -horizontalFilmOffset 0 -verticalFilmAperture 0.94488 -verticalFilmOffset 0 -filmFit Fill -overscan 1 -motionBlur 0 -shutterAngle 144 -nearClipPlane 0.1 -farClipPlane 10000 -orthographic 0 -orthographicWidth 30 -panZoomEnabled 0 -horizontalPan 0 -verticalPan 0 -zoom 1; objectMoveCommand; cameraMakeNode 1 "";')
+# 				pm.mel.eval('camera -centerOfInterest 5 -focalLength 35 -lensSqueezeRatio 1 -cameraScale 1 -horizontalFilmAperture 1.41732 -horizontalFilmOffset 0 -verticalFilmAperture 0.94488 -verticalFilmOffset 0 -filmFit Fill -overscan 1 -motionBlur 0 -shutterAngle 144 -nearClipPlane 0.1 -farClipPlane 10000 -orthographic 0 -orthographicWidth 30 -panZoomEnabled 0 -horizontalPan 0 -verticalPan 0 -zoom 1; objectMoveCommand; cameraMakeNode 1 "";')
 # 			if text=='Set Custom Camera':
-# 				mel.eval('string $homeName = `cameraView -camera persp`;') #cameraView -edit -camera persp -setCamera $homeName;
+# 				pm.mel.eval('string $homeName = `cameraView -camera persp`;') #cameraView -edit -camera persp -setCamera $homeName;
 # 			if text=='Camera From View':
 # 				print('No Maya Version')
 
@@ -406,9 +405,9 @@ print (__name__)
 
 # 		if header=='Editors':
 # 			if text=='Camera Sequencer':
-# 				mel.eval('SequenceEditor;')
+# 				pm.mel.eval('SequenceEditor;')
 # 			if text=='Camera Set Editor':
-# 				mel.eval('cameraSetEditor;')
+# 				pm.mel.eval('cameraSetEditor;')
 
 # 		if header=='Options':
 # 			if text=='Group Cameras':
@@ -434,9 +433,9 @@ print (__name__)
 	# 		index = cmb.currentIndex()
 	# 	if index!=0:
 	# 		if index==1:
-	# 			mel.eval('SequenceEditor;')
+	# 			pm.mel.eval('SequenceEditor;')
 	# 		if index==2:
-	# 			mel.eval('cameraSetEditor;')
+	# 			pm.mel.eval('cameraSetEditor;')
 	# 		cmb.setCurrentIndex(0)
 
 
@@ -482,11 +481,11 @@ print (__name__)
 	# 		index = cmb.currentIndex()
 	# 	if index!=0:
 	# 		if index==1:
-	# 			mel.eval('cameraView -edit -camera persp -setCamera $homeName;')
+	# 			pm.mel.eval('cameraView -edit -camera persp -setCamera $homeName;')
 	# 		if index==2:
-	# 			mel.eval('string $homeName = `cameraView -camera persp`;')
+	# 			pm.mel.eval('string $homeName = `cameraView -camera persp`;')
 	# 		if index==3:
-	# 			mel.eval('print "--no code--")
+	# 			pm.mel.eval('print "--no code--")
 	# 		cmb.setCurrentIndex(0)
 
 
@@ -504,7 +503,7 @@ print (__name__)
 	# 		index = cmb.currentIndex()
 	# 	if index!=0:
 	# 		if index==1:
-	# 			mel.eval('''
+	# 			pm.mel.eval('''
 	# 			if (`objExists cameras`)
 	# 			{
 	# 			  print "Group 'cameras' already exists";

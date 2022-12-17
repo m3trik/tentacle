@@ -4,7 +4,6 @@ from tentacle.slots.maya import *
 from tentacle.slots.crease import Crease
 
 
-
 class Crease_maya(Crease, Slots_maya):
 	def __init__(self, *args, **kwargs):
 		super().__init__(*args, **kwargs)
@@ -42,7 +41,7 @@ class Crease_maya(Crease, Slots_maya):
 			angleLow = int(tb.ctxMenu.s005.value()) 
 			angleHigh = int(tb.ctxMenu.s006.value()) 
 
-			mel.eval("PolySelectConvert 2;") #convert selection to edges
+			pm.mel.eval("PolySelectConvert 2;") #convert selection to edges
 			contraint = pm.polySelectConstraint( mode=3, type=0x8000, angle=True, anglebound=(angleLow, angleHigh) ) # to get edges with angle between two degrees. mode=3 (All and Next) type=0x8000 (edge). 
 
 		operation = 0 #Crease selected components

@@ -57,7 +57,7 @@ class File_maya(File, Slots_maya):
 		cmb = self.sb.file.cmb006.ctxMenu.cmb001
 
 		if index>0:
-			pm.mel.setProject(cmb.items[index]) #mel.eval('setProject "'+items[index]+'"')
+			pm.mel.setProject(cmb.items[index]) #pm.mel.eval('setProject "'+items[index]+'"')
 			cmb.setCurrentIndex(0)
 
 
@@ -104,7 +104,7 @@ class File_maya(File, Slots_maya):
 			elif index==3: #Unity 
 				pm.mel.SendToUnitySelection()
 			elif index==4: #GoZ
-				mel.eval('print("GoZ"); source"C:/Users/Public/Pixologic/GoZApps/Maya/GoZBrushFromMaya.mel"; source "C:/Users/Public/Pixologic/GoZApps/Maya/GoZScript.mel";')
+				pm.mel.eval('print("GoZ"); source"C:/Users/Public/Pixologic/GoZApps/Maya/GoZBrushFromMaya.mel"; source "C:/Users/Public/Pixologic/GoZApps/Maya/GoZScript.mel";')
 			elif index==5: #Send to 3dsMax: As New Scene
 				pm.mel.SendAsNewScene3dsMax() #OneClickMenuExecute ("3ds Max", "SendAsNewScene"); doMaxFlow { "sendNew","perspShape","1" };
 			elif index==6: #Send to 3dsMax: Update Current
@@ -171,7 +171,7 @@ class File_maya(File, Slots_maya):
 		if quit: #quit maya
 			import time
 			for timer in range(5):
-				self.viewPortMessage('Shutting Down:<hl>'+str(timer)+'</hl>')
+				mtk.viewPortMessage('Shutting Down:<hl>'+str(timer)+'</hl>')
 				time.sleep(timer)
 			pm.mel.quit() # pm.Quit()
 
@@ -187,7 +187,7 @@ class File_maya(File, Slots_maya):
 	def lbl001(self):
 		'''Minimize Main Application
 		'''
-		mel.eval("minimizeApp;")
+		pm.mel.eval("minimizeApp;")
 		self.sb.parent().hide(force=1)
 
 
@@ -397,10 +397,10 @@ print (__name__)
 	# 		type_ = 'mayaAscii' #type: mayaAscii, mayaBinary, mel, OBJ, directory, plug-in, audio, move, EPS, Adobe(R) Illustrator(R)
 
 	# 	if wireframe:
-	# 		mel.eval('DisplayWireframe;')
+	# 		pm.mel.eval('DisplayWireframe;')
 
 	# 	#get scene name and file path
-	# 	fullPath = str(mel.eval('file -query -sceneName;')) #ie. O:/Cloud/____Graphics/______project_files/elise.proj/elise.scenes/.maya/elise_mid.009.mb
+	# 	fullPath = str(pm.mel.eval('file -query -sceneName;')) #ie. O:/Cloud/____Graphics/______project_files/elise.proj/elise.scenes/.maya/elise_mid.009.mb
 	# 	index = fullPath.rfind('/')+1
 	# 	curFullName = fullPath[index:] #ie. elise_mid.009.mb
 	# 	path = fullPath[:index] #ie. O:/Cloud/____Graphics/______project_files/elise.proj/elise.scenes/.maya/
@@ -417,9 +417,9 @@ print (__name__)
 	# 	if quit: #quit maya
 	# 		import time
 	# 		for timer in range(5):
-	# 			self.viewPortMessage('Shutting Down:<hl>'+str(timer)+'</hl>')
+	# 			mtk.viewPortMessage('Shutting Down:<hl>'+str(timer)+'</hl>')
 	# 			time.sleep(timer)
-	# 		mel.eval("quit;")
+	# 		pm.mel.eval("quit;")
 	# 		# pm.Quit()
 
 

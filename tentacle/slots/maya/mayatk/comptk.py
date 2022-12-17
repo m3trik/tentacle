@@ -8,7 +8,7 @@ except ImportError as error:
 from tentacle.slots.tk import itertk, mathtk, randomize
 
 
-class GetComponents():
+class _GetComponents():
 	'''
 	'''
 	componentTypes = [
@@ -103,6 +103,34 @@ class GetComponents():
 		return None
 
 
+	@classmethod
+	def convertComponentType(cls, components, componentType, returnType='str', flatten=False):
+		'''Convert component(s) to it's sub-components of the given type.
+
+		:Parameters:
+			components (str)(obj)(list) = The components(s) to convert.
+			componentType (str) = The desired returned component type. 
+				valid: 'vtx' (or 'vertex', 'vertices', 'Polygon Vertex', 31, 0x0001), 
+					and the same for each: 'edge', 'uv', 'face'.
+			returnType (str) = The desired returned object type. 
+				(valid: 'str'(default), 'obj'(shape object), 'transform'(as string), 'int'(valid only at sub-object level).
+			flatten (bool) = Flattens the returned list of objects so that each component is it's own element.
+
+		:Return:
+			(list)(dict)
+
+		ex. call:
+		convertComponentType('obj.vtx[:2]', 'vertex') #returns: ['obj.vtx[0:2]']
+		convertComponentType('obj.vtx[:2]', 'face') #returns: ['obj.f[0:2]', 'obj.f[11:14]', 'obj.f[23]']
+		convertComponentType('obj.vtx[:2]', 'edge') #returns: ['obj.e[0:2]', 'obj.e[11]', 'obj.e[24:26]', 'obj.e[36:38]']
+		convertComponentType('obj.vtx[:2]', 'uv') #returns: ['obj.map[0:2]', 'obj.map[12:14]', 'obj.map[24]']
+		'''
+		d = {'vtx':'toVertex', 'e':'toEdge', 'uv':'toUV', 'f':'toFace'}
+		typ = cls.convertComponentName(componentType) #get the correct componentType variable from possible args.
+		components = pm.polyListComponentConversion(components, **{d[typ.lower()]:True})
+		return cls.convertElementType(components, returnType=returnType, flatten=flatten)
+
+
 	@staticmethod
 	def getElementType(obj):
 		'''Determine if the given element(s) type.
@@ -191,34 +219,6 @@ class GetComponents():
 				result = lst
 
 		return result
-
-
-	@classmethod
-	def convertComponentType(cls, components, componentType, returnType='str', flatten=False):
-		'''Convert component(s) to it's sub-components of the given type.
-
-		:Parameters:
-			components (str)(obj)(list) = The components(s) to convert.
-			componentType (str) = The desired returned component type. 
-				valid: 'vtx' (or 'vertex', 'vertices', 'Polygon Vertex', 31, 0x0001), 
-					and the same for each: 'edge', 'uv', 'face'.
-			returnType (str) = The desired returned object type. 
-				(valid: 'str'(default), 'obj'(shape object), 'transform'(as string), 'int'(valid only at sub-object level).
-			flatten (bool) = Flattens the returned list of objects so that each component is it's own element.
-
-		:Return:
-			(list)(dict)
-
-		ex. call:
-		convertComponentType('obj.vtx[:2]', 'vertex') #returns: ['obj.vtx[0:2]']
-		convertComponentType('obj.vtx[:2]', 'face') #returns: ['obj.f[0:2]', 'obj.f[11:14]', 'obj.f[23]']
-		convertComponentType('obj.vtx[:2]', 'edge') #returns: ['obj.e[0:2]', 'obj.e[11]', 'obj.e[24:26]', 'obj.e[36:38]']
-		convertComponentType('obj.vtx[:2]', 'uv') #returns: ['obj.map[0:2]', 'obj.map[12:14]', 'obj.map[24]']
-		'''
-		d = {'vtx':'toVertex', 'e':'toEdge', 'uv':'toUV', 'f':'toFace'}
-		typ = cls.convertComponentName(componentType) #get the correct componentType variable from possible args.
-		components = pm.polyListComponentConversion(components, **{d[typ.lower()]:True})
-		return cls.convertElementType(components, returnType=returnType, flatten=flatten)
 
 
 	@classmethod
@@ -336,7 +336,7 @@ class GetComponents():
 
 
 
-class Componenttls(GetComponents):
+class Comptk(_GetComponents):
 	'''
 	'''
 	@classmethod
@@ -589,8 +589,6 @@ class Componenttls(GetComponents):
 		getClosestVertex('plnShape.vtx[0]', 'cyl') #returns: {'plnShape.vtx[0]': 'cylShape.vtx[3]'},
 		getClosestVertex('plnShape.vtx[2:3]', 'cyl') #returns: {'plnShape.vtx[2]': 'cylShape.vtx[2]', 'plnShape.vtx[3]': 'cylShape.vtx[1]'}
 		'''
-		from tentacle.slots.mathtk import getDistBetweenTwoPoints
-
 		vertices = cls.convertElementType(vertices, returnType='str', flatten=True)
 		pm.undoInfo(openChunk=True)
 
@@ -611,7 +609,7 @@ class Componenttls(GetComponents):
 			v2 = obj2Shape.vtx[index]
 
 			v2Pos = pm.pointPosition(v2, world=True)
-			distance = getDistBetweenTwoPoints(v1Pos, v2Pos)
+			distance = mathtk.getDistBetweenTwoPoints(v1Pos, v2Pos)
 
 			v2_convertedType = cls.convertElementType(v2, returnType=returnType)[0]
 			if not tolerance:

@@ -605,9 +605,10 @@ class Imgtk():
 
 
 	@staticmethod
-	def convert_to_32bit_I(image):
-		'''Under construction.
-		ValueError: conversion from RGB to I;32 not supported
+	def convert_RGB_to_HSV(image):
+		'''Manually convert the image to a NumPy array, iterate over the pixels 
+		and use the colorsys module to convert the colors from RGB to HSV.
+		PIL images can be converted usin: image.convert("HSV")
 
 		:Parameters:
 			image (str)(obj) = An image or path to an image.
@@ -615,23 +616,20 @@ class Imgtk():
 		:Return:
 			(obj) image.
 		'''
+		import colorsys
+
 		im = Image.open(image) if (isinstance(image, str)) else image
 		data = np.array(im)
-		# return im.convert('I;32')
+		
+		# Convert the colors from RGB to HSV
+		hsv = np.empty_like(data)
+		for i in range(data.shape[0]):
+			for ii in range(data.shape[1]):
+				r, g, b = data[i, ii]
+				h, s, v = colorsys.rgb_to_hsv(r / 255, g / 255, b / 255)
+				hsv[i, ii] = (int(h * 360), int(s * 100), int(v * 100))
 
-		try: #convert from 'I'
-			im32 = data.astype(np.int32)
-			return Image.fromarray(im32, mode='I')
-
-		except ValueError as error: #convert from 'RGB'
-			# data = cls.convert_rgb_to_gray(data)
-
-			# im32 = data.astype(np.int32)
-			# return Image.fromarray(im32, mode='I')
-
-			# from PIL import ImageMath
-			# return ImageMath.eval('im >> 32', im=im.convert('I'))
-			return im.convert('RGB')
+		return Image.fromarray(hsv, mode='HSV')
 
 
 	@staticmethod
@@ -642,7 +640,7 @@ class Imgtk():
 			image (str)(obj) = An image or path to an image.
 
 		:Return:
-			(obj) PIL image.
+			(obj) image.
 		'''
 		im = Image.open(image) if (isinstance(image, str)) else image
 		data = np.array(im)

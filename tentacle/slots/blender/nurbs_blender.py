@@ -144,7 +144,7 @@ class Nurbs_blender(Nurbs, Slots_blender):
 
 		except Exception as error:
 			objects = pm.ls(sl=1, objectsOnly=1)
-			sel_edges = self.getComponents('edges', flatten=1)
+			sel_edges = mtk.comptk.getComponents('edges', flatten=1)
 			edge_rings = self.getContigiousEdges(sel_edges)
 			multi = len(edge_rings)>1
 
@@ -625,7 +625,7 @@ class Nurbs_blender(Nurbs, Slots_blender):
 		for curve in pm.ls(curves):
 			p0 = pm.objectCenter(curve)
 
-			cvs = self.getComponents(curve, 'cv', returnType='object', flatten=1)
+			cvs = mtk.comptk.getComponents(curve, 'cv', returnType='object', flatten=1)
 			cvPos = self.getCvInfo(curve, 'position')
 			p1 = cvPos[cvs[0]]
 			p2 = cvPos[cvs[(len(cvs)/2)]]

@@ -4,7 +4,6 @@ from tentacle.slots.maya import *
 from tentacle.slots.scripting import Scripting
 
 
-
 class Scripting_maya(Scripting, Slots_maya):
 	def __init__(self, *args, **kwargs):
 		super().__init__(*args, **kwargs)
@@ -35,13 +34,13 @@ class Scripting_maya(Scripting, Slots_maya):
 	def b001(self):
 		'''Command Line Window
 		'''
-		mel.eval('commandLineWindow;')
+		pm.mel.eval('commandLineWindow;')
 
 
 	def b002(self):
 		'''Script Editor
 		'''
-		mel.eval('ScriptEditor;')
+		pm.mel.eval('ScriptEditor;')
 
 
 	def b003(self):

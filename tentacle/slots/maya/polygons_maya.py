@@ -4,7 +4,6 @@ from tentacle.slots.maya import *
 from tentacle.slots.polygons import Polygons
 
 
-
 class Polygons_maya(Polygons, Slots_maya):
 	def __init__(self, *args, **kwargs):
 		super().__init__(*args, **kwargs)
@@ -59,7 +58,7 @@ class Polygons_maya(Polygons, Slots_maya):
 			self.messageBox('<strong>Nothing selected</strong>.<br>Operation requires an object or vertex selection.', messageType='Error')
 			return
 
-		self.mergeVertices(objects, selected=componentMode, tolerance=tolerance)
+		mtk.edittk.mergeVertices(objects, selected=componentMode, tolerance=tolerance)
 
 
 	@Slots_maya.attr
@@ -258,7 +257,7 @@ class Polygons_maya(Polygons, Slots_maya):
 		selection = pm.ls(sl=1, objectsOnly=1)
 		if len(selection)>1:
 			obj1, obj2 = selection
-			self.snapClosestVerts(obj1, obj2, tolerance, freezetransforms)
+			mtk.edittk.snapClosestVerts(obj1, obj2, tolerance, freezetransforms)
 		else:
 			self.messageBox('<strong>Nothing selected</strong>.<br>Operation requires at least two selected objects.', messageType='Error')
 			return
@@ -333,7 +332,7 @@ class Polygons_maya(Polygons, Slots_maya):
 		'''Merge Vertices: Merge All
 		'''
 		sel = pm.ls(sl=True, objectsOnly=True)
-		self.mergeVertices(sel)
+		mtk.edittk.mergeVertices(sel)
 
 
 	def b009(self):
@@ -459,65 +458,7 @@ class Polygons_maya(Polygons, Slots_maya):
 		'''
 		pm.polyEditEdgeFlow(adjustEdgeFlow=1)
 
-
-	@staticmethod
-	def mergeVertices(objects, selected=False, tolerance=0.001):
-		'''Merge Vertices on the given objects.
-
-		:Parameters:
-			objects (str)(obj)(list) = The object(s) to merge vertices on.
-			selected (bool) = Merge only the currently selected components.
-			tolerance (float) = The maximum merge distance.
-		'''
-		for obj in pm.ls(objects):
-
-			if selected: #merge selected components.
-				if pm.filterExpand(selectionMask=31): #selectionMask=vertices
-					sel = pm.ls(obj, sl=1)
-					pm.polyMergeVertex(sel, distance=tolerance, alwaysMergeTwoVertices=True, constructionHistory=True)
-				else: #if selection type =edges or facets:
-					pm.mel.MergeToCenter()
-
-			else: #merge all vertices on the object.
-				vertices = obj.vtx[:] # mel expression: select -r geometry.vtx[0:1135];
-				pm.polyMergeVertex(vertices, distance=tolerance, alwaysMergeTwoVertices=False, constructionHistory=False)
-				#return to original state
-				pm.select(clear=1)
-				pm.select(objects)
-
-
-	@Slots_maya.undo
-	def snapClosestVerts(self, obj1, obj2, tolerance=10.0, freezeTransforms=False):
-		'''Snap the vertices from object one to the closest verts on object two.
-
-		:Parameters:
-			obj1 (obj) = The object in which the vertices are moved from.
-			obj2 (obj) = The object in which the vertices are moved to.
-			tolerance (float) = Maximum search distance.
-			freezeTransforms (bool) = Reset the selected transform and all of its children down to the shape level.
-		'''
-		vertices = self.getComponents(obj1, 'vertices')
-		closestVerts = Slots_maya.getClosestVertex(vertices, obj2, tolerance=tolerance, freezeTransforms=freezeTransforms)
-
-		progressBar = mel.eval("$container=$gMainProgressBar");
-		pm.progressBar(progressBar, edit=True, beginProgress=True, isInterruptable=True, status="Snapping Vertices ...", maxValue=len(closestVerts)) 
-
-		# pm.undoInfo(openChunk=True)
-		for v1, v2 in closestVerts.items():
-			if pm.progressBar(progressBar, query=True, isCancelled=True):
-				break
-
-			v2Pos = pm.pointPosition(v2, world=True)
-			pm.xform(v1, translation=v2Pos, worldSpace=True)
-
-			pm.progressBar(progressBar, edit=True, step=1)
-		# pm.undoInfo(closeChunk=True)
-
-		pm.progressBar(progressBar, edit=True, endProgress=True)
-
-
-
-
+# -----------------------------------------------
 
 
 
@@ -550,12 +491,12 @@ print (__name__)
 # 		facetMask = pm.selectType (query=True, facet=True)
 
 # 		if vertexMask:
-# 			mel.eval("polySplitVertex()")
+# 			pm.mel.eval("polySplitVertex()")
 
 # 		if facetMask:
 # 			maskVertex = pm.selectType (query=True, vertex=True)
 # 			if maskVertex:
-# 				mel.eval("DetachComponent;")
+# 				pm.mel.eval("DetachComponent;")
 # 			else:
 # 				selFace = pm.ls(ni=1, sl=1)
 # 				selObj = pm.ls(objectsOnly=1, noIntermediate=1, sl=1) #to errorcheck if more than 1 obj selected
@@ -567,7 +508,7 @@ print (__name__)
 # 				# 	return 'Error: Only components from a single object can be extracted.'
 
 # 				else:
-# 					mel.eval("DetachComponent;")
+# 					pm.mel.eval("DetachComponent;")
 # 					# pm.undoInfo (openChunk=1)
 # 					# sel = str(selFace[0]).split(".") #creates ex. ['polyShape', 'f[553]']
 # 					# print(sel)

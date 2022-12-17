@@ -28,7 +28,7 @@ class Materials_maya(Materials, Slots_maya):
 			text = cmb.items[index]
 
 			if text=='Hypershade':
-				mel.eval('HypershadeWindow;')
+				pm.mel.eval('HypershadeWindow;')
 
 			elif text=='Material Presets':
 				from shadertls import Stingray_arnold_shader_main
@@ -171,7 +171,7 @@ class Materials_maya(Materials, Slots_maya):
 	def lbl003(self):
 		'''Delete Unused Materials
 		'''
-		mel.eval('hyperShadePanelMenuCommand("hyperShadePanel1", "deleteUnusedNodes");')
+		pm.mel.eval('hyperShadePanelMenuCommand("hyperShadePanel1", "deleteUnusedNodes");')
 		self.cmb002() #refresh the materials list comboBox
 
 
@@ -472,7 +472,7 @@ print (__name__)
 
 
 #assign random
-	# mel.eval('''
+	# pm.mel.eval('''
 # 		string $selection[] = `ls -selection`;
 
 # 		int $d = 2; //decimal places to round to
@@ -501,7 +501,7 @@ print (__name__)
 # 		 ''')
 
 #re-assign random
-	# mel.eval('''
+	# pm.mel.eval('''
 		# string $objList[] = `ls -selection -flatten`;
 		# $material = `hyperShade -shaderNetworksSelectMaterialNodes ""`;
 		# string $matList[] = `ls -selection -flatten`;

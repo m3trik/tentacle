@@ -4,7 +4,6 @@ from tentacle.slots.maya import *
 from tentacle.slots.duplicate import Duplicate
 
 
-
 class Duplicate_maya(Duplicate, Slots_maya):
 	def __init__(self, *args, **kwargs):
 		super().__init__(*args, **kwargs)
@@ -24,7 +23,7 @@ class Duplicate_maya(Duplicate, Slots_maya):
 
 		if index>0:
 			if index==cmd.items.index('Duplicate Special'):
-				mel.eval('DuplicateSpecialOptions;')
+				pm.mel.eval('DuplicateSpecialOptions;')
 			cmb.setCurrentIndex(0)
 
 

@@ -4,7 +4,6 @@ from tentacle.slots.maya import *
 from tentacle.slots.scene import Scene
 
 
-
 class Scene_maya(Scene, Slots_maya):
 	def __init__(self, *args, **kwargs):
 		super().__init__(*args, **kwargs)
@@ -22,17 +21,17 @@ class Scene_maya(Scene, Slots_maya):
 		if index>0:
 			text = cmb.items[index]
 			if text=='Node Editor':
-				mel.eval('NodeEditorWindow;') #
+				pm.mel.eval('NodeEditorWindow;') #
 			elif text=='Outlinder':
-				mel.eval('OutlinerWindow;') #
+				pm.mel.eval('OutlinerWindow;') #
 			elif text=='Content Browser':
-				mel.eval('ContentBrowserWindow;') #
+				pm.mel.eval('ContentBrowserWindow;') #
 			elif text=='Optimize Scene Size':
-				mel.eval('cleanUpScene 2;')
+				pm.mel.eval('cleanUpScene 2;')
 			elif text=='Prefix Hierarchy Names':
-				mel.eval('prefixHierarchy;') #Add a prefix to all hierarchy names.
+				pm.mel.eval('prefixHierarchy;') #Add a prefix to all hierarchy names.
 			elif text=='Search and Replace Names':
-				mel.eval('SearchAndReplaceNames;') #performSearchReplaceNames 1; #Rename objects in the scene.
+				pm.mel.eval('SearchAndReplaceNames;') #performSearchReplaceNames 1; #Rename objects in the scene.
 			cmb.setCurrentIndex(0)
 
 

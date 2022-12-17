@@ -4,7 +4,6 @@ from tentacle.slots.maya import *
 from tentacle.slots.rendering import Rendering
 
 
-
 class Rendering_maya(Rendering, Slots_maya):
 	def __init__(self, *args, **kwargs):
 		super().__init__(*args, **kwargs)
@@ -46,31 +45,31 @@ class Rendering_maya(Rendering, Slots_maya):
 		try:
 			rt.render (camera=self.cams[index]) #render with selected camera
 		except:
-			mel.eval('RenderIntoNewWindow;')
+			pm.mel.eval('RenderIntoNewWindow;')
 
 
 	def b001(self):
 		'''Open Render Settings Window
 		'''
-		mel.eval('unifiedRenderGlobalsWindow;')
+		pm.mel.eval('unifiedRenderGlobalsWindow;')
 
 
 	def b002(self):
 		'''Redo Previous Render
 		'''
-		mel.eval('redoPreviousRender render;')
+		pm.mel.eval('redoPreviousRender render;')
 
 
 	def b003(self):
 		'''Editor: Render Setup
 		'''
-		mel.eval('RenderSetupWindow;')
+		pm.mel.eval('RenderSetupWindow;')
 
 
 	def b004(self):
 		'''Editor: Rendering Flags
 		'''
-		mel.eval('renderFlagsWindow;')
+		pm.mel.eval('renderFlagsWindow;')
 
 
 	def b005(self):
@@ -83,10 +82,10 @@ class Rendering_maya(Rendering, Slots_maya):
 			shapes = pm.listRelatives(obj,s=1,ni=1)
 			if shapes:
 				for shape in shapes:
-					mel.eval ("vray addAttributesFromGroup "+shape+" vray_subdivision 1;")
-					mel.eval ("vray addAttributesFromGroup "+shape+" vray_subquality 1;")
+					pm.mel.eval ("vray addAttributesFromGroup "+shape+" vray_subdivision 1;")
+					pm.mel.eval ("vray addAttributesFromGroup "+shape+" vray_subquality 1;")
 			# apply object ID to xform. i don't like giving individual shapes IDs.
-			mel.eval ("vray addAttributesFromGroup "+obj+" vray_objectID 1;")
+			pm.mel.eval ("vray addAttributesFromGroup "+obj+" vray_objectID 1;")
 			pm.setAttr(obj+'.vrayObjectID',currentID)
 			currentID+=1
 

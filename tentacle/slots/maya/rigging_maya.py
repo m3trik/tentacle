@@ -4,7 +4,6 @@ from tentacle.slots.maya import *
 from tentacle.slots.rigging import Rigging
 
 
-
 class Rigging_maya(Rigging, Slots_maya):
 	def __init__(self, *args, **kwargs):
 		super().__init__(*args, **kwargs)
@@ -26,19 +25,19 @@ class Rigging_maya(Rigging, Slots_maya):
 		if index>0:
 			text = cmb.items[index]
 			if text=='Quick Rig':
-				mel.eval('QuickRigEditor;') #Quick Rig
+				pm.mel.eval('QuickRigEditor;') #Quick Rig
 			elif text=='HumanIK':
-				mel.eval('HIKCharacterControlsTool;') #HumanIK
+				pm.mel.eval('HIKCharacterControlsTool;') #HumanIK
 			elif text=='Expression Editor':
-				mel.eval('ExpressionEditor;') #Expression Editor
+				pm.mel.eval('ExpressionEditor;') #Expression Editor
 			elif text=='Shape Editor':
-				mel.eval('ShapeEditor;') #Shape Editor
+				pm.mel.eval('ShapeEditor;') #Shape Editor
 			elif text=='Connection Editor':
-				mel.eval('ConnectionEditor;') #Connection Editor
+				pm.mel.eval('ConnectionEditor;') #Connection Editor
 			elif text=='Channel Control Editor':
-				mel.eval('ChannelControlEditor;') #Channel Control Editor
+				pm.mel.eval('ChannelControlEditor;') #Channel Control Editor
 			elif text=='Set Driven Key':
-				mel.eval('SetDrivenKeyOptions;') #Set Driven Key
+				pm.mel.eval('SetDrivenKeyOptions;') #Set Driven Key
 			cmb.setCurrentIndex(0)
 
 
@@ -58,7 +57,7 @@ class Rigging_maya(Rigging, Slots_maya):
 			elif text=='Lattice':
 				pm.lattice(divisions=[2,5,2], objectCentered=1, ldv=[2,2,2]) ##create lattice
 			elif text=='Cluster':
-				mel.eval('CreateCluster;') #create cluster
+				pm.mel.eval('CreateCluster;') #create cluster
 			cmb.setCurrentIndex(0)
 
 
@@ -114,7 +113,7 @@ class Rigging_maya(Rigging, Slots_maya):
 		if toggle:
 			pm.toggle(joints, localAxis=1) #set display off
 
-		self.viewPortMessage("Display Local Rotation Axes:<hl>"+str(state)+"</hl>")
+		mtk.viewPortMessage("Display Local Rotation Axes:<hl>"+str(state)+"</hl>")
 
 
 	def tb001(self, state=None):
@@ -168,9 +167,9 @@ class Rigging_maya(Rigging, Slots_maya):
 
 		selection = pm.ls(selection=True)
 		if not selection:
-			return mtk.riggingtls.createLocator(scale=scale)
+			return mtk.rigtk.createLocator(scale=scale)
 
-		mtk.riggingtls.createLocatorAtObject(selection, 
+		mtk.rigtk.createLocatorAtObject(selection, 
 			parent=parent, freezeTransforms=freezeTransforms, bakeChildPivot=bakeChildPivot, scale=scale, 
 			grpSuffix=grpSuffix, locSuffix=locSuffix, objSuffix=objSuffix, stripDigits=stripDigits, stripSuffix=stripSuffix, 
 			lockTranslate=lockTranslate, lockRotation=lockRotation, lockScale=lockScale
@@ -187,7 +186,7 @@ class Rigging_maya(Rigging, Slots_maya):
 		lockScale = tb.ctxMenu.chk014.isChecked()
 
 		sel = pm.ls(sl=True)
-		mtk.riggingtls.setAttrLockState(sel, translate=lockTranslate, rotate=lockRotation, scale=lockScale)
+		mtk.rigtk.setAttrLockState(sel, translate=lockTranslate, rotate=lockRotation, scale=lockScale)
 
 
 	@Slots.hideMain
@@ -223,7 +222,7 @@ class Rigging_maya(Rigging, Slots_maya):
 		'''Remove Locator
 		'''
 		selection = pm.ls(selection=True)
-		mtk.riggingtls.removeLocator(selection)
+		mtk.rigtk.removeLocator(selection)
 
 
 	def b004(self):

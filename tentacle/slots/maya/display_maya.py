@@ -4,7 +4,6 @@ from tentacle.slots.maya import *
 from tentacle.slots.display import Display
 
 
-
 class Display_maya(Display, Slots_maya):
 	def __init__(self, *args, **kwargs):
 		super().__init__(*args, **kwargs)
@@ -61,7 +60,7 @@ class Display_maya(Display, Slots_maya):
 	def b005(self):
 		'''Xray Selected
 		'''
-		mel.eval('''
+		pm.mel.eval('''
 		string $sel[] = `ls -sl -dag -s`;
 		for ($object in $sel) 
 			{
@@ -74,7 +73,7 @@ class Display_maya(Display, Slots_maya):
 	def b006(self):
 		'''Un-Xray All
 		'''
-		mel.eval('''
+		pm.mel.eval('''
 		string $scene[] = `ls -visible -flatten -dag -noIntermediate -type surfaceShape`;
 		for ($object in $scene)
 			{
@@ -90,7 +89,7 @@ class Display_maya(Display, Slots_maya):
 	def b007(self):
 		'''Xray Other
 		'''
-		mel.eval('''
+		pm.mel.eval('''
 		//xray all except currently selected
 		{
 		string $scene[] = `ls -visible -flatten -dag -noIntermediate -type surfaceShape`;
@@ -120,7 +119,7 @@ class Display_maya(Display, Slots_maya):
 		currentPanel = getPanel(withFocus=True)
 		state = pm.modelEditor(currentPanel, query=1, useDefaultMaterial=1)
 		pm.modelEditor(currentPanel, edit=1, useDefaultMaterial=not state)
-		self.viewPortMessage('Default Material Override: <hl>{}</hl>.'.format(state))
+		mtk.viewPortMessage('Default Material Override: <hl>{}</hl>.'.format(state))
 
 
 	def b011(self):
@@ -152,15 +151,15 @@ class Display_maya(Display, Slots_maya):
 				i+=1
 
 		if index==0:
-			self.viewPortMessage("[1,0,0,0] <hl>vertIDs</hl>.")
+			mtk.viewPortMessage("[1,0,0,0] <hl>vertIDs</hl>.")
 		elif index==1:
-			self.viewPortMessage("[0,1,0,0] <hl>edgeIDs</hl>.")
+			mtk.viewPortMessage("[0,1,0,0] <hl>edgeIDs</hl>.")
 		elif index==2:
-			self.viewPortMessage("[0,0,1,0] <hl>faceIDs</hl>.")
+			mtk.viewPortMessage("[0,0,1,0] <hl>faceIDs</hl>.")
 		elif index==3:
-			self.viewPortMessage("[0,0,0,1] <hl>compIDs(UV)</hl>.")
+			mtk.viewPortMessage("[0,0,0,1] <hl>compIDs(UV)</hl>.")
 		elif index==4:
-			self.viewPortMessage("component ID <hl>Off</hl>.")
+			mtk.viewPortMessage("component ID <hl>Off</hl>.")
 
 
 	def b012(self):

@@ -112,7 +112,7 @@ class Edit_blender(Edit, Slots_blender):
 		objects = pm.ls(sl=1, transforms=1)
 
 		if overlappingDuplicateObjects:
-			duplicates = self.getOverlappingDuplicateObjects(omitInitialObjects=omitSelectedObjects, select=True, verbose=True)
+			duplicates = self.getOverlappingDupObjects(omitInitialObjects=omitSelectedObjects, select=True, verbose=True)
 			if repair: #repair
 				pm.delete(duplicates)
 			return
@@ -255,7 +255,7 @@ class Edit_blender(Edit, Slots_blender):
 		pm.mel.performTransferShadingSets(0)
 
 
-	def getOverlappingDuplicateObjects(self, objects=[], omitInitialObjects=False, select=False, verbose=False):
+	def getOverlappingDupObjects(self, objects=[], omitInitialObjects=False, select=False, verbose=False):
 		'''Find any duplicate overlapping geometry at the object level.
 
 		:Parameters:
@@ -267,7 +267,7 @@ class Edit_blender(Edit, Slots_blender):
 		:Return:
 			(set)
 
-		ex call: duplicates = getOverlappingDuplicateObjects(omitInitialObjects=True, select=True, verbose=True)
+		ex call: duplicates = getOverlappingDupObjects(omitInitialObjects=True, select=True, verbose=True)
 		'''
 		scene_objs = pm.ls(transforms=1, geometry=1) #get all scene geometry
 
@@ -354,7 +354,7 @@ class Edit_blender(Edit, Slots_blender):
 		# pm.undoInfo(openChunk=True)
 		nonManifoldVerts=set()
 
-		vertices = self.getComponents(objects, 'vertices')
+		vertices = mtk.comptk.getComponents(objects, 'vertices')
 		for vertex in vertices:
 
 			connected_faces = pm.polyListComponentConversion(vertex, fromVertex=1, toFace=1) #pm.mel.PolySelectConvert(1) #convert to faces

@@ -4,7 +4,6 @@ from tentacle.slots.maya import *
 from tentacle.slots.nurbs import Nurbs
 
 
-
 class Nurbs_maya(Nurbs, Slots_maya):
 	def __init__(self, *args, **kwargs):
 		super().__init__(*args, **kwargs)
@@ -26,39 +25,39 @@ class Nurbs_maya(Nurbs, Slots_maya):
 		if index>0:
 			text = cmb.items[index]
 			if text=='Project Curve':
-				mel.eval("ProjectCurveOnSurfaceOptions;")
+				pm.mel.eval("ProjectCurveOnSurfaceOptions;")
 			elif text=='Duplicate Curve':
-				mel.eval("DuplicateCurveOptions;")
+				pm.mel.eval("DuplicateCurveOptions;")
 			elif text=='Create Curve from Poly':
-				mel.eval("CreateCurveFromPolyOptions")
+				pm.mel.eval("CreateCurveFromPolyOptions")
 			elif text=='Bend Curve':
-				mel.eval("BendCurvesOptions;")
+				pm.mel.eval("BendCurvesOptions;")
 			elif text=='Curl Curve':
-				mel.eval("CurlCurvesOptions;")
+				pm.mel.eval("CurlCurvesOptions;")
 			elif text=='Modify Curve Curvature':
-				mel.eval("ScaleCurvatureOptions;")
+				pm.mel.eval("ScaleCurvatureOptions;")
 			elif text=='Smooth Curve':
-				mel.eval("SmoothHairCurvesOptions;")
+				pm.mel.eval("SmoothHairCurvesOptions;")
 			elif text=='Straighten Curves':
-				mel.eval("StraightenCurvesOptions;")
+				pm.mel.eval("StraightenCurvesOptions;")
 			elif text=='Extrude Curves':
-				mel.eval("ExtrudeOptions;")
+				pm.mel.eval("ExtrudeOptions;")
 			elif text=='Revolve Curves':
-				mel.eval("RevolveOptions;")
+				pm.mel.eval("RevolveOptions;")
 			elif text=='Loft Curves':
-				mel.eval("LoftOptions;")
+				pm.mel.eval("LoftOptions;")
 			elif text=='Planar Curves':
-				mel.eval("PlanarOptions;")
+				pm.mel.eval("PlanarOptions;")
 			elif text=='Insert Isoparms':
-				mel.eval("InsertIsoparmsOptions;")
+				pm.mel.eval("InsertIsoparmsOptions;")
 			elif text=='Insert Knot':
-				mel.eval("InsertKnotOptions;")
+				pm.mel.eval("InsertKnotOptions;")
 			elif text=='Rebuild Curve':
-				mel.eval("RebuildCurveOptions;")
+				pm.mel.eval("RebuildCurveOptions;")
 			elif text=='Extend Curve':
-				mel.eval("ExtendCurveOptions;")
+				pm.mel.eval("ExtendCurveOptions;")
 			elif text=='Extend Curve On Surface':
-				mel.eval("ExtendCurveOnSurfaceOptions;")
+				pm.mel.eval("ExtendCurveOnSurfaceOptions;")
 			cmb.setCurrentIndex(0)
 
 
@@ -70,17 +69,17 @@ class Nurbs_maya(Nurbs, Slots_maya):
 		if index>0:
 			text = cmb.items[index]
 			if text=='Ep Curve Tool':
-				mel.eval('EPCurveToolOptions;') #mel.eval('EPCurveTool;')
+				pm.mel.eval('EPCurveToolOptions;') #pm.mel.eval('EPCurveTool;')
 			elif text=='CV Curve Tool':
-				mel.eval('CVCurveToolOptions') #mel.eval('CVCurveTool')
+				pm.mel.eval('CVCurveToolOptions') #pm.mel.eval('CVCurveTool')
 			elif text=='Bezier Curve Tool':
-				mel.eval('CreateBezierCurveToolOptions') #mel.eval('CreateBezierCurveTool;')
+				pm.mel.eval('CreateBezierCurveToolOptions') #pm.mel.eval('CreateBezierCurveTool;')
 			elif text=='Pencil Curve Tool':
-				mel.eval('PencilCurveToolOptions;') #mel.eval('PencilCurveTool;')
+				pm.mel.eval('PencilCurveToolOptions;') #pm.mel.eval('PencilCurveTool;')
 			elif text=='2 Point Circular Arc':
-				mel.eval('TwoPointArcToolOptions;') #mel.eval("TwoPointArcTool;")
+				pm.mel.eval('TwoPointArcToolOptions;') #pm.mel.eval("TwoPointArcTool;")
 			elif text=='3 Point Circular Arc':
-				mel.eval("ThreePointArcToolOptions;") #mel.eval("ThreePointArcTool;")
+				pm.mel.eval("ThreePointArcToolOptions;") #pm.mel.eval("ThreePointArcTool;")
 			cmb.setCurrentIndex(0)
 
 
@@ -126,7 +125,7 @@ class Nurbs_maya(Nurbs, Slots_maya):
 	def b012(self):
 		'''Project Curve
 		'''
-		mel.eval("projectCurve;") #ProjectCurveOnMesh;
+		pm.mel.eval("projectCurve;") #ProjectCurveOnMesh;
 
 
 	def b014(self):
@@ -143,8 +142,8 @@ class Nurbs_maya(Nurbs, Slots_maya):
 
 		except Exception as error:
 			sel = pm.ls(sl=1)
-			sel_edges = self.getComponents(sel, componentType='edges', flatten=1) #get edges from selection.
-			edge_rings = self.getContigiousEdges(sel_edges)
+			sel_edges = mtk.comptk.getComponents(sel, componentType='edges', flatten=1) #get edges from selection.
+			edge_rings = mtk.comptk.getContigiousEdges(sel_edges)
 			multi = len(edge_rings)>1
 
 			for edge_ring in edge_rings:
@@ -269,7 +268,7 @@ class Nurbs_maya(Nurbs, Slots_maya):
 		'''Reverse Curve
 
 		'''
-		mel.eval("reverse;")
+		pm.mel.eval("reverse;")
 
 
 	def b052(self):

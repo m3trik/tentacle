@@ -4,7 +4,6 @@ from tentacle.slots.maya import *
 from tentacle.slots.transform import Transform
 
 
-
 class Transform_maya(Transform, Slots_maya):
 	def __init__(self, *args, **kwargs):
 		'''
@@ -116,10 +115,10 @@ class Transform_maya(Transform, Slots_maya):
 			shape = mtk.getShapeNode(selection[0])
 			if not shape in live_object:
 				pm.makeLive(selection) #construction planes, nurbs surfaces and polygon meshes can be made live. makeLive supports one live object at a time.
-				# self.viewPortMessage('Make Live: <hl>On</hl> {0}'.format(selection[0].name()))
+				# mtk.viewPortMessage('Make Live: <hl>On</hl> {0}'.format(selection[0].name()))
 		else:
 			pm.makeLive(none=True)
-			# self.viewPortMessage('Make Live: <hl>Off</hl>')
+			# mtk.viewPortMessage('Make Live: <hl>Off</hl>')
 
 		cmb.setCurrentText('Constrain: OFF') if not any((state, cmb.menu_.chk024.isChecked(), cmb.menu_.chk025.isChecked())) else cmb.setCurrentText('Constrain: ON')
 
@@ -175,7 +174,7 @@ class Transform_maya(Transform, Slots_maya):
 
 		if betweenTwoComponents:
 			if len(selection)>1:
-				componentsOnPath = self.getEdgePath(selection, 'edgeLoopPath')
+				componentsOnPath = mtk.comptk.getEdgePath(selection, 'edgeLoopPath')
 				pm.select(componentsOnPath)
 
 		if autoAlign: #set coordinates for auto align:
@@ -361,7 +360,7 @@ class Transform_maya(Transform, Slots_maya):
 		'''Center Pivot Component
 		'''
 		[pm.xform (s, centerPivot=1) for s in pm.ls (sl=1, objectsOnly=1, flatten=1)]
-		# mel.eval("moveObjectPivotToComponentCentre;")
+		# pm.mel.eval("moveObjectPivotToComponentCentre;")
 
 
 	def b015(self):
@@ -373,7 +372,7 @@ class Transform_maya(Transform, Slots_maya):
 	def b016(self):
 		'''Set To Bounding Box
 		'''
-		mel.eval("bt_alignPivotToBoundingBoxWin;")
+		pm.mel.eval("bt_alignPivotToBoundingBoxWin;")
 
 
 	def b017(self):
@@ -679,7 +678,7 @@ class Transform_maya(Transform, Slots_maya):
 			xyz = [float(xyz[2]), float(xyz[3]), float(xyz[4])]
 
 		if alignToNormal: #normal constraint
-			normal = mel.eval("unit <<"+str(xyz[0])+", "+str(xyz[1])+", "+str(xyz[2])+">>;") #normalize value using MEL
+			normal = pm.mel.eval("unit <<"+str(xyz[0])+", "+str(xyz[1])+", "+str(xyz[2])+">>;") #normalize value using MEL
 			# normal = [round(i-min(xyz)/(max(xyz)-min(xyz)),6) for i in xyz] #normalize and round value using python
 
 			constraint = pm.normalConstraint(component, object_,aimVector=normal,upVector=[0,1,0],worldUpVector=[0,1,0],worldUpType="vector") # "scene","object","objectrotation","vector","none"
@@ -1217,11 +1216,11 @@ print (__name__)
 	# 			if not live_object:
 	# 				print ('not live_object')
 	# 				pm.makeLive(selection) #construction planes, nurbs surfaces and polygon meshes can be made live. makeLive supports one live object at a time.
-	# 				self.viewPortMessage('Make Live: <hl>On</hl> {0}'.format(selection[0].name()))
+	# 				mtk.viewPortMessage('Make Live: <hl>On</hl> {0}'.format(selection[0].name()))
 	# 	else:
 	# 		print ('0')
 	# 		pm.xformConstraint(type='none') #pm.manipMoveSetXformConstraint(none=True);
 	# 		if live_object:
 	# 			print ('none')
 	# 			pm.makeLive(none=True)
-	# 			self.viewPortMessage('Make Live: <hl>Off</hl>')
+	# 			mtk.viewPortMessage('Make Live: <hl>Off</hl>')

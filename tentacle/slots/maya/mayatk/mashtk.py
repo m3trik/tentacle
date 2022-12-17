@@ -83,7 +83,7 @@ def MTcreateNetwork(network, objects, networkName='MASH#', geometry='Mesh', dist
 			mash_repro_utils.connect_mesh_group(instancer.name(), transform.name(), new_connection=True) # connect the meshes to the Repro node
 		else:
 			import maya.mel as mel
-			mel.eval('instancer -e -a -obj {} {};'.format(transform, instancer.name())) #pm.instancer(instancerName, e=1, addObject=1, obj=transform)
+			pm.mel.eval('instancer -e -a -obj {} {};'.format(transform, instancer.name())) #pm.instancer(instancerName, e=1, addObject=1, obj=transform)
 
 	#set the Distribute node defaults
 	if distType=="radialNetwork":

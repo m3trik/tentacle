@@ -125,7 +125,7 @@ class Normals_blender(Normals, Slots_blender):
 
 		if (all_ and maskVertex) or maskObject:
 			for obj in selection:
-				vertices = self.getComponents(obj, 'vertices', flatten=1)
+				vertices = mtk.comptk.getComponents(obj, 'vertices', flatten=1)
 				for vertex in vertices:
 					if not state:
 						pm.polyNormalPerVertex(vertex, unFreezeNormal=1)

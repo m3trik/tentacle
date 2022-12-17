@@ -4,7 +4,6 @@ from tentacle.slots.maya import *
 from tentacle.slots.uv import Uv
 
 
-
 class Uv_maya(Uv, Slots_maya):
 	def __init__(self, *args, **kwargs):
 		super().__init__(*args, **kwargs)
@@ -43,21 +42,21 @@ class Uv_maya(Uv, Slots_maya):
 			text = cmb.items[index]
 			self.sb.parent().hide()
 			if text=='UV Editor':
-				mel.eval('TextureViewWindow;') 
+				pm.mel.eval('TextureViewWindow;') 
 			elif text=='UV Set Editor':
-				mel.eval('uvSetEditor;')
+				pm.mel.eval('uvSetEditor;')
 			elif text=='UV Tool Kit':
-				mel.eval('toggleUVToolkit;')
+				pm.mel.eval('toggleUVToolkit;')
 			elif text=='UV Linking: Texture-Centric':
-				mel.eval('textureCentricUvLinkingEditor;')
+				pm.mel.eval('textureCentricUvLinkingEditor;')
 			elif text=='UV Linking: UV-Centric':
-				mel.eval('uvCentricUvLinkingEditor;')
+				pm.mel.eval('uvCentricUvLinkingEditor;')
 			elif text=='UV Linking: Paint Effects/UV':
-				mel.eval('pfxUVLinkingEditor;')
+				pm.mel.eval('pfxUVLinkingEditor;')
 			elif text=='UV Linking: Hair/UV':
-				mel.eval('hairUVLinkingEditor;')
+				pm.mel.eval('hairUVLinkingEditor;')
 			elif text=='Flip UV':
-				mel.eval("performPolyForceUV flip 1;")
+				pm.mel.eval("performPolyForceUV flip 1;")
 			cmb.setCurrentIndex(0)
 
 
@@ -208,9 +207,9 @@ class Uv_maya(Uv, Slots_maya):
 						unwrapType = 'Cylindrical'
 					elif sphericalUnwrap:
 						unwrapType = 'Spherical'
-					objFaces = self.getComponents(obj, 'f')
+					objFaces = mtk.comptk.getComponents(obj, 'f')
 					if not objFaces:
-						objFaces = self.getComponents(obj, 'f')
+						objFaces = mtk.comptk.getComponents(obj, 'f')
 					pm.polyProjection(objFaces, type=unwrapType, insertBeforeDeformers=1, smartFit=1)
 
 				elif normalBasedUnwrap:

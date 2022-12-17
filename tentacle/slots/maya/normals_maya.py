@@ -36,22 +36,22 @@ class Normals_maya(Normals, Slots_maya):
 		if state ==0: #off
 			pm.polyOptions (displayNormal=0, sizeNormal=0)
 			pm.polyOptions (displayTangent=False)
-			self.viewPortMessage("Normals Display <hl>Off</hl>.")
+			mtk.viewPortMessage("Normals Display <hl>Off</hl>.")
 
 		if state ==1: #facet
 			pm.polyOptions (displayNormal=1, facet=True, sizeNormal=size)
 			pm.polyOptions (displayTangent=False)
-			self.viewPortMessage("<hl>Facet</hl> Normals Display <hl>On</hl>.")
+			mtk.viewPortMessage("<hl>Facet</hl> Normals Display <hl>On</hl>.")
 
 		if state ==2: #Vertex
 			pm.polyOptions (displayNormal=1, point=True, sizeNormal=size)
 			pm.polyOptions (displayTangent=False)
-			self.viewPortMessage("<hl>Vertex</hl> Normals Display <hl>On</hl>.")
+			mtk.viewPortMessage("<hl>Vertex</hl> Normals Display <hl>On</hl>.")
 
 		if state ==3: #tangent
 			pm.polyOptions (displayTangent=True)
 			pm.polyOptions (displayNormal=0)
-			self.viewPortMessage("<hl>Tangent</hl> Display <hl>On</hl>.")
+			mtk.viewPortMessage("<hl>Tangent</hl> Display <hl>On</hl>.")
 
 
 	def tb001(self, state=None):
@@ -129,23 +129,23 @@ class Normals_maya(Normals, Slots_maya):
 
 		if (all_ and maskVertex) or maskObject:
 			for obj in selection:
-				vertices = self.getComponents(obj, 'vertices', flatten=1)
+				vertices = mtk.comptk.getComponents(obj, 'vertices', flatten=1)
 				for vertex in vertices:
 					if not state:
 						pm.polyNormalPerVertex(vertex, unFreezeNormal=1)
 					else:
 						pm.polyNormalPerVertex(vertex, freezeNormal=1)
 				if not state:
-					self.viewPortMessage("Normals <hl>UnLocked</hl>.")
+					mtk.viewPortMessage("Normals <hl>UnLocked</hl>.")
 				else:
-					self.viewPortMessage("Normals <hl>Locked</hl>.")
+					mtk.viewPortMessage("Normals <hl>Locked</hl>.")
 		elif maskVertex and not maskObject:
 			if not state:
 				pm.polyNormalPerVertex(unFreezeNormal=1)
-				self.viewPortMessage("Normals <hl>UnLocked</hl>.")
+				mtk.viewPortMessage("Normals <hl>UnLocked</hl>.")
 			else:
 				pm.polyNormalPerVertex(freezeNormal=1)
-				self.viewPortMessage("Normals <hl>Locked</hl>.")
+				mtk.viewPortMessage("Normals <hl>Locked</hl>.")
 		else:
 			self.messageBox('Selection must be object or vertex.', messageType='Warning')
 			return
@@ -165,7 +165,9 @@ class Normals_maya(Normals, Slots_maya):
 	def b001(self):
 		'''Soften Edge Normals
 		'''
-		pm.polySoftEdge(angle=180, constructionHistory=0)
+		sel = pm.ls(sl=1)
+		if sel:
+			pm.polySoftEdge(sel, angle=180, constructionHistory=0)
 
 
 	def b002(self):
