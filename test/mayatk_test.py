@@ -364,6 +364,34 @@ class Edittk_test(Main, Edittk):
 	if not pm.objExists('cube2'):
 		cube2 = pm.polyCube(width=2, height=4, depth=8, subdivisionsX=3, subdivisionsY=3, subdivisionsZ=3, name='cube2')
 
+	def test_rename(self):
+		'''
+		'''
+		self.perform_test({
+			"self.rename('cube1', 'newName')": None,
+			"self.rename('newName', 'cube1')": None,
+		})
+
+	def test_setCase(self):
+		'''
+		'''
+		self.perform_test({
+			"self.setCase('cube1', 'lower')": None,
+		})
+
+	def test_setSuffixByObjLocation(self):
+		'''
+		'''
+		if not pm.objExists('c1'):
+			c1 = pm.polyCube(width=2, height=2, depth=8, subdivisionsX=1, subdivisionsY=1, subdivisionsZ=1, name='c1')
+		if not pm.objExists('c2'):
+			c2 = pm.polyCube(width=8, height=2, depth=2, subdivisionsX=1, subdivisionsY=1, subdivisionsZ=1, name='c2')
+			pm.move(0, 0, 5, c2)
+
+		self.perform_test({
+			"self.setSuffixByObjLocation(['c1', 'c2'])": None,
+		})
+
 	def test_snapClosestVerts(self):
 		'''
 		'''

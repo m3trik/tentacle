@@ -5,13 +5,135 @@ try:
 except ImportError as error:
 	print (__file__, error)
 
-from tentacle.slots.tk import itertk, areSimilar
-from tentacle.slots.maya.mayatk import comptk, viewPortMessage, isGroup, mfnMeshGenerator
+from tentacle.slots.tk import itertk, strtk, areSimilar
+from tentacle.slots.maya.mayatk import comptk, xformtk, viewportMessage, isGroup, mfnMeshGenerator, undo
 
 
 class Edittk():
 	'''
 	'''
+	@staticmethod
+	@undo
+	def rename(objects, to, fltr='', regEx=False, ignoreCase=False):
+		'''Rename scene objects.
+
+		:Parameters:
+			objects (str)(obj)(list) = The object(s to rename. If nothing is given, all scene objects will be renamed.
+			to (str) = Desired name: An optional asterisk modifier can be used for formatting
+				chars - replace all.
+				*chars* - replace only.
+				*chars - replace suffix.
+				**chars - append suffix.
+				chars* - replace prefix.
+				chars** - append prefix.
+			fltr (str) = Optionally, filter which the given objects to rename using the following: 
+				An asterisk denotes startswith*, *endswith, *contains*, and multiple search strings can be separated by pipe ('|') chars.
+				chars - Search exact.
+				*chars* - Search contains chars.
+				*chars - Search endswith chars.
+				chars* - Search startswith chars.
+				chars|chars - Search any of.  can be used in conjuction with other modifiers.
+			regEx (bool) = If True, regular expression syntax is used instead of the default '*' and '|' modifiers.
+			ignoreCase (bool) = Ignore case when searching. Applies only to the 'fltr' parameter's search.
+
+		ex. rename(r'Cube', '*001', regEx=True) #replace chars after 'fltr' on any object with a name that contains 'Cube'. ie. 'polyCube001' from 'polyCube'
+		ex. rename(r'Cube', '**001', regEx=True) #append chars on any object with a name that contains 'Cube'. ie. 'polyCube1001' from 'polyCube1'
+		'''
+		# pm.undoInfo (openChunk=1)
+		objects = pm.ls(objectsOnly=1) if not objects else pm.ls(objects)
+
+		#get the short names from the long in order to correctly format. ex. 'NUT_' from: 'CENTER_HINGE_FEMALE_GRP|NUT_'
+		long_names = [obj.name() for obj in objects]
+		short_names = [ii if ii else i for i, ii in strtk.splitAtChars(long_names)] #split the long names at the last '|' to get the short name.
+
+		names = strtk.findStrAndFormat(short_names, to, fltr, regEx=regEx, ignoreCase=ignoreCase, returnOldNames=True)
+		print ('# Rename: Found {} matches. #'.format(len(names)))
+
+		for i, (oldName, newName) in enumerate(names):
+			oldName = long_names[i] #use the long name to reference the object instead.
+			try:
+				if pm.objExists(oldName):
+					n = pm.rename(oldName, newName) #Rename the object with the new name
+					if not n==newName:
+						print ('# Warning: Attempt to rename "{}" to "{}" failed. Renamed instead to "{}". #'.format(oldName, newName, n))
+					else:
+						print ('# Result: Successfully renamed "{}" to "{}". #'.format(oldName, newName))
+
+			except Exception as e:
+				if not pm.ls(oldName, readOnly=True)==[]: #ignore read-only errors.
+					print ('# Error: Attempt to rename "{}" to "{}" failed. {} #'.format(oldName, newName, str(e).rstrip()))
+		# pm.undoInfo (closeChunk=1)
+
+
+	@staticmethod
+	@undo
+	def setCase(objects=[], case='caplitalize'):
+		'''Rename objects following the given case.
+
+		:Parameters:
+			objects (str)(list) = The objects to rename. default:all scene objects
+			case (str) = Desired case using python case operators. 
+				valid: 'upper', 'lower', 'caplitalize', 'swapcase' 'title'. default:'caplitalize'
+
+		ex. call: setCase(pm.ls(sl=1), 'upper')
+		'''
+		# pm.undoInfo(openChunk=1)
+		for obj in pm.ls(objects):
+			name = obj.name()
+
+			newName = getattr(name, case)()
+			try:
+				pm.rename(name, newName)
+			except Exception as error:
+				if not pm.ls(obj, readOnly=True)==[]: #ignore read-only errors.
+					print (name+': ', error)
+		# pm.undoInfo(closeChunk=1)
+
+
+	@staticmethod
+	@undo
+	def setSuffixByObjLocation(objects, alphanumeric=False, stripTrailingInts=True, stripTrailingAlpha=True, reverse=False):
+		'''Rename objects with a suffix defined by its location from origin.
+
+		:Parameters:
+			objects (str)(int)(list) = The object(s) to rename.
+			alphanumeric (str) = When True use an alphanumeric character as a suffix when there is less than 26 objects else use integers.
+			stripTrailingInts (bool) = Strip any trailing integers. ie. 'cube123'
+			stripTrailingAlpha (bool) = Strip any trailing uppercase alphanumeric chars that are prefixed with an underscore.  ie. 'cube_A'
+			reverse (bool) = Reverse the naming order. (Farthest object first)
+		'''
+		import string
+		import re
+
+		length = len(objects)
+		if alphanumeric:
+			if length<=26:
+				suffix = string.ascii_lowercase.upper()
+		else:
+			suffix = [str(n).zfill(len(str(length))) for n in range(length)]
+
+		ordered_objs = xformtk.orderByDistance(objects, reverse=reverse)
+
+		newNames={} #the object with the new name set as a key.
+		for n, obj in enumerate(ordered_objs):
+
+			current_name = obj.name()
+
+			while ((current_name[-1]=='_' or current_name[-1].isdigit()) and stripTrailingInts) or ((len(current_name)>1 and current_name[-2]=='_' and current_name[-1].isupper()) and stripTrailingAlpha):
+				if (current_name[-2]=='_' and current_name[-1].isupper()) and stripTrailingAlpha: #trailing underscore and uppercase alphanumeric char.
+					current_name = re.sub(re.escape(current_name[-2:]) + '$', '', current_name)
+
+				if (current_name[-1]=='_' or current_name[-1].isdigit()) and stripTrailingInts: #trailing underscore and integers.
+					current_name = re.sub(re.escape(current_name[-1:]) + '$', '', current_name)
+
+			newNames[obj] = current_name+'_'+suffix[n]
+
+		for obj in ordered_objs: #rename all with a placeholder first so that there are no conflicts.
+			pm.rename(obj, 'p0000000000')
+		for obj in ordered_objs: #rename all with the new names.
+			pm.rename(obj, newNames[obj])
+
+
 	@staticmethod
 	def snapClosestVerts(obj1, obj2, tolerance=10.0, freezeTransforms=False):
 		'''Snap the vertices from object one to the closest verts on object two.
@@ -110,7 +232,7 @@ class Edittk():
 			else:
 				pm.delete(faces) #else, delete any individual faces.
 
-		viewPortMessage("Delete faces on <hl>"+axis.upper()+"</hl>.")
+		viewportMessage("Delete faces on <hl>"+axis.upper()+"</hl>.")
 
 
 	@classmethod

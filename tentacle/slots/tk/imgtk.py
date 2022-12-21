@@ -7,9 +7,7 @@ try:
 except ImportError as error:
 	print ('{}\n	# Error: {} #'.format(__file__, error))
 try:
-	from PIL import Image
-	from PIL import ImageDraw
-	from PIL.ImageChops import invert
+	from PIL import Image, ImageChops, ImageDraw
 except ImportError as error:
 	print ('{}\n	# Error: {} #'.format(__file__, error))
 try:
@@ -158,7 +156,7 @@ class Imgtk():
 		:Return:
 			(obj) new image of the given size.
 		'''
-		im = Image.open(image) if (isinstance(image, str)) else image
+		im = Image.open(image) if isinstance(image, str) else image
 		return im.resize((x, y), Image.Resampling.LANCZOS)
 
 
@@ -169,7 +167,7 @@ class Imgtk():
 			image (obj) = PIL image object.
 			name (str) = Path + filename including extension. ie. new_image.png
 		'''
-		im = Image.open(image) if (isinstance(image, str)) else image
+		im = Image.open(image) if isinstance(image, str) else image
 		im.save(name)
 
 
@@ -189,8 +187,8 @@ class Imgtk():
 		images={}
 		for f in filetk.getDirContents(directory, 'filepaths', includeFiles=include.split('|'), excludeFiles=exclude.split('|')):
 
-			with Image.open(f) as im:
-				images[f] = im
+			im = Image.open(f) #closing will destroy the image core and release its memory. The image data will be unusable afterward.
+			images[f] = im
 
 		return images
 
@@ -296,7 +294,7 @@ class Imgtk():
 		:Parameters:
 			files (list)(dict) = filenames, fullpaths, or map type suffixes as the first element 
 					of two element tuples or keys in a dictionary. ex. [('file', <image>)] or {'file': <image>} or {'type': ('file', <image>)}
-			map_types (str) = The map type(s) to query. Any of the keys in the 'map_types' dict.
+			map_types (str)(list) = The map type(s) to query. Any of the keys in the 'map_types' dict.
 					Multiple types can be given separated by '|' ex. 'Base_Color|Roughness'
 					ex. 'Base_Color','Roughness','Metallic','Ambient_Occlusion','Normal',
 						'Normal_DirectX','Normal_OpenGL','Height','Emissive','Diffuse','Specular',
@@ -307,8 +305,11 @@ class Imgtk():
 		if isinstance(files, (list, set, tuple)):
 			files = cls.sortImagesByType(files) #convert list to dict of the correct format.
 
+		if isinstance(map_types, str):
+			map_types = map_types.split('|')
+
 		result = next((True for i in files.keys() 
-			if cls.getImageTypeFromFilename(i) in itertk.makeList(map_types.split('|'))), False)
+			if cls.getImageTypeFromFilename(i) in map_types), False)
 
 		return True if result else False
 
@@ -340,7 +341,7 @@ class Imgtk():
 		:Return:
 			(obj) image.
 		'''
-		im = Image.open(image) if (isinstance(image, str)) else image
+		im = Image.open(image) if isinstance(image, str) else image
 		alpha = None
 
 		try:
@@ -348,9 +349,9 @@ class Imgtk():
 		except ValueError as error:
 			r, g, b, a = im.split()
 
-		r = invert(r) if 'r' in channels.lower() else r
-		g = invert(g) if 'g' in channels.lower() else g
-		b = invert(b) if 'b' in channels.lower() else b
+		r = ImageChops.invert(r) if 'r' in channels.lower() else r
+		g = ImageChops.invert(g) if 'g' in channels.lower() else g
+		b = ImageChops.invert(b) if 'b' in channels.lower() else b
 
 		return Image.merge('RGB', (r, g, b))# if alpha else Image.merge('RGB', (red, green, blue))
 
@@ -419,22 +420,26 @@ class Imgtk():
 		return filepath
 
 
-	@staticmethod
-	def createMask(images, mask, background=(0, 0, 0, 255), foreground=(255, 255, 255, 255)):
+	@classmethod
+	def createMask(cls, images, mask, background=(0, 0, 0, 255), foreground=(255, 255, 255, 255)):
 		'''Create mask(s) from the given image(s).
 
 		:Parameters:
 			images (str)(obj)(list) = Image(s) or path(s) to an image.
-			mask (tuple) = The color to isolate as a mask. (RGB) or (RGBA)
+			mask (tuple)(image) = The color to isolate as a mask. (RGB) or (RGBA) 
+					or an Image(s) or path(s) to an image. The image's background color will be used.
 			background (tuple) = Mask background color. (RGB) or (RGBA)
 			foreground (tuple) = Mask foreground color. (RGB) or (RGBA)
 
 		:Return:
 			(obj)(list) 'L' mode images. list if 'images' given as a list. else; single image.
 		'''
-		masks=[]
+		if not isinstance(mask, (tuple, list, set)):
+			mask = cls.getBackground(mask)
+
+		result=[]
 		for image in itertk.makeList(images):
-			im = Image.open(image) if (isinstance(image, str)) else image
+			im = Image.open(image) if isinstance(image, str) else image
 			mode = im.mode
 			im = im.convert('RGBA')
 			width, height = im.size
@@ -455,10 +460,10 @@ class Imgtk():
 			data[0, height-1] = background #			""	 bottom right coordinate.
 			data[width-1, height-1] = background #		""	 bottom left coordinate.
 
-			mask = Image.fromarray(data).convert('L')
-			masks.append(mask)
+			m = Image.fromarray(data).convert('L')
+			result.append(m)
 
-		return itertk.formatReturn(masks, images)
+		return itertk.formatReturn(result, images)
 
 
 	@classmethod
@@ -472,7 +477,7 @@ class Imgtk():
 		:Return:
 			(obj) image.
 		'''
-		im = Image.open(image) if (isinstance(image, str)) else image
+		im = Image.open(image) if isinstance(image, str) else image
 		mode = im.mode
 		im = im.convert('RGBA')
 
@@ -491,7 +496,7 @@ class Imgtk():
 		:Return:
 			(obj) image.
 		'''
-		im = Image.open(image) if (isinstance(image, str)) else image
+		im = Image.open(image) if isinstance(image, str) else image
 
 		draw = ImageDraw.Draw(im)
 		draw.rectangle([(0,0), im.size], fill=color)
@@ -512,9 +517,9 @@ class Imgtk():
 		:Return:
 			(int)(tuple) dependant on mode. ex. 32767 for mode 'I' or (211, 211, 211, 255) for 'RGBA' 
 		'''
-		im = Image.open(image) if (isinstance(image, str)) else image
+		im = Image.open(image) if isinstance(image, str) else image
 
-		if mode:
+		if mode and not im.mode==mode:
 			im = im.convert(mode)
 
 		width, height = im.size
@@ -546,7 +551,7 @@ class Imgtk():
 		:Return:
 			(obj) image.
 		'''
-		im = Image.open(image) if (isinstance(image, str)) else image
+		im = Image.open(image) if isinstance(image, str) else image
 		mode = mode if mode else im.mode
 		im = im.convert('RGBA')
 		data = np.array(im)
@@ -571,7 +576,7 @@ class Imgtk():
 		:Return:
 			(obj) image.
 		'''
-		im = Image.open(image) if (isinstance(image, str)) else image
+		im = Image.open(image) if isinstance(image, str) else image
 
 		factor = (259 * (level + 255)) / (255 * (259 - level))
 		_contrast = lambda c: int(max(0, min(255, 128 + factor * (c - 128)))) #make sure the contrast filter only return values within the range [0-255].
@@ -609,6 +614,7 @@ class Imgtk():
 		'''Manually convert the image to a NumPy array, iterate over the pixels 
 		and use the colorsys module to convert the colors from RGB to HSV.
 		PIL images can be converted usin: image.convert("HSV")
+		PNG files cannot be saved as HSV.
 
 		:Parameters:
 			image (str)(obj) = An image or path to an image.
@@ -618,7 +624,7 @@ class Imgtk():
 		'''
 		import colorsys
 
-		im = Image.open(image) if (isinstance(image, str)) else image
+		im = Image.open(image) if isinstance(image, str) else image
 		data = np.array(im)
 		
 		# Convert the colors from RGB to HSV
@@ -642,11 +648,30 @@ class Imgtk():
 		:Return:
 			(obj) image.
 		'''
-		im = Image.open(image) if (isinstance(image, str)) else image
+		im = Image.open(image) if isinstance(image, str) else image
 		data = np.array(im)
 
 		data = np.asarray(data, np.uint8) #np.uint8(data / 256)
 		return Image.fromarray(data)
+
+
+	@staticmethod
+	def areIdentical(imageA, imageB):
+		'''Check if two images are the same.
+
+		:Parameters:
+			imageA (str)(obj) = An image or path to an image.
+			imageB (str)(obj) = An image or path to an image.
+
+		:Return:
+			(bool)
+		'''
+		imA = Image.open(imageA) if (isinstance(imageA, str)) else imageA
+		imB = Image.open(imageB) if (isinstance(imageB, str)) else imageB
+
+		if np.sum(np.array(ImageChops.difference(imA, imB).getdata())) == 0:
+			return True
+		return False
 
 # -----------------------------------------------
 from tentacle import addMembers
@@ -677,7 +702,7 @@ if __name__=='__main__':
 # def getBitDepth(cls, image):
 # 		'''
 # 		'''
-# 		im = Image.open(image) if (isinstance(image, str)) else image
+# 		im = Image.open(image) if isinstance(image, str) else image
 # 		data = np.array(im)
 
 # 		bitDepth = {'uint8':8, 'uint16':16, 'uint32':32, 'uint64':64}
@@ -704,7 +729,7 @@ if __name__=='__main__':
 	# def isolateColor(cls, image, color):
 	# 	'''Return an image with only pixels of the given color retained.
 	# 	'''
-	# 	im = Image.open(image) if (isinstance(image, str)) else image
+	# 	im = Image.open(image) if isinstance(image, str) else image
 	# 	data = np.array(im)
 
 	# 	r, g, b =  color[:3]
@@ -716,7 +741,7 @@ if __name__=='__main__':
 	# def createMask(cls, image, mask):
 	# 	'''
 	# 	'''
-	# 	im = Image.open(image) if (isinstance(image, str)) else image
+	# 	im = Image.open(image) if isinstance(image, str) else image
 
 	# 	im = cls.replaceColor(im, from_color=mask, to_color=(0, 177, 64, 255))
 

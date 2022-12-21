@@ -173,7 +173,7 @@ class Duplicate_blender(Duplicate, Slots_blender):
 			if translateToComponent:
 				if componentList:
 					for num, component in componentList.iteritems():
-						vertexPoint = self.sb.transform.slots.getComponentPoint(component)
+						vertexPoint = mtk.xformtk.getComponentPoint(component)
 
 						pm.xform (obj, rotation=[rotXYZ[0], rotXYZ[1], rotXYZ[2]])
 						pm.xform (obj, translation=[vertexPoint[0]+transXYZ[0], vertexPoint[1]+transXYZ[1], vertexPoint[2]+transXYZ[2]])

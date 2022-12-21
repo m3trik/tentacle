@@ -171,7 +171,7 @@ class File_maya(File, Slots_maya):
 		if quit: #quit maya
 			import time
 			for timer in range(5):
-				mtk.viewPortMessage('Shutting Down:<hl>'+str(timer)+'</hl>')
+				mtk.viewportMessage('Shutting Down:<hl>'+str(timer)+'</hl>')
 				time.sleep(timer)
 			pm.mel.quit() # pm.Quit()
 
@@ -417,7 +417,7 @@ print (__name__)
 	# 	if quit: #quit maya
 	# 		import time
 	# 		for timer in range(5):
-	# 			mtk.viewPortMessage('Shutting Down:<hl>'+str(timer)+'</hl>')
+	# 			mtk.viewportMessage('Shutting Down:<hl>'+str(timer)+'</hl>')
 	# 			time.sleep(timer)
 	# 		pm.mel.eval("quit;")
 	# 		# pm.Quit()

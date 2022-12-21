@@ -182,14 +182,14 @@ class Strtk():
 
 	@staticmethod
 	def findStr(find, strings, regEx=False, ignoreCase=False):
-		r'''Filter for elements that containing the given string in a list of strings.
+		'''Filter for elements that containing the given string in a list of strings.
 
 		:Parameters:
 			find (str) = The search string. An asterisk denotes startswith*, *endswith, *contains*, and multiple search strings can be separated by pipe chars.
 				wildcards:
-					*string* - string contains chars.
-					*string - string endswith chars.
-					string* - string startswith chars.
+					*chars* - string contains chars.
+					*chars - string endswith chars.
+					chars* - string startswith chars.
 					chars1|chars2 - string matches any of.  can be used in conjuction with other modifiers.
 				regular expressions (if regEx True):
 					(.) match any char. ex. re.match('1..', '1111') #returns the regex object <111>
@@ -255,21 +255,21 @@ class Strtk():
 
 
 	@classmethod
-	def findStrAndFormat(cls, frm, to, strings, regEx=False, ignoreCase=False, returnOldNames=False):
+	def findStrAndFormat(cls, strings, to, fltr='', regEx=False, ignoreCase=False, returnOldNames=False):
 		'''Expanding on the 'findStr' function: Find matches of a string in a list of strings and re-format them.
 
 		:Parameters:
-			frm (str) = See the 'findStr' function's 'find' parameter for documentation.
+			strings (list) = A list of string objects to search.
 			to (str) = An optional asterisk modifier can be used for formatting. An empty string will attempt to remove the part of the string designated in the from argument.
 				"" - (empty string) - strip chars.
-				*string* - replace only.
-				*string - replace suffix.
-				**string - append suffix.
-				string* - replace prefix.
-				string** - append prefix.
-			strings (list) = A list of string objects to search.
+				*chars* - replace only.
+				*chars - replace suffix.
+				**chars - append suffix.
+				chars* - replace prefix.
+				chars** - append prefix.
+			fltr (str) = See the 'findStr' function's 'fltr' parameter for documentation.
 			regEx (bool) = Use regular expressions instead of wildcards for the 'find' argument.
-			ignoreCase (bool) = Ignore case when searching. Applies only to the 'frm' parameter's search.
+			ignoreCase (bool) = Ignore case when searching. Applies only to the 'fltr' parameter's search.
 			returnOldNames (bool) = Return the old names as well as the new.
 
 		:Return:
@@ -278,10 +278,10 @@ class Strtk():
 		'''
 		import re
 
-		if frm: #if 'frm' is not an empty string; filter 'strings' for matches using 'frm'.
-			strings = cls.findStr(frm, strings, regEx=regEx, ignoreCase=ignoreCase)
+		if fltr: #if 'fltr' is not an empty string; fltr 'strings' for matches using 'fltr'.
+			strings = cls.findStr(fltr, strings, regEx=regEx, ignoreCase=ignoreCase)
 
-		frm_ = frm.strip('*').rstrip('*') #re.sub('[^A-Za-z0-9_:]+', '', frm) #strip any special chars other than '_'.
+		frm_ = fltr.strip('*').rstrip('*') #re.sub('[^A-Za-z0-9_:]+', '', fltr) #strip any special chars other than '_'.
 		to_ = to.strip('*').rstrip('*') #remove any modifiers from the left and right end chars.
 
 		result=[]
@@ -315,13 +315,13 @@ class Strtk():
 					s = to_+frm_+orig_str.split(frm_)[-1]
 
 			elif not to_: #if 'to_' is an empty string:
-				if frm.endswith('*') and not frm.startswith('*'): #strip only beginning chars.
+				if fltr.endswith('*') and not fltr.startswith('*'): #strip only beginning chars.
 					if ignoreCase:
 						s = re.sub(frm_, '', orig_str, 1, flags=re.IGNORECASE) #remove the first instance of frm_ from the string (case in-sensitive).
 					else:
 						s = orig_str.replace(frm_, '', 1) #remove first instance of frm_ from the string.
 
-				elif frm.startswith('*') and not frm.endswith('*'): #strip only ending chars.
+				elif fltr.startswith('*') and not fltr.endswith('*'): #strip only ending chars.
 					if ignoreCase:
 						s = re.sub(r'(.*)'+frm_, r'\1', orig_str, flags=re.IGNORECASE) #remove the last instance of frm_ from the string (case in-sensitive).
 					else:

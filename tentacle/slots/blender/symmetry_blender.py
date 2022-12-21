@@ -55,7 +55,7 @@ class Symmetry_blender(Symmetry, Slots_blender):
 		tolerance = 0.25
 		pm.symmetricModelling(edit=True, symmetry=state, axis=axis, about=space, tolerance=tolerance)
 		if state:
-			self.viewPortMessage('Symmetry: <hl>{}</hl>'.format(axis.upper()))
+			self.viewportMessage('Symmetry: <hl>{}</hl>'.format(axis.upper()))
 
 
 

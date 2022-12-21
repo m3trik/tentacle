@@ -37,22 +37,22 @@ class Normals_blender(Normals, Slots_blender):
 		if state ==0: #off
 			pm.polyOptions (displayNormal=0, sizeNormal=0)
 			pm.polyOptions (displayTangent=False)
-			self.viewPortMessage("Normals Display <hl>Off</hl>.")
+			self.viewportMessage("Normals Display <hl>Off</hl>.")
 
 		if state ==1: #facet
 			pm.polyOptions (displayNormal=1, facet=True, sizeNormal=size)
 			pm.polyOptions (displayTangent=False)
-			self.viewPortMessage("<hl>Facet</hl> Normals Display <hl>On</hl>.")
+			self.viewportMessage("<hl>Facet</hl> Normals Display <hl>On</hl>.")
 
 		if state ==2: #Vertex
 			pm.polyOptions (displayNormal=1, point=True, sizeNormal=size)
 			pm.polyOptions (displayTangent=False)
-			self.viewPortMessage("<hl>Vertex</hl> Normals Display <hl>On</hl>.")
+			self.viewportMessage("<hl>Vertex</hl> Normals Display <hl>On</hl>.")
 
 		if state ==3: #tangent
 			pm.polyOptions (displayTangent=True)
 			pm.polyOptions (displayNormal=0)
-			self.viewPortMessage("<hl>Tangent</hl> Display <hl>On</hl>.")
+			self.viewportMessage("<hl>Tangent</hl> Display <hl>On</hl>.")
 
 
 	def tb001(self, state=None):
@@ -132,16 +132,16 @@ class Normals_blender(Normals, Slots_blender):
 					else:
 						pm.polyNormalPerVertex(vertex, freezeNormal=1)
 				if not state:
-					self.viewPortMessage("Normals <hl>UnLocked</hl>.")
+					self.viewportMessage("Normals <hl>UnLocked</hl>.")
 				else:
-					self.viewPortMessage("Normals <hl>Locked</hl>.")
+					self.viewportMessage("Normals <hl>Locked</hl>.")
 		elif maskVertex and not maskObject:
 			if not state:
 				pm.polyNormalPerVertex(unFreezeNormal=1)
-				self.viewPortMessage("Normals <hl>UnLocked</hl>.")
+				self.viewportMessage("Normals <hl>UnLocked</hl>.")
 			else:
 				pm.polyNormalPerVertex(freezeNormal=1)
-				self.viewPortMessage("Normals <hl>Locked</hl>.")
+				self.viewportMessage("Normals <hl>Locked</hl>.")
 		else:
 			return 'Warning: Selection must be object or vertex.'
 

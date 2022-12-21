@@ -611,7 +611,7 @@ class Mayatk():
 
 
 	@staticmethod
-	def viewPortMessage(message='', statusMessage='', assistMessage='', position='topCenter'):
+	def viewportMessage(message='', statusMessage='', assistMessage='', position='topCenter'):
 		'''
 		:Parameters:
 			message (str) = The message to be displayed, (accepts html formatting). General message, inherited by -amg/assistMessage and -smg/statusMessage.
@@ -619,7 +619,7 @@ class Mayatk():
 			assistMessage (str) = The user assistance message to be displayed, (accepts html formatting).
 			position (str) = position on screen. possible values are: topCenter","topRight","midLeft","midCenter","midCenterTop","midCenterBot","midRight","botLeft","botCenter","botRight"
 
-		ex. viewPortMessage("shutting down:<hl>"+str(timer)+"</hl>")
+		ex. viewportMessage("shutting down:<hl>"+str(timer)+"</hl>")
 		'''
 		fontSize=10
 		fade=1

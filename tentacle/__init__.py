@@ -6,7 +6,7 @@ import importlib
 import inspect
 
 
-name = 'tcltk'
+name = 'tentacletk'
 __version__ = '0.511'
 
 

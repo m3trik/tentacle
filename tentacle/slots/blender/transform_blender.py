@@ -132,10 +132,10 @@ class Transform_blender(Transform, Slots_blender):
 			shape = self.getShapeNode(selection[0])
 			if not shape in live_object:
 				pm.makeLive(selection) #construction planes, nurbs surfaces and polygon meshes can be made live. makeLive supports one live object at a time.
-				# self.viewPortMessage('Make Live: <hl>On</hl> {0}'.format(selection[0].name()))
+				# self.viewportMessage('Make Live: <hl>On</hl> {0}'.format(selection[0].name()))
 		else:
 			pm.makeLive(none=True)
-			# self.viewPortMessage('Make Live: <hl>Off</hl>')
+			# self.viewportMessage('Make Live: <hl>Off</hl>')
 
 		cmb.setCurrentText('Constrain: <hl style="color:white;">Off</hl>') if not any((state, cmb.menu_.chk024.isChecked(), cmb.menu_.chk025.isChecked())) else cmb.setCurrentText('Constrain: <hl style="color:green;">On</hl>')
 
@@ -172,7 +172,7 @@ class Transform_blender(Transform, Slots_blender):
 		freezeTransforms = tb.ctxMenu.chk017.isChecked()
 
 		objects = pm.ls(sl=1, objectsOnly=1)
-		self.dropToGrid(objects, align, origin, centerPivot, freezeTransforms)
+		mtk.xformtk.moveTo(objects, align, origin, centerPivot, freezeTransforms)
 		pm.select(objects) #reselect the original selection.
 
 
@@ -395,7 +395,7 @@ class Transform_blender(Transform, Slots_blender):
 		# pm.undoInfo(openChunk=1)
 		for obj in pm.ls(objects):
 			pos = pm.objectCenter(obj) #get the object's current position.
-			self.dropToGrid(obj, origin=1, centerPivot=1) #move to origin and center pivot.
+			mtk.xformtk.moveTo(obj, origin=1, centerPivot=1) #move to origin and center pivot.
 			pm.makeIdentity(obj, apply=1, t=1, r=1, s=1, n=0, pn=1) #bake transforms
 			pm.xform(obj, translation=pos) #move the object back to it's original position.
 		# pm.undoInfo(closeChunk=1)
@@ -746,8 +746,8 @@ class Transform_blender(Transform, Slots_blender):
 
 		if len(selection)<2:
 			if len(selection)==0:
-				Slots_blender.viewPortMessage("No vertices selected")
-			Slots_blender.viewPortMessage("Selection must contain at least two vertices")
+				Slots_blender.viewportMessage("No vertices selected")
+			Slots_blender.viewportMessage("Selection must contain at least two vertices")
 
 		for vertex in selection:
 			vertexXYZ = pm.xform(vertex, query=1, translation=1, worldSpace=1)
@@ -976,11 +976,11 @@ print (__name__)
 	# 			if not live_object:
 	# 				print ('not live_object')
 	# 				pm.makeLive(selection) #construction planes, nurbs surfaces and polygon meshes can be made live. makeLive supports one live object at a time.
-	# 				self.viewPortMessage('Make Live: <hl>On</hl> {0}'.format(selection[0].name()))
+	# 				self.viewportMessage('Make Live: <hl>On</hl> {0}'.format(selection[0].name()))
 	# 	else:
 	# 		print ('0')
 	# 		pm.xformConstraint(type='none') #pm.manipMoveSetXformConstraint(none=True);
 	# 		if live_object:
 	# 			print ('none')
 	# 			pm.makeLive(none=True)
-	# 			self.viewPortMessage('Make Live: <hl>Off</hl>')
+	# 			self.viewportMessage('Make Live: <hl>Off</hl>')

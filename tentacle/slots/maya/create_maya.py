@@ -132,11 +132,11 @@ class Create_maya(Create, Slots_maya):
 
 		if selection: #if originally there was a selected object, move the object to that objects's bounding box center.
 			if translate:
-				self.sb.transform.slots.moveTo(node, selection)
-				# center_pos = self.sb.transform.slots.getCenterPoint(selection)
+				mtk.xformtk.moveTo(node, selection)
+				# center_pos = mtk.xformtk.getCenterPoint(selection)
 				# pm.xform(node, translation=center_pos, worldSpace=1, absolute=1)
 			if scale:
-				self.sb.transform.slots.matchScale(node[0], selection, average=True)
+				mtk.xformtk.matchScale(node[0], selection, average=True)
 
 		pm.selectMode(object=1) #place scene select type in object mode.
 		pm.select(node) #select the transform node so that you can see any edits

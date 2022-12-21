@@ -4,7 +4,6 @@ from tentacle.slots.max import *
 from tentacle.slots.transform import Transform
 
 
-
 class Transform_max(Transform, Slots_max):
 	def __init__(self, *args, **kwargs):
 		super().__init__(*args, **kwargs)

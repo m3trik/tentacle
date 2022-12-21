@@ -170,18 +170,18 @@ class Strtk_test(Main, Strtk):
 	def test_findStrAndFormat(self):
 		'''
 		'''
-		lst = ['invertVertexWeights', 'keepCreaseEdgeWeight', 'keepBorder', 'keepBorderWeight', 'keepColorBorder', 'keepColorBorderWeight']
+		self.lst = ['invertVertexWeights', 'keepCreaseEdgeWeight', 'keepBorder', 'keepBorderWeight', 'keepColorBorder', 'keepColorBorderWeight']
 
 		self.perform_test({
-			"self.findStrAndFormat('*Weights', '', {})".format(lst): ['invertVertex'],
-			"self.findStrAndFormat('*Weights', 'new name', {})".format(lst): ['new name'],
-			"self.findStrAndFormat('*Weights', '*insert*', {})".format(lst): ['invertVertexinsert'],
-			"self.findStrAndFormat('*Weights', '*_suffix', {})".format(lst): ['invertVertex_suffix'],
-			"self.findStrAndFormat('*Weights', '**_suffix', {})".format(lst): ['invertVertexWeights_suffix'],
-			"self.findStrAndFormat('*Weights', 'prefix_*', {})".format(lst): ['prefix_Weights'],
-			"self.findStrAndFormat('*Weights', 'prefix_**', {})".format(lst): ['prefix_invertVertexWeights'],
-			"self.findStrAndFormat('Weights$', 'new name', {}, True)".format(lst): ['new name'],
-			"self.findStrAndFormat('*weights', 'new name', {}, False, True, True)".format(lst): [('invertVertexWeights', 'new name')],
+			"self.findStrAndFormat(self.lst, '', '*Weights')": ['invertVertex'],
+			"self.findStrAndFormat(self.lst, 'new name', '*Weights')": ['new name'],
+			"self.findStrAndFormat(self.lst, '*insert*', '*Weights')": ['invertVertexinsert'],
+			"self.findStrAndFormat(self.lst, '*_suffix', '*Weights')": ['invertVertex_suffix'],
+			"self.findStrAndFormat(self.lst, '**_suffix', '*Weights')": ['invertVertexWeights_suffix'],
+			"self.findStrAndFormat(self.lst, 'prefix_*', '*Weights')": ['prefix_Weights'],
+			"self.findStrAndFormat(self.lst, 'prefix_**', '*Weights')": ['prefix_invertVertexWeights'],
+			"self.findStrAndFormat(self.lst, 'new name', 'Weights$', True)": ['new name'],
+			"self.findStrAndFormat(self.lst, 'new name', '*weights', False, True, True)": [('invertVertexWeights', 'new name')],
 		})
 
 	def test_formatSuffix(self):
@@ -421,6 +421,18 @@ class Filetk_test(Main, Filetk):
 		})
 
 
+	def test_getFile(self):
+		'''
+		'''
+		path = os.path.abspath(os.path.dirname(__file__))+'/test_files'
+		self.file = path+'/file1.txt'
+
+		self.perform_test({
+			"self.getFile(self.file, contents=True)": r'some text',
+			"str(self.getFile(self.file))": r"<_io.TextIOWrapper name='O:\\Cloud\\Code\\_scripts\\tentacle\\test/test_files/file1.txt' mode='a+' encoding='cp1252'>",
+		})
+
+
 
 class Jsontk_test(Main, Jsontk):
 	'''
@@ -525,6 +537,8 @@ class Imgtk_test(Main, Imgtk):
 			"self.containsMapTypes([('im_h.png', '<im_h>')], 'Height')": True,
 			"self.containsMapTypes({'im_h.png':'<im_h>', 'im_n.png':'<im_n>'}, 'Height')": True,
 			"self.containsMapTypes({'Height': [('im_h.png', '<im_h>')]}, 'Height')": True,
+			"self.containsMapTypes({'Height': [('im_h.png', '<im_h>')]}, 'Height|Normal')": True,
+			"self.containsMapTypes({'Height': [('im_h.png', '<im_h>')]}, ['Height', 'Normal'])": True,
 		})
 
 	def test_isNormalMap(self):
@@ -563,6 +577,7 @@ class Imgtk_test(Main, Imgtk):
 		# self.createMask('test_files/imgtk_test/im_Base_color.png', self.bg).show()
 		self.perform_test({
 			"str(self.createMask('test_files/imgtk_test/im_Base_color.png', self.bg)).split('size')[0]": '<PIL.Image.Image image mode=L ',
+			"str(self.createMask('test_files/imgtk_test/im_Base_color.png', 'test_files/imgtk_test/im_Base_color.png')).split('size')[0]": '<PIL.Image.Image image mode=L ',
 		})
 
 	def test_fillMaskedArea(self):
@@ -631,6 +646,14 @@ class Imgtk_test(Main, Imgtk):
 		# im = self.convert_I_to_L(self.im)
 		self.perform_test({
 			"self.convert_I_to_L(self.im).mode": 'L',
+		})
+
+	def test_areIdentical(self):
+		'''
+		'''
+		self.perform_test({
+			"self.areIdentical(self.im_h, self.im_n)": False,
+			"self.areIdentical(self.im_h, self.im_h)": True,
 		})
 
 

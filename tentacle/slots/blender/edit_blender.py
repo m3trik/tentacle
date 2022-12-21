@@ -155,14 +155,14 @@ class Edit_blender(Edit, Slots_blender):
 		#display viewPort messages
 		if all_:
 			if deformers:
-				self.viewPortMessage("delete <hl>all</hl> history.")
+				self.viewportMessage("delete <hl>all</hl> history.")
 			else:
-				self.viewPortMessage("delete <hl>all non-deformer</hl> history.")
+				self.viewportMessage("delete <hl>all non-deformer</hl> history.")
 		else:
 			if deformers:
-				self.viewPortMessage("delete history on "+str(objects))
+				self.viewportMessage("delete history on "+str(objects))
 			else:
-				self.viewPortMessage("delete <hl>non-deformer</hl> history on "+str(objects))
+				self.viewportMessage("delete <hl>non-deformer</hl> history on "+str(objects))
 
 
 	def tb002(self, state=None):
@@ -316,7 +316,7 @@ class Edit_blender(Edit, Slots_blender):
 			else:
 				pm.delete(faces) #else, delete any individual faces.
 
-		Slots_blender.viewPortMessage("Delete faces on <hl>"+axis.upper()+"</hl>.")
+		Slots_blender.viewportMessage("Delete faces on <hl>"+axis.upper()+"</hl>.")
 
 
 	def getAllFacesOnAxis(self, obj, axis="-x", localspace=False):
@@ -473,7 +473,7 @@ class Edit_blender(Edit, Slots_blender):
 				pm.polySelectConstraint(disable=1)
 				#Populate an in-view message
 				nGons = pm.polyEvaluate(faceComponent=1)
-				Slots_blender.viewPortMessage("<hl>"+str(nGons[0])+"</hl> N-Gon(s) found.")
+				Slots_blender.viewportMessage("<hl>"+str(nGons[0])+"</hl> N-Gon(s) found.")
 
 
 

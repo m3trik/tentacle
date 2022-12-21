@@ -155,10 +155,10 @@ class Create_blender(Create, Slots_blender):
 
 		if selection: #if there is a current selection, move the object to that selection's bounding box center.
 			if translate:
-				center_pos = self.sb.transform.slots.getCenterPoint(selection)
+				center_pos = mtk.xformtk.getCenterPoint(selection)
 				pm.xform(node, translation=center_pos, worldSpace=1, absolute=1)
 			if scale:
-				self.sb.transform.slots.matchScale(node[0], selection, average=True)
+				mtk.xformtk.matchScale(node[0], selection, average=True)
 
 		pm.selectMode(object=1) #place scene select type in object mode.
 		pm.select(node) #select the transform node so that you can see any edits

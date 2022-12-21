@@ -119,7 +119,7 @@ class Display_maya(Display, Slots_maya):
 		currentPanel = getPanel(withFocus=True)
 		state = pm.modelEditor(currentPanel, query=1, useDefaultMaterial=1)
 		pm.modelEditor(currentPanel, edit=1, useDefaultMaterial=not state)
-		mtk.viewPortMessage('Default Material Override: <hl>{}</hl>.'.format(state))
+		mtk.viewportMessage('Default Material Override: <hl>{}</hl>.'.format(state))
 
 
 	def b011(self):
@@ -151,15 +151,15 @@ class Display_maya(Display, Slots_maya):
 				i+=1
 
 		if index==0:
-			mtk.viewPortMessage("[1,0,0,0] <hl>vertIDs</hl>.")
+			mtk.viewportMessage("[1,0,0,0] <hl>vertIDs</hl>.")
 		elif index==1:
-			mtk.viewPortMessage("[0,1,0,0] <hl>edgeIDs</hl>.")
+			mtk.viewportMessage("[0,1,0,0] <hl>edgeIDs</hl>.")
 		elif index==2:
-			mtk.viewPortMessage("[0,0,1,0] <hl>faceIDs</hl>.")
+			mtk.viewportMessage("[0,0,1,0] <hl>faceIDs</hl>.")
 		elif index==3:
-			mtk.viewPortMessage("[0,0,0,1] <hl>compIDs(UV)</hl>.")
+			mtk.viewportMessage("[0,0,0,1] <hl>compIDs(UV)</hl>.")
 		elif index==4:
-			mtk.viewPortMessage("component ID <hl>Off</hl>.")
+			mtk.viewportMessage("component ID <hl>Off</hl>.")
 
 
 	def b012(self):

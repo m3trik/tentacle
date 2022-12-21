@@ -18,7 +18,7 @@ class Jsontk():
 			file (str) = The filepath to a json file. If a file doesn't exist, it will be created.
 		'''
 		cls._jsonFile = file
-		filetk.createFile(cls._jsonFile) #create the file if it does not exist.
+		filetk.getFile(cls._jsonFile) #will create the file if it does not exist.
 
 
 	@classmethod

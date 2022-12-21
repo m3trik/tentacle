@@ -173,7 +173,7 @@ class File_blender(File, Slots_blender):
 		if quit: #quit maya
 			import time
 			for timer in range(5):
-				self.viewPortMessage('Shutting Down:<hl>'+str(timer)+'</hl>')
+				self.viewportMessage('Shutting Down:<hl>'+str(timer)+'</hl>')
 				time.sleep(timer)
 			pm.mel.quit() # pm.Quit()
 
@@ -379,7 +379,7 @@ print (__name__)
 	# 	if quit: #quit maya
 	# 		import time
 	# 		for timer in range(5):
-	# 			self.viewPortMessage('Shutting Down:<hl>'+str(timer)+'</hl>')
+	# 			self.viewportMessage('Shutting Down:<hl>'+str(timer)+'</hl>')
 	# 			time.sleep(timer)
 	# 		mel.eval("quit;")
 	# 		# pm.Quit()

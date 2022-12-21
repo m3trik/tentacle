@@ -119,7 +119,7 @@ class Display_blender(Display, Slots_blender):
 		currentPanel = getPanel(withFocus=True)
 		state = pm.modelEditor(currentPanel, query=1, useDefaultMaterial=1)
 		pm.modelEditor(currentPanel, edit=1, useDefaultMaterial=not state)
-		self.viewPortMessage('Default Material Override: <hl>{}</hl>.'.format(state))
+		self.viewportMessage('Default Material Override: <hl>{}</hl>.'.format(state))
 
 
 	def b011(self):
@@ -149,15 +149,15 @@ class Display_blender(Display, Slots_blender):
 				i+=1
 
 		if index==0:
-			self.viewPortMessage("[1,0,0,0] <hl>vertIDs</hl>.")
+			self.viewportMessage("[1,0,0,0] <hl>vertIDs</hl>.")
 		elif index==1:
-			self.viewPortMessage("[0,1,0,0] <hl>edgeIDs</hl>.")
+			self.viewportMessage("[0,1,0,0] <hl>edgeIDs</hl>.")
 		elif index==2:
-			self.viewPortMessage("[0,0,1,0] <hl>faceIDs</hl>.")
+			self.viewportMessage("[0,0,1,0] <hl>faceIDs</hl>.")
 		elif index==3:
-			self.viewPortMessage("[0,0,0,1] <hl>compIDs(UV)</hl>.")
+			self.viewportMessage("[0,0,0,1] <hl>compIDs(UV)</hl>.")
 		elif index==4:
-			self.viewPortMessage("component ID <hl>Off</hl>.")
+			self.viewportMessage("component ID <hl>Off</hl>.")
 
 
 	def b012(self):

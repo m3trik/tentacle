@@ -161,14 +161,14 @@ class Edit_maya(Edit, Slots_maya):
 		#display viewPort messages
 		if all_:
 			if deformers:
-				mtk.viewPortMessage("delete <hl>all</hl> history.")
+				mtk.viewportMessage("delete <hl>all</hl> history.")
 			else:
-				mtk.viewPortMessage("delete <hl>all non-deformer</hl> history.")
+				mtk.viewportMessage("delete <hl>all non-deformer</hl> history.")
 		else:
 			if deformers:
-				mtk.viewPortMessage("delete history on "+str(objects))
+				mtk.viewportMessage("delete history on "+str(objects))
 			else:
-				mtk.viewPortMessage("delete <hl>non-deformer</hl> history on "+str(objects))
+				mtk.viewportMessage("delete <hl>non-deformer</hl> history on "+str(objects))
 
 
 	def tb002(self, state=None):

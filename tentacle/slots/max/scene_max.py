@@ -74,7 +74,7 @@ class Scene_max(Scene, Slots_max):
 		ex. rename(r'Cube', '*001', regEx=True) #replace chars after frm on any object with a name that contains 'Cube'. ie. 'polyCube001' from 'polyCube'
 		ex. rename(r'Cube', '**001', regEx=True) #append chars on any object with a name that contains 'Cube'. ie. 'polyCube1001' from 'polyCube1'
 		'''
-		names = self.findStrAndFormat(frm, to, [obj.name for obj in rt.objects], regEx=regEx, ignoreCase=ignoreCase, returnOldNames=True) #[o for o in rt.objects if rt.matchPattern(o.name, pattern=f, ignoreCase=0)]
+		names = self.findStrAndFormat([obj.name for obj in rt.objects], to, frm, regEx=regEx, ignoreCase=ignoreCase, returnOldNames=True) #[o for o in rt.objects if rt.matchPattern(o.name, pattern=f, ignoreCase=0)]
 		print ('# Rename: Found {} matches. #'.format(len(names)))
 
 		for oldName, newName in names:

@@ -67,14 +67,14 @@ class Filetk():
 
 
 	@classmethod
-	def timeStamp(cls, files, detach=False, stamp='%m-%d-%Y  %H:%M', sort=False):
+	def timeStamp(cls, filepaths, detach=False, stamp='%m-%d-%Y  %H:%M', sort=False):
 		'''Attach a modified timestamp and date to given file path(s).
 
 		:Parameters:
-			files (str)(list) = The full path to a file. ie. 'C:/Windows/Temp/__AUTO-SAVE__untitled.0001.mb'
+			filepaths (str)(list) = The full path to a file. ie. 'C:/Windows/Temp/__AUTO-SAVE__untitled.0001.mb'
 			detach (bool) = Remove a previously attached time stamp.
 			stamp (str) = The time stamp format.
-			sort (bool) = Reorder the list of files by time. (most recent first)
+			sort (bool) = Reorder the list of filepaths by time. (most recent first)
 
 		:Return:
 			(list) ie. ['16:46  11-09-2021  C:/Windows/Temp/__AUTO-SAVE__untitled.0001.mb'] from ['C:/Windows/Temp/__AUTO-SAVE__untitled.0001.mb']
@@ -82,8 +82,7 @@ class Filetk():
 		from datetime import datetime
 		import os.path
 
-		files = [files] if not isinstance(files, (list, tuple, set)) else files
-		files = cls.formatPath(files)
+		files = cls.formatPath(itertk.makeList(filepaths))
 
 		result=[]
 		if detach:
@@ -227,60 +226,66 @@ class Filetk():
 
 
 	@staticmethod
-	def createFile(path, mode='w', close=True):
+	def getFile(filepath, mode='a+', contents=False):
 		'''Create a file if one doesn't already exist.
 
 		:Parameters:
-			path (str) = The desired filepath.
-			mode (str) = "r" - Read - Default value. Opens a file for reading, error if the file does not exist.
-				"a" - Append - Opens a file for appending, creates the file if it does not exist.
-				"w" - Write - Opens a file for writing, creates the file if it does not exist.
-				"x" - Create - Creates the specified file, returns an error if the file exists.
-				"t" - Text - Default value. Text mode
-				"b" - Binary - Binary mode (e.g. images)
-			close (bool) = Do not leave the file open for writing.
+			filepath (str) = The path to an existing file or the desired location for one to be created.
+			mode (str) = 'r' - Read - Default value. Opens a file for reading, error if the file does not exist.
+				'a' - Append - Opens a file for appending, creates the file if it does not exist.
+				'a+' - Read+Write - Creates a new file or opens an existing file, the file pointer position at the end of the file.
+				'w' - Write - Opens a file for writing, creates the file if it does not exist.
+				'w+' - Read+Write - Opens a file for reading and writing, creates the file if it does not exist.
+				'x' - Create - Creates a new file, returns an error if the file exists.
+				't' - Text - Default value. Text mode
+				'b' - Binary - Binary mode (e.g. images)
+			contents (bool) = Return the contents (of a text based file) instead of the file itself.
 
 		:Return:
-			(obj) file
+			(obj) file or file contents dependant on given parameters.
 		'''
-		try:
-			f = open(path, mode)
-			if close:
-				f.close()
+		with open(filepath, mode) as f:
+			if contents: # note: f has now been truncated to 0 bytes, so you'll only be able to read data that you write after this point.
+				f.seek(0)  # important: return to the top of the file before reading, otherwise you'll just read an empty string.
+				try:
+					data = f.read() # returns: 'somedata\n'
+				except OSError as error:
+					print ('{} in getFile\n	Error: {}\n	filepath:{}\n	mode: {}'.format(__file__, error, filepath, mode))
+				return data
 			return f
-		except OSError as error:
-			print ('Error: {}: {}: {}'.format(__file__, error, path))
 
 
 	@staticmethod
-	def writeToFile(file, lines, mode='w'):
+	def writeToFile(filepath, lines, mode='w'):
 		'''Write the given list contents to the given file.
 
 		:Parameters:
-			file (str) = A path to a text based file.
+			filepath (str) = The path to an existing text based file.
 			lines (list) = A list of strings to write to the file.
-			mode (str) = "r" - Read - Default value. Opens a file for reading, error if the file does not exist
-						"a" - Append - Opens a file for appending, creates the file if it does not exist
-						"w" - Write - Opens a file for writing, creates the file if it does not exist
-						"x" - Create - Creates the specified file, returns an error if the file exist
-						"t" - Text - Default value. Text mode
-						"b" - Binary - Binary mode (e.g. images)
+			mode (str) = 'r' - Read - Default value. Opens a file for reading, error if the file does not exist.
+				'a' - Append - Opens a file for appending, creates the file if it does not exist.
+				'a+' - Read+Write - Creates a new file or opens an existing file, the file pointer position at the end of the file.
+				'w' - Write - Opens a file for writing, creates the file if it does not exist.
+				'w+' - Read+Write - Opens a file for reading and writing, creates the file if it does not exist.
+				'x' - Create - Creates a new file, returns an error if the file exists.
+				't' - Text - Default value. Text mode
+				'b' - Binary - Binary mode (e.g. images)
 		'''
-		with open(file, mode) as f:
+		with open(filepath, mode) as f:
 			f.writelines(lines)
 
 
 	@staticmethod
-	def getFileContents(file):
+	def getFileContents(filepath):
 		'''Get each line of a text file as indices of a list.
 
 		:Parameters:
-			file (str) = A path to a text based file.
+			filepath (str) = The path to an existing text based file.
 
 		:Return:
 			(list)
 		'''
-		with open(file) as f:
+		with open(filepath) as f:
 			return f.readlines()
 
 

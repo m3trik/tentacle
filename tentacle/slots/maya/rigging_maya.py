@@ -113,7 +113,7 @@ class Rigging_maya(Rigging, Slots_maya):
 		if toggle:
 			pm.toggle(joints, localAxis=1) #set display off
 
-		mtk.viewPortMessage("Display Local Rotation Axes:<hl>"+str(state)+"</hl>")
+		mtk.viewportMessage("Display Local Rotation Axes:<hl>"+str(state)+"</hl>")
 
 
 	def tb001(self, state=None):

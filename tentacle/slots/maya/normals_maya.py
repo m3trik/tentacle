@@ -36,22 +36,22 @@ class Normals_maya(Normals, Slots_maya):
 		if state ==0: #off
 			pm.polyOptions (displayNormal=0, sizeNormal=0)
 			pm.polyOptions (displayTangent=False)
-			mtk.viewPortMessage("Normals Display <hl>Off</hl>.")
+			mtk.viewportMessage("Normals Display <hl>Off</hl>.")
 
 		if state ==1: #facet
 			pm.polyOptions (displayNormal=1, facet=True, sizeNormal=size)
 			pm.polyOptions (displayTangent=False)
-			mtk.viewPortMessage("<hl>Facet</hl> Normals Display <hl>On</hl>.")
+			mtk.viewportMessage("<hl>Facet</hl> Normals Display <hl>On</hl>.")
 
 		if state ==2: #Vertex
 			pm.polyOptions (displayNormal=1, point=True, sizeNormal=size)
 			pm.polyOptions (displayTangent=False)
-			mtk.viewPortMessage("<hl>Vertex</hl> Normals Display <hl>On</hl>.")
+			mtk.viewportMessage("<hl>Vertex</hl> Normals Display <hl>On</hl>.")
 
 		if state ==3: #tangent
 			pm.polyOptions (displayTangent=True)
 			pm.polyOptions (displayNormal=0)
-			mtk.viewPortMessage("<hl>Tangent</hl> Display <hl>On</hl>.")
+			mtk.viewportMessage("<hl>Tangent</hl> Display <hl>On</hl>.")
 
 
 	def tb001(self, state=None):
@@ -136,16 +136,16 @@ class Normals_maya(Normals, Slots_maya):
 					else:
 						pm.polyNormalPerVertex(vertex, freezeNormal=1)
 				if not state:
-					mtk.viewPortMessage("Normals <hl>UnLocked</hl>.")
+					mtk.viewportMessage("Normals <hl>UnLocked</hl>.")
 				else:
-					mtk.viewPortMessage("Normals <hl>Locked</hl>.")
+					mtk.viewportMessage("Normals <hl>Locked</hl>.")
 		elif maskVertex and not maskObject:
 			if not state:
 				pm.polyNormalPerVertex(unFreezeNormal=1)
-				mtk.viewPortMessage("Normals <hl>UnLocked</hl>.")
+				mtk.viewportMessage("Normals <hl>UnLocked</hl>.")
 			else:
 				pm.polyNormalPerVertex(freezeNormal=1)
-				mtk.viewPortMessage("Normals <hl>Locked</hl>.")
+				mtk.viewportMessage("Normals <hl>Locked</hl>.")
 		else:
 			self.messageBox('Selection must be object or vertex.', messageType='Warning')
 			return
