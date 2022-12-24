@@ -56,19 +56,24 @@ class Mayatk():
 	def getType(obj):
 		'''Get the object type as a string.
 		'''
-		obj, *other = pm.ls(obj)
 		try:
+			obj, *other = pm.ls(obj)
 			return pm.listRelatives(obj, shapes=1)[0].type()
+
+		except ValueError as error:
+			print ('{} in getType\n	{}'.format(__file__, error))
+			return None #not a valid object.
+
 		except IndexError as error:
 			return obj.type()
 
 
 	@staticmethod
-	def getTransformNode(nodes, attributes=False, regEx=''):
-		'''Get the transform node(s).
+	def getTransformNode(nodes, attributes=False, include=[], exclude=[]):
+		'''Get transform node(s) or node attributes.
 
 		:Parameters:
-			node (str)(obj)(list) = A relative of a transform Node.
+			nodes (str)(obj)(list) = A relative of a transform Node.
 			attributes (bool) = Return the attributes of the node, rather then the node itself.
 			regEx (str) = List only the attributes that match the string(s) passed from this flag. String can be a regular expression.
 
@@ -86,18 +91,19 @@ class Mayatk():
 						transforms = pm.listRelatives(pm.listHistory(node, future=1), parent=1)
 					except Exception as error:
 						transforms = []
-			if attributes:
-				transforms = pm.listAttr(transforms, read=1, hasData=1, string=regEx)
-
 			for n in transforms:
-					result.append(n)
+				result.append(n)
 
+		if attributes:
+			result = pm.listAttr(result, read=1, hasData=1)
+
+		result = itertk.filterList(result, include, exclude)
 		return itertk.formatReturn(list(set(result)), nodes)
 
 
 	@classmethod
-	def getShapeNode(cls, nodes=None, attributes=False, regEx=''):
-		'''Get the shape node(s).
+	def getShapeNode(cls, nodes, attributes=False, include=[], exclude=[]):
+		'''Get shape node(s) or node attributes.
 
 		:Parameters:
 			nodes (str)(obj)(list) = A relative of a shape Node.
@@ -118,26 +124,27 @@ class Mayatk():
 						shapes = cls.getShapeNode(transforms)
 					except Exception as error:
 						shapes = []
-			if attributes:
-				shapes = pm.listAttr(shapes, read=1, hasData=1, string=regEx)
-
 			for n in shapes:
 				result.append(n)
 
+		if attributes:
+			result = pm.listAttr(result, read=1, hasData=1)
+
+		result = itertk.filterList(result, include, exclude)
 		return itertk.formatReturn(list(set(result)), nodes)
 
 
 	@staticmethod
-	def getHistoryNode(nodes=None, attributes=False, regEx=''):
-		'''Get the history node(s).
+	def getHistoryNode(nodes, attributes=False, include=[], exclude=[]):
+		'''Get history node(s) or node attributes.
 
 		:Parameters:
-			node (str)(obj)(list) = A relative of a history Node.
+			nodes (str)(obj)(list) = A relative of a history Node.
 			attributes (bool) = Return the attributes of the node, rather then the node itself.
 			regEx (str) = 	List only the attributes that match the string(s) passed from this flag. String can be a regular expression.
 
 		:Return:
-				(obj)(list) node(s) or node attributes. A list is always returned when 'nodes' is given as a list.
+			(obj)(list) node(s) or node attributes. A list is always returned when 'nodes' is given as a list.
 		'''
 		result=[]
 		for node in pm.ls(nodes):
@@ -150,12 +157,13 @@ class Mayatk():
 				except AttributeError as error:
 					print ('{} in getHistoryNode\n	# Error: {} #'.format(__file__, error))
 					connections = [] #object has no attribute 'history'
-			if attributes:
-				connections = pm.listAttr(connections, read=1, hasData=1, string=regEx)
-
 			for n in shapes:
 				result.append(n)
 
+		if attributes:
+			result = pm.listAttr(result, read=1, hasData=1)
+
+		result = itertk.filterList(result, include, exclude)
 		return itertk.formatReturn(list(set(result)), nodes)
 
 

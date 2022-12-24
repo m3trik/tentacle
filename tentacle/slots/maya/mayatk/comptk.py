@@ -18,7 +18,7 @@ class _GetComponents():
 			('f', 	'face', 	'faces', 	'Polygon Face', 			34, 	0x0008),
 			('uv', 	'texture', 	'texture coordinates', 'Polygon UV', 	35, 	0x0010),
 			('cv', 	'control vertex', 'control vertices', 'Control Vertex', 28, None),
-			(None,	None, 		None, 		'Polygon Vertex Face', 		70, 	None),
+			('vtxf', 'vertexFace', 'vertexFaces', 'Polygon Vertex Face', 70, 	None),
 			(None, 	None, 		None, 		'Edit Point', 				30, 	None),
 			(None, 	None, 		None, 		'Handle', 					0, 		None),
 			(None, 	None, 		None, 		'Nurbs Curves On Surface', 	11, 	None),
@@ -125,8 +125,11 @@ class _GetComponents():
 		convertComponentType('obj.vtx[:2]', 'edge') #returns: ['obj.e[0:2]', 'obj.e[11]', 'obj.e[24:26]', 'obj.e[36:38]']
 		convertComponentType('obj.vtx[:2]', 'uv') #returns: ['obj.map[0:2]', 'obj.map[12:14]', 'obj.map[24]']
 		'''
-		d = {'vtx':'toVertex', 'e':'toEdge', 'uv':'toUV', 'f':'toFace'}
+		d = {'vtx':'toVertex', 'e':'toEdge', 'uv':'toUV', 'f':'toFace', 'uv':'toUV', 'shell':'toShell', 'vertexFace':'toVertexFace'}
 		typ = cls.convertComponentName(componentType) #get the correct componentType variable from possible args.
+
+		if not typ in d:
+			return components
 		components = pm.polyListComponentConversion(components, **{d[typ.lower()]:True})
 		return cls.convertElementType(components, returnType=returnType, flatten=flatten)
 
@@ -304,8 +307,8 @@ class _GetComponents():
 
 		:Parameters:
 			objects (str)(obj)(list) = The object(s) to get the components of. (Polygon, Polygon components)(default: current selection)
-			componentType (str)(int) = The desired component mask. (valid: any type allowed in the 'convertComponentName' method)
-			returnType (str) = The desired returned object type. 
+			componentType (str)(int) = The component type to return. (valid: any type allowed in the 'convertComponentName' method)
+			returnType (str) = The desired returned object type.
 				(valid: 'str'(default), 'obj'(shape object), 'transform'(as string), 'int'(valid only at sub-object level).
 			include (str)(obj)(list) = The component(s) to include.
 			exclude (str)(obj)(list) = The component(s) to exclude. (exlude take precidence over include)
@@ -323,6 +326,7 @@ class _GetComponents():
 		getComponents('obj', 'edges') #returns: ['objShape.e[0:59]']
 		getComponents('obj', 'edges', 'str', 'obj.e[:2]') #returns: ['objShape.e[0]', 'objShape.e[1]', 'objShape.e[2]']
 		'''
+
 		components = cls.convertComponentType(objects, componentType)
 
 		if include or exclude:

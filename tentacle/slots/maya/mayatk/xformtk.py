@@ -5,7 +5,7 @@ try:
 except ImportError as error:
 	print (__file__, error)
 
-from tentacle.slots.tk import mathtk
+from tentacle.slots.tk import mathtk, itertk
 from tentacle.slots.maya.mayatk import comptk, viewportMessage, undo
 
 
@@ -90,7 +90,7 @@ class Xformtk(object):
 		'''Set an object’s translation value from its pivot location.
 
 		:Parameters:
-			node (str)(obj) = An object, or it's name.
+			node (str)(obj)(list) = An object, or it's name.
 		'''
 		x, y, z = pivot = pm.xform(node, query=True, worldSpace=True, rotatePivot=True)
 		pm.xform(node, relative=True, translation=[-x,-y,-z])
@@ -102,6 +102,7 @@ class Xformtk(object):
 	@undo
 	def alignPivotToSelection(alignFrom=[], alignTo=[], translate=True):
 		'''Align one objects pivot point to another using 3 point align.
+
 		:Parameters:
 			alignFrom (list) = At minimum; 1 object, 1 Face, 2 Edges, or 3 Vertices.
 			alignTo (list) = The object to align with.
@@ -135,83 +136,91 @@ class Xformtk(object):
 
 
 	@staticmethod
-	def aimObjectAtPoint(obj, target_pos, aim_vect=(1,0,0), up_vect=(0,1,0)):
-		'''Aim the given object at the given world space position.
+	@undo
+	def aimObjectAtPoint(objects, target_pos, aim_vect=(1,0,0), up_vect=(0,1,0)):
+		'''Aim the given object(s) at the given world space position.
 
-		Args:
-			obj (str)(obj) = Transform node.
-			target_pos (tuple) = The (x,y,z) world position to aim at.
-			aim_vect (tuple) = Local axis to aim at the target position.
-			up_vect (tuple) = Secondary axis aim vector.
-		 '''
-		target = pm.createNode('transform')
+		:Paramters:
+			objects (str)(obj)(list) = Transform node(s) of the objects to orient.
+			target_pos (obj)(tuple) = A point as xyz, or one or more transform nodes at which to aim the other given 'objects'.
+			aim_vect (tuple) = The vector in local coordinates that points at the target.
+			up_vect (tuple) = The vector in local coordinates that aligns with the world up vector.
+
+		ex. call: aimObjectAtPoint(['cube1', 'cube2'], (0, 15, 15))
+		'''
+		if isinstance(target_pos, (tuple, set, list)):
+			target = pm.createNode('transform', name='target_helper')
 
 		pm.xform(target, translation=target_pos, absolute=True)
-		const = pm.aimConstraint((target, obj), aim=aim_vect, worldUpVector=up_vect, worldUpType="vector")
+
+		for obj in itertk.makeList(objects):
+			const = pm.aimConstraint(target, obj, aim=aim_vect, worldUpVector=up_vect, worldUpType="vector")
 
 		pm.delete(const, target)
 
 
 	@classmethod
-	def rotateAxis(cls, obj, target_pos):
+	@undo
+	def rotateAxis(cls, objects, target_pos):
 		''' Aim the given object at the given world space position.
 		All rotations in rotated channel, geometry is transformed so 
 		it does not appear to move during this transformation
 
 		:Parameters:
-			obj (str)(obj)(list) = A transform node.
-			target_pos (tuple) = An (x,y,z) world position.
+			objects (str)(obj)(list) = Transform node(s) of the objects to orient.
+			target_pos (obj)(tuple) = A point as xyz, or one or more transform nodes at which to aim the other given 'objects'.
 		'''
-		obj, *other = pm.ls(obj)
-		cls.aimObjectAtPoint(obj, target_pos)
+		for obj in pm.ls(objects, objectsOnly=True):
+			cls.aimObjectAtPoint(obj, target_pos)
 
-		try:
-			c = obj.v[:]
-		except TypeError:
-			c = obj.cv[:]
+			try:
+				c = obj.verts
+			except TypeError as error:
+				c = obj.cp
 
-		wim = pm.getAttr(obj.worldInverseMatrix)
-		pm.xform(c, matrix=wim)
+			wim = pm.getAttr(obj.worldInverseMatrix)
+			pm.xform(c, matrix=wim)
 
-		pos = pm.xform(obj, q=True, translation=True, absolute=True, worldSpace=True)
-		pm.xform(c, translation=pos, relative=True, worldSpace=True)
+			pos = pm.xform(obj, q=True, translation=True, absolute=True, worldSpace=True)
+			pm.xform(c, translation=pos, relative=True, worldSpace=True)
 
 
 	@staticmethod
-	def getOrientation(obj, returnType='point'):
+	def getOrientation(objects, returnType='point'):
 		'''Get an objects orientation as a point or vector.
 
 		:Parameters:
-			obj (str)(obj) = The object to get the orientation of.
+			objects (str)(obj)(list) = The object(s) to get the orientation of.
 			returnType (str) = The desired returned value type. (valid: 'point'(default), 'vector')
 
 		:Return:
-			(tuple)
+			(tuple)(list) If 'objects' given as a list, a list of tuples will be returned.
 		'''
-		obj, *other = pm.ls(obj)
+		result=[]
+		for obj in pm.ls(objects, objectsOnly=True):
 
-		world_matrix = pm.xform(obj, q=True, matrix=True, worldSpace=True)
-		rAxis = pm.getAttr(obj.rotateAxis)
-		if any((rAxis[0], rAxis[1], rAxis[2])):
-			print('# Warning: {} has a modified .rotateAxis of {} which is included in the result. #'.format(obj, rAxis))
+			world_matrix = pm.xform(obj, q=True, matrix=True, worldSpace=True)
+			rAxis = pm.getAttr(obj.rotateAxis)
+			if any((rAxis[0], rAxis[1], rAxis[2])):
+				print('# Warning: {} has a modified .rotateAxis of {} which is included in the result. #'.format(obj, rAxis))
 
-		if returnType=='vector':
-			from maya.api.OpenMaya import MVector
+			if returnType=='vector':
+				from maya.api.OpenMaya import MVector
+				ori = (
+					MVector(world_matrix[0:3]),
+					MVector(world_matrix[4:7]),
+					MVector(world_matrix[8:11])
+				)
 
-			result = (
-				MVector(world_matrix[0:3]),
-				MVector(world_matrix[4:7]),
-				MVector(world_matrix[8:11])
-			)
+			else:
+				ori = (
+					world_matrix[0:3],
+					world_matrix[4:7],
+					world_matrix[8:11]
+				)
+			result.append(ori)
 
-		else:
-			result = (
-				world_matrix[0:3],
-				world_matrix[4:7],
-				world_matrix[8:11]
-			)
-
-		return result
+		return itertk.formatReturn(result, objects)
 
 
 	@staticmethod
@@ -244,75 +253,24 @@ class Xformtk(object):
 			objects (str)(obj(list) = The objects or components to get the center of.
 
 		:Return:
-			(list) position as [x,y,z].
+			(tuple) position as xyz float values.
 		'''
 		objects = pm.ls(objects, flatten=True)
 		pos = [i for sublist in [pm.xform(s, q=1, translation=1, worldSpace=1, absolute=1) for s in objects] for i in sublist]
-		center_pos = [ #Get center by averaging of all x,y,z points.
+		center_pos = ( #Get center by averaging of all x,y,z points.
 			sum(pos[0::3]) / len(pos[0::3]), 
 			sum(pos[1::3]) / len(pos[1::3]), 
 			sum(pos[2::3]) / len(pos[2::3])
-		]
+		)
 		return center_pos
 
 
-	@staticmethod
-	def getComponentPoint(component, alignToNormal=False):
-		'''Get the center point from the given component.
-
-		:Parameters:
-			component (str)(obj) = Object component.
-			alignToNormal (bool) = Constain to normal vector.
-
-		:Return: [float list] - x, y, z  coordinate values.
-		'''
-		if ".vtx" in str(component):
-			x = pm.polyNormalPerVertex (component, query=1, x=1)
-			y = pm.polyNormalPerVertex (component, query=1, y=1)
-			z = pm.polyNormalPerVertex (component, query=1, z=1)
-			xyz = [sum(x) / float(len(x)), sum(y) / float(len(y)), sum(z) / float(len(z))] #get average
-
-		elif ".e" in str(component):
-			componentName = str(component).split(".")[0]
-			vertices = pm.polyInfo (component, edgeToVertex=1)[0]
-			vertices = vertices.split()
-			vertices = [componentName+".vtx["+vertices[2]+"]",componentName+".vtx["+vertices[3]+"]"]
-			x=[];y=[];z=[]
-			for vertex in vertices:
-				x_ = pm.polyNormalPerVertex (vertex, query=1, x=1)
-				x.append(sum(x_) / float(len(x_)))
-				y_ = pm.polyNormalPerVertex (vertex, query=1, y=1)
-				x.append(sum(y_) / float(len(y_)))
-				z_ = pm.polyNormalPerVertex (vertex, query=1, z=1)
-				x.append(sum(z_) / float(len(z_)))
-			xyz = [sum(x) / float(len(x)), sum(y) / float(len(y)), sum(z) / float(len(z))] #get average
-
-		else:# elif ".f" in str(component):
-			xyz = pm.polyInfo (component, faceNormals=1)
-			xyz = xyz[0].split()
-			xyz = [float(xyz[2]), float(xyz[3]), float(xyz[4])]
-
-		if alignToNormal: #normal constraint
-			normal = pm.mel.eval("unit <<"+str(xyz[0])+", "+str(xyz[1])+", "+str(xyz[2])+">>;") #normalize value using MEL
-			# normal = [round(i-min(xyz)/(max(xyz)-min(xyz)),6) for i in xyz] #normalize and round value using python
-
-			constraint = pm.normalConstraint(component, object_,aimVector=normal,upVector=[0,1,0],worldUpVector=[0,1,0],worldUpType="vector") # "scene","object","objectrotation","vector","none"
-			pm.delete(constraint) #orient object_ then remove constraint.
-
-		vertexPoint = pm.xform (component, query=1, translation=1) #average vertex points on destination to get component center.
-		x = vertexPoint[0::3]
-		y = vertexPoint[1::3]
-		z = vertexPoint[2::3]
-
-		return list(round(sum(x) / float(len(x)),4), round(sum(y) / float(len(y)),4), round(sum(z) / float(len(z)),4))
-
-
 	@classmethod
-	def getBoundingBoxValue(cls, obj, value='sizeX|sizeY|sizeZ'):
-		'''Get information of the given object(s) bounding box.
+	def getBoundingBoxValue(cls, objects, value='sizeX|sizeY|sizeZ'):
+		'''Get information of the given object(s) combined bounding box.
 
 		:Parameters:
-			obj (str)(obj)(list) = The object(s) to query.
+			objects (str)(obj)(list) = The object(s) or component(s) to query.
 				Multiple objects will be treated as a combined bounding box.
 			value (str) = The type of value to return. Multiple types can be given
 				separated by '|'. The order given determines the return order.
@@ -320,28 +278,27 @@ class Xformtk(object):
 				'zmin', 'zmax', 'sizex', 'sizey', 'sizez', 'volume', 'center'
 
 		:Return:
-			(float)(list) Dependant on args.
+			(float)(tuple) Dependant on args.
 
 		ex. call: getBoundingBoxValue(sel, 'center|volume') #returns: [[171.9106216430664, 93.622802734375, -1308.4896240234375], 743.2855185396038]
 		ex. call: getBoundingBoxValue(sel, 'sizeY') #returns: 144.71902465820312
 		'''
 		if '|' in value: #use recursion to construct the list using each value.
-			return [cls.getBoundingBoxValue(obj, i) for i in value.split('|')]
+			return tuple(cls.getBoundingBoxValue(objects, i) for i in value.split('|'))
 
 		v = value.lower()
-		for o in pm.ls(obj, objectsOnly=True):
-			xmin, ymin, zmin, xmax, ymax, zmax = pm.exactWorldBoundingBox(o)
-			if v=='xmin': return xmin
-			elif v=='xmax': return xmax
-			elif v=='ymin': return ymin
-			elif v=='ymax': return ymax
-			elif v=='zmin': return zmin
-			elif v=='zmax': return zmax
-			elif v=='sizex': return xmax-xmin
-			elif v=='sizey': return ymax-ymin
-			elif v=='sizez': return zmax-zmin
-			elif v=='volume': return (xmax-xmin)*(ymax-ymin)*(zmax-zmin)
-			elif v=='center': return [(xmin+xmax)/2.0, (ymin+ymax)/2.0, (zmin+zmax)/2.0]
+		xmin, ymin, zmin, xmax, ymax, zmax = pm.exactWorldBoundingBox(objects)
+		if v=='xmin': return xmin
+		elif v=='xmax': return xmax
+		elif v=='ymin': return ymin
+		elif v=='ymax': return ymax
+		elif v=='zmin': return zmin
+		elif v=='zmax': return zmax
+		elif v=='sizex': return xmax-xmin
+		elif v=='sizey': return ymax-ymin
+		elif v=='sizez': return zmax-zmin
+		elif v=='volume': return (xmax-xmin)*(ymax-ymin)*(zmax-zmin)
+		elif v=='center': return ((xmin+xmax)/2.0, (ymin+ymax)/2.0, (zmin+zmax)/2.0)
 
 
 	@classmethod
@@ -349,9 +306,9 @@ class Xformtk(object):
 		'''Sort the given objects by their bounding box value.
 
 		:Parameters:
-			objects (list) = The objects to sort.
+			objects (str)(obj)(list) = The objects or components to sort.
 			value (str) = See 'getBoundingBoxInfo' 'value' parameter.
-					ex. 'xmin', 'xmax', 'sizex', 'volume', 'center' ..
+					ex. 'xmin', 'xmax', 'sizex', 'volume', 'center' etc.
 			descending (bool) = Sort the list from the largest value down.
 			returnWithValue (bool) = Instead of just the object; return a 
 					list of two element tuples as [(<value>, <obj>)].
@@ -359,8 +316,9 @@ class Xformtk(object):
 			(list)
 		'''
 		valueAndObjs=[]
-		for obj in pm.ls(objects, objectsOnly=True):
+		for obj in pm.ls(objects, flatten=False):
 			v = cls.getBoundingBoxValue(obj, value)
+			print (0, obj, v)
 			valueAndObjs.append((v, obj))
 
 		sorted_ = sorted(valueAndObjs, key=lambda x: int(x[0]), reverse=descending)
@@ -427,7 +385,7 @@ class Xformtk(object):
 		ex. call: alignVertices(mode=3, average=True, edgeloop=True)
 		'''
 		# pm.undoInfo (openChunk=True)
-		selectTypeEdge = pm.selectType (query=True, edge=True)
+		selectTypeEdge = pm.selectType(query=True, edge=True)
 
 		if edgeloop:
 			pm.mel.SelectEdgeLoopSp() #select edgeloop
@@ -664,3 +622,54 @@ addMembers(__name__)
 
 
 # deprecated: -----------------------------------
+
+# @staticmethod
+# 	def getComponentPoint(component, alignToNormal=False):
+# 		'''Get the center point from the given component.
+
+# 		:Parameters:
+# 			component (str)(obj) = Object component.
+# 			alignToNormal (bool) = Constain to normal vector.
+
+# 		:Return:
+# 			(tuple) coordinate as xyz float values.
+# 		'''
+# 		if ".vtx" in str(component):
+# 			x = pm.polyNormalPerVertex(component, query=1, x=1)
+# 			y = pm.polyNormalPerVertex(component, query=1, y=1)
+# 			z = pm.polyNormalPerVertex(component, query=1, z=1)
+# 			xyz = [sum(x) / float(len(x)), sum(y) / float(len(y)), sum(z) / float(len(z))] #get average
+
+# 		elif ".e" in str(component):
+# 			componentName = str(component).split(".")[0]
+# 			vertices = pm.polyInfo (component, edgeToVertex=1)[0]
+# 			vertices = vertices.split()
+# 			vertices = [componentName+".vtx["+vertices[2]+"]",componentName+".vtx["+vertices[3]+"]"]
+# 			x=[];y=[];z=[]
+# 			for vertex in vertices:
+# 				x_ = pm.polyNormalPerVertex (vertex, query=1, x=1)
+# 				x.append(sum(x_) / float(len(x_)))
+# 				y_ = pm.polyNormalPerVertex (vertex, query=1, y=1)
+# 				x.append(sum(y_) / float(len(y_)))
+# 				z_ = pm.polyNormalPerVertex (vertex, query=1, z=1)
+# 				x.append(sum(z_) / float(len(z_)))
+# 			xyz = [sum(x) / float(len(x)), sum(y) / float(len(y)), sum(z) / float(len(z))] #get average
+
+# 		else:# elif ".f" in str(component):
+# 			xyz = pm.polyInfo (component, faceNormals=1)
+# 			xyz = xyz[0].split()
+# 			xyz = [float(xyz[2]), float(xyz[3]), float(xyz[4])]
+
+# 		if alignToNormal: #normal constraint
+# 			normal = pm.mel.eval("unit <<"+str(xyz[0])+", "+str(xyz[1])+", "+str(xyz[2])+">>;") #normalize value using MEL
+# 			# normal = [round(i-min(xyz)/(max(xyz)-min(xyz)),6) for i in xyz] #normalize and round value using python
+
+# 			constraint = pm.normalConstraint(component, object_,aimVector=normal,upVector=[0,1,0],worldUpVector=[0,1,0],worldUpType="vector") # "scene","object","objectrotation","vector","none"
+# 			pm.delete(constraint) #orient object_ then remove constraint.
+
+# 		vertexPoint = pm.xform (component, query=1, translation=1) #average vertex points on destination to get component center.
+# 		x = vertexPoint[0::3]
+# 		y = vertexPoint[1::3]
+# 		z = vertexPoint[2::3]
+
+# 		return tuple(round(sum(x) / float(len(x)),4), round(sum(y) / float(len(y)),4), round(sum(z) / float(len(z)),4))
