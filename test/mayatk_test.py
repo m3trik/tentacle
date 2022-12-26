@@ -62,6 +62,51 @@ class Main(unittest.TestCase):
 			)
 
 
+class Mayatk_test(Main, Mayatk):
+	'''
+	set object mode:
+		pm.selectMode(object=1)
+
+	set component mode:
+		pm.selectMode(component=1)
+
+	set component mode type:
+		pm.selectType(allObjects=1)
+		pm.selectType(mc=1)
+		pm.selectType(vertex=1)
+		pm.selectType(edge=1)
+		pm.selectType(facet=1)
+		pm.selectType(polymeshUV=1)
+		pm.selectType(meshUVShell=1)
+	'''
+	#Tear down the any previous test by creating a new scene:
+	pm.mel.file(new=True, force=True)
+
+	#assemble the test scene:
+	if not pm.objExists('cyl'):
+		cyl = pm.polyCylinder(radius=5, height=10, subdivisionsX=12, subdivisionsY=1, subdivisionsZ=1, name='cyl')
+
+	def test_getArrayType(self):
+		'''
+		'''
+		self.perform_test({
+			"self.getArrayType('cyl.vtx[0]')": 'transform',
+			"self.getArrayType('cylShape.vtx[:]')": 'str',
+			"self.getArrayType(pm.ls('cylShape.vtx[:]'))": 'obj',
+		})
+
+	def test_convertElemType(self):
+		'''
+		'''
+		self.perform_test({
+			"self.convertArrayType('cyl.vtx[:2]', 'str')": ['cylShape.vtx[0:2]'],
+			"self.convertArrayType('cyl.vtx[:2]', 'str', flatten=True)": ['cylShape.vtx[0]', 'cylShape.vtx[1]', 'cylShape.vtx[2]'],
+			"str(self.convertArrayType('cyl.vtx[:2]', obj'))": "[MeshVertex('cylShape.vtx[0:2]')]",
+			"str(self.convertArrayType('cyl.vtx[:2]', obj', flatten=True))": "[MeshVertex('cylShape.vtx[0]'), MeshVertex('cylShape.vtx[1]'), MeshVertex('cylShape.vtx[2]')]",
+			"self.convertArrayType('cyl.vtx[:2]', 'int')": [0, 2],
+			"self.convertArrayType('cyl.vtx[:2]', 'int', flatten=True)": [0, 1, 2],
+		})
+
 # --------------------------------
 
 if __name__=='__main__':

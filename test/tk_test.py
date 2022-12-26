@@ -219,12 +219,12 @@ class Itertk_test(Main, Itertk):
 			"self.formatReturn(['', ''])": ['', ''],
 		})
 
-	def test_hasNested(self):
+	def test_nestedDepth(self):
 		'''
 		'''
 		self.perform_test({
-			"self.hasNested([[1, 2], [3, 4]])": True,
-			"self.hasNested([1, 2, 3, 4])": False,
+			"self.nestedDepth([[1, 2], [3, 4]])": 1,
+			"self.nestedDepth([1, 2, 3, 4])": 0,
 		})
 
 	def test_flatten(self):
@@ -253,6 +253,14 @@ class Itertk_test(Main, Itertk):
 
 		self.perform_test({
 			"self.bitArrayToList({})".format(bits): [2, 3, 4, 5, 6, 8, 9, 10, 11, 12, 14, 15, 16],
+		})
+
+	def test_indices(self):
+		'''
+		'''
+		self.perform_test({
+			"self.indices([0, 1, 2, 2, 3], 2)": [2, 3],
+			"self.indices([0, 1, 2, 2, 3], 4)": [],
 		})
 
 	def test_rindex(self):

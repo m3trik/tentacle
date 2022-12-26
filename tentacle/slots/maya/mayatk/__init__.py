@@ -69,13 +69,97 @@ class Mayatk():
 
 
 	@staticmethod
-	def getTransformNode(nodes, attributes=False, include=[], exclude=[]):
+	def getArrayType(lst):
+		'''Determine if the given element(s) type.
+
+		:Parameters:
+			obj (str)(obj)(list) = The components(s) to query.
+
+		:Return:
+			(list) 'str', 'obj'(shape node), 'transform'(as string), 'int'(valid only at sub-object level)
+
+		ex. call:
+		getArrayType('cyl.vtx[0]') #returns: 'transform'
+		getArrayType('cylShape.vtx[:]') #returns: 'str'
+		'''
+		try:
+			o = itertk.makeList(lst)[0]
+		except IndexError as error:
+			# print ('{}\n# Error: getArrayType: Operation requires at least one object. #\n	{}'.format(__file__, error))
+			return ''
+
+		return 'str' if isinstance(o, str) else 'int' if isinstance(o, int) else 'obj'
+
+
+	@staticmethod
+	def convertArrayType(lst, returnType='str', flatten=False):
+		'''Convert the given element(s) to <obj>, 'str', or int values.
+
+		:Parameters:
+			lst (str)(obj)(list) = The components(s) to convert.
+			returnType (str) = The desired returned array element type.
+				valid: 'str'(default), 'obj', 'int'(valid only at sub-object level).
+			flatten (bool) = Flattens the returned list of objects so that each component is it's own element.
+
+		:Return:
+			(list)(dict) return a dict only with a return type of 'int' and more that one object given.
+
+		ex. call:
+		convertArrayType('obj.vtx[:2]', 'str') #returns: ['objShape.vtx[0:2]']
+		convertArrayType('obj.vtx[:2]', 'str', True) #returns: ['objShape.vtx[0]', 'objShape.vtx[1]', 'objShape.vtx[2]']
+		convertArrayType('obj.vtx[:2]', 'obj') #returns: [MeshVertex('objShape.vtx[0:2]')]
+		convertArrayType('obj.vtx[:2]', 'obj', True) #returns: [MeshVertex('objShape.vtx[0]'), MeshVertex('objShape.vtx[1]'), MeshVertex('objShape.vtx[2]')]
+		convertArrayType('obj.vtx[:2]', 'int')) #returns: {nt.Mesh('objShape'): [(0, 2)]}
+		convertArrayType('obj.vtx[:2]', 'int', True)) #returns: {nt.Mesh('objShape'): [0, 1, 2]}
+		'''
+		lst = pm.ls(lst, flatten=flatten)
+		if not lst or isinstance(lst[0], int):
+			return []
+
+		if returnType=='int':
+			result={}
+			for c in lst:
+				obj = pm.ls(c, objectsOnly=1)[0]
+				num = c.split('[')[-1].rstrip(']')
+
+				try:
+					if flatten:
+						componentNum = int(num)
+					else:
+						n = [int(n) for n in num.split(':')]
+						componentNum = tuple(n) if len(n)>1 else n[0]
+
+					if obj in result: #append to existing object key.
+						result[obj].append(componentNum)
+					else:
+						result[obj] = [componentNum]
+				except ValueError as error: #incompatible object type.
+					print ('{} in convertArrayType\n	# Error: unable to convert {} {} to int. #\n	{}'.format(__file__, obj, num, error))
+					break
+
+			objects = set(pm.ls(lst, objectsOnly=True))
+			if len(objects)==1: #flatten the dict values from 'result' and remove any duplicates.
+				flattened = itertk.flatten(result.values())
+				result = itertk.removeDuplicates(flattened)
+
+		elif returnType=='str':
+			result = list(map(str, lst))
+
+		else:
+			result = lst
+
+		return result
+
+
+	@classmethod
+	def getTransformNode(cls, nodes, returnType='str', attributes=False, include=[], exclude=[]):
 		'''Get transform node(s) or node attributes.
 
 		:Parameters:
 			nodes (str)(obj)(list) = A relative of a transform Node.
+			returnType (str) = The desired returned object type. Not valid with the `attributes` parameter.
+				(valid: 'str'(default), 'obj').
 			attributes (bool) = Return the attributes of the node, rather then the node itself.
-			regEx (str) = List only the attributes that match the string(s) passed from this flag. String can be a regular expression.
 
 		:Return:
 			(obj)(list) node(s) or node attributes. A list is always returned when 'nodes' is given as a list.
@@ -97,18 +181,23 @@ class Mayatk():
 		if attributes:
 			result = pm.listAttr(result, read=1, hasData=1)
 
+		#convert element type.
+		result = cls.convertArrayType(result, returnType=returnType, flatten=True)
+		#filter
 		result = itertk.filterList(result, include, exclude)
+		#return as list if `nodes` was given as a list.
 		return itertk.formatReturn(list(set(result)), nodes)
 
 
 	@classmethod
-	def getShapeNode(cls, nodes, attributes=False, include=[], exclude=[]):
+	def getShapeNode(cls, nodes, returnType='str', attributes=False, include=[], exclude=[]):
 		'''Get shape node(s) or node attributes.
 
 		:Parameters:
 			nodes (str)(obj)(list) = A relative of a shape Node.
+			returnType (str) = The desired returned object type. 
+				(valid: 'str'(default), 'obj'(shape node), 'transform'(as string), 'int'(valid only at sub-object level).
 			attributes (bool) = Return the attributes of the node, rather then the node itself.
-			regEx (str) = List only the attributes that match the string(s) passed from this flag. String can be a regular expression.
 
 		:Return:
 			(obj)(list) node(s) or node attributes. A list is always returned when 'nodes' is given as a list.
@@ -130,18 +219,23 @@ class Mayatk():
 		if attributes:
 			result = pm.listAttr(result, read=1, hasData=1)
 
+		#convert element type.
+		result = cls.convertArrayType(result, returnType=returnType, flatten=True)
+		#filter
 		result = itertk.filterList(result, include, exclude)
+		#return as list if `nodes` was given as a list.
 		return itertk.formatReturn(list(set(result)), nodes)
 
 
-	@staticmethod
-	def getHistoryNode(nodes, attributes=False, include=[], exclude=[]):
+	@classmethod
+	def getHistoryNode(cls, nodes, returnType='str', attributes=False, include=[], exclude=[]):
 		'''Get history node(s) or node attributes.
 
 		:Parameters:
 			nodes (str)(obj)(list) = A relative of a history Node.
+			returnType (str) = The desired returned object type. 
+				(valid: 'str'(default), 'obj'(shape node), 'transform'(as string), 'int'(valid only at sub-object level).
 			attributes (bool) = Return the attributes of the node, rather then the node itself.
-			regEx (str) = 	List only the attributes that match the string(s) passed from this flag. String can be a regular expression.
 
 		:Return:
 			(obj)(list) node(s) or node attributes. A list is always returned when 'nodes' is given as a list.
@@ -163,7 +257,11 @@ class Mayatk():
 		if attributes:
 			result = pm.listAttr(result, read=1, hasData=1)
 
+		#convert element type.
+		result = cls.convertArrayType(result, returnType=returnType, flatten=True)
+		#filter
 		result = itertk.filterList(result, include, exclude)
+		#return as list if `nodes` was given as a list.
 		return itertk.formatReturn(list(set(result)), nodes)
 
 

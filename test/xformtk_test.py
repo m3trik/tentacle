@@ -52,13 +52,6 @@ class Xformtk_test(Main, Xformtk):
 	if not pm.objExists('sph'):
 		sph = pm.polySphere(radius=5, subdivisionsX=12, subdivisionsY=12, name='sph')
 
-	def test_resetTranslation(self):
-		'''
-		'''
-		self.perform_test({
-			"self.resetTranslation('cube1')": None,
-		})
-
 	def test_moveTo(self):
 		'''
 		'''
@@ -71,6 +64,13 @@ class Xformtk_test(Main, Xformtk):
 		'''
 		self.perform_test({
 			"self.dropToGrid('cube1', align='Min', origin=True, centerPivot=True, freezeTransforms=True)": None,
+		})
+
+	def test_resetTranslation(self):
+		'''
+		'''
+		self.perform_test({
+			"self.resetTranslation('cube1')": None,
 		})
 
 	def test_setTranslationToPivot(self):
@@ -118,6 +118,16 @@ class Xformtk_test(Main, Xformtk):
 			"self.getDistanceBetweenTwoObjects('cube1', 'cube2')": 15,
 		})
 
+	def test_orderByDistance(self):
+		'''
+		'''
+		self.dropToGrid(['cube1', 'cube2'], origin=True, centerPivot=True)
+		pm.move('cube2', 0, 0, 15)
+
+		self.perform_test({
+			"str(self.orderByDistance(['cube1', 'cube2']))": "[nt.Transform('cube1'), nt.Transform('cube2')]",
+		})
+
 	def test_getCenterPoint(self):
 		'''
 		'''
@@ -125,6 +135,7 @@ class Xformtk_test(Main, Xformtk):
 			"self.getCenterPoint('sph')": (0, 0, 0),
 			"self.getCenterPoint('sph.vtx[*]')": (0, 0, 0),
 		})
+
 
 	def test_getBoundingBoxValue(self):
 		'''
@@ -147,27 +158,6 @@ class Xformtk_test(Main, Xformtk):
 			"self.matchScale('cube1', 'cube2', scale=False)": [1.3063946090989371, 0.539387725343009, 0.539387708993454],
 		})
 
-	def test_alignVertices(self):
-		'''
-		'''
-		self.perform_test({
-			"self.alignVertices()": None,
-		})
-
-	def test_orderByDistance(self):
-		'''
-		'''
-		self.perform_test({
-			# "self.orderByDistance()": None,
-		})
-
-	def test_matchTransformByVertexOrder(self):
-		'''
-		'''
-		self.perform_test({
-			# "self.matchTransformByVertexOrder()": None,
-		})
-
 	def test_snap3PointsTo3Points(self):
 		'''
 		'''
@@ -180,6 +170,14 @@ class Xformtk_test(Main, Xformtk):
 		'''
 		self.perform_test({
 			# "self.isOverlapping()": None,
+		})
+
+
+	def test_alignVertices(self):
+		'''
+		'''
+		self.perform_test({
+			"self.alignVertices()": None,
 		})
 
 # --------------------------------

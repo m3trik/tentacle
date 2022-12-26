@@ -338,10 +338,10 @@ class Polygons_maya(Polygons, Slots_maya):
 	def b009(self):
 		'''Collapse Component
 		'''
-		if pm.selectType(query=1, vertex=1):
-			pm.mel.MergeToCenter() #merge vertices
-		else:
+		if pm.selectType(query=1, facet=1):
 			pm.mel.PolygonCollapse()
+		else:
+			pm.mel.MergeToCenter()
 
 
 	def b012(self):

@@ -115,7 +115,7 @@ class Transform_maya(Transform, Slots_maya):
 		if state and selection:
 			live_object = pm.ls(live=1)
 			shape = mtk.getShapeNode(selection[0])
-			if not shape in live_object:
+			if not shape in str(live_object):
 				pm.makeLive(selection) #construction planes, nurbs surfaces and polygon meshes can be made live. makeLive supports one live object at a time.
 				# mtk.viewportMessage('Make Live: <hl>On</hl> {0}'.format(selection[0].name()))
 		else:
@@ -350,7 +350,7 @@ class Transform_maya(Transform, Slots_maya):
 		if selection:
 			live_object = pm.ls(live=1)
 			shape = mtk.getShapeNode(selection[0])
-			if not shape in live_object:
+			if not shape in str(live_object):
 				self.chk026(state=1)
 				cmb.menu_.chk026.setChecked(True)
 		else:

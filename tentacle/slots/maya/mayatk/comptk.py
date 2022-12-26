@@ -6,6 +6,7 @@ except ImportError as error:
 	print (__file__, error)
 
 from tentacle.slots.tk import itertk, mathtk, randomize
+from tentacle.slots.maya.mayatk import getArrayType, convertArrayType
 
 
 class _GetComponents():
@@ -77,7 +78,7 @@ class _GetComponents():
 
 
 	@classmethod
-	def convertComponentName(cls, componentType, nom='abv'):
+	def convertAlias(cls, componentType, nom='abv'):
 		'''Return an alternate component alias for the given alias. 
 		ie. a hex value of 0x0001 for 'vertex'
 		If nothing is found, a value of 'None' will be returned.
@@ -91,8 +92,8 @@ class _GetComponents():
 			(str)(int)(hex)(None) dependant on 'nom' argument.
 
 		ex. call:
-		convertComponentName('vertex', 'hex') #returns: 0x0001
-		convertComponentName(0x0001, 'str') #returns: 'Polygon Vertex'
+		convertAlias('vertex', 'hex') #returns: 0x0001
+		convertAlias(0x0001, 'str') #returns: 'Polygon Vertex'
 		'''
 		rtypes = ('abv', 'singular', 'plural', 'full', 'int', 'hex')
 
@@ -126,102 +127,12 @@ class _GetComponents():
 		convertComponentType('obj.vtx[:2]', 'uv') #returns: ['obj.map[0:2]', 'obj.map[12:14]', 'obj.map[24]']
 		'''
 		d = {'vtx':'toVertex', 'e':'toEdge', 'uv':'toUV', 'f':'toFace', 'uv':'toUV', 'shell':'toShell', 'vertexFace':'toVertexFace'}
-		typ = cls.convertComponentName(componentType) #get the correct componentType variable from possible args.
+		typ = cls.convertAlias(componentType) #get the correct componentType variable from possible args.
 
 		if not typ in d:
 			return components
 		components = pm.polyListComponentConversion(components, **{d[typ.lower()]:True})
-		return cls.convertElementType(components, returnType=returnType, flatten=flatten)
-
-
-	@staticmethod
-	def getElementType(obj):
-		'''Determine if the given element(s) type.
-
-		:Parameters:
-			obj (str)(obj)(list) = The components(s) to query.
-
-		:Return:
-			(list) 'str', 'obj'(shape node), 'transform'(as string), 'int'(valid only at sub-object level)
-
-		ex. call:
-		getElementType('cyl.vtx[0]') #returns: 'transform'
-		getElementType('cylShape.vtx[:]') #returns: 'str'
-		'''
-		try:
-			o = itertk.makeList(obj)[0]
-		except IndexError as error:
-			# print ('{}\n# Error: getElementType: Operation requires at least one object. #\n	{}'.format(__file__, error))
-			return ''
-
-		if isinstance(o, str):
-			return 'str' if 'Shape' in o else 'transform'
-		elif isinstance(o, int):
-			return 'int'
-		else:
-			return 'obj'
-
-
-	@classmethod
-	def convertElementType(cls, lst, returnType='str', flatten=False):
-		'''Convert the given element(s) to <obj>, 'str', or int values.
-
-		:Parameters:
-			lst (str)(obj)(list) = The components(s) to convert.
-			returnType (str) = The desired returned object type. 
-				(valid: 'str'(default), 'obj'(shape node), 'transform'(as string), 'int'(valid only at sub-object level).
-			flatten (bool) = Flattens the returned list of objects so that each component is it's own element.
-
-		:Return:
-			(list)(dict) return a dict only with a return type of 'int' and more that one object given.
-
-		ex. call:
-		convertElementType('obj.vtx[:2]', 'str') #returns: ['objShape.vtx[0:2]']
-		convertElementType('obj.vtx[:2]', 'str', True) #returns: ['objShape.vtx[0]', 'objShape.vtx[1]', 'objShape.vtx[2]']
-		convertElementType('obj.vtx[:2]', 'obj') #returns: [MeshVertex('objShape.vtx[0:2]')]
-		convertElementType('obj.vtx[:2]', 'obj', True) #returns: [MeshVertex('objShape.vtx[0]'), MeshVertex('objShape.vtx[1]'), MeshVertex('objShape.vtx[2]')]
-		convertElementType('obj.vtx[:2]', 'transform') #returns: ['obj.vtx[0:2]']
-		convertElementType('obj.vtx[:2]', 'transform', True) #returns: ['obj.vtx[0]', 'obj.vtx[1]', 'obj.vtx[2]']
-		convertElementType('obj.vtx[:2]', 'int')) #returns: {nt.Mesh('objShape'): [(0, 2)]}
-		convertElementType('obj.vtx[:2]', 'int', True)) #returns: {nt.Mesh('objShape'): [0, 1, 2]}
-		'''
-		lst = pm.ls(lst, flatten=flatten)
-		if not lst or isinstance(lst[0], int):
-			return []
-
-		if returnType=='int':
-			result={}
-			for c in lst:
-				obj = pm.ls(c, objectsOnly=1)[0]
-				num = c.split('[')[-1].rstrip(']')
-
-				try:
-					if flatten:
-						componentNum = int(num)
-					else:
-						n = [int(n) for n in num.split(':')]
-						componentNum = tuple(n) if len(n)>1 else n[0]
-
-					if obj in result: #append to existing object key.
-						result[obj].append(componentNum)
-					else:
-						result[obj] = [componentNum]
-				except ValueError as error: #incompatible object type.
-					break; print ('File "{}" in convertElementType\n# Error: unable to convert {} {} to int. {}. #'.format(__file__, obj, num, error))
-
-			objects = set(pm.ls(lst, objectsOnly=True))
-			if len(objects)==1: #flatten the dict values from 'result' and remove any duplicates.
-				flattened = itertk.flatten(result.values())
-				result = itertk.removeDuplicates(flattened)
-		else:
-			if returnType=='transform':
-				result = list(map(lambda s: ''.join(s.rsplit('Shape', 1)), lst))
-			elif returnType=='str':
-				result = list(map(str, lst))
-			else:
-				result = lst
-
-		return result
+		return convertArrayType(components, returnType=returnType, flatten=flatten)
 
 
 	@classmethod
@@ -252,7 +163,7 @@ class _GetComponents():
 		else:
 			result = ['{}.{}[{}]'.format(objName, componentType, c) for c in integers]
 
-		return cls.convertElementType(result, returnType=returnType, flatten=flatten)
+		return convertArrayType(result, returnType=returnType, flatten=flatten)
 
 
 	@classmethod
@@ -274,9 +185,9 @@ class _GetComponents():
 		filterComponents('cyl.f[:]', range(2), range(1, 23)) #returns: ['cyl.f[0]']
 		'''
 		typ = cls.getComponentType(components)
-		etyp = cls.getElementType(components)
-		etyp_include = cls.getElementType(include)
-		etyp_exclude = cls.getElementType(exclude)
+		etyp = getArrayType(components)
+		etyp_include = getArrayType(include)
+		etyp_exclude = getArrayType(exclude)
 
 		if etyp_include=='int' or etyp_exclude=='int':
 			try:
@@ -296,7 +207,7 @@ class _GetComponents():
 		components = pm.ls(components, flatten=True)
 
 		filtered = itertk.filterList(components, include=include, exclude=exclude)
-		result = cls.convertElementType(filtered, returnType=etyp, flatten=flatten)
+		result = convertArrayType(filtered, returnType=etyp, flatten=flatten)
 		return result
 
 
@@ -307,7 +218,7 @@ class _GetComponents():
 
 		:Parameters:
 			objects (str)(obj)(list) = The object(s) to get the components of. (Polygon, Polygon components)(default: current selection)
-			componentType (str)(int) = The component type to return. (valid: any type allowed in the 'convertComponentName' method)
+			componentType (str)(int) = The component type to return. (valid: any type allowed in the 'convertAlias' method)
 			returnType (str) = The desired returned object type.
 				(valid: 'str'(default), 'obj'(shape object), 'transform'(as string), 'int'(valid only at sub-object level).
 			include (str)(obj)(list) = The component(s) to include.
@@ -335,7 +246,7 @@ class _GetComponents():
 		if randomize:
 			components = randomize(pm.ls(components, flatten=1), randomize)
 
-		result = cls.convertElementType(components, returnType=returnType, flatten=flatten)
+		result = convertArrayType(components, returnType=returnType, flatten=flatten)
 		return result
 
 
@@ -508,7 +419,7 @@ class Comptk(_GetComponents):
 		if not componentType: #if no component type is specified, return the same type of component as given. in the case of mesh object, edges will be returned.
 			componentType = origType if not origType=='mesh' else 'e'
 		else:
-			componentType = cls.convertComponentName(componentType) #get the correct componentType variable from possible args.
+			componentType = cls.convertAlias(componentType) #get the correct componentType variable from possible args.
 
 		result=[]
 		if componentBorder: #get edges Qthat form the border of the given components.
@@ -536,7 +447,7 @@ class Comptk(_GetComponents):
 					result.append(edge)
 
 		result = cls.convertComponentType(result, componentType) #convert back to the original component type and flatten /un-flatten list.
-		result = cls.convertElementType(result, returnType=returnType, flatten=flatten)
+		result = convertArrayType(result, returnType=returnType, flatten=flatten)
 		return result
 
 
@@ -556,8 +467,8 @@ class Comptk(_GetComponents):
 		'''
 		from operator import itemgetter
 
-		set1 = cls.convertElementType(set1, returnType='str', flatten=True)
-		set2 = cls.convertElementType(set2, returnType='str', flatten=True)
+		set1 = convertArrayType(set1, returnType='str', flatten=True)
+		set2 = convertArrayType(set2, returnType='str', flatten=True)
 		vertPairsAndDistance={}
 		for v1 in set1:
 			v1Pos = pm.pointPosition(v1, world=1)
@@ -593,7 +504,7 @@ class Comptk(_GetComponents):
 		getClosestVertex('plnShape.vtx[0]', 'cyl') #returns: {'plnShape.vtx[0]': 'cylShape.vtx[3]'},
 		getClosestVertex('plnShape.vtx[2:3]', 'cyl') #returns: {'plnShape.vtx[2]': 'cylShape.vtx[2]', 'plnShape.vtx[3]': 'cylShape.vtx[1]'}
 		'''
-		vertices = cls.convertElementType(vertices, returnType='str', flatten=True)
+		vertices = convertArrayType(vertices, returnType='str', flatten=True)
 		pm.undoInfo(openChunk=True)
 
 		if freezeTransforms:
@@ -615,7 +526,7 @@ class Comptk(_GetComponents):
 			v2Pos = pm.pointPosition(v2, world=True)
 			distance = mathtk.getDistBetweenTwoPoints(v1Pos, v2Pos)
 
-			v2_convertedType = cls.convertElementType(v2, returnType=returnType)[0]
+			v2_convertedType = convertArrayType(v2, returnType=returnType)[0]
 			if not tolerance:
 				closestVerts[v1] = v2_convertedType
 			elif distance < tolerance:
@@ -678,7 +589,7 @@ class Comptk(_GetComponents):
 
 		objName = obj.name()
 		result = itertk.removeDuplicates(['{}.e[{}]'.format(objName, e) for e in edgesLong])
-		return cls.convertElementType(result, returnType=returnType, flatten=flatten)
+		return convertArrayType(result, returnType=returnType, flatten=flatten)
 
 
 	@classmethod
@@ -688,7 +599,7 @@ class Comptk(_GetComponents):
 		:Parameters:
 			components (obj) = A Pair of vertices or edges.
 			returnType (str) = The desired returned object type. 
-				(valid: 'str'(default), 'obj'(shape node), 'transform'(as string), 'int'(valid only at sub-object level).
+				valid: 'str'(default), 'obj', 'int'(valid only at sub-object level)
 			flatten (bool) = Flattens the returned list of objects so that each component is it's own element.
 
 		:Return:
@@ -751,7 +662,7 @@ class Comptk(_GetComponents):
 			lowAngle (int) = Normal angle low range.
 			highAngle (int) = Normal angle high range.
 			returnType (str) = The desired returned object type. 
-				(valid: 'str'(default), 'obj'(shape node), 'transform'(as string), 'int'(valid only at sub-object level).
+				valid: 'str'(default), 'obj', 'int'(valid only at sub-object level)
 			flatten (bool) = Flattens the returned list of objects so that each component is it's own element.
 
 		:Return:
@@ -765,7 +676,7 @@ class Comptk(_GetComponents):
 		pm.polySelectConstraint(angle=True, anglebound=(lowAngle, highAngle), mode=3, type=0x8000) #Constrain that selection to only edges of a certain Angle
 		pm.selectType(polymeshEdge=True)
 
-		mask = cls.convertComponentName('edges', 'int')
+		mask = cls.convertAlias('edges', 'int')
 		objects = pm.filterExpand(selectionMask=mask, expand=flatten)
 
 		edges = cls.getComponents(objects, componentType='edges', returnType=returnType, flatten=flatten) #get selected edges with constraint active.
@@ -784,7 +695,7 @@ class Comptk(_GetComponents):
 			num_of_connected (int)(tuple) = The number of connected components. Can be given as a range. (Default: (0,2))
 			connectedType (str)(int) = The desired component mask. (valid: 'vtx','vertex','vertices','Polygon Vertex',31,0x0001(vertices), 'e','edge','edges','Polygon Edge',32,0x8000(edges), 'f','face','faces','Polygon Face',34,0x0008(faces), 'uv','texture','texture coordinates','Polygon UV',35,0x0010(texture coordiantes).
 			returnType (str) = The desired returned object type. 
-				(valid: 'str'(default), 'obj'(shape node), 'transform'(as string), 'int'(valid only at sub-object level).
+				valid: 'str'(default), 'obj', 'int'(valid only at sub-object level)
 
 		:Return:
 			(list) flattened list.
@@ -799,7 +710,7 @@ class Comptk(_GetComponents):
 
 		typ = cls.getComponentType(components)
 		if connectedType:
-			ctype = cls.convertComponentName(connectedType)
+			ctype = cls.convertAlias(connectedType)
 		else:
 			ctype = typ
 
@@ -811,7 +722,7 @@ class Comptk(_GetComponents):
 			if n>=lowRange and n<=highRange:
 				result.append(c)
 
-		result = cls.convertElementType(result, returnType=returnType)
+		result = convertArrayType(result, returnType=returnType)
 		return result
 
 
@@ -837,7 +748,7 @@ class Comptk(_GetComponents):
 		dagPath = selectionList.getDagPath(0) #create empty dag path object.
 		mesh = om.MFnMesh(dagPath) #get mesh.
 
-		vtxID = cls.convertElementType(vertex, 'int')[0]
+		vtxID = convertArrayType(vertex, 'int')[0]
 		return mesh.getVertexNormal(vtxID, angleWeighted, space=om.MSpace.kWorld) #get vertex normal and use om.MSpace.kObject for object space.
 
 
@@ -912,7 +823,7 @@ addMembers(__name__)
 # 			if len(obj)>1:
 # 				return frm
 # 			componentType = cls.getComponentType(frm[0])
-# 			typ = cls.convertComponentName(componentType) #get the correct componentType variable from possible args.
+# 			typ = cls.convertAlias(componentType) #get the correct componentType variable from possible args.
 # 			exclude = ["{}.{}[{}]".format(obj[0], typ, n) for n in exclude]
 
 # 		if include and isinstance(include[0], int): #attempt to create a component list from the given integers. warning: this will only exclude from a single object.
@@ -920,9 +831,9 @@ addMembers(__name__)
 # 			if len(obj)>1:
 # 				return frm
 # 			componentType = cls.getComponentType(frm[0])
-# 			typ = cls.convertComponentName(componentType) #get the correct componentType variable from possible args.
+# 			typ = cls.convertAlias(componentType) #get the correct componentType variable from possible args.
 # 			include = ["{}.{}[{}]".format(obj[0], typ, n) for n in include]
 
-# 		include = cls.convertElementType(include, returnType=rtn, flatten=True) #assure both lists are of the same type for comparison.
-# 		exclude = cls.convertElementType(exclude, returnType=rtn, flatten=True)
+# 		include = convertArrayType(include, returnType=rtn, flatten=True) #assure both lists are of the same type for comparison.
+# 		exclude = convertArrayType(exclude, returnType=rtn, flatten=True)
 # 		return [i for i in components if i not in exclude and (include and i in include)]

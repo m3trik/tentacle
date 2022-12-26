@@ -6,29 +6,12 @@ except ImportError as error:
 	print (__file__, error)
 
 from tentacle.slots.tk import mathtk, itertk
-from tentacle.slots.maya.mayatk import comptk, viewportMessage, undo
+from tentacle.slots.maya.mayatk import comptk, viewportMessage, undo, mfnMeshGenerator
 
 
 class Xformtk(object):
 	'''
 	'''
-	@classmethod
-	@undo
-	def resetTranslation(cls, objects):
-		'''Reset the translation transformations on the given object(s).
-
-		:Parameters:
-			objects (str)(obj)(list) = The object(s) to reset the translation values for.
-		'''
-		# pm.undoInfo(openChunk=1)
-		for obj in pm.ls(objects):
-			pos = pm.objectCenter(obj) #get the object's current position.
-			cls.dropToGrid(obj, origin=1, centerPivot=1) #move to origin and center pivot.
-			pm.makeIdentity(obj, apply=1, t=1, r=0, s=0, n=0, pn=1) #bake transforms
-			pm.xform(obj, translation=pos) #move the object back to it's original position.
-		# pm.undoInfo(closeChunk=1)
-
-
 	@staticmethod
 	def moveTo(source, target, targetCenter=True):
 		'''Move an object(s) to the given target.
@@ -83,6 +66,23 @@ class Xformtk(object):
 			if freezeTransforms:
 				pm.makeIdentity(obj, apply=True)
 		# pm.undoInfo (closeChunk=1)
+
+
+	@classmethod
+	@undo
+	def resetTranslation(cls, objects):
+		'''Reset the translation transformations on the given object(s).
+
+		:Parameters:
+			objects (str)(obj)(list) = The object(s) to reset the translation values for.
+		'''
+		# pm.undoInfo(openChunk=1)
+		for obj in pm.ls(objects):
+			pos = pm.objectCenter(obj) #get the object's current position.
+			cls.dropToGrid(obj, origin=1, centerPivot=1) #move to origin and center pivot.
+			pm.makeIdentity(obj, apply=1, t=1, r=0, s=0, n=0, pn=1) #bake transforms
+			pm.xform(obj, translation=pos) #move the object back to it's original position.
+		# pm.undoInfo(closeChunk=1)
 
 
 	@staticmethod
@@ -373,111 +373,6 @@ class Xformtk(object):
 
 
 	@staticmethod
-	@undo
-	def alignVertices(mode, average=False, edgeloop=False):
-		'''Align vertices.
-
-		:Parameters:
-			mode (int) = possible values are align: 0-YZ, 1-XZ, 2-XY, 3-X, 4-Y, 5-Z, 6-XYZ 
-			average (bool) = align to average of all selected vertices. else, align to last selected
-			edgeloop (bool) = align vertices in edgeloop from a selected edge
-
-		ex. call: alignVertices(mode=3, average=True, edgeloop=True)
-		'''
-		# pm.undoInfo (openChunk=True)
-		selectTypeEdge = pm.selectType(query=True, edge=True)
-
-		if edgeloop:
-			pm.mel.SelectEdgeLoopSp() #select edgeloop
-
-		pm.mel.PolySelectConvert(3) #convert to vertices
-
-		selection = pm.ls(selection=1, flatten=1)
-		lastSelected = pm.ls(tail=1, selection=1, flatten=1)
-		alignTo = pm.xform(lastSelected, query=1, translation=1, worldSpace=1)
-		alignX = alignTo[0]
-		alignY = alignTo[1]
-		alignZ = alignTo[2]
-		
-		if average:
-			xyz = pm.xform(selection, query=1, translation=1, worldSpace=1)
-			x = xyz[0::3]
-			y = xyz[1::3]
-			z = xyz[2::3]
-			alignX = float(sum(x))/(len(xyz)/3)
-			alignY = float(sum(y))/(len(xyz)/3)
-			alignZ = float(sum(z))/(len(xyz)/3)
-
-		if len(selection)<2:
-			if len(selection)==0:
-				viewportMessage("No vertices selected")
-			viewportMessage("Selection must contain at least two vertices")
-
-		for vertex in selection:
-			vertexXYZ = pm.xform(vertex, query=1, translation=1, worldSpace=1)
-			vertX = vertexXYZ[0]
-			vertY = vertexXYZ[1]
-			vertZ = vertexXYZ[2]
-			
-			modes = {
-				0:(vertX, alignY, alignZ), #align YZ
-				1:(alignX, vertY, alignZ), #align XZ
-				2:(alignX, alignY, vertZ), #align XY
-				3:(alignX, vertY, vertZ),
-				4:(vertX, alignY, vertZ),
-				5:(vertX, vertY, alignZ),
-				6:(alignX, alignY, alignZ), #align XYZ
-			}
-
-			pm.xform(vertex, translation=modes[mode], worldSpace=1)
-
-		if selectTypeEdge:
-			pm.selectType (edge=True)
-		# pm.undoInfo (closeChunk=True)
-
-
-	@staticmethod
-	def orderByDistance(objects, point=[0, 0, 0], reverse=False):
-		'''Order the given objects by their distance from the given point.
-
-		:Parameters:
-			objects (str)(int)(list) = The object(s) to order.
-			point (list) = A three value float list x, y, z.
-			reverse (bool) = Reverse the naming order. (Farthest object first)
-
-		:Return:
-			(list) ordered objects
-		'''
-		distance={}
-		for obj in pm.ls(objects, flatten=1):
-			xmin, ymin, zmin, xmax, ymax, zmax = pm.xform(obj, q=1, boundingBox=1)
-			bb_pos = ((xmin + xmax) / 2, (ymin + ymax) / 2, (zmin + zmax) / 2)
-			bb_dist = mathtk.getDistBetweenTwoPoints(point, bb_pos)
-
-			distance[bb_dist] = obj
-
-		result = [distance[i] for i in sorted(distance)]
-		return list(reversed(result)) if reverse else result
-
-
-	@classmethod
-	def matchTransformByVertexOrder(cls, source, target):
-		'''Match transform and rotation on like objects by using 3 vertices from each object.
-		The vertex order is transferred to the target object(s).
-
-		:Parameters:
-			source (str)(obj) = The object to move from.
-			target (str)(obj) = The object to move to.
-		'''
-		pm.polyTransfer(source, alternateObject=target, vertices=2) #vertices positions are copied from the target object.
-
-		source_verts = [pm.ls(source, objectsOnly=1)[0].verts[i] for i in range(3)]
-		target_verts = [pm.ls(target, objectsOnly=1)[0].verts[i] for i in range(3)]
-
-		cls.snap3PointsTo3Points(source_verts+target_verts)
-
-
-	@staticmethod
 	def snap3PointsTo3Points(vertices):
 		'''Move and align the object defined by the first 3 points to the last 3 points.
 
@@ -585,7 +480,163 @@ class Xformtk(object):
 
 		closestVerts = comptk.getClosestVerts(vert_setA, vert_setB, tolerance=tolerance)
 
-		return True if vert_setA and len(closestVerts)==len(vert_setA) else False	
+		return True if vert_setA and len(closestVerts)==len(vert_setA) else False
+
+
+	@staticmethod
+	def getVertPositions(objects, worldSpace=True):
+		'''Get all vertex positions for the given objects.
+
+		:Parameters:
+			objects (str)(obj)(list) = The polygon object(s).
+			worldSpace (bool) = Sample in world or object space.
+
+		:Return:
+			(list) Nested lists if multiple objects given.
+		'''
+		import maya.OpenMaya as om
+		space = om.MSpace.kWorld if worldSpace else om.MSpace.kObject
+
+		result=[]
+		for mesh in mfnMeshGenerator(objects):
+			points = om.MPointArray()
+			mesh.getPoints(points, space)
+
+			result.append([(points[i][0], points[i][1], points[i][2]) for i in range(points.length())])
+		return itertk.formatReturn(result, objects)
+
+
+	@staticmethod
+	def hashPoints(points, precision=4):
+		'''Hash the given list of point values.
+
+		:Parameters:
+			points (list) = A list of point values as tuples.
+			precision (int) = determines the number of decimal places that are retained 
+				in the fixed-point representation. For example, with a value of 4, the 
+				fixed-point representation would retain 4 decimal place.
+
+		:Return:
+			(list) list(s) of hashed tuples.
+		'''
+		nested = itertk.nestedDepth(points)>1
+		sets = points if nested else [points]
+
+		result=[]
+		for pset in sets:
+			clamp = lambda p: int(p * 10**precision)
+
+			result.append([hash(tuple(map(clamp, i))) for i in pset])
+		return itertk.formatReturn(result, nested)
+
+
+	@classmethod
+	def getMatchingVerts(cls, meshA, meshB, worldSpace=False):
+		'''Find any vertices which point locations match between two given mesh.
+
+		:Parameters:
+			meshA (str)(obj)(list) = The first polygon object.
+			meshA (str)(obj)(list) = A second polygon object.
+			worldSpace (bool) = Sample in world or object space.
+
+		:Return:
+			(list) nested tuples with int values representing matching vertex pairs.
+		'''
+		vertPosA, vertPosB = cls.getVertPositions([meshA, meshB], worldSpace)
+		hashA, hashB = cls.hashPoints([vertPosA, vertPosB])
+
+		matching = set(hashA).intersection(hashB)
+		return [i for h in matching 
+			for i in zip(itertk.indices(hashA, h), itertk.indices(hashB, h))]
+
+
+	@staticmethod
+	def orderByDistance(objects, point=[0, 0, 0], reverse=False):
+		'''Order the given objects by their distance from the given point.
+		:Parameters:
+			objects (str)(int)(list) = The object(s) to order.
+			point (list) = A three value float list x, y, z.
+			reverse (bool) = Reverse the naming order. (Farthest object first)
+		:Return:
+			(list) ordered objects
+		'''
+		distance={}
+		for obj in pm.ls(objects, flatten=1):
+			xmin, ymin, zmin, xmax, ymax, zmax = pm.xform(obj, q=1, boundingBox=1)
+			bb_pos = ((xmin + xmax) / 2, (ymin + ymax) / 2, (zmin + zmax) / 2)
+			bb_dist = mathtk.getDistBetweenTwoPoints(point, bb_pos)
+
+			distance[bb_dist] = obj
+
+		result = [distance[i] for i in sorted(distance)]
+		return list(reversed(result)) if reverse else result
+
+
+	@staticmethod
+	@undo
+	def alignVertices(mode, average=False, edgeloop=False):
+		'''Align vertices.
+
+		:Parameters:
+			mode (int) = possible values are align: 0-YZ, 1-XZ, 2-XY, 3-X, 4-Y, 5-Z, 6-XYZ 
+			average (bool) = align to average of all selected vertices. else, align to last selected
+			edgeloop (bool) = align vertices in edgeloop from a selected edge
+
+		ex. call: alignVertices(mode=3, average=True, edgeloop=True)
+		'''
+		# pm.undoInfo (openChunk=True)
+		selectTypeEdge = pm.selectType(query=True, edge=True)
+
+		if edgeloop:
+			pm.mel.SelectEdgeLoopSp() #select edgeloop
+
+		pm.mel.PolySelectConvert(3) #convert to vertices
+
+		selection = pm.ls(selection=1, flatten=1)
+		lastSelected = pm.ls(tail=1, selection=1, flatten=1)
+		alignTo = pm.xform(lastSelected, query=1, translation=1, worldSpace=1)
+		alignX = alignTo[0]
+		alignY = alignTo[1]
+		alignZ = alignTo[2]
+		
+		if average:
+			xyz = pm.xform(selection, query=1, translation=1, worldSpace=1)
+			x = xyz[0::3]
+			y = xyz[1::3]
+			z = xyz[2::3]
+			alignX = float(sum(x))/(len(xyz)/3)
+			alignY = float(sum(y))/(len(xyz)/3)
+			alignZ = float(sum(z))/(len(xyz)/3)
+
+		if len(selection)<2:
+			if len(selection)==0:
+				viewportMessage("No vertices selected")
+			viewportMessage("Selection must contain at least two vertices")
+
+		for vertex in selection:
+			vertexXYZ = pm.xform(vertex, query=1, translation=1, worldSpace=1)
+			vertX = vertexXYZ[0]
+			vertY = vertexXYZ[1]
+			vertZ = vertexXYZ[2]
+			
+			modes = {
+				0:(vertX, alignY, alignZ), #align YZ
+				1:(alignX, vertY, alignZ), #align XZ
+				2:(alignX, alignY, vertZ), #align XY
+				3:(alignX, vertY, vertZ),
+				4:(vertX, alignY, vertZ),
+				5:(vertX, vertY, alignZ),
+				6:(alignX, alignY, alignZ), #align XYZ
+			}
+
+			pm.xform(vertex, translation=modes[mode], worldSpace=1)
+
+		if selectTypeEdge:
+			pm.selectType (edge=True)
+		# pm.undoInfo (closeChunk=True)
+
+
+	
 
 # -----------------------------------------------
 
@@ -622,6 +673,22 @@ addMembers(__name__)
 
 
 # deprecated: -----------------------------------
+
+# @classmethod
+# 	def matchTransformByVertexOrder(cls, source, target):
+# 		'''Match transform and rotation on like objects by using 3 vertices from each object.
+# 		The vertex order is transferred to the target object(s).
+
+# 		:Parameters:
+# 			source (str)(obj) = The object to move from.
+# 			target (str)(obj) = The object to move to.
+# 		'''
+# 		pm.polyTransfer(source, alternateObject=target, vertices=2) #vertices positions are copied from the target object.
+
+# 		source_verts = [pm.ls(source, objectsOnly=1)[0].verts[i] for i in range(3)]
+# 		target_verts = [pm.ls(target, objectsOnly=1)[0].verts[i] for i in range(3)]
+
+# 		cls.snap3PointsTo3Points(source_verts+target_verts)
 
 # @staticmethod
 # 	def getComponentPoint(component, alignToNormal=False):

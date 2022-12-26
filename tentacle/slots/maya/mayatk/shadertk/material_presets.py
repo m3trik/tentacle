@@ -66,7 +66,7 @@ class Stingray_arnold_shader(QtCore.QObject):
 	def hdr_env_transform(self) -> object:
 		'''
 		'''
-		node = mtk.getTransformNode(self.hdr_env)
+		node = mtk.getTransformNode(self.hdr_env, returnType='obj')
 		if not node:
 			return None
 		return node

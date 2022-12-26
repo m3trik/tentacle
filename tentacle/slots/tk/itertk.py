@@ -46,11 +46,23 @@ class Itertk():
 		return rtn
 
 
-	@staticmethod
-	def hasNested(lst):
+	@classmethod
+	def nestedDepth(cls, lst, typ=(list, set, tuple)):
+		'''Get the maximum nested depth of any sub-lists of the given list.
+		If there is nothing nested, 0 will be returned.
+
+		:Parameters:
+			lst (list) = The list to check.
+			typ (type)(tuple) = The type(s) to include in the query.
+
+		:Return:
+			(int) 0 if none, else the max nested depth.
 		'''
-		'''
-		return any(isinstance(i, (list, tuple, set)) for i in lst)
+		d=-1
+		for i in lst:
+			if isinstance(i, typ):
+				d = max(cls.nestedDepth(i), d)
+		return d+1
 
 
 	@classmethod
@@ -137,18 +149,32 @@ class Itertk():
 
 
 	@staticmethod
-	def rindex(lst, item):
+	def rindex(itr, item):
 		'''Get the index of the first item to match the given item 
 		starting from the back (right side) of the list.
 
 		:Parameters:
-			lst (list) = The list to get the index from.
+			itr (iter) = An iterable.
 			item () = The item to get the index of.
 
 		:Return:
 			(int) -1 if element not found.
 		'''
-		return next(iter(i for i in range(len(lst)-1,-1,-1) if lst[i]==item), -1)
+		return next(iter(i for i in range(len(itr)-1,-1,-1) if itr[i]==item), -1)
+
+
+	@staticmethod
+	def indices(itr, value):
+		'''Get the index of each element of a list matching the given value.
+
+		:Parameters:
+			itr (iter) = An iterable.
+			value () = The search value.
+
+		:Return:
+			(generator)
+		'''
+		return (i for i, v in enumerate(itr) if v==value)
 
 
 	@staticmethod

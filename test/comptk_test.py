@@ -77,12 +77,12 @@ class Comptk_test(Main, Comptk):
 			"self.getComponentType('cyl.e[:]', 'hex')": 0x8000,
 		})
 
-	def test_convertComponentName(self):
+	def test_convertAlias(self):
 		'''
 		'''
 		self.perform_test({
-			"self.convertComponentName('vertex', 'hex')": 0x0001,
-			"self.convertComponentName(0x0001, 'full')": 'Polygon Vertex',
+			"self.convertAlias('vertex', 'hex')": 0x0001,
+			"self.convertAlias(0x0001, 'full')": 'Polygon Vertex',
 		})
 
 	def test_convertComponentType(self):
@@ -93,30 +93,6 @@ class Comptk_test(Main, Comptk):
 			"self.convertComponentType('cylShape.vtx[:2]', 'face')": ['cylShape.f[0:2]', 'cylShape.f[11:14]', 'cylShape.f[23]'],
 			"self.convertComponentType('cylShape.vtx[:2]', 'edge')": ['cylShape.e[0:2]', 'cylShape.e[11]', 'cylShape.e[24:26]', 'cylShape.e[36:38]'],
 			"self.convertComponentType('cylShape.vtx[:2]', 'uv')": ['cylShape.map[0:2]', 'cylShape.map[12:14]', 'cylShape.map[24]'],
-		})
-
-	def test_getElementType(self):
-		'''
-		'''
-		self.perform_test({
-			"self.getElementType('cyl.vtx[0]')": 'transform',
-			"self.getElementType('cylShape.vtx[:]')": 'str',
-			"self.getElementType(pm.ls('cylShape.vtx[:]'))": 'obj',
-		})
-
-	def test_convertElementType(self):
-		'''
-		'''
-		self.perform_test({
-			"self.convertElementType('cyl.vtx[:2]', 'str')": ['cylShape.vtx[0:2]'],
-			"self.convertElementType('cyl.vtx[:2]', 'str', True)": ['cylShape.vtx[0]', 'cylShape.vtx[1]', 'cylShape.vtx[2]'],
-			"str(self.convertElementType('cyl.vtx[:2]', 'cyl'))": "[MeshVertex('cylShape.vtx[0:2]')]",
-			"str(self.convertElementType('cyl.vtx[:2]', 'cyl', True))": "[MeshVertex('cylShape.vtx[0]'), MeshVertex('cylShape.vtx[1]'), MeshVertex('cylShape.vtx[2]')]",
-			"self.convertElementType('cyl.vtx[:2]', 'transform')": ['cyl.vtx[0:2]'],
-			"self.convertElementType('cyl.vtx[:2]', 'transform', True)": ['cyl.vtx[0]', 'cyl.vtx[1]', 'cyl.vtx[2]'],
-			"self.convertElementType('cyl.vtx[:2]', 'int')": [0, 2],
-			"self.convertElementType('cyl.vtx[:2]', 'int', True)": [0, 1, 2],
-			"self.convertElementType('cyl.vtx[:10]', returnType='int', flatten=True)": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
 		})
 
 	def test_convertIntToComponent(self):
@@ -131,8 +107,8 @@ class Comptk_test(Main, Comptk):
 		'''
 		'''
 		self.perform_test({
-			"self.filterComponents('cyl.vtx[:]', 'cyl.vtx[:2]', 'cyl.vtx[1:23]')": ['cyl.vtx[0]'],
-			"self.filterComponents('cyl.f[:]', range(2), range(1, 23))": ['cyl.f[0]'],
+			"self.filterComponents('cyl.vtx[:]', 'cyl.vtx[:2]', 'cyl.vtx[1:23]')": ['cylShape.vtx[0]'],
+			"self.filterComponents('cyl.f[:]', range(2), range(1, 23))": ['cylShape.f[0]'],
 		})
 
 	def test_getComponents(self):
