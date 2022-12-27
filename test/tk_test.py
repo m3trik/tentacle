@@ -259,8 +259,8 @@ class Itertk_test(Main, Itertk):
 		'''
 		'''
 		self.perform_test({
-			"self.indices([0, 1, 2, 2, 3], 2)": [2, 3],
-			"self.indices([0, 1, 2, 2, 3], 4)": [],
+			"tuple(self.indices([0, 1, 2, 2, 3], 2))": (2, 3),
+			"tuple(self.indices([0, 1, 2, 2, 3], 4))": (),
 		})
 
 	def test_rindex(self):

@@ -118,16 +118,6 @@ class Xformtk_test(Main, Xformtk):
 			"self.getDistanceBetweenTwoObjects('cube1', 'cube2')": 15,
 		})
 
-	def test_orderByDistance(self):
-		'''
-		'''
-		self.dropToGrid(['cube1', 'cube2'], origin=True, centerPivot=True)
-		pm.move('cube2', 0, 0, 15)
-
-		self.perform_test({
-			"str(self.orderByDistance(['cube1', 'cube2']))": "[nt.Transform('cube1'), nt.Transform('cube2')]",
-		})
-
 	def test_getCenterPoint(self):
 		'''
 		'''
@@ -172,12 +162,11 @@ class Xformtk_test(Main, Xformtk):
 			# "self.isOverlapping()": None,
 		})
 
-
 	def test_alignVertices(self):
 		'''
 		'''
 		self.perform_test({
-			"self.alignVertices()": None,
+			# "self.alignVertices()": None,
 		})
 
 # --------------------------------

@@ -49,8 +49,8 @@ class Jsontk():
 		if not file:
 			file = cls.getJsonFile()
 
-		assert file, '{} in setJson\n	# Error: Operation requires a json file to be specified. #'.format(__file__)
-		assert isinstance(file, str), '{} in setJson\n # Error:	Incorrect datatype: {} #'.format(__file__, type(file).__name__)
+		assert file, '{} in setJson\n\t# Error: Operation requires a json file to be specified. #'.format(__file__)
+		assert isinstance(file, str), '{} in setJson\n\t# Error:	Incorrect datatype: {} #'.format(__file__, type(file).__name__)
 
 		try:
 			with open(file, 'r') as f:
@@ -81,8 +81,8 @@ class Jsontk():
 		if not file:
 			file = cls.getJsonFile()
 
-		assert file, '{} in setJson\n	# Error: Operation requires a json file to be specified. #'.format(__file__)
-		assert isinstance(file, str), '{} in setJson\n # Error:	Incorrect datatype: {} #'.format(__file__, type(file).__name__)
+		assert file, '{} in setJson\n\t# Error: Operation requires a json file to be specified. #'.format(__file__)
+		assert isinstance(file, str), '{} in setJson\n\t# Error:	Incorrect datatype: {} #'.format(__file__, type(file).__name__)
 
 		try:
 			with open(file, 'r') as f:
@@ -95,7 +95,7 @@ class Jsontk():
 			# print ('# Error: {}: getJson: FileNotFoundError: {}'.format(__file__, error))
 			pass
 		except json.decoder.JSONDecodeError as error:
-			print ('{} in getJson\n	# Error: JSONDecodeError: {} #'.format(__file__, error))
+			print ('{} in getJson\n\t# Error: JSONDecodeError: {} #'.format(__file__, error))
 
 # -----------------------------------------------
 from tentacle import addMembers

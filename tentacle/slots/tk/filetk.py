@@ -250,7 +250,7 @@ class Filetk():
 				try:
 					data = f.read() # returns: 'somedata\n'
 				except OSError as error:
-					print ('{} in getFile\n	Error: {}\n	filepath:{}\n	mode: {}'.format(__file__, error, filepath, mode))
+					print ('{} in getFile\n\t# Error: {} #\n\tfilepath:{}\n\tmode: {}'.format(__file__, error, filepath, mode))
 				return data
 			return f
 

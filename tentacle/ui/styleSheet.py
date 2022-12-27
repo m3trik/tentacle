@@ -1098,7 +1098,7 @@ class StyleSheet(QtCore.QObject):
 			css = cls._styleSheets[widget_type]
 
 		except KeyError as error:
-			print ('Error: {}: getStyleSheet: KeyError: {} in {}'.format(__file__, widget_type, error))
+			print ('{} in getStyleSheet\n\t# KeyError: {}: {} #'.format(__file__, widget_type, error))
 			return ''
 
 		for k, v in cls.getColorValues(style=style, alpha=backgroundOpacity).items():

@@ -389,19 +389,18 @@ class Switchboard(QUiLoader, StyleSheet):
 			try:
 				mod = importlib.import_module(mod_name)
 			except ModuleNotFoundError as error:
-				print ('# Error: _getWidgetsFromDir(): {} not found at: {} # \n Check that the correct path is given to the \'widgetLoc\' property.'.format(mod_name, path_))
+				print ("{} in _getWidgetsFromDir\n\t# Error: {} not found. #\n\tConfirm that the following \'widgetLoc\' path is correct:\n\t{}".format(__file__, mod_name, path_))
 				return []
 			cls_members = inspect.getmembers(sys.modules[mod_name], inspect.isclass)
 
 			for cls_name, cls_mem in cls_members:
 				modules[cls_name] = cls_mem
 
-
 		else: #get all modules in the given path.
 			try:
 				_path = os.listdir(path_)
 			except FileNotFoundError as error:
-				print ('# Error: _getWidgetsFromDir(): {} not found at: {} # \n Check that the correct path is given to the \'widgetLoc\' property.'.format(mod_name, path_))
+				print ("{} in _getWidgetsFromDir\n\t# Error: {} not found. #\n\tConfirm that the following \'widgetLoc\' path is correct:\n\t{}".format(__file__, mod_name, path_))
 				return []
 
 			for module in _path:
@@ -515,11 +514,11 @@ class Switchboard(QUiLoader, StyleSheet):
 				except AttributeError as error: #if a class by the same name as the module doesn't exist: (ex. <Polygons_maya> from module 'polygons_maya')
 					clsmembers = inspect.getmembers(mod, inspect.isclass)
 					clss = clsmembers[0][1] #just get the first class.
-					print ('# Warning: {}: _importSlots: {}.\nUsing {} instead. #'.format(__file__, error, clss))
+					print ('{} in _importSlots\n\t# Warning: {}. #\n\tUsing {} instead.'.format(__file__, error, clss))
 				return clss
 
 			except (FileNotFoundError, ModuleNotFoundError) as error:
-				print ('# Error: {}: _importSlots: {}. #'.format(__file__, error))
+				print ('{} in _importSlots\n\t# Error: {}. #'.format(__file__, error))
 		return None
 
 

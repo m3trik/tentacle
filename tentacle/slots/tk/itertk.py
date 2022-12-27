@@ -305,7 +305,7 @@ class Itertk():
 			try:
 				contiguous = [list(map(itemgetter(1), g)) for k, g in groupby(enumerate(lst), lambda x: int(x[0])-int(x[1]))]
 			except ValueError as error:
-				print ('{} in splitList\n	# Error: {} #\n	{}'.format(__file__, error, lst))
+				print ('{} in splitList\n\t# Error: {} #\n\t{}'.format(__file__, error, lst))
 				return lst
 			if mode=='range':
 				return [[i[0], i[-1]] if len(i)>1 else (i) for i in contiguous]

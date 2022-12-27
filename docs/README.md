@@ -6,7 +6,7 @@
 
 ###### 
 
-*This is a dynamic ui toolkit with a marking menu style ui at it's core (derived from a QStackedWidget). The switchboard module (derived from QUiLoader) provides properties and convenience methods that allow quick and easy getting/setting of relevant ui and widget data across modules.*
+*This is a dynamic ui toolkit with a marking menu style ui (derived from a QStackedWidget) at it's core. The switchboard module (derived from QUiLoader) provides properties and convenience methods that allow quick and easy getting/setting of relevant ui and widget data across modules.*
 
 ![alt text](https://raw.githubusercontent.com/m3trik/tentacle/master/docs/toolkit_demo.gif) \*Example re-opening the last scene, renaming a material, and selecting geometry by that material.
 

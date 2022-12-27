@@ -59,7 +59,7 @@ class Rigtk(object):
 			obj (str)(obj)(list) = The child object or the locator itself.
 		'''
 		errorMsg = lambda: pm.inViewMessage(
-			statusMessage="{} in removeLocator\n# Error: Unable to remove locator for the given object. #".format(__file__), 
+			statusMessage="{} in removeLocator\n\t# Error: Unable to remove locator for the given object. #".format(__file__), 
 			pos='topCenter', 
 			fade=True
 		)
@@ -241,7 +241,7 @@ class Rigtk(object):
 		try:
 			pm.parent(grp, objects)
 		except Exception as error:
-			print ('{} in createGroup\n	# Error: Unable to parent object(s): {} #'.format(__file__, error))
+			print ('{} in createGroup\n\t# Error: Unable to parent object(s): {} #'.format(__file__, error))
 
 		if zeroTranslation:
 			for attr in ('tx','ty','tz'):
@@ -269,7 +269,7 @@ class Rigtk(object):
 		try:
 			obj, *other = pm.ls(objects, transforms=1)
 		except IndexError as error:
-			print('{} in createGroupLRA\n	# Error: Operation requires at least one object. #'.format(__file__))
+			print('{} in createGroupLRA\n\t# Error: Operation requires at least one object. #'.format(__file__))
 			return None
 
 		pm.undoInfo(openChunk=1)

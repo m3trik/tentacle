@@ -235,7 +235,7 @@ class Stingray_arnold_shader_slots(Stingray_arnold_shader):
 
 		#add filenames|filepaths to the comboBox.
 		hdr_path = '{}/resources/hdr'.format(self.proj_root_dir)
-		hdr_filenames = filetk.getDirContents(hdr_path, 'files', includeFiles='*.exr', stripExtension=True)
+		hdr_filenames = filetk.getDirContents(hdr_path, 'filenames', includeFiles='*.exr')
 		hdr_fullpaths = filetk.getDirContents(hdr_path, 'filepaths', includeFiles='*.exr')
 		self.ui.cmb000.addItems_(dict(zip(hdr_filenames, hdr_fullpaths)), ascending=False)
 

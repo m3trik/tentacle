@@ -41,114 +41,63 @@ class Mayatk():
 
 		app = QApplication.instance()
 		if not app:
-			print ('{} in getMainWindow\n# Warning: Could not find QApplication instance. #'.format(__file__))
+			print ('{} in getMainWindow\n\t# Warning: Could not find QApplication instance. #'.format(__file__))
 			return None
 
 		main_window = next(iter(w for w in app.topLevelWidgets() if w.objectName()=='MayaWindow'), None)
 		if not main_window:
-			print ('{} in getMainWindow\n# Warning: Could not find main window instance. #'.format(__file__))
+			print ('{} in getMainWindow\n\t# Warning: Could not find main window instance. #'.format(__file__))
 			return None
 
 		return main_window
 
 
-	@staticmethod
-	def getType(obj):
+	@classmethod
+	def mfnMeshGenerator(cls, objects):
+		'''Generate mfn mesh from the given list of objects.
+
+		:Parameters:
+			objects (str)(obj(list) = The objects to convert to mfn mesh.
+
+		:Return:
+			(generator)
+		'''
+		import maya.OpenMaya as om
+
+		selectionList = om.MSelectionList()
+		for mesh in cls.getShapeNode(pm.ls(objects)):
+			selectionList.add(mesh)
+
+		for i in range(selectionList.length()):    
+			dagPath = om.MDagPath()
+			selectionList.getDagPath(i, dagPath)
+			# print (dagPath.fullPathName()) #debug
+			mfnMesh = om.MFnMesh(dagPath)
+			yield mfnMesh
+
+
+	@classmethod
+	def getType(cls, objects):
 		'''Get the object type as a string.
-		'''
-		try:
-			obj, *other = pm.ls(obj)
-			return pm.listRelatives(obj, shapes=1)[0].type()
-
-		except ValueError as error:
-			print ('{} in getType\n	{}'.format(__file__, error))
-			return None #not a valid object.
-
-		except IndexError as error:
-			return obj.type()
-
-
-	@staticmethod
-	def getArrayType(lst):
-		'''Determine if the given element(s) type.
 
 		:Parameters:
-			obj (str)(obj)(list) = The components(s) to query.
+			objects (str)(obj)(list) = The object(s) to query.
 
 		:Return:
-			(list) 'str', 'obj'(shape node), 'transform'(as string), 'int'(valid only at sub-object level)
-
-		ex. call:
-		getArrayType('cyl.vtx[0]') #returns: 'transform'
-		getArrayType('cylShape.vtx[:]') #returns: 'str'
+			(str)(list) The node type. A list is always returned when 'objects' is given as a list.
 		'''
-		try:
-			o = itertk.makeList(lst)[0]
-		except IndexError as error:
-			# print ('{}\n# Error: getArrayType: Operation requires at least one object. #\n	{}'.format(__file__, error))
-			return ''
+		types=[]
+		for obj in pm.ls(objects):
 
-		return 'str' if isinstance(o, str) else 'int' if isinstance(o, int) else 'obj'
+			if cls.isGroup(obj):
+				typ = 'group'
+			else:
+				typ = comptk.getComponentType(obj)
+			if not typ:
+				typ = pm.objectType(obj)
+			types.append(typ)
 
-
-	@staticmethod
-	def convertArrayType(lst, returnType='str', flatten=False):
-		'''Convert the given element(s) to <obj>, 'str', or int values.
-
-		:Parameters:
-			lst (str)(obj)(list) = The components(s) to convert.
-			returnType (str) = The desired returned array element type.
-				valid: 'str'(default), 'obj', 'int'(valid only at sub-object level).
-			flatten (bool) = Flattens the returned list of objects so that each component is it's own element.
-
-		:Return:
-			(list)(dict) return a dict only with a return type of 'int' and more that one object given.
-
-		ex. call:
-		convertArrayType('obj.vtx[:2]', 'str') #returns: ['objShape.vtx[0:2]']
-		convertArrayType('obj.vtx[:2]', 'str', True) #returns: ['objShape.vtx[0]', 'objShape.vtx[1]', 'objShape.vtx[2]']
-		convertArrayType('obj.vtx[:2]', 'obj') #returns: [MeshVertex('objShape.vtx[0:2]')]
-		convertArrayType('obj.vtx[:2]', 'obj', True) #returns: [MeshVertex('objShape.vtx[0]'), MeshVertex('objShape.vtx[1]'), MeshVertex('objShape.vtx[2]')]
-		convertArrayType('obj.vtx[:2]', 'int')) #returns: {nt.Mesh('objShape'): [(0, 2)]}
-		convertArrayType('obj.vtx[:2]', 'int', True)) #returns: {nt.Mesh('objShape'): [0, 1, 2]}
-		'''
-		lst = pm.ls(lst, flatten=flatten)
-		if not lst or isinstance(lst[0], int):
-			return []
-
-		if returnType=='int':
-			result={}
-			for c in lst:
-				obj = pm.ls(c, objectsOnly=1)[0]
-				num = c.split('[')[-1].rstrip(']')
-
-				try:
-					if flatten:
-						componentNum = int(num)
-					else:
-						n = [int(n) for n in num.split(':')]
-						componentNum = tuple(n) if len(n)>1 else n[0]
-
-					if obj in result: #append to existing object key.
-						result[obj].append(componentNum)
-					else:
-						result[obj] = [componentNum]
-				except ValueError as error: #incompatible object type.
-					print ('{} in convertArrayType\n	# Error: unable to convert {} {} to int. #\n	{}'.format(__file__, obj, num, error))
-					break
-
-			objects = set(pm.ls(lst, objectsOnly=True))
-			if len(objects)==1: #flatten the dict values from 'result' and remove any duplicates.
-				flattened = itertk.flatten(result.values())
-				result = itertk.removeDuplicates(flattened)
-
-		elif returnType=='str':
-			result = list(map(str, lst))
-
-		else:
-			result = lst
-
-		return result
+		return itertk.formatReturn(types, objects)
 
 
 	@classmethod
@@ -174,7 +123,7 @@ class Mayatk():
 					try:
 						transforms = pm.listRelatives(pm.listHistory(node, future=1), parent=1)
 					except Exception as error:
-						transforms = []
+						transforms=[]
 			for n in transforms:
 				result.append(n)
 
@@ -243,16 +192,15 @@ class Mayatk():
 		result=[]
 		for node in pm.ls(nodes):
 			shapes = pm.listRelatives(node, children=1, shapes=1) #get shape node from transform: returns list ie. [nt.Mesh('pConeShape1')]
-			connections = pm.listConnections(shapes, source=1, destination=0) #get incoming connections: returns list ie. [nt.PolyCone('polyCone1')]
-
-			if not connections:
+			try:
+				history = pm.listConnections(shapes, source=1, destination=0)[-1] #get incoming connections: returns list ie. [nt.PolyCone('polyCone1')]
+			except IndexError as error:
 				try:
-					connections = node.history()[-1]
+					history = node.history()[-1]
 				except AttributeError as error:
-					print ('{} in getHistoryNode\n	# Error: {} #'.format(__file__, error))
-					connections = [] #object has no attribute 'history'
-			for n in shapes:
-				result.append(n)
+					print ('{} in getHistoryNode\n\t# Error: {} #'.format(__file__, error))
+					continue
+			result.append(history)
 
 		if attributes:
 			result = pm.listAttr(result, read=1, hasData=1)
@@ -265,44 +213,29 @@ class Mayatk():
 		return itertk.formatReturn(list(set(result)), nodes)
 
 
-	@classmethod
-	def mfnMeshGenerator(cls, objects):
-		'''Generate mfn mesh from the given list of objects.
+	@staticmethod
+	def isGroup(objects):
+		'''Determine if each of the given object(s) is a group.
+		A group is defined as a transform with children.
 
 		:Parameters:
-			objects (str)(obj(list) = The objects to convert to mfn mesh.
+			nodes (str)(obj)(list) = The object(s) to query.
 
 		:Return:
-			(generator)
+			(bool)(list) A list is always returned when 'objects' is given as a list.
 		'''
-		import maya.OpenMaya as om
+		result=[]
+		for n in pm.ls(objects):
+			try:
+				q = all((
+					type(n)==pm.nodetypes.Transform,
+					all(([type(c)==pm.nodetypes.Transform for c in n.getChildren()])),
+				))
+			except AttributeError as error:
+				q = False
+			result.append(q)
 
-		selectionList = om.MSelectionList()
-		for mesh in cls.getShapeNode(pm.ls(objects)):
-			selectionList.add(mesh)
-
-		for i in range(selectionList.length()):    
-			dagPath = om.MDagPath()
-			selectionList.getDagPath(i, dagPath)
-			# print (dagPath.fullPathName()) #debug
-			mfnMesh = om.MFnMesh(dagPath)
-			yield mfnMesh
-
-
-	@classmethod
-	def isGroup(cls, node):
-		'''Check if the given object is a group.
-
-		:Parameters:
-			node (str)(obj)(list) = The object to check.
-
-		:Return:
-			(bool)
-		'''
-		node = pm.ls(node)
-		if not node:
-			return False
-		return all([type(c)==pm.nodetypes.Transform for c in node[0].getChildren()])
+		return itertk.formatReturn(result, objects)
 
 
 	@classmethod
@@ -355,53 +288,84 @@ class Mayatk():
 
 
 	@staticmethod
-	def getMelGlobals(keyword=None, caseSensitive=False):
-		'''Get global MEL variables.
+	def getArrayType(lst):
+		'''Determine if the given element(s) type.
 
 		:Parameters:
-			keyword (str) = search string.
+			obj (str)(obj)(list) = The components(s) to query.
 
 		:Return:
-			(list)
-		'''
-		variables = [
-			v for v in sorted(pm.mel.eval('env')) 
-				if not keyword 
-					or (v.count(keyword) if caseSensitive else v.lower().count(keyword.lower()))
-		]
+			(list) 'str', 'obj'(shape node), 'transform'(as string), 'int'(valid only at sub-object level)
 
-		return variables
+		ex. call:
+		getArrayType('cyl.vtx[0]') #returns: 'transform'
+		getArrayType('cylShape.vtx[:]') #returns: 'str'
+		'''
+		try:
+			o = itertk.makeList(lst)[0]
+		except IndexError as error:
+			# print ('{}\n# Error: getArrayType: Operation requires at least one object. #\n	{}'.format(__file__, error))
+			return ''
+
+		return 'str' if isinstance(o, str) else 'int' if isinstance(o, int) else 'obj'
 
 
 	@staticmethod
-	def getObjectFromComponent(components, returnType='transform'):
-		'''Get the object's transform, shape, or history node from the given components.
+	def convertArrayType(lst, returnType='str', flatten=False):
+		'''Convert the given element(s) to <obj>, 'str', or int values.
 
 		:Parameters:
-			components (str)(obj(list) = Component(s).
-			returnType (str) = The desired returned node type. (valid: 'transform','shape','history')(default: 'transform')
+			lst (str)(obj)(list) = The components(s) to convert.
+			returnType (str) = The desired returned array element type.
+				valid: 'str'(default), 'obj', 'int'(valid only at sub-object level).
+			flatten (bool) = Flattens the returned list of objects so that each component is it's own element.
 
 		:Return:
-			(dict) {transform node: [components of that node]}
-			ie. {'pCube2': ['pCube2.f[21]', 'pCube2.f[22]', 'pCube2.f[25]'], 'pCube1': ['pCube1.f[21]', 'pCube1.f[26]']}
+			(list)(dict) return a dict only with a return type of 'int' and more that one object given.
+
+		ex. call:
+		convertArrayType('obj.vtx[:2]', 'str') #returns: ['objShape.vtx[0:2]']
+		convertArrayType('obj.vtx[:2]', 'str', True) #returns: ['objShape.vtx[0]', 'objShape.vtx[1]', 'objShape.vtx[2]']
+		convertArrayType('obj.vtx[:2]', 'obj') #returns: [MeshVertex('objShape.vtx[0:2]')]
+		convertArrayType('obj.vtx[:2]', 'obj', True) #returns: [MeshVertex('objShape.vtx[0]'), MeshVertex('objShape.vtx[1]'), MeshVertex('objShape.vtx[2]')]
+		convertArrayType('obj.vtx[:2]', 'int')) #returns: {nt.Mesh('objShape'): [(0, 2)]}
+		convertArrayType('obj.vtx[:2]', 'int', True)) #returns: {nt.Mesh('objShape'): [0, 1, 2]}
 		'''
-		result={}
-		for component in pm.ls(components):
-			shapeNode = pm.listRelatives(component, parent=1)[0] #set(pm.ls(components, transform=1))
-			transform = pm.listRelatives(shapeNode, parent=1)[0] #set(pm.ls(components, shape=1))
+		lst = pm.ls(lst, flatten=flatten)
+		if not lst or isinstance(lst[0], int):
+			return []
 
-			if returnType=='transform':
-				node = transform
-			elif returnType=='shape':
-				node = shapeNode
-			elif returnType=='history':
-				history = pm.listConnections(shapeNode, source=1, destination=0)[0] #get incoming connections: returns list ie. [nt.PolyCone('polyCone1')]
-				node = history
+		if returnType=='int':
+			result={}
+			for c in lst:
+				obj = pm.ls(c, objectsOnly=1)[0]
+				num = c.split('[')[-1].rstrip(']')
 
-			try:
-				result[node].append(component)
-			except:
-				result[node] = [component]
+				try:
+					if flatten:
+						componentNum = int(num)
+					else:
+						n = [int(n) for n in num.split(':')]
+						componentNum = tuple(n) if len(n)>1 else n[0]
+
+					if obj in result: #append to existing object key.
+						result[obj].append(componentNum)
+					else:
+						result[obj] = [componentNum]
+				except ValueError as error: #incompatible object type.
+					print ('{} in convertArrayType\n\t# Error: unable to convert {} {} to int. #\n\t{}'.format(__file__, obj, num, error))
+					break
+
+			objects = set(pm.ls(lst, objectsOnly=True))
+			if len(objects)==1: #flatten the dict values from 'result' and remove any duplicates.
+				flattened = itertk.flatten(result.values())
+				result = itertk.removeDuplicates(flattened)
+
+		elif returnType=='str':
+			result = list(map(str, lst))
+
+		else:
+			result = lst
 
 		return result
 

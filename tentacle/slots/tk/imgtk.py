@@ -378,7 +378,7 @@ class Imgtk():
 			index = cls.mapTypes['Normal_OpenGL'].index(typ)
 			new_type = cls.mapTypes['Normal_DirectX'][index]
 		except (IndexError, ValueError) as error:
-			print ('{} in createDXFromGL\n	# Error: {} #'.format(__file__, error))
+			print ('{} in createDXFromGL\n\t# Error: {} #'.format(__file__, error))
 			new_type = 'Normal_DirectX'
 
 		name = name.removesuffix(typ)
@@ -410,7 +410,7 @@ class Imgtk():
 			index = cls.mapTypes['Normal_DirectX'].index(typ)
 			new_type = cls.mapTypes['Normal_OpenGL'][index]
 		except IndexError as error:
-			print ('{} in createGLFromDX\n	# Error: {} #'.format(__file__, error))
+			print ('{} in createGLFromDX\n\t# Error: {} #'.format(__file__, error))
 			new_type = 'Normal_OpenGL'
 
 		name = name.removesuffix(typ)

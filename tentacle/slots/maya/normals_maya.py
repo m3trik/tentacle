@@ -283,7 +283,7 @@ class Normals_maya(Normals, Slots_maya):
 				sX, sY, sZ = v
 
 				if not transforms:
-					transforms = mtk.getObjectFromComponent(face)
+					transforms = pm.ls(face, objectsOnly=True)
 
 				for node in transforms:
 					for f in cls.getComponents(node, 'faces', returnType=returnType, flatten=1):

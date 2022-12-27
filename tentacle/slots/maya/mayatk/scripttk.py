@@ -14,6 +14,26 @@ except ImportError as error:
 class Scriptingtls():
 	'''
 	'''
+	@staticmethod
+	def getMelGlobals(keyword=None, caseSensitive=False):
+		'''Get global MEL variables.
+
+		:Parameters:
+			keyword (str) = search string.
+
+		:Return:
+			(list)
+		'''
+		variables = [
+			v for v in sorted(pm.mel.eval('env')) 
+				if not keyword 
+					or (v.count(keyword) if caseSensitive else v.lower().count(keyword.lower()))
+		]
+
+		return variables
+
+
+	@staticmethod
 	def convertMelToPy(mel, excludeFromInput=[], excludeFromOutput=['from pymel.all import *','s pm']):
 		'''Convert a string representing mel code into a string representing python code.
 
@@ -47,6 +67,7 @@ class Scriptingtls():
 		return ''.join(python)
 
 
+	@staticmethod
 	def commandHelp(command): #mel command help
 		#:Parameters: command (str) = mel command
 		command = ('help ' + command)
@@ -54,6 +75,7 @@ class Scriptingtls():
 		outputscrollField (modtext, "command help", 1.0, 1.0) #text, window_title, width, height
 
 
+	@staticmethod
 	def keywordSearch (keyword): #keyword command search
 		#:Parameters: keyword (str) = 
 		keyword = ('help -list' + '"*' + keyword + '*"')
@@ -61,6 +83,7 @@ class Scriptingtls():
 		outputTextField(array, "keyword search")
 
 
+	@staticmethod
 	def queryRuntime (command): #query runtime command info
 		type       = ('whatIs '                           + command + ';')
 		catagory   = ('runTimeCommand -query -category '  + command + ';')
@@ -74,26 +97,31 @@ class Scriptingtls():
 		outputscrollField(output_text, "runTimeCommand", 1.0, 1.0) #text, window_title, width, height
 
 
+	@staticmethod
 	def searchMEL (keyword): #search autodest MEL documentation
 		url = '{}{}{}'.format("http://help.autodesk.com/cloudhelp/2017/ENU/Maya-Tech-Docs/Commands/",keyword,".html")
 		pm.showHelp (url, absolute=True)
 
 
+	@staticmethod
 	def searchPython (keyword): #Search autodesk Python documentation
 		url = '{}{}{}'.format("http://help.autodesk.com/cloudhelp/2017/ENU/Maya-Tech-Docs/CommandsPython/",keyword,".html")
 		pm.showHelp (url, absolute=True)
 
 
+	@staticmethod
 	def searchPymel (keyword): #search online pymel documentation
 		url = '{}{}{}'.format("http://download.autodesk.com/global/docs/maya2014/zh_cn/PyMel/search.html?q=",keyword,"&check_keywords=yes&area=default")
 		pm.showHelp (url, absolute=True)
 
 
+	@staticmethod
 	def currentCtx(): #get current tool context
 		output_text = pm.mel.eval('currentCtx;')
 		outputscrollField(output_text, "currentCtx", 1.0, 1.0)
 
 
+	@staticmethod
 	def sourceScript(): #Source External Script file
 		import os.path
 
@@ -110,16 +138,19 @@ class Scriptingtls():
 		pm.openFile(file)
 
 
+	@staticmethod
 	def commandRef(): #open maya MEL commands list 
 		pm.showHelp ('http://download.autodesk.com/us/maya/2011help/Commands/index.html', absolute=True)
 
 
+	@staticmethod
 	def globalVars(): #$g List all global mel variables in current scene
 		pm.mel.eval('scriptEditorInfo -clearHistory')
 		array = sorted(pm.mel.eval("env"))
 		outputTextField(array, "Global Variables")
 
 
+	@staticmethod
 	def listUiObjects(): #lsUI returns the names of UI objects
 		windows			= '{}\n{}\n{}\n'.format("Windows", "Windows created using ELF UI commands:", pm.lsUI (windows=True))
 		panels			= '{}\n{}\n{}\n'.format("Panels", "All currently existing panels:", pm.lsUI (panels=True))
