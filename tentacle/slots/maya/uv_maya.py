@@ -506,7 +506,7 @@ class Uv_maya(Uv, Slots_maya):
 			objects = pm.ls(objects, selection=1, objectsOnly=1, transforms=1, flatten=1)
 
 		objectType = mtk.getType(objects[0])
-		if objectType=='f' #Polygon Face
+		if objectType=='f': #Polygon Face
 			faces = objects
 		else:
 			faces = cls.getComponents(objects, 'faces', flatten=1)

@@ -48,7 +48,7 @@ class Slots(QtCore.QObject):
 			(obj) the menu widget. (use menu.childWidgets to get the menu's child widgets.)
 
 		ex. call: self.objAttrWindow(node, attrs, fn=mtk.setParameterValuesMEL, fn_args='transformLimits')
-		ex. call: self.objAttrWindow(transform[0], include=['translateX','translateY','translateZ','rotateX','rotateY','rotateZ','scaleX','scaleY','scaleZ'], checkableLabel=True)
+		ex. call: self.objAttrWindow(transform[0], fn_args=['translateX','translateY','translateZ','rotateX','rotateY','rotateZ','scaleX','scaleY','scaleZ'], checkableLabel=True)
 		'''
 		import ast
 

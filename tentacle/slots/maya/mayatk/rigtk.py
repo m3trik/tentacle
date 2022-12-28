@@ -6,7 +6,7 @@ except ImportError as error:
 	print (__file__, error)
 
 from tentacle.slots.tk import strtk, itertk
-from tentacle.slots.maya.mayatk import getType, getParent, getChildren, isGroup
+from tentacle.slots.maya.mayatk import getType, getParent, getChildren, isGroup, isLocator
 
 
 class Rigtk(object):
@@ -36,21 +36,6 @@ class Rigtk(object):
 		return loc
 
 
-	@staticmethod
-	def isLocator(obj):
-		'''Check if the object is a locator.
-
-		:Parameters:
-			obj () = The object to query.
-
-		:Return:
-			(bool)
-		'''
-		if not obj:
-			return False
-		return getType(obj)=='locator'
-
-
 	@classmethod
 	def removeLocator(cls, objects):
 		'''Remove a parented locator from the child object.
@@ -70,17 +55,17 @@ class Rigtk(object):
 			if not pm.objExists(obj):
 				continue
 
-			elif cls.isLocator(obj) and not getParent(obj) and not getChildren(obj):
+			elif isLocator(obj) and not getParent(obj) and not getChildren(obj):
 				pm.delete(obj)
 				continue
 
 			#unlock attributes
 			cls.setAttrLockState(obj, translate=False, rotate=False, scale=False) #unlock all.
 
-			if not cls.isLocator(obj):
+			if not isLocator(obj):
 				try: #if the 'obj' is not a locator, check if it's parent is.
 					obj = getParent(obj)
-					if not cls.isLocator(obj):
+					if not isLocator(obj):
 						errorMsg()
 						continue
 				except IndexError as error:
@@ -211,7 +196,7 @@ class Rigtk(object):
 
 		for obj in objects:
 			try:
-				if cls.isLocator(obj):
+				if isLocator(obj):
 					obj = pm.listRelatives(obj, children=1, type='transform')[0]
 			except IndexError as error:
 				return
@@ -331,7 +316,7 @@ class Rigtk(object):
 
 		ex. call: createLocatorAtSelection(strip='_GEO', suffix='', stripDigits=True, parent=True, lockTranslate=True, lockRotation=True)
 		'''
-		getSuffix = lambda o: locSuffix if cls.isLocator(o) else grpSuffix if isGroup(o) else objSuffix #match the correct suffix to the object type.
+		getSuffix = lambda o: locSuffix if isLocator(o) else grpSuffix if isGroup(o) else objSuffix #match the correct suffix to the object type.
 
 		pm.undoInfo(openChunk=1)
 

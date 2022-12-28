@@ -86,6 +86,8 @@ class Tcl(QtWidgets.QStackedWidget):
 		:Parameters:
 			ui (str)(obj) = The ui or name of the ui to set the stacked widget index to.
 		'''
+		assert isinstance(ui, (str, QtWidgets.QWidget)), '{} in setUi\n\t# Error: Incorrect datatype: {}'.format(__file__, type(ui).__name__)
+
 		ui = self.sb.getUi(ui) #Get the ui of the given name, and set it as the current ui in the switchboard module.
 		ui.connected = True
 

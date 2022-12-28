@@ -437,7 +437,7 @@ class Selection_maya(Selection, Slots_maya):
 		'''Set the selection style context.
 
 		:Parameters:
-			ctx (str) = Selection style context. Possible values include: 'marquee', 'lasso', 'paint'.
+			ctx (str) = Selection style context. valid: 'marquee', 'lasso', 'paint'.
 		'''
 		ctx = ctx+'Context'
 		if pm.contextInfo(ctx, exists=True):

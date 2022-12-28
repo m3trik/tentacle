@@ -167,13 +167,13 @@ class _GetComponents():
 
 
 	@classmethod
-	def filterComponents(cls, components, include=[], exclude=[], flatten=False):
+	def filterComponents(cls, components, inc=[], exc=[], flatten=False):
 		'''Filter the given components.
 
 		:Parameters:
 			components (str)(obj)(list) = The components(s) to filter.
-			include (str)(int)(obj)(list) = The component(s) to include.
-			exclude (str)(int)(obj)(list) = The component(s) to exclude.
+			inc (str)(int)(obj)(list) = The component(s) to include.
+			exc (str)(int)(obj)(list) = The component(s) to exclude.
 						(exlude take precidence over include)
 			flatten (bool) = Flattens the returned list of objects so that each component is it's own element.
 
@@ -186,33 +186,33 @@ class _GetComponents():
 		'''
 		typ = cls.getComponentType(components)
 		etyp = getArrayType(components)
-		etyp_include = getArrayType(include)
-		etyp_exclude = getArrayType(exclude)
+		etyp_inc = getArrayType(inc)
+		etyp_exc = getArrayType(exc)
 
-		if etyp_include=='int' or etyp_exclude=='int':
+		if etyp_inc=='int' or etyp_exc=='int':
 			try:
 				obj = pm.ls(components, objectsOnly=True)[0]
 			except IndexError as error:
 				print ('File "{}" in filterComponents\n# Error: Operation requires at least one component. #\n	{}'.format(__file__, error))
 				return []
 
-		if etyp_include=='int':
-			include = cls.convertIntToComponent(obj, include, typ)
-		include = pm.ls(include, flatten=True)
+		if etyp_inc=='int':
+			inc = cls.convertIntToComponent(obj, inc, typ)
+		inc = pm.ls(inc, flatten=True)
 
-		if etyp_exclude=='int':
-			exclude = cls.convertIntToComponent(obj, exclude, typ)
-		exclude = pm.ls(exclude, flatten=True)
+		if etyp_exc=='int':
+			exc = cls.convertIntToComponent(obj, exc, typ)
+		exc = pm.ls(exc, flatten=True)
 
 		components = pm.ls(components, flatten=True)
 
-		filtered = itertk.filterList(components, include=include, exclude=exclude)
+		filtered = itertk.filterList(components, inc=inc, exc=exc)
 		result = convertArrayType(filtered, returnType=etyp, flatten=flatten)
 		return result
 
 
 	@classmethod
-	def getComponents(cls, objects, componentType, returnType='str', include=[], exclude=[], randomize=0, flatten=False):
+	def getComponents(cls, objects, componentType, returnType='str', inc=[], exc=[], randomize=0, flatten=False):
 		'''Get the components of the given type from the given object(s).
 		If no objects are given the current selection will be used.
 
@@ -221,8 +221,8 @@ class _GetComponents():
 			componentType (str)(int) = The component type to return. (valid: any type allowed in the 'convertAlias' method)
 			returnType (str) = The desired returned object type.
 				(valid: 'str'(default), 'obj'(shape object), 'transform'(as string), 'int'(valid only at sub-object level).
-			include (str)(obj)(list) = The component(s) to include.
-			exclude (str)(obj)(list) = The component(s) to exclude. (exlude take precidence over include)
+			inc (str)(obj)(list) = The component(s) to include.
+			exc (str)(obj)(list) = The component(s) to exclude. (exlude take precidence over include)
 			randomize (float) = If a 0.1-1 value is given, random components will be returned with a quantity determined by the given ratio. 
 								A value of 0.5 will return a 50% of the components of an object in random order.
 			flatten (bool) = Flattens the returned list of objects so that each component is it's own element.
@@ -240,8 +240,8 @@ class _GetComponents():
 
 		components = cls.convertComponentType(objects, componentType)
 
-		if include or exclude:
-			components = cls.filterComponents(components, include=include, exclude=exclude)
+		if inc or exc:
+			components = cls.filterComponents(components, inc=inc, exc=exc)
 
 		if randomize:
 			components = randomize(pm.ls(components, flatten=1), randomize)
@@ -789,25 +789,25 @@ addMembers(__name__)
 # deprecated: -----------------------------------
 
 
-# def filterComponents(cls, frm, include=[], exclude=[]):
-# 		'''Filter the given 'frm' list for the items in 'exclude'.
+# def filterComponents(cls, frm, inc=[], exc=[]):
+# 		'''Filter the given 'frm' list for the items in 'exc'.
 
 # 		:Parameters:
 # 			frm (str)(obj)(list) = The components(s) to filter.
-# 			exclude (str)(obj)(list) = The component(s) to include.
-# 			exclude (str)(obj)(list) = The component(s) to exclude.
+# 			inc (str)(obj)(list) = The component(s) to include.
+# 			exc (str)(obj)(list) = The component(s) to exclude.
 # 								(exlude take precidence over include)
 # 		:Return:
 # 			(list)
 
 # 		ex. call: filterComponents('obj.vtx[:]', 'obj.vtx[1:23]') #returns: [MeshVertex('objShape.vtx[0]'), MeshVertex('objShape.vtx[24]'), MeshVertex('objShape.vtx[25]')]
 # 		'''
-# 		exclude = pm.ls(exclude, flatten=True)
-# 		if not exclude:
+# 		exc = pm.ls(exc, flatten=True)
+# 		if not exc:
 # 			return frm
 
 # 		c, *other = components = pm.ls(frm, flatten=True)
-# 		#determine the type of items in 'exclude' by sampling the first element.
+# 		#determine the type of items in 'exc' by sampling the first element.
 # 		if isinstance(c, str):
 # 			if 'Shape' in c:
 # 				rtn = 'transform'
@@ -818,22 +818,22 @@ addMembers(__name__)
 # 		else:
 # 			rtn = 'obj'
 
-# 		if exclude and isinstance(exclude[0], int): #attempt to create a component list from the given integers. warning: this will only exclude from a single object.
+# 		if exc and isinstance(exc[0], int): #attempt to create a component list from the given integers. warning: this will only exclude from a single object.
 # 			obj = pm.ls(frm, objectsOnly=1)
 # 			if len(obj)>1:
 # 				return frm
 # 			componentType = cls.getComponentType(frm[0])
 # 			typ = cls.convertAlias(componentType) #get the correct componentType variable from possible args.
-# 			exclude = ["{}.{}[{}]".format(obj[0], typ, n) for n in exclude]
+# 			exc = ["{}.{}[{}]".format(obj[0], typ, n) for n in exc]
 
-# 		if include and isinstance(include[0], int): #attempt to create a component list from the given integers. warning: this will only exclude from a single object.
+# 		if inc and isinstance(inc[0], int): #attempt to create a component list from the given integers. warning: this will only exclude from a single object.
 # 			obj = pm.ls(frm, objectsOnly=1)
 # 			if len(obj)>1:
 # 				return frm
 # 			componentType = cls.getComponentType(frm[0])
 # 			typ = cls.convertAlias(componentType) #get the correct componentType variable from possible args.
-# 			include = ["{}.{}[{}]".format(obj[0], typ, n) for n in include]
+# 			inc = ["{}.{}[{}]".format(obj[0], typ, n) for n in inc]
 
-# 		include = convertArrayType(include, returnType=rtn, flatten=True) #assure both lists are of the same type for comparison.
-# 		exclude = convertArrayType(exclude, returnType=rtn, flatten=True)
-# 		return [i for i in components if i not in exclude and (include and i in include)]
+# 		inc = convertArrayType(inc, returnType=rtn, flatten=True) #assure both lists are of the same type for comparison.
+# 		exc = convertArrayType(exc, returnType=rtn, flatten=True)
+# 		return [i for i in components if i not in exc and (inc and i in inc)]

@@ -126,7 +126,7 @@ class Selection_blender(Selection, Slots_blender):
 		'''Set the selection style context.
 
 		:Parameters:
-			ctx (str) = Selection style context. Possible values include: 'marquee', 'lasso', 'paint'.
+			ctx (str) = Selection style context. valid: 'marquee', 'lasso', 'paint'.
 		'''
 		ctx = ctx+'Context'
 		if pm.contextInfo(ctx, exists=True):

@@ -161,27 +161,27 @@ class Strtk_test(Main, Strtk):
 		rtn = ['invertVertexWeights', 'keepCreaseEdgeWeight', 'keepBorderWeight', 'keepColorBorderWeight']
 
 		self.perform_test({
-			"self.findStr('*Weight*', {})".format(lst): rtn,
-			"self.findStr('Weight$|Weights$', {}, regEx=True)".format(lst): rtn,
-			"self.findStr('*weight*', {}, False, True)".format(lst): rtn,
-			"self.findStr('*Weights|*Weight', {})".format(lst): rtn,
+			f"self.findStr('*Weight*', {lst})": rtn,
+			f"self.findStr('Weight$|Weights$', {lst}, regEx=True)": rtn,
+			f"self.findStr('*weight*', {lst}, False, True)": rtn,
+			f"self.findStr('*Weights|*Weight', {lst})": rtn,
 		})
 
 	def test_findStrAndFormat(self):
 		'''
 		'''
-		self.lst = ['invertVertexWeights', 'keepCreaseEdgeWeight', 'keepBorder', 'keepBorderWeight', 'keepColorBorder', 'keepColorBorderWeight']
+		lst = ['invertVertexWeights', 'keepCreaseEdgeWeight', 'keepBorder', 'keepBorderWeight', 'keepColorBorder', 'keepColorBorderWeight']
 
 		self.perform_test({
-			"self.findStrAndFormat(self.lst, '', '*Weights')": ['invertVertex'],
-			"self.findStrAndFormat(self.lst, 'new name', '*Weights')": ['new name'],
-			"self.findStrAndFormat(self.lst, '*insert*', '*Weights')": ['invertVertexinsert'],
-			"self.findStrAndFormat(self.lst, '*_suffix', '*Weights')": ['invertVertex_suffix'],
-			"self.findStrAndFormat(self.lst, '**_suffix', '*Weights')": ['invertVertexWeights_suffix'],
-			"self.findStrAndFormat(self.lst, 'prefix_*', '*Weights')": ['prefix_Weights'],
-			"self.findStrAndFormat(self.lst, 'prefix_**', '*Weights')": ['prefix_invertVertexWeights'],
-			"self.findStrAndFormat(self.lst, 'new name', 'Weights$', True)": ['new name'],
-			"self.findStrAndFormat(self.lst, 'new name', '*weights', False, True, True)": [('invertVertexWeights', 'new name')],
+			f"self.findStrAndFormat({lst}, '', '*Weights')": ['invertVertex'],
+			f"self.findStrAndFormat({lst}, 'new name', '*Weights')": ['new name'],
+			f"self.findStrAndFormat({lst}, '*insert*', '*Weights')": ['invertVertexinsert'],
+			f"self.findStrAndFormat({lst}, '*_suffix', '*Weights')": ['invertVertex_suffix'],
+			f"self.findStrAndFormat({lst}, '**_suffix', '*Weights')": ['invertVertexWeights_suffix'],
+			f"self.findStrAndFormat({lst}, 'prefix_*', '*Weights')": ['prefix_Weights'],
+			f"self.findStrAndFormat({lst}, 'prefix_**', '*Weights')": ['prefix_invertVertexWeights'],
+			f"self.findStrAndFormat({lst}, 'new name', 'Weights$', True)": ['new name'],
+			f"self.findStrAndFormat({lst}, 'new name', '*weights', False, True, True)": [('invertVertexWeights', 'new name')],
 		})
 
 	def test_formatSuffix(self):
@@ -237,12 +237,12 @@ class Itertk_test(Main, Itertk):
 	def test_collapseList(self):
 		'''
 		'''
-		lst = [19,22,23,24,25,26]
+		lst = [19, 22, 23, 24, 25, 26]
 
 		self.perform_test({
-			"self.collapseList({})".format(lst): '19, 22-6',
-			"self.collapseList({}, 1)".format(lst): '19, ...',
-			"self.collapseList({}, None, False, False)".format(lst): ['19', '22..26'],
+			f"self.collapseList({lst})": '19, 22-6',
+			f"self.collapseList({lst}, 1)": '19, ...',
+			f"self.collapseList({lst}, None, False, False)": ['19', '22..26'],
 		})
 
 	def test_bitArrayToList(self):
@@ -252,7 +252,7 @@ class Itertk_test(Main, Itertk):
 		bits =  [flags[i//8] & 1 << i%8 != 0 for i in range(len(flags) * 8)]
 
 		self.perform_test({
-			"self.bitArrayToList({})".format(bits): [2, 3, 4, 5, 6, 8, 9, 10, 11, 12, 14, 15, 16],
+			f"self.bitArrayToList({bits})": [2, 3, 4, 5, 6, 8, 9, 10, 11, 12, 14, 15, 16],
 		})
 
 	def test_indices(self):
@@ -279,6 +279,18 @@ class Itertk_test(Main, Itertk):
 			"self.removeDuplicates([0, 1, 2, 3, 2], False)": [0, 1, 3, 2],
 		})
 
+
+	def test_filterDict(self):
+		'''
+		'''
+		dct = {1:'1', 'two':2, 3:'three'}
+
+		self.perform_test({
+			f"self.filterDict({dct}, exc='*t*', values=True)": {1: '1', 'two': 2},
+			f"self.filterDict({dct}, exc='t*', keys=True)": {1: '1', 3: 'three'},
+			f"self.filterDict({dct}, exc=1, keys=True)": {'two': 2, 3: 'three'},
+		})
+
 	def test_filterList(self):
 		'''
 		'''
@@ -290,20 +302,20 @@ class Itertk_test(Main, Itertk):
 	def test_splitList(self):
 		'''
 		'''
-		self.lA = [1, 2, 3, 5, 7, 8, 9]
-		self.lB = [1, '2', 3, 5, '7', 8, 9]
+		lA = [1, 2, 3, 5, 7, 8, 9]
+		lB = [1, '2', 3, 5, '7', 8, 9]
 
 		self.perform_test({
-			"self.splitList(self.lA, '2parts')": [[1, 2, 3, 5], [7, 8, 9]],
-			"self.splitList(self.lB, '2parts')": [[1, '2', 3, 5], ['7', 8, 9]],
-			"self.splitList(self.lA, '2parts+')": [[1, 2, 3], [5, 7, 8], [9]],
-			"self.splitList(self.lB, '2parts+')": [[1, '2', 3], [5, '7', 8], [9]],
-			"self.splitList(self.lA, '2chunks')": [[1, 2], [3, 5], [7, 8], [9]],
-			"self.splitList(self.lB, '2chunks')": [[1, '2'], [3, 5], ['7', 8], [9]],
-			"self.splitList(self.lA, 'contiguous')": [[1, 2, 3], [5], [7, 8, 9]],
-			"self.splitList(self.lB, 'contiguous')": [[1, '2', 3], [5], ['7', 8, 9]],
-			"self.splitList(self.lA, 'range')": [[1, 3], [5], [7, 9]],
-			"self.splitList(self.lB, 'range')": [[1, 3], [5], ['7', 9]],
+			f"self.splitList({lA}, '2parts')": [[1, 2, 3, 5], [7, 8, 9]],
+			f"self.splitList({lB}, '2parts')": [[1, '2', 3, 5], ['7', 8, 9]],
+			f"self.splitList({lA}, '2parts+')": [[1, 2, 3], [5, 7, 8], [9]],
+			f"self.splitList({lB}, '2parts+')": [[1, '2', 3], [5, '7', 8], [9]],
+			f"self.splitList({lA}, '2chunks')": [[1, 2], [3, 5], [7, 8], [9]],
+			f"self.splitList({lB}, '2chunks')": [[1, '2'], [3, 5], ['7', 8], [9]],
+			f"self.splitList({lA}, 'contiguous')": [[1, 2, 3], [5], [7, 8, 9]],
+			f"self.splitList({lB}, 'contiguous')": [[1, '2', 3], [5], ['7', 8, 9]],
+			f"self.splitList({lA}, 'range')": [[1, 3], [5], [7, 9]],
+			f"self.splitList({lB}, 'range')": [[1, 3], [5], ['7', 9]],
 		})
 
 
@@ -321,33 +333,33 @@ class Filetk_test(Main, Filetk):
 		p5 = r'%programfiles%'
 
 		self.perform_test({
-			"self.formatPath(r'{}')".format(p1): 'X:/n/dir1/dir3',
-			"self.formatPath(r'{}', 'path')".format(p1): 'X:/n/dir1/dir3',
-			"self.formatPath(r'{}', 'path')".format(p2): 'X:/n/dir1/dir3/.vscode',
-			"self.formatPath(r'{}', 'path')".format(p3): 'X:/n/dir1/dir3/.vscode',
-			"self.formatPath(r'{}', 'path')".format(p4): r'\\192.168.1.240/nas/lost+found',
-			"self.formatPath(r'{}', 'path')".format(p5): 'C:/Program Files',
-			"self.formatPath(r'{}', 'dir')".format(p1): 'dir3',
-			"self.formatPath(r'{}', 'dir')".format(p2): '.vscode',
-			"self.formatPath(r'{}', 'dir')".format(p3): '.vscode',
-			"self.formatPath(r'{}', 'dir')".format(p4): 'lost+found',
-			"self.formatPath(r'{}', 'dir')".format(p5): 'Program Files',
-			"self.formatPath(r'{}', 'file')".format(p1): '',
-			"self.formatPath(r'{}', 'file')".format(p2): '',
-			"self.formatPath(r'{}', 'file')".format(p3): 'tasks.json',
-			"self.formatPath(r'{}', 'file')".format(p4): 'file.ext',
-			"self.formatPath(r'{}', 'file')".format(p5): '',
-			"self.formatPath(r'{}', 'name')".format(p1): '',
-			"self.formatPath(r'{}', 'name')".format(p2): '',
-			"self.formatPath(r'{}', 'name')".format(p3): 'tasks',
-			"self.formatPath(r'{}', 'name')".format(p4): 'file',
-			"self.formatPath(r'{}', 'name')".format(p5): '',
-			"self.formatPath(r'{}', 'ext')".format(p1): '',
-			"self.formatPath(r'{}', 'ext')".format(p2): '',
-			"self.formatPath(r'{}', 'ext')".format(p3): 'json',
-			"self.formatPath(r'{}', 'ext')".format(p4): 'ext',
-			"self.formatPath(r'{}', 'ext')".format(p5): '',
-			"self.formatPath({}, 'dir')".format([p1, p2]): ['dir3', '.vscode'],
+			f"self.formatPath(r'{p1}')": 'X:/n/dir1/dir3',
+			f"self.formatPath(r'{p1}', 'path')": 'X:/n/dir1/dir3',
+			f"self.formatPath(r'{p2}', 'path')": 'X:/n/dir1/dir3/.vscode',
+			f"self.formatPath(r'{p3}', 'path')": 'X:/n/dir1/dir3/.vscode',
+			f"self.formatPath(r'{p4}', 'path')": r'\\192.168.1.240/nas/lost+found',
+			f"self.formatPath(r'{p5}', 'path')": 'C:/Program Files',
+			f"self.formatPath(r'{p1}', 'dir')": 'dir3',
+			f"self.formatPath(r'{p2}', 'dir')": '.vscode',
+			f"self.formatPath(r'{p3}', 'dir')": '.vscode',
+			f"self.formatPath(r'{p4}', 'dir')": 'lost+found',
+			f"self.formatPath(r'{p5}', 'dir')": 'Program Files',
+			f"self.formatPath(r'{p1}', 'file')": '',
+			f"self.formatPath(r'{p2}', 'file')": '',
+			f"self.formatPath(r'{p3}', 'file')": 'tasks.json',
+			f"self.formatPath(r'{p4}', 'file')": 'file.ext',
+			f"self.formatPath(r'{p5}', 'file')": '',
+			f"self.formatPath(r'{p1}', 'name')": '',
+			f"self.formatPath(r'{p2}', 'name')": '',
+			f"self.formatPath(r'{p3}', 'name')": 'tasks',
+			f"self.formatPath(r'{p4}', 'name')": 'file',
+			f"self.formatPath(r'{p5}', 'name')": '',
+			f"self.formatPath(r'{p1}', 'ext')": '',
+			f"self.formatPath(r'{p2}', 'ext')": '',
+			f"self.formatPath(r'{p3}', 'ext')": 'json',
+			f"self.formatPath(r'{p4}', 'ext')": 'ext',
+			f"self.formatPath(r'{p5}', 'ext')": '',
+			f"self.formatPath({[p1, p2]}, 'dir')": ['dir3', '.vscode'],
 		})
 
 	def test_timeStamp(self):
@@ -368,54 +380,54 @@ class Filetk_test(Main, Filetk):
 	def test_isValidPath(self):
 		'''
 		'''
-		self.path = os.path.abspath(os.path.dirname(__file__))+'/test_files'
-		self.file = self.path+'/file1.txt'
+		path = os.path.abspath(os.path.dirname(__file__))+'/test_files'
+		file = path+'/file1.txt'
 
 		self.perform_test({
-			"self.isValidPath(self.file)": 'file',
-			"self.isValidPath(self.path)": 'dir',
+			f"self.isValidPath(r'{file}')": 'file',
+			f"self.isValidPath(r'{path}')": 'dir',
 		})
 
 	def test_writeToFile(self):
 		'''
 		'''
 		path = os.path.abspath(os.path.dirname(__file__))+'/test_files'
-		self.file = path+'/file1.txt'
+		file = path+'/file1.txt'
 
 		self.perform_test({
-			"self.writeToFile(self.file, 'some text')": None,
+			f"self.writeToFile(r'{file}', 'some text')": None,
 		})
 
 	def test_getFileContents(self):
 		'''
 		'''
 		path = os.path.abspath(os.path.dirname(__file__))+'/test_files'
-		self.file = path+'/file1.txt'
+		file = path+'/file1.txt'
 
 		self.perform_test({
-			"self.getFileContents(self.file)": ['some text'],
+			f"self.getFileContents(r'{file}')": ['some text'],
 		})
 
 	def test_createDirectory(self):
 		'''
 		'''
-		self.path = os.path.abspath(os.path.dirname(__file__))+'/test_files'
+		path = os.path.abspath(os.path.dirname(__file__))+'/test_files'
 
 		self.perform_test({
-			"self.createDir(self.path+'/sub-directory')": None,
+			f"self.createDir(r'{path}'+'/sub-directory')": None,
 		})
 
 	def test_getDirectoryContents(self):
 		'''
 		'''
-		self.path = os.path.abspath(os.path.dirname(__file__))+'/test_files'
+		path = os.path.abspath(os.path.dirname(__file__))+'/test_files'
 
 		self.perform_test({
-			"self.getDirContents(self.path, 'dirpaths')": [self.path+'\\imgtk_test', self.path+'\\sub-directory'],
-			"self.getDirContents(self.path, 'files|dirs')": ['imgtk_test', 'sub-directory', 'file1.txt', 'file2.txt', 'test.json'],
-			"self.getDirContents(self.path, 'files|dirs', excludeDirs=['sub*'])": ['imgtk_test', 'file1.txt', 'file2.txt', 'test.json'],
-			"self.getDirContents(self.path, 'filenames', includeFiles='*.txt')": ['file1', 'file2'],
-			"self.getDirContents(self.path, 'files', includeFiles='*.txt', reverse=True)": ['file2.txt', 'file1.txt'],
+			f"self.getDirContents(r'{path}', 'dirpaths')": [path+'\\imgtk_test', path+'\\sub-directory'],
+			f"self.getDirContents(r'{path}', 'files|dirs')": ['imgtk_test', 'sub-directory', 'file1.txt', 'file2.txt', 'test.json'],
+			f"self.getDirContents(r'{path}', 'files|dirs', excDirs=['sub*'])": ['imgtk_test', 'file1.txt', 'file2.txt', 'test.json'],
+			f"self.getDirContents(r'{path}', 'filenames', incFiles='*.txt')": ['file1', 'file2'],
+			f"self.getDirContents(r'{path}', 'files', incFiles='*.txt', reverse=True)": ['file2.txt', 'file1.txt'],
 		})
 
 	def test_getFilepath(self):
@@ -433,11 +445,11 @@ class Filetk_test(Main, Filetk):
 		'''
 		'''
 		path = os.path.abspath(os.path.dirname(__file__))+'/test_files'
-		self.file = path+'/file1.txt'
+		file = path+'/file1.txt'
 
 		self.perform_test({
-			"self.getFile(self.file, contents=True)": r'some text',
-			"str(self.getFile(self.file))": r"<_io.TextIOWrapper name='O:\\Cloud\\Code\\_scripts\\tentacle\\test/test_files/file1.txt' mode='a+' encoding='cp1252'>",
+			f"self.getFile(r'{file}', contents=True)": r'some text',
+			f"str(self.getFile(r'{file}'))": r"<_io.TextIOWrapper name='O:\\Cloud\\Code\\_scripts\\tentacle\\test/test_files/file1.txt' mode='a+' encoding='cp1252'>",
 		})
 
 
@@ -445,16 +457,16 @@ class Filetk_test(Main, Filetk):
 class Jsontk_test(Main, Jsontk):
 	'''
 	'''
-	p = os.path.abspath(os.path.dirname(__file__))+'/test_files'
-	path = '/'.join(p.split('\\')).rstrip('/')
-	file = path+'/test.json'
-
 	def test(self):
 		'''
 		'''
+		p = os.path.abspath(os.path.dirname(__file__))+'/test_files'
+		path = '/'.join(p.split('\\')).rstrip('/')
+		file = path+'/test.json'
+
 		self.perform_test({
-			"self.setJsonFile(r'{}')".format(self.file): None,
-			"self.getJsonFile()": self.file,
+			f"self.setJsonFile(r'{file}')": None,
+			"self.getJsonFile()": file,
 			"self.setJson('key', 'value')": None,
 			"self.getJson('key')": 'value',
 		})
@@ -581,21 +593,21 @@ class Imgtk_test(Main, Imgtk):
 	def test_createMask(self):
 		'''
 		'''
-		self.bg = self.getBackground('test_files/imgtk_test/im_Base_color.png', 'RGB')
+		bg = self.getBackground('test_files/imgtk_test/im_Base_color.png', 'RGB')
 		# self.createMask('test_files/imgtk_test/im_Base_color.png', self.bg).show()
 		self.perform_test({
-			"str(self.createMask('test_files/imgtk_test/im_Base_color.png', self.bg)).split('size')[0]": '<PIL.Image.Image image mode=L ',
+			f"str(self.createMask('test_files/imgtk_test/im_Base_color.png', {bg})).split('size')[0]": '<PIL.Image.Image image mode=L ',
 			"str(self.createMask('test_files/imgtk_test/im_Base_color.png', 'test_files/imgtk_test/im_Base_color.png')).split('size')[0]": '<PIL.Image.Image image mode=L ',
 		})
 
 	def test_fillMaskedArea(self):
 		'''
 		'''
-		self.bg = self.getBackground('test_files/imgtk_test/im_Base_color.png', 'RGB')
-		self.mask = self.createMask('test_files/imgtk_test/im_Base_color.png', self.bg)
+		bg = self.getBackground('test_files/imgtk_test/im_Base_color.png', 'RGB')
+		self.mask_fillMaskedArea = self.createMask('test_files/imgtk_test/im_Base_color.png', bg)
 		# self.fillMaskedArea('test_files/imgtk_test/im_Base_color.png', (0, 255, 0), self.mask).show()
 		self.perform_test({
-			"str(self.fillMaskedArea('test_files/imgtk_test/im_Base_color.png', (0, 255, 0), self.mask)).split('size')[0]": '<PIL.Image.Image image mode=RGB ',
+			"str(self.fillMaskedArea('test_files/imgtk_test/im_Base_color.png', (0, 255, 0), self.mask_fillMaskedArea)).split('size')[0]": '<PIL.Image.Image image mode=RGB ',
 		})
 
 	def test_fill(self):
@@ -618,10 +630,10 @@ class Imgtk_test(Main, Imgtk):
 	def test_replaceColor(self):
 		'''
 		'''
-		self.bg = self.getBackground('test_files/imgtk_test/im_Base_color.png', 'RGB')
+		bg = self.getBackground('test_files/imgtk_test/im_Base_color.png', 'RGB')
 		# self.replaceColor('test_files/imgtk_test/im_Base_color.png', self.bg, (255, 0, 0)).show()
 		self.perform_test({
-			"str(self.replaceColor('test_files/imgtk_test/im_Base_color.png', self.bg, (255, 0, 0))).split('size')[0]": '<PIL.Image.Image image mode=RGBA ',
+			f"str(self.replaceColor('test_files/imgtk_test/im_Base_color.png', {bg}, (255, 0, 0))).split('size')[0]": '<PIL.Image.Image image mode=RGBA ',
 		})
 
 	def test_setContrast(self):
@@ -650,10 +662,10 @@ class Imgtk_test(Main, Imgtk):
 	def test_convert_I_to_L(self):
 		'''
 		'''
-		self.im = self.createImage('I', (32, 32))
+		self.im_convert_I_to_L = self.createImage('I', (32, 32))
 		# im = self.convert_I_to_L(self.im)
 		self.perform_test({
-			"self.convert_I_to_L(self.im).mode": 'L',
+			"self.convert_I_to_L(self.im_convert_I_to_L).mode": 'L',
 		})
 
 	def test_areIdentical(self):

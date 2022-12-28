@@ -365,7 +365,7 @@ class Selection_max(Selection, Slots_max):
 		'''Set the selection style context.
 
 		:Parameters:
-			ctx (str) = Selection style context. Possible values include: 'marquee', 'circular', 'fence', 'lasso', 'paint'.
+			ctx (str) = Selection style context. valid: 'marquee', 'circular', 'fence', 'lasso', 'paint'.
 		'''
 		if ctx=='marquee':
 			maxEval('actionMan.executeAction 0 "59232"') #Rectangular select region

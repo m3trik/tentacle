@@ -26,7 +26,7 @@ class Filetk():
 		:Return:
 			(str)(list) List if 'strings' given as list.
 		'''
-		assert isinstance(strings, (str, list, tuple, set, dict)), 'Error: {}:\n  Incorrect datatype: {}'.format(__file__, type(strings).__name__)
+		assert isinstance(strings, (str, list, tuple, set, dict)), '{} in formatPath\n\t# Error: Incorrect datatype: {}'.format(__file__, type(strings).__name__)
 
 		result=[]
 		for string in itertk.makeList(strings):
@@ -135,12 +135,12 @@ class Filetk():
 			if not os.path.exists(path):
 				os.makedirs(path)
 		except OSError as error:
-			print ('Error: {}: {}: {}'.format(__file__, error, path))
+			print ('{} in createDir\n\t# Error: {}.\n\tConfirm that the following path is correct: #\n\t{}'.format(__file__, error, path))
 
 
 	@classmethod
 	def getDirContents(cls, path, returnType='files', recursive=False, topdown=True, reverse=False, 
-								includeFiles=[], excludeFiles=[], includeDirs=[], excludeDirs=[]):
+								incFiles=[], excFiles=[], incDirs=[], excDirs=[]):
 		'''Get the contents of a directory and any of it's children.
 
 		:Parameters:
@@ -151,10 +151,10 @@ class Filetk():
 			recursive (bool) = return the contents of the root dir only.
 			topDown (bool) = Scan directories from the top-down, or bottom-up.
 			reverse (bool) = When True, reverse the final result.
-			includeFiles (str)(list) = Include only specific files.
-			excludeFiles (str)(list) = Excluded specific files.
-			includeDirs (str)(list) = Include only specific child directories.
-			excludeDirs (str)(list) = Excluded specific child directories.
+			incFiles (str)(list) = Include only specific files.
+			excFiles (str)(list) = Excluded specific files.
+			incDirs (str)(list) = Include only specific child directories.
+			excDirs (str)(list) = Excluded specific child directories.
 					supports using the '*' operator: startswith*, *endswith, *contains*
 					ex. *.ext will exclude all files with the given extension.
 					exclude takes precedence over include.
@@ -169,7 +169,7 @@ class Filetk():
 
 		result=[]
 		for root, dirs, files in os.walk(path, topdown=topdown):
-			dirs[:] = itertk.filterList(dirs, includeDirs, excludeDirs) #remove any directories in 'exclude'.
+			dirs[:] = itertk.filterList(dirs, incDirs, excDirs) #remove any directories in 'exclude'.
 
 			if 'dir' in returnTypes:
 				for d in dirs:
@@ -180,7 +180,7 @@ class Filetk():
 			if not recursive:
 				dirs[:] = [d for d in dirs if d is root] #remove all but the root dir.
 
-			files[:] = itertk.filterList(files, includeFiles, excludeFiles) #remove any files in 'exclude'.
+			files[:] = itertk.filterList(files, incFiles, excFiles) #remove any files in 'exclude'.
 			for f in files:
 				if 'file' in returnTypes:
 					result.append(f)
@@ -195,31 +195,50 @@ class Filetk():
 
 
 	@staticmethod
-	def getFilepath(obj, includeFilename=False):
-		'''Get the filepath from a class or module.
+	def getFilepath(obj, incFilename=False):
+		'''Get the filepath of a class or module.
 
 		:Parameters:
 			obj (obj) = A python module, class, or the built-in __file__ variable.
-			includeFilename (bool) = Include the filename in the returned result.
+			incFilename (bool) = Include the filename in the returned result.
 
 		:Return:
 			(str)
 		'''
 		from types import ModuleType
 
-		if isinstance(obj, str):
+		if isinstance(obj, type(None)):
+			return ''
+		elif isinstance(obj, str):
 			filepath = obj
 		elif isinstance(obj, ModuleType):
 			filepath = obj.__file__
 		else:
-			obj = obj if callable(obj) else obj.__class__
+			clss = obj if callable(obj) else obj.__class__
 			try:
-				filepath = sys.modules[obj.__module__].__file__
-			except AttributeError as error:
 				import inspect
-				filepath = inspect.getfile(obj)
+				filepath = inspect.getfile(clss)
 
-		if includeFilename:
+			except TypeError as error: #iterate over each filepath in the call frames, until a class with a matching name is found.
+				import importlib
+
+				filepath=''
+				for frame_record in inspect.stack():
+					if filepath:
+						break
+					frame = frame_record[0]
+					_filepath = inspect.getframeinfo(frame).filename
+					mod_name = os.path.splitext(os.path.basename(_filepath))[0]
+					spec = importlib.util.spec_from_file_location(mod_name, _filepath)
+					if not spec:
+						continue
+					mod = importlib.util.module_from_spec(spec)
+					spec.loader.exec_module(mod)
+
+					for cls_name, clss_ in inspect.getmembers(mod, inspect.isclass): #get the module's classes.
+						if cls_name==clss.__name__:
+							filepath = _filepath
+		if incFilename:
 			return os.path.abspath(filepath)
 		else:
 			return os.path.abspath(os.path.dirname(filepath))

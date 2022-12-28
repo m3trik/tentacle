@@ -311,7 +311,7 @@ class File_maya(File, Slots_maya):
 		dir1 = str(pm.workspace(query=1, rd=1))+'autosave' #current project path.
 		dir2 = os.environ.get('MAYA_AUTOSAVE_FOLDER').split(';')[0] #get autosave dir path from env variable.
 
-		files = filetk.getDirContents(dir1, 'filepaths', includeFiles=('*.mb', '*.ma')) + filetk.getDirContents(dir2, 'filepaths', includeFiles=('*.mb', '*.ma'))
+		files = filetk.getDirContents(dir1, 'filepaths', incFiles=('*.mb', '*.ma')) + filetk.getDirContents(dir2, 'filepaths', incFiles=('*.mb', '*.ma'))
 		result = [filetk.formatPath(f) for f in list(reversed(files))] #Replace any backslashes with forward slashes and reverse the list.
 
 		if timestamp:  #attach modified timestamp
@@ -331,7 +331,7 @@ class File_maya(File, Slots_maya):
 		'''
 		workspace_dir = str(pm.workspace(query=1, rd=1)) #get current project path.
 
-		files = filetk.getDirContents(workspace_dir, 'filepaths', includeFiles=('*.mb', '*.ma'))
+		files = filetk.getDirContents(workspace_dir, 'filepaths', incFiles=('*.mb', '*.ma'))
 		result = [filetk.formatPath(f) for f in files] #Replace any backslashes with forward slashes.
 
 		if not fullPath:

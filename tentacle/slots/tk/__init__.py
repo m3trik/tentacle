@@ -24,18 +24,18 @@ class Tk():
 
 
 	@staticmethod
-	def getAttributes(obj, include=[], exclude=[]):
+	def getAttributes(obj, inc=[], exc=[]):
 		'''Get attributes for a given object.
 
 		:Parameters:
 			obj (obj) = The object to get the attributes of.
-			include (list) = Attributes to include. All other will be omitted. Exclude takes dominance over include. Meaning, if the same attribute is in both lists, it will be excluded.
-			exclude (list) = Attributes to exclude from the returned dictionay. ie. [u'Position',u'Rotation',u'Scale',u'renderable',u'isHidden',u'isFrozen',u'selected']
+			inc (list) = Attributes to include. All other will be omitted. Exclude takes dominance over include. Meaning, if the same attribute is in both lists, it will be excluded.
+			exc (list) = Attributes to exclude from the returned dictionay. ie. [u'Position',u'Rotation',u'Scale',u'renderable',u'isHidden',u'isFrozen',u'selected']
 	
 		:Return:
 			(dict) {'string attribute': current value}
 		'''
-		filtered = itertk.filterList(obj.__dict__, include, exclude)
+		filtered = itertk.filterList(obj.__dict__, inc, exc)
 		return {attr:getattr(obj, attr) for attr in filtered}
 
 

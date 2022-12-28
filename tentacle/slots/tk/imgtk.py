@@ -172,20 +172,20 @@ class Imgtk():
 
 
 	@classmethod
-	def getImages(cls, directory, include='*.png|*.jpg|*.bmp|*.tga|*.tiff|*.gif', exclude=''):
+	def getImages(cls, directory, inc='*.png|*.jpg|*.bmp|*.tga|*.tiff|*.gif', exc=''):
 		'''Get bitmap images from a given directory as PIL images.
 
 		:Parameters:
 			directory (string) = A full path to a directory containing images with the given fileTypes.
-			include (str) = The files to include. 
+			inc (str) = The files to include. 
 					supports using the '*' operator: startswith*, *endswith, *contains*
-			exclude (str) = The files to exclude.
+			exc (str) = The files to exclude.
 					(exlude take precidence over include)
 		:Return:
 			(dict) {<full file path>:<image object>}
 		'''
 		images={}
-		for f in filetk.getDirContents(directory, 'filepaths', includeFiles=include.split('|'), excludeFiles=exclude.split('|')):
+		for f in filetk.getDirContents(directory, 'filepaths', incFiles=inc.split('|'), excFiles=exc.split('|')):
 
 			im = Image.open(f) #closing will destroy the image core and release its memory. The image data will be unusable afterward.
 			images[f] = im

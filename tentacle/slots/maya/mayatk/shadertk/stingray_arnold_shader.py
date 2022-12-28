@@ -9,10 +9,10 @@ import pymel.core as pm
 from tentacle.switchboard import Switchboard
 from tentacle.slots.tk import filetk, imgtk, strtk, jsontk
 from tentacle.slots.maya import mayatk as mtk
+from tentacle.ui.widgets import rwidgets
 
 
 __version__ = '0.503'
-
 
 class Stingray_arnold_shader(QtCore.QObject):
 	'''
@@ -235,8 +235,8 @@ class Stingray_arnold_shader_slots(Stingray_arnold_shader):
 
 		#add filenames|filepaths to the comboBox.
 		hdr_path = '{}/resources/hdr'.format(self.proj_root_dir)
-		hdr_filenames = filetk.getDirContents(hdr_path, 'filenames', includeFiles='*.exr')
-		hdr_fullpaths = filetk.getDirContents(hdr_path, 'filepaths', includeFiles='*.exr')
+		hdr_filenames = filetk.getDirContents(hdr_path, 'filenames', incFiles='*.exr')
+		hdr_fullpaths = filetk.getDirContents(hdr_path, 'filepaths', incFiles='*.exr')
 		self.ui.cmb000.addItems_(dict(zip(hdr_filenames, hdr_fullpaths)), ascending=False)
 
 		#initialize widgets with any saved values.
@@ -414,7 +414,7 @@ class Stingray_arnold_shader_main(Stingray_arnold_shader):
 		if not parent:
 			self.setParent(mtk.getMainWindow())
 
-		self.sb = Switchboard(self, widgetLoc='ui/widgets', slotLoc=Stingray_arnold_shader_slots)
+		self.sb = Switchboard(self, widgetLoc=rwidgets, slotLoc=Stingray_arnold_shader_slots)
 
 		self.ui = self.sb.stingray_arnold_shader
 		self.sb.setStyle(self.ui.widgets)

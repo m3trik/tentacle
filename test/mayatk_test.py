@@ -23,7 +23,7 @@ import inspect
 # 	'{}/bin3'.format(mayapath), 
 # 	'{}/Python{}'.format(mayapath, pythonver)
 # 	]:
-# 	for dd in filetk.getDirContents(d, 'dirpaths', excludeDirs='Python27',  recursive=True):
+# 	for dd in filetk.getDirContents(d, 'dirpaths', excDirs='Python27',  recursive=True):
 # 		print (dd)
 # 		sys.path.append(dd)
 
@@ -140,6 +140,17 @@ class Mayatk_test(Main, Mayatk):
 		'''
 		self.perform_test({
 			"str(next(self.mfnMeshGenerator('cyl'))).split(';')[0]": '<maya.OpenMaya.MFnMesh',
+		})
+
+	def test_isLocator(self):
+		'''
+		'''
+		if not pm.objExists('loc'):
+			loc = pm.spaceLocator(name='loc')
+
+		self.perform_test({
+			"self.isLocator('cyl')": False,
+			"self.isLocator('loc')": True,
 		})
 
 	def test_isGroup(self):

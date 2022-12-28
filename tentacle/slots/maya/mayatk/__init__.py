@@ -91,6 +91,8 @@ class Mayatk():
 
 			if cls.isGroup(obj):
 				typ = 'group'
+			if cls.isLocator(obj):
+				typ = 'locator'
 			else:
 				typ = comptk.getComponentType(obj)
 			if not typ:
@@ -101,7 +103,7 @@ class Mayatk():
 
 
 	@classmethod
-	def getTransformNode(cls, nodes, returnType='str', attributes=False, include=[], exclude=[]):
+	def getTransformNode(cls, nodes, returnType='str', attributes=False, inc=[], exc=[]):
 		'''Get transform node(s) or node attributes.
 
 		:Parameters:
@@ -133,13 +135,13 @@ class Mayatk():
 		#convert element type.
 		result = cls.convertArrayType(result, returnType=returnType, flatten=True)
 		#filter
-		result = itertk.filterList(result, include, exclude)
+		result = itertk.filterList(result, inc, exc)
 		#return as list if `nodes` was given as a list.
 		return itertk.formatReturn(list(set(result)), nodes)
 
 
 	@classmethod
-	def getShapeNode(cls, nodes, returnType='str', attributes=False, include=[], exclude=[]):
+	def getShapeNode(cls, nodes, returnType='str', attributes=False, inc=[], exc=[]):
 		'''Get shape node(s) or node attributes.
 
 		:Parameters:
@@ -171,13 +173,13 @@ class Mayatk():
 		#convert element type.
 		result = cls.convertArrayType(result, returnType=returnType, flatten=True)
 		#filter
-		result = itertk.filterList(result, include, exclude)
+		result = itertk.filterList(result, inc, exc)
 		#return as list if `nodes` was given as a list.
 		return itertk.formatReturn(list(set(result)), nodes)
 
 
 	@classmethod
-	def getHistoryNode(cls, nodes, returnType='str', attributes=False, include=[], exclude=[]):
+	def getHistoryNode(cls, nodes, returnType='str', attributes=False, inc=[], exc=[]):
 		'''Get history node(s) or node attributes.
 
 		:Parameters:
@@ -208,9 +210,25 @@ class Mayatk():
 		#convert element type.
 		result = cls.convertArrayType(result, returnType=returnType, flatten=True)
 		#filter
-		result = itertk.filterList(result, include, exclude)
+		result = itertk.filterList(result, inc, exc)
 		#return as list if `nodes` was given as a list.
 		return itertk.formatReturn(list(set(result)), nodes)
+
+
+	@classmethod
+	def isLocator(cls, obj):
+		'''Check if the object is a locator.
+		A locator is a transform node that has a shape node child.
+		The shape node defines the appearance and behavior of the locator.
+
+		:Parameters:
+			obj () = The object to query.
+
+		:Return:
+			(bool)
+		'''
+		shape = cls.getShapeNode(obj)
+		return pm.nodeType(shape)=='locator'
 
 
 	@staticmethod
@@ -413,25 +431,24 @@ class Mayatk():
 
 
 	@staticmethod
-	def getAttributesMEL(node, include=[], exclude=[]):
+	def getAttributesMEL(node, inc=[], exc=[]):
 		'''Get node attributes and their corresponding values as a dict.
 
 		:Parameters:
 			node (obj) = The node to get attributes for.
-			include (list) = Attributes to include. All other will be omitted. Exclude takes dominance over include. Meaning, if the same attribute is in both lists, it will be excluded.
-			exclude (list) = Attributes to exclude from the returned dictionay. ie. ['Position','Rotation','Scale','renderable','isHidden','isFrozen','selected']
+			inc (list) = Attributes to include. All other will be omitted. Exclude takes dominance over include. Meaning, if the same attribute is in both lists, it will be excluded.
+			exc (list) = Attributes to exclude from the returned dictionay. ie. ['Position','Rotation','Scale','renderable','isHidden','isFrozen','selected']
 
 		:Return:
 			(dict) {'string attribute': current value}
 		'''
 		# print('node:', node); print('attr:', , read=1, hasData=1))
 		attributes={}
-		for attr in pm.listAttr(node, read=1, hasData=1):
-			if not attr in exclude and (attr in include if include else attr not in include): #ie. pm.getAttr('polyCube1.subdivisionsDepth')
-				try:
-					attributes[attr] = pm.getAttr(getattr(node, attr), silent=True) #get the attribute's value.
-				except Exception as error:
-					print (error)
+		for attr in itertk.filterList(pm.listAttr(node, read=1, hasData=1), inc, exc):
+			try:
+				attributes[attr] = pm.getAttr(getattr(node, attr), silent=True) #get the attribute's value.
+			except Exception as error:
+				print (error)
 
 		return attributes
 

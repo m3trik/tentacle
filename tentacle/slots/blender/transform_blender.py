@@ -291,7 +291,7 @@ class Transform_blender(Transform, Slots_blender):
 			return 'Error: <b>Nothing selected.</b><br>The operation requires a single selected object.'
 		transform = Slots_blender.getTransformNode(node)
 
-		self.setAttributeWindow(transform[0], include=['translateX','translateY','translateZ','rotateX','rotateY','rotateZ','scaleX','scaleY','scaleZ'], checkableLabel=True)
+		self.setAttributeWindow(transform[0], inc=['translateX','translateY','translateZ','rotateX','rotateY','rotateZ','scaleX','scaleY','scaleZ'], checkableLabel=True)
 
 
 	def b001(self):

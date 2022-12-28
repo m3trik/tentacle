@@ -195,35 +195,67 @@ class Itertk():
 
 
 	@classmethod
-	def filterList(cls, lst, include=[], exclude=[]):
-		'''Filter the given list.
-		An 'operator' value of 'None' filters without wildcards.
+	def filterDict(cls, dct, inc=[], exc=[], keys=False, values=False):
+		'''Filter the given dictionary.
+		Extends `filterList` to operate on either the given dict's keys or values.
 
 		:Parameters:
-			lst (list) = The components(s) to filter.
-			include (str)(obj)(list) = The objects(s) to include.
+			dct (dict) = The dictionary to filter.
+			inc (str)(obj)(list) = The objects(s) to include.
 					supports using the '*' operator: startswith*, *endswith, *contains*
 					Will include all items that satisfy ANY of the given search terms.
 					meaning: '*.png' and '*Normal*' returns all strings ending in '.png' AND all 
 					strings containing 'Normal'. NOT strings satisfying both terms.
-			exclude (str)(obj)(list) = The objects(s) to exclude. Similar to include.
+			exc (str)(obj)(list) = The objects(s) to exclude. Similar to include.
+					exlude take precidence over include.
+			keys (bool) = Filter the dictionary keys.
+			values (bool) = Filter the dictionary values.
+
+		:Return:
+			(dict)
+
+		ex. call: dct = {1:'1', 'two':2, 3:'three'}
+		filterDict(dct, exc='*t*', values=True) #returns: {1: '1', 'two': 2}
+		filterDict(dct, exc='t*', keys=True) #returns: {1: '1', 3: 'three'}
+		filterDict(dct, exc=1, keys=True) #returns: {'two': 2, 3: 'three'}
+		'''
+		if keys:
+			filtered = cls.filterList(dct.keys(), inc, exc)
+			dct = {k: dct[k] for k in filtered}
+		if values:
+			filtered = cls.filterList(dct.values(), inc, exc)
+			dct = {k:v for k,v in dct.items() if v in filtered}
+		return dct
+
+
+	@classmethod
+	def filterList(cls, lst, inc=[], exc=[]):
+		'''Filter the given list.
+		An 'operator' value of 'None' filters without wildcards.
+		:Parameters:
+			lst (list) = The components(s) to filter.
+			inc (str)(int)(obj)(list) = The objects(s) to include.
+					supports using the '*' operator: startswith*, *endswith, *contains*
+					Will include all items that satisfy ANY of the given search terms.
+					meaning: '*.png' and '*Normal*' returns all strings ending in '.png' AND all 
+					strings containing 'Normal'. NOT strings satisfying both terms.
+			exc (str)(int)(obj)(list) = The objects(s) to exclude. Similar to include.
 					exlude take precidence over include.
 		:Return:
 			(list)
-
 		ex. call:
 		filterList([0, 1, 2, 3, 2], [1, 2, 3], 2) #returns: [1, 3]
 		'''
-		exclude = cls.makeList(exclude)
-		include = cls.makeList(include)
+		exc = cls.makeList(exc)
+		inc = cls.makeList(inc)
 
-		if not any((i for i in include+exclude if isinstance(i, str) and '*' in i)): #if no wildcards used:
-			return [i for i in lst if not i in exclude and (i in include if include else i not in include)]
+		if not any((i for i in inc+exc if isinstance(i, str) and '*' in i)): #if no wildcards used:
+			return [i for i in lst if not i in exc and (i in inc if inc else i not in inc)]
 
-		#else: split include and exclude lists into separate tuples according to wildcard positions. 
-		if exclude:
-			exc, excContains, excStartsWith, excEndsWith = [],[],[],[]
-			for i in exclude:
+		#else: split `inc` and `exc` lists into separate tuples according to wildcard positions. 
+		if exc:
+			exc_, excContains, excStartsWith, excEndsWith = [],[],[],[]
+			for i in exc:
 				if isinstance(i, str) and '*' in i:
 					if i.startswith('*'):
 						if i.endswith('*'):
@@ -232,10 +264,10 @@ class Itertk():
 					elif i.endswith('*'):
 						excStartsWith.append(i[:-1])
 				else:
-					exc.append(i)
-		if include:
-			inc, incContains, incStartsWith, incEndsWith = [],[],[],[]
-			for i in include:
+					exc_.append(i)
+		if inc:
+			inc_, incContains, incStartsWith, incEndsWith = [],[],[],[]
+			for i in inc:
 				if isinstance(i, str) and '*' in i:
 					if i.startswith('*'):
 						if i.endswith('*'):
@@ -244,20 +276,20 @@ class Itertk():
 					elif i.endswith('*'):
 						incStartsWith.append(i[:-1])
 				else:
-					inc.append(i)
+					inc_.append(i)
 
 		result=[]
 		for i in lst:
 
-			if exclude:
-				if i in exc or isinstance(i, str) and any((
+			if exc:
+				if i in exc_ or isinstance(i, str) and any((
 					i.startswith(tuple(excStartsWith)),
 					i.endswith(tuple(excEndsWith)),
 					next(iter(chars in i for chars in excContains), False))):
 					continue
 
-			if include:
-				if i not in inc and not (isinstance(i, str) and any(( 
+			if inc:
+				if i not in inc_ and not (isinstance(i, str) and any(( 
 					i.startswith(tuple(incStartsWith)), 
 					i.endswith(tuple(incEndsWith)), 
 					next(iter(chars in i for chars in incContains), False)))):

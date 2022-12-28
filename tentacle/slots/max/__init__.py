@@ -34,13 +34,13 @@ class Slots_max(Slots):
 		'ATTRIBUTES:'
 	# --------------------------------------------------
 	@staticmethod
-	def getAttributesMax(node, include=[], exclude=[]):
+	def getAttributesMax(node, inc=[], exc=[]):
 		'''Get node attributes and their corresponding values as a dict.
 
 		:Parameters:
 			node (obj) = Transform node.
-			include (list) = Attributes to include. All other will be omitted. Exclude takes dominance over include. Meaning, if the same attribute is in both lists, it will be excluded.
-			exclude (list) = Attributes to exclude from the returned dictionay. ie. [u'Position',u'Rotation',u'Scale',u'renderable',u'isHidden',u'isFrozen',u'selected']
+			inc (list) = Attributes to include. All other will be omitted. Exclude takes dominance over include. Meaning, if the same attribute is in both lists, it will be excluded.
+			exc (list) = Attributes to exclude from the returned dictionay. ie. [u'Position',u'Rotation',u'Scale',u'renderable',u'isHidden',u'isFrozen',u'selected']
 
 		:Return:
 			(dict) {'string attribute': current value}
@@ -48,13 +48,13 @@ class Slots_max(Slots):
 		# print (rt.showProperties(obj))
 		# print (rt.getPropNames(obj))
 		'''
-		if not all((include, exclude)):
-			exclude = ['getmxsprop', 'setmxsprop', 'typeInHeight', 'typeInLength', 'typeInPos', 'typeInWidth', 'typeInDepth', 
+		if not all((inc, exc)):
+			exc = ['getmxsprop', 'setmxsprop', 'typeInHeight', 'typeInLength', 'typeInPos', 'typeInWidth', 'typeInDepth', 
 				'typeInRadius', 'typeInRadius1', 'typeInRadius2', 'typeinCreationMethod', 'edgeChamferQuadIntersections', 
 				'edgeChamferType', 'hemisphere', 'realWorldMapSize', 'mapcoords']
 
 		attributes = {attr:node.getmxsprop(attr) for attr in [str(n) for n in rt.getPropNames(node)] 
-				if not attr in exclude and (attr in include if include else attr not in include)}
+				if not attr in exc and (attr in inc if inc else attr not in inc)}
 
 		return attributes
 
@@ -394,13 +394,13 @@ class Slots_max(Slots):
 			self.setAttributeWindow(fn(self, *args, **kwargs))
 		return wrapper
 
-	def setAttributeWindow(self, obj, include=[], exclude=[], checkableLabel=False, fn=None, *fn_args, **attributes):
+	def setAttributeWindow(self, obj, inc=[], exc=[], checkableLabel=False, fn=None, *fn_args, **attributes):
 		'''Launch a popup window containing the given objects attributes.
 
 		:Parameters:
 			obj (str)(obj)(list) = The object to get the attributes of, or it's name. If given as a list, only the first index will be used.
-			include (list) = Attributes to include. All other will be omitted. Exclude takes dominance over include. Meaning, if the same attribute is in both lists, it will be excluded.
-			exclude (list) = Attributes to exclude from the returned dictionay. ie. ['Position','Rotation','Scale','renderable','isHidden','isFrozen','selected']
+			inc (list) = Attributes to include. All other will be omitted. Exclude takes dominance over include. Meaning, if the same attribute is in both lists, it will be excluded.
+			exc (list) = Attributes to exclude from the returned dictionay. ie. ['Position','Rotation','Scale','renderable','isHidden','isFrozen','selected']
 			checkableLabel (bool) = Set the attribute labels as checkable.
 			fn (method) = Set an alternative method to call on widget signal. ex. setParameterValuesMEL
 					The first parameter of fn is always the given object. ex. fn(obj, {'attr':<value>})
@@ -418,9 +418,9 @@ class Slots_max(Slots):
 
 		if attributes:
 			attributes = {k:v for k, v in attributes.items() 
-				if not k in exclude and (k in include if include else k not in include)}
+				if not k in exc and (k in inc if inc else k not in inc)}
 		else:
-			attributes = self.getAttributesMax(obj, include=include, exclude=exclude)
+			attributes = self.getAttributesMax(obj, inc=inc, exc=exc)
 
 		menu = self.objAttrWindow(obj, checkableLabel=checkableLabel, fn=fn, *fn_args, **attributes)
 

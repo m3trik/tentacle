@@ -681,15 +681,15 @@ class Switchboard(QUiLoader, StyleSheet):
 		return ui
 
 
-	def addWidgets(self, ui, widgets='all', include=[], exclude=[], filterByBaseType=False, **kwargs):
+	def addWidgets(self, ui, widgets='all', inc=[], exc=[], filterByBaseType=False, **kwargs):
 		'''If widgets is None; the method will attempt to add all widgets from the ui of the given name.
 
 		:Parameters:
 			ui (obj) = A previously loaded dynamic ui object.
 			widgets (list) = A list of widgets to be added. Default: 'all' widgets of the given ui.
-			include (list) = Widget types to include. All other will be omitted. Exclude takes dominance over include. Meaning, if the same attribute is in both lists, it will be excluded.
-			exclude (list) = Widget types to exclude. ie. ['QWidget', 'QAction', 'QLabel', 'QPushButton', 'QListWidget']
-			filterByBaseType (bool) = When using include, or exclude; Filter by base class name, or derived class name. ie. 'QLayout'(base) or 'QGridLayout'(derived)
+			inc (list) = Widget types to include. All other will be omitted. Exclude takes dominance over include. Meaning, if the same attribute is in both lists, it will be excluded.
+			exc (list) = Widget types to exclude. ie. ['QWidget', 'QAction', 'QLabel', 'QPushButton', 'QListWidget']
+			filterByBaseType (bool) = When using `inc`, or `exc`; Filter by base class name, or derived class name. ie. 'QLayout'(base) or 'QGridLayout'(derived)
 		'''
 		if widgets=='all':
 			widgets = self._getWidgetsFromUi(ui) #get all widgets of the ui:
@@ -698,7 +698,7 @@ class Switchboard(QUiLoader, StyleSheet):
 
 			derivedType = self._getDerivedType(w) #the base class of any custom widgets.  ie. 'QPushButton' from a custom pushbutton widget.
 			typ = w.__class__.__base__.__name__ if filterByBaseType else derivedType
-			if typ in exclude and (typ in include if include else typ not in include):
+			if typ in exc and (typ in inc if inc else typ not in inc):
 				continue
 
 			setAttributes(w, **kwargs) #set any passed in keyword args for the widget.
@@ -747,6 +747,7 @@ class Switchboard(QUiLoader, StyleSheet):
 					submenu_name = '{}_{}#{}'.format(ui, 'submenu', '#'.join(tags)).rstrip('#') #reformat as submenu w/tags. ie. 'polygons_submenu#edge' from 'polygons'
 					ui1 = self.getUi(submenu_name) #in the case where a submenu exist without a parent menu.
 					if not ui1:
+						print ('{} in getUi\n\t# Error: UI not found: {}({}) #\n\tConfirm the following ui path is correct:\n\t{}'.format(__file__, ui, type(ui).__name__, self.uiLoc))
 						return None
 
 				ui = [u for u in self._loadedUi 
@@ -775,6 +776,7 @@ class Switchboard(QUiLoader, StyleSheet):
 				return getattr(self, ui)
 
 			except AttributeError as error:
+				print ('{} in getUi\n\t# Error: UI not found: {}({}) #\n\tConfirm the following ui path is correct:\n\t{}'.format(__file__, ui, type(ui).__name__, self.uiLoc))
 				return None
 
 		elif isinstance(ui, (list, set, tuple)):
@@ -1011,14 +1013,14 @@ class Switchboard(QUiLoader, StyleSheet):
 		return next(iter(w.method for w in ui.widgets if w.method==widget.method), None)
 
 
-	def getSignals(self, w, d=True, exclude=[]):
+	def getSignals(self, w, d=True, exc=[]):
 		'''Get all signals for a given widget.
 
 		:Parameters:
 			w (str)(obj) = The widget to get signals for.
 			d (bool) = Return signals from all derived classes instead of just the given widget class.
 				ex. get: QObject, QWidget, QAbstractButton, QPushButton signals from 'QPushButton'
-			exclude (list) = Exclude any classes in this list. ex. exclude=[QtCore.QObject, 'QWidget']
+			exc (list) = Exclude any classes in this list. ex. exc=[QtCore.QObject, 'QWidget']
 
 		:Return:
 			(list)
@@ -1043,7 +1045,7 @@ class Switchboard(QUiLoader, StyleSheet):
 			clsname = f'{subcls.__module__}.{subcls.__name__}'
 			for k, v in sorted(vars(subcls).items()):
 				if isinstance(v, signal):
-					if (not d and clsname!=clss.__name__) or (exclude and (clss in exclude or clss.__name__ in exclude)): #if signal is from parent class QAbstractButton and given widget is QPushButton:
+					if (not d and clsname!=clss.__name__) or (exc and (clss in exc or clss.__name__ in exc)): #if signal is from parent class QAbstractButton and given widget is QPushButton:
 						continue
 					signals.append(k)
 		return signals

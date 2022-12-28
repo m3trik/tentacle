@@ -65,12 +65,12 @@ class Menu(QtWidgets.QMenu, Attributes):
 
 
 	#property
-	def getChildWidgets(self, include=[], exclude=[]):
+	def getChildWidgets(self, inc=[], exc=[]):
 		'''Get a list of the menu's child widgets.
 
 		:Parameters:
-			include (list) = Include only widgets of the given type(s). ie. ['QCheckBox', 'QRadioButton']
-			exclude (list) = Exclude widgets by type.
+			inc (list) = Include only widgets of the given type(s). ie. ['QCheckBox', 'QRadioButton']
+			exc (list) = Exclude widgets by type.
 
 		:Return:
 			(list) child widgets.
@@ -78,13 +78,13 @@ class Menu(QtWidgets.QMenu, Attributes):
 		if not hasattr(self, '_childWidgets'):
 			self._childWidgets = []
 
-		if any((include, exclude)):
+		if any((inc, exc)):
 			try:
 				self._childWidgets = [
 					w for w in self._childWidgets 
-						if not w.__class__.__base__.__name__ in exclude 
-							and (w.__class__.__base__.__name__ in include if include 
-								else w.__class__.__base__.__name__ not in include)
+						if not w.__class__.__base__.__name__ in exc 
+							and (w.__class__.__base__.__name__ in inc if inc 
+								else w.__class__.__base__.__name__ not in inc)
 				]
 
 			except Exception as error:
@@ -269,7 +269,7 @@ class Menu(QtWidgets.QMenu, Attributes):
 		w = QtWidgets.QPushButton('Uncheck All') #self.add('QPushButton', setText='Disable All', setObjectName='disableAll', setToolTip='Set all unchecked.')
 		w.setObjectName('uncheckAll')
 		w.setToolTip('Set all unchecked.')
-		w.released.connect(lambda: [c.setChecked(False) for c in self.getChildWidgets(include=['QCheckBox'])]) #trigger the released signal on the parent when the apply button is released.
+		w.released.connect(lambda: [c.setChecked(False) for c in self.getChildWidgets(inc=['QCheckBox'])]) #trigger the released signal on the parent when the apply button is released.
 		w.setMinimumSize(119, 26)
 
 		layout = self.getVBoxLayout('menu_buttons') #get the 'menu_buttons' layout.
@@ -498,7 +498,7 @@ class Menu(QtWidgets.QMenu, Attributes):
 			pos = self.parent().mapToGlobal(pos())
 			self.move(pos) # self.move(getCenter(self, pos))
 
-			if self.getChildWidgets(include=['QCheckBox']): #if the menu contains checkboxes:
+			if self.getChildWidgets(inc=['QCheckBox']): #if the menu contains checkboxes:
 				self.uncheckAllButton.show()
 
 		QtWidgets.QMenu.showEvent(self, event)

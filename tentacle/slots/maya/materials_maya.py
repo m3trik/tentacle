@@ -48,10 +48,10 @@ class Materials_maya(Materials, Slots_maya):
 
 		mode = cmb.ctxMenu.cmb001.currentText()
 		if mode=='Scene Materials':
-			materials = self.getSceneMaterials(exclude=['standardSurface'])
+			materials = self.getSceneMaterials(exc='standardSurface')
 
 		elif mode=='ID Map Materials':
-			materials = self.getSceneMaterials(startingWith=['ID_'])
+			materials = self.getSceneMaterials(inc='ID_*')
 
 		if mode=='Favorite Materials':
 			fav_materials = self.getFavoriteMaterials()
@@ -296,19 +296,28 @@ class Materials_maya(Materials, Slots_maya):
 				pm.select(list(set(allFaces)-set(faces)), add=1) #get inverse of previously selected faces from allFaces
 
 
-	def getSceneMaterials(self, startingWith=[''], exclude=[]):
+	def getSceneMaterials(self, inc=[], exc=[]):
 		'''Get all materials from the current scene.
 
 		:Parameters:
-			startingWith (list) = Filters material names starting with any of the strings in the given list. ie. ['ID_']
-			exclude (list) = Node types to exclude. ie. ['standardSurface']
-
+			inc (str)(int)(obj)(list) = The objects(s) to include.
+					supports using the '*' operator: startswith*, *endswith, *contains*
+					Will include all items that satisfy ANY of the given search terms.
+					meaning: '*.png' and '*Normal*' returns all strings ending in '.png' AND all 
+					strings containing 'Normal'. NOT strings satisfying both terms.
+			exc (str)(int)(obj)(list) = The objects(s) to exclude. Similar to include.
+					exlude take precidence over include.
 		:Return:
 			(list) materials.
 		'''
-		materials = [m for m in pm.ls(mat=1, flatten=1) 
-						if list(filter(m.name().startswith, startingWith)) and not pm.nodeType(m) in exclude] #
-		return materials
+		matList = pm.ls(mat=1, flatten=1)
+
+		#convert to dictionary to filter material names and types.
+		d = {m.name():pm.nodeType(m) for m in matList}
+		filtered = tk.itertk.filterDict(d, inc, exc, keys=True, values=True)
+
+		#use the filtered results to reconstruct a filtered list of actual materials.
+		return [m for m in matList if m.name() in filtered]
 
 
 	def getFavoriteMaterials(self):

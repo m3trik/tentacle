@@ -54,13 +54,13 @@ class Slots_maya(Slots):
 			return rtn
 		return wrapper
 
-	def setAttributeWindow(self, obj, include=[], exclude=[], checkableLabel=False, fn=None, fn_args=[], **attributes):
+	def setAttributeWindow(self, obj, inc=[], exc=[], checkableLabel=False, fn=None, fn_args=[], **attributes):
 		'''Launch a popup window containing the given objects attributes.
 
 		:Parameters:
 			obj (str)(obj)(list) = The object to get the attributes of, or it's name. If given as a list, only the first index will be used.
-			include (list) = Attributes to include. All other will be omitted. Exclude takes dominance over include. Meaning, if the same attribute is in both lists, it will be excluded.
-			exclude (list) = Attributes to exclude from the returned dictionay. ie. ['Position','Rotation','Scale','renderable','isHidden','isFrozen','selected']
+			inc (list) = Attributes to include. All other will be omitted. Exclude takes dominance over include. Meaning, if the same attribute is in both lists, it will be excluded.
+			exc (list) = Attributes to exclude from the returned dictionay. ie. ['Position','Rotation','Scale','renderable','isHidden','isFrozen','selected']
 			checkableLabel (bool) = Set the attribute labels as checkable.
 			fn (method) = Set an alternative method to call on widget signal. ex. setParameterValuesMEL
 					The first parameter of fn is always the given object. ex. fn(obj, {'attr':<value>})
@@ -68,7 +68,7 @@ class Slots_maya(Slots):
 			attributes (kwargs) = Explicitly pass in attribute:values pairs. Else, attributes will be pulled from mtk.getAttributesMEL for the given obj.
 
 		ex. call: self.setAttributeWindow(node, attrs, fn=mtk.setParameterValuesMEL, 'transformLimits') #set attributes for the Maya command transformLimits.
-		ex. call: self.setAttributeWindow(transform[0], include=['translateX','translateY','translateZ','rotateX','rotateY','rotateZ','scaleX','scaleY','scaleZ'], checkableLabel=True)
+		ex. call: self.setAttributeWindow(transform[0], inc=['translateX','translateY','translateZ','rotateX','rotateY','rotateZ','scaleX','scaleY','scaleZ'], checkableLabel=True)
 		'''
 		try:
 			obj = pm.ls(obj)[0]
@@ -78,10 +78,9 @@ class Slots_maya(Slots):
 		fn = fn if fn else mtk.setAttributesMEL
 
 		if attributes:
-			attributes = {k:v for k, v in attributes.items() 
-				if not k in exclude and (k in include if include else k not in include)}
+			attributes = itertk.filterDict(attributes, inc, exc, keys=True)
 		else:
-			attributes = mtk.getAttributesMEL(obj, include=include, exclude=exclude)
+			attributes = mtk.getAttributesMEL(obj, inc=inc, exc=exc)
 
 		menu = self.objAttrWindow(obj, checkableLabel=checkableLabel, fn=fn, fn_args=fn_args, **attributes)
 

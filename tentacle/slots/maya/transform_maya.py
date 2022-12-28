@@ -303,7 +303,7 @@ class Transform_maya(Transform, Slots_maya):
 			return
 
 		transform = mtk.getTransformNode(node)
-		self.setAttributeWindow(transform, include=['translateX','translateY','translateZ','rotateX','rotateY','rotateZ','scaleX','scaleY','scaleZ'], checkableLabel=True)
+		self.setAttributeWindow(transform, inc=['translateX','translateY','translateZ','rotateX','rotateY','rotateZ','scaleX','scaleY','scaleZ'], checkableLabel=True)
 
 
 	def b001(self):

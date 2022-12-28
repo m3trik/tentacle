@@ -45,7 +45,7 @@ class Attributes(object):
 			setSize_ (list) = The size as an x and y value. ie. (40, 80)
 			setWidth_ (int) = The desired width.
 			setHeight_ (int) = The desired height.
-			setPosition_ (QPoint)(str) = Move to the given global position and center. valid string values include: 'cursor', 
+			setPosition_ (QPoint)(str) = Move to the given global position and center. valid: <QPoint>, 'cursor', 
 			addMenu_ (QMenu) = Used for adding additional menus to a parent menu. ex. parentMenu = Menu(); childMenu = Menu('Create', addMenu_=parentMenu)
 			insertSeparator_ (bool) = Insert a line separater before the new widget.
 			setLayoutDirection_ (str) = Set the layout direction using a string value. ie. 'LeftToRight'

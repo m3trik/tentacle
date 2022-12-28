@@ -56,14 +56,6 @@ class Rigtk_test(Main, Rigtk):
 			"self.createLocator('_loc')": '_loc',
 		})
 
-	def test_isLocator(self):
-		'''
-		'''
-		self.perform_test({
-			"self.isLocator('cyl')": False,
-			"self.isLocator('loc')": True,
-		})
-
 	def test_removeLocator(self):
 		'''
 		'''

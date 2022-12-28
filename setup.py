@@ -5,33 +5,6 @@ from tentacle import name, __version__
 from slots.tk import filetk, itertk
 
 
-def gen_data_files(dirs, exclude=[], include=[]):
-	'''
-	'''
-	dirs = itertk.makeList(dirs)
-	exclude = itertk.makeList(exclude)
-	include = itertk.makeList(include)
-
-	results = []
-	for src_dir in dirs:
-		for root, dirs, files in os.walk(src_dir):
-			filtered=[]
-			for f in files:
-				ext = filetk.formatPath(f, 'ext')
-				if f in exclude or '*.'+ext in exclude:
-					continue
-				if any(include): #filter include for None values so not to get a false positive.
-					if not f in include and not '*.'+ext in include:
-						continue
-				filtered.append(f)
-
-			if filtered:
-				results.append((root, list(map(lambda f:root + "/" + f, filtered))))
-	return results
-
-# for i in gen_data_files('tentacle', exclude=['*.py', '*.pyc', '*.json']):
-	# print (i)
-
 with open('docs/README.md', 'r') as f:
 	long_description = f.read()
 
@@ -51,5 +24,50 @@ setuptools.setup(
 		'Operating System :: OS Independent',
 	],
 	include_package_data = True,
-	data_files=gen_data_files('tentacle', exclude=['*.py', '*.pyc', '*.json']), #ie. ('tentacle/ui/0', ['tentacle/ui/0/init.ui']),
+	data_files=filetk.getDirContents('tentacle', 'filepaths', excFiles=['*.py', '*.pyc', '*.json']), #ie. ('tentacle/ui/0', ['tentacle/ui/0/init.ui']),
 )
+
+# -----------------------------------------------
+
+
+
+
+
+
+
+
+
+# -----------------------------------------------
+# Notes
+# -----------------------------------------------
+
+
+
+# Deprecated ------------------------------------
+
+# def gen_data_files(dirs, exc=[], inc=[]):
+# 	'''
+# 	'''
+# 	dirs = itertk.makeList(dirs)
+# 	exc = itertk.makeList(exc)
+# 	inc = itertk.makeList(inc)
+
+# 	results = []
+# 	for src_dir in dirs:
+# 		for root, dirs, files in os.walk(src_dir):
+# 			filtered=[]
+# 			for f in files:
+# 				ext = filetk.formatPath(f, 'ext')
+# 				if f in exc or '*.'+ext in exc:
+# 					continue
+# 				if any(inc): #filter inc for None values so not to get a false positive.
+# 					if not f in inc and not '*.'+ext in inc:
+# 						continue
+# 				filtered.append(f)
+
+# 			if filtered:
+# 				results.append((root, list(map(lambda f:root + "/" + f, filtered))))
+# 	return results
+
+# # for i in gen_data_files('tentacle', exc=['*.py', '*.pyc', '*.json']):
+# 	# print (i)
