@@ -26,7 +26,7 @@ class StyleSheet(QtCore.QObject):
 				'BACKGROUND_ALPHA'	: 'rgba(100,100,100,{ALPHA})',
 				'PRESSED'			: 'rgb(125,125,125)',
 				'HIGHLIGHT'			: 'yellow',
-				'HOVER'				: 'rgb(233,210,253)', #rgb(82,133,166)
+				'HOVER'				: 'rgb(82,133,166)',
 				'TEXT'				: 'white',
 				'TEXT_CHECKED'		: 'black',
 				'TEXT_DISABLED'		: 'gray',
