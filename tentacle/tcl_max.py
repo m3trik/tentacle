@@ -28,7 +28,7 @@ class Tcl_max(Tcl):
 				print(__file__, error)
 
 		super().__init__(parent, slotLoc=slotLoc, *args, **kwargs)
-		setattr(QtWidgets.QApplication.instance(), 'mainAppWindow', parent)
+		setattr(self.sb.app, 'mainAppWindow', parent)
 
 
 	@classmethod
@@ -58,7 +58,7 @@ class Tcl_max(Tcl):
 			event = <QEvent>
 		'''
 		if not event.isAutoRepeat():
-			modifiers = self.app.keyboardModifiers()
+			modifiers = self.sb.app.keyboardModifiers()
 
 			if event.key()==self.key_undo and modifiers==QtCore.Qt.ControlModifier:
 				import pymxs
@@ -114,9 +114,9 @@ if __name__ == "__main__":
 
 #module name
 print (__name__)
-# -----------------------------------------------
+# --------------------------------------------------------------------------------------------
 # Notes
-# -----------------------------------------------
+# --------------------------------------------------------------------------------------------
 
 # Example startup macro:
 

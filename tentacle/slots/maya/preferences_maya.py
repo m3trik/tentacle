@@ -31,7 +31,7 @@ class Preferences_maya(Preferences, Slots_maya):
 		from PySide2 import QtWidgets, QtGui, QtCore
 		items = QtWidgets.QStyleFactory.keys() #get styles from QStyleFactory
 		cmb003.addItems_(items)
-		index = cmb003.findText(self.sb.parent().app.style().objectName(), QtCore.Qt.MatchFixedString) #get/set current value
+		index = cmb003.findText(self.sb.app.style().objectName(), QtCore.Qt.MatchFixedString) #get/set current value
 		cmb003.setCurrentIndex(index)
 
 
@@ -114,9 +114,9 @@ class Preferences_maya(Preferences, Slots_maya):
 
 #module name
 print (__name__)
-# -----------------------------------------------
+# --------------------------------------------------------------------------------------------
 # Notes
-# -----------------------------------------------
+# --------------------------------------------------------------------------------------------
 
 
 

@@ -25,7 +25,7 @@ class Tcl_blender(Tcl):
 				print(__file__, error)
 
 		super().__init__(parent, slotLoc=slotLoc, *args, **kwargs)
-		setattr(QtWidgets.QApplication.instance(), 'mainAppWindow', parent)
+		setattr(self.sb.app, 'mainAppWindow', parent)
 
 
 	@classmethod
@@ -46,7 +46,7 @@ class Tcl_blender(Tcl):
 			event = <QEvent>
 		'''
 		if not event.isAutoRepeat():
-			modifiers = self.app.keyboardModifiers()
+			modifiers = self.sb.app.keyboardModifiers()
 
 			if event.key()==self.key_undo and modifiers==QtCore.Qt.ControlModifier:
 				import bpy
@@ -70,7 +70,7 @@ class Tcl_blender(Tcl):
 			event = <QEvent>
 		'''
 		if __name__ == "__main__":
-			self.app.instance().quit()
+			self.sb.app.instance().quit()
 			sys.exit() #assure that the sys processes are terminated.
 
 		Tcl.hideEvent(self, event) #super().hideEvent(event)
@@ -94,9 +94,9 @@ if __name__ == "__main__":
 
 #module name
 print (__name__)
-# -----------------------------------------------
+# --------------------------------------------------------------------------------------------
 # Notes
-# -----------------------------------------------
+# --------------------------------------------------------------------------------------------
 
 # Example startup macro:
 

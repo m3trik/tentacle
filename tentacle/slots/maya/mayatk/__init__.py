@@ -91,7 +91,7 @@ class Mayatk():
 
 			if cls.isGroup(obj):
 				typ = 'group'
-			if cls.isLocator(obj):
+			elif cls.isLocator(obj):
 				typ = 'locator'
 			else:
 				typ = comptk.getComponentType(obj)
@@ -103,7 +103,7 @@ class Mayatk():
 
 
 	@classmethod
-	def getTransformNode(cls, nodes, returnType='str', attributes=False, inc=[], exc=[]):
+	def getTransformNode(cls, nodes, returnType='obj', attributes=False, inc=[], exc=[]):
 		'''Get transform node(s) or node attributes.
 
 		:Parameters:
@@ -141,7 +141,7 @@ class Mayatk():
 
 
 	@classmethod
-	def getShapeNode(cls, nodes, returnType='str', attributes=False, inc=[], exc=[]):
+	def getShapeNode(cls, nodes, returnType='obj', attributes=False, inc=[], exc=[]):
 		'''Get shape node(s) or node attributes.
 
 		:Parameters:
@@ -179,7 +179,7 @@ class Mayatk():
 
 
 	@classmethod
-	def getHistoryNode(cls, nodes, returnType='str', attributes=False, inc=[], exc=[]):
+	def getHistoryNode(cls, nodes, returnType='obj', attributes=False, inc=[], exc=[]):
 		'''Get history node(s) or node attributes.
 
 		:Parameters:
@@ -782,13 +782,13 @@ class Mayatk():
 		scrollLayout = str(pm.scrollLayout(verticalScrollBarThickness=16, 
 										horizontalScrollBarThickness=16))
 		pm.columnLayout(adjustableColumn=True)
-		text_field = str(pm.scrollField(text=(text),
+		scroll_field = str(pm.scrollField(text=(text),
 										width=scroll_width,
 										height=scroll_height,))
 		print(window)
 		pm.setParent('..')
 		pm.showWindow(window)
-		return
+		return scroll_field
 
 
 	@staticmethod
@@ -811,9 +811,9 @@ class Mayatk():
 											insertText=str(item)))
 		pm.setParent('..')
 		pm.showWindow(window)
-		return
+		return text_field
 
-# -----------------------------------------------
+# --------------------------------------------------------------------------------------------
 from tentacle import import_submodules, addMembers
 addMembers(__name__)
 import_submodules(__name__)
@@ -823,11 +823,11 @@ import_submodules(__name__)
 
 
 # print (__package__, __file__)
-# -----------------------------------------------
+# --------------------------------------------------------------------------------------------
 # Notes
-# -----------------------------------------------
+# --------------------------------------------------------------------------------------------
 
 
-# -----------------------------------------------
+# --------------------------------------------------------------------------------------------
 # deprecated:
-# -----------------------------------------------
+# --------------------------------------------------------------------------------------------

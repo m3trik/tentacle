@@ -5,7 +5,7 @@ import sys
 from PySide2 import QtWidgets, QtCore
 
 from tentacle.tcl import Tcl
-from tentacle.slots.maya import mayatk as mtk
+from tentacle.slots.maya.mayatk import getMainWindow
 
 
 class Tcl_maya(Tcl):
@@ -19,13 +19,13 @@ class Tcl_maya(Tcl):
 		'''
 		if not parent:
 			try:
-				parent = mtk.getMainWindow()
+				parent = getMainWindow()
 
 			except Exception as error:
 				print(__file__, error)
 
 		super().__init__(parent, slotLoc=slotLoc, *args, **kwargs)
-		setattr(QtWidgets.QApplication.instance(), 'mainAppWindow', parent)
+		setattr(self.sb.app, 'mainAppWindow', parent)
 
 
 	def keyPressEvent(self, event):
@@ -34,7 +34,7 @@ class Tcl_maya(Tcl):
 			event = <QEvent>
 		'''
 		if not event.isAutoRepeat():
-			modifiers = self.app.keyboardModifiers()
+			modifiers = self.sb.app.keyboardModifiers()
 
 			if event.key()==self.key_undo and modifiers==QtCore.Qt.ControlModifier:
 				import Pymel.Core as pm
@@ -58,7 +58,7 @@ class Tcl_maya(Tcl):
 			event = <QEvent>
 		'''
 		if __name__ == "__main__":
-			self.app.quit()
+			self.sb.app.quit()
 			sys.exit() #assure that the sys processes are terminated.
 
 		Tcl.hideEvent(self, event) #super().hideEvent(event)
@@ -83,9 +83,9 @@ if __name__ == "__main__":
 
 #module name
 print (__name__)
-# -----------------------------------------------
+# --------------------------------------------------------------------------------------------
 # Notes
-# -----------------------------------------------
+# --------------------------------------------------------------------------------------------
 
 # Example startup macro:
 

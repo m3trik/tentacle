@@ -28,4 +28,4 @@ class Preferences(Slots):
 		cmb = self.sb.preferences.cmb003
 
 		if index>0:
-			self.sb.parent().app.setStyle(cmb.items[index])
+			self.sb.app.setStyle(cmb.items[index])

@@ -26,42 +26,42 @@ class Filetk():
 		:Return:
 			(str)(list) List if 'strings' given as list.
 		'''
-		assert isinstance(strings, (str, list, tuple, set, dict)), '{} in formatPath\n\t# Error: Incorrect datatype: {}'.format(__file__, type(strings).__name__)
-
 		result=[]
-		for string in itertk.makeList(strings):
-			string = os.path.expandvars(string) #convert any env variables to their values.
-			string = string[:2]+'/'.join(string[2:].split('\\')).rstrip('/') #convert forward slashes to back slashes.
+		for s in itertk.makeList(strings):
+			if not isinstance(s, (str)):
+				continue
+			s = os.path.expandvars(s) #convert any env variables to their values.
+			s = s[:2]+'/'.join(s[2:].split('\\')).rstrip('/') #convert forward slashes to back slashes.
 
-			fullpath = string if '/' in string else ''
-			filename_ = string.split('/')[-1]
+			fullpath = s if '/' in s else ''
+			filename_ = s.split('/')[-1]
 			filename = filename_ if '.' in filename_ and not filename_.startswith('.') else ''
-			path = '/'.join(string.split('/')[:-1]) if filename else string
-			directory = string.split('/')[-2] if (filename and path) else string.split('/')[-1]
-			name = ''.join(filename.rsplit('.', 1)[:-1]) if filename else '' if fullpath else string
+			path = '/'.join(s.split('/')[:-1]) if filename else s
+			directory = s.split('/')[-2] if (filename and path) else s.split('/')[-1]
+			name = ''.join(filename.rsplit('.', 1)[:-1]) if filename else '' if fullpath else s
 			ext = filename.rsplit('.', 1)[-1]
 
-			orig_str = string #the full original string (formatted with forwardslashes)
+			orig_str = s #the full original string (formatted with forwardslashes)
 
 			if section=='path':
-				string = path
+				s = path
 
 			elif section=='dir':
-				string = directory
+				s = directory
 
 			elif section=='file':
-				string = filename
+				s = filename
 
 			elif section=='name':
-				string = name
+				s = name
 
 			elif section=='ext':
-				string = ext
+				s = ext
 
 			if replace:
-				string = Str_utils.rreplace(orig_str, string, replace, 1)
+				s = Str_utils.rreplace(orig_str, s, replace, 1)
 
-			result.append(string)
+			result.append(s)
 
 		return itertk.formatReturn(result, strings) #if 'strings' is given as a list; return a list.
 
@@ -308,7 +308,7 @@ class Filetk():
 			return f.readlines()
 
 
-# -----------------------------------------------
+# --------------------------------------------------------------------------------------------
 from tentacle import addMembers
 addMembers(__name__)
 
@@ -325,9 +325,9 @@ if __name__=='__main__':
 
 
 
-# -----------------------------------------------
+# --------------------------------------------------------------------------------------------
 # Notes
-# -----------------------------------------------
+# --------------------------------------------------------------------------------------------
 
 
 

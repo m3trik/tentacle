@@ -150,7 +150,7 @@ class Slots(QtCore.QObject):
 		:Return:
 			(int, float, bool)
 		'''
-		modifiers = self.sb.parent().app.keyboardModifiers()
+		modifiers = self.sb.app.keyboardModifiers()
 		if not modifiers in (QtCore.Qt.AltModifier, QtCore.Qt.ControlModifier | QtCore.Qt.AltModifier):
 			return value
 
@@ -161,7 +161,7 @@ class Slots(QtCore.QObject):
 
 		return result
 
-# -----------------------------------------------
+# --------------------------------------------------------------------------------------------
 
 
 
@@ -173,9 +173,9 @@ class Slots(QtCore.QObject):
 
 #module name
 # print (__name__)
-# -----------------------------------------------
+# --------------------------------------------------------------------------------------------
 # Notes
-# -----------------------------------------------
+# --------------------------------------------------------------------------------------------
 
 
 # depricated: -----------------------------------

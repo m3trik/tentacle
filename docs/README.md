@@ -50,7 +50,7 @@ To install:
 Add the tentacle folder to a directory on your python path, or
 install via pip in a command line window using:
 ```
-python -m pip install tcl-toolkit
+python -m pip install tentacletk
 ```
 
 To launch the marking menu:

@@ -35,7 +35,7 @@ class Slots_maya(Slots):
 			name (str) = name of a Maya UI element of any type. ex. name = pm.mel.eval('$tmp=$gAttributeEditorForm') (from MEL global variable)
 
 		:Return:
-			(QWidget) If the object does not exist, returns None
+			(QWidget) None if the object does not exist.
 		'''
 		import shiboken2
 		for f in ('findControl', 'findLayout', 'findMenuItem'):
@@ -92,7 +92,7 @@ class Slots_maya(Slots):
 					if attr in pm.ls(sl=1):
 						c.setChecked(True)
 
-	# ----------------------------------------------------------------------
+	# -------------------------------------------------------------------------------------------------------------------
 
 
 

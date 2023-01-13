@@ -2,6 +2,9 @@
 ECHO Must be run with elevated privileges if previous build directories are to be deleted.
 ECHO/
 
+:: Admin check
+fltmc >nul 2>nul || set _=^"set _ELEV=1^& cd /d """%cd%"""^& "%~f0" %* ^"&&((if "%_ELEV%"=="" ((powershell -nop -c start cmd -args '/d/x/s/v:off/r',$env:_ -verb runas >nul 2>nul) || (mshta vbscript:execute^("createobject(""shell.application"").shellexecute(""cmd"",""/d/x/s/v:off/r ""&createobject(""WScript.Shell"").Environment(""PROCESS"")(""_""),,""runas"",1)(window.close)"^) >nul 2>nul)))& exit /b)
+
 
 ::delete previous build directories:
 set "dir=%CLOUD%\Code\_scripts\tentacle"

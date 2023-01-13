@@ -510,7 +510,7 @@ class MenuInstance():
 	'''
 	@property
 	def menu_(self):
-		'''Get the menu.
+		'''Get the standard menu.
 		'''
 		try:
 			return self._menu
@@ -568,9 +568,9 @@ if __name__ == "__main__":
 
 
 
-# --------------------------------
+# -----------------------------------------------------------------------------
 # Notes
-# --------------------------------
+# -----------------------------------------------------------------------------
 
 '''
 Promoting a widget in designer to use a custom class:

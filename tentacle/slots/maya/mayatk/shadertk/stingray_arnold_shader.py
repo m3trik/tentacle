@@ -12,7 +12,7 @@ from tentacle.slots.maya import mayatk as mtk
 from tentacle.ui.widgets import rwidgets
 
 
-__version__ = '0.503'
+__version__ = '0.5.3'
 
 class Stingray_arnold_shader(QtCore.QObject):
 	'''
@@ -39,9 +39,10 @@ class Stingray_arnold_shader(QtCore.QObject):
 		'''
 		'''
 		node = pm.ls(self.hdr_env_name, exactType='aiSkyDomeLight')
-		if not node:
+		try:
+			return node[0]
+		except IndexError as error:
 			return None
-		return node[0]
 
 
 	@hdr_env.setter
@@ -414,14 +415,14 @@ class Stingray_arnold_shader_main(Stingray_arnold_shader):
 		if not parent:
 			self.setParent(mtk.getMainWindow())
 
-		self.sb = Switchboard(self, widgetLoc=rwidgets, slotLoc=Stingray_arnold_shader_slots)
+		self.sb = Switchboard(self, uiLoc='stingray_arnold_shader.ui', widgetLoc=rwidgets, slotLoc=Stingray_arnold_shader_slots)
 
 		self.ui = self.sb.stingray_arnold_shader
 		self.sb.setStyle(self.ui.widgets)
 		self.ui.setWindowFlags(QtCore.Qt.WindowStaysOnTopHint)
 		self.ui.show()
 
-# --------------------------------
+# -----------------------------------------------------------------------------
 
 
 
@@ -430,6 +431,8 @@ class Stingray_arnold_shader_main(Stingray_arnold_shader):
 
 
 
+
+# -----------------------------------------------------------------------------
 
 if __name__ == "__main__":
 
@@ -438,10 +441,9 @@ if __name__ == "__main__":
 	# app = QtWidgets.QApplication.instance()
 	# sys.exit(app.exec_()) # run app, show window, wait for input, then terminate program with a status code returned from app.
 
-
-# --------------------------------
+# -----------------------------------------------------------------------------
 # Notes
-# --------------------------------
+# -----------------------------------------------------------------------------
 
 
 

@@ -1,7 +1,8 @@
+# !/usr/bin/python
+# coding=utf-8
 from PySide2 import QtCore, QtGui, QtWidgets
 
 from attributes import Attributes
-
 
 
 class ListWidget(QtWidgets.QListWidget, Attributes):
@@ -170,6 +171,7 @@ class ListWidget(QtWidgets.QListWidget, Attributes):
 		print ('leaveEvent')
 		self.releaseMouse()
 
+# -----------------------------------------------------------------------------
 
 
 
@@ -177,6 +179,9 @@ class ListWidget(QtWidgets.QListWidget, Attributes):
 
 
 
+
+
+# -----------------------------------------------------------------------------
 
 if __name__ == "__main__":
 	import sys
@@ -199,10 +204,9 @@ if __name__ == "__main__":
 	sys.exit(app.exec_())
 
 
-
-# --------------------------------
+# -----------------------------------------------------------------------------
 # Notes
-# --------------------------------
+# -----------------------------------------------------------------------------
 
 '''
 Promoting a widget in designer to use a custom class:

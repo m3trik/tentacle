@@ -21,6 +21,7 @@ class Switchboard(QUiLoader, StyleSheet):
 		sb.<uiFileName> = Any ui located in the switchboard's ui directory can be accessed using it's filename.
 		sb.<customWidgetClassName> = Any of the custom widgets in the widget directory.
 
+		ui = sb.<theUisFileName> #ie `name` from `name.ui`
 		ui.name = The ui's filename.
 		ui.base = The base ui name. The base name is any characters before an underscore in the ui's name.
 		ui.path = The directory path containing the ui file.
@@ -44,6 +45,7 @@ class Switchboard(QUiLoader, StyleSheet):
 		ui.widgets = All the widgets of the ui.
 		ui.slots = The slots class instance.
 
+		w = ui.<theWidgetsObjectName> #ie. widgetname from 
 		w.ui = Access the widget's parent ui (QMainWindow).
 		w.name = The widget's object name.
 		w.type = The widget's class name.
@@ -54,20 +56,18 @@ class Switchboard(QUiLoader, StyleSheet):
 		w.isSynced = True if the widget is being synced between submenu and it's parent menu.
 
 	Example:
-		QtWidgets.QApplication.instance().sb.ui.w.isSynced
-		(ex. app.sb.<theUisFileName>.<theWidgetsObjectName>.isSynced)
+		sb.ui.w.isSynced #written as: sb.<theUisFileName>.<theWidgetsObjectName>.isSynced
 
-	Example of a single ui with the slots pointing to a subclass (named 'Map_compositor_slots') in the same module as the main app ('.
+	Example of a single ui with the slots pointing to a subclass (named `SomeClass_slots`) in the same module as the main app ('.
 
-		class Map_compositor_main(Map_compositor):
-			"""In this case a subclass of the main application code, but could be the main application code itself.
-			Map_compositor is subclassed from a QObject so that it can be properly parented to 'Switchboard'.
+		class SomeClass_main(QtWidgets.QObject):
+			"""SomeClass is subclassed from a QObject so that it can be properly parented to `Switchboard`.
 			"""
 			def __init__(self, parent=None):
 				super().__init__(parent)
 
-				sb = Switchboard(self, widgetLoc='location/of/your/custom/widgets', slotLoc=Map_compositor_slots) #see directory arg descriptions in __init__.
-				ui = sb.map_compositor #get the ui of filename 'map_compositor'
+				sb = Switchboard(self, widgetLoc='location/of/your/custom/widgets', slotLoc=Map_compositor_slots) #see directory descriptions in the __init__ docstring below.
+				ui = sb.some_ui #will load and return the ui with filename 'some_ui'
 				sb.setStyle(ui.widgets) #set the stylesheet for the ui's widgets.
 				ui.show()
 
@@ -90,10 +90,8 @@ class Switchboard(QUiLoader, StyleSheet):
 		'QProgressBar':'valueChanged',
 	}
 
-
 	def __init__(self, parent=None, uiLoc='', widgetLoc='', slotLoc='', preloadUi=False):
-		QUiLoader.__init__(self, parent)
-		self.app = QtWidgets.QApplication.instance()
+		super().__init__(parent)
 		'''
 		:Parameters:
 			parent (obj) = A QtObject derived class.
@@ -102,12 +100,17 @@ class Switchboard(QUiLoader, StyleSheet):
 			slotLoc (str)(obj) = Set the directory of where the slot classes will be imported, or give the slot class itself.
 			preloadUi (bool) = Load all ui immediately. Otherwise ui will be loaded as required.
 
-			The 'defaultDir' attribute is the parent module's directory.
-			If no parent is given, the directory of this module will be used.
-			If any of the given filepaths are not a full path, it will be treated as relative to the 'defaultDir'.
-			ex. sb.slotLoc = 'maya' would become: '<sb.defaultDir>/maya'			
+			When a parent is given; the 'defaultDir' attribute is the parent module's directory. 
+			When no parent is given; the directory of this module will be used.
+			If any of the given filepaths are not a full path, it will be treated as relative to the currently set path.
+			#in following example; since no paths have been set, the default directory is used, and an 
+			argument given as: slotLoc='maya' is treated as a relative path: '<sb.defaultDir>/maya'
 		'''
-		self.defaultDir = filetk.getFilepath(parent) if parent else filetk.getFilepath(__file__) #use the filepath from the parent class if a parent is given.
+		self.app = QtWidgets.QApplication.instance()
+		if not self.app:
+			self.app = QtWidgets.QApplication(sys.argv)
+
+		self.defaultDir = filetk.getFilepath(parent) or filetk.getFilepath(__file__) #use the filepath from the parent class if a parent is given.
 
 		self.uiLoc = uiLoc
 		self.widgetLoc = widgetLoc
@@ -117,6 +120,7 @@ class Switchboard(QUiLoader, StyleSheet):
 		self._registeredWidgets = []
 		self._uiHistory = []
 		self._wgtHistory = []
+		self._gcProtect = set()
 
 		if preloadUi:
 			self.loadAllUi()
@@ -130,19 +134,26 @@ class Switchboard(QUiLoader, StyleSheet):
 		:Return:
 			(obj) ui or widget else raise attribute error.
 		'''
-		uiFullPath = next((f for f in glob.iglob('{}/**/{}.ui'.format(self.uiLoc, attr), recursive=True)), None)
-		if uiFullPath:
-			ui = self.loadUi(uiFullPath) #load the dynamic ui file.
+		#when an unknown attribute is encountered, first look for a ui of that name:
+		uiPath = filetk.formatPath(self.uiLoc, 'path') #will return an empty list on incorrect datatype.
+		foundUi = next((f for f in glob.iglob(f'{uiPath}/**/{attr}.ui', recursive=True)), None)
+		if foundUi:
+			ui = self.loadUi(foundUi) #load the dynamic ui file.
+			if not ui:
+				print (f'{__file__} in __getattr__.loadUi\n\tUnable to load {attr}({type(attr).__name__})')
 			return ui
 
+		#if no ui is found, check if a widget exists with the given attribute name:
+		wgtPath = filetk.formatPath(self.widgetLoc, 'path') #will return an empty list on incorrect datatype.
 		wgtName = strtk.setCase(attr, 'camelCase')
-		pathToWidget = next((f for f in glob.iglob('{}/**/{}.py'.format(self.widgetLoc, wgtName), recursive=True)), None)
-		if pathToWidget:
-			customWidget = self.registerWidgets(attr)
-			if customWidget:
-				return customWidget
+		foundWgt = next((f for f in glob.iglob(f'{wgtPath}/**/{wgtName}.py', recursive=True)), None)
+		if foundWgt:
+			wgt = self.registerWidgets(attr)
+			if not wgt:
+				print (f'{__file__} in __getattr__.registerWidgets\n\tUnable to register {attr}({type(attr).__name__})')
+			return wgt
 
-		raise AttributeError(__file__, attr)
+		raise AttributeError(f'{__file__} in __getattr__\n\t{self.__class__.__name__} has no attribute {attr}({type(attr).__name__})')
 
 
 	def hasattr_static(self, attr):
@@ -168,6 +179,7 @@ class Switchboard(QUiLoader, StyleSheet):
 		:Return:
 			(str) directory path.
 		'''
+		
 		if not self.hasattr_static('_uiLoc'):
 			self._uiLoc = self.defaultDir
 			return self._uiLoc
@@ -648,17 +660,17 @@ class Switchboard(QUiLoader, StyleSheet):
 		ui.__class__.addWidgets = lambda u=ui, *args, **kwargs: self.addWidgets(u, *args, **kwargs)
 
 		ui.__class__.widgets = property(
-			lambda u: u._widgets if u._widgets else u.addWidgets()
+			lambda u: u._widgets or u.addWidgets()
 		)
 		ui.__class__.slots = property(
 			lambda u: self.getSlots(u)
 		)
 		ui.__class__.connected = property(
-			lambda u: True if u.isConnected else False, 
+			lambda u: u.isConnected, 
 			lambda u, state: setattr(self, 'currentUi', u) if state else self.disconnect(u)
 		)
 		ui.__class__.isCurrent = property(
-			lambda u: True if u==self.currentUi else False
+			lambda u: u==self.currentUi
 		)
 		ui.__class__.level0 = property(
 			lambda u: self.getUi(u, 0)
@@ -1271,7 +1283,7 @@ class Switchboard(QUiLoader, StyleSheet):
 				pass
 
 
-	def setWidgetKwargs(self, *args, **kwargs):
+	def setWidgetAttrs(self, *args, **kwargs):
 		'''Set multiple properties, for multiple widgets, on multiple ui's at once.
 
 		:Parameters:
@@ -1280,7 +1292,7 @@ class Switchboard(QUiLoader, StyleSheet):
 			*kwargs = keyword: - the property to modify. ex. setText, setValue, setEnabled, setDisabled, setVisible, setHidden
 					value: - intended value.
 
-		ex.	setWidgetKwargs('chk003', <ui1>, <ui2>, setText='Un-Crease')
+		ex.	setWidgetAttrs('chk003', <ui1>, <ui2>, setText='Un-Crease')
 		'''
 		if not args[1:]:
 			parentUi = self.currentUi.level3
@@ -1486,7 +1498,6 @@ class Switchboard(QUiLoader, StyleSheet):
 		return prefix+axis #ie. '-X'
 
 
-	_gcProtect = set()
 	def gcProtect(self, obj=None, clear=False):
 		'''Protect the given object from garbage collection.
 
@@ -1622,7 +1633,7 @@ class Switchboard(QUiLoader, StyleSheet):
 		else:
 			return widgets
 
-# -----------------------------------------------
+# --------------------------------------------------------------------------------------------
 
 
 
@@ -1632,13 +1643,9 @@ class Switchboard(QUiLoader, StyleSheet):
 
 
 
-# -----------------------------------------------
+# --------------------------------------------------------------------------------------------
 
 if __name__=='__main__':
-
-	app = QtWidgets.QApplication.instance()
-	if not app:
-		app = QtWidgets.QApplication(sys.argv)
 
 	from tentacle.slots.polygons import Polygons
 	sb = Switchboard(uiLoc='ui', widgetLoc='ui/widgets', slotLoc=Polygons) #set relative paths, and explicity set the slots class instead of providing a path like: slotLoc='slots/maya', which in this case would produce the same result with just a little more overhead.
@@ -1656,9 +1663,9 @@ if __name__=='__main__':
 	# print ('widgets:', ui.widgets)
 
 
-	sys.exit(app.exec_())
+	sys.exit(sb.app.exec_())
 
-# -----------------------------------------------
+# --------------------------------------------------------------------------------------------
 
 
 
@@ -1667,9 +1674,9 @@ if __name__=='__main__':
 
 
 print (__name__) #module name
-# -----------------------------------------------
+# --------------------------------------------------------------------------------------------
 # Notes
-# -----------------------------------------------
+# --------------------------------------------------------------------------------------------
 
 # deprecated:
 

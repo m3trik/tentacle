@@ -561,7 +561,7 @@ class Edittk():
 		similar = pm.ls([m for m in otherSceneMeshes if pm.polyCompare(obj, m, **kwargs)==0 and m!=obj]) #0:equal,Verts:1,Edges:2,Faces:4,UVSets:8,UVIndices:16,ColorSets:32,ColorIndices:64,UserNormals=128. So a return value of 3 indicates both vertices and edges are different.
 		return similar+[obj] if includeOrig else similar
 
-# -----------------------------------------------
+# --------------------------------------------------------------------------------------------
 from tentacle import addMembers
 addMembers(__name__)
 
@@ -573,9 +573,9 @@ addMembers(__name__)
 
 
 # print (__name__) #module name
-# -----------------------------------------------
+# --------------------------------------------------------------------------------------------
 # Notes
-# -----------------------------------------------
+# --------------------------------------------------------------------------------------------
 
 
 # deprecated: -----------------------------------

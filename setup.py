@@ -17,7 +17,7 @@ setuptools.setup(
 	long_description=long_description,
 	long_description_content_type='text/markdown',
 	url='https://github.com/m3trik/tentacle',
-	packages=setuptools.find_packages(),
+	packages=setuptools.find_packages(), #scan the directory structure and include all package dependancies.
 	classifiers=[
 		'Programming Language :: Python :: 3',
 		# 'License :: OSI Approved :: MIT License',
@@ -27,7 +27,7 @@ setuptools.setup(
 	data_files=filetk.getDirContents('tentacle', 'filepaths', excFiles=['*.py', '*.pyc', '*.json']), #ie. ('tentacle/ui/0', ['tentacle/ui/0/init.ui']),
 )
 
-# -----------------------------------------------
+# --------------------------------------------------------------------------------------------
 
 
 
@@ -37,9 +37,9 @@ setuptools.setup(
 
 
 
-# -----------------------------------------------
+# --------------------------------------------------------------------------------------------
 # Notes
-# -----------------------------------------------
+# --------------------------------------------------------------------------------------------
 
 
 

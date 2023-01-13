@@ -412,7 +412,7 @@ class Transform_maya(Transform, Slots_maya):
 			pm.manipRotateContext('Rotate', edit=1, snap=False if state==0 else True, snapRelative=True if state==1 else False) #state: 0=off, 1=relative, 2=absolute
 			pm.texRotateContext('texRotateContext', edit=1, snap=False if state==0 else True) #uv rotate context
 
-# -----------------------------------------------
+# --------------------------------------------------------------------------------------------
 
 
 
@@ -424,9 +424,9 @@ class Transform_maya(Transform, Slots_maya):
 
 #module name
 print (__name__)
-# -----------------------------------------------
+# --------------------------------------------------------------------------------------------
 # Notes
-# -----------------------------------------------
+# --------------------------------------------------------------------------------------------
 
 
 
