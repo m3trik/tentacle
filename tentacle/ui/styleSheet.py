@@ -1119,10 +1119,12 @@ class StyleSheet(QtCore.QObject):
 			hideMenuButton (boool) = Hide the menu button of a widget that has one.
 			backgroundOpacity (int) = Set the background alpha transparency between 0 and 255.
 		'''
+		from tentacle.switchboard import Switchboard
+
 		widgets = [widgets] if not isinstance(widgets, (list, tuple, set, dict)) else widgets #assure widgets in a list.
 
 		for widget in widgets:
-			widget_type = cls._getDerivedType(widget)
+			widget_type = Switchboard.getDerivedType(widget, name=True)
 
 			try: #if hasattr(widget, 'styleSheet'):
 				s = cls.getStyleSheet(widget_type, style=style, backgroundOpacity=backgroundOpacity)
@@ -1166,26 +1168,6 @@ class StyleSheet(QtCore.QObject):
 			{0}::menu-button::hover {{
 				border: 1px solid transparent;
 			}}'''.format(widget_type)
-
-
-	@staticmethod
-	def _getDerivedType(widget, ui=None):
-		'''Get the base class of a custom widget.
-		If the type is a standard widget, the derived type will be that widget's type.
-
-		:Parameters:
-			widget (str)(obj) = QWidget or it's objectName.
-			ui (str)(obj) = The ui name, or ui object. ie. 'polygons' or <polygons>
-							If None is given, the current ui will be used.
-
-		:Return:
-			(string) base class name. ie. 'QPushButton' from a custom widget with class name: 'PushButton'
-		'''
-		# print(widget.__class__.__mro__)
-		for c in widget.__class__.__mro__:
-			if c.__module__=='PySide2.QtWidgets': #check for the first built-in class.
-				derivedType = c.__name__ #Then use it as the derived class.
-				return derivedType
 
 
 

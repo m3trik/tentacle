@@ -10,7 +10,7 @@ try:
 except ImportError as error:
 	print (__file__, error)
 
-from tentacle.slots.tk import itertk
+from tentacle.slots.tk import itertk, strtk
 
 
 class Mayatk():
@@ -50,6 +50,38 @@ class Mayatk():
 			return None
 
 		return main_window
+
+
+	@staticmethod
+	def wrapControl(controlName, container):
+		'''Embed a Maya Native UI Object.
+
+		:Parameters:
+			controlName (str) = The name of an existing maya control. ie. 'cmdScrollFieldReporter1'
+			container (obj) = A widget instance in which to wrap the control.
+
+		ex. call:
+		modelPanelName = pm.modelPanel("embeddedModelPanel#", cam='persp')
+		wrapControl(modelPanelName, QtWidgets.QtWidget())
+		'''
+		from PySide2 import QtWidgets
+		from shiboken2 import wrapInstance
+		from maya.OpenMayaUI import MQtUtil
+
+		layout = QtWidgets.QVBoxLayout(container)
+		layout.setContentsMargins(0,0,0,0)
+		layoutName = strtk.setCase(container.objectName()+'Layout', 'camelCase') # results in '<objectName>Layout' or 'layout' if container objectName is ''
+		layout.setObjectName(layoutName)
+		pm.setParent(layoutName)
+
+		from tentacle.switchboard import Switchboard
+		derivedClass = Switchboard.getDerivedType(container)
+
+		ptr = MQtUtil.findControl(controlName) #get a pointer to the maya api paneLayout.
+		control = wrapInstance(int(ptr), derivedClass)
+		layout.addWidget(control)
+
+		return control
 
 
 	@classmethod

@@ -708,7 +708,7 @@ class Switchboard(QUiLoader, StyleSheet):
 
 		for w in itertk.makeList(widgets): #assure 'widgets' is a list.
 
-			derivedType = self._getDerivedType(w) #the base class of any custom widgets.  ie. 'QPushButton' from a custom pushbutton widget.
+			derivedType = self.getDerivedType(w, name=True) #the base class of any custom widgets.  ie. 'QPushButton' from a custom pushbutton widget.
 			typ = w.__class__.__base__.__name__ if filterByBaseType else derivedType
 			if typ in exc and (typ in inc if inc else typ not in inc):
 				continue
@@ -919,6 +919,25 @@ class Switchboard(QUiLoader, StyleSheet):
 		hist = list(dict.fromkeys(cmds[::-1]))[::-1] #remove any duplicates (keeping the last element). [hist.remove(l) for l in hist[:] if hist.count(l)>1] #
 
 		return hist
+
+
+	@staticmethod
+	def getDerivedType(widget, name=False, module='PySide2.QtWidgets'):
+		'''Get the base class of a custom widget.
+		If the type is a standard widget, the derived type will be that widget's type.
+
+		:Parameters:
+			widget (str)(obj) = QWidget or it's objectName.
+			name (bool) = Return the class or the class name.
+			module (str) = The base class module to check for.
+
+		:Return:
+			(obj)(string) class or class name if `name`. ie. 'QPushButton' from a custom widget with class name: 'PushButton'
+		'''
+		# print(widget.__class__.__mro__) #debug
+		for c in widget.__class__.__mro__:
+			if c.__module__==module: #check for the first built-in class.
+				return c.__name__ if name else c
 
 
 	def getWidget(self, name, ui=None):

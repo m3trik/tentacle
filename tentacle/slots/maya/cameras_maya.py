@@ -311,11 +311,11 @@ class Cameras_maya(Cameras, Slots_maya):
 	def getCurrentCam(self):
 		'''Get the currently active camera.
 		'''
-		import maya.OpenMaya as om
-		import maya.OpenMayaUI as omui
+		from maya.OpenMaya import MDagPath
+		from maya.OpenMayaUI import M3dView
 
-		view = omui.M3dView.active3dView()
-		cam = om.MDagPath()
+		view = M3dView.active3dView()
+		cam = MDagPath()
 		view.getCamera(cam)
 		camPath = cam.fullPathName()
 		return camPath

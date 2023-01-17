@@ -6,7 +6,6 @@ from PySide2 import QtWidgets
 
 try:
 	import pymel.core as pm
-	import maya.OpenMayaUI as omui
 except ImportError as error:
 	print (__file__, error)
 
@@ -27,22 +26,6 @@ class Slots_maya(Slots):
 	# ======================================================================
 		'UI'
 	# ======================================================================
-
-	@staticmethod
-	def convertToWidget(name):
-		'''
-		:Parameters:
-			name (str) = name of a Maya UI element of any type. ex. name = pm.mel.eval('$tmp=$gAttributeEditorForm') (from MEL global variable)
-
-		:Return:
-			(QWidget) None if the object does not exist.
-		'''
-		import shiboken2
-		for f in ('findControl', 'findLayout', 'findMenuItem'):
-			ptr = getattr(omui.MQtUtil, f)(name) #equivalent to: ex. omui.MQtUtil.findControl(name)
-			if ptr:
-				return shiboken2.wrapInstance(long(ptr), QtWidgets.QWidget)
-
 
 	@classmethod
 	def attr(cls, fn):
@@ -114,3 +97,17 @@ class Slots_maya(Slots):
 
 #deprecated -------------------------------------
 
+	# @staticmethod
+	# def convertToWidget(name):
+	# 	'''
+	# 	:Parameters:
+	# 		name (str) = name of a Maya UI element of any type. ex. name = pm.mel.eval('$tmp=$gAttributeEditorForm') (from MEL global variable)
+
+	# 	:Return:
+	# 		(QWidget) None if the object does not exist.
+	# 	'''
+	# 	import shiboken2
+	# 	for f in ('findControl', 'findLayout', 'findMenuItem'):
+	# 		ptr = getattr(omui.MQtUtil, f)(name) #equivalent to: ex. omui.MQtUtil.findControl(name)
+	# 		if ptr:
+	# 			return shiboken2.wrapInstance(long(ptr), QtWidgets.QWidget)
