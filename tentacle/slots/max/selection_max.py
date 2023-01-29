@@ -384,7 +384,7 @@ class Selection_max(Selection, Slots_max):
 
 		<objectName>_Set<int>
 		'''
-		num = tk.cycle(list(range(99)), 'selectionSetNum')
+		num = ptk.cycle(list(range(99)), 'selectionSetNum')
 		name = '{0}_Set{1}'.format(rt.selection[0].name, num) #ie. pCube1_Set0
 		return name
 

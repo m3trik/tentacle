@@ -178,7 +178,7 @@ class File_max(File, Slots_max):
 		if quit: #quit maya
 			import time
 			for timer in range(5):
-				self.viewportMessage('Shutting Down:<hl>'+str(timer)+'</hl>')
+				self.mtk.viewportMessage('Shutting Down:<hl>'+str(timer)+'</hl>')
 				time.sleep(timer)
 			pm.mel.quit() # pm.Quit()
 

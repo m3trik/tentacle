@@ -1,8 +1,46 @@
 # !/usr/bin/python
 # coding=utf-8
+import sys
+
 from PySide2 import QtCore, QtGui, QtWidgets
 
-from tentacle.events import OverlayFactoryFilter
+
+class OverlayFactoryFilter(QtCore.QObject):
+	'''Handles paint events as an overlay on top of an existing widget.
+	'''
+	def eventFilter(self, widget, event):
+		'''Relay events from the parent widget to the overlay.
+		'''
+		if not widget.isWidgetType():
+			return False
+
+		if event.type()==QtCore.QEvent.MouseButtonPress:
+			self.mousePressEvent(event)
+
+		elif event.type()==QtCore.QEvent.MouseButtonRelease:
+			self.mouseReleaseEvent(event)
+
+		elif event.type()==QtCore.QEvent.MouseMove:
+			self.mouseMoveEvent(event)
+
+		elif event.type()==QtCore.QEvent.MouseButtonDblClick:
+			self.mouseDoubleClickEvent(event)
+
+		elif event.type()==QtCore.QEvent.KeyPress:
+			self.keyPressEvent(event)
+
+		elif event.type()==QtCore.QEvent.KeyRelease:
+			self.keyReleaseEvent(event)
+
+		elif event.type()==QtCore.QEvent.Resize:
+			if widget==self.parentWidget():
+				self.resize(widget.size())
+
+		elif event.type()==QtCore.QEvent.Show:
+			self.raise_()
+
+		return super().eventFilter(widget, event)
+
 
 
 class Overlay(QtWidgets.QWidget, OverlayFactoryFilter):
@@ -15,7 +53,7 @@ class Overlay(QtWidgets.QWidget, OverlayFactoryFilter):
 	greyPen = QtGui.QPen(QtGui.QColor(115, 115, 115), 3, QtCore.Qt.SolidLine, QtCore.Qt.RoundCap, QtCore.Qt.RoundJoin)
 	blackPen = QtGui.QPen(QtGui.QColor(0, 0, 0), 1, QtCore.Qt.SolidLine, QtCore.Qt.RoundCap, QtCore.Qt.RoundJoin)
 
-	app = QtWidgets.QApplication.instance()
+	app = QtWidgets.QApplication.instance() or QtWidgets.QApplication(sys.argv) #return the existing QApplication object, or create a new one if none exists.
 
 	def __init__(self, parent=None, antialiasing=False):
 		super().__init__(parent)
@@ -26,6 +64,7 @@ class Overlay(QtWidgets.QWidget, OverlayFactoryFilter):
 		self.setWindowFlags(QtCore.Qt.WindowStaysOnTopHint)
 		self.setAttribute(QtCore.Qt.WA_NoSystemBackground) #takes a single arg
 		self.setAttribute(QtCore.Qt.WA_TransparentForMouseEvents)
+		self.setFocusPolicy(QtCore.Qt.NoFocus)
 
 		self.painter = QtGui.QPainter() #Initialize self.painter
 
@@ -213,7 +252,7 @@ class Overlay(QtWidgets.QWidget, OverlayFactoryFilter):
 		'''
 		'''
 
-
+# --------------------------------------------------------------------------------------------
 
 
 
@@ -224,12 +263,7 @@ if __name__ == '__main__':
 	import sys
 	overlay = Overlay()
 
-	app = QtWidgets.QApplication.instance()
-	sys.exit(app.exec_())
-
-
-
-
+	sys.exit(overlay.app.exec_())
 
 
 #module name

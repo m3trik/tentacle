@@ -35,7 +35,7 @@ class Preferences_blender(Preferences, Slots_blender):
 		# from PySide2 import QtWidgets, QtCore
 		# items = QtWidgets.QStyleFactory.keys() #get styles from QStyleFactory
 		# cmb.addItems_(items)
-		# index = self.styleComboBox.findText(QtGui.qApp.style().objectName(), QtCore.Qt.MatchFixedString) #get/set current value
+		# index = self.styleComboBox.findText(self.sb.app.style().objectName(), QtCore.Qt.MatchFixedString) #get/set current value
 		# cmb.setCurrentIndex(index)
 
 

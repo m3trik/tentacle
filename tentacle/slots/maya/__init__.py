@@ -10,15 +10,13 @@ except ImportError as error:
 	print (__file__, error)
 
 from tentacle.slots import Slots
-from tentacle.slots import tk
-from tentacle.slots.maya import mayatk as mtk
+import pythontk as ptk
+import mayatk as mtk
 
 
 class Slots_maya(Slots):
 	'''App specific methods inherited by all other slot classes.
 	'''
-	undo = mtk.undo
-
 	def __init__(self, *args, **kwargs):
 		super().__init__(*args, **kwargs)
 
@@ -48,9 +46,9 @@ class Slots_maya(Slots):
 			fn (method) = Set an alternative method to call on widget signal. ex. setParameterValuesMEL
 					The first parameter of fn is always the given object. ex. fn(obj, {'attr':<value>})
 			fn_args (str)(list) = Any additonal args to pass to the given fn.
-			attributes (kwargs) = Explicitly pass in attribute:values pairs. Else, attributes will be pulled from mtk.getAttributesMEL for the given obj.
+			attributes (kwargs) = Explicitly pass in attribute:values pairs. Else, attributes will be pulled from mtk.Node.getAttributesMEL for the given obj.
 
-		ex. call: self.setAttributeWindow(node, attrs, fn=mtk.setParameterValuesMEL, 'transformLimits') #set attributes for the Maya command transformLimits.
+		ex. call: self.setAttributeWindow(node, attrs, fn=setParameterValuesMEL, 'transformLimits') #set attributes for the Maya command transformLimits.
 		ex. call: self.setAttributeWindow(transform[0], inc=['translateX','translateY','translateZ','rotateX','rotateY','rotateZ','scaleX','scaleY','scaleZ'], checkableLabel=True)
 		'''
 		try:
@@ -58,12 +56,12 @@ class Slots_maya(Slots):
 		except Exception as error:
 			return 'Error: {}.setAttributeWindow: Invalid Object: {}'.format(__name__, obj)
 
-		fn = fn if fn else mtk.setAttributesMEL
+		fn = fn if fn else mtk.Node.setAttributesMEL
 
 		if attributes:
-			attributes = itertk.filterDict(attributes, inc, exc, keys=True)
+			attributes = ptk.Iter.filterDict(attributes, inc, exc, keys=True)
 		else:
-			attributes = mtk.getAttributesMEL(obj, inc=inc, exc=exc)
+			attributes = mtk.Node.getAttributesMEL(obj, inc=inc, exc=exc)
 
 		menu = self.objAttrWindow(obj, checkableLabel=checkableLabel, fn=fn, fn_args=fn_args, **attributes)
 

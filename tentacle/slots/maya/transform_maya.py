@@ -114,7 +114,7 @@ class Transform_maya(Transform, Slots_maya):
 		selection = pm.ls(sl=1, objectsOnly=1)
 		if state and selection:
 			live_object = pm.ls(live=1)
-			shape = mtk.getShapeNode(selection[0])
+			shape = mtk.Node.getShapeNode(selection[0])
 			if not shape in str(live_object):
 				pm.makeLive(selection) #construction planes, nurbs surfaces and polygon meshes can be made live. makeLive supports one live object at a time.
 				# mtk.viewportMessage('Make Live: <hl>On</hl> {0}'.format(selection[0].name()))
@@ -157,7 +157,7 @@ class Transform_maya(Transform, Slots_maya):
 		freezeTransforms = tb.ctxMenu.chk017.isChecked()
 
 		objects = pm.ls(sl=1, objectsOnly=1)
-		mtk.xformtk.dropToGrid(objects, align, origin, centerPivot, freezeTransforms)
+		mtk.Xform.dropToGrid(objects, align, origin, centerPivot, freezeTransforms)
 		pm.select(objects) #reselect the original selection.
 
 
@@ -176,7 +176,7 @@ class Transform_maya(Transform, Slots_maya):
 
 		if betweenTwoComponents:
 			if len(selection)>1:
-				componentsOnPath = mtk.comptk.getEdgePath(selection, 'edgeLoopPath')
+				componentsOnPath = mtk.Cmpt.getEdgePath(selection, 'edgeLoopPath')
 				pm.select(componentsOnPath)
 
 		if autoAlign: #set coordinates for auto align:
@@ -241,25 +241,25 @@ class Transform_maya(Transform, Slots_maya):
 		loop = tb.ctxMenu.chk007.isChecked()
 
 		if all ([x, not y, not z]): #align x
-			mtk.xformtk.alignVertices(mode=3,average=avg,edgeloop=loop)
+			mtk.Xform.alignVertices(mode=3,average=avg,edgeloop=loop)
 
 		if all ([not x, y, not z]): #align y
-			mtk.xformtk.alignVertices(mode=4,average=avg,edgeloop=loop)
+			mtk.Xform.alignVertices(mode=4,average=avg,edgeloop=loop)
 
 		if all ([not x, not y, z]): #align z
-			mtk.xformtk.alignVertices(mode=5,average=avg,edgeloop=loop)
+			mtk.Xform.alignVertices(mode=5,average=avg,edgeloop=loop)
 
 		if all ([not x, y, z]): #align yz
-			mtk.xformtk.alignVertices(mode=0,average=avg,edgeloop=loop)
+			mtk.Xform.alignVertices(mode=0,average=avg,edgeloop=loop)
 
 		if all ([x, not y, z]): #align xz
-			mtk.xformtk.alignVertices(mode=1,average=avg,edgeloop=loop)
+			mtk.Xform.alignVertices(mode=1,average=avg,edgeloop=loop)
 
 		if all ([x, y, not z]): #align xy
-			mtk.xformtk.alignVertices(mode=2,average=avg,edgeloop=loop)
+			mtk.Xform.alignVertices(mode=2,average=avg,edgeloop=loop)
 
 		if all ([x, y, z]): #align xyz
-			mtk.xformtk.alignVertices(mode=6,average=avg,edgeloop=loop)
+			mtk.Xform.alignVertices(mode=6,average=avg,edgeloop=loop)
 
 
 	def tb002(self, state=None):
@@ -302,7 +302,7 @@ class Transform_maya(Transform, Slots_maya):
 			self.messageBox('<b>Nothing selected.</b><br>The operation requires a single selected object.')
 			return
 
-		transform = mtk.getTransformNode(node)
+		transform = mtk.Node.getTransformNode(node)
 		self.setAttributeWindow(transform, inc=['translateX','translateY','translateZ','rotateX','rotateY','rotateZ','scaleX','scaleY','scaleZ'], checkableLabel=True)
 
 
@@ -317,7 +317,7 @@ class Transform_maya(Transform, Slots_maya):
 		frm = selection[0]
 		to = selection[1:]
 
-		mtk.xformtk.matchScale(frm, to)
+		mtk.Xform.matchScale(frm, to)
 
 
 	def b003(self):
@@ -349,7 +349,7 @@ class Transform_maya(Transform, Slots_maya):
 
 		if selection:
 			live_object = pm.ls(live=1)
-			shape = mtk.getShapeNode(selection[0])
+			shape = mtk.Node.getShapeNode(selection[0])
 			if not shape in str(live_object):
 				self.chk026(state=1)
 				cmb.menu_.chk026.setChecked(True)

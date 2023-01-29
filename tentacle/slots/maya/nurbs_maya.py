@@ -8,13 +8,13 @@ class Nurbs_maya(Nurbs, Slots_maya):
 	def __init__(self, *args, **kwargs):
 		super().__init__(*args, **kwargs)
 
-		cmb = self.sb.nurbs.draggable_header.ctxMenu.cmb000
+		cmb000 = self.sb.nurbs.draggable_header.ctxMenu.cmb000
 		items = ['Project Curve','Duplicate Curve','Create Curve from Poly','Bend Curve', 'Curl Curve','Modify Curve Curvature','Smooth Curve','Straighten Curves','Extrude Curves','Revolve Curves','Loft Curves','Planar Curves','Insert Isoparms','Insert Knot','Rebuild Curve','Extend Curve', 'Extend Curve On Surface']
-		cmb.addItems_(items, 'Curve Editors')
+		cmb000.addItems_(items, 'Curve Editors')
 
-		cmb = self.sb.nurbs.cmb001
+		cmb001 = self.sb.nurbs.cmb001
 		items = ['Ep Curve Tool','CV Curve Tool','Bezier Curve Tool','Pencil Curve Tool','2 Point Circular Arc','3 Point Circular Arc']
-		cmb.addItems_(items, 'Create Curve')
+		cmb001.addItems_(items, 'Create Curve')
 
 
 	def cmb000(self, index=-1):
@@ -125,7 +125,7 @@ class Nurbs_maya(Nurbs, Slots_maya):
 	def b012(self):
 		'''Project Curve
 		'''
-		pm.mel.eval("projectCurve;") #ProjectCurveOnMesh;
+		pm.mel.ProjectCurveOnMesh()
 
 
 	def b014(self):
@@ -142,8 +142,8 @@ class Nurbs_maya(Nurbs, Slots_maya):
 
 		except Exception as error:
 			sel = pm.ls(sl=1)
-			sel_edges = mtk.comptk.getComponents(sel, componentType='edges', flatten=1) #get edges from selection.
-			edge_rings = mtk.comptk.getContigiousEdges(sel_edges)
+			sel_edges = mtk.Cmpt.getComponents(sel, componentType='edges', flatten=1) #get edges from selection.
+			edge_rings = mtk.Cmpt.getContigiousEdges(sel_edges)
 			multi = len(edge_rings)>1
 
 			for edge_ring in edge_rings:
@@ -192,14 +192,12 @@ class Nurbs_maya(Nurbs, Slots_maya):
 
 	def b028(self):
 		'''Straighten Curve
-
 		'''
 		pm.mel.StraightenCurves()
 
 
 	def b030(self):
 		'''Extrude
-
 		'''
 		pm.mel.Extrude()
 
@@ -266,9 +264,8 @@ class Nurbs_maya(Nurbs, Slots_maya):
 
 	def b051(self):
 		'''Reverse Curve
-
 		'''
-		pm.mel.eval("reverse;")
+		pm.mel.reverse()
 
 
 	def b052(self):
@@ -283,7 +280,7 @@ class Nurbs_maya(Nurbs, Slots_maya):
 		pm.mel.ExtendCurveOnSurface()
 
 
-	@Slots_maya.undo
+	@mtk.undo
 	def loft(self, uniform=True, close=False, degree=3, autoReverse=False, sectionSpans=1, range_=False, polygon=True, reverseSurfaceNormals=True, angleLoftBetweenTwoCurves=False, angleLoftSpans=6):
 		'''Create a loft between two selections.
 
@@ -327,7 +324,7 @@ class Nurbs_maya(Nurbs, Slots_maya):
 		return result
 
 
-	@Slots_maya.undo
+	@mtk.undo
 	def createCurveBetweenTwoObjects(self, start, end):
 		'''Create a bezier curve between starting and end object(s).
 
@@ -385,7 +382,7 @@ class Nurbs_maya(Nurbs, Slots_maya):
 		return result
 
 
-	@Slots_maya.undo
+	@mtk.undo
 	def duplicateAlongCurve(self, path, start, count=6, geometry='Instancer'):
 		'''Duplicate objects along a given curve using MASH.
 
@@ -401,7 +398,6 @@ class Nurbs_maya(Nurbs, Slots_maya):
 		# pm.undoInfo(openChunk=1)
 		#create a MASH network
 		import MASH.api as mapi
-		import slots.maya.tk.mashtls
 
 		mashNW = mapi.Network()
 		mashNW.MTcreateNetwork(start, geometry=geometry, hideOnCreate=False) #mashtls module (derived from 'createNetwork')
@@ -433,7 +429,7 @@ class Nurbs_maya(Nurbs, Slots_maya):
 		return result
 
 
-	@Slots_maya.undo
+	@mtk.undo
 	def angleLoftBetweenTwoCurves(self, start, end, count=6, cleanup=False, uniform=1, close=0, autoReverse=0, 
 										degree=3, sectionSpans=1, range=0, polygon=1, reverseSurfaceNormals=0):
 		'''Perform a loft between two nurbs curves or polygon sets of edges (that will be extracted as curves).
@@ -450,11 +446,11 @@ class Nurbs_maya(Nurbs, Slots_maya):
 		# pm.undoInfo(openChunk=1)
 		if pm.objectType(start)=='mesh': #vs. 'nurbsCurve'
 			start, startNode = pm.polyToCurve(start, form=2, degree=3, conformToSmoothMeshPreview=1) #extract curve from mesh
-		mtk.xformtk.resetTranslation(start) #reset the transforms to world origin.
+		mtk.Xform.resetTranslation(start) #reset the transforms to world origin.
 
 		if pm.objectType(end)=='mesh': #vs. 'nurbsCurve'
 			end, endNode = pm.polyToCurve(end, form=2, degree=3, conformToSmoothMeshPreview=1) #extract curve from mesh
-		mtk.xformtk.resetTranslation(end) #reset the transforms to world origin.
+		mtk.Xform.resetTranslation(end) #reset the transforms to world origin.
 
 		path = self.createCurveBetweenTwoObjects(start, end)
 		curves = self.duplicateAlongCurve(path, start, count=count)

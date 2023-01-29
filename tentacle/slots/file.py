@@ -1,7 +1,7 @@
 # !/usr/bin/python
 # coding=utf-8
 from tentacle.slots import Slots
-from tentacle.slots.tk import filetk
+from pythontk import File as File_
 
 
 class File(Slots):
@@ -13,10 +13,11 @@ class File(Slots):
 		'''
 		#set the text for the open last file button to the last file's name.
 		list000 = self.sb.file_submenu.list000
-		recentFiles = [filetk.formatPath(f, 'name') for f in self.getRecentFiles()[:6] if f]
+		recentFiles = [File_.formatPath(f, 'name') for f in self.getRecentFiles()[:6] if f]
 		# list000.setVisible(bool(recentFiles))
+		recentFiles = ['fileA', 'fileB', 'fileC']
 		list000.addItems(recentFiles)
-		# self.sb.file_submenu.b001.setText(filetk.formatPath(mostRecentFile, 'name')) if mostRecentFile else self.sb.file_submenu.b001.setVisible(False)
+		# self.sb.file_submenu.b001.setText(File_.formatPath(mostRecentFile, 'name')) if mostRecentFile else self.sb.file_submenu.b001.setVisible(False)
 
 		dh = self.sb.file.draggable_header
 		dh.ctxMenu.add(self.sb.ComboBox, setObjectName='cmb000', setToolTip='')

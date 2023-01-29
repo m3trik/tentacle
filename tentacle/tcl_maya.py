@@ -2,10 +2,10 @@
 # coding=utf-8
 import sys
 
-from PySide2 import QtWidgets, QtCore
+from PySide2 import QtCore
 
 from tentacle.tcl import Tcl
-from tentacle.slots.maya.mayatk import getMainWindow
+from mayatk import getMainWindow
 
 
 class Tcl_maya(Tcl):
@@ -25,7 +25,6 @@ class Tcl_maya(Tcl):
 				print(__file__, error)
 
 		super().__init__(parent, slotLoc=slotLoc, *args, **kwargs)
-		setattr(self.sb.app, 'mainAppWindow', parent)
 
 
 	def keyPressEvent(self, event):
@@ -63,6 +62,34 @@ class Tcl_maya(Tcl):
 
 		Tcl.hideEvent(self, event) #super().hideEvent(event)
 
+# --------------------------------------------------------------------------------------------
+
+_instances = {}
+def getInstance(instanceID=None, *args, **kwargs):
+	'''Get an instance of this class using a given instanceID.
+	The instanceID is either the object or the object's id.
+
+	:Parameters:
+		instanceID () = The instanceID can be any immutable type.
+		args/kwargs () = The args to be passed to the class instance when it is created.
+
+	:Return:
+		(obj) An instance of this class.
+
+	ex. call: tcl = Tcl_maya.getInstance(id(0), key_show='Key_F12') #returns the class instance with an instance ID of the value of `id(0)`.
+	'''
+	import inspect
+
+	if instanceID is None:
+		instanceID = inspect.stack()[1][3]
+	try:
+		return _instances[instanceID]
+
+	except KeyError as error:
+		_instances[instanceID] = Tcl_maya(*args, **kwargs)
+		return _instances[instanceID]
+
+# --------------------------------------------------------------------------------------------
 
 
 
@@ -70,16 +97,16 @@ class Tcl_maya(Tcl):
 
 
 
+
+
+# --------------------------------------------------------------------------------------------
 
 if __name__ == "__main__":
 
 	tcl = Tcl_maya()
-	tcl.show('init') #Tcl_maya(dummyParent).show()
+	tcl.show('init')
 
-	app = QtWidgets.QApplication.instance()
-	sys.exit(app.exec_()) # run app, show window, wait for input, then terminate program with a status code returned from app.
-
-
+	sys.exit(tcl.sb.app.exec_()) # run app, show window, wait for input, then terminate program with a status code returned from app.
 
 #module name
 print (__name__)
@@ -102,6 +129,42 @@ print (__name__)
 
 
 # deprecated: -----------------------------------
+
+
+	# _instances = {}
+
+	# def __init__(self, parent=None, id=None, slotLoc='slots/maya', *args, **kwargs):
+	# 	'''
+	# 	'''
+	# 	if not parent:
+	# 		try:
+	# 			parent = getMainWindow()
+
+	# 		except Exception as error:
+	# 			print(__file__, error)
+
+	# 	super().__init__(parent, slotLoc=slotLoc, *args, **kwargs)
+
+	# 	if id is not None:
+	# 		Tcl_maya._instances[id] = self
+
+
+	# @classmethod
+	# def get_instance(cls, id, profile=False):
+	# 	if id not in cls._instances:
+	# 		cls._instances[id] = Tcl_maya(key_show='Key_F12', profile=profile, id=id)
+	# 	return cls._instances[id]
+
+
+	# def show_instance(self):
+	# 	self.sendKeyPressEvent(self.key_show)
+
+	# #call
+	# from tentacle.tcl_maya import Tcl_maya
+	# 	tcl = Tcl_maya.get_instance(id, profile=profile)
+	# 	tcl.show_instance()
+
+
 
 # class Instance(Instance):
 # 	'''Manage multiple instances of Tcl_maya.

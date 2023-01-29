@@ -66,7 +66,7 @@ class Crease_maya(Crease, Slots_maya):
 			pm.polySelectConstraint( angle=False ) # turn off angle constraint
 
 
-	@Slots_maya.undo
+	@mtk.undo
 	def b002(self):
 		'''Transfer Crease Edges
 		'''

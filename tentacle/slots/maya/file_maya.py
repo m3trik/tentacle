@@ -2,13 +2,12 @@
 # coding=utf-8
 from tentacle.slots.maya import *
 from tentacle.slots.file import File
-from tentacle.slots.tk import filetk
+from pythontk import File as File_
 
 
 class File_maya(File, Slots_maya):
 	def __init__(self, *args, **kwargs):
 		super().__init__(*args, **kwargs)
-
 
 		cmb000 = self.sb.file.draggable_header.ctxMenu.cmb000
 		items = []
@@ -67,7 +66,7 @@ class File_maya(File, Slots_maya):
 		cmb = self.sb.file.cmb002
 
 		if index>0:
-			file = filetk.timeStamp(cmb.items[index], detach=True)
+			file = File_.timeStamp(cmb.items[index], detach=True)
 			pm.openFile(file, open=1, force=True)
 			cmb.setCurrentIndex(0)
 
@@ -139,9 +138,9 @@ class File_maya(File, Slots_maya):
 		'''
 		cmb = self.sb.file.cmb006
 
-		path = filetk.formatPath(pm.workspace(query=1, rd=1)) #current project path.
+		path = File_.formatPath(pm.workspace(query=1, rd=1)) #current project path.
 		items = [f for f in os.listdir(path)]
-		project = filetk.formatPath(path, 'dir') #add current project path string to label. strip path and trailing '/'
+		project = File_.formatPath(path, 'dir') #add current project path string to label. strip path and trailing '/'
 
 		cmb.addItems_(items, header=project, clear=True)
 
@@ -210,7 +209,7 @@ class File_maya(File, Slots_maya):
 		'''Open current project root
 		'''
 		dir_ = pm.workspace(query=1, rd=1) #current project path.
-		os.startfile(filetk.formatPath(dir_))
+		os.startfile(File_.formatPath(dir_))
 
 
 	def b000(self):
@@ -221,7 +220,7 @@ class File_maya(File, Slots_maya):
 
 		try:
 			# os.startfile(self.formatPath(dir1))
-			os.startfile(filetk.formatPath(dir2))
+			os.startfile(File_.formatPath(dir2))
 
 		except FileNotFoundError as error:
 			self.messageBox('The system cannot find the file specified.')
@@ -274,7 +273,7 @@ class File_maya(File, Slots_maya):
 			(list)(str)
 		'''
 		files = pm.optionVar(query='RecentFilesList')
-		result = [filetk.formatPath(f) for f in list(reversed(files)) 
+		result = [File_.formatPath(f) for f in list(reversed(files)) 
 					if "Autosave" not in f] if files else []
 		try:
 			result = result[index]
@@ -282,7 +281,7 @@ class File_maya(File, Slots_maya):
 			pass
 
 		if timestamp:  #attach modified timestamp
-			result = filetk.timeStamp(result)
+			result = File_.timeStamp(result)
 
 		return result
 
@@ -294,7 +293,7 @@ class File_maya(File, Slots_maya):
 			(list)
 		'''
 		files = pm.optionVar(query='RecentProjectsList')
-		result = [filetk.formatPath(f) for f in list(reversed(files))]
+		result = [File_.formatPath(f) for f in list(reversed(files))]
 
 		return result
 
@@ -311,11 +310,11 @@ class File_maya(File, Slots_maya):
 		dir1 = str(pm.workspace(query=1, rd=1))+'autosave' #current project path.
 		dir2 = os.environ.get('MAYA_AUTOSAVE_FOLDER').split(';')[0] #get autosave dir path from env variable.
 
-		files = filetk.getDirContents(dir1, 'filepaths', incFiles=('*.mb', '*.ma')) + filetk.getDirContents(dir2, 'filepaths', incFiles=('*.mb', '*.ma'))
-		result = [filetk.formatPath(f) for f in list(reversed(files))] #Replace any backslashes with forward slashes and reverse the list.
+		files = File_.getDirContents(dir1, 'filepaths', incFiles=('*.mb', '*.ma')) + File_.getDirContents(dir2, 'filepaths', incFiles=('*.mb', '*.ma'))
+		result = [File_.formatPath(f) for f in list(reversed(files))] #Replace any backslashes with forward slashes and reverse the list.
 
 		if timestamp:  #attach modified timestamp
-			result = filetk.timeStamp(result, sort=True)
+			result = File_.timeStamp(result, sort=True)
 
 		return result
 
@@ -331,8 +330,8 @@ class File_maya(File, Slots_maya):
 		'''
 		workspace_dir = str(pm.workspace(query=1, rd=1)) #get current project path.
 
-		files = filetk.getDirContents(workspace_dir, 'filepaths', incFiles=('*.mb', '*.ma'))
-		result = [filetk.formatPath(f) for f in files] #Replace any backslashes with forward slashes.
+		files = File_.getDirContents(workspace_dir, 'filepaths', incFiles=('*.mb', '*.ma'))
+		result = [File_.formatPath(f) for f in files] #Replace any backslashes with forward slashes.
 
 		if not fullPath:
 			result = [f.split('\\')[-1] for f in result]

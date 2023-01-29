@@ -5,7 +5,6 @@ import os, sys
 from PySide2 import QtCore, QtGui, QtWidgets
 
 
-
 class EventFactoryFilter(QtCore.QObject):
 	'''Event filter for dynamic ui objects.
 
@@ -76,48 +75,6 @@ class EventFactoryFilter(QtCore.QObject):
 
 
 
-class OverlayFactoryFilter(QtCore.QObject):
-	'''Handles paint events as an overlay on top of an existing widget.
-	'''
-	def __init__(self, parent=None):
-		super().__init__(parent)
-
-
-	def eventFilter(self, widget, event):
-		'''Relay events from the parent widget to the overlay.
-		'''
-		if not widget.isWidgetType():
-			return False
-
-		if event.type()==QtCore.QEvent.MouseButtonPress:
-			self.mousePressEvent(event)
-
-		elif event.type()==QtCore.QEvent.MouseButtonRelease:
-			self.mouseReleaseEvent(event)
-
-		elif event.type()==QtCore.QEvent.MouseMove:
-			self.mouseMoveEvent(event)
-
-		elif event.type()==QtCore.QEvent.MouseButtonDblClick:
-			self.mouseDoubleClickEvent(event)
-
-		elif event.type()==QtCore.QEvent.KeyPress:
-			self.keyPressEvent(event)
-
-		elif event.type()==QtCore.QEvent.KeyRelease:
-			self.keyReleaseEvent(event)
-
-		elif event.type()==QtCore.QEvent.Resize:
-			if widget==self.parentWidget():
-				self.resize(widget.size())
-
-		elif event.type()==QtCore.QEvent.Show:
-			self.raise_()
-
-		return super().eventFilter(widget, event)
-
-
-
 class MouseTracking(QtCore.QObject):
 	'''
 	'''
@@ -126,19 +83,7 @@ class MouseTracking(QtCore.QObject):
 	enterEvent_ = QtCore.QEvent(QtCore.QEvent.Enter)
 	leaveEvent_ = QtCore.QEvent(QtCore.QEvent.Leave)
 
-	app = QtWidgets.QApplication.instance()
-	if not app:
-		app = QtWidgets.QApplication(sys.argv)
-
-
-	def __init__(self, parent=None,):
-		'''
-		:Parameters:
-			parent (obj) = The parent application's top level window instance. ie. the Maya main window.
-			profile (bool) = Prints the total running time, times each function separately, and tells you how many times each function was called.
-		'''
-		super().__init__(parent)
-
+	app = QtWidgets.QApplication.instance() or QtWidgets.QApplication(sys.argv) #return the existing QApplication object, or create a new one if none exists.
 
 	def mouseOverFilter(self, widgets):
 		'''Get the widget(s) currently under the mouse cursor, and manage mouse grab and event handling for those widgets.
@@ -176,6 +121,7 @@ class MouseTracking(QtCore.QObject):
 			if not w in mouseOver:
 				self.app.sendEvent(w, self.leaveEvent_)
 				w.releaseMouse()
+				# print ('releaseMouse:', w) #debug
 
 		#send enter events for any new widgets in mouseOver.
 		for w in mouseOver:
@@ -185,14 +131,15 @@ class MouseTracking(QtCore.QObject):
 		try:
 			topWidget = self.app.widgetAt(QtGui.QCursor.pos())
 			topWidget.grabMouse() #set widget to receive mouse events.
-			# print ('mousegrabber:', topWidget)
+			# print ('grabMouse:', topWidget) #debug
+			# print ('focusWidget:', self.app.focusWidget())
 
 		except AttributeError as error:
 			self.app.activeWindow().grabMouse()
 
 		self._prevMouseOver = mouseOver
 
-
+# --------------------------------------------------------------------------------------------
 
 
 
@@ -207,8 +154,7 @@ print (__name__)
 # --------------------------------------------------------------------------------------------
 
 
-
-#deprecated:
+#deprecated: ------------------------------
 
 # w = self.app.widgetAt(QtGui.QCursor.pos())
 

@@ -132,26 +132,26 @@ class Create_maya(Create, Slots_maya):
 
 		if selection: #if originally there was a selected object, move the object to that objects's bounding box center.
 			if translate:
-				mtk.xformtk.moveTo(node, selection)
-				# center_pos = mtk.xformtk.getCenterPoint(selection)
+				mtk.Xform.moveTo(node, selection)
+				# center_pos = mtk.Xform.getCenterPoint(selection)
 				# pm.xform(node, translation=center_pos, worldSpace=1, absolute=1)
 			if scale:
-				mtk.xformtk.matchScale(node[0], selection, average=True)
+				mtk.Xform.matchScale(node[0], selection, average=True)
 
 		pm.selectMode(object=1) #place scene select type in object mode.
 		pm.select(node) #select the transform node so that you can see any edits
 
-		return mtk.getHistoryNode(node)
+		return mtk.Node.getHistoryNode(node)
 
 
 	def b005(self):
 		'''Create 6 sided poly cylinder
 		'''
-		node = self.createPrimitive('Polygon', 'Cylinder')
-		mtk.setAttributesMEL(node, verbose=True, subdivisionsAxis=6)
+		obj = self.createPrimitive('Polygon', 'Cylinder')
+		mtk.Node.setAttributesMEL(obj, verbose=True, subdivisionsAxis=6)
 
 
-	@Slots_maya.undo
+	@mtk.undo
 	def createCircle(self, axis='y', numPoints=5, radius=5, center=[0,0,0], mode=0, name='pCircle'):
 		'''Create a circular polygon plane.
 
@@ -227,7 +227,7 @@ print (__name__)
 	# def node(self):
 	# 	'''Get the Transform Node
 	# 	'''
-	# 	transform = mtk.getTransformNode()
+	# 	transform = mtk.Node.getTransformNode()
 	# 	if transform:
 	# 		if not self.sb.create.txt003.text()==transform[0].name(): #make sure the same field reflects the current working node.
 	# 			self.sb.create.txt003.setText(transform[0].name())

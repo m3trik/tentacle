@@ -9,7 +9,6 @@ import inspect
 name = 'tentacletk'
 __version__ = '0.5.1'
 
-
 def greeting(string, outputToConsole=True):
 	'''Format a string using preset variables.
 
@@ -108,21 +107,21 @@ def addMembers(module, ignoreStartingWith='_'):
 			vars(module)[name] = mem
 
 
-def pipInstallOnError(module_name):
-	'''Import a module.
-	Attempt to pip install the module on ImportError.
-	:Parameters:
-		module_name (str) = The name of the module.
-	:Return:
-		(obj) The imported module.
-	'''
-	try:
-		return __import__(module_name)
+# def pipInstallOnError(module_name):
+# 	'''Import a module.
+# 	Attempt to pip install the module on ImportError.
+# 	:Parameters:
+# 		module_name (str) = The name of the module.
+# 	:Return:
+# 		(obj) The imported module.
+# 	'''
+# 	try:
+# 		return __import__(module_name)
 
-	except ImportError as error:
-		from pip._internal import main as pip
-		pip(['install', '--user', module_name])
-		return __import__(module_name)
+# 	except ImportError as error:
+# 		from pip._internal import main as pip
+# 		pip(['install', '--user', module_name])
+# 		return __import__(module_name)
 
 
 def lazy_import(importer_name, to_import):

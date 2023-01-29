@@ -119,13 +119,13 @@ class Display_blender(Display, Slots_blender):
 		currentPanel = getPanel(withFocus=True)
 		state = pm.modelEditor(currentPanel, query=1, useDefaultMaterial=1)
 		pm.modelEditor(currentPanel, edit=1, useDefaultMaterial=not state)
-		self.viewportMessage('Default Material Override: <hl>{}</hl>.'.format(state))
+		self.mtk.viewportMessage('Default Material Override: <hl>{}</hl>.'.format(state))
 
 
 	def b011(self):
 		'''Toggle Component Id Display
 		'''
-		index = tk.cycle([0,1,2,3,4], 'componentID')
+		index = ptk.cycle([0,1,2,3,4], 'componentID')
 
 		visible = pm.polyOptions(query=1, displayItemNumbers=1)
 		if not visible:
@@ -149,15 +149,15 @@ class Display_blender(Display, Slots_blender):
 				i+=1
 
 		if index==0:
-			self.viewportMessage("[1,0,0,0] <hl>vertIDs</hl>.")
+			self.mtk.viewportMessage("[1,0,0,0] <hl>vertIDs</hl>.")
 		elif index==1:
-			self.viewportMessage("[0,1,0,0] <hl>edgeIDs</hl>.")
+			self.mtk.viewportMessage("[0,1,0,0] <hl>edgeIDs</hl>.")
 		elif index==2:
-			self.viewportMessage("[0,0,1,0] <hl>faceIDs</hl>.")
+			self.mtk.viewportMessage("[0,0,1,0] <hl>faceIDs</hl>.")
 		elif index==3:
-			self.viewportMessage("[0,0,0,1] <hl>compIDs(UV)</hl>.")
+			self.mtk.viewportMessage("[0,0,0,1] <hl>compIDs(UV)</hl>.")
 		elif index==4:
-			self.viewportMessage("component ID <hl>Off</hl>.")
+			self.mtk.viewportMessage("component ID <hl>Off</hl>.")
 
 
 	def b012(self):

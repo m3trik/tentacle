@@ -16,7 +16,7 @@
 @Slots.hideMain		# Hides the stacked widget main window.
 @Slots.progress		# Displays a progress bar. (currently disabled)
 @Slots_maya.attr	# Launch a popup window containing the given objects attributes. A Decorator for setAttributeWindow (objAttrWindow).
-@Slots_maya.undo	# A decorator to allow undoing an executed function in one chunk.
+@undo	# A decorator to allow undoing an executed function in one chunk.
 
 
 

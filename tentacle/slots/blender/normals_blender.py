@@ -33,26 +33,26 @@ class Normals_blender(Normals, Slots_blender):
 
 		size = float(tb.ctxMenu.s001.value())
 		# state = pm.polyOptions (query=True, displayNormal=True)
-		state = tk.cycle([1,2,3,0], 'displayNormals')
+		state = ptk.cycle([1,2,3,0], 'displayNormals')
 		if state ==0: #off
 			pm.polyOptions (displayNormal=0, sizeNormal=0)
 			pm.polyOptions (displayTangent=False)
-			self.viewportMessage("Normals Display <hl>Off</hl>.")
+			self.mtk.viewportMessage("Normals Display <hl>Off</hl>.")
 
 		if state ==1: #facet
 			pm.polyOptions (displayNormal=1, facet=True, sizeNormal=size)
 			pm.polyOptions (displayTangent=False)
-			self.viewportMessage("<hl>Facet</hl> Normals Display <hl>On</hl>.")
+			self.mtk.viewportMessage("<hl>Facet</hl> Normals Display <hl>On</hl>.")
 
 		if state ==2: #Vertex
 			pm.polyOptions (displayNormal=1, point=True, sizeNormal=size)
 			pm.polyOptions (displayTangent=False)
-			self.viewportMessage("<hl>Vertex</hl> Normals Display <hl>On</hl>.")
+			self.mtk.viewportMessage("<hl>Vertex</hl> Normals Display <hl>On</hl>.")
 
 		if state ==3: #tangent
 			pm.polyOptions (displayTangent=True)
 			pm.polyOptions (displayNormal=0)
-			self.viewportMessage("<hl>Tangent</hl> Display <hl>On</hl>.")
+			self.mtk.viewportMessage("<hl>Tangent</hl> Display <hl>On</hl>.")
 
 
 	def tb001(self, state=None):
@@ -125,23 +125,23 @@ class Normals_blender(Normals, Slots_blender):
 
 		if (all_ and maskVertex) or maskObject:
 			for obj in selection:
-				vertices = mtk.comptk.getComponents(obj, 'vertices', flatten=1)
+				vertices = mtk.Cmpt.getComponents(obj, 'vertices', flatten=1)
 				for vertex in vertices:
 					if not state:
 						pm.polyNormalPerVertex(vertex, unFreezeNormal=1)
 					else:
 						pm.polyNormalPerVertex(vertex, freezeNormal=1)
 				if not state:
-					self.viewportMessage("Normals <hl>UnLocked</hl>.")
+					self.mtk.viewportMessage("Normals <hl>UnLocked</hl>.")
 				else:
-					self.viewportMessage("Normals <hl>Locked</hl>.")
+					self.mtk.viewportMessage("Normals <hl>Locked</hl>.")
 		elif maskVertex and not maskObject:
 			if not state:
 				pm.polyNormalPerVertex(unFreezeNormal=1)
-				self.viewportMessage("Normals <hl>UnLocked</hl>.")
+				self.mtk.viewportMessage("Normals <hl>UnLocked</hl>.")
 			else:
 				pm.polyNormalPerVertex(freezeNormal=1)
-				self.viewportMessage("Normals <hl>Locked</hl>.")
+				self.mtk.viewportMessage("Normals <hl>Locked</hl>.")
 		else:
 			return 'Warning: Selection must be object or vertex.'
 

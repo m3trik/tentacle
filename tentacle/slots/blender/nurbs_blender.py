@@ -144,7 +144,7 @@ class Nurbs_blender(Nurbs, Slots_blender):
 
 		except Exception as error:
 			objects = pm.ls(sl=1, objectsOnly=1)
-			sel_edges = mtk.comptk.getComponents('edges', flatten=1)
+			sel_edges = mtk.Cmpt.getComponents('edges', flatten=1)
 			edge_rings = self.getContigiousEdges(sel_edges)
 			multi = len(edge_rings)>1
 
@@ -452,11 +452,11 @@ class Nurbs_blender(Nurbs, Slots_blender):
 		# pm.undoInfo(openChunk=1)
 		if pm.objectType(start)=='mesh': #vs. 'nurbsCurve'
 			start, startNode = pm.polyToCurve(start, form=2, degree=3, conformToSmoothMeshPreview=1) #extract curve from mesh
-		mtk.xformtk.resetTranslation(start) #reset the transforms to world origin.
+		mtk.XformresetTranslation(start) #reset the transforms to world origin.
 
 		if pm.objectType(end)=='mesh': #vs. 'nurbsCurve'
 			end, endNode = pm.polyToCurve(end, form=2, degree=3, conformToSmoothMeshPreview=1) #extract curve from mesh
-		mtk.xformtk.resetTranslation(end) #reset the transforms to world origin.
+		mtk.XformresetTranslation(end) #reset the transforms to world origin.
 
 		path = self.createCurveBetweenTwoObjects(start, end)
 		curves = self.duplicateAlongCurve(path, start, count=count)
@@ -625,7 +625,7 @@ class Nurbs_blender(Nurbs, Slots_blender):
 		for curve in pm.ls(curves):
 			p0 = pm.objectCenter(curve)
 
-			cvs = mtk.comptk.getComponents(curve, 'cv', returnType='object', flatten=1)
+			cvs = mtk.Cmpt.getComponents(curve, 'cv', returnType='object', flatten=1)
 			cvPos = self.getCvInfo(curve, 'position')
 			p1 = cvPos[cvs[0]]
 			p2 = cvPos[cvs[(len(cvs)/2)]]

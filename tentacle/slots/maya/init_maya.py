@@ -46,7 +46,7 @@ class Init_maya(Init, Slots_maya):
 			if xformConstraint=='none':
 				xformConstraint=None
 			if xformConstraint:
-				hud.insertText('Xform Constrait: <font style="color: Yellow;">{}'.format(xformConstraint)) #transform constraits
+				hud.insertText('Xform Constraint: <font style="color: Yellow;">{}'.format(xformConstraint)) #transform constraits
 
 		else:
 			if pm.selectMode(query=1, object=1): #object mode:

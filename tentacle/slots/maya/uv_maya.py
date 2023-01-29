@@ -179,7 +179,7 @@ class Uv_maya(Uv, Slots_maya):
 		pm.u3dLayout(sel, scl=similar, resolution=mapSize, shellSpacing=shellPadding, tileMargin=tilePadding, preScaleMode=scale, preRotateMode=rotate, packBox=[M-1, D, I, U]) #layoutScaleMode (int), multiObject (bool), mutations (int), packBox (float, float, float, float), preRotateMode (int), preScaleMode (int), resolution (int), rotateMax (float), rotateMin (float), rotateStep (float), shellSpacing (float), tileAssignMode (int), tileMargin (float), tileU (int), tileV (int), translate (bool)
 
 
-	@Slots_maya.undo
+	@mtk.undo
 	@Slots_maya.attr
 	def tb001(self, state=None):
 		'''Auto Unwrap
@@ -207,9 +207,9 @@ class Uv_maya(Uv, Slots_maya):
 						unwrapType = 'Cylindrical'
 					elif sphericalUnwrap:
 						unwrapType = 'Spherical'
-					objFaces = mtk.comptk.getComponents(obj, 'f')
+					objFaces = mtk.Cmpt.getComponents(obj, 'f')
 					if not objFaces:
-						objFaces = mtk.comptk.getComponents(obj, 'f')
+						objFaces = mtk.Cmpt.getComponents(obj, 'f')
 					pm.polyProjection(objFaces, type=unwrapType, insertBeforeDeformers=1, smartFit=1)
 
 				elif normalBasedUnwrap:
@@ -333,7 +333,7 @@ class Uv_maya(Uv, Slots_maya):
 			pm.mel.texDistributeShells(0, 0, "down", []) #'up', 'down'
 
 
-	@Slots_maya.undo
+	@mtk.undo
 	def tb008(self, state=None):
 		'''Transfer UV's
 		'''
@@ -505,7 +505,7 @@ class Uv_maya(Uv, Slots_maya):
 		else:
 			objects = pm.ls(objects, selection=1, objectsOnly=1, transforms=1, flatten=1)
 
-		objectType = mtk.getType(objects[0])
+		objectType = mtk.Node.getType(objects[0])
 		if objectType=='f': #Polygon Face
 			faces = objects
 		else:
@@ -574,7 +574,7 @@ class Uv_maya(Uv, Slots_maya):
 		return uv_border_edges
 
 
-	@Slots_maya.undo
+	@mtk.undo
 	def transferUVs(self, frm, to='similar', tol=0.0, sampleSpace='component', deleteConstHist=True):
 		'''Transfer UV's from one group of objects to another.
 

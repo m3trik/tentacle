@@ -4,12 +4,11 @@ import sys, os
 
 from PySide2 import QtCore, QtGui, QtWidgets
 
+from pythontk import Iter
 from tentacle.switchboard import Switchboard
-from tentacle.events import EventFactoryFilter, MouseTracking
 from tentacle.overlay import Overlay
-
-from tentacle.ui.widgets import rwidgets
-from tentacle.slots.tk import itertk
+from tentacle.events import EventFactoryFilter, MouseTracking
+from tentacle.widgets import rwidgets
 
 
 class Tcl(QtWidgets.QStackedWidget):
@@ -23,11 +22,10 @@ class Tcl(QtWidgets.QStackedWidget):
 	_mousePressPos = QtCore.QPoint()
 	_key_show_release = QtCore.Signal()
 
-	def __init__(self, parent=None, key_show='Key_F12', preventHide=False, slotLoc='', profile=False):
+	def __init__(self, parent=None, key_show='Key_F12', preventHide=False, slotLoc=''):
 		'''
 		:Parameters:
 			parent (obj) = The parent application's top level window instance. ie. the Maya main window.
-			profile (bool) = Prints the total running time, times each function separately, and tells you how many times each function was called.
 		'''
 		super().__init__(parent)
 
@@ -36,12 +34,11 @@ class Tcl(QtWidgets.QStackedWidget):
 		self.key_show = getattr(QtCore.Qt, key_show)
 		self.key_undo = QtCore.Qt.Key_Z
 		self.key_close = QtCore.Qt.Key_Escape
-		self.profile = profile
 		self.preventHide = preventHide
 
 		# self.sb.app.setDoubleClickInterval(400)
 		# self.sb.app.setKeyboardInputInterval(400)
-		self.sb.app.focusChanged.connect(self.focusChanged)
+		# self.sb.app.focusChanged.connect(self.focusChanged)
 
 		self.setWindowFlags(QtCore.Qt.Tool|QtCore.Qt.FramelessWindowHint) #|QtCore.Qt.WindowStaysOnTopHint
 		self.setAttribute(QtCore.Qt.WA_TranslucentBackground)
@@ -80,7 +77,7 @@ class Tcl(QtWidgets.QStackedWidget):
 		:Parameters:
 			ui (str)(obj) = The ui or name of the ui to set the stacked widget index to.
 		'''
-		assert isinstance(ui, (str, QtWidgets.QWidget)), '{} in setUi\n\t# Error: Incorrect datatype: {}'.format(__file__, type(ui).__name__)
+		assert isinstance(ui, (str, QtWidgets.QWidget)), f'# Error: {__file__} in setUi\n#\tIncorrect datatype: {type(ui).__name__}'
 
 		ui = self.sb.getUi(ui) #Get the ui of the given name, and set it as the current ui in the switchboard module.
 		ui.connected = True
@@ -172,10 +169,10 @@ class Tcl(QtWidgets.QStackedWidget):
 		if event.isAutoRepeat():
 			return
 
-		modifiers = self.sb.app.keyboardModifiers()
+		# modifiers = self.sb.app.keyboardModifiers()
 
-		if event.key()==self.key_show:
-			self.show()
+		# if event.key()==self.key_show:
+		# 	self.show()
 
 		elif event.key()==self.key_close:
 			self.close()
@@ -233,7 +230,7 @@ class Tcl(QtWidgets.QStackedWidget):
 	def mouseReleaseEvent(self, event):
 		'''
 		'''
-		self.setUi('init')
+		# self.setUi('init')
 
 		super().mouseReleaseEvent(event)
 
@@ -279,21 +276,24 @@ class Tcl(QtWidgets.QStackedWidget):
 			self.hide()
 
 
-	def show(self, ui='init'):
+	def show(self, ui='init', profile=False):
 		'''Sets the widget as visible.
 
 		:Parameters:
 			ui (str)(obj) = Show the given ui.
+			profile (bool) = Prints the total running time, times each function separately, 
+				and tells you how many times each function was called.
 		'''
-		if self.profile:
+		self.sendKeyPressEvent(self.key_show)
+
+		if profile:
 			import cProfile
-			cProfile.run('self.setUi({})'.format(ui.name))
+			cProfile.run(f'self.setUi({self.sb.getUi(ui).name})')
 		else:
 			self.setUi(ui)
 
+		# self.activateWindow()
 		super().show()
-
-		self.activateWindow()
 
 
 	def showEvent(self, event):
@@ -324,10 +324,6 @@ class Tcl(QtWidgets.QStackedWidget):
 			self.mouseGrabber().releaseMouse()
 		except AttributeError as error: #'NoneType' object has no attribute 'releaseMouse'
 			pass
-
-		if __name__ == "__main__":
-			self.sb.app.quit()
-			sys.exit() #assure that the sys processes are terminated during testing.
 
 		super().hideEvent(event)
 
@@ -364,12 +360,12 @@ class Tcl(QtWidgets.QStackedWidget):
 		if widgets is None:
 			widgets = ui.widgets #get all widgets for the given ui.
 
-		for w in itertk.makeList(widgets): #if 'widgets' isn't a list, convert it to one.
+		for w in Iter.makeList(widgets): #if 'widgets' isn't a list, convert it to one.
 
 			if w not in ui.widgets:
 				ui.addWidgets(w)
 
-			#set stylesheet
+			#set styleSheet
 			if ui.level>2 or ui.isSubmenu and not w.prefix=='i': #if submenu and objectName doesn't start with 'i':
 				self.sb.setStyle(w, style='dark', backgroundOpacity=0)
 			else:
@@ -399,7 +395,7 @@ class Tcl(QtWidgets.QStackedWidget):
 			try: #call the class method associated with the current widget.
 				w.method()
 			except (AttributeError, TypeError) as error:
-				print ('# Error: {}: ef_showEvent: {}. #'.format(__file__, error))
+				print (f'# Error: {__file__} in ef_showEvent\n#\t{error}.')
 				pass
 
 		w.__class__.showEvent(w, event)
@@ -505,7 +501,7 @@ class Tcl(QtWidgets.QStackedWidget):
 		'''A widget must call setFocusPolicy() to accept focus initially, and have focus, in order to receive a key press event.
 		'''
 		if not event.isAutoRepeat():
-			# print ('ef_keyPressEvent: {}: {}'.format(w, event))
+			# print (f'ef_keyPressEvent: {w}: {event}')
 			modifiers = self.sb.app.keyboardModifiers()
 
 			if event.key()==self.key_close:
@@ -518,7 +514,7 @@ class Tcl(QtWidgets.QStackedWidget):
 		'''A widget must accept focus initially, and have focus, in order to receive a key release event.
 		'''
 		if not event.isAutoRepeat():
-			# print ('ef_keyReleaseEvent: {}: {}'.format(w, event))
+			# print (f'ef_keyReleaseEvent: {e}: {event}')
 			modifiers = self.sb.app.keyboardModifiers()
 
 			if event.key()==self.key_show and not modifiers==QtCore.Qt.ControlModifier:
@@ -639,12 +635,10 @@ class Tcl(QtWidgets.QStackedWidget):
 
 if __name__ == '__main__':
 
-	tcl = Tcl(slotLoc='maya')
-	tcl.sendKeyPressEvent(tcl.key_show) # Tcl().show('init')
+	tcl = Tcl(slotLoc='slots')
+	tcl.show()
 
-	app = QtWidgets.QApplication.instance()
 	sys.exit(tcl.sb.app.exec_()) # run app, show window, wait for input, then terminate program with a status code returned from app.
-
 
 #module name
 # print (__name__)
@@ -657,17 +651,6 @@ if __name__ == '__main__':
 
 
 # Deprecated ------------------------------------
-
-
-				# try: #add the child widgets of popup menus.
-				# 	self.initWidgets(ui, w.menu_.childWidgets) #initialize the widget to set things like the event filter and styleSheet.
-				# 	self.sb.connectSlots(ui, w.menu_.childWidgets)
-
-				# 	self.initWidgets(ui, w.ctxMenu.childWidgets)
-				# 	self.sb.connectSlots(ui, w.ctxMenu.childWidgets)
-				# except AttributeError as error:
-				# 	pass; #print ("# Error: {}.ChildEvents.initWidgets({}, {}): {}. #".format(__name__, ui, widgetName, error))
-
 
 
 # class Instance():

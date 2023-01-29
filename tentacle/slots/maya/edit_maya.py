@@ -111,7 +111,7 @@ class Edit_maya(Edit, Slots_maya):
 		objects = pm.ls(sl=1, transforms=1)
 
 		if overlappingDuplicateObjects:
-			duplicates = mtk.edittk.getOverlappingDupObjects(omitInitialObjects=omitSelectedObjects, select=True, verbose=True)
+			duplicates = mtk.Edit.getOverlappingDupObjects(omitInitialObjects=omitSelectedObjects, select=True, verbose=True)
 			self.messageBox('Found {} duplicate overlapping objects.'.format(len(duplicates)), messageType='Result')
 			pm.delete(duplicates) if repair else pm.select(duplicates)
 			return
@@ -120,11 +120,11 @@ class Edit_maya(Edit, Slots_maya):
 			[pm.polyMergeVertex(obj.verts, distance=0.0001) for obj in objects] #merge vertices on each object.
 
 		if overlappingFaces:
-			duplicates = mtk.edittk.getOverlappingFaces(objects)
+			duplicates = mtk.Edit.getOverlappingFaces(objects)
 			self.messageBox('Found {} duplicate overlapping faces.'.format(len(duplicates)), messageType='Result')
 			pm.delete(duplicates) if repair else pm.select(duplicates, add=1)
 
-		mtk.edittk.cleanGeometry(objects, allMeshes=allMeshes, repair=repair, quads=quads, nsided=nsided, concave=concave, holed=holed, nonplanar=nonplanar, 
+		mtk.Edit.cleanGeometry(objects, allMeshes=allMeshes, repair=repair, quads=quads, nsided=nsided, concave=concave, holed=holed, nonplanar=nonplanar, 
 			zeroGeom=zeroGeom, zeroGeomTol=zeroGeomTol, zeroEdge=zeroEdge, zeroEdgeTol=zeroEdgeTol, zeroMap=zeroMap, zeroMapTol=zeroMapTol, 
 			sharedUVs=sharedUVs, nonmanifold=nonmanifold, invalidComponents=invalidComponents, splitNonManifoldVertex=splitNonManifoldVertex)
 
@@ -144,7 +144,7 @@ class Edit_maya(Edit, Slots_maya):
 		if unusedNodes:
 			pm.mel.MLdeleteUnused() #pm.mel.hyperShadePanelMenuCommand('hyperShadePanel1', 'deleteUnusedNodes')
 			#delete empty groups:
-			empty = mtk.getGroups(empty=True)
+			empty = mtk.Node.getGroups(empty=True)
 			pm.delete(empty)
 
 		try: #delete history
@@ -193,9 +193,9 @@ class Edit_maya(Edit, Slots_maya):
 				if maskEdge:
 					selection = pm.ls(obj, sl=1, flatten=1)
 					if deleteRing:
-						pm.polyDelEdge(mtk.comptk.getEdgePath(selection, 'edgeRing'), cleanVertices=True) # pm.polySelect(edges, edgeRing=True) #select the edge ring.
+						pm.polyDelEdge(mtk.Cmpt.getEdgePath(selection, 'edgeRing'), cleanVertices=True) # pm.polySelect(edges, edgeRing=True) #select the edge ring.
 					if deleteLoop:
-						pm.polyDelEdge(mtk.comptk.getEdgePath(selection, 'edgeLoop'), cleanVertices=True) # pm.polySelect(edges, edgeLoop=True) #select the edge loop.
+						pm.polyDelEdge(mtk.Cmpt.getEdgePath(selection, 'edgeLoop'), cleanVertices=True) # pm.polySelect(edges, edgeLoop=True) #select the edge loop.
 					else:
 						pm.polyDelEdge(selection, cleanVertices=True) #delete edges
 
@@ -220,11 +220,11 @@ class Edit_maya(Edit, Slots_maya):
 		objects = pm.ls(sl=1, objectsOnly=1)
 
 		for obj in objects:
-			mtk.edittk.deleteAlongAxis(obj, axis)
+			mtk.Edit.deleteAlongAxis(obj, axis)
 		pm.undoInfo(closeChunk=1)
 
 
-	@Slots_maya.undo
+	@mtk.undo
 	def tb004(self, state=None):
 		'''Delete Along Axis
 		'''

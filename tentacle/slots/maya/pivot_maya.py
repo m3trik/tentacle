@@ -74,7 +74,7 @@ class Pivot_maya(Pivot, Slots_maya):
 		'''Bake Pivot
 		'''
 		sel = pm.ls(sl=1)
-		mtk.rigtk.bakeCustomPivot(sel, position=1, orientation=1) #pm.mel.BakeCustomPivot()
+		Rig.bakeCustomPivot(sel, position=1, orientation=1) #pm.mel.BakeCustomPivot()
 
 # --------------------------------------------------------------------------------------------
 

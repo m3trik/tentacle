@@ -52,7 +52,7 @@ class Animation_maya(Animation, Slots_maya):
 		pm.currentTime(currentTime+frame, edit=True, update=update)
 
 
-	@Slots_maya.undo
+	@mtk.undo
 	def invertSelectedKeyframes(self, time=1, relative=True):
 		'''Duplicate any selected keyframes and paste them inverted at the given time.
 

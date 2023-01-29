@@ -58,7 +58,7 @@ class Duplicate_maya(Duplicate, Slots_maya):
 
 	global radialArrayObjList
 	radialArrayObjList=[]
-	@Slots_maya.undo
+	@mtk.undo
 	def chk015(self, create=False):
 		'''Radial Array: Preview
 		'''
@@ -136,7 +136,7 @@ class Duplicate_maya(Duplicate, Slots_maya):
 
 	global duplicateObjList
 	duplicateObjList=[]
-	@Slots_maya.undo
+	@mtk.undo
 	def chk016(self, create=False):
 		'''Duplicate: Preview
 		'''
@@ -176,7 +176,7 @@ class Duplicate_maya(Duplicate, Slots_maya):
 			if translateToComponent:
 				if componentList:
 					for num, component in componentList.iteritems():
-						vertexPoint = mtk.xformtk.getCenterPoint(component)
+						vertexPoint = mtk.Xform.getCenterPoint(component)
 
 						pm.xform (obj, rotation=[rotXYZ[0], rotXYZ[1], rotXYZ[2]])
 						pm.xform (obj, translation=[vertexPoint[0]+transXYZ[0], vertexPoint[1]+transXYZ[1], vertexPoint[2]+transXYZ[2]])
@@ -319,7 +319,7 @@ class Duplicate_maya(Duplicate, Slots_maya):
 		return instances
 
 
-	@Slots_maya.undo
+	@mtk.undo
 	def convertToInstances(self, objects=[], transformByVertexOrder=False, append=''):
 		'''The first selected object will be instanced across all other selected objects.
 
@@ -348,8 +348,8 @@ class Duplicate_maya(Duplicate, Slots_maya):
 			pm.makeIdentity(obj, apply=1, translate=1, rotate=0, scale=0)
 
 			if transformByVertexOrder:
-				mtk.xformtk.matchTransformByVertexOrder(instance, obj)
-				if not mtk.xformtk.isOverlapping(instance, obj):
+				mtk.Xform.matchTransformByVertexOrder(instance, obj)
+				if not mtk.Xform.isOverlapping(instance, obj):
 					print ('# {}: Unable to match {} transforms. #'.format(instance, obj))
 			else:
 				pm.matchTransform(instance, obj, position=1, rotation=1, scale=1, pivots=1) #move object to center of the last selected items bounding box # pm.xform(instance, translation=pos, worldSpace=1, relative=1) #move to the original objects location.
@@ -404,7 +404,7 @@ print (__name__)
 
 #deprecated:
 
-	# @Slots_maya.undo
+	# @mtk.undo
 	# def convertToInstances(self, objects=[], leaf=False, append=''):
 	# 	'''The first selected object will be instanced across all other selected objects.
 
@@ -431,11 +431,11 @@ print (__name__)
 	# 		instance = pm.instance(objects[0], leaf=leaf)
 
 	# 		# if transformByVertexOrder:
-	# 		# 	mtk.xformtk.matchTransformByVertexOrder(instance, obj)
-	# 		# 	if not mtk.xformtk.isOverlapping(instance, obj):
+	# 		# 	mtk.Xform.matchTransformByVertexOrder(instance, obj)
+	# 		# 	if not mtk.Xform.isOverlapping(instance, obj):
 	# 		# 		print ('# {}: Unable to match {} transforms. #'.format(instance, obj))
 	# 		# else:
-	# 		mtk.xformtk.moveTo(instance, obj) #source, target
+	# 		mtk.Xform.moveTo(instance, obj) #source, target
 	# 		pm.matchTransform(instance, obj, position=0, rotation=1, scale=0, pivots=0) #move object to center of the last selected items bounding box # pm.xform(instance, translation=pos, worldSpace=1, relative=1) #move to the original objects location.
 
 	# 		try:

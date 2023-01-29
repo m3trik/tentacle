@@ -126,7 +126,7 @@ class Display_max(Display, Slots_max):
 	def b011(self):
 		'''Toggle Component ID Display
 		'''
-		index = tk.cycle([0,1,2,3,4], 'componentID')
+		index = ptk.cycle([0,1,2,3,4], 'componentID')
 
 		visible = pm.polyOptions (query=1, displayItemNumbers=1)
 		dinArray = [[1,0,0,0],[0,1,0,0],[0,0,1,0],[0,0,0,1]]
@@ -169,7 +169,7 @@ class Display_max(Display, Slots_max):
 		'''
 		viewport = rt.viewport.activeViewport
 
-		state = tk.cycle([0,1], 'wireframeInactive')
+		state = ptk.cycle([0,1], 'wireframeInactive')
 
 		if state:
 			if not rt.viewport.isWire():

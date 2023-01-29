@@ -32,7 +32,7 @@ class Normals_maya(Normals, Slots_maya):
 
 		size = float(tb.ctxMenu.s001.value())
 		# state = pm.polyOptions (query=True, displayNormal=True)
-		state = tk.cycle([1,2,3,0], 'displayNormals')
+		state = ptk.cycle([1,2,3,0], 'displayNormals')
 		if state ==0: #off
 			pm.polyOptions (displayNormal=0, sizeNormal=0)
 			pm.polyOptions (displayTangent=False)
@@ -129,7 +129,7 @@ class Normals_maya(Normals, Slots_maya):
 
 		if (all_ and maskVertex) or maskObject:
 			for obj in selection:
-				vertices = mtk.comptk.getComponents(obj, 'vertices', flatten=1)
+				vertices = mtk.Cmpt.getComponents(obj, 'vertices', flatten=1)
 				for vertex in vertices:
 					if not state:
 						pm.polyNormalPerVertex(vertex, unFreezeNormal=1)

@@ -205,9 +205,9 @@ class Uv_blender(Uv, Slots_blender):
 						unwrapType = 'Cylindrical'
 					elif sphericalUnwrap:
 						unwrapType = 'Spherical'
-					objFaces = mtk.comptk.getComponents('f')
+					objFaces = mtk.Cmpt.getComponents('f')
 					if not objFaces:
-						objFaces = mtk.comptk.getComponents(obj, 'f')
+						objFaces = mtk.Cmpt.getComponents(obj, 'f')
 					pm.polyProjection(objFaces, type=unwrapType, insertBeforeDeformers=1, smartFit=1)
 
 				elif normalBasedUnwrap:
@@ -440,7 +440,7 @@ class Uv_blender(Uv, Slots_blender):
 			for obj in objects:
 				pm.selectMode(component=1)
 				pm.selectType(meshUVShell=1)
-				selection = mtk.comptk.getComponents(obj, 'f', flatten=False)
+				selection = mtk.Cmpt.getComponents(obj, 'f', flatten=False)
 				pm.select(selection, add=True)
 
 		return selection
@@ -466,7 +466,7 @@ class Uv_blender(Uv, Slots_blender):
 		if objectType=='Polygon Face':
 			faces = objects
 		else:
-			faces = mtk.comptk.getComponents(objects, 'faces')
+			faces = mtk.Cmpt.getComponents(objects, 'faces')
 
 		shells={}
 		for face in faces:

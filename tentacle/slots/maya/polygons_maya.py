@@ -58,7 +58,7 @@ class Polygons_maya(Polygons, Slots_maya):
 			self.messageBox('<strong>Nothing selected</strong>.<br>Operation requires an object or vertex selection.', messageType='Error')
 			return
 
-		mtk.edittk.mergeVertices(objects, selected=componentMode, tolerance=tolerance)
+		mtk.Edit.mergeVertices(objects, selected=componentMode, tolerance=tolerance)
 
 
 	@Slots_maya.attr
@@ -257,7 +257,7 @@ class Polygons_maya(Polygons, Slots_maya):
 		selection = pm.ls(sl=1, objectsOnly=1)
 		if len(selection)>1:
 			obj1, obj2 = selection
-			mtk.edittk.snapClosestVerts(obj1, obj2, tolerance, freezetransforms)
+			mtk.Edit.snapClosestVerts(obj1, obj2, tolerance, freezetransforms)
 		else:
 			self.messageBox('<strong>Nothing selected</strong>.<br>Operation requires at least two selected objects.', messageType='Error')
 			return
@@ -332,7 +332,7 @@ class Polygons_maya(Polygons, Slots_maya):
 		'''Merge Vertices: Merge All
 		'''
 		sel = pm.ls(sl=True, objectsOnly=True)
-		mtk.edittk.mergeVertices(sel)
+		mtk.Edit.mergeVertices(sel)
 
 
 	def b009(self):

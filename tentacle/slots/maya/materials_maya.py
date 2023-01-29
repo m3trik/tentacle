@@ -314,7 +314,7 @@ class Materials_maya(Materials, Slots_maya):
 
 		#convert to dictionary to filter material names and types.
 		d = {m.name():pm.nodeType(m) for m in matList}
-		filtered = tk.itertk.filterDict(d, inc, exc, keys=True, values=True)
+		filtered = ptk.Iter.filterDict(d, inc, exc, keys=True, values=True)
 
 		#use the filtered results to reconstruct a filtered list of actual materials.
 		return [m for m in matList if m.name() in filtered]
@@ -378,7 +378,7 @@ class Materials_maya(Materials, Slots_maya):
 		return mat
 
 
-	@Slots_maya.undo
+	@mtk.undo
 	def assignMaterial(self, objects, mat):
 		'''Assign material
 

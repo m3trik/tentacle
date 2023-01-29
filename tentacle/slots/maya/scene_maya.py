@@ -44,7 +44,7 @@ class Scene_maya(Scene, Slots_maya):
 
 		selection = pm.ls(sl=1)
 		objects = selection if selection else pm.ls(objectsOnly=1)
-		mtk.edittk.setCase(objects, case)
+		mtk.Edit.setCase(objects, case)
 
 
 	def tb001(self, state=None):
@@ -58,7 +58,7 @@ class Scene_maya(Scene, Slots_maya):
 		reverse = tb.ctxMenu.chk004.isChecked()
 
 		selection = pm.ls(sl=1, objectsOnly=1)
-		mtk.edittk.setSuffixByObjLocation(selection, alphanumeric=alphanumeric, stripTrailingInts=stripTrailingInts, stripTrailingAlpha=stripTrailingAlpha, reverse=reverse)
+		mtk.Edit.setSuffixByObjLocation(selection, alphanumeric=alphanumeric, stripTrailingInts=stripTrailingInts, stripTrailingAlpha=stripTrailingAlpha, reverse=reverse)
 
 
 	def b000(self):
@@ -71,7 +71,7 @@ class Scene_maya(Scene, Slots_maya):
 
 		selection = pm.ls(sl=1)
 		objects = selection if selection else pm.ls(objectsOnly=1)
-		mtk.edittk.rename(objects, to, find, regEx=regEx, ignoreCase=ignoreCase)
+		mtk.Edit.rename(objects, to, find, regEx=regEx, ignoreCase=ignoreCase)
 
 # --------------------------------------------------------------------------------------------
 

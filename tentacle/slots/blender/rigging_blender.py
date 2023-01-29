@@ -115,7 +115,7 @@ class Rigging_blender(Rigging, Slots_blender):
 		if toggle:
 			pm.toggle(joints, localAxis=1) #set display off
 
-		self.viewportMessage("Display Local Rotation Axes:<hl>"+str(state)+"</hl>")
+		self.mtk.viewportMessage("Display Local Rotation Axes:<hl>"+str(state)+"</hl>")
 
 
 	def tb001(self, state=None):

@@ -2,7 +2,7 @@ import os
 import setuptools
 
 from tentacle import name, __version__
-from slots.tk import filetk, itertk
+from pythontk import File
 
 
 with open('docs/README.md', 'r') as f:

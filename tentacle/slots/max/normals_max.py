@@ -38,7 +38,7 @@ class Normals_max(Normals, Slots_max):
 		self.messageBox('No 3ds Version.')
 		tb.setDisabled(True)
 		# # state = pm.polyOptions (query=True, displayNormal=True)
-		# state = tk.cycle([1,2,3,0], 'displayNormals')
+		# state = ptk.cycle([1,2,3,0], 'displayNormals')
 		# if state ==0: #off
 		# 	pm.polyOptions (displayNormal=0, sizeNormal=0)
 		# 	pm.polyOptions (displayTangent=False)
@@ -149,16 +149,16 @@ class Normals_max(Normals, Slots_max):
 		# 				else:
 		# 					pm.polyNormalPerVertex(vertex, freezeNormal=1)
 		# 			if not state:
-		# 				self.viewportMessage("Normals <hl>UnLocked</hl>.")
+		# 				self.mtk.viewportMessage("Normals <hl>UnLocked</hl>.")
 		# 			else:
-		# 				self.viewportMessage("Normals <hl>Locked</hl>.")
+		# 				self.mtk.viewportMessage("Normals <hl>Locked</hl>.")
 		# 	elif maskVertex and not maskObject:
 		# 		if not state:
 		# 			pm.polyNormalPerVertex(unFreezeNormal=1)
-		# 			self.viewportMessage("Normals <hl>UnLocked</hl>.")
+		# 			self.mtk.viewportMessage("Normals <hl>UnLocked</hl>.")
 		# 		else:
 		# 			pm.polyNormalPerVertex(freezeNormal=1)
-		# 			self.viewportMessage("Normals <hl>Locked</hl>.")
+		# 			self.mtk.viewportMessage("Normals <hl>Locked</hl>.")
 		# 	else:
 		# 		return 'Warning: Selection must be object or vertex.'
 		# else:

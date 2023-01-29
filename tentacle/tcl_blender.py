@@ -2,10 +2,9 @@
 # coding=utf-8
 import sys
 
-from PySide2 import QtWidgets, QtCore
+from PySide2 import QtCore
 
 from tentacle.tcl import Tcl
-
 
 
 class Tcl_blender(Tcl):
@@ -14,7 +13,7 @@ class Tcl_blender(Tcl):
 	:Parameters:
 		parent = Application top level window instance.
 	'''
-	def __init__(self, parent=None, slotLoc='blender', *args, **kwargs):
+	def __init__(self, parent=None, slotLoc='slots/blender', *args, **kwargs):
 		'''
 		'''
 		if not parent:
@@ -25,7 +24,6 @@ class Tcl_blender(Tcl):
 				print(__file__, error)
 
 		super().__init__(parent, slotLoc=slotLoc, *args, **kwargs)
-		setattr(self.sb.app, 'mainAppWindow', parent)
 
 
 	@classmethod
@@ -70,11 +68,39 @@ class Tcl_blender(Tcl):
 			event = <QEvent>
 		'''
 		if __name__ == "__main__":
-			self.sb.app.instance().quit()
+			self.sb.app.quit()
 			sys.exit() #assure that the sys processes are terminated.
 
 		Tcl.hideEvent(self, event) #super().hideEvent(event)
 
+# --------------------------------------------------------------------------------------------
+
+_instances = {}
+def getInstance(instanceID=None, *args, **kwargs):
+	'''Get an instance of this class using a given instanceID.
+	The instanceID is either the object or the object's id.
+
+	:Parameters:
+		instanceID () = The instanceID can be any immutable type.
+		args/kwargs () = The args to be passed to the class instance when it is created.
+
+	:Return:
+		(obj) An instance of this class.
+
+	ex. call: tcl = Tcl_maya.getInstance(id(0), key_show='Key_F12') #returns the class instance with an instance ID of the value of `id(0)`.
+	'''
+	import inspect
+
+	if instanceID is None:
+		instanceID = inspect.stack()[1][3]
+	try:
+		return _instances[instanceID]
+
+	except KeyError as error:
+		_instances[instanceID] = Tcl_blender(*args, **kwargs)
+		return _instances[instanceID]
+
+# --------------------------------------------------------------------------------------------
 
 
 
@@ -82,15 +108,16 @@ class Tcl_blender(Tcl):
 
 
 
+
+
+# --------------------------------------------------------------------------------------------
 
 if __name__ == "__main__":
 
-	Tcl_blender().show('init') #Tcl_maya(dummyParent).show()
+	tcl = Tcl_blender()
+	tcl.show('init')
 
-	app = QtWidgets.QApplication.instance()
-	sys.exit(app.exec_())
-
-
+	sys.exit(tcl.sb.app.exec_()) # run app, show window, wait for input, then terminate program with a status code returned from app.
 
 #module name
 print (__name__)

@@ -4,18 +4,17 @@ from tentacle.slots.max import *
 from tentacle.slots.nurbs import Nurbs
 
 
-
 class Nurbs_max(Nurbs, Slots_max):
 	def __init__(self, *args, **kwargs):
 		super().__init__(*args, **kwargs)
 
-		cmb = self.sb.nurbs.draggable_header.ctxMenu.cmb000
+		cmb000 = self.sb.nurbs.draggable_header.ctxMenu.cmb000
 		items = []
-		cmb.addItems_(items, 'Curve Editors')
+		cmb000.addItems_(items, 'Curve Editors')
 
-		cmb = self.sb.nurbs.cmb001
+		cmb001 = self.sb.nurbs.cmb001
 		items = []
-		cmb.addItems_(items, 'Create Curve')
+		cmb001.addItems_(items, 'Create Curve')
 
 
 	def cmb000(self, index=-1):

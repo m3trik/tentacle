@@ -3,7 +3,6 @@
 from tentacle.slots import Slots
 
 
-
 class Edit(Slots):
 	'''
 	'''

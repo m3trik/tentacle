@@ -146,7 +146,7 @@ class Rigging_maya(Rigging, Slots_maya):
 					pm.toggle(obj, template=1, query=1)
 
 
-	@Slots_maya.undo
+	@mtk.undo
 	def tb003(self, state=None):
 		'''Create Locator at Selection
 		'''
@@ -167,9 +167,9 @@ class Rigging_maya(Rigging, Slots_maya):
 
 		selection = pm.ls(selection=True)
 		if not selection:
-			return mtk.rigtk.createLocator(scale=scale)
+			return Rig.createLocator(scale=scale)
 
-		mtk.rigtk.createLocatorAtObject(selection, 
+		Rig.createLocatorAtObject(selection, 
 			parent=parent, freezeTransforms=freezeTransforms, bakeChildPivot=bakeChildPivot, scale=scale, 
 			grpSuffix=grpSuffix, locSuffix=locSuffix, objSuffix=objSuffix, stripDigits=stripDigits, stripSuffix=stripSuffix, 
 			lockTranslate=lockTranslate, lockRotation=lockRotation, lockScale=lockScale
@@ -186,7 +186,7 @@ class Rigging_maya(Rigging, Slots_maya):
 		lockScale = tb.ctxMenu.chk014.isChecked()
 
 		sel = pm.ls(sl=True)
-		mtk.rigtk.setAttrLockState(sel, translate=lockTranslate, rotate=lockRotation, scale=lockScale)
+		Rig.setAttrLockState(sel, translate=lockTranslate, rotate=lockRotation, scale=lockScale)
 
 
 	@Slots.hideMain
@@ -222,7 +222,7 @@ class Rigging_maya(Rigging, Slots_maya):
 		'''Remove Locator
 		'''
 		selection = pm.ls(selection=True)
-		mtk.rigtk.removeLocator(selection)
+		Rig.removeLocator(selection)
 
 
 	def b004(self):

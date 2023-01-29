@@ -8,7 +8,7 @@ from tentacle.slots.edit import Edit
 class Edit_blender(Edit, Slots_blender):
 	def __init__(self, *args, **kwargs):
 		Slots_blender.__init__(self, *args, **kwargs)
-		Edit.__init__(self, *args, **kwargs)
+		mtk.Edit.__init__(self, *args, **kwargs)
 
 		cmb = self.sb.edit.draggable_header.ctxMenu.cmb000
 		items = ['Cleanup', 'Transfer: Attribute Values', 'Transfer: Shading Sets']
@@ -155,14 +155,14 @@ class Edit_blender(Edit, Slots_blender):
 		#display viewPort messages
 		if all_:
 			if deformers:
-				self.viewportMessage("delete <hl>all</hl> history.")
+				self.mtk.viewportMessage("delete <hl>all</hl> history.")
 			else:
-				self.viewportMessage("delete <hl>all non-deformer</hl> history.")
+				self.mtk.viewportMessage("delete <hl>all non-deformer</hl> history.")
 		else:
 			if deformers:
-				self.viewportMessage("delete history on "+str(objects))
+				self.mtk.viewportMessage("delete history on "+str(objects))
 			else:
-				self.viewportMessage("delete <hl>non-deformer</hl> history on "+str(objects))
+				self.mtk.viewportMessage("delete <hl>non-deformer</hl> history on "+str(objects))
 
 
 	def tb002(self, state=None):
@@ -316,7 +316,7 @@ class Edit_blender(Edit, Slots_blender):
 			else:
 				pm.delete(faces) #else, delete any individual faces.
 
-		Slots_blender.viewportMessage("Delete faces on <hl>"+axis.upper()+"</hl>.")
+		Slots_blender.mtk.viewportMessage("Delete faces on <hl>"+axis.upper()+"</hl>.")
 
 
 	def getAllFacesOnAxis(self, obj, axis="-x", localspace=False):
@@ -354,7 +354,7 @@ class Edit_blender(Edit, Slots_blender):
 		# pm.undoInfo(openChunk=True)
 		nonManifoldVerts=set()
 
-		vertices = mtk.comptk.getComponents(objects, 'vertices')
+		vertices = mtk.Cmpt.getComponents(objects, 'vertices')
 		for vertex in vertices:
 
 			connected_faces = pm.polyListComponentConversion(vertex, fromVertex=1, toFace=1) #pm.mel.PolySelectConvert(1) #convert to faces
@@ -473,7 +473,7 @@ class Edit_blender(Edit, Slots_blender):
 				pm.polySelectConstraint(disable=1)
 				#Populate an in-view message
 				nGons = pm.polyEvaluate(faceComponent=1)
-				Slots_blender.viewportMessage("<hl>"+str(nGons[0])+"</hl> N-Gon(s) found.")
+				Slots_blender.mtk.viewportMessage("<hl>"+str(nGons[0])+"</hl> N-Gon(s) found.")
 
 
 
