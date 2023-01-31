@@ -143,7 +143,7 @@ class Switchboard(QUiLoader, StyleSheet):
 
 		#if no ui is found, check if a widget exists with the given attribute name:
 		wgtPath = File.formatPath(self.widgetLoc, 'path') #will return an empty list on incorrect datatype.
-		wgtName = Str.setCase(attr, 'camelCase')
+		wgtName = Str.setCase(attr, 'camel')
 		foundWgt = next((f for f in glob.iglob(f'{wgtPath}/**/{wgtName}.py', recursive=True)), None)
 		if foundWgt:
 			wgt = self.registerWidgets(attr)
@@ -391,7 +391,7 @@ class Switchboard(QUiLoader, StyleSheet):
 		mod_name = File.formatPath(path, 'name')
 
 		if not File.isValidPath(path):
-			mod_name = Str.setCase(mod_name, 'camelCase')
+			mod_name = Str.setCase(mod_name, 'camel')
 			path = os.path.join(self.widgetLoc, f'{mod_name}.py')
 
 		path_ = File.formatPath(path, 'path')
@@ -510,8 +510,8 @@ class Switchboard(QUiLoader, StyleSheet):
 		suffix = '' if d=='slots' else d
 
 		mod_name = '{}_{}'.format(
-							Str.setCase(ui.name, case='camelCase'), 
-							Str.setCase(suffix, case='camelCase'),
+							Str.setCase(ui.name, case='camel'), 
+							Str.setCase(suffix, case='camel'),
 							).rstrip('_') #ie. 'polygons_maya' or 'polygons' if suffix is None.
 		if not path:
 			if isinstance(self.slotLoc, str):
@@ -526,7 +526,7 @@ class Switchboard(QUiLoader, StyleSheet):
 				sys.modules[spec.name] = mod
 				spec.loader.exec_module(mod)
 
-				cls_name = Str.setCase(mod_name, case='pascalCase')
+				cls_name = Str.setCase(mod_name, case='pascal')
 				try:
 					clss = getattr(mod, cls_name)
 				except AttributeError as error: #if a class by the same name as the module doesn't exist: (ex. <Polygons_maya> from module 'polygons_maya')
@@ -636,7 +636,7 @@ class Switchboard(QUiLoader, StyleSheet):
 				except IndexError as error:
 					continue
 
-				mod_name = Str.setCase(className, 'camelCase')
+				mod_name = Str.setCase(className, 'camel')
 				fullpath = os.path.join(self.widgetLoc, mod_name+'.py')
 				self.registerWidgets(fullpath)
 		#load ui

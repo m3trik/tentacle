@@ -48,16 +48,16 @@ setuptools.setup(
 # def gen_data_files(dirs, exc=[], inc=[]):
 # 	'''
 # 	'''
-# 	dirs = itertk.makeList(dirs)
-# 	exc = itertk.makeList(exc)
-# 	inc = itertk.makeList(inc)
+# 	dirs = Iter.makeList(dirs)
+# 	exc = Iter.makeList(exc)
+# 	inc = Iter.makeList(inc)
 
 # 	results = []
 # 	for src_dir in dirs:
 # 		for root, dirs, files in os.walk(src_dir):
 # 			filtered=[]
 # 			for f in files:
-# 				ext = filetk.formatPath(f, 'ext')
+# 				ext = File.formatPath(f, 'ext')
 # 				if f in exc or '*.'+ext in exc:
 # 					continue
 # 				if any(inc): #filter inc for None values so not to get a false positive.

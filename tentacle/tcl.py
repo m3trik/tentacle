@@ -4,7 +4,7 @@ import sys, os
 
 from PySide2 import QtCore, QtGui, QtWidgets
 
-from pythontk import Iter
+from pythontk.Iter import makeList
 from tentacle.switchboard import Switchboard
 from tentacle.overlay import Overlay
 from tentacle.events import EventFactoryFilter, MouseTracking
@@ -360,7 +360,7 @@ class Tcl(QtWidgets.QStackedWidget):
 		if widgets is None:
 			widgets = ui.widgets #get all widgets for the given ui.
 
-		for w in Iter.makeList(widgets): #if 'widgets' isn't a list, convert it to one.
+		for w in makeList(widgets): #if 'widgets' isn't a list, convert it to one.
 
 			if w not in ui.widgets:
 				ui.addWidgets(w)

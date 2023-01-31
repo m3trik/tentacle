@@ -35,21 +35,18 @@
 # ! negates (re-include) any file that is ignored by the previous pattern. The exception to this rule is to re-include a file if its parent directory is excluded.
 # *.log, !error.log		error.log or logs/error.log will not be ignored
 
-
-
 # --------------------------------------------------------------------------------------------------
-# Ignore:
-# --------------------------------------------------------------------------------------------------
+
+# Package (ignore)
 desktop.ini
+*.exr
+*.tx
+*.swatch
+*.bak
 *.rar
 .vscode
 .test
 **/grepWin_backup
-
-
-
-# --------------------------------------------------------------------------------------------------
-
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
@@ -177,12 +174,6 @@ dmypy.json
 # Pyre type checker
 .pyre/
 update_package.cmd
-*.exr
-*.exr
-*.exr
-*.exr
 tentacle/slots/maya/shader_utils_maya/resources/hdr/industrial_pipe_and_valve_01_4k.exr
 tentacle/slots/maya/shader_utils_maya/resources/hdr/aircraft_workshop_01_4k.exr
-*.tx
-*.swatch
-*.bak
+
