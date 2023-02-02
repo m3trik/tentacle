@@ -21,7 +21,7 @@ rmdir /s /q "%dir%/dist"
 ECHO/
 
 
-python -c "from pythontk import File; File.increment_version('%dir%\%name%\__init__.py')"
+python -c "from pythontk import File; File.incVersion('%dir%\%name%\__init__.py')"
 echo %name% package version number incremented.
 
 

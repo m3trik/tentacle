@@ -21,7 +21,7 @@ class Switchboard(QUiLoader, StyleSheet):
 		sb.<uiFileName> = Any ui located in the switchboard's ui directory can be accessed using it's filename.
 		sb.<customWidgetClassName> = Any of the custom widgets in the widget directory.
 
-		ui = sb.<theUisFileName> #ie `name` from `name.ui`
+		ui = sb.<the_ui's_filename> #ie `myfile` from `myfile.ui`
 		ui.name = The ui's filename.
 		ui.base = The base ui name. The base name is any characters before an underscore in the ui's name.
 		ui.path = The directory path containing the ui file.
@@ -468,26 +468,26 @@ class Switchboard(QUiLoader, StyleSheet):
 		:Return:
 			(obj) class instance.
 		'''
-		try:
-			# print ('getSlots:1', ui.name, ui._slots, inspect.isclass(ui._slots), self.slotLoc) #debug
-			return ui._slots
+		# try:
+		# 	# print ('getSlots:1', ui.name, ui._slots, inspect.isclass(ui._slots), self.slotLoc) #debug
+		# 	return ui._slots
 
-		except AttributeError as error:
-			if isinstance(self.slotLoc, str):
-				clss = self._importSlots(ui)
-			else: #if slotLoc is a class object:
-				clss = self.slotLoc
-			# print ('getSlots:2', ui.name, clss, inspect.isclass(clss), self.slotLoc) #debug
-			if not clss:
-				if ui.isSubmenu:
-					if ui.level3: #is a submenu that has a parent menu.
-						return self.getSlots(ui.level3)
-					elif ui.level1:
-						return self.getSlots(ui.level1)
-		if clss and inspect.isclass(clss):
-			return self.setSlots(ui, clss)
-		elif not persist:
-			ui._slots = None
+		# except AttributeError as error:
+		# 	if isinstance(self.slotLoc, str):
+		# 		clss = self._importSlots(ui)
+		# 	else: #if slotLoc is a class object:
+		# 		clss = self.slotLoc
+		# 	# print ('getSlots:2', ui.name, clss, inspect.isclass(clss), self.slotLoc) #debug
+		# 	if not clss:
+		# 		if ui.isSubmenu:
+		# 			if ui.level3: #is a submenu that has a parent menu.
+		# 				return self.getSlots(ui.level3)
+		# 			elif ui.level1:
+		# 				return self.getSlots(ui.level1)
+		# if clss and inspect.isclass(clss):
+		# 	return self.setSlots(ui, clss)
+		# elif not persist:
+		# 	ui._slots = None
 		return None
 
 
@@ -597,13 +597,6 @@ class Switchboard(QUiLoader, StyleSheet):
 
 		files = glob.iglob('{}/**/*.ui'.format(path), recursive=True)
 		return [self.loadUi(f, widgets, parent) for f in files]
-
-
-	def show_decorator(original_show):
-		def wrapped_show(self, u=ui):
-			original_show(self)
-			self.showAndConnect(u, u.connectOnShow)
-		return wrapped_show
 
 
 	def loadUi(self, file, widgets=None, parent=None):
