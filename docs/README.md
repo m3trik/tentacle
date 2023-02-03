@@ -1,6 +1,6 @@
 ## uitk is a Python3/PySide2 marking menu and ui toolkit for Maya, 3ds Max, and Blender.
 
-personal project. work in progress..*
+\*\*personal project. work in progress ..\*\*
 
 ## Design:
 
