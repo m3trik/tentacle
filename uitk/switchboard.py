@@ -468,26 +468,26 @@ class Switchboard(QUiLoader, StyleSheet):
 		:Return:
 			(obj) class instance.
 		'''
-		# try:
-		# 	# print ('getSlots:1', ui.name, ui._slots, inspect.isclass(ui._slots), self.slotLoc) #debug
-		# 	return ui._slots
+		try:
+			# print ('getSlots:1', ui.name, ui._slots, inspect.isclass(ui._slots), self.slotLoc) #debug
+			return ui._slots
 
-		# except AttributeError as error:
-		# 	if isinstance(self.slotLoc, str):
-		# 		clss = self._importSlots(ui)
-		# 	else: #if slotLoc is a class object:
-		# 		clss = self.slotLoc
-		# 	# print ('getSlots:2', ui.name, clss, inspect.isclass(clss), self.slotLoc) #debug
-		# 	if not clss:
-		# 		if ui.isSubmenu:
-		# 			if ui.level3: #is a submenu that has a parent menu.
-		# 				return self.getSlots(ui.level3)
-		# 			elif ui.level1:
-		# 				return self.getSlots(ui.level1)
-		# if clss and inspect.isclass(clss):
-		# 	return self.setSlots(ui, clss)
-		# elif not persist:
-		# 	ui._slots = None
+		except AttributeError as error:
+			if isinstance(self.slotLoc, str):
+				clss = self._importSlots(ui)
+			else: #if slotLoc is a class object:
+				clss = self.slotLoc
+			# print ('getSlots:2', ui.name, clss, inspect.isclass(clss), self.slotLoc) #debug
+			if not clss:
+				if ui.isSubmenu:
+					if ui.level3: #is a submenu that has a parent menu.
+						return self.getSlots(ui.level3)
+					elif ui.level1:
+						return self.getSlots(ui.level1)
+		if clss and inspect.isclass(clss):
+			return self.setSlots(ui, clss)
+		elif not persist:
+			ui._slots = None
 		return None
 
 
