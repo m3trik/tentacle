@@ -1,7 +1,7 @@
 # !/usr/bin/python
 # coding=utf-8
-from tentacle.slots.maya import *
-from tentacle.slots.dynLayout import DynLayout
+from uitk.slots.maya import *
+from uitk.slots.dynLayout import DynLayout
 
 
 

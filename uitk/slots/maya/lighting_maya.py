@@ -1,7 +1,7 @@
 # !/usr/bin/python
 # coding=utf-8
-from tentacle.slots.maya import *
-from tentacle.slots.lighting import Lighting
+from uitk.slots.maya import *
+from uitk.slots.lighting import Lighting
 
 
 

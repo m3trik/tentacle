@@ -245,7 +245,7 @@ file_maya:
 create reference
 pm.mel.CreateReference()
 maya_file
-# Error: tentacle.childEvents.EventFactoryFilter.initWidgets(): Call: <bound method File.tb000 of <maya_file.File(0x1e0b2f0ca40) at 0x000001E0DB9769C8>>('setMenu') failed: 'PySide2.QtWidgets.QMainWindow' object has no attribute 'draggable_header'. #
+# Error: uitk.childEvents.EventFactoryFilter.initWidgets(): Call: <bound method File.tb000 of <maya_file.File(0x1e0b2f0ca40) at 0x000001E0DB9769C8>>('setMenu') failed: 'PySide2.QtWidgets.QMainWindow' object has no attribute 'draggable_header'. #
 
 
 
@@ -273,7 +273,7 @@ use transform_maya: 'move to' to move the objects after creation.
 
 
 # animation_maya: delete all keys:
-O:/Cloud/Code/_scripts/tentacle\tentacle\slots\maya\animation_maya.py
+O:/Cloud/Code/_scripts/uitk\uitk\slots\maya\animation_maya.py
 line 34, in b000
 #     rt.deleteKeys(rt.selection)
 # NameError: name 'rt' is not defined
@@ -296,11 +296,11 @@ naming needs clearer docstring w/example results. replace suffix is instead appe
 
 
 # Traceback (most recent call last):
-#   File "O:/Cloud/Code/_scripts/tentacle\tentacle\slots\maya\__init__.py", line 1154, in wrapper
+#   File "O:/Cloud/Code/_scripts/uitk\uitk\slots\maya\__init__.py", line 1154, in wrapper
 #     self.setAttributeWindow(fn(self, *args, **kwargs))
-#   File "O:/Cloud/Code/_scripts/tentacle\tentacle\slots\__init__.py", line 472, in wrapper
+#   File "O:/Cloud/Code/_scripts/uitk\uitk\slots\__init__.py", line 472, in wrapper
 #     self.messageBox(fn(self, *args, **kwargs))
-#   File "O:/Cloud/Code/_scripts/tentacle\tentacle\slots\maya\polygons_maya.py", line 209, in tb006
+#   File "O:/Cloud/Code/_scripts/uitk\uitk\slots\maya\polygons_maya.py", line 209, in tb006
 #     return pm.polyExtrudeFacet(selected_faces, keepFacesTogether=1, pvx=0, pvy=40.55638003, pvz=33.53797107, divisions=1, twist=0, taper=1, offset=offset, thickness=0, smoothingAngle=30)
 #   File "C:\Program Files\Autodesk\Maya2022\Python37\lib\site-packages\pymel\internal\pmcmds.py", line 217, in polyExtrudeFacet_wrapped
 #     res = new_cmd(*new_args, **new_kwargs)
@@ -308,7 +308,7 @@ naming needs clearer docstring w/example results. replace suffix is instead appe
 
 
 # Traceback (most recent call last):
-#   File "O:/Cloud/Code/_scripts/tentacle\tentacle\slots\maya\crease_maya.py", line 50, in tb000
+#   File "O:/Cloud/Code/_scripts/uitk\uitk\slots\maya\crease_maya.py", line 50, in tb000
 #     pm.polySoftEdge (angle=0, constructionHistory=0) #Harden edge normal
 #   File "C:\Program Files\Autodesk\Maya2022\Python37\lib\site-packages\pymel\core\modeling.py", line 987, in polySoftEdge
 #     res = cmds.polySoftEdge(*args, **kwargs)
@@ -318,19 +318,19 @@ naming needs clearer docstring w/example results. replace suffix is instead appe
 
 
 # Traceback (most recent call last):
-#   File "O:/Cloud/Code/_scripts/tentacle\tentacle\slots\__init__.py", line 499, in wrapper
+#   File "O:/Cloud/Code/_scripts/uitk\uitk\slots\__init__.py", line 499, in wrapper
 #     self.messageBox(fn(self, *args, **kwargs))
-#   File "O:/Cloud/Code/_scripts/tentacle\tentacle\slots\maya\__init__.py", line 57, in wrapper
+#   File "O:/Cloud/Code/_scripts/uitk\uitk\slots\maya\__init__.py", line 57, in wrapper
 #     rtn = fn(*args, **kwargs)
-#   File "O:/Cloud/Code/_scripts/tentacle\tentacle\slots\maya\maya_animation.py", line 53, in tb001
+#   File "O:/Cloud/Code/_scripts/uitk\uitk\slots\maya\maya_animation.py", line 53, in tb001
 #     return Animation.invertSelectedKeyframes(time=time, relative=relative)
-#   File "O:/Cloud/Code/_scripts/tentacle\tentacle\slots\maya\__init__.py", line 57, in wrapper
+#   File "O:/Cloud/Code/_scripts/uitk\uitk\slots\maya\__init__.py", line 57, in wrapper
 #     rtn = fn(*args, **kwargs)
 # TypeError: 'staticmethod' object is not callable
 
 
 # Traceback (most recent call last):
-#   File "O:/Cloud/Code/_scripts/tentacle\tentacle\slots\maya\maya_polygons.py", line 511, in b053
+#   File "O:/Cloud/Code/_scripts/uitk\uitk\slots\maya\maya_polygons.py", line 511, in b053
 #     pm.polyEditEdgeFlow(adjustEdgeFlow=1)
 #   File "C:\Program Files\Autodesk\Maya2022\Python37\lib\site-packages\pymel\core\modeling.py", line 650, in polyEditEdgeFlow
 #     res = cmds.polyEditEdgeFlow(*args, **kwargs)
@@ -340,46 +340,46 @@ naming needs clearer docstring w/example results. replace suffix is instead appe
 
 
 # Traceback (most recent call last):
-#   File "O:/Cloud/Code/_scripts/tentacle\tentacle\slots\maya\maya_uv.py", line 366, in tb004
+#   File "O:/Cloud/Code/_scripts/uitk\uitk\slots\maya\maya_uv.py", line 366, in tb004
 #     pm.u3dUnfold(iterations=1, pack=0, borderintersection=1, triangleflip=1, mapsize=2048, roomspace=0) #pm.mel.performUnfold(0)
 # AttributeError: module 'pymel.core' has no attribute 'u3dUnfold'
 unfold -i 5000 -ss 0.001 -gb 0 -gmb 0.5 -pub 0 -ps  0 -oa  0 -us off pCylinder1.f[0:59];
 
 # Traceback (most recent call last):
-#   File "O:/Cloud/Code/_scripts/tentacle\tentacle\childEvents.py", line 236, in eventFilter
+#   File "O:/Cloud/Code/_scripts/uitk\uitk\childEvents.py", line 236, in eventFilter
 #     getattr(self, eventName)(event) #handle the event locally. #ie. self.enterEvent(event)
-#   File "O:/Cloud/Code/_scripts/tentacle\tentacle\childEvents.py", line 348, in mouseReleaseEvent
+#   File "O:/Cloud/Code/_scripts/uitk\uitk\childEvents.py", line 348, in mouseReleaseEvent
 #     ui = self.tcl.setUi(self.widget.whatsThis()) #switch the stacked layout to the given ui.
-#   File "O:/Cloud/Code/_scripts/tentacle\tentacle\tcl.py", line 83, in setUi
+#   File "O:/Cloud/Code/_scripts/uitk\uitk\tcl.py", line 83, in setUi
 #     ui = self.sb.getUi(name, setAsCurrent=True) #Get the ui of the given name, and set it as the current ui in the switchboard module, which amoung other things, sets connections.
-#   File "O:/Cloud/Code/_scripts/tentacle\tentacle\switchboard.py", line 489, in getUi
+#   File "O:/Cloud/Code/_scripts/uitk\uitk\switchboard.py", line 489, in getUi
 #     self.uiName = uiName #set the property for the current ui name.
-#   File "O:/Cloud/Code/_scripts/tentacle\tentacle\switchboard.py", line 532, in setUiName
+#   File "O:/Cloud/Code/_scripts/uitk\uitk\switchboard.py", line 532, in setUiName
 #     index = self.getUiIndex(index) #get index using name
-#   File "O:/Cloud/Code/_scripts/tentacle\tentacle\switchboard.py", line 673, in getUiIndex
+#   File "O:/Cloud/Code/_scripts/uitk\uitk\switchboard.py", line 673, in getUiIndex
 #     return self.uiList(names=True).index(uiName)
 # ValueError: 'main_lower' is not in list
 
 
 # get a menu to pop up directly:
 def hk_tentacle_show(profile=False, uiName='init'):
-	'''Display the tentacle marking menu.
+	'''Display the uitk marking menu.
 
 	:Parameters:
 		profile (bool) = Prints the total running time, times each function separately, and tells you how many times each function was called.
 	'''
-	if 'tentacle' not in globals():
-		global tentacle
+	if 'uitk' not in globals():
+		global uitk
 		from tcl_maya import Instance
-		tentacle = Instance(key_show='key_F12')
+		uitk = Instance(key_show='key_F12')
 
 	# if profile:
 	# 	import cProfile
-	# 	cProfile.run("tentacle.show('init')")
+	# 	cProfile.run("uitk.show('init')")
 	# else:
-	print (tentacle)
-	tentacle.show(uiName)
-	# tentacle.setUi(uiName)
+	print (uitk)
+	uitk.show(uiName)
+	# uitk.setUi(uiName)
 
 
 # hk_tentacle_show('init')

@@ -1,7 +1,7 @@
 # !/usr/bin/python
 # coding=utf-8
-from tentacle.slots.max import *
-from tentacle.slots.polygons import Polygons
+from uitk.slots.max import *
+from uitk.slots.polygons import Polygons
 
 
 

@@ -11,7 +11,7 @@ try: #3ds Max dependancies
 except ImportError as error:
 	print(__file__, error); rt=None; maxEval=lambda s: None
 
-from tentacle.slots import Slots
+from uitk.slots import Slots
 from .staticUi_max import StaticUi_max
 
 staticUiInitialized = False

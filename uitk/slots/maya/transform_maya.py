@@ -1,7 +1,7 @@
 # !/usr/bin/python
 # coding=utf-8
-from tentacle.slots.maya import *
-from tentacle.slots.transform import Transform
+from uitk.slots.maya import *
+from uitk.slots.transform import Transform
 
 
 class Transform_maya(Transform, Slots_maya):

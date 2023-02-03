@@ -1,7 +1,7 @@
 # !/usr/bin/python
 # coding=utf-8
-from tentacle.slots.blender import *
-from tentacle.slots.vfx import Vfx
+from uitk.slots.blender import *
+from uitk.slots.vfx import Vfx
 
 
 

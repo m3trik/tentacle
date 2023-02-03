@@ -6,8 +6,8 @@ import importlib
 import inspect
 
 
-name = 'tentacletk'
-__version__ = '0.5.1'
+name = 'uitk'
+__version__ = '0.5.2'
 
 def greeting(string, outputToConsole=True):
 	'''Format a string using preset variables.
@@ -31,7 +31,7 @@ def greeting(string, outputToConsole=True):
 
 	pyver = 'interpreter v{}.{}.{}'.format(sys.version_info[0], sys.version_info[1], sys.version_info[2])
 
-	modver = 'tentacle v{}'.format(__version__)
+	modver = 'uitk v{}'.format(__version__)
 
 	result = string.format(hr=hr, pyver=pyver, modver=modver)
 

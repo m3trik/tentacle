@@ -1,7 +1,7 @@
 # !/usr/bin/python
 # coding=utf-8
-from tentacle.slots.maya import *
-from tentacle.slots.nurbs import Nurbs
+from uitk.slots.maya import *
+from uitk.slots.nurbs import Nurbs
 
 
 class Nurbs_maya(Nurbs, Slots_maya):

@@ -9,7 +9,7 @@ try:
 except ImportError as error:
 	print (__file__, error)
 
-from tentacle.slots import Slots
+from uitk.slots import Slots
 import pythontk as ptk
 import mayatk as mtk
 

@@ -4,7 +4,7 @@ import sys
 
 from PySide2 import QtCore
 
-from tentacle.tcl import Tcl
+from uitk.tcl import Tcl
 from mayatk import getMainWindow
 
 
@@ -124,7 +124,7 @@ print (__name__)
 # Example startup macro:
 
 	# def hk_tentacle_show():
-	# 	'''Display the tentacle marking menu.
+	# 	'''Display the uitk marking menu.
 	# 	'''
 	# 	if 'tcl' not in globals():
 	# 		from tcl_maya import Tcl_maya
@@ -167,7 +167,7 @@ print (__name__)
 	# 	self.sendKeyPressEvent(self.key_show)
 
 	# #call
-	# from tentacle.tcl_maya import Tcl_maya
+	# from uitk.tcl_maya import Tcl_maya
 	# 	tcl = Tcl_maya.get_instance(id, profile=profile)
 	# 	tcl.show_instance()
 
@@ -192,7 +192,7 @@ print (__name__)
 # 		annotation='',
 # 		catagory='',
 # 		commandLanguage='python',
-# 		command=if 'tentacle' not in {**locals(), **globals()}: main = Tcl_maya.createInstance(); main.hide(); main.show(),
+# 		command=if 'uitk' not in {**locals(), **globals()}: main = Tcl_maya.createInstance(); main.hide(); main.show(),
 # 		hotkeyCtx='',
 # 	)
 

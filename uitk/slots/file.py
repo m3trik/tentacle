@@ -1,6 +1,6 @@
 # !/usr/bin/python
 # coding=utf-8
-from tentacle.slots import Slots
+from uitk.slots import Slots
 from pythontk import File as File_
 
 

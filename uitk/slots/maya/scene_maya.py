@@ -1,7 +1,7 @@
 # !/usr/bin/python
 # coding=utf-8
-from tentacle.slots.maya import *
-from tentacle.slots.scene import Scene
+from uitk.slots.maya import *
+from uitk.slots.scene import Scene
 
 
 class Scene_maya(Scene, Slots_maya):

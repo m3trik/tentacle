@@ -1111,7 +1111,7 @@ class StyleSheet(QtCore.QObject):
 			hideMenuButton (boool) = Hide the menu button of a widget that has one.
 			backgroundOpacity (int) = Set the background alpha transparency between 0 and 255.
 		'''
-		from tentacle.switchboard import Switchboard
+		from uitk.switchboard import Switchboard
 
 		widgets = [widgets] if not isinstance(widgets, (list, tuple, set, dict)) else widgets #assure widgets in a list.
 

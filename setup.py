@@ -1,7 +1,7 @@
 import os
 import setuptools
 
-from tentacle import name, __version__
+from uitk import name, __version__
 from pythontk import File
 
 
@@ -16,7 +16,7 @@ setuptools.setup(
 	description='A Python3/PySide2 marking menu style toolkit for Maya, 3ds Max, and Blender.',
 	long_description=long_description,
 	long_description_content_type='text/markdown',
-	url='https://github.com/m3trik/tentacle',
+	url='https://github.com/m3trik/uitk',
 	packages=setuptools.find_packages(), #scan the directory structure and include all package dependancies.
 	classifiers=[
 		'Programming Language :: Python :: 3',
@@ -24,7 +24,7 @@ setuptools.setup(
 		'Operating System :: OS Independent',
 	],
 	include_package_data = True,
-	data_files=File.getDirContents('tentacle', 'filepaths', excFiles=['*.py', '*.pyc', '*.json']), #ie. ('tentacle/ui/0', ['tentacle/ui/0/init.ui']),
+	data_files=File.getDirContents('uitk', 'filepaths', excFiles=['*.py', '*.pyc', '*.json']), #ie. ('uitk/ui/0', ['uitk/ui/0/init.ui']),
 )
 
 # --------------------------------------------------------------------------------------------
@@ -69,5 +69,5 @@ setuptools.setup(
 # 				results.append((root, list(map(lambda f:root + "/" + f, filtered))))
 # 	return results
 
-# # for i in gen_data_files('tentacle', exc=['*.py', '*.pyc', '*.json']):
+# # for i in gen_data_files('uitk', exc=['*.py', '*.pyc', '*.json']):
 # 	# print (i)

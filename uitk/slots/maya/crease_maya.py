@@ -1,7 +1,7 @@
 # !/usr/bin/python
 # coding=utf-8
-from tentacle.slots.maya import *
-from tentacle.slots.crease import Crease
+from uitk.slots.maya import *
+from uitk.slots.crease import Crease
 
 
 class Crease_maya(Crease, Slots_maya):

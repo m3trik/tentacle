@@ -7,7 +7,7 @@ fltmc >nul 2>nul || set _=^"set _ELEV=1^& cd /d """%cd%"""^& "%~f0" %* ^"&&((if 
 
 
 ::wheel directory
-set "name=tentacle"
+set "name=uitk"
 ::
 set "dir=%CLOUD%\Code\_scripts\%name%"
 
@@ -21,7 +21,7 @@ rmdir /s /q "%dir%/dist"
 ECHO/
 
 
-python -c "from pythontk import File; File.incVersion('%dir%\%name%\__init__.py')"
+python -c "from pythontk import File; File.incVersion(r'%dir%/%name%/__init__.py')"
 echo %name% package version number incremented.
 
 

@@ -4,7 +4,7 @@ import sys
 
 from PySide2 import QtCore
 
-from tentacle.tcl import Tcl
+from uitk.tcl import Tcl
 
 
 class Tcl_blender(Tcl):
@@ -128,7 +128,7 @@ print (__name__)
 # Example startup macro:
 
 	# def hk_tentacle_show():
-	# 	'''Display the tentacle marking menu.
+	# 	'''Display the uitk marking menu.
 	# 	'''
 	# 	if 'tcl' not in globals():
 	# 		from tcl_maya import Tcl_maya

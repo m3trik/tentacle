@@ -1,7 +1,7 @@
 # !/usr/bin/python
 # coding=utf-8
-from tentacle.slots.blender import *
-from tentacle.slots.pivot import Pivot
+from uitk.slots.blender import *
+from uitk.slots.pivot import Pivot
 
 
 

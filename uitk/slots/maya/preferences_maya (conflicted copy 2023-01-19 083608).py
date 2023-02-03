@@ -1,7 +1,7 @@
 # !/usr/bin/python
 # coding=utf-8
-from tentacle.slots.maya import *
-from tentacle.slots.preferences import Preferences
+from uitk.slots.maya import *
+from uitk.slots.preferences import Preferences
 
 
 

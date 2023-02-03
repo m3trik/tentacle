@@ -1,7 +1,7 @@
 # !/usr/bin/python
 # coding=utf-8
-from tentacle.slots.maya import *
-from tentacle.slots.file import File
+from uitk.slots.maya import *
+from uitk.slots.file import File
 
 
 class File_maya(File, Slots_maya):

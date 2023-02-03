@@ -1,7 +1,7 @@
 # !/usr/bin/python
 # coding=utf-8
-from tentacle.slots.maya import *
-from tentacle.slots.duplicate import Duplicate
+from uitk.slots.maya import *
+from uitk.slots.duplicate import Duplicate
 
 
 class Duplicate_maya(Duplicate, Slots_maya):

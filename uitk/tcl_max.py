@@ -9,7 +9,7 @@ try:
 except ImportError as error:
 	print(error)
 
-from tentacle.tcl import Tcl
+from uitk.tcl import Tcl
 
 
 class Tcl_max(Tcl):
@@ -153,7 +153,7 @@ print (__name__)
 	# silentErrors: false
 	# autoUndoEnabled: false
 	# (
-	# 	python.Execute "if 'tentacle' not in globals(): from tcl_max import Tcl_max; global tcl; tcl = Tcl_max(key_show='Key_F12', profile=False)" --create an instance
+	# 	python.Execute "if 'uitk' not in globals(): from tcl_max import Tcl_max; global tcl; tcl = Tcl_max(key_show='Key_F12', profile=False)" --create an instance
 	# 	python.Execute "tcl.sendKeyPressEvent(tcl.key_show);"
 	# )
 

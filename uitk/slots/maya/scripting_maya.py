@@ -1,7 +1,7 @@
 # !/usr/bin/python
 # coding=utf-8
-from tentacle.slots.maya import *
-from tentacle.slots.scripting import Scripting
+from uitk.slots.maya import *
+from uitk.slots.scripting import Scripting
 
 
 class Scripting_maya(Scripting, Slots_maya):

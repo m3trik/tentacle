@@ -101,7 +101,7 @@ class Slots(QtCore.QObject):
 			string = '{}: {}'.format(messageType.capitalize(), string)
 
 		if not hasattr(self, '_messageBox'):
-			from tentacle.widgets.messageBox import MessageBox
+			from uitk.widgets.messageBox import MessageBox
 			self._messageBox = MessageBox(self.sb.parent().parent())
 
 		self._messageBox.location = location

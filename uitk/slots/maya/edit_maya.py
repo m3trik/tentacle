@@ -1,7 +1,7 @@
 # !/usr/bin/python
 # coding=utf-8
-from tentacle.slots.maya import *
-from tentacle.slots.edit import Edit
+from uitk.slots.maya import *
+from uitk.slots.edit import Edit
 
 
 class Edit_maya(Edit, Slots_maya):

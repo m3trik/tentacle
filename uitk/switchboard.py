@@ -10,7 +10,7 @@ from PySide2 import QtCore, QtGui, QtWidgets
 from PySide2.QtUiTools import QUiLoader
 
 from pythontk import File, Str, Iter, setAttributes
-from tentacle.styleSheet import StyleSheet
+from uitk.styleSheet import StyleSheet
 
 
 class Switchboard(QUiLoader, StyleSheet):
@@ -317,7 +317,7 @@ class Switchboard(QUiLoader, StyleSheet):
 		level 4: popup menus
 
 		:Parameters:
-			filePath (str) = The directory containing the ui file. ie. 'O:/Cloud/Code/_scripts/tentacle/tentacle/ui/uiLevel_0/init.ui'
+			filePath (str) = The directory containing the ui file. ie. 'O:/Cloud/Code/_scripts/uitk/uitk/ui/uiLevel_0/init.ui'
 
 		:Return:
 			(int)
@@ -382,8 +382,8 @@ class Switchboard(QUiLoader, StyleSheet):
 		:Parameters:
 			path (str) = A filepath to a dir containing widgets or to the widget itself, 
 					or the name of a widget residing in the 'widgetLoc'. 
-						ie. 'O:/Cloud/Code/_scripts/tentacle/tentacle/ui/widgets'
-						ie. 'O:/Cloud/Code/_scripts/tentacle/tentacle/ui/widgets/comboBox.py'
+						ie. 'O:/Cloud/Code/_scripts/uitk/uitk/ui/widgets'
+						ie. 'O:/Cloud/Code/_scripts/uitk/uitk/ui/widgets/comboBox.py'
 						ie. 'ComboBox'
 		:Return:
 			(list) widgets
@@ -546,13 +546,13 @@ class Switchboard(QUiLoader, StyleSheet):
 
 		:Parameters:
 			widgets (str)(obj)(list) = A filepath to a dir containing widgets or to the widget itself. 
-						ie. 'O:/Cloud/Code/_scripts/tentacle/tentacle/ui/widgets' or the widget(s) themselves. 
+						ie. 'O:/Cloud/Code/_scripts/uitk/uitk/ui/widgets' or the widget(s) themselves. 
 
 		:Return:
 			(obj)(list) list if widgets given as a list.
 
 		ex. call: registerWidgets(<class 'widgets.menu.Menu'>) #register using widget class object.
-		ex. call: registerWidgets('O:/Cloud/Code/_scripts/tentacle/tentacle/ui/widgets/menu.py') #register using path to widget module.
+		ex. call: registerWidgets('O:/Cloud/Code/_scripts/uitk/uitk/ui/widgets/menu.py') #register using path to widget module.
 		'''
 		result=[]
 		for w in Iter.makeList(widgets): #assure widgets is a list.
@@ -586,7 +586,7 @@ class Switchboard(QUiLoader, StyleSheet):
 			path (str) = The path to the directory containing the ui files to load.
 				If no path is given all ui from the default 'uiLoc' will be loaded.
 			widgets (str)(obj)(list) = A filepath to a dir containing widgets or to the widget itself. 
-						ie. 'O:/Cloud/Code/_scripts/tentacle/tentacle/ui/widgets' or the widget(s) themselves.
+						ie. 'O:/Cloud/Code/_scripts/uitk/uitk/ui/widgets' or the widget(s) themselves.
 			parent (obj) = An optional parent widget.
 
 		:Return:
@@ -605,7 +605,7 @@ class Switchboard(QUiLoader, StyleSheet):
 		:Parameters:
 			file (str) = The full file path to the ui file.
 			widgets (str)(obj)(list) = A filepath to a dir containing widgets or the widget(s) itself.
-						ie. 'O:/Cloud/Code/_scripts/tentacle/tentacle/ui/widgets' or the widget(s) themselves.
+						ie. 'O:/Cloud/Code/_scripts/uitk/uitk/ui/widgets' or the widget(s) themselves.
 			parent (obj) = An optional parent widget.
 
 		:Return:
@@ -1164,7 +1164,7 @@ class Switchboard(QUiLoader, StyleSheet):
 
 
 	def disconnectSlots(self, ui, widgets=None):
-		'''Disconnect signals from tentacle.slots for the widgets of the given ui.
+		'''Disconnect signals from uitk.slots for the widgets of the given ui.
 		Works with both single slots or multiple slots given as a list.
 
 		:Parameters:
@@ -1676,7 +1676,7 @@ class Switchboard(QUiLoader, StyleSheet):
 
 if __name__=='__main__':
 
-	from tentacle.slots.polygons import Polygons
+	from uitk.slots.polygons import Polygons
 	sb = Switchboard(uiLoc='ui', widgetLoc='widgets', slotLoc='slots/maya') #set relative paths, and explicity set the slots class instead of providing a path like: slotLoc='slots/maya', which in this case would produce the same result with just a little more overhead.
 	ui = sb.polygons #get the ui by it's name.
 

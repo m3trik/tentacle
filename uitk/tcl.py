@@ -5,10 +5,10 @@ import sys, os
 from PySide2 import QtCore, QtGui, QtWidgets
 
 from pythontk.Iter import makeList
-from tentacle.switchboard import Switchboard
-from tentacle.overlay import Overlay
-from tentacle.events import EventFactoryFilter, MouseTracking
-from tentacle.widgets import rwidgets
+from uitk.switchboard import Switchboard
+from uitk.overlay import Overlay
+from uitk.events import EventFactoryFilter, MouseTracking
+from uitk.widgets import rwidgets
 
 
 class Tcl(QtWidgets.QStackedWidget):
@@ -682,7 +682,7 @@ if __name__ == '__main__':
 # 		Removes any old non-visible instances outside of the current 'activeWindow_'.
 # 		'''
 # 		if self.activeWindow_ is None or self.activeWindow_.isVisible():
-# 			name = 'tentacle'+str(len(self.instances_))
+# 			name = 'uitk'+str(len(self.instances_))
 # 			setattr(self, name, self.Class(self.parent, self.preventHide, self.key_show)) #set the instance as a property using it's name.
 # 			self.activeWindow_ = getattr(self, name)
 # 			self.instances_[name] = self.activeWindow_

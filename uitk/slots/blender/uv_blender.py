@@ -1,7 +1,7 @@
 # !/usr/bin/python
 # coding=utf-8
-from tentacle.slots.blender import *
-from tentacle.slots.uv import Uv
+from uitk.slots.blender import *
+from uitk.slots.uv import Uv
 
 
 
@@ -42,7 +42,7 @@ class Uv_blender(Uv, Slots_blender):
 		'''
 		cmb = self.sb.uv.draggable_header.ctxMenu.cmb000
 
-		if index>0: #hide tentacle then perform operation
+		if index>0: #hide uitk then perform operation
 			text = cmb.items[index]
 			self.sb.parent().hide()
 			if text=='UV Editor':

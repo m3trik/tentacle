@@ -1,7 +1,7 @@
 # !/usr/bin/python
 # coding=utf-8
-from tentacle.slots.blender import *
-from tentacle.slots.selection import Selection
+from uitk.slots.blender import *
+from uitk.slots.selection import Selection
 
 
 class Selection_blender(Selection, Slots_blender):

@@ -1,7 +1,7 @@
 # !/usr/bin/python
 # coding=utf-8
-from tentacle.slots.maya import *
-from tentacle.slots.polygons import Polygons
+from uitk.slots.maya import *
+from uitk.slots.polygons import Polygons
 
 
 class Polygons_maya(Polygons, Slots_maya):

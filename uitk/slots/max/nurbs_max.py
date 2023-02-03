@@ -1,7 +1,7 @@
 # !/usr/bin/python
 # coding=utf-8
-from tentacle.slots.max import *
-from tentacle.slots.nurbs import Nurbs
+from uitk.slots.max import *
+from uitk.slots.nurbs import Nurbs
 
 
 class Nurbs_max(Nurbs, Slots_max):
