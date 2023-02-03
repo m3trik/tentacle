@@ -18,27 +18,14 @@
 
 ![alt text](https://raw.githubusercontent.com/m3trik/tentacle/master/docs/dependancy_graph.jpg)
 
-#### tcl:
 
-###### *handles main gui construction for the marking menu.*
-
-#### events:
-
-###### *event handling for dynamic ui.*
-
-#### overlay:
-
-###### *tracks cursor position and ui hierarchy to generate paint events that overlay the main widget.*
-
-#### switchboard:
-
-###### *loads dynamic ui with custom widgets. Contains properties and convenience methods for interacting with the ui.*
-
-#### slots:
-
-###### *parent class housing methods that are inherited across all app specific slot class modules.*
-
-## 
+Example | Description
+------- | -------
+[tcl](https://github.com/m3trik/tentacle/blob/main/tentacle/tcl.py) | *handles main gui construction for the marking menu.*
+[events](https://github.com/m3trik/tentacle/blob/main/tentacle/events.py) | *event handling for dynamic ui.*
+[overlay](https://github.com/m3trik/tentacle/blob/main/tentacle/overlay.py) | *tracks cursor position and ui hierarchy to generate paint events that overlay the main widget.*
+[switchboard](https://github.com/m3trik/tentacle/blob/main/tentacle/switchboard.py) | *loads dynamic ui with custom widgets. Contains properties and convenience methods for interacting with the ui.*
+[slots](https://github.com/m3trik/tentacle/blob/main/tentacle/slots.py) | *parent class housing methods that are inherited across all app specific slot class modules.*
 
 ---
 
@@ -58,7 +45,7 @@ For Maya:
 Add a macro to a hotkey similar to the following:
 ```
 from tentacle import tcl_maya
-tcl_maya.getInstance(key_show='Key_F12').show()
+tcl_maya.show(key_show='Key_F12')
 ```
 
 For 3ds Max:

@@ -89,6 +89,13 @@ def getInstance(instanceID=None, *args, **kwargs):
 		_instances[instanceID] = Tcl_maya(*args, **kwargs)
 		return _instances[instanceID]
 
+
+def show(instanceID=None, *args, **kwargs):
+	'''Expands `getInstance` to get and then show an instance in a single command.
+	'''
+	inst = getInstance(instanceID=instanceID, *args, **kwargs)
+	inst.show()
+
 # --------------------------------------------------------------------------------------------
 
 
