@@ -1,6 +1,6 @@
-## \*uitk is a Python3/PySide2 marking menu and ui toolkit for Maya, 3ds Max, and Blender.
+## uitk is a Python3/PySide2 marking menu and ui toolkit for Maya, 3ds Max, and Blender.
 
-*personal project. work in progress..*
+personal project. work in progress..*
 
 ## Design:
 
@@ -37,7 +37,7 @@ To install:
 Add the uitk folder to a directory on your python path, or
 install via pip in a command line window using:
 ```
-python -m pip install uitktk
+python -m pip install uitk
 ```
 
 To launch the marking menu:
