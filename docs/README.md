@@ -34,7 +34,7 @@ Example | Description
 #####
 
 To install:
-Add the uitk folder to a directory on your python path, or
+Add the `uitk` folder to a directory on your python path, or
 install via pip in a command line window using:
 ```
 python -m pip install uitk
@@ -57,8 +57,8 @@ silentErrors: false
 autoUndoEnabled: false
 (
 	python.Execute "from uitk import tcl_max"
-	python.Execute "tcl_max.getInstance(key_show='Key_F12').show()"
+	python.Execute "tcl_max.show(key_show='Key_F12')"
 )
 ```
 
-See the switchboard module for a demo on how to launch a stand alone dynamic ui.
+See the `switchboard` module for a demo on how to launch a stand alone dynamic ui.
