@@ -23,8 +23,8 @@ Example | Description
 ------- | -------
 [tcl](https://github.com/m3trik/uitk/blob/main/uitk/tcl.py) | *Handles main gui construction for the marking menu.*
 [events](https://github.com/m3trik/uitk/blob/main/uitk/events.py) | *Event handling for dynamic ui.*
-[overlay](https://github.com/m3trik/uitk/blob/main/uitk/overlay.py) | *Tracks cursor position and ui hierarchy to generate paint events that overlay the main widget.*
-[switchboard](https://github.com/m3trik/uitk/blob/main/uitk/switchboard.py) | *loads dynamic ui and custom widgets on demand. Assigns properties and provides convenience methods for interacting with the ui.*
+[overlay](https://github.com/m3trik/uitk/blob/main/uitk/overlay.py) | *Tracks cursor position and ui hierarchy to generate paint events that overlay it's parent widget.*
+[switchboard](https://github.com/m3trik/uitk/blob/main/uitk/switchboard.py) | *Loads dynamic ui and custom widgets on demand. Assigns properties and provides convenience methods for interacting with the ui.*
 [slots](https://github.com/m3trik/uitk/blob/main/uitk/slots) | *Modules for the various slot connections.*
 
 ---
