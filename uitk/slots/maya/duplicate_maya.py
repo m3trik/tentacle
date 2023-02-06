@@ -293,8 +293,8 @@ class Duplicate_maya(Duplicate, Slots_maya):
 		'''get any intances of given object, or if None given; get all instanced objects in the scene.
 
 		:Parameters:
-			objects (str)(obj)(list) = Parent object/s.
-			returnParentObjects (bool) = Return instances and the given parent objects together.
+			objects (str)(obj)(list): Parent object/s.
+			returnParentObjects (bool): Return instances and the given parent objects together.
 
 		:Return:
 			(list)
@@ -324,14 +324,14 @@ class Duplicate_maya(Duplicate, Slots_maya):
 		'''The first selected object will be instanced across all other selected objects.
 
 		:Parameters:
-			objects (list) = A list of objects to convert to instances. The first object will be the instance parent.
-			append (str) = Append a string to the end of any instanced objects. ie. '_INST'
-			transformByVertexOrder (bool) = Transform the instanced object by matching the transforms of the vertices between the two objects.
+			objects (list): A list of objects to convert to instances. The first object will be the instance parent.
+			append (str): Append a string to the end of any instanced objects. ie. '_INST'
+			transformByVertexOrder (bool): Transform the instanced object by matching the transforms of the vertices between the two objects.
 
 		:Return:
 			(list) The instanced objects.
 
-		ex. call: convertToInstances(pm.ls(sl=1))
+		:Example: convertToInstances(pm.ls(sl=1))
 		'''
 		# pm.undoInfo(openChunk=1)
 		p0x, p0y, p0z = pm.xform(objects[0], query=1, rotatePivot=1, worldSpace=1) #get the world space obj pivot.
@@ -371,7 +371,7 @@ class Duplicate_maya(Duplicate, Slots_maya):
 		'''Un-Instance the given objects.
 
 		:Parameters:
-			objects (str)(obj)(list) = The objects to un-instance. If 'all' is given all instanced objects in the scene will be uninstanced.
+			objects (str)(obj)(list): The objects to un-instance. If 'all' is given all instanced objects in the scene will be uninstanced.
 		'''
 		if objects=='all':
 			objects = self.getInstances()
@@ -409,15 +409,15 @@ print (__name__)
 	# 	'''The first selected object will be instanced across all other selected objects.
 
 	# 	:Parameters:
-	# 		objects (list) = A list of objects to convert to instances. The first object will be the instance parent.
-	# 		leaf (bool) = Instances leaf-level objects. Acts like duplicate except leaf-level objects are instanced.
-	# 		append (str) = Append a string to the end of any instanced objects. ie. '_INST'
-	# 		transformByVertexOrder (bool) = Transform the instanced object by matching the transforms of the vertices between the two objects.
+	# 		objects (list): A list of objects to convert to instances. The first object will be the instance parent.
+	# 		leaf (bool): Instances leaf-level objects. Acts like duplicate except leaf-level objects are instanced.
+	# 		append (str): Append a string to the end of any instanced objects. ie. '_INST'
+	# 		transformByVertexOrder (bool): Transform the instanced object by matching the transforms of the vertices between the two objects.
 
 	# 	:Return:
 	# 		(list) The instanced objects.
 
-	# 	ex. call: convertToInstances(pm.ls(sl=1))
+	# 	:Example: convertToInstances(pm.ls(sl=1))
 	# 	'''
 	# 	# pm.undoInfo(openChunk=1)
 	# 	p0x, p0y, p0z = pm.xform(objects[0], query=1, rotatePivot=1, worldSpace=1) #get the world space obj pivot.

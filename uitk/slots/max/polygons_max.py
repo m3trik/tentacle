@@ -475,7 +475,7 @@ class Polygons_max(Polygons, Slots_max):
 		'''Detach editable_mesh elements into new objects.
 
 		:Parameters:
-			obj (obj) = A polygon object.
+			obj (obj): A polygon object.
 
 		:Return:
 			(list) detached objects.

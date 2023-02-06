@@ -13,7 +13,7 @@ class Attributes(object):
 		If attributes are passed in as a dict, kwargs are ignored.
 
 		:Parameters:
-			obj (obj) = the child obj or widgetAction to set attributes for. (default=self)
+			obj (obj): the child obj or widgetAction to set attributes for. (default=self)
 			**kwargs = The keyword arguments to set.
 		'''
 		if not kwargs: #if no attributes given.
@@ -36,23 +36,23 @@ class Attributes(object):
 		Custom attributes can be set using a trailing underscore convention to aid readability, and differentiate them from standard attributes.
 
 		:Parameters:
-			w (obj) = The child widget or widgetAction to set attributes for.
-			attr (str) = Custom keyword attribute.
-			value (str) = The value corresponding to the given attr.
+			w (obj): The child widget or widgetAction to set attributes for.
+			attr (str): Custom keyword attribute.
+			value (str): The value corresponding to the given attr.
 
 		attributes:
-			copy_ (obj) = The widget to copy attributes from.
-			setSize_ (list) = The size as an x and y value. ie. (40, 80)
-			setWidth_ (int) = The desired width.
-			setHeight_ (int) = The desired height.
-			setPosition_ (QPoint)(str) = Move to the given global position and center. valid: <QPoint>, 'cursor', 
+			copy_ (obj): The widget to copy attributes from.
+			setSize_ (list): The size as an x and y value. ie. (40, 80)
+			setWidth_ (int): The desired width.
+			setHeight_ (int): The desired height.
+			setPosition_ (QPoint)(str): Move to the given global position and center. valid: <QPoint>, 'cursor', 
 			addMenu_ (QMenu) = Used for adding additional menus to a parent menu. ex. parentMenu = Menu(); childMenu = Menu('Create', addMenu_=parentMenu)
-			insertSeparator_ (bool) = Insert a line separater before the new widget.
-			setLayoutDirection_ (str) = Set the layout direction using a string value. ie. 'LeftToRight'
-			setAlignment_ (str) = Set the alignment using a string value. ie. 'AlignVCenter'
-			setButtonSymbols_ (str) = Set button symbols using a string value. ex. ie. 'PlusMinus'
-			setMinMax_ (str) = Set the min, max, and step value using a string value. ex. '.01-10 step.1'
-			setCheckState_ (int) = Set a tri-state checkbox state using an integer value. 0(unchecked), 1(partially checked), 2(checked).
+			insertSeparator_ (bool): Insert a line separater before the new widget.
+			setLayoutDirection_ (str): Set the layout direction using a string value. ie. 'LeftToRight'
+			setAlignment_ (str): Set the alignment using a string value. ie. 'AlignVCenter'
+			setButtonSymbols_ (str): Set button symbols using a string value. ex. ie. 'PlusMinus'
+			setMinMax_ (str): Set the min, max, and step value using a string value. ex. '.01-10 step.1'
+			setCheckState_ (int): Set a tri-state checkbox state using an integer value. 0(unchecked), 1(partially checked), 2(checked).
 		'''
 		if attr=='copy_':
 			w.setObjectName(value.objectName())
@@ -112,8 +112,8 @@ class Attributes(object):
 		'''Set the minimum, maximum, and step values for a spinbox using a shorthand string value.
 
 		:Parameters:
-			spinbox (obj) = spinbox widget.
-			value (str) = value as shorthand string. ie. '0.00-100 step1'
+			spinbox (obj): spinbox widget.
+			value (str): value as shorthand string. ie. '0.00-100 step1'
 		'''
 		stepStr = value.split()[1].strip('step')
 		step = float(stepStr)
@@ -133,7 +133,7 @@ class Attributes(object):
 		'''Set a spinbox's attributes according to a given value.
 
 		:Parameters:
-			spinbox (obj) = spinbox widget.
+			spinbox (obj): spinbox widget.
 			value (multi) = attribute value.
 		'''
 		maximum = spinbox.maximum()
@@ -163,7 +163,7 @@ class Attributes(object):
 		'''Move the decimal place in a given number.
 
 		:Parameters:
-			decimal_places (int) = decimal places to move. (works only with values 0 and below.)
+			decimal_places (int): decimal places to move. (works only with values 0 and below.)
 		
 		:Return:
 			(float) the given number with it's decimal place moved by the desired amount.

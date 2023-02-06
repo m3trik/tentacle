@@ -259,10 +259,10 @@ class Edit_blender(Edit, Slots_blender):
 		'''Find any duplicate overlapping geometry at the object level.
 
 		:Parameters:
-			objects (list) = A list of objects to find duplicate overlapping geometry for. Default is selected objects, or all if nothing is selected.
-			omitInitialObjects (bool) = Search only for duplicates of the given objects (or any selected objects if None given), and omit them from the return results.
-			select (bool) = Select any found duplicate objects.
-			verbose (bool) = Print each found object to console.
+			objects (list): A list of objects to find duplicate overlapping geometry for. Default is selected objects, or all if nothing is selected.
+			omitInitialObjects (bool): Search only for duplicates of the given objects (or any selected objects if None given), and omit them from the return results.
+			select (bool): Select any found duplicate objects.
+			verbose (bool): Print each found object to console.
 
 		:Return:
 			(set)
@@ -306,8 +306,8 @@ class Edit_blender(Edit, Slots_blender):
 		'''Delete components of the given mesh object along the specified axis.
 
 		:Parameters:
-			obj (obj) = Mesh object.
-			axis (str) = Axis to delete on. ie. '-x' Components belonging to the mesh object given in the 'obj' arg, that fall on this axis, will be deleted. 
+			obj (obj): Mesh object.
+			axis (str): Axis to delete on. ie. '-x' Components belonging to the mesh object given in the 'obj' arg, that fall on this axis, will be deleted. 
 		'''
 		for node in [n for n in pm.listRelatives(obj, allDescendents=1) if pm.objectType(n, isType='mesh')]: #get any mesh type child nodes of obj.
 			faces = self.getAllFacesOnAxis(node, axis)
@@ -324,7 +324,7 @@ class Edit_blender(Edit, Slots_blender):
 
 		:Parameters:
 			obj=<geometry> - object to perform the operation on. 
-			axis (str) = representing axis ie. "x"
+			axis (str): representing axis ie. "x"
 			localspace=bool - specify world or local space
 		ex. self.getAllFacesOnAxis(polyObject, 'y')
 		'''
@@ -345,8 +345,8 @@ class Edit_blender(Edit, Slots_blender):
 		'''Locate a connected vertex of non-manifold geometry where the faces share a single vertex.
 
 		:Parameters:
-			objects (str)(obj) = A polygon mesh, or a list of meshes.
-			select (int) = Select any found non-manifold vertices. 0=off, 1=on, 2=on while keeping any existing vertex selections. (default: 1)
+			objects (str)(obj): A polygon mesh, or a list of meshes.
+			select (int): Select any found non-manifold vertices. 0=off, 1=on, 2=on while keeping any existing vertex selections. (default: 1)
 
 		:Return:
 			(list) any found non-manifold verts.
@@ -405,8 +405,8 @@ class Edit_blender(Edit, Slots_blender):
 		'''Separate a connected vertex of non-manifold geometry where the faces share a single vertex.
 
 		:Parameters:
-			vertex (str)(obj) = A single polygon vertex.
-			select (bool) = Select the vertex after the operation. (default is True)
+			vertex (str)(obj): A single polygon vertex.
+			select (bool): Select the vertex after the operation. (default is True)
 		'''
 		# pm.undoInfo(openChunk=True)
 		connected_faces = pm.polyListComponentConversion(vertex, fromVertex=1, toFace=1) #pm.mel.PolySelectConvert(1) #convert to faces

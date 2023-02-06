@@ -171,16 +171,16 @@ class Create_blender(Create, Slots_blender):
 		'''Create a circular polygon plane.
 
 		:Parameters:
-			axis (str) = 'x','y','z' 
-			numPoints(int) = number of outer points
+			axis (str): 'x','y','z' 
+			numPoints(int): number of outer points
 			radius=int
 			center=[float3 list] - point location of circle center
-			mode(int) = 0 -no subdivisions, 1 -subdivide tris, 2 -subdivide quads
+			mode(int): 0 -no subdivisions, 1 -subdivide tris, 2 -subdivide quads
 
 		:Return:
 			(list) [transform node, history node] ex. [nt.Transform('polySurface1'), nt.PolyCreateFace('polyCreateFace1')]
 
-		ex. call: self.createCircle(axis='x', numPoints=20, radius=8, mode='tri')
+		:Example: self.createCircle(axis='x', numPoints=20, radius=8, mode='tri')
 		'''
 		import math
 
@@ -254,8 +254,8 @@ print (__name__)
 	# 	uses an external rotation dictionary.
 
 	# 	:Parameters:
-	# 		axis (str) = axis to rotate on. ie. '-x'
-	# 		node (obj) = transform node.
+	# 		axis (str): axis to rotate on. ie. '-x'
+	# 		node (obj): transform node.
 	# 	'''
 	# 	axis = self.rotation[axis]
 

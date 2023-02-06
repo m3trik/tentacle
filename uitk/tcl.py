@@ -25,7 +25,7 @@ class Tcl(QtWidgets.QStackedWidget):
 	def __init__(self, parent=None, key_show='Key_F12', preventHide=False, slotLoc=''):
 		'''
 		:Parameters:
-			parent (obj) = The parent application's top level window instance. ie. the Maya main window.
+			parent (obj): The parent application's top level window instance. ie. the Maya main window.
 		'''
 		super().__init__(parent)
 
@@ -53,7 +53,7 @@ class Tcl(QtWidgets.QStackedWidget):
 		'''Initialize the given ui.
 
 		:Parameters:
-			ui (obj) = The ui to initialize.
+			ui (obj): The ui to initialize.
 		'''
 		self.initWidgets(ui)
 
@@ -75,9 +75,9 @@ class Tcl(QtWidgets.QStackedWidget):
 		'''Set the stacked Widget's index to the given ui.
 
 		:Parameters:
-			ui (str)(obj) = The ui or name of the ui to set the stacked widget index to.
+			ui (str)(obj): The ui or name of the ui to set the stacked widget index to.
 		'''
-		assert isinstance(ui, (str, QtWidgets.QWidget)), f'# Error: {__file__} in setUi\n#\tIncorrect datatype: {type(ui).__name__}'
+		assert isinstance(ui, (str, QtWidgets.QWidget)), f'# Error: {__file__!r} in setUi\n#\tIncorrect datatype: {type(ui).__name__}'
 
 		ui = self.sb.getUi(ui) #Get the ui of the given name, and set it as the current ui in the switchboard module.
 		ui.connected = True
@@ -102,8 +102,8 @@ class Tcl(QtWidgets.QStackedWidget):
 		Positions the new ui to line up with the previous ui's button that called the new ui.
 
 		:Parameters:
-			ui (obj) = The submenu ui to set as current.
-			w (obj) = The widget that called this method.
+			ui (obj): The submenu ui to set as current.
+			w (obj): The widget that called this method.
 		'''
 		if not ui or ui==self.sb.currentUi:
 			return
@@ -142,7 +142,7 @@ class Tcl(QtWidgets.QStackedWidget):
 		The previous widget information is derived from the widget and draw paths.
 
 		:Parameters:
-			ui (obj) = The ui in which to copy the widgets to.
+			ui (obj): The ui in which to copy the widgets to.
 		'''
 		for prevWgt, prevPos, drawPos in self.overlay.drawPath:
 			state = True if prevWgt.objectName()!='return_area' else False
@@ -264,8 +264,8 @@ class Tcl(QtWidgets.QStackedWidget):
 		'''Called on focus events.
 
 		:Parameters:
-			old (obj) = The widget with previous focus.
-			new (obj) = The widget with current focus.
+			old (obj): The widget with previous focus.
+			new (obj): The widget with current focus.
 		'''
 		try:
 			new.grabKeyboard()
@@ -280,8 +280,8 @@ class Tcl(QtWidgets.QStackedWidget):
 		'''Sets the widget as visible.
 
 		:Parameters:
-			ui (str)(obj) = Show the given ui.
-			profile (bool) = Prints the total running time, times each function separately, 
+			ui (str)(obj): Show the given ui.
+			profile (bool): Prints the total running time, times each function separately, 
 				and tells you how many times each function was called.
 		'''
 		self.sendKeyPressEvent(self.key_show)
@@ -310,7 +310,7 @@ class Tcl(QtWidgets.QStackedWidget):
 		Prevents hide event under certain circumstances.
 
 		:Parameters:
-			force (bool) = override preventHide.
+			force (bool): override preventHide.
 		'''
 		if force or not self.preventHide:
 			# print ('mouseGrabber:', self.mouseGrabber()) #Returns the widget that is currently grabbing the mouse input. else: None 
@@ -354,8 +354,8 @@ class Tcl(QtWidgets.QStackedWidget):
 		'''Set Initial widget states.
 
 		:Parameters:
-			ui (obj) = The ui to init widgets of.
-			widgets (str)(list) = <QWidgets> if no arg is given, the operation will be performed on all widgets of the given ui name.
+			ui (obj): The ui to init widgets of.
+			widgets (str)(list): <QWidgets> if no arg is given, the operation will be performed on all widgets of the given ui name.
 		'''
 		if widgets is None:
 			widgets = ui.widgets #get all widgets for the given ui.
@@ -395,7 +395,7 @@ class Tcl(QtWidgets.QStackedWidget):
 			try: #call the class method associated with the current widget.
 				w.method()
 			except (AttributeError, TypeError) as error:
-				print (f'# Error: {__file__} in ef_showEvent\n#\t{error}.')
+				print (f'# Error: {__file__!r} in ef_showEvent\n#\t{error}.')
 				pass
 
 		w.__class__.showEvent(w, event)
@@ -567,10 +567,10 @@ class Tcl(QtWidgets.QStackedWidget):
 	def prevCamera(self, docString=False, method=False, allowCurrent=False, asList=False, add=None):
 		'''
 		:Parameters:
-			docString (bool) = return the docString of last camera command. Default is off.
-			method (bool) = return the method of last camera command. Default is off.
-			allowCurrent (bool) = allow the current camera. Default is off.
-			add (str)(obj) = Add a method, or name of method to be used as the command to the current camera.  (if this flag is given, all other flags are invalidated)
+			docString (bool): return the docString of last camera command. Default is off.
+			method (bool): return the method of last camera command. Default is off.
+			allowCurrent (bool): allow the current camera. Default is off.
+			add (str)(obj): Add a method, or name of method to be used as the command to the current camera.  (if this flag is given, all other flags are invalidated)
 
 		:Return:
 			if docString: 'string' description (derived from the last used camera command's docString) (asList: [string list] all docStrings, in order of use)
@@ -650,8 +650,9 @@ if __name__ == '__main__':
 
 
 
-# Deprecated ------------------------------------
-
+# --------------------------------------------------------------------------------------------
+# deprecated:
+# --------------------------------------------------------------------------------------------
 
 # class Instance():
 # 	'''Manage multiple instances of the Tcl ui.
@@ -694,8 +695,8 @@ if __name__ == '__main__':
 # 		'''Sets the widget as visible.
 
 # 		:Parameters:
-# 			uiName (str) = Show the ui of the given name.
-# 			active (bool) = Set as the active window.
+# 			uiName (str): Show the ui of the given name.
+# 			active (bool): Set as the active window.
 # 		'''
 # 		inst = self._getInstance()
 # 		inst.show(uiName=uiName, active=active)
@@ -759,8 +760,8 @@ if __name__ == '__main__':
 	# 	'''Initializes the ui of the given name and it's dependancies.
 
 	# 	:Parameters:
-	# 		ui (obj) = The ui widget to be added to the layout stack.
-	# 		query (bool) = Check whether the ui widget has been added.
+	# 		ui (obj): The ui widget to be added to the layout stack.
+	# 		query (bool): Check whether the ui widget has been added.
 
 	# 	:Return:
 	# 		(bool) When queried.

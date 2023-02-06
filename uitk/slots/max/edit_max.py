@@ -176,7 +176,7 @@ class Edit_max(Edit, Slots_max):
 		'''Get a list of faces of a given object having more than four sides.
 
 		:Parameters:
-			obj (obj) = polygonal object.
+			obj (obj): polygonal object.
 
 		:Return:
 			(list) list containing any found N-Gons		
@@ -231,7 +231,7 @@ class Edit_max(Edit, Slots_max):
 		'''Get a list of isolated vertices of a given object.
 
 		:Parameters:
-			obj (obj) = polygonal object.
+			obj (obj): polygonal object.
 
 		:Return:
 			(list) list containing any found isolated verts.		
@@ -252,10 +252,10 @@ class Edit_max(Edit, Slots_max):
 		'''Find mesh artifacts.
 
 		:Parameters:
-			isolatedVerts (bool) = find vertices with two edges which fall below a specified angle.
-			edgeAngle (int) = used with isolatedVerts argument to specify the angle tolerance
-			nGons (bool) = search for n sided polygon faces.
-			repair (bool) = delete or auto repair any of the specified artifacts 
+			isolatedVerts (bool): find vertices with two edges which fall below a specified angle.
+			edgeAngle (int): used with isolatedVerts argument to specify the angle tolerance
+			nGons (bool): search for n sided polygon faces.
+			repair (bool): delete or auto repair any of the specified artifacts 
 		'''
 		for obj in rt.selection:
 			if not rt.classof(obj)==rt.Editable_poly:
@@ -356,8 +356,8 @@ class Edit_max(Edit, Slots_max):
 		'''Compares vert/face/edges counts.
 
 		:Parameters:
-			obj1 (obj) = 
-			obj2 (obj) = 
+			obj1 (obj): 
+			obj2 (obj): 
 			factor () = 
 		'''
 		maxEval('''

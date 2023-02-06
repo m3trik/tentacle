@@ -6,14 +6,15 @@ import importlib
 import inspect
 
 
-name = 'uitk'
-__version__ = '0.5.2'
+__package__ = 'uitk'
+__version__ = '0.5.3'
+
 
 def greeting(string, outputToConsole=True):
 	'''Format a string using preset variables.
 
 	:Parameters:
-		string (str) = The greeting to format as a string with placeholders using the below keywords. 
+		string (str): The greeting to format as a string with placeholders using the below keywords. 
 			ex. 'Good {hr}! You are using {modver} with {pyver}.'
 			{hr} - Gives the current time of day (morning, afternoon, evening)
 			{pyver} - The python interpreter version.
@@ -23,7 +24,7 @@ def greeting(string, outputToConsole=True):
 	:Return:
 		(str)
 
-	ex. call: greeting('Good {hr}! You are using {modver} with {pyver}.')
+	:Example: greeting('Good {hr}! You are using {modver} with {pyver}.')
 	'''
 	import datetime
 	h = datetime.datetime.now().hour
@@ -45,11 +46,11 @@ def import_submodules(package, filetypes=('py', 'pyc', 'pyd'), ignoreStartingWit
 	and their respective class methods at submodule level.
 
 	:Parameters:
-		package (str)(obj) = A python package.
-		filetypes (str)(tuple) = Filetype extension(s) to include.
-		ignoreStartingWith (str)(tuple) = Ignore submodules starting with given chars.
+		package (str)(obj): A python package.
+		filetypes (str)(tuple): Filetype extension(s) to include.
+		ignoreStartingWith (str)(tuple): Ignore submodules starting with given chars.
 
-	ex. call: import_submodules(__name__)
+	:Example: import_submodules(__name__)
 	'''
 	if isinstance(package, str):
 		package = sys.modules[package]
@@ -89,10 +90,10 @@ def addMembers(module, ignoreStartingWith='_'):
 	'''Expose class members at module level.
 
 	:Parameters:
-		module (str)(obj) = A python module.
-		ignoreStartingWith (str)(tuple) = Ignore class members starting with given chars.
+		module (str)(obj): A python module.
+		ignoreStartingWith (str)(tuple): Ignore class members starting with given chars.
 
-	ex. call: addMembers(__name__)
+	:Example: addMembers(__name__)
 	'''
 	if isinstance(module, str):
 		module = sys.modules[module]
@@ -111,7 +112,7 @@ def addMembers(module, ignoreStartingWith='_'):
 # 	'''Import a module.
 # 	Attempt to pip install the module on ImportError.
 # 	:Parameters:
-# 		module_name (str) = The name of the module.
+# 		module_name (str): The name of the module.
 # 	:Return:
 # 		(obj) The imported module.
 # 	'''
@@ -128,14 +129,14 @@ def lazy_import(importer_name, to_import):
 	'''Return the importing module and a callable for lazy importing.
 
 	:Parmameters:
-		importer_name (str) = Represents the module performing the
+		importer_name (str): Represents the module performing the
 				import to help facilitate resolving relative imports.
-		to_import (list) = An iterable of the modules to be potentially imported (absolute
+		to_import (list): An iterable of the modules to be potentially imported (absolute
 				or relative). The 'as' form of importing is also supported. e.g. 'pkg.mod as spam'
 	:Return:
 		(tuple) (importer module, the callable to be set to '__getattr__')
 
-	ex. call: mod, __getattr__ = lazy_import(__name__, modules_list)
+	:Example: mod, __getattr__ = lazy_import(__name__, modules_list)
 	'''
 	module = importlib.import_module(importer_name)
 	import_mapping = {}
@@ -163,9 +164,9 @@ def appendPaths(rootDir, ignoreStartingWith=('.', '__'), verbose=False):
 	'''Append all sub-directories of the given 'rootDir' to the python path.
 
 	:Parameters:
-		rootDir (str) = Sub-directories of this directory will be appended to the system path.
-		ignoreStartingWith (str)(tuple) = Ignore directories starting with the given chars.
-		verbose (bool) = Output the results to the console. (Debug)
+		rootDir (str): Sub-directories of this directory will be appended to the system path.
+		ignoreStartingWith (str)(tuple): Ignore directories starting with the given chars.
+		verbose (bool): Output the results to the console. (Debug)
 	'''
 	path = os.path.dirname(os.path.abspath(rootDir))
 	sys.path.insert(0, path)
@@ -181,21 +182,20 @@ def appendPaths(rootDir, ignoreStartingWith=('.', '__'), verbose=False):
 			if verbose:
 				print (dir_path)
 
+# --------------------------------------------------------------------------------------------
+
+
+
+
+
+
+
+
 
 # --------------------------------------------------------------------------------------------
+
 greeting('Good {hr}! You are using {modver} with {pyver}.')
-# appendPaths(__file__, verbose=0)
-# import_submodules(__name__)
 
-
-
-
-
-
-
-
-
-# print (__package__, __file__)
 # --------------------------------------------------------------------------------------------
 # Notes
 # --------------------------------------------------------------------------------------------

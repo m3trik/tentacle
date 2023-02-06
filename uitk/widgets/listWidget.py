@@ -57,7 +57,7 @@ class ListWidget(QtWidgets.QListWidget, Attributes):
 		:Parameters:
 			w () = 
 			kwargs:
-				show (bool) = show the menu.
+				show (bool): show the menu.
 				insertSeparator (QAction) = insert separator in front of the given action.
 		:Return:
 			the added item object.
@@ -98,7 +98,7 @@ class ListWidget(QtWidgets.QListWidget, Attributes):
 	def _addList(self, w):
 		'''Add an expanding list to the given widget.
 		:Parameters:
-			w (obj) = 
+			w (obj): 
 		'''
 		lw = ListWidget(self.parent(), setVisible=False, setObjectName='list')
 		w._list = lw
@@ -120,7 +120,7 @@ class ListWidget(QtWidgets.QListWidget, Attributes):
 
 	def convert(self, items, to='QLabel', **kwargs):
 		'''
-		ex. call: self.convert(self.getItems(), 'QPushButton') #construct the list using the existing contents.
+		:Example: self.convert(self.getItems(), 'QPushButton') #construct the list using the existing contents.
 		'''
 		lst = lambda x: list(x) if isinstance(x, (list, tuple, set, dict)) else [x] #assure 'x' is a list.
 

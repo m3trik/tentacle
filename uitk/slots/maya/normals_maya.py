@@ -211,7 +211,7 @@ class Normals_maya(Normals, Slots_maya):
 		'''Average Normals
 
 		:Parameters:
-			byUvShell (bool) = Average each UV shell individually.
+			byUvShell (bool): Average each UV shell individually.
 		'''
 		pm.undoInfo(openChunk=1)
 		for obj in objects:
@@ -236,7 +236,7 @@ class Normals_maya(Normals, Slots_maya):
 		'''Get the normal vectors of the given poly object.
 
 		:Parameters:
-			obj (str)(obj)(list) = A polygon mesh or it's component(s).
+			obj (str)(obj)(list): A polygon mesh or it's component(s).
 
 		:Return:
 			dict - {int:[float, float, float]} face id & vector xyz.
@@ -262,13 +262,13 @@ class Normals_maya(Normals, Slots_maya):
 		'''Filter for faces with normals that fall within an X,Y,Z tolerance.
 
 		:Parameters:
-			faces (list) = ['polygon faces'] - faces to find similar normals for.
-			similarFaces (list) = optional ability to add faces from previous calls to the return value.
-			transforms (list) = [<shape nodes>] - objects to check faces on. If none are given the objects containing the given faces will be used.
+			faces (list): ['polygon faces'] - faces to find similar normals for.
+			similarFaces (list): optional ability to add faces from previous calls to the return value.
+			transforms (list): [<shape nodes>] - objects to check faces on. If none are given the objects containing the given faces will be used.
 			rangeX = float - x axis tolerance
 			rangeY = float - y axis tolerance
 			rangeZ = float - z axis tolerance
-			returnType (str) = The desired returned object type. 
+			returnType (str): The desired returned object type. 
 							valid: 'str'(default), 'obj'(shape object), 'transform'(as string), 'int'(valid only at sub-object level).
 		:Return:
 			(list) faces that fall within the given normal range.
@@ -304,9 +304,9 @@ class Normals_maya(Normals, Slots_maya):
 	def transferNormals(source, target):
 		'''Transfer normal information from one object to another.
 
-		:parameters:
-			source (str)(obj)(list) = The transform node to copy normals from.
-			target (str)(obj)(list) = The transform node(s) to copy normals to.
+		:Parameters:
+			source (str)(obj)(list): The transform node to copy normals from.
+			target (str)(obj)(list): The transform node(s) to copy normals to.
 		'''
 		pm.undoInfo(openChunk=1)
 		s, *other = pm.ls(source)
@@ -358,7 +358,7 @@ print (__name__)
 # 		'''Get the normal vectors from the given poly object.
 
 # 		:Parameters:
-# 			obj (str)(obj)(list) = A polygon mesh or component(s).
+# 			obj (str)(obj)(list): A polygon mesh or component(s).
 
 # 		:Return:
 # 			dict - {int:[float, float, float]} face id & vector xyz.

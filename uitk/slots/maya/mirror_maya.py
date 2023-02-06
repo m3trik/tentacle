@@ -77,16 +77,16 @@ class Mirror_maya(Mirror, Slots_maya):
 		'''Mirror geometry across a given axis.
 
 		:Parameters:
-			objects (obj) = The objects to mirror. If None; any currently selected objects will be used.
+			objects (obj): The objects to mirror. If None; any currently selected objects will be used.
 			axis (string) = The axis in which to perform the mirror along. case insensitive. (valid: 'x', '-x', 'y', '-y', 'z', '-z')
-			axisPivot (int) = The pivot on which to mirror on. valid: 0) Bounding Box, 1) Object, 2) World.
-			cutMesh (bool) = Perform a delete along specified axis before mirror.
-			instance (bool) = Instance the mirrored object(s).
-			merge (bool) = Merge the mirrored geometry with the original.
-			mergeMode (int) = 0) Do not merge border edges. 1) Border edges merged. 2) Border edges extruded and connected.
+			axisPivot (int): The pivot on which to mirror on. valid: 0) Bounding Box, 1) Object, 2) World.
+			cutMesh (bool): Perform a delete along specified axis before mirror.
+			instance (bool): Instance the mirrored object(s).
+			merge (bool): Merge the mirrored geometry with the original.
+			mergeMode (int): 0) Do not merge border edges. 1) Border edges merged. 2) Border edges extruded and connected.
 			mergeThreshold (float) = Merge vertex distance.
-			deleteOriginal (bool) = Delete the original objects after mirroring.
-			deleteHistory (bool) = Delete non-deformer history on the object before performing the operation.
+			deleteOriginal (bool): Delete the original objects after mirroring.
+			deleteHistory (bool): Delete non-deformer history on the object before performing the operation.
 
 		:Return:
 			(obj) The polyMirrorFace history node if a single object, else None.

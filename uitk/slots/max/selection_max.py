@@ -365,7 +365,7 @@ class Selection_max(Selection, Slots_max):
 		'''Set the selection style context.
 
 		:Parameters:
-			ctx (str) = Selection style context. valid: 'marquee', 'circular', 'fence', 'lasso', 'paint'.
+			ctx (str): Selection style context. valid: 'marquee', 'circular', 'fence', 'lasso', 'paint'.
 		'''
 		if ctx=='marquee':
 			maxEval('actionMan.executeAction 0 "59232"') #Rectangular select region
@@ -393,7 +393,7 @@ class Selection_max(Selection, Slots_max):
 		'''Selection Sets: Create a new selection set.
 
 		:Parameters:
-			name (str) = The desired name of the new set.
+			name (str): The desired name of the new set.
 		'''
 		if rt.isValidObj(name): # obj!=rt.undefined
 			self.messageBox('Set with name <hl>{}</hl> already exists.'.format(name))
@@ -419,7 +419,7 @@ class Selection_max(Selection, Slots_max):
 		'''Selection Sets: Modify Current by renaming or changing the set members.
 
 		:Parameters:
-			name (str) = Name of an existing selection set.
+			name (str): Name of an existing selection set.
 		'''
 		sel = self.currentSelection
 		if sel:
@@ -446,9 +446,9 @@ class Selection_max(Selection, Slots_max):
 		'''Get a set or set info by name.
 
 		:Parameters:
-			name (str) = Set name.
-			index (str)(int) = Desired return value type. Valid values are: 0:'set'(default), 1:'object', 2:'objectLevel' 4:'set_array'.
-			objects (list) = The group of objects to get the set from.
+			name (str): Set name.
+			index (str)(int): Desired return value type. Valid values are: 0:'set'(default), 1:'object', 2:'objectLevel' 4:'set_array'.
+			objects (list): The group of objects to get the set from.
 
 		:Return:
 			depending on the given index:
@@ -482,7 +482,7 @@ class Selection_max(Selection, Slots_max):
 		Returns Object and Sub-Object Level sets.
 
 		:Parameters:
-			objects (list) = The objects to get sets from. ie. rt.cameras (default is rt.geometry)
+			objects (list): The objects to get sets from. ie. rt.cameras (default is rt.geometry)
 
 		:Return:
 			(dict) {'set name':[<set>, <object>, <object level as int>, <set array>]}
@@ -505,8 +505,8 @@ class Selection_max(Selection, Slots_max):
 		'''Get the array containing a set by array type.
 
 		:Parameters:
-			obj (obj) = Parent obj of the array.
-			index (int) = Array type. 
+			obj (obj): Parent obj of the array.
+			index (int): Array type. 
 
 		:Return:
 			(array) maxscript array object.
@@ -525,8 +525,8 @@ class Selection_max(Selection, Slots_max):
 		'''Gets any existing selection sets for the given object.
 
 		:Parameters:
-			obj (obj) = The object to get sets for. If no object is given, any empty sets will be returned.
-			level (int) = The sub-object level. Valid values are: 0(obj), 1(vertices), 2(edges), 3(borders), 4(faces)
+			obj (obj): The object to get sets for. If no object is given, any empty sets will be returned.
+			level (int): The sub-object level. Valid values are: 0(obj), 1(vertices), 2(edges), 3(borders), 4(faces)
 
 		:Return:
 			(dict) {'set name':<set>}
@@ -559,7 +559,7 @@ class Selection_max(Selection, Slots_max):
 		'''Select a component loop from two or more selected adjacent components (or a single edge).
 
 		:Parameters:
-			obj (obj) = An Editable polygon object.
+			obj (obj): An Editable polygon object.
 
 		ex. obj = rt.selection[0]
 			selectLoop(obj)
@@ -585,7 +585,7 @@ class Selection_max(Selection, Slots_max):
 		'''Select a component ring from two or more selected adjacent components (or a single edge).
 
 		:Parameters:
-			obj (obj) = An Editable polygon object.
+			obj (obj): An Editable polygon object.
 
 		ex. obj = rt.selection[0]
 			selectRing(obj)

@@ -51,7 +51,7 @@ class CheckBox(QtWidgets.QCheckBox, MenuInstance, Attributes, RichText, TextOver
 		Simplifies working with tri-state checkboxes.
 
 		:Parameters:
-			state (int)(bool) = 0 or False: unchecked, 1 or True: checked. 
+			state (int)(bool): 0 or False: unchecked, 1 or True: checked. 
 				If tri-state: 0: unchecked, 1: paritally checked, 2: checked.
 		'''
 		if self.isTristate():		

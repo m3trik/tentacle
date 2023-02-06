@@ -47,8 +47,8 @@ class Overlay(QtWidgets.QWidget, OverlayFactoryFilter):
 	'''Handles paint events as an overlay on top of an existing widget.
 
 	:Parameters:
-		tcl (obj) = tcl widget instance.
-		antialiasing (bool) = Set antialiasing for the tangent paint events.
+		tcl (obj): tcl widget instance.
+		antialiasing (bool): Set antialiasing for the tangent paint events.
 	'''
 	greyPen = QtGui.QPen(QtGui.QColor(115, 115, 115), 3, QtCore.Qt.SolidLine, QtCore.Qt.RoundCap, QtCore.Qt.RoundJoin)
 	blackPen = QtGui.QPen(QtGui.QColor(0, 0, 0), 1, QtCore.Qt.SolidLine, QtCore.Qt.RoundCap, QtCore.Qt.RoundJoin)
@@ -137,7 +137,7 @@ class Overlay(QtWidgets.QWidget, OverlayFactoryFilter):
 		'''Remove the last entry from the widget and draw paths for the given ui.
 
 		:Parameters:
-			ui (obj) = The ui to remove.
+			ui (obj): The ui to remove.
 		'''
 		uis = [w.ui for w, wpos, cpos in self.drawPath[1:]]
 		# print ([w.name for w, wpos, cpos in self.drawPath[1:]])

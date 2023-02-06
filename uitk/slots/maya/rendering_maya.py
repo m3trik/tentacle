@@ -103,8 +103,8 @@ class Rendering_maya(Rendering, Slots_maya):
 		'''Load/Unload the Maya Vray Plugin if it exists.
 
 		:Parameters:
-			unload (bool) = Unload the VRay plugin.
-			query (bool) = Query the state of the VRay Plugin.
+			unload (bool): Unload the VRay plugin.
+			query (bool): Query the state of the VRay Plugin.
 		'''
 		if query:
 			return True if pm.pluginInfo('vrayformaya.mll', query=1, loaded=1) else False

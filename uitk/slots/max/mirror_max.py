@@ -80,15 +80,15 @@ class Mirror_max(Mirror, Slots_max):
 		'''Mirror geometry across a given axis.
 
 		:Parameters:
-			objects (obj) = The objects to mirror. If None; any currently selected objects will be used.
+			objects (obj): The objects to mirror. If None; any currently selected objects will be used.
 			axis (string) = The axis in which to perform the mirror along. case insensitive. (valid: 'X', '-X', 'Y', '-Y', 'Z', '-Z')
-			worldSpace (bool) = This flag specifies which reference to use. If True: all geometrical values are taken in world reference. If False: all geometrical values are taken in object reference.
-			cutMesh (bool) = Perform a delete along specified axis before mirror.
-			instance (bool) = Instance the mirrored object(s).
-			merge (bool) = Merge the mirrored geometry with the original.
-			mergeMode (int) = 0) Do not merge border edges. 1) Border edges merged. 2) Border edges extruded and connected.
+			worldSpace (bool): This flag specifies which reference to use. If True: all geometrical values are taken in world reference. If False: all geometrical values are taken in object reference.
+			cutMesh (bool): Perform a delete along specified axis before mirror.
+			instance (bool): Instance the mirrored object(s).
+			merge (bool): Merge the mirrored geometry with the original.
+			mergeMode (int): 0) Do not merge border edges. 1) Border edges merged. 2) Border edges extruded and connected.
 			mergeThreshold (float) = Merge vertex distance.
-			deleteHistory (bool) = Delete non-deformer history on the object before performing the operation.
+			deleteHistory (bool): Delete non-deformer history on the object before performing the operation.
 
 		:Return:
 			(obj) The polyMirrorFace history node if a single object, else None.

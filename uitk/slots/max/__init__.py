@@ -38,9 +38,9 @@ class Slots_max(Slots):
 		'''Get node attributes and their corresponding values as a dict.
 
 		:Parameters:
-			node (obj) = Transform node.
-			inc (list) = Attributes to include. All other will be omitted. Exclude takes dominance over include. Meaning, if the same attribute is in both lists, it will be excluded.
-			exc (list) = Attributes to exclude from the returned dictionay. ie. [u'Position',u'Rotation',u'Scale',u'renderable',u'isHidden',u'isFrozen',u'selected']
+			node (obj): Transform node.
+			inc (list): Attributes to include. All other will be omitted. Exclude takes dominance over include. Meaning, if the same attribute is in both lists, it will be excluded.
+			exc (list): Attributes to exclude from the returned dictionay. ie. [u'Position',u'Rotation',u'Scale',u'renderable',u'isHidden',u'isFrozen',u'selected']
 
 		:Return:
 			(dict) {'string attribute': current value}
@@ -64,8 +64,8 @@ class Slots_max(Slots):
 		'''Set history node attributes using the transform node.
 
 		:Parameters:
-			node (obj) = Transform node.
-			attributes (dict) = Attributes and their correponding value to set. ie. {'string attribute': value}
+			node (obj): Transform node.
+			attributes (dict): Attributes and their correponding value to set. ie. {'string attribute': value}
 		'''
 		[setattr(node, attribute, value) for attribute, value in attributes.items() 
 		if attribute and value]
@@ -86,9 +86,9 @@ class Slots_max(Slots):
 		'''Get all faces in a mesh/poly that have normals within the given tolerance range.
 
 		:Parameters:
-			normal (obj) = Polygon face normal.
+			normal (obj): Polygon face normal.
 			tolerance (float) = Normal tolerance.
-			includeBackFaces (bool) = Include back-facing faces.
+			includeBackFaces (bool): Include back-facing faces.
 		'''
 		maxEval('''
 		local collected_faces = for i = 1 to num_faces
@@ -141,9 +141,9 @@ class Slots_max(Slots):
 		'''Get the components of the given type. (editable mesh or polygon)
 
 		:Parameters:
-			obj (obj) = An Editable mesh or Editable polygon object. If None; the first currently selected object will be used.
-			componentType (str)(int) = The desired component mask. (valid: 'vertex', 'vertices', 'edge', 'edges', 'face', 'faces').
-			selection (bool) = Filter to currently selected components.
+			obj (obj): An Editable mesh or Editable polygon object. If None; the first currently selected object will be used.
+			componentType (str)(int): The desired component mask. (valid: 'vertex', 'vertices', 'edge', 'edges', 'face', 'faces').
+			selection (bool): Filter to currently selected components.
 			returnType (type) = The desired returned object type. (valid: 'Array', 'BitArray', 'List'(default))
 
 		:Return:
@@ -209,10 +209,10 @@ class Slots_max(Slots):
 		'''Convert the components to the given type. (editable mesh, editable poly)
 
 		:Parameters:
-			obj (obj) = An Editable mesh or Editable polygon object. If None; the first currently selected object will be used.
-			components (list) = The component id's of the given object.  If None; all components of the given convertFrom type will be used.
-			convertFrom (str) = Starting component type. (valid: 'vertex', 'vertices', 'edge', 'edges', 'face', 'faces').
-			convertTo (str) = Resulting component type.  (valid: 'vertex', 'vertices', 'edge', 'edges', 'face', 'faces').
+			obj (obj): An Editable mesh or Editable polygon object. If None; the first currently selected object will be used.
+			components (list): The component id's of the given object.  If None; all components of the given convertFrom type will be used.
+			convertFrom (str): Starting component type. (valid: 'vertex', 'vertices', 'edge', 'edges', 'face', 'faces').
+			convertTo (str): Resulting component type.  (valid: 'vertex', 'vertices', 'edge', 'edges', 'face', 'faces').
 			returnType (type) = The desired returned object type. (valid: 'Array', 'BitArray', 'List'(default))
 
 		:Return:
@@ -279,7 +279,7 @@ class Slots_max(Slots):
 		'''Convert an integer array to a bitArray.
 
 		:Parameters:
-			array (list) = The array that will be converted to a bitArray.
+			array (list): The array that will be converted to a bitArray.
 		'''
 		maxEval("fn _arrayToBitArray a = (return a as bitArray)")
 		result = rt._arrayToBitArray(array)
@@ -292,7 +292,7 @@ class Slots_max(Slots):
 		'''Convert a bitArray to an integer array.
 
 		:Parameters:
-			bitArray (list) = The bitArray that will be converted to a standard array.
+			bitArray (list): The bitArray that will be converted to a standard array.
 		'''
 		maxEval("fn _bitArrayToArray b = (return b as array)")
 		result = rt._bitArrayToArray(bitArray)
@@ -305,7 +305,7 @@ class Slots_max(Slots):
 		'''Toggle override all materials in the scene.
 
 		:Parameters:
-			checker (bool) = Override with UV checkered material.
+			checker (bool): Override with UV checkered material.
 		'''
 		state = Slots.cycle([0,1], 'OverrideMateridal') #toggle 0/1
 		if state:
@@ -322,7 +322,7 @@ class Slots_max(Slots):
 	def setSubObjectLevel(level):
 		'''
 		:Parameters:
-			level (int) = set component mode. 0(object), 1(vertex), 2(edge), 3(border), 4(face), 5(element)
+			level (int): set component mode. 0(object), 1(vertex), 2(edge), 3(border), 4(face), 5(element)
 		'''
 		maxEval ('max modify mode') #set focus: modifier panel.
 
@@ -349,8 +349,8 @@ class Slots_max(Slots):
 		
 		:Parameters:
 			obj = <object> - the object to add or retrieve the modifier from.
-			modifier (str) = modifier name.
-			index (int) = place modifier before given index. default is at the top of the stack.
+			modifier (str): modifier name.
+			index (int): place modifier before given index. default is at the top of the stack.
 						Negative indices place the modifier from the bottom of the stack.
 		:Return:
 			(obj) modifier object.
@@ -398,16 +398,16 @@ class Slots_max(Slots):
 		'''Launch a popup window containing the given objects attributes.
 
 		:Parameters:
-			obj (str)(obj)(list) = The object to get the attributes of, or it's name. If given as a list, only the first index will be used.
-			inc (list) = Attributes to include. All other will be omitted. Exclude takes dominance over include. Meaning, if the same attribute is in both lists, it will be excluded.
-			exc (list) = Attributes to exclude from the returned dictionay. ie. ['Position','Rotation','Scale','renderable','isHidden','isFrozen','selected']
-			checkableLabel (bool) = Set the attribute labels as checkable.
+			obj (str)(obj)(list): The object to get the attributes of, or it's name. If given as a list, only the first index will be used.
+			inc (list): Attributes to include. All other will be omitted. Exclude takes dominance over include. Meaning, if the same attribute is in both lists, it will be excluded.
+			exc (list): Attributes to exclude from the returned dictionay. ie. ['Position','Rotation','Scale','renderable','isHidden','isFrozen','selected']
+			checkableLabel (bool): Set the attribute labels as checkable.
 			fn (method) = Set an alternative method to call on widget signal. ex. setParameterValuesMEL
 					The first parameter of fn is always the given object. ex. fn(obj, {'attr':<value>})
 			fn_args (args) = Any additonal args to pass to fn.
 			attributes (kwargs) = Explicitly pass in attribute:values pairs. Else, attributes will be pulled from self.getAttributesMEL for the given obj.
 
-		ex. call: self.setAttributeWindow(obj, attributes=attrs, checkableLabel=True)
+		:Example: self.setAttributeWindow(obj, attributes=attrs, checkableLabel=True)
 		'''
 		if not obj:
 			return
@@ -436,11 +436,11 @@ class Slots_max(Slots):
 	def maxUiSetChecked(self, id, table, item, state=True, query=False):
 		'''
 		:Parameters:
-			id (str) = The actionMan ID
-			table (int) = The actionMan table
-			item (int) = The actionMan item number
-			state (bool) = Set the check state.
-			query (bool) = Query the check state.
+			id (str): The actionMan ID
+			table (int): The actionMan table
+			item (int): The actionMan item number
+			state (bool): Set the check state.
+			query (bool): Query the check state.
 
 		:Return:
 			(bool) The check state.

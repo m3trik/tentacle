@@ -268,7 +268,7 @@ class File_blender(File, Slots_blender):
 		'''Get a list of recent files.
 
 		:Parameters:
-			index (int) = Return the recent file directory path at the given index. Index 0 would be the most recent file.
+			index (int): Return the recent file directory path at the given index. Index 0 would be the most recent file.
 
 		:Return:
 			(list)(str)
@@ -299,7 +299,7 @@ class File_blender(File, Slots_blender):
 		'''Get a list of autosave files.
 
 		:Parameters:
-			appendDatetime (bool) = Attach a modified timestamp and date to given file path(s).
+			appendDatetime (bool): Attach a modified timestamp and date to given file path(s).
 
 		:Return:
 			(list)
@@ -391,7 +391,7 @@ print (__name__)
 	# 	Increment the given file name.
 
 	# 	:Parameters:
-	# 		fileName (str) = file name with extension. ie. elise_mid.ma
+	# 		fileName (str): file name with extension. ie. elise_mid.ma
 
 	# 	:Return:
 	# 		(str) incremented name. ie. elise_mid.000.ma
@@ -420,8 +420,8 @@ print (__name__)
 	# 	Delete older files.
 
 	# 	:Parameters:
-	# 		fileName (str) = file name with extension. ie. elise_mid.ma
-	# 		numberOfPreviousFiles (int) = Number of previous copies to keep.
+	# 		fileName (str): file name with extension. ie. elise_mid.ma
+	# 		numberOfPreviousFiles (int): Number of previous copies to keep.
 	# 	'''
 	# 	import re, os
 

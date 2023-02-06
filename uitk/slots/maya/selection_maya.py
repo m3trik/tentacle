@@ -437,7 +437,7 @@ class Selection_maya(Selection, Slots_maya):
 		'''Set the selection style context.
 
 		:Parameters:
-			ctx (str) = Selection style context. valid: 'marquee', 'lasso', 'paint'.
+			ctx (str): Selection style context. valid: 'marquee', 'lasso', 'paint'.
 		'''
 		ctx = ctx+'Context'
 		if pm.contextInfo(ctx, exists=True):
@@ -457,7 +457,7 @@ class Selection_maya(Selection, Slots_maya):
 		'''Generate a generic name based on the object's name.
 
 		:Parameters:
-			obj (str)(obj)(list) = The maya scene object to derive a unique name from.
+			obj (str)(obj)(list): The maya scene object to derive a unique name from.
 
 		<objectName>_Set<int>
 		'''

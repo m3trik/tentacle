@@ -194,7 +194,7 @@ class Editors_max(Editors, Slots_max):
 		'''Get a maya widget from a given name.
 
 		:Parameters:
-			name (str) = name of widget
+			name (str): name of widget
 		'''
 		_name = '_'+name
 		if not hasattr(self, _name):
@@ -209,9 +209,9 @@ class Editors_max(Editors, Slots_max):
 		'''Show, resize, and center the given editor.
 
 		:Parameters:
-			name (str) = The name of the editor.
-			width (int) = The editor's desired width.
-			height (int) = The editor's desired height.
+			name (str): The name of the editor.
+			width (int): The editor's desired width.
+			height (int): The editor's desired height.
 
 		:Return:
 			(obj) The editor as a QWidget.

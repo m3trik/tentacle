@@ -408,9 +408,9 @@ class Uv_blender(Uv, Slots_blender):
 		'''Move sny selected objects to the given u and v coordinates.
 
 		:Parameters:
-			u (int) = u coordinate.
-			v (int) = v coordinate.
-			relative (bool) = Move relative or absolute.
+			u (int): u coordinate.
+			v (int): v coordinate.
+			relative (bool): Move relative or absolute.
 		'''
 		sel = self.UvShellSelection() #assure the correct selection mask.
 
@@ -450,8 +450,8 @@ class Uv_blender(Uv, Slots_blender):
 		'''Get All UV shells and their corresponding sets of faces.
 
 		:Parameters:
-			objects (obj)(list) = Polygon object(s) or Polygon face(s).
-			returnType (str) = The desired returned type. valid values are: 'shells', 'shellIDs'. If None is given, the full dict will be returned.
+			objects (obj)(list): Polygon object(s) or Polygon face(s).
+			returnType (str): The desired returned type. valid values are: 'shells', 'shellIDs'. If None is given, the full dict will be returned.
 
 		:Return:
 			(list)(dict) dependant on the given returnType arg. ex. {0L:[[MeshFace(u'pShape.f[0]'), MeshFace(u'pShape.f[1]')], 1L:[[MeshFace(u'pShape.f[2]'), MeshFace(u'pShape.f[3]')]}
@@ -492,7 +492,7 @@ class Uv_blender(Uv, Slots_blender):
 		'''Get the edges that make up any UV islands of the given objects.
 
 		:Parameters:
-			objects (str)(obj)(list) = Polygon mesh objects.
+			objects (str)(obj)(list): Polygon mesh objects.
 
 		:Return:
 			(list) uv border edges.

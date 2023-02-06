@@ -9,7 +9,7 @@ class EventFactoryFilter(QtCore.QObject):
 	'''Event filter for dynamic ui objects.
 
 	:Parameters:
-		tcl (obj) = tcl widget instance.
+		tcl (obj): tcl widget instance.
 	'''
 	events=['showEvent', #the types of events to be handled here.
 			'hideEvent',
@@ -90,7 +90,7 @@ class MouseTracking(QtCore.QObject):
 		Primarily used to trigger widget events while moving the cursor in the mouse button down state.
 
 		:Parameters:
-			widgets (list) = The widgets to filter for those currently under the mouse cursor.
+			widgets (list): The widgets to filter for those currently under the mouse cursor.
 
 		:Return:
 			(list) widgets currently under mouse.
@@ -112,7 +112,7 @@ class MouseTracking(QtCore.QObject):
 		Primarily used to trigger widget events while moving the cursor in the mouse button down state.
 
 		:Parameters:
-			widgets (list) = The widgets to track.
+			widgets (list): The widgets to track.
 		'''
 		mouseOver = self.mouseOverFilter(widgets)
 

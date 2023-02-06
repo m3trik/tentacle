@@ -117,7 +117,7 @@ class RichText(object):
 		'''Gets the text for the widget or widget item.
 
 		:Parameters:
-			item (str)(int) = item text or item index
+			item (str)(int): item text or item index
 		'''
 		try:
 			return self.__class__.__base__.text(self)
@@ -148,7 +148,7 @@ class RichText(object):
 		'''Sets the text for the widget or widget item.
 
 		:Parameters:
-			item (str)(int) = item text or item index
+			item (str)(int): item text or item index
 		'''
 		try:
 			self.__class__.__base__.setText(self, text)
@@ -163,8 +163,8 @@ class RichText(object):
 			Add whitespace to the actual widget text until it matches the sizeHint of what it would containing the label's text.
 
 		:Parameters:
-			text (str) = The desired widget's display text.
-			index (int) = For setting text requires an index. ie. comboBox
+			text (str): The desired widget's display text.
+			index (int): For setting text requires an index. ie. comboBox
 		'''
 		if text and all(i in text for i in ('<','>')): #check the text string for rich text formatting.
 
@@ -190,7 +190,7 @@ class RichText(object):
 		'''Override setAlignment to accept string alignment arguments as well as QtCore.Qt.AlignmentFlags.
 
 		:Parameters:
-			alignment (str)(obj) = Text alignment. valid values are: 'AlignLeft', 'AlignCenter', 'AlignRight' or QtCore.Qt.AlignLeft etc.
+			alignment (str)(obj): Text alignment. valid values are: 'AlignLeft', 'AlignCenter', 'AlignRight' or QtCore.Qt.AlignLeft etc.
 		'''
 		if isinstance(alignment, str):
 			alignment = getattr(QtCore.Qt, alignment)
@@ -248,10 +248,10 @@ class TextOverlay(object):
 			Add whitespace to the actual widget text until it matches the sizeHint of what it would containing the label's text.
 
 		:Parameters:
-			text (str) = The desired widget's display text.
-			index (int) = For setting text requires an index. ie. comboBox
-			color (str) =  The desired text color.
-			alignment (str)(obj) = Text alignment. valid values are: 'AlignLeft', 'AlignCenter', 'AlignRight' or QtCore.Qt.AlignLeft etc.
+			text (str): The desired widget's display text.
+			index (int): For setting text requires an index. ie. comboBox
+			color (str):  The desired text color.
+			alignment (str)(obj): Text alignment. valid values are: 'AlignLeft', 'AlignCenter', 'AlignRight' or QtCore.Qt.AlignLeft etc.
 		'''
 		self.textOverlayLabel.setText(text)
 
@@ -266,7 +266,7 @@ class TextOverlay(object):
 		'''Override setAlignment to accept string alignment arguments as well as QtCore.Qt.AlignmentFlags.
 
 		:Parameters:
-			alignment (str)(obj) = Text alignment. valid values are: 'AlignLeft', 'AlignCenter', 'AlignRight' or QtCore.Qt.AlignLeft etc.
+			alignment (str)(obj): Text alignment. valid values are: 'AlignLeft', 'AlignCenter', 'AlignRight' or QtCore.Qt.AlignLeft etc.
 		'''
 		if isinstance(alignment, str):
 			alignment = getattr(QtCore.Qt, alignment)
@@ -278,9 +278,9 @@ class TextOverlay(object):
 		'''Set the stylesheet for a QLabel.
 
 		:Parameters:
-			color (str) =  The desired text color.
+			color (str):  The desired text color.
 
-		ex. call: setTextOverlayColor('rgb(185,185,185)')
+		:Example: setTextOverlayColor('rgb(185,185,185)')
 		'''
 		label.setStyleSheet('''
 				QLabel {{

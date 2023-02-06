@@ -85,7 +85,7 @@ def cmb002(self, index=-1):
 		'''Material list
 
 		:Parameters:
-			index (int) = parameter on activated, currentIndexChanged, and highlighted signals.
+			index (int): parameter on activated, currentIndexChanged, and highlighted signals.
 		'''
 		cmb = self.materials_ui.cmb002
 
@@ -366,7 +366,7 @@ def hk_tentacle_show(profile=False, uiName='init'):
 	'''Display the uitk marking menu.
 
 	:Parameters:
-		profile (bool) = Prints the total running time, times each function separately, and tells you how many times each function was called.
+		profile (bool): Prints the total running time, times each function separately, and tells you how many times each function was called.
 	'''
 	if 'uitk' not in globals():
 		global uitk

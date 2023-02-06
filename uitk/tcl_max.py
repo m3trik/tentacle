@@ -108,7 +108,7 @@ def getInstance(instanceID=None, *args, **kwargs):
 	:Return:
 		(obj) An instance of this class.
 
-	ex. call: tcl = Tcl_maya.getInstance(id(0), key_show='Key_F12') #returns the class instance with an instance ID of the value of `id(0)`.
+	:Example: tcl = Tcl_maya.getInstance(id(0), key_show='Key_F12') #returns the class instance with an instance ID of the value of `id(0)`.
 	'''
 	import inspect
 
@@ -188,8 +188,8 @@ print (__name__)
 # 	in it.
 
 # 	:Parameter:
-# 		enabled (bool) = Turns undo functionality on.
-# 		message (str) = Label for the undo item in the undo menu.
+# 		enabled (bool): Turns undo functionality on.
+# 		message (str): Label for the undo item in the undo menu.
 # 	'''
 # 	print('undo')
 # 	import pymxs

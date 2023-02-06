@@ -265,8 +265,8 @@ class File_maya(File, Slots_maya):
 		'''Get a list of recent files.
 
 		:Parameters:
-			index (int) = Return the recent file directory path at the given index. Index 0 would be the most recent file.
-			timestamp (bool) = Attach a modified timestamp and date to given file path(s).
+			index (int): Return the recent file directory path at the given index. Index 0 would be the most recent file.
+			timestamp (bool): Attach a modified timestamp and date to given file path(s).
 
 		:Return:
 			(list)(str)
@@ -301,7 +301,7 @@ class File_maya(File, Slots_maya):
 		'''Get a list of autosave files.
 
 		:Parameters:
-			timestamp (bool) = Attach a modified timestamp and date to given file path(s).
+			timestamp (bool): Attach a modified timestamp and date to given file path(s).
 
 		:Return:
 			(list)
@@ -322,7 +322,7 @@ class File_maya(File, Slots_maya):
 		'''Get a list of maya scene files from the current workspace directory.
 
 		:Parameters:
-			fullPath (bool) = Return the full path instead of just the filename.
+			fullPath (bool): Return the full path instead of just the filename.
 
 		:Return:
 			(list)
@@ -342,7 +342,7 @@ class File_maya(File, Slots_maya):
 		'''Create a reference to a Maya scene.
 
 		:Parameters:
-			remove (bool) = Remove a previously referenced scene.
+			remove (bool): Remove a previously referenced scene.
 		'''
 		if remove: #unload reference.
 			# refNode = pm.referenceQuery(scene, referenceNode=True)
@@ -427,7 +427,7 @@ print (__name__)
 	# 	Increment the given file name.
 
 	# 	:Parameters:
-	# 		fileName (str) = file name with extension. ie. elise_mid.ma
+	# 		fileName (str): file name with extension. ie. elise_mid.ma
 
 	# 	:Return:
 	# 		(str) incremented name. ie. elise_mid.000.ma
@@ -456,8 +456,8 @@ print (__name__)
 	# 	Delete older files.
 
 	# 	:Parameters:
-	# 		fileName (str) = file name with extension. ie. elise_mid.ma
-	# 		numberOfPreviousFiles (int) = Number of previous copies to keep.
+	# 		fileName (str): file name with extension. ie. elise_mid.ma
+	# 		numberOfPreviousFiles (int): Number of previous copies to keep.
 	# 	'''
 	# 	import re, os
 

@@ -445,10 +445,10 @@ class Polygons_blender(Polygons, Slots_blender):
 		'''Snap the vertices from object one to the closest verts on object two.
 
 		:Parameters:
-			obj1 (obj) = The object in which the vertices are moved from.
-			obj2 (obj) = The object in which the vertices are moved to.
+			obj1 (obj): The object in which the vertices are moved from.
+			obj2 (obj): The object in which the vertices are moved to.
 			tolerance (float) = Maximum search distance.
-			freezeTransforms (bool) = Reset the selected transform and all of its children down to the shape level.
+			freezeTransforms (bool): Reset the selected transform and all of its children down to the shape level.
 		'''
 		vertices = mtk.Cmpt.getComponents(obj1, 'vertices')
 		closestVerts = self.getClosestVertex(vertices, obj2, tolerance=tolerance, freezeTransforms=freezeTransforms)

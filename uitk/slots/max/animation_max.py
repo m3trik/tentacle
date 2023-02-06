@@ -52,9 +52,9 @@ class Animation_max(Animation, Slots_max):
 		'''Returns a list of all the subanim controllers for a given node.
 
 		:Parameters:
-			node (obj) = The node in which to query controllers of.
-			keyable (bool) = Return only keyable controllers.
-			_result (obj) = Recursive call.
+			node (obj): The node in which to query controllers of.
+			keyable (bool): Return only keyable controllers.
+			_result (obj): Recursive call.
 
 		:Return:
 			(list) A List of sub level animation controllers.
@@ -79,7 +79,7 @@ class Animation_max(Animation, Slots_max):
 		You can get the initial list of controllers using getSubAnimControllers.
 
 		:Parameters:
-			controllers (list) = A list of controller objects.
+			controllers (list): A list of controller objects.
 
 		:Return:
 			(list) A list of keyable controllers.
@@ -102,8 +102,8 @@ class Animation_max(Animation, Slots_max):
 		'''Attempts at assigning a given controller.
 
 		:Parameters:
-			currentController (obj) = 
-			newController (obj) = 
+			currentController (obj): 
+			newController (obj): 
 
 		ex. ctrls = getSubAnimControllers(obj)
 			kctrls = getKeyableControllers(ctrls)
@@ -128,12 +128,12 @@ class Animation_max(Animation, Slots_max):
 		'''Set the current frame on the timeslider.
 
 		:Parameters:
-		frame (int) = Desired from number.
-		relative (bool) = If True; the frame will be moved relative to 
+		frame (int): Desired from number.
+		relative (bool): If True; the frame will be moved relative to 
 			it's current position using the frame value as a move amount.
-		update (bool) = Change the current time, but do not update the world. (default=True)
+		update (bool): Change the current time, but do not update the world. (default=True)
 
-		ex. call:
+		:Example:
 			setCurrentFrame(24, relative=True, update=1)
 		'''
 		currentTime=0
@@ -148,10 +148,10 @@ class Animation_max(Animation, Slots_max):
 		'''Duplicate any selected keyframes and paste them inverted at the given time.
 
 		:Parameters:
-			time (int) = The desired start time for the inverted keys.
-			relative (bool) = Start time position as relative or absolute.
+			time (int): The desired start time for the inverted keys.
+			relative (bool): Start time position as relative or absolute.
 
-		ex. call: invertSelectedKeyframes(time=48, relative=0)
+		:Example: invertSelectedKeyframes(time=48, relative=0)
 		'''
 		allActiveKeyTimes = pm.keyframe(query=True, sl=True, tc=True) #get times from all selected keys.
 		if not allActiveKeyTimes:

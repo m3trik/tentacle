@@ -1054,7 +1054,7 @@ class StyleSheet(QtCore.QObject):
 		replaced by the value of any given kwargs of the same name.
 
 		:Parameters:
-			style (str) = The color value set to use. valid values are: 'standard', 'dark'
+			style (str): The color value set to use. valid values are: 'standard', 'dark'
 			**kwargs () = Keyword arguments matching the string of any bracketed placeholders.
 				case insensitive.  ex. alpha=255
 
@@ -1077,8 +1077,8 @@ class StyleSheet(QtCore.QObject):
 		By default it will return all stylesheets as one multi-line css string.
 
 		:Parameters:
-			widget_type (str) = The class name of the widget. ie. 'QLabel'
-			style (str) = The color value set to use. valid values are: 'standard', 'dark'
+			widget_type (str): The class name of the widget. ie. 'QLabel'
+			style (str): The color value set to use. valid values are: 'standard', 'dark'
 
 		:Return:
 			(str) css styleSheet
@@ -1105,11 +1105,11 @@ class StyleSheet(QtCore.QObject):
 		Set the style for a specific widget by using the '#' syntax and the widget's objectName. ie. QWidget#mainWindow
 
 		:Parameters:
-			widgets (obj)(list) = A widget or list of widgets.
-			ratio (int) = The ratio of widget size, text length in relation to the amount of padding applied.
-			style (str) = Color mode. ie. 'standard' or 'dark'
+			widgets (obj)(list): A widget or list of widgets.
+			ratio (int): The ratio of widget size, text length in relation to the amount of padding applied.
+			style (str): Color mode. ie. 'standard' or 'dark'
 			hideMenuButton (boool) = Hide the menu button of a widget that has one.
-			backgroundOpacity (int) = Set the background alpha transparency between 0 and 255.
+			backgroundOpacity (int): Set the background alpha transparency between 0 and 255.
 		'''
 		from uitk.switchboard import Switchboard
 

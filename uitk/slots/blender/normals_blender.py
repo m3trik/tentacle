@@ -195,7 +195,7 @@ class Normals_blender(Normals, Slots_blender):
 		'''Average Normals
 
 		:Parameters:
-			byUvShell (bool) = Average each UV shell individually.
+			byUvShell (bool): Average each UV shell individually.
 		'''
 		# pm.undoInfo(openChunk=1)
 		objects = pm.ls(selection=1, objectsOnly=1, flatten=1)
@@ -221,7 +221,7 @@ class Normals_blender(Normals, Slots_blender):
 		'''Get the normal vectors from the given poly object.
 		If no argument is given the normals for the current selection will be returned.
 		:Parameters:
-			name (str) = polygon mesh or component.
+			name (str): polygon mesh or component.
 		:Return:
 			dict - {int:[float, float, float]} face id & vector xyz.
 		'''
@@ -259,13 +259,13 @@ class Normals_blender(Normals, Slots_blender):
 		'''Filter for faces with normals that fall within an X,Y,Z tolerance.
 
 		:Parameters:
-			faces (list) = ['polygon faces'] - faces to find similar normals for.
-			similarFaces (list) = optional ability to add faces from previous calls to the return value.
-			transforms (list) = [<shape nodes>] - objects to check faces on. If none are given the objects containing the given faces will be used.
+			faces (list): ['polygon faces'] - faces to find similar normals for.
+			similarFaces (list): optional ability to add faces from previous calls to the return value.
+			transforms (list): [<shape nodes>] - objects to check faces on. If none are given the objects containing the given faces will be used.
 			rangeX = float - x axis tolerance
 			rangeY = float - y axis tolerance
 			rangeZ = float - z axis tolerance
-			returnType (str) = The desired returned object type. (valid: 'unicode'(default), 'str', 'int', 'object')
+			returnType (str): The desired returned object type. (valid: 'unicode'(default), 'str', 'int', 'object')
 
 		:Return:
 			(list) faces that fall within the given normal range.

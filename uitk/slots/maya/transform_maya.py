@@ -397,8 +397,8 @@ class Transform_maya(Transform, Slots_maya):
 		'''Set the transform tool's move, rotate, and scale snap states.
 
 		:Parameters:
-			ctx (str) = valid: 'move', 'scale', 'rotate'
-			state (int) = valid: 0=off, 1=relative, 2=absolute
+			ctx (str): valid: 'move', 'scale', 'rotate'
+			state (int): valid: 0=off, 1=relative, 2=absolute
 		'''
 		if ctx=='move':
 			pm.manipMoveContext('Move', edit=1, snap=False if state==0 else True, snapRelative=True if state==1 else False) #state: 0=off, 1=relative, 2=absolute

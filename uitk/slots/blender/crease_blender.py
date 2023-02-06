@@ -107,7 +107,7 @@ class Crease_blender(Crease, Slots_blender):
 		'''Return any creased edges from a list of edges.
 
 		:Parameters:
-			edges (str)(obj)(list) = The edges to check crease state on.
+			edges (str)(obj)(list): The edges to check crease state on.
 
 		:Return:
 			(list) edges.

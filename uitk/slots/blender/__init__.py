@@ -26,7 +26,7 @@ class Slots_blender(Slots):
 		Prevents the undo queue from breaking entirely if an exception is raised within the given function.
 
 		:Parameters:
-			fn (obj) = The decorated python function that will be placed into the undo que as a single entry.
+			fn (obj): The decorated python function that will be placed into the undo que as a single entry.
 		'''
 		def wrapper(*args, **kwargs):
 			# pm.undoInfo(openChunk=True)

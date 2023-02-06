@@ -37,7 +37,7 @@ class Materials_blender(Materials, Slots_blender):
 		'''Material list
 
 		:Parameters:
-			index (int) = parameter on activated, currentIndexChanged, and highlighted signals.
+			index (int): parameter on activated, currentIndexChanged, and highlighted signals.
 		'''
 		cmb = self.sb.materials.cmb002
 		b = self.sb.materials_submenu.b003
@@ -209,8 +209,8 @@ class Materials_blender(Materials, Slots_blender):
 		'''Get an icon with a color fill matching the given materials RBG value.
 
 		:Parameters:
-			mat (obj)(str) = The material or the material's name.
-			size (list) = Desired icon size.
+			mat (obj)(str): The material or the material's name.
+			size (list): Desired icon size.
 
 		:Return:
 			(obj) pixmap icon.
@@ -248,10 +248,10 @@ class Materials_blender(Materials, Slots_blender):
 	def selectByMaterialID(self, material=None, objects=None, shell=False, invert=False):
 		'''Select By Material Id
 	
-		material (obj) = The material to search and select for.
-		objects (list) = Faces or mesh objects as a list. If no objects are given, all geometry in the scene will be searched.
-		shell (bool) = Select the entire shell.
-		invert (bool) = Invert the final selection.R
+		material (obj): The material to search and select for.
+		objects (list): Faces or mesh objects as a list. If no objects are given, all geometry in the scene will be searched.
+		shell (bool): Select the entire shell.
+		invert (bool): Invert the final selection.R
 
 		#ex call:
 		selectByMaterialID(material)
@@ -290,12 +290,12 @@ class Materials_blender(Materials, Slots_blender):
 		'''Get all materials from the current scene.
 
 		:Parameters:
-			inc (str)(int)(obj)(list) = The objects(s) to include.
+			inc (str)(int)(obj)(list): The objects(s) to include.
 					supports using the '*' operator: startswith*, *endswith, *contains*
 					Will include all items that satisfy ANY of the given search terms.
 					meaning: '*.png' and '*Normal*' returns all strings ending in '.png' AND all 
 					strings containing 'Normal'. NOT strings satisfying both terms.
-			exc (str)(int)(obj)(list) = The objects(s) to exclude. Similar to include.
+			exc (str)(int)(obj)(list): The objects(s) to exclude. Similar to include.
 					exlude take precidence over include.
 		:Return:
 			(list) materials.
@@ -330,7 +330,7 @@ class Materials_blender(Materials, Slots_blender):
 		'''Get the material from the selected face.
 
 		:Parameters:
-			(str)(obj) = The obj with the material.
+			(str)(obj): The obj with the material.
 
 		:Return:
 			(list) material
@@ -345,8 +345,8 @@ class Materials_blender(Materials, Slots_blender):
 		'''Creates a random material.
 
 		:Parameters:
-			name (str) = material name.
-			prefix (str) = Optional string to be appended to the beginning of the name.
+			name (str): material name.
+			prefix (str): Optional string to be appended to the beginning of the name.
 
 		:Return:
 			(obj) material.
@@ -372,8 +372,8 @@ class Materials_blender(Materials, Slots_blender):
 	def assignMaterial(self, objects, mat):
 		'''Assign Material
 
-		objects (list) = Faces or mesh objects as a list.
-		material (obj) = The material to search and select for.
+		objects (list): Faces or mesh objects as a list.
+		material (obj): The material to search and select for.
 		'''
 		if not mat:
 			return 'Error: Material Not Assigned. No material given.'

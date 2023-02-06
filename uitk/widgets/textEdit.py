@@ -28,7 +28,7 @@ class TextEdit(QtWidgets.QTextEdit, Attributes, MenuInstance):
 		'''Append a new paragraph to the textEdit.
 
 		:Parameters:
-			text (str) = A value to append to the lineEdit as a new paragraph. The value is converted to a string if it isn't already.
+			text (str): A value to append to the lineEdit as a new paragraph. The value is converted to a string if it isn't already.
 		'''
 		baseStyle = '<font style="color: LightGray; background-color: rgb(50, 50, 50);">'
 		self.append(baseStyle+str(text)) #Appends a new paragraph with the given text to the end of the textEdit.

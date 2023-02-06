@@ -19,7 +19,7 @@ class ComboBox(QtWidgets.QComboBox, MenuInstance, Attributes, RichText, TextOver
 		super().__init__(parent)
 		'''
 		:Parameters:
-			popupStyle (str) = specify the type of popup menu. default is the standard 'modelView'.
+			popupStyle (str): specify the type of popup menu. default is the standard 'modelView'.
 		'''
 		self.popupStyle = popupStyle
 
@@ -45,7 +45,7 @@ class ComboBox(QtWidgets.QComboBox, MenuInstance, Attributes, RichText, TextOver
 		'''A decorator that blocks signals before executing a function, and unblocks them after.
 
 		:Parameters:
-			fn (obj) = The function to be decorated.
+			fn (obj): The function to be decorated.
 		'''
 		def wrapper(self, *args, **kwargs):
 			self.blockSignals(True) #prevent triggering currentIndexChanged
@@ -60,10 +60,10 @@ class ComboBox(QtWidgets.QComboBox, MenuInstance, Attributes, RichText, TextOver
 		'''Add items to the combobox's standard modelView without triggering any signals.
 
 		:Parameters:
-			items (str)(list)(dict) = A string, list of strings, or dict with 'string':data pairs to fill the comboBox with.
-			header (str) = An optional value for the first index of the comboBox's list.
-			clear (bool) = Clear any previous items before adding new.
-			ascending (bool) = Insert in ascending order. New item(s) will be added to the top of the list.
+			items (str)(list)(dict): A string, list of strings, or dict with 'string':data pairs to fill the comboBox with.
+			header (str): An optional value for the first index of the comboBox's list.
+			clear (bool): Clear any previous items before adding new.
+			ascending (bool): Insert in ascending order. New item(s) will be added to the top of the list.
 
 		:Return:
 			(list) comboBox's current item list minus any header.
@@ -136,7 +136,7 @@ class ComboBox(QtWidgets.QComboBox, MenuInstance, Attributes, RichText, TextOver
 		'''Sets the text for the current index.
 
 		:Parameters:
-			item (str) = The current item's text value.
+			item (str): The current item's text value.
 		'''
 		index = self.currentIndex()
 		self.setRichText(text, index)
@@ -148,8 +148,8 @@ class ComboBox(QtWidgets.QComboBox, MenuInstance, Attributes, RichText, TextOver
 		Override for setItemText built-in method.
 
 		:Parameters:
-			item (str) = Item text.
-			index (int) = Item index
+			item (str): Item text.
+			index (int): Item index
 		'''
 		self.setRichText(text, index)
 
@@ -159,7 +159,7 @@ class ComboBox(QtWidgets.QComboBox, MenuInstance, Attributes, RichText, TextOver
 		'''Sets the current item from the given item text or index without triggering any signals.
 
 		:Parameters:
-			i (str)(int) = item text or item index
+			i (str)(int): item text or item index
 		'''
 		try: #set by item index:
 			self.setCurrentIndex(self.items.index(i))

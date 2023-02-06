@@ -37,7 +37,7 @@ class Materials_max(Materials, Slots_max):
 		'''Material list
 
 		:Parameters:
-			index (int) = parameter on activated, currentIndexChanged, and highlighted signals.
+			index (int): parameter on activated, currentIndexChanged, and highlighted signals.
 		'''
 		cmb = self.sb.materials.cmb002
 		b = self.sb.materials_submenu.b003
@@ -252,8 +252,8 @@ class Materials_max(Materials, Slots_max):
 		'''Get an icon with a color fill matching the given materials RBG value.
 
 		:Parameters:
-			mat (obj)(str) = The material or the material's name.
-			size (list) = Desired icon size. [width, height]
+			mat (obj)(str): The material or the material's name.
+			size (list): Desired icon size. [width, height]
 
 		:Return:
 			(obj) pixmap icon.
@@ -289,10 +289,10 @@ class Materials_max(Materials, Slots_max):
 	def selectByMaterialID(self, material=None, objects=None, shell=False, invert=False):
 		'''Select By Material Id
 	
-		material (obj) = The material to search and select for.
-		objects (list) = Faces or mesh objects as a list. If no objects are given, all geometry in the scene will be searched.
-		shell (bool) = Select the entire shell.
-		invert (bool) = Invert the final selection.
+		material (obj): The material to search and select for.
+		objects (list): Faces or mesh objects as a list. If no objects are given, all geometry in the scene will be searched.
+		shell (bool): Select the entire shell.
+		invert (bool): Invert the final selection.
 
 		#ex call:
 		selectByMaterialID(material)
@@ -367,7 +367,7 @@ class Materials_max(Materials, Slots_max):
 		'''Get All Materials from the current scene.
 
 		:Parameters:
-			startingWith (list) = Filters material names starting with any of the strings in the given list. ie. ['ID_']
+			startingWith (list): Filters material names starting with any of the strings in the given list. ie. ['ID_']
 		:Return:
 			(list) materials.
 		'''
@@ -388,8 +388,8 @@ class Materials_max(Materials, Slots_max):
 		'''Get the material from the given object or face components.
 
 		:Parameters:
-			obj (obj) = Mesh object.
-			face (int) = Face number.
+			obj (obj): Mesh object.
+			face (int): Face number.
 		:Return:
 			(obj) material
 		'''
@@ -425,8 +425,8 @@ class Materials_max(Materials, Slots_max):
 		'''Creates a random material.
 
 		:Parameters:
-			name (str) = material name.
-			prefix (str) = Optional string to be appended to the beginning of the name.
+			name (str): material name.
+			prefix (str): Optional string to be appended to the beginning of the name.
 
 		:Return:
 			(obj) material
@@ -447,8 +447,8 @@ class Materials_max(Materials, Slots_max):
 	def assignMaterial(self, objects, mat):
 		'''Assign Material
 
-		objects (list) = Faces or mesh objects as a list.
-		material (obj) = The material to search and select for.
+		objects (list): Faces or mesh objects as a list.
+		material (obj): The material to search and select for.
 		'''
 		if not mat:
 			self.messageBox('Material Not Assigned. No material given.')
@@ -468,9 +468,9 @@ class Materials_max(Materials, Slots_max):
 		'''Get any bitmaps from a given material(s), or from all scene materials.
 
 		:Parameters:
-			mats (obj)(list) = Mat object or list of mat objects. If None is given, all bitmap textures in the scene are used.
-			missing (bool) = Return only filenames from missing bitmaps.
-			processChildren (bool) = Child scene nodes are also searched as part of the Animatable or Reference hierarchy.
+			mats (obj)(list): Mat object or list of mat objects. If None is given, all bitmap textures in the scene are used.
+			missing (bool): Return only filenames from missing bitmaps.
+			processChildren (bool): Child scene nodes are also searched as part of the Animatable or Reference hierarchy.
 
 		:Return:
 			(list) material bitmaps.
@@ -494,8 +494,8 @@ class Materials_max(Materials, Slots_max):
 		'''Get the file paths for the given bitmaps. If no bitmaps are given all bitmaps in the scene will be used.
 
 		:Parameters:
-			bitmaps (list) = A list of bitmaps. If no bitmaps are given all bitmaps in the scene will be used.
-			missing (bool) = Return only filenames from missing bitmaps.
+			bitmaps (list): A list of bitmaps. If no bitmaps are given all bitmaps in the scene will be used.
+			missing (bool): Return only filenames from missing bitmaps.
 			returnType (type) = Valid (list (default), dict).
 
 		:Return:
@@ -520,8 +520,8 @@ class Materials_max(Materials, Slots_max):
 		'''Set the file paths for the given bitmaps. Bitmaps are given as a dict of bitmaps as keys, and filenames as values.
 
 		:Parameters:
-			dict_ (dict) = A dict of bitmaps as keys, and filenames as values.
-			reload (bool) = Refresh the bitmap node after updating the path.
+			dict_ (dict): A dict of bitmaps as keys, and filenames as values.
+			reload (bool): Refresh the bitmap node after updating the path.
 		'''
 		for bitmap,name in dict_.items():
 			bitmap.filename = name
@@ -533,9 +533,9 @@ class Materials_max(Materials, Slots_max):
 		'''Find the first valid path in the given dir for each bitmap in a given dict. If no bitmaps are given all bitmaps in the scene will be used.
 
 		:Parameters:
-			dir_ (str) = The parent dir to recursively search for files in.
-			bitmaps (dict) = A dict of bitmaps as keys, and filenames as values. If no bitmaps are given all bitmaps in the scene will be used.
-			replaceTxWithTif (bool) = Look instead for a .tif file of the same name, to replace a previoud .tx format.
+			dir_ (str): The parent dir to recursively search for files in.
+			bitmaps (dict): A dict of bitmaps as keys, and filenames as values. If no bitmaps are given all bitmaps in the scene will be used.
+			replaceTxWithTif (bool): Look instead for a .tif file of the same name, to replace a previoud .tx format.
 
 		:Return:
 			(dict) Any bitmaps that are not found. {bitmap object:filename}
@@ -571,8 +571,8 @@ class Materials_max(Materials, Slots_max):
 		'''Repair broken bitmap file links for all libraries in a given directory.
 
 		:Parameters:
-			library_dir (str) = A path to a directory containing the library files.
-			mat_dir (str) = A path to a directory containing the material dependancies.
+			library_dir (str): A path to a directory containing the library files.
+			mat_dir (str): A path to a directory containing the material dependancies.
 		'''
 		import os
 
@@ -600,8 +600,8 @@ class Materials_max(Materials, Slots_max):
 		'''Repair broken bitmap file links.  If no mats are given, all scene bitmaps will be used.
 
 		:Parameters:
-			mats (obj)(list) = Specify material(s) to get bitmaps for. If none are given, all scene materials will be used.
-			replaceTxWithTif (bool) = Look instead for a .tif file of the same name, to replace a previoud .tx format.
+			mats (obj)(list): Specify material(s) to get bitmaps for. If none are given, all scene materials will be used.
+			replaceTxWithTif (bool): Look instead for a .tif file of the same name, to replace a previoud .tx format.
 		'''
 		bitmaps = self.getMaterialBitmaps(mats)
 
@@ -613,8 +613,8 @@ class Materials_max(Materials, Slots_max):
 		'''Get any nodes in the slate material editor that are currently selected.
 
 		:Parameters:
-			nodeType (obj)(str) = The type of node to filter the results for. If 'query' is given, the node type will be returned. ie. rt.VRayMtl()
-			selected (bool) = When True, only currently selected nodes will be returned.
+			nodeType (obj)(str): The type of node to filter the results for. If 'query' is given, the node type will be returned. ie. rt.VRayMtl()
+			selected (bool): When True, only currently selected nodes will be returned.
 		:Return:
 			(list) nodes or node types.
 		'''
@@ -648,8 +648,8 @@ class Materials_max(Materials, Slots_max):
 		'''Compare material names. unlike other properties, this is a simple true/false comparison, it doesn't find 'similar' names.
 
 		:Parameters:
-			obj1 (obj) = 
-			obj2 (obj) = 
+			obj1 (obj): 
+			obj2 (obj): 
 		'''
 		maxEval('''
 			m1 = obj1.material

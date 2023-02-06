@@ -271,7 +271,7 @@ class File_max(File, Slots_max):
 		'''Get a list of recent files from "RecentDocuments.xml" in the maxData directory.
 
 		:Parameters:
-			index (int) = Return the recent file directory path at the given index. Index 0 would be the most recent file.
+			index (int): Return the recent file directory path at the given index. Index 0 would be the most recent file.
 
 		:Return:
 			(list)(str)
@@ -321,7 +321,7 @@ class File_max(File, Slots_max):
 		'''Get a list of autosave files.
 
 		:Parameters:
-			appendDatetime (bool) = Attach a modified timestamp and date to given file path(s).
+			appendDatetime (bool): Attach a modified timestamp and date to given file path(s).
 
 		:Return:
 			(list)
@@ -342,7 +342,7 @@ class File_max(File, Slots_max):
 		'''Increment the given file name.
 
 		:Parameters:
-			fileName (str) = file name with extension. ie. elise_mid.ma
+			fileName (str): file name with extension. ie. elise_mid.ma
 
 		:Return:
 			(str) incremented name. ie. elise_mid.000.ma
@@ -369,8 +369,8 @@ class File_max(File, Slots_max):
 		'''Delete older files.
 
 		:Parameters:
-			fileName (str) = file name with extension. ie. elise_mid.ma
-			numberOfPreviousFiles (int) = Number of previous copies to keep.
+			fileName (str): file name with extension. ie. elise_mid.ma
+			numberOfPreviousFiles (int): Number of previous copies to keep.
 		'''
 		import re, os
 

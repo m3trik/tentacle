@@ -290,16 +290,16 @@ class Nurbs_blender(Nurbs, Slots_blender):
 		'''Create a loft between two selections.
 
 		:Parameters:
-			uniform (bool) = The resulting surface will have uniform parameterization in the loft direction. If set to false, the parameterization will be chord length.
-			close (bool) = The resulting surface will be closed (periodic) with the start (end) at the first curve. If set to false, the surface will remain open.
-			degree (int) = The degree of the resulting surface.
-			autoReverse (bool) = The direction of the curves for the loft is computed automatically. If set to false, the values of the multi-use reverse flag are used instead.
-			sectionSpans (int) = The number of surface spans between consecutive curves in the loft.
-			range_ (bool) = Force a curve range on complete input curve.
-			polygon (bool) = The object created by this operation.
-			reverseSurfaceNormals (bool) = The surface normals on the output NURBS surface will be reversed. This is accomplished by swapping the U and V parametric directions.
-			angleLoftBetweenTwoCurves (bool) = Perform a loft at an angle between two selected curves or polygon edges (that will be extracted as curves).
-			angleLoftSpans (int) = Angle loft: Number of duplicated points (spans).
+			uniform (bool): The resulting surface will have uniform parameterization in the loft direction. If set to false, the parameterization will be chord length.
+			close (bool): The resulting surface will be closed (periodic) with the start (end) at the first curve. If set to false, the surface will remain open.
+			degree (int): The degree of the resulting surface.
+			autoReverse (bool): The direction of the curves for the loft is computed automatically. If set to false, the values of the multi-use reverse flag are used instead.
+			sectionSpans (int): The number of surface spans between consecutive curves in the loft.
+			range_ (bool): Force a curve range on complete input curve.
+			polygon (bool): The object created by this operation.
+			reverseSurfaceNormals (bool): The surface normals on the output NURBS surface will be reversed. This is accomplished by swapping the U and V parametric directions.
+			angleLoftBetweenTwoCurves (bool): Perform a loft at an angle between two selected curves or polygon edges (that will be extracted as curves).
+			angleLoftSpans (int): Angle loft: Number of duplicated points (spans).
 
 		:Return:
 			(obj) nurbsToPoly history node.
@@ -392,10 +392,10 @@ class Nurbs_blender(Nurbs, Slots_blender):
 		'''Duplicate objects along a given curve using MASH.
 
 		:Parameters:
-			path (obj) = The curve to use as a path.
+			path (obj): The curve to use as a path.
 			start () = Starting object.
-			count (int) = The number of duplicated objects. (point count on the MASH network)
-			geometry (str) = Particle instancer or mesh instancer (Repro node). (valid: 'Mesh' (default), 'Instancer')
+			count (int): The number of duplicated objects. (point count on the MASH network)
+			geometry (str): Particle instancer or mesh instancer (Repro node). (valid: 'Mesh' (default), 'Instancer')
 
 		:Return:
 			(list) The duplicated objects in order of start to end.
@@ -441,10 +441,10 @@ class Nurbs_blender(Nurbs, Slots_blender):
 		'''Perform a loft between two nurbs curves or polygon sets of edges (that will be extracted as curves).
 
 		:Parameters:
-			start (list) = Starting edges.
-			end (list) = Ending edges.
-			count (int) = Section count.
-			cleanup (bool) = Delete the start, end, and any additional construction curves upon completion.
+			start (list): Starting edges.
+			end (list): Ending edges.
+			count (int): Section count.
+			cleanup (bool): Delete the start, end, and any additional construction curves upon completion.
 
 		:Return:
 			(list) Loft object name and node name.
@@ -488,8 +488,8 @@ class Nurbs_blender(Nurbs, Slots_blender):
 		'''Find the closest control vertex between the given vertices, CVs, or objects and each of the given curves.
 
 		:Parameters:
-			x (str)(obj)(list) = Polygon vertices, control vertices, objects, or points given as (x,y,z) tuples.
-			curves (str)(obj)(list) = The reference object in which to find the closest CV for each vertex in the list of given vertices.
+			x (str)(obj)(list): Polygon vertices, control vertices, objects, or points given as (x,y,z) tuples.
+			curves (str)(obj)(list): The reference object in which to find the closest CV for each vertex in the list of given vertices.
 			tolerance (int)(float) = Maximum search distance. Default is 0.0, which turns off the tolerance flag.
 
 		:Return:
@@ -532,15 +532,15 @@ class Nurbs_blender(Nurbs, Slots_blender):
 		'''Get a dict containing CV's of the given curve(s) and their corresponding point positions (based on Maya's pointOnCurve command).
 
 		:Parameters:
-			- c (str)(obj)(list) = Curves or CVs to get CV info from.
-			- returnType (str) = The desired returned values. Default is 'cv'.
+			- c (str)(obj)(list): Curves or CVs to get CV info from.
+			- returnType (str): The desired returned values. Default is 'cv'.
 				valid values are: 
 					'cv' = Return a list of all CV's for the given curves.
 					'count' = Return an integer representing the total number of cvs for each of the curves given.
 					'parameter', 'position', 'index', 'localPosition', 'tangent', 'normalizedTangent', 'normal', 'normalizedNormal', 'curvatureRadius', 'curvatureCenter'
 					= Return a dict with CV's as keys and the returnType as their corresponding values.
 				ex. {NurbsCurveCV(u'polyToCurveShape7.cv[5]'): [-12.186520865542082, 15.260936896515751, -369.6159740743584]}
-			- filter_ (str)(obj)(list) = Value(s) to filter for in the returned results.
+			- filter_ (str)(obj)(list): Value(s) to filter for in the returned results.
 
 		:Return:
 			(dict)(list)(int) dependant on returnType.
@@ -614,9 +614,9 @@ class Nurbs_blender(Nurbs, Slots_blender):
 		'''Get the cross product of two vectors using points derived from the given curves.
 
 		:Parameters:
-			curves (str)(obj)(list) = Nurbs curve(s).
+			curves (str)(obj)(list): Nurbs curve(s).
 			normalize (float) = (0) Do not normalize. (1) Normalize standard. (value other than 0 or 1) Normalize using the given float value as desired length.
-			values (bool) = Return only a list of the cross product vector values [(<Vx>, <Vy>, <Vz>)] instead of the full dict {<curve1>:(<Vx>, <Vy>, <Vz>)}.
+			values (bool): Return only a list of the cross product vector values [(<Vx>, <Vy>, <Vz>)] instead of the full dict {<curve1>:(<Vx>, <Vy>, <Vz>)}.
 
 		:Return:
 			(dict)(list)

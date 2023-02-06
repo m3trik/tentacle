@@ -338,9 +338,9 @@ class Uv_max(Uv, Slots_max):
 		'''Move sny selected objects to the given u and v coordinates.
 
 		:Parameters:
-			u (int) = u coordinate.
-			v (int) = v coordinate.
-			relative (bool) = Move relative or absolute.
+			u (int): u coordinate.
+			v (int): v coordinate.
+			relative (bool): Move relative or absolute.
 		'''
 		mod = self.uv_uiModifier
 

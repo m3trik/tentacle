@@ -1,7 +1,7 @@
 import os
 import setuptools
 
-from uitk import name, __version__
+from uitk import __package__, __version__
 from pythontk import File
 
 
@@ -9,7 +9,7 @@ with open('docs/README.md', 'r') as f:
 	long_description = f.read()
 
 setuptools.setup(
-	name=name,
+	name=__package__,
 	version=__version__,
 	author='Ryan Simpson',
 	author_email='m3trik@outlook.com',
@@ -24,7 +24,7 @@ setuptools.setup(
 		'Operating System :: OS Independent',
 	],
 	include_package_data = True,
-	data_files=File.getDirContents('uitk', 'filepaths', excFiles=['*.py', '*.pyc', '*.json']), #ie. ('uitk/ui/0', ['uitk/ui/0/init.ui']),
+	data_files=File.getDirContents(__package__, 'filepaths', excFiles=['*.py', '*.pyc', '*.json']), #ie. ('uitk/ui/0', ['uitk/ui/0/init.ui']),
 )
 
 # --------------------------------------------------------------------------------------------

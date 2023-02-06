@@ -87,7 +87,7 @@ def getInstance(instanceID=None, *args, **kwargs):
 	:Return:
 		(obj) An instance of this class.
 
-	ex. call: tcl = Tcl_maya.getInstance(id(0), key_show='Key_F12') #returns the class instance with an instance ID of the value of `id(0)`.
+	:Example: tcl = Tcl_maya.getInstance(id(0), key_show='Key_F12') #returns the class instance with an instance ID of the value of `id(0)`.
 	'''
 	import inspect
 

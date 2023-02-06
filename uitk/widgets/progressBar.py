@@ -33,8 +33,8 @@ class ProgressBar(QtWidgets.QProgressBar, Attributes):
 	def step(self, progress, length=100):
 		'''
 		:Parameters:
-			progress (int) = current value
-			length (int) = total value
+			progress (int): current value
+			length (int): total value
 
 		:Return:
 			current percentage

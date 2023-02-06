@@ -54,22 +54,22 @@ class Scene_blender(Scene, Slots_blender):
 		'''Rename scene objects.
 
 		:Parameters:
-			frm (str) = Current name. An asterisk denotes startswith*, *endswith, *contains*, and multiple search strings can be separated by pipe ('|') chars.
+			frm (str): Current name. An asterisk denotes startswith*, *endswith, *contains*, and multiple search strings can be separated by pipe ('|') chars.
 				frm - Search exact.
 				*frm* - Search contains chars.
 				*frm - Search endswith chars.
 				frm* - Search startswith chars.
 				frm|frm - Search any of.  can be used in conjuction with other modifiers.
-			to (str) = Desired name: An optional asterisk modifier can be used for formatting
+			to (str): Desired name: An optional asterisk modifier can be used for formatting
 				to - replace all.
 				*to* - replace only.
 				*to - replace suffix.
 				**to - append suffix.
 				to* - replace prefix.
 				to** - append prefix.
-			objects (list) = The objects to rename. If nothing is given, all scene objects will be renamed.
-			regEx (bool) = If True, regular expression syntax is used instead of the default '*' and '|' modifiers.
-			ignoreCase (bool) = Ignore case when searching. Applies only to the 'frm' parameter's search.
+			objects (list): The objects to rename. If nothing is given, all scene objects will be renamed.
+			regEx (bool): If True, regular expression syntax is used instead of the default '*' and '|' modifiers.
+			ignoreCase (bool): Ignore case when searching. Applies only to the 'frm' parameter's search.
 
 		ex. rename(r'Cube', '*001', regEx=True) #replace chars after frm on any object with a name that contains 'Cube'. ie. 'polyCube001' from 'polyCube'
 		ex. rename(r'Cube', '**001', regEx=True) #append chars on any object with a name that contains 'Cube'. ie. 'polyCube1001' from 'polyCube1'
@@ -99,11 +99,11 @@ class Scene_blender(Scene, Slots_blender):
 		'''Rename objects following the given case.
 
 		:Parameters:
-			objects (str)(list) = The objects to rename. default:all scene objects
-			case (str) = Desired case using python case operators. 
+			objects (str)(list): The objects to rename. default:all scene objects
+			case (str): Desired case using python case operators. 
 				valid: 'upper', 'lower', 'caplitalize', 'swapcase' 'title'. default:'caplitalize'
 
-		ex. call: setCase(pm.ls(sl=1), 'upper')
+		:Example: setCase(pm.ls(sl=1), 'upper')
 		'''
 		# pm.undoInfo(openChunk=1)
 		for obj in pm.ls(objects):

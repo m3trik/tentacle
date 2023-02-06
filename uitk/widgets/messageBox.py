@@ -11,7 +11,7 @@ class MessageBox(QtWidgets.QMessageBox, Attributes):
 
 	:Parameters:
 		location (str)(point) = move the messagebox to the specified location. Can be given as a qpoint or string value. default is: 'topMiddle'
-		timeout (int) = time in seconds before the messagebox auto closes.
+		timeout (int): time in seconds before the messagebox auto closes.
 	'''
 	def __init__(self, parent=None, location='topMiddle', timeout=2, **kwargs):
 		QtWidgets.QMessageBox.__init__(self, parent)
@@ -130,9 +130,9 @@ class MessageBox(QtWidgets.QMessageBox, Attributes):
 		'''Set the text to be displayed.
 
 		:Parameters:
-			fontColor (str) = text color.
-			backgroundColor (str) = text background color.
-			fontSize (int) = text size.
+			fontColor (str): text color.
+			backgroundColor (str): text background color.
+			fontSize (int): text size.
 		'''
 		string = self._setPrefixStyle(string)
 		string = self._setHTML(string)

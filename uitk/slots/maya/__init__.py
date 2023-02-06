@@ -39,17 +39,17 @@ class Slots_maya(Slots):
 		'''Launch a popup window containing the given objects attributes.
 
 		:Parameters:
-			obj (str)(obj)(list) = The object to get the attributes of, or it's name. If given as a list, only the first index will be used.
-			inc (list) = Attributes to include. All other will be omitted. Exclude takes dominance over include. Meaning, if the same attribute is in both lists, it will be excluded.
-			exc (list) = Attributes to exclude from the returned dictionay. ie. ['Position','Rotation','Scale','renderable','isHidden','isFrozen','selected']
-			checkableLabel (bool) = Set the attribute labels as checkable.
+			obj (str)(obj)(list): The object to get the attributes of, or it's name. If given as a list, only the first index will be used.
+			inc (list): Attributes to include. All other will be omitted. Exclude takes dominance over include. Meaning, if the same attribute is in both lists, it will be excluded.
+			exc (list): Attributes to exclude from the returned dictionay. ie. ['Position','Rotation','Scale','renderable','isHidden','isFrozen','selected']
+			checkableLabel (bool): Set the attribute labels as checkable.
 			fn (method) = Set an alternative method to call on widget signal. ex. setParameterValuesMEL
 					The first parameter of fn is always the given object. ex. fn(obj, {'attr':<value>})
-			fn_args (str)(list) = Any additonal args to pass to the given fn.
+			fn_args (str)(list): Any additonal args to pass to the given fn.
 			attributes (kwargs) = Explicitly pass in attribute:values pairs. Else, attributes will be pulled from mtk.Node.getAttributesMEL for the given obj.
 
-		ex. call: self.setAttributeWindow(node, attrs, fn=setParameterValuesMEL, 'transformLimits') #set attributes for the Maya command transformLimits.
-		ex. call: self.setAttributeWindow(transform[0], inc=['translateX','translateY','translateZ','rotateX','rotateY','rotateZ','scaleX','scaleY','scaleZ'], checkableLabel=True)
+		:Example: self.setAttributeWindow(node, attrs, fn=setParameterValuesMEL, 'transformLimits') #set attributes for the Maya command transformLimits.
+		:Example: self.setAttributeWindow(transform[0], inc=['translateX','translateY','translateZ','rotateX','rotateY','rotateZ','scaleX','scaleY','scaleZ'], checkableLabel=True)
 		'''
 		try:
 			obj = pm.ls(obj)[0]
@@ -99,7 +99,7 @@ class Slots_maya(Slots):
 	# def convertToWidget(name):
 	# 	'''
 	# 	:Parameters:
-	# 		name (str) = name of a Maya UI element of any type. ex. name = pm.mel.eval('$tmp=$gAttributeEditorForm') (from MEL global variable)
+	# 		name (str): name of a Maya UI element of any type. ex. name = pm.mel.eval('$tmp=$gAttributeEditorForm') (from MEL global variable)
 
 	# 	:Return:
 	# 		(QWidget) None if the object does not exist.

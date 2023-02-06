@@ -52,7 +52,7 @@ class Mirror_blender(Mirror, Slots_blender):
 		'''Mirror geometry across a given axis.
 
 		:Parameters:
-			objects (obj) = The objects to mirror. If None; any currently selected objects will be used.
+			objects (obj): The objects to mirror. If None; any currently selected objects will be used.
 			axis = The axis in which to perform the mirror along.
 			cutMesh = Perform a delete along specified axis before mirror.
 			instance = Instance the mirrored object(s).

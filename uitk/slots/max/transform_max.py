@@ -365,8 +365,8 @@ class Transform_max(Transform, Slots_max):
 		'''Set the transform tool's move, rotate, and scale snap states.
 
 		:Parameters:
-			ctx (str) = valid: 'move', 'scale', 'rotate'
-			state (int) = valid: 0=off, 1=relative, 2=absolute
+			ctx (str): valid: 'move', 'scale', 'rotate'
+			state (int): valid: 0=off, 1=relative, 2=absolute
 		'''
 		if ctx=='move':
 			pm.manipMoveContext('Move', edit=1, snap=False if state==0 else True, snapRelative=True if state==1 else False) #state: 0=off, 1=relative, 2=absolute
@@ -385,8 +385,8 @@ class Transform_max(Transform, Slots_max):
 		'''Grid and Snap Settings: Modify grid and snap states.
 
 		:Parameters:
-			fn (str) = Snap string name.
-			state (bool) = Desired snap state.
+			fn (str): Snap string name.
+			state (bool): Desired snap state.
 
 		Valid fn arguments for snap name:
 			Body Shapes: (1) 'Vertex_', 'Edge', 'Face_', 'End Edge', 'Edge Midpoint'
@@ -421,8 +421,8 @@ class Transform_max(Transform, Slots_max):
 		to save ui space; have a single align button, x, y, z, and align 'all' checkboxes and a tolerance textfield.
 
 		:Parameters:
-			selection (list) = vertex selection
-			mode (int) = valid values are: 0 (YZ), 1 (XZ), 2 (XY), 3 (X), 4 (Y), 5 (Z)
+			selection (list): vertex selection
+			mode (int): valid values are: 0 (YZ), 1 (XZ), 2 (XY), 3 (X), 4 (Y), 5 (Z)
 
 		notes:
 		'vertex.pos.x = vertPosX' ect doesnt work. had to use maxscript
@@ -526,9 +526,9 @@ class Transform_max(Transform, Slots_max):
 		'''
 		:Parameters:
 			size (float) = Scale amount
-			x (bool) = Scale in the x direction.
-			y (bool) = Scale in the y direction.
-			z (bool) = Scale in the z direction.
+			x (bool): Scale in the x direction.
+			y (bool): Scale in the y direction.
+			z (bool): Scale in the z direction.
 
 		Basically working except for final 'obj.scale([s, s, s])' command in python. variable definitions included for debugging.
 		to get working an option is to use the maxEval method in the alignVertices function.
@@ -569,8 +569,8 @@ class Transform_max(Transform, Slots_max):
 		'''Compares two point3 sizes from obj bounding boxes.
 
 		:Parameters:
-			obj1 (obj) = 
-			obj2 (obj) = 
+			obj1 (obj): 
+			obj2 (obj): 
 			factor () = 
 		'''
 		maxEval('''

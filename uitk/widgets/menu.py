@@ -8,12 +8,12 @@ from attributes import Attributes
 class Menu(QtWidgets.QMenu, Attributes):
 	'''
 	:Parameters:
-		menu_type (str) = Menu style. valid parameters are: 'standard', 'context', 'form'
-		title (str) = Text displayed at the menu's header.
-		padding (int) = Area surrounding the menu.
-		childHeight (int) = The minimum height of any child widgets (excluding the 'Apply' button).
-		preventHide (bool) = Prevent the menu from hiding.
-		position (str) = Desired menu position. Valid values are: 
+		menu_type (str): Menu style. valid parameters are: 'standard', 'context', 'form'
+		title (str): Text displayed at the menu's header.
+		padding (int): Area surrounding the menu.
+		childHeight (int): The minimum height of any child widgets (excluding the 'Apply' button).
+		preventHide (bool): Prevent the menu from hiding.
+		position (str): Desired menu position. Valid values are: 
 			'center', 'top', 'bottom', 'right', 'left', 'topLeft', 'topRight', 'bottomRight', 'bottomLeft' (Positions relative to parent (requires parent))
 			'cursorPos' (Positions menu at the curson location)
 	'''
@@ -67,8 +67,8 @@ class Menu(QtWidgets.QMenu, Attributes):
 		'''Get a list of the menu's child widgets.
 
 		:Parameters:
-			inc (list) = Include only widgets of the given type(s). ie. ['QCheckBox', 'QRadioButton']
-			exc (list) = Exclude widgets by type.
+			inc (list): Include only widgets of the given type(s). ie. ['QCheckBox', 'QRadioButton']
+			exc (list): Exclude widgets by type.
 
 		:Return:
 			(list) child widgets.
@@ -115,7 +115,7 @@ class Menu(QtWidgets.QMenu, Attributes):
 		If no title is given, the fuction will attempt to use the menu parents text.
 
 		:Parameters:
-			title (str) = Text to apply to the menu's header.
+			title (str): Text to apply to the menu's header.
 		'''
 		if not title:
 			try:
@@ -143,8 +143,8 @@ class Menu(QtWidgets.QMenu, Attributes):
 		'''Extends insertAction to allow inserting by index.
 
 		:Parameters:
-			wAction (obj) = The widget action to insert.
-			index (int) = The desired index. (It appends the action if index is invalid)
+			wAction (obj): The widget action to insert.
+			index (int): The desired index. (It appends the action if index is invalid)
 		'''
 		_wAction = self.getActionAtIndex(index)
 		self.insertAction(_wAction, wAction) #insert before _wAction. It appends the action if before is nullptr or before is not a valid action for this widget
@@ -154,8 +154,8 @@ class Menu(QtWidgets.QMenu, Attributes):
 		'''Create a two column form layout that can later be referenced using a key.
 
 		:Parameters:
-			key (str)(int) = The key identifier for the layout.
-			index(int) = The index corresponding to the vertical positioning of the layout.
+			key (str)(int): The key identifier for the layout.
+			index(int): The index corresponding to the vertical positioning of the layout.
 
 		:Return:
 			(obj) QLayout.
@@ -178,7 +178,7 @@ class Menu(QtWidgets.QMenu, Attributes):
 		'''Get a two column form layout using a key.
 
 		:Parameters:
-			key (str)(int) = The key identifier for the layout.
+			key (str)(int): The key identifier for the layout.
 
 		:Return:
 			(obj) QLayout.
@@ -195,8 +195,8 @@ class Menu(QtWidgets.QMenu, Attributes):
 		'''Create a single column vertical layout that can later be referenced using a key.
 
 		:Parameters:
-			key (str)(int) = The key identifier for the layout.
-			index(int) = The index corresponding to the vertical positioning of the layout.
+			key (str)(int): The key identifier for the layout.
+			index(int): The index corresponding to the vertical positioning of the layout.
 
 		:Return:
 			(obj) QLayout.
@@ -220,7 +220,7 @@ class Menu(QtWidgets.QMenu, Attributes):
 		'''Get a vertical box layout using a key.
 
 		:Parameters:
-			key (str)(int) = The key identifier for the layout.
+			key (str)(int): The key identifier for the layout.
 
 		:Return:
 			(obj) QLayout.
@@ -281,16 +281,16 @@ class Menu(QtWidgets.QMenu, Attributes):
 		'''Add items to the QMenu.
 
 		:Parameters:
-			widget (str)(obj) = The widget to add. ie. 'QLabel', QtWidgets.QLabel, QtWidgets.QLabel()
-			lable (str) = Add a label. (which is actually a checkbox. by default it is not checkable)
-			checkableLabel (bool) = The label is checkable.
+			widget (str)(obj): The widget to add. ie. 'QLabel', QtWidgets.QLabel, QtWidgets.QLabel()
+			lable (str): Add a label. (which is actually a checkbox. by default it is not checkable)
+			checkableLabel (bool): The label is checkable.
 
 		additional kwargs:
-			insertSeparator_ (bool) = insert a separator before the widget.
-			setLayoutDirection_ (str) = ie. 'LeftToRight'
-			setAlignment_ (str) = ie. 'AlignVCenter'
-			setButtonSymbols_ (str) = ie. 'PlusMinus'
-			setMinMax_ (str) = Set the min, max, and step values with a string. ie. '1-100 step.1'
+			insertSeparator_ (bool): insert a separator before the widget.
+			setLayoutDirection_ (str): ie. 'LeftToRight'
+			setAlignment_ (str): ie. 'AlignVCenter'
+			setButtonSymbols_ (str): ie. 'PlusMinus'
+			setMinMax_ (str): Set the min, max, and step values with a string. ie. '1-100 step.1'
 
 		:Return:
  			(obj) the added widget instance.
@@ -383,7 +383,7 @@ class Menu(QtWidgets.QMenu, Attributes):
 		Contains a list of the last 10 active child widgets.
 
 		:Parameters:
-			name (bool) = Return the last active widgets name as a string.
+			name (bool): Return the last active widgets name as a string.
 
 		:Return:
 			(obj)(str)(list) dependant on flags.
@@ -413,7 +413,7 @@ class Menu(QtWidgets.QMenu, Attributes):
 		'''Add an item to the context menu toolTip.
 
 		:Parameters:
-			menuItem (obj) = The item to add.
+			menuItem (obj): The item to add.
 		'''
 		p = self.parent()
 		if not all([self.menu_type=='context', p]):
@@ -445,7 +445,7 @@ class Menu(QtWidgets.QMenu, Attributes):
 		Prevents hide event under certain circumstances.
 
 		:Parameters:
-			force (bool) = override preventHide.
+			force (bool): override preventHide.
 		'''
 		if force or not self.preventHide:
 

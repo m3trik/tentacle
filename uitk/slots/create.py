@@ -41,12 +41,12 @@ class Create(Slots):
 		'''Create a primitive object.
 
 		:Parameters:
-			catagory1 (str) = type
-			catagory2 (str) = type
+			catagory1 (str): type
+			catagory2 (str): type
 		:Return:
 			(obj) node
 
-		ex. call: createPrimitive('Polygons', 'Cube')
+		:Example: createPrimitive('Polygons', 'Cube')
 		'''
 		cmb001 = self.sb.create.cmb001
 		cmb002 = self.sb.create.cmb002

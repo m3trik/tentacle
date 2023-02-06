@@ -262,21 +262,21 @@ class Rigging_blender(Rigging, Slots_blender):
 		If there are vertices selected it will create a locator at the center of the selected vertices bounding box.
 
 		:Parameters:
-			objects (str)(list) = A list of objects, or an object name to create locators at.
-			suffix (str) = A string appended to the end of the created locators name. (default: '_LOC') '_LOC#'
-			stripDigits (bool) = Strip numeric characters from the string. If the resulting name is not unique, maya will append a trailing digit. (default=False)
-			strip (str) = Strip a specific character set from the locator name. The locators name is based off of the selected objects name. (default=None)
+			objects (str)(list): A list of objects, or an object name to create locators at.
+			suffix (str): A string appended to the end of the created locators name. (default: '_LOC') '_LOC#'
+			stripDigits (bool): Strip numeric characters from the string. If the resulting name is not unique, maya will append a trailing digit. (default=False)
+			strip (str): Strip a specific character set from the locator name. The locators name is based off of the selected objects name. (default=None)
 			scale (float) = The scale of the locator. (default=1)
-			parent (bool) = Parent to object to the locator. (default=False)
-			freezeTransforms (bool) = Freeze transforms on the locator. (default=True)
-			bakeChildPivot (bool) = Bake pivot positions on the child object. (default=True)
-			lockTranslate (bool) = Lock the translate values of the child object. (default=False)
-			lockRotation (bool) = Lock the rotation values of the child object. (default=False)
-			lockScale (bool) = Lock the scale values of the child object. (default=False)
-			remove (bool) = Removes the locator and any child locks. (not valid with component selections) (default=False)
-			_fullPath (bool) = Internal use only (recursion). Use full path names for Dag objects. This can prevent naming conflicts when creating the locator. (default=False)
+			parent (bool): Parent to object to the locator. (default=False)
+			freezeTransforms (bool): Freeze transforms on the locator. (default=True)
+			bakeChildPivot (bool): Bake pivot positions on the child object. (default=True)
+			lockTranslate (bool): Lock the translate values of the child object. (default=False)
+			lockRotation (bool): Lock the rotation values of the child object. (default=False)
+			lockScale (bool): Lock the scale values of the child object. (default=False)
+			remove (bool): Removes the locator and any child locks. (not valid with component selections) (default=False)
+			_fullPath (bool): Internal use only (recursion). Use full path names for Dag objects. This can prevent naming conflicts when creating the locator. (default=False)
 
-		ex. call: createLocatorAtSelection(strip='_GEO', suffix='', stripDigits=True, parent=True, lockTranslate=True, lockRotation=True)
+		:Example: createLocatorAtSelection(strip='_GEO', suffix='', stripDigits=True, parent=True, lockTranslate=True, lockRotation=True)
 		'''
 		def _formatName(name, stripDigits=stripDigits, strip=strip, suffix=suffix):
 			if stripDigits:
@@ -403,19 +403,19 @@ print (__name__)
 # 	If there are vertices selected it will create a locator at the center of the selected vertices bounding box.
 
 # 	:Parameters:
-# 		suffix (str) = A string appended to the end of the created locators name. (default: '_LOC') '_LOC#'
-# 		stripDigits (bool) = Strip numeric characters from the string. If the resulting name is not unique, maya will append a trailing digit. (default=False)
-# 		strip (str) = Strip a specific character set from the locator name. The locators name is based off of the selected objects name. (default=None)
+# 		suffix (str): A string appended to the end of the created locators name. (default: '_LOC') '_LOC#'
+# 		stripDigits (bool): Strip numeric characters from the string. If the resulting name is not unique, maya will append a trailing digit. (default=False)
+# 		strip (str): Strip a specific character set from the locator name. The locators name is based off of the selected objects name. (default=None)
 # 		scale (float) = The scale of the locator. (default=1)
-# 		parent (bool) = Parent to object to the locator. (default=False)
-# 		freezeChildTransforms (bool) = Freeze transforms on the child object. (Valid only with parent flag) (default=False)
-# 		bakeChildPivot (bool) = Bake pivot positions on the child object. (Valid only with parent flag) (default=False)
-# 		lockTranslate (bool) = Lock the translate values of the child object. (default=False)
-# 		lockRotation (bool) = Lock the rotation values of the child object. (default=False)
-# 		lockScale (bool) = Lock the scale values of the child object. (default=False)
-# 		_fullPath (bool) = Internal use only (recursion). Use full path names for Dag objects. This can prevent naming conflicts when creating the locator. (default=False)
+# 		parent (bool): Parent to object to the locator. (default=False)
+# 		freezeChildTransforms (bool): Freeze transforms on the child object. (Valid only with parent flag) (default=False)
+# 		bakeChildPivot (bool): Bake pivot positions on the child object. (Valid only with parent flag) (default=False)
+# 		lockTranslate (bool): Lock the translate values of the child object. (default=False)
+# 		lockRotation (bool): Lock the rotation values of the child object. (default=False)
+# 		lockScale (bool): Lock the scale values of the child object. (default=False)
+# 		_fullPath (bool): Internal use only (recursion). Use full path names for Dag objects. This can prevent naming conflicts when creating the locator. (default=False)
 
-# 	ex. call:
+# 	:Example:
 # 		createLocatorAtSelection(strip='_GEO', suffix='', stripDigits=True, scale=10, parent=True, lockTranslate=True, lockRotation=True)
 # 	'''
 # 	import pymel.core as pm

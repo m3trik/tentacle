@@ -37,12 +37,12 @@ class Animation_maya(Animation, Slots_maya):
 		'''Set the current frame on the timeslider.
 
 		:Parameters:
-		frame (int) = Desired from number.
-		relative (bool) = If True; the frame will be moved relative to 
+		frame (int): Desired from number.
+		relative (bool): If True; the frame will be moved relative to 
 			it's current position using the frame value as a move amount.
-		update (bool) = Change the current time, but do not update the world. (default=True)
+		update (bool): Change the current time, but do not update the world. (default=True)
 
-		ex. call:
+		:Example:
 			setCurrentFrame(24, relative=True, update=1)
 		'''
 		currentTime=0
@@ -57,10 +57,10 @@ class Animation_maya(Animation, Slots_maya):
 		'''Duplicate any selected keyframes and paste them inverted at the given time.
 
 		:Parameters:
-			time (int) = The desired start time for the inverted keys.
-			relative (bool) = Start time position as relative or absolute.
+			time (int): The desired start time for the inverted keys.
+			relative (bool): Start time position as relative or absolute.
 
-		ex. call: invertSelectedKeyframes(time=48, relative=0)
+		:Example: invertSelectedKeyframes(time=48, relative=0)
 		'''
 		# pm.undoInfo(openChunk=1)
 		allActiveKeyTimes = pm.keyframe(query=True, sl=True, tc=True) #get times from all selected keys.
