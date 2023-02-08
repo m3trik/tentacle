@@ -22,6 +22,8 @@ class Tcl(QtWidgets.QStackedWidget):
 	_mousePressPos = QtCore.QPoint()
 	_key_show_release = QtCore.Signal()
 
+	app = QtWidgets.QApplication.instance() or QtWidgets.QApplication(sys.argv) #return the existing QApplication object, or create a new one if none exists.
+
 	def __init__(self, parent=None, key_show='Key_F12', preventHide=False, slotLoc=''):
 		'''
 		:Parameters:
@@ -36,9 +38,9 @@ class Tcl(QtWidgets.QStackedWidget):
 		self.key_close = QtCore.Qt.Key_Escape
 		self.preventHide = preventHide
 
-		# self.sb.app.setDoubleClickInterval(400)
-		# self.sb.app.setKeyboardInputInterval(400)
-		# self.sb.app.focusChanged.connect(self.focusChanged)
+		# self.app.setDoubleClickInterval(400)
+		# self.app.setKeyboardInputInterval(400)
+		# self.app.focusChanged.connect(self.focusChanged)
 
 		self.setWindowFlags(QtCore.Qt.Tool|QtCore.Qt.FramelessWindowHint) #|QtCore.Qt.WindowStaysOnTopHint
 		self.setAttribute(QtCore.Qt.WA_TranslucentBackground)
@@ -77,7 +79,7 @@ class Tcl(QtWidgets.QStackedWidget):
 		:Parameters:
 			ui (str)(obj): The ui or name of the ui to set the stacked widget index to.
 		'''
-		assert isinstance(ui, (str, QtWidgets.QWidget)), f'# Error: {__file__!r} in setUi\n#\tIncorrect datatype: {type(ui).__name__}'
+		assert isinstance(ui, (str, QtWidgets.QWidget)), f'# Error: {__file__} in setUi\n#\tIncorrect datatype: {type(ui).__name__}'
 
 		ui = self.sb.getUi(ui) #Get the ui of the given name, and set it as the current ui in the switchboard module.
 		ui.connected = True
@@ -160,7 +162,7 @@ class Tcl(QtWidgets.QStackedWidget):
 		'''
 		self.grabKeyboard()
 		event = QtGui.QKeyEvent(QtCore.QEvent.KeyPress, key, modifier)
-		self.keyPressEvent(event) # self.sb.app.postEvent(self, event)
+		self.keyPressEvent(event) # self.app.postEvent(self, event)
 
 
 	def keyPressEvent(self, event):
@@ -169,7 +171,7 @@ class Tcl(QtWidgets.QStackedWidget):
 		if event.isAutoRepeat():
 			return
 
-		# modifiers = self.sb.app.keyboardModifiers()
+		# modifiers = self.app.keyboardModifiers()
 
 		# if event.key()==self.key_show:
 		# 	self.show()
@@ -186,7 +188,7 @@ class Tcl(QtWidgets.QStackedWidget):
 		if event.isAutoRepeat():
 			return
 
-		modifiers = self.sb.app.keyboardModifiers()
+		modifiers = self.app.keyboardModifiers()
 
 		if event.key()==self.key_show and not modifiers==QtCore.Qt.ControlModifier:
 			self._key_show_release.emit()
@@ -199,7 +201,7 @@ class Tcl(QtWidgets.QStackedWidget):
 	def mousePressEvent(self, event):
 		'''
 		'''
-		modifiers = self.sb.app.keyboardModifiers()
+		modifiers = self.app.keyboardModifiers()
 
 		if self.sb.currentUi.level<3:
 			self.move(self.sb.getCenter(self))
@@ -230,7 +232,7 @@ class Tcl(QtWidgets.QStackedWidget):
 	def mouseReleaseEvent(self, event):
 		'''
 		'''
-		# self.setUi('init')
+		self.setUi('init')
 
 		super().mouseReleaseEvent(event)
 
@@ -241,7 +243,7 @@ class Tcl(QtWidgets.QStackedWidget):
 		this widget disappears in response to press or release events, 
 		then this widget will only receive the double click event.
 		'''
-		modifiers = self.sb.app.keyboardModifiers()
+		modifiers = self.app.keyboardModifiers()
 
 		if self.sb.currentUi.level<3:
 			if event.button()==QtCore.Qt.LeftButton:
@@ -395,7 +397,7 @@ class Tcl(QtWidgets.QStackedWidget):
 			try: #call the class method associated with the current widget.
 				w.method()
 			except (AttributeError, TypeError) as error:
-				print (f'# Error: {__file__!r} in ef_showEvent\n#\t{error}.')
+				print (f'# Error: {__file__} in ef_showEvent\n#\t{error}.')
 				pass
 
 		w.__class__.showEvent(w, event)
@@ -472,7 +474,7 @@ class Tcl(QtWidgets.QStackedWidget):
 					name, *gbNames = w.whatsThis().split('#') #get any groupbox names that were prefixed by '#'.
 					groupBoxes = self.sb.getWidgetsByType('QGroupBox', name)
 					[gb.hide() if gbNames and not gb.name in gbNames else gb.show() for gb in groupBoxes] #show only groupboxes with those names if any were given, else show all.
-					# self.sb.app.processEvents() #the minimum size is not computed until some events are processed in the event loop.
+					# self.app.processEvents() #the minimum size is not computed until some events are processed in the event loop.
 					self.setUi(name)
 
 				elif w.prefix=='v':
@@ -502,7 +504,7 @@ class Tcl(QtWidgets.QStackedWidget):
 		'''
 		if not event.isAutoRepeat():
 			# print (f'ef_keyPressEvent: {w}: {event}')
-			modifiers = self.sb.app.keyboardModifiers()
+			modifiers = self.app.keyboardModifiers()
 
 			if event.key()==self.key_close:
 				self.close()
@@ -515,7 +517,7 @@ class Tcl(QtWidgets.QStackedWidget):
 		'''
 		if not event.isAutoRepeat():
 			# print (f'ef_keyReleaseEvent: {e}: {event}')
-			modifiers = self.sb.app.keyboardModifiers()
+			modifiers = self.app.keyboardModifiers()
 
 			if event.key()==self.key_show and not modifiers==QtCore.Qt.ControlModifier:
 				if w.name=='mainWindow':#w.type=='QMainWindow':
@@ -635,10 +637,12 @@ class Tcl(QtWidgets.QStackedWidget):
 
 if __name__ == '__main__':
 
-	tcl = Tcl(slotLoc='slots')
-	tcl.show()
+	main = Tcl()
+	main.show('init')
 
-	sys.exit(tcl.sb.app.exec_()) # run app, show window, wait for input, then terminate program with a status code returned from app.
+	exit_code = main.app.exec_()
+	if exit_code != -1:
+		sys.exit(exit_code) # run app, show window, wait for input, then terminate program with a status code returned from app.
 
 #module name
 # print (__name__)

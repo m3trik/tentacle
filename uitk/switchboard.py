@@ -90,8 +90,6 @@ class Switchboard(QUiLoader, StyleSheet):
 		'QProgressBar':'valueChanged',
 	}
 
-	app = QtWidgets.QApplication.instance() or QtWidgets.QApplication(sys.argv) #return the existing QApplication object, or create a new one if none exists.
-
 	def __init__(self, parent=None, uiLoc='', widgetLoc='', slotLoc='', preloadUi=False):
 		super().__init__(parent)
 		'''
@@ -138,7 +136,7 @@ class Switchboard(QUiLoader, StyleSheet):
 		if foundUi:
 			ui = self.loadUi(foundUi) #load the dynamic ui file.
 			if not ui:
-				print (f'# Error: {__file__!r} in __getattr__ (loadUi)\n#\tUnable to load {attr}({type(attr).__name__})')
+				print (f'# Error: {__file__} in __getattr__ (loadUi)\n#\tUnable to load {attr}({type(attr).__name__})')
 			return ui
 
 		#if no ui is found, check if a widget exists with the given attribute name:
@@ -148,10 +146,10 @@ class Switchboard(QUiLoader, StyleSheet):
 		if foundWgt:
 			wgt = self.registerWidgets(attr)
 			if not wgt:
-				print (f'# Error: {__file__!r} in __getattr__ (registerWidgets)\n#\tUnable to register {attr}({type(attr).__name__})')
+				print (f'# Error: {__file__} in __getattr__ (registerWidgets)\n#\tUnable to register {attr}({type(attr).__name__})')
 			return wgt
 
-		raise AttributeError(f'# Error: {__file__!r} in __getattr__\n#\t{self.__class__.__name__} has no attribute {attr}({type(attr).__name__})')
+		raise AttributeError(f'# Error: {__file__} in __getattr__\n#\t{self.__class__.__name__} has no attribute {attr}({type(attr).__name__})')
 
 
 	def hasattr_static(self, attr):
@@ -405,7 +403,7 @@ class Switchboard(QUiLoader, StyleSheet):
 			try:
 				mod = importlib.import_module(mod_name)
 			except ModuleNotFoundError as error:
-				print (f"# Error: {__file__!r} in _getWidgetsFromDir: #\n\t{mod_name} not found.\n\tConfirm that the following \'widgetLoc\' path is correct:\n\t{path_}")
+				print (f"# Error: {__file__} in _getWidgetsFromDir: #\n\t{mod_name} not found.\n\tConfirm that the following \'widgetLoc\' path is correct:\n\t{path_}")
 				return []
 			cls_members = inspect.getmembers(sys.modules[mod_name], inspect.isclass)
 
@@ -416,7 +414,7 @@ class Switchboard(QUiLoader, StyleSheet):
 			try:
 				_path = os.listdir(path_)
 			except FileNotFoundError as error:
-				print (f"# Error: {__file__!r} in _getWidgetsFromDir: #\n\t{mod_name} not found.\n\tConfirm that the following \'widgetLoc\' path is correct:\n\t{path_}")
+				print (f"# Error: {__file__} in _getWidgetsFromDir: #\n\t{mod_name} not found.\n\tConfirm that the following \'widgetLoc\' path is correct:\n\t{path_}")
 				return []
 
 			for module in _path:
@@ -532,11 +530,11 @@ class Switchboard(QUiLoader, StyleSheet):
 				except AttributeError as error: #if a class by the same name as the module doesn't exist: (ex. <Polygons_maya> from module 'polygons_maya')
 					clsmembers = inspect.getmembers(mod, inspect.isclass)
 					clss = clsmembers[0][1] #just get the first class.
-					print (f'# Warning: {__file__!r} in _importSlots\n#\t{error}.\n#\tUsing {clss} instead.')
+					print (f'# Warning: {__file__} in _importSlots\n#\t{error}.\n#\tUsing {clss} instead.')
 				return clss
 
 			except (FileNotFoundError, ModuleNotFoundError) as error:
-				print (f'# Error: {__file__!r} in _importSlots\n#\t{error}.')
+				print (f'# Error: {__file__} in _importSlots\n#\t{error}.')
 		return None
 
 
@@ -574,7 +572,7 @@ class Switchboard(QUiLoader, StyleSheet):
 				result.append(w)
 
 			except Exception as error:
-				print (f'# Error: {__file__!r} in registerWidgets\n#\t{error}.')
+				print (f'# Error: {__file__} in registerWidgets\n#\t{error}.')
 
 		return Iter.formatReturn(result, widgets) #if 'widgets' is given as a list; return a list.
 
@@ -766,7 +764,7 @@ class Switchboard(QUiLoader, StyleSheet):
 					submenu_name = '{}_{}#{}'.format(ui, 'submenu', '#'.join(tags)).rstrip('#') #reformat as submenu w/tags. ie. 'polygons_submenu#edge' from 'polygons'
 					ui1 = self.getUi(submenu_name) #in the case where a submenu exist without a parent menu.
 					if not ui1:
-						print (f'# Error: {__file__!r} in getUi\n#\tUI not found: {ui}({type(ui).__name__})\n#\tConfirm the following ui path is correct\n#\t{self.uiLoc}')
+						print (f'# Error: {__file__} in getUi\n#\tUI not found: {ui}({type(ui).__name__})\n#\tConfirm the following ui path is correct\n#\t{self.uiLoc}')
 						return None
 
 				ui = [u for u in self._loadedUi 
@@ -795,7 +793,7 @@ class Switchboard(QUiLoader, StyleSheet):
 				return getattr(self, ui)
 
 			except AttributeError as error:
-				print (f'# Error: {__file__!r} in getUi\n#\tUI not found: {ui}({type(ui).__name__})\n#\tConfirm the following ui path is correct\n#\t{self.uiLoc}')
+				print (f'# Error: {__file__} in getUi\n#\tUI not found: {ui}({type(ui).__name__})\n#\tConfirm the following ui path is correct\n#\t{self.uiLoc}')
 				return None
 
 		elif isinstance(ui, (list, set, tuple)):
@@ -1158,7 +1156,7 @@ class Switchboard(QUiLoader, StyleSheet):
 						s.connect(lambda *args, w=w: self._wgtHistory.append(w)) #add the widget to the widget history list on connect. (*args prevents 'w' from being overwritten by the parameter emitted by the signal.)
 
 					except Exception as error:
-						print(f'# Error: {__file__!r} in connectSlots\n#\t{ui.name} {w.name} {s} {w.method}\n#\t{error}.')
+						print(f'# Error: {__file__} in connectSlots\n#\t{ui.name} {w.name} {s} {w.method}\n#\t{error}.')
 
 		ui.isConnected = True #set ui state as slots connected.
 
@@ -1188,7 +1186,7 @@ class Switchboard(QUiLoader, StyleSheet):
 							s.disconnect(w.method) #disconnect single slot (main and cameras ui)
 
 					except Exception as error:
-						print(f'# Error: {__file__!r} in disconnectSlots\n#\t{ui.name} {w.name} {s} {w.method}\n#\t{error}.')
+						print(f'# Error: {__file__} in disconnectSlots\n#\t{ui.name} {w.name} {s} {w.method}\n#\t{error}.')
 
 		ui.isConnected = False #set ui state as slots disconnected.
 
@@ -1391,7 +1389,7 @@ class Switchboard(QUiLoader, StyleSheet):
 				widgets.append(w)
 			except AttributeError as error:
 				if showError:
-					print (f'# Error: {__file__!r} in getWidgetsFromStr\n#\t{error}.')
+					print (f'# Error: {__file__} in getWidgetsFromStr\n#\t{error}.')
 				pass
 
 		return widgets
@@ -1676,6 +1674,8 @@ class Switchboard(QUiLoader, StyleSheet):
 
 if __name__=='__main__':
 
+	app = QtWidgets.QApplication.instance() or QtWidgets.QApplication(sys.argv) #return the existing QApplication object, or create a new one if none exists.
+
 	from uitk.slots.polygons import Polygons
 	sb = Switchboard(uiLoc='ui', widgetLoc='widgets', slotLoc='slots/maya') #set relative paths, and explicity set the slots class instead of providing a path like: slotLoc='slots/maya', which in this case would produce the same result with just a little more overhead.
 	ui = sb.polygons #get the ui by it's name.
@@ -1690,7 +1690,9 @@ if __name__=='__main__':
 	print ('widget from method tb000:', sb.getWidgetFromMethod(ui.tb000.method))
 	# print ('widgets:', ui.widgets)
 
-	sys.exit(sb.app.exec_())
+	exit_code = app.exec_()
+	if exit_code != -1:
+		sys.exit(exit_code) # run app, show window, wait for input, then terminate program with a status code returned from app.
 
 print (__name__) #module name
 # --------------------------------------------------------------------------------------------

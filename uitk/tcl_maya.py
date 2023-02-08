@@ -33,7 +33,7 @@ class Tcl_maya(Tcl):
 			event = <QEvent>
 		'''
 		if not event.isAutoRepeat():
-			modifiers = self.sb.app.keyboardModifiers()
+			modifiers = self.app.keyboardModifiers()
 
 			if event.key()==self.key_undo and modifiers==QtCore.Qt.ControlModifier:
 				import Pymel.Core as pm
@@ -57,7 +57,7 @@ class Tcl_maya(Tcl):
 			event = <QEvent>
 		'''
 		if __name__ == "__main__":
-			self.sb.app.quit()
+			self.app.quit()
 			sys.exit() #assure that the sys processes are terminated.
 
 		Tcl.hideEvent(self, event) #super().hideEvent(event)
@@ -110,10 +110,12 @@ def show(instanceID=None, *args, **kwargs):
 
 if __name__ == "__main__":
 
-	tcl = Tcl_maya()
-	tcl.show('init')
+	main = Tcl_maya()
+	main.show('init')
 
-	sys.exit(tcl.sb.app.exec_()) # run app, show window, wait for input, then terminate program with a status code returned from app.
+	exit_code = main.app.exec_()
+	if exit_code != -1:
+		sys.exit(exit_code) # run app, show window, wait for input, then terminate program with a status code returned from app.
 
 #module name
 print (__name__)

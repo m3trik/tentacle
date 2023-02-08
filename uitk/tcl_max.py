@@ -58,7 +58,7 @@ class Tcl_max(Tcl):
 			event = <QEvent>
 		'''
 		if not event.isAutoRepeat():
-			modifiers = self.sb.app.keyboardModifiers()
+			modifiers = QtWidgets.QApplication.instance().keyboardModifiers()
 
 			if event.key()==self.key_undo and modifiers==QtCore.Qt.ControlModifier:
 				import pymxs
@@ -141,10 +141,12 @@ def show(instanceID=None, *args, **kwargs):
 
 if __name__ == "__main__":
 
-	tcl = Tcl_max()
-	tcl.show('init')
+	main = Tcl_max()
+	main.show('init')
 
-	sys.exit(tcl.sb.app.exec_()) # run app, show window, wait for input, then terminate program with a status code returned from app.
+	exit_code = main.app.exec_()
+	if exit_code != -1:
+		sys.exit(exit_code) # run app, show window, wait for input, then terminate program with a status code returned from app.
 
 #module name
 print (__name__)

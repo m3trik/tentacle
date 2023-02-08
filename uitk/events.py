@@ -130,6 +130,7 @@ class MouseTracking(QtCore.QObject):
 
 		try:
 			topWidget = self.app.widgetAt(QtGui.QCursor.pos())
+			# topWidget.setFocus() #set widget to receive mouse events.
 			topWidget.grabMouse() #set widget to receive mouse events.
 			# print ('grabMouse:', topWidget) #debug
 			# print ('focusWidget:', self.app.focusWidget())

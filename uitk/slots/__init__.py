@@ -150,7 +150,7 @@ class Slots(QtCore.QObject):
 		:Return:
 			(int, float, bool)
 		'''
-		modifiers = self.sb.app.keyboardModifiers()
+		modifiers = QtWidgets.QApplication.instance().keyboardModifiers()
 		if not modifiers in (QtCore.Qt.AltModifier, QtCore.Qt.ControlModifier | QtCore.Qt.AltModifier):
 			return value
 

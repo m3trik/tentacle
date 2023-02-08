@@ -28,4 +28,5 @@ class Preferences(Slots):
 		cmb = self.sb.preferences.cmb003
 
 		if index>0:
-			self.sb.app.setStyle(cmb.items[index])
+			from Pyside2.QtWidgets import QApplication
+			QApplication.instance().setStyle(cmb.items[index])

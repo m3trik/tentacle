@@ -28,10 +28,10 @@ class Preferences_maya(Preferences, Slots_maya):
 		cmb002.setCurrentIndex(index)
 
 		cmb003 = self.sb.preferences.cmb003
-		from PySide2 import QtWidgets, QtGui, QtCore
+		from PySide2 import QtWidgets, QtCore
 		items = QtWidgets.QStyleFactory.keys() #get styles from QStyleFactory
 		cmb003.addItems_(items)
-		index = cmb003.findText(self.sb.app.style().objectName(), QtCore.Qt.MatchFixedString) #get/set current value
+		index = cmb003.findText(QtWidgets.QApplication.instance().style().objectName(), QtCore.Qt.MatchFixedString) #get/set current value
 		cmb003.setCurrentIndex(index)
 
 

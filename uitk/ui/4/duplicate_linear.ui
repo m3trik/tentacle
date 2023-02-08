@@ -32,43 +32,6 @@
    <bool>true</bool>
   </property>
   <widget class="QWidget" name="mainWindow">
-   <property name="palette">
-    <palette>
-     <active>
-      <colorrole role="Highlight">
-       <brush brushstyle="SolidPattern">
-        <color alpha="255">
-         <red>168</red>
-         <green>152</green>
-         <blue>250</blue>
-        </color>
-       </brush>
-      </colorrole>
-     </active>
-     <inactive>
-      <colorrole role="Highlight">
-       <brush brushstyle="SolidPattern">
-        <color alpha="255">
-         <red>168</red>
-         <green>152</green>
-         <blue>250</blue>
-        </color>
-       </brush>
-      </colorrole>
-     </inactive>
-     <disabled>
-      <colorrole role="Highlight">
-       <brush brushstyle="SolidPattern">
-        <color alpha="255">
-         <red>168</red>
-         <green>152</green>
-         <blue>250</blue>
-        </color>
-       </brush>
-      </colorrole>
-     </disabled>
-    </palette>
-   </property>
    <layout class="QVBoxLayout" name="verticalLayout_2">
     <item>
      <layout class="QVBoxLayout" name="verticalLayout">
