@@ -152,7 +152,7 @@ class ListWidget(QtWidgets.QListWidget, Attributes):
 					pass
 
 		if event.type()==QtCore.QEvent.Leave:
-			print ('leaveEvent')
+			print ('ef_leaveEvent')
 			self.releaseMouse()
 
 		return super().eventFilter(w, event)

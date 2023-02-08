@@ -78,12 +78,9 @@ class EventFactoryFilter(QtCore.QObject):
 class MouseTracking(QtCore.QObject):
 	'''
 	'''
-	_prevMouseOver=[] #list of widgets currently under the mouse cursor. (Limited to those widgets set as mouse tracked)
-
-	enterEvent_ = QtCore.QEvent(QtCore.QEvent.Enter)
-	leaveEvent_ = QtCore.QEvent(QtCore.QEvent.Leave)
-
 	app = QtWidgets.QApplication.instance() or QtWidgets.QApplication(sys.argv) #return the existing QApplication object, or create a new one if none exists.
+
+	_prevMouseOver=[] #list of widgets currently under the mouse cursor. (Limited to those widgets set as mouse tracked)
 
 	def mouseOverFilter(self, widgets):
 		'''Get the widget(s) currently under the mouse cursor, and manage mouse grab and event handling for those widgets.
@@ -119,14 +116,14 @@ class MouseTracking(QtCore.QObject):
 		#send leave events for widgets no longer in mouseOver.
 		for w in self._prevMouseOver:
 			if not w in mouseOver:
-				self.app.sendEvent(w, self.leaveEvent_)
+				self.app.sendEvent(w, QtCore.QEvent(QtCore.QEvent.Leave))
 				w.releaseMouse()
 				# print ('releaseMouse:', w) #debug
 
 		#send enter events for any new widgets in mouseOver.
 		for w in mouseOver:
 			if not w in self._prevMouseOver:
-				self.app.sendEvent(w, self.enterEvent_)
+				self.app.sendEvent(w, QtCore.QEvent(QtCore.QEvent.Enter))
 
 		try:
 			topWidget = self.app.widgetAt(QtGui.QCursor.pos())
