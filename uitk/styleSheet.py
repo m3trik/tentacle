@@ -244,13 +244,9 @@ class StyleSheet(QtCore.QObject):
 				background: {BACKGROUND};
 				color: {TEXT};
 				border: 1px solid {BORDER};
-				padding: 1px 18px 1px 3px; /* top, right, bottom, left */
-				/* border-radius: 1px; */
-				/* min-width: 0em; */
-			}
-
-			QComboBox QAbstractItemView {
-			min-width: 150px;
+				padding: 1px 1px 1px 1px; /* top, right, bottom, left */
+				border-radius: 1px;
+				min-width: 0em;
 			}
 
 			QComboBox::hover {
@@ -269,29 +265,59 @@ class StyleSheet(QtCore.QObject):
 
 			QComboBox:on { /* shift the text when the popup opens */
 				padding-top: 3px;
-				padding-left: 4px;
+				padding-left: 1px;
 			}
 
 			QComboBox::down-arrow {
 				width: 0px;
 				height: 0px;
-				border: transparent;
 				background: {BACKGROUND};
+				border: 0px solid {BORDER};
+				image: url(path/to/down_arrow.png);
 			}
 
 			QComboBox::drop-down {
-				border: transparent;
+				border: 0px solid {BORDER};
 				background: {BACKGROUND};
 				subcontrol-origin: padding;
 				subcontrol-position: top right;
 				width: 0px;
+				height: 0px;
 
 				border-left-width: 1px;
 				border-left-color: {TEXT_CHECKED};
 				border-left-style: solid; /* just a single line */
 				border-top-right-radius: 1px; /* same radius as the QComboBox */
 				border-bottom-right-radius: 1px;
-			} 
+			}
+
+			QComboBox QAbstractItemView {
+				background: {BACKGROUND};
+				color: {TEXT};
+				border: 1px solid {BORDER};
+				min-width: 150px;
+			}
+
+			QComboBox QListView {
+				background: {BACKGROUND};
+				color: {TEXT};
+				border: 1px solid {BORDER};
+			}
+
+			QComboBox QListView::item {
+				background: {BACKGROUND};
+				color: {TEXT};
+			}
+
+			QComboBox QListView::item:selected {
+				background: {HOVER};
+				color: {TEXT_CHECKED};
+			}
+
+			QComboBox QListView::item:hover {
+				background: {HOVER};
+				color: {TEXT_HOVER};
+			}
 			''',
 
 		'QSpinBox': '''
@@ -726,32 +752,33 @@ class StyleSheet(QtCore.QObject):
 
 		'QSlider': '''
 			QSlider {
-				border: none;
-			}
-
-			QSlider::groove:horizontal {
-				height: 5px;
-				margin: 4px 0px 4px 0px; /* top, right, bottom, left */
-			}
-
-			QSlider::groove:vertical {
-				width: 5px;
-				margin: 0px 4px 0px 4px; /* top, right, bottom, left */
-			}
-
-			QSlider::handle {
-				border: 1px solid {PRESSED};
+				border: 1px solid black;
 				background: {BACKGROUND};
 			}
 
-			QSlider::handle:horizontal {
-				width: 15px;
-				margin: -4px 0px -4px 0px; /* top, right, bottom, left */
+			QSlider::groove:horizontal {
+				height: 18px;
+				margin: 0px 0px 0px 0px;
+				background: {BACKGROUND};
 			}
 
-			QSlider::handle:vertical {
+			QSlider::groove:vertical {
+				width: 0px;
+				margin: 0px 0px 0px 0px;
+				background: {BACKGROUND};
+			}
+
+			QSlider::handle {
+				width: 10px;
 				height: 15px;
-				margin: 0px -4px 0px -4px; /* top, right, bottom, left */
+				border: 1px solid black;
+				background: gray;
+				margin: -1px 0px -1px 0px;
+				border-radius: 1px;
+			}
+
+			QSlider::handle:hover {
+				background: darkgray;
 			}
 
 			QSlider::add-page:vertical, QSlider::sub-page:horizontal {
@@ -760,7 +787,31 @@ class StyleSheet(QtCore.QObject):
 
 			QSlider::sub-page:vertical, QSlider::add-page:horizontal {
 				background: {BACKGROUND};
-			} 
+			}
+
+			QSlider::tickmark {
+				width: 5px;
+				height: 5px;
+				margin: 0px -3px 0px 0px;
+				border-radius: 2.5px;
+				background: black;
+			}
+
+			QSlider::tickmark:not(sub-page) {
+				width: 10px;
+				height: 10px;
+				margin: 0px -5px 0px 0px;
+				border-radius: 5px;
+				background: black;
+			}
+
+			QSlider::tickmark:sub-page {
+				width: 5px;
+				height: 5px;
+				margin: 0px -3px 0px 0px;
+				border-radius: 2.5px;
+				background: lightgray;
+			}
 			''',
 
 		'QScrollBar': '''
@@ -874,6 +925,7 @@ class StyleSheet(QtCore.QObject):
 		'QMenu': '''
 			QMenu {
 				background-color: transparent;
+				border: 1px solid {BORDER};
 				margin: 0px; /* spacing around the menu */
 			}
 

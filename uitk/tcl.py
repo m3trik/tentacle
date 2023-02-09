@@ -43,6 +43,7 @@ class Tcl(QtWidgets.QStackedWidget):
 		self.setWindowFlags(QtCore.Qt.Tool|QtCore.Qt.FramelessWindowHint) #|QtCore.Qt.WindowStaysOnTopHint
 		self.setAttribute(QtCore.Qt.WA_TranslucentBackground)
 		self.setAttribute(QtCore.Qt.WA_SetStyle) #Indicates that the widget has a style of its own.
+		# self.setAttribute(QtCore.Qt.WA_NoMousePropagation, False)
 
 		self.sb = Switchboard(self, uiLoc='ui', widgetLoc=rwidgets, slotLoc=slotLoc, preloadUi=True)
 		self.overlay = Overlay(self, antialiasing=True) #Paint events are handled by the overlay module.
@@ -285,6 +286,7 @@ class Tcl(QtWidgets.QStackedWidget):
 			profile (bool): Prints the total running time, times each function separately, 
 				and tells you how many times each function was called.
 		'''
+		self.activateWindow()
 		self.sendKeyPressEvent(self.key_show)
 
 		if profile:
@@ -293,7 +295,6 @@ class Tcl(QtWidgets.QStackedWidget):
 		else:
 			self.setUi(ui)
 
-		# self.activateWindow()
 		super().show()
 
 

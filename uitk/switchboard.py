@@ -23,6 +23,7 @@ class Switchboard(QUiLoader, StyleSheet):
 
 		ui = sb.<the_ui's_filename> #ie `myfile` from `myfile.ui` or sb.currentUi
 		ui.name = The ui's filename.
+		ui.alias = Get or set an alternate attribute name that can be used to access the ui. ex. ui.alias = 'myui'; sb.myui #returns <ui>
 		ui.base = The base ui name. The base name is any characters before an underscore in the ui's name.
 		ui.path = The directory path containing the ui file.
 		ui.tags = Any ui tags as a list. Tags are trailing strings in the ui name preceeded by a hashtag used to define special behaviors.
@@ -136,7 +137,7 @@ class Switchboard(QUiLoader, StyleSheet):
 		if foundUi:
 			ui = self.loadUi(foundUi) #load the dynamic ui file.
 			if not ui:
-				print (f'# Error: {__file__} in __getattr__ (loadUi)\n#\tUnable to load {attr}({type(attr).__name__})')
+				print (f'# Error: {__file__} in __getattr__ (loadUi)\n#\tUnable to load `{attr}`({type(attr).__name__})')
 			return ui
 
 		#if no ui is found, check if a widget exists with the given attribute name:
@@ -146,10 +147,10 @@ class Switchboard(QUiLoader, StyleSheet):
 		if foundWgt:
 			wgt = self.registerWidgets(attr)
 			if not wgt:
-				print (f'# Error: {__file__} in __getattr__ (registerWidgets)\n#\tUnable to register {attr}({type(attr).__name__})')
+				print (f'# Error: {__file__} in __getattr__ (registerWidgets)\n#\tUnable to register `{attr}`({type(attr).__name__})')
 			return wgt
 
-		raise AttributeError(f'# Error: {__file__} in __getattr__\n#\t{self.__class__.__name__} has no attribute {attr}({type(attr).__name__})')
+		raise AttributeError(f'{__file__} in __getattr__\n#\t{self.__class__.__name__} has no attribute `{attr}`({type(attr).__name__})')
 
 
 	def hasattr_static(self, attr):
@@ -637,12 +638,13 @@ class Switchboard(QUiLoader, StyleSheet):
 
 		#set attributes
 		ui.__slots__ = [
-			'name', 'base', 'path', 'tags', 'level', 'connected', 'isConnected', 'isInitialized',
+			'name', 'alias', '_alias', 'base', 'path', 'tags', 'level', 'connected', 'isConnected', 'isInitialized',
 			'isCurrentUi', 'isSubmenu', 'sync', 'isSynced', 'hide', 'preventHide', 'show', 'connectOnShow',
 			'addWidgets', 'widgets', '_widgets', 'slots', '_slots', 'sizeX', 'sizeY',
 			'level0', 'level1', 'level2', 'level3', 'level4',
 		]
 		ui.name = name
+		ui._alias = ''
 		ui.base = next(iter(name.split('_')))
 		ui.path = path
 		ui.tags = name.split('#')[1:]
@@ -662,6 +664,10 @@ class Switchboard(QUiLoader, StyleSheet):
 		ui.sync = lambda u=ui: self._syncUi(u)
 
 		#set properties
+		ui.__class__.alias = property(
+			lambda u: u._alias, 
+			lambda u, value: (lambda: (setattr(u, '_alias', value), setattr(self, value, u)))() #equivalent to: setattr(u, '_alias', value); setattr(self, value, u)
+		)
 		ui.__class__.addWidgets = lambda u, *args, **kwargs: self.addWidgets(u, *args, **kwargs)
 
 		ui.__class__.widgets = property(
