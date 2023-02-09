@@ -21,6 +21,8 @@ class Main(Slots):
 		'''
 		lw = self.sb.main_lower_submenu.lw000
 
+		lw.setVisible(False)
+
 		if not w: # code here will run before each show event. generally used to refresh list contents. ------------------
 			#command history
 			recentCommandInfo = [m.__name__ for m in self.sb.prevCommands] #Get a list of any recently called method names.
