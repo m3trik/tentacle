@@ -62,307 +62,288 @@
    <layout class="QGridLayout" name="gridLayout">
     <item row="0" column="0">
      <widget class="QWidget" name="staticWindow" native="true">
-      <widget class="QWidget" name="w003" native="true">
-       <property name="geometry">
-        <rect>
-         <x>0</x>
-         <y>20</y>
-         <width>136</width>
-         <height>341</height>
-        </rect>
-       </property>
-      </widget>
-      <widget class="QWidget" name="w000" native="true">
-       <property name="geometry">
-        <rect>
-         <x>140</x>
-         <y>10</y>
-         <width>301</width>
-         <height>81</height>
-        </rect>
-       </property>
-      </widget>
-      <widget class="QWidget" name="w001" native="true">
-       <property name="geometry">
-        <rect>
-         <x>445</x>
-         <y>20</y>
-         <width>136</width>
-         <height>341</height>
-        </rect>
-       </property>
-      </widget>
-      <widget class="QWidget" name="widget" native="true">
-       <property name="geometry">
-        <rect>
-         <x>141</x>
-         <y>100</y>
-         <width>300</width>
-         <height>181</height>
-        </rect>
-       </property>
-       <widget class="QPushButton" name="v004">
-        <property name="geometry">
-         <rect>
-          <x>20</x>
-          <y>120</y>
-          <width>71</width>
-          <height>21</height>
-         </rect>
-        </property>
-        <property name="minimumSize">
-         <size>
-          <width>0</width>
-          <height>21</height>
-         </size>
-        </property>
-        <property name="maximumSize">
-         <size>
-          <width>16777215</width>
-          <height>21</height>
-         </size>
-        </property>
-        <property name="toolTip">
-         <string/>
-        </property>
-        <property name="whatsThis">
-         <string>dynLayout</string>
-        </property>
-        <property name="text">
-         <string>Channels</string>
-        </property>
-       </widget>
-       <widget class="QPushButton" name="v002">
-        <property name="geometry">
-         <rect>
-          <x>30</x>
-          <y>40</y>
-          <width>71</width>
-          <height>21</height>
-         </rect>
-        </property>
-        <property name="minimumSize">
-         <size>
-          <width>0</width>
-          <height>21</height>
-         </size>
-        </property>
-        <property name="maximumSize">
-         <size>
-          <width>16777215</width>
-          <height>21</height>
-         </size>
-        </property>
-        <property name="toolTip">
-         <string/>
-        </property>
-        <property name="whatsThis">
-         <string>dynLayout</string>
-        </property>
-        <property name="text">
-         <string>Tool</string>
-        </property>
-       </widget>
-       <widget class="QPushButton" name="v000">
-        <property name="geometry">
-         <rect>
-          <x>10</x>
-          <y>80</y>
-          <width>66</width>
-          <height>21</height>
-         </rect>
-        </property>
-        <property name="minimumSize">
-         <size>
-          <width>0</width>
-          <height>21</height>
-         </size>
-        </property>
-        <property name="maximumSize">
-         <size>
-          <width>16777215</width>
-          <height>21</height>
-         </size>
-        </property>
-        <property name="toolTip">
-         <string/>
-        </property>
-        <property name="whatsThis">
-         <string>dynLayout</string>
-        </property>
-        <property name="text">
-         <string>Attributes</string>
-        </property>
-       </widget>
-       <widget class="QPushButton" name="v001">
-        <property name="geometry">
-         <rect>
-          <x>225</x>
-          <y>80</y>
-          <width>66</width>
-          <height>21</height>
-         </rect>
-        </property>
-        <property name="minimumSize">
-         <size>
-          <width>0</width>
-          <height>21</height>
-         </size>
-        </property>
-        <property name="maximumSize">
-         <size>
-          <width>16777215</width>
-          <height>21</height>
-         </size>
-        </property>
-        <property name="toolTip">
-         <string/>
-        </property>
-        <property name="whatsThis">
-         <string>dynLayout</string>
-        </property>
-        <property name="text">
-         <string>Outliner</string>
-        </property>
-       </widget>
-       <widget class="QPushButton" name="v003">
-        <property name="geometry">
-         <rect>
-          <x>215</x>
-          <y>120</y>
-          <width>66</width>
-          <height>21</height>
-         </rect>
-        </property>
-        <property name="minimumSize">
-         <size>
-          <width>0</width>
-          <height>21</height>
-         </size>
-        </property>
-        <property name="maximumSize">
-         <size>
-          <width>16777215</width>
-          <height>21</height>
-         </size>
-        </property>
-        <property name="toolTip">
-         <string/>
-        </property>
-        <property name="whatsThis">
-         <string>dynLayout</string>
-        </property>
-        <property name="text">
-         <string>Layers</string>
-        </property>
-       </widget>
-       <widget class="QPushButton" name="v006">
-        <property name="geometry">
-         <rect>
-          <x>90</x>
-          <y>150</y>
-          <width>116</width>
-          <height>21</height>
-         </rect>
-        </property>
-        <property name="minimumSize">
-         <size>
-          <width>0</width>
-          <height>21</height>
-         </size>
-        </property>
-        <property name="maximumSize">
-         <size>
-          <width>16777215</width>
-          <height>21</height>
-         </size>
-        </property>
-        <property name="toolTip">
-         <string/>
-        </property>
-        <property name="whatsThis">
-         <string>dynLayout</string>
-        </property>
-        <property name="text">
-         <string>Dependancy Graph</string>
-        </property>
-       </widget>
-       <widget class="QPushButton" name="v005">
-        <property name="geometry">
-         <rect>
-          <x>105</x>
-          <y>10</y>
-          <width>91</width>
-          <height>21</height>
-         </rect>
-        </property>
-        <property name="minimumSize">
-         <size>
-          <width>0</width>
-          <height>21</height>
-         </size>
-        </property>
-        <property name="maximumSize">
-         <size>
-          <width>16777215</width>
-          <height>21</height>
-         </size>
-        </property>
-        <property name="toolTip">
-         <string/>
-        </property>
-        <property name="whatsThis">
-         <string>dynLayout</string>
-        </property>
-        <property name="text">
-         <string>Node Editor</string>
-        </property>
-       </widget>
-      </widget>
-      <widget class="QWidget" name="w002" native="true">
-       <property name="geometry">
-        <rect>
-         <x>141</x>
-         <y>290</y>
-         <width>301</width>
-         <height>91</height>
-        </rect>
-       </property>
-       <property name="whatsThis">
-        <string/>
-       </property>
-       <widget class="QPushButton" name="i000">
-        <property name="geometry">
-         <rect>
-          <x>105</x>
-          <y>30</y>
-          <width>91</width>
-          <height>21</height>
-         </rect>
-        </property>
-        <property name="minimumSize">
-         <size>
-          <width>0</width>
-          <height>21</height>
-         </size>
-        </property>
-        <property name="maximumSize">
-         <size>
-          <width>16777215</width>
-          <height>21</height>
-         </size>
-        </property>
-        <property name="toolTip">
-         <string/>
-        </property>
-        <property name="whatsThis">
-         <string>editors_lower_submenu</string>
-        </property>
-        <property name="text">
-         <string>All Editors</string>
-        </property>
-       </widget>
-      </widget>
+      <layout class="QGridLayout" name="gridLayout_2">
+       <item row="0" column="0" rowspan="3">
+        <widget class="QWidget" name="hidden_area3" native="true"/>
+       </item>
+       <item row="0" column="1">
+        <widget class="QWidget" name="hidden_area0" native="true"/>
+       </item>
+       <item row="0" column="2" rowspan="3">
+        <widget class="QWidget" name="hidden_area1" native="true"/>
+       </item>
+       <item row="1" column="1">
+        <widget class="QWidget" name="widget" native="true">
+         <property name="minimumSize">
+          <size>
+           <width>300</width>
+           <height>200</height>
+          </size>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>300</width>
+           <height>200</height>
+          </size>
+         </property>
+         <widget class="QPushButton" name="v004">
+          <property name="geometry">
+           <rect>
+            <x>20</x>
+            <y>130</y>
+            <width>71</width>
+            <height>21</height>
+           </rect>
+          </property>
+          <property name="minimumSize">
+           <size>
+            <width>0</width>
+            <height>21</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>16777215</width>
+            <height>21</height>
+           </size>
+          </property>
+          <property name="toolTip">
+           <string/>
+          </property>
+          <property name="whatsThis">
+           <string>dynLayout</string>
+          </property>
+          <property name="text">
+           <string>Channels</string>
+          </property>
+         </widget>
+         <widget class="QPushButton" name="v002">
+          <property name="geometry">
+           <rect>
+            <x>30</x>
+            <y>50</y>
+            <width>71</width>
+            <height>21</height>
+           </rect>
+          </property>
+          <property name="minimumSize">
+           <size>
+            <width>0</width>
+            <height>21</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>16777215</width>
+            <height>21</height>
+           </size>
+          </property>
+          <property name="toolTip">
+           <string/>
+          </property>
+          <property name="whatsThis">
+           <string>dynLayout</string>
+          </property>
+          <property name="text">
+           <string>Tool</string>
+          </property>
+         </widget>
+         <widget class="QPushButton" name="v000">
+          <property name="geometry">
+           <rect>
+            <x>10</x>
+            <y>90</y>
+            <width>66</width>
+            <height>21</height>
+           </rect>
+          </property>
+          <property name="minimumSize">
+           <size>
+            <width>0</width>
+            <height>21</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>16777215</width>
+            <height>21</height>
+           </size>
+          </property>
+          <property name="toolTip">
+           <string/>
+          </property>
+          <property name="whatsThis">
+           <string>dynLayout</string>
+          </property>
+          <property name="text">
+           <string>Attributes</string>
+          </property>
+         </widget>
+         <widget class="QPushButton" name="v001">
+          <property name="geometry">
+           <rect>
+            <x>225</x>
+            <y>90</y>
+            <width>66</width>
+            <height>21</height>
+           </rect>
+          </property>
+          <property name="minimumSize">
+           <size>
+            <width>0</width>
+            <height>21</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>16777215</width>
+            <height>21</height>
+           </size>
+          </property>
+          <property name="toolTip">
+           <string/>
+          </property>
+          <property name="whatsThis">
+           <string>dynLayout</string>
+          </property>
+          <property name="text">
+           <string>Outliner</string>
+          </property>
+         </widget>
+         <widget class="QPushButton" name="v003">
+          <property name="geometry">
+           <rect>
+            <x>215</x>
+            <y>130</y>
+            <width>66</width>
+            <height>21</height>
+           </rect>
+          </property>
+          <property name="minimumSize">
+           <size>
+            <width>0</width>
+            <height>21</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>16777215</width>
+            <height>21</height>
+           </size>
+          </property>
+          <property name="toolTip">
+           <string/>
+          </property>
+          <property name="whatsThis">
+           <string>dynLayout</string>
+          </property>
+          <property name="text">
+           <string>Layers</string>
+          </property>
+         </widget>
+         <widget class="QPushButton" name="v006">
+          <property name="geometry">
+           <rect>
+            <x>90</x>
+            <y>160</y>
+            <width>116</width>
+            <height>21</height>
+           </rect>
+          </property>
+          <property name="minimumSize">
+           <size>
+            <width>0</width>
+            <height>21</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>16777215</width>
+            <height>21</height>
+           </size>
+          </property>
+          <property name="toolTip">
+           <string/>
+          </property>
+          <property name="whatsThis">
+           <string>dynLayout</string>
+          </property>
+          <property name="text">
+           <string>Dependancy Graph</string>
+          </property>
+         </widget>
+         <widget class="QPushButton" name="v005">
+          <property name="geometry">
+           <rect>
+            <x>105</x>
+            <y>20</y>
+            <width>91</width>
+            <height>21</height>
+           </rect>
+          </property>
+          <property name="minimumSize">
+           <size>
+            <width>0</width>
+            <height>21</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>16777215</width>
+            <height>21</height>
+           </size>
+          </property>
+          <property name="toolTip">
+           <string/>
+          </property>
+          <property name="whatsThis">
+           <string>dynLayout</string>
+          </property>
+          <property name="text">
+           <string>Node Editor</string>
+          </property>
+         </widget>
+        </widget>
+       </item>
+       <item row="2" column="1">
+        <widget class="QWidget" name="hidden_area2" native="true">
+         <property name="whatsThis">
+          <string/>
+         </property>
+         <widget class="QPushButton" name="i000">
+          <property name="geometry">
+           <rect>
+            <x>105</x>
+            <y>30</y>
+            <width>91</width>
+            <height>21</height>
+           </rect>
+          </property>
+          <property name="minimumSize">
+           <size>
+            <width>0</width>
+            <height>21</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>16777215</width>
+            <height>21</height>
+           </size>
+          </property>
+          <property name="toolTip">
+           <string/>
+          </property>
+          <property name="whatsThis">
+           <string>editors_lower_submenu</string>
+          </property>
+          <property name="text">
+           <string>All Editors</string>
+          </property>
+         </widget>
+        </widget>
+       </item>
+      </layout>
      </widget>
     </item>
    </layout>

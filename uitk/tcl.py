@@ -38,12 +38,12 @@ class Tcl(QtWidgets.QStackedWidget):
 
 		# self.app.setDoubleClickInterval(400)
 		# self.app.setKeyboardInputInterval(400)
-		# self.app.focusChanged.connect(self.focusChanged)
+		self.setFocusPolicy(QtCore.Qt.StrongFocus)
 
 		self.setWindowFlags(QtCore.Qt.Tool|QtCore.Qt.FramelessWindowHint) #|QtCore.Qt.WindowStaysOnTopHint
-		self.setAttribute(QtCore.Qt.WA_TranslucentBackground)
+		# self.setAttribute(QtCore.Qt.WA_TranslucentBackground)
 		self.setAttribute(QtCore.Qt.WA_SetStyle) #Indicates that the widget has a style of its own.
-		# self.setAttribute(QtCore.Qt.WA_NoMousePropagation, False)
+		self.setAttribute(QtCore.Qt.WA_NoMousePropagation, False)
 
 		self.sb = Switchboard(self, uiLoc='ui', widgetLoc=rwidgets, slotLoc=slotLoc, preloadUi=True)
 		self.overlay = Overlay(self, antialiasing=True) #Paint events are handled by the overlay module.
@@ -70,8 +70,6 @@ class Tcl(QtWidgets.QStackedWidget):
 
 			self._key_show_release.connect(ui.hide)
 
-		ui.isInitialized = True
-
 
 	def setUi(self, ui):
 		'''Set the stacked Widget's index to the given ui.
@@ -82,10 +80,9 @@ class Tcl(QtWidgets.QStackedWidget):
 		assert isinstance(ui, (str, QtWidgets.QWidget)), f'# Error: {__file__} in setUi\n#\tIncorrect datatype: {type(ui).__name__}'
 
 		ui = self.sb.getUi(ui) #Get the ui of the given name, and set it as the current ui in the switchboard module.
-		ui.connected = True
-
 		if not ui.isInitialized:
 			self.initUi(ui)
+		ui.connected = True
 
 		if ui.level<3: #stacked ui top level window.
 			self.setCurrentWidget(ui) #set the stacked widget to the given ui.
@@ -93,10 +90,8 @@ class Tcl(QtWidgets.QStackedWidget):
 
 		else: #popup ui.
 			ui.show()
-			ui.resize(ui.minimumSizeHint()) #ui.adjustSize()
 			self.sb.moveAndCenterWidget(ui, QtGui.QCursor.pos(), offsetY=4) #move to cursor position and offset slightly.
-			ui.activateWindow() #activate the popup ui before hiding the stacked layout.
-			self.hide()
+			ui.activateWindow(); self.hide() #activate the popup ui before hiding the stacked layout.
 
 
 	def setSubUi(self, ui, w):
@@ -262,22 +257,6 @@ class Tcl(QtWidgets.QStackedWidget):
 		super().mouseDoubleClickEvent(event)
 
 
-	def focusChanged(self, old, new):
-		'''Called on focus events.
-
-		:Parameters:
-			old (obj): The widget with previous focus.
-			new (obj): The widget with current focus.
-		'''
-		try:
-			new.grabKeyboard()
-		except AttributeError as error:
-			self.setFocus()
-
-		if not self.isActiveWindow():
-			self.hide()
-
-
 	def show(self, ui='init', profile=False):
 		'''Sets the widget as visible.
 
@@ -286,7 +265,6 @@ class Tcl(QtWidgets.QStackedWidget):
 			profile (bool): Prints the total running time, times each function separately, 
 				and tells you how many times each function was called.
 		'''
-		self.activateWindow()
 		self.sendKeyPressEvent(self.key_show)
 
 		if profile:
@@ -296,6 +274,7 @@ class Tcl(QtWidgets.QStackedWidget):
 			self.setUi(ui)
 
 		super().show()
+		self.activateWindow() #the window cannot be activated for keyboard events until after it is shown.
 
 
 	def showEvent(self, event):
@@ -375,7 +354,7 @@ class Tcl(QtWidgets.QStackedWidget):
 
 			if w.derivedType in self.ef_widgetTypes:
 				# print (widgetName if widgetName else widget)
-				if ui.level<3 or w.type=='QMainWindow':
+				if ui.level<3:# or w.type=='QMainWindow':
 					w.installEventFilter(self.eventFilter)
 
 				if w.derivedType in ('QPushButton', 'QLabel'): #widget types to resize and center.
@@ -383,7 +362,7 @@ class Tcl(QtWidgets.QStackedWidget):
 						self.sb.resizeAndCenterWidget(w)
 
 				elif w.derivedType=='QWidget': #widget types to set an initial state as hidden.
-					if w.prefix=='w' and ui.level==1: #prefix returns True if widgetName startswith the given prefix, and is followed by three integers.
+					if w.prefix=='hidden_area': #prefix returns True if widgetName startswith the given prefix, and is followed by three integers.
 						w.setVisible(False)
 
 
@@ -414,7 +393,7 @@ class Tcl(QtWidgets.QStackedWidget):
 		'''
 		'''
 		if w.type=='QWidget':
-			if w.prefix=='w':
+			if w.prefix=='hidden_area':
 				w.setVisible(True) #set visibility
 
 		elif w.derivedType=='QPushButton':
@@ -436,7 +415,7 @@ class Tcl(QtWidgets.QStackedWidget):
 		'''
 		'''
 		if w.type=='QWidget':
-			if w.prefix=='w':
+			if w.prefix=='hidden_area':
 				w.setVisible(False) #set visibility
 
 		w.__class__.leaveEvent(w, event)
@@ -520,7 +499,7 @@ class Tcl(QtWidgets.QStackedWidget):
 			modifiers = self.app.keyboardModifiers()
 
 			if event.key()==self.key_show and not modifiers==QtCore.Qt.ControlModifier:
-				if w.name=='mainWindow':#w.type=='QMainWindow':
+				if w.type=='QMainWindow':
 					if w.ui.level>2:
 						self._key_show_release.emit()
 						w.releaseKeyboard()
@@ -657,6 +636,23 @@ if __name__ == '__main__':
 # --------------------------------------------------------------------------------------------
 # deprecated:
 # --------------------------------------------------------------------------------------------
+
+# self.app.focusChanged.connect(self.focusChanged)
+
+		# def focusChanged(self, old, new):
+		# 	'''Called on focus events.
+
+		# 	:Parameters:
+		# 		old (obj): The widget with previous focus.
+		# 		new (obj): The widget with current focus.
+		# 	'''
+		# 	try:
+		# 		new.grabKeyboard()
+		# 	except AttributeError as error:
+		# 		self.setFocus()
+
+		# 	if not self.isActiveWindow():
+		# 		self.hide()
 
 # class Instance():
 # 	'''Manage multiple instances of the Tcl ui.

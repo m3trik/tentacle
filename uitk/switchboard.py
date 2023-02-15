@@ -13,84 +13,238 @@ from pythontk import File, Str, Iter, setAttributes
 from uitk.styleSheet import StyleSheet
 
 
+class MainWindow(QtWidgets.QMainWindow):
+	def __init__(self, parent, sb, ui, file):
+		super().__init__(parent)
+
+		self.sb = sb
+		self.file = file
+		self.path = File.formatPath(self.file, 'path')
+		self.level = self.sb._getUiLevelFromDir(self.file)
+		self.isSubmenu = self.level==2
+		self.isInitialized = False
+		self.isConnected = False
+		self.isSynced = False
+		self.preventHide = False
+		self.connectOnShow = True
+		self.base = next(iter(self.name.split('_')))
+		self.tags = self.name.split('#')[1:]
+		self.sizeX = self.frameGeometry().width()
+		self.sizeY = self.frameGeometry().height()
+
+		self.setWindowFlags(ui.windowFlags())
+		central_widget = ui.centralWidget()
+		self.setCentralWidget(central_widget)
+
+		self.addWidgets(self.sb._getWidgetsFromUi(self))
+
+	@property
+	def name(self):
+		try:
+			return self._name
+		except AttributeError:
+			self._name = File.formatPath(self.file, 'name')
+			setattr(self.sb, self._name, self) #set ui name as attribute so that the ui can be accessed as: self.<ui_name> which returns the <ui> object.
+			return self._name
+
+	@name.setter
+	def name(self, value):
+		delattr(self.sb, self._name)
+		self._name = value
+		setattr(self.sb, self._name, self)
+
+	@property
+	def widgets(self):
+		try:
+			return self._widgets
+		except AttributeError:
+			self._widgets = []
+			return self._widgets
+
+	@property
+	def slots(self):
+		return self.sb.getSlots(self)
+
+	@property
+	def connected(self):
+		return self.isConnected
+
+	@connected.setter
+	def connected(self, state):
+		self.isConnected = state
+		if state:
+			self.sb.currentUi = self
+		else:
+			self.sb.disconnect(self)
+
+	@property
+	def isCurrentUi(self):
+		return self==self.sb.currentUi
+
+	@property
+	def level0(self):
+		return self.sb.getUi(self, 0)
+
+	@property
+	def level1(self):
+		return self.sb.getUi(self, 1)
+
+	@property
+	def level2(self):
+		return self.sb.getUi(self, 2)
+
+	@property
+	def level3(self):
+		return self.sb.getUi(self, 3)
+
+	@property
+	def level4(self):
+		return self.sb.getUi(self, 4)
+
+	def show(self):
+		self.resize(self.minimumSizeHint())
+		if self.connectOnShow:
+			self.connected = True
+		super().show()
+
+	def hide(self):
+		if not self.preventHide:
+			super().hide()
+
+	def sync(self):
+		self.sb._syncAllWidgets(self)
+
+	def addWidgets(self, widgets, **kwargs):
+		'''If widgets is None; the method will attempt to add all widgets from the ui of the given name.
+
+		:Parameters:
+			widgets (obj)(list): A list of widgets to be added.
+			kwargs (): Set any additional widget attributes using keyword arguments. 
+					The attributes will be applied to all given widgets. ex. setVisible=False
+		'''
+		for w in Iter.makeList(widgets): #assure 'widgets' is a list.
+			try:
+				w.name = w.objectName()
+			except AttributeError as error: #not a valid widget.
+				continue
+
+			w.ui = self
+			w = DynamicSubclass(w)
+
+			setAttributes(w, **kwargs) #set any passed in keyword args for the widget.
+			setattr(self, w.name, w)
+			self.widgets.append(w)
+
+		return self.widgets
+
+
+class DynamicSubclass:
+	def __new__(cls, widget):
+		# Create a new instance of the same class as the original widget
+		instance = widget.__class__()
+
+		# Copy all attributes and attribute values from the original widget to the new instance
+		for attr_name in dir(widget):
+			try:
+				attr_value = getattr(widget, attr_name)
+				setattr(instance, attr_name, attr_value)
+			except AttributeError:
+				pass
+
+		cls.__init__(instance) #Initialize the instance with the widget.
+		return instance
+
+	def __init__(self):
+
+		self.name = self.objectName()
+		self.type = self.__class__.__name__
+		self.derivedType = self.ui.sb.getDerivedType(self, name=True)
+		self.signals = self.ui.sb.getDefaultSignals(self)
+		self.prefix = self.ui.sb._getPrefix(self.name)
+		self.isSynced = False
+		print (2, self.name)
+
+	@property
+	def method(self):
+		return getattr(self.ui.slots, self.name, None)
+
+
+
+
 class Switchboard(QUiLoader, StyleSheet):
-	'''Load dynamic ui and assign properties.
+	'''Load dynamic ui, assign convenience properties, and handle slot connections.
 
 	:Properties:
-		sb = The property 'sb' is automatically passed to all slot class instances, sb is the instance of this class holding all of the properties below. ex. sb.ui.widgets
-		sb.<uiFileName> = Any ui located in the switchboard's ui directory can be accessed using it's filename.
-		sb.<customWidgetClassName> = Any of the custom widgets in the widget directory.
+		Here `sb` is an instance of this class. And most properties can be accessed through any ui loaded through that instance. ex. sb.<theUisFileName>.<theWidgetsObjectName>.isSynced
+		sb: The property `sb` is automatically passed to all slot class instances, sb is the instance of this class holding all of the properties below. ex. sb.ui.widgets
+		sb.<uiFileName>: Any ui located in the switchboard's ui directory can be accessed using it's filename.
+		sb.<customWidgetClassName>: Any of the custom widgets in the widget directory.
+		sb.currentUi: When a ui is connected (sb.<ui>.connected = True) it becomes the `currentUi` and is accessible as such until other ui is set as `connected`.
+		sb.ui: `ui` is just a shorthand provided for convenience, and is exactly the same as `currentUi`.
 
-		ui = sb.<the_ui's_filename> #ie `myfile` from `myfile.ui` or sb.currentUi
-		ui.name = The ui's filename.
-		ui.alias = Get or set an alternate attribute name that can be used to access the ui. ex. ui.alias = 'myui'; sb.myui #returns <ui>
-		ui.base = The base ui name. The base name is any characters before an underscore in the ui's name.
-		ui.path = The directory path containing the ui file.
-		ui.tags = Any ui tags as a list. Tags are trailing strings in the ui name preceeded by a hashtag used to define special behaviors.
-		ui.level = The ui level. 0: init (root), 1: base menus, 2: sub menus, 3: parent menus, 4: popup menus
-		ui.sizeX = The original width of the ui.
-		ui.sizeY = The original hight of the ui.
-		ui.level2 = The submenu for the ui (level 2).
-		ui.level3 = The parent menu of the ui (level 3).
-		ui.isCurrentUi = True if the ui is set as current.
-		ui.isSubmenu = True if the ui is a submenu (level 2).
-		ui.isInitialized = A convenience property not handled by this module. Can be used to mark the ui as initialized in the main app.
-		ui.connected = True if the ui is connected. If set to True, the ui will be set as current and connections established.
-		ui.isConnected = True if the ui is connected to it's slots.
-		ui.isSynced = True if the ui is synced. When set to True any submenu widgets will be synced with their parent menu's counterparts.
-		ui.connectOnShow = While True the ui will be set as current on show.
-		ui.show = An override of the built-in hide method.
-		ui.preventHide = While True the hide method is disabled.
-		ui.hide = An override of the built-in hide method.
-		ui.addWidgets = (function) add widgets to the ui.
-		ui.widgets = All the widgets of the ui.
-		ui.slots = The slots class instance.
+		You can access the ui using: sb.<the_ui's_filename> #ie `myfile` from `myfile.ui`
+		<ui>.name: The ui's filename.
+		<ui>.alias: Get or set an alternate attribute name that can be used to access the ui. ex. ui.alias = 'myui'; sb.myui #returns <ui>
+		<ui>.base: The base ui name. The base name is any characters before an underscore in the ui's name.
+		<ui>.path: The directory path containing the ui file.
+		<ui>.tags: Any ui tags as a list. Tags are trailing strings in the ui name preceeded by a hashtag used to define special behaviors.
+		<ui>.level: The ui level. 0: init (root), 1: base menus, 2: sub menus, 3: parent menus, 4: popup menus
+		<ui>.sizeX: The original width of the ui.
+		<ui>.sizeY: The original hight of the ui.
+		<ui>.level2: The submenu for the ui (level 2).
+		<ui>.level3: The parent menu of the ui (level 3).
+		<ui>.isCurrentUi: True if the ui is set as current.
+		<ui>.isSubmenu: True if the ui is a submenu (level 2).
+		<ui>.isInitialized: True after the ui has been registered in history, the slot connections set, and any submenu widgets synced.
+		<ui>.connected: True if the ui is connected. If set to True, the ui will be set as current and connections established.
+		<ui>.isConnected: True if the ui is connected to it's slots.
+		<ui>.isSynced: True if the ui is synced. When set to True any submenu widgets will be synced with their parent menu's counterparts.
+		<ui>.connectOnShow: While True the ui will be set as current on show.
+		<ui>.show: An override of the built-in hide method.
+		<ui>.preventHide: While True the hide method is disabled.
+		<ui>.hide: An override of the built-in hide method.
+		<ui>.addWidgets: (function) add widgets to the ui.
+		<ui>.widgets: All the widgets of the ui.
+		<ui>.slots: The slots class instance.
 
-		w = ui.<theWidgetsObjectName> #ie. widgetname from 
-		w.ui = Access the widget's parent ui (QMainWindow).
-		w.name = The widget's object name.
-		w.type = The widget's class name.
-		w.derivedType = A custom widget's derived class name.
-		w.signals = The signal. ie. <widget.valueChanged>. Used when establishing connections.
-		w.method = The corresponding method of the slot's class of the same name as the widget's object name. ie. method <b006> from widget 'b006' else None
-		w.prefix = The alphanumberic string prefix determining widget type. If the widget name starts with a series of alphanumberic chars and is followed by three integers. ie. 'cmb' from 'cmb015'
-		w.isSynced = True if the widget is being synced between submenu and it's parent menu.
+		You can access a widget from a ui as: ui.<theWidgetsObjectName> (or from various convienience methods should the widget not have an assigned objectName)
+		<w>.ui: Access the widget's parent ui (QMainWindow).
+		<w>.name: The widget's object name.
+		<w>.type: The widget's class name.
+		<w>.derivedType: A custom widget's derived class name.
+		<w>.signals: The signal. ie. <widget.valueChanged>. Used when establishing connections.
+		<w>.method: The corresponding method of the slot's class of the same name as the widget's object name. ie. method <b006> from widget 'b006' else None
+		<w>.prefix: The alphanumberic string prefix determining widget type. If the widget name starts with a series of alphanumberic chars and is followed by three integers. ie. 'cmb' from 'cmb015'
+		<w>.isSynced: True if the widget is being synced between submenu and it's parent menu.
 
-	Example:
-		sb.ui.w.isSynced #written as: sb.<theUisFileName>.<theWidgetsObjectName>.isSynced
+	:Example:
 
-	Example of a single ui with the slots pointing to a subclass (named `SomeClass_slots`) in the same module as the main app ('.
-
-		class SomeClass_main(QtWidgets.QObject):
-			"""SomeClass is subclassed from a QObject so that it can be properly parented to `Switchboard`.
+		class YourClass_main(QtWidgets.QMainWindow):
+			"""This is an example of a main window ui with the slots pointing to a class `YourClass_slots` that generally would be
+			subclassed from `YourClass`.
+			`YourClass_main` is subclassed from a QObject derived class so that it can be properly parented to the `Switchboard` ui loader.
 			"""
+			app = QtWidgets.QApplication.instance() or QtWidgets.QApplication(sys.argv) #return the existing QApplication object, or create a new one if none exists.
+
 			def __init__(self, parent=None):
 				super().__init__(parent)
 
-				sb = Switchboard(self, widgetLoc='location/of/your/custom/widgets', slotLoc=Map_compositor_slots) #see directory descriptions in the __init__ docstring below.
-				ui = sb.some_ui #will load and return the ui with filename 'some_ui'
+				sb = Switchboard(self, widgetLoc='location/of/your/custom/widgets', slotLoc=YourClass_slots) #see directory descriptions in the __init__ docstring below.
+				ui = sb.your_ui #will load and return the ui with filename 'your_ui' from your specified `uiLoc` (ui location).
+
 				sb.setStyle(ui.widgets) #set the stylesheet for the ui's widgets.
-				ui.show()
+				self.setCentralWidget(ui)
 
-				sys.exit(sb.app.exec_())
+				ui.connected = True #connect the ui to it's slots.
+				self.activateWindow()
+
+		main = YourClass_main(<parent>)
+		main.show()
+
+		exit_code = main.app.exec_()
+		if exit_code != -1:
+			sys.exit(exit_code)
 	'''
-	defaultSignals = { #the signals to be connected per widget type. Values can be a list or a single item string.
-		'QAction':'triggered',
-		'QLabel':'released',
-		'QPushButton':'released',
-		'QListWidget':'itemClicked',
-		'QTreeWidget':'itemClicked',
-		'QComboBox':'currentIndexChanged',
-		'QSpinBox':'valueChanged',
-		'QDoubleSpinBox':'valueChanged',
-		'QCheckBox':'clicked',
-		'QRadioButton':'released',
-		'QLineEdit':['editingFinished'],
-		'QTextEdit':'textChanged',
-		'QSlider':'sliderMoved',
-		'QProgressBar':'valueChanged',
-	}
-
 	def __init__(self, parent=None, uiLoc='', widgetLoc='', slotLoc='', preloadUi=False):
 		super().__init__(parent)
 		'''
@@ -119,6 +273,23 @@ class Switchboard(QUiLoader, StyleSheet):
 		self._wgtHistory = []
 		self._gcProtect = set()
 
+		self.defaultSignals = { #the signals to be connected per widget type. Values can be a list or a single item string.
+			'QAction':'triggered',
+			'QLabel':'released',
+			'QPushButton':'released',
+			'QListWidget':'itemClicked',
+			'QTreeWidget':'itemClicked',
+			'QComboBox':'currentIndexChanged',
+			'QSpinBox':'valueChanged',
+			'QDoubleSpinBox':'valueChanged',
+			'QCheckBox':'clicked',
+			'QRadioButton':'released',
+			'QLineEdit':['editingFinished'],
+			'QTextEdit':'textChanged',
+			'QSlider':'sliderMoved',
+			'QProgressBar':'valueChanged',
+		}
+
 		if preloadUi:
 			self.loadAllUi()
 
@@ -129,28 +300,25 @@ class Switchboard(QUiLoader, StyleSheet):
 		If no match is found raise an attribute error.
 
 		:Return:
-			(obj) ui or widget else raise attribute error.
+			(obj) ui or widget.
 		'''
-		#when an unknown attribute is encountered, first look for a ui of that name:
-		uiPath = File.formatPath(self.uiLoc, 'path') #will return an empty list on incorrect datatype.
-		foundUi = next((f for f in glob.iglob(f'{uiPath}/**/{attr}.ui', recursive=True)), None)
-		if foundUi:
-			ui = self.loadUi(foundUi) #load the dynamic ui file.
-			if not ui:
-				print (f'# Error: {__file__} in __getattr__ (loadUi)\n#\tUnable to load `{attr}`({type(attr).__name__})')
+		ui_path = File.formatPath(self.uiLoc, 'path')
+		widget_path = File.formatPath(self.widgetLoc, 'path')
+
+		# Check if the attribute matches a ui file
+		found_ui = next((f for f in glob.iglob(f'{ui_path}/**/{attr}.ui', recursive=True)), None)
+		if found_ui:
+			ui = self.loadUi(found_ui)
 			return ui
 
-		#if no ui is found, check if a widget exists with the given attribute name:
-		wgtPath = File.formatPath(self.widgetLoc, 'path') #will return an empty list on incorrect datatype.
-		wgtName = Str.setCase(attr, 'camel')
-		foundWgt = next((f for f in glob.iglob(f'{wgtPath}/**/{wgtName}.py', recursive=True)), None)
-		if foundWgt:
-			wgt = self.registerWidgets(attr)
-			if not wgt:
-				print (f'# Error: {__file__} in __getattr__ (registerWidgets)\n#\tUnable to register `{attr}`({type(attr).__name__})')
-			return wgt
+		# Check if the attribute matches a widget file
+		widget_name = Str.setCase(attr, 'camel')
+		found_widget = next((f for f in glob.iglob(f'{widget_path}/**/{widget_name}.py', recursive=True)), None)
+		if found_widget:
+			widget = self.registerWidgets(attr)
+			return widget
 
-		raise AttributeError(f'{__file__} in __getattr__\n#\t{self.__class__.__name__} has no attribute `{attr}`({type(attr).__name__})')
+		raise AttributeError(f'{self.__class__.__name__} has no attribute `{attr}`')
 
 
 	def hasattr_static(self, attr):
@@ -332,29 +500,28 @@ class Switchboard(QUiLoader, StyleSheet):
 
 	@staticmethod
 	def _getPrefix(widget):
-		'''Query a widgets prefix.
-		A valid prefix is returned when the given widget's objectName startswith an alphanumeric char, 
-		followed by at least three integers. ex. i000 (alphanum,int,int,int)
+		'''Return the prefix of a widget's object name.
+		A valid prefix is an alphanumeric character sequence at the beginning of the widget's object name,
+		ending at the first digit.
 
 		:Parameters:
-			widget (str)(obj): A widget or it's object name.
+			widget (str)(obj): The widget or its object name as a string.
 
 		:Return:
-			(str)
-		'''
-		prefix=''
-		if not isinstance(widget, (str)):
-			widget = widget.objectName()
-		for char in widget:
-			if not char.isdigit():
-				prefix = prefix+char
-			else:
-				break
+			(str) The prefix of the widget's object name as a string.
 
-		i = len(prefix)
-		integers = [c for c in widget[i:i+3] if c.isdigit()]
-		if len(integers)>2 or len(widget)==i:
-			return prefix
+		:Example:
+			_getPrefix('someName00') #returns: 'someName'
+			_getPrefix('someName') #returns: 'someName'
+			_getPrefix('some0Name') #returns: 'some'
+		'''
+		import re
+
+		if not isinstance(widget, str):
+			widget = widget.objectName()
+
+		match = re.search(r'^\D*', widget)
+		return widget[:match.end()]
 
 
 	@staticmethod
@@ -632,120 +799,11 @@ class Switchboard(QUiLoader, StyleSheet):
 				fullpath = os.path.join(self.widgetLoc, mod_name+'.py')
 				self.registerWidgets(fullpath)
 		#load ui
-		ui = self.load(file)
-		if parent:
-			ui.setParent(parent, ui.windowFlags())
+		loaded_ui = self.load(file)
+		ui = MainWindow(parent, self, loaded_ui, file)
 
-		#set attributes
-		ui.__slots__ = [
-			'name', 'alias', '_alias', 'base', 'path', 'tags', 'level', 'connected', 'isConnected', 'isInitialized',
-			'isCurrentUi', 'isSubmenu', 'sync', 'isSynced', 'hide', 'preventHide', 'show', 'connectOnShow',
-			'addWidgets', 'widgets', '_widgets', 'slots', '_slots', 'sizeX', 'sizeY',
-			'level0', 'level1', 'level2', 'level3', 'level4',
-		]
-		ui.name = name
-		ui._alias = ''
-		ui.base = next(iter(name.split('_')))
-		ui.path = path
-		ui.tags = name.split('#')[1:]
-		ui.level = level
-		ui.sizeX = ui.frameGeometry().width()
-		ui.sizeY = ui.frameGeometry().height()
-		ui._widgets = []
-		ui.isInitialized = False #a convenience property not handled by this module.
-		ui.isConnected = False
-		ui.isSynced = False
-		ui.isSubmenu = ui.level==2
-		ui.preventHide = False
-		ui.connectOnShow = True
-
-		ui.show = lambda u=ui: self.showAndConnect(u, u.connectOnShow)
-		ui.hide = lambda u=ui: None if u.preventHide else u.__class__.hide(u)
-		ui.sync = lambda u=ui: self._syncUi(u)
-
-		#set properties
-		ui.__class__.alias = property(
-			lambda u: u._alias, 
-			lambda u, value: (lambda: (setattr(u, '_alias', value), setattr(self, value, u)))() #equivalent to: setattr(u, '_alias', value); setattr(self, value, u)
-		)
-		ui.__class__.addWidgets = lambda u, *args, **kwargs: self.addWidgets(u, *args, **kwargs)
-
-		ui.__class__.widgets = property(
-			lambda u: u._widgets or u.addWidgets()
-		)
-		ui.__class__.slots = property(
-			lambda u: self.getSlots(u)
-		)
-		ui.__class__.connected = property(
-			lambda u: u.isConnected, 
-			lambda u, state: setattr(self, 'currentUi', u) if state else self.disconnect(u)
-		)
-		ui.__class__.isCurrentUi = property(
-			lambda u: u==self.currentUi
-		)
-		ui.__class__.level0 = property(
-			lambda u: self.getUi(u, 0)
-		)
-		ui.__class__.level1 = property(
-			lambda u: self.getUi(u, 1)
-		)
-		ui.__class__.level2 = property(
-			lambda u: self.getUi(u, 2)
-		)
-		ui.__class__.level3 = property(
-			lambda u: self.getUi(u, 3)
-		)
-		ui.__class__.level4 = property(
-			lambda u: self.getUi(u, 4)
-		)
-
-		setattr(self, name, ui) #set ui name as attribute so that the ui can be accessed as: self.<ui_name> which returns the <ui> object.
 		self._loadedUi.append(ui)
 		return ui
-
-
-	def addWidgets(self, ui, widgets='all', inc=[], exc=[], filterByBaseType=False, **kwargs):
-		'''If widgets is None; the method will attempt to add all widgets from the ui of the given name.
-
-		:Parameters:
-			ui (obj): A previously loaded dynamic ui object.
-			widgets (list): A list of widgets to be added. Default: 'all' widgets of the given ui.
-			inc (list): Widget types to include. All other will be omitted. Exclude takes dominance over include. Meaning, if the same attribute is in both lists, it will be excluded.
-			exc (list): Widget types to exclude. ie. ['QWidget', 'QAction', 'QLabel', 'QPushButton', 'QListWidget']
-			filterByBaseType (bool): When using `inc`, or `exc`; Filter by base class name, or derived class name. ie. 'QLayout'(base) or 'QGridLayout'(derived)
-		'''
-		if widgets=='all':
-			widgets = self._getWidgetsFromUi(ui) #get all widgets of the ui:
-
-		for w in Iter.makeList(widgets): #assure 'widgets' is a list.
-
-			derivedType = self.getDerivedType(w, name=True) #the base class of any custom widgets.  ie. 'QPushButton' from a custom pushbutton widget.
-			typ = w.__class__.__base__.__name__ if filterByBaseType else derivedType
-			if typ in exc and (typ in inc if inc else typ not in inc):
-				continue
-
-			setAttributes(w, **kwargs) #set any passed in keyword args for the widget.
-
-			try:
-				name = w.objectName()
-			except AttributeError as error: #not a valid widget.
-				return
-
-			#set attributes
-			w.__slots__ = [
-				'ui', 'name', 'type', 'derivedType', 'signals', 
-				'method', 'prefix', 'isSynced',
-			]
-			w.ui = ui
-			w.name = name
-			w.type = w.__class__.__name__
-			w.derivedType = derivedType
-			w.signals = self.getDefaultSignals(w) #default widget signals as list. ie. [<widget.valueChanged>]
-			w.prefix = self._getPrefix(name) #returns an string alphanumberic prefix if name startswith a series of alphanumberic charsinst is followed by three integers. ie. 'cmb' from 'cmb015'
-			w.isSynced = False
-			w.__class__.method = property(lambda w=w: getattr(w.ui.slots, w.name, None))
-			ui._widgets.append(w)
-		return ui.widgets
 
 
 	def getUi(self, ui=None, level=None):
@@ -935,22 +993,27 @@ class Switchboard(QUiLoader, StyleSheet):
 
 
 	@staticmethod
-	def getDerivedType(widget, name=False, module='PySide2.QtWidgets'):
+	def getDerivedType(widget, name=False, module='QtWidgets', inc=[], exc=[], filterByBaseType=False):
 		'''Get the base class of a custom widget.
 		If the type is a standard widget, the derived type will be that widget's type.
 
 		:Parameters:
 			widget (str)(obj): QWidget or it's objectName.
 			name (bool): Return the class or the class name.
-			module (str): The base class module to check for.
+			module (str): The name of the base class module to check for.
+			inc (list): Widget types to include. All other will be omitted. Exclude takes dominance over include. Meaning, if the same attribute is in both lists, it will be excluded.
+			exc (list): Widget types to exclude. ie. ['QWidget', 'QAction', 'QLabel', 'QPushButton', 'QListWidget']
+			filterByBaseType (bool): When using `inc`, or `exc`; Filter by base class name, or derived class name. ie. 'QLayout'(base) or 'QGridLayout'(derived)
 
 		:Return:
-			(obj)(string) class or class name if `name`. ie. 'QPushButton' from a custom widget with class name: 'PushButton'
+			(obj)(string)(None) class or class name if `name`. ie. 'QPushButton' from a custom widget with class name: 'PushButton'
 		'''
 		# print(widget.__class__.__mro__) #debug
 		for c in widget.__class__.__mro__:
 			if c.__module__==module: #check for the first built-in class.
-				return c.__name__ if name else c
+				typ = c.__class__.__base__.__name__ if filterByBaseType else c
+				if not (typ in exc and (typ in inc if inc else typ not in inc)):
+					return typ.__name__ if name else typ
 
 
 	def getWidget(self, name, ui=None):
@@ -1052,7 +1115,7 @@ class Switchboard(QUiLoader, StyleSheet):
 			return next(iter(w.method for w in ui.widgets if w.method.__name__==widget), None)
 
 		elif not widget in ui.widgets:
-			self.addWidgets(ui, widget)
+			ui.addWidgets(widget)
 
 		return next(iter(w.method for w in ui.widgets if w.method==widget.method), None)
 
@@ -1230,7 +1293,7 @@ class Switchboard(QUiLoader, StyleSheet):
 					signal.connect(slot)
 
 
-	def _syncUi(self, submenu, **kwargs):
+	def _syncAllWidgets(self, submenu, **kwargs):
 		'''Extends setSynConnections method to set sync connections 
 		for all widgets of the given ui.
 
@@ -1246,13 +1309,13 @@ class Switchboard(QUiLoader, StyleSheet):
 			except AttributeError as error:
 				continue
 
-			self.setSyncConnections(w1, w2, **kwargs)
+			self.syncWidgets(w1, w2, **kwargs)
 
 		submenu.isSynced = True
 		submenu.level3.isSynced = True
 
 
-	def setSyncConnections(self, w1, w2, **kwargs):
+	def syncWidgets(self, w1, w2, **kwargs):
 		'''Set the initial signal connections that will call the _syncAttributes function on state changes.
 
 		:Parameters:
@@ -1272,7 +1335,7 @@ class Switchboard(QUiLoader, StyleSheet):
 			w2.isSynced = True
 
 		except (AttributeError, KeyError) as error:
-			# if w1 and w2: print ('# {}: {}.setSyncConnections({}, {}): {}. args: {}, {} #'.format('KeyError' if type(error)==KeyError else 'AttributeError', __name__, w1.objectName(), w2.objectName(), error, w1, w2))
+			# if w1 and w2: print ('# {}: {}.syncWidgets({}, {}): {}. args: {}, {} #'.format('KeyError' if type(error)==KeyError else 'AttributeError', __name__, w1.objectName(), w2.objectName(), error, w1, w2))
 			return
 
 
@@ -1709,6 +1772,32 @@ print (__name__) #module name
 # --------------------------------------------------------------------------------------------
 # deprecated:
 # --------------------------------------------------------------------------------------------
+
+
+# def _getPrefix(widget):
+# 		'''Query a widgets prefix.
+# 		A valid prefix is returned when the given widget's objectName startswith an alphanumeric char, 
+# 		followed by at least three integers. ex. i000 (alphanum,int,int,int)
+
+# 		:Parameters:
+# 			widget (str)(obj): A widget or it's object name.
+
+# 		:Return:
+# 			(str)
+# 		'''
+# 		prefix=''
+# 		if not isinstance(widget, (str)):
+# 			widget = widget.objectName()
+# 		for char in widget:
+# 			if not char.isdigit():
+# 				prefix = prefix+char
+# 			else:
+# 				break
+
+# 		i = len(prefix)
+# 		integers = [c for c in widget[i:i+3] if c.isdigit()]
+# 		if len(integers)>2 or len(widget)==i:
+# 			return prefix
 
 	# def setAttributes(self, obj=None, order=['setVisible'], **kwargs):
 	# 	'''Set attributes for a given object.

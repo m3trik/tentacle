@@ -30,9 +30,9 @@ class Mirror(Slots):
 		tb000.ctxMenu.add('QCheckBox', setText='Delete History', setObjectName='chk006', setChecked=True, setToolTip='Delete non-deformer history on the object before performing the operation.')
 
 		#sync widgets
-		self.sb.setSyncConnections(tb000.ctxMenu.chk000, self.sb.mirror_submenu.chk000, attributes='setChecked')
-		self.sb.setSyncConnections(tb000.ctxMenu.chk007, self.sb.mirror_submenu.chk007, attributes='setChecked')
-		self.sb.setSyncConnections(tb000.ctxMenu.chk008, self.sb.mirror_submenu.chk008, attributes='setChecked')
+		self.sb.syncWidgets(tb000.ctxMenu.chk000, self.sb.mirror_submenu.chk000, attributes='setChecked')
+		self.sb.syncWidgets(tb000.ctxMenu.chk007, self.sb.mirror_submenu.chk007, attributes='setChecked')
+		self.sb.syncWidgets(tb000.ctxMenu.chk008, self.sb.mirror_submenu.chk008, attributes='setChecked')
 
 
 	def draggable_header(self, state=None):

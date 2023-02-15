@@ -41,8 +41,8 @@ class Edit_maya(Edit, Slots_maya):
 		tb000.ctxMenu.chk022.stateChanged.connect(lambda state: self.sb.toggleWidgets(tb000.ctxMenu, setDisabled='chk002-3,chk005,chk010-21,chk024,s006-8', setEnabled='chk023') if state 
 														else self.sb.toggleWidgets(tb000.ctxMenu, setEnabled='chk002-3,chk005,chk010-21,s006-8', setDisabled='chk023')) #disable non-relevant options.
 		#sync widgets
-		self.sb.setSyncConnections(tb000.ctxMenu.chk004, self.sb.edit_submenu.chk004, attributes='setChecked')
-		self.sb.setSyncConnections(tb000.ctxMenu.chk010, self.sb.edit_submenu.chk010, attributes='setChecked')
+		self.sb.syncWidgets(tb000.ctxMenu.chk004, self.sb.edit_submenu.chk004, attributes='setChecked')
+		self.sb.syncWidgets(tb000.ctxMenu.chk010, self.sb.edit_submenu.chk010, attributes='setChecked')
 
 
 	def cmb000(self, index=-1):

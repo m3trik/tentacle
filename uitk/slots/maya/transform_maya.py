@@ -26,8 +26,8 @@ class Transform_maya(Transform, Slots_maya):
 		live_object = True if pm.ls(live=1) else False
 		values = [('chk024', 'Contrain: Edge', edge_constraint), ('chk025', 'Constain: Surface', surface_constraint), ('chk026', 'Make Live', live_object)]
 		[cmb001.menu_.add(self.sb.CheckBox, setObjectName=chk, setText=typ, setChecked=state) for chk, typ, state in values]
-		self.sb.setSyncConnections(cmb001.menu_.chk024, self.sb.transform_submenu.chk024, attributes='setChecked')
-		self.sb.setSyncConnections(cmb001.menu_.chk025, self.sb.transform_submenu.chk025, attributes='setChecked')
+		self.sb.syncWidgets(cmb001.menu_.chk024, self.sb.transform_submenu.chk024, attributes='setChecked')
+		self.sb.syncWidgets(cmb001.menu_.chk025, self.sb.transform_submenu.chk025, attributes='setChecked')
 
 		cmb003 = self.sb.transform.cmb003
 		moveValue = pm.manipMoveContext('Move', q=True, snapValue=True)
