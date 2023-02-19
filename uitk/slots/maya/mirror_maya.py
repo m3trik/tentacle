@@ -106,7 +106,7 @@ class Mirror_maya(Mirror, Slots_maya):
 		if not objects:
 			objects = pm.ls(sl=1)
 			if not objects:
-				self.messageBox('<b>Nothing selected.<b><br>Operation requires at least one selected polygon object.')
+				self.sb.messageBox('<b>Nothing selected.<b><br>Operation requires at least one selected polygon object.')
 				return
 
 		# pm.undoInfo(openChunk=1)

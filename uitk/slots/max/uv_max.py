@@ -42,7 +42,7 @@ class Uv_max(Uv, Slots_max):
 		'''
 		selection = rt.selection
 		if not selection:
-			self.messageBox('Nothing selected.')
+			self.sb.messageBox('Nothing selected.')
 
 		mod = self.getModifier(selection[0], 'Unwrap_UVW', -1) #get/set the uv xform modifier.
 		return mod
@@ -136,7 +136,7 @@ class Uv_max(Uv, Slots_max):
 		mod = self.uv_uiModifier #get/set the uv modifier.
 
 		mod.localDistortion = state
-		self.messageBox('{0}{1}'.format('localDistortion:', state))
+		self.sb.messageBox('{0}{1}'.format('localDistortion:', state))
 
 
 	def tb000(self, state=None):
@@ -289,7 +289,7 @@ class Uv_max(Uv, Slots_max):
 		if toSimilar:
 			to = 'similar'
 		elif not to:
-			return self.messageBox('<b>Nothing selected.</b><br>The operation requires the selection of two polygon objects.')
+			return self.sb.messageBox('<b>Nothing selected.</b><br>The operation requires the selection of two polygon objects.')
 
 		self.transferUVs(frm, to, tol=similarTol, deleteConstHist=deleteConstHist)
 

@@ -64,7 +64,7 @@ class Cameras_max(Cameras, Slots_max):
 
 		activeCamera = rt.getActiveCamera()
 		if not activeCamera:
-			self.messageBox('No Active Camera.')
+			self.sb.messageBox('No Active Camera.')
 			return
 
 		activeCamera.clipManually(False)

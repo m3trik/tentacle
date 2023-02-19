@@ -347,7 +347,7 @@ class Uv_maya(Uv, Slots_maya):
 		if toSimilar:
 			to = 'similar'
 		elif not to:
-			return self.messageBox('<b>Nothing selected.</b><br>The operation requires the selection of two polygon objects.')
+			return self.sb.messageBox('<b>Nothing selected.</b><br>The operation requires the selection of two polygon objects.')
 
 		self.transferUVs(frm, to, tol=similarTol, deleteConstHist=deleteConstHist)
 

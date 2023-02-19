@@ -223,7 +223,7 @@ class File_maya(File, Slots_maya):
 			os.startfile(File_.formatPath(dir2))
 
 		except FileNotFoundError as error:
-			self.messageBox('The system cannot find the file specified.')
+			self.sb.messageBox('The system cannot find the file specified.')
 
 
 	def b002(self):

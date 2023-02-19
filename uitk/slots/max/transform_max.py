@@ -195,7 +195,7 @@ class Transform_max(Transform, Slots_max):
 
 				vertex = selection[0] if selection else None
 				if vertex is None:
-					self.messageBox('Unable to get component path.')
+					self.sb.messageBox('Unable to get component path.')
 					return
 
 				vertexTangent = pm.polyNormalPerVertex(vertex, query=True, xyz=True)
@@ -222,7 +222,7 @@ class Transform_max(Transform, Slots_max):
 					if any ([axis==y and tangent==tz, axis==z and tangent==ty]): #"x"
 						self.sb.toggleWidgets(tb.ctxMenu, setChecked='chk029', setUnChecked='chk030-31')
 			else:
-				self.messageBox('Operation requires a component selection.')
+				self.sb.messageBox('Operation requires a component selection.')
 				return
 
 		#align
@@ -260,7 +260,7 @@ class Transform_max(Transform, Slots_max):
 		'''
 		selection = list(rt.selection)
 		if not selection:
-			self.messageBox('<b>Nothing selected.</b><br>The operation requires a single selected object.')
+			self.sb.messageBox('<b>Nothing selected.</b><br>The operation requires a single selected object.')
 			return
 
 		obj = selection[0]
@@ -277,7 +277,7 @@ class Transform_max(Transform, Slots_max):
 		'''
 		selection = list(rt.selection)
 		if not selection:
-			self.messageBox('<b>Nothing selected.</b><br>The operation requires at least two selected object.')
+			self.sb.messageBox('<b>Nothing selected.</b><br>The operation requires at least two selected object.')
 			return
 
 		frm = selection[0]
@@ -431,11 +431,11 @@ class Transform_max(Transform, Slots_max):
 		componentArray = selection.selectedVerts
 		
 		if len(componentArray) == 0:
-			self.messageBox('No vertices selected.')
+			self.sb.messageBox('No vertices selected.')
 			return
 
 		if len(componentArray) < 2:
-			self.messageBox('Selection must contain at least two vertices.')
+			self.sb.messageBox('Selection must contain at least two vertices.')
 			return
 
 		lastSelected = componentArray[-1]#3ds max re-orders array by vert index, so this doesnt work for aligning to last selected
@@ -519,7 +519,7 @@ class Transform_max(Transform, Slots_max):
 			
 			rt.alignXYZ(mode, vertex, vX, vY, vZ, aX, aY, aZ)
 
-			self.messageBox('{0}{1}{2}{3}'.format("result: ", vertex.pos[0], vertex.pos[1], vertex.pos[2]))
+			self.sb.messageBox('{0}{1}{2}{3}'.format("result: ", vertex.pos[0], vertex.pos[1], vertex.pos[2]))
 
 
 	def scaleObject(self, size, x, y ,z):

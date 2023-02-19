@@ -222,7 +222,7 @@ class File_maya(File, Slots_maya):
 			os.startfile(ptk.File.formatPath(dir2))
 
 		except FileNotFoundError as error:
-			self.messageBox('The system cannot find the file specified.')
+			self.sb.messageBox('The system cannot find the file specified.')
 
 
 	def b002(self):

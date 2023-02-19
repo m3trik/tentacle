@@ -181,7 +181,7 @@ class Transform_maya(Transform, Slots_maya):
 
 		if autoAlign: #set coordinates for auto align:
 			if not len(selection)>1:
-				self.messageBox('Operation requires a component selection.')
+				self.sb.messageBox('Operation requires a component selection.')
 				return
 
 			point = pm.xform(selection, q=True, t=True, ws=True)
@@ -206,7 +206,7 @@ class Transform_maya(Transform, Slots_maya):
 
 			vertex = selection[0] if selection else None
 			if vertex is None:
-				self.messageBox('Unable to get component path.')
+				self.sb.messageBox('Unable to get component path.')
 				return
 
 			vertexTangent = pm.polyNormalPerVertex(vertex, query=True, xyz=True)
@@ -299,7 +299,7 @@ class Transform_maya(Transform, Slots_maya):
 		'''
 		node = pm.ls(sl=1, objectsOnly=1)
 		if not node:
-			self.messageBox('<b>Nothing selected.</b><br>The operation requires a single selected object.')
+			self.sb.messageBox('<b>Nothing selected.</b><br>The operation requires a single selected object.')
 			return
 
 		transform = mtk.Node.getTransformNode(node)
@@ -311,7 +311,7 @@ class Transform_maya(Transform, Slots_maya):
 		'''
 		selection = pm.ls(sl=1)
 		if not selection:
-			self.messageBox('<b>Nothing selected.</b><br>The operation requires at least two selected objects.')
+			self.sb.messageBox('<b>Nothing selected.</b><br>The operation requires at least two selected objects.')
 			return
 
 		frm = selection[0]
@@ -331,7 +331,7 @@ class Transform_maya(Transform, Slots_maya):
 		'''
 		sel = pm.ls(sl=1, transforms=1)
 		if not sel:
-			self.messageBox('<b>Nothing selected.</b><br>The operation requires at least two selected objects.')
+			self.sb.messageBox('<b>Nothing selected.</b><br>The operation requires at least two selected objects.')
 			return
 
 		objects = sel[:-1]

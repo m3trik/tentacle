@@ -38,7 +38,7 @@ class Duplicate_max(Duplicate, Slots_max):
 				pivot = pm.xform (selection, query=1, translation=1, relative=1)
 			except:
 				self.sb.toggleWidgets(setChecked='chk010')
-				self.messageBox('Nothing Selected.')
+				self.sb.messageBox('Nothing Selected.')
 				return
 
 			# radialPivot.extend ([pivot[0],pivot[1],pivot[2]])
@@ -108,7 +108,7 @@ class Duplicate_max(Duplicate, Slots_max):
 					pm.undoInfo (closeChunk=1)
 			else: #if both lists objects are empty:
 				self.sb.toggleWidgets(setDisabled='b003', setUnChecked='chk015')
-				self.messageBox('Nothing Selected.')
+				self.sb.messageBox('Nothing Selected.')
 				return
 
 		else: #if chk015 is unchecked by user or by create button
@@ -271,7 +271,7 @@ class Duplicate_max(Duplicate, Slots_max):
 		'''
 		selection = pm.ls(sl=1, transforms=1)
 		if not selection:
-			self.messageBox('<strong>Nothing selected</strong>.<br>Operation requires an object selection.')
+			self.sb.messageBox('<strong>Nothing selected</strong>.<br>Operation requires an object selection.')
 			return
 
 		instances = [pm.instance(obj, name=obj.name()+'_inst') 
@@ -310,7 +310,7 @@ class Duplicate_max(Duplicate, Slots_max):
 				shapes = pm.listRelatives (selectedObj, s=1)
 				maxEval('select `listRelatives -ap '+shapes[0]+'`;')
 			except:
-				self.messageBox('No valid object selected.')
+				self.sb.messageBox('No valid object selected.')
 				return
 
 

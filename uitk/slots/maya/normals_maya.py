@@ -124,7 +124,7 @@ class Normals_maya(Normals, Slots_maya):
 		maskVertex = pm.selectType (query=1, vertex=1)
 
 		if not selection:
-			self.messageBox('Operation requires at least one selected object.')
+			self.sb.messageBox('Operation requires at least one selected object.')
 			return
 
 		if (all_ and maskVertex) or maskObject:
@@ -147,7 +147,7 @@ class Normals_maya(Normals, Slots_maya):
 				pm.polyNormalPerVertex(freezeNormal=1)
 				mtk.viewportMessage("Normals <hl>Locked</hl>.")
 		else:
-			self.messageBox('Selection must be object or vertex.', messageType='Warning')
+			self.sb.messageBox('Selection must be object or vertex.', messageType='Warning')
 			return
 
 

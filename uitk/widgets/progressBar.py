@@ -8,7 +8,7 @@ from attributes import Attributes
 
 class ProgressBar(QtWidgets.QProgressBar, Attributes):
 	'''ex. for n, i in enumerate(lst):
-			if not self.sb.currentUi.progressBar.step(n, len(lst)): #register progress while checking for cancellation:
+			if not self.sb.ui.progressBar.step(n, len(lst)): #register progress while checking for cancellation:
 				break
 	'''
 	def __init__(self, parent=None, **kwargs):

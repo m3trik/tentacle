@@ -112,7 +112,7 @@ class Rigging_max(Rigging, Slots_max):
 		# if toggle:
 		# 	pm.toggle(joints, localAxis=1) #set display off
 
-		# self.messageBox('Display Local Rotation Axes:<hl>'+str(state)+'</hl>')
+		# self.sb.messageBox('Display Local Rotation Axes:<hl>'+str(state)+'</hl>')
 
 
 	def tb001(self, state=None):
@@ -192,7 +192,7 @@ class Rigging_max(Rigging, Slots_max):
 		'''
 		node = rt.selection
 		if not node:
-			self.messageBox('Operation requires a single selected object.')
+			self.sb.messageBox('Operation requires a single selected object.')
 			return
 
 		'finish converting from Maya version.  Slots_max.getParameterValuesMax is not likely doable in the same sense getParameterValuesMEL was'

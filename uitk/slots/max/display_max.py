@@ -148,19 +148,19 @@ class Display_max(Display, Slots_max):
 				i+=1
 
 		if index == 0:
-			self.messageBox('<hl>Vertex IDs</hl>.') #[1,0,0,0]
+			self.sb.messageBox('<hl>Vertex IDs</hl>.') #[1,0,0,0]
 			return
 		elif index == 1:
-			self.messageBox('<hl>Edge IDs</hl>.') #[0,1,0,0]
+			self.sb.messageBox('<hl>Edge IDs</hl>.') #[0,1,0,0]
 			return
 		elif index == 2:
-			self.messageBox('<hl>Face IDs</hl>.') #[0,0,1,0]
+			self.sb.messageBox('<hl>Face IDs</hl>.') #[0,0,1,0]
 			return
 		elif index == 3:
-			self.messageBox('<hl>Component IDs (UV)</hl>.') #[0,0,0,1]
+			self.sb.messageBox('<hl>Component IDs (UV)</hl>.') #[0,0,0,1]
 			return
 		elif index == 4:
-			self.messageBox('Component ID <hl>Off</hl>.')
+			self.sb.messageBox('Component ID <hl>Off</hl>.')
 			return
 
 

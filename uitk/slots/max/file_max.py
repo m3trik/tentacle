@@ -229,7 +229,7 @@ class File_max(File, Slots_max):
 		try:
 			os.startfile(self.formatPath(dir_))
 		except FileNotFoundError as error:
-			self.messageBox('The system cannot find the file specified.')
+			self.sb.messageBox('The system cannot find the file specified.')
 
 
 	def b002(self):

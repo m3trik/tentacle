@@ -76,7 +76,7 @@ class Materials_max(Materials, Slots_max):
 
 		mat = self.sb.materials.cmb002.currentData()
 		if not mat:
-			self.messageBox('No Material Selection.')
+			self.sb.messageBox('No Material Selection.')
 			return
 
 		shell = tb.ctxMenu.chk005.isChecked() #Select by material: shell
@@ -116,7 +116,7 @@ class Materials_max(Materials, Slots_max):
 					self.sb.materials.tb001.menu_.chk001.setChecked(True) #set comboBox to ID map mode. toggling the checkbox refreshes the combobox.
 				self.sb.materials.cmb002.setCurrentItem(mat.name) #set the comboBox index to the new mat #self.cmb002.setCurrentIndex(self.cmb002.findText(name))
 			else:
-				self.messageBox('No valid object/s selected.')
+				self.sb.messageBox('No valid object/s selected.')
 				return
 
 		elif assignCurrent: #Assign current mat
@@ -169,7 +169,7 @@ class Materials_max(Materials, Slots_max):
 			mat = self.sb.materials.cmb002.currentData() #get the mat obj from cmb002
 			rt.select(mat)
 		except Exception as error:
-			self.messageBox('No stored material or no valid object selected.')
+			self.sb.messageBox('No stored material or no valid object selected.')
 			return
 
 		#open the slate material editor
@@ -238,7 +238,7 @@ class Materials_max(Materials, Slots_max):
 		try: 
 			obj = rt.selection[0]
 		except IndexError:
-			self.messageBox('Nothing selected.')
+			self.sb.messageBox('Nothing selected.')
 			return
 
 		mat = self.getMaterial()
@@ -298,7 +298,7 @@ class Materials_max(Materials, Slots_max):
 		selectByMaterialID(material)
 		'''
 		if rt.getNumSubMtls(material): #if not a multimaterial
-			self.messageBox('No valid stored material. If material is a multimaterial, select a submaterial.')
+			self.sb.messageBox('No valid stored material. If material is a multimaterial, select a submaterial.')
 			return
 
 		if not material:
@@ -396,7 +396,7 @@ class Materials_max(Materials, Slots_max):
 		if not obj:
 			selection = rt.selection
 			if not selection:
-				self.messageBox('Nothing selected. Select an object face, or choose the option: current material.')
+				self.sb.messageBox('Nothing selected. Select an object face, or choose the option: current material.')
 				return
 			obj = selection[0]
 
@@ -413,7 +413,7 @@ class Materials_max(Materials, Slots_max):
 					try:
 						ID_ = rt.GetFaceId_(obj, face) #Returns the material ID of the specified face.
 					except RuntimeError:
-						self.messageBox('Object must be of type Editable_Poly or Editable_mesh.')
+						self.sb.messageBox('Object must be of type Editable_Poly or Editable_mesh.')
 						return
 
 				mat = rt.getSubMtl(mat, ID_) #get material from mat ID
@@ -451,7 +451,7 @@ class Materials_max(Materials, Slots_max):
 		material (obj): The material to search and select for.
 		'''
 		if not mat:
-			self.messageBox('Material Not Assigned. No material given.')
+			self.sb.messageBox('Material Not Assigned. No material given.')
 			return
 
 		for obj in objects:

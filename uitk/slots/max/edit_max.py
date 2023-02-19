@@ -98,17 +98,17 @@ class Edit_max(Edit, Slots_max):
 		#display viewPort messages
 		if all_:
 			if deformers:
-				self.messageBox('Delete <hl>All</hl> History.')
+				self.sb.messageBox('Delete <hl>All</hl> History.')
 				return
 			else:
-				self.messageBox('Delete <hl>All Non-Deformer</hl> History.')
+				self.sb.messageBox('Delete <hl>All Non-Deformer</hl> History.')
 				return
 		else:
 			if deformers:
-				self.messageBox('Delete history on '+str(objects))
+				self.sb.messageBox('Delete history on '+str(objects))
 				return
 			else:
-				self.messageBox('Delete <hl>Non-Deformer</hl> history on '+str(objects))
+				self.sb.messageBox('Delete <hl>Non-Deformer</hl> history on '+str(objects))
 				return
 
 
@@ -142,7 +142,7 @@ class Edit_max(Edit, Slots_max):
 		'''
 		selection = rt.modPanel.getCurrentObject()
 		if not selection:
-			self.messageBox('Operation requires a single selected object.')
+			self.sb.messageBox('Operation requires a single selected object.')
 			return
 
 		self.setAttributeWindow(selection, checkableLabel=True)
@@ -324,7 +324,7 @@ class Edit_max(Edit, Slots_max):
 		if items:
 			self.setAttributeWindow(items, checkableLabel=True)
 		else:
-			self.messageBox('Found no items to list the history for.')
+			self.sb.messageBox('Found no items to list the history for.')
 			return
 
 

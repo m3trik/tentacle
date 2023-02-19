@@ -195,7 +195,7 @@ class Rigging_maya(Rigging, Slots_maya):
 		'''
 		node = pm.ls(sl=1, objectsOnly=1)
 		if not node:
-			self.messageBox('Operation requires a single selected object.')
+			self.sb.messageBox('Operation requires a single selected object.')
 			return
 
 		params = ['enableTranslationX','translationX','enableTranslationY','translationY','enableTranslationZ','translationZ',

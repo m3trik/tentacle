@@ -41,9 +41,10 @@ class Tcl(QtWidgets.QStackedWidget):
 		self.setFocusPolicy(QtCore.Qt.StrongFocus)
 
 		self.setWindowFlags(QtCore.Qt.Tool|QtCore.Qt.FramelessWindowHint) #|QtCore.Qt.WindowStaysOnTopHint
-		# self.setAttribute(QtCore.Qt.WA_TranslucentBackground)
-		self.setAttribute(QtCore.Qt.WA_SetStyle) #Indicates that the widget has a style of its own.
+		self.setAttribute(QtCore.Qt.WA_TranslucentBackground)
+		# self.setAttribute(QtCore.Qt.WA_SetStyle) #Indicates that the widget has a style of its own.
 		self.setAttribute(QtCore.Qt.WA_NoMousePropagation, False)
+		self.resize(800, 800)
 
 		self.sb = Switchboard(self, uiLoc='ui', widgetLoc=rwidgets, slotLoc=slotLoc, preloadUi=True)
 		self.overlay = Overlay(self, antialiasing=True) #Paint events are handled by the overlay module.
@@ -80,18 +81,18 @@ class Tcl(QtWidgets.QStackedWidget):
 		assert isinstance(ui, (str, QtWidgets.QWidget)), f'# Error: {__file__} in setUi\n#\tIncorrect datatype: {type(ui).__name__}'
 
 		ui = self.sb.getUi(ui) #Get the ui of the given name, and set it as the current ui in the switchboard module.
+		self.sb.setCurrentUi(ui)
+
 		if not ui.isInitialized:
 			self.initUi(ui)
-		ui.connected = True
 
 		if ui.level<3: #stacked ui top level window.
 			self.setCurrentWidget(ui) #set the stacked widget to the given ui.
-			self.resize(ui.sizeX, ui.sizeY) #The ui sizes for individual ui's are stored in sizeX and sizeY properties. Otherwise size would be constrained to the largest widget in the stack)
 
 		else: #popup ui.
-			ui.show()
-			self.sb.moveAndCenterWidget(ui, QtGui.QCursor.pos(), offsetY=4) #move to cursor position and offset slightly.
-			ui.activateWindow(); self.hide() #activate the popup ui before hiding the stacked layout.
+			ui.resize(ui.minimumSizeHint())
+			self.sb.moveAndCenterWidget(ui, QtGui.QCursor.pos(), offsetY=4) #move to cursor position.
+			ui.show(); self.hide() #activate the popup ui before hiding the stacked layout.
 
 
 	def setSubUi(self, ui, w):
@@ -102,7 +103,7 @@ class Tcl(QtWidgets.QStackedWidget):
 			ui (obj): The submenu ui to set as current.
 			w (obj): The widget that called this method.
 		'''
-		if not ui or ui==self.sb.currentUi:
+		if not ui or ui==self.sb.ui:
 			return
 
 		self.overlay.addToDrawPath(w)
@@ -198,7 +199,7 @@ class Tcl(QtWidgets.QStackedWidget):
 		'''
 		modifiers = self.app.keyboardModifiers()
 
-		if self.sb.currentUi.level<3:
+		if self.sb.ui.level<3:
 			self.move(self.sb.getCenter(self))
 
 			if not modifiers:
@@ -219,7 +220,7 @@ class Tcl(QtWidgets.QStackedWidget):
 		a mouse button is pressed while the mouse is being moved. If mouse tracking 
 		is switched on, mouse move events occur even if no mouse button is pressed.
 		'''
-		self.mouseTracking.track(self.sb.currentUi.widgets)
+		self.mouseTracking.track(self.sb.ui.widgets)
 
 		super().mouseMoveEvent(event)
 
@@ -240,7 +241,7 @@ class Tcl(QtWidgets.QStackedWidget):
 		'''
 		modifiers = self.app.keyboardModifiers()
 
-		if self.sb.currentUi.level<3:
+		if self.sb.ui.level<3:
 			if event.button()==QtCore.Qt.LeftButton:
 
 				if modifiers in (QtCore.Qt.ControlModifier, QtCore.Qt.ControlModifier | QtCore.Qt.AltModifier):
@@ -280,7 +281,7 @@ class Tcl(QtWidgets.QStackedWidget):
 	def showEvent(self, event):
 		'''Non-spontaneous show events are sent to widgets immediately before they are shown.
 		'''
-		if self.sb.currentUi.level==0:
+		if self.sb.ui.level==0:
 			self.move(self.sb.getCenter(self))
 
 		super().showEvent(event)
@@ -340,17 +341,11 @@ class Tcl(QtWidgets.QStackedWidget):
 		'''
 		if widgets is None:
 			widgets = ui.widgets #get all widgets for the given ui.
+		else:
+			widgets = makeList(widgets)
+			ui.addWidgets([w for w in widgets if w not in ui.widgets])
 
-		for w in makeList(widgets): #if 'widgets' isn't a list, convert it to one.
-
-			if w not in ui.widgets:
-				ui.addWidgets(w)
-
-			#set styleSheet
-			if ui.level>2 or ui.isSubmenu and not w.prefix=='i': #if submenu and objectName doesn't start with 'i':
-				self.sb.setStyle(w, style='dark', backgroundOpacity=0)
-			else:
-				self.sb.setStyle(w, backgroundOpacity=0)
+		for w in widgets: #if 'widgets' isn't a list, convert it to one.
 
 			if w.derivedType in self.ef_widgetTypes:
 				# print (widgetName if widgetName else widget)
@@ -361,8 +356,8 @@ class Tcl(QtWidgets.QStackedWidget):
 					if ui.level<=2:
 						self.sb.resizeAndCenterWidget(w)
 
-				elif w.derivedType=='QWidget': #widget types to set an initial state as hidden.
-					if w.prefix=='hidden_area': #prefix returns True if widgetName startswith the given prefix, and is followed by three integers.
+				elif w.derivedType=='QWidget':
+					if w.prefix=='hidden_area': #widget types to set an initial state as hidden.
 						w.setVisible(False)
 
 
@@ -374,7 +369,7 @@ class Tcl(QtWidgets.QStackedWidget):
 
 		if w.type in ('ComboBox', 'ListWidget'):
 			try: #call the class method associated with the current widget.
-				w.method()
+				w.getSlot()()
 			except (AttributeError, TypeError) as error:
 				print (f'# Error: {__file__} in ef_showEvent\n#\t{error}.')
 				pass
@@ -458,7 +453,7 @@ class Tcl(QtWidgets.QStackedWidget):
 
 				elif w.prefix=='v':
 					if w.ui.name=='cameras':
-						self.prevCamera(add=w.method)
+						self.prevCamera(add=w.getSlot())
 					#send click signal on mouseRelease.
 					w.click()
 
@@ -561,7 +556,7 @@ class Tcl(QtWidgets.QStackedWidget):
 		'''
 		if add: #set the given method as the current camera.
 			if not callable(add):
-				add = self.sb.getMethod('cameras', add)
+				add = self.sb.getSlot('cameras', add)
 			docString = add.__doc__
 			prevCameraList = self.prevCamera(allowCurrent=True, asList=1)
 			if not prevCameraList or not [add, docString]==prevCameraList[-1]: #ie. do not append perp cam if the prev cam was perp.

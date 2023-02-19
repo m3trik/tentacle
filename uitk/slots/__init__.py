@@ -16,12 +16,11 @@ class Slots(QtCore.QObject):
 	ex. def getFloatReturnInt(self, f):
 			return int(f)
 	'''
-	def __init__(self, parent=None, *args, **kwargs):
-		QtCore.QObject.__init__(self, parent)
+	def __init__(self, parent=None):
+		super().__init__(parent)
 		'''
 		'''
-		for a, v in kwargs.items():
-			setattr(self, a, v)
+		...
 
 
 	def hideMain(fn):
@@ -85,81 +84,6 @@ class Slots(QtCore.QObject):
 		menu.show()
 
 		return menu
-
-
-	def messageBox(self, string, messageType='', location='topMiddle', timeout=1):
-		'''Spawns a message box with the given text.
-		Supports HTML formatting.
-		Prints a formatted version of the given string to console, stripped of html tags, to the console.
-
-		:Parameters:
-			messageType (str): The message context type. ex. 'Error', 'Warning', 'Note', 'Result'
-			location (str)(point) = move the messagebox to the specified location. Can be given as a qpoint or string value. default is: 'topMiddle'
-			timeout (int): time in seconds before the messagebox auto closes.
-		'''
-		if messageType:
-			string = '{}: {}'.format(messageType.capitalize(), string)
-
-		if not hasattr(self, '_messageBox'):
-			from uitk.widgets.messageBox import MessageBox
-			self._messageBox = MessageBox(self.sb.parent().parent())
-
-		self._messageBox.location = location
-		self._messageBox.timeout = timeout
-
-		from re import sub
-		print(''+sub('<.*?>', '', string)+'') #strip everything between '<' and '>' (html tags)
-
-		self._messageBox.setText(string)
-		self._messageBox.exec_()
-
-
-	# @classmethod
-	# def progress(cls, fn):
-	# 	'''A decorator for progressBar.
-	#	Does not work with staticmethods.
-	# 	'''
-	# 	def wrapper(self, *args, **kwargs):
-	# 		self.progressBar(fn(self, *args, **kwargs))
-	# 	return wrapper
-
-	def progressBar(self):
-		'''
-		'''
-		try:
-			return self._progressBar
-
-		except AttributeError as error:
-			from widgets.progressBar import ProgressBar
-			self._progressBar = ProgressBar(self.sb.parent())
-
-			try:
-				self.sb.currentUi.progressBar.step1
-			except AttributeError:
-				pass
-
-			return self._progressBar
-
-
-	def invertOnModifier(self, value):
-		'''Invert a numerical or boolean value if the alt key is pressed.
-
-		:Parameters:
-			value (int, float, bool) = The value to invert.
-		
-		:Return:
-			(int, float, bool)
-		'''
-		modifiers = QtWidgets.QApplication.instance().keyboardModifiers()
-		if not modifiers in (QtCore.Qt.AltModifier, QtCore.Qt.ControlModifier | QtCore.Qt.AltModifier):
-			return value
-
-		if type(value) in (int, float):
-			result = abs(value) if value<0 else -value
-		elif type(value)==bool:
-			result = True if value else False
-
-		return result
 
 # --------------------------------------------------------------------------------------------
 

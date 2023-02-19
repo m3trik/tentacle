@@ -81,7 +81,7 @@ class Materials_maya(Materials, Slots_maya):
 
 		mat = self.sb.materials.cmb002.currentData()
 		if not mat:
-			self.messageBox('No Material Selection.')
+			self.sb.messageBox('No Material Selection.')
 			return
 
 		shell = tb.ctxMenu.chk005.isChecked() #Select by material: shell
@@ -100,7 +100,7 @@ class Materials_maya(Materials, Slots_maya):
 
 		selection = pm.ls(selection=1, flatten=1)
 		if not selection:
-			self.messageBox('No renderable object is selected for assignment.')
+			self.sb.messageBox('No renderable object is selected for assignment.')
 			return
 
 		assignCurrent = tb.ctxMenu.chk007.isChecked()
@@ -135,7 +135,7 @@ class Materials_maya(Materials, Slots_maya):
 			mat = self.sb.materials.cmb002.currentData() #get the mat obj from cmb002
 			pm.select(mat)
 		except:
-			self.messageBox('No stored material or no valid object selected.')
+			self.sb.messageBox('No stored material or no valid object selected.')
 			return
 
 		pm.mel.HypershadeWindow() #open the hypershade editor
@@ -203,7 +203,7 @@ class Materials_maya(Materials, Slots_maya):
 		'''
 		selection = pm.ls(selection=1)
 		if not selection:
-			self.messageBox('Nothing selected.')
+			self.sb.messageBox('Nothing selected.')
 			return
 
 		mat = self.getMaterial()
@@ -265,12 +265,12 @@ class Materials_maya(Materials, Slots_maya):
 		selectByMaterialID(material)
 		'''
 		if pm.nodeType(material)=='VRayMultiSubTex': #if not a multimaterial
-			self.messageBox('If material is a multimaterial, select a submaterial.')
+			self.sb.messageBox('If material is a multimaterial, select a submaterial.')
 			return
 
 		if not material:
 			if not pm.ls(sl=1):
-				self.messageBox('Nothing selected. Select an object face, or choose the option: current material.')
+				self.sb.messageBox('Nothing selected. Select an object face, or choose the option: current material.')
 				return
 			material = self.getMaterial()
 
@@ -386,7 +386,7 @@ class Materials_maya(Materials, Slots_maya):
 		material (obj): The material to search and select for.
 		'''
 		if not mat:
-			self.messageBox('Material Not Assigned. No material given.')
+			self.sb.messageBox('Material Not Assigned. No material given.')
 			return
 
 		try: #if the mat is a not a known type; try and create the material.

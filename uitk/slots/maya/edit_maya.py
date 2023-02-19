@@ -112,7 +112,7 @@ class Edit_maya(Edit, Slots_maya):
 
 		if overlappingDuplicateObjects:
 			duplicates = mtk.Edit.getOverlappingDupObjects(omitInitialObjects=omitSelectedObjects, select=True, verbose=True)
-			self.messageBox('Found {} duplicate overlapping objects.'.format(len(duplicates)), messageType='Result')
+			self.sb.messageBox('Found {} duplicate overlapping objects.'.format(len(duplicates)), messageType='Result')
 			pm.delete(duplicates) if repair else pm.select(duplicates)
 			return
 
@@ -121,7 +121,7 @@ class Edit_maya(Edit, Slots_maya):
 
 		if overlappingFaces:
 			duplicates = mtk.Edit.getOverlappingFaces(objects)
-			self.messageBox('Found {} duplicate overlapping faces.'.format(len(duplicates)), messageType='Result')
+			self.sb.messageBox('Found {} duplicate overlapping faces.'.format(len(duplicates)), messageType='Result')
 			pm.delete(duplicates) if repair else pm.select(duplicates, add=1)
 
 		mtk.Edit.cleanGeometry(objects, allMeshes=allMeshes, repair=repair, quads=quads, nsided=nsided, concave=concave, holed=holed, nonplanar=nonplanar, 
@@ -251,7 +251,7 @@ class Edit_maya(Edit, Slots_maya):
 		if items:
 			self.setAttributeWindow(items, checkableLabel=True)
 		else:
-			self.messageBox('Found no items to list the history for.')
+			self.sb.messageBox('Found no items to list the history for.')
 			return
 
 

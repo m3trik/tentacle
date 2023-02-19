@@ -149,10 +149,10 @@ class Selection_max(Selection, Slots_max):
 		for obj in rt.selection:
 			if self.selection_submenu_ui.chk004.isChecked():
 				sel.ignoreBackfacing = True
-				self.messageBox('Camera-based selection <hl>On</hl>.', messageType='Result')
+				self.sb.messageBox('Camera-based selection <hl>On</hl>.', messageType='Result')
 			else:
 				sel.ignoreBackfacing = False
-				self.messageBox('Camera-based selection <hl>Off</hl>.', messageType='Result')
+				self.sb.messageBox('Camera-based selection <hl>Off</hl>.', messageType='Result')
 
 
 	def chk008(self, state=None):
@@ -160,10 +160,10 @@ class Selection_max(Selection, Slots_max):
 		'''
 		if self.selection_submenu_ui.chk008.isChecked():
 			pm.softSelect(edit=1, softSelectEnabled=True)
-			self.messageBox('Soft Select <hl>On</hl>.', messageType='Result')
+			self.sb.messageBox('Soft Select <hl>On</hl>.', messageType='Result')
 		else:
 			pm.softSelect(edit=1, softSelectEnabled=False)
-			self.messageBox('Soft Select <hl>Off</hl>.', messageType='Result')
+			self.sb.messageBox('Soft Select <hl>Off</hl>.', messageType='Result')
 
 
 	def cmb000(self, index=-1):
@@ -396,7 +396,7 @@ class Selection_max(Selection, Slots_max):
 			name (str): The desired name of the new set.
 		'''
 		if rt.isValidObj(name): # obj!=rt.undefined
-			self.messageBox('Set with name <hl>{}</hl> already exists.'.format(name))
+			self.sb.messageBox('Set with name <hl>{}</hl> already exists.'.format(name))
 			return
 
 		else: #create set
@@ -411,7 +411,7 @@ class Selection_max(Selection, Slots_max):
 					set_array = self.getSetArray(rt.selection[0], rt.subObjectLevel) #ie. rt.selection[0].faces
 					set_array[name] = sel #create a sub-object level set for the selected currently selected components.
 			else:
-				self.messageBox('Nothing selected.')
+				self.sb.messageBox('Nothing selected.')
 				return
 
 
@@ -438,7 +438,7 @@ class Selection_max(Selection, Slots_max):
 				# if not newName==name:
 				# 	rt.deleteItem(set_array, set_) #delete the old if a new set name is given.
 		else:
-			self.messageBox('Nothing selected.')
+			self.sb.messageBox('Nothing selected.')
 			return
 
 

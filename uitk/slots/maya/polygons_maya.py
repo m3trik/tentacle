@@ -55,7 +55,7 @@ class Polygons_maya(Polygons, Slots_maya):
 		componentMode = pm.selectMode(query=1, component=1)
 
 		if not objects:
-			self.messageBox('<strong>Nothing selected</strong>.<br>Operation requires an object or vertex selection.', messageType='Error')
+			self.sb.messageBox('<strong>Nothing selected</strong>.<br>Operation requires an object or vertex selection.', messageType='Error')
 			return
 
 		mtk.Edit.mergeVertices(objects, selected=componentMode, tolerance=tolerance)
@@ -71,7 +71,7 @@ class Polygons_maya(Polygons, Slots_maya):
 
 		selection = pm.ls(sl=1)
 		if not selection:
-			return self.messageBox('<strong>Nothing selected</strong>.<br>Operation requires a component selection.', messageType='Error')
+			return self.sb.messageBox('<strong>Nothing selected</strong>.<br>Operation requires a component selection.', messageType='Error')
 		edges = pm.filterExpand(selection, selectionMask=32, expand=1) #get edges from selection
 
 		node = pm.polyBridgeEdge(edges, divisions=divisions) #bridge edges
@@ -87,7 +87,7 @@ class Polygons_maya(Polygons, Slots_maya):
 		if tb.ctxMenu.chk000.isChecked():
 			sel = pm.ls(sl=1, objectsOnly=1)
 			if not sel:
-				return self.messageBox('<strong>Nothing selected</strong>.<br>Operation requires the selection of at least two objects.', messageType='Error')
+				return self.sb.messageBox('<strong>Nothing selected</strong>.<br>Operation requires the selection of at least two objects.', messageType='Error')
 
 			objName = sel[0].name()
 			objParent = pm.listRelatives(objName, parent=1)
@@ -113,7 +113,7 @@ class Polygons_maya(Polygons, Slots_maya):
 
 		selection = pm.ls(sl=1)
 		if not selection:
-			return self.messageBox('<strong>Nothing selected</strong>.<br>Operation requires a component selection.', messageType='Error')
+			return self.sb.messageBox('<strong>Nothing selected</strong>.<br>Operation requires a component selection.', messageType='Error')
 		if pm.selectType(query=1, facet=1): #face selection
 			pm.polyExtrudeFacet(edit=1, keepFacesTogether=keepFacesTogether, divisions=divisions)
 			pm.mel.PolyExtrude() #return pm.polyExtrudeFacet(selection, ch=1, keepFacesTogether=keepFacesTogether, divisions=divisions)
@@ -139,7 +139,7 @@ class Polygons_maya(Polygons, Slots_maya):
 
 		selection = pm.ls(sl=1, objectsOnly=1)
 		if not selection:
-			return self.messageBox('<strong>Nothing selected</strong>.<br>Operation requires a component selection.', messageType='Error')
+			return self.sb.messageBox('<strong>Nothing selected</strong>.<br>Operation requires a component selection.', messageType='Error')
 
 		for obj in selection:
 			edges = pm.ls(obj, sl=1)
@@ -164,7 +164,7 @@ class Polygons_maya(Polygons, Slots_maya):
 
 		selection = pm.ls(sl=1)
 		if not selection:
-			return self.messageBox('<strong>Nothing selected</strong>.<br>Operation requires a component selection.', messageType='Error')
+			return self.sb.messageBox('<strong>Nothing selected</strong>.<br>Operation requires a component selection.', messageType='Error')
 
 		if vertexMask:
 			pm.mel.polySplitVertex()
@@ -191,7 +191,7 @@ class Polygons_maya(Polygons, Slots_maya):
 
 		selected_faces = pm.polyEvaluate(faceComponent=1)
 		if isinstance(selected_faces, str): #'Nothing counted : no polygonal object is selected.'
-			self.messageBox('<strong>Nothing selected</strong>.<br>Operation requires a face selection.', messageType='Error')
+			self.sb.messageBox('<strong>Nothing selected</strong>.<br>Operation requires a face selection.', messageType='Error')
 			return
 
 		offset = float(tb.ctxMenu.s001.value())
@@ -224,7 +224,7 @@ class Polygons_maya(Polygons, Slots_maya):
 			for face in selectedFaces: #when performing polySubdivideFacet on multiple faces, adjacent subdivided faces will make the next face an n-gon and therefore not able to be subdivided. 
 				pm.polySubdivideFacet(face, divisions=0, divisionsU=2, divisionsV=2, mode=0, subdMethod=1)
 		else:
-			self.messageBox('<strong>Nothing selected</strong>.<br>Operation requires a face selection.', messageType='Error')
+			self.sb.messageBox('<strong>Nothing selected</strong>.<br>Operation requires a face selection.', messageType='Error')
 			return
 
 
@@ -235,7 +235,7 @@ class Polygons_maya(Polygons, Slots_maya):
 
 		selection = pm.ls(sl=1)
 		if not selection:
-			return self.messageBox('<strong>Nothing selected</strong>.<br>Operation requires the selection of at least two objects.', messageType='Error')
+			return self.sb.messageBox('<strong>Nothing selected</strong>.<br>Operation requires the selection of at least two objects.', messageType='Error')
 		if tb.ctxMenu.chk011.isChecked(): #union
 			pm.mel.PolygonBooleanIntersection()
 
@@ -259,7 +259,7 @@ class Polygons_maya(Polygons, Slots_maya):
 			obj1, obj2 = selection
 			mtk.Edit.snapClosestVerts(obj1, obj2, tolerance, freezetransforms)
 		else:
-			self.messageBox('<strong>Nothing selected</strong>.<br>Operation requires at least two selected objects.', messageType='Error')
+			self.sb.messageBox('<strong>Nothing selected</strong>.<br>Operation requires at least two selected objects.', messageType='Error')
 			return
 
 
