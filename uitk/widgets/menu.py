@@ -46,7 +46,7 @@ class Menu(QtWidgets.QMenu, Attributes):
 		self.setAttributes(**kwargs)
 
 		self.layouts = {} #a container for any created layouts.
-		self.uncheckAllButton = self._addUncheckAllButton()
+		self.toggleAllButton = self._addToggleAllButton()
 		self.applyButton = self._addApplyButton()
 
 		#assign properties
@@ -86,7 +86,7 @@ class Menu(QtWidgets.QMenu, Attributes):
 				]
 
 			except Exception as error:
-				print (__name__+':', 'getChildWidgets:', error)
+				print (f'# Error: {__file__} in getChildWidgets\n#\t{error}')
 
 		return self._childWidgets
 
@@ -127,13 +127,14 @@ class Menu(QtWidgets.QMenu, Attributes):
 					pass
 
 		self.draggable_header.setText(title)
+		super().setTitle(title)
 
 
 	def getActionAtIndex(self, index):
 		'''
 		'''
 		try:
-			return self.actions()[1:][index] #slice the actions list to omit the header and any built-in hidden buttons (ie. 'apply', 'uncheckAll').
+			return self.actions()[1:][index] #slice the actions list to omit the header and any built-in hidden buttons (ie. 'apply', 'toggleAll').
 
 		except IndexError as error:
 			return None
@@ -241,7 +242,7 @@ class Menu(QtWidgets.QMenu, Attributes):
 			(widget)
 		'''
 		if not self.parent():
-			# print ('# Error: {}: _addApplyButton(): operation requires a parent widget. #'.format(__file__))
+			# print (f'# Error: {__file__} in _addApplyButton\n#\tOperation requires a parent widget.')
 			return
 
 		w = QtWidgets.QPushButton('Apply') #self.add('QPushButton', setText='Apply', setObjectName=self.parent().objectName(), setToolTip='Execute the command.')
@@ -257,7 +258,7 @@ class Menu(QtWidgets.QMenu, Attributes):
 		return w
 
 
-	def _addUncheckAllButton(self):
+	def _addToggleAllButton(self):
 		'''Add a pushbutton that will uncheck any checkBoxes when pressed.
 		The button is hidden by default.
 
@@ -265,9 +266,10 @@ class Menu(QtWidgets.QMenu, Attributes):
 			(widget)
 		'''
 		w = QtWidgets.QPushButton('Uncheck All') #self.add('QPushButton', setText='Disable All', setObjectName='disableAll', setToolTip='Set all unchecked.')
-		w.setObjectName('uncheckAll')
-		w.setToolTip('Set all unchecked.')
-		w.released.connect(lambda: [c.setChecked(False) for c in self.getChildWidgets(inc=['QCheckBox'])]) #trigger the released signal on the parent when the apply button is released.
+		w.setObjectName('toggleAll')
+		w.setToolTip('Toggle all checked|unchecked.')
+
+		w.released.connect(lambda: [c.setChecked(not next(self.getChildWidgets(inc=['QCheckBox'])).checked()) for c in self.getChildWidgets(inc=['QCheckBox'])]) #trigger the released signal on the parent when the apply button is released.
 		w.setMinimumSize(119, 26)
 
 		layout = self.getVBoxLayout('menu_buttons') #get the 'menu_buttons' layout.
@@ -453,7 +455,6 @@ class Menu(QtWidgets.QMenu, Attributes):
 				try:
 					if w.view().isVisible(): #comboBox menu open.
 						return
-
 				except AttributeError as error:
 					pass
 
@@ -463,15 +464,21 @@ class Menu(QtWidgets.QMenu, Attributes):
 	def show(self):
 		'''Show the menu.
 		'''
-		if self.containsMenuItems: #prevent show if the menu is empty.
+		if not self.containsMenuItems: #prevent show if the menu is empty.
+			return
 
-			if not self.title():
+		if not self.title():
 				self.setTitle()
 
-			if hasattr(self.parent(), 'released'):
-				self.applyButton.show()
+		if hasattr(self.parent(), 'released') and not self.parent().objectName()=='draggable_header':
+			# print (f'show menu | title: {self.title()} | {self.parent().objectName()} has attr released.') #debug
+			self.applyButton.show()
 
-			super().show()
+		checkboxes = self.getChildWidgets(inc=['QCheckBox'])
+		if checkboxes: #returns None if the menu doesn't contain checkboxes.
+			self.toggleAllButton.show()
+
+		super().show()
 
 
 	def showEvent(self, event):
@@ -495,9 +502,6 @@ class Menu(QtWidgets.QMenu, Attributes):
 			pos = getattr(self.parent().rect(), self.position if not self.position=='cursorPos' else 'bottomLeft')
 			pos = self.parent().mapToGlobal(pos())
 			self.move(pos) # self.move(getCenter(self, pos))
-
-			if self.getChildWidgets(inc=['QCheckBox']): #if the menu contains checkboxes:
-				self.uncheckAllButton.show()
 
 		QtWidgets.QMenu.showEvent(self, event)
 
@@ -529,12 +533,17 @@ class MenuInstance():
 			self._contextMenu = Menu(self, position='cursorPos', menu_type='context')
 			return self._contextMenu
 
+# -----------------------------------------------------------------------------
 
 
 
 
 
 
+
+
+
+# -----------------------------------------------------------------------------
 
 if __name__ == "__main__":
 	import sys
@@ -563,8 +572,6 @@ if __name__ == "__main__":
 
 	# m.exec_(parent=None)
 	sys.exit(app.exec_())
-
-
 
 # -----------------------------------------------------------------------------
 # Notes

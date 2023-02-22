@@ -12,7 +12,7 @@ class Init_max(Init, Slots_max):
 		super().__init__(*args, **kwargs)
 
 		try:
-			self.sb.init.hud.shown.connect(self.construct_hud)
+			self.sb.init.hud_text.shown.connect(self.construct_hud)
 
 		except AttributeError: #(an inherited class)
 			pass
@@ -22,7 +22,7 @@ class Init_max(Init, Slots_max):
 		'''Add current scene attributes to a lineEdit.
 		Only those with relevant values will be displayed.
 		'''
-		hud = self.sb.init.hud
+		hud = self.sb.init.hud_text
 
 		try:
 			selection = rt.selection

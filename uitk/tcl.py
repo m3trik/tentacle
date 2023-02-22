@@ -10,7 +10,11 @@ from uitk.overlay import Overlay
 from uitk.events import EventFactoryFilter, MouseTracking
 from uitk.widgets import rwidgets
 
-
+def event(self, event):
+        if event.type() == QtCore.QEvent.ChildAdded:
+            child = event.child()
+            self.addChildImpl(child)
+        return super().event(event)
 class Tcl(QtWidgets.QStackedWidget):
 	'''Tcl is a marking menu based on a QStackedWidget.
 	Gets and sets signal connections (through the switchboard module).
@@ -58,7 +62,7 @@ class Tcl(QtWidgets.QStackedWidget):
 		:Parameters:
 			ui (obj): The ui to initialize.
 		'''
-		self.initWidgets(ui)
+		self.initWidgets(ui.widgets)
 
 		if ui.level<3: #stacked ui.
 			ui.setParent(self)
@@ -81,8 +85,7 @@ class Tcl(QtWidgets.QStackedWidget):
 		assert isinstance(ui, (str, QtWidgets.QWidget)), f'# Error: {__file__} in setUi\n#\tIncorrect datatype: {type(ui).__name__}'
 
 		ui = self.sb.getUi(ui) #Get the ui of the given name, and set it as the current ui in the switchboard module.
-		self.sb.setCurrentUi(ui)
-
+		ui.setAsCurrent()
 		if not ui.isInitialized:
 			self.initUi(ui)
 
@@ -108,14 +111,15 @@ class Tcl(QtWidgets.QStackedWidget):
 
 		self.overlay.addToDrawPath(w)
 		p1 = w.mapToGlobal(w.rect().center()) #the widget position before submenu change.
-
+		self.setWindowOpacity(0.01)
 		self.setUi(ui) #switch the stacked widget to the given submenu.
 
 		w2 = getattr(self.currentWidget(), w.name) #get the widget of the same name in the new ui.
 		p2 = w2.mapToGlobal(w2.rect().center()) #widget position after submenu change.
 		currentPos = self.mapToGlobal(self.pos())
-		self.move(self.mapFromGlobal(currentPos +(p1 - p2))) #currentPos + difference
 
+		self.move(self.mapFromGlobal(currentPos +(p1 - p2))) #currentPos + difference
+		self.setWindowOpacity(255)
 		if ui not in self.sb.getPrevUi(asList=True): #if the submenu ui called for the first time:
 			self.cloneWidgetsAlongPath(ui) #re-construct any widgets from the previous ui that fall along the plotted path.
 
@@ -127,10 +131,10 @@ class Tcl(QtWidgets.QStackedWidget):
 		'''Return the stacked widget to it's starting index.
 		'''
 		prevUi = self.sb.getPrevUi(omitLevel=2)
+		self.setWindowOpacity(0.01)
 		self.setUi(prevUi) #return the stacked widget to it's previous ui.
-
 		self.move(self.overlay.drawPathStartPos - self.rect().center())
-
+		self.setWindowOpacity(255)
 		self.overlay.clearDrawPath()
 
 
@@ -142,12 +146,11 @@ class Tcl(QtWidgets.QStackedWidget):
 		:Parameters:
 			ui (obj): The ui in which to copy the widgets to.
 		'''
-		for prevWgt, prevPos, drawPos in self.overlay.drawPath:
-			state = True if prevWgt.objectName()!='return_area' else False
-			w = self.sb.PushButton(ui, copy_=prevWgt, setPosition_=prevPos, setVisible=state)
-			self.initWidgets(ui, w) #initialize the widget to set things like the event filter and styleSheet.
-			self.sb.connectSlots(ui, w)
-
+		cloned_widgets = set(
+			self.sb.PushButton(ui, copy_=prevWgt, setPosition_=prevPos, setVisible=prevWgt.objectName()!='return_area')
+			for prevWgt, prevPos, drawPos in self.overlay.drawPath
+		)
+		self.initWidgets(cloned_widgets) #initialize the widget to set things like the event filter.
 
 
 	# ---------------------------------------------------------------------------------------------
@@ -274,17 +277,11 @@ class Tcl(QtWidgets.QStackedWidget):
 		else:
 			self.setUi(ui)
 
-		super().show()
-		self.activateWindow() #the window cannot be activated for keyboard events until after it is shown.
-
-
-	def showEvent(self, event):
-		'''Non-spontaneous show events are sent to widgets immediately before they are shown.
-		'''
 		if self.sb.ui.level==0:
 			self.move(self.sb.getCenter(self))
 
-		super().showEvent(event)
+		super().show()
+		self.activateWindow() #the window cannot be activated for keyboard events until after it is shown.
 
 
 	def hide(self, force=False):
@@ -332,28 +329,21 @@ class Tcl(QtWidgets.QStackedWidget):
 		'QProgressBar',
 		'QMenu',
 	]
-	def initWidgets(self, ui, widgets=None):
+	def initWidgets(self, widgets):
 		'''Set Initial widget states.
 
 		:Parameters:
-			ui (obj): The ui to init widgets of.
-			widgets (str)(list): <QWidgets> if no arg is given, the operation will be performed on all widgets of the given ui name.
+			widgets (str)(list): The widget(s) to initialize.
 		'''
-		if widgets is None:
-			widgets = ui.widgets #get all widgets for the given ui.
-		else:
-			widgets = makeList(widgets)
-			ui.addWidgets([w for w in widgets if w not in ui.widgets])
-
-		for w in widgets: #if 'widgets' isn't a list, convert it to one.
-
+		for w in makeList(widgets): #if 'widgets' isn't a list, convert it to one.
+			print (4, 'initWidget:', w.name, w.ui.name, id(w))
 			if w.derivedType in self.ef_widgetTypes:
-				# print (widgetName if widgetName else widget)
-				if ui.level<3:# or w.type=='QMainWindow':
+				# print (widgetName or widget)
+				if w.ui.level<3:# or w.type=='QMainWindow':
 					w.installEventFilter(self.eventFilter)
 
 				if w.derivedType in ('QPushButton', 'QLabel'): #widget types to resize and center.
-					if ui.level<=2:
+					if w.ui.level<=2:
 						self.sb.resizeAndCenterWidget(w)
 
 				elif w.derivedType=='QWidget':
