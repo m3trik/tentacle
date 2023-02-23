@@ -12,7 +12,7 @@ from PySide2.QtUiTools import QUiLoader
 from pythontk import File, Str, Iter, hasAttribute, setAttributes
 from uitk.styleSheet import StyleSheet
 
-from functools import cached_property
+from functools import cached_property, partial
 class MainWindow(QtWidgets.QMainWindow):
 	def __init__(self, sb, file):
 		'''This class represents a main window in a GUI application.
@@ -76,6 +76,7 @@ class MainWindow(QtWidgets.QMainWindow):
 		self.sizeX = self.frameGeometry().width()
 		self.sizeY = self.frameGeometry().height()
 		self._widgets = set()
+		self._deferred = {}
 
 		ui = self.sb.load(file)
 		self.setWindowFlags(ui.windowFlags())
@@ -87,6 +88,7 @@ class MainWindow(QtWidgets.QMainWindow):
 		if event.type() == QtCore.QEvent.ChildAdded:
 			child = event.child()
 			child.installEventFilter(self) #Install an event filter to wait for the ChildPolished event.
+		# elif event.type() == QtCore.QEvent.ChildRemoved:
 		return super().event(event)
 
 	def eventFilter(self, w, event):
@@ -95,6 +97,19 @@ class MainWindow(QtWidgets.QMainWindow):
 			w.removeEventFilter(self) #Remove the event filter now that the ChildPolished event has triggered.
 			self.childAdded(w)
 		return super().eventFilter(w, event)
+
+	def deferred(self, func, *args, priority=0):
+		method = partial(func, *args)
+		if priority in self._deferred:
+			self._deferred[priority] += (method,)
+		else:
+			self._deferred[priority] = (method,)
+
+	def trigger_deferred(self):
+		for priority in sorted(self._deferred):
+			for method in self._deferred[priority]:
+				method()
+		self._deferred.clear()
 
 	@property
 	def name(self):
@@ -162,7 +177,8 @@ class MainWindow(QtWidgets.QMainWindow):
 		# print (0, 'childAdded:', w)
 		if w not in self._widgets:
 			self.sb.addWidgets(self, w)
-			print (1, 'childAdded:', w.name, w.ui.name, id(w))
+			# print (1, 'childAdded:', w.name, w.ui.name, id(w))
+			self.trigger_deferred()
 			if self.isConnected:
 				self.sb.connectSlots(self, w)
 				# print (2, 'connected:', w.ui.name)

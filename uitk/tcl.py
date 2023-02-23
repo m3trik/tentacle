@@ -150,7 +150,7 @@ class Tcl(QtWidgets.QStackedWidget):
 			self.sb.PushButton(ui, copy_=prevWgt, setPosition_=prevPos, setVisible=prevWgt.objectName()!='return_area')
 			for prevWgt, prevPos, drawPos in self.overlay.drawPath
 		)
-		self.initWidgets(cloned_widgets) #initialize the widget to set things like the event filter.
+		ui.deferred(self.initWidgets, cloned_widgets) #initialize the widget to set things like the event filter.
 
 
 	# ---------------------------------------------------------------------------------------------
@@ -336,9 +336,8 @@ class Tcl(QtWidgets.QStackedWidget):
 			widgets (str)(list): The widget(s) to initialize.
 		'''
 		for w in makeList(widgets): #if 'widgets' isn't a list, convert it to one.
-			print (4, 'initWidget:', w.name, w.ui.name, id(w))
+			# print (4, 'initWidget:', w.name, w.ui.name, id(w))
 			if w.derivedType in self.ef_widgetTypes:
-				# print (widgetName or widget)
 				if w.ui.level<3:# or w.type=='QMainWindow':
 					w.installEventFilter(self.eventFilter)
 
