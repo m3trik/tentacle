@@ -45,21 +45,17 @@ class Menu(QtWidgets.QMenu, Attributes):
 
 		self.setAttributes(**kwargs)
 
+		self.childWidgets = []
 		self.layouts = {} #a container for any created layouts.
 		self.toggleAllButton = self._addToggleAllButton()
 		self.applyButton = self._addApplyButton()
-
-		#assign properties
-		self.__class__.childWidgets = property(lambda self: self.getChildWidgets())
 
 
 	@property
 	def containsMenuItems(self):
 		'''Query whether any child objects have been added to the menu.
 		'''
-		state = True if self.childWidgets else False
-
-		return state
+		return bool(self.childWidgets)
 
 
 	#property
@@ -73,13 +69,10 @@ class Menu(QtWidgets.QMenu, Attributes):
 		:Return:
 			(list) child widgets.
 		'''
-		if not hasattr(self, '_childWidgets'):
-			self._childWidgets = []
-
 		if any((inc, exc)):
 			try:
-				self._childWidgets = [
-					w for w in self._childWidgets 
+				self.childWidgets = [
+					w for w in self.childWidgets 
 						if not w.__class__.__base__.__name__ in exc 
 							and (w.__class__.__base__.__name__ in inc if inc 
 								else w.__class__.__base__.__name__ not in inc)
@@ -88,7 +81,7 @@ class Menu(QtWidgets.QMenu, Attributes):
 			except Exception as error:
 				print (f'# Error: {__file__} in getChildWidgets\n#\t{error}')
 
-		return self._childWidgets
+		return self.childWidgets
 
 
 	@property
@@ -295,18 +288,17 @@ class Menu(QtWidgets.QMenu, Attributes):
 			setMinMax_ (str): Set the min, max, and step values with a string. ie. '1-100 step.1'
 
 		:Return:
- 			(obj) the added widget instance.
+			(obj) the added widget instance.
 
 		ex.call:
 		menu.add('QCheckBox', setText='Component Ring', setObjectName='chk000', setToolTip='Select component ring.')
 		'''
 		try: #get the widget
 			w = getattr(QtWidgets, widget)() #ie. QtWidgets.QAction(self) object from string.
+		except TypeError:
+			w = widget() #if callable(widget) ie. QtWidgets.QAction(self) object.
 		except:
-			try: #if callable(widget):
-				w = widget() #ie. QtWidgets.QAction(self) object.
-			except:
-				w = widget
+			w = widget
 
 		self.setAttributes(w, **kwargs) #set any additional given keyword args for the widget.
 
@@ -348,11 +340,15 @@ class Menu(QtWidgets.QMenu, Attributes):
 
 			self._addToContextMenuToolTip(w)
 
-			#connect to '_setLastActiveChild' when signal activated.
-			if hasattr(w, 'released'):
-				w.released.connect(lambda w=w: self._setLastActiveChild(w))
-			elif hasattr(w, 'valueChanged'):
-				w.valueChanged.connect(lambda value, w=w: self._setLastActiveChild(value, w))
+			# Get the appropriate signal to connect to
+			signal = None
+			if isinstance(w, QtWidgets.QAbstractButton):
+				signal = w.released
+			elif isinstance(w, QtWidgets.QAbstractSpinBox):
+				signal = w.valueChanged
+			# Connect the signal if one was found
+			if signal is not None:
+				signal.connect(lambda value, w=w: self._setLastActiveChild(value, w))
 
 		return w
 
@@ -461,49 +457,41 @@ class Menu(QtWidgets.QMenu, Attributes):
 			super().hide()
 
 
-	def show(self):
-		'''Show the menu.
-		'''
-		if not self.containsMenuItems: #prevent show if the menu is empty.
+	def setVisible(self, state): #called every time the after widget is shown or hidden on screen.
+		if state: #visible
+			if not self.containsMenuItems: #prevent show if the menu is empty.
+				return
+
+			if not self.title():
+					self.setTitle()
+
+			if hasattr(self.parent(), 'released') and not self.parent().objectName()=='draggable_header':
+				# print (f'show menu | title: {self.title()} | {self.parent().objectName()} has attr released.') #debug
+				self.applyButton.show()
+
+			checkboxes = self.getChildWidgets(inc=['QCheckBox'])
+			if checkboxes: #returns None if the menu doesn't contain checkboxes.
+				self.toggleAllButton.show()
+
+			self.resize(self.sizeHint().width(), self.sizeHint().height()+10) #self.setMinimumSize(width, self.sizeHint().height()+5)
+			getCenter = lambda w, p: QtCore.QPoint(p.x()-(w.width()/2), p.y()-(w.height()/4)) #get widget center position.
+
+			#set menu position
+			if self.position=='cursorPos':
+				pos = QtGui.QCursor.pos() #global position
+				self.move(getCenter(self, pos)) #move to cursor position.
+
+			elif not isinstance(self.position, (type(None), str)): #if a widget is passed to 'position' (move to the widget's position).
+				pos = getattr(self.positionRelativeTo.rect(), self.position)
+				self.move(self.positionRelativeTo.mapToGlobal(pos()))
+
+			elif self.parent(): #if parent: map relative to parent.
+				pos = getattr(self.parent().rect(), self.position if not self.position=='cursorPos' else 'bottomLeft')
+				pos = self.parent().mapToGlobal(pos())
+				self.move(pos) # self.move(getCenter(self, pos))
+		elif self.preventHide: #invisible
 			return
-
-		if not self.title():
-				self.setTitle()
-
-		if hasattr(self.parent(), 'released') and not self.parent().objectName()=='draggable_header':
-			# print (f'show menu | title: {self.title()} | {self.parent().objectName()} has attr released.') #debug
-			self.applyButton.show()
-
-		checkboxes = self.getChildWidgets(inc=['QCheckBox'])
-		if checkboxes: #returns None if the menu doesn't contain checkboxes.
-			self.toggleAllButton.show()
-
-		super().show()
-
-
-	def showEvent(self, event):
-		'''
-		:Parameters:
-			event = <QEvent>
-		'''
-		self.resize(self.sizeHint().width(), self.sizeHint().height()+10) #self.setMinimumSize(width, self.sizeHint().height()+5)
-		getCenter = lambda w, p: QtCore.QPoint(p.x()-(w.width()/2), p.y()-(w.height()/4)) #get widget center position.
-
-		#set menu position
-		if self.position=='cursorPos':
-			pos = QtGui.QCursor.pos() #global position
-			self.move(getCenter(self, pos)) #move to cursor position.
-
-		elif not isinstance(self.position, (type(None), str)): #if a widget is passed to 'position' (move to the widget's position).
-			pos = getattr(self.positionRelativeTo.rect(), self.position)
-			self.move(self.positionRelativeTo.mapToGlobal(pos()))
-
-		elif self.parent(): #if parent: map relative to parent.
-			pos = getattr(self.parent().rect(), self.position if not self.position=='cursorPos' else 'bottomLeft')
-			pos = self.parent().mapToGlobal(pos())
-			self.move(pos) # self.move(getCenter(self, pos))
-
-		QtWidgets.QMenu.showEvent(self, event)
+		super().setVisible(state)
 
 
 
@@ -593,3 +581,65 @@ Promoting a widget in designer to use a custom class:
 
 # depricated:
 
+	# def hide(self, force=False):
+	# 	'''Sets the widget as invisible.
+	# 	Prevents hide event under certain circumstances.
+
+	# 	:Parameters:
+	# 		force (bool): override preventHide.
+	# 	'''
+	# 	if force or not self.preventHide:
+
+	# 		for w in self.getChildWidgets():
+	# 			try:
+	# 				if w.view().isVisible(): #comboBox menu open.
+	# 					return
+	# 			except AttributeError as error:
+	# 				pass
+
+	# 		super().hide()
+
+
+	# def show(self):
+	# 	'''Show the menu.
+	# 	'''
+	# 	if not self.containsMenuItems: #prevent show if the menu is empty.
+	# 		return
+
+	# 	if not self.title():
+	# 			self.setTitle()
+
+	# 	if hasattr(self.parent(), 'released') and not self.parent().objectName()=='draggable_header':
+	# 		# print (f'show menu | title: {self.title()} | {self.parent().objectName()} has attr released.') #debug
+	# 		self.applyButton.show()
+
+	# 	checkboxes = self.getChildWidgets(inc=['QCheckBox'])
+	# 	if checkboxes: #returns None if the menu doesn't contain checkboxes.
+	# 		self.toggleAllButton.show()
+
+	# 	super().show()
+
+
+	# def showEvent(self, event):
+	# 	'''
+	# 	:Parameters:
+	# 		event = <QEvent>
+	# 	'''
+	# 	self.resize(self.sizeHint().width(), self.sizeHint().height()+10) #self.setMinimumSize(width, self.sizeHint().height()+5)
+	# 	getCenter = lambda w, p: QtCore.QPoint(p.x()-(w.width()/2), p.y()-(w.height()/4)) #get widget center position.
+
+	# 	#set menu position
+	# 	if self.position=='cursorPos':
+	# 		pos = QtGui.QCursor.pos() #global position
+	# 		self.move(getCenter(self, pos)) #move to cursor position.
+
+	# 	elif not isinstance(self.position, (type(None), str)): #if a widget is passed to 'position' (move to the widget's position).
+	# 		pos = getattr(self.positionRelativeTo.rect(), self.position)
+	# 		self.move(self.positionRelativeTo.mapToGlobal(pos()))
+
+	# 	elif self.parent(): #if parent: map relative to parent.
+	# 		pos = getattr(self.parent().rect(), self.position if not self.position=='cursorPos' else 'bottomLeft')
+	# 		pos = self.parent().mapToGlobal(pos())
+	# 		self.move(pos) # self.move(getCenter(self, pos))
+
+	# 	QtWidgets.QMenu.showEvent(self, event)

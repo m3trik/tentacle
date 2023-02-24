@@ -10,11 +10,7 @@ from uitk.overlay import Overlay
 from uitk.events import EventFactoryFilter, MouseTracking
 from uitk.widgets import rwidgets
 
-def event(self, event):
-        if event.type() == QtCore.QEvent.ChildAdded:
-            child = event.child()
-            self.addChildImpl(child)
-        return super().event(event)
+
 class Tcl(QtWidgets.QStackedWidget):
 	'''Tcl is a marking menu based on a QStackedWidget.
 	Gets and sets signal connections (through the switchboard module).
@@ -48,7 +44,7 @@ class Tcl(QtWidgets.QStackedWidget):
 		self.setAttribute(QtCore.Qt.WA_TranslucentBackground)
 		# self.setAttribute(QtCore.Qt.WA_SetStyle) #Indicates that the widget has a style of its own.
 		self.setAttribute(QtCore.Qt.WA_NoMousePropagation, False)
-		self.resize(800, 800)
+		self.resize(1200, 1200)
 
 		self.sb = Switchboard(self, uiLoc='ui', widgetLoc=rwidgets, slotLoc=slotLoc, preloadUi=True)
 		self.overlay = Overlay(self, antialiasing=True) #Paint events are handled by the overlay module.
@@ -150,7 +146,7 @@ class Tcl(QtWidgets.QStackedWidget):
 			self.sb.PushButton(ui, copy_=prevWgt, setPosition_=prevPos, setVisible=prevWgt.objectName()!='return_area')
 			for prevWgt, prevPos, drawPos in self.overlay.drawPath
 		)
-		ui.deferred(self.initWidgets, cloned_widgets) #initialize the widget to set things like the event filter.
+		ui.defer(self.initWidgets, cloned_widgets) #initialize the widget to set things like the event filter.
 
 
 	# ---------------------------------------------------------------------------------------------
@@ -336,7 +332,8 @@ class Tcl(QtWidgets.QStackedWidget):
 			widgets (str)(list): The widget(s) to initialize.
 		'''
 		for w in makeList(widgets): #if 'widgets' isn't a list, convert it to one.
-			# print (4, 'initWidget:', w.name, w.ui.name, id(w))
+			# if 'polygons' in w.ui.name:
+				# print ('initWidgets:', w.ui.name.ljust(26), w.prefix.ljust(25), (w.name or type(w).__name__).ljust(25), w.type.ljust(15), w.derivedType.ljust(15), id(w)) #debug
 			if w.derivedType in self.ef_widgetTypes:
 				if w.ui.level<3:# or w.type=='QMainWindow':
 					w.installEventFilter(self.eventFilter)
