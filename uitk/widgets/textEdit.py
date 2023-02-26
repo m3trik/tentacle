@@ -2,9 +2,8 @@
 # coding=utf-8
 from PySide2 import QtCore, QtGui, QtWidgets
 
-from attributes import Attributes
-from menu import MenuInstance
-
+from uitk.widgets.attributes import Attributes
+from uitk.widgets.menu import MenuInstance
 
 
 class TextEdit(QtWidgets.QTextEdit, Attributes, MenuInstance):
@@ -27,7 +26,7 @@ class TextEdit(QtWidgets.QTextEdit, Attributes, MenuInstance):
 	def insertText(self, text):
 		'''Append a new paragraph to the textEdit.
 
-		:Parameters:
+		Parameters:
 			text (str): A value to append to the lineEdit as a new paragraph. The value is converted to a string if it isn't already.
 		'''
 		baseStyle = '<font style="color: LightGray; background-color: rgb(50, 50, 50);">'
@@ -36,7 +35,7 @@ class TextEdit(QtWidgets.QTextEdit, Attributes, MenuInstance):
 
 	def showEvent(self, event):
 		'''
-		:Parameters:
+		Parameters:
 			event=<QEvent>
 		'''
 		self.shown.emit()
@@ -48,7 +47,7 @@ class TextEdit(QtWidgets.QTextEdit, Attributes, MenuInstance):
 
 	def hideEvent(self, event):
 		'''
-		:Parameters:
+		Parameters:
 			event=<QEvent>
 		'''
 		self.hidden.emit()
@@ -105,7 +104,7 @@ Promoting a widget in designer to use a custom class:
 
 	# def insertText(self, dict_):
 	# 	'''
-	# 	:Parameters:
+	# 	Parameters:
 	# 		dict_ = {dict} - contents to add.  for each key if there is a value, the key and value pair will be added.
 	# 	'''
 	# 	highlight = QtGui.QColor(255, 255, 0)

@@ -100,7 +100,7 @@ class Preferences_blender(Preferences, Slots_blender):
 	def loadPlugin(self, plugin):
 		'''Loads A Plugin.
 		
-		:Parameters:
+		Parameters:
 			plugin (str): The desired plugin to load.
 
 		ex. loadPlugin('nearestPointOnMesh')

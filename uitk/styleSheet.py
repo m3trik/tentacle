@@ -974,12 +974,12 @@ class StyleSheet(QtCore.QObject):
 		'''Return the colorValues dict with any of the bracketed placeholders 
 		replaced by the value of any given kwargs of the same name.
 
-		:Parameters:
+		Parameters:
 			style (str): The color value set to use. valid values are: 'standard', 'dark'
 			**kwargs () = Keyword arguments matching the string of any bracketed placeholders.
 				case insensitive.  ex. alpha=255
 
-		:Return:
+		Return:
 			(dict) The color values with placeholder values. ex. {'BACKGROUND_ALPHA': 'rgba(100,100,100,75)', etc..
 		'''
 		return {k:v.format(**{k.upper():v for k, v in kwargs.items()})
@@ -991,11 +991,11 @@ class StyleSheet(QtCore.QObject):
 		'''Get the styleSheet for the given widget type.
 		By default it will return all stylesheets as one multi-line css string.
 
-		:Parameters:
+		Parameters:
 			widget_type (str): The class name of the widget. ie. 'QLabel'
 			style (str): The color value set to use. valid values are: 'standard', 'dark'
 
-		:Return:
+		Return:
 			(str) css styleSheet
 		'''
 		if widget_type==None:
@@ -1019,7 +1019,7 @@ class StyleSheet(QtCore.QObject):
 		'''Set the styleSheet for the given widgets.
 		Set the style for a specific widget by using the '#' syntax and the widget's objectName. ie. QWidget#mainWindow
 
-		:Parameters:
+		Parameters:
 			widgets (obj)(list): A widget or list of widgets.
 			ratio (int): The ratio of widget size, text length in relation to the amount of padding applied.
 			style (str): Color mode. ie. 'standard' or 'dark'

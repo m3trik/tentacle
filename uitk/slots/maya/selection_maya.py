@@ -436,7 +436,7 @@ class Selection_maya(Selection, Slots_maya):
 	def setSelectionStyle(ctx):
 		'''Set the selection style context.
 
-		:Parameters:
+		Parameters:
 			ctx (str): Selection style context. valid: 'marquee', 'lasso', 'paint'.
 		'''
 		ctx = ctx+'Context'
@@ -456,7 +456,7 @@ class Selection_maya(Selection, Slots_maya):
 	def generateUniqueSetName(self, obj=None):
 		'''Generate a generic name based on the object's name.
 
-		:Parameters:
+		Parameters:
 			obj (str)(obj)(list): The maya scene object to derive a unique name from.
 
 		<objectName>_Set<int>

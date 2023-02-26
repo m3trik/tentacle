@@ -6,30 +6,31 @@ import importlib
 import inspect
 
 
+def __getattr__(attr_name):
+	"""This function dynamically imports a module and returns an attribute from the module. 
 
-sys.path.append(os.path.dirname(os.path.abspath(__file__))) #append this dir to the system path.
-globals()['__package__'] = 'widgets'
+	Parameters:
+		attr_name (str): The name of the attribute to be imported. The name should be in the format 
+					'module_name.attribute_name' or just 'attribute_name'.
+	Return:
+		(obj) The attribute specified by the `attr_name` argument.
 
+	:Raises:
+		AttributeError: If the specified attribute is not found in the original module.
 
-for module in os.listdir(os.path.dirname(__file__)):
+	Example:
+		<package>.__getattr__('module1.attribute1') #returns: <attribute1 value>
+		<package>.__getattr__('attribute1') #returns: <attribute1 value>
+	"""
+	try:
+		module = __import__(f"{__package__}.{attr_name}", fromlist=[f"{attr_name}"])
+		setattr(sys.modules[__name__], attr_name, getattr(module, attr_name))
+		return getattr(module, attr_name)
 
-	mod_name = module[:-3]
-	mod_ext = module[-3:]
+	except ModuleNotFoundError as error:
+		raise AttributeError(f"Module '{__package__}' has no attribute '{attr_name}'") from error
 
-	if module == '__init__.py' or mod_ext != '.py':
-		continue
-
-	mod = importlib.import_module(mod_name)
-
-	cls_members = inspect.getmembers(sys.modules[mod_name], inspect.isclass)
-
-	for cls_name, cls_mem in cls_members:
-		globals()[cls_name] = cls_mem
-
-del module
-
-
-rwidgets = [w for w in globals().values() if type(w).__name__=='ObjectType'] #get all imported widget classes as a list.
+# --------------------------------------------------------------------------------------------
 
 
 

@@ -76,7 +76,7 @@ class Mirror_maya(Mirror, Slots_maya):
 					merge=False, mergeMode=1, mergeThreshold=0.005, deleteOriginal=False, deleteHistory=True):
 		'''Mirror geometry across a given axis.
 
-		:Parameters:
+		Parameters:
 			objects (obj): The objects to mirror. If None; any currently selected objects will be used.
 			axis (string) = The axis in which to perform the mirror along. case insensitive. (valid: 'x', '-x', 'y', '-y', 'z', '-z')
 			axisPivot (int): The pivot on which to mirror on. valid: 0) Bounding Box, 1) Object, 2) World.
@@ -88,7 +88,7 @@ class Mirror_maya(Mirror, Slots_maya):
 			deleteOriginal (bool): Delete the original objects after mirroring.
 			deleteHistory (bool): Delete non-deformer history on the object before performing the operation.
 
-		:Return:
+		Return:
 			(obj) The polyMirrorFace history node if a single object, else None.
 		'''
 		direction = {

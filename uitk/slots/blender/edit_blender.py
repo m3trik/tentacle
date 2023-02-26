@@ -258,13 +258,13 @@ class Edit_blender(Edit, Slots_blender):
 	def getOverlappingDupObjects(self, objects=[], omitInitialObjects=False, select=False, verbose=False):
 		'''Find any duplicate overlapping geometry at the object level.
 
-		:Parameters:
+		Parameters:
 			objects (list): A list of objects to find duplicate overlapping geometry for. Default is selected objects, or all if nothing is selected.
 			omitInitialObjects (bool): Search only for duplicates of the given objects (or any selected objects if None given), and omit them from the return results.
 			select (bool): Select any found duplicate objects.
 			verbose (bool): Print each found object to console.
 
-		:Return:
+		Return:
 			(set)
 
 		ex call: duplicates = getOverlappingDupObjects(omitInitialObjects=True, select=True, verbose=True)
@@ -305,7 +305,7 @@ class Edit_blender(Edit, Slots_blender):
 	def deleteAlongAxis(self, obj, axis):
 		'''Delete components of the given mesh object along the specified axis.
 
-		:Parameters:
+		Parameters:
 			obj (obj): Mesh object.
 			axis (str): Axis to delete on. ie. '-x' Components belonging to the mesh object given in the 'obj' arg, that fall on this axis, will be deleted. 
 		'''
@@ -322,7 +322,7 @@ class Edit_blender(Edit, Slots_blender):
 	def getAllFacesOnAxis(self, obj, axis="-x", localspace=False):
 		'''Get all faces on a specified axis
 
-		:Parameters:
+		Parameters:
 			obj=<geometry> - object to perform the operation on. 
 			axis (str): representing axis ie. "x"
 			localspace=bool - specify world or local space
@@ -344,11 +344,11 @@ class Edit_blender(Edit, Slots_blender):
 	def findNonManifoldVertex(self, objects, select=1):
 		'''Locate a connected vertex of non-manifold geometry where the faces share a single vertex.
 
-		:Parameters:
+		Parameters:
 			objects (str)(obj): A polygon mesh, or a list of meshes.
 			select (int): Select any found non-manifold vertices. 0=off, 1=on, 2=on while keeping any existing vertex selections. (default: 1)
 
-		:Return:
+		Return:
 			(list) any found non-manifold verts.
 		'''
 		# pm.undoInfo(openChunk=True)
@@ -404,7 +404,7 @@ class Edit_blender(Edit, Slots_blender):
 	def splitNonManifoldVertex(self, vertex, select=True):
 		'''Separate a connected vertex of non-manifold geometry where the faces share a single vertex.
 
-		:Parameters:
+		Parameters:
 			vertex (str)(obj): A single polygon vertex.
 			select (bool): Select the vertex after the operation. (default is True)
 		'''

@@ -364,7 +364,7 @@ class Transform_max(Transform, Slots_max):
 	def setTransformSnap(self, ctx, state):
 		'''Set the transform tool's move, rotate, and scale snap states.
 
-		:Parameters:
+		Parameters:
 			ctx (str): valid: 'move', 'scale', 'rotate'
 			state (int): valid: 0=off, 1=relative, 2=absolute
 		'''
@@ -384,7 +384,7 @@ class Transform_max(Transform, Slots_max):
 	def setSnapState(self, fn, state):
 		'''Grid and Snap Settings: Modify grid and snap states.
 
-		:Parameters:
+		Parameters:
 			fn (str): Snap string name.
 			state (bool): Desired snap state.
 
@@ -420,7 +420,7 @@ class Transform_max(Transform, Slots_max):
 		create edge alignment tool and then use subObjectLevel check to call either that function or this one from the same buttons.
 		to save ui space; have a single align button, x, y, z, and align 'all' checkboxes and a tolerance textfield.
 
-		:Parameters:
+		Parameters:
 			selection (list): vertex selection
 			mode (int): valid values are: 0 (YZ), 1 (XZ), 2 (XY), 3 (X), 4 (Y), 5 (Z)
 
@@ -524,7 +524,7 @@ class Transform_max(Transform, Slots_max):
 
 	def scaleObject(self, size, x, y ,z):
 		'''
-		:Parameters:
+		Parameters:
 			size (float) = Scale amount
 			x (bool): Scale in the x direction.
 			y (bool): Scale in the y direction.
@@ -568,7 +568,7 @@ class Transform_max(Transform, Slots_max):
 	def compareSize(self, obj1, obj2, factor):
 		'''Compares two point3 sizes from obj bounding boxes.
 
-		:Parameters:
+		Parameters:
 			obj1 (obj): 
 			obj2 (obj): 
 			factor () = 

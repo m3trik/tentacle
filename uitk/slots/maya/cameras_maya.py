@@ -20,7 +20,7 @@ class Cameras_maya(Cameras, Slots_maya):
 	def clippingMenu(self):
 		'''Menu: Camera clip plane settings.
 
-		:Return:
+		Return:
 			(obj) menu as a property.
 		'''
 		if not hasattr(self, '_clippingMenu'):

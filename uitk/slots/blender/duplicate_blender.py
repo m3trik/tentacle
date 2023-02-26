@@ -282,9 +282,9 @@ class Duplicate_blender(Duplicate, Slots_blender):
 
 	def getInstances(self, object_=None):
 		'''get any intances of given object, or if no object given, get all instanced objects in the scene.
-		:Parameters:
+		Parameters:
 			object=<scene object>
-		:Return:
+		Return:
 			any instances.
 		'''
 		instances=[]
@@ -310,12 +310,12 @@ class Duplicate_blender(Duplicate, Slots_blender):
 	def convertToInstances(self, objects=[], leaf=False, append='_INST'):
 		'''The first selected object will be instanced across all other selected objects.
 
-		:Parameters:
+		Parameters:
 			objects (list): A list of objects to convert to instances. The first object will be the instance parent.
 			leaf (bool): Instances leaf-level objects. Acts like duplicate except leaf-level objects are instanced.
 			append (str): Append a string to the end of any instanced objects.
 
-		:Example: convertToInstances(pm.ls(sl=1))
+		Example: convertToInstances(pm.ls(sl=1))
 		'''
 		# pm.undoInfo(openChunk=1)
 		p0x, p0y, p0z = pm.xform(objects[0], query=1, rotatePivot=1, worldSpace=1) #get the world space obj pivot.
@@ -345,7 +345,7 @@ class Duplicate_blender(Duplicate, Slots_blender):
 	def unInstance(self, objects):
 		'''Un-Instance the given objects.
 
-		:Parameters:
+		Parameters:
 			objects (str)(obj)(list): The objects to un-instance. If 'all' is given all instanced objects in the scene will be uninstanced.
 		'''
 		if objects=='all':

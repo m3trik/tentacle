@@ -37,7 +37,7 @@ class Uv_max(Uv, Slots_max):
 		'''Get the UV modifier for the current object.
 		If one doesn't exist, a UV modifier will be added to the selected object.
 
-		:Return:
+		Return:
 			(obj) uv modifier.
 		'''
 		selection = rt.selection
@@ -337,7 +337,7 @@ class Uv_max(Uv, Slots_max):
 	def moveSelectedToUvSpace(self, u, v, relative=True):
 		'''Move sny selected objects to the given u and v coordinates.
 
-		:Parameters:
+		Parameters:
 			u (int): u coordinate.
 			v (int): v coordinate.
 			relative (bool): Move relative or absolute.

@@ -37,13 +37,13 @@ class Animation_blender(Animation, Slots_blender):
 	def setCurrentFrame(self, frame=1, relative=False, update=True):
 		'''Set the current frame on the timeslider.
 
-		:Parameters:
+		Parameters:
 		frame (int): Desired from number.
 		relative (bool): If True; the frame will be moved relative to 
 			it's current position using the frame value as a move amount.
 		update (bool): Change the current time, but do not update the world. (default=True)
 
-		:Example:
+		Example:
 			setCurrentFrame(24, relative=True, update=1)
 		'''
 		currentTime=0
@@ -57,11 +57,11 @@ class Animation_blender(Animation, Slots_blender):
 	def invertSelectedKeyframes(self, time=1, relative=True):
 		'''Duplicate any selected keyframes and paste them inverted at the given time.
 
-		:Parameters:
+		Parameters:
 			time (int): The desired start time for the inverted keys.
 			relative (bool): Start time position as relative or absolute.
 
-		:Example: invertSelectedKeyframes(time=48, relative=0)
+		Example: invertSelectedKeyframes(time=48, relative=0)
 		'''
 		# pm.undoInfo(openChunk=1)
 		allActiveKeyTimes = pm.keyframe(query=True, sl=True, tc=True) #get times from all selected keys.

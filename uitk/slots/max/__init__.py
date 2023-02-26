@@ -37,12 +37,12 @@ class Slots_max(Slots):
 	def getAttributesMax(node, inc=[], exc=[]):
 		'''Get node attributes and their corresponding values as a dict.
 
-		:Parameters:
+		Parameters:
 			node (obj): Transform node.
 			inc (list): Attributes to include. All other will be omitted. Exclude takes dominance over include. Meaning, if the same attribute is in both lists, it will be excluded.
 			exc (list): Attributes to exclude from the returned dictionay. ie. [u'Position',u'Rotation',u'Scale',u'renderable',u'isHidden',u'isFrozen',u'selected']
 
-		:Return:
+		Return:
 			(dict) {'string attribute': current value}
 
 		# print (rt.showProperties(obj))
@@ -63,7 +63,7 @@ class Slots_max(Slots):
 	def setAttributesMax(node, attributes):
 		'''Set history node attributes using the transform node.
 
-		:Parameters:
+		Parameters:
 			node (obj): Transform node.
 			attributes (dict): Attributes and their correponding value to set. ie. {'string attribute': value}
 		'''
@@ -85,7 +85,7 @@ class Slots_max(Slots):
 	def getFacesByNormal(normal, tolerance, includeBackFaces):
 		'''Get all faces in a mesh/poly that have normals within the given tolerance range.
 
-		:Parameters:
+		Parameters:
 			normal (obj): Polygon face normal.
 			tolerance (float) = Normal tolerance.
 			includeBackFaces (bool): Include back-facing faces.
@@ -112,11 +112,11 @@ class Slots_max(Slots):
 	def getEdgesByAngle(minAngle, maxAngle):
 		'''Get edges between min and max angle.
 
-		:Parameters:
+		Parameters:
 			minAngle (float) = minimum search angle tolerance.
 			maxAngle (float) = maximum search angle tolerance.
 
-		:Return:
+		Return:
 			(list) edges within the given range.
 		'''
 		edgelist=[]
@@ -140,13 +140,13 @@ class Slots_max(Slots):
 	def getComponents(obj=None, componentType=None, selection=False, returnType='List'):
 		'''Get the components of the given type. (editable mesh or polygon)
 
-		:Parameters:
+		Parameters:
 			obj (obj): An Editable mesh or Editable polygon object. If None; the first currently selected object will be used.
 			componentType (str)(int): The desired component mask. (valid: 'vertex', 'vertices', 'edge', 'edges', 'face', 'faces').
 			selection (bool): Filter to currently selected components.
 			returnType (type) = The desired returned object type. (valid: 'Array', 'BitArray', 'List'(default))
 
-		:Return:
+		Return:
 			(array) Dependant on flags.
 
 		ex. getComponents(obj, 'vertices', selection=True, returnType='BitArray')
@@ -208,14 +208,14 @@ class Slots_max(Slots):
 	def convertComponents(obj=None, components=None, convertFrom=None, convertTo=None, returnType='List'):
 		'''Convert the components to the given type. (editable mesh, editable poly)
 
-		:Parameters:
+		Parameters:
 			obj (obj): An Editable mesh or Editable polygon object. If None; the first currently selected object will be used.
 			components (list): The component id's of the given object.  If None; all components of the given convertFrom type will be used.
 			convertFrom (str): Starting component type. (valid: 'vertex', 'vertices', 'edge', 'edges', 'face', 'faces').
 			convertTo (str): Resulting component type.  (valid: 'vertex', 'vertices', 'edge', 'edges', 'face', 'faces').
 			returnType (type) = The desired returned object type. (valid: 'Array', 'BitArray', 'List'(default))
 
-		:Return:
+		Return:
 			(array) Component ID's. ie. [1, 2, 3]
 
 		ex. obj = rt.selection[0]
@@ -278,7 +278,7 @@ class Slots_max(Slots):
 	def arrayToBitArray(array):
 		'''Convert an integer array to a bitArray.
 
-		:Parameters:
+		Parameters:
 			array (list): The array that will be converted to a bitArray.
 		'''
 		maxEval("fn _arrayToBitArray a = (return a as bitArray)")
@@ -291,7 +291,7 @@ class Slots_max(Slots):
 	def bitArrayToArray(bitArray):
 		'''Convert a bitArray to an integer array.
 
-		:Parameters:
+		Parameters:
 			bitArray (list): The bitArray that will be converted to a standard array.
 		'''
 		maxEval("fn _bitArrayToArray b = (return b as array)")
@@ -304,7 +304,7 @@ class Slots_max(Slots):
 	def toggleMaterialOverride(checker=False):
 		'''Toggle override all materials in the scene.
 
-		:Parameters:
+		Parameters:
 			checker (bool): Override with UV checkered material.
 		'''
 		state = Slots.cycle([0,1], 'OverrideMateridal') #toggle 0/1
@@ -321,7 +321,7 @@ class Slots_max(Slots):
 	@staticmethod
 	def setSubObjectLevel(level):
 		'''
-		:Parameters:
+		Parameters:
 			level (int): set component mode. 0(object), 1(vertex), 2(edge), 3(border), 4(face), 5(element)
 		'''
 		maxEval ('max modify mode') #set focus: modifier panel.
@@ -347,12 +347,12 @@ class Slots_max(Slots):
 	def getModifier(obj, modifier, index=0):
 		'''Gets (and sets (if needed)) the given modifer for the given object at the given index.
 		
-		:Parameters:
+		Parameters:
 			obj = <object> - the object to add or retrieve the modifier from.
 			modifier (str): modifier name.
 			index (int): place modifier before given index. default is at the top of the stack.
 						Negative indices place the modifier from the bottom of the stack.
-		:Return:
+		Return:
 			(obj) modifier object.
 		'''
 		m = obj.modifiers[modifier] #check the stack for the given modifier.
@@ -397,7 +397,7 @@ class Slots_max(Slots):
 	def setAttributeWindow(self, obj, inc=[], exc=[], checkableLabel=False, fn=None, *fn_args, **attributes):
 		'''Launch a popup window containing the given objects attributes.
 
-		:Parameters:
+		Parameters:
 			obj (str)(obj)(list): The object to get the attributes of, or it's name. If given as a list, only the first index will be used.
 			inc (list): Attributes to include. All other will be omitted. Exclude takes dominance over include. Meaning, if the same attribute is in both lists, it will be excluded.
 			exc (list): Attributes to exclude from the returned dictionay. ie. ['Position','Rotation','Scale','renderable','isHidden','isFrozen','selected']
@@ -407,7 +407,7 @@ class Slots_max(Slots):
 			fn_args (args) = Any additonal args to pass to fn.
 			attributes (kwargs) = Explicitly pass in attribute:values pairs. Else, attributes will be pulled from self.getAttributesMEL for the given obj.
 
-		:Example: self.setAttributeWindow(obj, attributes=attrs, checkableLabel=True)
+		Example: self.setAttributeWindow(obj, attributes=attrs, checkableLabel=True)
 		'''
 		if not obj:
 			return
@@ -435,14 +435,14 @@ class Slots_max(Slots):
 
 	def maxUiSetChecked(self, id, table, item, state=True, query=False):
 		'''
-		:Parameters:
+		Parameters:
 			id (str): The actionMan ID
 			table (int): The actionMan table
 			item (int): The actionMan item number
 			state (bool): Set the check state.
 			query (bool): Query the check state.
 
-		:Return:
+		Return:
 			(bool) The check state.
 		'''
 		atbl = rt.actionMan.getActionTable(table)

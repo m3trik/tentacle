@@ -40,7 +40,7 @@ class Materials_maya(Materials, Slots_maya):
 	def cmb002(self, index=-1):
 		'''Material list
 
-		:Parameters:
+		Parameters:
 			index (int): parameter on activated, currentIndexChanged, and highlighted signals.
 		'''
 		cmb = self.sb.materials.cmb002
@@ -216,11 +216,11 @@ class Materials_maya(Materials, Slots_maya):
 	def getColorSwatchIcon(self, mat, size=[20, 20]):
 		'''Get an icon with a color fill matching the given materials RBG value.
 
-		:Parameters:
+		Parameters:
 			mat (obj)(str): The material or the material's name.
 			size (list): Desired icon size.
 
-		:Return:
+		Return:
 			(obj) pixmap icon.
 		'''
 		try:
@@ -299,7 +299,7 @@ class Materials_maya(Materials, Slots_maya):
 	def getSceneMaterials(self, inc=[], exc=[]):
 		'''Get all materials from the current scene.
 
-		:Parameters:
+		Parameters:
 			inc (str)(int)(obj)(list): The objects(s) to include.
 					supports using the '*' operator: startswith*, *endswith, *contains*
 					Will include all items that satisfy ANY of the given search terms.
@@ -307,7 +307,7 @@ class Materials_maya(Materials, Slots_maya):
 					strings containing 'Normal'. NOT strings satisfying both terms.
 			exc (str)(int)(obj)(list): The objects(s) to exclude. Similar to include.
 					exlude take precidence over include.
-		:Return:
+		Return:
 			(list) materials.
 		'''
 		matList = pm.ls(mat=1, flatten=1)
@@ -323,7 +323,7 @@ class Materials_maya(Materials, Slots_maya):
 	def getFavoriteMaterials(self):
 		'''Get Maya favorite materials list.
 
-		:Return:
+		Return:
 			(list) materials.
 		'''
 		import maya.app.general.tlfavorites as _fav, os.path
@@ -339,10 +339,10 @@ class Materials_maya(Materials, Slots_maya):
 	def getMaterial(self, obj=''):
 		'''Get the material from the selected face.
 
-		:Parameters:
+		Parameters:
 			(str)(obj): The obj with the material.
 
-		:Return:
+		Return:
 			(list) material
 		'''
 		pm.hyperShade(obj, shaderNetworksSelectMaterialNodes=1) #selects the material node 
@@ -354,11 +354,11 @@ class Materials_maya(Materials, Slots_maya):
 	def createRandomMaterial(self, name='', prefix=''):
 		'''Creates a random material.
 
-		:Parameters:
+		Parameters:
 			name (str): material name.
 			prefix (str): Optional string to be appended to the beginning of the name.
 
-		:Return:
+		Return:
 			(obj) material.
 		'''
 		import random

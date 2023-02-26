@@ -2,10 +2,9 @@
 # coding=utf-8
 from PySide2 import QtCore, QtGui, QtWidgets
 
-from attributes import Attributes
-from text import RichText, TextOverlay
-from menu import MenuInstance
-
+from uitk.widgets.attributes import Attributes
+from uitk.widgets.text import RichText, TextOverlay
+from uitk.widgets.menu import MenuInstance
 
 
 class ComboBox(QtWidgets.QComboBox, MenuInstance, Attributes, RichText, TextOverlay):
@@ -18,7 +17,7 @@ class ComboBox(QtWidgets.QComboBox, MenuInstance, Attributes, RichText, TextOver
 	def __init__(self, parent=None, popupStyle='modelView', **kwargs):
 		super().__init__(parent)
 		'''
-		:Parameters:
+		Parameters:
 			popupStyle (str): specify the type of popup menu. default is the standard 'modelView'.
 		'''
 		self.popupStyle = popupStyle
@@ -35,7 +34,7 @@ class ComboBox(QtWidgets.QComboBox, MenuInstance, Attributes, RichText, TextOver
 	def items(self):
 		'''Get a list of each items's text or it's data if it exists from the standard model/view.
 
-		:Return:
+		Return:
 			(list)
 		'''
 		return [self.itemData(i) if self.itemData(i) else self.itemText(i) for i in range(self.count())]
@@ -44,7 +43,7 @@ class ComboBox(QtWidgets.QComboBox, MenuInstance, Attributes, RichText, TextOver
 	def blockSignals_(fn):
 		'''A decorator that blocks signals before executing a function, and unblocks them after.
 
-		:Parameters:
+		Parameters:
 			fn (obj): The function to be decorated.
 		'''
 		def wrapper(self, *args, **kwargs):
@@ -59,13 +58,13 @@ class ComboBox(QtWidgets.QComboBox, MenuInstance, Attributes, RichText, TextOver
 	def addItems_(self, items, header=None, clear=True, ascending=False):
 		'''Add items to the combobox's standard modelView without triggering any signals.
 
-		:Parameters:
+		Parameters:
 			items (str)(list)(dict): A string, list of strings, or dict with 'string':data pairs to fill the comboBox with.
 			header (str): An optional value for the first index of the comboBox's list.
 			clear (bool): Clear any previous items before adding new.
 			ascending (bool): Insert in ascending order. New item(s) will be added to the top of the list.
 
-		:Return:
+		Return:
 			(list) comboBox's current item list minus any header.
 
 		ex call: comboBox.addItems_(["Import file", "Import Options"], "Import")
@@ -102,7 +101,7 @@ class ComboBox(QtWidgets.QComboBox, MenuInstance, Attributes, RichText, TextOver
 	def currentData(self):
 		'''Get the data at the current index.
 
-		:Return:
+		Return:
 			() data
 		'''
 		index = self.currentIndex()
@@ -113,7 +112,7 @@ class ComboBox(QtWidgets.QComboBox, MenuInstance, Attributes, RichText, TextOver
 	def setCurrentData(self, value):
 		'''Sets the data for the current index.
 
-		:Parameters:
+		Parameters:
 			value () = The current item's data value.
 		'''
 		index = self.currentIndex()
@@ -124,7 +123,7 @@ class ComboBox(QtWidgets.QComboBox, MenuInstance, Attributes, RichText, TextOver
 	def currentText(self):
 		'''Get the text at the current index.
 
-		:Return:
+		Return:
 			(str)
 		'''
 		index = self.currentIndex()
@@ -135,7 +134,7 @@ class ComboBox(QtWidgets.QComboBox, MenuInstance, Attributes, RichText, TextOver
 	def setCurrentText(self, text):
 		'''Sets the text for the current index.
 
-		:Parameters:
+		Parameters:
 			item (str): The current item's text value.
 		'''
 		index = self.currentIndex()
@@ -147,7 +146,7 @@ class ComboBox(QtWidgets.QComboBox, MenuInstance, Attributes, RichText, TextOver
 		'''Set the text at the given index.
 		Override for setItemText built-in method.
 
-		:Parameters:
+		Parameters:
 			item (str): Item text.
 			index (int): Item index
 		'''
@@ -158,7 +157,7 @@ class ComboBox(QtWidgets.QComboBox, MenuInstance, Attributes, RichText, TextOver
 	def setCurrentItem(self, i):
 		'''Sets the current item from the given item text or index without triggering any signals.
 
-		:Parameters:
+		Parameters:
 			i (str)(int): item text or item index
 		'''
 		try: #set by item index:
@@ -208,7 +207,7 @@ class ComboBox(QtWidgets.QComboBox, MenuInstance, Attributes, RichText, TextOver
 
 	def enterEvent(self, event):
 		'''
-		:Parameters:
+		Parameters:
 			event=<QEvent>
 		'''
 
@@ -217,7 +216,7 @@ class ComboBox(QtWidgets.QComboBox, MenuInstance, Attributes, RichText, TextOver
 
 	def leaveEvent(self, event):
 		'''
-		:Parameters:
+		Parameters:
 			event=<QEvent>
 		'''
 		# self.hidePopup()
@@ -227,7 +226,7 @@ class ComboBox(QtWidgets.QComboBox, MenuInstance, Attributes, RichText, TextOver
 
 	def mousePressEvent(self, event):
 		'''
-		:Parameters:
+		Parameters:
 			event=<QEvent>
 		'''
 		if event.button()==QtCore.Qt.RightButton:
@@ -238,7 +237,7 @@ class ComboBox(QtWidgets.QComboBox, MenuInstance, Attributes, RichText, TextOver
 
 	def keyPressEvent(self, event):
 		'''
-		:Parameters:
+		Parameters:
 			event = <QEvent>
 		'''
 		if event.key()==QtCore.Qt.Key_Return and not event.isAutoRepeat():
@@ -250,7 +249,7 @@ class ComboBox(QtWidgets.QComboBox, MenuInstance, Attributes, RichText, TextOver
 
 	def showEvent(self, event):
 		'''
-		:Parameters:
+		Parameters:
 			event=<QEvent>
 		'''
 		if self.ctxMenu.containsMenuItems:

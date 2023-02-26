@@ -396,7 +396,7 @@ class Transform_maya(Transform, Slots_maya):
 	def setTransformSnap(self, ctx, state):
 		'''Set the transform tool's move, rotate, and scale snap states.
 
-		:Parameters:
+		Parameters:
 			ctx (str): valid: 'move', 'scale', 'rotate'
 			state (int): valid: 0=off, 1=relative, 2=absolute
 		'''

@@ -2,12 +2,12 @@
 # coding=utf-8
 from PySide2 import QtCore, QtGui, QtWidgets
 
-from attributes import Attributes
+from uitk.widgets.attributes import Attributes
 
 
 class Menu(QtWidgets.QMenu, Attributes):
 	'''
-	:Parameters:
+	Parameters:
 		menu_type (str): Menu style. valid parameters are: 'standard', 'context', 'form'
 		title (str): Text displayed at the menu's header.
 		padding (int): Area surrounding the menu.
@@ -45,43 +45,10 @@ class Menu(QtWidgets.QMenu, Attributes):
 
 		self.setAttributes(**kwargs)
 
-		self.childWidgets = []
+		self.childWidgets = set()
 		self.layouts = {} #a container for any created layouts.
 		self.toggleAllButton = self._addToggleAllButton()
 		self.applyButton = self._addApplyButton()
-
-
-	@property
-	def containsMenuItems(self):
-		'''Query whether any child objects have been added to the menu.
-		'''
-		return bool(self.childWidgets)
-
-
-	#property
-	def getChildWidgets(self, inc=[], exc=[]):
-		'''Get a list of the menu's child widgets.
-
-		:Parameters:
-			inc (list): Include only widgets of the given type(s). ie. ['QCheckBox', 'QRadioButton']
-			exc (list): Exclude widgets by type.
-
-		:Return:
-			(list) child widgets.
-		'''
-		if any((inc, exc)):
-			try:
-				self.childWidgets = [
-					w for w in self.childWidgets 
-						if not w.__class__.__base__.__name__ in exc 
-							and (w.__class__.__base__.__name__ in inc if inc 
-								else w.__class__.__base__.__name__ not in inc)
-				]
-
-			except Exception as error:
-				print (f'# Error: {__file__} in getChildWidgets\n#\t{error}')
-
-		return self.childWidgets
 
 
 	@property
@@ -92,7 +59,7 @@ class Menu(QtWidgets.QMenu, Attributes):
 			return self._draggable_header
 
 		except AttributeError as error:
-			from pushButtonDraggable import PushButtonDraggable
+			from uitk.widgets.pushButtonDraggable import PushButtonDraggable
 			dh = PushButtonDraggable()
 
 			wAction = QtWidgets.QWidgetAction(self)
@@ -103,11 +70,36 @@ class Menu(QtWidgets.QMenu, Attributes):
 			return self._draggable_header
 
 
+	@property
+	def containsMenuItems(self):
+		'''Query whether any child objects have been added to the menu.
+		'''
+		return bool(self.childWidgets)
+
+
+	def getChildWidgets(self, inc=[], exc=[]):
+		'''Get a list of the menu's child widgets.
+
+		:Parameters:
+			inc (list): Include only widgets of the given type(s). ie. ['QCheckBox', 'QRadioButton']
+			exc (list): Exclude widgets by type.
+		:Return:
+			(list) child widgets.
+		'''
+		if any((inc, exc)):
+			return [w for w in self.childWidgets 
+					if not w.__class__.__base__.__name__ in exc 
+						and (w.__class__.__base__.__name__ in inc if inc 
+					else w.__class__.__base__.__name__ not in inc)]
+		else:
+			return list(self.childWidgets)
+
+
 	def setTitle(self, title=''):
 		'''Set the menu's title to the given string.
 		If no title is given, the fuction will attempt to use the menu parents text.
 
-		:Parameters:
+		Parameters:
 			title (str): Text to apply to the menu's header.
 		'''
 		if not title:
@@ -136,7 +128,7 @@ class Menu(QtWidgets.QMenu, Attributes):
 	def insertAction_(self, wAction, index=-1):
 		'''Extends insertAction to allow inserting by index.
 
-		:Parameters:
+		Parameters:
 			wAction (obj): The widget action to insert.
 			index (int): The desired index. (It appends the action if index is invalid)
 		'''
@@ -147,11 +139,11 @@ class Menu(QtWidgets.QMenu, Attributes):
 	def _addFormLayout(self, key='form', index=0):
 		'''Create a two column form layout that can later be referenced using a key.
 
-		:Parameters:
+		Parameters:
 			key (str)(int): The key identifier for the layout.
 			index(int): The index corresponding to the vertical positioning of the layout.
 
-		:Return:
+		Return:
 			(obj) QLayout.
 		'''
 		form = QtWidgets.QWidget(self)
@@ -171,10 +163,10 @@ class Menu(QtWidgets.QMenu, Attributes):
 	def getFormLayout(self, key='form'):
 		'''Get a two column form layout using a key.
 
-		:Parameters:
+		Parameters:
 			key (str)(int): The key identifier for the layout.
 
-		:Return:
+		Return:
 			(obj) QLayout.
 		'''
 		try:
@@ -188,11 +180,11 @@ class Menu(QtWidgets.QMenu, Attributes):
 	def _addVBoxLayout(self, key='vBox', index=0):
 		'''Create a single column vertical layout that can later be referenced using a key.
 
-		:Parameters:
+		Parameters:
 			key (str)(int): The key identifier for the layout.
 			index(int): The index corresponding to the vertical positioning of the layout.
 
-		:Return:
+		Return:
 			(obj) QLayout.
 		'''
 		form = QtWidgets.QWidget(self)
@@ -213,10 +205,10 @@ class Menu(QtWidgets.QMenu, Attributes):
 	def getVBoxLayout(self, key='vBox'):
 		'''Get a vertical box layout using a key.
 
-		:Parameters:
+		Parameters:
 			key (str)(int): The key identifier for the layout.
 
-		:Return:
+		Return:
 			(obj) QLayout.
 		'''
 		try:
@@ -231,7 +223,7 @@ class Menu(QtWidgets.QMenu, Attributes):
 		'''Add a pushbutton that executes the parent object when pressed.
 		The button is hidden by default.
 
-		:Return:
+		Return:
 			(widget)
 		'''
 		if not self.parent():
@@ -255,7 +247,7 @@ class Menu(QtWidgets.QMenu, Attributes):
 		'''Add a pushbutton that will uncheck any checkBoxes when pressed.
 		The button is hidden by default.
 
-		:Return:
+		Return:
 			(widget)
 		'''
 		w = QtWidgets.QPushButton('Uncheck All') #self.add('QPushButton', setText='Disable All', setObjectName='disableAll', setToolTip='Set all unchecked.')
@@ -275,7 +267,7 @@ class Menu(QtWidgets.QMenu, Attributes):
 	def add(self, widget, label='', checkableLabel=False, **kwargs):
 		'''Add items to the QMenu.
 
-		:Parameters:
+		Parameters:
 			widget (str)(obj): The widget to add. ie. 'QLabel', QtWidgets.QLabel, QtWidgets.QLabel()
 			lable (str): Add a label. (which is actually a checkbox. by default it is not checkable)
 			checkableLabel (bool): The label is checkable.
@@ -287,7 +279,7 @@ class Menu(QtWidgets.QMenu, Attributes):
 			setButtonSymbols_ (str): ie. 'PlusMinus'
 			setMinMax_ (str): Set the min, max, and step values with a string. ie. '1-100 step.1'
 
-		:Return:
+		Return:
 			(obj) the added widget instance.
 
 		ex.call:
@@ -318,7 +310,7 @@ class Menu(QtWidgets.QMenu, Attributes):
 					l.setStyleSheet('QCheckBox::hover {background-color: rgb(100,100,100); color: white;}')
 				layout = self.getFormLayout() #get the default form layout.
 				layout.addRow(l, w)
-				self.childWidgets.append(l) #add the widget to the childWidgets list.
+				self.childWidgets.add(l) #add the widget to the childWidgets list.
 
 			else: #convert to action item, then add.
 				layout = self.getVBoxLayout() #get the default vertical box layout.
@@ -334,7 +326,7 @@ class Menu(QtWidgets.QMenu, Attributes):
 			except UnboundLocalError as error: #'l' does not exist. (not a form menu)
 				pass
 
-			self.childWidgets.append(w) #add the widget to the childWidgets list.
+			self.childWidgets.add(w) #add the widget to the childWidgets list.
 
 			setattr(self, w.objectName(), w) #add the widget's objectName as a QMenu attribute.
 
@@ -357,11 +349,11 @@ class Menu(QtWidgets.QMenu, Attributes):
 		'''Set the given widget as the last active.
 		Maintains a list of the last 10 active child widgets.
 
-		:Parameters:
+		Parameters:
 			widget = Widget to set as last active. The widget can later be returned by calling the 'lastActiveChild' method.
 			*args **kwargs = Any additional arguments passed in by the wiget's signal during a connect call.
 
-		:Return:
+		Return:
 			(obj) widget.
 		'''
 		# widget = args[-1]
@@ -380,10 +372,10 @@ class Menu(QtWidgets.QMenu, Attributes):
 		'''Get the given widget set as last active.
 		Contains a list of the last 10 active child widgets.
 
-		:Parameters:
+		Parameters:
 			name (bool): Return the last active widgets name as a string.
 
-		:Return:
+		Return:
 			(obj)(str)(list) dependant on flags.
 
 		ex. slot connection to the last active child widget:
@@ -410,7 +402,7 @@ class Menu(QtWidgets.QMenu, Attributes):
 	def _addToContextMenuToolTip(self, menuItem):
 		'''Add an item to the context menu toolTip.
 
-		:Parameters:
+		Parameters:
 			menuItem (obj): The item to add.
 		'''
 		p = self.parent()
@@ -430,19 +422,19 @@ class Menu(QtWidgets.QMenu, Attributes):
 
 	def leaveEvent(self, event):
 		'''
-		:Parameters:
+		Parameters:
 			event = <QEvent>
 		'''
 		self.hide()
 
-		QtWidgets.QMenu.leaveEvent(self, event)
+		super().leaveEvent(event)
 
 
 	def hide(self, force=False):
 		'''Sets the widget as invisible.
 		Prevents hide event under certain circumstances.
 
-		:Parameters:
+		Parameters:
 			force (bool): override preventHide.
 		'''
 		if force or not self.preventHide:
@@ -457,13 +449,15 @@ class Menu(QtWidgets.QMenu, Attributes):
 			super().hide()
 
 
-	def setVisible(self, state): #called every time the after widget is shown or hidden on screen.
+	def setVisible(self, state):
+		'''Called every time the widget is shown or hidden on screen.
+		'''
 		if state: #visible
 			if not self.containsMenuItems: #prevent show if the menu is empty.
 				return
 
 			if not self.title():
-					self.setTitle()
+				self.setTitle()
 
 			if hasattr(self.parent(), 'released') and not self.parent().objectName()=='draggable_header':
 				# print (f'show menu | title: {self.title()} | {self.parent().objectName()} has attr released.') #debug
@@ -489,8 +483,10 @@ class Menu(QtWidgets.QMenu, Attributes):
 				pos = getattr(self.parent().rect(), self.position if not self.position=='cursorPos' else 'bottomLeft')
 				pos = self.parent().mapToGlobal(pos())
 				self.move(pos) # self.move(getCenter(self, pos))
+
 		elif self.preventHide: #invisible
 			return
+
 		super().setVisible(state)
 
 
@@ -585,7 +581,7 @@ Promoting a widget in designer to use a custom class:
 	# 	'''Sets the widget as invisible.
 	# 	Prevents hide event under certain circumstances.
 
-	# 	:Parameters:
+	# 	Parameters:
 	# 		force (bool): override preventHide.
 	# 	'''
 	# 	if force or not self.preventHide:
@@ -622,7 +618,7 @@ Promoting a widget in designer to use a custom class:
 
 	# def showEvent(self, event):
 	# 	'''
-	# 	:Parameters:
+	# 	Parameters:
 	# 		event = <QEvent>
 	# 	'''
 	# 	self.resize(self.sizeHint().width(), self.sizeHint().height()+10) #self.setMinimumSize(width, self.sizeHint().height()+5)

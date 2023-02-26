@@ -13,7 +13,7 @@ __version__ = '0.5.6'
 def greeting(string, outputToConsole=True):
 	'''Format a string using preset variables.
 
-	:Parameters:
+	Parameters:
 		string (str): The greeting to format as a string with placeholders using the below keywords. 
 			ex. 'Good {hr}! You are using {modver} with {pyver}.'
 			{hr} - Gives the current time of day (morning, afternoon, evening)
@@ -21,10 +21,10 @@ def greeting(string, outputToConsole=True):
 			{modver} - This modules version.
 		outputToConsole = Print the greeting.
 
-	:Return:
+	Return:
 		(str)
 
-	:Example: greeting('Good {hr}! You are using {modver} with {pyver}.')
+	Example: greeting('Good {hr}! You are using {modver} with {pyver}.')
 	'''
 	import datetime
 	h = datetime.datetime.now().hour

@@ -8,7 +8,6 @@ from pythontk.Iter import makeList
 from uitk.switchboard import Switchboard
 from uitk.overlay import Overlay
 from uitk.events import EventFactoryFilter, MouseTracking
-from uitk.widgets import rwidgets
 
 
 class Tcl(QtWidgets.QStackedWidget):
@@ -25,7 +24,7 @@ class Tcl(QtWidgets.QStackedWidget):
 
 	def __init__(self, parent=None, key_show='Key_F12', preventHide=False, slotLoc=''):
 		'''
-		:Parameters:
+		Parameters:
 			parent (obj): The parent application's top level window instance. ie. the Maya main window.
 		'''
 		super().__init__(parent)
@@ -46,7 +45,7 @@ class Tcl(QtWidgets.QStackedWidget):
 		self.setAttribute(QtCore.Qt.WA_NoMousePropagation, False)
 		self.resize(1200, 1200)
 
-		self.sb = Switchboard(self, uiLoc='ui', widgetLoc=rwidgets, slotLoc=slotLoc, preloadUi=True)
+		self.sb = Switchboard(self, uiLoc='ui', widgetLoc='widgets', slotLoc=slotLoc, preloadUi=True)
 		self.overlay = Overlay(self, antialiasing=True) #Paint events are handled by the overlay module.
 		self.eventFilter = EventFactoryFilter(self, eventNamePrefix='ef_', forwardEventsTo=self)
 		self.mouseTracking = MouseTracking(self)
@@ -55,7 +54,7 @@ class Tcl(QtWidgets.QStackedWidget):
 	def initUi(self, ui):
 		'''Initialize the given ui.
 
-		:Parameters:
+		Parameters:
 			ui (obj): The ui to initialize.
 		'''
 		self.initWidgets(ui.widgets)
@@ -75,7 +74,7 @@ class Tcl(QtWidgets.QStackedWidget):
 	def setUi(self, ui):
 		'''Set the stacked Widget's index to the given ui.
 
-		:Parameters:
+		Parameters:
 			ui (str)(obj): The ui or name of the ui to set the stacked widget index to.
 		'''
 		assert isinstance(ui, (str, QtWidgets.QWidget)), f'# Error: {__file__} in setUi\n#\tIncorrect datatype: {type(ui).__name__}'
@@ -98,7 +97,7 @@ class Tcl(QtWidgets.QStackedWidget):
 		'''Set the stacked widget's index to the submenu associated with the given widget.
 		Positions the new ui to line up with the previous ui's button that called the new ui.
 
-		:Parameters:
+		Parameters:
 			ui (obj): The submenu ui to set as current.
 			w (obj): The widget that called this method.
 		'''
@@ -107,7 +106,7 @@ class Tcl(QtWidgets.QStackedWidget):
 
 		self.overlay.addToDrawPath(w)
 		p1 = w.mapToGlobal(w.rect().center()) #the widget position before submenu change.
-		self.setWindowOpacity(0.01)
+
 		self.setUi(ui) #switch the stacked widget to the given submenu.
 
 		w2 = getattr(self.currentWidget(), w.name) #get the widget of the same name in the new ui.
@@ -115,7 +114,7 @@ class Tcl(QtWidgets.QStackedWidget):
 		currentPos = self.mapToGlobal(self.pos())
 
 		self.move(self.mapFromGlobal(currentPos +(p1 - p2))) #currentPos + difference
-		self.setWindowOpacity(255)
+
 		if ui not in self.sb.getPrevUi(asList=True): #if the submenu ui called for the first time:
 			self.cloneWidgetsAlongPath(ui) #re-construct any widgets from the previous ui that fall along the plotted path.
 
@@ -130,8 +129,8 @@ class Tcl(QtWidgets.QStackedWidget):
 		self.setWindowOpacity(0.01)
 		self.setUi(prevUi) #return the stacked widget to it's previous ui.
 		self.move(self.overlay.drawPathStartPos - self.rect().center())
-		self.setWindowOpacity(255)
 		self.overlay.clearDrawPath()
+		self.setWindowOpacity(255)
 
 
 	def cloneWidgetsAlongPath(self, ui):
@@ -139,7 +138,7 @@ class Tcl(QtWidgets.QStackedWidget):
 		Initializes the new buttons by adding them to the switchboard.
 		The previous widget information is derived from the widget and draw paths.
 
-		:Parameters:
+		Parameters:
 			ui (obj): The ui in which to copy the widgets to.
 		'''
 		cloned_widgets = set(
@@ -260,7 +259,7 @@ class Tcl(QtWidgets.QStackedWidget):
 	def show(self, ui='init', profile=False):
 		'''Sets the widget as visible.
 
-		:Parameters:
+		Parameters:
 			ui (str)(obj): Show the given ui.
 			profile (bool): Prints the total running time, times each function separately, 
 				and tells you how many times each function was called.
@@ -284,7 +283,7 @@ class Tcl(QtWidgets.QStackedWidget):
 		'''Sets the widget as invisible.
 		Prevents hide event under certain circumstances.
 
-		:Parameters:
+		Parameters:
 			force (bool): override preventHide.
 		'''
 		if force or not self.preventHide:
@@ -328,12 +327,12 @@ class Tcl(QtWidgets.QStackedWidget):
 	def initWidgets(self, widgets):
 		'''Set Initial widget states.
 
-		:Parameters:
+		Parameters:
 			widgets (str)(list): The widget(s) to initialize.
 		'''
 		for w in makeList(widgets): #if 'widgets' isn't a list, convert it to one.
-			# if 'polygons' in w.ui.name:
-				# print ('initWidgets:', w.ui.name.ljust(26), w.prefix.ljust(25), (w.name or type(w).__name__).ljust(25), w.type.ljust(15), w.derivedType.ljust(15), id(w)) #debug
+			if 'polygons' in w.ui.name and w.name=='tb000':
+				print ('initWidgets:', w.ui.name.ljust(26), w.prefix.ljust(25), (w.name or type(w).__name__).ljust(25), w.type.ljust(15), w.derivedType.ljust(15), id(w)) #debug
 			if w.derivedType in self.ef_widgetTypes:
 				if w.ui.level<3:# or w.type=='QMainWindow':
 					w.installEventFilter(self.eventFilter)
@@ -528,13 +527,13 @@ class Tcl(QtWidgets.QStackedWidget):
 	_cameraHistory = []
 	def prevCamera(self, docString=False, method=False, allowCurrent=False, asList=False, add=None):
 		'''
-		:Parameters:
+		Parameters:
 			docString (bool): return the docString of last camera command. Default is off.
 			method (bool): return the method of last camera command. Default is off.
 			allowCurrent (bool): allow the current camera. Default is off.
 			add (str)(obj): Add a method, or name of method to be used as the command to the current camera.  (if this flag is given, all other flags are invalidated)
 
-		:Return:
+		Return:
 			if docString: 'string' description (derived from the last used camera command's docString) (asList: [string list] all docStrings, in order of use)
 			if method: method of last used camera command. (asList: [<method object> list} all methods, in order of use)
 			if asList: list of lists with <method object> as first element and <docString> as second. ie. [[<v001>, 'camera: persp']]
@@ -623,7 +622,7 @@ if __name__ == '__main__':
 		# def focusChanged(self, old, new):
 		# 	'''Called on focus events.
 
-		# 	:Parameters:
+		# 	Parameters:
 		# 		old (obj): The widget with previous focus.
 		# 		new (obj): The widget with current focus.
 		# 	'''
@@ -675,7 +674,7 @@ if __name__ == '__main__':
 # 	def show(self, uiName=None, active=True):
 # 		'''Sets the widget as visible.
 
-# 		:Parameters:
+# 		Parameters:
 # 			uiName (str): Show the ui of the given name.
 # 			active (bool): Set as the active window.
 # 		'''
@@ -740,11 +739,11 @@ if __name__ == '__main__':
 	# def addUi(self, ui, query=False):
 	# 	'''Initializes the ui of the given name and it's dependancies.
 
-	# 	:Parameters:
+	# 	Parameters:
 	# 		ui (obj): The ui widget to be added to the layout stack.
 	# 		query (bool): Check whether the ui widget has been added.
 
-	# 	:Return:
+	# 	Return:
 	# 		(bool) When queried.
 	# 	'''
 	# 	if query:

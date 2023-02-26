@@ -2,8 +2,7 @@
 # coding=utf-8
 from PySide2 import QtCore, QtGui, QtWidgets
 
-from attributes import Attributes
-
+from uitk.widgets.attributes import Attributes
 
 
 class ProgressBar(QtWidgets.QProgressBar, Attributes):
@@ -32,11 +31,11 @@ class ProgressBar(QtWidgets.QProgressBar, Attributes):
 
 	def step(self, progress, length=100):
 		'''
-		:Parameters:
+		Parameters:
 			progress (int): current value
 			length (int): total value
 
-		:Return:
+		Return:
 			current percentage
 		ie.
 		self.progressBar(init=1) #initialize the progress bar
@@ -61,7 +60,7 @@ class ProgressBar(QtWidgets.QProgressBar, Attributes):
 
 	def showEvent(self, event):
 		'''
-		:Parameters:
+		Parameters:
 			event=<QEvent>
 		'''
 		self.isCanceled = False
@@ -72,7 +71,7 @@ class ProgressBar(QtWidgets.QProgressBar, Attributes):
 
 	def hideEvent(self, event):
 		'''
-		:Parameters:
+		Parameters:
 			event=<QEvent>
 		'''
 

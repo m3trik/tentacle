@@ -10,7 +10,7 @@ from uitk.tcl import Tcl
 class Tcl_blender(Tcl):
 	'''Tcl class overridden for use with Blender.
 
-	:Parameters:
+	Parameters:
 		parent = Application top level window instance.
 	'''
 	def __init__(self, parent=None, slotLoc='slots/blender', *args, **kwargs):
@@ -30,7 +30,7 @@ class Tcl_blender(Tcl):
 	def getMainWindow(cls):
 		'''Get blender's main window object.
 
-		:Return:
+		Return:
 			(QWidget)
 		'''
 		main_window = QApplication.instance().blender_widget
@@ -40,7 +40,7 @@ class Tcl_blender(Tcl):
 
 	def keyPressEvent(self, event):
 		'''
-		:Parameters:
+		Parameters:
 			event = <QEvent>
 		'''
 		if not event.isAutoRepeat():
@@ -55,7 +55,7 @@ class Tcl_blender(Tcl):
 
 	def showEvent(self, event):
 		'''
-		:Parameters:
+		Parameters:
 			event = <QEvent>
 		'''
 		Tcl.showEvent(self, event) #super().showEvent(event)
@@ -63,7 +63,7 @@ class Tcl_blender(Tcl):
 
 	def hideEvent(self, event):
 		'''
-		:Parameters:
+		Parameters:
 			event = <QEvent>
 		'''
 		Tcl.hideEvent(self, event) #super().hideEvent(event)
@@ -75,14 +75,14 @@ def getInstance(instanceID=None, *args, **kwargs):
 	'''Get an instance of this class using a given instanceID.
 	The instanceID is either the object or the object's id.
 
-	:Parameters:
+	Parameters:
 		instanceID () = The instanceID can be any immutable type.
 		args/kwargs () = The args to be passed to the class instance when it is created.
 
-	:Return:
+	Return:
 		(obj) An instance of this class.
 
-	:Example: tcl = Tcl_maya.getInstance(id(0), key_show='Key_F12') #returns the class instance with an instance ID of the value of `id(0)`.
+	Example: tcl = Tcl_maya.getInstance(id(0), key_show='Key_F12') #returns the class instance with an instance ID of the value of `id(0)`.
 	'''
 	import inspect
 

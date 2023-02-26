@@ -131,9 +131,9 @@ class Duplicate_max(Duplicate, Slots_max):
 	@staticmethod
 	def getComponentPoint(component, alignToNormal=False):
 		'''get the center point from the given component.
-		:Parameters: alignToNormal=bool - 
+		Parameters: alignToNormal=bool - 
 
-		:Return: [float list] - x, y, z  coordinate values.
+		Return: [float list] - x, y, z  coordinate values.
 		'''
 		if ".vtx" in str(component):
 			x = pm.polyNormalPerVertex (component, query=1, x=1)

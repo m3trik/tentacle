@@ -264,11 +264,11 @@ class File_maya(File, Slots_maya):
 	def getRecentFiles(self, index=None, timestamp=False):
 		'''Get a list of recent files.
 
-		:Parameters:
+		Parameters:
 			index (int): Return the recent file directory path at the given index. Index 0 would be the most recent file.
 			timestamp (bool): Attach a modified timestamp and date to given file path(s).
 
-		:Return:
+		Return:
 			(list)(str)
 		'''
 		files = pm.optionVar(query='RecentFilesList')
@@ -288,7 +288,7 @@ class File_maya(File, Slots_maya):
 	def getRecentProjects(self):
 		'''Get a list of recently set projects.
 
-		:Return:
+		Return:
 			(list)
 		'''
 		files = pm.optionVar(query='RecentProjectsList')
@@ -300,10 +300,10 @@ class File_maya(File, Slots_maya):
 	def getRecentAutosave(self, timestamp=False):
 		'''Get a list of autosave files.
 
-		:Parameters:
+		Parameters:
 			timestamp (bool): Attach a modified timestamp and date to given file path(s).
 
-		:Return:
+		Return:
 			(list)
 		'''
 		dir1 = str(pm.workspace(query=1, rd=1))+'autosave' #current project path.
@@ -321,10 +321,10 @@ class File_maya(File, Slots_maya):
 	def getWorkspaceScenes(self, fullPath=True):
 		'''Get a list of maya scene files from the current workspace directory.
 
-		:Parameters:
+		Parameters:
 			fullPath (bool): Return the full path instead of just the filename.
 
-		:Return:
+		Return:
 			(list)
 		'''
 		workspace_dir = str(pm.workspace(query=1, rd=1)) #get current project path.
@@ -341,7 +341,7 @@ class File_maya(File, Slots_maya):
 	def referenceScene(self, scene, remove=False, lockReference=False):
 		'''Create a reference to a Maya scene.
 
-		:Parameters:
+		Parameters:
 			remove (bool): Remove a previously referenced scene.
 		'''
 		if remove: #unload reference.
@@ -426,10 +426,10 @@ print (__name__)
 	# 	'''
 	# 	Increment the given file name.
 
-	# 	:Parameters:
+	# 	Parameters:
 	# 		fileName (str): file name with extension. ie. elise_mid.ma
 
-	# 	:Return:
+	# 	Return:
 	# 		(str) incremented name. ie. elise_mid.000.ma
 	# 	'''
 	# 	import re
@@ -455,7 +455,7 @@ print (__name__)
 	# 	'''
 	# 	Delete older files.
 
-	# 	:Parameters:
+	# 	Parameters:
 	# 		fileName (str): file name with extension. ie. elise_mid.ma
 	# 		numberOfPreviousFiles (int): Number of previous copies to keep.
 	# 	'''

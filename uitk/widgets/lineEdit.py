@@ -2,9 +2,8 @@
 # coding=utf-8
 from PySide2 import QtCore, QtGui, QtWidgets
 
-from attributes import Attributes
-from menu import MenuInstance
-
+from uitk.widgets.attributes import Attributes
+from uitk.widgets.menu import MenuInstance
 
 
 class LineEdit(QtWidgets.QLineEdit, MenuInstance, Attributes):
@@ -25,7 +24,7 @@ class LineEdit(QtWidgets.QLineEdit, MenuInstance, Attributes):
 	def ctxMenuEvent(self, event):
 		'''Override the standard context menu if there is a custom one.
 
-		:Parameters:
+		Parameters:
 			event=<QEvent>
 		'''
 		if self.ctxMenu:
@@ -36,7 +35,7 @@ class LineEdit(QtWidgets.QLineEdit, MenuInstance, Attributes):
 
 	def showEvent(self, event):
 		'''
-		:Parameters:
+		Parameters:
 			event=<QEvent>
 		'''
 		self.shown.emit()
@@ -46,7 +45,7 @@ class LineEdit(QtWidgets.QLineEdit, MenuInstance, Attributes):
 
 	def hideEvent(self, event):
 		'''
-		:Parameters:
+		Parameters:
 			event=<QEvent>
 		'''
 		self.hidden.emit()
@@ -101,7 +100,7 @@ Promoting a widget in designer to use a custom class:
 
 	# def insertText(self, dict_):
 	# 	'''
-	# 	:Parameters:
+	# 	Parameters:
 	# 		dict_ = {dict} - contents to add.  for each key if there is a value, the key and value pair will be added.
 	# 	'''
 	# 	highlight = QtGui.QColor(255, 255, 0)

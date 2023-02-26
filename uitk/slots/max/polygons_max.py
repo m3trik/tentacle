@@ -474,10 +474,10 @@ class Polygons_max(Polygons, Slots_max):
 	def detachElement(self, obj):
 		'''Detach editable_mesh elements into new objects.
 
-		:Parameters:
+		Parameters:
 			obj (obj): A polygon object.
 
-		:Return:
+		Return:
 			(list) detached objects.
 		'''
 		elementArray = []

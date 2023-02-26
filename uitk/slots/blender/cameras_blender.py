@@ -22,7 +22,7 @@ class Cameras_blender(Cameras, Slots_blender):
 	def clippingMenu(self):
 		'''Menu: Camera clip plane settings.
 
-		:Return:
+		Return:
 			(obj) menu as a property.
 		'''
 		if not hasattr(self, '_clippingMenu'):

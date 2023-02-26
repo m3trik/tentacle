@@ -292,11 +292,11 @@ class Duplicate_maya(Duplicate, Slots_maya):
 	def getInstances(self, objects=None, returnParentObjects=False):
 		'''get any intances of given object, or if None given; get all instanced objects in the scene.
 
-		:Parameters:
+		Parameters:
 			objects (str)(obj)(list): Parent object/s.
 			returnParentObjects (bool): Return instances and the given parent objects together.
 
-		:Return:
+		Return:
 			(list)
 		'''
 		instances=[]
@@ -323,15 +323,15 @@ class Duplicate_maya(Duplicate, Slots_maya):
 	def convertToInstances(self, objects=[], transformByVertexOrder=False, append=''):
 		'''The first selected object will be instanced across all other selected objects.
 
-		:Parameters:
+		Parameters:
 			objects (list): A list of objects to convert to instances. The first object will be the instance parent.
 			append (str): Append a string to the end of any instanced objects. ie. '_INST'
 			transformByVertexOrder (bool): Transform the instanced object by matching the transforms of the vertices between the two objects.
 
-		:Return:
+		Return:
 			(list) The instanced objects.
 
-		:Example: convertToInstances(pm.ls(sl=1))
+		Example: convertToInstances(pm.ls(sl=1))
 		'''
 		# pm.undoInfo(openChunk=1)
 		p0x, p0y, p0z = pm.xform(objects[0], query=1, rotatePivot=1, worldSpace=1) #get the world space obj pivot.
@@ -370,7 +370,7 @@ class Duplicate_maya(Duplicate, Slots_maya):
 	def unInstance(self, objects):
 		'''Un-Instance the given objects.
 
-		:Parameters:
+		Parameters:
 			objects (str)(obj)(list): The objects to un-instance. If 'all' is given all instanced objects in the scene will be uninstanced.
 		'''
 		if objects=='all':
@@ -408,16 +408,16 @@ print (__name__)
 	# def convertToInstances(self, objects=[], leaf=False, append=''):
 	# 	'''The first selected object will be instanced across all other selected objects.
 
-	# 	:Parameters:
+	# 	Parameters:
 	# 		objects (list): A list of objects to convert to instances. The first object will be the instance parent.
 	# 		leaf (bool): Instances leaf-level objects. Acts like duplicate except leaf-level objects are instanced.
 	# 		append (str): Append a string to the end of any instanced objects. ie. '_INST'
 	# 		transformByVertexOrder (bool): Transform the instanced object by matching the transforms of the vertices between the two objects.
 
-	# 	:Return:
+	# 	Return:
 	# 		(list) The instanced objects.
 
-	# 	:Example: convertToInstances(pm.ls(sl=1))
+	# 	Example: convertToInstances(pm.ls(sl=1))
 	# 	'''
 	# 	# pm.undoInfo(openChunk=1)
 	# 	p0x, p0y, p0z = pm.xform(objects[0], query=1, rotatePivot=1, worldSpace=1) #get the world space obj pivot.

@@ -193,7 +193,7 @@ class Editors_max(Editors, Slots_max):
 	def getEditorWidget(self, name):
 		'''Get a maya widget from a given name.
 
-		:Parameters:
+		Parameters:
 			name (str): name of widget
 		'''
 		_name = '_'+name
@@ -208,12 +208,12 @@ class Editors_max(Editors, Slots_max):
 	def showEditor(self, name, width=640, height=480):
 		'''Show, resize, and center the given editor.
 
-		:Parameters:
+		Parameters:
 			name (str): The name of the editor.
 			width (int): The editor's desired width.
 			height (int): The editor's desired height.
 
-		:Return:
+		Return:
 			(obj) The editor as a QWidget.
 		'''
 		w = self.getEditorWidget(name)

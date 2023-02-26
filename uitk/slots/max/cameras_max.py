@@ -21,7 +21,7 @@ class Cameras_max(Cameras, Slots_max):
 	def clippingMenu(self):
 		'''Menu: Camera clip plane settings.
 
-		:Return:
+		Return:
 			(obj) menu as a property.
 		'''
 		if not hasattr(self, '_clippingMenu'):

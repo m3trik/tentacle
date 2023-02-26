@@ -23,7 +23,7 @@ class RichText(object):
 		'''Returns a list containing any rich text labels that have been created.
 		Item indices are used the keys to retrieve the label values.
 
-		:Return:
+		Return:
 			(list)
 		'''
 		try:
@@ -39,7 +39,7 @@ class RichText(object):
 		'''Returns a list containing the sizeHint any rich text labels that have been created.
 		Item indices are used the keys to retrieve the size values.
 
-		:Return:
+		Return:
 			(list)
 		'''
 		try:
@@ -53,7 +53,7 @@ class RichText(object):
 	def richTextSizeHint(self, index=0):
 		'''The richTextSizeHint is the sizeHint of the actual widget if it were containing the text.
 
-		:Return:
+		Return:
 			(str) the widget's or the label's sizeHint.
 		'''
 		if self.hasRichText:
@@ -89,7 +89,7 @@ class RichText(object):
 	def setRichTextStyle(self, index=0, textColor='white'):
 		'''Set the stylesheet for a QLabel.
 
-		:Parameters:
+		Parameters:
 
 		'''
 		label = self.getRichTextLabel(index)
@@ -116,7 +116,7 @@ class RichText(object):
 	def _text(self, index=None):
 		'''Gets the text for the widget or widget item.
 
-		:Parameters:
+		Parameters:
 			item (str)(int): item text or item index
 		'''
 		try:
@@ -131,7 +131,7 @@ class RichText(object):
 
 	def richText(self, index=None):
 		'''
-		:Return:
+		Return:
 			(str) the widget's or the label's text.
 		'''
 		try:
@@ -147,7 +147,7 @@ class RichText(object):
 	def _setText(self, text, index=0):
 		'''Sets the text for the widget or widget item.
 
-		:Parameters:
+		Parameters:
 			item (str)(int): item text or item index
 		'''
 		try:
@@ -162,7 +162,7 @@ class RichText(object):
 			Set the rich text label text.
 			Add whitespace to the actual widget text until it matches the sizeHint of what it would containing the label's text.
 
-		:Parameters:
+		Parameters:
 			text (str): The desired widget's display text.
 			index (int): For setting text requires an index. ie. comboBox
 		'''
@@ -189,7 +189,7 @@ class RichText(object):
 	def setAlignment(self, alignment='AlignLeft', index=0):
 		'''Override setAlignment to accept string alignment arguments as well as QtCore.Qt.AlignmentFlags.
 
-		:Parameters:
+		Parameters:
 			alignment (str)(obj): Text alignment. valid values are: 'AlignLeft', 'AlignCenter', 'AlignRight' or QtCore.Qt.AlignLeft etc.
 		'''
 		if isinstance(alignment, str):
@@ -247,7 +247,7 @@ class TextOverlay(object):
 			Set the rich text label text.
 			Add whitespace to the actual widget text until it matches the sizeHint of what it would containing the label's text.
 
-		:Parameters:
+		Parameters:
 			text (str): The desired widget's display text.
 			index (int): For setting text requires an index. ie. comboBox
 			color (str):  The desired text color.
@@ -265,7 +265,7 @@ class TextOverlay(object):
 	def setTextOverlayAlignment(self, alignment='AlignLeft'):
 		'''Override setAlignment to accept string alignment arguments as well as QtCore.Qt.AlignmentFlags.
 
-		:Parameters:
+		Parameters:
 			alignment (str)(obj): Text alignment. valid values are: 'AlignLeft', 'AlignCenter', 'AlignRight' or QtCore.Qt.AlignLeft etc.
 		'''
 		if isinstance(alignment, str):
@@ -277,10 +277,10 @@ class TextOverlay(object):
 	def setTextOverlayColor(self, color):
 		'''Set the stylesheet for a QLabel.
 
-		:Parameters:
+		Parameters:
 			color (str):  The desired text color.
 
-		:Example: setTextOverlayColor('rgb(185,185,185)')
+		Example: setTextOverlayColor('rgb(185,185,185)')
 		'''
 		label.setStyleSheet('''
 				QLabel {{

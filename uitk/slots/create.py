@@ -40,13 +40,13 @@ class Create(Slots):
 	def createPrimitive(self, catagory1, catagory2):
 		'''Create a primitive object.
 
-		:Parameters:
+		Parameters:
 			catagory1 (str): type
 			catagory2 (str): type
-		:Return:
+		Return:
 			(obj) node
 
-		:Example: createPrimitive('Polygons', 'Cube')
+		Example: createPrimitive('Polygons', 'Cube')
 		'''
 		cmb001 = self.sb.create.cmb001
 		cmb002 = self.sb.create.cmb002

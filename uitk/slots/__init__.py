@@ -35,7 +35,7 @@ class Slots(QtCore.QObject):
 	def objAttrWindow(self, obj, checkableLabel=False, fn=None, fn_args=[], **attributes):
 		'''Launch a popup window containing the given objects attributes.
 
-		:Parameters:
+		Parameters:
 			obj (obj): The object to get the attributes of.
 			checkableLabel (bool): Set the attribute labels as checkable.
 			fn (method) = Set an alternative method to call on widget signal. ex. setParameterValuesMEL
@@ -43,11 +43,11 @@ class Slots(QtCore.QObject):
 			fn_args (list): Any additonal args to pass to fn.
 			attributes (kwargs) = Explicitly pass in attribute:values pairs. Else, attributes will be pulled from mtk.Node.getAttributesMEL for the given obj.
 
-		:Return:
+		Return:
 			(obj) the menu widget. (use menu.childWidgets to get the menu's child widgets.)
 
-		:Example: self.objAttrWindow(node, attrs, fn=mtk.setParameterValuesMEL, fn_args='transformLimits')
-		:Example: self.objAttrWindow(transform[0], fn_args=['translateX','translateY','translateZ','rotateX','rotateY','rotateZ','scaleX','scaleY','scaleZ'], checkableLabel=True)
+		Example: self.objAttrWindow(node, attrs, fn=mtk.setParameterValuesMEL, fn_args='transformLimits')
+		Example: self.objAttrWindow(transform[0], fn_args=['translateX','translateY','translateZ','rotateX','rotateY','rotateZ','scaleX','scaleY','scaleZ'], checkableLabel=True)
 		'''
 		import ast
 
