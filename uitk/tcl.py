@@ -50,6 +50,10 @@ class Tcl(QtWidgets.QStackedWidget):
 		self.eventFilter = EventFactoryFilter(self, eventNamePrefix='ef_', forwardEventsTo=self)
 		self.mouseTracking = MouseTracking(self)
 
+		from uitk.widgets.loadingIndicator import LoadingIndicator
+		self.loading_indicator = LoadingIndicator(self)
+		self.loading_indicator.start()
+
 
 	def initUi(self, ui):
 		'''Initialize the given ui.
@@ -331,8 +335,7 @@ class Tcl(QtWidgets.QStackedWidget):
 			widgets (str)(list): The widget(s) to initialize.
 		'''
 		for w in makeList(widgets): #if 'widgets' isn't a list, convert it to one.
-			if 'polygons' in w.ui.name and w.name=='tb000':
-				print ('initWidgets:', w.ui.name.ljust(26), w.prefix.ljust(25), (w.name or type(w).__name__).ljust(25), w.type.ljust(15), w.derivedType.ljust(15), id(w)) #debug
+			# print ('initWidgets:', w.ui.name.ljust(26), w.prefix.ljust(25), (w.name or type(w).__name__).ljust(25), w.type.ljust(15), w.derivedType.ljust(15), id(w)) #debug
 			if w.derivedType in self.ef_widgetTypes:
 				if w.ui.level<3:# or w.type=='QMainWindow':
 					w.installEventFilter(self.eventFilter)

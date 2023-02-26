@@ -59,7 +59,7 @@ class MainWindow(QtWidgets.QMainWindow):
 			<UI>.show: An override of the built-in hide method
 			<UI>.preventHide (bool): While True, the hide method is disabled
 			<UI>.hide: An override of the built-in hide method
-			<UI>.addWidgets (function): Add widgets to the UI
+			<UI>.initWidgets (function): Initialize widgets.
 			<UI>.widgets (list): All the widgets of the UI
 			<UI>.slots (obj): The slots class instance
 		'''
@@ -84,14 +84,6 @@ class MainWindow(QtWidgets.QMainWindow):
 		ui = self.sb.load(file)
 		self.setWindowFlags(ui.windowFlags())
 		self.setCentralWidget(ui.centralWidget())
-
-	def __getattr__(self, attr_name):
-		found_widget = self.sb._getWidgetFromUi(self, attr_name)
-		if found_widget:
-			self.sb.addWidgets(self, found_widget)
-			return found_widget
-
-		raise AttributeError(f'{self.__class__.__name__} has no attribute `{attr_name}`')
 
 	def event(self, event):
 		if event.type() == QtCore.QEvent.ChildAdded:
@@ -154,7 +146,7 @@ class MainWindow(QtWidgets.QMainWindow):
 
 	def childAdded(self, w): #called after child polished event.
 		if w not in self._widgets:
-			self.sb.addWidgets(self, w)
+			self.sb.initWidgets(self, w)
 			# print ('childAdded:', w.ui.name.ljust(30), w.name.ljust(15), id(w)) #debug
 			self.trigger_deferred()
 			if self.isConnected:
@@ -261,9 +253,12 @@ class Switchboard(QUiLoader, StyleSheet):
 			'QProgressBar':'valueChanged',
 		}
 
-		if preloadUi:
-			self.loadAllUi()
+		# self.loading_indicator = self.LoadingIndicator()
 
+		if preloadUi:
+			# self.loading_indicator.start()
+			self.loadAllUi()
+			# self.loading_indicator.stop()
 
 	def __getattr__(self, attr_name):
 		'''If an unknown attribute matches the name of a ui in the current ui directory; load and return it.
@@ -437,7 +432,7 @@ class Switchboard(QUiLoader, StyleSheet):
 		return hist
 
 
-	def addWidgets(self, ui, widgets, recursive=True, **kwargs):
+	def initWidgets(self, ui, widgets, recursive=True, **kwargs):
 		"""Add widgets as attributes of the ui while giving additional attributes to the widgets themselves.
 
 		Parameters:
@@ -470,12 +465,11 @@ class Switchboard(QUiLoader, StyleSheet):
 			setAttributes(w, **kwargs)
 			setattr(ui, w.name, w)
 			added_widgets.add(w)
-			if 'polygons' in w.ui.name and w.name=='tb000':
-				print ('addWidgts:', w.ui.name.ljust(26), w.prefix.ljust(25), (w.name or type(w).__name__).ljust(25), w.type.ljust(15), w.derivedType.ljust(15), id(w)) #debug
+			# print ('addWidgts:', w.ui.name.ljust(26), w.prefix.ljust(25), (w.name or type(w).__name__).ljust(25), w.type.ljust(15), w.derivedType.ljust(15), id(w)) #debug
 
 			if recursive:
 				child_widgets = w.findChildren(QtWidgets.QWidget)
-				self.addWidgets(ui, child_widgets, **kwargs)
+				self.initWidgets(ui, child_widgets, **kwargs)
 
 		ui._widgets.update(added_widgets)
 		return added_widgets
@@ -641,9 +635,9 @@ class Switchboard(QUiLoader, StyleSheet):
 				print(f"# Error: {__file__} in _getWidgetsFromDir\n#\t{error}")
 				return {}
 
-			cls_members = inspect.getmembers(mod, inspect.isclass)
-			return {cls_name: cls_mem for cls_name, cls_mem in cls_members 
-					if issubclass(cls_mem, QtWidgets.QWidget)}
+			cls_members = inspect.getmembers(mod, lambda m: inspect.isclass(m) 
+				and m.__module__==mod.__name__ and issubclass(m, QtWidgets.QWidget)) #get only the widget classes that are defined in the module and not any imported classes.
+			return dict(cls_members)
 
 		else: #get all widgets in the given path by recursively calling this fuction.
 			try:
@@ -673,7 +667,7 @@ class Switchboard(QUiLoader, StyleSheet):
 		if inspect.isclass(clss):
 			setattr(clss, 'sb', self)
 			ui._slots = clss() if callable(clss) else clss
-			# self.addWidgets(ui, ui.findChildren(QtWidgets.QWidget))
+			self.initWidgets(ui, ui.findChildren(QtWidgets.QWidget))
 			return ui._slots
 		return None
 
@@ -1130,8 +1124,8 @@ class Switchboard(QUiLoader, StyleSheet):
 		elif isinstance(widget, str):
 			return next(iter(w.getSlot() for w in ui.widgets if w.getSlot().__name__==widget), None)
 
-		elif not widget in ui.widgets:
-			ui.addWidgets(widget)
+		elif not widget in ui._widgets:
+			self.initWidgets(ui, widget)
 
 		return next(iter(w.getSlot() for w in ui.widgets if w.getSlot()==widget.getSlot()), None)
 
@@ -1231,10 +1225,10 @@ class Switchboard(QUiLoader, StyleSheet):
 			if ui.isConnected:
 				return
 			widgets = ui.widgets
-		# print ('connectSlots:', ui.name, [w.objectName() for w in Iter.makeList(widgets)])
+		# print ('connectSlots:', ui.name, [w.objectName() for w in Iter.makeList(widgets)]) #debug
 
 		for w in Iter.makeList(widgets): #convert 'widgets' to a list if it is not one already.
-			# print ('           >:', w.name, w.getSlot())
+			# print ('           >:', w.name, w.getSlot()) #debug
 			if w.getSlot() and w.signals:
 				for s in w.signals:
 					if not s:
@@ -1261,14 +1255,14 @@ class Switchboard(QUiLoader, StyleSheet):
 			ui (obj): A previously loaded dynamic ui object.
 			widgets (obj)(list): QWidget
 		'''
-		# print ('disconnectSlots:', ui.name)
+		# print ('disconnectSlots:', ui.name) #debug
 		if widgets is None:
 			if not ui.isConnected:
 				return
 			widgets = ui.widgets
 
 		for w in Iter.makeList(widgets):  #convert 'widgets' to a list if it is not one already.
-			# print ('           >:', w.name, w.getSlot())
+			# print ('           >:', w.name, w.getSlot()) #debug
 			if w.getSlot() and w.signals:
 				for s in w.signals:
 					if not s:
@@ -1359,7 +1353,7 @@ class Switchboard(QUiLoader, StyleSheet):
 			self._synced_pairs.add(pair_id)
 
 		except (AttributeError, KeyError) as error:
-			# if w1 and w2: print ('# {}: {}.syncWidgets({}, {}): {}. args: {}, {} #'.format('KeyError' if type(error)==KeyError else 'AttributeError', __name__, w1.objectName(), w2.objectName(), error, w1, w2))
+			# if w1 and w2: print ('# {}: {}.syncWidgets({}, {}): {}. args: {}, {} #'.format('KeyError' if type(error)==KeyError else 'AttributeError', __name__, w1.objectName(), w2.objectName(), error, w1, w2)) #debug
 			return
 
 
@@ -1762,8 +1756,7 @@ class Switchboard(QUiLoader, StyleSheet):
 		try:
 			self._messageBox.location = location
 		except AttributeError:
-			from uitk.widgets.messageBox import MessageBox
-			self._messageBox = MessageBox(self.parent())
+			self._messageBox = self.MessageBox(self.parent())
 			self._messageBox.location = location
 		self._messageBox.timeout = timeout
 
@@ -1865,6 +1858,12 @@ print (__name__) #module name
 # deprecated:
 # --------------------------------------------------------------------------------------------
 
+	# def __getattr__(self, attr_name):
+	# 	found_widget = self.sb._getWidgetFromUi(self, attr_name)
+	# 	if found_widget:
+	# 		self.sb.initWidgets(self, found_widget)
+	# 		return found_widget
+	# 	raise AttributeError(f'{self.__class__.__name__} has no attribute `{attr_name}`')
 
 # def getprefix(widget):
 # 		'''Query a widgets prefix.

@@ -231,9 +231,9 @@ class Menu(QtWidgets.QMenu, Attributes):
 			return
 
 		w = QtWidgets.QPushButton('Apply') #self.add('QPushButton', setText='Apply', setObjectName=self.parent().objectName(), setToolTip='Execute the command.')
-		w.setObjectName(self.parent().objectName())
+		w.setObjectName('apply_button')
 		w.setToolTip('Execute the command.')
-		# w.released.connect(lambda: self.parent().released.emit()) #trigger the released signal on the parent when the apply button is released.
+		w.released.connect(lambda: self.parent().released.emit()) #trigger the released signal on the parent when the apply button is released.
 		w.setMinimumSize(119, 26)
 
 		layout = self.getVBoxLayout('menu_buttons') #get the 'menu_buttons' layout.
@@ -332,15 +332,10 @@ class Menu(QtWidgets.QMenu, Attributes):
 
 			self._addToContextMenuToolTip(w)
 
-			# Get the appropriate signal to connect to
-			signal = None
-			if isinstance(w, QtWidgets.QAbstractButton):
-				signal = w.released
-			elif isinstance(w, QtWidgets.QAbstractSpinBox):
-				signal = w.valueChanged
-			# Connect the signal if one was found
-			if signal is not None:
-				signal.connect(lambda value, w=w: self._setLastActiveChild(value, w))
+			if hasattr(w, 'released'): #Get the appropriate signal to connect to.
+				w.released.connect(lambda w=w: self._setLastActiveChild(w)) #Connect the signal if one was found.
+			elif hasattr(w, 'valueChanged'):
+				w.valueChanged.connect(lambda value, w=w: self._setLastActiveChild(value, w))
 
 		return w
 
