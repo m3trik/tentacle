@@ -85,22 +85,43 @@ class MainWindow(QtWidgets.QMainWindow):
 		self.setWindowFlags(ui.windowFlags())
 		self.setCentralWidget(ui.centralWidget())
 
+	def __getattr__(self, attr_name):
+		"""Looks for the widget in the parent class.
+		If found, the widget is initialized and returned, else an AttributeError is raised.
+
+		Parameters:
+			attr_name (str): the name of the attribute being accessed.
+
+		Return:
+			() The value of the widget attribute if it exists, or raises an AttributeError
+			if the attribute cannot be found.
+  
+		Raises:
+			AttributeError: if the attribute does not exist in the current instance
+			or the parent class.
+		"""
+		found_widget = self.sb._getWidgetFromUi(self, attr_name)
+		if found_widget:
+			self.sb.initWidgets(self, found_widget)
+			return found_widget
+		raise AttributeError(f'{self.__class__.__name__} has no attribute `{attr_name}`')
+
 	def event(self, event):
-		if event.type() == QtCore.QEvent.ChildAdded:
+		if event.type() == QtCore.QEvent.ChildPolished:
 			child = event.child()
-			child.installEventFilter(self) #Install an event filter to wait for the ChildPolished event.
-		elif event.type() == QtCore.QEvent.ChildRemoved:
-			child = event.child()
-			self._widgets.pop(child)
+			self.on_child_polished(child)
 		return super().event(event)
 
-	def eventFilter(self, w, event):
-		if event.type() == QtCore.QEvent.ChildPolished:
-			w.removeEventFilter(self) #Remove the event filter now that the ChildPolished event has triggered.
-			self.childAdded(w)
-		return super().eventFilter(w, event)
-
 	def defer(self, func, *args, priority=0):
+		"""Defer execution of a function until later. The function is added to a dictionary of deferred 
+		methods, with a specified priority. Lower priority values will be executed before higher ones.
+		
+		Parameters:
+			func (function): The function to defer.
+			*args: Any arguments to be passed to the function.
+			priority (int, optional): The priority of the deferred method. Lower values will be executed 
+					first. Defaults to 0.
+		"""
 		method = partial(func, *args)
 		if priority in self._deferred:
 			self._deferred[priority] += (method,)
@@ -108,6 +129,9 @@ class MainWindow(QtWidgets.QMainWindow):
 			self._deferred[priority] = (method,)
 
 	def trigger_deferred(self):
+		"""Executes all deferred methods, in priority order. Any arguments passed to the deferred functions
+		will be applied at this point. Once all deferred methods have executed, the dictionary is cleared.
+		"""
 		for priority in sorted(self._deferred):
 			for method in self._deferred[priority]:
 				method()
@@ -128,7 +152,7 @@ class MainWindow(QtWidgets.QMainWindow):
 
 	@property
 	def widgets(self):
-		return list(self._widgets)
+		return list(self._widgets) or self.sb.initWidgets(self, self.findChildren(QtWidgets.QWidget), returnAllWidgets=True)
 
 	@property
 	def slots(self):
@@ -144,10 +168,10 @@ class MainWindow(QtWidgets.QMainWindow):
 	def connect(self):
 		self.sb.setConnections(self)
 
-	def childAdded(self, w): #called after child polished event.
+	def on_child_polished(self, w): #called after child polished event.
 		if w not in self._widgets:
 			self.sb.initWidgets(self, w)
-			# print ('childAdded:', w.ui.name.ljust(30), w.name.ljust(15), id(w)) #debug
+			# print ('on_child_polished:', w.ui.name.ljust(30), w.name.ljust(15), id(w)) #debug
 			self.trigger_deferred()
 			if self.isConnected:
 				self.sb.connectSlots(self, w)
@@ -173,6 +197,29 @@ class Switchboard(QUiLoader, StyleSheet):
 		sb.<uiFileName>: Accesses the UI loaded from uiFileName.
 		sb.<customWidgetClassName>: Accesses the custom widget with the specified class name.
 
+	Parameters:
+		parent (obj): A QtObject derived class.
+		uiLoc (str/obj): Set the directory of the dynamic UI, or give the dynamic UI objects.
+		widgetLoc (str/obj): Set the directory of any custom widgets, or give the widget objects.
+		slotLoc (str/obj): Set the directory of where the slot classes will be imported, or give the slot class itself.
+		preloadUi (bool): Load all UI immediately. Otherwise UI will be loaded as required.
+		style (str): Stylesheet color mode. ie. 'standard', 'dark', None
+		submenuStyle (str): The stylesheet color mode for submenus.
+
+	Methods:
+		loadUi(uiPath): Load the UI file located at uiPath.
+		loadAllUi(): Load all UI files in the UI directory.
+		registerWidget(widget): Register the specified widget.
+		connectSlots(slotClass, ui=None): Connect the slots in the specified slot class to the specified UI.
+
+	Attributes:
+		defaultDir: The default directory.
+		defaultSignals: A dictionary of the default signals to be connected per widget type.
+
+	Default Directories:
+		The default directory is the calling module's directory.
+		If any of the given file paths are not a full path, they will be treated as relative to the currently set path.
+
 	Example:
 		1. Create a subclass of Switchboard and define the slots for the UI events.
 			class MySwitchboard(Switchboard):
@@ -188,29 +235,6 @@ class Switchboard(QUiLoader, StyleSheet):
 			exit_code = sb.app.exec_()
 			if exit_code != -1:
 				sys.exit(exit_code)
-
-	Parameters:
-		parent (obj): A QtObject derived class.
-		uiLoc (str/obj): Set the directory of the dynamic UI, or give the dynamic UI objects.
-		widgetLoc (str/obj): Set the directory of any custom widgets, or give the widget objects.
-		slotLoc (str/obj): Set the directory of where the slot classes will be imported, or give the slot class itself.
-		preloadUi (bool): Load all UI immediately. Otherwise UI will be loaded as required.
-		style (str): Stylesheet color mode. ie. 'standard', 'dark', None
-		submenuStyle (str): The stylesheet color mode for submenus.
-
-	Default Directories:
-		The default directory is the calling module's directory.
-		If any of the given file paths are not a full path, they will be treated as relative to the currently set path.
-
-	Methods:
-		loadUi(uiPath): Load the UI file located at uiPath.
-		loadAllUi(): Load all UI files in the UI directory.
-		registerWidget(widget): Register the specified widget.
-		connectSlots(slotClass, ui=None): Connect the slots in the specified slot class to the specified UI.
-
-	Attributes:
-		defaultDir: The default directory.
-		defaultSignals: A dictionary of the default signals to be connected per widget type.
 	'''
 	app = QtWidgets.QApplication.instance() or QtWidgets.QApplication(sys.argv) #return the existing QApplication object, or create a new one if none exists.
 
@@ -230,10 +254,10 @@ class Switchboard(QUiLoader, StyleSheet):
 		self.submenuStyle = submenuStyle
 
 		self._uiHistory = [] #A list of previously loaded ui.
-		self._wgtHistory = [] #A list of previously activated widgets.
+		self._wgtHistory = [] #A list of previously used widgets.
+		self._registeredWidgets = {} #A dict of all registered custom widgets.
 		self._loadedUi = set() #A set of all loaded ui.
-		self._registeredWidgets = {} #A set of all registered custom widgets.
-		self._synced_pairs = set() #A set of hashed values representing pairs of widgets that have been set to stay synced.
+		self._synced_pairs = set() #A set of hashed values representing widgets that have synced values.
 		self._gcProtect = set() #A set of widgets to be protected from garbage collection.
 
 		self.defaultSignals = { #the signals to be connected per widget type. Values can be a list or a single item string.
@@ -253,12 +277,8 @@ class Switchboard(QUiLoader, StyleSheet):
 			'QProgressBar':'valueChanged',
 		}
 
-		# self.loading_indicator = self.LoadingIndicator()
-
 		if preloadUi:
-			# self.loading_indicator.start()
 			self.loadAllUi()
-			# self.loading_indicator.stop()
 
 	def __getattr__(self, attr_name):
 		'''If an unknown attribute matches the name of a ui in the current ui directory; load and return it.
@@ -281,7 +301,10 @@ class Switchboard(QUiLoader, StyleSheet):
 		found_widget = next((f for f in glob.iglob(f'{widget_path}/**/{widget_name}.py', recursive=True)), None)
 		if found_widget:
 			widget = self.registerWidgets(found_widget)
-			return widget
+			if isinstance(widget, list):
+				widget = next(iter(w for w in widget if w.__name__.lower()==attr_name.lower()), None) #check if any of the widgets in the list has a name that matches the attribute name in a case-insensitive manner.
+			if widget and widget.__name__.lower()==attr_name.lower(): #If the widget's name matches the attribute name, the widget is returned.
+				return widget
 
 		raise AttributeError(f'{self.__class__.__name__} has no attribute `{attr_name}`')
 
@@ -432,7 +455,7 @@ class Switchboard(QUiLoader, StyleSheet):
 		return hist
 
 
-	def initWidgets(self, ui, widgets, recursive=True, **kwargs):
+	def initWidgets(self, ui, widgets, recursive=True, returnAllWidgets=False, **kwargs):
 		"""Add widgets as attributes of the ui while giving additional attributes to the widgets themselves.
 
 		Parameters:
@@ -465,14 +488,14 @@ class Switchboard(QUiLoader, StyleSheet):
 			setAttributes(w, **kwargs)
 			setattr(ui, w.name, w)
 			added_widgets.add(w)
-			# print ('addWidgts:', w.ui.name.ljust(26), w.prefix.ljust(25), (w.name or type(w).__name__).ljust(25), w.type.ljust(15), w.derivedType.ljust(15), id(w)) #debug
+			# print (0, 'initWidgts:', w.ui.name.ljust(26), w.prefix.ljust(25), (w.name or type(w).__name__).ljust(25), w.type.ljust(15), w.derivedType.ljust(15), id(w)) #debug
 
 			if recursive:
 				child_widgets = w.findChildren(QtWidgets.QWidget)
 				self.initWidgets(ui, child_widgets, **kwargs)
 
 		ui._widgets.update(added_widgets)
-		return added_widgets
+		return added_widgets if not returnAllWidgets else ui._widgets
 
 
 	@staticmethod
