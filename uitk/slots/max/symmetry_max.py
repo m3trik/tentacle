@@ -74,7 +74,7 @@ class Symmetry_max(Symmetry, Slots_max):
 			mod.flip = negative
 
 		rt.redrawViews()
-		self.messageBox('Symmetry: '+axis.capitalize()+' <hl>'+str(state)+'</hl>')
+		self.sb.messageBox('Symmetry: '+axis.capitalize()+' <hl>'+str(state)+'</hl>')
 
 
 

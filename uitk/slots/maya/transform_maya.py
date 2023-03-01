@@ -26,8 +26,8 @@ class Transform_maya(Transform, Slots_maya):
 		live_object = True if pm.ls(live=1) else False
 		values = [('chk024', 'Contrain: Edge', edge_constraint), ('chk025', 'Constain: Surface', surface_constraint), ('chk026', 'Make Live', live_object)]
 		[cmb001.menu_.add(self.sb.CheckBox, setObjectName=chk, setText=typ, setChecked=state) for chk, typ, state in values]
-		self.sb.setSyncConnections(cmb001.menu_.chk024, self.sb.transform_submenu.chk024, attributes='setChecked')
-		self.sb.setSyncConnections(cmb001.menu_.chk025, self.sb.transform_submenu.chk025, attributes='setChecked')
+		self.sb.syncWidgets(cmb001.menu_.chk024, self.sb.transform_submenu.chk024, attributes='setChecked')
+		self.sb.syncWidgets(cmb001.menu_.chk025, self.sb.transform_submenu.chk025, attributes='setChecked')
 
 		cmb003 = self.sb.transform.cmb003
 		moveValue = pm.manipMoveContext('Move', q=True, snapValue=True)
@@ -181,7 +181,7 @@ class Transform_maya(Transform, Slots_maya):
 
 		if autoAlign: #set coordinates for auto align:
 			if not len(selection)>1:
-				self.messageBox('Operation requires a component selection.')
+				self.sb.messageBox('Operation requires a component selection.')
 				return
 
 			point = pm.xform(selection, q=True, t=True, ws=True)
@@ -206,7 +206,7 @@ class Transform_maya(Transform, Slots_maya):
 
 			vertex = selection[0] if selection else None
 			if vertex is None:
-				self.messageBox('Unable to get component path.')
+				self.sb.messageBox('Unable to get component path.')
 				return
 
 			vertexTangent = pm.polyNormalPerVertex(vertex, query=True, xyz=True)
@@ -299,7 +299,7 @@ class Transform_maya(Transform, Slots_maya):
 		'''
 		node = pm.ls(sl=1, objectsOnly=1)
 		if not node:
-			self.messageBox('<b>Nothing selected.</b><br>The operation requires a single selected object.')
+			self.sb.messageBox('<b>Nothing selected.</b><br>The operation requires a single selected object.')
 			return
 
 		transform = mtk.Node.getTransformNode(node)
@@ -311,7 +311,7 @@ class Transform_maya(Transform, Slots_maya):
 		'''
 		selection = pm.ls(sl=1)
 		if not selection:
-			self.messageBox('<b>Nothing selected.</b><br>The operation requires at least two selected objects.')
+			self.sb.messageBox('<b>Nothing selected.</b><br>The operation requires at least two selected objects.')
 			return
 
 		frm = selection[0]
@@ -331,7 +331,7 @@ class Transform_maya(Transform, Slots_maya):
 		'''
 		sel = pm.ls(sl=1, transforms=1)
 		if not sel:
-			self.messageBox('<b>Nothing selected.</b><br>The operation requires at least two selected objects.')
+			self.sb.messageBox('<b>Nothing selected.</b><br>The operation requires at least two selected objects.')
 			return
 
 		objects = sel[:-1]
@@ -396,7 +396,7 @@ class Transform_maya(Transform, Slots_maya):
 	def setTransformSnap(self, ctx, state):
 		'''Set the transform tool's move, rotate, and scale snap states.
 
-		:Parameters:
+		Parameters:
 			ctx (str): valid: 'move', 'scale', 'rotate'
 			state (int): valid: 0=off, 1=relative, 2=absolute
 		'''

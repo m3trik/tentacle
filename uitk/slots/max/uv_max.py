@@ -37,12 +37,12 @@ class Uv_max(Uv, Slots_max):
 		'''Get the UV modifier for the current object.
 		If one doesn't exist, a UV modifier will be added to the selected object.
 
-		:Return:
+		Return:
 			(obj) uv modifier.
 		'''
 		selection = rt.selection
 		if not selection:
-			self.messageBox('Nothing selected.')
+			self.sb.messageBox('Nothing selected.')
 
 		mod = self.getModifier(selection[0], 'Unwrap_UVW', -1) #get/set the uv xform modifier.
 		return mod
@@ -136,7 +136,7 @@ class Uv_max(Uv, Slots_max):
 		mod = self.uv_uiModifier #get/set the uv modifier.
 
 		mod.localDistortion = state
-		self.messageBox('{0}{1}'.format('localDistortion:', state))
+		self.sb.messageBox('{0}{1}'.format('localDistortion:', state))
 
 
 	def tb000(self, state=None):
@@ -289,7 +289,7 @@ class Uv_max(Uv, Slots_max):
 		if toSimilar:
 			to = 'similar'
 		elif not to:
-			return self.messageBox('<b>Nothing selected.</b><br>The operation requires the selection of two polygon objects.')
+			return self.sb.messageBox('<b>Nothing selected.</b><br>The operation requires the selection of two polygon objects.')
 
 		self.transferUVs(frm, to, tol=similarTol, deleteConstHist=deleteConstHist)
 
@@ -337,7 +337,7 @@ class Uv_max(Uv, Slots_max):
 	def moveSelectedToUvSpace(self, u, v, relative=True):
 		'''Move sny selected objects to the given u and v coordinates.
 
-		:Parameters:
+		Parameters:
 			u (int): u coordinate.
 			v (int): v coordinate.
 			relative (bool): Move relative or absolute.

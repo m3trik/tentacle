@@ -2,10 +2,9 @@
 # coding=utf-8
 from PySide2 import QtWidgets, QtCore
 
-from attributes import Attributes
-from text import RichText
-from menu import MenuInstance
-
+from uitk.widgets.attributes import Attributes
+from uitk.widgets.text import RichText
+from uitk.widgets.menu import MenuInstance
 
 
 class PushButton_optionBox(QtWidgets.QPushButton, Attributes, RichText):
@@ -67,7 +66,7 @@ class PushButton_optionBox(QtWidgets.QPushButton, Attributes, RichText):
 
 	# def enterEvent(self, event):
 	# 	'''
-	# 	:Parameters:
+	# 	Parameters:
 	# 		event = <QEvent>
 	# 	'''
 	# 	# if self.showMenuOnMouseOver:
@@ -78,7 +77,7 @@ class PushButton_optionBox(QtWidgets.QPushButton, Attributes, RichText):
 
 	def mousePressEvent(self, event):
 		'''
-		:Parameters:
+		Parameters:
 			event = <QEvent>
 		'''
 		if event.button()==QtCore.Qt.LeftButton:
@@ -89,7 +88,7 @@ class PushButton_optionBox(QtWidgets.QPushButton, Attributes, RichText):
 
 	# def leaveEvent(self, event):
 	# 	'''
-	# 	:Parameters:
+	# 	Parameters:
 	# 		event = <QEvent>
 	# 	'''
 	# 	if self.showMenuOnMouseOver:
@@ -100,7 +99,7 @@ class PushButton_optionBox(QtWidgets.QPushButton, Attributes, RichText):
 
 	# def showEvent(self, event):
 	# 	'''
-	# 	:Parameters:
+	# 	Parameters:
 	# 		event = <QEvent>
 	# 	'''
 	# 	if self.menu_.containsMenuItems:

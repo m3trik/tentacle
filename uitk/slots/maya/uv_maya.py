@@ -347,7 +347,7 @@ class Uv_maya(Uv, Slots_maya):
 		if toSimilar:
 			to = 'similar'
 		elif not to:
-			return self.messageBox('<b>Nothing selected.</b><br>The operation requires the selection of two polygon objects.')
+			return self.sb.messageBox('<b>Nothing selected.</b><br>The operation requires the selection of two polygon objects.')
 
 		self.transferUVs(frm, to, tol=similarTol, deleteConstHist=deleteConstHist)
 
@@ -427,7 +427,7 @@ class Uv_maya(Uv, Slots_maya):
 	def orientShells(self, objects):
 		'''Rotate UV shells to run parallel with the most adjacent U or V axis of their bounding box.
 
-		:Parameters:
+		Parameters:
 			objects (str)(obj)(list): Polygon mesh objects and/or components.
 		'''
 		for obj in pm.ls(objects, objectsOnly=1):
@@ -447,7 +447,7 @@ class Uv_maya(Uv, Slots_maya):
 	def moveSelectedToUvSpace(self, u, v, relative=True):
 		'''Move sny selected objects to the given u and v coordinates.
 
-		:Parameters:
+		Parameters:
 			u (int): u coordinate.
 			v (int): v coordinate.
 			relative (bool): Move relative or absolute.
@@ -463,7 +463,7 @@ class Uv_maya(Uv, Slots_maya):
 		If the current selection is not maskFacet, maskUv, or maskUvShell,
 		switch the component mode to uv shell.
 
-		:Return:
+		Return:
 			(list) the selected faces.
 		'''
 		selection = pm.ls(sl=1)
@@ -493,11 +493,11 @@ class Uv_maya(Uv, Slots_maya):
 	def getUvShellSets(cls, objects=None, returnType='shells'):
 		'''Get All UV shells and their corresponding sets of faces.
 
-		:Parameters:
+		Parameters:
 			objects (obj)(list): Polygon object(s) or Polygon face(s).
 			returnType (str): The desired returned type. valid values are: 'shells', 'shellIDs'. If None is given, the full dict will be returned.
 
-		:Return:
+		Return:
 			(list)(dict) dependant on the given returnType arg. ex. {0L:[[MeshFace(u'pShape.f[0]'), MeshFace(u'pShape.f[1]')], 1L:[[MeshFace(u'pShape.f[2]'), MeshFace(u'pShape.f[3]')]}
 		'''
 		if not objects:
@@ -535,10 +535,10 @@ class Uv_maya(Uv, Slots_maya):
 	def getUvShellBorderEdges(objects):
 		'''Get the edges that make up any UV islands of the given objects.
 
-		:Parameters:
+		Parameters:
 			objects (str)(obj)(list): Polygon mesh objects.
 
-		:Return:
+		Return:
 			(list) uv border edges.
 		'''
 		mesh_edges=[]
@@ -578,7 +578,7 @@ class Uv_maya(Uv, Slots_maya):
 	def transferUVs(self, frm, to='similar', tol=0.0, sampleSpace='component', deleteConstHist=True):
 		'''Transfer UV's from one group of objects to another.
 
-		:Parameters:
+		Parameters:
 			frm (str)(obj)(list): The objects to transfer uv's from.
 			to (str)(obj)(list): The objects to transfer uv's to.
 					If 'similar' is given, the scene will be searched for similar objects.

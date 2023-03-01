@@ -2,12 +2,10 @@
 # coding=utf-8
 from PySide2 import QtWidgets, QtCore
 
-from attributes import Attributes
-from text import RichText, TextOverlay
-from menu import MenuInstance
-
-from pushButton_optionBox import PushButton_optionBox
-
+from uitk.widgets.attributes import Attributes
+from uitk.widgets.text import RichText, TextOverlay
+from uitk.widgets.menu import MenuInstance
+from uitk.widgets.pushButton_optionBox import PushButton_optionBox
 
 
 class PushButton(QtWidgets.QPushButton, MenuInstance, Attributes, RichText, TextOverlay):
@@ -35,7 +33,7 @@ class PushButton(QtWidgets.QPushButton, MenuInstance, Attributes, RichText, Text
 
 	def enterEvent(self, event):
 		'''
-		:Parameters:
+		Parameters:
 			event = <QEvent>
 		'''
 		if self.showMenuOnMouseOver:
@@ -46,7 +44,7 @@ class PushButton(QtWidgets.QPushButton, MenuInstance, Attributes, RichText, Text
 
 	def mousePressEvent(self, event):
 		'''
-		:Parameters:
+		Parameters:
 			event = <QEvent>
 		'''
 		if event.button()==QtCore.Qt.RightButton:
@@ -57,7 +55,7 @@ class PushButton(QtWidgets.QPushButton, MenuInstance, Attributes, RichText, Text
 
 	def leaveEvent(self, event):
 		'''
-		:Parameters:
+		Parameters:
 			event = <QEvent>
 		'''
 		if self.showMenuOnMouseOver:
@@ -75,7 +73,7 @@ class PushButton(QtWidgets.QPushButton, MenuInstance, Attributes, RichText, Text
 
 	def showEvent(self, event):
 		'''
-		:Parameters:
+		Parameters:
 			event = <QEvent>
 		'''
 		if self.ctxMenu.containsMenuItems:

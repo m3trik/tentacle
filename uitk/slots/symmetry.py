@@ -63,6 +63,6 @@ class Symmetry(Slots):
 
 #deprecated:
 		#sync widgets
-		# self.sb.setSyncConnections(self.sb.transform.menu_.chk000, self.sb.transform_submenu.chk000, attributes='setChecked')
-		# self.sb.setSyncConnections(self.sb.transform.menu_.chk001, self.sb.transform_submenu.chk001, attributes='setChecked')
-		# self.sb.setSyncConnections(self.sb.transform.menu_.chk002, self.sb.transform_submenu.chk002, attributes='setChecked')
+		# self.sb.syncWidgets(self.sb.transform.menu_.chk000, self.sb.transform_submenu.chk000, attributes='setChecked')
+		# self.sb.syncWidgets(self.sb.transform.menu_.chk001, self.sb.transform_submenu.chk001, attributes='setChecked')
+		# self.sb.syncWidgets(self.sb.transform.menu_.chk002, self.sb.transform_submenu.chk002, attributes='setChecked')

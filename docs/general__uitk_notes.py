@@ -84,7 +84,7 @@ def cmb000(self, index=-1):
 def cmb002(self, index=-1):
 		'''Material list
 
-		:Parameters:
+		Parameters:
 			index (int): parameter on activated, currentIndexChanged, and highlighted signals.
 		'''
 		cmb = self.materials_ui.cmb002
@@ -299,7 +299,7 @@ naming needs clearer docstring w/example results. replace suffix is instead appe
 #   File "O:/Cloud/Code/_scripts/uitk\uitk\slots\maya\__init__.py", line 1154, in wrapper
 #     self.setAttributeWindow(fn(self, *args, **kwargs))
 #   File "O:/Cloud/Code/_scripts/uitk\uitk\slots\__init__.py", line 472, in wrapper
-#     self.messageBox(fn(self, *args, **kwargs))
+#     self.sb.messageBox(fn(self, *args, **kwargs))
 #   File "O:/Cloud/Code/_scripts/uitk\uitk\slots\maya\polygons_maya.py", line 209, in tb006
 #     return pm.polyExtrudeFacet(selected_faces, keepFacesTogether=1, pvx=0, pvy=40.55638003, pvz=33.53797107, divisions=1, twist=0, taper=1, offset=offset, thickness=0, smoothingAngle=30)
 #   File "C:\Program Files\Autodesk\Maya2022\Python37\lib\site-packages\pymel\internal\pmcmds.py", line 217, in polyExtrudeFacet_wrapped
@@ -319,7 +319,7 @@ naming needs clearer docstring w/example results. replace suffix is instead appe
 
 # Traceback (most recent call last):
 #   File "O:/Cloud/Code/_scripts/uitk\uitk\slots\__init__.py", line 499, in wrapper
-#     self.messageBox(fn(self, *args, **kwargs))
+#     self.sb.messageBox(fn(self, *args, **kwargs))
 #   File "O:/Cloud/Code/_scripts/uitk\uitk\slots\maya\__init__.py", line 57, in wrapper
 #     rtn = fn(*args, **kwargs)
 #   File "O:/Cloud/Code/_scripts/uitk\uitk\slots\maya\maya_animation.py", line 53, in tb001
@@ -365,7 +365,7 @@ unfold -i 5000 -ss 0.001 -gb 0 -gmb 0.5 -pub 0 -ps  0 -oa  0 -us off pCylinder1.
 def hk_tentacle_show(profile=False, uiName='init'):
 	'''Display the uitk marking menu.
 
-	:Parameters:
+	Parameters:
 		profile (bool): Prints the total running time, times each function separately, and tells you how many times each function was called.
 	'''
 	if 'uitk' not in globals():

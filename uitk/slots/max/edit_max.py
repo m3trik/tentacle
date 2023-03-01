@@ -98,17 +98,17 @@ class Edit_max(Edit, Slots_max):
 		#display viewPort messages
 		if all_:
 			if deformers:
-				self.messageBox('Delete <hl>All</hl> History.')
+				self.sb.messageBox('Delete <hl>All</hl> History.')
 				return
 			else:
-				self.messageBox('Delete <hl>All Non-Deformer</hl> History.')
+				self.sb.messageBox('Delete <hl>All Non-Deformer</hl> History.')
 				return
 		else:
 			if deformers:
-				self.messageBox('Delete history on '+str(objects))
+				self.sb.messageBox('Delete history on '+str(objects))
 				return
 			else:
-				self.messageBox('Delete <hl>Non-Deformer</hl> history on '+str(objects))
+				self.sb.messageBox('Delete <hl>Non-Deformer</hl> history on '+str(objects))
 				return
 
 
@@ -142,7 +142,7 @@ class Edit_max(Edit, Slots_max):
 		'''
 		selection = rt.modPanel.getCurrentObject()
 		if not selection:
-			self.messageBox('Operation requires a single selected object.')
+			self.sb.messageBox('Operation requires a single selected object.')
 			return
 
 		self.setAttributeWindow(selection, checkableLabel=True)
@@ -175,10 +175,10 @@ class Edit_max(Edit, Slots_max):
 	def findNGons(self, obj):
 		'''Get a list of faces of a given object having more than four sides.
 
-		:Parameters:
+		Parameters:
 			obj (obj): polygonal object.
 
-		:Return:
+		Return:
 			(list) list containing any found N-Gons		
 		'''
 		faces = Slots_max.getComponents(obj, 'faces')
@@ -230,10 +230,10 @@ class Edit_max(Edit, Slots_max):
 	def findIsolatedVertices(self, obj):
 		'''Get a list of isolated vertices of a given object.
 
-		:Parameters:
+		Parameters:
 			obj (obj): polygonal object.
 
-		:Return:
+		Return:
 			(list) list containing any found isolated verts.		
 		'''
 		vertices = Slots_max.getComponents(obj, 'vertices') #get all vertices for the given object
@@ -251,7 +251,7 @@ class Edit_max(Edit, Slots_max):
 	def meshCleanup(self, isolatedVerts=False, edgeAngle=10, nGons=False, repair=False):
 		'''Find mesh artifacts.
 
-		:Parameters:
+		Parameters:
 			isolatedVerts (bool): find vertices with two edges which fall below a specified angle.
 			edgeAngle (int): used with isolatedVerts argument to specify the angle tolerance
 			nGons (bool): search for n sided polygon faces.
@@ -324,7 +324,7 @@ class Edit_max(Edit, Slots_max):
 		if items:
 			self.setAttributeWindow(items, checkableLabel=True)
 		else:
-			self.messageBox('Found no items to list the history for.')
+			self.sb.messageBox('Found no items to list the history for.')
 			return
 
 
@@ -355,7 +355,7 @@ class Edit_max(Edit, Slots_max):
 	def compareMesh(self, obj1, obj2, factor):
 		'''Compares vert/face/edges counts.
 
-		:Parameters:
+		Parameters:
 			obj1 (obj): 
 			obj2 (obj): 
 			factor () = 

@@ -129,7 +129,7 @@ class Display_maya(Display, Slots_maya):
 
 		visible = pm.polyOptions(query=1, displayItemNumbers=1)
 		if not visible:
-			self.messageBox('Nothing selected.')
+			self.sb.messageBox('Nothing selected.')
 			return
 
 		dinArray = [(1,0,0,0),(0,1,0,0),(0,0,1,0),(0,0,0,1)]

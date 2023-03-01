@@ -35,7 +35,7 @@ class Normals_max(Normals, Slots_max):
 
 		size = float(tb.ctxMenu.s001.value())
 
-		self.messageBox('No 3ds Version.')
+		self.sb.messageBox('No 3ds Version.')
 		tb.setDisabled(True)
 		# # state = pm.polyOptions (query=True, displayNormal=True)
 		# state = ptk.cycle([1,2,3,0], 'displayNormals')

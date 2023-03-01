@@ -2,11 +2,10 @@
 # coding=utf-8
 from PySide2 import QtCore, QtGui, QtWidgets
 
-from attributes import Attributes
-from text import RichText, TextOverlay
-from menu import MenuInstance
-
-from pushButton_optionBox import PushButton_optionBox
+from uitk.widgets.attributes import Attributes
+from uitk.widgets.text import RichText, TextOverlay
+from uitk.widgets.menu import MenuInstance
+from uitk.widgets.pushButton_optionBox import PushButton_optionBox
 
 
 class PushButtonDraggable(QtWidgets.QPushButton, MenuInstance, Attributes, RichText, TextOverlay):
@@ -49,7 +48,7 @@ class PushButtonDraggable(QtWidgets.QPushButton, MenuInstance, Attributes, RichT
 
 	def mousePressEvent(self, event):
 		'''
-		:Parameters:
+		Parameters:
 			event=<QEvent>
 		'''
 		if event.button()==QtCore.Qt.LeftButton:
@@ -67,7 +66,7 @@ class PushButtonDraggable(QtWidgets.QPushButton, MenuInstance, Attributes, RichT
 
 	def mouseMoveEvent(self, event):
 		'''
-		:Parameters:
+		Parameters:
 			event=<QEvent>
 		'''
 		self.setCursor(QtGui.QCursor(QtCore.Qt.ClosedHandCursor))
@@ -89,7 +88,7 @@ class PushButtonDraggable(QtWidgets.QPushButton, MenuInstance, Attributes, RichT
 
 	def mouseReleaseEvent(self, event):
 		'''
-		:Parameters:
+		Parameters:
 			event=<QEvent>
 		'''
 		self.setCursor(QtGui.QCursor(QtCore.Qt.OpenHandCursor))
@@ -118,7 +117,7 @@ class PushButtonDraggable(QtWidgets.QPushButton, MenuInstance, Attributes, RichT
 
 	def showEvent(self, event):
 		'''
-		:Parameters:
+		Parameters:
 			event = <QEvent>
 		'''
 		if self.ctxMenu.containsMenuItems:
@@ -132,7 +131,7 @@ class PushButtonDraggable(QtWidgets.QPushButton, MenuInstance, Attributes, RichT
 
 	def hideEvent(self, event):
 		'''
-		:Parameters:
+		Parameters:
 			event = <QEvent>
 		'''
 

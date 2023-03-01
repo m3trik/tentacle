@@ -46,7 +46,7 @@ class OverlayFactoryFilter(QtCore.QObject):
 class Overlay(QtWidgets.QWidget, OverlayFactoryFilter):
 	'''Handles paint events as an overlay on top of an existing widget.
 
-	:Parameters:
+	Parameters:
 		tcl (obj): tcl widget instance.
 		antialiasing (bool): Set antialiasing for the tangent paint events.
 	'''
@@ -136,7 +136,7 @@ class Overlay(QtWidgets.QWidget, OverlayFactoryFilter):
 	def removeFromPath(self, ui):
 		'''Remove the last entry from the widget and draw paths for the given ui.
 
-		:Parameters:
+		Parameters:
 			ui (obj): The ui to remove.
 		'''
 		uis = [w.ui for w, wpos, cpos in self.drawPath[1:]]

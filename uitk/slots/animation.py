@@ -38,7 +38,7 @@ class Animation(Slots):
 		'''
 		tb = self.sb.animation.tb000
 
-		frame = self.invertOnModifier(tb.ctxMenu.s000.value())
+		frame = self.sb.invertOnModifier(tb.ctxMenu.s000.value())
 		relative = tb.ctxMenu.chk000.isChecked()
 		update = tb.ctxMenu.chk001.isChecked()
 

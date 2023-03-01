@@ -43,7 +43,7 @@ class Duplicate_blender(Duplicate, Slots_blender):
 					pivot = bb[0]+bb[3]/2, bb[1]+bb[4]/2, bb[2]+bb[5]/2 #get median of bounding box coordinates. from [min xyz, max xyz]
 			else:
 				self.sb.toggleWidgets(setUnChecked='chk010')
-				self.messageBox('Nothing selected.')
+				self.sb.messageBox('Nothing selected.')
 				return
 
 			# radialPivot.extend ([pivot[0],pivot[1],pivot[2]])
@@ -114,7 +114,7 @@ class Duplicate_blender(Duplicate, Slots_blender):
 					# pm.undoInfo (closeChunk=1)
 			else: #if both lists objects are empty:
 				self.sb.toggleWidgets(setDisabled='b003', setUnChecked='chk015')
-				self.messageBox('Nothing selected.')
+				self.sb.messageBox('Nothing selected.')
 				return
 		else: #if chk015 is unchecked by user or by create button
 			if create:
@@ -166,7 +166,7 @@ class Duplicate_blender(Duplicate, Slots_blender):
 				obj = duplicateObjList[0]
 				pm.select(obj)
 			else:
-				self.messageBox('Nothing selected.')
+				self.sb.messageBox('Nothing selected.')
 				return
 
 			# pm.undoInfo (openChunk=1)
@@ -234,7 +234,7 @@ class Duplicate_blender(Duplicate, Slots_blender):
 		'''
 		selection = pm.ls(sl=1, transforms=1)
 		if not selection:
-			self.messageBox('<strong>Nothing selected</strong>.<br>Operation requires an object selection.')
+			self.sb.messageBox('<strong>Nothing selected</strong>.<br>Operation requires an object selection.')
 			return
 
 		instances = [pm.instance(obj, name=obj.name()+'_INST') 
@@ -248,7 +248,7 @@ class Duplicate_blender(Duplicate, Slots_blender):
 		'''
 		selection = pm.ls(sl=1, transforms=1)
 		if not selection:
-			self.messageBox('<strong>Nothing selected</strong>.<br>Operation requires an object selection.')
+			self.sb.messageBox('<strong>Nothing selected</strong>.<br>Operation requires an object selection.')
 			return
 
 		if not pm.selectPref(q=1, trackSelectionOrder=1): #if ordered selection is not on, turn it on. If off, the current selection is likely not ordered.
@@ -282,9 +282,9 @@ class Duplicate_blender(Duplicate, Slots_blender):
 
 	def getInstances(self, object_=None):
 		'''get any intances of given object, or if no object given, get all instanced objects in the scene.
-		:Parameters:
+		Parameters:
 			object=<scene object>
-		:Return:
+		Return:
 			any instances.
 		'''
 		instances=[]
@@ -310,12 +310,12 @@ class Duplicate_blender(Duplicate, Slots_blender):
 	def convertToInstances(self, objects=[], leaf=False, append='_INST'):
 		'''The first selected object will be instanced across all other selected objects.
 
-		:Parameters:
+		Parameters:
 			objects (list): A list of objects to convert to instances. The first object will be the instance parent.
 			leaf (bool): Instances leaf-level objects. Acts like duplicate except leaf-level objects are instanced.
 			append (str): Append a string to the end of any instanced objects.
 
-		:Example: convertToInstances(pm.ls(sl=1))
+		Example: convertToInstances(pm.ls(sl=1))
 		'''
 		# pm.undoInfo(openChunk=1)
 		p0x, p0y, p0z = pm.xform(objects[0], query=1, rotatePivot=1, worldSpace=1) #get the world space obj pivot.
@@ -345,7 +345,7 @@ class Duplicate_blender(Duplicate, Slots_blender):
 	def unInstance(self, objects):
 		'''Un-Instance the given objects.
 
-		:Parameters:
+		Parameters:
 			objects (str)(obj)(list): The objects to un-instance. If 'all' is given all instanced objects in the scene will be uninstanced.
 		'''
 		if objects=='all':

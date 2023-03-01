@@ -3,7 +3,6 @@
 from PySide2 import QtCore, QtGui, QtWidgets
 
 
-
 class Attributes(object):
 	'''Methods for setting widget Attributes.
 	'''
@@ -12,7 +11,7 @@ class Attributes(object):
 		'''Works with attributes passed in as a dict or kwargs.
 		If attributes are passed in as a dict, kwargs are ignored.
 
-		:Parameters:
+		Parameters:
 			obj (obj): the child obj or widgetAction to set attributes for. (default=self)
 			**kwargs = The keyword arguments to set.
 		'''
@@ -35,7 +34,7 @@ class Attributes(object):
 		'''Attributes that throw an AttributeError in 'setAttributes' are sent here, where they can be assigned a value.
 		Custom attributes can be set using a trailing underscore convention to aid readability, and differentiate them from standard attributes.
 
-		:Parameters:
+		Parameters:
 			w (obj): The child widget or widgetAction to set attributes for.
 			attr (str): Custom keyword attribute.
 			value (str): The value corresponding to the given attr.
@@ -111,7 +110,7 @@ class Attributes(object):
 	def setMinMax(self, spinbox, value):
 		'''Set the minimum, maximum, and step values for a spinbox using a shorthand string value.
 
-		:Parameters:
+		Parameters:
 			spinbox (obj): spinbox widget.
 			value (str): value as shorthand string. ie. '0.00-100 step1'
 		'''
@@ -132,7 +131,7 @@ class Attributes(object):
 	def setSpinBoxByValue(self, spinbox, value):
 		'''Set a spinbox's attributes according to a given value.
 
-		:Parameters:
+		Parameters:
 			spinbox (obj): spinbox widget.
 			value (multi) = attribute value.
 		'''
@@ -162,13 +161,13 @@ class Attributes(object):
 	def moveDecimalPoint(num, decimal_places):
 		'''Move the decimal place in a given number.
 
-		:Parameters:
+		Parameters:
 			decimal_places (int): decimal places to move. (works only with values 0 and below.)
 		
-		:Return:
+		Return:
 			(float) the given number with it's decimal place moved by the desired amount.
 		
-		ex. moveDecimalPoint(11.05, -2) :Return: 0.1105
+		ex. moveDecimalPoint(11.05, -2) Return: 0.1105
 		'''
 		for _ in range(abs(decimal_places)):
 

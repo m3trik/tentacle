@@ -15,7 +15,6 @@ class File(Slots):
 		list000 = self.sb.file_submenu.list000
 		recentFiles = [File_.formatPath(f, 'name') for f in self.getRecentFiles()[:6] if f]
 		# list000.setVisible(bool(recentFiles))
-		list000.setVisible(False)
 		# w1 = list000.add('QPushButton', setObjectName='b001', setText='Test A')
 		# w2 = w1.list.add('QPushButton', setObjectName='b002', setText='Test B')
 		# w3 = w2.list.add('QPushButton', setObjectName='b003', setText='Test C')

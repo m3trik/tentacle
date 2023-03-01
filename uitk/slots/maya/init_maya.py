@@ -11,8 +11,8 @@ class Init_maya(Init, Slots_maya):
 	def __init__(self, *args, **kwargs):
 		super().__init__(*args, **kwargs)
 
-		try: #set the 'hud' textEdit to connect to the 'contruct_hud' method on show.
-			self.sb.init.hud.shown.connect(self.construct_hud)
+		try: #set the 'hud_text' textEdit to connect to the 'contruct_hud' method on show.
+			self.sb.init.hud_text.shown.connect(self.construct_hud)
 
 		except AttributeError as error: #(an inherited class)
 			print (error)
@@ -22,7 +22,7 @@ class Init_maya(Init, Slots_maya):
 		'''Add current scene attributes to the hud lineEdit.
 		Only those with relevant values will be displayed.
 		'''
-		hud = self.sb.init.hud
+		hud = self.sb.init.hud_text
 
 		try:
 			selection = pm.ls(selection=1)

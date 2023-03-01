@@ -20,7 +20,7 @@ class Cameras_maya(Cameras, Slots_maya):
 	def clippingMenu(self):
 		'''Menu: Camera clip plane settings.
 
-		:Return:
+		Return:
 			(obj) menu as a property.
 		'''
 		if not hasattr(self, '_clippingMenu'):
@@ -57,7 +57,7 @@ class Cameras_maya(Cameras, Slots_maya):
 
 		activeCamera = self.getCurrentCam()
 		if not activeCamera:
-			self.messageBox('No Active Camera.')
+			self.sb.messageBox('No Active Camera.')
 			return
 
 		pm.viewClipPlane(activeCamera, autoClipPlane=True)
@@ -70,7 +70,7 @@ class Cameras_maya(Cameras, Slots_maya):
 
 		activeCamera = self.getCurrentCam()
 		if not activeCamera:
-			self.messageBox('No Active Camera.')
+			self.sb.messageBox('No Active Camera.')
 			return
 
 		pm.viewClipPlane(activeCamera, nearClipPlane=widget.value())
@@ -83,7 +83,7 @@ class Cameras_maya(Cameras, Slots_maya):
 
 		activeCamera = self.getCurrentCam()
 		if not activeCamera:
-			self.messageBox('No Active Camera.')
+			self.sb.messageBox('No Active Camera.')
 			return
 
 		pm.viewClipPlane(activeCamera, farClipPlane=widget.value())
@@ -255,7 +255,7 @@ class Cameras_maya(Cameras, Slots_maya):
 		'''
 		selection = pm.ls(sl=1)
 		if not selection:
-			self.messageBox('Nothing Selected.')
+			self.sb.messageBox('Nothing Selected.')
 			return
 
 		if not pm.objExists('alignToPoly'): #if no camera exists; create camera
@@ -281,7 +281,7 @@ class Cameras_maya(Cameras, Slots_maya):
 		'''
 		grp = pm.ls('cameras', transforms=1)
 		if grp and self.isGroup(grp[0]): #add the new cam to 'cameras' group (if it exists).
-			self.messageBox('Group \'cameras\' already exists.')
+			self.sb.messageBox('Group \'cameras\' already exists.')
 			return
 
 		pm.group(world=1, name='cameras')

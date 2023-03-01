@@ -229,7 +229,7 @@ class File_max(File, Slots_max):
 		try:
 			os.startfile(self.formatPath(dir_))
 		except FileNotFoundError as error:
-			self.messageBox('The system cannot find the file specified.')
+			self.sb.messageBox('The system cannot find the file specified.')
 
 
 	def b002(self):
@@ -270,10 +270,10 @@ class File_max(File, Slots_max):
 	def getRecentFiles(self, index=None):
 		'''Get a list of recent files from "RecentDocuments.xml" in the maxData directory.
 
-		:Parameters:
+		Parameters:
 			index (int): Return the recent file directory path at the given index. Index 0 would be the most recent file.
 
-		:Return:
+		Return:
 			(list)(str)
 		'''
 		maxEval('''
@@ -308,7 +308,7 @@ class File_max(File, Slots_max):
 	def getRecentProjects(self):
 		'''Get a list of recently set projects.
 
-		:Return:
+		Return:
 			(list)
 		'''
 		files = ['No 3ds max function']
@@ -320,10 +320,10 @@ class File_max(File, Slots_max):
 	def getRecentAutosave(self, appendDatetime=False):
 		'''Get a list of autosave files.
 
-		:Parameters:
+		Parameters:
 			appendDatetime (bool): Attach a modified timestamp and date to given file path(s).
 
-		:Return:
+		Return:
 			(list)
 		'''
 		from datetime import datetime
@@ -341,10 +341,10 @@ class File_max(File, Slots_max):
 	def incrementFileName(self, fileName):
 		'''Increment the given file name.
 
-		:Parameters:
+		Parameters:
 			fileName (str): file name with extension. ie. elise_mid.ma
 
-		:Return:
+		Return:
 			(str) incremented name. ie. elise_mid.000.ma
 		'''
 		import re
@@ -368,7 +368,7 @@ class File_max(File, Slots_max):
 	def deletePreviousFiles(self, fileName, path, numberOfPreviousFiles=5):
 		'''Delete older files.
 
-		:Parameters:
+		Parameters:
 			fileName (str): file name with extension. ie. elise_mid.ma
 			numberOfPreviousFiles (int): Number of previous copies to keep.
 		'''

@@ -36,7 +36,7 @@ class Materials_max(Materials, Slots_max):
 	def cmb002(self, index=-1):
 		'''Material list
 
-		:Parameters:
+		Parameters:
 			index (int): parameter on activated, currentIndexChanged, and highlighted signals.
 		'''
 		cmb = self.sb.materials.cmb002
@@ -76,7 +76,7 @@ class Materials_max(Materials, Slots_max):
 
 		mat = self.sb.materials.cmb002.currentData()
 		if not mat:
-			self.messageBox('No Material Selection.')
+			self.sb.messageBox('No Material Selection.')
 			return
 
 		shell = tb.ctxMenu.chk005.isChecked() #Select by material: shell
@@ -116,7 +116,7 @@ class Materials_max(Materials, Slots_max):
 					self.sb.materials.tb001.menu_.chk001.setChecked(True) #set comboBox to ID map mode. toggling the checkbox refreshes the combobox.
 				self.sb.materials.cmb002.setCurrentItem(mat.name) #set the comboBox index to the new mat #self.cmb002.setCurrentIndex(self.cmb002.findText(name))
 			else:
-				self.messageBox('No valid object/s selected.')
+				self.sb.messageBox('No valid object/s selected.')
 				return
 
 		elif assignCurrent: #Assign current mat
@@ -169,7 +169,7 @@ class Materials_max(Materials, Slots_max):
 			mat = self.sb.materials.cmb002.currentData() #get the mat obj from cmb002
 			rt.select(mat)
 		except Exception as error:
-			self.messageBox('No stored material or no valid object selected.')
+			self.sb.messageBox('No stored material or no valid object selected.')
 			return
 
 		#open the slate material editor
@@ -238,7 +238,7 @@ class Materials_max(Materials, Slots_max):
 		try: 
 			obj = rt.selection[0]
 		except IndexError:
-			self.messageBox('Nothing selected.')
+			self.sb.messageBox('Nothing selected.')
 			return
 
 		mat = self.getMaterial()
@@ -251,11 +251,11 @@ class Materials_max(Materials, Slots_max):
 	def getColorSwatchIcon(self, mat, size=[20, 20]):
 		'''Get an icon with a color fill matching the given materials RBG value.
 
-		:Parameters:
+		Parameters:
 			mat (obj)(str): The material or the material's name.
 			size (list): Desired icon size. [width, height]
 
-		:Return:
+		Return:
 			(obj) pixmap icon.
 		'''
 		try:
@@ -298,7 +298,7 @@ class Materials_max(Materials, Slots_max):
 		selectByMaterialID(material)
 		'''
 		if rt.getNumSubMtls(material): #if not a multimaterial
-			self.messageBox('No valid stored material. If material is a multimaterial, select a submaterial.')
+			self.sb.messageBox('No valid stored material. If material is a multimaterial, select a submaterial.')
 			return
 
 		if not material:
@@ -366,9 +366,9 @@ class Materials_max(Materials, Slots_max):
 	def getSceneMaterials(self.startingWith=['']):
 		'''Get All Materials from the current scene.
 
-		:Parameters:
+		Parameters:
 			startingWith (list): Filters material names starting with any of the strings in the given list. ie. ['ID_']
-		:Return:
+		Return:
 			(list) materials.
 		'''
 		materials=[] #get any scene material that does not start with 'Material'
@@ -387,16 +387,16 @@ class Materials_max(Materials, Slots_max):
 	def getMaterial(self, obj=None, face=None):
 		'''Get the material from the given object or face components.
 
-		:Parameters:
+		Parameters:
 			obj (obj): Mesh object.
 			face (int): Face number.
-		:Return:
+		Return:
 			(obj) material
 		'''
 		if not obj:
 			selection = rt.selection
 			if not selection:
-				self.messageBox('Nothing selected. Select an object face, or choose the option: current material.')
+				self.sb.messageBox('Nothing selected. Select an object face, or choose the option: current material.')
 				return
 			obj = selection[0]
 
@@ -413,7 +413,7 @@ class Materials_max(Materials, Slots_max):
 					try:
 						ID_ = rt.GetFaceId_(obj, face) #Returns the material ID of the specified face.
 					except RuntimeError:
-						self.messageBox('Object must be of type Editable_Poly or Editable_mesh.')
+						self.sb.messageBox('Object must be of type Editable_Poly or Editable_mesh.')
 						return
 
 				mat = rt.getSubMtl(mat, ID_) #get material from mat ID
@@ -424,11 +424,11 @@ class Materials_max(Materials, Slots_max):
 	def createRandomMaterial(self, name='', prefix=''):
 		'''Creates a random material.
 
-		:Parameters:
+		Parameters:
 			name (str): material name.
 			prefix (str): Optional string to be appended to the beginning of the name.
 
-		:Return:
+		Return:
 			(obj) material
 		'''
 		import random
@@ -451,7 +451,7 @@ class Materials_max(Materials, Slots_max):
 		material (obj): The material to search and select for.
 		'''
 		if not mat:
-			self.messageBox('Material Not Assigned. No material given.')
+			self.sb.messageBox('Material Not Assigned. No material given.')
 			return
 
 		for obj in objects:
@@ -467,12 +467,12 @@ class Materials_max(Materials, Slots_max):
 	def getMaterialBitmaps(self, mats=None, missing=False, processChildren=True):
 		'''Get any bitmaps from a given material(s), or from all scene materials.
 
-		:Parameters:
+		Parameters:
 			mats (obj)(list): Mat object or list of mat objects. If None is given, all bitmap textures in the scene are used.
 			missing (bool): Return only filenames from missing bitmaps.
 			processChildren (bool): Child scene nodes are also searched as part of the Animatable or Reference hierarchy.
 
-		:Return:
+		Return:
 			(list) material bitmaps.
 		'''
 		if mats is None:
@@ -493,12 +493,12 @@ class Materials_max(Materials, Slots_max):
 	def getBitmapFilenames(self, bitmaps=None, missing=False, returnType=list):
 		'''Get the file paths for the given bitmaps. If no bitmaps are given all bitmaps in the scene will be used.
 
-		:Parameters:
+		Parameters:
 			bitmaps (list): A list of bitmaps. If no bitmaps are given all bitmaps in the scene will be used.
 			missing (bool): Return only filenames from missing bitmaps.
 			returnType (type) = Valid (list (default), dict).
 
-		:Return:
+		Return:
 			dependant on returnType flag.
 			(dict) {bitmap object:filepath}
 			(list) [filepath]
@@ -519,7 +519,7 @@ class Materials_max(Materials, Slots_max):
 	def setBitmapFilenames(self, dict_, reload=False):
 		'''Set the file paths for the given bitmaps. Bitmaps are given as a dict of bitmaps as keys, and filenames as values.
 
-		:Parameters:
+		Parameters:
 			dict_ (dict): A dict of bitmaps as keys, and filenames as values.
 			reload (bool): Refresh the bitmap node after updating the path.
 		'''
@@ -532,12 +532,12 @@ class Materials_max(Materials, Slots_max):
 	def relinkBitmaps(self, dir_, bitmaps=None, replaceTxWithTif=False):
 		'''Find the first valid path in the given dir for each bitmap in a given dict. If no bitmaps are given all bitmaps in the scene will be used.
 
-		:Parameters:
+		Parameters:
 			dir_ (str): The parent dir to recursively search for files in.
 			bitmaps (dict): A dict of bitmaps as keys, and filenames as values. If no bitmaps are given all bitmaps in the scene will be used.
 			replaceTxWithTif (bool): Look instead for a .tif file of the same name, to replace a previoud .tx format.
 
-		:Return:
+		Return:
 			(dict) Any bitmaps that are not found. {bitmap object:filename}
 		'''
 		import fnmatch, os
@@ -570,7 +570,7 @@ class Materials_max(Materials, Slots_max):
 	def relinkMatLibBitmaps(self, library_dir, mat_dir, replaceTxWithTif=False):
 		'''Repair broken bitmap file links for all libraries in a given directory.
 
-		:Parameters:
+		Parameters:
 			library_dir (str): A path to a directory containing the library files.
 			mat_dir (str): A path to a directory containing the material dependancies.
 		'''
@@ -599,7 +599,7 @@ class Materials_max(Materials, Slots_max):
 	def relinkSceneBitmaps(self, mat_dir, mats=None, replaceTxWithTif=False):
 		'''Repair broken bitmap file links.  If no mats are given, all scene bitmaps will be used.
 
-		:Parameters:
+		Parameters:
 			mats (obj)(list): Specify material(s) to get bitmaps for. If none are given, all scene materials will be used.
 			replaceTxWithTif (bool): Look instead for a .tif file of the same name, to replace a previoud .tx format.
 		'''
@@ -612,10 +612,10 @@ class Materials_max(Materials, Slots_max):
 	def getNodesSME(self, nodeType=None, selected=False):
 		'''Get any nodes in the slate material editor that are currently selected.
 
-		:Parameters:
+		Parameters:
 			nodeType (obj)(str): The type of node to filter the results for. If 'query' is given, the node type will be returned. ie. rt.VRayMtl()
 			selected (bool): When True, only currently selected nodes will be returned.
-		:Return:
+		Return:
 			(list) nodes or node types.
 		'''
 		view = rt.SME.getView(rt.SME.activeView)
@@ -647,7 +647,7 @@ class Materials_max(Materials, Slots_max):
 	def compareMats(self, obj1, obj2):
 		'''Compare material names. unlike other properties, this is a simple true/false comparison, it doesn't find 'similar' names.
 
-		:Parameters:
+		Parameters:
 			obj1 (obj): 
 			obj2 (obj): 
 		'''

@@ -40,7 +40,7 @@ class Materials_maya(Materials, Slots_maya):
 	def cmb002(self, index=-1):
 		'''Material list
 
-		:Parameters:
+		Parameters:
 			index (int): parameter on activated, currentIndexChanged, and highlighted signals.
 		'''
 		cmb = self.sb.materials.cmb002
@@ -81,7 +81,7 @@ class Materials_maya(Materials, Slots_maya):
 
 		mat = self.sb.materials.cmb002.currentData()
 		if not mat:
-			self.messageBox('No Material Selection.')
+			self.sb.messageBox('No Material Selection.')
 			return
 
 		shell = tb.ctxMenu.chk005.isChecked() #Select by material: shell
@@ -100,7 +100,7 @@ class Materials_maya(Materials, Slots_maya):
 
 		selection = pm.ls(selection=1, flatten=1)
 		if not selection:
-			self.messageBox('No renderable object is selected for assignment.')
+			self.sb.messageBox('No renderable object is selected for assignment.')
 			return
 
 		assignCurrent = tb.ctxMenu.chk007.isChecked()
@@ -135,7 +135,7 @@ class Materials_maya(Materials, Slots_maya):
 			mat = self.sb.materials.cmb002.currentData() #get the mat obj from cmb002
 			pm.select(mat)
 		except:
-			self.messageBox('No stored material or no valid object selected.')
+			self.sb.messageBox('No stored material or no valid object selected.')
 			return
 
 		pm.mel.HypershadeWindow() #open the hypershade editor
@@ -203,7 +203,7 @@ class Materials_maya(Materials, Slots_maya):
 		'''
 		selection = pm.ls(selection=1)
 		if not selection:
-			self.messageBox('Nothing selected.')
+			self.sb.messageBox('Nothing selected.')
 			return
 
 		mat = self.getMaterial()
@@ -216,11 +216,11 @@ class Materials_maya(Materials, Slots_maya):
 	def getColorSwatchIcon(self, mat, size=[20, 20]):
 		'''Get an icon with a color fill matching the given materials RBG value.
 
-		:Parameters:
+		Parameters:
 			mat (obj)(str): The material or the material's name.
 			size (list): Desired icon size.
 
-		:Return:
+		Return:
 			(obj) pixmap icon.
 		'''
 		try:
@@ -265,12 +265,12 @@ class Materials_maya(Materials, Slots_maya):
 		selectByMaterialID(material)
 		'''
 		if pm.nodeType(material)=='VRayMultiSubTex': #if not a multimaterial
-			self.messageBox('If material is a multimaterial, select a submaterial.')
+			self.sb.messageBox('If material is a multimaterial, select a submaterial.')
 			return
 
 		if not material:
 			if not pm.ls(sl=1):
-				self.messageBox('Nothing selected. Select an object face, or choose the option: current material.')
+				self.sb.messageBox('Nothing selected. Select an object face, or choose the option: current material.')
 				return
 			material = self.getMaterial()
 
@@ -299,7 +299,7 @@ class Materials_maya(Materials, Slots_maya):
 	def getSceneMaterials(self, inc=[], exc=[]):
 		'''Get all materials from the current scene.
 
-		:Parameters:
+		Parameters:
 			inc (str)(int)(obj)(list): The objects(s) to include.
 					supports using the '*' operator: startswith*, *endswith, *contains*
 					Will include all items that satisfy ANY of the given search terms.
@@ -307,7 +307,7 @@ class Materials_maya(Materials, Slots_maya):
 					strings containing 'Normal'. NOT strings satisfying both terms.
 			exc (str)(int)(obj)(list): The objects(s) to exclude. Similar to include.
 					exlude take precidence over include.
-		:Return:
+		Return:
 			(list) materials.
 		'''
 		matList = pm.ls(mat=1, flatten=1)
@@ -323,7 +323,7 @@ class Materials_maya(Materials, Slots_maya):
 	def getFavoriteMaterials(self):
 		'''Get Maya favorite materials list.
 
-		:Return:
+		Return:
 			(list) materials.
 		'''
 		import maya.app.general.tlfavorites as _fav, os.path
@@ -339,10 +339,10 @@ class Materials_maya(Materials, Slots_maya):
 	def getMaterial(self, obj=''):
 		'''Get the material from the selected face.
 
-		:Parameters:
+		Parameters:
 			(str)(obj): The obj with the material.
 
-		:Return:
+		Return:
 			(list) material
 		'''
 		pm.hyperShade(obj, shaderNetworksSelectMaterialNodes=1) #selects the material node 
@@ -354,11 +354,11 @@ class Materials_maya(Materials, Slots_maya):
 	def createRandomMaterial(self, name='', prefix=''):
 		'''Creates a random material.
 
-		:Parameters:
+		Parameters:
 			name (str): material name.
 			prefix (str): Optional string to be appended to the beginning of the name.
 
-		:Return:
+		Return:
 			(obj) material.
 		'''
 		import random
@@ -386,7 +386,7 @@ class Materials_maya(Materials, Slots_maya):
 		material (obj): The material to search and select for.
 		'''
 		if not mat:
-			self.messageBox('Material Not Assigned. No material given.')
+			self.sb.messageBox('Material Not Assigned. No material given.')
 			return
 
 		try: #if the mat is a not a known type; try and create the material.

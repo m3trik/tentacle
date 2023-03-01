@@ -104,10 +104,10 @@ class Selection_maya(Selection, Slots_maya):
 		'''
 		if self.selection_submenu_ui.chk004.isChecked():
 			pm.selectPref(useDepth=True)
-			self.messageBox('Camera-based selection <hl>On</hl>.', messageType='Result')
+			self.sb.messageBox('Camera-based selection <hl>On</hl>.', messageType='Result')
 		else:
 			pm.selectPref(useDepth=False)
-			self.messageBox('Camera-based selection <hl>Off</hl>.', messageType='Result')
+			self.sb.messageBox('Camera-based selection <hl>Off</hl>.', messageType='Result')
 
 
 	def chk008(self, state=None):
@@ -115,10 +115,10 @@ class Selection_maya(Selection, Slots_maya):
 		'''
 		if self.selection_submenu_ui.chk008.isChecked():
 			pm.softSelect(edit=1, softSelectEnabled=True)
-			self.messageBox('Soft Select <hl>On</hl>.', messageType='Result')
+			self.sb.messageBox('Soft Select <hl>On</hl>.', messageType='Result')
 		else:
 			pm.softSelect(edit=1, softSelectEnabled=False)
-			self.messageBox('Soft Select <hl>Off</hl>.', messageType='Result')
+			self.sb.messageBox('Soft Select <hl>Off</hl>.', messageType='Result')
 
 
 	def cmb000(self, index=-1):
@@ -321,7 +321,7 @@ class Selection_maya(Selection, Slots_maya):
 
 		selection = pm.ls(sl=1)
 		if not selection:
-			self.messageBox('Operation requires a valid selection.')
+			self.sb.messageBox('Operation requires a valid selection.')
 			return
 
 		result=[]
@@ -383,7 +383,7 @@ class Selection_maya(Selection, Slots_maya):
 		sel = pm.ls(sl=1)
 		selectedFaces = mtk.Cmpt.getComponents(sel, componentType='faces')
 		if not selectedFaces:
-			self.messageBox('The operation requires a face selection.')
+			self.sb.messageBox('The operation requires a face selection.')
 			return
 
 		similarFaces = self.sb.normals.slots.getFacesWithSimilarNormals(selectedFaces, rangeX=rangeX, rangeY=rangeY, rangeZ=rangeZ)
@@ -436,7 +436,7 @@ class Selection_maya(Selection, Slots_maya):
 	def setSelectionStyle(ctx):
 		'''Set the selection style context.
 
-		:Parameters:
+		Parameters:
 			ctx (str): Selection style context. valid: 'marquee', 'lasso', 'paint'.
 		'''
 		ctx = ctx+'Context'
@@ -456,7 +456,7 @@ class Selection_maya(Selection, Slots_maya):
 	def generateUniqueSetName(self, obj=None):
 		'''Generate a generic name based on the object's name.
 
-		:Parameters:
+		Parameters:
 			obj (str)(obj)(list): The maya scene object to derive a unique name from.
 
 		<objectName>_Set<int>
@@ -473,7 +473,7 @@ class Selection_maya(Selection, Slots_maya):
 		'''Selection Sets: Create a new selection set.
 		'''
 		if pm.objExists(name):
-			self.messageBox('Set with name <hl>{}</hl> already exists.'.format(name))
+			self.sb.messageBox('Set with name <hl>{}</hl> already exists.'.format(name))
 			return
 
 		else: #create set

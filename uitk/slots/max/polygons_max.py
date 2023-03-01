@@ -75,7 +75,7 @@ class Polygons_max(Polygons, Slots_max):
 				else: #if object mode. merge all vertices on the selected object.
 					rt.polyop.weldVertsByThreshold(obj, obj.verts)
 		else:
-			self.messageBox('No object selected.')
+			self.sb.messageBox('No object selected.')
 			return
 
 
@@ -256,7 +256,7 @@ class Polygons_max(Polygons, Slots_max):
 			obj1, obj2 = selection
 			Slots_max.snapClosestVerts(obj1, obj2, tolerance, freezetransforms)
 		else:
-			self.messageBox('Operation requires at least two selected objects.')
+			self.sb.messageBox('Operation requires at least two selected objects.')
 			return
 
 
@@ -474,10 +474,10 @@ class Polygons_max(Polygons, Slots_max):
 	def detachElement(self, obj):
 		'''Detach editable_mesh elements into new objects.
 
-		:Parameters:
+		Parameters:
 			obj (obj): A polygon object.
 
-		:Return:
+		Return:
 			(list) detached objects.
 		'''
 		elementArray = []

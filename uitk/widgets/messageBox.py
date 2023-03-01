@@ -2,14 +2,13 @@
 # coding=utf-8
 from PySide2 import QtCore, QtGui, QtWidgets
 
-from attributes import Attributes
-
+from uitk.widgets.attributes import Attributes
 
 
 class MessageBox(QtWidgets.QMessageBox, Attributes):
 	'''Displays a message box with HTML formatting for a set time before closing.
 
-	:Parameters:
+	Parameters:
 		location (str)(point) = move the messagebox to the specified location. Can be given as a qpoint or string value. default is: 'topMiddle'
 		timeout (int): time in seconds before the messagebox auto closes.
 	'''
@@ -63,7 +62,7 @@ class MessageBox(QtWidgets.QMessageBox, Attributes):
 	def _setPrefixStyle(self, string):
 		'''Set style for specific keywords in the given string.
 
-		:Return:
+		Return:
 			(str)
 		'''
 		style = {
@@ -84,7 +83,7 @@ class MessageBox(QtWidgets.QMessageBox, Attributes):
 		<p style="text-align:center;">Centered paragraph.</p>
 		<p style="font-family:courier;">This is a paragraph.</p>
 
-		:Return:
+		Return:
 			(str)
 		'''
 		style = {
@@ -104,7 +103,7 @@ class MessageBox(QtWidgets.QMessageBox, Attributes):
 
 	def _setFontColor(self, string, color):
 		'''
-		:Return:
+		Return:
 			(str)
 		'''
 		return '<font color='+color+'>'+string+'</font>'
@@ -112,7 +111,7 @@ class MessageBox(QtWidgets.QMessageBox, Attributes):
 
 	def _setBackgroundColor(self, string, color):
 		'''
-		:Return:
+		Return:
 			(str)
 		'''
 		return '<mark style="background-color:'+color+'">'+string+'</mark>'
@@ -120,7 +119,7 @@ class MessageBox(QtWidgets.QMessageBox, Attributes):
 
 	def _setFontSize(self, string, size):
 		'''
-		:Return:
+		Return:
 			(str)
 		'''
 		return '<font size='+str(size)+'>'+string+'</font>'
@@ -129,7 +128,7 @@ class MessageBox(QtWidgets.QMessageBox, Attributes):
 	def setText(self, string, fontColor='white', backgroundColor='rgb(50,50,50)', fontSize=5):
 		'''Set the text to be displayed.
 
-		:Parameters:
+		Parameters:
 			fontColor (str): text color.
 			backgroundColor (str): text background color.
 			fontSize (int): text size.
@@ -156,7 +155,7 @@ class MessageBox(QtWidgets.QMessageBox, Attributes):
 
 	def showEvent(self, event):
 		'''
-		:Parameters:
+		Parameters:
 			event=<QEvent>
 		'''
 		self.move_(self.location)
@@ -166,7 +165,7 @@ class MessageBox(QtWidgets.QMessageBox, Attributes):
 
 	def hideEvent(self, event):
 		'''
-		:Parameters:
+		Parameters:
 			event=<QEvent>
 		'''
 
@@ -214,7 +213,7 @@ Promoting a widget in designer to use a custom class:
 
 # def insertText(self, dict_):
 # 	'''
-# 	:Parameters:
+# 	Parameters:
 # 		dict_ = {dict} - contents to add.  for each key if there is a value, the key and value pair will be added.
 # 	'''
 # 	highlight = QtGui.QColor(255, 255, 0)

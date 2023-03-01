@@ -124,7 +124,7 @@ class Normals_maya(Normals, Slots_maya):
 		maskVertex = pm.selectType (query=1, vertex=1)
 
 		if not selection:
-			self.messageBox('Operation requires at least one selected object.')
+			self.sb.messageBox('Operation requires at least one selected object.')
 			return
 
 		if (all_ and maskVertex) or maskObject:
@@ -147,7 +147,7 @@ class Normals_maya(Normals, Slots_maya):
 				pm.polyNormalPerVertex(freezeNormal=1)
 				mtk.viewportMessage("Normals <hl>Locked</hl>.")
 		else:
-			self.messageBox('Selection must be object or vertex.', messageType='Warning')
+			self.sb.messageBox('Selection must be object or vertex.', messageType='Warning')
 			return
 
 
@@ -210,7 +210,7 @@ class Normals_maya(Normals, Slots_maya):
 	def averageNormals(self, objects, byUvShell=False):
 		'''Average Normals
 
-		:Parameters:
+		Parameters:
 			byUvShell (bool): Average each UV shell individually.
 		'''
 		pm.undoInfo(openChunk=1)
@@ -235,10 +235,10 @@ class Normals_maya(Normals, Slots_maya):
 	def getNormalVector(obj):
 		'''Get the normal vectors of the given poly object.
 
-		:Parameters:
+		Parameters:
 			obj (str)(obj)(list): A polygon mesh or it's component(s).
 
-		:Return:
+		Return:
 			dict - {int:[float, float, float]} face id & vector xyz.
 		'''
 		obj = pm.ls(obj)
@@ -261,7 +261,7 @@ class Normals_maya(Normals, Slots_maya):
 	def getFacesWithSimilarNormals(cls, faces, transforms=[], similarFaces=[], rangeX=0.1, rangeY=0.1, rangeZ=0.1, returnType='str'):
 		'''Filter for faces with normals that fall within an X,Y,Z tolerance.
 
-		:Parameters:
+		Parameters:
 			faces (list): ['polygon faces'] - faces to find similar normals for.
 			similarFaces (list): optional ability to add faces from previous calls to the return value.
 			transforms (list): [<shape nodes>] - objects to check faces on. If none are given the objects containing the given faces will be used.
@@ -270,7 +270,7 @@ class Normals_maya(Normals, Slots_maya):
 			rangeZ = float - z axis tolerance
 			returnType (str): The desired returned object type. 
 							valid: 'str'(default), 'obj'(shape object), 'transform'(as string), 'int'(valid only at sub-object level).
-		:Return:
+		Return:
 			(list) faces that fall within the given normal range.
 
 		ex. getFacesWithSimilarNormals(selectedFaces, rangeX=0.5, rangeY=0.5, rangeZ=0.5)
@@ -304,7 +304,7 @@ class Normals_maya(Normals, Slots_maya):
 	def transferNormals(source, target):
 		'''Transfer normal information from one object to another.
 
-		:Parameters:
+		Parameters:
 			source (str)(obj)(list): The transform node to copy normals from.
 			target (str)(obj)(list): The transform node(s) to copy normals to.
 		'''
@@ -357,10 +357,10 @@ print (__name__)
 # 	def getNormalVector(obj):
 # 		'''Get the normal vectors from the given poly object.
 
-# 		:Parameters:
+# 		Parameters:
 # 			obj (str)(obj)(list): A polygon mesh or component(s).
 
-# 		:Return:
+# 		Return:
 # 			dict - {int:[float, float, float]} face id & vector xyz.
 # 		'''
 # 		obj = pm.ls(obj)

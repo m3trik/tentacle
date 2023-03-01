@@ -39,7 +39,7 @@ class Symmetry_maya(Symmetry, Slots_maya):
 		if any ([self.sb.symmetry.chk000.isChecked(), self.sb.symmetry.chk001.isChecked(), self.sb.symmetry.chk002.isChecked()]): #(symmetry)
 			pm.symmetricModelling(edit=True, symmetry=False)
 			self.sb.toggleWidgets(setUnChecked='chk000,chk001,chk002')
-			self.messageBox('First select a seam edge and then check the symmetry button to enable topographic symmetry', messageType='Note')
+			self.sb.messageBox('First select a seam edge and then check the symmetry button to enable topographic symmetry', messageType='Note')
 
 
 	def setSymmetry(self, state, axis):
@@ -54,7 +54,7 @@ class Symmetry_maya(Symmetry, Slots_maya):
 		tolerance = 0.25
 		pm.symmetricModelling(edit=True, symmetry=state, axis=axis, about=space, tolerance=tolerance)
 		# if state:
-		# 	self.messageBox('Symmetry: <hl>{}</hl>'.format(axis.upper(), messageType='Result'))
+		# 	self.sb.messageBox('Symmetry: <hl>{}</hl>'.format(axis.upper(), messageType='Result'))
 
 
 

@@ -112,7 +112,7 @@ class Rigging_max(Rigging, Slots_max):
 		# if toggle:
 		# 	pm.toggle(joints, localAxis=1) #set display off
 
-		# self.messageBox('Display Local Rotation Axes:<hl>'+str(state)+'</hl>')
+		# self.sb.messageBox('Display Local Rotation Axes:<hl>'+str(state)+'</hl>')
 
 
 	def tb001(self, state=None):
@@ -192,7 +192,7 @@ class Rigging_max(Rigging, Slots_max):
 		'''
 		node = rt.selection
 		if not node:
-			self.messageBox('Operation requires a single selected object.')
+			self.sb.messageBox('Operation requires a single selected object.')
 			return
 
 		'finish converting from Maya version.  Slots_max.getParameterValuesMax is not likely doable in the same sense getParameterValuesMEL was'
@@ -258,7 +258,7 @@ class Rigging_max(Rigging, Slots_max):
 		'''Create locators with the same transforms as any selected object(s).
 		If there are vertices selected it will create a locator at the center of the selected vertices bounding box.
 
-		:Parameters:
+		Parameters:
 			objects (str)(list): A list of objects, or an object name to create locators at.
 			suffix (str): A string appended to the end of the created locators name. (default: '_LOC') '_LOC#'
 			stripDigits (bool): Strip numeric characters from the string. If the resulting name is not unique, maya will append a trailing digit. (default=False)
@@ -273,7 +273,7 @@ class Rigging_max(Rigging, Slots_max):
 			remove (bool): Removes the locator and any child locks. (not valid with component selections) (default=False)
 			_fullPath (bool): Internal use only (recursion). Use full path names for Dag objects. This can prevent naming conflicts when creating the locator. (default=False)
 
-		:Example: createLocatorAtSelection(strip='_GEO', suffix='', stripDigits=True, parent=True, lockTranslate=True, lockRotation=True)
+		Example: createLocatorAtSelection(strip='_GEO', suffix='', stripDigits=True, parent=True, lockTranslate=True, lockRotation=True)
 		'''
 		def _formatName(name, stripDigits=stripDigits, strip=strip, suffix=suffix):
 			if stripDigits:

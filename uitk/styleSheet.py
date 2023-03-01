@@ -2,6 +2,8 @@
 # coding=utf-8
 from PySide2 import QtCore
 
+from pythontk.Iter import makeList
+
 
 class StyleSheet(QtCore.QObject):
 	'''# css commenting:
@@ -24,7 +26,7 @@ class StyleSheet(QtCore.QObject):
 			'standard': {
 				'BACKGROUND'		: 'rgb(100,100,100)',
 				'BACKGROUND_ALPHA'	: 'rgba(100,100,100,{ALPHA})',
-				'PRESSED'			: 'rgb(125,125,125)',
+				'PRESSED'			: 'rgb(127,127,127)',
 				'HIGHLIGHT'			: 'yellow',
 				'HOVER'				: 'rgb(82,133,166)',
 				'TEXT'				: 'white',
@@ -38,7 +40,7 @@ class StyleSheet(QtCore.QObject):
 			'dark': {
 				'BACKGROUND'		: 'rgb(60,60,60)',
 				'BACKGROUND_ALPHA'	: 'rgba(60,60,60,{ALPHA})',
-				'PRESSED'			: 'rgb(125,125,125)',
+				'PRESSED'			: 'rgb(127,127,127)',
 				'HIGHLIGHT'			: 'yellow',
 				'HOVER'				: 'rgb(82,133,166)',
 				'TEXT'				: 'rgb(185,185,185)',
@@ -51,31 +53,42 @@ class StyleSheet(QtCore.QObject):
 		}
 
 	_styleSheets = {
-		# 'QMainWindow': '''
-		# 	QMainWindow {
-		# 		background: {BACKGROUND};
-		# 		color: {TEXT};
-		# 		border: 1px solid {BORDER};
-		# 	}
-		# 	''',
+
+		'QMainWindow': '''
+			QMainWindow {
+				background-color: {BACKGROUND_ALPHA};
+			}
+			''',
 
 		'QWidget': '''
 			QWidget {
-				background: {BACKGROUND_ALPHA};
+				background-color: transparent;
 			}
-
-			QWidget#mainWindow {
-				background: {BACKGROUND_ALPHA};
-			} 
-
+			QWidget#hud_widget {
+				background-color: {BACKGROUND_ALPHA};
+			}
 			QWidget::item:selected {
-				background: {HOVER};
+				background-color: {HOVER};
 			}
 			''',
 
 		'QStackedWidget': '''
 			QStackedWidget {
+				background-color: {BACKGROUND_COLOR};
+			}
+			QStackedWidget QFrame {
+				background-color: {FRAME_BACKGROUND_COLOR};
+			}
+			QStackedWidget QFrame QLabel {
+				color: {TEXT};
+				font-size: 8;
+			}
 
+			QStackedWidget QPushButton {
+				background-color: {BACKGROUND};
+				color: {TEXT};
+				font-size: 8;
+				border: 1px solid {BORDER};
 			}
 			''',
 
@@ -88,39 +101,31 @@ class StyleSheet(QtCore.QObject):
 				background-color: {BACKGROUND};
 				color: {TEXT};
 			}
-
 			QPushButton::enabled {
 				color: {TEXT};
 			}
-
 			QPushButton::disabled {
 				color: {TEXT_DISABLED};
 			}
-
 			QPushButton::checked {
 				background-color: {HOVER};
 				color: {TEXT_CHECKED};
 			}
-
 			QPushButton::hover {
 				background-color: {HOVER};
 				color: {TEXT_HOVER};
 			}
-
 			QPushButton::checked::hover {
 				background-color: {HOVER};
 				color: {TEXT_CHECKED};
 			}
-
 			QPushButton::pressed {
 				background-color: {PRESSED};
 				color: {TEXT};
 			}
-
 			QPushButton:flat {
 				border: none; /* no border for a flat push button */
 			}
-
 			QPushButton:default {
 				border-color: navy; /* make the default button prominent */
 			} 
@@ -135,43 +140,34 @@ class StyleSheet(QtCore.QObject):
 				background-color: {BACKGROUND}; /* The background will not appear unless you set the border property. */
 				color: {TEXT};
 			}
-
 			QToolButton::enabled {
 				color: {TEXT};
 			}
-
 			QToolButton::disabled {
 				color: {TEXT_DISABLED};
 			}
-
 			QToolButton::hover {   
 				background-color: {HOVER};
 				color: {TEXT_HOVER};
 			}
-
 			QToolButton::checked {
 				background-color: {HOVER};
 				color: {TEXT_CHECKED};
 			}
-
 			QToolButton::checked::hover {
 				background-color: {HOVER};
 				color: {TEXT_CHECKED};
 			}
-
 			QToolButton::pressed, QToolButton::menu-button:pressed {   
 				background-color: {PRESSED};
 				color: {TEXT};
 			}
-
 			QToolButton[popupMode="1"] { /* only for MenuButtonPopup */
 				padding-right: 2px; /* make way for the popup button */
 			}
-
 			QToolButton:open { /* when the button has its menu open */
 				background-color: dark gray;
 			}
-
 			/* popupMode set to DelayedPopup or InstantPopup */
 			QToolButton::menu-indicator {
 				image: none;
@@ -179,51 +175,41 @@ class StyleSheet(QtCore.QObject):
 				subcontrol-position: bottom right;
 				padding: 0px 5px 5px 0px; /* top, right, bottom, left */
 			}
-
 			QToolButton::menu-indicator:pressed, QToolButton::menu-indicator:open {
 				position: relative;
 				top: 2px; left: 2px; /* shift the arrow by 2 px */
 			}
-
 			/* When the Button displays arrows, the ::up-arrow, ::down-arrow, ::left-arrow and ::right-arrow subcontrols are used. */
 			QToolButton::down-arrow, QToolButton::up-arrow, QToolButton::left-arrow, QToolButton::right-arrow {
 				image: none;
 				padding: 0px 15px 0px 0px; /* top, right, bottom, left */
 			}
-
 			QToolButton::down-arrow:hover, QToolButton::up-arrow:hover, QToolButton::left-arrow:hover, QToolButton::right-arrow:hover {
 				background-color: {HOVER};
 				padding: 0px 5px 0px 0px; /* top, right, bottom, left */
 			}
-
 			/* the subcontrols below are used only in the MenuButtonPopup mode */
 			QToolButton::menu-button {
 				border: 1px solid {TEXT};
 				margin: 4px 2px 4px 0px; /* top, right, bottom, left */
 			}
-
 			QToolButton::menu-button::enabled {
 				color: {TEXT};
 			}
-
 			QToolButton::menu-button::disabled {
 				color: {TEXT_DISABLED};
 				border: 1px solid transparent;
 			}
-
 			QToolButton::menu-button:hover{
 				border: 1px solid {TEXT_HOVER};
 			}
-
 			QToolButton::menu-button:pressed {
 				background-color: transparent;
 				border: 1px solid transparent;
 			}
-
 			QToolButton::menu-arrow {
 				image: none;
 			}
-
 			QToolButton::menu-arrow:open {
 
 			} 
@@ -233,7 +219,6 @@ class StyleSheet(QtCore.QObject):
 			QAbstractButton:hover {
 				background: {BACKGROUND};
 			}
-
 			QAbstractButton:pressed {
 				background: {PRESSED};
 			} 
@@ -248,13 +233,11 @@ class StyleSheet(QtCore.QObject):
 				border-radius: 1px;
 				min-width: 0em;
 			}
-
 			QComboBox::hover {
 				background: {HOVER};
 				color: {TEXT_HOVER};
 				border: 1px solid {BORDER};
 			}
-
 			QComboBox::open {
 				background: {BACKGROUND};
 				color: {TEXT};
@@ -262,12 +245,10 @@ class StyleSheet(QtCore.QObject):
 				selection-background-color: {HOVER};
 				selection-color: {TEXT_CHECKED};
 			}
-
 			QComboBox:on { /* shift the text when the popup opens */
 				padding-top: 3px;
 				padding-left: 1px;
 			}
-
 			QComboBox::down-arrow {
 				width: 0px;
 				height: 0px;
@@ -275,7 +256,6 @@ class StyleSheet(QtCore.QObject):
 				border: 0px solid {BORDER};
 				image: url(path/to/down_arrow.png);
 			}
-
 			QComboBox::drop-down {
 				border: 0px solid {BORDER};
 				background: {BACKGROUND};
@@ -290,30 +270,25 @@ class StyleSheet(QtCore.QObject):
 				border-top-right-radius: 1px; /* same radius as the QComboBox */
 				border-bottom-right-radius: 1px;
 			}
-
 			QComboBox QAbstractItemView {
 				background: {BACKGROUND};
 				color: {TEXT};
 				border: 1px solid {BORDER};
 				min-width: 150px;
 			}
-
 			QComboBox QListView {
 				background: {BACKGROUND};
 				color: {TEXT};
 				border: 1px solid {BORDER};
 			}
-
 			QComboBox QListView::item {
 				background: {BACKGROUND};
 				color: {TEXT};
 			}
-
 			QComboBox QListView::item:selected {
 				background: {HOVER};
 				color: {TEXT_CHECKED};
 			}
-
 			QComboBox QListView::item:hover {
 				background: {HOVER};
 				color: {TEXT_HOVER};
@@ -326,11 +301,9 @@ class StyleSheet(QtCore.QObject):
 			color: {TEXT};
 			border: 1px solid {BORDER};
 			}
-
 			QSpinBox::disabled {
 				color: {TEXT_DISABLED};
 			}
-
 			QSpinBox::hover {
 				background-color: {BACKGROUND};
 				color: {TEXT_HOVER};
@@ -344,11 +317,9 @@ class StyleSheet(QtCore.QObject):
 			color: {TEXT};
 			border: 1px solid {BORDER};
 			}
-
 			QDoubleSpinBox::disabled {
 				color: {TEXT_DISABLED};
 			}
-
 			QDoubleSpinBox::hover {
 				background-color: {BACKGROUND};
 				color: {TEXT_HOVER};
@@ -362,13 +333,11 @@ class StyleSheet(QtCore.QObject):
 				width: 3px;
 				height: 3px;
 			}
-
 			QAbstractSpinBox::up-arrow, QAbstractSpinBox::down-arrow {
 				width: 3px;
 				height: 3px;
 				border: 1px solid {PRESSED};
 			}
-
 			QAbstractSpinBox::up-button, QAbstractSpinBox::down-button {
 				border: 1px solid {PRESSED};
 				background: {BACKGROUND};
@@ -386,89 +355,69 @@ class StyleSheet(QtCore.QObject):
 				color: {TEXT};
 				spacing: 5px;
 			}
-
 			QCheckBox::hover {
 				background-color: {HOVER};
 				color: {TEXT_HOVER};
 			}
-
 			QCheckBox::hover:checked {
 				background-color: {HOVER};
 				color: {TEXT_HOVER};
 			}
-
-
 			QCheckBox::enabled {
 				color: {TEXT};
 			}
-
 			QCheckBox::disabled {
 				color: {TEXT_DISABLED};
 			}
-
 			QCheckBox::disabled:checked {
 				background-color: {BACKGROUND};
 				color: {TEXT_DISABLED};
 			}
-
 			QCheckBox::checked {
 				background-color: {HOVER};
 				color: {TEXT_CHECKED};
 			}
-
 			QCheckBox::checked:hover {
 				background-color: {HOVER};
 				color: {TEXT_CHECKED};
 			}
-
 			QCheckBox::indeterminate {
 				background-color: {HOVER};
 				color: {TEXT_CHECKED};
 			}
-
 			QCheckBox::indeterminate:hover {
 				background-color: {HOVER};
 				color: {TEXT_CHECKED};
 			}
-
 			QCheckBox::indicator {
 				width: 0px;
 				height: 0px;
 				border: 0px solid transparent;
 			}
-
 			QCheckBox::indicator::unchecked {
 				image: none;
 			}
-
 			QCheckBox::indicator:unchecked:hover {
 				image: none;
 			}
-
 			QCheckBox::indicator:unchecked:pressed {
 				image: none;
 			}
-
 			QCheckBox::indicator::checked {
 				image: none;
 			}
-
 			QCheckBox::indicator:checked:hover {
 				image: none;
 			} 
-
 			QCheckBox::indicator:checked:pressed {
 				image: none;
 			}
-
 			QCheckBox::indicator:indeterminate:checked {
 				image: none;
 			}
-
 			QCheckBox::indicator:indeterminate:hover {
 				image: none;
 			}
-
 			QCheckBox::indicator:indeterminate:pressed {
 				image: none;
 			}
@@ -483,53 +432,42 @@ class StyleSheet(QtCore.QObject):
 				background-color: {BACKGROUND};
 				color: {TEXT};
 			}
-
 			QRadioButton::hover {
 				background-color: {HOVER};
 				color: {TEXT_HOVER};
 			}
-
 			QRadioButton::hover:checked {
 				background-color: {HOVER};
 				color: {TEXT_HOVER};
 			}
-
 			QRadioButton::enabled {
 				color: {TEXT};
 			}
-
 			QRadioButton::disabled {
 				color: {TEXT_DISABLED};
 			}
-
 			QRadioButton::checked {
 				background-color: {HOVER};
 				color: {TEXT_CHECKED};
 			}
-
 			QRadioButton::checked:hover {
 				background-color: {HOVER};
 				color: {TEXT_CHECKED};
 			}
-
 			QRadioButton::indicator {
 				width: 0px;
 				height: 0px;
 				border: 0px solid transparent;
 			}
-
 			QRadioButton::indicator::unchecked {
 				image: none;
 			}
-
 			QRadioButton::indicator:unchecked:hover {
 				image: none;
 			}
-
 			QRadioButton::indicator::checked {
 				image: none;
 			}
-
 			QRadioButton::indicator:checked:hover {
 				image: none;
 			} 
@@ -549,13 +487,11 @@ class StyleSheet(QtCore.QObject):
 			QHeaderView {
 				border: 1px solid {PRESSED};
 			}
-
 			QHeaderView::section {
 				background: {PRESSED};
 				border: 1px solid {PRESSED};
 				padding: 1px;
 			}
-
 			QHeaderView::section:selected, QHeaderView::section::checked {
 				background: {BACKGROUND};
 			} 
@@ -577,29 +513,18 @@ class StyleSheet(QtCore.QObject):
 				selection-background-color: {HOVER};
 				selection-color: {TEXT};
 			}
-
 			QLineEdit::disabled {
 				color: {BACKGROUND};
 			}
-
 			QLineEdit::enabled {
 				color: {TEXT};
 			}
-
 			QLineEdit:read-only {
 				background: {BACKGROUND};
 			} 
 			''',
 
 		'QTextEdit': '''
-			QTextEdit#hud {
-				border: 0px solid transparent;
-				background-color: transparent;
-				color: white;
-				selection-background-color: {TEXT_BACKGROUND};
-				selection-color: white;
-			}
-
 			QTextEdit {
 				border: 1px solid {BORDER};
 				background-color: {BACKGROUND};
@@ -607,7 +532,14 @@ class StyleSheet(QtCore.QObject):
 				selection-background-color: {HOVER};
 				selection-color: {TEXT};
 				background-attachment: fixed; /* fixed, scroll */
-			} 
+			}
+			QTextEdit#hud_text {
+				border: 0px solid transparent;
+				background-color: transparent;
+				color: white;
+				selection-background-color: {TEXT_BACKGROUND};
+				selection-color: white;
+			}
 			''',
 
 		'QPlainTextEdit': '''
@@ -623,25 +555,20 @@ class StyleSheet(QtCore.QObject):
 				alternate-background-color: {BACKGROUND};
 				background-attachment: fixed; /* fixed, scroll */
 			}
-
 			QListView::item:alternate {
 				background: {BACKGROUND};
 			}
-
 			QListView::item:selected {
 				border: 1px solid {HOVER};
 			}
-
 			QListView::item:selected:!active {
 				background: {HOVER};
 				color: {TEXT};
 			}
-
 			QListView::item:selected:active {
 				background: {HOVER};
 				color: {TEXT};
 			}
-
 			QListView::item:hover {
 				background: {HOVER};
 				color: {TEXT_HOVER};
@@ -655,25 +582,20 @@ class StyleSheet(QtCore.QObject):
 				alternate-background-color: {BACKGROUND};
 				background-attachment: fixed; /* fixed, scroll */
 			}
-
 			QListWidget::item:alternate {
 				background: {BACKGROUND};
 			}
-
 			QListWidget::item:selected {
 				border: 1px solid {HOVER};
 			}
-
 			QListWidget::item:selected:!active {
 				background: {HOVER};
 				color: {TEXT};
 			}
-
 			QListWidget::item:selected:active {
 				background: {HOVER};
 				color: {TEXT};
 			}
-
 			QListWidget::item:hover {
 				background: {HOVER};
 				color: {TEXT_HOVER};
@@ -685,24 +607,19 @@ class StyleSheet(QtCore.QObject):
 				background-color: transparent;
 				border:none;
 			}
-
 			QTreeWidget::item {
 				height: 20px;
 			}
-
 			QTreeWidget::item:enabled {
 				color: {TEXT};
 			}
-
 			QTreeWidget::item:disabled {
 				color: {TEXT_DISABLED};
 			}
-
 			QTreeView::item:hover {
 				background: {HOVER};
 				color: {TEXT_HOVER};
 			}
-
 			QTreeView::item:selected {
 				background-color: none;
 			} 
@@ -716,20 +633,16 @@ class StyleSheet(QtCore.QObject):
 				background-attachment: fixed; /* fixed, scroll */
 				icon-size: 0px;
 			}
-
 			QToolBox::QScrollArea:QWidget:QWidget {
 				background: transparent;
 			}
-
 			QToolBox::QToolBoxButton {
 				image: url(:/none);
 			}
-			
 			QToolBox::QAbstractButton {
 				background-image: url(:/none);
 				image: url(:/none);
 			}
-
 			QToolBox::tab {
 				background: {BACKGROUND};
 				color: {TEXT};
@@ -737,7 +650,6 @@ class StyleSheet(QtCore.QObject):
 				stop: 0.0 transparent, stop: 0.0 transparent;
 				border-radius: 1px;
 			}
-
 			QToolBox::tab:selected {
 				/*font: italic;*/ /* italicize selected tabs */
 				color: {TEXT};
@@ -755,19 +667,16 @@ class StyleSheet(QtCore.QObject):
 				border: 1px solid black;
 				background: {BACKGROUND};
 			}
-
 			QSlider::groove:horizontal {
 				height: 18px;
 				margin: 0px 0px 0px 0px;
 				background: {BACKGROUND};
 			}
-
 			QSlider::groove:vertical {
 				width: 0px;
 				margin: 0px 0px 0px 0px;
 				background: {BACKGROUND};
 			}
-
 			QSlider::handle {
 				width: 10px;
 				height: 15px;
@@ -776,19 +685,15 @@ class StyleSheet(QtCore.QObject):
 				margin: -1px 0px -1px 0px;
 				border-radius: 1px;
 			}
-
 			QSlider::handle:hover {
 				background: darkgray;
 			}
-
 			QSlider::add-page:vertical, QSlider::sub-page:horizontal {
 				background: {HOVER};
 			}
-
 			QSlider::sub-page:vertical, QSlider::add-page:horizontal {
 				background: {BACKGROUND};
 			}
-
 			QSlider::tickmark {
 				width: 5px;
 				height: 5px;
@@ -796,7 +701,6 @@ class StyleSheet(QtCore.QObject):
 				border-radius: 2.5px;
 				background: black;
 			}
-
 			QSlider::tickmark:not(sub-page) {
 				width: 10px;
 				height: 10px;
@@ -804,7 +708,6 @@ class StyleSheet(QtCore.QObject):
 				border-radius: 5px;
 				background: black;
 			}
-
 			QSlider::tickmark:sub-page {
 				width: 5px;
 				height: 5px;
@@ -819,60 +722,48 @@ class StyleSheet(QtCore.QObject):
 				border: 1px solid transparent;
 				background: {BACKGROUND};
 			}
-
 			QScrollBar:horizontal {
 				height: 15px;
 				margin: 0px 0px 0px 32px; /* top, right, bottom, left */
 			}
-
 			QScrollBar:vertical {
 				width: 15px;
 				margin: 32px 0px 0px 0px; /* top, right, bottom, left */
 			}
-
 			QScrollBar::handle {
 				background: {PRESSED};
 				border: 1px solid transparent;
 			}
-
 			QScrollBar::handle:horizontal {
 				border-width: 0px 1px 0px 1px;
 			}
-
 			QScrollBar::handle:vertical {
 				border-width: 1px 0px 1px 0px;
 			}
-
 			QScrollBar::handle:horizontal {
 				min-width: 20px;
 			}
-
 			QScrollBar::handle:vertical {
 				min-height: 20px;
 			}
-
 			QScrollBar::add-line, QScrollBar::sub-line {
 				background:{BACKGROUND};
 				border: 1px solid {PRESSED};
 				subcontrol-origin: margin;
 			}
-
 			QScrollBar::add-line {
 				position: absolute;
 			}
-
 			QScrollBar::add-line:horizontal {
 				width: 15px;
 				subcontrol-position: left;
 				left: 15px;
 			}
-
 			QScrollBar::add-line:vertical {
 				height: 15px;
 				subcontrol-position: top;
 				top: 15px;
 			}
-
 			QScrollBar::sub-line:horizontal {
 				width: 15px;
 				subcontrol-position: top left;
@@ -882,7 +773,6 @@ class StyleSheet(QtCore.QObject):
 				height: 15px;
 				subcontrol-position: top;
 			}
-
 			QScrollBar::add-page, QScrollBar::sub-page {
 				background: none;
 			} 
@@ -895,7 +785,6 @@ class StyleSheet(QtCore.QObject):
 				margin: 10px 0px 0px 0px; /* top, right, bottom, left */ /* leave space at the top for the title */
 				background-color: rgba(75,75,75,125);
 			}
-
 			QGroupBox::title {
 				top: -12px;
 				left: 2px;
@@ -910,13 +799,11 @@ class StyleSheet(QtCore.QObject):
 			QTabBar {
 				margin: 0px 0px 0px 2px; /* top, right, bottom, left */
 			}
-
 			QTabBar::tab {
 				border-radius: 1px;
 				padding-top: 1px;
 				margin-top: 1px;
 			}
-
 			QTabBar::tab:selected {
 				background: {BACKGROUND};
 			} 
@@ -928,17 +815,14 @@ class StyleSheet(QtCore.QObject):
 				border: 1px solid {BORDER};
 				margin: 0px; /* spacing around the menu */
 			}
-
 			QMenu::item {
 				padding: 8px 8px 8px 8px; /* top, right, bottom, left */
 				border: 1px solid transparent; /* reserve space for selection border */
 			}
-
 			QMenu::item:selected {
 				border-color: {HOVER};
 				background: {BACKGROUND};
 			}
-
 			QMenu::icon:checked { /* appearance of a 'checked' icon */
 				background: gray;
 				border: 1px inset gray;
@@ -948,13 +832,11 @@ class StyleSheet(QtCore.QObject):
 				bottom: 1px;
 				left: 1px;
 			}
-
 			QMenu::separator {
 				height: 2px;
 				background: {BACKGROUND};
 				margin: 0px 5px 0px 10px; /* top, right, bottom, left */
 			}
-
 			QMenu::indicator {
 				width: 13px;
 				height: 13px;
@@ -966,17 +848,14 @@ class StyleSheet(QtCore.QObject):
 				background-color: {BACKGROUND};
 				spacing: 1px; /* spacing between menu bar items */
 			}
-
 			QMenuBar::item {
 				padding: 1px 4px;
 				background: transparent;
 				border-radius: 1px;
 			}
-
 			QMenuBar::item:selected { /* when selected using mouse or keyboard */
 				background: {HOVER};
 			}
-
 			QMenuBar::item:pressed {
 				background: {TEXT_HOVER};
 			}
@@ -991,17 +870,14 @@ class StyleSheet(QtCore.QObject):
 				margin: 0px 0px 0px 0px; /* top, right, bottom, left */
 				padding: 0px 5px 0px 5px; /* top, right, bottom, left */
 			}
-
 			QLabel::hover {   
 				border: 1px solid {BORDER};
 				background-color: {HOVER};
 				color: {TEXT_HOVER};
 			}
-
 			QLabel::enabled {
 				color: {TEXT};
 			}
-
 			QLabel::disabled {
 				color: {TEXT_DISABLED};
 			} 
@@ -1022,7 +898,6 @@ class StyleSheet(QtCore.QObject):
 				text-align: center;
 				margin: 0px 0px 0px 0px; /* top, right, bottom, left */
 			}
-
 			QProgressBar::chunk {
 				width: 1px;
 				margin: 0px;
@@ -1043,28 +918,22 @@ class StyleSheet(QtCore.QObject):
 			QSplitter::handle {
 				image: url(images/splitter.png);
 			}
-
 			QSplitter::handle:horizontal {
 				width: 2px;
 			}
-
 			QSplitter::handle:vertical {
 				height: 2px;
 			}
-
 			QSplitter::handle:pressed {
 				url(images/splitter_pressed.png);
 			}
 			''',
 
 		'QSplitterHandle': '''
-			QSplitter::handle:horizontal
-			{
+			QSplitter::handle:horizontal {
 				border-left: 1px solid lightGray;
 			}
-
-			QSplitter::handle:vertical 
-			{
+			QSplitter::handle:vertical {
 				border-bottom: 1px solid lightGray;
 			}
 			''',
@@ -1105,34 +974,28 @@ class StyleSheet(QtCore.QObject):
 		'''Return the colorValues dict with any of the bracketed placeholders 
 		replaced by the value of any given kwargs of the same name.
 
-		:Parameters:
+		Parameters:
 			style (str): The color value set to use. valid values are: 'standard', 'dark'
 			**kwargs () = Keyword arguments matching the string of any bracketed placeholders.
 				case insensitive.  ex. alpha=255
 
-		:Return:
-			(dict)
+		Return:
+			(dict) The color values with placeholder values. ex. {'BACKGROUND_ALPHA': 'rgba(100,100,100,75)', etc..
 		'''
-		kwargs = {k.upper():v for k, v in kwargs.items()} #assure upper case keys.
-
-		colorValues_wAlpha = {
-			k:v.format(**kwargs)
-				for k, v in cls._colorValues[style].items()
-		}
-
-		return colorValues_wAlpha
+		return {k:v.format(**{k.upper():v for k, v in kwargs.items()})
+				for k, v in cls._colorValues[style].items()}
 
 
 	@classmethod
-	def getStyleSheet(cls, widget_type=None, style='standard', backgroundOpacity=255):
+	def getStyleSheet(cls, widget_type=None, style='standard', alpha=255):
 		'''Get the styleSheet for the given widget type.
 		By default it will return all stylesheets as one multi-line css string.
 
-		:Parameters:
+		Parameters:
 			widget_type (str): The class name of the widget. ie. 'QLabel'
 			style (str): The color value set to use. valid values are: 'standard', 'dark'
 
-		:Return:
+		Return:
 			(str) css styleSheet
 		'''
 		if widget_type==None:
@@ -1145,49 +1008,47 @@ class StyleSheet(QtCore.QObject):
 			print ('{} in getStyleSheet\n\t# KeyError: {}: {} #'.format(__file__, widget_type, error))
 			return ''
 
-		for k, v in cls.getColorValues(style=style, alpha=backgroundOpacity).items():
+		for k, v in cls.getColorValues(style=style, ALPHA=alpha).items():
 			css = css.replace('{'+k.upper()+'}', v)
 
 		return css
 
 
 	@classmethod
-	def setStyle(cls, widgets, ratio=6, style='standard', hideMenuButton=False, backgroundOpacity=255):
+	def setStyle(cls, widgets, ratio=6, style='standard', hideMenuButton=False, alpha=255):
 		'''Set the styleSheet for the given widgets.
 		Set the style for a specific widget by using the '#' syntax and the widget's objectName. ie. QWidget#mainWindow
 
-		:Parameters:
+		Parameters:
 			widgets (obj)(list): A widget or list of widgets.
 			ratio (int): The ratio of widget size, text length in relation to the amount of padding applied.
 			style (str): Color mode. ie. 'standard' or 'dark'
 			hideMenuButton (boool) = Hide the menu button of a widget that has one.
-			backgroundOpacity (int): Set the background alpha transparency between 0 and 255.
+			alpha (int): Set the background alpha transparency between 0 and 255.
 		'''
 		from uitk.switchboard import Switchboard
 
-		widgets = [widgets] if not isinstance(widgets, (list, tuple, set, dict)) else widgets #assure widgets in a list.
-
-		for widget in widgets:
+		for widget in makeList(widgets):
 			widget_type = Switchboard.getDerivedType(widget, name=True)
 
-			try: #if hasattr(widget, 'styleSheet'):
-				s = cls.getStyleSheet(widget_type, style=style, backgroundOpacity=backgroundOpacity)
-				if hideMenuButton:
-					s = s + cls.hideMenuButton(widget_type)
+			try:
+				s = cls.getStyleSheet(widget_type, style=style, alpha=alpha)
+			except KeyError as error: #given widget has no attribute 'styleSheet'.
+				continue; #print (error)
 
-				try:
-					length = len(widget.text()) if hasattr(widget, 'text') else len(str(widget.value())) #a 'NoneType' error will be thrown if the widget does not contain text.
-					if widget.size().width() // length > ratio: #ratio of widget size, text length (using integer division).
-						s = s + cls.adjustPadding(widget_type)
-				except (AttributeError, ZeroDivisionError) as error:
-					pass; # print (__name__, error, widget.text())
+			if hideMenuButton:
+				s = s + cls.hideMenuButton(widget_type)
 
-				if widget.styleSheet(): #if the widget has an existing style sheet, append.
-					s = s+widget.styleSheet()
-				widget.setStyleSheet(s)
+			try:
+				length = len(widget.text()) if hasattr(widget, 'text') else len(str(widget.value())) #a 'NoneType' error will be thrown if the widget does not contain text.
+				if widget.size().width() // length > ratio: #ratio of widget size, text length (using integer division).
+					s = s + cls.adjustPadding(widget_type)
+			except (AttributeError, ZeroDivisionError) as error:
+				pass; # print (__name__, error, widget.text())
 
-			except AttributeError as error: #given widget has no attribute 'styleSheet'.
-				pass; #print (error)
+			if widget.styleSheet(): #if the widget has an existing style sheet, append.
+				s = s+widget.styleSheet()
+			widget.setStyleSheet(s)
 
 
 	@staticmethod

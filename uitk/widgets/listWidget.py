@@ -2,7 +2,7 @@
 # coding=utf-8
 from PySide2 import QtCore, QtGui, QtWidgets
 
-from attributes import Attributes
+from uitk.widgets.attributes import Attributes
 
 
 class ListWidget(QtWidgets.QListWidget, Attributes):
@@ -54,12 +54,12 @@ class ListWidget(QtWidgets.QListWidget, Attributes):
 	def add(self, w, **kwargs):
 		'''Add items to the menu.
 
-		:Parameters:
+		Parameters:
 			w () = 
 			kwargs:
 				show (bool): show the menu.
 				insertSeparator (QAction) = insert separator in front of the given action.
-		:Return:
+		Return:
 			the added item object.
 
 		ex.call: menu().add(w='QAction', setText='', insertSeparator=True)
@@ -97,7 +97,7 @@ class ListWidget(QtWidgets.QListWidget, Attributes):
 
 	def _addList(self, w):
 		'''Add an expanding list to the given widget.
-		:Parameters:
+		Parameters:
 			w (obj): 
 		'''
 		lw = ListWidget(self.parent(), setVisible=False, setObjectName='list')
@@ -120,7 +120,7 @@ class ListWidget(QtWidgets.QListWidget, Attributes):
 
 	def convert(self, items, to='QLabel', **kwargs):
 		'''
-		:Example: self.convert(self.getItems(), 'QPushButton') #construct the list using the existing contents.
+		Example: self.convert(self.getItems(), 'QPushButton') #construct the list using the existing contents.
 		'''
 		lst = lambda x: list(x) if isinstance(x, (list, tuple, set, dict)) else [x] #assure 'x' is a list.
 

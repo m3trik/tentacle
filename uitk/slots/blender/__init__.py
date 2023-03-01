@@ -25,7 +25,7 @@ class Slots_blender(Slots):
 		'''A decorator to place a function into Maya's undo chunk.
 		Prevents the undo queue from breaking entirely if an exception is raised within the given function.
 
-		:Parameters:
+		Parameters:
 			fn (obj): The decorated python function that will be placed into the undo que as a single entry.
 		'''
 		def wrapper(*args, **kwargs):

@@ -44,7 +44,7 @@ class Duplicate_maya(Duplicate, Slots_maya):
 					pivot = bb[0]+bb[3]/2, bb[1]+bb[4]/2, bb[2]+bb[5]/2 #get median of bounding box coordinates. from [min xyz, max xyz]
 			else:
 				self.sb.toggleWidgets(self.sb.duplicate_radial, setUnChecked='chk010')
-				self.messageBox('Nothing selected.')
+				self.sb.messageBox('Nothing selected.')
 				return
 
 			# radialPivot.extend ([pivot[0],pivot[1],pivot[2]])
@@ -101,7 +101,7 @@ class Duplicate_maya(Duplicate, Slots_maya):
 							if len(radialPivot):
 								pm.rotate (x, y, z, relative=1, pivot=radialPivot) #euler=1
 							else:
-								self.messageBox('No pivot point set.')
+								self.sb.messageBox('No pivot point set.')
 						else:
 							pm.rotate (x, y, z, relative=1) #euler=1
 						radialArrayObjList.append(name)
@@ -115,7 +115,7 @@ class Duplicate_maya(Duplicate, Slots_maya):
 					# pm.undoInfo (closeChunk=1)
 			else: #if both lists objects are empty:
 				self.sb.toggleWidgets(self.sb.duplicate_radial, setDisabled='b003', setUnChecked='chk015')
-				self.messageBox('Nothing selected.')
+				self.sb.messageBox('Nothing selected.')
 				return
 		else: #if chk015 is unchecked by user or by create button
 			if create:
@@ -168,7 +168,7 @@ class Duplicate_maya(Duplicate, Slots_maya):
 				obj = duplicateObjList[0]
 				pm.select(obj)
 			else:
-				self.messageBox('Nothing selected.')
+				self.sb.messageBox('Nothing selected.')
 
 				return
 
@@ -189,7 +189,7 @@ class Duplicate_maya(Duplicate, Slots_maya):
 
 						duplicateObjList.append(duplicatedObject) #append duplicated object to list
 				else:
-					self.messageBox('Component list empty.')
+					self.sb.messageBox('Component list empty.')
 					self.sb.toggleWidgets(self.sb.duplicate_linear, setDisabled='b002', setChecked='chk016')
 					return
 			else:
@@ -245,7 +245,7 @@ class Duplicate_maya(Duplicate, Slots_maya):
 
 		selection = pm.ls(sl=1, transforms=1)
 		if not selection:
-			self.messageBox('<strong>Nothing selected</strong>.<br>Operation requires an object selection.')
+			self.sb.messageBox('<strong>Nothing selected</strong>.<br>Operation requires an object selection.')
 			return
 
 		if not pm.selectPref(q=1, trackSelectionOrder=1): #if ordered selection is not on, turn it on. If off, the current selection is likely not ordered.
@@ -258,7 +258,7 @@ class Duplicate_maya(Duplicate, Slots_maya):
 		'''
 		selection = pm.ls(sl=1, transforms=1)
 		if not selection:
-			self.messageBox('<strong>Nothing selected</strong>.<br>Operation requires an object selection.')
+			self.sb.messageBox('<strong>Nothing selected</strong>.<br>Operation requires an object selection.')
 			return
 
 		instances = [pm.instance(obj, name=obj.name()+'_INST') 
@@ -292,11 +292,11 @@ class Duplicate_maya(Duplicate, Slots_maya):
 	def getInstances(self, objects=None, returnParentObjects=False):
 		'''get any intances of given object, or if None given; get all instanced objects in the scene.
 
-		:Parameters:
+		Parameters:
 			objects (str)(obj)(list): Parent object/s.
 			returnParentObjects (bool): Return instances and the given parent objects together.
 
-		:Return:
+		Return:
 			(list)
 		'''
 		instances=[]
@@ -323,15 +323,15 @@ class Duplicate_maya(Duplicate, Slots_maya):
 	def convertToInstances(self, objects=[], transformByVertexOrder=False, append=''):
 		'''The first selected object will be instanced across all other selected objects.
 
-		:Parameters:
+		Parameters:
 			objects (list): A list of objects to convert to instances. The first object will be the instance parent.
 			append (str): Append a string to the end of any instanced objects. ie. '_INST'
 			transformByVertexOrder (bool): Transform the instanced object by matching the transforms of the vertices between the two objects.
 
-		:Return:
+		Return:
 			(list) The instanced objects.
 
-		:Example: convertToInstances(pm.ls(sl=1))
+		Example: convertToInstances(pm.ls(sl=1))
 		'''
 		# pm.undoInfo(openChunk=1)
 		p0x, p0y, p0z = pm.xform(objects[0], query=1, rotatePivot=1, worldSpace=1) #get the world space obj pivot.
@@ -370,7 +370,7 @@ class Duplicate_maya(Duplicate, Slots_maya):
 	def unInstance(self, objects):
 		'''Un-Instance the given objects.
 
-		:Parameters:
+		Parameters:
 			objects (str)(obj)(list): The objects to un-instance. If 'all' is given all instanced objects in the scene will be uninstanced.
 		'''
 		if objects=='all':
@@ -408,16 +408,16 @@ print (__name__)
 	# def convertToInstances(self, objects=[], leaf=False, append=''):
 	# 	'''The first selected object will be instanced across all other selected objects.
 
-	# 	:Parameters:
+	# 	Parameters:
 	# 		objects (list): A list of objects to convert to instances. The first object will be the instance parent.
 	# 		leaf (bool): Instances leaf-level objects. Acts like duplicate except leaf-level objects are instanced.
 	# 		append (str): Append a string to the end of any instanced objects. ie. '_INST'
 	# 		transformByVertexOrder (bool): Transform the instanced object by matching the transforms of the vertices between the two objects.
 
-	# 	:Return:
+	# 	Return:
 	# 		(list) The instanced objects.
 
-	# 	:Example: convertToInstances(pm.ls(sl=1))
+	# 	Example: convertToInstances(pm.ls(sl=1))
 	# 	'''
 	# 	# pm.undoInfo(openChunk=1)
 	# 	p0x, p0y, p0z = pm.xform(objects[0], query=1, rotatePivot=1, worldSpace=1) #get the world space obj pivot.

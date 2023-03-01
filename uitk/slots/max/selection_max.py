@@ -30,7 +30,7 @@ class Selection_max(Selection, Slots_max):
 	def currentSelection(self):
 		'''Gets the currently selected objects or object components.
 
-		:Return:
+		Return:
 			(array) current selection as a maxscript array.
 		'''
 		sel = rt.selection
@@ -149,10 +149,10 @@ class Selection_max(Selection, Slots_max):
 		for obj in rt.selection:
 			if self.selection_submenu_ui.chk004.isChecked():
 				sel.ignoreBackfacing = True
-				self.messageBox('Camera-based selection <hl>On</hl>.', messageType='Result')
+				self.sb.messageBox('Camera-based selection <hl>On</hl>.', messageType='Result')
 			else:
 				sel.ignoreBackfacing = False
-				self.messageBox('Camera-based selection <hl>Off</hl>.', messageType='Result')
+				self.sb.messageBox('Camera-based selection <hl>Off</hl>.', messageType='Result')
 
 
 	def chk008(self, state=None):
@@ -160,10 +160,10 @@ class Selection_max(Selection, Slots_max):
 		'''
 		if self.selection_submenu_ui.chk008.isChecked():
 			pm.softSelect(edit=1, softSelectEnabled=True)
-			self.messageBox('Soft Select <hl>On</hl>.', messageType='Result')
+			self.sb.messageBox('Soft Select <hl>On</hl>.', messageType='Result')
 		else:
 			pm.softSelect(edit=1, softSelectEnabled=False)
-			self.messageBox('Soft Select <hl>Off</hl>.', messageType='Result')
+			self.sb.messageBox('Soft Select <hl>Off</hl>.', messageType='Result')
 
 
 	def cmb000(self, index=-1):
@@ -364,7 +364,7 @@ class Selection_max(Selection, Slots_max):
 	def setSelectionStyle(self, ctx):
 		'''Set the selection style context.
 
-		:Parameters:
+		Parameters:
 			ctx (str): Selection style context. valid: 'marquee', 'circular', 'fence', 'lasso', 'paint'.
 		'''
 		if ctx=='marquee':
@@ -392,11 +392,11 @@ class Selection_max(Selection, Slots_max):
 	def creatNewSelectionSet(self, name=None):
 		'''Selection Sets: Create a new selection set.
 
-		:Parameters:
+		Parameters:
 			name (str): The desired name of the new set.
 		'''
 		if rt.isValidObj(name): # obj!=rt.undefined
-			self.messageBox('Set with name <hl>{}</hl> already exists.'.format(name))
+			self.sb.messageBox('Set with name <hl>{}</hl> already exists.'.format(name))
 			return
 
 		else: #create set
@@ -411,14 +411,14 @@ class Selection_max(Selection, Slots_max):
 					set_array = self.getSetArray(rt.selection[0], rt.subObjectLevel) #ie. rt.selection[0].faces
 					set_array[name] = sel #create a sub-object level set for the selected currently selected components.
 			else:
-				self.messageBox('Nothing selected.')
+				self.sb.messageBox('Nothing selected.')
 				return
 
 
 	def modifySet(self, name):
 		'''Selection Sets: Modify Current by renaming or changing the set members.
 
-		:Parameters:
+		Parameters:
 			name (str): Name of an existing selection set.
 		'''
 		sel = self.currentSelection
@@ -438,19 +438,19 @@ class Selection_max(Selection, Slots_max):
 				# if not newName==name:
 				# 	rt.deleteItem(set_array, set_) #delete the old if a new set name is given.
 		else:
-			self.messageBox('Nothing selected.')
+			self.sb.messageBox('Nothing selected.')
 			return
 
 
 	def getSet(self, name, index=0, objects=[]):
 		'''Get a set or set info by name.
 
-		:Parameters:
+		Parameters:
 			name (str): Set name.
 			index (str)(int): Desired return value type. Valid values are: 0:'set'(default), 1:'object', 2:'objectLevel' 4:'set_array'.
 			objects (list): The group of objects to get the set from.
 
-		:Return:
+		Return:
 			depending on the given index:
 			(obj) <set> <object>
 			(int) <object level>
@@ -481,10 +481,10 @@ class Selection_max(Selection, Slots_max):
 		'''Get selection sets for a group of objects in the given list.
 		Returns Object and Sub-Object Level sets.
 
-		:Parameters:
+		Parameters:
 			objects (list): The objects to get sets from. ie. rt.cameras (default is rt.geometry)
 
-		:Return:
+		Return:
 			(dict) {'set name':[<set>, <object>, <object level as int>, <set array>]}
 		'''
 		if includeEmptySets:
@@ -504,11 +504,11 @@ class Selection_max(Selection, Slots_max):
 	def getSetArray(self, obj=None, index=0):
 		'''Get the array containing a set by array type.
 
-		:Parameters:
+		Parameters:
 			obj (obj): Parent obj of the array.
 			index (int): Array type. 
 
-		:Return:
+		Return:
 			(array) maxscript array object.
 		'''
 		type_ = {0:'', 1:'vertices', 2:'edges', 3:'borders', 4:'faces'}
@@ -524,11 +524,11 @@ class Selection_max(Selection, Slots_max):
 	def selectionSets(self, obj=None, level=None):
 		'''Gets any existing selection sets for the given object.
 
-		:Parameters:
+		Parameters:
 			obj (obj): The object to get sets for. If no object is given, any empty sets will be returned.
 			level (int): The sub-object level. Valid values are: 0(obj), 1(vertices), 2(edges), 3(borders), 4(faces)
 
-		:Return:
+		Return:
 			(dict) {'set name':<set>}
 		'''
 		if level is None: #if level isn't given:
@@ -558,7 +558,7 @@ class Selection_max(Selection, Slots_max):
 	def selectLoop(self, obj):
 		'''Select a component loop from two or more selected adjacent components (or a single edge).
 
-		:Parameters:
+		Parameters:
 			obj (obj): An Editable polygon object.
 
 		ex. obj = rt.selection[0]
@@ -584,7 +584,7 @@ class Selection_max(Selection, Slots_max):
 	def selectRing(self, obj):
 		'''Select a component ring from two or more selected adjacent components (or a single edge).
 
-		:Parameters:
+		Parameters:
 			obj (obj): An Editable polygon object.
 
 		ex. obj = rt.selection[0]

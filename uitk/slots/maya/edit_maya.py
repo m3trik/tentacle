@@ -41,8 +41,8 @@ class Edit_maya(Edit, Slots_maya):
 		tb000.ctxMenu.chk022.stateChanged.connect(lambda state: self.sb.toggleWidgets(tb000.ctxMenu, setDisabled='chk002-3,chk005,chk010-21,chk024,s006-8', setEnabled='chk023') if state 
 														else self.sb.toggleWidgets(tb000.ctxMenu, setEnabled='chk002-3,chk005,chk010-21,s006-8', setDisabled='chk023')) #disable non-relevant options.
 		#sync widgets
-		self.sb.setSyncConnections(tb000.ctxMenu.chk004, self.sb.edit_submenu.chk004, attributes='setChecked')
-		self.sb.setSyncConnections(tb000.ctxMenu.chk010, self.sb.edit_submenu.chk010, attributes='setChecked')
+		self.sb.syncWidgets(tb000.ctxMenu.chk004, self.sb.edit_submenu.chk004, attributes='setChecked')
+		self.sb.syncWidgets(tb000.ctxMenu.chk010, self.sb.edit_submenu.chk010, attributes='setChecked')
 
 
 	def cmb000(self, index=-1):
@@ -112,7 +112,7 @@ class Edit_maya(Edit, Slots_maya):
 
 		if overlappingDuplicateObjects:
 			duplicates = mtk.Edit.getOverlappingDupObjects(omitInitialObjects=omitSelectedObjects, select=True, verbose=True)
-			self.messageBox('Found {} duplicate overlapping objects.'.format(len(duplicates)), messageType='Result')
+			self.sb.messageBox('Found {} duplicate overlapping objects.'.format(len(duplicates)), messageType='Result')
 			pm.delete(duplicates) if repair else pm.select(duplicates)
 			return
 
@@ -121,7 +121,7 @@ class Edit_maya(Edit, Slots_maya):
 
 		if overlappingFaces:
 			duplicates = mtk.Edit.getOverlappingFaces(objects)
-			self.messageBox('Found {} duplicate overlapping faces.'.format(len(duplicates)), messageType='Result')
+			self.sb.messageBox('Found {} duplicate overlapping faces.'.format(len(duplicates)), messageType='Result')
 			pm.delete(duplicates) if repair else pm.select(duplicates, add=1)
 
 		mtk.Edit.cleanGeometry(objects, allMeshes=allMeshes, repair=repair, quads=quads, nsided=nsided, concave=concave, holed=holed, nonplanar=nonplanar, 
@@ -251,7 +251,7 @@ class Edit_maya(Edit, Slots_maya):
 		if items:
 			self.setAttributeWindow(items, checkableLabel=True)
 		else:
-			self.messageBox('Found no items to list the history for.')
+			self.sb.messageBox('Found no items to list the history for.')
 			return
 
 

@@ -267,10 +267,10 @@ class File_blender(File, Slots_blender):
 	def getRecentFiles(self, index=None):
 		'''Get a list of recent files.
 
-		:Parameters:
+		Parameters:
 			index (int): Return the recent file directory path at the given index. Index 0 would be the most recent file.
 
-		:Return:
+		Return:
 			(list)(str)
 		'''
 		files = pm.optionVar(query='RecentFilesList')
@@ -286,7 +286,7 @@ class File_blender(File, Slots_blender):
 	def getRecentProjects(self):
 		'''Get a list of recently set projects.
 
-		:Return:
+		Return:
 			(list)
 		'''
 		files = pm.optionVar(query='RecentProjectsList')
@@ -298,10 +298,10 @@ class File_blender(File, Slots_blender):
 	def getRecentAutosave(self, appendDatetime=False):
 		'''Get a list of autosave files.
 
-		:Parameters:
+		Parameters:
 			appendDatetime (bool): Attach a modified timestamp and date to given file path(s).
 
-		:Return:
+		Return:
 			(list)
 		'''
 		dir1 = str(pm.workspace(query=1, rd=1))+'autosave' #current project path.
@@ -390,10 +390,10 @@ print (__name__)
 	# 	'''
 	# 	Increment the given file name.
 
-	# 	:Parameters:
+	# 	Parameters:
 	# 		fileName (str): file name with extension. ie. elise_mid.ma
 
-	# 	:Return:
+	# 	Return:
 	# 		(str) incremented name. ie. elise_mid.000.ma
 	# 	'''
 	# 	import re
@@ -419,7 +419,7 @@ print (__name__)
 	# 	'''
 	# 	Delete older files.
 
-	# 	:Parameters:
+	# 	Parameters:
 	# 		fileName (str): file name with extension. ie. elise_mid.ma
 	# 		numberOfPreviousFiles (int): Number of previous copies to keep.
 	# 	'''

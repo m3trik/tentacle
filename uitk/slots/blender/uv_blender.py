@@ -407,7 +407,7 @@ class Uv_blender(Uv, Slots_blender):
 	def moveSelectedToUvSpace(self, u, v, relative=True):
 		'''Move sny selected objects to the given u and v coordinates.
 
-		:Parameters:
+		Parameters:
 			u (int): u coordinate.
 			v (int): v coordinate.
 			relative (bool): Move relative or absolute.
@@ -421,7 +421,7 @@ class Uv_blender(Uv, Slots_blender):
 		'''Select all faces of any selected geometry, and switch the component mode to uv shell,
 		if the current selection is not maskFacet, maskUv, or maskUvShell.
 
-		:Return:
+		Return:
 			(list) the selected faces.
 		'''
 		selection = pm.ls(sl=1)
@@ -449,11 +449,11 @@ class Uv_blender(Uv, Slots_blender):
 	def getUvShellSets(self, objects=None, returnType='shells'):
 		'''Get All UV shells and their corresponding sets of faces.
 
-		:Parameters:
+		Parameters:
 			objects (obj)(list): Polygon object(s) or Polygon face(s).
 			returnType (str): The desired returned type. valid values are: 'shells', 'shellIDs'. If None is given, the full dict will be returned.
 
-		:Return:
+		Return:
 			(list)(dict) dependant on the given returnType arg. ex. {0L:[[MeshFace(u'pShape.f[0]'), MeshFace(u'pShape.f[1]')], 1L:[[MeshFace(u'pShape.f[2]'), MeshFace(u'pShape.f[3]')]}
 		'''
 		if not objects:
@@ -491,10 +491,10 @@ class Uv_blender(Uv, Slots_blender):
 	def getUvShellBorderEdges(self, objects):
 		'''Get the edges that make up any UV islands of the given objects.
 
-		:Parameters:
+		Parameters:
 			objects (str)(obj)(list): Polygon mesh objects.
 
-		:Return:
+		Return:
 			(list) uv border edges.
 		'''
 		mesh_edges=[]

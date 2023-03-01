@@ -444,7 +444,7 @@ class Polygons_blender(Polygons, Slots_blender):
 	def snapClosestVerts(self, obj1, obj2, tolerance=10.0, freezeTransforms=False):
 		'''Snap the vertices from object one to the closest verts on object two.
 
-		:Parameters:
+		Parameters:
 			obj1 (obj): The object in which the vertices are moved from.
 			obj2 (obj): The object in which the vertices are moved to.
 			tolerance (float) = Maximum search distance.

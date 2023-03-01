@@ -8,7 +8,7 @@ from PySide2 import QtCore, QtGui, QtWidgets
 class EventFactoryFilter(QtCore.QObject):
 	'''Event filter for dynamic ui objects.
 
-	:Parameters:
+	Parameters:
 		tcl (obj): tcl widget instance.
 	'''
 	events=['showEvent', #the types of events to be handled here.
@@ -37,9 +37,9 @@ class EventFactoryFilter(QtCore.QObject):
 		ie. 'enterEvent' from QtCore.QEvent.Type.Enter,
 		ie. 'mousePressEvent' from QtCore.QEvent.Type.MouseButtonPress
 
-		:Parameters:
+		Parameters:
 			event = <QEvent>
-		:Return:
+		Return:
 			'string' - formatted method name
 		'''
 		s1 = str(event.type()).split('.')[-1] #get the event name ie. 'Enter' from QtCore.QEvent.Type.Enter
@@ -54,7 +54,7 @@ class EventFactoryFilter(QtCore.QObject):
 		from the event type string.  ie. self.enterEvent(event) from 'QtCore.QEvent.Type.Enter'
 		This allows for forwarding of all events without each having to be explicity stated.
 
-		:Parameters:
+		Parameters:
 			widget = <QWidget>
 			event = <QEvent>
 		'''
@@ -86,10 +86,10 @@ class MouseTracking(QtCore.QObject):
 		'''Get the widget(s) currently under the mouse cursor, and manage mouse grab and event handling for those widgets.
 		Primarily used to trigger widget events while moving the cursor in the mouse button down state.
 
-		:Parameters:
+		Parameters:
 			widgets (list): The widgets to filter for those currently under the mouse cursor.
 
-		:Return:
+		Return:
 			(list) widgets currently under mouse.
 		'''
 		mouseOver=[]
@@ -108,7 +108,7 @@ class MouseTracking(QtCore.QObject):
 		'''Get the widget(s) currently under the mouse cursor, and manage mouse grab and event handling for those widgets.
 		Primarily used to trigger widget events while moving the cursor in the mouse button down state.
 
-		:Parameters:
+		Parameters:
 			widgets (list): The widgets to track.
 		'''
 		mouseOver = self.mouseOverFilter(widgets)

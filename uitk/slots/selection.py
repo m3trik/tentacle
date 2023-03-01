@@ -123,7 +123,7 @@ class Selection(Slots):
 		'''
 		self.sb.toggleWidgets(setChecked='chk005', setUnChecked='chk006-7')
 		Selection.setSelectionStyle('marquee')
-		self.messageBox('Select Style: <hl>Marquee</hl>')
+		self.sb.messageBox('Select Style: <hl>Marquee</hl>')
 
 
 	def chk006(self, state=None):
@@ -131,7 +131,7 @@ class Selection(Slots):
 		'''
 		self.sb.toggleWidgets(setChecked='chk006', setUnChecked='chk005,chk007')
 		Selection.setSelectionStyle('lasso')
-		self.messageBox('Select Style: <hl>Lasso</hl>')
+		self.sb.messageBox('Select Style: <hl>Lasso</hl>')
 
 
 	def chk007(self, state=None):
@@ -139,7 +139,7 @@ class Selection(Slots):
 		'''
 		self.sb.toggleWidgets(setChecked='chk007', setUnChecked='chk005-6')
 		Selection.setSelectionStyle('paint')
-		self.messageBox('Select Style: <hl>Paint</hl>')
+		self.sb.messageBox('Select Style: <hl>Paint</hl>')
 
 
 	

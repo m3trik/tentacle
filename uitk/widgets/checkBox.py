@@ -2,10 +2,9 @@
 # coding=utf-8
 from PySide2 import QtWidgets, QtCore
 
-from attributes import Attributes
-from text import RichText, TextOverlay
-from menu import MenuInstance
-
+from uitk.widgets.attributes import Attributes
+from uitk.widgets.text import RichText, TextOverlay
+from uitk.widgets.menu import MenuInstance
 
 
 class CheckBox(QtWidgets.QCheckBox, MenuInstance, Attributes, RichText, TextOverlay):
@@ -50,7 +49,7 @@ class CheckBox(QtWidgets.QCheckBox, MenuInstance, Attributes, RichText, TextOver
 		'''Set the state of a checkbox as an integer value.
 		Simplifies working with tri-state checkboxes.
 
-		:Parameters:
+		Parameters:
 			state (int)(bool): 0 or False: unchecked, 1 or True: checked. 
 				If tri-state: 0: unchecked, 1: paritally checked, 2: checked.
 		'''
@@ -64,10 +63,10 @@ class CheckBox(QtWidgets.QCheckBox, MenuInstance, Attributes, RichText, TextOver
 
 	def mousePressEvent(self, event):
 		'''
-		:Parameters:
+		Parameters:
 			event (QEvent)
 
-		:Return:
+		Return:
 			(QEvent)
 		'''
 		if event.button()==QtCore.Qt.RightButton:
@@ -79,7 +78,7 @@ class CheckBox(QtWidgets.QCheckBox, MenuInstance, Attributes, RichText, TextOver
 
 	def showEvent(self, event):
 		'''
-		:Parameters:
+		Parameters:
 			event=<QEvent>
 		'''
 		# self.setTextOverlay('±', alignment='AlignRight')

@@ -15,7 +15,7 @@ from uitk.tcl import Tcl
 class Tcl_max(Tcl):
 	'''Tcl class overridden for use with Autodesk 3ds max.
 
-	:Parameters:
+	Parameters:
 		parent = main application top level window object.
 	'''
 	def __init__(self, parent=None, slotLoc='slots/max', *args, **kwargs):
@@ -54,7 +54,7 @@ class Tcl_max(Tcl):
 
 	def keyPressEvent(self, event):
 		'''
-		:Parameters:
+		Parameters:
 			event = <QEvent>
 		'''
 		if not event.isAutoRepeat():
@@ -69,7 +69,7 @@ class Tcl_max(Tcl):
 
 	def showEvent(self, event):
 		'''
-		:Parameters:
+		Parameters:
 			event = <QEvent>
 		'''
 		try:
@@ -83,7 +83,7 @@ class Tcl_max(Tcl):
 
 	def hideEvent(self, event):
 		'''
-		:Parameters:
+		Parameters:
 			event = <QEvent>
 		'''
 		try:
@@ -101,14 +101,14 @@ def getInstance(instanceID=None, *args, **kwargs):
 	'''Get an instance of this class using a given instanceID.
 	The instanceID is either the object or the object's id.
 
-	:Parameters:
+	Parameters:
 		instanceID () = The instanceID can be any immutable type.
 		args/kwargs () = The args to be passed to the class instance when it is created.
 
-	:Return:
+	Return:
 		(obj) An instance of this class.
 
-	:Example: tcl = Tcl_maya.getInstance(id(0), key_show='Key_F12') #returns the class instance with an instance ID of the value of `id(0)`.
+	Example: tcl = Tcl_maya.getInstance(id(0), key_show='Key_F12') #returns the class instance with an instance ID of the value of `id(0)`.
 	'''
 	import inspect
 

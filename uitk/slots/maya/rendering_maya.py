@@ -102,7 +102,7 @@ class Rendering_maya(Rendering, Slots_maya):
 	def loadVRayPlugin(self, unload=False, query=False):
 		'''Load/Unload the Maya Vray Plugin if it exists.
 
-		:Parameters:
+		Parameters:
 			unload (bool): Unload the VRay plugin.
 			query (bool): Query the state of the VRay Plugin.
 		'''
@@ -116,7 +116,7 @@ class Rendering_maya(Rendering, Slots_maya):
 				pm.unloadPlugin(vray)
 			except:
 				pm.unloadPlugin(vray, force=1)
-				self.messageBox('{0}{1}{2}'.format("Force unloadPlugin:", str(vray), " "), messageType='Result')
+				self.sb.messageBox('{0}{1}{2}'.format("Force unloadPlugin:", str(vray), " "), messageType='Result')
 		else:
 			pm.loadPlugin(vray)
 

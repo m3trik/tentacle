@@ -51,7 +51,7 @@ class Mirror_blender(Mirror, Slots_blender):
 	def mirrorGeometry(self, objects=None, axis='-X', cutMesh=False, instance=False, mergeThreshold=0.005, deleteHistory=True):
 		'''Mirror geometry across a given axis.
 
-		:Parameters:
+		Parameters:
 			objects (obj): The objects to mirror. If None; any currently selected objects will be used.
 			axis = The axis in which to perform the mirror along.
 			cutMesh = Perform a delete along specified axis before mirror.
@@ -59,7 +59,7 @@ class Mirror_blender(Mirror, Slots_blender):
 			mergeThreshold = Merge vertex distance.
 			deleteHistory = Delete non-deformer history on the object before performing the operation.
 
-		:Return:
+		Return:
 			(obj) The polyMirrorFace history node if a single object, else None.
 		'''
 		direction = {

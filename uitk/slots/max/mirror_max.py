@@ -79,7 +79,7 @@ class Mirror_max(Mirror, Slots_max):
 					merge=False, mergeMode=1, mergeThreshold=0.005, deleteHistory=True):
 		'''Mirror geometry across a given axis.
 
-		:Parameters:
+		Parameters:
 			objects (obj): The objects to mirror. If None; any currently selected objects will be used.
 			axis (string) = The axis in which to perform the mirror along. case insensitive. (valid: 'X', '-X', 'Y', '-Y', 'Z', '-Z')
 			worldSpace (bool): This flag specifies which reference to use. If True: all geometrical values are taken in world reference. If False: all geometrical values are taken in object reference.
@@ -90,7 +90,7 @@ class Mirror_max(Mirror, Slots_max):
 			mergeThreshold (float) = Merge vertex distance.
 			deleteHistory (bool): Delete non-deformer history on the object before performing the operation.
 
-		:Return:
+		Return:
 			(obj) The polyMirrorFace history node if a single object, else None.
 		'''
 		direction = {

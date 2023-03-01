@@ -389,7 +389,7 @@ class Transform_blender(Transform, Slots_blender):
 	def resetTranslation(self, objects):
 		'''Reset the transformations on the given object(s). (unfreeze transforms)
 
-		:Parameters:
+		Parameters:
 			objects (str)(obj)(list): The object(s) to reset transforms for.
 		'''
 		# pm.undoInfo(openChunk=1)
@@ -404,7 +404,7 @@ class Transform_blender(Transform, Slots_blender):
 	def moveTo(self, obj, target, targetCenter=True):
 		'''Move an object(s) to the given target.
 
-		:Parameters:
+		Parameters:
 			obj (str)(obj)(list): The objects to move.
 			target (str)(obj): The object to move to.
 			targetCenter (bool): Move to target pivot pos, or the bounding box center of the target.
@@ -424,7 +424,7 @@ class Transform_blender(Transform, Slots_blender):
 	def dropToGrid(self, objects, align='Mid', origin=False, centerPivot=False, freezeTransforms=False):
 		'''Align objects to Y origin on the grid using a helper plane.
 
-		:Parameters:
+		Parameters:
 			objects (str)(obj)(list): The objects to translate.
 			align (bool): Specify which point of the object's bounding box to align with the grid. (valid: 'Max','Mid'(default),'Min')
 			origin (bool): Move to world grid's center.
@@ -457,7 +457,7 @@ class Transform_blender(Transform, Slots_blender):
 
 	def setTranslationToPivot(self, node):
 		'''Set an object’s translation value from its pivot location.
-		:Parameters:
+		Parameters:
 			node (str)(obj): An object, or it's name.
 		'''
 		x, y, z = pivot = pm.xform(node, query=True, worldSpace=True, rotatePivot=True)
@@ -469,7 +469,7 @@ class Transform_blender(Transform, Slots_blender):
 	@Slots_blender.undoChunk
 	def alignPivotToSelection(self, alignFrom=[], alignTo=[], translate=True):
 		'''Align one objects pivot point to another using 3 point align.
-		:Parameters:
+		Parameters:
 			alignFrom (list): At minimum; 1 object, 1 Face, 2 Edges, or 3 Vertices.
 			alignTo (list): The object to align with.
 			translate (bool): Move the object with it's pivot.
@@ -544,11 +544,11 @@ class Transform_blender(Transform, Slots_blender):
 	def getOrientation(self, obj, returnType='point'):
 		'''Get an objects orientation.
 
-		:Parameters:
+		Parameters:
 			obj (str)(obj): The object to get the orientation of.
 			returnType (str): The desired returned value type. (valid: 'point', 'vector')(default: 'point')
 
-		:Return:
+		Return:
 			(tuple)
 		'''
 		obj = pm.ls(obj)[0]
@@ -580,11 +580,11 @@ class Transform_blender(Transform, Slots_blender):
 	def getDistanceBetweenTwoObjects(self, obj1, obj2):
 		'''Get the magnatude of a vector using the center points of two given objects.
 
-		:Parameters:
+		Parameters:
 			obj1 (obj)(str): Object, object name, or point (x,y,z).
 			obj2 (obj)(str): Object, object name, or point (x,y,z).
 
-		:Return:
+		Return:
 			(float)
 
 		# xmin, ymin, zmin, xmax, ymax, zmax = pm.exactWorldBoundingBox(startAndEndCurves)
@@ -601,10 +601,10 @@ class Transform_blender(Transform, Slots_blender):
 	def getCenterPoint(self, objects):
 		'''Get the bounding box center point of any given object(s).
 		
-		:Parameters:
+		Parameters:
 			objects (str)(obj(list): The objects or components to get the center of.
 
-		:Return:
+		Return:
 			(list) position as [x,y,z].
 		'''
 		objects = pm.ls(objects, flatten=True)
@@ -620,11 +620,11 @@ class Transform_blender(Transform, Slots_blender):
 	def getComponentPoint(self, component, alignToNormal=False):
 		'''Get the center point from the given component.
 
-		:Parameters:
+		Parameters:
 			component (str)(obj): Object component.
 			alignToNormal (bool): Constain to normal vector.
 
-		:Return: [float list] - x, y, z  coordinate values.
+		Return: [float list] - x, y, z  coordinate values.
 		'''
 		if ".vtx" in str(component):
 			x = pm.polyNormalPerVertex (component, query=1, x=1)
@@ -668,13 +668,13 @@ class Transform_blender(Transform, Slots_blender):
 	def matchScale(self, to, frm, scale=True, average=False):
 		'''Scale each of the given objects to the combined bounding box of a second set of objects.
 
-		:Parameters:
+		Parameters:
 			to (str)(obj)(list): The object(s) to scale.
 			frm (str)(obj)(list): The object(s) to get a bounding box size from.
 			scale (bool): Scale the objects. Else, just return the scale value.
 			average (bool): Average the result across all axes.
 
-		:Return:
+		Return:
 			(list) scale values as [x,y,z,x,y,z...]
 		'''
 		to = pm.ls(to, flatten=True)
@@ -713,12 +713,12 @@ class Transform_blender(Transform, Slots_blender):
 	def alignVertices(self, mode, average=False, edgeloop=False):
 		'''Align vertices.
 
-		:Parameters:
+		Parameters:
 			mode (int): possible values are align: 0-YZ, 1-XZ, 2-XY, 3-X, 4-Y, 5-Z, 6-XYZ 
 			average (bool): align to average of all selected vertices. else, align to last selected
 			edgeloop (bool): align vertices in edgeloop from a selected edge
 
-		:Example: alignVertices(mode=3, average=True, edgeloop=True)
+		Example: alignVertices(mode=3, average=True, edgeloop=True)
 		'''
 		# pm.undoInfo (openChunk=True)
 		selectTypeEdge = pm.selectType (query=True, edge=True)

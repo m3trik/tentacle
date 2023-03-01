@@ -284,7 +284,7 @@ class Nurbs_maya(Nurbs, Slots_maya):
 	def loft(self, uniform=True, close=False, degree=3, autoReverse=False, sectionSpans=1, range_=False, polygon=True, reverseSurfaceNormals=True, angleLoftBetweenTwoCurves=False, angleLoftSpans=6):
 		'''Create a loft between two selections.
 
-		:Parameters:
+		Parameters:
 			uniform (bool): The resulting surface will have uniform parameterization in the loft direction. If set to false, the parameterization will be chord length.
 			close (bool): The resulting surface will be closed (periodic) with the start (end) at the first curve. If set to false, the surface will remain open.
 			degree (int): The degree of the resulting surface.
@@ -296,7 +296,7 @@ class Nurbs_maya(Nurbs, Slots_maya):
 			angleLoftBetweenTwoCurves (bool): Perform a loft at an angle between two selected curves or polygon edges (that will be extracted as curves).
 			angleLoftSpans (int): Angle loft: Number of duplicated points (spans).
 
-		:Return:
+		Return:
 			(obj) nurbsToPoly history node.
 		'''
 		# pm.undoInfo(openChunk=1)
@@ -328,11 +328,11 @@ class Nurbs_maya(Nurbs, Slots_maya):
 	def createCurveBetweenTwoObjects(self, start, end):
 		'''Create a bezier curve between starting and end object(s).
 
-		:Parameters:
+		Parameters:
 			start () = Starting object(s).
 			end () = Ending object(s).
 
-		:Return:
+		Return:
 			(obj) Bezier curve. 
 		'''
 		# pm.undoInfo(openChunk=1)
@@ -386,13 +386,13 @@ class Nurbs_maya(Nurbs, Slots_maya):
 	def duplicateAlongCurve(self, path, start, count=6, geometry='Instancer'):
 		'''Duplicate objects along a given curve using MASH.
 
-		:Parameters:
+		Parameters:
 			path (obj): The curve to use as a path.
 			start () = Starting object.
 			count (int): The number of duplicated objects. (point count on the MASH network)
 			geometry (str): Particle instancer or mesh instancer (Repro node). (valid: 'Mesh' (default), 'Instancer')
 
-		:Return:
+		Return:
 			(list) The duplicated objects in order of start to end.
 		'''
 		# pm.undoInfo(openChunk=1)
@@ -434,13 +434,13 @@ class Nurbs_maya(Nurbs, Slots_maya):
 										degree=3, sectionSpans=1, range=0, polygon=1, reverseSurfaceNormals=0):
 		'''Perform a loft between two nurbs curves or polygon sets of edges (that will be extracted as curves).
 
-		:Parameters:
+		Parameters:
 			start (list): Starting edges.
 			end (list): Ending edges.
 			count (int): Section count.
 			cleanup (bool): Delete the start, end, and any additional construction curves upon completion.
 
-		:Return:
+		Return:
 			(list) Loft object name and node name.
 		'''
 		# pm.undoInfo(openChunk=1)
@@ -481,12 +481,12 @@ class Nurbs_maya(Nurbs, Slots_maya):
 	def getClosestCV(x, curves, tolerance=0.0):
 		'''Find the closest control vertex between the given vertices, CVs, or objects and each of the given curves.
 
-		:Parameters:
+		Parameters:
 			x (str)(obj)(list): Polygon vertices, control vertices, objects, or points given as (x,y,z) tuples.
 			curves (str)(obj)(list): The reference object in which to find the closest CV for each vertex in the list of given vertices.
 			tolerance (int)(float) = Maximum search distance. Default is 0.0, which turns off the tolerance flag.
 
-		:Return:
+		Return:
 			(dict) closest vertex/cv pairs (one pair for each given curve) ex. {<vertex from set1>:<vertex from set2>}.
 
 		ex. vertices = getComponents(objects, 'vertices')
@@ -526,7 +526,7 @@ class Nurbs_maya(Nurbs, Slots_maya):
 	def getCvInfo(cls, c, returnType='cv', filter_=[]):
 		'''Get a dict containing CV's of the given curve(s) and their corresponding point positions (based on Maya's pointOnCurve command).
 
-		:Parameters:
+		Parameters:
 			- c (str)(obj)(list): Curves or CVs to get CV info from.
 			- returnType (str): The desired returned values. Default is 'cv'.
 				valid values are: 
@@ -537,7 +537,7 @@ class Nurbs_maya(Nurbs, Slots_maya):
 				ex. {NurbsCurveCV(u'polyToCurveShape7.cv[5]'): [-12.186520865542082, 15.260936896515751, -369.6159740743584]}
 			- filter_ (str)(obj)(list): Value(s) to filter for in the returned results.
 
-		:Return:
+		Return:
 			(dict)(list)(int) dependant on returnType.
 
 		ex. cv_tan = getCvInfo(curve.cv[0:2],'tangent') #get CV tangents for cvs 0-2.
@@ -609,12 +609,12 @@ class Nurbs_maya(Nurbs, Slots_maya):
 	def getCrossProductOfCurves(cls, curves, normalize=1, values=False):
 		'''Get the cross product of two vectors using points derived from the given curves.
 
-		:Parameters:
+		Parameters:
 			curves (str)(obj)(list): Nurbs curve(s).
 			normalize (float) = (0) Do not normalize. (1) Normalize standard. (value other than 0 or 1) Normalize using the given float value as desired length.
 			values (bool): Return only a list of the cross product vector values [(<Vx>, <Vy>, <Vz>)] instead of the full dict {<curve1>:(<Vx>, <Vy>, <Vz>)}.
 
-		:Return:
+		Return:
 			(dict)(list)
 		'''
 		result={}

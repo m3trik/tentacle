@@ -2,9 +2,8 @@
 # coding=utf-8
 from PySide2 import QtWidgets, QtCore
 
-from attributes import Attributes
-from menu import MenuInstance
-
+from uitk.widgets.attributes import Attributes
+from uitk.widgets.menu import MenuInstance
 
 
 class Label(QtWidgets.QLabel, MenuInstance, Attributes):
@@ -24,7 +23,7 @@ class Label(QtWidgets.QLabel, MenuInstance, Attributes):
 
 	def mousePressEvent(self, event):
 		'''
-		:Parameters:
+		Parameters:
 			event (QEvent) = 
 		'''
 		if event.button()==QtCore.Qt.LeftButton:
@@ -39,7 +38,7 @@ class Label(QtWidgets.QLabel, MenuInstance, Attributes):
 
 	def mouseReleaseEvent(self, event):
 		'''
-		:Parameters:
+		Parameters:
 			event (QEvent) = 
 		'''
 		if event.button()==QtCore.Qt.LeftButton:

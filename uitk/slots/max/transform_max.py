@@ -195,7 +195,7 @@ class Transform_max(Transform, Slots_max):
 
 				vertex = selection[0] if selection else None
 				if vertex is None:
-					self.messageBox('Unable to get component path.')
+					self.sb.messageBox('Unable to get component path.')
 					return
 
 				vertexTangent = pm.polyNormalPerVertex(vertex, query=True, xyz=True)
@@ -222,7 +222,7 @@ class Transform_max(Transform, Slots_max):
 					if any ([axis==y and tangent==tz, axis==z and tangent==ty]): #"x"
 						self.sb.toggleWidgets(tb.ctxMenu, setChecked='chk029', setUnChecked='chk030-31')
 			else:
-				self.messageBox('Operation requires a component selection.')
+				self.sb.messageBox('Operation requires a component selection.')
 				return
 
 		#align
@@ -260,7 +260,7 @@ class Transform_max(Transform, Slots_max):
 		'''
 		selection = list(rt.selection)
 		if not selection:
-			self.messageBox('<b>Nothing selected.</b><br>The operation requires a single selected object.')
+			self.sb.messageBox('<b>Nothing selected.</b><br>The operation requires a single selected object.')
 			return
 
 		obj = selection[0]
@@ -277,7 +277,7 @@ class Transform_max(Transform, Slots_max):
 		'''
 		selection = list(rt.selection)
 		if not selection:
-			self.messageBox('<b>Nothing selected.</b><br>The operation requires at least two selected object.')
+			self.sb.messageBox('<b>Nothing selected.</b><br>The operation requires at least two selected object.')
 			return
 
 		frm = selection[0]
@@ -364,7 +364,7 @@ class Transform_max(Transform, Slots_max):
 	def setTransformSnap(self, ctx, state):
 		'''Set the transform tool's move, rotate, and scale snap states.
 
-		:Parameters:
+		Parameters:
 			ctx (str): valid: 'move', 'scale', 'rotate'
 			state (int): valid: 0=off, 1=relative, 2=absolute
 		'''
@@ -384,7 +384,7 @@ class Transform_max(Transform, Slots_max):
 	def setSnapState(self, fn, state):
 		'''Grid and Snap Settings: Modify grid and snap states.
 
-		:Parameters:
+		Parameters:
 			fn (str): Snap string name.
 			state (bool): Desired snap state.
 
@@ -420,7 +420,7 @@ class Transform_max(Transform, Slots_max):
 		create edge alignment tool and then use subObjectLevel check to call either that function or this one from the same buttons.
 		to save ui space; have a single align button, x, y, z, and align 'all' checkboxes and a tolerance textfield.
 
-		:Parameters:
+		Parameters:
 			selection (list): vertex selection
 			mode (int): valid values are: 0 (YZ), 1 (XZ), 2 (XY), 3 (X), 4 (Y), 5 (Z)
 
@@ -431,11 +431,11 @@ class Transform_max(Transform, Slots_max):
 		componentArray = selection.selectedVerts
 		
 		if len(componentArray) == 0:
-			self.messageBox('No vertices selected.')
+			self.sb.messageBox('No vertices selected.')
 			return
 
 		if len(componentArray) < 2:
-			self.messageBox('Selection must contain at least two vertices.')
+			self.sb.messageBox('Selection must contain at least two vertices.')
 			return
 
 		lastSelected = componentArray[-1]#3ds max re-orders array by vert index, so this doesnt work for aligning to last selected
@@ -519,12 +519,12 @@ class Transform_max(Transform, Slots_max):
 			
 			rt.alignXYZ(mode, vertex, vX, vY, vZ, aX, aY, aZ)
 
-			self.messageBox('{0}{1}{2}{3}'.format("result: ", vertex.pos[0], vertex.pos[1], vertex.pos[2]))
+			self.sb.messageBox('{0}{1}{2}{3}'.format("result: ", vertex.pos[0], vertex.pos[1], vertex.pos[2]))
 
 
 	def scaleObject(self, size, x, y ,z):
 		'''
-		:Parameters:
+		Parameters:
 			size (float) = Scale amount
 			x (bool): Scale in the x direction.
 			y (bool): Scale in the y direction.
@@ -568,7 +568,7 @@ class Transform_max(Transform, Slots_max):
 	def compareSize(self, obj1, obj2, factor):
 		'''Compares two point3 sizes from obj bounding boxes.
 
-		:Parameters:
+		Parameters:
 			obj1 (obj): 
 			obj2 (obj): 
 			factor () = 

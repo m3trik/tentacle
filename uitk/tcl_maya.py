@@ -11,7 +11,7 @@ from mayatk import getMainWindow
 class Tcl_maya(Tcl):
 	'''Tcl class overridden for use with Autodesk Maya.
 
-	:Parameters:
+	Parameters:
 		parent = Application top level window instance.
 	'''
 	def __init__(self, parent=None, slotLoc='slots/maya', *args, **kwargs):
@@ -29,7 +29,7 @@ class Tcl_maya(Tcl):
 
 	def keyPressEvent(self, event):
 		'''
-		:Parameters:
+		Parameters:
 			event = <QEvent>
 		'''
 		if not event.isAutoRepeat():
@@ -44,7 +44,7 @@ class Tcl_maya(Tcl):
 
 	def showEvent(self, event):
 		'''
-		:Parameters:
+		Parameters:
 			event = <QEvent>
 		'''
 
@@ -53,7 +53,7 @@ class Tcl_maya(Tcl):
 
 	def hideEvent(self, event):
 		'''
-		:Parameters:
+		Parameters:
 			event = <QEvent>
 		'''
 		if __name__ == "__main__":
@@ -69,14 +69,14 @@ def getInstance(instanceID=None, *args, **kwargs):
 	'''Get an instance of this class using a given instanceID.
 	The instanceID is either the object or the object's id.
 
-	:Parameters:
+	Parameters:
 		instanceID () = The instanceID can be any immutable type.
 		args/kwargs () = The args to be passed to the class instance when it is created.
 
-	:Return:
+	Return:
 		(obj) An instance of this class.
 
-	:Example: tcl = Tcl_maya.getInstance(id(0), key_show='Key_F12') #returns the class instance with an instance ID of the value of `id(0)`.
+	Example: tcl = Tcl_maya.getInstance(id(0), key_show='Key_F12') #returns the class instance with an instance ID of the value of `id(0)`.
 	'''
 	import inspect
 

@@ -54,7 +54,7 @@ class Scene_max(Scene, Slots_max):
 	def rename(self, frm, to, regEx=False, ignoreCase=False):
 		'''Rename scene objects.
 
-		:Parameters:
+		Parameters:
 			frm (str): Current name. An asterisk denotes startswith*, *endswith, *contains*, and multiple search strings can be separated by pipe ('|') chars.
 				frm - Search exact.
 				*frm* - Search contains chars.
@@ -93,12 +93,12 @@ class Scene_max(Scene, Slots_max):
 	def setCase(self, objects=[], case='caplitalize'):
 		'''Rename objects following the given case.
 
-		:Parameters:
+		Parameters:
 			objects (str)(list): The objects to rename. default:all scene objects
 			case (str): Desired case using python case operators. 
 				valid: 'upper', 'lower', 'caplitalize', 'swapcase' 'title'. default:'caplitalize'
 
-		:Example: setCase(pm.ls(sl=1), 'upper')
+		Example: setCase(pm.ls(sl=1), 'upper')
 		'''
 		for obj in objects:
 			name = obj.name

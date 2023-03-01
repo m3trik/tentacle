@@ -97,7 +97,7 @@ class Preferences_maya(Preferences, Slots_maya):
 	def loadPlugin(plugin):
 		'''Loads A Plugin.
 		
-		:Parameters:
+		Parameters:
 			plugin (str): The desired plugin to load.
 
 		ex. loadPlugin('nearestPointOnMesh')

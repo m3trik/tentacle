@@ -1,5 +1,5 @@
 max_init
-{'info': {'widget': <widgets.TextEdit.TextEdit object at 0x00000188D461D348>, 'widgetType': 'TextEdit', 'derivedType': 'QTextEdit', 'signalInstance': <PySide2.QtCore.SignalInstance object at 0x00000188C59B12E8>, 'docString': '\n\t\tGet current scene attributes. Only those with relevant values will be displayed.\n\t\t:Return:\n\t\t\t\t{dict} - app object values\n\t\t', 'method': <bound method Init.info of <max_init.Init object at 0x00000188D4628A20>>}, 
+{'info': {'widget': <widgets.TextEdit.TextEdit object at 0x00000188D461D348>, 'widgetType': 'TextEdit', 'derivedType': 'QTextEdit', 'signalInstance': <PySide2.QtCore.SignalInstance object at 0x00000188C59B12E8>, 'docString': '\n\t\tGet current scene attributes. Only those with relevant values will be displayed.\n\t\tReturn:\n\t\t\t\t{dict} - app object values\n\t\t', 'method': <bound method Init.info of <max_init.Init object at 0x00000188D4628A20>>}, 
 
 'mainWindow': {'widget': <PySide2.QtWidgets.QWidget object at 0x00000188D461D3C8>, 'widgetType': 'QWidget', 'derivedType': 'QWidget', 'signalInstance': None, 'docString': None, 'method': None}}
 
