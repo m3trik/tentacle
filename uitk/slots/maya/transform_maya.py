@@ -111,7 +111,7 @@ class Transform_maya(Transform, Slots_maya):
 		cmb = self.sb.transform.cmb001
 		state = cmb.menu_.chk026.isChecked()
 
-		selection = pm.ls(sl=1, objectsOnly=1)
+		selection = pm.ls(sl=1, objectsOnly=1, type='transform')
 		if state and selection:
 			live_object = pm.ls(live=1)
 			shape = mtk.Node.getShapeNode(selection[0])
@@ -345,7 +345,7 @@ class Transform_maya(Transform, Slots_maya):
 		'''Make Live (Toggle)
 		'''
 		cmb = self.sb.transform.cmb001
-		selection = pm.ls(sl=1, objectsOnly=1)
+		selection = pm.ls(sl=1, objectsOnly=1, type='transform')
 
 		if selection:
 			live_object = pm.ls(live=1)
@@ -610,7 +610,7 @@ print (__name__)
 			
 	# 		elif text=='Make Live'):
 	# 			print ('3')
-	# 			selection = pm.ls(sl=1, objectsOnly=1)
+	# 			selection = pm.ls(sl=1, objectsOnly=1, type='transform')
 	# 			if not selection and not live_object:
 	# 				print ('not selection and not live_object')
 	# 				cmb.setCurrentIndex(0)

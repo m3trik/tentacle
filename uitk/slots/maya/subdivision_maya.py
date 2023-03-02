@@ -104,7 +104,7 @@ class Subdivision_maya(Subdivision, Slots_maya):
 	def b005(self):
 		'''Reduce
 		'''
-		selection = pm.ls(sl=1, objectsOnly=1)
+		selection = pm.ls(sl=1, objectsOnly=1, type='transform')
 
 		pm.polyReduce(selection,
 			ver=1,

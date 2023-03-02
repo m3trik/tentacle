@@ -137,7 +137,7 @@ class Polygons_maya(Polygons, Slots_maya):
 		chamfer = True
 		segments = tb.ctxMenu.s006.value()
 
-		selection = pm.ls(sl=1, objectsOnly=1)
+		selection = pm.ls(sl=1, objectsOnly=1, type='shape')
 		if not selection:
 			return self.sb.messageBox('<strong>Nothing selected</strong>.<br>Operation requires a component selection.', messageType='Error')
 
@@ -254,7 +254,7 @@ class Polygons_maya(Polygons, Slots_maya):
 		tolerance = tb.ctxMenu.s005.value()
 		freezetransforms = tb.ctxMenu.chk016.isChecked()
 
-		selection = pm.ls(sl=1, objectsOnly=1)
+		selection = pm.ls(sl=1, objectsOnly=1, type='transform')
 		if len(selection)>1:
 			obj1, obj2 = selection
 			mtk.Edit.snapClosestVerts(obj1, obj2, tolerance, freezetransforms)

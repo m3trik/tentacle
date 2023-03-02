@@ -362,7 +362,7 @@ class Selection_maya(Selection, Slots_maya):
 
 		objMode = pm.selectMode(query=1, object=1)
 		if objMode:
-			selection = pm.ls(sl=1, objectsOnly=1)
+			selection = pm.ls(sl=1, objectsOnly=1, type='transform')
 			pm.select(clear=1)
 			for obj in selection:
 				similar = self.sb.edit.slots.getSimilarMesh(obj, tol=tol, includeOrig=inc, vertex=v, edge=e, face=f, uvcoord=uv, triangle=t, shell=s, boundingBox=b, area=a, worldArea=wa)

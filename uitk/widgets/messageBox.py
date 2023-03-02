@@ -17,30 +17,19 @@ class MessageBox(QtWidgets.QMessageBox, Attributes):
 
 		self.setStyleSheet(parent.styleSheet()) if parent else None
 
-		self.setWindowFlags(QtCore.Qt.Tool|QtCore.Qt.FramelessWindowHint|QtCore.Qt.WindowStaysOnTopHint) #QtCore.Qt.CustomizeWindowHint|QtCore.Qt.WindowTitleHint
+		self.setWindowFlags(QtCore.Qt.WindowType.WindowDoesNotAcceptFocus|QtCore.Qt.WindowStaysOnTopHint|QtCore.Qt.Tool|QtCore.Qt.FramelessWindowHint) #QtCore.Qt.CustomizeWindowHint|QtCore.Qt.WindowTitleHint
 		self.setAttribute(QtCore.Qt.WA_TranslucentBackground)
 		self.setAttribute(QtCore.Qt.WA_SetStyle) #Indicates that the widget has a style of its own.
 		self.setStandardButtons(QtWidgets.QMessageBox.NoButton)
 
-		self.timer = QtCore.QTimer()
-		self.timeout = timeout
-		self.timer.timeout.connect(self._tick)
-		self.timer.setInterval(1000)
+		self.menu_timer = QtCore.QTimer()
+		self.menu_timer.timeout.connect(self.hide)
 
 		self.setTextFormat(QtCore.Qt.RichText)
 
 		self.location = location
 
 		self.setAttributes(**kwargs)
-
-
-	def _tick(self):
-		self.timeout -= 1
-		if self.timeout >= 0:
-			pass
-		else:
-			self.timer.stop()
-			self.hide()
 
 
 	def move_(self, location):
@@ -133,24 +122,13 @@ class MessageBox(QtWidgets.QMessageBox, Attributes):
 			backgroundColor (str): text background color.
 			fontSize (int): text size.
 		'''
-		string = self._setPrefixStyle(string)
-		string = self._setHTML(string)
-		string = self._setFontColor(string, fontColor)
-		string = self._setBackgroundColor(string, backgroundColor)
-		string = self._setFontSize(string, fontSize)
+		s = self._setPrefixStyle(string)
+		s = self._setHTML(s)
+		s = self._setFontColor(s, fontColor)
+		s = self._setBackgroundColor(s, backgroundColor)
+		s = self._setFontSize(s, fontSize)
 
-		super().setText(string)
-
-
-	def exec_(self):
-		''''''
-		if self.isVisible():
-			self.hide()
-
-		self._tick()
-		self.timer.start()
-
-		super().exec_()
+		super().setText(s)
 
 
 	def showEvent(self, event):
@@ -158,9 +136,10 @@ class MessageBox(QtWidgets.QMessageBox, Attributes):
 		Parameters:
 			event=<QEvent>
 		'''
+		self.menu_timer.start(1000)  #5000 milliseconds = 5 seconds
 		self.move_(self.location)
 
-		QtWidgets.QMessageBox.showEvent(self, event)
+		super().showEvent(event)
 
 
 	def hideEvent(self, event):
@@ -168,16 +147,21 @@ class MessageBox(QtWidgets.QMessageBox, Attributes):
 		Parameters:
 			event=<QEvent>
 		'''
+		self.menu_timer.stop()
 
-		QtWidgets.QMessageBox.hideEvent(self, event)
+		super().hideEvent(event)
 
-
-
-
-
+# --------------------------------------------------------------------------------------------
 
 
 
+
+
+
+
+
+
+# --------------------------------------------------------------------------------------------
 
 if __name__ == "__main__":
 	import sys
@@ -188,8 +172,6 @@ if __name__ == "__main__":
 	w.exec_()
 
 	sys.exit(app.exec_())
-
-
 
 # --------------------------------------------------------------------------------------------
 # Notes

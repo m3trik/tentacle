@@ -22,7 +22,7 @@ class Tcl(QtWidgets.QStackedWidget):
 
 	_key_show_release = QtCore.Signal()
 
-	def __init__(self, parent=None, key_show='Key_F12', preventHide=False, slotLoc=''):
+	def __init__(self, parent=None, key_show='Key_F12', preventHide=False, slots=''):
 		'''
 		Parameters:
 			parent (obj): The parent application's top level window instance. ie. the Maya main window.
@@ -45,8 +45,8 @@ class Tcl(QtWidgets.QStackedWidget):
 		self.setAttribute(QtCore.Qt.WA_NoMousePropagation, False)
 		self.resize(1200, 1200)
 
-		self.sb = Switchboard(self, uiLoc='ui', widgetLoc='widgets', slotLoc=slotLoc, preloadUi=False)
-		self.overlay = Overlay(self, antialiasing=True) #Paint events are handled by the overlay module.
+		self.sb = Switchboard(self, slots=slots)
+		self.overlay = Overlay(self, antialiasing=False) #Paint events are handled by the overlay module.
 		self.eventFilter = EventFactoryFilter(self, eventNamePrefix='ef_', forwardEventsTo=self)
 		self.mouseTracking = MouseTracking(self)
 

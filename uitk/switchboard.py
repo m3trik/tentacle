@@ -199,9 +199,9 @@ class Switchboard(QUiLoader, StyleSheet):
 
 	Parameters:
 		parent (obj): A QtObject derived class.
-		uiLoc (str/obj): Set the directory of the dynamic UI, or give the dynamic UI objects.
-		widgetLoc (str/obj): Set the directory of any custom widgets, or give the widget objects.
-		slotLoc (str/obj): Set the directory of where the slot classes will be imported, or give the slot class itself.
+		dynui (str/obj): Set the directory of the dynamic UI, or give the dynamic UI objects.
+		widgets (str/obj): Set the directory of any custom widgets, or give the widget objects.
+		slots (str/obj): Set the directory of where the slot classes will be imported, or give the slot class itself.
 		preloadUi (bool): Load all UI immediately. Otherwise UI will be loaded as required.
 		style (str): Stylesheet color mode. ie. 'standard', 'dark', None
 		submenuStyle (str): The stylesheet color mode for submenus.
@@ -224,7 +224,7 @@ class Switchboard(QUiLoader, StyleSheet):
 		1. Create a subclass of Switchboard and define the slots for the UI events.
 			class MySwitchboard(Switchboard):
 				def __init__(self, parent=None, **kwargs):
-					super().__init__(parent, **kwargs)
+					super().__init__(parent)
 					...
 				def my_slot(self):
 					...
@@ -238,17 +238,18 @@ class Switchboard(QUiLoader, StyleSheet):
 	'''
 	app = QtWidgets.QApplication.instance() or QtWidgets.QApplication(sys.argv) #return the existing QApplication object, or create a new one if none exists.
 
-	def __init__(self, parent=None, uiLoc='', widgetLoc='', slotLoc='', preloadUi=False, style='standard', submenuStyle='dark'):
+	def __init__(self, parent=None, dynui=None, widgets=None, slots=None, preloadUi=False, style='standard', submenuStyle='dark'):
 		super().__init__(parent)
 		'''
 		'''
 		calling_frame = inspect.currentframe().f_back
 		calling_file = calling_frame.f_code.co_filename
 		self.defaultDir = os.path.abspath(os.path.dirname(calling_file))
+		self.moduleDir = File.getFilepath(__file__)
 
-		self.uiLoc = uiLoc
-		self.widgetLoc = widgetLoc
-		self.slotLoc = slotLoc
+		self.dynui = dynui or f'{self.moduleDir}/ui' #use the relative filepath of this module if None is given.
+		self.widgets = widgets or f'{self.moduleDir}/widgets'
+		self.slots = slots or f'{self.moduleDir}/slots'
 
 		self.style = style
 		self.submenuStyle = submenuStyle
@@ -289,14 +290,14 @@ class Switchboard(QUiLoader, StyleSheet):
 			(obj) ui or widget.
 		'''
 		# Check if the attribute matches a ui file
-		ui_path = File.formatPath(self.uiLoc, 'path')
+		ui_path = File.formatPath(self.dynui, 'path')
 		found_ui = next((f for f in glob.iglob(f'{ui_path}/**/{attr_name}.ui', recursive=True)), None)
 		if found_ui:
 			ui = self.loadUi(found_ui)
 			return ui
 
 		# Check if the attribute matches a widget file
-		widget_path = File.formatPath(self.widgetLoc, 'path')
+		widget_path = File.formatPath(self.widgets, 'path')
 		widget_name = Str.setCase(attr_name, 'camel')
 		found_widget = next((f for f in glob.iglob(f'{widget_path}/**/{widget_name}.py', recursive=True)), None)
 		if found_widget:
@@ -310,7 +311,7 @@ class Switchboard(QUiLoader, StyleSheet):
 
 
 	@property
-	def uiLoc(self) -> str:
+	def dynui(self) -> str:
 		'''Get the directory where the dynamic ui are stored.
 
 		Return:
@@ -323,8 +324,8 @@ class Switchboard(QUiLoader, StyleSheet):
 		return self._uiLoc
 
 
-	@uiLoc.setter
-	def uiLoc(self, d) -> None:
+	@dynui.setter
+	def dynui(self, d) -> None:
 		'''Set the directory where the dynamic ui are located.
 
 		Parameters:
@@ -340,7 +341,7 @@ class Switchboard(QUiLoader, StyleSheet):
 
 
 	@property
-	def widgetLoc(self) -> str:
+	def widgets(self) -> str:
 		'''Get the directory where any custom widgets are stored.
 
 		Return:
@@ -352,8 +353,8 @@ class Switchboard(QUiLoader, StyleSheet):
 		return self._widgetLoc
 
 
-	@widgetLoc.setter
-	def widgetLoc(self, d) -> None:
+	@widgets.setter
+	def widgets(self, d) -> None:
 		'''Set the directory where any custom widgets are stored.
 
 		Parameters:
@@ -369,7 +370,7 @@ class Switchboard(QUiLoader, StyleSheet):
 
 
 	@property
-	def slotLoc(self) -> str:
+	def slots(self) -> str:
 		'''Get the directory where the slot classes will be imported from.
 
 		Return:
@@ -383,8 +384,8 @@ class Switchboard(QUiLoader, StyleSheet):
 			return self._slotLoc
 
 
-	@slotLoc.setter
-	def slotLoc(self, d) -> None:
+	@slots.setter
+	def slots(self, d) -> None:
 		'''Set the directory where the slot classes will be imported from.
 
 		Parameters:
@@ -480,7 +481,7 @@ class Switchboard(QUiLoader, StyleSheet):
 			w.prefix = self.getprefix(w.name) #returns an string alphanumberic prefix if name startswith a series of alphanumberic charsinst is followed by three integers. ie. 'cmb' from 'cmb015'
 			w.getSlot = lambda w=w, u=ui: getattr(self.getSlots(u), w.name, None)
 
-			if ui.level>2 or ui.isSubmenu and not w.prefix=='i':
+			if ui.isSubmenu and not w.prefix=='i':
 				self.setStyle(w, style=self.submenuStyle, alpha=0)
 			else:
 				self.setStyle(w, style=self.style, alpha=0.01)
@@ -633,7 +634,7 @@ class Switchboard(QUiLoader, StyleSheet):
 		'''Get all widget class objects from a given directory, module filepath or module name.
 
 		Parameters:
-			path (str): A directory, fullpath to a widget module, or the name of a module residing in the 'widgetLoc' directory.
+			path (str): A directory, fullpath to a widget module, or the name of a module residing in the 'widgets' directory.
 						For example: - 'path_to/uitk/widgets'
 									 - 'path_to/uitk/widgets/comboBox.py'
 									 - 'comboBox'
@@ -648,7 +649,7 @@ class Switchboard(QUiLoader, StyleSheet):
 				return {}
 
 			if not File.isValidPath(path):
-				path = os.path.join(self.widgetLoc, f'{mod_name}.py')
+				path = os.path.join(self.widgets, f'{mod_name}.py')
 
 			try:
 				spec = importlib.util.spec_from_file_location(mod_name, path)
@@ -706,15 +707,15 @@ class Switchboard(QUiLoader, StyleSheet):
 			(obj) class instance.
 		'''
 		if hasAttribute(ui, '_slots'):
-			# print ('getSlots:', ui.name, ui._slots, self.slotLoc, inspect.isclass(ui._slots)) #debug
+			# print ('getSlots:', ui.name, ui._slots, self.slots, inspect.isclass(ui._slots)) #debug
 			return ui._slots
 
 		else:
-			if isinstance(self.slotLoc, str):
+			if isinstance(self.slots, str):
 				clss = self._importSlots(ui)
-			else: #if slotLoc is a class object:
-				clss = self.slotLoc
-			# print ('getSlots:2', ui.name, clss, inspect.isclass(clss), self.slotLoc) #debug
+			else: #if slots is a class object:
+				clss = self.slots
+			# print ('getSlots:2', ui.name, clss, inspect.isclass(clss), self.slots) #debug
 			if not clss:
 				if ui.isSubmenu:
 					mainmenu = self.getUi(ui, 3)
@@ -737,7 +738,7 @@ class Switchboard(QUiLoader, StyleSheet):
 		Parameters:
 			ui (obj): A previously loaded dynamic ui object.
 			path (str): The directory location of the module.
-					If None is given, the slotLoc property will be used.
+					If None is given, the slots property will be used.
 			recursive (bool): Search subfolders of the given path.
 
 		Return:
@@ -745,7 +746,7 @@ class Switchboard(QUiLoader, StyleSheet):
 		'''
 		assert isinstance(ui, QtWidgets.QMainWindow), 'Incorrect datatype: {}: {}'.format(type(ui), ui)
 
-		d = File.formatPath(self.slotLoc, 'dir')
+		d = File.formatPath(self.slots, 'dir')
 		suffix = '' if d=='slots' else d
 
 		mod_name = '{}_{}'.format(
@@ -753,8 +754,8 @@ class Switchboard(QUiLoader, StyleSheet):
 							Str.setCase(suffix, case='camel'),
 							).rstrip('_') #ie. 'polygons_maya' or 'polygons' if suffix is None.
 		if not path:
-			if isinstance(self.slotLoc, str):
-				path = self.slotLoc
+			if isinstance(self.slots, str):
+				path = self.slots
 			else:
 				path = self.defaultDir
 		path = next((f for f in glob.iglob('{}/**/{}.py'.format(path, mod_name), recursive=recursive)), None)
@@ -823,14 +824,14 @@ class Switchboard(QUiLoader, StyleSheet):
 
 		Parameters:
 			path (str): The path to the directory containing the ui files to load.
-				If no path is given all ui from the default 'uiLoc' will be loaded.
+				If no path is given all ui from the default 'dynui' will be loaded.
 			widgets (str)(obj)(list): A filepath to a dir containing widgets or to the widget itself.
 						ie. 'O:/Cloud/Code/_scripts/uitk/uitk/ui/widgets' or the widget(s) themselves.
 
 		Return:
 			(list) QMainWindow object(s).
 		'''
-		files = glob.iglob('{}/**/*.ui'.format(path or self.uiLoc), recursive=True)
+		files = glob.iglob('{}/**/*.ui'.format(path or self.dynui), recursive=True)
 		return [self.loadUi(f, widgets) for f in files]
 
 
@@ -849,11 +850,11 @@ class Switchboard(QUiLoader, StyleSheet):
 		level = self._getUiLevelFromDir(file)
 
 		#register custom widgets
-		if widgets is None and not isinstance(self.widgetLoc, str): #widget objects defined in widgetLoc.
-			widgets = self.widgetLoc
-		if widgets is not None: #widgets given explicitly or defined in widgetLoc.
+		if widgets is None and not isinstance(self.widgets, str): #widget objects defined in widgets.
+			widgets = self.widgets
+		if widgets is not None: #widgets given explicitly or defined in widgets.
 			self.registerWidgets(widgets)
-		else: #search for and attempt to load any widget dependancies using the path defined in widgetLoc.
+		else: #search for and attempt to load any widget dependancies using the path defined in widgets.
 			lst = self.getPropertyFromUiFile(file, 'customwidget')
 			for l in lst: #get any custom widgets from the ui file.
 				try:
@@ -863,7 +864,7 @@ class Switchboard(QUiLoader, StyleSheet):
 					continue
 
 				mod_name = Str.setCase(className, 'camel')
-				fullpath = os.path.join(self.widgetLoc, mod_name+'.py')
+				fullpath = os.path.join(self.widgets, mod_name+'.py')
 				self.registerWidgets(fullpath)
 
 		ui = MainWindow(self, file)
@@ -881,7 +882,7 @@ class Switchboard(QUiLoader, StyleSheet):
 		Return:
 			(str)(list) list if 'level' given as a list.
 		'''
-		error_msg = lambda ui: f'# Error: {__file__} in getUi\n#\tUI not found: {ui}({type(ui).__name__})\n#\tConfirm the following UI path is correct: {self.uiLoc}'
+		error_msg = lambda ui: f'# Error: {__file__} in getUi\n#\tUI not found: {ui}({type(ui).__name__})\n#\tConfirm the following UI path is correct: {self.dynui}'
 
 		if not ui:
 			ui = self.ui
@@ -962,8 +963,8 @@ class Switchboard(QUiLoader, StyleSheet):
 				ui = self._loadedUi.pop()
 				self.setCurrentUi(ui)
 				return ui
-			elif self.uiLoc.endswith('.ui'): #if the ui location is set to a single ui, then load and set that ui as current.
-				ui = self.loadUi(self.uiLoc)
+			elif self.dynui.endswith('.ui'): #if the ui location is set to a single ui, then load and set that ui as current.
+				ui = self.loadUi(self.dynui)
 				self.setCurrentUi(ui)
 				return ui
 
@@ -1855,7 +1856,7 @@ if __name__=='__main__':
 	app = QtWidgets.QApplication.instance() or QtWidgets.QApplication(sys.argv) #return the existing QApplication object, or create a new one if none exists.
 
 	from uitk.slots.polygons import Polygons
-	sb = Switchboard(uiLoc='ui', widgetLoc='widgets', slotLoc='slots/maya') #set relative paths, and explicity set the slots class instead of providing a path like: slotLoc='slots/maya', which in this case would produce the same result with just a little more overhead.
+	sb = Switchboard(slots='slots/maya') #set relative paths, and explicity set the slots class instead of providing a path like: slots='slots/maya', which in this case would produce the same result with just a little more overhead.
 	ui = sb.polygons #get the ui by it's name.
 	ui.show()
 

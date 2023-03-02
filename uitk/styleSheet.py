@@ -975,19 +975,23 @@ class StyleSheet(QtCore.QObject):
 		replaced by the value of any given kwargs of the same name.
 
 		Parameters:
-			style (str): The color value set to use. valid values are: 'standard', 'dark'
+			style (str)(dict): The color value set to use. valid values are: 'standard', 'dark'
+						or pass your own style as a dict.
 			**kwargs () = Keyword arguments matching the string of any bracketed placeholders.
-				case insensitive.  ex. alpha=255
-
+						case insensitive.  ex. alpha=255
 		Return:
 			(dict) The color values with placeholder values. ex. {'BACKGROUND_ALPHA': 'rgba(100,100,100,75)', etc..
 		'''
-		return {k:v.format(**{k.upper():v for k, v in kwargs.items()})
+		if isinstance(style, dict):
+			return {k:v.format(**{k.upper():v for k, v in kwargs.items()})
+				for k, v in style.items()}
+		else:
+			return {k:v.format(**{k.upper():v for k, v in kwargs.items()})
 				for k, v in cls._colorValues[style].items()}
 
 
 	@classmethod
-	def getStyleSheet(cls, widget_type=None, style='standard', alpha=255):
+	def getStyleSheet(cls, widget_type=None, style='standard', **kwargs):
 		'''Get the styleSheet for the given widget type.
 		By default it will return all stylesheets as one multi-line css string.
 
@@ -1008,14 +1012,14 @@ class StyleSheet(QtCore.QObject):
 			print ('{} in getStyleSheet\n\t# KeyError: {}: {} #'.format(__file__, widget_type, error))
 			return ''
 
-		for k, v in cls.getColorValues(style=style, ALPHA=alpha).items():
+		for k, v in cls.getColorValues(style=style, **kwargs).items():
 			css = css.replace('{'+k.upper()+'}', v)
 
 		return css
 
 
 	@classmethod
-	def setStyle(cls, widgets, ratio=6, style='standard', hideMenuButton=False, alpha=255):
+	def setStyle(cls, widgets, ratio=6, style='standard', hideMenuButton=False, alpha=255, **kwargs):
 		'''Set the styleSheet for the given widgets.
 		Set the style for a specific widget by using the '#' syntax and the widget's objectName. ie. QWidget#mainWindow
 
@@ -1025,6 +1029,7 @@ class StyleSheet(QtCore.QObject):
 			style (str): Color mode. ie. 'standard' or 'dark'
 			hideMenuButton (boool) = Hide the menu button of a widget that has one.
 			alpha (int): Set the background alpha transparency between 0 and 255.
+
 		'''
 		from uitk.switchboard import Switchboard
 
@@ -1032,7 +1037,7 @@ class StyleSheet(QtCore.QObject):
 			widget_type = Switchboard.getDerivedType(widget, name=True)
 
 			try:
-				s = cls.getStyleSheet(widget_type, style=style, alpha=alpha)
+				s = cls.getStyleSheet(widget_type, style=style, alpha=alpha, **kwargs)
 			except KeyError as error: #given widget has no attribute 'styleSheet'.
 				continue; #print (error)
 
