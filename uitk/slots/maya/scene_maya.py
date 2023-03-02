@@ -57,7 +57,7 @@ class Scene_maya(Scene, Slots_maya):
 		stripTrailingAlpha = tb.ctxMenu.chk003.isChecked()
 		reverse = tb.ctxMenu.chk004.isChecked()
 
-		selection = pm.ls(sl=1, objectsOnly=1)
+		selection = pm.ls(sl=1, objectsOnly=1, type='transform')
 		mtk.Edit.setSuffixByObjLocation(selection, alphanumeric=alphanumeric, stripTrailingInts=stripTrailingInts, stripTrailingAlpha=stripTrailingAlpha, reverse=reverse)
 
 

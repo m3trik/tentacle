@@ -13,7 +13,7 @@ class Tcl_blender(Tcl):
 	Parameters:
 		parent = Application top level window instance.
 	'''
-	def __init__(self, parent=None, slotLoc='slots/blender', *args, **kwargs):
+	def __init__(self, parent=None, slots='slots/blender', *args, **kwargs):
 		'''
 		'''
 		if not parent:
@@ -23,7 +23,7 @@ class Tcl_blender(Tcl):
 			except Exception as error:
 				print(__file__, error)
 
-		super().__init__(parent, slotLoc=slotLoc, *args, **kwargs)
+		super().__init__(parent, slots=slots, *args, **kwargs)
 
 
 	@classmethod

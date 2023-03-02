@@ -261,7 +261,7 @@ class Polygons_blender(Polygons, Slots_blender):
 		tolerance = tb.ctxMenu.s005.value()
 		freezetransforms = tb.ctxMenu.chk016.isChecked()
 
-		selection = pm.ls(sl=1, objectsOnly=1)
+		selection = pm.ls(sl=1, objectsOnly=1, type='transform')
 		if len(selection)>1:
 			obj1, obj2 = selection
 			self.snapClosestVerts(obj1, obj2, tolerance, freezetransforms)

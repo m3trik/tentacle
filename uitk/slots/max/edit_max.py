@@ -297,7 +297,7 @@ class Edit_max(Edit, Slots_max):
 		'''
 		tb = self.sb.edit.tb003
 
-		# selection = pm.ls(sl=1, objectsOnly=1)
+		# selection = pm.ls(sl=1, objectsOnly=1, type='transform')
 		# axis = self.sb.getAxisFromCheckBoxes('chk006-9', tb.ctxMenu)
 
 		# pm.undoInfo(openChunk=1)

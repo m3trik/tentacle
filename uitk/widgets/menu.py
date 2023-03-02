@@ -14,26 +14,38 @@ class Menu(QtWidgets.QMenu, Attributes):
 		childHeight (int): The minimum height of any child widgets (excluding the 'Apply' button).
 		preventHide (bool): Prevent the menu from hiding.
 		position (str): Desired menu position. Valid values are: 
-			'center', 'top', 'bottom', 'right', 'left', 'topLeft', 'topRight', 'bottomRight', 'bottomLeft' (Positions relative to parent (requires parent))
-			'cursorPos' (Positions menu at the curson location)
+			QPoint, tuple as (int, int), 'cursorPos', 'center', 'top', 'bottom', 'right', 'left', 
+			'topLeft', 'topRight', 'bottomRight', 'bottomLeft' (Positions relative to parent (requires parent))
 	'''
-	def __init__(self, parent=None, menu_type='standard', title='', padding=8, childHeight=16, position='cursorPos', preventHide=False, **kwargs):
+	openMenus = []
+
+	def __init__(self, parent=None, title='', menu_type='standard', position='cursorPos', childHeight=16, preventHide=False, alpha=175, padding=8, **kwargs):
 		QtWidgets.QMenu.__init__(self, parent)
 
 		self.menu_type = menu_type
 		self.position = position
 		self.preventHide = preventHide
 		self.childHeight = childHeight
+		self.padding = padding
+		self.alpha = alpha
 
 		self.setTitle(title)
 		self.setWindowFlags(QtCore.Qt.Tool|QtCore.Qt.FramelessWindowHint)
 		self.setAttribute(QtCore.Qt.WA_TranslucentBackground)
 		self.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
 
-		self.setStyleSheet('''
+		self.childWidgets = set()
+		self.layouts = {} #a container for any created layouts.
+		self.toggleAllButton = self._addToggleAllButton()
+		self.applyButton = self._addApplyButton()
+
+		self.menu_timer = QtCore.QTimer()
+		self.menu_timer.timeout.connect(lambda: None if self.rect().contains(QtGui.QCursor.pos()) else self.hide()) #hide the menu if the mouse is not currently over it.
+
+		self.setStyleSheet(f'''
 			QMenu {{
-				background-color: rgba(50,50,50,175);
-				padding: {0}px {0}px {0}px {0}px;
+				background-color: rgba(50,50,50,{self.alpha});
+				padding: {self.padding}px {self.padding}px {self.padding}px {self.padding}px;
 			}}
 
 			QMenu::item {{
@@ -41,14 +53,10 @@ class Menu(QtWidgets.QMenu, Attributes):
 				spacing: 0px;
 				border: 1px solid transparent;
 				margin: 0px;
-			}}'''.format(padding))
+			}}
+			''')
 
 		self.setAttributes(**kwargs)
-
-		self.childWidgets = set()
-		self.layouts = {} #a container for any created layouts.
-		self.toggleAllButton = self._addToggleAllButton()
-		self.applyButton = self._addApplyButton()
 
 
 	@property
@@ -75,6 +83,41 @@ class Menu(QtWidgets.QMenu, Attributes):
 		'''Query whether any child objects have been added to the menu.
 		'''
 		return bool(self.childWidgets)
+
+
+	def addToOpenMenus(self):
+		"""Adds the current instance of the menu to the list of open menus.
+		"""
+		self.openMenus.append(self)
+
+
+	def removeFromOpenMenus(self):
+		"""Removes the current instance of the menu from the list of open menus.
+		If the instance is not in the list, no action is taken.
+		"""
+		try:
+			self.openMenus.remove(self)
+		except ValueError:
+			pass
+
+
+	@classmethod
+	def hideAll(cls):
+		"""Hides all currently open instances of the menu.
+		"""
+		for menu in cls.openMenus:
+			menu.hide()
+
+
+	@classmethod
+	def hideLastOpened(cls):
+		"""Hides the last opened instance of the menu, if one exists.
+		If there are no open menus, no action is taken.
+		"""
+		try:
+			cls.openMenus[-1].hide()
+		except IndexError:
+			pass
 
 
 	def getChildWidgets(self, inc=[], exc=[]):
@@ -147,7 +190,7 @@ class Menu(QtWidgets.QMenu, Attributes):
 			(obj) QLayout.
 		'''
 		form = QtWidgets.QWidget(self)
-		form.setStyleSheet('QWidget {background-color:rgb(50,50,50);}')
+		form.setStyleSheet(f'QWidget {{background-color:rgba(50,50,50,{self.alpha});}}')
 
 		layout = QtWidgets.QFormLayout(form)
 		layout.setVerticalSpacing(0)
@@ -188,7 +231,7 @@ class Menu(QtWidgets.QMenu, Attributes):
 			(obj) QLayout.
 		'''
 		form = QtWidgets.QWidget(self)
-		form.setStyleSheet('QWidget {background-color:rgb(50,50,50);}')
+		form.setStyleSheet(f'QWidget {{background-color:rgba(50,50,50,{self.alpha});}}')
 
 		layout = QtWidgets.QVBoxLayout(form)
 		layout.setContentsMargins(0,0,0,0)
@@ -415,6 +458,72 @@ class Menu(QtWidgets.QMenu, Attributes):
 			pass
 
 
+	def showEvent(self, event):
+		'''
+		:Parameters:
+			event = <QEvent>
+		'''
+		self.resize(self.sizeHint().width(), self.sizeHint().height()+10) #self.setMinimumSize(width, self.sizeHint().height()+5)
+		getCenter = lambda w, p: QtCore.QPoint(p.x()-(w.width()/2), p.y()-(w.height()/4)) #get widget center position.
+
+		#set menu position
+		if self.position=='cursorPos':
+			pos = QtGui.QCursor.pos() #global position
+			self.move(getCenter(self, pos)) #move to cursor position.
+
+		elif isinstance(self.position, (tuple, list, set, QtCore.QPoint)): #position is given as a coordinate.
+			if not isinstance(self.position, QtCore.QPoint):
+				self.position = QtCore.QPoint(self.position[0], self.position[1])
+			self.move(self.position)
+
+		elif not isinstance(self.position, (type(None), str)): #if a widget is passed to 'position' (move to the widget's position).
+			pos = getattr(self.positionRelativeTo.rect(), self.position)
+			self.move(self.positionRelativeTo.mapToGlobal(pos()))
+
+		elif self.parent(): #if parent: map relative to parent.
+			pos = getattr(self.parent().rect(), self.position if not self.position=='cursorPos' else 'bottomLeft')
+			pos = self.parent().mapToGlobal(pos())
+			self.move(pos) # self.move(getCenter(self, pos))
+
+			if self.getChildWidgets(inc=['QCheckBox']): #if the menu contains checkboxes:
+				self.uncheckAllButton.show()
+
+		super().showEvent(event)
+
+
+	def setVisible(self, state):
+		'''Called every time the widget is shown or hidden on screen.
+		'''
+		if state: #visible
+			if not self.containsMenuItems: #prevent show if the menu is empty.
+				return
+
+			self.hideAll()
+			self.addToOpenMenus()
+
+			self.menu_timer.start(8000)  #5000 milliseconds = 5 seconds
+
+			if not self.title():
+				self.setTitle()
+
+			if hasattr(self.parent(), 'released') and not self.parent().objectName()=='draggable_header':
+				# print (f'show menu | title: {self.title()} | {self.parent().objectName()} has attr released.') #debug
+				self.applyButton.show()
+
+			checkboxes = self.getChildWidgets(inc=['QCheckBox'])
+			if checkboxes: #returns None if the menu doesn't contain checkboxes.
+				self.toggleAllButton.show()
+
+		elif self.preventHide: #invisible
+			return
+
+		else:
+			self.menu_timer.stop()
+			self.removeFromOpenMenus()
+
+		super().setVisible(state)
+
+
 	def leaveEvent(self, event):
 		'''
 		Parameters:
@@ -442,47 +551,6 @@ class Menu(QtWidgets.QMenu, Attributes):
 					pass
 
 			super().hide()
-
-
-	def setVisible(self, state):
-		'''Called every time the widget is shown or hidden on screen.
-		'''
-		if state: #visible
-			if not self.containsMenuItems: #prevent show if the menu is empty.
-				return
-
-			if not self.title():
-				self.setTitle()
-
-			if hasattr(self.parent(), 'released') and not self.parent().objectName()=='draggable_header':
-				# print (f'show menu | title: {self.title()} | {self.parent().objectName()} has attr released.') #debug
-				self.applyButton.show()
-
-			checkboxes = self.getChildWidgets(inc=['QCheckBox'])
-			if checkboxes: #returns None if the menu doesn't contain checkboxes.
-				self.toggleAllButton.show()
-
-			self.resize(self.sizeHint().width(), self.sizeHint().height()+10) #self.setMinimumSize(width, self.sizeHint().height()+5)
-			getCenter = lambda w, p: QtCore.QPoint(p.x()-(w.width()/2), p.y()-(w.height()/4)) #get widget center position.
-
-			#set menu position
-			if self.position=='cursorPos':
-				pos = QtGui.QCursor.pos() #global position
-				self.move(getCenter(self, pos)) #move to cursor position.
-
-			elif not isinstance(self.position, (type(None), str)): #if a widget is passed to 'position' (move to the widget's position).
-				pos = getattr(self.positionRelativeTo.rect(), self.position)
-				self.move(self.positionRelativeTo.mapToGlobal(pos()))
-
-			elif self.parent(): #if parent: map relative to parent.
-				pos = getattr(self.parent().rect(), self.position if not self.position=='cursorPos' else 'bottomLeft')
-				pos = self.parent().mapToGlobal(pos())
-				self.move(pos) # self.move(getCenter(self, pos))
-
-		elif self.preventHide: #invisible
-			return
-
-		super().setVisible(state)
 
 
 

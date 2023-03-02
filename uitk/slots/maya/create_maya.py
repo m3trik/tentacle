@@ -103,7 +103,7 @@ class Create_maya(Create, Slots_maya):
 				'pyramid': 'pm.polyPyramid(axis=axis, sideLength=5, numberOfSides=5, subdivisionsHeight=1, subdivisionsCaps=1)',
 				'torus': 'pm.polyTorus(axis=axis, radius=10, sectionRadius=5, twist=0, subdivisionsX=5, subdivisionsY=5)',
 				'pipe': 'pm.polyPipe(axis=axis, radius=5, height=5, thickness=2, subdivisionsHeight=1, subdivisionsCaps=1)',
-				'soccer ball': 'pm.polyPrimitive(axis=axis, radius=5, sideLength=5, polyType=0)',
+				'geosphere': 'pm.polyPrimitive(axis=axis, radius=5, sideLength=5, polyType=0)',
 				'platonic solids': 'pm.mel.eval("performPolyPrimitive PlatonicSolid 0;")',
 			},
 

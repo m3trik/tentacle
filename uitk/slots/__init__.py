@@ -62,7 +62,7 @@ class Slots(QtCore.QObject):
 			except:
 				title = str(obj)
 
-		menu = self.sb.Menu(self.sb.parent(), menu_type='form', padding=2, title=title, position='cursorPos')
+		menu = self.sb.Menu(self.sb.parent(), menu_type='form', padding=2, title=title, position=(10, 125), alpha=0.01)
 
 		for a, v in attributes.items():
 

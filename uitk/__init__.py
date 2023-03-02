@@ -7,7 +7,7 @@ import inspect
 
 
 __package__ = 'uitk'
-__version__ = '0.5.6'
+__version__ = '0.5.9'
 
 
 def greeting(string, outputToConsole=True):
