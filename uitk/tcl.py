@@ -22,7 +22,7 @@ class Tcl(QtWidgets.QStackedWidget):
 
 	_key_show_release = QtCore.Signal()
 
-	def __init__(self, parent=None, key_show='Key_F12', preventHide=False, slots=''):
+	def __init__(self, parent=None, key_show='Key_F12', preventHide=False, slots_location=''):
 		'''
 		Parameters:
 			parent (obj): The parent application's top level window instance. ie. the Maya main window.
@@ -41,11 +41,10 @@ class Tcl(QtWidgets.QStackedWidget):
 
 		self.setWindowFlags(QtCore.Qt.Tool|QtCore.Qt.FramelessWindowHint) #|QtCore.Qt.WindowStaysOnTopHint
 		self.setAttribute(QtCore.Qt.WA_TranslucentBackground)
-		# self.setAttribute(QtCore.Qt.WA_SetStyle) #Indicates that the widget has a style of its own.
 		self.setAttribute(QtCore.Qt.WA_NoMousePropagation, False)
 		self.resize(1200, 1200)
 
-		self.sb = Switchboard(self, slots=slots)
+		self.sb = Switchboard(self, slots_location=slots_location)
 		self.overlay = Overlay(self, antialiasing=False) #Paint events are handled by the overlay module.
 		self.eventFilter = EventFactoryFilter(self, eventNamePrefix='ef_', forwardEventsTo=self)
 		self.mouseTracking = MouseTracking(self)
@@ -119,7 +118,6 @@ class Tcl(QtWidgets.QStackedWidget):
 			self.cloneWidgetsAlongPath(ui) #re-construct any widgets from the previous ui that fall along the plotted path.
 
 		self.overlay.removeFromPath(ui) #remove entrys from widget and draw paths when moving back down levels in the ui.
-		# self.resize(ui.sizeX, ui.sizeY)
 
 
 	def returnToStart(self):

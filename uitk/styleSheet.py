@@ -295,6 +295,15 @@ class StyleSheet(QtCore.QObject):
 			}
 			''',
 
+		'QFrame': '''
+			QFrame {
+				border: 0px solid black;
+				border-radius: 1px;
+				padding: 1px;
+				background-image: none;
+			} 
+			''',
+
 		'QSpinBox': '''
 			QSpinBox {
 			background: {BACKGROUND};
@@ -905,15 +914,6 @@ class StyleSheet(QtCore.QObject):
 			} 
 			''',
 
-		'QFrame': '''
-			QFrame {
-				border: 0px solid black;
-				border-radius: 1px;
-				padding: 2px;
-				background-image: none;
-			} 
-			''',
-
 		'QSplitter': '''
 			QSplitter::handle {
 				image: url(images/splitter.png);
@@ -1009,7 +1009,7 @@ class StyleSheet(QtCore.QObject):
 			css = cls._styleSheets[widget_type]
 
 		except KeyError as error:
-			print ('{} in getStyleSheet\n\t# KeyError: {}: {} #'.format(__file__, widget_type, error))
+			print (f'# Error: {__file__} in getStyleSheet\n#\tKeyError: \'{widget_type}\'')
 			return ''
 
 		for k, v in cls.getColorValues(style=style, **kwargs).items():
@@ -1049,7 +1049,7 @@ class StyleSheet(QtCore.QObject):
 				if widget.size().width() // length > ratio: #ratio of widget size, text length (using integer division).
 					s = s + cls.adjustPadding(widget_type)
 			except (AttributeError, ZeroDivisionError) as error:
-				pass; # print (__name__, error, widget.text())
+				pass; #print (__name__, error, widget)
 
 			if widget.styleSheet(): #if the widget has an existing style sheet, append.
 				s = s+widget.styleSheet()

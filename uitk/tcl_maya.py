@@ -14,7 +14,7 @@ class Tcl_maya(Tcl):
 	Parameters:
 		parent = Application top level window instance.
 	'''
-	def __init__(self, parent=None, slots='slots/maya', *args, **kwargs):
+	def __init__(self, parent=None, slots_location='slots/maya', *args, **kwargs):
 		'''
 		'''
 		if not parent:
@@ -24,7 +24,7 @@ class Tcl_maya(Tcl):
 			except Exception as error:
 				print(__file__, error)
 
-		super().__init__(parent, slots=slots, *args, **kwargs)
+		super().__init__(parent, slots_location=slots_location, *args, **kwargs)
 
 
 	def keyPressEvent(self, event):
