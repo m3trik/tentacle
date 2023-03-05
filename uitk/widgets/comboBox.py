@@ -22,8 +22,6 @@ class ComboBox(QtWidgets.QComboBox, MenuInstance, Attributes, RichText, TextOver
 		'''
 		self.popupStyle = popupStyle
 
-		self.setStyleSheet(parent.styleSheet()) if parent else None
-
 		# self.menu_.visible = False #built-in method isVisible() not working.
 		self.view().installEventFilter(self)
 
@@ -88,7 +86,6 @@ class ComboBox(QtWidgets.QComboBox, MenuInstance, Attributes, RichText, TextOver
 					self.insertItem(0, item, data)
 				else:
 					self.addItem(item, data)
-
 		if header:
 			self.insertItem(-1, header)
 
