@@ -517,7 +517,7 @@ class Switchboard(QUiLoader, StyleSheet):
 			w.prefix = self.getprefix(w.name) #returns an string alphanumberic prefix if name startswith a series of alphanumberic charsinst is followed by three integers. ie. 'cmb' from 'cmb015'
 			w.getSlot = lambda w=w, u=ui: getattr(self.getSlots(u), w.name, None)
 
-			if ui.isSubmenu and not w.prefix=='i':
+			if (ui.isSubmenu or self.getUi(ui, level=2)) and not w.prefix=='i':
 				self.setStyle(w, style=self.submenuStyle, alpha=0)
 			else:
 				self.setStyle(w, style=self.style, alpha=0.01)

@@ -335,7 +335,7 @@ class Tcl(QtWidgets.QStackedWidget):
 					w.installEventFilter(self.eventFilter)
 
 				if w.derivedType in ('QPushButton', 'QLabel'): #widget types to resize and center.
-					if w.ui.level<=2:
+					if w.ui.level<3:
 						self.sb.resizeAndCenterWidget(w)
 
 				elif w.derivedType=='QWidget':

@@ -24,31 +24,35 @@ class StyleSheet(QtCore.QObject):
 	'''
 	_colorValues = {
 			'standard': {
+				'FOREGROUND'		: 'rgb(75,75,75)',
 				'BACKGROUND'		: 'rgb(100,100,100)',
 				'BACKGROUND_ALPHA'	: 'rgba(100,100,100,{ALPHA})',
+				'WIDGET_BACKGROUND'	: 'rgb(125,125,125)',
 				'PRESSED'			: 'rgb(127,127,127)',
-				'HIGHLIGHT'			: 'yellow',
 				'HOVER'				: 'rgb(82,133,166)',
-				'TEXT'				: 'white',
-				'TEXT_CHECKED'		: 'black',
-				'TEXT_DISABLED'		: 'gray',
-				'TEXT_HOVER'		: 'white',
+				'TEXT'				: 'rgb(255,255,255)',
+				'TEXT_CHECKED'		: 'rgb(0,0,0)',
+				'TEXT_DISABLED'		: 'rgb(150,150,150)',
+				'TEXT_HOVER'		: 'rgb(255,255,255)',
 				'TEXT_BACKGROUND'	: 'rgb(50,50,50)',
 				'BORDER'			: 'rgb(50,50,50)',
+				'HIGHLIGHT'			: 'yellow',
 			},
 
 			'dark': {
-				'BACKGROUND'		: 'rgb(60,60,60)',
-				'BACKGROUND_ALPHA'	: 'rgba(60,60,60,{ALPHA})',
+				'FOREGROUND'		: 'rgb(50,50,50)',
+				'BACKGROUND'		: 'rgb(100,100,100)',
+				'BACKGROUND_ALPHA'	: 'rgba(70,70,70,{ALPHA})',
+				'WIDGET_BACKGROUND'	: 'rgb(60,60,60)',
 				'PRESSED'			: 'rgb(127,127,127)',
-				'HIGHLIGHT'			: 'yellow',
 				'HOVER'				: 'rgb(82,133,166)',
-				'TEXT'				: 'rgb(185,185,185)',
-				'TEXT_CHECKED'		: 'black',
+				'TEXT'				: 'rgb(200,200,200)',
+				'TEXT_CHECKED'		: 'rgb(0,0,0)',
 				'TEXT_DISABLED'		: 'rgba(185,185,185,50)',
-				'TEXT_HOVER'		: 'white',
+				'TEXT_HOVER'		: 'rgb(255,255,255)',
 				'TEXT_BACKGROUND'	: 'rgb(50,50,50)',
 				'BORDER'			: 'rgb(40,40,40)',
+				'HIGHLIGHT'			: 'yellow',
 			}
 		}
 
@@ -77,7 +81,7 @@ class StyleSheet(QtCore.QObject):
 				background-color: {BACKGROUND_COLOR};
 			}
 			QStackedWidget QFrame {
-				background-color: {FRAME_BACKGROUND_COLOR};
+				background-color: {BACKGROUND_COLOR};
 			}
 			QStackedWidget QFrame QLabel {
 				color: {TEXT};
@@ -85,7 +89,7 @@ class StyleSheet(QtCore.QObject):
 			}
 
 			QStackedWidget QPushButton {
-				background-color: {BACKGROUND};
+				background-color: {WIDGET_BACKGROUND};
 				color: {TEXT};
 				font-size: 8;
 				border: 1px solid {BORDER};
@@ -98,6 +102,14 @@ class StyleSheet(QtCore.QObject):
 				border-radius: 1px;
 				border: 1px solid {BORDER};
 				padding: 0px 5px 0px 5px; /* top, right, bottom, left */
+				background-color: {WIDGET_BACKGROUND};
+				color: {TEXT};
+			}
+			QPushButton#toggle_expand {
+				border-style: outset;
+				border-radius: 1px;
+				border: 0px solid {BORDER};
+				padding: 0px 0px 0px 0px; /* top, right, bottom, left */
 				background-color: {BACKGROUND};
 				color: {TEXT};
 			}
@@ -137,7 +149,7 @@ class StyleSheet(QtCore.QObject):
 				border-radius: 1px;
 				border: 1px solid {BORDER};
 				padding: 0px 5px 0px 5px; /* top, right, bottom, left */
-				background-color: {BACKGROUND}; /* The background will not appear unless you set the border property. */
+				background-color: {WIDGET_BACKGROUND}; /* The background will not appear unless you set the border property. */
 				color: {TEXT};
 			}
 			QToolButton::enabled {
@@ -217,30 +229,33 @@ class StyleSheet(QtCore.QObject):
 
 		'QAbstractButton': '''
 			QAbstractButton:hover {
-				background: {BACKGROUND};
+				background-color: {WIDGET_BACKGROUND};
 			}
 			QAbstractButton:pressed {
-				background: {PRESSED};
+				background-color: {PRESSED};
 			} 
 			''',
 
 		'QComboBox': '''
 			QComboBox {
-				background: {BACKGROUND};
+				background-color: {WIDGET_BACKGROUND};
 				color: {TEXT};
 				border: 1px solid {BORDER};
-				padding: 1px 1px 1px 1px; /* top, right, bottom, left */
+				padding: 1px;
 				border-radius: 1px;
 				min-width: 0em;
 			}
+			QComboBox:hover {
+				background-color: {HOVER};
+			}
 			QComboBox::hover {
-				background: {HOVER};
+				background-color: {HOVER};
 				color: {TEXT_HOVER};
 				border: 1px solid {BORDER};
 			}
 			QComboBox::open {
-				background: {BACKGROUND};
-				color: {TEXT};
+				background-color: {WIDGET_BACKGROUND};
+				color: {TEXT_DISABLED};
 				border: 1px solid {BORDER};
 				selection-background-color: {HOVER};
 				selection-color: {TEXT_CHECKED};
@@ -252,13 +267,13 @@ class StyleSheet(QtCore.QObject):
 			QComboBox::down-arrow {
 				width: 0px;
 				height: 0px;
-				background: {BACKGROUND};
+				background-color: {WIDGET_BACKGROUND};
 				border: 0px solid {BORDER};
 				image: url(path/to/down_arrow.png);
 			}
 			QComboBox::drop-down {
 				border: 0px solid {BORDER};
-				background: {BACKGROUND};
+				background-color: {WIDGET_BACKGROUND};
 				subcontrol-origin: padding;
 				subcontrol-position: top right;
 				width: 0px;
@@ -271,42 +286,62 @@ class StyleSheet(QtCore.QObject):
 				border-bottom-right-radius: 1px;
 			}
 			QComboBox QAbstractItemView {
-				background: {BACKGROUND};
-				color: {TEXT};
-				border: 1px solid {BORDER};
-				min-width: 150px;
-			}
-			QComboBox QListView {
-				background: {BACKGROUND};
-				color: {TEXT};
-				border: 1px solid {BORDER};
-			}
-			QComboBox QListView::item {
-				background: {BACKGROUND};
-				color: {TEXT};
-			}
-			QComboBox QListView::item:selected {
-				background: {HOVER};
-				color: {TEXT_CHECKED};
-			}
-			QComboBox QListView::item:hover {
-				background: {HOVER};
-				color: {TEXT_HOVER};
+				selection-background-color: {HOVER};
 			}
 			''',
 
 		'QFrame': '''
 			QFrame {
-				border: 0px solid black;
+				border: 1px solid {BORDER};
 				border-radius: 1px;
-				padding: 1px;
-				background-image: none;
-			} 
+				padding: 0px;
+				background-color: {WIDGET_BACKGROUND};
+				color: {TEXT};
+				font-size: 8;
+				margin: 0px;
+			}
+			QFrame QLabel:hover {
+				background: {HOVER};
+			}
+			''',
+
+		'QListView': '''
+			QListView {
+				background-color: {WIDGET_BACKGROUND};
+				color: {TEXT};
+				alternate-background-color: {BACKGROUND};
+				background-attachment: fixed; /* fixed, scroll */
+				border: 1px solid {BORDER};
+			}
+			QListView::item {
+				background-color: {BACKGROUND};
+				color: {TEXT};
+			}
+			QListView::item:alternate {
+				background-color: {BACKGROUND};
+			}
+			QListView::item:selected {
+				border: 1px solid {BORDER};
+				background-color: {HOVER};
+				color: {TEXT_CHECKED};
+			}
+			QListView::item:selected:!active {
+				background-color: {HOVER};
+				color: {TEXT};
+			}
+			QListView::item:selected:active {
+				background-color: {HOVER};
+				color: {TEXT};
+			}
+			QListView::item:hover {
+				background-color: {HOVER};
+				color: {TEXT_HOVER};
+			}
 			''',
 
 		'QSpinBox': '''
 			QSpinBox {
-			background: {BACKGROUND};
+			background-color: {WIDGET_BACKGROUND};
 			color: {TEXT};
 			border: 1px solid {BORDER};
 			}
@@ -314,7 +349,7 @@ class StyleSheet(QtCore.QObject):
 				color: {TEXT_DISABLED};
 			}
 			QSpinBox::hover {
-				background-color: {BACKGROUND};
+				background-color: {WIDGET_BACKGROUND};
 				color: {TEXT_HOVER};
 				border: 1px solid {BORDER};
 			} 
@@ -322,7 +357,7 @@ class StyleSheet(QtCore.QObject):
 
 		'QDoubleSpinBox': '''
 			QDoubleSpinBox {
-			background: {BACKGROUND};
+			background-color: {WIDGET_BACKGROUND};
 			color: {TEXT};
 			border: 1px solid {BORDER};
 			}
@@ -330,7 +365,7 @@ class StyleSheet(QtCore.QObject):
 				color: {TEXT_DISABLED};
 			}
 			QDoubleSpinBox::hover {
-				background-color: {BACKGROUND};
+				background-color: {WIDGET_BACKGROUND};
 				color: {TEXT_HOVER};
 				border: 1px solid {BORDER};
 			} 
@@ -349,7 +384,7 @@ class StyleSheet(QtCore.QObject):
 			}
 			QAbstractSpinBox::up-button, QAbstractSpinBox::down-button {
 				border: 1px solid {PRESSED};
-				background: {BACKGROUND};
+				background-color: {WIDGET_BACKGROUND};
 				subcontrol-origin: border;
 			} 
 			''',
@@ -360,7 +395,7 @@ class StyleSheet(QtCore.QObject):
 				border-radius: 1px;
 				border: 1px solid {BORDER};
 				padding: 0px 5px 0px 5px; /* top, right, bottom, left */
-				background-color: {BACKGROUND};
+				background-color: {WIDGET_BACKGROUND};
 				color: {TEXT};
 				spacing: 5px;
 			}
@@ -379,7 +414,7 @@ class StyleSheet(QtCore.QObject):
 				color: {TEXT_DISABLED};
 			}
 			QCheckBox::disabled:checked {
-				background-color: {BACKGROUND};
+				background-color: {WIDGET_BACKGROUND};
 				color: {TEXT_DISABLED};
 			}
 			QCheckBox::checked {
@@ -438,7 +473,7 @@ class StyleSheet(QtCore.QObject):
 				border-radius: 1px;
 				border: 1px solid {BORDER};
 				padding: 0px 5px 0px 5px; /* top, right, bottom, left */
-				background-color: {BACKGROUND};
+				background-color: {WIDGET_BACKGROUND};
 				color: {TEXT};
 			}
 			QRadioButton::hover {
@@ -488,7 +523,7 @@ class StyleSheet(QtCore.QObject):
 				selection-background-color: {HOVER};
 				selection-color: {BACKGROUND};
 				alternate-background-color: {BACKGROUND};
-				min-width: 200px;
+				min-width: 150px;
 			} 
 			''',
 
@@ -497,12 +532,12 @@ class StyleSheet(QtCore.QObject):
 				border: 1px solid {PRESSED};
 			}
 			QHeaderView::section {
-				background: {PRESSED};
+				background-color: {PRESSED};
 				border: 1px solid {PRESSED};
 				padding: 1px;
 			}
 			QHeaderView::section:selected, QHeaderView::section::checked {
-				background: {BACKGROUND};
+				background-color: {BACKGROUND};
 			} 
 			''',
 
@@ -517,7 +552,7 @@ class StyleSheet(QtCore.QObject):
 				border: 1px solid {BORDER};
 				border-radius: 1px;
 				padding: 0 8px;
-				background: {BACKGROUND};
+				background-color: {FOREGROUND};
 				color: {TEXT};
 				selection-background-color: {HOVER};
 				selection-color: {TEXT};
@@ -529,14 +564,14 @@ class StyleSheet(QtCore.QObject):
 				color: {TEXT};
 			}
 			QLineEdit:read-only {
-				background: {BACKGROUND};
+				background-color: {BACKGROUND};
 			} 
 			''',
 
 		'QTextEdit': '''
 			QTextEdit {
 				border: 1px solid {BORDER};
-				background-color: {BACKGROUND};
+				background-color: {FOREGROUND};
 				color: {TEXT};
 				selection-background-color: {HOVER};
 				selection-color: {TEXT};
@@ -557,33 +592,6 @@ class StyleSheet(QtCore.QObject):
 			} 
 			''',
 
-		'QListView': '''
-			QListView {
-				background-color: {BACKGROUND};
-				color: {TEXT};
-				alternate-background-color: {BACKGROUND};
-				background-attachment: fixed; /* fixed, scroll */
-			}
-			QListView::item:alternate {
-				background: {BACKGROUND};
-			}
-			QListView::item:selected {
-				border: 1px solid {HOVER};
-			}
-			QListView::item:selected:!active {
-				background: {HOVER};
-				color: {TEXT};
-			}
-			QListView::item:selected:active {
-				background: {HOVER};
-				color: {TEXT};
-			}
-			QListView::item:hover {
-				background: {HOVER};
-				color: {TEXT_HOVER};
-			} 
-			''',
-
 		'QListWidget': '''
 			QListWidget {
 				background-color: {BACKGROUND};
@@ -592,21 +600,21 @@ class StyleSheet(QtCore.QObject):
 				background-attachment: fixed; /* fixed, scroll */
 			}
 			QListWidget::item:alternate {
-				background: {BACKGROUND};
+				background-color: {BACKGROUND};
 			}
 			QListWidget::item:selected {
 				border: 1px solid {HOVER};
 			}
 			QListWidget::item:selected:!active {
-				background: {HOVER};
+				background-color: {HOVER};
 				color: {TEXT};
 			}
 			QListWidget::item:selected:active {
-				background: {HOVER};
+				background-color: {HOVER};
 				color: {TEXT};
 			}
 			QListWidget::item:hover {
-				background: {HOVER};
+				background-color: {HOVER};
 				color: {TEXT_HOVER};
 			} 
 			''',
@@ -626,7 +634,7 @@ class StyleSheet(QtCore.QObject):
 				color: {TEXT_DISABLED};
 			}
 			QTreeView::item:hover {
-				background: {HOVER};
+				background-color: {HOVER};
 				color: {TEXT_HOVER};
 			}
 			QTreeView::item:selected {
@@ -643,7 +651,7 @@ class StyleSheet(QtCore.QObject):
 				icon-size: 0px;
 			}
 			QToolBox::QScrollArea:QWidget:QWidget {
-				background: transparent;
+				background-color: transparent;
 			}
 			QToolBox::QToolBoxButton {
 				image: url(:/none);
@@ -653,7 +661,7 @@ class StyleSheet(QtCore.QObject):
 				image: url(:/none);
 			}
 			QToolBox::tab {
-				background: {BACKGROUND};
+				background-color: {BACKGROUND};
 				color: {TEXT};
 				stop: 0.0 transparent, stop: 0.0 transparent,
 				stop: 0.0 transparent, stop: 0.0 transparent;
@@ -674,62 +682,62 @@ class StyleSheet(QtCore.QObject):
 		'QSlider': '''
 			QSlider {
 				border: 1px solid black;
-				background: {BACKGROUND};
+				background-color: {BACKGROUND};
 			}
 			QSlider::groove:horizontal {
 				height: 18px;
 				margin: 0px 0px 0px 0px;
-				background: {BACKGROUND};
+				background-color: {BACKGROUND};
 			}
 			QSlider::groove:vertical {
 				width: 0px;
 				margin: 0px 0px 0px 0px;
-				background: {BACKGROUND};
+				background-color: {BACKGROUND};
 			}
 			QSlider::handle {
 				width: 10px;
 				height: 15px;
 				border: 1px solid black;
-				background: gray;
+				background-color: gray;
 				margin: -1px 0px -1px 0px;
 				border-radius: 1px;
 			}
 			QSlider::handle:hover {
-				background: darkgray;
+				background-color: darkgray;
 			}
 			QSlider::add-page:vertical, QSlider::sub-page:horizontal {
-				background: {HOVER};
+				background-color: {HOVER};
 			}
 			QSlider::sub-page:vertical, QSlider::add-page:horizontal {
-				background: {BACKGROUND};
+				background-color: {BACKGROUND};
 			}
 			QSlider::tickmark {
 				width: 5px;
 				height: 5px;
 				margin: 0px -3px 0px 0px;
 				border-radius: 2.5px;
-				background: black;
+				background-color: black;
 			}
 			QSlider::tickmark:not(sub-page) {
 				width: 10px;
 				height: 10px;
 				margin: 0px -5px 0px 0px;
 				border-radius: 5px;
-				background: black;
+				background-color: black;
 			}
 			QSlider::tickmark:sub-page {
 				width: 5px;
 				height: 5px;
 				margin: 0px -3px 0px 0px;
 				border-radius: 2.5px;
-				background: lightgray;
+				background-color: lightgray;
 			}
 			''',
 
 		'QScrollBar': '''
 			QScrollBar {
 				border: 1px solid transparent;
-				background: {BACKGROUND};
+				background-color: {BACKGROUND};
 			}
 			QScrollBar:horizontal {
 				height: 15px;
@@ -740,7 +748,7 @@ class StyleSheet(QtCore.QObject):
 				margin: 32px 0px 0px 0px; /* top, right, bottom, left */
 			}
 			QScrollBar::handle {
-				background: {PRESSED};
+				background-color: {PRESSED};
 				border: 1px solid transparent;
 			}
 			QScrollBar::handle:horizontal {
@@ -756,7 +764,7 @@ class StyleSheet(QtCore.QObject):
 				min-height: 20px;
 			}
 			QScrollBar::add-line, QScrollBar::sub-line {
-				background:{BACKGROUND};
+				background-color:{BACKGROUND};
 				border: 1px solid {PRESSED};
 				subcontrol-origin: margin;
 			}
@@ -783,7 +791,7 @@ class StyleSheet(QtCore.QObject):
 				subcontrol-position: top;
 			}
 			QScrollBar::add-page, QScrollBar::sub-page {
-				background: none;
+				background-color: none;
 			} 
 			''',
 
@@ -814,7 +822,7 @@ class StyleSheet(QtCore.QObject):
 				margin-top: 1px;
 			}
 			QTabBar::tab:selected {
-				background: {BACKGROUND};
+				background-color: {BACKGROUND};
 			} 
 			''',
 
@@ -830,10 +838,10 @@ class StyleSheet(QtCore.QObject):
 			}
 			QMenu::item:selected {
 				border-color: {HOVER};
-				background: {BACKGROUND};
+				background-color: {BACKGROUND};
 			}
 			QMenu::icon:checked { /* appearance of a 'checked' icon */
-				background: gray;
+				background-color: gray;
 				border: 1px inset gray;
 				position: absolute;
 				top: 1px;
@@ -843,7 +851,7 @@ class StyleSheet(QtCore.QObject):
 			}
 			QMenu::separator {
 				height: 2px;
-				background: {BACKGROUND};
+				background-color: {BACKGROUND};
 				margin: 0px 5px 0px 10px; /* top, right, bottom, left */
 			}
 			QMenu::indicator {
@@ -859,20 +867,20 @@ class StyleSheet(QtCore.QObject):
 			}
 			QMenuBar::item {
 				padding: 1px 4px;
-				background: transparent;
+				background-color: transparent;
 				border-radius: 1px;
 			}
 			QMenuBar::item:selected { /* when selected using mouse or keyboard */
-				background: {HOVER};
+				background-color: {HOVER};
 			}
 			QMenuBar::item:pressed {
-				background: {TEXT_HOVER};
+				background-color: {TEXT_HOVER};
 			}
 			''',
 
 		'QLabel': '''
 			QLabel {
-				background-color: {BACKGROUND};
+				background-color: {WIDGET_BACKGROUND};
 				color: {TEXT};
 				border: 1px solid {BORDER};
 				border-radius: 1px;
@@ -1039,7 +1047,8 @@ class StyleSheet(QtCore.QObject):
 			try:
 				s = cls.getStyleSheet(widget_type, style=style, alpha=alpha, **kwargs)
 			except KeyError as error: #given widget has no attribute 'styleSheet'.
-				continue; #print (error)
+				# print (__name__.ljust(26), 'setStyle (getStyleSheet)', widget.objectName().ljust(26), widget.__class__.__name__.ljust(25), error)
+				continue;
 
 			if hideMenuButton:
 				s = s + cls.hideMenuButton(widget_type)
@@ -1049,7 +1058,7 @@ class StyleSheet(QtCore.QObject):
 				if widget.size().width() // length > ratio: #ratio of widget size, text length (using integer division).
 					s = s + cls.adjustPadding(widget_type)
 			except (AttributeError, ZeroDivisionError) as error:
-				pass; #print (__name__, error, widget)
+				pass; #print (__name__.ljust(26), 'setStyle (adjustPadding)', widget.objectName().ljust(26), widget.__class__.__name__.ljust(25), error)
 
 			if widget.styleSheet(): #if the widget has an existing style sheet, append.
 				s = s+widget.styleSheet()
