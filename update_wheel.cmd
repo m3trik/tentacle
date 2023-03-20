@@ -7,7 +7,7 @@ fltmc >nul 2>nul || set _=^"set _ELEV=1^& cd /d """%cd%"""^& "%~f0" %* ^"&&((if 
 
 
 ::wheel directory
-set "name=uitk"
+set "name=tentacle"
 ::
 set "dir=%CLOUD%\Code\_scripts\%name%"
 
