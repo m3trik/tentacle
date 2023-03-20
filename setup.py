@@ -9,7 +9,7 @@ with open('docs/README.md', 'r') as f:
 	long_description = f.read()
 
 setuptools.setup(
-	name=__package__,
+	name='tentacletk',
 	version=__version__,
 	author='Ryan Simpson',
 	author_email='m3trik@outlook.com',
