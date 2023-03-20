@@ -12,10 +12,6 @@ from tentacle.overlay import Overlay
 
 class Tcl(QtWidgets.QStackedWidget):
 	'''Tcl is a marking menu based on a QStackedWidget.
-	Gets and sets signal connections (through the switchboard module).
-	Initializes events for child widgets using the eventFilter module.
-	Plots points for paint events in the overlay module.
-
 	The various ui's are set by calling 'setUi' with the intended ui name string. ex. Tcl().setUi('polygons')
 	'''
 	app = QtWidgets.QApplication.instance() or QtWidgets.QApplication(sys.argv) #return the existing QApplication object, or create a new one if none exists.
