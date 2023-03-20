@@ -6,7 +6,7 @@
 
 ##### 
 
-*This is a dynamic ui toolkit with a marking menu style ui (derived from a QStackedWidget) at it's core. The switchboard module (derived from QUiLoader) provides properties and convenience methods that allow quick and easy getting/setting of relevant ui and widget data across modules.*
+*This is a dcc toolkit with a marking menu style ui (derived from a QStackedWidget) at it's core.*
 
 ![alt text](https://raw.githubusercontent.com/m3trik/tentacle/master/docs/toolkit_demo.gif) \*Example re-opening the last scene, renaming a material, and selecting geometry by that material.
 
@@ -21,11 +21,10 @@
 
 Example | Description
 ------- | -------
-[tcl](https://github.com/m3trik/tentacle/blob/main/tentacle/tcl.py) | *Handles main gui construction for the marking menu.*
-[events](https://github.com/m3trik/uitk/blob/main/uitk/events.py) | *Event handling for dynamic ui.*
-[overlay](https://github.com/m3trik/tentacle/blob/main/tentacle/overlay.py) | *Tracks cursor position and ui hierarchy to generate paint events that overlay it's parent widget.*
-[switchboard](https://github.com/m3trik/uitk/blob/main/uitk/switchboard.py) | *Loads dynamic ui and custom widgets on demand. Assigns properties and provides convenience methods for interacting with the ui.*
-[slots](https://github.com/m3trik/tentacle/blob/main/tentacle/slots) | *Modules for the various slot connections.*
+[tcl](https://github.com/m3trik/tentacle/blob/main/tentacle/tcl.py) | *A Custom QStackedWidget that handles UI hierarchy navigation.*
+[overlay](https://github.com/m3trik/tentacle/blob/main/tentacle/overlay.py) | *Tracks cursor position and UI hierarchy to generate paint events that overlay the parent widget.*
+[slots](https://github.com/m3trik/tentacle/blob/main/tentacle/slots) | *The source directory for the various slot connection modules.*
+[ui](https://github.com/m3trik/tentacle/blob/main/tentacle/slots) | *The source directory for dynamic UI files.*
 
 ---
 
@@ -34,7 +33,6 @@ Example | Description
 #####
 
 To install:
-Add the `tentacle` folder to a directory on your python path, or
 install via pip in a command line window using:
 ```
 python -m pip install tentacletk
@@ -60,5 +58,3 @@ autoUndoEnabled: false
 	python.Execute "tcl_max.show(key_show='Key_F12')"
 )
 ```
-
-See the `switchboard` module for a demo on how to launch a stand alone dynamic ui.
