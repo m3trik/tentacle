@@ -2,18 +2,18 @@ import os
 import setuptools
 
 from tentacle import __package__, __version__
-from pythontk import File
+from pythontk import File, Str
 
 
-with open('docs/README.md', 'r') as f:
-	long_description = f.read()
+long_description = File.getFileContents('docs/README.md')
+description = Str.getTextBetweenDelimiters(long_description, '<!-- short_description_start -->', '<!-- short_description_end -->', as_string=True)
 
 setuptools.setup(
 	name='tentacletk',
 	version=__version__,
 	author='Ryan Simpson',
 	author_email='m3trik@outlook.com',
-	description='A Python3/PySide2 marking menu style toolkit for Maya, 3ds Max, and Blender.',
+	description=description,
 	long_description=long_description,
 	long_description_content_type='text/markdown',
 	url=f'https://github.com/m3trik/{__package__}',

@@ -1,25 +1,25 @@
-## Tentacle is a Python3/PySide2 marking menu for Maya, 3ds Max, and Blender.
+## Tentacle
 
 \*\*personal project. work in progress ..\*\*
 
-## Design:
 
 ##### 
-
-*This is a dcc toolkit with a marking menu style ui (derived from a QStackedWidget) at it's core.*
+---
+<!-- short_description_start -->
+*Tentacle is a marking menu style ui and toolkit derived from a QStackedWidget and constructed using the uitk backend.*
+<!-- short_description_end -->
 
 ![alt text](https://raw.githubusercontent.com/m3trik/tentacle/master/docs/toolkit_demo.gif) \*Example re-opening the last scene, renaming a material, and selecting geometry by that material.
 
-## 
+##
 
----
 
-## Structure:
+## Design:
 
 ![alt text](https://raw.githubusercontent.com/m3trik/tentacle/master/docs/dependancy_graph.jpg)
 
 
-Example | Description
+Module | Description
 ------- | -------
 [tcl](https://github.com/m3trik/tentacle/blob/main/tentacle/tcl.py) | *A Custom QStackedWidget that handles UI hierarchy navigation.*
 [overlay](https://github.com/m3trik/tentacle/blob/main/tentacle/overlay.py) | *Tracks cursor position and UI hierarchy to generate paint events that overlay the parent widget.*
@@ -41,14 +41,14 @@ python -m pip install tentacletk
 To launch the marking menu:
 For Maya:
 Add a macro to a hotkey similar to the following:
-```
+```python
 from tentacle import tcl_maya
 tcl_maya.show(key_show='Key_F12')
 ```
 
 For 3ds Max:
 Add a macro to a hotkey similar to the following:
-```
+```python
 macroScript main_max
 category: "_macros.ui"
 silentErrors: false
