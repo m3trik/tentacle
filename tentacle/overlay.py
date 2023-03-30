@@ -82,6 +82,8 @@ class Overlay(QtWidgets.QWidget, OverlayFactoryFilter):
 
 		self.painter = QtGui.QPainter()
 
+		self.app.focusChanged.connect(self.on_focus_changed)
+
 		if parent:
 			parent.installEventFilter(self)
 
@@ -318,13 +320,16 @@ class Overlay(QtWidgets.QWidget, OverlayFactoryFilter):
 
 		self.mouseMovePos = curPos
 
+		super().mousePressEvent(event)
+
 
 	def mouseReleaseEvent(self, event):
 		'''
 		'''
 		self.clearPath(clear_all=True)
-
 		QtWidgets.QApplication.restoreOverrideCursor() # Restore the cursor to its default shape.
+
+		super().mouseReleaseEvent(event)
 
 
 	def mouseMoveEvent(self, event):
@@ -333,6 +338,16 @@ class Overlay(QtWidgets.QWidget, OverlayFactoryFilter):
 		self.drawEnabled = True
 		self.mouseMovePos = event.pos()
 		self.update()
+
+		super().mouseMoveEvent(event)
+
+
+	def on_focus_changed(self, old_widget, new_widget):
+		'''
+		'''
+		if new_widget!=self:
+			self.clearPath(clear_all=True)
+			QtWidgets.QApplication.restoreOverrideCursor() # Restore the cursor to its default shape.
 
 # --------------------------------------------------------------------------------------------
 

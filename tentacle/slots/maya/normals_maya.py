@@ -72,7 +72,7 @@ class Normals_maya(Normals, Slots_maya):
 			if not selection:
 				continue
 			selEdges = pm.ls(pm.polyListComponentConversion(selection, toEdge=1), flatten=1)
-			allEdges = edges = pm.ls(pm.polyListComponentConversion(obj, toEdge=1), flatten=1)
+			allEdges = pm.ls(pm.polyListComponentConversion(obj, toEdge=1), flatten=1)
 
 			if hardenCreased:
 				creasedEdges = self.sb.crease.slots.getCreasedEdges(allEdges)

@@ -489,27 +489,18 @@ class Uv_maya(Uv, Slots_maya):
 		return selection
 
 
-	@classmethod
-	def getUvShellSets(cls, objects=None, returnType='shells'):
+	@staticmethod
+	def getUvShellSets(objects=None, returnType='shells'):
 		'''Get All UV shells and their corresponding sets of faces.
 
 		Parameters:
 			objects (obj)(list): Polygon object(s) or Polygon face(s).
-			returnType (str): The desired returned type. valid values are: 'shells', 'shellIDs'. If None is given, the full dict will be returned.
+			returnType (str): The desired returned type. valid values are: 'shells', 'IDs'. If None is given, the full dict will be returned.
 
 		Return:
 			(list)(dict) dependant on the given returnType arg. ex. {0L:[[MeshFace(u'pShape.f[0]'), MeshFace(u'pShape.f[1]')], 1L:[[MeshFace(u'pShape.f[2]'), MeshFace(u'pShape.f[3]')]}
 		'''
-		if not objects:
-			objects = pm.ls(selection=1, objectsOnly=1, transforms=1, flatten=1)
-		else:
-			objects = pm.ls(objects, selection=1, objectsOnly=1, transforms=1, flatten=1)
-
-		objectType = mtk.Node.getType(objects[0])
-		if objectType=='f': #Polygon Face
-			faces = objects
-		else:
-			faces = cls.getComponents(objects, 'faces', flatten=1)
+		faces = mtk.Cmpt.getComponents(objects, 'faces', flatten=1)
 
 		shells={}
 		for face in faces:
@@ -525,7 +516,7 @@ class Uv_maya(Uv, Slots_maya):
 
 		if returnType=='shells':
 			shells = list(shells.values())
-		elif returnType=='shellIDs':
+		elif returnType=='IDs':
 			shells = shells.keys()
 
 		return shells
@@ -536,40 +527,28 @@ class Uv_maya(Uv, Slots_maya):
 		'''Get the edges that make up any UV islands of the given objects.
 
 		Parameters:
-			objects (str)(obj)(list): Polygon mesh objects.
+			objects (str)(obj)(list): Polygon mesh objects and mesh components (UVs).
 
 		Return:
-			(list) uv border edges.
+			(list) UV border edges.
 		'''
-		mesh_edges=[]
-		for obj in pm.ls(objects, objectsOnly=1):
-			try: # Try to get edges from provided objects.
-				mesh_edges.extend(pm.ls(pm.polyListComponentConversion(obj, te=True), fl=True, l=True))
-			except Exception as error:
-				pass
+		uv_border_edges = []
+		for item in ptk.makeList(objects):
+			# If the item is a mesh object, get its shape
+			if isinstance(item, pm.nt.Transform):
+				item = item.getShape()
 
-		if len(mesh_edges)<=0: # Error if no valid objects were found
-			raise RuntimeError('No valid mesh objects or components were provided.')
+			# If the item is a mesh shape or a component, get its UV borders
+			if isinstance(item, pm.nt.Mesh) or item.nodeType() in ['meshMapComponent', 'meshUVComponent']:
+				# Get the connected edges to the selected UVs
+				connected_edges = pm.polyListComponentConversion(item, fromUV=True, toEdge=True)
+				connected_edges = pm.ls(connected_edges, flatten=True)
 
-		pm.progressWindow(t='Find UV Border Edges', pr=0, max=len(mesh_edges), ii=True) # Start progressWindow
-		
-		uv_border_edges = list() # Find and return uv border edges
-		for edge in mesh_edges:  # Filter through the mesh(s) edges.
-
-			if pm.progressWindow(q=True, ic=True): # Kill if progress window is cancelled
-				pm.progressWindow(ep=True)  # End progressWindow
-				raise RuntimeError('Cancelled by user.')
-
-			pm.progressWindow(e=True, s=1, st=edge) # Update the progress window status
-			
-			edge_uvs = pm.ls(pm.polyListComponentConversion(edge, tuv=True), fl=True)
-			edge_faces = pm.ls(pm.polyListComponentConversion(edge, tf=True), fl=True)
-			if len(edge_uvs) > 2:  # If an edge has more than two uvs, it is a uv border edge.
-				uv_border_edges.append(edge)
-			elif len(edge_faces) < 2:  # If an edge has less than 2 faces, it is a border edge.
-				uv_border_edges.append(edge)
-
-		pm.progressWindow(ep=True) # End progressWindow
+				for edge in connected_edges:
+					edge_uvs = pm.ls(pm.polyListComponentConversion(edge, tuv=True), fl=True)
+					edge_faces = pm.ls(pm.polyListComponentConversion(edge, tf=True), fl=True)
+					if len(edge_uvs) > 2 or len(edge_faces) < 2:  # If an edge has more than two uvs or less than 2 faces, it's a uv border edge.
+						uv_border_edges.append(edge)
 
 		return uv_border_edges
 

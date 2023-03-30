@@ -12,6 +12,9 @@ class File(Slots):
 		'''
 		#set the text for the open last file button to the last file's name.
 		list000 = self.sb.file_submenu.list000
+		list000.position = 'top'
+		list000.offset = 18
+		list000.drag_interaction = True
 		recentFiles = self.getRecentFiles()[:6]
 		list000.setVisible(bool(recentFiles))
 		w1 = list000.add('Recent Files')
