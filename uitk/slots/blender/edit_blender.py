@@ -345,7 +345,7 @@ class Edit_blender(Edit, Slots_blender):
 		'''Locate a connected vertex of non-manifold geometry where the faces share a single vertex.
 
 		Parameters:
-			objects (str)(obj): A polygon mesh, or a list of meshes.
+			objects (str/obj): A polygon mesh, or a list of meshes.
 			select (int): Select any found non-manifold vertices. 0=off, 1=on, 2=on while keeping any existing vertex selections. (default: 1)
 
 		Return:
@@ -405,7 +405,7 @@ class Edit_blender(Edit, Slots_blender):
 		'''Separate a connected vertex of non-manifold geometry where the faces share a single vertex.
 
 		Parameters:
-			vertex (str)(obj): A single polygon vertex.
+			vertex (str/obj): A single polygon vertex.
 			select (bool): Select the vertex after the operation. (default is True)
 		'''
 		# pm.undoInfo(openChunk=True)

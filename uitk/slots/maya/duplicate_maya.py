@@ -293,7 +293,7 @@ class Duplicate_maya(Duplicate, Slots_maya):
 		'''get any intances of given object, or if None given; get all instanced objects in the scene.
 
 		Parameters:
-			objects (str)(obj)(list): Parent object/s.
+			objects (str/obj/list): Parent object/s.
 			returnParentObjects (bool): Return instances and the given parent objects together.
 
 		Return:
@@ -371,7 +371,7 @@ class Duplicate_maya(Duplicate, Slots_maya):
 		'''Un-Instance the given objects.
 
 		Parameters:
-			objects (str)(obj)(list): The objects to un-instance. If 'all' is given all instanced objects in the scene will be uninstanced.
+			objects (str/obj/list): The objects to un-instance. If 'all' is given all instanced objects in the scene will be uninstanced.
 		'''
 		if objects=='all':
 			objects = self.getInstances()

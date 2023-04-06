@@ -450,7 +450,7 @@ class Uv_blender(Uv, Slots_blender):
 		'''Get All UV shells and their corresponding sets of faces.
 
 		Parameters:
-			objects (obj)(list): Polygon object(s) or Polygon face(s).
+			objects (obj/list): Polygon object(s) or Polygon face(s).
 			returnType (str): The desired returned type. valid values are: 'shells', 'shellIDs'. If None is given, the full dict will be returned.
 
 		Return:
@@ -492,7 +492,7 @@ class Uv_blender(Uv, Slots_blender):
 		'''Get the edges that make up any UV islands of the given objects.
 
 		Parameters:
-			objects (str)(obj)(list): Polygon mesh objects.
+			objects (str/obj/list): Polygon mesh objects.
 
 		Return:
 			(list) uv border edges.

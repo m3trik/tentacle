@@ -182,7 +182,7 @@ class Create_max(Create, Slots_max):
 		'''Create 6 sided poly cylinder
 		'''
 		node = self.createPrimitive('Polygon', 'Cylinder')
-		self.setAttributesMEL(node, verbose=True, subdivisionsAxis=6)
+		self.setNodeAttributes(node, verbose=True, subdivisionsAxis=6)
 
 
 

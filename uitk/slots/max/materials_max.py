@@ -468,7 +468,7 @@ class Materials_max(Materials, Slots_max):
 		'''Get any bitmaps from a given material(s), or from all scene materials.
 
 		Parameters:
-			mats (obj)(list): Mat object or list of mat objects. If None is given, all bitmap textures in the scene are used.
+			mats (obj/list): Mat object or list of mat objects. If None is given, all bitmap textures in the scene are used.
 			missing (bool): Return only filenames from missing bitmaps.
 			processChildren (bool): Child scene nodes are also searched as part of the Animatable or Reference hierarchy.
 
@@ -600,7 +600,7 @@ class Materials_max(Materials, Slots_max):
 		'''Repair broken bitmap file links.  If no mats are given, all scene bitmaps will be used.
 
 		Parameters:
-			mats (obj)(list): Specify material(s) to get bitmaps for. If none are given, all scene materials will be used.
+			mats (obj/list): Specify material(s) to get bitmaps for. If none are given, all scene materials will be used.
 			replaceTxWithTif (bool): Look instead for a .tif file of the same name, to replace a previoud .tx format.
 		'''
 		bitmaps = self.getMaterialBitmaps(mats)

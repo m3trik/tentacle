@@ -99,7 +99,7 @@ class Scene_blender(Scene, Slots_blender):
 		'''Rename objects following the given case.
 
 		Parameters:
-			objects (str)(list): The objects to rename. default:all scene objects
+			objects (str/list): The objects to rename. default:all scene objects
 			case (str): Desired case using python case operators. 
 				valid: 'upper', 'lower', 'caplitalize', 'swapcase' 'title'. default:'caplitalize'
 

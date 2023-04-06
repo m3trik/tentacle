@@ -236,7 +236,7 @@ class Normals_maya(Normals, Slots_maya):
 		'''Get the normal vectors of the given poly object.
 
 		Parameters:
-			obj (str)(obj)(list): A polygon mesh or it's component(s).
+			obj (str/obj/list): A polygon mesh or it's component(s).
 
 		Return:
 			dict - {int:[float, float, float]} face id & vector xyz.
@@ -305,8 +305,8 @@ class Normals_maya(Normals, Slots_maya):
 		'''Transfer normal information from one object to another.
 
 		Parameters:
-			source (str)(obj)(list): The transform node to copy normals from.
-			target (str)(obj)(list): The transform node(s) to copy normals to.
+			source (str/obj/list): The transform node to copy normals from.
+			target (str/obj/list): The transform node(s) to copy normals to.
 		'''
 		pm.undoInfo(openChunk=1)
 		s, *other = pm.ls(source)
@@ -358,7 +358,7 @@ print (__name__)
 # 		'''Get the normal vectors from the given poly object.
 
 # 		Parameters:
-# 			obj (str)(obj)(list): A polygon mesh or component(s).
+# 			obj (str/obj/list): A polygon mesh or component(s).
 
 # 		Return:
 # 			dict - {int:[float, float, float]} face id & vector xyz.

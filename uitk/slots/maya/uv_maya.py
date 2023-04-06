@@ -428,7 +428,7 @@ class Uv_maya(Uv, Slots_maya):
 		'''Rotate UV shells to run parallel with the most adjacent U or V axis of their bounding box.
 
 		Parameters:
-			objects (str)(obj)(list): Polygon mesh objects and/or components.
+			objects (str/obj/list): Polygon mesh objects and/or components.
 		'''
 		for obj in pm.ls(objects, objectsOnly=1):
 
@@ -494,8 +494,8 @@ class Uv_maya(Uv, Slots_maya):
 		'''Get All UV shells and their corresponding sets of faces.
 
 		Parameters:
-			objects (obj)(list): Polygon object(s) or Polygon face(s).
-			returnType (str): The desired returned type. valid values are: 'shells', 'shellIDs'. If None is given, the full dict will be returned.
+			objects (obj/list): Polygon object(s) or Polygon face(s).
+			returnType (str): The desired returned type. valid values are: 'shells', 'IDs'. If None is given, the full dict will be returned.
 
 		Return:
 			(list)(dict) dependant on the given returnType arg. ex. {0L:[[MeshFace(u'pShape.f[0]'), MeshFace(u'pShape.f[1]')], 1L:[[MeshFace(u'pShape.f[2]'), MeshFace(u'pShape.f[3]')]}
@@ -536,7 +536,7 @@ class Uv_maya(Uv, Slots_maya):
 		'''Get the edges that make up any UV islands of the given objects.
 
 		Parameters:
-			objects (str)(obj)(list): Polygon mesh objects.
+			objects (str/obj/list): Polygon mesh objects and mesh components (UVs).
 
 		Return:
 			(list) uv border edges.
@@ -579,8 +579,8 @@ class Uv_maya(Uv, Slots_maya):
 		'''Transfer UV's from one group of objects to another.
 
 		Parameters:
-			frm (str)(obj)(list): The objects to transfer uv's from.
-			to (str)(obj)(list): The objects to transfer uv's to.
+			frm (str/obj/list): The objects to transfer uv's from.
+			to (str/obj/list): The objects to transfer uv's to.
 					If 'similar' is given, the scene will be searched for similar objects.
 			tol (float) = 
 			sampleSpace (str): Selects which space the attribute transfer is performed in. valid: 'world', 'local', 'component', 'topology'

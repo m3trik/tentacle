@@ -346,7 +346,7 @@ class Duplicate_blender(Duplicate, Slots_blender):
 		'''Un-Instance the given objects.
 
 		Parameters:
-			objects (str)(obj)(list): The objects to un-instance. If 'all' is given all instanced objects in the scene will be uninstanced.
+			objects (str/obj/list): The objects to un-instance. If 'all' is given all instanced objects in the scene will be uninstanced.
 		'''
 		if objects=='all':
 			objects = self.getInstances()

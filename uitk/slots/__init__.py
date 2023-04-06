@@ -41,7 +41,7 @@ class Slots(QtCore.QObject):
 			fn (method) = Set an alternative method to call on widget signal. ex. setParameterValuesMEL
 					The first parameter of fn is always the given object. ex. fn(obj, {'attr':<value>})
 			fn_args (list): Any additonal args to pass to fn.
-			attributes (kwargs) = Explicitly pass in attribute:values pairs. Else, attributes will be pulled from mtk.Node.getAttributesMEL for the given obj.
+			attributes (kwargs) = Explicitly pass in attribute:values pairs. Else, attributes will be pulled from mtk.Node.getNodeAttributes for the given obj.
 
 		Return:
 			(obj) the menu widget. (use menu.childWidgets to get the menu's child widgets.)

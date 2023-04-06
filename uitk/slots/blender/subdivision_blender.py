@@ -85,7 +85,7 @@ class Subdivision_blender(Subdivision, Slots_blender):
 		transforms = pm.listRelatives(shapes, p=True)
 		for obj in transforms:
 			if hasattr(obj, 'smoothLevel'):
-				self.setAttributesMEL(obj, {'smoothLevel':value})
+				self.setNodeAttributes(obj, {'smoothLevel':value})
 				pm.optionVar(intValue=['proxyDivisions', 1]) #subDiv proxy options: 'divisions'
 				print(obj+': Division Level: <hl>'+str(value)+'</hl>')
 
@@ -99,7 +99,7 @@ class Subdivision_blender(Subdivision, Slots_blender):
 		transforms = pm.listRelatives(shapes, p=True)
 		for obj in transforms:
 			if hasattr(obj, 'smoothLevel'):
-				self.setAttributesMEL(obj, {'smoothTessLevel':value})
+				self.setNodeAttributes(obj, {'smoothTessLevel':value})
 				print(obj+': Tesselation Level: <hl>'+str(value)+'</hl>')
 
 

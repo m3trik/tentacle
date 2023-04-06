@@ -457,7 +457,7 @@ class Selection_maya(Selection, Slots_maya):
 		'''Generate a generic name based on the object's name.
 
 		Parameters:
-			obj (str)(obj)(list): The maya scene object to derive a unique name from.
+			obj (str/obj/list): The maya scene object to derive a unique name from.
 
 		<objectName>_Set<int>
 		'''

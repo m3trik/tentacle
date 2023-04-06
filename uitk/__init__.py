@@ -30,7 +30,7 @@ def greeting(string, outputToConsole=True):
 	h = datetime.datetime.now().hour
 	hr = 'morning' if 5<=h<12 else 'afternoon' if h<18 else 'evening'
 
-	pyver = 'interpreter v{}.{}.{}'.format(sys.version_info[0], sys.version_info[1], sys.version_info[2])
+	pyver = 'python v{}.{}.{}'.format(sys.version_info[0], sys.version_info[1], sys.version_info[2])
 
 	modver = 'uitk v{}'.format(__version__)
 

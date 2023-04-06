@@ -4,7 +4,7 @@ import sys, os
 
 from PySide2 import QtCore, QtGui, QtWidgets
 
-from pythontk.Iter import makeList
+from pythontk import makeList
 from uitk.switchboard import Switchboard
 from uitk.overlay import Overlay
 from uitk.events import EventFactoryFilter, MouseTracking
@@ -39,7 +39,7 @@ class Tcl(QtWidgets.QStackedWidget):
 		# self.app.setKeyboardInputInterval(400)
 		self.setFocusPolicy(QtCore.Qt.StrongFocus)
 
-		self.setWindowFlags(QtCore.Qt.Tool|QtCore.Qt.FramelessWindowHint) #|QtCore.Qt.WindowStaysOnTopHint
+		self.setWindowFlags(QtCore.Qt.Tool | QtCore.Qt.FramelessWindowHint) #|QtCore.Qt.WindowStaysOnTopHint
 		self.setAttribute(QtCore.Qt.WA_TranslucentBackground)
 		self.setAttribute(QtCore.Qt.WA_NoMousePropagation, False)
 		self.resize(1200, 1200)
@@ -59,13 +59,21 @@ class Tcl(QtWidgets.QStackedWidget):
 		self.initWidgets(ui.widgets)
 
 		if ui.level<3: #stacked ui.
-			ui.setParent(self)
 			self.addWidget(ui) #add the ui to the stackedLayout.
 
 		else: #popup ui.
-			ui.setParent(self.parent())
-			ui.setWindowFlags(QtCore.Qt.Tool|QtCore.Qt.FramelessWindowHint)
+			# ui.setWindowFlags(QtCore.Qt.Window | QtCore.Qt.CustomizeWindowHint)
+			ui.setWindowFlags(QtCore.Qt.Tool | QtCore.Qt.FramelessWindowHint)
 			ui.setAttribute(QtCore.Qt.WA_TranslucentBackground)
+
+			ui.centralWidget().setStyleSheet(
+				'''
+				QWidget {
+					background-color: rgba(75, 75, 75, 150);
+					border: 1px solid black;
+				}
+				'''
+			)
 
 			self._key_show_release.connect(ui.hide)
 
@@ -74,7 +82,7 @@ class Tcl(QtWidgets.QStackedWidget):
 		'''Set the stacked Widget's index to the given ui.
 
 		Parameters:
-			ui (str)(obj): The ui or name of the ui to set the stacked widget index to.
+			ui (str/obj): The ui or name of the ui to set the stacked widget index to.
 		'''
 		assert isinstance(ui, (str, QtWidgets.QWidget)), f'# Error: {__file__} in setUi\n#\tIncorrect datatype: {type(ui).__name__}'
 
@@ -258,7 +266,7 @@ class Tcl(QtWidgets.QStackedWidget):
 		'''Sets the widget as visible.
 
 		Parameters:
-			ui (str)(obj): Show the given ui.
+			ui (str/obj): Show the given ui.
 			profile (bool): Prints the total running time, times each function separately, 
 				and tells you how many times each function was called.
 		'''
@@ -326,7 +334,7 @@ class Tcl(QtWidgets.QStackedWidget):
 		'''Set Initial widget states.
 
 		Parameters:
-			widgets (str)(list): The widget(s) to initialize.
+			widgets (str/list): The widget(s) to initialize.
 		'''
 		for w in makeList(widgets): #if 'widgets' isn't a list, convert it to one.
 			# print (1, 'initWidgets:', w.ui.name.ljust(26), w.prefix.ljust(25), (w.name or type(w).__name__).ljust(25), w.type.ljust(15), w.derivedType.ljust(15), id(w)) #debug
@@ -528,7 +536,7 @@ class Tcl(QtWidgets.QStackedWidget):
 			docString (bool): return the docString of last camera command. Default is off.
 			method (bool): return the method of last camera command. Default is off.
 			allowCurrent (bool): allow the current camera. Default is off.
-			add (str)(obj): Add a method, or name of method to be used as the command to the current camera.  (if this flag is given, all other flags are invalidated)
+			add (str/obj): Add a method, or name of method to be used as the command to the current camera.  (if this flag is given, all other flags are invalidated)
 
 		Return:
 			if docString: 'string' description (derived from the last used camera command's docString) (asList: [string list] all docStrings, in order of use)

@@ -82,7 +82,7 @@ class Polygons(Slots):
 	def setMergeVertexDistance(self, p1, p2):
 		'''Merge Vertices: Set Distance
 		'''
-		from pythontk.Math import getDistBetweenTwoPoints
+		from pythontk import getDistBetweenTwoPoints
 		s = self.sb.polygons.tb000.ctxMenu.s002
 		dist = getDistBetweenTwoPoints(p1, p2)
 		s.setValue(dist)

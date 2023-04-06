@@ -398,14 +398,14 @@ class Slots_max(Slots):
 		'''Launch a popup window containing the given objects attributes.
 
 		Parameters:
-			obj (str)(obj)(list): The object to get the attributes of, or it's name. If given as a list, only the first index will be used.
+			obj (str/obj/list): The object to get the attributes of, or it's name. If given as a list, only the first index will be used.
 			inc (list): Attributes to include. All other will be omitted. Exclude takes dominance over include. Meaning, if the same attribute is in both lists, it will be excluded.
 			exc (list): Attributes to exclude from the returned dictionay. ie. ['Position','Rotation','Scale','renderable','isHidden','isFrozen','selected']
 			checkableLabel (bool): Set the attribute labels as checkable.
 			fn (method) = Set an alternative method to call on widget signal. ex. setParameterValuesMEL
 					The first parameter of fn is always the given object. ex. fn(obj, {'attr':<value>})
 			fn_args (args) = Any additonal args to pass to fn.
-			attributes (kwargs) = Explicitly pass in attribute:values pairs. Else, attributes will be pulled from self.getAttributesMEL for the given obj.
+			attributes (kwargs) = Explicitly pass in attribute:values pairs. Else, attributes will be pulled from self.getNodeAttributes for the given obj.
 
 		Example: self.setAttributeWindow(obj, attributes=attrs, checkableLabel=True)
 		'''

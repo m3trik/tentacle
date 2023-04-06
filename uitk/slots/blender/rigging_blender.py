@@ -262,7 +262,7 @@ class Rigging_blender(Rigging, Slots_blender):
 		If there are vertices selected it will create a locator at the center of the selected vertices bounding box.
 
 		Parameters:
-			objects (str)(list): A list of objects, or an object name to create locators at.
+			objects (str/list): A list of objects, or an object name to create locators at.
 			suffix (str): A string appended to the end of the created locators name. (default: '_LOC') '_LOC#'
 			stripDigits (bool): Strip numeric characters from the string. If the resulting name is not unique, maya will append a trailing digit. (default=False)
 			strip (str): Strip a specific character set from the locator name. The locators name is based off of the selected objects name. (default=None)

@@ -434,7 +434,7 @@ class Selection_blender(Selection, Slots_blender):
 		'''Generate a generic name based on the object's name.
 
 		Parameters:
-			obj (str)(obj)(list): The maya scene object to derive a unique name from.
+			obj (str/obj/list): The maya scene object to derive a unique name from.
 
 		<objectName>_Set<int>
 		'''

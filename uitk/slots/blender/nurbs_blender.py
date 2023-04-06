@@ -488,8 +488,8 @@ class Nurbs_blender(Nurbs, Slots_blender):
 		'''Find the closest control vertex between the given vertices, CVs, or objects and each of the given curves.
 
 		Parameters:
-			x (str)(obj)(list): Polygon vertices, control vertices, objects, or points given as (x,y,z) tuples.
-			curves (str)(obj)(list): The reference object in which to find the closest CV for each vertex in the list of given vertices.
+			x (str/obj/list): Polygon vertices, control vertices, objects, or points given as (x,y,z) tuples.
+			curves (str/obj/list): The reference object in which to find the closest CV for each vertex in the list of given vertices.
 			tolerance (int)(float) = Maximum search distance. Default is 0.0, which turns off the tolerance flag.
 
 		Return:
@@ -532,7 +532,7 @@ class Nurbs_blender(Nurbs, Slots_blender):
 		'''Get a dict containing CV's of the given curve(s) and their corresponding point positions (based on Maya's pointOnCurve command).
 
 		Parameters:
-			- c (str)(obj)(list): Curves or CVs to get CV info from.
+			- c (str/obj/list): Curves or CVs to get CV info from.
 			- returnType (str): The desired returned values. Default is 'cv'.
 				valid values are: 
 					'cv' = Return a list of all CV's for the given curves.
@@ -540,7 +540,7 @@ class Nurbs_blender(Nurbs, Slots_blender):
 					'parameter', 'position', 'index', 'localPosition', 'tangent', 'normalizedTangent', 'normal', 'normalizedNormal', 'curvatureRadius', 'curvatureCenter'
 					= Return a dict with CV's as keys and the returnType as their corresponding values.
 				ex. {NurbsCurveCV(u'polyToCurveShape7.cv[5]'): [-12.186520865542082, 15.260936896515751, -369.6159740743584]}
-			- filter_ (str)(obj)(list): Value(s) to filter for in the returned results.
+			- filter_ (str/obj/list): Value(s) to filter for in the returned results.
 
 		Return:
 			(dict)(list)(int) dependant on returnType.
@@ -614,7 +614,7 @@ class Nurbs_blender(Nurbs, Slots_blender):
 		'''Get the cross product of two vectors using points derived from the given curves.
 
 		Parameters:
-			curves (str)(obj)(list): Nurbs curve(s).
+			curves (str/obj/list): Nurbs curve(s).
 			normalize (float) = (0) Do not normalize. (1) Normalize standard. (value other than 0 or 1) Normalize using the given float value as desired length.
 			values (bool): Return only a list of the cross product vector values [(<Vx>, <Vy>, <Vz>)] instead of the full dict {<curve1>:(<Vx>, <Vy>, <Vz>)}.
 

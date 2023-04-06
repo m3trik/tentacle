@@ -105,7 +105,7 @@ class Crease_maya(Crease, Slots_maya):
 		'''Return any creased edges from a list of edges.
 
 		Parameters:
-			edges (str)(obj)(list): The edges to check crease state on.
+			edges (str/obj/list): The edges to check crease state on.
 
 		Return:
 			(list) edges.

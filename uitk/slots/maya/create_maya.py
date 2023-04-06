@@ -148,7 +148,7 @@ class Create_maya(Create, Slots_maya):
 		'''Create 6 sided poly cylinder
 		'''
 		obj = self.createPrimitive('Polygon', 'Cylinder')
-		mtk.Node.setAttributesMEL(obj, verbose=True, subdivisionsAxis=6)
+		mtk.Node.setNodeAttributes(obj, verbose=True, subdivisionsAxis=6)
 
 
 	@mtk.undo

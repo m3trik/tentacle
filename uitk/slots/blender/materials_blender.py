@@ -290,12 +290,12 @@ class Materials_blender(Materials, Slots_blender):
 		'''Get all materials from the current scene.
 
 		Parameters:
-			inc (str)(int)(obj)(list): The objects(s) to include.
+			inc (str)(int)(obj/list): The objects(s) to include.
 					supports using the '*' operator: startswith*, *endswith, *contains*
 					Will include all items that satisfy ANY of the given search terms.
 					meaning: '*.png' and '*Normal*' returns all strings ending in '.png' AND all 
 					strings containing 'Normal'. NOT strings satisfying both terms.
-			exc (str)(int)(obj)(list): The objects(s) to exclude. Similar to include.
+			exc (str)(int)(obj/list): The objects(s) to exclude. Similar to include.
 					exlude take precidence over include.
 		Return:
 			(list) materials.
@@ -330,7 +330,7 @@ class Materials_blender(Materials, Slots_blender):
 		'''Get the material from the selected face.
 
 		Parameters:
-			(str)(obj): The obj with the material.
+			(str/obj): The obj with the material.
 
 		Return:
 			(list) material
