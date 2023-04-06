@@ -71,60 +71,6 @@
         </property>
        </widget>
       </item>
-      <item row="3" column="3">
-       <widget class="QPushButton" name="b004">
-        <property name="minimumSize">
-         <size>
-          <width>0</width>
-          <height>20</height>
-         </size>
-        </property>
-        <property name="maximumSize">
-         <size>
-          <width>20</width>
-          <height>20</height>
-         </size>
-        </property>
-        <property name="font">
-         <font>
-          <pointsize>10</pointsize>
-         </font>
-        </property>
-        <property name="toolTip">
-         <string>Text editor: delete current tab</string>
-        </property>
-        <property name="text">
-         <string>-</string>
-        </property>
-       </widget>
-      </item>
-      <item row="3" column="4">
-       <widget class="QPushButton" name="b003">
-        <property name="minimumSize">
-         <size>
-          <width>0</width>
-          <height>20</height>
-         </size>
-        </property>
-        <property name="maximumSize">
-         <size>
-          <width>20</width>
-          <height>20</height>
-         </size>
-        </property>
-        <property name="font">
-         <font>
-          <pointsize>10</pointsize>
-         </font>
-        </property>
-        <property name="toolTip">
-         <string>Text editor: create new tab</string>
-        </property>
-        <property name="text">
-         <string>+</string>
-        </property>
-       </widget>
-      </item>
       <item row="4" column="1" colspan="8">
        <widget class="QTabWidget" name="tabWidget">
         <property name="tabPosition">
@@ -218,7 +164,32 @@
         </property>
        </widget>
       </item>
-      <item row="3" column="2">
+      <item row="1" column="1" colspan="8">
+       <widget class="Draggable_header" name="draggable_header">
+        <property name="minimumSize">
+         <size>
+          <width>0</width>
+          <height>22</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>999</width>
+          <height>22</height>
+         </size>
+        </property>
+        <property name="font">
+         <font>
+          <weight>75</weight>
+          <bold>true</bold>
+         </font>
+        </property>
+        <property name="text">
+         <string>SCRIPTING</string>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="1">
        <widget class="QPushButton" name="chk000">
         <property name="minimumSize">
          <size>
@@ -246,36 +217,61 @@
         </property>
        </widget>
       </item>
-      <item row="1" column="2" colspan="7">
-       <widget class="PushButtonDraggable" name="draggable_header">
+      <item row="3" column="2">
+       <widget class="QPushButton" name="b004">
         <property name="minimumSize">
          <size>
-          <width>470</width>
-          <height>17</height>
+          <width>0</width>
+          <height>20</height>
          </size>
         </property>
         <property name="maximumSize">
          <size>
-          <width>999</width>
-          <height>17</height>
+          <width>20</width>
+          <height>20</height>
          </size>
         </property>
         <property name="font">
          <font>
-          <weight>75</weight>
-          <bold>true</bold>
-          <underline>true</underline>
+          <pointsize>10</pointsize>
          </font>
         </property>
-        <property name="text">
-         <string>SCRIPTING</string>
+        <property name="toolTip">
+         <string>Text editor: delete current tab</string>
         </property>
-        <property name="checkable">
-         <bool>true</bool>
+        <property name="text">
+         <string>-</string>
         </property>
        </widget>
       </item>
-      <item row="3" column="5" colspan="2">
+      <item row="3" column="3">
+       <widget class="QPushButton" name="b003">
+        <property name="minimumSize">
+         <size>
+          <width>0</width>
+          <height>20</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>20</width>
+          <height>20</height>
+         </size>
+        </property>
+        <property name="font">
+         <font>
+          <pointsize>10</pointsize>
+         </font>
+        </property>
+        <property name="toolTip">
+         <string>Text editor: create new tab</string>
+        </property>
+        <property name="text">
+         <string>+</string>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="4" colspan="3">
        <widget class="ComboBox" name="comboBox">
         <property name="minimumSize">
          <size>
@@ -306,14 +302,14 @@
  </widget>
  <customwidgets>
   <customwidget>
+   <class>Draggable_header</class>
+   <extends>QLabel</extends>
+   <header>draggable_header.h</header>
+  </customwidget>
+  <customwidget>
    <class>ComboBox</class>
    <extends>QComboBox</extends>
    <header>widgets.combobox.h</header>
-  </customwidget>
-  <customwidget>
-   <class>PushButtonDraggable</class>
-   <extends>QPushButton</extends>
-   <header>widgets.pushbuttondraggable.h</header>
   </customwidget>
  </customwidgets>
  <resources/>

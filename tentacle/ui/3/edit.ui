@@ -82,31 +82,27 @@
        <number>0</number>
       </property>
       <item>
-       <widget class="PushButtonDraggable" name="draggable_header">
+       <widget class="Draggable_header" name="draggable_header">
         <property name="minimumSize">
          <size>
-          <width>19</width>
-          <height>17</height>
+          <width>0</width>
+          <height>22</height>
          </size>
         </property>
         <property name="maximumSize">
          <size>
-          <width>999</width>
-          <height>17</height>
+          <width>125</width>
+          <height>22</height>
          </size>
         </property>
         <property name="font">
          <font>
           <weight>75</weight>
           <bold>true</bold>
-          <underline>true</underline>
          </font>
         </property>
         <property name="text">
          <string>EDIT</string>
-        </property>
-        <property name="checkable">
-         <bool>true</bool>
         </property>
        </widget>
       </item>
@@ -718,19 +714,19 @@
  </widget>
  <customwidgets>
   <customwidget>
-   <class>ComboBox</class>
-   <extends>QComboBox</extends>
-   <header>widgets.combobox.h</header>
-  </customwidget>
-  <customwidget>
-   <class>PushButtonDraggable</class>
-   <extends>QPushButton</extends>
-   <header>widgets.pushbuttondraggable.h</header>
-  </customwidget>
-  <customwidget>
    <class>PushButton</class>
    <extends>QPushButton</extends>
    <header>widgets.pushbutton.h</header>
+  </customwidget>
+  <customwidget>
+   <class>Draggable_header</class>
+   <extends>QLabel</extends>
+   <header>draggable_header.h</header>
+  </customwidget>
+  <customwidget>
+   <class>ComboBox</class>
+   <extends>QComboBox</extends>
+   <header>widgets.combobox.h</header>
   </customwidget>
  </customwidgets>
  <resources/>

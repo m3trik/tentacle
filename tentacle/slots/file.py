@@ -17,7 +17,7 @@ class File(Slots):
 		list000.drag_interaction = True
 		recentFiles = self.getRecentFiles()[:6]
 		list000.setVisible(bool(recentFiles))
-		w1 = list000.add('Recent Files')
+		w1 = list000.add('QPushButton', setText='Recent Files')
 		from pythontk import truncate
 		truncated = truncate(recentFiles, 65)
 		w1.list.add(truncated, recentFiles)

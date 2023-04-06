@@ -58,18 +58,8 @@ class Tcl(QtWidgets.QStackedWidget):
 			self.addWidget(ui) #add the ui to the stackedLayout.
 
 		else: #popup ui.
-			# ui.setWindowFlags(QtCore.Qt.Window | QtCore.Qt.CustomizeWindowHint)
 			ui.setWindowFlags(QtCore.Qt.Tool | QtCore.Qt.FramelessWindowHint)
 			ui.setAttribute(QtCore.Qt.WA_TranslucentBackground)
-
-			ui.centralWidget().setStyleSheet(
-				'''
-				QWidget {
-					background-color: rgba(75, 75, 75, 150);
-					border: 1px solid black;
-				}
-				'''
-			)
 
 			self._key_show_release.connect(ui.hide)
 
