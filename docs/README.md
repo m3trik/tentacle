@@ -6,7 +6,7 @@
 ##### 
 ---
 <!-- short_description_start -->
-Tentacle is a marking menu style UI and toolkit derived from a QStackedWidget and constructed using the uitk backend. It aims to bring a similar UI experience across multiple dcc modeling applications that support the PySide2 GUI framework.
+Tentacle is a marking menu style UI and toolkit derived from a QStackedWidget and constructed using the uitk backend. It aims to bring a similar UI experience across multiple DCC modeling applications that support the PySide2 GUI framework.
 <!-- short_description_end -->
 
 ![alt text](https://raw.githubusercontent.com/m3trik/tentacle/master/docs/toolkit_demo.gif) \*Example re-opening the last scene, renaming a material, and selecting geometry by that material.
