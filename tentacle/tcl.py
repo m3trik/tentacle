@@ -81,9 +81,10 @@ class Tcl(QtWidgets.QStackedWidget):
 			self.setCurrentWidget(ui) #set the stacked widget to the given ui.
 
 		else: #popup ui.
+			ui.show(); self.hide() #activate the popup ui before hiding the stacked layout.
+			ui.adjustSize()
 			ui.resize(ui.minimumSizeHint())
 			self.sb.moveAndCenterWidget(ui, QtGui.QCursor.pos(), offsetY=4) #move to cursor position.
-			ui.show(); self.hide() #activate the popup ui before hiding the stacked layout.
 
 
 	def setSubUi(self, ui, w):
