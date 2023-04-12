@@ -32,7 +32,6 @@ Module | Description
 
 #####
 
-To install:
 install via pip in a command line window using:
 ```
 python -m pip install tentacletk
