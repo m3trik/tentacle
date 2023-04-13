@@ -29,8 +29,8 @@ class Cameras_maya(Cameras, Slots_maya):
 			self._clippingMenu.add('QDoubleSpinBox', setPrefix='Far Clip:  ', setObjectName='s000', setMinMax_='.01-10 step.1', setToolTip='Adjust the current cameras near clipping plane.')
 			self._clippingMenu.add('QSpinBox', setPrefix='Near Clip: ', setObjectName='s001', setMinMax_='10-10000 step1', setToolTip='Adjust the current cameras far clipping plane.')
 
-		#set widget states for the current activeCamera
-		activeCamera = self.getCurrentCam()
+		#set widget states for the active camera
+		activeCamera = mtk.Cam.getCurrentCam()
 		if not activeCamera:
 			self.sb.toggleWidgets(self._clippingMenu, setDisabled='s000-1,chk000')
 
@@ -55,7 +55,7 @@ class Cameras_maya(Cameras, Slots_maya):
 		else:
 			self.sb.toggleWidgets(self.clippingMenu, setEnabled='s000-1')
 
-		activeCamera = self.getCurrentCam()
+		activeCamera = mtk.Cam.getCurrentCam()
 		if not activeCamera:
 			self.sb.messageBox('No Active Camera.')
 			return
@@ -68,7 +68,7 @@ class Cameras_maya(Cameras, Slots_maya):
 		'''
 		value = self.clippingMenu.s000.value()
 
-		activeCamera = self.getCurrentCam()
+		activeCamera = mtk.Cam.getCurrentCam()
 		if not activeCamera:
 			self.sb.messageBox('No Active Camera.')
 			return
@@ -81,7 +81,7 @@ class Cameras_maya(Cameras, Slots_maya):
 		'''
 		value = self.clippingMenu.s001.value()
 
-		activeCamera = self.getCurrentCam()
+		activeCamera = mtk.Cam.getCurrentCam()
 		if not activeCamera:
 			self.sb.messageBox('No Active Camera.')
 			return
@@ -118,7 +118,7 @@ class Cameras_maya(Cameras, Slots_maya):
 			if text=='Set Custom Camera':
 				pm.mel.eval('string $homeName = `cameraView -camera persp`;') #cameraView -edit -camera persp -setCamera $homeName;
 			if text=='Camera From View':
-				self.createCameraFromView()
+				mtk.Cam.createCameraFromView()
 
 		if header=='Cameras':
 			pm.select(text)
@@ -146,11 +146,11 @@ class Cameras_maya(Cameras, Slots_maya):
 
 		if header=='Options':
 			if text=='Group Cameras':
-				self.groupCameras()
+				mtk.Cam.groupCameras()
 			if text=='Adjust Clipping':
 				self.clippingMenu.show()
 			if text=='Toggle Safe Frames': #Viewport Safeframes Toggle
-				self.toggleSafeFrames()
+				mtk.Cam.toggleSafeFrames()
 
 
 	def v000(self):
@@ -275,66 +275,7 @@ class Cameras_maya(Cameras, Slots_maya):
 		pm.AlignCameraToPolygon()
 		pm.viewFit(fitFactor=5.0)
 
-
-	def groupCameras(self):
-		'''Group Default Cameras
-		'''
-		grp = pm.ls('cameras', transforms=1)
-		if grp and self.isGroup(grp[0]): #add the new cam to 'cameras' group (if it exists).
-			self.sb.messageBox('Group \'cameras\' already exists.')
-			return
-
-		pm.group(world=1, name='cameras')
-		pm.hide('cameras')
-
-		cameras = ('side', 'front', 'top', 'persp', 'back', 'bottom', 'left', 'alignToPoly')
-
-		for c in cameras:
-			try:
-				pm.parent(c, 'cameras')
-			except Exception as error:
-				pass
-
-
-	def toggleSafeFrames(self):
-		'''Toggle display of the film gate for the current camera.
-		'''
-		camera = self.getCurrentCam()
-
-		state = pm.camera(camera, query=1, displayResolution=1)
-		if state:
-			pm.camera(camera, edit=1, displayFilmGate=False, displayResolution=False, overscan=1.0)
-		else:
-			pm.camera(camera, edit=1, displayFilmGate=False, displayResolution=True, overscan=1.3)
-
-
-	def getCurrentCam(self):
-		'''Get the currently active camera.
-		'''
-		from maya.OpenMaya import MDagPath
-		from maya.OpenMayaUI import M3dView
-
-		view = M3dView.active3dView()
-		cam = MDagPath()
-		view.getCamera(cam)
-		camPath = cam.fullPathName()
-		return camPath
-
-
-	def createCameraFromView(self):
-		'''Create a new camera base on the current view.
-		'''
-		from maya.cmds import getPanel #pymel getPanel is broken in ver: 2022.
-
-		curPanel = getPanel(withFocus=True)
-		if getPanel(typeOf=curPanel) == "modelPanel":
-			camera = pm.modelPanel(curPanel, q=1, cam=1)
-			newCamera = pm.duplicate(camera)[0]
-			pm.showHidden(newCamera)
-			# pm.mel.lookThroughModelPanel(newCamera, curPanel)
-			newCamera_ = pm.rename(newCamera, 'Camera')
-			print (newCamera_)
-			return newCamera_
+# --------------------------------------------------------------------------------------------
 
 
 
@@ -343,9 +284,12 @@ class Cameras_maya(Cameras, Slots_maya):
 
 
 
+
+# --------------------------------------------------------------------------------------------
 
 #module name
 print (__name__)
+
 # --------------------------------------------------------------------------------------------
 # Notes
 # --------------------------------------------------------------------------------------------
@@ -411,11 +355,11 @@ print (__name__)
 
 # 		if header=='Options':
 # 			if text=='Group Cameras':
-# 				self.groupCameras()
+# 				mtk.Cam.groupCameras()
 # 			if text=='Adjust Clipping':
 # 				self.clippingMenu.show()
 # 			if text=='Toggle Safe Frames': #Viewport Safeframes Toggle
-# 				self.toggleSafeFrames()
+# 				mtk.Cam.toggleSafeFrames()
 
 
 

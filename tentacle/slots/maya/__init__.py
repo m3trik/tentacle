@@ -15,7 +15,7 @@ import mayatk as mtk
 
 
 class Slots_maya(Slots):
-	'''App specific methods inherited by all other slot classes.
+	'''App specific methods inherited by all other app specific slot classes.
 	'''
 	def __init__(self, *args, **kwargs):
 		super().__init__(*args, **kwargs)
