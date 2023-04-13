@@ -25,7 +25,7 @@ class Slots(QtCore.QObject):
 		super().__init__(parent)
 		'''
 		'''
-		self.sb = self.get_switchboard_instance()
+		self.sb = self.switchboard()
 
 
 	def hideMain(fn):
