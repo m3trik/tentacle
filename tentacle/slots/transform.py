@@ -11,7 +11,7 @@ class Transform(Slots):
 		super().__init__(*args, **kwargs)
 		'''
 		'''
-		dh = self.sb.transform.draggable_header
+		dh = self.sb.transform.draggableHeader
 		dh.ctxMenu.add(self.sb.ComboBox, setObjectName='cmb000', setToolTip='')
 
 		tb000 = self.sb.transform.tb000 #drop to grid.
@@ -51,10 +51,10 @@ class Transform(Slots):
 		cmb003.menu_.add('QDoubleSpinBox', setObjectName='s023', setPrefix='Degrees:', setValue=0, setMinMax_='1.40625-360 step1.40625', setDisabled=True)
 
 
-	def draggable_header(self, state=None):
+	def draggableHeader(self, state=None):
 		'''Context menu
 		'''
-		dh = self.sb.transform.draggable_header
+		dh = self.sb.transform.draggableHeader
 
 
 	def chk010(self, state=None):

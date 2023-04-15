@@ -278,7 +278,7 @@ class Tcl(QtWidgets.QStackedWidget):
 	# ---------------------------------------------------------------------------------------------
 	# child widget event handling:
 	# ---------------------------------------------------------------------------------------------
-	ef_widgetTypes = [ #install an event filter for the given widget types.
+	filtered_widget_types = [ #install an event filter for the given widget types.
 		'QMainWindow',
 		'QWidget',
 		'QAction',
@@ -303,8 +303,8 @@ class Tcl(QtWidgets.QStackedWidget):
 			widgets (str/list): The widget(s) to initialize.
 		'''
 		for w in makeList(widgets): #if 'widgets' isn't a list, convert it to one.
-			# print (1, 'initWidgets:', w.ui.name.ljust(26), w.prefix.ljust(25), (w.name or type(w).__name__).ljust(25), w.type.ljust(15), w.derivedType.ljust(15), id(w)) #debug
-			if w.derivedType in self.ef_widgetTypes:
+			# print (1, 'initWidgets:', w.ui.name.ljust(26), w.baseName.ljust(25), (w.name or type(w).__name__).ljust(25), w.type.ljust(15), w.derivedType.ljust(15), id(w)) #debug
+			if w.derivedType in self.filtered_widget_types:
 				if w.ui.level<3:# or w.type=='QMainWindow':
 					w.installEventFilter(self.eventFilter)
 
@@ -313,8 +313,10 @@ class Tcl(QtWidgets.QStackedWidget):
 						self.sb.resizeAndCenterWidget(w)
 
 				elif w.derivedType=='QWidget':
-					if w.prefix=='hidden_area': #widget types to set an initial state as hidden.
-						w.setVisible(False)
+					if w.baseName=='region': #widget types to set an initial state as hidden.
+						# w.hide_top_level_children()
+						w.onEnter.connect(w.show_top_level_children)
+						w.onLeave.connect(w.hide_top_level_children)
 
 
 	def ef_showEvent(self, w, event):
@@ -333,40 +335,19 @@ class Tcl(QtWidgets.QStackedWidget):
 		w.showEvent(event)
 
 
-	def ef_hideEvent(self, w, event):
-		'''
-		'''
-
-		w.hideEvent(event)
-
-
 	def ef_enterEvent(self, w, event):
 		'''
 		'''
-		if w.type=='QWidget':
-			if w.prefix=='hidden_area':
-				w.setVisible(True) #set visibility
-
-		elif w.derivedType=='QPushButton':
-			if w.prefix=='i': #set the stacked widget.
+		if w.derivedType=='QPushButton':
+			if w.baseName=='i': #set the stacked widget.
 				subUi = self.sb.getUi(w.whatsThis(), level=2)
 				self.setSubUi(subUi, w)
 
-		if w.prefix=='chk':
+		if w.baseName=='chk':
 			if w.ui.isSubmenu:
 				w.click()
 
 		w.enterEvent(event)
-
-
-	def ef_leaveEvent(self, w, event):
-		'''
-		'''
-		if w.type=='QWidget':
-			if w.prefix=='hidden_area':
-				w.setVisible(False) #set visibility
-
-		w.leaveEvent(event)
 
 
 	def ef_mousePressEvent(self, w, event):
@@ -396,23 +377,21 @@ class Tcl(QtWidgets.QStackedWidget):
 		'''
 		if w.underMouse(): #if self.widget.rect().contains(event.pos()): #if mouse over widget:
 			if w.derivedType=='QPushButton':
-				if w.prefix=='i': #ie. 'i012'
+				if w.baseName=='i': #ie. 'i012'
 					#hide/show ui groupboxes according to the buttons whatsThis formatting.
 					name, *gbNames = w.whatsThis().split('#') #get any groupbox names that were prefixed by '#'.
 					groupBoxes = self.sb.getWidgetsByType('QGroupBox', name)
-					[gb.hide() if gbNames and not gb.name in gbNames else gb.show() for gb in groupBoxes] #show only groupboxes with those names if any were given, else show all.
+					[gb.hide() if all([gbNames, gb.name not in gbNames]) else gb.show() for gb in groupBoxes] #show only groupboxes with those names if any were given, else show all.
 					# self.app.processEvents() #the minimum size is not computed until some events are processed in the event loop.
 					self.setUi(name)
 
-				elif w.prefix=='v':
+				elif w.baseName in ('b','tb'):
+					w.click() #send click signal on mouseRelease.
+
 					if w.ui.name=='cameras':
 						self.prevCamera(add=w.getSlot())
-					#send click signal on mouseRelease.
-					w.click()
 
-				elif w.prefix in ('b','tb'):
-					if w.ui.isSubmenu:
-						w.click()
+					elif w.ui.isSubmenu:
 						self.hide()
 
 		w.mouseReleaseEvent(event)

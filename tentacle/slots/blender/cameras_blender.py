@@ -422,7 +422,7 @@ print (__name__)
 	# 	Camera Editors
 
 	# 	'''
-	# 	cmb = self.sb.cameras.draggable_header.ctxMenu.cmb000
+	# 	cmb = self.sb.cameras.draggableHeader.ctxMenu.cmb000
 		
 	# 	items = ['Camera Sequencer', 'Camera Set Editor']
 	# 	contents = cmb.addItems_(items, '')

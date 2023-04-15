@@ -11,7 +11,7 @@ class Crease(Slots):
 		super().__init__(*args, **kwargs)
 		'''
 		'''
-		dh = self.sb.crease.draggable_header
+		dh = self.sb.crease.draggableHeader
 		dh.ctxMenu.add(self.sb.ComboBox, setObjectName='cmb000', setToolTip='Crease Editors')
 
 		tb000 = self.sb.crease.tb000
@@ -38,10 +38,10 @@ class Crease(Slots):
 				self.sb.crease.tb000.setText('{} {}'.format(text, self.creaseValue))
 
 
-	def draggable_header(self, state=None):
+	def draggableHeader(self, state=None):
 		'''Context menu
 		'''
-		dh = self.sb.crease.draggable_header
+		dh = self.sb.crease.draggableHeader
 
 
 	def chk002(self, state=None):

@@ -12,7 +12,7 @@ class Preferences_blender(Preferences, Slots_blender):
 
 		self.sb.preferences.b010.setText('Maya Preferences')
 
-		cmb = self.sb.preferences.draggable_header.ctxMenu.cmb000
+		cmb = self.sb.preferences.draggableHeader.ctxMenu.cmb000
 		items = ['']
 		cmb.addItems_(items, '')
 
@@ -42,7 +42,7 @@ class Preferences_blender(Preferences, Slots_blender):
 	def cmb000(self, index=-1):
 		'''Editors
 		'''
-		cmb = self.sb.preferences.draggable_header.ctxMenu.cmb000
+		cmb = self.sb.preferences.draggableHeader.ctxMenu.cmb000
 
 		if index>0:
 			text = cmb.items[index]
@@ -129,7 +129,7 @@ print (__name__)
 # 	'''
 # 	Custom Menu Set
 # 	'''
-# 	cmb = self.sb.preferences.draggable_header.ctxMenu.cmb000
+# 	cmb = self.sb.preferences.draggableHeader.ctxMenu.cmb000
 	
 # 	items = ['Modeling', 'Normals', 'Materials', 'UV'] #combobox list menu corresponding to the button text sets.
 # 	contents = cmb.addItems_(items, 'Menu Sets')

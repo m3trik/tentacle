@@ -11,7 +11,7 @@ class Mirror(Slots):
 		super().__init__(*args, **kwargs)
 		'''
 		'''
-		dh = self.sb.mirror.draggable_header
+		dh = self.sb.mirror.draggableHeader
 		dh.ctxMenu.add(self.sb.ComboBox, setObjectName='cmb000', setToolTip='')
 
 		tb000 = self.sb.mirror.tb000
@@ -35,10 +35,10 @@ class Mirror(Slots):
 		self.sb.syncWidgets(tb000.ctxMenu.chk008, self.sb.mirror_submenu.chk008, attributes='setChecked')
 
 
-	def draggable_header(self, state=None):
+	def draggableHeader(self, state=None):
 		'''Context menu
 		'''
-		dh = self.sb.mirror.draggable_header
+		dh = self.sb.mirror.draggableHeader
 
 
 

@@ -8,11 +8,11 @@ class Create_maya(Create, Slots_maya):
 	def __init__(self, *args, **kwargs):
 		super().__init__(*args, **kwargs)
 
-		ctx = self.sb.create.draggable_header.ctxMenu
+		ctx = self.sb.create.draggableHeader.ctxMenu
 		if not ctx.containsMenuItems:
 			ctx.add(self.sb.ComboBox, setObjectName='cmb000', setToolTip='')
 
-		cmb = self.sb.create.draggable_header.ctxMenu.cmb000
+		cmb = self.sb.create.draggableHeader.ctxMenu.cmb000
 		items = ['']
 		cmb.addItems_(items, '')
 
@@ -33,7 +33,7 @@ class Create_maya(Create, Slots_maya):
 	def cmb000(self, index=-1):
 		'''Editors
 		'''
-		cmb = self.sb.create.draggable_header.ctxMenu.cmb000
+		cmb = self.sb.create.draggableHeader.ctxMenu.cmb000
 
 		if index>0:
 			text = cmb.items[index]

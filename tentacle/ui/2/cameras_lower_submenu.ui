@@ -59,7 +59,7 @@
    <layout class="QGridLayout" name="gridLayout">
     <item row="0" column="0">
      <widget class="QWidget" name="staticWindow" native="true">
-      <widget class="ListWidget" name="lw000">
+      <widget class="ListWidget" name="list000">
        <property name="geometry">
         <rect>
          <x>240</x>
@@ -136,7 +136,7 @@
        </property>
       </widget>
       <zorder>i000</zorder>
-      <zorder>lw000</zorder>
+      <zorder>list000</zorder>
      </widget>
     </item>
    </layout>

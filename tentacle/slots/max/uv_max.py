@@ -9,7 +9,7 @@ class Uv_max(Uv, Slots_max):
 	def __init__(self, *args, **kwargs):
 		super().__init__(*args, **kwargs)
 
-		cmb000 = self.sb.uv.draggable_header.ctxMenu.cmb000
+		cmb000 = self.sb.uv.draggableHeader.ctxMenu.cmb000
 		items = ['UV Editor','UV Set Editor','UV Tool Kit','UV Linking: Texture-Centric','UV Linking: UV-Centric','UV Linking: Paint Effects/UV','UV Linking: Hair/UV']
 		cmb000.addItems_(items, '3dsMax UV Editors')
 
@@ -51,7 +51,7 @@ class Uv_max(Uv, Slots_max):
 	def cmb000(self, index=-1):
 		'''Editors
 		'''
-		cmb = self.sb.uv.draggable_header.ctxMenu.cmb000
+		cmb = self.sb.uv.draggableHeader.ctxMenu.cmb000
 
 		if index>0: #hide hotbox then perform operation
 			self.sb.parent().hide()

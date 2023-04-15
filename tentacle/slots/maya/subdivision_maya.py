@@ -8,21 +8,21 @@ class Subdivision_maya(Subdivision, Slots_maya):
 	def __init__(self, *args, **kwargs):
 		super().__init__(*args, **kwargs)
 
-		ctx = self.sb.subdivision.draggable_header.ctxMenu
+		ctx = self.sb.subdivision.draggableHeader.ctxMenu
 		if not ctx.containsMenuItems:
 			ctx.add(self.sb.ComboBox, setObjectName='cmb000', setToolTip='Subdivision Editiors.')
 			ctx.add(self.sb.ComboBox, setObjectName='cmb001', setToolTip='Smooth Proxy.')
 			ctx.add(self.sb.ComboBox, setObjectName='cmb002', setToolTip='Maya Subdivision Operations.')
 
-		cmb = self.sb.subdivision.draggable_header.ctxMenu.cmb000
+		cmb = self.sb.subdivision.draggableHeader.ctxMenu.cmb000
 		items = ['Polygon Display Options']
 		cmb.addItems_(items, 'Subdivision Editiors')
 
-		cmb = self.sb.subdivision.draggable_header.ctxMenu.cmb001
+		cmb = self.sb.subdivision.draggableHeader.ctxMenu.cmb001
 		items = ['Create Subdiv Proxy','Remove Subdiv Proxy Mirror','Crease Tool','Toggle Subdiv Proxy Display', 'Both Proxy and Subdiv Display']
 		cmb.addItems_(items, 'Smooth Proxy')
 
-		cmb = self.sb.subdivision.draggable_header.ctxMenu.cmb002
+		cmb = self.sb.subdivision.draggableHeader.ctxMenu.cmb002
 		items = ['Reduce Polygons','Add Divisions','Smooth']
 		cmb.addItems_(items, 'Maya Subdivision Operations')
 
@@ -30,7 +30,7 @@ class Subdivision_maya(Subdivision, Slots_maya):
 	def cmb000(self, index=-1):
 		'''Editors
 		'''
-		cmb = self.sb.subdivision.draggable_header.ctxMenu.cmb000
+		cmb = self.sb.subdivision.draggableHeader.ctxMenu.cmb000
 
 		if index>0:
 			text = cmb.items[index]
@@ -42,7 +42,7 @@ class Subdivision_maya(Subdivision, Slots_maya):
 	def cmb001(self, index=-1):
 		'''Smooth Proxy
 		'''
-		cmb = self.sb.subdivision.draggable_header.ctxMenu.cmb001
+		cmb = self.sb.subdivision.draggableHeader.ctxMenu.cmb001
 
 		if index>0:
 			text = cmb.items[index]
@@ -62,7 +62,7 @@ class Subdivision_maya(Subdivision, Slots_maya):
 	def cmb002(self, index=-1):
 		'''Maya Subdivision Operations
 		'''
-		cmb = self.sb.subdivision.draggable_header.ctxMenu.cmb002
+		cmb = self.sb.subdivision.draggableHeader.ctxMenu.cmb002
 
 		if index>0:
 			if index is cmb.items.index('Reduce Polygons'):

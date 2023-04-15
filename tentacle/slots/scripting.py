@@ -11,15 +11,15 @@ class Scripting(Slots):
 		super().__init__(*args, **kwargs)
 		'''
 		'''
-		ctx = self.sb.scripting.draggable_header.ctxMenu
+		ctx = self.sb.scripting.draggableHeader.ctxMenu
 		if not ctx.containsMenuItems:
 			ctx.add(self.sb.ComboBox, setObjectName='cmb000', setToolTip='')
 
 
-	def draggable_header(self, state=None):
+	def draggableHeader(self, state=None):
 		'''Context menu
 		'''
-		dh = self.sb.scripting.draggable_header
+		dh = self.sb.scripting.draggableHeader
 
 
 	def chk000(self, state=None):

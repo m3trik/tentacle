@@ -9,7 +9,7 @@ class Edit_max(Edit, Slots_max):
 	def __init__(self, *args, **kwargs):
 		super().__init__(*args, **kwargs)
 
-		cmb = self.sb.edit.draggable_header.ctxMenu.cmb000
+		cmb = self.sb.edit.draggableHeader.ctxMenu.cmb000
 		items = []
 		cmb.addItems_(items, 'Max Editors')
 
@@ -27,7 +27,7 @@ class Edit_max(Edit, Slots_max):
 	def cmb000(self, index=-1):
 		'''Editors
 		'''
-		cmb = self.sb.edit.draggable_header.ctxMenu.cmb000
+		cmb = self.sb.edit.draggableHeader.ctxMenu.cmb000
 
 		if index>0:
 			text = cmb.items[index]

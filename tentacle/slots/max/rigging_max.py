@@ -9,7 +9,7 @@ class Rigging_max(Rigging, Slots_max):
 	def __init__(self, *args, **kwargs):
 		super().__init__(*args, **kwargs)
 
-		cmb = self.sb.rigging.draggable_header.ctxMenu.cmb000
+		cmb = self.sb.rigging.draggableHeader.ctxMenu.cmb000
 		items = ['Bone Tools','Parameter Editor','Parameter Collector','Parameter Wire Dialog']
 		cmb.addItems_(items, 'Rigging Editors')
 
@@ -21,7 +21,7 @@ class Rigging_max(Rigging, Slots_max):
 	def cmb000(self, index=-1):
 		'''Editors
 		'''
-		cmb = self.sb.rigging.draggable_header.ctxMenu.cmb000
+		cmb = self.sb.rigging.draggableHeader.ctxMenu.cmb000
 
 		if index>0:
 			text = cmb.items[index]

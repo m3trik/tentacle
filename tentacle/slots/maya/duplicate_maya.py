@@ -8,7 +8,7 @@ class Duplicate_maya(Duplicate, Slots_maya):
 	def __init__(self, *args, **kwargs):
 		super().__init__(*args, **kwargs)
 
-		dh = self.sb.duplicate.draggable_header
+		dh = self.sb.duplicate.draggableHeader
 		items = ['Duplicate Special']
 		dh.ctxMenu.cmb000.addItems_(items, 'Maya Menus')
 
@@ -19,7 +19,7 @@ class Duplicate_maya(Duplicate, Slots_maya):
 	def cmb000(self, index=-1):
 		'''Editors
 		'''
-		cmb = self.sb.duplicate.draggable_header.ctxMenu.cmb000
+		cmb = self.sb.duplicate.draggableHeader.ctxMenu.cmb000
 
 		if index>0:
 			if index==cmd.items.index('Duplicate Special'):

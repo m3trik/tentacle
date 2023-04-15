@@ -10,7 +10,7 @@ class Uv_maya(Uv, Slots_maya):
 
 		self.sb.preferences.slots.loadPlugin('Unfold3D.mll') #assure the maya UV plugin is loaded.
 
-		cmb000 = self.sb.uv.draggable_header.ctxMenu.cmb000
+		cmb000 = self.sb.uv.draggableHeader.ctxMenu.cmb000
 		items = ['UV Editor','UV Set Editor','UV Tool Kit','UV Linking: Texture-Centric','UV Linking: UV-Centric','UV Linking: Paint Effects/UV','UV Linking: Hair/UV','Flip UV']
 		cmb000.addItems_(items, 'Maya UV Editors')
 
@@ -36,7 +36,7 @@ class Uv_maya(Uv, Slots_maya):
 	def cmb000(self, index=-1):
 		'''Editors
 		'''
-		cmb = self.sb.uv.draggable_header.ctxMenu.cmb000
+		cmb = self.sb.uv.draggableHeader.ctxMenu.cmb000
 
 		if index>0: #hide main menu and perform operation
 			text = cmb.items[index]

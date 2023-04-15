@@ -8,7 +8,7 @@ class Scene_maya(Scene, Slots_maya):
 	def __init__(self, *args, **kwargs):
 		super().__init__(*args, **kwargs)
 
-		cmb = self.sb.scene.draggable_header.ctxMenu.cmb000
+		cmb = self.sb.scene.draggableHeader.ctxMenu.cmb000
 		items = ['Node Editor', 'Outlinder', 'Content Browser', 'Optimize Scene Size', 'Prefix Hierarchy Names', 'Search and Replace Names']
 		cmb.addItems_(items, 'Maya Scene Editors')
 
@@ -16,7 +16,7 @@ class Scene_maya(Scene, Slots_maya):
 	def cmb000(self, index=-1):
 		'''Editors
 		'''
-		cmb = self.sb.scene.draggable_header.ctxMenu.cmb000
+		cmb = self.sb.scene.draggableHeader.ctxMenu.cmb000
 
 		if index>0:
 			text = cmb.items[index]

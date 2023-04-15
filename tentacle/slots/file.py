@@ -22,7 +22,7 @@ class File(Slots):
 		truncated = truncate(recentFiles, 65)
 		w1.list.add(truncated, recentFiles)
 
-		dh = self.sb.file.draggable_header
+		dh = self.sb.file.draggableHeader
 		dh.ctxMenu.add(self.sb.ComboBox, setObjectName='cmb000', setToolTip='')
 		dh.ctxMenu.add(self.sb.PushButton, setObjectName='tb000', setText='Save', setToolTip='Save the current file.')
 		dh.ctxMenu.add(self.sb.Label, setObjectName='lbl001', setText='Minimize App', setToolTip='Minimize the main application.')
@@ -39,7 +39,7 @@ class File(Slots):
 		cmb006.ctxMenu.add(self.sb.Label, setObjectName='lbl004', setText='Root', setToolTip='Open the project directory.')
 		cmb006.ctxMenu.cmb001.addItems_(self.getRecentProjects(), "Recent Projects", clear=True)
 
-		tb000 = self.sb.file.draggable_header.ctxMenu.tb000
+		tb000 = self.sb.file.draggableHeader.ctxMenu.tb000
 		tb000.ctxMenu.add('QCheckBox', setText='Wireframe', setObjectName='chk000', setToolTip='Set view to wireframe before save.')
 		tb000.ctxMenu.add('QCheckBox', setText='Increment', setObjectName='chk001', setChecked=True, setToolTip='Append and increment a unique integer value.')
 		tb000.ctxMenu.add('QCheckBox', setText='Quit', setObjectName='chk002', setToolTip='Quit after save.')
@@ -68,10 +68,10 @@ class File(Slots):
 			return self._referenceSceneMenu
 
 
-	def draggable_header(self, state=None):
+	def draggableHeader(self, state=None):
 		'''Context menu
 		'''
-		dh = self.sb.file.draggable_header
+		dh = self.sb.file.draggableHeader
 
 
 	def lbl005(self):

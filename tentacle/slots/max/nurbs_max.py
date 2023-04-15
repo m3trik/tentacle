@@ -8,7 +8,7 @@ class Nurbs_max(Nurbs, Slots_max):
 	def __init__(self, *args, **kwargs):
 		super().__init__(*args, **kwargs)
 
-		cmb000 = self.sb.nurbs.draggable_header.ctxMenu.cmb000
+		cmb000 = self.sb.nurbs.draggableHeader.ctxMenu.cmb000
 		items = []
 		cmb000.addItems_(items, 'Curve Editors')
 
@@ -20,7 +20,7 @@ class Nurbs_max(Nurbs, Slots_max):
 	def cmb000(self, index=-1):
 		'''Maya Curve Operations
 		'''
-		cmb = self.sb.nurbs.draggable_header.ctxMenu.cmb000
+		cmb = self.sb.nurbs.draggableHeader.ctxMenu.cmb000
 
 		if index>0:
 			text = cmb.items[index]

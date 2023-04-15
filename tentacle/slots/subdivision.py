@@ -13,8 +13,8 @@ class Subdivision(Slots):
 		'''
 	
 
-	def draggable_header(self, state=None):
+	def draggableHeader(self, state=None):
 		'''Context menu
 		'''
-		dh = self.sb.subdivision.draggable_header
+		dh = self.sb.subdivision.draggableHeader
 

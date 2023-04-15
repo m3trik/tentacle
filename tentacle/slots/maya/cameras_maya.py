@@ -153,7 +153,7 @@ class Cameras_maya(Cameras, Slots_maya):
 				mtk.Cam.toggleSafeFrames()
 
 
-	def v000(self):
+	def b000(self):
 		'''Cameras: Back View
 		'''
 		try: #if pm.objExists('back'):
@@ -172,7 +172,7 @@ class Cameras_maya(Cameras, Slots_maya):
 				pm.parent(cam, 'cameras')
 
 
-	def v001(self):
+	def b001(self):
 		'''Cameras: Top View
 		'''
 		try:
@@ -182,7 +182,7 @@ class Cameras_maya(Cameras, Slots_maya):
 			pm.lookThru('|top')
 
 
-	def v002(self):
+	def b002(self):
 		'''Cameras: Right View
 		'''
 		try:
@@ -192,7 +192,7 @@ class Cameras_maya(Cameras, Slots_maya):
 			pm.lookThru('|side')
 
 
-	def v003(self):
+	def b003(self):
 		'''Cameras: Left View
 		'''
 		try: #if pm.objExists('back'):
@@ -211,7 +211,7 @@ class Cameras_maya(Cameras, Slots_maya):
 				pm.parent(cam, 'cameras')
 
 
-	def v004(self):
+	def b004(self):
 		'''Cameras: Perspective View
 		'''
 		try:
@@ -221,7 +221,7 @@ class Cameras_maya(Cameras, Slots_maya):
 			pm.lookThru('|persp')
 
 
-	def v005(self):
+	def b005(self):
 		'''Cameras: Front View
 		'''
 		try:
@@ -231,7 +231,7 @@ class Cameras_maya(Cameras, Slots_maya):
 			pm.lookThru('|front')
 
 
-	def v006(self):
+	def b006(self):
 		'''Cameras: Bottom View
 		'''
 		try: #if pm.objExists('back'):
@@ -250,7 +250,7 @@ class Cameras_maya(Cameras, Slots_maya):
 				pm.parent(cam, 'cameras')
 
 
-	def v007(self):
+	def b007(self):
 		'''Cameras: Align View
 		'''
 		selection = pm.ls(sl=1)
@@ -274,6 +274,30 @@ class Cameras_maya(Cameras, Slots_maya):
 		pm.lookThru('alignToPoly')
 		pm.AlignCameraToPolygon()
 		pm.viewFit(fitFactor=5.0)
+
+
+	def b010(self):
+		'''Camera: Dolly
+		'''
+		pm.viewPreset(camera="dolly")
+
+
+	def b011(self):
+		'''Camera: Roll
+		'''
+		pm.viewPreset(camera="roll")
+
+
+	def b012(self):
+		'''Camera: Truck
+		'''
+		pm.viewPreset(camera="truck")
+
+
+	def b013(self):
+		'''Camera: Orbit
+		'''
+		pm.viewPreset(camera="orbit")
 
 # --------------------------------------------------------------------------------------------
 
@@ -368,7 +392,7 @@ print (__name__)
 	# 	Camera Editors
 
 	# 	'''
-	# 	cmb = self.sb.cameras.draggable_header.ctxMenu.cmb000
+	# 	cmb = self.sb.cameras.draggableHeader.ctxMenu.cmb000
 		
 	# 	items = ['Camera Sequencer', 'Camera Set Editor']
 	# 	contents = cmb.addItems_(items, '')

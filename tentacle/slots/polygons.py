@@ -11,7 +11,7 @@ class Polygons(Slots):
 		super().__init__(*args, **kwargs)
 		'''
 		'''
-		dh = self.sb.polygons.draggable_header
+		dh = self.sb.polygons.draggableHeader
 		dh.ctxMenu.add(self.sb.ComboBox, setObjectName='cmb000', setToolTip='')
 
 		tb000 = self.sb.polygons.tb000
@@ -55,10 +55,10 @@ class Polygons(Slots):
 		tb009.ctxMenu.add('QCheckBox', setText='Freeze Transforms', setObjectName='chk016', setChecked=True, setToolTip='Freeze Transformations on the object that is being snapped to.')
 
 
-	def draggable_header(self, state=None):
+	def draggableHeader(self, state=None):
 		'''Context menu
 		'''
-		dh = self.sb.polygons.draggable_header
+		dh = self.sb.polygons.draggableHeader
 
 
 	def chk008(self, state=None):

@@ -12,11 +12,11 @@ class Materials_blender(Materials, Slots_blender):
 
 		self.randomMat = None
 
-		dh = self.sb.materials.draggable_header
+		dh = self.sb.materials.draggableHeader
 		dh.ctxMenu.add(self.sb.ComboBox, setObjectName='cmb000', setToolTip='Material Editors')
 		dh.ctxMenu.add(self.sb.Label, setText='Material Attributes', setObjectName='lbl004', setToolTip='Show the material attributes in the attribute editor.')
 
-		cmb000 = self.sb.materials.draggable_header.ctxMenu.cmb000
+		cmb000 = self.sb.materials.draggableHeader.ctxMenu.cmb000
 		items = []
 		cmb000.addItems_(items, 'Material Editors')
 
@@ -24,7 +24,7 @@ class Materials_blender(Materials, Slots_blender):
 	def cmb000(self, index=-1):
 		'''Editors
 		'''
-		cmb = self.sb.materials.draggable_header.ctxMenu.cmb000
+		cmb = self.sb.materials.draggableHeader.ctxMenu.cmb000
 
 		if index>0:
 			text = cmb.items[index]
@@ -447,7 +447,7 @@ print (__name__)
 	# 	Existing Materials
 
 	# 	'''
-	# 	cmb = self.sb.materials.draggable_header.ctxMenu.cmb000
+	# 	cmb = self.sb.materials.draggableHeader.ctxMenu.cmb000
 
 	# 	mats = [m for m in pm.ls(materials=1)]
 	# 	matNames = [m.name() for m in mats]

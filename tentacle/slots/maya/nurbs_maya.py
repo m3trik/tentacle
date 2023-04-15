@@ -8,7 +8,7 @@ class Nurbs_maya(Nurbs, Slots_maya):
 	def __init__(self, *args, **kwargs):
 		super().__init__(*args, **kwargs)
 
-		cmb000 = self.sb.nurbs.draggable_header.ctxMenu.cmb000
+		cmb000 = self.sb.nurbs.draggableHeader.ctxMenu.cmb000
 		items = ['Project Curve','Duplicate Curve','Create Curve from Poly','Bend Curve', 'Curl Curve','Modify Curve Curvature','Smooth Curve','Straighten Curves','Extrude Curves','Revolve Curves','Loft Curves','Planar Curves','Insert Isoparms','Insert Knot','Rebuild Curve','Extend Curve', 'Extend Curve On Surface']
 		cmb000.addItems_(items, 'Curve Editors')
 
@@ -20,7 +20,7 @@ class Nurbs_maya(Nurbs, Slots_maya):
 	def cmb000(self, index=-1):
 		'''Maya Curve Operations
 		'''
-		cmb = self.sb.nurbs.draggable_header.ctxMenu.cmb000
+		cmb = self.sb.nurbs.draggableHeader.ctxMenu.cmb000
 
 		if index>0:
 			text = cmb.items[index]

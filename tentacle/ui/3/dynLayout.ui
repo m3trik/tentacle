@@ -93,7 +93,7 @@
        </layout>
       </item>
       <item row="0" column="1" colspan="2">
-       <widget class="Draggable_header" name="draggable_header">
+       <widget class="DraggableHeader" name="draggableHeader">
         <property name="minimumSize">
          <size>
           <width>0</width>
@@ -124,9 +124,9 @@
  </widget>
  <customwidgets>
   <customwidget>
-   <class>Draggable_header</class>
+   <class>DraggableHeader</class>
    <extends>QLabel</extends>
-   <header>draggable_header.h</header>
+   <header>draggableHeader.h</header>
   </customwidget>
  </customwidgets>
  <resources/>

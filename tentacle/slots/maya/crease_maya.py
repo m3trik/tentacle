@@ -10,7 +10,7 @@ class Crease_maya(Crease, Slots_maya):
 
 		self.creaseValue = 10
 
-		cmb = self.sb.crease.draggable_header.ctxMenu.cmb000
+		cmb = self.sb.crease.draggableHeader.ctxMenu.cmb000
 		items = ['Crease Set Editor']
 		cmb.addItems_(items, 'Crease Editors:')
 
@@ -18,7 +18,7 @@ class Crease_maya(Crease, Slots_maya):
 	def cmb000(self, index=-1):
 		'''Editors
 		'''
-		cmb = self.sb.crease.draggable_header.ctxMenu.cmb000
+		cmb = self.sb.crease.draggableHeader.ctxMenu.cmb000
 
 		if index>0:
 			text = cmb.items[index]

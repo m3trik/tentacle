@@ -11,7 +11,7 @@ class Uv(Slots):
 		super().__init__(*args, **kwargs)
 		'''
 		'''
-		dh = self.sb.uv.draggable_header
+		dh = self.sb.uv.draggableHeader
 		dh.ctxMenu.add(self.sb.ComboBox, setObjectName='cmb000', setToolTip='Maya UV Editors')
 		dh.ctxMenu.add('QPushButton', setText='Create UV Snapshot', setObjectName='b001', setToolTip='Save an image file of the current UV layout.')
 
@@ -64,10 +64,10 @@ class Uv(Slots):
 		tb008.ctxMenu.add('QCheckBox', setText='Delete History', setObjectName='chk026', setChecked=True, setToolTip='Remove construction history for the objects transferring from.\nOtherwise, the UV\'s will be lost should any of the frm objects be deleted.')
 
 
-	def draggable_header(self, state=None):
+	def draggableHeader(self, state=None):
 		'''Context menu
 		'''
-		dh = self.sb.uv.draggable_header
+		dh = self.sb.uv.draggableHeader
 
 
 	def chk001(self, state):

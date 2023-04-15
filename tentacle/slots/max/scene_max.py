@@ -9,7 +9,7 @@ class Scene_max(Scene, Slots_max):
 	def __init__(self, *args, **kwargs):
 		super().__init__(*args, **kwargs)
 
-		cmb = self.sb.scene.draggable_header.ctxMenu.cmb000
+		cmb = self.sb.scene.draggableHeader.ctxMenu.cmb000
 		items = []
 		cmb.addItems_(items, 'Scene Editors')
 
@@ -17,7 +17,7 @@ class Scene_max(Scene, Slots_max):
 	def cmb000(self, index=-1):
 		'''Editors
 		'''
-		cmb = self.sb.scene.draggable_header.ctxMenu.cmb000
+		cmb = self.sb.scene.draggableHeader.ctxMenu.cmb000
 
 		if index>0:
 			text = cmb.items[index]

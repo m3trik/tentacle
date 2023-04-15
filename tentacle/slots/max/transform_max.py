@@ -8,7 +8,7 @@ class Transform_max(Transform, Slots_max):
 	def __init__(self, *args, **kwargs):
 		super().__init__(*args, **kwargs)
 
-		cmb000 = self.sb.transform.draggable_header.ctxMenu.cmb000
+		cmb000 = self.sb.transform.draggableHeader.ctxMenu.cmb000
 		items = ['']
 		cmb000.addItems_(items, '')
 
@@ -36,7 +36,7 @@ class Transform_max(Transform, Slots_max):
 	def cmb000(self, index=-1):
 		'''Editors
 		'''
-		cmb = self.sb.transform.draggable_header.ctxMenu.cmb000
+		cmb = self.sb.transform.draggableHeader.ctxMenu.cmb000
 
 		if index>0:
 			text = cmb.items[index]

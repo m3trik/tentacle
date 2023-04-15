@@ -10,7 +10,7 @@ class Normals_blender(Normals, Slots_blender):
 		Slots_blender.__init__(self, *args, **kwargs)
 		Normals.__init__(self, *args, **kwargs)
 
-		cmb = self.sb.normals.draggable_header.ctxMenu.cmb000
+		cmb = self.sb.normals.draggableHeader.ctxMenu.cmb000
 		items = ['']
 		cmb.addItems_(items, '')
 
@@ -18,7 +18,7 @@ class Normals_blender(Normals, Slots_blender):
 	def cmb000(self, index=-1):
 		'''Editors
 		'''
-		cmb = self.sb.normals.draggable_header.ctxMenu.cmb000
+		cmb = self.sb.normals.draggableHeader.ctxMenu.cmb000
 
 		if index>0:
 			if index==cmd.items.index(''):

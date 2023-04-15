@@ -136,49 +136,49 @@ class Cameras_max(Cameras, Slots_max):
 				maxEval('actionMan.executeAction 0 "40015"') #CamPoint(); CamPoint pos:[34.8904,27.6277,0] isSelected:on
 
 
-	def v000(self):
+	def b000(self):
 		'''Cameras: Back View
 		'''
 		maxEval("max vpt back")
 
 
-	def v001(self):
+	def b001(self):
 		'''Cameras: Top View
 		'''
 		maxEval("max vpt top")
 
 
-	def v002(self):
+	def b002(self):
 		'''Cameras: Right View
 		'''
 		maxEval("max vpt right")
 
 
-	def v003(self):
+	def b003(self):
 		'''Cameras: Left View
 		'''
 		maxEval("max vpt left")
 
 
-	def v004(self):
+	def b004(self):
 		'''Cameras: Perspective View
 		'''
 		maxEval("max vpt persp user")
 
 
-	def v005(self):
+	def b005(self):
 		'''Cameras: Front View
 		'''
 		maxEval("max vpt front")
 
 
-	def v006(self):
+	def b006(self):
 		'''Cameras: Bottom View
 		'''
 		maxEval("max vpt bottom")
 
 
-	def v007(self):
+	def b007(self):
 		'''Cameras: Align View
 		'''
 		maxEval('''
@@ -187,25 +187,25 @@ class Cameras_max(Cameras, Slots_max):
 		''')
 
 
-	def v010(self):
+	def b010(self):
 		'''Camera: Dolly
 		'''
 		maxEval("max dolly mode")
 
 
-	def v011(self):
+	def b011(self):
 		'''Camera: Roll
 		'''
 		maxEval("max roll")
 
 
-	def v012(self):
+	def b012(self):
 		'''Camera: Truck
 		'''
 		maxEval("max truck")
 
 
-	def v013(self):
+	def b013(self):
 		'''Camera: Orbit
 		'''
 		maxEval("max pancamera")

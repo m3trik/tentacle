@@ -11,15 +11,15 @@ class Pivot(Slots):
 		super().__init__(*args, **kwargs)
 		'''
 		'''
-		ctx = self.sb.pivot.draggable_header.ctxMenu
+		ctx = self.sb.pivot.draggableHeader.ctxMenu
 		if not ctx.containsMenuItems:
 			ctx.add(self.sb.ComboBox, setObjectName='cmb000', setToolTip='')
 
 
-	def draggable_header(self, state=None):
+	def draggableHeader(self, state=None):
 		'''Context menu
 		'''
-		dh = self.sb.pivot.draggable_header
+		dh = self.sb.pivot.draggableHeader
 
 
 	def b000(self):

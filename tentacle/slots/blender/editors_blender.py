@@ -177,7 +177,7 @@ class Editors_blender(Editors, Slots_blender):
 	def cmb000(self, index=-1):
 		'''Editors
 		'''
-		cmb = self.editors_ui.draggable_header.ctxMenu.cmb000
+		cmb = self.editors_ui.draggableHeader.ctxMenu.cmb000
 
 		if index>0:
 			text = cmb.items[index]

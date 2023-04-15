@@ -10,7 +10,7 @@ class Nurbs(Slots):
 		super().__init__(*args, **kwargs)
 		'''
 		'''
-		dh = self.sb.nurbs.draggable_header
+		dh = self.sb.nurbs.draggableHeader
 		dh.ctxMenu.add(self.sb.ComboBox, setObjectName='cmb000', setToolTip='Maya Curve Operations')
 
 		tb000 = self.sb.nurbs.tb000

@@ -10,7 +10,7 @@ class Polygons_blender(Polygons, Slots_blender):
 		Slots_blender.__init__(self, *args, **kwargs)
 		Polygons.__init__(self, *args, **kwargs)
 
-		cmb000 = self.sb.polygons.draggable_header.ctxMenu.cmb000
+		cmb000 = self.sb.polygons.draggableHeader.ctxMenu.cmb000
 		items = ['Extrude','Bevel','Bridge','Combine','Merge Vertex','Offset Edgeloop','Edit Edgeflow','Extract Curve','Poke','Wedge','Assign Invisible']
 		cmb000.addItems_(items, 'Polygon Editors')
 
@@ -18,7 +18,7 @@ class Polygons_blender(Polygons, Slots_blender):
 	def cmb000(self, index=-1):
 		'''Editors
 		'''
-		cmb = self.sb.polygons.draggable_header.ctxMenu.cmb000
+		cmb = self.sb.polygons.draggableHeader.ctxMenu.cmb000
 
 		if index>0:
 			text = cmb.items[index]

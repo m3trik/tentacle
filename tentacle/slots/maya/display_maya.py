@@ -8,7 +8,7 @@ class Display_maya(Display, Slots_maya):
 	def __init__(self, *args, **kwargs):
 		super().__init__(*args, **kwargs)
 
-		cmb = self.sb.display.draggable_header.ctxMenu.cmb000
+		cmb = self.sb.display.draggableHeader.ctxMenu.cmb000
 		items = ['']
 		cmb.addItems_(items, '')
 
@@ -16,7 +16,7 @@ class Display_maya(Display, Slots_maya):
 	def cmb000(self, index=-1):
 		'''Editors
 		'''
-		cmb = self.sb.display.draggable_header.ctxMenu.cmb000
+		cmb = self.sb.display.draggableHeader.ctxMenu.cmb000
 
 		if index>0:
 			text = cmb.items[index]
@@ -122,6 +122,12 @@ class Display_maya(Display, Slots_maya):
 		mtk.viewportMessage('Default Material Override: <hl>{}</hl>.'.format(state))
 
 
+	def b010(self):
+		'''Toggle Explode Selected
+		'''
+		mtk.ExplodedView.toggle_explode()
+
+
 	def b011(self):
 		'''Toggle Component Id Display
 		'''
@@ -168,6 +174,12 @@ class Display_maya(Display, Slots_maya):
 		current_panel = pm.getPanel (withFocus=1)
 		state = pm.modelEditor (current_panel, query=1, activeOnly=1)
 		pm.modelEditor (current_panel, edit=1, activeOnly=not state)
+
+
+	def b013(self):
+		'''Explode View GUI
+		'''
+		mtk.exploded_view.launch_gui(move_to_cursor=True, frameless_window=True)
 
 
 	def b021(self):

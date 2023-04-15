@@ -11,7 +11,7 @@ class Selection(Slots):
 		super().__init__(*args, **kwargs)
 		'''
 		'''
-		dh = self.sb.selection.draggable_header
+		dh = self.sb.selection.draggableHeader
 		dh.ctxMenu.add(self.sb.ComboBox, setObjectName='cmb000', setToolTip='')
 		dh.ctxMenu.add(self.sb.ComboBox, setObjectName='cmb006', setToolTip='A list of currently selected objects.')
 		dh.ctxMenu.add('QCheckBox', setText='Ignore Backfacing', setObjectName='chk004', setToolTip='Ignore backfacing components during selection.')
@@ -64,10 +64,10 @@ class Selection(Slots):
 		tb003.ctxMenu.add('QDoubleSpinBox', setPrefix='Angle High: ', setObjectName='s007', setMinMax_='0.0-180 step1', setValue=160, setToolTip='Normal angle high range.')
 
 
-	def draggable_header(self, state=None):
+	def draggableHeader(self, state=None):
 		'''Context menu
 		'''
-		dh = self.sb.selection.draggable_header
+		dh = self.sb.selection.draggableHeader
 
 
 	def s002(self, value=None):

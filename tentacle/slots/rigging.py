@@ -11,7 +11,7 @@ class Rigging(Slots):
 		super().__init__(*args, **kwargs)
 		'''
 		'''
-		dh = self.sb.rigging.draggable_header
+		dh = self.sb.rigging.draggableHeader
 		dh.ctxMenu.add(self.sb.ComboBox, setObjectName='cmb000', setToolTip='Rigging Editors')
 
 		tb000 = self.sb.rigging.tb000
@@ -52,10 +52,10 @@ class Rigging(Slots):
 				if any((tb004.ctxMenu.chk012.isChecked(), tb004.ctxMenu.chk013.isChecked(), tb004.ctxMenu.chk014.isChecked())) else 'Unlock Attributes')])
 
 
-	def draggable_header(self, state=None):
+	def draggableHeader(self, state=None):
 		'''Context menu
 		'''
-		dh = self.sb.rigging.draggable_header
+		dh = self.sb.rigging.draggableHeader
 
 
 	

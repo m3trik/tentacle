@@ -10,7 +10,7 @@ class Rigging_blender(Rigging, Slots_blender):
 		Slots_blender.__init__(self, *args, **kwargs)
 		Rigging.__init__(self, *args, **kwargs)
 
-		cmb = self.sb.rigging.draggable_header.ctxMenu.cmb000
+		cmb = self.sb.rigging.draggableHeader.ctxMenu.cmb000
 		items = []
 		cmb.addItems_(items, 'Rigging Editors')
 
@@ -22,7 +22,7 @@ class Rigging_blender(Rigging, Slots_blender):
 	def cmb000(self, index=-1):
 		'''Editors
 		'''
-		cmb = self.sb.rigging.draggable_header.ctxMenu.cmb000
+		cmb = self.sb.rigging.draggableHeader.ctxMenu.cmb000
 
 		if index>0:
 			text = cmb.items[index]

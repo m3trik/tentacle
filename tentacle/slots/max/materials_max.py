@@ -11,12 +11,12 @@ class Materials_max(Materials, Slots_max):
 
 		self.randomMat=None
 
-		dh = self.sb.materials.draggable_header
+		dh = self.sb.materials.draggableHeader
 		dh.ctxMenu.add(self.sb.ComboBox, setObjectName='cmb000', setToolTip='Maya Material Editors')
 		dh.ctxMenu.add(self.sb.PushButton, setText='Relink Scene Bitmaps', setObjectName='tb003', setToolTip='Repair broken bitmap file links for any scene materials. If no materials are selected, all scene materials will be used.')
 		dh.ctxMenu.add(self.sb.PushButton, setText='Relink Library Bitmaps', setObjectName='tb004', setToolTip='Repair broken bitmap file links for all libraries in a given directory.')
 
-		cmb000 = self.sb.materials.draggable_header.ctxMenu.cmb000
+		cmb000 = self.sb.materials.draggableHeader.ctxMenu.cmb000
 		items = ['Material Editor']
 		cmb000.addItems_(items, 'Material Editors')
 
@@ -24,7 +24,7 @@ class Materials_max(Materials, Slots_max):
 	def cmb000(self, index=-1):
 		'''Editors
 		'''
-		cmb = self.sb.materials.draggable_header.ctxMenu.cmb000
+		cmb = self.sb.materials.draggableHeader.ctxMenu.cmb000
 
 		if index>0:
 			text = cmb.items[index]
@@ -134,7 +134,7 @@ class Materials_max(Materials, Slots_max):
 	def tb003(self, state=None):
 		'''Relink Scene Bitmaps
 		'''
-		tb = self.sb.materials.draggable_header.ctxMenu.tb003
+		tb = self.sb.materials.draggableHeader.ctxMenu.tb003
 		if state=='setMenu':
 			tb.ctxMenu.add('QLineEdit', setPlaceholderText='Set Bitmaps Directory:', setText=r'\\m3trik-Server\NAS\Graphics\_materials', setObjectName='l000', setToolTip='Location to search for missing bitmaps.') #
 			return
@@ -150,7 +150,7 @@ class Materials_max(Materials, Slots_max):
 	def tb004(self, state=None):
 		'''Relink Material Library Bitmaps
 		'''
-		tb = self.sb.materials.draggable_header.ctxMenu.tb004
+		tb = self.sb.materials.draggableHeader.ctxMenu.tb004
 		if state=='setMenu':
 			tb.ctxMenu.add('QLineEdit', setPlaceholderText='Set Bitmaps Directory:', setText=r'\\m3trik-Server\NAS\Graphics\_materials', setObjectName='l001', setToolTip='Location to search for missing bitmaps.') #
 			tb.ctxMenu.add('QLineEdit', setPlaceholderText='Set Material Library Directory:', setText=r'\\m3trik-Server\NAS\Graphics\_materials\libraries', setObjectName='l002', setToolTip='Location of material libraries.') #

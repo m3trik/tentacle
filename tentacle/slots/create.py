@@ -11,10 +11,10 @@ class Create(Slots):
 		super().__init__(*args, **kwargs)
 		'''
 		'''
-		dh = self.sb.create.draggable_header
+		dh = self.sb.create.draggableHeader
 		dh.ctxMenu.add(self.sb.ComboBox, setObjectName='cmb000', setToolTip='')
 
-		cmb000 = self.sb.create.draggable_header.ctxMenu.cmb000
+		cmb000 = self.sb.create.draggableHeader.ctxMenu.cmb000
 		items = ['']
 		cmb000.addItems_(items, '')
 
@@ -31,10 +31,10 @@ class Create(Slots):
 		tb000.ctxMenu.add('QCheckBox', setText='Scale', setObjectName='chk001', setChecked=True, setToolTip='Uniformly scale the created object to match the averaged scale of any selected object(s).')
 
 
-	def draggable_header(self, state=None):
+	def draggableHeader(self, state=None):
 		'''Context menu
 		'''
-		dh = self.sb.create.draggable_header
+		dh = self.sb.create.draggableHeader
 
 
 	def createPrimitive(self, catagory1, catagory2):

@@ -11,7 +11,7 @@ class Normals_max(Normals, Slots_max):
 
 		self.sb.normals.b003.setText('Hard Edge Display')
 
-		cmb = self.sb.normals.draggable_header.ctxMenu.cmb000
+		cmb = self.sb.normals.draggableHeader.ctxMenu.cmb000
 		items = ['']
 		cmb.addItems_(items, '')
 
@@ -19,7 +19,7 @@ class Normals_max(Normals, Slots_max):
 	def cmb000(self, index=-1):
 		'''Editors
 		'''
-		cmb = self.sb.normals.draggable_header.ctxMenu.cmb000
+		cmb = self.sb.normals.draggableHeader.ctxMenu.cmb000
 
 		if index>0:
 			text = cmb.items[index]

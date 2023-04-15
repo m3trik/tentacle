@@ -11,7 +11,7 @@ class Normals(Slots):
 		super().__init__(*args, **kwargs)
 		'''
 		'''
-		dh = self.sb.normals.draggable_header
+		dh = self.sb.normals.draggableHeader
 		dh.ctxMenu.add(self.sb.ComboBox, setObjectName='cmb000', setToolTip='')
 
 		tb000 = self.sb.normals.tb000
@@ -36,7 +36,7 @@ class Normals(Slots):
 		tb004.ctxMenu.add('QCheckBox', setText='By UV Shell', setObjectName='chk003', setChecked=True, setToolTip='Average the normals of each object\'s faces per UV shell.')
 
 
-	def draggable_header(self, state=None):
+	def draggableHeader(self, state=None):
 		'''Context menu
 		'''
-		dh = self.sb.normals.draggable_header
+		dh = self.sb.normals.draggableHeader

@@ -9,8 +9,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>600</width>
-    <height>400</height>
+    <width>753</width>
+    <height>606</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -360,10 +360,10 @@
         </widget>
        </item>
        <item row="0" column="1" rowspan="2">
-        <widget class="QWidget" name="hidden_area0" native="true"/>
+        <widget class="Region" name="region" native="true"/>
        </item>
        <item row="3" column="1" rowspan="2">
-        <widget class="QWidget" name="hidden_area2" native="true">
+        <widget class="Region" name="region_4" native="true">
          <widget class="QPushButton" name="i000">
           <property name="geometry">
            <rect>
@@ -395,22 +395,30 @@
         </widget>
        </item>
        <item row="0" column="2" rowspan="5">
-        <widget class="QWidget" name="hidden_area1" native="true"/>
+        <widget class="Region" name="region_2" native="true"/>
        </item>
        <item row="0" column="0" rowspan="5">
-        <widget class="QWidget" name="hidden_area3" native="true"/>
+        <widget class="Region" name="region_3" native="true"/>
        </item>
       </layout>
-      <zorder>hidden_area0</zorder>
-      <zorder>hidden_area1</zorder>
-      <zorder>hidden_area3</zorder>
-      <zorder>hidden_area2</zorder>
+      <zorder>region</zorder>
+      <zorder>region_2</zorder>
+      <zorder>region_3</zorder>
+      <zorder>region_4</zorder>
       <zorder>main</zorder>
      </widget>
     </item>
    </layout>
   </widget>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>Region</class>
+   <extends>QWidget</extends>
+   <header>region.h</header>
+   <container>1</container>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections/>
  <designerdata>

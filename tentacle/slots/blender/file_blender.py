@@ -11,7 +11,7 @@ class File_blender(File, Slots_blender):
 		File.__init__(self, *args, **kwargs)
 
 
-		cmb000 = self.sb.file.draggable_header.ctxMenu.cmb000
+		cmb000 = self.sb.file.draggableHeader.ctxMenu.cmb000
 		items = []
 		cmb000.addItems_(items, 'File Editors')
 
@@ -40,7 +40,7 @@ class File_blender(File, Slots_blender):
 	def cmb000(self, index=-1):
 		'''Editors
 		'''
-		cmb = self.sb.file.draggable_header.ctxMenu.cmb000
+		cmb = self.sb.file.draggableHeader.ctxMenu.cmb000
 
 		if index>0:
 			text = cmb.items[index]
@@ -155,7 +155,7 @@ class File_blender(File, Slots_blender):
 	def tb000(self, state=None):
 		'''Save
 		'''
-		tb = self.sb.file.draggable_header.ctxMenu.tb000
+		tb = self.sb.file.draggableHeader.ctxMenu.tb000
 
 		wireframe = tb.ctxMenu.chk000.isChecked()
 		increment = tb.ctxMenu.chk001.isChecked()

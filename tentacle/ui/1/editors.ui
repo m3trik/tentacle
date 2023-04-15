@@ -9,8 +9,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>672</width>
-    <height>636</height>
+    <width>618</width>
+    <height>529</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -64,13 +64,39 @@
      <widget class="QWidget" name="staticWindow" native="true">
       <layout class="QGridLayout" name="gridLayout_2">
        <item row="0" column="0" rowspan="3">
-        <widget class="QWidget" name="hidden_area3" native="true"/>
+        <widget class="Region" name="region_4" native="true"/>
        </item>
        <item row="0" column="1">
-        <widget class="QWidget" name="hidden_area0" native="true"/>
+        <widget class="Region" name="region" native="true">
+         <layout class="QVBoxLayout" name="verticalLayout_2">
+          <item>
+           <spacer name="verticalSpacer_2">
+            <property name="orientation">
+             <enum>Qt::Vertical</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>20</width>
+              <height>40</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+          <item>
+           <widget class="QWidget" name="widget_3" native="true">
+            <property name="minimumSize">
+             <size>
+              <width>0</width>
+              <height>80</height>
+             </size>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
        </item>
        <item row="0" column="2" rowspan="3">
-        <widget class="QWidget" name="hidden_area1" native="true"/>
+        <widget class="Region" name="region_2" native="true"/>
        </item>
        <item row="1" column="1">
         <widget class="QWidget" name="widget" native="true">
@@ -86,7 +112,7 @@
            <height>200</height>
           </size>
          </property>
-         <widget class="QPushButton" name="v004">
+         <widget class="QPushButton" name="b004">
           <property name="geometry">
            <rect>
             <x>35</x>
@@ -117,7 +143,7 @@
            <string>Channels</string>
           </property>
          </widget>
-         <widget class="QPushButton" name="v002">
+         <widget class="QPushButton" name="b002">
           <property name="geometry">
            <rect>
             <x>45</x>
@@ -148,7 +174,7 @@
            <string>Tool</string>
           </property>
          </widget>
-         <widget class="QPushButton" name="v000">
+         <widget class="QPushButton" name="b000">
           <property name="geometry">
            <rect>
             <x>25</x>
@@ -179,7 +205,7 @@
            <string>Attributes</string>
           </property>
          </widget>
-         <widget class="QPushButton" name="v001">
+         <widget class="QPushButton" name="b001">
           <property name="geometry">
            <rect>
             <x>240</x>
@@ -210,7 +236,7 @@
            <string>Outliner</string>
           </property>
          </widget>
-         <widget class="QPushButton" name="v003">
+         <widget class="QPushButton" name="b003">
           <property name="geometry">
            <rect>
             <x>230</x>
@@ -241,7 +267,7 @@
            <string>Layers</string>
           </property>
          </widget>
-         <widget class="QPushButton" name="v006">
+         <widget class="QPushButton" name="b006">
           <property name="geometry">
            <rect>
             <x>105</x>
@@ -272,7 +298,7 @@
            <string>Dependancy Graph</string>
           </property>
          </widget>
-         <widget class="QPushButton" name="v005">
+         <widget class="QPushButton" name="b005">
           <property name="geometry">
            <rect>
             <x>120</x>
@@ -306,41 +332,66 @@
         </widget>
        </item>
        <item row="2" column="1">
-        <widget class="QWidget" name="hidden_area2" native="true">
+        <widget class="Region" name="region_3" native="true">
          <property name="whatsThis">
           <string/>
          </property>
-         <widget class="QPushButton" name="i000">
-          <property name="geometry">
-           <rect>
-            <x>115</x>
-            <y>40</y>
-            <width>91</width>
-            <height>21</height>
-           </rect>
-          </property>
-          <property name="minimumSize">
-           <size>
-            <width>0</width>
-            <height>21</height>
-           </size>
-          </property>
-          <property name="maximumSize">
-           <size>
-            <width>16777215</width>
-            <height>21</height>
-           </size>
-          </property>
-          <property name="toolTip">
-           <string/>
-          </property>
-          <property name="whatsThis">
-           <string>editors_lower_submenu</string>
-          </property>
-          <property name="text">
-           <string>All Editors</string>
-          </property>
-         </widget>
+         <layout class="QVBoxLayout" name="verticalLayout">
+          <item>
+           <widget class="QWidget" name="widget_2" native="true">
+            <property name="minimumSize">
+             <size>
+              <width>0</width>
+              <height>80</height>
+             </size>
+            </property>
+            <widget class="QPushButton" name="i000">
+             <property name="geometry">
+              <rect>
+               <x>105</x>
+               <y>10</y>
+               <width>91</width>
+               <height>21</height>
+              </rect>
+             </property>
+             <property name="minimumSize">
+              <size>
+               <width>0</width>
+               <height>21</height>
+              </size>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>16777215</width>
+               <height>21</height>
+              </size>
+             </property>
+             <property name="toolTip">
+              <string/>
+             </property>
+             <property name="whatsThis">
+              <string>editors_lower_submenu</string>
+             </property>
+             <property name="text">
+              <string>All Editors</string>
+             </property>
+            </widget>
+           </widget>
+          </item>
+          <item>
+           <spacer name="verticalSpacer">
+            <property name="orientation">
+             <enum>Qt::Vertical</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>20</width>
+              <height>40</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+         </layout>
         </widget>
        </item>
       </layout>
@@ -349,6 +400,14 @@
    </layout>
   </widget>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>Region</class>
+   <extends>QWidget</extends>
+   <header>region.h</header>
+   <container>1</container>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections/>
  <designerdata>

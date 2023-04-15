@@ -8,7 +8,7 @@ class Edit_maya(Edit, Slots_maya):
 	def __init__(self, *args, **kwargs):
 		super().__init__(*args, **kwargs)
 
-		dh = self.sb.edit.draggable_header
+		dh = self.sb.edit.draggableHeader
 		items = ['Cleanup', 'Transfer: Attribute Values', 'Transfer: Shading Sets']
 		dh.ctxMenu.cmb000.addItems_(items, 'Maya Editors')
 
@@ -48,7 +48,7 @@ class Edit_maya(Edit, Slots_maya):
 	def cmb000(self, index=-1):
 		'''Editors
 		'''
-		cmb = self.sb.edit.draggable_header.ctxMenu.cmb000
+		cmb = self.sb.edit.draggableHeader.ctxMenu.cmb000
 
 		if index>0:
 			text = cmb.items[index]

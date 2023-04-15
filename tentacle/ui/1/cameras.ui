@@ -9,8 +9,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>633</width>
-    <height>606</height>
+    <width>785</width>
+    <height>611</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -61,10 +61,10 @@
      <widget class="QWidget" name="staticWindow" native="true">
       <layout class="QGridLayout" name="gridLayout_2">
        <item row="0" column="0" rowspan="3">
-        <widget class="QWidget" name="hidden_area3" native="true"/>
+        <widget class="Region" name="region_4" native="true"/>
        </item>
        <item row="0" column="1">
-        <widget class="QWidget" name="hidden_area0" native="true">
+        <widget class="Region" name="region" native="true">
          <layout class="QVBoxLayout" name="verticalLayout">
           <item>
            <spacer name="verticalSpacer">
@@ -87,7 +87,7 @@
               <height>100</height>
              </size>
             </property>
-            <widget class="QPushButton" name="v011">
+            <widget class="QPushButton" name="b011">
              <property name="enabled">
               <bool>true</bool>
              </property>
@@ -118,7 +118,7 @@
               <string>Roll</string>
              </property>
             </widget>
-            <widget class="QPushButton" name="v012">
+            <widget class="QPushButton" name="b012">
              <property name="enabled">
               <bool>true</bool>
              </property>
@@ -149,7 +149,7 @@
               <string>Truck</string>
              </property>
             </widget>
-            <widget class="QPushButton" name="v013">
+            <widget class="QPushButton" name="b013">
              <property name="enabled">
               <bool>true</bool>
              </property>
@@ -180,7 +180,7 @@
               <string>Orbit</string>
              </property>
             </widget>
-            <widget class="QPushButton" name="v010">
+            <widget class="QPushButton" name="b010">
              <property name="enabled">
               <bool>true</bool>
              </property>
@@ -217,7 +217,7 @@
         </widget>
        </item>
        <item row="0" column="2" rowspan="3">
-        <widget class="QWidget" name="hidden_area1" native="true"/>
+        <widget class="Region" name="region_2" native="true"/>
        </item>
        <item row="1" column="1">
         <widget class="QWidget" name="viewport" native="true">
@@ -233,7 +233,7 @@
            <height>200</height>
           </size>
          </property>
-         <widget class="QPushButton" name="v004">
+         <widget class="QPushButton" name="b004">
           <property name="geometry">
            <rect>
             <x>125</x>
@@ -258,7 +258,7 @@
            <string>Persp</string>
           </property>
          </widget>
-         <widget class="QPushButton" name="v005">
+         <widget class="QPushButton" name="b005">
           <property name="geometry">
            <rect>
             <x>210</x>
@@ -283,7 +283,7 @@
            <string>Front   -Z</string>
           </property>
          </widget>
-         <widget class="QPushButton" name="v002">
+         <widget class="QPushButton" name="b002">
           <property name="geometry">
            <rect>
             <x>235</x>
@@ -308,7 +308,7 @@
            <string>Right   -X</string>
           </property>
          </widget>
-         <widget class="QPushButton" name="v003">
+         <widget class="QPushButton" name="b003">
           <property name="geometry">
            <rect>
             <x>20</x>
@@ -333,7 +333,7 @@
            <string>Left   X</string>
           </property>
          </widget>
-         <widget class="QPushButton" name="v000">
+         <widget class="QPushButton" name="b000">
           <property name="geometry">
            <rect>
             <x>210</x>
@@ -358,7 +358,7 @@
            <string>Back   Z</string>
           </property>
          </widget>
-         <widget class="QPushButton" name="v006">
+         <widget class="QPushButton" name="b006">
           <property name="geometry">
            <rect>
             <x>45</x>
@@ -383,7 +383,7 @@
            <string>Bottom  Y</string>
           </property>
          </widget>
-         <widget class="QPushButton" name="v007">
+         <widget class="QPushButton" name="b007">
           <property name="geometry">
            <rect>
             <x>125</x>
@@ -408,7 +408,7 @@
            <string>Align</string>
           </property>
          </widget>
-         <widget class="QPushButton" name="v001">
+         <widget class="QPushButton" name="b001">
           <property name="geometry">
            <rect>
             <x>45</x>
@@ -436,7 +436,7 @@
         </widget>
        </item>
        <item row="2" column="1">
-        <widget class="QWidget" name="hidden_area2" native="true">
+        <widget class="Region" name="region_3" native="true">
          <property name="sizePolicy">
           <sizepolicy hsizetype="Preferred" vsizetype="MinimumExpanding">
            <horstretch>0</horstretch>
@@ -504,6 +504,14 @@
    </layout>
   </widget>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>Region</class>
+   <extends>QWidget</extends>
+   <header>region.h</header>
+   <container>1</container>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections/>
  <designerdata>

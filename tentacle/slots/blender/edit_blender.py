@@ -10,7 +10,7 @@ class Edit_blender(Edit, Slots_blender):
 		Slots_blender.__init__(self, *args, **kwargs)
 		mtk.Edit.__init__(self, *args, **kwargs)
 
-		cmb = self.sb.edit.draggable_header.ctxMenu.cmb000
+		cmb = self.sb.edit.draggableHeader.ctxMenu.cmb000
 		items = ['Cleanup', 'Transfer: Attribute Values', 'Transfer: Shading Sets']
 		cmb.addItems_(items, 'Maya Editors')
 
@@ -46,7 +46,7 @@ class Edit_blender(Edit, Slots_blender):
 	def cmb000(self, index=-1):
 		'''Editors
 		'''
-		cmb = self.sb.edit.draggable_header.ctxMenu.cmb000
+		cmb = self.sb.edit.draggableHeader.ctxMenu.cmb000
 
 		if index>0:
 			text = cmb.items[index]

@@ -10,7 +10,7 @@ class Scripting_blender(Scripting, Slots_blender):
 		Slots_blender.__init__(self, *args, **kwargs)
 		Scripting.__init__(self, *args, **kwargs)
 
-		cmb = self.sb.scripting.draggable_header.ctxMenu.cmb000
+		cmb = self.sb.scripting.draggableHeader.ctxMenu.cmb000
 		files = ['']
 		contents = cmb.addItems_(files, '')
 
@@ -18,7 +18,7 @@ class Scripting_blender(Scripting, Slots_blender):
 	def cmb000(self, index=-1):
 		'''Editors
 		'''
-		cmb = self.sb.scripting.draggable_header.ctxMenu.cmb000
+		cmb = self.sb.scripting.draggableHeader.ctxMenu.cmb000
 
 		if index>0:
 			if index==cmd.items.index(''):

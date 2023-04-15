@@ -174,7 +174,7 @@ class Editors_maya(Editors, Slots_maya):
 	def cmb000(self, index=-1):
 		'''Editors
 		'''
-		cmb = self.editors_ui.draggable_header.ctxMenu.cmb000
+		cmb = self.editors_ui.draggableHeader.ctxMenu.cmb000
 
 		if index>0:
 			text = cmb.items[index]
@@ -217,7 +217,7 @@ class Editors_maya(Editors, Slots_maya):
 		return w
 
 
-	def v000(self):
+	def b000(self):
 		'''Attributes
 		'''
 		# e = pm.mel.eval('$tmp=$gAttributeEditorForm')
@@ -225,7 +225,7 @@ class Editors_maya(Editors, Slots_maya):
 		pm.mel.AttributeEditor()
 
 
-	def v001(self):
+	def b001(self):
 		'''Outliner
 		'''
 		# e = pm.mel.eval('$tmp=$gOutlinerForm')
@@ -244,7 +244,7 @@ class Editors_maya(Editors, Slots_maya):
 		pm.mel.OutlinerWindow()
 
 
-	def v002(self):
+	def b002(self):
 		'''Tool
 		'''
 		# e = pm.mel.eval('$tmp=$gToolSettingsForm')
@@ -252,7 +252,7 @@ class Editors_maya(Editors, Slots_maya):
 		pm.toolPropertyWindow()
 
 
-	def v003(self):
+	def b003(self):
 		'''Layers
 		'''
 		# e = pm.mel.eval('$tmp=$gLayerEditorForm')
@@ -261,7 +261,7 @@ class Editors_maya(Editors, Slots_maya):
 		pm.mel.OpenChannelsLayers()
 
 
-	def v004(self):
+	def b004(self):
 		'''Channels
 		'''
 		# e = pm.mel.eval('$tmp=$gChannelsForm')
@@ -270,13 +270,13 @@ class Editors_maya(Editors, Slots_maya):
 		pm.mel.OpenChannelsLayers()
 
 
-	def v005(self):
+	def b005(self):
 		'''Node Editor
 		'''
 		pm.mel.NodeEditorWindow()
 
 
-	def v006(self):
+	def b006(self):
 		'''Dependancy Graph
 
 		$editorName = ($panelName+"HyperGraphEd");

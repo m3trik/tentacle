@@ -12,7 +12,7 @@ class Transform_blender(Transform, Slots_blender):
 		Slots_blender.__init__(self, *args, **kwargs)
 		Transform.__init__(self, *args, **kwargs)
 
-		cmb = self.sb.transform.draggable_header.ctxMenu.cmb000
+		cmb = self.sb.transform.draggableHeader.ctxMenu.cmb000
 		files = ['']
 		cmb.addItems_(files, '')
 
@@ -46,7 +46,7 @@ class Transform_blender(Transform, Slots_blender):
 	def cmb000(self, index=-1):
 		'''Editors
 		'''
-		cmb = self.sb.transform.draggable_header.ctxMenu.cmb000
+		cmb = self.sb.transform.draggableHeader.ctxMenu.cmb000
 
 		if index>0:
 			if index==cmd.list.index(''):

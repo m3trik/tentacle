@@ -12,7 +12,7 @@ class Transform_maya(Transform, Slots_maya):
 		'''
 		super().__init__(*args, **kwargs)
 
-		cmb000 = self.sb.transform.draggable_header.ctxMenu.cmb000
+		cmb000 = self.sb.transform.draggableHeader.ctxMenu.cmb000
 		items = ['']
 		cmb000.addItems_(items, '')
 
@@ -41,7 +41,7 @@ class Transform_maya(Transform, Slots_maya):
 	def cmb000(self, index=-1):
 		'''Editors
 		'''
-		cmb = self.sb.transform.draggable_header.ctxMenu.cmb000
+		cmb = self.sb.transform.draggableHeader.ctxMenu.cmb000
 
 		if index>0:
 			if index==cmd.list.index(''):

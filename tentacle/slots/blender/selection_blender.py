@@ -9,7 +9,7 @@ class Selection_blender(Selection, Slots_blender):
 		Slots_blender.__init__(self, *args, **kwargs)
 		Selection.__init__(self, *args, **kwargs)
 
-		cmb = self.sb.selection.draggable_header.ctxMenu.cmb000
+		cmb = self.sb.selection.draggableHeader.ctxMenu.cmb000
 		items = []
 		cmb.addItems_(items, 'Selection Editors:')
 
@@ -145,7 +145,7 @@ class Selection_blender(Selection, Slots_blender):
 	def cmb000(self, index=-1):
 		'''Editors
 		'''
-		cmb = self.sb.selection.draggable_header.ctxMenu.cmb000
+		cmb = self.sb.selection.draggableHeader.ctxMenu.cmb000
 
 		if index>0:
 			text = cmb.items[index]
@@ -304,7 +304,7 @@ class Selection_blender(Selection, Slots_blender):
 	def cmb006(self, index=-1):
 		'''Currently Selected Objects
 		'''
-		cmb = self.sb.selection.draggable_header.ctxMenu.cmb006
+		cmb = self.sb.selection.draggableHeader.ctxMenu.cmb006
 
 		cmb.clear()
 		items = [str(i) for i in pm.ls(sl=1, flatten=1)]

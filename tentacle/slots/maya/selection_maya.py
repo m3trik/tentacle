@@ -9,7 +9,7 @@ class Selection_maya(Selection, Slots_maya):
 	def __init__(self, *args, **kwargs):
 		super().__init__(*args, **kwargs)
 
-		dh = self.sb.selection.draggable_header
+		dh = self.sb.selection.draggableHeader
 		items = ['Polygon Selection Constraints']
 		dh.ctxMenu.cmb000.addItems_(items, 'Selection Editors:')
 
@@ -124,7 +124,7 @@ class Selection_maya(Selection, Slots_maya):
 	def cmb000(self, index=-1):
 		'''Editors
 		'''
-		cmb = self.sb.selection.draggable_header.ctxMenu.cmb000
+		cmb = self.sb.selection.draggableHeader.ctxMenu.cmb000
 
 		if index>0:
 			text = cmb.items[index]
@@ -283,7 +283,7 @@ class Selection_maya(Selection, Slots_maya):
 	def cmb006(self, index=-1):
 		'''Currently Selected Objects
 		'''
-		cmb = self.sb.selection.draggable_header.ctxMenu.cmb006
+		cmb = self.sb.selection.draggableHeader.ctxMenu.cmb006
 
 		cmb.clear()
 		items = [str(i) for i in pm.ls(sl=1, flatten=1)]

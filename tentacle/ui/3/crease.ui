@@ -144,7 +144,7 @@
    </property>
    <layout class="QVBoxLayout" name="verticalLayout_4">
     <item>
-     <widget class="Draggable_header" name="draggable_header">
+     <widget class="DraggableHeader" name="draggableHeader">
       <property name="minimumSize">
        <size>
         <width>0</width>
@@ -430,9 +430,9 @@
    <header>widgets.pushbutton.h</header>
   </customwidget>
   <customwidget>
-   <class>Draggable_header</class>
+   <class>DraggableHeader</class>
    <extends>QLabel</extends>
-   <header>draggable_header.h</header>
+   <header>draggableHeader.h</header>
   </customwidget>
  </customwidgets>
  <resources/>

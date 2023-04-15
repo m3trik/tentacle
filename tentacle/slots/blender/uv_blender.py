@@ -10,7 +10,7 @@ class Uv_blender(Uv, Slots_blender):
 		Slots_blender.__init__(self, *args, **kwargs)
 		Uv.__init__(self, *args, **kwargs)
 
-		cmb000 = self.sb.uv.draggable_header.ctxMenu.cmb000
+		cmb000 = self.sb.uv.draggableHeader.ctxMenu.cmb000
 		items = []
 		cmb000.addItems_(items, 'UV Editors')
 
@@ -40,7 +40,7 @@ class Uv_blender(Uv, Slots_blender):
 	def cmb000(self, index=-1):
 		'''Editors
 		'''
-		cmb = self.sb.uv.draggable_header.ctxMenu.cmb000
+		cmb = self.sb.uv.draggableHeader.ctxMenu.cmb000
 
 		if index>0: #hide main menu and perform operation
 			text = cmb.items[index]

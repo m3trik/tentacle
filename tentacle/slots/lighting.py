@@ -11,6 +11,6 @@ class Lighting(Slots):
 		super().__init__(*args, **kwargs)
 		'''
 		'''
-		ctx = self.sb.lighting.draggable_header.ctxMenu
+		ctx = self.sb.lighting.draggableHeader.ctxMenu
 		if not ctx.containsMenuItems:
 			ctx.add(self.sb.ComboBox, setObjectName='cmb000', setToolTip='')

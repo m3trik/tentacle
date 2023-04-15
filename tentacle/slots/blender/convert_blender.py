@@ -10,7 +10,7 @@ class Convert_blender(Convert, Slots_blender):
 		Slots_blender.__init__(self, *args, **kwargs)
 		Convert.__init__(self, *args, **kwargs)
 
-		cmb = self.sb.convert.draggable_header.ctxMenu.cmb000
+		cmb = self.sb.convert.draggableHeader.ctxMenu.cmb000
 		items = ['']
 		cmb.addItems_(items, '')
 
@@ -22,7 +22,7 @@ class Convert_blender(Convert, Slots_blender):
 	def cmb000(self, index=-1):
 		'''Editors
 		'''
-		cmb = self.sb.convert.draggable_header.ctxMenu.cmb000
+		cmb = self.sb.convert.draggableHeader.ctxMenu.cmb000
 
 		if index>0:
 			text = cmb.items[index]

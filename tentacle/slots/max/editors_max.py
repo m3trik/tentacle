@@ -47,10 +47,10 @@ class Editors_max(Editors, Slots_max):
 		[tree.add('QLabel', 'Relationship Editors', setText=s) for s in l]
 
 
-	def draggable_header(self, state=None):
+	def draggableHeader(self, state=None):
 		'''Context menu
 		'''
-		dh = self.editors_ui.draggable_header
+		dh = self.editors_ui.draggableHeader
 
 
 	def tree000(self, wItem=None, column=None):
@@ -226,43 +226,43 @@ class Editors_max(Editors, Slots_max):
 		return w
 
 
-	def v000(self):
+	def b000(self):
 		'''Attributes
 		'''
 		maxEval('actionMan.executeAction 0 "408"') #Tools: Show Command Panel Toggle.
 
 
-	def v001(self):
+	def b001(self):
 		'''Outliner
 		'''
 		maxEval('macros.run "Scene Explorer" "SESceneExplorer"') #Scene Explorer
 
 
-	def v002(self):
+	def b002(self):
 		'''Tool
 		'''
 		maxEval('actionMan.executeAction 60545 "26914"') #Ribbon: Show Ribbon.
 
 
-	def v003(self):
+	def b003(self):
 		'''Layers
 		'''
 		maxEval('macros.run "Layers" "LayerManager"') #Layer Explorer
 
 
-	def v004(self):
+	def b004(self):
 		'''Channels
 		'''
 		maxEval('macros.run "Tools" "Channel_Info"') #Channel-Info
 
 
-	def v005(self):
+	def b005(self):
 		'''Node Editor
 		'''
 		maxEval('schematicView.Open "Schematic View 3"') #Schematic View
 
 
-	def v006(self):
+	def b006(self):
 		'''Dependancy Graph
 		'''
 		maxEval('macros.run "Asset Tracking System" "AssetTrackingSystemToggle"') #Asset Tracking

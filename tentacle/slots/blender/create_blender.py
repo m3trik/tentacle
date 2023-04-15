@@ -10,11 +10,11 @@ class Create_blender(Create, Slots_blender):
 		Slots_blender.__init__(self, *args, **kwargs)
 		Create.__init__(self, *args, **kwargs)
 
-		ctx = self.sb.create.draggable_header.ctxMenu
+		ctx = self.sb.create.draggableHeader.ctxMenu
 		if not ctx.containsMenuItems:
 			ctx.add(self.sb.ComboBox, setObjectName='cmb000', setToolTip='')
 
-		cmb = self.sb.create.draggable_header.ctxMenu.cmb000
+		cmb = self.sb.create.draggableHeader.ctxMenu.cmb000
 		items = ['']
 		cmb.addItems_(items, '')
 
@@ -35,7 +35,7 @@ class Create_blender(Create, Slots_blender):
 	def cmb000(self, index=-1):
 		'''Editors
 		'''
-		cmb = self.sb.create.draggable_header.ctxMenu.cmb000
+		cmb = self.sb.create.draggableHeader.ctxMenu.cmb000
 
 		if index>0:
 			text = cmb.items[index]

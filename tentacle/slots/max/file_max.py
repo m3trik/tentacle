@@ -9,7 +9,7 @@ class File_max(File, Slots_max):
 	def __init__(self, *args, **kwargs):
 		super().__init__(*args, **kwargs)
 
-		cmb = self.sb.file.draggable_header.ctxMenu.cmb000
+		cmb = self.sb.file.draggableHeader.ctxMenu.cmb000
 		items = ['Schematic View']
 		cmb.addItems_(items, 'File Editors')
 
@@ -37,7 +37,7 @@ class File_max(File, Slots_max):
 	def cmb000(self, index=-1):
 		'''Editors
 		'''
-		cmb = self.sb.file.draggable_header.ctxMenu.cmb000
+		cmb = self.sb.file.draggableHeader.ctxMenu.cmb000
 
 		if index>0:
 			text = cmb.items[index]
@@ -161,7 +161,7 @@ class File_max(File, Slots_max):
 	def tb000(self, state=None):
 		'''Save
 		'''
-		tb = self.sb.file.draggable_header.ctxMenu.tb000
+		tb = self.sb.file.draggableHeader.ctxMenu.tb000
 
 		wireframe = tb.ctxMenu.chk000.isChecked()
 		increment = tb.ctxMenu.chk001.isChecked()

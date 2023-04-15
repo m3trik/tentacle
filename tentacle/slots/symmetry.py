@@ -11,14 +11,14 @@ class Symmetry(Slots):
 		super().__init__(*args, **kwargs)
 		'''
 		'''
-		dh = self.sb.symmetry.draggable_header
+		dh = self.sb.symmetry.draggableHeader
 		dh.ctxMenu.add(self.sb.ComboBox, setObjectName='cmb000', setToolTip='')
 
 
-	def draggable_header(self, state=None):
+	def draggableHeader(self, state=None):
 		'''Context menu
 		'''
-		dh = self.sb.symmetry.draggable_header
+		dh = self.sb.symmetry.draggableHeader
 
 
 	def chk000(self, state=None):

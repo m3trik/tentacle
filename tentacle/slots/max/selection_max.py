@@ -9,7 +9,7 @@ class Selection_max(Selection, Slots_max):
 	def __init__(self, *args, **kwargs):
 		super().__init__(*args, **kwargs)
 
-		cmb = self.sb.selection.draggable_header.ctxMenu.cmb000
+		cmb = self.sb.selection.draggableHeader.ctxMenu.cmb000
 		items = ['Selection Set Editor']
 		cmb.addItems_(items, 'Selection Editors:')
 
@@ -169,7 +169,7 @@ class Selection_max(Selection, Slots_max):
 	def cmb000(self, index=-1):
 		'''Editors
 		'''
-		cmb = self.sb.selection.draggable_header.ctxMenu.cmb000
+		cmb = self.sb.selection.draggableHeader.ctxMenu.cmb000
 
 		if index>0:
 			text = cmb.items[index]
@@ -256,7 +256,7 @@ class Selection_max(Selection, Slots_max):
 	def cmb006(self, index=-1):
 		'''Currently Selected Objects
 		'''
-		cmb = self.sb.selection.draggable_header.ctxMenu.cmb006
+		cmb = self.sb.selection.draggableHeader.ctxMenu.cmb006
 
 		cmb.clear()
 		items = [str(i) for i in rt.selection]

@@ -9,7 +9,7 @@ class Scripting_max(Scripting, Slots_max):
 	def __init__(self, *args, **kwargs):
 		super().__init__(*args, **kwargs)
 
-		cmb = self.sb.scripting.draggable_header.ctxMenu.cmb000
+		cmb = self.sb.scripting.draggableHeader.ctxMenu.cmb000
 		items = ['']
 		contents = cmb.addItems_(items, '')
 
@@ -17,7 +17,7 @@ class Scripting_max(Scripting, Slots_max):
 	def cmb000(self, index=-1):
 		'''Editors
 		'''
-		cmb = self.sb.scripting.draggable_header.ctxMenu.cmb000
+		cmb = self.sb.scripting.draggableHeader.ctxMenu.cmb000
 
 		if index>0:
 			if index==cmd.items.index(''):

@@ -40,10 +40,10 @@ class Materials(Slots):
 		tb002.ctxMenu.chk008.clicked.connect(lambda state: tb002.setText('Assign Random'))
 
 
-	def draggable_header(self, state=None):
+	def draggableHeader(self, state=None):
 		'''Context menu
 		'''
-		dh = self.sb.materials.draggable_header
+		dh = self.sb.materials.draggableHeader
 
 
 	def b000(self):

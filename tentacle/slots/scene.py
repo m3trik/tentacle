@@ -11,7 +11,7 @@ class Scene(Slots):
 		super().__init__(*args, **kwargs)
 		'''
 		'''
-		dh = self.sb.scene.draggable_header
+		dh = self.sb.scene.draggableHeader
 		dh.ctxMenu.add(self.sb.ComboBox, setObjectName='cmb000', setToolTip='Scene Editors')
 
 		t000 = self.sb.scene.t000
@@ -28,10 +28,10 @@ class Scene(Slots):
 		tb001.ctxMenu.add('QCheckBox', setText='Reverse', setObjectName='chk004', setToolTip='Reverse the naming order. (Farthest object first)')
 
 
-	def draggable_header(self, state=None):
+	def draggableHeader(self, state=None):
 		'''Context menu
 		'''
-		dh = self.sb.scene.draggable_header
+		dh = self.sb.scene.draggableHeader
 
 
 	def t000(self, state=None):

@@ -10,7 +10,7 @@ class Edit(Slots):
 		super().__init__(*args, **kwargs)
 		'''
 		'''
-		dh = self.sb.edit.draggable_header
+		dh = self.sb.edit.draggableHeader
 		dh.ctxMenu.add(self.sb.ComboBox, setObjectName='cmb000', setToolTip='Editors')
 
 		cmb001 = self.sb.edit.cmb001
@@ -39,10 +39,10 @@ class Edit(Slots):
 		tb004.ctxMenu.chk027.toggled.connect(lambda state: tb004.setText('Unlock Nodes' if state else 'Lock Nodes'))
 
 
-	def draggable_header(self, state=None):
+	def draggableHeader(self, state=None):
 		'''Context menu
 		'''
-		dh = self.sb.edit.draggable_header
+		dh = self.sb.edit.draggableHeader
 
 
 	def chk006_9(self):
