@@ -2,7 +2,10 @@
 
 ## Tentacle
 
-\*\*personal project. work in progress ..\*\*
+<div style="background-color: #ffdddd; padding: 10px;">
+  <em>personal project. work in progress ..</em>
+</div>
+
 
 
 ##### 
