@@ -66,21 +66,21 @@ class Rigging_blender(Rigging, Slots_blender):
 	def chk000(self, state=None):
 		'''Scale Joint
 		'''
-		self.sb.toggleWidgets(setUnChecked='chk001-2')
+		self.sb.toggle_widgets(setUnChecked='chk001-2')
 		self.sb.rigging.tb000.ctxMenu.s000.setValue(pm.jointDisplayScale(query=1)) #init global joint display size
 
 
 	def chk001(self, state=None):
 		'''Scale IK
 		'''
-		self.sb.toggleWidgets(setUnChecked='chk000, chk002')
+		self.sb.toggle_widgets(setUnChecked='chk000, chk002')
 		self.sb.rigging.tb000.ctxMenu.setValue(pm.ikHandleDisplayScale(query=1)) #init IK handle display size
 		
 
 	def chk002(self, state=None):
 		'''Scale IK/FK
 		'''
-		self.sb.toggleWidgets(setUnChecked='chk000-1')
+		self.sb.toggle_widgets(setUnChecked='chk000-1')
 		self.sb.rigging.tb000.ctxMenu.setValue(pm.jointDisplayScale(query=1, ikfk=1)) #init IKFK display size
 
 

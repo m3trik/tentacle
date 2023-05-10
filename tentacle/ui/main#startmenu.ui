@@ -1,0 +1,438 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>translucent_window</class>
+ <widget class="QMainWindow" name="translucent_window">
+  <property name="enabled">
+   <bool>true</bool>
+  </property>
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>753</width>
+    <height>606</height>
+   </rect>
+  </property>
+  <property name="sizePolicy">
+   <sizepolicy hsizetype="Ignored" vsizetype="Ignored">
+    <horstretch>0</horstretch>
+    <verstretch>0</verstretch>
+   </sizepolicy>
+  </property>
+  <property name="minimumSize">
+   <size>
+    <width>600</width>
+    <height>400</height>
+   </size>
+  </property>
+  <property name="maximumSize">
+   <size>
+    <width>16777215</width>
+    <height>16777215</height>
+   </size>
+  </property>
+  <property name="cursor">
+   <cursorShape>ArrowCursor</cursorShape>
+  </property>
+  <property name="whatsThis">
+   <string>main</string>
+  </property>
+  <property name="toolButtonStyle">
+   <enum>Qt::ToolButtonIconOnly</enum>
+  </property>
+  <property name="tabShape">
+   <enum>QTabWidget::Triangular</enum>
+  </property>
+  <property name="dockNestingEnabled">
+   <bool>true</bool>
+  </property>
+  <property name="dockOptions">
+   <set>QMainWindow::AllowNestedDocks|QMainWindow::AllowTabbedDocks|QMainWindow::AnimatedDocks|QMainWindow::ForceTabbedDocks</set>
+  </property>
+  <widget class="QWidget" name="widget">
+   <property name="sizePolicy">
+    <sizepolicy hsizetype="Ignored" vsizetype="Ignored">
+     <horstretch>0</horstretch>
+     <verstretch>0</verstretch>
+    </sizepolicy>
+   </property>
+   <layout class="QGridLayout" name="gridLayout">
+    <item row="0" column="0">
+     <widget class="QWidget" name="staticWindow" native="true">
+      <layout class="QGridLayout" name="gridLayout_2">
+       <item row="2" column="1">
+        <widget class="QWidget" name="main" native="true">
+         <property name="minimumSize">
+          <size>
+           <width>325</width>
+           <height>200</height>
+          </size>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>300</width>
+           <height>200</height>
+          </size>
+         </property>
+         <widget class="QPushButton" name="i010">
+          <property name="geometry">
+           <rect>
+            <x>165</x>
+            <y>20</y>
+            <width>66</width>
+            <height>21</height>
+           </rect>
+          </property>
+          <property name="minimumSize">
+           <size>
+            <width>0</width>
+            <height>21</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>16777215</width>
+            <height>21</height>
+           </size>
+          </property>
+          <property name="whatsThis">
+           <string>polygons</string>
+          </property>
+          <property name="text">
+           <string>Polygons</string>
+          </property>
+         </widget>
+         <widget class="QPushButton" name="i012">
+          <property name="geometry">
+           <rect>
+            <x>240</x>
+            <y>90</y>
+            <width>66</width>
+            <height>21</height>
+           </rect>
+          </property>
+          <property name="minimumSize">
+           <size>
+            <width>0</width>
+            <height>21</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>16777215</width>
+            <height>21</height>
+           </size>
+          </property>
+          <property name="whatsThis">
+           <string>materials</string>
+          </property>
+          <property name="text">
+           <string>Materials</string>
+          </property>
+         </widget>
+         <widget class="QPushButton" name="i013">
+          <property name="geometry">
+           <rect>
+            <x>15</x>
+            <y>90</y>
+            <width>66</width>
+            <height>21</height>
+           </rect>
+          </property>
+          <property name="minimumSize">
+           <size>
+            <width>0</width>
+            <height>21</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>16777215</width>
+            <height>21</height>
+           </size>
+          </property>
+          <property name="whatsThis">
+           <string>animation</string>
+          </property>
+          <property name="text">
+           <string>Animation</string>
+          </property>
+         </widget>
+         <widget class="QPushButton" name="i009">
+          <property name="geometry">
+           <rect>
+            <x>220</x>
+            <y>50</y>
+            <width>66</width>
+            <height>21</height>
+           </rect>
+          </property>
+          <property name="minimumSize">
+           <size>
+            <width>0</width>
+            <height>21</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>16777215</width>
+            <height>21</height>
+           </size>
+          </property>
+          <property name="whatsThis">
+           <string>selection</string>
+          </property>
+          <property name="text">
+           <string>Selection</string>
+          </property>
+         </widget>
+         <widget class="QPushButton" name="i008">
+          <property name="geometry">
+           <rect>
+            <x>40</x>
+            <y>50</y>
+            <width>66</width>
+            <height>21</height>
+           </rect>
+          </property>
+          <property name="minimumSize">
+           <size>
+            <width>0</width>
+            <height>21</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>16777215</width>
+            <height>21</height>
+           </size>
+          </property>
+          <property name="whatsThis">
+           <string>transform</string>
+          </property>
+          <property name="text">
+           <string>Transform</string>
+          </property>
+         </widget>
+         <widget class="QPushButton" name="i007">
+          <property name="geometry">
+           <rect>
+            <x>90</x>
+            <y>20</y>
+            <width>66</width>
+            <height>21</height>
+           </rect>
+          </property>
+          <property name="minimumSize">
+           <size>
+            <width>0</width>
+            <height>21</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>16777215</width>
+            <height>21</height>
+           </size>
+          </property>
+          <property name="whatsThis">
+           <string>edit</string>
+          </property>
+          <property name="text">
+           <string>Edit</string>
+          </property>
+         </widget>
+         <widget class="QPushButton" name="i011">
+          <property name="geometry">
+           <rect>
+            <x>190</x>
+            <y>160</y>
+            <width>66</width>
+            <height>21</height>
+           </rect>
+          </property>
+          <property name="minimumSize">
+           <size>
+            <width>0</width>
+            <height>21</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>16777215</width>
+            <height>21</height>
+           </size>
+          </property>
+          <property name="whatsThis">
+           <string>nurbs</string>
+          </property>
+          <property name="text">
+           <string>Nurbs</string>
+          </property>
+         </widget>
+         <widget class="QPushButton" name="i014">
+          <property name="geometry">
+           <rect>
+            <x>230</x>
+            <y>130</y>
+            <width>66</width>
+            <height>21</height>
+           </rect>
+          </property>
+          <property name="minimumSize">
+           <size>
+            <width>0</width>
+            <height>21</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>16777215</width>
+            <height>21</height>
+           </size>
+          </property>
+          <property name="whatsThis">
+           <string>lighting</string>
+          </property>
+          <property name="text">
+           <string>Lighting</string>
+          </property>
+         </widget>
+         <widget class="QPushButton" name="i015">
+          <property name="geometry">
+           <rect>
+            <x>30</x>
+            <y>130</y>
+            <width>66</width>
+            <height>21</height>
+           </rect>
+          </property>
+          <property name="minimumSize">
+           <size>
+            <width>0</width>
+            <height>21</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>16777215</width>
+            <height>21</height>
+           </size>
+          </property>
+          <property name="whatsThis">
+           <string>rendering</string>
+          </property>
+          <property name="text">
+           <string>Rendering</string>
+          </property>
+         </widget>
+         <widget class="QPushButton" name="i003">
+          <property name="geometry">
+           <rect>
+            <x>65</x>
+            <y>160</y>
+            <width>66</width>
+            <height>21</height>
+           </rect>
+          </property>
+          <property name="minimumSize">
+           <size>
+            <width>0</width>
+            <height>21</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>16777215</width>
+            <height>21</height>
+           </size>
+          </property>
+          <property name="whatsThis">
+           <string>scene</string>
+          </property>
+          <property name="text">
+           <string>Scene</string>
+          </property>
+         </widget>
+        </widget>
+       </item>
+       <item row="0" column="1" rowspan="2">
+        <widget class="Region" name="region" native="true"/>
+       </item>
+       <item row="3" column="1" rowspan="2">
+        <widget class="Region" name="region_4" native="true">
+         <widget class="QPushButton" name="i000">
+          <property name="geometry">
+           <rect>
+            <x>125</x>
+            <y>30</y>
+            <width>76</width>
+            <height>21</height>
+           </rect>
+          </property>
+          <property name="minimumSize">
+           <size>
+            <width>0</width>
+            <height>21</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>16777215</width>
+            <height>21</height>
+           </size>
+          </property>
+          <property name="whatsThis">
+           <string>main.lower.submenu</string>
+          </property>
+          <property name="text">
+           <string>History</string>
+          </property>
+         </widget>
+        </widget>
+       </item>
+       <item row="0" column="2" rowspan="5">
+        <widget class="Region" name="region_2" native="true"/>
+       </item>
+       <item row="0" column="0" rowspan="5">
+        <widget class="Region" name="region_3" native="true"/>
+       </item>
+      </layout>
+      <zorder>region</zorder>
+      <zorder>region_2</zorder>
+      <zorder>region_3</zorder>
+      <zorder>region_4</zorder>
+      <zorder>main</zorder>
+     </widget>
+    </item>
+   </layout>
+  </widget>
+ </widget>
+ <customwidgets>
+  <customwidget>
+   <class>Region</class>
+   <extends>QWidget</extends>
+   <header>region.h</header>
+   <container>1</container>
+  </customwidget>
+ </customwidgets>
+ <resources/>
+ <connections/>
+ <designerdata>
+  <property name="gridDeltaX">
+   <number>5</number>
+  </property>
+  <property name="gridDeltaY">
+   <number>10</number>
+  </property>
+  <property name="gridSnapX">
+   <bool>true</bool>
+  </property>
+  <property name="gridSnapY">
+   <bool>true</bool>
+  </property>
+  <property name="gridVisible">
+   <bool>true</bool>
+  </property>
+ </designerdata>
+</ui>

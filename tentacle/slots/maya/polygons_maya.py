@@ -5,471 +5,488 @@ from tentacle.slots.polygons import Polygons
 
 
 class Polygons_maya(Polygons, Slots_maya):
-	def __init__(self, *args, **kwargs):
-		super().__init__(*args, **kwargs)
-
-		cmb000 = self.sb.polygons.draggableHeader.ctxMenu.cmb000
-		items = ['Extrude','Bevel','Bridge','Combine','Merge Vertex','Offset Edgeloop','Edit Edgeflow','Extract Curve','Poke','Wedge','Assign Invisible']
-		cmb000.addItems_(items, 'Polygon Editors')
-
-
-	def cmb000(self, index=-1):
-		'''Editors
-		'''
-		cmb = self.sb.polygons.draggableHeader.ctxMenu.cmb000
-
-		if index>0:
-			text = cmb.items[index]
-			if text=='Extrude':
-				pm.mel.PolyExtrudeOptions()
-			elif text=='Bevel':
-				pm.mel.BevelPolygonOptions()
-			elif text=='Bridge':
-				pm.mel.BridgeEdgeOptions()
-			elif text=='Combine':
-				pm.mel.CombinePolygonsOptions()
-			elif text=='Merge Vertex':
-				pm.mel.PolyMergeOptions()
-			elif text=='Offset Edgeloop':
-				pm.mel.DuplicateEdgesOptions()
-			elif text=='Edit Edgeflow':
-				pm.mel.PolyEditEdgeFlowOptions()
-			elif text=='Extract Curve':
-				pm.mel.CreateCurveFromPolyOptions()
-			elif text=='Poke':
-				pm.mel.PokePolygonOptions()
-			elif text=='Wedge':
-				pm.mel.WedgePolygonOptions()
-			elif text=='Assign Invisible':
-				pm.mel.PolyAssignSubdivHoleOptions()
-			cmb.setCurrentIndex(0)
-
-
-	def tb000(self, state=None):
-		'''Merge Vertices
-		'''
-		tb = self.sb.polygons.tb000
-
-		tolerance = float(tb.ctxMenu.s002.value())
-		objects = pm.ls(selection=1, objectsOnly=1, flatten=1)
-		componentMode = pm.selectMode(query=1, component=1)
-
-		if not objects:
-			self.sb.messageBox('<strong>Nothing selected</strong>.<br>Operation requires an object or vertex selection.', messageType='Error')
-			return
-
-		mtk.Edit.mergeVertices(objects, selected=componentMode, tolerance=tolerance)
-
-
-	@Slots_maya.attr
-	def tb001(self, state=None):
-		'''Bridge
-		'''
-		tb = self.sb.polygons.tb001
-
-		divisions = tb.ctxMenu.s003.value()
-
-		selection = pm.ls(sl=1)
-		if not selection:
-			return self.sb.messageBox('<strong>Nothing selected</strong>.<br>Operation requires a component selection.', messageType='Error')
-		edges = pm.filterExpand(selection, selectionMask=32, expand=1) #get edges from selection
-
-		node = pm.polyBridgeEdge(edges, divisions=divisions) #bridge edges
-		pm.polyCloseBorder(edges) #fill edges if they lie on a border
-		return node
-
-
-	def tb002(self, state=None):
-		'''Combine
-		'''
-		tb = self.sb.polygons.tb002
-
-		if tb.ctxMenu.chk000.isChecked():
-			sel = pm.ls(sl=1, objectsOnly=1)
-			if not sel:
-				return self.sb.messageBox('<strong>Nothing selected</strong>.<br>Operation requires the selection of at least two objects.', messageType='Error')
-
-			objName = sel[0].name()
-			objParent = pm.listRelatives(objName, parent=1)
-			#combine
-			newObj = pm.polyUnite(ch=1, mergeUVSets=1, centerPivot=1)
-			#rename using the first selected object
-			pm.bakePartialHistory(objName, all=True)
-			objName_ = pm.rename(newObj[0], objName)
-			#reparent
-			pm.parent(objName_, objParent)
-		else:
-			pm.mel.CombinePolygons()
-
-
-	@Slots_maya.attr
-	def tb003(self, state=None):
-		'''Extrude
-		'''
-		tb = self.sb.polygons.tb003
-
-		keepFacesTogether = tb.ctxMenu.chk002.isChecked() #keep faces/edges together.
-		divisions = tb.ctxMenu.s004.value()
-
-		selection = pm.ls(sl=1)
-		if not selection:
-			return self.sb.messageBox('<strong>Nothing selected</strong>.<br>Operation requires a component selection.', messageType='Error')
-		if pm.selectType(query=1, facet=1): #face selection
-			pm.polyExtrudeFacet(edit=1, keepFacesTogether=keepFacesTogether, divisions=divisions)
-			pm.mel.PolyExtrude() #return pm.polyExtrudeFacet(selection, ch=1, keepFacesTogether=keepFacesTogether, divisions=divisions)
-
-		elif pm.selectType(query=1, edge=1): #edge selection
-			pm.polyExtrudeEdge(edit=1, keepFacesTogether=keepFacesTogether, divisions=divisions)
-			pm.mel.PolyExtrude() #return pm.polyExtrudeEdge(selection, ch=1, keepFacesTogether=keepFacesTogether, divisions=divisions)
-
-		elif pm.selectType(query=1, vertex=1): #vertex selection
-			pm.polyExtrudeVertex(edit=1, width=0.5, length=1, divisions=divisions)
-			pm.mel.PolyExtrude() #return polyExtrudeVertex(selection, ch=1, width=0.5, length=1, divisions=divisions)
-
-
-	@Slots_maya.attr
-	def tb004(self, state=None):
-		'''Bevel (Chamfer)
-		'''
-		tb = self.sb.polygons.tb004
-
-		width = tb.ctxMenu.s000.value()
-		chamfer = True
-		segments = tb.ctxMenu.s006.value()
-
-		selection = pm.ls(sl=1, objectsOnly=1, type='shape')
-		if not selection:
-			return self.sb.messageBox('<strong>Nothing selected</strong>.<br>Operation requires a component selection.', messageType='Error')
-
-		for obj in selection:
-			edges = pm.ls(obj, sl=1)
-			node = pm.polyBevel3(edges, fraction=width, offsetAsFraction=1, autoFit=1, depth=1, mitering=0, 
-				miterAlong=0, chamfer=chamfer, segments=segments, worldSpace=1, smoothingAngle=30, subdivideNgons=1,
-				mergeVertices=1, mergeVertexTolerance=0.0001, miteringAngle=180, angleTolerance=180, ch=0)
-			if len(selection)==1:
-				return node
-
-
-	def tb005(self, state=None):
-		'''Detach
-		'''
-		tb = self.sb.polygons.tb005
-
-		duplicate = tb.ctxMenu.chk014.isChecked()
-		separate = tb.ctxMenu.chk015.isChecked()
-
-		vertexMask = pm.selectType (query=True, vertex=True)
-		edgeMask = pm.selectType (query=True, edge=True)
-		facetMask = pm.selectType (query=True, facet=True)
-
-		selection = pm.ls(sl=1)
-		if not selection:
-			return self.sb.messageBox('<strong>Nothing selected</strong>.<br>Operation requires a component selection.', messageType='Error')
-
-		if vertexMask:
-			pm.mel.polySplitVertex()
-
-		elif facetMask:
-			extract = pm.polyChipOff(selection, ch=1, keepFacesTogether=1, dup=duplicate, off=0)
-			if separate:
-				try:
-					splitObjects = pm.polySeparate(selection)
-				except:
-					splitObjects = pm.polySeparate(pm.ls(selection, objectsOnly=1))
-			pm.select(splitObjects[-1])
-			return extract
-
-		else:
-			pm.mel.DetachComponent()
-
-
-	@Slots_maya.attr
-	def tb006(self, state=None):
-		'''Inset Face Region
-		'''
-		tb = self.sb.polygons.tb006
-
-		selected_faces = pm.polyEvaluate(faceComponent=1)
-		if isinstance(selected_faces, str): #'Nothing counted : no polygonal object is selected.'
-			self.sb.messageBox('<strong>Nothing selected</strong>.<br>Operation requires a face selection.', messageType='Error')
-			return
-
-		offset = float(tb.ctxMenu.s001.value())
-		return pm.polyExtrudeFacet(selected_faces, keepFacesTogether=1, pvx=0, pvy=40.55638003, pvz=33.53797107, divisions=1, twist=0, taper=1, offset=offset, thickness=0, smoothingAngle=30)
-
-
-	def tb007(self, state=None):
-		'''Divide Facet
-		'''
-		tb = self.sb.polygons.tb007
-
-		dv=u=v=0
-		if tb.ctxMenu.chk008.isChecked(): #Split U
-			u=2
-		if tb.ctxMenu.chk009.isChecked(): #Split V
-			v=2
-
-		mode = 0 #The subdivision mode. 0=quads, 1=triangles
-		subdMethod = 1 #subdivision type: 0=exponential(traditional subdivision) 1=linear(number of faces per edge grows linearly)
-		if tb.ctxMenu.chk010.isChecked(): #tris
-			mode=dv=1
-			subdMethod=0
-		if all([tb.ctxMenu.chk008.isChecked(), tb.ctxMenu.chk009.isChecked()]): #subdivide once into quads
-			dv=1
-			subdMethod=0
-			u=v=0
-		#perform operation
-		selectedFaces = pm.filterExpand (pm.ls(sl=1), selectionMask=34, expand=1)
-		if selectedFaces:
-			for face in selectedFaces: #when performing polySubdivideFacet on multiple faces, adjacent subdivided faces will make the next face an n-gon and therefore not able to be subdivided. 
-				pm.polySubdivideFacet(face, divisions=0, divisionsU=2, divisionsV=2, mode=0, subdMethod=1)
-		else:
-			self.sb.messageBox('<strong>Nothing selected</strong>.<br>Operation requires a face selection.', messageType='Error')
-			return
-
-
-	def tb008(self, state=None):
-		'''Boolean Operation
-		'''
-		tb = self.sb.polygons.tb008
-
-		selection = pm.ls(sl=1)
-		if not selection:
-			return self.sb.messageBox('<strong>Nothing selected</strong>.<br>Operation requires the selection of at least two objects.', messageType='Error')
-		if tb.ctxMenu.chk011.isChecked(): #union
-			pm.mel.PolygonBooleanIntersection()
-
-		if tb.ctxMenu.chk012.isChecked(): #difference
-			pm.mel.PolygonBooleanDifference()
-
-		if tb.ctxMenu.chk013.isChecked(): #intersection
-			pm.mel.PolygonBooleanIntersection()
-
-
-	def tb009(self, state=None):
-		'''Snap Closest Verts
-		'''
-		tb = self.sb.polygons.tb009
-
-		tolerance = tb.ctxMenu.s005.value()
-		freezetransforms = tb.ctxMenu.chk016.isChecked()
-
-		selection = pm.ls(sl=1, objectsOnly=1, type='transform')
-		if len(selection)>1:
-			obj1, obj2 = selection
-			mtk.Edit.snapClosestVerts(obj1, obj2, tolerance, freezetransforms)
-		else:
-			self.sb.messageBox('<strong>Nothing selected</strong>.<br>Operation requires at least two selected objects.', messageType='Error')
-			return
-
-
-	@Slots_maya.attr
-	def b000(self):
-		'''Circularize
-		'''
-		circularize = pm.polyCircularize(
-			constructionHistory=1, 
-			alignment=0, 
-			radialOffset=0, 
-			normalOffset=0, 
-			normalOrientation=0, 
-			smoothingAngle=30, 
-			evenlyDistribute=1, 
-			divisions=0, 
-			supportingEdges=0, 
-			twist=0, 
-			relaxInterior=1
-		)
-		return circularize
-
-
-	def b001(self):
-		'''Fill Holes
-		'''
-		pm.mel.FillHole()
-
-
-	def b002(self):
-		'''Separate
-		'''
-		pm.mel.SeparatePolygon()
-		sel = pm.ls(sl=1, objectsOnly=True)
-		for obj in sel:
-			pm.xform(obj, centerPivots=1)
-
-
-	def b003(self):
-		'''Symmetrize
-		'''
-		pm.mel.Symmetrize()
-
-
-	@Slots_maya.attr
-	def b004(self):
-		'''Slice
-		'''
-		cuttingDirection = 'Y' #valid values: 'x','y','z' A value of 'x' will cut the object along the YZ plane cutting through the center of the bounding box. 'y':ZX. 'z':XY.
-
-		component_sel = pm.ls(sl=1)
-		return pm.polyCut(component_sel, cuttingDirection=cuttingDirection, ch=1)
-
-
-	def b005(self):
-		'''Merge Vertices: Set Distance
-		'''
-		verts = pm.ls(sl=1, flatten=1)
-
-		try:
-			p1 = pm.pointPosition(verts[0], world=True)
-			p2 = pm.pointPosition(verts[1], world=True)
-		except IndexError as error:
-			p1, p2 = [(0.0005, 0, 0), (0, 0, 0)] #arbitrary points that will return the spinbox to it's default value of 0.0005.
-
-		self.setMergeVertexDistance(p1, p2)
-
-
-	def b006(self):
-		'''Merge Vertices: Merge All
-		'''
-		sel = pm.ls(sl=True, objectsOnly=True)
-		mtk.Edit.mergeVertices(sel)
-
-
-	def b009(self):
-		'''Collapse Component
-		'''
-		if pm.selectType(query=1, facet=1):
-			pm.mel.PolygonCollapse()
-		else:
-			pm.mel.MergeToCenter()
-
-
-	def b012(self):
-		'''Multi-Cut Tool
-		'''
-		pm.mel.dR_multiCutTool()
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        cmb000 = self.sb.polygons.draggableHeader.ctxMenu.cmb000
+        items = [
+            "Extrude",
+            "Bevel",
+            "Bridge",
+            "Combine",
+            "Merge Vertex",
+            "Offset Edgeloop",
+            "Edit Edgeflow",
+            "Extract Curve",
+            "Poke",
+            "Wedge",
+            "Assign Invisible",
+        ]
+        cmb000.addItems_(items, "Polygon Editors")
+
+    def cmb000(self, index=-1):
+        """Editors"""
+        cmb = self.sb.polygons.draggableHeader.ctxMenu.cmb000
+
+        if index > 0:
+            text = cmb.items[index]
+            if text == "Extrude":
+                pm.mel.PolyExtrudeOptions()
+            elif text == "Bevel":
+                pm.mel.BevelPolygonOptions()
+            elif text == "Bridge":
+                pm.mel.BridgeEdgeOptions()
+            elif text == "Combine":
+                pm.mel.CombinePolygonsOptions()
+            elif text == "Merge Vertex":
+                pm.mel.PolyMergeOptions()
+            elif text == "Offset Edgeloop":
+                pm.mel.DuplicateEdgesOptions()
+            elif text == "Edit Edgeflow":
+                pm.mel.PolyEditEdgeFlowOptions()
+            elif text == "Extract Curve":
+                pm.mel.CreateCurveFromPolyOptions()
+            elif text == "Poke":
+                pm.mel.PokePolygonOptions()
+            elif text == "Wedge":
+                pm.mel.WedgePolygonOptions()
+            elif text == "Assign Invisible":
+                pm.mel.PolyAssignSubdivHoleOptions()
+            cmb.setCurrentIndex(0)
+
+    def tb000(self, state=None):
+        """Merge Vertices"""
+        tb = self.sb.polygons.tb000
+
+        tolerance = float(tb.ctxMenu.s002.value())
+        objects = pm.ls(selection=1, objectsOnly=1, flatten=1)
+        componentMode = pm.selectMode(query=1, component=1)
+
+        if not objects:
+            self.sb.message_box(
+                "<strong>Nothing selected</strong>.<br>Operation requires an object or vertex selection.",
+                message_type="Error",
+            )
+            return
+
+        mtk.Edit.mergeVertices(objects, selected=componentMode, tolerance=tolerance)
+
+    @Slots_maya.attr
+    def tb001(self, state=None):
+        """Bridge"""
+        tb = self.sb.polygons.tb001
+
+        divisions = tb.ctxMenu.s003.value()
+
+        selection = pm.ls(sl=1)
+        if not selection:
+            return self.sb.message_box(
+                "<strong>Nothing selected</strong>.<br>Operation requires a component selection.",
+                message_type="Error",
+            )
+        edges = pm.filterExpand(
+            selection, selectionMask=32, expand=1
+        )  # get edges from selection
+
+        node = pm.polyBridgeEdge(edges, divisions=divisions)  # bridge edges
+        pm.polyCloseBorder(edges)  # fill edges if they lie on a border
+        return node
+
+    def tb002(self, state=None):
+        """Combine"""
+        tb = self.sb.polygons.tb002
+
+        if tb.ctxMenu.chk000.isChecked():
+            sel = pm.ls(sl=1, objectsOnly=1)
+            if not sel:
+                return self.sb.message_box(
+                    "<strong>Nothing selected</strong>.<br>Operation requires the selection of at least two objects.",
+                    message_type="Error",
+                )
+
+            objName = sel[0].name()
+            objParent = pm.listRelatives(objName, parent=1)
+            # combine
+            newObj = pm.polyUnite(ch=1, mergeUVSets=1, centerPivot=1)
+            # rename using the first selected object
+            pm.bakePartialHistory(objName, all=True)
+            objName_ = pm.rename(newObj[0], objName)
+            # reparent
+            pm.parent(objName_, objParent)
+        else:
+            pm.mel.CombinePolygons()
+
+    @Slots_maya.attr
+    def tb003(self, state=None):
+        """Extrude"""
+        tb = self.sb.polygons.tb003
+
+        keepFacesTogether = tb.ctxMenu.chk002.isChecked()  # keep faces/edges together.
+        divisions = tb.ctxMenu.s004.value()
+
+        selection = pm.ls(sl=1)
+        if not selection:
+            return self.sb.message_box(
+                "<strong>Nothing selected</strong>.<br>Operation requires a component selection.",
+                message_type="Error",
+            )
+        if pm.selectType(query=1, facet=1):  # face selection
+            pm.polyExtrudeFacet(
+                edit=1, keepFacesTogether=keepFacesTogether, divisions=divisions
+            )
+            pm.mel.PolyExtrude()  # return pm.polyExtrudeFacet(selection, ch=1, keepFacesTogether=keepFacesTogether, divisions=divisions)
+
+        elif pm.selectType(query=1, edge=1):  # edge selection
+            pm.polyExtrudeEdge(
+                edit=1, keepFacesTogether=keepFacesTogether, divisions=divisions
+            )
+            pm.mel.PolyExtrude()  # return pm.polyExtrudeEdge(selection, ch=1, keepFacesTogether=keepFacesTogether, divisions=divisions)
+
+        elif pm.selectType(query=1, vertex=1):  # vertex selection
+            pm.polyExtrudeVertex(edit=1, width=0.5, length=1, divisions=divisions)
+            pm.mel.PolyExtrude()  # return polyExtrudeVertex(selection, ch=1, width=0.5, length=1, divisions=divisions)
+
+    @Slots_maya.attr
+    def tb004(self, state=None):
+        """Bevel (Chamfer)"""
+        tb = self.sb.polygons.tb004
+
+        width = tb.ctxMenu.s000.value()
+        chamfer = True
+        segments = tb.ctxMenu.s006.value()
+
+        selection = pm.ls(sl=1, objectsOnly=1, type="shape")
+        if not selection:
+            return self.sb.message_box(
+                "<strong>Nothing selected</strong>.<br>Operation requires a component selection.",
+                message_type="Error",
+            )
+
+        for obj in selection:
+            edges = pm.ls(obj, sl=1)
+            node = pm.polyBevel3(
+                edges,
+                fraction=width,
+                offsetAsFraction=1,
+                autoFit=1,
+                depth=1,
+                mitering=0,
+                miterAlong=0,
+                chamfer=chamfer,
+                segments=segments,
+                worldSpace=1,
+                smoothingAngle=30,
+                subdivideNgons=1,
+                mergeVertices=1,
+                mergeVertexTolerance=0.0001,
+                miteringAngle=180,
+                angleTolerance=180,
+                ch=0,
+            )
+            if len(selection) == 1:
+                return node
+
+    def tb005(self, state=None):
+        """Detach"""
+        tb = self.sb.polygons.tb005
+
+        duplicate = tb.ctxMenu.chk014.isChecked()
+        separate = tb.ctxMenu.chk015.isChecked()
+
+        vertexMask = pm.selectType(query=True, vertex=True)
+        edgeMask = pm.selectType(query=True, edge=True)
+        facetMask = pm.selectType(query=True, facet=True)
+
+        selection = pm.ls(sl=1)
+        if not selection:
+            return self.sb.message_box(
+                "<strong>Nothing selected</strong>.<br>Operation requires a component selection.",
+                message_type="Error",
+            )
+
+        if vertexMask:
+            pm.mel.polySplitVertex()
+
+        elif facetMask:
+            extract = pm.polyChipOff(
+                selection, ch=1, keepFacesTogether=1, dup=duplicate, off=0
+            )
+            if separate:
+                try:
+                    splitObjects = pm.polySeparate(selection)
+                except:
+                    splitObjects = pm.polySeparate(pm.ls(selection, objectsOnly=1))
+            pm.select(splitObjects[-1])
+            return extract
+
+        else:
+            pm.mel.DetachComponent()
+
+    @Slots_maya.attr
+    def tb006(self, state=None):
+        """Inset Face Region"""
+        tb = self.sb.polygons.tb006
+
+        selected_faces = pm.polyEvaluate(faceComponent=1)
+        if isinstance(
+            selected_faces, str
+        ):  #'Nothing counted : no polygonal object is selected.'
+            self.sb.message_box(
+                "<strong>Nothing selected</strong>.<br>Operation requires a face selection.",
+                message_type="Error",
+            )
+            return
+
+        offset = float(tb.ctxMenu.s001.value())
+        return pm.polyExtrudeFacet(
+            selected_faces,
+            keepFacesTogether=1,
+            pvx=0,
+            pvy=40.55638003,
+            pvz=33.53797107,
+            divisions=1,
+            twist=0,
+            taper=1,
+            offset=offset,
+            thickness=0,
+            smoothingAngle=30,
+        )
+
+    def tb007(self, state=None):
+        """Divide Facet"""
+        tb = self.sb.polygons.tb007
+
+        dv = u = v = 0
+        if tb.ctxMenu.chk008.isChecked():  # Split U
+            u = 2
+        if tb.ctxMenu.chk009.isChecked():  # Split V
+            v = 2
+
+        mode = 0  # The subdivision mode. 0=quads, 1=triangles
+        subdMethod = 1  # subdivision type: 0=exponential(traditional subdivision) 1=linear(number of faces per edge grows linearly)
+        if tb.ctxMenu.chk010.isChecked():  # tris
+            mode = dv = 1
+            subdMethod = 0
+        if all(
+            [tb.ctxMenu.chk008.isChecked(), tb.ctxMenu.chk009.isChecked()]
+        ):  # subdivide once into quads
+            dv = 1
+            subdMethod = 0
+            u = v = 0
+        # perform operation
+        selectedFaces = pm.filterExpand(pm.ls(sl=1), selectionMask=34, expand=1)
+        if selectedFaces:
+            for (
+                face
+            ) in (
+                selectedFaces
+            ):  # when performing polySubdivideFacet on multiple faces, adjacent subdivided faces will make the next face an n-gon and therefore not able to be subdivided.
+                pm.polySubdivideFacet(
+                    face, divisions=0, divisionsU=2, divisionsV=2, mode=0, subdMethod=1
+                )
+        else:
+            self.sb.message_box(
+                "<strong>Nothing selected</strong>.<br>Operation requires a face selection.",
+                message_type="Error",
+            )
+            return
+
+    def tb008(self, state=None):
+        """Boolean Operation"""
+        tb = self.sb.polygons.tb008
+
+        selection = pm.ls(sl=1)
+        if not selection:
+            return self.sb.message_box(
+                "<strong>Nothing selected</strong>.<br>Operation requires the selection of at least two objects.",
+                message_type="Error",
+            )
+        if tb.ctxMenu.chk011.isChecked():  # union
+            pm.mel.PolygonBooleanIntersection()
+
+        if tb.ctxMenu.chk012.isChecked():  # difference
+            pm.mel.PolygonBooleanDifference()
+
+        if tb.ctxMenu.chk013.isChecked():  # intersection
+            pm.mel.PolygonBooleanIntersection()
+
+    def tb009(self, state=None):
+        """Snap Closest Verts"""
+        tb = self.sb.polygons.tb009
+
+        tolerance = tb.ctxMenu.s005.value()
+        freezetransforms = tb.ctxMenu.chk016.isChecked()
+
+        selection = pm.ls(sl=1, objectsOnly=1, type="transform")
+        if len(selection) > 1:
+            obj1, obj2 = selection
+            mtk.Edit.snapClosestVerts(obj1, obj2, tolerance, freezetransforms)
+        else:
+            self.sb.message_box(
+                "<strong>Nothing selected</strong>.<br>Operation requires at least two selected objects.",
+                message_type="Error",
+            )
+            return
+
+    @Slots_maya.attr
+    def b000(self):
+        """Circularize"""
+        circularize = pm.polyCircularize(
+            constructionHistory=1,
+            alignment=0,
+            radialOffset=0,
+            normalOffset=0,
+            normalOrientation=0,
+            smoothingAngle=30,
+            evenlyDistribute=1,
+            divisions=0,
+            supportingEdges=0,
+            twist=0,
+            relaxInterior=1,
+        )
+        return circularize
+
+    def b001(self):
+        """Fill Holes"""
+        pm.mel.FillHole()
+
+    def b002(self):
+        """Separate"""
+        pm.mel.SeparatePolygon()
+        sel = pm.ls(sl=1, objectsOnly=True)
+        for obj in sel:
+            pm.xform(obj, centerPivots=1)
+
+    def b003(self):
+        """Symmetrize"""
+        pm.mel.Symmetrize()
+
+    @Slots_maya.attr
+    def b004(self):
+        """Slice"""
+        cuttingDirection = "Y"  # valid values: 'x','y','z' A value of 'x' will cut the object along the YZ plane cutting through the center of the bounding box. 'y':ZX. 'z':XY.
+
+        component_sel = pm.ls(sl=1)
+        return pm.polyCut(component_sel, cuttingDirection=cuttingDirection, ch=1)
+
+    def b005(self):
+        """Merge Vertices: Set Distance"""
+        verts = pm.ls(sl=1, flatten=1)
+
+        try:
+            p1 = pm.pointPosition(verts[0], world=True)
+            p2 = pm.pointPosition(verts[1], world=True)
+        except IndexError as error:
+            p1, p2 = [
+                (0.0005, 0, 0),
+                (0, 0, 0),
+            ]  # arbitrary points that will return the spinbox to it's default value of 0.0005.
+
+        self.setMergeVertexDistance(p1, p2)
+
+    def b006(self):
+        """Merge Vertices: Merge All"""
+        sel = pm.ls(sl=True, objectsOnly=True)
+        mtk.Edit.mergeVertices(sel)
+
+    def b009(self):
+        """Collapse Component"""
+        if pm.selectType(query=1, facet=1):
+            pm.mel.PolygonCollapse()
+        else:
+            pm.mel.MergeToCenter()
+
+    def b012(self):
+        """Multi-Cut Tool"""
+        pm.mel.dR_multiCutTool()
+
+    def b021(self):
+        """Connect Border Edges"""
+        pm.mel.performPolyConnectBorders(0)
+
+    def b022(self):
+        """Attach"""
+        # pm.mel.AttachComponent()
+        pm.mel.dR_connectTool()
+
+    def b028(self):
+        """Quad Draw"""
+        pm.mel.dR_quadDrawTool()
+
+    def b032(self):
+        """Poke"""
+        pm.mel.PokePolygon()
+
+    def b034(self):
+        """Wedge"""
+        pm.mel.WedgePolygon()
+
+    def b038(self):
+        """Assign Invisible"""
+        pm.polyHole(assignHole=1)
+
+    def b043(self):
+        """Target Weld"""
+        pm.mel.ConvertSelectionToVertices()
+        pm.select(deselect=True)
+        pm.mel.dR_targetWeldTool()
+
+    def b045(self):
+        """Re-Order Vertices"""
+        symmetryOn = pm.symmetricModelling(
+            query=True, symmetry=True
+        )  # query symmetry state
+        if symmetryOn:
+            pm.symmetricModelling(symmetry=False)
+        pm.mel.setPolygonDisplaySettings("vertIDs")  # set vertex id on
+        pm.mel.doBakeNonDefHistory(1, "pre")  # history must be deleted
+        pm.mel.performPolyReorderVertex()  # start vertex reorder ctx
+
+    def b046(self):
+        """Split"""
+        vertexMask = pm.selectType(query=True, vertex=True)
+        edgeMask = pm.selectType(query=True, edge=True)
+        facetMask = pm.selectType(query=True, facet=True)
+
+        if facetMask:
+            pm.mel.performPolyPoke(1)
+
+        elif edgeMask:
+            pm.polySubdivideEdge(ws=0, s=0, dv=1, ch=0)
+
+        elif vertexMask:
+            pm.mel.polyChamferVtx(0, 0.25, 0)
+
+    def b047(self):
+        """Insert Edgeloop"""
+        pm.mel.SplitEdgeRingTool()
+
+    def b048(self):
+        """Collapse Edgering"""
+        pm.mel.bt_polyCollapseEdgeRingTool()
+
+    def b049(self):
+        """Slide Edge Tool"""
+        pm.mel.SlideEdgeTool()
+
+    def b050(self):
+        """Spin Edge"""
+        pm.mel.bt_polySpinEdgeTool()
+
+    def b051(self):
+        """Offset Edgeloop"""
+        pm.mel.performPolyDuplicateEdge(0)
+
+    def b053(self):
+        """Edit Edge Flow"""
+        pm.polyEditEdgeFlow(adjustEdgeFlow=1)
 
-
-	def b021(self):
-		'''Connect Border Edges
-		'''
-		pm.mel.performPolyConnectBorders(0)
-
-
-	def b022(self):
-		'''Attach
-		'''
-		# pm.mel.AttachComponent()
-		pm.mel.dR_connectTool()
-
-
-	def b028(self):
-		'''Quad Draw
-		'''
-		pm.mel.dR_quadDrawTool()
-
-
-	def b032(self):
-		'''Poke
-		'''
-		pm.mel.PokePolygon()
-
-
-	def b034(self):
-		'''Wedge
-		'''
-		pm.mel.WedgePolygon()
-
-
-	def b038(self):
-		'''Assign Invisible
-		'''
-		pm.polyHole(assignHole=1)
-
-
-	def b043(self):
-		'''Target Weld
-		'''
-		pm.mel.ConvertSelectionToVertices()
-		pm.select(deselect=True)
-		pm.mel.dR_targetWeldTool()
-
-
-	def b045(self):
-		'''Re-Order Vertices
-		'''
-		symmetryOn = pm.symmetricModelling(query=True, symmetry=True) #query symmetry state
-		if symmetryOn:
-			pm.symmetricModelling(symmetry=False)
-		pm.mel.setPolygonDisplaySettings("vertIDs") #set vertex id on
-		pm.mel.doBakeNonDefHistory(1, "pre") #history must be deleted
-		pm.mel.performPolyReorderVertex() #start vertex reorder ctx
-
-
-	def b046(self):
-		'''Split
-		'''
-		vertexMask = pm.selectType (query=True, vertex=True)
-		edgeMask = pm.selectType (query=True, edge=True)
-		facetMask = pm.selectType (query=True, facet=True)
-
-		if facetMask:
-			pm.mel.performPolyPoke(1)
-
-		elif edgeMask:
-			pm.polySubdivideEdge(ws=0, s=0, dv=1, ch=0)
-
-		elif vertexMask:
-			pm.mel.polyChamferVtx(0, 0.25, 0)
-
-
-	def b047(self):
-		'''Insert Edgeloop
-		'''
-		pm.mel.SplitEdgeRingTool()
-
-
-	def b048(self):
-		'''Collapse Edgering
-		'''
-		pm.mel.bt_polyCollapseEdgeRingTool()
-
-
-	def b049(self):
-		'''Slide Edge Tool
-		'''
-		pm.mel.SlideEdgeTool()
-
-
-	def b050(self):
-		'''Spin Edge
-		'''
-		pm.mel.bt_polySpinEdgeTool()
-
-
-	def b051(self):
-		'''Offset Edgeloop
-		'''
-		pm.mel.performPolyDuplicateEdge(0)
-
-
-	def b053(self):
-		'''Edit Edge Flow
-		'''
-		pm.polyEditEdgeFlow(adjustEdgeFlow=1)
 
 # --------------------------------------------------------------------------------------------
 
 
-
-
-
-
-
-
-
-#module name
-print (__name__)
+# module name
+print(__name__)
 # --------------------------------------------------------------------------------------------
 # Notes
 # --------------------------------------------------------------------------------------------

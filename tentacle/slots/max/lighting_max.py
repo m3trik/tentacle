@@ -4,43 +4,31 @@ from tentacle.slots.max import *
 from tentacle.slots.lighting import Lighting
 
 
-
 class Lighting_max(Lighting, Slots_max):
-	def __init__(self, *args, **kwargs):
-		super().__init__(*args, **kwargs)
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
 
-		cmb = self.sb.lighting.draggableHeader.ctxMenu.cmb000
-		items = ['']
-		cmb.addItems_(items, '')
+        cmb = self.sb.lighting.draggableHeader.ctxMenu.cmb000
+        items = [""]
+        cmb.addItems_(items, "")
 
+    def draggableHeader(self, state=None):
+        """Context menu"""
+        dh = self.sb.lighting.draggableHeader
 
-	def draggableHeader(self, state=None):
-		'''Context menu
-		'''
-		dh = self.sb.lighting.draggableHeader
+    def cmb000(self, index=-1):
+        """Editors"""
+        cmb = self.sb.lighting.draggableHeader.ctxMenu.cmb000
 
-
-	def cmb000(self, index=-1):
-		'''Editors
-		'''
-		cmb = self.sb.lighting.draggableHeader.ctxMenu.cmb000
-
-		if index>0:
-			text = cmb.items[index]
-			if text=='':
-				pass
-			cmb.setCurrentIndex(0)
+        if index > 0:
+            text = cmb.items[index]
+            if text == "":
+                pass
+            cmb.setCurrentIndex(0)
 
 
-
-
-
-
-
-
-
-#module name
-print (__name__)
+# module name
+print(__name__)
 # --------------------------------------------------------------------------------------------
 # Notes
 # --------------------------------------------------------------------------------------------

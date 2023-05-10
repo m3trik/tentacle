@@ -1,0 +1,266 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>translucent_window</class>
+ <widget class="QMainWindow" name="translucent_window">
+  <property name="enabled">
+   <bool>true</bool>
+  </property>
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>600</width>
+    <height>600</height>
+   </rect>
+  </property>
+  <property name="sizePolicy">
+   <sizepolicy hsizetype="Ignored" vsizetype="Ignored">
+    <horstretch>0</horstretch>
+    <verstretch>0</verstretch>
+   </sizepolicy>
+  </property>
+  <property name="minimumSize">
+   <size>
+    <width>0</width>
+    <height>0</height>
+   </size>
+  </property>
+  <property name="maximumSize">
+   <size>
+    <width>600</width>
+    <height>600</height>
+   </size>
+  </property>
+  <property name="cursor">
+   <cursorShape>ArrowCursor</cursorShape>
+  </property>
+  <property name="whatsThis">
+   <string>main</string>
+  </property>
+  <property name="toolButtonStyle">
+   <enum>Qt::ToolButtonIconOnly</enum>
+  </property>
+  <property name="tabShape">
+   <enum>QTabWidget::Triangular</enum>
+  </property>
+  <property name="dockNestingEnabled">
+   <bool>true</bool>
+  </property>
+  <property name="dockOptions">
+   <set>QMainWindow::AllowNestedDocks|QMainWindow::AllowTabbedDocks|QMainWindow::AnimatedDocks|QMainWindow::ForceTabbedDocks</set>
+  </property>
+  <widget class="QWidget" name="widget">
+   <property name="sizePolicy">
+    <sizepolicy hsizetype="Ignored" vsizetype="Ignored">
+     <horstretch>0</horstretch>
+     <verstretch>0</verstretch>
+    </sizepolicy>
+   </property>
+   <widget class="QPushButton" name="i032">
+    <property name="geometry">
+     <rect>
+      <x>265</x>
+      <y>290</y>
+      <width>66</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="minimumSize">
+     <size>
+      <width>0</width>
+      <height>21</height>
+     </size>
+    </property>
+    <property name="maximumSize">
+     <size>
+      <width>16777215</width>
+      <height>21</height>
+     </size>
+    </property>
+    <property name="whatsThis">
+     <string>display</string>
+    </property>
+    <property name="text">
+     <string>Display</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="b002">
+    <property name="geometry">
+     <rect>
+      <x>185</x>
+      <y>340</y>
+      <width>97</width>
+      <height>19</height>
+     </rect>
+    </property>
+    <property name="minimumSize">
+     <size>
+      <width>0</width>
+      <height>19</height>
+     </size>
+    </property>
+    <property name="text">
+     <string>Hide Selected</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="b003">
+    <property name="geometry">
+     <rect>
+      <x>305</x>
+      <y>340</y>
+      <width>97</width>
+      <height>19</height>
+     </rect>
+    </property>
+    <property name="minimumSize">
+     <size>
+      <width>0</width>
+      <height>19</height>
+     </size>
+    </property>
+    <property name="text">
+     <string>Show Selected</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="b005">
+    <property name="geometry">
+     <rect>
+      <x>135</x>
+      <y>300</y>
+      <width>96</width>
+      <height>19</height>
+     </rect>
+    </property>
+    <property name="minimumSize">
+     <size>
+      <width>0</width>
+      <height>19</height>
+     </size>
+    </property>
+    <property name="text">
+     <string>Xray Selected</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="b021">
+    <property name="geometry">
+     <rect>
+      <x>245</x>
+      <y>380</y>
+      <width>111</width>
+      <height>19</height>
+     </rect>
+    </property>
+    <property name="minimumSize">
+     <size>
+      <width>111</width>
+      <height>19</height>
+     </size>
+    </property>
+    <property name="text">
+     <string>Template Selected</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="b006">
+    <property name="geometry">
+     <rect>
+      <x>160</x>
+      <y>240</y>
+      <width>96</width>
+      <height>19</height>
+     </rect>
+    </property>
+    <property name="minimumSize">
+     <size>
+      <width>0</width>
+      <height>19</height>
+     </size>
+    </property>
+    <property name="text">
+     <string>Un-Xray All</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="b007">
+    <property name="geometry">
+     <rect>
+      <x>135</x>
+      <y>270</y>
+      <width>96</width>
+      <height>19</height>
+     </rect>
+    </property>
+    <property name="minimumSize">
+     <size>
+      <width>0</width>
+      <height>19</height>
+     </size>
+    </property>
+    <property name="text">
+     <string>Xray Other</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="b004">
+    <property name="geometry">
+     <rect>
+      <x>415</x>
+      <y>340</y>
+      <width>123</width>
+      <height>19</height>
+     </rect>
+    </property>
+    <property name="minimumSize">
+     <size>
+      <width>0</width>
+      <height>19</height>
+     </size>
+    </property>
+    <property name="maximumSize">
+     <size>
+      <width>999</width>
+      <height>19</height>
+     </size>
+    </property>
+    <property name="text">
+     <string>Show Geometry</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="b010">
+    <property name="geometry">
+     <rect>
+      <x>365</x>
+      <y>290</y>
+      <width>106</width>
+      <height>19</height>
+     </rect>
+    </property>
+    <property name="minimumSize">
+     <size>
+      <width>0</width>
+      <height>19</height>
+     </size>
+    </property>
+    <property name="text">
+     <string>Toggle Explode</string>
+    </property>
+   </widget>
+  </widget>
+ </widget>
+ <resources/>
+ <connections/>
+ <designerdata>
+  <property name="gridDeltaX">
+   <number>5</number>
+  </property>
+  <property name="gridDeltaY">
+   <number>10</number>
+  </property>
+  <property name="gridSnapX">
+   <bool>true</bool>
+  </property>
+  <property name="gridSnapY">
+   <bool>true</bool>
+  </property>
+  <property name="gridVisible">
+   <bool>true</bool>
+  </property>
+ </designerdata>
+</ui>

@@ -63,21 +63,21 @@ class Rigging_max(Rigging, Slots_max):
 	def chk000(self, state=None):
 		'''Scale Joint
 		'''
-		self.sb.toggleWidgets(setUnChecked='chk001-2')
+		self.sb.toggle_widgets(setUnChecked='chk001-2')
 		# self.sb.rigging.tb000.ctxMenu.s000.setValue(pm.jointDisplayScale(query=1)) #init global joint display size
 
 
 	def chk001(self, state=None):
 		'''Scale IK
 		'''
-		self.sb.toggleWidgets(setUnChecked='chk000, chk002')
+		self.sb.toggle_widgets(setUnChecked='chk000, chk002')
 		# self.sb.rigging.tb000.ctxMenu.setValue(pm.ikHandleDisplayScale(query=1)) #init IK handle display size
 		
 
 	def chk002(self, state=None):
 		'''Scale IK/FK
 		'''
-		self.sb.toggleWidgets(setUnChecked='chk000-1')
+		self.sb.toggle_widgets(setUnChecked='chk000-1')
 		# self.sb.rigging.tb000.ctxMenu.setValue(pm.jointDisplayScale(query=1, ikfk=1)) #init IKFK display size
 
 
@@ -112,7 +112,7 @@ class Rigging_max(Rigging, Slots_max):
 		# if toggle:
 		# 	pm.toggle(joints, localAxis=1) #set display off
 
-		# self.sb.messageBox('Display Local Rotation Axes:<hl>'+str(state)+'</hl>')
+		# self.sb.message_box('Display Local Rotation Axes:<hl>'+str(state)+'</hl>')
 
 
 	def tb001(self, state=None):
@@ -192,7 +192,7 @@ class Rigging_max(Rigging, Slots_max):
 		'''
 		node = rt.selection
 		if not node:
-			self.sb.messageBox('Operation requires a single selected object.')
+			self.sb.message_box('Operation requires a single selected object.')
 			return
 
 		'finish converting from Maya version.  Slots_max.getParameterValuesMax is not likely doable in the same sense getParameterValuesMEL was'

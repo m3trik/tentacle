@@ -40,7 +40,7 @@ class Mirror_max(Mirror, Slots_max):
 		'''
 		tb = self.sb.mirror.tb000
 
-		axis = self.sb.getAxisFromCheckBoxes('chk000-3', tb.ctxMenu)
+		axis = self.sb.get_axis_from_checkboxes('chk000-3', tb.ctxMenu)
 		worldSpace = tb.ctxMenu.chk008.isChecked()
 		cutMesh = tb.ctxMenu.chk005.isChecked() #cut mesh on axis before mirror.
 		instance = tb.ctxMenu.chk004.isChecked()
@@ -90,7 +90,7 @@ class Mirror_max(Mirror, Slots_max):
 			mergeThreshold (float) = Merge vertex distance.
 			deleteHistory (bool): Delete non-deformer history on the object before performing the operation.
 
-		Return:
+		Returns:
 			(obj) The polyMirrorFace history node if a single object, else None.
 		'''
 		direction = {
@@ -178,7 +178,7 @@ print (__name__)
 	# 	'''
 	# 	Delete: X Axis
 	# 	'''
-	# 	self.sb.toggleWidgets(setUnChecked='chk002,chk003')
+	# 	self.sb.toggle_widgets(setUnChecked='chk002,chk003')
 	# 	axis = "X"
 	# 	if self.sb.mirror.chk000.isChecked():
 	# 		axis = '-'+axis
@@ -190,7 +190,7 @@ print (__name__)
 	# 	'''
 	# 	Delete: Y Axis
 	# 	'''
-	# 	self.sb.toggleWidgets(setUnChecked='chk001,chk003')
+	# 	self.sb.toggle_widgets(setUnChecked='chk001,chk003')
 	# 	axis = "Y"
 	# 	if self.sb.mirror.chk000.isChecked():
 	# 		axis = '-'+axis
@@ -202,7 +202,7 @@ print (__name__)
 	# 	'''
 	# 	Delete: Z Axis
 	# 	'''
-	# 	self.sb.toggleWidgets(setUnChecked='chk001,chk002')
+	# 	self.sb.toggle_widgets(setUnChecked='chk001,chk002')
 	# 	axis = "Z"
 	# 	if self.sb.mirror.chk000.isChecked():
 	# 		axis = '-'+axis

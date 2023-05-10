@@ -76,7 +76,7 @@ class Materials_max(Materials, Slots_max):
 
 		mat = self.sb.materials.cmb002.currentData()
 		if not mat:
-			self.sb.messageBox('No Material Selection.')
+			self.sb.message_box('No Material Selection.')
 			return
 
 		shell = tb.ctxMenu.chk005.isChecked() #Select by material: shell
@@ -116,7 +116,7 @@ class Materials_max(Materials, Slots_max):
 					self.sb.materials.tb001.menu_.chk001.setChecked(True) #set comboBox to ID map mode. toggling the checkbox refreshes the combobox.
 				self.sb.materials.cmb002.setCurrentItem(mat.name) #set the comboBox index to the new mat #self.cmb002.setCurrentIndex(self.cmb002.findText(name))
 			else:
-				self.sb.messageBox('No valid object/s selected.')
+				self.sb.message_box('No valid object/s selected.')
 				return
 
 		elif assignCurrent: #Assign current mat
@@ -169,7 +169,7 @@ class Materials_max(Materials, Slots_max):
 			mat = self.sb.materials.cmb002.currentData() #get the mat obj from cmb002
 			rt.select(mat)
 		except Exception as error:
-			self.sb.messageBox('No stored material or no valid object selected.')
+			self.sb.message_box('No stored material or no valid object selected.')
 			return
 
 		#open the slate material editor
@@ -197,13 +197,13 @@ class Materials_max(Materials, Slots_max):
 		if setEditable:
 			self._mat = self.sb.materials.cmb002.currentData()
 			cmb.setEditable(True)
-			self.sb.toggleWidgets(self.sb.materials, setDisabled='b002,lbl000,tb000,tb002')
+			self.sb.toggle_widgets(self.sb.materials, setDisabled='b002,lbl000,tb000,tb002')
 		else:
 			mat = self._mat
 			newMatName = cmb.currentText()
 			self.renameMaterial(mat, newMatName)
 			cmb.setEditable(False)
-			self.sb.toggleWidgets(self.sb.materials, setEnabled='b002,lbl000,tb000,tb002')
+			self.sb.toggle_widgets(self.sb.materials, setEnabled='b002,lbl000,tb000,tb002')
 
 
 	def lbl002(self):
@@ -238,7 +238,7 @@ class Materials_max(Materials, Slots_max):
 		try: 
 			obj = rt.selection[0]
 		except IndexError:
-			self.sb.messageBox('Nothing selected.')
+			self.sb.message_box('Nothing selected.')
 			return
 
 		mat = self.getMaterial()
@@ -255,7 +255,7 @@ class Materials_max(Materials, Slots_max):
 			mat (obj)(str): The material or the material's name.
 			size (list): Desired icon size. [width, height]
 
-		Return:
+		Returns:
 			(obj) pixmap icon.
 		'''
 		try:
@@ -298,7 +298,7 @@ class Materials_max(Materials, Slots_max):
 		selectByMaterialID(material)
 		'''
 		if rt.getNumSubMtls(material): #if not a multimaterial
-			self.sb.messageBox('No valid stored material. If material is a multimaterial, select a submaterial.')
+			self.sb.message_box('No valid stored material. If material is a multimaterial, select a submaterial.')
 			return
 
 		if not material:
@@ -368,7 +368,7 @@ class Materials_max(Materials, Slots_max):
 
 		Parameters:
 			startingWith (list): Filters material names starting with any of the strings in the given list. ie. ['ID_']
-		Return:
+		Returns:
 			(list) materials.
 		'''
 		materials=[] #get any scene material that does not start with 'Material'
@@ -390,13 +390,13 @@ class Materials_max(Materials, Slots_max):
 		Parameters:
 			obj (obj): Mesh object.
 			face (int): Face number.
-		Return:
+		Returns:
 			(obj) material
 		'''
 		if not obj:
 			selection = rt.selection
 			if not selection:
-				self.sb.messageBox('Nothing selected. Select an object face, or choose the option: current material.')
+				self.sb.message_box('Nothing selected. Select an object face, or choose the option: current material.')
 				return
 			obj = selection[0]
 
@@ -413,7 +413,7 @@ class Materials_max(Materials, Slots_max):
 					try:
 						ID_ = rt.GetFaceId_(obj, face) #Returns the material ID of the specified face.
 					except RuntimeError:
-						self.sb.messageBox('Object must be of type Editable_Poly or Editable_mesh.')
+						self.sb.message_box('Object must be of type Editable_Poly or Editable_mesh.')
 						return
 
 				mat = rt.getSubMtl(mat, ID_) #get material from mat ID
@@ -428,7 +428,7 @@ class Materials_max(Materials, Slots_max):
 			name (str): material name.
 			prefix (str): Optional string to be appended to the beginning of the name.
 
-		Return:
+		Returns:
 			(obj) material
 		'''
 		import random
@@ -451,7 +451,7 @@ class Materials_max(Materials, Slots_max):
 		material (obj): The material to search and select for.
 		'''
 		if not mat:
-			self.sb.messageBox('Material Not Assigned. No material given.')
+			self.sb.message_box('Material Not Assigned. No material given.')
 			return
 
 		for obj in objects:
@@ -472,7 +472,7 @@ class Materials_max(Materials, Slots_max):
 			missing (bool): Return only filenames from missing bitmaps.
 			processChildren (bool): Child scene nodes are also searched as part of the Animatable or Reference hierarchy.
 
-		Return:
+		Returns:
 			(list) material bitmaps.
 		'''
 		if mats is None:
@@ -498,7 +498,7 @@ class Materials_max(Materials, Slots_max):
 			missing (bool): Return only filenames from missing bitmaps.
 			returnType (type) = Valid (list (default), dict).
 
-		Return:
+		Returns:
 			dependant on returnType flag.
 			(dict) {bitmap object:filepath}
 			(list) [filepath]
@@ -537,7 +537,7 @@ class Materials_max(Materials, Slots_max):
 			bitmaps (dict): A dict of bitmaps as keys, and filenames as values. If no bitmaps are given all bitmaps in the scene will be used.
 			replaceTxWithTif (bool): Look instead for a .tif file of the same name, to replace a previoud .tx format.
 
-		Return:
+		Returns:
 			(dict) Any bitmaps that are not found. {bitmap object:filename}
 		'''
 		import fnmatch, os
@@ -615,7 +615,7 @@ class Materials_max(Materials, Slots_max):
 		Parameters:
 			nodeType (obj)(str): The type of node to filter the results for. If 'query' is given, the node type will be returned. ie. rt.VRayMtl()
 			selected (bool): When True, only currently selected nodes will be returned.
-		Return:
+		Returns:
 			(list) nodes or node types.
 		'''
 		view = rt.SME.getView(rt.SME.activeView)

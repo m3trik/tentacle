@@ -39,16 +39,16 @@ cmb.returnPressed.connect(lambda m=ctx.lastActiveChild: getattr(self, m(name=1))
 cmb.currentIndexChanged.connect(self.lbl005) #select current set on index change.
 s000.valueChanged.connect(lambda v: rt.autosave.setmxsprop('NumberOfFiles', v))
 chk013.toggled.connect(lambda state: ctx.s006.setEnabled(True if state else False))
-chk015.stateChanged.connect(lambda state: self.toggleWidgets(ctx, setDisabled='t000-1,s001,chk005-11') if state 
-												else self.toggleWidgets(ctx, setEnabled='t000-1,s001,chk005-11')) #disable non-relevant options.
+chk015.stateChanged.connect(lambda state: self.toggle_widgets(ctx, setDisabled='t000-1,s001,chk005-11') if state 
+												else self.toggle_widgets(ctx, setEnabled='t000-1,s001,chk005-11')) #disable non-relevant options.
 
 #setText on state change.
 chk004.stateChanged.connect(lambda state: chk004.setText('Repair' if state else 'Select Only')) #set button text to reflect current state.
 chk026.stateChanged.connect(lambda state: chk026.setText('Stack Similar: '+str(state)))
 
 #set multiple connections using the Slots.connect method.
-self.sb.connect('chk006-9', 'toggled', self.chk006_9, ctx)
-self.sb.connect((ctx.chk012,ctx.chk013,ctx.chk014), 'toggled', 
+self.sb.connect_multi('chk006-9', 'toggled', self.chk006_9, ctx)
+self.sb.connect_multi((ctx.chk012,ctx.chk013,ctx.chk014), 'toggled', 
 				[lambda state: self.rigging_ui.tb004.setText('Lock Attributes' 
 					if any((ctx.chk012.isChecked(),ctx.chk013.isChecked(),ctx.chk014.isChecked())) else 'Unlock Attributes'), 
 				lambda state: self.rigging_submenu_ui.tb004.setText('Lock Transforms' 
@@ -245,7 +245,7 @@ file_maya:
 create reference
 pm.mel.CreateReference()
 maya_file
-# Error: uitk.childEvents.EventFactoryFilter.initWidgets(): Call: <bound method File.tb000 of <maya_file.File(0x1e0b2f0ca40) at 0x000001E0DB9769C8>>('setMenu') failed: 'PySide2.QtWidgets.QMainWindow' object has no attribute 'draggableHeader'. #
+# Error: uitk.childEvents.EventFactoryFilter.init_widgets(): Call: <bound method File.tb000 of <maya_file.File(0x1e0b2f0ca40) at 0x000001E0DB9769C8>>('setMenu') failed: 'PySide2.QtWidgets.QMainWindow' object has no attribute 'draggableHeader'. #
 
 
 
@@ -299,7 +299,7 @@ naming needs clearer docstring w/example results. replace suffix is instead appe
 #   File "O:/Cloud/Code/_scripts/uitk\uitk\slots\maya\__init__.py", line 1154, in wrapper
 #     self.setAttributeWindow(fn(self, *args, **kwargs))
 #   File "O:/Cloud/Code/_scripts/uitk\uitk\slots\__init__.py", line 472, in wrapper
-#     self.sb.messageBox(fn(self, *args, **kwargs))
+#     self.sb.message_box(fn(self, *args, **kwargs))
 #   File "O:/Cloud/Code/_scripts/uitk\uitk\slots\maya\polygons_maya.py", line 209, in tb006
 #     return pm.polyExtrudeFacet(selected_faces, keepFacesTogether=1, pvx=0, pvy=40.55638003, pvz=33.53797107, divisions=1, twist=0, taper=1, offset=offset, thickness=0, smoothingAngle=30)
 #   File "C:\Program Files\Autodesk\Maya2022\Python37\lib\site-packages\pymel\internal\pmcmds.py", line 217, in polyExtrudeFacet_wrapped
@@ -319,7 +319,7 @@ naming needs clearer docstring w/example results. replace suffix is instead appe
 
 # Traceback (most recent call last):
 #   File "O:/Cloud/Code/_scripts/uitk\uitk\slots\__init__.py", line 499, in wrapper
-#     self.sb.messageBox(fn(self, *args, **kwargs))
+#     self.sb.message_box(fn(self, *args, **kwargs))
 #   File "O:/Cloud/Code/_scripts/uitk\uitk\slots\maya\__init__.py", line 57, in wrapper
 #     rtn = fn(*args, **kwargs)
 #   File "O:/Cloud/Code/_scripts/uitk\uitk\slots\maya\maya_animation.py", line 53, in tb001
@@ -349,10 +349,10 @@ unfold -i 5000 -ss 0.001 -gb 0 -gmb 0.5 -pub 0 -ps  0 -oa  0 -us off pCylinder1.
 #   File "O:/Cloud/Code/_scripts/uitk\uitk\childEvents.py", line 236, in eventFilter
 #     getattr(self, eventName)(event) #handle the event locally. #ie. self.enterEvent(event)
 #   File "O:/Cloud/Code/_scripts/uitk\uitk\childEvents.py", line 348, in mouseReleaseEvent
-#     ui = self.tcl.setUi(self.widget.whatsThis()) #switch the stacked layout to the given ui.
-#   File "O:/Cloud/Code/_scripts/uitk\uitk\tcl.py", line 83, in setUi
-#     ui = self.sb.getUi(name, setAsCurrent=True) #Get the ui of the given name, and set it as the current ui in the switchboard module, which amoung other things, sets connections.
-#   File "O:/Cloud/Code/_scripts/uitk\uitk\switchboard.py", line 489, in getUi
+#     ui = self.tcl.set_ui(self.widget.whatsThis()) #switch the stacked layout to the given ui.
+#   File "O:/Cloud/Code/_scripts/uitk\uitk\tcl.py", line 83, in set_ui
+#     ui = self.sb.get_ui(name, set_as_current=True) #Get the ui of the given name, and set it as the current ui in the switchboard module, which amoung other things, sets connections.
+#   File "O:/Cloud/Code/_scripts/uitk\uitk\switchboard.py", line 489, in get_ui
 #     self.uiName = uiName #set the property for the current ui name.
 #   File "O:/Cloud/Code/_scripts/uitk\uitk\switchboard.py", line 532, in setUiName
 #     index = self.getUiIndex(index) #get index using name
@@ -379,7 +379,7 @@ def hk_tentacle_show(profile=False, uiName='init'):
 	# else:
 	print (uitk)
 	uitk.show(uiName)
-	# uitk.setUi(uiName)
+	# uitk.set_ui(uiName)
 
 
 # hk_tentacle_show('init')

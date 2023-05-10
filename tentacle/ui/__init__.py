@@ -5,17 +5,10 @@ import inspect
 from pythontk import getFilepath
 
 
-module = inspect.getmodule(inspect.currentframe()) #this module.
-path = getFilepath(module) #this modules directory.
+module = inspect.getmodule(inspect.currentframe())  # this module.
+path = getFilepath(module)  # this modules directory.
 
 # --------------------------------------------------------------------------------------------
-
-
-
-
-
-
-
 
 
 # --------------------------------------------------------------------------------------------

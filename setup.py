@@ -5,42 +5,38 @@ from uitk import __package__, __version__
 from pythontk import File
 
 
-with open('docs/README.md', 'r') as f:
-	long_description = f.read()
+with open("docs/README.md", "r") as f:
+    long_description = f.read()
 
 setuptools.setup(
-	name=__package__,
-	version=__version__,
-	author='Ryan Simpson',
-	author_email='m3trik@outlook.com',
-	description='A Python3/PySide2 marking menu style toolkit for Maya, 3ds Max, and Blender.',
-	long_description=long_description,
-	long_description_content_type='text/markdown',
-	url='https://github.com/m3trik/uitk',
-	packages=setuptools.find_packages(), #scan the directory structure and include all package dependancies.
-	classifiers=[
-		'Programming Language :: Python :: 3',
-		# 'License :: OSI Approved :: MIT License',
-		'Operating System :: OS Independent',
-	],
-	include_package_data = True,
-	data_files=File.getDirContents(__package__, 'filepaths', excFiles=['*.py', '*.pyc', '*.json']), #ie. ('uitk/ui/0', ['uitk/ui/0/init.ui']),
+    name=__package__,
+    version=__version__,
+    author="Ryan Simpson",
+    author_email="m3trik@outlook.com",
+    license="LGPLv3",
+    data_files=[("", ["COPYING.LESSER"])],
+    description="A Python3/PySide2 marking menu style toolkit for Maya, 3ds Max, and Blender.",
+    long_description=long_description,
+    long_description_content_type="text/markdown",
+    url="https://github.com/m3trik/uitk",
+    packages=setuptools.find_packages(),  # scan the directory structure and include all package dependancies.
+    classifiers=[
+        "Programming Language :: Python :: 3",
+        "License :: OSI Approved :: GNU Library or Lesser General Public License (LGPL)",
+        "Operating System :: OS Independent",
+    ],
+    include_package_data=True,
+    data_files=File.getDirContents(
+        __package__, "filepaths", excFiles=["*.py", "*.pyc", "*.json"]
+    ),  # ie. ('uitk/ui/0', ['uitk/ui/0/init.ui']),
 )
 
 # --------------------------------------------------------------------------------------------
 
 
-
-
-
-
-
-
-
 # --------------------------------------------------------------------------------------------
 # Notes
 # --------------------------------------------------------------------------------------------
-
 
 
 # Deprecated ------------------------------------
