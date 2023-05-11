@@ -215,31 +215,49 @@ class Overlay(QtWidgets.QWidget, OverlayFactoryFilter):
             ui (QMainWindow): The ui in which to copy the widgets to.
             return_func (func): A function to be called when the cursor enters the return area.
         """
-        # initialize the return area region for the UI.
+        # Check for start position and raise error if not found
+        self._validate_path_start_pos()
+
+        # Initialize the return area region for the UI
         region_widget = self.init_region(ui, self.path_start_pos)
         region_widget.on_enter.connect(return_func)
         region_widget.on_enter.connect(self.clear_path)
 
-        def clone_widget(ui, prev_widget, position):
-            new_widget = type(prev_widget)(ui)
-
-            try:
-                new_widget.setObjectName(prev_widget.objectName())
-                new_widget.resize(prev_widget.size())
-                new_widget.setWhatsThis(prev_widget.whatsThis())
-                new_widget.setText(prev_widget.text())
-                new_widget.move(
-                    new_widget.mapFromGlobal(position - new_widget.rect().center())
-                )  # set the position of the new widget in the new UI.
-                new_widget.setVisible(True)
-            except AttributeError:
-                pass
-
-            return new_widget
-
-        new_widgets = tuple(map(lambda i: clone_widget(ui, i[0], i[1]), self.path[1:]))
+        # Clone the widgets along the path
+        new_widgets = tuple(
+            self._clone_widget(ui, widget, pos) for widget, pos, _ in self.path[1:]
+        )
 
         return new_widgets
+
+    def _validate_path_start_pos(self):
+        """Check if path start position exists and raise error if not."""
+        if not self.path_start_pos:
+            raise ValueError("No start position found in the path.")
+
+    def _clone_widget(self, ui, prev_widget, position):
+        """Clone a widget and place it on the given position in the ui.
+
+        Parameters:
+            ui (QMainWindow): The ui to place the cloned widget.
+            prev_widget (QWidget): The widget to clone.
+            position (QPoint): The position to place the cloned widget.
+        """
+        new_widget = type(prev_widget)(ui)
+
+        try:
+            new_widget.setObjectName(prev_widget.objectName())
+            new_widget.resize(prev_widget.size())
+            new_widget.setWhatsThis(prev_widget.whatsThis())
+            new_widget.setText(prev_widget.text())
+            new_widget.move(
+                new_widget.mapFromGlobal(position - new_widget.rect().center())
+            )  # set the position of the new widget in the new UI.
+            new_widget.setVisible(True)
+        except AttributeError:
+            pass
+
+        return new_widget
 
     def draw_tangent(self, start_point, end_point, ellipseSize=7):
         """Draws a tangent line between two points with an ellipse at the start point.
