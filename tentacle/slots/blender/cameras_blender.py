@@ -4,9 +4,9 @@ from tentacle.slots.blender import *
 from tentacle.slots.cameras import Cameras
 
 
-class Cameras_blender(Cameras, Slots_blender):
+class Cameras_blender(Cameras, SlotsBlender):
     def __init__(self, *args, **kwargs):
-        Slots_blender.__init__(self, *args, **kwargs)
+        SlotsBlender.__init__(self, *args, **kwargs)
         Cameras.__init__(self, *args, **kwargs)
 
         tree = self.sb.cameras_lower_submenu.tree000

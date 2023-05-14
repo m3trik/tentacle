@@ -4,9 +4,9 @@ from tentacle.slots.blender import *
 from tentacle.slots.pivot import Pivot
 
 
-class Pivot_blender(Pivot, Slots_blender):
+class Pivot_blender(Pivot, SlotsBlender):
     def __init__(self, *args, **kwargs):
-        Slots_blender.__init__(self, *args, **kwargs)
+        SlotsBlender.__init__(self, *args, **kwargs)
         Pivot.__init__(self, *args, **kwargs)
 
         cmb = self.sb.pivot.draggableHeader.ctxMenu.cmb000

@@ -4,7 +4,7 @@ from tentacle.slots.max import *
 from tentacle.slots.subdivision import Subdivision
 
 
-class Subdivision_max(Subdivision, Slots_max):
+class Subdivision_max(Subdivision, SlotsMax):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 

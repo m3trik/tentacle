@@ -4,7 +4,7 @@ from tentacle.slots.maya import *
 from tentacle.slots.edit import Edit
 
 
-class Edit_maya(Edit, Slots_maya):
+class Edit_maya(Edit, SlotsMaya):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
@@ -199,7 +199,7 @@ class Edit_maya(Edit, Slots_maya):
                 pm.mel.performTransferShadingSets(1)
             cmb.setCurrentIndex(0)
 
-    @Slots_maya.attr
+    @SlotsMaya.attr
     def cmb001(self, index=-1):
         """Object History Attributes"""
         cmb = self.sb.edit.cmb001

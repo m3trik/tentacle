@@ -4,7 +4,7 @@ from tentacle.slots.maya import *
 from tentacle.slots.dynLayout import DynLayout
 
 
-class DynLayout_maya(DynLayout, Slots_maya):
+class DynLayout_maya(DynLayout, SlotsMaya):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 

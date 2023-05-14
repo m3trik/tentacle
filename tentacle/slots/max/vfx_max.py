@@ -4,7 +4,7 @@ from tentacle.slots.max import *
 from tentacle.slots.vfx import Vfx
 
 
-class Vfx_max(Vfx, Slots_max):
+class Vfx_max(Vfx, SlotsMax):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 

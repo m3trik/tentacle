@@ -4,7 +4,7 @@ from tentacle.slots.max import *
 from tentacle.slots.preferences import Preferences
 
 
-class Preferences_max(Preferences, Slots_max):
+class Preferences_max(Preferences, SlotsMax):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 

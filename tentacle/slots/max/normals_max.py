@@ -4,7 +4,7 @@ from tentacle.slots.max import *
 from tentacle.slots.normals import Normals
 
 
-class Normals_max(Normals, Slots_max):
+class Normals_max(Normals, SlotsMax):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
@@ -77,7 +77,7 @@ class Normals_max(Normals, Slots_max):
         # 	selEdges = selEdges + creasedEdges if not selEdges==allEdges else creasedEdges
 
         # if hardenUvBorders:
-        # 	uv_border_edges = Slots_max.getUvShellBorderEdges(selection)
+        # 	uv_border_edges = SlotsMax.getUvShellBorderEdges(selection)
         # 	selEdges = selEdges + uv_border_edges if not selEdges==allEdges else uv_border_edges
 
         # obj.EditablePoly.makeHardEdges(1) #set hard edges.
@@ -162,7 +162,7 @@ class Normals_max(Normals, Slots_max):
 
         if byUvShell:
             print("# Error: No 3ds Version of this flag yet. #")
-            sets_ = Slots_max.getUvShellSets(obj)
+            sets_ = SlotsMax.getUvShellSets(obj)
             for set_ in sets_:
                 pm.polySetToFaceNormal(set_)
                 pm.polyAverageNormal(set_)

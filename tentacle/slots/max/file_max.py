@@ -4,7 +4,7 @@ from tentacle.slots.max import *
 from tentacle.slots.file import File
 
 
-class File_max(File, Slots_max):
+class File_max(File, SlotsMax):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 

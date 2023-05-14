@@ -4,7 +4,7 @@ from tentacle.slots.maya import *
 from tentacle.slots.rigging import Rigging
 
 
-class Rigging_maya(Rigging, Slots_maya):
+class Rigging_maya(Rigging, SlotsMaya):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
@@ -226,7 +226,7 @@ class Rigging_maya(Rigging, Slots_maya):
         attrs = mtk.getParameterValuesMEL(node, "transformLimits", params)
         self.setAttributeWindow(
             node,
-            fn=Slots_maya.setParameterValuesMEL,
+            fn=SlotsMaya.setParameterValuesMEL,
             fn_args="transformLimits",
             **attrs
         )

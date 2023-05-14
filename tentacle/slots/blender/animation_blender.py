@@ -4,9 +4,9 @@ from tentacle.slots.blender import *
 from tentacle.slots.animation import Animation
 
 
-class Animation_blender(Animation, Slots_blender):
+class Animation_blender(Animation, SlotsBlender):
     def __init__(self, *args, **kwargs):
-        Slots_blender.__init__(self, *args, **kwargs)
+        SlotsBlender.__init__(self, *args, **kwargs)
         Animation.__init__(self, *args, **kwargs)
 
         cmb = self.sb.animation.draggableHeader.ctxMenu.cmb000
@@ -46,7 +46,7 @@ class Animation_blender(Animation, Slots_blender):
 
         pm.currentTime(currentTime + frame, edit=True, update=update)
 
-    @Slots_blender.undoChunk
+    @SlotsBlender.undoChunk
     def invertSelectedKeyframes(self, time=1, relative=True):
         """Duplicate any selected keyframes and paste them inverted at the given time.
 

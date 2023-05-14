@@ -4,7 +4,7 @@ from tentacle.slots.max import *
 from tentacle.slots.pivot import Pivot
 
 
-class Pivot_max(Pivot, Slots_max):
+class Pivot_max(Pivot, SlotsMax):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 

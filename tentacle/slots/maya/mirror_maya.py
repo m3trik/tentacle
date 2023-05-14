@@ -4,7 +4,7 @@ from tentacle.slots.maya import *
 from tentacle.slots.mirror import Mirror
 
 
-class Mirror_maya(Mirror, Slots_maya):
+class Mirror_maya(Mirror, SlotsMaya):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
@@ -21,7 +21,7 @@ class Mirror_maya(Mirror, Slots_maya):
                 pass
             cmb.setCurrentIndex(0)
 
-    @Slots_maya.attr
+    @SlotsMaya.attr
     def tb000(self, state=None):
         """Mirror Geometry"""
         tb = self.sb.mirror.tb000

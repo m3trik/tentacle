@@ -4,9 +4,9 @@ from tentacle.slots.blender import *
 from tentacle.slots.materials import Materials
 
 
-class Materials_blender(Materials, Slots_blender):
+class Materials_blender(Materials, SlotsBlender):
     def __init__(self, *args, **kwargs):
-        Slots_blender.__init__(self, *args, **kwargs)
+        SlotsBlender.__init__(self, *args, **kwargs)
         Materials.__init__(self, *args, **kwargs)
 
         self.randomMat = None
@@ -390,7 +390,7 @@ class Materials_blender(Materials, Slots_blender):
 
         return mat
 
-    @Slots_blender.undoChunk
+    @SlotsBlender.undoChunk
     def assignMaterial(self, objects, mat):
         """Assign Material
 

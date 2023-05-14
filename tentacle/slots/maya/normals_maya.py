@@ -4,7 +4,7 @@ from tentacle.slots.maya import *
 from tentacle.slots.normals import Normals
 
 
-class Normals_maya(Normals, Slots_maya):
+class Normals_maya(Normals, SlotsMaya):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
@@ -101,7 +101,7 @@ class Normals_maya(Normals, Slots_maya):
 
             pm.select(selEdges, add=True)
 
-    @Slots_maya.attr
+    @SlotsMaya.attr
     def tb002(self, state=None):
         """Set Normals By Angle"""
         tb = self.sb.normals.tb002

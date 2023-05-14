@@ -4,9 +4,9 @@ from tentacle.slots.blender import *
 from tentacle.slots.create import Create
 
 
-class Create_blender(Create, Slots_blender):
+class Create_blender(Create, SlotsBlender):
     def __init__(self, *args, **kwargs):
-        Slots_blender.__init__(self, *args, **kwargs)
+        SlotsBlender.__init__(self, *args, **kwargs)
         Create.__init__(self, *args, **kwargs)
 
         ctx = self.sb.create.draggableHeader.ctxMenu
@@ -122,7 +122,7 @@ class Create_blender(Create, Slots_blender):
         if index == 2:
             cmb.addItems_(lights, clear=True)
 
-    @Slots_blender.attr
+    @SlotsBlender.attr
     def tb000(self, state=None):
         """Create Primitive"""
         tb = self.sb.create.tb000
@@ -330,7 +330,7 @@ class Create_blender(Create, Slots_blender):
 
         return self.getHistoryNode(node)
 
-    @Slots_blender.undoChunk
+    @SlotsBlender.undoChunk
     def createCircle(
         self, axis="y", numPoints=5, radius=5, center=[0, 0, 0], mode=0, name="pCircle"
     ):
@@ -404,7 +404,7 @@ print(__name__)
 # def node(self):
 # 	'''Get the Transform Node
 # 	'''
-# 	transform = Slots_blender.getTransformNode()
+# 	transform = SlotsBlender.getTransformNode()
 # 	if transform:
 # 		if not self.sb.create.txt003.text()==transform[0].name(): #make sure the same field reflects the current working node.
 # 			self.sb.create.txt003.setText(transform[0].name())

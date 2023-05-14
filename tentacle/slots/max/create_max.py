@@ -4,7 +4,7 @@ from tentacle.slots.max import *
 from tentacle.slots.create import Create
 
 
-class Create_max(Create, Slots_max):
+class Create_max(Create, SlotsMax):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
@@ -123,7 +123,7 @@ class Create_max(Create, Slots_max):
         if index == 5:
             cmb.addItems_(lights, clear=True)
 
-    @Slots_max.attr
+    @SlotsMax.attr
     def tb000(self, state=None):
         """Create Primitive"""
         tb = self.sb.create.tb000
@@ -444,7 +444,7 @@ class Create_max(Create, Slots_max):
             if translate:
                 obj = selection[0]
                 if rt.subObjectLevel == 1:  # vertex
-                    vertex = Slots_max.bitArrayToArray(rt.polyop.getVertSelection(obj))
+                    vertex = SlotsMax.bitArrayToArray(rt.polyop.getVertSelection(obj))
                     x, y, z = pos = rt.polyop.getVert(
                         obj, vertex[0]
                     )  # Returns the position of the specified vertex.
@@ -453,7 +453,7 @@ class Create_max(Create, Slots_max):
                 node.pos = rt.point3(x, y, z)
 
             # if scale:
-            # 	Slots_max.matchScale(node, selection, average=True)
+            # 	SlotsMax.matchScale(node, selection, average=True)
 
         # if self.sb.create.cmb001.currentIndex() == 0: #if create type: polygon; convert to editable poly
         # 	rt.convertTo(node, rt.PolyMeshObject) #convert after adding primitive attributes to spinboxes

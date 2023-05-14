@@ -4,7 +4,7 @@ from tentacle.slots.max import *
 from tentacle.slots.polygons import Polygons
 
 
-class Polygons_max(Polygons, Slots_max):
+class Polygons_max(Polygons, SlotsMax):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
@@ -222,7 +222,7 @@ class Polygons_max(Polygons, Slots_max):
         """Boolean Operation"""
         tb = self.sb.polygons.tb008
 
-        objects = list(Slots_max.bitArrayToArray(rt.selection))
+        objects = list(SlotsMax.bitArrayToArray(rt.selection))
 
         if tb.ctxMenu.chk011.isChecked():  # union
             for obj in objects[:-1]:
@@ -246,7 +246,7 @@ class Polygons_max(Polygons, Slots_max):
         selection = pm.ls(sl=1, objectsOnly=1, type="transform")
         if len(selection) > 1:
             obj1, obj2 = selection
-            Slots_max.snapClosestVerts(obj1, obj2, tolerance, freezetransforms)
+            SlotsMax.snapClosestVerts(obj1, obj2, tolerance, freezetransforms)
         else:
             self.sb.message_box("Operation requires at least two selected objects.")
             return
@@ -355,7 +355,7 @@ class Polygons_max(Polygons, Slots_max):
                 position = 0.5
 
                 edges = rt.getEdgeSelection(obj)
-                for edge in Slots_max.bitArrayToArray(edges):
+                for edge in SlotsMax.bitArrayToArray(edges):
                     rt.polyop.divideEdge(obj, edge, position)
 
             if level == 4:

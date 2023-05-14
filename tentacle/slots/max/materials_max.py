@@ -5,7 +5,7 @@ from tentacle.slots.materials import Materials
 
 
 
-class Materials_max(Materials, Slots_max):
+class Materials_max(Materials, SlotsMax):
 	def __init__(self, *args, **kwargs):
 		super().__init__(*args, **kwargs)
 
@@ -314,7 +314,7 @@ class Materials_max(Materials, Slots_max):
 				if shell: #set to base object level
 					rt.modPanel.setCurrentObject(obj.baseObject)
 				else: #set object level to face
-					Slots_max.setSubObjectLevel(4)
+					SlotsMax.setSubObjectLevel(4)
 				m = obj.material
 				multimaterial = rt.getNumSubMtls(m)
 

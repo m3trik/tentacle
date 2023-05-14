@@ -4,7 +4,7 @@ from tentacle.slots.maya import *
 from tentacle.slots.create import Create
 
 
-class Create_maya(Create, Slots_maya):
+class Create_maya(Create, SlotsMaya):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
@@ -110,7 +110,7 @@ class Create_maya(Create, Slots_maya):
         if index == 2:
             cmb.addItems_(lights, clear=True)
 
-    @Slots_maya.attr
+    @SlotsMaya.attr
     def tb000(self, state=None):
         """Create Primitive"""
         tb = self.sb.create.tb000

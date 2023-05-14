@@ -4,7 +4,7 @@ from tentacle.slots.max import *
 from tentacle.slots.crease import Crease
 
 
-class Crease_max(Crease, Slots_max):
+class Crease_max(Crease, SlotsMax):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 

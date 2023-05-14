@@ -213,7 +213,7 @@
   <customwidget>
    <class>ListWidget</class>
    <extends>QListWidget</extends>
-   <header>listwidget.h</header>
+   <header>widgets.listwidget.h</header>
   </customwidget>
  </customwidgets>
  <resources/>

@@ -4,7 +4,7 @@ from tentacle.slots.maya import *
 from tentacle.slots.polygons import Polygons
 
 
-class Polygons_maya(Polygons, Slots_maya):
+class Polygons_maya(Polygons, SlotsMaya):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
@@ -71,7 +71,7 @@ class Polygons_maya(Polygons, Slots_maya):
 
         mtk.Edit.mergeVertices(objects, selected=componentMode, tolerance=tolerance)
 
-    @Slots_maya.attr
+    @SlotsMaya.attr
     def tb001(self, state=None):
         """Bridge"""
         tb = self.sb.polygons.tb001
@@ -116,7 +116,7 @@ class Polygons_maya(Polygons, Slots_maya):
         else:
             pm.mel.CombinePolygons()
 
-    @Slots_maya.attr
+    @SlotsMaya.attr
     def tb003(self, state=None):
         """Extrude"""
         tb = self.sb.polygons.tb003
@@ -146,7 +146,7 @@ class Polygons_maya(Polygons, Slots_maya):
             pm.polyExtrudeVertex(edit=1, width=0.5, length=1, divisions=divisions)
             pm.mel.PolyExtrude()  # return polyExtrudeVertex(selection, ch=1, width=0.5, length=1, divisions=divisions)
 
-    @Slots_maya.attr
+    @SlotsMaya.attr
     def tb004(self, state=None):
         """Bevel (Chamfer)"""
         tb = self.sb.polygons.tb004
@@ -222,7 +222,7 @@ class Polygons_maya(Polygons, Slots_maya):
         else:
             pm.mel.DetachComponent()
 
-    @Slots_maya.attr
+    @SlotsMaya.attr
     def tb006(self, state=None):
         """Inset Face Region"""
         tb = self.sb.polygons.tb006
@@ -328,7 +328,7 @@ class Polygons_maya(Polygons, Slots_maya):
             )
             return
 
-    @Slots_maya.attr
+    @SlotsMaya.attr
     def b000(self):
         """Circularize"""
         circularize = pm.polyCircularize(
@@ -361,7 +361,7 @@ class Polygons_maya(Polygons, Slots_maya):
         """Symmetrize"""
         pm.mel.Symmetrize()
 
-    @Slots_maya.attr
+    @SlotsMaya.attr
     def b004(self):
         """Slice"""
         cuttingDirection = "Y"  # valid values: 'x','y','z' A value of 'x' will cut the object along the YZ plane cutting through the center of the bounding box. 'y':ZX. 'z':XY.

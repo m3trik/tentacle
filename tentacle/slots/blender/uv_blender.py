@@ -4,9 +4,9 @@ from tentacle.slots.blender import *
 from tentacle.slots.uv import Uv
 
 
-class Uv_blender(Uv, Slots_blender):
+class Uv_blender(Uv, SlotsBlender):
     def __init__(self, *args, **kwargs):
-        Slots_blender.__init__(self, *args, **kwargs)
+        SlotsBlender.__init__(self, *args, **kwargs)
         Uv.__init__(self, *args, **kwargs)
 
         cmb000 = self.sb.uv.draggableHeader.ctxMenu.cmb000
@@ -236,7 +236,7 @@ class Uv_blender(Uv, Slots_blender):
                 packBox=[M - 1, D, I, U],
             )  # layoutScaleMode (int), multiObject (bool), mutations (int), packBox (float, float, float, float), preRotateMode (int), preScaleMode (int), resolution (int), rotateMax (float), rotateMin (float), rotateStep (float), shellSpacing (float), tileAssignMode (int), tileMargin (float), tileU (int), tileV (int), translate (bool)
 
-    @Slots_blender.attr
+    @SlotsBlender.attr
     def tb001(self, state=None):
         """Auto Unwrap"""
         tb = self.sb.uv.tb001
@@ -427,7 +427,7 @@ class Uv_blender(Uv, Slots_blender):
         """Create UV Snapshot"""
         pm.mel.UVCreateSnapshot()
 
-    @Slots_blender.undoChunk
+    @SlotsBlender.undoChunk
     def b002(self):
         """Transfer UV's"""
         selection = pm.ls(orderedSelection=1, flatten=1)

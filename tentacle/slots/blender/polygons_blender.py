@@ -4,9 +4,9 @@ from tentacle.slots.blender import *
 from tentacle.slots.polygons import Polygons
 
 
-class Polygons_blender(Polygons, Slots_blender):
+class Polygons_blender(Polygons, SlotsBlender):
     def __init__(self, *args, **kwargs):
-        Slots_blender.__init__(self, *args, **kwargs)
+        SlotsBlender.__init__(self, *args, **kwargs)
         Polygons.__init__(self, *args, **kwargs)
 
         cmb000 = self.sb.polygons.draggableHeader.ctxMenu.cmb000
@@ -102,7 +102,7 @@ class Polygons_blender(Polygons, Slots_blender):
                 pm.select(clear=1)
                 pm.select(objects)
 
-    @Slots_blender.attr
+    @SlotsBlender.attr
     def tb001(self, state=None):
         """Bridge"""
         tb = self.sb.polygons.tb001
@@ -139,7 +139,7 @@ class Polygons_blender(Polygons, Slots_blender):
         else:
             pm.mel.CombinePolygons()
 
-    @Slots_blender.attr
+    @SlotsBlender.attr
     def tb003(self, state=None):
         """Extrude"""
         tb = self.sb.polygons.tb003
@@ -167,7 +167,7 @@ class Polygons_blender(Polygons, Slots_blender):
             mel.eval("PolyExtrude;")
             # return polyExtrudeVertex(selection, ch=1, width=0.5, length=1, divisions=divisions)
 
-    @Slots_blender.attr
+    @SlotsBlender.attr
     def tb004(self, state=None):
         """Bevel (Chamfer)"""
         tb = self.sb.polygons.tb004
@@ -228,7 +228,7 @@ class Polygons_blender(Polygons, Slots_blender):
         else:
             pm.mel.DetachComponent()
 
-    @Slots_blender.attr
+    @SlotsBlender.attr
     def tb006(self, state=None):
         """Inset Face Region"""
         tb = self.sb.polygons.tb006
@@ -316,7 +316,7 @@ class Polygons_blender(Polygons, Slots_blender):
         else:
             return "Error: <strong>Nothing selected</strong>.<br>Operation requires at least two selected objects."
 
-    @Slots_blender.attr
+    @SlotsBlender.attr
     def b000(self):
         """Circularize"""
         circularize = pm.polyCircularize(
@@ -346,7 +346,7 @@ class Polygons_blender(Polygons, Slots_blender):
         """Symmetrize"""
         pm.mel.Symmetrize()
 
-    @Slots_blender.attr
+    @SlotsBlender.attr
     def b004(self):
         """Slice"""
         cuttingDirection = "Y"  # valid values: 'x','y','z' A value of 'x' will cut the object along the YZ plane cutting through the center of the bounding box. 'y':ZX. 'z':XY.
@@ -445,7 +445,7 @@ class Polygons_blender(Polygons, Slots_blender):
         """Edit Edge Flow"""
         pm.polyEditEdgeFlow(adjustEdgeFlow=1)
 
-    @Slots_blender.undoChunk
+    @SlotsBlender.undoChunk
     def snapClosestVerts(self, obj1, obj2, tolerance=10.0, freezeTransforms=False):
         """Snap the vertices from object one to the closest verts on object two.
 

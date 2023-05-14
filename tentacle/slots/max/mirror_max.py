@@ -5,7 +5,7 @@ from tentacle.slots.mirror import Mirror
 
 
 
-class Mirror_max(Mirror, Slots_max):
+class Mirror_max(Mirror, SlotsMax):
 	def __init__(self, *args, **kwargs):
 		super().__init__(*args, **kwargs)
 
@@ -28,7 +28,7 @@ class Mirror_max(Mirror, Slots_max):
 			cmb.setCurrentIndex(0)
 
 
-	@Slots_maya.attr
+	@SlotsMaya.attr
 	def tb000(self, state=None):
 		'''Mirror Geometry
 

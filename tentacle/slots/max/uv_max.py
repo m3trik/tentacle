@@ -4,7 +4,7 @@ from tentacle.slots.max import *
 from tentacle.slots.uv import Uv
 
 
-class Uv_max(Uv, Slots_max):
+class Uv_max(Uv, SlotsMax):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
@@ -217,7 +217,7 @@ class Uv_max(Uv, Slots_max):
             1, 0.01, scale, rotate, True
         )  # (method, spacing, normalize, rotate, fillholes)
 
-    @Slots_max.attr
+    @SlotsMax.attr
     def tb001(self, state=None):
         """Auto Unwrap"""
         tb = self.sb.uv.tb001

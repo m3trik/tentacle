@@ -4,7 +4,7 @@ from tentacle.slots.maya import *
 from tentacle.slots.preferences import Preferences
 
 
-class Preferences_maya(Preferences, Slots_maya):
+class Preferences_maya(Preferences, SlotsMaya):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 

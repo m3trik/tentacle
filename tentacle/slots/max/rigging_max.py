@@ -5,7 +5,7 @@ from tentacle.slots.rigging import Rigging
 
 
 
-class Rigging_max(Rigging, Slots_max):
+class Rigging_max(Rigging, SlotsMax):
 	def __init__(self, *args, **kwargs):
 		super().__init__(*args, **kwargs)
 
@@ -134,7 +134,7 @@ class Rigging_max(Rigging, Slots_max):
 
 		template = tb.ctxMenu.chk004.isChecked()
 
-		objects = list(Slots_max.bitArrayToArray(rt.selection))
+		objects = list(SlotsMax.bitArrayToArray(rt.selection))
 
 		for obj in objects[:-1]:
 			obj.parent = objects[-1]
@@ -195,13 +195,13 @@ class Rigging_max(Rigging, Slots_max):
 			self.sb.message_box('Operation requires a single selected object.')
 			return
 
-		'finish converting from Maya version.  Slots_max.getParameterValuesMax is not likely doable in the same sense getParameterValuesMEL was'
+		'finish converting from Maya version.  SlotsMax.getParameterValuesMax is not likely doable in the same sense getParameterValuesMEL was'
 		params = ['enableTranslationX','translationX','enableTranslationY','translationY','enableTranslationZ','translationZ',
 			'enableRotationX','rotationX','enableRotationY','rotationY','enableRotationZ','rotationZ',
 			'enableScaleX','scaleX','enableScaleY','scaleY','enableScaleZ','scaleZ']
 
-		attrs = Slots_max.getParameterValuesMax(node, 'transformLimits', params)
-		self.setAttributeWindow(node, fn=Slots_max.setParameterValuesMax, 'transformLimits', **attrs)
+		attrs = SlotsMax.getParameterValuesMax(node, 'transformLimits', params)
+		self.setAttributeWindow(node, fn=SlotsMax.setParameterValuesMax, 'transformLimits', **attrs)
 
 
 	def b001(self):

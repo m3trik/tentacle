@@ -1,7 +1,7 @@
 # !/usr/bin/python
 # coding=utf-8
 import sys, os
-import logging
+import logging, traceback
 from PySide2 import QtCore, QtGui, QtWidgets
 from pythontk import makeList
 from uitk.switchboard import Switchboard
@@ -11,7 +11,7 @@ from tentacle.overlay import Overlay
 
 class Tcl(QtWidgets.QStackedWidget):
     """Tcl is a marking menu based on a QStackedWidget.
-    The various ui's are set by calling 'set_ui' with the intended ui name string. ex. Tcl().set_ui('polygons')
+    The various UI's are set by calling 'set_ui' with the intended UI name string. ex. Tcl().set_ui('polygons')
     """
 
     # return the existing QApplication object, or create a new one if none exists.
@@ -54,7 +54,7 @@ class Tcl(QtWidgets.QStackedWidget):
             set_legal_name_no_tags_attr=True,
             suppress_warnings=True,
         )
-        self.event_filter = EventFactoryFilter(
+        self.child_event_filter = EventFactoryFilter(
             self,
             event_name_prefix="child_",
             forward_events_to=self,
@@ -63,63 +63,75 @@ class Tcl(QtWidgets.QStackedWidget):
         self.mouse_tracking = MouseTracking(self)
 
     def init_ui(self, ui):
-        """Initialize the given ui.
+        """Initialize the given UI.
 
         Parameters:
-            ui (obj): The ui to initialize.
+            ui (obj): The UI to initialize.
         """
-        self.init_widgets(ui.widgets)
-        ui.set_style("dark")
+        if not isinstance(ui, QtWidgets.QWidget):
+            raise ValueError(
+                f"Incorrect datatype for ui: {type(ui)}, expected QWidget."
+            )
 
-        if ui.has_tag("startmenu|submenu"):  # stacked ui.
-            self.addWidget(ui)  # add the ui to the stackedLayout.
+        self.init_child_event_filter(ui.widgets)
+        ui.set_style("dark", append_to_existing=True)
 
-        else:  # popup ui.
+        if ui.has_tag("startmenu|submenu"):  # stacked UI.
+            self.addWidget(ui)  # add the UI to the stackedLayout.
+
+        else:  # popup UI.
             ui.setParent(self.parent() or self)
             ui.setWindowFlags(QtCore.Qt.Tool | QtCore.Qt.FramelessWindowHint)
             ui.setAttribute(QtCore.Qt.WA_TranslucentBackground)
             self._key_show_release.connect(ui.hide)
 
     def set_ui(self, ui):
-        """Set the stacked Widget's index to the given ui.
+        """Set the stacked Widget's index to the given UI.
 
         Parameters:
-            ui (str/obj): The ui or name of the ui to set the stacked widget index to.
+            ui (str/obj): The UI or name of the UI to set the stacked widget index to.
         """
         if not isinstance(ui, (str, QtWidgets.QWidget)):
-            raise ValueError(f"Incorrect datatype: {type(ui)}")
+            raise ValueError(
+                f"Incorrect datatype for ui: {type(ui)}, expected str or QWidget."
+            )
 
-        # Get the ui of the given name, and set it as the current ui in the switchboard module.
+        # Get the UI of the given name, and set it as the current UI in the switchboard module.
         found_ui = self.sb.get_ui(ui)
         if not found_ui:
             raise ValueError(f"UI not found: {ui}")
 
-        found_ui.set_as_current()
         if not found_ui.is_initialized:
             self.init_ui(found_ui)
 
         if found_ui.has_tag("startmenu|submenu"):
-            self.setCurrentWidget(found_ui)  # set the stacked widget to the found ui.
+            found_ui.set_as_current()  # only set stacked UI as current.
+            self.setCurrentWidget(found_ui)  # set the stacked widget to the found UI.
         else:
             found_ui.resize(found_ui.minimumSizeHint())
             # move to cursor position.
             self.sb.move_and_center_widget(found_ui, QtGui.QCursor.pos(), offset_y=4)
-            # activate the found ui before hiding the stacked window.
-            found_ui.show()
             self.hide()
+            found_ui.show()
 
     def set_sub_ui(self, ui, w=None):
         """Set the stacked widget's index to the submenu associated with the given widget.
-        Positions the new ui to line up with the previous ui's button that called the new ui.
+        Positions the new UI to line up with the previous UI's button that called the new UI.
+        If the given UI is already set, then this method will simply return without performing any operation.
 
         Parameters:
-            ui (obj): The submenu ui to set as current.
-            w (obj): The widget that called this method.
+            ui (obj): The UI submenu to set as current.
+            w (obj): The widget under cursor at the time this method was called.
         """
-        if not ui or ui == self.sb.ui:
+        if not isinstance(ui, QtWidgets.QWidget):
+            raise ValueError(
+                f"Incorrect datatype for ui: {type(ui)}, expected QWidget."
+            )
+
+        if ui == self.sb.ui:  # if the given ui is the current ui, no need to set.
             return
 
-        if not w:
+        if not w:  # if no widget is given, attempt to use the widget under cursor.
             widget_pos = widget.mapFromGlobal(QtGui.QCursor.pos())
             w = widget.childAt(widget_pos)
             if not w:
@@ -130,7 +142,7 @@ class Tcl(QtWidgets.QStackedWidget):
         self.overlay.add_to_path(ui, w)
 
         self.set_ui(ui)  # switch the stacked widget to the given submenu.
-        # get the widget of the same name in the new ui.
+        # get the widget of the same name in the new UI.
         w2 = getattr(self.currentWidget(), w.name)
         # get the widget position after submenu change.
         p2 = w2.mapToGlobal(w2.rect().center())
@@ -138,19 +150,19 @@ class Tcl(QtWidgets.QStackedWidget):
         # move to currentPos + difference
         self.move(self.mapFromGlobal(currentPos + (p1 - p2)))
 
-        # if the submenu ui called for the first time:
-        if ui not in self.sb.get_prev_ui(asList=True):
-            # re-construct any widgets from the previous ui that fall along the plotted path.
+        # if the submenu UI called for the first time:
+        if ui not in self.sb.get_prev_ui(as_list=True):
+            # re-construct any widgets from the previous UI that fall along the plotted path.
             cloned_widgets = self.overlay.clone_widgets_along_path(
                 ui, self.return_to_starting_ui
             )
             # Initialize the widgets to set things like the event filter.
-            self.init_widgets(cloned_widgets)
+            self.init_child_event_filter(cloned_widgets)
 
     def return_to_starting_ui(self):
         """Return the stacked widget to it's starting index."""
-        if not self.overlay.path_start_pos:
-            raise ValueError("No start position found in the path.")
+        # Check for start position and raise error if not found
+        self.overlay.validate_path_start_pos()
 
         starting_ui = self.sb.get_prev_ui(exc="*#submenu")
         # logging.info(f"starting_ui: {starting_ui or starting_ui.name}")
@@ -211,12 +223,6 @@ class Tcl(QtWidgets.QStackedWidget):
 
         super().mousePressEvent(event)
 
-    def mouseReleaseEvent(self, event):
-        """ """
-        self.set_ui("init#startmenu")
-
-        super().mouseReleaseEvent(event)
-
     def mouseDoubleClickEvent(self, event):
         """The widget will also receive mouse press and mouse release events
         in addition to the double click event. If another widget that overlaps
@@ -247,7 +253,7 @@ class Tcl(QtWidgets.QStackedWidget):
         """Sets the widget as visible.
 
         Parameters:
-            ui (str/obj): Show the given ui.
+            ui (str/obj): Show the given UI.
             profile (bool): Prints the total running time, times each function separately,
                     and tells you how many times each function was called.
         """
@@ -293,10 +299,14 @@ class Tcl(QtWidgets.QStackedWidget):
     # ---------------------------------------------------------------------------------------------
     # child widget event handling:
     # ---------------------------------------------------------------------------------------------
-    def init_widgets(
-        self,
-        widgets,
-        filtered_types=[
+    def init_child_event_filter(self, widgets):
+        """Initialize child widgets with an event filter.
+
+        Parameters:
+            widgets (str/list): The widget(s) to initialize.
+        """
+        # Only Install the event filter for the following widget types.
+        filtered_types = [
             "QMainWindow",
             "QWidget",
             "QAction",
@@ -304,27 +314,19 @@ class Tcl(QtWidgets.QStackedWidget):
             "QPushButton",
             "QCheckBox",
             "QRadioButton",
-        ],
-    ):
-        """Initialize child widgets.
+        ]
+        for w in makeList(widgets):
+            if (not w.derived_type in filtered_types) or (  # not correct type.
+                not w.ui.has_tag("startmenu|submenu")  # not stacked UI:
+            ):
+                continue
+            # print('init_child_event_filter:', w.ui.name.ljust(26), w.base_name.ljust(25), (w.name or type(w).__name__).ljust(25), w.type.ljust(15), w.derived_type.ljust(15), id(w)) #debug
+            w.installEventFilter(self.child_event_filter)
 
-        Parameters:
-            widgets (str/list): The widget(s) to initialize.
-            filtered_widget_types (list): Install an event filter for the given widget types.
-        """
-        filtered_widgets = [
-            w for w in makeList(widgets) if w.derived_type in filtered_types
-        ]  # if 'widgets' isn't a list, convert it to one and filter for the allowed types.
-
-        for w in filtered_widgets:
-            # print('init_widgets:', w.ui.name.ljust(26), w.base_name.ljust(25), (w.name or type(w).__name__).ljust(25), w.type.ljust(15), w.derived_type.ljust(15), id(w)) #debug
-
-            if w.ui.has_tag("startmenu|submenu"):  # stacked ui
-                w.installEventFilter(self.event_filter)
-                if w.derived_type in ("QPushButton", "QLabel"):
-                    if w.base_name == "i":
-                        w.ui.set_style(widget=w)
-                    self.sb.resize_and_center_widget(w)
+            if w.derived_type in ("QPushButton", "QLabel"):
+                if w.base_name == "i":
+                    w.ui.set_style(widget=w)
+                self.sb.resize_and_center_widget(w)
 
             if w.type == "Region":
                 w.visible_on_mouse_over = True
@@ -337,9 +339,8 @@ class Tcl(QtWidgets.QStackedWidget):
         if w.type in ("ComboBox", "ListWidget"):
             try:  # call the class method associated with the current widget.
                 w.get_slot()()
-            except (AttributeError, TypeError) as error:
-                logging.info(f"# Error: {__file__} in child_showEvent\n#\t{error}.")
-                pass
+            except (AttributeError, TypeError):
+                logging.info(traceback.format_exc())
 
         w.showEvent(event)
 
@@ -378,9 +379,7 @@ class Tcl(QtWidgets.QStackedWidget):
 
     def child_mouseReleaseEvent(self, w, event):
         """ """
-        if (
-            w.underMouse()
-        ):  # if self.widget.rect().contains(event.pos()): #if mouse over widget:
+        if w.underMouse():  # if mouse over widget
             if w.derived_type == "QPushButton":
                 if w.base_name == "i":  # ie. 'i012'
                     self.set_ui(w.whatsThis())
@@ -436,9 +435,9 @@ class Tcl(QtWidgets.QStackedWidget):
         method = self.prev_camera()
         if method:
             method()
-            method_ = self.prev_camera(allow_current=True, asList=1)[-2][0]
+            method_ = self.prev_camera(allow_current=True, as_list=1)[-2][0]
         else:
-            method_ = self.sb.cameras_startmenu.slots.v004  # get the persp camera.
+            method_ = self.sb.cameras_startmenu.slots.b004  # get the persp camera.
             method_()
         self.prev_camera(add=method_)  # store the camera view
 
@@ -450,52 +449,57 @@ class Tcl(QtWidgets.QStackedWidget):
         else:
             logging.info("No recent menus in history.")
 
-    _cameraHistory = []
+    camera_history = []
 
     def prev_camera(
-        self, docString=False, method=False, allow_current=False, asList=False, add=None
+        self,
+        docstring=False,
+        method=False,
+        allow_current=False,
+        as_list=False,
+        add=None,
     ):
         """
         Parameters:
-            docString (bool): return the docString of last camera command. Default is off.
+            docstring (bool): return the docstring of last camera command. Default is off.
             method (bool): return the method of last camera command. Default is off.
             allow_current (bool): allow the current camera. Default is off.
             add (str/obj): Add a method, or name of method to be used as the command to the current camera.
                     (if this flag is given, all other flags are invalidated)
         Returns:
-            if docString: 'string' description (derived from the last used camera command's docString) (asList: [string list] all docStrings, in order of use)
-            if method: method of last used camera command. (asList: [<method object> list} all methods, in order of use)
-            if asList: list of lists with <method object> as first element and <docString> as second. ie. [[<v001>, 'camera: persp']]
+            if docstring: 'string' description (derived from the last used camera command's docstring) (as_list: [string list] all docStrings, in order of use)
+            if method: method of last used camera command. (as_list: [<method object> list} all methods, in order of use)
+            if as_list: list of lists with <method object> as first element and <docstring> as second. ie. [[<v001>, 'camera: persp']]
             else : <method object> of the last used command
         """
         if add:  # set the given method as the current camera.
             if not callable(add):
                 add = self.sb.get_slot("cameras#startmenu", add)
-            docString = add.__doc__
-            prevCameraList = self.prev_camera(allow_current=True, asList=1)
+            docstring = add.__doc__
+            prev_cameras = self.prev_camera(allow_current=True, as_list=1)
             if (
-                not prevCameraList or not [add, docString] == prevCameraList[-1]
+                not prev_cameras or not [add, docstring] == prev_cameras[-1]
             ):  # ie. do not append perp cam if the prev cam was perp.
-                prevCameraList.append([add, docString])  # store the camera view
+                prev_cameras.append([add, docstring])  # store the camera view
             return
 
         # keep original list length restricted to last 20 elements
-        self._cameraHistory = self._cameraHistory[-20:]
+        self.camera_history = self.camera_history[-20:]
 
         # remove any previous duplicates if they exist; keeping the last added element.
-        hist = self._cameraHistory
+        hist = self.camera_history
         [hist.remove(l) for l in hist[:] if hist.count(l) > 1]
 
         if not allow_current:
             hist = hist[:-1]  # remove the last index. (currentName)
 
-        if asList:
-            if docString and not method:
+        if as_list:
+            if docstring and not method:
                 try:
                     return [i[1] for i in hist]
                 except:
                     return None
-            elif method and not docString:
+            elif method and not docstring:
                 try:
                     return [i[0] for i in hist]
                 except:
@@ -503,7 +507,7 @@ class Tcl(QtWidgets.QStackedWidget):
             else:
                 return hist
 
-        elif docString:
+        elif docstring:
             try:
                 return hist[-1][1]
             except:
@@ -556,7 +560,7 @@ if __name__ == "__main__":
 #       self.hide()
 
 # class Instance():
-#   '''Manage multiple instances of the Tcl ui.
+#   '''Manage multiple instances of the Tcl UI.
 #   '''
 #   instances={}
 
@@ -596,7 +600,7 @@ if __name__ == "__main__":
 #       '''Sets the widget as visible.
 
 #       Parameters:
-#           uiName (str): Show the ui of the given name.
+#           uiName (str): Show the UI of the given name.
 #           active (bool): Set as the active window.
 #       '''
 #       inst = self._getInstance()
@@ -650,15 +654,15 @@ if __name__ == "__main__":
 # self.worker.stop()
 
 
-# if self.addUi(ui, query=True): #if the ui has not yet been added to the widget stack.
-#   self.addUi(ui) #initialize the parent ui if not done so already.
+# if self.addUi(ui, query=True): #if the UI has not yet been added to the widget stack.
+#   self.addUi(ui) #initialize the parent UI if not done so already.
 
 # def addUi(self, ui, query=False):
-#   '''Initializes the ui of the given name and it's dependancies.
+#   '''Initializes the UI of the given name and it's dependancies.
 
 #   Parameters:
-#       ui (obj): The ui widget to be added to the layout stack.
-#       query (bool): Check whether the ui widget has been added.
+#       ui (obj): The UI widget to be added to the layout stack.
+#       query (bool): Check whether the UI widget has been added.
 
 #   Returns:
 #       (bool) When queried.
@@ -671,6 +675,6 @@ if __name__ == "__main__":
 #       if ui_:
 #           name = self.sb.getUiName(ui_)
 
-#           if self.addUi(ui_, query=True): #if the ui has not yet been added to the widget stack.
-#               self.addWidget(ui_) #add the ui to the stackedLayout.
-#               self.init_widgets(name)
+#           if self.addUi(ui_, query=True): #if the UI has not yet been added to the widget stack.
+#               self.addWidget(ui_) #add the UI to the stackedLayout.
+#               self.init_child_event_filter(name)

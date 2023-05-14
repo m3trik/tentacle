@@ -5,9 +5,9 @@ from tentacle.slots.rigging import Rigging
 
 
 
-class Rigging_blender(Rigging, Slots_blender):
+class Rigging_blender(Rigging, SlotsBlender):
 	def __init__(self, *args, **kwargs):
-		Slots_blender.__init__(self, *args, **kwargs)
+		SlotsBlender.__init__(self, *args, **kwargs)
 		Rigging.__init__(self, *args, **kwargs)
 
 		cmb = self.sb.rigging.draggableHeader.ctxMenu.cmb000
@@ -147,7 +147,7 @@ class Rigging_blender(Rigging, Slots_blender):
 					pm.toggle(obj, template=1, query=1)
 
 
-	@Slots_blender.undoChunk
+	@SlotsBlender.undoChunk
 	def tb003(self, state=None):
 		'''Create Locator at Selection
 		'''
@@ -203,8 +203,8 @@ class Rigging_blender(Rigging, Slots_blender):
 			'enableRotationX','rotationX','enableRotationY','rotationY','enableRotationZ','rotationZ',
 			'enableScaleX','scaleX','enableScaleY','scaleY','enableScaleZ','scaleZ']
 
-		attrs = Slots_blender.getParameterValuesMEL(node, 'transformLimits', params)
-		self.setAttributeWindow(node, fn=Slots_blender.setParameterValuesMEL, 'transformLimits', **attrs)
+		attrs = SlotsBlender.getParameterValuesMEL(node, 'transformLimits', params)
+		self.setAttributeWindow(node, fn=SlotsBlender.setParameterValuesMEL, 'transformLimits', **attrs)
 
 
 	def b001(self):
@@ -255,7 +255,7 @@ class Rigging_blender(Rigging, Slots_blender):
 		pm.orientConstraint(offset=[0,0,0], weight=1)
 
 
-	@Slots_blender.undoChunk
+	@SlotsBlender.undoChunk
 	def createLocatorAtObject(self, objects, suffix='_LOC', stripDigits=False, strip='', scale=1, parent=False, freezeTransforms=True, 
 					bakeChildPivot=True, lockTranslate=False, lockRotation=False, lockScale=False, remove=False, _fullPath=False):
 		'''Create locators with the same transforms as any selected object(s).

@@ -4,7 +4,7 @@ from tentacle.slots.max import *
 from tentacle.slots.symmetry import Symmetry
 
 
-class Symmetry_max(Symmetry, Slots_max):
+class Symmetry_max(Symmetry, SlotsMax):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 

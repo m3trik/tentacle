@@ -4,7 +4,7 @@ from tentacle.slots.maya import *
 from tentacle.slots.nurbs import Nurbs
 
 
-class Nurbs_maya(Nurbs, Slots_maya):
+class Nurbs_maya(Nurbs, SlotsMaya):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
@@ -111,7 +111,7 @@ class Nurbs_maya(Nurbs, Slots_maya):
                 )  # pm.mel.eval("ThreePointArcTool;")
             cmb.setCurrentIndex(0)
 
-    @Slots_maya.attr
+    @SlotsMaya.attr
     def tb000(self, state=None):
         """Revolve"""
         tb = self.sb.nurbs.tb000
@@ -140,7 +140,7 @@ class Nurbs_maya(Nurbs, Slots_maya):
             ax=[0, 1, 0],
         )
 
-    # @Slots_maya.attr
+    # @SlotsMaya.attr
     def tb001(self, state=None):
         """Loft"""
         tb = self.sb.nurbs.tb001
@@ -406,10 +406,10 @@ class Nurbs_maya(Nurbs, Slots_maya):
 
         a1 = Slots.getAngleFrom2Vectors(
             v1, v3a, degree=1
-        )  # Slots_maya.getAngleFrom3Points(v1, p1, p2, degree=1)
+        )  # SlotsMaya.getAngleFrom3Points(v1, p1, p2, degree=1)
         a2 = Slots.getAngleFrom2Vectors(
             v2, v3b, degree=1
-        )  # Slots_maya.getAngleFrom3Points(v2, p1, p2, degree=1)
+        )  # SlotsMaya.getAngleFrom3Points(v2, p1, p2, degree=1)
         a3 = Slots.getAngleFrom2Vectors(v1, v2, degree=1)
 
         d1, d2 = Slots.getTwoSidesOfASATriangle(

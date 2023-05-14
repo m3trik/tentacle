@@ -4,7 +4,7 @@ from tentacle.slots.maya import *
 from tentacle.slots.deformation import Deformation
 
 
-class Deformation_maya(Deformation, Slots_maya):
+class Deformation_maya(Deformation, SlotsMaya):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 

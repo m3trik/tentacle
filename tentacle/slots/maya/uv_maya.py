@@ -4,7 +4,7 @@ from tentacle.slots.maya import *
 from tentacle.slots.uv import Uv
 
 
-class Uv_maya(Uv, Slots_maya):
+class Uv_maya(Uv, SlotsMaya):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
@@ -244,7 +244,7 @@ class Uv_maya(Uv, Slots_maya):
         )  # layoutScaleMode (int), multiObject (bool), mutations (int), packBox (float, float, float, float), preRotateMode (int), preScaleMode (int), resolution (int), rotateMax (float), rotateMin (float), rotateStep (float), shellSpacing (float), tileAssignMode (int), tileMargin (float), tileU (int), tileV (int), translate (bool)
 
     @mtk.undo
-    @Slots_maya.attr
+    @SlotsMaya.attr
     def tb001(self, state=None):
         """Auto Unwrap"""
         tb = self.sb.uv.tb001

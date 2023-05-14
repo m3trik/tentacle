@@ -4,9 +4,9 @@ from tentacle.slots.blender import *
 from tentacle.slots.scripting import Scripting
 
 
-class Scripting_blender(Scripting, Slots_blender):
+class Scripting_blender(Scripting, SlotsBlender):
     def __init__(self, *args, **kwargs):
-        Slots_blender.__init__(self, *args, **kwargs)
+        SlotsBlender.__init__(self, *args, **kwargs)
         Scripting.__init__(self, *args, **kwargs)
 
         cmb = self.sb.scripting.draggableHeader.ctxMenu.cmb000

@@ -4,7 +4,7 @@ from tentacle.slots.max import *
 from tentacle.slots.dynLayout import DynLayout
 
 
-class DynLayout_max(DynLayout, Slots_max):
+class DynLayout_max(DynLayout, SlotsMax):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 

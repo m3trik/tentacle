@@ -4,7 +4,7 @@ from tentacle.slots.max import *
 from tentacle.slots.editors import Editors
 
 
-class Editors_max(Editors, Slots_max):
+class Editors_max(Editors, SlotsMax):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 

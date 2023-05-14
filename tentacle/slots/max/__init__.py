@@ -20,7 +20,7 @@ from .staticUi_max import StaticUi_max
 staticUiInitialized = False
 
 
-class Slots_max(Slots):
+class SlotsMax(Slots):
     """App specific methods inherited by all other slot classes."""
 
     def __init__(self, *args, **kwargs):
@@ -215,11 +215,11 @@ class Slots_max(Slots):
                     c = range(1, obj.faces.count)
 
         if returnType in ("Array", "List"):
-            result = Slots_max.bitArrayToArray(c)
+            result = SlotsMax.bitArrayToArray(c)
             if returnType is "List":
                 result = list(result)
         else:
-            result = Slots_max.arrayToBitArray(c)
+            result = SlotsMax.arrayToBitArray(c)
 
         return result
 
@@ -247,7 +247,7 @@ class Slots_max(Slots):
         if not obj:
             obj = rt.selection[0]
         if not components:
-            components = Slots_max.getComponents(obj, convertFrom)
+            components = SlotsMax.getComponents(obj, convertFrom)
 
         if not any(
             (rt.isKindOf(obj, rt.Editable_Mesh), rt.isKindOf(obj, rt.Editable_Poly))
@@ -296,11 +296,11 @@ class Slots_max(Slots):
             )
 
         if returnType in ("Array", "List"):
-            result = Slots_max.bitArrayToArray(c)
+            result = SlotsMax.bitArrayToArray(c)
             if returnType is "List":
                 result = list(result)
         else:
-            result = Slots_max.arrayToBitArray(c)
+            result = SlotsMax.arrayToBitArray(c)
 
         return result
 

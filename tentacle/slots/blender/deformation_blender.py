@@ -4,9 +4,9 @@ from tentacle.slots.blender import *
 from tentacle.slots.deformation import Deformation
 
 
-class Deformation_blender(Deformation, Slots_blender):
+class Deformation_blender(Deformation, SlotsBlender):
     def __init__(self, *args, **kwargs):
-        Slots_blender.__init__(self, *args, **kwargs)
+        SlotsBlender.__init__(self, *args, **kwargs)
         Deformation.__init__(self, *args, **kwargs)
 
         cmb = self.sb.deformation.draggableHeader.ctxMenu.cmb000

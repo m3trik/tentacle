@@ -4,7 +4,7 @@ from tentacle.slots.maya import *
 from tentacle.slots.duplicate import Duplicate
 
 
-class Duplicate_maya(Duplicate, Slots_maya):
+class Duplicate_maya(Duplicate, SlotsMaya):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 

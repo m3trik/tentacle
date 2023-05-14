@@ -4,9 +4,9 @@ from tentacle.slots.blender import *
 from tentacle.slots.editors import Editors
 
 
-class Editors_blender(Editors, Slots_blender):
+class Editors_blender(Editors, SlotsBlender):
     def __init__(self, *args, **kwargs):
-        Slots_blender.__init__(self, *args, **kwargs)
+        SlotsBlender.__init__(self, *args, **kwargs)
         Editors.__init__(self, *args, **kwargs)
 
         tree = self.sb.editors_lower_submenu.tree000

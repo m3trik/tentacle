@@ -4,9 +4,9 @@ from tentacle.slots.blender import *
 from tentacle.slots.edit import Edit
 
 
-class Edit_blender(Edit, Slots_blender):
+class Edit_blender(Edit, SlotsBlender):
     def __init__(self, *args, **kwargs):
-        Slots_blender.__init__(self, *args, **kwargs)
+        SlotsBlender.__init__(self, *args, **kwargs)
         mtk.Edit.__init__(self, *args, **kwargs)
 
         cmb = self.sb.edit.draggableHeader.ctxMenu.cmb000
@@ -180,7 +180,7 @@ class Edit_blender(Edit, Slots_blender):
                 pm.mel.performTransferShadingSets(1)
             cmb.setCurrentIndex(0)
 
-    @Slots_blender.attr
+    @SlotsBlender.attr
     def cmb001(self, index=-1):
         """Object History Attributes"""
         cmb = self.sb.edit.cmb001
@@ -445,7 +445,7 @@ class Edit_blender(Edit, Slots_blender):
         scene_objs = {
             i: str(pm.objectCenter(i)) + str(pm.polyEvaluate(i))
             for i in scene_objs
-            if not Slots_blender.isGroup(i)
+            if not SlotsBlender.isGroup(i)
         }
         selected_objs = pm.ls(scene_objs.keys(), sl=1) if not objects else objects
 
@@ -503,7 +503,7 @@ class Edit_blender(Edit, Slots_blender):
             else:
                 pm.delete(faces)  # else, delete any individual faces.
 
-        Slots_blender.mtk.viewportMessage(
+        SlotsBlender.mtk.viewportMessage(
             "Delete faces on <hl>" + axis.upper() + "</hl>."
         )
 
@@ -535,7 +535,7 @@ class Edit_blender(Edit, Slots_blender):
                 if pm.exactWorldBoundingBox(face)[i] > -0.00001
             )
 
-    @Slots_blender.undoChunk
+    @SlotsBlender.undoChunk
     def findNonManifoldVertex(self, objects, select=1):
         """Locate a connected vertex of non-manifold geometry where the faces share a single vertex.
 
@@ -605,7 +605,7 @@ class Edit_blender(Edit, Slots_blender):
 
         return nonManifoldVerts
 
-    @Slots_blender.undoChunk
+    @SlotsBlender.undoChunk
     def splitNonManifoldVertex(self, vertex, select=True):
         """Separate a connected vertex of non-manifold geometry where the faces share a single vertex.
 
@@ -691,7 +691,7 @@ class Edit_blender(Edit, Slots_blender):
                 pm.polySelectConstraint(disable=1)
                 # Populate an in-view message
                 nGons = pm.polyEvaluate(faceComponent=1)
-                Slots_blender.mtk.viewportMessage(
+                SlotsBlender.mtk.viewportMessage(
                     "<hl>" + str(nGons[0]) + "</hl> N-Gon(s) found."
                 )
 

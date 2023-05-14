@@ -4,9 +4,9 @@ from tentacle.slots.blender import *
 from tentacle.slots.symmetry import Symmetry
 
 
-class Symmetry_blender(Symmetry, Slots_blender):
+class Symmetry_blender(Symmetry, SlotsBlender):
     def __init__(self, *args, **kwargs):
-        Slots_blender.__init__(self, *args, **kwargs)
+        SlotsBlender.__init__(self, *args, **kwargs)
         Symmetry.__init__(self, *args, **kwargs)
 
         cmb000 = self.sb.symmetry.draggableHeader.ctxMenu.cmb000

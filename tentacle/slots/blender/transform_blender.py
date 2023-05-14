@@ -4,10 +4,10 @@ from tentacle.slots.blender import *
 from tentacle.slots.transform import Transform
 
 
-class Transform_blender(Transform, Slots_blender):
+class Transform_blender(Transform, SlotsBlender):
     def __init__(self, *args, **kwargs):
         """ """
-        Slots_blender.__init__(self, *args, **kwargs)
+        SlotsBlender.__init__(self, *args, **kwargs)
         Transform.__init__(self, *args, **kwargs)
 
         cmb = self.sb.transform.draggableHeader.ctxMenu.cmb000
@@ -187,7 +187,7 @@ class Transform_blender(Transform, Slots_blender):
 
         if betweenTwoComponents:
             if len(selection) > 1:
-                componentsOnPath = Slots_blender.getPathAlongLoop(
+                componentsOnPath = SlotsBlender.getPathAlongLoop(
                     [selection[0], selection[-1]]
                 )
                 pm.select(componentsOnPath)
@@ -306,7 +306,7 @@ class Transform_blender(Transform, Slots_blender):
         node = pm.ls(sl=1, objectsOnly=1)
         if not node:
             return "Error: <b>Nothing selected.</b><br>The operation requires a single selected object."
-        transform = Slots_blender.getTransformNode(node)
+        transform = SlotsBlender.getTransformNode(node)
 
         self.setAttributeWindow(
             transform[0],
@@ -399,7 +399,7 @@ class Transform_blender(Transform, Slots_blender):
 
         pm.manipPivot(ro=1, rp=1)
 
-    @Slots_blender.undoChunk
+    @SlotsBlender.undoChunk
     def resetTranslation(self, objects):
         """Reset the transformations on the given object(s). (unfreeze transforms)
 
@@ -446,7 +446,7 @@ class Transform_blender(Transform, Slots_blender):
 
         pm.xform(obj, translation=target_pos, worldSpace=1, relative=1)
 
-    @Slots_blender.undoChunk
+    @SlotsBlender.undoChunk
     def dropToGrid(
         self,
         objects,
@@ -505,7 +505,7 @@ class Transform_blender(Transform, Slots_blender):
         pm.makeIdentity(node, apply=True, translate=True)
         pm.xform(node, translation=[x, y, z])
 
-    @Slots_blender.undoChunk
+    @SlotsBlender.undoChunk
     def alignPivotToSelection(self, alignFrom=[], alignTo=[], translate=True):
         """Align one objects pivot point to another using 3 point align.
         Parameters:
@@ -800,7 +800,7 @@ class Transform_blender(Transform, Slots_blender):
 
         return result
 
-    @Slots_blender.undoChunk
+    @SlotsBlender.undoChunk
     def alignVertices(self, mode, average=False, edgeloop=False):
         """Align vertices.
 
@@ -837,8 +837,8 @@ class Transform_blender(Transform, Slots_blender):
 
         if len(selection) < 2:
             if len(selection) == 0:
-                Slots_blender.mtk.viewportMessage("No vertices selected")
-            Slots_blender.mtk.viewportMessage(
+                SlotsBlender.mtk.viewportMessage("No vertices selected")
+            SlotsBlender.mtk.viewportMessage(
                 "Selection must contain at least two vertices"
             )
 

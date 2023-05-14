@@ -4,9 +4,9 @@ from tentacle.slots.blender import *
 from tentacle.slots.main import Main
 
 
-class Main_blender(Main, Slots_blender):
+class Main_blender(Main, SlotsBlender):
     def __init__(self, *args, **kwargs):
-        Slots_blender.__init__(self, *args, **kwargs)
+        SlotsBlender.__init__(self, *args, **kwargs)
         Main.__init__(self, *args, **kwargs)
 
 
@@ -26,7 +26,7 @@ print(__name__)
 # 		for node in history:
 # 			parent = tree.add('QLabel', 'History', childHeader=node.name(), refresh=1, setText=node.name())
 # 			# print(parent, node.name())
-# 			attributes = Slots_blender.getNodeAttributes(node) #get dict containing attributes:values of the history node.
+# 			attributes = SlotsBlender.getNodeAttributes(node) #get dict containing attributes:values of the history node.
 # 			spinboxes = [tree.add('QDoubleSpinBox', parent, refresh=1, setSpinBoxByValue_=[k, v])
 # 				for k, v in attributes.items()
 # 					if isinstance(v, (float, int, bool))]

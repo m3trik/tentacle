@@ -4,9 +4,9 @@ from tentacle.slots.blender import *
 from tentacle.slots.subdivision import Subdivision
 
 
-class Subdivision_blender(Subdivision, Slots_blender):
+class Subdivision_blender(Subdivision, SlotsBlender):
     def __init__(self, *args, **kwargs):
-        Slots_blender.__init__(self, *args, **kwargs)
+        SlotsBlender.__init__(self, *args, **kwargs)
         Subdivision.__init__(self, *args, **kwargs)
 
         ctx = self.sb.subdivision.draggableHeader.ctxMenu

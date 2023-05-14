@@ -4,9 +4,9 @@ from tentacle.slots.blender import *
 from tentacle.slots.selection import Selection
 
 
-class Selection_blender(Selection, Slots_blender):
+class Selection_blender(Selection, SlotsBlender):
     def __init__(self, *args, **kwargs):
-        Slots_blender.__init__(self, *args, **kwargs)
+        SlotsBlender.__init__(self, *args, **kwargs)
         Selection.__init__(self, *args, **kwargs)
 
         cmb = self.sb.selection.draggableHeader.ctxMenu.cmb000
@@ -383,7 +383,7 @@ class Selection_blender(Selection, Slots_blender):
         angleHigh = tb.ctxMenu.s007.value()
 
         objects = pm.ls(sl=1, objectsOnly=1)
-        edges = Slots_blender.getEdgesByNormalAngle(
+        edges = SlotsBlender.getEdgesByNormalAngle(
             objects, lowAngle=angleLow, highAngle=angleHigh
         )
         pm.select(edges)

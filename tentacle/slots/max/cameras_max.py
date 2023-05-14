@@ -4,7 +4,7 @@ from tentacle.slots.max import *
 from tentacle.slots.cameras import Cameras
 
 
-class Cameras_max(Cameras, Slots_max):
+class Cameras_max(Cameras, SlotsMax):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 

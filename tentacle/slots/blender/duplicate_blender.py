@@ -4,9 +4,9 @@ from tentacle.slots.blender import *
 from tentacle.slots.duplicate import Duplicate
 
 
-class Duplicate_blender(Duplicate, Slots_blender):
+class Duplicate_blender(Duplicate, SlotsBlender):
     def __init__(self, *args, **kwargs):
-        Slots_blender.__init__(self, *args, **kwargs)
+        SlotsBlender.__init__(self, *args, **kwargs)
         Duplicate.__init__(self, *args, **kwargs)
 
         cmb = self.sb.duplicate.draggableHeader.ctxMenu.cmb000
@@ -60,7 +60,7 @@ class Duplicate_blender(Duplicate, Slots_blender):
     global radialArrayObjList
     radialArrayObjList = []
 
-    @Slots_blender.undoChunk
+    @SlotsBlender.undoChunk
     def chk015(self, create=False):
         """Radial Array: Preview"""
         setPivot = self.duplicate_radial_ui.chk010.isChecked()  # set pivot point
@@ -151,7 +151,7 @@ class Duplicate_blender(Duplicate, Slots_blender):
     global duplicateObjList
     duplicateObjList = []
 
-    @Slots_blender.undoChunk
+    @SlotsBlender.undoChunk
     def chk016(self, create=False):
         """Duplicate: Preview"""
         if self.duplicate_linear_ui.chk016.isChecked():
@@ -354,7 +354,7 @@ class Duplicate_blender(Duplicate, Slots_blender):
 
         return instances
 
-    @Slots_blender.undoChunk
+    @SlotsBlender.undoChunk
     def convertToInstances(self, objects=[], leaf=False, append="_INST"):
         """The first selected object will be instanced across all other selected objects.
 

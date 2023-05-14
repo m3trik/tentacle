@@ -4,7 +4,7 @@ from tentacle.slots.max import *
 from tentacle.slots.nurbs import Nurbs
 
 
-class Nurbs_max(Nurbs, Slots_max):
+class Nurbs_max(Nurbs, SlotsMax):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
@@ -80,7 +80,7 @@ class Nurbs_max(Nurbs, Slots_max):
                 mel.eval("ThreePointArcToolOptions;")  # mel.eval("ThreePointArcTool;")
             cmb.setCurrentIndex(0)
 
-    @Slots_max.attr
+    @SlotsMax.attr
     def tb000(self, state=None):
         """Revolve"""
         tb = self.sb.nurbs.tb000
@@ -109,7 +109,7 @@ class Nurbs_max(Nurbs, Slots_max):
             ax=[0, 1, 0],
         )
 
-    @Slots_max.attr
+    @SlotsMax.attr
     def tb001(self, state=None):
         """Loft"""
         tb = self.sb.nurbs.tb001
@@ -129,7 +129,7 @@ class Nurbs_max(Nurbs, Slots_max):
             start, end = pm.ls(sl=1)[
                 :2
             ]  # get the first two selected edge loops or curves.
-            return Slots_max.angleLoftBetweenTwoCurves(
+            return SlotsMax.angleLoftBetweenTwoCurves(
                 start,
                 end,
                 count=angleLoftSpans,

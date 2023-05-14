@@ -1,8 +1,8 @@
 # !/usr/bin/python
 # coding=utf-8
 import sys
-
 from PySide2 import QtCore, QtGui, QtWidgets
+from pythontk import Str
 
 
 class OverlayFactoryFilter(QtCore.QObject):
@@ -102,28 +102,26 @@ class Overlay(QtWidgets.QWidget, OverlayFactoryFilter):
             parent.installEventFilter(self)
 
     @property
-    def path(self) -> list:
-        """Getter for the path attribute.
+    def _path(self) -> list:
+        """Getter for the _path attribute.
         If the attribute doesn't exist, it initializes an empty list.
 
         Returns:
             list: The list representing the draw path.
         """
-        try:
-            return self._path
+        mangled_name = Str.getMangledName(self, "__path")
+        if not hasattr(self, mangled_name):
+            self.__path = []
+        return self.__path
 
-        except AttributeError:
-            self._path = []
-            return self._path
-
-    @path.setter
-    def path(self, new_path) -> None:
-        """Setter for the path attribute.
+    @_path.setter
+    def _path(self, new_path) -> None:
+        """Setter for the _path attribute.
 
         Parameters:
             new_path (list): A list to be used as the new draw path.
         """
-        self._path = new_path
+        self.__path = new_path
 
     @property
     def path_start_pos(self) -> QtCore.QPoint:
@@ -133,9 +131,113 @@ class Overlay(QtWidgets.QWidget, OverlayFactoryFilter):
             QPoint: The starting position of the draw path. Returns None if not found.
         """
         try:
-            return self.path[0][2]
+            return self._path[0][2]
+
         except IndexError:
             return None
+
+    def validate_path_start_pos(self):
+        """Check if path start position exists and raise error if not."""
+        if not self.path_start_pos:
+            raise ValueError("No start position found in the path.")
+
+    def add_to_path(self, ui, w):
+        """Add a widget to the path.
+        It's current position, as well as the current cursor position, will be logged at the time of adding.
+
+        Paramters:
+            ui (QMainWindow): The UI to add.
+            w (QWidget): The widget that called the given UI.
+        """
+        # the widget position before submenu change.
+        w_pos = w.mapToGlobal(w.rect().center())
+        # add the (<widget>, position) from the old UI to the path, so that it can be re-created in the new UI (in the same position).
+        self._path.append((w, w_pos, QtGui.QCursor.pos()))
+        # remove entrys from widget and draw paths when moving back down levels in the UI.
+        self.remove_from_path(ui)
+
+    def remove_from_path(self, target_ui):
+        """Remove the last occurrence of the given UI from the widget path and update the path.
+
+        Parameters:
+            target_ui (QMainWindow): The UI to remove.
+        """
+        # Find the index of the last occurrence of the target UI in the path.
+        last_occurrence_index = next(
+            (
+                index + 1
+                for index, (widget, _, _) in reversed(list(enumerate(self._path[1:])))
+                if widget.ui == target_ui
+            ),
+            None,
+        )
+
+        # If the target UI is found, remove it and all elements after it.
+        if last_occurrence_index is not None:
+            self._path = self._path[:last_occurrence_index]
+        else:
+            self._path = self._path[:]
+
+    def clear_path(self, clear_all=False):
+        """Clear the widget path and paint events. By default, it keeps the return point.
+
+        Parameters:
+            clear_all (bool, optional): If True, clears the entire path including the return point. Default is False.
+        """
+        if clear_all:
+            self._path.clear()
+            self.clear_paint_events()
+        else:
+            self._path = self._path[:1]
+            self.clear_paint_events()
+
+    def clone_widgets_along_path(self, ui, return_func):
+        """Re-constructs the relevant widgets from the previous UI for the new UI, and positions them.
+        Initializes the new widgets by adding them to the switchboard.
+        The previous widget information is derived from the widget and draw paths.
+        Sets up the on_enter signal of the Region widget to be connected to the return_to_start method.
+
+        Parameters:
+            ui (QMainWindow): The UI in which to copy the widgets to.
+            return_func (func): A function to be called when the cursor enters the return area.
+        """
+        # Check for start position and raise error if not found
+        self.validate_path_start_pos()
+
+        # Initialize the return area region for the UI
+        region_widget = self.init_region(ui, self.path_start_pos)
+        region_widget.on_enter.connect(return_func)
+        region_widget.on_enter.connect(self.clear_path)
+
+        new_widgets = tuple(  # Clone the widgets along the path
+            self._clone_widget(ui, widget, pos) for widget, pos, _ in self._path[1:]
+        )
+
+        return new_widgets
+
+    def _clone_widget(self, ui, prev_widget, position):
+        """Clone a widget and place it on the given position in the UI.
+
+        Parameters:
+            ui (QMainWindow): The UI to place the cloned widget.
+            prev_widget (QWidget): The widget to clone.
+            position (QPoint): The position to place the cloned widget.
+        """
+        new_widget = type(prev_widget)(ui)
+
+        try:
+            new_widget.setObjectName(prev_widget.objectName())
+            new_widget.resize(prev_widget.size())
+            new_widget.setWhatsThis(prev_widget.whatsThis())
+            new_widget.setText(prev_widget.text())
+            new_widget.move(  # set the position of the new widget in the new UI.
+                new_widget.mapFromGlobal(position - new_widget.rect().center())
+            )
+            new_widget.setVisible(True)
+        except AttributeError:
+            pass
+
+        return new_widget
 
     def get_widget_pos(self, target_widget):
         """Get the position of the given widget within the path.
@@ -149,115 +251,11 @@ class Overlay(QtWidgets.QWidget, OverlayFactoryFilter):
         return next(
             (
                 widget_pos
-                for widget, widget_pos, _ in self.path
+                for widget, widget_pos, _ in self._path
                 if widget == target_widget
             ),
             None,
         )
-
-    def add_to_path(self, ui, w):
-        """Add a widget to the path.
-        It's current position, as well as the current cursor position, will be logged at the time of adding.
-
-        Paramters:
-            ui (QMainWindow): The UI to add.
-            w (QWidget): The widget that called the given UI.
-        """
-        # the widget position before submenu change.
-        w_pos = w.mapToGlobal(w.rect().center())
-        # add the (<widget>, position) from the old ui to the path so that it can be re-created in the new ui (in the same position).
-        self.path.append((w, w_pos, QtGui.QCursor.pos()))
-        # remove entrys from widget and draw paths when moving back down levels in the ui.
-        self.remove_from_path(ui)
-
-    def remove_from_path(self, target_ui):
-        """Remove the last occurrence of the given UI from the widget path and update the path.
-
-        Parameters:
-            target_ui (QMainWindow): The UI to remove.
-        """
-        # Find the index of the last occurrence of the target UI in the path.
-        last_occurrence_index = next(
-            (
-                index + 1
-                for index, (widget, _, _) in reversed(list(enumerate(self.path[1:])))
-                if widget.ui == target_ui
-            ),
-            None,
-        )
-
-        # If the target UI is found, remove it and all elements after it.
-        if last_occurrence_index is not None:
-            self.path = self.path[:last_occurrence_index]
-        else:
-            self.path = self.path[:]
-
-    def clear_path(self, clear_all=False):
-        """Clear the widget path and paint events. By default, it keeps the return point.
-
-        Parameters:
-            clear_all (bool, optional): If True, clears the entire path including the return point. Default is False.
-        """
-        if clear_all:
-            self.path.clear()
-            self.clear_paint_events()
-        else:
-            self.path = self.path[:1]
-            self.clear_paint_events()
-
-    def clone_widgets_along_path(self, ui, return_func):
-        """Re-constructs the relevant widgets from the previous ui for the new ui, and positions them.
-        Initializes the new widgets by adding them to the switchboard.
-        The previous widget information is derived from the widget and draw paths.
-        Sets up the on_enter signal of the Region widget to be connected to the return_to_start method.
-
-        Parameters:
-            ui (QMainWindow): The ui in which to copy the widgets to.
-            return_func (func): A function to be called when the cursor enters the return area.
-        """
-        # Check for start position and raise error if not found
-        self._validate_path_start_pos()
-
-        # Initialize the return area region for the UI
-        region_widget = self.init_region(ui, self.path_start_pos)
-        region_widget.on_enter.connect(return_func)
-        region_widget.on_enter.connect(self.clear_path)
-
-        # Clone the widgets along the path
-        new_widgets = tuple(
-            self._clone_widget(ui, widget, pos) for widget, pos, _ in self.path[1:]
-        )
-
-        return new_widgets
-
-    def _validate_path_start_pos(self):
-        """Check if path start position exists and raise error if not."""
-        if not self.path_start_pos:
-            raise ValueError("No start position found in the path.")
-
-    def _clone_widget(self, ui, prev_widget, position):
-        """Clone a widget and place it on the given position in the ui.
-
-        Parameters:
-            ui (QMainWindow): The ui to place the cloned widget.
-            prev_widget (QWidget): The widget to clone.
-            position (QPoint): The position to place the cloned widget.
-        """
-        new_widget = type(prev_widget)(ui)
-
-        try:
-            new_widget.setObjectName(prev_widget.objectName())
-            new_widget.resize(prev_widget.size())
-            new_widget.setWhatsThis(prev_widget.whatsThis())
-            new_widget.setText(prev_widget.text())
-            new_widget.move(
-                new_widget.mapFromGlobal(position - new_widget.rect().center())
-            )  # set the position of the new widget in the new UI.
-            new_widget.setVisible(True)
-        except AttributeError:
-            pass
-
-        return new_widget
 
     def draw_tangent(self, start_point, end_point, ellipseSize=7):
         """Draws a tangent line between two points with an ellipse at the start point.
@@ -303,7 +301,7 @@ class Overlay(QtWidgets.QWidget, OverlayFactoryFilter):
         self.painter.drawPath(combinedPath)
 
     def init_region(self, ui, *args, **kwargs):
-        """Initializes a Region widget with the specified properties and adds it to the given ui's central widget.
+        """Initializes a Region widget with the specified properties and adds it to the given UI's central widget.
 
         Parameters:
             ui (QWidget): The parent QWidget in which the Region widget will be added.
@@ -337,10 +335,10 @@ class Overlay(QtWidgets.QWidget, OverlayFactoryFilter):
             self.clear_painting = False
         elif self.draw_enabled:
             # plot and draw the points in the path list.
-            for i, (_, _, start_point) in enumerate(self.path):
+            for i, (_, _, start_point) in enumerate(self._path):
                 start_point = self.mapFromGlobal(start_point)
                 try:
-                    end_point = self.mapFromGlobal(self.path[i + 1][2])
+                    end_point = self.mapFromGlobal(self._path[i + 1][2])
                 except IndexError:
                     end_point = self.mouseMovePos
                     # after the list points are drawn, plot the current end_point, controlled by the mouse move event.
@@ -354,8 +352,8 @@ class Overlay(QtWidgets.QWidget, OverlayFactoryFilter):
         self.clear_path(clear_all=True)
 
         curPos = self.mapToGlobal(event.pos())
-        # maintain a list of widgets, their location, and cursor positions, as a path is plotted along the ui hierarchy.
-        self.path.append((None, None, curPos))
+        # maintain a list of widgets, their location, and cursor positions, as a path is plotted along the UI hierarchy.
+        self._path.append((None, None, curPos))
         # Change the cursor shape to a drag move cursor.
         QtWidgets.QApplication.setOverrideCursor(QtGui.QCursor(QtCore.Qt.CrossCursor))
 
@@ -405,7 +403,7 @@ print(__name__)
 #   '''
 #   '''
 #   try:
-#       return self.path[index][0]
+#       return self._path[index][0]
 #   except IndexError as error:
 #       return None
 
@@ -414,7 +412,7 @@ print(__name__)
 #   '''
 #   '''
 #   try:
-#       return self.path[index][1]
+#       return self._path[index][1]
 #   except IndexError as error:
 #       return None
 
@@ -423,6 +421,6 @@ print(__name__)
 #   '''
 #   '''
 #   try:
-#       return self.path[index][2]
+#       return self._path[index][2]
 #   except IndexError as error:
 #       return None

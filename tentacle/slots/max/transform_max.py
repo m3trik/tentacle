@@ -4,7 +4,7 @@ from tentacle.slots.max import *
 from tentacle.slots.transform import Transform
 
 
-class Transform_max(Transform, Slots_max):
+class Transform_max(Transform, SlotsMax):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
@@ -207,7 +207,7 @@ class Transform_max(Transform, Slots_max):
         centerPivot = tb.ctxMenu.chk016.isChecked()
 
         objects = pm.ls(sl=1, objectsOnly=1)
-        Slots_max.dropToGrid(objects, align, origin, centerPivot)
+        SlotsMax.dropToGrid(objects, align, origin, centerPivot)
         pm.select(objects)  # reselect the original selection.
 
     def tb001(self, state=None):
@@ -225,7 +225,7 @@ class Transform_max(Transform, Slots_max):
 
         if betweenTwoComponents:
             if len(selection) > 1:
-                componentsOnPath = Slots_max.getPathAlongLoop(
+                componentsOnPath = SlotsMax.getPathAlongLoop(
                     [selection[0], selection[-1]]
                 )
                 pm.select(componentsOnPath)
@@ -379,7 +379,7 @@ class Transform_max(Transform, Slots_max):
         frm = selection[0]
         to = selection[1:]
 
-        Slots_maya.matchScale(to, frm)
+        SlotsMaya.matchScale(to, frm)
 
     def lbl000(self):
         """Transform Constraints: Disable All"""

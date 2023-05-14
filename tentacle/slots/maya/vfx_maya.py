@@ -4,7 +4,7 @@ from tentacle.slots.maya import *
 from tentacle.slots.vfx import Vfx
 
 
-class Vfx_maya(Vfx, Slots_maya):
+class Vfx_maya(Vfx, SlotsMaya):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 

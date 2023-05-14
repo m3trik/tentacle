@@ -4,7 +4,13 @@ from tentacle.slots.maya import *
 from tentacle.slots.file import File
 
 
-class File_maya(File, Slots_maya):
+class File_maya(File, SlotsMaya):
+    getRecentFiles = lambda _, *a, **k: mtk.getRecentFiles(*a, **k)
+    getRecentProjects = lambda _, *a, **k: mtk.getRecentProjects(*a, **k)
+    getRecentAutosave = lambda _, *a, **k: mtk.getRecentAutosave(*a, **k)
+    getWorkspaceScenes = lambda _, *a, **k: mtk.getWorkspaceScenes(*a, **k)
+    referenceScene = lambda _, *a, **k: mtk.referenceScene(*a, **k)
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
@@ -12,31 +18,34 @@ class File_maya(File, Slots_maya):
         items = []
         cmb000.addItems_(items, "File Editors")
 
+        # set the initial autosave state.
         cmb002 = self.sb.file.cmb002
-        autoSaveState = pm.autoSave(
-            q=True, enable=True
-        )  # set the initial autosave state.
+        autoSaveState = pm.autoSave(q=True, enable=True)
         autoSaveInterval = pm.autoSave(q=True, int=True)
         autoSaveAmount = pm.autoSave(q=True, maxBackups=True)
+        # open directory
         cmb002.ctxMenu.add(
             "QPushButton",
             setObjectName="b000",
             setText="Open Directory",
             setToolTip="Open the autosave directory.",
-        )  # open directory
+        )
+        # delete all
         cmb002.ctxMenu.add(
             "QPushButton",
             setObjectName="b002",
             setText="Delete All",
             setToolTip="Delete all autosave files.",
-        )  # delete all
+        )
+        # toggle autosave
         cmb002.ctxMenu.add(
             "QCheckBox",
             setText="Autosave",
             setObjectName="chk006",
             setChecked=autoSaveState,
             setToolTip="Set the autosave state as active or disabled.",
-        )  # toggle autosave
+        )
+        # autosave amount
         cmb002.ctxMenu.add(
             "QSpinBox",
             setPrefix="Amount: ",
@@ -45,7 +54,8 @@ class File_maya(File, Slots_maya):
             setValue=autoSaveAmount,
             setHeight_=20,
             setToolTip="The number of autosave files to retain.",
-        )  # autosave amount
+        )
+        # autosave interval
         cmb002.ctxMenu.add(
             "QSpinBox",
             setPrefix="Interval: ",
@@ -54,7 +64,7 @@ class File_maya(File, Slots_maya):
             setValue=autoSaveInterval / 60,
             setHeight_=20,
             setToolTip="The autosave interval in minutes.",
-        )  # autosave interval
+        )
         cmb002.ctxMenu.chk006.toggled.connect(
             lambda s: pm.autoSave(enable=s, limitBackups=True)
         )
@@ -65,7 +75,9 @@ class File_maya(File, Slots_maya):
             lambda v: pm.autoSave(int=v * 60, limitBackups=True)
         )
         cmb002.addItems_(
-            self.getRecentAutosave(timestamp=True), "Recent Autosave", clear=True
+            mtk.getRecentAutosave(timestamped=True, standard=True),
+            "Recent Autosave",
+            clear=True,
         )
 
         cmb003 = self.sb.file.cmb003
@@ -118,9 +130,7 @@ class File_maya(File, Slots_maya):
         cmb = self.sb.file.cmb006.ctxMenu.cmb001
 
         if index > 0:
-            pm.mel.setProject(
-                cmb.items[index]
-            )  # pm.mel.eval('setProject "'+items[index]+'"')
+            pm.mel.setProject(cmb.items[index])
             cmb.setCurrentIndex(0)
 
     def cmb002(self, index=-1):
@@ -128,7 +138,7 @@ class File_maya(File, Slots_maya):
         cmb = self.sb.file.cmb002
 
         if index > 0:
-            file = ptk.File.timeStamp(cmb.items[index], detach=True)
+            file = cmb.items[index]
             pm.openFile(file, open=1, force=True)
             cmb.setCurrentIndex(0)
 
@@ -143,13 +153,9 @@ class File_maya(File, Slots_maya):
             elif index == 2:  # Import options
                 pm.mel.ImportOptions()
             elif index == 3:  # FBX Import Presets
-                pm.mel.FBXUICallBack(
-                    -1, "editImportPresetInNewWindow", "fbx"
-                )  # Fbx Presets
+                pm.mel.FBXUICallBack(-1, "editImportPresetInNewWindow", "fbx")
             elif index == 4:  # Obj Import Presets
-                pm.mel.FBXUICallBack(
-                    -1, "editImportPresetInNewWindow", "obj"
-                )  # Obj Presets
+                pm.mel.FBXUICallBack(-1, "editImportPresetInNewWindow", "obj")
             cmb.setCurrentIndex(0)
 
     def cmb004(self, index=-1):
@@ -179,13 +185,9 @@ class File_maya(File, Slots_maya):
             elif index == 9:  # Export options
                 pm.mel.ExportSelectionOptions()
             elif index == 10:  # FBX Export Presets
-                pm.mel.FBXUICallBack(
-                    -1, "editExportPresetInNewWindow", "fbx"
-                )  # Fbx Presets
+                pm.mel.FBXUICallBack(-1, "editExportPresetInNewWindow", "fbx")
             elif index == 11:  # Obj Export Presets
-                pm.mel.FBXUICallBack(
-                    -1, "editExportPresetInNewWindow", "obj"
-                )  # Obj Presets
+                pm.mel.FBXUICallBack(-1, "editExportPresetInNewWindow", "obj")
             cmb.setCurrentIndex(0)
 
     def cmb005(self, index=-1):
@@ -194,9 +196,8 @@ class File_maya(File, Slots_maya):
 
         if index > 0:
             force = True
-            force if str(
-                pm.mel.file(query=1, sceneName=1, shortName=1)
-            ) else not force  # if sceneName prompt user to save; else force open
+            # if sceneName prompt user to save; else force open
+            force if str(pm.mel.file(query=1, sceneName=1, shortName=1)) else not force
             print(cmb.items[index])
             pm.openFile(cmb.items[index], open=1, force=force)
             cmb.setCurrentIndex(0)
@@ -207,9 +208,8 @@ class File_maya(File, Slots_maya):
 
         path = ptk.File.formatPath(pm.workspace(query=1, rd=1))  # current project path.
         items = [f for f in os.listdir(path)]
-        project = ptk.File.formatPath(
-            path, "dir"
-        )  # add current project path string to label. strip path and trailing '/'
+        # add current project path string to label. strip path and trailing '/'
+        project = ptk.File.formatPath(path, "dir")
 
         cmb.addItems_(items, header=project, clear=True)
 
@@ -217,60 +217,12 @@ class File_maya(File, Slots_maya):
             os.startfile(path + items[index - 1])
             cmb.setCurrentIndex(0)
 
-    def tb000(self, state=None):
-        """Save"""
-        tb = self.sb.file.draggableHeader.ctxMenu.tb000
-
-        wireframe = tb.ctxMenu.chk000.isChecked()
-        increment = tb.ctxMenu.chk001.isChecked()
-        quit = tb.ctxMenu.chk002.isChecked()
-
-        if wireframe:
-            pm.mel.DisplayWireframe()
-
-        if increment:
-            pm.mel.IncrementAndSave()
-        else:
-            filetype = (
-                "mayaAscii"
-            )  # type: mayaAscii, mayaBinary, mel, OBJ, directory, plug-in, audio, move, EPS, Adobe(R) Illustrator(R)
-            pm.saveFile(force=1, preSaveScript="", postSaveScript="", type=filetype)
-
-        if quit:  # quit maya
-            import time
-
-            for timer in range(5):
-                mtk.viewportMessage("Shutting Down:<hl>" + str(timer) + "</hl>")
-                time.sleep(timer)
-            pm.mel.quit()  # pm.Quit()
-
     def lbl000(self):
         """Set Workspace"""
         newProject = pm.mel.SetProject()
         self.cmb006()  # refresh project items to reflect new workspace.
-        self.referenceSceneMenu(
-            clear=True
-        )  # refresh reference items to reflect new workspace.
-
-    def lbl001(self):
-        """Minimize Main Application"""
-        pm.mel.eval("minimizeApp;")
-        self.sb.parent().hide(force=1)
-
-    def lbl002(self):
-        """Restore Main Application"""
-        pass
-
-    def lbl003(self):
-        """Close Main Application"""
-        # force=false #pymel has no attribute quit error.
-        # exitcode=""
-        sceneName = str(
-            pm.mel.file(query=1, sceneName=1, shortName=1)
-        )  # if sceneName prompt user to save; else force close
-        pm.mel.quit() if sceneName else pm.mel.quit(
-            force=True
-        )  # pm.quit (force=force, exitcode=exitcode)
+        # refresh reference items to reflect new workspace.
+        self.referenceSceneMenu(clear=True)
 
     def lbl004(self):
         """Open current project root"""
@@ -280,9 +232,8 @@ class File_maya(File, Slots_maya):
     def b000(self):
         """Autosave: Open Directory"""
         # dir1 = str(pm.workspace(query=1, rd=1))+'autosave' #current project path.
-        dir2 = os.environ.get("MAYA_AUTOSAVE_FOLDER").split(";")[
-            0
-        ]  # get autosave dir path from env variable.
+        # get autosave dir path from env variable.
+        dir2 = os.environ.get("MAYA_AUTOSAVE_FOLDER").split(";")[0]
 
         try:
             # os.startfile(self.formatPath(dir1))
@@ -303,147 +254,27 @@ class File_maya(File, Slots_maya):
 
     def b015(self):
         """Remove String From Object Names."""
-        from_ = str(
-            self.sb.file.t000.text()
-        )  # asterisk denotes startswith*, *endswith, *contains*
+        # asterisk denotes startswith*, *endswith, *contains*
+        from_ = str(self.sb.file.t000.text())
         to = str(self.sb.file.t001.text())
         replace = self.sb.file.chk004.isChecked()
         selected = self.sb.file.chk005.isChecked()
 
         objects = pm.ls(from_)  # Stores a list of all objects starting with 'from_'
-        if selected:
-            objects = pm.ls(
-                selection=1
-            )  # if use selection option; get user selected objects instead
+        if selected:  # get user selected objects instead
+            objects = pm.ls(selection=1)
         from_ = from_.strip("*")  # strip modifier asterisk from user input
 
-        for obj in objects:
-            relatives = pm.listRelatives(
-                obj, parent=1
-            )  # Get a list of it's direct parent
-            if (
-                "group*" in relatives
-            ):  # If that parent starts with group, it came in root level and is pasted in a group, so ungroup it
+        for obj in objects:  # Get a list of it's direct parent
+            relatives = pm.listRelatives(obj, parent=1)
+            # If that parent starts with group, it came in root level and is pasted in a group, so ungroup it
+            if "group*" in relatives:
                 relatives[0].ungroup()
 
             newName = to
             if replace:
                 newName = obj.replace(from_, to)
             pm.rename(obj, newName)  # Rename the object with the new name
-
-    def getRecentFiles(self, index=None, timestamp=False):
-        """Get a list of recent files.
-
-        Parameters:
-                index (int): Return the recent file directory path at the given index. Index 0 would be the most recent file.
-                timestamp (bool): Attach a modified timestamp and date to given file path(s).
-
-        Returns:
-                (list)(str)
-        """
-        files = pm.optionVar(query="RecentFilesList")
-        result = (
-            [
-                ptk.File.formatPath(f)
-                for f in list(reversed(files))
-                if "Autosave" not in f
-            ]
-            if files
-            else []
-        )
-        try:
-            result = result[index]
-        except (IndexError, TypeError) as error:
-            pass
-
-        if timestamp:  # attach modified timestamp
-            result = ptk.File.timeStamp(result)
-
-        return result
-
-    def getRecentProjects(self):
-        """Get a list of recently set projects.
-
-        Returns:
-                (list)
-        """
-        files = pm.optionVar(query="RecentProjectsList")
-        result = [ptk.File.formatPath(f) for f in list(reversed(files))]
-
-        return result
-
-    def getRecentAutosave(self, timestamp=False):
-        """Get a list of autosave files.
-
-        Parameters:
-                timestamp (bool): Attach a modified timestamp and date to given file path(s).
-
-        Returns:
-                (list)
-        """
-        dir1 = str(pm.workspace(query=1, rd=1)) + "autosave"  # current project path.
-        dir2 = os.environ.get("MAYA_AUTOSAVE_FOLDER").split(";")[
-            0
-        ]  # get autosave dir path from env variable.
-
-        files = ptk.File.getDirContents(
-            dir1, "filepaths", incFiles=("*.mb", "*.ma")
-        ) + ptk.File.getDirContents(dir2, "filepaths", incFiles=("*.mb", "*.ma"))
-        result = [
-            ptk.File.formatPath(f) for f in list(reversed(files))
-        ]  # Replace any backslashes with forward slashes and reverse the list.
-
-        if timestamp:  # attach modified timestamp
-            result = ptk.File.timeStamp(result, sort=True)
-
-        return result
-
-    def getWorkspaceScenes(self, fullPath=True):
-        """Get a list of maya scene files from the current workspace directory.
-
-        Parameters:
-                fullPath (bool): Return the full path instead of just the filename.
-
-        Returns:
-                (list)
-        """
-        workspace_dir = str(pm.workspace(query=1, rd=1))  # get current project path.
-
-        files = ptk.File.getDirContents(
-            workspace_dir, "filepaths", incFiles=("*.mb", "*.ma")
-        )
-        result = [
-            ptk.File.formatPath(f) for f in files
-        ]  # Replace any backslashes with forward slashes.
-
-        if not fullPath:
-            result = [f.split("\\")[-1] for f in result]
-
-        return result
-
-    def referenceScene(self, scene, remove=False, lockReference=False):
-        """Create a reference to a Maya scene.
-
-        Parameters:
-                remove (bool): Remove a previously referenced scene.
-        """
-        if remove:  # unload reference.
-            # refNode = pm.referenceQuery(scene, referenceNode=True)
-            pm.mel.file(scene, removeReference=True)
-
-        else:  # load reference.
-            namespace = (
-                scene.split("\\")[-1].rstrip(".mb").rstrip(".ma")
-            )  # ex. 'sceneName' from 'sceneName.mb'
-            pm.mel.file(
-                scene,
-                reference=True,
-                namespace=namespace,
-                groupReference=True,
-                lockReference=lockReference,
-                loadReferenceDepth="topOnly",
-                force=True,
-            )
 
 
 # module name
@@ -454,6 +285,51 @@ print(__name__)
 
 
 # deprecated: -----------------------------------
+
+
+# def lbl001(self):
+#     """Minimize Main Application"""
+#     pm.mel.eval("minimizeApp;")
+#     self.sb.parent().hide(force=1)
+
+# def lbl002(self):
+#     """Restore Main Application"""
+#     pass
+
+# def lbl003(self):
+#     """Close Main Application"""
+#     # force=false #pymel has no attribute quit error.
+#     # exitcode=""
+#     # if sceneName prompt user to save; else force close
+#     sceneName = str(pm.mel.file(query=1, sceneName=1, shortName=1))
+#     # pm.quit (force=force, exitcode=exitcode)
+#     pm.mel.quit() if sceneName else pm.mel.quit(force=True)
+
+# def tb000(self, state=None):
+#     """Save"""
+#     tb = self.sb.file.draggableHeader.ctxMenu.tb000
+
+#     wireframe = tb.ctxMenu.chk000.isChecked()
+#     increment = tb.ctxMenu.chk001.isChecked()
+#     quit = tb.ctxMenu.chk002.isChecked()
+
+#     if wireframe:
+#         pm.mel.DisplayWireframe()
+
+#     if increment:
+#         pm.mel.IncrementAndSave()
+#     else:
+#         # type: mayaAscii, mayaBinary, mel, OBJ, directory, plug-in, audio, move, EPS, Adobe(R) Illustrator(R)
+#         filetype = "mayaAscii"
+#         pm.saveFile(force=1, preSaveScript="", postSaveScript="", type=filetype)
+
+#     if quit:  # quit maya
+#         import time
+
+#         for timer in range(5):
+#             mtk.viewportMessage("Shutting Down:<hl>" + str(timer) + "</hl>")
+#             time.sleep(timer)
+#         pm.mel.quit()  # pm.Quit()
 
 
 # def tb000(self, state=None):

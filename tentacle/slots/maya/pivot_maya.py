@@ -4,7 +4,7 @@ from tentacle.slots.maya import *
 from tentacle.slots.pivot import Pivot
 
 
-class Pivot_maya(Pivot, Slots_maya):
+class Pivot_maya(Pivot, SlotsMaya):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 

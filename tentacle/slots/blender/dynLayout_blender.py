@@ -4,9 +4,9 @@ from tentacle.slots.blender import *
 from tentacle.slots.dynLayout import DynLayout
 
 
-class DynLayout_blender(DynLayout, Slots_blender):
+class DynLayout_blender(DynLayout, SlotsBlender):
     def __init__(self, *args, **kwargs):
-        Slots_blender.__init__(self, *args, **kwargs)
+        SlotsBlender.__init__(self, *args, **kwargs)
         DynLayout.__init__(self, *args, **kwargs)
 
         cmb = self.sb.dynLayout.draggableHeader.ctxMenu.cmb000

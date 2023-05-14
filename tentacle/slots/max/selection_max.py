@@ -4,7 +4,7 @@ from tentacle.slots.max import *
 from tentacle.slots.selection import Selection
 
 
-class Selection_max(Selection, Slots_max):
+class Selection_max(Selection, SlotsMax):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
@@ -48,13 +48,13 @@ class Selection_max(Selection, Slots_max):
         if level in (0, None):  # objs
             s = [i for i in sel]
         elif level == 1:  # verts
-            s = Slots_max.getComponents(sel[0], "vertices", selection=True)
+            s = SlotsMax.getComponents(sel[0], "vertices", selection=True)
         elif level == 2:  # edges
-            s = Slots_max.getComponents(sel[0], "edges", selection=True)
+            s = SlotsMax.getComponents(sel[0], "edges", selection=True)
         elif level == 3:  # borders
             s = rt.getBorderSelection(sel[0])
         elif level == 4:  # faces
-            s = Slots_max.getComponents(sel[0], "faces", selection=True)
+            s = SlotsMax.getComponents(sel[0], "faces", selection=True)
 
         return rt.array(*s)  # unpack list s and convert to an array.
 
@@ -347,7 +347,7 @@ class Selection_max(Selection, Slots_max):
         angleHigh = tb.ctxMenu.s007.value()
 
         objects = pm.ls(sl=1, objectsOnly=1)
-        edges = Slots_max.getEdgesByNormalAngle(
+        edges = SlotsMax.getEdgesByNormalAngle(
             objects, lowAngle=angleLow, highAngle=angleHigh
         )
         rt.select(edges)

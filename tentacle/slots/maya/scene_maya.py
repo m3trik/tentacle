@@ -4,7 +4,7 @@ from tentacle.slots.maya import *
 from tentacle.slots.scene import Scene
 
 
-class Scene_maya(Scene, Slots_maya):
+class Scene_maya(Scene, SlotsMaya):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 

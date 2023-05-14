@@ -4,9 +4,9 @@ from tentacle.slots.blender import *
 from tentacle.slots.nurbs import Nurbs
 
 
-class Nurbs_blender(Nurbs, Slots_blender):
+class Nurbs_blender(Nurbs, SlotsBlender):
     def __init__(self, *args, **kwargs):
-        Slots_blender.__init__(self, *args, **kwargs)
+        SlotsBlender.__init__(self, *args, **kwargs)
         Nurbs.__init__(self, *args, **kwargs)
 
         cmb = self.sb.nurbs.draggableHeader.ctxMenu.cmb000
@@ -106,7 +106,7 @@ class Nurbs_blender(Nurbs, Slots_blender):
                 mel.eval("ThreePointArcToolOptions;")  # mel.eval("ThreePointArcTool;")
             cmb.setCurrentIndex(0)
 
-    @Slots_blender.attr
+    @SlotsBlender.attr
     def tb000(self, state=None):
         """Revolve"""
         tb = self.sb.nurbs.tb000
@@ -135,7 +135,7 @@ class Nurbs_blender(Nurbs, Slots_blender):
             ax=[0, 1, 0],
         )
 
-    # @Slots_blender.attr
+    # @SlotsBlender.attr
     def tb001(self, state=None):
         """Loft"""
         tb = self.sb.nurbs.tb001
@@ -278,7 +278,7 @@ class Nurbs_blender(Nurbs, Slots_blender):
         """Extend On Surface"""
         pm.mel.ExtendCurveOnSurface()
 
-    @Slots_blender.undoChunk
+    @SlotsBlender.undoChunk
     def loft(
         self,
         uniform=True,
@@ -377,7 +377,7 @@ class Nurbs_blender(Nurbs, Slots_blender):
         # pm.undoInfo(closeChunk=1)
         return result
 
-    @Slots_blender.undoChunk
+    @SlotsBlender.undoChunk
     def createCurveBetweenTwoObjects(self, start, end):
         """Create a bezier curve between starting and end object(s).
 
@@ -399,10 +399,10 @@ class Nurbs_blender(Nurbs, Slots_blender):
 
         a1 = Slots.getAngleFrom2Vectors(
             v1, v3a, degree=1
-        )  # Slots_blender.getAngleFrom3Points(v1, p1, p2, degree=1)
+        )  # SlotsBlender.getAngleFrom3Points(v1, p1, p2, degree=1)
         a2 = Slots.getAngleFrom2Vectors(
             v2, v3b, degree=1
-        )  # Slots_blender.getAngleFrom3Points(v2, p1, p2, degree=1)
+        )  # SlotsBlender.getAngleFrom3Points(v2, p1, p2, degree=1)
         a3 = Slots.getAngleFrom2Vectors(v1, v2, degree=1)
 
         d1, d2 = Slots.getTwoSidesOfASATriangle(
@@ -443,7 +443,7 @@ class Nurbs_blender(Nurbs, Slots_blender):
 
         return result
 
-    @Slots_blender.undoChunk
+    @SlotsBlender.undoChunk
     def duplicateAlongCurve(self, path, start, count=6, geometry="Instancer"):
         """Duplicate objects along a given curve using MASH.
 
@@ -494,7 +494,7 @@ class Nurbs_blender(Nurbs, Slots_blender):
 
         return result
 
-    @Slots_blender.undoChunk
+    @SlotsBlender.undoChunk
     def angleLoftBetweenTwoCurves(
         self,
         start,
@@ -568,7 +568,7 @@ class Nurbs_blender(Nurbs, Slots_blender):
 
         return result
 
-    @Slots_blender.undoChunk
+    @SlotsBlender.undoChunk
     def getClosestCV(self, x, curves, tolerance=0.0):
         """Find the closest control vertex between the given vertices, CVs, or objects and each of the given curves.
 

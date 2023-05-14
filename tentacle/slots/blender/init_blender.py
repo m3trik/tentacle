@@ -4,11 +4,11 @@ from tentacle.slots.blender import *
 from tentacle.slots.init import Init
 
 
-class Init_blender(Init, Slots_blender):
+class Init_blender(Init, SlotsBlender):
     """ """
 
     def __init__(self, *args, **kwargs):
-        Slots_blender.__init__(self, *args, **kwargs)
+        SlotsBlender.__init__(self, *args, **kwargs)
         Init.__init__(self, *args, **kwargs)
 
         try:

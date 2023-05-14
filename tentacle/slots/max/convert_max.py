@@ -4,7 +4,7 @@ from tentacle.slots.max import *
 from tentacle.slots.convert import Convert
 
 
-class Convert_max(Convert, Slots_max):
+class Convert_max(Convert, SlotsMax):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 

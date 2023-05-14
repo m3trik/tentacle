@@ -13,7 +13,7 @@ except ImportError as error:
 from tentacle.slots import Slots
 
 
-class Slots_blender(Slots):
+class SlotsBlender(Slots):
     """App specific methods inherited by all other slot classes."""
 
     def __init__(self, *args, **kwargs):

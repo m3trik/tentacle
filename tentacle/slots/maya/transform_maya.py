@@ -4,7 +4,7 @@ from tentacle.slots.maya import *
 from tentacle.slots.transform import Transform
 
 
-class Transform_maya(Transform, Slots_maya):
+class Transform_maya(Transform, SlotsMaya):
     """ """
 
     def __init__(self, *args, **kwargs):

@@ -4,7 +4,7 @@ from tentacle.slots.max import *
 from tentacle.slots.utilities import Utilities
 
 
-class Utilities_max(Utilities, Slots_max):
+class Utilities_max(Utilities, SlotsMax):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 

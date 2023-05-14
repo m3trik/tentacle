@@ -4,9 +4,9 @@ from tentacle.slots.blender import *
 from tentacle.slots.preferences import Preferences
 
 
-class Preferences_blender(Preferences, Slots_blender):
+class Preferences_blender(Preferences, SlotsBlender):
     def __init__(self, *args, **kwargs):
-        Slots_blender.__init__(self, *args, **kwargs)
+        SlotsBlender.__init__(self, *args, **kwargs)
         Preferences.__init__(self, *args, **kwargs)
 
         self.sb.preferences.b010.setText("Maya Preferences")

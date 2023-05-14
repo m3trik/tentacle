@@ -4,7 +4,7 @@ from tentacle.slots.max import *
 from tentacle.slots.init import Init
 
 
-class Init_max(Init, Slots_max):
+class Init_max(Init, SlotsMax):
     """ """
 
     def __init__(self, *args, **kwargs):
@@ -68,14 +68,14 @@ class Init_max(Init, Slots_max):
                     if objType == rt.Editable_Poly or objType == rt.Edit_Poly:
                         if level == 1:  # get vertex info
                             type_ = "Verts"
-                            components = Slots_max.bitArrayToArray(
+                            components = SlotsMax.bitArrayToArray(
                                 rt.polyop.getVertSelection(obj)
                             )
                             total_num = rt.polyop.getNumVerts(obj)
 
                         elif level == 2:  # get edge info
                             type_ = "Edges"
-                            components = Slots_max.bitArrayToArray(
+                            components = SlotsMax.bitArrayToArray(
                                 rt.polyop.getEdgeSelection(obj)
                             )
                             total_num = rt.polyop.getNumEdges(obj)
@@ -83,21 +83,21 @@ class Init_max(Init, Slots_max):
                         elif level == 3:  # get border info
                             type_ = "Borders"
                             # rt.polyop.SetSelection #Edge ((polyOp.getOpenEdges $) as bitarray)
-                            components = Slots_max.bitArrayToArray(
+                            components = SlotsMax.bitArrayToArray(
                                 rt.polyop.getBorderSelection(obj)
                             )
                             total_num = rt.polyop.getNumBorders(obj)
 
                         elif level == 4:  # get face info
                             type_ = "Faces"
-                            components = Slots_max.bitArrayToArray(
+                            components = SlotsMax.bitArrayToArray(
                                 rt.polyop.getFaceSelection(obj)
                             )
                             total_num = rt.polyop.getNumFaces(obj)
 
                         elif level == 5:  # get element info
                             type_ = "Elements"
-                            components = Slots_max.bitArrayToArray(
+                            components = SlotsMax.bitArrayToArray(
                                 rt.polyop.getElementSelection(obj)
                             )
                             total_num = rt.polyop.getNumElements(obj)

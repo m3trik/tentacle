@@ -4,9 +4,9 @@ from tentacle.slots.blender import *
 from tentacle.slots.mirror import Mirror
 
 
-class Mirror_blender(Mirror, Slots_blender):
+class Mirror_blender(Mirror, SlotsBlender):
     def __init__(self, *args, **kwargs):
-        Slots_blender.__init__(self, *args, **kwargs)
+        SlotsBlender.__init__(self, *args, **kwargs)
         Mirror.__init__(self, *args, **kwargs)
 
         cmb = self.sb.mirror.draggableHeader.ctxMenu.cmb000
@@ -22,7 +22,7 @@ class Mirror_blender(Mirror, Slots_blender):
                 pass
             cmb.setCurrentIndex(0)
 
-    @Slots_blender.attr
+    @SlotsBlender.attr
     def tb000(self, state=None):
         """Mirror Geometry
 
@@ -50,7 +50,7 @@ class Mirror_blender(Mirror, Slots_blender):
             deleteHistory=deleteHistory,
         )
 
-    @Slots_blender.undoChunk
+    @SlotsBlender.undoChunk
     def mirrorGeometry(
         self,
         objects=None,

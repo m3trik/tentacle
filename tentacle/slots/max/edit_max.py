@@ -4,7 +4,7 @@ from tentacle.slots.max import *
 from tentacle.slots.edit import Edit
 
 
-class Edit_max(Edit, Slots_max):
+class Edit_max(Edit, SlotsMax):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
@@ -55,7 +55,7 @@ class Edit_max(Edit, Slots_max):
                 pass
             cmb.setCurrentIndex(0)
 
-    @Slots_max.attr
+    @SlotsMax.attr
     def cmb001(self, index=-1):
         """Object History Attributes"""
         cmb = self.sb.edit.cmb001
@@ -192,9 +192,9 @@ class Edit_max(Edit, Slots_max):
         Returns:
                 (list) list containing any found N-Gons
         """
-        faces = Slots_max.getComponents(obj, "faces")
+        faces = SlotsMax.getComponents(obj, "faces")
 
-        Slots_max.setSubObjectLevel(4)
+        SlotsMax.setSubObjectLevel(4)
 
         nGons = [f for f in faces if rt.polyop.getFaceDeg(obj, f) > 4]
         return nGons
@@ -209,11 +209,11 @@ class Edit_max(Edit, Slots_max):
         """
         for vertex in vertices:
             try:
-                edges = Slots_max.bitArrayToArray(
+                edges = SlotsMax.bitArrayToArray(
                     rt.polyop.getEdgesUsingVert(obj, vertex)
                 )  # get the edges that use the vertice
             except:
-                edges = Slots_max.bitArrayToArray(
+                edges = SlotsMax.bitArrayToArray(
                     rt.getEdgesUsingVert(obj, vertex)
                 )  # get the edges that use the vertice
 
@@ -224,11 +224,11 @@ class Edit_max(Edit, Slots_max):
                     vertexPosition = rt.getVert(obj, vertex)
 
                 try:
-                    edgeVerts = Slots_max.bitArrayToArray(
+                    edgeVerts = SlotsMax.bitArrayToArray(
                         [rt.polyop.getVertsUsingEdge(obj, e) for e in edges]
                     )
                 except:
-                    edgeVerts = Slots_max.bitArrayToArray(
+                    edgeVerts = SlotsMax.bitArrayToArray(
                         [rt.getVertsUsingEdge(obj, e) for e in edges]
                     )
 
@@ -261,7 +261,7 @@ class Edit_max(Edit, Slots_max):
         Returns:
                 (list) list containing any found isolated verts.
         """
-        vertices = Slots_max.getComponents(
+        vertices = SlotsMax.getComponents(
             obj, "vertices"
         )  # get all vertices for the given object
 
@@ -308,7 +308,7 @@ class Edit_max(Edit, Slots_max):
             if isolatedVerts:  # delete loose vertices
                 _isolatedVerts = self.findIsolatedVertices(obj)
 
-                Slots_max.undo(True)
+                SlotsMax.undo(True)
                 try:
                     rt.polyop.setVertSelection(obj, _isolatedVerts)
                 except:
@@ -320,7 +320,7 @@ class Edit_max(Edit, Slots_max):
                     obj.EditablePoly.remove(selLevel="Vertex", flag=1)
                     obj.selectMode = 0  # multi-component selection preview off
                 rt.redrawViews()
-                Slots_max.undo(False)
+                SlotsMax.undo(False)
 
     def tb003(self, state=None):
         """Delete Along Axis"""
@@ -331,7 +331,7 @@ class Edit_max(Edit, Slots_max):
 
         # pm.undoInfo(openChunk=1)
         # for obj in selection:
-        # 	self.deleteAlongAxis(obj, axis) #Slots_max.deleteAlongAxis - no max version.
+        # 	self.deleteAlongAxis(obj, axis) #SlotsMax.deleteAlongAxis - no max version.
         # pm.undoInfo(closeChunk=1)
 
     def b000(self):

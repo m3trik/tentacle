@@ -4,9 +4,9 @@ from tentacle.slots.blender import *
 from tentacle.slots.normals import Normals
 
 
-class Normals_blender(Normals, Slots_blender):
+class Normals_blender(Normals, SlotsBlender):
     def __init__(self, *args, **kwargs):
-        Slots_blender.__init__(self, *args, **kwargs)
+        SlotsBlender.__init__(self, *args, **kwargs)
         Normals.__init__(self, *args, **kwargs)
 
         cmb = self.sb.normals.draggableHeader.ctxMenu.cmb000
@@ -100,7 +100,7 @@ class Normals_blender(Normals, Slots_blender):
 
             pm.select(selEdges)
 
-    @Slots_blender.attr
+    @SlotsBlender.attr
     def tb002(self, state=None):
         """Set Normals By Angle"""
         tb = self.sb.normals.tb002
@@ -188,7 +188,7 @@ class Normals_blender(Normals, Slots_blender):
             sel, normalMode=3, userNormalMode=1
         )  # 3: reverse and cut a new shell on selected face(s). 4: reverse and propagate; Reverse the normal(s) and propagate this direction to all other faces in the shell.
 
-    @Slots_blender.undoChunk
+    @SlotsBlender.undoChunk
     def averageNormals(self, byUvShell=False):
         """Average Normals
 
@@ -298,7 +298,7 @@ class Normals_blender(Normals, Slots_blender):
                 sZ = v[2]
 
                 if not transforms:
-                    transforms = Slots_blender.getObjectFromComponent(face)
+                    transforms = SlotsBlender.getObjectFromComponent(face)
 
                 for node in transforms:
                     for f in cls.getComponents(

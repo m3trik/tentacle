@@ -4,7 +4,7 @@ from tentacle.slots.maya import *
 from tentacle.slots.symmetry import Symmetry
 
 
-class Symmetry_maya(Symmetry, Slots_maya):
+class Symmetry_maya(Symmetry, SlotsMaya):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 

@@ -4,7 +4,7 @@ from tentacle.slots.maya import *
 from tentacle.slots.crease import Crease
 
 
-class Crease_maya(Crease, Slots_maya):
+class Crease_maya(Crease, SlotsMaya):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 

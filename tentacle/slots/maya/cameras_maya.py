@@ -5,7 +5,7 @@ from tentacle.slots.cameras import Cameras
 from PySide2.QtCore import Slot
 
 
-class Cameras_maya(Cameras, Slots_maya):
+class Cameras_maya(Cameras, SlotsMaya):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 

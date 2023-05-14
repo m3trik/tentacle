@@ -4,9 +4,9 @@ from tentacle.slots.blender import *
 from tentacle.slots.crease import Crease
 
 
-class Crease_blender(Crease, Slots_blender):
+class Crease_blender(Crease, SlotsBlender):
     def __init__(self, *args, **kwargs):
-        Slots_blender.__init__(self, *args, **kwargs)
+        SlotsBlender.__init__(self, *args, **kwargs)
         Crease.__init__(self, *args, **kwargs)
 
         self.creaseValue = 10
@@ -72,7 +72,7 @@ class Crease_blender(Crease, Slots_blender):
         if tb.ctxMenu.chk011.isChecked():  # crease: Auto
             pm.polySelectConstraint(angle=False)  # turn off angle constraint
 
-    @Slots_blender.undoChunk
+    @SlotsBlender.undoChunk
     def b002(self):
         """Transfer Crease Edges"""
         # an updated version of this is in the maya python projects folder. transferCreaseSets.py

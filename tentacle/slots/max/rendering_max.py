@@ -4,7 +4,7 @@ from tentacle.slots.max import *
 from tentacle.slots.rendering import Rendering
 
 
-class Rendering_max(Rendering, Slots_max):
+class Rendering_max(Rendering, SlotsMax):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 

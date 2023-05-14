@@ -4,9 +4,9 @@ from tentacle.slots.blender import *
 from tentacle.slots.vfx import Vfx
 
 
-class Vfx_blender(Vfx, Slots_blender):
+class Vfx_blender(Vfx, SlotsBlender):
     def __init__(self, *args, **kwargs):
-        Slots_blender.__init__(self, *args, **kwargs)
+        SlotsBlender.__init__(self, *args, **kwargs)
         Vfx.__init__(self, *args, **kwargs)
 
         cmb = self.sb.vfx.draggableHeader.ctxMenu.cmb000

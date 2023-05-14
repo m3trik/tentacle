@@ -4,7 +4,7 @@ from tentacle.slots.maya import *
 from tentacle.slots.selection import Selection
 
 
-class Selection_maya(Selection, Slots_maya):
+class Selection_maya(Selection, SlotsMaya):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
@@ -437,7 +437,7 @@ class Selection_maya(Selection, Slots_maya):
         angleHigh = tb.ctxMenu.s007.value()
 
         objects = pm.ls(sl=1, objectsOnly=1)
-        edges = Slots_maya.getEdgesByNormalAngle(
+        edges = SlotsMaya.getEdgesByNormalAngle(
             objects, lowAngle=angleLow, highAngle=angleHigh
         )
         pm.select(edges)

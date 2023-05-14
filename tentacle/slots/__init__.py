@@ -3,7 +3,7 @@
 import sys, os.path
 import inspect
 from PySide2 import QtWidgets, QtCore
-from pythontk import File, Iter, set_attributes
+from pythontk import File, Iter, setAttributes
 
 
 module = inspect.getmodule(inspect.currentframe())  # this module.
@@ -56,7 +56,7 @@ class Slots(QtCore.QObject):
         """
         import ast
 
-        fn = fn if fn else set_attributes
+        fn = fn if fn else setAttributes
         fn_args = Iter.makeList(fn_args)  # assure that fn_args is a list.
 
         try:  # get the objects name to as the window title:

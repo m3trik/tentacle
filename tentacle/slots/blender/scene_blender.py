@@ -4,9 +4,9 @@ from tentacle.slots.blender import *
 from tentacle.slots.scene import Scene
 
 
-class Scene_blender(Scene, Slots_blender):
+class Scene_blender(Scene, SlotsBlender):
     def __init__(self, *args, **kwargs):
-        Slots_blender.__init__(self, *args, **kwargs)
+        SlotsBlender.__init__(self, *args, **kwargs)
         Scene.__init__(self, *args, **kwargs)
 
         cmb = self.sb.scene.draggableHeader.ctxMenu.cmb000
@@ -52,7 +52,7 @@ class Scene_blender(Scene, Slots_blender):
         objects = selection if selection else pm.ls(objectsOnly=1)
         self.setCase(objects, case)
 
-    @Slots_blender.undoChunk
+    @SlotsBlender.undoChunk
     def rename(self, frm, to, objects=[], regEx=False, ignoreCase=False):
         """Rename scene objects.
 
@@ -117,7 +117,7 @@ class Scene_blender(Scene, Slots_blender):
                     )
         # pm.undoInfo (closeChunk=1)
 
-    @Slots_blender.undoChunk
+    @SlotsBlender.undoChunk
     def setCase(self, objects=[], case="caplitalize"):
         """Rename objects following the given case.
 

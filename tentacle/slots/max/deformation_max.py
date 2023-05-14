@@ -4,7 +4,7 @@ from tentacle.slots.max import *
 from tentacle.slots.deformation import Deformation
 
 
-class Deformation_max(Deformation, Slots_max):
+class Deformation_max(Deformation, SlotsMax):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 

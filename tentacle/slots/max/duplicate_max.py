@@ -4,7 +4,7 @@ from tentacle.slots.max import *
 from tentacle.slots.duplicate import Duplicate
 
 
-class Duplicate_max(Duplicate, Slots_max):
+class Duplicate_max(Duplicate, SlotsMax):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
