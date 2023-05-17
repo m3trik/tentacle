@@ -12,6 +12,18 @@ from tentacle.overlay import Overlay
 class Tcl(QtWidgets.QStackedWidget):
     """Tcl is a marking menu based on a QStackedWidget.
     The various UI's are set by calling 'set_ui' with the intended UI name string. ex. Tcl().set_ui('polygons')
+
+    Parameters:
+        parent (QWidget): The parent application's top level window instance. ie. the Maya main window.
+        key_show (str): The name of the key which, when pressed, will trigger the display of the marking menu. This should be one of the key names defined in QtCore.Qt. Defaults to 'Key_F12'.
+        ui_location (str): The directory path or the module where the UI files are located.
+                If the given dir is not a full path, it will be treated as relative to the default path.
+                If a module is given, the path to that module will be used.
+        slots_location (str): The directory path where the slot classes are located or a class object.
+                If the given dir is a string and not a full path, it will be treated as relative to the default path.
+                If a module is given, the path to that module will be used.
+        prevent_hide (bool): While True, the hide method is disabled.
+        log_level (int): Determines the level of logging messages to print. Defaults to logging.WARNING. Accepts standard Python logging module levels: DEBUG, INFO, WARNING, ERROR, CRITICAL.
     """
 
     # return the existing QApplication object, or create a new one if none exists.
@@ -26,12 +38,19 @@ class Tcl(QtWidgets.QStackedWidget):
         ui_location="ui",
         slots_location="slots",
         prevent_hide=False,
+        log_level=logging.WARNING,
     ):
-        """
-        Parameters:
-            parent (obj): The parent application's top level window instance. ie. the Maya main window.
-        """
+        """ """
         super().__init__(parent)
+
+        # Set up logging
+        self.logger = logging.getLogger(__name__)
+        self.logger.setLevel(log_level)
+        handler = logging.StreamHandler()
+        handler.setFormatter(
+            logging.Formatter("%(asctime)s - %(levelname)s - %(message)s")
+        )
+        self.logger.addHandler(handler)
 
         self.key_show = getattr(QtCore.Qt, key_show)
         self.key_close = QtCore.Qt.Key_Escape
@@ -52,7 +71,7 @@ class Tcl(QtWidgets.QStackedWidget):
             ui_location=ui_location,
             slots_location=slots_location,
             set_legal_name_no_tags_attr=True,
-            suppress_warnings=True,
+            log_level=logging.INFO,
         )
         self.child_event_filter = EventFactoryFilter(
             self,
@@ -66,7 +85,7 @@ class Tcl(QtWidgets.QStackedWidget):
         """Initialize the given UI.
 
         Parameters:
-            ui (obj): The UI to initialize.
+            ui (QWidget): The UI to initialize.
         """
         if not isinstance(ui, QtWidgets.QWidget):
             raise ValueError(
@@ -89,7 +108,7 @@ class Tcl(QtWidgets.QStackedWidget):
         """Set the stacked Widget's index to the given UI.
 
         Parameters:
-            ui (str/obj): The UI or name of the UI to set the stacked widget index to.
+            ui (str/QWidget): The UI or name of the UI to set the stacked widget index to.
         """
         if not isinstance(ui, (str, QtWidgets.QWidget)):
             raise ValueError(
@@ -101,12 +120,13 @@ class Tcl(QtWidgets.QStackedWidget):
         if not found_ui:
             raise ValueError(f"UI not found: {ui}")
 
+        found_ui.set_as_current()  # only set stacked UI as current.
         if not found_ui.is_initialized:
             self.init_ui(found_ui)
 
         if found_ui.has_tag("startmenu|submenu"):
-            found_ui.set_as_current()  # only set stacked UI as current.
             self.setCurrentWidget(found_ui)  # set the stacked widget to the found UI.
+
         else:
             found_ui.resize(found_ui.minimumSizeHint())
             # move to cursor position.
@@ -114,61 +134,51 @@ class Tcl(QtWidgets.QStackedWidget):
             self.hide()
             found_ui.show()
 
-    def set_sub_ui(self, ui, w=None):
+    def set_submenu(self, ui, w=None):
         """Set the stacked widget's index to the submenu associated with the given widget.
         Positions the new UI to line up with the previous UI's button that called the new UI.
         If the given UI is already set, then this method will simply return without performing any operation.
 
         Parameters:
-            ui (obj): The UI submenu to set as current.
-            w (obj): The widget under cursor at the time this method was called.
+            ui (QWidget): The UI submenu to set as current.
+            w (QWidget): The widget under cursor at the time this method was called.
         """
         if not isinstance(ui, QtWidgets.QWidget):
             raise ValueError(
                 f"Incorrect datatype for ui: {type(ui)}, expected QWidget."
             )
 
-        if ui == self.sb.ui:  # if the given ui is the current ui, no need to set.
-            return
-
-        if not w:  # if no widget is given, attempt to use the widget under cursor.
-            widget_pos = widget.mapFromGlobal(QtGui.QCursor.pos())
-            w = widget.childAt(widget_pos)
-            if not w:
-                return
-
-        # get the widget position before submenu change.
-        p1 = w.mapToGlobal(w.rect().center())
-        self.overlay.add_to_path(ui, w)
-
+        self.overlay.path.add(ui, w)
         self.set_ui(ui)  # switch the stacked widget to the given submenu.
+
+        # get the old widget position.
+        p1 = w.mapToGlobal(w.rect().center())
         # get the widget of the same name in the new UI.
-        w2 = getattr(self.currentWidget(), w.name)
-        # get the widget position after submenu change.
+        w2 = self.sb.get_widget(w.name, ui)
+        # get the new widget position.
         p2 = w2.mapToGlobal(w2.rect().center())
         currentPos = self.mapToGlobal(self.pos())
-        # move to currentPos + difference
+        # move the UI to currentPos + difference
         self.move(self.mapFromGlobal(currentPos + (p1 - p2)))
 
         # if the submenu UI called for the first time:
-        if ui not in self.sb.get_prev_ui(as_list=True):
+        if ui not in self.sb.ui_history(slice(0, -1)):
             # re-construct any widgets from the previous UI that fall along the plotted path.
-            cloned_widgets = self.overlay.clone_widgets_along_path(
-                ui, self.return_to_starting_ui
-            )
-            # Initialize the widgets to set things like the event filter.
+            return_func = self.return_to_startmenu
+            cloned_widgets = self.overlay.clone_widgets_along_path(ui, return_func)
+            # Initialize the child widgets event filter.
             self.init_child_event_filter(cloned_widgets)
 
-    def return_to_starting_ui(self):
+    def return_to_startmenu(self):
         """Return the stacked widget to it's starting index."""
-        # Check for start position and raise error if not found
-        self.overlay.validate_path_start_pos()
+        if not self.overlay.path.start_pos:
+            raise ValueError("No start position found in the path.")
 
-        starting_ui = self.sb.get_prev_ui(exc="*#submenu")
-        # logging.info(f"starting_ui: {starting_ui or starting_ui.name}")
-        self.set_ui(starting_ui)
+        startmenu = self.sb.ui_history(-1, inc="*#startmenu*")
+        # logging.info(f"startmenu: {startmenu.name}")
+        self.set_ui(startmenu)
 
-        self.move(self.overlay.path_start_pos - self.rect().center())
+        self.move(self.overlay.path.start_pos - self.rect().center())
 
     # ---------------------------------------------------------------------------------------------
     #   Stacked Widget Event handling:
@@ -209,9 +219,10 @@ class Tcl(QtWidgets.QStackedWidget):
         modifiers = self.app.keyboardModifiers()
 
         if self.sb.ui.has_tag("startmenu|submenu"):
-            self.move(self.sb.get_center(self))
-
             if not modifiers:
+                self.overlay.path.reset()
+                self.move(self.sb.get_center(self))
+
                 if event.button() == QtCore.Qt.LeftButton:
                     self.set_ui("cameras#startmenu")
 
@@ -222,6 +233,12 @@ class Tcl(QtWidgets.QStackedWidget):
                     self.set_ui("main#startmenu")
 
         super().mousePressEvent(event)
+
+    def mouseReleaseEvent(self, event):
+        """ """
+        self.set_ui("init#startmenu")
+
+        super().mouseReleaseEvent(event)
 
     def mouseDoubleClickEvent(self, event):
         """The widget will also receive mouse press and mouse release events
@@ -253,7 +270,7 @@ class Tcl(QtWidgets.QStackedWidget):
         """Sets the widget as visible.
 
         Parameters:
-            ui (str/obj): Show the given UI.
+            ui (str/QWidget): Show the given UI.
             profile (bool): Prints the total running time, times each function separately,
                     and tells you how many times each function was called.
         """
@@ -349,9 +366,10 @@ class Tcl(QtWidgets.QStackedWidget):
         if w.derived_type == "QPushButton":
             if w.base_name == "i":  # set the stacked widget.
                 submenu_name = f"{w.whatsThis()}#submenu"
-                submenu = self.sb.get_ui(submenu_name)
-                if submenu:
-                    self.set_sub_ui(submenu, w)
+                if submenu_name != w.ui.name:
+                    submenu = self.sb.get_ui(submenu_name)
+                    if submenu:
+                        self.set_submenu(submenu, w)
 
         if w.base_name == "chk":
             if w.ui.isSubmenu:
@@ -435,7 +453,7 @@ class Tcl(QtWidgets.QStackedWidget):
         method = self.prev_camera()
         if method:
             method()
-            method_ = self.prev_camera(allow_current=True, as_list=1)[-2][0]
+            method_ = self.prev_camera(inc_current=True, as_list=1)[-2][0]
         else:
             method_ = self.sb.cameras_startmenu.slots.b004  # get the persp camera.
             method_()
@@ -443,7 +461,7 @@ class Tcl(QtWidgets.QStackedWidget):
 
     def repeat_last_ui(self):
         """Open the last used top level menu."""
-        prev_ui = self.sb.get_prev_ui(exc=("*#submenu", "*#startmenu"))
+        prev_ui = self.sb.ui_history(-1, exc=("*#submenu*", "*#startmenu*"))
         if prev_ui:
             self.set_ui(prev_ui)
         else:
@@ -455,7 +473,7 @@ class Tcl(QtWidgets.QStackedWidget):
         self,
         docstring=False,
         method=False,
-        allow_current=False,
+        inc_current=False,
         as_list=False,
         add=None,
     ):
@@ -463,7 +481,7 @@ class Tcl(QtWidgets.QStackedWidget):
         Parameters:
             docstring (bool): return the docstring of last camera command. Default is off.
             method (bool): return the method of last camera command. Default is off.
-            allow_current (bool): allow the current camera. Default is off.
+            inc_current (bool): allow the current camera. Default is off.
             add (str/obj): Add a method, or name of method to be used as the command to the current camera.
                     (if this flag is given, all other flags are invalidated)
         Returns:
@@ -476,7 +494,7 @@ class Tcl(QtWidgets.QStackedWidget):
             if not callable(add):
                 add = self.sb.get_slot("cameras#startmenu", add)
             docstring = add.__doc__
-            prev_cameras = self.prev_camera(allow_current=True, as_list=1)
+            prev_cameras = self.prev_camera(inc_current=True, as_list=1)
             if (
                 not prev_cameras or not [add, docstring] == prev_cameras[-1]
             ):  # ie. do not append perp cam if the prev cam was perp.
@@ -490,7 +508,7 @@ class Tcl(QtWidgets.QStackedWidget):
         hist = self.camera_history
         [hist.remove(l) for l in hist[:] if hist.count(l) > 1]
 
-        if not allow_current:
+        if not inc_current:
             hist = hist[:-1]  # remove the last index. (currentName)
 
         if as_list:
@@ -661,7 +679,7 @@ if __name__ == "__main__":
 #   '''Initializes the UI of the given name and it's dependancies.
 
 #   Parameters:
-#       ui (obj): The UI widget to be added to the layout stack.
+#       ui (QWidget): The UI widget to be added to the layout stack.
 #       query (bool): Check whether the UI widget has been added.
 
 #   Returns:

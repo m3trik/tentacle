@@ -75,7 +75,7 @@ class File_maya(File, SlotsMaya):
             lambda v: pm.autoSave(int=v * 60, limitBackups=True)
         )
         cmb002.addItems_(
-            mtk.getRecentAutosave(timestamped=True, standard=True),
+            mtk.getRecentAutosave(format="timestamp|standard"),
             "Recent Autosave",
             clear=True,
         )

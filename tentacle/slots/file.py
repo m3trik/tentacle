@@ -16,11 +16,11 @@ class File(Slots):
         list000.position = "top"
         list000.offset = 19
         list000.drag_interaction = True
-        recentFiles = self.getRecentFiles()[:6]
-        list000.setVisible(bool(recentFiles))
+        recentFiles = self.getRecentFiles(slice(0, 6))
         w1 = list000.add("QPushButton", setText="Recent Files")
         truncated = truncate(recentFiles, 65)
         w1.list.add(truncated, recentFiles)
+        list000.setVisible(bool(recentFiles))
 
         dh = self.sb.file.draggableHeader
         dh.ctxMenu.add(self.sb.ComboBox, setObjectName="cmb000", setToolTip="")
@@ -33,12 +33,7 @@ class File(Slots):
             setToolTip="Open the most recent file.",
         )
         cmb005.addItems_(
-            dict(
-                zip(
-                    self.getRecentFiles(timestamp=True),
-                    self.getRecentFiles(timestamp=False),
-                )
-            ),
+            self.getRecentFiles(slice(0, 20), format="timestamp|standard"),
             "Recent Files",
             clear=True,
         )
@@ -62,7 +57,9 @@ class File(Slots):
             setToolTip="Open the project directory.",
         )
         cmb006.ctxMenu.cmb001.addItems_(
-            self.getRecentProjects(), "Recent Projects", clear=True
+            self.getRecentProjects(slice(0, 20), format="timestamp|standard"),
+            "Recent Projects",
+            clear=True,
         )
 
     def referenceSceneMenu(self, clear=False):
