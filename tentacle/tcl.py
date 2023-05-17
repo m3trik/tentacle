@@ -71,7 +71,7 @@ class Tcl(QtWidgets.QStackedWidget):
             ui_location=ui_location,
             slots_location=slots_location,
             set_legal_name_no_tags_attr=True,
-            log_level=logging.INFO,
+            log_level=logging.ERROR,
         )
         self.child_event_filter = EventFactoryFilter(
             self,
