@@ -29,6 +29,11 @@ class Tcl(QtWidgets.QStackedWidget):
     # return the existing QApplication object, or create a new one if none exists.
     app = QtWidgets.QApplication.instance() or QtWidgets.QApplication(sys.argv)
 
+    left_mouse_double_click = QtCore.Signal()
+    left_mouse_double_click_ctrl = QtCore.Signal()
+    left_mouse_double_click_ctrl_alt = QtCore.Signal()
+    middle_mouse_double_click = QtCore.Signal()
+    right_mouse_double_click = QtCore.Signal()
     _key_show_release = QtCore.Signal()
 
     def __init__(
@@ -81,6 +86,11 @@ class Tcl(QtWidgets.QStackedWidget):
         self.overlay = Overlay(self, antialiasing=True)
         self.mouse_tracking = MouseTracking(self)
 
+        self.left_mouse_double_click_ctrl.connect(self.repeat_last_command)
+        # self.left_mouse_double_click_ctrl_alt.connect()
+        # self.middle_mouse_double_click.connect()
+        self.right_mouse_double_click.connect(self.repeat_last_ui)
+
     def init_ui(self, ui):
         """Initialize the given UI.
 
@@ -88,9 +98,7 @@ class Tcl(QtWidgets.QStackedWidget):
             ui (QWidget): The UI to initialize.
         """
         if not isinstance(ui, QtWidgets.QWidget):
-            raise ValueError(
-                f"Incorrect datatype for ui: {type(ui)}, expected QWidget."
-            )
+            raise ValueError(f"Invalid datatype for ui: {type(ui)}, expected QWidget.")
 
         self.init_child_event_filter(ui.widgets)
         ui.set_style("dark", append_to_existing=True)
@@ -112,7 +120,7 @@ class Tcl(QtWidgets.QStackedWidget):
         """
         if not isinstance(ui, (str, QtWidgets.QWidget)):
             raise ValueError(
-                f"Incorrect datatype for ui: {type(ui)}, expected str or QWidget."
+                f"Invalid datatype for ui: {type(ui)}, expected str or QWidget."
             )
 
         # Get the UI of the given name, and set it as the current UI in the switchboard module.
@@ -144,9 +152,7 @@ class Tcl(QtWidgets.QStackedWidget):
             w (QWidget): The widget under cursor at the time this method was called.
         """
         if not isinstance(ui, QtWidgets.QWidget):
-            raise ValueError(
-                f"Incorrect datatype for ui: {type(ui)}, expected QWidget."
-            )
+            raise ValueError(f"Invalid datatype for ui: {type(ui)}, expected QWidget.")
 
         self.overlay.path.add(ui, w)
         self.set_ui(ui)  # switch the stacked widget to the given submenu.
@@ -241,28 +247,23 @@ class Tcl(QtWidgets.QStackedWidget):
         super().mouseReleaseEvent(event)
 
     def mouseDoubleClickEvent(self, event):
-        """The widget will also receive mouse press and mouse release events
-        in addition to the double click event. If another widget that overlaps
-        this widget disappears in response to press or release events,
-        then this widget will only receive the double click event.
-        """
+        """ """
         modifiers = self.app.keyboardModifiers()
 
         if self.sb.ui.has_tag("startmenu|submenu"):
             if event.button() == QtCore.Qt.LeftButton:
-                if modifiers in (
-                    QtCore.Qt.ControlModifier,
-                    QtCore.Qt.ControlModifier | QtCore.Qt.AltModifier,
-                ):
-                    self.repeat_last_command()
+                if modifiers == QtCore.Qt.ControlModifier:
+                    self.left_mouse_double_click_ctrl.emit()
+                elif modifiers == (QtCore.Qt.ControlModifier | QtCore.Qt.AltModifier):
+                    self.left_mouse_double_click_ctrl_alt.emit()
                 else:
-                    self.repeat_last_camera_view()
+                    self.left_mouse_double_click.emit()
 
             elif event.button() == QtCore.Qt.MiddleButton:
-                pass
+                self.middle_mouse_double_click.emit()
 
             elif event.button() == QtCore.Qt.RightButton:
-                self.repeat_last_ui()
+                self.right_mouse_double_click.emit()
 
         super().mouseDoubleClickEvent(event)
 
@@ -314,8 +315,7 @@ class Tcl(QtWidgets.QStackedWidget):
         super().hideEvent(event)
 
     # ---------------------------------------------------------------------------------------------
-    # child widget event handling:
-    # ---------------------------------------------------------------------------------------------
+
     def init_child_event_filter(self, widgets):
         """Initialize child widgets with an event filter.
 
@@ -400,15 +400,16 @@ class Tcl(QtWidgets.QStackedWidget):
         if w.underMouse():  # if mouse over widget
             if w.derived_type == "QPushButton":
                 if w.base_name == "i":  # ie. 'i012'
-                    self.set_ui(w.whatsThis())
+                    menu_name = w.whatsThis()
+                    new_menu_name = self.clean_tag_string(menu_name)
+                    menu = self.sb.get_ui(new_menu_name)
+                    if menu:
+                        self.hide_unmatched_groupboxes(menu, menu_name)
+                        self.set_ui(menu)
 
                 elif w.base_name in ("b", "tb"):
                     w.click()  # send click signal on mouseRelease.
-
-                    if w.ui.name == "cameras#startmenu":
-                        self.prev_camera(add=w.get_slot())
-
-                    elif w.ui.isSubmenu:
+                    if w.ui.isSubmenu:
                         self.hide()
 
         w.mouseReleaseEvent(event)
@@ -437,27 +438,81 @@ class Tcl(QtWidgets.QStackedWidget):
         w.keyReleaseEvent(event)
 
     # ---------------------------------------------------------------------------------------------
-    #
-    # ---------------------------------------------------------------------------------------------
+
+    @staticmethod
+    def get_unknown_tags(tag_string):
+        """Extracts all tags from a given string that are not known tags.
+
+        Parameters:
+            tag_string (str): The string from which to extract unknown tags.
+
+        Returns:
+            list: A list of unknown tags extracted from the tag_string.
+
+        Note:
+            Known tags are defined as 'submenu' and 'startmenu'. Any other tag found in the string
+            is considered unknown. Tags are expected to be prefixed by a '#' symbol.
+        """
+        import re
+
+        unknown_tags = re.findall("#(?!submenu|startmenu)[a-zA-Z0-9]*", tag_string)
+        # Remove leading '#' from all tags
+        unknown_tags = [tag[1:] for tag in unknown_tags if tag != "#"]
+        return unknown_tags
+
+    def clean_tag_string(self, tag_string):
+        """Cleans a given tag string by removing unknown tags.
+
+        Parameters:
+            tag_string (str): The string from which to remove unknown tags.
+
+        Returns:
+            str: The cleaned tag string with unknown tags removed.
+
+        Note:
+            This function utilizes the get_unknown_tags function to identify and subsequently
+            remove unknown tags from the provided string.
+        """
+        import re
+
+        unknown_tags = self.get_unknown_tags(tag_string)
+        # Remove unknown tags from the string
+        cleaned_tag_string = re.sub("#" + "|#".join(unknown_tags), "", tag_string)
+        return cleaned_tag_string
+
+    def hide_unmatched_groupboxes(self, ui, tag_string):
+        """Hides all QGroupBox widgets in the provided UI that do not match the unknown tags extracted
+        from the provided tag string.
+
+        Parameters:
+            ui (QObject): The UI object in which to hide unmatched QGroupBox widgets.
+            tag_string (str): The string from which to extract unknown tags for comparison.
+
+        Note:
+            This function uses the get_unknown_tags function to determine which QGroupBox widgets
+            to hide. If a QGroupBox widget's objectName does not match one of the unknown tags,
+            the widget will be hidden.
+        """
+        unknown_tags = self.get_unknown_tags(tag_string)
+
+        # Find all QGroupBox widgets in the UI
+        groupboxes = ui.findChildren(QtWidgets.QGroupBox)
+
+        # Hide all groupboxes that do not match the unknown tags
+        for groupbox in groupboxes:
+            if unknown_tags and groupbox.objectName() not in unknown_tags:
+                groupbox.hide()
+            else:
+                groupbox.show()
+
     def repeat_last_command(self):
         """Repeat the last stored command."""
-        method = self.sb.prev_command
+        method = self.sb.prev_slot
 
         if callable(method):
             method()
         else:
             logging.info("No recent commands in history.")
-
-    def repeat_last_camera_view(self):
-        """Show the previous camera view."""
-        method = self.prev_camera()
-        if method:
-            method()
-            method_ = self.prev_camera(inc_current=True, as_list=1)[-2][0]
-        else:
-            method_ = self.sb.cameras_startmenu.slots.b004  # get the persp camera.
-            method_()
-        self.prev_camera(add=method_)  # store the camera view
 
     def repeat_last_ui(self):
         """Open the last used top level menu."""
@@ -466,76 +521,6 @@ class Tcl(QtWidgets.QStackedWidget):
             self.set_ui(prev_ui)
         else:
             logging.info("No recent menus in history.")
-
-    camera_history = []
-
-    def prev_camera(
-        self,
-        docstring=False,
-        method=False,
-        inc_current=False,
-        as_list=False,
-        add=None,
-    ):
-        """
-        Parameters:
-            docstring (bool): return the docstring of last camera command. Default is off.
-            method (bool): return the method of last camera command. Default is off.
-            inc_current (bool): allow the current camera. Default is off.
-            add (str/obj): Add a method, or name of method to be used as the command to the current camera.
-                    (if this flag is given, all other flags are invalidated)
-        Returns:
-            if docstring: 'string' description (derived from the last used camera command's docstring) (as_list: [string list] all docStrings, in order of use)
-            if method: method of last used camera command. (as_list: [<method object> list} all methods, in order of use)
-            if as_list: list of lists with <method object> as first element and <docstring> as second. ie. [[<v001>, 'camera: persp']]
-            else : <method object> of the last used command
-        """
-        if add:  # set the given method as the current camera.
-            if not callable(add):
-                add = self.sb.get_slot("cameras#startmenu", add)
-            docstring = add.__doc__
-            prev_cameras = self.prev_camera(inc_current=True, as_list=1)
-            if (
-                not prev_cameras or not [add, docstring] == prev_cameras[-1]
-            ):  # ie. do not append perp cam if the prev cam was perp.
-                prev_cameras.append([add, docstring])  # store the camera view
-            return
-
-        # keep original list length restricted to last 20 elements
-        self.camera_history = self.camera_history[-20:]
-
-        # remove any previous duplicates if they exist; keeping the last added element.
-        hist = self.camera_history
-        [hist.remove(l) for l in hist[:] if hist.count(l) > 1]
-
-        if not inc_current:
-            hist = hist[:-1]  # remove the last index. (currentName)
-
-        if as_list:
-            if docstring and not method:
-                try:
-                    return [i[1] for i in hist]
-                except:
-                    return None
-            elif method and not docstring:
-                try:
-                    return [i[0] for i in hist]
-                except:
-                    return ["No command history."]
-            else:
-                return hist
-
-        elif docstring:
-            try:
-                return hist[-1][1]
-            except:
-                return ""
-
-        else:
-            try:
-                return hist[-1][0]
-            except:
-                return None
 
 
 # --------------------------------------------------------------------------------------------

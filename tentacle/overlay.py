@@ -283,10 +283,9 @@ class Overlay(QtWidgets.QWidget, OverlayFactoryFilter):
         region_widget.on_enter.connect(return_func)
         region_widget.on_enter.connect(self.path.clear_to_origin)
 
-        new_widgets = tuple(  # Clone the widgets along the path
-            self._clone_widget(ui, widget, pos)
-            for widget, pos in self.path.widget_positions.items()
-        )
+        # Clone the widgets along the path. Omit the starting index and the last widget which already exists in the new UI.
+        to_clone = self.path._path[1:-1]
+        new_widgets = tuple(self._clone_widget(ui, w, pos) for w, pos, _ in to_clone)
 
         return new_widgets
 
@@ -359,6 +358,8 @@ class Overlay(QtWidgets.QWidget, OverlayFactoryFilter):
         """ """
         # Restore the cursor to its default shape.
         QtWidgets.QApplication.restoreOverrideCursor()
+
+        self.path.clear()
 
         super().mouseReleaseEvent(event)
 

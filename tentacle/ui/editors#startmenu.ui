@@ -363,11 +363,8 @@
                <height>21</height>
               </size>
              </property>
-             <property name="toolTip">
-              <string/>
-             </property>
              <property name="whatsThis">
-              <string>editors_lower_submenu</string>
+              <string>editors.lower</string>
              </property>
              <property name="text">
               <string>All Editors</string>

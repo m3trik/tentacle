@@ -34,6 +34,9 @@
   <property name="cursor">
    <cursorShape>ArrowCursor</cursorShape>
   </property>
+  <property name="whatsThis">
+   <string>main</string>
+  </property>
   <property name="toolButtonStyle">
    <enum>Qt::ToolButtonIconOnly</enum>
   </property>
@@ -53,39 +56,104 @@
      <verstretch>0</verstretch>
     </sizepolicy>
    </property>
-   <widget class="QPushButton" name="i010">
+   <widget class="QPushButton" name="b001">
+    <property name="enabled">
+     <bool>true</bool>
+    </property>
     <property name="geometry">
      <rect>
-      <x>270</x>
-      <y>290</y>
-      <width>66</width>
-      <height>21</height>
+      <x>285</x>
+      <y>350</y>
+      <width>71</width>
+      <height>19</height>
      </rect>
-    </property>
-    <property name="minimumSize">
-     <size>
-      <width>0</width>
-      <height>21</height>
-     </size>
     </property>
     <property name="maximumSize">
      <size>
-      <width>16777215</width>
-      <height>21</height>
+      <width>111</width>
+      <height>19</height>
      </size>
     </property>
-    <property name="whatsThis">
-     <string>polygons</string>
+    <property name="toolTip">
+     <string>Cap holes modifier</string>
     </property>
     <property name="text">
-     <string>Polygons</string>
+     <string>Fill Hole</string>
+    </property>
+    <property name="iconSize">
+     <size>
+      <width>18</width>
+      <height>18</height>
+     </size>
+    </property>
+   </widget>
+   <widget class="PushButton" name="tb002">
+    <property name="enabled">
+     <bool>true</bool>
+    </property>
+    <property name="geometry">
+     <rect>
+      <x>365</x>
+      <y>290</y>
+      <width>71</width>
+      <height>19</height>
+     </rect>
+    </property>
+    <property name="maximumSize">
+     <size>
+      <width>111</width>
+      <height>19</height>
+     </size>
+    </property>
+    <property name="toolTip">
+     <string>Combine the selected polygon objects into one single object to allow operations such as merges or face trims</string>
+    </property>
+    <property name="text">
+     <string>Combine</string>
+    </property>
+    <property name="iconSize">
+     <size>
+      <width>18</width>
+      <height>18</height>
+     </size>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="b002">
+    <property name="enabled">
+     <bool>true</bool>
+    </property>
+    <property name="geometry">
+     <rect>
+      <x>365</x>
+      <y>320</y>
+      <width>71</width>
+      <height>19</height>
+     </rect>
+    </property>
+    <property name="maximumSize">
+     <size>
+      <width>111</width>
+      <height>19</height>
+     </size>
+    </property>
+    <property name="toolTip">
+     <string>Separates the selected polygonobject shells or the shells of any selected faces from the object into one object into distinct objects</string>
+    </property>
+    <property name="text">
+     <string>Separate</string>
+    </property>
+    <property name="iconSize">
+     <size>
+      <width>18</width>
+      <height>18</height>
+     </size>
     </property>
    </widget>
    <widget class="QPushButton" name="i004">
     <property name="geometry">
      <rect>
-      <x>350</x>
-      <y>330</y>
+      <x>270</x>
+      <y>290</y>
       <width>66</width>
       <height>21</height>
      </rect>
@@ -109,120 +177,52 @@
      <string>Mesh</string>
     </property>
    </widget>
-   <widget class="QPushButton" name="i000">
+   <widget class="PushButton" name="tb008">
+    <property name="enabled">
+     <bool>true</bool>
+    </property>
     <property name="geometry">
      <rect>
-      <x>270</x>
-      <y>230</y>
-      <width>66</width>
-      <height>21</height>
-     </rect>
-    </property>
-    <property name="minimumSize">
-     <size>
-      <width>0</width>
-      <height>21</height>
-     </size>
-    </property>
-    <property name="maximumSize">
-     <size>
-      <width>16777215</width>
-      <height>21</height>
-     </size>
-    </property>
-    <property name="whatsThis">
-     <string>polygons#vertex</string>
-    </property>
-    <property name="text">
-     <string>Vertex</string>
-    </property>
-   </widget>
-   <widget class="QPushButton" name="i002">
-    <property name="geometry">
-     <rect>
-      <x>190</x>
+      <x>345</x>
       <y>250</y>
       <width>66</width>
-      <height>21</height>
+      <height>20</height>
      </rect>
     </property>
     <property name="minimumSize">
      <size>
       <width>0</width>
-      <height>21</height>
+      <height>20</height>
      </size>
     </property>
     <property name="maximumSize">
      <size>
-      <width>16777215</width>
-      <height>21</height>
+      <width>999</width>
+      <height>20</height>
      </size>
     </property>
-    <property name="whatsThis">
-     <string>polygons#edge</string>
+    <property name="toolTip">
+     <string>Preforms a boolean union on the selected polygon objects creating a new object</string>
     </property>
     <property name="text">
-     <string>Edge</string>
+     <string>Boolean</string>
     </property>
-   </widget>
-   <widget class="QPushButton" name="i003">
-    <property name="geometry">
-     <rect>
-      <x>170</x>
-      <y>290</y>
-      <width>66</width>
-      <height>21</height>
-     </rect>
-    </property>
-    <property name="minimumSize">
+    <property name="iconSize">
      <size>
-      <width>0</width>
-      <height>21</height>
+      <width>18</width>
+      <height>18</height>
      </size>
-    </property>
-    <property name="maximumSize">
-     <size>
-      <width>16777215</width>
-      <height>21</height>
-     </size>
-    </property>
-    <property name="whatsThis">
-     <string>polygons#face</string>
-    </property>
-    <property name="text">
-     <string>Face</string>
-    </property>
-   </widget>
-   <widget class="QPushButton" name="i011">
-    <property name="geometry">
-     <rect>
-      <x>350</x>
-      <y>260</y>
-      <width>81</width>
-      <height>21</height>
-     </rect>
-    </property>
-    <property name="minimumSize">
-     <size>
-      <width>0</width>
-      <height>21</height>
-     </size>
-    </property>
-    <property name="maximumSize">
-     <size>
-      <width>16777215</width>
-      <height>21</height>
-     </size>
-    </property>
-    <property name="whatsThis">
-     <string>polygons#component</string>
-    </property>
-    <property name="text">
-     <string>Component</string>
     </property>
    </widget>
   </widget>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>PushButton</class>
+   <extends>QPushButton</extends>
+   <header>widgets.pushbutton.h</header>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections/>
  <designerdata>

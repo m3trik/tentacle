@@ -9,9 +9,6 @@ class Cameras_maya(Cameras, SlotsMaya):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        list000 = self.sb.cameras_lower_submenu.list000
-        list000.drag_interaction = True
-
     def list000_init(self, widget):
         """ """
         print("list000_init")

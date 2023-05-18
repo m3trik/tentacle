@@ -383,7 +383,7 @@
            </size>
           </property>
           <property name="whatsThis">
-           <string>main.lower.submenu</string>
+           <string>main.lower</string>
           </property>
           <property name="text">
            <string>History</string>

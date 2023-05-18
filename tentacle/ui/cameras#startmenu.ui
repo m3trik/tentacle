@@ -471,7 +471,7 @@
               </size>
              </property>
              <property name="whatsThis">
-              <string>cameras_lower_submenu</string>
+              <string>cameras.lower</string>
              </property>
              <property name="text">
               <string>Camera Options</string>

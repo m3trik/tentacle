@@ -111,7 +111,7 @@ class Init_max(Init, SlotsMax):
                         except NameError:
                             pass
 
-        method = self.sb.prev_command
+        method = self.sb.prev_slot
         if method:
             hud.insertText(
                 'Prev Command: <font style="color: Yellow;">{}'.format(method.__doc__)

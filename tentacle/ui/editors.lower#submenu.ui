@@ -62,8 +62,8 @@
       <widget class="QPushButton" name="i000">
        <property name="geometry">
         <rect>
-         <x>250</x>
-         <y>40</y>
+         <x>70</x>
+         <y>140</y>
          <width>81</width>
          <height>21</height>
         </rect>
@@ -81,23 +81,26 @@
         </size>
        </property>
        <property name="whatsThis">
-        <string>editors_lower_submenu</string>
+        <string>editors.lower</string>
        </property>
       </widget>
-      <widget class="ListWidget" name="lw000">
+      <widget class="ListWidget" name="list000">
        <property name="geometry">
         <rect>
-         <x>240</x>
-         <y>40</y>
-         <width>96</width>
-         <height>211</height>
+         <x>50</x>
+         <y>140</y>
+         <width>126</width>
+         <height>19</height>
         </rect>
        </property>
-       <property name="layoutDirection">
-        <enum>Qt::LeftToRight</enum>
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Maximum" vsizetype="Expanding">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
        </property>
        <property name="frameShape">
-        <enum>QFrame::NoFrame</enum>
+        <enum>QFrame::StyledPanel</enum>
        </property>
        <property name="frameShadow">
         <enum>QFrame::Plain</enum>
@@ -111,8 +114,11 @@
        <property name="sizeAdjustPolicy">
         <enum>QAbstractScrollArea::AdjustToContents</enum>
        </property>
-       <property name="selectionMode">
-        <enum>QAbstractItemView::NoSelection</enum>
+       <property name="resizeMode">
+        <enum>QListView::Adjust</enum>
+       </property>
+       <property name="uniformItemSizes">
+        <bool>false</bool>
        </property>
       </widget>
      </widget>

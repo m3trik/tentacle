@@ -10,9 +10,13 @@ class Main(Slots):
         super().__init__(*args, **kwargs)
         """
         """
-        lw = self.sb.main_lower_submenu.lw000
-        # print (lw.getItems())
-        # print (lw.getItemWidgets())
+        list000 = self.sb.main_lower_submenu.list000
+        list000.position = "right"
+        list000.offset = 19
+        list000.drag_interaction = True
+
+        w1 = list000.add("QPushButton", setText="Recent Commands")
+        w2 = list000.add("QPushButton", setText="History")
 
     def lw000(self, w=None):
         """ """

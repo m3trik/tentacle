@@ -138,7 +138,7 @@ class Init_maya(Init, SlotsMaya):
                 except NameError:
                     pass
 
-        method = self.sb.prev_command
+        method = self.sb.prev_slot
         if method:
             hud.insertText(
                 'Prev Command: <font style="color: Yellow;">{}'.format(method.__doc__)

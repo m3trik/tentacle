@@ -11,7 +11,6 @@ class File(Slots):
         super().__init__(*args, **kwargs)
         """
         """
-        # set the text for the open last file button to the last file's name.
         list000 = self.sb.file_submenu.list000
         list000.position = "top"
         list000.offset = 19
