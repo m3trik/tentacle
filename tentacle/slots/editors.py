@@ -11,12 +11,10 @@ class Editors(Slots):
         """
         """
         list000 = self.sb.editors_lower_submenu.list000
-        list000.position = "right"
-        list000.offset = 19
         list000.drag_interaction = True
 
-        w1 = list000.add(setText="General Editors")
-        w2 = list000.add(setText="Modeling Editors")
-        w3 = list000.add(setText="Animation Editors")
-        w4 = list000.add(setText="Rendering Editors")
-        w5 = list000.add(setText="Relationship Editors")
+        w1 = list000.add("General Editors")
+        w2 = list000.add("Modeling Editors")
+        w3 = list000.add("Animation Editors")
+        w4 = list000.add("Rendering Editors")
+        w5 = list000.add("Relationship Editors")

@@ -11,8 +11,6 @@ class Main(Slots):
         """
         """
         list000 = self.sb.main_lower_submenu.list000
-        list000.position = "right"
-        list000.offset = 19
         list000.drag_interaction = True
 
         w1 = list000.add("QPushButton", setText="Recent Commands")

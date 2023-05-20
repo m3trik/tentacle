@@ -14,16 +14,19 @@ class Cameras(Slots):
         self.sb.parent().left_mouse_double_click.connect(self.toggle_camera_view)
 
         list000 = self.sb.cameras_lower_submenu.list000
-        list000.position = "right"
-        list000.offset = 19
         list000.drag_interaction = True
-        recentFiles = [
-            "uuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuu",
-            "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
-            "zzzzzzzzzzzzzzzzzzzz",
-        ]
-        w1 = list000.add(setText="Camera Settings")
-        w1.list.add(recentFiles)
+
+        w1 = list000.add("QPushButton", setText="Camera Settings")
+        w2 = list000.add("QPushButton", setText="Other Settings")
+        # recentFiles = [
+        #     "uuuuuuuuuuuuuuuuuuuu",
+        #     "xxxxxxxxxxxxxxxxxxxx",
+        #     "zzzzzzzzzzzzzzzzzzzz",
+        # ]
+        # l2 = w2.list.add(recentFiles)
+
+        print(0, w2.list.getItems())
+        print(1, w2.list.getItemWidgets())
 
     def toggle_camera_view(self):
         """Toggle between the last two camera views in history."""

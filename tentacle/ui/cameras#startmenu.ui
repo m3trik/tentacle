@@ -442,7 +442,7 @@
          </property>
          <layout class="QVBoxLayout" name="verticalLayout_2">
           <item>
-           <widget class="QWidget" name="widget_2" native="true">
+           <widget class="QWidget" name="region_5" native="true">
             <property name="minimumSize">
              <size>
               <width>0</width>
@@ -453,7 +453,7 @@
              <property name="geometry">
               <rect>
                <x>95</x>
-               <y>20</y>
+               <y>0</y>
                <width>111</width>
                <height>21</height>
               </rect>
@@ -471,7 +471,7 @@
               </size>
              </property>
              <property name="whatsThis">
-              <string>cameras.lower</string>
+              <string>cameras#lower</string>
              </property>
              <property name="text">
               <string>Camera Options</string>

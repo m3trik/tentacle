@@ -11,7 +11,6 @@ class Cameras_maya(Cameras, SlotsMaya):
 
     def list000_init(self, widget):
         """ """
-        print("list000_init")
         try:
             cameras = pm.ls(type=("camera"), l=True)  # Get all cameras
             startup_cameras = [

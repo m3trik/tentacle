@@ -59,8 +59,8 @@
       <widget class="QPushButton" name="i000">
        <property name="geometry">
         <rect>
-         <x>250</x>
-         <y>220</y>
+         <x>70</x>
+         <y>140</y>
          <width>96</width>
          <height>21</height>
         </rect>
@@ -78,14 +78,14 @@
         </size>
        </property>
        <property name="whatsThis">
-        <string>cameras.lower</string>
+        <string>cameras#lower</string>
        </property>
       </widget>
       <widget class="ListWidget" name="list000">
        <property name="geometry">
         <rect>
-         <x>235</x>
-         <y>220</y>
+         <x>55</x>
+         <y>140</y>
          <width>126</width>
          <height>19</height>
         </rect>

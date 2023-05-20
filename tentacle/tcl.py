@@ -48,14 +48,7 @@ class Tcl(QtWidgets.QStackedWidget):
         """ """
         super().__init__(parent)
 
-        # Set up logging
-        self.logger = logging.getLogger(__name__)
-        self.logger.setLevel(log_level)
-        handler = logging.StreamHandler()
-        handler.setFormatter(
-            logging.Formatter("%(asctime)s - %(levelname)s - %(message)s")
-        )
-        self.logger.addHandler(handler)
+        self._init_logger(log_level)
 
         self.key_show = getattr(QtCore.Qt, key_show)
         self.key_close = QtCore.Qt.Key_Escape
@@ -90,6 +83,16 @@ class Tcl(QtWidgets.QStackedWidget):
         # self.left_mouse_double_click_ctrl_alt.connect()
         # self.middle_mouse_double_click.connect()
         self.right_mouse_double_click.connect(self.repeat_last_ui)
+
+    def _init_logger(self, log_level):
+        """Initializes logger."""
+        self.logger = logging.getLogger(__name__)
+        self.logger.setLevel(log_level)
+        handler = logging.StreamHandler()
+        handler.setFormatter(
+            logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
+        )
+        self.logger.addHandler(handler)
 
     def init_ui(self, ui):
         """Initialize the given UI.
@@ -332,13 +335,23 @@ class Tcl(QtWidgets.QStackedWidget):
             "QCheckBox",
             "QRadioButton",
         ]
+        from uitk.widgets import listWidget
+
+        print(listWidget.tracker.check_garbage_collected())
+
         for w in makeList(widgets):
             if (not w.derived_type in filtered_types) or (  # not correct type.
                 not w.ui.has_tag("startmenu|submenu")  # not stacked UI:
             ):
                 continue
-            # print('init_child_event_filter:', w.ui.name.ljust(26), w.base_name.ljust(25), (w.name or type(w).__name__).ljust(25), w.type.ljust(15), w.derived_type.ljust(15), id(w)) #debug
-            w.installEventFilter(self.child_event_filter)
+            # import sip
+            # if sip.isdeleted(widget):
+            #     continue
+            try:
+                # print('init_child_event_filter:', w.ui.name.ljust(26), w.base_name.ljust(25), (w.name or type(w).__name__).ljust(25), w.type.ljust(15), w.derived_type.ljust(15), id(w)) #debug
+                w.installEventFilter(self.child_event_filter)
+            except:
+                continue
 
             if w.derived_type in ("QPushButton", "QLabel"):
                 if w.base_name == "i":
