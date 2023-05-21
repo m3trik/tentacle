@@ -71,7 +71,7 @@ class Pivot_maya(Pivot, SlotsMaya):
 
         pm.mel.manipPivotReset(int(resetPivotPosition), int(resetPivotOrientation))
         pm.inViewMessage(
-            statusMessage="Reset Pivot Position <hl>{0}</hl>.<br>Reset Pivot Orientation <hl>{1}</hl>.".format(
+            status_message="Reset Pivot Position <hl>{0}</hl>.<br>Reset Pivot Orientation <hl>{1}</hl>.".format(
                 resetPivotPosition, resetPivotOrientation
             ),
             pos="topCenter",
@@ -99,7 +99,7 @@ class Pivot_maya(Pivot, SlotsMaya):
     def b004(self):
         """Bake Pivot"""
         sel = pm.ls(sl=1)
-        Rig.bakeCustomPivot(sel, position=1, orientation=1)  # pm.mel.BakeCustomPivot()
+        Rig.bake_custom_pivot(sel, position=1, orientation=1)  # pm.mel.BakeCustomPivot()
 
 
 # --------------------------------------------------------------------------------------------

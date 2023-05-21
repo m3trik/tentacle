@@ -60,7 +60,7 @@ class File_max(File, SlotsMax):
                 lambda v: rt.autosave.setmxsprop("Interval", v)
             )
             cmb.addItems_(
-                self.getRecentAutosave(appendDatetime=True),
+                self.get_recent_autosave(appendDatetime=True),
                 "Recent Autosave",
                 clear=True,
             )
@@ -106,7 +106,7 @@ class File_max(File, SlotsMax):
         """Recent Projects"""
         cmb = self.sb.file.cmb006.ctxMenu.cmb001
 
-        items = cmb.addItems_(self.getRecentProjects(), "Recent Projects", clear=True)
+        items = cmb.addItems_(self.get_recent_projects(), "Recent Projects", clear=True)
 
         if index > 0:
             maxEval('setProject "' + items[index] + '"')
@@ -117,11 +117,11 @@ class File_max(File, SlotsMax):
         cmb = self.sb.file.cmb002
 
         items = cmb.addItems_(
-            self.getRecentAutosave(appendDatetime=True), "Recent Autosave", clear=True
+            self.get_recent_autosave(appendDatetime=True), "Recent Autosave", clear=True
         )
 
         if index > 0:
-            file = Slots.timeStamp(cmb.items[index], detach=True)[
+            file = Slots.time_stamp(cmb.items[index], detach=True)[
                 0
             ]  # cmb.items[index].split('\\')[-1]
             rt.loadMaxFile(file)
@@ -186,7 +186,7 @@ class File_max(File, SlotsMax):
         """Recent Files"""
         cmb = self.sb.file.cmb005
 
-        items = cmb.addItems_(self.getRecentFiles(), "Recent Files:", clear=True)
+        items = cmb.addItems_(self.get_recent_files(), "Recent Files:", clear=True)
 
         if index > 0:
             rt.loadMaxFile(str(items[index - 1]))
@@ -196,12 +196,12 @@ class File_max(File, SlotsMax):
         """Project Folder"""
         cmb = self.sb.file.cmb006
 
-        path = self.formatPath(
+        path = self.format_path(
             rt.pathconfig.getCurrentProjectFolderPath(), strip="file"
         )  # current project path.
         items = [f for f in os.listdir(path)]
 
-        project = self.formatPath(
+        project = self.format_path(
             path, "dir"
         )  # add current project path string to label. strip path and trailing '/'
 
@@ -232,7 +232,7 @@ class File_max(File, SlotsMax):
             import time
 
             for timer in range(5):
-                self.mtk.viewportMessage("Shutting Down:<hl>" + str(timer) + "</hl>")
+                self.mtk.viewport_message("Shutting Down:<hl>" + str(timer) + "</hl>")
                 time.sleep(timer)
             pm.mel.quit()  # pm.Quit()
 
@@ -262,8 +262,8 @@ class File_max(File, SlotsMax):
 
     def lbl004(self):
         """Open current project root"""
-        recentFiles = self.getRecentFiles()  # current project path.
-        dir_ = self.formatPath(recentFiles)  # reformat for network address
+        recentFiles = self.get_recent_files()  # current project path.
+        dir_ = self.format_path(recentFiles)  # reformat for network address
         os.startfile(dir_)
 
     def b000(self):
@@ -271,13 +271,13 @@ class File_max(File, SlotsMax):
         dir_ = rt.GetDir(rt.name("autoback"))
 
         try:
-            os.startfile(self.formatPath(dir_))
+            os.startfile(self.format_path(dir_))
         except FileNotFoundError as error:
             self.sb.message_box("The system cannot find the file specified.")
 
     def b002(self):
         """Autosave: Delete All"""
-        files = self.getRecentAutosave()
+        files = self.get_recent_autosave()
         for file in files:
             try:
                 os.remove(file)
@@ -308,7 +308,7 @@ class File_max(File, SlotsMax):
         # 		newName = obj.replace(from_, to)
         # 	pm.rename(obj, newName) #Rename the object with the new name
 
-    def getRecentFiles(self, index=None):
+    def get_recent_files(self, index=None):
         """Get a list of recent files from "RecentDocuments.xml" in the maxData directory.
 
         Parameters:
@@ -340,25 +340,25 @@ class File_max(File, SlotsMax):
 		"""
         )
         files = rt._getRecentFiles()
-        result = [self.formatPath(f) for f in files]
+        result = [self.format_path(f) for f in files]
 
         try:
             return result[index]
         except (IndexError, TypeError) as error:
             return result
 
-    def getRecentProjects(self):
+    def get_recent_projects(self):
         """Get a list of recently set projects.
 
         Returns:
                 (list)
         """
         files = ["No 3ds max function"]
-        result = [self.formatPath(f) for f in list(reversed(files))]
+        result = [self.format_path(f) for f in list(reversed(files))]
 
         return result
 
-    def getRecentAutosave(self, appendDatetime=False):
+    def get_recent_autosave(self, appendDatetime=False):
         """Get a list of autosave files.
 
         Parameters:
@@ -376,11 +376,11 @@ class File_max(File, SlotsMax):
             if f.endswith(".max") or f.endswith(".bak")
         ]  # get list of max autosave files
         result = [
-            self.formatPath(f) for f in list(reversed(files))
+            self.format_path(f) for f in list(reversed(files))
         ]  # format and reverse the list.
 
         if appendDatetime:  # attach modified timestamp
-            result = Slots.timeStamp(result)
+            result = Slots.time_stamp(result)
 
         return result
 

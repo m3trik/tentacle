@@ -2,11 +2,11 @@
 # coding=utf-8
 import inspect
 
-from pythontk import getFilepath
+from pythontk import get_filepath
 
 
 module = inspect.getmodule(inspect.currentframe())  # this module.
-path = getFilepath(module)  # this modules directory.
+path = get_filepath(module)  # this modules directory.
 
 # --------------------------------------------------------------------------------------------
 

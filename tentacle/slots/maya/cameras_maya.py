@@ -64,11 +64,11 @@ class Cameras_maya(Cameras, SlotsMaya):
                     verticalFilmAperture=0.94488,
                 )
             if text == "Set Custom Camera":  # Set the camera to the perspective view
-                home_panel = pm.getPanel(withFocus=True)
+                home_panel = pm.get_panel(withFocus=True)
                 if pm.modelPanel(home_panel, query=True, camera=True) == "persp":
                     pm.cameraView(camera, edit=True, setCamera=True)
             if text == "Camera From View":
-                mtk.Cam.createCameraFromView()
+                mtk.Cam.create_camera_from_view()
 
         if wItem == "Cameras":
             pm.select(text)
@@ -108,11 +108,11 @@ class Cameras_maya(Cameras, SlotsMaya):
 
         if wItem == "Options":
             if text == "Group Cameras":
-                mtk.Cam.groupCameras()
+                mtk.Cam.group_cameras()
             if text == "Adjust Clipping":
                 self.clippingMenu.show()
             if text == "Toggle Safe Frames":  # Viewport Safeframes Toggle
-                mtk.Cam.toggleSafeFrames()
+                mtk.Cam.toggle_safe_frames()
 
     @property
     def clippingMenu(self):
@@ -146,7 +146,7 @@ class Cameras_maya(Cameras, SlotsMaya):
             )
 
         # set widget states for the active camera
-        activeCamera = mtk.Cam.getCurrentCam()
+        activeCamera = mtk.Cam.get_current_cam()
         if not activeCamera:
             self.sb.toggle_widgets(self._clippingMenu, setDisabled="s000-1,chk000")
 
@@ -179,7 +179,7 @@ class Cameras_maya(Cameras, SlotsMaya):
         else:
             self.sb.toggle_widgets(self.clippingMenu, setEnabled="s000-1")
 
-        activeCamera = mtk.Cam.getCurrentCam()
+        activeCamera = mtk.Cam.get_current_cam()
         if not activeCamera:
             self.sb.message_box("No Active Camera.")
             return
@@ -190,7 +190,7 @@ class Cameras_maya(Cameras, SlotsMaya):
         """Camera Clipping: Near Clip"""
         value = self.clippingMenu.s000.value()
 
-        activeCamera = mtk.Cam.getCurrentCam()
+        activeCamera = mtk.Cam.get_current_cam()
         if not activeCamera:
             self.sb.message_box("No Active Camera.")
             return
@@ -201,7 +201,7 @@ class Cameras_maya(Cameras, SlotsMaya):
         """Camera Clipping: Far Clip"""
         value = self.clippingMenu.s001.value()
 
-        activeCamera = mtk.Cam.getCurrentCam()
+        activeCamera = mtk.Cam.get_current_cam()
         if not activeCamera:
             self.sb.message_box("No Active Camera.")
             return
@@ -222,7 +222,7 @@ class Cameras_maya(Cameras, SlotsMaya):
             pm.hide(cam)
 
             grp = pm.ls("cameras", transforms=1)
-            if grp and self.isGroup(
+            if grp and self.is_group(
                 grp[0]
             ):  # add the new cam to 'cameras' group (if it exists).
                 pm.parent(cam, "cameras")
@@ -257,7 +257,7 @@ class Cameras_maya(Cameras, SlotsMaya):
             pm.hide(cam)
 
             grp = pm.ls("cameras", transforms=1)
-            if grp and self.isGroup(
+            if grp and self.is_group(
                 grp[0]
             ):  # add the new cam to 'cameras' group (if it exists).
                 pm.parent(cam, "cameras")
@@ -292,7 +292,7 @@ class Cameras_maya(Cameras, SlotsMaya):
             pm.hide(cam)
 
             grp = pm.ls("cameras", transforms=1)
-            if grp and self.isGroup(
+            if grp and self.is_group(
                 grp[0]
             ):  # add the new cam to 'cameras' group (if it exists).
                 pm.parent(cam, "cameras")
@@ -310,7 +310,7 @@ class Cameras_maya(Cameras, SlotsMaya):
             pm.hide(cam)
 
             grp = pm.ls("cameras", transforms=1)
-            if grp and self.isGroup(
+            if grp and self.is_group(
                 grp[0]
             ):  # add the new cam to 'cameras' group (if it exists).
                 pm.parent(cam, "cameras")
@@ -413,11 +413,11 @@ print(__name__)
 
 #       if header=='Options':
 #           if text=='Group Cameras':
-#               mtk.Cam.groupCameras()
+#               mtk.Cam.group_cameras()
 #           if text=='Adjust Clipping':
 #               self.clippingMenu.show()
 #           if text=='Toggle Safe Frames': #Viewport Safeframes Toggle
-#               mtk.Cam.toggleSafeFrames()
+#               mtk.Cam.toggle_safe_frames()
 
 
 # def cmb000(self, index=-1):

@@ -26,7 +26,7 @@ class Uv_maya(Uv, SlotsMaya):
         cmb000.addItems_(items, "Maya UV Editors")
 
         cmb001 = self.sb.uv.cmb001
-        panel = pm.getPanel(scriptType="polyTexturePlacementPanel")
+        panel = pm.get_panel(scriptType="polyTexturePlacementPanel")
         cmb001.menu_.chk014.setChecked(
             pm.textureWindow(panel, displayCheckered=1, query=1)
         )  # checkered state
@@ -162,7 +162,7 @@ class Uv_maya(Uv, SlotsMaya):
         cmb = self.sb.uv.cmb001
         state = cmb.menu_.chk014.isChecked()
 
-        panel = pm.getPanel(scriptType="polyTexturePlacementPanel")
+        panel = pm.get_panel(scriptType="polyTexturePlacementPanel")
         pm.textureWindow(panel, edit=1, displayCheckered=state)
 
     def chk015(self):
@@ -178,7 +178,7 @@ class Uv_maya(Uv, SlotsMaya):
         cmb = self.sb.uv.cmb001
         state = cmb.menu_.chk016.isChecked()
 
-        panel = pm.getPanel(scriptType="polyTexturePlacementPanel")
+        panel = pm.get_panel(scriptType="polyTexturePlacementPanel")
         pm.textureWindow(panel, edit=1, displayDistortion=state)
 
     def tb000(self, state=None):
@@ -270,9 +270,9 @@ class Uv_maya(Uv, SlotsMaya):
                         unwrapType = "Cylindrical"
                     elif sphericalUnwrap:
                         unwrapType = "Spherical"
-                    objFaces = mtk.Cmpt.getComponents(obj, "f")
+                    objFaces = mtk.Cmpt.get_components(obj, "f")
                     if not objFaces:
-                        objFaces = mtk.Cmpt.getComponents(obj, "f")
+                        objFaces = mtk.Cmpt.get_components(obj, "f")
                     pm.polyProjection(
                         objFaces, type=unwrapType, insertBeforeDeformers=1, smartFit=1
                     )
@@ -429,7 +429,7 @@ class Uv_maya(Uv, SlotsMaya):
                 "<b>Nothing selected.</b><br>The operation requires the selection of two polygon objects."
             )
 
-        self.transferUVs(frm, to, tol=similarTol, deleteConstHist=deleteConstHist)
+        self.transferUVs(frm, to, tolerance=similarTol, deleteConstHist=deleteConstHist)
 
     def b001(self):
         """Create UV Snapshot"""
@@ -556,17 +556,17 @@ class Uv_maya(Uv, SlotsMaya):
         return selection
 
     @staticmethod
-    def getUvShellSets(objects=None, returnType="shells"):
+    def getUvShellSets(objects=None, returned_type="shells"):
         """Get All UV shells and their corresponding sets of faces.
 
         Parameters:
                 objects (obj/list): Polygon object(s) or Polygon face(s).
-                returnType (str): The desired returned type. valid values are: 'shells', 'IDs'. If None is given, the full dict will be returned.
+                returned_type (str): The desired returned type. valid values are: 'shells', 'IDs'. If None is given, the full dict will be returned.
 
         Returns:
-                (list)(dict) dependant on the given returnType arg. ex. {0L:[[MeshFace(u'pShape.f[0]'), MeshFace(u'pShape.f[1]')], 1L:[[MeshFace(u'pShape.f[2]'), MeshFace(u'pShape.f[3]')]}
+                (list)(dict) dependant on the given returned_type arg. ex. {0L:[[MeshFace(u'pShape.f[0]'), MeshFace(u'pShape.f[1]')], 1L:[[MeshFace(u'pShape.f[2]'), MeshFace(u'pShape.f[3]')]}
         """
-        faces = mtk.Cmpt.getComponents(objects, "faces", flatten=1)
+        faces = mtk.Cmpt.get_components(objects, "faces", flatten=1)
 
         shells = {}
         for face in faces:
@@ -580,9 +580,9 @@ class Uv_maya(Uv, SlotsMaya):
                 except IndexError:
                     pass
 
-        if returnType == "shells":
+        if returned_type == "shells":
             shells = list(shells.values())
-        elif returnType == "IDs":
+        elif returned_type == "IDs":
             shells = shells.keys()
 
         return shells
@@ -598,13 +598,13 @@ class Uv_maya(Uv, SlotsMaya):
                 (list) UV border edges.
         """
         uv_border_edges = []
-        for item in ptk.makeList(objects):
+        for item in ptk.make_list(objects):
             # If the item is a mesh object, get its shape
             if isinstance(item, pm.nt.Transform):
                 item = item.getShape()
 
             # If the item is a mesh shape or a component, get its UV borders
-            if isinstance(item, pm.nt.Mesh) or item.nodeType() in [
+            if isinstance(item, pm.nt.Mesh) or item.node_type() in [
                 "meshMapComponent",
                 "meshUVComponent",
             ]:
@@ -630,7 +630,7 @@ class Uv_maya(Uv, SlotsMaya):
 
     @mtk.undo
     def transferUVs(
-        self, frm, to="similar", tol=0.0, sampleSpace="component", deleteConstHist=True
+        self, frm, to="similar", tolerance=0.0, sampleSpace="component", deleteConstHist=True
     ):
         """Transfer UV's from one group of objects to another.
 
@@ -638,7 +638,7 @@ class Uv_maya(Uv, SlotsMaya):
                 frm (str/obj/list): The objects to transfer uv's from.
                 to (str/obj/list): The objects to transfer uv's to.
                                 If 'similar' is given, the scene will be searched for similar objects.
-                tol (float) =
+                tolerance (float) =
                 sampleSpace (str): Selects which space the attribute transfer is performed in. valid: 'world', 'local', 'component', 'topology'
                 deleteConstHist (bool): Remove construction history for the objects transferring from.
                                 Otherwise, the UV's will be lost should any of the frm objects be deleted.
@@ -653,7 +653,7 @@ class Uv_maya(Uv, SlotsMaya):
         # pm.undoInfo(openChunk=1)
         for f in frm:
             if to == "similar":
-                to = self.sb.edit.slots.getSimilarMesh(f, tol=tol, face=1, area=1)
+                to = self.sb.edit.slots.get_similar_mesh(f, tolerance=tolerance, face=1, area=1)
 
             for t in to:
                 if pm.polyEvaluate(f, face=1, format=True) == pm.polyEvaluate(
@@ -698,7 +698,7 @@ print(__name__)
 
 # for f in frm:
 # 	if to=='similar':
-# 		to = self.sb.edit.slots.getSimilarMesh(f, tol=tol, face=1, area=1)
+# 		to = self.sb.edit.slots.get_similar_mesh(f, tolerance=tolerance, face=1, area=1)
 
 # 	for t in to:
 # 		if pm.polyEvaluate(f, face=1, area=1, format=True)==pm.polyEvaluate(t, face=1, area=1, format=True):

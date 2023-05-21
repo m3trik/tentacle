@@ -139,16 +139,16 @@ class Normals_max(Normals, SlotsMax):
         # 				else:
         # 					pm.polyNormalPerVertex(vertex, freezeNormal=1)
         # 			if not state:
-        # 				self.mtk.viewportMessage("Normals <hl>UnLocked</hl>.")
+        # 				self.mtk.viewport_message("Normals <hl>UnLocked</hl>.")
         # 			else:
-        # 				self.mtk.viewportMessage("Normals <hl>Locked</hl>.")
+        # 				self.mtk.viewport_message("Normals <hl>Locked</hl>.")
         # 	elif maskVertex and not maskObject:
         # 		if not state:
         # 			pm.polyNormalPerVertex(unFreezeNormal=1)
-        # 			self.mtk.viewportMessage("Normals <hl>UnLocked</hl>.")
+        # 			self.mtk.viewport_message("Normals <hl>UnLocked</hl>.")
         # 		else:
         # 			pm.polyNormalPerVertex(freezeNormal=1)
-        # 			self.mtk.viewportMessage("Normals <hl>Locked</hl>.")
+        # 			self.mtk.viewport_message("Normals <hl>Locked</hl>.")
         # 	else:
         # 		return 'Warning: Selection must be object or vertex.'
         # else:

@@ -50,10 +50,10 @@ class Scene_blender(Scene, SlotsBlender):
 
         selection = pm.ls(sl=1)
         objects = selection if selection else pm.ls(objectsOnly=1)
-        self.setCase(objects, case)
+        self.set_case(objects, case)
 
     @SlotsBlender.undoChunk
-    def rename(self, frm, to, objects=[], regEx=False, ignoreCase=False):
+    def rename(self, frm, to, objects=[], regex=False, ignore_case=False):
         """Rename scene objects.
 
         Parameters:
@@ -71,21 +71,21 @@ class Scene_blender(Scene, SlotsBlender):
                         to* - replace prefix.
                         to** - append prefix.
                 objects (list): The objects to rename. If nothing is given, all scene objects will be renamed.
-                regEx (bool): If True, regular expression syntax is used instead of the default '*' and '|' modifiers.
-                ignoreCase (bool): Ignore case when searching. Applies only to the 'frm' parameter's search.
+                regex (bool): If True, regular expression syntax is used instead of the default '*' and '|' modifiers.
+                ignore_case (bool): Ignore case when searching. Applies only to the 'frm' parameter's search.
 
-        ex. rename(r'Cube', '*001', regEx=True) #replace chars after frm on any object with a name that contains 'Cube'. ie. 'polyCube001' from 'polyCube'
-        ex. rename(r'Cube', '**001', regEx=True) #append chars on any object with a name that contains 'Cube'. ie. 'polyCube1001' from 'polyCube1'
+        ex. rename(r'Cube', '*001', regex=True) #replace chars after frm on any object with a name that contains 'Cube'. ie. 'polyCube001' from 'polyCube'
+        ex. rename(r'Cube', '**001', regex=True) #append chars on any object with a name that contains 'Cube'. ie. 'polyCube1001' from 'polyCube1'
         """
         # pm.undoInfo (openChunk=1)
         objects = pm.ls(objectsOnly=1) if not objects else objects
-        names = self.findStrAndFormat(
+        names = self.find_str_and_format(
             [obj.name() for obj in objects],
             to,
             frm,
-            regEx=regEx,
-            ignoreCase=ignoreCase,
-            returnOldNames=True,
+            regex=regex,
+            ignore_case=ignore_case,
+            return_orig_strings=True,
         )
         print("# Rename: Found {} matches. #".format(len(names)))
 
@@ -118,7 +118,7 @@ class Scene_blender(Scene, SlotsBlender):
         # pm.undoInfo (closeChunk=1)
 
     @SlotsBlender.undoChunk
-    def setCase(self, objects=[], case="caplitalize"):
+    def set_case(self, objects=[], case="caplitalize"):
         """Rename objects following the given case.
 
         Parameters:
@@ -126,7 +126,7 @@ class Scene_blender(Scene, SlotsBlender):
                 case (str): Desired case using python case operators.
                         valid: 'upper', 'lower', 'caplitalize', 'swapcase' 'title'. default:'caplitalize'
 
-        Example: setCase(pm.ls(sl=1), 'upper')
+        Example: set_case(pm.ls(sl=1), 'upper')
         """
         # pm.undoInfo(openChunk=1)
         for obj in pm.ls(objects):

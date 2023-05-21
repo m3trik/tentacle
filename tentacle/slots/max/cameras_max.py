@@ -144,7 +144,7 @@ class Cameras_max(Cameras, SlotsMax):
 
         if header == "Options":
             if text == "Group Cameras":
-                self.groupCameras()
+                self.group_cameras()
             if text == "Adjust Clipping":
                 self.clippingMenu.show()
             if text == "Toggle Safe Frames":
@@ -209,7 +209,7 @@ class Cameras_max(Cameras, SlotsMax):
         """Camera: Orbit"""
         maxEval("max pancamera")
 
-    def groupCameras(self):
+    def group_cameras(self):
         """Group Cameras"""
         cameras = [cam for cam in rt.cameras]  # List scene Cameras
 
@@ -273,7 +273,7 @@ print(__name__)
 
 # 		if header=='Options':
 # 			if text=='Group Cameras':
-# 				self.groupCameras()
+# 				self.group_cameras()
 # 			if text=='Adjust Clipping':
 # 				self.clippingMenu.show()
 # 			if text=='Toggle Safe Frames':

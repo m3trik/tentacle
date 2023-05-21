@@ -4,7 +4,7 @@ import sys
 
 from PySide2 import QtCore
 
-from mayatk import getMainWindow
+from mayatk import get_main_window
 from tentacle.tcl import Tcl
 
 
@@ -23,7 +23,7 @@ class TclMaya(Tcl):
         """ """
         if not parent:
             try:
-                parent = getMainWindow()
+                parent = get_main_window()
 
             except Exception as error:
                 print(__file__, error)
@@ -115,7 +115,7 @@ print(__name__)
 #   '''
 #   if not parent:
 #       try:
-#           parent = getMainWindow()
+#           parent = get_main_window()
 
 #       except Exception as error:
 #           print(__file__, error)

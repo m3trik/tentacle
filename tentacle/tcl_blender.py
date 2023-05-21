@@ -20,7 +20,7 @@ class TclBlender(Tcl):
         """ """
         if not parent:
             try:
-                parent = self.getMainWindow()
+                parent = self.get_main_window()
 
             except Exception as error:
                 print(__file__, error)
@@ -28,7 +28,7 @@ class TclBlender(Tcl):
         super().__init__(parent, slots_location=slots_location, *args, **kwargs)
 
     @classmethod
-    def getMainWindow(cls):
+    def get_main_window(cls):
         """Get blender's main window object.
 
         Returns:

@@ -222,7 +222,7 @@ class Create_blender(Create, SlotsBlender):
                     p=(0, 0, 0),
                     s=8,
                     r=1,
-                    tol=0.01,
+                    tolerance=0.01,
                     nsp=4,
                     ax=(0, 1, 0),
                 )
@@ -237,7 +237,7 @@ class Create_blender(Create, SlotsBlender):
                     p=(0, 0, 0),
                     s=8,
                     r=1,
-                    tol=0.01,
+                    tolerance=0.01,
                     nsp=1,
                     ax=(0, 1, 0),
                 )
@@ -252,7 +252,7 @@ class Create_blender(Create, SlotsBlender):
                     p=(0, 0, 0),
                     s=8,
                     r=1,
-                    tol=0.01,
+                    tolerance=0.01,
                     nsp=1,
                     ax=(0, 1, 0),
                 )
@@ -272,7 +272,7 @@ class Create_blender(Create, SlotsBlender):
                     p=(0, 0, 0),
                     s=8,
                     r=1,
-                    tol=0.01,
+                    tolerance=0.01,
                     nsp=4,
                     ax=(0, 1, 0),
                 )
@@ -285,7 +285,7 @@ class Create_blender(Create, SlotsBlender):
                     sw=360,
                     s=8,
                     r=1,
-                    tol=0.01,
+                    tolerance=0.01,
                     nr=(0, 1, 0),
                 )
             elif index == 7:  # Square
@@ -328,7 +328,7 @@ class Create_blender(Create, SlotsBlender):
         pm.selectMode(object=1)  # place scene select type in object mode.
         pm.select(node)  # select the transform node so that you can see any edits
 
-        return self.getHistoryNode(node)
+        return self.get_history_node(node)
 
     @SlotsBlender.undoChunk
     def createCircle(
@@ -404,7 +404,7 @@ print(__name__)
 # def node(self):
 # 	'''Get the Transform Node
 # 	'''
-# 	transform = SlotsBlender.getTransformNode()
+# 	transform = SlotsBlender.get_transform_node()
 # 	if transform:
 # 		if not self.sb.create.txt003.text()==transform[0].name(): #make sure the same field reflects the current working node.
 # 			self.sb.create.txt003.setText(transform[0].name())

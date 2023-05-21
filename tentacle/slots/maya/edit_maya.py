@@ -231,7 +231,7 @@ class Edit_maya(Edit, SlotsMaya):
         allMeshes = int(tb.ctxMenu.chk005.isChecked())  # [0] All selectable meshes
         repair = tb.ctxMenu.chk004.isChecked()  # repair or select only
         quads = int(tb.ctxMenu.chk010.isChecked())  # [3] check for quads polys
-        mergeVertices = tb.ctxMenu.chk024.isChecked()
+        merge_vertices = tb.ctxMenu.chk024.isChecked()
         nsided = int(tb.ctxMenu.chk002.isChecked())  # [4] check for n-sided polys
         concave = int(tb.ctxMenu.chk011.isChecked())  # [5] check for concave polys
         holed = int(tb.ctxMenu.chk012.isChecked())  # [6] check for holed polys
@@ -251,7 +251,7 @@ class Edit_maya(Edit, SlotsMaya):
         lamina = -int(
             tb.ctxMenu.chk018.isChecked()
         )  # [16] check for lamina polys [default -1]
-        splitNonManifoldVertex = tb.ctxMenu.chk021.isChecked()
+        split_non_manifold_vertex = tb.ctxMenu.chk021.isChecked()
         invalidComponents = 0  # int(tb.ctxMenu.chk019.isChecked()) #[17] a guess what this arg does. not checked. default is 0.
         overlappingFaces = tb.ctxMenu.chk025.isChecked()
         overlappingDuplicateObjects = (
@@ -264,8 +264,8 @@ class Edit_maya(Edit, SlotsMaya):
         objects = pm.ls(sl=1, transforms=1)
 
         if overlappingDuplicateObjects:
-            duplicates = mtk.Edit.getOverlappingDupObjects(
-                omitInitialObjects=omitSelectedObjects, select=True, verbose=True
+            duplicates = mtk.Edit.get_overlapping_dup_objects(
+                retain_given_objects=omitSelectedObjects, select=True, verbose=True
             )
             self.sb.message_box(
                 "Found {} duplicate overlapping objects.".format(len(duplicates)),
@@ -274,20 +274,20 @@ class Edit_maya(Edit, SlotsMaya):
             pm.delete(duplicates) if repair else pm.select(duplicates)
             return
 
-        if mergeVertices:
+        if merge_vertices:
             [
                 pm.polyMergeVertex(obj.verts, distance=0.0001) for obj in objects
             ]  # merge vertices on each object.
 
         if overlappingFaces:
-            duplicates = mtk.Edit.getOverlappingFaces(objects)
+            duplicates = mtk.Edit.get_overlapping_faces(objects)
             self.sb.message_box(
                 "Found {} duplicate overlapping faces.".format(len(duplicates)),
                 message_type="Result",
             )
             pm.delete(duplicates) if repair else pm.select(duplicates, add=1)
 
-        mtk.Edit.cleanGeometry(
+        mtk.Edit.clean_geometry(
             objects,
             allMeshes=allMeshes,
             repair=repair,
@@ -305,7 +305,7 @@ class Edit_maya(Edit, SlotsMaya):
             sharedUVs=sharedUVs,
             nonmanifold=nonmanifold,
             invalidComponents=invalidComponents,
-            splitNonManifoldVertex=splitNonManifoldVertex,
+            split_non_manifold_vertex=split_non_manifold_vertex,
         )
 
     def tb001(self, state=None):
@@ -322,7 +322,7 @@ class Edit_maya(Edit, SlotsMaya):
         if unusedNodes:
             pm.mel.MLdeleteUnused()  # pm.mel.hyperShadePanelMenuCommand('hyperShadePanel1', 'deleteUnusedNodes')
             # delete empty groups:
-            empty = mtk.Node.getGroups(empty=True)
+            empty = mtk.Node.get_groups(empty=True)
             pm.delete(empty)
 
         try:  # delete history
@@ -339,14 +339,14 @@ class Edit_maya(Edit, SlotsMaya):
         # display viewPort messages
         if all_:
             if deformers:
-                mtk.viewportMessage("delete <hl>all</hl> history.")
+                mtk.viewport_message("delete <hl>all</hl> history.")
             else:
-                mtk.viewportMessage("delete <hl>all non-deformer</hl> history.")
+                mtk.viewport_message("delete <hl>all non-deformer</hl> history.")
         else:
             if deformers:
-                mtk.viewportMessage("delete history on " + str(objects))
+                mtk.viewport_message("delete history on " + str(objects))
             else:
-                mtk.viewportMessage(
+                mtk.viewport_message(
                     "delete <hl>non-deformer</hl> history on " + str(objects)
                 )
 
@@ -372,12 +372,12 @@ class Edit_maya(Edit, SlotsMaya):
                     selection = pm.ls(obj, sl=1, flatten=1)
                     if deleteRing:
                         pm.polyDelEdge(
-                            mtk.Cmpt.getEdgePath(selection, "edgeRing"),
+                            mtk.Cmpt.get_edge_path(selection, "edgeRing"),
                             cleanVertices=True,
                         )  # pm.polySelect(edges, edgeRing=True) #select the edge ring.
                     if deleteLoop:
                         pm.polyDelEdge(
-                            mtk.Cmpt.getEdgePath(selection, "edgeLoop"),
+                            mtk.Cmpt.get_edge_path(selection, "edgeLoop"),
                             cleanVertices=True,
                         )  # pm.polySelect(edges, edgeLoop=True) #select the edge loop.
                     else:
@@ -404,7 +404,7 @@ class Edit_maya(Edit, SlotsMaya):
         objects = pm.ls(sl=1, objectsOnly=1)
 
         for obj in objects:
-            mtk.Edit.deleteAlongAxis(obj, axis)
+            mtk.Edit.delete_along_axis(obj, axis)
         pm.undoInfo(closeChunk=1)
 
     @mtk.undo

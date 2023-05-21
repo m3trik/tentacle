@@ -3,11 +3,11 @@
 import sys, os.path
 import inspect
 from PySide2 import QtWidgets, QtCore
-from pythontk import File, Iter, setAttributes
+from pythontk import File, Iter, set_attributes
 
 
 module = inspect.getmodule(inspect.currentframe())  # this module.
-path = File.getFilepath(module)  # this modules directory.
+path = File.get_filepath(module)  # this modules directory.
 
 
 class Slots(QtCore.QObject):
@@ -43,21 +43,21 @@ class Slots(QtCore.QObject):
         Parameters:
                 obj (obj): The object to get the attributes of.
                 checkableLabel (bool): Set the attribute labels as checkable.
-                fn (method) = Set an alternative method to call on widget signal. ex. setParameterValuesMEL
+                fn (method) = Set an alternative method to call on widget signal. ex. set_parameter_values
                                 The first parameter of fn is always the given object. ex. fn(obj, {'attr':<value>})
                 fn_args (list): Any additonal args to pass to fn.
-                attributes (kwargs) = Explicitly pass in attribute:values pairs. Else, attributes will be pulled from mtk.Node.getNodeAttributes for the given obj.
+                attributes (kwargs) = Explicitly pass in attribute:values pairs. Else, attributes will be pulled from mtk.Node.get_node_attributes for the given obj.
 
         Returns:
                 (obj) the menu widget. (use menu.childWidgets to get the menu's child widgets.)
 
-        Example: self.objAttrWindow(node, attrs, fn=mtk.setParameterValuesMEL, fn_args='transformLimits')
+        Example: self.objAttrWindow(node, attrs, fn=mtk.set_parameter_values, fn_args='transformLimits')
         Example: self.objAttrWindow(transform[0], fn_args=['translateX','translateY','translateZ','rotateX','rotateY','rotateZ','scaleX','scaleY','scaleZ'], checkableLabel=True)
         """
         import ast
 
-        fn = fn if fn else setAttributes
-        fn_args = Iter.makeList(fn_args)  # assure that fn_args is a list.
+        fn = fn if fn else set_attributes
+        fn_args = Iter.make_list(fn_args)  # assure that fn_args is a list.
 
         try:  # get the objects name to as the window title:
             title = obj.name()

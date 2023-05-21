@@ -3,7 +3,7 @@
 import sys, os
 import logging, traceback
 from PySide2 import QtCore, QtGui, QtWidgets
-from pythontk import makeList
+from pythontk import make_list
 from uitk.switchboard import Switchboard
 from uitk.events import EventFactoryFilter, MouseTracking
 from tentacle.overlay import Overlay
@@ -339,7 +339,7 @@ class Tcl(QtWidgets.QStackedWidget):
 
         print(listWidget.tracker.check_garbage_collected())
 
-        for w in makeList(widgets):
+        for w in make_list(widgets):
             if (not w.derived_type in filtered_types) or (  # not correct type.
                 not w.ui.has_tag("startmenu|submenu")  # not stacked UI:
             ):

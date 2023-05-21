@@ -48,13 +48,13 @@ class Selection_max(Selection, SlotsMax):
         if level in (0, None):  # objs
             s = [i for i in sel]
         elif level == 1:  # verts
-            s = SlotsMax.getComponents(sel[0], "vertices", selection=True)
+            s = SlotsMax.get_components(sel[0], "vertices", selection=True)
         elif level == 2:  # edges
-            s = SlotsMax.getComponents(sel[0], "edges", selection=True)
+            s = SlotsMax.get_components(sel[0], "edges", selection=True)
         elif level == 3:  # borders
             s = rt.getBorderSelection(sel[0])
         elif level == 4:  # faces
-            s = SlotsMax.getComponents(sel[0], "faces", selection=True)
+            s = SlotsMax.get_components(sel[0], "faces", selection=True)
 
         return rt.array(*s)  # unpack list s and convert to an array.
 
@@ -301,10 +301,10 @@ class Selection_max(Selection, SlotsMax):
             pm.select(self.getPathAlongLoop(selection))
 
         elif shortestPath:
-            pm.select(self.getShortestPath(selection))
+            pm.select(self.get_shortest_path(selection))
 
         elif borderEdges:
-            pm.select(self.getBorderComponents(selection, returnCompType="edges"))
+            pm.select(self.get_border_components(selection, returnCompType="edges"))
 
     def tb001(self, state=None):
         """Select Similar"""
@@ -347,8 +347,8 @@ class Selection_max(Selection, SlotsMax):
         angleHigh = tb.ctxMenu.s007.value()
 
         objects = pm.ls(sl=1, objectsOnly=1)
-        edges = SlotsMax.getEdgesByNormalAngle(
-            objects, lowAngle=angleLow, highAngle=angleHigh
+        edges = SlotsMax.get_edges_by_normal_angle(
+            objects, low_angle=angleLow, high_angle=angleHigh
         )
         rt.select(edges)
 

@@ -49,23 +49,23 @@ class Scene_maya(Scene, SlotsMaya):
 
         selection = pm.ls(sl=1)
         objects = selection if selection else pm.ls(objectsOnly=1)
-        mtk.Edit.setCase(objects, case)
+        mtk.Edit.set_case(objects, case)
 
     def tb001(self, state=None):
         """Convert Case"""
         tb = self.sb.scene.tb001
 
         alphanumeric = tb.ctxMenu.chk005.isChecked()
-        stripTrailingInts = tb.ctxMenu.chk002.isChecked()
-        stripTrailingAlpha = tb.ctxMenu.chk003.isChecked()
+        strip_trailing_ints = tb.ctxMenu.chk002.isChecked()
+        strip_trailing_alpha = tb.ctxMenu.chk003.isChecked()
         reverse = tb.ctxMenu.chk004.isChecked()
 
         selection = pm.ls(sl=1, objectsOnly=1, type="transform")
-        mtk.Edit.setSuffixByObjLocation(
+        mtk.Edit.append_location_based_suffix(
             selection,
             alphanumeric=alphanumeric,
-            stripTrailingInts=stripTrailingInts,
-            stripTrailingAlpha=stripTrailingAlpha,
+            strip_trailing_ints=strip_trailing_ints,
+            strip_trailing_alpha=strip_trailing_alpha,
             reverse=reverse,
         )
 
@@ -75,12 +75,12 @@ class Scene_maya(Scene, SlotsMaya):
             self.sb.scene.t000.text()
         )  # an asterisk denotes startswith*, *endswith, *contains*
         to = self.sb.scene.t001.text()
-        regEx = self.sb.scene.t000.ctxMenu.chk001.isChecked()
-        ignoreCase = self.sb.scene.t000.ctxMenu.chk000.isChecked()
+        regex = self.sb.scene.t000.ctxMenu.chk001.isChecked()
+        ignore_case = self.sb.scene.t000.ctxMenu.chk000.isChecked()
 
         selection = pm.ls(sl=1)
         objects = selection if selection else pm.ls(objectsOnly=1)
-        mtk.Edit.rename(objects, to, find, regEx=regEx, ignoreCase=ignoreCase)
+        mtk.Edit.rename(objects, to, find, regex=regex, ignore_case=ignore_case)
 
 
 # --------------------------------------------------------------------------------------------

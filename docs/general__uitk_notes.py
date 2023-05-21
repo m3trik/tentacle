@@ -29,7 +29,7 @@ ctx.add('QPushButton', setObjectName='b002', setText='Delete All', setToolTip='D
 ctx.add('QSpinBox', setPrefix='Interval: ', setObjectName='s001', setMinMax_='1-60 step1', setValue=interval, setHeight_=20, setToolTip='The autosave interval in minutes.') #autosave interval
 
 #add items to a custom combobox:
-cmb.addItems_(zip(self.getRecentFiles(timestamp=True), self.getRecentFiles(timestamp=False)), "Recent Files", clear=True) #add item|data
+cmb.addItems_(zip(self.get_recent_files(timestamp=True), self.get_recent_files(timestamp=False)), "Recent Files", clear=True) #add item|data
 
 
 # creating additional connections for those widgets:
@@ -114,7 +114,7 @@ def cmb002(self, index=-1):
 		'''
 		cmb = self.file_ui.cmb002
 
-		items = cmb.addItems_(self.getRecentAutosave(appendDatetime=True), "Recent Autosave", clear=True)
+		items = cmb.addItems_(self.get_recent_autosave(appendDatetime=True), "Recent Autosave", clear=True)
 
 		if index>0:
 			file = Slots.fileTimeStamp(cmb.items[index], detach=True)[0] #cmb.items[index].split('\\')[-1]

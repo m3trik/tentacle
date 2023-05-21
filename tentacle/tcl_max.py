@@ -24,7 +24,7 @@ class TclMax(Tcl):
         """ """
         if not parent:
             try:
-                parent = self.getMainWindow()
+                parent = self.get_main_window()
 
             except Exception as error:
                 print(__file__, error)
@@ -32,7 +32,7 @@ class TclMax(Tcl):
         super().__init__(parent, slots_location=slots_location, *args, **kwargs)
 
     @classmethod
-    def getMainWindow(cls):
+    def get_main_window(cls):
         """Get the 3DS MAX main window.
 
         Returns:

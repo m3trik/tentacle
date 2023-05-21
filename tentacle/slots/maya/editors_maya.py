@@ -230,7 +230,7 @@ class Editors_maya(Editors, SlotsMaya):
         # e = pm.outlinerEditor(self.outliner_, edit=True, showSelected=True) #expand to the current selection in the outliner.
         # w = self.showEditor(e, 260, 740)
 
-        # panels = pm.getPanel(type='outlinerPanel')
+        # panels = pm.get_panel(type='outlinerPanel')
         # for panel in panels:
         # 	pm.outlinerEditor(panel, edit=1, showSelected=1)
         pm.mel.OutlinerWindow()

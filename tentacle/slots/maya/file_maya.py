@@ -5,11 +5,11 @@ from tentacle.slots.file import File
 
 
 class File_maya(File, SlotsMaya):
-    getRecentFiles = lambda _, *a, **k: mtk.getRecentFiles(*a, **k)
-    getRecentProjects = lambda _, *a, **k: mtk.getRecentProjects(*a, **k)
-    getRecentAutosave = lambda _, *a, **k: mtk.getRecentAutosave(*a, **k)
-    getWorkspaceScenes = lambda _, *a, **k: mtk.getWorkspaceScenes(*a, **k)
-    referenceScene = lambda _, *a, **k: mtk.referenceScene(*a, **k)
+    get_recent_files = lambda _, *a, **k: mtk.get_recent_files(*a, **k)
+    get_recent_projects = lambda _, *a, **k: mtk.get_recent_projects(*a, **k)
+    get_recent_autosave = lambda _, *a, **k: mtk.get_recent_autosave(*a, **k)
+    get_workspace_scenes = lambda _, *a, **k: mtk.get_workspace_scenes(*a, **k)
+    reference_scene = lambda _, *a, **k: mtk.reference_scene(*a, **k)
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -75,7 +75,7 @@ class File_maya(File, SlotsMaya):
             lambda v: pm.autoSave(int=v * 60, limitBackups=True)
         )
         cmb002.addItems_(
-            mtk.getRecentAutosave(format="timestamp|standard"),
+            mtk.get_recent_autosave(format="timestamp|standard"),
             "Recent Autosave",
             clear=True,
         )
@@ -206,10 +206,10 @@ class File_maya(File, SlotsMaya):
         """Workspace"""
         cmb = self.sb.file.cmb006
 
-        path = ptk.File.formatPath(pm.workspace(query=1, rd=1))  # current project path.
+        path = ptk.File.format_path(pm.workspace(query=1, rd=1))  # current project path.
         items = [f for f in os.listdir(path)]
         # add current project path string to label. strip path and trailing '/'
-        project = ptk.File.formatPath(path, "dir")
+        project = ptk.File.format_path(path, "dir")
 
         cmb.addItems_(items, header=project, clear=True)
 
@@ -227,7 +227,7 @@ class File_maya(File, SlotsMaya):
     def lbl004(self):
         """Open current project root"""
         dir_ = pm.workspace(query=1, rd=1)  # current project path.
-        os.startfile(ptk.File.formatPath(dir_))
+        os.startfile(ptk.File.format_path(dir_))
 
     def b000(self):
         """Autosave: Open Directory"""
@@ -236,15 +236,15 @@ class File_maya(File, SlotsMaya):
         dir2 = os.environ.get("MAYA_AUTOSAVE_FOLDER").split(";")[0]
 
         try:
-            # os.startfile(self.formatPath(dir1))
-            os.startfile(ptk.File.formatPath(dir2))
+            # os.startfile(self.format_path(dir1))
+            os.startfile(ptk.File.format_path(dir2))
 
         except FileNotFoundError as error:
             self.sb.message_box("The system cannot find the file specified.")
 
     def b002(self):
         """Autosave: Delete All"""
-        files = self.getRecentAutosave()
+        files = self.get_recent_autosave()
         for file in files:
             try:
                 os.remove(file)
@@ -327,7 +327,7 @@ print(__name__)
 #         import time
 
 #         for timer in range(5):
-#             mtk.viewportMessage("Shutting Down:<hl>" + str(timer) + "</hl>")
+#             mtk.viewport_message("Shutting Down:<hl>" + str(timer) + "</hl>")
 #             time.sleep(timer)
 #         pm.mel.quit()  # pm.Quit()
 
@@ -377,7 +377,7 @@ print(__name__)
 #   if quit: #quit maya
 #       import time
 #       for timer in range(5):
-#           mtk.viewportMessage('Shutting Down:<hl>'+str(timer)+'</hl>')
+#           mtk.viewport_message('Shutting Down:<hl>'+str(timer)+'</hl>')
 #           time.sleep(timer)
 #       pm.mel.eval("quit;")
 #       # pm.Quit()

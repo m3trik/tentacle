@@ -335,7 +335,7 @@ class Materials_maya(Materials, SlotsMaya):
 
         # convert to dictionary to filter material names and types.
         d = {m.name(): pm.nodeType(m) for m in matList}
-        filtered = ptk.Iter.filterDict(d, inc, exc, keys=True, values=True)
+        filtered = ptk.Iter.filter_dict(d, inc, exc, keys=True, values=True)
 
         # use the filtered results to reconstruct a filtered list of actual materials.
         return [m for m in matList if m.name() in filtered]

@@ -219,7 +219,7 @@ class Duplicate_maya(Duplicate, SlotsMaya):
             if translateToComponent:
                 if componentList:
                     for num, component in componentList.iteritems():
-                        vertexPoint = mtk.Xform.getCenterPoint(component)
+                        vertexPoint = mtk.Xform.get_center_point(component)
 
                         pm.xform(obj, rotation=[rotXYZ[0], rotXYZ[1], rotXYZ[2]])
                         pm.xform(
@@ -419,7 +419,7 @@ class Duplicate_maya(Duplicate, SlotsMaya):
 
             if transformByVertexOrder:
                 mtk.Xform.matchTransformByVertexOrder(instance, obj)
-                if not mtk.Xform.isOverlapping(instance, obj):
+                if not mtk.Xform.is_overlapping(instance, obj):
                     print(
                         "# {}: Unable to match {} transforms. #".format(instance, obj)
                     )
@@ -501,10 +501,10 @@ print(__name__)
 
 # 		# if transformByVertexOrder:
 # 		# 	mtk.Xform.matchTransformByVertexOrder(instance, obj)
-# 		# 	if not mtk.Xform.isOverlapping(instance, obj):
+# 		# 	if not mtk.Xform.is_overlapping(instance, obj):
 # 		# 		print ('# {}: Unable to match {} transforms. #'.format(instance, obj))
 # 		# else:
-# 		mtk.Xform.moveTo(instance, obj) #source, target
+# 		mtk.Xform.move_to(instance, obj) #source, target
 # 		pm.matchTransform(instance, obj, position=0, rotation=1, scale=0, pivots=0) #move object to center of the last selected items bounding box # pm.xform(instance, translation=pos, worldSpace=1, relative=1) #move to the original objects location.
 
 # 		try:

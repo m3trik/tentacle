@@ -153,19 +153,19 @@ class SlotsMax(Slots):
             return edgelist
 
     @staticmethod
-    def getComponents(obj=None, componentType=None, selection=False, returnType="List"):
+    def get_components(obj=None, component_type=None, selection=False, returned_type="List"):
         """Get the components of the given type. (editable mesh or polygon)
 
         Parameters:
                 obj (obj): An Editable mesh or Editable polygon object. If None; the first currently selected object will be used.
-                componentType (str)(int): The desired component mask. (valid: 'vertex', 'vertices', 'edge', 'edges', 'face', 'faces').
+                component_type (str)(int): The desired component mask. (valid: 'vertex', 'vertices', 'edge', 'edges', 'face', 'faces').
                 selection (bool): Filter to currently selected components.
-                returnType (type) = The desired returned object type. (valid: 'Array', 'BitArray', 'List'(default))
+                returned_type (type) = The desired returned object type. (valid: 'Array', 'BitArray', 'List'(default))
 
         Returns:
                 (array) Dependant on flags.
 
-        ex. getComponents(obj, 'vertices', selection=True, returnType='BitArray')
+        ex. get_components(obj, 'vertices', selection=True, returned_type='BitArray')
         """
         if not obj:
             obj = rt.selection[0]
@@ -177,8 +177,8 @@ class SlotsMax(Slots):
 
         c = (
             []
-        )  # for cases when no componentType given; initialize c with an empty list.
-        if componentType in ("vertex", "vertices"):
+        )  # for cases when no component_type given; initialize c with an empty list.
+        if component_type in ("vertex", "vertices"):
             if selection:
                 try:
                     c = rt.polyop.getVertSelection(obj)  # polygon
@@ -190,7 +190,7 @@ class SlotsMax(Slots):
                 except:
                     c = range(1, rt.getNumVerts(obj))
 
-        elif componentType in ("edge", "edges"):
+        elif component_type in ("edge", "edges"):
             if selection:
                 try:
                     c = rt.polyop.getEdgeSelection(obj)  # polygon
@@ -202,7 +202,7 @@ class SlotsMax(Slots):
                 except:
                     c = range(1, obj.edges.count)
 
-        elif componentType in ("face", "faces"):
+        elif component_type in ("face", "faces"):
             if selection:
                 try:
                     c = rt.polyop.getFaceSelection(obj)  # polygon
@@ -214,9 +214,9 @@ class SlotsMax(Slots):
                 except:
                     c = range(1, obj.faces.count)
 
-        if returnType in ("Array", "List"):
+        if returned_type in ("Array", "List"):
             result = SlotsMax.bitArrayToArray(c)
-            if returnType is "List":
+            if returned_type is "List":
                 result = list(result)
         else:
             result = SlotsMax.arrayToBitArray(c)
@@ -225,7 +225,7 @@ class SlotsMax(Slots):
 
     @staticmethod
     def convertComponents(
-        obj=None, components=None, convertFrom=None, convertTo=None, returnType="List"
+        obj=None, components=None, convertFrom=None, convertTo=None, returned_type="List"
     ):
         """Convert the components to the given type. (editable mesh, editable poly)
 
@@ -234,7 +234,7 @@ class SlotsMax(Slots):
                 components (list): The component id's of the given object.  If None; all components of the given convertFrom type will be used.
                 convertFrom (str): Starting component type. (valid: 'vertex', 'vertices', 'edge', 'edges', 'face', 'faces').
                 convertTo (str): Resulting component type.  (valid: 'vertex', 'vertices', 'edge', 'edges', 'face', 'faces').
-                returnType (type) = The desired returned object type. (valid: 'Array', 'BitArray', 'List'(default))
+                returned_type (type) = The desired returned object type. (valid: 'Array', 'BitArray', 'List'(default))
 
         Returns:
                 (array) Component ID's. ie. [1, 2, 3]
@@ -247,7 +247,7 @@ class SlotsMax(Slots):
         if not obj:
             obj = rt.selection[0]
         if not components:
-            components = SlotsMax.getComponents(obj, convertFrom)
+            components = SlotsMax.get_components(obj, convertFrom)
 
         if not any(
             (rt.isKindOf(obj, rt.Editable_Mesh), rt.isKindOf(obj, rt.Editable_Poly))
@@ -295,9 +295,9 @@ class SlotsMax(Slots):
                 convertFrom, convertTo
             )
 
-        if returnType in ("Array", "List"):
+        if returned_type in ("Array", "List"):
             result = SlotsMax.bitArrayToArray(c)
-            if returnType is "List":
+            if returned_type is "List":
                 result = list(result)
         else:
             result = SlotsMax.arrayToBitArray(c)
@@ -311,25 +311,25 @@ class SlotsMax(Slots):
 
     @staticmethod
     def arrayToBitArray(array):
-        """Convert an integer array to a bitArray.
+        """Convert an integer array to a bit_array.
 
         Parameters:
-                array (list): The array that will be converted to a bitArray.
+                array (list): The array that will be converted to a bit_array.
         """
-        maxEval("fn _arrayToBitArray a = (return a as bitArray)")
+        maxEval("fn _arrayToBitArray a = (return a as bit_array)")
         result = rt._arrayToBitArray(array)
 
         return result
 
     @staticmethod
-    def bitArrayToArray(bitArray):
-        """Convert a bitArray to an integer array.
+    def bitArrayToArray(bit_array):
+        """Convert a bit_array to an integer array.
 
         Parameters:
-                bitArray (list): The bitArray that will be converted to a standard array.
+                bit_array (list): The bit_array that will be converted to a standard array.
         """
         maxEval("fn _bitArrayToArray b = (return b as array)")
-        result = rt._bitArrayToArray(bitArray)
+        result = rt._bitArrayToArray(bit_array)
 
         return result
 
@@ -437,10 +437,10 @@ class SlotsMax(Slots):
                 inc (list): Attributes to include. All other will be omitted. Exclude takes dominance over include. Meaning, if the same attribute is in both lists, it will be excluded.
                 exc (list): Attributes to exclude from the returned dictionay. ie. ['Position','Rotation','Scale','renderable','isHidden','isFrozen','selected']
                 checkableLabel (bool): Set the attribute labels as checkable.
-                fn (method) = Set an alternative method to call on widget signal. ex. setParameterValuesMEL
+                fn (method) = Set an alternative method to call on widget signal. ex. set_parameter_values
                                 The first parameter of fn is always the given object. ex. fn(obj, {'attr':<value>})
                 fn_args (args) = Any additonal args to pass to fn.
-                attributes (kwargs) = Explicitly pass in attribute:values pairs. Else, attributes will be pulled from self.getNodeAttributes for the given obj.
+                attributes (kwargs) = Explicitly pass in attribute:values pairs. Else, attributes will be pulled from self.get_node_attributes for the given obj.
 
         Example: self.setAttributeWindow(obj, attributes=attrs, checkableLabel=True)
         """

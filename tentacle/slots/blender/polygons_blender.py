@@ -130,7 +130,7 @@ class Polygons_blender(Polygons, SlotsBlender):
             objName = sel[0].name()
             objParent = pm.listRelatives(objName, parent=1)
             # combine
-            newObj = pm.polyUnite(ch=1, mergeUVSets=1, centerPivot=1)
+            newObj = pm.polyUnite(ch=1, mergeUVSets=1, center_pivot=1)
             # rename using the first selected object
             pm.bakePartialHistory(objName, all=True)
             objName_ = pm.rename(newObj[0], objName)
@@ -188,7 +188,7 @@ class Polygons_blender(Polygons, SlotsBlender):
             worldSpace=1,
             smoothingAngle=30,
             subdivideNgons=1,
-            mergeVertices=1,
+            merge_vertices=1,
             mergeVertexTolerance=0.0001,
             miteringAngle=180,
             angleTolerance=180,
@@ -312,7 +312,7 @@ class Polygons_blender(Polygons, SlotsBlender):
         selection = pm.ls(sl=1, objectsOnly=1, type="transform")
         if len(selection) > 1:
             obj1, obj2 = selection
-            self.snapClosestVerts(obj1, obj2, tolerance, freezetransforms)
+            self.snap_closest_verts(obj1, obj2, tolerance, freezetransforms)
         else:
             return "Error: <strong>Nothing selected</strong>.<br>Operation requires at least two selected objects."
 
@@ -446,18 +446,18 @@ class Polygons_blender(Polygons, SlotsBlender):
         pm.polyEditEdgeFlow(adjustEdgeFlow=1)
 
     @SlotsBlender.undoChunk
-    def snapClosestVerts(self, obj1, obj2, tolerance=10.0, freezeTransforms=False):
+    def snap_closest_verts(self, obj1, obj2, tolerance=10.0, freeze_transforms=False):
         """Snap the vertices from object one to the closest verts on object two.
 
         Parameters:
                 obj1 (obj): The object in which the vertices are moved from.
                 obj2 (obj): The object in which the vertices are moved to.
                 tolerance (float) = Maximum search distance.
-                freezeTransforms (bool): Reset the selected transform and all of its children down to the shape level.
+                freeze_transforms (bool): Reset the selected transform and all of its children down to the shape level.
         """
-        vertices = mtk.Cmpt.getComponents(obj1, "vertices")
-        closestVerts = self.getClosestVertex(
-            vertices, obj2, tolerance=tolerance, freezeTransforms=freezeTransforms
+        vertices = mtk.Cmpt.get_components(obj1, "vertices")
+        closestVerts = self.get_closest_vertex(
+            vertices, obj2, tolerance=tolerance, freeze_transforms=freeze_transforms
         )
 
         progressBar = mel.eval("$container=$gMainProgressBar")

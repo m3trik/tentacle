@@ -48,7 +48,7 @@ class Cameras_blender(Cameras, SlotsBlender):
             )
 
         # set widget states for the current activeCamera
-        activeCamera = self.getCurrentCam()
+        activeCamera = self.get_current_cam()
         if not activeCamera:
             self.sb.toggle_widgets(self._clippingMenu, setDisabled="s000-1,chk000")
 
@@ -81,7 +81,7 @@ class Cameras_blender(Cameras, SlotsBlender):
         else:
             self.sb.toggle_widgets(self.clippingMenu, setEnabled="s000-1")
 
-        activeCamera = self.getCurrentCam()
+        activeCamera = self.get_current_cam()
         if not activeCamera:
             return "Error: No Active Camera."
 
@@ -91,7 +91,7 @@ class Cameras_blender(Cameras, SlotsBlender):
         """Camera Clipping: Near Clip"""
         value = self.clippingMenu.s000.value()
 
-        activeCamera = self.getCurrentCam()
+        activeCamera = self.get_current_cam()
         if not activeCamera:
             return "Error: No Active Camera."
 
@@ -101,7 +101,7 @@ class Cameras_blender(Cameras, SlotsBlender):
         """Camera Clipping: Far Clip"""
         value = self.clippingMenu.s001.value()
 
-        activeCamera = self.getCurrentCam()
+        activeCamera = self.get_current_cam()
         if not activeCamera:
             return "Error: No Active Camera."
 
@@ -156,7 +156,7 @@ class Cameras_blender(Cameras, SlotsBlender):
                     "string $homeName = `cameraView -camera persp`;"
                 )  # cameraView -edit -camera persp -setCamera $homeName;
             if text == "Camera From View":
-                self.createCameraFromView()
+                self.create_camera_from_view()
 
         if header == "Cameras":
             pm.select(text)
@@ -196,11 +196,11 @@ class Cameras_blender(Cameras, SlotsBlender):
 
         if header == "Options":
             if text == "Group Cameras":
-                self.groupCameras()
+                self.group_cameras()
             if text == "Adjust Clipping":
                 self.clippingMenu.show()
             if text == "Toggle Safe Frames":  # Viewport Safeframes Toggle
-                self.toggleSafeFrames()
+                self.toggle_safe_frames()
 
     def v000(self):
         """Cameras: Back View"""
@@ -216,7 +216,7 @@ class Cameras_blender(Cameras, SlotsBlender):
             pm.hide(cam)
 
             grp = pm.ls("cameras", transforms=1)
-            if grp and self.isGroup(
+            if grp and self.is_group(
                 grp[0]
             ):  # add the new cam to 'cameras' group (if it exists).
                 pm.parent(cam, "cameras")
@@ -251,7 +251,7 @@ class Cameras_blender(Cameras, SlotsBlender):
             pm.hide(cam)
 
             grp = pm.ls("cameras", transforms=1)
-            if grp and self.isGroup(
+            if grp and self.is_group(
                 grp[0]
             ):  # add the new cam to 'cameras' group (if it exists).
                 pm.parent(cam, "cameras")
@@ -286,7 +286,7 @@ class Cameras_blender(Cameras, SlotsBlender):
             pm.hide(cam)
 
             grp = pm.ls("cameras", transforms=1)
-            if grp and self.isGroup(
+            if grp and self.is_group(
                 grp[0]
             ):  # add the new cam to 'cameras' group (if it exists).
                 pm.parent(cam, "cameras")
@@ -303,7 +303,7 @@ class Cameras_blender(Cameras, SlotsBlender):
             pm.hide(cam)
 
             grp = pm.ls("cameras", transforms=1)
-            if grp and self.isGroup(
+            if grp and self.is_group(
                 grp[0]
             ):  # add the new cam to 'cameras' group (if it exists).
                 pm.parent(cam, "cameras")
@@ -318,10 +318,10 @@ class Cameras_blender(Cameras, SlotsBlender):
         pm.AlignCameraToPolygon()
         pm.viewFit(fitFactor=5.0)
 
-    def groupCameras(self):
+    def group_cameras(self):
         """Group Default Cameras"""
         grp = pm.ls("cameras", transforms=1)
-        if grp and self.isGroup(
+        if grp and self.is_group(
             grp[0]
         ):  # add the new cam to 'cameras' group (if it exists).
             print("# Error: Group 'cameras' already exists. #")
@@ -347,9 +347,9 @@ class Cameras_blender(Cameras, SlotsBlender):
             except Exception as error:
                 pass
 
-    def toggleSafeFrames(self):
+    def toggle_safe_frames(self):
         """Toggle display of the film gate for the current camera."""
-        camera = self.getCurrentCam()
+        camera = self.get_current_cam()
 
         state = pm.camera(camera, query=1, displayResolution=1)
         if state:
@@ -369,7 +369,7 @@ class Cameras_blender(Cameras, SlotsBlender):
                 overscan=1.3,
             )
 
-    def getCurrentCam(self):
+    def get_current_cam(self):
         """Get the currently active camera."""
         import maya.OpenMaya as om
         import maya.OpenMayaUI as omui
@@ -380,12 +380,12 @@ class Cameras_blender(Cameras, SlotsBlender):
         camPath = cam.fullPathName()
         return camPath
 
-    def createCameraFromView(self):
+    def create_camera_from_view(self):
         """Create a new camera base on the current view."""
-        from maya.cmds import getPanel  # pymel getPanel is broken in ver: 2022.
+        from maya.cmds import get_panel  # pymel get_panel is broken in ver: 2022.
 
-        curPanel = getPanel(withFocus=True)
-        if getPanel(typeOf=curPanel) == "modelPanel":
+        curPanel = get_panel(withFocus=True)
+        if get_panel(typeOf=curPanel) == "modelPanel":
             camera = pm.modelPanel(curPanel, q=1, cam=1)
             newCamera = pm.duplicate(camera)[0]
             pm.showHidden(newCamera)
@@ -460,11 +460,11 @@ print(__name__)
 
 # 		if header=='Options':
 # 			if text=='Group Cameras':
-# 				self.groupCameras()
+# 				self.group_cameras()
 # 			if text=='Adjust Clipping':
 # 				self.clippingMenu.show()
 # 			if text=='Toggle Safe Frames': #Viewport Safeframes Toggle
-# 				self.toggleSafeFrames()
+# 				self.toggle_safe_frames()
 
 
 # def cmb000(self, index=-1):

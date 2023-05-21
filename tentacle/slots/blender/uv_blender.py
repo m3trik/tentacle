@@ -14,7 +14,7 @@ class Uv_blender(Uv, SlotsBlender):
         cmb000.addItems_(items, "UV Editors")
 
         cmb001 = self.sb.uv.cmb001
-        # panel = pm.getPanel(scriptType='polyTexturePlacementPanel')
+        # panel = pm.get_panel(scriptType='polyTexturePlacementPanel')
         # cmb001.menu_.chk014.setChecked(pm.textureWindow(panel, displayCheckered=1, query=1)) #checkered state
         # cmb001.menu_.chk015.setChecked(True if pm.polyOptions(query=1, displayMapBorder=1) else False) #borders state
         # cmb001.menu_.chk016.setChecked(pm.textureWindow(panel, query=1, displayDistortion=1)) #distortion state
@@ -145,7 +145,7 @@ class Uv_blender(Uv, SlotsBlender):
         cmb = self.sb.uv.cmb001
         state = cmb.menu_.chk014.isChecked()
 
-        panel = pm.getPanel(scriptType="polyTexturePlacementPanel")
+        panel = pm.get_panel(scriptType="polyTexturePlacementPanel")
         pm.textureWindow(panel, edit=1, displayCheckered=state)
 
     def chk015(self):
@@ -161,7 +161,7 @@ class Uv_blender(Uv, SlotsBlender):
         cmb = self.sb.uv.cmb001
         state = cmb.menu_.chk016.isChecked()
 
-        panel = pm.getPanel(scriptType="polyTexturePlacementPanel")
+        panel = pm.get_panel(scriptType="polyTexturePlacementPanel")
         pm.textureWindow(panel, edit=1, displayDistortion=state)
 
     def tb000(self, state=None):
@@ -262,9 +262,9 @@ class Uv_blender(Uv, SlotsBlender):
                         unwrapType = "Cylindrical"
                     elif sphericalUnwrap:
                         unwrapType = "Spherical"
-                    objFaces = mtk.Cmpt.getComponents("f")
+                    objFaces = mtk.Cmpt.get_components("f")
                     if not objFaces:
-                        objFaces = mtk.Cmpt.getComponents(obj, "f")
+                        objFaces = mtk.Cmpt.get_components(obj, "f")
                     pm.polyProjection(
                         objFaces, type=unwrapType, insertBeforeDeformers=1, smartFit=1
                     )
@@ -515,20 +515,20 @@ class Uv_blender(Uv, SlotsBlender):
             for obj in objects:
                 pm.selectMode(component=1)
                 pm.selectType(meshUVShell=1)
-                selection = mtk.Cmpt.getComponents(obj, "f", flatten=False)
+                selection = mtk.Cmpt.get_components(obj, "f", flatten=False)
                 pm.select(selection, add=True)
 
         return selection
 
-    def getUvShellSets(self, objects=None, returnType="shells"):
+    def getUvShellSets(self, objects=None, returned_type="shells"):
         """Get All UV shells and their corresponding sets of faces.
 
         Parameters:
                 objects (obj/list): Polygon object(s) or Polygon face(s).
-                returnType (str): The desired returned type. valid values are: 'shells', 'shellIDs'. If None is given, the full dict will be returned.
+                returned_type (str): The desired returned type. valid values are: 'shells', 'shellIDs'. If None is given, the full dict will be returned.
 
         Returns:
-                (list)(dict) dependant on the given returnType arg. ex. {0L:[[MeshFace(u'pShape.f[0]'), MeshFace(u'pShape.f[1]')], 1L:[[MeshFace(u'pShape.f[2]'), MeshFace(u'pShape.f[3]')]}
+                (list)(dict) dependant on the given returned_type arg. ex. {0L:[[MeshFace(u'pShape.f[0]'), MeshFace(u'pShape.f[1]')], 1L:[[MeshFace(u'pShape.f[2]'), MeshFace(u'pShape.f[3]')]}
         """
         if not objects:
             objects = pm.ls(selection=1, objectsOnly=1, transforms=1, flatten=1)
@@ -536,11 +536,11 @@ class Uv_blender(Uv, SlotsBlender):
         if not isinstance(objects, (list, set, tuple)):
             objects = [objects]
 
-        objectType = self.getType(objects[0])
+        objectType = self.get_type(objects[0])
         if objectType == "Polygon Face":
             faces = objects
         else:
-            faces = mtk.Cmpt.getComponents(objects, "faces")
+            faces = mtk.Cmpt.get_components(objects, "faces")
 
         shells = {}
         for face in faces:
@@ -554,9 +554,9 @@ class Uv_blender(Uv, SlotsBlender):
                 except IndexError:
                     pass
 
-        if returnType == "shells":
+        if returned_type == "shells":
             shells = list(shells.values())
-        elif returnType == "shellIDs":
+        elif returned_type == "shellIDs":
             shells = shells.keys()
 
         return shells

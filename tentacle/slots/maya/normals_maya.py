@@ -31,22 +31,22 @@ class Normals_maya(Normals, SlotsMaya):
         if state == 0:  # off
             pm.polyOptions(displayNormal=0, sizeNormal=0)
             pm.polyOptions(displayTangent=False)
-            mtk.viewportMessage("Normals Display <hl>Off</hl>.")
+            mtk.viewport_message("Normals Display <hl>Off</hl>.")
 
         if state == 1:  # facet
             pm.polyOptions(displayNormal=1, facet=True, sizeNormal=size)
             pm.polyOptions(displayTangent=False)
-            mtk.viewportMessage("<hl>Facet</hl> Normals Display <hl>On</hl>.")
+            mtk.viewport_message("<hl>Facet</hl> Normals Display <hl>On</hl>.")
 
         if state == 2:  # Vertex
             pm.polyOptions(displayNormal=1, point=True, sizeNormal=size)
             pm.polyOptions(displayTangent=False)
-            mtk.viewportMessage("<hl>Vertex</hl> Normals Display <hl>On</hl>.")
+            mtk.viewport_message("<hl>Vertex</hl> Normals Display <hl>On</hl>.")
 
         if state == 3:  # tangent
             pm.polyOptions(displayTangent=True)
             pm.polyOptions(displayNormal=0)
-            mtk.viewportMessage("<hl>Tangent</hl> Display <hl>On</hl>.")
+            mtk.viewport_message("<hl>Tangent</hl> Display <hl>On</hl>.")
 
     def tb001(self, state=None):
         """Harden Edge Normals"""
@@ -136,23 +136,23 @@ class Normals_maya(Normals, SlotsMaya):
 
         if (all_ and maskVertex) or maskObject:
             for obj in selection:
-                vertices = mtk.Cmpt.getComponents(obj, "vertices", flatten=1)
+                vertices = mtk.Cmpt.get_components(obj, "vertices", flatten=1)
                 for vertex in vertices:
                     if not state:
                         pm.polyNormalPerVertex(vertex, unFreezeNormal=1)
                     else:
                         pm.polyNormalPerVertex(vertex, freezeNormal=1)
                 if not state:
-                    mtk.viewportMessage("Normals <hl>UnLocked</hl>.")
+                    mtk.viewport_message("Normals <hl>UnLocked</hl>.")
                 else:
-                    mtk.viewportMessage("Normals <hl>Locked</hl>.")
+                    mtk.viewport_message("Normals <hl>Locked</hl>.")
         elif maskVertex and not maskObject:
             if not state:
                 pm.polyNormalPerVertex(unFreezeNormal=1)
-                mtk.viewportMessage("Normals <hl>UnLocked</hl>.")
+                mtk.viewport_message("Normals <hl>UnLocked</hl>.")
             else:
                 pm.polyNormalPerVertex(freezeNormal=1)
-                mtk.viewportMessage("Normals <hl>Locked</hl>.")
+                mtk.viewport_message("Normals <hl>Locked</hl>.")
         else:
             self.sb.message_box(
                 "Selection must be object or vertex.", message_type="Warning"
@@ -238,12 +238,12 @@ class Normals_maya(Normals, SlotsMaya):
         obj = pm.ls(obj)
         normals = pm.polyInfo(obj, faceNormals=1)
 
-        regEx = "[A-Z]*_[A-Z]* *[0-9]*: "
+        regex = "[A-Z]*_[A-Z]* *[0-9]*: "
 
         dict_ = {}
         for n in normals:
             l = list(
-                s.replace(regEx, "") for s in n.split() if s
+                s.replace(regex, "") for s in n.split() if s
             )  # ['FACE_NORMAL', '150:', '0.935741', '0.110496', '0.334931\n']
 
             key = int(l[1].strip(":"))  # int face number as key ie. 150
@@ -263,7 +263,7 @@ class Normals_maya(Normals, SlotsMaya):
         rangeX=0.1,
         rangeY=0.1,
         rangeZ=0.1,
-        returnType="str",
+        returned_type="str",
     ):
         """Filter for faces with normals that fall within an X,Y,Z tolerance.
 
@@ -274,7 +274,7 @@ class Normals_maya(Normals, SlotsMaya):
                 rangeX = float - x axis tolerance
                 rangeY = float - y axis tolerance
                 rangeZ = float - z axis tolerance
-                returnType (str): The desired returned object type.
+                returned_type (str): The desired returned object type.
                                                 valid: 'str'(default), 'obj'(shape object), 'transform'(as string), 'int'(valid only at sub-object level).
         Returns:
                 (list) faces that fall within the given normal range.
@@ -294,8 +294,8 @@ class Normals_maya(Normals, SlotsMaya):
                     transforms = pm.ls(face, objectsOnly=True)
 
                 for node in transforms:
-                    for f in cls.getComponents(
-                        node, "faces", returnType=returnType, flatten=1
+                    for f in cls.get_components(
+                        node, "faces", returned_type=returned_type, flatten=1
                     ):
                         n = cls.getNormalVector(f)
                         for k, v in n.items():
@@ -393,11 +393,11 @@ print(__name__)
 # 		else: #get face normals from the user component selection.
 # 			normals = pm.polyInfo(faceNormals=1) #returns the face normals of selected faces
 
-# 		regEx = "[A-Z]*_[A-Z]* *[0-9]*: "
+# 		regex = "[A-Z]*_[A-Z]* *[0-9]*: "
 
 # 		dict_={}
 # 		for n in normals:
-# 			l = list(s.replace(regEx,'') for s in n.split() if s) #['FACE_NORMAL', '150:', '0.935741', '0.110496', '0.334931\n']
+# 			l = list(s.replace(regex,'') for s in n.split() if s) #['FACE_NORMAL', '150:', '0.935741', '0.110496', '0.334931\n']
 
 # 			key = int(l[1].strip(':')) #int face number as key ie. 150
 # 			value = list(float(i) for i in l[-3:])  #vector list as value. ie. [[0.935741, 0.110496, 0.334931]]

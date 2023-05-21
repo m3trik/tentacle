@@ -25,7 +25,7 @@ class File_blender(File, SlotsBlender):
         # cmb002.ctxMenu.chk006.toggled.connect(lambda s: pm.autoSave(enable=s, limitBackups=True))
         # cmb002.ctxMenu.s000.valueChanged.connect(lambda v: pm.autoSave(maxBackups=v, limitBackups=True))
         # cmb002.ctxMenu.s001.valueChanged.connect(lambda v: pm.autoSave(int=v*60, limitBackups=True))
-        # cmb002.addItems_(self.getRecentAutosave(appendDatetime=True), 'Recent Autosave', clear=True)
+        # cmb002.addItems_(self.get_recent_autosave(appendDatetime=True), 'Recent Autosave', clear=True)
 
         cmb003 = self.sb.file.cmb003
         cmb003.addItems_([], "Import")
@@ -145,10 +145,10 @@ class File_blender(File, SlotsBlender):
         """Project Folder"""
         cmb = self.sb.file.cmb006
 
-        path = self.formatPath(pm.workspace(query=1, rd=1))  # current project path.
+        path = self.format_path(pm.workspace(query=1, rd=1))  # current project path.
         items = [f for f in os.listdir(path)]
 
-        project = self.formatPath(
+        project = self.format_path(
             path, "dir"
         )  # add current project path string to label. strip path and trailing '/'
 
@@ -181,7 +181,7 @@ class File_blender(File, SlotsBlender):
             import time
 
             for timer in range(5):
-                self.mtk.viewportMessage("Shutting Down:<hl>" + str(timer) + "</hl>")
+                self.mtk.viewport_message("Shutting Down:<hl>" + str(timer) + "</hl>")
                 time.sleep(timer)
             pm.mel.quit()  # pm.Quit()
 
@@ -213,7 +213,7 @@ class File_blender(File, SlotsBlender):
     def lbl004(self):
         """Open current project root"""
         dir_ = pm.workspace(query=1, rd=1)  # current project path.
-        os.startfile(self.formatPath(dir_))
+        os.startfile(self.format_path(dir_))
 
     def b000(self):
         """Autosave: Open Directory"""
@@ -223,14 +223,14 @@ class File_blender(File, SlotsBlender):
         ]  # get autosave dir path from env variable.
 
         try:
-            # os.startfile(self.formatPath(dir1))
-            os.startfile(self.formatPath(dir2))
+            # os.startfile(self.format_path(dir1))
+            os.startfile(self.format_path(dir2))
         except FileNotFoundError as error:
             return "Error: The system cannot find the file specified."
 
     def b002(self):
         """Autosave: Delete All"""
-        files = self.getRecentAutosave()
+        files = self.get_recent_autosave()
         for file in files:
             try:
                 os.remove(file)
@@ -267,7 +267,7 @@ class File_blender(File, SlotsBlender):
                 newName = obj.replace(from_, to)
             pm.rename(obj, newName)  # Rename the object with the new name
 
-    def getRecentFiles(self, index=None):
+    def get_recent_files(self, index=None):
         """Get a list of recent files.
 
         Parameters:
@@ -278,7 +278,7 @@ class File_blender(File, SlotsBlender):
         """
         files = pm.optionVar(query="RecentFilesList")
         result = (
-            [self.formatPath(f) for f in list(reversed(files)) if "Autosave" not in f]
+            [self.format_path(f) for f in list(reversed(files)) if "Autosave" not in f]
             if files
             else []
         )
@@ -288,18 +288,18 @@ class File_blender(File, SlotsBlender):
         except (IndexError, TypeError) as error:
             return result
 
-    def getRecentProjects(self):
+    def get_recent_projects(self):
         """Get a list of recently set projects.
 
         Returns:
                 (list)
         """
         files = pm.optionVar(query="RecentProjectsList")
-        result = [self.formatPath(f) for f in list(reversed(files))]
+        result = [self.format_path(f) for f in list(reversed(files))]
 
         return result
 
-    def getRecentAutosave(self, appendDatetime=False):
+    def get_recent_autosave(self, appendDatetime=False):
         """Get a list of autosave files.
 
         Parameters:
@@ -313,11 +313,11 @@ class File_blender(File, SlotsBlender):
             0
         ]  # get autosave dir path from env variable.
 
-        files = self.getDirContents(
+        files = self.get_dir_contents(
             dir1, "filepaths", includeFiles=("*.mb", "*.ma")
-        ) + self.getDirContents(dir2, "filepaths", includeFiles=("*.mb", "*.ma"))
+        ) + self.get_dir_contents(dir2, "filepaths", includeFiles=("*.mb", "*.ma"))
         result = [
-            self.formatPath(f) for f in list(reversed(files))
+            self.format_path(f) for f in list(reversed(files))
         ]  # format and reverse the list.
 
         if appendDatetime:  # attach modified timestamp
@@ -381,7 +381,7 @@ print(__name__)
 # 	if quit: #quit maya
 # 		import time
 # 		for timer in range(5):
-# 			self.mtk.viewportMessage('Shutting Down:<hl>'+str(timer)+'</hl>')
+# 			self.mtk.viewport_message('Shutting Down:<hl>'+str(timer)+'</hl>')
 # 			time.sleep(timer)
 # 		mel.eval("quit;")
 # 		# pm.Quit()

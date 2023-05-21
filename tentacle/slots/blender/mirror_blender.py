@@ -98,7 +98,7 @@ class Mirror_blender(Mirror, SlotsBlender):
                 pm.mel.BakeNonDefHistory(obj)
 
             if cutMesh:
-                self.sb.edit.slots.deleteAlongAxis(
+                self.sb.edit.slots.delete_along_axis(
                     obj, axis
                 )  # delete mesh faces that fall inside the specified axis.
 

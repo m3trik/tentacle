@@ -204,10 +204,10 @@ class Transform_max(Transform, SlotsMax):
 
         align = tb.ctxMenu.cmb004.currentText()
         origin = tb.ctxMenu.chk014.isChecked()
-        centerPivot = tb.ctxMenu.chk016.isChecked()
+        center_pivot = tb.ctxMenu.chk016.isChecked()
 
         objects = pm.ls(sl=1, objectsOnly=1)
-        SlotsMax.dropToGrid(objects, align, origin, centerPivot)
+        SlotsMax.drop_to_grid(objects, align, origin, center_pivot)
         pm.select(objects)  # reselect the original selection.
 
     def tb001(self, state=None):
@@ -316,25 +316,25 @@ class Transform_max(Transform, SlotsMax):
         loop = tb.ctxMenu.chk007.isChecked()
 
         if all([x, not y, not z]):  # align x
-            self.alignVertices(mode=3, average=avg, edgeloop=loop)
+            self.align_vertices(mode=3, average=avg, edgeloop=loop)
 
         if all([not x, y, not z]):  # align y
-            self.alignVertices(mode=4, average=avg, edgeloop=loop)
+            self.align_vertices(mode=4, average=avg, edgeloop=loop)
 
         if all([not x, not y, z]):  # align z
-            self.alignVertices(mode=5, average=avg, edgeloop=loop)
+            self.align_vertices(mode=5, average=avg, edgeloop=loop)
 
         if all([not x, y, z]):  # align yz
-            self.alignVertices(mode=0, average=avg, edgeloop=loop)
+            self.align_vertices(mode=0, average=avg, edgeloop=loop)
 
         if all([x, not y, z]):  # align xz
-            self.alignVertices(mode=1, average=avg, edgeloop=loop)
+            self.align_vertices(mode=1, average=avg, edgeloop=loop)
 
         if all([x, y, not z]):  # align xy
-            self.alignVertices(mode=2, average=avg, edgeloop=loop)
+            self.align_vertices(mode=2, average=avg, edgeloop=loop)
 
         if all([x, y, z]):  # align xyz
-            self.alignVertices(mode=6, average=avg, edgeloop=loop)
+            self.align_vertices(mode=6, average=avg, edgeloop=loop)
 
     @Slots.hideMain
     def b000(self):
@@ -379,7 +379,7 @@ class Transform_max(Transform, SlotsMax):
         frm = selection[0]
         to = selection[1:]
 
-        SlotsMaya.matchScale(to, frm)
+        SlotsMaya.match_scale(to, frm)
 
     def lbl000(self):
         """Transform Constraints: Disable All"""
@@ -533,7 +533,7 @@ class Transform_max(Transform, SlotsMax):
                 )  # ie. rt.snapmode.setOSnapItemActive(3, 1, False) #'Point Cloud Shapes'->'Point Cloud Vertex'->Off
                 print(fn, "|", state)
 
-    def alignVertices(self, selection, mode):
+    def align_vertices(self, selection, mode):
         """Align Vertices
 
         Align all vertices at once by putting each vert index and coordinates in a dict (or two arrays) then if when iterating through a vert falls within the tolerance specified in a textfield align that vert in coordinate. then repeat the process for the other coordinates x,y,z specified by checkboxes. using edges may be a better approach. or both with a subObjectLevel check
@@ -547,7 +547,7 @@ class Transform_max(Transform, SlotsMax):
         notes:
         'vertex.pos.x = vertPosX' ect doesnt work. had to use maxscript
         """
-        # maxEval('undo "alignVertices" on')
+        # maxEval('undo "align_vertices" on')
         componentArray = selection.selectedVerts
 
         if len(componentArray) == 0:
@@ -668,7 +668,7 @@ class Transform_max(Transform, SlotsMax):
                 z (bool): Scale in the z direction.
 
         Basically working except for final 'obj.scale([s, s, s])' command in python. variable definitions included for debugging.
-        to get working an option is to use the maxEval method in the alignVertices function.
+        to get working an option is to use the maxEval method in the align_vertices function.
         """
         textField_000 = 1.50
         isChecked_002 = True

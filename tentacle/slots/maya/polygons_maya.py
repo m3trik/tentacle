@@ -69,7 +69,7 @@ class Polygons_maya(Polygons, SlotsMaya):
             )
             return
 
-        mtk.Edit.mergeVertices(objects, selected=componentMode, tolerance=tolerance)
+        mtk.Edit.merge_vertices(objects, selected=componentMode, tolerance=tolerance)
 
     @SlotsMaya.attr
     def tb001(self, state=None):
@@ -177,7 +177,7 @@ class Polygons_maya(Polygons, SlotsMaya):
                 worldSpace=1,
                 smoothingAngle=30,
                 subdivideNgons=1,
-                mergeVertices=1,
+                merge_vertices=1,
                 mergeVertexTolerance=0.0001,
                 miteringAngle=180,
                 angleTolerance=180,
@@ -320,7 +320,7 @@ class Polygons_maya(Polygons, SlotsMaya):
         selection = pm.ls(sl=1, objectsOnly=1, type="transform")
         if len(selection) > 1:
             obj1, obj2 = selection
-            mtk.Edit.snapClosestVerts(obj1, obj2, tolerance, freezetransforms)
+            mtk.Edit.snap_closest_verts(obj1, obj2, tolerance, freezetransforms)
         else:
             self.sb.message_box(
                 "<strong>Nothing selected</strong>.<br>Operation requires at least two selected objects.",
@@ -387,7 +387,7 @@ class Polygons_maya(Polygons, SlotsMaya):
     def b006(self):
         """Merge Vertices: Merge All"""
         sel = pm.ls(sl=True, objectsOnly=True)
-        mtk.Edit.mergeVertices(sel)
+        mtk.Edit.merge_vertices(sel)
 
     def b009(self):
         """Collapse Component"""
@@ -494,62 +494,62 @@ print(__name__)
 
 # deprecated:
 
-# 	def tb005(self, state=None):
-# 		'''
-# 		Detach
-# 		'''
-# 		tb = self.sb.polygons.tb005
-# 		if state=='setMenu':
-# 			# tb.ctxMenu.add('QCheckBox', setText='Delete Original', setObjectName='chk007', setChecked=True, setToolTip='Delete original selected faces.')
-# 			return
+#   def tb005(self, state=None):
+#       '''
+#       Detach
+#       '''
+#       tb = self.sb.polygons.tb005
+#       if state=='setMenu':
+#           # tb.ctxMenu.add('QCheckBox', setText='Delete Original', setObjectName='chk007', setChecked=True, setToolTip='Delete original selected faces.')
+#           return
 
-# 		vertexMask = pm.selectType (query=True, vertex=True)
-# 		edgeMask = pm.selectType (query=True, edge=True)
-# 		facetMask = pm.selectType (query=True, facet=True)
+#       vertexMask = pm.selectType (query=True, vertex=True)
+#       edgeMask = pm.selectType (query=True, edge=True)
+#       facetMask = pm.selectType (query=True, facet=True)
 
-# 		if vertexMask:
-# 			pm.mel.eval("polySplitVertex()")
+#       if vertexMask:
+#           pm.mel.eval("polySplitVertex()")
 
-# 		if facetMask:
-# 			maskVertex = pm.selectType (query=True, vertex=True)
-# 			if maskVertex:
-# 				pm.mel.eval("DetachComponent;")
-# 			else:
-# 				selFace = pm.ls(ni=1, sl=1)
-# 				selObj = pm.ls(objectsOnly=1, noIntermediate=1, sl=1) #to errorcheck if more than 1 obj selected
+#       if facetMask:
+#           maskVertex = pm.selectType (query=True, vertex=True)
+#           if maskVertex:
+#               pm.mel.eval("DetachComponent;")
+#           else:
+#               selFace = pm.ls(ni=1, sl=1)
+#               selObj = pm.ls(objectsOnly=1, noIntermediate=1, sl=1) #to errorcheck if more than 1 obj selected
 
-# 				if len(selFace) < 1:
-# 					return 'Error: Nothing selected.'
+#               if len(selFace) < 1:
+#                   return 'Error: Nothing selected.'
 
-# 				# if len(selObj) > 1:
-# 				# 	return 'Error: Only components from a single object can be extracted.'
+#               # if len(selObj) > 1:
+#               #   return 'Error: Only components from a single object can be extracted.'
 
-# 				else:
-# 					pm.mel.eval("DetachComponent;")
-# 					# pm.undoInfo (openChunk=1)
-# 					# sel = str(selFace[0]).split(".") #creates ex. ['polyShape', 'f[553]']
-# 					# print(sel)
-# 					# extractedObject = "extracted_"+sel[0]
-# 					# pm.duplicate (sel[0], name=extractedObject)
-# 					# if tb.ctxMenu.chk007.isChecked(): #delete original
-# 					# 	pm.delete (selFace)
+#               else:
+#                   pm.mel.eval("DetachComponent;")
+#                   # pm.undoInfo (openChunk=1)
+#                   # sel = str(selFace[0]).split(".") #creates ex. ['polyShape', 'f[553]']
+#                   # print(sel)
+#                   # extractedObject = "extracted_"+sel[0]
+#                   # pm.duplicate (sel[0], name=extractedObject)
+#                   # if tb.ctxMenu.chk007.isChecked(): #delete original
+#                   #   pm.delete (selFace)
 
-# 					# allFace = [] #populate a list of all faces in the duplicated object
-# 					# numFaces = pm.polyEvaluate(extractedObject, face=1)
-# 					# num=0
-# 					# for _ in range(numFaces):
-# 					# 	allFace.append(extractedObject+".f["+str(num)+"]")
-# 					# 	num+=1
+#                   # allFace = [] #populate a list of all faces in the duplicated object
+#                   # numFaces = pm.polyEvaluate(extractedObject, face=1)
+#                   # num=0
+#                   # for _ in range(numFaces):
+#                   #   allFace.append(extractedObject+".f["+str(num)+"]")
+#                   #   num+=1
 
-# 					# extFace = [] #faces to keep
-# 					# for face in selFace:
-# 					# 	fNum = str(face.split(".")[0]) #ex. f[4]
-# 					# 	extFace.append(extractedObject+"."+fNum)
+#                   # extFace = [] #faces to keep
+#                   # for face in selFace:
+#                   #   fNum = str(face.split(".")[0]) #ex. f[4]
+#                   #   extFace.append(extractedObject+"."+fNum)
 
-# 					# delFace = [x for x in allFace if x not in extFace] #all faces not in extFace
-# 					# pm.delete (delFace)
+#                   # delFace = [x for x in allFace if x not in extFace] #all faces not in extFace
+#                   # pm.delete (delFace)
 
-# 					# pm.select (extractedObject)
-# 					# pm.xform (cpc=1) #center pivot
-# 					# pm.undoInfo (closeChunk=1)
-# 					# return extractedObject
+#                   # pm.select (extractedObject)
+#                   # pm.xform (cpc=1) #center pivot
+#                   # pm.undoInfo (closeChunk=1)
+#                   # return extractedObject

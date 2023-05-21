@@ -192,7 +192,7 @@ class Edit_max(Edit, SlotsMax):
         Returns:
                 (list) list containing any found N-Gons
         """
-        faces = SlotsMax.getComponents(obj, "faces")
+        faces = SlotsMax.get_components(obj, "faces")
 
         SlotsMax.setSubObjectLevel(4)
 
@@ -261,7 +261,7 @@ class Edit_max(Edit, SlotsMax):
         Returns:
                 (list) list containing any found isolated verts.
         """
-        vertices = SlotsMax.getComponents(
+        vertices = SlotsMax.get_components(
             obj, "vertices"
         )  # get all vertices for the given object
 
@@ -331,12 +331,12 @@ class Edit_max(Edit, SlotsMax):
 
         # pm.undoInfo(openChunk=1)
         # for obj in selection:
-        # 	self.deleteAlongAxis(obj, axis) #SlotsMax.deleteAlongAxis - no max version.
+        # 	self.delete_along_axis(obj, axis) #SlotsMax.delete_along_axis - no max version.
         # pm.undoInfo(closeChunk=1)
 
     def b000(self):
         """Clean: Repair"""
-        self.cleanGeometry(
+        self.clean_geometry(
             repair=True,
             nsided=True,
             concave=False,
@@ -347,7 +347,7 @@ class Edit_max(Edit, SlotsMax):
             sharedUVs=False,
             nonmanifold=True,
             invalidComponents=False,
-            splitNonManifoldVertex=False,
+            split_non_manifold_vertex=False,
         )
 
     @Slots.hideMain

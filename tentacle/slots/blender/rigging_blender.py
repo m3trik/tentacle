@@ -115,7 +115,7 @@ class Rigging_blender(Rigging, SlotsBlender):
 		if toggle:
 			pm.toggle(joints, localAxis=1) #set display off
 
-		self.mtk.viewportMessage("Display Local Rotation Axes:<hl>"+str(state)+"</hl>")
+		self.mtk.viewport_message("Display Local Rotation Axes:<hl>"+str(state)+"</hl>")
 
 
 	def tb001(self, state=None):
@@ -154,20 +154,20 @@ class Rigging_blender(Rigging, SlotsBlender):
 		tb = self.sb.rigging.tb003
 
 		suffix = tb.ctxMenu.t000.text()
-		stripDigits = tb.ctxMenu.chk005.isChecked()
+		strip_digits = tb.ctxMenu.chk005.isChecked()
 		strip = tb.ctxMenu.t001.text()
 		parent = tb.ctxMenu.chk006.isChecked()
 		scale = tb.ctxMenu.s001.value()
-		lockTranslate = tb.ctxMenu.chk007.isChecked()
-		lockRotation = tb.ctxMenu.chk008.isChecked()
-		lockScale = tb.ctxMenu.chk009.isChecked()
-		freezeTransforms = tb.ctxMenu.chk010.isChecked()
-		bakeChildPivot = tb.ctxMenu.chk011.isChecked()
+		lock_translate = tb.ctxMenu.chk007.isChecked()
+		lock_rotation = tb.ctxMenu.chk008.isChecked()
+		lock_scale = tb.ctxMenu.chk009.isChecked()
+		freeze_transforms = tb.ctxMenu.chk010.isChecked()
+		bake_child_pivot = tb.ctxMenu.chk011.isChecked()
 		remove = tb.ctxMenu.chk015.isChecked()
 
 		selection = pm.ls(selection=True)
-		self.createLocatorAtObject(selection, suffix=suffix, stripDigits=stripDigits, strip=strip, scale=scale, parent=parent, bakeChildPivot=bakeChildPivot, 
-			freezeTransforms=freezeTransforms, lockTranslate=lockTranslate, lockRotation=lockRotation, lockScale=lockScale, remove=remove)
+		self.create_locator_at_object(selection, suffix=suffix, strip_digits=strip_digits, strip=strip, scale=scale, parent=parent, bake_child_pivot=bake_child_pivot, 
+			freeze_transforms=freeze_transforms, lock_translate=lock_translate, lock_rotation=lock_rotation, lock_scale=lock_scale, remove=remove)
 
 
 	def tb004(self, state=None):
@@ -175,17 +175,17 @@ class Rigging_blender(Rigging, SlotsBlender):
 		'''
 		tb = self.sb.rigging.tb004
 
-		lockTranslate = tb.ctxMenu.chk012.isChecked()
-		lockRotation = tb.ctxMenu.chk013.isChecked()
-		lockScale = tb.ctxMenu.chk014.isChecked()
+		lock_translate = tb.ctxMenu.chk012.isChecked()
+		lock_rotation = tb.ctxMenu.chk013.isChecked()
+		lock_scale = tb.ctxMenu.chk014.isChecked()
 
 		sel = pm.ls(selection=True, transforms=1, long=True)
 		for obj in sel:
 
 			attrs_and_state = {
-				('tx','ty','tz'):lockTranslate, #attributes and state. ex. ('tx','ty','tz'):False
-				('rx','ry','rz'):lockRotation, 
-				('sx','sy','sz'):lockScale
+				('tx','ty','tz'):lock_translate, #attributes and state. ex. ('tx','ty','tz'):False
+				('rx','ry','rz'):lock_rotation, 
+				('sx','sy','sz'):lock_scale
 			}
 
 			[[pm.setAttr('{}.{}'.format(obj, i), lock=v) for i in k] for k, v in attrs_and_state.items()]
@@ -203,8 +203,8 @@ class Rigging_blender(Rigging, SlotsBlender):
 			'enableRotationX','rotationX','enableRotationY','rotationY','enableRotationZ','rotationZ',
 			'enableScaleX','scaleX','enableScaleY','scaleY','enableScaleZ','scaleZ']
 
-		attrs = SlotsBlender.getParameterValuesMEL(node, 'transformLimits', params)
-		self.setAttributeWindow(node, fn=SlotsBlender.setParameterValuesMEL, 'transformLimits', **attrs)
+		attrs = SlotsBlender.get_parameter_values(node, 'transformLimits', params)
+		self.setAttributeWindow(node, fn=SlotsBlender.set_parameter_values, 'transformLimits', **attrs)
 
 
 	def b001(self):
@@ -256,35 +256,35 @@ class Rigging_blender(Rigging, SlotsBlender):
 
 
 	@SlotsBlender.undoChunk
-	def createLocatorAtObject(self, objects, suffix='_LOC', stripDigits=False, strip='', scale=1, parent=False, freezeTransforms=True, 
-					bakeChildPivot=True, lockTranslate=False, lockRotation=False, lockScale=False, remove=False, _fullPath=False):
+	def create_locator_at_object(self, objects, suffix='_LOC', strip_digits=False, strip='', scale=1, parent=False, freeze_transforms=True, 
+					bake_child_pivot=True, lock_translate=False, lock_rotation=False, lock_scale=False, remove=False, _fullPath=False):
 		'''Create locators with the same transforms as any selected object(s).
 		If there are vertices selected it will create a locator at the center of the selected vertices bounding box.
 
 		Parameters:
 			objects (str/list): A list of objects, or an object name to create locators at.
 			suffix (str): A string appended to the end of the created locators name. (default: '_LOC') '_LOC#'
-			stripDigits (bool): Strip numeric characters from the string. If the resulting name is not unique, maya will append a trailing digit. (default=False)
+			strip_digits (bool): Strip numeric characters from the string. If the resulting name is not unique, maya will append a trailing digit. (default=False)
 			strip (str): Strip a specific character set from the locator name. The locators name is based off of the selected objects name. (default=None)
 			scale (float) = The scale of the locator. (default=1)
 			parent (bool): Parent to object to the locator. (default=False)
-			freezeTransforms (bool): Freeze transforms on the locator. (default=True)
-			bakeChildPivot (bool): Bake pivot positions on the child object. (default=True)
-			lockTranslate (bool): Lock the translate values of the child object. (default=False)
-			lockRotation (bool): Lock the rotation values of the child object. (default=False)
-			lockScale (bool): Lock the scale values of the child object. (default=False)
+			freeze_transforms (bool): Freeze transforms on the locator. (default=True)
+			bake_child_pivot (bool): Bake pivot positions on the child object. (default=True)
+			lock_translate (bool): Lock the translate values of the child object. (default=False)
+			lock_rotation (bool): Lock the rotation values of the child object. (default=False)
+			lock_scale (bool): Lock the scale values of the child object. (default=False)
 			remove (bool): Removes the locator and any child locks. (not valid with component selections) (default=False)
 			_fullPath (bool): Internal use only (recursion). Use full path names for Dag objects. This can prevent naming conflicts when creating the locator. (default=False)
 
-		Example: createLocatorAtSelection(strip='_GEO', suffix='', stripDigits=True, parent=True, lockTranslate=True, lockRotation=True)
+		Example: createLocatorAtSelection(strip='_GEO', suffix='', strip_digits=True, parent=True, lock_translate=True, lock_rotation=True)
 		'''
-		def _formatName(name, stripDigits=stripDigits, strip=strip, suffix=suffix):
-			if stripDigits:
+		def _formatName(name, strip_digits=strip_digits, strip=strip, suffix=suffix):
+			if strip_digits:
 				name = ''.join([i for i in name if not i.isdigit()])	
 			return name.replace(strip, '')+suffix
 
-		def _create_locator(obj, objName, stripDigits=stripDigits, strip=strip, suffix=suffix, scale=scale, _fullPath=_fullPath):
-			locName = _formatName(objName, stripDigits, strip, suffix)
+		def _create_locator(obj, objName, strip_digits=strip_digits, strip=strip, suffix=suffix, scale=scale, _fullPath=_fullPath):
+			locName = _formatName(objName, strip_digits, strip, suffix)
 
 			loc = pm.spaceLocator(name=locName)
 			if not any([loc, _fullPath]): #if locator creation fails; try again using the objects fullpath name.
@@ -293,19 +293,19 @@ class Rigging_blender(Rigging, SlotsBlender):
 			pm.scale(loc, scale, scale, scale) #scale the locator
 			return loc
 
-		def _parent(obj, loc, freezeTransforms=freezeTransforms, bakeChildPivot=bakeChildPivot, state=1):
+		def _parent(obj, loc, freeze_transforms=freeze_transforms, bake_child_pivot=bake_child_pivot, state=1):
 			objParent = pm.listRelatives(obj, parent=1)
 			pm.parent(obj, loc)
 			pm.parent(loc, objParent)
 
-			if freezeTransforms:
+			if freeze_transforms:
 				_set_lock_state(obj, translate=1, rotate=1, scale=1, state=0) #assure attributes are unlocked.
 				pm.makeIdentity(loc, apply=True, normal=1) #1=the normals on polygonal objects will be frozen. 2=the normals on polygonal objects will be frozen only if its a non-rigid transformation matrix.
 
-			if bakeChildPivot:
+			if bake_child_pivot:
 				pm.select(obj); pm.mel.BakeCustomPivot() #bake pivot on child object. Requires a select
 
-		def _set_lock_state(obj, translate=lockTranslate, rotate=lockRotation, scale=lockScale, state=1):
+		def _set_lock_state(obj, translate=lock_translate, rotate=lock_rotation, scale=lock_scale, state=1):
 			if isinstance(obj, str):
 				obj = pm.ls(obj.split('|')[-1], transforms=1)[0]
 
@@ -342,8 +342,8 @@ class Rigging_blender(Rigging, SlotsBlender):
 
 		type_ = lambda obj: pm.listRelatives(obj, shapes=1)[0].type()
 
-		_retry_using_fullPath = lambda: self.createLocatorAtObject(suffix=suffix, stripDigits=stripDigits, strip=strip, 
-			parent=parent, scale=scale, lockTranslate=lockTranslate, lockRotation=lockRotation, lockScale=lockScale, _fullPath=1)
+		_retry_using_fullPath = lambda: self.create_locator_at_object(suffix=suffix, strip_digits=strip_digits, strip=strip, 
+			parent=parent, scale=scale, lock_translate=lock_translate, lock_rotation=lock_rotation, lock_scale=lock_scale, _fullPath=1)
 
 		# pm.undoInfo(openChunk=1)
 		objects = pm.ls(objects, long=_fullPath, objectsOnly=True)
@@ -398,25 +398,25 @@ print (__name__)
 
 #deprecated:
 
-# def createLocatorAtSelection(suffix='_LOC', stripDigits=False, strip='', scale=1, parent=False, freezeChildTransforms=False, bakeChildPivot=False, lockTranslate=False, lockRotation=False, lockScale=False, _fullPath=False):
+# def createLocatorAtSelection(suffix='_LOC', strip_digits=False, strip='', scale=1, parent=False, freezeChildTransforms=False, bake_child_pivot=False, lock_translate=False, lock_rotation=False, lock_scale=False, _fullPath=False):
 # 	'''Create locators with the same transforms as any selected object(s).
 # 	If there are vertices selected it will create a locator at the center of the selected vertices bounding box.
 
 # 	Parameters:
 # 		suffix (str): A string appended to the end of the created locators name. (default: '_LOC') '_LOC#'
-# 		stripDigits (bool): Strip numeric characters from the string. If the resulting name is not unique, maya will append a trailing digit. (default=False)
+# 		strip_digits (bool): Strip numeric characters from the string. If the resulting name is not unique, maya will append a trailing digit. (default=False)
 # 		strip (str): Strip a specific character set from the locator name. The locators name is based off of the selected objects name. (default=None)
 # 		scale (float) = The scale of the locator. (default=1)
 # 		parent (bool): Parent to object to the locator. (default=False)
 # 		freezeChildTransforms (bool): Freeze transforms on the child object. (Valid only with parent flag) (default=False)
-# 		bakeChildPivot (bool): Bake pivot positions on the child object. (Valid only with parent flag) (default=False)
-# 		lockTranslate (bool): Lock the translate values of the child object. (default=False)
-# 		lockRotation (bool): Lock the rotation values of the child object. (default=False)
-# 		lockScale (bool): Lock the scale values of the child object. (default=False)
+# 		bake_child_pivot (bool): Bake pivot positions on the child object. (Valid only with parent flag) (default=False)
+# 		lock_translate (bool): Lock the translate values of the child object. (default=False)
+# 		lock_rotation (bool): Lock the rotation values of the child object. (default=False)
+# 		lock_scale (bool): Lock the scale values of the child object. (default=False)
 # 		_fullPath (bool): Internal use only (recursion). Use full path names for Dag objects. This can prevent naming conflicts when creating the locator. (default=False)
 
 # 	Example:
-# 		createLocatorAtSelection(strip='_GEO', suffix='', stripDigits=True, scale=10, parent=True, lockTranslate=True, lockRotation=True)
+# 		createLocatorAtSelection(strip='_GEO', suffix='', strip_digits=True, scale=10, parent=True, lock_translate=True, lock_rotation=True)
 # 	'''
 # 	import pymel.core as pm
 # 	sel = pm.ls(selection=True, long=_fullPath, objectsOnly=True)
@@ -427,44 +427,44 @@ print (__name__)
 # 		print (error)
 # 		return error
 
-# 	def _formatName(name, stripDigits=stripDigits, strip=strip, suffix=suffix):
-# 		if stripDigits:
+# 	def _formatName(name, strip_digits=strip_digits, strip=strip, suffix=suffix):
+# 		if strip_digits:
 # 			name_ = ''.join([i for i in name if not i.isdigit()])	
 # 		return name_.replace(strip, '')+suffix
 
-# 	def _parent(obj, loc, parent=parent, freezeChildTransforms=freezeChildTransforms, bakeChildPivot=bakeChildPivot):
+# 	def _parent(obj, loc, parent=parent, freezeChildTransforms=freezeChildTransforms, bake_child_pivot=bake_child_pivot):
 # 		if parent: #parent
 # 			if freezeChildTransforms:
 # 				pm.makeIdentity(obj, apply=True, t=1, r=1, s=1, normal=2) #normal parameter: 1=the normals on polygonal objects will be frozen. 2=the normals on polygonal objects will be frozen only if its a non-rigid transformation matrix.
-# 			if bakeChildPivot:
+# 			if bake_child_pivot:
 # 				pm.select(obj); pm.mel.BakeCustomPivot() #bake pivot on child object.
 # 			objParent = pm.listRelatives(obj, parent=1)
 # 			pm.parent(obj, loc)
 # 			pm.parent(loc, objParent)
 
-# 	def _lockChildAttributes(obj, lockTranslate=lockTranslate, lockRotation=lockRotation, lockScale=lockScale):
+# 	def _lockChildAttributes(obj, lock_translate=lock_translate, lock_rotation=lock_rotation, lock_scale=lock_scale):
 # 		try: #split in case of long name to get the obj attribute.  ex. 'f15e_door_61_bellcrank|Bolt_GEO.tx' to: Bolt_GEO.tx
 # 			setAttrs = lambda attrs: [pm.setAttr('{}.{}'.format(obj.split('|')[-1], attr), lock=True) for attr in attrs]
 # 		except: #if obj is type object:
 # 			setAttrs = lambda attrs: [pm.setAttr('{}.{}'.format(obj, attr), lock=True) for attr in attrs]
 
-# 		if lockTranslate: #lock translation values
+# 		if lock_translate: #lock translation values
 # 			setAttrs(('tx','ty','tz'))
 
-# 		if lockRotation: #lock rotation values
+# 		if lock_rotation: #lock rotation values
 # 			setAttrs(('rx','ry','rz'))
 				
-# 		if lockScale: #lock scale values
+# 		if lock_scale: #lock scale values
 # 			setAttrs(('sx','sy','sz'))
 
-# 	_fullPath = lambda: self.createLocatorAtSelection(suffix=suffix, stripDigits=stripDigits, 
+# 	_fullPath = lambda: self.createLocatorAtSelection(suffix=suffix, strip_digits=strip_digits, 
 # 				strip=strip, parent=parent, scale=scale, _fullPath=True, 
-# 				lockTranslate=lockTranslate, lockRotation=lockRotation, lockScale=lockScale)
+# 				lock_translate=lock_translate, lock_rotation=lock_rotation, lock_scale=lock_scale)
 
 # 	if sel_verts: #vertex selection
 
 # 		objName = sel_verts[0].split('.')[0]
-# 		locName = _formatName(objName, stripDigits, strip, suffix)
+# 		locName = _formatName(objName, strip_digits, strip, suffix)
 
 # 		loc = pm.spaceLocator(name=locName)
 # 		if not any([loc, _fullPath]): #if locator creation fails; try again using the objects full path name.
@@ -483,7 +483,7 @@ print (__name__)
 # 		for obj in sel:
 
 # 			objName = obj.name()
-# 			locName = _formatName(objName, stripDigits, strip, suffix)
+# 			locName = _formatName(objName, strip_digits, strip, suffix)
 
 # 			loc = pm.spaceLocator(name=locName)
 # 			if not any([loc, _fullPath]): #if locator creation fails; try again using the objects fullpath name.

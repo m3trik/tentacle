@@ -59,7 +59,7 @@ class Symmetry_blender(Symmetry, SlotsBlender):
             edit=True, symmetry=state, axis=axis, about=space, tolerance=tolerance
         )
         if state:
-            self.mtk.viewportMessage("Symmetry: <hl>{}</hl>".format(axis.upper()))
+            self.mtk.viewport_message("Symmetry: <hl>{}</hl>".format(axis.upper()))
 
 
 # module name

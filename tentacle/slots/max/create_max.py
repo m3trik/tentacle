@@ -453,7 +453,7 @@ class Create_max(Create, SlotsMax):
                 node.pos = rt.point3(x, y, z)
 
             # if scale:
-            # 	SlotsMax.matchScale(node, selection, average=True)
+            # 	SlotsMax.match_scale(node, selection, average=True)
 
         # if self.sb.create.cmb001.currentIndex() == 0: #if create type: polygon; convert to editable poly
         # 	rt.convertTo(node, rt.PolyMeshObject) #convert after adding primitive attributes to spinboxes
@@ -466,7 +466,7 @@ class Create_max(Create, SlotsMax):
     def b005(self):
         """Create 6 sided poly cylinder"""
         node = self.createPrimitive("Polygon", "Cylinder")
-        self.setNodeAttributes(node, verbose=True, subdivisionsAxis=6)
+        self.set_node_attributes(node, verbose=True, subdivisionsAxis=6)
 
 
 # module name

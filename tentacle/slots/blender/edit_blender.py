@@ -232,7 +232,7 @@ class Edit_blender(Edit, SlotsBlender):
         lamina = -int(
             tb.ctxMenu.chk018.isChecked()
         )  # [16] check for lamina polys [default -1]
-        splitNonManifoldVertex = tb.ctxMenu.chk021.isChecked()
+        split_non_manifold_vertex = tb.ctxMenu.chk021.isChecked()
         invalidComponents = 0  # int(tb.ctxMenu.chk019.isChecked()) #[17] a guess what this arg does. not checked. default is 0.
         overlappingDuplicateObjects = (
             tb.ctxMenu.chk022.isChecked()
@@ -248,8 +248,8 @@ class Edit_blender(Edit, SlotsBlender):
         objects = pm.ls(sl=1, transforms=1)
 
         if overlappingDuplicateObjects:
-            duplicates = self.getOverlappingDupObjects(
-                omitInitialObjects=omitSelectedObjects, select=True, verbose=True
+            duplicates = self.get_overlapping_dup_objects(
+                retain_given_objects=omitSelectedObjects, select=True, verbose=True
             )
             if repair:  # repair
                 pm.delete(duplicates)
@@ -296,13 +296,13 @@ class Edit_blender(Edit, SlotsBlender):
             print(command)
             mel.eval(command)
 
-        if splitNonManifoldVertex:  # Split Non-Manifold Vertex
-            nonManifoldVerts = self.findNonManifoldVertex(
+        if split_non_manifold_vertex:  # Split Non-Manifold Vertex
+            nonManifoldVerts = self.find_non_manifold_vertex(
                 objects, select=2
             )  # Select: 0=off, 1=on, 2=on while keeping any existing vertex selections. (default: 1)
             if repair:
                 for vertex in nonManifoldVerts:
-                    self.splitNonManifoldVertex(
+                    self.split_non_manifold_vertex(
                         vertex, select=True
                     )  # select(bool): Select the vertex after the operation. (default: True)
 
@@ -328,14 +328,14 @@ class Edit_blender(Edit, SlotsBlender):
         # display viewPort messages
         if all_:
             if deformers:
-                self.mtk.viewportMessage("delete <hl>all</hl> history.")
+                self.mtk.viewport_message("delete <hl>all</hl> history.")
             else:
-                self.mtk.viewportMessage("delete <hl>all non-deformer</hl> history.")
+                self.mtk.viewport_message("delete <hl>all non-deformer</hl> history.")
         else:
             if deformers:
-                self.mtk.viewportMessage("delete history on " + str(objects))
+                self.mtk.viewport_message("delete history on " + str(objects))
             else:
-                self.mtk.viewportMessage(
+                self.mtk.viewport_message(
                     "delete <hl>non-deformer</hl> history on " + str(objects)
                 )
 
@@ -362,12 +362,12 @@ class Edit_blender(Edit, SlotsBlender):
                     if deleteRing:
                         [
                             edges.append(i)
-                            for i in self.getEdgePath(selection, "edgeRing")
+                            for i in self.get_edge_path(selection, "edgeRing")
                         ]  # pm.polySelect(edges, edgeRing=True) #select the edge ring.
                     if deleteLoop:
                         [
                             edges.append(i)
-                            for i in self.getEdgePath(selection, "edgeLoop")
+                            for i in self.get_edge_path(selection, "edgeLoop")
                         ]  # pm.polySelect(edges, edgeLoop=True) #select the edge loop.
                     pm.polyDelEdge(edges, cleanVertices=True)  # delete edges
 
@@ -392,7 +392,7 @@ class Edit_blender(Edit, SlotsBlender):
         objects = pm.ls(sl=1, objectsOnly=1)
 
         for obj in objects:
-            self.deleteAlongAxis(obj, axis)
+            self.delete_along_axis(obj, axis)
         pm.undoInfo(closeChunk=1)
 
     @Slots.hideMain
@@ -423,21 +423,21 @@ class Edit_blender(Edit, SlotsBlender):
         """Shading Sets"""
         pm.mel.performTransferShadingSets(0)
 
-    def getOverlappingDupObjects(
-        self, objects=[], omitInitialObjects=False, select=False, verbose=False
+    def get_overlapping_dup_objects(
+        self, objects=[], retain_given_objects=False, select=False, verbose=False
     ):
         """Find any duplicate overlapping geometry at the object level.
 
         Parameters:
                 objects (list): A list of objects to find duplicate overlapping geometry for. Default is selected objects, or all if nothing is selected.
-                omitInitialObjects (bool): Search only for duplicates of the given objects (or any selected objects if None given), and omit them from the return results.
+                retain_given_objects (bool): Search only for duplicates of the given objects (or any selected objects if None given), and omit them from the return results.
                 select (bool): Select any found duplicate objects.
                 verbose (bool): Print each found object to console.
 
         Returns:
                 (set)
 
-        ex call: duplicates = getOverlappingDupObjects(omitInitialObjects=True, select=True, verbose=True)
+        ex call: duplicates = get_overlapping_dup_objects(retain_given_objects=True, select=True, verbose=True)
         """
         scene_objs = pm.ls(transforms=1, geometry=1)  # get all scene geometry
 
@@ -445,7 +445,7 @@ class Edit_blender(Edit, SlotsBlender):
         scene_objs = {
             i: str(pm.objectCenter(i)) + str(pm.polyEvaluate(i))
             for i in scene_objs
-            if not SlotsBlender.isGroup(i)
+            if not SlotsBlender.is_group(i)
         }
         selected_objs = pm.ls(scene_objs.keys(), sl=1) if not objects else objects
 
@@ -460,7 +460,7 @@ class Edit_blender(Edit, SlotsBlender):
                     if set(selected_objs) & set(
                         v
                     ):  # if any selected objects in found duplicates:
-                        if omitInitialObjects:
+                        if retain_given_objects:
                             [
                                 duplicates.add(i) for i in v if i not in selected_objs
                             ]  # add any duplicated of that object, omitting the selected object.
@@ -483,7 +483,7 @@ class Edit_blender(Edit, SlotsBlender):
 
         return duplicates
 
-    def deleteAlongAxis(self, obj, axis):
+    def delete_along_axis(self, obj, axis):
         """Delete components of the given mesh object along the specified axis.
 
         Parameters:
@@ -495,7 +495,7 @@ class Edit_blender(Edit, SlotsBlender):
             for n in pm.listRelatives(obj, allDescendents=1)
             if pm.objectType(n, isType="mesh")
         ]:  # get any mesh type child nodes of obj.
-            faces = self.getAllFacesOnAxis(node, axis)
+            faces = self.get_all_faces_on_axis(node, axis)
             if len(faces) == pm.polyEvaluate(
                 node, face=1
             ):  # if all faces fall on the specified axis.
@@ -503,18 +503,18 @@ class Edit_blender(Edit, SlotsBlender):
             else:
                 pm.delete(faces)  # else, delete any individual faces.
 
-        SlotsBlender.mtk.viewportMessage(
+        SlotsBlender.mtk.viewport_message(
             "Delete faces on <hl>" + axis.upper() + "</hl>."
         )
 
-    def getAllFacesOnAxis(self, obj, axis="-x", localspace=False):
+    def get_all_faces_on_axis(self, obj, axis="-x", localspace=False):
         """Get all faces on a specified axis
 
         Parameters:
                 obj=<geometry> - object to perform the operation on.
                 axis (str): representing axis ie. "x"
                 localspace=bool - specify world or local space
-        ex. self.getAllFacesOnAxis(polyObject, 'y')
+        ex. self.get_all_faces_on_axis(polyObject, 'y')
         """
         i = 0  #'x'
         if any([axis == "y", axis == "-y"]):
@@ -536,7 +536,7 @@ class Edit_blender(Edit, SlotsBlender):
             )
 
     @SlotsBlender.undoChunk
-    def findNonManifoldVertex(self, objects, select=1):
+    def find_non_manifold_vertex(self, objects, select=1):
         """Locate a connected vertex of non-manifold geometry where the faces share a single vertex.
 
         Parameters:
@@ -549,7 +549,7 @@ class Edit_blender(Edit, SlotsBlender):
         # pm.undoInfo(openChunk=True)
         nonManifoldVerts = set()
 
-        vertices = mtk.Cmpt.getComponents(objects, "vertices")
+        vertices = mtk.Cmpt.get_components(objects, "vertices")
         for vertex in vertices:
             connected_faces = pm.polyListComponentConversion(
                 vertex, fromVertex=1, toFace=1
@@ -606,7 +606,7 @@ class Edit_blender(Edit, SlotsBlender):
         return nonManifoldVerts
 
     @SlotsBlender.undoChunk
-    def splitNonManifoldVertex(self, vertex, select=True):
+    def split_non_manifold_vertex(self, vertex, select=True):
         """Separate a connected vertex of non-manifold geometry where the faces share a single vertex.
 
         Parameters:
@@ -669,7 +669,7 @@ class Edit_blender(Edit, SlotsBlender):
             pm.select(vertex, add=1)
         # pm.undoInfo(closeChunk=True)
 
-    def getNGons(self, obj, repair=False):
+    def get_ngons(self, obj, repair=False):
         """Get any N-Gons from the given object."""
         if nGons:  # N-Sided Faces
             if repair:  # Maya Bonus Tools: Convert N-Sided Faces To Quads
@@ -691,7 +691,7 @@ class Edit_blender(Edit, SlotsBlender):
                 pm.polySelectConstraint(disable=1)
                 # Populate an in-view message
                 nGons = pm.polyEvaluate(faceComponent=1)
-                SlotsBlender.mtk.viewportMessage(
+                SlotsBlender.mtk.viewport_message(
                     "<hl>" + str(nGons[0]) + "</hl> N-Gon(s) found."
                 )
 

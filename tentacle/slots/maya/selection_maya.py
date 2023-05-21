@@ -353,19 +353,19 @@ class Selection_maya(Selection, SlotsMaya):
 
         result = []
         if edgeRing:
-            result = mtk.Cmpt.getEdgePath(selection, "edgeRing")
+            result = mtk.Cmpt.get_edge_path(selection, "edgeRing")
 
         elif edgeLoop:
-            result = mtk.Cmpt.getEdgePath(selection, "edgeLoop")
+            result = mtk.Cmpt.get_edge_path(selection, "edgeLoop")
 
         elif pathAlongLoop:
-            result = mtk.Cmpt.getEdgePath(selection, "edgeLoopPath")
+            result = mtk.Cmpt.get_edge_path(selection, "edgeLoopPath")
 
         elif shortestPath:
-            result = mtk.Cmpt.getShortestPath(selection)
+            result = mtk.Cmpt.get_shortest_path(selection)
 
         elif borderEdges:
-            result = mtk.Cmpt.getBorderComponents(selection, "edges")
+            result = mtk.Cmpt.get_border_components(selection, "edges")
 
         pm.select(result[::step])
 
@@ -373,7 +373,7 @@ class Selection_maya(Selection, SlotsMaya):
         """Select Similar"""
         tb = self.sb.selection.tb001
 
-        tol = tb.ctxMenu.s000.value()  # tolerance
+        tolerance = tb.ctxMenu.s000.value()  # tolerance
         v = tb.ctxMenu.chk011.isChecked()  # vertex
         e = tb.ctxMenu.chk012.isChecked()  # edge
         f = tb.ctxMenu.chk013.isChecked()  # face
@@ -390,10 +390,10 @@ class Selection_maya(Selection, SlotsMaya):
             selection = pm.ls(sl=1, objectsOnly=1, type="transform")
             pm.select(clear=1)
             for obj in selection:
-                similar = self.sb.edit.slots.getSimilarMesh(
+                similar = self.sb.edit.slots.get_similar_mesh(
                     obj,
-                    tol=tol,
-                    includeOrig=inc,
+                    tolerance=tolerance,
+                    inc_orig=inc,
                     vertex=v,
                     edge=e,
                     face=f,
@@ -406,7 +406,7 @@ class Selection_maya(Selection, SlotsMaya):
                 )
                 pm.select(similar, add=True)
         else:
-            pm.mel.doSelectSimilar(1, {tol})
+            pm.mel.doSelectSimilar(1, {tolerance})
 
     def tb002(self, state=None):
         """Select Island: Select Polygon Face Island"""
@@ -417,7 +417,7 @@ class Selection_maya(Selection, SlotsMaya):
         rangeZ = float(tb.ctxMenu.s005.value())
 
         sel = pm.ls(sl=1)
-        selectedFaces = mtk.Cmpt.getComponents(sel, componentType="faces")
+        selectedFaces = mtk.Cmpt.get_components(sel, component_type="faces")
         if not selectedFaces:
             self.sb.message_box("The operation requires a face selection.")
             return
@@ -425,7 +425,7 @@ class Selection_maya(Selection, SlotsMaya):
         similarFaces = self.sb.normals.slots.getFacesWithSimilarNormals(
             selectedFaces, rangeX=rangeX, rangeY=rangeY, rangeZ=rangeZ
         )
-        islands = mtk.Cmpt.getContigiousIslands(similarFaces)
+        islands = mtk.Cmpt.get_contigious_islands(similarFaces)
         island = [i for i in islands if bool(set(i) & set(selectedFaces))]
         pm.select(island)
 
@@ -437,8 +437,8 @@ class Selection_maya(Selection, SlotsMaya):
         angleHigh = tb.ctxMenu.s007.value()
 
         objects = pm.ls(sl=1, objectsOnly=1)
-        edges = SlotsMaya.getEdgesByNormalAngle(
-            objects, lowAngle=angleLow, highAngle=angleHigh
+        edges = SlotsMaya.get_edges_by_normal_angle(
+            objects, low_angle=angleLow, high_angle=angleHigh
         )
         pm.select(edges)
 

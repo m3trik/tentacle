@@ -338,7 +338,7 @@ class Uv_max(Uv, SlotsMax):
                 "<b>Nothing selected.</b><br>The operation requires the selection of two polygon objects."
             )
 
-        self.transferUVs(frm, to, tol=similarTol, deleteConstHist=deleteConstHist)
+        self.transferUVs(frm, to, tolerance=similarTol, deleteConstHist=deleteConstHist)
 
     def b001(self):
         """Create UV Snapshot"""

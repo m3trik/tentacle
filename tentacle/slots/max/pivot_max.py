@@ -155,7 +155,7 @@ class Pivot_max(Pivot, SlotsMax):
                 rt.selection
             )  # Same as Hierarchy/Pivot/Affect Pivot Only - Center to Object.
         elif object_:  ##Set pivot points to the center of the object's bounding box
-            self.centerPivot(rt.selection)
+            self.center_pivot(rt.selection)
         elif world:
             rt.selection.pivot = [0, 0, 0]  # center pivot world 0,0,0
         elif objectTop:
@@ -203,7 +203,7 @@ class Pivot_max(Pivot, SlotsMax):
         """Bake Pivot"""
         print("Command does not exist:", __name__)
 
-    def centerPivot(self, objects):
+    def center_pivot(self, objects):
         """Center the rotation pivot on the given objects."""
         for obj in objects:
             rt.toolMode.coordsys(obj)  # Center Pivot Object

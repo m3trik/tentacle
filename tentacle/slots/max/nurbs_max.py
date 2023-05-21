@@ -102,7 +102,7 @@ class Nurbs_max(Nurbs, SlotsMax):
             ssw=startSweep,
             esw=endSweep,
             ut=useTolerance,
-            tol=tolerance,
+            tolerance=tolerance,
             degree=degree,
             s=sections,
             ulp=1,

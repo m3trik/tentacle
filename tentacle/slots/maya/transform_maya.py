@@ -147,15 +147,15 @@ class Transform_maya(Transform, SlotsMaya):
         selection = pm.ls(sl=1, objectsOnly=1, type="transform")
         if state and selection:
             live_object = pm.ls(live=1)
-            shape = mtk.Node.getShapeNode(selection[0])
+            shape = mtk.Node.get_shape_node(selection[0])
             if not shape in str(live_object):
                 pm.makeLive(
                     selection
                 )  # construction planes, nurbs surfaces and polygon meshes can be made live. makeLive supports one live object at a time.
-                # mtk.viewportMessage('Make Live: <hl>On</hl> {0}'.format(selection[0].name()))
+                # mtk.viewport_message('Make Live: <hl>On</hl> {0}'.format(selection[0].name()))
         else:
             pm.makeLive(none=True)
-            # mtk.viewportMessage('Make Live: <hl>Off</hl>')
+            # mtk.viewport_message('Make Live: <hl>Off</hl>')
 
         cmb.setCurrentText("Constrain: OFF") if not any(
             (state, cmb.menu_.chk024.isChecked(), cmb.menu_.chk025.isChecked())
@@ -186,11 +186,11 @@ class Transform_maya(Transform, SlotsMaya):
 
         align = tb.ctxMenu.cmb004.currentText()
         origin = tb.ctxMenu.chk014.isChecked()
-        centerPivot = tb.ctxMenu.chk016.isChecked()
-        freezeTransforms = tb.ctxMenu.chk017.isChecked()
+        center_pivot = tb.ctxMenu.chk016.isChecked()
+        freeze_transforms = tb.ctxMenu.chk017.isChecked()
 
         objects = pm.ls(sl=1, objectsOnly=1)
-        mtk.Xform.dropToGrid(objects, align, origin, centerPivot, freezeTransforms)
+        mtk.Xform.drop_to_grid(objects, align, origin, center_pivot, freeze_transforms)
         pm.select(objects)  # reselect the original selection.
 
     def tb001(self, state=None):
@@ -208,7 +208,7 @@ class Transform_maya(Transform, SlotsMaya):
 
         if betweenTwoComponents:
             if len(selection) > 1:
-                componentsOnPath = mtk.Cmpt.getEdgePath(selection, "edgeLoopPath")
+                componentsOnPath = mtk.Cmpt.get_edge_path(selection, "edgeLoopPath")
                 pm.select(componentsOnPath)
 
         if autoAlign:  # set coordinates for auto align:
@@ -291,25 +291,25 @@ class Transform_maya(Transform, SlotsMaya):
         loop = tb.ctxMenu.chk007.isChecked()
 
         if all([x, not y, not z]):  # align x
-            mtk.Xform.alignVertices(mode=3, average=avg, edgeloop=loop)
+            mtk.Xform.align_vertices(mode=3, average=avg, edgeloop=loop)
 
         if all([not x, y, not z]):  # align y
-            mtk.Xform.alignVertices(mode=4, average=avg, edgeloop=loop)
+            mtk.Xform.align_vertices(mode=4, average=avg, edgeloop=loop)
 
         if all([not x, not y, z]):  # align z
-            mtk.Xform.alignVertices(mode=5, average=avg, edgeloop=loop)
+            mtk.Xform.align_vertices(mode=5, average=avg, edgeloop=loop)
 
         if all([not x, y, z]):  # align yz
-            mtk.Xform.alignVertices(mode=0, average=avg, edgeloop=loop)
+            mtk.Xform.align_vertices(mode=0, average=avg, edgeloop=loop)
 
         if all([x, not y, z]):  # align xz
-            mtk.Xform.alignVertices(mode=1, average=avg, edgeloop=loop)
+            mtk.Xform.align_vertices(mode=1, average=avg, edgeloop=loop)
 
         if all([x, y, not z]):  # align xy
-            mtk.Xform.alignVertices(mode=2, average=avg, edgeloop=loop)
+            mtk.Xform.align_vertices(mode=2, average=avg, edgeloop=loop)
 
         if all([x, y, z]):  # align xyz
-            mtk.Xform.alignVertices(mode=6, average=avg, edgeloop=loop)
+            mtk.Xform.align_vertices(mode=6, average=avg, edgeloop=loop)
 
     def tb002(self, state=None):
         """Freeze Transformations"""
@@ -318,9 +318,9 @@ class Transform_maya(Transform, SlotsMaya):
         translate = tb.ctxMenu.chk032.isChecked()
         rotate = tb.ctxMenu.chk033.isChecked()
         scale = tb.ctxMenu.chk034.isChecked()
-        centerPivot = tb.ctxMenu.chk035.isChecked()
+        center_pivot = tb.ctxMenu.chk035.isChecked()
 
-        if centerPivot:
+        if center_pivot:
             pm.xform(centerPivots=1)
 
         pm.makeIdentity(
@@ -349,7 +349,7 @@ class Transform_maya(Transform, SlotsMaya):
             )
             return
 
-        transform = mtk.Node.getTransformNode(node)
+        transform = mtk.Node.get_transform_node(node)
         self.setAttributeWindow(
             transform,
             inc=[
@@ -378,7 +378,7 @@ class Transform_maya(Transform, SlotsMaya):
         frm = selection[0]
         to = selection[1:]
 
-        mtk.Xform.matchScale(frm, to)
+        mtk.Xform.match_scale(frm, to)
 
     def b003(self):
         """Center Pivot Object"""
@@ -408,7 +408,7 @@ class Transform_maya(Transform, SlotsMaya):
 
         if selection:
             live_object = pm.ls(live=1)
-            shape = mtk.Node.getShapeNode(selection[0])
+            shape = mtk.Node.get_shape_node(selection[0])
             if not shape in str(live_object):
                 self.chk026(state=1)
                 cmb.menu_.chk026.setChecked(True)
@@ -496,27 +496,27 @@ print(__name__)
 
 
 # def cmb003(self):
-# 	'''Transform Tool Snapping: Disable All
-# 	'''
-# 	cmb = self.sb.transform.cmb003
-# 	self.sb.toggle_widgets(setUnChecked='chk021-23')
-# 	cmb.setCurrentText('Off') if not any((cmb.menu_.chk021.isChecked(), cmb.menu_.chk022.isChecked(), cmb.menu_.chk023.isChecked())) else cmb.setCurrentText('On')
+#   '''Transform Tool Snapping: Disable All
+#   '''
+#   cmb = self.sb.transform.cmb003
+#   self.sb.toggle_widgets(setUnChecked='chk021-23')
+#   cmb.setCurrentText('Off') if not any((cmb.menu_.chk021.isChecked(), cmb.menu_.chk022.isChecked(), cmb.menu_.chk023.isChecked())) else cmb.setCurrentText('On')
 
 
 # def cmb003(self):
-# 	'''Transform Tool Snapping: Disable All
-# 	'''
-# 	cmb = self.sb.transform.lbl000
-# 	self.sb.toggle_widgets(setUnChecked='chk024-26')
-# 	cmb.setCurrentText('Off') if not any((cmb.menu_.chk024.isChecked(), cmb.menu_.chk025.isChecked(), cmb.menu_.chk026.isChecked())) else cmb.setCurrentText('On')
+#   '''Transform Tool Snapping: Disable All
+#   '''
+#   cmb = self.sb.transform.lbl000
+#   self.sb.toggle_widgets(setUnChecked='chk024-26')
+#   cmb.setCurrentText('Off') if not any((cmb.menu_.chk024.isChecked(), cmb.menu_.chk025.isChecked(), cmb.menu_.chk026.isChecked())) else cmb.setCurrentText('On')
 
 
 # def s002(self, value=None):
-# 	'''
-# 	Transform: Set Step
-# 	'''
-# 	value = self.sb.transform.s002.value()
-# 	self.sb.transform.s000.setStep(value)
+#   '''
+#   Transform: Set Step
+#   '''
+#   value = self.sb.transform.s002.value()
+#   self.sb.transform.s000.setStep(value)
 
 # def s000(self, value=None):
 # '''
@@ -527,164 +527,164 @@ print(__name__)
 # self.performTransformations(objects, xyz)
 
 # def chk005(self, state=None):
-# 	'''
-# 	Transform: Scale
+#   '''
+#   Transform: Scale
 
-# 	'''
-# 	self.sb.toggle_widgets(setUnChecked='chk008-9', setChecked='chk000-2')
-# 	self.sb.transform.s000.setValue(2)
-# 	self.sb.transform.s000.setSingleStep(1)
+#   '''
+#   self.sb.toggle_widgets(setUnChecked='chk008-9', setChecked='chk000-2')
+#   self.sb.transform.s000.setValue(2)
+#   self.sb.transform.s000.setSingleStep(1)
 
 
 # def chk008(self, state=None):
-# 	'''
-# 	Transform: Move
+#   '''
+#   Transform: Move
 
-# 	'''
-# 	self.sb.toggle_widgets(setUnChecked='chk005,chk009,chk000-2')
-# 	self.sb.transform.s000.setValue(0.1)
-# 	self.sb.transform.s000.setSingleStep(0.1)
+#   '''
+#   self.sb.toggle_widgets(setUnChecked='chk005,chk009,chk000-2')
+#   self.sb.transform.s000.setValue(0.1)
+#   self.sb.transform.s000.setSingleStep(0.1)
 
 
 # def chk009(self, state=None):
-# 	'''
-# 	Transform: Rotate
+#   '''
+#   Transform: Rotate
 
-# 	'''
-# 	self.sb.toggle_widgets(setUnChecked='chk005,chk008,chk000-2')
-# 	self.sb.transform.s000.setValue(45)
-# 	self.sb.transform.s000.setSingleStep(5)
+#   '''
+#   self.sb.toggle_widgets(setUnChecked='chk005,chk008,chk000-2')
+#   self.sb.transform.s000.setValue(45)
+#   self.sb.transform.s000.setSingleStep(5)
 
 # def b000(self):
-# 	'''
-# 	Transform negative axis
-# 	'''
-# 	#change the textfield to neg value and call performTransformations
-# 	textfield = float(self.sb.transform.s000.value())
-# 	if textfield >=0:
-# 		newText = -textfield
-# 		self.sb.transform.s000.setValue(newText)
-# 	self.performTransformations()
+#   '''
+#   Transform negative axis
+#   '''
+#   #change the textfield to neg value and call performTransformations
+#   textfield = float(self.sb.transform.s000.value())
+#   if textfield >=0:
+#       newText = -textfield
+#       self.sb.transform.s000.setValue(newText)
+#   self.performTransformations()
 
 
 # def b001(self):
-# 	'''
-# 	Transform positive axis
-# 	'''
-# 	#change the textfield to pos value and call performTransformations
-# 	textfield = float(self.sb.transform.s000.value())
-# 	if textfield <0:
-# 		newText = abs(textfield)
-# 		self.sb.transform.s000.setValue(newText)
-# 	self.performTransformations()
+#   '''
+#   Transform positive axis
+#   '''
+#   #change the textfield to pos value and call performTransformations
+#   textfield = float(self.sb.transform.s000.value())
+#   if textfield <0:
+#       newText = abs(textfield)
+#       self.sb.transform.s000.setValue(newText)
+#   self.performTransformations()
 
 
-# 	def getTransformValues(self):
-# 	'''
-# 	Get the XYZ transform values from the various ui wgts.
-# 	'''
-# 	x = self.sb.transform.chk000.isChecked()
-# 	y = self.sb.transform.chk001.isChecked()
-# 	z = self.sb.transform.chk002.isChecked()
-# 	relative = self.sb.transform.chk005.isChecked()
+#   def getTransformValues(self):
+#   '''
+#   Get the XYZ transform values from the various ui wgts.
+#   '''
+#   x = self.sb.transform.chk000.isChecked()
+#   y = self.sb.transform.chk001.isChecked()
+#   z = self.sb.transform.chk002.isChecked()
+#   relative = self.sb.transform.chk005.isChecked()
 
-# 	amount = self.sb.transform.s002.value() #use the step as the transform amount
-# 	floatX=floatY=floatZ = 0
+#   amount = self.sb.transform.s002.value() #use the step as the transform amount
+#   floatX=floatY=floatZ = 0
 
-# 	if relative: #else absolute.
-# 		currentScale = pm.xform(query=1, scale=1)
-# 		floatX = round(currentScale[0], 2)
-# 		floatY = round(currentScale[1], 2)
-# 		floatZ = round(currentScale[2], 2)
+#   if relative: #else absolute.
+#       currentScale = pm.xform(query=1, scale=1)
+#       floatX = round(currentScale[0], 2)
+#       floatY = round(currentScale[1], 2)
+#       floatZ = round(currentScale[2], 2)
 
-# 	if x:
-# 		floatX = amount
-# 	if y:
-# 		floatY = amount
-# 	if z:
-# 		floatZ = amount
+#   if x:
+#       floatX = amount
+#   if y:
+#       floatY = amount
+#   if z:
+#       floatZ = amount
 
-# 	xyz = [floatX, floatY, floatZ]
-# 	return xyz
+#   xyz = [floatX, floatY, floatZ]
+#   return xyz
 
 
 # def performTransformations(self, objects, xyz): #transform
-# 	'''
+#   '''
 
-# 	'''
-# 	relative = bool(self.sb.transform.chk003.isChecked())#Move absolute/relative toggle
-# 	worldspace = bool(self.sb.transform.chk004.isChecked())#Move object/worldspace toggle
+#   '''
+#   relative = bool(self.sb.transform.chk003.isChecked())#Move absolute/relative toggle
+#   worldspace = bool(self.sb.transform.chk004.isChecked())#Move object/worldspace toggle
 
-# 	scale = self.sb.transform.chk005.isChecked()
-# 	move = self.sb.transform.chk008.isChecked()
-# 	rotate = self.sb.transform.chk009.isChecked()
+#   scale = self.sb.transform.chk005.isChecked()
+#   move = self.sb.transform.chk008.isChecked()
+#   rotate = self.sb.transform.chk009.isChecked()
 
-# 	#Scale selected.
-# 	if scale:
-# 		if xyz[0] != -1: #negative values are only valid in relative mode and cannot scale relatively by one so prevent the math below which would scale incorrectly in this case.
-# 			#convert the decimal place system xform uses for negative scale values to an standard negative value
-# 			if xyz[0] < 0:
-# 				xyz[0] = xyz[0]/10.*2.5
-# 			if xyz[1] < 0:
-# 				xyz[1] = xyz[1]/10.*2.5
-# 			if xyz[2] < 0:
-# 				xyz[2] = xyz[2]/10.*2.5
-# 			pm.xform(objects, relative=relative, worldSpace=worldspace, objectSpace=(not worldspace), scale=(xyz[0], xyz[1], xyz[2]))
+#   #Scale selected.
+#   if scale:
+#       if xyz[0] != -1: #negative values are only valid in relative mode and cannot scale relatively by one so prevent the math below which would scale incorrectly in this case.
+#           #convert the decimal place system xform uses for negative scale values to an standard negative value
+#           if xyz[0] < 0:
+#               xyz[0] = xyz[0]/10.*2.5
+#           if xyz[1] < 0:
+#               xyz[1] = xyz[1]/10.*2.5
+#           if xyz[2] < 0:
+#               xyz[2] = xyz[2]/10.*2.5
+#           pm.xform(objects, relative=relative, worldSpace=worldspace, objectSpace=(not worldspace), scale=(xyz[0], xyz[1], xyz[2]))
 
-# 	#Move selected relative/absolute, object/worldspace by specified amount.
-# 	if move:
-# 		pm.xform(objects, relative=relative, worldSpace=worldspace, objectSpace=(not worldspace), translation=(xyz[0], xyz[1], xyz[2]))
+#   #Move selected relative/absolute, object/worldspace by specified amount.
+#   if move:
+#       pm.xform(objects, relative=relative, worldSpace=worldspace, objectSpace=(not worldspace), translation=(xyz[0], xyz[1], xyz[2]))
 
-# 	#Rotate selected
-# 	if rotate:
-# 		pm.xform(objects, relative=relative, worldSpace=worldspace, objectSpace=(not worldspace), rotation=(xyz[0], xyz[1], xyz[2]))
+#   #Rotate selected
+#   if rotate:
+#       pm.xform(objects, relative=relative, worldSpace=worldspace, objectSpace=(not worldspace), rotation=(xyz[0], xyz[1], xyz[2]))
 
 
 # def cmb002(self, index=-1):
-# 	'''
-# 	Transform Contraints
+#   '''
+#   Transform Contraints
 
-# 	constrain along normals #checkbox option for edge amd surface constaints
-# 	setXformConstraintAlongNormal false;
-# 	'''
-# 	cmb = self.sb.transform.lbl000
+#   constrain along normals #checkbox option for edge amd surface constaints
+#   setXformConstraintAlongNormal false;
+#   '''
+#   cmb = self.sb.transform.lbl000
 
-# 	if index=='setMenu':
-# 		cmb.ctxMenu.add(self.sb.Label, setObjectName='lbl000', setText='Disable All', setToolTip='Disable all constraints.')
+#   if index=='setMenu':
+#       cmb.ctxMenu.add(self.sb.Label, setObjectName='lbl000', setText='Disable All', setToolTip='Disable all constraints.')
 
-# 		items = ['Edge', 'Surface', 'Make Live']
-# 		cmb.addItems_(items, 'Off')
-# 		return
+#       items = ['Edge', 'Surface', 'Make Live']
+#       cmb.addItems_(items, 'Off')
+#       return
 
-# 	live_object = pm.ls(live=1)
-# 	print ("live_object:", live_object)
-# 	# if not live_object and text=='Make Live'):
-# 	# 	cmb.setCurrentIndex(0)
+#   live_object = pm.ls(live=1)
+#   print ("live_object:", live_object)
+#   # if not live_object and text=='Make Live'):
+#   #   cmb.setCurrentIndex(0)
 
-# 	if index>0:
-# 		text = cmb.items[index]
-# 		if text=='Edge'):
-# 			pm.xformConstraint(type='edge') #pm.manipMoveSetXformConstraint(edge=True);
+#   if index>0:
+#       text = cmb.items[index]
+#       if text=='Edge'):
+#           pm.xformConstraint(type='edge') #pm.manipMoveSetXformConstraint(edge=True);
 
-# 		elif text=='Surface'):
-# 			pm.xformConstraint(type='surface') #pm.manipMoveSetXformConstraint(surface=True);
+#       elif text=='Surface'):
+#           pm.xformConstraint(type='surface') #pm.manipMoveSetXformConstraint(surface=True);
 
-# 		elif text=='Make Live'):
-# 			print ('3')
-# 			selection = pm.ls(sl=1, objectsOnly=1, type='transform')
-# 			if not selection and not live_object:
-# 				print ('not selection and not live_object')
-# 				cmb.setCurrentIndex(0)
-# 				return 'Error: Nothing Selected.'
+#       elif text=='Make Live'):
+#           print ('3')
+#           selection = pm.ls(sl=1, objectsOnly=1, type='transform')
+#           if not selection and not live_object:
+#               print ('not selection and not live_object')
+#               cmb.setCurrentIndex(0)
+#               return 'Error: Nothing Selected.'
 
-# 			if not live_object:
-# 				print ('not live_object')
-# 				pm.makeLive(selection) #construction planes, nurbs surfaces and polygon meshes can be made live. makeLive supports one live object at a time.
-# 				mtk.viewportMessage('Make Live: <hl>On</hl> {0}'.format(selection[0].name()))
-# 	else:
-# 		print ('0')
-# 		pm.xformConstraint(type='none') #pm.manipMoveSetXformConstraint(none=True);
-# 		if live_object:
-# 			print ('none')
-# 			pm.makeLive(none=True)
-# 			mtk.viewportMessage('Make Live: <hl>Off</hl>')
+#           if not live_object:
+#               print ('not live_object')
+#               pm.makeLive(selection) #construction planes, nurbs surfaces and polygon meshes can be made live. makeLive supports one live object at a time.
+#               mtk.viewport_message('Make Live: <hl>On</hl> {0}'.format(selection[0].name()))
+#   else:
+#       print ('0')
+#       pm.xformConstraint(type='none') #pm.manipMoveSetXformConstraint(none=True);
+#       if live_object:
+#           print ('none')
+#           pm.makeLive(none=True)
+#           mtk.viewport_message('Make Live: <hl>Off</hl>')

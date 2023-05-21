@@ -147,12 +147,12 @@ class Create_maya(Create, SlotsMaya):
             },
             "nurbs": {
                 "cube": "pm.nurbsCube(ch=1, d=3, hr=1, p=(0, 0, 0), lr=1, w=1, v=1, ax=(0, 1, 0), u=1)",
-                "sphere": "pm.sphere(esw=360, ch=1, d=3, ut=0, ssw=0, p=(0, 0, 0), s=8, r=1, tol=0.01, nsp=4, ax=(0, 1, 0))",
-                "cylinder": "pm.cylinder(esw=360, ch=1, d=3, hr=2, ut=0, ssw=0, p=(0, 0, 0), s=8, r=1, tol=0.01, nsp=1, ax=(0, 1, 0))",
-                "cone": "pm.cone(esw=360, ch=1, d=3, hr=2, ut=0, ssw=0, p=(0, 0, 0), s=8, r=1, tol=0.01, nsp=1, ax=(0, 1, 0))",
+                "sphere": "pm.sphere(esw=360, ch=1, d=3, ut=0, ssw=0, p=(0, 0, 0), s=8, r=1, tolerance=0.01, nsp=4, ax=(0, 1, 0))",
+                "cylinder": "pm.cylinder(esw=360, ch=1, d=3, hr=2, ut=0, ssw=0, p=(0, 0, 0), s=8, r=1, tolerance=0.01, nsp=1, ax=(0, 1, 0))",
+                "cone": "pm.cone(esw=360, ch=1, d=3, hr=2, ut=0, ssw=0, p=(0, 0, 0), s=8, r=1, tolerance=0.01, nsp=1, ax=(0, 1, 0))",
                 "plane": "pm.nurbsPlane(ch=1, d=3, v=1, p=(0, 0, 0), u=1, w=1, ax=(0, 1, 0), lr=1)",
-                "torus": "pm.torus(esw=360, ch=1, d=3, msw=360, ut=0, ssw=0, hr=0.5, p=(0, 0, 0), s=8, r=1, tol=0.01, nsp=4, ax=(0, 1, 0))",
-                "circle": "pm.circle(c=(0, 0, 0), ch=1, d=3, ut=0, sw=360, s=8, r=1, tol=0.01, nr=(0, 1, 0))",
+                "torus": "pm.torus(esw=360, ch=1, d=3, msw=360, ut=0, ssw=0, hr=0.5, p=(0, 0, 0), s=8, r=1, tolerance=0.01, nsp=4, ax=(0, 1, 0))",
+                "circle": "pm.circle(c=(0, 0, 0), ch=1, d=3, ut=0, sw=360, s=8, r=1, tolerance=0.01, nr=(0, 1, 0))",
                 "square": "pm.nurbsSquare(c=(0, 0, 0), ch=1, d=3, sps=1, sl1=1, sl2=1, nr=(0, 1, 0))",
             },
             "light": {
@@ -171,21 +171,21 @@ class Create_maya(Create, SlotsMaya):
             selection
         ):  # if originally there was a selected object, move the object to that objects's bounding box center.
             if translate:
-                mtk.Xform.moveTo(node, selection)
-                # center_pos = mtk.Xform.getCenterPoint(selection)
+                mtk.Xform.move_to(node, selection)
+                # center_pos = mtk.Xform.get_center_point(selection)
                 # pm.xform(node, translation=center_pos, worldSpace=1, absolute=1)
             if scale:
-                mtk.Xform.matchScale(node[0], selection, average=True)
+                mtk.Xform.match_scale(node[0], selection, average=True)
 
         pm.selectMode(object=1)  # place scene select type in object mode.
         pm.select(node)  # select the transform node so that you can see any edits
 
-        return mtk.Node.getHistoryNode(node)
+        return mtk.Node.get_history_node(node)
 
     def b005(self):
         """Create 6 sided poly cylinder"""
         obj = self.createPrimitive("Polygon", "Cylinder")
-        mtk.Node.setNodeAttributes(obj, verbose=True, subdivisionsAxis=6)
+        mtk.Node.set_node_attributes(obj, verbose=True, subdivisionsAxis=6)
 
     @mtk.undo
     def createCircle(
@@ -261,7 +261,7 @@ print(__name__)
 # def node(self):
 # 	'''Get the Transform Node
 # 	'''
-# 	transform = mtk.Node.getTransformNode()
+# 	transform = mtk.Node.get_transform_node()
 # 	if transform:
 # 		if not self.sb.create.txt003.text()==transform[0].name(): #make sure the same field reflects the current working node.
 # 			self.sb.create.txt003.setText(transform[0].name())

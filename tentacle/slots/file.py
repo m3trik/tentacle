@@ -15,7 +15,7 @@ class File(Slots):
         list000.position = "top"
         list000.offset = 19
         list000.drag_interaction = True
-        recentFiles = self.getRecentFiles(slice(0, 6))
+        recentFiles = self.get_recent_files(slice(0, 6))
         w1 = list000.add("QPushButton", setText="Recent Files")
         truncated = truncate(recentFiles, 65)
         w1.list.add(truncated, recentFiles)
@@ -32,7 +32,7 @@ class File(Slots):
             setToolTip="Open the most recent file.",
         )
         cmb005.addItems_(
-            self.getRecentFiles(slice(0, 20), format="timestamp|standard"),
+            self.get_recent_files(slice(0, 20), format="timestamp|standard"),
             "Recent Files",
             clear=True,
         )
@@ -56,7 +56,7 @@ class File(Slots):
             setToolTip="Open the project directory.",
         )
         cmb006.ctxMenu.cmb001.addItems_(
-            self.getRecentProjects(slice(0, 20), format="timestamp|standard"),
+            self.get_recent_projects(slice(0, 20), format="timestamp|standard"),
             "Recent Projects",
             clear=True,
         )
@@ -70,12 +70,12 @@ class File(Slots):
 
         except AttributeError as error:
             menu = self.sb.Menu(self.sb.file.lbl005)
-            for i in self.getWorkspaceScenes(
+            for i in self.get_workspace_scenes(
                 fullPath=True
-            ):  # zip(self.getWorkspaceScenes(fullPath=False), self.getWorkspaceScenes(fullPath=True)):
+            ):  # zip(self.get_workspace_scenes(fullPath=False), self.get_workspace_scenes(fullPath=True)):
                 chk = menu.add(self.sb.CheckBox, setText=i)
                 chk.toggled.connect(
-                    lambda state, scene=i: self.referenceScene(scene, not state)
+                    lambda state, scene=i: self.reference_scene(scene, not state)
                 )
 
             self._referenceSceneMenu = menu

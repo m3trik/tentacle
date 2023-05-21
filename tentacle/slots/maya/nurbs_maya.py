@@ -133,7 +133,7 @@ class Nurbs_maya(Nurbs, SlotsMaya):
             ssw=startSweep,
             esw=endSweep,
             ut=useTolerance,
-            tol=tolerance,
+            tolerance=tolerance,
             degree=degree,
             s=sections,
             ulp=1,
@@ -184,10 +184,10 @@ class Nurbs_maya(Nurbs, SlotsMaya):
 
         except Exception as error:
             sel = pm.ls(sl=1)
-            sel_edges = mtk.Cmpt.getComponents(
-                sel, componentType="edges", flatten=1
+            sel_edges = mtk.Cmpt.get_components(
+                sel, component_type="edges", flatten=1
             )  # get edges from selection.
-            edge_rings = mtk.Cmpt.getContigiousEdges(sel_edges)
+            edge_rings = mtk.Cmpt.get_contigious_edges(sel_edges)
             multi = len(edge_rings) > 1
 
             for edge_ring in edge_rings:
@@ -398,43 +398,43 @@ class Nurbs_maya(Nurbs, SlotsMaya):
         # pm.undoInfo(openChunk=1)
         p1 = pm.objectCenter(start)
         p2 = pm.objectCenter(end)
-        hypotenuse = Slots.getDistBetweenTwoPoints(p1, p2)
+        hypotenuse = Slots.get_distance(p1, p2)
 
         v1, v2 = self.getCrossProductOfCurves([start, end], normalize=1, values=1)
-        v3a = Slots.getVectorFromTwoPoints(p1, p2)
-        v3b = Slots.getVectorFromTwoPoints(p2, p1)
+        v3a = Slots.get_vector_from_two_points(p1, p2)
+        v3b = Slots.get_vector_from_two_points(p2, p1)
 
-        a1 = Slots.getAngleFrom2Vectors(
+        a1 = Slots.get_angle_from_two_vectors(
             v1, v3a, degree=1
-        )  # SlotsMaya.getAngleFrom3Points(v1, p1, p2, degree=1)
-        a2 = Slots.getAngleFrom2Vectors(
+        )  # SlotsMaya.get_angle_from_three_points(v1, p1, p2, degree=1)
+        a2 = Slots.get_angle_from_two_vectors(
             v2, v3b, degree=1
-        )  # SlotsMaya.getAngleFrom3Points(v2, p1, p2, degree=1)
-        a3 = Slots.getAngleFrom2Vectors(v1, v2, degree=1)
+        )  # SlotsMaya.get_angle_from_three_points(v2, p1, p2, degree=1)
+        a3 = Slots.get_angle_from_two_vectors(v1, v2, degree=1)
 
-        d1, d2 = Slots.getTwoSidesOfASATriangle(
+        d1, d2 = Slots.get_two_sides_of_asa_triangle(
             a2, a1, hypotenuse
         )  # get length of sides 1 and 2.
 
-        p_from_v1 = Slots.movePointAlongVectorRelativeToPoint(p1, p2, v1, d1)
-        p_from_v2 = Slots.movePointAlongVectorRelativeToPoint(p2, p1, v2, d2)
-        p3 = Slots.getCenterPointBetweenTwoPoints(p_from_v1, p_from_v2)
+        p_from_v1 = Slots.move_point_relative_along_vector(p1, p2, v1, d1)
+        p_from_v2 = Slots.move_point_relative_along_vector(p2, p1, v2, d2)
+        p3 = Slots.get_center_of_two_points(p_from_v1, p_from_v2)
 
         if d1 < d2:
             min_dist = d1
-            max_vect = Slots.getVectorFromTwoPoints(p2, p3)
+            max_vect = Slots.get_vector_from_two_points(p2, p3)
         else:
             min_dist = d2
-            max_vect = Slots.getVectorFromTwoPoints(p1, p3)
+            max_vect = Slots.get_vector_from_two_points(p1, p3)
             p1, p2 = p2, p1
 
         # pm.spaceLocator(position=p1); pm.spaceLocator(position=p2); pm.spaceLocator(position=p3)
 
-        p4 = Slots.movePointRelative(p3, min_dist, max_vect)
+        p4 = Slots.move_point_relative(p3, min_dist, max_vect)
         # pm.spaceLocator(position=p4)
-        p5 = Slots.getCenterPointBetweenTwoPoints(p4, p1)
+        p5 = Slots.get_center_of_two_points(p4, p1)
         # pm.spaceLocator(position=p5)
-        p6 = Slots.getCenterPointBetweenTwoPoints(p3, p5)
+        p6 = Slots.get_center_of_two_points(p3, p5)
         # pm.spaceLocator(position=p6)
 
         # add weighting to the curve points.
@@ -532,13 +532,13 @@ class Nurbs_maya(Nurbs, SlotsMaya):
             start, startNode = pm.polyToCurve(
                 start, form=2, degree=3, conformToSmoothMeshPreview=1
             )  # extract curve from mesh
-        mtk.Xform.resetTranslation(start)  # reset the transforms to world origin.
+        mtk.Xform.reset_translation(start)  # reset the transforms to world origin.
 
         if pm.objectType(end) == "mesh":  # vs. 'nurbsCurve'
             end, endNode = pm.polyToCurve(
                 end, form=2, degree=3, conformToSmoothMeshPreview=1
             )  # extract curve from mesh
-        mtk.Xform.resetTranslation(end)  # reset the transforms to world origin.
+        mtk.Xform.reset_translation(end)  # reset the transforms to world origin.
 
         path = self.createCurveBetweenTwoObjects(start, end)
         curves = self.duplicateAlongCurve(path, start, count=count)
@@ -586,7 +586,7 @@ class Nurbs_maya(Nurbs, SlotsMaya):
         Returns:
                 (dict) closest vertex/cv pairs (one pair for each given curve) ex. {<vertex from set1>:<vertex from set2>}.
 
-        ex. vertices = getComponents(objects, 'vertices')
+        ex. vertices = get_components(objects, 'vertices')
                 closestVerts = getClosestCV(curve0, curves)
         """
         pm.undoInfo(openChunk=True)
@@ -611,9 +611,7 @@ class Nurbs_maya(Nurbs, SlotsMaya):
                     pos = i
                 pm.setAttr(npcNode.inPosition, pos)
 
-                distance = Slots.getDistBetweenTwoPoints(
-                    pos, pm.getAttr(npcNode.position)
-                )
+                distance = Slots.get_distance(pos, pm.getAttr(npcNode.position))
                 p = pm.getAttr(npcNode.parameter)
                 if not tolerance:
                     result[i] = p
@@ -626,22 +624,22 @@ class Nurbs_maya(Nurbs, SlotsMaya):
         return result
 
     @classmethod
-    def getCvInfo(cls, c, returnType="cv", filter_=[]):
+    def getCvInfo(cls, c, returned_type="cv", filter_=[]):
         """Get a dict containing CV's of the given curve(s) and their corresponding point positions (based on Maya's pointOnCurve command).
 
         Parameters:
                 - c (str/obj/list): Curves or CVs to get CV info from.
-                - returnType (str): The desired returned values. Default is 'cv'.
+                - returned_type (str): The desired returned values. Default is 'cv'.
                         valid values are:
                                 'cv' = Return a list of all CV's for the given curves.
                                 'count' = Return an integer representing the total number of cvs for each of the curves given.
                                 'parameter', 'position', 'index', 'localPosition', 'tangent', 'normalizedTangent', 'normal', 'normalizedNormal', 'curvatureRadius', 'curvatureCenter'
-                                = Return a dict with CV's as keys and the returnType as their corresponding values.
+                                = Return a dict with CV's as keys and the returned_type as their corresponding values.
                         ex. {NurbsCurveCV(u'polyToCurveShape7.cv[5]'): [-12.186520865542082, 15.260936896515751, -369.6159740743584]}
                 - filter_ (str/obj/list): Value(s) to filter for in the returned results.
 
         Returns:
-                (dict)(list)(int) dependant on returnType.
+                (dict)(list)(int) dependant on returned_type.
 
         ex. cv_tan = getCvInfo(curve.cv[0:2],'tangent') #get CV tangents for cvs 0-2.
         ex. cvParam = getCvInfo(curve, 'parameters') #get the curves CVs and their corresponding U parameter values.
@@ -659,32 +657,32 @@ class Nurbs_maya(Nurbs, SlotsMaya):
                 cvs, curve
             )  # use getClosestCV to get the parameter location for each of the curves CVs.
             for cv, p in parameters.items():
-                if returnType == "position":  # Get cv position
+                if returned_type == "position":  # Get cv position
                     v = pm.pointOnCurve(curve, parameter=p, position=True)
-                elif returnType == "localPosition":
+                elif returned_type == "localPosition":
                     v = pm.getAttr(cv)  # local cv position
-                elif returnType == "tangent":  # Get cv tangent
+                elif returned_type == "tangent":  # Get cv tangent
                     v = pm.pointOnCurve(curve, parameter=p, tangent=True)
-                elif returnType == "normalizedTangent":
+                elif returned_type == "normalizedTangent":
                     v = pm.pointOnCurve(curve, parameter=p, normalizedTangent=True)
-                elif returnType == "normal":  # Get cv normal
+                elif returned_type == "normal":  # Get cv normal
                     v = pm.pointOnCurve(curve, parameter=p, normal=True)
-                elif returnType == "normalizedNormal":
+                elif returned_type == "normalizedNormal":
                     v = pm.pointOnCurve(
                         curve, parameter=p, normalizedNormal=True
                     )  # Returns the (x,y,z) normalized normal of curve1 at parameter 0.5.
-                elif returnType == "curvatureRadius":  # Get cv curvature
+                elif returned_type == "curvatureRadius":  # Get cv curvature
                     v = pm.pointOnCurve(
                         curve, parameter=p, curvatureRadius=True
                     )  # Returns the curvature radius of curve1 at parameter 0.5.
-                elif returnType == "curvatureCenter":
+                elif returned_type == "curvatureCenter":
                     v = pm.pointOnCurve(curve, parameter=p, curvatureCenter=True)
-                elif returnType == "parameter":  # Return the CVs parameter.
+                elif returned_type == "parameter":  # Return the CVs parameter.
                     v = p
-                elif returnType == "count":  # total number of cv's for the curve.
+                elif returned_type == "count":  # total number of cv's for the curve.
                     result[curve] = len(cls.getCvInfo(curve))
                     break
-                elif returnType == "index":  # index of the cv
+                elif returned_type == "index":  # index of the cv
                     s = str(cv)
                     v = int(s[s.index("[") + 1 : s.index("]")])
                 else:
@@ -692,7 +690,7 @@ class Nurbs_maya(Nurbs, SlotsMaya):
 
                 result[cv] = v
 
-        if returnType == "cv":
+        if returned_type == "cv":
             result = result.keys()
 
         if filter_:
@@ -729,7 +727,7 @@ class Nurbs_maya(Nurbs, SlotsMaya):
         for curve in pm.ls(curves):
             p0 = pm.objectCenter(curve)
 
-            cvs = cls.getComponents(curve, "cv", returnType="obj", flatten=1)
+            cvs = cls.get_components(curve, "cv", returned_type="obj", flatten=1)
             cvPos = cls.getCvInfo(curve, "position")
             p1 = cvPos[cvs[0]]
             p2 = cvPos[cvs[(len(cvs) / 2)]]

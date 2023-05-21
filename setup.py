@@ -26,8 +26,8 @@ setuptools.setup(
         "Operating System :: OS Independent",
     ],
     include_package_data=True,
-    data_files=File.getDirContents(
-        __package__, "filepaths", excFiles=["*.py", "*.pyc", "*.json"]
+    data_files=File.get_dir_contents(
+        __package__, "filepaths", exc_files=["*.py", "*.pyc", "*.json"]
     ),  # ie. ('uitk/ui/0', ['uitk/ui/0/init.ui']),
 )
 
@@ -44,16 +44,16 @@ setuptools.setup(
 # def gen_data_files(dirs, exc=[], inc=[]):
 # 	'''
 # 	'''
-# 	dirs = Iter.makeList(dirs)
-# 	exc = Iter.makeList(exc)
-# 	inc = Iter.makeList(inc)
+# 	dirs = Iter.make_list(dirs)
+# 	exc = Iter.make_list(exc)
+# 	inc = Iter.make_list(inc)
 
 # 	results = []
 # 	for src_dir in dirs:
 # 		for root, dirs, files in os.walk(src_dir):
 # 			filtered=[]
 # 			for f in files:
-# 				ext = File.formatPath(f, 'ext')
+# 				ext = File.format_path(f, 'ext')
 # 				if f in exc or '*.'+ext in exc:
 # 					continue
 # 				if any(inc): #filter inc for None values so not to get a false positive.

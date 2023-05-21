@@ -30,7 +30,7 @@ class Scene_max(Scene, SlotsMax):
 
         selection = pm.ls(sl=1)
         objects = selection if selection else pm.ls(objectsOnly=1)
-        self.setCase(objects, case)
+        self.set_case(objects, case)
 
     def b000(self):
         """Rename"""
@@ -38,14 +38,14 @@ class Scene_max(Scene, SlotsMax):
             self.sb.scene.t000.text()
         )  # an asterisk denotes startswith*, *endswith, *contains*
         to = self.sb.scene.t001.text()
-        regEx = self.sb.scene.t000.ctxMenu.chk001.isChecked()
-        ignoreCase = self.sb.scene.t000.ctxMenu.chk000.isChecked()
+        regex = self.sb.scene.t000.ctxMenu.chk001.isChecked()
+        ignore_case = self.sb.scene.t000.ctxMenu.chk000.isChecked()
 
         selection = pm.ls(sl=1)
         objects = selection if selection else pm.ls(objectsOnly=1)
-        self.rename(find, to, objects, regEx=regEx, ignoreCase=ignoreCase)
+        self.rename(find, to, objects, regex=regex, ignore_case=ignore_case)
 
-    def rename(self, frm, to, regEx=False, ignoreCase=False):
+    def rename(self, frm, to, regex=False, ignore_case=False):
         """Rename scene objects.
 
         Parameters:
@@ -62,20 +62,20 @@ class Scene_max(Scene, SlotsMax):
                         **to - append suffix.
                         to* - replace prefix.
                         to** - append prefix.
-                regEx (bool): If True, regular expression syntax is used instead of the default '*' and '|' modifiers.
-                ignoreCase (bool): Ignore case when searching. Applies only to the 'frm' parameter's search.
+                regex (bool): If True, regular expression syntax is used instead of the default '*' and '|' modifiers.
+                ignore_case (bool): Ignore case when searching. Applies only to the 'frm' parameter's search.
 
-        ex. rename(r'Cube', '*001', regEx=True) #replace chars after frm on any object with a name that contains 'Cube'. ie. 'polyCube001' from 'polyCube'
-        ex. rename(r'Cube', '**001', regEx=True) #append chars on any object with a name that contains 'Cube'. ie. 'polyCube1001' from 'polyCube1'
+        ex. rename(r'Cube', '*001', regex=True) #replace chars after frm on any object with a name that contains 'Cube'. ie. 'polyCube001' from 'polyCube'
+        ex. rename(r'Cube', '**001', regex=True) #append chars on any object with a name that contains 'Cube'. ie. 'polyCube1001' from 'polyCube1'
         """
-        names = self.findStrAndFormat(
+        names = self.find_str_and_format(
             [obj.name for obj in rt.objects],
             to,
             frm,
-            regEx=regEx,
-            ignoreCase=ignoreCase,
-            returnOldNames=True,
-        )  # [o for o in rt.objects if rt.matchPattern(o.name, pattern=f, ignoreCase=0)]
+            regex=regex,
+            ignore_case=ignore_case,
+            return_orig_strings=True,
+        )  # [o for o in rt.objects if rt.matchPattern(o.name, pattern=f, ignore_case=0)]
         print("# Rename: Found {} matches. #".format(len(names)))
 
         for oldName, newName in names:
@@ -102,7 +102,7 @@ class Scene_max(Scene, SlotsMax):
                     )
                 )
 
-    def setCase(self, objects=[], case="caplitalize"):
+    def set_case(self, objects=[], case="caplitalize"):
         """Rename objects following the given case.
 
         Parameters:
@@ -110,7 +110,7 @@ class Scene_max(Scene, SlotsMax):
                 case (str): Desired case using python case operators.
                         valid: 'upper', 'lower', 'caplitalize', 'swapcase' 'title'. default:'caplitalize'
 
-        Example: setCase(pm.ls(sl=1), 'upper')
+        Example: set_case(pm.ls(sl=1), 'upper')
         """
         for obj in objects:
             name = obj.name

@@ -117,7 +117,7 @@ class Mirror_max(Mirror, SlotsMax):
 				pm.mel.BakeNonDefHistory(obj)
 
 			if cutMesh:
-				self.sb.edit.slots.deleteAlongAxis(obj, axis) #delete mesh faces that fall inside the specified axis.
+				self.sb.edit.slots.delete_along_axis(obj, axis) #delete mesh faces that fall inside the specified axis.
 
 			if instance: #create instance and scale negatively
 				inst = pm.instance(obj) # bt_convertToMirrorInstanceMesh(0); #x=0, y=1, z=2, -x=3, -y=4, -z=5

@@ -490,16 +490,16 @@ class Materials_max(Materials, SlotsMax):
 		return result
 
 
-	def getBitmapFilenames(self, bitmaps=None, missing=False, returnType=list):
+	def getBitmapFilenames(self, bitmaps=None, missing=False, returned_type=list):
 		'''Get the file paths for the given bitmaps. If no bitmaps are given all bitmaps in the scene will be used.
 
 		Parameters:
 			bitmaps (list): A list of bitmaps. If no bitmaps are given all bitmaps in the scene will be used.
 			missing (bool): Return only filenames from missing bitmaps.
-			returnType (type) = Valid (list (default), dict).
+			returned_type (type) = Valid (list (default), dict).
 
 		Returns:
-			dependant on returnType flag.
+			dependant on returned_type flag.
 			(dict) {bitmap object:filepath}
 			(list) [filepath]
 		'''
@@ -510,7 +510,7 @@ class Materials_max(Materials, SlotsMax):
 
 		result = {bitmap:bitmap.filename.rsplit('\\')[-1] for bitmap in bitmaps}
 
-		if returnType is list:
+		if returned_type is list:
 			result = result.values()
 
 		return result
@@ -542,7 +542,7 @@ class Materials_max(Materials, SlotsMax):
 		'''
 		import fnmatch, os
 
-		bitmaps = self.getBitmapFilenames(bitmaps, missing=True, returnType=dict)
+		bitmaps = self.getBitmapFilenames(bitmaps, missing=True, returned_type=dict)
 
 		if replaceTxWithTif:
 			for bitmap,filename in bitmaps.items():
@@ -609,11 +609,11 @@ class Materials_max(Materials, SlotsMax):
 			self.relinkBitmaps(mat_dir, bitmaps, replaceTxWithTif=True)
 
 
-	def getNodesSME(self, nodeType=None, selected=False):
+	def getNodesSME(self, node_type=None, selected=False):
 		'''Get any nodes in the slate material editor that are currently selected.
 
 		Parameters:
-			nodeType (obj)(str): The type of node to filter the results for. If 'query' is given, the node type will be returned. ie. rt.VRayMtl()
+			node_type (obj)(str): The type of node to filter the results for. If 'query' is given, the node type will be returned. ie. rt.VRayMtl()
 			selected (bool): When True, only currently selected nodes will be returned.
 		Returns:
 			(list) nodes or node types.
@@ -623,19 +623,19 @@ class Materials_max(Materials, SlotsMax):
 		result=[]
 		for i in range(1, view.GetNumNodes()):
 			node = view.getNode(i)
-			if all((nodeType, rt.isKindOf(node, nodeType), selected, node.selected)): #get selected of type.
+			if all((node_type, rt.isKindOf(node, node_type), selected, node.selected)): #get selected of type.
 				result.append(node)
 
-			elif all((nodeType, nodeType=='query', selected, node.selected)): #query type of selected.
+			elif all((node_type, node_type=='query', selected, node.selected)): #query type of selected.
 				result.append(rt.classOf(node))
 
 			elif selected and node.selected: #get selected.
 				result.append(node)
 
-			elif all((nodeType, nodeType!='query', rt.isKindOf(node, nodeType))): #get node of type.
+			elif all((node_type, node_type!='query', rt.isKindOf(node, node_type))): #get node of type.
 				result.append(node)
 
-			elif nodeType and nodeType=='query': #query type.
+			elif node_type and node_type=='query': #query type.
 				result.append(rt.classOf(node))
 
 			else: #get all SME nodes.

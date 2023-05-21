@@ -99,12 +99,12 @@ class Display_maya(Display, SlotsMaya):
 
     def b009(self):
         """Toggle Material Override"""
-        from maya.cmds import getPanel  # pymel getPanel is broken in ver: 2022.
+        from maya.cmds import get_panel  # pymel get_panel is broken in ver: 2022.
 
-        currentPanel = getPanel(withFocus=True)
+        currentPanel = get_panel(withFocus=True)
         state = pm.modelEditor(currentPanel, query=1, useDefaultMaterial=1)
         pm.modelEditor(currentPanel, edit=1, useDefaultMaterial=not state)
-        mtk.viewportMessage("Default Material Override: <hl>{}</hl>.".format(state))
+        mtk.viewport_message("Default Material Override: <hl>{}</hl>.".format(state))
 
     def b010(self):
         """Toggle Explode Selected"""
@@ -144,19 +144,19 @@ class Display_maya(Display, SlotsMaya):
                 i += 1
 
         if index == 0:
-            mtk.viewportMessage("[1,0,0,0] <hl>vertIDs</hl>.")
+            mtk.viewport_message("[1,0,0,0] <hl>vertIDs</hl>.")
         elif index == 1:
-            mtk.viewportMessage("[0,1,0,0] <hl>edgeIDs</hl>.")
+            mtk.viewport_message("[0,1,0,0] <hl>edgeIDs</hl>.")
         elif index == 2:
-            mtk.viewportMessage("[0,0,1,0] <hl>faceIDs</hl>.")
+            mtk.viewport_message("[0,0,1,0] <hl>faceIDs</hl>.")
         elif index == 3:
-            mtk.viewportMessage("[0,0,0,1] <hl>compIDs(UV)</hl>.")
+            mtk.viewport_message("[0,0,0,1] <hl>compIDs(UV)</hl>.")
         elif index == 4:
-            mtk.viewportMessage("component ID <hl>Off</hl>.")
+            mtk.viewport_message("component ID <hl>Off</hl>.")
 
     def b012(self):
         """Wireframe Non Active (Wireframe All But The Selected Item)"""
-        current_panel = pm.getPanel(withFocus=1)
+        current_panel = pm.get_panel(withFocus=1)
         state = pm.modelEditor(current_panel, query=1, activeOnly=1)
         pm.modelEditor(current_panel, edit=1, activeOnly=not state)
 

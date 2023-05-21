@@ -246,7 +246,7 @@ class Polygons_max(Polygons, SlotsMax):
         selection = pm.ls(sl=1, objectsOnly=1, type="transform")
         if len(selection) > 1:
             obj1, obj2 = selection
-            SlotsMax.snapClosestVerts(obj1, obj2, tolerance, freezetransforms)
+            SlotsMax.snap_closest_verts(obj1, obj2, tolerance, freezetransforms)
         else:
             self.sb.message_box("Operation requires at least two selected objects.")
             return

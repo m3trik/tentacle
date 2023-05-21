@@ -98,7 +98,7 @@ class Pivot_blender(Pivot, SlotsBlender):
         pm.mel.BakeCustomPivot()
 
     @staticmethod
-    def resetPivotTransforms(objects):
+    def reset_pivot_transforms(objects):
         """Reset Pivot Transforms"""
         objs = pm.ls(type=["transform", "geometryShape"], sl=1)
 

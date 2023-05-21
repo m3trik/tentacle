@@ -329,19 +329,19 @@ class Selection_blender(Selection, SlotsBlender):
 
         result = []
         if edgeRing:
-            result = self.getEdgePath(selection, "edgeRing")
+            result = self.get_edge_path(selection, "edgeRing")
 
         elif edgeLoop:
-            result = self.getEdgePath(selection, "edgeLoop")
+            result = self.get_edge_path(selection, "edgeLoop")
 
         elif pathAlongLoop:
             result = self.getPathAlongLoop(selection)
 
         elif shortestPath:
-            result = self.getShortestPath(selection)
+            result = self.get_shortest_path(selection)
 
         elif borderEdges:
-            result = self.getBorderComponents(selection, returnCompType="edges")
+            result = self.get_border_components(selection, returnCompType="edges")
 
         pm.select(result[::step])
 
@@ -368,7 +368,7 @@ class Selection_blender(Selection, SlotsBlender):
             similarFaces = self.sb.normals.slots.getFacesWithSimilarNormals(
                 selectedFaces, rangeX=rangeX, rangeY=rangeY, rangeZ=rangeZ
             )
-            islands = self.getContigiousIslands(similarFaces)
+            islands = self.get_contigious_islands(similarFaces)
             island = [i for i in islands if bool(set(i) & set(selectedFaces))]
             pm.select(island)
 
@@ -383,8 +383,8 @@ class Selection_blender(Selection, SlotsBlender):
         angleHigh = tb.ctxMenu.s007.value()
 
         objects = pm.ls(sl=1, objectsOnly=1)
-        edges = SlotsBlender.getEdgesByNormalAngle(
-            objects, lowAngle=angleLow, highAngle=angleHigh
+        edges = SlotsBlender.get_edges_by_normal_angle(
+            objects, low_angle=angleLow, high_angle=angleHigh
         )
         pm.select(edges)
 

@@ -126,15 +126,15 @@ class Transform_blender(Transform, SlotsBlender):
         selection = pm.ls(sl=1, objectsOnly=1, type="transform")
         if state and selection:
             live_object = pm.ls(live=1)
-            shape = self.getShapeNode(selection[0])
+            shape = self.get_shape_node(selection[0])
             if not shape in live_object:
                 pm.makeLive(
                     selection
                 )  # construction planes, nurbs surfaces and polygon meshes can be made live. makeLive supports one live object at a time.
-                # self.mtk.viewportMessage('Make Live: <hl>On</hl> {0}'.format(selection[0].name()))
+                # self.mtk.viewport_message('Make Live: <hl>On</hl> {0}'.format(selection[0].name()))
         else:
             pm.makeLive(none=True)
-            # self.mtk.viewportMessage('Make Live: <hl>Off</hl>')
+            # self.mtk.viewport_message('Make Live: <hl>Off</hl>')
 
         cmb.setCurrentText('Constrain: <hl style="color:white;">Off</hl>') if not any(
             (state, cmb.menu_.chk024.isChecked(), cmb.menu_.chk025.isChecked())
@@ -165,11 +165,11 @@ class Transform_blender(Transform, SlotsBlender):
 
         align = tb.ctxMenu.cmb004.currentText()
         origin = tb.ctxMenu.chk014.isChecked()
-        centerPivot = tb.ctxMenu.chk016.isChecked()
-        freezeTransforms = tb.ctxMenu.chk017.isChecked()
+        center_pivot = tb.ctxMenu.chk016.isChecked()
+        freeze_transforms = tb.ctxMenu.chk017.isChecked()
 
         objects = pm.ls(sl=1, objectsOnly=1)
-        mtk.XformmoveTo(objects, align, origin, centerPivot, freezeTransforms)
+        mtk.XformmoveTo(objects, align, origin, center_pivot, freeze_transforms)
         pm.select(objects)  # reselect the original selection.
 
     def tb001(self, state=None):
@@ -275,25 +275,25 @@ class Transform_blender(Transform, SlotsBlender):
         loop = tb.ctxMenu.chk007.isChecked()
 
         if all([x, not y, not z]):  # align x
-            self.alignVertices(mode=3, average=avg, edgeloop=loop)
+            self.align_vertices(mode=3, average=avg, edgeloop=loop)
 
         if all([not x, y, not z]):  # align y
-            self.alignVertices(mode=4, average=avg, edgeloop=loop)
+            self.align_vertices(mode=4, average=avg, edgeloop=loop)
 
         if all([not x, not y, z]):  # align z
-            self.alignVertices(mode=5, average=avg, edgeloop=loop)
+            self.align_vertices(mode=5, average=avg, edgeloop=loop)
 
         if all([not x, y, z]):  # align yz
-            self.alignVertices(mode=0, average=avg, edgeloop=loop)
+            self.align_vertices(mode=0, average=avg, edgeloop=loop)
 
         if all([x, not y, z]):  # align xz
-            self.alignVertices(mode=1, average=avg, edgeloop=loop)
+            self.align_vertices(mode=1, average=avg, edgeloop=loop)
 
         if all([x, y, not z]):  # align xy
-            self.alignVertices(mode=2, average=avg, edgeloop=loop)
+            self.align_vertices(mode=2, average=avg, edgeloop=loop)
 
         if all([x, y, z]):  # align xyz
-            self.alignVertices(mode=6, average=avg, edgeloop=loop)
+            self.align_vertices(mode=6, average=avg, edgeloop=loop)
 
     def lbl000(self):
         """Transform Constraints: Disable All"""
@@ -306,7 +306,7 @@ class Transform_blender(Transform, SlotsBlender):
         node = pm.ls(sl=1, objectsOnly=1)
         if not node:
             return "Error: <b>Nothing selected.</b><br>The operation requires a single selected object."
-        transform = SlotsBlender.getTransformNode(node)
+        transform = SlotsBlender.get_transform_node(node)
 
         self.setAttributeWindow(
             transform[0],
@@ -333,7 +333,7 @@ class Transform_blender(Transform, SlotsBlender):
         frm = selection[0]
         to = selection[1:]
 
-        self.matchScale(frm, to)
+        self.match_scale(frm, to)
 
     def b002(self):
         """Freeze Transformations"""
@@ -366,7 +366,7 @@ class Transform_blender(Transform, SlotsBlender):
 
         if selection:
             live_object = pm.ls(live=1)
-            shape = self.getShapeNode(selection[0])
+            shape = self.get_shape_node(selection[0])
             if not shape in live_object:
                 self.chk026(state=1)
                 cmb.menu_.chk026.setChecked(True)
@@ -376,7 +376,7 @@ class Transform_blender(Transform, SlotsBlender):
 
     def b014(self):
         """Center Pivot Component"""
-        [pm.xform(s, centerPivot=1) for s in pm.ls(sl=1, objectsOnly=1, flatten=1)]
+        [pm.xform(s, center_pivot=1) for s in pm.ls(sl=1, objectsOnly=1, flatten=1)]
         # mel.eval("moveObjectPivotToComponentCentre;")
 
     def b015(self):
@@ -400,7 +400,7 @@ class Transform_blender(Transform, SlotsBlender):
         pm.manipPivot(ro=1, rp=1)
 
     @SlotsBlender.undoChunk
-    def resetTranslation(self, objects):
+    def reset_translation(self, objects):
         """Reset the transformations on the given object(s). (unfreeze transforms)
 
         Parameters:
@@ -410,7 +410,7 @@ class Transform_blender(Transform, SlotsBlender):
         for obj in pm.ls(objects):
             pos = pm.objectCenter(obj)  # get the object's current position.
             mtk.XformmoveTo(
-                obj, origin=1, centerPivot=1
+                obj, origin=1, center_pivot=1
             )  # move to origin and center pivot.
             pm.makeIdentity(obj, apply=1, t=1, r=1, s=1, n=0, pn=1)  # bake transforms
             pm.xform(
@@ -418,16 +418,16 @@ class Transform_blender(Transform, SlotsBlender):
             )  # move the object back to it's original position.
         # pm.undoInfo(closeChunk=1)
 
-    def moveTo(self, obj, target, targetCenter=True):
+    def move_to(self, obj, target, center=True):
         """Move an object(s) to the given target.
 
         Parameters:
                 obj (str/obj/list): The objects to move.
                 target (str/obj): The object to move to.
-                targetCenter (bool): Move to target pivot pos, or the bounding box center of the target.
+                center (bool): Move to target pivot pos, or the bounding box center of the target.
         """
         if (
-            targetCenter
+            center
         ):  # temporarily move the targets pivot to it's bounding box center.
             orig_target_piv = pm.xform(
                 target, q=1, worldSpace=1, rp=1
@@ -447,13 +447,13 @@ class Transform_blender(Transform, SlotsBlender):
         pm.xform(obj, translation=target_pos, worldSpace=1, relative=1)
 
     @SlotsBlender.undoChunk
-    def dropToGrid(
+    def drop_to_grid(
         self,
         objects,
         align="Mid",
         origin=False,
-        centerPivot=False,
-        freezeTransforms=False,
+        center_pivot=False,
+        freeze_transforms=False,
     ):
         """Align objects to Y origin on the grid using a helper plane.
 
@@ -461,10 +461,10 @@ class Transform_blender(Transform, SlotsBlender):
                 objects (str/obj/list): The objects to translate.
                 align (bool): Specify which point of the object's bounding box to align with the grid. (valid: 'Max','Mid'(default),'Min')
                 origin (bool): Move to world grid's center.
-                centerPivot (bool): Center the object's pivot.
-                freezeTransforms (bool): Reset the selected transform and all of its children down to the shape level.
+                center_pivot (bool): Center the object's pivot.
+                freeze_transforms (bool): Reset the selected transform and all of its children down to the shape level.
 
-        ex. dropToGrid(obj, align='Min') #set the object onto the grid.
+        ex. drop_to_grid(obj, align='Min') #set the object onto the grid.
         """
         # pm.undoInfo(openChunk=1)
         for obj in pm.ls(objects, transforms=1):
@@ -486,16 +486,16 @@ class Transform_blender(Transform, SlotsBlender):
             pm.align(obj, plane, atl=1, x="Mid", y=align, z="Mid")
             pm.delete(plane)
 
-            if not centerPivot:
+            if not center_pivot:
                 pm.xform(
                     obj, rotatePivot=osPivot, objectSpace=1
                 )  # return pivot to orig position.
 
-            if freezeTransforms:
+            if freeze_transforms:
                 pm.makeIdentity(obj, apply=True)
         # pm.undoInfo (closeChunk=1)
 
-    def setTranslationToPivot(self, node):
+    def set_translation_to_pivot(self, node):
         """Set an object’s translation value from its pivot location.
         Parameters:
                 node (str/obj): An object, or it's name.
@@ -506,15 +506,15 @@ class Transform_blender(Transform, SlotsBlender):
         pm.xform(node, translation=[x, y, z])
 
     @SlotsBlender.undoChunk
-    def alignPivotToSelection(self, alignFrom=[], alignTo=[], translate=True):
+    def align_pivot_to_selection(self, align_from=[], align_to=[], translate=True):
         """Align one objects pivot point to another using 3 point align.
         Parameters:
-                alignFrom (list): At minimum; 1 object, 1 Face, 2 Edges, or 3 Vertices.
-                alignTo (list): The object to align with.
+                align_from (list): At minimum; 1 object, 1 Face, 2 Edges, or 3 Vertices.
+                align_to (list): The object to align with.
                 translate (bool): Move the object with it's pivot.
         """
         # pm.undoInfo(openChunk=1)
-        pos = pm.xform(alignTo, q=1, translation=True, worldSpace=True)
+        pos = pm.xform(align_to, q=1, translation=True, worldSpace=True)
         center_pos = [  # Get center by averaging of all x,y,z points.
             sum(pos[0::3]) / len(pos[0::3]),
             sum(pos[1::3]) / len(pos[1::3]),
@@ -522,12 +522,12 @@ class Transform_blender(Transform, SlotsBlender):
         ]
 
         vertices = pm.ls(
-            pm.polyListComponentConversion(alignTo, toVertex=True), flatten=True
+            pm.polyListComponentConversion(align_to, toVertex=True), flatten=True
         )
         if len(vertices) < 3:
             return
 
-        for obj in pm.ls(alignFrom, flatten=1):
+        for obj in pm.ls(align_from, flatten=1):
             plane = pm.polyPlane(
                 name="_hptemp#",
                 width=1,
@@ -542,7 +542,7 @@ class Transform_blender(Transform, SlotsBlender):
             ]  # Create and align helper plane.
 
             pm.select("%s.vtx[0:2]" % plane, vertices[0:3])
-            pm.mel.snap3PointsTo3Points(0)
+            pm.mel.align_using_three_points(0)
 
             pm.xform(
                 obj,
@@ -556,7 +556,7 @@ class Transform_blender(Transform, SlotsBlender):
             pm.delete(plane)
         # pm.undoInfo(closeChunk=1)
 
-    def aimObjectAtPoint(self, obj, target_pos, aim_vect=(1, 0, 0), up_vect=(0, 1, 0)):
+    def aim_object_at_point(self, obj, target_pos, aim_vect=(1, 0, 0), up_vect=(0, 1, 0)):
         """Aim the given object at the given world space position.
 
         Parameters:
@@ -574,7 +574,7 @@ class Transform_blender(Transform, SlotsBlender):
 
         pm.delete(const, target)
 
-    def rotateAxis(self, obj, target_pos):
+    def rotate_axis(self, obj, target_pos):
         """Aim the given object at the given world space position.
         All rotations in rotated channel, geometry is transformed so it does not appear to move during this transformation
 
@@ -583,7 +583,7 @@ class Transform_blender(Transform, SlotsBlender):
                 target_pos (tuple): An (x,y,z) world position.
         """
         obj = pm.ls(obj)[0]
-        self.aimObjectAtPoint(obj, target_pos)
+        self.aim_object_at_point(obj, target_pos)
 
         try:
             c = obj.v[:]
@@ -596,12 +596,12 @@ class Transform_blender(Transform, SlotsBlender):
         pos = pm.xform(obj, q=True, translation=True, absolute=True, worldSpace=True)
         pm.xform(c, translation=pos, relative=True, worldSpace=True)
 
-    def getOrientation(self, obj, returnType="point"):
+    def get_orientation(self, obj, returned_type="point"):
         """Get an objects orientation.
 
         Parameters:
                 obj (str/obj): The object to get the orientation of.
-                returnType (str): The desired returned value type. (valid: 'point', 'vector')(default: 'point')
+                returned_type (str): The desired returned value type. (valid: 'point', 'vector')(default: 'point')
 
         Returns:
                 (tuple)
@@ -609,15 +609,15 @@ class Transform_blender(Transform, SlotsBlender):
         obj = pm.ls(obj)[0]
 
         world_matrix = pm.xform(obj, q=True, matrix=True, worldSpace=True)
-        rAxis = pm.getAttr(obj.rotateAxis)
+        rAxis = pm.getAttr(obj.rotate_axis)
         if any((rAxis[0], rAxis[1], rAxis[2])):
             print(
-                "# Warning: {} has a modified .rotateAxis of {} which is included in the result. #".format(
+                "# Warning: {} has a modified .rotate_axis of {} which is included in the result. #".format(
                     obj, rAxis
                 )
             )
 
-        if returnType == "vector":
+        if returned_type == "vector":
             from maya.api.OpenMaya import MVector
 
             result = (
@@ -631,7 +631,7 @@ class Transform_blender(Transform, SlotsBlender):
 
         return result
 
-    def getDistanceBetweenTwoObjects(self, obj1, obj2):
+    def get_dist_between_two_objects(self, obj1, obj2):
         """Get the magnatude of a vector using the center points of two given objects.
 
         Parameters:
@@ -652,7 +652,7 @@ class Transform_blender(Transform, SlotsBlender):
 
         return distance
 
-    def getCenterPoint(self, objects):
+    def get_center_point(self, objects):
         """Get the bounding box center point of any given object(s).
 
         Parameters:
@@ -758,7 +758,7 @@ class Transform_blender(Transform, SlotsBlender):
             round(sum(z) / float(len(z)), 4),
         )
 
-    def matchScale(self, to, frm, scale=True, average=False):
+    def match_scale(self, to, frm, scale=True, average=False):
         """Scale each of the given objects to the combined bounding box of a second set of objects.
 
         Parameters:
@@ -801,7 +801,7 @@ class Transform_blender(Transform, SlotsBlender):
         return result
 
     @SlotsBlender.undoChunk
-    def alignVertices(self, mode, average=False, edgeloop=False):
+    def align_vertices(self, mode, average=False, edgeloop=False):
         """Align vertices.
 
         Parameters:
@@ -809,7 +809,7 @@ class Transform_blender(Transform, SlotsBlender):
                 average (bool): align to average of all selected vertices. else, align to last selected
                 edgeloop (bool): align vertices in edgeloop from a selected edge
 
-        Example: alignVertices(mode=3, average=True, edgeloop=True)
+        Example: align_vertices(mode=3, average=True, edgeloop=True)
         """
         # pm.undoInfo (openChunk=True)
         selectTypeEdge = pm.selectType(query=True, edge=True)
@@ -821,10 +821,10 @@ class Transform_blender(Transform, SlotsBlender):
 
         selection = pm.ls(selection=1, flatten=1)
         lastSelected = pm.ls(tail=1, selection=1, flatten=1)
-        alignTo = pm.xform(lastSelected, query=1, translation=1, worldSpace=1)
-        alignX = alignTo[0]
-        alignY = alignTo[1]
-        alignZ = alignTo[2]
+        align_to = pm.xform(lastSelected, query=1, translation=1, worldSpace=1)
+        alignX = align_to[0]
+        alignY = align_to[1]
+        alignZ = align_to[2]
 
         if average:
             xyz = pm.xform(selection, query=1, translation=1, worldSpace=1)
@@ -837,8 +837,8 @@ class Transform_blender(Transform, SlotsBlender):
 
         if len(selection) < 2:
             if len(selection) == 0:
-                SlotsBlender.mtk.viewportMessage("No vertices selected")
-            SlotsBlender.mtk.viewportMessage(
+                SlotsBlender.mtk.viewport_message("No vertices selected")
+            SlotsBlender.mtk.viewport_message(
                 "Selection must contain at least two vertices"
             )
 
@@ -1060,11 +1060,11 @@ print(__name__)
 # 			if not live_object:
 # 				print ('not live_object')
 # 				pm.makeLive(selection) #construction planes, nurbs surfaces and polygon meshes can be made live. makeLive supports one live object at a time.
-# 				self.mtk.viewportMessage('Make Live: <hl>On</hl> {0}'.format(selection[0].name()))
+# 				self.mtk.viewport_message('Make Live: <hl>On</hl> {0}'.format(selection[0].name()))
 # 	else:
 # 		print ('0')
 # 		pm.xformConstraint(type='none') #pm.manipMoveSetXformConstraint(none=True);
 # 		if live_object:
 # 			print ('none')
 # 			pm.makeLive(none=True)
-# 			self.mtk.viewportMessage('Make Live: <hl>Off</hl>')
+# 			self.mtk.viewport_message('Make Live: <hl>Off</hl>')
