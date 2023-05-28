@@ -1,6 +1,16 @@
 # !/usr/bin/python
 # coding=utf-8
-from tentacle.slots.maya import *
+import os
+
+try:
+    import pymel.core as pm
+except ImportError as error:
+    print(__file__, error)
+
+import pythontk as ptk
+import mayatk as mtk
+from uitk.switchboard import signals
+from tentacle.slots.maya import SlotsMaya
 from tentacle.slots.file import File
 
 
@@ -109,11 +119,12 @@ class File_maya(File, SlotsMaya):
 
         self.cmb006()  # init workspace items to reflect the current workspace.
 
+    @signals("on_item_interacted")
     def list000(self, item):
         """ """
-        print(f"# Result: {item.getData()}")
+        print(f"# Result: {item.get_data()}")
 
-        pm.openFile(item.getData(), open=True, force=True)
+        pm.openFile(item.get_data(), open=True, force=True)
 
     def cmb000(self, index=-1):
         """Editors"""
@@ -206,7 +217,9 @@ class File_maya(File, SlotsMaya):
         """Workspace"""
         cmb = self.sb.file.cmb006
 
-        path = ptk.File.format_path(pm.workspace(query=1, rd=1))  # current project path.
+        path = ptk.File.format_path(
+            pm.workspace(query=1, rd=1)
+        )  # current project path.
         items = [f for f in os.listdir(path)]
         # add current project path string to label. strip path and trailing '/'
         project = ptk.File.format_path(path, "dir")
@@ -239,7 +252,7 @@ class File_maya(File, SlotsMaya):
             # os.startfile(self.format_path(dir1))
             os.startfile(ptk.File.format_path(dir2))
 
-        except FileNotFoundError as error:
+        except FileNotFoundError:
             self.sb.message_box("The system cannot find the file specified.")
 
     def b002(self):

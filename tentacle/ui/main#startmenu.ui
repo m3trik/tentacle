@@ -383,7 +383,7 @@
            </size>
           </property>
           <property name="whatsThis">
-           <string>main.lower</string>
+           <string>main#lower</string>
           </property>
           <property name="text">
            <string>History</string>
@@ -412,7 +412,7 @@
   <customwidget>
    <class>Region</class>
    <extends>QWidget</extends>
-   <header>region.h</header>
+   <header>widgets.region.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

@@ -229,7 +229,7 @@ class Overlay(QtWidgets.QWidget, OverlayFactoryFilter):
         self.painter.setRenderHint(QtGui.QPainter.Antialiasing, self.antialiasing)
 
         # Draw the line
-        linePath.move_to(start_point)
+        linePath.moveTo(start_point)
         linePath.lineTo(end_point)
 
         # Combine the paths

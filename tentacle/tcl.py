@@ -1,7 +1,8 @@
 # !/usr/bin/python
 # coding=utf-8
-import sys, os
-import logging, traceback
+import sys
+import logging
+import traceback
 from PySide2 import QtCore, QtGui, QtWidgets
 from pythontk import make_list
 from uitk.switchboard import Switchboard
@@ -136,6 +137,9 @@ class Tcl(QtWidgets.QStackedWidget):
             self.init_ui(found_ui)
 
         if found_ui.has_tag("startmenu|submenu"):
+            if found_ui.has_tag("startmenu"):
+                self.overlay.path.reset()
+                self.move(self.sb.get_center(self))
             self.setCurrentWidget(found_ui)  # set the stacked widget to the found UI.
 
         else:
@@ -229,9 +233,6 @@ class Tcl(QtWidgets.QStackedWidget):
 
         if self.sb.ui.has_tag("startmenu|submenu"):
             if not modifiers:
-                self.overlay.path.reset()
-                self.move(self.sb.get_center(self))
-
                 if event.button() == QtCore.Qt.LeftButton:
                     self.set_ui("cameras#startmenu")
 
@@ -310,9 +311,7 @@ class Tcl(QtWidgets.QStackedWidget):
         """Hide events are sent to widgets immediately after they have been hidden."""
         try:
             self.mouseGrabber().releaseMouse()
-        except (
-            AttributeError
-        ) as error:  #'NoneType' object has no attribute 'releaseMouse'
+        except AttributeError:  # NoneType object has no attribute 'releaseMouse'
             pass
 
         super().hideEvent(event)
@@ -335,23 +334,15 @@ class Tcl(QtWidgets.QStackedWidget):
             "QCheckBox",
             "QRadioButton",
         ]
-        from uitk.widgets import listWidget
-
-        print(listWidget.tracker.check_garbage_collected())
 
         for w in make_list(widgets):
-            if (not w.derived_type in filtered_types) or (  # not correct type.
+            if (w.derived_type not in filtered_types) or (  # not correct type.
                 not w.ui.has_tag("startmenu|submenu")  # not stacked UI:
             ):
                 continue
-            # import sip
-            # if sip.isdeleted(widget):
-            #     continue
-            try:
-                # print('init_child_event_filter:', w.ui.name.ljust(26), w.base_name.ljust(25), (w.name or type(w).__name__).ljust(25), w.type.ljust(15), w.derived_type.ljust(15), id(w)) #debug
-                w.installEventFilter(self.child_event_filter)
-            except:
-                continue
+
+            # print('init_child_event_filter:', w.ui.name.ljust(26), w.base_name.ljust(25), (w.name or type(w).__name__).ljust(25), w.type.ljust(15), w.derived_type.ljust(15), id(w)) #debug
+            w.installEventFilter(self.child_event_filter)
 
             if w.derived_type in ("QPushButton", "QLabel"):
                 if w.base_name == "i":
@@ -366,7 +357,7 @@ class Tcl(QtWidgets.QStackedWidget):
         if w.name == "info":
             self.sb.resize_and_center_widget(w)
 
-        if w.type in ("ComboBox", "ListWidget"):
+        if w.type in ("ComboBox"):
             try:  # call the class method associated with the current widget.
                 w.get_slot()()
             except (AttributeError, TypeError):
@@ -399,11 +390,10 @@ class Tcl(QtWidgets.QStackedWidget):
 
     def child_mouseMoveEvent(self, w, event):
         """ """
-        try:  # if hasattr(self, '__mouseMovePos'):
+        try:
             globalPos = event.globalPos()
-            diff = globalPos - self.__mouseMovePos
             self.__mouseMovePos = globalPos
-        except AttributeError as error:
+        except AttributeError:
             pass
 
         w.mouseMoveEvent(event)

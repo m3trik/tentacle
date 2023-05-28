@@ -9,9 +9,10 @@ try:
 except ImportError as error:
     print(__file__, error)
 
-from tentacle.slots import Slots
 import pythontk as ptk
 import mayatk as mtk
+from uitk.switchboard import signals
+from tentacle.slots import Slots
 
 
 class SlotsMaya(Slots):
@@ -44,7 +45,7 @@ class SlotsMaya(Slots):
         checkableLabel=False,
         fn=None,
         fn_args=[],
-        **attributes
+        **attributes,
     ):
         """Launch a popup window containing the given objects attributes.
 
@@ -73,7 +74,9 @@ class SlotsMaya(Slots):
         if attributes:
             attributes = ptk.Iter.filter_dict(attributes, inc, exc, keys=True)
         else:
-            attributes = mtk.Node.get_node_attributes(obj, inc=inc, exc=exc, mapping=True)
+            attributes = mtk.Node.get_node_attributes(
+                obj, inc=inc, exc=exc, mapping=True
+            )
 
         menu = self.objAttrWindow(
             obj, checkableLabel=checkableLabel, fn=fn, fn_args=fn_args, **attributes

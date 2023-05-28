@@ -1,43 +1,47 @@
 # !/usr/bin/python
 # coding=utf-8
-from tentacle.slots.maya import *
+try:
+    import pymel.core as pm
+except ImportError as error:
+    print(__file__, error)
+
+import mayatk as mtk
+from uitk.switchboard import signals
 from tentacle.slots.cameras import Cameras
-from PySide2.QtCore import Slot
+from tentacle.slots.maya import SlotsMaya
 
 
 class Cameras_maya(Cameras, SlotsMaya):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-    def list000_init(self, widget):
+    def list000_init(self, root):
         """ """
+        root.is_initialized = False
+        root.sublist_x_offset = -10
+        root.sublist_y_offset = -6
+
         try:
             cameras = pm.ls(type=("camera"), l=True)  # Get all cameras
+            # filter all startup / default cameras
             startup_cameras = [
                 camera
                 for camera in cameras
-                if pm.camera(camera.parent(0), startupCamera=True, q=True)
-            ]  # filter all startup / default cameras
-            non_startup_cameras_pynodes = list(
-                set(cameras) - set(startup_cameras)
-            )  # get non-default cameras. these are all PyNodes
-            non_startup_cameras_transform_pynodes = map(
-                lambda x: x.parent(0), non_startup_cameras_pynodes
-            )  # get respective transform names
-            non_startup_cameras = map(
-                str, non_startup_cameras_pynodes
-            )  # non-PyNode, regular string name list
-            non_startup_cameras_transforms = map(
-                str, non_startup_cameras_transform_pynodes
-            )
+                if pm.camera(camera.parent(0), q=True, startupCamera=True)
+            ]
+            # get non-default cameras. these are all PyNodes
+            non_startup_cameras_pynodes = list(set(cameras) - set(startup_cameras))
+            # non-PyNode, regular string name list
+            non_startup_cameras = map(str, non_startup_cameras_pynodes)
+
         except AttributeError:
             non_startup_cameras = []
-        widget.add("", "")
 
-        w1 = widget.add("QLabel", setText="Cameras")
-        w1.list.add(non_startup_cameras)
+        if list(non_startup_cameras):
+            w1 = root.add("Cameras")
+            w1.sublist.add(non_startup_cameras)
 
-        w2 = widget.add("QLabel", setText="Per Camera Visibility")
+        w2 = root.add("Per Camera Visibility")
         per_camera_visibility = [
             "Exclusive to Camera",
             "Hidden from Camera",
@@ -46,73 +50,79 @@ class Cameras_maya(Cameras, SlotsMaya):
             "Remove All for Camera",
             "Remove All",
         ]
-        w2.list.add(per_camera_visibility)
+        w2.sublist.add(per_camera_visibility)
 
-        w3 = widget.add("QLabel", setText="Editors")
+        w3 = root.add("Editors")
         editors = ["Camera Sequencer", "Camera Set Editor"]
-        w3.list.add(editors)
+        w3.sublist.add(editors)
 
-    @Slot()
-    def list000(self, wItem):
+    @signals("on_item_interacted")
+    def list000(self, item):
         """ """
-        if wItem == "Create":
-            if text == "Custom Camera":  # Create a camera with the specified settings
-                camera = pm.camera(
-                    centerOfInterest=5,
-                    focalLength=35,
-                    horizontalFilmAperture=1.41732,
-                    verticalFilmAperture=0.94488,
-                )
-            if text == "Set Custom Camera":  # Set the camera to the perspective view
-                home_panel = pm.get_panel(withFocus=True)
-                if pm.modelPanel(home_panel, query=True, camera=True) == "persp":
-                    pm.cameraView(camera, edit=True, setCamera=True)
-            if text == "Camera From View":
-                mtk.Cam.create_camera_from_view()
+        print("list000:", item, item.sublist.parent_item)
+        text = item.text()
+        parent_text = item.sublist.parent_item.text()
 
-        if wItem == "Cameras":
+        # Create:
+        if text == "Custom Camera":  # Create a camera with the specified settings
+            camera = pm.camera(
+                centerOfInterest=5,
+                focalLength=35,
+                horizontalFilmAperture=1.41732,
+                verticalFilmAperture=0.94488,
+            )
+        elif text == "Set Custom Camera":  # Set the camera to the perspective view
+            home_panel = pm.get_panel(withFocus=True)
+            if pm.modelPanel(home_panel, query=True, camera=True) == "persp":
+                pm.cameraView(camera, edit=True, setCamera=True)
+
+        elif text == "Camera From View":
+            mtk.Cam.create_camera_from_view()
+
+        elif parent_text == "Cameras":
             pm.select(text)
             pm.lookThru(text)
 
-        if wItem == "Editors":
-            if text == "Camera Sequencer":
-                pm.mel.eval("SequenceEditor;")
-            if text == "Camera Set Editor":
-                pm.mel.eval("cameraSetEditor;")
+        # Editors:
+        elif text == "Camera Sequencer":
+            pm.mel.eval("SequenceEditor;")
 
-        if wItem == "Per Camera Visibility":
-            if text == "Exclusive to Camera":
-                pm.mel.eval(
-                    "SetExclusiveToCamera;"
-                )  # doPerCameraVisibility 0; Make selected objects exclusive to the selected (or current) camera.
-            if text == "Hidden from Camera":
-                pm.mel.eval(
-                    "SetHiddenFromCamera;"
-                )  # doPerCameraVisibility 1; Make selected objects hidden from the selected (or current) camera.
-            if text == "Remove from Exclusive":
-                pm.mel.eval(
-                    "CameraRemoveFromExclusive;"
-                )  # doPerCameraVisibility 2; Remove selected objects from the selected (or current) camera's exclusive list.
-            if text == "Remove from Hidden":
-                pm.mel.eval(
-                    "CameraRemoveFromHidden;"
-                )  # doPerCameraVisibility 3; Remove the selected objects from the selected (or current) camera's hidden list.
-            if (
-                text == "Remove All for Camera"
-            ):  # Remove all hidden or exclusive objects for the selected (or current) camera.
-                pm.mel.eval("CameraRemoveAll;")  # doPerCameraVisibility 4;
-            if text == "Remove All":
-                pm.mel.eval(
-                    "CameraRemoveAllForAll;"
-                )  # doPerCameraVisibility 5; Remove all hidden or exclusive objects for all cameras.
+        elif text == "Camera Set Editor":
+            pm.mel.eval("cameraSetEditor;")
 
-        if wItem == "Options":
-            if text == "Group Cameras":
-                mtk.Cam.group_cameras()
-            if text == "Adjust Clipping":
-                self.clippingMenu.show()
-            if text == "Toggle Safe Frames":  # Viewport Safeframes Toggle
-                mtk.Cam.toggle_safe_frames()
+        # Per Camera Visibility:
+        elif text == "Exclusive to Camera":
+            pm.mel.eval(
+                "SetExclusiveToCamera;"
+            )  # doPerCameraVisibility 0; Make selected objects exclusive to the selected (or current) camera.
+        elif text == "Hidden from Camera":
+            pm.mel.eval(
+                "SetHiddenFromCamera;"
+            )  # doPerCameraVisibility 1; Make selected objects hidden from the selected (or current) camera.
+        elif text == "Remove from Exclusive":
+            pm.mel.eval(
+                "CameraRemoveFromExclusive;"
+            )  # doPerCameraVisibility 2; Remove selected objects from the selected (or current) camera's exclusive list.
+        elif text == "Remove from Hidden":
+            pm.mel.eval(
+                "CameraRemoveFromHidden;"
+            )  # doPerCameraVisibility 3; Remove the selected objects from the selected (or current) camera's hidden list.
+        elif (
+            text == "Remove All for Camera"
+        ):  # Remove all hidden or exclusive objects for the selected (or current) camera.
+            pm.mel.eval("CameraRemoveAll;")  # doPerCameraVisibility 4;
+        elif text == "Remove All":
+            pm.mel.eval(
+                "CameraRemoveAllForAll;"
+            )  # doPerCameraVisibility 5; Remove all hidden or exclusive objects for all cameras.
+
+        # Options:
+        elif text == "Group Cameras":
+            mtk.Cam.group_cameras()
+        elif text == "Adjust Clipping":
+            self.clippingMenu.show()
+        elif text == "Toggle Safe Frames":  # Viewport Safeframes Toggle
+            mtk.Cam.toggle_safe_frames()
 
     @property
     def clippingMenu(self):
@@ -195,7 +205,7 @@ class Cameras_maya(Cameras, SlotsMaya):
             self.sb.message_box("No Active Camera.")
             return
 
-        pm.viewClipPlane(activeCamera, nearClipPlane=widget.value())
+        pm.viewClipPlane(activeCamera, nearClipPlane=value)
 
     def s001(self, value=None):
         """Camera Clipping: Far Clip"""
@@ -206,14 +216,14 @@ class Cameras_maya(Cameras, SlotsMaya):
             self.sb.message_box("No Active Camera.")
             return
 
-        pm.viewClipPlane(activeCamera, farClipPlane=widget.value())
+        pm.viewClipPlane(activeCamera, farClipPlane=value)
 
     def b000(self):
         """Cameras: Back View"""
         try:  # if pm.objExists('back'):
             pm.lookThru("back")
 
-        except Exception as error:
+        except Exception:
             cam, camShape = pm.camera()  # create camera
             pm.lookThru(cam)
 
@@ -232,7 +242,7 @@ class Cameras_maya(Cameras, SlotsMaya):
         try:
             pm.lookThru("topShape")
 
-        except Exception as error:
+        except Exception:
             pm.lookThru("|top")
 
     def b002(self):
@@ -240,7 +250,7 @@ class Cameras_maya(Cameras, SlotsMaya):
         try:
             pm.lookThru("sideShape")
 
-        except Exception as error:
+        except Exception:
             pm.lookThru("|side")
 
     def b003(self):
@@ -248,7 +258,7 @@ class Cameras_maya(Cameras, SlotsMaya):
         try:  # if pm.objExists('back'):
             pm.lookThru("left")
 
-        except Exception as error:
+        except Exception:
             cam, camShape = pm.camera()  # create camera
             pm.lookThru(cam)
 
@@ -267,7 +277,7 @@ class Cameras_maya(Cameras, SlotsMaya):
         try:
             pm.lookThru("perspShape")
 
-        except Exception as error:
+        except Exception:
             pm.lookThru("|persp")
 
     def b005(self):
@@ -275,7 +285,7 @@ class Cameras_maya(Cameras, SlotsMaya):
         try:
             pm.lookThru("frontShape")
 
-        except Exception as error:
+        except Exception:
             pm.lookThru("|front")
 
     def b006(self):
@@ -283,7 +293,7 @@ class Cameras_maya(Cameras, SlotsMaya):
         try:  # if pm.objExists('back'):
             pm.lookThru("bottom")
 
-        except Exception as error:
+        except Exception:
             cam, camShape = pm.camera()  # create camera
             pm.lookThru(cam)
 

@@ -364,7 +364,7 @@
               </size>
              </property>
              <property name="whatsThis">
-              <string>editors.lower</string>
+              <string>editors#lower</string>
              </property>
              <property name="text">
               <string>All Editors</string>
@@ -398,7 +398,7 @@
   <customwidget>
    <class>Region</class>
    <extends>QWidget</extends>
-   <header>region.h</header>
+   <header>widgets.region.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

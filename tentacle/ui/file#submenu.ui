@@ -165,55 +165,32 @@
      <string>Save</string>
     </property>
    </widget>
-   <widget class="ListWidget" name="list000">
+   <widget class="ExpandableList" name="list000" native="true">
     <property name="geometry">
      <rect>
-      <x>210</x>
+      <x>220</x>
       <y>210</y>
       <width>126</width>
-      <height>19</height>
+      <height>21</height>
      </rect>
     </property>
-    <property name="sizePolicy">
-     <sizepolicy hsizetype="Maximum" vsizetype="Expanding">
-      <horstretch>0</horstretch>
-      <verstretch>0</verstretch>
-     </sizepolicy>
-    </property>
-    <property name="frameShape">
-     <enum>QFrame::StyledPanel</enum>
-    </property>
-    <property name="frameShadow">
-     <enum>QFrame::Plain</enum>
-    </property>
-    <property name="verticalScrollBarPolicy">
-     <enum>Qt::ScrollBarAlwaysOff</enum>
-    </property>
-    <property name="horizontalScrollBarPolicy">
-     <enum>Qt::ScrollBarAlwaysOff</enum>
-    </property>
-    <property name="sizeAdjustPolicy">
-     <enum>QAbstractScrollArea::AdjustToContents</enum>
-    </property>
-    <property name="resizeMode">
-     <enum>QListView::Adjust</enum>
-    </property>
-    <property name="uniformItemSizes">
-     <bool>false</bool>
+    <property name="autoFillBackground">
+     <bool>true</bool>
     </property>
    </widget>
   </widget>
  </widget>
  <customwidgets>
   <customwidget>
-   <class>ListWidget</class>
-   <extends>QListWidget</extends>
-   <header>listwidget.h</header>
-  </customwidget>
-  <customwidget>
    <class>PushButton</class>
    <extends>QPushButton</extends>
    <header>widgets.pushbutton.h</header>
+  </customwidget>
+  <customwidget>
+   <class>ExpandableList</class>
+   <extends>QWidget</extends>
+   <header>widgets.expandablelist.h</header>
+   <container>1</container>
   </customwidget>
  </customwidgets>
  <resources/>

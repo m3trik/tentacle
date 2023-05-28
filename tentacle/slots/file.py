@@ -11,15 +11,6 @@ class File(Slots):
         super().__init__(*args, **kwargs)
         """
         """
-        list000 = self.sb.file_submenu.list000
-        list000.position = "top"
-        list000.offset = 19
-        list000.drag_interaction = True
-        recentFiles = self.get_recent_files(slice(0, 6))
-        w1 = list000.add("QPushButton", setText="Recent Files")
-        truncated = truncate(recentFiles, 65)
-        w1.list.add(truncated, recentFiles)
-        list000.setVisible(bool(recentFiles))
 
         dh = self.sb.file.draggableHeader
         dh.ctxMenu.add(self.sb.ComboBox, setObjectName="cmb000", setToolTip="")
@@ -61,6 +52,17 @@ class File(Slots):
             clear=True,
         )
 
+    def list000_init(self, root):
+        """ """
+        print("list000_init:", root)
+        root.position = "top"
+        root.sublist_y_offset = 18
+        recentFiles = self.get_recent_files(slice(0, 6))
+        w1 = root.add("Recent Files")
+        truncated = truncate(recentFiles, 65)
+        w1.sublist.add(truncated, recentFiles)
+        root.setVisible(bool(recentFiles))
+
     def referenceSceneMenu(self, clear=False):
         """ """
         try:
@@ -68,7 +70,7 @@ class File(Slots):
                 del self._referenceSceneMenu
             return self._referenceSceneMenu
 
-        except AttributeError as error:
+        except AttributeError:
             menu = self.sb.Menu(self.sb.file.lbl005)
             for i in self.get_workspace_scenes(
                 fullPath=True
@@ -80,10 +82,6 @@ class File(Slots):
 
             self._referenceSceneMenu = menu
             return self._referenceSceneMenu
-
-    def draggableHeader(self, state=None):
-        """Context menu"""
-        dh = self.sb.file.draggableHeader
 
     def lbl005(self):
         """Reference"""

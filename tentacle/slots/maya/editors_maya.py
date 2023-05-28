@@ -223,16 +223,16 @@ class Editors_maya(Editors, SlotsMaya):
         # e = pm.mel.eval('$tmp=$gOutlinerForm')
 
         # if not hasattr(self, 'outlinerEditor_'):
-        # 	panel = pm.outlinerPanel()
-        # 	self.outliner_ = pm.outlinerPanel(panel, query=True, outlinerEditor=True)
-        # 	pm.outlinerEditor(self.outliner_, edit=True, mainListConnection='worldList', selectionConnection='modelList', showShapes=False, showReferenceNodes=False, showReferenceMembers=False, showAttributes=False, showConnected=False, showAnimCurvesOnly=False, autoExpand=False, showDagOnly=True, ignoreDagHierarchy=False, expandConnections=False, showNamespace=True, showCompounds=True, showNumericAttrsOnly=False, highlightActive=True, autoSelectNewObjects=False, doNotSelectNewObjects=False, transmitFilters=False, showSetMembers=True, setFilter='defaultSetFilter', ignoreHiddenAttribute=False)
+        #   panel = pm.outlinerPanel()
+        #   self.outliner_ = pm.outlinerPanel(panel, query=True, outlinerEditor=True)
+        #   pm.outlinerEditor(self.outliner_, edit=True, mainListConnection='worldList', selectionConnection='modelList', showShapes=False, showReferenceNodes=False, showReferenceMembers=False, showAttributes=False, showConnected=False, showAnimCurvesOnly=False, autoExpand=False, showDagOnly=True, ignoreDagHierarchy=False, expandConnections=False, showNamespace=True, showCompounds=True, showNumericAttrsOnly=False, highlightActive=True, autoSelectNewObjects=False, doNotSelectNewObjects=False, transmitFilters=False, showSetMembers=True, setFilter='defaultSetFilter', ignoreHiddenAttribute=False)
 
         # e = pm.outlinerEditor(self.outliner_, edit=True, showSelected=True) #expand to the current selection in the outliner.
         # w = self.showEditor(e, 260, 740)
 
         # panels = pm.get_panel(type='outlinerPanel')
         # for panel in panels:
-        # 	pm.outlinerEditor(panel, edit=1, showSelected=1)
+        #   pm.outlinerEditor(panel, edit=1, showSelected=1)
         pm.mel.OutlinerWindow()
 
     def b002(self):
