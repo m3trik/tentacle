@@ -43,7 +43,7 @@
   <property name="dockOptions">
    <set>QMainWindow::AllowNestedDocks|QMainWindow::AllowTabbedDocks|QMainWindow::AnimatedDocks|QMainWindow::ForceTabbedDocks</set>
   </property>
-  <widget class="QWidget" name="main_widget">
+  <widget class="QWidget" name="central_widget">
    <layout class="QVBoxLayout" name="verticalLayout_2">
     <item>
      <widget class="DraggableHeader" name="draggableHeader">
@@ -111,8 +111,11 @@
          <property name="bottomMargin">
           <number>0</number>
          </property>
-         <property name="spacing">
+         <property name="horizontalSpacing">
           <number>0</number>
+         </property>
+         <property name="verticalSpacing">
+          <number>1</number>
          </property>
          <item row="8" column="0">
           <widget class="QPushButton" name="b002">
@@ -274,7 +277,7 @@
   <customwidget>
    <class>PushButton</class>
    <extends>QPushButton</extends>
-   <header>widgets.pushbutton.h</header>
+   <header>pushButton.h</header>
   </customwidget>
   <customwidget>
    <class>DraggableHeader</class>

@@ -8,11 +8,11 @@ class Edit_max(Edit, SlotsMax):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        cmb = self.sb.edit.draggableHeader.ctxMenu.cmb000
+        cmb = self.sb.edit.draggableHeader.ctx_menu.cmb000
         items = []
         cmb.addItems_(items, "Max Editors")
 
-        ctx = self.sb.edit.tb000.ctxMenu
+        ctx = self.sb.edit.tb000.option_menu
         if not ctx.containsMenuItems:
             ctx.add(
                 "QCheckBox",
@@ -31,7 +31,7 @@ class Edit_max(Edit, SlotsMax):
                 "QSpinBox",
                 setPrefix="Loose Vertex Angle: ",
                 setObjectName="s006",
-                setMinMax_="1-360 step1",
+                set_limits="1-360 step1",
                 setValue=15,
                 setToolTip="Loose vertex search: Angle Threshold.",
             )
@@ -42,12 +42,12 @@ class Edit_max(Edit, SlotsMax):
                 setToolTip="Repair matching geometry. (else: select)",
             )
 
-        ctx = self.sb.edit.tb002.ctxMenu
+        ctx = self.sb.edit.tb002.option_menu
         ctx.chk000.setDisabled(True)  # disable: Delete Edge Ring.
 
     def cmb000(self, index=-1):
         """Editors"""
-        cmb = self.sb.edit.draggableHeader.ctxMenu.cmb000
+        cmb = self.sb.edit.draggableHeader.ctx_menu.cmb000
 
         if index > 0:
             text = cmb.items[index]
@@ -79,10 +79,10 @@ class Edit_max(Edit, SlotsMax):
         """Mesh Cleanup"""
         tb = self.sb.edit.tb000
 
-        isolatedVerts = tb.ctxMenu.chk003.isChecked()  # isolated vertices
-        edgeAngle = tb.ctxMenu.s006.value()
-        nGons = tb.ctxMenu.chk002.isChecked()  # n-sided polygons
-        repair = tb.ctxMenu.chk004.isChecked()  # attempt auto repair errors
+        isolatedVerts = tb.option_menu.chk003.isChecked()  # isolated vertices
+        edgeAngle = tb.option_menu.s006.value()
+        nGons = tb.option_menu.chk002.isChecked()  # n-sided polygons
+        repair = tb.option_menu.chk004.isChecked()  # attempt auto repair errors
 
         self.meshCleanup(
             isolatedVerts=isolatedVerts, edgeAngle=edgeAngle, nGons=nGons, repair=repair
@@ -92,9 +92,9 @@ class Edit_max(Edit, SlotsMax):
         """Delete History"""
         tb = self.sb.edit.tb001
 
-        all_ = tb.ctxMenu.chk018.isChecked()
-        unusedNodes = tb.ctxMenu.chk019.isChecked()
-        deformers = tb.ctxMenu.chk020.isChecked()
+        all_ = tb.option_menu.chk018.isChecked()
+        unusedNodes = tb.option_menu.chk019.isChecked()
+        deformers = tb.option_menu.chk020.isChecked()
 
         objects = pm.ls(selection=1)
         if all_:
@@ -165,7 +165,7 @@ class Edit_max(Edit, SlotsMax):
             self.sb.message_box("Operation requires a single selected object.")
             return
 
-        self.setAttributeWindow(selection, checkableLabel=True)
+        self.setAttributeWindow(selection, checkable_label=True)
 
     def b021(self):
         """Tranfer Maps"""
@@ -327,7 +327,7 @@ class Edit_max(Edit, SlotsMax):
         tb = self.sb.edit.tb003
 
         # selection = pm.ls(sl=1, objectsOnly=1, type='transform')
-        # axis = self.sb.get_axis_from_checkboxes('chk006-9', tb.ctxMenu)
+        # axis = self.sb.get_axis_from_checkboxes('chk006-9', tb.option_menu)
 
         # pm.undoInfo(openChunk=1)
         # for obj in selection:
@@ -358,7 +358,7 @@ class Edit_max(Edit, SlotsMax):
 
         items = pm.ls(cmb.items[-1])
         if items:
-            self.setAttributeWindow(items, checkableLabel=True)
+            self.setAttributeWindow(items, checkable_label=True)
         else:
             self.sb.message_box("Found no items to list the history for.")
             return

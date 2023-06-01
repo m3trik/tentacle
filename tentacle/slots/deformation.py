@@ -10,7 +10,7 @@ class Deformation(Slots):
         super().__init__(*args, **kwargs)
         """
 		"""
-        ctx = self.sb.deformation.draggableHeader.ctxMenu
+        ctx = self.sb.deformation.draggableHeader.ctx_menu
         if not ctx.containsMenuItems:
             ctx.add(self.sb.ComboBox, setObjectName="cmb000", setToolTip="")
 

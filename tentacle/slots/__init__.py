@@ -36,13 +36,13 @@ class Slots(QtCore.QObject):
         return wrapper
 
     def objAttrWindow(
-        self, obj, checkableLabel=False, fn=None, fn_args=[], **attributes
+        self, obj, checkable_label=False, fn=None, fn_args=[], **attributes
     ):
         """Launch a popup window containing the given objects attributes.
 
         Parameters:
                 obj (obj): The object to get the attributes of.
-                checkableLabel (bool): Set the attribute labels as checkable.
+                checkable_label (bool): Set the attribute labels as checkable.
                 fn (method) = Set an alternative method to call on widget signal. ex. set_parameter_values
                                 The first parameter of fn is always the given object. ex. fn(obj, {'attr':<value>})
                 fn_args (list): Any additonal args to pass to fn.
@@ -52,7 +52,7 @@ class Slots(QtCore.QObject):
                 (obj) the menu widget. (use menu.childWidgets to get the menu's child widgets.)
 
         Example: self.objAttrWindow(node, attrs, fn=mtk.set_parameter_values, fn_args='transformLimits')
-        Example: self.objAttrWindow(transform[0], fn_args=['translateX','translateY','translateZ','rotateX','rotateY','rotateZ','scaleX','scaleY','scaleZ'], checkableLabel=True)
+        Example: self.objAttrWindow(transform[0], fn_args=['translateX','translateY','translateZ','rotateX','rotateY','rotateZ','scaleX','scaleY','scaleZ'], checkable_label=True)
         """
         import ast
 
@@ -82,8 +82,8 @@ class Slots(QtCore.QObject):
                     s = menu.add(
                         "QSpinBox",
                         label=a,
-                        checkableLabel=checkableLabel,
-                        setSpinBoxByValue_=v,
+                        checkable_label=checkable_label,
+                        set_spinbox_by_value=v,
                     )
 
                 elif type(v) == float:
@@ -93,8 +93,8 @@ class Slots(QtCore.QObject):
                     s = menu.add(
                         "QDoubleSpinBox",
                         label=a,
-                        checkableLabel=checkableLabel,
-                        setSpinBoxByValue_=v,
+                        checkable_label=checkable_label,
+                        set_spinbox_by_value=v,
                         setDecimals=3,
                     )
 
@@ -102,7 +102,7 @@ class Slots(QtCore.QObject):
 
             else:  # isinstance(v, (list, set, tuple)):
                 w = menu.add(
-                    "QLineEdit", label=a, checkableLabel=checkableLabel, setText=str(v)
+                    "QLineEdit", label=a, checkable_label=checkable_label, setText=str(v)
                 )
                 w.returnPressed.connect(
                     lambda w=w, a=a: fn(

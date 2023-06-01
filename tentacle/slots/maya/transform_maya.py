@@ -1,6 +1,12 @@
 # !/usr/bin/python
 # coding=utf-8
-from tentacle.slots.maya import *
+try:
+    import pymel.core as pm
+except ImportError as error:
+    print(__file__, error)
+
+import mayatk as mtk
+from tentacle.slots.maya import SlotsMaya
 from tentacle.slots.transform import Transform
 
 
@@ -11,7 +17,7 @@ class Transform_maya(Transform, SlotsMaya):
         """ """
         super().__init__(*args, **kwargs)
 
-        cmb000 = self.sb.transform.draggableHeader.ctxMenu.cmb000
+        cmb000 = self.sb.transform.draggableHeader.ctx_menu.cmb000
         items = [""]
         cmb000.addItems_(items, "")
 
@@ -42,33 +48,33 @@ class Transform_maya(Transform, SlotsMaya):
             ("chk026", "Make Live", live_object),
         ]
         [
-            cmb001.menu_.add(
+            cmb001.option_menu.add(
                 self.sb.CheckBox, setObjectName=chk, setText=typ, setChecked=state
             )
             for chk, typ, state in values
         ]
         self.sb.sync_widgets(
-            cmb001.menu_.chk024,
+            cmb001.option_menu.chk024,
             self.sb.transform_submenu.chk024,
             attributes="setChecked",
         )
         self.sb.sync_widgets(
-            cmb001.menu_.chk025,
+            cmb001.option_menu.chk025,
             self.sb.transform_submenu.chk025,
             attributes="setChecked",
         )
 
         cmb003 = self.sb.transform.cmb003
         moveValue = pm.manipMoveContext("Move", q=True, snapValue=True)
-        cmb003.menu_.s021.setValue(moveValue)
+        cmb003.option_menu.s021.setValue(moveValue)
         scaleValue = pm.manipScaleContext("Scale", q=True, snapValue=True)
-        cmb003.menu_.s022.setValue(scaleValue)
+        cmb003.option_menu.s022.setValue(scaleValue)
         rotateValue = pm.manipRotateContext("Rotate", q=True, snapValue=True)
-        cmb003.menu_.s023.setValue(rotateValue)
+        cmb003.option_menu.s023.setValue(rotateValue)
 
     def cmb000(self, index=-1):
         """Editors"""
-        cmb = self.sb.transform.draggableHeader.ctxMenu.cmb000
+        cmb = self.sb.transform.draggableHeader.ctx_menu.cmb000
 
         if index > 0:
             if index == cmd.list.index(""):
@@ -105,7 +111,7 @@ class Transform_maya(Transform, SlotsMaya):
         """Transform Constraints: Edge"""
         cmb = self.sb.transform.cmb001
         state = (
-            cmb.menu_.chk024.isChecked()
+            cmb.option_menu.chk024.isChecked()
         )  # explicit because state not being passed from submenu checkboxes.
 
         if state:
@@ -118,13 +124,17 @@ class Transform_maya(Transform, SlotsMaya):
             )  # pm.manipMoveSetXformConstraint(none=True);
 
         cmb.setCurrentText("Constrain: OFF") if not any(
-            (state, cmb.menu_.chk025.isChecked(), cmb.menu_.chk026.isChecked())
+            (
+                state,
+                cmb.option_menu.chk025.isChecked(),
+                cmb.option_menu.chk026.isChecked(),
+            )
         ) else cmb.setCurrentText("Constrain: ON")
 
     def chk025(self, state=None):
         """Transform Contraints: Surface"""
         cmb = self.sb.transform.cmb001
-        state = cmb.menu_.chk025.isChecked()
+        state = cmb.option_menu.chk025.isChecked()
 
         if state:
             pm.xformConstraint(
@@ -136,13 +146,17 @@ class Transform_maya(Transform, SlotsMaya):
             )  # pm.manipMoveSetXformConstraint(none=True);
 
         cmb.setCurrentText("Constrain: OFF") if not any(
-            (state, cmb.menu_.chk024.isChecked(), cmb.menu_.chk026.isChecked())
+            (
+                state,
+                cmb.option_menu.chk024.isChecked(),
+                cmb.option_menu.chk026.isChecked(),
+            )
         ) else cmb.setCurrentText("Constrain: ON")
 
     def chk026(self, state=None):
         """Transform Contraints: Make Live"""
         cmb = self.sb.transform.cmb001
-        state = cmb.menu_.chk026.isChecked()
+        state = cmb.option_menu.chk026.isChecked()
 
         selection = pm.ls(sl=1, objectsOnly=1, type="transform")
         if state and selection:
@@ -158,7 +172,11 @@ class Transform_maya(Transform, SlotsMaya):
             # mtk.viewport_message('Make Live: <hl>Off</hl>')
 
         cmb.setCurrentText("Constrain: OFF") if not any(
-            (state, cmb.menu_.chk024.isChecked(), cmb.menu_.chk025.isChecked())
+            (
+                state,
+                cmb.option_menu.chk024.isChecked(),
+                cmb.option_menu.chk025.isChecked(),
+            )
         ) else cmb.setCurrentText("Constrain: ON")
 
     def s021(self, value=None):
@@ -184,10 +202,10 @@ class Transform_maya(Transform, SlotsMaya):
         """Drop To Grid"""
         tb = self.sb.transform.tb000
 
-        align = tb.ctxMenu.cmb004.currentText()
-        origin = tb.ctxMenu.chk014.isChecked()
-        center_pivot = tb.ctxMenu.chk016.isChecked()
-        freeze_transforms = tb.ctxMenu.chk017.isChecked()
+        align = tb.option_menu.cmb004.currentText()
+        origin = tb.option_menu.chk014.isChecked()
+        center_pivot = tb.option_menu.chk016.isChecked()
+        freeze_transforms = tb.option_menu.chk017.isChecked()
 
         objects = pm.ls(sl=1, objectsOnly=1)
         mtk.Xform.drop_to_grid(objects, align, origin, center_pivot, freeze_transforms)
@@ -200,9 +218,9 @@ class Transform_maya(Transform, SlotsMaya):
         """
         tb = self.sb.transform.tb001
 
-        betweenTwoComponents = tb.ctxMenu.chk013.isChecked()
-        autoAlign = tb.ctxMenu.chk010.isChecked()
-        autoAlign2Axes = tb.ctxMenu.chk011.isChecked()  # Auto Align: Two Axes
+        betweenTwoComponents = tb.option_menu.chk013.isChecked()
+        autoAlign = tb.option_menu.chk010.isChecked()
+        autoAlign2Axes = tb.option_menu.chk011.isChecked()  # Auto Align: Two Axes
 
         selection = pm.ls(orderedSelection=1, flatten=1)
 
@@ -253,42 +271,42 @@ class Transform_maya(Transform, SlotsMaya):
             if autoAlign2Axes:
                 if axis == x:  # "yz"
                     self.sb.toggle_widgets(
-                        tb.ctxMenu, setChecked="chk030-31", setUnChecked="chk029"
+                        tb.option_menu, setChecked="chk030-31", setUnChecked="chk029"
                     )
                 if axis == y:  # "xz"
                     self.sb.toggle_widgets(
-                        tb.ctxMenu, setChecked="chk029,chk031", setUnChecked="chk030"
+                        tb.option_menu, setChecked="chk029,chk031", setUnChecked="chk030"
                     )
                 if axis == z:  # "xy"
                     self.sb.toggle_widgets(
-                        tb.ctxMenu, setChecked="chk029-30", setUnChecked="chk031"
+                        tb.option_menu, setChecked="chk029-30", setUnChecked="chk031"
                     )
             else:
                 if any(
                     [axis == x and tangent == ty, axis == y and tangent == tx]
                 ):  # "z"
                     self.sb.toggle_widgets(
-                        tb.ctxMenu, setChecked="chk031", setUnChecked="chk029-30"
+                        tb.option_menu, setChecked="chk031", setUnChecked="chk029-30"
                     )
                 if any(
                     [axis == x and tangent == tz, axis == z and tangent == tx]
                 ):  # "y"
                     self.sb.toggle_widgets(
-                        tb.ctxMenu, setChecked="chk030", setUnChecked="chk029,chk031"
+                        tb.option_menu, setChecked="chk030", setUnChecked="chk029,chk031"
                     )
                 if any(
                     [axis == y and tangent == tz, axis == z and tangent == ty]
                 ):  # "x"
                     self.sb.toggle_widgets(
-                        tb.ctxMenu, setChecked="chk029", setUnChecked="chk030-31"
+                        tb.option_menu, setChecked="chk029", setUnChecked="chk030-31"
                     )
 
         # align
-        x = tb.ctxMenu.chk029.isChecked()
-        y = tb.ctxMenu.chk030.isChecked()
-        z = tb.ctxMenu.chk031.isChecked()
-        avg = tb.ctxMenu.chk006.isChecked()
-        loop = tb.ctxMenu.chk007.isChecked()
+        x = tb.option_menu.chk029.isChecked()
+        y = tb.option_menu.chk030.isChecked()
+        z = tb.option_menu.chk031.isChecked()
+        avg = tb.option_menu.chk006.isChecked()
+        loop = tb.option_menu.chk007.isChecked()
 
         if all([x, not y, not z]):  # align x
             mtk.Xform.align_vertices(mode=3, average=avg, edgeloop=loop)
@@ -315,10 +333,10 @@ class Transform_maya(Transform, SlotsMaya):
         """Freeze Transformations"""
         tb = self.sb.transform.tb002
 
-        translate = tb.ctxMenu.chk032.isChecked()
-        rotate = tb.ctxMenu.chk033.isChecked()
-        scale = tb.ctxMenu.chk034.isChecked()
-        center_pivot = tb.ctxMenu.chk035.isChecked()
+        translate = tb.option_menu.chk032.isChecked()
+        rotate = tb.option_menu.chk033.isChecked()
+        scale = tb.option_menu.chk034.isChecked()
+        center_pivot = tb.option_menu.chk035.isChecked()
 
         if center_pivot:
             pm.xform(centerPivots=1)
@@ -339,7 +357,7 @@ class Transform_maya(Transform, SlotsMaya):
         """Transform Tool Snapping"""
         cmb = self.sb.transform.cmb003
 
-    @Slots.hideMain
+    @SlotsMaya.hideMain
     def b000(self):
         """Object Transform Attributes"""
         node = pm.ls(sl=1, objectsOnly=1)
@@ -363,7 +381,7 @@ class Transform_maya(Transform, SlotsMaya):
                 "scaleY",
                 "scaleZ",
             ],
-            checkableLabel=True,
+            checkable_label=True,
         )
 
     def b001(self):
@@ -409,12 +427,12 @@ class Transform_maya(Transform, SlotsMaya):
         if selection:
             live_object = pm.ls(live=1)
             shape = mtk.Node.get_shape_node(selection[0])
-            if not shape in str(live_object):
+            if shape not in str(live_object):
                 self.chk026(state=1)
-                cmb.menu_.chk026.setChecked(True)
+                cmb.option_menu.chk026.setChecked(True)
         else:
             self.chk026(state=0)
-            cmb.menu_.chk026.setChecked(False)
+            cmb.option_menu.chk026.setChecked(False)
 
     def b014(self):
         """Center Pivot Component"""
@@ -500,7 +518,7 @@ print(__name__)
 #   '''
 #   cmb = self.sb.transform.cmb003
 #   self.sb.toggle_widgets(setUnChecked='chk021-23')
-#   cmb.setCurrentText('Off') if not any((cmb.menu_.chk021.isChecked(), cmb.menu_.chk022.isChecked(), cmb.menu_.chk023.isChecked())) else cmb.setCurrentText('On')
+#   cmb.setCurrentText('Off') if not any((cmb.option_menu.chk021.isChecked(), cmb.option_menu.chk022.isChecked(), cmb.option_menu.chk023.isChecked())) else cmb.setCurrentText('On')
 
 
 # def cmb003(self):
@@ -508,7 +526,7 @@ print(__name__)
 #   '''
 #   cmb = self.sb.transform.lbl000
 #   self.sb.toggle_widgets(setUnChecked='chk024-26')
-#   cmb.setCurrentText('Off') if not any((cmb.menu_.chk024.isChecked(), cmb.menu_.chk025.isChecked(), cmb.menu_.chk026.isChecked())) else cmb.setCurrentText('On')
+#   cmb.setCurrentText('Off') if not any((cmb.option_menu.chk024.isChecked(), cmb.option_menu.chk025.isChecked(), cmb.option_menu.chk026.isChecked())) else cmb.setCurrentText('On')
 
 
 # def s002(self, value=None):
@@ -650,7 +668,7 @@ print(__name__)
 #   cmb = self.sb.transform.lbl000
 
 #   if index=='setMenu':
-#       cmb.ctxMenu.add(self.sb.Label, setObjectName='lbl000', setText='Disable All', setToolTip='Disable all constraints.')
+#       cmb.option_menu.add(self.sb.Label, setObjectName='lbl000', setText='Disable All', setToolTip='Disable all constraints.')
 
 #       items = ['Edge', 'Surface', 'Make Live']
 #       cmb.addItems_(items, 'Off')

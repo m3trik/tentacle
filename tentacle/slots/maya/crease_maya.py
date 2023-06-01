@@ -1,22 +1,166 @@
 # !/usr/bin/python
 # coding=utf-8
-from tentacle.slots.maya import *
-from tentacle.slots.crease import Crease
+try:
+    import pymel.core as pm
+except ImportError as error:
+    print(__file__, error)
+
+import mayatk as mtk
+from tentacle.slots.maya import SlotsMaya
 
 
-class Crease_maya(Crease, SlotsMaya):
+class Crease_maya(SlotsMaya):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
         self.creaseValue = 10
 
-        cmb = self.sb.crease.draggableHeader.ctxMenu.cmb000
+    def draggableHeader_init(self, w):
+        """ """
+        w.ctx_menu.add(self.sb.ComboBox, setObjectName="cmb000", setToolTip="")
+
+        cmb000 = w.ctx_menu.cmb000
         items = ["Crease Set Editor"]
-        cmb.addItems_(items, "Crease Editors:")
+        cmb000.addItems_(items, "Crease Editors:")
+
+    def tb000_init(self, w):
+        """ """
+        w.option_menu.add(
+            "QSpinBox",
+            setPrefix="Crease Amount: ",
+            setObjectName="s003",
+            set_limits="0-10 step1",
+            setValue=10,
+            setToolTip='Crease amount 0-10. Overriden if "max" checked.',
+        )
+        w.option_menu.add(
+            "QCheckBox",
+            setText="Toggle Max",
+            setObjectName="chk003",
+            setToolTip="Toggle crease amount from it's current value to the maximum amount.",
+        )
+        w.option_menu.add(
+            "QCheckBox",
+            setText="Un-Crease",
+            setObjectName="chk002",
+            setToolTip="Un-crease selected components or If in object mode, uncrease all.",
+        )
+        w.option_menu.add(
+            "QCheckBox",
+            setText="Perform Normal Edge Hardness",
+            setObjectName="chk005",
+            setChecked=True,
+            setToolTip="Toggle perform normal edge hardness.",
+        )
+        w.option_menu.add(
+            "QSpinBox",
+            setPrefix="Hardness Angle: ",
+            setObjectName="s004",
+            set_limits="0-180 step1",
+            setValue=30,
+            setToolTip="Normal edge hardness 0-180.",
+        )
+        w.option_menu.add(
+            "QCheckBox",
+            setText="Crease Vertex Points",
+            setObjectName="chk004",
+            setChecked=True,
+            setToolTip="Crease vertex points.",
+        )
+        w.option_menu.add(
+            "QCheckBox",
+            setText="Auto Crease",
+            setObjectName="chk011",
+            setToolTip="Auto crease selected object(s) within the set angle tolerance.",
+        )
+        w.option_menu.add(
+            "QSpinBox",
+            setPrefix="Auto Crease: Low: ",
+            setObjectName="s005",
+            set_limits="0-180 step1",
+            setValue=85,
+            setToolTip="Auto crease: low angle constraint.",
+        )
+        w.option_menu.add(
+            "QSpinBox",
+            setPrefix="Auto Crease: high: ",
+            setObjectName="s006",
+            set_limits="0-180 step1",
+            setValue=95,
+            setToolTip="Auto crease: max angle constraint.",
+        )
+        self.sb.toggle_widgets(w.option_menu, setDisabled="s005,s006")
+
+    def s003(self, value=None):
+        """Crease Amount
+        Tracks the standard crease amount while toggles such as un-crease, and crease max temporarily change the spinbox value.
+        """
+        if not self.sb.crease.tb000.option_menu.chk002.isChecked():  # un-crease
+            if not self.sb.crease.tb000.option_menu.chk003.isChecked():  # toggle max
+                self.creaseValue = self.sb.crease.tb000.option_menu.s003.value()
+                text = self.sb.crease.tb000.text().split()[0]
+                self.sb.crease.tb000.setText("{} {}".format(text, self.creaseValue))
+
+    def chk002(self, state=None):
+        """Un-Crease"""
+        if self.sb.crease.tb000.option_menu.chk002.isChecked():
+            self.sb.crease.tb000.option_menu.s003.setValue(0)  # crease value
+            self.sb.crease.tb000.option_menu.s004.setValue(180)  # normal angle
+            self.sb.toggle_widgets(
+                self.sb.crease.tb000.option_menu,
+                self.crease_submenu.tb000.option_menu,
+                setChecked="chk002",
+                setUnChecked="chk003",
+            )
+            self.sb.crease.tb000.option_menu.s003.setDisabled(True)
+            text = "Un-Crease 0"
+        else:
+            self.sb.crease.tb000.option_menu.s003.setValue(
+                self.creaseValue
+            )  # crease value
+            self.sb.crease.tb000.option_menu.s004.setValue(30)  # normal angle
+            self.sb.crease.tb000.option_menu.s003.setEnabled(True)
+            text = "{} {}".format("Crease", self.creaseValue)
+
+        self.sb.crease.tb000.setText(text)
+
+    def chk003(self, state=None):
+        """Crease: Max"""
+        if self.sb.crease.tb000.option_menu.chk003.isChecked():
+            self.sb.crease.tb000.option_menu.s003.setValue(10)  # crease value
+            self.sb.crease.tb000.option_menu.s004.setValue(30)  # normal angle
+            self.sb.toggle_widgets(
+                self.sb.crease.tb000.option_menu,
+                self.crease_submenu.tb000.option_menu,
+                setChecked="chk003",
+                setUnChecked="chk002",
+            )
+            self.sb.crease.tb000.option_menu.s003.setDisabled(True)
+            text = "Un-Crease 0"
+        else:
+            self.sb.crease.tb000.option_menu.s003.setValue(
+                self.creaseValue
+            )  # crease value
+            self.sb.crease.tb000.option_menu.s004.setValue(60)  # normal angle
+            self.sb.crease.tb000.option_menu.s003.setEnabled(True)
+            text = "{} {}".format("Crease", self.creaseValue)
+
+        self.sb.crease.tb000.setText(text)
+
+    def chk011(self, state=None):
+        """Crease: Auto"""
+        if self.sb.crease.tb000.option_menu.chk011.isChecked():
+            self.sb.toggle_widgets(
+                self.sb.crease.tb000.option_menu, setEnabled="s005,s006"
+            )
+        else:
+            self.sb.toggle_widgets(
+                self.sb.crease.tb000.option_menu, setDisabled="s005,s006"
+            )
 
     def cmb000(self, index=-1):
         """Editors"""
-        cmb = self.sb.crease.draggableHeader.ctxMenu.cmb000
+        cmb = self.sb.crease.draggableHeader.ctx_menu.cmb000
 
         if index > 0:
             text = cmb.items[index]
@@ -26,26 +170,69 @@ class Crease_maya(Crease, SlotsMaya):
                 creaseSetEditor.showCreaseSetEditor()
 
             cmb.setCurrentIndex(0)
+        dh = self.sb.crease.draggableHeader
+        dh.ctx_menu.add(
+            self.sb.ComboBox, setObjectName="cmb000", setToolTip="Crease Editors"
+        )
+
+    def b000(self):
+        """Crease Set Transfer: Transform Node"""
+        if self.sb.crease.b001.isChecked():
+            newObject = str(pm.ls(selection=1))  # ex. [nt.Transform(u'pSphere1')]
+
+            index1 = newObject.find("u")
+            index2 = newObject.find(")")
+            newObject = newObject[index1 + 1 : index2].strip("'")  # ex. pSphere1
+
+            if newObject != "[":
+                self.sb.crease.b001.setText(newObject)
+            else:
+                self.sb.crease.b001.setText("must select obj first")
+                self.sb.toggle_widgets(setUnChecked="b001")
+            if self.sb.crease.b000.isChecked():
+                self.sb.toggle_widgets(setEnabled="b052")
+        else:
+            self.sb.crease.b001.setText("Object")
+
+    def b001(self):
+        """Crease Set Transfer: Crease Set"""
+        if self.sb.crease.b000.isChecked():
+            creaseSet = str(pm.ls(selection=1))  # ex. [nt.CreaseSet(u'creaseSet1')]
+
+            index1 = creaseSet.find("u")
+            index2 = creaseSet.find(")")
+            creaseSet = creaseSet[index1 + 1 : index2].strip("'")  # ex. creaseSet1
+
+            if creaseSet != "[":
+                self.sb.crease.b000.setText(creaseSet)
+            else:
+                self.sb.crease.b000.setText("must select set first")
+                self.sb.toggle_widgets(setUnChecked="b000")
+            if self.sb.crease.b001.isChecked():
+                self.sb.toggle_widgets(setEnabled="b052")
+        else:
+            self.sb.crease.b000.setText("Crease Set")
 
     def tb000(self, state=None):
         """Crease"""
         tb = self.sb.crease.tb000
 
-        creaseAmount = float(tb.ctxMenu.s003.value())
-        normalAngle = int(tb.ctxMenu.s004.value())
+        creaseAmount = float(tb.option_menu.s003.value())
+        normalAngle = int(tb.option_menu.s004.value())
 
-        if tb.ctxMenu.chk011.isChecked():  # crease: Auto
-            angleLow = int(tb.ctxMenu.s005.value())
-            angleHigh = int(tb.ctxMenu.s006.value())
+        if tb.option_menu.chk011.isChecked():  # crease: Auto
+            angleLow = int(tb.option_menu.s005.value())
+            angleHigh = int(tb.option_menu.s006.value())
 
             pm.mel.eval("PolySelectConvert 2;")  # convert selection to edges
+            # to get edges with angle between two degrees. mode=3 (All and Next) type=0x8000 (edge).
             contraint = pm.polySelectConstraint(
                 mode=3, type=0x8000, angle=True, anglebound=(angleLow, angleHigh)
-            )  # to get edges with angle between two degrees. mode=3 (All and Next) type=0x8000 (edge).
+            )
 
         operation = 0  # Crease selected components
         pm.polySoftEdge(angle=0, constructionHistory=0)  # Harden edge normal
-        if tb.ctxMenu.chk002.isChecked():
+        if tb.option_menu.chk002.isChecked():
             objectMode = pm.selectMode(query=True, object=True)
             if objectMode:  # if in object mode,
                 operation = 2  # 2-Remove all crease values from mesh
@@ -53,7 +240,7 @@ class Crease_maya(Crease, SlotsMaya):
                 operation = 1  # 1-Remove crease from sel components
                 pm.polySoftEdge(angle=180, constructionHistory=0)  # soften edge normal
 
-        if tb.ctxMenu.chk004.isChecked():  # crease vertex point
+        if tb.option_menu.chk004.isChecked():  # crease vertex point
             pm.polyCrease(
                 value=creaseAmount,
                 vertexValue=creaseAmount,
@@ -65,10 +252,10 @@ class Crease_maya(Crease, SlotsMaya):
                 value=creaseAmount, createHistory=True, operation=operation
             )  # PolyCreaseTool;
 
-        if tb.ctxMenu.chk005.isChecked():  # adjust normal angle
+        if tb.option_menu.chk005.isChecked():  # adjust normal angle
             pm.polySoftEdge(angle=normalAngle)
 
-        if tb.ctxMenu.chk011.isChecked():  # crease: Auto
+        if tb.option_menu.chk011.isChecked():  # crease: Auto
             pm.polySelectConstraint(angle=False)  # turn off angle constraint
 
     @mtk.undo

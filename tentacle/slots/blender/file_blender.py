@@ -9,7 +9,7 @@ class File_blender(File, SlotsBlender):
         SlotsBlender.__init__(self, *args, **kwargs)
         File.__init__(self, *args, **kwargs)
 
-        cmb000 = self.sb.file.draggableHeader.ctxMenu.cmb000
+        cmb000 = self.sb.file.draggableHeader.ctx_menu.cmb000
         items = []
         cmb000.addItems_(items, "File Editors")
 
@@ -17,14 +17,14 @@ class File_blender(File, SlotsBlender):
         # autoSaveState = pm.autoSave(q=True, enable=True) #set the initial autosave state.
         # autoSaveInterval = pm.autoSave(q=True, int=True)
         # autoSaveAmount = pm.autoSave(q=True, maxBackups=True)
-        # cmb002.ctxMenu.add('QPushButton', setObjectName='b000', setText='Open Directory', setToolTip='Open the autosave directory.') #open directory
-        # cmb002.ctxMenu.add('QPushButton', setObjectName='b002', setText='Delete All', setToolTip='Delete all autosave files.') #delete all
-        # cmb002.ctxMenu.add('QCheckBox', setText='Autosave', setObjectName='chk006', setChecked=autoSaveState, setToolTip='Set the autosave state as active or disabled.') #toggle autosave
-        # cmb002.ctxMenu.add('QSpinBox', setPrefix='Amount: ', setObjectName='s000', setMinMax_='1-100 step1', setValue=autoSaveAmount, setHeight_=20, setToolTip='The number of autosave files to retain.') #autosave amount
-        # cmb002.ctxMenu.add('QSpinBox', setPrefix='Interval: ', setObjectName='s001', setMinMax_='1-60 step1', setValue=autoSaveInterval/60, setHeight_=20, setToolTip='The autosave interval in minutes.') #autosave interval
-        # cmb002.ctxMenu.chk006.toggled.connect(lambda s: pm.autoSave(enable=s, limitBackups=True))
-        # cmb002.ctxMenu.s000.valueChanged.connect(lambda v: pm.autoSave(maxBackups=v, limitBackups=True))
-        # cmb002.ctxMenu.s001.valueChanged.connect(lambda v: pm.autoSave(int=v*60, limitBackups=True))
+        # cmb002.option_menu.add('QPushButton', setObjectName='b000', setText='Open Directory', setToolTip='Open the autosave directory.') #open directory
+        # cmb002.option_menu.add('QPushButton', setObjectName='b002', setText='Delete All', setToolTip='Delete all autosave files.') #delete all
+        # cmb002.option_menu.add('QCheckBox', setText='Autosave', setObjectName='chk006', setChecked=autoSaveState, setToolTip='Set the autosave state as active or disabled.') #toggle autosave
+        # cmb002.option_menu.add('QSpinBox', setPrefix='Amount: ', setObjectName='s000', set_limits='1-100 step1', setValue=autoSaveAmount, set_height=20, setToolTip='The number of autosave files to retain.') #autosave amount
+        # cmb002.option_menu.add('QSpinBox', setPrefix='Interval: ', setObjectName='s001', set_limits='1-60 step1', setValue=autoSaveInterval/60, set_height=20, setToolTip='The autosave interval in minutes.') #autosave interval
+        # cmb002.option_menu.chk006.toggled.connect(lambda s: pm.autoSave(enable=s, limitBackups=True))
+        # cmb002.option_menu.s000.valueChanged.connect(lambda v: pm.autoSave(maxBackups=v, limitBackups=True))
+        # cmb002.option_menu.s001.valueChanged.connect(lambda v: pm.autoSave(int=v*60, limitBackups=True))
         # cmb002.addItems_(self.get_recent_autosave(appendDatetime=True), 'Recent Autosave', clear=True)
 
         cmb003 = self.sb.file.cmb003
@@ -36,7 +36,7 @@ class File_blender(File, SlotsBlender):
 
     def cmb000(self, index=-1):
         """Editors"""
-        cmb = self.sb.file.draggableHeader.ctxMenu.cmb000
+        cmb = self.sb.file.draggableHeader.ctx_menu.cmb000
 
         if index > 0:
             text = cmb.items[index]
@@ -50,7 +50,7 @@ class File_blender(File, SlotsBlender):
 
     def cmb001(self, index=-1):
         """Recent Projects"""
-        cmb = self.sb.file.cmb006.ctxMenu.cmb001
+        cmb = self.sb.file.cmb006.option_menu.cmb001
 
         if index > 0:
             pm.mel.setProject(
@@ -160,11 +160,11 @@ class File_blender(File, SlotsBlender):
 
     def tb000(self, state=None):
         """Save"""
-        tb = self.sb.file.draggableHeader.ctxMenu.tb000
+        tb = self.sb.file.draggableHeader.ctx_menu.tb000
 
-        wireframe = tb.ctxMenu.chk000.isChecked()
-        increment = tb.ctxMenu.chk001.isChecked()
-        quit = tb.ctxMenu.chk002.isChecked()
+        wireframe = tb.option_menu.chk000.isChecked()
+        increment = tb.option_menu.chk001.isChecked()
+        quit = tb.option_menu.chk002.isChecked()
 
         if wireframe:
             pm.mel.DisplayWireframe()
@@ -342,16 +342,16 @@ print(__name__)
 # 	'''
 # 	tb = self.sb.file.tb000
 # 	if state=='setMenu':
-# 		tb.ctxMenu.add('QCheckBox', setText='ASCII', setObjectName='chk003', setChecked=True, setToolTip='Toggle ASCII or binary file type.')
-# 		tb.ctxMenu.add('QCheckBox', setText='Wireframe', setObjectName='chk000', setChecked=True, setToolTip='Set view to wireframe before save.')
-# 		tb.ctxMenu.add('QCheckBox', setText='Increment', setObjectName='chk001', setChecked=True, setToolTip='Append and increment a unique integer value.')
-# 		tb.ctxMenu.add('QCheckBox', setText='Quit', setObjectName='chk002', setToolTip='Quit after save.')
+# 		tb.option_menu.add('QCheckBox', setText='ASCII', setObjectName='chk003', setChecked=True, setToolTip='Toggle ASCII or binary file type.')
+# 		tb.option_menu.add('QCheckBox', setText='Wireframe', setObjectName='chk000', setChecked=True, setToolTip='Set view to wireframe before save.')
+# 		tb.option_menu.add('QCheckBox', setText='Increment', setObjectName='chk001', setChecked=True, setToolTip='Append and increment a unique integer value.')
+# 		tb.option_menu.add('QCheckBox', setText='Quit', setObjectName='chk002', setToolTip='Quit after save.')
 # 		return
 
-# 	increment = tb.ctxMenu.chk001.isChecked()
-# 	ASCII = tb.ctxMenu.chk003.isChecked()
-# 	wireframe = tb.ctxMenu.chk000.isChecked()
-# 	quit = tb.ctxMenu.chk002.isChecked()
+# 	increment = tb.option_menu.chk001.isChecked()
+# 	ASCII = tb.option_menu.chk003.isChecked()
+# 	wireframe = tb.option_menu.chk000.isChecked()
+# 	quit = tb.option_menu.chk002.isChecked()
 
 # 	preSaveScript = ''
 # 	postSaveScript = ''

@@ -428,7 +428,7 @@ class SlotsMax(Slots):
         return wrapper
 
     def setAttributeWindow(
-        self, obj, inc=[], exc=[], checkableLabel=False, fn=None, *fn_args, **attributes
+        self, obj, inc=[], exc=[], checkable_label=False, fn=None, *fn_args, **attributes
     ):
         """Launch a popup window containing the given objects attributes.
 
@@ -436,13 +436,13 @@ class SlotsMax(Slots):
                 obj (str/obj/list): The object to get the attributes of, or it's name. If given as a list, only the first index will be used.
                 inc (list): Attributes to include. All other will be omitted. Exclude takes dominance over include. Meaning, if the same attribute is in both lists, it will be excluded.
                 exc (list): Attributes to exclude from the returned dictionay. ie. ['Position','Rotation','Scale','renderable','isHidden','isFrozen','selected']
-                checkableLabel (bool): Set the attribute labels as checkable.
+                checkable_label (bool): Set the attribute labels as checkable.
                 fn (method) = Set an alternative method to call on widget signal. ex. set_parameter_values
                                 The first parameter of fn is always the given object. ex. fn(obj, {'attr':<value>})
                 fn_args (args) = Any additonal args to pass to fn.
                 attributes (kwargs) = Explicitly pass in attribute:values pairs. Else, attributes will be pulled from self.get_node_attributes for the given obj.
 
-        Example: self.setAttributeWindow(obj, attributes=attrs, checkableLabel=True)
+        Example: self.setAttributeWindow(obj, attributes=attrs, checkable_label=True)
         """
         if not obj:
             return
@@ -461,10 +461,10 @@ class SlotsMax(Slots):
             attributes = self.getAttributesMax(obj, inc=inc, exc=exc)
 
         menu = self.objAttrWindow(
-            obj, checkableLabel=checkableLabel, fn=fn, *fn_args, **attributes
+            obj, checkable_label=checkable_label, fn=fn, *fn_args, **attributes
         )
 
-        if checkableLabel:
+        if checkable_label:
             for c in menu.childWidgets:
                 if c.__class__.__name__ == "QCheckBox":
                     attr = getattr(obj, c.objectName())

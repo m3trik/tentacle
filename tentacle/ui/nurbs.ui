@@ -37,7 +37,7 @@
   <property name="dockOptions">
    <set>QMainWindow::AllowNestedDocks|QMainWindow::AllowTabbedDocks|QMainWindow::AnimatedDocks|QMainWindow::ForceTabbedDocks</set>
   </property>
-  <widget class="QWidget" name="main_widget">
+  <widget class="QWidget" name="central_widget">
    <layout class="QVBoxLayout" name="verticalLayout_2">
     <item>
      <widget class="DraggableHeader" name="draggableHeader">
@@ -102,8 +102,11 @@
          <property name="bottomMargin">
           <number>0</number>
          </property>
-         <property name="spacing">
+         <property name="horizontalSpacing">
           <number>0</number>
+         </property>
+         <property name="verticalSpacing">
+          <number>1</number>
          </property>
          <item row="0" column="0" colspan="2">
           <widget class="ComboBox" name="cmb001">
@@ -276,8 +279,11 @@
          <property name="bottomMargin">
           <number>0</number>
          </property>
-         <property name="spacing">
+         <property name="horizontalSpacing">
           <number>0</number>
+         </property>
+         <property name="verticalSpacing">
+          <number>1</number>
          </property>
          <item row="0" column="0">
           <widget class="QPushButton" name="b018">
@@ -521,7 +527,7 @@
         </property>
         <layout class="QVBoxLayout" name="verticalLayout_3">
          <property name="spacing">
-          <number>0</number>
+          <number>1</number>
          </property>
          <property name="leftMargin">
           <number>0</number>
@@ -726,8 +732,11 @@
          <property name="bottomMargin">
           <number>0</number>
          </property>
-         <property name="spacing">
+         <property name="horizontalSpacing">
           <number>0</number>
+         </property>
+         <property name="verticalSpacing">
+          <number>1</number>
          </property>
          <item row="0" column="0" colspan="2">
           <widget class="QPushButton" name="b040">
@@ -1138,7 +1147,7 @@
   <customwidget>
    <class>PushButton</class>
    <extends>QPushButton</extends>
-   <header>widgets.pushbutton.h</header>
+   <header>pushButton.h</header>
   </customwidget>
   <customwidget>
    <class>DraggableHeader</class>

@@ -8,12 +8,12 @@ class File_max(File, SlotsMax):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        cmb = self.sb.file.draggableHeader.ctxMenu.cmb000
+        cmb = self.sb.file.draggableHeader.ctx_menu.cmb000
         items = ["Schematic View"]
         cmb.addItems_(items, "File Editors")
 
         cmb = self.sb.file.cmb002
-        ctx = cmb.ctxMenu
+        ctx = cmb.option_menu
         if not ctx.containsMenuItems:
             ctx.add(
                 "QPushButton",
@@ -38,18 +38,18 @@ class File_max(File, SlotsMax):
                 "QSpinBox",
                 setPrefix="Amount: ",
                 setObjectName="s000",
-                setMinMax_="1-100 step1",
+                set_limits="1-100 step1",
                 setValue=rt.autosave.NumberOfFiles,
-                setHeight_=20,
+                set_height=20,
                 setToolTip="The number of autosave files to retain.",
             )  # autosave amount
             ctx.add(
                 "QSpinBox",
                 setPrefix="Interval: ",
                 setObjectName="s001",
-                setMinMax_="1-60 step1",
+                set_limits="1-60 step1",
                 setValue=rt.autosave.Interval,
-                setHeight_=20,
+                set_height=20,
                 setToolTip="The autosave interval in minutes.",
             )  # autosave interval
             ctx.chk006.toggled.connect(lambda s: rt.autosave.setmxsprop("Enable", s))
@@ -94,7 +94,7 @@ class File_max(File, SlotsMax):
 
     def cmb000(self, index=-1):
         """Editors"""
-        cmb = self.sb.file.draggableHeader.ctxMenu.cmb000
+        cmb = self.sb.file.draggableHeader.ctx_menu.cmb000
 
         if index > 0:
             text = cmb.items[index]
@@ -104,7 +104,7 @@ class File_max(File, SlotsMax):
 
     def cmb001(self, index=-1):
         """Recent Projects"""
-        cmb = self.sb.file.cmb006.ctxMenu.cmb001
+        cmb = self.sb.file.cmb006.option_menu.cmb001
 
         items = cmb.addItems_(self.get_recent_projects(), "Recent Projects", clear=True)
 
@@ -214,11 +214,11 @@ class File_max(File, SlotsMax):
 
     def tb000(self, state=None):
         """Save"""
-        tb = self.sb.file.draggableHeader.ctxMenu.tb000
+        tb = self.sb.file.draggableHeader.ctx_menu.tb000
 
-        wireframe = tb.ctxMenu.chk000.isChecked()
-        increment = tb.ctxMenu.chk001.isChecked()
-        quit = tb.ctxMenu.chk002.isChecked()
+        wireframe = tb.option_menu.chk000.isChecked()
+        increment = tb.option_menu.chk001.isChecked()
+        quit = tb.option_menu.chk002.isChecked()
 
         if wireframe:
             pm.mel.DisplayWireframe()

@@ -377,7 +377,7 @@
      <bool>false</bool>
     </property>
    </widget>
-   <widget class="QLabel" name="lbl003">
+   <widget class="Label" name="lbl003">
     <property name="geometry">
      <rect>
       <x>365</x>
@@ -408,7 +408,7 @@
      <set>Qt::AlignCenter</set>
     </property>
    </widget>
-   <widget class="QLabel" name="lbl004">
+   <widget class="Label" name="lbl004">
     <property name="geometry">
      <rect>
       <x>365</x>
@@ -489,6 +489,11 @@
    <class>PushButton</class>
    <extends>QPushButton</extends>
    <header>widgets.pushbutton.h</header>
+  </customwidget>
+  <customwidget>
+   <class>Label</class>
+   <extends>QLabel</extends>
+   <header>widgets.label.h</header>
   </customwidget>
  </customwidgets>
  <resources/>

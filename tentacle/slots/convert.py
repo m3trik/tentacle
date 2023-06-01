@@ -9,8 +9,8 @@ class Convert(Slots):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         """
-		"""
-        ctx = self.sb.convert.draggableHeader.ctxMenu
+        """
+        ctx = self.sb.convert.draggableHeader.ctx_menu
         if not ctx.containsMenuItems:
             ctx.add(self.sb.ComboBox, setObjectName="cmb000", setToolTip="")
 

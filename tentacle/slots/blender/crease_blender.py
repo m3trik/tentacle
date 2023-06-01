@@ -11,13 +11,13 @@ class Crease_blender(Crease, SlotsBlender):
 
         self.creaseValue = 10
 
-        cmb = self.sb.crease.draggableHeader.ctxMenu.cmb000
+        cmb = self.sb.crease.draggableHeader.ctx_menu.cmb000
         items = []
         cmb.addItems_(items, "Crease Editors:")
 
     def cmb000(self, index=-1):
         """Editors"""
-        cmb = self.sb.crease.draggableHeader.ctxMenu.cmb000
+        cmb = self.sb.crease.draggableHeader.ctx_menu.cmb000
 
         if index > 0:
             text = cmb.items[index]
@@ -32,12 +32,12 @@ class Crease_blender(Crease, SlotsBlender):
         """Crease"""
         tb = self.sb.crease.tb000
 
-        creaseAmount = float(tb.ctxMenu.s003.value())
-        normalAngle = int(tb.ctxMenu.s004.value())
+        creaseAmount = float(tb.option_menu.s003.value())
+        normalAngle = int(tb.option_menu.s004.value())
 
-        if tb.ctxMenu.chk011.isChecked():  # crease: Auto
-            angleLow = int(tb.ctxMenu.s005.value())
-            angleHigh = int(tb.ctxMenu.s006.value())
+        if tb.option_menu.chk011.isChecked():  # crease: Auto
+            angleLow = int(tb.option_menu.s005.value())
+            angleHigh = int(tb.option_menu.s006.value())
 
             mel.eval("PolySelectConvert 2;")  # convert selection to edges
             contraint = pm.polySelectConstraint(
@@ -46,7 +46,7 @@ class Crease_blender(Crease, SlotsBlender):
 
         operation = 0  # Crease selected components
         pm.polySoftEdge(angle=0, constructionHistory=0)  # Harden edge normal
-        if tb.ctxMenu.chk002.isChecked():
+        if tb.option_menu.chk002.isChecked():
             objectMode = pm.selectMode(query=True, object=True)
             if objectMode:  # if in object mode,
                 operation = 2  # 2-Remove all crease values from mesh
@@ -54,7 +54,7 @@ class Crease_blender(Crease, SlotsBlender):
                 operation = 1  # 1-Remove crease from sel components
                 pm.polySoftEdge(angle=180, constructionHistory=0)  # soften edge normal
 
-        if tb.ctxMenu.chk004.isChecked():  # crease vertex point
+        if tb.option_menu.chk004.isChecked():  # crease vertex point
             pm.polyCrease(
                 value=creaseAmount,
                 vertexValue=creaseAmount,
@@ -66,10 +66,10 @@ class Crease_blender(Crease, SlotsBlender):
                 value=creaseAmount, createHistory=True, operation=operation
             )  # PolyCreaseTool;
 
-        if tb.ctxMenu.chk005.isChecked():  # adjust normal angle
+        if tb.option_menu.chk005.isChecked():  # adjust normal angle
             pm.polySoftEdge(angle=normalAngle)
 
-        if tb.ctxMenu.chk011.isChecked():  # crease: Auto
+        if tb.option_menu.chk011.isChecked():  # crease: Auto
             pm.polySelectConstraint(angle=False)  # turn off angle constraint
 
     @SlotsBlender.undoChunk

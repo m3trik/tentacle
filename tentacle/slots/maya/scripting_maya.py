@@ -8,13 +8,13 @@ class Scripting_maya(Scripting, SlotsMaya):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        cmb = self.sb.scripting.draggableHeader.ctxMenu.cmb000
+        cmb = self.sb.scripting.draggableHeader.ctx_menu.cmb000
         files = [""]
         contents = cmb.addItems_(files, "")
 
     def cmb000(self, index=-1):
         """Editors"""
-        cmb = self.sb.scripting.draggableHeader.ctxMenu.cmb000
+        cmb = self.sb.scripting.draggableHeader.ctx_menu.cmb000
 
         if index > 0:
             if index == cmd.items.index(""):

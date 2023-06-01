@@ -10,13 +10,13 @@ class Normals_max(Normals, SlotsMax):
 
         self.sb.normals.b003.setText("Hard Edge Display")
 
-        cmb = self.sb.normals.draggableHeader.ctxMenu.cmb000
+        cmb = self.sb.normals.draggableHeader.ctx_menu.cmb000
         items = [""]
         cmb.addItems_(items, "")
 
     def cmb000(self, index=-1):
         """Editors"""
-        cmb = self.sb.normals.draggableHeader.ctxMenu.cmb000
+        cmb = self.sb.normals.draggableHeader.ctx_menu.cmb000
 
         if index > 0:
             text = cmb.items[index]
@@ -28,7 +28,7 @@ class Normals_max(Normals, SlotsMax):
         """Display Face Normals"""
         tb = self.sb.normals.tb000
 
-        size = float(tb.ctxMenu.s001.value())
+        size = float(tb.option_menu.s001.value())
 
         self.sb.message_box("No 3ds Version.")
         tb.setDisabled(True)
@@ -60,10 +60,10 @@ class Normals_max(Normals, SlotsMax):
 
         maxEval("$.EditablePoly.makeHardEdges 1")
 
-        # hardAngle = tb.ctxMenu.s002.value()
-        # hardenCreased = tb.ctxMenu.chk001.isChecked()
-        # hardenUvBorders = tb.ctxMenu.chk002.isChecked()
-        # softenOther = tb.ctxMenu.chk000.isChecked()
+        # hardAngle = tb.option_menu.s002.value()
+        # hardenCreased = tb.option_menu.chk001.isChecked()
+        # hardenUvBorders = tb.option_menu.chk002.isChecked()
+        # softenOther = tb.option_menu.chk000.isChecked()
 
         # objects = rt.selection
 
@@ -93,7 +93,7 @@ class Normals_max(Normals, SlotsMax):
         """Set Normal By Angle"""
         tb = self.sb.normals.tb002
 
-        normalAngle = str(tb.ctxMenu.s000.value())
+        normalAngle = str(tb.option_menu.s000.value())
         subObjectLevel = rt.subObjectLevel
 
         if subObjectLevel == 4:  # smooth selected faces
@@ -122,8 +122,8 @@ class Normals_max(Normals, SlotsMax):
 
         print("# Error: No 3ds Version of this command yet. #")
         tb.setDisabled(True)
-        # all_ = tb.ctxMenu.chk001.isChecked()
-        # state = tb.ctxMenu.chk002.isChecked() #pm.polyNormalPerVertex(vertex, query=1, freezeNormal=1)
+        # all_ = tb.option_menu.chk001.isChecked()
+        # state = tb.option_menu.chk002.isChecked() #pm.polyNormalPerVertex(vertex, query=1, freezeNormal=1)
         # selection = pm.ls (selection=1, objectsOnly=1)
         # maskObject = pm.selectMode (query=1, object=1)
         # maskVertex = pm.selectType (query=1, vertex=1)
@@ -158,7 +158,7 @@ class Normals_max(Normals, SlotsMax):
         """Average Normals"""
         tb = self.sb.normals.tb004
 
-        byUvShell = tb.ctxMenu.chk003.isChecked()
+        byUvShell = tb.option_menu.chk003.isChecked()
 
         if byUvShell:
             print("# Error: No 3ds Version of this flag yet. #")

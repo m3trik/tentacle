@@ -9,7 +9,7 @@ class Nurbs_blender(Nurbs, SlotsBlender):
         SlotsBlender.__init__(self, *args, **kwargs)
         Nurbs.__init__(self, *args, **kwargs)
 
-        cmb = self.sb.nurbs.draggableHeader.ctxMenu.cmb000
+        cmb = self.sb.nurbs.draggableHeader.ctx_menu.cmb000
         items = [
             "Project Curve",
             "Duplicate Curve",
@@ -44,7 +44,7 @@ class Nurbs_blender(Nurbs, SlotsBlender):
 
     def cmb000(self, index=-1):
         """Maya Curve Operations"""
-        cmb = self.sb.nurbs.draggableHeader.ctxMenu.cmb000
+        cmb = self.sb.nurbs.draggableHeader.ctx_menu.cmb000
 
         if index > 0:
             text = cmb.items[index]
@@ -111,15 +111,15 @@ class Nurbs_blender(Nurbs, SlotsBlender):
         """Revolve"""
         tb = self.sb.nurbs.tb000
 
-        degree = tb.ctxMenu.s002.value()
-        startSweep = tb.ctxMenu.s003.value()
-        endSweep = tb.ctxMenu.s004.value()
-        sections = tb.ctxMenu.s005.value()
-        range_ = tb.ctxMenu.chk006.isChecked()
-        polygon = 1 if tb.ctxMenu.chk007.isChecked() else 0
-        autoCorrectNormal = tb.ctxMenu.chk008.isChecked()
-        useTolerance = tb.ctxMenu.chk009.isChecked()
-        tolerance = tb.ctxMenu.s006.value()
+        degree = tb.option_menu.s002.value()
+        startSweep = tb.option_menu.s003.value()
+        endSweep = tb.option_menu.s004.value()
+        sections = tb.option_menu.s005.value()
+        range_ = tb.option_menu.chk006.isChecked()
+        polygon = 1 if tb.option_menu.chk007.isChecked() else 0
+        autoCorrectNormal = tb.option_menu.chk008.isChecked()
+        useTolerance = tb.option_menu.chk009.isChecked()
+        tolerance = tb.option_menu.s006.value()
 
         return pm.revolve(
             curves,
@@ -140,16 +140,16 @@ class Nurbs_blender(Nurbs, SlotsBlender):
         """Loft"""
         tb = self.sb.nurbs.tb001
 
-        uniform = tb.ctxMenu.chk000.isChecked()
-        close = tb.ctxMenu.chk001.isChecked()
-        degree = tb.ctxMenu.s000.value()
-        autoReverse = tb.ctxMenu.chk002.isChecked()
-        sectionSpans = tb.ctxMenu.s001.value()
-        range_ = tb.ctxMenu.chk003.isChecked()
-        polygon = 1 if tb.ctxMenu.chk004.isChecked() else 0
-        reverseSurfaceNormals = tb.ctxMenu.chk005.isChecked()
-        angleLoftBetweenTwoCurves = tb.ctxMenu.chk010.isChecked()
-        angleLoftSpans = tb.ctxMenu.s007.value()
+        uniform = tb.option_menu.chk000.isChecked()
+        close = tb.option_menu.chk001.isChecked()
+        degree = tb.option_menu.s000.value()
+        autoReverse = tb.option_menu.chk002.isChecked()
+        sectionSpans = tb.option_menu.s001.value()
+        range_ = tb.option_menu.chk003.isChecked()
+        polygon = 1 if tb.option_menu.chk004.isChecked() else 0
+        reverseSurfaceNormals = tb.option_menu.chk005.isChecked()
+        angleLoftBetweenTwoCurves = tb.option_menu.chk010.isChecked()
+        angleLoftSpans = tb.option_menu.s007.value()
 
         self.loft(
             uniform=uniform,

@@ -20,13 +20,13 @@
 
 
 
-#add widgets to menu|ctxMenu:
+#add widgets to menu|ctx_menu:
 ctx.add('QRadioButton', setText='Current Material', setObjectName='chk007', setChecked=True, setToolTip='Re-Assign the current stored material.')
 ctx.add('QCheckBox', setText='Current Material', setObjectName='chk010', setChecked=True, setToolTip='Use the current material, <br>else use the current viewport selection to get a material.')
-ctx.add('QDoubleSpinBox', setPrefix='Width: ', setObjectName='s000', setMinMax_='0.00-100 step.05', setValue=0.25, setHeight_=20, setToolTip='Bevel Width.')
+ctx.add('QDoubleSpinBox', setPrefix='Width: ', setObjectName='s000', set_limits='0.00-100 step.05', setValue=0.25, set_height=20, setToolTip='Bevel Width.')
 ctx.add(self.sb.Label, setText='Open in Editor', setObjectName='lbl000', setToolTip='Open material in editor.')
 ctx.add('QPushButton', setObjectName='b002', setText='Delete All', setToolTip='Delete all autosave files.') #delete all
-ctx.add('QSpinBox', setPrefix='Interval: ', setObjectName='s001', setMinMax_='1-60 step1', setValue=interval, setHeight_=20, setToolTip='The autosave interval in minutes.') #autosave interval
+ctx.add('QSpinBox', setPrefix='Interval: ', setObjectName='s001', set_limits='1-60 step1', setValue=interval, set_height=20, setToolTip='The autosave interval in minutes.') #autosave interval
 
 #add items to a custom combobox:
 cmb.addItems_(zip(self.get_recent_files(timestamp=True), self.get_recent_files(timestamp=False)), "Recent Files", clear=True) #add item|data
@@ -80,7 +80,7 @@ def cmb000(self, index=-1):
 			cmb.setCurrentIndex(0)
 
 
-# comboBox w/ctxMenu
+# comboBox w/ctx_menu
 def cmb002(self, index=-1):
 		'''Material list
 
@@ -105,7 +105,7 @@ def cmb006(self, index=-1):
 
 		cmb.clear()
 		items = [str(i) for i in pm.ls(sl=1, flatten=1)]
-		widgets = [cmb.menu_.add('QCheckBox', setText=t, setChecked=1) for t in items[:50]] #selection list is capped with a slice at 50 elements.
+		widgets = [cmb.option_menu.add('QCheckBox', setText=t, setChecked=1) for t in items[:50]] #selection list is capped with a slice at 50 elements.
 
 
 

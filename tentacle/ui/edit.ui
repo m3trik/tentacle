@@ -37,7 +37,7 @@
   <property name="bnabled" stdset="0">
    <bool>true</bool>
   </property>
-  <widget class="QWidget" name="main_widget">
+  <widget class="QWidget" name="central_widget">
    <property name="palette">
     <palette>
      <active>
@@ -125,7 +125,7 @@
         </property>
         <layout class="QVBoxLayout" name="verticalLayout_4">
          <property name="spacing">
-          <number>0</number>
+          <number>1</number>
          </property>
          <property name="leftMargin">
           <number>0</number>
@@ -251,7 +251,7 @@
         </property>
         <layout class="QVBoxLayout" name="verticalLayout_3">
          <property name="spacing">
-          <number>0</number>
+          <number>1</number>
          </property>
          <property name="leftMargin">
           <number>0</number>
@@ -326,8 +326,11 @@
          <property name="bottomMargin">
           <number>0</number>
          </property>
-         <property name="spacing">
+         <property name="horizontalSpacing">
           <number>0</number>
+         </property>
+         <property name="verticalSpacing">
+          <number>1</number>
          </property>
          <item row="6" column="0">
           <widget class="QGroupBox" name="transfer_crease_sets_2">
@@ -716,7 +719,7 @@
   <customwidget>
    <class>PushButton</class>
    <extends>QPushButton</extends>
-   <header>widgets.pushbutton.h</header>
+   <header>pushButton.h</header>
   </customwidget>
   <customwidget>
    <class>DraggableHeader</class>

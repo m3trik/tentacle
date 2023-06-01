@@ -9,13 +9,13 @@ class Display_blender(Display, SlotsBlender):
         SlotsBlender.__init__(self, *args, **kwargs)
         Display.__init__(self, *args, **kwargs)
 
-        cmb = self.sb.display.draggableHeader.ctxMenu.cmb000
+        cmb = self.sb.display.draggableHeader.ctx_menu.cmb000
         items = [""]
         cmb.addItems_(items, "")
 
     def cmb000(self, index=-1):
         """Editors"""
-        cmb = self.sb.display.draggableHeader.ctxMenu.cmb000
+        cmb = self.sb.display.draggableHeader.ctx_menu.cmb000
 
         if index > 0:
             text = cmb.items[index]

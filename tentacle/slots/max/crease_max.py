@@ -10,13 +10,13 @@ class Crease_max(Crease, SlotsMax):
 
         self.creaseValue = 10
 
-        cmb = self.sb.crease.draggableHeader.ctxMenu.cmb000
+        cmb = self.sb.crease.draggableHeader.ctx_menu.cmb000
         items = ["Crease Modifier"]
         cmb.addItems_(items, "Crease Modifiers:")
 
     def cmb000(self, index=-1):
         """Editors"""
-        cmb = self.sb.crease.draggableHeader.ctxMenu.cmb000
+        cmb = self.sb.crease.draggableHeader.ctx_menu.cmb000
 
         if index > 0:
             text = cmb.items[index]
@@ -37,12 +37,12 @@ class Crease_max(Crease, SlotsMax):
         """Crease"""
         tb = self.sb.crease.tb000
 
-        creaseAmount = int(tb.ctxMenu.s003.value())
-        normalAngle = int(tb.ctxMenu.s004.value())
+        creaseAmount = int(tb.option_menu.s003.value())
+        normalAngle = int(tb.option_menu.s004.value())
 
-        # if tb.ctxMenu.chk011.isChecked(): #crease: Auto
-        # 	angleLow = int(tb.ctxMenu.s005.value())
-        # 	angleHigh = int(tb.ctxMenu.s006.value())
+        # if tb.option_menu.chk011.isChecked(): #crease: Auto
+        # 	angleLow = int(tb.option_menu.s005.value())
+        # 	angleHigh = int(tb.option_menu.s006.value())
 
         # 	mel.eval("PolySelectConvert 2;") #convert selection to edges
         # 	contraint = pm.polySelectConstraint( mode=3, type=0x8000, angle=True, anglebound=(angleLow, angleHigh) ) # to get edges with angle between two degrees. mode=3 (All and Next) type=0x8000 (edge).
@@ -51,19 +51,19 @@ class Crease_max(Crease, SlotsMax):
 
         for obj in rt.selection:
             if rt.classOf(obj) == "Editable_Poly":
-                if tb.ctxMenu.chk011.isChecked():  # crease: Auto
-                    minAngle = int(tb.ctxMenu.s005.value())
-                    maxAngle = int(tb.ctxMenu.s006.value())
+                if tb.option_menu.chk011.isChecked():  # crease: Auto
+                    minAngle = int(tb.option_menu.s005.value())
+                    maxAngle = int(tb.option_menu.s006.value())
 
                     edgelist = self.getEdgesByAngle(minAngle, maxAngle)
                     rt.polyOp.setEdgeSelection(obj, edgelist)
 
-                if tb.ctxMenu.chk004.isChecked():  # crease vertex point
+                if tb.option_menu.chk004.isChecked():  # crease vertex point
                     obj.EditablePoly.setVertexData(1, creaseAmount)
                 else:  # crease edge
                     obj.EditablePoly.setEdgeData(1, creaseAmount)
 
-                if tb.ctxMenu.chk005.isChecked():  # adjust normal angle
+                if tb.option_menu.chk005.isChecked():  # adjust normal angle
                     edges = rt.polyop.getEdgeSelection(obj)
                     for edge in edges:
                         edgeVerts = rt.polyop.getEdgeVerts(obj, edge)

@@ -9,11 +9,11 @@ class Create_blender(Create, SlotsBlender):
         SlotsBlender.__init__(self, *args, **kwargs)
         Create.__init__(self, *args, **kwargs)
 
-        ctx = self.sb.create.draggableHeader.ctxMenu
+        ctx = self.sb.create.draggableHeader.ctx_menu
         if not ctx.containsMenuItems:
             ctx.add(self.sb.ComboBox, setObjectName="cmb000", setToolTip="")
 
-        cmb = self.sb.create.draggableHeader.ctxMenu.cmb000
+        cmb = self.sb.create.draggableHeader.ctx_menu.cmb000
         items = [""]
         cmb.addItems_(items, "")
 
@@ -38,7 +38,7 @@ class Create_blender(Create, SlotsBlender):
         ]
         cmb.addItems_(items)
 
-        ctx = self.sb.create.tb000.ctxMenu
+        ctx = self.sb.create.tb000.option_menu
         if not ctx.containsMenuItems:
             ctx.add(
                 "QCheckBox",
@@ -57,7 +57,7 @@ class Create_blender(Create, SlotsBlender):
 
     def cmb000(self, index=-1):
         """Editors"""
-        cmb = self.sb.create.draggableHeader.ctxMenu.cmb000
+        cmb = self.sb.create.draggableHeader.ctx_menu.cmb000
 
         if index > 0:
             text = cmb.items[index]
@@ -130,8 +130,8 @@ class Create_blender(Create, SlotsBlender):
         axis = [0, 90, 0]
         type_ = self.sb.create.cmb001.currentText()
         index = self.sb.create.cmb002.currentIndex()
-        translate = tb.ctxMenu.chk000.isChecked()
-        scale = tb.ctxMenu.chk001.isChecked()
+        translate = tb.option_menu.chk000.isChecked()
+        scale = tb.option_menu.chk001.isChecked()
 
         selection = pm.ls(selection=1, transforms=1)
 

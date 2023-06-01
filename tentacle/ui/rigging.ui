@@ -40,7 +40,7 @@
   <property name="dockOptions">
    <set>QMainWindow::AllowNestedDocks|QMainWindow::AllowTabbedDocks|QMainWindow::AnimatedDocks|QMainWindow::ForceTabbedDocks</set>
   </property>
-  <widget class="QWidget" name="main_widget">
+  <widget class="QWidget" name="central_widget">
    <layout class="QVBoxLayout" name="verticalLayout_2">
     <item>
      <widget class="DraggableHeader" name="draggableHeader">
@@ -91,7 +91,7 @@
         </property>
         <layout class="QVBoxLayout" name="verticalLayout_4">
          <property name="spacing">
-          <number>0</number>
+          <number>1</number>
          </property>
          <property name="leftMargin">
           <number>0</number>
@@ -152,7 +152,7 @@
         </property>
         <layout class="QVBoxLayout" name="verticalLayout_3">
          <property name="spacing">
-          <number>0</number>
+          <number>1</number>
          </property>
          <property name="leftMargin">
           <number>0</number>
@@ -215,7 +215,7 @@
         </property>
         <layout class="QVBoxLayout" name="verticalLayout_5">
          <property name="spacing">
-          <number>0</number>
+          <number>1</number>
          </property>
          <property name="leftMargin">
           <number>0</number>
@@ -312,8 +312,11 @@
          <property name="bottomMargin">
           <number>0</number>
          </property>
-         <property name="spacing">
+         <property name="horizontalSpacing">
           <number>0</number>
+         </property>
+         <property name="verticalSpacing">
+          <number>1</number>
          </property>
          <item row="2" column="1">
           <widget class="QPushButton" name="b004">
@@ -442,8 +445,11 @@
          <property name="bottomMargin">
           <number>0</number>
          </property>
-         <property name="spacing">
+         <property name="horizontalSpacing">
           <number>0</number>
+         </property>
+         <property name="verticalSpacing">
+          <number>1</number>
          </property>
          <item row="1" column="2">
           <widget class="QPushButton" name="b006">
@@ -664,7 +670,7 @@
         </property>
         <layout class="QVBoxLayout" name="verticalLayout_7">
          <property name="spacing">
-          <number>0</number>
+          <number>1</number>
          </property>
          <property name="leftMargin">
           <number>0</number>
@@ -728,7 +734,7 @@
   <customwidget>
    <class>PushButton</class>
    <extends>QPushButton</extends>
-   <header>widgets.pushbutton.h</header>
+   <header>pushButton.h</header>
   </customwidget>
   <customwidget>
    <class>DraggableHeader</class>

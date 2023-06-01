@@ -1,6 +1,12 @@
 # !/usr/bin/python
 # coding=utf-8
-from tentacle.slots.maya import *
+try:
+    import pymel.core as pm
+except ImportError as error:
+    print(__file__, error)
+
+import mayatk as mtk
+from tentacle.slots.maya import SlotsMaya
 from tentacle.slots.mirror import Mirror
 
 
@@ -8,16 +14,16 @@ class Mirror_maya(Mirror, SlotsMaya):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        cmb = self.sb.mirror.draggableHeader.ctxMenu.cmb000
+        cmb = self.sb.mirror.draggableHeader.ctx_menu.cmb000
         items = [""]
         cmb.addItems_(items, "")
 
     def cmb000(self, index=-1):
         """Editors"""
-        cmb = self.sb.mirror.draggableHeader.ctxMenu.cmb000
+        cmb = self.sb.mirror.draggableHeader.ctx_menu.cmb000
 
         if index > 0:
-            if index == cmd.items.index(""):
+            if index == cmb.items.index(""):
                 pass
             cmb.setCurrentIndex(0)
 
@@ -26,23 +32,22 @@ class Mirror_maya(Mirror, SlotsMaya):
         """Mirror Geometry"""
         tb = self.sb.mirror.tb000
 
-        axis = self.sb.get_axis_from_checkboxes("chk000-3", tb.ctxMenu)
+        axis = self.sb.get_axis_from_checkboxes("chk000-3", tb.option_menu)
         axisPivot = (
-            2 if tb.ctxMenu.chk008.isChecked() else 1
+            2 if tb.option_menu.chk008.isChecked() else 1
         )  # 1) object space, 2) world space.
-        cutMesh = tb.ctxMenu.chk005.isChecked()  # cut mesh on axis before mirror.
-        uninstance = (
-            tb.ctxMenu.chk009.isChecked()
-        )  # Un-Instance any previously instanced objects before mirroring.
-        instance = tb.ctxMenu.chk004.isChecked()
-        merge = tb.ctxMenu.chk007.isChecked()
-        mergeMode = tb.ctxMenu.s001.value()
-        mergeThreshold = tb.ctxMenu.s000.value()
+        cutMesh = tb.option_menu.chk005.isChecked()  # cut mesh on axis before mirror.
+        # Un-Instance any previously instanced objects before mirroring.
+        uninstance = tb.option_menu.chk009.isChecked()
+        instance = tb.option_menu.chk004.isChecked()
+        merge = tb.option_menu.chk007.isChecked()
+        mergeMode = tb.option_menu.s001.value()
+        mergeThreshold = tb.option_menu.s000.value()
         deleteOriginal = (
-            tb.ctxMenu.chk010.isChecked()
+            tb.option_menu.chk010.isChecked()
         )  # delete the original objects after mirroring.
         deleteHistory = (
-            tb.ctxMenu.chk006.isChecked()
+            tb.option_menu.chk006.isChecked()
         )  # delete the object's non-deformer history.
 
         objects = pm.ls(sl=1)
@@ -64,17 +69,17 @@ class Mirror_maya(Mirror, SlotsMaya):
 
     def b000(self):
         """Mirror: X"""
-        self.sb.mirror.tb000.ctxMenu.chk001.setChecked(True)
+        self.sb.mirror.tb000.option_menu.chk001.setChecked(True)
         self.tb000()
 
     def b001(self):
         """Mirror: Y"""
-        self.sb.mirror.tb000.ctxMenu.chk002.setChecked(True)
+        self.sb.mirror.tb000.option_menu.chk002.setChecked(True)
         self.tb000()
 
     def b002(self):
         """Mirror: Z"""
-        self.sb.mirror.tb000.ctxMenu.chk003.setChecked(True)
+        self.sb.mirror.tb000.option_menu.chk003.setChecked(True)
         self.tb000()
 
     @mtk.undo
@@ -109,26 +114,21 @@ class Mirror_maya(Mirror, SlotsMaya):
                 (obj) The polyMirrorFace history node if a single object, else None.
         """
         direction = {
-            "-x": (0, 0, (-1, 1, 1)),  # the direction dict:
-            "x": (
-                1,
-                0,
-                (-1, 1, 1),
-            ),  # 	first index: axis direction: 0=negative axis, 1=positive.
-            "-y": (0, 1, (1, -1, 1)),  # 	second index: axis_as_int: 0=x, 1=y, 2=z
-            "y": (
-                1,
-                1,
-                (1, -1, 1),
-            ),  # 	remaining three are (x, y, z) scale values. #Used only when scaling an instance.
+            # the direction dict:
+            "-x": (0, 0, (-1, 1, 1)),
+            #  first index: axis direction: 0=negative axis, 1=positive.
+            "x": (1, 0, (-1, 1, 1)),
+            #    second index: axis_as_int: 0=x, 1=y, 2=z
+            "-y": (0, 1, (1, -1, 1)),
+            #   remaining three are (x, y, z) scale values. #Used only when scaling an instance.
+            "y": (1, 1, (1, -1, 1)),
             "-z": (0, 2, (1, 1, -1)),
             "z": (1, 2, (1, 1, -1)),
         }
 
         axis = axis.lower()  # assure case.
-        axisDirection, axis_as_int, scale = direction[
-            axis
-        ]  # ex. (1, 5, (1, 1,-1)) broken down as: axisDirection=1, axis_as_int=5, scale: (x=1, y=1, z=-1)
+        axisDirection, axis_as_int, scale = direction[axis]
+        # ex. (1, 5, (1, 1,-1)) broken down as: axisDirection=1, axis_as_int=5, scale: (x=1, y=1, z=-1)
 
         if not objects:
             objects = pm.ls(sl=1)
@@ -149,9 +149,8 @@ class Mirror_maya(Mirror, SlotsMaya):
                 )  # delete mesh faces that fall inside the specified axis.
 
             if instance:  # create instance and scale negatively
-                inst = pm.instance(
-                    obj
-                )  # bt_convertToMirrorInstanceMesh(0); #x=0, y=1, z=2, -x=3, -y=4, -z=5
+                # bt_convertToMirrorInstanceMesh(0); #x=0, y=1, z=2, -x=3, -y=4, -z=5
+                inst = pm.instance(obj)
                 pm.xform(
                     inst, scale=scale
                 )  # pm.scale(z,x,y, pivot=(0,0,0), relative=1) #swap the xyz values to transform the instanced node
@@ -197,7 +196,7 @@ class Mirror_maya(Mirror, SlotsMaya):
         try:
             if len(objects) == 1:
                 return polyMirrorFaceNode
-        except AttributeError as error:
+        except AttributeError:
             return None
         # pm.undoInfo(closeChunk=1)
 
@@ -213,85 +212,85 @@ print(__name__)
 
 
 # if axis=='X': #'x'
-# 			axisDirection = 0 #positive axis
-# 			axis_ = 0 #axis
-# 			x=-1; y=1; z=1 #scale values
+#           axisDirection = 0 #positive axis
+#           axis_ = 0 #axis
+#           x=-1; y=1; z=1 #scale values
 
-# 		elif axis=='-X': #'-x'
-# 			axisDirection = 1 #negative axis
-# 			axis_ = 1 #0=-x, 1=x, 2=-y, 3=y, 4=-z, 5=z
-# 			x=-1; y=1; z=1 #if instance: used to negatively scale
+#       elif axis=='-X': #'-x'
+#           axisDirection = 1 #negative axis
+#           axis_ = 1 #0=-x, 1=x, 2=-y, 3=y, 4=-z, 5=z
+#           x=-1; y=1; z=1 #if instance: used to negatively scale
 
-# 		elif axis=='Y': #'y'
-# 			axisDirection = 0
-# 			axis_ = 2
-# 			x=1; y=-1; z=1
+#       elif axis=='Y': #'y'
+#           axisDirection = 0
+#           axis_ = 2
+#           x=1; y=-1; z=1
 
-# 		elif axis=='-Y': #'-y'
-# 			axisDirection = 1
-# 			axis_ = 3
-# 			x=1; y=-1; z=1
+#       elif axis=='-Y': #'-y'
+#           axisDirection = 1
+#           axis_ = 3
+#           x=1; y=-1; z=1
 
-# 		elif axis=='Z': #'z'
-# 			axisDirection = 0
-# 			axis_ = 4
-# 			x=1; y=1; z=-1
+#       elif axis=='Z': #'z'
+#           axisDirection = 0
+#           axis_ = 4
+#           x=1; y=1; z=-1
 
-# 		elif axis=='-Z': #'-z'
-# 			axisDirection = 1
-# 			axis_ = 5
-# 			x=1; y=1; z=-1
+#       elif axis=='-Z': #'-z'
+#           axisDirection = 1
+#           axis_ = 5
+#           x=1; y=1; z=-1
 
 # def chk000(self, state=None):
-# 	'''
-# 	Delete: Negative Axis. Set Text Mirror Axis
-# 	'''
-# 	axis = "X"
-# 	if self.sb.mirror.chk002.isChecked():
-# 		axis = "Y"
-# 	if self.sb.mirror.chk003.isChecked():
-# 		axis = "Z"
-# 	if self.sb.mirror.chk000.isChecked():
-# 		axis = '-'+axis
-# 	self.sb.mirror.tb000.setText('Mirror '+axis)
-# 	self.sb.mirror.tb003.setText('Delete '+axis)
+#   '''
+#   Delete: Negative Axis. Set Text Mirror Axis
+#   '''
+#   axis = "X"
+#   if self.sb.mirror.chk002.isChecked():
+#       axis = "Y"
+#   if self.sb.mirror.chk003.isChecked():
+#       axis = "Z"
+#   if self.sb.mirror.chk000.isChecked():
+#       axis = '-'+axis
+#   self.sb.mirror.tb000.setText('Mirror '+axis)
+#   self.sb.mirror.tb003.setText('Delete '+axis)
 
 
 # #set check states
 # def chk000(self, state=None):
-# 	'''
-# 	Delete: X Axis
-# 	'''
-# 	self.sb.toggle_widgets(setUnChecked='chk002,chk003')
-# 	axis = "X"
-# 	if self.sb.mirror.chk000.isChecked():
-# 		axis = '-'+axis
-# 	self.sb.mirror.tb000.setText('Mirror '+axis)
-# 	self.sb.mirror.tb003.setText('Delete '+axis)
+#   '''
+#   Delete: X Axis
+#   '''
+#   self.sb.toggle_widgets(setUnChecked='chk002,chk003')
+#   axis = "X"
+#   if self.sb.mirror.chk000.isChecked():
+#       axis = '-'+axis
+#   self.sb.mirror.tb000.setText('Mirror '+axis)
+#   self.sb.mirror.tb003.setText('Delete '+axis)
 
 
 # def chk002(self, state=None):
-# 	'''
-# 	Delete: Y Axis
-# 	'''
-# 	self.sb.toggle_widgets(setUnChecked='chk001,chk003')
-# 	axis = "Y"
-# 	if self.sb.mirror.chk000.isChecked():
-# 		axis = '-'+axis
-# 	self.sb.mirror.tb000.setText('Mirror '+axis)
-# 	self.sb.mirror.tb003.setText('Delete '+axis)
+#   '''
+#   Delete: Y Axis
+#   '''
+#   self.sb.toggle_widgets(setUnChecked='chk001,chk003')
+#   axis = "Y"
+#   if self.sb.mirror.chk000.isChecked():
+#       axis = '-'+axis
+#   self.sb.mirror.tb000.setText('Mirror '+axis)
+#   self.sb.mirror.tb003.setText('Delete '+axis)
 
 
 # def chk003(self, state=None):
-# 	'''
-# 	Delete: Z Axis
-# 	'''
-# 	self.sb.toggle_widgets(setUnChecked='chk001,chk002')
-# 	axis = "Z"
-# 	if self.sb.mirror.chk000.isChecked():
-# 		axis = '-'+axis
-# 	self.sb.mirror.tb000.setText('Mirror '+axis)
-# 	self.sb.mirror.tb003.setText('Delete '+axis)
+#   '''
+#   Delete: Z Axis
+#   '''
+#   self.sb.toggle_widgets(setUnChecked='chk001,chk002')
+#   axis = "Z"
+#   if self.sb.mirror.chk000.isChecked():
+#       axis = '-'+axis
+#   self.sb.mirror.tb000.setText('Mirror '+axis)
+#   self.sb.mirror.tb003.setText('Delete '+axis)
 
 
 # def chk005(self, state=None):
@@ -300,6 +299,6 @@ print(__name__)
 # '''
 # keep menu and submenu in sync:
 # if self.mirror_submenu.chk005.isChecked():
-# 	self.sb.toggle_widgets(setChecked='chk005')
+#   self.sb.toggle_widgets(setChecked='chk005')
 # else:
-# 	self.sb.toggle_widgets(setUnChecked='chk005')
+#   self.sb.toggle_widgets(setUnChecked='chk005')

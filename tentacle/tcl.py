@@ -2,7 +2,6 @@
 # coding=utf-8
 import sys
 import logging
-import traceback
 from PySide2 import QtCore, QtGui, QtWidgets
 from pythontk import make_list
 from uitk.switchboard import Switchboard
@@ -35,7 +34,7 @@ class Tcl(QtWidgets.QStackedWidget):
     left_mouse_double_click_ctrl_alt = QtCore.Signal()
     middle_mouse_double_click = QtCore.Signal()
     right_mouse_double_click = QtCore.Signal()
-    _key_show_release = QtCore.Signal()
+    key_show_release = QtCore.Signal()
 
     def __init__(
         self,
@@ -102,19 +101,22 @@ class Tcl(QtWidgets.QStackedWidget):
             ui (QWidget): The UI to initialize.
         """
         if not isinstance(ui, QtWidgets.QWidget):
-            raise ValueError(f"Invalid datatype for ui: {type(ui)}, expected QWidget.")
-
-        self.init_child_event_filter(ui.widgets)
-        ui.set_style("dark", append_to_existing=True)
+            raise ValueError(f"Invalid datatype: {type(ui)}, expected QWidget.")
 
         if ui.has_tag("startmenu|submenu"):  # stacked UI.
+            ui.set_style("dark", style_class="translucentBgNoBorder")
             self.addWidget(ui)  # add the UI to the stackedLayout.
 
         else:  # popup UI.
-            ui.setParent(self.parent() or self)
+            ui.setParent(self.parent())
             ui.setWindowFlags(QtCore.Qt.Tool | QtCore.Qt.FramelessWindowHint)
             ui.setAttribute(QtCore.Qt.WA_TranslucentBackground)
-            self._key_show_release.connect(ui.hide)
+            ui.centralWidget().setProperty("class", "translucentBgWithBorder")
+            ui.set_style("dark")
+            self.key_show_release.connect(ui.hide)
+
+        # set style before child init (resize).
+        self.init_child_event_filter(ui.widgets)
 
     def set_ui(self, ui):
         """Set the stacked Widget's index to the given UI.
@@ -138,7 +140,6 @@ class Tcl(QtWidgets.QStackedWidget):
 
         if found_ui.has_tag("startmenu|submenu"):
             if found_ui.has_tag("startmenu"):
-                self.overlay.path.reset()
                 self.move(self.sb.get_center(self))
             self.setCurrentWidget(found_ui)  # set the stacked widget to the found UI.
 
@@ -221,7 +222,7 @@ class Tcl(QtWidgets.QStackedWidget):
         modifiers = self.app.keyboardModifiers()
 
         if event.key() == self.key_show and not modifiers == QtCore.Qt.ControlModifier:
-            self._key_show_release.emit()
+            self.key_show_release.emit()
             self.releaseKeyboard()
             self.hide()
 
@@ -344,26 +345,13 @@ class Tcl(QtWidgets.QStackedWidget):
             # print('init_child_event_filter:', w.ui.name.ljust(26), w.base_name.ljust(25), (w.name or type(w).__name__).ljust(25), w.type.ljust(15), w.derived_type.ljust(15), id(w)) #debug
             w.installEventFilter(self.child_event_filter)
 
-            if w.derived_type in ("QPushButton", "QLabel"):
+            if w.derived_type in ("QPushButton", "QLabel", "QCheckBox", "QRadioButton"):
+                self.sb.resize_and_center_widget(w)
                 if w.base_name == "i":
                     w.ui.set_style(widget=w)
-                self.sb.resize_and_center_widget(w)
 
             if w.type == "Region":
                 w.visible_on_mouse_over = True
-
-    def child_showEvent(self, w, event):
-        """ """
-        if w.name == "info":
-            self.sb.resize_and_center_widget(w)
-
-        if w.type in ("ComboBox"):
-            try:  # call the class method associated with the current widget.
-                w.get_slot()()
-            except (AttributeError, TypeError):
-                logging.info(traceback.format_exc())
-
-        w.showEvent(event)
 
     def child_enterEvent(self, w, event):
         """ """
@@ -376,8 +364,8 @@ class Tcl(QtWidgets.QStackedWidget):
                         self.set_submenu(submenu, w)
 
         if w.base_name == "chk":
-            if w.ui.isSubmenu:
-                w.click()
+            if w.ui.has_tag("submenu"):
+                w.click()  # send click signal on enterEvent.
 
         w.enterEvent(event)
 
@@ -410,10 +398,13 @@ class Tcl(QtWidgets.QStackedWidget):
                         self.hide_unmatched_groupboxes(menu, menu_name)
                         self.set_ui(menu)
 
-                elif w.base_name in ("b", "tb"):
-                    w.click()  # send click signal on mouseRelease.
-                    if w.ui.isSubmenu:
-                        self.hide()
+        try:
+            print(w.name)
+            w.click()  # send click signal on mouseRelease.
+        except:
+            pass
+        # if w.ui.has_tag("submenu"):
+        #     self.hide()
 
         w.mouseReleaseEvent(event)
 
@@ -435,7 +426,7 @@ class Tcl(QtWidgets.QStackedWidget):
             ):
                 if w.type == "QMainWindow":
                     if not w.ui.has_tag("startmenu|submenu"):
-                        self._key_show_release.emit()
+                        self.key_show_release.emit()
                         w.releaseKeyboard()
 
         w.keyReleaseEvent(event)
@@ -443,7 +434,7 @@ class Tcl(QtWidgets.QStackedWidget):
     # ---------------------------------------------------------------------------------------------
 
     @staticmethod
-    def get_unknown_tags(tag_string):
+    def get_unknown_tags(tag_string, known_tags="submenu|startmenu"):
         """Extracts all tags from a given string that are not known tags.
 
         Parameters:
@@ -458,7 +449,7 @@ class Tcl(QtWidgets.QStackedWidget):
         """
         import re
 
-        unknown_tags = re.findall("#(?!submenu|startmenu)[a-zA-Z0-9]*", tag_string)
+        unknown_tags = re.findall(f"#(?!{known_tags})[a-zA-Z0-9]*", tag_string)
         # Remove leading '#' from all tags
         unknown_tags = [tag[1:] for tag in unknown_tags if tag != "#"]
         return unknown_tags
@@ -646,8 +637,8 @@ if __name__ == "__main__":
 # self.worker.finished.connect(self.thread.quit)
 # self.thread.started.connect(self.worker.start)
 
-# # self.loadingIndicator = self.sb.LoadingIndicator(color='white', start=True, setPosition_='cursor')
-# self.loadingIndicator = self.sb.GifPlayer(setPosition_='cursor')
+# # self.loadingIndicator = self.sb.LoadingIndicator(color='white', start=True, set_position='cursor')
+# self.loadingIndicator = self.sb.GifPlayer(set_position='cursor')
 # self.worker.started.connect(self.loadingIndicator.start)
 # self.worker.finished.connect(self.loadingIndicator.stop)
 # self.thread.start()

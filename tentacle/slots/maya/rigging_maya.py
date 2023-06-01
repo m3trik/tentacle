@@ -1,14 +1,24 @@
 # !/usr/bin/python
 # coding=utf-8
-from tentacle.slots.maya import *
-from tentacle.slots.rigging import Rigging
+try:
+    import pymel.core as pm
+except ImportError as error:
+    print(__file__, error)
+
+import mayatk as mtk
+from tentacle.slots.maya import SlotsMaya
 
 
-class Rigging_maya(Rigging, SlotsMaya):
+class Rigging_maya(SlotsMaya):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        dh = self.sb.rigging.draggableHeader
+    def draggableHeader_init(self, w):
+        """ """
+        w.ctx_menu.add(
+            self.sb.ComboBox, setObjectName="cmb000", setToolTip="Rigging Editors"
+        )
+
         items = [
             "Quick Rig",
             "HumanIK",
@@ -18,15 +28,210 @@ class Rigging_maya(Rigging, SlotsMaya):
             "Channel Control Editor",
             "Set Driven Key",
         ]
-        dh.ctxMenu.cmb000.addItems_(items, "Rigging Editors")
+        w.ctx_menu.cmb000.addItems_(items, "Rigging Editors")
 
-        cmb001 = self.sb.rigging.cmb001
+    def cmb001_init(self, w):
+        """ """
         items = ["Joints", "Locator", "IK Handle", "Lattice", "Cluster"]
-        cmb001.addItems_(items, "Create")
+        w.addItems_(items, "Create")
+
+    def tb000_init(self, w):
+        """ """
+        w.option_menu.add(
+            "QCheckBox",
+            setText="Joints",
+            setObjectName="chk000",
+            setChecked=True,
+            setToolTip="Display Joints.",
+        )
+        w.option_menu.add(
+            "QCheckBox",
+            setText="IK",
+            setObjectName="chk001",
+            setChecked=True,
+            setToolTip="Display IK.",
+        )
+        w.option_menu.add(
+            "QCheckBox",
+            setText="IK\\FK",
+            setObjectName="chk002",
+            setChecked=True,
+            setToolTip="Display IK\\FK.",
+        )
+        w.option_menu.add(
+            "QDoubleSpinBox",
+            setPrefix="Tolerance: ",
+            setObjectName="s000",
+            set_limits="0.00-10 step.5",
+            setValue=1.0,
+            setToolTip="Global Display Scale for the selected type.",
+        )
+        self.chk000()  # init scale joint value
+
+    def tb001_init(self, w):
+        """ """
+        w.option_menu.add(
+            "QCheckBox",
+            setText="Align world",
+            setObjectName="chk003",
+            setToolTip="Align joints with the worlds transform.",
+        )
+
+    def tb002_init(self, w):
+        """ """
+        w.option_menu.add(
+            "QCheckBox",
+            setText="Template Child",
+            setObjectName="chk004",
+            setChecked=False,
+            setToolTip="Template child object(s) after parenting.",
+        )
+
+    def tb003_init(self, w):
+        """ """
+        w.option_menu.add(
+            "QDoubleSpinBox",
+            setPrefix="Locator Scale: ",
+            setObjectName="s001",
+            set_limits=".000-1000 step1",
+            setValue=1,
+            setToolTip="The scale of the locator.",
+        )
+        w.option_menu.add(
+            "QLineEdit",
+            setPlaceholderText="Group Suffix:",
+            setText="_GRP",
+            setObjectName="t002",
+            setToolTip="A string appended to the end of the created group's name.",
+        )
+        w.option_menu.add(
+            "QLineEdit",
+            setPlaceholderText="Locator Suffix:",
+            setText="",
+            setObjectName="t000",
+            setToolTip="A string appended to the end of the created locator's name.",
+        )
+        w.option_menu.add(
+            "QLineEdit",
+            setPlaceholderText="Geometry Suffix:",
+            setText="",
+            setObjectName="t001",
+            setToolTip="A string appended to the end of the existing geometry's name.",
+        )
+        w.option_menu.add(
+            "QCheckBox",
+            setText="Strip Suffix",
+            setObjectName="chk016",
+            setToolTip="Strip any of preexisting suffixes from the group name before appending the new ones.\nA suffix is defined as anything trailing an underscore.\nAny user-defined suffixes are stripped by default.",
+        )
+        w.option_menu.add(
+            "QCheckBox",
+            setText="Strip Digits",
+            setObjectName="chk005",
+            setChecked=True,
+            setToolTip="Strip any trailing numeric characters from the name.\nIf the resulting name is not unique, maya will append a trailing digit.",
+        )
+        w.option_menu.add(
+            "QCheckBox",
+            setText="Parent",
+            setObjectName="chk006",
+            setChecked=True,
+            setToolTip="Parent to object to the locator.",
+        )
+        w.option_menu.add(
+            "QCheckBox",
+            setText="Freeze Transforms",
+            setObjectName="chk010",
+            setChecked=True,
+            setToolTip="Freeze transforms on the locator.",
+        )
+        w.option_menu.add(
+            "QCheckBox",
+            setText="Bake Child Pivot",
+            setObjectName="chk011",
+            setChecked=True,
+            setToolTip="Bake pivot positions on the child object.",
+        )
+        w.option_menu.add(
+            "QCheckBox",
+            setText="Lock Child Translate",
+            setObjectName="chk007",
+            setChecked=True,
+            setToolTip="Lock the translate values of the child object.",
+        )
+        w.option_menu.add(
+            "QCheckBox",
+            setText="Lock Child Rotation",
+            setObjectName="chk008",
+            setChecked=True,
+            setToolTip="Lock the rotation values of the child object.",
+        )
+        w.option_menu.add(
+            "QCheckBox",
+            setText="Lock Child Scale",
+            setObjectName="chk009",
+            setToolTip="Lock the scale values of the child object.",
+        )
+
+    def tb004_init(self, w):
+        """ """
+        w.option_menu.add(
+            "QCheckBox",
+            setText="Translate",
+            setObjectName="chk012",
+            setChecked=False,
+            setToolTip="",
+        )
+        w.option_menu.add(
+            "QCheckBox",
+            setText="Rotate",
+            setObjectName="chk013",
+            setChecked=False,
+            setToolTip="",
+        )
+        w.option_menu.add(
+            "QCheckBox",
+            setText="Scale",
+            setObjectName="chk014",
+            setChecked=False,
+            setToolTip="",
+        )
+        self.sb.connect_multi(
+            (
+                w.option_menu.chk012,
+                w.option_menu.chk013,
+                w.option_menu.chk014,
+            ),
+            "toggled",
+            [
+                lambda state: self.sb.rigging.w.setText(
+                    "Lock Attributes"
+                    if any(
+                        (
+                            w.option_menu.chk012.isChecked(),
+                            w.option_menu.chk013.isChecked(),
+                            w.option_menu.chk014.isChecked(),
+                        )
+                    )
+                    else "Unlock Attributes"
+                ),
+                lambda state: self.sb.rigging_submenu.w.setText(
+                    "Lock Transforms"
+                    if any(
+                        (
+                            w.option_menu.chk012.isChecked(),
+                            w.option_menu.chk013.isChecked(),
+                            w.option_menu.chk014.isChecked(),
+                        )
+                    )
+                    else "Unlock Attributes"
+                ),
+            ],
+        )
 
     def cmb000(self, index=-1):
         """Editors"""
-        cmb = self.sb.rigging.draggableHeader.ctxMenu.cmb000
+        cmb = self.sb.rigging.draggableHeader.ctx_menu.cmb000
 
         if index > 0:
             text = cmb.items[index]
@@ -58,10 +263,8 @@ class Rigging_maya(Rigging, SlotsMaya):
                 pm.spaceLocator(p=[0, 0, 0])  # locator
             elif text == "IK Handle":
                 pm.setToolTo("ikHandleContext")  # create ik handle
-            elif text == "Lattice":
-                pm.lattice(
-                    divisions=[2, 5, 2], objectCentered=1, ldv=[2, 2, 2]
-                )  ##create lattice
+            elif text == "Lattice":  # create lattice
+                pm.lattice(divisions=[2, 5, 2], objectCentered=1, ldv=[2, 2, 2])
             elif text == "Cluster":
                 pm.mel.eval("CreateCluster;")  # create cluster
             cmb.setCurrentIndex(0)
@@ -69,27 +272,27 @@ class Rigging_maya(Rigging, SlotsMaya):
     def chk000(self, state=None):
         """Scale Joint"""
         self.sb.toggle_widgets(setUnChecked="chk001-2")
-        self.sb.rigging.tb000.ctxMenu.s000.setValue(
+        self.sb.rigging.tb000.option_menu.s000.setValue(
             pm.jointDisplayScale(query=1)
         )  # init global joint display size
 
     def chk001(self, state=None):
         """Scale IK"""
         self.sb.toggle_widgets(setUnChecked="chk000, chk002")
-        self.sb.rigging.tb000.ctxMenu.setValue(
+        self.sb.rigging.tb000.option_menu.setValue(
             pm.ikHandleDisplayScale(query=1)
         )  # init IK handle display size
 
     def chk002(self, state=None):
         """Scale IK/FK"""
         self.sb.toggle_widgets(setUnChecked="chk000-1")
-        self.sb.rigging.tb000.ctxMenu.setValue(
+        self.sb.rigging.tb000.option_menu.setValue(
             pm.jointDisplayScale(query=1, ikfk=1)
         )  # init IKFK display size
 
     def s000(self, value=None):
         """Scale Joint/IK/FK"""
-        value = self.sb.rigging.tb000.ctxMenu.value()
+        value = self.sb.rigging.tb000.option_menu.value()
 
         if self.sb.rigging.chk000.isChecked():
             pm.jointDisplayScale(value)  # set global joint display size
@@ -105,7 +308,7 @@ class Rigging_maya(Rigging, SlotsMaya):
         joints = pm.ls(type="joint")  # get all scene joints
 
         state = pm.toggle(joints[0], query=1, localAxis=1)
-        if tb.ctxMenu.isChecked():
+        if tb.option_menu.isChecked():
             if not state:
                 toggle = True
         else:
@@ -122,7 +325,7 @@ class Rigging_maya(Rigging, SlotsMaya):
         tb = self.sb.rigging.tb001
 
         orientJoint = "xyz"  # orient joints
-        alignWorld = tb.ctxMenu.chk003.isChecked()
+        alignWorld = tb.option_menu.chk003.isChecked()
         if alignWorld:
             orientJoint = "none"  # orient joint to world
 
@@ -132,7 +335,7 @@ class Rigging_maya(Rigging, SlotsMaya):
         """Constraint: Parent"""
         tb = self.sb.rigging.tb002
 
-        template = tb.ctxMenu.chk004.isChecked()
+        template = tb.option_menu.chk004.isChecked()
 
         objects = pm.ls(sl=1, objectsOnly=1)
 
@@ -148,24 +351,24 @@ class Rigging_maya(Rigging, SlotsMaya):
         """Create Locator at Selection"""
         tb = self.sb.rigging.tb003
 
-        grp_suffix = tb.ctxMenu.t002.text()
-        loc_suffix = tb.ctxMenu.t000.text()
-        obj_suffix = tb.ctxMenu.t001.text()
-        parent = tb.ctxMenu.chk006.isChecked()
-        freeze_transforms = tb.ctxMenu.chk010.isChecked()
-        bake_child_pivot = tb.ctxMenu.chk011.isChecked()
-        scale = tb.ctxMenu.s001.value()
-        strip_digits = tb.ctxMenu.chk005.isChecked()
-        strip_suffix = tb.ctxMenu.chk016.isChecked()
-        lock_translate = tb.ctxMenu.chk007.isChecked()
-        lock_rotation = tb.ctxMenu.chk008.isChecked()
-        lock_scale = tb.ctxMenu.chk009.isChecked()
+        grp_suffix = tb.option_menu.t002.text()
+        loc_suffix = tb.option_menu.t000.text()
+        obj_suffix = tb.option_menu.t001.text()
+        parent = tb.option_menu.chk006.isChecked()
+        freeze_transforms = tb.option_menu.chk010.isChecked()
+        bake_child_pivot = tb.option_menu.chk011.isChecked()
+        scale = tb.option_menu.s001.value()
+        strip_digits = tb.option_menu.chk005.isChecked()
+        strip_suffix = tb.option_menu.chk016.isChecked()
+        lock_translate = tb.option_menu.chk007.isChecked()
+        lock_rotation = tb.option_menu.chk008.isChecked()
+        lock_scale = tb.option_menu.chk009.isChecked()
 
         selection = pm.ls(selection=True)
         if not selection:
-            return Rig.create_locator(scale=scale)
+            return mtk.create_locator(scale=scale)
 
-        Rig.create_locator_at_object(
+        mtk.create_locator_at_object(
             selection,
             parent=parent,
             freeze_transforms=freeze_transforms,
@@ -185,16 +388,16 @@ class Rigging_maya(Rigging, SlotsMaya):
         """Lock/Unlock Attributes"""
         tb = self.sb.rigging.tb004
 
-        lock_translate = tb.ctxMenu.chk012.isChecked()
-        lock_rotation = tb.ctxMenu.chk013.isChecked()
-        lock_scale = tb.ctxMenu.chk014.isChecked()
+        lock_translate = tb.option_menu.chk012.isChecked()
+        lock_rotation = tb.option_menu.chk013.isChecked()
+        lock_scale = tb.option_menu.chk014.isChecked()
 
         sel = pm.ls(sl=True)
-        Rig.set_attr_lock_state(
+        mtk.set_attr_lock_state(
             sel, translate=lock_translate, rotate=lock_rotation, scale=lock_scale
         )
 
-    @Slots.hideMain
+    @SlotsMaya.hideMain
     def b000(self):
         """Object Transform Limit Attributes"""
         node = pm.ls(sl=1, objectsOnly=1)
@@ -225,10 +428,7 @@ class Rigging_maya(Rigging, SlotsMaya):
 
         attrs = mtk.get_parameter_values(node, "transformLimits", params)
         self.setAttributeWindow(
-            node,
-            fn=SlotsMaya.set_parameter_values,
-            fn_args="transformLimits",
-            **attrs
+            node, fn=SlotsMaya.set_parameter_values, fn_args="transformLimits", **attrs
         )
 
     def b001(self):
@@ -242,7 +442,7 @@ class Rigging_maya(Rigging, SlotsMaya):
     def b003(self):
         """Remove Locator"""
         selection = pm.ls(selection=True)
-        Rig.remove_locator(selection)
+        mtk.remove_locator(selection)
 
     def b004(self):
         """Reroot"""
@@ -286,101 +486,101 @@ print(__name__)
 # deprecated:
 
 # def createLocatorAtSelection(suffix='_LOC', strip_digits=False, strip='', scale=1, parent=False, freezeChildTransforms=False, bake_child_pivot=False, lock_translate=False, lock_rotation=False, lock_scale=False, _fullPath=False):
-# 	'''Create locators with the same transforms as any selected object(s).
-# 	If there are vertices selected it will create a locator at the center of the selected vertices bounding box.
+#   '''Create locators with the same transforms as any selected object(s).
+#   If there are vertices selected it will create a locator at the center of the selected vertices bounding box.
 
-# 	Parameters:
-# 		suffix (str): A string appended to the end of the created locators name. (default: '_LOC') '_LOC#'
-# 		strip_digits (bool): Strip numeric characters from the string. If the resulting name is not unique, maya will append a trailing digit. (default=False)
-# 		strip (str): Strip a specific character set from the locator name. The locators name is based off of the selected objects name. (default=None)
-# 		scale (float) = The scale of the locator. (default=1)
-# 		parent (bool): Parent to object to the locator. (default=False)
-# 		freezeChildTransforms (bool): Freeze transforms on the child object. (Valid only with parent flag) (default=False)
-# 		bake_child_pivot (bool): Bake pivot positions on the child object. (Valid only with parent flag) (default=False)
-# 		lock_translate (bool): Lock the translate values of the child object. (default=False)
-# 		lock_rotation (bool): Lock the rotation values of the child object. (default=False)
-# 		lock_scale (bool): Lock the scale values of the child object. (default=False)
-# 		_fullPath (bool): Internal use only (recursion). Use full path names for Dag objects. This can prevent naming conflicts when creating the locator. (default=False)
+#   Parameters:
+#       suffix (str): A string appended to the end of the created locators name. (default: '_LOC') '_LOC#'
+#       strip_digits (bool): Strip numeric characters from the string. If the resulting name is not unique, maya will append a trailing digit. (default=False)
+#       strip (str): Strip a specific character set from the locator name. The locators name is based off of the selected objects name. (default=None)
+#       scale (float) = The scale of the locator. (default=1)
+#       parent (bool): Parent to object to the locator. (default=False)
+#       freezeChildTransforms (bool): Freeze transforms on the child object. (Valid only with parent flag) (default=False)
+#       bake_child_pivot (bool): Bake pivot positions on the child object. (Valid only with parent flag) (default=False)
+#       lock_translate (bool): Lock the translate values of the child object. (default=False)
+#       lock_rotation (bool): Lock the rotation values of the child object. (default=False)
+#       lock_scale (bool): Lock the scale values of the child object. (default=False)
+#       _fullPath (bool): Internal use only (recursion). Use full path names for Dag objects. This can prevent naming conflicts when creating the locator. (default=False)
 
-# 	Example:
-# 		createLocatorAtSelection(strip='_GEO', suffix='', strip_digits=True, scale=10, parent=True, lock_translate=True, lock_rotation=True)
-# 	'''
-# 	import pymel.core as pm
-# 	sel = pm.ls(selection=True, long=_fullPath, objectsOnly=True)
-# 	sel_verts = pm.filterExpand(sm=31)
+#   Example:
+#       createLocatorAtSelection(strip='_GEO', suffix='', strip_digits=True, scale=10, parent=True, lock_translate=True, lock_rotation=True)
+#   '''
+#   import pymel.core as pm
+#   sel = pm.ls(selection=True, long=_fullPath, objectsOnly=True)
+#   sel_verts = pm.filterExpand(sm=31)
 
-# 	if not sel:
-# 		error = '# Error: Nothing Selected. #'
-# 		print (error)
-# 		return error
+#   if not sel:
+#       error = '# Error: Nothing Selected. #'
+#       print (error)
+#       return error
 
-# 	def _formatName(name, strip_digits=strip_digits, strip=strip, suffix=suffix):
-# 		if strip_digits:
-# 			name_ = ''.join([i for i in name if not i.isdigit()])
-# 		return name_.replace(strip, '')+suffix
+#   def _formatName(name, strip_digits=strip_digits, strip=strip, suffix=suffix):
+#       if strip_digits:
+#           name_ = ''.join([i for i in name if not i.isdigit()])
+#       return name_.replace(strip, '')+suffix
 
-# 	def _parent(obj, loc, parent=parent, freezeChildTransforms=freezeChildTransforms, bake_child_pivot=bake_child_pivot):
-# 		if parent: #parent
-# 			if freezeChildTransforms:
-# 				pm.makeIdentity(obj, apply=True, t=1, r=1, s=1, normal=2) #normal parameter: 1=the normals on polygonal objects will be frozen. 2=the normals on polygonal objects will be frozen only if its a non-rigid transformation matrix.
-# 			if bake_child_pivot:
-# 				pm.select(obj); pm.mel.BakeCustomPivot() #bake pivot on child object.
-# 			objParent = pm.listRelatives(obj, parent=1)
-# 			pm.parent(obj, loc)
-# 			pm.parent(loc, objParent)
+#   def _parent(obj, loc, parent=parent, freezeChildTransforms=freezeChildTransforms, bake_child_pivot=bake_child_pivot):
+#       if parent: #parent
+#           if freezeChildTransforms:
+#               pm.makeIdentity(obj, apply=True, t=1, r=1, s=1, normal=2) #normal parameter: 1=the normals on polygonal objects will be frozen. 2=the normals on polygonal objects will be frozen only if its a non-rigid transformation matrix.
+#           if bake_child_pivot:
+#               pm.select(obj); pm.mel.BakeCustomPivot() #bake pivot on child object.
+#           objParent = pm.listRelatives(obj, parent=1)
+#           pm.parent(obj, loc)
+#           pm.parent(loc, objParent)
 
-# 	def _lockChildAttributes(obj, lock_translate=lock_translate, lock_rotation=lock_rotation, lock_scale=lock_scale):
-# 		try: #split in case of long name to get the obj attribute.  ex. 'f15e_door_61_bellcrank|Bolt_GEO.tx' to: Bolt_GEO.tx
-# 			setAttrs = lambda attrs: [pm.setAttr('{}.{}'.format(obj.split('|')[-1], attr), lock=True) for attr in attrs]
-# 		except: #if obj is type object:
-# 			setAttrs = lambda attrs: [pm.setAttr('{}.{}'.format(obj, attr), lock=True) for attr in attrs]
+#   def _lockChildAttributes(obj, lock_translate=lock_translate, lock_rotation=lock_rotation, lock_scale=lock_scale):
+#       try: #split in case of long name to get the obj attribute.  ex. 'f15e_door_61_bellcrank|Bolt_GEO.tx' to: Bolt_GEO.tx
+#           setAttrs = lambda attrs: [pm.setAttr('{}.{}'.format(obj.split('|')[-1], attr), lock=True) for attr in attrs]
+#       except: #if obj is type object:
+#           setAttrs = lambda attrs: [pm.setAttr('{}.{}'.format(obj, attr), lock=True) for attr in attrs]
 
-# 		if lock_translate: #lock translation values
-# 			setAttrs(('tx','ty','tz'))
+#       if lock_translate: #lock translation values
+#           setAttrs(('tx','ty','tz'))
 
-# 		if lock_rotation: #lock rotation values
-# 			setAttrs(('rx','ry','rz'))
+#       if lock_rotation: #lock rotation values
+#           setAttrs(('rx','ry','rz'))
 
-# 		if lock_scale: #lock scale values
-# 			setAttrs(('sx','sy','sz'))
+#       if lock_scale: #lock scale values
+#           setAttrs(('sx','sy','sz'))
 
-# 	_fullPath = lambda: self.createLocatorAtSelection(suffix=suffix, strip_digits=strip_digits,
-# 				strip=strip, parent=parent, scale=scale, _fullPath=True,
-# 				lock_translate=lock_translate, lock_rotation=lock_rotation, lock_scale=lock_scale)
+#   _fullPath = lambda: self.createLocatorAtSelection(suffix=suffix, strip_digits=strip_digits,
+#               strip=strip, parent=parent, scale=scale, _fullPath=True,
+#               lock_translate=lock_translate, lock_rotation=lock_rotation, lock_scale=lock_scale)
 
-# 	if sel_verts: #vertex selection
+#   if sel_verts: #vertex selection
 
-# 		objName = sel_verts[0].split('.')[0]
-# 		locName = _formatName(objName, strip_digits, strip, suffix)
+#       objName = sel_verts[0].split('.')[0]
+#       locName = _formatName(objName, strip_digits, strip, suffix)
 
-# 		loc = pm.spaceLocator(name=locName)
-# 		if not any([loc, _fullPath]): #if locator creation fails; try again using the objects full path name.
-# 			_fullPath()
+#       loc = pm.spaceLocator(name=locName)
+#       if not any([loc, _fullPath]): #if locator creation fails; try again using the objects full path name.
+#           _fullPath()
 
-# 		pm.scale(scale, scale, scale)
+#       pm.scale(scale, scale, scale)
 
-# 		bb = pm.exactWorldBoundingBox(sel_verts)
-# 		pos = ((bb[0] + bb[3]) / 2, (bb[1] + bb[4]) / 2, (bb[2] + bb[5]) / 2)
-# 		pm.move(pos[0], pos[1], pos[2], loc)
+#       bb = pm.exactWorldBoundingBox(sel_verts)
+#       pos = ((bb[0] + bb[3]) / 2, (bb[1] + bb[4]) / 2, (bb[2] + bb[5]) / 2)
+#       pm.move(pos[0], pos[1], pos[2], loc)
 
-# 		_parent(objName, loc)
-# 		_lockChildAttributes(objName)
+#       _parent(objName, loc)
+#       _lockChildAttributes(objName)
 
-# 	else: #object selection
-# 		for obj in sel:
+#   else: #object selection
+#       for obj in sel:
 
-# 			objName = obj.name()
-# 			locName = _formatName(objName, strip_digits, strip, suffix)
+#           objName = obj.name()
+#           locName = _formatName(objName, strip_digits, strip, suffix)
 
-# 			loc = pm.spaceLocator(name=locName)
-# 			if not any([loc, _fullPath]): #if locator creation fails; try again using the objects fullpath name.
-# 				_fullPath()
+#           loc = pm.spaceLocator(name=locName)
+#           if not any([loc, _fullPath]): #if locator creation fails; try again using the objects fullpath name.
+#               _fullPath()
 
-# 			pm.scale(scale, scale, scale)
+#           pm.scale(scale, scale, scale)
 
-# 			tempConst = pm.parentConstraint(obj, loc, mo=False)
-# 			pm.delete(tempConst)
-# 			pm.select(clear=True)
+#           tempConst = pm.parentConstraint(obj, loc, mo=False)
+#           pm.delete(tempConst)
+#           pm.select(clear=True)
 
-# 			_parent(obj, loc)
-# 			_lockChildAttributes(objName)
+#           _parent(obj, loc)
+#           _lockChildAttributes(objName)

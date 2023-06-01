@@ -10,7 +10,7 @@ class Rigging_blender(Rigging, SlotsBlender):
 		SlotsBlender.__init__(self, *args, **kwargs)
 		Rigging.__init__(self, *args, **kwargs)
 
-		cmb = self.sb.rigging.draggableHeader.ctxMenu.cmb000
+		cmb = self.sb.rigging.draggableHeader.ctx_menu.cmb000
 		items = []
 		cmb.addItems_(items, 'Rigging Editors')
 
@@ -22,7 +22,7 @@ class Rigging_blender(Rigging, SlotsBlender):
 	def cmb000(self, index=-1):
 		'''Editors
 		'''
-		cmb = self.sb.rigging.draggableHeader.ctxMenu.cmb000
+		cmb = self.sb.rigging.draggableHeader.ctx_menu.cmb000
 
 		if index>0:
 			text = cmb.items[index]
@@ -67,27 +67,27 @@ class Rigging_blender(Rigging, SlotsBlender):
 		'''Scale Joint
 		'''
 		self.sb.toggle_widgets(setUnChecked='chk001-2')
-		self.sb.rigging.tb000.ctxMenu.s000.setValue(pm.jointDisplayScale(query=1)) #init global joint display size
+		self.sb.rigging.tb000.option_menu.s000.setValue(pm.jointDisplayScale(query=1)) #init global joint display size
 
 
 	def chk001(self, state=None):
 		'''Scale IK
 		'''
 		self.sb.toggle_widgets(setUnChecked='chk000, chk002')
-		self.sb.rigging.tb000.ctxMenu.setValue(pm.ikHandleDisplayScale(query=1)) #init IK handle display size
+		self.sb.rigging.tb000.option_menu.setValue(pm.ikHandleDisplayScale(query=1)) #init IK handle display size
 		
 
 	def chk002(self, state=None):
 		'''Scale IK/FK
 		'''
 		self.sb.toggle_widgets(setUnChecked='chk000-1')
-		self.sb.rigging.tb000.ctxMenu.setValue(pm.jointDisplayScale(query=1, ikfk=1)) #init IKFK display size
+		self.sb.rigging.tb000.option_menu.setValue(pm.jointDisplayScale(query=1, ikfk=1)) #init IKFK display size
 
 
 	def s000(self, value=None):
 		'''Scale Joint/IK/FK
 		'''
-		value = self.sb.rigging.tb000.ctxMenu.value()
+		value = self.sb.rigging.tb000.option_menu.value()
 
 		if self.sb.rigging.chk000.isChecked():
 			pm.jointDisplayScale(value) #set global joint display size
@@ -105,7 +105,7 @@ class Rigging_blender(Rigging, SlotsBlender):
 		joints = pm.ls(type="joint") #get all scene joints
 
 		state = pm.toggle(joints[0], query=1, localAxis=1)
-		if tb.ctxMenu.isChecked():
+		if tb.option_menu.isChecked():
 			if not state:
 				toggle=True
 		else:
@@ -124,7 +124,7 @@ class Rigging_blender(Rigging, SlotsBlender):
 		tb = self.sb.rigging.tb001
 
 		orientJoint = 'xyz' #orient joints
-		if tb.ctxMenu.isChecked():
+		if tb.option_menu.isChecked():
 			orientJoint = 'none' #orient joint to world
 
 		pm.joint(edit=1, orientJoint=orientJoint, zeroScaleOrient=1, ch=1)
@@ -135,7 +135,7 @@ class Rigging_blender(Rigging, SlotsBlender):
 		'''
 		tb = self.sb.rigging.tb002
 
-		template = tb.ctxMenu.chk004.isChecked()
+		template = tb.option_menu.chk004.isChecked()
 
 		objects = pm.ls(sl=1, objectsOnly=1)
 
@@ -153,17 +153,17 @@ class Rigging_blender(Rigging, SlotsBlender):
 		'''
 		tb = self.sb.rigging.tb003
 
-		suffix = tb.ctxMenu.t000.text()
-		strip_digits = tb.ctxMenu.chk005.isChecked()
-		strip = tb.ctxMenu.t001.text()
-		parent = tb.ctxMenu.chk006.isChecked()
-		scale = tb.ctxMenu.s001.value()
-		lock_translate = tb.ctxMenu.chk007.isChecked()
-		lock_rotation = tb.ctxMenu.chk008.isChecked()
-		lock_scale = tb.ctxMenu.chk009.isChecked()
-		freeze_transforms = tb.ctxMenu.chk010.isChecked()
-		bake_child_pivot = tb.ctxMenu.chk011.isChecked()
-		remove = tb.ctxMenu.chk015.isChecked()
+		suffix = tb.option_menu.t000.text()
+		strip_digits = tb.option_menu.chk005.isChecked()
+		strip = tb.option_menu.t001.text()
+		parent = tb.option_menu.chk006.isChecked()
+		scale = tb.option_menu.s001.value()
+		lock_translate = tb.option_menu.chk007.isChecked()
+		lock_rotation = tb.option_menu.chk008.isChecked()
+		lock_scale = tb.option_menu.chk009.isChecked()
+		freeze_transforms = tb.option_menu.chk010.isChecked()
+		bake_child_pivot = tb.option_menu.chk011.isChecked()
+		remove = tb.option_menu.chk015.isChecked()
 
 		selection = pm.ls(selection=True)
 		self.create_locator_at_object(selection, suffix=suffix, strip_digits=strip_digits, strip=strip, scale=scale, parent=parent, bake_child_pivot=bake_child_pivot, 
@@ -175,9 +175,9 @@ class Rigging_blender(Rigging, SlotsBlender):
 		'''
 		tb = self.sb.rigging.tb004
 
-		lock_translate = tb.ctxMenu.chk012.isChecked()
-		lock_rotation = tb.ctxMenu.chk013.isChecked()
-		lock_scale = tb.ctxMenu.chk014.isChecked()
+		lock_translate = tb.option_menu.chk012.isChecked()
+		lock_rotation = tb.option_menu.chk013.isChecked()
+		lock_scale = tb.option_menu.chk014.isChecked()
 
 		sel = pm.ls(selection=True, transforms=1, long=True)
 		for obj in sel:

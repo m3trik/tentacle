@@ -37,7 +37,7 @@
   <property name="bnabled" stdset="0">
    <bool>true</bool>
   </property>
-  <widget class="QWidget" name="main_widget">
+  <widget class="QWidget" name="central_widget">
    <property name="palette">
     <palette>
      <active>
@@ -125,7 +125,7 @@
         </property>
         <layout class="QVBoxLayout" name="verticalLayout_3">
          <property name="spacing">
-          <number>0</number>
+          <number>1</number>
          </property>
          <property name="leftMargin">
           <number>0</number>
@@ -321,7 +321,7 @@
         </property>
         <layout class="QVBoxLayout" name="verticalLayout_6">
          <property name="spacing">
-          <number>0</number>
+          <number>1</number>
          </property>
          <property name="leftMargin">
           <number>0</number>
@@ -440,7 +440,7 @@
   <customwidget>
    <class>PushButton</class>
    <extends>QPushButton</extends>
-   <header>widgets.pushbutton.h</header>
+   <header>pushButton.h</header>
   </customwidget>
   <customwidget>
    <class>DraggableHeader</class>

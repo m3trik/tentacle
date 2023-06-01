@@ -12,23 +12,23 @@ class Materials_blender(Materials, SlotsBlender):
         self.randomMat = None
 
         dh = self.sb.materials.draggableHeader
-        dh.ctxMenu.add(
+        dh.ctx_menu.add(
             self.sb.ComboBox, setObjectName="cmb000", setToolTip="Material Editors"
         )
-        dh.ctxMenu.add(
+        dh.ctx_menu.add(
             self.sb.Label,
             setText="Material Attributes",
             setObjectName="lbl004",
             setToolTip="Show the material attributes in the attribute editor.",
         )
 
-        cmb000 = self.sb.materials.draggableHeader.ctxMenu.cmb000
+        cmb000 = self.sb.materials.draggableHeader.ctx_menu.cmb000
         items = []
         cmb000.addItems_(items, "Material Editors")
 
     def cmb000(self, index=-1):
         """Editors"""
-        cmb = self.sb.materials.draggableHeader.ctxMenu.cmb000
+        cmb = self.sb.materials.draggableHeader.ctx_menu.cmb000
 
         if index > 0:
             text = cmb.items[index]
@@ -45,7 +45,7 @@ class Materials_blender(Materials, SlotsBlender):
         cmb = self.sb.materials.cmb002
         b = self.sb.materials_submenu.b003
 
-        mode = cmb.ctxMenu.cmb001.currentText()
+        mode = cmb.option_menu.cmb001.currentText()
         if mode == "Scene Materials":
             materials = self.getSceneMaterials(exc=["standardSurface"])
 
@@ -86,9 +86,9 @@ class Materials_blender(Materials, SlotsBlender):
         if not mat:
             return "Error: No Material Selection."
 
-        shell = tb.ctxMenu.chk005.isChecked()  # Select by material: shell
-        invert = tb.ctxMenu.chk006.isChecked()  # Select by material: invert
-        allObjects = tb.ctxMenu.chk003.isChecked()  # Search all scene objects
+        shell = tb.option_menu.chk005.isChecked()  # Select by material: shell
+        invert = tb.option_menu.chk006.isChecked()  # Select by material: invert
+        allObjects = tb.option_menu.chk003.isChecked()  # Search all scene objects
 
         objects = pm.ls(sl=1, objectsOnly=1) if not allObjects else None
 
@@ -102,9 +102,9 @@ class Materials_blender(Materials, SlotsBlender):
         if not selection:
             return "Error: No renderable object is selected for assignment."
 
-        assignCurrent = tb.ctxMenu.chk007.isChecked()
-        assignRandom = tb.ctxMenu.chk008.isChecked()
-        assignNew = tb.ctxMenu.chk009.isChecked()
+        assignCurrent = tb.option_menu.chk007.isChecked()
+        assignRandom = tb.option_menu.chk008.isChecked()
+        assignNew = tb.option_menu.chk009.isChecked()
 
         if assignCurrent:  # Assign current mat
             mat = self.sb.materials.cmb002.currentData()
@@ -199,7 +199,7 @@ class Materials_blender(Materials, SlotsBlender):
 
         mat = self.getMaterial()
 
-        self.sb.materials.cmb002.ctxMenu.cmb001.setCurrentIndex(
+        self.sb.materials.cmb002.option_menu.cmb001.setCurrentIndex(
             0
         )  # set the combobox to show all scene materials
         self.cmb002()  # refresh the materials list comboBox
@@ -462,7 +462,7 @@ print(__name__)
 # 	Existing Materials
 
 # 	'''
-# 	cmb = self.sb.materials.draggableHeader.ctxMenu.cmb000
+# 	cmb = self.sb.materials.draggableHeader.ctx_menu.cmb000
 
 # 	mats = [m for m in pm.ls(materials=1)]
 # 	matNames = [m.name() for m in mats]

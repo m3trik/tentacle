@@ -10,7 +10,7 @@ class Vfx(Slots):
         super().__init__(*args, **kwargs)
         """
 		"""
-        ctx = self.sb.vfx.draggableHeader.ctxMenu
+        ctx = self.sb.vfx.draggableHeader.ctx_menu
         if not ctx.containsMenuItems:
             ctx.add(self.sb.ComboBox, setObjectName="cmb000", setToolTip="")
 

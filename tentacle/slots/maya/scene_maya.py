@@ -8,7 +8,7 @@ class Scene_maya(Scene, SlotsMaya):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        cmb = self.sb.scene.draggableHeader.ctxMenu.cmb000
+        cmb = self.sb.scene.draggableHeader.ctx_menu.cmb000
         items = [
             "Node Editor",
             "Outlinder",
@@ -21,7 +21,7 @@ class Scene_maya(Scene, SlotsMaya):
 
     def cmb000(self, index=-1):
         """Editors"""
-        cmb = self.sb.scene.draggableHeader.ctxMenu.cmb000
+        cmb = self.sb.scene.draggableHeader.ctx_menu.cmb000
 
         if index > 0:
             text = cmb.items[index]
@@ -45,7 +45,7 @@ class Scene_maya(Scene, SlotsMaya):
         """Convert Case"""
         tb = self.sb.scene.tb000
 
-        case = tb.ctxMenu.cmb001.currentText()
+        case = tb.option_menu.cmb001.currentText()
 
         selection = pm.ls(sl=1)
         objects = selection if selection else pm.ls(objectsOnly=1)
@@ -55,10 +55,10 @@ class Scene_maya(Scene, SlotsMaya):
         """Convert Case"""
         tb = self.sb.scene.tb001
 
-        alphanumeric = tb.ctxMenu.chk005.isChecked()
-        strip_trailing_ints = tb.ctxMenu.chk002.isChecked()
-        strip_trailing_alpha = tb.ctxMenu.chk003.isChecked()
-        reverse = tb.ctxMenu.chk004.isChecked()
+        alphanumeric = tb.option_menu.chk005.isChecked()
+        strip_trailing_ints = tb.option_menu.chk002.isChecked()
+        strip_trailing_alpha = tb.option_menu.chk003.isChecked()
+        reverse = tb.option_menu.chk004.isChecked()
 
         selection = pm.ls(sl=1, objectsOnly=1, type="transform")
         mtk.Edit.append_location_based_suffix(
@@ -75,8 +75,8 @@ class Scene_maya(Scene, SlotsMaya):
             self.sb.scene.t000.text()
         )  # an asterisk denotes startswith*, *endswith, *contains*
         to = self.sb.scene.t001.text()
-        regex = self.sb.scene.t000.ctxMenu.chk001.isChecked()
-        ignore_case = self.sb.scene.t000.ctxMenu.chk000.isChecked()
+        regex = self.sb.scene.t000.option_menu.chk001.isChecked()
+        ignore_case = self.sb.scene.t000.option_menu.chk000.isChecked()
 
         selection = pm.ls(sl=1)
         objects = selection if selection else pm.ls(objectsOnly=1)

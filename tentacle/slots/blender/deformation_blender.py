@@ -9,13 +9,13 @@ class Deformation_blender(Deformation, SlotsBlender):
         SlotsBlender.__init__(self, *args, **kwargs)
         Deformation.__init__(self, *args, **kwargs)
 
-        cmb = self.sb.deformation.draggableHeader.ctxMenu.cmb000
+        cmb = self.sb.deformation.draggableHeader.ctx_menu.cmb000
         items = []
         cmb.addItems_(items, "")
 
     def cmb000(self, index=-1):
         """Editors"""
-        cmb = self.sb.deformation.draggableHeader.ctxMenu.cmb000
+        cmb = self.sb.deformation.draggableHeader.ctx_menu.cmb000
 
         if index > 0:
             text = cmb.items[index]

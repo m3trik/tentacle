@@ -9,7 +9,7 @@ class Polygons_blender(Polygons, SlotsBlender):
         SlotsBlender.__init__(self, *args, **kwargs)
         Polygons.__init__(self, *args, **kwargs)
 
-        cmb000 = self.sb.polygons.draggableHeader.ctxMenu.cmb000
+        cmb000 = self.sb.polygons.draggableHeader.ctx_menu.cmb000
         items = [
             "Extrude",
             "Bevel",
@@ -27,7 +27,7 @@ class Polygons_blender(Polygons, SlotsBlender):
 
     def cmb000(self, index=-1):
         """Editors"""
-        cmb = self.sb.polygons.draggableHeader.ctxMenu.cmb000
+        cmb = self.sb.polygons.draggableHeader.ctx_menu.cmb000
 
         if index > 0:
             text = cmb.items[index]
@@ -59,7 +59,7 @@ class Polygons_blender(Polygons, SlotsBlender):
         """Merge Vertices"""
         tb = self.sb.polygons.tb000
 
-        tolerance = float(tb.ctxMenu.s002.value())
+        tolerance = float(tb.option_menu.s002.value())
         objects = pm.ls(selection=1, objectsOnly=1, flatten=1)
         componentMode = pm.selectMode(query=1, component=1)
 
@@ -107,7 +107,7 @@ class Polygons_blender(Polygons, SlotsBlender):
         """Bridge"""
         tb = self.sb.polygons.tb001
 
-        divisions = tb.ctxMenu.s003.value()
+        divisions = tb.option_menu.s003.value()
 
         selection = pm.ls(sl=1)
         edges = pm.filterExpand(
@@ -123,7 +123,7 @@ class Polygons_blender(Polygons, SlotsBlender):
         tb = self.sb.polygons.tb002
 
         # pm.polyUnite( 'plg1', 'plg2', 'plg3', name='result' ) #for future reference. if more functionality is needed use polyUnite
-        if tb.ctxMenu.chk000.isChecked():
+        if tb.option_menu.chk000.isChecked():
             sel = pm.ls(sl=1, objectsOnly=1)
             if not sel:
                 return "Error: <strong>Nothing selected</strong>."
@@ -144,8 +144,8 @@ class Polygons_blender(Polygons, SlotsBlender):
         """Extrude"""
         tb = self.sb.polygons.tb003
 
-        keepFacesTogether = tb.ctxMenu.chk002.isChecked()  # keep faces/edges together.
-        divisions = tb.ctxMenu.s004.value()
+        keepFacesTogether = tb.option_menu.chk002.isChecked()  # keep faces/edges together.
+        divisions = tb.option_menu.s004.value()
 
         selection = pm.ls(sl=1)
         if pm.selectType(query=1, facet=1):  # face selection
@@ -172,7 +172,7 @@ class Polygons_blender(Polygons, SlotsBlender):
         """Bevel (Chamfer)"""
         tb = self.sb.polygons.tb004
 
-        width = float(tb.ctxMenu.s000.value())
+        width = float(tb.option_menu.s000.value())
         chamfer = True
         segments = 1
 
@@ -199,8 +199,8 @@ class Polygons_blender(Polygons, SlotsBlender):
         """Detach"""
         tb = self.sb.polygons.tb005
 
-        duplicate = tb.ctxMenu.chk014.isChecked()
-        separate = tb.ctxMenu.chk015.isChecked()
+        duplicate = tb.option_menu.chk014.isChecked()
+        separate = tb.option_menu.chk015.isChecked()
 
         vertexMask = pm.selectType(query=True, vertex=True)
         edgeMask = pm.selectType(query=True, edge=True)
@@ -239,7 +239,7 @@ class Polygons_blender(Polygons, SlotsBlender):
         ):  #'Nothing counted : no polygonal object is selected.'
             return "Error: <strong>Nothing selected</strong>.<br>Operation requires a face selection."
 
-        offset = float(tb.ctxMenu.s001.value())
+        offset = float(tb.option_menu.s001.value())
         return pm.polyExtrudeFacet(
             selected_faces,
             keepFacesTogether=1,
@@ -259,18 +259,18 @@ class Polygons_blender(Polygons, SlotsBlender):
         tb = self.sb.polygons.tb007
 
         dv = u = v = 0
-        if tb.ctxMenu.chk008.isChecked():  # Split U
+        if tb.option_menu.chk008.isChecked():  # Split U
             u = 2
-        if tb.ctxMenu.chk009.isChecked():  # Split V
+        if tb.option_menu.chk009.isChecked():  # Split V
             v = 2
 
         mode = 0  # The subdivision mode. 0=quads, 1=triangles
         subdMethod = 1  # subdivision type: 0=exponential(traditional subdivision) 1=linear(number of faces per edge grows linearly)
-        if tb.ctxMenu.chk010.isChecked():  # tris
+        if tb.option_menu.chk010.isChecked():  # tris
             mode = dv = 1
             subdMethod = 0
         if all(
-            [tb.ctxMenu.chk008.isChecked(), tb.ctxMenu.chk009.isChecked()]
+            [tb.option_menu.chk008.isChecked(), tb.option_menu.chk009.isChecked()]
         ):  # subdivide once into quads
             dv = 1
             subdMethod = 0
@@ -293,21 +293,21 @@ class Polygons_blender(Polygons, SlotsBlender):
         """Boolean Operation"""
         tb = self.sb.polygons.tb008
 
-        if tb.ctxMenu.chk011.isChecked():  # union
+        if tb.option_menu.chk011.isChecked():  # union
             pm.mel.PolygonBooleanIntersection()
 
-        if tb.ctxMenu.chk012.isChecked():  # difference
+        if tb.option_menu.chk012.isChecked():  # difference
             pm.mel.PolygonBooleanDifference()
 
-        if tb.ctxMenu.chk013.isChecked():  # intersection
+        if tb.option_menu.chk013.isChecked():  # intersection
             pm.mel.PolygonBooleanIntersection()
 
     def tb009(self, state=None):
         """Snap Closest Verts"""
         tb = self.sb.polygons.tb009
 
-        tolerance = tb.ctxMenu.s005.value()
-        freezetransforms = tb.ctxMenu.chk016.isChecked()
+        tolerance = tb.option_menu.s005.value()
+        freezetransforms = tb.option_menu.chk016.isChecked()
 
         selection = pm.ls(sl=1, objectsOnly=1, type="transform")
         if len(selection) > 1:
@@ -499,7 +499,7 @@ print(__name__)
 # 		'''
 # 		tb = self.sb.polygons.tb005
 # 		if state=='setMenu':
-# 			# tb.ctxMenu.add('QCheckBox', setText='Delete Original', setObjectName='chk007', setChecked=True, setToolTip='Delete original selected faces.')
+# 			# tb.option_menu.add('QCheckBox', setText='Delete Original', setObjectName='chk007', setChecked=True, setToolTip='Delete original selected faces.')
 # 			return
 
 # 		vertexMask = pm.selectType (query=True, vertex=True)
@@ -530,7 +530,7 @@ print(__name__)
 # 					# print(sel)
 # 					# extractedObject = "extracted_"+sel[0]
 # 					# pm.duplicate (sel[0], name=extractedObject)
-# 					# if tb.ctxMenu.chk007.isChecked(): #delete original
+# 					# if tb.option_menu.chk007.isChecked(): #delete original
 # 					# 	pm.delete (selFace)
 
 # 					# allFace = [] #populate a list of all faces in the duplicated object

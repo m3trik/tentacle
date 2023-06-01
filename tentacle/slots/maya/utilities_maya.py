@@ -8,13 +8,13 @@ class Utilities_maya(Utilities, SlotsMaya):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        cmb = self.sb.utilities.draggableHeader.ctxMenu.cmb000
+        cmb = self.sb.utilities.draggableHeader.ctx_menu.cmb000
         files = [""]
         cmb.addItems_(files, "")
 
     def cmb000(self, index=-1):
         """Editors"""
-        cmb = self.sb.utilities.draggableHeader.ctxMenu.cmb000
+        cmb = self.sb.utilities.draggableHeader.ctx_menu.cmb000
 
         if index > 0:
             text = cmb.items[index]

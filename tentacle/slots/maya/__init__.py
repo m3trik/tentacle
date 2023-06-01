@@ -42,7 +42,7 @@ class SlotsMaya(Slots):
         obj,
         inc=[],
         exc=[],
-        checkableLabel=False,
+        checkable_label=False,
         fn=None,
         fn_args=[],
         **attributes,
@@ -53,14 +53,14 @@ class SlotsMaya(Slots):
                 obj (str/obj/list): The object to get the attributes of, or it's name. If given as a list, only the first index will be used.
                 inc (list): Attributes to include. All other will be omitted. Exclude takes dominance over include. Meaning, if the same attribute is in both lists, it will be excluded.
                 exc (list): Attributes to exclude from the returned dictionay. ie. ['Position','Rotation','Scale','renderable','isHidden','isFrozen','selected']
-                checkableLabel (bool): Set the attribute labels as checkable.
+                checkable_label (bool): Set the attribute labels as checkable.
                 fn (method) = Set an alternative method to call on widget signal. ex. set_parameter_values
                                 The first parameter of fn is always the given object. ex. fn(obj, {'attr':<value>})
                 fn_args (str/list): Any additonal args to pass to the given fn.
                 attributes (kwargs) = Explicitly pass in attribute:values pairs. Else, attributes will be pulled from mtk.Node.get_node_attributes for the given obj.
 
         Example: self.setAttributeWindow(node, attrs, fn=set_parameter_values, 'transformLimits') #set attributes for the Maya command transformLimits.
-        Example: self.setAttributeWindow(transform[0], inc=['translateX','translateY','translateZ','rotateX','rotateY','rotateZ','scaleX','scaleY','scaleZ'], checkableLabel=True)
+        Example: self.setAttributeWindow(transform[0], inc=['translateX','translateY','translateZ','rotateX','rotateY','rotateZ','scaleX','scaleY','scaleZ'], checkable_label=True)
         """
         try:
             obj = pm.ls(obj)[0]
@@ -79,10 +79,10 @@ class SlotsMaya(Slots):
             )
 
         menu = self.objAttrWindow(
-            obj, checkableLabel=checkableLabel, fn=fn, fn_args=fn_args, **attributes
+            obj, checkable_label=checkable_label, fn=fn, fn_args=fn_args, **attributes
         )
 
-        if checkableLabel:
+        if checkable_label:
             for c in menu.childWidgets:
                 if c.__class__.__name__ == "QCheckBox":
                     attr = getattr(obj, c.objectName())

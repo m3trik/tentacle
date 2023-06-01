@@ -9,7 +9,7 @@ class Scene_blender(Scene, SlotsBlender):
         SlotsBlender.__init__(self, *args, **kwargs)
         Scene.__init__(self, *args, **kwargs)
 
-        cmb = self.sb.scene.draggableHeader.ctxMenu.cmb000
+        cmb = self.sb.scene.draggableHeader.ctx_menu.cmb000
         items = [
             "Node Editor",
             "Outlinder",
@@ -22,7 +22,7 @@ class Scene_blender(Scene, SlotsBlender):
 
     def cmb000(self, index=-1):
         """Editors"""
-        cmb = self.sb.scene.draggableHeader.ctxMenu.cmb000
+        cmb = self.sb.scene.draggableHeader.ctx_menu.cmb000
 
         if index > 0:
             text = cmb.items[index]
@@ -46,7 +46,7 @@ class Scene_blender(Scene, SlotsBlender):
         """Convert Case"""
         tb = self.sb.scene.tb000
 
-        case = tb.ctxMenu.cmb001.currentText()
+        case = tb.option_menu.cmb001.currentText()
 
         selection = pm.ls(sl=1)
         objects = selection if selection else pm.ls(objectsOnly=1)

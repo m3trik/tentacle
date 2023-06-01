@@ -1,6 +1,13 @@
 # !/usr/bin/python
 # coding=utf-8
-from tentacle.slots.maya import *
+try:
+    import pymel.core as pm
+except ImportError as error:
+    print(__file__, error)
+
+import pythontk as ptk
+import mayatk as mtk
+from tentacle.slots.maya import SlotsMaya
 from tentacle.slots.display import Display
 
 
@@ -8,13 +15,13 @@ class Display_maya(Display, SlotsMaya):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        cmb = self.sb.display.draggableHeader.ctxMenu.cmb000
+        cmb = self.sb.display.draggableHeader.ctx_menu.cmb000
         items = [""]
         cmb.addItems_(items, "")
 
     def cmb000(self, index=-1):
         """Editors"""
-        cmb = self.sb.display.draggableHeader.ctxMenu.cmb000
+        cmb = self.sb.display.draggableHeader.ctx_menu.cmb000
 
         if index > 0:
             text = cmb.items[index]
@@ -48,49 +55,49 @@ class Display_maya(Display, SlotsMaya):
         """Xray Selected"""
         pm.mel.eval(
             """
-		string $sel[] = `ls -sl -dag -s`;
-		for ($object in $sel) 
-			{
-			int $xState[] = `displaySurface -query -xRay $object`;
-			displaySurface -xRay ( !$xState[0] ) $object;
-			}
-		"""
+        string $sel[] = `ls -sl -dag -s`;
+        for ($object in $sel) 
+            {
+            int $xState[] = `displaySurface -query -xRay $object`;
+            displaySurface -xRay ( !$xState[0] ) $object;
+            }
+        """
         )
 
     def b006(self):
         """Un-Xray All"""
         pm.mel.eval(
             """
-		string $scene[] = `ls -visible -flatten -dag -noIntermediate -type surfaceShape`;
-		for ($object in $scene)
-			{
-			int $state[] = `displaySurface -query -xRay $object`;
-			if ($state[0] == 1)
-				{
-				displaySurface -xRay 0 $object;
-				}
-			}
-		"""
+        string $scene[] = `ls -visible -flatten -dag -noIntermediate -type surfaceShape`;
+        for ($object in $scene)
+            {
+            int $state[] = `displaySurface -query -xRay $object`;
+            if ($state[0] == 1)
+                {
+                displaySurface -xRay 0 $object;
+                }
+            }
+        """
         )
 
     def b007(self):
         """Xray Other"""
         pm.mel.eval(
             """
-		//xray all except currently selected
-		{
-		string $scene[] = `ls -visible -flatten -dag -noIntermediate -type surfaceShape`;
-		string $selection[] = `ls -selection -dagObjects -shapes`;
-		for ($object in $scene)
-			{
-			if (!stringArrayContains ($object, $selection))
-				{
-				int $state[] = `displaySurface -query -xRay $object`;
-				displaySurface -xRay ( !$state[0] ) $object;
-				}
-			}
-		}
-		"""
+        //xray all except currently selected
+        {
+        string $scene[] = `ls -visible -flatten -dag -noIntermediate -type surfaceShape`;
+        string $selection[] = `ls -selection -dagObjects -shapes`;
+        for ($object in $scene)
+            {
+            if (!stringArrayContains ($object, $selection))
+                {
+                int $state[] = `displaySurface -query -xRay $object`;
+                displaySurface -xRay ( !$state[0] ) $object;
+                }
+            }
+        }
+        """
         )
 
     def b008(self):
@@ -99,9 +106,7 @@ class Display_maya(Display, SlotsMaya):
 
     def b009(self):
         """Toggle Material Override"""
-        from maya.cmds import get_panel  # pymel get_panel is broken in ver: 2022.
-
-        currentPanel = get_panel(withFocus=True)
+        currentPanel = mtk.get_panel(withFocus=True)
         state = pm.modelEditor(currentPanel, query=1, useDefaultMaterial=1)
         pm.modelEditor(currentPanel, edit=1, useDefaultMaterial=not state)
         mtk.viewport_message("Default Material Override: <hl>{}</hl>.".format(state))
@@ -156,7 +161,7 @@ class Display_maya(Display, SlotsMaya):
 
     def b012(self):
         """Wireframe Non Active (Wireframe All But The Selected Item)"""
-        current_panel = pm.get_panel(withFocus=1)
+        current_panel = mtk.get_panel(withFocus=1)
         state = pm.modelEditor(current_panel, query=1, activeOnly=1)
         pm.modelEditor(current_panel, edit=1, activeOnly=not state)
 

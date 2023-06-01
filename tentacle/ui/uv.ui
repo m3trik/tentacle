@@ -25,9 +25,6 @@
     <height>999</height>
    </size>
   </property>
-  <property name="windowTitle">
-   <string>Toolkit</string>
-  </property>
   <property name="toolTip">
    <string>Transfer UV sets from the first selected object to the last.</string>
   </property>
@@ -40,7 +37,7 @@
   <property name="dockOptions">
    <set>QMainWindow::AllowNestedDocks|QMainWindow::AllowTabbedDocks|QMainWindow::AnimatedDocks|QMainWindow::ForceTabbedDocks</set>
   </property>
-  <widget class="QWidget" name="main_widget">
+  <widget class="QWidget" name="central_widget">
    <layout class="QVBoxLayout" name="verticalLayout_2">
     <item>
      <layout class="QVBoxLayout" name="verticalLayout">
@@ -100,7 +97,7 @@
         </property>
         <layout class="QVBoxLayout" name="_3">
          <property name="spacing">
-          <number>0</number>
+          <number>1</number>
          </property>
          <property name="leftMargin">
           <number>0</number>
@@ -214,8 +211,11 @@
          <property name="bottomMargin">
           <number>0</number>
          </property>
-         <property name="spacing">
+         <property name="horizontalSpacing">
           <number>0</number>
+         </property>
+         <property name="verticalSpacing">
+          <number>1</number>
          </property>
          <item row="0" column="0">
           <widget class="QDoubleSpinBox" name="s003">
@@ -356,7 +356,7 @@
         </property>
         <layout class="QVBoxLayout" name="_2">
          <property name="spacing">
-          <number>0</number>
+          <number>1</number>
          </property>
          <property name="leftMargin">
           <number>0</number>
@@ -433,8 +433,11 @@
          <property name="bottomMargin">
           <number>0</number>
          </property>
-         <property name="spacing">
+         <property name="horizontalSpacing">
           <number>0</number>
+         </property>
+         <property name="verticalSpacing">
+          <number>1</number>
          </property>
          <item row="0" column="0">
           <widget class="PushButton" name="tb003">
@@ -506,8 +509,11 @@
          <property name="bottomMargin">
           <number>0</number>
          </property>
-         <property name="spacing">
+         <property name="horizontalSpacing">
           <number>0</number>
+         </property>
+         <property name="verticalSpacing">
+          <number>1</number>
          </property>
          <item row="0" column="0">
           <widget class="QPushButton" name="b005">
@@ -676,8 +682,11 @@
          <property name="bottomMargin">
           <number>0</number>
          </property>
-         <property name="spacing">
+         <property name="horizontalSpacing">
           <number>0</number>
+         </property>
+         <property name="verticalSpacing">
+          <number>1</number>
          </property>
          <item row="0" column="1">
           <widget class="QPushButton" name="b023">
@@ -1058,8 +1067,11 @@
          <property name="bottomMargin">
           <number>0</number>
          </property>
-         <property name="spacing">
+         <property name="horizontalSpacing">
           <number>0</number>
+         </property>
+         <property name="verticalSpacing">
+          <number>1</number>
          </property>
          <item row="0" column="0">
           <widget class="PushButton" name="tb000">
@@ -1119,8 +1131,11 @@
          <property name="bottomMargin">
           <number>0</number>
          </property>
-         <property name="spacing">
+         <property name="horizontalSpacing">
           <number>0</number>
+         </property>
+         <property name="verticalSpacing">
+          <number>1</number>
          </property>
          <item row="0" column="0">
           <widget class="PushButton" name="tb008">
@@ -1181,7 +1196,7 @@
   <customwidget>
    <class>PushButton</class>
    <extends>QPushButton</extends>
-   <header>widgets.pushbutton.h</header>
+   <header>pushButton.h</header>
   </customwidget>
   <customwidget>
    <class>DraggableHeader</class>

@@ -15,11 +15,15 @@ class Cameras_maya(Cameras, SlotsMaya):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-    def list000_init(self, root):
+        self.sb.parent().left_mouse_double_click.connect(self.toggle_camera_view)
+
+    def list000_init(self, widget):
         """ """
-        root.is_initialized = False
-        root.sublist_x_offset = -10
-        root.sublist_y_offset = -6
+        widget.clear()
+        widget.is_initialized = False
+        widget.fixed_item_height = 18
+        widget.sublist_x_offset = -10
+        widget.sublist_y_offset = -10
 
         try:
             cameras = pm.ls(type=("camera"), l=True)  # Get all cameras
@@ -38,10 +42,10 @@ class Cameras_maya(Cameras, SlotsMaya):
             non_startup_cameras = []
 
         if list(non_startup_cameras):
-            w1 = root.add("Cameras")
+            w1 = widget.add("Cameras")
             w1.sublist.add(non_startup_cameras)
 
-        w2 = root.add("Per Camera Visibility")
+        w2 = widget.add("Per Camera Visibility")
         per_camera_visibility = [
             "Exclusive to Camera",
             "Hidden from Camera",
@@ -52,77 +56,76 @@ class Cameras_maya(Cameras, SlotsMaya):
         ]
         w2.sublist.add(per_camera_visibility)
 
-        w3 = root.add("Editors")
+        w3 = widget.add("Editors")
         editors = ["Camera Sequencer", "Camera Set Editor"]
         w3.sublist.add(editors)
 
     @signals("on_item_interacted")
     def list000(self, item):
         """ """
-        print("list000:", item, item.sublist.parent_item)
-        text = item.text()
-        parent_text = item.sublist.parent_item.text()
+        text = item.item_text()
+        parent_text = item.parent_item_text()
 
-        # Create:
-        if text == "Custom Camera":  # Create a camera with the specified settings
-            camera = pm.camera(
-                centerOfInterest=5,
-                focalLength=35,
-                horizontalFilmAperture=1.41732,
-                verticalFilmAperture=0.94488,
-            )
-        elif text == "Set Custom Camera":  # Set the camera to the perspective view
-            home_panel = pm.get_panel(withFocus=True)
-            if pm.modelPanel(home_panel, query=True, camera=True) == "persp":
-                pm.cameraView(camera, edit=True, setCamera=True)
+        if parent_text == "Create":
+            if text == "Custom Camera":  # Create a camera with the specified settings
+                camera = pm.camera(
+                    centerOfInterest=5,
+                    focalLength=35,
+                    horizontalFilmAperture=1.41732,
+                    verticalFilmAperture=0.94488,
+                )
+            elif text == "Set Custom Camera":  # Set the camera to the perspective view
+                home_panel = mtk.get_panel(withFocus=True)
+                if pm.modelPanel(home_panel, query=True, camera=True) == "persp":
+                    pm.cameraView(camera, edit=True, setCamera=True)
 
-        elif text == "Camera From View":
-            mtk.Cam.create_camera_from_view()
+            elif text == "Camera From View":
+                mtk.Cam.create_camera_from_view()
 
-        elif parent_text == "Cameras":
-            pm.select(text)
-            pm.lookThru(text)
+            elif parent_text == "Cameras":
+                pm.select(text)
+                pm.lookThru(text)
 
-        # Editors:
-        elif text == "Camera Sequencer":
-            pm.mel.eval("SequenceEditor;")
+        if parent_text == "Editors":
+            if text == "Camera Sequencer":
+                pm.mel.eval("SequenceEditor;")
 
-        elif text == "Camera Set Editor":
-            pm.mel.eval("cameraSetEditor;")
+            elif text == "Camera Set Editor":
+                pm.mel.eval("cameraSetEditor;")
 
-        # Per Camera Visibility:
-        elif text == "Exclusive to Camera":
-            pm.mel.eval(
-                "SetExclusiveToCamera;"
-            )  # doPerCameraVisibility 0; Make selected objects exclusive to the selected (or current) camera.
-        elif text == "Hidden from Camera":
-            pm.mel.eval(
-                "SetHiddenFromCamera;"
-            )  # doPerCameraVisibility 1; Make selected objects hidden from the selected (or current) camera.
-        elif text == "Remove from Exclusive":
-            pm.mel.eval(
-                "CameraRemoveFromExclusive;"
-            )  # doPerCameraVisibility 2; Remove selected objects from the selected (or current) camera's exclusive list.
-        elif text == "Remove from Hidden":
-            pm.mel.eval(
-                "CameraRemoveFromHidden;"
-            )  # doPerCameraVisibility 3; Remove the selected objects from the selected (or current) camera's hidden list.
-        elif (
-            text == "Remove All for Camera"
-        ):  # Remove all hidden or exclusive objects for the selected (or current) camera.
-            pm.mel.eval("CameraRemoveAll;")  # doPerCameraVisibility 4;
-        elif text == "Remove All":
-            pm.mel.eval(
-                "CameraRemoveAllForAll;"
-            )  # doPerCameraVisibility 5; Remove all hidden or exclusive objects for all cameras.
+        if parent_text == "Per Camera Visibility":
+            if text == "Exclusive to Camera":
+                pm.mel.eval(
+                    "SetExclusiveToCamera;"
+                )  # doPerCameraVisibility 0; Make selected objects exclusive to the selected (or current) camera.
+            elif text == "Hidden from Camera":
+                pm.mel.eval(
+                    "SetHiddenFromCamera;"
+                )  # doPerCameraVisibility 1; Make selected objects hidden from the selected (or current) camera.
+            elif text == "Remove from Exclusive":
+                pm.mel.eval(
+                    "CameraRemoveFromExclusive;"
+                )  # doPerCameraVisibility 2; Remove selected objects from the selected (or current) camera's exclusive list.
+            elif text == "Remove from Hidden":
+                pm.mel.eval(
+                    "CameraRemoveFromHidden;"
+                )  # doPerCameraVisibility 3; Remove the selected objects from the selected (or current) camera's hidden list.
+            elif (
+                text == "Remove All for Camera"
+            ):  # Remove all hidden or exclusive objects for the selected (or current) camera.
+                pm.mel.eval("CameraRemoveAll;")  # doPerCameraVisibility 4;
+            elif text == "Remove All":
+                pm.mel.eval(
+                    "CameraRemoveAllForAll;"
+                )  # doPerCameraVisibility 5; Remove all hidden or exclusive objects for all cameras.
 
-        # Options:
-        elif text == "Group Cameras":
-            mtk.Cam.group_cameras()
-        elif text == "Adjust Clipping":
-            self.clippingMenu.show()
-        elif text == "Toggle Safe Frames":  # Viewport Safeframes Toggle
-            mtk.Cam.toggle_safe_frames()
+        if parent_text == "Options":
+            if text == "Group Cameras":
+                mtk.Cam.group_cameras()
+            elif text == "Adjust Clipping":
+                self.clippingMenu.show()
+            elif text == "Toggle Safe Frames":  # Viewport Safeframes Toggle
+                mtk.Cam.toggle_safe_frames()
 
     @property
     def clippingMenu(self):
@@ -144,14 +147,14 @@ class Cameras_maya(Cameras, SlotsMaya):
                 "QDoubleSpinBox",
                 setPrefix="Far Clip:  ",
                 setObjectName="s000",
-                setMinMax_=".01-10 step.1",
+                set_limits=".01-10 step.1",
                 setToolTip="Adjust the current cameras near clipping plane.",
             )
             self._clippingMenu.add(
                 "QSpinBox",
                 setPrefix="Near Clip: ",
                 setObjectName="s001",
-                setMinMax_="10-10000 step1",
+                set_limits="10-10000 step1",
                 setToolTip="Adjust the current cameras far clipping plane.",
             )
 
@@ -351,6 +354,26 @@ class Cameras_maya(Cameras, SlotsMaya):
         """Camera: Orbit"""
         pm.viewPreset(camera="orbit")
 
+    def toggle_camera_view(self):
+        """Toggle between the last two camera views in history."""
+        # Get all slot methods from b000 to b007
+        slots = self.sb.get_slots_from_string(self, "b000-7")
+
+        # Get the last two methods from the slot history
+        history = self.sb.slot_history(slice(-2, None), inc=slots)
+
+        if not history:
+            return
+
+        # If the last method is b004, call the last non-perspective camera
+        if history[-1].__name__ == self.b004.__name__:
+            last_non_persp_cam = history[-2]
+            last_non_persp_cam()
+            self.sb.slot_history(add=last_non_persp_cam)
+        else:  # Otherwise, call b004
+            self.b004()
+            self.sb.slot_history(add=self.b004)
+
 
 # --------------------------------------------------------------------------------------------
 
@@ -435,7 +458,7 @@ print(__name__)
 #   Camera Editors
 
 #   '''
-#   cmb = self.sb.cameras.draggableHeader.ctxMenu.cmb000
+#   cmb = self.sb.cameras.draggableHeader.ctx_menu.cmb000
 
 #   items = ['Camera Sequencer', 'Camera Set Editor']
 #   contents = cmb.addItems_(items, '')

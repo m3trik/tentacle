@@ -10,7 +10,7 @@
     <x>0</x>
     <y>0</y>
     <width>147</width>
-    <height>115</height>
+    <height>98</height>
    </rect>
   </property>
   <property name="maximumSize">
@@ -82,7 +82,7 @@
         </property>
         <layout class="QVBoxLayout" name="verticalLayout_5">
          <property name="spacing">
-          <number>0</number>
+          <number>1</number>
          </property>
          <property name="leftMargin">
           <number>0</number>

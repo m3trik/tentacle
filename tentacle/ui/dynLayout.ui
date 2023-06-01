@@ -37,7 +37,7 @@
   <property name="bnabled" stdset="0">
    <bool>true</bool>
   </property>
-  <widget class="QWidget" name="main_widget">
+  <widget class="QWidget" name="central_widget">
    <property name="palette">
     <palette>
      <active>

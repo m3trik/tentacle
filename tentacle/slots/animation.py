@@ -10,17 +10,17 @@ class Animation(Slots):
         super().__init__(*args, **kwargs)
         """
 		"""
-        ctx = self.sb.animation.draggableHeader.ctxMenu
+        ctx = self.sb.animation.draggableHeader.ctx_menu
         if not ctx.containsMenuItems:
             ctx.add(self.sb.ComboBox, setObjectName="cmb000", setToolTip="")
 
-        ctx = self.sb.animation.tb000.ctxMenu
+        ctx = self.sb.animation.tb000.option_menu
         if not ctx.containsMenuItems:
             ctx.add(
                 "QSpinBox",
                 setPrefix="Frame: ",
                 setObjectName="s000",
-                setMinMax_="0-10000 step1",
+                set_limits="0-10000 step1",
                 setValue=1,
                 setToolTip="",
             )
@@ -39,13 +39,13 @@ class Animation(Slots):
                 setToolTip="",
             )
 
-        ctx = self.sb.animation.tb001.ctxMenu
+        ctx = self.sb.animation.tb001.option_menu
         if not ctx.containsMenuItems:
             ctx.add(
                 "QSpinBox",
                 setPrefix="Time: ",
                 setObjectName="s001",
-                setMinMax_="0-10000 step1",
+                set_limits="0-10000 step1",
                 setValue=1,
                 setToolTip="The desired start time for the inverted keys.",
             )
@@ -65,9 +65,9 @@ class Animation(Slots):
         """Set Current Frame"""
         tb = self.sb.animation.tb000
 
-        frame = self.sb.invert_on_modifier(tb.ctxMenu.s000.value())
-        relative = tb.ctxMenu.chk000.isChecked()
-        update = tb.ctxMenu.chk001.isChecked()
+        frame = self.sb.invert_on_modifier(tb.option_menu.s000.value())
+        relative = tb.option_menu.chk000.isChecked()
+        update = tb.option_menu.chk001.isChecked()
 
         self.setCurrentFrame(frame, relative=relative, update=update)
 
@@ -75,7 +75,7 @@ class Animation(Slots):
         """Invert Selected Keyframes"""
         tb = self.sb.animation.tb001
 
-        time = tb.ctxMenu.s001.value()
-        relative = tb.ctxMenu.chk002.isChecked()
+        time = tb.option_menu.s001.value()
+        relative = tb.option_menu.chk002.isChecked()
 
         self.invertSelectedKeyframes(time=time, relative=relative)

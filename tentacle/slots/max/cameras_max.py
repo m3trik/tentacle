@@ -41,14 +41,14 @@ class Cameras_max(Cameras, SlotsMax):
                 "QDoubleSpinBox",
                 setPrefix="Far Clip:  ",
                 setObjectName="s000",
-                setMinMax_=".01-10 step.1",
+                set_limits=".01-10 step.1",
                 setToolTip="Adjust the current cameras near clipping plane.",
             )
             self._clippingMenu.add(
                 "QSpinBox",
                 setPrefix="Near Clip: ",
                 setObjectName="s001",
-                setMinMax_="10-10000 step1",
+                set_limits="10-10000 step1",
                 setToolTip="Adjust the current cameras far clipping plane.",
             )
 

@@ -10,19 +10,19 @@ class Transform_blender(Transform, SlotsBlender):
         SlotsBlender.__init__(self, *args, **kwargs)
         Transform.__init__(self, *args, **kwargs)
 
-        cmb = self.sb.transform.draggableHeader.ctxMenu.cmb000
+        cmb = self.sb.transform.draggableHeader.ctx_menu.cmb000
         files = [""]
         cmb.addItems_(files, "")
 
         cmb = self.sb.transform.cmb001
         cmb.popupStyle = "qmenu"
-        cmb.menu_.setTitle("Constaints")
+        cmb.option_menu.setTitle("Constaints")
         # query and set current states:
         # edge_constraint = True if pm.xformConstraint(query=1, type=1)=='edge' else False
         # surface_constraint = True if pm.xformConstraint(query=1, type=1)=='surface' else False
         # live_object = True if pm.ls(live=1) else False
         # values = [('chk024', 'Edge', edge_constraint), ('chk025', 'Surface', surface_constraint), ('chk026', 'Make Live', live_object)]
-        # [cmb.menu_.add(self.sb.CheckBox, setObjectName=chk, setText=typ, setChecked=state) for chk, typ, state in values]
+        # [cmb.option_menu.add(self.sb.CheckBox, setObjectName=chk, setText=typ, setChecked=state) for chk, typ, state in values]
 
         cmb = self.sb.transform.cmb002
         items = []
@@ -30,19 +30,19 @@ class Transform_blender(Transform, SlotsBlender):
 
         cmb = self.sb.transform.cmb003
         cmb.popupStyle = "qmenu"
-        cmb.menu_.setTitle("Snap")
+        cmb.option_menu.setTitle("Snap")
         # moveValue = pm.manipMoveContext('Move', q=True, snapValue=True)
         # scaleValue = pm.manipScaleContext('Scale', q=True, snapValue=True)
         # rotateValue = pm.manipRotateContext('Rotate', q=True, snapValue=True)
         # values = [('chk021', 'Move: <b>Off</b>'), ('s021', 'increment:', moveValue, '1.00-1000 step2.8125'),
         # 		('chk022', 'Scale: <b>Off</b>'), ('s022', 'increment:', scaleValue, '1.00-1000 step2.8125'),
         # 		('chk023', 'Rotate: <b>Off</b>'), ('s023', 'degrees:', rotateValue, '1.00-360 step2.8125')]
-        # [cmb.menu_.add(self.sb.CheckBox, setObjectName=i[0], setText=i[1], setTristate=1) if len(i)==2
-        # 	else cmb.menu_.add('QDoubleSpinBox', setObjectName=i[0], setPrefix=i[1], setValue=i[2], setMinMax_=i[3], setDisabled=1) for i in values]
+        # [cmb.option_menu.add(self.sb.CheckBox, setObjectName=i[0], setText=i[1], setTristate=1) if len(i)==2
+        # 	else cmb.option_menu.add('QDoubleSpinBox', setObjectName=i[0], setPrefix=i[1], setValue=i[2], set_limits=i[3], setDisabled=1) for i in values]
 
     def cmb000(self, index=-1):
         """Editors"""
-        cmb = self.sb.transform.draggableHeader.ctxMenu.cmb000
+        cmb = self.sb.transform.draggableHeader.ctx_menu.cmb000
 
         if index > 0:
             if index == cmd.list.index(""):
@@ -99,7 +99,7 @@ class Transform_blender(Transform, SlotsBlender):
 
         cmb = self.sb.transform.cmb001
         cmb.setCurrentText('Constrain: <hl style="color:white;">Off</hl>') if not any(
-            (state, cmb.menu_.chk025.isChecked(), cmb.menu_.chk026.isChecked())
+            (state, cmb.option_menu.chk025.isChecked(), cmb.option_menu.chk026.isChecked())
         ) else cmb.setCurrentText('Constrain: <hl style="color:green;">On</hl>')
 
     def chk025(self, state=None):
@@ -115,13 +115,13 @@ class Transform_blender(Transform, SlotsBlender):
 
         cmb = self.sb.transform.cmb001
         cmb.setCurrentText('Constrain: <hl style="color:white;">Off</hl>') if not any(
-            (state, cmb.menu_.chk024.isChecked(), cmb.menu_.chk026.isChecked())
+            (state, cmb.option_menu.chk024.isChecked(), cmb.option_menu.chk026.isChecked())
         ) else cmb.setCurrentText('Constrain: <hl style="color:green;">On</hl>')
 
     def chk026(self, state=None):
         """Transform Contraints: Make Live"""
         cmb = self.sb.transform.cmb001
-        chk = cmb.menu_.chk026
+        chk = cmb.option_menu.chk026
 
         selection = pm.ls(sl=1, objectsOnly=1, type="transform")
         if state and selection:
@@ -137,7 +137,7 @@ class Transform_blender(Transform, SlotsBlender):
             # self.mtk.viewport_message('Make Live: <hl>Off</hl>')
 
         cmb.setCurrentText('Constrain: <hl style="color:white;">Off</hl>') if not any(
-            (state, cmb.menu_.chk024.isChecked(), cmb.menu_.chk025.isChecked())
+            (state, cmb.option_menu.chk024.isChecked(), cmb.option_menu.chk025.isChecked())
         ) else cmb.setCurrentText('Constrain: <hl style="color:green;">On</hl>')
 
     def s021(self, value=None):
@@ -163,10 +163,10 @@ class Transform_blender(Transform, SlotsBlender):
         """Drop To Grid"""
         tb = self.sb.transform.tb000
 
-        align = tb.ctxMenu.cmb004.currentText()
-        origin = tb.ctxMenu.chk014.isChecked()
-        center_pivot = tb.ctxMenu.chk016.isChecked()
-        freeze_transforms = tb.ctxMenu.chk017.isChecked()
+        align = tb.option_menu.cmb004.currentText()
+        origin = tb.option_menu.chk014.isChecked()
+        center_pivot = tb.option_menu.chk016.isChecked()
+        freeze_transforms = tb.option_menu.chk017.isChecked()
 
         objects = pm.ls(sl=1, objectsOnly=1)
         mtk.XformmoveTo(objects, align, origin, center_pivot, freeze_transforms)
@@ -179,9 +179,9 @@ class Transform_blender(Transform, SlotsBlender):
         """
         tb = self.sb.transform.tb001
 
-        betweenTwoComponents = tb.ctxMenu.chk013.isChecked()
-        autoAlign = tb.ctxMenu.chk010.isChecked()
-        autoAlign2Axes = tb.ctxMenu.chk011.isChecked()  # Auto Align: Two Axes
+        betweenTwoComponents = tb.option_menu.chk013.isChecked()
+        autoAlign = tb.option_menu.chk010.isChecked()
+        autoAlign2Axes = tb.option_menu.chk011.isChecked()  # Auto Align: Two Axes
 
         selection = pm.ls(orderedSelection=1, flatten=1)
 
@@ -231,30 +231,30 @@ class Transform_blender(Transform, SlotsBlender):
                 if autoAlign2Axes:
                     if axis == x:  # "yz"
                         self.sb.toggle_widgets(
-                            tb.ctxMenu, setChecked="chk030-31", setUnChecked="chk029"
+                            tb.option_menu, setChecked="chk030-31", setUnChecked="chk029"
                         )
                     if axis == y:  # "xz"
                         self.sb.toggle_widgets(
-                            tb.ctxMenu,
+                            tb.option_menu,
                             setChecked="chk029,chk031",
                             setUnChecked="chk030",
                         )
                     if axis == z:  # "xy"
                         self.sb.toggle_widgets(
-                            tb.ctxMenu, setChecked="chk029-30", setUnChecked="chk031"
+                            tb.option_menu, setChecked="chk029-30", setUnChecked="chk031"
                         )
                 else:
                     if any(
                         [axis == x and tangent == ty, axis == y and tangent == tx]
                     ):  # "z"
                         self.sb.toggle_widgets(
-                            tb.ctxMenu, setChecked="chk031", setUnChecked="chk029-30"
+                            tb.option_menu, setChecked="chk031", setUnChecked="chk029-30"
                         )
                     if any(
                         [axis == x and tangent == tz, axis == z and tangent == tx]
                     ):  # "y"
                         self.sb.toggle_widgets(
-                            tb.ctxMenu,
+                            tb.option_menu,
                             setChecked="chk030",
                             setUnChecked="chk029,chk031",
                         )
@@ -262,17 +262,17 @@ class Transform_blender(Transform, SlotsBlender):
                         [axis == y and tangent == tz, axis == z and tangent == ty]
                     ):  # "x"
                         self.sb.toggle_widgets(
-                            tb.ctxMenu, setChecked="chk029", setUnChecked="chk030-31"
+                            tb.option_menu, setChecked="chk029", setUnChecked="chk030-31"
                         )
             else:
                 return "Error: Operation requires a component selection."
 
         # align
-        x = tb.ctxMenu.chk029.isChecked()
-        y = tb.ctxMenu.chk030.isChecked()
-        z = tb.ctxMenu.chk031.isChecked()
-        avg = tb.ctxMenu.chk006.isChecked()
-        loop = tb.ctxMenu.chk007.isChecked()
+        x = tb.option_menu.chk029.isChecked()
+        y = tb.option_menu.chk030.isChecked()
+        z = tb.option_menu.chk031.isChecked()
+        avg = tb.option_menu.chk006.isChecked()
+        loop = tb.option_menu.chk007.isChecked()
 
         if all([x, not y, not z]):  # align x
             self.align_vertices(mode=3, average=avg, edgeloop=loop)
@@ -321,7 +321,7 @@ class Transform_blender(Transform, SlotsBlender):
                 "scaleY",
                 "scaleZ",
             ],
-            checkableLabel=True,
+            checkable_label=True,
         )
 
     def b001(self):
@@ -369,10 +369,10 @@ class Transform_blender(Transform, SlotsBlender):
             shape = self.get_shape_node(selection[0])
             if not shape in live_object:
                 self.chk026(state=1)
-                cmb.menu_.chk026.setChecked(True)
+                cmb.option_menu.chk026.setChecked(True)
         else:
             self.chk026(state=0)
-            cmb.menu_.chk026.setChecked(False)
+            cmb.option_menu.chk026.setChecked(False)
 
     def b014(self):
         """Center Pivot Component"""
@@ -880,7 +880,7 @@ print(__name__)
 # 	'''
 # 	cmb = self.sb.transform.cmb003
 # 	self.sb.toggle_widgets(setUnChecked='chk021-23')
-# 	cmb.setCurrentText('Off') if not any((cmb.menu_.chk021.isChecked(), cmb.menu_.chk022.isChecked(), cmb.menu_.chk023.isChecked())) else cmb.setCurrentText('On')
+# 	cmb.setCurrentText('Off') if not any((cmb.option_menu.chk021.isChecked(), cmb.option_menu.chk022.isChecked(), cmb.option_menu.chk023.isChecked())) else cmb.setCurrentText('On')
 
 
 # def lbl002(self):
@@ -888,7 +888,7 @@ print(__name__)
 # 	'''
 # 	cmb = self.sb.transform.cmb001
 # 	self.sb.toggle_widgets(setUnChecked='chk024-26')
-# 	cmb.setCurrentText('Off') if not any((cmb.menu_.chk024.isChecked(), cmb.menu_.chk025.isChecked(), cmb.menu_.chk026.isChecked())) else cmb.setCurrentText('On')
+# 	cmb.setCurrentText('Off') if not any((cmb.option_menu.chk024.isChecked(), cmb.option_menu.chk025.isChecked(), cmb.option_menu.chk026.isChecked())) else cmb.setCurrentText('On')
 
 
 # def s002(self, value=None):
@@ -1030,7 +1030,7 @@ print(__name__)
 # 	cmb = self.sb.transform.cmb001
 
 # 	if index=='setMenu':
-# 		cmb.ctxMenu.add(self.sb.Label, setObjectName='lbl000', setText='Disable All', setToolTip='Disable all constraints.')
+# 		cmb.option_menu.add(self.sb.Label, setObjectName='lbl000', setText='Disable All', setToolTip='Disable all constraints.')
 
 # 		items = ['Edge', 'Surface', 'Make Live']
 # 		cmb.addItems_(items, 'Off')

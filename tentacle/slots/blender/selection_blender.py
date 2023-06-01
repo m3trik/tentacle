@@ -9,7 +9,7 @@ class Selection_blender(Selection, SlotsBlender):
         SlotsBlender.__init__(self, *args, **kwargs)
         Selection.__init__(self, *args, **kwargs)
 
-        cmb = self.sb.selection.draggableHeader.ctxMenu.cmb000
+        cmb = self.sb.selection.draggableHeader.ctx_menu.cmb000
         items = []
         cmb.addItems_(items, "Selection Editors:")
 
@@ -128,7 +128,7 @@ class Selection_blender(Selection, SlotsBlender):
 
     def cmb000(self, index=-1):
         """Editors"""
-        cmb = self.sb.selection.draggableHeader.ctxMenu.cmb000
+        cmb = self.sb.selection.draggableHeader.ctx_menu.cmb000
 
         if index > 0:
             text = cmb.items[index]
@@ -287,12 +287,12 @@ class Selection_blender(Selection, SlotsBlender):
 
     def cmb006(self, index=-1):
         """Currently Selected Objects"""
-        cmb = self.sb.selection.draggableHeader.ctxMenu.cmb006
+        cmb = self.sb.selection.draggableHeader.ctx_menu.cmb006
 
         cmb.clear()
         items = [str(i) for i in pm.ls(sl=1, flatten=1)]
         widgets = [
-            cmb.menu_.add("QCheckBox", setText=t, setChecked=1) for t in items[:50]
+            cmb.option_menu.add("QCheckBox", setText=t, setChecked=1) for t in items[:50]
         ]  # selection list is capped with a slice at 50 elements.
 
         for w in widgets:
@@ -316,12 +316,12 @@ class Selection_blender(Selection, SlotsBlender):
         """Select Nth"""
         tb = self.sb.selection.tb000
 
-        edgeRing = tb.ctxMenu.chk000.isChecked()
-        edgeLoop = tb.ctxMenu.chk001.isChecked()
-        pathAlongLoop = tb.ctxMenu.chk009.isChecked()
-        shortestPath = tb.ctxMenu.chk002.isChecked()
-        borderEdges = tb.ctxMenu.chk010.isChecked()
-        step = tb.ctxMenu.s003.value()
+        edgeRing = tb.option_menu.chk000.isChecked()
+        edgeLoop = tb.option_menu.chk001.isChecked()
+        pathAlongLoop = tb.option_menu.chk009.isChecked()
+        shortestPath = tb.option_menu.chk002.isChecked()
+        borderEdges = tb.option_menu.chk010.isChecked()
+        step = tb.option_menu.s003.value()
 
         selection = pm.ls(sl=1)
         if not selection:
@@ -350,7 +350,7 @@ class Selection_blender(Selection, SlotsBlender):
         tb = self.sb.selection.tb001
 
         tolerance = str(
-            tb.ctxMenu.s000.value()
+            tb.option_menu.s000.value()
         )  # string value because mel.eval is sending a command string
 
         mel.eval('doSelectSimilar 1 {"' + tolerance + '"}')
@@ -359,9 +359,9 @@ class Selection_blender(Selection, SlotsBlender):
         """Select Island: Select Polygon Face Island"""
         tb = self.sb.selection.tb002
 
-        rangeX = float(tb.ctxMenu.s002.value())
-        rangeY = float(tb.ctxMenu.s004.value())
-        rangeZ = float(tb.ctxMenu.s005.value())
+        rangeX = float(tb.option_menu.s002.value())
+        rangeY = float(tb.option_menu.s004.value())
+        rangeZ = float(tb.option_menu.s005.value())
 
         selectedFaces = pm.filterExpand(sm=34)
         if selectedFaces:
@@ -379,8 +379,8 @@ class Selection_blender(Selection, SlotsBlender):
         """Select Edges By Angle"""
         tb = self.sb.selection.tb003
 
-        angleLow = tb.ctxMenu.s006.value()
-        angleHigh = tb.ctxMenu.s007.value()
+        angleLow = tb.option_menu.s006.value()
+        angleHigh = tb.option_menu.s007.value()
 
         objects = pm.ls(sl=1, objectsOnly=1)
         edges = SlotsBlender.get_edges_by_normal_angle(

@@ -1,6 +1,12 @@
 # !/usr/bin/python
 # coding=utf-8
-from tentacle.slots.maya import *
+try:
+    import pymel.core as pm
+except ImportError as error:
+    print(__file__, error)
+
+import mayatk as mtk
+from tentacle.slots.maya import SlotsMaya
 from tentacle.slots.uv import Uv
 
 
@@ -12,7 +18,7 @@ class Uv_maya(Uv, SlotsMaya):
             "Unfold3D.mll"
         )  # assure the maya UV plugin is loaded.
 
-        cmb000 = self.sb.uv.draggableHeader.ctxMenu.cmb000
+        cmb000 = self.sb.uv.draggableHeader.ctx_menu.cmb000
         items = [
             "UV Editor",
             "UV Set Editor",
@@ -26,14 +32,14 @@ class Uv_maya(Uv, SlotsMaya):
         cmb000.addItems_(items, "Maya UV Editors")
 
         cmb001 = self.sb.uv.cmb001
-        panel = pm.get_panel(scriptType="polyTexturePlacementPanel")
-        cmb001.menu_.chk014.setChecked(
+        panel = mtk.get_panel(scriptType="polyTexturePlacementPanel")
+        cmb001.option_menu.chk014.setChecked(
             pm.textureWindow(panel, displayCheckered=1, query=1)
         )  # checkered state
-        cmb001.menu_.chk015.setChecked(
+        cmb001.option_menu.chk015.setChecked(
             True if pm.polyOptions(query=1, displayMapBorder=1) else False
         )  # borders state
-        cmb001.menu_.chk016.setChecked(
+        cmb001.option_menu.chk016.setChecked(
             pm.textureWindow(panel, query=1, displayDistortion=1)
         )  # distortion state
 
@@ -52,58 +58,58 @@ class Uv_maya(Uv, SlotsMaya):
         cmb002.addItems_(items, "Transform:")
 
         tb000 = self.sb.uv.tb000
-        tb000.ctxMenu.add(
+        tb000.option_menu.add(
             "QSpinBox",
             setPrefix="Pre-Scale Mode: ",
             setObjectName="s009",
-            setMinMax_="0-2 step1",
+            set_limits="0-2 step1",
             setValue=1,
             setToolTip="Allow shell scaling during packing.",
         )
-        tb000.ctxMenu.add(
+        tb000.option_menu.add(
             "QSpinBox",
             setPrefix="Pre-Rotate Mode: ",
             setObjectName="s010",
-            setMinMax_="0-2 step1",
+            set_limits="0-2 step1",
             setValue=0,
             setToolTip="Allow shell rotation during packing.",
         )
-        tb000.ctxMenu.add(
+        tb000.option_menu.add(
             "QSpinBox",
             setPrefix="Stack Similar: ",
             setObjectName="s011",
-            setMinMax_="0-2 step1",
+            set_limits="0-2 step1",
             setValue=0,
             setToolTip="Find Similar shells. <br>state 1: Find similar shells, and pack one of each, ommiting the rest.<br>state 2: Find similar shells, and stack during packing.",
         )
-        tb000.ctxMenu.add(
+        tb000.option_menu.add(
             "QDoubleSpinBox",
             setPrefix="Tolerance: ",
             setObjectName="s006",
-            setMinMax_="0.0-10 step.1",
+            set_limits="0.0-10 step.1",
             setValue=1.0,
             setToolTip="Stack Similar: Stack shells with uv's within the given range.",
         )
-        tb000.ctxMenu.add(
+        tb000.option_menu.add(
             "QSpinBox",
             setPrefix="UDIM: ",
             setObjectName="s004",
-            setMinMax_="1001-1200 step1",
+            set_limits="1001-1200 step1",
             setValue=1001,
             setToolTip="Set the desired UDIM tile space.",
         )
-        tb000.ctxMenu.add(
+        tb000.option_menu.add(
             "QSpinBox",
             setPrefix="Padding: ",
             setObjectName="s012",
-            setMinMax_="0-999 step1",
+            set_limits="0-999 step1",
             setValue=self.getMapSize() / 256 * 2,
             setToolTip="Set the shell spacing amount.",
         )
 
     def cmb000(self, index=-1):
         """Editors"""
-        cmb = self.sb.uv.draggableHeader.ctxMenu.cmb000
+        cmb = self.sb.uv.draggableHeader.ctx_menu.cmb000
 
         if index > 0:  # hide main menu and perform operation
             text = cmb.items[index]
@@ -160,15 +166,15 @@ class Uv_maya(Uv, SlotsMaya):
     def chk014(self):
         """Display: Checkered Pattern"""
         cmb = self.sb.uv.cmb001
-        state = cmb.menu_.chk014.isChecked()
+        state = cmb.option_menu.chk014.isChecked()
 
-        panel = pm.get_panel(scriptType="polyTexturePlacementPanel")
+        panel = mtk.get_panel(scriptType="polyTexturePlacementPanel")
         pm.textureWindow(panel, edit=1, displayCheckered=state)
 
     def chk015(self):
         """Display: Borders"""
         cmb = self.sb.uv.cmb001
-        state = cmb.menu_.chk015.isChecked()
+        state = cmb.option_menu.chk015.isChecked()
 
         borderWidth = pm.optionVar(query="displayPolyBorderEdgeSize")[1]
         borders = pm.polyOptions(displayMapBorder=state, sizeBorder=borderWidth)
@@ -176,9 +182,9 @@ class Uv_maya(Uv, SlotsMaya):
     def chk016(self):
         """Display: Distortion"""
         cmb = self.sb.uv.cmb001
-        state = cmb.menu_.chk016.isChecked()
+        state = cmb.option_menu.chk016.isChecked()
 
-        panel = pm.get_panel(scriptType="polyTexturePlacementPanel")
+        panel = mtk.get_panel(scriptType="polyTexturePlacementPanel")
         pm.textureWindow(panel, edit=1, displayDistortion=state)
 
     def tb000(self, state=None):
@@ -204,12 +210,12 @@ class Uv_maya(Uv, SlotsMaya):
         """
         tb = self.sb.uv.tb000
 
-        scale = tb.ctxMenu.s009.value()
-        rotate = tb.ctxMenu.s010.value()
-        UDIM = tb.ctxMenu.s004.value()
-        padding = tb.ctxMenu.s012.value()
-        similar = tb.ctxMenu.s011.value()
-        tolerance = tb.ctxMenu.s006.value()
+        scale = tb.option_menu.s009.value()
+        rotate = tb.option_menu.s010.value()
+        UDIM = tb.option_menu.s004.value()
+        padding = tb.option_menu.s012.value()
+        similar = tb.option_menu.s011.value()
+        tolerance = tb.option_menu.s006.value()
         mapSize = self.getMapSize()
 
         U, D, I, M = [int(i) for i in str(UDIM)]  # UDIM ex. '1001'
@@ -218,18 +224,18 @@ class Uv_maya(Uv, SlotsMaya):
         sel = self.uvShellSelection()  # assure the correct selection mask.
 
         # if rotate==0:
-        # 	self.orientShells(sel)
+        #   self.orientShells(sel)
 
         # if similar>0:
-        # 	dissimilar = pm.polyUVStackSimilarShells(sel, tolerance=tolerance, onlyMatch=True)
-        # 	dissimilarUVs = [s.split() for s in dissimilar] if dissimilar else []
-        # 	dissimilarFaces = pm.polyListComponentConversion(dissimilarUVs, fromUV=1, toFace=1)
-        # 	pm.u3dLayout(dissimilarFaces, resolution=mapSize, shellSpacing=shellPadding, tileMargin=tilePadding, preScaleMode=scale, preRotateMode=rotate, packBox=[M-1, D, I, U]) #layoutScaleMode (int), multiObject (bool), mutations (int), packBox (float, float, float, float), preRotateMode (int), preScaleMode (int), resolution (int), rotateMax (float), rotateMin (float), rotateStep (float), shellSpacing (float), tileAssignMode (int), tileMargin (float), tileU (int), tileV (int), translate (bool)
+        #   dissimilar = pm.polyUVStackSimilarShells(sel, tolerance=tolerance, onlyMatch=True)
+        #   dissimilarUVs = [s.split() for s in dissimilar] if dissimilar else []
+        #   dissimilarFaces = pm.polyListComponentConversion(dissimilarUVs, fromUV=1, toFace=1)
+        #   pm.u3dLayout(dissimilarFaces, resolution=mapSize, shellSpacing=shellPadding, tileMargin=tilePadding, preScaleMode=scale, preRotateMode=rotate, packBox=[M-1, D, I, U]) #layoutScaleMode (int), multiObject (bool), mutations (int), packBox (float, float, float, float), preRotateMode (int), preScaleMode (int), resolution (int), rotateMax (float), rotateMin (float), rotateStep (float), shellSpacing (float), tileAssignMode (int), tileMargin (float), tileU (int), tileV (int), translate (bool)
 
         # elif similar==2:
-        # 	pm.select(dissimilarFaces, toggle=1)
-        # 	similarFaces = pm.ls(sl=1)
-        # 	pm.polyUVStackSimilarShells(similarFaces, dissimilarFaces, tolerance=tolerance)
+        #   pm.select(dissimilarFaces, toggle=1)
+        #   similarFaces = pm.ls(sl=1)
+        #   pm.polyUVStackSimilarShells(similarFaces, dissimilarFaces, tolerance=tolerance)
 
         # else:
         pm.u3dLayout(
@@ -249,13 +255,13 @@ class Uv_maya(Uv, SlotsMaya):
         """Auto Unwrap"""
         tb = self.sb.uv.tb001
 
-        standardUnwrap = tb.ctxMenu.chk000.isChecked()
-        scaleMode = tb.ctxMenu.chk001.isChecked()
-        seamOnly = tb.ctxMenu.chk002.isChecked()
-        planarUnwrap = tb.ctxMenu.chk003.isChecked()
-        cylindricalUnwrap = tb.ctxMenu.chk004.isChecked()
-        sphericalUnwrap = tb.ctxMenu.chk005.isChecked()
-        normalBasedUnwrap = tb.ctxMenu.chk006.isChecked()
+        standardUnwrap = tb.option_menu.chk000.isChecked()
+        scaleMode = tb.option_menu.chk001.isChecked()
+        seamOnly = tb.option_menu.chk002.isChecked()
+        planarUnwrap = tb.option_menu.chk003.isChecked()
+        cylindricalUnwrap = tb.option_menu.chk004.isChecked()
+        sphericalUnwrap = tb.option_menu.chk005.isChecked()
+        normalBasedUnwrap = tb.option_menu.chk006.isChecked()
 
         selection = pm.ls(selection=1, flatten=1)
         for obj in selection:
@@ -305,12 +311,12 @@ class Uv_maya(Uv, SlotsMaya):
         """Select By Type"""
         tb = self.sb.uv.tb003
 
-        back_facing = tb.ctxMenu.chk008.isChecked()
-        front_facing = tb.ctxMenu.chk009.isChecked()
-        overlapping = tb.ctxMenu.chk010.isChecked()
-        nonOverlapping = tb.ctxMenu.chk011.isChecked()
-        textureBorders = tb.ctxMenu.chk012.isChecked()
-        unmapped = tb.ctxMenu.chk013.isChecked()
+        back_facing = tb.option_menu.chk008.isChecked()
+        front_facing = tb.option_menu.chk009.isChecked()
+        overlapping = tb.option_menu.chk010.isChecked()
+        nonOverlapping = tb.option_menu.chk011.isChecked()
+        textureBorders = tb.option_menu.chk012.isChecked()
+        unmapped = tb.option_menu.chk013.isChecked()
 
         if back_facing:
             pm.mel.selectUVFaceOrientationComponents({}, 0, 2, 1)
@@ -349,10 +355,10 @@ class Uv_maya(Uv, SlotsMaya):
         """
         tb = self.sb.uv.tb004
 
-        optimize = tb.ctxMenu.chk017.isChecked()
-        orient = tb.ctxMenu.chk007.isChecked()
-        stackSimilar = tb.ctxMenu.chk022.isChecked()
-        tolerance = tb.ctxMenu.s000.value()
+        optimize = tb.option_menu.chk017.isChecked()
+        orient = tb.option_menu.chk007.isChecked()
+        stackSimilar = tb.option_menu.chk022.isChecked()
+        tolerance = tb.option_menu.s000.value()
         mapSize = self.getMapSize()
 
         pm.u3dUnfold(
@@ -385,10 +391,10 @@ class Uv_maya(Uv, SlotsMaya):
         """Straighten Uv"""
         tb = self.sb.uv.tb005
 
-        u = tb.ctxMenu.chk018.isChecked()
-        v = tb.ctxMenu.chk019.isChecked()
-        angle = tb.ctxMenu.s001.value()
-        straightenShell = tb.ctxMenu.chk020.isChecked()
+        u = tb.option_menu.chk018.isChecked()
+        v = tb.option_menu.chk019.isChecked()
+        angle = tb.option_menu.s001.value()
+        straightenShell = tb.option_menu.chk020.isChecked()
 
         if u and v:
             pm.mel.texStraightenUVs("UV", angle)
@@ -404,8 +410,8 @@ class Uv_maya(Uv, SlotsMaya):
         """Distribute"""
         tb = self.sb.uv.tb006
 
-        u = tb.ctxMenu.chk023.isChecked()
-        v = tb.ctxMenu.chk024.isChecked()
+        u = tb.option_menu.chk023.isChecked()
+        v = tb.option_menu.chk024.isChecked()
 
         if u:
             pm.mel.texDistributeShells(0, 0, "right", [])  #'left', 'right'
@@ -417,9 +423,9 @@ class Uv_maya(Uv, SlotsMaya):
         """Transfer UV's"""
         tb = self.sb.uv.tb008
 
-        toSimilar = tb.ctxMenu.chk025.isChecked()
-        similarTol = tb.ctxMenu.s013.value()
-        deleteConstHist = tb.ctxMenu.chk026.isChecked()
+        toSimilar = tb.option_menu.chk025.isChecked()
+        similarTol = tb.option_menu.s013.value()
+        deleteConstHist = tb.option_menu.chk026.isChecked()
 
         frm, *to = pm.ls(orderedSelection=1, flatten=1)
         if toSimilar:
@@ -469,10 +475,10 @@ class Uv_maya(Uv, SlotsMaya):
         # issue with getting rotate pivot; queries returning None instead of float values.
         objects = pm.ls(selection=1, objectsOnly=1)
         # for obj in objects:
-        # 	pu = pm.polyEditUV(obj, q=True, pivotU=True)
-        # 	pv = pm.polyEditUV(obj, q=True, pivotV=True)
+        #   pu = pm.polyEditUV(obj, q=True, pivotU=True)
+        #   pv = pm.polyEditUV(obj, q=True, pivotV=True)
 
-        # 	pm.polyEditUV(obj, pivotU=pu, pivotV=pv, angle=angle, relative=True)
+        #   pm.polyEditUV(obj, pivotU=pu, pivotV=pv, angle=angle, relative=True)
         pm.polyEditUV(objects, angle=angle, rr=True)
 
     def b011(self):
@@ -592,45 +598,58 @@ class Uv_maya(Uv, SlotsMaya):
         """Get the edges that make up any UV islands of the given objects.
 
         Parameters:
-                objects (str/obj/list): Polygon mesh objects and mesh components (UVs).
+            objects (str/obj/list): Polygon objects, mesh UVs, or Edges.
 
         Returns:
-                (list) UV border edges.
+            (list): UV border edges.
         """
         uv_border_edges = []
-        for item in ptk.make_list(objects):
-            # If the item is a mesh object, get its shape
-            if isinstance(item, pm.nt.Transform):
-                item = item.getShape()
+        for obj in pm.ls(objects):
+            # If the obj is a mesh object, get its shape
+            if isinstance(obj, pm.nt.Transform):
+                obj = obj.getShape()
 
-            # If the item is a mesh shape or a component, get its UV borders
-            if isinstance(item, pm.nt.Mesh) or item.node_type() in [
-                "meshMapComponent",
-                "meshUVComponent",
-            ]:
+            # If the obj is a mesh shape, get its UV borders
+            if isinstance(obj, pm.nt.Mesh):
                 # Get the connected edges to the selected UVs
                 connected_edges = pm.polyListComponentConversion(
-                    item, fromUV=True, toEdge=True
+                    obj, fromUV=True, toEdge=True
                 )
                 connected_edges = pm.ls(connected_edges, flatten=True)
+            elif isinstance(obj, pm.general.MeshEdge):
+                # If the object is already an edge, no conversion is necessary
+                connected_edges = pm.ls(obj, flatten=True)
+            elif isinstance(obj, pm.general.MeshUV):
+                # If the object is a UV, convert it to its connected edges
+                connected_edges = pm.polyListComponentConversion(
+                    obj, fromUV=True, toEdge=True
+                )
+                connected_edges = pm.ls(connected_edges, flatten=True)
+            else:
+                raise ValueError(f"Unsupported object type: {type(obj)}")
 
-                for edge in connected_edges:
-                    edge_uvs = pm.ls(
-                        pm.polyListComponentConversion(edge, tuv=True), fl=True
-                    )
-                    edge_faces = pm.ls(
-                        pm.polyListComponentConversion(edge, tf=True), fl=True
-                    )
-                    if (
-                        len(edge_uvs) > 2 or len(edge_faces) < 2
-                    ):  # If an edge has more than two uvs or less than 2 faces, it's a uv border edge.
-                        uv_border_edges.append(edge)
+            for edge in connected_edges:
+                edge_uvs = pm.ls(
+                    pm.polyListComponentConversion(edge, tuv=True), fl=True
+                )
+                edge_faces = pm.ls(
+                    pm.polyListComponentConversion(edge, tf=True), fl=True
+                )
+                if (
+                    len(edge_uvs) > 2 or len(edge_faces) < 2
+                ):  # If an edge has more than two uvs or less than 2 faces, it's a uv border edge.
+                    uv_border_edges.append(edge)
 
         return uv_border_edges
 
     @mtk.undo
     def transferUVs(
-        self, frm, to="similar", tolerance=0.0, sampleSpace="component", deleteConstHist=True
+        self,
+        frm,
+        to="similar",
+        tolerance=0.0,
+        sampleSpace="component",
+        deleteConstHist=True,
     ):
         """Transfer UV's from one group of objects to another.
 
@@ -653,7 +672,9 @@ class Uv_maya(Uv, SlotsMaya):
         # pm.undoInfo(openChunk=1)
         for f in frm:
             if to == "similar":
-                to = self.sb.edit.slots.get_similar_mesh(f, tolerance=tolerance, face=1, area=1)
+                to = self.sb.edit.slots.get_similar_mesh(
+                    f, tolerance=tolerance, face=1, area=1
+                )
 
             for t in to:
                 if pm.polyEvaluate(f, face=1, format=True) == pm.polyEvaluate(
@@ -697,42 +718,42 @@ print(__name__)
 # deprecated:
 
 # for f in frm:
-# 	if to=='similar':
-# 		to = self.sb.edit.slots.get_similar_mesh(f, tolerance=tolerance, face=1, area=1)
+#   if to=='similar':
+#       to = self.sb.edit.slots.get_similar_mesh(f, tolerance=tolerance, face=1, area=1)
 
-# 	for t in to:
-# 		if pm.polyEvaluate(f, face=1, area=1, format=True)==pm.polyEvaluate(t, face=1, area=1, format=True):
-# 			pm.polyTransfer(t, alternateObject=f, uvSets=True) # pm.transferAttributes(frm, to, transferUVs=2, sampleSpace=4) #-transferNormals 0 -transferUVs 2 -transferColors 2 -sourceUvSpace "map1" -targetUvSpace "map1" -searchMethod 3-flipUVs 0 -colorBorders 1 ;
-# 			to.remove(t) #remove the obj from the transfer list when an exact match is found.
-# 		elif pm.polyEvaluate(f, face=1, format=True)==pm.polyEvaluate(t, face=1, format=True):
-# 			pm.transferAttributes(f, t, transferPositions=0, transferNormals=0, transferUVs=2, transferColors=2, sampleSpace=5, sourceUvSpace='map1', searchMethod=3, flipUVs=0, colorBorders=1) #transfer to the object if it is similar, but keep in transfer list in case an exact match is found later.
+#   for t in to:
+#       if pm.polyEvaluate(f, face=1, area=1, format=True)==pm.polyEvaluate(t, face=1, area=1, format=True):
+#           pm.polyTransfer(t, alternateObject=f, uvSets=True) # pm.transferAttributes(frm, to, transferUVs=2, sampleSpace=4) #-transferNormals 0 -transferUVs 2 -transferColors 2 -sourceUvSpace "map1" -targetUvSpace "map1" -searchMethod 3-flipUVs 0 -colorBorders 1 ;
+#           to.remove(t) #remove the obj from the transfer list when an exact match is found.
+#       elif pm.polyEvaluate(f, face=1, format=True)==pm.polyEvaluate(t, face=1, format=True):
+#           pm.transferAttributes(f, t, transferPositions=0, transferNormals=0, transferUVs=2, transferColors=2, sampleSpace=5, sourceUvSpace='map1', searchMethod=3, flipUVs=0, colorBorders=1) #transfer to the object if it is similar, but keep in transfer list in case an exact match is found later.
 
 # for remaining in to:
-# 	print('Result: No Exact match found for: {}. Making final attempt ..'.format(remaining.name()))
-# 	pm.transferAttributes(frm, remaining, transferUVs=2, sampleSpace=4)
+#   print('Result: No Exact match found for: {}. Making final attempt ..'.format(remaining.name()))
+#   pm.transferAttributes(frm, remaining, transferUVs=2, sampleSpace=4)
 
 # pm.delete(frm, constructionHistory=deleteConstHist)
 # # pm.undoInfo(closeChunk=1)
 
 # def transferUVs(frm, to):
-# 		'''
-# 		'''
-# 		# pm.undoInfo(openChunk=1)
-# 		set1 = pm.listRelatives(frm, children=1)
-# 		set2 = pm.listRelatives(to, children=1)
+#       '''
+#       '''
+#       # pm.undoInfo(openChunk=1)
+#       set1 = pm.listRelatives(frm, children=1)
+#       set2 = pm.listRelatives(to, children=1)
 
-# 		for frm in set1:
-# 			for to in set2:
-# 				if pm.polyEvaluate(frm)==pm.polyEvaluate(to):
-# 					pm.polyTransfer(frm, alternateObject=to, uvSets=True) # pm.transferAttributes(frm, to, transferUVs=2, sampleSpace=4) #-transferNormals 0 -transferUVs 2 -transferColors 2 -sourceUvSpace "map1" -targetUvSpace "map1" -searchMethod 3-flipUVs 0 -colorBorders 1 ;
-# 					set2.remove(to) #remove the obj from the transfer list when an exact match is found.
-# 				elif pm.polyEvaluate(frm, face=1)==pm.polyEvaluate(to, face=1) and pm.polyEvaluate(frm, boundingBox=1)==pm.polyEvaluate(to, boundingBox=1):
-# 					print (frm, to, pm.polyEvaluate(frm, face=1), pm.polyEvaluate(frm))
-# 					pm.transferAttributes(frm, to, transferUVs=2, sampleSpace=4) #transfer to the object if it is similar, but keep in transfer list in case an exact match is found later.
+#       for frm in set1:
+#           for to in set2:
+#               if pm.polyEvaluate(frm)==pm.polyEvaluate(to):
+#                   pm.polyTransfer(frm, alternateObject=to, uvSets=True) # pm.transferAttributes(frm, to, transferUVs=2, sampleSpace=4) #-transferNormals 0 -transferUVs 2 -transferColors 2 -sourceUvSpace "map1" -targetUvSpace "map1" -searchMethod 3-flipUVs 0 -colorBorders 1 ;
+#                   set2.remove(to) #remove the obj from the transfer list when an exact match is found.
+#               elif pm.polyEvaluate(frm, face=1)==pm.polyEvaluate(to, face=1) and pm.polyEvaluate(frm, boundingBox=1)==pm.polyEvaluate(to, boundingBox=1):
+#                   print (frm, to, pm.polyEvaluate(frm, face=1), pm.polyEvaluate(frm))
+#                   pm.transferAttributes(frm, to, transferUVs=2, sampleSpace=4) #transfer to the object if it is similar, but keep in transfer list in case an exact match is found later.
 
-# 		for remaining in set2:
-# 			print('Error: No match found for: {}.'.format(remaining.name()))
-# 			pm.transferAttributes(set1, remaining, transferUVs=2, sampleSpace=4)
+#       for remaining in set2:
+#           print('Error: No match found for: {}.'.format(remaining.name()))
+#           pm.transferAttributes(set1, remaining, transferUVs=2, sampleSpace=4)
 
-# 		pm.delete(to, constructionHistory=1)
-# 		# pm.undoInfo(closeChunk=1)
+#       pm.delete(to, constructionHistory=1)
+#       # pm.undoInfo(closeChunk=1)

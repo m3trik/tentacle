@@ -10,7 +10,7 @@ class Rendering(Slots):
         super().__init__(*args, **kwargs)
         """
 		"""
-        ctx = self.sb.rendering.draggableHeader.ctxMenu
+        ctx = self.sb.rendering.draggableHeader.ctx_menu
         if not ctx.containsMenuItems:
             ctx.add(self.sb.ComboBox, setObjectName="cmb000", setToolTip="")
 

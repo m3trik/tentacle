@@ -36,14 +36,14 @@ class Cameras_blender(Cameras, SlotsBlender):
                 "QDoubleSpinBox",
                 setPrefix="Far Clip:  ",
                 setObjectName="s000",
-                setMinMax_=".01-10 step.1",
+                set_limits=".01-10 step.1",
                 setToolTip="Adjust the current cameras near clipping plane.",
             )
             self._clippingMenu.add(
                 "QSpinBox",
                 setPrefix="Near Clip: ",
                 setObjectName="s001",
-                setMinMax_="10-10000 step1",
+                set_limits="10-10000 step1",
                 setToolTip="Adjust the current cameras far clipping plane.",
             )
 
@@ -472,7 +472,7 @@ print(__name__)
 # 	Camera Editors
 
 # 	'''
-# 	cmb = self.sb.cameras.draggableHeader.ctxMenu.cmb000
+# 	cmb = self.sb.cameras.draggableHeader.ctx_menu.cmb000
 
 # 	items = ['Camera Sequencer', 'Camera Set Editor']
 # 	contents = cmb.addItems_(items, '')

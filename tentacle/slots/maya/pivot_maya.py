@@ -8,11 +8,11 @@ class Pivot_maya(Pivot, SlotsMaya):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        cmb = self.sb.pivot.draggableHeader.ctxMenu.cmb000
+        cmb = self.sb.pivot.draggableHeader.ctx_menu.cmb000
         items = [""]
         cmb.addItems_(items, "")
 
-        ctx = self.sb.pivot.tb000.ctxMenu
+        ctx = self.sb.pivot.tb000.option_menu
         if not ctx.containsMenuItems:
             ctx.add(
                 "QCheckBox",
@@ -29,7 +29,7 @@ class Pivot_maya(Pivot, SlotsMaya):
                 setToolTip="",
             )
 
-        ctx = self.sb.pivot.tb001.ctxMenu
+        ctx = self.sb.pivot.tb001.option_menu
         if not ctx.containsMenuItems:
             ctx.add(
                 "QRadioButton",
@@ -53,7 +53,7 @@ class Pivot_maya(Pivot, SlotsMaya):
 
     def cmb000(self, index=-1):
         """Editors"""
-        cmb = self.sb.pivot.draggableHeader.ctxMenu.cmb000
+        cmb = self.sb.pivot.draggableHeader.ctx_menu.cmb000
 
         if index > 0:
             text = cmb.items[index]
@@ -66,8 +66,8 @@ class Pivot_maya(Pivot, SlotsMaya):
         """Reset Pivot"""
         tb = self.sb.pivot.tb000
 
-        resetPivotPosition = tb.ctxMenu.chk000.isChecked()  # Reset Pivot Position
-        resetPivotOrientation = tb.ctxMenu.chk001.isChecked()  # Reset Pivot Orientation
+        resetPivotPosition = tb.option_menu.chk000.isChecked()  # Reset Pivot Position
+        resetPivotOrientation = tb.option_menu.chk001.isChecked()  # Reset Pivot Orientation
 
         pm.mel.manipPivotReset(int(resetPivotPosition), int(resetPivotOrientation))
         pm.inViewMessage(
@@ -83,9 +83,9 @@ class Pivot_maya(Pivot, SlotsMaya):
         """Center Pivot"""
         tb = self.sb.pivot.tb001
 
-        component = tb.ctxMenu.chk002.isChecked()
-        object_ = tb.ctxMenu.chk003.isChecked()
-        world = tb.ctxMenu.chk004.isChecked()
+        component = tb.option_menu.chk002.isChecked()
+        object_ = tb.option_menu.chk003.isChecked()
+        world = tb.option_menu.chk004.isChecked()
 
         pm.mel.manipPivotReset(1, 1)  # reset Pivot Position and Orientation.
 

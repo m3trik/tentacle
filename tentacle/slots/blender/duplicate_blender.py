@@ -9,13 +9,13 @@ class Duplicate_blender(Duplicate, SlotsBlender):
         SlotsBlender.__init__(self, *args, **kwargs)
         Duplicate.__init__(self, *args, **kwargs)
 
-        cmb = self.sb.duplicate.draggableHeader.ctxMenu.cmb000
+        cmb = self.sb.duplicate.draggableHeader.ctx_menu.cmb000
         items = []
         cmb.addItems_(items, "Editors")
 
     def cmb000(self, index=-1):
         """Editors"""
-        cmb = self.sb.duplicate.draggableHeader.ctxMenu.cmb000
+        cmb = self.sb.duplicate.draggableHeader.ctx_menu.cmb000
 
         if index > 0:
             if index == cmd.items.index("Duplicate Special"):

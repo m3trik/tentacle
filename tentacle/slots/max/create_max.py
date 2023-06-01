@@ -8,7 +8,7 @@ class Create_max(Create, SlotsMax):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        cmb = self.sb.create.draggableHeader.ctxMenu.cmb000
+        cmb = self.sb.create.draggableHeader.ctx_menu.cmb000
         items = [""]
         cmb.addItems_(items, "")
 
@@ -39,12 +39,12 @@ class Create_max(Create, SlotsMax):
         ]
         cmb.addItems_(items)
 
-        ctx = self.sb.create.tb000.ctxMenu
+        ctx = self.sb.create.tb000.option_menu
         ctx.chk001.setDisabled(True)
 
     def cmb000(self, index=-1):
         """Editors"""
-        cmb = self.sb.create.draggableHeader.ctxMenu.cmb000
+        cmb = self.sb.create.draggableHeader.ctx_menu.cmb000
 
         if index > 0:
             text = cmb.items[index]
@@ -130,8 +130,8 @@ class Create_max(Create, SlotsMax):
 
         type_ = self.sb.create.cmb001.currentText()
         index = self.sb.create.cmb002.currentIndex()
-        translate = tb.ctxMenu.chk000.isChecked()
-        # scale = tb.ctxMenu.chk001.isChecked()
+        translate = tb.option_menu.chk000.isChecked()
+        # scale = tb.option_menu.chk001.isChecked()
 
         selection = list(rt.selection)
 

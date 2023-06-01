@@ -8,7 +8,7 @@ class Uv_max(Uv, SlotsMax):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        cmb000 = self.sb.uv.draggableHeader.ctxMenu.cmb000
+        cmb000 = self.sb.uv.draggableHeader.ctx_menu.cmb000
         items = [
             "UV Editor",
             "UV Set Editor",
@@ -35,32 +35,32 @@ class Uv_max(Uv, SlotsMax):
         cmb002.addItems_(items, "Transform:")
 
         tb000 = self.sb.uv.tb000
-        tb000.ctxMenu.add(
+        tb000.option_menu.add(
             "QSpinBox",
             setPrefix="Pre-Scale Mode: ",
             setObjectName="s009",
-            setMinMax_="0-1 step1",
+            set_limits="0-1 step1",
             setValue=1,
             setToolTip="Allow shell scaling during packing.",
         )
-        tb000.ctxMenu.add(
+        tb000.option_menu.add(
             "QSpinBox",
             setPrefix="Pre-Rotate Mode: ",
             setObjectName="s010",
-            setMinMax_="0-1 step1",
+            set_limits="0-1 step1",
             setValue=1,
             setToolTip="Allow shell rotation during packing.",
         )
 
         tb001 = self.sb.uv.tb001
-        tb001.ctxMenu.add(
+        tb001.option_menu.add(
             "QRadioButton",
             setText="Standard",
             setObjectName="chk000",
             setChecked=True,
             setToolTip="Create UV texture coordinates for the selected object or faces by automatically finding the best UV placement using simultanious projections from multiple planes.",
         )
-        tb001.ctxMenu.add(
+        tb001.option_menu.add(
             "QCheckBox",
             setText="Scale Mode 1",
             setObjectName="chk001",
@@ -68,37 +68,37 @@ class Uv_max(Uv, SlotsMax):
             setChecked=True,
             setToolTip="0 - No scale is applied.<br>1 - Uniform scale to fit in unit square.<br>2 - Non proportional scale to fit in unit square.",
         )
-        tb001.ctxMenu.add(
+        tb001.option_menu.add(
             "QRadioButton",
             setText="Seam Only",
             setObjectName="chk002",
             setToolTip="Cut seams only.",
         )
-        tb001.ctxMenu.add(
+        tb001.option_menu.add(
             "QRadioButton",
             setText="Planar",
             setObjectName="chk003",
             setToolTip="Create UV texture coordinates for the current selection by using a planar projection shape.",
         )
-        tb001.ctxMenu.add(
+        tb001.option_menu.add(
             "QRadioButton",
             setText="Cylindrical",
             setObjectName="chk004",
             setToolTip="Create UV texture coordinates for the current selection, using a cylidrical projection that gets wrapped around the mesh.<br>Best suited for completely enclosed cylidrical shapes with no holes or projections on the surface.",
         )
-        tb001.ctxMenu.add(
+        tb001.option_menu.add(
             "QRadioButton",
             setText="Spherical",
             setObjectName="chk005",
             setToolTip="Create UV texture coordinates for the current selection, using a spherical projection that gets wrapped around the mesh.<br>Best suited for completely enclosed spherical shapes with no holes or projections on the surface.",
         )
-        tb001.ctxMenu.add(
+        tb001.option_menu.add(
             "QRadioButton",
             setText="Normal-Based",
             setObjectName="chk006",
             setToolTip="Create UV texture coordinates for the current selection by creating a planar projection based on the average vector of it's face normals.",
         )
-        # tb001.ctxMenu.chk001.toggled.connect(lambda state: self.sb.toggle_widgets(tb001.ctxMenu, setUnChecked='chk002-3') if state==1 else None)
+        # tb001.option_menu.chk001.toggled.connect(lambda state: self.sb.toggle_widgets(tb001.option_menu, setUnChecked='chk002-3') if state==1 else None)
 
     @property
     def uvModifier(self):
@@ -119,7 +119,7 @@ class Uv_max(Uv, SlotsMax):
 
     def cmb000(self, index=-1):
         """Editors"""
-        cmb = self.sb.uv.draggableHeader.ctxMenu.cmb000
+        cmb = self.sb.uv.draggableHeader.ctx_menu.cmb000
 
         if index > 0:  # hide hotbox then perform operation
             self.sb.parent().hide()
@@ -173,14 +173,14 @@ class Uv_max(Uv, SlotsMax):
     def chk014(self):
         """Display: Checkered Pattern"""
         cmb = self.sb.uv.cmb001
-        state = cmb.menu_.chk014.isChecked()
+        state = cmb.option_menu.chk014.isChecked()
 
         self.toggleMaterialOverride(checker=state)
 
     def chk015(self):
         """Display: Borders"""
         cmb = self.sb.uv.cmb001
-        state = cmb.menu_.chk015.isChecked()
+        state = cmb.option_menu.chk015.isChecked()
 
         borderWidth = pm.optionVar(query="displayPolyBorderEdgeSize")[1]
         borders = pm.polyOptions(displayMapBorder=state, sizeBorder=borderWidth)
@@ -188,7 +188,7 @@ class Uv_max(Uv, SlotsMax):
     def chk016(self):
         """Display: Distortion"""
         cmb = self.sb.uv.cmb001
-        state = cmb.menu_.chk016.isChecked()
+        state = cmb.option_menu.chk016.isChecked()
 
         # actionMan.executeAction 2077580866 "40177"  -- Unwrap UVW: Show Edge Distortion
         mod = self.uv_uiModifier  # get/set the uv modifier.
@@ -208,8 +208,8 @@ class Uv_max(Uv, SlotsMax):
         """
         tb = self.sb.uv.tb000
 
-        scale = tb.ctxMenu.s009.value()
-        rotate = tb.ctxMenu.s010.value()
+        scale = tb.option_menu.s009.value()
+        rotate = tb.option_menu.s010.value()
 
         obj = rt.selection[0]
 
@@ -222,13 +222,13 @@ class Uv_max(Uv, SlotsMax):
         """Auto Unwrap"""
         tb = self.sb.uv.tb001
 
-        standardUnwrap = tb.ctxMenu.chk000.isChecked()
-        scaleMode = tb.ctxMenu.chk001.isChecked()
-        seamOnly = tb.ctxMenu.chk002.isChecked()
-        planarUnwrap = tb.ctxMenu.chk003.isChecked()
-        cylindricalUnwrap = tb.ctxMenu.chk004.isChecked()
-        sphericalUnwrap = tb.ctxMenu.chk005.isChecked()
-        normalBasedUnwrap = tb.ctxMenu.chk006.isChecked()
+        standardUnwrap = tb.option_menu.chk000.isChecked()
+        scaleMode = tb.option_menu.chk001.isChecked()
+        seamOnly = tb.option_menu.chk002.isChecked()
+        planarUnwrap = tb.option_menu.chk003.isChecked()
+        cylindricalUnwrap = tb.option_menu.chk004.isChecked()
+        sphericalUnwrap = tb.option_menu.chk005.isChecked()
+        normalBasedUnwrap = tb.option_menu.chk006.isChecked()
 
         objects = rt.selection
 
@@ -244,9 +244,9 @@ class Uv_max(Uv, SlotsMax):
         """Stack"""
         tb = self.sb.uv.tb002
 
-        orient = tb.ctxMenu.chk021.isChecked()
-        stackSimilar = tb.ctxMenu.chk022.isChecked()
-        tolerance = tb.ctxMenu.s000.value()
+        orient = tb.option_menu.chk021.isChecked()
+        stackSimilar = tb.option_menu.chk022.isChecked()
+        tolerance = tb.option_menu.s000.value()
         sel = self.UvShellSelection()  # assure the correct selection mask.
 
         if stackSimilar:
@@ -260,12 +260,12 @@ class Uv_max(Uv, SlotsMax):
         """Select By Type"""
         tb = self.sb.uv.tb003
 
-        back_facing = tb.ctxMenu.chk008.isChecked()
-        front_facing = tb.ctxMenu.chk009.isChecked()
-        overlapping = tb.ctxMenu.chk010.isChecked()
-        nonOverlapping = tb.ctxMenu.chk011.isChecked()
-        textureBorders = tb.ctxMenu.chk012.isChecked()
-        unmapped = tb.ctxMenu.chk013.isChecked()
+        back_facing = tb.option_menu.chk008.isChecked()
+        front_facing = tb.option_menu.chk009.isChecked()
+        overlapping = tb.option_menu.chk010.isChecked()
+        nonOverlapping = tb.option_menu.chk011.isChecked()
+        textureBorders = tb.option_menu.chk012.isChecked()
+        unmapped = tb.option_menu.chk013.isChecked()
 
         if back_facing:
             pm.mel.selectUVFaceOrientationComponents({}, 0, 2, 1)
@@ -284,7 +284,7 @@ class Uv_max(Uv, SlotsMax):
         """Unfold"""
         tb = self.sb.uv.tb004
 
-        optimize = self.tb.ctxMenu.chk017.isChecked()
+        optimize = self.tb.option_menu.chk017.isChecked()
 
         # if optimize:
         # 	# self.uv_uiModifier.
@@ -295,10 +295,10 @@ class Uv_max(Uv, SlotsMax):
         """Straighten Uv"""
         tb = self.sb.uv.tb005
 
-        u = tb.ctxMenu.chk018.isChecked()
-        v = tb.ctxMenu.chk019.isChecked()
-        angle = tb.ctxMenu.s001.value()
-        straightenShell = tb.ctxMenu.chk020.isChecked()
+        u = tb.option_menu.chk018.isChecked()
+        v = tb.option_menu.chk019.isChecked()
+        angle = tb.option_menu.s001.value()
+        straightenShell = tb.option_menu.chk020.isChecked()
 
         # if u:
         # 	contraint = 'U'
@@ -314,8 +314,8 @@ class Uv_max(Uv, SlotsMax):
         """Distribute"""
         tb = self.sb.uv.tb006
 
-        u = tb.ctxMenu.chk023.isChecked()
-        v = tb.ctxMenu.chk024.isChecked()
+        u = tb.option_menu.chk023.isChecked()
+        v = tb.option_menu.chk024.isChecked()
 
         if u:
             pm.mel.texDistributeShells(0, 0, "right", [])  #'left', 'right'
@@ -326,9 +326,9 @@ class Uv_max(Uv, SlotsMax):
         """Transfer UV's"""
         tb = self.sb.uv.tb008
 
-        toSimilar = tb.ctxMenu.chk025.isChecked()
-        similarTol = tb.ctxMenu.s013.value()
-        deleteConstHist = tb.ctxMenu.chk026.isChecked()
+        toSimilar = tb.option_menu.chk025.isChecked()
+        similarTol = tb.option_menu.s013.value()
+        deleteConstHist = tb.option_menu.chk026.isChecked()
 
         frm, *to = pm.ls(orderedSelection=1, flatten=1)
         if toSimilar:

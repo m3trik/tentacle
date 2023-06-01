@@ -8,7 +8,7 @@ class Convert_max(Convert, SlotsMax):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        cmb = self.sb.convert.draggableHeader.ctxMenu.cmb000
+        cmb = self.sb.convert.draggableHeader.ctx_menu.cmb000
         items = [""]
         cmb.addItems_(items, "")
 
@@ -18,7 +18,7 @@ class Convert_max(Convert, SlotsMax):
 
     def cmb000(self, index=-1):
         """Editors"""
-        cmb = self.sb.convert.draggableHeader.ctxMenu.cmb000
+        cmb = self.sb.convert.draggableHeader.ctx_menu.cmb000
 
         if index > 0:
             text = cmb.items[index]

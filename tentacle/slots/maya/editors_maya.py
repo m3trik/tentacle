@@ -1,6 +1,12 @@
 # !/usr/bin/python
 # coding=utf-8
-from tentacle.slots.maya import *
+try:
+    import pymel.core as pm
+except ImportError as error:
+    print(__file__, error)
+
+from uitk.switchboard import signals
+from tentacle.slots.maya import SlotsMaya
 from tentacle.slots.editors import Editors
 
 
@@ -8,171 +14,240 @@ class Editors_maya(Editors, SlotsMaya):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        # tree = self.sb.editors_lower_submenu.tree000
-        # tree.expandOnHover = True
-
-        # l = ['General Editors', 'Modeling Editors', 'Animation Editors', 'Rendering Editors', 'Relationship Editors']
-        # [tree.add('QLabel', childHeader=s, setText=s) for s in l] #root
-
-        # l = ['Attribute Editor', 'Channel Box', 'Layer Editor', 'Content Browser', 'Tool Settings', 'Hypergraph: Hierarchy', 'Hypergraph: Connections', 'Viewport', 'Adobe After Effects Live Link', 'Asset Editor', 'Attribute Spread Sheet', 'Component Editor', 'Channel Control', 'Display Layer Editor', 'File Path Editor', 'Namespace Editor', 'Script Editor', 'Command Shell', 'Profiler', 'Evaluation Toolkit']
-        # [tree.add('QLabel', 'General Editors', setText=s) for s in l]
-
-        # l = ['Modeling Toolkit', 'Paint Effects', 'UV Editor', 'XGen Editor', 'Crease Sets']
-        # [tree.add('QLabel', 'Modeling Editors', setText=s) for s in l]
-
-        # l = ['Graph Editor', 'Time Editor', 'Trax Editor', 'Camera Sequencer', 'Dope Sheet', 'Quick Rig', 'HumanIK', 'Shape Editor', 'Pose Editor', 'Expression Editor']
-        # [tree.add('QLabel', 'Animation Editors', setText=s) for s in l]
-
-        # l = ['Render View', 'Render Settings', 'Hypershade', 'Render Setup', 'Light Editor', 'Custom Stereo Rig Editor', 'Rendering Flags', 'Shading Group Attributes']
-        # [tree.add('QLabel', 'Rendering Editors', setText=s) for s in l]
-
-        # l = ['Animation Layers', 'Camera Sets', 'Character Sets', 'Deformer Sets', 'Display Layers', 'Dynamic Relationships', 'Light Linking: Light Centric','Light Linking: Object Centric', 'Partitions', 'Render Pass Sets', 'Sets', 'UV Linking: Texture-Centric', 'UV Linking: UV-Centric', 'UV Linking: Paint Effects/UV', 'UV Linking: Hair/UV']
-        # [tree.add('QLabel', 'Relationship Editors', setText=s) for s in l]
-
-    def tree000(self, wItem=None, column=None):
+    def list000_init(self, widget):
         """ """
-        tree = self.sb.editors_lower_submenu.tree000
+        widget.fixed_item_height = 18
+        widget.sublist_x_offset = -10
+        widget.sublist_y_offset = -10
 
-        if not any(
-            [wItem, column]
-        ):  # code here will run before each show event. generally used to refresh tree contents. -----------------------------
-            return
+        w1 = widget.add("General Editors")
+        general_editors = sorted(
+            [
+                "Attribute Editor",
+                "Channel Box",
+                "Layer Editor",
+                "Content Browser",
+                "Tool Settings",
+                "Hypergraph: Hierarchy",
+                "Hypergraph: Connections",
+                "Viewport",
+                "Adobe After Effects Live Link",
+                "Asset Editor",
+                "Attribute Spread Sheet",
+                "Component Editor",
+                "Channel Control",
+                "Display Layer Editor",
+                "File Path Editor",
+                "Namespace Editor",
+                "Script Editor",
+                "Command Shell",
+                "Profiler",
+                "Evaluation Toolkit",
+            ]
+        )
+        w1.sublist.add(general_editors)
 
-        widget = tree.get_widget(wItem, column)
-        text = tree.getWidgetText(wItem, column)
-        header = tree.getHeaderFromColumn(column)
+        w2 = widget.add("Modeling Editors")
+        modeling_editors = sorted(
+            [
+                "Modeling Toolkit",
+                "Paint Effects",
+                "UV Editor",
+                "XGen Editor",
+                "Crease Sets",
+            ]
+        )
+        w2.sublist.add(modeling_editors)
 
-        self.sb.parent().hide()  # hide the menu before opening an external editor.
+        w3 = widget.add("Animation Editors")
+        animation_editors = sorted(
+            [
+                "Graph Editor",
+                "Time Editor",
+                "Trax Editor",
+                "Camera Sequencer",
+                "Dope Sheet",
+                "Quick Rig",
+                "HumanIK",
+                "Shape Editor",
+                "Pose Editor",
+                "Expression Editor",
+            ]
+        )
+        w3.sublist.add(animation_editors)
 
-        if header == "General Editors":
+        w4 = widget.add("Rendering Editors")
+        rendering_editors = sorted(
+            [
+                "Render View",
+                "Render Settings",
+                "Hypershade",
+                "Render Setup",
+                "Light Editor",
+                "Custom Stereo Rig Editor",
+                "Rendering Flags",
+                "Shading Group Attributes",
+            ]
+        )
+        w4.sublist.add(rendering_editors)
+
+        w5 = widget.add("Relationship Editors")
+        relationship_editors = sorted(
+            [
+                "Animation Layers",
+                "Camera Sets",
+                "Character Sets",
+                "Deformer Sets",
+                "Display Layers",
+                "Dynamic Relationships",
+                "Light Linking: Light Centric",
+                "Light Linking: Object Centric",
+                "Partitions",
+                "Render Pass Sets",
+                "Sets",
+                "UV Linking: Texture-Centric",
+                "UV Linking: UV-Centric",
+                "UV Linking: Paint Effects/UV",
+                "UV Linking: Hair/UV",
+            ]
+        )
+        w5.sublist.add(relationship_editors)
+
+    @signals("on_item_interacted")
+    def list000(self, item):
+        """ """
+        text = item.item_text()
+        parent_text = item.parent_item_text()
+
+        if parent_text == "General Editors":
             if text == "Attribute Editor":
                 pm.mel.AttributeEditor()
-            if text == "Channel Box":
+            elif text == "Channel Box":
                 pm.mel.OpenChannelBox()
-            if text == "Layer Editor":
+            elif text == "Layer Editor":
                 pm.mel.OpenLayerEditor()
-            if text == "Content Browser":
+            elif text == "Content Browser":
                 pm.mel.OpenContentBrowser()
-            if text == "Tool Settings":
+            elif text == "Tool Settings":
                 pm.mel.ToolSettingsWindow()
-            if text == "Hypergraph: Hierarchy":
+            elif text == "Hypergraph: Hierarchy":
                 pm.mel.HypergraphHierarchyWindow()
-            if text == "Hypergraph: Connections":
+            elif text == "Hypergraph: Connections":
                 pm.mel.HypergraphDGWindow()
-            if text == "Viewport":
+            elif text == "Viewport":
                 pm.mel.DisplayViewport()
-            if text == "Adobe After Effects Live Link":
+            elif text == "Adobe After Effects Live Link":
                 pm.mel.OpenAELiveLink()
-            if text == "Asset Editor":
+            elif text == "Asset Editor":
                 pm.mel.AssetEditor()
-            if text == "Attribute Spread Sheet":
+            elif text == "Attribute Spread Sheet":
                 pm.mel.SpreadSheetEditor()
-            if text == "Component Editor":
+            elif text == "Component Editor":
                 pm.mel.ComponentEditor()
-            if text == "Channel Control":
+            elif text == "Channel Control":
                 pm.mel.ChannelControlEditor()
-            if text == "Display Layer Editor":
+            elif text == "Display Layer Editor":
                 pm.mel.DisplayLayerEditorWindow()
-            if text == "File Path Editor":
+            elif text == "File Path Editor":
                 pm.mel.FilePathEditor()
-            if text == "Namespace Editor":
+            elif text == "Namespace Editor":
                 pm.mel.NamespaceEditor()
-            if text == "Script Editor":
+            elif text == "Script Editor":
                 pm.mel.ScriptEditor()
-            if text == "Command Shell":
+            elif text == "Command Shell":
                 pm.mel.CommandShell()
-            if text == "Profiler":
+            elif text == "Profiler":
                 pm.mel.ProfilerTool()
-            if text == "Evaluation Toolkit":
+            elif text == "Evaluation Toolkit":
                 pm.mel.EvaluationToolkit()
 
-        elif header == "Modeling Editors":
+        elif parent_text == "Modeling Editors":
             if text == "Modeling Toolkit":
                 pm.mel.OpenModelingToolkit()
-            if text == "Paint Effects":
+            elif text == "Paint Effects":
                 pm.mel.PaintEffectsWindow()
-            if text == "UV Editor":
+            elif text == "UV Editor":
                 pm.mel.TextureViewWindow()
-            if text == "XGen Editor":
+            elif text == "XGen Editor":
                 pm.mel.OpenXGenEditor()
-            if text == "Crease Sets":
+            elif text == "Crease Sets":
                 pm.mel.OpenCreaseEditor()
 
-        elif header == "Animation Editors":
+        elif parent_text == "Animation Editors":
             if text == "Graph Editor":
                 pm.mel.GraphEditor()
-            if text == "Time Editor":
+            elif text == "Time Editor":
                 pm.mel.TimeEditorWindow()
-            if text == "Trax Editor":
+            elif text == "Trax Editor":
                 pm.mel.CharacterAnimationEditor()
-            if text == "Camera Sequencer":
+            elif text == "Camera Sequencer":
                 pm.mel.SequenceEditor()
-            if text == "Dope Sheet":
+            elif text == "Dope Sheet":
                 pm.mel.DopeSheetEditor()
-            if text == "Quick Rig":
+            elif text == "Quick Rig":
                 pm.mel.QuickRigEditor()
-            if text == "HumanIK":
+            elif text == "HumanIK":
                 pm.mel.HIKCharacterControlsTool()
-            if text == "Shape Editor":
+            elif text == "Shape Editor":
                 pm.mel.ShapeEditor()
-            if text == "Pose Editor":
+            elif text == "Pose Editor":
                 pm.mel.PoseEditor()
-            if text == "Expression Editor":
+            elif text == "Expression Editor":
                 pm.mel.ExpressionEditor()
 
-        elif header == "Rendering Editors":
+        elif parent_text == "Rendering Editors":
             if text == "Render View":
                 pm.mel.RenderViewWindow()
-            if text == "Render Settings":
+            elif text == "Render Settings":
                 pm.mel.RenderGlobalsWindow()
-            if text == "Hypershade":
+            elif text == "Hypershade":
                 pm.mel.HypershadeWindow()
-            if text == "Render Setup":
+            elif text == "Render Setup":
                 pm.mel.RenderSetupWindow()
-            if text == "Light Editor":
+            elif text == "Light Editor":
                 pm.mel.OpenLightEditor()
-            if text == "Custom Stereo Rig Editor":
+            elif text == "Custom Stereo Rig Editor":
                 pm.mel.OpenStereoRigManager()
-            if text == "Rendering Flags":
+            elif text == "Rendering Flags":
                 pm.mel.RenderFlagsWindow()
-            if text == "Shading Group Attributes":
+            elif text == "Shading Group Attributes":
                 pm.mel.ShadingGroupAttributeEditor()
 
-        elif header == "Relationship Editors":
+        elif parent_text == "Relationship Editors":
             if text == "Animation Layers":
                 pm.mel.AnimLayerRelationshipEditor()
-            if text == "Camera Sets":
+            elif text == "Camera Sets":
                 pm.mel.CameraSetEditor()
-            if text == "Character Sets":
+            elif text == "Character Sets":
                 pm.mel.CharacterSetEditor()
-            if text == "Deformer Sets":
+            elif text == "Deformer Sets":
                 pm.mel.DeformerSetEditor()
-            if text == "Display Layers":
+            elif text == "Display Layers":
                 pm.mel.LayerRelationshipEditor()
-            if text == "Dynamic Relationships":
+            elif text == "Dynamic Relationships":
                 pm.mel.DynamicRelationshipEditor()
-            if text == "Light Linking: Light Centric":
+            elif text == "Light Linking: Light Centric":
                 pm.mel.LightCentricLightLinkingEditor()
-            if text == "Light Linking: Object Centric":
+            elif text == "Light Linking: Object Centric":
                 pm.mel.ObjectCentricLightLinkingEditor()
-            if text == "Partitions":
+            elif text == "Partitions":
                 pm.mel.PartitionEditor()
-            if text == "Render Pass Sets":
+            elif text == "Render Pass Sets":
                 pm.mel.RenderPassSetEditor()
-            if text == "Sets":
+            elif text == "Sets":
                 pm.mel.SetEditor()
-            if text == "UV Linking: Texture-Centric":
+            elif text == "UV Linking: Texture-Centric":
                 pm.mel.TextureCentricUVLinkingEditor()
-            if text == "UV Linking: UV-Centric":
+            elif text == "UV Linking: UV-Centric":
                 pm.mel.UVCentricUVLinkingEditor()
-            if text == "UV Linking: Paint Effects/UV":
+            elif text == "UV Linking: Paint Effects/UV":
                 pm.mel.PFXUVSetLinkingEditor()
-            if text == "UV Linking: Hair/UV":
+            elif text == "UV Linking: Hair/UV":
                 pm.mel.HairUVSetLinkingEditor()
 
     def cmb000(self, index=-1):
         """Editors"""
-        cmb = self.editors_ui.draggableHeader.ctxMenu.cmb000
+        cmb = self.editors_ui.draggableHeader.ctx_menu.cmb000
 
         if index > 0:
             text = cmb.items[index]
@@ -230,7 +305,7 @@ class Editors_maya(Editors, SlotsMaya):
         # e = pm.outlinerEditor(self.outliner_, edit=True, showSelected=True) #expand to the current selection in the outliner.
         # w = self.showEditor(e, 260, 740)
 
-        # panels = pm.get_panel(type='outlinerPanel')
+        # panels = mtk.get_panel(type='outlinerPanel')
         # for panel in panels:
         #   pm.outlinerEditor(panel, edit=1, showSelected=1)
         pm.mel.OutlinerWindow()

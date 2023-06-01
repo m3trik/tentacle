@@ -8,7 +8,7 @@ class Animation_max(Animation, SlotsMax):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        cmb = self.sb.animation.draggableHeader.ctxMenu.cmb000
+        cmb = self.sb.animation.draggableHeader.ctx_menu.cmb000
         items = [
             "Track View: Curve Editor",
             "Track View: Dope Sheet",
@@ -24,7 +24,7 @@ class Animation_max(Animation, SlotsMax):
 
     def cmb000(self, index=-1):
         """Editors"""
-        cmb = self.sb.animation.draggableHeader.ctxMenu.cmb000
+        cmb = self.sb.animation.draggableHeader.ctx_menu.cmb000
 
         if index > 0:
             text = cmb.items[index]

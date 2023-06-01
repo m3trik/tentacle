@@ -9,84 +9,84 @@ class Uv_blender(Uv, SlotsBlender):
         SlotsBlender.__init__(self, *args, **kwargs)
         Uv.__init__(self, *args, **kwargs)
 
-        cmb000 = self.sb.uv.draggableHeader.ctxMenu.cmb000
+        cmb000 = self.sb.uv.draggableHeader.ctx_menu.cmb000
         items = []
         cmb000.addItems_(items, "UV Editors")
 
         cmb001 = self.sb.uv.cmb001
         # panel = pm.get_panel(scriptType='polyTexturePlacementPanel')
-        # cmb001.menu_.chk014.setChecked(pm.textureWindow(panel, displayCheckered=1, query=1)) #checkered state
-        # cmb001.menu_.chk015.setChecked(True if pm.polyOptions(query=1, displayMapBorder=1) else False) #borders state
-        # cmb001.menu_.chk016.setChecked(pm.textureWindow(panel, query=1, displayDistortion=1)) #distortion state
+        # cmb001.option_menu.chk014.setChecked(pm.textureWindow(panel, displayCheckered=1, query=1)) #checkered state
+        # cmb001.option_menu.chk015.setChecked(True if pm.polyOptions(query=1, displayMapBorder=1) else False) #borders state
+        # cmb001.option_menu.chk016.setChecked(pm.textureWindow(panel, query=1, displayDistortion=1)) #distortion state
 
         cmb002 = self.sb.uv.cmb002
         items = []
         cmb002.addItems_(items, "Transform:")
 
         tb000 = self.sb.uv.tb000
-        tb000.ctxMenu.add(
+        tb000.option_menu.add(
             "QSpinBox",
             setPrefix="Pre-Scale Mode: ",
             setObjectName="s009",
-            setMinMax_="0-2 step1",
+            set_limits="0-2 step1",
             setValue=1,
             setToolTip="Allow shell scaling during packing.",
         )
-        tb000.ctxMenu.add(
+        tb000.option_menu.add(
             "QSpinBox",
             setPrefix="Pre-Rotate Mode: ",
             setObjectName="s010",
-            setMinMax_="0-2 step1",
+            set_limits="0-2 step1",
             setValue=1,
             setToolTip="Allow shell rotation during packing.",
         )
-        tb000.ctxMenu.add(
+        tb000.option_menu.add(
             "QDoubleSpinBox",
             setPrefix="Rotate Step: ",
             setObjectName="s007",
-            setMinMax_="0.0-360 step22.5",
+            set_limits="0.0-360 step22.5",
             setValue=22.5,
             setToolTip="Set the allowed rotation increment contraint.",
         )
-        tb000.ctxMenu.add(
+        tb000.option_menu.add(
             "QSpinBox",
             setPrefix="Stack Similar: ",
             setObjectName="s011",
-            setMinMax_="0-2 step1",
+            set_limits="0-2 step1",
             setValue=0,
             setToolTip="Find Similar shells. <br>state 1: Find similar shells, and pack one of each, ommiting the rest.<br>state 2: Find similar shells, and stack during packing.",
         )
-        tb000.ctxMenu.add(
+        tb000.option_menu.add(
             "QDoubleSpinBox",
             setPrefix="Tolerance: ",
             setObjectName="s006",
-            setMinMax_="0.0-10 step.1",
+            set_limits="0.0-10 step.1",
             setValue=1.0,
             setToolTip="Stack Similar: Stack shells with uv's within the given range.",
         )
-        tb000.ctxMenu.add(
+        tb000.option_menu.add(
             "QSpinBox",
             setPrefix="UDIM: ",
             setObjectName="s004",
-            setMinMax_="1001-1200 step1",
+            set_limits="1001-1200 step1",
             setValue=1001,
             setToolTip="Set the desired UDIM tile space.",
         )
-        tb000.ctxMenu.add(
+        tb000.option_menu.add(
             "QSpinBox",
             setPrefix="Map Size: ",
             setObjectName="s005",
-            setMinMax_="512-8192 step512",
+            set_limits="512-8192 step512",
             setValue=2048,
             setToolTip="UV map resolution.",
         )
 
         tb007 = self.sb.uv.tb007
-        # tb007.ctxMenu.b099.released.connect(lambda: tb007.ctxMenu.s003.setValue(float(pm.mel.texGetTexelDensity(tb007.ctxMenu.s002.value())))) #get and set texel density value.
+        # tb007.option_menu.b099.released.connect(lambda: tb007.option_menu.s003.setValue(float(pm.mel.texGetTexelDensity(tb007.option_menu.s002.value())))) #get and set texel density value.
 
     def cmb000(self, index=-1):
         """Editors"""
-        cmb = self.sb.uv.draggableHeader.ctxMenu.cmb000
+        cmb = self.sb.uv.draggableHeader.ctx_menu.cmb000
 
         if index > 0:  # hide main menu and perform operation
             text = cmb.items[index]
@@ -143,7 +143,7 @@ class Uv_blender(Uv, SlotsBlender):
     def chk014(self):
         """Display: Checkered Pattern"""
         cmb = self.sb.uv.cmb001
-        state = cmb.menu_.chk014.isChecked()
+        state = cmb.option_menu.chk014.isChecked()
 
         panel = pm.get_panel(scriptType="polyTexturePlacementPanel")
         pm.textureWindow(panel, edit=1, displayCheckered=state)
@@ -151,7 +151,7 @@ class Uv_blender(Uv, SlotsBlender):
     def chk015(self):
         """Display: Borders"""
         cmb = self.sb.uv.cmb001
-        state = cmb.menu_.chk015.isChecked()
+        state = cmb.option_menu.chk015.isChecked()
 
         borderWidth = pm.optionVar(query="displayPolyBorderEdgeSize")[1]
         borders = pm.polyOptions(displayMapBorder=state, sizeBorder=borderWidth)
@@ -159,7 +159,7 @@ class Uv_blender(Uv, SlotsBlender):
     def chk016(self):
         """Display: Distortion"""
         cmb = self.sb.uv.cmb001
-        state = cmb.menu_.chk016.isChecked()
+        state = cmb.option_menu.chk016.isChecked()
 
         panel = pm.get_panel(scriptType="polyTexturePlacementPanel")
         pm.textureWindow(panel, edit=1, displayDistortion=state)
@@ -187,13 +187,13 @@ class Uv_blender(Uv, SlotsBlender):
         """
         tb = self.sb.uv.tb000
 
-        scale = tb.ctxMenu.s009.value()
-        rotate = tb.ctxMenu.s010.value()
-        rotateStep = tb.ctxMenu.s007.value()
-        UDIM = tb.ctxMenu.s004.value()
-        mapSize = tb.ctxMenu.s005.value()
-        similar = tb.ctxMenu.s011.value()
-        tolerance = tb.ctxMenu.s006.value()
+        scale = tb.option_menu.s009.value()
+        rotate = tb.option_menu.s010.value()
+        rotateStep = tb.option_menu.s007.value()
+        UDIM = tb.option_menu.s004.value()
+        mapSize = tb.option_menu.s005.value()
+        similar = tb.option_menu.s011.value()
+        tolerance = tb.option_menu.s006.value()
 
         U, D, I, M = [int(i) for i in str(UDIM)]
 
@@ -241,13 +241,13 @@ class Uv_blender(Uv, SlotsBlender):
         """Auto Unwrap"""
         tb = self.sb.uv.tb001
 
-        standardUnwrap = tb.ctxMenu.chk000.isChecked()
-        scaleMode = tb.ctxMenu.chk001.isChecked()
-        seamOnly = tb.ctxMenu.chk002.isChecked()
-        planarUnwrap = tb.ctxMenu.chk003.isChecked()
-        cylindricalUnwrap = tb.ctxMenu.chk004.isChecked()
-        sphericalUnwrap = tb.ctxMenu.chk005.isChecked()
-        normalBasedUnwrap = tb.ctxMenu.chk006.isChecked()
+        standardUnwrap = tb.option_menu.chk000.isChecked()
+        scaleMode = tb.option_menu.chk001.isChecked()
+        seamOnly = tb.option_menu.chk002.isChecked()
+        planarUnwrap = tb.option_menu.chk003.isChecked()
+        cylindricalUnwrap = tb.option_menu.chk004.isChecked()
+        sphericalUnwrap = tb.option_menu.chk005.isChecked()
+        normalBasedUnwrap = tb.option_menu.chk006.isChecked()
 
         selection = pm.ls(selection=1, flatten=1)
         for obj in selection:
@@ -300,9 +300,9 @@ class Uv_blender(Uv, SlotsBlender):
         """Stack"""
         tb = self.sb.uv.tb002
 
-        orient = tb.ctxMenu.chk021.isChecked()
-        stackSimilar = tb.ctxMenu.chk022.isChecked()
-        tolerance = tb.ctxMenu.s000.value()
+        orient = tb.option_menu.chk021.isChecked()
+        stackSimilar = tb.option_menu.chk022.isChecked()
+        tolerance = tb.option_menu.s000.value()
         sel = self.UvShellSelection()  # assure the correct selection mask.
 
         if stackSimilar:
@@ -316,12 +316,12 @@ class Uv_blender(Uv, SlotsBlender):
         """Select By Type"""
         tb = self.sb.uv.tb003
 
-        back_facing = tb.ctxMenu.chk008.isChecked()
-        front_facing = tb.ctxMenu.chk009.isChecked()
-        overlapping = tb.ctxMenu.chk010.isChecked()
-        nonOverlapping = tb.ctxMenu.chk011.isChecked()
-        textureBorders = tb.ctxMenu.chk012.isChecked()
-        unmapped = tb.ctxMenu.chk013.isChecked()
+        back_facing = tb.option_menu.chk008.isChecked()
+        front_facing = tb.option_menu.chk009.isChecked()
+        overlapping = tb.option_menu.chk010.isChecked()
+        nonOverlapping = tb.option_menu.chk011.isChecked()
+        textureBorders = tb.option_menu.chk012.isChecked()
+        unmapped = tb.option_menu.chk013.isChecked()
 
         if back_facing:
             pm.mel.selectUVFaceOrientationComponents({}, 0, 2, 1)
@@ -360,8 +360,8 @@ class Uv_blender(Uv, SlotsBlender):
         """
         tb = self.sb.uv.tb004
 
-        optimize = tb.ctxMenu.chk017.isChecked()
-        amount = 1  # tb.ctxMenu.s008.value()
+        optimize = tb.option_menu.chk017.isChecked()
+        amount = 1  # tb.option_menu.s008.value()
 
         pm.u3dUnfold(
             iterations=1,
@@ -387,10 +387,10 @@ class Uv_blender(Uv, SlotsBlender):
         """Straighten Uv"""
         tb = self.sb.uv.tb005
 
-        u = tb.ctxMenu.chk018.isChecked()
-        v = tb.ctxMenu.chk019.isChecked()
-        angle = tb.ctxMenu.s001.value()
-        straightenShell = tb.ctxMenu.chk020.isChecked()
+        u = tb.option_menu.chk018.isChecked()
+        v = tb.option_menu.chk019.isChecked()
+        angle = tb.option_menu.s001.value()
+        straightenShell = tb.option_menu.chk020.isChecked()
 
         if u and v:
             pm.mel.texStraightenUVs("UV", angle)
@@ -406,8 +406,8 @@ class Uv_blender(Uv, SlotsBlender):
         """Distribute"""
         tb = self.sb.uv.tb006
 
-        u = tb.ctxMenu.chk023.isChecked()
-        v = tb.ctxMenu.chk024.isChecked()
+        u = tb.option_menu.chk023.isChecked()
+        v = tb.option_menu.chk024.isChecked()
 
         if u:
             pm.mel.texDistributeShells(0, 0, "right", [])  #'left', 'right'
@@ -418,8 +418,8 @@ class Uv_blender(Uv, SlotsBlender):
         """Set Texel Density"""
         tb = self.sb.uv.tb007
 
-        mapSize = tb.ctxMenu.s002.value()
-        density = tb.ctxMenu.s003.value()
+        mapSize = tb.option_menu.s002.value()
+        density = tb.option_menu.s003.value()
 
         pm.mel.texSetTexelDensity(density, mapSize)
 

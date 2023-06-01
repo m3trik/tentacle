@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>147</width>
-    <height>316</height>
+    <height>322</height>
    </rect>
   </property>
   <property name="maximumSize">
@@ -93,8 +93,11 @@
          <property name="bottomMargin">
           <number>0</number>
          </property>
-         <property name="spacing">
+         <property name="horizontalSpacing">
           <number>0</number>
+         </property>
+         <property name="verticalSpacing">
+          <number>1</number>
          </property>
          <item row="10" column="3" colspan="6">
           <widget class="ComboBox" name="cmb001">

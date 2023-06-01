@@ -11,7 +11,7 @@ class Symmetry(Slots):
         """
 		"""
         dh = self.sb.symmetry.draggableHeader
-        dh.ctxMenu.add(self.sb.ComboBox, setObjectName="cmb000", setToolTip="")
+        dh.ctx_menu.add(self.sb.ComboBox, setObjectName="cmb000", setToolTip="")
 
     def draggableHeader(self, state=None):
         """Context menu"""
@@ -44,6 +44,6 @@ class Symmetry(Slots):
 
 # deprecated:
 # sync widgets
-# self.sb.sync_widgets(self.sb.transform.menu_.chk000, self.sb.transform_submenu.chk000, attributes='setChecked')
-# self.sb.sync_widgets(self.sb.transform.menu_.chk001, self.sb.transform_submenu.chk001, attributes='setChecked')
-# self.sb.sync_widgets(self.sb.transform.menu_.chk002, self.sb.transform_submenu.chk002, attributes='setChecked')
+# self.sb.sync_widgets(self.sb.transform.option_menu.chk000, self.sb.transform_submenu.chk000, attributes='setChecked')
+# self.sb.sync_widgets(self.sb.transform.option_menu.chk001, self.sb.transform_submenu.chk001, attributes='setChecked')
+# self.sb.sync_widgets(self.sb.transform.option_menu.chk002, self.sb.transform_submenu.chk002, attributes='setChecked')

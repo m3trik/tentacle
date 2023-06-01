@@ -10,7 +10,7 @@ class DynLayout(Slots):
         super().__init__(*args, **kwargs)
         """
 		"""
-        ctx = self.sb.dynLayout.draggableHeader.ctxMenu
+        ctx = self.sb.dynLayout.draggableHeader.ctx_menu
         if not ctx.containsMenuItems:
             ctx.add(self.sb.ComboBox, setObjectName="cmb000", setToolTip="")
             ctx.add(

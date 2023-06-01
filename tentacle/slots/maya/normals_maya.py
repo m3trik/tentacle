@@ -1,23 +1,130 @@
 # !/usr/bin/python
 # coding=utf-8
-from tentacle.slots.maya import *
-from tentacle.slots.normals import Normals
+try:
+    import pymel.core as pm
+except ImportError as error:
+    print(__file__, error)
+
+import pythontk as ptk
+import mayatk as mtk
+from tentacle.slots.maya import SlotsMaya
 
 
-class Normals_maya(Normals, SlotsMaya):
+class Normals_maya(SlotsMaya):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        cmb = self.sb.normals.draggableHeader.ctxMenu.cmb000
-        items = [""]
-        cmb.addItems_(items, "")
+        dh = self.sb.normals.draggableHeader
+        dh.ctx_menu.add(self.sb.ComboBox, setObjectName="cmb000", setToolTip="")
+
+    def tb000_init(self, widget):
+        """ """
+        widget.option_menu.add(
+            "QSpinBox",
+            setPrefix="Display Size: ",
+            setObjectName="s001",
+            set_limits="1-100 step1",
+            setValue=1,
+            setToolTip="Normal display size.",
+        )
+
+    def tb001_init(self, widget):
+        """ """
+        widget.option_menu.add(
+            "QSpinBox",
+            setPrefix="Query Angle: ",
+            setObjectName="s002",
+            set_limits="0-180 step1",
+            setValue=90,
+            setToolTip="The normal angle to query threshold in degrees.",
+        )
+        widget.option_menu.add(
+            "QSpinBox",
+            setPrefix="Smoothing Angle: ",
+            setObjectName="s003",
+            set_limits="0-180 step1",
+            setValue=0,
+            setToolTip="The normal smoothing angle in degrees.\n 0, Edges will appear hard.\n180, Edges will appear soft.",
+        )
+        widget.option_menu.add(
+            "QCheckBox",
+            setText="Harden Creased Edges",
+            setObjectName="chk005",
+            setChecked=True,
+            setToolTip="Harden creased edges.",
+        )
+        widget.option_menu.add(
+            "QCheckBox",
+            setText="Harden UV Borders",
+            setObjectName="chk006",
+            setChecked=True,
+            setToolTip="Harden UV shell border edges.",
+        )
+        widget.option_menu.add(
+            "QCheckBox",
+            setText="Soften All Other",
+            setObjectName="chk004",
+            setChecked=True,
+            setToolTip="Soften all non-hardened edges.\nLimited by the current selection.",
+        )
+        widget.option_menu.add(
+            "QCheckBox",
+            setText="Soft Edge Display",
+            setObjectName="chk007",
+            setChecked=True,
+            setToolTip="Turn on soft edge display for the object.",
+        )
+
+    def tb002_init(self, widget):
+        """ """
+        widget.option_menu.add(
+            "QSpinBox",
+            setPrefix="Angle: ",
+            setObjectName="s000",
+            set_limits="0-180 step1",
+            setValue=60,
+            setToolTip="Angle degree.",
+        )
+
+    def tb003_init(self, widget):
+        """ """
+        widget.option_menu.add(
+            "QCheckBox",
+            setText="Lock",
+            setObjectName="chk002",
+            setChecked=True,
+            setToolTip="Toggle Lock/Unlock.",
+        )
+        widget.option_menu.add(
+            "QCheckBox",
+            setText="All",
+            setObjectName="chk001",
+            setChecked=True,
+            setToolTip="Lock/Unlock All.",
+        )
+        widget.option_menu.chk002.toggled.connect(
+            lambda state, w=widget.option_menu.chk002: w.setText("Lock")
+            if state
+            else w.setText("Unlock")
+        )
+
+    def tb004_init(self, widget):
+        """ """
+        print("tb004_init:", widget.ui.name, widget.name)
+        widget.option_menu.add(
+            "QCheckBox",
+            setText="By UV Shell",
+            setObjectName="chk003",
+            setChecked=True,
+            setToolTip="Average the normals of each object's faces per UV shell.",
+        )
 
     def cmb000(self, index=-1):
         """Editors"""
-        cmb = self.sb.normals.draggableHeader.ctxMenu.cmb000
+        cmb = self.sb.normals.draggableHeader.ctx_menu.cmb000
 
         if index > 0:
-            if index == cmd.items.index(""):
+            if index == cmb.items.index(""):
                 pass
             cmb.setCurrentIndex(0)
 
@@ -25,7 +132,7 @@ class Normals_maya(Normals, SlotsMaya):
         """Display Face Normals"""
         tb = self.sb.normals.tb000
 
-        size = float(tb.ctxMenu.s001.value())
+        size = float(tb.option_menu.s001.value())
         # state = pm.polyOptions (query=True, displayNormal=True)
         state = ptk.cycle([1, 2, 3, 0], "displayNormals")
         if state == 0:  # off
@@ -52,61 +159,64 @@ class Normals_maya(Normals, SlotsMaya):
         """Harden Edge Normals"""
         tb = self.sb.normals.tb001
 
-        hardAngle = tb.ctxMenu.s002.value()
-        hardenCreased = tb.ctxMenu.chk005.isChecked()
-        hardenUvBorders = tb.ctxMenu.chk006.isChecked()
-        softenOther = tb.ctxMenu.chk004.isChecked()
-        softEdgeDisplay = tb.ctxMenu.chk007.isChecked()
+        query_angle = tb.option_menu.s002.value()
+        smoothing_angle = tb.option_menu.s003.value()
+        harden_creased = tb.option_menu.chk005.isChecked()
+        harden_uv_borders = tb.option_menu.chk006.isChecked()
+        soften_other = tb.option_menu.chk004.isChecked()
+        soft_edge_display = tb.option_menu.chk007.isChecked()
 
-        objects = pm.ls(sl=True, objectsOnly=True)
+        selected_objects = pm.selected(objectsOnly=True)
 
-        for obj in objects:
-            selection = pm.ls(obj, sl=True, l=True)
-            if not selection:
-                continue
-            selEdges = pm.ls(
-                pm.polyListComponentConversion(selection, toEdge=1), flatten=1
+        hard_edges = []
+        evaluated_edges = []
+        for obj in selected_objects:
+            all_edges = pm.ls(pm.polyListComponentConversion(obj, toEdge=True), fl=True)
+            selected_edges = pm.ls(pm.filterExpand(sm=32), fl=True) or all_edges
+            evaluated_edges.extend(selected_edges)
+
+            angled_edges = mtk.get_edges_by_normal_angle(
+                selected_edges, high_angle=query_angle
             )
-            allEdges = pm.ls(pm.polyListComponentConversion(obj, toEdge=1), flatten=1)
+            hard_edges.extend(angled_edges)
 
-            if hardenCreased:
-                creasedEdges = self.sb.crease.slots.getCreasedEdges(allEdges)
-                selEdges = (
-                    selEdges + creasedEdges
-                    if not selEdges == allEdges
-                    else creasedEdges
+            creased_edges = []
+            if harden_creased:
+                creased_edges = pm.ls(
+                    self.sb.crease.slots.getCreasedEdges(selected_edges)
+                )
+                hard_edges.extend(creased_edges)
+
+            uv_border_edges = []
+            if harden_uv_borders:
+                uv_border_edges = pm.ls(
+                    self.sb.uv.slots.getUvShellBorderEdges(selected_edges)
+                )
+                hard_edges.extend(uv_border_edges)
+
+        if hard_edges:  # Set hard edges.
+            pm.polySoftEdge(hard_edges, angle=smoothing_angle, constructionHistory=True)
+
+        if soften_other:
+            soft_edges = [
+                e for e in evaluated_edges if e not in pm.ls(hard_edges, flatten=True)
+            ]
+            if soft_edges:  # Set soft edges.
+                pm.polySoftEdge(
+                    soft_edges,
+                    angle=180,
+                    constructionHistory=True,
                 )
 
-            if hardenUvBorders:
-                uv_border_edges = self.sb.uv.slots.getUvShellBorderEdges(selection)
-                selEdges = (
-                    selEdges + uv_border_edges
-                    if not selEdges == allEdges
-                    else uv_border_edges
-                )
-
-            pm.polySoftEdge(
-                selEdges, angle=hardAngle, constructionHistory=0
-            )  # set hard edges.
-
-            if softenOther:
-                invEdges = [e for e in allEdges if e not in selEdges]
-                if invEdges:
-                    pm.polySoftEdge(
-                        invEdges, angle=180, constructionHistory=0
-                    )  # set soft edges.
-
-            if softEdgeDisplay:
-                pm.polyOptions(obj, se=1)
-
-            pm.select(selEdges, add=True)
+        pm.polyOptions(selected_objects, se=soft_edge_display)
+        pm.select(hard_edges)
 
     @SlotsMaya.attr
     def tb002(self, state=None):
         """Set Normals By Angle"""
         tb = self.sb.normals.tb002
 
-        normalAngle = str(tb.ctxMenu.s000.value())
+        normalAngle = str(tb.option_menu.s000.value())
 
         objects = pm.ls(selection=1, objectsOnly=1, flatten=1)
         for obj in objects:
@@ -122,9 +232,9 @@ class Normals_maya(Normals, SlotsMaya):
         """Lock/Unlock Vertex Normals"""
         tb = self.sb.normals.tb003
 
-        all_ = tb.ctxMenu.chk001.isChecked()
+        all_ = tb.option_menu.chk001.isChecked()
         state = (
-            tb.ctxMenu.chk002.isChecked()
+            tb.option_menu.chk002.isChecked()
         )  # pm.polyNormalPerVertex(vertex, query=1, freezeNormal=1)
         selection = pm.ls(selection=1, objectsOnly=1)
         maskObject = pm.selectMode(query=1, object=1)
@@ -163,7 +273,7 @@ class Normals_maya(Normals, SlotsMaya):
         """Average Normals"""
         tb = self.sb.normals.tb004
 
-        byUvShell = tb.ctxMenu.chk003.isChecked()
+        byUvShell = tb.option_menu.chk003.isChecked()
 
         objects = pm.ls(selection=1, objectsOnly=1, flatten=1)
         self.averageNormals(objects, byUvShell=byUvShell)
@@ -366,41 +476,41 @@ print(__name__)
 
 
 # @staticmethod
-# 	def getNormalVector(obj):
-# 		'''Get the normal vectors from the given poly object.
+#   def getNormalVector(obj):
+#       '''Get the normal vectors from the given poly object.
 
-# 		Parameters:
-# 			obj (str/obj/list): A polygon mesh or component(s).
+#       Parameters:
+#           obj (str/obj/list): A polygon mesh or component(s).
 
-# 		Returns:
-# 			dict - {int:[float, float, float]} face id & vector xyz.
-# 		'''
-# 		obj = pm.ls(obj)
-# 		type_ = pm.objectType(obj)
+#       Returns:
+#           dict - {int:[float, float, float]} face id & vector xyz.
+#       '''
+#       obj = pm.ls(obj)
+#       type_ = pm.objectType(obj)
 
-# 		if type_=='mesh': #get face normals
-# 			normals = pm.polyInfo(obj, faceNormals=1)
+#       if type_=='mesh': #get face normals
+#           normals = pm.polyInfo(obj, faceNormals=1)
 
-# 		elif type_=='transform': #get all normals for the given obj
-# 			numFaces = pm.polyEvaluate(obj, face=1) #returns number of faces as an integer
-# 			normals=[]
-# 			name = obj.name()
-# 			for n in range(0, numFaces): #for (number of faces):
-# 				array = pm.polyInfo('{0}[{1}]'.format(name, n) , faceNormals=1) #get normal info from the rest of the object's faces
-# 				string = ' '.join(array)
-# 				n.append(str(string))
+#       elif type_=='transform': #get all normals for the given obj
+#           numFaces = pm.polyEvaluate(obj, face=1) #returns number of faces as an integer
+#           normals=[]
+#           name = obj.name()
+#           for n in range(0, numFaces): #for (number of faces):
+#               array = pm.polyInfo('{0}[{1}]'.format(name, n) , faceNormals=1) #get normal info from the rest of the object's faces
+#               string = ' '.join(array)
+#               n.append(str(string))
 
-# 		else: #get face normals from the user component selection.
-# 			normals = pm.polyInfo(faceNormals=1) #returns the face normals of selected faces
+#       else: #get face normals from the user component selection.
+#           normals = pm.polyInfo(faceNormals=1) #returns the face normals of selected faces
 
-# 		regex = "[A-Z]*_[A-Z]* *[0-9]*: "
+#       regex = "[A-Z]*_[A-Z]* *[0-9]*: "
 
-# 		dict_={}
-# 		for n in normals:
-# 			l = list(s.replace(regex,'') for s in n.split() if s) #['FACE_NORMAL', '150:', '0.935741', '0.110496', '0.334931\n']
+#       dict_={}
+#       for n in normals:
+#           l = list(s.replace(regex,'') for s in n.split() if s) #['FACE_NORMAL', '150:', '0.935741', '0.110496', '0.334931\n']
 
-# 			key = int(l[1].strip(':')) #int face number as key ie. 150
-# 			value = list(float(i) for i in l[-3:])  #vector list as value. ie. [[0.935741, 0.110496, 0.334931]]
-# 			dict_[key] = value
+#           key = int(l[1].strip(':')) #int face number as key ie. 150
+#           value = list(float(i) for i in l[-3:])  #vector list as value. ie. [[0.935741, 0.110496, 0.334931]]
+#           dict_[key] = value
 
-# 		return dict_
+#       return dict_

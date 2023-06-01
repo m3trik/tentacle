@@ -2,7 +2,6 @@
 # coding=utf-8
 import sys
 from PySide2 import QtCore, QtGui, QtWidgets
-from pythontk import Str
 
 
 class OverlayFactoryFilter(QtCore.QObject):
@@ -124,16 +123,16 @@ class Path:
         """Clears the path but retains the original starting position."""
         self._path = self._path[:1]
 
-    def add(self, ui, w):
+    def add(self, ui, widget):
         """Adds a widget and its position to the path. Also removes any references
         to the provided ui object from the path.
 
         Parameters:
             ui: The ui object to remove from the path.
-            w: The widget to add to the path.
+            widget: The widget to add to the path.
         """
-        w_pos = w.mapToGlobal(w.rect().center())
-        self._path.append((w, w_pos, QtGui.QCursor.pos()))
+        w_pos = widget.mapToGlobal(widget.rect().center())
+        self._path.append((widget, w_pos, QtGui.QCursor.pos()))
         self.remove(ui)
 
     def remove(self, target_ui):
@@ -350,6 +349,9 @@ class Overlay(QtWidgets.QWidget, OverlayFactoryFilter):
         # Change the cursor shape to a drag move cursor.
         QtWidgets.QApplication.setOverrideCursor(QtGui.QCursor(QtCore.Qt.CrossCursor))
 
+        self.clear_paint_events()
+        self.path.reset()
+
         self.mouseMovePos = event.pos()
 
         super().mousePressEvent(event)
@@ -359,7 +361,7 @@ class Overlay(QtWidgets.QWidget, OverlayFactoryFilter):
         # Restore the cursor to its default shape.
         QtWidgets.QApplication.restoreOverrideCursor()
 
-        self.path.clear()
+        self.clear_paint_events()  # Explicitly clear the overlay
 
         super().mouseReleaseEvent(event)
 

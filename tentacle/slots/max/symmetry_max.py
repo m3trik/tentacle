@@ -8,7 +8,7 @@ class Symmetry_max(Symmetry, SlotsMax):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        cmb000 = self.sb.symmetry.draggableHeader.ctxMenu
+        cmb000 = self.sb.symmetry.draggableHeader.ctx_menu
         items = [""]
         cmb000.addItems_(items, "")
 
@@ -21,7 +21,7 @@ class Symmetry_max(Symmetry, SlotsMax):
 
     def cmb000(self, index=-1):
         """Editors"""
-        cmb = self.sb.symmetry.draggableHeader.ctxMenu.cmb000
+        cmb = self.sb.symmetry.draggableHeader.ctx_menu.cmb000
 
         if index > 0:
             text = cmb.items[index]

@@ -10,10 +10,10 @@ class Duplicate_maya(Duplicate, SlotsMaya):
 
         dh = self.sb.duplicate.draggableHeader
         items = ["Duplicate Special"]
-        dh.ctxMenu.cmb000.addItems_(items, "Maya Menus")
+        dh.ctx_menu.cmb000.addItems_(items, "Maya Menus")
 
         tb000 = self.sb.duplicate.tb000
-        tb000.ctxMenu.add(
+        tb000.option_menu.add(
             "QCheckBox",
             setText="Match Vertex Orientaion",
             setObjectName="chk001",
@@ -23,7 +23,7 @@ class Duplicate_maya(Duplicate, SlotsMaya):
 
     def cmb000(self, index=-1):
         """Editors"""
-        cmb = self.sb.duplicate.draggableHeader.ctxMenu.cmb000
+        cmb = self.sb.duplicate.draggableHeader.ctx_menu.cmb000
 
         if index > 0:
             if index == cmd.items.index("Duplicate Special"):
@@ -310,7 +310,7 @@ class Duplicate_maya(Duplicate, SlotsMaya):
         """Convert to Instances"""
         tb = self.sb.duplicate.tb000
 
-        transformByVertexOrder = tb.ctxMenu.chk001.isChecked()
+        transformByVertexOrder = tb.option_menu.chk001.isChecked()
 
         selection = pm.ls(sl=1, transforms=1)
         if not selection:

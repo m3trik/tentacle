@@ -10,7 +10,7 @@ class Utilities(Slots):
         super().__init__(*args, **kwargs)
         """
 		"""
-        ctx = self.sb.utilities.draggableHeader.ctxMenu
+        ctx = self.sb.utilities.draggableHeader.ctx_menu
         if not ctx.containsMenuItems:
             ctx.add(self.sb.ComboBox, setObjectName="cmb000", setToolTip="")
 

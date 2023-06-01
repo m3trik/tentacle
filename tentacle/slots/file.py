@@ -13,10 +13,10 @@ class File(Slots):
         """
 
         dh = self.sb.file.draggableHeader
-        dh.ctxMenu.add(self.sb.ComboBox, setObjectName="cmb000", setToolTip="")
+        dh.ctx_menu.add(self.sb.ComboBox, setObjectName="cmb000", setToolTip="")
 
         cmb005 = self.sb.file.cmb005
-        cmb005.ctxMenu.add(
+        cmb005.option_menu.add(
             "QPushButton",
             setObjectName="b001",
             setText="Last",
@@ -29,39 +29,39 @@ class File(Slots):
         )
 
         cmb006 = self.sb.file.cmb006
-        cmb006.ctxMenu.add(
+        cmb006.option_menu.add(
             self.sb.ComboBox,
             setObjectName="cmb001",
             setToolTip="Current project directory root.",
         )
-        cmb006.ctxMenu.add(
+        cmb006.option_menu.add(
             self.sb.Label,
             setObjectName="lbl000",
             setText="Set",
             setToolTip="Set the project directory.",
         )
-        cmb006.ctxMenu.add(
+        cmb006.option_menu.add(
             self.sb.Label,
             setObjectName="lbl004",
             setText="Root",
             setToolTip="Open the project directory.",
         )
-        cmb006.ctxMenu.cmb001.addItems_(
+        cmb006.option_menu.cmb001.addItems_(
             self.get_recent_projects(slice(0, 20), format="timestamp|standard"),
             "Recent Projects",
             clear=True,
         )
 
-    def list000_init(self, root):
+    def list000_init(self, widget):
         """ """
-        print("list000_init:", root)
-        root.position = "top"
-        root.sublist_y_offset = 18
+        widget.position = "top"
+        widget.sublist_y_offset = 18
+        widget.fixed_item_height = 18
         recentFiles = self.get_recent_files(slice(0, 6))
-        w1 = root.add("Recent Files")
+        w1 = widget.add("Recent Files")
         truncated = truncate(recentFiles, 65)
         w1.sublist.add(truncated, recentFiles)
-        root.setVisible(bool(recentFiles))
+        widget.setVisible(bool(recentFiles))
 
     def referenceSceneMenu(self, clear=False):
         """ """

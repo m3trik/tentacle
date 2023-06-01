@@ -1,26 +1,32 @@
 # !/usr/bin/python
 # coding=utf-8
-from tentacle.slots.maya import *
-from tentacle.slots.create import Create
+try:
+    import pymel.core as pm
+except ImportError as error:
+    print(__file__, error)
+
+import mayatk as mtk
+from tentacle.slots.maya import SlotsMaya
 
 
-class Create_maya(Create, SlotsMaya):
+class Create_maya(SlotsMaya):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        ctx = self.sb.create.draggableHeader.ctxMenu
-        if not ctx.containsMenuItems:
-            ctx.add(self.sb.ComboBox, setObjectName="cmb000", setToolTip="")
+    def draggableHeader_init(self, w):
+        """ """
+        w.ctx_menu.add(self.sb.ComboBox, setObjectName="cmb000", setToolTip="")
 
-        cmb = self.sb.create.draggableHeader.ctxMenu.cmb000
+        cmb000 = w.ctx_menu.cmb000
         items = [""]
-        cmb.addItems_(items, "")
+        cmb000.addItems_(items, "")
 
-        cmb = self.sb.create.cmb001
+    def cmb001_init(self, w):
+        """ """
         items = ["Polygon", "NURBS", "Light"]
-        cmb.addItems_(items)
+        w.addItems_(items)
 
-        cmb = self.sb.create.cmb002
+    def cmb002_init(self, w):
         items = [
             "Cube",
             "Sphere",
@@ -35,28 +41,62 @@ class Create_maya(Create, SlotsMaya):
             "Platonic Solids",
             "Text",
         ]
-        cmb.addItems_(items)
+        w.addItems_(items)
 
-        ctx = self.sb.create.tb000.ctxMenu
-        if not ctx.containsMenuItems:
-            ctx.add(
-                "QCheckBox",
-                setText="Translate",
-                setObjectName="chk000",
-                setChecked=True,
-                setToolTip="Move the created object to the center point of any selected object(s).",
-            )
-            ctx.add(
-                "QCheckBox",
-                setText="Scale",
-                setObjectName="chk001",
-                setChecked=True,
-                setToolTip="Uniformly scale the created object to match the averaged scale of any selected object(s).",
-            )
+    def tb000_init(self, w):
+        """ """
+        w.option_menu.add(
+            "QCheckBox",
+            setText="Translate",
+            setObjectName="chk000",
+            setChecked=True,
+            setToolTip="Move the created object to the center point of any selected object(s).",
+        )
+        w.option_menu.add(
+            "QCheckBox",
+            setText="Scale",
+            setObjectName="chk001",
+            setChecked=True,
+            setToolTip="Uniformly scale the created object to match the averaged scale of any selected object(s).",
+        )
+
+    def createPrimitive(self, catagory1, catagory2):
+        """Create a primitive object.
+
+        Parameters:
+            catagory1 (str): type
+            catagory2 (str): type
+        Returns:
+            (obj) node
+
+        Example: createPrimitive('Polygons', 'Cube')
+        """
+        cmb001 = self.sb.create.cmb001
+        cmb002 = self.sb.create.cmb002
+
+        cmb001.setCurrentIndex(cmb001.findText(catagory1))
+        cmb002.setCurrentIndex(cmb002.findText(catagory2))
+        return self.tb000()
+
+    def b001(self):
+        """Create poly cube"""
+        self.createPrimitive("Polygon", "Cube")
+
+    def b002(self):
+        """Create poly sphere"""
+        self.createPrimitive("Polygon", "Sphere")
+
+    def b003(self):
+        """Create poly cylinder"""
+        self.createPrimitive("Polygon", "Cylinder")
+
+    def b004(self):
+        """Create poly plane"""
+        self.createPrimitive("Polygon", "Plane")
 
     def cmb000(self, index=-1):
         """Editors"""
-        cmb = self.sb.create.draggableHeader.ctxMenu.cmb000
+        cmb = self.sb.create.draggableHeader.ctx_menu.cmb000
 
         if index > 0:
             text = cmb.items[index]
@@ -117,8 +157,8 @@ class Create_maya(Create, SlotsMaya):
 
         baseType = self.sb.create.cmb001.currentText()
         subType = self.sb.create.cmb002.currentText()
-        scale = tb.ctxMenu.chk001.isChecked()
-        translate = tb.ctxMenu.chk000.isChecked()
+        scale = tb.option_menu.chk001.isChecked()
+        translate = tb.option_menu.chk000.isChecked()
 
         return self.createDefaultPrimitive(baseType, subType, scale, translate)
 
@@ -166,10 +206,8 @@ class Create_maya(Create, SlotsMaya):
         }
 
         node = eval(primitives[baseType][subType])
-
-        if (
-            selection
-        ):  # if originally there was a selected object, move the object to that objects's bounding box center.
+        # if originally there was a selected object, move the object to that objects's bounding box center.
+        if selection:
             if translate:
                 mtk.Xform.move_to(node, selection)
                 # center_pos = mtk.Xform.get_center_point(selection)
@@ -194,14 +232,14 @@ class Create_maya(Create, SlotsMaya):
         """Create a circular polygon plane.
 
         Parameters:
-                axis (str): 'x','y','z'
-                numPoints(int): number of outer points
-                radius=int
-                center=[float3 list] - point location of circle center
-                mode(int): 0 -no subdivisions, 1 -subdivide tris, 2 -subdivide quads
+            axis (str): 'x','y','z'
+            numPoints(int): number of outer points
+            radius=int
+            center=[float3 list] - point location of circle center
+            mode(int): 0 -no subdivisions, 1 -subdivide tris, 2 -subdivide quads
 
         Returns:
-                (list) [transform node, history node] ex. [nt.Transform('polySurface1'), nt.PolyCreateFace('polyCreateFace1')]
+            (list) [transform node, history node] ex. [nt.Transform('polySurface1'), nt.PolyCreateFace('polyCreateFace1')]
 
         Example: self.createCircle(axis='x', numPoints=20, radius=8, mode='tri')
         """
@@ -226,15 +264,13 @@ class Create_maya(Create, SlotsMaya):
                 y = center[1] + (math.sin(radian) * radius)
                 vertexPoints.append([x, y, 0])  # not working.
 
-            radian = radian + math.radians(
-                degree
-            )  # increment by original radian value that was converted from degrees
+            # increment by original radian value that was converted from degrees
+            radian = radian + math.radians(degree)
             # print(x,y,"\n")
 
         # pm.undoInfo (openChunk=True)
-        node = pm.ls(
-            pm.polyCreateFacet(point=vertexPoints, name=name)
-        )  # returns: ['Object name', 'node name']. pymel 'ls' converts those to objects.
+        node = pm.ls(pm.polyCreateFacet(point=vertexPoints, name=name))
+        # returns: ['Object name', 'node name']. pymel 'ls' converts those to objects.
         pm.polyNormal(node, normalMode=4)  # 4=reverse and propagate
         if mode == 1:
             pm.polySubdivideFacet(divisions=1, mode=1)
@@ -259,77 +295,77 @@ print(__name__)
 
 # @property
 # def node(self):
-# 	'''Get the Transform Node
-# 	'''
-# 	transform = mtk.Node.get_transform_node()
-# 	if transform:
-# 		if not self.sb.create.txt003.text()==transform[0].name(): #make sure the same field reflects the current working node.
-# 			self.sb.create.txt003.setText(transform[0].name())
+#   '''Get the Transform Node
+#   '''
+#   transform = mtk.Node.get_transform_node()
+#   if transform:
+#       if not self.sb.create.txt003.text()==transform[0].name(): #make sure the same field reflects the current working node.
+#           self.sb.create.txt003.setText(transform[0].name())
 
-# 	return transform
+#   return transform
 
 # def rotateAbsolute(self, axis, node):
-# 	'''undo previous rotation and rotate on the specified axis.
-# 	uses an external rotation dictionary.
+#   '''undo previous rotation and rotate on the specified axis.
+#   uses an external rotation dictionary.
 
-# 	Parameters:
-# 		axis (str): axis to rotate on. ie. '-x'
-# 		node (obj): transform node.
-# 	'''
-# 	axis = self.rotation[axis]
+#   Parameters:
+#       axis (str): axis to rotate on. ie. '-x'
+#       node (obj): transform node.
+#   '''
+#   axis = self.rotation[axis]
 
-# 	rotateOrder = pm.xform(node, query=1, rotateOrder=1)
-# 	pm.xform(node, preserve=1, rotation=axis, rotateOrder=rotateOrder, absolute=1)
-# 	self.rotation['last'] = axis
+#   rotateOrder = pm.xform(node, query=1, rotateOrder=1)
+#   pm.xform(node, preserve=1, rotation=axis, rotateOrder=rotateOrder, absolute=1)
+#   self.rotation['last'] = axis
 
 # def txt003(self):
-# 	'''Set Name
-# 	'''
-# 	if self.node:
-# 		pm.rename(self.node.name(), self.sb.create.txt003.text())
+#   '''Set Name
+#   '''
+#   if self.node:
+#       pm.rename(self.node.name(), self.sb.create.txt003.text())
 
 # def getAxis(self):
-# 	''''''
-# 	if self.sb.create.chk000.isChecked():
-# 		axis = 'x'
-# 	elif self.sb.create.chk001.isChecked():
-# 		axis = 'y'
-# 	elif self.sb.create.chk002.isChecked():
-# 		axis = 'z'
-# 	if self.sb.create.chk003.isChecked(): #negative
-# 		axis = '-'+axis
-# 	return axis
+#   ''''''
+#   if self.sb.create.chk000.isChecked():
+#       axis = 'x'
+#   elif self.sb.create.chk001.isChecked():
+#       axis = 'y'
+#   elif self.sb.create.chk002.isChecked():
+#       axis = 'z'
+#   if self.sb.create.chk003.isChecked(): #negative
+#       axis = '-'+axis
+#   return axis
 
 
 # def chk000(self, state=None):
-# 	'''Rotate X Axis
-# 	'''
-# 	self.sb.toggle_widgets(setChecked='chk000', setUnChecked='chk001, chk002')
-# 	if self.node:
-# 		self.rotateAbsolute(self.getAxis(), self.node)
+#   '''Rotate X Axis
+#   '''
+#   self.sb.toggle_widgets(setChecked='chk000', setUnChecked='chk001, chk002')
+#   if self.node:
+#       self.rotateAbsolute(self.getAxis(), self.node)
 
 
 # def chk001(self, state=None):
-# 	'''Rotate Y Axis
-# 	'''
-# 	self.sb.toggle_widgets(setChecked='chk001', setUnChecked='chk000, chk002')
-# 	if self.node:
-# 		self.rotateAbsolute(self.getAxis(), self.node)
+#   '''Rotate Y Axis
+#   '''
+#   self.sb.toggle_widgets(setChecked='chk001', setUnChecked='chk000, chk002')
+#   if self.node:
+#       self.rotateAbsolute(self.getAxis(), self.node)
 
 
 # def chk002(self, state=None):
-# 	'''Rotate Z Axis
-# 	'''
-# 	self.sb.toggle_widgets(setChecked='chk002', setUnChecked='chk000, chk001')
-# 	if self.node:
-# 		self.rotateAbsolute(self.getAxis(), self.node)
+#   '''Rotate Z Axis
+#   '''
+#   self.sb.toggle_widgets(setChecked='chk002', setUnChecked='chk000, chk001')
+#   if self.node:
+#       self.rotateAbsolute(self.getAxis(), self.node)
 
 
 # def chk003(self, state=None):
-# 	'''Rotate Negative Axis
-# 	'''
-# 	if self.node:
-# 		self.rotateAbsolute(self.getAxis(), self.node)
+#   '''Rotate Negative Axis
+#   '''
+#   if self.node:
+#       self.rotateAbsolute(self.getAxis(), self.node)
 
 # def chk005(self, state=None):
 # '''Set Point
@@ -337,10 +373,10 @@ print(__name__)
 # #add support for averaging multiple components.
 # selection = pm.ls(selection=1, flatten=1)
 # try:
-# 	self.point = pm.xform(selection, query=1, translation=1, worldSpace=1, absolute=1)
+#   self.point = pm.xform(selection, query=1, translation=1, worldSpace=1, absolute=1)
 # except:
-# 	self.point = [0,0,0]
-# 	print('Warning: Nothing selected. Point set to origin [0,0,0].')
+#   self.point = [0,0,0]
+#   print('Warning: Nothing selected. Point set to origin [0,0,0].')
 
 # self.sb.create.s000.setValue(self.point[0])
 # self.sb.create.s001.setValue(self.point[1])
@@ -348,24 +384,24 @@ print(__name__)
 
 
 # def s000(self, value=None):
-# 	'''Set Translate X
-# 	'''
-# 	if self.node:
-# 		self.point[0] = self.sb.create.s000.value()
-# 		pm.xform(self.node, translation=self.point, worldSpace=1, absolute=1)
+#   '''Set Translate X
+#   '''
+#   if self.node:
+#       self.point[0] = self.sb.create.s000.value()
+#       pm.xform(self.node, translation=self.point, worldSpace=1, absolute=1)
 
 
 # def s001(self, value=None):
-# 	'''Set Translate Y
-# 	'''
-# 	if self.node:
-# 		self.point[1] = self.sb.create.s001.value()
-# 		pm.xform(self.node, translation=self.point, worldSpace=1, absolute=1)
+#   '''Set Translate Y
+#   '''
+#   if self.node:
+#       self.point[1] = self.sb.create.s001.value()
+#       pm.xform(self.node, translation=self.point, worldSpace=1, absolute=1)
 
 
 # def s002(self, value=None):
-# 	'''Set Translate Z
-# 	'''
-# 	if self.node:
-# 		self.point[2] = self.sb.create.s002.value()
-# 		pm.xform (self.node, translation=self.point, worldSpace=1, absolute=1)
+#   '''Set Translate Z
+#   '''
+#   if self.node:
+#       self.point[2] = self.sb.create.s002.value()
+#       pm.xform (self.node, translation=self.point, worldSpace=1, absolute=1)

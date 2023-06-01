@@ -15,7 +15,7 @@ class Subdivision_max(Subdivision, SlotsMax):
         self.sb.subdivision.s000.setValue(0)
         self.sb.subdivision.s001.setValue(0)
 
-        ctx = self.sb.subdivision.draggableHeader.ctxMenu
+        ctx = self.sb.subdivision.draggableHeader.ctx_menu
         if not ctx.containsMenuItems:
             ctx.add(
                 self.sb.ComboBox,
@@ -25,7 +25,7 @@ class Subdivision_max(Subdivision, SlotsMax):
             # ctx.add(self.sb.ComboBox, setObjectName='cmb001', setToolTip='Smooth Proxy.')
             # ctx.add(self.sb.ComboBox, setObjectName='cmb002', setToolTip='Maya Subdivision Operations.')
 
-        cmb = self.sb.subdivision.draggableHeader.ctxMenu.cmb000
+        cmb = self.sb.subdivision.draggableHeader.ctx_menu.cmb000
         items = [
             "TurboSmooth",
             "TurboSmooth Pro",
@@ -39,17 +39,17 @@ class Subdivision_max(Subdivision, SlotsMax):
         ]
         cmb.addItems_(items, "3dsMax Subdivision Modifiers")
 
-        # cmb = self.sb.subdivision.draggableHeader.ctxMenu.cmb001
+        # cmb = self.sb.subdivision.draggableHeader.ctx_menu.cmb001
         # items = ['Create Subdiv Proxy','Remove Subdiv Proxy Mirror','Crease Tool','Toggle Subdiv Proxy Display', 'Both Proxy and Subdiv Display']
         # cmb.addItems_(items, 'Smooth Proxy')
 
-        # cmb = self.sb.subdivision.draggableHeader.ctxMenu.cmb002
+        # cmb = self.sb.subdivision.draggableHeader.ctx_menu.cmb002
         # items = ['Reduce Polygons','Add Divisions','Smooth']
         # cmb.addItems_(items, 'Maya Subdivision Operations')
 
     def cmb000(self, index=-1):
         """Editors"""
-        cmb = self.sb.subdivision.draggableHeader.ctxMenu.cmb000
+        cmb = self.sb.subdivision.draggableHeader.ctx_menu.cmb000
 
         if index > 0:
             text = cmb.items[index]

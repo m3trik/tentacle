@@ -10,7 +10,7 @@ class Preferences_max(Preferences, SlotsMax):
 
         self.sb.preferences.b010.setText("3dsMax Preferences")
 
-        cmb = self.sb.preferences.draggableHeader.ctxMenu.cmb000
+        cmb = self.sb.preferences.draggableHeader.ctx_menu.cmb000
         items = [""]
         cmb.addItems_(items, "")
 
@@ -46,7 +46,7 @@ class Preferences_max(Preferences, SlotsMax):
 
     def cmb000(self, index=-1):
         """Editors"""
-        cmb = self.sb.preferences.draggableHeader.ctxMenu.cmb000
+        cmb = self.sb.preferences.draggableHeader.ctx_menu.cmb000
 
         if index > 0:
             if index == cmd.items.index(""):

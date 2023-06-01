@@ -8,38 +8,38 @@ class Transform_max(Transform, SlotsMax):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        cmb000 = self.sb.transform.draggableHeader.ctxMenu.cmb000
+        cmb000 = self.sb.transform.draggableHeader.ctx_menu.cmb000
         items = [""]
         cmb000.addItems_(items, "")
 
         cmb001 = self.sb.transform.cmb001
-        cmb001.ctxMenu.add(
+        cmb001.option_menu.add(
             "QRadioButton",
             setObjectName="chk017",
             setText="Standard",
             setChecked=True,
             setToolTip="",
         )
-        cmb001.ctxMenu.add(
+        cmb001.option_menu.add(
             "QRadioButton", setObjectName="chk018", setText="Body Shapes", setToolTip=""
         )
-        cmb001.ctxMenu.add(
+        cmb001.option_menu.add(
             "QRadioButton", setObjectName="chk019", setText="NURBS", setToolTip=""
         )
-        cmb001.ctxMenu.add(
+        cmb001.option_menu.add(
             "QRadioButton",
             setObjectName="chk020",
             setText="Point Cloud Shapes",
             setToolTip="",
         )
-        cmb001.ctxMenu.add(
+        cmb001.option_menu.add(
             self.sb.Label,
             setObjectName="lbl000",
             setText="Disable All",
             setToolTip="Disable all constraints.",
         )
         self.sb.connect_multi(
-            "chk017-20", "toggled", self.cmb001, cmb001.ctxMenu
+            "chk017-20", "toggled", self.cmb001, cmb001.option_menu
         )  # connect to this method on toggle
 
         cmb002 = self.sb.transform.cmb002
@@ -56,15 +56,15 @@ class Transform_max(Transform, SlotsMax):
 
         cmb003 = self.sb.transform.cmb003
         # moveValue = pm.manipMoveContext('Move', q=True, snapValue=True)
-        # cmb003.menu_.s021.setValue(moveValue)
+        # cmb003.option_menu.s021.setValue(moveValue)
         # scaleValue = pm.manipScaleContext('Scale', q=True, snapValue=True)
-        # cmb003.menu_.s022.setValue(scaleValue)
+        # cmb003.option_menu.s022.setValue(scaleValue)
         # rotateValue = pm.manipRotateContext('Rotate', q=True, snapValue=True)
-        # cmb003.menu_.s023.setValue(rotateValue)
+        # cmb003.option_menu.s023.setValue(rotateValue)
 
     def cmb000(self, index=-1):
         """Editors"""
-        cmb = self.sb.transform.draggableHeader.ctxMenu.cmb000
+        cmb = self.sb.transform.draggableHeader.ctx_menu.cmb000
 
         if index > 0:
             text = cmb.items[index]
@@ -80,8 +80,8 @@ class Transform_max(Transform, SlotsMax):
         """
         cmb = self.sb.transform.cmb001
 
-        cmb.menu_.clear()
-        if cmb.ctxMenu.chk017.isChecked():  # Standard
+        cmb.option_menu.clear()
+        if cmb.option_menu.chk017.isChecked():  # Standard
             cmb.setItemText(0, "Standard")  # set cetagory title in standard model/view
             items = [
                 "Grid Points",
@@ -97,12 +97,12 @@ class Transform_max(Transform, SlotsMax):
                 "Midpoint",
                 "Center Face",
             ]
-        if cmb.ctxMenu.chk018.isChecked():  # Body Shapes
+        if cmb.option_menu.chk018.isChecked():  # Body Shapes
             cmb.setItemText(
                 0, "Body Shapes"
             )  # set category title in standard model/view
             items = ["Vertex_", "Edge", "Face_", "End Edge", "Edge Midpoint"]
-        if cmb.ctxMenu.chk019.isChecked():  # NURBS
+        if cmb.option_menu.chk019.isChecked():  # NURBS
             cmb.setItemText(0, "NURBS")  # set category title in standard model/view
             items = [
                 "CV",
@@ -116,13 +116,13 @@ class Transform_max(Transform, SlotsMax):
                 "Surface Center",
                 "Surface Edge",
             ]
-        if cmb.ctxMenu.chk020.isChecked():  # Point Cloud Shapes
+        if cmb.option_menu.chk020.isChecked():  # Point Cloud Shapes
             cmb.setItemText(
                 0, "Point Cloud Shapes"
             )  # set category title in standard model/view
             items = ["Point Cloud Vertex"]
 
-        widgets = [cmb.menu_.add("QCheckBox", setText=t) for t in items]
+        widgets = [cmb.option_menu.add("QCheckBox", setText=t) for t in items]
 
         for w in widgets:
             try:
@@ -202,9 +202,9 @@ class Transform_max(Transform, SlotsMax):
         """Drop To Grid"""
         tb = self.sb.transform.tb000
 
-        align = tb.ctxMenu.cmb004.currentText()
-        origin = tb.ctxMenu.chk014.isChecked()
-        center_pivot = tb.ctxMenu.chk016.isChecked()
+        align = tb.option_menu.cmb004.currentText()
+        origin = tb.option_menu.chk014.isChecked()
+        center_pivot = tb.option_menu.chk016.isChecked()
 
         objects = pm.ls(sl=1, objectsOnly=1)
         SlotsMax.drop_to_grid(objects, align, origin, center_pivot)
@@ -217,9 +217,9 @@ class Transform_max(Transform, SlotsMax):
         """
         tb = self.sb.transform.tb001
 
-        betweenTwoComponents = tb.ctxMenu.chk013.isChecked()
-        autoAlign = tb.ctxMenu.chk010.isChecked()
-        autoAlign2Axes = tb.ctxMenu.chk011.isChecked()  # Auto Align: Two Axes
+        betweenTwoComponents = tb.option_menu.chk013.isChecked()
+        autoAlign = tb.option_menu.chk010.isChecked()
+        autoAlign2Axes = tb.option_menu.chk011.isChecked()  # Auto Align: Two Axes
 
         selection = pm.ls(orderedSelection=1)
 
@@ -271,30 +271,30 @@ class Transform_max(Transform, SlotsMax):
                 if autoAlign2Axes:
                     if axis == x:  # "yz"
                         self.sb.toggle_widgets(
-                            tb.ctxMenu, setChecked="chk030-31", setUnChecked="chk029"
+                            tb.option_menu, setChecked="chk030-31", setUnChecked="chk029"
                         )
                     if axis == y:  # "xz"
                         self.sb.toggle_widgets(
-                            tb.ctxMenu,
+                            tb.option_menu,
                             setChecked="chk029,chk031",
                             setUnChecked="chk030",
                         )
                     if axis == z:  # "xy"
                         self.sb.toggle_widgets(
-                            tb.ctxMenu, setChecked="chk029-30", setUnChecked="chk031"
+                            tb.option_menu, setChecked="chk029-30", setUnChecked="chk031"
                         )
                 else:
                     if any(
                         [axis == x and tangent == ty, axis == y and tangent == tx]
                     ):  # "z"
                         self.sb.toggle_widgets(
-                            tb.ctxMenu, setChecked="chk031", setUnChecked="chk029-30"
+                            tb.option_menu, setChecked="chk031", setUnChecked="chk029-30"
                         )
                     if any(
                         [axis == x and tangent == tz, axis == z and tangent == tx]
                     ):  # "y"
                         self.sb.toggle_widgets(
-                            tb.ctxMenu,
+                            tb.option_menu,
                             setChecked="chk030",
                             setUnChecked="chk029,chk031",
                         )
@@ -302,18 +302,18 @@ class Transform_max(Transform, SlotsMax):
                         [axis == y and tangent == tz, axis == z and tangent == ty]
                     ):  # "x"
                         self.sb.toggle_widgets(
-                            tb.ctxMenu, setChecked="chk029", setUnChecked="chk030-31"
+                            tb.option_menu, setChecked="chk029", setUnChecked="chk030-31"
                         )
             else:
                 self.sb.message_box("Operation requires a component selection.")
                 return
 
         # align
-        x = tb.ctxMenu.chk029.isChecked()
-        y = tb.ctxMenu.chk030.isChecked()
-        z = tb.ctxMenu.chk031.isChecked()
-        avg = tb.ctxMenu.chk006.isChecked()
-        loop = tb.ctxMenu.chk007.isChecked()
+        x = tb.option_menu.chk029.isChecked()
+        y = tb.option_menu.chk030.isChecked()
+        z = tb.option_menu.chk031.isChecked()
+        avg = tb.option_menu.chk006.isChecked()
+        loop = tb.option_menu.chk007.isChecked()
 
         if all([x, not y, not z]):  # align x
             self.align_vertices(mode=3, average=avg, edgeloop=loop)
@@ -365,7 +365,7 @@ class Transform_max(Transform, SlotsMax):
         ]
         attrs = {p: getattr(obj, p) for p in props}
 
-        self.setAttributeWindow(obj, checkableLabel=True, **attrs)
+        self.setAttributeWindow(obj, checkable_label=True, **attrs)
 
     def b001(self):
         """Match Scale"""
@@ -383,7 +383,7 @@ class Transform_max(Transform, SlotsMax):
 
     def lbl000(self):
         """Transform Constraints: Disable All"""
-        widgets = self.sb.transform.cmb001.ctxMenu.children_(of_type=["QCheckBox"])
+        widgets = self.sb.transform.cmb001.option_menu.children_(of_type=["QCheckBox"])
         [w.setChecked(False) for w in widgets if w.isChecked()]
 
     def lbl001(self):
@@ -391,7 +391,7 @@ class Transform_max(Transform, SlotsMax):
         cmb = self.sb.transform.cmb003
         self.sb.toggle_widgets(setDisabled="chk021-23")
         cmb.setCurrentText("Off") if not any(
-            (state, cmb.menu_.chk021.isChecked(), cmb.menu_.chk023.isChecked())
+            (state, cmb.option_menu.chk021.isChecked(), cmb.option_menu.chk023.isChecked())
         ) else cmb.setCurrentText("On")
 
     def b002(self):

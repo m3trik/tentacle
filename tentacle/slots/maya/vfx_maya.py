@@ -8,13 +8,13 @@ class Vfx_maya(Vfx, SlotsMaya):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        cmb = self.sb.vfx.draggableHeader.ctxMenu.cmb000
+        cmb = self.sb.vfx.draggableHeader.ctx_menu.cmb000
         items = [""]
         cmb.addItems_(items, "")
 
     def cmb000(self, index=-1):
         """Editors"""
-        cmb = self.sb.vfx.draggableHeader.ctxMenu.cmb000
+        cmb = self.sb.vfx.draggableHeader.ctx_menu.cmb000
 
         if index > 0:
             text = cmb.items[index]

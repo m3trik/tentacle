@@ -1,14 +1,23 @@
 # !/usr/bin/python
 # coding=utf-8
-from tentacle.slots.maya import *
-from tentacle.slots.polygons import Polygons
+try:
+    import pymel.core as pm
+except ImportError as error:
+    print(__file__, error)
+
+import mayatk as mtk
+from tentacle.slots.maya import SlotsMaya
 
 
-class Polygons_maya(Polygons, SlotsMaya):
+class Polygons_maya(SlotsMaya):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        cmb000 = self.sb.polygons.draggableHeader.ctxMenu.cmb000
+    def draggableHeader_init(self, w):
+        """ """
+        w.ctx_menu.add(self.sb.ComboBox, setObjectName="cmb000", setToolTip="")
+
+        cmb000 = w.ctx_menu.cmb000
         items = [
             "Extrude",
             "Bevel",
@@ -24,9 +33,211 @@ class Polygons_maya(Polygons, SlotsMaya):
         ]
         cmb000.addItems_(items, "Polygon Editors")
 
+    def tb000_init(self, w):
+        """ """
+        w.option_menu.add(
+            "QDoubleSpinBox",
+            setPrefix="Distance: ",
+            setObjectName="s002",
+            set_limits="0.0000-10 step.0005",
+            setValue=0.0005,
+            set_height=20,
+            setToolTip="Merge Distance.",
+        )
+        w.option_menu.add(
+            "QPushButton",
+            setText="Set Distance",
+            setObjectName="b005",
+            set_height=20,
+            setToolTip="Set the distance using two selected vertices.\nElse; return the Distance to it's default value",
+        )
+
+    def tb001_init(self, w):
+        """ """
+        w.option_menu.add(
+            "QSpinBox",
+            setPrefix="Divisions: ",
+            setObjectName="s003",
+            set_limits="0-10000 step1",
+            setValue=0,
+            set_height=20,
+            setToolTip="Subdivision Amount.",
+        )
+
+    def tb002_init(self, w):
+        """ """
+        w.option_menu.add(
+            "QCheckBox",
+            setText="Merge",
+            setObjectName="chk000",
+            setChecked=True,
+            set_height=20,
+            setToolTip="Combine selected meshes and merge any coincident verts/edges.",
+        )
+
+    def tb003_init(self, w):
+        """ """
+        w.option_menu.add(
+            "QCheckBox",
+            setText="Keep Faces Together",
+            setObjectName="chk002",
+            setChecked=True,
+            set_height=20,
+            setToolTip="Keep edges/faces together.",
+        )
+        w.option_menu.add(
+            "QSpinBox",
+            setPrefix="Divisions: ",
+            setObjectName="s004",
+            set_limits="1-10000 step1",
+            setValue=1,
+            set_height=20,
+            setToolTip="Subdivision Amount.",
+        )
+
+    def tb004_init(self, w):
+        """ """
+        w.option_menu.add(
+            "QDoubleSpinBox",
+            setPrefix="Width: ",
+            setObjectName="s000",
+            set_limits="0.00-100 step.05",
+            setValue=0.25,
+            set_height=20,
+            setToolTip="Bevel Width.",
+        )
+        w.option_menu.add(
+            "QDoubleSpinBox",
+            setPrefix="Segments: ",
+            setObjectName="s006",
+            set_limits="1-100 step1",
+            setValue=1,
+            set_height=20,
+            setToolTip="Bevel Segments.",
+        )
+
+    def tb005_init(self, w):
+        """ """
+        w.option_menu.add(
+            "QCheckBox",
+            setText="Duplicate",
+            setObjectName="chk014",
+            setChecked=True,
+            setToolTip="Duplicate any selected faces, leaving the originals.",
+        )
+        w.option_menu.add(
+            "QCheckBox",
+            setText="Separate",
+            setObjectName="chk015",
+            setChecked=True,
+            setToolTip="Separate mesh objects after detaching faces.",
+        )
+        # tb005.option_menu.add('QCheckBox', setText='Delete Original', setObjectName='chk007', setChecked=True, setToolTip='Delete original selected faces.')
+
+    def tb006_init(self, w):
+        """ """
+        w.option_menu.add(
+            "QDoubleSpinBox",
+            setPrefix="Offset: ",
+            setObjectName="s001",
+            set_limits="0.00-100 step.01",
+            setValue=2.00,
+            set_height=20,
+            setToolTip="Offset amount.",
+        )
+
+    def tb007_init(self, w):
+        """ """
+        w.option_menu.add(
+            "QCheckBox",
+            setText="U",
+            setObjectName="chk008",
+            setChecked=True,
+            set_height=20,
+            setToolTip="Divide facet: U coordinate.",
+        )
+        w.option_menu.add(
+            "QCheckBox",
+            setText="V",
+            setObjectName="chk009",
+            setChecked=True,
+            set_height=20,
+            setToolTip="Divide facet: V coordinate.",
+        )
+        w.option_menu.add(
+            "QCheckBox",
+            setText="Tris",
+            setObjectName="chk010",
+            set_height=20,
+            setToolTip="Divide facet: Tris.",
+        )
+
+    def tb008_init(self, w):
+        """ """
+        w.option_menu.add(
+            "QRadioButton",
+            setText="Union",
+            setObjectName="chk011",
+            set_height=20,
+            setToolTip="Fuse two objects together.",
+        )
+        w.option_menu.add(
+            "QRadioButton",
+            setText="Difference",
+            setObjectName="chk012",
+            setChecked=True,
+            set_height=20,
+            setToolTip="Indents one object with the shape of another at the point of their intersection.",
+        )
+        w.option_menu.add(
+            "QRadioButton",
+            setText="Intersection",
+            setObjectName="chk013",
+            set_height=20,
+            setToolTip="Keep only the interaction point of two objects.",
+        )
+
+    def tb009_init(self, w):
+        """ """
+        w.option_menu.add(
+            "QDoubleSpinBox",
+            setPrefix="Tolerance: ",
+            setObjectName="s005",
+            set_limits=".000-100 step.05",
+            setValue=10,
+            setToolTip="Set the max Snap Distance. Vertices with a distance exceeding this value will be ignored.",
+        )
+        w.option_menu.add(
+            "QCheckBox",
+            setText="Freeze Transforms",
+            setObjectName="chk016",
+            setChecked=True,
+            setToolTip="Freeze Transformations on the object that is being snapped to.",
+        )
+
+    def chk008(self, state=None):
+        """Divide Facet: Split U"""
+        self.sb.toggle_widgets(setUnChecked="chk010")
+
+    def chk009(self, state=None):
+        """Divide Facet: Split V"""
+        self.sb.toggle_widgets(setUnChecked="chk010")
+
+    def chk010(self, state=None):
+        """Divide Facet: Tris"""
+        self.sb.toggle_widgets(setUnChecked="chk008,chk009")
+
+    def setMergeVertexDistance(self, p1, p2):
+        """Merge Vertices: Set Distance"""
+        from pythontk import get_distance
+
+        s = self.sb.polygons.tb000.option_menu.s002
+        dist = get_distance(p1, p2)
+        s.setValue(dist)
+
     def cmb000(self, index=-1):
         """Editors"""
-        cmb = self.sb.polygons.draggableHeader.ctxMenu.cmb000
+        cmb = self.sb.polygons.draggableHeader.ctx_menu.cmb000
 
         if index > 0:
             text = cmb.items[index]
@@ -58,7 +269,7 @@ class Polygons_maya(Polygons, SlotsMaya):
         """Merge Vertices"""
         tb = self.sb.polygons.tb000
 
-        tolerance = float(tb.ctxMenu.s002.value())
+        tolerance = float(tb.option_menu.s002.value())
         objects = pm.ls(selection=1, objectsOnly=1, flatten=1)
         componentMode = pm.selectMode(query=1, component=1)
 
@@ -76,7 +287,7 @@ class Polygons_maya(Polygons, SlotsMaya):
         """Bridge"""
         tb = self.sb.polygons.tb001
 
-        divisions = tb.ctxMenu.s003.value()
+        divisions = tb.option_menu.s003.value()
 
         selection = pm.ls(sl=1)
         if not selection:
@@ -96,7 +307,7 @@ class Polygons_maya(Polygons, SlotsMaya):
         """Combine"""
         tb = self.sb.polygons.tb002
 
-        if tb.ctxMenu.chk000.isChecked():
+        if tb.option_menu.chk000.isChecked():
             sel = pm.ls(sl=1, objectsOnly=1)
             if not sel:
                 return self.sb.message_box(
@@ -121,8 +332,10 @@ class Polygons_maya(Polygons, SlotsMaya):
         """Extrude"""
         tb = self.sb.polygons.tb003
 
-        keepFacesTogether = tb.ctxMenu.chk002.isChecked()  # keep faces/edges together.
-        divisions = tb.ctxMenu.s004.value()
+        keepFacesTogether = (
+            tb.option_menu.chk002.isChecked()
+        )  # keep faces/edges together.
+        divisions = tb.option_menu.s004.value()
 
         selection = pm.ls(sl=1)
         if not selection:
@@ -151,9 +364,9 @@ class Polygons_maya(Polygons, SlotsMaya):
         """Bevel (Chamfer)"""
         tb = self.sb.polygons.tb004
 
-        width = tb.ctxMenu.s000.value()
+        width = tb.option_menu.s000.value()
         chamfer = True
-        segments = tb.ctxMenu.s006.value()
+        segments = tb.option_menu.s006.value()
 
         selection = pm.ls(sl=1, objectsOnly=1, type="shape")
         if not selection:
@@ -177,7 +390,7 @@ class Polygons_maya(Polygons, SlotsMaya):
                 worldSpace=1,
                 smoothingAngle=30,
                 subdivideNgons=1,
-                merge_vertices=1,
+                mergeVertices=1,
                 mergeVertexTolerance=0.0001,
                 miteringAngle=180,
                 angleTolerance=180,
@@ -190,8 +403,8 @@ class Polygons_maya(Polygons, SlotsMaya):
         """Detach"""
         tb = self.sb.polygons.tb005
 
-        duplicate = tb.ctxMenu.chk014.isChecked()
-        separate = tb.ctxMenu.chk015.isChecked()
+        duplicate = tb.option_menu.chk014.isChecked()
+        separate = tb.option_menu.chk015.isChecked()
 
         vertexMask = pm.selectType(query=True, vertex=True)
         edgeMask = pm.selectType(query=True, edge=True)
@@ -214,7 +427,7 @@ class Polygons_maya(Polygons, SlotsMaya):
             if separate:
                 try:
                     splitObjects = pm.polySeparate(selection)
-                except:
+                except Exception:
                     splitObjects = pm.polySeparate(pm.ls(selection, objectsOnly=1))
             pm.select(splitObjects[-1])
             return extract
@@ -228,16 +441,15 @@ class Polygons_maya(Polygons, SlotsMaya):
         tb = self.sb.polygons.tb006
 
         selected_faces = pm.polyEvaluate(faceComponent=1)
-        if isinstance(
-            selected_faces, str
-        ):  #'Nothing counted : no polygonal object is selected.'
+        # 'Nothing counted : no polygonal object is selected.'
+        if isinstance(selected_faces, str):
             self.sb.message_box(
                 "<strong>Nothing selected</strong>.<br>Operation requires a face selection.",
                 message_type="Error",
             )
             return
 
-        offset = float(tb.ctxMenu.s001.value())
+        offset = float(tb.option_menu.s001.value())
         return pm.polyExtrudeFacet(
             selected_faces,
             keepFacesTogether=1,
@@ -257,18 +469,18 @@ class Polygons_maya(Polygons, SlotsMaya):
         tb = self.sb.polygons.tb007
 
         dv = u = v = 0
-        if tb.ctxMenu.chk008.isChecked():  # Split U
+        if tb.option_menu.chk008.isChecked():  # Split U
             u = 2
-        if tb.ctxMenu.chk009.isChecked():  # Split V
+        if tb.option_menu.chk009.isChecked():  # Split V
             v = 2
 
         mode = 0  # The subdivision mode. 0=quads, 1=triangles
         subdMethod = 1  # subdivision type: 0=exponential(traditional subdivision) 1=linear(number of faces per edge grows linearly)
-        if tb.ctxMenu.chk010.isChecked():  # tris
+        if tb.option_menu.chk010.isChecked():  # tris
             mode = dv = 1
             subdMethod = 0
         if all(
-            [tb.ctxMenu.chk008.isChecked(), tb.ctxMenu.chk009.isChecked()]
+            [tb.option_menu.chk008.isChecked(), tb.option_menu.chk009.isChecked()]
         ):  # subdivide once into quads
             dv = 1
             subdMethod = 0
@@ -301,21 +513,21 @@ class Polygons_maya(Polygons, SlotsMaya):
                 "<strong>Nothing selected</strong>.<br>Operation requires the selection of at least two objects.",
                 message_type="Error",
             )
-        if tb.ctxMenu.chk011.isChecked():  # union
+        if tb.option_menu.chk011.isChecked():  # union
             pm.mel.PolygonBooleanIntersection()
 
-        if tb.ctxMenu.chk012.isChecked():  # difference
+        if tb.option_menu.chk012.isChecked():  # difference
             pm.mel.PolygonBooleanDifference()
 
-        if tb.ctxMenu.chk013.isChecked():  # intersection
+        if tb.option_menu.chk013.isChecked():  # intersection
             pm.mel.PolygonBooleanIntersection()
 
     def tb009(self, state=None):
         """Snap Closest Verts"""
         tb = self.sb.polygons.tb009
 
-        tolerance = tb.ctxMenu.s005.value()
-        freezetransforms = tb.ctxMenu.chk016.isChecked()
+        tolerance = tb.option_menu.s005.value()
+        freezetransforms = tb.option_menu.chk016.isChecked()
 
         selection = pm.ls(sl=1, objectsOnly=1, type="transform")
         if len(selection) > 1:
@@ -376,7 +588,7 @@ class Polygons_maya(Polygons, SlotsMaya):
         try:
             p1 = pm.pointPosition(verts[0], world=True)
             p2 = pm.pointPosition(verts[1], world=True)
-        except IndexError as error:
+        except IndexError:
             p1, p2 = [
                 (0.0005, 0, 0),
                 (0, 0, 0),
@@ -500,7 +712,7 @@ print(__name__)
 #       '''
 #       tb = self.sb.polygons.tb005
 #       if state=='setMenu':
-#           # tb.ctxMenu.add('QCheckBox', setText='Delete Original', setObjectName='chk007', setChecked=True, setToolTip='Delete original selected faces.')
+#           # tb.option_menu.add('QCheckBox', setText='Delete Original', setObjectName='chk007', setChecked=True, setToolTip='Delete original selected faces.')
 #           return
 
 #       vertexMask = pm.selectType (query=True, vertex=True)
@@ -531,7 +743,7 @@ print(__name__)
 #                   # print(sel)
 #                   # extractedObject = "extracted_"+sel[0]
 #                   # pm.duplicate (sel[0], name=extractedObject)
-#                   # if tb.ctxMenu.chk007.isChecked(): #delete original
+#                   # if tb.option_menu.chk007.isChecked(): #delete original
 #                   #   pm.delete (selFace)
 
 #                   # allFace = [] #populate a list of all faces in the duplicated object

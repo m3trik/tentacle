@@ -8,13 +8,13 @@ class Polygons_max(Polygons, SlotsMax):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        cmb = self.sb.polygons.draggableHeader.ctxMenu.cmb000
+        cmb = self.sb.polygons.draggableHeader.ctx_menu.cmb000
         items = ["Bridge", "Extrude"]
         cmb.addItems_(items, "Polygon Editors")
 
     def cmb000(self, index=-1):
         """Editors"""
-        cmb = self.sb.polygons.draggableHeader.ctxMenu.cmb000
+        cmb = self.sb.polygons.draggableHeader.ctx_menu.cmb000
 
         if index > 0:
             text = cmb.items[index]
@@ -58,7 +58,7 @@ class Polygons_max(Polygons, SlotsMax):
         """Merge Vertices"""
         tb = self.sb.polygons.tb000
 
-        tolerance = float(tb.ctxMenu.s002.value())
+        tolerance = float(tb.option_menu.s002.value())
         selection = rt.selection
 
         if selection:
@@ -85,7 +85,7 @@ class Polygons_max(Polygons, SlotsMax):
         """Bridge"""
         tb = self.sb.polygons.tb001
 
-        divisions = tb.ctxMenu.s003.value()
+        divisions = tb.option_menu.s003.value()
 
         for obj in rt.selection:
             obj.EditablePoly.Bridge()  # perform bridge
@@ -95,7 +95,7 @@ class Polygons_max(Polygons, SlotsMax):
         """Combine"""
         tb = self.sb.polygons.tb002
 
-        if tb.ctxMenu.chk000.isChecked():
+        if tb.option_menu.chk000.isChecked():
             pass
 
         sel = rt.selection
@@ -128,7 +128,7 @@ class Polygons_max(Polygons, SlotsMax):
         """Extrude"""
         tb = self.sb.polygons.tb003
 
-        keepFacesTogether = tb.ctxMenu.chk002.isChecked()  # keep faces/edges together.
+        keepFacesTogether = tb.option_menu.chk002.isChecked()  # keep faces/edges together.
 
         rt.macros.run("Ribbon - Modeling", "EPoly_Extrude")
         # for obj in rt.selection:
@@ -138,7 +138,7 @@ class Polygons_max(Polygons, SlotsMax):
         """Bevel (Chamfer)"""
         tb = self.sb.polygons.tb004
 
-        width = float(tb.ctxMenu.s000.value())
+        width = float(tb.option_menu.s000.value())
 
         rt.macros.run("Ribbon - Modeling", "EPoly_Chamfer")
         # width = float(self.sb.polygons.s000.value())
@@ -178,7 +178,7 @@ class Polygons_max(Polygons, SlotsMax):
         """Inset Face Region"""
         tb = self.sb.polygons.tb006
 
-        offset = float(tb.ctxMenu.s001.value())
+        offset = float(tb.option_menu.s001.value())
         maxEval(
             """
 		Try 
@@ -197,18 +197,18 @@ class Polygons_max(Polygons, SlotsMax):
         tb = self.sb.polygons.tb007
 
         dv = u = v = 0
-        if tb.ctxMenu.chk008.isChecked():  # Split U
+        if tb.option_menu.chk008.isChecked():  # Split U
             u = 2
-        if tb.ctxMenu.chk009.isChecked():  # Split V
+        if tb.option_menu.chk009.isChecked():  # Split V
             v = 2
 
         mode = 0  # The subdivision mode. 0=quads, 1=triangles
         subdMethod = 1  # subdivision type: 0=exponential(traditional subdivision) 1=linear(number of faces per edge grows linearly)
-        if tb.ctxMenu.chk010.isChecked():  # tris
+        if tb.option_menu.chk010.isChecked():  # tris
             mode = dv = 1
             subdMethod = 0
         if all(
-            [tb.ctxMenu.chk008.isChecked(), tb.ctxMenu.chk009.isChecked()]
+            [tb.option_menu.chk008.isChecked(), tb.option_menu.chk009.isChecked()]
         ):  # subdivide once into quads
             dv = 1
             subdMethod = 0
@@ -224,15 +224,15 @@ class Polygons_max(Polygons, SlotsMax):
 
         objects = list(SlotsMax.bitArrayToArray(rt.selection))
 
-        if tb.ctxMenu.chk011.isChecked():  # union
+        if tb.option_menu.chk011.isChecked():  # union
             for obj in objects[:-1]:
                 objects[-1] + obj
 
-        if tb.ctxMenu.chk012.isChecked():  # difference
+        if tb.option_menu.chk012.isChecked():  # difference
             for obj in objects[:-1]:
                 objects[-1] - obj
 
-        if tb.ctxMenu.chk013.isChecked():  # intersection
+        if tb.option_menu.chk013.isChecked():  # intersection
             for obj in objects[:-1]:
                 objects[-1] * obj
 
@@ -240,8 +240,8 @@ class Polygons_max(Polygons, SlotsMax):
         """Snap Closest Verts"""
         tb = self.sb.polygons.tb009
 
-        tolerance = tb.ctxMenu.s005.value()
-        freezetransforms = tb.ctxMenu.chk016.isChecked()
+        tolerance = tb.option_menu.s005.value()
+        freezetransforms = tb.option_menu.chk016.isChecked()
 
         selection = pm.ls(sl=1, objectsOnly=1, type="transform")
         if len(selection) > 1:

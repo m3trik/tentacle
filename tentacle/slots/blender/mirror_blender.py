@@ -9,13 +9,13 @@ class Mirror_blender(Mirror, SlotsBlender):
         SlotsBlender.__init__(self, *args, **kwargs)
         Mirror.__init__(self, *args, **kwargs)
 
-        cmb = self.sb.mirror.draggableHeader.ctxMenu.cmb000
+        cmb = self.sb.mirror.draggableHeader.ctx_menu.cmb000
         items = [""]
         cmb.addItems_(items, "")
 
     def cmb000(self, index=-1):
         """Editors"""
-        cmb = self.sb.mirror.draggableHeader.ctxMenu.cmb000
+        cmb = self.sb.mirror.draggableHeader.ctx_menu.cmb000
 
         if index > 0:
             if index == cmd.items.index(""):
@@ -34,12 +34,12 @@ class Mirror_blender(Mirror, SlotsBlender):
         """
         tb = self.sb.mirror.tb000
 
-        axis = self.sb.get_axis_from_checkboxes("chk000-3", tb.ctxMenu)
-        cutMesh = tb.ctxMenu.chk005.isChecked()  # cut mesh on axis before mirror.
-        instance = tb.ctxMenu.chk004.isChecked()
-        mergeThreshold = tb.ctxMenu.s000.value()
+        axis = self.sb.get_axis_from_checkboxes("chk000-3", tb.option_menu)
+        cutMesh = tb.option_menu.chk005.isChecked()  # cut mesh on axis before mirror.
+        instance = tb.option_menu.chk004.isChecked()
+        mergeThreshold = tb.option_menu.s000.value()
         deleteHistory = (
-            tb.ctxMenu.chk006.isChecked()
+            tb.option_menu.chk006.isChecked()
         )  # delete the object's non-deformer history.
 
         return self.mirrorGeometry(
