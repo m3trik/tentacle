@@ -9,7 +9,7 @@ class Subdivision_maya(Subdivision, SlotsMaya):
         super().__init__(*args, **kwargs)
 
         ctx = self.sb.subdivision.draggableHeader.ctx_menu
-        if not ctx.containsMenuItems:
+        if not ctx.contains_items:
             ctx.add(
                 self.sb.ComboBox,
                 setObjectName="cmb000",

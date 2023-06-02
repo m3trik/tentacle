@@ -11,11 +11,11 @@ class Animation(Slots):
         """
 		"""
         ctx = self.sb.animation.draggableHeader.ctx_menu
-        if not ctx.containsMenuItems:
+        if not ctx.contains_items:
             ctx.add(self.sb.ComboBox, setObjectName="cmb000", setToolTip="")
 
         ctx = self.sb.animation.tb000.option_menu
-        if not ctx.containsMenuItems:
+        if not ctx.contains_items:
             ctx.add(
                 "QSpinBox",
                 setPrefix="Frame: ",
@@ -40,7 +40,7 @@ class Animation(Slots):
             )
 
         ctx = self.sb.animation.tb001.option_menu
-        if not ctx.containsMenuItems:
+        if not ctx.contains_items:
             ctx.add(
                 "QSpinBox",
                 setPrefix="Time: ",

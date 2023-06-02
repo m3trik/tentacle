@@ -6,49 +6,47 @@ try:
     import pymel.core as pm
 except ImportError as error:
     print(__file__, error)
-
+from pythontk import truncate
 import pythontk as ptk
 import mayatk as mtk
 from uitk.switchboard import signals
 from tentacle.slots.maya import SlotsMaya
-from tentacle.slots.file import File
 
 
-class File_maya(File, SlotsMaya):
-    get_recent_files = lambda _, *a, **k: mtk.get_recent_files(*a, **k)
-    get_recent_projects = lambda _, *a, **k: mtk.get_recent_projects(*a, **k)
-    get_recent_autosave = lambda _, *a, **k: mtk.get_recent_autosave(*a, **k)
-    get_workspace_scenes = lambda _, *a, **k: mtk.get_workspace_scenes(*a, **k)
-    reference_scene = lambda _, *a, **k: mtk.reference_scene(*a, **k)
-
+class File_maya(SlotsMaya):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        cmb000 = self.sb.file.draggableHeader.ctx_menu.cmb000
+    def draggableHeader_init(self, w):
+        """ """
+        w.ctx_menu.add(self.sb.ComboBox, setObjectName="cmb000", setToolTip="")
+
+        cmb000 = w.ctx_menu.cmb000
         items = []
         cmb000.addItems_(items, "File Editors")
 
-        # set the initial autosave state.
-        cmb002 = self.sb.file.cmb002
+    def cmb002_init(self, w):
+        """ """
+        # Get the current autosave state
         autoSaveState = pm.autoSave(q=True, enable=True)
         autoSaveInterval = pm.autoSave(q=True, int=True)
         autoSaveAmount = pm.autoSave(q=True, maxBackups=True)
         # open directory
-        cmb002.option_menu.add(
+        w.option_menu.add(
             "QPushButton",
             setObjectName="b000",
             setText="Open Directory",
             setToolTip="Open the autosave directory.",
         )
         # delete all
-        cmb002.option_menu.add(
+        w.option_menu.add(
             "QPushButton",
             setObjectName="b002",
             setText="Delete All",
             setToolTip="Delete all autosave files.",
         )
         # toggle autosave
-        cmb002.option_menu.add(
+        w.option_menu.add(
             "QCheckBox",
             setText="Autosave",
             setObjectName="chk006",
@@ -56,7 +54,7 @@ class File_maya(File, SlotsMaya):
             setToolTip="Set the autosave state as active or disabled.",
         )
         # autosave amount
-        cmb002.option_menu.add(
+        w.option_menu.add(
             "QSpinBox",
             setPrefix="Amount: ",
             setObjectName="s000",
@@ -66,7 +64,7 @@ class File_maya(File, SlotsMaya):
             setToolTip="The number of autosave files to retain.",
         )
         # autosave interval
-        cmb002.option_menu.add(
+        w.option_menu.add(
             "QSpinBox",
             setPrefix="Interval: ",
             setObjectName="s001",
@@ -75,23 +73,24 @@ class File_maya(File, SlotsMaya):
             set_height=20,
             setToolTip="The autosave interval in minutes.",
         )
-        cmb002.option_menu.chk006.toggled.connect(
+        w.option_menu.chk006.toggled.connect(
             lambda s: pm.autoSave(enable=s, limitBackups=True)
         )
-        cmb002.option_menu.s000.valueChanged.connect(
+        w.option_menu.s000.valueChanged.connect(
             lambda v: pm.autoSave(maxBackups=v, limitBackups=True)
         )
-        cmb002.option_menu.s001.valueChanged.connect(
+        w.option_menu.s001.valueChanged.connect(
             lambda v: pm.autoSave(int=v * 60, limitBackups=True)
         )
-        cmb002.addItems_(
+        w.addItems_(
             mtk.get_recent_autosave(format="timestamp|standard"),
             "Recent Autosave",
             clear=True,
         )
 
-        cmb003 = self.sb.file.cmb003
-        cmb003.addItems_(
+    def cmb003_init(self, w):
+        """ """
+        w.addItems_(
             [
                 "Import file",
                 "Import Options",
@@ -101,7 +100,8 @@ class File_maya(File, SlotsMaya):
             "Import",
         )
 
-        cmb004 = self.sb.file.cmb004
+    def cmb004_init(self, w):
+        """ """
         items = [
             "Export Selection",
             "Send to Unreal",
@@ -115,9 +115,98 @@ class File_maya(File, SlotsMaya):
             "FBX Export Presets",
             "Obj Export Presets",
         ]
-        cmb004.addItems_(items, "Export")
+        w.addItems_(items, "Export")
 
+    def cmb005_init(self, w):
+        """ """
+        w.option_menu.add(
+            "QPushButton",
+            setObjectName="b001",
+            setText="Last",
+            setToolTip="Open the most recent file.",
+        )
+        w.addItems_(
+            mtk.get_recent_files(slice(0, 20), format="timestamp|standard"),
+            "Recent Files",
+            clear=True,
+        )
+
+    def cmb006_init(self, w):
+        """ """
         self.cmb006()  # init workspace items to reflect the current workspace.
+
+        w.option_menu.add(
+            self.sb.ComboBox,
+            setObjectName="cmb001",
+            setToolTip="Current project directory root.",
+        )
+        w.option_menu.add(
+            self.sb.Label,
+            setObjectName="lbl000",
+            setText="Set",
+            setToolTip="Set the project directory.",
+        )
+        w.option_menu.add(
+            self.sb.Label,
+            setObjectName="lbl004",
+            setText="Root",
+            setToolTip="Open the project directory.",
+        )
+        w.option_menu.cmb001.addItems_(
+            mtk.get_recent_projects(slice(0, 20), format="timestamp|standard"),
+            "Recent Projects",
+            clear=True,
+        )
+
+    def list000_init(self, widget):
+        """ """
+        widget.position = "top"
+        widget.sublist_y_offset = 18
+        widget.fixed_item_height = 18
+        recentFiles = mtk.get_recent_files(slice(0, 6))
+        w1 = widget.add("Recent Files")
+        truncated = truncate(recentFiles, 65)
+        w1.sublist.add(truncated, recentFiles)
+        widget.setVisible(bool(recentFiles))
+
+    def referenceSceneMenu(self, clear=False):
+        """ """
+        try:
+            if clear:
+                del self._referenceSceneMenu
+            return self._referenceSceneMenu
+
+        except AttributeError:
+            menu = self.sb.Menu(self.sb.file.lbl005)
+            for i in mtk.get_workspace_scenes(
+                fullPath=True
+            ):  # zip(mtk.get_workspace_scenes(fullPath=False), mtk.get_workspace_scenes(fullPath=True)):
+                chk = menu.add(self.sb.CheckBox, setText=i)
+                chk.toggled.connect(
+                    lambda state, scene=i: mtk.reference_scene(scene, not state)
+                )
+
+            self._referenceSceneMenu = menu
+            return self._referenceSceneMenu
+
+    def lbl005(self):
+        """Reference"""
+        self.referenceSceneMenu().show()
+
+    @SlotsMaya.hideMain
+    def b001(self):
+        """Recent Files: Open Last"""
+        self.cmb005(index=1)
+
+    @SlotsMaya.hideMain
+    def b007(self):
+        """Import file"""
+        self.cmb003(index=1)
+
+    @SlotsMaya.hideMain
+    def b008(self):
+        """Export Selection"""
+        self.cmb004(index=1)
 
     @signals("on_item_interacted")
     def list000(self, item):
@@ -257,7 +346,7 @@ class File_maya(File, SlotsMaya):
 
     def b002(self):
         """Autosave: Delete All"""
-        files = self.get_recent_autosave()
+        files = mtk.get_recent_autosave()
         for file in files:
             try:
                 os.remove(file)

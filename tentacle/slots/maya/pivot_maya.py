@@ -13,7 +13,7 @@ class Pivot_maya(Pivot, SlotsMaya):
         cmb.addItems_(items, "")
 
         ctx = self.sb.pivot.tb000.option_menu
-        if not ctx.containsMenuItems:
+        if not ctx.contains_items:
             ctx.add(
                 "QCheckBox",
                 setText="Reset Pivot Position",
@@ -30,7 +30,7 @@ class Pivot_maya(Pivot, SlotsMaya):
             )
 
         ctx = self.sb.pivot.tb001.option_menu
-        if not ctx.containsMenuItems:
+        if not ctx.contains_items:
             ctx.add(
                 "QRadioButton",
                 setText="Component",

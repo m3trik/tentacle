@@ -10,7 +10,7 @@ class Subdivision_blender(Subdivision, SlotsBlender):
         Subdivision.__init__(self, *args, **kwargs)
 
         ctx = self.sb.subdivision.draggableHeader.ctx_menu
-        if not ctx.containsMenuItems:
+        if not ctx.contains_items:
             ctx.add(
                 self.sb.ComboBox,
                 setObjectName="cmb000",

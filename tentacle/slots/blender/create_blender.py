@@ -10,7 +10,7 @@ class Create_blender(Create, SlotsBlender):
         Create.__init__(self, *args, **kwargs)
 
         ctx = self.sb.create.draggableHeader.ctx_menu
-        if not ctx.containsMenuItems:
+        if not ctx.contains_items:
             ctx.add(self.sb.ComboBox, setObjectName="cmb000", setToolTip="")
 
         cmb = self.sb.create.draggableHeader.ctx_menu.cmb000
@@ -39,7 +39,7 @@ class Create_blender(Create, SlotsBlender):
         cmb.addItems_(items)
 
         ctx = self.sb.create.tb000.option_menu
-        if not ctx.containsMenuItems:
+        if not ctx.contains_items:
             ctx.add(
                 "QCheckBox",
                 setText="Translate",

@@ -16,7 +16,7 @@ class Subdivision_max(Subdivision, SlotsMax):
         self.sb.subdivision.s001.setValue(0)
 
         ctx = self.sb.subdivision.draggableHeader.ctx_menu
-        if not ctx.containsMenuItems:
+        if not ctx.contains_items:
             ctx.add(
                 self.sb.ComboBox,
                 setObjectName="cmb000",

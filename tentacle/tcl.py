@@ -112,6 +112,10 @@ class Tcl(QtWidgets.QStackedWidget):
             ui.setWindowFlags(QtCore.Qt.Tool | QtCore.Qt.FramelessWindowHint)
             ui.setAttribute(QtCore.Qt.WA_TranslucentBackground)
             ui.centralWidget().setProperty("class", "translucentBgWithBorder")
+            for w in ui.widgets:
+                print(w.name)
+                if w.__class__.__name__ == "Menu":
+                    w.setProperty("class", "translucentBgWithBorder")
             ui.set_style("dark")
             self.key_show_release.connect(ui.hide)
 

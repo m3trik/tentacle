@@ -14,7 +14,7 @@ class File_max(File, SlotsMax):
 
         cmb = self.sb.file.cmb002
         ctx = cmb.option_menu
-        if not ctx.containsMenuItems:
+        if not ctx.contains_items:
             ctx.add(
                 "QPushButton",
                 setObjectName="b000",

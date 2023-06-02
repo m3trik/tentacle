@@ -14,7 +14,7 @@ class Edit_blender(Edit, SlotsBlender):
         cmb.addItems_(items, "Maya Editors")
 
         ctx = self.sb.edit.tb000.option_menu
-        if not ctx.containsMenuItems:
+        if not ctx.contains_items:
             ctx.add(
                 "QCheckBox",
                 setText="All Geometry",

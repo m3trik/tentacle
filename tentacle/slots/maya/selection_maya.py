@@ -77,9 +77,9 @@ class Selection(SlotsMaya):
             setObjectName="lbl002",
             setToolTip="Delete the current set.",
         )
-        w.returnPressed.connect(
-            lambda m=w.option_menu.lastActiveChild: getattr(self, m(name=1))()
-        )
+        # w.returnPressed.connect(
+        #     lambda m=w.option_menu.lastActiveChild: getattr(self, m(name=1))()
+        # )
         w.currentIndexChanged.connect(self.lbl005)
         w.beforePopupShown.connect(self.cmb001)
 
@@ -610,7 +610,8 @@ class Selection(SlotsMaya):
         cmb.clear()
         items = [str(i) for i in pm.ls(sl=1, flatten=1)]
         widgets = [
-            cmb.option_menu.add("QCheckBox", setText=t, setChecked=1) for t in items[:50]
+            cmb.option_menu.add("QCheckBox", setText=t, setChecked=1)
+            for t in items[:50]
         ]  # selection list is capped with a slice at 50 elements.
 
         for w in widgets:

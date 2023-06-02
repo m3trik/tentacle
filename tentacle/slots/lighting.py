@@ -11,5 +11,5 @@ class Lighting(Slots):
         """
 		"""
         ctx = self.sb.lighting.draggableHeader.ctx_menu
-        if not ctx.containsMenuItems:
+        if not ctx.contains_items:
             ctx.add(self.sb.ComboBox, setObjectName="cmb000", setToolTip="")

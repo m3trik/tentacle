@@ -61,10 +61,10 @@ class Slots(QtCore.QObject):
 
         try:  # get the objects name to as the window title:
             title = obj.name()
-        except:
+        except Exception:
             try:
                 title = obj.name
-            except:
+            except Exception:
                 title = str(obj)
 
         menu = self.sb.Menu(
@@ -102,7 +102,10 @@ class Slots(QtCore.QObject):
 
             else:  # isinstance(v, (list, set, tuple)):
                 w = menu.add(
-                    "QLineEdit", label=a, checkable_label=checkable_label, setText=str(v)
+                    "QLineEdit",
+                    label=a,
+                    checkable_label=checkable_label,
+                    setText=str(v),
                 )
                 w.returnPressed.connect(
                     lambda w=w, a=a: fn(

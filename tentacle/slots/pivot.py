@@ -11,7 +11,7 @@ class Pivot(Slots):
         """
 		"""
         ctx = self.sb.pivot.draggableHeader.ctx_menu
-        if not ctx.containsMenuItems:
+        if not ctx.contains_items:
             ctx.add(self.sb.ComboBox, setObjectName="cmb000", setToolTip="")
 
     def draggableHeader(self, state=None):

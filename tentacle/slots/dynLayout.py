@@ -11,7 +11,7 @@ class DynLayout(Slots):
         """
 		"""
         ctx = self.sb.dynLayout.draggableHeader.ctx_menu
-        if not ctx.containsMenuItems:
+        if not ctx.contains_items:
             ctx.add(self.sb.ComboBox, setObjectName="cmb000", setToolTip="")
             ctx.add(
                 "QPushButton",
