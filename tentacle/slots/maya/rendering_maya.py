@@ -1,20 +1,28 @@
 # !/usr/bin/python
 # coding=utf-8
-from tentacle.slots.maya import *
-from tentacle.slots.rendering import Rendering
+try:
+    import pymel.core as pm
+except ImportError as error:
+    print(__file__, error)
+from tentacle.slots.maya import SlotsMaya
 
 
-class Rendering_maya(Rendering, SlotsMaya):
+class Rendering_maya(SlotsMaya):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        cmb = self.sb.rendering.draggableHeader.ctx_menu.cmb000
+    def draggableHeader_init(self, widget):
+        """ """
+        cmb = widget.option_menu.add(
+            self.sb.ComboBox, setObjectName="cmb000", setToolTip=""
+        )
         items = [""]
         cmb.addItems_(items, "")
 
-    def cmb000(self, index=-1):
+    def cmb000(self, *args, **kwargs):
         """Editors"""
-        cmb = self.sb.rendering.draggableHeader.ctx_menu.cmb000
+        cmb = kwargs.get("widget")
+        index = kwargs.get("index")
 
         if index > 0:
             text = cmb.items[index]
@@ -22,44 +30,37 @@ class Rendering_maya(Rendering, SlotsMaya):
                 pass
             cmb.setCurrentIndex(0)
 
-    def cmb001(self, index=-1):
+    def cmb001_init(self, widget):
         """Render: camera"""
-        cmb = self.sb.rendering.cmb001
+        lst = {c.name(): c for c in pm.ls(type="camera") if "Target" not in c.name()}
+        widget.addItems_(lst)
 
-        # self.cams = [cam for cam in rt.cameras if 'Target' not in str(cam)]
-        # if self.cams:
-        # 	lst = [str(cam.name) for cam in self.cams] #camera names
-        # 	contents = cmb.addItems_(lst)
-
-    def b000(self):
+    def b000(self, *args, **kwargs):
         """Render Current Frame"""
-        cmb = self.sb.rendering.cmb001
-        index = cmb.currentIndex()
+        cmb = kwargs.get("widget")
+        index = kwargs.get("index")
 
-        try:
-            rt.render(camera=self.cams[index])  # render with selected camera
-        except:
-            pm.mel.eval("RenderIntoNewWindow;")
+        pm.render(camera=cmb.items[index])  # render with selected camera
 
-    def b001(self):
+    def b001(self, *args, **kwargs):
         """Open Render Settings Window"""
-        pm.mel.eval("unifiedRenderGlobalsWindow;")
+        pm.mel.unifiedRenderGlobalsWindow()
 
-    def b002(self):
+    def b002(self, *args, **kwargs):
         """Redo Previous Render"""
-        pm.mel.eval("redoPreviousRender render;")
+        pm.mel.redoPreviousRender("render")
 
-    def b003(self):
+    def b003(self, *args, **kwargs):
         """Editor: Render Setup"""
-        pm.mel.eval("RenderSetupWindow;")
+        pm.mel.RenderSetupWindow()
 
-    def b004(self):
+    def b004(self, *args, **kwargs):
         """Editor: Rendering Flags"""
-        pm.mel.eval("renderFlagsWindow;")
+        pm.mel.renderFlagsWindow()
 
-    def b005(self):
+    def b005(self, *args, **kwargs):
         """Apply Vray Attributes To Selected Objects"""
-        selection = pm.ls(selection=1)
+        selection = pm.ls(selection=True)
         currentID = 1
         for obj in selection:
             # get renderable shape nodes relative to transform, iterate through and apply subdivision
@@ -77,9 +78,9 @@ class Rendering_maya(Rendering, SlotsMaya):
             pm.setAttr(obj + ".vrayObjectID", currentID)
             currentID += 1
 
-    def b006(self):
+    def b006(self, *args, **kwargs):
         """Load Vray Plugin"""
-        if loadVRayPlugin(query=True):
+        if self.loadVRayPlugin(query=True):
             self.loadVRayPlugin(unload=True)
         else:
             self.loadVRayPlugin()

@@ -13,7 +13,7 @@ class Display_blender(Display, SlotsBlender):
         items = [""]
         cmb.addItems_(items, "")
 
-    def cmb000(self, index=-1):
+    def cmb000(self, *args, **kwargs):
         """Editors"""
         cmb = self.sb.display.draggableHeader.ctx_menu.cmb000
 
@@ -23,27 +23,27 @@ class Display_blender(Display, SlotsBlender):
                 pass
             cmb.setCurrentIndex(0)
 
-    def b000(self):
+    def b000(self, *args, **kwargs):
         """Set Wireframe color"""
         pm.mel.objectColorPalette()
 
-    def b001(self):
+    def b001(self, *args, **kwargs):
         """Toggle Visibility"""
         mel.eval("ToggleVisibilityAndKeepSelection();")
 
-    def b002(self):
+    def b002(self, *args, **kwargs):
         """Hide Selected"""
         mel.eval("HideSelectedObjects;")
 
-    def b003(self):
+    def b003(self, *args, **kwargs):
         """Show Selected"""
         mel.eval("ShowSelectedObjects;")
 
-    def b004(self):
+    def b004(self, *args, **kwargs):
         """Show Geometry"""
         mel.eval("hideShow -geometry -show;")
 
-    def b005(self):
+    def b005(self, *args, **kwargs):
         """Xray Selected"""
         mel.eval(
             """
@@ -56,7 +56,7 @@ class Display_blender(Display, SlotsBlender):
 		"""
         )
 
-    def b006(self):
+    def b006(self, *args, **kwargs):
         """Un-Xray All"""
         mel.eval(
             """
@@ -72,7 +72,7 @@ class Display_blender(Display, SlotsBlender):
 		"""
         )
 
-    def b007(self):
+    def b007(self, *args, **kwargs):
         """Xray Other"""
         mel.eval(
             """
@@ -92,11 +92,11 @@ class Display_blender(Display, SlotsBlender):
 		"""
         )
 
-    def b008(self):
+    def b008(self, *args, **kwargs):
         """Filter Objects"""
         mel.eval("bt_filterActionWindow;")
 
-    def b009(self):
+    def b009(self, *args, **kwargs):
         """Toggle Material Override"""
         from maya.cmds import get_panel  # pymel get_panel is broken in ver: 2022.
 
@@ -107,7 +107,7 @@ class Display_blender(Display, SlotsBlender):
             "Default Material Override: <hl>{}</hl>.".format(state)
         )
 
-    def b011(self):
+    def b011(self, *args, **kwargs):
         """Toggle Component Id Display"""
         index = ptk.cycle([0, 1, 2, 3, 4], "componentID")
 
@@ -149,13 +149,13 @@ class Display_blender(Display, SlotsBlender):
         elif index == 4:
             self.mtk.viewport_message("component ID <hl>Off</hl>.")
 
-    def b012(self):
+    def b012(self, *args, **kwargs):
         """Wireframe Non Active (Wireframe All But The Selected Item)"""
         current_panel = pm.get_panel(withFocus=1)
         state = pm.modelEditor(current_panel, query=1, activeOnly=1)
         pm.modelEditor(current_panel, edit=1, activeOnly=not state)
 
-    def b021(self):
+    def b021(self, *args, **kwargs):
         """Template Selected"""
         pm.toggle(template=1)  # pm.toggle(template=1, query=1)
 

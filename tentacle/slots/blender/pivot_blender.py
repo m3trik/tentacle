@@ -52,7 +52,7 @@ class Pivot_blender(Pivot, SlotsBlender):
                 setToolTip="Center the pivot on world origin.",
             )
 
-    def cmb000(self, index=-1):
+    def cmb000(self, *args, **kwargs):
         """Editors"""
         cmb = self.sb.pivot.draggableHeader.ctx_menu.cmb000
 
@@ -62,7 +62,7 @@ class Pivot_blender(Pivot, SlotsBlender):
                 pass
             cmb.setCurrentIndex(0)
 
-    def tb000(self, state=None):
+    def tb000(self, *args, **kwargs):
         """Reset Pivot"""
         tb = self.sb.pivot.tb000
 
@@ -78,7 +78,7 @@ class Pivot_blender(Pivot, SlotsBlender):
             resetPivotPosition, resetPivotOrientation
         )
 
-    def tb001(self, state=None):
+    def tb001(self, *args, **kwargs):
         """Center Pivot"""
         tb = self.sb.pivot.tb001
 
@@ -93,7 +93,7 @@ class Pivot_blender(Pivot, SlotsBlender):
         elif world:
             pm.xform(worldSpace=1, pivots=[0, 0, 0])
 
-    def b004(self):
+    def b004(self, *args, **kwargs):
         """Bake Pivot"""
         pm.mel.BakeCustomPivot()
 

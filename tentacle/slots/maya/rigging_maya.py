@@ -4,7 +4,6 @@ try:
     import pymel.core as pm
 except ImportError as error:
     print(__file__, error)
-
 import mayatk as mtk
 from tentacle.slots.maya import SlotsMaya
 
@@ -13,12 +12,11 @@ class Rigging_maya(SlotsMaya):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-    def draggableHeader_init(self, w):
+    def draggableHeader_init(self, widget):
         """ """
-        w.ctx_menu.add(
+        cmb = widget.ctx_menu.add(
             self.sb.ComboBox, setObjectName="cmb000", setToolTip="Rigging Editors"
         )
-
         items = [
             "Quick Rig",
             "HumanIK",
@@ -28,37 +26,37 @@ class Rigging_maya(SlotsMaya):
             "Channel Control Editor",
             "Set Driven Key",
         ]
-        w.ctx_menu.cmb000.addItems_(items, "Rigging Editors")
+        cmb.addItems_(items, "Rigging Editors")
 
-    def cmb001_init(self, w):
+    def cmb001_init(self, widget):
         """ """
         items = ["Joints", "Locator", "IK Handle", "Lattice", "Cluster"]
-        w.addItems_(items, "Create")
+        widget.addItems_(items, "Create")
 
-    def tb000_init(self, w):
+    def tb000_init(self, widget):
         """ """
-        w.option_menu.add(
+        widget.option_menu.add(
             "QCheckBox",
             setText="Joints",
             setObjectName="chk000",
             setChecked=True,
             setToolTip="Display Joints.",
         )
-        w.option_menu.add(
+        widget.option_menu.add(
             "QCheckBox",
             setText="IK",
             setObjectName="chk001",
             setChecked=True,
             setToolTip="Display IK.",
         )
-        w.option_menu.add(
+        widget.option_menu.add(
             "QCheckBox",
             setText="IK\\FK",
             setObjectName="chk002",
             setChecked=True,
             setToolTip="Display IK\\FK.",
         )
-        w.option_menu.add(
+        widget.option_menu.add(
             "QDoubleSpinBox",
             setPrefix="Tolerance: ",
             setObjectName="s000",
@@ -68,18 +66,18 @@ class Rigging_maya(SlotsMaya):
         )
         self.chk000()  # init scale joint value
 
-    def tb001_init(self, w):
+    def tb001_init(self, widget):
         """ """
-        w.option_menu.add(
+        widget.option_menu.add(
             "QCheckBox",
             setText="Align world",
             setObjectName="chk003",
             setToolTip="Align joints with the worlds transform.",
         )
 
-    def tb002_init(self, w):
+    def tb002_init(self, widget):
         """ """
-        w.option_menu.add(
+        widget.option_menu.add(
             "QCheckBox",
             setText="Template Child",
             setObjectName="chk004",
@@ -87,9 +85,9 @@ class Rigging_maya(SlotsMaya):
             setToolTip="Template child object(s) after parenting.",
         )
 
-    def tb003_init(self, w):
+    def tb003_init(self, widget):
         """ """
-        w.option_menu.add(
+        widget.option_menu.add(
             "QDoubleSpinBox",
             setPrefix="Locator Scale: ",
             setObjectName="s001",
@@ -97,99 +95,99 @@ class Rigging_maya(SlotsMaya):
             setValue=1,
             setToolTip="The scale of the locator.",
         )
-        w.option_menu.add(
+        widget.option_menu.add(
             "QLineEdit",
             setPlaceholderText="Group Suffix:",
             setText="_GRP",
             setObjectName="t002",
             setToolTip="A string appended to the end of the created group's name.",
         )
-        w.option_menu.add(
+        widget.option_menu.add(
             "QLineEdit",
             setPlaceholderText="Locator Suffix:",
             setText="",
             setObjectName="t000",
             setToolTip="A string appended to the end of the created locator's name.",
         )
-        w.option_menu.add(
+        widget.option_menu.add(
             "QLineEdit",
             setPlaceholderText="Geometry Suffix:",
             setText="",
             setObjectName="t001",
             setToolTip="A string appended to the end of the existing geometry's name.",
         )
-        w.option_menu.add(
+        widget.option_menu.add(
             "QCheckBox",
             setText="Strip Suffix",
             setObjectName="chk016",
             setToolTip="Strip any of preexisting suffixes from the group name before appending the new ones.\nA suffix is defined as anything trailing an underscore.\nAny user-defined suffixes are stripped by default.",
         )
-        w.option_menu.add(
+        widget.option_menu.add(
             "QCheckBox",
             setText="Strip Digits",
             setObjectName="chk005",
             setChecked=True,
             setToolTip="Strip any trailing numeric characters from the name.\nIf the resulting name is not unique, maya will append a trailing digit.",
         )
-        w.option_menu.add(
+        widget.option_menu.add(
             "QCheckBox",
             setText="Parent",
             setObjectName="chk006",
             setChecked=True,
             setToolTip="Parent to object to the locator.",
         )
-        w.option_menu.add(
+        widget.option_menu.add(
             "QCheckBox",
             setText="Freeze Transforms",
             setObjectName="chk010",
             setChecked=True,
             setToolTip="Freeze transforms on the locator.",
         )
-        w.option_menu.add(
+        widget.option_menu.add(
             "QCheckBox",
             setText="Bake Child Pivot",
             setObjectName="chk011",
             setChecked=True,
             setToolTip="Bake pivot positions on the child object.",
         )
-        w.option_menu.add(
+        widget.option_menu.add(
             "QCheckBox",
             setText="Lock Child Translate",
             setObjectName="chk007",
             setChecked=True,
             setToolTip="Lock the translate values of the child object.",
         )
-        w.option_menu.add(
+        widget.option_menu.add(
             "QCheckBox",
             setText="Lock Child Rotation",
             setObjectName="chk008",
             setChecked=True,
             setToolTip="Lock the rotation values of the child object.",
         )
-        w.option_menu.add(
+        widget.option_menu.add(
             "QCheckBox",
             setText="Lock Child Scale",
             setObjectName="chk009",
             setToolTip="Lock the scale values of the child object.",
         )
 
-    def tb004_init(self, w):
+    def tb004_init(self, widget):
         """ """
-        w.option_menu.add(
+        widget.option_menu.add(
             "QCheckBox",
             setText="Translate",
             setObjectName="chk012",
             setChecked=False,
             setToolTip="",
         )
-        w.option_menu.add(
+        widget.option_menu.add(
             "QCheckBox",
             setText="Rotate",
             setObjectName="chk013",
             setChecked=False,
             setToolTip="",
         )
-        w.option_menu.add(
+        widget.option_menu.add(
             "QCheckBox",
             setText="Scale",
             setObjectName="chk014",
@@ -198,30 +196,30 @@ class Rigging_maya(SlotsMaya):
         )
         self.sb.connect_multi(
             (
-                w.option_menu.chk012,
-                w.option_menu.chk013,
-                w.option_menu.chk014,
+                widget.option_menu.chk012,
+                widget.option_menu.chk013,
+                widget.option_menu.chk014,
             ),
             "toggled",
             [
-                lambda state: self.sb.rigging.w.setText(
+                lambda state: self.sb.rigging.widget.setText(
                     "Lock Attributes"
                     if any(
                         (
-                            w.option_menu.chk012.isChecked(),
-                            w.option_menu.chk013.isChecked(),
-                            w.option_menu.chk014.isChecked(),
+                            widget.option_menu.chk012.isChecked(),
+                            widget.option_menu.chk013.isChecked(),
+                            widget.option_menu.chk014.isChecked(),
                         )
                     )
                     else "Unlock Attributes"
                 ),
-                lambda state: self.sb.rigging_submenu.w.setText(
+                lambda state: self.sb.rigging_submenu.widget.setText(
                     "Lock Transforms"
                     if any(
                         (
-                            w.option_menu.chk012.isChecked(),
-                            w.option_menu.chk013.isChecked(),
-                            w.option_menu.chk014.isChecked(),
+                            widget.option_menu.chk012.isChecked(),
+                            widget.option_menu.chk013.isChecked(),
+                            widget.option_menu.chk014.isChecked(),
                         )
                     )
                     else "Unlock Attributes"
@@ -229,9 +227,10 @@ class Rigging_maya(SlotsMaya):
             ],
         )
 
-    def cmb000(self, index=-1):
+    def cmb000(self, *args, **kwargs):
         """Editors"""
-        cmb = self.sb.rigging.draggableHeader.ctx_menu.cmb000
+        cmb = kwargs.get("widget")
+        index = kwargs.get("index")
 
         if index > 0:
             text = cmb.items[index]
@@ -251,9 +250,10 @@ class Rigging_maya(SlotsMaya):
                 pm.mel.eval("SetDrivenKeyOptions;")  # Set Driven Key
             cmb.setCurrentIndex(0)
 
-    def cmb001(self, index=-1):
+    def cmb001(self, *args, **kwargs):
         """Create"""
-        cmb = self.sb.rigging.cmb001
+        cmb = kwargs.get("widget")
+        index = kwargs.get("index")
 
         if index > 0:
             text = cmb.items[index]
@@ -269,28 +269,28 @@ class Rigging_maya(SlotsMaya):
                 pm.mel.eval("CreateCluster;")  # create cluster
             cmb.setCurrentIndex(0)
 
-    def chk000(self, state=None):
+    def chk000(self, *args, **kwargs):
         """Scale Joint"""
         self.sb.toggle_widgets(setUnChecked="chk001-2")
         self.sb.rigging.tb000.option_menu.s000.setValue(
             pm.jointDisplayScale(query=1)
         )  # init global joint display size
 
-    def chk001(self, state=None):
+    def chk001(self, *args, **kwargs):
         """Scale IK"""
         self.sb.toggle_widgets(setUnChecked="chk000, chk002")
         self.sb.rigging.tb000.option_menu.setValue(
             pm.ikHandleDisplayScale(query=1)
         )  # init IK handle display size
 
-    def chk002(self, state=None):
+    def chk002(self, *args, **kwargs):
         """Scale IK/FK"""
         self.sb.toggle_widgets(setUnChecked="chk000-1")
         self.sb.rigging.tb000.option_menu.setValue(
             pm.jointDisplayScale(query=1, ikfk=1)
         )  # init IKFK display size
 
-    def s000(self, value=None):
+    def s000(self, *args, **kwargs):
         """Scale Joint/IK/FK"""
         value = self.sb.rigging.tb000.option_menu.value()
 
@@ -301,13 +301,13 @@ class Rigging_maya(SlotsMaya):
         else:  # self.sb.rigging.chk002.isChecked():
             pm.jointDisplayScale(value, ikfk=1)  # set global IKFK display size
 
-    def tb000(self, state=None):
+    def tb000(self, *args, **kwargs):
         """Toggle Display Local Rotation Axes"""
-        tb = self.sb.rigging.tb000
+        tb = kwargs.get("widget")
 
         joints = pm.ls(type="joint")  # get all scene joints
-
         state = pm.toggle(joints[0], query=1, localAxis=1)
+
         if tb.option_menu.isChecked():
             if not state:
                 toggle = True
@@ -320,23 +320,23 @@ class Rigging_maya(SlotsMaya):
 
         mtk.viewport_message("Display Local Rotation Axes:<hl>" + str(state) + "</hl>")
 
-    def tb001(self, state=None):
+    def tb001(self, *args, **kwargs):
         """Orient Joints"""
-        tb = self.sb.rigging.tb001
+        tb = kwargs.get("widget")
 
         orientJoint = "xyz"  # orient joints
         alignWorld = tb.option_menu.chk003.isChecked()
+
         if alignWorld:
             orientJoint = "none"  # orient joint to world
 
         pm.joint(edit=1, orientJoint=orientJoint, zeroScaleOrient=1, ch=1)
 
-    def tb002(self, state=None):
+    def tb002(self, *args, **kwargs):
         """Constraint: Parent"""
-        tb = self.sb.rigging.tb002
+        tb = kwargs.get("widget")
 
         template = tb.option_menu.chk004.isChecked()
-
         objects = pm.ls(sl=1, objectsOnly=1)
 
         for obj in objects[:-1]:
@@ -347,9 +347,9 @@ class Rigging_maya(SlotsMaya):
                     pm.toggle(obj, template=1, query=1)
 
     @mtk.undo
-    def tb003(self, state=None):
+    def tb003(self, *args, **kwargs):
         """Create Locator at Selection"""
-        tb = self.sb.rigging.tb003
+        tb = kwargs.get("widget")
 
         grp_suffix = tb.option_menu.t002.text()
         loc_suffix = tb.option_menu.t000.text()
@@ -384,9 +384,9 @@ class Rigging_maya(SlotsMaya):
             lock_scale=lock_scale,
         )
 
-    def tb004(self, state=None):
+    def tb004(self, *args, **kwargs):
         """Lock/Unlock Attributes"""
-        tb = self.sb.rigging.tb004
+        tb = kwargs.get("widget")
 
         lock_translate = tb.option_menu.chk012.isChecked()
         lock_rotation = tb.option_menu.chk013.isChecked()
@@ -398,7 +398,7 @@ class Rigging_maya(SlotsMaya):
         )
 
     @SlotsMaya.hideMain
-    def b000(self):
+    def b000(self, *args, **kwargs):
         """Object Transform Limit Attributes"""
         node = pm.ls(sl=1, objectsOnly=1)
         if not node:
@@ -431,36 +431,36 @@ class Rigging_maya(SlotsMaya):
             node, fn=SlotsMaya.set_parameter_values, fn_args="transformLimits", **attrs
         )
 
-    def b001(self):
+    def b001(self, *args, **kwargs):
         """Connect Joints"""
         pm.connectJoint(cm=1)
 
-    def b002(self):
+    def b002(self, *args, **kwargs):
         """Insert Joint Tool"""
         pm.setToolTo("insertJointContext")  # insert joint tool
 
-    def b003(self):
+    def b003(self, *args, **kwargs):
         """Remove Locator"""
         selection = pm.ls(selection=True)
         mtk.remove_locator(selection)
 
-    def b004(self):
+    def b004(self, *args, **kwargs):
         """Reroot"""
         pm.reroot()  # re-root joints
 
-    def b006(self):
+    def b006(self, *args, **kwargs):
         """Constraint: Point"""
         pm.pointConstraint(offset=[0, 0, 0], weight=1)
 
-    def b007(self):
+    def b007(self, *args, **kwargs):
         """Constraint: Scale"""
         pm.scaleConstraint(offset=[1, 1, 1], weight=1)
 
-    def b008(self):
+    def b008(self, *args, **kwargs):
         """Constraint: Orient"""
         pm.orientConstraint(offset=[0, 0, 0], weight=1)
 
-    def b009(self):
+    def b009(self, *args, **kwargs):
         """Constraint: Aim"""
         pm.aimConstraint(
             offset=[0, 0, 0],
@@ -471,7 +471,7 @@ class Rigging_maya(SlotsMaya):
             worldUpVector=[0, 1, 0],
         )
 
-    def b010(self):
+    def b010(self, *args, **kwargs):
         """Constraint: Pole Vector"""
         pm.orientConstraint(offset=[0, 0, 0], weight=1)
 

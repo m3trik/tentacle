@@ -4,13 +4,11 @@ try:
     import pymel.core as pm
 except ImportError as error:
     print(__file__, error)
-
 from uitk.switchboard import signals
 from tentacle.slots.maya import SlotsMaya
-from tentacle.slots.main import Main
 
 
-class Main_maya(Main, SlotsMaya):
+class Main_maya(SlotsMaya):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 

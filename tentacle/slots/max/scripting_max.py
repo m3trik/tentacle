@@ -12,29 +12,29 @@ class Scripting_max(Scripting, SlotsMax):
         items = [""]
         contents = cmb.addItems_(items, "")
 
-    def cmb000(self, index=-1):
+    def cmb000(self, *args, **kwargs):
         """Editors"""
         cmb = self.sb.scripting.draggableHeader.ctx_menu.cmb000
 
         if index > 0:
-            if index == cmd.items.index(""):
+            if index == cmb.items.index(""):
                 pass
             cmb.setCurrentIndex(0)
 
-    def b000(self):
+    def b000(self, *args, **kwargs):
         """Toggle Script Output Window"""
         state = pm.workspaceControl("scriptEditorOutputWorkspace", query=1, visible=1)
         pm.workspaceControl("scriptEditorOutputWorkspace", edit=1, visible=not state)
 
-    def b001(self):
+    def b001(self, *args, **kwargs):
         """Command Line Window"""
         maxEval("commandLineWindow_;")
 
-    def b002(self):
+    def b002(self, *args, **kwargs):
         """Script Editor"""
         maxEval("ScriptEditor;")
 
-    def b003(self):
+    def b003(self, *args, **kwargs):
         """New Tab"""
         label = "Maxscript"
         if self.sb.scripting.chk000.isChecked():
@@ -42,7 +42,7 @@ class Scripting_max(Scripting, SlotsMax):
         # self.sb.scripting.tabWidget.addTab(label)
         self.sb.scripting.tabWidget.insertTab(0, label)
 
-    def b004(self):
+    def b004(self, *args, **kwargs):
         """Delete Tab"""
         index = self.sb.scripting.tabWidget.currentIndex()
         self.sb.scripting.tabWidget.removeTab(index)

@@ -16,7 +16,7 @@ class Lighting_max(Lighting, SlotsMax):
         """Context menu"""
         dh = self.sb.lighting.draggableHeader
 
-    def cmb000(self, index=-1):
+    def cmb000(self, *args, **kwargs):
         """Editors"""
         cmb = self.sb.lighting.draggableHeader.ctx_menu.cmb000
 

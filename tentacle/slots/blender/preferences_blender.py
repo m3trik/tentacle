@@ -48,7 +48,7 @@ class Preferences_blender(Preferences, SlotsBlender):
         # index = self.styleComboBox.findText(QtWidgets.QApplication.instance().style().objectName(), QtCore.Qt.MatchFixedString) #get/set current value
         # cmb.setCurrentIndex(index)
 
-    def cmb000(self, index=-1):
+    def cmb000(self, *args, **kwargs):
         """Editors"""
         cmb = self.sb.preferences.draggableHeader.ctx_menu.cmb000
 
@@ -58,7 +58,7 @@ class Preferences_blender(Preferences, SlotsBlender):
                 pass
             cmb.setCurrentIndex(0)
 
-    def cmb001(self, index=-1):
+    def cmb001(self, *args, **kwargs):
         """Set Working Units: Linear"""
         cmb = self.sb.preferences.cmb001
 
@@ -67,7 +67,7 @@ class Preferences_blender(Preferences, SlotsBlender):
                 linear=cmb.items[index]
             )  # millimeter | centimeter | meter | kilometer | inch | foot | yard | mile
 
-    def cmb002(self, index=-1):
+    def cmb002(self, *args, **kwargs):
         """Set Working Units: Time"""
         cmb = self.sb.preferences.cmb002
 
@@ -76,19 +76,19 @@ class Preferences_blender(Preferences, SlotsBlender):
                 time=cmb.items[index].split()[-1]
             )  # game | film | pal | ntsc | show | palf | ntscf
 
-    def b001(self):
+    def b001(self, *args, **kwargs):
         """Color Settings"""
         mel.eval("colorPrefWnd;")
 
-    def b008(self):
+    def b008(self, *args, **kwargs):
         """Hotkeys"""
         mel.eval("HotkeyPreferencesWindow;")
 
-    def b009(self):
+    def b009(self, *args, **kwargs):
         """Plug-In Manager"""
         mel.eval("PluginManager;")
 
-    def b010(self):
+    def b010(self, *args, **kwargs):
         """Settings/Preferences"""
         mel.eval("PreferencesWindow;")
 

@@ -84,7 +84,7 @@ class Uv_blender(Uv, SlotsBlender):
         tb007 = self.sb.uv.tb007
         # tb007.option_menu.b099.released.connect(lambda: tb007.option_menu.s003.setValue(float(pm.mel.texGetTexelDensity(tb007.option_menu.s002.value())))) #get and set texel density value.
 
-    def cmb000(self, index=-1):
+    def cmb000(self, *args, **kwargs):
         """Editors"""
         cmb = self.sb.uv.draggableHeader.ctx_menu.cmb000
 
@@ -109,11 +109,11 @@ class Uv_blender(Uv, SlotsBlender):
                 mel.eval("performPolyForceUV flip 1;")
             cmb.setCurrentIndex(0)
 
-    def cmb001(self, index=-1):
+    def cmb001(self, *args, **kwargs):
         """Display"""
         cmb = self.sb.uv.cmb001
 
-    def cmb002(self, index=-1):
+    def cmb002(self, *args, **kwargs):
         """Transform"""
         cmb = self.sb.uv.cmb002
 
@@ -164,7 +164,7 @@ class Uv_blender(Uv, SlotsBlender):
         panel = pm.get_panel(scriptType="polyTexturePlacementPanel")
         pm.textureWindow(panel, edit=1, displayDistortion=state)
 
-    def tb000(self, state=None):
+    def tb000(self, *args, **kwargs):
         """Pack UV's
 
         pm.u3dLayout:
@@ -237,7 +237,7 @@ class Uv_blender(Uv, SlotsBlender):
             )  # layoutScaleMode (int), multiObject (bool), mutations (int), packBox (float, float, float, float), preRotateMode (int), preScaleMode (int), resolution (int), rotateMax (float), rotateMin (float), rotateStep (float), shellSpacing (float), tileAssignMode (int), tileMargin (float), tileU (int), tileV (int), translate (bool)
 
     @SlotsBlender.attr
-    def tb001(self, state=None):
+    def tb001(self, *args, **kwargs):
         """Auto Unwrap"""
         tb = self.sb.uv.tb001
 
@@ -296,7 +296,7 @@ class Uv_blender(Uv, SlotsBlender):
             except Exception as error:
                 print(error)
 
-    def tb002(self, state=None):
+    def tb002(self, *args, **kwargs):
         """Stack"""
         tb = self.sb.uv.tb002
 
@@ -312,7 +312,7 @@ class Uv_blender(Uv, SlotsBlender):
         if orient:
             pm.mel.texOrientShells()
 
-    def tb003(self, state=None):
+    def tb003(self, *args, **kwargs):
         """Select By Type"""
         tb = self.sb.uv.tb003
 
@@ -336,7 +336,7 @@ class Uv_blender(Uv, SlotsBlender):
         elif unmapped:
             pm.mel.selectUnmappedFaces()
 
-    def tb004(self, state=None):
+    def tb004(self, *args, **kwargs):
         """Unfold
 
         Synopsis: u3dUnfold [flags] [String...]
@@ -383,7 +383,7 @@ class Uv_blender(Uv, SlotsBlender):
                 roomspace=0,
             )  # pm.mel.performPolyOptimizeUV(0)
 
-    def tb005(self, state=None):
+    def tb005(self, *args, **kwargs):
         """Straighten Uv"""
         tb = self.sb.uv.tb005
 
@@ -402,7 +402,7 @@ class Uv_blender(Uv, SlotsBlender):
         if straightenShell:
             pm.mel.texStraightenShell()
 
-    def tb006(self, state=None):
+    def tb006(self, *args, **kwargs):
         """Distribute"""
         tb = self.sb.uv.tb006
 
@@ -414,7 +414,7 @@ class Uv_blender(Uv, SlotsBlender):
         if v:
             pm.mel.texDistributeShells(0, 0, "down", [])  #'up', 'down'
 
-    def tb007(self, state=None):
+    def tb007(self, *args, **kwargs):
         """Set Texel Density"""
         tb = self.sb.uv.tb007
 
@@ -423,12 +423,12 @@ class Uv_blender(Uv, SlotsBlender):
 
         pm.mel.texSetTexelDensity(density, mapSize)
 
-    def b001(self):
+    def b001(self, *args, **kwargs):
         """Create UV Snapshot"""
         pm.mel.UVCreateSnapshot()
 
     @SlotsBlender.undoChunk
-    def b002(self):
+    def b002(self, *args, **kwargs):
         """Transfer UV's"""
         selection = pm.ls(orderedSelection=1, flatten=1)
         if len(selection) < 2:
@@ -462,7 +462,7 @@ class Uv_blender(Uv, SlotsBlender):
             print("Error: No match found for: {}.".format(remaining.name()))
         # pm.undoInfo(closeChunk=1)
 
-    def b005(self):
+    def b005(self, *args, **kwargs):
         """Cut UV's"""
         objects = pm.ls(selection=1, objectsOnly=1, shapes=1, flatten=1)
 
@@ -470,7 +470,7 @@ class Uv_blender(Uv, SlotsBlender):
             sel = pm.ls(obj, sl=1)
             pm.polyMapCut(sel)
 
-    def b011(self):
+    def b011(self, *args, **kwargs):
         """Sew UV's"""
         objects = pm.ls(selection=1, objectsOnly=1, shapes=1, flatten=1)
 

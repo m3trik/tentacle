@@ -1,10 +1,14 @@
 # !/usr/bin/python
 # coding=utf-8
-from tentacle.slots.maya import *
-from tentacle.slots.deformation import Deformation
+try:
+    import pymel.core as pm
+except ImportError as error:
+    print(__file__, error)
+
+from tentacle.slots.maya import SlotsMaya
 
 
-class Deformation_maya(Deformation, SlotsMaya):
+class Deformation_maya(SlotsMaya):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
@@ -12,7 +16,7 @@ class Deformation_maya(Deformation, SlotsMaya):
         items = []
         cmb.addItems_(items, "")
 
-    def cmb000(self, index=-1):
+    def cmb000(self, *args, **kwargs):
         """Editors"""
         cmb = self.sb.deformation.draggableHeader.ctx_menu.cmb000
 
@@ -22,7 +26,7 @@ class Deformation_maya(Deformation, SlotsMaya):
                 pass
             cmb.setCurrentIndex(0)
 
-    def b000(self):
+    def b000(self, *args, **kwargs):
         """ """
         pass
 

@@ -117,7 +117,7 @@ class Uv_max(Uv, SlotsMax):
         )  # get/set the uv xform modifier.
         return mod
 
-    def cmb000(self, index=-1):
+    def cmb000(self, *args, **kwargs):
         """Editors"""
         cmb = self.sb.uv.draggableHeader.ctx_menu.cmb000
 
@@ -139,11 +139,11 @@ class Uv_max(Uv, SlotsMax):
                 maxEval("hairUVLinkingEditor;")
             cmb.setCurrentIndex(0)
 
-    def cmb001(self, index=-1):
+    def cmb001(self, *args, **kwargs):
         """Display"""
         cmb = self.sb.uv.cmb001
 
-    def cmb002(self, index=-1):
+    def cmb002(self, *args, **kwargs):
         """Transform"""
         cmb = self.sb.uv.cmb002
 
@@ -196,7 +196,7 @@ class Uv_max(Uv, SlotsMax):
         mod.localDistortion = state
         self.sb.message_box("{0}{1}".format("localDistortion:", state))
 
-    def tb000(self, state=None):
+    def tb000(self, *args, **kwargs):
         """Pack UV's
 
         #pack command: Lets you pack the texture vertex elements so that they fit within a square space.
@@ -218,7 +218,7 @@ class Uv_max(Uv, SlotsMax):
         )  # (method, spacing, normalize, rotate, fillholes)
 
     @SlotsMax.attr
-    def tb001(self, state=None):
+    def tb001(self, *args, **kwargs):
         """Auto Unwrap"""
         tb = self.sb.uv.tb001
 
@@ -240,7 +240,7 @@ class Uv_max(Uv, SlotsMax):
                 except Exception as error:
                     print(error)
 
-    def tb002(self, state=None):
+    def tb002(self, *args, **kwargs):
         """Stack"""
         tb = self.sb.uv.tb002
 
@@ -256,7 +256,7 @@ class Uv_max(Uv, SlotsMax):
         if orient:
             pm.mel.texOrientShells()
 
-    def tb003(self, state=None):
+    def tb003(self, *args, **kwargs):
         """Select By Type"""
         tb = self.sb.uv.tb003
 
@@ -280,7 +280,7 @@ class Uv_max(Uv, SlotsMax):
         elif unmapped:
             pm.mel.selectUnmappedFaces()
 
-    def tb004(self, state=None):
+    def tb004(self, *args, **kwargs):
         """Unfold"""
         tb = self.sb.uv.tb004
 
@@ -291,7 +291,7 @@ class Uv_max(Uv, SlotsMax):
         # else:
         self.uv_uiModifier.relax(1, 0.01, True, True)
 
-    def tb005(self, state=None):
+    def tb005(self, *args, **kwargs):
         """Straighten Uv"""
         tb = self.sb.uv.tb005
 
@@ -310,7 +310,7 @@ class Uv_max(Uv, SlotsMax):
         # if straightenShell:
         # 	pm.mel.texStraightenShell()
 
-    def tb006(self, state=None):
+    def tb006(self, *args, **kwargs):
         """Distribute"""
         tb = self.sb.uv.tb006
 
@@ -322,7 +322,7 @@ class Uv_max(Uv, SlotsMax):
         if v:
             pm.mel.texDistributeShells(0, 0, "down", [])  #'up', 'down'
 
-    def tb008(self, state=None):
+    def tb008(self, *args, **kwargs):
         """Transfer UV's"""
         tb = self.sb.uv.tb008
 
@@ -340,31 +340,31 @@ class Uv_max(Uv, SlotsMax):
 
         self.transferUVs(frm, to, tolerance=similarTol, deleteConstHist=deleteConstHist)
 
-    def b001(self):
+    def b001(self, *args, **kwargs):
         """Create UV Snapshot"""
         pass
 
-    def b002(self):
+    def b002(self, *args, **kwargs):
         """Stack Shells"""
         pm.mel.texStackShells()
         # pm.mel.texOrientShells()
 
-    def b003(self):
+    def b003(self, *args, **kwargs):
         """Get texel density."""
         density = pm.mel.texGetTexelDensity(self.getMapSize())
         self.sb.uv.s003.setValue(density)
 
-    def b004(self):
+    def b004(self, *args, **kwargs):
         """Set Texel Density"""
         density = self.sb.uv.s003.value()
         mapSize = self.getMapSize()
         pm.mel.texSetTexelDensity(density, mapSize)
 
-    def b005(self):
+    def b005(self, *args, **kwargs):
         """Cut Uv'S"""
         self.uv_uiModifier.breakSelected()
 
-    def b011(self):
+    def b011(self, *args, **kwargs):
         """Sew Uv'S"""
         self.uv_uiModifier.stitchVerts(
             True, 1.0

@@ -1,20 +1,83 @@
 # !/usr/bin/python
 # coding=utf-8
-from tentacle.slots.maya import *
-from tentacle.slots.animation import Animation
+try:
+    import pymel.core as pm
+except ImportError as error:
+    print(__file__, error)
+import mayatk as mtk
+from tentacle.slots.maya import SlotsMaya
 
 
-class Animation_maya(Animation, SlotsMaya):
+class Animation_maya(SlotsMaya):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        cmb = self.sb.animation.draggableHeader.ctx_menu.cmb000
-        items = [""]
-        cmb.addItems_(items, "")
+    def tb000_init(self, widget):
+        """ """
+        widget.option_menu.add(
+            "QSpinBox",
+            setPrefix="Frame: ",
+            setObjectName="s000",
+            set_limits="0-10000 step1",
+            setValue=1,
+            setToolTip="",
+        )
+        widget.option_menu.add(
+            "QCheckBox",
+            setText="Relative",
+            setObjectName="chk000",
+            setChecked=True,
+            setToolTip="",
+        )
+        widget.option_menu.add(
+            "QCheckBox",
+            setText="Update",
+            setObjectName="chk001",
+            setChecked=True,
+            setToolTip="",
+        )
 
-    def cmb000(self, index=-1):
+    def tb001_init(self, widget):
+        """ """
+        widget.option_menu.add(
+            "QSpinBox",
+            setPrefix="Time: ",
+            setObjectName="s001",
+            set_limits="0-10000 step1",
+            setValue=1,
+            setToolTip="The desired start time for the inverted keys.",
+        )
+        widget.option_menu.add(
+            "QCheckBox",
+            setText="Relative",
+            setObjectName="chk002",
+            setChecked=False,
+            setToolTip="Start time position as relative or absolute.",
+        )
+
+    def tb000(self, *args, **kwargs):
+        """Set Current Frame"""
+        tb = kwargs.get("widget")
+
+        frame = self.sb.invert_on_modifier(tb.option_menu.s000.value())
+        relative = tb.option_menu.chk000.isChecked()
+        update = tb.option_menu.chk001.isChecked()
+
+        self.setCurrentFrame(frame, relative=relative, update=update)
+
+    def tb001(self, *args, **kwargs):
+        """Invert Selected Keyframes"""
+        tb = kwargs.get("widget")
+
+        time = tb.option_menu.s001.value()
+        relative = tb.option_menu.chk002.isChecked()
+
+        self.invertSelectedKeyframes(time=time, relative=relative)
+
+    def cmb000(self, *args, **kwargs):
         """Editors"""
-        cmb = self.sb.animation.draggableHeader.ctx_menu.cmb000
+        cmb = kwargs.get("widget")
+        index = kwargs.get("index")
 
         if index > 0:
             text = cmb.items[index]
@@ -23,9 +86,11 @@ class Animation_maya(Animation, SlotsMaya):
 
             cmb.setCurrentIndex(0)
 
-    def b000(self):
+    def b000(self, *args, **kwargs):
         """Delete Keys on Selected"""
-        rt.deleteKeys(rt.selection)
+        selected_objects = pm.selected()
+        for obj in selected_objects:
+            pm.cutKey(obj, clear=True)
 
     def setCurrentFrame(self, frame=1, relative=False, update=True):
         """Set the current frame on the timeslider.

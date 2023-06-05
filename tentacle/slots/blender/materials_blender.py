@@ -26,7 +26,7 @@ class Materials_blender(Materials, SlotsBlender):
         items = []
         cmb000.addItems_(items, "Material Editors")
 
-    def cmb000(self, index=-1):
+    def cmb000(self, *args, **kwargs):
         """Editors"""
         cmb = self.sb.materials.draggableHeader.ctx_menu.cmb000
 
@@ -36,7 +36,7 @@ class Materials_blender(Materials, SlotsBlender):
                 mel.eval("HypershadeWindow;")
             cmb.setCurrentIndex(0)
 
-    def cmb002(self, index=-1):
+    def cmb002(self, *args, **kwargs):
         """Material list
 
         Parameters:
@@ -78,7 +78,7 @@ class Materials_blender(Materials, SlotsBlender):
         b.setMinimumWidth(b.minimumSizeHint().width() + 25)
         b.setVisible(True if cmb.currentText() else False)
 
-    def tb000(self, state=None):
+    def tb000(self, *args, **kwargs):
         """Select By Material Id"""
         tb = self.sb.materials.tb000
 
@@ -94,7 +94,7 @@ class Materials_blender(Materials, SlotsBlender):
 
         self.selectByMaterialID(mat, objects, shell=shell, invert=invert)
 
-    def tb002(self, state=None):
+    def tb002(self, *args, **kwargs):
         """Assign Material"""
         tb = self.sb.materials.tb002
 
@@ -183,15 +183,15 @@ class Materials_blender(Materials, SlotsBlender):
         except Exception as error:
             print(error)
 
-    def b000(self):
+    def b000(self, *args, **kwargs):
         """Material List: Delete"""
         self.lbl002()
 
-    def b001(self):
+    def b001(self, *args, **kwargs):
         """Material List: Edit"""
         self.lbl000()
 
-    def b002(self):
+    def b002(self, *args, **kwargs):
         """Set Material: Set the Currently Selected Material as the currentMaterial."""
         selection = pm.ls(selection=1)
         if not selection:
@@ -457,7 +457,7 @@ print(__name__)
 # 	else:
 # 		self.currentMat = mat
 
-# def cmb000(self, index=-1):
+# def cmb000(self, *args, **kwargs):
 # 	'''
 # 	Existing Materials
 

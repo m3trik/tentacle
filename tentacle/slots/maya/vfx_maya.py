@@ -1,20 +1,26 @@
 # !/usr/bin/python
 # coding=utf-8
-from tentacle.slots.maya import *
-from tentacle.slots.vfx import Vfx
+try:
+    import pymel.core as pm
+except ImportError as error:
+    print(__file__, error)
+from tentacle.slots.maya import SlotsMaya
 
 
-class Vfx_maya(Vfx, SlotsMaya):
+class Vfx_maya(SlotsMaya):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        cmb = self.sb.vfx.draggableHeader.ctx_menu.cmb000
-        items = [""]
-        cmb.addItems_(items, "")
+    def draggableHeader_init(self, widget):
+        """ """ 
+        cmb000 = widget.ctx_menu.add(self.sb.ComboBox, setObjectName="cmb000", setToolTip="")
+        files = [""]
+        cmb000.addItems_(files, "")
 
-    def cmb000(self, index=-1):
+    def cmb000(self, *args, **kwargs):
         """Editors"""
-        cmb = self.sb.vfx.draggableHeader.ctx_menu.cmb000
+        cmb = kwargs.get('widget')
+        index = kwargs.get('index')
 
         if index > 0:
             text = cmb.items[index]

@@ -12,7 +12,7 @@ class Polygons_max(Polygons, SlotsMax):
         items = ["Bridge", "Extrude"]
         cmb.addItems_(items, "Polygon Editors")
 
-    def cmb000(self, index=-1):
+    def cmb000(self, *args, **kwargs):
         """Editors"""
         cmb = self.sb.polygons.draggableHeader.ctx_menu.cmb000
 
@@ -54,7 +54,7 @@ class Polygons_max(Polygons, SlotsMax):
                 )
             cmb.setCurrentIndex(0)
 
-    def tb000(self, state=None):
+    def tb000(self, *args, **kwargs):
         """Merge Vertices"""
         tb = self.sb.polygons.tb000
 
@@ -81,7 +81,7 @@ class Polygons_max(Polygons, SlotsMax):
             self.sb.message_box("No object selected.")
             return
 
-    def tb001(self, state=None):
+    def tb001(self, *args, **kwargs):
         """Bridge"""
         tb = self.sb.polygons.tb001
 
@@ -91,7 +91,7 @@ class Polygons_max(Polygons, SlotsMax):
             obj.EditablePoly.Bridge()  # perform bridge
         rt.redrawViews()  # redraw changes in viewport
 
-    def tb002(self, state=None):
+    def tb002(self, *args, **kwargs):
         """Combine"""
         tb = self.sb.polygons.tb002
 
@@ -124,7 +124,7 @@ class Polygons_max(Polygons, SlotsMax):
 		"""
         )
 
-    def tb003(self, state=None):
+    def tb003(self, *args, **kwargs):
         """Extrude"""
         tb = self.sb.polygons.tb003
 
@@ -134,7 +134,7 @@ class Polygons_max(Polygons, SlotsMax):
         # for obj in rt.selection:
         # 	self.extrudeObject(obj)
 
-    def tb004(self, state=None):
+    def tb004(self, *args, **kwargs):
         """Bevel (Chamfer)"""
         tb = self.sb.polygons.tb004
 
@@ -149,7 +149,7 @@ class Polygons_max(Polygons, SlotsMax):
         # else: #bevel
         # 	maxEval('modPanel.addModToSelection (Bevel ()) ui:on')
 
-    def tb005(self, state=None):
+    def tb005(self, *args, **kwargs):
         """Detach"""
         tb = self.sb.polygons.tb005
 
@@ -174,7 +174,7 @@ class Polygons_max(Polygons, SlotsMax):
                 else:  # detach as separate object
                     rt.polyop.detachFaces(obj, element, delete=True, asNode=True)
 
-    def tb006(self, state=None):
+    def tb006(self, *args, **kwargs):
         """Inset Face Region"""
         tb = self.sb.polygons.tb006
 
@@ -192,7 +192,7 @@ class Polygons_max(Polygons, SlotsMax):
 		"""
         )
 
-    def tb007(self, state=None):
+    def tb007(self, *args, **kwargs):
         """Divide Facet"""
         tb = self.sb.polygons.tb007
 
@@ -218,7 +218,7 @@ class Polygons_max(Polygons, SlotsMax):
         # for face in selectedFaces: #when performing polySubdivideFacet on multiple faces, adjacent subdivided faces will make the next face an n-gon and therefore not able to be subdivided.
         # 	pm.polySubdivideFacet(face, divisions=0, divisionsU=2, divisionsV=2, mode=0, subdMethod=1)
 
-    def tb008(self, state=None):
+    def tb008(self, *args, **kwargs):
         """Boolean Operation"""
         tb = self.sb.polygons.tb008
 
@@ -236,7 +236,7 @@ class Polygons_max(Polygons, SlotsMax):
             for obj in objects[:-1]:
                 objects[-1] * obj
 
-    def tb009(self, state=None):
+    def tb009(self, *args, **kwargs):
         """Snap Closest Verts"""
         tb = self.sb.polygons.tb009
 
@@ -251,32 +251,32 @@ class Polygons_max(Polygons, SlotsMax):
             self.sb.message_box("Operation requires at least two selected objects.")
             return
 
-    def b000(self):
+    def b000(self, *args, **kwargs):
         """Circularize"""
         obj = rt.selection[0]
         vertices = rt.polyop.getVertSelection(obj)
 
         self.circularize(vertices)
 
-    def b001(self):
+    def b001(self, *args, **kwargs):
         """Fill Holes"""
         rt.macros.run("Modifiers", "Cap_Holes")
 
-    def b002(self):
+    def b002(self, *args, **kwargs):
         """Separate"""
         obj = rt.selection[0]
 
         self.detachElement(obj)
 
-    def b003(self):
+    def b003(self, *args, **kwargs):
         """Symmetrize"""
         pm.mel.Symmetrize()
 
-    def b004(self):
+    def b004(self, *args, **kwargs):
         """Slice"""
         rt.macros.run("Ribbon - Modeling", "CutsQuickSlice")
 
-    def b009(self):
+    def b009(self, *args, **kwargs):
         """Collapse Component"""
         # --[mesh] 0=object level,1=vertex level,2=edge level,3=face,4=polygon,5=element,
         # --[poly] 0=object level,1=vertex level,2=edge level,3=border,4=polygon,5=element
@@ -295,7 +295,7 @@ class Polygons_max(Polygons, SlotsMax):
 
         # rt.macros.run('Ribbon - Modeling', 'GeometryCollapse')
 
-    def b012(self):
+    def b012(self, *args, **kwargs):
         """Multi-Cut Tool"""
         self.setSubObjectLevel(4)
         rt.macros.run("Ribbon - Modeling", "CutsCut")
@@ -303,36 +303,36 @@ class Polygons_max(Polygons, SlotsMax):
         # if obj:
         # 	obj.ToggleCommandMode('CutVertex') #cut vertex tool
 
-    def b021(self):
+    def b021(self, *args, **kwargs):
         """Connect Border Edges"""
         mel.eval("performPolyConnectBorders 0;")
 
-    def b022(self):
+    def b022(self, *args, **kwargs):
         """Attach"""
         rt.macros.run("Ribbon - Modeling", "AttachMode")
 
-    def b028(self):
+    def b028(self, *args, **kwargs):
         """Quad Draw"""
         mel.eval("dR_quadDrawTool;")
 
-    def b032(self):
+    def b032(self, *args, **kwargs):
         """Poke"""
         mel.eval("PokePolygon;")
 
-    def b034(self):
+    def b034(self, *args, **kwargs):
         """Wedge"""
         mel.eval("WedgePolygon;")
 
-    def b038(self):
+    def b038(self, *args, **kwargs):
         """Assign Invisible"""
         mel.eval("polyHole -assignHole 1;")
 
-    def b043(self):
+    def b043(self, *args, **kwargs):
         """Target Weld"""
         self.setSubObjectLevel(1)  # set component mode to vertex
         rt.macros.run("Editable Polygon Object", "EPoly_TargetWeld")
 
-    def b045(self):
+    def b045(self, *args, **kwargs):
         """Re-Order Vertices"""
         # symmetryOn = pm.symmetricModelling(query=True, symmetry=True) #query symmetry state
 
@@ -342,7 +342,7 @@ class Polygons_max(Polygons, SlotsMax):
         # mel.eval("doBakeNonDefHistory( 1, {\"pre\"});") #history must be deleted
         # mel.eval("performPolyReorderVertex;") #start vertex reorder ctx
 
-    def b046(self):
+    def b046(self, *args, **kwargs):
         """Split"""
         level = rt.subObjectLevel
 
@@ -363,28 +363,28 @@ class Polygons_max(Polygons, SlotsMax):
 
         rt.redrawViews
 
-    def b047(self):
+    def b047(self, *args, **kwargs):
         """Insert Edgeloop"""
         self.setSubObjectLevel(0)
         rt.macros.run("PolyTools", "SwiftLoop")
 
-    def b048(self):
+    def b048(self, *args, **kwargs):
         """Collapse Edgering"""
         mel.eval("bt_polyCollapseEdgeRingTool;")
 
-    def b049(self):
+    def b049(self, *args, **kwargs):
         """Slide Edge Tool"""
         mel.eval("SlideEdgeTool;")
 
-    def b050(self):
+    def b050(self, *args, **kwargs):
         """Spin Edge"""
         mel.eval("bt_polySpinEdgeTool;")
 
-    def b051(self):
+    def b051(self, *args, **kwargs):
         """Offset Edgeloop"""
         mel.eval("performPolyDuplicateEdge 0;")
 
-    def b053(self):
+    def b053(self, *args, **kwargs):
         """Edit Edge Flow"""
         mel.eval("PolyEditEdgeFlow;")
 

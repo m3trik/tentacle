@@ -17,19 +17,19 @@ class Mirror_max(Mirror, SlotsMax):
 		ctx.chk006.setDisabled(True) #disable: delete history.
 
 
-		def cmb000(self, index=-1):
+		def cmb000(self, *args, **kwargs):
 		'''Editors
 		'''
 		cmb = self.sb.mirror.draggableHeader.ctx_menu.cmb000
 
 		if index>0:
-			if index==cmd.items.index(''):
+			if index==cmb.items.index(''):
 				pass
 			cmb.setCurrentIndex(0)
 
 
 	@SlotsMaya.attr
-	def tb000(self, state=None):
+	def tb000(self, *args, **kwargs):
 		'''Mirror Geometry
 
 		values for the direction (dict): ex. 'X': (0, 0, -1, 1, 1)
@@ -53,21 +53,21 @@ class Mirror_max(Mirror, SlotsMax):
 			mergeMode=mergeMode, mergeThreshold=mergeThreshold, deleteHistory=deleteHistory)
 
 
-	def b000(self):
+	def b000(self, *args, **kwargs):
 		'''Mirror: X
 		'''
 		self.sb.mirror.tb000.option_menu.chk001.setChecked(True)
 		self.tb000()
 
 
-	def b001(self):
+	def b001(self, *args, **kwargs):
 		'''Mirror: Y
 		'''
 		self.sb.mirror.tb000.option_menu.chk002.setChecked(True)
 		self.tb000()
 
 
-	def b002(self):
+	def b002(self, *args, **kwargs):
 		'''Mirror: Z
 		'''
 		self.sb.mirror.tb000.option_menu.chk003.setChecked(True)
@@ -158,7 +158,7 @@ print (__name__)
 
 #deprecated:
 
-	# def chk000(self, state=None):
+	# def chk000(self, *args, **kwargs):
 	# 	'''
 	# 	Delete: Negative Axis. Set Text Mirror Axis
 	# 	'''
@@ -174,7 +174,7 @@ print (__name__)
 
 
 	# #set check states
-	# def chk000(self, state=None):
+	# def chk000(self, *args, **kwargs):
 	# 	'''
 	# 	Delete: X Axis
 	# 	'''
@@ -186,7 +186,7 @@ print (__name__)
 	# 	self.sb.mirror.b008.setText('Delete '+axis)
 
 
-	# def chk002(self, state=None):
+	# def chk002(self, *args, **kwargs):
 	# 	'''
 	# 	Delete: Y Axis
 	# 	'''
@@ -198,7 +198,7 @@ print (__name__)
 	# 	self.sb.mirror.b008.setText('Delete '+axis)
 
 
-	# def chk003(self, state=None):
+	# def chk003(self, *args, **kwargs):
 	# 	'''
 	# 	Delete: Z Axis
 	# 	'''

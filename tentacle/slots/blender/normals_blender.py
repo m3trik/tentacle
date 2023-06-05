@@ -13,16 +13,16 @@ class Normals_blender(Normals, SlotsBlender):
         items = [""]
         cmb.addItems_(items, "")
 
-    def cmb000(self, index=-1):
+    def cmb000(self, *args, **kwargs):
         """Editors"""
         cmb = self.sb.normals.draggableHeader.ctx_menu.cmb000
 
         if index > 0:
-            if index == cmd.items.index(""):
+            if index == cmb.items.index(""):
                 pass
             cmb.setCurrentIndex(0)
 
-    def tb000(self, state=None):
+    def tb000(self, *args, **kwargs):
         """Display Face Normals"""
         tb = self.sb.normals.tb000
 
@@ -49,7 +49,7 @@ class Normals_blender(Normals, SlotsBlender):
             pm.polyOptions(displayNormal=0)
             self.mtk.viewport_message("<hl>Tangent</hl> Display <hl>On</hl>.")
 
-    def tb001(self, state=None):
+    def tb001(self, *args, **kwargs):
         """Harden Edge Normals"""
         tb = self.sb.normals.tb001
 
@@ -101,7 +101,7 @@ class Normals_blender(Normals, SlotsBlender):
             pm.select(selEdges)
 
     @SlotsBlender.attr
-    def tb002(self, state=None):
+    def tb002(self, *args, **kwargs):
         """Set Normals By Angle"""
         tb = self.sb.normals.tb002
 
@@ -117,7 +117,7 @@ class Normals_blender(Normals, SlotsBlender):
             if len(objects) == 1:
                 return polySoftEdge
 
-    def tb003(self, state=None):
+    def tb003(self, *args, **kwargs):
         """Lock/Unlock Vertex Normals"""
         tb = self.sb.normals.tb003
 
@@ -154,18 +154,18 @@ class Normals_blender(Normals, SlotsBlender):
         else:
             return "Warning: Selection must be object or vertex."
 
-    def tb004(self, state=None):
+    def tb004(self, *args, **kwargs):
         """Average Normals"""
         tb = self.sb.normals.tb004
 
         byUvShell = tb.option_menu.chk003.isChecked()
         self.averageNormals(byUvShell)
 
-    def b001(self):
+    def b001(self, *args, **kwargs):
         """Soften Edge Normals"""
         pm.polySoftEdge(angle=180, constructionHistory=0)
 
-    def b003(self):
+    def b003(self, *args, **kwargs):
         """Soft Edge Display"""
         g_cond = pm.polyOptions(q=1, ae=1)
         if g_cond[0]:
@@ -173,15 +173,15 @@ class Normals_blender(Normals, SlotsBlender):
         else:
             pm.polyOptions(ae=1)
 
-    def b005(self):
+    def b005(self, *args, **kwargs):
         """Maya Bonus Tools: Adjust Vertex Normals"""
         pm.mel.bgAdjustVertexNormalsWin()
 
-    def b006(self):
+    def b006(self, *args, **kwargs):
         """Set To Face"""
         pm.polySetToFaceNormal()
 
-    def b010(self):
+    def b010(self, *args, **kwargs):
         """Reverse Normals"""
         sel = pm.ls(sl=1)
         pm.polyNormal(

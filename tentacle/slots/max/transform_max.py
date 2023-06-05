@@ -62,7 +62,7 @@ class Transform_max(Transform, SlotsMax):
         # rotateValue = pm.manipRotateContext('Rotate', q=True, snapValue=True)
         # cmb003.option_menu.s023.setValue(rotateValue)
 
-    def cmb000(self, index=-1):
+    def cmb000(self, *args, **kwargs):
         """Editors"""
         cmb = self.sb.transform.draggableHeader.ctx_menu.cmb000
 
@@ -72,7 +72,7 @@ class Transform_max(Transform, SlotsMax):
                 pass
             cmb.setCurrentIndex(0)
 
-    def cmb001(self, index=-1):
+    def cmb001(self, *args, **kwargs):
         """Transform Contraints
 
         constrain along normals #checkbox option for edge amd surface constaints
@@ -133,7 +133,7 @@ class Transform_max(Transform, SlotsMax):
                 lambda state, widget=w: self.chkxxx(state=state, widget=widget)
             )
 
-    def cmb002(self, index=-1):
+    def cmb002(self, *args, **kwargs):
         """Align To"""
         cmb = self.sb.transform.cmb002
 
@@ -168,7 +168,7 @@ class Transform_max(Transform, SlotsMax):
                     "SetSnapTogetherToolOptions;"
                 )  # setToolTo snapTogetherToolCtx; toolPropertyWindow;) Snap two objects together.
 
-    def cmb003(self, index=-1):
+    def cmb003(self, *args, **kwargs):
         """Transform Tool Snapping"""
         cmb = self.sb.transform.cmb003
 
@@ -198,7 +198,7 @@ class Transform_max(Transform, SlotsMax):
         except KeyError:
             pass
 
-    def tb000(self, state=None):
+    def tb000(self, *args, **kwargs):
         """Drop To Grid"""
         tb = self.sb.transform.tb000
 
@@ -210,7 +210,7 @@ class Transform_max(Transform, SlotsMax):
         SlotsMax.drop_to_grid(objects, align, origin, center_pivot)
         pm.select(objects)  # reselect the original selection.
 
-    def tb001(self, state=None):
+    def tb001(self, *args, **kwargs):
         """Align Vertices
 
         Auto Align finds the axis with the largest variance, and set the axis checkboxes accordingly before performing a regular align.
@@ -337,7 +337,7 @@ class Transform_max(Transform, SlotsMax):
             self.align_vertices(mode=6, average=avg, edgeloop=loop)
 
     @Slots.hideMain
-    def b000(self):
+    def b000(self, *args, **kwargs):
         """Object Transform Attributes"""
         selection = list(rt.selection)
         if not selection:
@@ -367,7 +367,7 @@ class Transform_max(Transform, SlotsMax):
 
         self.setAttributeWindow(obj, checkable_label=True, **attrs)
 
-    def b001(self):
+    def b001(self, *args, **kwargs):
         """Match Scale"""
         selection = list(rt.selection)
         if not selection:
@@ -394,17 +394,17 @@ class Transform_max(Transform, SlotsMax):
             (state, cmb.option_menu.chk021.isChecked(), cmb.option_menu.chk023.isChecked())
         ) else cmb.setCurrentText("On")
 
-    def b002(self):
+    def b002(self, *args, **kwargs):
         """Freeze Transformations"""
         maxEval('macros.run "Animation Tools" "FreezeTransform"')
 
-    def b003(self):
+    def b003(self, *args, **kwargs):
         """Center Pivot Object"""
         for obj in rt.selection:
             rt.toolMode.coordsys(obj)
             obj.pivot = obj.center
 
-    def b005(self):
+    def b005(self, *args, **kwargs):
         """Move To"""
         sel = [
             s for s in rt.getCurrentSelection()
@@ -416,24 +416,24 @@ class Transform_max(Transform, SlotsMax):
         for obj in objects:
             obj.center = target.center
 
-    def b014(self):
+    def b014(self, *args, **kwargs):
         """Center Pivot Component"""
         [pm.xform(s, centerPivot=1) for s in pm.ls(sl=1, objectsOnly=1, flatten=1)]
         # mel.eval("moveObjectPivotToComponentCentre;")
 
-    def b015(self):
+    def b015(self, *args, **kwargs):
         """Center Pivot World"""
         mel.eval("xform -worldSpace -pivots 0 0 0;")
 
-    def b016(self):
+    def b016(self, *args, **kwargs):
         """Set To Bounding Box"""
         mel.eval("bt_alignPivotToBoundingBoxWin;")
 
-    def b017(self):
+    def b017(self, *args, **kwargs):
         """Bake Pivot"""
         mel.eval("BakeCustomPivot;")
 
-    def b032(self):
+    def b032(self, *args, **kwargs):
         """Reset Pivot Transforms"""
         maxEval(
             """
@@ -741,7 +741,7 @@ print(__name__)
 # maxEval('macros.run \"PolyTools\" \"TransformTools\")
 
 
-# def b000(self):
+# def b000(self, *args, **kwargs):
 #   '''
 #   Transform: negative
 #   '''
@@ -753,7 +753,7 @@ print(__name__)
 #   self.performTransformations()
 
 
-# def b001(self):
+# def b001(self, *args, **kwargs):
 #   '''
 #   Transform: positive
 #   '''

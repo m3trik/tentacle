@@ -172,7 +172,7 @@ class Editors_blender(Editors, SlotsBlender):
             if text == "UV Linking: Hair/UV":
                 pm.mel.HairUVSetLinkingEditor()
 
-    def cmb000(self, index=-1):
+    def cmb000(self, *args, **kwargs):
         """Editors"""
         cmb = self.editors_ui.draggableHeader.ctx_menu.cmb000
 

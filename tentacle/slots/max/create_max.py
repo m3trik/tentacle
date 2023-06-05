@@ -42,7 +42,7 @@ class Create_max(Create, SlotsMax):
         ctx = self.sb.create.tb000.option_menu
         ctx.chk001.setDisabled(True)
 
-    def cmb000(self, index=-1):
+    def cmb000(self, *args, **kwargs):
         """Editors"""
         cmb = self.sb.create.draggableHeader.ctx_menu.cmb000
 
@@ -52,14 +52,14 @@ class Create_max(Create, SlotsMax):
                 pass
             cmb.setCurrentIndex(0)
 
-    def cmb001(self, index=-1):
+    def cmb001(self, *args, **kwargs):
         """Create: Select Base Type"""
         cmb = self.sb.create.cmb001
 
         if index >= 0:
             self.cmb001(index)
 
-    def cmb001(self, index=-1):
+    def cmb001(self, *args, **kwargs):
         """"""
         cmb = self.sb.create.cmb002
 
@@ -124,7 +124,7 @@ class Create_max(Create, SlotsMax):
             cmb.addItems_(lights, clear=True)
 
     @SlotsMax.attr
-    def tb000(self, state=None):
+    def tb000(self, *args, **kwargs):
         """Create Primitive"""
         tb = self.sb.create.tb000
 
@@ -463,7 +463,7 @@ class Create_max(Create, SlotsMax):
 
         return node
 
-    def b005(self):
+    def b005(self, *args, **kwargs):
         """Create 6 sided poly cylinder"""
         node = self.createPrimitive("Polygon", "Cylinder")
         self.set_node_attributes(node, verbose=True, subdivisionsAxis=6)

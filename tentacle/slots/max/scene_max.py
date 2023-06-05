@@ -12,7 +12,7 @@ class Scene_max(Scene, SlotsMax):
         items = []
         cmb.addItems_(items, "Scene Editors")
 
-    def cmb000(self, index=-1):
+    def cmb000(self, *args, **kwargs):
         """Editors"""
         cmb = self.sb.scene.draggableHeader.ctx_menu.cmb000
 
@@ -22,7 +22,7 @@ class Scene_max(Scene, SlotsMax):
                 pass
             cmb.setCurrentIndex(0)
 
-    def tb000(self, state=None):
+    def tb000(self, *args, **kwargs):
         """Convert Case"""
         tb = self.sb.scene.tb000
 
@@ -32,7 +32,7 @@ class Scene_max(Scene, SlotsMax):
         objects = selection if selection else pm.ls(objectsOnly=1)
         self.set_case(objects, case)
 
-    def b000(self):
+    def b000(self, *args, **kwargs):
         """Rename"""
         find = (
             self.sb.scene.t000.text()

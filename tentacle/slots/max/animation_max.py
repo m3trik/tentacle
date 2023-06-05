@@ -22,7 +22,7 @@ class Animation_max(Animation, SlotsMax):
         ]
         cmb.addItems_(items, "Animation Editors")
 
-    def cmb000(self, index=-1):
+    def cmb000(self, *args, **kwargs):
         """Editors"""
         cmb = self.sb.animation.draggableHeader.ctx_menu.cmb000
 
@@ -50,7 +50,7 @@ class Animation_max(Animation, SlotsMax):
                 maxEval('macros.run "Animation Tools" "walk_assist"')
             cmb.setCurrentIndex(0)
 
-    def b000(self):
+    def b000(self, *args, **kwargs):
         """Delete Keys on Selected"""
         rt.deleteKeys(rt.selection)
 

@@ -17,7 +17,7 @@ class Convert_blender(Convert, SlotsBlender):
         items = []
         contents = cmb.addItems_(items, "Convert To")
 
-    def cmb000(self, index=-1):
+    def cmb000(self, *args, **kwargs):
         """Editors"""
         cmb = self.sb.convert.draggableHeader.ctx_menu.cmb000
 
@@ -27,7 +27,7 @@ class Convert_blender(Convert, SlotsBlender):
                 pass
             cmb.setCurrentIndex(0)
 
-    def cmb001(self, index=-1):
+    def cmb001(self, *args, **kwargs):
         """Convert To"""
         cmb = self.sb.convert.cmb001
 

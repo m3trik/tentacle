@@ -40,7 +40,7 @@ class Transform_blender(Transform, SlotsBlender):
         # [cmb.option_menu.add(self.sb.CheckBox, setObjectName=i[0], setText=i[1], setTristate=1) if len(i)==2
         # 	else cmb.option_menu.add('QDoubleSpinBox', setObjectName=i[0], setPrefix=i[1], setValue=i[2], set_limits=i[3], setDisabled=1) for i in values]
 
-    def cmb000(self, index=-1):
+    def cmb000(self, *args, **kwargs):
         """Editors"""
         cmb = self.sb.transform.draggableHeader.ctx_menu.cmb000
 
@@ -49,7 +49,7 @@ class Transform_blender(Transform, SlotsBlender):
                 pass
             cmb.setCurrentIndex(0)
 
-    def cmb001(self, index=-1):
+    def cmb001(self, *args, **kwargs):
         """Transform Constraints
 
         constrain along normals #checkbox option for edge amd surface constaints
@@ -57,7 +57,7 @@ class Transform_blender(Transform, SlotsBlender):
         """
         cmb = self.sb.transform.cmb001
 
-    def cmb002(self, index=-1):
+    def cmb002(self, *args, **kwargs):
         """Align To"""
         cmb = self.sb.transform.cmb002
 
@@ -82,7 +82,7 @@ class Transform_blender(Transform, SlotsBlender):
             elif text == "Orient to Vertex/Edge Tool":
                 pm.mel.orientToTool()  # Orient To Vertex/Edge
 
-    def cmb003(self, index=-1):
+    def cmb003(self, *args, **kwargs):
         """Transform Tool Snapping"""
         cmb = self.sb.transform.cmb003
 
@@ -159,7 +159,7 @@ class Transform_blender(Transform, SlotsBlender):
             "texRotateContext", edit=1, snapValue=value
         )  # uv rotate context
 
-    def tb000(self, state=None):
+    def tb000(self, *args, **kwargs):
         """Drop To Grid"""
         tb = self.sb.transform.tb000
 
@@ -172,7 +172,7 @@ class Transform_blender(Transform, SlotsBlender):
         mtk.XformmoveTo(objects, align, origin, center_pivot, freeze_transforms)
         pm.select(objects)  # reselect the original selection.
 
-    def tb001(self, state=None):
+    def tb001(self, *args, **kwargs):
         """Align Components
 
         Auto Align finds the axis with the largest variance, and sets the axis checkboxes accordingly before performing a regular align.
@@ -301,7 +301,7 @@ class Transform_blender(Transform, SlotsBlender):
         cmb.setCurrentIndex(0)
 
     @Slots.hideMain
-    def b000(self):
+    def b000(self, *args, **kwargs):
         """Object Transform Attributes"""
         node = pm.ls(sl=1, objectsOnly=1)
         if not node:
@@ -324,7 +324,7 @@ class Transform_blender(Transform, SlotsBlender):
             checkable_label=True,
         )
 
-    def b001(self):
+    def b001(self, *args, **kwargs):
         """Match Scale"""
         selection = pm.ls(sl=1)
         if not selection:
@@ -335,17 +335,17 @@ class Transform_blender(Transform, SlotsBlender):
 
         self.match_scale(frm, to)
 
-    def b002(self):
+    def b002(self, *args, **kwargs):
         """Freeze Transformations"""
         pm.makeIdentity(
             apply=True, translate=True, rotate=True, scale=True
         )  # this is the same as pm.makeIdentity(apply=True)
 
-    def b003(self):
+    def b003(self, *args, **kwargs):
         """Center Pivot Object"""
         pm.mel.CenterPivot()
 
-    def b005(self):
+    def b005(self, *args, **kwargs):
         """Move To"""
         sel = pm.ls(sl=1, transforms=1)
         if not sel:
@@ -359,7 +359,7 @@ class Transform_blender(Transform, SlotsBlender):
         )  # move object to center of the last selected items bounding box
         pm.select(objects)
 
-    def b012(self):
+    def b012(self, *args, **kwargs):
         """Make Live (Toggle)"""
         cmb = self.sb.transform.cmb001
         selection = pm.ls(sl=1, objectsOnly=1, type="transform")
@@ -374,24 +374,24 @@ class Transform_blender(Transform, SlotsBlender):
             self.chk026(state=0)
             cmb.option_menu.chk026.setChecked(False)
 
-    def b014(self):
+    def b014(self, *args, **kwargs):
         """Center Pivot Component"""
         [pm.xform(s, center_pivot=1) for s in pm.ls(sl=1, objectsOnly=1, flatten=1)]
         # mel.eval("moveObjectPivotToComponentCentre;")
 
-    def b015(self):
+    def b015(self, *args, **kwargs):
         """Center Pivot World"""
         pm.xform(pivots=(0, 0, 0), worldSpace=1)
 
-    def b016(self):
+    def b016(self, *args, **kwargs):
         """Set To Bounding Box"""
         mel.eval("bt_alignPivotToBoundingBoxWin;")
 
-    def b017(self):
+    def b017(self, *args, **kwargs):
         """Bake Pivot"""
         pm.mel.BakeCustomPivot()
 
-    def b032(self):
+    def b032(self, *args, **kwargs):
         """Reset Pivot Transforms"""
         objs = pm.ls(type=["transform", "geometryShape"], sl=1)
         if len(objs) > 0:
@@ -891,14 +891,14 @@ print(__name__)
 # 	cmb.setCurrentText('Off') if not any((cmb.option_menu.chk024.isChecked(), cmb.option_menu.chk025.isChecked(), cmb.option_menu.chk026.isChecked())) else cmb.setCurrentText('On')
 
 
-# def s002(self, value=None):
+# def s002(self, *args, **kwargs):
 # 	'''
 # 	Transform: Set Step
 # 	'''
 # 	value = self.sb.transform.s002.value()
 # 	self.sb.transform.s000.setStep(value)
 
-# def s000(self, value=None):
+# def s000(self, *args, **kwargs):
 # '''
 # Transform: Perform Transformations
 # '''
@@ -906,7 +906,7 @@ print(__name__)
 # xyz = self.getTransformValues()
 # self.performTransformations(objects, xyz)
 
-# def chk005(self, state=None):
+# def chk005(self, *args, **kwargs):
 # 	'''
 # 	Transform: Scale
 
@@ -916,7 +916,7 @@ print(__name__)
 # 	self.sb.transform.s000.setSingleStep(1)
 
 
-# def chk008(self, state=None):
+# def chk008(self, *args, **kwargs):
 # 	'''
 # 	Transform: Move
 
@@ -926,7 +926,7 @@ print(__name__)
 # 	self.sb.transform.s000.setSingleStep(0.1)
 
 
-# def chk009(self, state=None):
+# def chk009(self, *args, **kwargs):
 # 	'''
 # 	Transform: Rotate
 
@@ -935,7 +935,7 @@ print(__name__)
 # 	self.sb.transform.s000.setValue(45)
 # 	self.sb.transform.s000.setSingleStep(5)
 
-# def b000(self):
+# def b000(self, *args, **kwargs):
 # 	'''
 # 	Transform negative axis
 # 	'''
@@ -947,7 +947,7 @@ print(__name__)
 # 	self.performTransformations()
 
 
-# def b001(self):
+# def b001(self, *args, **kwargs):
 # 	'''
 # 	Transform positive axis
 # 	'''
@@ -1020,7 +1020,7 @@ print(__name__)
 # 		pm.xform(objects, relative=relative, worldSpace=worldspace, objectSpace=(not worldspace), rotation=(xyz[0], xyz[1], xyz[2]))
 
 
-# def cmb002(self, index=-1):
+# def cmb002(self, *args, **kwargs):
 # 	'''
 # 	Transform Contraints
 

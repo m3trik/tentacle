@@ -45,7 +45,7 @@ class Edit_max(Edit, SlotsMax):
         ctx = self.sb.edit.tb002.option_menu
         ctx.chk000.setDisabled(True)  # disable: Delete Edge Ring.
 
-    def cmb000(self, index=-1):
+    def cmb000(self, *args, **kwargs):
         """Editors"""
         cmb = self.sb.edit.draggableHeader.ctx_menu.cmb000
 
@@ -56,7 +56,7 @@ class Edit_max(Edit, SlotsMax):
             cmb.setCurrentIndex(0)
 
     @SlotsMax.attr
-    def cmb001(self, index=-1):
+    def cmb001(self, *args, **kwargs):
         """Object History Attributes"""
         cmb = self.sb.edit.cmb001
 
@@ -75,7 +75,7 @@ class Edit_max(Edit, SlotsMax):
                 obj = rt.getNodeByName(objName)
                 return getattr(obj, attrName)
 
-    def tb000(self, state=None):
+    def tb000(self, *args, **kwargs):
         """Mesh Cleanup"""
         tb = self.sb.edit.tb000
 
@@ -88,7 +88,7 @@ class Edit_max(Edit, SlotsMax):
             isolatedVerts=isolatedVerts, edgeAngle=edgeAngle, nGons=nGons, repair=repair
         )
 
-    def tb001(self, state=None):
+    def tb001(self, *args, **kwargs):
         """Delete History"""
         tb = self.sb.edit.tb001
 
@@ -131,7 +131,7 @@ class Edit_max(Edit, SlotsMax):
                 )
                 return
 
-    def tb002(self, state=None):
+    def tb002(self, *args, **kwargs):
         """Delete"""
         tb = self.sb.edit.tb002
 
@@ -158,7 +158,7 @@ class Edit_max(Edit, SlotsMax):
                 rt.polyop.deleteFaces(obj, faces, delIsoVerts=1)
 
     @Slots.hideMain
-    def b001(self):
+    def b001(self, *args, **kwargs):
         """Object History Attributes: get most recent node"""
         selection = rt.modPanel.getCurrentObject()
         if not selection:
@@ -167,19 +167,19 @@ class Edit_max(Edit, SlotsMax):
 
         self.setAttributeWindow(selection, checkable_label=True)
 
-    def b021(self):
+    def b021(self, *args, **kwargs):
         """Tranfer Maps"""
         maxEval("performSurfaceSampling 1;")
 
-    def b022(self):
+    def b022(self, *args, **kwargs):
         """Transfer Vertex Order"""
         maxEval("TransferVertexOrder;")
 
-    def b023(self):
+    def b023(self, *args, **kwargs):
         """Transfer Attribute Values"""
         maxEval("TransferAttributeValues;")
 
-    def b027(self):
+    def b027(self, *args, **kwargs):
         """Shading Sets"""
         print("no function")
 
@@ -322,7 +322,7 @@ class Edit_max(Edit, SlotsMax):
                 rt.redrawViews()
                 SlotsMax.undo(False)
 
-    def tb003(self, state=None):
+    def tb003(self, *args, **kwargs):
         """Delete Along Axis"""
         tb = self.sb.edit.tb003
 
@@ -334,7 +334,7 @@ class Edit_max(Edit, SlotsMax):
         # 	self.delete_along_axis(obj, axis) #SlotsMax.delete_along_axis - no max version.
         # pm.undoInfo(closeChunk=1)
 
-    def b000(self):
+    def b000(self, *args, **kwargs):
         """Clean: Repair"""
         self.clean_geometry(
             repair=True,
@@ -351,7 +351,7 @@ class Edit_max(Edit, SlotsMax):
         )
 
     @Slots.hideMain
-    def b001(self):
+    def b001(self, *args, **kwargs):
         """Object History Attributes: get most recent node"""
         cmb = self.sb.edit.cmb001
         self.cmb001()  # refresh the contents of the combobox.
@@ -363,19 +363,19 @@ class Edit_max(Edit, SlotsMax):
             self.sb.message_box("Found no items to list the history for.")
             return
 
-    def b021(self):
+    def b021(self, *args, **kwargs):
         """Tranfer Maps"""
         pm.mel.performSurfaceSampling(1)
 
-    def b022(self):
+    def b022(self, *args, **kwargs):
         """Transfer Vertex Order"""
         pm.mel.TransferVertexOrder()
 
-    def b023(self):
+    def b023(self, *args, **kwargs):
         """Transfer Attribute Values"""
         pm.mel.TransferAttributeValues()
 
-    def b027(self):
+    def b027(self, *args, **kwargs):
         """Shading Sets"""
         pm.mel.performTransferShadingSets(0)
 

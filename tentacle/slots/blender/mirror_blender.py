@@ -13,17 +13,17 @@ class Mirror_blender(Mirror, SlotsBlender):
         items = [""]
         cmb.addItems_(items, "")
 
-    def cmb000(self, index=-1):
+    def cmb000(self, *args, **kwargs):
         """Editors"""
         cmb = self.sb.mirror.draggableHeader.ctx_menu.cmb000
 
         if index > 0:
-            if index == cmd.items.index(""):
+            if index == cmb.items.index(""):
                 pass
             cmb.setCurrentIndex(0)
 
     @SlotsBlender.attr
-    def tb000(self, state=None):
+    def tb000(self, *args, **kwargs):
         """Mirror Geometry
 
         values for the direction (dict): ex. 'X': (0, 0, -1, 1, 1)
@@ -174,7 +174,7 @@ print(__name__)
 # 			axis_ = 5
 # 			x=1; y=1; z=-1
 
-# def chk000(self, state=None):
+# def chk000(self, *args, **kwargs):
 # 	'''
 # 	Delete: Negative Axis. Set Text Mirror Axis
 # 	'''
@@ -190,7 +190,7 @@ print(__name__)
 
 
 # #set check states
-# def chk000(self, state=None):
+# def chk000(self, *args, **kwargs):
 # 	'''
 # 	Delete: X Axis
 # 	'''
@@ -202,7 +202,7 @@ print(__name__)
 # 	self.sb.mirror.tb003.setText('Delete '+axis)
 
 
-# def chk002(self, state=None):
+# def chk002(self, *args, **kwargs):
 # 	'''
 # 	Delete: Y Axis
 # 	'''
@@ -214,7 +214,7 @@ print(__name__)
 # 	self.sb.mirror.tb003.setText('Delete '+axis)
 
 
-# def chk003(self, state=None):
+# def chk003(self, *args, **kwargs):
 # 	'''
 # 	Delete: Z Axis
 # 	'''
@@ -226,7 +226,7 @@ print(__name__)
 # 	self.sb.mirror.tb003.setText('Delete '+axis)
 
 
-# def chk005(self, state=None):
+# def chk005(self, *args, **kwargs):
 # '''
 # Mirror: Cut
 # '''

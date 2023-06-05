@@ -1,10 +1,13 @@
 # !/usr/bin/python
 # coding=utf-8
-from tentacle.slots.maya import *
-from tentacle.slots.init import Init
+try:
+    import pymel.core as pm
+except ImportError as error:
+    print(__file__, error)
+from tentacle.slots.maya import SlotsMaya
 
 
-class Init_maya(Init, SlotsMaya):
+class Init_maya(SlotsMaya):
     """ """
 
     def __init__(self, *args, **kwargs):

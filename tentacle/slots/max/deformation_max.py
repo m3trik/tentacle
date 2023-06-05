@@ -12,7 +12,7 @@ class Deformation_max(Deformation, SlotsMax):
         items = []
         cmb.addItems_(items, "")
 
-    def cmb000(self, index=-1):
+    def cmb000(self, *args, **kwargs):
         """Editors"""
         cmb = self.sb.deformation.draggableHeader.ctx_menu.cmb000
 
@@ -22,7 +22,7 @@ class Deformation_max(Deformation, SlotsMax):
                 pass
             cmb.setCurrentIndex(0)
 
-    def b000(self):
+    def b000(self, *args, **kwargs):
         """ """
         pass
 

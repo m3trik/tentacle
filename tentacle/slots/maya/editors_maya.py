@@ -4,15 +4,24 @@ try:
     import pymel.core as pm
 except ImportError as error:
     print(__file__, error)
-
 from uitk.switchboard import signals
 from tentacle.slots.maya import SlotsMaya
-from tentacle.slots.editors import Editors
 
 
-class Editors_maya(Editors, SlotsMaya):
+class Editors_maya(SlotsMaya):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+
+    def cmb000(self, *args, **kwargs):
+        """Editors"""
+        cmb = kwargs.get("widget")
+        index = kwargs.get("index")
+
+        if index > 0:
+            text = cmb.items[index]
+            if text == "":
+                pass
+            cmb.setCurrentIndex(0)
 
     def list000_init(self, widget):
         """ """
@@ -245,96 +254,31 @@ class Editors_maya(Editors, SlotsMaya):
             elif text == "UV Linking: Hair/UV":
                 pm.mel.HairUVSetLinkingEditor()
 
-    def cmb000(self, index=-1):
-        """Editors"""
-        cmb = self.editors_ui.draggableHeader.ctx_menu.cmb000
-
-        if index > 0:
-            text = cmb.items[index]
-            if text == "":
-                pass
-            cmb.setCurrentIndex(0)
-
-    def getEditorWidget(self, name):
-        """Get a maya widget from a given name.
-
-        Parameters:
-                name (str): name of widget
-        """
-        _name = "_" + name
-        if not hasattr(self, _name):
-            w = self.convertToWidget(name)
-            self.stackedWidget.addWidget(w)
-            setattr(self, _name, w)
-
-        return getattr(self, _name)
-
-    def showEditor(self, name, width=640, height=480):
-        """Show, resize, and center the given editor.
-
-        Parameters:
-                name (str): The name of the editor.
-                width (int): The editor's desired width.
-                height (int): The editor's desired height.
-
-        Returns:
-                (obj) The editor as a QWidget.
-        """
-        w = self.getEditorWidget(name)
-
-        self.sb.parent().set_ui("dynLayout")
-        self.stackedWidget.setCurrentWidget(w)
-        self.sb.parent().resize(width, height)
-        return w
-
-    def b000(self):
+    def b000(self, *args, **kwargs):
         """Attributes"""
-        # e = pm.mel.eval('$tmp=$gAttributeEditorForm')
-        # self.showEditor(e, 640, 480)
         pm.mel.AttributeEditor()
 
-    def b001(self):
+    def b001(self, *args, **kwargs):
         """Outliner"""
-        # e = pm.mel.eval('$tmp=$gOutlinerForm')
-
-        # if not hasattr(self, 'outlinerEditor_'):
-        #   panel = pm.outlinerPanel()
-        #   self.outliner_ = pm.outlinerPanel(panel, query=True, outlinerEditor=True)
-        #   pm.outlinerEditor(self.outliner_, edit=True, mainListConnection='worldList', selectionConnection='modelList', showShapes=False, showReferenceNodes=False, showReferenceMembers=False, showAttributes=False, showConnected=False, showAnimCurvesOnly=False, autoExpand=False, showDagOnly=True, ignoreDagHierarchy=False, expandConnections=False, showNamespace=True, showCompounds=True, showNumericAttrsOnly=False, highlightActive=True, autoSelectNewObjects=False, doNotSelectNewObjects=False, transmitFilters=False, showSetMembers=True, setFilter='defaultSetFilter', ignoreHiddenAttribute=False)
-
-        # e = pm.outlinerEditor(self.outliner_, edit=True, showSelected=True) #expand to the current selection in the outliner.
-        # w = self.showEditor(e, 260, 740)
-
-        # panels = mtk.get_panel(type='outlinerPanel')
-        # for panel in panels:
-        #   pm.outlinerEditor(panel, edit=1, showSelected=1)
         pm.mel.OutlinerWindow()
 
-    def b002(self):
+    def b002(self, *args, **kwargs):
         """Tool"""
-        # e = pm.mel.eval('$tmp=$gToolSettingsForm')
-        # self.showEditor(e, 461, 480)
         pm.toolPropertyWindow()
 
-    def b003(self):
+    def b003(self, *args, **kwargs):
         """Layers"""
-        # e = pm.mel.eval('$tmp=$gLayerEditorForm')
-        # self.showEditor(e, 320, 480)
-        # pm.mel.OpenLayerEditor()
         pm.mel.OpenChannelsLayers()
 
-    def b004(self):
+    def b004(self, *args, **kwargs):
         """Channels"""
-        # e = pm.mel.eval('$tmp=$gChannelsForm')
-        # self.showEditor(e, 320, 640)
-        # pm.mel.OpenChannelBox()
         pm.mel.OpenChannelsLayers()
 
-    def b005(self):
+    def b005(self, *args, **kwargs):
         """Node Editor"""
         pm.mel.NodeEditorWindow()
 
-    def b006(self):
+    def b006(self, *args, **kwargs):
         """Dependancy Graph
 
         $editorName = ($panelName+"HyperGraphEd");
@@ -374,6 +318,38 @@ class Editors_maya(Editors, SlotsMaya):
         # e = pm.mel.eval('$tmp=$gHyperGraphPanel')
         # self.showEditor(e, 640, 480)
         pm.mel.HypergraphHierarchyWindow()
+
+    def getEditorWidget(self, name):
+        """Get a maya widget from a given name.
+
+        Parameters:
+                name (str): name of widget
+        """
+        _name = "_" + name
+        if not hasattr(self, _name):
+            w = self.convertToWidget(name)
+            self.stackedWidget.addWidget(w)
+            setattr(self, _name, w)
+
+        return getattr(self, _name)
+
+    def showEditor(self, name, width=640, height=480):
+        """Show, resize, and center the given editor.
+
+        Parameters:
+                name (str): The name of the editor.
+                width (int): The editor's desired width.
+                height (int): The editor's desired height.
+
+        Returns:
+                (obj) The editor as a QWidget.
+        """
+        w = self.getEditorWidget(name)
+
+        self.sb.parent().set_ui("dynLayout")
+        self.stackedWidget.setCurrentWidget(w)
+        self.sb.parent().resize(width, height)
+        return w
 
 
 # module name

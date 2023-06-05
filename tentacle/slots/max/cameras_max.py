@@ -72,7 +72,7 @@ class Cameras_max(Cameras, SlotsMax):
         """Camera Clipping: Viewport"""
         maxEval('actionMan.executeAction 0 "374"')  # Tools: Viewport Clipping
 
-    def chk000(self, state=None):
+    def chk000(self, *args, **kwargs):
         """Camera Clipping: Auto Clip"""
         if self.clippingMenu.chk000.isChecked():
             self.sb.toggle_widgets(self.clippingMenu, setDisabled="s000-1")
@@ -86,7 +86,7 @@ class Cameras_max(Cameras, SlotsMax):
 
         activeCamera.clipManually(False)
 
-    def s000(self, value=None):
+    def s000(self, *args, **kwargs):
         """Camera Clipping: Near Clip"""
         value = self.clippingMenu.s000.value()
 
@@ -96,7 +96,7 @@ class Cameras_max(Cameras, SlotsMax):
 
         activeCamera.nearClip = value
 
-    def s001(self, value=None):
+    def s001(self, *args, **kwargs):
         """Camera Clipping: Far Clip"""
         value = self.clippingMenu.s001.value()
 
@@ -156,35 +156,35 @@ class Cameras_max(Cameras, SlotsMax):
                     'actionMan.executeAction 0 "40015"'
                 )  # CamPoint(); CamPoint pos:[34.8904,27.6277,0] isSelected:on
 
-    def b000(self):
+    def b000(self, *args, **kwargs):
         """Cameras: Back View"""
         maxEval("max vpt back")
 
-    def b001(self):
+    def b001(self, *args, **kwargs):
         """Cameras: Top View"""
         maxEval("max vpt top")
 
-    def b002(self):
+    def b002(self, *args, **kwargs):
         """Cameras: Right View"""
         maxEval("max vpt right")
 
-    def b003(self):
+    def b003(self, *args, **kwargs):
         """Cameras: Left View"""
         maxEval("max vpt left")
 
-    def b004(self):
+    def b004(self, *args, **kwargs):
         """Cameras: Perspective View"""
         maxEval("max vpt persp user")
 
-    def b005(self):
+    def b005(self, *args, **kwargs):
         """Cameras: Front View"""
         maxEval("max vpt front")
 
-    def b006(self):
+    def b006(self, *args, **kwargs):
         """Cameras: Bottom View"""
         maxEval("max vpt bottom")
 
-    def b007(self):
+    def b007(self, *args, **kwargs):
         """Cameras: Align View"""
         maxEval(
             """
@@ -193,19 +193,19 @@ class Cameras_max(Cameras, SlotsMax):
 		"""
         )
 
-    def b010(self):
+    def b010(self, *args, **kwargs):
         """Camera: Dolly"""
         maxEval("max dolly mode")
 
-    def b011(self):
+    def b011(self, *args, **kwargs):
         """Camera: Roll"""
         maxEval("max roll")
 
-    def b012(self):
+    def b012(self, *args, **kwargs):
         """Camera: Truck"""
         maxEval("max truck")
 
-    def b013(self):
+    def b013(self, *args, **kwargs):
         """Camera: Orbit"""
         maxEval("max pancamera")
 
@@ -280,7 +280,7 @@ print(__name__)
 # 				maxEval('actionMan.executeAction 0 "219"') #Tools: Viewport Safeframes Toggle
 
 
-# def cmb001(self, index=-1):
+# def cmb001(self, *args, **kwargs):
 # 	'''
 # 	Cameras
 # 	'''
@@ -299,7 +299,7 @@ print(__name__)
 # 		rt.redrawViews()
 
 
-# def cmb002(self, index=-1):
+# def cmb002(self, *args, **kwargs):
 # 	'''
 # 	Create
 # 	'''
@@ -320,7 +320,7 @@ print(__name__)
 # 		cmb.setCurrentIndex(0)
 
 
-# def cmb003(self, index=-1):
+# def cmb003(self, *args, **kwargs):
 # 	'''
 # 	Options
 # 	'''

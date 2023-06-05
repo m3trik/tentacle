@@ -34,7 +34,7 @@ class File_blender(File, SlotsBlender):
         items = []
         cmb004.addItems_(items, "Export")
 
-    def cmb000(self, index=-1):
+    def cmb000(self, *args, **kwargs):
         """Editors"""
         cmb = self.sb.file.draggableHeader.ctx_menu.cmb000
 
@@ -48,7 +48,7 @@ class File_blender(File, SlotsBlender):
                 mel.eval("")  #
             cmb.setCurrentIndex(0)
 
-    def cmb001(self, index=-1):
+    def cmb001(self, *args, **kwargs):
         """Recent Projects"""
         cmb = self.sb.file.cmb006.option_menu.cmb001
 
@@ -58,7 +58,7 @@ class File_blender(File, SlotsBlender):
             )  # mel.eval('setProject "'+items[index]+'"')
             cmb.setCurrentIndex(0)
 
-    def cmb002(self, index=-1):
+    def cmb002(self, *args, **kwargs):
         """Recent Autosave"""
         cmb = self.sb.file.cmb002
 
@@ -67,7 +67,7 @@ class File_blender(File, SlotsBlender):
             pm.openFile(file, open=1, force=True)
             cmb.setCurrentIndex(0)
 
-    def cmb003(self, index=-1):
+    def cmb003(self, *args, **kwargs):
         """Import"""
         cmb = self.sb.file.cmb003
 
@@ -87,7 +87,7 @@ class File_blender(File, SlotsBlender):
                 )  # Obj Presets
             cmb.setCurrentIndex(0)
 
-    def cmb004(self, index=-1):
+    def cmb004(self, *args, **kwargs):
         """Export"""
         cmb = self.sb.file.cmb004
 
@@ -129,7 +129,7 @@ class File_blender(File, SlotsBlender):
                 )  # Obj Presets
             cmb.setCurrentIndex(0)
 
-    def cmb005(self, index=-1):
+    def cmb005(self, *args, **kwargs):
         """Recent Files"""
         cmb = self.sb.file.cmb005
 
@@ -141,7 +141,7 @@ class File_blender(File, SlotsBlender):
             pm.openFile(cmb.items[index], open=1, force=force)
             cmb.setCurrentIndex(0)
 
-    def cmb006(self, index=-1):
+    def cmb006(self, *args, **kwargs):
         """Project Folder"""
         cmb = self.sb.file.cmb006
 
@@ -158,7 +158,7 @@ class File_blender(File, SlotsBlender):
             os.startfile(path + items[index - 1])
             cmb.setCurrentIndex(0)
 
-    def tb000(self, state=None):
+    def tb000(self, *args, **kwargs):
         """Save"""
         tb = self.sb.file.draggableHeader.ctx_menu.tb000
 
@@ -215,7 +215,7 @@ class File_blender(File, SlotsBlender):
         dir_ = pm.workspace(query=1, rd=1)  # current project path.
         os.startfile(self.format_path(dir_))
 
-    def b000(self):
+    def b000(self, *args, **kwargs):
         """Autosave: Open Directory"""
         # dir1 = str(pm.workspace(query=1, rd=1))+'autosave' #current project path.
         dir2 = os.environ.get("MAYA_AUTOSAVE_FOLDER").split(";")[
@@ -228,7 +228,7 @@ class File_blender(File, SlotsBlender):
         except FileNotFoundError as error:
             return "Error: The system cannot find the file specified."
 
-    def b002(self):
+    def b002(self, *args, **kwargs):
         """Autosave: Delete All"""
         files = self.get_recent_autosave()
         for file in files:
@@ -237,7 +237,7 @@ class File_blender(File, SlotsBlender):
             except Exception as error:
                 print(error)
 
-    def b015(self):
+    def b015(self, *args, **kwargs):
         """Remove String From Object Names."""
         from_ = str(
             self.sb.file.t000.text()
@@ -336,7 +336,7 @@ print(__name__)
 # deprecated:
 
 
-# def tb000(self, state=None):
+# def tb000(self, *args, **kwargs):
 # 	'''
 # 	Save
 # 	'''

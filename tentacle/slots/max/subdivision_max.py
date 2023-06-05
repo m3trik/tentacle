@@ -47,7 +47,7 @@ class Subdivision_max(Subdivision, SlotsMax):
         # items = ['Reduce Polygons','Add Divisions','Smooth']
         # cmb.addItems_(items, 'Maya Subdivision Operations')
 
-    def cmb000(self, index=-1):
+    def cmb000(self, *args, **kwargs):
         """Editors"""
         cmb = self.sb.subdivision.draggableHeader.ctx_menu.cmb000
 
@@ -119,7 +119,7 @@ class Subdivision_max(Subdivision, SlotsMax):
                 )
             cmb.setCurrentIndex(0)
 
-    def s000(self, value=None):
+    def s000(self, *args, **kwargs):
         """Division Level"""
         value = self.sb.subdivision.s000.getValue()
 
@@ -131,7 +131,7 @@ class Subdivision_max(Subdivision, SlotsMax):
             except:
                 pass
 
-    def s001(self, value=None):
+    def s001(self, *args, **kwargs):
         """Tesselation Level"""
         value = self.sb.subdivision.s001.getValue()
 
@@ -143,23 +143,23 @@ class Subdivision_max(Subdivision, SlotsMax):
             except:
                 pass
 
-    def b005(self):
+    def b005(self, *args, **kwargs):
         """Reduce"""
         mel.eval("ReducePolygon;")
 
-    def b008(self):
+    def b008(self, *args, **kwargs):
         """Add Divisions - Subdivide Mesh"""
         maxEval('macros.run "Modifiers" "Tessellate"')
 
-    def b009(self):
+    def b009(self, *args, **kwargs):
         """Smooth"""
         maxEval('macros.run "Modifiers" "Smooth"')
 
-    def b010(self):
+    def b010(self, *args, **kwargs):
         """"""
         pass
 
-    def b011(self):
+    def b011(self, *args, **kwargs):
         """Convert Smooth Preview"""
         # convert smooth mesh preview to polygons
         geometry = rt.selection

@@ -13,7 +13,7 @@ class Rendering_blender(Rendering, SlotsBlender):
         items = [""]
         cmb.addItems_(items, "")
 
-    def cmb000(self, index=-1):
+    def cmb000(self, *args, **kwargs):
         """Editors"""
         cmb = self.sb.rendering.draggableHeader.ctx_menu.cmb000
 
@@ -23,7 +23,7 @@ class Rendering_blender(Rendering, SlotsBlender):
                 pass
             cmb.setCurrentIndex(0)
 
-    def cmb001(self, index=-1):
+    def cmb001(self, *args, **kwargs):
         """Render: camera"""
         cmb = self.sb.rendering.cmb001
 
@@ -32,7 +32,7 @@ class Rendering_blender(Rendering, SlotsBlender):
         # 	items = [str(cam.name) for cam in self.cams] #camera names
         # 	contents = cmb.addItems_(items)
 
-    def b000(self):
+    def b000(self, *args, **kwargs):
         """Render Current Frame"""
         cmb = self.sb.rendering.cmb001
         index = cmb.currentIndex()
@@ -42,23 +42,23 @@ class Rendering_blender(Rendering, SlotsBlender):
         except:
             mel.eval("RenderIntoNewWindow;")
 
-    def b001(self):
+    def b001(self, *args, **kwargs):
         """Open Render Settings Window"""
         mel.eval("unifiedRenderGlobalsWindow;")
 
-    def b002(self):
+    def b002(self, *args, **kwargs):
         """Redo Previous Render"""
         mel.eval("redoPreviousRender render;")
 
-    def b003(self):
+    def b003(self, *args, **kwargs):
         """Editor: Render Setup"""
         mel.eval("RenderSetupWindow;")
 
-    def b004(self):
+    def b004(self, *args, **kwargs):
         """Editor: Rendering Flags"""
         mel.eval("renderFlagsWindow;")
 
-    def b005(self):
+    def b005(self, *args, **kwargs):
         """Apply Vray Attributes To Selected Objects"""
         selection = pm.ls(selection=1)
         currentID = 1
@@ -78,7 +78,7 @@ class Rendering_blender(Rendering, SlotsBlender):
             pm.setAttr(obj + ".vrayObjectID", currentID)
             currentID += 1
 
-    def b006(self):
+    def b006(self, *args, **kwargs):
         """Load Vray Plugin"""
         vray = ["vrayformaya.mll", "vrayformayapatch.mll"]
         if pm.pluginInfo("vrayformaya.mll", query=1, loaded=1):

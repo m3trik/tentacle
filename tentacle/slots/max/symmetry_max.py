@@ -19,7 +19,7 @@ class Symmetry_max(Symmetry, SlotsMax):
         # getattr(self.sb.symmetry, widget).setChecked(state)
         # getattr(self.sb.symmetry_submenu, widget).setChecked(state)
 
-    def cmb000(self, index=-1):
+    def cmb000(self, *args, **kwargs):
         """Editors"""
         cmb = self.sb.symmetry.draggableHeader.ctx_menu.cmb000
 
@@ -29,7 +29,7 @@ class Symmetry_max(Symmetry, SlotsMax):
                 pass
             cmb.setCurrentIndex(0)
 
-    def chk005(self, state=None):
+    def chk005(self, *args, **kwargs):
         """Symmetry: Topo"""
         self.sb.symmetry.chk004.setChecked(False)  # uncheck symmetry:object space
         # if any ([self.sb.symmetry.chk000.isChecked(), self.sb.symmetry.chk001.isChecked(), self.sb.symmetry.chk002.isChecked()]): #(symmetry)

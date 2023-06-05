@@ -17,12 +17,12 @@ class Lighting_blender(Lighting, SlotsBlender):
         """Context menu"""
         dh = self.sb.lighting.draggableHeader
 
-    def cmb000(self, index=-1):
+    def cmb000(self, *args, **kwargs):
         """Editors"""
         cmb = self.sb.lighting.draggableHeader.ctx_menu.cmb000
 
         # if index>0:
-        # 	if index==cmd.items.index(''):
+        # 	if index==cmb.items.index(''):
         # 		pass
         # 	cmb.setCurrentIndex(0)
 

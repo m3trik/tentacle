@@ -74,7 +74,7 @@ class Cameras_blender(Cameras, SlotsBlender):
 
         return self._clippingMenu
 
-    def chk000(self, state=None):
+    def chk000(self, *args, **kwargs):
         """Camera Clipping: Auto Clip"""
         if self.clippingMenu.chk000.isChecked():
             self.sb.toggle_widgets(self.clippingMenu, setDisabled="s000-1")
@@ -87,7 +87,7 @@ class Cameras_blender(Cameras, SlotsBlender):
 
         pm.viewClipPlane(activeCamera, autoClipPlane=True)
 
-    def s000(self, value=None):
+    def s000(self, *args, **kwargs):
         """Camera Clipping: Near Clip"""
         value = self.clippingMenu.s000.value()
 
@@ -97,7 +97,7 @@ class Cameras_blender(Cameras, SlotsBlender):
 
         pm.viewClipPlane(activeCamera, nearClipPlane=widget.value())
 
-    def s001(self, value=None):
+    def s001(self, *args, **kwargs):
         """Camera Clipping: Far Clip"""
         value = self.clippingMenu.s001.value()
 
@@ -467,7 +467,7 @@ print(__name__)
 # 				self.toggle_safe_frames()
 
 
-# def cmb000(self, index=-1):
+# def cmb000(self, *args, **kwargs):
 # 	'''
 # 	Camera Editors
 
@@ -487,7 +487,7 @@ print(__name__)
 # 		cmb.setCurrentIndex(0)
 
 
-# def cmb001(self, index=-1):
+# def cmb001(self, *args, **kwargs):
 # 	'''
 # 	Additional Cameras
 
@@ -515,7 +515,7 @@ print(__name__)
 # 		cmb.setCurrentIndex(0)
 
 
-# def cmb002(self, index=-1):
+# def cmb002(self, *args, **kwargs):
 # 	'''
 # 	Create
 
@@ -537,7 +537,7 @@ print(__name__)
 # 		cmb.setCurrentIndex(0)
 
 
-# def cmb003(self, index=-1):
+# def cmb003(self, *args, **kwargs):
 # 	'''
 # 	Options
 

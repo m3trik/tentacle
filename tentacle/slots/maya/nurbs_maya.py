@@ -1,14 +1,23 @@
 # !/usr/bin/python
 # coding=utf-8
-from tentacle.slots.maya import *
-from tentacle.slots.nurbs import Nurbs
+try:
+    import pymel.core as pm
+except ImportError as error:
+    print(__file__, error)
+import pythontk as ptk
+import mayatk as mtk
+from tentacle.slots.maya import SlotsMaya
 
 
-class Nurbs_maya(Nurbs, SlotsMaya):
+class Nurbs_maya(SlotsMaya):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        cmb000 = self.sb.nurbs.draggableHeader.ctx_menu.cmb000
+    def draggableHeader_init(self, widget):
+        """ """
+        cmb = widget.ctx_menu.add(
+            self.sb.ComboBox, setObjectName="cmb000", setToolTip="Maya Curve Operations"
+        )
         items = [
             "Project Curve",
             "Duplicate Curve",
@@ -28,9 +37,10 @@ class Nurbs_maya(Nurbs, SlotsMaya):
             "Extend Curve",
             "Extend Curve On Surface",
         ]
-        cmb000.addItems_(items, "Curve Editors")
+        cmb.addItems_(items, "Curve Editors")
 
-        cmb001 = self.sb.nurbs.cmb001
+    def cmb001_init(self, widget):
+        """ """
         items = [
             "Ep Curve Tool",
             "CV Curve Tool",
@@ -39,11 +49,157 @@ class Nurbs_maya(Nurbs, SlotsMaya):
             "2 Point Circular Arc",
             "3 Point Circular Arc",
         ]
-        cmb001.addItems_(items, "Create Curve")
+        widget.addItems_(items, "Create Curve")
 
-    def cmb000(self, index=-1):
+    def tb000_init(self, widget):
+        widget.option_menu.add(
+            "QSpinBox",
+            setPrefix="Degree:",
+            setObjectName="s002",
+            setValue=3,
+            set_limits="0-9999 step1",
+            setToolTip="The degree of the resulting surface.",
+        )
+        widget.option_menu.add(
+            "QSpinBox",
+            setPrefix="Start Sweep:",
+            setObjectName="s003",
+            setValue=3,
+            set_limits="0-360 step1",
+            setToolTip="    The value for the start sweep angle.",
+        )
+        widget.option_menu.add(
+            "QSpinBox",
+            setPrefix="End Sweep:",
+            setObjectName="s004",
+            setValue=3,
+            set_limits="0-360 step1",
+            setToolTip="The value for the end sweep angle.",
+        )
+        widget.option_menu.add(
+            "QSpinBox",
+            setPrefix="Sections:",
+            setObjectName="s005",
+            setValue=8,
+            set_limits="0-9999 step1",
+            setToolTip="The number of surface spans between consecutive curves in the loft.",
+        )
+        widget.option_menu.add(
+            "QCheckBox",
+            setText="Range",
+            setObjectName="chk006",
+            setChecked=False,
+            setToolTip="Force a curve range on complete input curve.",
+        )
+        widget.option_menu.add(
+            "QCheckBox",
+            setText="Polygon",
+            setObjectName="chk007",
+            setChecked=True,
+            setToolTip="The object created by this operation.",
+        )
+        widget.option_menu.add(
+            "QCheckBox",
+            setText="Auto Correct Normal",
+            setObjectName="chk008",
+            setChecked=False,
+            setToolTip="Attempt to reverse the direction of the axis in case it is necessary to do so for the surface normals to end up pointing to the outside of the object.",
+        )
+        widget.option_menu.add(
+            "QCheckBox",
+            setText="Use Tolerance",
+            setObjectName="chk009",
+            setChecked=False,
+            setToolTip="Use the tolerance, or the number of sections to control the sections.",
+        )
+        widget.option_menu.add(
+            "QDoubleSpinBox",
+            setPrefix="Tolerance:",
+            setObjectName="s006",
+            setValue=0.001,
+            set_limits="0-9999 step.001",
+            setToolTip="Tolerance to build to (if useTolerance attribute is set).",
+        )
+
+        tb001 = self.sb.nurbs.tb001
+        tb001.option_menu.add(
+            "QCheckBox",
+            setText="Uniform",
+            setObjectName="chk000",
+            setChecked=True,
+            setToolTip="The resulting surface will have uniform parameterization in the loft direction. If set to false, the parameterization will be chord length.",
+        )
+        tb001.option_menu.add(
+            "QCheckBox",
+            setText="Close",
+            setObjectName="chk001",
+            setChecked=False,
+            setToolTip="The resulting surface will be closed (periodic) with the start (end) at the first curve. If set to false, the surface will remain open.",
+        )
+        tb001.option_menu.add(
+            "QSpinBox",
+            setPrefix="Degree:",
+            setObjectName="s000",
+            setValue=3,
+            set_limits="0-9999 step1",
+            setToolTip="The degree of the resulting surface.",
+        )
+        tb001.option_menu.add(
+            "QCheckBox",
+            setText="Auto Reverse",
+            setObjectName="chk002",
+            setChecked=False,
+            setToolTip="The direction of the curves for the loft is computed automatically. If set to false, the values of the multi-use reverse flag are used instead.",
+        )
+        tb001.option_menu.add(
+            "QSpinBox",
+            setPrefix="Section Spans:",
+            setObjectName="s001",
+            setValue=1,
+            set_limits="0-9999 step1",
+            setToolTip="The number of surface spans between consecutive curves in the loft.",
+        )
+        tb001.option_menu.add(
+            "QCheckBox",
+            setText="Range",
+            setObjectName="chk003",
+            setChecked=False,
+            setToolTip="Force a curve range on complete input curve.",
+        )
+        tb001.option_menu.add(
+            "QCheckBox",
+            setText="Polygon",
+            setObjectName="chk004",
+            setChecked=True,
+            setToolTip="The object created by this operation.",
+        )
+        tb001.option_menu.add(
+            "QCheckBox",
+            setText="Reverse Surface Normals",
+            setObjectName="chk005",
+            setChecked=True,
+            setToolTip="The surface normals on the output NURBS surface will be reversed. This is accomplished by swapping the U and V parametric directions.",
+        )
+        tb001.option_menu.add(
+            "QCheckBox",
+            setText="Angle Loft Between Two Curves",
+            setObjectName="chk010",
+            setChecked=False,
+            setToolTip="Perform a loft at an angle between two selected curves or polygon edges (that will be extracted as curves).",
+        )
+        tb001.option_menu.add(
+            "QSpinBox",
+            setPrefix="Angle Loft: Spans:",
+            setObjectName="s007",
+            setValue=6,
+            set_limits="2-9999 step1",
+            setToolTip="Angle loft: Number of duplicated points (spans).",
+        )
+
+    def cmb000(self, *args, **kwargs):
         """Maya Curve Operations"""
-        cmb = self.sb.nurbs.draggableHeader.ctx_menu.cmb000
+        cmb = kwargs.get("widget")
+        index = kwargs.get("index")
 
         if index > 0:
             text = cmb.items[index]
@@ -83,9 +239,10 @@ class Nurbs_maya(Nurbs, SlotsMaya):
                 pm.mel.eval("ExtendCurveOnSurfaceOptions;")
             cmb.setCurrentIndex(0)
 
-    def cmb001(self, index=-1):
+    def cmb001(self, *args, **kwargs):
         """Create: Curve"""
-        cmb = self.sb.nurbs.cmb001
+        cmb = kwargs.get("widget")
+        index = kwargs.get("index")
 
         if index > 0:
             text = cmb.items[index]
@@ -112,9 +269,9 @@ class Nurbs_maya(Nurbs, SlotsMaya):
             cmb.setCurrentIndex(0)
 
     @SlotsMaya.attr
-    def tb000(self, state=None):
+    def tb000(self, *args, **kwargs):
         """Revolve"""
-        tb = self.sb.nurbs.tb000
+        tb = kwargs.get("widget")
 
         degree = tb.option_menu.s002.value()
         startSweep = tb.option_menu.s003.value()
@@ -126,6 +283,7 @@ class Nurbs_maya(Nurbs, SlotsMaya):
         useTolerance = tb.option_menu.chk009.isChecked()
         tolerance = tb.option_menu.s006.value()
 
+        curves = pm.ls(sl=True)
         return pm.revolve(
             curves,
             po=polygon,
@@ -141,9 +299,9 @@ class Nurbs_maya(Nurbs, SlotsMaya):
         )
 
     # @SlotsMaya.attr
-    def tb001(self, state=None):
+    def tb001(self, *args, **kwargs):
         """Loft"""
-        tb = self.sb.nurbs.tb001
+        tb = kwargs.get("widget")
 
         uniform = tb.option_menu.chk000.isChecked()
         close = tb.option_menu.chk001.isChecked()
@@ -169,20 +327,20 @@ class Nurbs_maya(Nurbs, SlotsMaya):
             angleLoftSpans=angleLoftSpans,
         )
 
-    def b012(self):
+    def b012(self, *args, **kwargs):
         """Project Curve"""
         pm.mel.ProjectCurveOnMesh()
 
-    def b014(self):
+    def b014(self, *args, **kwargs):
         """Duplicate Curve"""
         pm.mel.DuplicateCurve()
 
-    def b016(self):
+    def b016(self, *args, **kwargs):
         """Extract Curve"""
         try:
             pm.mel.CreateCurveFromPoly()
 
-        except Exception as error:
+        except Exception:
             sel = pm.ls(sl=1)
             sel_edges = mtk.Cmpt.get_components(
                 sel, component_type="edges", flatten=1
@@ -201,87 +359,87 @@ class Nurbs_maya(Nurbs, SlotsMaya):
                         form=2, degree=3, conformToSmoothMeshPreview=True
                     )  # degree: 1=linear,2= ,3=cubic,5= ,7=
 
-    def b018(self):
+    def b018(self, *args, **kwargs):
         """Lock Curve"""
         pm.mel.LockCurveLength()
 
-    def b019(self):
+    def b019(self, *args, **kwargs):
         """Unlock Curve"""
         pm.mel.UnlockCurveLength()
 
-    def b020(self):
+    def b020(self, *args, **kwargs):
         """Bend Curve"""
         pm.mel.BendCurves()
 
-    def b022(self):
+    def b022(self, *args, **kwargs):
         """Curl Curve"""
         pm.mel.CurlCurves()
 
-    def b024(self):
+    def b024(self, *args, **kwargs):
         """Modify Curve Curvature"""
         pm.mel.ScaleCurvature()
 
-    def b026(self):
+    def b026(self, *args, **kwargs):
         """Smooth Curve"""
         pm.mel.SmoothHairCurves()
 
-    def b028(self):
+    def b028(self, *args, **kwargs):
         """Straighten Curve"""
         pm.mel.StraightenCurves()
 
-    def b030(self):
+    def b030(self, *args, **kwargs):
         """Extrude"""
         pm.mel.Extrude()
 
-    def b036(self):
+    def b036(self, *args, **kwargs):
         """Planar"""
         pm.mel.Planar()
 
-    def b038(self):
+    def b038(self, *args, **kwargs):
         """Insert Isoparm"""
         pm.mel.InsertIsoparms()
 
-    def b040(self):
+    def b040(self, *args, **kwargs):
         """Edit Curve Tool"""
         pm.mel.CurveEditTool()
 
-    def b041(self):
+    def b041(self, *args, **kwargs):
         """Attach Curve"""
         pm.mel.AttachCurveOptions()
 
-    def b042(self):
+    def b042(self, *args, **kwargs):
         """Detach Curve"""
         pm.mel.DetachCurve()
 
-    def b043(self):
+    def b043(self, *args, **kwargs):
         """Extend Curve"""
         pm.mel.ExtendCurveOptions()
 
-    def b045(self):
+    def b045(self, *args, **kwargs):
         """Cut Curve"""
         pm.mel.CutCurve()
 
-    def b046(self):
+    def b046(self, *args, **kwargs):
         """Open/Close Curve"""
         pm.mel.OpenCloseCurve()
 
-    def b047(self):
+    def b047(self, *args, **kwargs):
         """Insert Knot"""
         pm.mel.InsertKnot()
 
-    def b049(self):
+    def b049(self, *args, **kwargs):
         """Add Points Tool"""
         pm.mel.AddPointsTool()
 
-    def b051(self):
+    def b051(self, *args, **kwargs):
         """Reverse Curve"""
         pm.mel.reverse()
 
-    def b052(self):
+    def b052(self, *args, **kwargs):
         """Extend Curve"""
         pm.mel.ExtendCurve()
 
-    def b054(self):
+    def b054(self, *args, **kwargs):
         """Extend On Surface"""
         pm.mel.ExtendCurveOnSurface()
 
@@ -317,7 +475,7 @@ class Nurbs_maya(Nurbs, SlotsMaya):
                 (obj) nurbsToPoly history node.
         """
         # pm.undoInfo(openChunk=1)
-        sel = pm.ls(sl=1)
+        sel = pm.ls(sl=True)
 
         if len(sel) > 1:
             if angleLoftBetweenTwoCurves:
@@ -377,7 +535,7 @@ class Nurbs_maya(Nurbs, SlotsMaya):
             for obj in result:
                 try:
                     pm.delete(obj)
-                except:
+                except Exception:
                     pass
             result = converted
 
@@ -398,43 +556,43 @@ class Nurbs_maya(Nurbs, SlotsMaya):
         # pm.undoInfo(openChunk=1)
         p1 = pm.objectCenter(start)
         p2 = pm.objectCenter(end)
-        hypotenuse = Slots.get_distance(p1, p2)
+        hypotenuse = ptk.get_distance(p1, p2)
 
         v1, v2 = self.getCrossProductOfCurves([start, end], normalize=1, values=1)
-        v3a = Slots.get_vector_from_two_points(p1, p2)
-        v3b = Slots.get_vector_from_two_points(p2, p1)
+        v3a = ptk.get_vector_from_two_points(p1, p2)
+        v3b = ptk.get_vector_from_two_points(p2, p1)
 
-        a1 = Slots.get_angle_from_two_vectors(
+        a1 = ptk.get_angle_from_two_vectors(
             v1, v3a, degree=1
         )  # SlotsMaya.get_angle_from_three_points(v1, p1, p2, degree=1)
-        a2 = Slots.get_angle_from_two_vectors(
+        a2 = ptk.get_angle_from_two_vectors(
             v2, v3b, degree=1
         )  # SlotsMaya.get_angle_from_three_points(v2, p1, p2, degree=1)
-        a3 = Slots.get_angle_from_two_vectors(v1, v2, degree=1)
+        a3 = ptk.get_angle_from_two_vectors(v1, v2, degree=1)
 
-        d1, d2 = Slots.get_two_sides_of_asa_triangle(
+        d1, d2 = ptk.get_two_sides_of_asa_triangle(
             a2, a1, hypotenuse
         )  # get length of sides 1 and 2.
 
-        p_from_v1 = Slots.move_point_relative_along_vector(p1, p2, v1, d1)
-        p_from_v2 = Slots.move_point_relative_along_vector(p2, p1, v2, d2)
-        p3 = Slots.get_center_of_two_points(p_from_v1, p_from_v2)
+        p_from_v1 = ptk.move_point_relative_along_vector(p1, p2, v1, d1)
+        p_from_v2 = ptk.move_point_relative_along_vector(p2, p1, v2, d2)
+        p3 = ptk.get_center_of_two_points(p_from_v1, p_from_v2)
 
         if d1 < d2:
             min_dist = d1
-            max_vect = Slots.get_vector_from_two_points(p2, p3)
+            max_vect = ptk.get_vector_from_two_points(p2, p3)
         else:
             min_dist = d2
-            max_vect = Slots.get_vector_from_two_points(p1, p3)
+            max_vect = ptk.get_vector_from_two_points(p1, p3)
             p1, p2 = p2, p1
 
         # pm.spaceLocator(position=p1); pm.spaceLocator(position=p2); pm.spaceLocator(position=p3)
 
-        p4 = Slots.move_point_relative(p3, min_dist, max_vect)
+        p4 = ptk.move_point_relative(p3, min_dist, max_vect)
         # pm.spaceLocator(position=p4)
-        p5 = Slots.get_center_of_two_points(p4, p1)
+        p5 = ptk.get_center_of_two_points(p4, p1)
         # pm.spaceLocator(position=p5)
-        p6 = Slots.get_center_of_two_points(p3, p5)
+        p6 = ptk.get_center_of_two_points(p3, p5)
         # pm.spaceLocator(position=p6)
 
         # add weighting to the curve points.
@@ -611,7 +769,7 @@ class Nurbs_maya(Nurbs, SlotsMaya):
                     pos = i
                 pm.setAttr(npcNode.inPosition, pos)
 
-                distance = Slots.get_distance(pos, pm.getAttr(npcNode.position))
+                distance = ptk.get_distance(pos, pm.getAttr(npcNode.position))
                 p = pm.getAttr(npcNode.parameter)
                 if not tolerance:
                     result[i] = p
@@ -732,7 +890,7 @@ class Nurbs_maya(Nurbs, SlotsMaya):
             p1 = cvPos[cvs[0]]
             p2 = cvPos[cvs[(len(cvs) / 2)]]
 
-            n1 = Slots.getCrossProduct(p0, p1, p2, normalize=normalize)
+            n1 = ptk.getCrossProduct(p0, p1, p2, normalize=normalize)
 
             result[curve] = n1
 

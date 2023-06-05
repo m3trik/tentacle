@@ -15,7 +15,7 @@ class Crease_blender(Crease, SlotsBlender):
         items = []
         cmb.addItems_(items, "Crease Editors:")
 
-    def cmb000(self, index=-1):
+    def cmb000(self, *args, **kwargs):
         """Editors"""
         cmb = self.sb.crease.draggableHeader.ctx_menu.cmb000
 
@@ -28,7 +28,7 @@ class Crease_blender(Crease, SlotsBlender):
 
             cmb.setCurrentIndex(0)
 
-    def tb000(self, state=None):
+    def tb000(self, *args, **kwargs):
         """Crease"""
         tb = self.sb.crease.tb000
 
@@ -73,7 +73,7 @@ class Crease_blender(Crease, SlotsBlender):
             pm.polySelectConstraint(angle=False)  # turn off angle constraint
 
     @SlotsBlender.undoChunk
-    def b002(self):
+    def b002(self, *args, **kwargs):
         """Transfer Crease Edges"""
         # an updated version of this is in the maya python projects folder. transferCreaseSets.py
         # the use of separate buttons for donor and target mesh are deprecated.

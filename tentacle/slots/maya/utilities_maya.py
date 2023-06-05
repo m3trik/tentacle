@@ -1,20 +1,26 @@
 # !/usr/bin/python
 # coding=utf-8
-from tentacle.slots.maya import *
-from tentacle.slots.utilities import Utilities
+try:
+    import pymel.core as pm
+except ImportError as error:
+    print(__file__, error)
+from tentacle.slots.maya import SlotsMaya
 
 
-class Utilities_maya(Utilities, SlotsMaya):
+class Utilities_maya(SlotsMaya):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        cmb = self.sb.utilities.draggableHeader.ctx_menu.cmb000
+    def draggableHeader_init(self, widget):
+        """ """ 
+        cmb000 = widget.ctx_menu.add(self.sb.ComboBox, setObjectName="cmb000", setToolTip="")
         files = [""]
-        cmb.addItems_(files, "")
+        cmb000.addItems_(files, "")
 
-    def cmb000(self, index=-1):
+    def cmb000(self, *args, **kwargs):
         """Editors"""
-        cmb = self.sb.utilities.draggableHeader.ctx_menu.cmb000
+        cmb = kwargs.get('widget')
+        index = kwargs.get('index')
 
         if index > 0:
             text = cmb.items[index]
@@ -22,21 +28,21 @@ class Utilities_maya(Utilities, SlotsMaya):
                 pass
             cmb.setCurrentIndex(0)
 
-    def b000(self):
+    def b000(self, *args, **kwargs):
         """Measure"""
-        pm.mel.eval("DistanceTool;")
+        pm.mel.DistanceTool()
 
-    def b001(self):
+    def b001(self, *args, **kwargs):
         """Annotation"""
-        pm.mel.eval("CreateAnnotateNode;")
+        pm.mel.CreateAnnotateNode()
 
-    def b002(self):
+    def b002(self, *args, **kwargs):
         """Calculator"""
-        pm.mel.eval("calculator;")
+        pm.mel.calculator()
 
-    def b003(self):
+    def b003(self, *args, **kwargs):
         """Grease Pencil"""
-        pm.mel.eval("greasePencilCtx;")
+        pm.mel.greasePencilCtx()
 
 
 # module name

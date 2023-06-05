@@ -12,7 +12,7 @@ class Display_max(Display, SlotsMax):
         items = [""]
         cmb.addItems_(items, "")
 
-    def cmb000(self, index=-1):
+    def cmb000(self, *args, **kwargs):
         """Editors"""
         cmb = self.sb.display.draggableHeader.ctx_menu.cmb000
 
@@ -22,11 +22,11 @@ class Display_max(Display, SlotsMax):
                 pass
             cmb.setCurrentIndex(0)
 
-    def b000(self):
+    def b000(self, *args, **kwargs):
         """Set Wireframe color"""
         pm.mel.objectColorPalette()
 
-    def b001(self):
+    def b001(self, *args, **kwargs):
         """Toggle Visibility"""
         sel = [s for s in rt.getCurrentSelection()]
 
@@ -36,7 +36,7 @@ class Display_max(Display, SlotsMax):
             else:
                 obj.visibility = True
 
-    def b002(self):
+    def b002(self, *args, **kwargs):
         """Hide Selected"""
         sel = [s for s in rt.getCurrentSelection()]
 
@@ -44,7 +44,7 @@ class Display_max(Display, SlotsMax):
             if not obj.isHiddenInVpt:
                 obj.isHidden = True
 
-    def b003(self):
+    def b003(self, *args, **kwargs):
         """Show Selected"""
         sel = [s for s in rt.getCurrentSelection()]
 
@@ -52,7 +52,7 @@ class Display_max(Display, SlotsMax):
             if obj.isHiddenInVpt:
                 obj.isHidden = False
 
-    def b004(self):
+    def b004(self, *args, **kwargs):
         """Show Geometry"""
         geometry = rt.geometry
 
@@ -60,21 +60,21 @@ class Display_max(Display, SlotsMax):
             if obj.isHiddenInVpt:
                 obj.isHidden = False
 
-    def b005(self):
+    def b005(self, *args, **kwargs):
         """Xray Selected"""
         sel = [s for s in rt.getCurrentSelection()]
 
         for s in sel:
             s.xray = True
 
-    def b006(self):
+    def b006(self, *args, **kwargs):
         """Un-Xray All"""
         geometry = [g for g in rt.geometry]
 
         for g in geometry:
             g.xray = False
 
-    def b007(self):
+    def b007(self, *args, **kwargs):
         """Xray Other"""
         sel = [s for s in rt.getCurrentSelection()]
         geometry = [g for g in rt.geometry]
@@ -83,22 +83,22 @@ class Display_max(Display, SlotsMax):
             if g not in sel:
                 g.xray = True
 
-    def b008(self):
+    def b008(self, *args, **kwargs):
         """Filter Objects"""
         mel.eval("bt_filterActionWindow;")
 
-    def b009(self):
+    def b009(self, *args, **kwargs):
         """Override Material"""
         if self.sb.display.chk000.isChecked():  # override with UV checker material
             self.toggleMaterialOverride(checker=1)
         else:
             self.toggleMaterialOverride()
 
-    def b010(self):
+    def b010(self, *args, **kwargs):
         """"""
         pass
 
-    def b011(self):
+    def b011(self, *args, **kwargs):
         """Toggle Component ID Display"""
         index = ptk.cycle([0, 1, 2, 3, 4], "componentID")
 
@@ -143,7 +143,7 @@ class Display_max(Display, SlotsMax):
             self.sb.message_box("Component ID <hl>Off</hl>.")
             return
 
-    def b012(self):
+    def b012(self, *args, **kwargs):
         """Wireframe Non Active (Wireframe All But The Selected Item)"""
         viewport = rt.viewport.activeViewport
 
@@ -160,11 +160,11 @@ class Display_max(Display, SlotsMax):
                 "40212", 62, 130, False
             )  # Shade selected objects unchecked
 
-    def b013(self):
+    def b013(self, *args, **kwargs):
         """Viewport Configuration"""
         maxEval('actionMan.executeAction 0 "40023"')
 
-    def b021(self):
+    def b021(self, *args, **kwargs):
         """Template Selected"""
         sel = [s for s in rt.getCurrentSelection()]
 
@@ -174,7 +174,7 @@ class Display_max(Display, SlotsMax):
             else:
                 obj.isFrozen = True
 
-    def b024(self):
+    def b024(self, *args, **kwargs):
         """Polygon Display Options"""
         mel.eval("CustomPolygonDisplayOptions")
         # mel.eval("polysDisplaySetup 1;")

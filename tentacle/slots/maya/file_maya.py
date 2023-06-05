@@ -17,36 +17,36 @@ class File_maya(SlotsMaya):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-    def draggableHeader_init(self, w):
+    def draggableHeader_init(self, widget):
         """ """
-        w.ctx_menu.add(self.sb.ComboBox, setObjectName="cmb000", setToolTip="")
-
-        cmb000 = w.ctx_menu.cmb000
+        cmb = widget.ctx_menu.add(
+            self.sb.ComboBox, setObjectName="cmb000", setToolTip=""
+        )
         items = []
-        cmb000.addItems_(items, "File Editors")
+        cmb.addItems_(items, "File Editors")
 
-    def cmb002_init(self, w):
+    def cmb002_init(self, widget):
         """ """
         # Get the current autosave state
         autoSaveState = pm.autoSave(q=True, enable=True)
         autoSaveInterval = pm.autoSave(q=True, int=True)
         autoSaveAmount = pm.autoSave(q=True, maxBackups=True)
         # open directory
-        w.option_menu.add(
+        widget.option_menu.add(
             "QPushButton",
             setObjectName="b000",
             setText="Open Directory",
             setToolTip="Open the autosave directory.",
         )
         # delete all
-        w.option_menu.add(
+        widget.option_menu.add(
             "QPushButton",
             setObjectName="b002",
             setText="Delete All",
             setToolTip="Delete all autosave files.",
         )
         # toggle autosave
-        w.option_menu.add(
+        widget.option_menu.add(
             "QCheckBox",
             setText="Autosave",
             setObjectName="chk006",
@@ -54,7 +54,7 @@ class File_maya(SlotsMaya):
             setToolTip="Set the autosave state as active or disabled.",
         )
         # autosave amount
-        w.option_menu.add(
+        widget.option_menu.add(
             "QSpinBox",
             setPrefix="Amount: ",
             setObjectName="s000",
@@ -64,7 +64,7 @@ class File_maya(SlotsMaya):
             setToolTip="The number of autosave files to retain.",
         )
         # autosave interval
-        w.option_menu.add(
+        widget.option_menu.add(
             "QSpinBox",
             setPrefix="Interval: ",
             setObjectName="s001",
@@ -73,24 +73,24 @@ class File_maya(SlotsMaya):
             set_height=20,
             setToolTip="The autosave interval in minutes.",
         )
-        w.option_menu.chk006.toggled.connect(
+        widget.option_menu.chk006.toggled.connect(
             lambda s: pm.autoSave(enable=s, limitBackups=True)
         )
-        w.option_menu.s000.valueChanged.connect(
+        widget.option_menu.s000.valueChanged.connect(
             lambda v: pm.autoSave(maxBackups=v, limitBackups=True)
         )
-        w.option_menu.s001.valueChanged.connect(
+        widget.option_menu.s001.valueChanged.connect(
             lambda v: pm.autoSave(int=v * 60, limitBackups=True)
         )
-        w.addItems_(
+        widget.addItems_(
             mtk.get_recent_autosave(format="timestamp|standard"),
             "Recent Autosave",
             clear=True,
         )
 
-    def cmb003_init(self, w):
+    def cmb003_init(self, widget):
         """ """
-        w.addItems_(
+        widget.addItems_(
             [
                 "Import file",
                 "Import Options",
@@ -100,7 +100,7 @@ class File_maya(SlotsMaya):
             "Import",
         )
 
-    def cmb004_init(self, w):
+    def cmb004_init(self, widget):
         """ """
         items = [
             "Export Selection",
@@ -115,44 +115,44 @@ class File_maya(SlotsMaya):
             "FBX Export Presets",
             "Obj Export Presets",
         ]
-        w.addItems_(items, "Export")
+        widget.addItems_(items, "Export")
 
-    def cmb005_init(self, w):
+    def cmb005_init(self, widget):
         """ """
-        w.option_menu.add(
+        widget.option_menu.add(
             "QPushButton",
             setObjectName="b001",
             setText="Last",
             setToolTip="Open the most recent file.",
         )
-        w.addItems_(
+        widget.addItems_(
             mtk.get_recent_files(slice(0, 20), format="timestamp|standard"),
             "Recent Files",
             clear=True,
         )
 
-    def cmb006_init(self, w):
+    def cmb006_init(self, widget):
         """ """
         self.cmb006()  # init workspace items to reflect the current workspace.
 
-        w.option_menu.add(
+        widget.option_menu.add(
             self.sb.ComboBox,
             setObjectName="cmb001",
             setToolTip="Current project directory root.",
         )
-        w.option_menu.add(
+        widget.option_menu.add(
             self.sb.Label,
             setObjectName="lbl000",
             setText="Set",
             setToolTip="Set the project directory.",
         )
-        w.option_menu.add(
+        widget.option_menu.add(
             self.sb.Label,
             setObjectName="lbl004",
             setText="Root",
             setToolTip="Open the project directory.",
         )
-        w.option_menu.cmb001.addItems_(
+        widget.option_menu.cmb001.addItems_(
             mtk.get_recent_projects(slice(0, 20), format="timestamp|standard"),
             "Recent Projects",
             clear=True,
@@ -169,45 +169,6 @@ class File_maya(SlotsMaya):
         w1.sublist.add(truncated, recentFiles)
         widget.setVisible(bool(recentFiles))
 
-    def referenceSceneMenu(self, clear=False):
-        """ """
-        try:
-            if clear:
-                del self._referenceSceneMenu
-            return self._referenceSceneMenu
-
-        except AttributeError:
-            menu = self.sb.Menu(self.sb.file.lbl005)
-            for i in mtk.get_workspace_scenes(
-                fullPath=True
-            ):  # zip(mtk.get_workspace_scenes(fullPath=False), mtk.get_workspace_scenes(fullPath=True)):
-                chk = menu.add(self.sb.CheckBox, setText=i)
-                chk.toggled.connect(
-                    lambda state, scene=i: mtk.reference_scene(scene, not state)
-                )
-
-            self._referenceSceneMenu = menu
-            return self._referenceSceneMenu
-
-    def lbl005(self):
-        """Reference"""
-        self.referenceSceneMenu().show()
-
-    @SlotsMaya.hideMain
-    def b001(self):
-        """Recent Files: Open Last"""
-        self.cmb005(index=1)
-
-    @SlotsMaya.hideMain
-    def b007(self):
-        """Import file"""
-        self.cmb003(index=1)
-
-    @SlotsMaya.hideMain
-    def b008(self):
-        """Export Selection"""
-        self.cmb004(index=1)
-
     @signals("on_item_interacted")
     def list000(self, item):
         """ """
@@ -215,9 +176,10 @@ class File_maya(SlotsMaya):
 
         pm.openFile(data, open=True, force=True)
 
-    def cmb000(self, index=-1):
+    def cmb000(self, *args, **kwargs):
         """Editors"""
-        cmb = self.sb.file.draggableHeader.ctx_menu.cmb000
+        cmb = kwargs.get("widget")
+        index = kwargs.get("index")
 
         if index > 0:
             text = cmb.items[index]
@@ -225,26 +187,29 @@ class File_maya(SlotsMaya):
                 pass
             cmb.setCurrentIndex(0)
 
-    def cmb001(self, index=-1):
+    def cmb001(self, *args, **kwargs):
         """Recent Projects"""
-        cmb = self.sb.file.cmb006.option_menu.cmb001
+        cmb = kwargs.get("widget")
+        index = kwargs.get("index")
 
         if index > 0:
             pm.mel.setProject(cmb.items[index])
             cmb.setCurrentIndex(0)
 
-    def cmb002(self, index=-1):
+    def cmb002(self, *args, **kwargs):
         """Recent Autosave"""
-        cmb = self.sb.file.cmb002
+        cmb = kwargs.get("widget")
+        index = kwargs.get("index")
 
         if index > 0:
             file = cmb.items[index]
             pm.openFile(file, open=1, force=True)
             cmb.setCurrentIndex(0)
 
-    def cmb003(self, index=-1):
+    def cmb003(self, *args, **kwargs):
         """Import"""
-        cmb = self.sb.file.cmb003
+        cmb = kwargs.get("widget")
+        index = kwargs.get("index")
 
         if index > 0:  # hide then perform operation
             self.sb.parent().hide(force=1)
@@ -258,9 +223,10 @@ class File_maya(SlotsMaya):
                 pm.mel.FBXUICallBack(-1, "editImportPresetInNewWindow", "obj")
             cmb.setCurrentIndex(0)
 
-    def cmb004(self, index=-1):
+    def cmb004(self, *args, **kwargs):
         """Export"""
-        cmb = self.sb.file.cmb004
+        cmb = kwargs.get("widget")
+        index = kwargs.get("index")
 
         if index > 0:  # hide then perform operation
             self.sb.parent().hide(force=1)
@@ -290,9 +256,10 @@ class File_maya(SlotsMaya):
                 pm.mel.FBXUICallBack(-1, "editExportPresetInNewWindow", "obj")
             cmb.setCurrentIndex(0)
 
-    def cmb005(self, index=-1):
+    def cmb005(self, *args, **kwargs):
         """Recent Files"""
-        cmb = self.sb.file.cmb005
+        cmb = kwargs.get("widget")
+        index = kwargs.get("index")
 
         if index > 0:
             force = True
@@ -302,9 +269,10 @@ class File_maya(SlotsMaya):
             pm.openFile(cmb.items[index], open=1, force=force)
             cmb.setCurrentIndex(0)
 
-    def cmb006(self, index=-1):
+    def cmb006(self, *args, **kwargs):
         """Workspace"""
-        cmb = self.sb.file.cmb006
+        cmb = kwargs.get("widget")
+        index = kwargs.get("index")
 
         path = ptk.File.format_path(
             pm.workspace(query=1, rd=1)
@@ -331,7 +299,11 @@ class File_maya(SlotsMaya):
         dir_ = pm.workspace(query=1, rd=1)  # current project path.
         os.startfile(ptk.File.format_path(dir_))
 
-    def b000(self):
+    def lbl005(self):
+        """Reference"""
+        self.referenceSceneMenu().show()
+
+    def b000(self, *args, **kwargs):
         """Autosave: Open Directory"""
         # dir1 = str(pm.workspace(query=1, rd=1))+'autosave' #current project path.
         # get autosave dir path from env variable.
@@ -344,7 +316,12 @@ class File_maya(SlotsMaya):
         except FileNotFoundError:
             self.sb.message_box("The system cannot find the file specified.")
 
-    def b002(self):
+    @SlotsMaya.hideMain
+    def b001(self, *args, **kwargs):
+        """Recent Files: Open Last"""
+        self.cmb005(index=1)
+
+    def b002(self, *args, **kwargs):
         """Autosave: Delete All"""
         files = mtk.get_recent_autosave()
         for file in files:
@@ -354,7 +331,17 @@ class File_maya(SlotsMaya):
             except Exception as error:
                 print(error)
 
-    def b015(self):
+    @SlotsMaya.hideMain
+    def b007(self, *args, **kwargs):
+        """Import file"""
+        self.cmb003(index=1)
+
+    @SlotsMaya.hideMain
+    def b008(self, *args, **kwargs):
+        """Export Selection"""
+        self.cmb004(index=1)
+
+    def b015(self, *args, **kwargs):
         """Remove String From Object Names."""
         # asterisk denotes startswith*, *endswith, *contains*
         from_ = str(self.sb.file.t000.text())
@@ -377,6 +364,26 @@ class File_maya(SlotsMaya):
             if replace:
                 newName = obj.replace(from_, to)
             pm.rename(obj, newName)  # Rename the object with the new name
+
+    def referenceSceneMenu(self, clear=False):
+        """ """
+        try:
+            if clear:
+                del self._referenceSceneMenu
+            return self._referenceSceneMenu
+
+        except AttributeError:
+            menu = self.sb.Menu(self.sb.file.lbl005)
+            for i in mtk.get_workspace_scenes(
+                fullPath=True
+            ):  # zip(mtk.get_workspace_scenes(fullPath=False), mtk.get_workspace_scenes(fullPath=True)):
+                chk = menu.add(self.sb.CheckBox, setText=i)
+                chk.toggled.connect(
+                    lambda state, scene=i: mtk.reference_scene(scene, not state)
+                )
+
+            self._referenceSceneMenu = menu
+            return self._referenceSceneMenu
 
 
 # module name
@@ -407,7 +414,7 @@ print(__name__)
 #     # pm.quit (force=force, exitcode=exitcode)
 #     pm.mel.quit() if sceneName else pm.mel.quit(force=True)
 
-# def tb000(self, state=None):
+# def tb000(self, *args, **kwargs):
 #     """Save"""
 #     tb = self.sb.file.draggableHeader.ctx_menu.tb000
 
@@ -434,7 +441,7 @@ print(__name__)
 #         pm.mel.quit()  # pm.Quit()
 
 
-# def tb000(self, state=None):
+# def tb000(self, *args, **kwargs):
 #   '''
 #   Save
 #   '''

@@ -43,7 +43,7 @@ class Subdivision_blender(Subdivision, SlotsBlender):
         items = ["Reduce Polygons", "Add Divisions", "Smooth"]
         cmb.addItems_(items, "Maya Subdivision Operations")
 
-    def cmb000(self, index=-1):
+    def cmb000(self, *args, **kwargs):
         """Editors"""
         cmb = self.sb.subdivision.draggableHeader.ctx_menu.cmb000
 
@@ -53,7 +53,7 @@ class Subdivision_blender(Subdivision, SlotsBlender):
                 pm.mel.CustomPolygonDisplayOptions()  # Polygon Display Options #mel.eval("polysDisplaySetup 1;")
             cmb.setCurrentIndex(0)
 
-    def cmb001(self, index=-1):
+    def cmb001(self, *args, **kwargs):
         """Smooth Proxy"""
         cmb = self.sb.subdivision.draggableHeader.ctx_menu.cmb001
 
@@ -71,7 +71,7 @@ class Subdivision_blender(Subdivision, SlotsBlender):
                 pm.mel.SmoothingDisplayShowBoth()  #'Display both smooth shapes' #smoothingDisplayToggle 0;
             cmb.setCurrentIndex(0)
 
-    def cmb002(self, index=-1):
+    def cmb002(self, *args, **kwargs):
         """Maya Subdivision Operations"""
         cmb = self.sb.subdivision.draggableHeader.ctx_menu.cmb002
 
@@ -84,7 +84,7 @@ class Subdivision_blender(Subdivision, SlotsBlender):
                 pm.mel.performPolySmooth(1)
             cmb.setCurrentIndex(0)
 
-    def s000(self, value=None):
+    def s000(self, *args, **kwargs):
         """Division Level"""
         value = self.sb.subdivision.s000.value()
 
@@ -98,7 +98,7 @@ class Subdivision_blender(Subdivision, SlotsBlender):
                 )  # subDiv proxy options: 'divisions'
                 print(obj + ": Division Level: <hl>" + str(value) + "</hl>")
 
-    def s001(self, value=None):
+    def s001(self, *args, **kwargs):
         """Tesselation Level"""
         value = self.sb.subdivision.s001.value()
 
@@ -109,20 +109,20 @@ class Subdivision_blender(Subdivision, SlotsBlender):
                 self.set_node_attributes(obj, {"smoothTessLevel": value})
                 print(obj + ": Tesselation Level: <hl>" + str(value) + "</hl>")
 
-    def b005(self):
+    def b005(self, *args, **kwargs):
         """Reduce"""
         pm.mel.polyReduce(version=1, keepCreaseEdgeWeight=1)
         # pm.mel.ReducePolygon()
 
-    def b008(self):
+    def b008(self, *args, **kwargs):
         """Add Divisions - Subdivide Mesh"""
         pm.mel.SubdividePolygon()
 
-    def b009(self):
+    def b009(self, *args, **kwargs):
         """Smooth"""
         pm.mel.SmoothPolygon()
 
-    def b011(self):
+    def b011(self, *args, **kwargs):
         """Apply Smooth Preview"""
         pm.mel.performSmoothMeshPreviewToPolygon()  # convert smooth mesh preview to polygons
 

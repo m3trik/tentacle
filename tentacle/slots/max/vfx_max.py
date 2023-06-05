@@ -12,7 +12,7 @@ class Vfx_max(Vfx, SlotsMax):
         items = [""]
         cmb.addItems_(items, "")
 
-    def cmb000(self, index=-1):
+    def cmb000(self, *args, **kwargs):
         """Editors"""
         cmb = self.sb.vfx.draggableHeader.ctx_menu.cmb000
 

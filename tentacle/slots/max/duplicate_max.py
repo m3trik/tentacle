@@ -12,7 +12,7 @@ class Duplicate_max(Duplicate, SlotsMax):
         items = ["Duplicate Special"]
         cmb.addItems_(items, "Maya Menus")
 
-    def cmb000(self, index=-1):
+    def cmb000(self, *args, **kwargs):
         """Editors"""
         cmb = self.sb.duplicate.draggableHeader.ctx_menu.cmb000
 
@@ -22,7 +22,7 @@ class Duplicate_max(Duplicate, SlotsMax):
                 pass
             cmb.setCurrentIndex(0)
 
-    def chk010(self, state=None):
+    def chk010(self, *args, **kwargs):
         """Radial Array: Set Pivot"""
         global radialPivot
         radialPivot = []
@@ -347,7 +347,7 @@ class Duplicate_max(Duplicate, SlotsMax):
             del duplicateObjList[:]  # clear the list
             self.sb.toggle_widgets(setDisabled="b002")
 
-    def b000(self):
+    def b000(self, *args, **kwargs):
         """Create Instances"""
         selection = pm.ls(sl=1, transforms=1)
         if not selection:
@@ -360,7 +360,7 @@ class Duplicate_max(Duplicate, SlotsMax):
 
         pm.select(instances)
 
-    def b001(self):
+    def b001(self, *args, **kwargs):
         """Convert to Instances"""
         if not pm.selectPref(
             q=1, trackSelectionOrder=1
@@ -368,7 +368,7 @@ class Duplicate_max(Duplicate, SlotsMax):
             pm.selectPref(trackSelectionOrder=1)
         self.convertToInstances(pm.ls(sl=1))
 
-    def b004(self):
+    def b004(self, *args, **kwargs):
         """Select Instanced Objects"""
         if self.sb.duplicate.chk016.isChecked():  # select all instances
             import maya.OpenMaya as om
@@ -392,7 +392,7 @@ class Duplicate_max(Duplicate, SlotsMax):
                 self.sb.message_box("No valid object selected.")
                 return
 
-    def b005(self):
+    def b005(self, *args, **kwargs):
         """Uninstance Selected Objects"""
         i = rt.instancemgr
 

@@ -1,14 +1,22 @@
 # !/usr/bin/python
 # coding=utf-8
-from tentacle.slots.maya import *
-from tentacle.slots.scene import Scene
+try:
+    import pymel.core as pm
+except ImportError as error:
+    print(__file__, error)
+import mayatk as mtk
+from tentacle.slots.maya import SlotsMaya
 
 
-class Scene_maya(Scene, SlotsMaya):
+class Scene_maya(SlotsMaya):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        cmb = self.sb.scene.draggableHeader.ctx_menu.cmb000
+    def draggableHeader_init(self, widget):
+        """ """
+        cmb = widget.ctx_menu.add(
+            self.sb.ComboBox, setObjectName="cmb000", setToolTip="Scene Editors"
+        )
         items = [
             "Node Editor",
             "Outlinder",
@@ -19,9 +27,63 @@ class Scene_maya(Scene, SlotsMaya):
         ]
         cmb.addItems_(items, "Maya Scene Editors")
 
-    def cmb000(self, index=-1):
+    def t000_init(self, widget):
+        """ """
+        widget.option_menu.add(
+            "QCheckBox",
+            setText="Ignore Case",
+            setObjectName="chk000",
+            setToolTip="Search case insensitive.",
+        )
+        widget.option_menu.add(
+            "QCheckBox",
+            setText="Regular Expression",
+            setObjectName="chk001",
+            setToolTip="When checked, regular expression syntax is used instead of the default '*' and '|' wildcards.",
+        )
+
+    def tb000_init(self, widget):
+        """ """
+        widget.option_menu.add(
+            "QComboBox",
+            addItems=["capitalize", "upper", "lower", "swapcase", "title"],
+            setObjectName="cmb001",
+            setToolTip="Set desired python case operator.",
+        )
+
+    def tb001_init(self, widget):
+        """ """
+        widget.option_menu.add(
+            "QCheckBox",
+            setText="Alphanumeric",
+            setObjectName="chk005",
+            setToolTip="When True use an alphanumeric character as a suffix when there is less than 26 objects else use integers.",
+        )
+        widget.option_menu.add(
+            "QCheckBox",
+            setText="Strip Trailing Integers",
+            setObjectName="chk002",
+            setChecked=True,
+            setToolTip="Strip any trailing integers. ie. '123' of 'cube123'",
+        )
+        widget.option_menu.add(
+            "QCheckBox",
+            setText="Strip Trailing Alphanumeric",
+            setObjectName="chk003",
+            setChecked=True,
+            setToolTip="Strip any trailing uppercase alphanumeric chars that are prefixed with an underscore.  ie. 'A' of 'cube_A'",
+        )
+        widget.option_menu.add(
+            "QCheckBox",
+            setText="Reverse",
+            setObjectName="chk004",
+            setToolTip="Reverse the naming order. (Farthest object first)",
+        )
+
+    def cmb000(self, *args, **kwargs):
         """Editors"""
-        cmb = self.sb.scene.draggableHeader.ctx_menu.cmb000
+        cmb = kwargs.get("widget")
+        index = kwargs.get("index")
 
         if index > 0:
             text = cmb.items[index]
@@ -41,9 +103,9 @@ class Scene_maya(Scene, SlotsMaya):
                 )  # performSearchReplaceNames 1; #Rename objects in the scene.
             cmb.setCurrentIndex(0)
 
-    def tb000(self, state=None):
+    def tb000(self, *args, **kwargs):
         """Convert Case"""
-        tb = self.sb.scene.tb000
+        tb = kwargs.get("widget")
 
         case = tb.option_menu.cmb001.currentText()
 
@@ -51,9 +113,9 @@ class Scene_maya(Scene, SlotsMaya):
         objects = selection if selection else pm.ls(objectsOnly=1)
         mtk.Edit.set_case(objects, case)
 
-    def tb001(self, state=None):
+    def tb001(self, *args, **kwargs):
         """Convert Case"""
-        tb = self.sb.scene.tb001
+        tb = kwargs.get("widget")
 
         alphanumeric = tb.option_menu.chk005.isChecked()
         strip_trailing_ints = tb.option_menu.chk002.isChecked()
@@ -69,7 +131,7 @@ class Scene_maya(Scene, SlotsMaya):
             reverse=reverse,
         )
 
-    def b000(self):
+    def b000(self, *args, **kwargs):
         """Rename"""
         find = (
             self.sb.scene.t000.text()

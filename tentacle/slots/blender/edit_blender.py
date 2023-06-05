@@ -165,7 +165,7 @@ class Edit_blender(Edit, SlotsBlender):
                 )
             )  # disable non-relevant options.
 
-    def cmb000(self, index=-1):
+    def cmb000(self, *args, **kwargs):
         """Editors"""
         cmb = self.sb.edit.draggableHeader.ctx_menu.cmb000
 
@@ -181,7 +181,7 @@ class Edit_blender(Edit, SlotsBlender):
             cmb.setCurrentIndex(0)
 
     @SlotsBlender.attr
-    def cmb001(self, index=-1):
+    def cmb001(self, *args, **kwargs):
         """Object History Attributes"""
         cmb = self.sb.edit.cmb001
 
@@ -205,7 +205,7 @@ class Edit_blender(Edit, SlotsBlender):
             if cmb.items[index] != "No selection.":
                 return pm.ls(cmb.items[index])
 
-    def tb000(self, state=None):
+    def tb000(self, *args, **kwargs):
         """Mesh Cleanup"""
         tb = self.sb.edit.tb000
 
@@ -306,7 +306,7 @@ class Edit_blender(Edit, SlotsBlender):
                         vertex, select=True
                     )  # select(bool): Select the vertex after the operation. (default: True)
 
-    def tb001(self, state=None):
+    def tb001(self, *args, **kwargs):
         """Delete History"""
         tb = self.sb.edit.tb001
 
@@ -339,7 +339,7 @@ class Edit_blender(Edit, SlotsBlender):
                     "delete <hl>non-deformer</hl> history on " + str(objects)
                 )
 
-    def tb002(self, state=None):
+    def tb002(self, *args, **kwargs):
         """Delete"""
         tb = self.sb.edit.tb002
 
@@ -382,7 +382,7 @@ class Edit_blender(Edit, SlotsBlender):
                 else:  # all([selectionMask==1, maskFacet==1]):
                     pm.delete(obj)  # delete faces\mesh objects
 
-    def tb003(self, state=None):
+    def tb003(self, *args, **kwargs):
         """Delete Along Axis"""
         tb = self.sb.edit.tb003
 
@@ -396,7 +396,7 @@ class Edit_blender(Edit, SlotsBlender):
         pm.undoInfo(closeChunk=1)
 
     @Slots.hideMain
-    def b001(self):
+    def b001(self, *args, **kwargs):
         """Object History Attributes: get most recent node"""
         cmb = self.sb.edit.cmb001
         self.cmb001()  # refresh the contents of the combobox.
@@ -407,19 +407,19 @@ class Edit_blender(Edit, SlotsBlender):
         else:
             return "Error: Found no items to list the history for."
 
-    def b021(self):
+    def b021(self, *args, **kwargs):
         """Tranfer Maps"""
         pm.mel.performSurfaceSampling(1)
 
-    def b022(self):
+    def b022(self, *args, **kwargs):
         """Transfer Vertex Order"""
         pm.mel.TransferVertexOrder()
 
-    def b023(self):
+    def b023(self, *args, **kwargs):
         """Transfer Attribute Values"""
         pm.mel.TransferAttributeValues()
 
-    def b027(self):
+    def b027(self, *args, **kwargs):
         """Shading Sets"""
         pm.mel.performTransferShadingSets(0)
 

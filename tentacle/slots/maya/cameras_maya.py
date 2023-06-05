@@ -4,14 +4,12 @@ try:
     import pymel.core as pm
 except ImportError as error:
     print(__file__, error)
-
 import mayatk as mtk
 from uitk.switchboard import signals
-from tentacle.slots.cameras import Cameras
 from tentacle.slots.maya import SlotsMaya
 
 
-class Cameras_maya(Cameras, SlotsMaya):
+class Cameras_maya(SlotsMaya):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
@@ -185,9 +183,11 @@ class Cameras_maya(Cameras, SlotsMaya):
 
         return self._clippingMenu
 
-    def chk000(self, state=None):
+    def chk000(self, *args, **kwargs):
         """Camera Clipping: Auto Clip"""
-        if self.clippingMenu.chk000.isChecked():
+        state = kwargs.get("state")
+
+        if state:
             self.sb.toggle_widgets(self.clippingMenu, setDisabled="s000-1")
         else:
             self.sb.toggle_widgets(self.clippingMenu, setEnabled="s000-1")
@@ -199,9 +199,9 @@ class Cameras_maya(Cameras, SlotsMaya):
 
         pm.viewClipPlane(activeCamera, autoClipPlane=True)
 
-    def s000(self, value=None):
+    def s000(self, *args, **kwargs):
         """Camera Clipping: Near Clip"""
-        value = self.clippingMenu.s000.value()
+        value = kwargs.get("value")
 
         activeCamera = mtk.Cam.get_current_cam()
         if not activeCamera:
@@ -210,9 +210,9 @@ class Cameras_maya(Cameras, SlotsMaya):
 
         pm.viewClipPlane(activeCamera, nearClipPlane=value)
 
-    def s001(self, value=None):
+    def s001(self, *args, **kwargs):
         """Camera Clipping: Far Clip"""
-        value = self.clippingMenu.s001.value()
+        value = kwargs.get("value")
 
         activeCamera = mtk.Cam.get_current_cam()
         if not activeCamera:
@@ -221,7 +221,7 @@ class Cameras_maya(Cameras, SlotsMaya):
 
         pm.viewClipPlane(activeCamera, farClipPlane=value)
 
-    def b000(self):
+    def b000(self, *args, **kwargs):
         """Cameras: Back View"""
         try:  # if pm.objExists('back'):
             pm.lookThru("back")
@@ -240,7 +240,7 @@ class Cameras_maya(Cameras, SlotsMaya):
             ):  # add the new cam to 'cameras' group (if it exists).
                 pm.parent(cam, "cameras")
 
-    def b001(self):
+    def b001(self, *args, **kwargs):
         """Cameras: Top View"""
         try:
             pm.lookThru("topShape")
@@ -248,7 +248,7 @@ class Cameras_maya(Cameras, SlotsMaya):
         except Exception:
             pm.lookThru("|top")
 
-    def b002(self):
+    def b002(self, *args, **kwargs):
         """Cameras: Right View"""
         try:
             pm.lookThru("sideShape")
@@ -256,7 +256,7 @@ class Cameras_maya(Cameras, SlotsMaya):
         except Exception:
             pm.lookThru("|side")
 
-    def b003(self):
+    def b003(self, *args, **kwargs):
         """Cameras: Left View"""
         try:  # if pm.objExists('back'):
             pm.lookThru("left")
@@ -275,7 +275,7 @@ class Cameras_maya(Cameras, SlotsMaya):
             ):  # add the new cam to 'cameras' group (if it exists).
                 pm.parent(cam, "cameras")
 
-    def b004(self):
+    def b004(self, *args, **kwargs):
         """Cameras: Perspective View"""
         try:
             pm.lookThru("perspShape")
@@ -283,7 +283,7 @@ class Cameras_maya(Cameras, SlotsMaya):
         except Exception:
             pm.lookThru("|persp")
 
-    def b005(self):
+    def b005(self, *args, **kwargs):
         """Cameras: Front View"""
         try:
             pm.lookThru("frontShape")
@@ -291,7 +291,7 @@ class Cameras_maya(Cameras, SlotsMaya):
         except Exception:
             pm.lookThru("|front")
 
-    def b006(self):
+    def b006(self, *args, **kwargs):
         """Cameras: Bottom View"""
         try:  # if pm.objExists('back'):
             pm.lookThru("bottom")
@@ -310,7 +310,7 @@ class Cameras_maya(Cameras, SlotsMaya):
             ):  # add the new cam to 'cameras' group (if it exists).
                 pm.parent(cam, "cameras")
 
-    def b007(self):
+    def b007(self, *args, **kwargs):
         """Cameras: Align View"""
         selection = pm.ls(sl=1)
         if not selection:
@@ -338,19 +338,19 @@ class Cameras_maya(Cameras, SlotsMaya):
         pm.AlignCameraToPolygon()
         pm.viewFit(fitFactor=5.0)
 
-    def b010(self):
+    def b010(self, *args, **kwargs):
         """Camera: Dolly"""
         pm.viewPreset(camera="dolly")
 
-    def b011(self):
+    def b011(self, *args, **kwargs):
         """Camera: Roll"""
         pm.viewPreset(camera="roll")
 
-    def b012(self):
+    def b012(self, *args, **kwargs):
         """Camera: Truck"""
         pm.viewPreset(camera="truck")
 
-    def b013(self):
+    def b013(self, *args, **kwargs):
         """Camera: Orbit"""
         pm.viewPreset(camera="orbit")
 
@@ -453,7 +453,7 @@ print(__name__)
 #               mtk.Cam.toggle_safe_frames()
 
 
-# def cmb000(self, index=-1):
+# def cmb000(self, *args, **kwargs):
 #   '''
 #   Camera Editors
 
@@ -473,7 +473,7 @@ print(__name__)
 #       cmb.setCurrentIndex(0)
 
 
-# def cmb001(self, index=-1):
+# def cmb001(self, *args, **kwargs):
 #   '''
 #   Additional Cameras
 
@@ -501,7 +501,7 @@ print(__name__)
 #       cmb.setCurrentIndex(0)
 
 
-# def cmb002(self, index=-1):
+# def cmb002(self, *args, **kwargs):
 #   '''
 #   Create
 
@@ -523,7 +523,7 @@ print(__name__)
 #       cmb.setCurrentIndex(0)
 
 
-# def cmb003(self, index=-1):
+# def cmb003(self, *args, **kwargs):
 #   '''
 #   Options
 

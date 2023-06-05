@@ -4,7 +4,6 @@ try:
     import pymel.core as pm
 except ImportError as error:
     print(__file__, error)
-
 import pythontk as ptk
 import mayatk as mtk
 from tentacle.slots.maya import SlotsMaya
@@ -14,8 +13,9 @@ class Normals_maya(SlotsMaya):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        dh = self.sb.normals.draggableHeader
-        dh.ctx_menu.add(self.sb.ComboBox, setObjectName="cmb000", setToolTip="")
+    def draggableHeader_init(self, widget):
+        """ """
+        widget.ctx_menu.add(self.sb.ComboBox, setObjectName="cmb000", setToolTip="")
 
     def tb000_init(self, widget):
         """ """
@@ -110,7 +110,6 @@ class Normals_maya(SlotsMaya):
 
     def tb004_init(self, widget):
         """ """
-        print("tb004_init:", widget.ui.name, widget.name)
         widget.option_menu.add(
             "QCheckBox",
             setText="By UV Shell",
@@ -119,18 +118,19 @@ class Normals_maya(SlotsMaya):
             setToolTip="Average the normals of each object's faces per UV shell.",
         )
 
-    def cmb000(self, index=-1):
+    def cmb000(self, *args, **kwargs):
         """Editors"""
-        cmb = self.sb.normals.draggableHeader.ctx_menu.cmb000
+        cmb = kwargs.get("widget")
+        index = kwargs.get("index")
 
         if index > 0:
             if index == cmb.items.index(""):
                 pass
             cmb.setCurrentIndex(0)
 
-    def tb000(self, state=None):
+    def tb000(self, *args, **kwargs):
         """Display Face Normals"""
-        tb = self.sb.normals.tb000
+        tb = kwargs.get("widget")
 
         size = float(tb.option_menu.s001.value())
         # state = pm.polyOptions (query=True, displayNormal=True)
@@ -155,9 +155,9 @@ class Normals_maya(SlotsMaya):
             pm.polyOptions(displayNormal=0)
             mtk.viewport_message("<hl>Tangent</hl> Display <hl>On</hl>.")
 
-    def tb001(self, state=None):
+    def tb001(self, *args, **kwargs):
         """Harden Edge Normals"""
-        tb = self.sb.normals.tb001
+        tb = kwargs.get("widget")
 
         query_angle = tb.option_menu.s002.value()
         smoothing_angle = tb.option_menu.s003.value()
@@ -212,9 +212,9 @@ class Normals_maya(SlotsMaya):
         pm.select(hard_edges)
 
     @SlotsMaya.attr
-    def tb002(self, state=None):
+    def tb002(self, *args, **kwargs):
         """Set Normals By Angle"""
-        tb = self.sb.normals.tb002
+        tb = kwargs.get("widget")
 
         normalAngle = str(tb.option_menu.s000.value())
 
@@ -228,9 +228,9 @@ class Normals_maya(SlotsMaya):
             if len(objects) == 1:
                 return polySoftEdge
 
-    def tb003(self, state=None):
+    def tb003(self, *args, **kwargs):
         """Lock/Unlock Vertex Normals"""
-        tb = self.sb.normals.tb003
+        tb = kwargs.get("widget")
 
         all_ = tb.option_menu.chk001.isChecked()
         state = (
@@ -269,27 +269,27 @@ class Normals_maya(SlotsMaya):
             )
             return
 
-    def tb004(self, state=None):
+    def tb004(self, *args, **kwargs):
         """Average Normals"""
-        tb = self.sb.normals.tb004
+        tb = kwargs.get("widget")
 
         byUvShell = tb.option_menu.chk003.isChecked()
 
         objects = pm.ls(selection=1, objectsOnly=1, flatten=1)
         self.averageNormals(objects, byUvShell=byUvShell)
 
-    def b001(self):
+    def b001(self, *args, **kwargs):
         """Soften Edge Normals"""
         sel = pm.ls(sl=1)
         if sel:
             pm.polySoftEdge(sel, angle=180, constructionHistory=0)
 
-    def b002(self):
+    def b002(self, *args, **kwargs):
         """Transfer Normals"""
         source, *target = pm.ls(sl=1)
         self.transferNormals(source, target)
 
-    def b003(self):
+    def b003(self, *args, **kwargs):
         """Soft Edge Display"""
         g_cond = pm.polyOptions(q=1, ae=1)
         if g_cond[0]:
@@ -297,21 +297,21 @@ class Normals_maya(SlotsMaya):
         else:
             pm.polyOptions(ae=1)
 
-    def b005(self):
+    def b005(self, *args, **kwargs):
         """Maya Bonus Tools: Adjust Vertex Normals"""
         pm.mel.bgAdjustVertexNormalsWin()
 
-    def b006(self):
+    def b006(self, *args, **kwargs):
         """Set To Face"""
         pm.polySetToFaceNormal()
 
-    def b010(self):
+    def b010(self, *args, **kwargs):
         """Reverse Normals"""
         for obj in pm.ls(sl=1, objectsOnly=1):
             sel = pm.ls(obj, sl=1)
-            pm.polyNormal(
-                sel, normalMode=3, userNormalMode=1
-            )  # 3: reverse and cut a new shell on selected face(s). 4: reverse and propagate; Reverse the normal(s) and propagate this direction to all other faces in the shell.
+            # normalMode 3: reverse and cut a new shell on selected face(s).
+            # normalMode 4: reverse and propagate; Reverse the normal(s) and propagate this direction to all other faces in the shell.
+            pm.polyNormal(sel, normalMode=3, userNormalMode=1)
 
     def averageNormals(self, objects, byUvShell=False):
         """Average Normals

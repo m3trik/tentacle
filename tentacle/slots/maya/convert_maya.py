@@ -1,18 +1,18 @@
 # !/usr/bin/python
 # coding=utf-8
-from tentacle.slots.maya import *
-from tentacle.slots.convert import Convert
+try:
+    import pymel.core as pm
+except ImportError as error:
+    print(__file__, error)
+from tentacle.slots.maya import SlotsMaya
 
 
-class Convert_maya(Convert, SlotsMaya):
+class Convert_maya(SlotsMaya):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        cmb = self.sb.convert.draggableHeader.ctx_menu.cmb000
-        items = [""]
-        cmb.addItems_(items, "")
-
-        cmb = self.sb.convert.cmb001
+    def cmb001_init(self, widget):
+        """ """
         items = [
             "NURBS to Polygons",
             "NURBS to Subdiv",
@@ -35,11 +35,12 @@ class Convert_maya(Convert, SlotsMaya):
             "Geometry to Bounding Box",
             "Convert XGen Primitives to Polygons",
         ]
-        contents = cmb.addItems_(items, "Convert To")
+        widget.addItems_(items, "Convert To")
 
-    def cmb000(self, index=-1):
+    def cmb000(self, *args, **kwargs):
         """Editors"""
-        cmb = self.sb.convert.draggableHeader.ctx_menu.cmb000
+        cmb = kwargs.get("widget")
+        index = kwargs.get("index")
 
         if index > 0:
             text = cmb.items[index]
@@ -47,9 +48,10 @@ class Convert_maya(Convert, SlotsMaya):
                 pass
             cmb.setCurrentIndex(0)
 
-    def cmb001(self, index=-1):
+    def cmb001(self, *args, **kwargs):
         """Convert To"""
-        cmb = self.sb.convert.cmb001
+        cmb = kwargs.get("widget")
+        index = kwargs.get("index")
 
         if index > 0:
             text = cmb.items[index]
@@ -99,6 +101,22 @@ class Convert_maya(Convert, SlotsMaya):
                 cpp.convertPrimToPolygon(False)
 
             cmb.setCurrentIndex(0)
+
+    def b000(self, *args, **kwargs):
+        """Polygon Edges to Curve"""
+        self.cmb001(index=5)
+
+    def b001(self, *args, **kwargs):
+        """Instance to Object"""
+        self.cmb001(index=18)
+
+    def b002(self, *args, **kwargs):
+        """NURBS to Polygons"""
+        self.cmb001(index=1)
+
+    def b003(self, *args, **kwargs):
+        """Smooth Mesh Preview to Polygons"""
+        self.cmb001(index=4)
 
 
 # module name

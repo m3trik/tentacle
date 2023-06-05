@@ -14,7 +14,7 @@ class Normals_max(Normals, SlotsMax):
         items = [""]
         cmb.addItems_(items, "")
 
-    def cmb000(self, index=-1):
+    def cmb000(self, *args, **kwargs):
         """Editors"""
         cmb = self.sb.normals.draggableHeader.ctx_menu.cmb000
 
@@ -24,7 +24,7 @@ class Normals_max(Normals, SlotsMax):
                 pass
             cmb.setCurrentIndex(0)
 
-    def tb000(self, state=None):
+    def tb000(self, *args, **kwargs):
         """Display Face Normals"""
         tb = self.sb.normals.tb000
 
@@ -54,7 +54,7 @@ class Normals_max(Normals, SlotsMax):
         # 	pm.polyOptions (displayNormal=0)
         # 	return '<hl>Tangent</hl> Display <hl>On</hl>.'
 
-    def tb001(self, state=None):
+    def tb001(self, *args, **kwargs):
         """Harden Edge Normals"""
         tb = self.sb.normals.tb001
 
@@ -89,7 +89,7 @@ class Normals_max(Normals, SlotsMax):
         # rt.select(selEdges)
 
     @Slots.hideMain
-    def tb002(self, state=None):
+    def tb002(self, *args, **kwargs):
         """Set Normal By Angle"""
         tb = self.sb.normals.tb002
 
@@ -116,7 +116,7 @@ class Normals_max(Normals, SlotsMax):
                 ) + 1  # add one to convert index from python to maxscript
                 rt.maxOps.CollapseNodeTo(obj, index, False)
 
-    def tb003(self, state=None):
+    def tb003(self, *args, **kwargs):
         """Lock/Unlock Vertex Normals"""
         tb = self.sb.normals.tb003
 
@@ -154,7 +154,7 @@ class Normals_max(Normals, SlotsMax):
         # else:
         # 	return 'Warning: No object selected.'
 
-    def tb004(self, state=None):
+    def tb004(self, *args, **kwargs):
         """Average Normals"""
         tb = self.sb.normals.tb004
 
@@ -170,25 +170,25 @@ class Normals_max(Normals, SlotsMax):
             maxEval('macros.run "PolyTools" "SmoothSelection"')
 
     @Slots.hideMain
-    def b001(self):
+    def b001(self, *args, **kwargs):
         """Soften Edge Normal"""
         maxEval("$.EditablePoly.makeSmoothEdges 1")
 
-    def b003(self):
+    def b003(self, *args, **kwargs):
         """Soft Edge Display"""
         for obj in rt.selection:
             state = obj.hardedgedisplay
             obj.hardedgedisplay = not state
 
-    def b005(self):
+    def b005(self, *args, **kwargs):
         """Adjust Vertex Normals"""
         maxEval("bgAdjustVertexNormalsWin;")
 
-    def b006(self):
+    def b006(self, *args, **kwargs):
         """Set To Face"""
         maxEval('macros.run "PolyTools" "HardSelection"')
 
-    def b010(self):
+    def b010(self, *args, **kwargs):
         """Reverse Normals"""
         for obj in rt.selection:
             rt.modPanel.setCurrentObject(obj.baseObject)

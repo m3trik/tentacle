@@ -44,16 +44,16 @@ class Preferences_max(Preferences, SlotsMax):
         # index = self.styleComboBox.findText(QtWidgets.QApplication.instance().style().objectName(), QtCore.Qt.MatchFixedString) #get/set current value
         # cmb.setCurrentIndex(index)
 
-    def cmb000(self, index=-1):
+    def cmb000(self, *args, **kwargs):
         """Editors"""
         cmb = self.sb.preferences.draggableHeader.ctx_menu.cmb000
 
         if index > 0:
-            if index == cmd.items.index(""):
+            if index == cmb.items.index(""):
                 pass
             cmb.setCurrentIndex(0)
 
-    def cmb001(self, index=-1):
+    def cmb001(self, *args, **kwargs):
         """Preferences:App - Set Working Units: Linear"""
         cmb = self.sb.preferences.cmb001
 
@@ -73,7 +73,7 @@ class Preferences_max(Preferences, SlotsMax):
             if index is "mile":
                 maxEval("units.SystemType = #Miles")
 
-    def cmb002(self, index=-1):
+    def cmb002(self, *args, **kwargs):
         """Preferences:App - Set Working Units: Time"""
         cmb = self.sb.preferences.cmb002
 
@@ -82,21 +82,21 @@ class Preferences_max(Preferences, SlotsMax):
                 time=cmb.items[index]
             )  # game | film | pal | ntsc | show | palf | ntscf
 
-    def b001(self):
+    def b001(self, *args, **kwargs):
         """Color Settings"""
         maxEval("colorPrefWnd;")
 
-    def b008(self):
+    def b008(self, *args, **kwargs):
         """Hotkeys"""
         maxEval(
             'actionMan.executeAction 0 "59245"'
         )  # Customize User Interface: Hotkey Editor
 
-    def b009(self):
+    def b009(self, *args, **kwargs):
         """Plug-In Manager"""
         maxEval("Plug_in_Manager.PluginMgrAction.show()")
 
-    def b010(self):
+    def b010(self, *args, **kwargs):
         """Settings/Preferences"""
         maxEval('actionMan.executeAction 0 "40108"')
 

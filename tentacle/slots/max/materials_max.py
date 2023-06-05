@@ -21,7 +21,7 @@ class Materials_max(Materials, SlotsMax):
 		cmb000.addItems_(items, 'Material Editors')
 
 
-	def cmb000(self, index=-1):
+	def cmb000(self, *args, **kwargs):
 		'''Editors
 		'''
 		cmb = self.sb.materials.draggableHeader.ctx_menu.cmb000
@@ -33,7 +33,7 @@ class Materials_max(Materials, SlotsMax):
 			cmb.setCurrentIndex(0)
 
 
-	def cmb002(self, index=-1):
+	def cmb002(self, *args, **kwargs):
 		'''Material list
 
 		Parameters:
@@ -69,7 +69,7 @@ class Materials_max(Materials, SlotsMax):
 		b.setVisible(True if cmb.currentText() else False)
 
 
-	def tb000(self, state=None):
+	def tb000(self, *args, **kwargs):
 		'''Select By Material Id
 		'''
 		tb = self.sb.materials.tb000
@@ -88,7 +88,7 @@ class Materials_max(Materials, SlotsMax):
 		self.selectByMaterialID(mat, objects, shell=shell, invert=invert)
 
 
-	def tb002(self, state=None):
+	def tb002(self, *args, **kwargs):
 		'''Assign Material
 		'''
 		tb = self.sb.materials.tb002
@@ -131,7 +131,7 @@ class Materials_max(Materials, SlotsMax):
 		rt.redrawViews()
 
 
-	def tb003(self, state=None):
+	def tb003(self, *args, **kwargs):
 		'''Relink Scene Bitmaps
 		'''
 		tb = self.sb.materials.draggableHeader.ctx_menu.tb003
@@ -147,7 +147,7 @@ class Materials_max(Materials, SlotsMax):
 		self.relinkSceneBitmaps(mat_dir, mats=mats, replaceTxWithTif=True)
 
 
-	def tb004(self, state=None):
+	def tb004(self, *args, **kwargs):
 		'''Relink Material Library Bitmaps
 		'''
 		tb = self.sb.materials.draggableHeader.ctx_menu.tb004
@@ -232,7 +232,7 @@ class Materials_max(Materials, SlotsMax):
 			rt.freeSceneBitmaps()
 
 
-	def b002(self):
+	def b002(self, *args, **kwargs):
 		'''Set Material: Set the Currently Selected Material as the currentMaterial.
 		'''
 		try: 
@@ -699,19 +699,19 @@ print (__name__)
 	# 	return result
 
 
-	# def chk007(self, state=None):
+	# def chk007(self, *args, **kwargs):
 	# 	'''Assign Material: Current
 	# 	'''
 	# 	self.sb.materials.tb002.setText('Assign Current')
 
 
-	# def chk008(self, state=None):
+	# def chk008(self, *args, **kwargs):
 	# 	'''Assign Material: Random
 	# 	'''
 	# 	self.sb.materials.tb002.setText('Assign Random')
 
 
-	# def chk009(self, state=None):
+	# def chk009(self, *args, **kwargs):
 	# 	'''Assign Material: New
 	# 	'''
 	# 	self.sb.materials.tb002.setText('Assign New')

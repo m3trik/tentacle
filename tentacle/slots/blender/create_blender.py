@@ -55,7 +55,7 @@ class Create_blender(Create, SlotsBlender):
                 setToolTip="Uniformly scale the created object to match the averaged scale of any selected object(s).",
             )
 
-    def cmb000(self, index=-1):
+    def cmb000(self, *args, **kwargs):
         """Editors"""
         cmb = self.sb.create.draggableHeader.ctx_menu.cmb000
 
@@ -65,14 +65,14 @@ class Create_blender(Create, SlotsBlender):
                 pass
             cmb.setCurrentIndex(0)
 
-    def cmb001(self, index=-1):
+    def cmb001(self, *args, **kwargs):
         """ """
         cmb = self.sb.create.cmb001
 
         if index >= 0:
             self.cmb002(index)
 
-    def cmb002(self, index=-1):
+    def cmb002(self, *args, **kwargs):
         """ """
         cmb = self.sb.create.cmb002
 
@@ -123,7 +123,7 @@ class Create_blender(Create, SlotsBlender):
             cmb.addItems_(lights, clear=True)
 
     @SlotsBlender.attr
-    def tb000(self, state=None):
+    def tb000(self, *args, **kwargs):
         """Create Primitive"""
         tb = self.sb.create.tb000
 
@@ -444,7 +444,7 @@ print(__name__)
 # 	return axis
 
 
-# def chk000(self, state=None):
+# def chk000(self, *args, **kwargs):
 # 	'''Rotate X Axis
 # 	'''
 # 	self.sb.toggle_widgets(setChecked='chk000', setUnChecked='chk001, chk002')
@@ -452,7 +452,7 @@ print(__name__)
 # 		self.rotateAbsolute(self.getAxis(), self.node)
 
 
-# def chk001(self, state=None):
+# def chk001(self, *args, **kwargs):
 # 	'''Rotate Y Axis
 # 	'''
 # 	self.sb.toggle_widgets(setChecked='chk001', setUnChecked='chk000, chk002')
@@ -460,7 +460,7 @@ print(__name__)
 # 		self.rotateAbsolute(self.getAxis(), self.node)
 
 
-# def chk002(self, state=None):
+# def chk002(self, *args, **kwargs):
 # 	'''Rotate Z Axis
 # 	'''
 # 	self.sb.toggle_widgets(setChecked='chk002', setUnChecked='chk000, chk001')
@@ -468,13 +468,13 @@ print(__name__)
 # 		self.rotateAbsolute(self.getAxis(), self.node)
 
 
-# def chk003(self, state=None):
+# def chk003(self, *args, **kwargs):
 # 	'''Rotate Negative Axis
 # 	'''
 # 	if self.node:
 # 		self.rotateAbsolute(self.getAxis(), self.node)
 
-# def chk005(self, state=None):
+# def chk005(self, *args, **kwargs):
 # '''Set Point
 # '''
 # #add support for averaging multiple components.
@@ -490,7 +490,7 @@ print(__name__)
 # self.sb.create.s002.setValue(self.point[2])
 
 
-# def s000(self, value=None):
+# def s000(self, *args, **kwargs):
 # 	'''Set Translate X
 # 	'''
 # 	if self.node:
@@ -498,7 +498,7 @@ print(__name__)
 # 		pm.xform(self.node, translation=self.point, worldSpace=1, absolute=1)
 
 
-# def s001(self, value=None):
+# def s001(self, *args, **kwargs):
 # 	'''Set Translate Y
 # 	'''
 # 	if self.node:
@@ -506,7 +506,7 @@ print(__name__)
 # 		pm.xform(self.node, translation=self.point, worldSpace=1, absolute=1)
 
 
-# def s002(self, value=None):
+# def s002(self, *args, **kwargs):
 # 	'''Set Translate Z
 # 	'''
 # 	if self.node:

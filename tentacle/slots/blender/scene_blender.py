@@ -20,7 +20,7 @@ class Scene_blender(Scene, SlotsBlender):
         ]
         cmb.addItems_(items, "Maya Scene Editors")
 
-    def cmb000(self, index=-1):
+    def cmb000(self, *args, **kwargs):
         """Editors"""
         cmb = self.sb.scene.draggableHeader.ctx_menu.cmb000
 
@@ -42,7 +42,7 @@ class Scene_blender(Scene, SlotsBlender):
                 )  # performSearchReplaceNames 1; #Rename objects in the scene.
             cmb.setCurrentIndex(0)
 
-    def tb000(self, state=None):
+    def tb000(self, *args, **kwargs):
         """Convert Case"""
         tb = self.sb.scene.tb000
 

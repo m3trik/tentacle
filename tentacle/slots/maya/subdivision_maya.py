@@ -1,34 +1,30 @@
 # !/usr/bin/python
 # coding=utf-8
-from tentacle.slots.maya import *
-from tentacle.slots.subdivision import Subdivision
+try:
+    import pymel.core as pm
+except ImportError as error:
+    print(__file__, error)
+import mayatk as mtk
+from tentacle.slots.maya import SlotsMaya
 
 
-class Subdivision_maya(Subdivision, SlotsMaya):
+class Subdivision_maya(SlotsMaya):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        ctx = self.sb.subdivision.draggableHeader.ctx_menu
-        if not ctx.contains_items:
-            ctx.add(
-                self.sb.ComboBox,
-                setObjectName="cmb000",
-                setToolTip="Subdivision Editiors.",
-            )
-            ctx.add(
-                self.sb.ComboBox, setObjectName="cmb001", setToolTip="Smooth Proxy."
-            )
-            ctx.add(
-                self.sb.ComboBox,
-                setObjectName="cmb002",
-                setToolTip="Maya Subdivision Operations.",
-            )
-
-        cmb = self.sb.subdivision.draggableHeader.ctx_menu.cmb000
+    def draggableHeader_init(self, widget):
+        """ """
+        cmb000 = widget.ctx_menu.add(
+            self.sb.ComboBox,
+            setObjectName="cmb000",
+            setToolTip="Subdivision Editiors.",
+        )
         items = ["Polygon Display Options"]
-        cmb.addItems_(items, "Subdivision Editiors")
+        cmb000.addItems_(items, "Subdivision Editiors")
 
-        cmb = self.sb.subdivision.draggableHeader.ctx_menu.cmb001
+        cmb001 = widget.ctx_menu.add(
+            self.sb.ComboBox, setObjectName="cmb001", setToolTip="Smooth Proxy."
+        )
         items = [
             "Create Subdiv Proxy",
             "Remove Subdiv Proxy Mirror",
@@ -36,15 +32,20 @@ class Subdivision_maya(Subdivision, SlotsMaya):
             "Toggle Subdiv Proxy Display",
             "Both Proxy and Subdiv Display",
         ]
-        cmb.addItems_(items, "Smooth Proxy")
+        cmb001.addItems_(items, "Smooth Proxy")
 
-        cmb = self.sb.subdivision.draggableHeader.ctx_menu.cmb002
+        cmb002 = widget.ctx_menu.add(
+            self.sb.ComboBox,
+            setObjectName="cmb002",
+            setToolTip="Maya Subdivision Operations.",
+        )
         items = ["Reduce Polygons", "Add Divisions", "Smooth"]
-        cmb.addItems_(items, "Maya Subdivision Operations")
+        cmb002.addItems_(items, "Maya Subdivision Operations")
 
-    def cmb000(self, index=-1):
+    def cmb000(self, *args, **kwargs):
         """Editors"""
-        cmb = self.sb.subdivision.draggableHeader.ctx_menu.cmb000
+        cmb = kwargs.get('widget')
+        index = kwargs.get('index')
 
         if index > 0:
             text = cmb.items[index]
@@ -52,9 +53,10 @@ class Subdivision_maya(Subdivision, SlotsMaya):
                 pm.mel.CustomPolygonDisplayOptions()  # Polygon Display Options #pm.mel.eval("polysDisplaySetup 1;")
             cmb.setCurrentIndex(0)
 
-    def cmb001(self, index=-1):
+    def cmb001(self, *args, **kwargs):
         """Smooth Proxy"""
-        cmb = self.sb.subdivision.draggableHeader.ctx_menu.cmb001
+        cmb = kwargs.get('widget')
+        index = kwargs.get('index')
 
         if index > 0:
             text = cmb.items[index]
@@ -70,9 +72,10 @@ class Subdivision_maya(Subdivision, SlotsMaya):
                 pm.mel.SmoothingDisplayShowBoth()  #'Display both smooth shapes' #smoothingDisplayToggle 0;
             cmb.setCurrentIndex(0)
 
-    def cmb002(self, index=-1):
+    def cmb002(self, *args, **kwargs):
         """Maya Subdivision Operations"""
-        cmb = self.sb.subdivision.draggableHeader.ctx_menu.cmb002
+        cmb = kwargs.get('widget')
+        index = kwargs.get('index')
 
         if index > 0:
             if index is cmb.items.index("Reduce Polygons"):
@@ -83,9 +86,9 @@ class Subdivision_maya(Subdivision, SlotsMaya):
                 pm.mel.performPolySmooth(1)
             cmb.setCurrentIndex(0)
 
-    def s000(self, value=None):
+    def s000(self, *args, **kwargs):
         """Division Level"""
-        value = self.sb.subdivision.s000.value()
+        value = kwargs.get('value')
 
         shapes = pm.ls(sl=1, dag=1, leaf=1)
         transforms = pm.listRelatives(shapes, p=True)
@@ -97,9 +100,9 @@ class Subdivision_maya(Subdivision, SlotsMaya):
                 )  # subDiv proxy options: 'divisions'
                 print(obj + ": Division Level: <hl>" + str(value) + "</hl>")
 
-    def s001(self, value=None):
+    def s001(self, *args, **kwargs):
         """Tesselation Level"""
-        value = self.sb.subdivision.s001.value()
+        value = kwargs.get('value')
 
         shapes = pm.ls(sl=1, dag=1, leaf=1)
         transforms = pm.listRelatives(shapes, p=True)
@@ -108,7 +111,7 @@ class Subdivision_maya(Subdivision, SlotsMaya):
                 mtk.Node.set_node_attributes(obj, {"smoothTessLevel": value})
                 print(obj + ": Tesselation Level: <hl>" + str(value) + "</hl>")
 
-    def b005(self):
+    def b005(self, *args, **kwargs):
         """Reduce"""
         selection = pm.ls(sl=1, objectsOnly=1, type="transform")
 
@@ -146,15 +149,15 @@ class Subdivision_maya(Subdivision, SlotsMaya):
             replaceOriginal=1,
         )
 
-    def b008(self):
+    def b008(self, *args, **kwargs):
         """Add Divisions - Subdivide Mesh"""
         pm.mel.SubdividePolygon()
 
-    def b009(self):
+    def b009(self, *args, **kwargs):
         """Smooth"""
         pm.mel.SmoothPolygon()
 
-    def b011(self):
+    def b011(self, *args, **kwargs):
         """Apply Smooth Preview"""
         pm.mel.performSmoothMeshPreviewToPolygon()  # convert smooth mesh preview to polygons
 

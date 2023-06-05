@@ -19,7 +19,7 @@ class Rigging_blender(Rigging, SlotsBlender):
 		cmb.addItems_(items, "Create")
 
 
-	def cmb000(self, index=-1):
+	def cmb000(self, *args, **kwargs):
 		'''Editors
 		'''
 		cmb = self.sb.rigging.draggableHeader.ctx_menu.cmb000
@@ -43,7 +43,7 @@ class Rigging_blender(Rigging, SlotsBlender):
 			cmb.setCurrentIndex(0)
 
 
-	def cmb001(self, index=-1):
+	def cmb001(self, *args, **kwargs):
 		'''Create
 		'''
 		cmb = self.sb.rigging.cmb001
@@ -63,28 +63,28 @@ class Rigging_blender(Rigging, SlotsBlender):
 			cmb.setCurrentIndex(0)
 
 
-	def chk000(self, state=None):
+	def chk000(self, *args, **kwargs):
 		'''Scale Joint
 		'''
 		self.sb.toggle_widgets(setUnChecked='chk001-2')
 		self.sb.rigging.tb000.option_menu.s000.setValue(pm.jointDisplayScale(query=1)) #init global joint display size
 
 
-	def chk001(self, state=None):
+	def chk001(self, *args, **kwargs):
 		'''Scale IK
 		'''
 		self.sb.toggle_widgets(setUnChecked='chk000, chk002')
 		self.sb.rigging.tb000.option_menu.setValue(pm.ikHandleDisplayScale(query=1)) #init IK handle display size
 		
 
-	def chk002(self, state=None):
+	def chk002(self, *args, **kwargs):
 		'''Scale IK/FK
 		'''
 		self.sb.toggle_widgets(setUnChecked='chk000-1')
 		self.sb.rigging.tb000.option_menu.setValue(pm.jointDisplayScale(query=1, ikfk=1)) #init IKFK display size
 
 
-	def s000(self, value=None):
+	def s000(self, *args, **kwargs):
 		'''Scale Joint/IK/FK
 		'''
 		value = self.sb.rigging.tb000.option_menu.value()
@@ -97,7 +97,7 @@ class Rigging_blender(Rigging, SlotsBlender):
 			pm.jointDisplayScale(value, ikfk=1) #set global IKFK display size
 
 
-	def tb000(self, state=None):
+	def tb000(self, *args, **kwargs):
 		'''Toggle Display Local Rotation Axes
 		'''
 		tb = self.sb.rigging.tb000
@@ -118,7 +118,7 @@ class Rigging_blender(Rigging, SlotsBlender):
 		self.mtk.viewport_message("Display Local Rotation Axes:<hl>"+str(state)+"</hl>")
 
 
-	def tb001(self, state=None):
+	def tb001(self, *args, **kwargs):
 		'''Orient Joints
 		'''
 		tb = self.sb.rigging.tb001
@@ -130,7 +130,7 @@ class Rigging_blender(Rigging, SlotsBlender):
 		pm.joint(edit=1, orientJoint=orientJoint, zeroScaleOrient=1, ch=1)
 
 
-	def tb002(self, state=None):
+	def tb002(self, *args, **kwargs):
 		'''Constraint: Parent
 		'''
 		tb = self.sb.rigging.tb002
@@ -148,7 +148,7 @@ class Rigging_blender(Rigging, SlotsBlender):
 
 
 	@SlotsBlender.undoChunk
-	def tb003(self, state=None):
+	def tb003(self, *args, **kwargs):
 		'''Create Locator at Selection
 		'''
 		tb = self.sb.rigging.tb003
@@ -170,7 +170,7 @@ class Rigging_blender(Rigging, SlotsBlender):
 			freeze_transforms=freeze_transforms, lock_translate=lock_translate, lock_rotation=lock_rotation, lock_scale=lock_scale, remove=remove)
 
 
-	def tb004(self, state=None):
+	def tb004(self, *args, **kwargs):
 		'''Lock/Unlock Attributes
 		'''
 		tb = self.sb.rigging.tb004
@@ -192,7 +192,7 @@ class Rigging_blender(Rigging, SlotsBlender):
 
 
 	@Slots.hideMain
-	def b000(self):
+	def b000(self, *args, **kwargs):
 		'''Object Transform Limit Attributes
 		'''
 		node = pm.ls(sl=1, objectsOnly=1)
@@ -207,49 +207,49 @@ class Rigging_blender(Rigging, SlotsBlender):
 		self.setAttributeWindow(node, fn=SlotsBlender.set_parameter_values, 'transformLimits', **attrs)
 
 
-	def b001(self):
+	def b001(self, *args, **kwargs):
 		'''Connect Joints
 		'''
 		pm.connectJoint(cm=1)
 
 
-	def b002(self):
+	def b002(self, *args, **kwargs):
 		'''Insert Joint Tool
 		'''
 		pm.setToolTo('insertJointContext') #insert joint tool
 
 
-	def b004(self):
+	def b004(self, *args, **kwargs):
 		'''Reroot
 		'''
 		pm.reroot() #re-root joints
 
 
-	def b006(self):
+	def b006(self, *args, **kwargs):
 		'''Constraint: Point
 		'''
 		pm.pointConstraint(offset=[0,0,0], weight=1)
 
 
-	def b007(self):
+	def b007(self, *args, **kwargs):
 		'''Constraint: Scale
 		'''
 		pm.scaleConstraint(offset=[1,1,1], weight=1)
 
 
-	def b008(self):
+	def b008(self, *args, **kwargs):
 		'''Constraint: Orient
 		'''
 		pm.orientConstraint(offset=[0,0,0], weight=1)
 
 
-	def b009(self):
+	def b009(self, *args, **kwargs):
 		'''Constraint: Aim
 		'''
 		pm.aimConstraint(offset=[0,0,0], weight=1, aimVector=[1,0,0], upVector=[0,1,0], worldUpType="vector", worldUpVector=[0,1,0])
 
 
-	def b010(self):
+	def b010(self, *args, **kwargs):
 		'''Constraint: Pole Vector
 		'''
 		pm.orientConstraint(offset=[0,0,0], weight=1)

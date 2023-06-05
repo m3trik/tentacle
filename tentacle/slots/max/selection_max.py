@@ -137,7 +137,7 @@ class Selection_max(Selection, SlotsMax):
 
         rt.redrawViews()
 
-    def chk004(self, state=None):
+    def chk004(self, *args, **kwargs):
         """Ignore Backfacing (Camera Based Selection)"""
         for obj in rt.selection:
             if self.selection_submenu_ui.chk004.isChecked():
@@ -151,7 +151,7 @@ class Selection_max(Selection, SlotsMax):
                     "Camera-based selection <hl>Off</hl>.", message_type="Result"
                 )
 
-    def chk008(self, state=None):
+    def chk008(self, *args, **kwargs):
         """Toggle Soft Selection"""
         if self.selection_submenu_ui.chk008.isChecked():
             pm.softSelect(edit=1, softSelectEnabled=True)
@@ -160,7 +160,7 @@ class Selection_max(Selection, SlotsMax):
             pm.softSelect(edit=1, softSelectEnabled=False)
             self.sb.message_box("Soft Select <hl>Off</hl>.", message_type="Result")
 
-    def cmb000(self, index=-1):
+    def cmb000(self, *args, **kwargs):
         """Editors"""
         cmb = self.sb.selection.draggableHeader.ctx_menu.cmb000
 
@@ -170,14 +170,14 @@ class Selection_max(Selection, SlotsMax):
                 maxEval('macros.run "Edit" "namedSelSets"')
             cmb.setCurrentIndex(0)
 
-    def cmb001(self, index=-1):
+    def cmb001(self, *args, **kwargs):
         """Selection Sets"""
         cmb = self.sb.selection.cmb001
 
         sets_ = self.getSelectionSets(rt.geometry)
         cmb.addItems_([s for s in sets_], clear=True)
 
-    def cmb002(self, index=-1):
+    def cmb002(self, *args, **kwargs):
         """Select All Of Type"""
         cmb = self.sb.selection.cmb002
 
@@ -202,7 +202,7 @@ class Selection_max(Selection, SlotsMax):
 
             cmb.setCurrentIndex(0)
 
-    def cmb003(self, index=-1):
+    def cmb003(self, *args, **kwargs):
         """Convert To"""
         cmb = self.sb.selection.cmb003
 
@@ -220,7 +220,7 @@ class Selection_max(Selection, SlotsMax):
                         )  # the needed component level corresponds to the item's index.
             cmb.setCurrentIndex(0)
 
-    def cmb005(self, index=-1):
+    def cmb005(self, *args, **kwargs):
         """Selection Contraints"""
         cmb = self.sb.selection.cmb005
 
@@ -249,7 +249,7 @@ class Selection_max(Selection, SlotsMax):
         else:
             mel.eval("dR_selConstraintOff;")  # dR_DoCmd("selConstraintOff");
 
-    def cmb006(self, index=-1):
+    def cmb006(self, *args, **kwargs):
         """Currently Selected Objects"""
         cmb = self.sb.selection.draggableHeader.ctx_menu.cmb006
 
@@ -278,7 +278,7 @@ class Selection_max(Selection, SlotsMax):
         except KeyError:
             pass
 
-    def tb000(self, state=None):
+    def tb000(self, *args, **kwargs):
         """Select Nth"""
         tb = self.sb.selection.tb000
 
@@ -306,7 +306,7 @@ class Selection_max(Selection, SlotsMax):
         elif borderEdges:
             pm.select(self.get_border_components(selection, returnCompType="edges"))
 
-    def tb001(self, state=None):
+    def tb001(self, *args, **kwargs):
         """Select Similar"""
         tb = self.sb.selection.tb001
 
@@ -320,7 +320,7 @@ class Selection_max(Selection, SlotsMax):
         else:
             print("# Error: No support for sub-object level selections. #")
 
-    def tb002(self, state=None):
+    def tb002(self, *args, **kwargs):
         """Select Island: Select Polygon Face Island"""
         tb = self.sb.selection.tb002
 
@@ -339,7 +339,7 @@ class Selection_max(Selection, SlotsMax):
         # print(sel)
         # setFaceSelection sel #{}
 
-    def tb003(self, state=None):
+    def tb003(self, *args, **kwargs):
         """Select Edges By Angle"""
         tb = self.sb.selection.tb003
 

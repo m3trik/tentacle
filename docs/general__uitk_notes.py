@@ -63,7 +63,7 @@ self.sb.file.slots.b005() #get method 'b005' from the 'file' module.
 
 
 # comboBox standard:
-def cmb000(self, index=-1):
+def cmb000(self, *args, **kwargs):
 		'''Editors
 		'''
 		cmb = self.edit_ui.cmb000
@@ -81,7 +81,7 @@ def cmb000(self, index=-1):
 
 
 # comboBox w/ctx_menu
-def cmb002(self, index=-1):
+def cmb002(self, *args, **kwargs):
 		'''Material list
 
 		Parameters:
@@ -98,7 +98,7 @@ def cmb002(self, index=-1):
 
 
 #comboBox w/menu:
-def cmb006(self, index=-1):
+def cmb006(self, *args, **kwargs):
 		'''Currently Selected Objects
 		'''
 		cmb = self.selection_ui.cmb006
@@ -109,7 +109,7 @@ def cmb006(self, index=-1):
 
 
 
-def cmb002(self, index=-1):
+def cmb002(self, *args, **kwargs):
 		'''Recent Autosave
 		'''
 		cmb = self.file_ui.cmb002

@@ -88,7 +88,7 @@ class Selection_blender(Selection, SlotsBlender):
             )  # pm.select(name, noExpand=1) #Select The Selection Set Itself (Not Members Of) (noExpand=select set)
 
     @Slots.hideMain
-    def chk004(self, state=None):
+    def chk004(self, *args, **kwargs):
         """Ignore Backfacing (Camera Based Selection)"""
         if self.selection_submenu_ui.chk004.isChecked():
             pm.selectPref(useDepth=True)
@@ -97,7 +97,7 @@ class Selection_blender(Selection, SlotsBlender):
             pm.selectPref(useDepth=False)
             return "Camera-based selection <hl>Off</hl>."
 
-    def chk008(self, state=None):
+    def chk008(self, *args, **kwargs):
         """Toggle Soft Selection"""
         if self.selection_submenu_ui.chk008.isChecked():
             pm.softSelect(edit=1, softSelectEnabled=True)
@@ -126,7 +126,7 @@ class Selection_blender(Selection, SlotsBlender):
 
         pm.setToolTo(ctx)
 
-    def cmb000(self, index=-1):
+    def cmb000(self, *args, **kwargs):
         """Editors"""
         cmb = self.sb.selection.draggableHeader.ctx_menu.cmb000
 
@@ -136,14 +136,14 @@ class Selection_blender(Selection, SlotsBlender):
                 mel.eval("PolygonSelectionConstraints;")
             cmb.setCurrentIndex(0)
 
-    def cmb001(self, index=-1):
+    def cmb001(self, *args, **kwargs):
         """Selection Sets"""
         cmb = self.sb.selection.cmb001
 
         items = [str(s) for s in pm.ls(et="objectSet", flatten=1)]
         cmb.addItems_(items, clear=True)
 
-    def cmb002(self, index=-1):
+    def cmb002(self, *args, **kwargs):
         """Select by Type"""
         cmb = self.sb.selection.cmb002
 
@@ -208,7 +208,7 @@ class Selection_blender(Selection, SlotsBlender):
             pm.select(type_)
             cmb.setCurrentIndex(0)
 
-    def cmb003(self, index=-1):
+    def cmb003(self, *args, **kwargs):
         """Convert To"""
         cmb = self.sb.selection.cmb003
 
@@ -256,7 +256,7 @@ class Selection_blender(Selection, SlotsBlender):
                 mel.eval("polyConvertToShellBorder;")
             cmb.setCurrentIndex(0)
 
-    def cmb005(self, index=-1):
+    def cmb005(self, *args, **kwargs):
         """Selection Contraints"""
         cmb = self.sb.selection.cmb005
 
@@ -285,7 +285,7 @@ class Selection_blender(Selection, SlotsBlender):
         else:
             mel.eval("dR_selConstraintOff;")  # dR_DoCmd("selConstraintOff");
 
-    def cmb006(self, index=-1):
+    def cmb006(self, *args, **kwargs):
         """Currently Selected Objects"""
         cmb = self.sb.selection.draggableHeader.ctx_menu.cmb006
 
@@ -312,7 +312,7 @@ class Selection_blender(Selection, SlotsBlender):
         except KeyError:
             pass
 
-    def tb000(self, state=None):
+    def tb000(self, *args, **kwargs):
         """Select Nth"""
         tb = self.sb.selection.tb000
 
@@ -345,7 +345,7 @@ class Selection_blender(Selection, SlotsBlender):
 
         pm.select(result[::step])
 
-    def tb001(self, state=None):
+    def tb001(self, *args, **kwargs):
         """Select Similar"""
         tb = self.sb.selection.tb001
 
@@ -355,7 +355,7 @@ class Selection_blender(Selection, SlotsBlender):
 
         mel.eval('doSelectSimilar 1 {"' + tolerance + '"}')
 
-    def tb002(self, state=None):
+    def tb002(self, *args, **kwargs):
         """Select Island: Select Polygon Face Island"""
         tb = self.sb.selection.tb002
 
@@ -375,7 +375,7 @@ class Selection_blender(Selection, SlotsBlender):
         else:
             return "Warning: No faces were selected."
 
-    def tb003(self, state=None):
+    def tb003(self, *args, **kwargs):
         """Select Edges By Angle"""
         tb = self.sb.selection.tb003
 
@@ -388,19 +388,19 @@ class Selection_blender(Selection, SlotsBlender):
         )
         pm.select(edges)
 
-    def b016(self):
+    def b016(self, *args, **kwargs):
         """Convert Selection To Vertices"""
         mel.eval("PolySelectConvert 3;")
 
-    def b017(self):
+    def b017(self, *args, **kwargs):
         """Convert Selection To Edges"""
         mel.eval("PolySelectConvert 2;")
 
-    def b018(self):
+    def b018(self, *args, **kwargs):
         """Convert Selection To Faces"""
         mel.eval("PolySelectConvert 1;")
 
-    def b019(self):
+    def b019(self, *args, **kwargs):
         """Convert Selection To Edge Ring"""
         mel.eval("SelectEdgeRingSp;")
 

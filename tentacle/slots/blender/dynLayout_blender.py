@@ -13,7 +13,7 @@ class DynLayout_blender(DynLayout, SlotsBlender):
         items = []
         cmb.addItems_(items, "")
 
-    def cmb000(self, index=-1):
+    def cmb000(self, *args, **kwargs):
         """Editors"""
         cmb = self.sb.dynLayout.draggableHeader.ctx_menu.cmb000
 

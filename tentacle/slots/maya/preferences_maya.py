@@ -1,20 +1,28 @@
 # !/usr/bin/python
 # coding=utf-8
-from tentacle.slots.maya import *
-from tentacle.slots.preferences import Preferences
+try:
+    import pymel.core as pm
+except ImportError as error:
+    print(__file__, error)
+from tentacle.slots.maya import SlotsMaya
 
 
-class Preferences_maya(Preferences, SlotsMaya):
+class Preferences_maya(SlotsMaya):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
         self.sb.preferences.b010.setText("Maya Preferences")
 
-        cmb000 = self.sb.preferences.draggableHeader.ctx_menu.cmb000
+    def draggableHeader_init(self, widget):
+        """ """
+        cmb = widget.ctx_menu.add(
+            self.sb.ComboBox, setObjectName="cmb000", setToolTip=""
+        )
         items = [""]
-        cmb000.addItems_(items, "")
+        cmb.addItems_(items, "")
 
-        cmb001 = self.sb.preferences.cmb001
+    def cmb001_init(self, widget):
+        """ """
         items = [
             "millimeter",
             "centimeter",
@@ -25,13 +33,13 @@ class Preferences_maya(Preferences, SlotsMaya):
             "yard",
             "mile",
         ]
-        cmb001.addItems_(items)
-        index = cmb001.items.index(
-            pm.currentUnit(query=1, fullName=1, linear=1)
-        )  # get/set current linear value.
-        cmb001.setCurrentIndex(index)
+        widget.addItems_(items)
+        # get/set current linear value.
+        index = widget.items.index(pm.currentUnit(query=1, fullName=1, linear=1))
+        widget.setCurrentIndex(index)
 
-        cmb002 = self.sb.preferences.cmb002
+    def cmb002_init(self, widget):
+        """ """
         items = {
             "15 fps (game)": "game",
             "24 fps (film)": "film",
@@ -41,25 +49,27 @@ class Preferences_maya(Preferences, SlotsMaya):
             "50 fps (palf)": "palf",
             "60 fps (ntscf)": "ntscf",
         }
-        cmb002.addItems_(items)
-        index = cmb002.items.index(
+        widget.addItems_(items)
+        index = widget.items.index(
             pm.currentUnit(query=1, fullName=1, time=1)
         )  # get/set current time value.
-        cmb002.setCurrentIndex(index)
+        widget.setCurrentIndex(index)
 
-        cmb003 = self.sb.preferences.cmb003
-        from PySide2 import QtWidgets, QtGui, QtCore
+    def cmb003_init(self, widget):
+        """ """
+        from PySide2 import QtWidgets, QtCore
 
         items = QtWidgets.QStyleFactory.keys()  # get styles from QStyleFactory
-        cmb003.addItems_(items)
-        index = cmb003.findText(
+        widget.addItems_(items)
+        index = widget.findText(
             QtWidgets.QApplication.style().objectName(), QtCore.Qt.MatchFixedString
         )  # get/set current value
-        cmb003.setCurrentIndex(index)
+        widget.setCurrentIndex(index)
 
-    def cmb000(self, index=-1):
+    def cmb000(self, *args, **kwargs):
         """Editors"""
-        cmb = self.sb.preferences.draggableHeader.ctx_menu.cmb000
+        cmb = kwargs.get("widget")
+        index = kwargs.get("index")
 
         if index > 0:
             text = cmb.items[index]
@@ -67,37 +77,37 @@ class Preferences_maya(Preferences, SlotsMaya):
                 pass
             cmb.setCurrentIndex(0)
 
-    def cmb001(self, index=-1):
+    def cmb001(self, *args, **kwargs):
         """Set Working Units: Linear"""
-        cmb = self.sb.preferences.cmb001
+        cmb = kwargs.get("widget")
+        index = kwargs.get("index")
 
         if index > 0:
-            pm.currentUnit(
-                linear=cmb.items[index]
-            )  # millimeter | centimeter | meter | kilometer | inch | foot | yard | mile
+            # millimeter | centimeter | meter | kilometer | inch | foot | yard | mile
+            pm.currentUnit(linear=cmb.items[index])
 
-    def cmb002(self, index=-1):
+    def cmb002(self, *args, **kwargs):
         """Set Working Units: Time"""
-        cmb = self.sb.preferences.cmb002
+        cmb = kwargs.get("widget")
+        index = kwargs.get("index")
 
         if index > 0:
-            pm.currentUnit(
-                time=cmb.items[index].split()[-1]
-            )  # game | film | pal | ntsc | show | palf | ntscf
+            # game | film | pal | ntsc | show | palf | ntscf
+            pm.currentUnit(time=cmb.items[index].split()[-1])
 
-    def b001(self):
+    def b001(self, *args, **kwargs):
         """Color Settings"""
         pm.mel.colorPrefWnd()
 
-    def b008(self):
+    def b008(self, *args, **kwargs):
         """Hotkeys"""
         pm.mel.HotkeyPreferencesWindow()
 
-    def b009(self):
+    def b009(self, *args, **kwargs):
         """Plug-In Manager"""
         pm.mel.PluginManager()
 
-    def b010(self):
+    def b010(self, *args, **kwargs):
         """Settings/Preferences"""
         pm.mel.PreferencesWindow()
 
@@ -123,20 +133,20 @@ print(__name__)
 # deprecated
 
 # def cmb000(self):
-# 	'''
-# 	Custom Menu Set
-# 	'''
-# 	cmb = self.sb.preferences.draggableHeader.ctx_menu.cmb000
+#   '''
+#   Custom Menu Set
+#   '''
+#   cmb = self.sb.preferences.draggableHeader.ctx_menu.cmb000
 
-# 	items = ['Modeling', 'Normals', 'Materials', 'UV'] #combobox list menu corresponding to the button text sets.
-# 	contents = cmb.addItems_(items, 'Menu Sets')
+#   items = ['Modeling', 'Normals', 'Materials', 'UV'] #combobox list menu corresponding to the button text sets.
+#   contents = cmb.addItems_(items, 'Menu Sets')
 
-# 	if not index:
+#   if not index:
 # index = cmb.currentIndex()
-# 	buttons = self.getObjects(sb.get_ui('main'), 'v000-11') #the ui in which the changes are to be made.
-# 	for i, button in enumerate(buttons):
-# 		if index==1: #set the text for each button.
-# 			button.setText(['','','','','','','','','','','',''][i])
+#   buttons = self.getObjects(sb.get_ui('main'), 'v000-11') #the ui in which the changes are to be made.
+#   for i, button in enumerate(buttons):
+#       if index==1: #set the text for each button.
+#           button.setText(['','','','','','','','','','','',''][i])
 
-# 		if index==2:
-# 			button.setText(['','','','','','','','','','','',''][i])
+#       if index==2:
+#           button.setText(['','','','','','','','','','','',''][i])

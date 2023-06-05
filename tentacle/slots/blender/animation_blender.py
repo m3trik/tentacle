@@ -13,7 +13,7 @@ class Animation_blender(Animation, SlotsBlender):
         items = [""]
         cmb.addItems_(items, "")
 
-    def cmb000(self, index=-1):
+    def cmb000(self, *args, **kwargs):
         """Editors"""
         cmb = self.sb.animation.draggableHeader.ctx_menu.cmb000
 
@@ -24,7 +24,7 @@ class Animation_blender(Animation, SlotsBlender):
 
             cmb.setCurrentIndex(0)
 
-    def b000(self):
+    def b000(self, *args, **kwargs):
         """Delete Keys on Selected"""
         rt.deleteKeys(rt.selection)
 

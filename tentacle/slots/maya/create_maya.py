@@ -4,7 +4,6 @@ try:
     import pymel.core as pm
 except ImportError as error:
     print(__file__, error)
-
 import mayatk as mtk
 from tentacle.slots.maya import SlotsMaya
 
@@ -13,20 +12,12 @@ class Create_maya(SlotsMaya):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-    def draggableHeader_init(self, w):
-        """ """
-        w.ctx_menu.add(self.sb.ComboBox, setObjectName="cmb000", setToolTip="")
-
-        cmb000 = w.ctx_menu.cmb000
-        items = [""]
-        cmb000.addItems_(items, "")
-
-    def cmb001_init(self, w):
+    def cmb001_init(self, widget):
         """ """
         items = ["Polygon", "NURBS", "Light"]
-        w.addItems_(items)
+        widget.addItems_(items)
 
-    def cmb002_init(self, w):
+    def cmb002_init(self, widget):
         items = [
             "Cube",
             "Sphere",
@@ -41,18 +32,18 @@ class Create_maya(SlotsMaya):
             "Platonic Solids",
             "Text",
         ]
-        w.addItems_(items)
+        widget.addItems_(items)
 
-    def tb000_init(self, w):
+    def tb000_init(self, widget):
         """ """
-        w.option_menu.add(
+        widget.option_menu.add(
             "QCheckBox",
             setText="Translate",
             setObjectName="chk000",
             setChecked=True,
             setToolTip="Move the created object to the center point of any selected object(s).",
         )
-        w.option_menu.add(
+        widget.option_menu.add(
             "QCheckBox",
             setText="Scale",
             setObjectName="chk001",
@@ -60,43 +51,10 @@ class Create_maya(SlotsMaya):
             setToolTip="Uniformly scale the created object to match the averaged scale of any selected object(s).",
         )
 
-    def createPrimitive(self, catagory1, catagory2):
-        """Create a primitive object.
-
-        Parameters:
-            catagory1 (str): type
-            catagory2 (str): type
-        Returns:
-            (obj) node
-
-        Example: createPrimitive('Polygons', 'Cube')
-        """
-        cmb001 = self.sb.create.cmb001
-        cmb002 = self.sb.create.cmb002
-
-        cmb001.setCurrentIndex(cmb001.findText(catagory1))
-        cmb002.setCurrentIndex(cmb002.findText(catagory2))
-        return self.tb000()
-
-    def b001(self):
-        """Create poly cube"""
-        self.createPrimitive("Polygon", "Cube")
-
-    def b002(self):
-        """Create poly sphere"""
-        self.createPrimitive("Polygon", "Sphere")
-
-    def b003(self):
-        """Create poly cylinder"""
-        self.createPrimitive("Polygon", "Cylinder")
-
-    def b004(self):
-        """Create poly plane"""
-        self.createPrimitive("Polygon", "Plane")
-
-    def cmb000(self, index=-1):
+    def cmb000(self, *args, **kwargs):
         """Editors"""
-        cmb = self.sb.create.draggableHeader.ctx_menu.cmb000
+        cmb = kwargs.get("widget")
+        index = kwargs.get("index")
 
         if index > 0:
             text = cmb.items[index]
@@ -104,16 +62,17 @@ class Create_maya(SlotsMaya):
                 pass
             cmb.setCurrentIndex(0)
 
-    def cmb001(self, index=-1):
+    def cmb001(self, *args, **kwargs):
         """ """
-        cmb = self.sb.create.cmb001
+        index = kwargs.get("index")
 
         if index >= 0:
             self.cmb002(index)
 
-    def cmb002(self, index=-1):
+    def cmb002(self, *args, **kwargs):
         """ """
-        cmb = self.sb.create.cmb002
+        cmb = kwargs.get("widget")
+        index = kwargs.get("index")
 
         polygons = [
             "Cube",
@@ -151,9 +110,9 @@ class Create_maya(SlotsMaya):
             cmb.addItems_(lights, clear=True)
 
     @SlotsMaya.attr
-    def tb000(self, state=None):
+    def tb000(self, *args, **kwargs):
         """Create Primitive"""
-        tb = self.sb.create.tb000
+        tb = kwargs.get("widget")
 
         baseType = self.sb.create.cmb001.currentText()
         subType = self.sb.create.cmb002.currentText()
@@ -161,6 +120,22 @@ class Create_maya(SlotsMaya):
         translate = tb.option_menu.chk000.isChecked()
 
         return self.createDefaultPrimitive(baseType, subType, scale, translate)
+
+    def b001(self, *args, **kwargs):
+        """Create poly cube"""
+        return self.createDefaultPrimitive("Polygon", "Cube")
+
+    def b002(self, *args, **kwargs):
+        """Create poly sphere"""
+        return self.createDefaultPrimitive("Polygon", "Sphere")
+
+    def b003(self, *args, **kwargs):
+        """Create poly cylinder"""
+        return self.createDefaultPrimitive("Polygon", "Cylinder")
+
+    def b004(self, *args, **kwargs):
+        """Create poly plane"""
+        return self.createDefaultPrimitive("Polygon", "Plane")
 
     def createDefaultPrimitive(
         self, baseType, subType, scale=False, translate=False, axis=[0, 90, 0]
@@ -220,10 +195,10 @@ class Create_maya(SlotsMaya):
 
         return mtk.Node.get_history_node(node)
 
-    def b005(self):
+    def b005(self, *args, **kwargs):
         """Create 6 sided poly cylinder"""
-        obj = self.createPrimitive("Polygon", "Cylinder")
-        mtk.Node.set_node_attributes(obj, verbose=True, subdivisionsAxis=6)
+        cyl = self.createDefaultPrimitive("Polygon", "Cylinder")
+        mtk.Node.set_node_attributes(cyl, verbose=True, subdivisionsAxis=6)
 
     @mtk.undo
     def createCircle(
@@ -337,7 +312,7 @@ print(__name__)
 #   return axis
 
 
-# def chk000(self, state=None):
+# def chk000(self, *args, **kwargs):
 #   '''Rotate X Axis
 #   '''
 #   self.sb.toggle_widgets(setChecked='chk000', setUnChecked='chk001, chk002')
@@ -345,7 +320,7 @@ print(__name__)
 #       self.rotateAbsolute(self.getAxis(), self.node)
 
 
-# def chk001(self, state=None):
+# def chk001(self, *args, **kwargs):
 #   '''Rotate Y Axis
 #   '''
 #   self.sb.toggle_widgets(setChecked='chk001', setUnChecked='chk000, chk002')
@@ -353,7 +328,7 @@ print(__name__)
 #       self.rotateAbsolute(self.getAxis(), self.node)
 
 
-# def chk002(self, state=None):
+# def chk002(self, *args, **kwargs):
 #   '''Rotate Z Axis
 #   '''
 #   self.sb.toggle_widgets(setChecked='chk002', setUnChecked='chk000, chk001')
@@ -361,13 +336,13 @@ print(__name__)
 #       self.rotateAbsolute(self.getAxis(), self.node)
 
 
-# def chk003(self, state=None):
+# def chk003(self, *args, **kwargs):
 #   '''Rotate Negative Axis
 #   '''
 #   if self.node:
 #       self.rotateAbsolute(self.getAxis(), self.node)
 
-# def chk005(self, state=None):
+# def chk005(self, *args, **kwargs):
 # '''Set Point
 # '''
 # #add support for averaging multiple components.
@@ -383,7 +358,7 @@ print(__name__)
 # self.sb.create.s002.setValue(self.point[2])
 
 
-# def s000(self, value=None):
+# def s000(self, *args, **kwargs):
 #   '''Set Translate X
 #   '''
 #   if self.node:
@@ -391,7 +366,7 @@ print(__name__)
 #       pm.xform(self.node, translation=self.point, worldSpace=1, absolute=1)
 
 
-# def s001(self, value=None):
+# def s001(self, *args, **kwargs):
 #   '''Set Translate Y
 #   '''
 #   if self.node:
@@ -399,7 +374,7 @@ print(__name__)
 #       pm.xform(self.node, translation=self.point, worldSpace=1, absolute=1)
 
 
-# def s002(self, value=None):
+# def s002(self, *args, **kwargs):
 #   '''Set Translate Z
 #   '''
 #   if self.node:

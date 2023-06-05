@@ -1,33 +1,141 @@
 # !/usr/bin/python
 # coding=utf-8
-from tentacle.slots.maya import *
-from tentacle.slots.materials import Materials
+try:
+    import pymel.core as pm
+except ImportError as error:
+    print(__file__, error)
+import pythontk as ptk
+import mayatk as mtk
+from tentacle.slots.maya import SlotsMaya
 
 
-class Materials_maya(Materials, SlotsMaya):
+class Materials_maya(SlotsMaya):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
         self.randomMat = None
 
-        dh = self.sb.materials.draggableHeader
-        dh.ctx_menu.add(
+    def draggableHeader_init(self, widget):
+        """ """
+        cmb000 = widget.ctx_menu.add(
             self.sb.ComboBox, setObjectName="cmb000", setToolTip="Material Editors"
         )
-        dh.ctx_menu.add(
+        widget.ctx_menu.add(
             self.sb.Label,
             setText="Material Attributes",
             setObjectName="lbl004",
             setToolTip="Show the material attributes in the attribute editor.",
         )
-
-        cmb000 = self.sb.materials.draggableHeader.ctx_menu.cmb000
         items = ["Hypershade", "Material Presets"]
         cmb000.addItems_(items, "Material Editors")
+        # hide the current material submenu button until a material is available.
+        self.sb.materials_submenu.b003.setVisible(False)
 
-    def cmb000(self, index=-1):
+    def cmb002_init(self, widget):
+        """ """
+        widget.option_menu.add(
+            "QComboBox",
+            setObjectName="cmb001",
+            addItems=["Scene Materials", "ID Map Materials", "Favorite Materials"],
+            setToolTip="Filter materials list based on type.",
+        )
+        widget.option_menu.add(
+            self.sb.Label,
+            setText="Open in Editor",
+            setObjectName="lbl000",
+            setToolTip="Open material in editor.",
+        )
+        widget.option_menu.add(
+            self.sb.Label,
+            setText="Rename",
+            setObjectName="lbl001",
+            setToolTip="Rename the current material.",
+        )
+        widget.option_menu.add(
+            self.sb.Label,
+            setText="Delete",
+            setObjectName="lbl002",
+            setToolTip="Delete the current material.",
+        )
+        widget.option_menu.add(
+            self.sb.Label,
+            setText="Delete All Unused Materials",
+            setObjectName="lbl003",
+            setToolTip="Delete All unused materials.",
+        )
+        widget.beforePopupShown.connect(
+            self.widget
+        )  # refresh comboBox contents before showing it's menu.
+        widget.returnPressed.connect(lambda: self.lbl001(setEditable=False))
+        widget.currentIndexChanged.connect(
+            lambda: widget.option_menu.setTitle(widget.currentText())
+        )  # set the popup title to be the current materials name.
+        widget.option_menu.cmb001.currentIndexChanged.connect(
+            lambda: self.sb.materials.group000.setTitle(
+                widget.option_menu.cmb001.currentText()
+            )
+        )  # set the groupbox title to reflect the current filter.
+        widget.option_menu.cmb001.currentIndexChanged.connect(
+            self.cmb002
+        )  # refresh cmb002 contents.
+        self.cmb002()  # initialize the materials list
+
+    def tb000_init(self, widget):
+        """ """
+        widget.option_menu.add(
+            "QCheckBox",
+            setText="All Objects",
+            setObjectName="chk003",
+            setToolTip="Search all scene objects, or only those currently selected.",
+        )
+        widget.option_menu.add(
+            "QCheckBox",
+            setText="Shell",
+            setObjectName="chk005",
+            setToolTip="Select entire shell.",
+        )
+        widget.option_menu.add(
+            "QCheckBox",
+            setText="Invert",
+            setObjectName="chk006",
+            setToolTip="Invert Selection.",
+        )
+
+    def tb002_init(self, widget):
+        """ """
+        widget.option_menu.add(
+            "QRadioButton",
+            setText="Current Material",
+            setObjectName="chk007",
+            setChecked=True,
+            setToolTip="Re-Assign the current stored material.",
+        )
+        widget.option_menu.add(
+            "QRadioButton",
+            setText="New Material",
+            setObjectName="chk009",
+            setToolTip="Assign a new material.",
+        )
+        widget.option_menu.add(
+            "QRadioButton",
+            setText="New Random Material",
+            setObjectName="chk008",
+            setToolTip="Assign a new random ID material.",
+        )
+        widget.option_menu.chk007.clicked.connect(
+            lambda state: widget.setText("Assign Current")
+        )
+        widget.option_menu.chk009.clicked.connect(
+            lambda state: widget.setText("Assign New")
+        )
+        widget.option_menu.chk008.clicked.connect(
+            lambda state: widget.setText("Assign Random")
+        )
+
+    def cmb000(self, *args, **kwargs):
         """Editors"""
-        cmb = self.sb.materials.draggableHeader.ctx_menu.cmb000
+        cmb = kwargs.get("widget")
+        index = kwargs.get("index")
 
         if index > 0:
             text = cmb.items[index]
@@ -42,13 +150,13 @@ class Materials_maya(Materials, SlotsMaya):
 
             cmb.setCurrentIndex(0)
 
-    def cmb002(self, index=-1):
+    def cmb002(self, *args, **kwargs):
         """Material list
 
         Parameters:
                 index (int): parameter on activated, currentIndexChanged, and highlighted signals.
         """
-        cmb = self.sb.materials.cmb002
+        cmb = kwargs.get("widget")
         b = self.sb.materials_submenu.b003
 
         mode = cmb.option_menu.cmb001.currentText()
@@ -84,9 +192,9 @@ class Materials_maya(Materials, SlotsMaya):
         b.setMinimumWidth(b.minimumSizeHint().width() + 25)
         b.setVisible(True if cmb.currentText() else False)
 
-    def tb000(self, state=None):
+    def tb000(self, *args, **kwargs):
         """Select By Material Id"""
-        tb = self.sb.materials.tb000
+        tb = kwargs.get("widget")
 
         mat = self.sb.materials.cmb002.currentData()
         if not mat:
@@ -101,9 +209,9 @@ class Materials_maya(Materials, SlotsMaya):
 
         self.selectByMaterialID(mat, objects, shell=shell, invert=invert)
 
-    def tb002(self, state=None):
+    def tb002(self, *args, **kwargs):
         """Assign Material"""
-        tb = self.sb.materials.tb002
+        tb = kwargs.get("widget")
 
         selection = pm.ls(selection=1, flatten=1)
         if not selection:
@@ -143,7 +251,7 @@ class Materials_maya(Materials, SlotsMaya):
         try:
             mat = self.sb.materials.cmb002.currentData()  # get the mat obj from cmb002
             pm.select(mat)
-        except:
+        except Exception:
             self.sb.message_box("No stored material or no valid object selected.")
             return
 
@@ -180,9 +288,7 @@ class Materials_maya(Materials, SlotsMaya):
 
     def lbl003(self):
         """Delete Unused Materials"""
-        pm.mel.eval(
-            'hyperShadePanelMenuCommand("hyperShadePanel1", "deleteUnusedNodes");'
-        )
+        pm.mel.hyperShadePanelMenuCommand("hyperShadePanel1", "deleteUnusedNodes")
         self.cmb002()  # refresh the materials list comboBox
 
     def lbl004(self):
@@ -190,19 +296,18 @@ class Materials_maya(Materials, SlotsMaya):
         mat = self.sb.materials.cmb002.currentData()
         try:
             pm.mel.showSG(mat.name())
-
         except Exception as error:
             print(error)
 
-    def b000(self):
+    def b000(self, *args, **kwargs):
         """Material List: Delete"""
         self.lbl002()
 
-    def b001(self):
+    def b001(self, *args, **kwargs):
         """Material List: Edit"""
         self.lbl000()
 
-    def b002(self):
+    def b002(self, *args, **kwargs):
         """Set Material: Set the currently selected material as the current material."""
         selection = pm.ls(selection=1)
         if not selection:
@@ -217,6 +322,24 @@ class Materials_maya(Materials, SlotsMaya):
         self.cmb002()  # refresh the materials list comboBox
         self.sb.materials.cmb002.setCurrentItem(mat.name())
 
+    def b003(self, *args, **kwargs):
+        """Assign: Assign Current"""
+        self.sb.materials.tb002.option_menu.chk007.setChecked(True)
+        self.sb.materials.tb002.setText("Assign Current")
+        self.tb002()
+
+    def b004(self, *args, **kwargs):
+        """Assign: Assign Random"""
+        self.sb.materials.tb002.option_menu.chk008.setChecked(True)
+        self.sb.materials.tb002.setText("Assign Random")
+        self.tb002()
+
+    def b005(self, *args, **kwargs):
+        """Assign: Assign New"""
+        self.sb.materials.tb002.option_menu.chk009.setChecked(True)
+        self.sb.materials.tb002.setText("Assign New")
+        self.tb002()
+
     def getColorSwatchIcon(self, mat, size=[20, 20]):
         """Get an icon with a color fill matching the given materials RBG value.
 
@@ -227,21 +350,21 @@ class Materials_maya(Materials, SlotsMaya):
         Returns:
                 (obj) pixmap icon.
         """
+        from PySide2.Gui import QPixmap, QColor, QIcon
+
         try:
-            matName = (
-                mat.name() if not isinstance(mat, (str)) else mat
-            )  # get the string name if a mat object is given.
-            r = int(
-                pm.getAttr(matName + ".colorR") * 255
-            )  # convert from 0-1 to 0-255 value and then to an integer
+            # get the string name if a mat object is given.
+            matName = mat.name() if not isinstance(mat, (str)) else mat
+            # convert from 0-1 to 0-255 value and then to an integer
+            r = int(pm.getAttr(matName + ".colorR") * 255)
             g = int(pm.getAttr(matName + ".colorG") * 255)
             b = int(pm.getAttr(matName + ".colorB") * 255)
-            pixmap = QtGui.QPixmap(size[0], size[1])
-            pixmap.fill(QtGui.QColor.fromRgb(r, g, b))
+            pixmap = QPixmap(size[0], size[1])
+            pixmap.fill(QColor.fromRgb(r, g, b))
 
-            return QtGui.QIcon(pixmap)
+            return QIcon(pixmap)
 
-        except Exception as error:
+        except Exception:
             pass
 
     def renameMaterial(self, mat, newMatName):
@@ -419,7 +542,7 @@ class Materials_maya(Materials, SlotsMaya):
 
         try:  # if the mat is a not a known type; try and create the material.
             pm.nodeType(mat)
-        except:
+        except Exception:
             mat = pm.shadingNode(mat, asShader=1)
 
         # pm.undoInfo(openChunk=1)
@@ -440,91 +563,91 @@ print(__name__)
 
 # @property
 # def currentMat(self):
-# 	'''Get the current material using the current index of the materials combobox.
-# 	'''
-# 	text = self.sb.materials.cmb002.currentText()
+#   '''Get the current material using the current index of the materials combobox.
+#   '''
+#   text = self.sb.materials.cmb002.currentText()
 
-# 	try:
-# 		result = self.currentMats[text]
-# 	except:
-# 		result = None
+#   try:
+#       result = self.currentMats[text]
+#   except:
+#       result = None
 
-# 	return result
+#   return result
 
 # elif storedMaterial:
-# 	mat = self.currentMat
-# 	if not mat:
-# 		cmb.addItems_(['Stored Material: None'])
-# 		return
+#   mat = self.currentMat
+#   if not mat:
+#       cmb.addItems_(['Stored Material: None'])
+#       return
 
-# 	matName = mat.name()
+#   matName = mat.name()
 
-# 	if pm.nodeType(mat)=='VRayMultiSubTex':
-# 		subMaterials = pm.hyperShade(mat, listUpstreamShaderNodes=1) #get any connected submaterials
-# 		subMatNames = [s.name() for s in subMaterials if s is not None]
-# 	else:
-# 		subMatNames=[]
+#   if pm.nodeType(mat)=='VRayMultiSubTex':
+#       subMaterials = pm.hyperShade(mat, listUpstreamShaderNodes=1) #get any connected submaterials
+#       subMatNames = [s.name() for s in subMaterials if s is not None]
+#   else:
+#       subMatNames=[]
 
-# 	contents = cmb.addItems_(subMatNames, matName)
+#   contents = cmb.addItems_(subMatNames, matName)
 
-# 	if index is None:
-# 		index = cmb.currentIndex()
-# 	if index!=0:
-# 		self.currentMat = subMaterials[index-1]
-# 	else:
-# 		self.currentMat = mat
+#   if index is None:
+#       index = cmb.currentIndex()
+#   if index!=0:
+#       self.currentMat = subMaterials[index-1]
+#   else:
+#       self.currentMat = mat
 
-# def cmb000(self, index=-1):
-# 	'''
-# 	Existing Materials
+# def cmb000(self, *args, **kwargs):
+#   '''
+#   Existing Materials
 
-# 	'''
-# 	cmb = self.sb.materials.draggableHeader.ctx_menu.cmb000
+#   '''
+#   cmb = self.sb.materials.draggableHeader.ctx_menu.cmb000
 
-# 	mats = [m for m in pm.ls(materials=1)]
-# 	matNames = [m.name() for m in mats]
+#   mats = [m for m in pm.ls(materials=1)]
+#   matNames = [m.name() for m in mats]
 
-# 	contents = cmb.addItems_(matNames, "Scene Materials")
+#   contents = cmb.addItems_(matNames, "Scene Materials")
 
-# 	if index is None:
-# 		index = cmb.currentIndex()
-# 	if index!=0:
-# 		print contents[index]
+#   if index is None:
+#       index = cmb.currentIndex()
+#   if index!=0:
+#       print contents[index]
 
-# 		self.currentMat = mats[index-1] #store material
-# 		self.cmb002() #refresh combobox
+#       self.currentMat = mats[index-1] #store material
+#       self.cmb002() #refresh combobox
 
-# 		cmb.setCurrentIndex(0)
+#       cmb.setCurrentIndex(0)
 
 
 # assign random
 # pm.mel.eval('''
-# 		string $selection[] = `ls -selection`;
+#       string $selection[] = `ls -selection`;
 
-# 		int $d = 2; //decimal places to round to
-# 		$r = rand (0,1);
-# 		$r = trunc($r*`pow 10 $d`+0.5)/`pow 10 $d`;
-# 		$g = rand (0,1);
-# 		$g = trunc($g*`pow 10 $d`+0.5)/`pow 10 $d`;
-# 		$b = rand (0,1);
-# 		$b = trunc($b*`pow 10 $d`+0.5)/`pow 10 $d`;
+#       int $d = 2; //decimal places to round to
+#       $r = rand (0,1);
+#       $r = trunc($r*`pow 10 $d`+0.5)/`pow 10 $d`;
+#       $g = rand (0,1);
+#       $g = trunc($g*`pow 10 $d`+0.5)/`pow 10 $d`;
+#       $b = rand (0,1);
+#       $b = trunc($b*`pow 10 $d`+0.5)/`pow 10 $d`;
 
-# 		string $rgb = ("_"+$r+"_"+$g+"_"+$b);
-# 		$rgb = substituteAllString($rgb, "0.", "");
+#       string $rgb = ("_"+$r+"_"+$g+"_"+$b);
+#       $rgb = substituteAllString($rgb, "0.", "");
 
-# 		$name = ("ID_"+$rgb);
+#       $name = ("ID_"+$rgb);
 
-# 		string $ID_ = `shadingNode -asShader lambert -name $name`;
-# 		setAttr ($name + ".colorR") $r;
-# 		setAttr ($name + ".colorG") $g;
-# 		setAttr ($name + ".colorB") $b;
+#       string $ID_ = `shadingNode -asShader lambert -name $name`;
+#       setAttr ($name + ".colorR") $r;
+#       setAttr ($name + ".colorG") $g;
+#       setAttr ($name + ".colorB") $b;
 
-# 		for ($object in $selection)
-# 			{
-# 			select $object;
-# 			hyperShade -assign $ID_;
-# 			}
-# 		 ''')
+#       for ($object in $selection)
+#           {
+#           select $object;
+#           hyperShade -assign $ID_;
+#           }
+#        ''')
 
 # re-assign random
 # pm.mel.eval('''
@@ -536,13 +659,13 @@ print(__name__)
 # string $selection[] = `ls -selection`;
 # //delete the old material and shader group nodes
 # for($i=0; $i<size($matList); $i++)
-# 	{
-# 	string $matSGplug[] = `connectionInfo -dfs ($matList[$i] + ".outColor")`;
-# 	$SGList[$i] = `match "^[^\.]*" $matSGplug[0]`;
-# 	print $matList; print $SGList;
-# 	delete $matList[$i];
-# 	delete $SGList[$i];
-# 	}
+#   {
+#   string $matSGplug[] = `connectionInfo -dfs ($matList[$i] + ".outColor")`;
+#   $SGList[$i] = `match "^[^\.]*" $matSGplug[0]`;
+#   print $matList; print $SGList;
+#   delete $matList[$i];
+#   delete $SGList[$i];
+#   }
 # //create new random material
 # int $d = 2; //decimal places to round to
 # $r = rand (0,1);
@@ -563,8 +686,8 @@ print(__name__)
 # setAttr ($name + ".colorB") $b;
 
 # for ($object in $selection)
-# 	{
-# 	select $object;
-# 	hyperShade -assign $ID_;
-# 	}
+#   {
+#   select $object;
+#   hyperShade -assign $ID_;
+#   }
 # ''')

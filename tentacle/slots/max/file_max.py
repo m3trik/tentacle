@@ -92,7 +92,7 @@ class File_max(File, SlotsMax):
         ]
         cmb.addItems_(items, "Export")
 
-    def cmb000(self, index=-1):
+    def cmb000(self, *args, **kwargs):
         """Editors"""
         cmb = self.sb.file.draggableHeader.ctx_menu.cmb000
 
@@ -102,7 +102,7 @@ class File_max(File, SlotsMax):
                 maxEval('schematicView.Open "Schematic View 1"')
             cmb.setCurrentIndex(0)
 
-    def cmb001(self, index=-1):
+    def cmb001(self, *args, **kwargs):
         """Recent Projects"""
         cmb = self.sb.file.cmb006.option_menu.cmb001
 
@@ -112,7 +112,7 @@ class File_max(File, SlotsMax):
             maxEval('setProject "' + items[index] + '"')
             cmb.setCurrentIndex(0)
 
-    def cmb002(self, index=-1):
+    def cmb002(self, *args, **kwargs):
         """Recent Autosave"""
         cmb = self.sb.file.cmb002
 
@@ -127,7 +127,7 @@ class File_max(File, SlotsMax):
             rt.loadMaxFile(file)
             cmb.setCurrentIndex(0)
 
-    def cmb003(self, index=-1):
+    def cmb003(self, *args, **kwargs):
         """Import"""
         cmb = self.sb.file.cmb003
 
@@ -149,7 +149,7 @@ class File_max(File, SlotsMax):
                 maxEval('actionMan.executeAction 769996349 "110"')
             cmb.setCurrentIndex(0)
 
-    def cmb004(self, index=-1):
+    def cmb004(self, *args, **kwargs):
         """Export"""
         cmb = self.sb.file.cmb004
 
@@ -182,7 +182,7 @@ class File_max(File, SlotsMax):
 
             cmb.setCurrentIndex(0)
 
-    def cmb005(self, index=-1):
+    def cmb005(self, *args, **kwargs):
         """Recent Files"""
         cmb = self.sb.file.cmb005
 
@@ -192,7 +192,7 @@ class File_max(File, SlotsMax):
             rt.loadMaxFile(str(items[index - 1]))
             cmb.setCurrentIndex(0)
 
-    def cmb006(self, index=-1):
+    def cmb006(self, *args, **kwargs):
         """Project Folder"""
         cmb = self.sb.file.cmb006
 
@@ -212,7 +212,7 @@ class File_max(File, SlotsMax):
             os.startfile(dir_)
             cmb.setCurrentIndex(0)
 
-    def tb000(self, state=None):
+    def tb000(self, *args, **kwargs):
         """Save"""
         tb = self.sb.file.draggableHeader.ctx_menu.tb000
 
@@ -266,7 +266,7 @@ class File_max(File, SlotsMax):
         dir_ = self.format_path(recentFiles)  # reformat for network address
         os.startfile(dir_)
 
-    def b000(self):
+    def b000(self, *args, **kwargs):
         """Autosave: Open Directory"""
         dir_ = rt.GetDir(rt.name("autoback"))
 
@@ -275,7 +275,7 @@ class File_max(File, SlotsMax):
         except FileNotFoundError as error:
             self.sb.message_box("The system cannot find the file specified.")
 
-    def b002(self):
+    def b002(self, *args, **kwargs):
         """Autosave: Delete All"""
         files = self.get_recent_autosave()
         for file in files:
@@ -284,7 +284,7 @@ class File_max(File, SlotsMax):
             except Exception as error:
                 print(error)
 
-    def b015(self):
+    def b015(self, *args, **kwargs):
         """Remove String From Object Names."""
         from_ = str(
             self.sb.file.t000.text()

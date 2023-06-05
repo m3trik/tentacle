@@ -94,7 +94,7 @@ class Tcl(QtWidgets.QStackedWidget):
         )
         self.logger.addHandler(handler)
 
-    def init_ui(self, ui):
+    def _init_ui(self, ui):
         """Initialize the given UI.
 
         Parameters:
@@ -112,10 +112,6 @@ class Tcl(QtWidgets.QStackedWidget):
             ui.setWindowFlags(QtCore.Qt.Tool | QtCore.Qt.FramelessWindowHint)
             ui.setAttribute(QtCore.Qt.WA_TranslucentBackground)
             ui.centralWidget().setProperty("class", "translucentBgWithBorder")
-            for w in ui.widgets:
-                print(w.name)
-                if w.__class__.__name__ == "Menu":
-                    w.setProperty("class", "translucentBgWithBorder")
             ui.set_style("dark")
             self.key_show_release.connect(ui.hide)
 
@@ -140,7 +136,7 @@ class Tcl(QtWidgets.QStackedWidget):
 
         found_ui.set_as_current()  # only set stacked UI as current.
         if not found_ui.is_initialized:
-            self.init_ui(found_ui)
+            self._init_ui(found_ui)
 
         if found_ui.has_tag("startmenu|submenu"):
             if found_ui.has_tag("startmenu"):

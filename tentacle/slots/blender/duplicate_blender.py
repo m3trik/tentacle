@@ -13,16 +13,16 @@ class Duplicate_blender(Duplicate, SlotsBlender):
         items = []
         cmb.addItems_(items, "Editors")
 
-    def cmb000(self, index=-1):
+    def cmb000(self, *args, **kwargs):
         """Editors"""
         cmb = self.sb.duplicate.draggableHeader.ctx_menu.cmb000
 
         if index > 0:
-            if index == cmd.items.index("Duplicate Special"):
+            if index == cmb.items.index("Duplicate Special"):
                 mel.eval("DuplicateSpecialOptions;")
             cmb.setCurrentIndex(0)
 
-    def chk010(self, state=None):
+    def chk010(self, *args, **kwargs):
         """Radial Array: Set Pivot"""
         global radialPivot
         radialPivot = []
@@ -282,7 +282,7 @@ class Duplicate_blender(Duplicate, SlotsBlender):
             del duplicateObjList[:]  # clear the list
             self.sb.toggle_widgets(setDisabled="b002")
 
-    def b000(self):
+    def b000(self, *args, **kwargs):
         """Create Instances"""
         selection = pm.ls(sl=1, transforms=1)
         if not selection:
@@ -295,7 +295,7 @@ class Duplicate_blender(Duplicate, SlotsBlender):
 
         pm.select(instances)
 
-    def b001(self):
+    def b001(self, *args, **kwargs):
         """Convert to Instances"""
         selection = pm.ls(sl=1, transforms=1)
         if not selection:
@@ -310,7 +310,7 @@ class Duplicate_blender(Duplicate, SlotsBlender):
             pm.selectPref(trackSelectionOrder=1)
         self.convertToInstances(selection)
 
-    def b004(self):
+    def b004(self, *args, **kwargs):
         """Select Instanced Objects"""
         selection = pm.ls(sl=1)
 
@@ -323,7 +323,7 @@ class Duplicate_blender(Duplicate, SlotsBlender):
                 instance = self.getInstances(obj)
                 pm.select(instance, add=1)
 
-    def b005(self):
+    def b005(self, *args, **kwargs):
         """Uninstance Selected Objects"""
         selection = pm.ls(sl=1)
 

@@ -4,23 +4,134 @@ try:
     import pymel.core as pm
 except ImportError as error:
     print(__file__, error)
-
 import mayatk as mtk
 from tentacle.slots.maya import SlotsMaya
-from tentacle.slots.mirror import Mirror
 
 
-class Mirror_maya(Mirror, SlotsMaya):
+class Mirror_maya(SlotsMaya):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        cmb = self.sb.mirror.draggableHeader.ctx_menu.cmb000
+    def draggableHeader_init(self, widget):
+        """ """
+        cmb = widget.ctx_menu.add(
+            self.sb.ComboBox, setObjectName="cmb000", setToolTip=""
+        )
         items = [""]
         cmb.addItems_(items, "")
 
-    def cmb000(self, index=-1):
+    def tb000_init(self, widget):
+        """ """
+        widget.option_menu.add(
+            "QCheckBox",
+            setText="-",
+            setObjectName="chk000",
+            setChecked=True,
+            setToolTip="Perform mirror along the negative axis.",
+        )
+        widget.option_menu.add(
+            "QRadioButton",
+            setText="X",
+            setObjectName="chk001",
+            setChecked=True,
+            setToolTip="Perform mirror along X axis.",
+        )
+        widget.option_menu.add(
+            "QRadioButton",
+            setText="Y",
+            setObjectName="chk002",
+            setToolTip="Perform mirror along Y axis.",
+        )
+        widget.option_menu.add(
+            "QRadioButton",
+            setText="Z",
+            setObjectName="chk003",
+            setToolTip="Perform mirror along Z axis.",
+        )
+        widget.option_menu.add(
+            "QCheckBox",
+            setText="World Space",
+            setObjectName="chk008",
+            setChecked=True,
+            setToolTip="Mirror in world space instead of object space.",
+        )
+        widget.option_menu.add(
+            "QCheckBox",
+            setText="Un-Instance",
+            setObjectName="chk009",
+            setChecked=True,
+            setToolTip="Un-Instance any previously instanced objects before mirroring.",
+        )
+        widget.option_menu.add(
+            "QCheckBox",
+            setText="Instance",
+            setObjectName="chk004",
+            setToolTip="Instance the mirrored object(s).",
+        )
+        widget.option_menu.add(
+            "QCheckBox",
+            setText="Cut",
+            setObjectName="chk005",
+            setToolTip="Perform a delete along specified axis before mirror.",
+        )
+        widget.option_menu.add(
+            "QCheckBox",
+            setText="Merge",
+            setObjectName="chk007",
+            setChecked=True,
+            setToolTip="Merge the mirrored geometry with the original.",
+        )
+        widget.option_menu.add(
+            "QSpinBox",
+            setPrefix="Merge Mode: ",
+            setObjectName="s001",
+            set_limits="0-2 step1",
+            setValue=0,
+            setToolTip="0) Do not merge border edges.<br>1) Border edges merged.<br>2) Border edges extruded and connected.",
+        )
+        widget.option_menu.add(
+            "QDoubleSpinBox",
+            setPrefix="Merge Threshold: ",
+            setObjectName="s000",
+            set_limits="0.000-10 step.001",
+            setValue=0.005,
+            setToolTip="Merge vertex distance.",
+        )
+        widget.option_menu.add(
+            "QCheckBox",
+            setText="Delete Original",
+            setObjectName="chk010",
+            setToolTip="Delete the original objects after mirroring.",
+        )
+        widget.option_menu.add(
+            "QCheckBox",
+            setText="Delete History",
+            setObjectName="chk006",
+            setChecked=True,
+            setToolTip="Delete non-deformer history on the object before performing the operation.",
+        )
+
+        # sync widgets
+        self.sb.sync_widgets(
+            widget.option_menu.chk000,
+            self.sb.mirror_submenu.chk000,
+            attributes="setChecked",
+        )
+        self.sb.sync_widgets(
+            widget.option_menu.chk007,
+            self.sb.mirror_submenu.chk007,
+            attributes="setChecked",
+        )
+        self.sb.sync_widgets(
+            widget.option_menu.chk008,
+            self.sb.mirror_submenu.chk008,
+            attributes="setChecked",
+        )
+
+    def cmb000(self, *args, **kwargs):
         """Editors"""
-        cmb = self.sb.mirror.draggableHeader.ctx_menu.cmb000
+        cmb = kwargs.get("widget")
+        index = kwargs.get("index")
 
         if index > 0:
             if index == cmb.items.index(""):
@@ -28,9 +139,9 @@ class Mirror_maya(Mirror, SlotsMaya):
             cmb.setCurrentIndex(0)
 
     @SlotsMaya.attr
-    def tb000(self, state=None):
+    def tb000(self, *args, **kwargs):
         """Mirror Geometry"""
-        tb = self.sb.mirror.tb000
+        tb = kwargs.get("widget")
 
         axis = self.sb.get_axis_from_checkboxes("chk000-3", tb.option_menu)
         axisPivot = (
@@ -67,17 +178,17 @@ class Mirror_maya(Mirror, SlotsMaya):
             deleteHistory=deleteHistory,
         )
 
-    def b000(self):
+    def b000(self, *args, **kwargs):
         """Mirror: X"""
         self.sb.mirror.tb000.option_menu.chk001.setChecked(True)
         self.tb000()
 
-    def b001(self):
+    def b001(self, *args, **kwargs):
         """Mirror: Y"""
         self.sb.mirror.tb000.option_menu.chk002.setChecked(True)
         self.tb000()
 
-    def b002(self):
+    def b002(self, *args, **kwargs):
         """Mirror: Z"""
         self.sb.mirror.tb000.option_menu.chk003.setChecked(True)
         self.tb000()
@@ -241,7 +352,7 @@ print(__name__)
 #           axis_ = 5
 #           x=1; y=1; z=-1
 
-# def chk000(self, state=None):
+# def chk000(self, *args, **kwargs):
 #   '''
 #   Delete: Negative Axis. Set Text Mirror Axis
 #   '''
@@ -257,7 +368,7 @@ print(__name__)
 
 
 # #set check states
-# def chk000(self, state=None):
+# def chk000(self, *args, **kwargs):
 #   '''
 #   Delete: X Axis
 #   '''
@@ -269,7 +380,7 @@ print(__name__)
 #   self.sb.mirror.tb003.setText('Delete '+axis)
 
 
-# def chk002(self, state=None):
+# def chk002(self, *args, **kwargs):
 #   '''
 #   Delete: Y Axis
 #   '''
@@ -281,7 +392,7 @@ print(__name__)
 #   self.sb.mirror.tb003.setText('Delete '+axis)
 
 
-# def chk003(self, state=None):
+# def chk003(self, *args, **kwargs):
 #   '''
 #   Delete: Z Axis
 #   '''
@@ -293,7 +404,7 @@ print(__name__)
 #   self.sb.mirror.tb003.setText('Delete '+axis)
 
 
-# def chk005(self, state=None):
+# def chk005(self, *args, **kwargs):
 # '''
 # Mirror: Cut
 # '''

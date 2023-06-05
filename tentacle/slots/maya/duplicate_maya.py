@@ -1,19 +1,29 @@
 # !/usr/bin/python
 # coding=utf-8
-from tentacle.slots.maya import *
-from tentacle.slots.duplicate import Duplicate
+try:
+    import pymel.core as pm
+except ImportError as error:
+    print(__file__, error)
+import mayatk as mtk
+from tentacle.slots.maya import SlotsMaya
 
 
-class Duplicate_maya(Duplicate, SlotsMaya):
+class Duplicate_maya(SlotsMaya):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        dh = self.sb.duplicate.draggableHeader
-        items = ["Duplicate Special"]
-        dh.ctx_menu.cmb000.addItems_(items, "Maya Menus")
+    def draggableHeader_init(self, widget):
+        """ """
+        cmb = widget.ctx_menu.add(
+            self.sb.ComboBox, setObjectName="cmb000", setToolTip=""
+        )
 
-        tb000 = self.sb.duplicate.tb000
-        tb000.option_menu.add(
+        items = ["Duplicate Special"]
+        cmb.addItems_(items, "Maya Menus")
+
+    def tb000_init(self, widget):
+        """ """
+        widget.option_menu.add(
             "QCheckBox",
             setText="Match Vertex Orientaion",
             setObjectName="chk001",
@@ -21,21 +31,24 @@ class Duplicate_maya(Duplicate, SlotsMaya):
             setToolTip="Attempt to match 3 points of the source to the same 3 points of the target.",
         )
 
-    def cmb000(self, index=-1):
+    def cmb000(self, *args, **kwargs):
         """Editors"""
-        cmb = self.sb.duplicate.draggableHeader.ctx_menu.cmb000
+        cmb = kwargs.get("widget")
+        index = kwargs.get("index")
 
         if index > 0:
-            if index == cmd.items.index("Duplicate Special"):
+            if index == cmb.items.index("Duplicate Special"):
                 pm.mel.eval("DuplicateSpecialOptions;")
             cmb.setCurrentIndex(0)
 
-    def chk010(self, state=None):
+    def chk010(self, *args, **kwargs):
         """Radial Array: Set Pivot"""
+        state = kwargs.get("state")
+
         global radialPivot
         radialPivot = []
         # add support for averaging multiple components.
-        if self.sb.duplicate_radial.chk010.isChecked():
+        if state:
             selection = pm.ls(selection=1, flatten=1)
             if selection:
                 vertices = pm.filterExpand(selectionMask=31)  # get selected vertices
@@ -84,7 +97,7 @@ class Duplicate_maya(Duplicate, SlotsMaya):
                         pm.delete(
                             radialArrayObjList
                         )  # delete all the geometry in the list
-                    except:
+                    except Exception:
                         pass
                     del radialArrayObjList[:]  # clear the list
 
@@ -152,7 +165,7 @@ class Duplicate_maya(Duplicate, SlotsMaya):
                 return
             try:
                 pm.delete(radialArrayObjList)  # delete all the geometry in the list
-            except:
+            except Exception:
                 pass
             del radialArrayObjList[:]  # clear the list
 
@@ -306,9 +319,9 @@ class Duplicate_maya(Duplicate, SlotsMaya):
             del duplicateObjList[:]  # clear the list
             self.sb.toggle_widgets(self.sb.duplicate_linear, setDisabled="b002")
 
-    def tb000(self, state=None):
+    def tb000(self, *args, **kwargs):
         """Convert to Instances"""
-        tb = self.sb.duplicate.tb000
+        tb = kwargs.get("widget")
 
         transformByVertexOrder = tb.option_menu.chk001.isChecked()
 
@@ -327,7 +340,40 @@ class Duplicate_maya(Duplicate, SlotsMaya):
             selection, transformByVertexOrder=transformByVertexOrder
         )
 
-    def b000(self):
+    def chk007(self, *args, **kwargs):
+        """Duplicate: Translate To Components"""
+        state = kwargs.get("state")
+
+        if state:
+            self.sb.toggle_widgets(
+                setEnabled="chk008,b034,cmb001", setDisabled="chk000,chk009,s005"
+            )
+            self.b008()
+        else:
+            self.sb.toggle_widgets(
+                setDisabled="chk008,b034,cmb001", setEnabled="chk000,chk009,s005"
+            )
+
+    def chk011(self, *args, **kwargs):
+        """Radial Array: Instance/Duplicate Toggle"""
+        self.chk015()  # calling chk015 directly from valueChanged would pass the returned spinbox value to the create arg
+
+    def chk012(self, *args, **kwargs):
+        """Radial Array: X Axis"""
+        self.sb.toggle_widgets(setChecked="chk012", setUnChecked="chk013,chk014")
+        self.chk015()
+
+    def chk013(self, *args, **kwargs):
+        """Radial Array: Y Axis"""
+        self.sb.toggle_widgets(setChecked="chk013", setUnChecked="chk012,chk014")
+        self.chk015()
+
+    def chk014(self, *args, **kwargs):
+        """Radial Array: Z Axis"""
+        self.sb.toggle_widgets(setChecked="chk014", setUnChecked="chk012,chk013")
+        self.chk015()
+
+    def b000(self, *args, **kwargs):
         """Create Instances"""
         selection = pm.ls(sl=1, transforms=1)
         if not selection:
@@ -340,7 +386,21 @@ class Duplicate_maya(Duplicate, SlotsMaya):
 
         pm.select(instances)
 
-    def b004(self):
+    def b002(self, *args, **kwargs):
+        """Duplicate: Create"""
+        self.sb.duplicate_linear.chk016.setChecked(
+            False
+        )  # must be in the false unchecked state to catch the create flag in chk015
+        self.chk016(create=True)
+
+    def b003(self, *args, **kwargs):
+        """Radial Array: Create"""
+        self.sb.duplicate_radial.chk015.setChecked(
+            False
+        )  # must be in the false unchecked state to catch the create flag in chk015
+        self.chk015(create=True)
+
+    def b004(self, *args, **kwargs):
         """Select Instanced Objects"""
         selection = pm.ls(sl=1)
 
@@ -348,14 +408,47 @@ class Duplicate_maya(Duplicate, SlotsMaya):
             instances = self.getInstances()
             pm.select(instances)
         else:  # select instances of the selected objects.
-            instance = self.getInstances(selection)
+            instances = self.getInstances(selection)
             pm.select(instances)
 
-    def b005(self):
+    def b005(self, *args, **kwargs):
         """Uninstance Selected Objects"""
         selection = pm.ls(sl=1)
 
         self.unInstance(selection)
+
+    def b006(self, *args, **kwargs):
+        """ """
+        self.sb.parent().set_ui("duplicate_linear")
+        self.sb.duplicate_linear.s002.valueChanged.connect(
+            self.duplicateArray
+        )  # update duplicate array
+        self.sb.duplicate_linear.s003.valueChanged.connect(self.duplicateArray)
+        self.sb.duplicate_linear.s004.valueChanged.connect(self.duplicateArray)
+        self.sb.duplicate_linear.s005.valueChanged.connect(self.duplicateArray)
+        self.sb.duplicate_linear.s007.valueChanged.connect(self.duplicateArray)
+        self.sb.duplicate_linear.s008.valueChanged.connect(self.duplicateArray)
+        self.sb.duplicate_linear.s009.valueChanged.connect(self.duplicateArray)
+        self.sb.duplicate_linear.s010.valueChanged.connect(self.duplicateArray)
+        self.sb.duplicate_linear.s011.valueChanged.connect(self.duplicateArray)
+        self.sb.duplicate_linear.s012.valueChanged.connect(self.duplicateArray)
+
+    def b007(self, *args, **kwargs):
+        """ """
+        self.sb.parent().set_ui("duplicate_radial")
+        self.sb.duplicate_radial.s000.valueChanged.connect(
+            self.radialArray
+        )  # update radial array
+        self.sb.duplicate_radial.s001.valueChanged.connect(self.radialArray)
+
+    def b008(self, *args, **kwargs):
+        """Add Selected Components To cmb001"""
+        cmb = self.sb.duplicate_linear.cmb001
+
+        selection = pm.ls(selection=1, flatten=1)
+
+        for obj in selection:
+            cmb.add(obj)
 
     def getInstances(self, objects=None, returnParentObjects=False):
         """get any intances of given object, or if None given; get all instanced objects in the scene.
@@ -432,7 +525,7 @@ class Duplicate_maya(Duplicate, SlotsMaya):
                 pm.parent(
                     instance, objParent
                 )  # parent the instance under the original objects parent.
-            except RuntimeError as error:  # It is already a child of the parent.
+            except RuntimeError:  # It is already a child of the parent.
                 pass
 
             pm.delete(
@@ -475,46 +568,46 @@ print(__name__)
 
 # @mtk.undo
 # def convertToInstances(self, objects=[], leaf=False, append=''):
-# 	'''The first selected object will be instanced across all other selected objects.
+#   '''The first selected object will be instanced across all other selected objects.
 
-# 	Parameters:
-# 		objects (list): A list of objects to convert to instances. The first object will be the instance parent.
-# 		leaf (bool): Instances leaf-level objects. Acts like duplicate except leaf-level objects are instanced.
-# 		append (str): Append a string to the end of any instanced objects. ie. '_INST'
-# 		transformByVertexOrder (bool): Transform the instanced object by matching the transforms of the vertices between the two objects.
+#   Parameters:
+#       objects (list): A list of objects to convert to instances. The first object will be the instance parent.
+#       leaf (bool): Instances leaf-level objects. Acts like duplicate except leaf-level objects are instanced.
+#       append (str): Append a string to the end of any instanced objects. ie. '_INST'
+#       transformByVertexOrder (bool): Transform the instanced object by matching the transforms of the vertices between the two objects.
 
-# 	Returns:
-# 		(list) The instanced objects.
+#   Returns:
+#       (list) The instanced objects.
 
-# 	Example: convertToInstances(pm.ls(sl=1))
-# 	'''
-# 	# pm.undoInfo(openChunk=1)
-# 	p0x, p0y, p0z = pm.xform(objects[0], query=1, rotatePivot=1, worldSpace=1) #get the world space obj pivot.
-# 	pivot = pm.xform(objects[0], query=1, rotatePivot=1, objectSpace=1) #get the obj pivot.
+#   Example: convertToInstances(pm.ls(sl=1))
+#   '''
+#   # pm.undoInfo(openChunk=1)
+#   p0x, p0y, p0z = pm.xform(objects[0], query=1, rotatePivot=1, worldSpace=1) #get the world space obj pivot.
+#   pivot = pm.xform(objects[0], query=1, rotatePivot=1, objectSpace=1) #get the obj pivot.
 
-# 	for obj in objects[1:]:
+#   for obj in objects[1:]:
 
-# 		name = obj.name()
-# 		objParent = pm.listRelatives(obj, parent=1)
+#       name = obj.name()
+#       objParent = pm.listRelatives(obj, parent=1)
 
-# 		instance = pm.instance(objects[0], leaf=leaf)
+#       instance = pm.instance(objects[0], leaf=leaf)
 
-# 		# if transformByVertexOrder:
-# 		# 	mtk.Xform.matchTransformByVertexOrder(instance, obj)
-# 		# 	if not mtk.Xform.is_overlapping(instance, obj):
-# 		# 		print ('# {}: Unable to match {} transforms. #'.format(instance, obj))
-# 		# else:
-# 		mtk.Xform.move_to(instance, obj) #source, target
-# 		pm.matchTransform(instance, obj, position=0, rotation=1, scale=0, pivots=0) #move object to center of the last selected items bounding box # pm.xform(instance, translation=pos, worldSpace=1, relative=1) #move to the original objects location.
+#       # if transformByVertexOrder:
+#       #   mtk.Xform.matchTransformByVertexOrder(instance, obj)
+#       #   if not mtk.Xform.is_overlapping(instance, obj):
+#       #       print ('# {}: Unable to match {} transforms. #'.format(instance, obj))
+#       # else:
+#       mtk.Xform.move_to(instance, obj) #source, target
+#       pm.matchTransform(instance, obj, position=0, rotation=1, scale=0, pivots=0) #move object to center of the last selected items bounding box # pm.xform(instance, translation=pos, worldSpace=1, relative=1) #move to the original objects location.
 
-# 		try:
-# 			pm.parent(instance, objParent) #parent the instance under the original objects parent.
-# 		except RuntimeError as error: #It is already a child of the parent.
-# 			pass
+#       try:
+#           pm.parent(instance, objParent) #parent the instance under the original objects parent.
+#       except RuntimeError as error: #It is already a child of the parent.
+#           pass
 
-# 		pm.delete(obj, constructionHistory=True) #delete history for the object so that the namespace is cleared.
-# 		pm.delete(obj)
-# 		pm.rename(instance, name+append)
-# 	pm.select(objects[1:])
-# 	return objects[1:]
-# 	# pm.undoInfo(closeChunk=1)
+#       pm.delete(obj, constructionHistory=True) #delete history for the object so that the namespace is cleared.
+#       pm.delete(obj)
+#       pm.rename(instance, name+append)
+#   pm.select(objects[1:])
+#   return objects[1:]
+#   # pm.undoInfo(closeChunk=1)

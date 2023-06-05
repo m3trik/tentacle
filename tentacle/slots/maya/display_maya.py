@@ -4,24 +4,27 @@ try:
     import pymel.core as pm
 except ImportError as error:
     print(__file__, error)
-
 import pythontk as ptk
 import mayatk as mtk
 from tentacle.slots.maya import SlotsMaya
-from tentacle.slots.display import Display
 
 
-class Display_maya(Display, SlotsMaya):
+class Display_maya(SlotsMaya):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        cmb = self.sb.display.draggableHeader.ctx_menu.cmb000
-        items = [""]
+    def draggableHeader_init(self, widget):
+        """ """
+        cmb = widget.ctx_menu.add(
+            self.sb.ComboBox, setObjectName="cmb000", setToolTip=""
+        )
+        items = []
         cmb.addItems_(items, "")
 
-    def cmb000(self, index=-1):
+    def cmb000(self, *args, **kwargs):
         """Editors"""
-        cmb = self.sb.display.draggableHeader.ctx_menu.cmb000
+        cmb = kwargs.get("widget")
+        index = kwargs.get("index")
 
         if index > 0:
             text = cmb.items[index]
@@ -29,93 +32,78 @@ class Display_maya(Display, SlotsMaya):
                 pass
             cmb.setCurrentIndex(0)
 
-    def b000(self):
+    def b000(self, *args, **kwargs):
         """Set Wireframe color"""
         pm.mel.objectColorPalette()
 
-    def b001(self):
+    def b001(self, *args, **kwargs):
         """Toggle Visibility"""
         pm.mel.ToggleVisibilityAndKeepSelection()
 
-    def b002(self):
+    def b002(self, *args, **kwargs):
         """Hide Selected"""
         selection = pm.ls(selection=1)
         pm.hide(selection)  # pm.mel.HideSelectedObjects()
 
-    def b003(self):
+    def b003(self, *args, **kwargs):
         """Show Selected"""
         selection = pm.ls(selection=1)
         pm.showHidden(selection)  # pm.mel.ShowSelectedObjects()
 
-    def b004(self):
+    def b004(self, *args, **kwargs):
         """Show Geometry"""
         pm.mel.hideShow(geometry=1, show=1)
 
-    def b005(self):
+    def b005(self, *args, **kwargs):
         """Xray Selected"""
-        pm.mel.eval(
-            """
-        string $sel[] = `ls -sl -dag -s`;
-        for ($object in $sel) 
-            {
-            int $xState[] = `displaySurface -query -xRay $object`;
-            displaySurface -xRay ( !$xState[0] ) $object;
-            }
-        """
-        )
+        # Get all dag shapes in the current selection
+        selection = pm.ls(sl=True, dag=True, s=True)
 
-    def b006(self):
+        for obj in selection:
+            # Query the xray state and toggle it
+            x_state = obj.getAttr("displaySurface")
+            obj.setAttr("displaySurface", not x_state)
+
+    def b006(self, *args, **kwargs):
         """Un-Xray All"""
-        pm.mel.eval(
-            """
-        string $scene[] = `ls -visible -flatten -dag -noIntermediate -type surfaceShape`;
-        for ($object in $scene)
-            {
-            int $state[] = `displaySurface -query -xRay $object`;
-            if ($state[0] == 1)
-                {
-                displaySurface -xRay 0 $object;
-                }
-            }
-        """
-        )
+        # Get all visible, non-intermediate surface shapes in the scene
+        scene_objects = pm.ls(vis=True, fl=True, dag=True, ni=True, typ="surfaceShape")
 
-    def b007(self):
+        for obj in scene_objects:
+            # If the object's xray state is on, turn it off
+            x_state = obj.getAttr("displaySurface")
+            if x_state:
+                obj.setAttr("displaySurface", 0)
+
+    def b007(self, *args, **kwargs):
         """Xray Other"""
-        pm.mel.eval(
-            """
-        //xray all except currently selected
-        {
-        string $scene[] = `ls -visible -flatten -dag -noIntermediate -type surfaceShape`;
-        string $selection[] = `ls -selection -dagObjects -shapes`;
-        for ($object in $scene)
-            {
-            if (!stringArrayContains ($object, $selection))
-                {
-                int $state[] = `displaySurface -query -xRay $object`;
-                displaySurface -xRay ( !$state[0] ) $object;
-                }
-            }
-        }
-        """
-        )
+        # Get all visible, non-intermediate surface shapes in the scene
+        scene_objects = pm.ls(vis=True, fl=True, dag=True, ni=True, typ="surfaceShape")
+        # Get all shapes in the current selection
+        selected_objects = pm.ls(sl=True, dagObjects=True, shapes=True)
 
-    def b008(self):
+        for obj in scene_objects:
+            # If the object is not in the selection, toggle its xray state
+            if obj not in selected_objects:
+                x_state = obj.getAttr("displaySurface")
+                obj.setAttr("displaySurface", not x_state)
+
+    def b008(self, *args, **kwargs):
         """Filter Objects"""
         pm.mel.bt_filterActionWindow()
 
-    def b009(self):
+    def b009(self, *args, **kwargs):
         """Toggle Material Override"""
         currentPanel = mtk.get_panel(withFocus=True)
         state = pm.modelEditor(currentPanel, query=1, useDefaultMaterial=1)
         pm.modelEditor(currentPanel, edit=1, useDefaultMaterial=not state)
         mtk.viewport_message("Default Material Override: <hl>{}</hl>.".format(state))
 
-    def b010(self):
+    def b010(self, *args, **kwargs):
         """Toggle Explode Selected"""
         mtk.ExplodedView.toggle_explode()
 
-    def b011(self):
+    def b011(self, *args, **kwargs):
         """Toggle Component Id Display"""
         index = ptk.cycle([0, 1, 2, 3, 4], "componentID")
 
@@ -129,20 +117,20 @@ class Display_maya(Display, SlotsMaya):
         if index == 4:
             i = 0
             for _ in range(4):
-                if visible[i] == True:
+                if visible[i] is True:
                     pm.polyOptions(
                         relative=1, displayItemNumbers=dinArray[i], activeObjects=1
                     )
                 i += 1
 
-        elif visible[index] != True and index != 4:
+        elif visible[index] is not True and index != 4:
             pm.polyOptions(
                 relative=1, displayItemNumbers=dinArray[index], activeObjects=1
             )
 
             i = 0
             for _ in range(4):
-                if visible[i] == True and i != index:
+                if visible[i] is True and i != index:
                     pm.polyOptions(
                         relative=1, displayItemNumbers=dinArray[i], activeObjects=1
                     )
@@ -159,17 +147,17 @@ class Display_maya(Display, SlotsMaya):
         elif index == 4:
             mtk.viewport_message("component ID <hl>Off</hl>.")
 
-    def b012(self):
+    def b012(self, *args, **kwargs):
         """Wireframe Non Active (Wireframe All But The Selected Item)"""
         current_panel = mtk.get_panel(withFocus=1)
         state = pm.modelEditor(current_panel, query=1, activeOnly=1)
         pm.modelEditor(current_panel, edit=1, activeOnly=not state)
 
-    def b013(self):
+    def b013(self, *args, **kwargs):
         """Explode View GUI"""
         mtk.exploded_view.launch_gui(move_to_cursor=True, frameless_window=True)
 
-    def b021(self):
+    def b021(self, *args, **kwargs):
         """Template Selected"""
         pm.toggle(template=1)  # pm.toggle(template=1, query=1)
 
