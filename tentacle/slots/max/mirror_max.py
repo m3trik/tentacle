@@ -28,7 +28,6 @@ class Mirror_max(Mirror, SlotsMax):
 			cmb.setCurrentIndex(0)
 
 
-	@SlotsMaya.attr
 	def tb000(self, *args, **kwargs):
 		'''Mirror Geometry
 

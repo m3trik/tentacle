@@ -98,7 +98,7 @@ class Materials_blender(Materials, SlotsBlender):
         """Assign Material"""
         tb = self.sb.materials.tb002
 
-        selection = pm.ls(selection=1, flatten=1)
+        selection = pm.ls(sl=True, flatten=1)
         if not selection:
             return "Error: No renderable object is selected for assignment."
 
@@ -193,7 +193,7 @@ class Materials_blender(Materials, SlotsBlender):
 
     def b002(self, *args, **kwargs):
         """Set Material: Set the Currently Selected Material as the currentMaterial."""
-        selection = pm.ls(selection=1)
+        selection = pm.ls(sl=True)
         if not selection:
             return "Error: Nothing selected."
 
@@ -354,7 +354,7 @@ class Materials_blender(Materials, SlotsBlender):
             obj, shaderNetworksSelectMaterialNodes=1
         )  # selects the material node
         mats = pm.ls(
-            selection=1, materials=1
+            sl=True, materials=1
         )  # now add the selected node to a variable
 
         return mats[0]

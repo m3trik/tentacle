@@ -15,9 +15,9 @@ class Uv_blender(Uv, SlotsBlender):
 
         cmb001 = self.sb.uv.cmb001
         # panel = pm.get_panel(scriptType='polyTexturePlacementPanel')
-        # cmb001.option_menu.chk014.setChecked(pm.textureWindow(panel, displayCheckered=1, query=1)) #checkered state
-        # cmb001.option_menu.chk015.setChecked(True if pm.polyOptions(query=1, displayMapBorder=1) else False) #borders state
-        # cmb001.option_menu.chk016.setChecked(pm.textureWindow(panel, query=1, displayDistortion=1)) #distortion state
+        # cmb001.option_menu.chk014.setChecked(pm.textureWindow(panel, displayCheckered=1, q=True)) #checkered state
+        # cmb001.option_menu.chk015.setChecked(True if pm.polyOptions(q=True, displayMapBorder=1) else False) #borders state
+        # cmb001.option_menu.chk016.setChecked(pm.textureWindow(panel, q=True, displayDistortion=1)) #distortion state
 
         cmb002 = self.sb.uv.cmb002
         items = []
@@ -249,7 +249,7 @@ class Uv_blender(Uv, SlotsBlender):
         sphericalUnwrap = tb.option_menu.chk005.isChecked()
         normalBasedUnwrap = tb.option_menu.chk006.isChecked()
 
-        selection = pm.ls(selection=1, flatten=1)
+        selection = pm.ls(sl=True, flatten=1)
         for obj in selection:
             try:
                 if seamOnly:
@@ -464,7 +464,7 @@ class Uv_blender(Uv, SlotsBlender):
 
     def b005(self, *args, **kwargs):
         """Cut UV's"""
-        objects = pm.ls(selection=1, objectsOnly=1, shapes=1, flatten=1)
+        objects = pm.ls(sl=True, objectsOnly=1, shapes=1, flatten=1)
 
         for obj in objects:
             sel = pm.ls(obj, sl=1)
@@ -472,7 +472,7 @@ class Uv_blender(Uv, SlotsBlender):
 
     def b011(self, *args, **kwargs):
         """Sew UV's"""
-        objects = pm.ls(selection=1, objectsOnly=1, shapes=1, flatten=1)
+        objects = pm.ls(sl=True, objectsOnly=1, shapes=1, flatten=1)
 
         for obj in objects:
             sel = pm.ls(obj, sl=1)
@@ -503,11 +503,11 @@ class Uv_blender(Uv, SlotsBlender):
             return "Error: <b>Nothing selected.<b><br>The operation requires at lease one selected object."
 
         objects = pm.ls(selection, objectsOnly=1)
-        objectMode = pm.selectMode(query=1, object=1)
+        objectMode = pm.selectMode(q=True, object=1)
 
-        maskFacet = pm.selectType(query=1, facet=1)
-        maskUv = pm.selectType(query=1, polymeshUV=1)
-        maskUvShell = pm.selectType(query=1, meshUVShell=1)
+        maskFacet = pm.selectType(q=True, facet=1)
+        maskUv = pm.selectType(q=True, polymeshUV=1)
+        maskUvShell = pm.selectType(q=True, meshUVShell=1)
 
         if all((objects, objectMode)) or not any(
             (objectMode, maskFacet, maskUv, maskUvShell)
@@ -531,7 +531,7 @@ class Uv_blender(Uv, SlotsBlender):
                 (list)(dict) dependant on the given returned_type arg. ex. {0L:[[MeshFace(u'pShape.f[0]'), MeshFace(u'pShape.f[1]')], 1L:[[MeshFace(u'pShape.f[2]'), MeshFace(u'pShape.f[3]')]}
         """
         if not objects:
-            objects = pm.ls(selection=1, objectsOnly=1, transforms=1, flatten=1)
+            objects = pm.ls(sl=True, objectsOnly=1, transforms=1, flatten=1)
 
         if not isinstance(objects, (list, set, tuple)):
             objects = [objects]

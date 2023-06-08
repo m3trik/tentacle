@@ -133,7 +133,7 @@ class Create_blender(Create, SlotsBlender):
         translate = tb.option_menu.chk000.isChecked()
         scale = tb.option_menu.chk001.isChecked()
 
-        selection = pm.ls(selection=1, transforms=1)
+        selection = pm.ls(sl=True, transforms=1)
 
         # polygons
         if type_ == "Polygon":
@@ -421,7 +421,7 @@ print(__name__)
 # 	'''
 # 	axis = self.rotation[axis]
 
-# 	rotateOrder = pm.xform(node, query=1, rotateOrder=1)
+# 	rotateOrder = pm.xform(node, q=True, rotateOrder=1)
 # 	pm.xform(node, preserve=1, rotation=axis, rotateOrder=rotateOrder, absolute=1)
 # 	self.rotation['last'] = axis
 
@@ -478,9 +478,9 @@ print(__name__)
 # '''Set Point
 # '''
 # #add support for averaging multiple components.
-# selection = pm.ls(selection=1, flatten=1)
+# selection = pm.ls(sl=True, flatten=1)
 # try:
-# 	self.point = pm.xform(selection, query=1, translation=1, worldSpace=1, absolute=1)
+# 	self.point = pm.xform(selection, q=True, translation=1, worldSpace=1, absolute=1)
 # except:
 # 	self.point = [0,0,0]
 # 	print('Warning: Nothing selected. Point set to origin [0,0,0].')

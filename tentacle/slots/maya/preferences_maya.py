@@ -13,14 +13,6 @@ class Preferences_maya(SlotsMaya):
 
         self.sb.preferences.b010.setText("Maya Preferences")
 
-    def draggableHeader_init(self, widget):
-        """ """
-        cmb = widget.ctx_menu.add(
-            self.sb.ComboBox, setObjectName="cmb000", setToolTip=""
-        )
-        items = [""]
-        cmb.addItems_(items, "")
-
     def cmb001_init(self, widget):
         """ """
         items = [
@@ -35,7 +27,7 @@ class Preferences_maya(SlotsMaya):
         ]
         widget.addItems_(items)
         # get/set current linear value.
-        index = widget.items.index(pm.currentUnit(query=1, fullName=1, linear=1))
+        index = widget.items.index(pm.currentUnit(q=True, fullName=1, linear=1))
         widget.setCurrentIndex(index)
 
     def cmb002_init(self, widget):
@@ -51,7 +43,7 @@ class Preferences_maya(SlotsMaya):
         }
         widget.addItems_(items)
         index = widget.items.index(
-            pm.currentUnit(query=1, fullName=1, time=1)
+            pm.currentUnit(q=True, fullName=1, time=1)
         )  # get/set current time value.
         widget.setCurrentIndex(index)
 
@@ -66,30 +58,17 @@ class Preferences_maya(SlotsMaya):
         )  # get/set current value
         widget.setCurrentIndex(index)
 
-    def cmb000(self, *args, **kwargs):
-        """Editors"""
-        cmb = kwargs.get("widget")
-        index = kwargs.get("index")
-
-        if index > 0:
-            text = cmb.items[index]
-            if text == "":
-                pass
-            cmb.setCurrentIndex(0)
-
-    def cmb001(self, *args, **kwargs):
+    def cmb001(self, index=-1, **kwargs):
         """Set Working Units: Linear"""
-        cmb = kwargs.get("widget")
-        index = kwargs.get("index")
+        cmb = kwargs.get("widget", self.sb.preferences.cmb001)
 
         if index > 0:
             # millimeter | centimeter | meter | kilometer | inch | foot | yard | mile
             pm.currentUnit(linear=cmb.items[index])
 
-    def cmb002(self, *args, **kwargs):
+    def cmb002(self, index=-1, **kwargs):
         """Set Working Units: Time"""
         cmb = kwargs.get("widget")
-        index = kwargs.get("index")
 
         if index > 0:
             # game | film | pal | ntsc | show | palf | ntscf

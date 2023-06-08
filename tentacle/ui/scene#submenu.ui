@@ -174,34 +174,6 @@
      <string>Preferences</string>
     </property>
    </widget>
-   <widget class="QPushButton" name="i023">
-    <property name="geometry">
-     <rect>
-      <x>270</x>
-      <y>380</y>
-      <width>66</width>
-      <height>21</height>
-     </rect>
-    </property>
-    <property name="minimumSize">
-     <size>
-      <width>0</width>
-      <height>21</height>
-     </size>
-    </property>
-    <property name="maximumSize">
-     <size>
-      <width>16777215</width>
-      <height>21</height>
-     </size>
-    </property>
-    <property name="whatsThis">
-     <string>scripting</string>
-    </property>
-    <property name="text">
-     <string>Scripting</string>
-    </property>
-   </widget>
    <widget class="QPushButton" name="i020">
     <property name="geometry">
      <rect>

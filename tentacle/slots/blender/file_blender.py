@@ -136,7 +136,7 @@ class File_blender(File, SlotsBlender):
         if index > 0:
             force = True
             force if str(
-                pm.mel.file(query=1, sceneName=1, shortName=1)
+                pm.mel.file(q=True, sceneName=1, shortName=1)
             ) else not force  # if sceneName prompt user to save; else force open
             pm.openFile(cmb.items[index], open=1, force=force)
             cmb.setCurrentIndex(0)
@@ -145,7 +145,7 @@ class File_blender(File, SlotsBlender):
         """Project Folder"""
         cmb = self.sb.file.cmb006
 
-        path = self.format_path(pm.workspace(query=1, rd=1))  # current project path.
+        path = self.format_path(pm.workspace(q=True, rd=1))  # current project path.
         items = [f for f in os.listdir(path)]
 
         project = self.format_path(
@@ -212,12 +212,12 @@ class File_blender(File, SlotsBlender):
 
     def lbl004(self):
         """Open current project root"""
-        dir_ = pm.workspace(query=1, rd=1)  # current project path.
+        dir_ = pm.workspace(q=True, rd=1)  # current project path.
         os.startfile(self.format_path(dir_))
 
     def b000(self, *args, **kwargs):
         """Autosave: Open Directory"""
-        # dir1 = str(pm.workspace(query=1, rd=1))+'autosave' #current project path.
+        # dir1 = str(pm.workspace(q=True, rd=1))+'autosave' #current project path.
         dir2 = os.environ.get("MAYA_AUTOSAVE_FOLDER").split(";")[
             0
         ]  # get autosave dir path from env variable.
@@ -249,7 +249,7 @@ class File_blender(File, SlotsBlender):
         objects = pm.ls(from_)  # Stores a list of all objects starting with 'from_'
         if selected:
             objects = pm.ls(
-                selection=1
+                sl=True
             )  # if use selection option; get user selected objects instead
         from_ = from_.strip("*")  # strip modifier asterisk from user input
 
@@ -308,7 +308,7 @@ class File_blender(File, SlotsBlender):
         Returns:
                 (list)
         """
-        dir1 = str(pm.workspace(query=1, rd=1)) + "autosave"  # current project path.
+        dir1 = str(pm.workspace(q=True, rd=1)) + "autosave"  # current project path.
         dir2 = os.environ.get("MAYA_AUTOSAVE_FOLDER").split(";")[
             0
         ]  # get autosave dir path from env variable.

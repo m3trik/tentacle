@@ -101,7 +101,7 @@ class Display_blender(Display, SlotsBlender):
         from maya.cmds import get_panel  # pymel get_panel is broken in ver: 2022.
 
         currentPanel = get_panel(withFocus=True)
-        state = pm.modelEditor(currentPanel, query=1, useDefaultMaterial=1)
+        state = pm.modelEditor(currentPanel, q=True, useDefaultMaterial=1)
         pm.modelEditor(currentPanel, edit=1, useDefaultMaterial=not state)
         self.mtk.viewport_message(
             "Default Material Override: <hl>{}</hl>.".format(state)
@@ -111,7 +111,7 @@ class Display_blender(Display, SlotsBlender):
         """Toggle Component Id Display"""
         index = ptk.cycle([0, 1, 2, 3, 4], "componentID")
 
-        visible = pm.polyOptions(query=1, displayItemNumbers=1)
+        visible = pm.polyOptions(q=True, displayItemNumbers=1)
         if not visible:
             return "# Error: Nothing selected. #"
         dinArray = [(1, 0, 0, 0), (0, 1, 0, 0), (0, 0, 1, 0), (0, 0, 0, 1)]
@@ -152,12 +152,12 @@ class Display_blender(Display, SlotsBlender):
     def b012(self, *args, **kwargs):
         """Wireframe Non Active (Wireframe All But The Selected Item)"""
         current_panel = pm.get_panel(withFocus=1)
-        state = pm.modelEditor(current_panel, query=1, activeOnly=1)
+        state = pm.modelEditor(current_panel, q=True, activeOnly=1)
         pm.modelEditor(current_panel, edit=1, activeOnly=not state)
 
     def b021(self, *args, **kwargs):
         """Template Selected"""
-        pm.toggle(template=1)  # pm.toggle(template=1, query=1)
+        pm.toggle(template=1)  # pm.toggle(template=1, q=True)
 
 
 # module name

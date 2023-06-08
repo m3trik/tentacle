@@ -123,10 +123,10 @@ class Normals_max(Normals, SlotsMax):
         print("# Error: No 3ds Version of this command yet. #")
         tb.setDisabled(True)
         # all_ = tb.option_menu.chk001.isChecked()
-        # state = tb.option_menu.chk002.isChecked() #pm.polyNormalPerVertex(vertex, query=1, freezeNormal=1)
-        # selection = pm.ls (selection=1, objectsOnly=1)
-        # maskObject = pm.selectMode (query=1, object=1)
-        # maskVertex = pm.selectType (query=1, vertex=1)
+        # state = tb.option_menu.chk002.isChecked() #pm.polyNormalPerVertex(vertex, q=True, freezeNormal=1)
+        # selection = pm.ls (sl=True, objectsOnly=1)
+        # maskObject = pm.selectMode (q=True, object=1)
+        # maskVertex = pm.selectType (q=True, vertex=1)
 
         # if len(selection)>0:
         # 	if (all_ and maskVertex) or maskObject:

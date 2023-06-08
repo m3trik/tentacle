@@ -13,98 +13,30 @@ class Selection(SlotsMaya):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-    def draggableHeader_init(self, widget):
-        widget.option_menu.add(self.sb.ComboBox, setObjectName="cmb000", setToolTip="")
-        widget.option_menu.add(
-            self.sb.ComboBox,
-            setObjectName="cmb006",
-            setToolTip="A list of currently selected objects.",
-        )
-        items = ["Polygon Selection Constraints"]
-        widget.option_menu.cmb000.addItems_(items, "Selection Editors:")
-
-        widget.option_menu.add(
-            "QCheckBox",
-            setText="Ignore Backfacing",
-            setObjectName="chk004",
-            setToolTip="Ignore backfacing components during selection.",
-        )
-        widget.option_menu.add(
-            "QCheckBox",
-            setText="Soft Selection",
-            setObjectName="chk008",
-            setToolTip="Toggle soft selection mode.",
-        )
-        widget.option_menu.add(
-            self.sb.Label,
-            setText="Grow Selection",
-            setObjectName="lbl003",
-            setToolTip="Grow the current selection.",
-        )
-        widget.option_menu.add(
-            self.sb.Label,
-            setText="Shrink Selection",
-            setObjectName="lbl004",
-            setToolTip="Shrink the current selection.",
-        )
-        widget.option_menu.cmb006.setCurrentText("Current Selection")
-        widget.option_menu.cmb006.popupStyle = "qmenu"
-        widget.option_menu.cmb006.beforePopupShown.connect(self.cmb006)
-
-    def cmb001_init(self, widget):
-        widget.option_menu.add(
-            self.sb.Label,
-            setText="Select",
-            setObjectName="lbl005",
-            setToolTip="Select the current set elements.",
-        )
-        widget.option_menu.add(
-            self.sb.Label,
-            setText="New",
-            setObjectName="lbl000",
-            setToolTip="Create a new selection set.",
-        )
-        widget.option_menu.add(
-            self.sb.Label,
-            setText="Modify",
-            setObjectName="lbl001",
-            setToolTip="Modify the current set by renaming and/or changing the selection.",
-        )
-        widget.option_menu.add(
-            self.sb.Label,
-            setText="Delete",
-            setObjectName="lbl002",
-            setToolTip="Delete the current set.",
-        )
-        # widget.returnPressed.connect(
-        #     lambda m=widget.option_menu.lastActiveChild: getattr(self, m(name=1))()
-        # )
-        widget.currentIndexChanged.connect(self.lbl005)
-        widget.beforePopupShown.connect(self.cmb001)
-
     def tb000_init(self, widget):
+        """ """
         widget.option_menu.add(
             "QRadioButton",
-            setText="Component Ring",
+            setText="Edge Ring",
             setObjectName="chk000",
             setToolTip="Select component ring.",
         )
         widget.option_menu.add(
             "QRadioButton",
-            setText="Component Loop",
+            setText="Edge Loop",
             setObjectName="chk001",
             setChecked=True,
             setToolTip="Select all contiguous components that form a loop with the current selection.",
         )
         widget.option_menu.add(
             "QRadioButton",
-            setText="Path Along Loop",
+            setText="Edge Loop Path",
             setObjectName="chk009",
             setToolTip="The path along loop between two selected edges, vertices or UV's.",
         )
         widget.option_menu.add(
             "QRadioButton",
-            setText="Shortest Path",
+            setText="Shortest Edge Path",
             setObjectName="chk002",
             setToolTip="The shortest component path between two selected edges, vertices or UV's.",
         )
@@ -124,6 +56,7 @@ class Selection(SlotsMaya):
         )
 
     def tb001_init(self, widget):
+        """ """
         widget.option_menu.add(
             "QDoubleSpinBox",
             setPrefix="Tolerance: ",
@@ -205,6 +138,7 @@ class Selection(SlotsMaya):
         )
 
     def tb002_init(self, widget):
+        """ """
         widget.option_menu.add(
             "QCheckBox",
             setText="Lock Values",
@@ -237,7 +171,27 @@ class Selection(SlotsMaya):
             setToolTip="Normal Z range.",
         )
 
+        def update_normal_ranges(value, widget):
+            """Update all spin boxes if checkbox is checked."""
+            if widget.option_menu.chk003.isChecked():
+                # Update all spin boxes
+                widget.option_menu.s002.setValue(value)
+                widget.option_menu.s004.setValue(value)
+                widget.option_menu.s005.setValue(value)
+
+        # Connect signals
+        widget.option_menu.s002.valueChanged.connect(
+            lambda v: update_normal_ranges(v, widget)
+        )
+        widget.option_menu.s004.valueChanged.connect(
+            lambda v: update_normal_ranges(v, widget)
+        )
+        widget.option_menu.s005.valueChanged.connect(
+            lambda v: update_normal_ranges(v, widget)
+        )
+
     def tb003_init(self, widget):
+        """ """
         widget.option_menu.add(
             "QDoubleSpinBox",
             setPrefix="Angle Low:  ",
@@ -255,7 +209,44 @@ class Selection(SlotsMaya):
             setToolTip="Normal angle high range.",
         )
 
+    def cmb001_init(self, widget):
+        """ """
+        widget.option_menu.clear()
+        widget.option_menu.is_initialized = False
+        items = [str(s) for s in pm.ls(et="objectSet", flatten=1)]
+        widget.addItems_(items, clear=True)
+
+        widget.option_menu.add(
+            self.sb.Label,
+            setText="Select",
+            setObjectName="lbl005",
+            setToolTip="Select the current set elements.",
+        )
+        widget.option_menu.add(
+            self.sb.Label,
+            setText="New",
+            setObjectName="lbl000",
+            setToolTip="Create a new selection set.",
+        )
+        widget.option_menu.add(
+            self.sb.Label,
+            setText="Modify",
+            setObjectName="lbl001",
+            setToolTip="Modify the current set by renaming and/or changing the selection.",
+        )
+        widget.option_menu.add(
+            self.sb.Label,
+            setText="Delete",
+            setObjectName="lbl002",
+            setToolTip="Delete the current set.",
+        )
+        # widget.returnPressed.connect(
+        #     lambda m=widget.option_menu.lastActiveChild: getattr(self, m(name=1))()
+        # )
+        widget.currentIndexChanged.connect(self.lbl005)
+
     def cmb002_init(self, widget):
+        """ """
         items = [
             "IK Handles",
             "Joints",
@@ -287,6 +278,7 @@ class Selection(SlotsMaya):
         widget.addItems_(items, "By Type:")
 
     def cmb003_init(self, widget):
+        """ """
         items = [
             "Verts",
             "Vertex Faces",
@@ -312,32 +304,9 @@ class Selection(SlotsMaya):
         widget.addItems_(items, "Convert To:")
 
     def cmb005_init(self, widget):
+        """ """
         items = ["Angle", "Border", "Edge Loop", "Edge Ring", "Shell", "UV Edge Loop"]
         widget.addItems_(items, "Off")
-
-    def s002(self, *args, **kwargs):
-        """Select Island: tolerance x"""
-        tb = self.sb.selection.tb002
-        if tb.option_menu.chk003.isChecked():
-            text = tb.option_menu.s002.value()
-            tb.option_menu.s004.setValue(text)
-            tb.option_menu.s005.setValue(text)
-
-    def s004(self, *args, **kwargs):
-        """Select Island: tolerance y"""
-        tb = self.sb.selection.tb002
-        if tb.option_menu.chk003.isChecked():
-            text = tb.option_menu.s004.value()
-            tb.option_menu.s002.setValue(text)
-            tb.option_menu.s005.setValue(text)
-
-    def s005(self, *args, **kwargs):
-        """Select Island: tolerance z"""
-        tb = self.sb.selection.tb002
-        if tb.option_menu.chk003.isChecked():
-            text = tb.option_menu.s005.value()
-            tb.option_menu.s002.setValue(text)
-            tb.option_menu.s004.setValue(text)
 
     def chk000(self, *args, **kwargs):
         """Select Nth: uncheck other checkboxes"""
@@ -369,13 +338,12 @@ class Selection(SlotsMaya):
         self.setSelectionStyle("paint")
         self.sb.message_box("Select Style: <hl>Paint</hl>")
 
-    def txt001(self):
+    def txt001(self, text):
         """Select By Name"""
-        searchStr = str(
-            self.sb.selection.txt001.text()
-        )  # asterisk denotes startswith*, *endswith, *contains*
-        if searchStr:
-            selection = pm.select(pm.ls(searchStr))
+        # asterisk denotes startswith*, *endswith, *contains*
+        search_string = text
+        if search_string:
+            pm.select(pm.ls(search_string))
 
     def lbl000(self):
         """Selection Sets: Create New"""
@@ -431,9 +399,8 @@ class Selection(SlotsMaya):
             pm.select(name)  # pm.select(name, noExpand=1)
 
     @SlotsMaya.hideMain
-    def chk004(self, *args, **kwargs):
+    def chk004(self, state=None, **kwargs):
         """Ignore Backfacing (Camera Based Selection)"""
-        state = kwargs.get("state")
 
         if state:
             pm.selectPref(useDepth=True)
@@ -446,9 +413,8 @@ class Selection(SlotsMaya):
                 "Camera-based selection <hl>Off</hl>.", message_type="Result"
             )
 
-    def chk008(self, *args, **kwargs):
+    def chk008(self, state=None, **kwargs):
         """Toggle Soft Selection"""
-        state = kwargs.get("state")
 
         if state:
             pm.softSelect(edit=1, softSelectEnabled=True)
@@ -457,29 +423,11 @@ class Selection(SlotsMaya):
             pm.softSelect(edit=1, softSelectEnabled=False)
             self.sb.message_box("Soft Select <hl>Off</hl>.", message_type="Result")
 
-    def cmb000(self, *args, **kwargs):
-        """Editors"""
-        cmb = kwargs.get("widget")
-        index = kwargs.get("index")
-
-        if index > 0:
-            text = cmb.items[index]
-            if text == "Polygon Selection Constraints":
-                pm.mel.PolygonSelectionConstraints()
-            cmb.setCurrentIndex(0)
-
-    def cmb001(self, *args, **kwargs):
-        """Selection Sets"""
-        cmb = kwargs.get("widget")
-
-        items = [str(s) for s in pm.ls(et="objectSet", flatten=1)]
-        cmb.addItems_(items, clear=True)
-
-    def cmb002(self, *args, **kwargs):
+    def cmb002(self, index=-1, **kwargs):
         """Select by Type"""
+        print("cmb002:", kwargs)
         cmb = kwargs.get("widget")
-        index = kwargs.get("index")
-
+        print("cmb002 index:", index)
         if index > 0:
             text = cmb.items[index]
             if text == "IK Handles":  #
@@ -541,10 +489,9 @@ class Selection(SlotsMaya):
             pm.select(type_)
             cmb.setCurrentIndex(0)
 
-    def cmb003(self, *args, **kwargs):
+    def cmb003(self, index=-1, **kwargs):
         """Convert To"""
         cmb = kwargs.get("widget")
-        index = kwargs.get("index")
 
         if index > 0:
             text = cmb.items[index]
@@ -590,10 +537,9 @@ class Selection(SlotsMaya):
                 pm.mel.polyConvertToShellBorder()
             cmb.setCurrentIndex(0)
 
-    def cmb005(self, *args, **kwargs):
+    def cmb005(self, index=-1, **kwargs):
         """Selection Contraints"""
         cmb = kwargs.get("widget")
-        index = kwargs.get("index")
 
         if index > 0:
             text = cmb.items[index]
@@ -611,27 +557,6 @@ class Selection(SlotsMaya):
                 pm.mel.dR_selConstraintUVEdgeLoop()  # dR_DoCmd("selConstraintUVEdgeLoop");
         else:
             pm.mel.dR_selConstraintOff()  # dR_DoCmd("selConstraintOff");
-
-    def cmb006(self, *args, **kwargs):
-        """Currently Selected Objects"""
-        cmb = kwargs.get("widget")
-
-        cmb.clear()
-        items = [str(i) for i in pm.ls(sl=1, flatten=1)]
-        widgets = [
-            cmb.option_menu.add("QCheckBox", setText=t, setChecked=1)
-            for t in items[:50]
-        ]  # selection list is capped with a slice at 50 elements.
-
-        for w in widgets:
-            try:
-                w.disconnect()  # disconnect all previous connections.
-
-            except TypeError:
-                pass  # if no connections are present; pass
-            w.toggled.connect(
-                lambda state, widget=w: self.chkxxx(state=state, widget=widget)
-            )
 
     def chkxxx(self, **kwargs):
         """Transform Constraints: Constraint CheckBoxes"""
@@ -690,12 +615,12 @@ class Selection(SlotsMaya):
         b = tb.option_menu.chk019.isChecked()  # bounding box
         inc = tb.option_menu.chk020.isChecked()  # select the original objects
 
-        objMode = pm.selectMode(query=1, object=1)
+        objMode = pm.selectMode(q=True, object=1)
         if objMode:
             selection = pm.ls(sl=1, objectsOnly=1, type="transform")
             pm.select(clear=1)
             for obj in selection:
-                similar = self.sb.edit.slots.get_similar_mesh(
+                similar = mtk.get_similar_mesh(
                     obj,
                     tolerance=tolerance,
                     inc_orig=inc,
@@ -717,21 +642,21 @@ class Selection(SlotsMaya):
         """Select Island: Select Polygon Face Island"""
         tb = kwargs.get("widget")
 
-        rangeX = float(tb.option_menu.s002.value())
-        rangeY = float(tb.option_menu.s004.value())
-        rangeZ = float(tb.option_menu.s005.value())
+        range_x = float(tb.option_menu.s002.value())
+        range_y = float(tb.option_menu.s004.value())
+        range_z = float(tb.option_menu.s005.value())
 
         sel = pm.ls(sl=1)
-        selectedFaces = mtk.Cmpt.get_components(sel, component_type="faces")
-        if not selectedFaces:
+        selected_faces = mtk.Cmpt.get_components(sel, component_type="faces")
+        if not selected_faces:
             self.sb.message_box("The operation requires a face selection.")
             return
 
-        similarFaces = self.sb.normals.slots.getFacesWithSimilarNormals(
-            selectedFaces, rangeX=rangeX, rangeY=rangeY, rangeZ=rangeZ
+        similar_faces = mtk.get_faces_with_similar_normals(
+            selected_faces, range_x=range_x, range_y=range_y, range_z=range_z
         )
-        islands = mtk.Cmpt.get_contigious_islands(similarFaces)
-        island = [i for i in islands if bool(set(i) & set(selectedFaces))]
+        islands = mtk.Cmpt.get_contigious_islands(similar_faces)
+        island = [i for i in islands if bool(set(i) & set(selected_faces))]
         pm.select(island)
 
     def tb003(self, *args, **kwargs):
@@ -834,3 +759,29 @@ print(__name__)
 # --------------------------------------------------------------------------------------------
 # Notes
 # --------------------------------------------------------------------------------------------
+
+
+# deprecated:
+# def s002(self, *args, **kwargs):
+#     """Select Island: tolerance x"""
+#     tb = self.sb.selection.tb002
+#     if tb.option_menu.chk003.isChecked():
+#         text = tb.option_menu.s002.value()
+#         tb.option_menu.s004.setValue(text)
+#         tb.option_menu.s005.setValue(text)
+
+# def s004(self, *args, **kwargs):
+#     """Select Island: tolerance y"""
+#     tb = self.sb.selection.tb002
+#     if tb.option_menu.chk003.isChecked():
+#         text = tb.option_menu.s004.value()
+#         tb.option_menu.s002.setValue(text)
+#         tb.option_menu.s005.setValue(text)
+
+# def s005(self, *args, **kwargs):
+#     """Select Island: tolerance z"""
+#     tb = self.sb.selection.tb002
+#     if tb.option_menu.chk003.isChecked():
+#         text = tb.option_menu.s005.value()
+#         tb.option_menu.s002.setValue(text)
+#         tb.option_menu.s004.setValue(text)

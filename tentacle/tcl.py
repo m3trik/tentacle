@@ -3,7 +3,7 @@
 import sys
 import logging
 from PySide2 import QtCore, QtGui, QtWidgets
-from pythontk import make_list
+from pythontk import make_iterable
 from uitk.switchboard import Switchboard
 from uitk.events import EventFactoryFilter, MouseTracking
 from tentacle.overlay import Overlay
@@ -104,7 +104,7 @@ class Tcl(QtWidgets.QStackedWidget):
             raise ValueError(f"Invalid datatype: {type(ui)}, expected QWidget.")
 
         if ui.has_tag("startmenu|submenu"):  # stacked UI.
-            ui.set_style("dark", style_class="translucentBgNoBorder")
+            ui.set_style(theme="dark", style_class="translucentBgNoBorder")
             self.addWidget(ui)  # add the UI to the stackedLayout.
 
         else:  # popup UI.
@@ -112,7 +112,7 @@ class Tcl(QtWidgets.QStackedWidget):
             ui.setWindowFlags(QtCore.Qt.Tool | QtCore.Qt.FramelessWindowHint)
             ui.setAttribute(QtCore.Qt.WA_TranslucentBackground)
             ui.centralWidget().setProperty("class", "translucentBgWithBorder")
-            ui.set_style("dark")
+            ui.set_style(theme="dark")
             self.key_show_release.connect(ui.hide)
 
         # set style before child init (resize).
@@ -336,7 +336,7 @@ class Tcl(QtWidgets.QStackedWidget):
             "QRadioButton",
         ]
 
-        for w in make_list(widgets):
+        for w in make_iterable(widgets):
             if (w.derived_type not in filtered_types) or (  # not correct type.
                 not w.ui.has_tag("startmenu|submenu")  # not stacked UI:
             ):

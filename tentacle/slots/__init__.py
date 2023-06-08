@@ -57,7 +57,7 @@ class Slots(QtCore.QObject):
         import ast
 
         fn = fn if fn else set_attributes
-        fn_args = Iter.make_list(fn_args)  # assure that fn_args is a list.
+        fn_args = Iter.make_iterable(fn_args)  # assure that fn_args is a list.
 
         try:  # get the objects name to as the window title:
             title = obj.name()

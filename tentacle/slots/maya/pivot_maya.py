@@ -12,14 +12,6 @@ class Pivot_maya(SlotsMaya):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-    def draggableHeader_init(self, widget):
-        """ """
-        cmb = widget.ctx_menu.add(
-            self.sb.ComboBox, setObjectName="cmb000", setToolTip=""
-        )
-        items = [""]
-        cmb.addItems_(items, "")
-
     def tb000_init(self, widget):
         """ """
         widget.option_menu.add(
@@ -58,17 +50,6 @@ class Pivot_maya(SlotsMaya):
             setObjectName="chk004",
             setToolTip="Center the pivot on world origin.",
         )
-
-    def cmb000(self, *args, **kwargs):
-        """Editors"""
-        cmb = kwargs.get("widget")
-        index = kwargs.get("index")
-
-        if index > 0:
-            text = cmb.items[index]
-            if text == "":
-                pass
-            cmb.setCurrentIndex(0)
 
     @SlotsMaya.hideMain
     def tb000(self, *args, **kwargs):

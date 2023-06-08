@@ -14,14 +14,6 @@ class Crease_maya(SlotsMaya):
 
         self.creaseValue = 10
 
-    def draggableHeader_init(self, widget):
-        """ """
-        widget.ctx_menu.add(self.sb.ComboBox, setObjectName="cmb000", setToolTip="")
-
-        cmb000 = widget.ctx_menu.cmb000
-        items = ["Crease Set Editor"]
-        cmb000.addItems_(items, "Crease Editors:")
-
     def tb000_init(self, widget):
         """ """
         widget.option_menu.add(
@@ -90,22 +82,18 @@ class Crease_maya(SlotsMaya):
         )
         self.sb.toggle_widgets(widget.option_menu, setDisabled="s005,s006")
 
-    def s003(self, *args, **kwargs):
+    def s003(self, value=None, **kwargs):
         """Crease Amount
         Tracks the standard crease amount while toggles such as un-crease, and crease max temporarily change the spinbox value.
         """
-        value = kwargs.get("value")
-
         if not self.sb.crease.tb000.option_menu.chk002.isChecked():  # un-crease
             if not self.sb.crease.tb000.option_menu.chk003.isChecked():  # toggle max
                 self.creaseValue = value
                 text = self.sb.crease.tb000.text().split()[0]
                 self.sb.crease.tb000.setText("{} {}".format(text, self.creaseValue))
 
-    def chk002(self, *args, **kwargs):
+    def chk002(self, state=None, **kwargs):
         """Un-Crease"""
-        state = kwargs.get("state")
-
         if state:
             self.sb.crease.tb000.option_menu.s003.setValue(0)  # crease value
             self.sb.crease.tb000.option_menu.s004.setValue(180)  # normal angle
@@ -127,9 +115,8 @@ class Crease_maya(SlotsMaya):
 
         self.sb.crease.tb000.setText(text)
 
-    def chk003(self, *args, **kwargs):
+    def chk003(self, state=None, **kwargs):
         """Crease: Max"""
-        state = kwargs.get("state")
 
         if state:
             self.sb.crease.tb000.option_menu.s003.setValue(10)  # crease value
@@ -152,10 +139,8 @@ class Crease_maya(SlotsMaya):
 
         self.sb.crease.tb000.setText(text)
 
-    def chk011(self, *args, **kwargs):
+    def chk011(self, state=None, **kwargs):
         """Crease: Auto"""
-        state = kwargs.get("state")
-
         if state:
             self.sb.toggle_widgets(
                 self.sb.crease.tb000.option_menu, setEnabled="s005,s006"
@@ -164,24 +149,6 @@ class Crease_maya(SlotsMaya):
             self.sb.toggle_widgets(
                 self.sb.crease.tb000.option_menu, setDisabled="s005,s006"
             )
-
-    def cmb000(self, *args, **kwargs):
-        """Editors"""
-        cmb = kwargs.get("widget")
-        index = kwargs.get("index")
-
-        if index > 0:
-            text = cmb.items[index]
-            if text == "Crease Set Editor":
-                from maya.app.general import creaseSetEditor
-
-                creaseSetEditor.showCreaseSetEditor()
-
-            cmb.setCurrentIndex(0)
-        dh = self.sb.crease.draggableHeader
-        dh.ctx_menu.add(
-            self.sb.ComboBox, setObjectName="cmb000", setToolTip="Crease Editors"
-        )
 
     def tb000(self, *args, **kwargs):
         """Crease"""
@@ -196,7 +163,7 @@ class Crease_maya(SlotsMaya):
 
             pm.mel.eval("PolySelectConvert 2;")  # convert selection to edges
             # to get edges with angle between two degrees. mode=3 (All and Next) type=0x8000 (edge).
-            contraint = pm.polySelectConstraint(
+            constraint = pm.polySelectConstraint(
                 mode=3, type=0x8000, angle=True, anglebound=(angleLow, angleHigh)
             )
 
@@ -231,7 +198,7 @@ class Crease_maya(SlotsMaya):
     def b000(self, *args, **kwargs):
         """Crease Set Transfer: Transform Node"""
         if self.sb.crease.b001.isChecked():
-            newObject = str(pm.ls(selection=1))  # ex. [nt.Transform(u'pSphere1')]
+            newObject = str(pm.ls(sl=True))  # ex. [nt.Transform(u'pSphere1')]
 
             index1 = newObject.find("u")
             index2 = newObject.find(")")
@@ -250,7 +217,7 @@ class Crease_maya(SlotsMaya):
     def b001(self, *args, **kwargs):
         """Crease Set Transfer: Crease Set"""
         if self.sb.crease.b000.isChecked():
-            creaseSet = str(pm.ls(selection=1))  # ex. [nt.CreaseSet(u'creaseSet1')]
+            creaseSet = str(pm.ls(sl=True))  # ex. [nt.CreaseSet(u'creaseSet1')]
 
             index1 = creaseSet.find("u")
             index2 = creaseSet.find(")")
@@ -276,7 +243,7 @@ class Crease_maya(SlotsMaya):
         creaseSet = str(self.sb.crease.b000.text())
         newObject = str(self.sb.crease.b001.text())
 
-        sets = pm.sets(creaseSet, query=1)
+        sets = pm.sets(creaseSet, q=True)
 
         setArray = []
         for set_ in sets:
@@ -290,7 +257,7 @@ class Crease_maya(SlotsMaya):
                 set_.partition(".")[:1]
             )  # ex. pSphereShape1 from pSphereShape1.e[260:299]
             pm.select(set_, replace=1)
-            value = pm.polyCrease(query=1, value=1)[0]
+            value = pm.polyCrease(q=True, value=1)[0]
             name = set_.replace(oldObject, newObject)
             pm.select(name, replace=1)
             pm.polyCrease(value=value, vertexValue=value, createHistory=True)

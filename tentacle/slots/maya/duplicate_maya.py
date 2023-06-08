@@ -12,15 +12,6 @@ class Duplicate_maya(SlotsMaya):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-    def draggableHeader_init(self, widget):
-        """ """
-        cmb = widget.ctx_menu.add(
-            self.sb.ComboBox, setObjectName="cmb000", setToolTip=""
-        )
-
-        items = ["Duplicate Special"]
-        cmb.addItems_(items, "Maya Menus")
-
     def tb000_init(self, widget):
         """ """
         widget.option_menu.add(
@@ -31,33 +22,22 @@ class Duplicate_maya(SlotsMaya):
             setToolTip="Attempt to match 3 points of the source to the same 3 points of the target.",
         )
 
-    def cmb000(self, *args, **kwargs):
-        """Editors"""
-        cmb = kwargs.get("widget")
-        index = kwargs.get("index")
-
-        if index > 0:
-            if index == cmb.items.index("Duplicate Special"):
-                pm.mel.eval("DuplicateSpecialOptions;")
-            cmb.setCurrentIndex(0)
-
-    def chk010(self, *args, **kwargs):
+    def chk010(self, state=None, **kwargs):
         """Radial Array: Set Pivot"""
-        state = kwargs.get("state")
 
         global radialPivot
         radialPivot = []
         # add support for averaging multiple components.
         if state:
-            selection = pm.ls(selection=1, flatten=1)
+            selection = pm.ls(sl=True, flatten=1)
             if selection:
                 vertices = pm.filterExpand(selectionMask=31)  # get selected vertices
                 if (
                     vertices is not None and vertices == 1
                 ):  # if a single vertex is selected, query that vertex position.
-                    pivot = pm.xform(selection, query=1, translation=1, worldSpace=1)
+                    pivot = pm.xform(selection, q=True, translation=1, worldSpace=1)
                 else:  # else, get the center of the objects bounding box.
-                    bb = pm.xform(selection, query=1, boundingBox=1, worldSpace=1)
+                    bb = pm.xform(selection, q=True, boundingBox=1, worldSpace=1)
                     pivot = (
                         bb[0] + bb[3] / 2,
                         bb[1] + bb[4] / 2,
@@ -90,7 +70,7 @@ class Duplicate_maya(SlotsMaya):
         if self.sb.duplicate_radial.chk015.isChecked():
             self.sb.toggle_widgets(self.sb.duplicate_radial, setEnabled="b003")
 
-            selection = pm.ls(selection=1, type="transform", flatten=1)
+            selection = pm.ls(sl=True, type="transform", flatten=1)
             if selection:
                 if radialArrayObjList:
                     try:
@@ -138,7 +118,7 @@ class Duplicate_maya(SlotsMaya):
                     currentPanel = pm.paneLayout(
                         "viewPanes", q=True, pane1=True
                     )  # get the current modelPanel view
-                    if pm.isolateSelect(currentPanel, query=1, state=1):
+                    if pm.isolateSelect(currentPanel, q=True, state=1):
                         for obj_ in radialArrayObjList:
                             pm.isolateSelect(currentPanel, addDagObject=obj_)
                     # re-select the original selected object
@@ -214,7 +194,7 @@ class Duplicate_maya(SlotsMaya):
 
             del duplicateObjList[1:]  # clear the list, leaving the original obj
             selection = pm.ls(
-                selection=1, flatten=1, objectsOnly=1
+                sl=True, flatten=1, objectsOnly=1
             )  # there will only be a selection when first called. After, the last selected item will have been deleted with the other duplicated objects, leaving only the original un-selected.
 
             if selection:
@@ -340,10 +320,8 @@ class Duplicate_maya(SlotsMaya):
             selection, transformByVertexOrder=transformByVertexOrder
         )
 
-    def chk007(self, *args, **kwargs):
+    def chk007(self, state=None, **kwargs):
         """Duplicate: Translate To Components"""
-        state = kwargs.get("state")
-
         if state:
             self.sb.toggle_widgets(
                 setEnabled="chk008,b034,cmb001", setDisabled="chk000,chk009,s005"
@@ -445,7 +423,7 @@ class Duplicate_maya(SlotsMaya):
         """Add Selected Components To cmb001"""
         cmb = self.sb.duplicate_linear.cmb001
 
-        selection = pm.ls(selection=1, flatten=1)
+        selection = pm.ls(sl=True, flatten=1)
 
         for obj in selection:
             cmb.add(obj)
@@ -495,10 +473,10 @@ class Duplicate_maya(SlotsMaya):
         """
         # pm.undoInfo(openChunk=1)
         p0x, p0y, p0z = pm.xform(
-            objects[0], query=1, rotatePivot=1, worldSpace=1
+            objects[0], q=True, rotatePivot=1, worldSpace=1
         )  # get the world space obj pivot.
         pivot = pm.xform(
-            objects[0], query=1, rotatePivot=1, objectSpace=1
+            objects[0], q=True, rotatePivot=1, objectSpace=1
         )  # get the obj pivot.
 
         for obj in objects[1:]:
@@ -582,8 +560,8 @@ print(__name__)
 #   Example: convertToInstances(pm.ls(sl=1))
 #   '''
 #   # pm.undoInfo(openChunk=1)
-#   p0x, p0y, p0z = pm.xform(objects[0], query=1, rotatePivot=1, worldSpace=1) #get the world space obj pivot.
-#   pivot = pm.xform(objects[0], query=1, rotatePivot=1, objectSpace=1) #get the obj pivot.
+#   p0x, p0y, p0z = pm.xform(objects[0], q=True, rotatePivot=1, worldSpace=1) #get the world space obj pivot.
+#   pivot = pm.xform(objects[0], q=True, rotatePivot=1, objectSpace=1) #get the obj pivot.
 
 #   for obj in objects[1:]:
 

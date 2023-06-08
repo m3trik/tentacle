@@ -125,68 +125,8 @@ class Cameras_maya(SlotsMaya):
             elif text == "Toggle Safe Frames":  # Viewport Safeframes Toggle
                 mtk.Cam.toggle_safe_frames()
 
-    @property
-    def clippingMenu(self):
-        """Menu: Camera clip plane settings.
-
-        Returns:
-                (obj) menu as a property.
-        """
-        if not hasattr(self, "_clippingMenu"):
-            self._clippingMenu = self.sb.Menu(self.sb.cameras, position="cursorPos")
-            self._clippingMenu.add(
-                "QPushButton",
-                setText="Auto Clip",
-                setObjectName="chk000",
-                setCheckable=True,
-                setToolTip="When Auto Clip is ON, geometry closer to the camera than 3 units is not displayed. Turn OFF to manually define.",
-            )
-            self._clippingMenu.add(
-                "QDoubleSpinBox",
-                setPrefix="Far Clip:  ",
-                setObjectName="s000",
-                set_limits=".01-10 step.1",
-                setToolTip="Adjust the current cameras near clipping plane.",
-            )
-            self._clippingMenu.add(
-                "QSpinBox",
-                setPrefix="Near Clip: ",
-                setObjectName="s001",
-                set_limits="10-10000 step1",
-                setToolTip="Adjust the current cameras far clipping plane.",
-            )
-
-        # set widget states for the active camera
-        activeCamera = mtk.Cam.get_current_cam()
-        if not activeCamera:
-            self.sb.toggle_widgets(self._clippingMenu, setDisabled="s000-1,chk000")
-
-        elif pm.viewClipPlane(
-            activeCamera, query=1, autoClipPlane=1
-        ):  # if autoClipPlane is active:
-            self._clippingMenu.chk000.setChecked(True)
-            self.sb.toggle_widgets(self._clippingMenu, setDisabled="s000-1")
-
-        nearClip = (
-            pm.viewClipPlane(activeCamera, query=1, nearClipPlane=1)
-            if activeCamera
-            else 1.0
-        )
-        farClip = (
-            pm.viewClipPlane(activeCamera, query=1, farClipPlane=1)
-            if activeCamera
-            else 1000.0
-        )
-
-        self._clippingMenu.s000.setValue(nearClip)
-        self._clippingMenu.s001.setValue(farClip)
-
-        return self._clippingMenu
-
-    def chk000(self, *args, **kwargs):
+    def chk000(self, state=None, **kwargs):
         """Camera Clipping: Auto Clip"""
-        state = kwargs.get("state")
-
         if state:
             self.sb.toggle_widgets(self.clippingMenu, setDisabled="s000-1")
         else:
@@ -199,10 +139,8 @@ class Cameras_maya(SlotsMaya):
 
         pm.viewClipPlane(activeCamera, autoClipPlane=True)
 
-    def s000(self, *args, **kwargs):
+    def s000(self, value=None, **kwargs):
         """Camera Clipping: Near Clip"""
-        value = kwargs.get("value")
-
         activeCamera = mtk.Cam.get_current_cam()
         if not activeCamera:
             self.sb.message_box("No Active Camera.")
@@ -210,10 +148,8 @@ class Cameras_maya(SlotsMaya):
 
         pm.viewClipPlane(activeCamera, nearClipPlane=value)
 
-    def s001(self, *args, **kwargs):
+    def s001(self, value=None, **kwargs):
         """Camera Clipping: Far Clip"""
-        value = kwargs.get("value")
-
         activeCamera = mtk.Cam.get_current_cam()
         if not activeCamera:
             self.sb.message_box("No Active Camera.")
@@ -329,7 +265,7 @@ class Cameras_maya(SlotsMaya):
                 pm.parent(cam, "cameras")
 
         ortho = int(
-            pm.camera("alignToPoly", query=1, orthographic=1)
+            pm.camera("alignToPoly", q=True, orthographic=1)
         )  # check if camera view is orthoraphic
         if not ortho:
             pm.viewPlace("alignToPoly", ortho=1)
@@ -353,6 +289,64 @@ class Cameras_maya(SlotsMaya):
     def b013(self, *args, **kwargs):
         """Camera: Orbit"""
         pm.viewPreset(camera="orbit")
+
+    @property
+    def clippingMenu(self):
+        """Menu: Camera clip plane settings.
+
+        Returns:
+                (obj) menu as a property.
+        """
+        if not hasattr(self, "_clippingMenu"):
+            self._clippingMenu = self.sb.Menu(self.sb.cameras, position="cursorPos")
+            self._clippingMenu.add(
+                "QPushButton",
+                setText="Auto Clip",
+                setObjectName="chk000",
+                setCheckable=True,
+                setToolTip="When Auto Clip is ON, geometry closer to the camera than 3 units is not displayed. Turn OFF to manually define.",
+            )
+            self._clippingMenu.add(
+                "QDoubleSpinBox",
+                setPrefix="Far Clip:  ",
+                setObjectName="s000",
+                set_limits=".01-10 step.1",
+                setToolTip="Adjust the current cameras near clipping plane.",
+            )
+            self._clippingMenu.add(
+                "QSpinBox",
+                setPrefix="Near Clip: ",
+                setObjectName="s001",
+                set_limits="10-10000 step1",
+                setToolTip="Adjust the current cameras far clipping plane.",
+            )
+
+        # set widget states for the active camera
+        activeCamera = mtk.Cam.get_current_cam()
+        if not activeCamera:
+            self.sb.toggle_widgets(self._clippingMenu, setDisabled="s000-1,chk000")
+
+        elif pm.viewClipPlane(
+            activeCamera, q=True, autoClipPlane=1
+        ):  # if autoClipPlane is active:
+            self._clippingMenu.chk000.setChecked(True)
+            self.sb.toggle_widgets(self._clippingMenu, setDisabled="s000-1")
+
+        nearClip = (
+            pm.viewClipPlane(activeCamera, q=True, nearClipPlane=1)
+            if activeCamera
+            else 1.0
+        )
+        farClip = (
+            pm.viewClipPlane(activeCamera, q=True, farClipPlane=1)
+            if activeCamera
+            else 1000.0
+        )
+
+        self._clippingMenu.s000.setValue(nearClip)
+        self._clippingMenu.s001.setValue(farClip)
+
+        return self._clippingMenu
 
     def toggle_camera_view(self):
         """Toggle between the last two camera views in history."""
@@ -451,26 +445,6 @@ print(__name__)
 #               self.clippingMenu.show()
 #           if text=='Toggle Safe Frames': #Viewport Safeframes Toggle
 #               mtk.Cam.toggle_safe_frames()
-
-
-# def cmb000(self, *args, **kwargs):
-#   '''
-#   Camera Editors
-
-#   '''
-#   cmb = self.sb.cameras.draggableHeader.ctx_menu.cmb000
-
-#   items = ['Camera Sequencer', 'Camera Set Editor']
-#   contents = cmb.addItems_(items, '')
-
-#   if not index:
-#       index = cmb.currentIndex()
-#   if index!=0:
-#       if index==1:
-#           pm.mel.eval('SequenceEditor;')
-#       if index==2:
-#           pm.mel.eval('cameraSetEditor;')
-#       cmb.setCurrentIndex(0)
 
 
 # def cmb001(self, *args, **kwargs):

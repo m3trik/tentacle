@@ -15,24 +15,16 @@ class Transform_maya(SlotsMaya):
         """ """
         super().__init__(*args, **kwargs)
 
-    def draggableHeader_init(self, widget):
-        """ """
-        cmb000 = widget.ctx_menu.add(
-            self.sb.ComboBox, setObjectName="cmb000", setToolTip=""
-        )
-        items = [""]
-        cmb000.addItems_(items, "")
-
     def cmb001_init(self, widget):
         """ """
         widget.popupStyle = "qmenu"
         widget.option_menu.setTitle("Constaints")
 
         edge_constraint = (
-            True if pm.xformConstraint(query=1, type=1) == "edge" else False
+            True if pm.xformConstraint(q=True, type=1) == "edge" else False
         )
         surface_constraint = (
-            True if pm.xformConstraint(query=1, type=1) == "surface" else False
+            True if pm.xformConstraint(q=True, type=1) == "surface" else False
         )
         live_object = True if pm.ls(live=1) else False
         values = [
@@ -73,13 +65,6 @@ class Transform_maya(SlotsMaya):
 
     def cmb003_init(self, widget):
         """ """
-        moveValue = pm.manipMoveContext("Move", q=True, snapValue=True)
-        widget.option_menu.s021.setValue(moveValue)
-        scaleValue = pm.manipScaleContext("Scale", q=True, snapValue=True)
-        widget.option_menu.s022.setValue(scaleValue)
-        rotateValue = pm.manipRotateContext("Rotate", q=True, snapValue=True)
-        widget.option_menu.s023.setValue(rotateValue)
-
         widget.popupStyle = "qmenu"
         widget.option_menu.setTitle("Snap")
         widget.option_menu.add(
@@ -124,6 +109,12 @@ class Transform_maya(SlotsMaya):
             set_limits="1.40625-360 step1.40625",
             setDisabled=True,
         )
+        moveValue = pm.manipMoveContext("Move", q=True, snapValue=True)
+        widget.option_menu.s021.setValue(moveValue)
+        scaleValue = pm.manipScaleContext("Scale", q=True, snapValue=True)
+        widget.option_menu.s022.setValue(scaleValue)
+        rotateValue = pm.manipRotateContext("Rotate", q=True, snapValue=True)
+        widget.option_menu.s023.setValue(rotateValue)
 
     def tb000_init(self, widget):
         """ """
@@ -241,10 +232,8 @@ class Transform_maya(SlotsMaya):
             setToolTip="Move the objects pivot to the center of it's bounding box.",
         )
 
-    def chk010(self, *args, **kwargs):
+    def chk010(self, state=None, **kwargs):
         """Align Vertices: Auto Align"""
-        state = kwargs.get("state")
-
         if state:
             self.sb.toggle_widgets(setDisabled="chk029-31")
         else:
@@ -309,20 +298,9 @@ class Transform_maya(SlotsMaya):
 
         self.setTransformSnap("rotate", tri_state)
 
-    def cmb000(self, *args, **kwargs):
-        """Editors"""
-        cmb = kwargs.get("widget")
-        index = kwargs.get("index")
-
-        if index > 0:
-            if index == cmd.list.index(""):
-                pass
-            cmb.setCurrentIndex(0)
-
-    def cmb002(self, *args, **kwargs):
+    def cmb002(self, index=-1, **kwargs):
         """Align To"""
         cmb = kwargs.get("widget")
-        index = kwargs.get("index")
 
         if index > 0:
             text = cmb.items[index]
@@ -348,7 +326,6 @@ class Transform_maya(SlotsMaya):
 
     def chk024(self, state=None):
         """Transform Constraints: Edge"""
-        state = kwargs.get("state")
         cmb = self.sb.transform.cmb001
 
         if state:
@@ -370,7 +347,6 @@ class Transform_maya(SlotsMaya):
 
     def chk025(self, state=None):
         """Transform Contraints: Surface"""
-        state = kwargs.get("state")
         cmb = self.sb.transform.cmb001
 
         if state:
@@ -392,14 +368,13 @@ class Transform_maya(SlotsMaya):
 
     def chk026(self, state=None):
         """Transform Contraints: Make Live"""
-        state = kwargs.get("state")
         cmb = self.sb.transform.cmb001
 
         selection = pm.ls(sl=1, objectsOnly=1, type="transform")
         if state and selection:
             live_object = pm.ls(live=1)
             shape = mtk.Node.get_shape_node(selection[0])
-            if not shape in str(live_object):
+            if shape not in str(live_object):
                 pm.makeLive(
                     selection
                 )  # construction planes, nurbs surfaces and polygon meshes can be made live. makeLive supports one live object at a time.
@@ -851,7 +826,7 @@ print(__name__)
 #   floatX=floatY=floatZ = 0
 
 #   if relative: #else absolute.
-#       currentScale = pm.xform(query=1, scale=1)
+#       currentScale = pm.xform(q=True, scale=1)
 #       floatX = round(currentScale[0], 2)
 #       floatY = round(currentScale[1], 2)
 #       floatZ = round(currentScale[2], 2)

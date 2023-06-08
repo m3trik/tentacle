@@ -313,7 +313,7 @@ class Edit_blender(Edit, SlotsBlender):
         all_ = tb.option_menu.chk018.isChecked()
         unusedNodes = tb.option_menu.chk019.isChecked()
         deformers = tb.option_menu.chk020.isChecked()
-        objects = pm.ls(selection=1, objectsOnly=1) if not all_ else pm.ls(typ="mesh")
+        objects = pm.ls(sl=True, objectsOnly=1) if not all_ else pm.ls(typ="mesh")
 
         try:  # delete history
             if all_:

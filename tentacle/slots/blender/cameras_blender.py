@@ -53,18 +53,18 @@ class Cameras_blender(Cameras, SlotsBlender):
             self.sb.toggle_widgets(self._clippingMenu, setDisabled="s000-1,chk000")
 
         elif pm.viewClipPlane(
-            activeCamera, query=1, autoClipPlane=1
+            activeCamera, q=True, autoClipPlane=1
         ):  # if autoClipPlane is active:
             self._clippingMenu.chk000.setChecked(True)
             self.sb.toggle_widgets(self._clippingMenu, setDisabled="s000-1")
 
         nearClip = (
-            pm.viewClipPlane(activeCamera, query=1, nearClipPlane=1)
+            pm.viewClipPlane(activeCamera, q=True, nearClipPlane=1)
             if activeCamera
             else 1.0
         )
         farClip = (
-            pm.viewClipPlane(activeCamera, query=1, farClipPlane=1)
+            pm.viewClipPlane(activeCamera, q=True, farClipPlane=1)
             if activeCamera
             else 1000.0
         )
@@ -309,7 +309,7 @@ class Cameras_blender(Cameras, SlotsBlender):
                 pm.parent(cam, "cameras")
 
         ortho = int(
-            pm.camera("alignToPoly", query=1, orthographic=1)
+            pm.camera("alignToPoly", q=True, orthographic=1)
         )  # check if camera view is orthoraphic
         if not ortho:
             pm.viewPlace("alignToPoly", ortho=1)
@@ -351,7 +351,7 @@ class Cameras_blender(Cameras, SlotsBlender):
         """Toggle display of the film gate for the current camera."""
         camera = self.get_current_cam()
 
-        state = pm.camera(camera, query=1, displayResolution=1)
+        state = pm.camera(camera, q=True, displayResolution=1)
         if state:
             pm.camera(
                 camera,

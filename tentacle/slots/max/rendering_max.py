@@ -59,7 +59,7 @@ class Rendering_max(Rendering, SlotsMax):
 
     def b005(self, *args, **kwargs):
         """Apply Vray Attributes To Selected Objects"""
-        selection = pm.ls(selection=1)
+        selection = pm.ls(sl=True)
         currentID = 1
         for obj in selection:
             # get renderable shape nodes relative to transform, iterate through and apply subdivision

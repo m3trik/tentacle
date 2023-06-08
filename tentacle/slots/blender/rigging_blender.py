@@ -67,21 +67,21 @@ class Rigging_blender(Rigging, SlotsBlender):
 		'''Scale Joint
 		'''
 		self.sb.toggle_widgets(setUnChecked='chk001-2')
-		self.sb.rigging.tb000.option_menu.s000.setValue(pm.jointDisplayScale(query=1)) #init global joint display size
+		self.sb.rigging.tb000.option_menu.s000.setValue(pm.jointDisplayScale(q=True)) #init global joint display size
 
 
 	def chk001(self, *args, **kwargs):
 		'''Scale IK
 		'''
 		self.sb.toggle_widgets(setUnChecked='chk000, chk002')
-		self.sb.rigging.tb000.option_menu.setValue(pm.ikHandleDisplayScale(query=1)) #init IK handle display size
+		self.sb.rigging.tb000.option_menu.setValue(pm.ikHandleDisplayScale(q=True)) #init IK handle display size
 		
 
 	def chk002(self, *args, **kwargs):
 		'''Scale IK/FK
 		'''
 		self.sb.toggle_widgets(setUnChecked='chk000-1')
-		self.sb.rigging.tb000.option_menu.setValue(pm.jointDisplayScale(query=1, ikfk=1)) #init IKFK display size
+		self.sb.rigging.tb000.option_menu.setValue(pm.jointDisplayScale(q=True, ikfk=1)) #init IKFK display size
 
 
 	def s000(self, *args, **kwargs):
@@ -104,7 +104,7 @@ class Rigging_blender(Rigging, SlotsBlender):
 
 		joints = pm.ls(type="joint") #get all scene joints
 
-		state = pm.toggle(joints[0], query=1, localAxis=1)
+		state = pm.toggle(joints[0], q=True, localAxis=1)
 		if tb.option_menu.isChecked():
 			if not state:
 				toggle=True
@@ -143,8 +143,8 @@ class Rigging_blender(Rigging, SlotsBlender):
 			pm.parentConstraint(obj, objects[:-1], maintainOffset=1, weight=1)
 
 			if template:
-				if not pm.toggle(obj, template=1, query=1):
-					pm.toggle(obj, template=1, query=1)
+				if not pm.toggle(obj, template=1, q=True):
+					pm.toggle(obj, template=1, q=True)
 
 
 	@SlotsBlender.undoChunk

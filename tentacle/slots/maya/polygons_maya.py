@@ -12,26 +12,6 @@ class Polygons_maya(SlotsMaya):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-    def draggableHeader_init(self, widget):
-        """ """
-        widget.ctx_menu.add(self.sb.ComboBox, setObjectName="cmb000", setToolTip="")
-
-        cmb000 = widget.ctx_menu.cmb000
-        items = [
-            "Extrude",
-            "Bevel",
-            "Bridge",
-            "Combine",
-            "Merge Vertex",
-            "Offset Edgeloop",
-            "Edit Edgeflow",
-            "Extract Curve",
-            "Poke",
-            "Wedge",
-            "Assign Invisible",
-        ]
-        cmb000.addItems_(items, "Polygon Editors")
-
     def tb000_init(self, widget):
         """ """
         widget.option_menu.add(
@@ -226,55 +206,23 @@ class Polygons_maya(SlotsMaya):
         """Divide Facet: Tris"""
         self.sb.toggle_widgets(setUnChecked="chk008,chk009")
 
-    def cmb000(self, *args, **kwargs):
-        """Editors"""
-        cmb = kwargs.get("widget")
-        index = kwargs.get("index")
-
-        if index > 0:
-            text = cmb.items[index]
-            if text == "Extrude":
-                pm.mel.PolyExtrudeOptions()
-            elif text == "Bevel":
-                pm.mel.BevelPolygonOptions()
-            elif text == "Bridge":
-                pm.mel.BridgeEdgeOptions()
-            elif text == "Combine":
-                pm.mel.CombinePolygonsOptions()
-            elif text == "Merge Vertex":
-                pm.mel.PolyMergeOptions()
-            elif text == "Offset Edgeloop":
-                pm.mel.DuplicateEdgesOptions()
-            elif text == "Edit Edgeflow":
-                pm.mel.PolyEditEdgeFlowOptions()
-            elif text == "Extract Curve":
-                pm.mel.CreateCurveFromPolyOptions()
-            elif text == "Poke":
-                pm.mel.PokePolygonOptions()
-            elif text == "Wedge":
-                pm.mel.WedgePolygonOptions()
-            elif text == "Assign Invisible":
-                pm.mel.PolyAssignSubdivHoleOptions()
-            cmb.setCurrentIndex(0)
-
     def tb000(self, *args, **kwargs):
         """Merge Vertices"""
         tb = kwargs.get("widget")
 
         tolerance = float(tb.option_menu.s002.value())
-        objects = pm.ls(selection=1, objectsOnly=1, flatten=1)
-        componentMode = pm.selectMode(query=1, component=1)
+        objects = pm.ls(sl=True, objectsOnly=1, flatten=1)
+        componentMode = pm.selectMode(q=True, component=1)
 
         if not objects:
             self.sb.message_box(
-                "<strong>Nothing selected</strong>.<br>Operation requires an object or vertex selection.",
+                "<strong>Nothing selected</strong>.<br>Operation requires an object or component selection.",
                 message_type="Error",
             )
             return
 
         mtk.Edit.merge_vertices(objects, selected=componentMode, tolerance=tolerance)
 
-    @SlotsMaya.attr
     def tb001(self, *args, **kwargs):
         """Bridge"""
         tb = kwargs.get("widget")
@@ -282,15 +230,12 @@ class Polygons_maya(SlotsMaya):
         divisions = tb.option_menu.s003.value()
 
         selection = pm.ls(sl=1)
-        if not selection:
+        edges = pm.filterExpand(selection, selectionMask=32, expand=1)
+        if not edges:
             return self.sb.message_box(
-                "<strong>Nothing selected</strong>.<br>Operation requires a component selection.",
+                "<strong>Nothing selected</strong>.<br>Operation requires a edge selection.",
                 message_type="Error",
             )
-        edges = pm.filterExpand(
-            selection, selectionMask=32, expand=1
-        )  # get edges from selection
-
         node = pm.polyBridgeEdge(edges, divisions=divisions)  # bridge edges
         pm.polyCloseBorder(edges)  # fill edges if they lie on a border
         return node
@@ -319,14 +264,11 @@ class Polygons_maya(SlotsMaya):
         else:
             pm.mel.CombinePolygons()
 
-    @SlotsMaya.attr
     def tb003(self, *args, **kwargs):
         """Extrude"""
         tb = kwargs.get("widget")
 
-        keepFacesTogether = (
-            tb.option_menu.chk002.isChecked()
-        )  # keep faces/edges together.
+        keepFacesTogether = tb.option_menu.chk002.isChecked()
         divisions = tb.option_menu.s004.value()
 
         selection = pm.ls(sl=1)
@@ -335,23 +277,22 @@ class Polygons_maya(SlotsMaya):
                 "<strong>Nothing selected</strong>.<br>Operation requires a component selection.",
                 message_type="Error",
             )
-        if pm.selectType(query=1, facet=1):  # face selection
+        if pm.selectType(q=True, facet=1):  # face selection
             pm.polyExtrudeFacet(
                 edit=1, keepFacesTogether=keepFacesTogether, divisions=divisions
             )
             pm.mel.PolyExtrude()  # return pm.polyExtrudeFacet(selection, ch=1, keepFacesTogether=keepFacesTogether, divisions=divisions)
 
-        elif pm.selectType(query=1, edge=1):  # edge selection
+        elif pm.selectType(q=True, edge=1):  # edge selection
             pm.polyExtrudeEdge(
                 edit=1, keepFacesTogether=keepFacesTogether, divisions=divisions
             )
             pm.mel.PolyExtrude()  # return pm.polyExtrudeEdge(selection, ch=1, keepFacesTogether=keepFacesTogether, divisions=divisions)
 
-        elif pm.selectType(query=1, vertex=1):  # vertex selection
+        elif pm.selectType(q=True, vertex=1):  # vertex selection
             pm.polyExtrudeVertex(edit=1, width=0.5, length=1, divisions=divisions)
             pm.mel.PolyExtrude()  # return polyExtrudeVertex(selection, ch=1, width=0.5, length=1, divisions=divisions)
 
-    @SlotsMaya.attr
     def tb004(self, *args, **kwargs):
         """Bevel (Chamfer)"""
         tb = kwargs.get("widget")
@@ -398,9 +339,9 @@ class Polygons_maya(SlotsMaya):
         duplicate = tb.option_menu.chk014.isChecked()
         separate = tb.option_menu.chk015.isChecked()
 
-        vertexMask = pm.selectType(query=True, vertex=True)
-        edgeMask = pm.selectType(query=True, edge=True)
-        facetMask = pm.selectType(query=True, facet=True)
+        vertexMask = pm.selectType(q=True, vertex=True)
+        edgeMask = pm.selectType(q=True, edge=True)
+        facetMask = pm.selectType(q=True, facet=True)
 
         selection = pm.ls(sl=1)
         if not selection:
@@ -427,21 +368,20 @@ class Polygons_maya(SlotsMaya):
         else:
             pm.mel.DetachComponent()
 
-    @SlotsMaya.attr
     def tb006(self, *args, **kwargs):
         """Inset Face Region"""
         tb = kwargs.get("widget")
 
-        selected_faces = pm.polyEvaluate(faceComponent=1)
-        # 'Nothing counted : no polygonal object is selected.'
-        if isinstance(selected_faces, str):
+        selection = pm.ls(sl=True)
+        selected_faces = pm.filterExpand(selection, selectionMask=34, expand=1)
+        if not selected_faces:
             self.sb.message_box(
                 "<strong>Nothing selected</strong>.<br>Operation requires a face selection.",
                 message_type="Error",
             )
             return
 
-        offset = float(tb.option_menu.s001.value())
+        offset = tb.option_menu.s001.value()
         return pm.polyExtrudeFacet(
             selected_faces,
             keepFacesTogether=1,
@@ -537,7 +477,6 @@ class Polygons_maya(SlotsMaya):
             )
             return
 
-    @SlotsMaya.attr
     def b000(self, *args, **kwargs):
         """Circularize"""
         circularize = pm.polyCircularize(
@@ -570,7 +509,6 @@ class Polygons_maya(SlotsMaya):
         """Symmetrize"""
         pm.mel.Symmetrize()
 
-    @SlotsMaya.attr
     def b004(self, *args, **kwargs):
         """Slice"""
         cuttingDirection = "Y"  # valid values: 'x','y','z' A value of 'x' will cut the object along the YZ plane cutting through the center of the bounding box. 'y':ZX. 'z':XY.
@@ -600,7 +538,7 @@ class Polygons_maya(SlotsMaya):
 
     def b009(self, *args, **kwargs):
         """Collapse Component"""
-        if pm.selectType(query=1, facet=1):
+        if pm.selectType(q=True, facet=1):
             pm.mel.PolygonCollapse()
         else:
             pm.mel.MergeToCenter()
@@ -608,10 +546,6 @@ class Polygons_maya(SlotsMaya):
     def b012(self, *args, **kwargs):
         """Multi-Cut Tool"""
         pm.mel.dR_multiCutTool()
-
-    def b021(self, *args, **kwargs):
-        """Connect Border Edges"""
-        pm.mel.performPolyConnectBorders(0)
 
     def b022(self, *args, **kwargs):
         """Attach"""
@@ -628,11 +562,28 @@ class Polygons_maya(SlotsMaya):
 
     def b034(self, *args, **kwargs):
         """Wedge"""
-        pm.mel.WedgePolygon()
+        try:
+            pm.mel.WedgePolygon()
+        except Exception:
+            self.sb.message_box(
+                "<strong>Nothing selected</strong>.<br>Select faces and one or more edges from the selected faces to wedge about.",
+                message_type="Error",
+            )
 
     def b038(self, *args, **kwargs):
         """Assign Invisible"""
-        pm.polyHole(assignHole=1)
+        selection = pm.ls(sl=True)
+        selected_faces = pm.filterExpand(selection, selectionMask=34, expand=1)
+        if not selected_faces:
+            self.sb.message_box(
+                "<strong>Nothing selected</strong>.<br>Operation requires a face selection.",
+                message_type="Error",
+            )
+            return
+        if not pm.polyHole(selected_faces, q=True, assignHole=True):
+            pm.polyHole(selected_faces, assignHole=True)
+        else:
+            pm.polyHole(selected_faces, assignHole=False)
 
     def b043(self, *args, **kwargs):
         """Target Weld"""
@@ -640,22 +591,11 @@ class Polygons_maya(SlotsMaya):
         pm.select(deselect=True)
         pm.mel.dR_targetWeldTool()
 
-    def b045(self, *args, **kwargs):
-        """Re-Order Vertices"""
-        symmetryOn = pm.symmetricModelling(
-            query=True, symmetry=True
-        )  # query symmetry state
-        if symmetryOn:
-            pm.symmetricModelling(symmetry=False)
-        pm.mel.setPolygonDisplaySettings("vertIDs")  # set vertex id on
-        pm.mel.doBakeNonDefHistory(1, "pre")  # history must be deleted
-        pm.mel.performPolyReorderVertex()  # start vertex reorder ctx
-
     def b046(self, *args, **kwargs):
         """Split"""
-        vertexMask = pm.selectType(query=True, vertex=True)
-        edgeMask = pm.selectType(query=True, edge=True)
-        facetMask = pm.selectType(query=True, facet=True)
+        vertexMask = pm.selectType(q=True, vertex=True)
+        edgeMask = pm.selectType(q=True, edge=True)
+        facetMask = pm.selectType(q=True, facet=True)
 
         if facetMask:
             pm.mel.performPolyPoke(1)
@@ -670,17 +610,9 @@ class Polygons_maya(SlotsMaya):
         """Insert Edgeloop"""
         pm.mel.SplitEdgeRingTool()
 
-    def b048(self, *args, **kwargs):
-        """Collapse Edgering"""
-        pm.mel.bt_polyCollapseEdgeRingTool()
-
     def b049(self, *args, **kwargs):
         """Slide Edge Tool"""
         pm.mel.SlideEdgeTool()
-
-    def b050(self, *args, **kwargs):
-        """Spin Edge"""
-        pm.mel.bt_polySpinEdgeTool()
 
     def b051(self, *args, **kwargs):
         """Offset Edgeloop"""
@@ -720,15 +652,15 @@ print(__name__)
 #           # tb.option_menu.add('QCheckBox', setText='Delete Original', setObjectName='chk007', setChecked=True, setToolTip='Delete original selected faces.')
 #           return
 
-#       vertexMask = pm.selectType (query=True, vertex=True)
-#       edgeMask = pm.selectType (query=True, edge=True)
-#       facetMask = pm.selectType (query=True, facet=True)
+#       vertexMask = pm.selectType (q=True, vertex=True)
+#       edgeMask = pm.selectType (q=True, edge=True)
+#       facetMask = pm.selectType (q=True, facet=True)
 
 #       if vertexMask:
 #           pm.mel.eval("polySplitVertex()")
 
 #       if facetMask:
-#           maskVertex = pm.selectType (query=True, vertex=True)
+#           maskVertex = pm.selectType (q=True, vertex=True)
 #           if maskVertex:
 #               pm.mel.eval("DetachComponent;")
 #           else:

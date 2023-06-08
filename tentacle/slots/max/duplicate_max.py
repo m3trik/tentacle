@@ -28,9 +28,9 @@ class Duplicate_max(Duplicate, SlotsMax):
         radialPivot = []
         # add support for averaging multiple components.
         if self.sb.duplicate.chk010.isChecked():
-            selection = pm.ls(selection=1, flatten=1)
+            selection = pm.ls(sl=True, flatten=1)
             try:
-                pivot = pm.xform(selection, query=1, translation=1, relative=1)
+                pivot = pm.xform(selection, q=True, translation=1, relative=1)
             except:
                 self.sb.toggle_widgets(setChecked="chk010")
                 self.sb.message_box("Nothing Selected.")
@@ -57,7 +57,7 @@ class Duplicate_max(Duplicate, SlotsMax):
         if self.sb.duplicate.chk015.isChecked():
             self.sb.toggle_widgets(setEnabled="b003")
 
-            selection = pm.ls(selection=1, type="transform", flatten=1)
+            selection = pm.ls(sl=True, type="transform", flatten=1)
             if selection:
                 if radialArrayObjList:
                     try:
@@ -105,7 +105,7 @@ class Duplicate_max(Duplicate, SlotsMax):
                     currentPanel = pm.paneLayout(
                         "viewPanes", q=True, pane1=True
                     )  # get the current modelPanel view
-                    if pm.isolateSelect(currentPanel, query=1, state=1):
+                    if pm.isolateSelect(currentPanel, q=True, state=1):
                         for obj_ in radialArrayObjList:
                             pm.isolateSelect(currentPanel, addDagObject=obj_)
                     # re-select the original selected object
@@ -145,9 +145,9 @@ class Duplicate_max(Duplicate, SlotsMax):
         Returns: [float list] - x, y, z  coordinate values.
         """
         if ".vtx" in str(component):
-            x = pm.polyNormalPerVertex(component, query=1, x=1)
-            y = pm.polyNormalPerVertex(component, query=1, y=1)
-            z = pm.polyNormalPerVertex(component, query=1, z=1)
+            x = pm.polyNormalPerVertex(component, q=True, x=1)
+            y = pm.polyNormalPerVertex(component, q=True, y=1)
+            z = pm.polyNormalPerVertex(component, q=True, z=1)
             xyz = [
                 sum(x) / float(len(x)),
                 sum(y) / float(len(y)),
@@ -165,11 +165,11 @@ class Duplicate_max(Duplicate, SlotsMax):
             y = []
             z = []
             for vertex in vertices:
-                x_ = pm.polyNormalPerVertex(vertex, query=1, x=1)
+                x_ = pm.polyNormalPerVertex(vertex, q=True, x=1)
                 x.append(sum(x_) / float(len(x_)))
-                y_ = pm.polyNormalPerVertex(vertex, query=1, y=1)
+                y_ = pm.polyNormalPerVertex(vertex, q=True, y=1)
                 x.append(sum(y_) / float(len(y_)))
-                z_ = pm.polyNormalPerVertex(vertex, query=1, z=1)
+                z_ = pm.polyNormalPerVertex(vertex, q=True, z=1)
                 x.append(sum(z_) / float(len(z_)))
             xyz = [
                 sum(x) / float(len(x)),
@@ -204,7 +204,7 @@ class Duplicate_max(Duplicate, SlotsMax):
             pm.delete(constraint)  # orient object_ then remove constraint.
 
         vertexPoint = pm.xform(
-            component, query=1, translation=1
+            component, q=True, translation=1
         )  # average vertex points on destination to get component center.
         x = vertexPoint[0::3]
         y = vertexPoint[1::3]
@@ -252,7 +252,7 @@ class Duplicate_max(Duplicate, SlotsMax):
                 print(e)
             del duplicateObjList[1:]  # clear the list, leaving the original obj
             selection = pm.ls(
-                selection=1, flatten=1, objectsOnly=1
+                sl=True, flatten=1, objectsOnly=1
             )  # there will only be a selection when first called. After, the last selected item will have been deleted with the other duplicated objects, leaving only the original un-selected.
 
             if selection:

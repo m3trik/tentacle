@@ -23,7 +23,7 @@ class Scripting_max(Scripting, SlotsMax):
 
     def b000(self, *args, **kwargs):
         """Toggle Script Output Window"""
-        state = pm.workspaceControl("scriptEditorOutputWorkspace", query=1, visible=1)
+        state = pm.workspaceControl("scriptEditorOutputWorkspace", q=True, visible=1)
         pm.workspaceControl("scriptEditorOutputWorkspace", edit=1, visible=not state)
 
     def b001(self, *args, **kwargs):

@@ -12,70 +12,27 @@ class Subdivision_maya(SlotsMaya):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-    def draggableHeader_init(self, widget):
-        """ """
-        cmb000 = widget.ctx_menu.add(
-            self.sb.ComboBox,
-            setObjectName="cmb000",
-            setToolTip="Subdivision Editiors.",
-        )
-        items = ["Polygon Display Options"]
-        cmb000.addItems_(items, "Subdivision Editiors")
-
-        cmb001 = widget.ctx_menu.add(
-            self.sb.ComboBox, setObjectName="cmb001", setToolTip="Smooth Proxy."
-        )
-        items = [
-            "Create Subdiv Proxy",
-            "Remove Subdiv Proxy Mirror",
-            "Crease Tool",
-            "Toggle Subdiv Proxy Display",
-            "Both Proxy and Subdiv Display",
-        ]
-        cmb001.addItems_(items, "Smooth Proxy")
-
-        cmb002 = widget.ctx_menu.add(
-            self.sb.ComboBox,
-            setObjectName="cmb002",
-            setToolTip="Maya Subdivision Operations.",
-        )
-        items = ["Reduce Polygons", "Add Divisions", "Smooth"]
-        cmb002.addItems_(items, "Maya Subdivision Operations")
-
-    def cmb000(self, *args, **kwargs):
-        """Editors"""
-        cmb = kwargs.get('widget')
-        index = kwargs.get('index')
-
-        if index > 0:
-            text = cmb.items[index]
-            if text == "Polygon Display Options":
-                pm.mel.CustomPolygonDisplayOptions()  # Polygon Display Options #pm.mel.eval("polysDisplaySetup 1;")
-            cmb.setCurrentIndex(0)
-
-    def cmb001(self, *args, **kwargs):
+    def cmb001(self, index=-1, **kwargs):
         """Smooth Proxy"""
-        cmb = kwargs.get('widget')
-        index = kwargs.get('index')
+        cmb = kwargs.get("widget")
 
         if index > 0:
             text = cmb.items[index]
             if text == "Create Subdiv Proxy":
-                pm.mel.SmoothProxyOptions()  #'Add polygons to the selected proxy objects.' #performSmoothProxy 1;
+                pm.mel.SmoothProxyOptions()  # Add polygons to the selected proxy objects #performSmoothProxy 1;
             elif text == "Remove Subdiv Proxy Mirror":
-                pm.mel.UnmirrorSmoothProxyOptions()  #'Create a single low resolution mesh for a mirrored proxy setup.' #performUnmirrorSmoothProxy 1;
+                pm.mel.UnmirrorSmoothProxyOptions()  # Create a single low resolution mesh for a mirrored proxy setup #performUnmirrorSmoothProxy 1;
             elif text == "Crease Tool":
-                pm.mel.polyCreaseProperties()  #'Harden or soften the edges of a smooth mesh preview.' #polyCreaseValues polyCreaseContext;
+                pm.mel.polyCreaseProperties()  # Harden or soften the edges of a smooth mesh preview #polyCreaseValues polyCreaseContext;
             elif text == "Toggle Subdiv Proxy Display":
-                pm.mel.SmoothingDisplayToggle()  #'Toggle the display of smooth shapes.' #smoothingDisplayToggle 1;
+                pm.mel.SmoothingDisplayToggle()  # Toggle the display of smooth shapes #smoothingDisplayToggle 1;
             elif text == "Both Proxy and Subdiv Display":
-                pm.mel.SmoothingDisplayShowBoth()  #'Display both smooth shapes' #smoothingDisplayToggle 0;
+                pm.mel.SmoothingDisplayShowBoth()  # Display both smooth shapes #smoothingDisplayToggle 0;
             cmb.setCurrentIndex(0)
 
-    def cmb002(self, *args, **kwargs):
+    def cmb002(self, index=-1, **kwargs):
         """Maya Subdivision Operations"""
-        cmb = kwargs.get('widget')
-        index = kwargs.get('index')
+        cmb = kwargs.get("widget")
 
         if index > 0:
             if index is cmb.items.index("Reduce Polygons"):
@@ -86,10 +43,8 @@ class Subdivision_maya(SlotsMaya):
                 pm.mel.performPolySmooth(1)
             cmb.setCurrentIndex(0)
 
-    def s000(self, *args, **kwargs):
+    def s000(self, value=None, **kwargs):
         """Division Level"""
-        value = kwargs.get('value')
-
         shapes = pm.ls(sl=1, dag=1, leaf=1)
         transforms = pm.listRelatives(shapes, p=True)
         for obj in transforms:
@@ -100,10 +55,8 @@ class Subdivision_maya(SlotsMaya):
                 )  # subDiv proxy options: 'divisions'
                 print(obj + ": Division Level: <hl>" + str(value) + "</hl>")
 
-    def s001(self, *args, **kwargs):
+    def s001(self, value=None, **kwargs):
         """Tesselation Level"""
-        value = kwargs.get('value')
-
         shapes = pm.ls(sl=1, dag=1, leaf=1)
         transforms = pm.listRelatives(shapes, p=True)
         for obj in transforms:

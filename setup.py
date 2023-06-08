@@ -44,9 +44,9 @@ setuptools.setup(
 # def gen_data_files(dirs, exc=[], inc=[]):
 # 	'''
 # 	'''
-# 	dirs = Iter.make_list(dirs)
-# 	exc = Iter.make_list(exc)
-# 	inc = Iter.make_list(inc)
+# 	dirs = Iter.make_iterable(dirs)
+# 	exc = Iter.make_iterable(exc)
+# 	inc = Iter.make_iterable(inc)
 
 # 	results = []
 # 	for src_dir in dirs:

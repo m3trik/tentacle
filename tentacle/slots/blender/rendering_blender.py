@@ -60,7 +60,7 @@ class Rendering_blender(Rendering, SlotsBlender):
 
     def b005(self, *args, **kwargs):
         """Apply Vray Attributes To Selected Objects"""
-        selection = pm.ls(selection=1)
+        selection = pm.ls(sl=True)
         currentID = 1
         for obj in selection:
             # get renderable shape nodes relative to transform, iterate through and apply subdivision
@@ -81,7 +81,7 @@ class Rendering_blender(Rendering, SlotsBlender):
     def b006(self, *args, **kwargs):
         """Load Vray Plugin"""
         vray = ["vrayformaya.mll", "vrayformayapatch.mll"]
-        if pm.pluginInfo("vrayformaya.mll", query=1, loaded=1):
+        if pm.pluginInfo("vrayformaya.mll", q=True, loaded=1):
             try:
                 pm.unloadPlugin(vray)
             except:

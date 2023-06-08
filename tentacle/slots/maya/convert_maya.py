@@ -37,21 +37,9 @@ class Convert_maya(SlotsMaya):
         ]
         widget.addItems_(items, "Convert To")
 
-    def cmb000(self, *args, **kwargs):
-        """Editors"""
-        cmb = kwargs.get("widget")
-        index = kwargs.get("index")
-
-        if index > 0:
-            text = cmb.items[index]
-            if text == "":
-                pass
-            cmb.setCurrentIndex(0)
-
-    def cmb001(self, *args, **kwargs):
+    def cmb001(self, index=-1, **kwargs):
         """Convert To"""
         cmb = kwargs.get("widget")
-        index = kwargs.get("index")
 
         if index > 0:
             text = cmb.items[index]

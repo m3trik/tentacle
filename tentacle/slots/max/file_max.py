@@ -295,7 +295,7 @@ class File_max(File, SlotsMax):
 
         # objects = pm.ls (from_) #Stores a list of all objects starting with 'from_'
         # if selected:
-        # 	objects = pm.ls (selection=1) #if use selection option; get user selected objects instead
+        # 	objects = pm.ls (sl=True) #if use selection option; get user selected objects instead
         # from_ = from_.strip('*') #strip modifier asterisk from user input
 
         # for obj in objects:

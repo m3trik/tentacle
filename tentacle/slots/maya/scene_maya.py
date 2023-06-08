@@ -12,21 +12,6 @@ class Scene_maya(SlotsMaya):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-    def draggableHeader_init(self, widget):
-        """ """
-        cmb = widget.ctx_menu.add(
-            self.sb.ComboBox, setObjectName="cmb000", setToolTip="Scene Editors"
-        )
-        items = [
-            "Node Editor",
-            "Outlinder",
-            "Content Browser",
-            "Optimize Scene Size",
-            "Prefix Hierarchy Names",
-            "Search and Replace Names",
-        ]
-        cmb.addItems_(items, "Maya Scene Editors")
-
     def t000_init(self, widget):
         """ """
         widget.option_menu.add(
@@ -79,29 +64,6 @@ class Scene_maya(SlotsMaya):
             setObjectName="chk004",
             setToolTip="Reverse the naming order. (Farthest object first)",
         )
-
-    def cmb000(self, *args, **kwargs):
-        """Editors"""
-        cmb = kwargs.get("widget")
-        index = kwargs.get("index")
-
-        if index > 0:
-            text = cmb.items[index]
-            if text == "Node Editor":
-                pm.mel.eval("NodeEditorWindow;")  #
-            elif text == "Outlinder":
-                pm.mel.eval("OutlinerWindow;")  #
-            elif text == "Content Browser":
-                pm.mel.eval("ContentBrowserWindow;")  #
-            elif text == "Optimize Scene Size":
-                pm.mel.eval("cleanUpScene 2;")
-            elif text == "Prefix Hierarchy Names":
-                pm.mel.eval("prefixHierarchy;")  # Add a prefix to all hierarchy names.
-            elif text == "Search and Replace Names":
-                pm.mel.eval(
-                    "SearchAndReplaceNames;"
-                )  # performSearchReplaceNames 1; #Rename objects in the scene.
-            cmb.setCurrentIndex(0)
 
     def tb000(self, *args, **kwargs):
         """Convert Case"""

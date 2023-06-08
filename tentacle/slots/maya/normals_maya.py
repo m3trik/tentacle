@@ -13,10 +13,6 @@ class Normals_maya(SlotsMaya):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-    def draggableHeader_init(self, widget):
-        """ """
-        widget.ctx_menu.add(self.sb.ComboBox, setObjectName="cmb000", setToolTip="")
-
     def tb000_init(self, widget):
         """ """
         widget.option_menu.add(
@@ -118,16 +114,6 @@ class Normals_maya(SlotsMaya):
             setToolTip="Average the normals of each object's faces per UV shell.",
         )
 
-    def cmb000(self, *args, **kwargs):
-        """Editors"""
-        cmb = kwargs.get("widget")
-        index = kwargs.get("index")
-
-        if index > 0:
-            if index == cmb.items.index(""):
-                pass
-            cmb.setCurrentIndex(0)
-
     def tb000(self, *args, **kwargs):
         """Display Face Normals"""
         tb = kwargs.get("widget")
@@ -189,9 +175,7 @@ class Normals_maya(SlotsMaya):
 
             uv_border_edges = []
             if harden_uv_borders:
-                uv_border_edges = pm.ls(
-                    self.sb.uv.slots.getUvShellBorderEdges(selected_edges)
-                )
+                uv_border_edges = pm.ls(mtk.get_uv_shell_border_edges(selected_edges))
                 hard_edges.extend(uv_border_edges)
 
         if hard_edges:  # Set hard edges.
@@ -211,14 +195,13 @@ class Normals_maya(SlotsMaya):
         pm.polyOptions(selected_objects, se=soft_edge_display)
         pm.select(hard_edges)
 
-    @SlotsMaya.attr
     def tb002(self, *args, **kwargs):
         """Set Normals By Angle"""
         tb = kwargs.get("widget")
 
         normalAngle = str(tb.option_menu.s000.value())
 
-        objects = pm.ls(selection=1, objectsOnly=1, flatten=1)
+        objects = pm.ls(sl=True, objectsOnly=1, flatten=1)
         for obj in objects:
             sel = pm.ls(obj, sl=1)
             pm.polySetToFaceNormal(sel, setUserNormal=1)  # reset to face
@@ -235,10 +218,10 @@ class Normals_maya(SlotsMaya):
         all_ = tb.option_menu.chk001.isChecked()
         state = (
             tb.option_menu.chk002.isChecked()
-        )  # pm.polyNormalPerVertex(vertex, query=1, freezeNormal=1)
-        selection = pm.ls(selection=1, objectsOnly=1)
-        maskObject = pm.selectMode(query=1, object=1)
-        maskVertex = pm.selectType(query=1, vertex=1)
+        )  # pm.polyNormalPerVertex(vertex, q=True, freezeNormal=1)
+        selection = pm.ls(sl=True, objectsOnly=1)
+        maskObject = pm.selectMode(q=True, object=1)
+        maskVertex = pm.selectType(q=True, vertex=1)
 
         if not selection:
             self.sb.message_box("Operation requires at least one selected object.")
@@ -273,10 +256,10 @@ class Normals_maya(SlotsMaya):
         """Average Normals"""
         tb = kwargs.get("widget")
 
-        byUvShell = tb.option_menu.chk003.isChecked()
+        by_uv_shell = tb.option_menu.chk003.isChecked()
 
-        objects = pm.ls(selection=1, objectsOnly=1, flatten=1)
-        self.averageNormals(objects, byUvShell=byUvShell)
+        objects = pm.ls(sl=True, objectsOnly=1, flatten=1)
+        mtk.average_normals(objects, by_uv_shell=by_uv_shell)
 
     def b001(self, *args, **kwargs):
         """Soften Edge Normals"""
@@ -287,7 +270,7 @@ class Normals_maya(SlotsMaya):
     def b002(self, *args, **kwargs):
         """Transfer Normals"""
         source, *target = pm.ls(sl=1)
-        self.transferNormals(source, target)
+        mtk.transfer_normals(source, target)
 
     def b003(self, *args, **kwargs):
         """Soft Edge Display"""
@@ -313,157 +296,6 @@ class Normals_maya(SlotsMaya):
             # normalMode 4: reverse and propagate; Reverse the normal(s) and propagate this direction to all other faces in the shell.
             pm.polyNormal(sel, normalMode=3, userNormalMode=1)
 
-    def averageNormals(self, objects, byUvShell=False):
-        """Average Normals
-
-        Parameters:
-                byUvShell (bool): Average each UV shell individually.
-        """
-        pm.undoInfo(openChunk=1)
-        for obj in objects:
-            if byUvShell:
-                obj = pm.ls(obj, transforms=1)
-                sets_ = self.sb.uv.slots.getUvShellSets(obj)
-                for set_ in sets_:
-                    pm.polySetToFaceNormal(set_)
-                    pm.polyAverageNormal(set_)
-            else:
-                sel = pm.ls(obj, sl=1)
-                if not sel:
-                    sel = obj
-                pm.polySetToFaceNormal(sel)
-                pm.polyAverageNormal(sel)
-        pm.undoInfo(closeChunk=1)
-
-    @staticmethod
-    def getNormalVector(obj):
-        """Get the normal vectors of the given poly object.
-
-        Parameters:
-                obj (str/obj/list): A polygon mesh or it's component(s).
-
-        Returns:
-                dict - {int:[float, float, float]} face id & vector xyz.
-        """
-        obj = pm.ls(obj)
-        normals = pm.polyInfo(obj, faceNormals=1)
-
-        regex = "[A-Z]*_[A-Z]* *[0-9]*: "
-
-        dict_ = {}
-        for n in normals:
-            l = list(
-                s.replace(regex, "") for s in n.split() if s
-            )  # ['FACE_NORMAL', '150:', '0.935741', '0.110496', '0.334931\n']
-
-            key = int(l[1].strip(":"))  # int face number as key ie. 150
-            value = list(
-                float(i) for i in l[-3:]
-            )  # vector list as value. ie. [[0.935741, 0.110496, 0.334931]]
-            dict_[key] = value
-
-        return dict_
-
-    @classmethod
-    def getFacesWithSimilarNormals(
-        cls,
-        faces,
-        transforms=[],
-        similarFaces=[],
-        rangeX=0.1,
-        rangeY=0.1,
-        rangeZ=0.1,
-        returned_type="str",
-    ):
-        """Filter for faces with normals that fall within an X,Y,Z tolerance.
-
-        Parameters:
-                faces (list): ['polygon faces'] - faces to find similar normals for.
-                similarFaces (list): optional ability to add faces from previous calls to the return value.
-                transforms (list): [<shape nodes>] - objects to check faces on. If none are given the objects containing the given faces will be used.
-                rangeX = float - x axis tolerance
-                rangeY = float - y axis tolerance
-                rangeZ = float - z axis tolerance
-                returned_type (str): The desired returned object type.
-                                                valid: 'str'(default), 'obj'(shape object), 'transform'(as string), 'int'(valid only at sub-object level).
-        Returns:
-                (list) faces that fall within the given normal range.
-
-        ex. getFacesWithSimilarNormals(selectedFaces, rangeX=0.5, rangeY=0.5, rangeZ=0.5)
-        """
-        faces = pm.ls(
-            faces, flatten=1
-        )  # work on a copy of the argument so that removal of elements doesn't effect the passed in list.
-        for face in faces:
-            normals = cls.getNormalVector(face)
-
-            for k, v in normals.items():
-                sX, sY, sZ = v
-
-                if not transforms:
-                    transforms = pm.ls(face, objectsOnly=True)
-
-                for node in transforms:
-                    for f in cls.get_components(
-                        node, "faces", returned_type=returned_type, flatten=1
-                    ):
-                        n = cls.getNormalVector(f)
-                        for k, v in n.items():
-                            nX, nY, nZ = v
-
-                            if (
-                                sX <= nX + rangeX
-                                and sX >= nX - rangeX
-                                and sY <= nY + rangeY
-                                and sY >= nY - rangeY
-                                and sZ <= nZ + rangeZ
-                                and sZ >= nZ - rangeZ
-                            ):
-                                similarFaces.append(f)
-                                if (
-                                    f in faces
-                                ):  # If the face is in the loop que, remove it, as has already been evaluated.
-                                    faces.remove(f)
-
-        return similarFaces
-
-    @staticmethod
-    def transferNormals(source, target):
-        """Transfer normal information from one object to another.
-
-        Parameters:
-                source (str/obj/list): The transform node to copy normals from.
-                target (str/obj/list): The transform node(s) to copy normals to.
-        """
-        pm.undoInfo(openChunk=1)
-        s, *other = pm.ls(source)
-        # store source transforms
-        sourcePos = pm.xform(s, q=1, t=1, ws=1)
-        sourceRot = pm.xform(s, q=1, ro=1, ws=1)
-        sourceScale = pm.xform(s, q=1, s=1, ws=1)
-
-        for t in pm.ls(target):
-            # store target transforms
-            targetPos = pm.xform(t, q=1, t=1, ws=1)
-            targetRot = pm.xform(t, q=1, ro=1, ws=1)
-            targetScale = pm.xform(t, q=1, s=1, ws=1)
-
-            # move target to source position
-            pm.xform(t, t=sourcePos, ws=1)
-            pm.xform(t, ro=sourceRot, ws=1)
-            pm.xform(t, s=sourceScale, ws=1)
-
-            # copy normals
-            pm.polyNormalPerVertex(t, ufn=0)
-            pm.transferAttributes(s, t, pos=0, nml=1, uvs=0, col=0, spa=0, sm=3, clb=1)
-            pm.delete(t, ch=1)
-
-            # restore t position
-            pm.xform(t, t=targetPos, ws=1)
-            pm.xform(t, ro=targetRot, ws=1)
-            pm.xform(t, s=targetScale, ws=1)
-        pm.undoInfo(closeChunk=1)
-
 
 # module name
 print(__name__)
@@ -476,7 +308,7 @@ print(__name__)
 
 
 # @staticmethod
-#   def getNormalVector(obj):
+#   def get_normal_vector(obj):
 #       '''Get the normal vectors from the given poly object.
 
 #       Parameters:

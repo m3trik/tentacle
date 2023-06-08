@@ -74,18 +74,6 @@ class Animation_maya(SlotsMaya):
 
         self.invertSelectedKeyframes(time=time, relative=relative)
 
-    def cmb000(self, *args, **kwargs):
-        """Editors"""
-        cmb = kwargs.get("widget")
-        index = kwargs.get("index")
-
-        if index > 0:
-            text = cmb.items[index]
-            if text == "":
-                pass
-
-            cmb.setCurrentIndex(0)
-
     def b000(self, *args, **kwargs):
         """Delete Keys on Selected"""
         selected_objects = pm.selected()

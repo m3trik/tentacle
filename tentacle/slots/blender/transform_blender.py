@@ -18,8 +18,8 @@ class Transform_blender(Transform, SlotsBlender):
         cmb.popupStyle = "qmenu"
         cmb.option_menu.setTitle("Constaints")
         # query and set current states:
-        # edge_constraint = True if pm.xformConstraint(query=1, type=1)=='edge' else False
-        # surface_constraint = True if pm.xformConstraint(query=1, type=1)=='surface' else False
+        # edge_constraint = True if pm.xformConstraint(q=True, type=1)=='edge' else False
+        # surface_constraint = True if pm.xformConstraint(q=True, type=1)=='surface' else False
         # live_object = True if pm.ls(live=1) else False
         # values = [('chk024', 'Edge', edge_constraint), ('chk025', 'Surface', surface_constraint), ('chk026', 'Make Live', live_object)]
         # [cmb.option_menu.add(self.sb.CheckBox, setObjectName=chk, setText=typ, setChecked=state) for chk, typ, state in values]
@@ -469,10 +469,10 @@ class Transform_blender(Transform, SlotsBlender):
         # pm.undoInfo(openChunk=1)
         for obj in pm.ls(objects, transforms=1):
             osPivot = pm.xform(
-                obj, query=1, rotatePivot=1, objectSpace=1
+                obj, q=True, rotatePivot=1, objectSpace=1
             )  # save the object space obj pivot.
             wsPivot = pm.xform(
-                obj, query=1, rotatePivot=1, worldSpace=1
+                obj, q=True, rotatePivot=1, worldSpace=1
             )  # save the world space obj pivot.
 
             pm.xform(obj, centerPivots=1)  # center pivot
@@ -687,9 +687,9 @@ class Transform_blender(Transform, SlotsBlender):
         Returns: [float list] - x, y, z  coordinate values.
         """
         if ".vtx" in str(component):
-            x = pm.polyNormalPerVertex(component, query=1, x=1)
-            y = pm.polyNormalPerVertex(component, query=1, y=1)
-            z = pm.polyNormalPerVertex(component, query=1, z=1)
+            x = pm.polyNormalPerVertex(component, q=True, x=1)
+            y = pm.polyNormalPerVertex(component, q=True, y=1)
+            z = pm.polyNormalPerVertex(component, q=True, z=1)
             xyz = [
                 sum(x) / float(len(x)),
                 sum(y) / float(len(y)),
@@ -707,11 +707,11 @@ class Transform_blender(Transform, SlotsBlender):
             y = []
             z = []
             for vertex in vertices:
-                x_ = pm.polyNormalPerVertex(vertex, query=1, x=1)
+                x_ = pm.polyNormalPerVertex(vertex, q=True, x=1)
                 x.append(sum(x_) / float(len(x_)))
-                y_ = pm.polyNormalPerVertex(vertex, query=1, y=1)
+                y_ = pm.polyNormalPerVertex(vertex, q=True, y=1)
                 x.append(sum(y_) / float(len(y_)))
-                z_ = pm.polyNormalPerVertex(vertex, query=1, z=1)
+                z_ = pm.polyNormalPerVertex(vertex, q=True, z=1)
                 x.append(sum(z_) / float(len(z_)))
             xyz = [
                 sum(x) / float(len(x)),
@@ -746,7 +746,7 @@ class Transform_blender(Transform, SlotsBlender):
             pm.delete(constraint)  # orient object_ then remove constraint.
 
         vertexPoint = pm.xform(
-            component, query=1, translation=1
+            component, q=True, translation=1
         )  # average vertex points on destination to get component center.
         x = vertexPoint[0::3]
         y = vertexPoint[1::3]
@@ -819,15 +819,15 @@ class Transform_blender(Transform, SlotsBlender):
 
         pm.mel.PolySelectConvert(3)  # convert to vertices
 
-        selection = pm.ls(selection=1, flatten=1)
-        lastSelected = pm.ls(tail=1, selection=1, flatten=1)
-        align_to = pm.xform(lastSelected, query=1, translation=1, worldSpace=1)
+        selection = pm.ls(sl=True, flatten=1)
+        lastSelected = pm.ls(tail=1, sl=True, flatten=1)
+        align_to = pm.xform(lastSelected, q=True, translation=1, worldSpace=1)
         alignX = align_to[0]
         alignY = align_to[1]
         alignZ = align_to[2]
 
         if average:
-            xyz = pm.xform(selection, query=1, translation=1, worldSpace=1)
+            xyz = pm.xform(selection, q=True, translation=1, worldSpace=1)
             x = xyz[0::3]
             y = xyz[1::3]
             z = xyz[2::3]
@@ -843,7 +843,7 @@ class Transform_blender(Transform, SlotsBlender):
             )
 
         for vertex in selection:
-            vertexXYZ = pm.xform(vertex, query=1, translation=1, worldSpace=1)
+            vertexXYZ = pm.xform(vertex, q=True, translation=1, worldSpace=1)
             vertX = vertexXYZ[0]
             vertY = vertexXYZ[1]
             vertZ = vertexXYZ[2]
@@ -972,7 +972,7 @@ print(__name__)
 # 	floatX=floatY=floatZ = 0
 
 # 	if relative: #else absolute.
-# 		currentScale = pm.xform(query=1, scale=1)
+# 		currentScale = pm.xform(q=True, scale=1)
 # 		floatX = round(currentScale[0], 2)
 # 		floatY = round(currentScale[1], 2)
 # 		floatZ = round(currentScale[2], 2)

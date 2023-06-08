@@ -17,22 +17,18 @@ class Materials_maya(SlotsMaya):
 
     def draggableHeader_init(self, widget):
         """ """
-        cmb000 = widget.ctx_menu.add(
-            self.sb.ComboBox, setObjectName="cmb000", setToolTip="Material Editors"
-        )
         widget.ctx_menu.add(
             self.sb.Label,
             setText="Material Attributes",
             setObjectName="lbl004",
             setToolTip="Show the material attributes in the attribute editor.",
         )
-        items = ["Hypershade", "Material Presets"]
-        cmb000.addItems_(items, "Material Editors")
-        # hide the current material submenu button until a material is available.
         self.sb.materials_submenu.b003.setVisible(False)
 
     def cmb002_init(self, widget):
         """ """
+        widget.clear()
+        widget.is_initialized = False
         widget.option_menu.add(
             "QComboBox",
             setObjectName="cmb001",
@@ -63,22 +59,21 @@ class Materials_maya(SlotsMaya):
             setObjectName="lbl003",
             setToolTip="Delete All unused materials.",
         )
-        widget.beforePopupShown.connect(
-            self.widget
-        )  # refresh comboBox contents before showing it's menu.
         widget.returnPressed.connect(lambda: self.lbl001(setEditable=False))
+        # set the popup title to be the current materials name.
         widget.currentIndexChanged.connect(
             lambda: widget.option_menu.setTitle(widget.currentText())
-        )  # set the popup title to be the current materials name.
+        )
+        # set the groupbox title to reflect the current filter.
         widget.option_menu.cmb001.currentIndexChanged.connect(
             lambda: self.sb.materials.group000.setTitle(
                 widget.option_menu.cmb001.currentText()
             )
-        )  # set the groupbox title to reflect the current filter.
-        widget.option_menu.cmb001.currentIndexChanged.connect(
-            self.cmb002
-        )  # refresh cmb002 contents.
-        self.cmb002()  # initialize the materials list
+        )
+        # refresh cmb002 contents.
+        widget.option_menu.cmb001.currentIndexChanged.connect(self.cmb002)
+        # initialize the materials list
+        self.cmb002_init(widget.ui.cmb002)
 
     def tb000_init(self, widget):
         """ """
@@ -132,34 +127,15 @@ class Materials_maya(SlotsMaya):
             lambda state: widget.setText("Assign Random")
         )
 
-    def cmb000(self, *args, **kwargs):
-        """Editors"""
-        cmb = kwargs.get("widget")
-        index = kwargs.get("index")
-
-        if index > 0:
-            text = cmb.items[index]
-
-            if text == "Hypershade":
-                pm.mel.eval("HypershadeWindow;")
-
-            elif text == "Material Presets":
-                from shadertls import Stingray_arnold_shader_main
-
-                Stingray_arnold_shader_main()
-
-            cmb.setCurrentIndex(0)
-
-    def cmb002(self, *args, **kwargs):
+    def cmb002(self, index, widget):
         """Material list
 
         Parameters:
                 index (int): parameter on activated, currentIndexChanged, and highlighted signals.
         """
-        cmb = kwargs.get("widget")
         b = self.sb.materials_submenu.b003
 
-        mode = cmb.option_menu.cmb001.currentText()
+        mode = widget.option_menu.cmb001.currentText()
         if mode == "Scene Materials":
             materials = self.getSceneMaterials(exc="standardSurface")
 
@@ -178,49 +154,45 @@ class Materials_maya(SlotsMaya):
                 if hasattr(mat, "name")
             }
 
-        cmb.addItems_(currentMats, clear=True)
+        widget.addItems_(currentMats, clear=True)
 
         # create and set icons with color swatch
-        for i, mat in enumerate(cmb.items):
+        for i, mat in enumerate(widget.items):
             icon = self.getColorSwatchIcon(mat)
-            cmb.setItemIcon(i, icon) if icon else None
+            widget.setItemIcon(i, icon) if icon else None
 
         # set submenu assign material button attributes
-        b.setText("Assign " + cmb.currentText())
-        icon = self.getColorSwatchIcon(cmb.currentText(), [15, 15])
+        b.setText("Assign " + widget.currentText())
+        icon = self.getColorSwatchIcon(widget.currentText(), [15, 15])
         b.setIcon(icon) if icon else None
         b.setMinimumWidth(b.minimumSizeHint().width() + 25)
-        b.setVisible(True if cmb.currentText() else False)
+        b.setVisible(True if widget.currentText() else False)
 
-    def tb000(self, *args, **kwargs):
+    def tb000(self, widget):
         """Select By Material Id"""
-        tb = kwargs.get("widget")
-
         mat = self.sb.materials.cmb002.currentData()
         if not mat:
             self.sb.message_box("No Material Selection.")
             return
 
-        shell = tb.option_menu.chk005.isChecked()  # Select by material: shell
-        invert = tb.option_menu.chk006.isChecked()  # Select by material: invert
-        allObjects = tb.option_menu.chk003.isChecked()  # Search all scene objects
+        shell = widget.option_menu.chk005.isChecked()  # Select by material: shell
+        invert = widget.option_menu.chk006.isChecked()  # Select by material: invert
+        allObjects = widget.option_menu.chk003.isChecked()  # Search all scene objects
 
         objects = pm.ls(sl=1, objectsOnly=1) if not allObjects else None
 
         self.selectByMaterialID(mat, objects, shell=shell, invert=invert)
 
-    def tb002(self, *args, **kwargs):
+    def tb002(self, widget):
         """Assign Material"""
-        tb = kwargs.get("widget")
-
-        selection = pm.ls(selection=1, flatten=1)
+        selection = pm.ls(sl=True, flatten=1)
         if not selection:
             self.sb.message_box("No renderable object is selected for assignment.")
             return
 
-        assignCurrent = tb.option_menu.chk007.isChecked()
-        assignRandom = tb.option_menu.chk008.isChecked()
-        assignNew = tb.option_menu.chk009.isChecked()
+        assignCurrent = widget.option_menu.chk007.isChecked()
+        assignRandom = widget.option_menu.chk008.isChecked()
+        assignNew = widget.option_menu.chk009.isChecked()
 
         if assignCurrent:  # Assign current mat
             mat = self.sb.materials.cmb002.currentData()
@@ -235,7 +207,7 @@ class Materials_maya(SlotsMaya):
 
             self.randomMat = mat
 
-            self.cmb002()  # refresh the materials list comboBox
+            self.cmb002_init(widget.ui.cmb002)  # refresh the materials list comboBox
             self.sb.materials.cmb002.setCurrentItem(
                 mat.name()
             )  # set the combobox index to the new mat #self.cmb002.setCurrentIndex(self.cmb002.findText(name))
@@ -286,10 +258,10 @@ class Materials_maya(SlotsMaya):
             index, "None"
         )  # self.sb.materials.cmb002.removeItem(index)
 
-    def lbl003(self):
+    def lbl003(self, widget):
         """Delete Unused Materials"""
         pm.mel.hyperShadePanelMenuCommand("hyperShadePanel1", "deleteUnusedNodes")
-        self.cmb002()  # refresh the materials list comboBox
+        self.cmb002_init(widget.ui.cmb002)  # refresh the materials list comboBox
 
     def lbl004(self):
         """Material Attributes: Show Material Attributes in the Attribute Editor."""
@@ -307,38 +279,36 @@ class Materials_maya(SlotsMaya):
         """Material List: Edit"""
         self.lbl000()
 
-    def b002(self, *args, **kwargs):
+    def b002(self, widget):
         """Set Material: Set the currently selected material as the current material."""
-        selection = pm.ls(selection=1)
+        selection = pm.ls(sl=True)
         if not selection:
             self.sb.message_box("Nothing selected.")
             return
 
         mat = self.getMaterial()
-
-        self.sb.materials.cmb002.option_menu.cmb001.setCurrentIndex(
-            0
-        )  # set the combobox to show all scene materials
-        self.cmb002()  # refresh the materials list comboBox
+        # set the combobox to show all scene materials
+        self.sb.materials.cmb002.option_menu.cmb001.setCurrentIndex(0)
+        self.cmb002_init(widget.ui.cmb002)  # refresh the materials list comboBox
         self.sb.materials.cmb002.setCurrentItem(mat.name())
 
-    def b003(self, *args, **kwargs):
+    def b003(self, widget):
         """Assign: Assign Current"""
         self.sb.materials.tb002.option_menu.chk007.setChecked(True)
         self.sb.materials.tb002.setText("Assign Current")
-        self.tb002()
+        self.tb002_init(widget.ui.tb002)
 
-    def b004(self, *args, **kwargs):
+    def b004(self, widget):
         """Assign: Assign Random"""
         self.sb.materials.tb002.option_menu.chk008.setChecked(True)
         self.sb.materials.tb002.setText("Assign Random")
-        self.tb002()
+        self.tb002_init(widget.ui.tb002)
 
-    def b005(self, *args, **kwargs):
+    def b005(self, widget):
         """Assign: Assign New"""
         self.sb.materials.tb002.option_menu.chk009.setChecked(True)
         self.sb.materials.tb002.setText("Assign New")
-        self.tb002()
+        self.tb002_init(widget.ui.tb002)
 
     def getColorSwatchIcon(self, mat, size=[20, 20]):
         """Get an icon with a color fill matching the given materials RBG value.
@@ -492,9 +462,7 @@ class Materials_maya(SlotsMaya):
         pm.hyperShade(
             obj, shaderNetworksSelectMaterialNodes=1
         )  # selects the material node
-        mats = pm.ls(
-            selection=1, materials=1
-        )  # now add the selected node to a variable
+        mats = pm.ls(sl=True, materials=1)  # now add the selected node to a variable
 
         return mats[0]
 

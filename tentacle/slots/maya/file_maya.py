@@ -17,14 +17,6 @@ class File_maya(SlotsMaya):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-    def draggableHeader_init(self, widget):
-        """ """
-        cmb = widget.ctx_menu.add(
-            self.sb.ComboBox, setObjectName="cmb000", setToolTip=""
-        )
-        items = []
-        cmb.addItems_(items, "File Editors")
-
     def cmb002_init(self, widget):
         """ """
         # Get the current autosave state
@@ -176,40 +168,26 @@ class File_maya(SlotsMaya):
 
         pm.openFile(data, open=True, force=True)
 
-    def cmb000(self, *args, **kwargs):
-        """Editors"""
-        cmb = kwargs.get("widget")
-        index = kwargs.get("index")
-
-        if index > 0:
-            text = cmb.items[index]
-            if text == "":
-                pass
-            cmb.setCurrentIndex(0)
-
-    def cmb001(self, *args, **kwargs):
+    def cmb001(self, index=-1, **kwargs):
         """Recent Projects"""
         cmb = kwargs.get("widget")
-        index = kwargs.get("index")
 
         if index > 0:
             pm.mel.setProject(cmb.items[index])
             cmb.setCurrentIndex(0)
 
-    def cmb002(self, *args, **kwargs):
+    def cmb002(self, index=-1, **kwargs):
         """Recent Autosave"""
         cmb = kwargs.get("widget")
-        index = kwargs.get("index")
 
         if index > 0:
             file = cmb.items[index]
             pm.openFile(file, open=1, force=True)
             cmb.setCurrentIndex(0)
 
-    def cmb003(self, *args, **kwargs):
+    def cmb003(self, index=-1, **kwargs):
         """Import"""
         cmb = kwargs.get("widget")
-        index = kwargs.get("index")
 
         if index > 0:  # hide then perform operation
             self.sb.parent().hide(force=1)
@@ -223,10 +201,9 @@ class File_maya(SlotsMaya):
                 pm.mel.FBXUICallBack(-1, "editImportPresetInNewWindow", "obj")
             cmb.setCurrentIndex(0)
 
-    def cmb004(self, *args, **kwargs):
+    def cmb004(self, index=-1, **kwargs):
         """Export"""
         cmb = kwargs.get("widget")
-        index = kwargs.get("index")
 
         if index > 0:  # hide then perform operation
             self.sb.parent().hide(force=1)
@@ -256,27 +233,23 @@ class File_maya(SlotsMaya):
                 pm.mel.FBXUICallBack(-1, "editExportPresetInNewWindow", "obj")
             cmb.setCurrentIndex(0)
 
-    def cmb005(self, *args, **kwargs):
+    def cmb005(self, index=-1, **kwargs):
         """Recent Files"""
         cmb = kwargs.get("widget")
-        index = kwargs.get("index")
 
         if index > 0:
             force = True
             # if sceneName prompt user to save; else force open
-            force if str(pm.mel.file(query=1, sceneName=1, shortName=1)) else not force
+            force if str(pm.mel.file(q=True, sceneName=1, shortName=1)) else not force
             print(cmb.items[index])
             pm.openFile(cmb.items[index], open=1, force=force)
             cmb.setCurrentIndex(0)
 
-    def cmb006(self, *args, **kwargs):
+    def cmb006(self, index=-1, **kwargs):
         """Workspace"""
-        cmb = kwargs.get("widget")
-        index = kwargs.get("index")
+        cmb = kwargs.get("widget", self.sb.file.cmb006)
 
-        path = ptk.File.format_path(
-            pm.workspace(query=1, rd=1)
-        )  # current project path.
+        path = ptk.File.format_path(pm.workspace(q=True, rd=1))  # current project path.
         items = [f for f in os.listdir(path)]
         # add current project path string to label. strip path and trailing '/'
         project = ptk.File.format_path(path, "dir")
@@ -296,7 +269,7 @@ class File_maya(SlotsMaya):
 
     def lbl004(self):
         """Open current project root"""
-        dir_ = pm.workspace(query=1, rd=1)  # current project path.
+        dir_ = pm.workspace(q=True, rd=1)  # current project path.
         os.startfile(ptk.File.format_path(dir_))
 
     def lbl005(self):
@@ -305,7 +278,7 @@ class File_maya(SlotsMaya):
 
     def b000(self, *args, **kwargs):
         """Autosave: Open Directory"""
-        # dir1 = str(pm.workspace(query=1, rd=1))+'autosave' #current project path.
+        # dir1 = str(pm.workspace(q=True, rd=1))+'autosave' #current project path.
         # get autosave dir path from env variable.
         dir2 = os.environ.get("MAYA_AUTOSAVE_FOLDER").split(";")[0]
 
@@ -351,7 +324,7 @@ class File_maya(SlotsMaya):
 
         objects = pm.ls(from_)  # Stores a list of all objects starting with 'from_'
         if selected:  # get user selected objects instead
-            objects = pm.ls(selection=1)
+            objects = pm.ls(sl=True)
         from_ = from_.strip("*")  # strip modifier asterisk from user input
 
         for obj in objects:  # Get a list of it's direct parent
@@ -410,7 +383,7 @@ print(__name__)
 #     # force=false #pymel has no attribute quit error.
 #     # exitcode=""
 #     # if sceneName prompt user to save; else force close
-#     sceneName = str(pm.mel.file(query=1, sceneName=1, shortName=1))
+#     sceneName = str(pm.mel.file(q=True, sceneName=1, shortName=1))
 #     # pm.quit (force=force, exitcode=exitcode)
 #     pm.mel.quit() if sceneName else pm.mel.quit(force=True)
 

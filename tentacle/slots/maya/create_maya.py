@@ -51,28 +51,14 @@ class Create_maya(SlotsMaya):
             setToolTip="Uniformly scale the created object to match the averaged scale of any selected object(s).",
         )
 
-    def cmb000(self, *args, **kwargs):
-        """Editors"""
-        cmb = kwargs.get("widget")
-        index = kwargs.get("index")
-
-        if index > 0:
-            text = cmb.items[index]
-            if text == "":
-                pass
-            cmb.setCurrentIndex(0)
-
-    def cmb001(self, *args, **kwargs):
+    def cmb001(self, index=-1, **kwargs):
         """ """
-        index = kwargs.get("index")
-
         if index >= 0:
             self.cmb002(index)
 
-    def cmb002(self, *args, **kwargs):
+    def cmb002(self, index=-1, **kwargs):
         """ """
         cmb = kwargs.get("widget")
-        index = kwargs.get("index")
 
         polygons = [
             "Cube",
@@ -109,7 +95,6 @@ class Create_maya(SlotsMaya):
         if index == 2:
             cmb.addItems_(lights, clear=True)
 
-    @SlotsMaya.attr
     def tb000(self, *args, **kwargs):
         """Create Primitive"""
         tb = kwargs.get("widget")
@@ -144,7 +129,7 @@ class Create_maya(SlotsMaya):
         baseType = baseType.lower()
         subType = subType.lower()
 
-        selection = pm.ls(selection=1, transforms=1)
+        selection = pm.ls(sl=True, transforms=1)
 
         primitives = {
             "polygon": {
@@ -289,7 +274,7 @@ print(__name__)
 #   '''
 #   axis = self.rotation[axis]
 
-#   rotateOrder = pm.xform(node, query=1, rotateOrder=1)
+#   rotateOrder = pm.xform(node, q=True, rotateOrder=1)
 #   pm.xform(node, preserve=1, rotation=axis, rotateOrder=rotateOrder, absolute=1)
 #   self.rotation['last'] = axis
 
@@ -346,9 +331,9 @@ print(__name__)
 # '''Set Point
 # '''
 # #add support for averaging multiple components.
-# selection = pm.ls(selection=1, flatten=1)
+# selection = pm.ls(sl=True, flatten=1)
 # try:
-#   self.point = pm.xform(selection, query=1, translation=1, worldSpace=1, absolute=1)
+#   self.point = pm.xform(selection, q=True, translation=1, worldSpace=1, absolute=1)
 # except:
 #   self.point = [0,0,0]
 #   print('Warning: Nothing selected. Point set to origin [0,0,0].')

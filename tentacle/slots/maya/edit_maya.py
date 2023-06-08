@@ -12,15 +12,6 @@ class Edit_maya(SlotsMaya):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-    def draggableHeader_init(self, widget):
-        """ """
-        widget.ctx_menu.add(
-            self.sb.ComboBox, setObjectName="cmb000", setToolTip="Editors"
-        )
-
-        items = ["Cleanup", "Transfer: Attribute Values", "Transfer: Shading Sets"]
-        widget.ctx_menu.cmb000.addItems_(items, "Maya Editors")
-
     def tb000_init(self, widget):
         """ """
         widget.option_menu.add(
@@ -302,27 +293,9 @@ class Edit_maya(SlotsMaya):
         axis = self.sb.get_axis_from_checkboxes("chk006-9", tb.option_menu)
         tb.setText("Delete " + axis)
 
-    def cmb000(self, *args, **kwargs):
-        """Editors"""
-        cmb = kwargs.get("widget")
-        index = kwargs.get("index")
-
-        if index > 0:
-            text = cmb.items[index]
-            if text == "Cleanup":
-                pm.mel.CleanupPolygonOptions()
-            elif text == "Transfer: Attribute Values":
-                pm.mel.TransferAttributeValuesOptions()
-                # pm.mel.eval('performTransferAttributes 1;') #Transfer Attributes Options
-            elif text == "Transfer: Shading Sets":
-                pm.mel.performTransferShadingSets(1)
-            cmb.setCurrentIndex(0)
-
-    @SlotsMaya.attr
-    def cmb001(self, *args, **kwargs):
+    def cmb001(self, index=-1, **kwargs):
         """Object History Attributes"""
         cmb = kwargs.get("widget")
-        index = kwargs.get("index")
 
         try:
             items = list(
@@ -443,7 +416,7 @@ class Edit_maya(SlotsMaya):
         deformers = tb.option_menu.chk020.isChecked()
         optimize = tb.option_menu.chk030.isChecked()
 
-        objects = pm.ls(selection=1, objectsOnly=1) if not all_ else pm.ls(typ="mesh")
+        objects = pm.ls(sl=True, objectsOnly=1) if not all_ else pm.ls(typ="mesh")
 
         if unusedNodes:
             pm.mel.MLdeleteUnused()  # pm.mel.hyperShadePanelMenuCommand('hyperShadePanel1', 'deleteUnusedNodes')
@@ -542,7 +515,7 @@ class Edit_maya(SlotsMaya):
         unlock = tb.option_menu.chk027.isChecked()
 
         # pm.undoInfo(openChunk=1)
-        nodes = pm.ls() if allNodes else pm.ls(selection=1)
+        nodes = pm.ls() if allNodes else pm.ls(sl=True)
         for node in nodes:
             pm.lockNode(node, lock=not unlock)
         # pm.undoInfo(closeChunk=1)

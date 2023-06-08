@@ -107,7 +107,7 @@ class Normals_blender(Normals, SlotsBlender):
 
         normalAngle = str(tb.option_menu.s000.value())
 
-        objects = pm.ls(selection=1, objectsOnly=1, flatten=1)
+        objects = pm.ls(sl=True, objectsOnly=1, flatten=1)
         for obj in objects:
             sel = pm.ls(obj, sl=1)
             pm.polySetToFaceNormal(sel, setUserNormal=1)  # reset to face
@@ -124,10 +124,10 @@ class Normals_blender(Normals, SlotsBlender):
         all_ = tb.option_menu.chk001.isChecked()
         state = (
             tb.option_menu.chk002.isChecked()
-        )  # pm.polyNormalPerVertex(vertex, query=1, freezeNormal=1)
-        selection = pm.ls(selection=1, objectsOnly=1)
-        maskObject = pm.selectMode(query=1, object=1)
-        maskVertex = pm.selectType(query=1, vertex=1)
+        )  # pm.polyNormalPerVertex(vertex, q=True, freezeNormal=1)
+        selection = pm.ls(sl=True, objectsOnly=1)
+        maskObject = pm.selectMode(q=True, object=1)
+        maskVertex = pm.selectType(q=True, vertex=1)
 
         if not selection:
             return "Error: Operation requires at least one selected object."
@@ -196,7 +196,7 @@ class Normals_blender(Normals, SlotsBlender):
                 byUvShell (bool): Average each UV shell individually.
         """
         # pm.undoInfo(openChunk=1)
-        objects = pm.ls(selection=1, objectsOnly=1, flatten=1)
+        objects = pm.ls(sl=True, objectsOnly=1, flatten=1)
         for obj in objects:
             if byUvShell:
                 obj = pm.ls(obj, transforms=1)

@@ -17,50 +17,29 @@ class Symmetry_maya(SlotsMaya):
         widget = "chk000" if axis == "x" else "chk001" if axis == "y" else "chk002"
         getattr(self.sb.symmetry, widget).setChecked(state)
 
-    def draggableHeader_init(self, widget):
-        """ """
-        cmb000 = widget.ctx_menu.add(
-            self.sb.ComboBox, setObjectName="cmb000", setToolTip=""
-        )
-        items = [""]
-        cmb000.addItems_(items, "")
-
-    def chk000(self, *args, **kwargs):
+    def chk000(self, state=None, **kwargs):
         """Symmetry X"""
-        state = kwargs.get("state")
 
         self.sb.toggle_widgets(setUnChecked="chk001,chk002")
         self.setSymmetry(state, "x")
 
-    def chk001(self, *args, **kwargs):
+    def chk001(self, state=None, **kwargs):
         """Symmetry Y"""
-        state = kwargs.get("state")
 
         self.sb.toggle_widgets(setUnChecked="chk000,chk002")
         self.setSymmetry(state, "y")
 
-    def chk002(self, *args, **kwargs):
+    def chk002(self, state=None, **kwargs):
         """Symmetry Z"""
-        state = kwargs.get("state")
 
         self.sb.toggle_widgets(setUnChecked="chk000,chk001")
         self.setSymmetry(state, "z")
 
-    def chk004(self, *args, **kwargs):
+    def chk004(self, state=None, **kwargs):
         """Symmetry: Object"""
         self.sb.symmetry.chk005.setChecked(False)  # uncheck symmetry:topological
 
-    def cmb000(self, *args, **kwargs):
-        """Editors"""
-        cmb = kwargs.get("widget")
-        index = kwargs.get("index")
-
-        if index > 0:
-            if index == cmb.items.index(""):
-                pass
-            cmb.setCurrentIndex(0)
-
-    def chk005(self, *args, **kwargs):
+    def chk005(self, state=None, **kwargs):
         """Symmetry: Topo"""
         self.sb.symmetry.chk004.setChecked(False)  # uncheck symmetry:object space
         if any(

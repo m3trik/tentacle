@@ -102,7 +102,7 @@ class Display_max(Display, SlotsMax):
         """Toggle Component ID Display"""
         index = ptk.cycle([0, 1, 2, 3, 4], "componentID")
 
-        visible = pm.polyOptions(query=1, displayItemNumbers=1)
+        visible = pm.polyOptions(q=True, displayItemNumbers=1)
         dinArray = [[1, 0, 0, 0], [0, 1, 0, 0], [0, 0, 1, 0], [0, 0, 0, 1]]
 
         if index == 4:

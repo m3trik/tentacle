@@ -11,34 +11,14 @@ class Rendering_maya(SlotsMaya):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-    def draggableHeader_init(self, widget):
-        """ """
-        cmb = widget.option_menu.add(
-            self.sb.ComboBox, setObjectName="cmb000", setToolTip=""
-        )
-        items = [""]
-        cmb.addItems_(items, "")
-
-    def cmb000(self, *args, **kwargs):
-        """Editors"""
-        cmb = kwargs.get("widget")
-        index = kwargs.get("index")
-
-        if index > 0:
-            text = cmb.items[index]
-            if text == "":
-                pass
-            cmb.setCurrentIndex(0)
-
     def cmb001_init(self, widget):
         """Render: camera"""
         lst = {c.name(): c for c in pm.ls(type="camera") if "Target" not in c.name()}
         widget.addItems_(lst)
 
-    def b000(self, *args, **kwargs):
+    def b000(self, index=-1, **kwargs):
         """Render Current Frame"""
         cmb = kwargs.get("widget")
-        index = kwargs.get("index")
 
         pm.render(camera=cmb.items[index])  # render with selected camera
 
@@ -93,9 +73,7 @@ class Rendering_maya(SlotsMaya):
                 query (bool): Query the state of the VRay Plugin.
         """
         if query:
-            return (
-                True if pm.pluginInfo("vrayformaya.mll", query=1, loaded=1) else False
-            )
+            return True if pm.pluginInfo("vrayformaya.mll", q=True, loaded=1) else False
 
         vray = ["vrayformaya.mll", "vrayformayapatch.mll"]
 

@@ -28,15 +28,15 @@ class Duplicate_blender(Duplicate, SlotsBlender):
         radialPivot = []
         # add support for averaging multiple components.
         if self.duplicate_radial_ui.chk010.isChecked():
-            selection = pm.ls(selection=1, flatten=1)
+            selection = pm.ls(sl=True, flatten=1)
             if selection:
                 vertices = pm.filterExpand(selectionMask=31)  # get selected vertices
                 if (
                     vertices is not None and vertices == 1
                 ):  # if a single vertex is selected, query that vertex position.
-                    pivot = pm.xform(selection, query=1, translation=1, worldSpace=1)
+                    pivot = pm.xform(selection, q=True, translation=1, worldSpace=1)
                 else:  # else, get the center of the objects bounding box.
-                    bb = pm.xform(selection, query=1, boundingBox=1, worldSpace=1)
+                    bb = pm.xform(selection, q=True, boundingBox=1, worldSpace=1)
                     pivot = (
                         bb[0] + bb[3] / 2,
                         bb[1] + bb[4] / 2,
@@ -69,7 +69,7 @@ class Duplicate_blender(Duplicate, SlotsBlender):
         if self.duplicate_radial_ui.chk015.isChecked():
             self.sb.toggle_widgets(setEnabled="b003")
 
-            selection = pm.ls(selection=1, type="transform", flatten=1)
+            selection = pm.ls(sl=True, type="transform", flatten=1)
             if selection:
                 if radialArrayObjList:
                     try:
@@ -117,7 +117,7 @@ class Duplicate_blender(Duplicate, SlotsBlender):
                     currentPanel = pm.paneLayout(
                         "viewPanes", q=True, pane1=True
                     )  # get the current modelPanel view
-                    if pm.isolateSelect(currentPanel, query=1, state=1):
+                    if pm.isolateSelect(currentPanel, q=True, state=1):
                         for obj_ in radialArrayObjList:
                             pm.isolateSelect(currentPanel, addDagObject=obj_)
                     # re-select the original selected object
@@ -186,7 +186,7 @@ class Duplicate_blender(Duplicate, SlotsBlender):
 
             del duplicateObjList[1:]  # clear the list, leaving the original obj
             selection = pm.ls(
-                selection=1, flatten=1, objectsOnly=1
+                sl=True, flatten=1, objectsOnly=1
             )  # there will only be a selection when first called. After, the last selected item will have been deleted with the other duplicated objects, leaving only the original un-selected.
 
             if selection:
@@ -367,15 +367,15 @@ class Duplicate_blender(Duplicate, SlotsBlender):
         """
         # pm.undoInfo(openChunk=1)
         p0x, p0y, p0z = pm.xform(
-            objects[0], query=1, rotatePivot=1, worldSpace=1
+            objects[0], q=True, rotatePivot=1, worldSpace=1
         )  # get the world space obj pivot.
         pivot = pm.xform(
-            objects[0], query=1, rotatePivot=1, objectSpace=1
+            objects[0], q=True, rotatePivot=1, objectSpace=1
         )  # get the obj pivot.
 
         for obj in objects[1:]:
             # pm.xform(obj, rotatePivot=pivot, objectSpace=1) #set pivot to match object[0]
-            # p1x, p1y, p1z = wsPivot = pm.xform(obj, query=1, rotatePivot=1, worldSpace=1) #get the world space obj pivot.
+            # p1x, p1y, p1z = wsPivot = pm.xform(obj, q=True, rotatePivot=1, worldSpace=1) #get the world space obj pivot.
             # pos = [p1x-p0x, p1y-p0y, p1z-p0z]
 
             name = obj.name()

@@ -82,7 +82,7 @@ class Crease_blender(Crease, SlotsBlender):
         creaseSet = str(self.sb.crease.b000.text())
         newObject = str(self.sb.crease.b001.text())
 
-        sets = pm.sets(creaseSet, query=1)
+        sets = pm.sets(creaseSet, q=True)
 
         setArray = []
         for set_ in sets:
@@ -96,7 +96,7 @@ class Crease_blender(Crease, SlotsBlender):
                 set_.partition(".")[:1]
             )  # ex. pSphereShape1 from pSphereShape1.e[260:299]
             pm.select(set_, replace=1)
-            value = pm.polyCrease(query=1, value=1)[0]
+            value = pm.polyCrease(q=True, value=1)[0]
             name = set_.replace(oldObject, newObject)
             pm.select(name, replace=1)
             pm.polyCrease(value=value, vertexValue=value, createHistory=True)

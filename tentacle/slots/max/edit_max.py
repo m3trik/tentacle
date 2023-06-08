@@ -96,7 +96,7 @@ class Edit_max(Edit, SlotsMax):
         unusedNodes = tb.option_menu.chk019.isChecked()
         deformers = tb.option_menu.chk020.isChecked()
 
-        objects = pm.ls(selection=1)
+        objects = pm.ls(sl=True)
         if all_:
             objects = pm.ls(typ="mesh")
 

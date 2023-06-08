@@ -12,14 +12,6 @@ class Mirror_maya(SlotsMaya):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-    def draggableHeader_init(self, widget):
-        """ """
-        cmb = widget.ctx_menu.add(
-            self.sb.ComboBox, setObjectName="cmb000", setToolTip=""
-        )
-        items = [""]
-        cmb.addItems_(items, "")
-
     def tb000_init(self, widget):
         """ """
         widget.option_menu.add(
@@ -128,17 +120,6 @@ class Mirror_maya(SlotsMaya):
             attributes="setChecked",
         )
 
-    def cmb000(self, *args, **kwargs):
-        """Editors"""
-        cmb = kwargs.get("widget")
-        index = kwargs.get("index")
-
-        if index > 0:
-            if index == cmb.items.index(""):
-                pass
-            cmb.setCurrentIndex(0)
-
-    @SlotsMaya.attr
     def tb000(self, *args, **kwargs):
         """Mirror Geometry"""
         tb = kwargs.get("widget")

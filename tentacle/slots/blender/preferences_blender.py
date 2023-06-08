@@ -28,7 +28,7 @@ class Preferences_blender(Preferences, SlotsBlender):
         ]
         cmb.addItems_(items)
         index = cmb.items.index(
-            pm.currentUnit(query=1, fullName=1, linear=1)
+            pm.currentUnit(q=True, fullName=1, linear=1)
         )  # get/set current linear value.
         cmb.setCurrentIndex(index)
 
@@ -38,7 +38,7 @@ class Preferences_blender(Preferences, SlotsBlender):
         # items = [k+v for k,v in l.items()] #ie. ['15 fps: game','24 fps: film', ..etc]
         # values = [i[1] for i in l] #ie. ['game','film', ..etc]
         # cmb.addItems_(items)
-        # index = cmb.items.index(pm.currentUnit(query=1, fullName=1, time=1)) #get/set current time value.
+        # index = cmb.items.index(pm.currentUnit(q=True, fullName=1, time=1)) #get/set current time value.
         # cmb.setCurrentIndex(index)
 
         # cmb = self.sb.preferences.cmb003

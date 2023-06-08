@@ -26,7 +26,7 @@ class Init_maya(SlotsMaya):
         hud = self.sb.init.hud_text
 
         try:
-            selection = pm.ls(selection=1)
+            selection = pm.ls(sl=True)
         except NameError:
             return
 
@@ -40,14 +40,14 @@ class Init_maya(SlotsMaya):
                     )
                 )  # symmetry axis
 
-            sceneUnits = pm.currentUnit(query=1, fullName=1, linear=1)
+            sceneUnits = pm.currentUnit(q=True, fullName=1, linear=1)
             hud.insertText(
                 'Units: <font style="color: Yellow;">{}'.format(sceneUnits)
             )  # symmetry axis
 
-            symmetry = pm.symmetricModelling(query=1, symmetry=1)
+            symmetry = pm.symmetricModelling(q=True, symmetry=1)
             if symmetry:
-                axis = pm.symmetricModelling(query=1, axis=1)
+                axis = pm.symmetricModelling(q=True, axis=1)
                 hud.insertText(
                     'Symmetry Axis: <font style="color: Yellow;">{}'.format(
                         axis.upper()
@@ -65,9 +65,9 @@ class Init_maya(SlotsMaya):
                 )  # transform constraits
 
         else:
-            if pm.selectMode(query=1, object=1):  # object mode:
-                if pm.selectType(query=1, allObjects=1):  # get object/s
-                    selectedObjects = pm.ls(selection=1)  # , objectsOnly=1)
+            if pm.selectMode(q=True, object=1):  # object mode:
+                if pm.selectType(q=True, allObjects=1):  # get object/s
+                    selectedObjects = pm.ls(sl=True)  # , objectsOnly=1)
                     numberOfSelected = len(selectedObjects)
                     if numberOfSelected < 11:
                         name_and_type = [
@@ -111,23 +111,23 @@ class Init_maya(SlotsMaya):
                             )
                         )  # add commas each 3 decimal places.
 
-            elif pm.selectMode(query=1, component=1):  # component mode:
-                if pm.selectType(query=1, vertex=1):  # get vertex selection info
+            elif pm.selectMode(q=True, component=1):  # component mode:
+                if pm.selectType(q=True, vertex=1):  # get vertex selection info
                     type_ = "Verts"
                     num_selected = pm.polyEvaluate(vertexComponent=1)
                     total_num = pm.polyEvaluate(selection, vertex=1)
 
-                elif pm.selectType(query=1, edge=1):  # get edge selection info
+                elif pm.selectType(q=True, edge=1):  # get edge selection info
                     type_ = "Edges"
                     num_selected = pm.polyEvaluate(edgeComponent=1)
                     total_num = pm.polyEvaluate(selection, edge=1)
 
-                elif pm.selectType(query=1, facet=1):  # get face selection info
+                elif pm.selectType(q=True, facet=1):  # get face selection info
                     type_ = "Faces"
                     num_selected = pm.polyEvaluate(faceComponent=1)
                     total_num = pm.polyEvaluate(selection, face=1)
 
-                elif pm.selectType(query=1, polymeshUV=1):  # get uv selection info
+                elif pm.selectType(q=True, polymeshUV=1):  # get uv selection info
                     type_ = "UVs"
                     num_selected = pm.polyEvaluate(uvComponent=1)
                     total_num = pm.polyEvaluate(selection, uvcoord=1)

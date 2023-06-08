@@ -13,32 +13,6 @@ class Nurbs_maya(SlotsMaya):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-    def draggableHeader_init(self, widget):
-        """ """
-        cmb = widget.ctx_menu.add(
-            self.sb.ComboBox, setObjectName="cmb000", setToolTip="Maya Curve Operations"
-        )
-        items = [
-            "Project Curve",
-            "Duplicate Curve",
-            "Create Curve from Poly",
-            "Bend Curve",
-            "Curl Curve",
-            "Modify Curve Curvature",
-            "Smooth Curve",
-            "Straighten Curves",
-            "Extrude Curves",
-            "Revolve Curves",
-            "Loft Curves",
-            "Planar Curves",
-            "Insert Isoparms",
-            "Insert Knot",
-            "Rebuild Curve",
-            "Extend Curve",
-            "Extend Curve On Surface",
-        ]
-        cmb.addItems_(items, "Curve Editors")
-
     def cmb001_init(self, widget):
         """ """
         items = [
@@ -196,53 +170,9 @@ class Nurbs_maya(SlotsMaya):
             setToolTip="Angle loft: Number of duplicated points (spans).",
         )
 
-    def cmb000(self, *args, **kwargs):
-        """Maya Curve Operations"""
-        cmb = kwargs.get("widget")
-        index = kwargs.get("index")
-
-        if index > 0:
-            text = cmb.items[index]
-            if text == "Project Curve":
-                pm.mel.eval("ProjectCurveOnSurfaceOptions;")
-            elif text == "Duplicate Curve":
-                pm.mel.eval("DuplicateCurveOptions;")
-            elif text == "Create Curve from Poly":
-                pm.mel.eval("CreateCurveFromPolyOptions")
-            elif text == "Bend Curve":
-                pm.mel.eval("BendCurvesOptions;")
-            elif text == "Curl Curve":
-                pm.mel.eval("CurlCurvesOptions;")
-            elif text == "Modify Curve Curvature":
-                pm.mel.eval("ScaleCurvatureOptions;")
-            elif text == "Smooth Curve":
-                pm.mel.eval("SmoothHairCurvesOptions;")
-            elif text == "Straighten Curves":
-                pm.mel.eval("StraightenCurvesOptions;")
-            elif text == "Extrude Curves":
-                pm.mel.eval("ExtrudeOptions;")
-            elif text == "Revolve Curves":
-                pm.mel.eval("RevolveOptions;")
-            elif text == "Loft Curves":
-                pm.mel.eval("LoftOptions;")
-            elif text == "Planar Curves":
-                pm.mel.eval("PlanarOptions;")
-            elif text == "Insert Isoparms":
-                pm.mel.eval("InsertIsoparmsOptions;")
-            elif text == "Insert Knot":
-                pm.mel.eval("InsertKnotOptions;")
-            elif text == "Rebuild Curve":
-                pm.mel.eval("RebuildCurveOptions;")
-            elif text == "Extend Curve":
-                pm.mel.eval("ExtendCurveOptions;")
-            elif text == "Extend Curve On Surface":
-                pm.mel.eval("ExtendCurveOnSurfaceOptions;")
-            cmb.setCurrentIndex(0)
-
-    def cmb001(self, *args, **kwargs):
+    def cmb001(self, index=-1, **kwargs):
         """Create: Curve"""
         cmb = kwargs.get("widget")
-        index = kwargs.get("index")
 
         if index > 0:
             text = cmb.items[index]
@@ -268,7 +198,6 @@ class Nurbs_maya(SlotsMaya):
                 )  # pm.mel.eval("ThreePointArcTool;")
             cmb.setCurrentIndex(0)
 
-    @SlotsMaya.attr
     def tb000(self, *args, **kwargs):
         """Revolve"""
         tb = kwargs.get("widget")
@@ -298,7 +227,6 @@ class Nurbs_maya(SlotsMaya):
             ax=[0, 1, 0],
         )
 
-    # @SlotsMaya.attr
     def tb001(self, *args, **kwargs):
         """Loft"""
         tb = kwargs.get("widget")

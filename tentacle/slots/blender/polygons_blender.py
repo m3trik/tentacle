@@ -60,8 +60,8 @@ class Polygons_blender(Polygons, SlotsBlender):
         tb = self.sb.polygons.tb000
 
         tolerance = float(tb.option_menu.s002.value())
-        objects = pm.ls(selection=1, objectsOnly=1, flatten=1)
-        componentMode = pm.selectMode(query=1, component=1)
+        objects = pm.ls(sl=True, objectsOnly=1, flatten=1)
+        componentMode = pm.selectMode(q=True, component=1)
 
         if not objects:
             return "Error: <strong>Nothing selected</strong>.<br>Operation requires an object or vertex selection."
@@ -148,21 +148,21 @@ class Polygons_blender(Polygons, SlotsBlender):
         divisions = tb.option_menu.s004.value()
 
         selection = pm.ls(sl=1)
-        if pm.selectType(query=1, facet=1):  # face selection
+        if pm.selectType(q=True, facet=1):  # face selection
             pm.polyExtrudeFacet(
                 edit=1, keepFacesTogether=keepFacesTogether, divisions=divisions
             )
             mel.eval("PolyExtrude;")
             # return pm.polyExtrudeFacet(selection, ch=1, keepFacesTogether=keepFacesTogether, divisions=divisions)
 
-        elif pm.selectType(query=1, edge=1):  # edge selection
+        elif pm.selectType(q=True, edge=1):  # edge selection
             pm.polyExtrudeEdge(
                 edit=1, keepFacesTogether=keepFacesTogether, divisions=divisions
             )
             mel.eval("PolyExtrude;")
             # return pm.polyExtrudeEdge(selection, ch=1, keepFacesTogether=keepFacesTogether, divisions=divisions)
 
-        elif pm.selectType(query=1, vertex=1):  # vertex selection
+        elif pm.selectType(q=True, vertex=1):  # vertex selection
             pm.polyExtrudeVertex(edit=1, width=0.5, length=1, divisions=divisions)
             mel.eval("PolyExtrude;")
             # return polyExtrudeVertex(selection, ch=1, width=0.5, length=1, divisions=divisions)
@@ -356,7 +356,7 @@ class Polygons_blender(Polygons, SlotsBlender):
 
     def b009(self, *args, **kwargs):
         """Collapse Component"""
-        if pm.selectType(query=1, vertex=1):
+        if pm.selectType(q=True, vertex=1):
             pm.mel.MergeToCenter()  # merge vertices
         else:
             pm.mel.PolygonCollapse()

@@ -12,22 +12,6 @@ class Rigging_maya(SlotsMaya):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-    def draggableHeader_init(self, widget):
-        """ """
-        cmb = widget.ctx_menu.add(
-            self.sb.ComboBox, setObjectName="cmb000", setToolTip="Rigging Editors"
-        )
-        items = [
-            "Quick Rig",
-            "HumanIK",
-            "Expression Editor",
-            "Shape Editor",
-            "Connection Editor",
-            "Channel Control Editor",
-            "Set Driven Key",
-        ]
-        cmb.addItems_(items, "Rigging Editors")
-
     def cmb001_init(self, widget):
         """ """
         items = ["Joints", "Locator", "IK Handle", "Lattice", "Cluster"]
@@ -227,33 +211,9 @@ class Rigging_maya(SlotsMaya):
             ],
         )
 
-    def cmb000(self, *args, **kwargs):
-        """Editors"""
-        cmb = kwargs.get("widget")
-        index = kwargs.get("index")
-
-        if index > 0:
-            text = cmb.items[index]
-            if text == "Quick Rig":
-                pm.mel.eval("QuickRigEditor;")  # Quick Rig
-            elif text == "HumanIK":
-                pm.mel.eval("HIKCharacterControlsTool;")  # HumanIK
-            elif text == "Expression Editor":
-                pm.mel.eval("ExpressionEditor;")  # Expression Editor
-            elif text == "Shape Editor":
-                pm.mel.eval("ShapeEditor;")  # Shape Editor
-            elif text == "Connection Editor":
-                pm.mel.eval("ConnectionEditor;")  # Connection Editor
-            elif text == "Channel Control Editor":
-                pm.mel.eval("ChannelControlEditor;")  # Channel Control Editor
-            elif text == "Set Driven Key":
-                pm.mel.eval("SetDrivenKeyOptions;")  # Set Driven Key
-            cmb.setCurrentIndex(0)
-
-    def cmb001(self, *args, **kwargs):
+    def cmb001(self, index=-1, **kwargs):
         """Create"""
         cmb = kwargs.get("widget")
-        index = kwargs.get("index")
 
         if index > 0:
             text = cmb.items[index]
@@ -273,21 +233,21 @@ class Rigging_maya(SlotsMaya):
         """Scale Joint"""
         self.sb.toggle_widgets(setUnChecked="chk001-2")
         self.sb.rigging.tb000.option_menu.s000.setValue(
-            pm.jointDisplayScale(query=1)
+            pm.jointDisplayScale(q=True)
         )  # init global joint display size
 
     def chk001(self, *args, **kwargs):
         """Scale IK"""
         self.sb.toggle_widgets(setUnChecked="chk000, chk002")
         self.sb.rigging.tb000.option_menu.setValue(
-            pm.ikHandleDisplayScale(query=1)
+            pm.ikHandleDisplayScale(q=True)
         )  # init IK handle display size
 
     def chk002(self, *args, **kwargs):
         """Scale IK/FK"""
         self.sb.toggle_widgets(setUnChecked="chk000-1")
         self.sb.rigging.tb000.option_menu.setValue(
-            pm.jointDisplayScale(query=1, ikfk=1)
+            pm.jointDisplayScale(q=True, ikfk=1)
         )  # init IKFK display size
 
     def s000(self, *args, **kwargs):
@@ -306,7 +266,7 @@ class Rigging_maya(SlotsMaya):
         tb = kwargs.get("widget")
 
         joints = pm.ls(type="joint")  # get all scene joints
-        state = pm.toggle(joints[0], query=1, localAxis=1)
+        state = pm.toggle(joints[0], q=True, localAxis=1)
 
         if tb.option_menu.isChecked():
             if not state:
@@ -343,8 +303,8 @@ class Rigging_maya(SlotsMaya):
             pm.parentConstraint(obj, objects[:-1], maintainOffset=1, weight=1)
 
             if template:
-                if not pm.toggle(obj, template=1, query=1):
-                    pm.toggle(obj, template=1, query=1)
+                if not pm.toggle(obj, template=1, q=True):
+                    pm.toggle(obj, template=1, q=True)
 
     @mtk.undo
     def tb003(self, *args, **kwargs):
