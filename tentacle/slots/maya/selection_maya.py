@@ -211,8 +211,8 @@ class Selection(SlotsMaya):
 
     def cmb001_init(self, widget):
         """ """
+        widget.refresh = True
         widget.option_menu.clear()
-        widget.option_menu.is_initialized = False
         items = [str(s) for s in pm.ls(et="objectSet", flatten=1)]
         widget.addItems_(items, clear=True)
 

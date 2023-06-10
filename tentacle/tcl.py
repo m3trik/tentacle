@@ -116,7 +116,8 @@ class Tcl(QtWidgets.QStackedWidget):
             self.key_show_release.connect(ui.hide)
 
         # set style before child init (resize).
-        self.init_child_event_filter(ui.widgets)
+        self.add_child_event_filter(ui.widgets)
+        ui.on_widget_added.connect(lambda w: self.add_child_event_filter(w))
 
     def set_ui(self, ui):
         """Set the stacked Widget's index to the given UI.
@@ -181,7 +182,6 @@ class Tcl(QtWidgets.QStackedWidget):
             return_func = self.return_to_startmenu
             cloned_widgets = self.overlay.clone_widgets_along_path(ui, return_func)
             # Initialize the child widgets event filter.
-            self.init_child_event_filter(cloned_widgets)
 
     def return_to_startmenu(self):
         """Return the stacked widget to it's starting index."""
@@ -319,7 +319,7 @@ class Tcl(QtWidgets.QStackedWidget):
 
     # ---------------------------------------------------------------------------------------------
 
-    def init_child_event_filter(self, widgets):
+    def add_child_event_filter(self, widgets):
         """Initialize child widgets with an event filter.
 
         Parameters:
@@ -342,7 +342,7 @@ class Tcl(QtWidgets.QStackedWidget):
             ):
                 continue
 
-            # print('init_child_event_filter:', w.ui.name.ljust(26), w.base_name.ljust(25), (w.name or type(w).__name__).ljust(25), w.type.ljust(15), w.derived_type.ljust(15), id(w)) #debug
+            # print('add_child_event_filter:', w.ui.name.ljust(26), w.base_name.ljust(25), (w.name or type(w).__name__).ljust(25), w.type.ljust(15), w.derived_type.ljust(15), id(w)) #debug
             w.installEventFilter(self.child_event_filter)
 
             if w.derived_type in ("QPushButton", "QLabel", "QCheckBox", "QRadioButton"):
@@ -397,14 +397,9 @@ class Tcl(QtWidgets.QStackedWidget):
                     if menu:
                         self.hide_unmatched_groupboxes(menu, menu_name)
                         self.set_ui(menu)
-
-        try:
-            print(w.name)
-            w.click()  # send click signal on mouseRelease.
-        except:
-            pass
-        # if w.ui.has_tag("submenu"):
-        #     self.hide()
+            if hasattr(w, "click"):
+                self.hide()
+                w.click()  # send click signal on mouseRelease.
 
         w.mouseReleaseEvent(event)
 
@@ -674,4 +669,4 @@ if __name__ == "__main__":
 
 #           if self.addUi(ui_, query=True): #if the UI has not yet been added to the widget stack.
 #               self.addWidget(ui_) #add the UI to the stackedLayout.
-#               self.init_child_event_filter(name)
+#               self.add_child_event_filter(name)

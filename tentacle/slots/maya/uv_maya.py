@@ -69,8 +69,8 @@ class Uv_maya(SlotsMaya):
 
     def tb000_init(self, widget):
         """ """
+        widget.refresh = True
         widget.option_menu.clear()
-        widget.option_menu.is_initialized = False
         widget.option_menu.add(
             "QSpinBox",
             setPrefix="Pre-Scale Mode: ",

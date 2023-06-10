@@ -27,8 +27,8 @@ class Materials_maya(SlotsMaya):
 
     def cmb002_init(self, widget):
         """ """
-        widget.clear()
-        widget.is_initialized = False
+        widget.refresh = True
+        widget.option_menu.clear()
         widget.option_menu.add(
             "QComboBox",
             setObjectName="cmb001",
