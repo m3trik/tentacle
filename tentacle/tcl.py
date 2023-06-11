@@ -103,11 +103,11 @@ class Tcl(QtWidgets.QStackedWidget):
         if not isinstance(ui, QtWidgets.QWidget):
             raise ValueError(f"Invalid datatype: {type(ui)}, expected QWidget.")
 
-        if ui.has_tag("startmenu|submenu"):  # stacked UI.
+        if ui.has_tag("startmenu|submenu"):  # StackedWidget
             ui.set_style(theme="dark", style_class="translucentBgNoBorder")
             self.addWidget(ui)  # add the UI to the stackedLayout.
 
-        else:  # popup UI.
+        else:  # MainWindow
             ui.setParent(self.parent())
             ui.setWindowFlags(QtCore.Qt.Tool | QtCore.Qt.FramelessWindowHint)
             ui.setAttribute(QtCore.Qt.WA_TranslucentBackground)
@@ -117,7 +117,7 @@ class Tcl(QtWidgets.QStackedWidget):
 
         # set style before child init (resize).
         self.add_child_event_filter(ui.widgets)
-        ui.on_widget_added.connect(lambda w: self.add_child_event_filter(w))
+        ui.on_child_added.connect(lambda w: self.add_child_event_filter(w))
 
     def set_ui(self, ui):
         """Set the stacked Widget's index to the given UI.

@@ -17,22 +17,46 @@ class Create_maya(SlotsMaya):
         items = ["Polygon", "NURBS", "Light"]
         widget.addItems_(items)
 
+        widget.currentIndexChanged.connect(
+            lambda i, w=widget: self.cmb002_init(w.ui.cmb002)
+        )
+
     def cmb002_init(self, widget):
-        items = [
-            "Cube",
-            "Sphere",
-            "Cylinder",
-            "Plane",
-            "Circle",
-            "Cone",
-            "Pyramid",
-            "Torus",
-            "Tube",
-            "GeoSphere",
-            "Platonic Solids",
-            "Text",
-        ]
-        widget.addItems_(items)
+        """ """
+        index = widget.ui.cmb001.currentIndex()
+
+        if index == 1:
+            items = [
+                "Cube",
+                "Sphere",
+                "Cylinder",
+                "Cone",
+                "Plane",
+                "Torus",
+                "Circle",
+                "Square",
+            ]
+
+        elif index == 2:
+            items = ["Ambient", "Directional", "Point", "Spot", "Area", "Volume"]
+
+        else:  # Default to polygon  primitives.
+            items = [
+                "Cube",
+                "Sphere",
+                "Cylinder",
+                "Plane",
+                "Circle",
+                "Cone",
+                "Pyramid",
+                "Torus",
+                "Tube",
+                "GeoSphere",
+                "Platonic Solids",
+                "Text",
+            ]
+
+        widget.addItems_(items, clear=True)
 
     def tb000_init(self, widget):
         """ """
@@ -50,50 +74,6 @@ class Create_maya(SlotsMaya):
             setChecked=True,
             setToolTip="Uniformly scale the created object to match the averaged scale of any selected object(s).",
         )
-
-    def cmb001(self, index=-1, **kwargs):
-        """ """
-        if index >= 0:
-            self.cmb002(index)
-
-    def cmb002(self, index=-1, **kwargs):
-        """ """
-        cmb = kwargs.get("widget")
-
-        polygons = [
-            "Cube",
-            "Sphere",
-            "Cylinder",
-            "Plane",
-            "Circle",
-            "Cone",
-            "Pyramid",
-            "Torus",
-            "Tube",
-            "GeoSphere",
-            "Platonic Solids",
-            "Text",
-        ]
-        nurbs = [
-            "Cube",
-            "Sphere",
-            "Cylinder",
-            "Cone",
-            "Plane",
-            "Torus",
-            "Circle",
-            "Square",
-        ]
-        lights = ["Ambient", "Directional", "Point", "Spot", "Area", "Volume"]
-
-        if index == 0:  # shared menu. later converted to the specified type.
-            cmb.addItems_(polygons, clear=True)
-
-        if index == 1:
-            cmb.addItems_(nurbs, clear=True)
-
-        if index == 2:
-            cmb.addItems_(lights, clear=True)
 
     def tb000(self, *args, **kwargs):
         """Create Primitive"""

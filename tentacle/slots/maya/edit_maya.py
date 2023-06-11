@@ -191,8 +191,15 @@ class Edit_maya(SlotsMaya):
 
     def cmb001_init(self, widget):
         """ """
-        # refresh comboBox contents before showing it's popup.
-        widget.beforePopupShown.connect(self.cmb001)
+        widget.clear()
+        widget.refresh = True
+        try:
+            obj_hist = pm.listHistory(pm.ls(sl=1, objectsOnly=1), pruneDagObjects=1)
+            # levels=1, interestLevel=2,
+            items = list(set([n.name() for n in obj_hist]))
+        except RuntimeError:
+            items = ["No selection."]
+        widget.addItems_(items, "History")
 
     def tb001_init(self, widget):
         """ """
@@ -293,71 +300,60 @@ class Edit_maya(SlotsMaya):
         axis = self.sb.get_axis_from_checkboxes("chk006-9", tb.option_menu)
         tb.setText("Delete " + axis)
 
-    def cmb001(self, index=-1, **kwargs):
+    def cmb001(self, index, widget):
         """Object History Attributes"""
-        cmb = kwargs.get("widget")
-
-        try:
-            items = list(
-                set(
-                    [
-                        n.name()
-                        for n in pm.listHistory(
-                            pm.ls(sl=1, objectsOnly=1), pruneDagObjects=1
-                        )
-                    ]
-                )
-            )  # levels=1, interestLevel=2,
-        except RuntimeError:
-            items = ["No selection."]
-        cmb.addItems_(items, "History")
-
-        cmb.setCurrentIndex(0)
         if index > 0:
-            if cmb.items[index] != "No selection.":
-                return pm.ls(cmb.items[index])
+            if widget.items[index] != "No selection.":
+                pm.ls(widget.items[index])
+                widget.setCurrentIndex(0)
 
-    def tb000(self, *args, **kwargs):
+    def tb000(self, widget):
         """Mesh Cleanup"""
-        tb = kwargs.get("widget")
-
-        allMeshes = int(tb.option_menu.chk005.isChecked())  # [0] All selectable meshes
-        repair = tb.option_menu.chk004.isChecked()  # repair or select only
-        quads = int(tb.option_menu.chk010.isChecked())  # [3] check for quads polys
-        mergeVertices = tb.option_menu.chk024.isChecked()
-        nsided = int(tb.option_menu.chk002.isChecked())  # [4] check for n-sided polys
-        concave = int(tb.option_menu.chk011.isChecked())  # [5] check for concave polys
-        holed = int(tb.option_menu.chk012.isChecked())  # [6] check for holed polys
+        allMeshes = int(
+            widget.option_menu.chk005.isChecked()
+        )  # [0] All selectable meshes
+        repair = widget.option_menu.chk004.isChecked()  # repair or select only
+        quads = int(widget.option_menu.chk010.isChecked())  # [3] check for quads polys
+        mergeVertices = widget.option_menu.chk024.isChecked()
+        nsided = int(
+            widget.option_menu.chk002.isChecked()
+        )  # [4] check for n-sided polys
+        concave = int(
+            widget.option_menu.chk011.isChecked()
+        )  # [5] check for concave polys
+        holed = int(widget.option_menu.chk012.isChecked())  # [6] check for holed polys
         nonplanar = int(
-            tb.option_menu.chk003.isChecked()
+            widget.option_menu.chk003.isChecked()
         )  # [7] check for non-planar polys
-        zeroGeom = int(tb.option_menu.chk013.isChecked())  # [8] check for 0 area faces
-        zeroGeomTol = tb.option_menu.s006.value()  # [9] tolerance for face areas
+        zeroGeom = int(
+            widget.option_menu.chk013.isChecked()
+        )  # [8] check for 0 area faces
+        zeroGeomTol = widget.option_menu.s006.value()  # [9] tolerance for face areas
         zeroEdge = int(
-            tb.option_menu.chk014.isChecked()
+            widget.option_menu.chk014.isChecked()
         )  # [10] check for 0 length edges
-        zeroEdgeTol = tb.option_menu.s007.value()  # [11] tolerance for edge length
+        zeroEdgeTol = widget.option_menu.s007.value()  # [11] tolerance for edge length
         zeroMap = int(
-            tb.option_menu.chk015.isChecked()
+            widget.option_menu.chk015.isChecked()
         )  # [12] check for 0 uv face area
-        zeroMapTol = tb.option_menu.s008.value()  # [13] tolerance for uv face areas
+        zeroMapTol = widget.option_menu.s008.value()  # [13] tolerance for uv face areas
         sharedUVs = int(
-            tb.option_menu.chk016.isChecked()
+            widget.option_menu.chk016.isChecked()
         )  # [14] Unshare uvs that are shared across vertices
         nonmanifold = int(
-            tb.option_menu.chk017.isChecked()
+            widget.option_menu.chk017.isChecked()
         )  # [15] check for nonmanifold polys
         lamina = -int(
-            tb.option_menu.chk018.isChecked()
+            widget.option_menu.chk018.isChecked()
         )  # [16] check for lamina polys [default -1]
-        split_non_manifold_vertex = tb.option_menu.chk021.isChecked()
-        invalidComponents = 0  # int(tb.option_menu.chk019.isChecked()) #[17] a guess what this arg does. not checked. default is 0.
-        overlappingFaces = tb.option_menu.chk025.isChecked()
+        split_non_manifold_vertex = widget.option_menu.chk021.isChecked()
+        invalidComponents = 0  # int(widget.option_menu.chk019.isChecked()) #[17] a guess what this arg does. not checked. default is 0.
+        overlappingFaces = widget.option_menu.chk025.isChecked()
         overlappingDuplicateObjects = (
-            tb.option_menu.chk022.isChecked()
+            widget.option_menu.chk022.isChecked()
         )  # find overlapping geometry at object level.
         omitSelectedObjects = (
-            tb.option_menu.chk023.isChecked()
+            widget.option_menu.chk023.isChecked()
         )  # Search for duplicates of any selected objects while omitting the initially selected objects.
 
         objects = pm.ls(sl=1, transforms=1)
@@ -407,14 +403,12 @@ class Edit_maya(SlotsMaya):
             split_non_manifold_vertex=split_non_manifold_vertex,
         )
 
-    def tb001(self, *args, **kwargs):
+    def tb001(self, widget):
         """Delete History"""
-        tb = kwargs.get("widget")
-
-        all_ = tb.option_menu.chk018.isChecked()
-        unusedNodes = tb.option_menu.chk019.isChecked()
-        deformers = tb.option_menu.chk020.isChecked()
-        optimize = tb.option_menu.chk030.isChecked()
+        all_ = widget.option_menu.chk018.isChecked()
+        unusedNodes = widget.option_menu.chk019.isChecked()
+        deformers = widget.option_menu.chk020.isChecked()
+        optimize = widget.option_menu.chk030.isChecked()
 
         objects = pm.ls(sl=True, objectsOnly=1) if not all_ else pm.ls(typ="mesh")
 
@@ -449,12 +443,10 @@ class Edit_maya(SlotsMaya):
                     "delete <hl>non-deformer</hl> history on " + str(objects)
                 )
 
-    def tb002(self, *args, **kwargs):
+    def tb002(self, widget):
         """Delete"""
-        tb = kwargs.get("widget")
-
-        deleteRing = tb.option_menu.chk000.isChecked()
-        deleteLoop = tb.option_menu.chk001.isChecked()
+        deleteRing = widget.option_menu.chk000.isChecked()
+        deleteLoop = widget.option_menu.chk001.isChecked()
 
         # selectionMask = pm.selectMode (query=True, component=True)
         maskVertex = pm.selectType(query=True, vertex=True)
@@ -493,11 +485,9 @@ class Edit_maya(SlotsMaya):
                 else:  # all([selectionMask==1, maskFacet==1]):
                     pm.delete(obj)  # delete faces\mesh objects
 
-    def tb003(self, *args, **kwargs):
+    def tb003(self, widget):
         """Delete Along Axis"""
-        tb = kwargs.get("widget")
-
-        axis = self.sb.get_axis_from_checkboxes("chk006-9", tb.option_menu)
+        axis = self.sb.get_axis_from_checkboxes("chk006-9", widget.option_menu)
 
         pm.undoInfo(openChunk=1)
         objects = pm.ls(sl=1, objectsOnly=1)
@@ -507,12 +497,10 @@ class Edit_maya(SlotsMaya):
         pm.undoInfo(closeChunk=1)
 
     @mtk.undo
-    def tb004(self, *args, **kwargs):
+    def tb004(self, widget):
         """Delete Along Axis"""
-        tb = kwargs.get("widget")
-
-        allNodes = tb.option_menu.chk026.isChecked()
-        unlock = tb.option_menu.chk027.isChecked()
+        allNodes = widget.option_menu.chk026.isChecked()
+        unlock = widget.option_menu.chk027.isChecked()
 
         # pm.undoInfo(openChunk=1)
         nodes = pm.ls() if allNodes else pm.ls(sl=True)
@@ -523,7 +511,6 @@ class Edit_maya(SlotsMaya):
     @SlotsMaya.hideMain
     def b001(self, *args, **kwargs):
         """Object History Attributes: get most recent node"""
-        cmb = kwargs.get("widget")
         self.cmb001()  # refresh the contents of the combobox.
 
         items = pm.ls(cmb.items[-1])

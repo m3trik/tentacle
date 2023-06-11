@@ -312,12 +312,10 @@ class Uv_maya(SlotsMaya):
             setToolTip="Remove construction history for the objects transferring from.\nOtherwise, the UV's will be lost should any of the frm objects be deleted.",
         )
 
-    def cmb002(self, index=-1, **kwargs):
+    def cmb002(self, index, widget):
         """Transform"""
-        cmb = kwargs.get("widget")
-
         if index > 0:
-            text = cmb.items[index]
+            text = widget.items[index]
             self.sb.parent().hide()  # hide hotbox then perform operation
             if text == "Flip U":
                 pm.polyFlipUV(flipType=0, local=1, usePivot=1, pivotU=0, pivotV=0)
@@ -337,7 +335,7 @@ class Uv_maya(SlotsMaya):
                 pm.mel.performAlignUV("minV")
             elif text == "Linear Align":
                 pm.mel.performLinearAlignUV()
-            cmb.setCurrentIndex(0)
+            widget.setCurrentIndex(0)
 
     def chk001(self, state=None, **kwargs):
         """Auto Unwrap: Scale Mode CheckBox"""

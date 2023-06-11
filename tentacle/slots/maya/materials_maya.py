@@ -4,7 +4,6 @@ try:
     import pymel.core as pm
 except ImportError as error:
     print(__file__, error)
-import pythontk as ptk
 import mayatk as mtk
 from tentacle.slots.maya import SlotsMaya
 
@@ -71,29 +70,52 @@ class Materials_maya(SlotsMaya):
             )
         )
         # refresh cmb002 contents.
-        widget.option_menu.cmb001.currentIndexChanged.connect(self.cmb002)
+        widget.option_menu.cmb001.currentIndexChanged.connect(
+            lambda v, w=widget: self.cmb002_init(w)
+        )
         # initialize the materials list
-        self.cmb002_init(widget.ui.cmb002)
+        b = self.sb.materials_submenu.b003
+
+        mode = widget.option_menu.cmb001.currentText()
+        if mode == "Scene Materials":
+            materials = mtk.get_scene_mats(exc="standardSurface")
+
+        elif mode == "ID Map Materials":
+            materials = mtk.get_scene_mats(inc="ID_*")
+
+        if mode == "Favorite Materials":
+            fav_materials = mtk.get_fav_mats()
+            currentMats = {
+                matName: matName for matName in sorted(list(set(fav_materials)))
+            }
+        else:
+            currentMats = {
+                mat.name(): mat
+                for mat in sorted(list(set(materials)))
+                if hasattr(mat, "name")
+            }
+
+        widget.addItems_(currentMats, clear=True)
+
+        # create and set icons with color swatch
+        for i, mat in enumerate(widget.items):
+            icon = self.getColorSwatchIcon(mat)
+            widget.setItemIcon(i, icon) if icon else None
+
+        # set submenu assign material button attributes
+        b.setText("Assign " + widget.currentText())
+        icon = self.getColorSwatchIcon(widget.currentText(), [15, 15])
+        b.setIcon(icon) if icon else None
+        b.setMinimumWidth(b.minimumSizeHint().width() + 25)
+        b.setVisible(True if widget.currentText() else False)
 
     def tb000_init(self, widget):
         """ """
         widget.option_menu.add(
             "QCheckBox",
-            setText="All Objects",
-            setObjectName="chk003",
-            setToolTip="Search all scene objects, or only those currently selected.",
-        )
-        widget.option_menu.add(
-            "QCheckBox",
             setText="Shell",
             setObjectName="chk005",
             setToolTip="Select entire shell.",
-        )
-        widget.option_menu.add(
-            "QCheckBox",
-            setText="Invert",
-            setObjectName="chk006",
-            setToolTip="Invert Selection.",
         )
 
     def tb002_init(self, widget):
@@ -126,62 +148,26 @@ class Materials_maya(SlotsMaya):
         widget.option_menu.chk008.clicked.connect(
             lambda state: widget.setText("Assign Random")
         )
-
-    def cmb002(self, index, widget):
-        """Material list
-
-        Parameters:
-                index (int): parameter on activated, currentIndexChanged, and highlighted signals.
-        """
-        b = self.sb.materials_submenu.b003
-
-        mode = widget.option_menu.cmb001.currentText()
-        if mode == "Scene Materials":
-            materials = self.getSceneMaterials(exc="standardSurface")
-
-        elif mode == "ID Map Materials":
-            materials = self.getSceneMaterials(inc="ID_*")
-
-        if mode == "Favorite Materials":
-            fav_materials = self.getFavoriteMaterials()
-            currentMats = {
-                matName: matName for matName in sorted(list(set(fav_materials)))
-            }
-        else:
-            currentMats = {
-                mat.name(): mat
-                for mat in sorted(list(set(materials)))
-                if hasattr(mat, "name")
-            }
-
-        widget.addItems_(currentMats, clear=True)
-
-        # create and set icons with color swatch
-        for i, mat in enumerate(widget.items):
-            icon = self.getColorSwatchIcon(mat)
-            widget.setItemIcon(i, icon) if icon else None
-
-        # set submenu assign material button attributes
-        b.setText("Assign " + widget.currentText())
-        icon = self.getColorSwatchIcon(widget.currentText(), [15, 15])
-        b.setIcon(icon) if icon else None
-        b.setMinimumWidth(b.minimumSizeHint().width() + 25)
-        b.setVisible(True if widget.currentText() else False)
+        # Refresh the materials list
+        widget.released.connect(lambda w=widget: self.cmb002_init(w))
 
     def tb000(self, widget):
-        """Select By Material Id"""
+        """Select By Material ID"""
         mat = self.sb.materials.cmb002.currentData()
         if not mat:
-            self.sb.message_box("No Material Selection.")
+            self.sb.message_box(
+                amg="<hl>Nothing selected</hl><br>Select an object face, or choose the option: current material.",
+                pos="midCenterTop",
+                fade=True,
+            )
             return
 
         shell = widget.option_menu.chk005.isChecked()  # Select by material: shell
-        invert = widget.option_menu.chk006.isChecked()  # Select by material: invert
-        allObjects = widget.option_menu.chk003.isChecked()  # Search all scene objects
 
-        objects = pm.ls(sl=1, objectsOnly=1) if not allObjects else None
+        selection = pm.ls(sl=1, objectsOnly=1)
+        faces_with_mat = mtk.find_by_mat_id(mat, selection, shell=shell)
 
-        self.selectByMaterialID(mat, objects, shell=shell, invert=invert)
+        pm.select(faces_with_mat)
 
     def tb002(self, widget):
         """Assign Material"""
@@ -197,20 +183,18 @@ class Materials_maya(SlotsMaya):
         if assignCurrent:  # Assign current mat
             mat = self.sb.materials.cmb002.currentData()
             if isinstance(mat, str):  # new mat type as a string:
-                self.assignMaterial(selection, pm.createNode(mat))
+                mtk.assign_mat(selection, pm.createNode(mat))
             else:  # existing mat object:
-                self.assignMaterial(selection, mat)
+                mtk.assign_mat(selection, mat)
 
         elif assignRandom:  # Assign New random mat ID
-            mat = self.createRandomMaterial(prefix="ID_")
-            self.assignMaterial(selection, mat)
+            mat = mtk.create_random_mat(prefix="ID_")
+            mtk.assign_mat(selection, mat)
 
             self.randomMat = mat
 
-            self.cmb002_init(widget.ui.cmb002)  # refresh the materials list comboBox
-            self.sb.materials.cmb002.setCurrentItem(
-                mat.name()
-            )  # set the combobox index to the new mat #self.cmb002.setCurrentIndex(self.cmb002.findText(name))
+            # set the combobox index to the new mat #self.cmb002.setCurrentIndex(self.cmb002.findText(name))
+            self.sb.materials.cmb002.setCurrentItem(mat.name())
 
         elif assignNew:  # Assign New Material
             pm.mel.buildObjectMenuItemsNow(
@@ -283,14 +267,22 @@ class Materials_maya(SlotsMaya):
         """Set Material: Set the currently selected material as the current material."""
         selection = pm.ls(sl=True)
         if not selection:
-            self.sb.message_box("Nothing selected.")
+            self.sb.message_box(
+                "<hl>Nothing selected</hl><br>Select mesh object(s) or face(s)."
+            )
             return
 
-        mat = self.getMaterial()
+        mat = mtk.get_mats(selection[0])
+        if len(mat) != 1:
+            self.sb.message_box(
+                "<hl>Invalid selection</hl><br>Selection must have exactly one material assigned."
+            )
+            return
+
         # set the combobox to show all scene materials
         self.sb.materials.cmb002.option_menu.cmb001.setCurrentIndex(0)
         self.cmb002_init(widget.ui.cmb002)  # refresh the materials list comboBox
-        self.sb.materials.cmb002.setCurrentItem(mat.name())
+        self.sb.materials.cmb002.setCurrentItem(mat.pop().name())
 
     def b003(self, widget):
         """Assign: Assign Current"""
@@ -314,13 +306,13 @@ class Materials_maya(SlotsMaya):
         """Get an icon with a color fill matching the given materials RBG value.
 
         Parameters:
-                mat (obj)(str): The material or the material's name.
-                size (list): Desired icon size.
+            mat (obj)(str): The material or the material's name.
+            size (list): Desired icon size.
 
         Returns:
-                (obj) pixmap icon.
+            (obj) pixmap icon.
         """
-        from PySide2.Gui import QPixmap, QColor, QIcon
+        from PySide2.QtGui import QPixmap, QColor, QIcon
 
         try:
             # get the string name if a mat object is given.
@@ -350,174 +342,6 @@ class Materials_maya(SlotsMaya):
 
             except RuntimeError as error:
                 cmb.setItemText(cmb.currentIndex(), str(error).strip("\n"))
-
-    def selectByMaterialID(
-        self, material=None, objects=None, shell=False, invert=False
-    ):
-        """Select by material Id
-
-        material (obj): The material to search and select for.
-        objects (list): Faces or mesh objects as a list. If no objects are given, all geometry in the scene will be searched.
-        shell (bool): Select the entire shell.
-        invert (bool): Invert the final selection.R
-
-        #ex call:
-        selectByMaterialID(material)
-        """
-        if pm.nodeType(material) == "VRayMultiSubTex":  # if not a multimaterial
-            self.sb.message_box("If material is a multimaterial, select a submaterial.")
-            return
-
-        if not material:
-            if not pm.ls(sl=1):
-                self.sb.message_box(
-                    "Nothing selected. Select an object face, or choose the option: current material."
-                )
-                return
-            material = self.getMaterial()
-
-        pm.select(material)
-        pm.hyperShade(
-            objects=""
-        )  # select all with material. "" defaults to currently selected materials.
-
-        if objects:
-            [
-                pm.select(i, deselect=1)
-                for i in pm.ls(sl=1)
-                if i.split(".")[0] not in objects
-            ]
-
-        faces = pm.filterExpand(selectionMask=34, expand=1)
-        transforms = pm.listRelatives(
-            faces, p=True
-        )  # [node.replace('Shape','') for node in pm.ls(sl=1, objectsOnly=1, visible=1)] #get transform node name from shape node
-
-        if shell or invert:  # deselect so that the selection can be modified.
-            pm.select(faces, deselect=1)
-
-        if shell:
-            for shell in transforms:
-                pm.select(shell, add=1)
-
-        if invert:
-            for shell in transforms:
-                allFaces = [
-                    shell + ".f[" + str(num) + "]"
-                    for num in range(pm.polyEvaluate(shell, face=1))
-                ]  # create a list of all faces per shell
-                pm.select(
-                    list(set(allFaces) - set(faces)), add=1
-                )  # get inverse of previously selected faces from allFaces
-
-    def getSceneMaterials(self, inc=[], exc=[]):
-        """Get all materials from the current scene.
-
-        Parameters:
-                inc (str)(int)(obj/list): The objects(s) to include.
-                                supports using the '*' operator: startswith*, *endswith, *contains*
-                                Will include all items that satisfy ANY of the given search terms.
-                                meaning: '*.png' and '*Normal*' returns all strings ending in '.png' AND all
-                                strings containing 'Normal'. NOT strings satisfying both terms.
-                exc (str)(int)(obj/list): The objects(s) to exclude. Similar to include.
-                                exlude take precidence over include.
-        Returns:
-                (list) materials.
-        """
-        matList = pm.ls(mat=1, flatten=1)
-
-        # convert to dictionary to filter material names and types.
-        d = {m.name(): pm.nodeType(m) for m in matList}
-        filtered = ptk.Iter.filter_dict(d, inc, exc, keys=True, values=True)
-
-        # use the filtered results to reconstruct a filtered list of actual materials.
-        return [m for m in matList if m.name() in filtered]
-
-    def getFavoriteMaterials(self):
-        """Get Maya favorite materials list.
-
-        Returns:
-                (list) materials.
-        """
-        import maya.app.general.tlfavorites as _fav, os.path
-
-        path = os.path.expandvars(
-            r"%USERPROFILE%/Documents/maya/2022/prefs/renderNodeTypeFavorites"
-        )
-        renderNodeTypeFavorites = _fav.readFavorites(path)
-        materials = [i for i in renderNodeTypeFavorites if "/" not in i]
-        del _fav
-
-        return materials
-
-    def getMaterial(self, obj=""):
-        """Get the material from the selected face.
-
-        Parameters:
-                (str/obj): The obj with the material.
-
-        Returns:
-                (list) material
-        """
-        pm.hyperShade(
-            obj, shaderNetworksSelectMaterialNodes=1
-        )  # selects the material node
-        mats = pm.ls(sl=True, materials=1)  # now add the selected node to a variable
-
-        return mats[0]
-
-    def createRandomMaterial(self, name="", prefix=""):
-        """Creates a random material.
-
-        Parameters:
-                name (str): material name.
-                prefix (str): Optional string to be appended to the beginning of the name.
-
-        Returns:
-                (obj) material.
-        """
-        import random
-
-        rgb = [
-            random.randint(0, 255) for _ in range(3)
-        ]  # generate a list containing 3 values between 0-255
-
-        name = "{}{}_{}_{}_{}".format(
-            prefix, name, str(rgb[0]), str(rgb[1]), str(rgb[2])
-        )
-
-        # create shader
-        mat = pm.shadingNode("lambert", asShader=1, name=name)
-        # convert RGB to 0-1 values and assign to shader
-        convertedRGB = [round(float(v) / 255, 3) for v in rgb]
-        pm.setAttr(name + ".color", convertedRGB)
-        # assign to selected geometry
-        # pm.select(selection) #initial selection is lost upon node creation
-        # pm.hyperShade(assign=mat)
-
-        return mat
-
-    @mtk.undo
-    def assignMaterial(self, objects, mat):
-        """Assign material
-
-        objects (list): Faces or mesh objects as a list.
-        material (obj): The material to search and select for.
-        """
-        if not mat:
-            self.sb.message_box("Material Not Assigned. No material given.")
-            return
-
-        try:  # if the mat is a not a known type; try and create the material.
-            pm.nodeType(mat)
-        except Exception:
-            mat = pm.shadingNode(mat, asShader=1)
-
-        # pm.undoInfo(openChunk=1)
-        for obj in pm.ls(objects):
-            pm.select(obj)  # hyperShade works more reliably with an explicit selection.
-            pm.hyperShade(obj, assign=mat)
-        # pm.undoInfo(closeChunk=1)
 
 
 # module name

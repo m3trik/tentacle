@@ -125,17 +125,17 @@
              <verstretch>0</verstretch>
             </sizepolicy>
            </property>
+           <property name="minimumSize">
+            <size>
+             <width>40</width>
+             <height>22</height>
+            </size>
+           </property>
            <property name="toolTip">
             <string>Set material shader ID from selection.</string>
            </property>
            <property name="text">
             <string>Get</string>
-           </property>
-           <property name="iconSize">
-            <size>
-             <width>18</width>
-             <height>18</height>
-            </size>
            </property>
           </widget>
          </item>
@@ -188,13 +188,7 @@
            </property>
            <property name="minimumSize">
             <size>
-             <width>80</width>
-             <height>20</height>
-            </size>
-           </property>
-           <property name="maximumSize">
-            <size>
-             <width>999</width>
+             <width>0</width>
              <height>20</height>
             </size>
            </property>
@@ -203,12 +197,6 @@
            </property>
            <property name="text">
             <string>Select</string>
-           </property>
-           <property name="iconSize">
-            <size>
-             <width>16</width>
-             <height>16</height>
-            </size>
            </property>
           </widget>
          </item>
@@ -262,7 +250,7 @@
   <customwidget>
    <class>PushButton</class>
    <extends>QPushButton</extends>
-   <header>pushButton.h</header>
+   <header>widgets.pushbutton.h</header>
   </customwidget>
   <customwidget>
    <class>DraggableHeader</class>
