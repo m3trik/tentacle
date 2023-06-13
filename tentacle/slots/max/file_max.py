@@ -266,7 +266,7 @@ class File_max(File, SlotsMax):
         dir_ = self.format_path(recentFiles)  # reformat for network address
         os.startfile(dir_)
 
-    def b000(self, *args, **kwargs):
+    def b000(self):
         """Autosave: Open Directory"""
         dir_ = rt.GetDir(rt.name("autoback"))
 
@@ -275,7 +275,7 @@ class File_max(File, SlotsMax):
         except FileNotFoundError as error:
             self.sb.message_box("The system cannot find the file specified.")
 
-    def b002(self, *args, **kwargs):
+    def b002(self):
         """Autosave: Delete All"""
         files = self.get_recent_autosave()
         for file in files:
@@ -284,7 +284,7 @@ class File_max(File, SlotsMax):
             except Exception as error:
                 print(error)
 
-    def b015(self, *args, **kwargs):
+    def b015(self):
         """Remove String From Object Names."""
         from_ = str(
             self.sb.file.t000.text()

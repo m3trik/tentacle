@@ -82,21 +82,21 @@ class Preferences_max(Preferences, SlotsMax):
                 time=cmb.items[index]
             )  # game | film | pal | ntsc | show | palf | ntscf
 
-    def b001(self, *args, **kwargs):
+    def b001(self):
         """Color Settings"""
         maxEval("colorPrefWnd;")
 
-    def b008(self, *args, **kwargs):
+    def b008(self):
         """Hotkeys"""
         maxEval(
             'actionMan.executeAction 0 "59245"'
         )  # Customize User Interface: Hotkey Editor
 
-    def b009(self, *args, **kwargs):
+    def b009(self):
         """Plug-In Manager"""
         maxEval("Plug_in_Manager.PluginMgrAction.show()")
 
-    def b010(self, *args, **kwargs):
+    def b010(self):
         """Settings/Preferences"""
         maxEval('actionMan.executeAction 0 "40108"')
 

@@ -93,7 +93,7 @@ class Pivot_blender(Pivot, SlotsBlender):
         elif world:
             pm.xform(worldSpace=1, pivots=[0, 0, 0])
 
-    def b004(self, *args, **kwargs):
+    def b004(self):
         """Bake Pivot"""
         pm.mel.BakeCustomPivot()
 

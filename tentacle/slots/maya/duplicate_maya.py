@@ -22,7 +22,7 @@ class Duplicate_maya(SlotsMaya):
             setToolTip="Attempt to match 3 points of the source to the same 3 points of the target.",
         )
 
-    def chk010(self, state=None, **kwargs):
+    def chk010(self, state, widget):
         """Radial Array: Set Pivot"""
 
         global radialPivot
@@ -299,11 +299,9 @@ class Duplicate_maya(SlotsMaya):
             del duplicateObjList[:]  # clear the list
             self.sb.toggle_widgets(self.sb.duplicate_linear, setDisabled="b002")
 
-    def tb000(self, *args, **kwargs):
+    def tb000(self, widget):
         """Convert to Instances"""
-        tb = kwargs.get("widget")
-
-        transformByVertexOrder = tb.option_menu.chk001.isChecked()
+        transformByVertexOrder = widget.option_menu.chk001.isChecked()
 
         selection = pm.ls(sl=1, transforms=1)
         if not selection:
@@ -320,7 +318,7 @@ class Duplicate_maya(SlotsMaya):
             selection, transformByVertexOrder=transformByVertexOrder
         )
 
-    def chk007(self, state=None, **kwargs):
+    def chk007(self, state, widget):
         """Duplicate: Translate To Components"""
         if state:
             self.sb.toggle_widgets(
@@ -332,26 +330,26 @@ class Duplicate_maya(SlotsMaya):
                 setDisabled="chk008,b034,cmb001", setEnabled="chk000,chk009,s005"
             )
 
-    def chk011(self, *args, **kwargs):
+    def chk011(self, state, widget):
         """Radial Array: Instance/Duplicate Toggle"""
         self.chk015()  # calling chk015 directly from valueChanged would pass the returned spinbox value to the create arg
 
-    def chk012(self, *args, **kwargs):
+    def chk012(self, state, widget):
         """Radial Array: X Axis"""
         self.sb.toggle_widgets(setChecked="chk012", setUnChecked="chk013,chk014")
         self.chk015()
 
-    def chk013(self, *args, **kwargs):
+    def chk013(self, state, widget):
         """Radial Array: Y Axis"""
         self.sb.toggle_widgets(setChecked="chk013", setUnChecked="chk012,chk014")
         self.chk015()
 
-    def chk014(self, *args, **kwargs):
+    def chk014(self, state, widget):
         """Radial Array: Z Axis"""
         self.sb.toggle_widgets(setChecked="chk014", setUnChecked="chk012,chk013")
         self.chk015()
 
-    def b000(self, *args, **kwargs):
+    def b000(self):
         """Create Instances"""
         selection = pm.ls(sl=1, transforms=1)
         if not selection:
@@ -364,21 +362,21 @@ class Duplicate_maya(SlotsMaya):
 
         pm.select(instances)
 
-    def b002(self, *args, **kwargs):
+    def b002(self):
         """Duplicate: Create"""
         self.sb.duplicate_linear.chk016.setChecked(
             False
         )  # must be in the false unchecked state to catch the create flag in chk015
         self.chk016(create=True)
 
-    def b003(self, *args, **kwargs):
+    def b003(self):
         """Radial Array: Create"""
         self.sb.duplicate_radial.chk015.setChecked(
             False
         )  # must be in the false unchecked state to catch the create flag in chk015
         self.chk015(create=True)
 
-    def b004(self, *args, **kwargs):
+    def b004(self):
         """Select Instanced Objects"""
         selection = pm.ls(sl=1)
 
@@ -389,13 +387,13 @@ class Duplicate_maya(SlotsMaya):
             instances = self.getInstances(selection)
             pm.select(instances)
 
-    def b005(self, *args, **kwargs):
+    def b005(self):
         """Uninstance Selected Objects"""
         selection = pm.ls(sl=1)
 
         self.unInstance(selection)
 
-    def b006(self, *args, **kwargs):
+    def b006(self):
         """ """
         self.sb.parent().set_ui("duplicate_linear")
         self.sb.duplicate_linear.s002.valueChanged.connect(
@@ -411,7 +409,7 @@ class Duplicate_maya(SlotsMaya):
         self.sb.duplicate_linear.s011.valueChanged.connect(self.duplicateArray)
         self.sb.duplicate_linear.s012.valueChanged.connect(self.duplicateArray)
 
-    def b007(self, *args, **kwargs):
+    def b007(self):
         """ """
         self.sb.parent().set_ui("duplicate_radial")
         self.sb.duplicate_radial.s000.valueChanged.connect(
@@ -419,7 +417,7 @@ class Duplicate_maya(SlotsMaya):
         )  # update radial array
         self.sb.duplicate_radial.s001.valueChanged.connect(self.radialArray)
 
-    def b008(self, *args, **kwargs):
+    def b008(self):
         """Add Selected Components To cmb001"""
         cmb = self.sb.duplicate_linear.cmb001
 

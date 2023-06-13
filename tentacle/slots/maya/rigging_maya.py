@@ -211,12 +211,10 @@ class Rigging_maya(SlotsMaya):
             ],
         )
 
-    def cmb001(self, index=-1, **kwargs):
+    def cmb001(self, index, widget):
         """Create"""
-        cmb = kwargs.get("widget")
-
         if index > 0:
-            text = cmb.items[index]
+            text = widget.items[index]
             if text == "Joints":
                 pm.setToolTo("jointContext")  # create joint tool
             elif text == "Locator":
@@ -227,30 +225,27 @@ class Rigging_maya(SlotsMaya):
                 pm.lattice(divisions=[2, 5, 2], objectCentered=1, ldv=[2, 2, 2])
             elif text == "Cluster":
                 pm.mel.eval("CreateCluster;")  # create cluster
-            cmb.setCurrentIndex(0)
+            widget.setCurrentIndex(0)
 
-    def chk000(self, *args, **kwargs):
+    def chk000(self, state, widget):
         """Scale Joint"""
         self.sb.toggle_widgets(setUnChecked="chk001-2")
-        self.sb.rigging.tb000.option_menu.s000.setValue(
-            pm.jointDisplayScale(q=True)
-        )  # init global joint display size
+        # init global joint display size
+        self.sb.rigging.tb000.option_menu.s000.setValue(pm.jointDisplayScale(q=True))
 
-    def chk001(self, *args, **kwargs):
+    def chk001(self, state, widget):
         """Scale IK"""
         self.sb.toggle_widgets(setUnChecked="chk000, chk002")
-        self.sb.rigging.tb000.option_menu.setValue(
-            pm.ikHandleDisplayScale(q=True)
-        )  # init IK handle display size
+        # init IK handle display size
+        self.sb.rigging.tb000.option_menu.setValue(pm.ikHandleDisplayScale(q=True))
 
-    def chk002(self, *args, **kwargs):
+    def chk002(self, state, widget):
         """Scale IK/FK"""
         self.sb.toggle_widgets(setUnChecked="chk000-1")
-        self.sb.rigging.tb000.option_menu.setValue(
-            pm.jointDisplayScale(q=True, ikfk=1)
-        )  # init IKFK display size
+        # init IKFK display size
+        self.sb.rigging.tb000.option_menu.setValue(pm.jointDisplayScale(q=True, ikfk=1))
 
-    def s000(self, *args, **kwargs):
+    def s000(self, value, widget):
         """Scale Joint/IK/FK"""
         value = self.sb.rigging.tb000.option_menu.value()
 
@@ -261,14 +256,12 @@ class Rigging_maya(SlotsMaya):
         else:  # self.sb.rigging.chk002.isChecked():
             pm.jointDisplayScale(value, ikfk=1)  # set global IKFK display size
 
-    def tb000(self, *args, **kwargs):
+    def tb000(self, widget):
         """Toggle Display Local Rotation Axes"""
-        tb = kwargs.get("widget")
-
         joints = pm.ls(type="joint")  # get all scene joints
         state = pm.toggle(joints[0], q=True, localAxis=1)
 
-        if tb.option_menu.isChecked():
+        if widget.option_menu.isChecked():
             if not state:
                 toggle = True
         else:
@@ -280,23 +273,19 @@ class Rigging_maya(SlotsMaya):
 
         mtk.viewport_message("Display Local Rotation Axes:<hl>" + str(state) + "</hl>")
 
-    def tb001(self, *args, **kwargs):
+    def tb001(self, widget):
         """Orient Joints"""
-        tb = kwargs.get("widget")
-
         orientJoint = "xyz"  # orient joints
-        alignWorld = tb.option_menu.chk003.isChecked()
+        alignWorld = widget.option_menu.chk003.isChecked()
 
         if alignWorld:
             orientJoint = "none"  # orient joint to world
 
         pm.joint(edit=1, orientJoint=orientJoint, zeroScaleOrient=1, ch=1)
 
-    def tb002(self, *args, **kwargs):
+    def tb002(self, widget):
         """Constraint: Parent"""
-        tb = kwargs.get("widget")
-
-        template = tb.option_menu.chk004.isChecked()
+        template = widget.option_menu.chk004.isChecked()
         objects = pm.ls(sl=1, objectsOnly=1)
 
         for obj in objects[:-1]:
@@ -307,22 +296,20 @@ class Rigging_maya(SlotsMaya):
                     pm.toggle(obj, template=1, q=True)
 
     @mtk.undo
-    def tb003(self, *args, **kwargs):
+    def tb003(self, widget):
         """Create Locator at Selection"""
-        tb = kwargs.get("widget")
-
-        grp_suffix = tb.option_menu.t002.text()
-        loc_suffix = tb.option_menu.t000.text()
-        obj_suffix = tb.option_menu.t001.text()
-        parent = tb.option_menu.chk006.isChecked()
-        freeze_transforms = tb.option_menu.chk010.isChecked()
-        bake_child_pivot = tb.option_menu.chk011.isChecked()
-        scale = tb.option_menu.s001.value()
-        strip_digits = tb.option_menu.chk005.isChecked()
-        strip_suffix = tb.option_menu.chk016.isChecked()
-        lock_translate = tb.option_menu.chk007.isChecked()
-        lock_rotation = tb.option_menu.chk008.isChecked()
-        lock_scale = tb.option_menu.chk009.isChecked()
+        grp_suffix = widget.option_menu.t002.text()
+        loc_suffix = widget.option_menu.t000.text()
+        obj_suffix = widget.option_menu.t001.text()
+        parent = widget.option_menu.chk006.isChecked()
+        freeze_transforms = widget.option_menu.chk010.isChecked()
+        bake_child_pivot = widget.option_menu.chk011.isChecked()
+        scale = widget.option_menu.s001.value()
+        strip_digits = widget.option_menu.chk005.isChecked()
+        strip_suffix = widget.option_menu.chk016.isChecked()
+        lock_translate = widget.option_menu.chk007.isChecked()
+        lock_rotation = widget.option_menu.chk008.isChecked()
+        lock_scale = widget.option_menu.chk009.isChecked()
 
         selection = pm.ls(selection=True)
         if not selection:
@@ -344,13 +331,11 @@ class Rigging_maya(SlotsMaya):
             lock_scale=lock_scale,
         )
 
-    def tb004(self, *args, **kwargs):
+    def tb004(self, widget):
         """Lock/Unlock Attributes"""
-        tb = kwargs.get("widget")
-
-        lock_translate = tb.option_menu.chk012.isChecked()
-        lock_rotation = tb.option_menu.chk013.isChecked()
-        lock_scale = tb.option_menu.chk014.isChecked()
+        lock_translate = widget.option_menu.chk012.isChecked()
+        lock_rotation = widget.option_menu.chk013.isChecked()
+        lock_scale = widget.option_menu.chk014.isChecked()
 
         sel = pm.ls(sl=True)
         mtk.set_attr_lock_state(
@@ -358,7 +343,7 @@ class Rigging_maya(SlotsMaya):
         )
 
     @SlotsMaya.hideMain
-    def b000(self, *args, **kwargs):
+    def b000(self):
         """Object Transform Limit Attributes"""
         node = pm.ls(sl=1, objectsOnly=1)
         if not node:
@@ -391,36 +376,36 @@ class Rigging_maya(SlotsMaya):
             node, fn=SlotsMaya.set_parameter_values, fn_args="transformLimits", **attrs
         )
 
-    def b001(self, *args, **kwargs):
+    def b001(self):
         """Connect Joints"""
         pm.connectJoint(cm=1)
 
-    def b002(self, *args, **kwargs):
+    def b002(self):
         """Insert Joint Tool"""
         pm.setToolTo("insertJointContext")  # insert joint tool
 
-    def b003(self, *args, **kwargs):
+    def b003(self):
         """Remove Locator"""
         selection = pm.ls(selection=True)
         mtk.remove_locator(selection)
 
-    def b004(self, *args, **kwargs):
+    def b004(self):
         """Reroot"""
         pm.reroot()  # re-root joints
 
-    def b006(self, *args, **kwargs):
+    def b006(self):
         """Constraint: Point"""
         pm.pointConstraint(offset=[0, 0, 0], weight=1)
 
-    def b007(self, *args, **kwargs):
+    def b007(self):
         """Constraint: Scale"""
         pm.scaleConstraint(offset=[1, 1, 1], weight=1)
 
-    def b008(self, *args, **kwargs):
+    def b008(self):
         """Constraint: Orient"""
         pm.orientConstraint(offset=[0, 0, 0], weight=1)
 
-    def b009(self, *args, **kwargs):
+    def b009(self):
         """Constraint: Aim"""
         pm.aimConstraint(
             offset=[0, 0, 0],
@@ -431,10 +416,12 @@ class Rigging_maya(SlotsMaya):
             worldUpVector=[0, 1, 0],
         )
 
-    def b010(self, *args, **kwargs):
+    def b010(self):
         """Constraint: Pole Vector"""
         pm.orientConstraint(offset=[0, 0, 0], weight=1)
 
+
+# --------------------------------------------------------------------------------------------
 
 # module name
 print(__name__)

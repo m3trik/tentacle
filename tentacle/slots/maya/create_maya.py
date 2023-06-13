@@ -75,32 +75,35 @@ class Create_maya(SlotsMaya):
             setToolTip="Uniformly scale the created object to match the averaged scale of any selected object(s).",
         )
 
-    def tb000(self, *args, **kwargs):
+    def tb000(self, widget):
         """Create Primitive"""
-        tb = kwargs.get("widget")
-
         baseType = self.sb.create.cmb001.currentText()
         subType = self.sb.create.cmb002.currentText()
-        scale = tb.option_menu.chk001.isChecked()
-        translate = tb.option_menu.chk000.isChecked()
+        scale = widget.option_menu.chk001.isChecked()
+        translate = widget.option_menu.chk000.isChecked()
 
         return self.createDefaultPrimitive(baseType, subType, scale, translate)
 
-    def b001(self, *args, **kwargs):
+    def b001(self):
         """Create poly cube"""
         return self.createDefaultPrimitive("Polygon", "Cube")
 
-    def b002(self, *args, **kwargs):
+    def b002(self):
         """Create poly sphere"""
         return self.createDefaultPrimitive("Polygon", "Sphere")
 
-    def b003(self, *args, **kwargs):
+    def b003(self):
         """Create poly cylinder"""
         return self.createDefaultPrimitive("Polygon", "Cylinder")
 
-    def b004(self, *args, **kwargs):
+    def b004(self):
         """Create poly plane"""
         return self.createDefaultPrimitive("Polygon", "Plane")
+
+    def b005(self):
+        """Create 6 sided poly cylinder"""
+        cyl = self.createDefaultPrimitive("Polygon", "Cylinder")
+        mtk.Node.set_node_attributes(cyl, verbose=True, subdivisionsAxis=6)
 
     def createDefaultPrimitive(
         self, baseType, subType, scale=False, translate=False, axis=[0, 90, 0]
@@ -160,11 +163,6 @@ class Create_maya(SlotsMaya):
 
         return mtk.Node.get_history_node(node)
 
-    def b005(self, *args, **kwargs):
-        """Create 6 sided poly cylinder"""
-        cyl = self.createDefaultPrimitive("Polygon", "Cylinder")
-        mtk.Node.set_node_attributes(cyl, verbose=True, subdivisionsAxis=6)
-
     @mtk.undo
     def createCircle(
         self, axis="y", numPoints=5, radius=5, center=[0, 0, 0], mode=0, name="pCircle"
@@ -219,6 +217,9 @@ class Create_maya(SlotsMaya):
         # pm.undoInfo (closeChunk=True)
 
         return node
+
+
+# --------------------------------------------------------------------------------------------
 
 
 # module name

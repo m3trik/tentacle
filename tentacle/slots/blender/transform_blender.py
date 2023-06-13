@@ -301,7 +301,7 @@ class Transform_blender(Transform, SlotsBlender):
         cmb.setCurrentIndex(0)
 
     @Slots.hideMain
-    def b000(self, *args, **kwargs):
+    def b000(self):
         """Object Transform Attributes"""
         node = pm.ls(sl=1, objectsOnly=1)
         if not node:
@@ -324,7 +324,7 @@ class Transform_blender(Transform, SlotsBlender):
             checkable_label=True,
         )
 
-    def b001(self, *args, **kwargs):
+    def b001(self):
         """Match Scale"""
         selection = pm.ls(sl=1)
         if not selection:
@@ -335,17 +335,17 @@ class Transform_blender(Transform, SlotsBlender):
 
         self.match_scale(frm, to)
 
-    def b002(self, *args, **kwargs):
+    def b002(self):
         """Freeze Transformations"""
         pm.makeIdentity(
             apply=True, translate=True, rotate=True, scale=True
         )  # this is the same as pm.makeIdentity(apply=True)
 
-    def b003(self, *args, **kwargs):
+    def b003(self):
         """Center Pivot Object"""
         pm.mel.CenterPivot()
 
-    def b005(self, *args, **kwargs):
+    def b005(self):
         """Move To"""
         sel = pm.ls(sl=1, transforms=1)
         if not sel:
@@ -359,7 +359,7 @@ class Transform_blender(Transform, SlotsBlender):
         )  # move object to center of the last selected items bounding box
         pm.select(objects)
 
-    def b012(self, *args, **kwargs):
+    def b012(self):
         """Make Live (Toggle)"""
         cmb = self.sb.transform.cmb001
         selection = pm.ls(sl=1, objectsOnly=1, type="transform")
@@ -374,24 +374,24 @@ class Transform_blender(Transform, SlotsBlender):
             self.chk026(state=0)
             cmb.option_menu.chk026.setChecked(False)
 
-    def b014(self, *args, **kwargs):
+    def b014(self):
         """Center Pivot Component"""
         [pm.xform(s, center_pivot=1) for s in pm.ls(sl=1, objectsOnly=1, flatten=1)]
         # mel.eval("moveObjectPivotToComponentCentre;")
 
-    def b015(self, *args, **kwargs):
+    def b015(self):
         """Center Pivot World"""
         pm.xform(pivots=(0, 0, 0), worldSpace=1)
 
-    def b016(self, *args, **kwargs):
+    def b016(self):
         """Set To Bounding Box"""
         mel.eval("bt_alignPivotToBoundingBoxWin;")
 
-    def b017(self, *args, **kwargs):
+    def b017(self):
         """Bake Pivot"""
         pm.mel.BakeCustomPivot()
 
-    def b032(self, *args, **kwargs):
+    def b032(self):
         """Reset Pivot Transforms"""
         objs = pm.ls(type=["transform", "geometryShape"], sl=1)
         if len(objs) > 0:
@@ -935,7 +935,7 @@ print(__name__)
 # 	self.sb.transform.s000.setValue(45)
 # 	self.sb.transform.s000.setSingleStep(5)
 
-# def b000(self, *args, **kwargs):
+# def b000(self):
 # 	'''
 # 	Transform negative axis
 # 	'''
@@ -947,7 +947,7 @@ print(__name__)
 # 	self.performTransformations()
 
 
-# def b001(self, *args, **kwargs):
+# def b001(self):
 # 	'''
 # 	Transform positive axis
 # 	'''

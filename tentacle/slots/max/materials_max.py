@@ -232,7 +232,7 @@ class Materials_max(Materials, SlotsMax):
 			rt.freeSceneBitmaps()
 
 
-	def b002(self, *args, **kwargs):
+	def b002(self):
 		'''Set Material: Set the Currently Selected Material as the currentMaterial.
 		'''
 		try: 

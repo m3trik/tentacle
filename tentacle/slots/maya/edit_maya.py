@@ -177,17 +177,6 @@ class Edit_maya(SlotsMaya):
                 setDisabled="chk023",
             )
         )  # disable non-relevant options.
-        # sync widgets
-        self.sb.sync_widgets(
-            widget.option_menu.chk004,
-            self.sb.edit_submenu.chk004,
-            attributes="setChecked",
-        )
-        self.sb.sync_widgets(
-            widget.option_menu.chk010,
-            self.sb.edit_submenu.chk010,
-            attributes="setChecked",
-        )
 
     def cmb001_init(self, widget):
         """ """
@@ -509,7 +498,7 @@ class Edit_maya(SlotsMaya):
         # pm.undoInfo(closeChunk=1)
 
     @SlotsMaya.hideMain
-    def b001(self, *args, **kwargs):
+    def b001(self):
         """Object History Attributes: get most recent node"""
         self.cmb001()  # refresh the contents of the combobox.
 
@@ -520,19 +509,19 @@ class Edit_maya(SlotsMaya):
             self.sb.message_box("Found no items to list the history for.")
             return
 
-    def b021(self, *args, **kwargs):
+    def b021(self):
         """Tranfer Maps"""
         pm.mel.performSurfaceSampling(1)
 
-    def b022(self, *args, **kwargs):
+    def b022(self):
         """Transfer Vertex Order"""
         pm.mel.TransferVertexOrder()
 
-    def b023(self, *args, **kwargs):
+    def b023(self):
         """Transfer Attribute Values"""
         pm.mel.TransferAttributeValues()
 
-    def b027(self, *args, **kwargs):
+    def b027(self):
         """Shading Sets"""
         pm.mel.performTransferShadingSets(0)
 

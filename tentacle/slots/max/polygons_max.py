@@ -251,32 +251,32 @@ class Polygons_max(Polygons, SlotsMax):
             self.sb.message_box("Operation requires at least two selected objects.")
             return
 
-    def b000(self, *args, **kwargs):
+    def b000(self):
         """Circularize"""
         obj = rt.selection[0]
         vertices = rt.polyop.getVertSelection(obj)
 
         self.circularize(vertices)
 
-    def b001(self, *args, **kwargs):
+    def b001(self):
         """Fill Holes"""
         rt.macros.run("Modifiers", "Cap_Holes")
 
-    def b002(self, *args, **kwargs):
+    def b002(self):
         """Separate"""
         obj = rt.selection[0]
 
         self.detachElement(obj)
 
-    def b003(self, *args, **kwargs):
+    def b003(self):
         """Symmetrize"""
         pm.mel.Symmetrize()
 
-    def b004(self, *args, **kwargs):
+    def b004(self):
         """Slice"""
         rt.macros.run("Ribbon - Modeling", "CutsQuickSlice")
 
-    def b009(self, *args, **kwargs):
+    def b009(self):
         """Collapse Component"""
         # --[mesh] 0=object level,1=vertex level,2=edge level,3=face,4=polygon,5=element,
         # --[poly] 0=object level,1=vertex level,2=edge level,3=border,4=polygon,5=element
@@ -295,7 +295,7 @@ class Polygons_max(Polygons, SlotsMax):
 
         # rt.macros.run('Ribbon - Modeling', 'GeometryCollapse')
 
-    def b012(self, *args, **kwargs):
+    def b012(self):
         """Multi-Cut Tool"""
         self.setSubObjectLevel(4)
         rt.macros.run("Ribbon - Modeling", "CutsCut")
@@ -303,36 +303,36 @@ class Polygons_max(Polygons, SlotsMax):
         # if obj:
         # 	obj.ToggleCommandMode('CutVertex') #cut vertex tool
 
-    def b021(self, *args, **kwargs):
+    def b021(self):
         """Connect Border Edges"""
         mel.eval("performPolyConnectBorders 0;")
 
-    def b022(self, *args, **kwargs):
+    def b022(self):
         """Attach"""
         rt.macros.run("Ribbon - Modeling", "AttachMode")
 
-    def b028(self, *args, **kwargs):
+    def b028(self):
         """Quad Draw"""
         mel.eval("dR_quadDrawTool;")
 
-    def b032(self, *args, **kwargs):
+    def b032(self):
         """Poke"""
         mel.eval("PokePolygon;")
 
-    def b034(self, *args, **kwargs):
+    def b034(self):
         """Wedge"""
         mel.eval("WedgePolygon;")
 
-    def b038(self, *args, **kwargs):
+    def b038(self):
         """Assign Invisible"""
         mel.eval("polyHole -assignHole 1;")
 
-    def b043(self, *args, **kwargs):
+    def b043(self):
         """Target Weld"""
         self.setSubObjectLevel(1)  # set component mode to vertex
         rt.macros.run("Editable Polygon Object", "EPoly_TargetWeld")
 
-    def b045(self, *args, **kwargs):
+    def b045(self):
         """Re-Order Vertices"""
         # symmetryOn = pm.symmetricModelling(query=True, symmetry=True) #query symmetry state
 
@@ -342,7 +342,7 @@ class Polygons_max(Polygons, SlotsMax):
         # mel.eval("doBakeNonDefHistory( 1, {\"pre\"});") #history must be deleted
         # mel.eval("performPolyReorderVertex;") #start vertex reorder ctx
 
-    def b046(self, *args, **kwargs):
+    def b046(self):
         """Split"""
         level = rt.subObjectLevel
 
@@ -363,28 +363,28 @@ class Polygons_max(Polygons, SlotsMax):
 
         rt.redrawViews
 
-    def b047(self, *args, **kwargs):
+    def b047(self):
         """Insert Edgeloop"""
         self.setSubObjectLevel(0)
         rt.macros.run("PolyTools", "SwiftLoop")
 
-    def b048(self, *args, **kwargs):
+    def b048(self):
         """Collapse Edgering"""
         mel.eval("bt_polyCollapseEdgeRingTool;")
 
-    def b049(self, *args, **kwargs):
+    def b049(self):
         """Slide Edge Tool"""
         mel.eval("SlideEdgeTool;")
 
-    def b050(self, *args, **kwargs):
+    def b050(self):
         """Spin Edge"""
         mel.eval("bt_polySpinEdgeTool;")
 
-    def b051(self, *args, **kwargs):
+    def b051(self):
         """Offset Edgeloop"""
         mel.eval("performPolyDuplicateEdge 0;")
 
-    def b053(self, *args, **kwargs):
+    def b053(self):
         """Edit Edge Flow"""
         mel.eval("PolyEditEdgeFlow;")
 

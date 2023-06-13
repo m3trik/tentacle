@@ -143,23 +143,23 @@ class Subdivision_max(Subdivision, SlotsMax):
             except:
                 pass
 
-    def b005(self, *args, **kwargs):
+    def b005(self):
         """Reduce"""
         mel.eval("ReducePolygon;")
 
-    def b008(self, *args, **kwargs):
+    def b008(self):
         """Add Divisions - Subdivide Mesh"""
         maxEval('macros.run "Modifiers" "Tessellate"')
 
-    def b009(self, *args, **kwargs):
+    def b009(self):
         """Smooth"""
         maxEval('macros.run "Modifiers" "Smooth"')
 
-    def b010(self, *args, **kwargs):
+    def b010(self):
         """"""
         pass
 
-    def b011(self, *args, **kwargs):
+    def b011(self):
         """Convert Smooth Preview"""
         # convert smooth mesh preview to polygons
         geometry = rt.selection

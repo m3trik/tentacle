@@ -240,9 +240,6 @@ class Selection(SlotsMaya):
             setObjectName="lbl002",
             setToolTip="Delete the current set.",
         )
-        # widget.returnPressed.connect(
-        #     lambda m=widget.option_menu.lastActiveChild: getattr(self, m(name=1))()
-        # )
         widget.currentIndexChanged.connect(self.lbl005)
 
     def cmb002_init(self, widget):
@@ -308,31 +305,31 @@ class Selection(SlotsMaya):
         items = ["Angle", "Border", "Edge Loop", "Edge Ring", "Shell", "UV Edge Loop"]
         widget.addItems_(items, "Off")
 
-    def chk000(self, *args, **kwargs):
+    def chk000(self, state, widget):
         """Select Nth: uncheck other checkboxes"""
         self.sb.toggle_widgets(setUnChecked="chk001-2")
 
-    def chk001(self, *args, **kwargs):
+    def chk001(self, state, widget):
         """Select Nth: uncheck other checkboxes"""
         self.sb.toggle_widgets(setUnChecked="chk000,chk002")
 
-    def chk002(self, *args, **kwargs):
+    def chk002(self, state, widget):
         """Select Nth: uncheck other checkboxes"""
         self.sb.toggle_widgets(setUnChecked="chk000-1")
 
-    def chk005(self, *args, **kwargs):
+    def chk005(self, state, widget):
         """Select Style: Marquee"""
         self.sb.toggle_widgets(setChecked="chk005", setUnChecked="chk006-7")
         self.setSelectionStyle("marquee")
         self.sb.message_box("Select Style: <hl>Marquee</hl>")
 
-    def chk006(self, *args, **kwargs):
+    def chk006(self, state, widget):
         """Select Style: Lasso"""
         self.sb.toggle_widgets(setChecked="chk006", setUnChecked="chk005,chk007")
         self.setSelectionStyle("lasso")
         self.sb.message_box("Select Style: <hl>Lasso</hl>")
 
-    def chk007(self, *args, **kwargs):
+    def chk007(self, state, widget):
         """Select Style: Paint"""
         self.sb.toggle_widgets(setChecked="chk007", setUnChecked="chk005-6")
         self.setSelectionStyle("paint")
@@ -399,9 +396,8 @@ class Selection(SlotsMaya):
             pm.select(name)  # pm.select(name, noExpand=1)
 
     @SlotsMaya.hideMain
-    def chk004(self, state=None, **kwargs):
+    def chk004(self, state, widget):
         """Ignore Backfacing (Camera Based Selection)"""
-
         if state:
             pm.selectPref(useDepth=True)
             self.sb.message_box(
@@ -413,9 +409,8 @@ class Selection(SlotsMaya):
                 "Camera-based selection <hl>Off</hl>.", message_type="Result"
             )
 
-    def chk008(self, state=None, **kwargs):
+    def chk008(self, state, widget):
         """Toggle Soft Selection"""
-
         if state:
             pm.softSelect(edit=1, softSelectEnabled=True)
             self.sb.message_box("Soft Select <hl>On</hl>.", message_type="Result")
@@ -423,13 +418,10 @@ class Selection(SlotsMaya):
             pm.softSelect(edit=1, softSelectEnabled=False)
             self.sb.message_box("Soft Select <hl>Off</hl>.", message_type="Result")
 
-    def cmb002(self, index=-1, **kwargs):
+    def cmb002(self, index, widget):
         """Select by Type"""
-        print("cmb002:", kwargs)
-        cmb = kwargs.get("widget")
-        print("cmb002 index:", index)
         if index > 0:
-            text = cmb.items[index]
+            text = widget.items[index]
             if text == "IK Handles":  #
                 type_ = pm.ls(type=["ikHandle", "hikEffector"])
             elif text == "Joints":  #
@@ -487,14 +479,12 @@ class Selection(SlotsMaya):
                 type_ = pm.listTransforms(type="nRigid")
 
             pm.select(type_)
-            cmb.setCurrentIndex(0)
+            widget.setCurrentIndex(0)
 
-    def cmb003(self, index=-1, **kwargs):
+    def cmb003(self, index, widget):
         """Convert To"""
-        cmb = kwargs.get("widget")
-
         if index > 0:
-            text = cmb.items[index]
+            text = widget.items[index]
             if text == "Verts":  # Convert Selection To Vertices
                 pm.mel.PolySelectConvert(3)
             elif text == "Vertex Faces":  #
@@ -535,14 +525,12 @@ class Selection(SlotsMaya):
                 pm.mel.polyConvertToShell()
             elif text == "Shell Border":  #
                 pm.mel.polyConvertToShellBorder()
-            cmb.setCurrentIndex(0)
+            widget.setCurrentIndex(0)
 
-    def cmb005(self, index=-1, **kwargs):
+    def cmb005(self, index, widget):
         """Selection Contraints"""
-        cmb = kwargs.get("widget")
-
         if index > 0:
-            text = cmb.items[index]
+            text = widget.items[index]
             if text == "Angle":
                 pm.mel.dR_selConstraintAngle()  # dR_DoCmd("selConstraintAngle");
             elif text == "Border":
@@ -560,21 +548,21 @@ class Selection(SlotsMaya):
 
     def chkxxx(self, **kwargs):
         """Transform Constraints: Constraint CheckBoxes"""
+        widget = kwargs.get("widget")
+        state = kwargs.get("state")
         try:
-            pm.select(kwargs["widget"].text(), deselect=(not kwargs["state"]))
+            pm.select(widget.text(), deselect=(not state))
         except KeyError:
             pass
 
-    def tb000(self, *args, **kwargs):
+    def tb000(self, widget):
         """Select Nth"""
-        tb = kwargs.get("widget")
-
-        edgeRing = tb.option_menu.chk000.isChecked()
-        edgeLoop = tb.option_menu.chk001.isChecked()
-        pathAlongLoop = tb.option_menu.chk009.isChecked()
-        shortestPath = tb.option_menu.chk002.isChecked()
-        borderEdges = tb.option_menu.chk010.isChecked()
-        step = tb.option_menu.s003.value()
+        edgeRing = widget.option_menu.chk000.isChecked()
+        edgeLoop = widget.option_menu.chk001.isChecked()
+        pathAlongLoop = widget.option_menu.chk009.isChecked()
+        shortestPath = widget.option_menu.chk002.isChecked()
+        borderEdges = widget.option_menu.chk010.isChecked()
+        step = widget.option_menu.s003.value()
 
         selection = pm.ls(sl=1)
         if not selection:
@@ -599,21 +587,19 @@ class Selection(SlotsMaya):
 
         pm.select(result[::step])
 
-    def tb001(self, *args, **kwargs):
+    def tb001(self, widget):
         """Select Similar"""
-        tb = kwargs.get("widget")
-
-        tolerance = tb.option_menu.s000.value()  # tolerance
-        v = tb.option_menu.chk011.isChecked()  # vertex
-        e = tb.option_menu.chk012.isChecked()  # edge
-        f = tb.option_menu.chk013.isChecked()  # face
-        t = tb.option_menu.chk014.isChecked()  # triangle
-        s = tb.option_menu.chk015.isChecked()  # shell
-        uv = tb.option_menu.chk016.isChecked()  # uvcoord
-        a = tb.option_menu.chk017.isChecked()  # area
-        wa = tb.option_menu.chk018.isChecked()  # world area
-        b = tb.option_menu.chk019.isChecked()  # bounding box
-        inc = tb.option_menu.chk020.isChecked()  # select the original objects
+        tolerance = widget.option_menu.s000.value()  # tolerance
+        v = widget.option_menu.chk011.isChecked()  # vertex
+        e = widget.option_menu.chk012.isChecked()  # edge
+        f = widget.option_menu.chk013.isChecked()  # face
+        t = widget.option_menu.chk014.isChecked()  # triangle
+        s = widget.option_menu.chk015.isChecked()  # shell
+        uv = widget.option_menu.chk016.isChecked()  # uvcoord
+        a = widget.option_menu.chk017.isChecked()  # area
+        wa = widget.option_menu.chk018.isChecked()  # world area
+        b = widget.option_menu.chk019.isChecked()  # bounding box
+        inc = widget.option_menu.chk020.isChecked()  # select the original objects
 
         objMode = pm.selectMode(q=True, object=1)
         if objMode:
@@ -638,13 +624,11 @@ class Selection(SlotsMaya):
         else:
             pm.mel.doSelectSimilar(1, {tolerance})
 
-    def tb002(self, *args, **kwargs):
+    def tb002(self, widget):
         """Select Island: Select Polygon Face Island"""
-        tb = kwargs.get("widget")
-
-        range_x = float(tb.option_menu.s002.value())
-        range_y = float(tb.option_menu.s004.value())
-        range_z = float(tb.option_menu.s005.value())
+        range_x = float(widget.option_menu.s002.value())
+        range_y = float(widget.option_menu.s004.value())
+        range_z = float(widget.option_menu.s005.value())
 
         sel = pm.ls(sl=1)
         selected_faces = mtk.Cmpt.get_components(sel, component_type="faces")
@@ -659,12 +643,10 @@ class Selection(SlotsMaya):
         island = [i for i in islands if bool(set(i) & set(selected_faces))]
         pm.select(island)
 
-    def tb003(self, *args, **kwargs):
+    def tb003(self, widget):
         """Select Edges By Angle"""
-        tb = kwargs.get("widget")
-
-        angleLow = tb.option_menu.s006.value()
-        angleHigh = tb.option_menu.s007.value()
+        angleLow = widget.option_menu.s006.value()
+        angleHigh = widget.option_menu.s007.value()
 
         objects = pm.ls(sl=1, objectsOnly=1)
         edges = mtk.get_edges_by_normal_angle(
@@ -675,19 +657,19 @@ class Selection(SlotsMaya):
         pm.selectMode(component=1)
         pm.selectType(edge=1)
 
-    def b016(self, *args, **kwargs):
+    def b016(self):
         """Convert Selection To Vertices"""
         pm.mel.PolySelectConvert(3)
 
-    def b017(self, *args, **kwargs):
+    def b017(self):
         """Convert Selection To Edges"""
         pm.mel.PolySelectConvert(2)
 
-    def b018(self, *args, **kwargs):
+    def b018(self):
         """Convert Selection To Faces"""
         pm.mel.PolySelectConvert(1)
 
-    def b019(self, *args, **kwargs):
+    def b019(self):
         """Convert Selection To Edge Ring"""
         pm.mel.SelectEdgeRingSp()
 

@@ -52,21 +52,21 @@ class Mirror_max(Mirror, SlotsMax):
 			mergeMode=mergeMode, mergeThreshold=mergeThreshold, deleteHistory=deleteHistory)
 
 
-	def b000(self, *args, **kwargs):
+	def b000(self):
 		'''Mirror: X
 		'''
 		self.sb.mirror.tb000.option_menu.chk001.setChecked(True)
 		self.tb000()
 
 
-	def b001(self, *args, **kwargs):
+	def b001(self):
 		'''Mirror: Y
 		'''
 		self.sb.mirror.tb000.option_menu.chk002.setChecked(True)
 		self.tb000()
 
 
-	def b002(self, *args, **kwargs):
+	def b002(self):
 		'''Mirror: Z
 		'''
 		self.sb.mirror.tb000.option_menu.chk003.setChecked(True)

@@ -73,7 +73,7 @@ class Crease_blender(Crease, SlotsBlender):
             pm.polySelectConstraint(angle=False)  # turn off angle constraint
 
     @SlotsBlender.undoChunk
-    def b002(self, *args, **kwargs):
+    def b002(self):
         """Transfer Crease Edges"""
         # an updated version of this is in the maya python projects folder. transferCreaseSets.py
         # the use of separate buttons for donor and target mesh are deprecated.

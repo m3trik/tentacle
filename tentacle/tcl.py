@@ -327,13 +327,13 @@ class Tcl(QtWidgets.QStackedWidget):
         """
         # Only Install the event filter for the following widget types.
         filtered_types = [
-            "QMainWindow",
-            "QWidget",
-            "QAction",
-            "QLabel",
-            "QPushButton",
-            "QCheckBox",
-            "QRadioButton",
+            QtWidgets.QMainWindow,
+            QtWidgets.QWidget,
+            QtWidgets.QAction,
+            QtWidgets.QLabel,
+            QtWidgets.QPushButton,
+            QtWidgets.QCheckBox,
+            QtWidgets.QRadioButton,
         ]
 
         for w in make_iterable(widgets):
@@ -345,17 +345,22 @@ class Tcl(QtWidgets.QStackedWidget):
             # print('add_child_event_filter:', w.ui.name.ljust(26), w.base_name.ljust(25), (w.name or type(w).__name__).ljust(25), w.type.ljust(15), w.derived_type.ljust(15), id(w)) #debug
             w.installEventFilter(self.child_event_filter)
 
-            if w.derived_type in ("QPushButton", "QLabel", "QCheckBox", "QRadioButton"):
+            if w.derived_type in (
+                QtWidgets.QPushButton,
+                QtWidgets.QLabel,
+                QtWidgets.QCheckBox,
+                QtWidgets.QRadioButton,
+            ):
                 self.sb.resize_and_center_widget(w)
                 if w.base_name == "i":
                     w.ui.set_style(widget=w)
 
-            if w.type == "Region":
+            if w.type == self.sb.Region:
                 w.visible_on_mouse_over = True
 
     def child_enterEvent(self, w, event):
         """ """
-        if w.derived_type == "QPushButton":
+        if w.derived_type == QtWidgets.QPushButton:
             if w.base_name == "i":  # set the stacked widget.
                 submenu_name = f"{w.whatsThis()}#submenu"
                 if submenu_name != w.ui.name:
@@ -365,7 +370,8 @@ class Tcl(QtWidgets.QStackedWidget):
 
         if w.base_name == "chk":
             if w.ui.has_tag("submenu"):
-                w.click()  # send click signal on enterEvent.
+                if self.isVisible():  # Omit children of popup menus.
+                    w.click()  # send click signal on enterEvent.
 
         w.enterEvent(event)
 
@@ -389,7 +395,7 @@ class Tcl(QtWidgets.QStackedWidget):
     def child_mouseReleaseEvent(self, w, event):
         """ """
         if w.underMouse():  # if mouse over widget
-            if w.derived_type == "QPushButton":
+            if w.derived_type == QtWidgets.QPushButton:
                 if w.base_name == "i":  # ie. 'i012'
                     menu_name = w.whatsThis()
                     new_menu_name = self.clean_tag_string(menu_name)
@@ -419,7 +425,7 @@ class Tcl(QtWidgets.QStackedWidget):
                 event.key() == self.key_show
                 and not modifiers == QtCore.Qt.ControlModifier
             ):
-                if w.type == "QMainWindow":
+                if w.derived_type == QtWidgets.QMainWindow:
                     if not w.ui.has_tag("startmenu|submenu"):
                         self.key_show_release.emit()
                         w.releaseKeyboard()

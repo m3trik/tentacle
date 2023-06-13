@@ -37,12 +37,10 @@ class Convert_maya(SlotsMaya):
         ]
         widget.addItems_(items, "Convert To")
 
-    def cmb001(self, index=-1, **kwargs):
+    def cmb001(self, index, widget):
         """Convert To"""
-        cmb = kwargs.get("widget")
-
         if index > 0:
-            text = cmb.items[index]
+            text = widget.items[index]
             if text == "NURBS to Polygons":  # index 1
                 pm.mel.eval("performnurbsToPoly 0;")
             elif text == "NURBS to Subdiv":  # index 2
@@ -87,22 +85,21 @@ class Convert_maya(SlotsMaya):
                 import xgenm.xmaya.xgmConvertPrimToPolygon as cpp
 
                 cpp.convertPrimToPolygon(False)
+            widget.setCurrentIndex(0)
 
-            cmb.setCurrentIndex(0)
-
-    def b000(self, *args, **kwargs):
+    def b000(self):
         """Polygon Edges to Curve"""
         self.cmb001(index=5)
 
-    def b001(self, *args, **kwargs):
+    def b001(self):
         """Instance to Object"""
         self.cmb001(index=18)
 
-    def b002(self, *args, **kwargs):
+    def b002(self):
         """NURBS to Polygons"""
         self.cmb001(index=1)
 
-    def b003(self, *args, **kwargs):
+    def b003(self):
         """Smooth Mesh Preview to Polygons"""
         self.cmb001(index=4)
 

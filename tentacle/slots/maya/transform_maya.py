@@ -38,16 +38,6 @@ class Transform_maya(SlotsMaya):
             )
             for chk, typ, state in values
         ]
-        self.sb.sync_widgets(
-            widget.option_menu.chk024,
-            self.sb.transform_submenu.chk024,
-            attributes="setChecked",
-        )
-        self.sb.sync_widgets(
-            widget.option_menu.chk025,
-            self.sb.transform_submenu.chk025,
-            attributes="setChecked",
-        )
 
     def cmb002_init(self, widget):
         """ """
@@ -232,14 +222,14 @@ class Transform_maya(SlotsMaya):
             setToolTip="Move the objects pivot to the center of it's bounding box.",
         )
 
-    def chk010(self, state=None, **kwargs):
+    def chk010(self, state, widget):
         """Align Vertices: Auto Align"""
         if state:
             self.sb.toggle_widgets(setDisabled="chk029-31")
         else:
             self.sb.toggle_widgets(setEnabled="chk029-31")
 
-    def chk021(self, state=None):
+    def chk021(self, state, widget):
         """Transform Tool Snap Settings: Move"""
         cmb = self.sb.transform.cmb003
         tri_state = cmb.option_menu.chk021.checkState_()
@@ -256,7 +246,7 @@ class Transform_maya(SlotsMaya):
 
         self.setTransformSnap("move", tri_state)
 
-    def chk022(self, state=None):
+    def chk022(self, state, widget):
         """Transform Tool Snap Settings: Scale"""
         cmb = self.sb.transform.cmb003
         tri_state = cmb.option_menu.chk022.checkState_()
@@ -277,7 +267,7 @@ class Transform_maya(SlotsMaya):
 
         self.setTransformSnap("scale", tri_state)
 
-    def chk023(self, state=None):
+    def chk023(self, state, widget):
         """Transform Tool Snap Settings: Rotate"""
         cmb = self.sb.transform.cmb003
         tri_state = cmb.option_menu.chk023.checkState_()
@@ -298,12 +288,10 @@ class Transform_maya(SlotsMaya):
 
         self.setTransformSnap("rotate", tri_state)
 
-    def cmb002(self, index=-1, **kwargs):
+    def cmb002(self, index, widget):
         """Align To"""
-        cmb = kwargs.get("widget")
-
         if index > 0:
-            text = cmb.items[index]
+            text = widget.items[index]
             if text == "Point to Point":
                 pm.mel.SnapPointToPointOptions()  # performSnapPtToPt 1; Select any type of point object or component.
             elif text == "2 Points to 2 Points":
@@ -322,9 +310,9 @@ class Transform_maya(SlotsMaya):
                 pm.mel.SetSnapTogetherToolOptions()  # setToolTo snapTogetherToolCtx; toolPropertyWindow;) Snap two objects together.
             elif text == "Orient to Vertex/Edge Tool":
                 pm.mel.orientToTool()  # Orient To Vertex/Edge
-            cmb.setCurrentIndex(0)
+            widget.setCurrentIndex(0)
 
-    def chk024(self, state=None):
+    def chk024(self, state, widget):
         """Transform Constraints: Edge"""
         cmb = self.sb.transform.cmb001
 
@@ -345,7 +333,7 @@ class Transform_maya(SlotsMaya):
             )
         ) else cmb.setCurrentText("Constrain: ON")
 
-    def chk025(self, state=None):
+    def chk025(self, state, widget):
         """Transform Contraints: Surface"""
         cmb = self.sb.transform.cmb001
 
@@ -366,7 +354,7 @@ class Transform_maya(SlotsMaya):
             )
         ) else cmb.setCurrentText("Constrain: ON")
 
-    def chk026(self, state=None):
+    def chk026(self, state, widget):
         """Transform Contraints: Make Live"""
         cmb = self.sb.transform.cmb001
 
@@ -391,48 +379,44 @@ class Transform_maya(SlotsMaya):
             )
         ) else cmb.setCurrentText("Constrain: ON")
 
-    def s021(self, value=None):
+    def s021(self, value, widget):
         """Transform Tool Snap Settings: Spinboxes"""
         pm.manipMoveContext("Move", edit=1, snapValue=value)
         pm.texMoveContext("texMoveContext", edit=1, snapValue=value)  # uv move context
 
-    def s022(self, value=None):
+    def s022(self, value, widget):
         """Transform Tool Snap Settings: Spinboxes"""
         pm.manipScaleContext("Scale", edit=1, snapValue=value)
         pm.texScaleContext(
             "texScaleContext", edit=1, snapValue=value
         )  # uv scale context
 
-    def s023(self, value=None):
+    def s023(self, value, widget):
         """Transform Tool Snap Settings: Spinboxes"""
         pm.manipRotateContext("Rotate", edit=1, snapValue=value)
         pm.texRotateContext(
             "texRotateContext", edit=1, snapValue=value
         )  # uv rotate context
 
-    def tb000(self, *args, **kwargs):
+    def tb000(self, widget):
         """Drop To Grid"""
-        tb = kwargs.get("widget")
-
-        align = tb.option_menu.cmb004.currentText()
-        origin = tb.option_menu.chk014.isChecked()
-        center_pivot = tb.option_menu.chk016.isChecked()
-        freeze_transforms = tb.option_menu.chk017.isChecked()
+        align = widget.option_menu.cmb004.currentText()
+        origin = widget.option_menu.chk014.isChecked()
+        center_pivot = widget.option_menu.chk016.isChecked()
+        freeze_transforms = widget.option_menu.chk017.isChecked()
 
         objects = pm.ls(sl=1, objectsOnly=1)
         mtk.Xform.drop_to_grid(objects, align, origin, center_pivot, freeze_transforms)
         pm.select(objects)  # reselect the original selection.
 
-    def tb001(self, *args, **kwargs):
+    def tb001(self, widget):
         """Align Components
 
         Auto Align finds the axis with the largest variance, and sets the axis checkboxes accordingly before performing a regular align.
         """
-        tb = kwargs.get("widget")
-
-        betweenTwoComponents = tb.option_menu.chk013.isChecked()
-        autoAlign = tb.option_menu.chk010.isChecked()
-        autoAlign2Axes = tb.option_menu.chk011.isChecked()  # Auto Align: Two Axes
+        betweenTwoComponents = widget.option_menu.chk013.isChecked()
+        autoAlign = widget.option_menu.chk010.isChecked()
+        autoAlign2Axes = widget.option_menu.chk011.isChecked()  # Auto Align: Two Axes
 
         selection = pm.ls(orderedSelection=1, flatten=1)
 
@@ -483,30 +467,36 @@ class Transform_maya(SlotsMaya):
             if autoAlign2Axes:
                 if axis == x:  # "yz"
                     self.sb.toggle_widgets(
-                        tb.option_menu, setChecked="chk030-31", setUnChecked="chk029"
+                        widget.option_menu,
+                        setChecked="chk030-31",
+                        setUnChecked="chk029",
                     )
                 if axis == y:  # "xz"
                     self.sb.toggle_widgets(
-                        tb.option_menu,
+                        widget.option_menu,
                         setChecked="chk029,chk031",
                         setUnChecked="chk030",
                     )
                 if axis == z:  # "xy"
                     self.sb.toggle_widgets(
-                        tb.option_menu, setChecked="chk029-30", setUnChecked="chk031"
+                        widget.option_menu,
+                        setChecked="chk029-30",
+                        setUnChecked="chk031",
                     )
             else:
                 if any(
                     [axis == x and tangent == ty, axis == y and tangent == tx]
                 ):  # "z"
                     self.sb.toggle_widgets(
-                        tb.option_menu, setChecked="chk031", setUnChecked="chk029-30"
+                        widget.option_menu,
+                        setChecked="chk031",
+                        setUnChecked="chk029-30",
                     )
                 if any(
                     [axis == x and tangent == tz, axis == z and tangent == tx]
                 ):  # "y"
                     self.sb.toggle_widgets(
-                        tb.option_menu,
+                        widget.option_menu,
                         setChecked="chk030",
                         setUnChecked="chk029,chk031",
                     )
@@ -514,15 +504,17 @@ class Transform_maya(SlotsMaya):
                     [axis == y and tangent == tz, axis == z and tangent == ty]
                 ):  # "x"
                     self.sb.toggle_widgets(
-                        tb.option_menu, setChecked="chk029", setUnChecked="chk030-31"
+                        widget.option_menu,
+                        setChecked="chk029",
+                        setUnChecked="chk030-31",
                     )
 
         # align
-        x = tb.option_menu.chk029.isChecked()
-        y = tb.option_menu.chk030.isChecked()
-        z = tb.option_menu.chk031.isChecked()
-        avg = tb.option_menu.chk006.isChecked()
-        loop = tb.option_menu.chk007.isChecked()
+        x = widget.option_menu.chk029.isChecked()
+        y = widget.option_menu.chk030.isChecked()
+        z = widget.option_menu.chk031.isChecked()
+        avg = widget.option_menu.chk006.isChecked()
+        loop = widget.option_menu.chk007.isChecked()
 
         if all([x, not y, not z]):  # align x
             mtk.Xform.align_vertices(mode=3, average=avg, edgeloop=loop)
@@ -545,14 +537,12 @@ class Transform_maya(SlotsMaya):
         if all([x, y, z]):  # align xyz
             mtk.Xform.align_vertices(mode=6, average=avg, edgeloop=loop)
 
-    def tb002(self, *args, **kwargs):
+    def tb002(self, widget):
         """Freeze Transformations"""
-        tb = kwargs.get("widget")
-
-        translate = tb.option_menu.chk032.isChecked()
-        rotate = tb.option_menu.chk033.isChecked()
-        scale = tb.option_menu.chk034.isChecked()
-        center_pivot = tb.option_menu.chk035.isChecked()
+        translate = widget.option_menu.chk032.isChecked()
+        rotate = widget.option_menu.chk033.isChecked()
+        scale = widget.option_menu.chk034.isChecked()
+        center_pivot = widget.option_menu.chk035.isChecked()
 
         if center_pivot:
             pm.xform(centerPivots=1)
@@ -561,20 +551,8 @@ class Transform_maya(SlotsMaya):
             apply=True, translate=translate, rotate=rotate, scale=scale
         )  # this is the same as pm.makeIdentity(apply=True)
 
-    def cmb001(self, *args, **kwargs):
-        """Transform Constraints
-
-        constrain along normals #checkbox option for edge amd surface constaints
-        setXformConstraintAlongNormal false;
-        """
-        cmb = kwargs.get("widget")
-
-    def cmb003(self, *args, **kwargs):
-        """Transform Tool Snapping"""
-        cmb = kwargs.get("widget")
-
     @SlotsMaya.hideMain
-    def b000(self, *args, **kwargs):
+    def b000(self):
         """Object Transform Attributes"""
         node = pm.ls(sl=1, objectsOnly=1)
         if not node:
@@ -600,7 +578,7 @@ class Transform_maya(SlotsMaya):
             checkable_label=True,
         )
 
-    def b001(self, *args, **kwargs):
+    def b001(self):
         """Match Scale"""
         selection = pm.ls(sl=1)
         if not selection:
@@ -614,11 +592,11 @@ class Transform_maya(SlotsMaya):
 
         mtk.Xform.match_scale(frm, to)
 
-    def b003(self, *args, **kwargs):
+    def b003(self):
         """Center Pivot Object"""
         pm.mel.CenterPivot()
 
-    def b005(self, *args, **kwargs):
+    def b005(self):
         """Move To"""
         sel = pm.ls(sl=1, transforms=1)
         if not sel:
@@ -635,7 +613,7 @@ class Transform_maya(SlotsMaya):
         )  # move object to center of the last selected items bounding box
         pm.select(objects)
 
-    def b012(self, *args, **kwargs):
+    def b012(self):
         """Make Live (Toggle)"""
         cmb = self.sb.transform.cmb001
         selection = pm.ls(sl=1, objectsOnly=1, type="transform")
@@ -650,24 +628,24 @@ class Transform_maya(SlotsMaya):
             self.chk026(state=0)
             cmb.option_menu.chk026.setChecked(False)
 
-    def b014(self, *args, **kwargs):
+    def b014(self):
         """Center Pivot Component"""
         [pm.xform(s, centerPivot=1) for s in pm.ls(sl=1, objectsOnly=1, flatten=1)]
         # pm.mel.eval("moveObjectPivotToComponentCentre;")
 
-    def b015(self, *args, **kwargs):
+    def b015(self):
         """Center Pivot World"""
         pm.xform(pivots=(0, 0, 0), worldSpace=1)
 
-    def b016(self, *args, **kwargs):
+    def b016(self):
         """Set To Bounding Box"""
         pm.mel.eval("bt_alignPivotToBoundingBoxWin;")
 
-    def b017(self, *args, **kwargs):
+    def b017(self):
         """Bake Pivot"""
         pm.mel.BakeCustomPivot()
 
-    def b032(self, *args, **kwargs):
+    def b032(self):
         """Reset Pivot Transforms"""
         objs = pm.ls(type=["transform", "geometryShape"], sl=1)
         if len(objs) > 0:
@@ -789,7 +767,7 @@ print(__name__)
 #   self.sb.transform.s000.setValue(45)
 #   self.sb.transform.s000.setSingleStep(5)
 
-# def b000(self, *args, **kwargs):
+# def b000(self):
 #   '''
 #   Transform negative axis
 #   '''
@@ -801,7 +779,7 @@ print(__name__)
 #   self.performTransformations()
 
 
-# def b001(self, *args, **kwargs):
+# def b001(self):
 #   '''
 #   Transform positive axis
 #   '''

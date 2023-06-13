@@ -243,31 +243,31 @@ class Editors_maya(SlotsMaya):
             elif text == "UV Linking: Hair/UV":
                 pm.mel.HairUVSetLinkingEditor()
 
-    def b000(self, *args, **kwargs):
+    def b000(self):
         """Attributes"""
         pm.mel.AttributeEditor()
 
-    def b001(self, *args, **kwargs):
+    def b001(self):
         """Outliner"""
         pm.mel.OutlinerWindow()
 
-    def b002(self, *args, **kwargs):
+    def b002(self):
         """Tool"""
         pm.toolPropertyWindow()
 
-    def b003(self, *args, **kwargs):
+    def b003(self):
         """Layers"""
         pm.mel.OpenChannelsLayers()
 
-    def b004(self, *args, **kwargs):
+    def b004(self):
         """Channels"""
         pm.mel.OpenChannelsLayers()
 
-    def b005(self, *args, **kwargs):
+    def b005(self):
         """Node Editor"""
         pm.mel.NodeEditorWindow()
 
-    def b006(self, *args, **kwargs):
+    def b006(self):
         """Dependancy Graph
 
         $editorName = ($panelName+"HyperGraphEd");
@@ -340,6 +340,8 @@ class Editors_maya(SlotsMaya):
         self.sb.parent().resize(width, height)
         return w
 
+
+# --------------------------------------------------------------------------------------------
 
 # module name
 print(__name__)

@@ -65,24 +65,20 @@ class Scene_maya(SlotsMaya):
             setToolTip="Reverse the naming order. (Farthest object first)",
         )
 
-    def tb000(self, *args, **kwargs):
+    def tb000(self, widget):
         """Convert Case"""
-        tb = kwargs.get("widget")
-
-        case = tb.option_menu.cmb001.currentText()
+        case = widget.option_menu.cmb001.currentText()
 
         selection = pm.ls(sl=1)
         objects = selection if selection else pm.ls(objectsOnly=1)
         mtk.Edit.set_case(objects, case)
 
-    def tb001(self, *args, **kwargs):
+    def tb001(self, widget):
         """Convert Case"""
-        tb = kwargs.get("widget")
-
-        alphanumeric = tb.option_menu.chk005.isChecked()
-        strip_trailing_ints = tb.option_menu.chk002.isChecked()
-        strip_trailing_alpha = tb.option_menu.chk003.isChecked()
-        reverse = tb.option_menu.chk004.isChecked()
+        alphanumeric = widget.option_menu.chk005.isChecked()
+        strip_trailing_ints = widget.option_menu.chk002.isChecked()
+        strip_trailing_alpha = widget.option_menu.chk003.isChecked()
+        reverse = widget.option_menu.chk004.isChecked()
 
         selection = pm.ls(sl=1, objectsOnly=1, type="transform")
         mtk.Edit.append_location_based_suffix(
@@ -93,7 +89,7 @@ class Scene_maya(SlotsMaya):
             reverse=reverse,
         )
 
-    def b000(self, *args, **kwargs):
+    def b000(self):
         """Rename"""
         find = (
             self.sb.scene.t000.text()

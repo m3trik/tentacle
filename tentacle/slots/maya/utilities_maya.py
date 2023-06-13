@@ -11,22 +11,24 @@ class Utilities_maya(SlotsMaya):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-    def b000(self, *args, **kwargs):
+    def b000(self):
         """Measure"""
         pm.mel.DistanceTool()
 
-    def b001(self, *args, **kwargs):
+    def b001(self):
         """Annotation"""
         pm.mel.CreateAnnotateNode()
 
-    def b002(self, *args, **kwargs):
+    def b002(self):
         """Calculator"""
         pm.mel.calculator()
 
-    def b003(self, *args, **kwargs):
+    def b003(self):
         """Grease Pencil"""
         pm.mel.greasePencilCtx()
 
+
+# --------------------------------------------------------------------------------------------
 
 # module name
 print(__name__)

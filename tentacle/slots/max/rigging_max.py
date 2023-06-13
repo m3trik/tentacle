@@ -187,7 +187,7 @@ class Rigging_max(Rigging, SlotsMax):
 
 
 	@Slots.hideMain
-	def b000(self, *args, **kwargs):
+	def b000(self):
 		'''Object Transform Limit Attributes
 		'''
 		node = rt.selection
@@ -204,49 +204,49 @@ class Rigging_max(Rigging, SlotsMax):
 		self.setAttributeWindow(node, fn=SlotsMax.setParameterValuesMax, 'transformLimits', **attrs)
 
 
-	def b001(self, *args, **kwargs):
+	def b001(self):
 		'''Connect Joints
 		'''
 		pm.connectJoint(cm=1)
 
 
-	def b002(self, *args, **kwargs):
+	def b002(self):
 		'''Insert Joint Tool
 		'''
 		pm.setToolTo('insertJointContext') #insert joint tool
 
 
-	def b004(self, *args, **kwargs):
+	def b004(self):
 		'''Reroot
 		'''
 		pm.reroot() #re-root joints
 
 
-	def b006(self, *args, **kwargs):
+	def b006(self):
 		'''Constraint: Point
 		'''
 		pm.pointConstraint(offset=[0,0,0], weight=1)
 
 
-	def b007(self, *args, **kwargs):
+	def b007(self):
 		'''Constraint: Scale
 		'''
 		pm.scaleConstraint(offset=[1,1,1], weight=1)
 
 
-	def b008(self, *args, **kwargs):
+	def b008(self):
 		'''Constraint: Orient
 		'''
 		pm.orientConstraint(offset=[0,0,0], weight=1)
 
 
-	def b009(self, *args, **kwargs):
+	def b009(self):
 		'''Constraint: Aim
 		'''
 		pm.aimConstraint(offset=[0,0,0], weight=1, aimVector=[1,0,0], upVector=[0,1,0], worldUpType="vector", worldUpVector=[0,1,0])
 
 
-	def b010(self, *args, **kwargs):
+	def b010(self):
 		'''Constraint: Pole Vector
 		'''
 		pm.orientConstraint(offset=[0,0,0], weight=1)

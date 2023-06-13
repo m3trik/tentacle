@@ -423,12 +423,12 @@ class Uv_blender(Uv, SlotsBlender):
 
         pm.mel.texSetTexelDensity(density, mapSize)
 
-    def b001(self, *args, **kwargs):
+    def b001(self):
         """Create UV Snapshot"""
         pm.mel.UVCreateSnapshot()
 
     @SlotsBlender.undoChunk
-    def b002(self, *args, **kwargs):
+    def b002(self):
         """Transfer UV's"""
         selection = pm.ls(orderedSelection=1, flatten=1)
         if len(selection) < 2:
@@ -462,7 +462,7 @@ class Uv_blender(Uv, SlotsBlender):
             print("Error: No match found for: {}.".format(remaining.name()))
         # pm.undoInfo(closeChunk=1)
 
-    def b005(self, *args, **kwargs):
+    def b005(self):
         """Cut UV's"""
         objects = pm.ls(sl=True, objectsOnly=1, shapes=1, flatten=1)
 
@@ -470,7 +470,7 @@ class Uv_blender(Uv, SlotsBlender):
             sel = pm.ls(obj, sl=1)
             pm.polyMapCut(sel)
 
-    def b011(self, *args, **kwargs):
+    def b011(self):
         """Sew UV's"""
         objects = pm.ls(sl=True, objectsOnly=1, shapes=1, flatten=1)
 

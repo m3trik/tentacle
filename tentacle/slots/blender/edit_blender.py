@@ -396,7 +396,7 @@ class Edit_blender(Edit, SlotsBlender):
         pm.undoInfo(closeChunk=1)
 
     @Slots.hideMain
-    def b001(self, *args, **kwargs):
+    def b001(self):
         """Object History Attributes: get most recent node"""
         cmb = self.sb.edit.cmb001
         self.cmb001()  # refresh the contents of the combobox.
@@ -407,19 +407,19 @@ class Edit_blender(Edit, SlotsBlender):
         else:
             return "Error: Found no items to list the history for."
 
-    def b021(self, *args, **kwargs):
+    def b021(self):
         """Tranfer Maps"""
         pm.mel.performSurfaceSampling(1)
 
-    def b022(self, *args, **kwargs):
+    def b022(self):
         """Transfer Vertex Order"""
         pm.mel.TransferVertexOrder()
 
-    def b023(self, *args, **kwargs):
+    def b023(self):
         """Transfer Attribute Values"""
         pm.mel.TransferAttributeValues()
 
-    def b027(self, *args, **kwargs):
+    def b027(self):
         """Shading Sets"""
         pm.mel.performTransferShadingSets(0)
 

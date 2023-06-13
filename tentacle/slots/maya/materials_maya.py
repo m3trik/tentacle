@@ -255,11 +255,11 @@ class Materials_maya(SlotsMaya):
         except Exception as error:
             print(error)
 
-    def b000(self, *args, **kwargs):
+    def b000(self):
         """Material List: Delete"""
         self.lbl002()
 
-    def b001(self, *args, **kwargs):
+    def b001(self):
         """Material List: Edit"""
         self.lbl000()
 
@@ -343,6 +343,8 @@ class Materials_maya(SlotsMaya):
             except RuntimeError as error:
                 cmb.setItemText(cmb.currentIndex(), str(error).strip("\n"))
 
+
+# --------------------------------------------------------------------------------------------
 
 # module name
 print(__name__)

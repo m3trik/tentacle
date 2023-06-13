@@ -463,7 +463,7 @@ class Create_max(Create, SlotsMax):
 
         return node
 
-    def b005(self, *args, **kwargs):
+    def b005(self):
         """Create 6 sided poly cylinder"""
         node = self.createPrimitive("Polygon", "Cylinder")
         self.set_node_attributes(node, verbose=True, subdivisionsAxis=6)

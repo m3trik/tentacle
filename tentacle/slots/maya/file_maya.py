@@ -125,7 +125,9 @@ class File_maya(SlotsMaya):
 
     def cmb006_init(self, widget):
         """ """
-        self.cmb006()  # init workspace items to reflect the current workspace.
+        self.cmb006(
+            -1, self.sb.file.cmb006
+        )  # init workspace items to reflect the current workspace.
 
         widget.option_menu.add(
             self.sb.ComboBox,
@@ -168,27 +170,21 @@ class File_maya(SlotsMaya):
 
         pm.openFile(data, open=True, force=True)
 
-    def cmb001(self, index=-1, **kwargs):
+    def cmb001(self, index, widget):
         """Recent Projects"""
-        cmb = kwargs.get("widget")
-
         if index > 0:
-            pm.mel.setProject(cmb.items[index])
-            cmb.setCurrentIndex(0)
+            pm.mel.setProject(widget.items[index])
+            widget.setCurrentIndex(0)
 
-    def cmb002(self, index=-1, **kwargs):
+    def cmb002(self, index, widget):
         """Recent Autosave"""
-        cmb = kwargs.get("widget")
-
         if index > 0:
-            file = cmb.items[index]
+            file = widget.items[index]
             pm.openFile(file, open=1, force=True)
-            cmb.setCurrentIndex(0)
+            widget.setCurrentIndex(0)
 
-    def cmb003(self, index=-1, **kwargs):
+    def cmb003(self, index, widget):
         """Import"""
-        cmb = kwargs.get("widget")
-
         if index > 0:  # hide then perform operation
             self.sb.parent().hide(force=1)
             if index == 1:  # Import
@@ -199,12 +195,10 @@ class File_maya(SlotsMaya):
                 pm.mel.FBXUICallBack(-1, "editImportPresetInNewWindow", "fbx")
             elif index == 4:  # Obj Import Presets
                 pm.mel.FBXUICallBack(-1, "editImportPresetInNewWindow", "obj")
-            cmb.setCurrentIndex(0)
+            widget.setCurrentIndex(0)
 
-    def cmb004(self, index=-1, **kwargs):
+    def cmb004(self, index, widget):
         """Export"""
-        cmb = kwargs.get("widget")
-
         if index > 0:  # hide then perform operation
             self.sb.parent().hide(force=1)
             if index == 1:  # Export selection
@@ -231,39 +225,36 @@ class File_maya(SlotsMaya):
                 pm.mel.FBXUICallBack(-1, "editExportPresetInNewWindow", "fbx")
             elif index == 11:  # Obj Export Presets
                 pm.mel.FBXUICallBack(-1, "editExportPresetInNewWindow", "obj")
-            cmb.setCurrentIndex(0)
+            widget.setCurrentIndex(0)
 
-    def cmb005(self, index=-1, **kwargs):
+    def cmb005(self, index, widget):
         """Recent Files"""
-        cmb = kwargs.get("widget")
-
         if index > 0:
             force = True
             # if sceneName prompt user to save; else force open
             force if str(pm.mel.file(q=True, sceneName=1, shortName=1)) else not force
-            print(cmb.items[index])
-            pm.openFile(cmb.items[index], open=1, force=force)
-            cmb.setCurrentIndex(0)
+            print(widget.items[index])
+            pm.openFile(widget.items[index], open=1, force=force)
+            widget.setCurrentIndex(0)
 
-    def cmb006(self, index=-1, **kwargs):
+    def cmb006(self, index, widget):
         """Workspace"""
-        cmb = kwargs.get("widget", self.sb.file.cmb006)
-
         path = ptk.File.format_path(pm.workspace(q=True, rd=1))  # current project path.
         items = [f for f in os.listdir(path)]
         # add current project path string to label. strip path and trailing '/'
         project = ptk.File.format_path(path, "dir")
 
-        cmb.addItems_(items, header=project, clear=True)
+        widget.addItems_(items, header=project, clear=True)
 
         if index > 0:
             os.startfile(path + items[index - 1])
-            cmb.setCurrentIndex(0)
+            widget.setCurrentIndex(0)
 
     def lbl000(self):
         """Set Workspace"""
         newProject = pm.mel.SetProject()
-        self.cmb006()  # refresh project items to reflect new workspace.
+        # refresh project items to reflect new workspace.
+        self.cmb006(-1, self.sb.file.cmb006)
         # refresh reference items to reflect new workspace.
         self.referenceSceneMenu(clear=True)
 
@@ -276,7 +267,7 @@ class File_maya(SlotsMaya):
         """Reference"""
         self.referenceSceneMenu().show()
 
-    def b000(self, *args, **kwargs):
+    def b000(self):
         """Autosave: Open Directory"""
         # dir1 = str(pm.workspace(q=True, rd=1))+'autosave' #current project path.
         # get autosave dir path from env variable.
@@ -290,11 +281,11 @@ class File_maya(SlotsMaya):
             self.sb.message_box("The system cannot find the file specified.")
 
     @SlotsMaya.hideMain
-    def b001(self, *args, **kwargs):
+    def b001(self):
         """Recent Files: Open Last"""
         self.cmb005(index=1)
 
-    def b002(self, *args, **kwargs):
+    def b002(self):
         """Autosave: Delete All"""
         files = mtk.get_recent_autosave()
         for file in files:
@@ -305,16 +296,16 @@ class File_maya(SlotsMaya):
                 print(error)
 
     @SlotsMaya.hideMain
-    def b007(self, *args, **kwargs):
+    def b007(self):
         """Import file"""
         self.cmb003(index=1)
 
     @SlotsMaya.hideMain
-    def b008(self, *args, **kwargs):
+    def b008(self):
         """Export Selection"""
         self.cmb004(index=1)
 
-    def b015(self, *args, **kwargs):
+    def b015(self):
         """Remove String From Object Names."""
         # asterisk denotes startswith*, *endswith, *contains*
         from_ = str(self.sb.file.t000.text())
@@ -357,6 +348,9 @@ class File_maya(SlotsMaya):
 
             self._referenceSceneMenu = menu
             return self._referenceSceneMenu
+
+
+# --------------------------------------------------------------------------------------------
 
 
 # module name

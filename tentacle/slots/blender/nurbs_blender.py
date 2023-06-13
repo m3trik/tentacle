@@ -164,15 +164,15 @@ class Nurbs_blender(Nurbs, SlotsBlender):
             angleLoftSpans=angleLoftSpans,
         )
 
-    def b012(self, *args, **kwargs):
+    def b012(self):
         """Project Curve"""
         mel.eval("projectCurve;")  # ProjectCurveOnMesh;
 
-    def b014(self, *args, **kwargs):
+    def b014(self):
         """Duplicate Curve"""
         pm.mel.DuplicateCurve()
 
-    def b016(self, *args, **kwargs):
+    def b016(self):
         """Extract Curve"""
         try:
             pm.mel.CreateCurveFromPoly()
@@ -194,87 +194,87 @@ class Nurbs_blender(Nurbs, SlotsBlender):
                         form=2, degree=3, conformToSmoothMeshPreview=True
                     )  # degree: 1=linear,2= ,3=cubic,5= ,7=
 
-    def b018(self, *args, **kwargs):
+    def b018(self):
         """Lock Curve"""
         pm.mel.LockCurveLength()
 
-    def b019(self, *args, **kwargs):
+    def b019(self):
         """Unlock Curve"""
         pm.mel.UnlockCurveLength()
 
-    def b020(self, *args, **kwargs):
+    def b020(self):
         """Bend Curve"""
         pm.mel.BendCurves()
 
-    def b022(self, *args, **kwargs):
+    def b022(self):
         """Curl Curve"""
         pm.mel.CurlCurves()
 
-    def b024(self, *args, **kwargs):
+    def b024(self):
         """Modify Curve Curvature"""
         pm.mel.ScaleCurvature()
 
-    def b026(self, *args, **kwargs):
+    def b026(self):
         """Smooth Curve"""
         pm.mel.SmoothHairCurves()
 
-    def b028(self, *args, **kwargs):
+    def b028(self):
         """Straighten Curve"""
         pm.mel.StraightenCurves()
 
-    def b030(self, *args, **kwargs):
+    def b030(self):
         """Extrude"""
         pm.mel.Extrude()
 
-    def b036(self, *args, **kwargs):
+    def b036(self):
         """Planar"""
         pm.mel.Planar()
 
-    def b038(self, *args, **kwargs):
+    def b038(self):
         """Insert Isoparm"""
         pm.mel.InsertIsoparms()
 
-    def b040(self, *args, **kwargs):
+    def b040(self):
         """Edit Curve Tool"""
         pm.mel.CurveEditTool()
 
-    def b041(self, *args, **kwargs):
+    def b041(self):
         """Attach Curve"""
         pm.mel.AttachCurveOptions()
 
-    def b042(self, *args, **kwargs):
+    def b042(self):
         """Detach Curve"""
         pm.mel.DetachCurve()
 
-    def b043(self, *args, **kwargs):
+    def b043(self):
         """Extend Curve"""
         pm.mel.ExtendCurveOptions()
 
-    def b045(self, *args, **kwargs):
+    def b045(self):
         """Cut Curve"""
         pm.mel.CutCurve()
 
-    def b046(self, *args, **kwargs):
+    def b046(self):
         """Open/Close Curve"""
         pm.mel.OpenCloseCurve()
 
-    def b047(self, *args, **kwargs):
+    def b047(self):
         """Insert Knot"""
         pm.mel.InsertKnot()
 
-    def b049(self, *args, **kwargs):
+    def b049(self):
         """Add Points Tool"""
         pm.mel.AddPointsTool()
 
-    def b051(self, *args, **kwargs):
+    def b051(self):
         """Reverse Curve"""
         mel.eval("reverse;")
 
-    def b052(self, *args, **kwargs):
+    def b052(self):
         """Extend Curve"""
         pm.mel.ExtendCurve()
 
-    def b054(self, *args, **kwargs):
+    def b054(self):
         """Extend On Surface"""
         pm.mel.ExtendCurveOnSurface()
 

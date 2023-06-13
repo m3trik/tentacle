@@ -125,7 +125,7 @@ class Cameras_maya(SlotsMaya):
             elif text == "Toggle Safe Frames":  # Viewport Safeframes Toggle
                 mtk.Cam.toggle_safe_frames()
 
-    def chk000(self, state=None, **kwargs):
+    def chk000(self, state, widget):
         """Camera Clipping: Auto Clip"""
         if state:
             self.sb.toggle_widgets(self.clippingMenu, setDisabled="s000-1")
@@ -139,7 +139,7 @@ class Cameras_maya(SlotsMaya):
 
         pm.viewClipPlane(activeCamera, autoClipPlane=True)
 
-    def s000(self, value=None, **kwargs):
+    def s000(self, value, widget):
         """Camera Clipping: Near Clip"""
         activeCamera = mtk.Cam.get_current_cam()
         if not activeCamera:
@@ -148,7 +148,7 @@ class Cameras_maya(SlotsMaya):
 
         pm.viewClipPlane(activeCamera, nearClipPlane=value)
 
-    def s001(self, value=None, **kwargs):
+    def s001(self, value, widget):
         """Camera Clipping: Far Clip"""
         activeCamera = mtk.Cam.get_current_cam()
         if not activeCamera:
@@ -157,7 +157,7 @@ class Cameras_maya(SlotsMaya):
 
         pm.viewClipPlane(activeCamera, farClipPlane=value)
 
-    def b000(self, *args, **kwargs):
+    def b000(self):
         """Cameras: Back View"""
         try:  # if pm.objExists('back'):
             pm.lookThru("back")
@@ -176,7 +176,7 @@ class Cameras_maya(SlotsMaya):
             ):  # add the new cam to 'cameras' group (if it exists).
                 pm.parent(cam, "cameras")
 
-    def b001(self, *args, **kwargs):
+    def b001(self):
         """Cameras: Top View"""
         try:
             pm.lookThru("topShape")
@@ -184,7 +184,7 @@ class Cameras_maya(SlotsMaya):
         except Exception:
             pm.lookThru("|top")
 
-    def b002(self, *args, **kwargs):
+    def b002(self):
         """Cameras: Right View"""
         try:
             pm.lookThru("sideShape")
@@ -192,7 +192,7 @@ class Cameras_maya(SlotsMaya):
         except Exception:
             pm.lookThru("|side")
 
-    def b003(self, *args, **kwargs):
+    def b003(self):
         """Cameras: Left View"""
         try:  # if pm.objExists('back'):
             pm.lookThru("left")
@@ -211,7 +211,7 @@ class Cameras_maya(SlotsMaya):
             ):  # add the new cam to 'cameras' group (if it exists).
                 pm.parent(cam, "cameras")
 
-    def b004(self, *args, **kwargs):
+    def b004(self):
         """Cameras: Perspective View"""
         try:
             pm.lookThru("perspShape")
@@ -219,7 +219,7 @@ class Cameras_maya(SlotsMaya):
         except Exception:
             pm.lookThru("|persp")
 
-    def b005(self, *args, **kwargs):
+    def b005(self):
         """Cameras: Front View"""
         try:
             pm.lookThru("frontShape")
@@ -227,7 +227,7 @@ class Cameras_maya(SlotsMaya):
         except Exception:
             pm.lookThru("|front")
 
-    def b006(self, *args, **kwargs):
+    def b006(self):
         """Cameras: Bottom View"""
         try:  # if pm.objExists('back'):
             pm.lookThru("bottom")
@@ -246,7 +246,7 @@ class Cameras_maya(SlotsMaya):
             ):  # add the new cam to 'cameras' group (if it exists).
                 pm.parent(cam, "cameras")
 
-    def b007(self, *args, **kwargs):
+    def b007(self):
         """Cameras: Align View"""
         selection = pm.ls(sl=1)
         if not selection:
@@ -274,19 +274,19 @@ class Cameras_maya(SlotsMaya):
         pm.AlignCameraToPolygon()
         pm.viewFit(fitFactor=5.0)
 
-    def b010(self, *args, **kwargs):
+    def b010(self):
         """Camera: Dolly"""
         pm.viewPreset(camera="dolly")
 
-    def b011(self, *args, **kwargs):
+    def b011(self):
         """Camera: Roll"""
         pm.viewPreset(camera="roll")
 
-    def b012(self, *args, **kwargs):
+    def b012(self):
         """Camera: Truck"""
         pm.viewPreset(camera="truck")
 
-    def b013(self, *args, **kwargs):
+    def b013(self):
         """Camera: Orbit"""
         pm.viewPreset(camera="orbit")
 

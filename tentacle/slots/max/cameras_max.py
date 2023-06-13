@@ -156,35 +156,35 @@ class Cameras_max(Cameras, SlotsMax):
                     'actionMan.executeAction 0 "40015"'
                 )  # CamPoint(); CamPoint pos:[34.8904,27.6277,0] isSelected:on
 
-    def b000(self, *args, **kwargs):
+    def b000(self):
         """Cameras: Back View"""
         maxEval("max vpt back")
 
-    def b001(self, *args, **kwargs):
+    def b001(self):
         """Cameras: Top View"""
         maxEval("max vpt top")
 
-    def b002(self, *args, **kwargs):
+    def b002(self):
         """Cameras: Right View"""
         maxEval("max vpt right")
 
-    def b003(self, *args, **kwargs):
+    def b003(self):
         """Cameras: Left View"""
         maxEval("max vpt left")
 
-    def b004(self, *args, **kwargs):
+    def b004(self):
         """Cameras: Perspective View"""
         maxEval("max vpt persp user")
 
-    def b005(self, *args, **kwargs):
+    def b005(self):
         """Cameras: Front View"""
         maxEval("max vpt front")
 
-    def b006(self, *args, **kwargs):
+    def b006(self):
         """Cameras: Bottom View"""
         maxEval("max vpt bottom")
 
-    def b007(self, *args, **kwargs):
+    def b007(self):
         """Cameras: Align View"""
         maxEval(
             """
@@ -193,19 +193,19 @@ class Cameras_max(Cameras, SlotsMax):
 		"""
         )
 
-    def b010(self, *args, **kwargs):
+    def b010(self):
         """Camera: Dolly"""
         maxEval("max dolly mode")
 
-    def b011(self, *args, **kwargs):
+    def b011(self):
         """Camera: Roll"""
         maxEval("max roll")
 
-    def b012(self, *args, **kwargs):
+    def b012(self):
         """Camera: Truck"""
         maxEval("max truck")
 
-    def b013(self, *args, **kwargs):
+    def b013(self):
         """Camera: Orbit"""
         maxEval("max pancamera")
 

@@ -50,7 +50,7 @@ class Animation_max(Animation, SlotsMax):
                 maxEval('macros.run "Animation Tools" "walk_assist"')
             cmb.setCurrentIndex(0)
 
-    def b000(self, *args, **kwargs):
+    def b000(self):
         """Delete Keys on Selected"""
         rt.deleteKeys(rt.selection)
 

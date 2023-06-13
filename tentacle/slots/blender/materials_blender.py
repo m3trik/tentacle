@@ -183,15 +183,15 @@ class Materials_blender(Materials, SlotsBlender):
         except Exception as error:
             print(error)
 
-    def b000(self, *args, **kwargs):
+    def b000(self):
         """Material List: Delete"""
         self.lbl002()
 
-    def b001(self, *args, **kwargs):
+    def b001(self):
         """Material List: Edit"""
         self.lbl000()
 
-    def b002(self, *args, **kwargs):
+    def b002(self):
         """Set Material: Set the Currently Selected Material as the currentMaterial."""
         selection = pm.ls(sl=True)
         if not selection:

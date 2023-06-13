@@ -82,7 +82,7 @@ class Crease_maya(SlotsMaya):
         )
         self.sb.toggle_widgets(widget.option_menu, setDisabled="s005,s006")
 
-    def s003(self, value=None, **kwargs):
+    def s003(self, value, widget):
         """Crease Amount
         Tracks the standard crease amount while toggles such as un-crease, and crease max temporarily change the spinbox value.
         """
@@ -92,7 +92,7 @@ class Crease_maya(SlotsMaya):
                 text = self.sb.crease.tb000.text().split()[0]
                 self.sb.crease.tb000.setText("{} {}".format(text, self.creaseValue))
 
-    def chk002(self, state=None, **kwargs):
+    def chk002(self, state, widget):
         """Un-Crease"""
         if state:
             self.sb.crease.tb000.option_menu.s003.setValue(0)  # crease value
@@ -115,9 +115,8 @@ class Crease_maya(SlotsMaya):
 
         self.sb.crease.tb000.setText(text)
 
-    def chk003(self, state=None, **kwargs):
+    def chk003(self, state, widget):
         """Crease: Max"""
-
         if state:
             self.sb.crease.tb000.option_menu.s003.setValue(10)  # crease value
             self.sb.crease.tb000.option_menu.s004.setValue(30)  # normal angle
@@ -139,7 +138,7 @@ class Crease_maya(SlotsMaya):
 
         self.sb.crease.tb000.setText(text)
 
-    def chk011(self, state=None, **kwargs):
+    def chk011(self, state, widget):
         """Crease: Auto"""
         if state:
             self.sb.toggle_widgets(
@@ -150,16 +149,14 @@ class Crease_maya(SlotsMaya):
                 self.sb.crease.tb000.option_menu, setDisabled="s005,s006"
             )
 
-    def tb000(self, *args, **kwargs):
+    def tb000(self, widget):
         """Crease"""
-        tb = kwargs.get("widget")
+        creaseAmount = float(widget.option_menu.s003.value())
+        normalAngle = int(widget.option_menu.s004.value())
 
-        creaseAmount = float(tb.option_menu.s003.value())
-        normalAngle = int(tb.option_menu.s004.value())
-
-        if tb.option_menu.chk011.isChecked():  # crease: Auto
-            angleLow = int(tb.option_menu.s005.value())
-            angleHigh = int(tb.option_menu.s006.value())
+        if widget.option_menu.chk011.isChecked():  # crease: Auto
+            angleLow = int(widget.option_menu.s005.value())
+            angleHigh = int(widget.option_menu.s006.value())
 
             pm.mel.eval("PolySelectConvert 2;")  # convert selection to edges
             # to get edges with angle between two degrees. mode=3 (All and Next) type=0x8000 (edge).
@@ -169,7 +166,7 @@ class Crease_maya(SlotsMaya):
 
         operation = 0  # Crease selected components
         pm.polySoftEdge(angle=0, constructionHistory=0)  # Harden edge normal
-        if tb.option_menu.chk002.isChecked():
+        if widget.option_menu.chk002.isChecked():
             objectMode = pm.selectMode(query=True, object=True)
             if objectMode:  # if in object mode,
                 operation = 2  # 2-Remove all crease values from mesh
@@ -177,7 +174,7 @@ class Crease_maya(SlotsMaya):
                 operation = 1  # 1-Remove crease from sel components
                 pm.polySoftEdge(angle=180, constructionHistory=0)  # soften edge normal
 
-        if tb.option_menu.chk004.isChecked():  # crease vertex point
+        if widget.option_menu.chk004.isChecked():  # crease vertex point
             pm.polyCrease(
                 value=creaseAmount,
                 vertexValue=creaseAmount,
@@ -189,13 +186,13 @@ class Crease_maya(SlotsMaya):
                 value=creaseAmount, createHistory=True, operation=operation
             )  # PolyCreaseTool;
 
-        if tb.option_menu.chk005.isChecked():  # adjust normal angle
+        if widget.option_menu.chk005.isChecked():  # adjust normal angle
             pm.polySoftEdge(angle=normalAngle)
 
-        if tb.option_menu.chk011.isChecked():  # crease: Auto
+        if widget.option_menu.chk011.isChecked():  # crease: Auto
             pm.polySelectConstraint(angle=False)  # turn off angle constraint
 
-    def b000(self, *args, **kwargs):
+    def b000(self):
         """Crease Set Transfer: Transform Node"""
         if self.sb.crease.b001.isChecked():
             newObject = str(pm.ls(sl=True))  # ex. [nt.Transform(u'pSphere1')]
@@ -214,7 +211,7 @@ class Crease_maya(SlotsMaya):
         else:
             self.sb.crease.b001.setText("Object")
 
-    def b001(self, *args, **kwargs):
+    def b001(self):
         """Crease Set Transfer: Crease Set"""
         if self.sb.crease.b000.isChecked():
             creaseSet = str(pm.ls(sl=True))  # ex. [nt.CreaseSet(u'creaseSet1')]
@@ -234,7 +231,7 @@ class Crease_maya(SlotsMaya):
             self.sb.crease.b000.setText("Crease Set")
 
     @mtk.undo
-    def b002(self, *args, **kwargs):
+    def b002(self):
         """Transfer Crease Edges"""
         # an updated version of this is in the maya python projects folder. transferCreaseSets.py
         # the use of separate buttons for donor and target mesh are deprecated.
@@ -285,6 +282,8 @@ class Crease_maya(SlotsMaya):
 
         return creased_edges
 
+
+# --------------------------------------------------------------------------------------------
 
 # module name
 print(__name__)

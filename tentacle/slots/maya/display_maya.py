@@ -13,29 +13,29 @@ class Display_maya(SlotsMaya):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-    def b000(self, *args, **kwargs):
+    def b000(self):
         """Set Wireframe color"""
         pm.mel.objectColorPalette()
 
-    def b001(self, *args, **kwargs):
+    def b001(self):
         """Toggle Visibility"""
         pm.mel.ToggleVisibilityAndKeepSelection()
 
-    def b002(self, *args, **kwargs):
+    def b002(self):
         """Hide Selected"""
         selection = pm.ls(sl=True)
         pm.hide(selection)  # pm.mel.HideSelectedObjects()
 
-    def b003(self, *args, **kwargs):
+    def b003(self):
         """Show Selected"""
         selection = pm.ls(sl=True)
         pm.showHidden(selection)  # pm.mel.ShowSelectedObjects()
 
-    def b004(self, *args, **kwargs):
+    def b004(self):
         """Show Geometry"""
         pm.mel.hideShow(geometry=1, show=1)
 
-    def b005(self, *args, **kwargs):
+    def b005(self):
         """Xray Selected"""
         # Get all dag shapes in the current selection
         selection = pm.ls(sl=True, dag=True, s=True)
@@ -45,7 +45,7 @@ class Display_maya(SlotsMaya):
             x_state = obj.getAttr("displaySurface")
             obj.setAttr("displaySurface", not x_state)
 
-    def b006(self, *args, **kwargs):
+    def b006(self):
         """Un-Xray All"""
         # Get all visible, non-intermediate surface shapes in the scene
         scene_objects = pm.ls(vis=True, fl=True, dag=True, ni=True, typ="surfaceShape")
@@ -56,7 +56,7 @@ class Display_maya(SlotsMaya):
             if x_state:
                 obj.setAttr("displaySurface", 0)
 
-    def b007(self, *args, **kwargs):
+    def b007(self):
         """Xray Other"""
         # Get all visible, non-intermediate surface shapes in the scene
         scene_objects = pm.ls(vis=True, fl=True, dag=True, ni=True, typ="surfaceShape")
@@ -69,22 +69,22 @@ class Display_maya(SlotsMaya):
                 x_state = obj.getAttr("displaySurface")
                 obj.setAttr("displaySurface", not x_state)
 
-    def b008(self, *args, **kwargs):
+    def b008(self):
         """Filter Objects"""
         pm.mel.bt_filterActionWindow()
 
-    def b009(self, *args, **kwargs):
+    def b009(self):
         """Toggle Material Override"""
         currentPanel = mtk.get_panel(withFocus=True)
         state = pm.modelEditor(currentPanel, q=True, useDefaultMaterial=1)
         pm.modelEditor(currentPanel, edit=1, useDefaultMaterial=not state)
         mtk.viewport_message("Default Material Override: <hl>{}</hl>.".format(state))
 
-    def b010(self, *args, **kwargs):
+    def b010(self):
         """Toggle Explode Selected"""
         mtk.ExplodedView.toggle_explode()
 
-    def b011(self, *args, **kwargs):
+    def b011(self):
         """Toggle Component Id Display"""
         index = ptk.cycle([0, 1, 2, 3, 4], "componentID")
 
@@ -128,17 +128,17 @@ class Display_maya(SlotsMaya):
         elif index == 4:
             mtk.viewport_message("component ID <hl>Off</hl>.")
 
-    def b012(self, *args, **kwargs):
+    def b012(self):
         """Wireframe Non Active (Wireframe All But The Selected Item)"""
         current_panel = mtk.get_panel(withFocus=1)
         state = pm.modelEditor(current_panel, q=True, activeOnly=1)
         pm.modelEditor(current_panel, edit=1, activeOnly=not state)
 
-    def b013(self, *args, **kwargs):
+    def b013(self):
         """Explode View GUI"""
         mtk.exploded_view.launch_gui(move_to_cursor=True, frameless_window=True)
 
-    def b021(self, *args, **kwargs):
+    def b021(self):
         """Template Selected"""
         pm.toggle(template=1)  # pm.toggle(template=1, q=True)
 

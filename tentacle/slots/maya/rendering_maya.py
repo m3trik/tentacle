@@ -16,29 +16,30 @@ class Rendering_maya(SlotsMaya):
         lst = {c.name(): c for c in pm.ls(type="camera") if "Target" not in c.name()}
         widget.addItems_(lst)
 
-    def b000(self, index=-1, **kwargs):
+    def b000(self):
         """Render Current Frame"""
-        cmb = kwargs.get("widget")
+        cmb = self.sb.rendering.cmb001
+        index = cmb.currentIndex()
 
         pm.render(camera=cmb.items[index])  # render with selected camera
 
-    def b001(self, *args, **kwargs):
+    def b001(self):
         """Open Render Settings Window"""
         pm.mel.unifiedRenderGlobalsWindow()
 
-    def b002(self, *args, **kwargs):
+    def b002(self):
         """Redo Previous Render"""
         pm.mel.redoPreviousRender("render")
 
-    def b003(self, *args, **kwargs):
+    def b003(self):
         """Editor: Render Setup"""
         pm.mel.RenderSetupWindow()
 
-    def b004(self, *args, **kwargs):
+    def b004(self):
         """Editor: Rendering Flags"""
         pm.mel.renderFlagsWindow()
 
-    def b005(self, *args, **kwargs):
+    def b005(self):
         """Apply Vray Attributes To Selected Objects"""
         selection = pm.ls(selection=True)
         currentID = 1
@@ -58,7 +59,7 @@ class Rendering_maya(SlotsMaya):
             pm.setAttr(obj + ".vrayObjectID", currentID)
             currentID += 1
 
-    def b006(self, *args, **kwargs):
+    def b006(self):
         """Load Vray Plugin"""
         if self.loadVRayPlugin(query=True):
             self.loadVRayPlugin(unload=True)
@@ -89,6 +90,8 @@ class Rendering_maya(SlotsMaya):
         else:
             pm.loadPlugin(vray)
 
+
+# --------------------------------------------------------------------------------------------
 
 # module name
 print(__name__)

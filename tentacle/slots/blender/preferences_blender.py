@@ -76,19 +76,19 @@ class Preferences_blender(Preferences, SlotsBlender):
                 time=cmb.items[index].split()[-1]
             )  # game | film | pal | ntsc | show | palf | ntscf
 
-    def b001(self, *args, **kwargs):
+    def b001(self):
         """Color Settings"""
         mel.eval("colorPrefWnd;")
 
-    def b008(self, *args, **kwargs):
+    def b008(self):
         """Hotkeys"""
         mel.eval("HotkeyPreferencesWindow;")
 
-    def b009(self, *args, **kwargs):
+    def b009(self):
         """Plug-In Manager"""
         mel.eval("PluginManager;")
 
-    def b010(self, *args, **kwargs):
+    def b010(self):
         """Settings/Preferences"""
         mel.eval("PreferencesWindow;")
 

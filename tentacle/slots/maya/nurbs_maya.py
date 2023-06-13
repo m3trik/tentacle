@@ -170,12 +170,10 @@ class Nurbs_maya(SlotsMaya):
             setToolTip="Angle loft: Number of duplicated points (spans).",
         )
 
-    def cmb001(self, index=-1, **kwargs):
+    def cmb001(self, index, widget):
         """Create: Curve"""
-        cmb = kwargs.get("widget")
-
         if index > 0:
-            text = cmb.items[index]
+            text = widget.items[index]
             if text == "Ep Curve Tool":
                 pm.mel.eval("EPCurveToolOptions;")  # pm.mel.eval('EPCurveTool;')
             elif text == "CV Curve Tool":
@@ -196,21 +194,19 @@ class Nurbs_maya(SlotsMaya):
                 pm.mel.eval(
                     "ThreePointArcToolOptions;"
                 )  # pm.mel.eval("ThreePointArcTool;")
-            cmb.setCurrentIndex(0)
+            widget.setCurrentIndex(0)
 
-    def tb000(self, *args, **kwargs):
+    def tb000(self, widget):
         """Revolve"""
-        tb = kwargs.get("widget")
-
-        degree = tb.option_menu.s002.value()
-        startSweep = tb.option_menu.s003.value()
-        endSweep = tb.option_menu.s004.value()
-        sections = tb.option_menu.s005.value()
-        range_ = tb.option_menu.chk006.isChecked()
-        polygon = 1 if tb.option_menu.chk007.isChecked() else 0
-        autoCorrectNormal = tb.option_menu.chk008.isChecked()
-        useTolerance = tb.option_menu.chk009.isChecked()
-        tolerance = tb.option_menu.s006.value()
+        degree = widget.option_menu.s002.value()
+        startSweep = widget.option_menu.s003.value()
+        endSweep = widget.option_menu.s004.value()
+        sections = widget.option_menu.s005.value()
+        range_ = widget.option_menu.chk006.isChecked()
+        polygon = 1 if widget.option_menu.chk007.isChecked() else 0
+        autoCorrectNormal = widget.option_menu.chk008.isChecked()
+        useTolerance = widget.option_menu.chk009.isChecked()
+        tolerance = widget.option_menu.s006.value()
 
         curves = pm.ls(sl=True)
         return pm.revolve(
@@ -227,20 +223,18 @@ class Nurbs_maya(SlotsMaya):
             ax=[0, 1, 0],
         )
 
-    def tb001(self, *args, **kwargs):
+    def tb001(self, widget):
         """Loft"""
-        tb = kwargs.get("widget")
-
-        uniform = tb.option_menu.chk000.isChecked()
-        close = tb.option_menu.chk001.isChecked()
-        degree = tb.option_menu.s000.value()
-        autoReverse = tb.option_menu.chk002.isChecked()
-        sectionSpans = tb.option_menu.s001.value()
-        range_ = tb.option_menu.chk003.isChecked()
-        polygon = 1 if tb.option_menu.chk004.isChecked() else 0
-        reverseSurfaceNormals = tb.option_menu.chk005.isChecked()
-        angleLoftBetweenTwoCurves = tb.option_menu.chk010.isChecked()
-        angleLoftSpans = tb.option_menu.s007.value()
+        uniform = widget.option_menu.chk000.isChecked()
+        close = widget.option_menu.chk001.isChecked()
+        degree = widget.option_menu.s000.value()
+        autoReverse = widget.option_menu.chk002.isChecked()
+        sectionSpans = widget.option_menu.s001.value()
+        range_ = widget.option_menu.chk003.isChecked()
+        polygon = 1 if widget.option_menu.chk004.isChecked() else 0
+        reverseSurfaceNormals = widget.option_menu.chk005.isChecked()
+        angleLoftBetweenTwoCurves = widget.option_menu.chk010.isChecked()
+        angleLoftSpans = widget.option_menu.s007.value()
 
         self.loft(
             uniform=uniform,
@@ -255,15 +249,15 @@ class Nurbs_maya(SlotsMaya):
             angleLoftSpans=angleLoftSpans,
         )
 
-    def b012(self, *args, **kwargs):
+    def b012(self):
         """Project Curve"""
         pm.mel.ProjectCurveOnMesh()
 
-    def b014(self, *args, **kwargs):
+    def b014(self):
         """Duplicate Curve"""
         pm.mel.DuplicateCurve()
 
-    def b016(self, *args, **kwargs):
+    def b016(self):
         """Extract Curve"""
         try:
             pm.mel.CreateCurveFromPoly()
@@ -287,87 +281,87 @@ class Nurbs_maya(SlotsMaya):
                         form=2, degree=3, conformToSmoothMeshPreview=True
                     )  # degree: 1=linear,2= ,3=cubic,5= ,7=
 
-    def b018(self, *args, **kwargs):
+    def b018(self):
         """Lock Curve"""
         pm.mel.LockCurveLength()
 
-    def b019(self, *args, **kwargs):
+    def b019(self):
         """Unlock Curve"""
         pm.mel.UnlockCurveLength()
 
-    def b020(self, *args, **kwargs):
+    def b020(self):
         """Bend Curve"""
         pm.mel.BendCurves()
 
-    def b022(self, *args, **kwargs):
+    def b022(self):
         """Curl Curve"""
         pm.mel.CurlCurves()
 
-    def b024(self, *args, **kwargs):
+    def b024(self):
         """Modify Curve Curvature"""
         pm.mel.ScaleCurvature()
 
-    def b026(self, *args, **kwargs):
+    def b026(self):
         """Smooth Curve"""
         pm.mel.SmoothHairCurves()
 
-    def b028(self, *args, **kwargs):
+    def b028(self):
         """Straighten Curve"""
         pm.mel.StraightenCurves()
 
-    def b030(self, *args, **kwargs):
+    def b030(self):
         """Extrude"""
         pm.mel.Extrude()
 
-    def b036(self, *args, **kwargs):
+    def b036(self):
         """Planar"""
         pm.mel.Planar()
 
-    def b038(self, *args, **kwargs):
+    def b038(self):
         """Insert Isoparm"""
         pm.mel.InsertIsoparms()
 
-    def b040(self, *args, **kwargs):
+    def b040(self):
         """Edit Curve Tool"""
         pm.mel.CurveEditTool()
 
-    def b041(self, *args, **kwargs):
+    def b041(self):
         """Attach Curve"""
         pm.mel.AttachCurveOptions()
 
-    def b042(self, *args, **kwargs):
+    def b042(self):
         """Detach Curve"""
         pm.mel.DetachCurve()
 
-    def b043(self, *args, **kwargs):
+    def b043(self):
         """Extend Curve"""
         pm.mel.ExtendCurveOptions()
 
-    def b045(self, *args, **kwargs):
+    def b045(self):
         """Cut Curve"""
         pm.mel.CutCurve()
 
-    def b046(self, *args, **kwargs):
+    def b046(self):
         """Open/Close Curve"""
         pm.mel.OpenCloseCurve()
 
-    def b047(self, *args, **kwargs):
+    def b047(self):
         """Insert Knot"""
         pm.mel.InsertKnot()
 
-    def b049(self, *args, **kwargs):
+    def b049(self):
         """Add Points Tool"""
         pm.mel.AddPointsTool()
 
-    def b051(self, *args, **kwargs):
+    def b051(self):
         """Reverse Curve"""
         pm.mel.reverse()
 
-    def b052(self, *args, **kwargs):
+    def b052(self):
         """Extend Curve"""
         pm.mel.ExtendCurve()
 
-    def b054(self, *args, **kwargs):
+    def b054(self):
         """Extend On Surface"""
         pm.mel.ExtendCurveOnSurface()
 
@@ -826,6 +820,8 @@ class Nurbs_maya(SlotsMaya):
             result = list(result.values())
         return result
 
+
+# --------------------------------------------------------------------------------------------
 
 # module name
 print(__name__)

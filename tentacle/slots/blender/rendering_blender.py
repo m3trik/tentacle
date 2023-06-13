@@ -32,7 +32,7 @@ class Rendering_blender(Rendering, SlotsBlender):
         # 	items = [str(cam.name) for cam in self.cams] #camera names
         # 	contents = cmb.addItems_(items)
 
-    def b000(self, *args, **kwargs):
+    def b000(self):
         """Render Current Frame"""
         cmb = self.sb.rendering.cmb001
         index = cmb.currentIndex()
@@ -42,23 +42,23 @@ class Rendering_blender(Rendering, SlotsBlender):
         except:
             mel.eval("RenderIntoNewWindow;")
 
-    def b001(self, *args, **kwargs):
+    def b001(self):
         """Open Render Settings Window"""
         mel.eval("unifiedRenderGlobalsWindow;")
 
-    def b002(self, *args, **kwargs):
+    def b002(self):
         """Redo Previous Render"""
         mel.eval("redoPreviousRender render;")
 
-    def b003(self, *args, **kwargs):
+    def b003(self):
         """Editor: Render Setup"""
         mel.eval("RenderSetupWindow;")
 
-    def b004(self, *args, **kwargs):
+    def b004(self):
         """Editor: Rendering Flags"""
         mel.eval("renderFlagsWindow;")
 
-    def b005(self, *args, **kwargs):
+    def b005(self):
         """Apply Vray Attributes To Selected Objects"""
         selection = pm.ls(sl=True)
         currentID = 1
@@ -78,7 +78,7 @@ class Rendering_blender(Rendering, SlotsBlender):
             pm.setAttr(obj + ".vrayObjectID", currentID)
             currentID += 1
 
-    def b006(self, *args, **kwargs):
+    def b006(self):
         """Load Vray Plugin"""
         vray = ["vrayformaya.mll", "vrayformayapatch.mll"]
         if pm.pluginInfo("vrayformaya.mll", q=True, loaded=1):

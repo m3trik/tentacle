@@ -340,31 +340,31 @@ class Uv_max(Uv, SlotsMax):
 
         self.transferUVs(frm, to, tolerance=similarTol, deleteConstHist=deleteConstHist)
 
-    def b001(self, *args, **kwargs):
+    def b001(self):
         """Create UV Snapshot"""
         pass
 
-    def b002(self, *args, **kwargs):
+    def b002(self):
         """Stack Shells"""
         pm.mel.texStackShells()
         # pm.mel.texOrientShells()
 
-    def b003(self, *args, **kwargs):
+    def b003(self):
         """Get texel density."""
         density = pm.mel.texGetTexelDensity(self.getMapSize())
         self.sb.uv.s003.setValue(density)
 
-    def b004(self, *args, **kwargs):
+    def b004(self):
         """Set Texel Density"""
         density = self.sb.uv.s003.value()
         mapSize = self.getMapSize()
         pm.mel.texSetTexelDensity(density, mapSize)
 
-    def b005(self, *args, **kwargs):
+    def b005(self):
         """Cut Uv'S"""
         self.uv_uiModifier.breakSelected()
 
-    def b011(self, *args, **kwargs):
+    def b011(self):
         """Sew Uv'S"""
         self.uv_uiModifier.stitchVerts(
             True, 1.0

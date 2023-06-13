@@ -199,7 +199,7 @@ class Pivot_max(Pivot, SlotsMax):
                 for obj in rt.selection
             ]  # Move the pivot to the Topright of the object
 
-    def b004(self, *args, **kwargs):
+    def b004(self):
         """Bake Pivot"""
         print("Command does not exist:", __name__)
 

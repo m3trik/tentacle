@@ -23,19 +23,19 @@ class Utilities_blender(Utilities, SlotsBlender):
                 pass
             cmb.setCurrentIndex(0)
 
-    def b000(self, *args, **kwargs):
+    def b000(self):
         """Measure"""
         mel.eval("DistanceTool;")
 
-    def b001(self, *args, **kwargs):
+    def b001(self):
         """Annotation"""
         mel.eval("CreateAnnotateNode;")
 
-    def b002(self, *args, **kwargs):
+    def b002(self):
         """Calculator"""
         mel.eval("calculator;")
 
-    def b003(self, *args, **kwargs):
+    def b003(self):
         """Grease Pencil"""
         mel.eval("greasePencilCtx;")
 

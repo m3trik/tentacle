@@ -103,44 +103,23 @@ class Mirror_maya(SlotsMaya):
             setToolTip="Delete non-deformer history on the object before performing the operation.",
         )
 
-        # sync widgets
-        self.sb.sync_widgets(
-            widget.option_menu.chk000,
-            self.sb.mirror_submenu.chk000,
-            attributes="setChecked",
-        )
-        self.sb.sync_widgets(
-            widget.option_menu.chk007,
-            self.sb.mirror_submenu.chk007,
-            attributes="setChecked",
-        )
-        self.sb.sync_widgets(
-            widget.option_menu.chk008,
-            self.sb.mirror_submenu.chk008,
-            attributes="setChecked",
-        )
-
-    def tb000(self, *args, **kwargs):
+    def tb000(self, widget):
         """Mirror Geometry"""
-        tb = kwargs.get("widget")
-
-        axis = self.sb.get_axis_from_checkboxes("chk000-3", tb.option_menu)
-        axisPivot = (
-            2 if tb.option_menu.chk008.isChecked() else 1
-        )  # 1) object space, 2) world space.
-        cutMesh = tb.option_menu.chk005.isChecked()  # cut mesh on axis before mirror.
+        axis = self.sb.get_axis_from_checkboxes("chk000-3", widget.option_menu)
+        # 1) object space, 2) world space.
+        axisPivot = 2 if widget.option_menu.chk008.isChecked() else 1
+        # cut mesh on axis before mirror.
+        cutMesh = widget.option_menu.chk005.isChecked()
         # Un-Instance any previously instanced objects before mirroring.
-        uninstance = tb.option_menu.chk009.isChecked()
-        instance = tb.option_menu.chk004.isChecked()
-        merge = tb.option_menu.chk007.isChecked()
-        mergeMode = tb.option_menu.s001.value()
-        mergeThreshold = tb.option_menu.s000.value()
-        deleteOriginal = (
-            tb.option_menu.chk010.isChecked()
-        )  # delete the original objects after mirroring.
-        deleteHistory = (
-            tb.option_menu.chk006.isChecked()
-        )  # delete the object's non-deformer history.
+        uninstance = widget.option_menu.chk009.isChecked()
+        instance = widget.option_menu.chk004.isChecked()
+        merge = widget.option_menu.chk007.isChecked()
+        mergeMode = widget.option_menu.s001.value()
+        mergeThreshold = widget.option_menu.s000.value()
+        # delete the original objects after mirroring.
+        deleteOriginal = widget.option_menu.chk010.isChecked()
+        # delete the object's non-deformer history.
+        deleteHistory = widget.option_menu.chk006.isChecked()
 
         objects = pm.ls(sl=1)
 
@@ -159,17 +138,17 @@ class Mirror_maya(SlotsMaya):
             deleteHistory=deleteHistory,
         )
 
-    def b000(self, *args, **kwargs):
+    def b000(self):
         """Mirror: X"""
         self.sb.mirror.tb000.option_menu.chk001.setChecked(True)
         self.tb000()
 
-    def b001(self, *args, **kwargs):
+    def b001(self):
         """Mirror: Y"""
         self.sb.mirror.tb000.option_menu.chk002.setChecked(True)
         self.tb000()
 
-    def b002(self, *args, **kwargs):
+    def b002(self):
         """Mirror: Z"""
         self.sb.mirror.tb000.option_menu.chk003.setChecked(True)
         self.tb000()
@@ -292,6 +271,8 @@ class Mirror_maya(SlotsMaya):
             return None
         # pm.undoInfo(closeChunk=1)
 
+
+# --------------------------------------------------------------------------------------------
 
 # module name
 print(__name__)

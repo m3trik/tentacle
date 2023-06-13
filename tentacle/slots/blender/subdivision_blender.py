@@ -109,20 +109,20 @@ class Subdivision_blender(Subdivision, SlotsBlender):
                 self.set_node_attributes(obj, {"smoothTessLevel": value})
                 print(obj + ": Tesselation Level: <hl>" + str(value) + "</hl>")
 
-    def b005(self, *args, **kwargs):
+    def b005(self):
         """Reduce"""
         pm.mel.polyReduce(version=1, keepCreaseEdgeWeight=1)
         # pm.mel.ReducePolygon()
 
-    def b008(self, *args, **kwargs):
+    def b008(self):
         """Add Divisions - Subdivide Mesh"""
         pm.mel.SubdividePolygon()
 
-    def b009(self, *args, **kwargs):
+    def b009(self):
         """Smooth"""
         pm.mel.SmoothPolygon()
 
-    def b011(self, *args, **kwargs):
+    def b011(self):
         """Apply Smooth Preview"""
         pm.mel.performSmoothMeshPreviewToPolygon()  # convert smooth mesh preview to polygons
 

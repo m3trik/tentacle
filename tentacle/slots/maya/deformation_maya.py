@@ -4,7 +4,6 @@ try:
     import pymel.core as pm
 except ImportError as error:
     print(__file__, error)
-
 from tentacle.slots.maya import SlotsMaya
 
 

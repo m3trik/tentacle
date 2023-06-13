@@ -194,23 +194,21 @@ class Polygons_maya(SlotsMaya):
             setToolTip="Freeze Transformations on the object that is being snapped to.",
         )
 
-    def chk008(self, *args, **kwargs):
+    def chk008(self, state, widget):
         """Divide Facet: Split U"""
         self.sb.toggle_widgets(setUnChecked="chk010")
 
-    def chk009(self, *args, **kwargs):
+    def chk009(self, state, widget):
         """Divide Facet: Split V"""
         self.sb.toggle_widgets(setUnChecked="chk010")
 
-    def chk010(self, *args, **kwargs):
+    def chk010(self, state, widget):
         """Divide Facet: Tris"""
         self.sb.toggle_widgets(setUnChecked="chk008,chk009")
 
-    def tb000(self, *args, **kwargs):
+    def tb000(self, widget):
         """Merge Vertices"""
-        tb = kwargs.get("widget")
-
-        tolerance = float(tb.option_menu.s002.value())
+        tolerance = widget.option_menu.s002.value()
         objects = pm.ls(sl=True, objectsOnly=1, flatten=1)
         componentMode = pm.selectMode(q=True, component=1)
 
@@ -223,11 +221,9 @@ class Polygons_maya(SlotsMaya):
 
         mtk.Edit.merge_vertices(objects, selected=componentMode, tolerance=tolerance)
 
-    def tb001(self, *args, **kwargs):
+    def tb001(self, widget):
         """Bridge"""
-        tb = kwargs.get("widget")
-
-        divisions = tb.option_menu.s003.value()
+        divisions = widget.option_menu.s003.value()
 
         selection = pm.ls(sl=1)
         edges = pm.filterExpand(selection, selectionMask=32, expand=1)
@@ -240,11 +236,9 @@ class Polygons_maya(SlotsMaya):
         pm.polyCloseBorder(edges)  # fill edges if they lie on a border
         return node
 
-    def tb002(self, *args, **kwargs):
+    def tb002(self, widget):
         """Combine"""
-        tb = kwargs.get("widget")
-
-        if tb.option_menu.chk000.isChecked():
+        if widget.option_menu.chk000.isChecked():
             sel = pm.ls(sl=1, objectsOnly=1)
             if not sel:
                 return self.sb.message_box(
@@ -264,12 +258,10 @@ class Polygons_maya(SlotsMaya):
         else:
             pm.mel.CombinePolygons()
 
-    def tb003(self, *args, **kwargs):
+    def tb003(self, widget):
         """Extrude"""
-        tb = kwargs.get("widget")
-
-        keepFacesTogether = tb.option_menu.chk002.isChecked()
-        divisions = tb.option_menu.s004.value()
+        keepFacesTogether = widget.option_menu.chk002.isChecked()
+        divisions = widget.option_menu.s004.value()
 
         selection = pm.ls(sl=1)
         if not selection:
@@ -293,13 +285,11 @@ class Polygons_maya(SlotsMaya):
             pm.polyExtrudeVertex(edit=1, width=0.5, length=1, divisions=divisions)
             pm.mel.PolyExtrude()  # return polyExtrudeVertex(selection, ch=1, width=0.5, length=1, divisions=divisions)
 
-    def tb004(self, *args, **kwargs):
+    def tb004(self, widget):
         """Bevel (Chamfer)"""
-        tb = kwargs.get("widget")
-
-        width = tb.option_menu.s000.value()
+        width = widget.option_menu.s000.value()
         chamfer = True
-        segments = tb.option_menu.s006.value()
+        segments = widget.option_menu.s006.value()
 
         selection = pm.ls(sl=1, objectsOnly=1, type="shape")
         if not selection:
@@ -332,12 +322,10 @@ class Polygons_maya(SlotsMaya):
             if len(selection) == 1:
                 return node
 
-    def tb005(self, *args, **kwargs):
+    def tb005(self, widget):
         """Detach"""
-        tb = kwargs.get("widget")
-
-        duplicate = tb.option_menu.chk014.isChecked()
-        separate = tb.option_menu.chk015.isChecked()
+        duplicate = widget.option_menu.chk014.isChecked()
+        separate = widget.option_menu.chk015.isChecked()
 
         vertexMask = pm.selectType(q=True, vertex=True)
         edgeMask = pm.selectType(q=True, edge=True)
@@ -368,10 +356,8 @@ class Polygons_maya(SlotsMaya):
         else:
             pm.mel.DetachComponent()
 
-    def tb006(self, *args, **kwargs):
+    def tb006(self, widget):
         """Inset Face Region"""
-        tb = kwargs.get("widget")
-
         selection = pm.ls(sl=True)
         selected_faces = pm.filterExpand(selection, selectionMask=34, expand=1)
         if not selected_faces:
@@ -381,7 +367,7 @@ class Polygons_maya(SlotsMaya):
             )
             return
 
-        offset = tb.option_menu.s001.value()
+        offset = widget.option_menu.s001.value()
         return pm.polyExtrudeFacet(
             selected_faces,
             keepFacesTogether=1,
@@ -396,23 +382,24 @@ class Polygons_maya(SlotsMaya):
             smoothingAngle=30,
         )
 
-    def tb007(self, *args, **kwargs):
+    def tb007(self, widget):
         """Divide Facet"""
-        tb = kwargs.get("widget")
-
         dv = u = v = 0
-        if tb.option_menu.chk008.isChecked():  # Split U
+        if widget.option_menu.chk008.isChecked():  # Split U
             u = 2
-        if tb.option_menu.chk009.isChecked():  # Split V
+        if widget.option_menu.chk009.isChecked():  # Split V
             v = 2
 
         mode = 0  # The subdivision mode. 0=quads, 1=triangles
         subdMethod = 1  # subdivision type: 0=exponential(traditional subdivision) 1=linear(number of faces per edge grows linearly)
-        if tb.option_menu.chk010.isChecked():  # tris
+        if widget.option_menu.chk010.isChecked():  # tris
             mode = dv = 1
             subdMethod = 0
         if all(
-            (tb.option_menu.chk008.isChecked(), tb.option_menu.chk009.isChecked())
+            (
+                widget.option_menu.chk008.isChecked(),
+                widget.option_menu.chk009.isChecked(),
+            )
         ):  # subdivide once into quads
             dv = 1
             subdMethod = 0
@@ -440,31 +427,27 @@ class Polygons_maya(SlotsMaya):
             )
             return
 
-    def tb008(self, *args, **kwargs):
+    def tb008(self, widget):
         """Boolean Operation"""
-        tb = kwargs.get("widget")
-
         selection = pm.ls(sl=1)
         if not selection:
             return self.sb.message_box(
                 "<strong>Nothing selected</strong>.<br>Operation requires the selection of at least two objects.",
                 message_type="Error",
             )
-        if tb.option_menu.chk011.isChecked():  # union
+        if widget.option_menu.chk011.isChecked():  # union
             pm.mel.PolygonBooleanIntersection()
 
-        if tb.option_menu.chk012.isChecked():  # difference
+        if widget.option_menu.chk012.isChecked():  # difference
             pm.mel.PolygonBooleanDifference()
 
-        if tb.option_menu.chk013.isChecked():  # intersection
+        if widget.option_menu.chk013.isChecked():  # intersection
             pm.mel.PolygonBooleanIntersection()
 
-    def tb009(self, *args, **kwargs):
+    def tb009(self, widget):
         """Snap Closest Verts"""
-        tb = kwargs.get("widget")
-
-        tolerance = tb.option_menu.s005.value()
-        freezetransforms = tb.option_menu.chk016.isChecked()
+        tolerance = widget.option_menu.s005.value()
+        freezetransforms = widget.option_menu.chk016.isChecked()
 
         selection = pm.ls(sl=1, objectsOnly=1, type="transform")
         if len(selection) > 1:
@@ -477,7 +460,7 @@ class Polygons_maya(SlotsMaya):
             )
             return
 
-    def b000(self, *args, **kwargs):
+    def b000(self):
         """Circularize"""
         circularize = pm.polyCircularize(
             constructionHistory=1,
@@ -494,29 +477,29 @@ class Polygons_maya(SlotsMaya):
         )
         return circularize
 
-    def b001(self, *args, **kwargs):
+    def b001(self):
         """Fill Holes"""
         pm.mel.FillHole()
 
-    def b002(self, *args, **kwargs):
+    def b002(self):
         """Separate"""
         pm.mel.SeparatePolygon()
         sel = pm.ls(sl=1, objectsOnly=True)
         for obj in sel:
             pm.xform(obj, centerPivots=1)
 
-    def b003(self, *args, **kwargs):
+    def b003(self):
         """Symmetrize"""
         pm.mel.Symmetrize()
 
-    def b004(self, *args, **kwargs):
+    def b004(self):
         """Slice"""
         cuttingDirection = "Y"  # valid values: 'x','y','z' A value of 'x' will cut the object along the YZ plane cutting through the center of the bounding box. 'y':ZX. 'z':XY.
 
         component_sel = pm.ls(sl=1)
         return pm.polyCut(component_sel, cuttingDirection=cuttingDirection, ch=1)
 
-    def b005(self, *args, **kwargs):
+    def b005(self):
         """Merge Vertices: Set Distance"""
         verts = pm.ls(sl=1, flatten=1)
 
@@ -531,36 +514,36 @@ class Polygons_maya(SlotsMaya):
 
         self.setMergeVertexDistance(p1, p2)
 
-    def b006(self, *args, **kwargs):
+    def b006(self):
         """Merge Vertices: Merge All"""
         sel = pm.ls(sl=True, objectsOnly=True)
         mtk.Edit.merge_vertices(sel)
 
-    def b009(self, *args, **kwargs):
+    def b009(self):
         """Collapse Component"""
         if pm.selectType(q=True, facet=1):
             pm.mel.PolygonCollapse()
         else:
             pm.mel.MergeToCenter()
 
-    def b012(self, *args, **kwargs):
+    def b012(self):
         """Multi-Cut Tool"""
         pm.mel.dR_multiCutTool()
 
-    def b022(self, *args, **kwargs):
+    def b022(self):
         """Attach"""
         # pm.mel.AttachComponent()
         pm.mel.dR_connectTool()
 
-    def b028(self, *args, **kwargs):
+    def b028(self):
         """Quad Draw"""
         pm.mel.dR_quadDrawTool()
 
-    def b032(self, *args, **kwargs):
+    def b032(self):
         """Poke"""
         pm.mel.PokePolygon()
 
-    def b034(self, *args, **kwargs):
+    def b034(self):
         """Wedge"""
         try:
             pm.mel.WedgePolygon()
@@ -570,7 +553,7 @@ class Polygons_maya(SlotsMaya):
                 message_type="Error",
             )
 
-    def b038(self, *args, **kwargs):
+    def b038(self):
         """Assign Invisible"""
         selection = pm.ls(sl=True)
         selected_faces = pm.filterExpand(selection, selectionMask=34, expand=1)
@@ -585,13 +568,13 @@ class Polygons_maya(SlotsMaya):
         else:
             pm.polyHole(selected_faces, assignHole=False)
 
-    def b043(self, *args, **kwargs):
+    def b043(self):
         """Target Weld"""
         pm.mel.ConvertSelectionToVertices()
         pm.select(deselect=True)
         pm.mel.dR_targetWeldTool()
 
-    def b046(self, *args, **kwargs):
+    def b046(self):
         """Split"""
         vertexMask = pm.selectType(q=True, vertex=True)
         edgeMask = pm.selectType(q=True, edge=True)
@@ -606,19 +589,19 @@ class Polygons_maya(SlotsMaya):
         elif vertexMask:
             pm.mel.polyChamferVtx(0, 0.25, 0)
 
-    def b047(self, *args, **kwargs):
+    def b047(self):
         """Insert Edgeloop"""
         pm.mel.SplitEdgeRingTool()
 
-    def b049(self, *args, **kwargs):
+    def b049(self):
         """Slide Edge Tool"""
         pm.mel.SlideEdgeTool()
 
-    def b051(self, *args, **kwargs):
+    def b051(self):
         """Offset Edgeloop"""
         pm.mel.performPolyDuplicateEdge(0)
 
-    def b053(self, *args, **kwargs):
+    def b053(self):
         """Edit Edge Flow"""
         pm.polyEditEdgeFlow(adjustEdgeFlow=1)
 

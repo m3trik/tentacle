@@ -22,19 +22,19 @@ class Utilities_max(Utilities, SlotsMax):
                 pass
             cmb.setCurrentIndex(0)
 
-    def b000(self, *args, **kwargs):
+    def b000(self):
         """Measure"""
         maxEval('macros.run "Tools" "two_point_dist"')
 
-    def b001(self, *args, **kwargs):
+    def b001(self):
         """Annotation"""
         mel.eval("CreateAnnotateNode;")
 
-    def b002(self, *args, **kwargs):
+    def b002(self):
         """Calculator"""
         mel.eval("calculator;")
 
-    def b003(self, *args, **kwargs):
+    def b003(self):
         """Grease Pencil"""
         mel.eval("greasePencilCtx;")
 

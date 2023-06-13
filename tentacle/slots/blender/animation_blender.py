@@ -24,7 +24,7 @@ class Animation_blender(Animation, SlotsBlender):
 
             cmb.setCurrentIndex(0)
 
-    def b000(self, *args, **kwargs):
+    def b000(self):
         """Delete Keys on Selected"""
         rt.deleteKeys(rt.selection)
 

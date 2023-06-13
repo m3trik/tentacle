@@ -215,7 +215,7 @@ class File_blender(File, SlotsBlender):
         dir_ = pm.workspace(q=True, rd=1)  # current project path.
         os.startfile(self.format_path(dir_))
 
-    def b000(self, *args, **kwargs):
+    def b000(self):
         """Autosave: Open Directory"""
         # dir1 = str(pm.workspace(q=True, rd=1))+'autosave' #current project path.
         dir2 = os.environ.get("MAYA_AUTOSAVE_FOLDER").split(";")[
@@ -228,7 +228,7 @@ class File_blender(File, SlotsBlender):
         except FileNotFoundError as error:
             return "Error: The system cannot find the file specified."
 
-    def b002(self, *args, **kwargs):
+    def b002(self):
         """Autosave: Delete All"""
         files = self.get_recent_autosave()
         for file in files:
@@ -237,7 +237,7 @@ class File_blender(File, SlotsBlender):
             except Exception as error:
                 print(error)
 
-    def b015(self, *args, **kwargs):
+    def b015(self):
         """Remove String From Object Names."""
         from_ = str(
             self.sb.file.t000.text()

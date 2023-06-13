@@ -388,19 +388,19 @@ class Selection_blender(Selection, SlotsBlender):
         )
         pm.select(edges)
 
-    def b016(self, *args, **kwargs):
+    def b016(self):
         """Convert Selection To Vertices"""
         mel.eval("PolySelectConvert 3;")
 
-    def b017(self, *args, **kwargs):
+    def b017(self):
         """Convert Selection To Edges"""
         mel.eval("PolySelectConvert 2;")
 
-    def b018(self, *args, **kwargs):
+    def b018(self):
         """Convert Selection To Faces"""
         mel.eval("PolySelectConvert 1;")
 
-    def b019(self, *args, **kwargs):
+    def b019(self):
         """Convert Selection To Edge Ring"""
         mel.eval("SelectEdgeRingSp;")
 

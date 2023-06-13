@@ -326,31 +326,31 @@ class Editors_max(Editors, SlotsMax):
 
         return w
 
-    def b000(self, *args, **kwargs):
+    def b000(self):
         """Attributes"""
         maxEval('actionMan.executeAction 0 "408"')  # Tools: Show Command Panel Toggle.
 
-    def b001(self, *args, **kwargs):
+    def b001(self):
         """Outliner"""
         maxEval('macros.run "Scene Explorer" "SESceneExplorer"')  # Scene Explorer
 
-    def b002(self, *args, **kwargs):
+    def b002(self):
         """Tool"""
         maxEval('actionMan.executeAction 60545 "26914"')  # Ribbon: Show Ribbon.
 
-    def b003(self, *args, **kwargs):
+    def b003(self):
         """Layers"""
         maxEval('macros.run "Layers" "LayerManager"')  # Layer Explorer
 
-    def b004(self, *args, **kwargs):
+    def b004(self):
         """Channels"""
         maxEval('macros.run "Tools" "Channel_Info"')  # Channel-Info
 
-    def b005(self, *args, **kwargs):
+    def b005(self):
         """Node Editor"""
         maxEval('schematicView.Open "Schematic View 3"')  # Schematic View
 
-    def b006(self, *args, **kwargs):
+    def b006(self):
         """Dependancy Graph"""
         maxEval(
             'macros.run "Asset Tracking System" "AssetTrackingSystemToggle"'

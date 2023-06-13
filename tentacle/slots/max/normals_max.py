@@ -170,25 +170,25 @@ class Normals_max(Normals, SlotsMax):
             maxEval('macros.run "PolyTools" "SmoothSelection"')
 
     @Slots.hideMain
-    def b001(self, *args, **kwargs):
+    def b001(self):
         """Soften Edge Normal"""
         maxEval("$.EditablePoly.makeSmoothEdges 1")
 
-    def b003(self, *args, **kwargs):
+    def b003(self):
         """Soft Edge Display"""
         for obj in rt.selection:
             state = obj.hardedgedisplay
             obj.hardedgedisplay = not state
 
-    def b005(self, *args, **kwargs):
+    def b005(self):
         """Adjust Vertex Normals"""
         maxEval("bgAdjustVertexNormalsWin;")
 
-    def b006(self, *args, **kwargs):
+    def b006(self):
         """Set To Face"""
         maxEval('macros.run "PolyTools" "HardSelection"')
 
-    def b010(self, *args, **kwargs):
+    def b010(self):
         """Reverse Normals"""
         for obj in rt.selection:
             rt.modPanel.setCurrentObject(obj.baseObject)

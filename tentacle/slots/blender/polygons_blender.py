@@ -317,7 +317,7 @@ class Polygons_blender(Polygons, SlotsBlender):
             return "Error: <strong>Nothing selected</strong>.<br>Operation requires at least two selected objects."
 
     @SlotsBlender.attr
-    def b000(self, *args, **kwargs):
+    def b000(self):
         """Circularize"""
         circularize = pm.polyCircularize(
             constructionHistory=1,
@@ -334,68 +334,68 @@ class Polygons_blender(Polygons, SlotsBlender):
         )
         return circularize
 
-    def b001(self, *args, **kwargs):
+    def b001(self):
         """Fill Holes"""
         pm.mel.FillHole()
 
-    def b002(self, *args, **kwargs):
+    def b002(self):
         """Separate"""
         pm.mel.SeparatePolygon()
 
-    def b003(self, *args, **kwargs):
+    def b003(self):
         """Symmetrize"""
         pm.mel.Symmetrize()
 
     @SlotsBlender.attr
-    def b004(self, *args, **kwargs):
+    def b004(self):
         """Slice"""
         cuttingDirection = "Y"  # valid values: 'x','y','z' A value of 'x' will cut the object along the YZ plane cutting through the center of the bounding box. 'y':ZX. 'z':XY.
 
         component_sel = pm.ls(sl=1)
         return pm.polyCut(component_sel, cuttingDirection=cuttingDirection, ch=1)
 
-    def b009(self, *args, **kwargs):
+    def b009(self):
         """Collapse Component"""
         if pm.selectType(q=True, vertex=1):
             pm.mel.MergeToCenter()  # merge vertices
         else:
             pm.mel.PolygonCollapse()
 
-    def b012(self, *args, **kwargs):
+    def b012(self):
         """Multi-Cut Tool"""
         pm.mel.dR_multiCutTool()
 
-    def b021(self, *args, **kwargs):
+    def b021(self):
         """Connect Border Edges"""
         pm.mel.performPolyConnectBorders(0)
 
-    def b022(self, *args, **kwargs):
+    def b022(self):
         """Attach"""
         # pm.mel.AttachComponent()
         pm.mel.dR_connectTool()
 
-    def b028(self, *args, **kwargs):
+    def b028(self):
         """Quad Draw"""
         pm.mel.dR_quadDrawTool()
 
-    def b032(self, *args, **kwargs):
+    def b032(self):
         """Poke"""
         pm.mel.PokePolygon()
 
-    def b034(self, *args, **kwargs):
+    def b034(self):
         """Wedge"""
         pm.mel.WedgePolygon()
 
-    def b038(self, *args, **kwargs):
+    def b038(self):
         """Assign Invisible"""
         pm.polyHole(assignHole=1)
 
-    def b043(self, *args, **kwargs):
+    def b043(self):
         """Target Weld"""
         pm.select(deselect=True)
         pm.mel.dR_targetWeldTool()
 
-    def b045(self, *args, **kwargs):
+    def b045(self):
         """Re-Order Vertices"""
         symmetryOn = pm.symmetricModelling(
             query=True, symmetry=True
@@ -406,7 +406,7 @@ class Polygons_blender(Polygons, SlotsBlender):
         pm.mel.doBakeNonDefHistory(1, "pre")  # history must be deleted
         pm.mel.performPolyReorderVertex()  # start vertex reorder ctx
 
-    def b046(self, *args, **kwargs):
+    def b046(self):
         """Split"""
         vertexMask = pm.selectType(query=True, vertex=True)
         edgeMask = pm.selectType(query=True, edge=True)
@@ -421,27 +421,27 @@ class Polygons_blender(Polygons, SlotsBlender):
         elif vertexMask:
             pm.mel.polyChamferVtx(0, 0.25, 0)
 
-    def b047(self, *args, **kwargs):
+    def b047(self):
         """Insert Edgeloop"""
         pm.mel.SplitEdgeRingTool()
 
-    def b048(self, *args, **kwargs):
+    def b048(self):
         """Collapse Edgering"""
         pm.mel.bt_polyCollapseEdgeRingTool()
 
-    def b049(self, *args, **kwargs):
+    def b049(self):
         """Slide Edge Tool"""
         pm.mel.SlideEdgeTool()
 
-    def b050(self, *args, **kwargs):
+    def b050(self):
         """Spin Edge"""
         pm.mel.bt_polySpinEdgeTool()
 
-    def b051(self, *args, **kwargs):
+    def b051(self):
         """Offset Edgeloop"""
         pm.mel.performPolyDuplicateEdge(0)
 
-    def b053(self, *args, **kwargs):
+    def b053(self):
         """Edit Edge Flow"""
         pm.polyEditEdgeFlow(adjustEdgeFlow=1)
 

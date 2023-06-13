@@ -32,7 +32,7 @@ class Scene_max(Scene, SlotsMax):
         objects = selection if selection else pm.ls(objectsOnly=1)
         self.set_case(objects, case)
 
-    def b000(self, *args, **kwargs):
+    def b000(self):
         """Rename"""
         find = (
             self.sb.scene.t000.text()

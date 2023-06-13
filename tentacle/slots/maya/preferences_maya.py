@@ -58,35 +58,31 @@ class Preferences_maya(SlotsMaya):
         )  # get/set current value
         widget.setCurrentIndex(index)
 
-    def cmb001(self, index=-1, **kwargs):
+    def cmb001(self, index, widget):
         """Set Working Units: Linear"""
-        cmb = kwargs.get("widget", self.sb.preferences.cmb001)
-
         if index > 0:
             # millimeter | centimeter | meter | kilometer | inch | foot | yard | mile
-            pm.currentUnit(linear=cmb.items[index])
+            pm.currentUnit(linear=widget.items[index])
 
-    def cmb002(self, index=-1, **kwargs):
+    def cmb002(self, index, widget):
         """Set Working Units: Time"""
-        cmb = kwargs.get("widget")
-
         if index > 0:
             # game | film | pal | ntsc | show | palf | ntscf
-            pm.currentUnit(time=cmb.items[index].split()[-1])
+            pm.currentUnit(time=widget.items[index].split()[-1])
 
-    def b001(self, *args, **kwargs):
+    def b001(self):
         """Color Settings"""
         pm.mel.colorPrefWnd()
 
-    def b008(self, *args, **kwargs):
+    def b008(self):
         """Hotkeys"""
         pm.mel.HotkeyPreferencesWindow()
 
-    def b009(self, *args, **kwargs):
+    def b009(self):
         """Plug-In Manager"""
         pm.mel.PluginManager()
 
-    def b010(self, *args, **kwargs):
+    def b010(self):
         """Settings/Preferences"""
         pm.mel.PreferencesWindow()
 

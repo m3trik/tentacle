@@ -161,11 +161,11 @@ class Normals_blender(Normals, SlotsBlender):
         byUvShell = tb.option_menu.chk003.isChecked()
         self.averageNormals(byUvShell)
 
-    def b001(self, *args, **kwargs):
+    def b001(self):
         """Soften Edge Normals"""
         pm.polySoftEdge(angle=180, constructionHistory=0)
 
-    def b003(self, *args, **kwargs):
+    def b003(self):
         """Soft Edge Display"""
         g_cond = pm.polyOptions(q=1, ae=1)
         if g_cond[0]:
@@ -173,15 +173,15 @@ class Normals_blender(Normals, SlotsBlender):
         else:
             pm.polyOptions(ae=1)
 
-    def b005(self, *args, **kwargs):
+    def b005(self):
         """Maya Bonus Tools: Adjust Vertex Normals"""
         pm.mel.bgAdjustVertexNormalsWin()
 
-    def b006(self, *args, **kwargs):
+    def b006(self):
         """Set To Face"""
         pm.polySetToFaceNormal()
 
-    def b010(self, *args, **kwargs):
+    def b010(self):
         """Reverse Normals"""
         sel = pm.ls(sl=1)
         pm.polyNormal(

@@ -55,26 +55,22 @@ class Animation_maya(SlotsMaya):
             setToolTip="Start time position as relative or absolute.",
         )
 
-    def tb000(self, *args, **kwargs):
+    def tb000(self, widget):
         """Set Current Frame"""
-        tb = kwargs.get("widget")
-
-        frame = self.sb.invert_on_modifier(tb.option_menu.s000.value())
-        relative = tb.option_menu.chk000.isChecked()
-        update = tb.option_menu.chk001.isChecked()
+        frame = self.sb.invert_on_modifier(widget.option_menu.s000.value())
+        relative = widget.option_menu.chk000.isChecked()
+        update = widget.option_menu.chk001.isChecked()
 
         self.setCurrentFrame(frame, relative=relative, update=update)
 
-    def tb001(self, *args, **kwargs):
+    def tb001(self, widget):
         """Invert Selected Keyframes"""
-        tb = kwargs.get("widget")
-
-        time = tb.option_menu.s001.value()
-        relative = tb.option_menu.chk002.isChecked()
+        time = widget.option_menu.s001.value()
+        relative = widget.option_menu.chk002.isChecked()
 
         self.invertSelectedKeyframes(time=time, relative=relative)
 
-    def b000(self, *args, **kwargs):
+    def b000(self):
         """Delete Keys on Selected"""
         selected_objects = pm.selected()
         for obj in selected_objects:
@@ -135,6 +131,8 @@ class Animation_maya(SlotsMaya):
                     )
         # pm.undoInfo(closeChunk=1)
 
+
+# --------------------------------------------------------------------------------------------
 
 # module name
 print(__name__)

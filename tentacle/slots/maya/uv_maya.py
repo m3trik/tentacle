@@ -337,29 +337,27 @@ class Uv_maya(SlotsMaya):
                 pm.mel.performLinearAlignUV()
             widget.setCurrentIndex(0)
 
-    def chk001(self, state=None, **kwargs):
+    def chk001(self, state, widget):
         """Auto Unwrap: Scale Mode CheckBox"""
-        tb = self.sb.uv.tb001
-
         if state == 0:
-            tb.option_menu.chk001.setText("Scale Mode 0")
+            widget.option_menu.chk001.setText("Scale Mode 0")
         if state == 1:
-            tb.option_menu.chk001.setText("Scale Mode 1")
-            self.sb.toggle_widgets(tb.option_menu, setUnChecked="chk002-6")
+            widget.option_menu.chk001.setText("Scale Mode 1")
+            self.sb.toggle_widgets(widget.option_menu, setUnChecked="chk002-6")
         if state == 2:
-            tb.option_menu.chk001.setText("Scale Mode 2")
+            widget.option_menu.chk001.setText("Scale Mode 2")
 
-    def chk014(self, state=None):
+    def chk014(self, state, widget):
         """Display: Checkered Pattern"""
         panel = mtk.get_panel(scriptType="polyTexturePlacementPanel")
         pm.textureWindow(panel, edit=1, displayCheckered=state)
 
-    def chk015(self, state=None):
+    def chk015(self, state, widget):
         """Display: Borders"""
         borderWidth = pm.optionVar(query="displayPolyBorderEdgeSize")[1]
         borders = pm.polyOptions(displayMapBorder=state, sizeBorder=borderWidth)
 
-    def chk016(self, state=None):
+    def chk016(self, state, widget):
         """Display: Distortion"""
         panel = mtk.get_panel(scriptType="polyTexturePlacementPanel")
         pm.textureWindow(panel, edit=1, displayDistortion=state)
@@ -576,27 +574,27 @@ class Uv_maya(SlotsMaya):
 
         self.transferUVs(frm, to, tolerance=similarTol, deleteConstHist=deleteConstHist)
 
-    def b001(self, *args, **kwargs):
+    def b001(self):
         """Create UV Snapshot"""
         pm.mel.UVCreateSnapshot()
 
-    def b002(self, *args, **kwargs):
+    def b002(self):
         """Stack Shells"""
         pm.mel.texStackShells({})
         # pm.mel.texOrientShells()
 
-    def b003(self, *args, **kwargs):
+    def b003(self):
         """Get texel density."""
         density = pm.mel.texGetTexelDensity(self.getMapSize())
         self.sb.uv.s003.setValue(density)
 
-    def b004(self, *args, **kwargs):
+    def b004(self):
         """Set Texel Density"""
         density = self.sb.uv.s003.value()
         mapSize = self.getMapSize()
         pm.mel.texSetTexelDensity(density, mapSize)
 
-    def b005(self, *args, **kwargs):
+    def b005(self):
         """Cut UV's"""
         objects = pm.ls(sl=True, objectsOnly=1, flatten=1)
 
@@ -608,7 +606,7 @@ class Uv_maya(SlotsMaya):
 
             pm.polyMapCut(edges)
 
-    def b006(self, *args, **kwargs):
+    def b006(self):
         """Rotate UV's 90"""
         angle = 45
         # issue with getting rotate pivot; queries returning None instead of float values.
@@ -620,7 +618,7 @@ class Uv_maya(SlotsMaya):
         #   pm.polyEditUV(obj, pivotU=pu, pivotV=pv, angle=angle, relative=True)
         pm.polyEditUV(objects, angle=angle, rr=True)
 
-    def b011(self, *args, **kwargs):
+    def b011(self):
         """Sew UV's"""
         objects = pm.ls(sl=True, objectsOnly=1, flatten=1)
 
@@ -637,31 +635,33 @@ class Uv_maya(SlotsMaya):
         self.tb004(self.sb.uv.tb004)  # perform unfold
         self.tb000(widget.ui.tb000)  # perform pack
 
-    def b022(self, *args, **kwargs):
+    def b022(self):
         """Cut UV hard edges"""
         self.sb.selection.slots.tb003()  # perform select edges by angle.
         self.b005()  # perform cut.
 
-    def b023(self, *args, **kwargs):
+    def b023(self):
         """Move To Uv Space: Left"""
         selection = pm.ls(sl=True)
         mtk.move_to_uv_space(selection, -1, 0)  # move left
 
-    def b024(self, *args, **kwargs):
+    def b024(self):
         """Move To Uv Space: Down"""
         selection = pm.ls(sl=True)
         mtk.move_to_uv_space(selection, 0, -1)  # move down
 
-    def b025(self, *args, **kwargs):
+    def b025(self):
         """Move To Uv Space: Up"""
         selection = pm.ls(sl=True)
         mtk.move_to_uv_space(selection, 0, 1)  # move up
 
-    def b026(self, *args, **kwargs):
+    def b026(self):
         """Move To Uv Space: Right"""
         selection = pm.ls(sl=True)
         mtk.move_to_uv_space(selection, 1, 0)  # move right
 
+
+# --------------------------------------------------------------------------------------------
 
 # module name
 print(__name__)

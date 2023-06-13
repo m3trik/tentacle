@@ -23,7 +23,7 @@ class Deformation_blender(Deformation, SlotsBlender):
                 pass
             cmb.setCurrentIndex(0)
 
-    def b000(self, *args, **kwargs):
+    def b000(self):
         """ """
         pass
 

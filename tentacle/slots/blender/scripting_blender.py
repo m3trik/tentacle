@@ -22,20 +22,20 @@ class Scripting_blender(Scripting, SlotsBlender):
                 pass
             cmb.setCurrentIndex(0)
 
-    def b000(self, *args, **kwargs):
+    def b000(self):
         """Toggle Script Output Window"""
         state = pm.workspaceControl("scriptEditorOutputWorkspace", q=True, visible=1)
         pm.workspaceControl("scriptEditorOutputWorkspace", edit=1, visible=not state)
 
-    def b001(self, *args, **kwargs):
+    def b001(self):
         """Command Line Window"""
         mel.eval("commandLineWindow;")
 
-    def b002(self, *args, **kwargs):
+    def b002(self):
         """Script Editor"""
         mel.eval("ScriptEditor;")
 
-    def b003(self, *args, **kwargs):
+    def b003(self):
         """New Tab"""
         label = "MEL"
         if self.sb.scripting.chk000.isChecked():
@@ -43,7 +43,7 @@ class Scripting_blender(Scripting, SlotsBlender):
         # self.sb.scripting.tabWidget.addTab(label)
         self.sb.scripting.tabWidget.insertTab(0, label)
 
-    def b004(self, *args, **kwargs):
+    def b004(self):
         """Delete Tab"""
         index = self.sb.scripting.tabWidget.currentIndex()
         self.sb.scripting.tabWidget.removeTab(index)

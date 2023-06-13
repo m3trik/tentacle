@@ -158,7 +158,7 @@ class Edit_max(Edit, SlotsMax):
                 rt.polyop.deleteFaces(obj, faces, delIsoVerts=1)
 
     @Slots.hideMain
-    def b001(self, *args, **kwargs):
+    def b001(self):
         """Object History Attributes: get most recent node"""
         selection = rt.modPanel.getCurrentObject()
         if not selection:
@@ -167,19 +167,19 @@ class Edit_max(Edit, SlotsMax):
 
         self.setAttributeWindow(selection, checkable_label=True)
 
-    def b021(self, *args, **kwargs):
+    def b021(self):
         """Tranfer Maps"""
         maxEval("performSurfaceSampling 1;")
 
-    def b022(self, *args, **kwargs):
+    def b022(self):
         """Transfer Vertex Order"""
         maxEval("TransferVertexOrder;")
 
-    def b023(self, *args, **kwargs):
+    def b023(self):
         """Transfer Attribute Values"""
         maxEval("TransferAttributeValues;")
 
-    def b027(self, *args, **kwargs):
+    def b027(self):
         """Shading Sets"""
         print("no function")
 
@@ -334,7 +334,7 @@ class Edit_max(Edit, SlotsMax):
         # 	self.delete_along_axis(obj, axis) #SlotsMax.delete_along_axis - no max version.
         # pm.undoInfo(closeChunk=1)
 
-    def b000(self, *args, **kwargs):
+    def b000(self):
         """Clean: Repair"""
         self.clean_geometry(
             repair=True,
@@ -351,7 +351,7 @@ class Edit_max(Edit, SlotsMax):
         )
 
     @Slots.hideMain
-    def b001(self, *args, **kwargs):
+    def b001(self):
         """Object History Attributes: get most recent node"""
         cmb = self.sb.edit.cmb001
         self.cmb001()  # refresh the contents of the combobox.
@@ -363,19 +363,19 @@ class Edit_max(Edit, SlotsMax):
             self.sb.message_box("Found no items to list the history for.")
             return
 
-    def b021(self, *args, **kwargs):
+    def b021(self):
         """Tranfer Maps"""
         pm.mel.performSurfaceSampling(1)
 
-    def b022(self, *args, **kwargs):
+    def b022(self):
         """Transfer Vertex Order"""
         pm.mel.TransferVertexOrder()
 
-    def b023(self, *args, **kwargs):
+    def b023(self):
         """Transfer Attribute Values"""
         pm.mel.TransferAttributeValues()
 
-    def b027(self, *args, **kwargs):
+    def b027(self):
         """Shading Sets"""
         pm.mel.performTransferShadingSets(0)
 

@@ -73,7 +73,7 @@ class Crease_max(Crease, SlotsMax):
             else:
                 print("Error: object type " + rt.classOf(obj) + " is not supported.")
 
-    def b002(self, *args, **kwargs):
+    def b002(self):
         """Transfer Crease Edges"""
         # an updated version of this is in the maya python projects folder
         # the use of separate buttons for donor and target mesh are obsolete

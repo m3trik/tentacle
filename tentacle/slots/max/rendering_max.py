@@ -31,7 +31,7 @@ class Rendering_max(Rendering, SlotsMax):
             items = [str(cam.name) for cam in self.cams]  # camera names
             cmb.addItems_(items, clear=True)
 
-    def b000(self, *args, **kwargs):
+    def b000(self):
         """Render Current Frame"""
         cmb = self.sb.rendering.cmb001
         index = cmb.currentIndex()
@@ -41,23 +41,23 @@ class Rendering_max(Rendering, SlotsMax):
         except:
             rt.render()
 
-    def b001(self, *args, **kwargs):
+    def b001(self):
         """Open Render Settings Window"""
         maxEval("unifiedRenderGlobalsWindow;")
 
-    def b002(self, *args, **kwargs):
+    def b002(self):
         """Redo Previous Render"""
         pass
 
-    def b003(self, *args, **kwargs):
+    def b003(self):
         """Editor: Render Setup"""
         maxEval("max render scene")
 
-    def b004(self, *args, **kwargs):
+    def b004(self):
         """Editor: Rendering Flags"""
         maxEval("renderFlagsWindow;")
 
-    def b005(self, *args, **kwargs):
+    def b005(self):
         """Apply Vray Attributes To Selected Objects"""
         selection = pm.ls(sl=True)
         currentID = 1
@@ -77,7 +77,7 @@ class Rendering_max(Rendering, SlotsMax):
             pm.setAttr(obj + ".vrayObjectID", currentID)
             currentID += 1
 
-    def b006(self, *args, **kwargs):
+    def b006(self):
         """Load Vray Plugin"""
 
 

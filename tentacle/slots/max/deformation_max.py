@@ -22,7 +22,7 @@ class Deformation_max(Deformation, SlotsMax):
                 pass
             cmb.setCurrentIndex(0)
 
-    def b000(self, *args, **kwargs):
+    def b000(self):
         """ """
         pass
 

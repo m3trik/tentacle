@@ -11,35 +11,33 @@ class Symmetry_maya(SlotsMaya):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        # application symmetry state
+    def chk000_init(self, widget):
+        """Set initial symmetry state"""
         state = pm.symmetricModelling(query=True, symmetry=True)
         axis = pm.symmetricModelling(query=True, axis=True)
-        widget = "chk000" if axis == "x" else "chk001" if axis == "y" else "chk002"
-        getattr(self.sb.symmetry, widget).setChecked(state)
+        w = "chk000" if axis == "x" else "chk001" if axis == "y" else "chk002"
+        getattr(widget.ui, w).setChecked(state)
 
-    def chk000(self, state=None, **kwargs):
+    def chk000(self, state, widget):
         """Symmetry X"""
-
         self.sb.toggle_widgets(setUnChecked="chk001,chk002")
         self.setSymmetry(state, "x")
 
-    def chk001(self, state=None, **kwargs):
+    def chk001(self, state, widget):
         """Symmetry Y"""
-
         self.sb.toggle_widgets(setUnChecked="chk000,chk002")
         self.setSymmetry(state, "y")
 
-    def chk002(self, state=None, **kwargs):
+    def chk002(self, state, widget):
         """Symmetry Z"""
-
         self.sb.toggle_widgets(setUnChecked="chk000,chk001")
         self.setSymmetry(state, "z")
 
-    def chk004(self, state=None, **kwargs):
+    def chk004(self, state, widget):
         """Symmetry: Object"""
         self.sb.symmetry.chk005.setChecked(False)  # uncheck symmetry:topological
 
-    def chk005(self, state=None, **kwargs):
+    def chk005(self, state, widget):
         """Symmetry: Topo"""
         self.sb.symmetry.chk004.setChecked(False)  # uncheck symmetry:object space
         if any(
@@ -72,6 +70,8 @@ class Symmetry_maya(SlotsMaya):
         # if state:
         #   self.sb.message_box('Symmetry: <hl>{}</hl>'.format(axis.upper(), message_type='Result'))
 
+
+# --------------------------------------------------------------------------------------------
 
 # module name
 print(__name__)
