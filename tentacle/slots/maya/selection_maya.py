@@ -50,7 +50,7 @@ class Selection(SlotsMaya):
             "QSpinBox",
             setPrefix="Step: ",
             setObjectName="s003",
-            set_limits="1-100 step1",
+            set_limits=(1, 100),
             setValue=1,
             setToolTip="Step Amount.",
         )
@@ -61,7 +61,7 @@ class Selection(SlotsMaya):
             "QDoubleSpinBox",
             setPrefix="Tolerance: ",
             setObjectName="s000",
-            set_limits="0.000-9999 step1.0",
+            set_limits=(0, 9999, 0.0, 3),
             setValue=0.0,
             setToolTip="The allowed difference in any of the compared results.\nie. A tolerance of 4 allows for a difference of 4 components.\nie. A tolerance of 0.05 allows for that amount of variance between any of the bounding box values.",
         )
@@ -150,7 +150,7 @@ class Selection(SlotsMaya):
             "QDoubleSpinBox",
             setPrefix="x: ",
             setObjectName="s002",
-            set_limits="0.00-1 step.01",
+            set_limits=(0, 1, 0.01, 2),
             setValue=0.05,
             setToolTip="Normal X range.",
         )
@@ -158,7 +158,7 @@ class Selection(SlotsMaya):
             "QDoubleSpinBox",
             setPrefix="y: ",
             setObjectName="s004",
-            set_limits="0.00-1 step.01",
+            set_limits=(0, 1, 0.01, 2),
             setValue=0.05,
             setToolTip="Normal Y range.",
         )
@@ -166,7 +166,7 @@ class Selection(SlotsMaya):
             "QDoubleSpinBox",
             setPrefix="z: ",
             setObjectName="s005",
-            set_limits="0.00-1 step.01",
+            set_limits=(0, 1, 0.01, 2),
             setValue=0.05,
             setToolTip="Normal Z range.",
         )
@@ -196,7 +196,7 @@ class Selection(SlotsMaya):
             "QDoubleSpinBox",
             setPrefix="Angle Low:  ",
             setObjectName="s006",
-            set_limits="0.0-180 step1",
+            set_limits=(0, 180),
             setValue=70,
             setToolTip="Normal angle low range.",
         )
@@ -204,7 +204,7 @@ class Selection(SlotsMaya):
             "QDoubleSpinBox",
             setPrefix="Angle High: ",
             setObjectName="s007",
-            set_limits="0.0-180 step1",
+            set_limits=(0, 180),
             setValue=160,
             setToolTip="Normal angle high range.",
         )
@@ -307,31 +307,37 @@ class Selection(SlotsMaya):
 
     def chk000(self, state, widget):
         """Select Nth: uncheck other checkboxes"""
-        self.sb.toggle_widgets(setUnChecked="chk001-2")
+        self.sb.toggle_widgets(widget.option_menu, setUnChecked="chk001-2")
 
     def chk001(self, state, widget):
         """Select Nth: uncheck other checkboxes"""
-        self.sb.toggle_widgets(setUnChecked="chk000,chk002")
+        self.sb.toggle_widgets(widget.option_menu, setUnChecked="chk000,chk002")
 
     def chk002(self, state, widget):
         """Select Nth: uncheck other checkboxes"""
-        self.sb.toggle_widgets(setUnChecked="chk000-1")
+        self.sb.toggle_widgets(widget.option_menu, setUnChecked="chk000-1")
 
     def chk005(self, state, widget):
         """Select Style: Marquee"""
-        self.sb.toggle_widgets(setChecked="chk005", setUnChecked="chk006-7")
+        self.sb.toggle_widgets(
+            widget.option_menu, setChecked="chk005", setUnChecked="chk006-7"
+        )
         self.setSelectionStyle("marquee")
         self.sb.message_box("Select Style: <hl>Marquee</hl>")
 
     def chk006(self, state, widget):
         """Select Style: Lasso"""
-        self.sb.toggle_widgets(setChecked="chk006", setUnChecked="chk005,chk007")
+        self.sb.toggle_widgets(
+            widget.option_menu, setChecked="chk006", setUnChecked="chk005,chk007"
+        )
         self.setSelectionStyle("lasso")
         self.sb.message_box("Select Style: <hl>Lasso</hl>")
 
     def chk007(self, state, widget):
         """Select Style: Paint"""
-        self.sb.toggle_widgets(setChecked="chk007", setUnChecked="chk005-6")
+        self.sb.toggle_widgets(
+            widget.option_menu, setChecked="chk007", setUnChecked="chk005-6"
+        )
         self.setSelectionStyle("paint")
         self.sb.message_box("Select Style: <hl>Paint</hl>")
 

@@ -310,14 +310,14 @@ class Cameras_maya(SlotsMaya):
                 "QDoubleSpinBox",
                 setPrefix="Far Clip:  ",
                 setObjectName="s000",
-                set_limits=".01-10 step.1",
+                set_limits=(0.01, 10, 0.1, 2),
                 setToolTip="Adjust the current cameras near clipping plane.",
             )
             self._clippingMenu.add(
                 "QSpinBox",
                 setPrefix="Near Clip: ",
                 setObjectName="s001",
-                set_limits="10-10000 step1",
+                set_limits=(10, 10000),
                 setToolTip="Adjust the current cameras far clipping plane.",
             )
 

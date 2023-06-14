@@ -82,7 +82,9 @@ class Create_maya(SlotsMaya):
         scale = widget.option_menu.chk001.isChecked()
         translate = widget.option_menu.chk000.isChecked()
 
-        return self.createDefaultPrimitive(baseType, subType, scale, translate)
+        hist_node = self.createDefaultPrimitive(baseType, subType, scale, translate)
+        pm.selectMode(object=True)  # place scene select type in object mode.
+        pm.select(hist_node)  # select the transform node so that you can see any edits
 
     def b001(self):
         """Create poly cube"""
@@ -103,7 +105,7 @@ class Create_maya(SlotsMaya):
     def b005(self):
         """Create 6 sided poly cylinder"""
         cyl = self.createDefaultPrimitive("Polygon", "Cylinder")
-        mtk.Node.set_node_attributes(cyl, verbose=True, subdivisionsAxis=6)
+        mtk.set_node_attributes(cyl, verbose=True, subdivisionsAxis=6)
 
     def createDefaultPrimitive(
         self, baseType, subType, scale=False, translate=False, axis=[0, 90, 0]
@@ -158,10 +160,7 @@ class Create_maya(SlotsMaya):
             if scale:
                 mtk.Xform.match_scale(node[0], selection, average=True)
 
-        pm.selectMode(object=1)  # place scene select type in object mode.
-        pm.select(node)  # select the transform node so that you can see any edits
-
-        return mtk.Node.get_history_node(node)
+        return mtk.get_history_node(node)
 
     @mtk.undo
     def createCircle(

@@ -213,24 +213,20 @@ class Materials_maya(SlotsMaya):
 
         pm.mel.HypershadeWindow()  # open the hypershade editor
 
-    def lbl001(self, setEditable=True):
+    def lbl001(self, widget):
         """Rename Material: Set cmb002 as editable and disable wgts."""
         cmb = self.sb.materials.cmb002
 
         if setEditable:
             self._mat = self.sb.materials.cmb002.currentData()
             cmb.setEditable(True)
-            self.sb.toggle_widgets(
-                self.sb.materials, setDisabled="b002,lbl000,tb000,tb002"
-            )
+            self.sb.toggle_widgets(widget.ui, setDisabled="b002,lbl000,tb000,tb002")
         else:
             mat = self._mat
             newMatName = cmb.currentText()
             self.renameMaterial(mat, newMatName)
             cmb.setEditable(False)
-            self.sb.toggle_widgets(
-                self.sb.materials, setEnabled="b002,lbl000,tb000,tb002"
-            )
+            self.sb.toggle_widgets(widget.ui, setEnabled="b002,lbl000,tb000,tb002")
 
     def lbl002(self):
         """Delete Material"""

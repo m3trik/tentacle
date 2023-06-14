@@ -31,7 +31,7 @@ class Nurbs_maya(SlotsMaya):
             setPrefix="Degree:",
             setObjectName="s002",
             setValue=3,
-            set_limits="0-9999 step1",
+            set_limits=(0),
             setToolTip="The degree of the resulting surface.",
         )
         widget.option_menu.add(
@@ -39,7 +39,7 @@ class Nurbs_maya(SlotsMaya):
             setPrefix="Start Sweep:",
             setObjectName="s003",
             setValue=3,
-            set_limits="0-360 step1",
+            set_limits=(0, 360),
             setToolTip="    The value for the start sweep angle.",
         )
         widget.option_menu.add(
@@ -47,7 +47,7 @@ class Nurbs_maya(SlotsMaya):
             setPrefix="End Sweep:",
             setObjectName="s004",
             setValue=3,
-            set_limits="0-360 step1",
+            set_limits=(0, 360),
             setToolTip="The value for the end sweep angle.",
         )
         widget.option_menu.add(
@@ -55,7 +55,7 @@ class Nurbs_maya(SlotsMaya):
             setPrefix="Sections:",
             setObjectName="s005",
             setValue=8,
-            set_limits="0-9999 step1",
+            set_limits=(0),
             setToolTip="The number of surface spans between consecutive curves in the loft.",
         )
         widget.option_menu.add(
@@ -91,7 +91,7 @@ class Nurbs_maya(SlotsMaya):
             setPrefix="Tolerance:",
             setObjectName="s006",
             setValue=0.001,
-            set_limits="0-9999 step.001",
+            set_limits=(0),
             setToolTip="Tolerance to build to (if useTolerance attribute is set).",
         )
 
@@ -115,7 +115,7 @@ class Nurbs_maya(SlotsMaya):
             setPrefix="Degree:",
             setObjectName="s000",
             setValue=3,
-            set_limits="0-9999 step1",
+            set_limits=(0),
             setToolTip="The degree of the resulting surface.",
         )
         tb001.option_menu.add(
@@ -130,7 +130,7 @@ class Nurbs_maya(SlotsMaya):
             setPrefix="Section Spans:",
             setObjectName="s001",
             setValue=1,
-            set_limits="0-9999 step1",
+            set_limits=(0),
             setToolTip="The number of surface spans between consecutive curves in the loft.",
         )
         tb001.option_menu.add(
@@ -166,7 +166,7 @@ class Nurbs_maya(SlotsMaya):
             setPrefix="Angle Loft: Spans:",
             setObjectName="s007",
             setValue=6,
-            set_limits="2-9999 step1",
+            set_limits=(2),
             setToolTip="Angle loft: Number of duplicated points (spans).",
         )
 

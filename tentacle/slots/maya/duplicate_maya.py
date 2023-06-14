@@ -44,7 +44,7 @@ class Duplicate_maya(SlotsMaya):
                         bb[2] + bb[5] / 2,
                     )  # get median of bounding box coordinates. from [min xyz, max xyz]
             else:
-                self.sb.toggle_widgets(self.sb.duplicate_radial, setUnChecked="chk010")
+                self.sb.toggle_widgets(widget.ui, setUnChecked="chk010")
                 self.sb.message_box("Nothing selected.")
                 return
 
@@ -62,13 +62,13 @@ class Duplicate_maya(SlotsMaya):
     radialArrayObjList = []
 
     @mtk.undo
-    def chk015(self, create=False):
+    def chk015(self, widget):
         """Radial Array: Preview"""
         setPivot = self.sb.duplicate_radial.chk010.isChecked()  # set pivot point
         instance = self.sb.duplicate_radial.chk011.isChecked()  # instance object
 
         if self.sb.duplicate_radial.chk015.isChecked():
-            self.sb.toggle_widgets(self.sb.duplicate_radial, setEnabled="b003")
+            self.sb.toggle_widgets(widget.ui, setEnabled="b003")
 
             selection = pm.ls(sl=True, type="transform", flatten=1)
             if selection:
@@ -126,7 +126,7 @@ class Duplicate_maya(SlotsMaya):
                     # pm.undoInfo (closeChunk=1)
             else:  # if both lists objects are empty:
                 self.sb.toggle_widgets(
-                    self.sb.duplicate_radial, setDisabled="b003", setUnChecked="chk015"
+                    widget.ui, setDisabled="b003", setUnChecked="chk015"
                 )
                 self.sb.message_box("Nothing selected.")
                 return
@@ -149,7 +149,7 @@ class Duplicate_maya(SlotsMaya):
                 pass
             del radialArrayObjList[:]  # clear the list
 
-            self.sb.toggle_widgets(self.sb.duplicate_radial, setDisabled="b003")
+            self.sb.toggle_widgets(widget.ui, setDisabled="b003")
 
     global duplicateObjList
     duplicateObjList = []
@@ -158,7 +158,7 @@ class Duplicate_maya(SlotsMaya):
     def chk016(self, create=False):
         """Duplicate: Preview"""
         if self.sb.duplicate_linear.chk016.isChecked():
-            self.sb.toggle_widgets(self.sb.duplicate_linear, setEnabled="b002")
+            self.sb.toggle_widgets(widget.ui, setEnabled="b002")
 
             instance = self.sb.duplicate_linear.chk000.isChecked()
             numOfDuplicates = int(self.sb.duplicate_linear.s005.value())
@@ -238,9 +238,7 @@ class Duplicate_maya(SlotsMaya):
                 else:
                     self.sb.message_box("Component list empty.")
                     self.sb.toggle_widgets(
-                        self.sb.duplicate_linear,
-                        setDisabled="b002",
-                        setChecked="chk016",
+                        widget.ui, setDisabled="b002", setChecked="chk016"
                     )
                     return
             else:
@@ -297,7 +295,7 @@ class Duplicate_maya(SlotsMaya):
             )  # delete all the geometry in the list, except the original obj
             pm.select(duplicateObjList[:1])  # re-select the original object
             del duplicateObjList[:]  # clear the list
-            self.sb.toggle_widgets(self.sb.duplicate_linear, setDisabled="b002")
+            self.sb.toggle_widgets(widget.ui, setDisabled="b002")
 
     def tb000(self, widget):
         """Convert to Instances"""
@@ -322,12 +320,16 @@ class Duplicate_maya(SlotsMaya):
         """Duplicate: Translate To Components"""
         if state:
             self.sb.toggle_widgets(
-                setEnabled="chk008,b034,cmb001", setDisabled="chk000,chk009,s005"
+                widget.ui,
+                setEnabled="chk008,b034,cmb001",
+                setDisabled="chk000,chk009,s005",
             )
             self.b008()
         else:
             self.sb.toggle_widgets(
-                setDisabled="chk008,b034,cmb001", setEnabled="chk000,chk009,s005"
+                widget.ui,
+                setDisabled="chk008,b034,cmb001",
+                setEnabled="chk000,chk009,s005",
             )
 
     def chk011(self, state, widget):
@@ -336,17 +338,23 @@ class Duplicate_maya(SlotsMaya):
 
     def chk012(self, state, widget):
         """Radial Array: X Axis"""
-        self.sb.toggle_widgets(setChecked="chk012", setUnChecked="chk013,chk014")
+        self.sb.toggle_widgets(
+            widget.ui, setChecked="chk012", setUnChecked="chk013,chk014"
+        )
         self.chk015()
 
     def chk013(self, state, widget):
         """Radial Array: Y Axis"""
-        self.sb.toggle_widgets(setChecked="chk013", setUnChecked="chk012,chk014")
+        self.sb.toggle_widgets(
+            widget.ui, setChecked="chk013", setUnChecked="chk012,chk014"
+        )
         self.chk015()
 
     def chk014(self, state, widget):
         """Radial Array: Z Axis"""
-        self.sb.toggle_widgets(setChecked="chk014", setUnChecked="chk012,chk013")
+        self.sb.toggle_widgets(
+            widget.ui, setChecked="chk014", setUnChecked="chk012,chk013"
+        )
         self.chk015()
 
     def b000(self):

@@ -44,11 +44,11 @@ class Rigging_maya(SlotsMaya):
             "QDoubleSpinBox",
             setPrefix="Tolerance: ",
             setObjectName="s000",
-            set_limits="0.00-10 step.5",
+            set_limits=(0, 10, 0.5, 2),
             setValue=1.0,
             setToolTip="Global Display Scale for the selected type.",
         )
-        self.chk000()  # init scale joint value
+        self.chk000(None, widget)  # init scale joint value
 
     def tb001_init(self, widget):
         """ """
@@ -75,7 +75,7 @@ class Rigging_maya(SlotsMaya):
             "QDoubleSpinBox",
             setPrefix="Locator Scale: ",
             setObjectName="s001",
-            set_limits=".000-1000 step1",
+            set_limits=(0, 1000, 1, 3),
             setValue=1,
             setToolTip="The scale of the locator.",
         )
@@ -229,19 +229,19 @@ class Rigging_maya(SlotsMaya):
 
     def chk000(self, state, widget):
         """Scale Joint"""
-        self.sb.toggle_widgets(setUnChecked="chk001-2")
+        self.sb.toggle_widgets(widget.option_menu, setUnChecked="chk001-2")
         # init global joint display size
         self.sb.rigging.tb000.option_menu.s000.setValue(pm.jointDisplayScale(q=True))
 
     def chk001(self, state, widget):
         """Scale IK"""
-        self.sb.toggle_widgets(setUnChecked="chk000, chk002")
+        self.sb.toggle_widgets(widget.option_menu, setUnChecked="chk000, chk002")
         # init IK handle display size
         self.sb.rigging.tb000.option_menu.setValue(pm.ikHandleDisplayScale(q=True))
 
     def chk002(self, state, widget):
         """Scale IK/FK"""
-        self.sb.toggle_widgets(setUnChecked="chk000-1")
+        self.sb.toggle_widgets(widget.option_menu, setUnChecked="chk000-1")
         # init IKFK display size
         self.sb.rigging.tb000.option_menu.setValue(pm.jointDisplayScale(q=True, ikfk=1))
 

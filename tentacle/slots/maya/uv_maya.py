@@ -75,7 +75,7 @@ class Uv_maya(SlotsMaya):
             "QSpinBox",
             setPrefix="Pre-Scale Mode: ",
             setObjectName="s009",
-            set_limits="0-2 step1",
+            set_limits=(0, 2),
             setValue=1,
             setToolTip="Allow shell scaling during packing.",
         )
@@ -83,7 +83,7 @@ class Uv_maya(SlotsMaya):
             "QSpinBox",
             setPrefix="Pre-Rotate Mode: ",
             setObjectName="s010",
-            set_limits="0-2 step1",
+            set_limits=(0, 2),
             setValue=0,
             setToolTip="Allow shell rotation during packing.",
         )
@@ -91,7 +91,7 @@ class Uv_maya(SlotsMaya):
             "QSpinBox",
             setPrefix="Stack Similar: ",
             setObjectName="s011",
-            set_limits="0-2 step1",
+            set_limits=(0, 2),
             setValue=0,
             setToolTip="Find Similar shells. <br>state 1: Find similar shells, and pack one of each, ommiting the rest.<br>state 2: Find similar shells, and stack during packing.",
         )
@@ -99,7 +99,7 @@ class Uv_maya(SlotsMaya):
             "QDoubleSpinBox",
             setPrefix="Tolerance: ",
             setObjectName="s006",
-            set_limits="0.0-10 step.1",
+            set_limits=(0, 10, 0.1, 1),
             setValue=1.0,
             setToolTip="Stack Similar: Stack shells with uv's within the given range.",
         )
@@ -107,7 +107,7 @@ class Uv_maya(SlotsMaya):
             "QSpinBox",
             setPrefix="UDIM: ",
             setObjectName="s004",
-            set_limits="1001-1200 step1",
+            set_limits=(1001, 1200),
             setValue=1001,
             setToolTip="Set the desired UDIM tile space.",
         )
@@ -115,7 +115,7 @@ class Uv_maya(SlotsMaya):
             "QSpinBox",
             setPrefix="Padding: ",
             setObjectName="s012",
-            set_limits="0-999 step1",
+            set_limits=(0, 1000),
             setValue=self.getMapSize() / 256 * 2,
             setToolTip="Set the shell spacing amount.",
         )
@@ -236,7 +236,7 @@ class Uv_maya(SlotsMaya):
             "QDoubleSpinBox",
             setPrefix="Tolerance: ",
             setObjectName="s000",
-            set_limits="0.0-10 step.1",
+            set_limits=(0, 10, 0.1, 1),
             setValue=1.0,
             setToolTip="Stack shells with uv's within the given range.",
         )
@@ -247,7 +247,7 @@ class Uv_maya(SlotsMaya):
             "QSpinBox",
             setPrefix="Angle: ",
             setObjectName="s001",
-            set_limits="0-360 step1",
+            set_limits=(0, 360),
             setValue=30,
             setToolTip="Set the maximum angle used for straightening uv's.",
         )
@@ -300,7 +300,7 @@ class Uv_maya(SlotsMaya):
             "QDoubleSpinBox",
             setPrefix="Tolerance: ",
             setObjectName="s013",
-            set_limits="0.0-1000 step.5",
+            set_limits=(0, 1000, 0.5, 1),
             setValue=0.00,
             setToolTip="The maximum attribute value tolerance to use when searching for similar objects.",
         )

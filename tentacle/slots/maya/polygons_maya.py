@@ -18,7 +18,7 @@ class Polygons_maya(SlotsMaya):
             "QDoubleSpinBox",
             setPrefix="Distance: ",
             setObjectName="s002",
-            set_limits="0.0000-10 step.0005",
+            set_limits=(0, 10, 0.0005, 4),
             setValue=0.0005,
             set_height=20,
             setToolTip="Merge Distance.",
@@ -37,7 +37,7 @@ class Polygons_maya(SlotsMaya):
             "QSpinBox",
             setPrefix="Divisions: ",
             setObjectName="s003",
-            set_limits="0-10000 step1",
+            set_limits=(0),
             setValue=0,
             set_height=20,
             setToolTip="Subdivision Amount.",
@@ -68,7 +68,7 @@ class Polygons_maya(SlotsMaya):
             "QSpinBox",
             setPrefix="Divisions: ",
             setObjectName="s004",
-            set_limits="1-10000 step1",
+            set_limits=(0),
             setValue=1,
             set_height=20,
             setToolTip="Subdivision Amount.",
@@ -80,7 +80,7 @@ class Polygons_maya(SlotsMaya):
             "QDoubleSpinBox",
             setPrefix="Width: ",
             setObjectName="s000",
-            set_limits="0.00-100 step.05",
+            set_limits=(0, 100, 0.05, 2),
             setValue=0.25,
             set_height=20,
             setToolTip="Bevel Width.",
@@ -89,7 +89,7 @@ class Polygons_maya(SlotsMaya):
             "QDoubleSpinBox",
             setPrefix="Segments: ",
             setObjectName="s006",
-            set_limits="1-100 step1",
+            set_limits=(1, 100),
             setValue=1,
             set_height=20,
             setToolTip="Bevel Segments.",
@@ -119,7 +119,7 @@ class Polygons_maya(SlotsMaya):
             "QDoubleSpinBox",
             setPrefix="Offset: ",
             setObjectName="s001",
-            set_limits="0.00-100 step.01",
+            set_limits=(0, 100),
             setValue=2.00,
             set_height=20,
             setToolTip="Offset amount.",
@@ -182,7 +182,7 @@ class Polygons_maya(SlotsMaya):
             "QDoubleSpinBox",
             setPrefix="Tolerance: ",
             setObjectName="s005",
-            set_limits=".000-100 step.05",
+            set_limits=(0, 100, 0.05, 3),
             setValue=10,
             setToolTip="Set the max Snap Distance. Vertices with a distance exceeding this value will be ignored.",
         )
@@ -196,15 +196,15 @@ class Polygons_maya(SlotsMaya):
 
     def chk008(self, state, widget):
         """Divide Facet: Split U"""
-        self.sb.toggle_widgets(setUnChecked="chk010")
+        self.sb.toggle_widgets(widget.option_menu, setUnChecked="chk010")
 
     def chk009(self, state, widget):
         """Divide Facet: Split V"""
-        self.sb.toggle_widgets(setUnChecked="chk010")
+        self.sb.toggle_widgets(widget.option_menu, setUnChecked="chk010")
 
     def chk010(self, state, widget):
         """Divide Facet: Tris"""
-        self.sb.toggle_widgets(setUnChecked="chk008,chk009")
+        self.sb.toggle_widgets(widget.option_menu, setUnChecked="chk008,chk009")
 
     def tb000(self, widget):
         """Merge Vertices"""

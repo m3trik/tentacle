@@ -68,7 +68,7 @@ class Transform_maya(SlotsMaya):
             setObjectName="s021",
             setPrefix="Increment:",
             setValue=0,
-            set_limits="1.0-1000 step1",
+            set_limits=(1, 1000, 1, 1),
             setDisabled=True,
         )
         widget.option_menu.add(
@@ -82,7 +82,7 @@ class Transform_maya(SlotsMaya):
             setObjectName="s022",
             setPrefix="Increment:",
             setValue=0,
-            set_limits="1.0-1000 step1",
+            set_limits=(1, 1000, 1, 1),
             setDisabled=True,
         )
         widget.option_menu.add(
@@ -96,7 +96,7 @@ class Transform_maya(SlotsMaya):
             setObjectName="s023",
             setPrefix="Degrees:",
             setValue=0,
-            set_limits="1.40625-360 step1.40625",
+            set_limits=(1.40625, 360, 0.40625, 5),
             setDisabled=True,
         )
         moveValue = pm.manipMoveContext("Move", q=True, snapValue=True)
@@ -225,9 +225,9 @@ class Transform_maya(SlotsMaya):
     def chk010(self, state, widget):
         """Align Vertices: Auto Align"""
         if state:
-            self.sb.toggle_widgets(setDisabled="chk029-31")
+            self.sb.toggle_widgets(widget.option_menu, setDisabled="chk029-31")
         else:
-            self.sb.toggle_widgets(setEnabled="chk029-31")
+            self.sb.toggle_widgets(widget.option_menu, setEnabled="chk029-31")
 
     def chk021(self, state, widget):
         """Transform Tool Snap Settings: Move"""

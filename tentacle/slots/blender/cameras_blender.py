@@ -406,177 +406,177 @@ print(__name__)
 
 
 # def tree000(self, wItem=None, column=None):
-# 		'''
+#       '''
 
-# 		'''
-# 		tree = self.sb.cameras.tree000
+#       '''
+#       tree = self.sb.cameras.tree000
 
-# 		if not any([wItem, column]):
-# 			if not tree.refresh: #static list items -----------
-# 				tree.expandOnHover = True
-# 				tree.convert(tree.getTopLevelItems(), 'QLabel') #construct the tree using the existing contents.
+#       if not any([wItem, column]):
+#           if not tree.refresh: #static list items -----------
+#               tree.expandOnHover = True
+#               tree.convert(tree.getTopLevelItems(), 'QLabel') #construct the tree using the existing contents.
 
-# 				l = []
-# 				[tree.add('QLabel', 'Editors', setText=s) for s in l]
+#               l = []
+#               [tree.add('QLabel', 'Editors', setText=s) for s in l]
 
 
-# 			#refreshed list items -----------------------------
-# 			try:
-# 				cameras = pm.ls(type=('camera'), l=True) #Get all cameras
-# 				startup_cameras = [camera for camera in cameras if pm.camera(camera.parent(0), startupCamera=True, q=True)] #filter all startup / default cameras
-# 				non_startup_cameras_pynodes = list(set(cameras) - set(startup_cameras)) #get non-default cameras. these are all PyNodes
-# 				non_startup_cameras_transform_pynodes = map(lambda x: x.parent(0), non_startup_cameras_pynodes) #get respective transform names
-# 				non_startup_cameras = map(str, non_startup_cameras_pynodes) #non-PyNode, regular string name list
-# 				non_startup_cameras_transforms = map(str, non_startup_cameras_transform_pynodes)
-# 			except AttributeError: non_startup_cameras=[]
-# 			[tree.add('QLabel', 'Cameras', refresh=True, setText=s) for s in non_startup_cameras]
+#           #refreshed list items -----------------------------
+#           try:
+#               cameras = pm.ls(type=('camera'), l=True) #Get all cameras
+#               startup_cameras = [camera for camera in cameras if pm.camera(camera.parent(0), startupCamera=True, q=True)] #filter all startup / default cameras
+#               non_startup_cameras_pynodes = list(set(cameras) - set(startup_cameras)) #get non-default cameras. these are all PyNodes
+#               non_startup_cameras_transform_pynodes = map(lambda x: x.parent(0), non_startup_cameras_pynodes) #get respective transform names
+#               non_startup_cameras = map(str, non_startup_cameras_pynodes) #non-PyNode, regular string name list
+#               non_startup_cameras_transforms = map(str, non_startup_cameras_transform_pynodes)
+#           except AttributeError: non_startup_cameras=[]
+#           [tree.add('QLabel', 'Cameras', refresh=True, setText=s) for s in non_startup_cameras]
 
-# 			l = ['Camera Sequencer', 'Camera Set Editor']
-# 			[tree.add('QLabel', 'Editors', setText=s) for s in l]
-# 			return
+#           l = ['Camera Sequencer', 'Camera Set Editor']
+#           [tree.add('QLabel', 'Editors', setText=s) for s in l]
+#           return
 
-# 		widget = tree.get_widget(wItem, column)
-# 		text = tree.getWidgetText(wItem, column)
-# 		header = tree.getHeaderFromColumn(column)
-# 		print(header, text, column)
+#       widget = tree.get_widget(wItem, column)
+#       text = tree.getWidgetText(wItem, column)
+#       header = tree.getHeaderFromColumn(column)
+#       print(header, text, column)
 
-# 		if header=='Create':
-# 			if text=='Custom Camera':
-# 				mel.eval('camera -centerOfInterest 5 -focalLength 35 -lensSqueezeRatio 1 -cameraScale 1 -horizontalFilmAperture 1.41732 -horizontalFilmOffset 0 -verticalFilmAperture 0.94488 -verticalFilmOffset 0 -filmFit Fill -overscan 1 -motionBlur 0 -shutterAngle 144 -nearClipPlane 0.1 -farClipPlane 10000 -orthographic 0 -orthographicWidth 30 -panZoomEnabled 0 -horizontalPan 0 -verticalPan 0 -zoom 1; objectMoveCommand; cameraMakeNode 1 "";')
-# 			if text=='Set Custom Camera':
-# 				mel.eval('string $homeName = `cameraView -camera persp`;') #cameraView -edit -camera persp -setCamera $homeName;
-# 			if text=='Camera From View':
-# 				print('No Maya Version')
+#       if header=='Create':
+#           if text=='Custom Camera':
+#               mel.eval('camera -centerOfInterest 5 -focalLength 35 -lensSqueezeRatio 1 -cameraScale 1 -horizontalFilmAperture 1.41732 -horizontalFilmOffset 0 -verticalFilmAperture 0.94488 -verticalFilmOffset 0 -filmFit Fill -overscan 1 -motionBlur 0 -shutterAngle 144 -nearClipPlane 0.1 -farClipPlane 10000 -orthographic 0 -orthographicWidth 30 -panZoomEnabled 0 -horizontalPan 0 -verticalPan 0 -zoom 1; objectMoveCommand; cameraMakeNode 1 "";')
+#           if text=='Set Custom Camera':
+#               mel.eval('string $homeName = `cameraView -camera persp`;') #cameraView -edit -camera persp -setCamera $homeName;
+#           if text=='Camera From View':
+#               print('No Maya Version')
 
-# 		if header=='Cameras':
-# 			pm.select(text)
-# 			pm.lookThru(text)
+#       if header=='Cameras':
+#           pm.select(text)
+#           pm.lookThru(text)
 
-# 		if header=='Editors':
-# 			if text=='Camera Sequencer':
-# 				mel.eval('SequenceEditor;')
-# 			if text=='Camera Set Editor':
-# 				mel.eval('cameraSetEditor;')
+#       if header=='Editors':
+#           if text=='Camera Sequencer':
+#               mel.eval('SequenceEditor;')
+#           if text=='Camera Set Editor':
+#               mel.eval('cameraSetEditor;')
 
-# 		if header=='Options':
-# 			if text=='Group Cameras':
-# 				self.group_cameras()
-# 			if text=='Adjust Clipping':
-# 				self.clippingMenu.show()
-# 			if text=='Toggle Safe Frames': #Viewport Safeframes Toggle
-# 				self.toggle_safe_frames()
+#       if header=='Options':
+#           if text=='Group Cameras':
+#               self.group_cameras()
+#           if text=='Adjust Clipping':
+#               self.clippingMenu.show()
+#           if text=='Toggle Safe Frames': #Viewport Safeframes Toggle
+#               self.toggle_safe_frames()
 
 
 # def cmb000(self, *args, **kwargs):
-# 	'''
-# 	Camera Editors
+#   '''
+#   Camera Editors
 
-# 	'''
-# 	cmb = self.sb.cameras.draggableHeader.ctx_menu.cmb000
+#   '''
+#   cmb = self.sb.cameras.draggableHeader.ctx_menu.cmb000
 
-# 	items = ['Camera Sequencer', 'Camera Set Editor']
-# 	contents = cmb.addItems_(items, '')
+#   items = ['Camera Sequencer', 'Camera Set Editor']
+#   contents = cmb.addItems_(items, '')
 
-# 	if not index:
-# 		index = cmb.currentIndex()
-# 	if index!=0:
-# 		if index==1:
-# 			mel.eval('SequenceEditor;')
-# 		if index==2:
-# 			mel.eval('cameraSetEditor;')
-# 		cmb.setCurrentIndex(0)
+#   if not index:
+#       index = cmb.currentIndex()
+#   if index!=0:
+#       if index==1:
+#           mel.eval('SequenceEditor;')
+#       if index==2:
+#           mel.eval('cameraSetEditor;')
+#       cmb.setCurrentIndex(0)
 
 
 # def cmb001(self, *args, **kwargs):
-# 	'''
-# 	Additional Cameras
+#   '''
+#   Additional Cameras
 
-# 	'''
-# 	# Get all cameras first
-# 	cameras = pm.ls(type=('camera'), l=True)
-# 	# Let's filter all startup / default cameras
-# 	startup_cameras = [camera for camera in cameras if pm.camera(camera.parent(0), startupCamera=True, q=True)]
-# 	# non-default cameras are easy to find now. Please note that these are all PyNodes
-# 	non_startup_cameras_pynodes = list(set(cameras) - set(startup_cameras))
-# 	# Let's get their respective transform names, just in-case
-# 	non_startup_cameras_transform_pynodes = map(lambda x: x.parent(0), non_startup_cameras_pynodes)
-# 	# Now we can have a non-PyNode, regular string names list of them
-# 	non_startup_cameras = map(str, non_startup_cameras_pynodes)
-# 	non_startup_cameras_transforms = map(str, non_startup_cameras_transform_pynodes)
+#   '''
+#   # Get all cameras first
+#   cameras = pm.ls(type=('camera'), l=True)
+#   # Let's filter all startup / default cameras
+#   startup_cameras = [camera for camera in cameras if pm.camera(camera.parent(0), startupCamera=True, q=True)]
+#   # non-default cameras are easy to find now. Please note that these are all PyNodes
+#   non_startup_cameras_pynodes = list(set(cameras) - set(startup_cameras))
+#   # Let's get their respective transform names, just in-case
+#   non_startup_cameras_transform_pynodes = map(lambda x: x.parent(0), non_startup_cameras_pynodes)
+#   # Now we can have a non-PyNode, regular string names list of them
+#   non_startup_cameras = map(str, non_startup_cameras_pynodes)
+#   non_startup_cameras_transforms = map(str, non_startup_cameras_transform_pynodes)
 
-# 	cmb = self.sb.cameras.cmb001
+#   cmb = self.sb.cameras.cmb001
 
-# 	contents = cmb.addItems_(non_startup_cameras, "Cameras")
+#   contents = cmb.addItems_(non_startup_cameras, "Cameras")
 
-# 	if not index:
-# 		index = cmb.currentIndex()
-# 	if index!=0:
-# 		pm.select (contents[index])
-# 		cmb.setCurrentIndex(0)
+#   if not index:
+#       index = cmb.currentIndex()
+#   if index!=0:
+#       pm.select (contents[index])
+#       cmb.setCurrentIndex(0)
 
 
 # def cmb002(self, *args, **kwargs):
-# 	'''
-# 	Create
+#   '''
+#   Create
 
-# 	'''
-# 	cmb = self.sb.cameras.cmb002
+#   '''
+#   cmb = self.sb.cameras.cmb002
 
-# 	items = ['Custom Camera', 'Set Custom Camera', 'Camera From View']
-# 	contents = cmb.addItems_(items, "Create")
+#   items = ['Custom Camera', 'Set Custom Camera', 'Camera From View']
+#   contents = cmb.addItems_(items, "Create")
 
-# 	if not index:
-# 		index = cmb.currentIndex()
-# 	if index!=0:
-# 		if index==1:
-# 			mel.eval('cameraView -edit -camera persp -setCamera $homeName;')
-# 		if index==2:
-# 			mel.eval('string $homeName = `cameraView -camera persp`;')
-# 		if index==3:
-# 			mel.eval('print "--no code--")
-# 		cmb.setCurrentIndex(0)
+#   if not index:
+#       index = cmb.currentIndex()
+#   if index!=0:
+#       if index==1:
+#           mel.eval('cameraView -edit -camera persp -setCamera $homeName;')
+#       if index==2:
+#           mel.eval('string $homeName = `cameraView -camera persp`;')
+#       if index==3:
+#           mel.eval('print "--no code--")
+#       cmb.setCurrentIndex(0)
 
 
 # def cmb003(self, *args, **kwargs):
-# 	'''
-# 	Options
+#   '''
+#   Options
 
-# 	'''
-# 	cmb = self.sb.cameras.cmb003
+#   '''
+#   cmb = self.sb.cameras.cmb003
 
-# 	items = ['Group Cameras']
-# 	contents = cmb.addItems_(items, "Options")
+#   items = ['Group Cameras']
+#   contents = cmb.addItems_(items, "Options")
 
-# 	if not index:
-# 		index = cmb.currentIndex()
-# 	if index!=0:
-# 		if index==1:
-# 			mel.eval('''
-# 			if (`objExists cameras`)
-# 			{
-# 			  print "Group 'cameras' already exists";
-# 			}
-# 			else
-# 			{
-# 			  group -world -name cameras side front top persp;
-# 			  hide cameras;
-# 			  // Now add non-default cameras to group
-# 			  if (`objExists back`)
-# 			  {
-# 			  	parent back cameras;
-# 			  }
-# 			  if (`objExists bottom`)
-# 			  {
-# 			  	parent bottom cameras;
-# 			  }
-# 			  if (`objExists left`)
-# 			  {
-# 			  	parent left cameras;
-# 			  }
-# 			  if (`objExists alignToPoly`)
-# 			  {
-# 			  	parent alignToPoly cameras;
-# 			  }
-# 			}
-# 			''')
-# 		cmb.setCurrentIndex(0)
+#   if not index:
+#       index = cmb.currentIndex()
+#   if index!=0:
+#       if index==1:
+#           mel.eval('''
+#           if (`objExists cameras`)
+#           {
+#             print "Group 'cameras' already exists";
+#           }
+#           else
+#           {
+#             group -world -name cameras side front top persp;
+#             hide cameras;
+#             // Now add non-default cameras to group
+#             if (`objExists back`)
+#             {
+#               parent back cameras;
+#             }
+#             if (`objExists bottom`)
+#             {
+#               parent bottom cameras;
+#             }
+#             if (`objExists left`)
+#             {
+#               parent left cameras;
+#             }
+#             if (`objExists alignToPoly`)
+#             {
+#               parent alignToPoly cameras;
+#             }
+#           }
+#           ''')
+#       cmb.setCurrentIndex(0)

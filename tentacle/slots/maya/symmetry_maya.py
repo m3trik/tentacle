@@ -18,28 +18,27 @@ class Symmetry_maya(SlotsMaya):
         w = "chk000" if axis == "x" else "chk001" if axis == "y" else "chk002"
         getattr(widget.ui, w).setChecked(state)
 
+    def chk005_init(self, widget):
+        """Set symmetry reference space"""
+        self.sb.create_button_groups(widget.ui, "chk004-5")
+
     def chk000(self, state, widget):
         """Symmetry X"""
-        self.sb.toggle_widgets(setUnChecked="chk001,chk002")
+        self.sb.toggle_widgets(widget.ui, setUnChecked="chk001,chk002")
         self.setSymmetry(state, "x")
 
     def chk001(self, state, widget):
         """Symmetry Y"""
-        self.sb.toggle_widgets(setUnChecked="chk000,chk002")
+        self.sb.toggle_widgets(widget.ui, setUnChecked="chk000,chk002")
         self.setSymmetry(state, "y")
 
     def chk002(self, state, widget):
         """Symmetry Z"""
-        self.sb.toggle_widgets(setUnChecked="chk000,chk001")
+        self.sb.toggle_widgets(widget.ui, setUnChecked="chk000,chk001")
         self.setSymmetry(state, "z")
-
-    def chk004(self, state, widget):
-        """Symmetry: Object"""
-        self.sb.symmetry.chk005.setChecked(False)  # uncheck symmetry:topological
 
     def chk005(self, state, widget):
         """Symmetry: Topo"""
-        self.sb.symmetry.chk004.setChecked(False)  # uncheck symmetry:object space
         if any(
             [
                 self.sb.symmetry.chk000.isChecked(),
@@ -48,10 +47,10 @@ class Symmetry_maya(SlotsMaya):
             ]
         ):  # (symmetry)
             pm.symmetricModelling(edit=True, symmetry=False)
-            self.sb.toggle_widgets(setUnChecked="chk000,chk001,chk002")
+            self.sb.toggle_widgets(widget.ui, setUnChecked="chk000-2")
             self.sb.message_box(
                 "First select a seam edge and then check the symmetry button to enable topographic symmetry",
-                message_type="Note",
+                message_type="Info",
             )
 
     def setSymmetry(self, state, axis):

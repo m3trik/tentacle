@@ -20,7 +20,7 @@ class Crease_maya(SlotsMaya):
             "QSpinBox",
             setPrefix="Crease Amount: ",
             setObjectName="s003",
-            set_limits="0-10 step1",
+            set_limits=(0, 10),
             setValue=10,
             setToolTip='Crease amount 0-10. Overriden if "max" checked.',
         )
@@ -47,7 +47,7 @@ class Crease_maya(SlotsMaya):
             "QSpinBox",
             setPrefix="Hardness Angle: ",
             setObjectName="s004",
-            set_limits="0-180 step1",
+            set_limits=(0, 180),
             setValue=30,
             setToolTip="Normal edge hardness 0-180.",
         )
@@ -68,7 +68,7 @@ class Crease_maya(SlotsMaya):
             "QSpinBox",
             setPrefix="Auto Crease: Low: ",
             setObjectName="s005",
-            set_limits="0-180 step1",
+            set_limits=(0, 180),
             setValue=85,
             setToolTip="Auto crease: low angle constraint.",
         )
@@ -76,7 +76,7 @@ class Crease_maya(SlotsMaya):
             "QSpinBox",
             setPrefix="Auto Crease: high: ",
             setObjectName="s006",
-            set_limits="0-180 step1",
+            set_limits=(0, 180),
             setValue=95,
             setToolTip="Auto crease: max angle constraint.",
         )
@@ -98,10 +98,7 @@ class Crease_maya(SlotsMaya):
             self.sb.crease.tb000.option_menu.s003.setValue(0)  # crease value
             self.sb.crease.tb000.option_menu.s004.setValue(180)  # normal angle
             self.sb.toggle_widgets(
-                self.sb.crease.tb000.option_menu,
-                self.crease_submenu.tb000.option_menu,
-                setChecked="chk002",
-                setUnChecked="chk003",
+                widget.option_menu, setChecked="chk002", setUnChecked="chk003"
             )
             self.sb.crease.tb000.option_menu.s003.setDisabled(True)
             text = "Un-Crease 0"
@@ -121,10 +118,7 @@ class Crease_maya(SlotsMaya):
             self.sb.crease.tb000.option_menu.s003.setValue(10)  # crease value
             self.sb.crease.tb000.option_menu.s004.setValue(30)  # normal angle
             self.sb.toggle_widgets(
-                self.sb.crease.tb000.option_menu,
-                self.crease_submenu.tb000.option_menu,
-                setChecked="chk003",
-                setUnChecked="chk002",
+                widget.option_menu, setChecked="chk003", setUnChecked="chk002"
             )
             self.sb.crease.tb000.option_menu.s003.setDisabled(True)
             text = "Un-Crease 0"
@@ -141,13 +135,9 @@ class Crease_maya(SlotsMaya):
     def chk011(self, state, widget):
         """Crease: Auto"""
         if state:
-            self.sb.toggle_widgets(
-                self.sb.crease.tb000.option_menu, setEnabled="s005,s006"
-            )
+            self.sb.toggle_widgets(widget.option_menu, setEnabled="s005,s006")
         else:
-            self.sb.toggle_widgets(
-                self.sb.crease.tb000.option_menu, setDisabled="s005,s006"
-            )
+            self.sb.toggle_widgets(widget.option_menu, setDisabled="s005,s006")
 
     def tb000(self, widget):
         """Crease"""
@@ -192,7 +182,7 @@ class Crease_maya(SlotsMaya):
         if widget.option_menu.chk011.isChecked():  # crease: Auto
             pm.polySelectConstraint(angle=False)  # turn off angle constraint
 
-    def b000(self):
+    def b000(self, widget):
         """Crease Set Transfer: Transform Node"""
         if self.sb.crease.b001.isChecked():
             newObject = str(pm.ls(sl=True))  # ex. [nt.Transform(u'pSphere1')]
@@ -205,13 +195,13 @@ class Crease_maya(SlotsMaya):
                 self.sb.crease.b001.setText(newObject)
             else:
                 self.sb.crease.b001.setText("must select obj first")
-                self.sb.toggle_widgets(setUnChecked="b001")
+                self.sb.toggle_widgets(widget.ui, setUnChecked="b001")
             if self.sb.crease.b000.isChecked():
-                self.sb.toggle_widgets(setEnabled="b052")
+                self.sb.toggle_widgets(widget.ui, setEnabled="b052")
         else:
             self.sb.crease.b001.setText("Object")
 
-    def b001(self):
+    def b001(self, widget):
         """Crease Set Transfer: Crease Set"""
         if self.sb.crease.b000.isChecked():
             creaseSet = str(pm.ls(sl=True))  # ex. [nt.CreaseSet(u'creaseSet1')]
@@ -224,14 +214,14 @@ class Crease_maya(SlotsMaya):
                 self.sb.crease.b000.setText(creaseSet)
             else:
                 self.sb.crease.b000.setText("must select set first")
-                self.sb.toggle_widgets(setUnChecked="b000")
+                self.sb.toggle_widgets(widget.ui, setUnChecked="b000")
             if self.sb.crease.b001.isChecked():
-                self.sb.toggle_widgets(setEnabled="b052")
+                self.sb.toggle_widgets(widget.ui, setEnabled="b052")
         else:
             self.sb.crease.b000.setText("Crease Set")
 
     @mtk.undo
-    def b002(self):
+    def b002(self, widget):
         """Transfer Crease Edges"""
         # an updated version of this is in the maya python projects folder. transferCreaseSets.py
         # the use of separate buttons for donor and target mesh are deprecated.
@@ -261,9 +251,7 @@ class Crease_maya(SlotsMaya):
             # print("crease:", name)
         # pm.undoInfo (closeChunk=1)
 
-        self.sb.toggle_widgets(
-            setDisabled="b052", setUnChecked="b000"
-        )  # ,self.sb.crease.b001])
+        self.sb.toggle_widgets(widget.ui, setDisabled="b052", setUnChecked="b000")
         self.sb.crease.b000.setText("Crease Set")
         # self.sb.crease.b001.setText("Object")
 

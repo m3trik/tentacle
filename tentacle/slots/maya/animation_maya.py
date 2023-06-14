@@ -18,7 +18,7 @@ class Animation_maya(SlotsMaya):
             "QSpinBox",
             setPrefix="Frame: ",
             setObjectName="s000",
-            set_limits="0-10000 step1",
+            set_limits=(0, 10000),
             setValue=1,
             setToolTip="",
         )
@@ -43,7 +43,7 @@ class Animation_maya(SlotsMaya):
             "QSpinBox",
             setPrefix="Time: ",
             setObjectName="s001",
-            set_limits="0-10000 step1",
+            set_limits=(0, 10000),
             setValue=1,
             setToolTip="The desired start time for the inverted keys.",
         )

@@ -19,7 +19,7 @@ class Normals_maya(SlotsMaya):
             "QSpinBox",
             setPrefix="Display Size: ",
             setObjectName="s001",
-            set_limits="1-100 step1",
+            set_limits=(1, 100),
             setValue=1,
             setToolTip="Normal display size.",
         )
@@ -28,40 +28,27 @@ class Normals_maya(SlotsMaya):
         """ """
         widget.option_menu.add(
             "QSpinBox",
-            setPrefix="Query Angle: ",
+            setPrefix="Angle Threshold: ",
             setObjectName="s002",
-            set_limits="0-180 step1",
+            set_limits=(0, 180),
             setValue=90,
-            setToolTip="The normal angle to query threshold in degrees.",
+            setToolTip="The threshold of the normal angle in degrees to determine hardness.",
         )
         widget.option_menu.add(
             "QSpinBox",
-            setPrefix="Smoothing Angle: ",
+            setPrefix="Upper Hardness: ",
             setObjectName="s003",
-            set_limits="0-180 step1",
+            set_limits=(-1, 180),
             setValue=0,
-            setToolTip="The normal smoothing angle in degrees.\n 0, Edges will appear hard.\n180, Edges will appear soft.",
+            setToolTip="The hardness to apply to edges with a normal angle greater than or equal to the threshold.\n0, Edges will appear hard.\n180, Edges will appear soft.\n-1, Will Disable.",
         )
         widget.option_menu.add(
-            "QCheckBox",
-            setText="Harden Creased Edges",
-            setObjectName="chk005",
-            setChecked=True,
-            setToolTip="Harden creased edges.",
-        )
-        widget.option_menu.add(
-            "QCheckBox",
-            setText="Harden UV Borders",
-            setObjectName="chk006",
-            setChecked=True,
-            setToolTip="Harden UV shell border edges.",
-        )
-        widget.option_menu.add(
-            "QCheckBox",
-            setText="Soften All Other",
-            setObjectName="chk004",
-            setChecked=True,
-            setToolTip="Soften all non-hardened edges.\nLimited by the current selection.",
+            "QSpinBox",
+            setPrefix="Lower Hardness: ",
+            setObjectName="s004",
+            set_limits=(-1, 180),
+            setValue=180,
+            setToolTip="The hardness to apply to edges with a normal angle less than the threshold.\n0, Edges will appear hard.\n180, Edges will appear soft.\n-1, Will Disable.",
         )
         widget.option_menu.add(
             "QCheckBox",
@@ -77,7 +64,7 @@ class Normals_maya(SlotsMaya):
             "QSpinBox",
             setPrefix="Angle: ",
             setObjectName="s000",
-            set_limits="0-180 step1",
+            set_limits=(0, 180),
             setValue=60,
             setToolTip="Angle degree.",
         )
@@ -91,13 +78,6 @@ class Normals_maya(SlotsMaya):
             setChecked=True,
             setToolTip="Toggle Lock/Unlock.",
         )
-        widget.option_menu.add(
-            "QCheckBox",
-            setText="All",
-            setObjectName="chk001",
-            setChecked=True,
-            setToolTip="Lock/Unlock All.",
-        )
         widget.option_menu.chk002.toggled.connect(
             lambda state, w=widget.option_menu.chk002: w.setText("Lock")
             if state
@@ -110,7 +90,6 @@ class Normals_maya(SlotsMaya):
             "QCheckBox",
             setText="By UV Shell",
             setObjectName="chk003",
-            setChecked=True,
             setToolTip="Average the normals of each object's faces per UV shell.",
         )
 
@@ -141,55 +120,23 @@ class Normals_maya(SlotsMaya):
 
     def tb001(self, widget):
         """Harden Edge Normals"""
-        query_angle = widget.option_menu.s002.value()
-        smoothing_angle = widget.option_menu.s003.value()
-        harden_creased = widget.option_menu.chk005.isChecked()
-        harden_uv_borders = widget.option_menu.chk006.isChecked()
-        soften_other = widget.option_menu.chk004.isChecked()
+        angle_threshold = widget.option_menu.s002.value()
+        upper_hardness = widget.option_menu.s003.value()
+        lower_hardness = widget.option_menu.s004.value()
         soft_edge_display = widget.option_menu.chk007.isChecked()
 
-        selected_objects = pm.selected(objectsOnly=True)
+        # If value is -1, upper/lower hardess will be disabled.
+        upper_hardness = upper_hardness if upper_hardness > 0 else None
+        lower_hardness = lower_hardness if lower_hardness > 0 else None
 
-        hard_edges = []
-        evaluated_edges = []
-        for obj in selected_objects:
-            all_edges = pm.ls(pm.polyListComponentConversion(obj, toEdge=True), fl=True)
-            selected_edges = pm.ls(pm.filterExpand(sm=32), fl=True) or all_edges
-            evaluated_edges.extend(selected_edges)
+        selection = pm.ls(sl=True)
+        found_edges = mtk.set_edge_hardness(
+            selection, angle_threshold, upper_hardness, lower_hardness
+        )
 
-            angled_edges = mtk.get_edges_by_normal_angle(
-                selected_edges, high_angle=query_angle
-            )
-            hard_edges.extend(angled_edges)
-
-            creased_edges = []
-            if harden_creased:
-                creased_edges = pm.ls(
-                    self.sb.crease.slots.getCreasedEdges(selected_edges)
-                )
-                hard_edges.extend(creased_edges)
-
-            uv_border_edges = []
-            if harden_uv_borders:
-                uv_border_edges = pm.ls(mtk.get_uv_shell_border_edges(selected_edges))
-                hard_edges.extend(uv_border_edges)
-
-        if hard_edges:  # Set hard edges.
-            pm.polySoftEdge(hard_edges, angle=smoothing_angle, constructionHistory=True)
-
-        if soften_other:
-            soft_edges = [
-                e for e in evaluated_edges if e not in pm.ls(hard_edges, flatten=True)
-            ]
-            if soft_edges:  # Set soft edges.
-                pm.polySoftEdge(
-                    soft_edges,
-                    angle=180,
-                    constructionHistory=True,
-                )
-
-        pm.polyOptions(selected_objects, se=soft_edge_display)
-        pm.select(hard_edges)
+        objects = pm.ls(found_edges, objectsOnly=True)
+        pm.polyOptions(objects, se=soft_edge_display)
+        pm.select(found_edges)
 
     def tb002(self, widget):
         """Set Normals By Angle"""
@@ -207,55 +154,36 @@ class Normals_maya(SlotsMaya):
 
     def tb003(self, widget):
         """Lock/Unlock Vertex Normals"""
-        all_ = widget.option_menu.chk001.isChecked()
-        state = (
-            widget.option_menu.chk002.isChecked()
-        )  # pm.polyNormalPerVertex(vertex, q=True, freezeNormal=1)
-        selection = pm.ls(sl=True, objectsOnly=1)
-        maskObject = pm.selectMode(q=True, object=1)
-        maskVertex = pm.selectType(q=True, vertex=1)
+        state = widget.option_menu.chk002.isChecked()
+        selection = pm.ls(sl=True)
 
         if not selection:
             self.sb.message_box("Operation requires at least one selected object.")
             return
 
-        if (all_ and maskVertex) or maskObject:
-            for obj in selection:
-                vertices = mtk.Cmpt.get_components(obj, "vertices", flatten=1)
-                for vertex in vertices:
-                    if not state:
-                        pm.polyNormalPerVertex(vertex, unFreezeNormal=1)
-                    else:
-                        pm.polyNormalPerVertex(vertex, freezeNormal=1)
-                if not state:
-                    mtk.viewport_message("Normals <hl>UnLocked</hl>.")
-                else:
-                    mtk.viewport_message("Normals <hl>Locked</hl>.")
-        elif maskVertex and not maskObject:
-            if not state:
-                pm.polyNormalPerVertex(unFreezeNormal=1)
-                mtk.viewport_message("Normals <hl>UnLocked</hl>.")
-            else:
-                pm.polyNormalPerVertex(freezeNormal=1)
-                mtk.viewport_message("Normals <hl>Locked</hl>.")
+        vertices = pm.polyListComponentConversion(
+            selection, fromFace=True, toVertex=True
+        )
+
+        if not state:
+            pm.polyNormalPerVertex(vertices, unFreezeNormal=True)
+            mtk.viewport_message("Normals <hl>UnLocked</hl>.")
         else:
-            self.sb.message_box(
-                "Selection must be object or vertex.", message_type="Warning"
-            )
-            return
+            pm.polyNormalPerVertex(vertices, freezeNormal=True)
+            mtk.viewport_message("Normals <hl>Locked</hl>.")
 
     def tb004(self, widget):
         """Average Normals"""
         by_uv_shell = widget.option_menu.chk003.isChecked()
 
-        objects = pm.ls(sl=True, objectsOnly=1, flatten=1)
+        objects = pm.ls(sl=True)
         mtk.average_normals(objects, by_uv_shell=by_uv_shell)
 
     def b001(self):
         """Soften Edge Normals"""
-        sel = pm.ls(sl=1)
-        if sel:
-            pm.polySoftEdge(sel, angle=180, constructionHistory=0)
+        selection = pm.ls(sl=1)
+        if selection:
+            pm.polySoftEdge(selection, angle=180)
 
     def b002(self):
         """Transfer Normals"""
@@ -269,10 +197,6 @@ class Normals_maya(SlotsMaya):
             pm.polyOptions(se=1)
         else:
             pm.polyOptions(ae=1)
-
-    def b005(self):
-        """Maya Bonus Tools: Adjust Vertex Normals"""
-        pm.mel.bgAdjustVertexNormalsWin()
 
     def b006(self):
         """Set To Face"""
