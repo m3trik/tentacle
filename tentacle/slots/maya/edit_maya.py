@@ -102,7 +102,7 @@ class Edit_maya(SlotsMaya):
             "QDoubleSpinBox",
             setPrefix="Face Area Tolerance:   ",
             setObjectName="s006",
-            set_limits=(0, 10, 0.00001, 6),
+            set_limits=[0, 10, 0.00001, 6],
             setValue=0.000010,
             setToolTip="Tolerance for face areas.",
         )
@@ -117,7 +117,7 @@ class Edit_maya(SlotsMaya):
             "QDoubleSpinBox",
             setPrefix="Edge Length Tolerance: ",
             setObjectName="s007",
-            set_limits=(0, 10, 0.00001, 6),
+            set_limits=[0, 10, 0.00001, 6],
             setValue=0.000010,
             setToolTip="Tolerance for edge length.",
         )
@@ -132,7 +132,7 @@ class Edit_maya(SlotsMaya):
             setPrefix="UV Face Area Tolerance:",
             setObjectName="s008",
             setDisabled=True,
-            set_limits=(0, 10, 0.00001, 6),
+            set_limits=[0, 10, 0.00001, 6],
             setValue=0.000010,
             setToolTip="Tolerance for uv face areas.",
         )
@@ -497,7 +497,7 @@ class Edit_maya(SlotsMaya):
             pm.lockNode(node, lock=not unlock)
         # pm.undoInfo(closeChunk=1)
 
-    @SlotsMaya.hideMain
+    @SlotsMaya.hide_main
     def b001(self):
         """Object History Attributes: get most recent node"""
         self.cmb001()  # refresh the contents of the combobox.

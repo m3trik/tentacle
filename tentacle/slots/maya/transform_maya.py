@@ -68,7 +68,7 @@ class Transform_maya(SlotsMaya):
             setObjectName="s021",
             setPrefix="Increment:",
             setValue=0,
-            set_limits=(1, 1000, 1, 1),
+            set_limits=[1, 1000, 1, 1],
             setDisabled=True,
         )
         widget.option_menu.add(
@@ -82,7 +82,7 @@ class Transform_maya(SlotsMaya):
             setObjectName="s022",
             setPrefix="Increment:",
             setValue=0,
-            set_limits=(1, 1000, 1, 1),
+            set_limits=[1, 1000, 1, 1],
             setDisabled=True,
         )
         widget.option_menu.add(
@@ -96,7 +96,7 @@ class Transform_maya(SlotsMaya):
             setObjectName="s023",
             setPrefix="Degrees:",
             setValue=0,
-            set_limits=(1.40625, 360, 0.40625, 5),
+            set_limits=[1.40625, 360, 0.40625, 5],
             setDisabled=True,
         )
         moveValue = pm.manipMoveContext("Move", q=True, snapValue=True)
@@ -551,7 +551,7 @@ class Transform_maya(SlotsMaya):
             apply=True, translate=translate, rotate=rotate, scale=scale
         )  # this is the same as pm.makeIdentity(apply=True)
 
-    @SlotsMaya.hideMain
+    @SlotsMaya.hide_main
     def b000(self):
         """Object Transform Attributes"""
         node = pm.ls(sl=1, objectsOnly=1)

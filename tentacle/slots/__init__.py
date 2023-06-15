@@ -26,7 +26,7 @@ class Slots(QtCore.QObject):
         """
         self.sb = self.switchboard()
 
-    def hideMain(fn):
+    def hide_main(fn):
         """A decorator that hides the stacked widget main window."""
 
         def wrapper(self, *args, **kwargs):

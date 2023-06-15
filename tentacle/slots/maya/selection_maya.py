@@ -50,7 +50,7 @@ class Selection(SlotsMaya):
             "QSpinBox",
             setPrefix="Step: ",
             setObjectName="s003",
-            set_limits=(1, 100),
+            set_limits=[1, 100],
             setValue=1,
             setToolTip="Step Amount.",
         )
@@ -61,7 +61,7 @@ class Selection(SlotsMaya):
             "QDoubleSpinBox",
             setPrefix="Tolerance: ",
             setObjectName="s000",
-            set_limits=(0, 9999, 0.0, 3),
+            set_limits=[0, 9999, 0.0, 3],
             setValue=0.0,
             setToolTip="The allowed difference in any of the compared results.\nie. A tolerance of 4 allows for a difference of 4 components.\nie. A tolerance of 0.05 allows for that amount of variance between any of the bounding box values.",
         )
@@ -150,7 +150,7 @@ class Selection(SlotsMaya):
             "QDoubleSpinBox",
             setPrefix="x: ",
             setObjectName="s002",
-            set_limits=(0, 1, 0.01, 2),
+            set_limits=[0, 1, 0.01, 2],
             setValue=0.05,
             setToolTip="Normal X range.",
         )
@@ -158,7 +158,7 @@ class Selection(SlotsMaya):
             "QDoubleSpinBox",
             setPrefix="y: ",
             setObjectName="s004",
-            set_limits=(0, 1, 0.01, 2),
+            set_limits=[0, 1, 0.01, 2],
             setValue=0.05,
             setToolTip="Normal Y range.",
         )
@@ -166,7 +166,7 @@ class Selection(SlotsMaya):
             "QDoubleSpinBox",
             setPrefix="z: ",
             setObjectName="s005",
-            set_limits=(0, 1, 0.01, 2),
+            set_limits=[0, 1, 0.01, 2],
             setValue=0.05,
             setToolTip="Normal Z range.",
         )
@@ -196,7 +196,7 @@ class Selection(SlotsMaya):
             "QDoubleSpinBox",
             setPrefix="Angle Low:  ",
             setObjectName="s006",
-            set_limits=(0, 180),
+            set_limits=[0, 180],
             setValue=70,
             setToolTip="Normal angle low range.",
         )
@@ -204,7 +204,7 @@ class Selection(SlotsMaya):
             "QDoubleSpinBox",
             setPrefix="Angle High: ",
             setObjectName="s007",
-            set_limits=(0, 180),
+            set_limits=[0, 180],
             setValue=160,
             setToolTip="Normal angle high range.",
         )
@@ -305,6 +305,10 @@ class Selection(SlotsMaya):
         items = ["Angle", "Border", "Edge Loop", "Edge Ring", "Shell", "UV Edge Loop"]
         widget.addItems_(items, "Off")
 
+    def chk005_init(self, widget):
+        """Create button group for radioboxes chk005, chk006, chk007"""
+        self.sb.create_button_groups(widget.ui, "chk005-7")
+
     def chk000(self, state, widget):
         """Select Nth: uncheck other checkboxes"""
         self.sb.toggle_widgets(widget.option_menu, setUnChecked="chk001-2")
@@ -319,26 +323,17 @@ class Selection(SlotsMaya):
 
     def chk005(self, state, widget):
         """Select Style: Marquee"""
-        self.sb.toggle_widgets(
-            widget.option_menu, setChecked="chk005", setUnChecked="chk006-7"
-        )
-        self.setSelectionStyle("marquee")
+        self.set_selection_style("marquee")
         self.sb.message_box("Select Style: <hl>Marquee</hl>")
 
     def chk006(self, state, widget):
         """Select Style: Lasso"""
-        self.sb.toggle_widgets(
-            widget.option_menu, setChecked="chk006", setUnChecked="chk005,chk007"
-        )
-        self.setSelectionStyle("lasso")
+        self.set_selection_style("lasso")
         self.sb.message_box("Select Style: <hl>Lasso</hl>")
 
     def chk007(self, state, widget):
         """Select Style: Paint"""
-        self.sb.toggle_widgets(
-            widget.option_menu, setChecked="chk007", setUnChecked="chk005-6"
-        )
-        self.setSelectionStyle("paint")
+        self.set_selection_style("paint")
         self.sb.message_box("Select Style: <hl>Paint</hl>")
 
     def txt001(self, text):
@@ -348,7 +343,7 @@ class Selection(SlotsMaya):
         if search_string:
             pm.select(pm.ls(search_string))
 
-    def lbl000(self):
+    def lbl000(self, widget):
         """Selection Sets: Create New"""
         cmb = self.sb.selection.cmb001
         if not cmb.isEditable():
@@ -358,10 +353,10 @@ class Selection(SlotsMaya):
         else:
             name = cmb.currentText()
             self.creatNewSelectionSet(name)
-            self.cmb001()  # refresh the sets comboBox
+            self.cmb001_init(widget.ui)  # refresh the sets comboBox
             cmb.setCurrentIndex(0)
 
-    def lbl001(self):
+    def lbl001(self, widget):
         """Selection Sets: Modify Current"""
         cmb = self.sb.selection.cmb001
         if not cmb.isEditable():
@@ -373,26 +368,25 @@ class Selection(SlotsMaya):
             name = cmb.currentText()
             self.modifySet(self._oldSetName)
             cmb.setItemText(cmb.currentIndex(), name)
-            # self.cmb001() #refresh the sets comboBox
+            # self.cmb001_init(widget.ui)  # refresh the sets comboBox
 
-    def lbl002(self):
+    def lbl002(self, widget):
         """Selection Sets: Delete Current"""
         cmb = self.sb.selection.cmb001
         name = cmb.currentText()
 
         pm.delete(name)
+        self.cmb001_init(widget.ui)  # refresh the sets comboBox
 
-        self.cmb001()  # refresh the sets comboBox
-
-    def lbl003(self):
+    def lbl003(self, widget):
         """Grow Selection"""
         pm.mel.GrowPolygonSelectionRegion()
 
-    def lbl004(self):
+    def lbl004(self, widget):
         """Shrink Selection"""
         pm.mel.ShrinkPolygonSelectionRegion()
 
-    def lbl005(self):
+    def lbl005(self, widget):
         """Selection Sets: Select Current"""
         cmb = self.sb.selection.cmb001
         name = cmb.currentText()
@@ -401,28 +395,23 @@ class Selection(SlotsMaya):
             # Select The Selection Set Itself (Not Members Of) (noExpand=select set)
             pm.select(name)  # pm.select(name, noExpand=1)
 
-    @SlotsMaya.hideMain
     def chk004(self, state, widget):
         """Ignore Backfacing (Camera Based Selection)"""
         if state:
             pm.selectPref(useDepth=True)
-            self.sb.message_box(
-                "Camera-based selection <hl>On</hl>.", message_type="Result"
-            )
+            self.sb.message_box("Camera-based selection <hl>On</hl>.")
         else:
             pm.selectPref(useDepth=False)
-            self.sb.message_box(
-                "Camera-based selection <hl>Off</hl>.", message_type="Result"
-            )
+            self.sb.message_box("Camera-based selection <hl>Off</hl>.")
 
     def chk008(self, state, widget):
         """Toggle Soft Selection"""
         if state:
             pm.softSelect(edit=1, softSelectEnabled=True)
-            self.sb.message_box("Soft Select <hl>On</hl>.", message_type="Result")
+            self.sb.message_box("Soft Select <hl>On</hl>.")
         else:
             pm.softSelect(edit=1, softSelectEnabled=False)
-            self.sb.message_box("Soft Select <hl>Off</hl>.", message_type="Result")
+            self.sb.message_box("Soft Select <hl>Off</hl>.")
 
     def cmb002(self, index, widget):
         """Select by Type"""
@@ -680,7 +669,7 @@ class Selection(SlotsMaya):
         pm.mel.SelectEdgeRingSp()
 
     @staticmethod
-    def setSelectionStyle(ctx):
+    def set_selection_style(ctx):
         """Set the selection style context.
 
         Parameters:
@@ -741,6 +730,8 @@ class Selection(SlotsMaya):
             pm.sets(name, clear=1)
             pm.sets(name, add=1)  # if set exists; clear set and add current selection
 
+
+# --------------------------------------------------------------------------------------------
 
 # module name
 print(__name__)

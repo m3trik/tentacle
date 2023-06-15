@@ -50,7 +50,7 @@ class File_maya(SlotsMaya):
             "QSpinBox",
             setPrefix="Amount: ",
             setObjectName="s000",
-            set_limits=(1, 100),
+            set_limits=[1, 100],
             setValue=autoSaveAmount,
             set_height=20,
             setToolTip="The number of autosave files to retain.",
@@ -60,7 +60,7 @@ class File_maya(SlotsMaya):
             "QSpinBox",
             setPrefix="Interval: ",
             setObjectName="s001",
-            set_limits=(1, 60),
+            set_limits=[1, 60],
             setValue=autoSaveInterval / 60,
             set_height=20,
             setToolTip="The autosave interval in minutes.",
@@ -280,7 +280,7 @@ class File_maya(SlotsMaya):
         except FileNotFoundError:
             self.sb.message_box("The system cannot find the file specified.")
 
-    @SlotsMaya.hideMain
+    @SlotsMaya.hide_main
     def b001(self):
         """Recent Files: Open Last"""
         self.cmb005(index=1)
@@ -295,12 +295,12 @@ class File_maya(SlotsMaya):
             except Exception as error:
                 print(error)
 
-    @SlotsMaya.hideMain
+    @SlotsMaya.hide_main
     def b007(self):
         """Import file"""
         self.cmb003(index=1)
 
-    @SlotsMaya.hideMain
+    @SlotsMaya.hide_main
     def b008(self):
         """Export Selection"""
         self.cmb004(index=1)

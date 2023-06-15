@@ -145,11 +145,12 @@ class Tcl(QtWidgets.QStackedWidget):
             self.setCurrentWidget(found_ui)  # set the stacked widget to the found UI.
 
         else:
-            found_ui.resize(found_ui.minimumSizeHint())
-            # move to cursor position.
-            self.sb.move_and_center_widget(found_ui, QtGui.QCursor.pos(), offset_y=4)
             self.hide()
             found_ui.show()
+            found_ui.setFixedSize(found_ui.minimumSizeHint())
+            found_ui.update()
+            # move to cursor position.
+            self.sb.move_and_center_widget(found_ui, QtGui.QCursor.pos(), offset_y=4)
 
     def set_submenu(self, ui, w=None):
         """Set the stacked widget's index to the submenu associated with the given widget.

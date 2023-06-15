@@ -44,7 +44,7 @@ class Rigging_maya(SlotsMaya):
             "QDoubleSpinBox",
             setPrefix="Tolerance: ",
             setObjectName="s000",
-            set_limits=(0, 10, 0.5, 2),
+            set_limits=[0, 10, 0.5, 2],
             setValue=1.0,
             setToolTip="Global Display Scale for the selected type.",
         )
@@ -75,7 +75,7 @@ class Rigging_maya(SlotsMaya):
             "QDoubleSpinBox",
             setPrefix="Locator Scale: ",
             setObjectName="s001",
-            set_limits=(0, 1000, 1, 3),
+            set_limits=[0, 1000, 1, 3],
             setValue=1,
             setToolTip="The scale of the locator.",
         )
@@ -342,7 +342,7 @@ class Rigging_maya(SlotsMaya):
             sel, translate=lock_translate, rotate=lock_rotation, scale=lock_scale
         )
 
-    @SlotsMaya.hideMain
+    @SlotsMaya.hide_main
     def b000(self):
         """Object Transform Limit Attributes"""
         node = pm.ls(sl=1, objectsOnly=1)

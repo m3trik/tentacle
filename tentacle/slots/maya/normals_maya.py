@@ -19,7 +19,7 @@ class Normals_maya(SlotsMaya):
             "QSpinBox",
             setPrefix="Display Size: ",
             setObjectName="s001",
-            set_limits=(1, 100),
+            set_limits=[1, 100],
             setValue=1,
             setToolTip="Normal display size.",
         )
@@ -30,7 +30,7 @@ class Normals_maya(SlotsMaya):
             "QSpinBox",
             setPrefix="Angle Threshold: ",
             setObjectName="s002",
-            set_limits=(0, 180),
+            set_limits=[0, 180],
             setValue=90,
             setToolTip="The threshold of the normal angle in degrees to determine hardness.",
         )
@@ -38,7 +38,7 @@ class Normals_maya(SlotsMaya):
             "QSpinBox",
             setPrefix="Upper Hardness: ",
             setObjectName="s003",
-            set_limits=(-1, 180),
+            set_limits=[-1, 180],
             setValue=0,
             setToolTip="The hardness to apply to edges with a normal angle greater than or equal to the threshold.\n0, Edges will appear hard.\n180, Edges will appear soft.\n-1, Will Disable.",
         )
@@ -46,7 +46,7 @@ class Normals_maya(SlotsMaya):
             "QSpinBox",
             setPrefix="Lower Hardness: ",
             setObjectName="s004",
-            set_limits=(-1, 180),
+            set_limits=[-1, 180],
             setValue=180,
             setToolTip="The hardness to apply to edges with a normal angle less than the threshold.\n0, Edges will appear hard.\n180, Edges will appear soft.\n-1, Will Disable.",
         )
@@ -64,7 +64,7 @@ class Normals_maya(SlotsMaya):
             "QSpinBox",
             setPrefix="Angle: ",
             setObjectName="s000",
-            set_limits=(0, 180),
+            set_limits=[0, 180],
             setValue=60,
             setToolTip="Angle degree.",
         )
@@ -95,7 +95,7 @@ class Normals_maya(SlotsMaya):
 
     def tb000(self, widget):
         """Display Face Normals"""
-        size = float(widget.option_menu.s001.value())
+        size = widget.option_menu.s001.value()
         # state = pm.polyOptions (query=True, displayNormal=True)
         state = ptk.cycle([1, 2, 3, 0], "displayNormals")
         if state == 0:  # off
@@ -126,17 +126,16 @@ class Normals_maya(SlotsMaya):
         soft_edge_display = widget.option_menu.chk007.isChecked()
 
         # If value is -1, upper/lower hardess will be disabled.
-        upper_hardness = upper_hardness if upper_hardness > 0 else None
-        lower_hardness = lower_hardness if lower_hardness > 0 else None
+        upper_hardness = upper_hardness if upper_hardness > -1 else None
+        lower_hardness = lower_hardness if lower_hardness > -1 else None
 
         selection = pm.ls(sl=True)
-        found_edges = mtk.set_edge_hardness(
+        mtk.set_edge_hardness(
             selection, angle_threshold, upper_hardness, lower_hardness
         )
 
-        objects = pm.ls(found_edges, objectsOnly=True)
+        objects = pm.ls(selection, objectsOnly=True)
         pm.polyOptions(objects, se=soft_edge_display)
-        pm.select(found_edges)
 
     def tb002(self, widget):
         """Set Normals By Angle"""

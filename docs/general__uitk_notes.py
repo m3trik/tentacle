@@ -8,12 +8,12 @@
 
 # decorators:
 @undo  # A decorator to allow undoing an executed function in one chunk.
-@Slots.hideMain  # Hides the stacked widget main window.
+@hide_main  # Hides the stacked widget main window.
 
 # Add widgets to menu|ctx_menu:
 option_menu.add('QRadioButton', setText='Current Material', setObjectName='chk007', setChecked=True, setToolTip='Re-Assign the current stored material.')
 option_menu.add('QCheckBox', setText='Current Material', setObjectName='chk010', setChecked=True, setToolTip='Use the current material, <br>else use the current viewport selection to get a material.')
-option_menu.add('QDoubleSpinBox', setPrefix='Width: ', setObjectName='s000', set_limits=(0, 100, .05, 2), setValue=0.25, set_height=20, setToolTip='Bevel Width.')
+option_menu.add('QDoubleSpinBox', setPrefix='Width: ', setObjectName='s000', set_limits=[0, 100, .05, 2], setValue=0.25, set_height=20, setToolTip='Bevel Width.')
 option_menu.add(self.sb.Label, setText='Open in Editor', setObjectName='lbl000', setToolTip='Open material in editor.')
 option_menu.add('QPushButton', setObjectName='b002', setText='Delete All', setToolTip='Delete all autosave files.')  # Delete all
 

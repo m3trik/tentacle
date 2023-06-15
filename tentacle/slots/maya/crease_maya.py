@@ -20,7 +20,7 @@ class Crease_maya(SlotsMaya):
             "QSpinBox",
             setPrefix="Crease Amount: ",
             setObjectName="s003",
-            set_limits=(0, 10),
+            set_limits=[0, 10],
             setValue=10,
             setToolTip='Crease amount 0-10. Overriden if "max" checked.',
         )
@@ -47,7 +47,7 @@ class Crease_maya(SlotsMaya):
             "QSpinBox",
             setPrefix="Hardness Angle: ",
             setObjectName="s004",
-            set_limits=(0, 180),
+            set_limits=[0, 180],
             setValue=30,
             setToolTip="Normal edge hardness 0-180.",
         )
@@ -68,7 +68,7 @@ class Crease_maya(SlotsMaya):
             "QSpinBox",
             setPrefix="Auto Crease: Low: ",
             setObjectName="s005",
-            set_limits=(0, 180),
+            set_limits=[0, 180],
             setValue=85,
             setToolTip="Auto crease: low angle constraint.",
         )
@@ -76,7 +76,7 @@ class Crease_maya(SlotsMaya):
             "QSpinBox",
             setPrefix="Auto Crease: high: ",
             setObjectName="s006",
-            set_limits=(0, 180),
+            set_limits=[0, 180],
             setValue=95,
             setToolTip="Auto crease: max angle constraint.",
         )

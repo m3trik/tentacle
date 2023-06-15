@@ -77,7 +77,7 @@ class Mirror_maya(SlotsMaya):
             "QSpinBox",
             setPrefix="Merge Mode: ",
             setObjectName="s001",
-            set_limits=(0, 2),
+            set_limits=[0, 2],
             setValue=0,
             setToolTip="0) Do not merge border edges.<br>1) Border edges merged.<br>2) Border edges extruded and connected.",
         )
@@ -85,7 +85,7 @@ class Mirror_maya(SlotsMaya):
             "QDoubleSpinBox",
             setPrefix="Merge Threshold: ",
             setObjectName="s000",
-            set_limits=(0, 10, 0.001, 3),
+            set_limits=[0, 10, 0.001, 3],
             setValue=0.005,
             setToolTip="Merge vertex distance.",
         )

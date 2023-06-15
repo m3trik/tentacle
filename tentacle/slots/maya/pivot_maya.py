@@ -51,7 +51,7 @@ class Pivot_maya(SlotsMaya):
             setToolTip="Center the pivot on world origin.",
         )
 
-    @SlotsMaya.hideMain
+    @SlotsMaya.hide_main
     def tb000(self, widget):
         """Reset Pivot"""
         resetPivotPosition = (
