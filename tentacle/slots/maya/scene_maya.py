@@ -12,15 +12,15 @@ class Scene_maya(SlotsMaya):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-    def t000_init(self, widget):
+    def txt000_init(self, widget):
         """ """
-        widget.option_menu.add(
+        widget.ctx_menu.add(
             "QCheckBox",
             setText="Ignore Case",
             setObjectName="chk000",
             setToolTip="Search case insensitive.",
         )
-        widget.option_menu.add(
+        widget.ctx_menu.add(
             "QCheckBox",
             setText="Regular Expression",
             setObjectName="chk001",
@@ -65,6 +65,12 @@ class Scene_maya(SlotsMaya):
             setToolTip="Reverse the naming order. (Farthest object first)",
         )
 
+    def txt000(self, text, widget):
+        """Select By Name"""
+        # An asterisk denotes startswith*, *endswith, *contains*
+        if text:
+            pm.select(pm.ls(text))
+
     def tb000(self, widget):
         """Convert Case"""
         case = widget.option_menu.cmb001.currentText()
@@ -89,18 +95,16 @@ class Scene_maya(SlotsMaya):
             reverse=reverse,
         )
 
-    def b000(self):
+    def b000(self, widget):
         """Rename"""
-        find = (
-            self.sb.scene.t000.text()
-        )  # an asterisk denotes startswith*, *endswith, *contains*
-        to = self.sb.scene.t001.text()
-        regex = self.sb.scene.t000.option_menu.chk001.isChecked()
-        ignore_case = self.sb.scene.t000.option_menu.chk000.isChecked()
+        # An asterisk denotes startswith*, *endswith, *contains*
+        find = self.sb.scene.txt000.text()
+        to = self.sb.scene.txt001.text()
+        regex = self.sb.scene.txt000.ctx_menu.chk001.isChecked()
+        ignore_case = self.sb.scene.txt000.ctx_menu.chk000.isChecked()
 
-        selection = pm.ls(sl=1)
-        objects = selection if selection else pm.ls(objectsOnly=1)
-        mtk.Edit.rename(objects, to, find, regex=regex, ignore_case=ignore_case)
+        selection = pm.ls(sl=1, objectsOnly=True)
+        mtk.Edit.rename(selection, to, find, regex=regex, ignore_case=ignore_case)
 
 
 # --------------------------------------------------------------------------------------------

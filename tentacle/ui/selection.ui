@@ -10,7 +10,7 @@
     <x>0</x>
     <y>0</y>
     <width>147</width>
-    <height>318</height>
+    <height>279</height>
    </rect>
   </property>
   <property name="minimumSize">
@@ -40,35 +40,35 @@
    </property>
    <layout class="QVBoxLayout" name="verticalLayout_2">
     <item>
-     <widget class="DraggableHeader" name="draggableHeader">
-      <property name="minimumSize">
-       <size>
-        <width>0</width>
-        <height>22</height>
-       </size>
-      </property>
-      <property name="maximumSize">
-       <size>
-        <width>125</width>
-        <height>22</height>
-       </size>
-      </property>
-      <property name="font">
-       <font>
-        <weight>75</weight>
-        <bold>true</bold>
-       </font>
-      </property>
-      <property name="text">
-       <string>SELECTION</string>
-      </property>
-     </widget>
-    </item>
-    <item>
      <layout class="QVBoxLayout" name="verticalLayout">
       <property name="spacing">
        <number>0</number>
       </property>
+      <item>
+       <widget class="DraggableHeader" name="draggableHeader">
+        <property name="minimumSize">
+         <size>
+          <width>0</width>
+          <height>22</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>125</width>
+          <height>22</height>
+         </size>
+        </property>
+        <property name="font">
+         <font>
+          <weight>75</weight>
+          <bold>true</bold>
+         </font>
+        </property>
+        <property name="text">
+         <string>SELECTION</string>
+        </property>
+       </widget>
+      </item>
       <item>
        <widget class="QGroupBox" name="groupBox_5">
         <property name="minimumSize">
@@ -103,34 +103,6 @@
           <number>0</number>
          </property>
          <item>
-          <widget class="QLineEdit" name="txt001">
-           <property name="minimumSize">
-            <size>
-             <width>0</width>
-             <height>20</height>
-            </size>
-           </property>
-           <property name="maximumSize">
-            <size>
-             <width>999</width>
-             <height>20</height>
-            </size>
-           </property>
-           <property name="toolTip">
-            <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Select all by name.&lt;br&gt;&lt;br/&gt;&lt;span style=&quot; text-decoration: underline;&quot;&gt;Wildcards:&lt;/span&gt;&lt;br&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Startswith&lt;/span&gt;*&lt;br&gt;*&lt;span style=&quot; font-weight:600;&quot;&gt;Endswith&lt;/span&gt;&lt;br&gt;*&lt;span style=&quot; font-weight:600;&quot;&gt;contains&lt;/span&gt;*&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-           </property>
-           <property name="maxLength">
-            <number>100</number>
-           </property>
-           <property name="frame">
-            <bool>false</bool>
-           </property>
-           <property name="placeholderText">
-            <string>By Name:</string>
-           </property>
-          </widget>
-         </item>
-         <item>
           <widget class="ComboBox" name="cmb002">
            <property name="minimumSize">
             <size>
@@ -159,6 +131,39 @@
            <item>
             <property name="text">
              <string>By Type:</string>
+            </property>
+           </item>
+          </widget>
+         </item>
+         <item>
+          <widget class="ComboBox" name="cmb001">
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>20</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>999</width>
+             <height>20</height>
+            </size>
+           </property>
+           <property name="toolTip">
+            <string>Select by selection set.</string>
+           </property>
+           <property name="editable">
+            <bool>false</bool>
+           </property>
+           <property name="maxVisibleItems">
+            <number>30</number>
+           </property>
+           <property name="sizeAdjustPolicy">
+            <enum>QComboBox::AdjustToContents</enum>
+           </property>
+           <item>
+            <property name="text">
+             <string>Selection Sets:</string>
             </property>
            </item>
           </widget>
@@ -288,76 +293,12 @@
           </widget>
          </item>
         </layout>
-        <zorder>txt001</zorder>
         <zorder>tb001</zorder>
         <zorder>tb002</zorder>
         <zorder>cmb002</zorder>
         <zorder>tb000</zorder>
         <zorder>tb003</zorder>
-       </widget>
-      </item>
-      <item>
-       <widget class="QGroupBox" name="groupBox_4">
-        <property name="minimumSize">
-         <size>
-          <width>125</width>
-          <height>0</height>
-         </size>
-        </property>
-        <property name="maximumSize">
-         <size>
-          <width>125</width>
-          <height>999</height>
-         </size>
-        </property>
-        <property name="title">
-         <string>Sets</string>
-        </property>
-        <layout class="QVBoxLayout" name="verticalLayout_5">
-         <property name="spacing">
-          <number>1</number>
-         </property>
-         <property name="leftMargin">
-          <number>0</number>
-         </property>
-         <property name="topMargin">
-          <number>0</number>
-         </property>
-         <property name="rightMargin">
-          <number>0</number>
-         </property>
-         <property name="bottomMargin">
-          <number>0</number>
-         </property>
-         <item>
-          <widget class="ComboBox" name="cmb001">
-           <property name="minimumSize">
-            <size>
-             <width>0</width>
-             <height>20</height>
-            </size>
-           </property>
-           <property name="maximumSize">
-            <size>
-             <width>999</width>
-             <height>20</height>
-            </size>
-           </property>
-           <property name="toolTip">
-            <string>Selection sets.</string>
-           </property>
-           <property name="editable">
-            <bool>false</bool>
-           </property>
-           <property name="maxVisibleItems">
-            <number>30</number>
-           </property>
-           <property name="sizeAdjustPolicy">
-            <enum>QComboBox::AdjustToContents</enum>
-           </property>
-          </widget>
-         </item>
-        </layout>
+        <zorder>cmb001</zorder>
        </widget>
       </item>
       <item>
@@ -447,7 +388,7 @@
          <string/>
         </property>
         <property name="title">
-         <string>Component</string>
+         <string>Convert</string>
         </property>
         <layout class="QVBoxLayout" name="verticalLayout_7">
          <property name="spacing">

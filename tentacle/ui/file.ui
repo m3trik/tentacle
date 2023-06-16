@@ -130,7 +130,7 @@
            </property>
            <item>
             <property name="text">
-             <string>Workspace</string>
+             <string>Workspace:</string>
             </property>
            </item>
           </widget>
@@ -196,7 +196,7 @@
            </property>
            <item>
             <property name="text">
-             <string>Recent Files</string>
+             <string>Recent Files:</string>
             </property>
            </item>
           </widget>
@@ -226,7 +226,7 @@
            </property>
            <item>
             <property name="text">
-             <string>Recent Autosave</string>
+             <string>Recent Autosave:</string>
             </property>
            </item>
           </widget>
@@ -292,7 +292,7 @@
            </property>
            <item>
             <property name="text">
-             <string>Import</string>
+             <string>Import:</string>
             </property>
            </item>
           </widget>
@@ -322,19 +322,13 @@
            </property>
            <item>
             <property name="text">
-             <string>Export</string>
+             <string>Export:</string>
             </property>
            </item>
           </widget>
          </item>
          <item>
-          <widget class="Label" name="lbl005">
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
+          <widget class="ComboBox" name="cmb000">
            <property name="minimumSize">
             <size>
              <width>0</width>
@@ -347,12 +341,20 @@
              <height>20</height>
             </size>
            </property>
-           <property name="toolTip">
-            <string>Reference scenes in the workspace directory.</string>
+           <property name="maxVisibleItems">
+            <number>30</number>
            </property>
-           <property name="text">
-            <string>Reference</string>
+           <property name="sizeAdjustPolicy">
+            <enum>QComboBox::AdjustToContentsOnFirstShow</enum>
            </property>
+           <property name="frame">
+            <bool>false</bool>
+           </property>
+           <item>
+            <property name="text">
+             <string>Reference:</string>
+            </property>
+           </item>
           </widget>
          </item>
         </layout>
@@ -386,11 +388,6 @@
    <class>ComboBox</class>
    <extends>QComboBox</extends>
    <header>widgets.combobox.h</header>
-  </customwidget>
-  <customwidget>
-   <class>Label</class>
-   <extends>QLabel</extends>
-   <header>widgets.label.h</header>
   </customwidget>
  </customwidgets>
  <resources/>

@@ -33,45 +33,41 @@ class Display_maya(SlotsMaya):
 
     def b004(self):
         """Show Geometry"""
-        pm.mel.hideShow(geometry=1, show=1)
+        # Do not use python syntax with hideShow
+        pm.mel.eval("hideShow -geometry 1 -show 1")
 
     def b005(self):
         """Xray Selected"""
-        # Get all dag shapes in the current selection
-        selection = pm.ls(sl=True, dag=True, s=True)
-
-        for obj in selection:
-            # Query the xray state and toggle it
-            x_state = obj.getAttr("displaySurface")
-            obj.setAttr("displaySurface", not x_state)
+        objects = pm.ls(sl=True, transforms=True)
+        for item in objects:
+            pm.displaySurface(
+                item, xRay=(not pm.displaySurface(item, xRay=True, query=True)[0])
+            )
 
     def b006(self):
         """Un-Xray All"""
-        # Get all visible, non-intermediate surface shapes in the scene
-        scene_objects = pm.ls(vis=True, fl=True, dag=True, ni=True, typ="surfaceShape")
+        # Get all model panels
+        model_panels = pm.getPanel(type="modelPanel")
 
-        for obj in scene_objects:
-            # If the object's xray state is on, turn it off
-            x_state = obj.getAttr("displaySurface")
-            if x_state:
-                obj.setAttr("displaySurface", 0)
+        for panel in model_panels:
+            # Set the X-ray mode to False
+            pm.modelEditor(panel, edit=True, xray=False)
 
     def b007(self):
         """Xray Other"""
-        # Get all visible, non-intermediate surface shapes in the scene
-        scene_objects = pm.ls(vis=True, fl=True, dag=True, ni=True, typ="surfaceShape")
-        # Get all shapes in the current selection
-        selected_objects = pm.ls(sl=True, dagObjects=True, shapes=True)
+        # Get all transform nodes in the scene
+        all_objects = pm.ls(type="transform")
+        # Get the currently selected objects
+        selected_objects = pm.ls(sl=True, transforms=True)
+        # Filter out the selected objects
+        non_selected_objects = [
+            obj for obj in all_objects if obj not in selected_objects
+        ]
 
-        for obj in scene_objects:
-            # If the object is not in the selection, toggle its xray state
-            if obj not in selected_objects:
-                x_state = obj.getAttr("displaySurface")
-                obj.setAttr("displaySurface", not x_state)
-
-    def b008(self):
-        """Filter Objects"""
-        pm.mel.bt_filterActionWindow()
+        for item in non_selected_objects:
+            pm.displaySurface(
+                item, xRay=(not pm.displaySurface(item, xRay=True, query=True)[0])
+            )
 
     def b009(self):
         """Toggle Material Override"""

@@ -17,6 +17,19 @@ class File_maya(SlotsMaya):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
+    def cmb000_init(self, widget):
+        """ """
+        widget.refresh = True
+        widget.clear()
+
+        for i in mtk.get_workspace_scenes(fullPath=True):
+            chk = widget.add("QCheckBox", setText=i)
+            chk.toggled.connect(
+                lambda state, scene=i: mtk.reference_scene(scene)
+                if state
+                else mtk.remove_reference(scene)
+            )
+
     def cmb002_init(self, widget):
         """ """
         # Get the current autosave state
@@ -167,7 +180,6 @@ class File_maya(SlotsMaya):
     def list000(self, item):
         """ """
         data = item.item_data()
-
         pm.openFile(data, open=True, force=True)
 
     def cmb001(self, index, widget):
@@ -255,17 +267,11 @@ class File_maya(SlotsMaya):
         newProject = pm.mel.SetProject()
         # refresh project items to reflect new workspace.
         self.cmb006(-1, self.sb.file.cmb006)
-        # refresh reference items to reflect new workspace.
-        self.referenceSceneMenu(clear=True)
 
     def lbl004(self):
         """Open current project root"""
         dir_ = pm.workspace(q=True, rd=1)  # current project path.
         os.startfile(ptk.File.format_path(dir_))
-
-    def lbl005(self):
-        """Reference"""
-        self.referenceSceneMenu().show()
 
     def b000(self):
         """Autosave: Open Directory"""
@@ -328,26 +334,6 @@ class File_maya(SlotsMaya):
             if replace:
                 newName = obj.replace(from_, to)
             pm.rename(obj, newName)  # Rename the object with the new name
-
-    def referenceSceneMenu(self, clear=False):
-        """ """
-        try:
-            if clear:
-                del self._referenceSceneMenu
-            return self._referenceSceneMenu
-
-        except AttributeError:
-            menu = self.sb.Menu(self.sb.file.lbl005)
-            for i in mtk.get_workspace_scenes(
-                fullPath=True
-            ):  # zip(mtk.get_workspace_scenes(fullPath=False), mtk.get_workspace_scenes(fullPath=True)):
-                chk = menu.add(self.sb.CheckBox, setText=i)
-                chk.toggled.connect(
-                    lambda state, scene=i: mtk.reference_scene(scene, not state)
-                )
-
-            self._referenceSceneMenu = menu
-            return self._referenceSceneMenu
 
 
 # --------------------------------------------------------------------------------------------

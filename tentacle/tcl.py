@@ -541,6 +541,7 @@ if __name__ == "__main__":
 # deprecated:
 # --------------------------------------------------------------------------------------------
 
+
 # self.app.focusChanged.connect(self.focusChanged)
 
 # def focusChanged(self, old, new):

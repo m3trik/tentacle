@@ -288,30 +288,6 @@ class Uv_maya(SlotsMaya):
             setToolTip="Distribute along V.",
         )
 
-    def tb008_init(self, widget):
-        """ """
-        widget.option_menu.add(
-            "QCheckBox",
-            setText="To Similar",
-            setObjectName="chk025",
-            setToolTip="Instead of manually selecting what to transfer to; search the scene for similar objects.",
-        )
-        widget.option_menu.add(
-            "QDoubleSpinBox",
-            setPrefix="Tolerance: ",
-            setObjectName="s013",
-            set_limits=[0, 1000, 0.5, 1],
-            setValue=0.00,
-            setToolTip="The maximum attribute value tolerance to use when searching for similar objects.",
-        )
-        widget.option_menu.add(
-            "QCheckBox",
-            setText="Delete History",
-            setObjectName="chk026",
-            setChecked=True,
-            setToolTip="Remove construction history for the objects transferring from.\nOtherwise, the UV's will be lost should any of the frm objects be deleted.",
-        )
-
     def cmb002(self, index, widget):
         """Transform"""
         if index > 0:
@@ -363,7 +339,7 @@ class Uv_maya(SlotsMaya):
         pm.textureWindow(panel, edit=1, displayDistortion=state)
 
     def tb000(self, widget):
-        """Pack UV's"""
+        """Pack UVs"""
         scale = widget.option_menu.s009.value()
         rotate = widget.option_menu.s010.value()
         UDIM = widget.option_menu.s004.value()
@@ -385,26 +361,8 @@ class Uv_maya(SlotsMaya):
         uvs = pm.polyListComponentConversion(selection, fromFace=True, toUV=True)
         uvs = pm.ls(uvs, flatten=True)
 
-        similar_shells = []
-        unique_shells = []
-
-        if similar == 1 or similar == 2:
-            similar_shells_str = pm.polyUVStackSimilarShells(
-                uvs, tolerance=tolerance, onlyMatch=True
-            )
-            # Convert string representations of similar shells to MeshUV objects
-            similar_shells = [
-                pm.PyNode(shell) for shell in similar_shells_str[0].split()
-            ]
-
-            # We want to pack one of each similar shell and omit the rest, regardless of the value of `similar`
-            unique_shells.append(
-                similar_shells[0]
-            )  # Add only one shell from the similar shells
-            uvs = [uv for uv in uvs if uv not in similar_shells]
-
         pm.u3dLayout(
-            unique_shells,
+            uvs,
             resolution=mapSize,
             shellSpacing=shellPadding,
             tileMargin=tilePadding,
@@ -412,12 +370,6 @@ class Uv_maya(SlotsMaya):
             preRotateMode=rotate,
             packBox=[M - 1, D, I, U],
         )
-
-        # Then do the stacking...
-        if similar == 2:
-            remaining_shells = [uv for uv in similar_shells if uv not in unique_shells]
-            for remaining_shell in remaining_shells:
-                ...
 
     @mtk.undo
     def tb001(self, widget):
@@ -560,19 +512,14 @@ class Uv_maya(SlotsMaya):
     @mtk.undo
     def tb008(self, widget):
         """Transfer UV's"""
-        toSimilar = widget.option_menu.chk025.isChecked()
-        similarTol = widget.option_menu.s013.value()
-        deleteConstHist = widget.option_menu.chk026.isChecked()
-
         frm, *to = pm.ls(orderedSelection=1, flatten=1)
-        if toSimilar:
-            to = "similar"
-        elif not to:
+        if not to:
             return self.sb.message_box(
                 "<b>Nothing selected.</b><br>The operation requires the selection of two polygon objects."
             )
 
-        self.transferUVs(frm, to, tolerance=similarTol, deleteConstHist=deleteConstHist)
+        for t in to:
+            mtk.transfer_uvs(frm, t)
 
     def b001(self):
         """Create UV Snapshot"""
@@ -631,9 +578,9 @@ class Uv_maya(SlotsMaya):
             pm.polyMapSew(edges)
 
     def b021(self, widget):
-        """Unfold and Pack"""
+        """Unfold and Pack UVs"""
         self.tb004(self.sb.uv.tb004)  # perform unfold
-        self.tb000(widget.ui.tb000)  # perform pack
+        self.tb000(self.sb.uv.tb000)  # perform pack
 
     def b022(self):
         """Cut UV hard edges"""

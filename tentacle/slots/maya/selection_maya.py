@@ -214,27 +214,27 @@ class Selection(SlotsMaya):
         widget.clear()
         widget.refresh = True
         items = [str(s) for s in pm.ls(et="objectSet", flatten=1)]
-        widget.addItems_(items, clear=True)
+        widget.addItems_(items, "Selection Sets:")
 
-        widget.option_menu.add(
+        widget.ctx_menu.add(
             self.sb.Label,
             setText="Select",
             setObjectName="lbl005",
             setToolTip="Select the current set elements.",
         )
-        widget.option_menu.add(
+        widget.ctx_menu.add(
             self.sb.Label,
             setText="New",
             setObjectName="lbl000",
             setToolTip="Create a new selection set.",
         )
-        widget.option_menu.add(
+        widget.ctx_menu.add(
             self.sb.Label,
             setText="Modify",
             setObjectName="lbl001",
             setToolTip="Modify the current set by renaming and/or changing the selection.",
         )
-        widget.option_menu.add(
+        widget.ctx_menu.add(
             self.sb.Label,
             setText="Delete",
             setObjectName="lbl002",
@@ -335,13 +335,6 @@ class Selection(SlotsMaya):
         """Select Style: Paint"""
         self.set_selection_style("paint")
         self.sb.message_box("Select Style: <hl>Paint</hl>")
-
-    def txt001(self, text):
-        """Select By Name"""
-        # asterisk denotes startswith*, *endswith, *contains*
-        search_string = text
-        if search_string:
-            pm.select(pm.ls(search_string))
 
     def lbl000(self, widget):
         """Selection Sets: Create New"""
