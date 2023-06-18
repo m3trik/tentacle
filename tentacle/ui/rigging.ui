@@ -25,9 +25,6 @@
     <height>999</height>
    </size>
   </property>
-  <property name="windowTitle">
-   <string>Toolkit</string>
-  </property>
   <property name="toolTip">
    <string>Global Display Scale:  Joints</string>
   </property>
@@ -126,7 +123,7 @@
             <string>Local Rotation Axes</string>
            </property>
            <property name="checkable">
-            <bool>true</bool>
+            <bool>false</bool>
            </property>
           </widget>
          </item>
@@ -386,12 +383,6 @@
          </item>
          <item row="1" column="1">
           <widget class="PushButton" name="tb001">
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
            <property name="minimumSize">
             <size>
              <width>0</width>
@@ -472,12 +463,6 @@
          </item>
          <item row="3" column="0">
           <widget class="QPushButton" name="b009">
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
            <property name="minimumSize">
             <size>
              <width>0</width>
@@ -516,12 +501,6 @@
          </item>
          <item row="3" column="1" colspan="2">
           <widget class="QPushButton" name="b010">
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
            <property name="minimumSize">
             <size>
              <width>0</width>
@@ -705,7 +684,7 @@
             <string>Lock / Unlock</string>
            </property>
            <property name="checkable">
-            <bool>true</bool>
+            <bool>false</bool>
            </property>
           </widget>
          </item>

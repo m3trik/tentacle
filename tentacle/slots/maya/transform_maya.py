@@ -539,20 +539,28 @@ class Transform_maya(SlotsMaya):
 
     def tb002(self, widget):
         """Freeze Transformations"""
+        selected_objects = pm.ls(selection=True)
+
+        if len(selected_objects) == 0:
+            self.sb.message_box("Please select at least one object.")
+            return
+
         translate = widget.option_menu.chk032.isChecked()
         rotate = widget.option_menu.chk033.isChecked()
         scale = widget.option_menu.chk034.isChecked()
         center_pivot = widget.option_menu.chk035.isChecked()
 
-        if center_pivot:
-            pm.xform(centerPivots=1)
+        try:
+            if center_pivot:
+                pm.xform(selected_objects, centerPivots=1)
 
-        pm.makeIdentity(
-            apply=True, translate=translate, rotate=rotate, scale=scale
-        )  # this is the same as pm.makeIdentity(apply=True)
+            pm.makeIdentity(
+                selected_objects, apply=True, t=translate, r=rotate, s=scale
+            )
+        except Exception as e:
+            print(f"An error occurred while freezing transformations: {e}")
 
-    @SlotsMaya.hide_main
-    def b000(self):
+    def b000(self, widget):
         """Object Transform Attributes"""
         node = pm.ls(sl=1, objectsOnly=1)
         if not node:
@@ -561,22 +569,28 @@ class Transform_maya(SlotsMaya):
             )
             return
 
-        transform = mtk.Node.get_transform_node(node)
-        self.setAttributeWindow(
-            transform,
-            inc=[
-                "translateX",
-                "translateY",
-                "translateZ",
-                "rotateX",
-                "rotateY",
-                "rotateZ",
-                "scaleX",
-                "scaleY",
-                "scaleZ",
-            ],
-            checkable_label=True,
-        )
+        transform_node = mtk.Node.get_transform_node(node[0])
+        params = [
+            "translateX",
+            "translateY",
+            "translateZ",
+            "rotateX",
+            "rotateY",
+            "rotateZ",
+            "scaleX",
+            "scaleY",
+            "scaleZ",
+        ]
+        try:
+            attrs = mtk.get_node_attributes(transform_node, params, mapping=True)
+            self.sb.attribute_window(
+                transform_node,
+                window_title=transform_node.name(),
+                set_attribute_func=lambda obj, n, v: getattr(obj, n).set(v),
+                **attrs,
+            )
+        except Exception as e:
+            print(f"An error occurred while getting parameter values: {e}")
 
     def b001(self):
         """Match Scale"""

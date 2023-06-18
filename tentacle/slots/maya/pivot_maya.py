@@ -51,7 +51,6 @@ class Pivot_maya(SlotsMaya):
             setToolTip="Center the pivot on world origin.",
         )
 
-    @SlotsMaya.hide_main
     def tb000(self, widget):
         """Reset Pivot"""
         resetPivotPosition = (
@@ -98,18 +97,16 @@ class Pivot_maya(SlotsMaya):
         tb.option_menu.chk002.setChecked(True)
         self.tb001()
 
-    def b002(self):
+    def b002(self, widget):
         """Center Pivot: World"""
         tb = self.sb.pivot.tb001
         tb.option_menu.chk004.setChecked(True)
-        self.tb001()
+        self.tb001(widget.ui.tb001)
 
     def b004(self):
         """Bake Pivot"""
         sel = pm.ls(sl=1)
-        mtk.bake_custom_pivot(
-            sel, position=1, orientation=1
-        )  # pm.mel.BakeCustomPivot()
+        mtk.bake_custom_pivot(sel, position=1, orientation=1)
 
 
 # --------------------------------------------------------------------------------------------

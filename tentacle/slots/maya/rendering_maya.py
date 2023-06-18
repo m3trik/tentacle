@@ -21,7 +21,8 @@ class Rendering_maya(SlotsMaya):
         cmb = self.sb.rendering.cmb001
         index = cmb.currentIndex()
 
-        pm.render(camera=cmb.items[index])  # render with selected camera
+        camera = cmb.items[index]
+        pm.render(camera)  # render with selected camera
 
     def b001(self):
         """Open Render Settings Window"""
@@ -41,6 +42,10 @@ class Rendering_maya(SlotsMaya):
 
     def b005(self):
         """Apply Vray Attributes To Selected Objects"""
+        if not self.load_vray_plugin(query=True):
+            print("VRay plugin is not loaded. Loading it now.")
+            self.load_vray_plugin()
+
         selection = pm.ls(selection=True)
         currentID = 1
         for obj in selection:
@@ -61,12 +66,12 @@ class Rendering_maya(SlotsMaya):
 
     def b006(self):
         """Load Vray Plugin"""
-        if self.loadVRayPlugin(query=True):
-            self.loadVRayPlugin(unload=True)
+        if self.load_vray_plugin(query=True):
+            self.load_vray_plugin(unload=True)
         else:
-            self.loadVRayPlugin()
+            self.load_vray_plugin()
 
-    def loadVRayPlugin(self, unload=False, query=False):
+    def load_vray_plugin(self, unload=False, query=False):
         """Load/Unload the Maya Vray Plugin if it exists.
 
         Parameters:
@@ -78,17 +83,13 @@ class Rendering_maya(SlotsMaya):
 
         vray = ["vrayformaya.mll", "vrayformayapatch.mll"]
 
-        if unload:
-            try:
+        try:
+            if unload:
                 pm.unloadPlugin(vray)
-            except:
-                pm.unloadPlugin(vray, force=1)
-                self.sb.message_box(
-                    "{0}{1}{2}".format("Force unloadPlugin:", str(vray), " "),
-                    message_type="Result",
-                )
-        else:
-            pm.loadPlugin(vray)
+            else:
+                pm.loadPlugin(vray)
+        except RuntimeError as e:
+            print(f"An error occurred: {e}")
 
 
 # --------------------------------------------------------------------------------------------

@@ -88,24 +88,24 @@ class Create_maya(SlotsMaya):
 
     def b001(self):
         """Create poly cube"""
-        return self.createDefaultPrimitive("Polygon", "Cube")
+        self.createDefaultPrimitive("Polygon", "Cube")
 
     def b002(self):
         """Create poly sphere"""
-        return self.createDefaultPrimitive("Polygon", "Sphere")
+        self.createDefaultPrimitive("Polygon", "Sphere")
 
     def b003(self):
         """Create poly cylinder"""
-        return self.createDefaultPrimitive("Polygon", "Cylinder")
+        self.createDefaultPrimitive("Polygon", "Cylinder")
 
     def b004(self):
         """Create poly plane"""
-        return self.createDefaultPrimitive("Polygon", "Plane")
+        self.createDefaultPrimitive("Polygon", "Plane")
 
     def b005(self):
         """Create 6 sided poly cylinder"""
         cyl = self.createDefaultPrimitive("Polygon", "Cylinder")
-        mtk.set_node_attributes(cyl, verbose=True, subdivisionsAxis=6)
+        mtk.set_node_attributes(cyl, subdivisionsAxis=6)
 
     def createDefaultPrimitive(
         self, baseType, subType, scale=False, translate=False, axis=[0, 90, 0]
@@ -160,7 +160,7 @@ class Create_maya(SlotsMaya):
             if scale:
                 mtk.Xform.match_scale(node[0], selection, average=True)
 
-        return mtk.get_history_node(node)
+        return mtk.get_history_node(node[0])
 
     @mtk.undo
     def createCircle(

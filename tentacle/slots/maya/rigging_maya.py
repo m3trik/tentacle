@@ -19,36 +19,36 @@ class Rigging_maya(SlotsMaya):
 
     def tb000_init(self, widget):
         """ """
+        scale_joint_value = pm.jointDisplayScale(q=True)
         widget.option_menu.add(
-            "QCheckBox",
+            "QDoubleSpinBox",
+            setPrefix="Tolerance: ",
+            setObjectName="s000",
+            set_limits=[0, 10, 0.5, 2],
+            setValue=scale_joint_value,
+            setToolTip="Global display scale for the selected type.",
+        )
+        widget.option_menu.add(
+            "QRadioButton",
             setText="Joints",
             setObjectName="chk000",
             setChecked=True,
             setToolTip="Display Joints.",
         )
         widget.option_menu.add(
-            "QCheckBox",
+            "QRadioButton",
             setText="IK",
             setObjectName="chk001",
             setChecked=True,
             setToolTip="Display IK.",
         )
         widget.option_menu.add(
-            "QCheckBox",
+            "QRadioButton",
             setText="IK\\FK",
             setObjectName="chk002",
             setChecked=True,
             setToolTip="Display IK\\FK.",
         )
-        widget.option_menu.add(
-            "QDoubleSpinBox",
-            setPrefix="Tolerance: ",
-            setObjectName="s000",
-            set_limits=[0, 10, 0.5, 2],
-            setValue=1.0,
-            setToolTip="Global Display Scale for the selected type.",
-        )
-        self.chk000(None, widget)  # init scale joint value
 
     def tb001_init(self, widget):
         """ """
@@ -186,7 +186,7 @@ class Rigging_maya(SlotsMaya):
             ),
             "toggled",
             [
-                lambda state: self.sb.rigging.widget.setText(
+                lambda state: widget.setText(
                     "Lock Attributes"
                     if any(
                         (
@@ -197,7 +197,7 @@ class Rigging_maya(SlotsMaya):
                     )
                     else "Unlock Attributes"
                 ),
-                lambda state: self.sb.rigging_submenu.widget.setText(
+                lambda state: widget.setText(
                     "Lock Transforms"
                     if any(
                         (
@@ -229,49 +229,46 @@ class Rigging_maya(SlotsMaya):
 
     def chk000(self, state, widget):
         """Scale Joint"""
-        self.sb.toggle_widgets(widget.option_menu, setUnChecked="chk001-2")
         # init global joint display size
-        self.sb.rigging.tb000.option_menu.s000.setValue(pm.jointDisplayScale(q=True))
+        widget.ui.tb000.option_menu.s000.setValue(pm.jointDisplayScale(q=True))
 
     def chk001(self, state, widget):
         """Scale IK"""
-        self.sb.toggle_widgets(widget.option_menu, setUnChecked="chk000, chk002")
         # init IK handle display size
-        self.sb.rigging.tb000.option_menu.setValue(pm.ikHandleDisplayScale(q=True))
+        widget.ui.tb000.option_menu.s000.setValue(pm.ikHandleDisplayScale(q=True))
 
     def chk002(self, state, widget):
         """Scale IK/FK"""
-        self.sb.toggle_widgets(widget.option_menu, setUnChecked="chk000-1")
         # init IKFK display size
-        self.sb.rigging.tb000.option_menu.setValue(pm.jointDisplayScale(q=True, ikfk=1))
+        widget.ui.tb000.option_menu.s000.setValue(pm.jointDisplayScale(q=True, ikfk=1))
 
     def s000(self, value, widget):
         """Scale Joint/IK/FK"""
-        value = self.sb.rigging.tb000.option_menu.value()
-
-        if self.sb.rigging.chk000.isChecked():
+        if widget.ui.tb000.option_menu.chk000.isChecked():
             pm.jointDisplayScale(value)  # set global joint display size
-        elif self.sb.rigging.chk001.isChecked():
+        elif widget.ui.tb000.option_menu.chk001.isChecked():
             pm.ikHandleDisplayScale(value)  # set global IK handle display size
-        else:  # self.sb.rigging.chk002.isChecked():
+        else:  # widget.ui.chk002.isChecked():
             pm.jointDisplayScale(value, ikfk=1)  # set global IKFK display size
 
     def tb000(self, widget):
         """Toggle Display Local Rotation Axes"""
         joints = pm.ls(type="joint")  # get all scene joints
-        state = pm.toggle(joints[0], q=True, localAxis=1)
 
-        if widget.option_menu.isChecked():
-            if not state:
-                toggle = True
-        else:
-            if state:
-                toggle = True
+        if not joints:  # if no joints in the scene
+            self.sb.message_box("No joints found in the scene.")
+            return  # exit the function
+
+        state = pm.toggle(joints[0], q=True, localAxis=1)
+        toggle = widget.option_menu.isChecked() != state
 
         if toggle:
-            pm.toggle(joints, localAxis=1)  # set display off
+            try:
+                pm.toggle(joints, localAxis=1)  # set display off
+            except Exception as e:
+                print(f"An error occurred while toggling local axes: {e}")
 
-        mtk.viewport_message("Display Local Rotation Axes:<hl>" + str(state) + "</hl>")
+        self.sb.message_box(f"Display Local Rotation Axes:<hl>{state}</hl>")
 
     def tb001(self, widget):
         """Orient Joints"""
@@ -281,7 +278,20 @@ class Rigging_maya(SlotsMaya):
         if alignWorld:
             orientJoint = "none"  # orient joint to world
 
-        pm.joint(edit=1, orientJoint=orientJoint, zeroScaleOrient=1, ch=1)
+        joints = pm.ls(type="joint", sl=True)  # get selected joints
+
+        if not joints:  # if no joints are selected
+            joints = pm.ls(type="joint")  # get all joints in the scene
+            if not joints:  # if no joints in the scene
+                self.sb.message_box("No joints found.")
+                return  # exit the function
+        try:
+            for joint in joints:
+                pm.joint(
+                    joint, edit=1, orientJoint=orientJoint, zeroScaleOrient=1, ch=1
+                )
+        except Exception as e:
+            print(f"An error occurred while orienting joints: {e}")
 
     def tb002(self, widget):
         """Constraint: Parent"""
@@ -342,13 +352,15 @@ class Rigging_maya(SlotsMaya):
             sel, translate=lock_translate, rotate=lock_rotation, scale=lock_scale
         )
 
-    @SlotsMaya.hide_main
-    def b000(self):
+    def b000(self, widget):
         """Object Transform Limit Attributes"""
-        node = pm.ls(sl=1, objectsOnly=1)
-        if not node:
+        selected_objects = pm.ls(selection=True, objectsOnly=True)
+
+        if len(selected_objects) != 1:
             self.sb.message_box("Operation requires a single selected object.")
             return
+
+        node = selected_objects[0]
 
         params = [
             "enableTranslationX",
@@ -371,10 +383,16 @@ class Rigging_maya(SlotsMaya):
             "scaleZ",
         ]
 
-        attrs = mtk.get_parameter_values(node, "transformLimits", params)
-        self.setAttributeWindow(
-            node, fn=SlotsMaya.set_parameter_values, fn_args="transformLimits", **attrs
-        )
+        try:
+            attrs = mtk.get_parameter_mapping(node, "transformLimits", params)
+            self.sb.attribute_window(
+                node,
+                window_title=node.name(),
+                set_attribute_func=lambda obj, n, v: getattr(obj, n).set(v),
+                **attrs,
+            )
+        except Exception as e:
+            print(f"An error occurred while getting parameter values: {e}")
 
     def b001(self):
         """Connect Joints"""
@@ -395,30 +413,102 @@ class Rigging_maya(SlotsMaya):
 
     def b006(self):
         """Constraint: Point"""
-        pm.pointConstraint(offset=[0, 0, 0], weight=1)
+        selected_objects = pm.ls(selection=True)
+
+        if len(selected_objects) < 2:
+            self.sb.message_box(
+                "Please select two objects before applying a point constraint."
+            )
+            return
+
+        source = selected_objects[0]
+        target = selected_objects[1]
+
+        try:
+            pm.pointConstraint(source, target, offset=[0, 0, 0], weight=1)
+        except Exception as e:
+            print(f"An error occurred while applying the point constraint: {e}")
 
     def b007(self):
         """Constraint: Scale"""
-        pm.scaleConstraint(offset=[1, 1, 1], weight=1)
+        selected_objects = pm.ls(selection=True)
+
+        if len(selected_objects) < 2:
+            self.sb.message_box(
+                "Please select two objects before applying a scale constraint."
+            )
+            return
+
+        source = selected_objects[0]
+        target = selected_objects[1]
+
+        try:
+            pm.scaleConstraint(source, target, offset=[1, 1, 1], weight=1)
+        except Exception as e:
+            print(f"An error occurred while applying the scale constraint: {e}")
 
     def b008(self):
         """Constraint: Orient"""
-        pm.orientConstraint(offset=[0, 0, 0], weight=1)
+        selected_objects = pm.ls(selection=True)
+
+        if len(selected_objects) < 2:
+            self.sb.message_box(
+                "Please select two objects before applying an orient constraint."
+            )
+            return
+
+        source = selected_objects[0]
+        target = selected_objects[1]
+
+        try:
+            pm.orientConstraint(source, target, offset=[0, 0, 0], weight=1)
+        except Exception as e:
+            print(f"An error occurred while applying the orient constraint: {e}")
 
     def b009(self):
         """Constraint: Aim"""
-        pm.aimConstraint(
-            offset=[0, 0, 0],
-            weight=1,
-            aimVector=[1, 0, 0],
-            upVector=[0, 1, 0],
-            worldUpType="vector",
-            worldUpVector=[0, 1, 0],
-        )
+        selected_objects = pm.ls(selection=True)
+
+        if len(selected_objects) < 2:
+            self.sb.message_box(
+                "Please select two objects before applying an aim constraint."
+            )
+            return
+
+        source = selected_objects[0]
+        target = selected_objects[1]
+
+        try:
+            pm.aimConstraint(
+                source,
+                target,
+                offset=[0, 0, 0],
+                weight=1,
+                aimVector=[1, 0, 0],
+                upVector=[0, 1, 0],
+                worldUpType="vector",
+                worldUpVector=[0, 1, 0],
+            )
+        except Exception as e:
+            print(f"An error occurred while applying the aim constraint: {e}")
 
     def b010(self):
         """Constraint: Pole Vector"""
-        pm.orientConstraint(offset=[0, 0, 0], weight=1)
+        selected_objects = pm.ls(selection=True)
+
+        if len(selected_objects) < 2:
+            self.sb.message_box(
+                "Please select two objects before applying a pole vector constraint."
+            )
+            return
+
+        source = selected_objects[0]
+        target = selected_objects[1]
+
+        try:
+            pm.poleVectorConstraint(source, target, offset=[0, 0, 0], weight=1)
+        except Exception as e:
+            print(f"An error occurred while applying the pole vector constraint: {e}")
 
 
 # --------------------------------------------------------------------------------------------

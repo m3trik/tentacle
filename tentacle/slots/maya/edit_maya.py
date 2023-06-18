@@ -498,13 +498,15 @@ class Edit_maya(SlotsMaya):
         # pm.undoInfo(closeChunk=1)
 
     @SlotsMaya.hide_main
-    def b001(self):
+    def b001(self, widget):
         """Object History Attributes: get most recent node"""
-        self.cmb001()  # refresh the contents of the combobox.
+        self.cmb001(None, widget)  # Refresh the contents of the combobox.
+        cmb = self.sb.edit.cmb001
 
         items = pm.ls(cmb.items[-1])
+        print(items)
         if items:
-            self.setAttributeWindow(items, checkable_label=True)
+            self.sb.attribute_window(items)
         else:
             self.sb.message_box("Found no items to list the history for.")
             return
