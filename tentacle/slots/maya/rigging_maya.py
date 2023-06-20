@@ -362,37 +362,44 @@ class Rigging_maya(SlotsMaya):
 
         node = selected_objects[0]
 
-        params = [
-            "enableTranslationX",
-            "translationX",
-            "enableTranslationY",
-            "translationY",
-            "enableTranslationZ",
-            "translationZ",
-            "enableRotationX",
-            "rotationX",
-            "enableRotationY",
-            "rotationY",
-            "enableRotationZ",
-            "rotationZ",
-            "enableScaleX",
-            "scaleX",
-            "enableScaleY",
-            "scaleY",
-            "enableScaleZ",
-            "scaleZ",
-        ]
+        params = {
+            "enableTranslationX": "etx",
+            "translationX": "tx",
+            "enableTranslationY": "ety",
+            "translationY": "ty",
+            "enableTranslationZ": "etz",
+            "translationZ": "tz",
+            "enableRotationX": "erx",
+            "rotationX": "rx",
+            "enableRotationY": "ery",
+            "rotationY": "ry",
+            "enableRotationZ": "erz",
+            "rotationZ": "rz",
+            "enableScaleX": "esx",
+            "scaleX": "sx",
+            "enableScaleY": "esy",
+            "scaleY": "sy",
+            "enableScaleZ": "esz",
+            "scaleZ": "sz",
+        }
 
-        try:
-            attrs = mtk.get_parameter_mapping(node, "transformLimits", params)
-            self.sb.attribute_window(
-                node,
-                window_title=node.name(),
-                set_attribute_func=lambda obj, n, v: getattr(obj, n).set(v),
-                **attrs,
-            )
-        except Exception as e:
-            print(f"An error occurred while getting parameter values: {e}")
+        def set_transform_limit(node, attr, value):
+            arg = params.get(attr)
+            if arg is not None and isinstance(value, list) and len(value) == 2:
+                kwargs = {arg: tuple(value)}
+                pm.transformLimits(node, **kwargs)
+
+        # try:
+        attrs = mtk.get_parameter_mapping(node, "transformLimits", list(params.keys()))
+        print("attrs:", attrs)
+        self.sb.attribute_window(
+            node,
+            window_title=node.name(),
+            set_attribute_func=set_transform_limit,
+            **attrs,
+        )
+        # except Exception as e:
+        #     print(f"An error occurred while getting parameter values: {e}")
 
     def b001(self):
         """Connect Joints"""

@@ -504,7 +504,7 @@ class Edit_maya(SlotsMaya):
         cmb = self.sb.edit.cmb001
 
         items = pm.ls(cmb.items[-1])
-        print(items)
+        print("items:", items)
         if items:
             self.sb.attribute_window(items)
         else:
