@@ -18,7 +18,7 @@ The structure of the project is as follows:
 
 ![Structure](https://raw.githubusercontent.com/m3trik/tentacle/master/docs/dependancy_graph.jpg)
 
-| Example | Description |
+| Module | Description |
 | ------- | ----------- |
 | [tcl](https://github.com/m3trik/uitk/blob/main/uitk/tcl.py) | Handles main GUI construction for the marking menu. |
 | [events](https://github.com/m3trik/uitk/blob/main/uitk/events.py) | Event handling for dynamic UI. |
@@ -52,4 +52,4 @@ autoUndoEnabled: false
 	python.Execute "tcl_max.show(key_show='Key_F12')"
 )
 ```
-Please note that this is a personal project and is currently a work in progress. Contributions are welcome.
+Again, please note that this is a personal project and is currently a work in progress. Contributions are welcome.
