@@ -20,10 +20,10 @@ The structure of the project is as follows:
 
 | Module | Description |
 | ------- | ----------- |
-| [tcl](https://github.com/m3trik/uitk/blob/main/uitk/tcl.py) | Handles main GUI construction for the marking menu. |
-| [events](https://github.com/m3trik/uitk/blob/main/uitk/events.py) | Event handling for dynamic UI. |
-| [overlay](https://github.com/m3trik/uitk/blob/main/uitk/overlay.py) | Tracks cursor position and UI hierarchy to generate paint events that overlay its parent widget. |
-| [slots](https://github.com/m3trik/uitk/blob/main/uitk/slots) | Modules for the various slot connections. |
+| [tcl](https://github.com/m3trik/uitk/blob/main/tentacle/tcl.py) | Handles main GUI construction for the marking menu. |
+| [overlay](https://github.com/m3trik/uitk/blob/main/tentacle/overlay.py) | Tracks cursor position and UI hierarchy to generate paint events that overlay its parent widget. |
+| [ui](https://github.com/m3trik/uitk/blob/main/tentacle/events.py) | Location of the dynamic UI files. |
+| [slots](https://github.com/m3trik/uitk/blob/main/tentacle/slots) | Location of the various slot modules. |
 
 ## Installation
 
