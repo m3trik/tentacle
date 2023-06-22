@@ -37,7 +37,7 @@ To launch the marking menu:
 
 For Maya, add a macro to a hotkey similar to the following:
 ```python
-from uitk import tcl_maya
+from tentacle import tcl_maya
 tcl_maya.show(key_show='Key_F12')
 ```
 
@@ -48,7 +48,7 @@ category: "_macros.ui"
 silentErrors: false
 autoUndoEnabled: false
 (
-	python.Execute "from uitk import tcl_max"
+	python.Execute "from tentacle import tcl_max"
 	python.Execute "tcl_max.show(key_show='Key_F12')"
 )
 ```
