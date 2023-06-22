@@ -87,7 +87,7 @@ class File_maya(SlotsMaya):
         widget.option_menu.s001.valueChanged.connect(
             lambda v: pm.autoSave(int=v * 60, limitBackups=True)
         )
-        widget.addItems_(
+        widget.add(
             mtk.get_recent_autosave(format="timestamp|standard"),
             "Recent Autosave",
             clear=True,
@@ -95,7 +95,7 @@ class File_maya(SlotsMaya):
 
     def cmb003_init(self, widget):
         """ """
-        widget.addItems_(
+        widget.add(
             [
                 "Import file",
                 "Import Options",
@@ -120,7 +120,7 @@ class File_maya(SlotsMaya):
             "FBX Export Presets",
             "Obj Export Presets",
         ]
-        widget.addItems_(items, "Export")
+        widget.add(items, "Export")
 
     def cmb005_init(self, widget):
         """ """
@@ -130,7 +130,7 @@ class File_maya(SlotsMaya):
             setText="Last",
             setToolTip="Open the most recent file.",
         )
-        widget.addItems_(
+        widget.add(
             mtk.get_recent_files(slice(0, 20), format="timestamp|standard"),
             "Recent Files",
             clear=True,
@@ -159,7 +159,7 @@ class File_maya(SlotsMaya):
             setText="Root",
             setToolTip="Open the project directory.",
         )
-        widget.option_menu.cmb001.addItems_(
+        widget.option_menu.cmb001.add(
             mtk.get_recent_projects(slice(0, 20), format="timestamp|standard"),
             "Recent Projects",
             clear=True,
@@ -256,7 +256,7 @@ class File_maya(SlotsMaya):
         # add current project path string to label. strip path and trailing '/'
         project = ptk.File.format_path(path, "dir")
 
-        widget.addItems_(items, header=project, clear=True)
+        widget.add(items, header=project, clear=True)
 
         if index > 0:
             os.startfile(path + items[index - 1])

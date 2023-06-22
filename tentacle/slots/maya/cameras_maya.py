@@ -466,7 +466,7 @@ print(__name__)
 
 #   cmb = self.sb.cameras.cmb001
 
-#   contents = cmb.addItems_(non_startup_cameras, "Cameras")
+#   contents = cmb.add(non_startup_cameras, "Cameras")
 
 #   if not index:
 #       index = cmb.currentIndex()
@@ -483,7 +483,7 @@ print(__name__)
 #   cmb = self.sb.cameras.cmb002
 
 #   items = ['Custom Camera', 'Set Custom Camera', 'Camera From View']
-#   contents = cmb.addItems_(items, "Create")
+#   contents = cmb.add(items, "Create")
 
 #   if not index:
 #       index = cmb.currentIndex()
@@ -505,7 +505,7 @@ print(__name__)
 #   cmb = self.sb.cameras.cmb003
 
 #   items = ['Group Cameras']
-#   contents = cmb.addItems_(items, "Options")
+#   contents = cmb.add(items, "Options")
 
 #   if not index:
 #       index = cmb.currentIndex()

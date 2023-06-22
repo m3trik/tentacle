@@ -214,7 +214,7 @@ class Selection(SlotsMaya):
         widget.clear()
         widget.refresh = True
         items = [str(s) for s in pm.ls(et="objectSet", flatten=1)]
-        widget.addItems_(items, "Selection Sets:")
+        widget.add(items, "Selection Sets:")
 
         widget.ctx_menu.add(
             self.sb.Label,
@@ -272,7 +272,7 @@ class Selection(SlotsMaya):
             "nParticles",
             "nRigids",
         ]
-        widget.addItems_(items, "By Type:")
+        widget.add(items, "By Type:")
 
     def cmb003_init(self, widget):
         """ """
@@ -298,12 +298,12 @@ class Selection(SlotsMaya):
             "Shell",
             "Shell Border",
         ]
-        widget.addItems_(items, "Convert To:")
+        widget.add(items, "Convert To:")
 
     def cmb005_init(self, widget):
         """ """
         items = ["Angle", "Border", "Edge Loop", "Edge Ring", "Shell", "UV Edge Loop"]
-        widget.addItems_(items, "Off")
+        widget.add(items, "Off")
 
     def chk005_init(self, widget):
         """Create button group for radioboxes chk005, chk006, chk007"""
@@ -340,7 +340,7 @@ class Selection(SlotsMaya):
         """Selection Sets: Create New"""
         cmb = self.sb.selection.cmb001
         if not cmb.isEditable():
-            cmb.addItems_("", ascending=True)
+            cmb.add("", ascending=True)
             cmb.setEditable(True)
             cmb.lineEdit().setPlaceholderText("New Set:")
         else:

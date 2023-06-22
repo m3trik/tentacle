@@ -51,7 +51,7 @@ class Transform_maya(SlotsMaya):
             "Snap Together Tool",
             "Orient to Vertex/Edge Tool",
         ]
-        widget.addItems_(items, "Align To")
+        widget.add(items, "Align To")
 
     def cmb003_init(self, widget):
         """ """
@@ -583,12 +583,14 @@ class Transform_maya(SlotsMaya):
         ]
         try:
             attrs = mtk.get_node_attributes(transform_node, params, mapping=True)
-            self.sb.attribute_window(
+            window = self.sb.AttributeWindow(
                 transform_node,
+                attrs,
                 window_title=transform_node.name(),
                 set_attribute_func=lambda obj, n, v: getattr(obj, n).set(v),
-                **attrs,
             )
+            window.set_style(theme="dark")
+            window.show()
         except Exception as e:
             print(f"An error occurred while getting parameter values: {e}")
 
@@ -879,7 +881,7 @@ print(__name__)
 #       cmb.option_menu.add(self.sb.Label, setObjectName='lbl000', setText='Disable All', setToolTip='Disable all constraints.')
 
 #       items = ['Edge', 'Surface', 'Make Live']
-#       cmb.addItems_(items, 'Off')
+#       cmb.add(items, 'Off')
 #       return
 
 #   live_object = pm.ls(live=1)

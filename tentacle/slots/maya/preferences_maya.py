@@ -25,7 +25,7 @@ class Preferences_maya(SlotsMaya):
             "yard",
             "mile",
         ]
-        widget.addItems_(items)
+        widget.add(items)
         # get/set current linear value.
         index = widget.items.index(pm.currentUnit(q=True, fullName=1, linear=1))
         widget.setCurrentIndex(index)
@@ -41,7 +41,7 @@ class Preferences_maya(SlotsMaya):
             "50 fps (palf)": "palf",
             "60 fps (ntscf)": "ntscf",
         }
-        widget.addItems_(items)
+        widget.add(items)
         index = widget.items.index(
             pm.currentUnit(q=True, fullName=1, time=1)
         )  # get/set current time value.
@@ -52,7 +52,7 @@ class Preferences_maya(SlotsMaya):
         from PySide2 import QtWidgets, QtCore
 
         items = QtWidgets.QStyleFactory.keys()  # get styles from QStyleFactory
-        widget.addItems_(items)
+        widget.add(items)
         index = widget.findText(
             QtWidgets.QApplication.style().objectName(), QtCore.Qt.MatchFixedString
         )  # get/set current value
@@ -114,7 +114,7 @@ print(__name__)
 #   cmb = self.sb.preferences.draggableHeader.ctx_menu.cmb000
 
 #   items = ['Modeling', 'Normals', 'Materials', 'UV'] #combobox list menu corresponding to the button text sets.
-#   contents = cmb.addItems_(items, 'Menu Sets')
+#   contents = cmb.add(items, 'Menu Sets')
 
 #   if not index:
 # index = cmb.currentIndex()

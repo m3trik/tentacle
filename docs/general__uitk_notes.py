@@ -28,7 +28,7 @@ self.sb.file.slots.b005()  # Get method 'b005' from the 'file' module.
 def cmb_init(self, widget):
     """Initialize the combo box"""
     items = []  # Your items to add
-    widget.addItems_(items)
+    widget.add(items)
 
 
 def cmb(self, index, widget):

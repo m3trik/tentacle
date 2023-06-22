@@ -15,7 +15,7 @@ class Create_maya(SlotsMaya):
     def cmb001_init(self, widget):
         """ """
         items = ["Polygon", "NURBS", "Light"]
-        widget.addItems_(items)
+        widget.add(items)
 
         widget.currentIndexChanged.connect(
             lambda i, w=widget: self.cmb002_init(w.ui.cmb002)
@@ -56,7 +56,7 @@ class Create_maya(SlotsMaya):
                 "Text",
             ]
 
-        widget.addItems_(items, clear=True)
+        widget.add(items, clear=True)
 
     def tb000_init(self, widget):
         """ """

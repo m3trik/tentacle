@@ -95,7 +95,7 @@ class Materials_maya(SlotsMaya):
                 if hasattr(mat, "name")
             }
 
-        widget.addItems_(currentMats, clear=True)
+        widget.add(currentMats, clear=True)
 
         # create and set icons with color swatch
         for i, mat in enumerate(widget.items):
@@ -367,7 +367,7 @@ print(__name__)
 # elif storedMaterial:
 #   mat = self.currentMat
 #   if not mat:
-#       cmb.addItems_(['Stored Material: None'])
+#       cmb.add(['Stored Material: None'])
 #       return
 
 #   matName = mat.name()
@@ -378,7 +378,7 @@ print(__name__)
 #   else:
 #       subMatNames=[]
 
-#   contents = cmb.addItems_(subMatNames, matName)
+#   contents = cmb.add(subMatNames, matName)
 
 #   if index is None:
 #       index = cmb.currentIndex()
@@ -397,7 +397,7 @@ print(__name__)
 #   mats = [m for m in pm.ls(materials=1)]
 #   matNames = [m.name() for m in mats]
 
-#   contents = cmb.addItems_(matNames, "Scene Materials")
+#   contents = cmb.add(matNames, "Scene Materials")
 
 #   if index is None:
 #       index = cmb.currentIndex()

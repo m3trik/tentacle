@@ -65,7 +65,7 @@ class Uv_maya(SlotsMaya):
             "Align V Bottom",
             "Linear Align",
         ]
-        widget.addItems_(items, "Transform:")
+        widget.add(items, "Transform:")
 
     def tb000_init(self, widget):
         """ """

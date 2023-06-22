@@ -15,7 +15,7 @@ class Rigging_maya(SlotsMaya):
     def cmb001_init(self, widget):
         """ """
         items = ["Joints", "Locator", "IK Handle", "Lattice", "Cluster"]
-        widget.addItems_(items, "Create")
+        widget.add(items, "Create")
 
     def tb000_init(self, widget):
         """ """
@@ -389,17 +389,21 @@ class Rigging_maya(SlotsMaya):
                 kwargs = {arg: tuple(value)}
                 pm.transformLimits(node, **kwargs)
 
-        # try:
-        attrs = mtk.get_parameter_mapping(node, "transformLimits", list(params.keys()))
-        print("attrs:", attrs)
-        self.sb.attribute_window(
-            node,
-            window_title=node.name(),
-            set_attribute_func=set_transform_limit,
-            **attrs,
-        )
-        # except Exception as e:
-        #     print(f"An error occurred while getting parameter values: {e}")
+        try:
+            attrs = mtk.get_parameter_mapping(
+                node, "transformLimits", list(params.keys())
+            )
+
+            window = self.sb.AttributeWindow(
+                node,
+                attrs,
+                window_title=node.name(),
+                set_attribute_func=set_transform_limit,
+            )
+            window.set_style(theme="dark")
+            window.show()
+        except Exception as e:
+            print(f"An error occurred while getting parameter values: {e}")
 
     def b001(self):
         """Connect Joints"""

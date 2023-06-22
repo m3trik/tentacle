@@ -14,7 +14,7 @@ class Rendering_maya(SlotsMaya):
     def cmb001_init(self, widget):
         """Render: camera"""
         lst = {c.name(): c for c in pm.ls(type="camera") if "Target" not in c.name()}
-        widget.addItems_(lst)
+        widget.add(lst)
 
     def b000(self):
         """Render Current Frame"""

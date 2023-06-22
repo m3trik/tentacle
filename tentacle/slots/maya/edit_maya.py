@@ -12,6 +12,11 @@ class Edit_maya(SlotsMaya):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
+        # Refresh the combo box on every view show
+        self.sb.edit.cmb001.beforePopupShown.connect(
+            lambda: self.cmb001_init(self.sb.edit.cmb001)
+        )
+
     def tb000_init(self, widget):
         """ """
         widget.option_menu.add(
@@ -183,12 +188,12 @@ class Edit_maya(SlotsMaya):
         widget.clear()
         widget.refresh = True
         try:
-            obj_hist = pm.listHistory(pm.ls(sl=1, objectsOnly=1), pruneDagObjects=1)
-            # levels=1, interestLevel=2,
-            items = list(set([n.name() for n in obj_hist]))
+            selection = pm.ls(sl=1, objectsOnly=1)
+            obj_hist = pm.listHistory(selection, pruneDagObjects=1)
+            items = {str(o): o for o in obj_hist}
         except RuntimeError:
             items = ["No selection."]
-        widget.addItems_(items, "History")
+        widget.add(items, "History")
 
     def tb001_init(self, widget):
         """ """
@@ -293,48 +298,72 @@ class Edit_maya(SlotsMaya):
         """Object History Attributes"""
         if index > 0:
             if widget.items[index] != "No selection.":
-                pm.ls(widget.items[index])
-                widget.setCurrentIndex(0)
+                node = widget.itemData(index)
+                if node:
+                    attrs = mtk.get_node_attributes(
+                        node,
+                        mapping=True,
+                        visible=True,
+                        keyable=True,
+                    )
+                    # # Filter the unknown datatypes here
+                    # attrs = {
+                    #     k: v
+                    #     for k, v in attrs.items()
+                    #     if self.sb.AttributeWindow.is_type_supported(type(v))
+                    # }
+                    # print(attrs)
+                    window = self.sb.AttributeWindow(
+                        node,
+                        attrs,
+                        window_title=node.name(),
+                        set_attribute_func=lambda obj, n, v: getattr(obj, n).set(v),
+                    )
+                    window.set_style(theme="dark")
+                    window.show()
+            else:
+                self.sb.message_box("Found no items to list the history for.")
+            widget.setCurrentIndex(0)
+
+    @SlotsMaya.hide_main
+    def b001(self, widget):
+        """Object History Attributes: get most recent node"""
+        cmb = self.sb.edit.cmb001
+        self.cmb001_init(cmb)
+
+        index = cmb.items.index(cmb.items[-1])
+        self.cmb001(index, cmb)
 
     def tb000(self, widget):
         """Mesh Cleanup"""
-        allMeshes = int(
-            widget.option_menu.chk005.isChecked()
-        )  # [0] All selectable meshes
+        # [0] All selectable meshes
+        allMeshes = int(widget.option_menu.chk005.isChecked())
         repair = widget.option_menu.chk004.isChecked()  # repair or select only
-        quads = int(widget.option_menu.chk010.isChecked())  # [3] check for quads polys
+        # [3] check for quads polys
+        quads = int(widget.option_menu.chk010.isChecked())
         mergeVertices = widget.option_menu.chk024.isChecked()
-        nsided = int(
-            widget.option_menu.chk002.isChecked()
-        )  # [4] check for n-sided polys
-        concave = int(
-            widget.option_menu.chk011.isChecked()
-        )  # [5] check for concave polys
+        # [4] check for n-sided polys
+        nsided = int(widget.option_menu.chk002.isChecked())
+        # [5] check for concave polys
+        concave = int(widget.option_menu.chk011.isChecked())
         holed = int(widget.option_menu.chk012.isChecked())  # [6] check for holed polys
-        nonplanar = int(
-            widget.option_menu.chk003.isChecked()
-        )  # [7] check for non-planar polys
-        zeroGeom = int(
-            widget.option_menu.chk013.isChecked()
-        )  # [8] check for 0 area faces
+        # [7] check for non-planar polys
+        nonplanar = int(widget.option_menu.chk003.isChecked())
+        # [8] check for 0 area faces
+        zeroGeom = int(widget.option_menu.chk013.isChecked())
         zeroGeomTol = widget.option_menu.s006.value()  # [9] tolerance for face areas
-        zeroEdge = int(
-            widget.option_menu.chk014.isChecked()
-        )  # [10] check for 0 length edges
+        # [10] check for 0 length edges
+        zeroEdge = int(widget.option_menu.chk014.isChecked())
         zeroEdgeTol = widget.option_menu.s007.value()  # [11] tolerance for edge length
-        zeroMap = int(
-            widget.option_menu.chk015.isChecked()
-        )  # [12] check for 0 uv face area
+        # [12] check for 0 uv face area
+        zeroMap = int(widget.option_menu.chk015.isChecked())
         zeroMapTol = widget.option_menu.s008.value()  # [13] tolerance for uv face areas
-        sharedUVs = int(
-            widget.option_menu.chk016.isChecked()
-        )  # [14] Unshare uvs that are shared across vertices
-        nonmanifold = int(
-            widget.option_menu.chk017.isChecked()
-        )  # [15] check for nonmanifold polys
-        lamina = -int(
-            widget.option_menu.chk018.isChecked()
-        )  # [16] check for lamina polys [default -1]
+        # [14] Unshare uvs that are shared across vertices
+        sharedUVs = int(widget.option_menu.chk016.isChecked())
+        # [15] check for nonmanifold polys
+        nonmanifold = int(widget.option_menu.chk017.isChecked())
+        # [16] check for lamina polys [default -1]
+        lamina = -int(widget.option_menu.chk018.isChecked())
         split_non_manifold_vertex = widget.option_menu.chk021.isChecked()
         invalidComponents = 0  # int(widget.option_menu.chk019.isChecked()) #[17] a guess what this arg does. not checked. default is 0.
         overlappingFaces = widget.option_menu.chk025.isChecked()
@@ -496,20 +525,6 @@ class Edit_maya(SlotsMaya):
         for node in nodes:
             pm.lockNode(node, lock=not unlock)
         # pm.undoInfo(closeChunk=1)
-
-    @SlotsMaya.hide_main
-    def b001(self, widget):
-        """Object History Attributes: get most recent node"""
-        self.cmb001(None, widget)  # Refresh the contents of the combobox.
-        cmb = self.sb.edit.cmb001
-
-        items = pm.ls(cmb.items[-1])
-        print("items:", items)
-        if items:
-            self.sb.attribute_window(items)
-        else:
-            self.sb.message_box("Found no items to list the history for.")
-            return
 
     def b021(self):
         """Tranfer Maps"""
