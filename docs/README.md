@@ -10,13 +10,13 @@ Tentacle is a dynamic UI toolkit with a marking menu style UI derived from a QSt
 
 The following example demonstrates re-opening the last scene, renaming a material, and selecting geometry by that material.
 
-![Example](https://raw.githubusercontent.com/m3trik/uitk/master/docs/toolkit_demo.gif)
+![Example](https://raw.githubusercontent.com/m3trik/tentacle/master/docs/toolkit_demo.gif)
 
 ## Structure
 
 The structure of the project is as follows:
 
-![Structure](https://raw.githubusercontent.com/m3trik/uitk/master/docs/dependancy_graph.jpg)
+![Structure](https://raw.githubusercontent.com/m3trik/tentacle/master/docs/dependancy_graph.jpg)
 
 | Example | Description |
 | ------- | ----------- |
