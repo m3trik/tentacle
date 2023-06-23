@@ -1,3 +1,5 @@
+[![License: LGPL v3](https://img.shields.io/badge/License-LGPL%20v3-blue.svg)](https://www.gnu.org/licenses/lgpl-3.0.en.html)
+
 # Tentacle: A Python3/PySide2 Marking Menu and UI Toolkit
 
 Tentacle is a Python3/PySide2 marking menu and UI toolkit designed for Maya, 3ds Max, Blender, and any other DCC app that supports the PySide2 framework. It is a personal project and is currently a work in progress.
