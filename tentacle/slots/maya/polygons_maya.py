@@ -219,7 +219,7 @@ class Polygons_maya(SlotsMaya):
             )
             return
 
-        mtk.Edit.merge_vertices(objects, selected=componentMode, tolerance=tolerance)
+        mtk.merge_vertices(objects, selected=componentMode, tolerance=tolerance)
 
     def tb001(self, widget):
         """Bridge"""
@@ -452,7 +452,7 @@ class Polygons_maya(SlotsMaya):
         selection = pm.ls(sl=1, objectsOnly=1, type="transform")
         if len(selection) > 1:
             obj1, obj2 = selection
-            mtk.Edit.snap_closest_verts(obj1, obj2, tolerance, freezetransforms)
+            mtk.snap_closest_verts(obj1, obj2, tolerance, freezetransforms)
         else:
             self.sb.message_box(
                 "<strong>Nothing selected</strong>.<br>Operation requires at least two selected objects.",
@@ -517,7 +517,7 @@ class Polygons_maya(SlotsMaya):
     def b006(self):
         """Merge Vertices: Merge All"""
         sel = pm.ls(sl=True, objectsOnly=True)
-        mtk.Edit.merge_vertices(sel)
+        mtk.merge_vertices(sel)
 
     def b009(self):
         """Collapse Component"""

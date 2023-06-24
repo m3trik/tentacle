@@ -224,21 +224,6 @@ class Edit_maya(SlotsMaya):
             setToolTip="Remove unused scene objects.",
         )
 
-    def tb002_init(self, widget):
-        """ """
-        widget.option_menu.add(
-            "QCheckBox",
-            setText="Delete Edge Loop",
-            setObjectName="chk001",
-            setToolTip="Delete the edge loops of any edges selected.",
-        )
-        widget.option_menu.add(
-            "QCheckBox",
-            setText="Delete Edge Ring",
-            setObjectName="chk000",
-            setToolTip="Delete the edge rings of any edges selected.",
-        )
-
     def tb003_init(self, widget):
         """ """
         widget.option_menu.add(
@@ -267,16 +252,21 @@ class Edit_maya(SlotsMaya):
             setObjectName="chk009",
             setToolTip="Perform delete along Z axis.",
         )
-        self.sb.connect_multi("chk006-9", "toggled", self.chk006_9, widget.option_menu)
+
+        def set_axis_text(widget):
+            """Set the toolbutton's text according to the checkstates."""
+            axis = self.sb.get_axis_from_checkboxes("chk006-9", widget.option_menu)
+            widget.setText(f"Delete {axis}")
+
+        self.sb.connect_multi(
+            "chk006-9",
+            "toggled",
+            lambda s, w=widget: set_axis_text(w),
+            widget.option_menu,
+        )
 
     def tb004_init(self, widget):
         """ """
-        widget.option_menu.add(
-            "QCheckBox",
-            setText="All Nodes",
-            setObjectName="chk026",
-            setToolTip="Effect all nodes or only those currently selected.",
-        )
         widget.option_menu.add(
             "QCheckBox",
             setText="UnLock",
@@ -287,12 +277,6 @@ class Edit_maya(SlotsMaya):
         widget.option_menu.chk027.toggled.connect(
             lambda state: widget.setText("Unlock Nodes" if state else "Lock Nodes")
         )
-
-    def chk006_9(self):
-        """Set the toolbutton's text according to the checkstates."""
-        tb = self.sb.edit.tb003
-        axis = self.sb.get_axis_from_checkboxes("chk006-9", tb.option_menu)
-        tb.setText("Delete " + axis)
 
     def cmb001(self, index, widget):
         """Object History Attributes"""
@@ -377,7 +361,7 @@ class Edit_maya(SlotsMaya):
         objects = pm.ls(sl=1, transforms=1)
 
         if overlappingDuplicateObjects:
-            duplicates = mtk.Edit.get_overlapping_dup_objects(
+            duplicates = mtk.get_overlapping_dup_objects(
                 retain_given_objects=omitSelectedObjects, select=True, verbose=True
             )
             self.sb.message_box(
@@ -393,14 +377,14 @@ class Edit_maya(SlotsMaya):
             ]  # merge vertices on each object.
 
         if overlappingFaces:
-            duplicates = mtk.Edit.get_overlapping_faces(objects)
+            duplicates = mtk.get_overlapping_faces(objects)
             self.sb.message_box(
                 "Found {} duplicate overlapping faces.".format(len(duplicates)),
                 message_type="Result",
             )
             pm.delete(duplicates) if repair else pm.select(duplicates, add=1)
 
-        mtk.Edit.clean_geometry(
+        mtk.clean_geometry(
             objects,
             allMeshes=allMeshes,
             repair=repair,
@@ -423,108 +407,81 @@ class Edit_maya(SlotsMaya):
 
     def tb001(self, widget):
         """Delete History"""
-        all_ = widget.option_menu.chk018.isChecked()
+        # Get the state of the checkboxes
         unusedNodes = widget.option_menu.chk019.isChecked()
         deformers = widget.option_menu.chk020.isChecked()
         optimize = widget.option_menu.chk030.isChecked()
 
-        objects = pm.ls(sl=True, objectsOnly=1) if not all_ else pm.ls(typ="mesh")
+        # Get the selected objects or all mesh objects depending on whether there's a current selection
+        objects = pm.ls(sl=True, objectsOnly=1) if pm.ls(sl=True) else pm.ls(typ="mesh")
 
+        # Delete unused nodes if the corresponding checkbox is checked
         if unusedNodes:
-            pm.mel.MLdeleteUnused()  # pm.mel.hyperShadePanelMenuCommand('hyperShadePanel1', 'deleteUnusedNodes')
-            # delete empty groups:
-            empty = mtk.Node.get_groups(empty=True)
-            pm.delete(empty)
+            pm.mel.MLdeleteUnused()  # Delete unused nodes
+            empty = mtk.get_groups(empty=True)  # Get empty groups
+            pm.delete(empty)  # Delete empty groups
 
-        try:  # delete history
-            if all_:
-                pm.delete(objects, constructionHistory=1)
+        # Try to delete history
+        try:
+            if deformers:
+                pm.delete(objects, constructionHistory=1)  # Delete all history
             else:
-                pm.bakePartialHistory(objects, prePostDeformers=1)
+                pm.bakePartialHistory(
+                    objects, prePostDeformers=1
+                )  # Delete non-deformer history
         except Exception:
             pass
 
+        # Optimize the scene if the corresponding checkbox is checked
         if optimize:
             pm.mel.OptimizeScene()
 
-        # display viewPort messages
-        if all_:
-            if deformers:
-                mtk.viewport_message("delete <hl>all</hl> history.")
-            else:
-                mtk.viewport_message("delete <hl>all non-deformer</hl> history.")
+        # Display messages in the viewport
+        obj_names = ", ".join([str(obj) for obj in objects])
+        if deformers:
+            self.sb.message_box(f"<hl>Delete history</hl> on {obj_names}")
         else:
-            if deformers:
-                mtk.viewport_message("delete history on " + str(objects))
-            else:
-                mtk.viewport_message(
-                    "delete <hl>non-deformer</hl> history on " + str(objects)
-                )
+            self.sb.message_box(f"<hl>Delete non-deformer history</hl> on {obj_names}")
 
     def tb002(self, widget):
         """Delete"""
-        deleteRing = widget.option_menu.chk000.isChecked()
-        deleteLoop = widget.option_menu.chk001.isChecked()
-
-        # selectionMask = pm.selectMode (query=True, component=True)
-        maskVertex = pm.selectType(query=True, vertex=True)
-        maskEdge = pm.selectType(query=True, edge=True)
-        # maskFacet = pm.selectType(query=True, facet=True)
+        maskVertex = pm.selectType(q=True, vertex=True)
+        maskEdge = pm.selectType(q=True, edge=True)
 
         objects = pm.ls(sl=1, objectsOnly=1)
         for obj in objects:
             if pm.objectType(obj, isType="joint"):
-                pm.removeJoint(obj)  # remove joints
+                pm.removeJoint(obj)  # Remove joints
 
             elif pm.objectType(obj, isType="mesh"):
+                selection = pm.ls(obj, sl=1, flatten=1)
                 if maskEdge:
-                    selection = pm.ls(obj, sl=1, flatten=1)
-                    if deleteRing:
-                        pm.polyDelEdge(
-                            mtk.Cmpt.get_edge_path(selection, "edgeRing"),
-                            cleanVertices=True,
-                        )  # pm.polySelect(edges, edgeRing=True) #select the edge ring.
-                    if deleteLoop:
-                        pm.polyDelEdge(
-                            mtk.Cmpt.get_edge_path(selection, "edgeLoop"),
-                            cleanVertices=True,
-                        )  # pm.polySelect(edges, edgeLoop=True) #select the edge loop.
-                    else:
-                        pm.polyDelEdge(selection, cleanVertices=True)  # delete edges
+                    pm.polyDelEdge(selection, cleanVertices=True)  # Delete edges
 
                 elif maskVertex:
-                    pm.polyDelVertex()  # try delete vertices
-                    if pm.ls(sl=1) == objects:  # if nothing was deleted:
-                        pm.mel.eval(
-                            "polySelectSp -loop;"
-                        )  # convert selection to edge loop
-                        pm.polyDelEdge(cleanVertices=True)  # delete edges
+                    pm.polyDelVertex(selection)  # Try delete vertices
 
-                else:  # all([selectionMask==1, maskFacet==1]):
-                    pm.delete(obj)  # delete faces\mesh objects
+                else:
+                    pm.delete(obj)  # Delete faces\mesh objects
 
+    @mtk.undo
     def tb003(self, widget):
         """Delete Along Axis"""
         axis = self.sb.get_axis_from_checkboxes("chk006-9", widget.option_menu)
+        selection = pm.ls(sl=1)
 
-        pm.undoInfo(openChunk=1)
-        objects = pm.ls(sl=1, objectsOnly=1)
-
-        for obj in objects:
-            mtk.Edit.delete_along_axis(obj, axis)
-        pm.undoInfo(closeChunk=1)
+        mtk.delete_along_axis(selection, axis)
 
     @mtk.undo
     def tb004(self, widget):
-        """Delete Along Axis"""
-        allNodes = widget.option_menu.chk026.isChecked()
+        """Node Locking"""
         unlock = widget.option_menu.chk027.isChecked()
 
-        # pm.undoInfo(openChunk=1)
-        nodes = pm.ls() if allNodes else pm.ls(sl=True)
+        selection = pm.ls(sl=True)
+        # If not selection use all nodes
+        nodes = selection if selection else pm.ls()
         for node in nodes:
             pm.lockNode(node, lock=not unlock)
-        # pm.undoInfo(closeChunk=1)
 
     def b021(self):
         """Tranfer Maps"""

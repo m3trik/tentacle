@@ -264,10 +264,10 @@ class Nurbs_maya(SlotsMaya):
 
         except Exception:
             sel = pm.ls(sl=1)
-            sel_edges = mtk.Cmpt.get_components(
+            sel_edges = mtk.get_components(
                 sel, component_type="edges", flatten=1
             )  # get edges from selection.
-            edge_rings = mtk.Cmpt.get_contigious_edges(sel_edges)
+            edge_rings = mtk.get_contigious_edges(sel_edges)
             multi = len(edge_rings) > 1
 
             for edge_ring in edge_rings:
@@ -612,13 +612,13 @@ class Nurbs_maya(SlotsMaya):
             start, startNode = pm.polyToCurve(
                 start, form=2, degree=3, conformToSmoothMeshPreview=1
             )  # extract curve from mesh
-        mtk.Xform.reset_translation(start)  # reset the transforms to world origin.
+        mtk.reset_translation(start)  # reset the transforms to world origin.
 
         if pm.objectType(end) == "mesh":  # vs. 'nurbsCurve'
             end, endNode = pm.polyToCurve(
                 end, form=2, degree=3, conformToSmoothMeshPreview=1
             )  # extract curve from mesh
-        mtk.Xform.reset_translation(end)  # reset the transforms to world origin.
+        mtk.reset_translation(end)  # reset the transforms to world origin.
 
         path = self.createCurveBetweenTwoObjects(start, end)
         curves = self.duplicateAlongCurve(path, start, count=count)

@@ -393,12 +393,12 @@ class Rigging_maya(SlotsMaya):
             attrs = mtk.get_parameter_mapping(
                 node, "transformLimits", list(params.keys())
             )
-
             window = self.sb.AttributeWindow(
                 node,
                 attrs,
                 window_title=node.name(),
                 set_attribute_func=set_transform_limit,
+                allow_unsupported_types=True,
             )
             window.set_style(theme="dark")
             window.show()

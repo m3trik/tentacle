@@ -78,7 +78,7 @@ class Cameras_maya(SlotsMaya):
                     pm.cameraView(camera, edit=True, setCamera=True)
 
             elif text == "Camera From View":
-                mtk.Cam.create_camera_from_view()
+                mtk.create_camera_from_view()
 
             elif parent_text == "Cameras":
                 pm.select(text)
@@ -119,11 +119,11 @@ class Cameras_maya(SlotsMaya):
 
         if parent_text == "Options":
             if text == "Group Cameras":
-                mtk.Cam.group_cameras()
+                mtk.group_cameras()
             elif text == "Adjust Clipping":
                 self.clippingMenu.show()
             elif text == "Toggle Safe Frames":  # Viewport Safeframes Toggle
-                mtk.Cam.toggle_safe_frames()
+                mtk.toggle_safe_frames()
 
     def chk000(self, state, widget):
         """Camera Clipping: Auto Clip"""
@@ -132,7 +132,7 @@ class Cameras_maya(SlotsMaya):
         else:
             self.sb.toggle_widgets(self.clippingMenu, setEnabled="s000-1")
 
-        activeCamera = mtk.Cam.get_current_cam()
+        activeCamera = mtk.get_current_cam()
         if not activeCamera:
             self.sb.message_box("No Active Camera.")
             return
@@ -141,7 +141,7 @@ class Cameras_maya(SlotsMaya):
 
     def s000(self, value, widget):
         """Camera Clipping: Near Clip"""
-        activeCamera = mtk.Cam.get_current_cam()
+        activeCamera = mtk.get_current_cam()
         if not activeCamera:
             self.sb.message_box("No Active Camera.")
             return
@@ -150,7 +150,7 @@ class Cameras_maya(SlotsMaya):
 
     def s001(self, value, widget):
         """Camera Clipping: Far Clip"""
-        activeCamera = mtk.Cam.get_current_cam()
+        activeCamera = mtk.get_current_cam()
         if not activeCamera:
             self.sb.message_box("No Active Camera.")
             return
@@ -322,7 +322,7 @@ class Cameras_maya(SlotsMaya):
             )
 
         # set widget states for the active camera
-        activeCamera = mtk.Cam.get_current_cam()
+        activeCamera = mtk.get_current_cam()
         if not activeCamera:
             self.sb.toggle_widgets(self._clippingMenu, setDisabled="s000-1,chk000")
 
@@ -440,11 +440,11 @@ print(__name__)
 
 #       if header=='Options':
 #           if text=='Group Cameras':
-#               mtk.Cam.group_cameras()
+#               mtk.group_cameras()
 #           if text=='Adjust Clipping':
 #               self.clippingMenu.show()
 #           if text=='Toggle Safe Frames': #Viewport Safeframes Toggle
-#               mtk.Cam.toggle_safe_frames()
+#               mtk.toggle_safe_frames()
 
 
 # def cmb001(self, *args, **kwargs):

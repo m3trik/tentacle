@@ -361,7 +361,7 @@ class Transform_maya(SlotsMaya):
         selection = pm.ls(sl=1, objectsOnly=1, type="transform")
         if state and selection:
             live_object = pm.ls(live=1)
-            shape = mtk.Node.get_shape_node(selection[0])
+            shape = mtk.get_shape_node(selection[0])
             if shape not in str(live_object):
                 pm.makeLive(
                     selection
@@ -406,7 +406,7 @@ class Transform_maya(SlotsMaya):
         freeze_transforms = widget.option_menu.chk017.isChecked()
 
         objects = pm.ls(sl=1, objectsOnly=1)
-        mtk.Xform.drop_to_grid(objects, align, origin, center_pivot, freeze_transforms)
+        mtk.drop_to_grid(objects, align, origin, center_pivot, freeze_transforms)
         pm.select(objects)  # reselect the original selection.
 
     def tb001(self, widget):
@@ -422,7 +422,7 @@ class Transform_maya(SlotsMaya):
 
         if betweenTwoComponents:
             if len(selection) > 1:
-                componentsOnPath = mtk.Cmpt.get_edge_path(selection, "edgeLoopPath")
+                componentsOnPath = mtk.get_edge_path(selection, "edgeLoopPath")
                 pm.select(componentsOnPath)
 
         if autoAlign:  # set coordinates for auto align:
@@ -517,25 +517,25 @@ class Transform_maya(SlotsMaya):
         loop = widget.option_menu.chk007.isChecked()
 
         if all([x, not y, not z]):  # align x
-            mtk.Xform.align_vertices(mode=3, average=avg, edgeloop=loop)
+            mtk.align_vertices(mode=3, average=avg, edgeloop=loop)
 
         if all([not x, y, not z]):  # align y
-            mtk.Xform.align_vertices(mode=4, average=avg, edgeloop=loop)
+            mtk.align_vertices(mode=4, average=avg, edgeloop=loop)
 
         if all([not x, not y, z]):  # align z
-            mtk.Xform.align_vertices(mode=5, average=avg, edgeloop=loop)
+            mtk.align_vertices(mode=5, average=avg, edgeloop=loop)
 
         if all([not x, y, z]):  # align yz
-            mtk.Xform.align_vertices(mode=0, average=avg, edgeloop=loop)
+            mtk.align_vertices(mode=0, average=avg, edgeloop=loop)
 
         if all([x, not y, z]):  # align xz
-            mtk.Xform.align_vertices(mode=1, average=avg, edgeloop=loop)
+            mtk.align_vertices(mode=1, average=avg, edgeloop=loop)
 
         if all([x, y, not z]):  # align xy
-            mtk.Xform.align_vertices(mode=2, average=avg, edgeloop=loop)
+            mtk.align_vertices(mode=2, average=avg, edgeloop=loop)
 
         if all([x, y, z]):  # align xyz
-            mtk.Xform.align_vertices(mode=6, average=avg, edgeloop=loop)
+            mtk.align_vertices(mode=6, average=avg, edgeloop=loop)
 
     def tb002(self, widget):
         """Freeze Transformations"""
@@ -569,7 +569,7 @@ class Transform_maya(SlotsMaya):
             )
             return
 
-        transform_node = mtk.Node.get_transform_node(node[0])
+        node = mtk.get_transform_node(node[0])
         params = [
             "translateX",
             "translateY",
@@ -582,11 +582,11 @@ class Transform_maya(SlotsMaya):
             "scaleZ",
         ]
         try:
-            attrs = mtk.get_node_attributes(transform_node, params, mapping=True)
+            attrs = mtk.get_node_attributes(node, params, mapping=True)
             window = self.sb.AttributeWindow(
-                transform_node,
+                node,
                 attrs,
-                window_title=transform_node.name(),
+                window_title=node.name(),
                 set_attribute_func=lambda obj, n, v: getattr(obj, n).set(v),
             )
             window.set_style(theme="dark")
@@ -606,7 +606,7 @@ class Transform_maya(SlotsMaya):
         frm = selection[0]
         to = selection[1:]
 
-        mtk.Xform.match_scale(frm, to)
+        mtk.match_scale(frm, to)
 
     def b003(self):
         """Center Pivot Object"""
@@ -636,7 +636,7 @@ class Transform_maya(SlotsMaya):
 
         if selection:
             live_object = pm.ls(live=1)
-            shape = mtk.Node.get_shape_node(selection[0])
+            shape = mtk.get_shape_node(selection[0])
             if shape not in str(live_object):
                 self.chk026(state=1)
                 cmb.option_menu.chk026.setChecked(True)

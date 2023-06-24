@@ -395,9 +395,9 @@ class Uv_maya(SlotsMaya):
                         unwrapType = "Cylindrical"
                     elif sphericalUnwrap:
                         unwrapType = "Spherical"
-                    objFaces = mtk.Cmpt.get_components(obj, "f")
+                    objFaces = mtk.get_components(obj, "f")
                     if not objFaces:
-                        objFaces = mtk.Cmpt.get_components(obj, "f")
+                        objFaces = mtk.get_components(obj, "f")
                     pm.polyProjection(
                         objFaces, type=unwrapType, insertBeforeDeformers=1, smartFit=1
                     )

@@ -154,11 +154,11 @@ class Create_maya(SlotsMaya):
         # if originally there was a selected object, move the object to that objects's bounding box center.
         if selection:
             if translate:
-                mtk.Xform.move_to(node, selection)
-                # center_pos = mtk.Xform.get_center_point(selection)
+                mtk.move_to(node, selection)
+                # center_pos = mtk.get_center_point(selection)
                 # pm.xform(node, translation=center_pos, worldSpace=1, absolute=1)
             if scale:
-                mtk.Xform.match_scale(node[0], selection, average=True)
+                mtk.match_scale(node[0], selection, average=True)
 
         return mtk.get_history_node(node[0])
 
@@ -237,7 +237,7 @@ print(__name__)
 # def node(self):
 #   '''Get the Transform Node
 #   '''
-#   transform = mtk.Node.get_transform_node()
+#   transform = mtk.get_transform_node()
 #   if transform:
 #       if not self.sb.create.txt003.text()==transform[0].name(): #make sure the same field reflects the current working node.
 #           self.sb.create.txt003.setText(transform[0].name())

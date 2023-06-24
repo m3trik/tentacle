@@ -559,19 +559,19 @@ class Selection(SlotsMaya):
 
         result = []
         if edgeRing:
-            result = mtk.Cmpt.get_edge_path(selection, "edgeRing")
+            result = mtk.get_edge_path(selection, "edgeRing")
 
         elif edgeLoop:
-            result = mtk.Cmpt.get_edge_path(selection, "edgeLoop")
+            result = mtk.get_edge_path(selection, "edgeLoop")
 
         elif pathAlongLoop:
-            result = mtk.Cmpt.get_edge_path(selection, "edgeLoopPath")
+            result = mtk.get_edge_path(selection, "edgeLoopPath")
 
         elif shortestPath:
-            result = mtk.Cmpt.get_shortest_path(selection)
+            result = mtk.get_shortest_path(selection)
 
         elif borderEdges:
-            result = mtk.Cmpt.get_border_components(selection, "edges")
+            result = mtk.get_border_components(selection, "edges")
 
         pm.select(result[::step])
 
@@ -619,7 +619,7 @@ class Selection(SlotsMaya):
         range_z = float(widget.option_menu.s005.value())
 
         sel = pm.ls(sl=1)
-        selected_faces = mtk.Cmpt.get_components(sel, component_type="faces")
+        selected_faces = mtk.get_components(sel, component_type="faces")
         if not selected_faces:
             self.sb.message_box("The operation requires a face selection.")
             return
@@ -627,7 +627,7 @@ class Selection(SlotsMaya):
         similar_faces = mtk.get_faces_with_similar_normals(
             selected_faces, range_x=range_x, range_y=range_y, range_z=range_z
         )
-        islands = mtk.Cmpt.get_contigious_islands(similar_faces)
+        islands = mtk.get_contigious_islands(similar_faces)
         island = [i for i in islands if bool(set(i) & set(selected_faces))]
         pm.select(island)
 
