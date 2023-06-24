@@ -77,7 +77,7 @@ class Scene_maya(SlotsMaya):
 
         selection = pm.ls(sl=1)
         objects = selection if selection else pm.ls(objectsOnly=1)
-        mtk.Edit.set_case(objects, case)
+        mtk.set_case(objects, case)
 
     def tb001(self, widget):
         """Convert Case"""
@@ -87,7 +87,7 @@ class Scene_maya(SlotsMaya):
         reverse = widget.option_menu.chk004.isChecked()
 
         selection = pm.ls(sl=1, objectsOnly=1, type="transform")
-        mtk.Edit.append_location_based_suffix(
+        mtk.append_location_based_suffix(
             selection,
             alphanumeric=alphanumeric,
             strip_trailing_ints=strip_trailing_ints,
@@ -104,7 +104,7 @@ class Scene_maya(SlotsMaya):
         ignore_case = self.sb.scene.txt000.ctx_menu.chk000.isChecked()
 
         selection = pm.ls(sl=1, objectsOnly=True)
-        mtk.Edit.rename(selection, to, find, regex=regex, ignore_case=ignore_case)
+        mtk.rename(selection, to, find, regex=regex, ignore_case=ignore_case)
 
 
 # --------------------------------------------------------------------------------------------

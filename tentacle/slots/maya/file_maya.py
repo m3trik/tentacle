@@ -251,10 +251,10 @@ class File_maya(SlotsMaya):
 
     def cmb006(self, index, widget):
         """Workspace"""
-        path = ptk.File.format_path(pm.workspace(q=True, rd=1))  # current project path.
+        path = ptk.format_path(pm.workspace(q=True, rd=1))  # current project path.
         items = [f for f in os.listdir(path)]
         # add current project path string to label. strip path and trailing '/'
-        project = ptk.File.format_path(path, "dir")
+        project = ptk.format_path(path, "dir")
 
         widget.add(items, header=project, clear=True)
 
@@ -271,7 +271,7 @@ class File_maya(SlotsMaya):
     def lbl004(self):
         """Open current project root"""
         dir_ = pm.workspace(q=True, rd=1)  # current project path.
-        os.startfile(ptk.File.format_path(dir_))
+        os.startfile(ptk.format_path(dir_))
 
     def b000(self):
         """Autosave: Open Directory"""
@@ -281,7 +281,7 @@ class File_maya(SlotsMaya):
 
         try:
             # os.startfile(self.format_path(dir1))
-            os.startfile(ptk.File.format_path(dir2))
+            os.startfile(ptk.format_path(dir2))
 
         except FileNotFoundError:
             self.sb.message_box("The system cannot find the file specified.")

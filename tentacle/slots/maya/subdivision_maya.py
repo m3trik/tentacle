@@ -45,7 +45,7 @@ class Subdivision_maya(SlotsMaya):
         transforms = pm.listRelatives(shapes, p=True)
         for obj in transforms:
             if hasattr(obj, "smoothLevel"):
-                mtk.Node.set_node_attributes(obj, {"smoothLevel": value})
+                mtk.set_node_attributes(obj, {"smoothLevel": value})
                 # subDiv proxy options: 'divisions'
                 pm.optionVar(intValue=["proxyDivisions", 1])
                 mtk.viewport_message(f"{obj}: Division Level: <hl>{value}</hl>")
@@ -56,7 +56,7 @@ class Subdivision_maya(SlotsMaya):
         transforms = pm.listRelatives(shapes, p=True)
         for obj in transforms:
             if hasattr(obj, "smoothLevel"):
-                mtk.Node.set_node_attributes(obj, {"smoothTessLevel": value})
+                mtk.set_node_attributes(obj, {"smoothTessLevel": value})
                 mtk.viewport_message(f"{obj}: Tesselation Level: <hl>{value}</hl>")
 
     def b005(self):
