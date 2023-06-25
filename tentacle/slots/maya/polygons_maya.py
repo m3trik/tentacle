@@ -4,6 +4,7 @@ try:
     import pymel.core as pm
 except ImportError as error:
     print(__file__, error)
+import pythontk as ptk
 import mayatk as mtk
 from tentacle.slots.maya import SlotsMaya
 
@@ -18,7 +19,7 @@ class Polygons_maya(SlotsMaya):
             "QDoubleSpinBox",
             setPrefix="Distance: ",
             setObjectName="s002",
-            set_limits=[0, 10, 0.0005, 4],
+            set_limits=[0, 1000, 0.0001, 5],
             setValue=0.0005,
             set_height=20,
             setToolTip="Merge Distance.",
@@ -196,15 +197,15 @@ class Polygons_maya(SlotsMaya):
 
     def chk008(self, state, widget):
         """Divide Facet: Split U"""
-        self.sb.toggle_widgets(widget.option_menu, setUnChecked="chk010")
+        self.sb.toggle_widgets(widget.ui, setUnChecked="chk010")
 
     def chk009(self, state, widget):
         """Divide Facet: Split V"""
-        self.sb.toggle_widgets(widget.option_menu, setUnChecked="chk010")
+        self.sb.toggle_widgets(widget.ui, setUnChecked="chk010")
 
     def chk010(self, state, widget):
         """Divide Facet: Tris"""
-        self.sb.toggle_widgets(widget.option_menu, setUnChecked="chk008,chk009")
+        self.sb.toggle_widgets(widget.ui, setUnChecked="chk008,chk009")
 
     def tb000(self, widget):
         """Merge Vertices"""
@@ -607,11 +608,9 @@ class Polygons_maya(SlotsMaya):
 
     def setMergeVertexDistance(self, p1, p2):
         """Merge Vertices: Set Distance"""
-        from pythontk import get_distance
-
-        s = self.sb.polygons.tb000.option_menu.s002
-        dist = get_distance(p1, p2)
-        s.setValue(dist)
+        spinbox = self.sb.polygons.tb000.option_menu.s002
+        dist = ptk.get_distance(p1, p2)
+        spinbox.setValue(dist)
 
 
 # --------------------------------------------------------------------------------------------
