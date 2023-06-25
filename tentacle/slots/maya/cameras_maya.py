@@ -351,7 +351,7 @@ class Cameras_maya(SlotsMaya):
     def toggle_camera_view(self):
         """Toggle between the last two camera views in history."""
         # Get all slot methods from b000 to b007
-        slots = self.sb.get_slots_from_string(self, "b000-7")
+        slots = self.sb.get_methods_by_name(self, "b000-7")
 
         # Get the last two methods from the slot history
         history = self.sb.slot_history(slice(-2, None), inc=slots)
