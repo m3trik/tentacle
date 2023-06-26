@@ -584,7 +584,9 @@ class Uv_maya(SlotsMaya):
 
     def b022(self):
         """Cut UV hard edges"""
-        self.sb.selection.slots.tb003()  # perform select edges by angle.
+        # perform select edges by angle.
+        self.sb.selection.tb003.init_slot()
+        self.sb.selection.slots.tb003(self.sb.selection.tb003)
         self.b005()  # perform cut.
 
     def b023(self):
