@@ -81,6 +81,7 @@ class Crease_maya(SlotsMaya):
             setToolTip="Auto crease: max angle constraint.",
         )
         self.sb.toggle_widgets(widget.option_menu, setDisabled="s005,s006")
+        self.sb.create_button_groups(widget.option_menu, "chk002-3")
 
     def s003(self, value, widget):
         """Crease Amount
@@ -97,9 +98,6 @@ class Crease_maya(SlotsMaya):
         if state:
             self.sb.crease.tb000.option_menu.s003.setValue(0)  # crease value
             self.sb.crease.tb000.option_menu.s004.setValue(180)  # normal angle
-            self.sb.toggle_widgets(
-                widget.option_menu, setChecked="chk002", setUnChecked="chk003"
-            )
             self.sb.crease.tb000.option_menu.s003.setDisabled(True)
             text = "Un-Crease 0"
         else:
@@ -117,9 +115,6 @@ class Crease_maya(SlotsMaya):
         if state:
             self.sb.crease.tb000.option_menu.s003.setValue(10)  # crease value
             self.sb.crease.tb000.option_menu.s004.setValue(30)  # normal angle
-            self.sb.toggle_widgets(
-                widget.option_menu, setChecked="chk003", setUnChecked="chk002"
-            )
             self.sb.crease.tb000.option_menu.s003.setDisabled(True)
             text = "Un-Crease 0"
         else:
@@ -135,9 +130,13 @@ class Crease_maya(SlotsMaya):
     def chk011(self, state, widget):
         """Crease: Auto"""
         if state:
-            self.sb.toggle_widgets(widget.option_menu, setEnabled="s005,s006")
+            self.sb.toggle_widgets(
+                self.sb.crease.tb000.option_menu, setEnabled="s005,s006"
+            )
         else:
-            self.sb.toggle_widgets(widget.option_menu, setDisabled="s005,s006")
+            self.sb.toggle_widgets(
+                self.sb.crease.tb000.option_menu, setDisabled="s005,s006"
+            )
 
     def tb000(self, widget):
         """Crease"""
@@ -259,10 +258,10 @@ class Crease_maya(SlotsMaya):
         """Return any creased edges from a list of edges.
 
         Parameters:
-                edges (str/obj/list): The edges to check crease state on.
+            edges (str/obj/list): The edges to check crease state on.
 
         Returns:
-                (list) edges.
+            (list) edges.
         """
         creased_edges = [
             e for e in pm.ls(edges, flatten=1) if pm.polyCrease(e, q=1, value=1)[0] > 0
