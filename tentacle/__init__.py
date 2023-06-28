@@ -4,7 +4,7 @@ import sys
 
 
 __package__ = "tentacle"
-__version__ = "0.6.4"
+__version__ = "0.6.6"
 
 
 def greeting(string, outputToConsole=True):

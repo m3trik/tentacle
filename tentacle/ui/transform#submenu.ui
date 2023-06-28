@@ -143,7 +143,7 @@
      <string>Drop to Grid</string>
     </property>
    </widget>
-   <widget class="QPushButton" name="chk024">
+   <widget class="QCheckBox" name="chk024">
     <property name="enabled">
      <bool>true</bool>
     </property>
@@ -291,7 +291,7 @@
      </size>
     </property>
    </widget>
-   <widget class="QPushButton" name="chk025">
+   <widget class="QCheckBox" name="chk025">
     <property name="enabled">
      <bool>true</bool>
     </property>
@@ -518,12 +518,12 @@
   <customwidget>
    <class>PushButton</class>
    <extends>QPushButton</extends>
-   <header>widgets.pushbutton.h</header>
+   <header>uitk.widgets.pushbutton.PushButton.h</header>
   </customwidget>
   <customwidget>
    <class>CheckBox</class>
    <extends>QCheckBox</extends>
-   <header>checkbox.h</header>
+   <header>uitk.widgets.checkbox.CheckBox.h</header>
   </customwidget>
  </customwidgets>
  <resources/>

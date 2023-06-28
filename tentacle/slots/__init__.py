@@ -2,11 +2,11 @@
 # coding=utf-8
 import inspect
 from PySide2 import QtCore
-from pythontk import File, Iter, set_attributes
+import pythontk as ptk
 
 
 module = inspect.getmodule(inspect.currentframe())  # this module.
-path = File.get_filepath(module)  # this modules directory.
+path = ptk.get_filepath(module)  # this modules directory.
 
 
 class Slots(QtCore.QObject):
