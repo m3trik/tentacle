@@ -137,8 +137,8 @@ class File_maya(SlotsMaya):
 
     def cmb006_init(self, widget):
         """ """
-        widget.clear()
         widget.refresh = True
+        widget.menu.clear()
         widget.menu.add(
             self.sb.ComboBox,
             setObjectName="cmb001",

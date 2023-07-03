@@ -411,7 +411,7 @@
   <customwidget>
    <class>PushButton</class>
    <extends>QPushButton</extends>
-   <header>widgets.pushbutton.h</header>
+   <header>uitk.widgets.pushbutton.PushButton.h</header>
   </customwidget>
  </customwidgets>
  <resources/>

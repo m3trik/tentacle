@@ -147,7 +147,7 @@ class Transform_maya(SlotsMaya):
 
     def tb003_init(self, widget):
         """ """
-        widget.menu.menu_type = "popup"
+        widget.menu.mode = "popup"
         widget.menu.position = "bottom"
         widget.menu.setTitle("CONSTRAINTS")
         edge_constraint = (
@@ -171,7 +171,7 @@ class Transform_maya(SlotsMaya):
 
     def tb004_init(self, widget):
         """ """
-        widget.menu.menu_type = "popup"
+        widget.menu.mode = "popup"
         widget.menu.position = "bottom"
         widget.menu.setTitle("SNAP")
         widget.menu.add(
@@ -356,21 +356,21 @@ class Transform_maya(SlotsMaya):
         tb.init_slot()
         selection = pm.ls(sl=1, objectsOnly=1, type="transform")
         if state and selection:
-            live_object = pm.ls(live=1)
+            live_objects = pm.ls(live=1)
             shape = mtk.get_shape_node(selection[0])
-            if shape not in str(live_object):
+            if shape not in live_objects:
                 # Construction planes, nurbs surfaces and polygon meshes can be made live. makeLive supports one live object at a time.
                 pm.makeLive(selection)
         else:
             pm.makeLive(none=True)
 
-        tb.setCurrentText("Constrain: OFF") if not any(
+        tb.setText("Constrain: OFF") if not any(
             (
                 state,
                 tb.menu.chk024.isChecked(),
                 tb.menu.chk025.isChecked(),
             )
-        ) else tb.setCurrentText("Constrain: ON")
+        ) else tb.setText("Constrain: ON")
 
     def s021(self, value, widget):
         """Transform Tool Snap Settings: Spinboxes"""

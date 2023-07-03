@@ -14,16 +14,6 @@ class Materials_maya(SlotsMaya):
 
         self.randomMat = None
 
-    def draggableHeader_init(self, widget):
-        """ """
-        widget.menu.add(
-            self.sb.Label,
-            setText="Material Attributes",
-            setObjectName="lbl004",
-            setToolTip="Show the material attributes in the attribute editor.",
-        )
-        self.sb.materials_submenu.b003.setVisible(False)
-
     def cmb002_init(self, widget):
         """ """
         widget.refresh = True
@@ -42,12 +32,6 @@ class Materials_maya(SlotsMaya):
         )
         widget.menu.add(
             self.sb.Label,
-            setText="Rename",
-            setObjectName="lbl001",
-            setToolTip="Rename the current material.",
-        )
-        widget.menu.add(
-            self.sb.Label,
             setText="Delete",
             setObjectName="lbl002",
             setToolTip="Delete the current material.",
@@ -58,7 +42,28 @@ class Materials_maya(SlotsMaya):
             setObjectName="lbl003",
             setToolTip="Delete All unused materials.",
         )
-        widget.returnPressed.connect(lambda: self.lbl001(setEditable=False))
+        widget.menu.add(
+            self.sb.Label,
+            setText="Material Attributes",
+            setObjectName="lbl004",
+            setToolTip="Show the material attributes in the attribute editor.",
+        )
+        '''
+        """Rename Material: Set cmb002 as editable and disable wgts."""
+        widget.returnPressed.connect(self.lbl001)
+        cmb = self.sb.materials.cmb002
+        if setEditable:
+            self._mat = self.sb.materials.cmb002.currentData()
+            cmb.setEditable(True)
+            self.sb.toggle_widgets(widget.ui, setDisabled="b002,lbl000,tb000,tb002")
+        else:
+            mat = self._mat
+            newMatName = cmb.currentText()
+            self.renameMaterial(mat, newMatName)
+            cmb.setEditable(False)
+            self.sb.toggle_widgets(widget.ui, setEnabled="b002,lbl000,tb000,tb002")
+        '''
+
         # set the popup title to be the current materials name.
         widget.currentIndexChanged.connect(
             lambda: widget.menu.setTitle(widget.currentText())
@@ -140,9 +145,7 @@ class Materials_maya(SlotsMaya):
         widget.menu.chk007.clicked.connect(
             lambda state: widget.setText("Assign Current")
         )
-        widget.menu.chk009.clicked.connect(
-            lambda state: widget.setText("Assign New")
-        )
+        widget.menu.chk009.clicked.connect(lambda state: widget.setText("Assign New"))
         widget.menu.chk008.clicked.connect(
             lambda state: widget.setText("Assign Random")
         )
@@ -211,30 +214,13 @@ class Materials_maya(SlotsMaya):
 
         pm.mel.HypershadeWindow()  # open the hypershade editor
 
-    def lbl001(self, widget):
-        """Rename Material: Set cmb002 as editable and disable wgts."""
-        cmb = self.sb.materials.cmb002
-
-        if setEditable:
-            self._mat = self.sb.materials.cmb002.currentData()
-            cmb.setEditable(True)
-            self.sb.toggle_widgets(widget.ui, setDisabled="b002,lbl000,tb000,tb002")
-        else:
-            mat = self._mat
-            newMatName = cmb.currentText()
-            self.renameMaterial(mat, newMatName)
-            cmb.setEditable(False)
-            self.sb.toggle_widgets(widget.ui, setEnabled="b002,lbl000,tb000,tb002")
-
     def lbl002(self):
         """Delete Material"""
         mat = self.sb.materials.cmb002.currentData()
         mat = pm.delete(mat)
 
         index = self.sb.materials.cmb002.currentIndex()
-        self.sb.materials.cmb002.setItemText(
-            index, "None"
-        )  # self.sb.materials.cmb002.removeItem(index)
+        self.sb.materials.cmb002.setItemText(index, "None")
 
     def lbl003(self, widget):
         """Delete Unused Materials"""
@@ -246,8 +232,8 @@ class Materials_maya(SlotsMaya):
         mat = self.sb.materials.cmb002.currentData()
         try:
             pm.mel.showSG(mat.name())
-        except Exception as error:
-            print(error)
+        except Exception as e:
+            print(e)
 
     def b000(self):
         """Material List: Delete"""
@@ -282,19 +268,19 @@ class Materials_maya(SlotsMaya):
         """Assign: Assign Current"""
         self.sb.materials.tb002.menu.chk007.setChecked(True)
         self.sb.materials.tb002.setText("Assign Current")
-        self.tb002_init(widget.ui.tb002)
+        widget.ui.tb002.init_slot()
 
     def b004(self, widget):
         """Assign: Assign Random"""
         self.sb.materials.tb002.menu.chk008.setChecked(True)
         self.sb.materials.tb002.setText("Assign Random")
-        self.tb002_init(widget.ui.tb002)
+        widget.ui.tb002.init_slot()
 
     def b005(self, widget):
         """Assign: Assign New"""
         self.sb.materials.tb002.menu.chk009.setChecked(True)
         self.sb.materials.tb002.setText("Assign New")
-        self.tb002_init(widget.ui.tb002)
+        widget.ui.tb002.init_slot()
 
     def getColorSwatchIcon(self, mat, size=[20, 20]):
         """Get an icon with a color fill matching the given materials RBG value.
@@ -345,5 +331,3 @@ print(__name__)
 # --------------------------------------------------------------------------------------------
 # Notes
 # --------------------------------------------------------------------------------------------
-
-# depricated -----------------------
