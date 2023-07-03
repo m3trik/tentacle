@@ -1,10 +1,7 @@
 # !/usr/bin/python
 # coding=utf-8
 import sys
-
-from PySide2 import QtCore
-
-from mayatk import get_main_window
+import mayatk as mtk
 from tentacle.tcl import Tcl
 
 
@@ -23,7 +20,7 @@ class TclMaya(Tcl):
         """ """
         if not parent:
             try:
-                parent = get_main_window()
+                parent = mtk.get_main_window()
 
             except Exception as error:
                 print(__file__, error)
@@ -73,7 +70,7 @@ def getInstance(instanceID=None, *args, **kwargs):
     try:
         return INSTANCES[instanceID]
 
-    except KeyError as error:
+    except KeyError:
         INSTANCES[instanceID] = TclMaya(*args, **kwargs)
         return INSTANCES[instanceID]
 
@@ -82,9 +79,6 @@ def show(instanceID=None, *args, **kwargs):
     """Expands `getInstance` to get and then show an instance in a single command."""
     inst = getInstance(instanceID=instanceID, *args, **kwargs)
     inst.show()
-
-
-# --------------------------------------------------------------------------------------------
 
 
 # --------------------------------------------------------------------------------------------
@@ -103,76 +97,3 @@ print(__name__)
 # --------------------------------------------------------------------------------------------
 # Notes
 # --------------------------------------------------------------------------------------------
-
-
-# deprecated: -----------------------------------
-
-
-# INSTANCES = {}
-
-# def __init__(self, parent=None, id=None, slots='slots/maya', *args, **kwargs):
-#   '''
-#   '''
-#   if not parent:
-#       try:
-#           parent = get_main_window()
-
-#       except Exception as error:
-#           print(__file__, error)
-
-#   super().__init__(parent, slots=slots, *args, **kwargs)
-
-#   if id is not None:
-#       TclMaya.INSTANCES[id] = self
-
-
-# @classmethod
-# def get_instance(cls, id, profile=False):
-#   if id not in cls.INSTANCES:
-#       cls.INSTANCES[id] = TclMaya(key_show='Key_F12', profile=profile, id=id)
-#   return cls.INSTANCES[id]
-
-
-# def show_instance(self):
-#   self.send_key_press_event(self.key_show)
-
-# #call
-# from tentacle.tcl_maya import TclMaya
-#   tcl = TclMaya.get_instance(id, profile=profile)
-#   tcl.show_instance()
-
-
-# class Instance(Instance):
-#   '''Manage multiple instances of TclMaya.
-#   '''
-#   def __init__(self, *args, **kwargs):
-#       '''
-#       '''
-#       super().__init__(*args, **kwargs)
-#       self.Class = TclMaya
-
-
-# if not pm.runTimeCommand('Hk_main', exists=1):
-#   pm.runTimeCommand(
-#       'Hk_main'
-#       annotation='',
-#       catagory='',
-#       commandLanguage='python',
-#       command=if 'tentacle' not in {**locals(), **globals()}: main = TclMaya.createInstance(); main.hide(); main.show(),
-#       hotkeyCtx='',
-#   )
-
-
-# def hk_main_show():
-#   '''hk_main_show
-#   Display main marking menu.
-
-#   profile: Prints the total running time, times each function separately, and tells you how many times each function was called.
-#   '''
-#   if 'main' not in locals() and 'main' not in globals():
-#       from main_maya import Instance
-#       main = Instance()
-
-#   main.show_()
-#   # import cProfile
-#   # cProfile.run('main.show_()')

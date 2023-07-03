@@ -14,7 +14,7 @@ class Duplicate_maya(SlotsMaya):
 
     def tb000_init(self, widget):
         """ """
-        widget.option_menu.add(
+        widget.menu.add(
             "QCheckBox",
             setText="Match Vertex Orientaion",
             setObjectName="chk001",
@@ -299,7 +299,7 @@ class Duplicate_maya(SlotsMaya):
 
     def tb000(self, widget):
         """Convert to Instances"""
-        transformByVertexOrder = widget.option_menu.chk001.isChecked()
+        transformByVertexOrder = widget.menu.chk001.isChecked()
 
         selection = pm.ls(sl=1, transforms=1)
         if not selection:

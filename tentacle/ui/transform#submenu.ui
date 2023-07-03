@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>translucent_window</class>
- <widget class="QMainWindow" name="translucent_window">
+ <class>QtUi</class>
+ <widget class="QMainWindow" name="QtUi">
   <property name="enabled">
    <bool>true</bool>
   </property>
@@ -149,8 +149,8 @@
     </property>
     <property name="geometry">
      <rect>
-      <x>415</x>
-      <y>310</y>
+      <x>385</x>
+      <y>280</y>
       <width>126</width>
       <height>19</height>
      </rect>
@@ -297,8 +297,8 @@
     </property>
     <property name="geometry">
      <rect>
-      <x>415</x>
-      <y>280</y>
+      <x>385</x>
+      <y>250</y>
       <width>136</width>
       <height>19</height>
      </rect>
@@ -340,8 +340,8 @@
     </property>
     <property name="geometry">
      <rect>
-      <x>390</x>
-      <y>250</y>
+      <x>360</x>
+      <y>220</y>
       <width>131</width>
       <height>19</height>
      </rect>

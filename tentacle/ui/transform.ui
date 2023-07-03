@@ -10,7 +10,7 @@
     <x>0</x>
     <y>0</y>
     <width>147</width>
-    <height>306</height>
+    <height>312</height>
    </rect>
   </property>
   <property name="minimumSize">
@@ -423,7 +423,16 @@
           <number>0</number>
          </property>
          <item>
-          <widget class="ComboBox" name="cmb001">
+          <widget class="PushButton" name="tb003">
+           <property name="enabled">
+            <bool>true</bool>
+           </property>
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
            <property name="minimumSize">
             <size>
              <width>0</width>
@@ -439,21 +448,37 @@
            <property name="toolTip">
             <string>Transform constraints.</string>
            </property>
-           <property name="editable">
+           <property name="text">
+            <string>Constrain: OFF</string>
+           </property>
+           <property name="iconSize">
+            <size>
+             <width>18</width>
+             <height>18</height>
+            </size>
+           </property>
+           <property name="autoDefault">
             <bool>false</bool>
            </property>
-           <property name="sizeAdjustPolicy">
-            <enum>QComboBox::AdjustToContents</enum>
+           <property name="default">
+            <bool>false</bool>
            </property>
-           <item>
-            <property name="text">
-             <string>Constrain: OFF</string>
-            </property>
-           </item>
+           <property name="flat">
+            <bool>false</bool>
+           </property>
           </widget>
          </item>
          <item>
-          <widget class="ComboBox" name="cmb003">
+          <widget class="PushButton" name="tb004">
+           <property name="enabled">
+            <bool>true</bool>
+           </property>
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
            <property name="minimumSize">
             <size>
              <width>0</width>
@@ -469,17 +494,24 @@
            <property name="toolTip">
             <string>Transform tool snap settings.</string>
            </property>
-           <property name="editable">
+           <property name="text">
+            <string>Snap: OFF</string>
+           </property>
+           <property name="iconSize">
+            <size>
+             <width>18</width>
+             <height>18</height>
+            </size>
+           </property>
+           <property name="autoDefault">
             <bool>false</bool>
            </property>
-           <property name="sizeAdjustPolicy">
-            <enum>QComboBox::AdjustToContents</enum>
+           <property name="default">
+            <bool>false</bool>
            </property>
-           <item>
-            <property name="text">
-             <string>Snap: OFF</string>
-            </property>
-           </item>
+           <property name="flat">
+            <bool>false</bool>
+           </property>
           </widget>
          </item>
         </layout>
@@ -614,7 +646,7 @@
   <customwidget>
    <class>PushButton</class>
    <extends>QPushButton</extends>
-   <header>pushButton.h</header>
+   <header>widgets.pushbutton.h</header>
   </customwidget>
   <customwidget>
    <class>DraggableHeader</class>

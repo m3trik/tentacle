@@ -14,7 +14,7 @@ class Animation_maya(SlotsMaya):
 
     def tb000_init(self, widget):
         """ """
-        widget.option_menu.add(
+        widget.menu.add(
             "QSpinBox",
             setPrefix="Frame: ",
             setObjectName="s000",
@@ -22,14 +22,14 @@ class Animation_maya(SlotsMaya):
             setValue=1,
             setToolTip="",
         )
-        widget.option_menu.add(
+        widget.menu.add(
             "QCheckBox",
             setText="Relative",
             setObjectName="chk000",
             setChecked=True,
             setToolTip="",
         )
-        widget.option_menu.add(
+        widget.menu.add(
             "QCheckBox",
             setText="Update",
             setObjectName="chk001",
@@ -39,7 +39,7 @@ class Animation_maya(SlotsMaya):
 
     def tb001_init(self, widget):
         """ """
-        widget.option_menu.add(
+        widget.menu.add(
             "QSpinBox",
             setPrefix="Time: ",
             setObjectName="s001",
@@ -47,7 +47,7 @@ class Animation_maya(SlotsMaya):
             setValue=1,
             setToolTip="The desired start time for the inverted keys.",
         )
-        widget.option_menu.add(
+        widget.menu.add(
             "QCheckBox",
             setText="Relative",
             setObjectName="chk002",
@@ -57,16 +57,16 @@ class Animation_maya(SlotsMaya):
 
     def tb000(self, widget):
         """Set Current Frame"""
-        frame = self.sb.invert_on_modifier(widget.option_menu.s000.value())
-        relative = widget.option_menu.chk000.isChecked()
-        update = widget.option_menu.chk001.isChecked()
+        frame = self.sb.invert_on_modifier(widget.menu.s000.value())
+        relative = widget.menu.chk000.isChecked()
+        update = widget.menu.chk001.isChecked()
 
         self.setCurrentFrame(frame, relative=relative, update=update)
 
     def tb001(self, widget):
         """Invert Selected Keyframes"""
-        time = widget.option_menu.s001.value()
-        relative = widget.option_menu.chk002.isChecked()
+        time = widget.menu.s001.value()
+        relative = widget.menu.chk002.isChecked()
 
         self.invertSelectedKeyframes(time=time, relative=relative)
 

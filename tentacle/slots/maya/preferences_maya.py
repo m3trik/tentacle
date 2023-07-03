@@ -111,7 +111,7 @@ print(__name__)
 #   '''
 #   Custom Menu Set
 #   '''
-#   cmb = self.sb.preferences.draggableHeader.ctx_menu.cmb000
+#   cmb = self.sb.preferences.draggableHeader.menu.cmb000
 
 #   items = ['Modeling', 'Normals', 'Materials', 'UV'] #combobox list menu corresponding to the button text sets.
 #   contents = cmb.add(items, 'Menu Sets')

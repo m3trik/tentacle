@@ -15,7 +15,7 @@ class Normals_maya(SlotsMaya):
 
     def tb000_init(self, widget):
         """ """
-        widget.option_menu.add(
+        widget.menu.add(
             "QSpinBox",
             setPrefix="Display Size: ",
             setObjectName="s001",
@@ -26,7 +26,7 @@ class Normals_maya(SlotsMaya):
 
     def tb001_init(self, widget):
         """ """
-        widget.option_menu.add(
+        widget.menu.add(
             "QSpinBox",
             setPrefix="Angle Threshold: ",
             setObjectName="s002",
@@ -34,7 +34,7 @@ class Normals_maya(SlotsMaya):
             setValue=90,
             setToolTip="The threshold of the normal angle in degrees to determine hardness.",
         )
-        widget.option_menu.add(
+        widget.menu.add(
             "QSpinBox",
             setPrefix="Upper Hardness: ",
             setObjectName="s003",
@@ -42,7 +42,7 @@ class Normals_maya(SlotsMaya):
             setValue=0,
             setToolTip="The hardness to apply to edges with a normal angle greater than or equal to the threshold.\n0, Edges will appear hard.\n180, Edges will appear soft.\n-1, Will Disable.",
         )
-        widget.option_menu.add(
+        widget.menu.add(
             "QSpinBox",
             setPrefix="Lower Hardness: ",
             setObjectName="s004",
@@ -50,7 +50,7 @@ class Normals_maya(SlotsMaya):
             setValue=180,
             setToolTip="The hardness to apply to edges with a normal angle less than the threshold.\n0, Edges will appear hard.\n180, Edges will appear soft.\n-1, Will Disable.",
         )
-        widget.option_menu.add(
+        widget.menu.add(
             "QCheckBox",
             setText="Soft Edge Display",
             setObjectName="chk007",
@@ -60,7 +60,7 @@ class Normals_maya(SlotsMaya):
 
     def tb002_init(self, widget):
         """ """
-        widget.option_menu.add(
+        widget.menu.add(
             "QSpinBox",
             setPrefix="Angle: ",
             setObjectName="s000",
@@ -71,22 +71,22 @@ class Normals_maya(SlotsMaya):
 
     def tb003_init(self, widget):
         """ """
-        widget.option_menu.add(
+        widget.menu.add(
             "QCheckBox",
             setText="Lock",
             setObjectName="chk002",
             setChecked=True,
             setToolTip="Toggle Lock/Unlock.",
         )
-        widget.option_menu.chk002.toggled.connect(
-            lambda state, w=widget.option_menu.chk002: w.setText("Lock")
+        widget.menu.chk002.toggled.connect(
+            lambda state, w=widget.menu.chk002: w.setText("Lock")
             if state
             else w.setText("Unlock")
         )
 
     def tb004_init(self, widget):
         """ """
-        widget.option_menu.add(
+        widget.menu.add(
             "QCheckBox",
             setText="By UV Shell",
             setObjectName="chk003",
@@ -95,7 +95,7 @@ class Normals_maya(SlotsMaya):
 
     def tb000(self, widget):
         """Display Face Normals"""
-        size = widget.option_menu.s001.value()
+        size = widget.menu.s001.value()
         # state = pm.polyOptions (query=True, displayNormal=True)
         state = ptk.cycle([1, 2, 3, 0], "displayNormals")
         if state == 0:  # off
@@ -120,10 +120,10 @@ class Normals_maya(SlotsMaya):
 
     def tb001(self, widget):
         """Harden Edge Normals"""
-        angle_threshold = widget.option_menu.s002.value()
-        upper_hardness = widget.option_menu.s003.value()
-        lower_hardness = widget.option_menu.s004.value()
-        soft_edge_display = widget.option_menu.chk007.isChecked()
+        angle_threshold = widget.menu.s002.value()
+        upper_hardness = widget.menu.s003.value()
+        lower_hardness = widget.menu.s004.value()
+        soft_edge_display = widget.menu.chk007.isChecked()
 
         # If value is -1, upper/lower hardess will be disabled.
         upper_hardness = upper_hardness if upper_hardness > -1 else None
@@ -139,7 +139,7 @@ class Normals_maya(SlotsMaya):
 
     def tb002(self, widget):
         """Set Normals By Angle"""
-        normalAngle = widget.option_menu.s000.value()
+        normalAngle = widget.menu.s000.value()
 
         objects = pm.ls(sl=True, objectsOnly=1, flatten=1)
         for obj in objects:
@@ -153,7 +153,7 @@ class Normals_maya(SlotsMaya):
 
     def tb003(self, widget):
         """Lock/Unlock Vertex Normals"""
-        state = widget.option_menu.chk002.isChecked()
+        state = widget.menu.chk002.isChecked()
         selection = pm.ls(sl=True)
 
         if not selection:
@@ -173,7 +173,7 @@ class Normals_maya(SlotsMaya):
 
     def tb004(self, widget):
         """Average Normals"""
-        by_uv_shell = widget.option_menu.chk003.isChecked()
+        by_uv_shell = widget.menu.chk003.isChecked()
 
         objects = pm.ls(sl=True)
         mtk.average_normals(objects, by_uv_shell=by_uv_shell)

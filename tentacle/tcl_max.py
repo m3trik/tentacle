@@ -1,7 +1,6 @@
 # !/usr/bin/python
 # coding=utf-8
 import sys
-from PySide2 import QtCore
 
 try:
     from pymxs import runtime as rt
@@ -108,7 +107,7 @@ def getInstance(instanceID=None, *args, **kwargs):
     try:
         return INSTANCES[instanceID]
 
-    except KeyError as error:
+    except KeyError:
         INSTANCES[instanceID] = TclMax(*args, **kwargs)
         return INSTANCES[instanceID]
 
@@ -117,9 +116,6 @@ def show(instanceID=None, *args, **kwargs):
     """Expands `getInstance` to get and then show an instance in a single command."""
     inst = getInstance(instanceID=instanceID, *args, **kwargs)
     inst.show()
-
-
-# --------------------------------------------------------------------------------------------
 
 
 # --------------------------------------------------------------------------------------------

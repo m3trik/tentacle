@@ -14,13 +14,13 @@ class Scene_maya(SlotsMaya):
 
     def txt000_init(self, widget):
         """ """
-        widget.ctx_menu.add(
+        widget.menu.add(
             "QCheckBox",
             setText="Ignore Case",
             setObjectName="chk000",
             setToolTip="Search case insensitive.",
         )
-        widget.ctx_menu.add(
+        widget.menu.add(
             "QCheckBox",
             setText="Regular Expression",
             setObjectName="chk001",
@@ -29,7 +29,7 @@ class Scene_maya(SlotsMaya):
 
     def tb000_init(self, widget):
         """ """
-        widget.option_menu.add(
+        widget.menu.add(
             "QComboBox",
             addItems=["capitalize", "upper", "lower", "swapcase", "title"],
             setObjectName="cmb001",
@@ -38,27 +38,27 @@ class Scene_maya(SlotsMaya):
 
     def tb001_init(self, widget):
         """ """
-        widget.option_menu.add(
+        widget.menu.add(
             "QCheckBox",
             setText="Alphanumeric",
             setObjectName="chk005",
             setToolTip="When True use an alphanumeric character as a suffix when there is less than 26 objects else use integers.",
         )
-        widget.option_menu.add(
+        widget.menu.add(
             "QCheckBox",
             setText="Strip Trailing Integers",
             setObjectName="chk002",
             setChecked=True,
             setToolTip="Strip any trailing integers. ie. '123' of 'cube123'",
         )
-        widget.option_menu.add(
+        widget.menu.add(
             "QCheckBox",
             setText="Strip Trailing Alphanumeric",
             setObjectName="chk003",
             setChecked=True,
             setToolTip="Strip any trailing uppercase alphanumeric chars that are prefixed with an underscore.  ie. 'A' of 'cube_A'",
         )
-        widget.option_menu.add(
+        widget.menu.add(
             "QCheckBox",
             setText="Reverse",
             setObjectName="chk004",
@@ -73,7 +73,7 @@ class Scene_maya(SlotsMaya):
 
     def tb000(self, widget):
         """Convert Case"""
-        case = widget.option_menu.cmb001.currentText()
+        case = widget.menu.cmb001.currentText()
 
         selection = pm.ls(sl=1)
         objects = selection if selection else pm.ls(objectsOnly=1)
@@ -81,10 +81,10 @@ class Scene_maya(SlotsMaya):
 
     def tb001(self, widget):
         """Convert Case"""
-        alphanumeric = widget.option_menu.chk005.isChecked()
-        strip_trailing_ints = widget.option_menu.chk002.isChecked()
-        strip_trailing_alpha = widget.option_menu.chk003.isChecked()
-        reverse = widget.option_menu.chk004.isChecked()
+        alphanumeric = widget.menu.chk005.isChecked()
+        strip_trailing_ints = widget.menu.chk002.isChecked()
+        strip_trailing_alpha = widget.menu.chk003.isChecked()
+        reverse = widget.menu.chk004.isChecked()
 
         selection = pm.ls(sl=1, objectsOnly=1, type="transform")
         mtk.append_location_based_suffix(
@@ -100,8 +100,8 @@ class Scene_maya(SlotsMaya):
         # An asterisk denotes startswith*, *endswith, *contains*
         find = self.sb.scene.txt000.text()
         to = self.sb.scene.txt001.text()
-        regex = self.sb.scene.txt000.ctx_menu.chk001.isChecked()
-        ignore_case = self.sb.scene.txt000.ctx_menu.chk000.isChecked()
+        regex = self.sb.scene.txt000.menu.chk001.isChecked()
+        ignore_case = self.sb.scene.txt000.menu.chk000.isChecked()
 
         selection = pm.ls(sl=1, objectsOnly=True)
         mtk.rename(selection, to, find, regex=regex, ignore_case=ignore_case)

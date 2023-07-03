@@ -26,7 +26,7 @@ class Nurbs_maya(SlotsMaya):
         widget.add(items, "Create Curve")
 
     def tb000_init(self, widget):
-        widget.option_menu.add(
+        widget.menu.add(
             "QSpinBox",
             setPrefix="Degree:",
             setObjectName="s002",
@@ -34,7 +34,7 @@ class Nurbs_maya(SlotsMaya):
             set_limits=[0],
             setToolTip="The degree of the resulting surface.",
         )
-        widget.option_menu.add(
+        widget.menu.add(
             "QSpinBox",
             setPrefix="Start Sweep:",
             setObjectName="s003",
@@ -42,7 +42,7 @@ class Nurbs_maya(SlotsMaya):
             set_limits=[0, 360],
             setToolTip="    The value for the start sweep angle.",
         )
-        widget.option_menu.add(
+        widget.menu.add(
             "QSpinBox",
             setPrefix="End Sweep:",
             setObjectName="s004",
@@ -50,7 +50,7 @@ class Nurbs_maya(SlotsMaya):
             set_limits=[0, 360],
             setToolTip="The value for the end sweep angle.",
         )
-        widget.option_menu.add(
+        widget.menu.add(
             "QSpinBox",
             setPrefix="Sections:",
             setObjectName="s005",
@@ -58,35 +58,35 @@ class Nurbs_maya(SlotsMaya):
             set_limits=[0],
             setToolTip="The number of surface spans between consecutive curves in the loft.",
         )
-        widget.option_menu.add(
+        widget.menu.add(
             "QCheckBox",
             setText="Range",
             setObjectName="chk006",
             setChecked=False,
             setToolTip="Force a curve range on complete input curve.",
         )
-        widget.option_menu.add(
+        widget.menu.add(
             "QCheckBox",
             setText="Polygon",
             setObjectName="chk007",
             setChecked=True,
             setToolTip="The object created by this operation.",
         )
-        widget.option_menu.add(
+        widget.menu.add(
             "QCheckBox",
             setText="Auto Correct Normal",
             setObjectName="chk008",
             setChecked=False,
             setToolTip="Attempt to reverse the direction of the axis in case it is necessary to do so for the surface normals to end up pointing to the outside of the object.",
         )
-        widget.option_menu.add(
+        widget.menu.add(
             "QCheckBox",
             setText="Use Tolerance",
             setObjectName="chk009",
             setChecked=False,
             setToolTip="Use the tolerance, or the number of sections to control the sections.",
         )
-        widget.option_menu.add(
+        widget.menu.add(
             "QDoubleSpinBox",
             setPrefix="Tolerance:",
             setObjectName="s006",
@@ -96,21 +96,21 @@ class Nurbs_maya(SlotsMaya):
         )
 
         tb001 = self.sb.nurbs.tb001
-        tb001.option_menu.add(
+        tb001.menu.add(
             "QCheckBox",
             setText="Uniform",
             setObjectName="chk000",
             setChecked=True,
             setToolTip="The resulting surface will have uniform parameterization in the loft direction. If set to false, the parameterization will be chord length.",
         )
-        tb001.option_menu.add(
+        tb001.menu.add(
             "QCheckBox",
             setText="Close",
             setObjectName="chk001",
             setChecked=False,
             setToolTip="The resulting surface will be closed (periodic) with the start (end) at the first curve. If set to false, the surface will remain open.",
         )
-        tb001.option_menu.add(
+        tb001.menu.add(
             "QSpinBox",
             setPrefix="Degree:",
             setObjectName="s000",
@@ -118,14 +118,14 @@ class Nurbs_maya(SlotsMaya):
             set_limits=[0],
             setToolTip="The degree of the resulting surface.",
         )
-        tb001.option_menu.add(
+        tb001.menu.add(
             "QCheckBox",
             setText="Auto Reverse",
             setObjectName="chk002",
             setChecked=False,
             setToolTip="The direction of the curves for the loft is computed automatically. If set to false, the values of the multi-use reverse flag are used instead.",
         )
-        tb001.option_menu.add(
+        tb001.menu.add(
             "QSpinBox",
             setPrefix="Section Spans:",
             setObjectName="s001",
@@ -133,35 +133,35 @@ class Nurbs_maya(SlotsMaya):
             set_limits=[0],
             setToolTip="The number of surface spans between consecutive curves in the loft.",
         )
-        tb001.option_menu.add(
+        tb001.menu.add(
             "QCheckBox",
             setText="Range",
             setObjectName="chk003",
             setChecked=False,
             setToolTip="Force a curve range on complete input curve.",
         )
-        tb001.option_menu.add(
+        tb001.menu.add(
             "QCheckBox",
             setText="Polygon",
             setObjectName="chk004",
             setChecked=True,
             setToolTip="The object created by this operation.",
         )
-        tb001.option_menu.add(
+        tb001.menu.add(
             "QCheckBox",
             setText="Reverse Surface Normals",
             setObjectName="chk005",
             setChecked=True,
             setToolTip="The surface normals on the output NURBS surface will be reversed. This is accomplished by swapping the U and V parametric directions.",
         )
-        tb001.option_menu.add(
+        tb001.menu.add(
             "QCheckBox",
             setText="Angle Loft Between Two Curves",
             setObjectName="chk010",
             setChecked=False,
             setToolTip="Perform a loft at an angle between two selected curves or polygon edges (that will be extracted as curves).",
         )
-        tb001.option_menu.add(
+        tb001.menu.add(
             "QSpinBox",
             setPrefix="Angle Loft: Spans:",
             setObjectName="s007",
@@ -198,15 +198,15 @@ class Nurbs_maya(SlotsMaya):
 
     def tb000(self, widget):
         """Revolve"""
-        degree = widget.option_menu.s002.value()
-        startSweep = widget.option_menu.s003.value()
-        endSweep = widget.option_menu.s004.value()
-        sections = widget.option_menu.s005.value()
-        range_ = widget.option_menu.chk006.isChecked()
-        polygon = 1 if widget.option_menu.chk007.isChecked() else 0
-        autoCorrectNormal = widget.option_menu.chk008.isChecked()
-        useTolerance = widget.option_menu.chk009.isChecked()
-        tolerance = widget.option_menu.s006.value()
+        degree = widget.menu.s002.value()
+        startSweep = widget.menu.s003.value()
+        endSweep = widget.menu.s004.value()
+        sections = widget.menu.s005.value()
+        range_ = widget.menu.chk006.isChecked()
+        polygon = 1 if widget.menu.chk007.isChecked() else 0
+        autoCorrectNormal = widget.menu.chk008.isChecked()
+        useTolerance = widget.menu.chk009.isChecked()
+        tolerance = widget.menu.s006.value()
 
         curves = pm.ls(sl=True)
         return pm.revolve(
@@ -225,16 +225,16 @@ class Nurbs_maya(SlotsMaya):
 
     def tb001(self, widget):
         """Loft"""
-        uniform = widget.option_menu.chk000.isChecked()
-        close = widget.option_menu.chk001.isChecked()
-        degree = widget.option_menu.s000.value()
-        autoReverse = widget.option_menu.chk002.isChecked()
-        sectionSpans = widget.option_menu.s001.value()
-        range_ = widget.option_menu.chk003.isChecked()
-        polygon = 1 if widget.option_menu.chk004.isChecked() else 0
-        reverseSurfaceNormals = widget.option_menu.chk005.isChecked()
-        angleLoftBetweenTwoCurves = widget.option_menu.chk010.isChecked()
-        angleLoftSpans = widget.option_menu.s007.value()
+        uniform = widget.menu.chk000.isChecked()
+        close = widget.menu.chk001.isChecked()
+        degree = widget.menu.s000.value()
+        autoReverse = widget.menu.chk002.isChecked()
+        sectionSpans = widget.menu.s001.value()
+        range_ = widget.menu.chk003.isChecked()
+        polygon = 1 if widget.menu.chk004.isChecked() else 0
+        reverseSurfaceNormals = widget.menu.chk005.isChecked()
+        angleLoftBetweenTwoCurves = widget.menu.chk010.isChecked()
+        angleLoftSpans = widget.menu.s007.value()
 
         self.loft(
             uniform=uniform,

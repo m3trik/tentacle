@@ -20,7 +20,7 @@ class Rigging_maya(SlotsMaya):
     def tb000_init(self, widget):
         """ """
         scale_joint_value = pm.jointDisplayScale(q=True)
-        widget.option_menu.add(
+        widget.menu.add(
             "QDoubleSpinBox",
             setPrefix="Tolerance: ",
             setObjectName="s000",
@@ -28,21 +28,21 @@ class Rigging_maya(SlotsMaya):
             setValue=scale_joint_value,
             setToolTip="Global display scale for the selected type.",
         )
-        widget.option_menu.add(
+        widget.menu.add(
             "QRadioButton",
             setText="Joints",
             setObjectName="chk000",
             setChecked=True,
             setToolTip="Display Joints.",
         )
-        widget.option_menu.add(
+        widget.menu.add(
             "QRadioButton",
             setText="IK",
             setObjectName="chk001",
             setChecked=True,
             setToolTip="Display IK.",
         )
-        widget.option_menu.add(
+        widget.menu.add(
             "QRadioButton",
             setText="IK\\FK",
             setObjectName="chk002",
@@ -52,7 +52,7 @@ class Rigging_maya(SlotsMaya):
 
     def tb001_init(self, widget):
         """ """
-        widget.option_menu.add(
+        widget.menu.add(
             "QCheckBox",
             setText="Align world",
             setObjectName="chk003",
@@ -61,7 +61,7 @@ class Rigging_maya(SlotsMaya):
 
     def tb002_init(self, widget):
         """ """
-        widget.option_menu.add(
+        widget.menu.add(
             "QCheckBox",
             setText="Template Child",
             setObjectName="chk004",
@@ -71,7 +71,7 @@ class Rigging_maya(SlotsMaya):
 
     def tb003_init(self, widget):
         """ """
-        widget.option_menu.add(
+        widget.menu.add(
             "QDoubleSpinBox",
             setPrefix="Locator Scale: ",
             setObjectName="s001",
@@ -79,76 +79,76 @@ class Rigging_maya(SlotsMaya):
             setValue=1,
             setToolTip="The scale of the locator.",
         )
-        widget.option_menu.add(
+        widget.menu.add(
             "QLineEdit",
             setPlaceholderText="Group Suffix:",
             setText="_GRP",
             setObjectName="t002",
             setToolTip="A string appended to the end of the created group's name.",
         )
-        widget.option_menu.add(
+        widget.menu.add(
             "QLineEdit",
             setPlaceholderText="Locator Suffix:",
             setText="",
             setObjectName="t000",
             setToolTip="A string appended to the end of the created locator's name.",
         )
-        widget.option_menu.add(
+        widget.menu.add(
             "QLineEdit",
             setPlaceholderText="Geometry Suffix:",
             setText="",
             setObjectName="t001",
             setToolTip="A string appended to the end of the existing geometry's name.",
         )
-        widget.option_menu.add(
+        widget.menu.add(
             "QCheckBox",
             setText="Strip Suffix",
             setObjectName="chk016",
             setToolTip="Strip any of preexisting suffixes from the group name before appending the new ones.\nA suffix is defined as anything trailing an underscore.\nAny user-defined suffixes are stripped by default.",
         )
-        widget.option_menu.add(
+        widget.menu.add(
             "QCheckBox",
             setText="Strip Digits",
             setObjectName="chk005",
             setChecked=True,
             setToolTip="Strip any trailing numeric characters from the name.\nIf the resulting name is not unique, maya will append a trailing digit.",
         )
-        widget.option_menu.add(
+        widget.menu.add(
             "QCheckBox",
             setText="Parent",
             setObjectName="chk006",
             setChecked=True,
             setToolTip="Parent to object to the locator.",
         )
-        widget.option_menu.add(
+        widget.menu.add(
             "QCheckBox",
             setText="Freeze Transforms",
             setObjectName="chk010",
             setChecked=True,
             setToolTip="Freeze transforms on the locator.",
         )
-        widget.option_menu.add(
+        widget.menu.add(
             "QCheckBox",
             setText="Bake Child Pivot",
             setObjectName="chk011",
             setChecked=True,
             setToolTip="Bake pivot positions on the child object.",
         )
-        widget.option_menu.add(
+        widget.menu.add(
             "QCheckBox",
             setText="Lock Child Translate",
             setObjectName="chk007",
             setChecked=True,
             setToolTip="Lock the translate values of the child object.",
         )
-        widget.option_menu.add(
+        widget.menu.add(
             "QCheckBox",
             setText="Lock Child Rotation",
             setObjectName="chk008",
             setChecked=True,
             setToolTip="Lock the rotation values of the child object.",
         )
-        widget.option_menu.add(
+        widget.menu.add(
             "QCheckBox",
             setText="Lock Child Scale",
             setObjectName="chk009",
@@ -157,21 +157,21 @@ class Rigging_maya(SlotsMaya):
 
     def tb004_init(self, widget):
         """ """
-        widget.option_menu.add(
+        widget.menu.add(
             "QCheckBox",
             setText="Translate",
             setObjectName="chk012",
             setChecked=False,
             setToolTip="",
         )
-        widget.option_menu.add(
+        widget.menu.add(
             "QCheckBox",
             setText="Rotate",
             setObjectName="chk013",
             setChecked=False,
             setToolTip="",
         )
-        widget.option_menu.add(
+        widget.menu.add(
             "QCheckBox",
             setText="Scale",
             setObjectName="chk014",
@@ -180,9 +180,9 @@ class Rigging_maya(SlotsMaya):
         )
         self.sb.connect_multi(
             (
-                widget.option_menu.chk012,
-                widget.option_menu.chk013,
-                widget.option_menu.chk014,
+                widget.menu.chk012,
+                widget.menu.chk013,
+                widget.menu.chk014,
             ),
             "toggled",
             [
@@ -190,9 +190,9 @@ class Rigging_maya(SlotsMaya):
                     "Lock Attributes"
                     if any(
                         (
-                            widget.option_menu.chk012.isChecked(),
-                            widget.option_menu.chk013.isChecked(),
-                            widget.option_menu.chk014.isChecked(),
+                            widget.menu.chk012.isChecked(),
+                            widget.menu.chk013.isChecked(),
+                            widget.menu.chk014.isChecked(),
                         )
                     )
                     else "Unlock Attributes"
@@ -201,9 +201,9 @@ class Rigging_maya(SlotsMaya):
                     "Lock Transforms"
                     if any(
                         (
-                            widget.option_menu.chk012.isChecked(),
-                            widget.option_menu.chk013.isChecked(),
-                            widget.option_menu.chk014.isChecked(),
+                            widget.menu.chk012.isChecked(),
+                            widget.menu.chk013.isChecked(),
+                            widget.menu.chk014.isChecked(),
                         )
                     )
                     else "Unlock Attributes"
@@ -230,23 +230,23 @@ class Rigging_maya(SlotsMaya):
     def chk000(self, state, widget):
         """Scale Joint"""
         # init global joint display size
-        widget.ui.tb000.option_menu.s000.setValue(pm.jointDisplayScale(q=True))
+        widget.ui.tb000.menu.s000.setValue(pm.jointDisplayScale(q=True))
 
     def chk001(self, state, widget):
         """Scale IK"""
         # init IK handle display size
-        widget.ui.tb000.option_menu.s000.setValue(pm.ikHandleDisplayScale(q=True))
+        widget.ui.tb000.menu.s000.setValue(pm.ikHandleDisplayScale(q=True))
 
     def chk002(self, state, widget):
         """Scale IK/FK"""
         # init IKFK display size
-        widget.ui.tb000.option_menu.s000.setValue(pm.jointDisplayScale(q=True, ikfk=1))
+        widget.ui.tb000.menu.s000.setValue(pm.jointDisplayScale(q=True, ikfk=1))
 
     def s000(self, value, widget):
         """Scale Joint/IK/FK"""
-        if widget.ui.tb000.option_menu.chk000.isChecked():
+        if widget.ui.tb000.menu.chk000.isChecked():
             pm.jointDisplayScale(value)  # set global joint display size
-        elif widget.ui.tb000.option_menu.chk001.isChecked():
+        elif widget.ui.tb000.menu.chk001.isChecked():
             pm.ikHandleDisplayScale(value)  # set global IK handle display size
         else:  # widget.ui.chk002.isChecked():
             pm.jointDisplayScale(value, ikfk=1)  # set global IKFK display size
@@ -260,7 +260,7 @@ class Rigging_maya(SlotsMaya):
             return  # exit the function
 
         state = pm.toggle(joints[0], q=True, localAxis=1)
-        toggle = widget.option_menu.isChecked() != state
+        toggle = widget.menu.isChecked() != state
 
         if toggle:
             try:
@@ -273,7 +273,7 @@ class Rigging_maya(SlotsMaya):
     def tb001(self, widget):
         """Orient Joints"""
         orientJoint = "xyz"  # orient joints
-        alignWorld = widget.option_menu.chk003.isChecked()
+        alignWorld = widget.menu.chk003.isChecked()
 
         if alignWorld:
             orientJoint = "none"  # orient joint to world
@@ -295,7 +295,7 @@ class Rigging_maya(SlotsMaya):
 
     def tb002(self, widget):
         """Constraint: Parent"""
-        template = widget.option_menu.chk004.isChecked()
+        template = widget.menu.chk004.isChecked()
         objects = pm.ls(sl=1, objectsOnly=1)
 
         for obj in objects[:-1]:
@@ -308,18 +308,18 @@ class Rigging_maya(SlotsMaya):
     @mtk.undo
     def tb003(self, widget):
         """Create Locator at Selection"""
-        grp_suffix = widget.option_menu.t002.text()
-        loc_suffix = widget.option_menu.t000.text()
-        obj_suffix = widget.option_menu.t001.text()
-        parent = widget.option_menu.chk006.isChecked()
-        freeze_transforms = widget.option_menu.chk010.isChecked()
-        bake_child_pivot = widget.option_menu.chk011.isChecked()
-        scale = widget.option_menu.s001.value()
-        strip_digits = widget.option_menu.chk005.isChecked()
-        strip_suffix = widget.option_menu.chk016.isChecked()
-        lock_translate = widget.option_menu.chk007.isChecked()
-        lock_rotation = widget.option_menu.chk008.isChecked()
-        lock_scale = widget.option_menu.chk009.isChecked()
+        grp_suffix = widget.menu.t002.text()
+        loc_suffix = widget.menu.t000.text()
+        obj_suffix = widget.menu.t001.text()
+        parent = widget.menu.chk006.isChecked()
+        freeze_transforms = widget.menu.chk010.isChecked()
+        bake_child_pivot = widget.menu.chk011.isChecked()
+        scale = widget.menu.s001.value()
+        strip_digits = widget.menu.chk005.isChecked()
+        strip_suffix = widget.menu.chk016.isChecked()
+        lock_translate = widget.menu.chk007.isChecked()
+        lock_rotation = widget.menu.chk008.isChecked()
+        lock_scale = widget.menu.chk009.isChecked()
 
         selection = pm.ls(selection=True)
         if not selection:
@@ -343,9 +343,9 @@ class Rigging_maya(SlotsMaya):
 
     def tb004(self, widget):
         """Lock/Unlock Attributes"""
-        lock_translate = widget.option_menu.chk012.isChecked()
-        lock_rotation = widget.option_menu.chk013.isChecked()
-        lock_scale = widget.option_menu.chk014.isChecked()
+        lock_translate = widget.menu.chk012.isChecked()
+        lock_rotation = widget.menu.chk013.isChecked()
+        lock_scale = widget.menu.chk014.isChecked()
 
         sel = pm.ls(sl=True)
         mtk.set_attr_lock_state(
