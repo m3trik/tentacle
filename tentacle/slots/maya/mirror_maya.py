@@ -14,66 +14,66 @@ class Mirror_maya(SlotsMaya):
 
     def tb000_init(self, widget):
         """ """
-        widget.option_menu.add(
+        widget.menu.add(
             "QCheckBox",
             setText="-",
             setObjectName="chk000",
             setChecked=True,
             setToolTip="Perform mirror along the negative axis.",
         )
-        widget.option_menu.add(
+        widget.menu.add(
             "QRadioButton",
             setText="X",
             setObjectName="chk001",
             setChecked=True,
             setToolTip="Perform mirror along X axis.",
         )
-        widget.option_menu.add(
+        widget.menu.add(
             "QRadioButton",
             setText="Y",
             setObjectName="chk002",
             setToolTip="Perform mirror along Y axis.",
         )
-        widget.option_menu.add(
+        widget.menu.add(
             "QRadioButton",
             setText="Z",
             setObjectName="chk003",
             setToolTip="Perform mirror along Z axis.",
         )
-        widget.option_menu.add(
+        widget.menu.add(
             "QCheckBox",
             setText="World Space",
             setObjectName="chk008",
             setChecked=True,
             setToolTip="Mirror in world space instead of object space.",
         )
-        widget.option_menu.add(
+        widget.menu.add(
             "QCheckBox",
             setText="Un-Instance",
             setObjectName="chk009",
             setChecked=True,
             setToolTip="Un-Instance any previously instanced objects before mirroring.",
         )
-        widget.option_menu.add(
+        widget.menu.add(
             "QCheckBox",
             setText="Instance",
             setObjectName="chk004",
             setToolTip="Instance the mirrored object(s).",
         )
-        widget.option_menu.add(
+        widget.menu.add(
             "QCheckBox",
             setText="Cut",
             setObjectName="chk005",
             setToolTip="Perform a delete along specified axis before mirror.",
         )
-        widget.option_menu.add(
+        widget.menu.add(
             "QCheckBox",
             setText="Merge",
             setObjectName="chk007",
             setChecked=True,
             setToolTip="Merge the mirrored geometry with the original.",
         )
-        widget.option_menu.add(
+        widget.menu.add(
             "QSpinBox",
             setPrefix="Merge Mode: ",
             setObjectName="s001",
@@ -81,7 +81,7 @@ class Mirror_maya(SlotsMaya):
             setValue=0,
             setToolTip="0) Do not merge border edges.<br>1) Border edges merged.<br>2) Border edges extruded and connected.",
         )
-        widget.option_menu.add(
+        widget.menu.add(
             "QDoubleSpinBox",
             setPrefix="Merge Threshold: ",
             setObjectName="s000",
@@ -89,13 +89,13 @@ class Mirror_maya(SlotsMaya):
             setValue=0.005,
             setToolTip="Merge vertex distance.",
         )
-        widget.option_menu.add(
+        widget.menu.add(
             "QCheckBox",
             setText="Delete Original",
             setObjectName="chk010",
             setToolTip="Delete the original objects after mirroring.",
         )
-        widget.option_menu.add(
+        widget.menu.add(
             "QCheckBox",
             setText="Delete History",
             setObjectName="chk006",
@@ -105,21 +105,21 @@ class Mirror_maya(SlotsMaya):
 
     def tb000(self, widget):
         """Mirror Geometry"""
-        axis = self.sb.get_axis_from_checkboxes("chk000-3", widget.option_menu)
+        axis = self.sb.get_axis_from_checkboxes("chk000-3", widget.menu)
         # 1) object space, 2) world space.
-        axisPivot = 2 if widget.option_menu.chk008.isChecked() else 1
+        axisPivot = 2 if widget.menu.chk008.isChecked() else 1
         # cut mesh on axis before mirror.
-        cutMesh = widget.option_menu.chk005.isChecked()
+        cutMesh = widget.menu.chk005.isChecked()
         # Un-Instance any previously instanced objects before mirroring.
-        uninstance = widget.option_menu.chk009.isChecked()
-        instance = widget.option_menu.chk004.isChecked()
-        merge = widget.option_menu.chk007.isChecked()
-        mergeMode = widget.option_menu.s001.value()
-        mergeThreshold = widget.option_menu.s000.value()
+        uninstance = widget.menu.chk009.isChecked()
+        instance = widget.menu.chk004.isChecked()
+        merge = widget.menu.chk007.isChecked()
+        mergeMode = widget.menu.s001.value()
+        mergeThreshold = widget.menu.s000.value()
         # delete the original objects after mirroring.
-        deleteOriginal = widget.option_menu.chk010.isChecked()
+        deleteOriginal = widget.menu.chk010.isChecked()
         # delete the object's non-deformer history.
-        deleteHistory = widget.option_menu.chk006.isChecked()
+        deleteHistory = widget.menu.chk006.isChecked()
 
         objects = pm.ls(sl=1)
 
@@ -140,18 +140,18 @@ class Mirror_maya(SlotsMaya):
 
     def b000(self):
         """Mirror: X"""
-        self.sb.mirror.tb000.option_menu.chk001.setChecked(True)
-        self.tb000()
+        self.sb.mirror.tb000.menu.chk001.setChecked(True)
+        self.sb.mirror.tb000.call_slot()
 
     def b001(self):
         """Mirror: Y"""
-        self.sb.mirror.tb000.option_menu.chk002.setChecked(True)
-        self.tb000()
+        self.sb.mirror.tb000.menu.chk002.setChecked(True)
+        self.sb.mirror.tb000.call_slot()
 
     def b002(self):
         """Mirror: Z"""
-        self.sb.mirror.tb000.option_menu.chk003.setChecked(True)
-        self.tb000()
+        self.sb.mirror.tb000.menu.chk003.setChecked(True)
+        self.sb.mirror.tb000.call_slot()
 
     @mtk.undo
     def mirrorGeometry(

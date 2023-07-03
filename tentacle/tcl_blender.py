@@ -1,7 +1,7 @@
 # !/usr/bin/python
 # coding=utf-8
 import sys
-from PySide2 import QtCore
+from PySide2 import QtWidgets, QtCore
 from tentacle.tcl import Tcl
 
 
@@ -34,7 +34,7 @@ class TclBlender(Tcl):
         Returns:
                 (QWidget)
         """
-        main_window = QApplication.instance().blender_widget
+        main_window = QtWidgets.QApplication.instance().blender_widget
 
         return main_window
 
@@ -91,7 +91,7 @@ def getInstance(instanceID=None, *args, **kwargs):
     try:
         return INSTANCES[instanceID]
 
-    except KeyError as error:
+    except KeyError:
         INSTANCES[instanceID] = TclBlender(*args, **kwargs)
         return INSTANCES[instanceID]
 
@@ -100,9 +100,6 @@ def show(instanceID=None, *args, **kwargs):
     """Expands `getInstance` to get and then show an instance in a single command."""
     inst = getInstance(instanceID=instanceID, *args, **kwargs)
     inst.show()
-
-
-# --------------------------------------------------------------------------------------------
 
 
 # --------------------------------------------------------------------------------------------

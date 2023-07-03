@@ -13,97 +13,95 @@ class Edit_maya(SlotsMaya):
         super().__init__(*args, **kwargs)
 
         # Refresh the combo box on every view show
-        self.sb.edit.cmb001.beforePopupShown.connect(
-            lambda: self.cmb001_init(self.sb.edit.cmb001)
-        )
+        self.sb.edit.cmb001.beforePopupShown.connect(self.sb.edit.cmb001.init_slot)
 
     def tb000_init(self, widget):
         """ """
-        widget.option_menu.add(
+        widget.menu.add(
             "QCheckBox",
             setText="All Geometry",
             setObjectName="chk005",
             setToolTip="Clean All scene geometry.",
         )
-        widget.option_menu.add(
+        widget.menu.add(
             "QCheckBox",
             setText="Repair",
             setObjectName="chk004",
             setToolTip="Repair matching geometry. Else, select only.",
-        )  # add(self.sb.CheckBox, setText='Select Only', setObjectName='chk004', setTristate=True, set_check_state=2, setToolTip='Select and/or Repair matching geometry. <br>0: Repair Only<br>1: Repair and Select<br>2: Select Only')
-        widget.option_menu.add(
+        )  # add(self.sb.CheckBox, setText='Select Only', setObjectName='chk004', setTristate=True, setCheckState=2, setToolTip='Select and/or Repair matching geometry. <br>0: Repair Only<br>1: Repair and Select<br>2: Select Only')
+        widget.menu.add(
             "QCheckBox",
             setText="Merge vertices",
             setObjectName="chk024",
             setChecked=True,
             setToolTip="Merge overlapping vertices on the object(s) before executing the clean command.",
         )
-        widget.option_menu.add(
+        widget.menu.add(
             "QCheckBox",
             setText="N-Gons",
             setObjectName="chk002",
             setChecked=True,
             setToolTip="Find N-gons.",
         )
-        widget.option_menu.add(
+        widget.menu.add(
             "QCheckBox",
             setText="Non-Manifold Geometry",
             setObjectName="chk017",
             setChecked=True,
             setToolTip="Check for nonmanifold polys.",
         )
-        widget.option_menu.add(
+        widget.menu.add(
             "QCheckBox",
             setText="Non-Manifold Vertex",
             setObjectName="chk021",
             setToolTip="A connected vertex of non-manifold geometry where the faces share a single vertex.",
         )
-        widget.option_menu.add(
+        widget.menu.add(
             "QCheckBox",
             setText="Quads",
             setObjectName="chk010",
             setToolTip="Check for quad sided polys.",
         )
-        widget.option_menu.add(
+        widget.menu.add(
             "QCheckBox",
             setText="Concave",
             setObjectName="chk011",
             setToolTip="Check for concave polys.",
         )
-        widget.option_menu.add(
+        widget.menu.add(
             "QCheckBox",
             setText="Non-Planar",
             setObjectName="chk003",
             setToolTip="Check for non-planar polys.",
         )
-        widget.option_menu.add(
+        widget.menu.add(
             "QCheckBox",
             setText="Holed",
             setObjectName="chk012",
             setToolTip="Check for holed polys.",
         )
-        widget.option_menu.add(
+        widget.menu.add(
             "QCheckBox",
             setText="Lamina",
             setObjectName="chk018",
             setChecked=True,
             setToolTip="Check for lamina polys.",
         )
-        widget.option_menu.add(
+        widget.menu.add(
             "QCheckBox",
             setText="Shared UV's",
             setObjectName="chk016",
             setToolTip="Unshare uvs that are shared across vertices.",
         )
-        # widget.option_menu.add('QCheckBox', setText='Invalid Components', setObjectName='chk019', setToolTip='Check for invalid components.')
-        widget.option_menu.add(
+        # widget.menu.add('QCheckBox', setText='Invalid Components', setObjectName='chk019', setToolTip='Check for invalid components.')
+        widget.menu.add(
             "QCheckBox",
             setText="Zero Face Area",
             setObjectName="chk013",
             setChecked=True,
             setToolTip="Check for 0 area faces.",
         )
-        widget.option_menu.add(
+        widget.menu.add(
             "QDoubleSpinBox",
             setPrefix="Face Area Tolerance:   ",
             setObjectName="s006",
@@ -111,14 +109,14 @@ class Edit_maya(SlotsMaya):
             setValue=0.000010,
             setToolTip="Tolerance for face areas.",
         )
-        widget.option_menu.add(
+        widget.menu.add(
             "QCheckBox",
             setText="Zero Length Edges",
             setObjectName="chk014",
             setChecked=True,
             setToolTip="Check for 0 length edges.",
         )
-        widget.option_menu.add(
+        widget.menu.add(
             "QDoubleSpinBox",
             setPrefix="Edge Length Tolerance: ",
             setObjectName="s007",
@@ -126,13 +124,13 @@ class Edit_maya(SlotsMaya):
             setValue=0.000010,
             setToolTip="Tolerance for edge length.",
         )
-        widget.option_menu.add(
+        widget.menu.add(
             "QCheckBox",
             setText="Zero UV Face Area",
             setObjectName="chk015",
             setToolTip="Check for 0 uv face area.",
         )
-        widget.option_menu.add(
+        widget.menu.add(
             "QDoubleSpinBox",
             setPrefix="UV Face Area Tolerance:",
             setObjectName="s008",
@@ -141,43 +139,43 @@ class Edit_maya(SlotsMaya):
             setValue=0.000010,
             setToolTip="Tolerance for uv face areas.",
         )
-        widget.option_menu.add(
+        widget.menu.add(
             "QCheckBox",
             setText="Overlapping Faces",
             setObjectName="chk025",
             setToolTip="Find any overlapping duplicate faces. (can be very slow on dense objects)",
         )
-        widget.option_menu.add(
+        widget.menu.add(
             "QCheckBox",
             setText="Overlapping Duplicate Objects",
             setObjectName="chk022",
             setToolTip="Find any duplicate overlapping geometry at the object level.",
         )
-        widget.option_menu.add(
+        widget.menu.add(
             "QCheckBox",
             setText="Omit Selected Objects",
             setObjectName="chk023",
             setDisabled=True,
             setToolTip="Overlapping Duplicate Objects: Search for duplicates of any selected objects while omitting the initially selected objects.",
         )
-        widget.option_menu.chk013.toggled.connect(
-            lambda state: widget.option_menu.s006.setEnabled(True if state else False)
+        widget.menu.chk013.toggled.connect(
+            lambda state: widget.menu.s006.setEnabled(True if state else False)
         )
-        widget.option_menu.chk014.toggled.connect(
-            lambda state: widget.option_menu.s007.setEnabled(True if state else False)
+        widget.menu.chk014.toggled.connect(
+            lambda state: widget.menu.s007.setEnabled(True if state else False)
         )
-        widget.option_menu.chk015.toggled.connect(
-            lambda state: widget.option_menu.s008.setEnabled(True if state else False)
+        widget.menu.chk015.toggled.connect(
+            lambda state: widget.menu.s008.setEnabled(True if state else False)
         )
-        widget.option_menu.chk022.stateChanged.connect(
+        widget.menu.chk022.stateChanged.connect(
             lambda state: self.sb.toggle_widgets(
-                widget.option_menu,
+                widget.menu,
                 setDisabled="chk002-3,chk005,chk010-21,chk024,s006-8",
                 setEnabled="chk023",
             )
             if state
             else self.sb.toggle_widgets(
-                widget.option_menu,
+                widget.menu,
                 setEnabled="chk002-3,chk005,chk010-21,s006-8",
                 setDisabled="chk023",
             )
@@ -197,27 +195,27 @@ class Edit_maya(SlotsMaya):
 
     def tb001_init(self, widget):
         """ """
-        widget.option_menu.add(
+        widget.menu.add(
             "QCheckBox",
             setText="For All Objects",
             setObjectName="chk018",
             setChecked=True,
             setToolTip="Delete history on All objects or just those selected.",
         )
-        widget.option_menu.add(
+        widget.menu.add(
             "QCheckBox",
             setText="Delete Unused Nodes",
             setObjectName="chk019",
             setChecked=True,
             setToolTip="Delete unused nodes.",
         )
-        widget.option_menu.add(
+        widget.menu.add(
             "QCheckBox",
             setText="Delete Deformers",
             setObjectName="chk020",
             setToolTip="Delete deformers.",
         )
-        widget.option_menu.add(
+        widget.menu.add(
             "QCheckBox",
             setText="Optimize Scene",
             setObjectName="chk030",
@@ -226,27 +224,27 @@ class Edit_maya(SlotsMaya):
 
     def tb003_init(self, widget):
         """ """
-        widget.option_menu.add(
+        widget.menu.add(
             "QCheckBox",
             setText="-",
             setObjectName="chk006",
             setChecked=True,
             setToolTip="Perform delete along negative axis.",
         )
-        widget.option_menu.add(
+        widget.menu.add(
             "QRadioButton",
             setText="X",
             setObjectName="chk007",
             setChecked=True,
             setToolTip="Perform delete along X axis.",
         )
-        widget.option_menu.add(
+        widget.menu.add(
             "QRadioButton",
             setText="Y",
             setObjectName="chk008",
             setToolTip="Perform delete along Y axis.",
         )
-        widget.option_menu.add(
+        widget.menu.add(
             "QRadioButton",
             setText="Z",
             setObjectName="chk009",
@@ -255,26 +253,26 @@ class Edit_maya(SlotsMaya):
 
         def set_axis_text(widget):
             """Set the toolbutton's text according to the checkstates."""
-            axis = self.sb.get_axis_from_checkboxes("chk006-9", widget.option_menu)
+            axis = self.sb.get_axis_from_checkboxes("chk006-9", widget.menu)
             widget.setText(f"Delete {axis}")
 
         self.sb.connect_multi(
             "chk006-9",
             "toggled",
             lambda s, w=widget: set_axis_text(w),
-            widget.option_menu,
+            widget.menu,
         )
 
     def tb004_init(self, widget):
         """ """
-        widget.option_menu.add(
+        widget.menu.add(
             "QCheckBox",
             setText="UnLock",
             setObjectName="chk027",
             setChecked=True,
             setToolTip="Unlock nodes (else lock).",
         )
-        widget.option_menu.chk027.toggled.connect(
+        widget.menu.chk027.toggled.connect(
             lambda state: widget.setText("Unlock Nodes" if state else "Lock Nodes")
         )
 
@@ -313,49 +311,47 @@ class Edit_maya(SlotsMaya):
     def b001(self, widget):
         """Object History Attributes: get most recent node"""
         cmb = self.sb.edit.cmb001
-        self.cmb001_init(cmb)
-
         index = cmb.items.index(cmb.items[-1])
-        self.cmb001(index, cmb)
+        cmb.init_slot(index)
 
     def tb000(self, widget):
         """Mesh Cleanup"""
         # [0] All selectable meshes
-        allMeshes = int(widget.option_menu.chk005.isChecked())
-        repair = widget.option_menu.chk004.isChecked()  # repair or select only
+        allMeshes = int(widget.menu.chk005.isChecked())
+        repair = widget.menu.chk004.isChecked()  # repair or select only
         # [3] check for quads polys
-        quads = int(widget.option_menu.chk010.isChecked())
-        mergeVertices = widget.option_menu.chk024.isChecked()
+        quads = int(widget.menu.chk010.isChecked())
+        mergeVertices = widget.menu.chk024.isChecked()
         # [4] check for n-sided polys
-        nsided = int(widget.option_menu.chk002.isChecked())
+        nsided = int(widget.menu.chk002.isChecked())
         # [5] check for concave polys
-        concave = int(widget.option_menu.chk011.isChecked())
-        holed = int(widget.option_menu.chk012.isChecked())  # [6] check for holed polys
+        concave = int(widget.menu.chk011.isChecked())
+        holed = int(widget.menu.chk012.isChecked())  # [6] check for holed polys
         # [7] check for non-planar polys
-        nonplanar = int(widget.option_menu.chk003.isChecked())
+        nonplanar = int(widget.menu.chk003.isChecked())
         # [8] check for 0 area faces
-        zeroGeom = int(widget.option_menu.chk013.isChecked())
-        zeroGeomTol = widget.option_menu.s006.value()  # [9] tolerance for face areas
+        zeroGeom = int(widget.menu.chk013.isChecked())
+        zeroGeomTol = widget.menu.s006.value()  # [9] tolerance for face areas
         # [10] check for 0 length edges
-        zeroEdge = int(widget.option_menu.chk014.isChecked())
-        zeroEdgeTol = widget.option_menu.s007.value()  # [11] tolerance for edge length
+        zeroEdge = int(widget.menu.chk014.isChecked())
+        zeroEdgeTol = widget.menu.s007.value()  # [11] tolerance for edge length
         # [12] check for 0 uv face area
-        zeroMap = int(widget.option_menu.chk015.isChecked())
-        zeroMapTol = widget.option_menu.s008.value()  # [13] tolerance for uv face areas
+        zeroMap = int(widget.menu.chk015.isChecked())
+        zeroMapTol = widget.menu.s008.value()  # [13] tolerance for uv face areas
         # [14] Unshare uvs that are shared across vertices
-        sharedUVs = int(widget.option_menu.chk016.isChecked())
+        sharedUVs = int(widget.menu.chk016.isChecked())
         # [15] check for nonmanifold polys
-        nonmanifold = int(widget.option_menu.chk017.isChecked())
+        nonmanifold = int(widget.menu.chk017.isChecked())
         # [16] check for lamina polys [default -1]
-        lamina = -int(widget.option_menu.chk018.isChecked())
-        split_non_manifold_vertex = widget.option_menu.chk021.isChecked()
-        invalidComponents = 0  # int(widget.option_menu.chk019.isChecked()) #[17] a guess what this arg does. not checked. default is 0.
-        overlappingFaces = widget.option_menu.chk025.isChecked()
+        lamina = -int(widget.menu.chk018.isChecked())
+        split_non_manifold_vertex = widget.menu.chk021.isChecked()
+        invalidComponents = 0  # int(widget.menu.chk019.isChecked()) #[17] a guess what this arg does. not checked. default is 0.
+        overlappingFaces = widget.menu.chk025.isChecked()
         overlappingDuplicateObjects = (
-            widget.option_menu.chk022.isChecked()
+            widget.menu.chk022.isChecked()
         )  # find overlapping geometry at object level.
         omitSelectedObjects = (
-            widget.option_menu.chk023.isChecked()
+            widget.menu.chk023.isChecked()
         )  # Search for duplicates of any selected objects while omitting the initially selected objects.
 
         objects = pm.ls(sl=1, transforms=1)
@@ -408,9 +404,9 @@ class Edit_maya(SlotsMaya):
     def tb001(self, widget):
         """Delete History"""
         # Get the state of the checkboxes
-        unusedNodes = widget.option_menu.chk019.isChecked()
-        deformers = widget.option_menu.chk020.isChecked()
-        optimize = widget.option_menu.chk030.isChecked()
+        unusedNodes = widget.menu.chk019.isChecked()
+        deformers = widget.menu.chk020.isChecked()
+        optimize = widget.menu.chk030.isChecked()
 
         # Get the selected objects or all mesh objects depending on whether there's a current selection
         objects = pm.ls(sl=True, objectsOnly=1) if pm.ls(sl=True) else pm.ls(typ="mesh")
@@ -467,7 +463,7 @@ class Edit_maya(SlotsMaya):
     @mtk.undo
     def tb003(self, widget):
         """Delete Along Axis"""
-        axis = self.sb.get_axis_from_checkboxes("chk006-9", widget.option_menu)
+        axis = self.sb.get_axis_from_checkboxes("chk006-9", widget.menu)
         selection = pm.ls(sl=1)
 
         mtk.delete_along_axis(selection, axis)
@@ -475,7 +471,7 @@ class Edit_maya(SlotsMaya):
     @mtk.undo
     def tb004(self, widget):
         """Node Locking"""
-        unlock = widget.option_menu.chk027.isChecked()
+        unlock = widget.menu.chk027.isChecked()
 
         selection = pm.ls(sl=True)
         # If not selection use all nodes

@@ -60,14 +60,14 @@ class Create_maya(SlotsMaya):
 
     def tb000_init(self, widget):
         """ """
-        widget.option_menu.add(
+        widget.menu.add(
             "QCheckBox",
             setText="Translate",
             setObjectName="chk000",
             setChecked=True,
             setToolTip="Move the created object to the center point of any selected object(s).",
         )
-        widget.option_menu.add(
+        widget.menu.add(
             "QCheckBox",
             setText="Scale",
             setObjectName="chk001",
@@ -79,8 +79,8 @@ class Create_maya(SlotsMaya):
         """Create Primitive"""
         baseType = self.sb.create.cmb001.currentText()
         subType = self.sb.create.cmb002.currentText()
-        scale = widget.option_menu.chk001.isChecked()
-        translate = widget.option_menu.chk000.isChecked()
+        scale = widget.menu.chk001.isChecked()
+        translate = widget.menu.chk000.isChecked()
 
         hist_node = self.createDefaultPrimitive(baseType, subType, scale, translate)
         pm.selectMode(object=True)  # place scene select type in object mode.

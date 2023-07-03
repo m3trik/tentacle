@@ -89,19 +89,19 @@ class Convert_maya(SlotsMaya):
 
     def b000(self):
         """Polygon Edges to Curve"""
-        self.cmb001(index=5)
+        self.sb.convert.cmb001.call_slot(5)
 
     def b001(self):
         """Instance to Object"""
-        self.cmb001(index=18)
+        self.sb.convert.cmb001.call_slot(18)
 
     def b002(self):
         """NURBS to Polygons"""
-        self.cmb001(index=1)
+        self.sb.convert.cmb001.call_slot(1)
 
     def b003(self):
         """Smooth Mesh Preview to Polygons"""
-        self.cmb001(index=4)
+        self.sb.convert.cmb001.call_slot(4)
 
 
 # module name

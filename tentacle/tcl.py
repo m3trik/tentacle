@@ -3,7 +3,7 @@
 import sys
 import logging
 from PySide2 import QtCore, QtGui, QtWidgets
-from pythontk import make_iterable
+import pythontk as ptk
 from uitk.switchboard import Switchboard
 from uitk.events import EventFactoryFilter, MouseTracking
 from tentacle.overlay import Overlay
@@ -181,8 +181,7 @@ class Tcl(QtWidgets.QStackedWidget):
         if ui not in self.sb.ui_history(slice(0, -1)):
             # re-construct any widgets from the previous UI that fall along the plotted path.
             return_func = self.return_to_startmenu
-            cloned_widgets = self.overlay.clone_widgets_along_path(ui, return_func)
-            # Initialize the child widgets event filter.
+            self.overlay.clone_widgets_along_path(ui, return_func)
 
     def return_to_startmenu(self):
         """Return the stacked widget to it's starting index."""
@@ -337,7 +336,7 @@ class Tcl(QtWidgets.QStackedWidget):
             QtWidgets.QRadioButton,
         ]
 
-        for w in make_iterable(widgets):
+        for w in ptk.make_iterable(widgets):
             if (w.derived_type not in filtered_types) or (  # not correct type.
                 not w.ui.has_tag("startmenu|submenu")  # not stacked UI:
             ):
@@ -509,6 +508,7 @@ class Tcl(QtWidgets.QStackedWidget):
             method()
         else:
             logging.info("No recent commands in history.")
+        self.option_box = False
 
     def repeat_last_ui(self):
         """Open the last used top level menu."""
@@ -516,7 +516,7 @@ class Tcl(QtWidgets.QStackedWidget):
         if prev_ui:
             self.set_ui(prev_ui)
         else:
-            logging.info("No recent menus in history.")
+            logging.info("No recent menus in hibstory.")
 
 
 # --------------------------------------------------------------------------------------------
@@ -535,146 +535,3 @@ if __name__ == "__main__":
 # --------------------------------------------------------------------------------------------
 # Notes
 # --------------------------------------------------------------------------------------------
-
-
-# --------------------------------------------------------------------------------------------
-# deprecated:
-# --------------------------------------------------------------------------------------------
-
-
-# self.app.focusChanged.connect(self.focusChanged)
-
-# def focusChanged(self, old, new):
-#   '''Called on focus events.
-
-#   Parameters:
-#       old (obj): The widget with previous focus.
-#       new (obj): The widget with current focus.
-#   '''
-#   try:
-#       new.grabKeyboard()
-#   except AttributeError as error:
-#       self.setFocus()
-
-#   if not self.isActiveWindow():
-#       self.hide()
-
-# class Instance():
-#   '''Manage multiple instances of the Tcl UI.
-#   '''
-#   instances={}
-
-#   def __init__(self, parent=None, prevent_hide=False, key_show='Key_F12'):
-#       '''
-#       '''
-#       self.Class = Tcl
-
-#       self.parent = parent
-#       self.prevent_hide = prevent_hide
-#       self.key_show = key_show
-
-#       self.activeWindow_ = None
-
-
-#   @property
-#   def instances_(self):
-#       '''Get all instances as a dictionary with the names as keys, and the window objects as values.
-#       '''
-#       return {k:v for k,v in self.instances.items() if not any([v.isVisible(), v==self.activeWindow_])}
-
-
-#   def _getInstance(self):
-#       '''Internal use. Returns a new instance if one is running and currently visible.
-#       Removes any old non-visible instances outside of the current 'activeWindow_'.
-#       '''
-#       if self.activeWindow_ is None or self.activeWindow_.isVisible():
-#           name = 'tentacle'+str(len(self.instances_))
-#           setattr(self, name, self.Class(self.parent, self.prevent_hide, self.key_show)) #set the instance as a property using it's name.
-#           self.activeWindow_ = getattr(self, name)
-#           self.instances_[name] = self.activeWindow_
-
-#       return self.activeWindow_
-
-
-#   def show(self, uiName=None, active=True):
-#       '''Sets the widget as visible.
-
-#       Parameters:
-#           uiName (str): Show the UI of the given name.
-#           active (bool): Set as the active window.
-#       '''
-#       inst = self._getInstance()
-#       inst.show(uiName=uiName, active=active)
-
-
-# class Worker(QtCore.QObject):
-#   '''Send and receive signals from the GUI allowing for events to be
-#   triggered from a separate thread.
-
-#   ex. self.worker = Worker()
-#       self.thread = QtCore.QThread()
-#       self.worker.moveToThread(self.thread)
-#       self.worker.finished.connect(self.thread.quit)
-#       self.thread.started.connect(self.worker.start)
-#       self.thread.start()
-#       self.worker.stop()
-#   '''
-#   started = QtCore.Signal()
-#   updateProgress = QtCore.Signal(int)
-#   finished = QtCore.Signal()
-
-#   def __init__(self, parent=None):
-#       super().__init__(parent)
-
-#   def start(self):
-#       self.started.emit()
-
-#   def stop(self):
-#       self.finished.emit()
-
-
-# self.worker = Worker()
-# self.thread = QtCore.QThread()
-# self.worker.moveToThread(self.thread)
-
-# self.worker.finished.connect(self.thread.quit)
-# self.thread.started.connect(self.worker.start)
-
-# # self.loadingIndicator = self.sb.LoadingIndicator(color='white', start=True, set_position='cursor')
-# self.loadingIndicator = self.sb.GifPlayer(set_position='cursor')
-# self.worker.started.connect(self.loadingIndicator.start)
-# self.worker.finished.connect(self.loadingIndicator.stop)
-# self.thread.start()
-
-# import time #threading test
-# for _ in range(11):
-#   time.sleep(.25)
-
-# code
-# self.worker.stop()
-
-
-# if self.addUi(ui, query=True): #if the UI has not yet been added to the widget stack.
-#   self.addUi(ui) #initialize the parent UI if not done so already.
-
-# def addUi(self, ui, query=False):
-#   '''Initializes the UI of the given name and it's dependancies.
-
-#   Parameters:
-#       ui (QWidget): The UI widget to be added to the layout stack.
-#       query (bool): Check whether the UI widget has been added.
-
-#   Returns:
-#       (bool) When queried.
-#   '''
-#   if query:
-#       return self.indexOf(ui)<0
-
-#   for i in reversed(range(4)): #in order of uiLevel heirarchy (top-level parent down).
-#       ui_ = self.sb.get_ui(ui, level=i)
-#       if ui_:
-#           name = self.sb.getUiName(ui_)
-
-#           if self.addUi(ui_, query=True): #if the UI has not yet been added to the widget stack.
-#               self.addWidget(ui_) #add the UI to the stackedLayout.
-#               self.add_child_event_filter(name)

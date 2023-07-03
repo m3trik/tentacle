@@ -376,9 +376,6 @@ class Overlay(QtWidgets.QWidget, OverlayFactoryFilter):
 
 # --------------------------------------------------------------------------------------------
 
-
-# --------------------------------------------------------------------------------------------
-
 if __name__ == "__main__":
     import sys
 
@@ -392,32 +389,3 @@ print(__name__)
 # --------------------------------------------------------------------------------------------
 # Notes
 # --------------------------------------------------------------------------------------------
-
-
-# Deprecated: -----------------------------------
-
-# def getPathWidget(self, index):
-#   '''
-#   '''
-#   try:
-#       return self._path[index][0]
-#   except IndexError as error:
-#       return None
-
-
-# def getPathWidgetPos(self, index):
-#   '''
-#   '''
-#   try:
-#       return self._path[index][1]
-#   except IndexError as error:
-#       return None
-
-
-# def getPathCursorPos(self, index):
-#   '''
-#   '''
-#   try:
-#       return self._path[index][2]
-#   except IndexError as error:
-#       return None
