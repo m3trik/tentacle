@@ -12,99 +12,72 @@ class Materials_maya(SlotsMaya):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        self.randomMat = None
+        self.random_mat = None
 
     def cmb002_init(self, widget):
         """ """
         widget.refresh = True
-        widget.menu.clear()
-        widget.menu.add(
-            "QComboBox",
-            setObjectName="cmb001",
-            addItems=["Scene Materials", "ID Map Materials", "Favorite Materials"],
-            setToolTip="Filter materials list based on type.",
-        )
-        widget.menu.add(
-            self.sb.Label,
-            setText="Open in Editor",
-            setObjectName="lbl000",
-            setToolTip="Open material in editor.",
-        )
-        widget.menu.add(
-            self.sb.Label,
-            setText="Delete",
-            setObjectName="lbl002",
-            setToolTip="Delete the current material.",
-        )
-        widget.menu.add(
-            self.sb.Label,
-            setText="Delete All Unused Materials",
-            setObjectName="lbl003",
-            setToolTip="Delete All unused materials.",
-        )
-        widget.menu.add(
-            self.sb.Label,
-            setText="Material Attributes",
-            setObjectName="lbl004",
-            setToolTip="Show the material attributes in the attribute editor.",
-        )
-        '''
-        """Rename Material: Set cmb002 as editable and disable wgts."""
-        widget.returnPressed.connect(self.lbl001)
-        cmb = self.sb.materials.cmb002
-        if setEditable:
-            self._mat = self.sb.materials.cmb002.currentData()
-            cmb.setEditable(True)
-            self.sb.toggle_widgets(widget.ui, setDisabled="b002,lbl000,tb000,tb002")
-        else:
-            mat = self._mat
-            newMatName = cmb.currentText()
-            self.renameMaterial(mat, newMatName)
-            cmb.setEditable(False)
-            self.sb.toggle_widgets(widget.ui, setEnabled="b002,lbl000,tb000,tb002")
-        '''
-
-        # set the popup title to be the current materials name.
-        widget.currentIndexChanged.connect(
-            lambda: widget.menu.setTitle(widget.currentText())
-        )
-        # set the groupbox title to reflect the current filter.
-        widget.menu.cmb001.currentIndexChanged.connect(
-            lambda: self.sb.materials.group000.setTitle(
-                widget.menu.cmb001.currentText()
+        if not widget.is_initialized:
+            widget.menu.add(
+                "QComboBox",
+                setObjectName="cmb001",
+                addItems=["Scene Materials", "ID Map Materials", "Favorite Materials"],
+                setToolTip="Filter materials list based on type.",
             )
-        )
-        # refresh cmb002 contents.
-        widget.menu.cmb001.currentIndexChanged.connect(widget.ui.cmb002.init_slot)
-        # initialize the materials list
-        b = self.sb.materials_submenu.b003
+            widget.menu.add(
+                self.sb.Label,
+                setText="Open in Editor",
+                setObjectName="lbl000",
+                setToolTip="Open material in editor.",
+            )
+            widget.menu.add(
+                self.sb.Label,
+                setText="Delete",
+                setObjectName="lbl002",
+                setToolTip="Delete the current material.",
+            )
+            widget.menu.add(
+                self.sb.Label,
+                setText="Delete All Unused Materials",
+                setObjectName="lbl003",
+                setToolTip="Delete All unused materials.",
+            )
+            widget.menu.add(
+                self.sb.Label,
+                setText="Material Attributes",
+                setObjectName="lbl004",
+                setToolTip="Show the material attributes in the attribute editor.",
+            )
+            widget.on_editing_finished.connect(
+                lambda text: pm.rename(widget.currentData(), text)
+            )
+            # Refresh contents each index change.
+            widget.menu.cmb001.currentIndexChanged.connect(widget.init_slot)
+            # Set the groupbox title to reflect the current filter.
+            widget.menu.cmb001.currentIndexChanged.connect(
+                lambda: self.sb.materials.group000.setTitle(
+                    widget.menu.cmb001.currentText()
+                )
+            )
 
         mode = widget.menu.cmb001.currentText()
         if mode == "Scene Materials":
             materials = mtk.get_scene_mats(exc="standardSurface")
-
         elif mode == "ID Map Materials":
             materials = mtk.get_scene_mats(inc="ID_*")
+        elif mode == "Favorite Materials":
+            materials = mtk.get_fav_mats()
 
-        if mode == "Favorite Materials":
-            fav_materials = mtk.get_fav_mats()
-            currentMats = {
-                matName: matName for matName in sorted(list(set(fav_materials)))
-            }
-        else:
-            currentMats = {
-                mat.name(): mat
-                for mat in sorted(list(set(materials)))
-                if hasattr(mat, "name")
-            }
-
-        widget.add(currentMats, clear=True)
+        materials_dict = {m.name(): m for m in materials}
+        widget.add(materials_dict, clear=True)
 
         # create and set icons with color swatch
         for i, mat in enumerate(widget.items):
             icon = self.getColorSwatchIcon(mat)
             widget.setItemIcon(i, icon) if icon else None
 
+        # initialize the materials list
+        b = self.sb.materials_submenu.b003
         # set submenu assign material button attributes
         b.setText("Assign " + widget.currentText())
         icon = self.getColorSwatchIcon(widget.currentText(), [15, 15])
@@ -192,7 +165,7 @@ class Materials_maya(SlotsMaya):
             mat = mtk.create_random_mat(prefix="ID_")
             mtk.assign_mat(selection, mat)
 
-            self.randomMat = mat
+            self.random_mat = mat
 
             # set the combobox index to the new mat
             self.sb.materials.cmb002.setCurrentItem(mat.name())
@@ -308,20 +281,6 @@ class Materials_maya(SlotsMaya):
 
         except Exception:
             pass
-
-    def renameMaterial(self, mat, newMatName):
-        """Rename material"""
-        cmb = self.sb.materials.cmb002  # scene materials
-
-        curMatName = mat.name()
-        if curMatName != newMatName:
-            cmb.setItemText(cmb.currentIndex(), newMatName)
-            try:
-                print(curMatName, newMatName)
-                pm.rename(curMatName, newMatName)
-
-            except RuntimeError as error:
-                cmb.setItemText(cmb.currentIndex(), str(error).strip("\n"))
 
 
 # --------------------------------------------------------------------------------------------

@@ -15,7 +15,7 @@ class Rigging_maya(SlotsMaya):
     def cmb001_init(self, widget):
         """ """
         items = ["Joints", "Locator", "IK Handle", "Lattice", "Cluster"]
-        widget.add(items, "Create")
+        widget.add(items, header="Create")
 
     def tb000_init(self, widget):
         """ """
@@ -178,12 +178,9 @@ class Rigging_maya(SlotsMaya):
             setChecked=False,
             setToolTip="",
         )
-        self.sb.connect_multi(
-            (
-                widget.menu.chk012,
-                widget.menu.chk013,
-                widget.menu.chk014,
-            ),
+        self.sb.connect_widgets(
+            widget.menu,
+            "chk012-14",
             "toggled",
             [
                 lambda state: widget.setText(

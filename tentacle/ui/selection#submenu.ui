@@ -112,14 +112,14 @@
      <string>Symmetry</string>
     </property>
    </widget>
-   <widget class="QRadioButton" name="chk006">
+   <widget class="QCheckBox" name="chk006">
     <property name="enabled">
      <bool>true</bool>
     </property>
     <property name="geometry">
      <rect>
       <x>485</x>
-      <y>330</y>
+      <y>270</y>
       <width>51</width>
       <height>19</height>
      </rect>
@@ -239,14 +239,14 @@
      </size>
     </property>
    </widget>
-   <widget class="QRadioButton" name="chk005">
+   <widget class="QCheckBox" name="chk005">
     <property name="enabled">
      <bool>true</bool>
     </property>
     <property name="geometry">
      <rect>
-      <x>470</x>
-      <y>270</y>
+      <x>455</x>
+      <y>240</y>
       <width>76</width>
       <height>19</height>
      </rect>
@@ -273,7 +273,7 @@
      <bool>true</bool>
     </property>
    </widget>
-   <widget class="QRadioButton" name="chk007">
+   <widget class="QCheckBox" name="chk007">
     <property name="enabled">
      <bool>true</bool>
     </property>

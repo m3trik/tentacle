@@ -429,10 +429,8 @@ class Duplicate_maya(SlotsMaya):
         """Add Selected Components To cmb001"""
         cmb = self.sb.duplicate_linear.cmb001
 
-        selection = pm.ls(sl=True, flatten=1)
-
-        for obj in selection:
-            cmb.add(obj)
+        selection = pm.ls(sl=True, flatten=True)
+        cmb.add([str(i) for i in selection])
 
     def getInstances(self, objects=None, returnParentObjects=False):
         """get any intances of given object, or if None given; get all instanced objects in the scene.

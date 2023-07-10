@@ -35,7 +35,7 @@ class Convert_maya(SlotsMaya):
             "Geometry to Bounding Box",
             "Convert XGen Primitives to Polygons",
         ]
-        widget.add(items, "Convert To")
+        widget.add(items, header="Convert To")
 
     def cmb001(self, index, widget):
         """Convert To"""

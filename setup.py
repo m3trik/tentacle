@@ -7,7 +7,7 @@ with open("docs/README.md", "r") as f:
     long_description = f.read()
 
 setuptools.setup(
-    name=__package__,
+    name="tentacletk",
     version=__version__,
     author="Ryan Simpson",
     author_email="m3trik@outlook.com",
@@ -15,7 +15,7 @@ setuptools.setup(
     description="A Python3/PySide2 marking menu style toolkit for Maya, 3ds Max, and Blender.",
     long_description=long_description,
     long_description_content_type="text/markdown",
-    url="https://github.com/m3trik/uitk",
+    url="https://github.com/m3trik/tentacle",
     packages=setuptools.find_packages(),  # scan the directory structure and include all package dependancies.
     classifiers=[
         "Programming Language :: Python :: 3",
