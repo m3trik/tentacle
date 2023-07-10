@@ -137,34 +137,6 @@
      <string>Export Selection</string>
     </property>
    </widget>
-   <widget class="PushButton" name="tb000">
-    <property name="geometry">
-     <rect>
-      <x>185</x>
-      <y>290</y>
-      <width>46</width>
-      <height>19</height>
-     </rect>
-    </property>
-    <property name="minimumSize">
-     <size>
-      <width>0</width>
-      <height>19</height>
-     </size>
-    </property>
-    <property name="maximumSize">
-     <size>
-      <width>16777215</width>
-      <height>19</height>
-     </size>
-    </property>
-    <property name="toolTip">
-     <string>Open most recent file.</string>
-    </property>
-    <property name="text">
-     <string>Save</string>
-    </property>
-   </widget>
    <widget class="ExpandableList" name="list000" native="true">
     <property name="geometry">
      <rect>
@@ -181,11 +153,6 @@
   </widget>
  </widget>
  <customwidgets>
-  <customwidget>
-   <class>PushButton</class>
-   <extends>QPushButton</extends>
-   <header>widgets.pushbutton.h</header>
-  </customwidget>
   <customwidget>
    <class>ExpandableList</class>
    <extends>QWidget</extends>

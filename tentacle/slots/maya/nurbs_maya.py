@@ -23,7 +23,7 @@ class Nurbs_maya(SlotsMaya):
             "2 Point Circular Arc",
             "3 Point Circular Arc",
         ]
-        widget.add(items, "Create Curve")
+        widget.add(items, header="Create Curve")
 
     def tb000_init(self, widget):
         widget.menu.add(

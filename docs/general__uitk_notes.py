@@ -18,7 +18,7 @@ menu.add(self.sb.Label, setText='Open in Editor', setObjectName='lbl000', setToo
 menu.add('QPushButton', setObjectName='b002', setText='Delete All', setToolTip='Delete all autosave files.')  # Delete all
 
 # Set multiple connections using the Slots.connect method.
-self.sb.connect_multi('chk006-9', 'toggled', self.chk006_9, menu)
+self.sb.connect_widgets(menu, 'chk006-9', 'toggled', self.chk006_9)
 
 # Call a method from another class.
 self.sb.file.slots.b005()  # Get method 'b005' from the 'file' module.

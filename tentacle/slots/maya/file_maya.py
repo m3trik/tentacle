@@ -88,7 +88,7 @@ class File_maya(SlotsMaya):
         )
         widget.add(
             mtk.get_recent_autosave(format="timestamp|standard"),
-            "Recent Autosave",
+            header="Recent Autosave",
             clear=True,
         )
 
@@ -101,7 +101,7 @@ class File_maya(SlotsMaya):
                 "FBX Import Presets",
                 "Obj Import Presets",
             ],
-            "Import",
+            header="Import",
         )
 
     def cmb004_init(self, widget):
@@ -119,7 +119,7 @@ class File_maya(SlotsMaya):
             "FBX Export Presets",
             "Obj Export Presets",
         ]
-        widget.add(items, "Export")
+        widget.add(items, header="Export")
 
     def cmb005_init(self, widget):
         """ """
@@ -131,7 +131,7 @@ class File_maya(SlotsMaya):
         )
         widget.add(
             mtk.get_recent_files(slice(0, 20), format="timestamp|standard"),
-            "Recent Files",
+            header="Recent Files",
             clear=True,
         )
 
@@ -158,7 +158,7 @@ class File_maya(SlotsMaya):
         )
         widget.menu.cmb001.add(
             mtk.get_recent_projects(slice(0, 20), format="timestamp|standard"),
-            "Recent Projects",
+            header="Recent Projects",
             clear=True,
         )
         workspace = ptk.format_path(pm.workspace(q=True, rd=1))  # current project path.
@@ -174,13 +174,14 @@ class File_maya(SlotsMaya):
         recentFiles = mtk.get_recent_files(slice(0, 6))
         w1 = widget.add("Recent Files")
         truncated = ptk.truncate(recentFiles, 65)
-        w1.sublist.add(truncated, recentFiles)
+        w1.sublist.add(zip(truncated, recentFiles))
         widget.setVisible(bool(recentFiles))
 
     @signals("on_item_interacted")
     def list000(self, item):
         """ """
         data = item.item_data()
+        print(4, item, data)
         pm.openFile(data, open=True, force=True)
 
     def cmb001(self, index, widget):

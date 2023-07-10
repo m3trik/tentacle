@@ -27,7 +27,7 @@ class Transform_maya(SlotsMaya):
             "Snap Together Tool",
             "Orient to Vertex/Edge Tool",
         ]
-        widget.add(items, "Align To")
+        widget.add(items, header="Align To")
 
     def tb000_init(self, widget):
         """ """

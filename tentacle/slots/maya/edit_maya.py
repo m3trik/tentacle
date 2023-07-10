@@ -13,7 +13,7 @@ class Edit_maya(SlotsMaya):
         super().__init__(*args, **kwargs)
 
         # Refresh the combo box on every view show
-        self.sb.edit.cmb001.beforePopupShown.connect(self.sb.edit.cmb001.init_slot)
+        self.sb.edit.cmb001.before_popup_shown.connect(self.sb.edit.cmb001.init_slot)
 
     def tb000_init(self, widget):
         """ """
@@ -191,7 +191,7 @@ class Edit_maya(SlotsMaya):
             items = {str(o): o for o in obj_hist}
         except RuntimeError:
             items = ["No selection."]
-        widget.add(items, "History")
+        widget.add(items, header="History")
 
     def tb001_init(self, widget):
         """ """
@@ -256,11 +256,8 @@ class Edit_maya(SlotsMaya):
             axis = self.sb.get_axis_from_checkboxes("chk006-9", widget.menu)
             widget.setText(f"Delete {axis}")
 
-        self.sb.connect_multi(
-            "chk006-9",
-            "toggled",
-            lambda s, w=widget: set_axis_text(w),
-            widget.menu,
+        self.sb.connect_widgets(
+            widget.menu, "chk006-9", "toggled", lambda s, w=widget: set_axis_text(w)
         )
 
     def tb004_init(self, widget):

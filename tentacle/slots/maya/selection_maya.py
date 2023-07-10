@@ -130,9 +130,7 @@ class Selection(SlotsMaya):
             setToolTip="Include the original selected object(s) in the final selection.",
         )
         widget.menu.chk018.stateChanged.connect(
-            lambda state: self.sb.toggle_widgets(
-                widget.menu, setDisabled="chk011-18"
-            )
+            lambda state: self.sb.toggle_widgets(widget.menu, setDisabled="chk011-18")
             if state
             else self.sb.toggle_widgets(widget.menu, setEnabled="chk011-18")
         )
@@ -180,15 +178,9 @@ class Selection(SlotsMaya):
                 widget.menu.s005.setValue(value)
 
         # Connect signals
-        widget.menu.s002.valueChanged.connect(
-            lambda v: update_normal_ranges(v, widget)
-        )
-        widget.menu.s004.valueChanged.connect(
-            lambda v: update_normal_ranges(v, widget)
-        )
-        widget.menu.s005.valueChanged.connect(
-            lambda v: update_normal_ranges(v, widget)
-        )
+        widget.menu.s002.valueChanged.connect(lambda v: update_normal_ranges(v, widget))
+        widget.menu.s004.valueChanged.connect(lambda v: update_normal_ranges(v, widget))
+        widget.menu.s005.valueChanged.connect(lambda v: update_normal_ranges(v, widget))
 
     def tb003_init(self, widget):
         """ """
@@ -214,7 +206,7 @@ class Selection(SlotsMaya):
         widget.clear()
         widget.refresh = True
         items = [str(s) for s in pm.ls(et="objectSet", flatten=1)]
-        widget.add(items, "Selection Sets:")
+        widget.add(items, header="Selection Sets:")
 
         widget.menu.add(
             self.sb.Label,
@@ -272,7 +264,7 @@ class Selection(SlotsMaya):
             "nParticles",
             "nRigids",
         ]
-        widget.add(items, "By Type:")
+        widget.add(items, header="By Type:")
 
     def cmb003_init(self, widget):
         """ """
@@ -298,16 +290,24 @@ class Selection(SlotsMaya):
             "Shell",
             "Shell Border",
         ]
-        widget.add(items, "Convert To:")
+        widget.add(items, header="Convert To:")
 
     def cmb005_init(self, widget):
         """ """
         items = ["Angle", "Border", "Edge Loop", "Edge Ring", "Shell", "UV Edge Loop"]
-        widget.add(items, "Off")
+        widget.add(items, header="Off")
 
     def chk005_init(self, widget):
         """Create button group for radioboxes chk005, chk006, chk007"""
         self.sb.create_button_groups(widget.ui, "chk005-7")
+
+        ctx = self.get_selection_tool()
+        if ctx == "selectSuperContext":
+            widget.ui.chk005.setChecked(True)
+        elif ctx == "lassoSelectContext":
+            widget.ui.chk006.setChecked(True)
+        elif ctx == "artSelectContext":
+            widget.ui.chk007.setChecked(True)
 
     def chk000(self, state, widget):
         """Select Nth: uncheck other checkboxes"""
@@ -323,18 +323,21 @@ class Selection(SlotsMaya):
 
     def chk005(self, state, widget):
         """Select Style: Marquee"""
-        self.set_selection_style("marquee")
-        self.sb.message_box("Select Style: <hl>Marquee</hl>")
+        if state:
+            self.set_selection_tool("selectSuperContext")
+            # self.sb.message_box("Select Style: <hl>Marquee</hl>")
 
     def chk006(self, state, widget):
         """Select Style: Lasso"""
-        self.set_selection_style("lasso")
-        self.sb.message_box("Select Style: <hl>Lasso</hl>")
+        if state:
+            self.set_selection_tool("lassoSelectContext")
+            # self.sb.message_box("Select Style: <hl>Lasso</hl>")
 
     def chk007(self, state, widget):
         """Select Style: Paint"""
-        self.set_selection_style("paint")
-        self.sb.message_box("Select Style: <hl>Paint</hl>")
+        if state:
+            self.set_selection_tool("artSelectContext")
+            # self.sb.message_box("Select Style: <hl>Paint</hl>")
 
     def lbl000(self, widget):
         """Selection Sets: Create New"""
@@ -662,41 +665,51 @@ class Selection(SlotsMaya):
         pm.mel.SelectEdgeRingSp()
 
     @staticmethod
-    def set_selection_style(ctx):
-        """Set the selection style context.
+    def get_selection_tool():
+        """Queries the current selection tool in Maya.
+
+        Returns:
+            str: The current selection tool.
+        """
+        try:
+            return pm.currentCtx()
+        except Exception as e:
+            print(f"# Error: {e}")
+            return None
+
+    @staticmethod
+    def set_selection_tool(tool):
+        """Sets the selection tool in Maya.
 
         Parameters:
-                ctx (str): Selection style context. valid: 'marquee', 'lasso', 'paint'.
+            tool (str): The tool to set. Should be one of 'selectSuperContext', 'artSelectContext', 'lassoToolContext'.
         """
-        ctx = ctx + "Context"
-        if pm.contextInfo(ctx, exists=True):
-            pm.deleteUI(ctx)
+        valid_tools = ["selectSuperContext", "lassoSelectContext", "artSelectContext"]
+        if tool not in valid_tools:
+            print(f"Invalid tool. Tool should be one of {','.join(valid_tools)}.")
+            return
 
-        if ctx == "marqueeContext":
-            ctx = pm.selectContext(ctx)
-        elif ctx == "lassoContext":
-            ctx = pm.lassoContext(ctx)
-        elif ctx == "paintContext":
-            ctx = pm.artSelectCtx(ctx)
-
-        pm.setToolTo(ctx)
+        try:
+            pm.setToolTo(tool)
+        except Exception as e:
+            print(f"# Error: {e}")
 
     def generateUniqueSetName(self, obj=None):
         """Generate a generic name based on the object's name.
 
         Parameters:
-                obj (str/obj/list): The maya scene object to derive a unique name from.
+            obj (str/obj/list): The maya scene object to derive a unique name from.
 
-        <objectName>_Set<int>
+        Example:
+            <objectName>_Set<int>
         """
         if obj is None:
             obj = pm.ls(sl=1)
         num = ptk.cycle(list(range(99)), "selectionSetNum")
-        name = "{0}_Set{1}".format(
-            pm.ls(obj, objectsOnly=1, flatten=1)[0].name, num
-        )  # ie. pCube1_Set0
+        name = pm.ls(obj, objectsOnly=1, flatten=1)[0].name
+        set_name = f"{name}_Set{num}"  # ie. pCube1_Set0
 
-        return name
+        return set_name
 
     def creatNewSelectionSet(self, name=None):
         """Selection Sets: Create a new selection set."""
@@ -731,29 +744,3 @@ print(__name__)
 # --------------------------------------------------------------------------------------------
 # Notes
 # --------------------------------------------------------------------------------------------
-
-
-# deprecated:
-# def s002(self, *args, **kwargs):
-#     """Select Island: tolerance x"""
-#     tb = self.sb.selection.tb002
-#     if tb.menu.chk003.isChecked():
-#         text = tb.menu.s002.value()
-#         tb.menu.s004.setValue(text)
-#         tb.menu.s005.setValue(text)
-
-# def s004(self, *args, **kwargs):
-#     """Select Island: tolerance y"""
-#     tb = self.sb.selection.tb002
-#     if tb.menu.chk003.isChecked():
-#         text = tb.menu.s004.value()
-#         tb.menu.s002.setValue(text)
-#         tb.menu.s005.setValue(text)
-
-# def s005(self, *args, **kwargs):
-#     """Select Island: tolerance z"""
-#     tb = self.sb.selection.tb002
-#     if tb.menu.chk003.isChecked():
-#         text = tb.menu.s005.value()
-#         tb.menu.s002.setValue(text)
-#         tb.menu.s004.setValue(text)
