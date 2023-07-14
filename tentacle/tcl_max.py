@@ -8,7 +8,7 @@ except ImportError as error:
     print(error)
 from tentacle.tcl import Tcl
 
-# constants
+
 INSTANCES = {}
 
 
@@ -68,7 +68,7 @@ class TclMax(Tcl):
         except Exception as error:
             print(error)
 
-        Tcl.showEvent(self, event)  # super().showEvent(event)
+        super().showEvent(event)  # super().showEvent(event)
 
     def hideEvent(self, event):
         """
@@ -81,7 +81,7 @@ class TclMax(Tcl):
         except Exception as error:
             print(error)
 
-        Tcl.hideEvent(self, event)  # super().hideEvent(event)
+        super().hideEvent(event)  # super().hideEvent(event)
 
 
 # --------------------------------------------------------------------------------------------
@@ -98,7 +98,7 @@ def getInstance(instanceID=None, *args, **kwargs):
     Returns:
             (obj) An instance of this class.
 
-    Example: tcl = getInstance(id(0), key_show='Key_F12') #returns the class instance with an instance ID of the value of `id(0)`.
+    Example: tentacle = getInstance(id(0), key_show='Key_F12') #returns the class instance with an instance ID of the value of `id(0)`.
     """
     import inspect
 
