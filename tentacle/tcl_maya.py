@@ -5,7 +5,6 @@ import mayatk as mtk
 from tentacle.tcl import Tcl
 
 
-# constants
 INSTANCES = {}
 
 
@@ -28,23 +27,17 @@ class TclMaya(Tcl):
         super().__init__(parent, slots_location=slots_location, *args, **kwargs)
 
     def showEvent(self, event):
-        """
-        Parameters:
-                event = <QEvent>
-        """
+        """ """
 
-        Tcl.showEvent(self, event)  # super().showEvent(event)
+        super().showEvent(event)  # super().showEvent(event)
 
     def hideEvent(self, event):
-        """
-        Parameters:
-                event = <QEvent>
-        """
+        """ """
         if __name__ == "__main__":
             self.app.quit()
             sys.exit()  # assure that the sys processes are terminated.
 
-        Tcl.hideEvent(self, event)  # super().hideEvent(event)
+        super().hideEvent(event)  # super().hideEvent(event)
 
 
 # --------------------------------------------------------------------------------------------
@@ -61,7 +54,7 @@ def getInstance(instanceID=None, *args, **kwargs):
     Returns:
             (obj) An instance of this class.
 
-    Example: tcl = getInstance(id(0), key_show='Key_F12') #returns the class instance with an instance ID of the value of `id(0)`.
+    Example: tentacle = getInstance(id(0), key_show='Key_F12') #returns the class instance with an instance ID of the value of `id(0)`.
     """
     import inspect
 

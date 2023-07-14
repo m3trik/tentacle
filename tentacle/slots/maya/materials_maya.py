@@ -18,6 +18,7 @@ class Materials_maya(SlotsMaya):
         """ """
         widget.refresh = True
         if not widget.is_initialized:
+            widget.editable = True
             widget.menu.add(
                 "QComboBox",
                 setObjectName="cmb001",
