@@ -104,15 +104,17 @@ class Tcl(QtWidgets.QStackedWidget):
             raise ValueError(f"Invalid datatype: {type(ui)}, expected QWidget.")
 
         if ui.has_tag("startmenu|submenu"):  # StackedWidget
-            ui.set_style(theme="dark", style_class="translucentBgNoBorder")
+            if ui.has_tag("submenu"):
+                ui.set_style(theme="dark", style_class="transparentBgNoBorder")
+            else:
+                ui.set_style(theme="dark", style_class="translucentBgNoBorder")
             self.addWidget(ui)  # add the UI to the stackedLayout.
 
         else:  # MainWindow
             ui.setParent(self.parent())
             ui.setWindowFlags(QtCore.Qt.Tool | QtCore.Qt.FramelessWindowHint)
             ui.setAttribute(QtCore.Qt.WA_TranslucentBackground)
-            ui.centralWidget().setProperty("class", "translucentBgWithBorder")
-            ui.set_style(theme="dark")
+            ui.set_style(theme="dark", style_class="translucentBgWithBorder")
             self.key_show_release.connect(ui.hide)
 
         # set style before child init (resize).
