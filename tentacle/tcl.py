@@ -141,7 +141,7 @@ class Tcl(QtWidgets.QStackedWidget):
 
         if found_ui.has_tag("startmenu|submenu"):
             if found_ui.has_tag("startmenu"):
-                self.move(self.sb.get_center(self))
+                self.move(self.sb.get_cursor_offset_from_center(self))
             self.setCurrentWidget(found_ui)  # set the stacked widget to the found UI.
 
         else:
@@ -150,9 +150,9 @@ class Tcl(QtWidgets.QStackedWidget):
             found_ui.setFixedSize(found_ui.minimumSizeHint())
             found_ui.update()
             # move to cursor position.
-            self.sb.move_and_center_widget(found_ui, QtGui.QCursor.pos(), offset_y=4)
+            self.sb.center_widget(found_ui, "cursor", offset_y=25)
 
-    def set_submenu(self, ui, w=None):
+    def set_submenu(self, ui, w):
         """Set the stacked widget's index to the submenu associated with the given widget.
         Positions the new UI to line up with the previous UI's button that called the new UI.
         If the given UI is already set, then this method will simply return without performing any operation.
@@ -178,7 +178,7 @@ class Tcl(QtWidgets.QStackedWidget):
         self.move(self.mapFromGlobal(currentPos + (p1 - p2)))
 
         # if the submenu UI called for the first time:
-        if ui not in self.sb.ui_history(slice(0, -1)):
+        if ui not in self.sb.ui_history(slice(0, -1), allow_duplicates=True):
             # re-construct any widgets from the previous UI that fall along the plotted path.
             return_func = self.return_to_startmenu
             self.overlay.clone_widgets_along_path(ui, return_func)
@@ -191,7 +191,6 @@ class Tcl(QtWidgets.QStackedWidget):
         startmenu = self.sb.ui_history(-1, inc="*#startmenu*")
         # logging.info(f"startmenu: {startmenu.name}")
         self.set_ui(startmenu)
-
         self.move(self.overlay.path.start_pos - self.rect().center())
 
     # ---------------------------------------------------------------------------------------------
@@ -292,7 +291,7 @@ class Tcl(QtWidgets.QStackedWidget):
             self.set_ui(ui)
 
         if self.sb.ui.name == "init#startmenu":
-            self.move(self.sb.get_center(self))
+            self.move(self.sb.get_cursor_offset_from_center(self))
 
         super().show()
         self.activateWindow()  # the window cannot be activated for keyboard events until after it is shown.
@@ -351,7 +350,7 @@ class Tcl(QtWidgets.QStackedWidget):
                 QtWidgets.QCheckBox,
                 QtWidgets.QRadioButton,
             ):
-                self.sb.resize_and_center_widget(w)
+                self.sb.center_widget(w, padding_x=25)
                 if w.base_name == "i":
                     w.ui.set_style(widget=w)
 

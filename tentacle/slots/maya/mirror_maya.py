@@ -108,22 +108,23 @@ class Mirror_maya(SlotsMaya):
         axis = self.sb.get_axis_from_checkboxes("chk000-3", widget.menu)
         # 1) object space, 2) world space.
         axisPivot = 2 if widget.menu.chk008.isChecked() else 1
-        # cut mesh on axis before mirror.
+        # Cut mesh on axis before mirror.
         cutMesh = widget.menu.chk005.isChecked()
         # Un-Instance any previously instanced objects before mirroring.
-        uninstance = widget.menu.chk009.isChecked()
+        un_instance_previous = widget.menu.chk009.isChecked()
         instance = widget.menu.chk004.isChecked()
         merge = widget.menu.chk007.isChecked()
         mergeMode = widget.menu.s001.value()
         mergeThreshold = widget.menu.s000.value()
-        # delete the original objects after mirroring.
+        # Delete the original objects after mirroring.
         deleteOriginal = widget.menu.chk010.isChecked()
-        # delete the object's non-deformer history.
+        # Delete the object's non-deformer history.
         deleteHistory = widget.menu.chk006.isChecked()
 
         objects = pm.ls(sl=1)
 
-        self.sb.duplicate.slots.unInstance(objects)
+        if un_instance_previous:
+            mtk.uninstance(objects)
 
         return self.mirrorGeometry(
             objects,
@@ -140,16 +141,19 @@ class Mirror_maya(SlotsMaya):
 
     def b000(self):
         """Mirror: X"""
+        self.sb.mirror.tb000.init_slot()
         self.sb.mirror.tb000.menu.chk001.setChecked(True)
         self.sb.mirror.tb000.call_slot()
 
     def b001(self):
         """Mirror: Y"""
+        self.sb.mirror.tb000.init_slot()
         self.sb.mirror.tb000.menu.chk002.setChecked(True)
         self.sb.mirror.tb000.call_slot()
 
     def b002(self):
         """Mirror: Z"""
+        self.sb.mirror.tb000.init_slot()
         self.sb.mirror.tb000.menu.chk003.setChecked(True)
         self.sb.mirror.tb000.call_slot()
 
@@ -334,7 +338,7 @@ print(__name__)
 #   '''
 #   Delete: X Axis
 #   '''
-#   self.sb.toggle_widgets(setUnChecked='chk002,chk003')
+#   self.sb.toggle_multi(setUnChecked='chk002,chk003')
 #   axis = "X"
 #   if self.sb.mirror.chk000.isChecked():
 #       axis = '-'+axis
@@ -346,7 +350,7 @@ print(__name__)
 #   '''
 #   Delete: Y Axis
 #   '''
-#   self.sb.toggle_widgets(setUnChecked='chk001,chk003')
+#   self.sb.toggle_multi(setUnChecked='chk001,chk003')
 #   axis = "Y"
 #   if self.sb.mirror.chk000.isChecked():
 #       axis = '-'+axis
@@ -358,7 +362,7 @@ print(__name__)
 #   '''
 #   Delete: Z Axis
 #   '''
-#   self.sb.toggle_widgets(setUnChecked='chk001,chk002')
+#   self.sb.toggle_multi(setUnChecked='chk001,chk002')
 #   axis = "Z"
 #   if self.sb.mirror.chk000.isChecked():
 #       axis = '-'+axis
@@ -372,6 +376,6 @@ print(__name__)
 # '''
 # keep menu and submenu in sync:
 # if self.mirror_submenu.chk005.isChecked():
-#   self.sb.toggle_widgets(setChecked='chk005')
+#   self.sb.toggle_multi(setChecked='chk005')
 # else:
-#   self.sb.toggle_widgets(setUnChecked='chk005')
+#   self.sb.toggle_multi(setUnChecked='chk005')

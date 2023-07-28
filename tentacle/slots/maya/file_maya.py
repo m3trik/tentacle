@@ -181,7 +181,6 @@ class File_maya(SlotsMaya):
     def list000(self, item):
         """ """
         data = item.item_data()
-        print(4, item, data)
         pm.openFile(data, open=True, force=True)
 
     def cmb001(self, index, widget):

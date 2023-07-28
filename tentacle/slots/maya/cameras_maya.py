@@ -128,9 +128,9 @@ class Cameras_maya(SlotsMaya):
     def chk000(self, state, widget):
         """Camera Clipping: Auto Clip"""
         if state:
-            self.sb.toggle_widgets(self.clippingMenu, setDisabled="s000-1")
+            self.sb.toggle_multi(self.clippingMenu, setDisabled="s000-1")
         else:
-            self.sb.toggle_widgets(self.clippingMenu, setEnabled="s000-1")
+            self.sb.toggle_multi(self.clippingMenu, setEnabled="s000-1")
 
         activeCamera = mtk.get_current_cam()
         if not activeCamera:
@@ -324,13 +324,13 @@ class Cameras_maya(SlotsMaya):
         # set widget states for the active camera
         activeCamera = mtk.get_current_cam()
         if not activeCamera:
-            self.sb.toggle_widgets(self._clippingMenu, setDisabled="s000-1,chk000")
+            self.sb.toggle_multi(self._clippingMenu, setDisabled="s000-1,chk000")
 
         elif pm.viewClipPlane(
             activeCamera, q=True, autoClipPlane=1
         ):  # if autoClipPlane is active:
             self._clippingMenu.chk000.setChecked(True)
-            self.sb.toggle_widgets(self._clippingMenu, setDisabled="s000-1")
+            self.sb.toggle_multi(self._clippingMenu, setDisabled="s000-1")
 
         nearClip = (
             pm.viewClipPlane(activeCamera, q=True, nearClipPlane=1)
@@ -350,12 +350,9 @@ class Cameras_maya(SlotsMaya):
 
     def toggle_camera_view(self):
         """Toggle between the last two camera views in history."""
-        # Get all slot methods from b000 to b007
         slots = self.sb.get_methods_by_name(self, "b000-7")
-
         # Get the last two methods from the slot history
         history = self.sb.slot_history(slice(-2, None), inc=slots)
-
         if not history:
             return
 
@@ -367,9 +364,6 @@ class Cameras_maya(SlotsMaya):
         else:  # Otherwise, call b004
             self.b004()
             self.sb.slot_history(add=self.b004)
-
-
-# --------------------------------------------------------------------------------------------
 
 
 # --------------------------------------------------------------------------------------------

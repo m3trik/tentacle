@@ -178,7 +178,7 @@ class Rigging_maya(SlotsMaya):
             setChecked=False,
             setToolTip="",
         )
-        self.sb.connect_widgets(
+        self.sb.connect_multi(
             widget.menu,
             "chk012-14",
             "toggled",

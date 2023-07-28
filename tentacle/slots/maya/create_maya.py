@@ -280,7 +280,7 @@ print(__name__)
 # def chk000(self, *args, **kwargs):
 #   '''Rotate X Axis
 #   '''
-#   self.sb.toggle_widgets(setChecked='chk000', setUnChecked='chk001, chk002')
+#   self.sb.toggle_multi(setChecked='chk000', setUnChecked='chk001, chk002')
 #   if self.node:
 #       self.rotateAbsolute(self.getAxis(), self.node)
 
@@ -288,7 +288,7 @@ print(__name__)
 # def chk001(self, *args, **kwargs):
 #   '''Rotate Y Axis
 #   '''
-#   self.sb.toggle_widgets(setChecked='chk001', setUnChecked='chk000, chk002')
+#   self.sb.toggle_multi(setChecked='chk001', setUnChecked='chk000, chk002')
 #   if self.node:
 #       self.rotateAbsolute(self.getAxis(), self.node)
 
@@ -296,7 +296,7 @@ print(__name__)
 # def chk002(self, *args, **kwargs):
 #   '''Rotate Z Axis
 #   '''
-#   self.sb.toggle_widgets(setChecked='chk002', setUnChecked='chk000, chk001')
+#   self.sb.toggle_multi(setChecked='chk002', setUnChecked='chk000, chk001')
 #   if self.node:
 #       self.rotateAbsolute(self.getAxis(), self.node)
 

@@ -35,6 +35,12 @@ class Polygons_maya(SlotsMaya):
     def tb001_init(self, widget):
         """ """
         widget.menu.add(
+            "QComboBox",
+            setObjectName="cmb000",
+            addItems=["Linear", "Blend", "Curve"],
+            setToolTip="Bridge Type.",
+        )
+        widget.menu.add(
             "QSpinBox",
             setPrefix="Divisions: ",
             setObjectName="s003",
@@ -197,15 +203,15 @@ class Polygons_maya(SlotsMaya):
 
     def chk008(self, state, widget):
         """Divide Facet: Split U"""
-        self.sb.toggle_widgets(widget.ui, setUnChecked="chk010")
+        self.sb.toggle_multi(widget.ui, setUnChecked="chk010")
 
     def chk009(self, state, widget):
         """Divide Facet: Split V"""
-        self.sb.toggle_widgets(widget.ui, setUnChecked="chk010")
+        self.sb.toggle_multi(widget.ui, setUnChecked="chk010")
 
     def chk010(self, state, widget):
         """Divide Facet: Tris"""
-        self.sb.toggle_widgets(widget.ui, setUnChecked="chk008,chk009")
+        self.sb.toggle_multi(widget.ui, setUnChecked="chk008,chk009")
 
     def tb000(self, widget):
         """Merge Vertices"""
@@ -224,6 +230,7 @@ class Polygons_maya(SlotsMaya):
 
     def tb001(self, widget):
         """Bridge"""
+        curve_type = widget.menu.cmb000.currentIndex()
         divisions = widget.menu.s003.value()
 
         selection = pm.ls(sl=1)
@@ -233,8 +240,10 @@ class Polygons_maya(SlotsMaya):
                 "<strong>Nothing selected</strong>.<br>Operation requires a edge selection.",
                 message_type="Error",
             )
-        node = pm.polyBridgeEdge(edges, divisions=divisions)  # bridge edges
-        pm.polyCloseBorder(edges)  # fill edges if they lie on a border
+        # Bridge the edges
+        node = pm.polyBridgeEdge(edges, curveType=curve_type, divisions=divisions)
+        # Fill edges if they lie on a border
+        pm.polyCloseBorder(edges)
         return node
 
     def tb002(self, widget):

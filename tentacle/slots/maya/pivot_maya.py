@@ -53,9 +53,7 @@ class Pivot_maya(SlotsMaya):
 
     def tb000(self, widget):
         """Reset Pivot"""
-        resetPivotPosition = (
-            widget.menu.chk000.isChecked()
-        )  # Reset Pivot Position
+        resetPivotPosition = widget.menu.chk000.isChecked()  # Reset Pivot Position
         resetPivotOrientation = (
             widget.menu.chk001.isChecked()
         )  # Reset Pivot Orientation
@@ -87,16 +85,19 @@ class Pivot_maya(SlotsMaya):
 
     def b000(self):
         """Center Pivot: Object"""
+        self.sb.pivot.tb001.init_slot()
         self.sb.pivot.tb001.menu.chk003.setChecked(True)
         self.sb.pivot.tb001.call_slot()
 
     def b001(self):
         """Center Pivot: Component"""
+        self.sb.pivot.tb001.init_slot()
         self.sb.pivot.tb001.menu.chk002.setChecked(True)
         self.sb.pivot.tb001.call_slot()
 
     def b002(self, widget):
         """Center Pivot: World"""
+        self.sb.pivot.tb001.init_slot()
         self.sb.pivot.tb001.menu.chk004.setChecked(True)
         self.sb.pivot.tb001.call_slot()
 

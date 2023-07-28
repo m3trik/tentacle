@@ -250,9 +250,9 @@ class Transform_maya(SlotsMaya):
     def chk010(self, state, widget):
         """Align Vertices: Auto Align"""
         if state:
-            self.sb.toggle_widgets(widget.ui.tb001.menu, setDisabled="chk029-31")
+            self.sb.toggle_multi(widget.ui.tb001.menu, setDisabled="chk029-31")
         else:
-            self.sb.toggle_widgets(widget.ui.tb001.menu, setEnabled="chk029-31")
+            self.sb.toggle_multi(widget.ui.tb001.menu, setEnabled="chk029-31")
 
     def chk021(self, state, widget):
         """Transform Tool Snap Settings: Move"""
@@ -459,19 +459,19 @@ class Transform_maya(SlotsMaya):
 
             if autoAlign2Axes:
                 if axis == x:  # "yz"
-                    self.sb.toggle_widgets(
+                    self.sb.toggle_multi(
                         widget.menu,
                         setChecked="chk030-31",
                         setUnChecked="chk029",
                     )
                 if axis == y:  # "xz"
-                    self.sb.toggle_widgets(
+                    self.sb.toggle_multi(
                         widget.menu,
                         setChecked="chk029,chk031",
                         setUnChecked="chk030",
                     )
                 if axis == z:  # "xy"
-                    self.sb.toggle_widgets(
+                    self.sb.toggle_multi(
                         widget.menu,
                         setChecked="chk029-30",
                         setUnChecked="chk031",
@@ -480,7 +480,7 @@ class Transform_maya(SlotsMaya):
                 if any(
                     [axis == x and tangent == ty, axis == y and tangent == tx]
                 ):  # "z"
-                    self.sb.toggle_widgets(
+                    self.sb.toggle_multi(
                         widget.menu,
                         setChecked="chk031",
                         setUnChecked="chk029-30",
@@ -488,7 +488,7 @@ class Transform_maya(SlotsMaya):
                 if any(
                     [axis == x and tangent == tz, axis == z and tangent == tx]
                 ):  # "y"
-                    self.sb.toggle_widgets(
+                    self.sb.toggle_multi(
                         widget.menu,
                         setChecked="chk030",
                         setUnChecked="chk029,chk031",
@@ -496,7 +496,7 @@ class Transform_maya(SlotsMaya):
                 if any(
                     [axis == y and tangent == tz, axis == z and tangent == ty]
                 ):  # "x"
-                    self.sb.toggle_widgets(
+                    self.sb.toggle_multi(
                         widget.menu,
                         setChecked="chk029",
                         setUnChecked="chk030-31",

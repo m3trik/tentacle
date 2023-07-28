@@ -167,7 +167,7 @@ class Uv_maya(SlotsMaya):
             setObjectName="chk006",
             setToolTip="Create UV texture coordinates for the current selection by creating a planar projection based on the average vector of it's face normals.",
         )
-        # widget.menu.chk001.toggled.connect(lambda state: self.sb.toggle_widgets(widget.menu, setUnChecked='chk002-3') if state==1 else None)
+        # widget.menu.chk001.toggled.connect(lambda state: self.sb.toggle_multi(widget.menu, setUnChecked='chk002-3') if state==1 else None)
 
     def tb003_init(self, widget):
         """ """
@@ -319,7 +319,7 @@ class Uv_maya(SlotsMaya):
             widget.menu.chk001.setText("Scale Mode 0")
         if state == 1:
             widget.menu.chk001.setText("Scale Mode 1")
-            self.sb.toggle_widgets(widget.menu, setUnChecked="chk002-6")
+            self.sb.toggle_multi(widget.menu, setUnChecked="chk002-6")
         if state == 2:
             widget.menu.chk001.setText("Scale Mode 2")
 

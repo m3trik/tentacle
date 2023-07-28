@@ -130,9 +130,9 @@ class Selection(SlotsMaya):
             setToolTip="Include the original selected object(s) in the final selection.",
         )
         widget.menu.chk018.stateChanged.connect(
-            lambda state: self.sb.toggle_widgets(widget.menu, setDisabled="chk011-18")
+            lambda state: self.sb.toggle_multi(widget.menu, setDisabled="chk011-18")
             if state
-            else self.sb.toggle_widgets(widget.menu, setEnabled="chk011-18")
+            else self.sb.toggle_multi(widget.menu, setEnabled="chk011-18")
         )
 
     def tb002_init(self, widget):
@@ -311,15 +311,15 @@ class Selection(SlotsMaya):
 
     def chk000(self, state, widget):
         """Select Nth: uncheck other checkboxes"""
-        self.sb.toggle_widgets(widget.menu, setUnChecked="chk001-2")
+        self.sb.toggle_multi(widget.menu, setUnChecked="chk001-2")
 
     def chk001(self, state, widget):
         """Select Nth: uncheck other checkboxes"""
-        self.sb.toggle_widgets(widget.menu, setUnChecked="chk000,chk002")
+        self.sb.toggle_multi(widget.menu, setUnChecked="chk000,chk002")
 
     def chk002(self, state, widget):
         """Select Nth: uncheck other checkboxes"""
-        self.sb.toggle_widgets(widget.menu, setUnChecked="chk000-1")
+        self.sb.toggle_multi(widget.menu, setUnChecked="chk000-1")
 
     def chk005(self, state, widget):
         """Select Style: Marquee"""

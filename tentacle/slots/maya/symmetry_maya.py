@@ -24,17 +24,17 @@ class Symmetry_maya(SlotsMaya):
 
     def chk000(self, state, widget):
         """Symmetry X"""
-        self.sb.toggle_widgets(widget.ui, setUnChecked="chk001,chk002")
+        self.sb.toggle_multi(widget.ui, setUnChecked="chk001,chk002")
         self.setSymmetry(state, "x")
 
     def chk001(self, state, widget):
         """Symmetry Y"""
-        self.sb.toggle_widgets(widget.ui, setUnChecked="chk000,chk002")
+        self.sb.toggle_multi(widget.ui, setUnChecked="chk000,chk002")
         self.setSymmetry(state, "y")
 
     def chk002(self, state, widget):
         """Symmetry Z"""
-        self.sb.toggle_widgets(widget.ui, setUnChecked="chk000,chk001")
+        self.sb.toggle_multi(widget.ui, setUnChecked="chk000,chk001")
         self.setSymmetry(state, "z")
 
     def chk005(self, state, widget):
@@ -47,7 +47,7 @@ class Symmetry_maya(SlotsMaya):
             ]
         ):  # (symmetry)
             pm.symmetricModelling(edit=True, symmetry=False)
-            self.sb.toggle_widgets(widget.ui, setUnChecked="chk000-2")
+            self.sb.toggle_multi(widget.ui, setUnChecked="chk000-2")
             self.sb.message_box(
                 "First select a seam edge and then check the symmetry button to enable topographic symmetry",
                 message_type="Info",

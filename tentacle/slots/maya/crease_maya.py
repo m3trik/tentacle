@@ -80,7 +80,7 @@ class Crease_maya(SlotsMaya):
             setValue=95,
             setToolTip="Auto crease: max angle constraint.",
         )
-        self.sb.toggle_widgets(widget.menu, setDisabled="s005,s006")
+        self.sb.toggle_multi(widget.menu, setDisabled="s005,s006")
         self.sb.create_button_groups(widget.menu, "chk002-3")
 
     def s003(self, value, widget):
@@ -130,11 +130,11 @@ class Crease_maya(SlotsMaya):
     def chk011(self, state, widget):
         """Crease: Auto"""
         if state:
-            self.sb.toggle_widgets(
+            self.sb.toggle_multi(
                 self.sb.crease.tb000.menu, setEnabled="s005,s006"
             )
         else:
-            self.sb.toggle_widgets(
+            self.sb.toggle_multi(
                 self.sb.crease.tb000.menu, setDisabled="s005,s006"
             )
 
@@ -194,9 +194,9 @@ class Crease_maya(SlotsMaya):
                 self.sb.crease.b001.setText(newObject)
             else:
                 self.sb.crease.b001.setText("must select obj first")
-                self.sb.toggle_widgets(widget.ui, setUnChecked="b001")
+                self.sb.toggle_multi(widget.ui, setUnChecked="b001")
             if self.sb.crease.b000.isChecked():
-                self.sb.toggle_widgets(widget.ui, setEnabled="b052")
+                self.sb.toggle_multi(widget.ui, setEnabled="b052")
         else:
             self.sb.crease.b001.setText("Object")
 
@@ -213,9 +213,9 @@ class Crease_maya(SlotsMaya):
                 self.sb.crease.b000.setText(creaseSet)
             else:
                 self.sb.crease.b000.setText("must select set first")
-                self.sb.toggle_widgets(widget.ui, setUnChecked="b000")
+                self.sb.toggle_multi(widget.ui, setUnChecked="b000")
             if self.sb.crease.b001.isChecked():
-                self.sb.toggle_widgets(widget.ui, setEnabled="b052")
+                self.sb.toggle_multi(widget.ui, setEnabled="b052")
         else:
             self.sb.crease.b000.setText("Crease Set")
 
@@ -250,7 +250,7 @@ class Crease_maya(SlotsMaya):
             # print("crease:", name)
         # pm.undoInfo (closeChunk=1)
 
-        self.sb.toggle_widgets(widget.ui, setDisabled="b052", setUnChecked="b000")
+        self.sb.toggle_multi(widget.ui, setDisabled="b052", setUnChecked="b000")
         self.sb.crease.b000.setText("Crease Set")
         # self.sb.crease.b001.setText("Object")
 
