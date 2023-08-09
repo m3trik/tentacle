@@ -39,12 +39,12 @@ class Duplicate_maya(SlotsMaya):
         mtk.uninstance(selection)
 
     def b006(self):
-        """ """
-        mtk.duplicate_linear.launch_gui(move_to_cursor=True, frameless=True)
+        """Duplicate Linear"""
+        mtk.DuplicateLinearUI.launch(move_to_cursor=True, frameless=True)
 
     def b007(self):
-        """ """
-        mtk.duplicate_radial.launch_gui(move_to_cursor=True, frameless=True)
+        """Duplicate Radial"""
+        mtk.DuplicateRadialUI.launch(move_to_cursor=True, frameless=True)
 
 
 # --------------------------------------------------------------------------------------------

@@ -132,7 +132,7 @@ class Display_maya(SlotsMaya):
 
     def b013(self):
         """Explode View GUI"""
-        mtk.exploded_view.launch_gui(move_to_cursor=True, frameless=True)
+        mtk.ExplodedViewUiLoader().launch(move_to_cursor=True, frameless=True)
 
     def b021(self):
         """Template Selected"""

@@ -81,27 +81,6 @@ class Polygons_maya(SlotsMaya):
             setToolTip="Subdivision Amount.",
         )
 
-    def tb004_init(self, widget):
-        """ """
-        widget.menu.add(
-            "QDoubleSpinBox",
-            setPrefix="Width: ",
-            setObjectName="s000",
-            set_limits=[0, 100, 0.05, 2],
-            setValue=0.25,
-            set_height=20,
-            setToolTip="Bevel Width.",
-        )
-        widget.menu.add(
-            "QDoubleSpinBox",
-            setPrefix="Segments: ",
-            setObjectName="s006",
-            set_limits=[1, 100],
-            setValue=1,
-            set_height=20,
-            setToolTip="Bevel Segments.",
-        )
-
     def tb005_init(self, widget):
         """ """
         widget.menu.add(
@@ -297,40 +276,7 @@ class Polygons_maya(SlotsMaya):
 
     def tb004(self, widget):
         """Bevel (Chamfer)"""
-        width = widget.menu.s000.value()
-        chamfer = True
-        segments = widget.menu.s006.value()
-
-        selection = pm.ls(sl=1, objectsOnly=1, type="shape")
-        if not selection:
-            return self.sb.message_box(
-                "<strong>Nothing selected</strong>.<br>Operation requires a component selection.",
-                message_type="Error",
-            )
-
-        for obj in selection:
-            edges = pm.ls(obj, sl=1)
-            node = pm.polyBevel3(
-                edges,
-                fraction=width,
-                offsetAsFraction=1,
-                autoFit=1,
-                depth=1,
-                mitering=0,
-                miterAlong=0,
-                chamfer=chamfer,
-                segments=segments,
-                worldSpace=1,
-                smoothingAngle=30,
-                subdivideNgons=1,
-                mergeVertices=1,
-                mergeVertexTolerance=0.0001,
-                miteringAngle=180,
-                angleTolerance=180,
-                ch=0,
-            )
-            if len(selection) == 1:
-                return node
+        mtk.BevelEdgesUI.launch(move_to_cursor=True, frameless=True)
 
     def tb005(self, widget):
         """Detach"""
