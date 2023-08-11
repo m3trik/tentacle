@@ -19,7 +19,7 @@ class Tcl(QtWidgets.QStackedWidget):
         ui_location (str): The directory path or the module where the UI files are located.
                 If the given dir is not a full path, it will be treated as relative to the default path.
                 If a module is given, the path to that module will be used.
-        slots_location (str): The directory path where the slot classes are located or a class object.
+        slot_location (str): The directory path where the slot classes are located or a class object.
                 If the given dir is a string and not a full path, it will be treated as relative to the default path.
                 If a module is given, the path to that module will be used.
         prevent_hide (bool): While True, the hide method is disabled.
@@ -41,7 +41,7 @@ class Tcl(QtWidgets.QStackedWidget):
         parent=None,
         key_show="Key_F12",
         ui_location="ui",
-        slots_location="slots",
+        slot_location="slots",
         prevent_hide=False,
         log_level=logging.WARNING,
     ):
@@ -67,7 +67,7 @@ class Tcl(QtWidgets.QStackedWidget):
         self.sb = Switchboard(
             self,
             ui_location=ui_location,
-            slots_location=slots_location,
+            slot_location=slot_location,
             set_legal_name_no_tags_attr=True,
             log_level=logging.ERROR,
         )
@@ -523,7 +523,7 @@ class Tcl(QtWidgets.QStackedWidget):
 # --------------------------------------------------------------------------------------------
 
 if __name__ == "__main__":
-    tcl = Tcl(slots_location="slots/maya")
+    tcl = Tcl(slot_location="slots/maya")
     tcl.show(profile=0)
 
     # run app, show window, wait for input, then terminate program with a status code returned from app.

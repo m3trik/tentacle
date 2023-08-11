@@ -15,7 +15,7 @@ class TclMaya(Tcl):
             parent = Application top level window instance.
     """
 
-    def __init__(self, parent=None, slots_location="slots/maya", *args, **kwargs):
+    def __init__(self, parent=None, slot_location="slots/maya", *args, **kwargs):
         """ """
         if not parent:
             try:
@@ -24,7 +24,7 @@ class TclMaya(Tcl):
             except Exception as error:
                 print(__file__, error)
 
-        super().__init__(parent, slots_location=slots_location, *args, **kwargs)
+        super().__init__(parent, slot_location=slot_location, *args, **kwargs)
 
     def showEvent(self, event):
         """ """
