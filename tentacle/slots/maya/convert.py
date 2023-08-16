@@ -7,7 +7,7 @@ except ImportError as error:
 from tentacle.slots.maya import SlotsMaya
 
 
-class Convert_maya(SlotsMaya):
+class Convert(SlotsMaya):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
@@ -105,7 +105,7 @@ class Convert_maya(SlotsMaya):
 
 
 # module name
-print(__name__)
+# print(__name__)
 # --------------------------------------------------------------------------------------------
 # Notes
 # --------------------------------------------------------------------------------------------

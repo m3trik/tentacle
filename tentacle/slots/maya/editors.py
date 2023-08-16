@@ -8,7 +8,7 @@ from uitk.switchboard import signals
 from tentacle.slots.maya import SlotsMaya
 
 
-class Editors_maya(SlotsMaya):
+class Editors(SlotsMaya):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
@@ -344,9 +344,7 @@ class Editors_maya(SlotsMaya):
 # --------------------------------------------------------------------------------------------
 
 # module name
-print(__name__)
+# print(__name__)
 # --------------------------------------------------------------------------------------------
 # Notes
 # --------------------------------------------------------------------------------------------
-
-# deprecated: -----------------------------------

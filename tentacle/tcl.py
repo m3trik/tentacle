@@ -42,6 +42,7 @@ class Tcl(QtWidgets.QStackedWidget):
         key_show="Key_F12",
         ui_location="ui",
         slot_location="slots",
+        widget_location=None,
         prevent_hide=False,
         log_level=logging.WARNING,
     ):
@@ -57,7 +58,6 @@ class Tcl(QtWidgets.QStackedWidget):
 
         # self.app.setDoubleClickInterval(400)
         # self.app.setKeyboardInputInterval(400)
-        self.setFocusPolicy(QtCore.Qt.StrongFocus)
 
         self.setWindowFlags(QtCore.Qt.Tool | QtCore.Qt.FramelessWindowHint)
         self.setAttribute(QtCore.Qt.WA_TranslucentBackground)
@@ -68,7 +68,7 @@ class Tcl(QtWidgets.QStackedWidget):
             self,
             ui_location=ui_location,
             slot_location=slot_location,
-            set_legal_name_no_tags_attr=True,
+            widget_location=widget_location,
             log_level=logging.ERROR,
         )
         self.child_event_filter = EventFactoryFilter(
@@ -85,7 +85,11 @@ class Tcl(QtWidgets.QStackedWidget):
         self.right_mouse_double_click.connect(self.repeat_last_ui)
 
     def _init_logger(self, log_level):
-        """Initializes logger."""
+        """Initializes logger with the specified log level.
+
+        Parameters:
+            log_level (int): Logging level.
+        """
         self.logger = logging.getLogger(__name__)
         self.logger.setLevel(log_level)
         handler = logging.StreamHandler()
@@ -134,10 +138,6 @@ class Tcl(QtWidgets.QStackedWidget):
 
         # Get the UI of the given name, and set it as the current UI in the switchboard module.
         found_ui = self.sb.get_ui(ui)
-        if not found_ui:
-            raise ValueError(f"UI not found: {ui}")
-
-        found_ui.set_as_current()  # only set stacked UI as current.
         if not found_ui.is_initialized:
             self._init_ui(found_ui)
 
@@ -517,7 +517,7 @@ class Tcl(QtWidgets.QStackedWidget):
         if prev_ui:
             self.set_ui(prev_ui)
         else:
-            logging.info("No recent menus in hibstory.")
+            logging.info("No recent menus in history.")
 
 
 # --------------------------------------------------------------------------------------------

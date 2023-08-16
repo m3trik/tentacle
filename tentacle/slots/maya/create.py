@@ -8,7 +8,7 @@ import mayatk as mtk
 from tentacle.slots.maya import SlotsMaya
 
 
-class Create_maya(SlotsMaya):
+class Create(SlotsMaya):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
@@ -222,126 +222,7 @@ class Create_maya(SlotsMaya):
 
 
 # module name
-print(__name__)
+# print(__name__)
 # --------------------------------------------------------------------------------------------
 # Notes
 # --------------------------------------------------------------------------------------------
-
-
-# deprecated:
-
-# self.rotation = {'x':[90,0,0], 'y':[0,90,0], 'z':[0,0,90], '-x':[-90,0,0], '-y':[0,-90,0], '-z':[0,0,-90], 'last':[]}
-# self.point=[0,0,0]
-
-# @property
-# def node(self):
-#   '''Get the Transform Node
-#   '''
-#   transform = mtk.get_transform_node()
-#   if transform:
-#       if not self.sb.create.txt003.text()==transform[0].name(): #make sure the same field reflects the current working node.
-#           self.sb.create.txt003.setText(transform[0].name())
-
-#   return transform
-
-# def rotateAbsolute(self, axis, node):
-#   '''undo previous rotation and rotate on the specified axis.
-#   uses an external rotation dictionary.
-
-#   Parameters:
-#       axis (str): axis to rotate on. ie. '-x'
-#       node (obj): transform node.
-#   '''
-#   axis = self.rotation[axis]
-
-#   rotateOrder = pm.xform(node, q=True, rotateOrder=1)
-#   pm.xform(node, preserve=1, rotation=axis, rotateOrder=rotateOrder, absolute=1)
-#   self.rotation['last'] = axis
-
-# def txt003(self):
-#   '''Set Name
-#   '''
-#   if self.node:
-#       pm.rename(self.node.name(), self.sb.create.txt003.text())
-
-# def getAxis(self):
-#   ''''''
-#   if self.sb.create.chk000.isChecked():
-#       axis = 'x'
-#   elif self.sb.create.chk001.isChecked():
-#       axis = 'y'
-#   elif self.sb.create.chk002.isChecked():
-#       axis = 'z'
-#   if self.sb.create.chk003.isChecked(): #negative
-#       axis = '-'+axis
-#   return axis
-
-
-# def chk000(self, *args, **kwargs):
-#   '''Rotate X Axis
-#   '''
-#   self.sb.toggle_multi(setChecked='chk000', setUnChecked='chk001, chk002')
-#   if self.node:
-#       self.rotateAbsolute(self.getAxis(), self.node)
-
-
-# def chk001(self, *args, **kwargs):
-#   '''Rotate Y Axis
-#   '''
-#   self.sb.toggle_multi(setChecked='chk001', setUnChecked='chk000, chk002')
-#   if self.node:
-#       self.rotateAbsolute(self.getAxis(), self.node)
-
-
-# def chk002(self, *args, **kwargs):
-#   '''Rotate Z Axis
-#   '''
-#   self.sb.toggle_multi(setChecked='chk002', setUnChecked='chk000, chk001')
-#   if self.node:
-#       self.rotateAbsolute(self.getAxis(), self.node)
-
-
-# def chk003(self, *args, **kwargs):
-#   '''Rotate Negative Axis
-#   '''
-#   if self.node:
-#       self.rotateAbsolute(self.getAxis(), self.node)
-
-# def chk005(self, *args, **kwargs):
-# '''Set Point
-# '''
-# #add support for averaging multiple components.
-# selection = pm.ls(sl=True, flatten=1)
-# try:
-#   self.point = pm.xform(selection, q=True, translation=1, worldSpace=1, absolute=1)
-# except:
-#   self.point = [0,0,0]
-#   print('Warning: Nothing selected. Point set to origin [0,0,0].')
-
-# self.sb.create.s000.setValue(self.point[0])
-# self.sb.create.s001.setValue(self.point[1])
-# self.sb.create.s002.setValue(self.point[2])
-
-
-# def s000(self, *args, **kwargs):
-#   '''Set Translate X
-#   '''
-#   if self.node:
-#       self.point[0] = self.sb.create.s000.value()
-#       pm.xform(self.node, translation=self.point, worldSpace=1, absolute=1)
-
-
-# def s001(self, *args, **kwargs):
-#   '''Set Translate Y
-#   '''
-#   if self.node:
-#       self.point[1] = self.sb.create.s001.value()
-#       pm.xform(self.node, translation=self.point, worldSpace=1, absolute=1)
-
-
-# def s002(self, *args, **kwargs):
-#   '''Set Translate Z
-#   '''
-#   if self.node:
-#       self.point[2] = self.sb.create.s002.value()
-#       pm.xform (self.node, translation=self.point, worldSpace=1, absolute=1)

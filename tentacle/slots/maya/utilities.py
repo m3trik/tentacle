@@ -7,13 +7,31 @@ except ImportError as error:
 from tentacle.slots.maya import SlotsMaya
 
 
-class Deformation_maya(SlotsMaya):
+class Utilities(SlotsMaya):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
+    def b000(self):
+        """Measure"""
+        pm.mel.DistanceTool()
+
+    def b001(self):
+        """Annotation"""
+        pm.mel.CreateAnnotateNode()
+
+    def b002(self):
+        """Calculator"""
+        pm.mel.calculator()
+
+    def b003(self):
+        """Grease Pencil"""
+        pm.mel.greasePencilCtx()
+
+
+# --------------------------------------------------------------------------------------------
 
 # module name
-print(__name__)
+# print(__name__)
 # --------------------------------------------------------------------------------------------
 # Notes
 # --------------------------------------------------------------------------------------------

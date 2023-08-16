@@ -9,7 +9,7 @@ import mayatk as mtk
 from tentacle.slots.maya import SlotsMaya
 
 
-class Normals_maya(SlotsMaya):
+class Normals(SlotsMaya):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
@@ -213,51 +213,7 @@ class Normals_maya(SlotsMaya):
 # --------------------------------------------------------------------------------------------
 
 # module name
-print(__name__)
+# print(__name__)
 # --------------------------------------------------------------------------------------------
 # Notes
 # --------------------------------------------------------------------------------------------
-
-
-# deprecated:
-
-
-# @staticmethod
-#   def get_normal_vector(obj):
-#       '''Get the normal vectors from the given poly object.
-
-#       Parameters:
-#           obj (str/obj/list): A polygon mesh or component(s).
-
-#       Returns:
-#           dict - {int:[float, float, float]} face id & vector xyz.
-#       '''
-#       obj = pm.ls(obj)
-#       type_ = pm.objectType(obj)
-
-#       if type_=='mesh': #get face normals
-#           normals = pm.polyInfo(obj, faceNormals=1)
-
-#       elif type_=='transform': #get all normals for the given obj
-#           numFaces = pm.polyEvaluate(obj, face=1) #returns number of faces as an integer
-#           normals=[]
-#           name = obj.name()
-#           for n in range(0, numFaces): #for (number of faces):
-#               array = pm.polyInfo('{0}[{1}]'.format(name, n) , faceNormals=1) #get normal info from the rest of the object's faces
-#               string = ' '.join(array)
-#               n.append(str(string))
-
-#       else: #get face normals from the user component selection.
-#           normals = pm.polyInfo(faceNormals=1) #returns the face normals of selected faces
-
-#       regex = "[A-Z]*_[A-Z]* *[0-9]*: "
-
-#       dict_={}
-#       for n in normals:
-#           l = list(s.replace(regex,'') for s in n.split() if s) #['FACE_NORMAL', '150:', '0.935741', '0.110496', '0.334931\n']
-
-#           key = int(l[1].strip(':')) #int face number as key ie. 150
-#           value = list(float(i) for i in l[-3:])  #vector list as value. ie. [[0.935741, 0.110496, 0.334931]]
-#           dict_[key] = value
-
-#       return dict_

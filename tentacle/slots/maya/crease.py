@@ -8,7 +8,7 @@ import mayatk as mtk
 from tentacle.slots.maya import SlotsMaya
 
 
-class Crease_maya(SlotsMaya):
+class Crease(SlotsMaya):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
@@ -101,9 +101,7 @@ class Crease_maya(SlotsMaya):
             self.sb.crease.tb000.menu.s003.setDisabled(True)
             text = "Un-Crease 0"
         else:
-            self.sb.crease.tb000.menu.s003.setValue(
-                self.creaseValue
-            )  # crease value
+            self.sb.crease.tb000.menu.s003.setValue(self.creaseValue)  # crease value
             self.sb.crease.tb000.menu.s004.setValue(30)  # normal angle
             self.sb.crease.tb000.menu.s003.setEnabled(True)
             text = "{} {}".format("Crease", self.creaseValue)
@@ -118,9 +116,7 @@ class Crease_maya(SlotsMaya):
             self.sb.crease.tb000.menu.s003.setDisabled(True)
             text = "Un-Crease 0"
         else:
-            self.sb.crease.tb000.menu.s003.setValue(
-                self.creaseValue
-            )  # crease value
+            self.sb.crease.tb000.menu.s003.setValue(self.creaseValue)  # crease value
             self.sb.crease.tb000.menu.s004.setValue(60)  # normal angle
             self.sb.crease.tb000.menu.s003.setEnabled(True)
             text = "{} {}".format("Crease", self.creaseValue)
@@ -130,13 +126,9 @@ class Crease_maya(SlotsMaya):
     def chk011(self, state, widget):
         """Crease: Auto"""
         if state:
-            self.sb.toggle_multi(
-                self.sb.crease.tb000.menu, setEnabled="s005,s006"
-            )
+            self.sb.toggle_multi(self.sb.crease.tb000.menu, setEnabled="s005,s006")
         else:
-            self.sb.toggle_multi(
-                self.sb.crease.tb000.menu, setDisabled="s005,s006"
-            )
+            self.sb.toggle_multi(self.sb.crease.tb000.menu, setDisabled="s005,s006")
 
     def tb000(self, widget):
         """Crease"""
@@ -273,8 +265,7 @@ class Crease_maya(SlotsMaya):
 # --------------------------------------------------------------------------------------------
 
 # module name
-print(__name__)
+# print(__name__)
 # --------------------------------------------------------------------------------------------
 # Notes
 # --------------------------------------------------------------------------------------------
-# b008, b010, b011, b019, b024-27, b058, b059, b060

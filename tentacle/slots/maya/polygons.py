@@ -9,7 +9,7 @@ import mayatk as mtk
 from tentacle.slots.maya import SlotsMaya
 
 
-class Polygons_maya(SlotsMaya):
+class Polygons(SlotsMaya):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
@@ -276,7 +276,11 @@ class Polygons_maya(SlotsMaya):
 
     def tb004(self, widget):
         """Bevel (Chamfer)"""
-        mtk.BevelEdgesUI.launch(move_to_cursor=True, frameless=True)
+        ui_file = mtk.bevel_edges.get_ui_file()
+        slot_class = mtk.bevel_edges.BevelEdgesSlots
+
+        self.sb.register(ui_file, slot_class)
+        self.sb.parent().set_ui("bevel_edges")
 
     def tb005(self, widget):
         """Detach"""
@@ -284,7 +288,7 @@ class Polygons_maya(SlotsMaya):
         separate = widget.menu.chk015.isChecked()
 
         vertexMask = pm.selectType(q=True, vertex=True)
-        edgeMask = pm.selectType(q=True, edge=True)
+        # edgeMask = pm.selectType(q=True, edge=True)
         facetMask = pm.selectType(q=True, facet=True)
 
         selection = pm.ls(sl=1)
@@ -570,72 +574,8 @@ class Polygons_maya(SlotsMaya):
 
 # --------------------------------------------------------------------------------------------
 
-
 # module name
-print(__name__)
+# print(__name__)
 # --------------------------------------------------------------------------------------------
 # Notes
 # --------------------------------------------------------------------------------------------
-
-
-# deprecated:
-
-#   def tb005(self, *args, **kwargs):
-#       '''
-#       Detach
-#       '''
-#       tb = self.sb.polygons.tb005
-#       if state=='setMenu':
-#           # tb.menu.add('QCheckBox', setText='Delete Original', setObjectName='chk007', setChecked=True, setToolTip='Delete original selected faces.')
-#           return
-
-#       vertexMask = pm.selectType (q=True, vertex=True)
-#       edgeMask = pm.selectType (q=True, edge=True)
-#       facetMask = pm.selectType (q=True, facet=True)
-
-#       if vertexMask:
-#           pm.mel.eval("polySplitVertex()")
-
-#       if facetMask:
-#           maskVertex = pm.selectType (q=True, vertex=True)
-#           if maskVertex:
-#               pm.mel.eval("DetachComponent;")
-#           else:
-#               selFace = pm.ls(ni=1, sl=1)
-#               selObj = pm.ls(objectsOnly=1, noIntermediate=1, sl=1) #to errorcheck if more than 1 obj selected
-
-#               if len(selFace) < 1:
-#                   return 'Error: Nothing selected.'
-
-#               # if len(selObj) > 1:
-#               #   return 'Error: Only components from a single object can be extracted.'
-
-#               else:
-#                   pm.mel.eval("DetachComponent;")
-#                   # pm.undoInfo (openChunk=1)
-#                   # sel = str(selFace[0]).split(".") #creates ex. ['polyShape', 'f[553]']
-#                   # print(sel)
-#                   # extractedObject = "extracted_"+sel[0]
-#                   # pm.duplicate (sel[0], name=extractedObject)
-#                   # if tb.menu.chk007.isChecked(): #delete original
-#                   #   pm.delete (selFace)
-
-#                   # allFace = [] #populate a list of all faces in the duplicated object
-#                   # numFaces = pm.polyEvaluate(extractedObject, face=1)
-#                   # num=0
-#                   # for _ in range(numFaces):
-#                   #   allFace.append(extractedObject+".f["+str(num)+"]")
-#                   #   num+=1
-
-#                   # extFace = [] #faces to keep
-#                   # for face in selFace:
-#                   #   fNum = str(face.split(".")[0]) #ex. f[4]
-#                   #   extFace.append(extractedObject+"."+fNum)
-
-#                   # delFace = [x for x in allFace if x not in extFace] #all faces not in extFace
-#                   # pm.delete (delFace)
-
-#                   # pm.select (extractedObject)
-#                   # pm.xform (cpc=1) #center pivot
-#                   # pm.undoInfo (closeChunk=1)
-#                   # return extractedObject

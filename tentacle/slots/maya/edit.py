@@ -8,7 +8,7 @@ import mayatk as mtk
 from tentacle.slots.maya import SlotsMaya
 
 
-class Edit_maya(SlotsMaya):
+class Edit(SlotsMaya):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
@@ -495,10 +495,8 @@ class Edit_maya(SlotsMaya):
 
 # --------------------------------------------------------------------------------------------
 
-
 # module name
-print(__name__)
+# print(__name__)
 # --------------------------------------------------------------------------------------------
 # Notes
 # --------------------------------------------------------------------------------------------
-# b008, b009, b011

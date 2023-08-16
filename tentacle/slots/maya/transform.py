@@ -8,7 +8,7 @@ import mayatk as mtk
 from tentacle.slots.maya import SlotsMaya
 
 
-class Transform_maya(SlotsMaya):
+class Transform(SlotsMaya):
     """ """
 
     def __init__(self, *args, **kwargs):
@@ -707,7 +707,7 @@ class Transform_maya(SlotsMaya):
 
 
 # module name
-print(__name__)
+# print(__name__)
 # --------------------------------------------------------------------------------------------
 # Notes
 # --------------------------------------------------------------------------------------------

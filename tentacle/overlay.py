@@ -64,6 +64,22 @@ class Path:
         """Initializes a new instance of the Path class."""
         self._path = []
 
+    def __iter__(self):
+        """Special method to allow iteration."""
+        return iter(self._path)
+
+    def __getitem__(self, index):
+        """Special method to allow indexed access."""
+        return self._path[index]
+
+    def __setitem__(self, index, value):
+        """Special method to allow indexed assignment."""
+        self._path[index] = value
+
+    def __repr__(self):
+        """Provides a string representation of the current path."""
+        return f"Path({self._path})"
+
     @property
     def start_pos(self) -> QtCore.QPoint:
         """Gets the starting position of the path.
@@ -202,8 +218,6 @@ class Overlay(QtWidgets.QWidget, OverlayFactoryFilter):
         self.painter = QtGui.QPainter()
         self.path = Path()
 
-        self.app.focusChanged.connect(self.on_focus_changed)
-
         if parent:
             parent.installEventFilter(self)
 
@@ -312,12 +326,6 @@ class Overlay(QtWidgets.QWidget, OverlayFactoryFilter):
 
         return new_widget
 
-    def on_focus_changed(self, old_widget, new_widget):
-        """ """
-        if new_widget != self:
-            self.path.clear()
-            QtWidgets.QApplication.restoreOverrideCursor()  # Restore the cursor to its default shape.
-
     def clear_paint_events(self):
         """Clear paint events by disabling drawing and updating the overlay."""
         self.clear_painting = True
@@ -351,7 +359,6 @@ class Overlay(QtWidgets.QWidget, OverlayFactoryFilter):
 
         self.clear_paint_events()
         self.path.reset()
-
         self.mouseMovePos = event.pos()
 
         super().mousePressEvent(event)
@@ -372,6 +379,12 @@ class Overlay(QtWidgets.QWidget, OverlayFactoryFilter):
         self.update()
 
         super().mouseMoveEvent(event)
+
+    def hideEvent(self, event):
+        """Clears the path and restores the cursor to its default shape when the overlay is hidden."""
+        self.path.clear()
+        QtWidgets.QApplication.restoreOverrideCursor()  # Restore the cursor to its default shape.
+        super().hideEvent(event)
 
 
 # --------------------------------------------------------------------------------------------

@@ -9,7 +9,7 @@ import mayatk as mtk
 from tentacle.slots.maya import SlotsMaya
 
 
-class Display_maya(SlotsMaya):
+class Display(SlotsMaya):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
@@ -132,7 +132,11 @@ class Display_maya(SlotsMaya):
 
     def b013(self):
         """Explode View GUI"""
-        mtk.ExplodedViewUiLoader().launch(move_to_cursor=True, frameless=True)
+        ui_file = mtk.exploded_view.get_ui_file()
+        slot_class = mtk.exploded_view.ExplodedViewSlots
+
+        self.sb.register(ui_file, slot_class)
+        self.sb.parent().set_ui("exploded_view")
 
     def b021(self):
         """Template Selected"""
@@ -141,9 +145,8 @@ class Display_maya(SlotsMaya):
 
 # --------------------------------------------------------------------------------------------
 
-
 # module name
-print(__name__)
+# print(__name__)
 # --------------------------------------------------------------------------------------------
 # Notes
 # --------------------------------------------------------------------------------------------

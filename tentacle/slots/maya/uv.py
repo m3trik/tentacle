@@ -8,7 +8,7 @@ import mayatk as mtk
 from tentacle.slots.maya import SlotsMaya
 
 
-class Uv_maya(SlotsMaya):
+class Uv(SlotsMaya):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
@@ -19,12 +19,12 @@ class Uv_maya(SlotsMaya):
 
     def draggableHeader_init(self, widget):
         """ """
-        widget.menu.add(
-            "QPushButton",
-            setText="Create UV Snapshot",
-            setObjectName="b001",
-            setToolTip="Save an image file of the current UV layout.",
-        )
+        # widget.menu.add(
+        #     "QPushButton",
+        #     setText="Create UV Snapshot",
+        #     setObjectName="b001",
+        #     setToolTip="Save an image file of the current UV layout.",
+        # )
 
     def cmb001_init(self, widget):
         """ """
@@ -612,9 +612,7 @@ class Uv_maya(SlotsMaya):
 # --------------------------------------------------------------------------------------------
 
 # module name
-print(__name__)
+# print(__name__)
 # --------------------------------------------------------------------------------------------
 # Notes
 # --------------------------------------------------------------------------------------------
-
-# deprecated:

@@ -8,7 +8,7 @@ import mayatk as mtk
 from tentacle.slots.maya import SlotsMaya
 
 
-class Mirror_maya(SlotsMaya):
+class Mirror(SlotsMaya):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
@@ -279,103 +279,7 @@ class Mirror_maya(SlotsMaya):
 # --------------------------------------------------------------------------------------------
 
 # module name
-print(__name__)
+# print(__name__)
 # --------------------------------------------------------------------------------------------
 # Notes
 # --------------------------------------------------------------------------------------------
-
-
-# deprecated:
-
-
-# if axis=='X': #'x'
-#           axisDirection = 0 #positive axis
-#           axis_ = 0 #axis
-#           x=-1; y=1; z=1 #scale values
-
-#       elif axis=='-X': #'-x'
-#           axisDirection = 1 #negative axis
-#           axis_ = 1 #0=-x, 1=x, 2=-y, 3=y, 4=-z, 5=z
-#           x=-1; y=1; z=1 #if instance: used to negatively scale
-
-#       elif axis=='Y': #'y'
-#           axisDirection = 0
-#           axis_ = 2
-#           x=1; y=-1; z=1
-
-#       elif axis=='-Y': #'-y'
-#           axisDirection = 1
-#           axis_ = 3
-#           x=1; y=-1; z=1
-
-#       elif axis=='Z': #'z'
-#           axisDirection = 0
-#           axis_ = 4
-#           x=1; y=1; z=-1
-
-#       elif axis=='-Z': #'-z'
-#           axisDirection = 1
-#           axis_ = 5
-#           x=1; y=1; z=-1
-
-# def chk000(self, *args, **kwargs):
-#   '''
-#   Delete: Negative Axis. Set Text Mirror Axis
-#   '''
-#   axis = "X"
-#   if self.sb.mirror.chk002.isChecked():
-#       axis = "Y"
-#   if self.sb.mirror.chk003.isChecked():
-#       axis = "Z"
-#   if self.sb.mirror.chk000.isChecked():
-#       axis = '-'+axis
-#   self.sb.mirror.tb000.setText('Mirror '+axis)
-#   self.sb.mirror.tb003.setText('Delete '+axis)
-
-
-# #set check states
-# def chk000(self, *args, **kwargs):
-#   '''
-#   Delete: X Axis
-#   '''
-#   self.sb.toggle_multi(setUnChecked='chk002,chk003')
-#   axis = "X"
-#   if self.sb.mirror.chk000.isChecked():
-#       axis = '-'+axis
-#   self.sb.mirror.tb000.setText('Mirror '+axis)
-#   self.sb.mirror.tb003.setText('Delete '+axis)
-
-
-# def chk002(self, *args, **kwargs):
-#   '''
-#   Delete: Y Axis
-#   '''
-#   self.sb.toggle_multi(setUnChecked='chk001,chk003')
-#   axis = "Y"
-#   if self.sb.mirror.chk000.isChecked():
-#       axis = '-'+axis
-#   self.sb.mirror.tb000.setText('Mirror '+axis)
-#   self.sb.mirror.tb003.setText('Delete '+axis)
-
-
-# def chk003(self, *args, **kwargs):
-#   '''
-#   Delete: Z Axis
-#   '''
-#   self.sb.toggle_multi(setUnChecked='chk001,chk002')
-#   axis = "Z"
-#   if self.sb.mirror.chk000.isChecked():
-#       axis = '-'+axis
-#   self.sb.mirror.tb000.setText('Mirror '+axis)
-#   self.sb.mirror.tb003.setText('Delete '+axis)
-
-
-# def chk005(self, *args, **kwargs):
-# '''
-# Mirror: Cut
-# '''
-# keep menu and submenu in sync:
-# if self.mirror_submenu.chk005.isChecked():
-#   self.sb.toggle_multi(setChecked='chk005')
-# else:
-#   self.sb.toggle_multi(setUnChecked='chk005')

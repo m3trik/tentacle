@@ -9,7 +9,7 @@ from uitk.switchboard import signals
 from tentacle.slots.maya import SlotsMaya
 
 
-class Cameras_maya(SlotsMaya):
+class Cameras(SlotsMaya):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
@@ -369,8 +369,7 @@ class Cameras_maya(SlotsMaya):
 # --------------------------------------------------------------------------------------------
 
 # module name
-print(__name__)
-
+# print(__name__)
 # --------------------------------------------------------------------------------------------
 # Notes
 # --------------------------------------------------------------------------------------------

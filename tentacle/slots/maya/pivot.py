@@ -8,7 +8,7 @@ import mayatk as mtk
 from tentacle.slots.maya import SlotsMaya
 
 
-class Pivot_maya(SlotsMaya):
+class Pivot(SlotsMaya):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
@@ -109,9 +109,8 @@ class Pivot_maya(SlotsMaya):
 
 # --------------------------------------------------------------------------------------------
 
-
 # module name
-print(__name__)
+# print(__name__)
 # --------------------------------------------------------------------------------------------
 # Notes
 # --------------------------------------------------------------------------------------------

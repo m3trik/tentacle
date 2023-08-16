@@ -7,7 +7,7 @@ except ImportError as error:
 from tentacle.slots.maya import SlotsMaya
 
 
-class Symmetry_maya(SlotsMaya):
+class Symmetry(SlotsMaya):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
@@ -73,7 +73,7 @@ class Symmetry_maya(SlotsMaya):
 # --------------------------------------------------------------------------------------------
 
 # module name
-print(__name__)
+# print(__name__)
 # --------------------------------------------------------------------------------------------
 # Notes
 # --------------------------------------------------------------------------------------------

@@ -8,7 +8,7 @@ import mayatk as mtk
 from tentacle.slots.maya import SlotsMaya
 
 
-class Duplicate_maya(SlotsMaya):
+class Duplicate(SlotsMaya):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
@@ -40,18 +40,25 @@ class Duplicate_maya(SlotsMaya):
 
     def b006(self):
         """Duplicate Linear"""
-        mtk.DuplicateLinearUI.launch(move_to_cursor=True, frameless=True)
+        ui_file = mtk.duplicate_linear.get_ui_file()
+        slot_class = mtk.duplicate_linear.DuplicateLinearSlots
+
+        self.sb.register(ui_file, slot_class)
+        self.sb.parent().set_ui("duplicate_linear")
 
     def b007(self):
         """Duplicate Radial"""
-        mtk.DuplicateRadialUI.launch(move_to_cursor=True, frameless=True)
+        ui_file = mtk.duplicate_radial.get_ui_file()
+        slot_class = mtk.duplicate_radial.DuplicateRadialSlots
+
+        self.sb.register(ui_file, slot_class)
+        self.sb.parent().set_ui("duplicate_radial")
 
 
 # --------------------------------------------------------------------------------------------
 
-
 # module name
-print(__name__)
+# print(__name__)
 # --------------------------------------------------------------------------------------------
 # Notes
 # --------------------------------------------------------------------------------------------

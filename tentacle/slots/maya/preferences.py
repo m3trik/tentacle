@@ -7,7 +7,7 @@ except ImportError as error:
 from tentacle.slots.maya import SlotsMaya
 
 
-class Preferences_maya(SlotsMaya):
+class Preferences(SlotsMaya):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
@@ -98,8 +98,10 @@ class Preferences_maya(SlotsMaya):
         not pm.pluginInfo(plugin, query=True, loaded=True) and pm.loadPlugin(plugin)
 
 
+# -------------------------------------------------------------------------------------------
+
 # module name
-print(__name__)
+# print(__name__)
 # --------------------------------------------------------------------------------------------
 # Notes
 # --------------------------------------------------------------------------------------------
