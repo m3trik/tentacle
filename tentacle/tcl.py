@@ -19,7 +19,7 @@ class Tcl(QtWidgets.QStackedWidget):
         ui_location (str): The directory path or the module where the UI files are located.
                 If the given dir is not a full path, it will be treated as relative to the default path.
                 If a module is given, the path to that module will be used.
-        slots_location (str): The directory path where the slot classes are located or a class object.
+        slot_location (str): The directory path where the slot classes are located or a class object.
                 If the given dir is a string and not a full path, it will be treated as relative to the default path.
                 If a module is given, the path to that module will be used.
         prevent_hide (bool): While True, the hide method is disabled.
@@ -41,7 +41,8 @@ class Tcl(QtWidgets.QStackedWidget):
         parent=None,
         key_show="Key_F12",
         ui_location="ui",
-        slots_location="slots",
+        slot_location="slots",
+        widget_location=None,
         prevent_hide=False,
         log_level=logging.WARNING,
     ):
@@ -57,7 +58,6 @@ class Tcl(QtWidgets.QStackedWidget):
 
         # self.app.setDoubleClickInterval(400)
         # self.app.setKeyboardInputInterval(400)
-        self.setFocusPolicy(QtCore.Qt.StrongFocus)
 
         self.setWindowFlags(QtCore.Qt.Tool | QtCore.Qt.FramelessWindowHint)
         self.setAttribute(QtCore.Qt.WA_TranslucentBackground)
@@ -67,8 +67,8 @@ class Tcl(QtWidgets.QStackedWidget):
         self.sb = Switchboard(
             self,
             ui_location=ui_location,
-            slots_location=slots_location,
-            set_legal_name_no_tags_attr=True,
+            slot_location=slot_location,
+            widget_location=widget_location,
             log_level=logging.ERROR,
         )
         self.child_event_filter = EventFactoryFilter(
@@ -85,7 +85,11 @@ class Tcl(QtWidgets.QStackedWidget):
         self.right_mouse_double_click.connect(self.repeat_last_ui)
 
     def _init_logger(self, log_level):
-        """Initializes logger."""
+        """Initializes logger with the specified log level.
+
+        Parameters:
+            log_level (int): Logging level.
+        """
         self.logger = logging.getLogger(__name__)
         self.logger.setLevel(log_level)
         handler = logging.StreamHandler()
@@ -104,15 +108,17 @@ class Tcl(QtWidgets.QStackedWidget):
             raise ValueError(f"Invalid datatype: {type(ui)}, expected QWidget.")
 
         if ui.has_tag("startmenu|submenu"):  # StackedWidget
-            ui.set_style(theme="dark", style_class="translucentBgNoBorder")
+            if ui.has_tag("submenu"):
+                ui.set_style(theme="dark", style_class="transparentBgNoBorder")
+            else:
+                ui.set_style(theme="dark", style_class="translucentBgNoBorder")
             self.addWidget(ui)  # add the UI to the stackedLayout.
 
         else:  # MainWindow
             ui.setParent(self.parent())
             ui.setWindowFlags(QtCore.Qt.Tool | QtCore.Qt.FramelessWindowHint)
             ui.setAttribute(QtCore.Qt.WA_TranslucentBackground)
-            ui.centralWidget().setProperty("class", "translucentBgWithBorder")
-            ui.set_style(theme="dark")
+            ui.set_style(theme="dark", style_class="translucentBgWithBorder")
             self.key_show_release.connect(ui.hide)
 
         # set style before child init (resize).
@@ -132,16 +138,12 @@ class Tcl(QtWidgets.QStackedWidget):
 
         # Get the UI of the given name, and set it as the current UI in the switchboard module.
         found_ui = self.sb.get_ui(ui)
-        if not found_ui:
-            raise ValueError(f"UI not found: {ui}")
-
-        found_ui.set_as_current()  # only set stacked UI as current.
         if not found_ui.is_initialized:
             self._init_ui(found_ui)
 
         if found_ui.has_tag("startmenu|submenu"):
             if found_ui.has_tag("startmenu"):
-                self.move(self.sb.get_center(self))
+                self.move(self.sb.get_cursor_offset_from_center(self))
             self.setCurrentWidget(found_ui)  # set the stacked widget to the found UI.
 
         else:
@@ -150,9 +152,9 @@ class Tcl(QtWidgets.QStackedWidget):
             found_ui.setFixedSize(found_ui.minimumSizeHint())
             found_ui.update()
             # move to cursor position.
-            self.sb.move_and_center_widget(found_ui, QtGui.QCursor.pos(), offset_y=4)
+            self.sb.center_widget(found_ui, "cursor", offset_y=25)
 
-    def set_submenu(self, ui, w=None):
+    def set_submenu(self, ui, w):
         """Set the stacked widget's index to the submenu associated with the given widget.
         Positions the new UI to line up with the previous UI's button that called the new UI.
         If the given UI is already set, then this method will simply return without performing any operation.
@@ -178,7 +180,7 @@ class Tcl(QtWidgets.QStackedWidget):
         self.move(self.mapFromGlobal(currentPos + (p1 - p2)))
 
         # if the submenu UI called for the first time:
-        if ui not in self.sb.ui_history(slice(0, -1)):
+        if ui not in self.sb.ui_history(slice(0, -1), allow_duplicates=True):
             # re-construct any widgets from the previous UI that fall along the plotted path.
             return_func = self.return_to_startmenu
             self.overlay.clone_widgets_along_path(ui, return_func)
@@ -191,7 +193,6 @@ class Tcl(QtWidgets.QStackedWidget):
         startmenu = self.sb.ui_history(-1, inc="*#startmenu*")
         # logging.info(f"startmenu: {startmenu.name}")
         self.set_ui(startmenu)
-
         self.move(self.overlay.path.start_pos - self.rect().center())
 
     # ---------------------------------------------------------------------------------------------
@@ -232,7 +233,7 @@ class Tcl(QtWidgets.QStackedWidget):
         """ """
         modifiers = self.app.keyboardModifiers()
 
-        if self.sb.ui.has_tag("startmenu|submenu"):
+        if self.sb.current_ui.has_tag("startmenu|submenu"):
             if not modifiers:
                 if event.button() == QtCore.Qt.LeftButton:
                     self.set_ui("cameras#startmenu")
@@ -255,7 +256,7 @@ class Tcl(QtWidgets.QStackedWidget):
         """ """
         modifiers = self.app.keyboardModifiers()
 
-        if self.sb.ui.has_tag("startmenu|submenu"):
+        if self.sb.current_ui.has_tag("startmenu|submenu"):
             if event.button() == QtCore.Qt.LeftButton:
                 if modifiers == QtCore.Qt.ControlModifier:
                     self.left_mouse_double_click_ctrl.emit()
@@ -291,8 +292,8 @@ class Tcl(QtWidgets.QStackedWidget):
         else:
             self.set_ui(ui)
 
-        if self.sb.ui.name == "init#startmenu":
-            self.move(self.sb.get_center(self))
+        if self.sb.current_ui.name == "init#startmenu":
+            self.move(self.sb.get_cursor_offset_from_center(self))
 
         super().show()
         self.activateWindow()  # the window cannot be activated for keyboard events until after it is shown.
@@ -351,7 +352,7 @@ class Tcl(QtWidgets.QStackedWidget):
                 QtWidgets.QCheckBox,
                 QtWidgets.QRadioButton,
             ):
-                self.sb.resize_and_center_widget(w)
+                self.sb.center_widget(w, padding_x=25)
                 if w.base_name == "i":
                     w.ui.set_style(widget=w)
 
@@ -516,13 +517,13 @@ class Tcl(QtWidgets.QStackedWidget):
         if prev_ui:
             self.set_ui(prev_ui)
         else:
-            logging.info("No recent menus in hibstory.")
+            logging.info("No recent menus in history.")
 
 
 # --------------------------------------------------------------------------------------------
 
 if __name__ == "__main__":
-    tcl = Tcl(slots_location="slots/maya")
+    tcl = Tcl(slot_location="slots/maya")
     tcl.show(profile=0)
 
     # run app, show window, wait for input, then terminate program with a status code returned from app.

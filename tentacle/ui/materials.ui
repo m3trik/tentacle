@@ -10,7 +10,7 @@
     <x>0</x>
     <y>0</y>
     <width>147</width>
-    <height>145</height>
+    <height>175</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -93,7 +93,7 @@
          </size>
         </property>
         <property name="title">
-         <string>Scene Materials</string>
+         <string/>
         </property>
         <layout class="QGridLayout" name="gridLayout">
          <property name="leftMargin">
@@ -114,32 +114,7 @@
          <property name="verticalSpacing">
           <number>1</number>
          </property>
-         <item row="8" column="0">
-          <widget class="QPushButton" name="b002">
-           <property name="enabled">
-            <bool>true</bool>
-           </property>
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-           <property name="minimumSize">
-            <size>
-             <width>40</width>
-             <height>22</height>
-            </size>
-           </property>
-           <property name="toolTip">
-            <string>Set material shader ID from selection.</string>
-           </property>
-           <property name="text">
-            <string>Get</string>
-           </property>
-          </widget>
-         </item>
-         <item row="2" column="0" colspan="5">
+         <item row="2" column="0" colspan="3">
           <widget class="ComboBox" name="cmb002">
            <property name="sizePolicy">
             <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
@@ -181,7 +156,57 @@
            </item>
           </widget>
          </item>
-         <item row="8" column="1" colspan="4">
+         <item row="8" column="0">
+          <widget class="QPushButton" name="b002">
+           <property name="enabled">
+            <bool>true</bool>
+           </property>
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="minimumSize">
+            <size>
+             <width>40</width>
+             <height>22</height>
+            </size>
+           </property>
+           <property name="toolTip">
+            <string>Set material shader ID from selection.</string>
+           </property>
+           <property name="text">
+            <string>Get</string>
+           </property>
+          </widget>
+         </item>
+         <item row="10" column="0" colspan="3">
+          <widget class="PushButton" name="b004">
+           <property name="enabled">
+            <bool>true</bool>
+           </property>
+           <property name="minimumSize">
+            <size>
+             <width>116</width>
+             <height>20</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>999</width>
+             <height>20</height>
+            </size>
+           </property>
+           <property name="toolTip">
+            <string>Assign a new random material to any selected object(s).</string>
+           </property>
+           <property name="text">
+            <string>Assign Random</string>
+           </property>
+          </widget>
+         </item>
+         <item row="8" column="1" colspan="2">
           <widget class="PushButton" name="tb000">
            <property name="enabled">
             <bool>true</bool>
@@ -200,8 +225,50 @@
            </property>
           </widget>
          </item>
-         <item row="9" column="0" colspan="5">
-          <widget class="PushButton" name="tb002">
+         <item row="9" column="0" colspan="3">
+          <widget class="ComboBox" name="cmb000">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>20</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>999</width>
+             <height>20</height>
+            </size>
+           </property>
+           <property name="toolTip">
+            <string>Assign a new material to the current selection.</string>
+           </property>
+           <property name="maxVisibleItems">
+            <number>40</number>
+           </property>
+           <property name="maxCount">
+            <number>500</number>
+           </property>
+           <property name="sizeAdjustPolicy">
+            <enum>QComboBox::AdjustToContents</enum>
+           </property>
+           <property name="frame">
+            <bool>true</bool>
+           </property>
+           <item>
+            <property name="text">
+             <string>Assign New</string>
+            </property>
+           </item>
+          </widget>
+         </item>
+         <item row="11" column="0" colspan="3">
+          <widget class="PushButton" name="b005">
            <property name="enabled">
             <bool>true</bool>
            </property>
@@ -218,7 +285,7 @@
             </size>
            </property>
            <property name="toolTip">
-            <string>Assign stored material shader ID</string>
+            <string>Assign the current material to any selected object(s).</string>
            </property>
            <property name="text">
             <string>Assign Current</string>

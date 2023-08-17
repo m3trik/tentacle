@@ -6,7 +6,7 @@ import pythontk as ptk
 
 
 module = inspect.getmodule(inspect.currentframe())  # this module.
-path = ptk.get_filepath(module)  # this modules directory.
+path = ptk.get_object_path(module)  # this modules directory.
 
 
 class Slots(QtCore.QObject):
@@ -37,9 +37,6 @@ class Slots(QtCore.QObject):
 
 # --------------------------------------------------------------------------------------------
 
-
-# module name
-# print (__name__)
 # --------------------------------------------------------------------------------------------
 # Notes
 # --------------------------------------------------------------------------------------------
