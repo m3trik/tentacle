@@ -15,6 +15,49 @@ class Edit(SlotsMaya):
         # Refresh the combo box on every view show
         self.sb.edit.cmb001.before_popup_shown.connect(self.sb.edit.cmb001.init_slot)
 
+    def cmb001_init(self, widget):
+        """ """
+        widget.clear()
+        widget.refresh = True
+        try:
+            selection = pm.ls(sl=1, objectsOnly=1)
+            obj_hist = pm.listHistory(selection, pruneDagObjects=1)
+            items = {str(o): o for o in obj_hist}
+        except RuntimeError:
+            items = ["No selection."]
+        widget.add(items, header="History")
+
+    def cmb001(self, index, widget):
+        """Object History Attributes"""
+        if index > 0:
+            if widget.items[index] != "No selection.":
+                node = widget.itemData(index)
+                if node:
+                    attrs = mtk.get_node_attributes(
+                        node,
+                        mapping=True,
+                        visible=True,
+                        keyable=True,
+                    )
+                    # # Filter the unknown datatypes here
+                    # attrs = {
+                    #     k: v
+                    #     for k, v in attrs.items()
+                    #     if self.sb.AttributeWindow.is_type_supported(type(v))
+                    # }
+                    # print(attrs)
+                    window = self.sb.AttributeWindow(
+                        node,
+                        attrs,
+                        window_title=node.name(),
+                        set_attribute_func=lambda obj, n, v: getattr(obj, n).set(v),
+                    )
+                    window.set_style(theme="dark")
+                    window.show()
+            else:
+                self.sb.message_box("Found no items to list the history for.")
+            widget.setCurrentIndex(0)
+
     def tb000_init(self, widget):
         """ """
         widget.menu.add(
@@ -181,136 +224,6 @@ class Edit(SlotsMaya):
             )
         )  # disable non-relevant options.
 
-    def cmb001_init(self, widget):
-        """ """
-        widget.clear()
-        widget.refresh = True
-        try:
-            selection = pm.ls(sl=1, objectsOnly=1)
-            obj_hist = pm.listHistory(selection, pruneDagObjects=1)
-            items = {str(o): o for o in obj_hist}
-        except RuntimeError:
-            items = ["No selection."]
-        widget.add(items, header="History")
-
-    def tb001_init(self, widget):
-        """ """
-        widget.menu.add(
-            "QCheckBox",
-            setText="For All Objects",
-            setObjectName="chk018",
-            setChecked=True,
-            setToolTip="Delete history on All objects or just those selected.",
-        )
-        widget.menu.add(
-            "QCheckBox",
-            setText="Delete Unused Nodes",
-            setObjectName="chk019",
-            setChecked=True,
-            setToolTip="Delete unused nodes.",
-        )
-        widget.menu.add(
-            "QCheckBox",
-            setText="Delete Deformers",
-            setObjectName="chk020",
-            setToolTip="Delete deformers.",
-        )
-        widget.menu.add(
-            "QCheckBox",
-            setText="Optimize Scene",
-            setObjectName="chk030",
-            setToolTip="Remove unused scene objects.",
-        )
-
-    def tb003_init(self, widget):
-        """ """
-        widget.menu.add(
-            "QCheckBox",
-            setText="-",
-            setObjectName="chk006",
-            setChecked=True,
-            setToolTip="Perform delete along negative axis.",
-        )
-        widget.menu.add(
-            "QRadioButton",
-            setText="X",
-            setObjectName="chk007",
-            setChecked=True,
-            setToolTip="Perform delete along X axis.",
-        )
-        widget.menu.add(
-            "QRadioButton",
-            setText="Y",
-            setObjectName="chk008",
-            setToolTip="Perform delete along Y axis.",
-        )
-        widget.menu.add(
-            "QRadioButton",
-            setText="Z",
-            setObjectName="chk009",
-            setToolTip="Perform delete along Z axis.",
-        )
-
-        def set_axis_text(widget):
-            """Set the toolbutton's text according to the checkstates."""
-            axis = self.sb.get_axis_from_checkboxes("chk006-9", widget.menu)
-            widget.setText(f"Delete {axis}")
-
-        self.sb.connect_multi(
-            widget.menu, "chk006-9", "toggled", lambda s, w=widget: set_axis_text(w)
-        )
-
-    def tb004_init(self, widget):
-        """ """
-        widget.menu.add(
-            "QCheckBox",
-            setText="UnLock",
-            setObjectName="chk027",
-            setChecked=True,
-            setToolTip="Unlock nodes (else lock).",
-        )
-        widget.menu.chk027.toggled.connect(
-            lambda state: widget.setText("Unlock Nodes" if state else "Lock Nodes")
-        )
-
-    def cmb001(self, index, widget):
-        """Object History Attributes"""
-        if index > 0:
-            if widget.items[index] != "No selection.":
-                node = widget.itemData(index)
-                if node:
-                    attrs = mtk.get_node_attributes(
-                        node,
-                        mapping=True,
-                        visible=True,
-                        keyable=True,
-                    )
-                    # # Filter the unknown datatypes here
-                    # attrs = {
-                    #     k: v
-                    #     for k, v in attrs.items()
-                    #     if self.sb.AttributeWindow.is_type_supported(type(v))
-                    # }
-                    # print(attrs)
-                    window = self.sb.AttributeWindow(
-                        node,
-                        attrs,
-                        window_title=node.name(),
-                        set_attribute_func=lambda obj, n, v: getattr(obj, n).set(v),
-                    )
-                    window.set_style(theme="dark")
-                    window.show()
-            else:
-                self.sb.message_box("Found no items to list the history for.")
-            widget.setCurrentIndex(0)
-
-    @SlotsMaya.hide_main
-    def b001(self, widget):
-        """Object History Attributes: get most recent node"""
-        cmb = self.sb.edit.cmb001
-        index = cmb.items.index(cmb.items[-1])
-        cmb.init_slot(index)
-
     def tb000(self, widget):
         """Mesh Cleanup"""
         # [0] All selectable meshes
@@ -398,6 +311,35 @@ class Edit(SlotsMaya):
             split_non_manifold_vertex=split_non_manifold_vertex,
         )
 
+    def tb001_init(self, widget):
+        """ """
+        widget.menu.add(
+            "QCheckBox",
+            setText="For All Objects",
+            setObjectName="chk018",
+            setChecked=True,
+            setToolTip="Delete history on All objects or just those selected.",
+        )
+        widget.menu.add(
+            "QCheckBox",
+            setText="Delete Unused Nodes",
+            setObjectName="chk019",
+            setChecked=True,
+            setToolTip="Delete unused nodes.",
+        )
+        widget.menu.add(
+            "QCheckBox",
+            setText="Delete Deformers",
+            setObjectName="chk020",
+            setToolTip="Delete deformers.",
+        )
+        widget.menu.add(
+            "QCheckBox",
+            setText="Optimize Scene",
+            setObjectName="chk030",
+            setToolTip="Remove unused scene objects.",
+        )
+
     def tb001(self, widget):
         """Delete History"""
         # Get the state of the checkboxes
@@ -457,6 +399,44 @@ class Edit(SlotsMaya):
                 else:
                     pm.delete(obj)  # Delete faces\mesh objects
 
+    def tb003_init(self, widget):
+        """ """
+        widget.menu.add(
+            "QCheckBox",
+            setText="-",
+            setObjectName="chk006",
+            setChecked=True,
+            setToolTip="Perform delete along negative axis.",
+        )
+        widget.menu.add(
+            "QRadioButton",
+            setText="X",
+            setObjectName="chk007",
+            setChecked=True,
+            setToolTip="Perform delete along X axis.",
+        )
+        widget.menu.add(
+            "QRadioButton",
+            setText="Y",
+            setObjectName="chk008",
+            setToolTip="Perform delete along Y axis.",
+        )
+        widget.menu.add(
+            "QRadioButton",
+            setText="Z",
+            setObjectName="chk009",
+            setToolTip="Perform delete along Z axis.",
+        )
+
+        def set_axis_text(widget):
+            """Set the toolbutton's text according to the checkstates."""
+            axis = self.sb.get_axis_from_checkboxes("chk006-9", widget.menu)
+            widget.setText(f"Delete {axis}")
+
+        self.sb.connect_multi(
+            widget.menu, "chk006-9", "toggled", lambda s, w=widget: set_axis_text(w)
+        )
+
     @mtk.undo
     def tb003(self, widget):
         """Delete Along Axis"""
@@ -464,6 +444,19 @@ class Edit(SlotsMaya):
         selection = pm.ls(sl=1)
 
         mtk.delete_along_axis(selection, axis)
+
+    def tb004_init(self, widget):
+        """ """
+        widget.menu.add(
+            "QCheckBox",
+            setText="UnLock",
+            setObjectName="chk027",
+            setChecked=True,
+            setToolTip="Unlock nodes (else lock).",
+        )
+        widget.menu.chk027.toggled.connect(
+            lambda state: widget.setText("Unlock Nodes" if state else "Lock Nodes")
+        )
 
     @mtk.undo
     def tb004(self, widget):
@@ -475,6 +468,13 @@ class Edit(SlotsMaya):
         nodes = selection if selection else pm.ls()
         for node in nodes:
             pm.lockNode(node, lock=not unlock)
+
+    @SlotsMaya.hide_main
+    def b001(self, widget):
+        """Object History Attributes: get most recent node"""
+        cmb = self.sb.edit.cmb001
+        index = cmb.items.index(cmb.items[-1])
+        cmb.init_slot(index)
 
     def b021(self):
         """Tranfer Maps"""
@@ -490,7 +490,13 @@ class Edit(SlotsMaya):
 
     def b027(self):
         """Shading Sets"""
-        pm.mel.performTransferShadingSets(0)
+        selected_objects = pm.selected(type="surfaceShape")
+        if selected_objects:
+            pm.mel.performTransferShadingSets(0)
+        else:
+            raise ValueError(
+                "Please select at least one surface to perform the shading transfer."
+            )
 
 
 # --------------------------------------------------------------------------------------------

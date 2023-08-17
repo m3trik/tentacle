@@ -13,6 +13,18 @@ class Polygons(SlotsMaya):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
+    def chk008(self, state, widget):
+        """Divide Facet: Split U"""
+        self.sb.toggle_multi(widget.ui, setUnChecked="chk010")
+
+    def chk009(self, state, widget):
+        """Divide Facet: Split V"""
+        self.sb.toggle_multi(widget.ui, setUnChecked="chk010")
+
+    def chk010(self, state, widget):
+        """Divide Facet: Tris"""
+        self.sb.toggle_multi(widget.ui, setUnChecked="chk008,chk009")
+
     def tb000_init(self, widget):
         """ """
         widget.menu.add(
@@ -32,6 +44,21 @@ class Polygons(SlotsMaya):
             setToolTip="Set the distance using two selected vertices.\nElse; return the Distance to it's default value",
         )
 
+    def tb000(self, widget):
+        """Merge Vertices"""
+        tolerance = widget.menu.s002.value()
+        objects = pm.ls(sl=True, objectsOnly=1, flatten=1)
+        componentMode = pm.selectMode(q=True, component=1)
+
+        if not objects:
+            self.sb.message_box(
+                "<strong>Nothing selected</strong>.<br>Operation requires an object or component selection.",
+                message_type="Error",
+            )
+            return
+
+        mtk.merge_vertices(objects, selected=componentMode, tolerance=tolerance)
+
     def tb001_init(self, widget):
         """ """
         widget.menu.add(
@@ -50,163 +77,6 @@ class Polygons(SlotsMaya):
             setToolTip="Subdivision Amount.",
         )
 
-    def tb002_init(self, widget):
-        """ """
-        widget.menu.add(
-            "QCheckBox",
-            setText="Merge",
-            setObjectName="chk000",
-            setChecked=True,
-            set_height=20,
-            setToolTip="Combine selected meshes and merge any coincident verts/edges.",
-        )
-
-    def tb003_init(self, widget):
-        """ """
-        widget.menu.add(
-            "QCheckBox",
-            setText="Keep Faces Together",
-            setObjectName="chk002",
-            setChecked=True,
-            set_height=20,
-            setToolTip="Keep edges/faces together.",
-        )
-        widget.menu.add(
-            "QSpinBox",
-            setPrefix="Divisions: ",
-            setObjectName="s004",
-            set_limits=[0],
-            setValue=1,
-            set_height=20,
-            setToolTip="Subdivision Amount.",
-        )
-
-    def tb005_init(self, widget):
-        """ """
-        widget.menu.add(
-            "QCheckBox",
-            setText="Duplicate",
-            setObjectName="chk014",
-            setChecked=True,
-            setToolTip="Duplicate any selected faces, leaving the originals.",
-        )
-        widget.menu.add(
-            "QCheckBox",
-            setText="Separate",
-            setObjectName="chk015",
-            setChecked=True,
-            setToolTip="Separate mesh objects after detaching faces.",
-        )
-        # tb005.menu.add('QCheckBox', setText='Delete Original', setObjectName='chk007', setChecked=True, setToolTip='Delete original selected faces.')
-
-    def tb006_init(self, widget):
-        """ """
-        widget.menu.add(
-            "QDoubleSpinBox",
-            setPrefix="Offset: ",
-            setObjectName="s001",
-            set_limits=[0, 100],
-            setValue=2.00,
-            set_height=20,
-            setToolTip="Offset amount.",
-        )
-
-    def tb007_init(self, widget):
-        """ """
-        widget.menu.add(
-            "QCheckBox",
-            setText="U",
-            setObjectName="chk008",
-            setChecked=True,
-            set_height=20,
-            setToolTip="Divide facet: U coordinate.",
-        )
-        widget.menu.add(
-            "QCheckBox",
-            setText="V",
-            setObjectName="chk009",
-            setChecked=True,
-            set_height=20,
-            setToolTip="Divide facet: V coordinate.",
-        )
-        widget.menu.add(
-            "QCheckBox",
-            setText="Tris",
-            setObjectName="chk010",
-            set_height=20,
-            setToolTip="Divide facet: Tris.",
-        )
-
-    def tb008_init(self, widget):
-        """ """
-        widget.menu.add(
-            "QRadioButton",
-            setText="Union",
-            setObjectName="chk011",
-            set_height=20,
-            setToolTip="Fuse two objects together.",
-        )
-        widget.menu.add(
-            "QRadioButton",
-            setText="Difference",
-            setObjectName="chk012",
-            setChecked=True,
-            set_height=20,
-            setToolTip="Indents one object with the shape of another at the point of their intersection.",
-        )
-        widget.menu.add(
-            "QRadioButton",
-            setText="Intersection",
-            setObjectName="chk013",
-            set_height=20,
-            setToolTip="Keep only the interaction point of two objects.",
-        )
-
-    def tb009_init(self, widget):
-        """ """
-        widget.menu.add(
-            "QDoubleSpinBox",
-            setPrefix="Tolerance: ",
-            setObjectName="s005",
-            set_limits=[0, 100, 0.05, 3],
-            setValue=10,
-            setToolTip="Set the max Snap Distance. Vertices with a distance exceeding this value will be ignored.",
-        )
-        widget.menu.add(
-            "QCheckBox",
-            setText="Freeze Transforms",
-            setObjectName="chk016",
-            setChecked=True,
-            setToolTip="Freeze Transformations on the object that is being snapped to.",
-        )
-
-    def chk008(self, state, widget):
-        """Divide Facet: Split U"""
-        self.sb.toggle_multi(widget.ui, setUnChecked="chk010")
-
-    def chk009(self, state, widget):
-        """Divide Facet: Split V"""
-        self.sb.toggle_multi(widget.ui, setUnChecked="chk010")
-
-    def chk010(self, state, widget):
-        """Divide Facet: Tris"""
-        self.sb.toggle_multi(widget.ui, setUnChecked="chk008,chk009")
-
-    def tb000(self, widget):
-        """Merge Vertices"""
-        tolerance = widget.menu.s002.value()
-        objects = pm.ls(sl=True, objectsOnly=1, flatten=1)
-        componentMode = pm.selectMode(q=True, component=1)
-
-        if not objects:
-            self.sb.message_box(
-                "<strong>Nothing selected</strong>.<br>Operation requires an object or component selection.",
-                message_type="Error",
-            )
-            return
-
-        mtk.merge_vertices(objects, selected=componentMode, tolerance=tolerance)
-
     def tb001(self, widget):
         """Bridge"""
         curve_type = widget.menu.cmb000.currentIndex()
@@ -224,6 +94,17 @@ class Polygons(SlotsMaya):
         # Fill edges if they lie on a border
         pm.polyCloseBorder(edges)
         return node
+
+    def tb002_init(self, widget):
+        """ """
+        widget.menu.add(
+            "QCheckBox",
+            setText="Merge",
+            setObjectName="chk000",
+            setChecked=True,
+            set_height=20,
+            setToolTip="Combine selected meshes and merge any coincident verts/edges.",
+        )
 
     def tb002(self, widget):
         """Combine"""
@@ -246,6 +127,26 @@ class Polygons(SlotsMaya):
             pm.parent(objName_, objParent)
         else:
             pm.mel.CombinePolygons()
+
+    def tb003_init(self, widget):
+        """ """
+        widget.menu.add(
+            "QCheckBox",
+            setText="Keep Faces Together",
+            setObjectName="chk002",
+            setChecked=True,
+            set_height=20,
+            setToolTip="Keep edges/faces together.",
+        )
+        widget.menu.add(
+            "QSpinBox",
+            setPrefix="Divisions: ",
+            setObjectName="s004",
+            set_limits=[0],
+            setValue=1,
+            set_height=20,
+            setToolTip="Subdivision Amount.",
+        )
 
     def tb003(self, widget):
         """Extrude"""
@@ -280,7 +181,28 @@ class Polygons(SlotsMaya):
         slot_class = mtk.bevel_edges.BevelEdgesSlots
 
         self.sb.register(ui_file, slot_class)
+        # if pm.ls(sl=True):
+        #     self.sb.bevel_edges.set_as_current()
+        #     self.sb.bevel_edges.slots.preview.enable()
         self.sb.parent().set_ui("bevel_edges")
+
+    def tb005_init(self, widget):
+        """ """
+        widget.menu.add(
+            "QCheckBox",
+            setText="Duplicate",
+            setObjectName="chk014",
+            setChecked=True,
+            setToolTip="Duplicate any selected faces, leaving the originals.",
+        )
+        widget.menu.add(
+            "QCheckBox",
+            setText="Separate",
+            setObjectName="chk015",
+            setChecked=True,
+            setToolTip="Separate mesh objects after detaching faces.",
+        )
+        # tb005.menu.add('QCheckBox', setText='Delete Original', setObjectName='chk007', setChecked=True, setToolTip='Delete original selected faces.')
 
     def tb005(self, widget):
         """Detach"""
@@ -316,6 +238,18 @@ class Polygons(SlotsMaya):
         else:
             pm.mel.DetachComponent()
 
+    def tb006_init(self, widget):
+        """ """
+        widget.menu.add(
+            "QDoubleSpinBox",
+            setPrefix="Offset: ",
+            setObjectName="s001",
+            set_limits=[0, 100],
+            setValue=2.00,
+            set_height=20,
+            setToolTip="Offset amount.",
+        )
+
     def tb006(self, widget):
         """Inset Face Region"""
         selection = pm.ls(sl=True)
@@ -340,6 +274,32 @@ class Polygons(SlotsMaya):
             offset=offset,
             thickness=0,
             smoothingAngle=30,
+        )
+
+    def tb007_init(self, widget):
+        """ """
+        widget.menu.add(
+            "QCheckBox",
+            setText="U",
+            setObjectName="chk008",
+            setChecked=True,
+            set_height=20,
+            setToolTip="Divide facet: U coordinate.",
+        )
+        widget.menu.add(
+            "QCheckBox",
+            setText="V",
+            setObjectName="chk009",
+            setChecked=True,
+            set_height=20,
+            setToolTip="Divide facet: V coordinate.",
+        )
+        widget.menu.add(
+            "QCheckBox",
+            setText="Tris",
+            setObjectName="chk010",
+            set_height=20,
+            setToolTip="Divide facet: Tris.",
         )
 
     def tb007(self, widget):
@@ -387,6 +347,31 @@ class Polygons(SlotsMaya):
             )
             return
 
+    def tb008_init(self, widget):
+        """ """
+        widget.menu.add(
+            "QRadioButton",
+            setText="Union",
+            setObjectName="chk011",
+            set_height=20,
+            setToolTip="Fuse two objects together.",
+        )
+        widget.menu.add(
+            "QRadioButton",
+            setText="Difference",
+            setObjectName="chk012",
+            setChecked=True,
+            set_height=20,
+            setToolTip="Indents one object with the shape of another at the point of their intersection.",
+        )
+        widget.menu.add(
+            "QRadioButton",
+            setText="Intersection",
+            setObjectName="chk013",
+            set_height=20,
+            setToolTip="Keep only the interaction point of two objects.",
+        )
+
     def tb008(self, widget):
         """Boolean Operation"""
         selection = pm.ls(sl=1)
@@ -403,6 +388,24 @@ class Polygons(SlotsMaya):
 
         if widget.menu.chk013.isChecked():  # intersection
             pm.mel.PolygonBooleanIntersection()
+
+    def tb009_init(self, widget):
+        """ """
+        widget.menu.add(
+            "QDoubleSpinBox",
+            setPrefix="Tolerance: ",
+            setObjectName="s005",
+            set_limits=[0, 100, 0.05, 3],
+            setValue=10,
+            setToolTip="Set the max Snap Distance. Vertices with a distance exceeding this value will be ignored.",
+        )
+        widget.menu.add(
+            "QCheckBox",
+            setText="Freeze Transforms",
+            setObjectName="chk016",
+            setChecked=True,
+            setToolTip="Freeze Transformations on the object that is being snapped to.",
+        )
 
     def tb009(self, widget):
         """Snap Closest Verts"""

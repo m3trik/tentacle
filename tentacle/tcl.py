@@ -233,7 +233,7 @@ class Tcl(QtWidgets.QStackedWidget):
         """ """
         modifiers = self.app.keyboardModifiers()
 
-        if self.sb.ui.has_tag("startmenu|submenu"):
+        if self.sb.current_ui.has_tag("startmenu|submenu"):
             if not modifiers:
                 if event.button() == QtCore.Qt.LeftButton:
                     self.set_ui("cameras#startmenu")
@@ -256,7 +256,7 @@ class Tcl(QtWidgets.QStackedWidget):
         """ """
         modifiers = self.app.keyboardModifiers()
 
-        if self.sb.ui.has_tag("startmenu|submenu"):
+        if self.sb.current_ui.has_tag("startmenu|submenu"):
             if event.button() == QtCore.Qt.LeftButton:
                 if modifiers == QtCore.Qt.ControlModifier:
                     self.left_mouse_double_click_ctrl.emit()
@@ -292,7 +292,7 @@ class Tcl(QtWidgets.QStackedWidget):
         else:
             self.set_ui(ui)
 
-        if self.sb.ui.name == "init#startmenu":
+        if self.sb.current_ui.name == "init#startmenu":
             self.move(self.sb.get_cursor_offset_from_center(self))
 
         super().show()

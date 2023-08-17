@@ -12,19 +12,33 @@ class Materials(SlotsMaya):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        self.random_mat = None
+    def cmb000_init(self, widget):
+        """Assign: Assign New"""
+        # Get all shader types derived from the 'shader' class
+        items = pm.listNodeTypes("shader")
+        widget.add(items, header="Assign New")
+
+    def cmb000(self, index, widget):
+        """Assign: Assign New"""
+        selection = pm.ls(sl=True, flatten=1)
+        if not selection:
+            self.sb.message_box("No renderable object is selected for assignment.")
+            return
+
+        if index > 0:
+            mat_name = widget.currentText()
+            mat = mtk.create_mat(mat_name)
+            mtk.assign_mat(selection, mat)
+            self.sb.materials.cmb002.init_slot()
+            self.sb.materials.cmb002.setCurrentItem(mat_name)
+
+            widget.setCurrentIndex(0)
 
     def cmb002_init(self, widget):
         """ """
         widget.refresh = True
         if not widget.is_initialized:
             widget.editable = True
-            widget.menu.add(
-                "QComboBox",
-                setObjectName="cmb001",
-                addItems=["Scene Materials", "ID Map Materials", "Favorite Materials"],
-                setToolTip="Filter materials list based on type.",
-            )
             widget.menu.add(
                 self.sb.Label,
                 setText="Open in Editor",
@@ -52,22 +66,8 @@ class Materials(SlotsMaya):
             widget.on_editing_finished.connect(
                 lambda text: pm.rename(widget.currentData(), text)
             )
-            # Refresh contents each index change.
-            widget.menu.cmb001.currentIndexChanged.connect(widget.init_slot)
-            # Set the groupbox title to reflect the current filter.
-            widget.menu.cmb001.currentIndexChanged.connect(
-                lambda: self.sb.materials.group000.setTitle(
-                    widget.menu.cmb001.currentText()
-                )
-            )
 
-        mode = widget.menu.cmb001.currentText()
-        if mode == "Scene Materials":
-            materials = mtk.get_scene_mats(exc="standardSurface")
-        elif mode == "ID Map Materials":
-            materials = mtk.get_scene_mats(inc="ID_*")
-        elif mode == "Favorite Materials":
-            materials = mtk.get_fav_mats()
+        materials = mtk.get_scene_mats(exc="standardSurface")
 
         materials_dict = {m.name(): m for m in materials}
         widget.add(materials_dict, clear=True)
@@ -92,39 +92,8 @@ class Materials(SlotsMaya):
             "QCheckBox",
             setText="Shell",
             setObjectName="chk005",
-            setToolTip="Select entire shell.",
+            setToolTip="Select object(s) containing the material.",
         )
-
-    def tb002_init(self, widget):
-        """ """
-        widget.menu.add(
-            "QRadioButton",
-            setText="Current Material",
-            setObjectName="chk007",
-            setChecked=True,
-            setToolTip="Re-Assign the current stored material.",
-        )
-        widget.menu.add(
-            "QRadioButton",
-            setText="New Material",
-            setObjectName="chk009",
-            setToolTip="Assign a new material.",
-        )
-        widget.menu.add(
-            "QRadioButton",
-            setText="New Random Material",
-            setObjectName="chk008",
-            setToolTip="Assign a new random ID material.",
-        )
-        widget.menu.chk007.clicked.connect(
-            lambda state: widget.setText("Assign Current")
-        )
-        widget.menu.chk009.clicked.connect(lambda state: widget.setText("Assign New"))
-        widget.menu.chk008.clicked.connect(
-            lambda state: widget.setText("Assign Random")
-        )
-        # Refresh the materials list
-        widget.released.connect(widget.ui.cmb002.init_slot)
 
     def tb000(self, widget):
         """Select By Material ID"""
@@ -139,43 +108,10 @@ class Materials(SlotsMaya):
 
         shell = widget.menu.chk005.isChecked()  # Select by material: shell
 
-        selection = pm.ls(sl=1, objectsOnly=1)
+        selection = pm.ls(sl=True, objectsOnly=True)
         faces_with_mat = mtk.find_by_mat_id(mat, selection, shell=shell)
 
         pm.select(faces_with_mat)
-
-    def tb002(self, widget):
-        """Assign Material"""
-        selection = pm.ls(sl=True, flatten=1)
-        if not selection:
-            self.sb.message_box("No renderable object is selected for assignment.")
-            return
-
-        assignCurrent = widget.menu.chk007.isChecked()
-        assignRandom = widget.menu.chk008.isChecked()
-        assignNew = widget.menu.chk009.isChecked()
-
-        if assignCurrent:  # Assign current mat
-            mat = self.sb.materials.cmb002.currentData()
-            if isinstance(mat, str):  # new mat type as a string:
-                mtk.assign_mat(selection, pm.createNode(mat))
-            else:  # existing mat object:
-                mtk.assign_mat(selection, mat)
-
-        elif assignRandom:  # Assign New random mat ID
-            mat = mtk.create_random_mat(prefix="ID_")
-            mtk.assign_mat(selection, mat)
-
-            self.random_mat = mat
-
-            # set the combobox index to the new mat
-            self.sb.materials.cmb002.setCurrentItem(mat.name())
-
-        elif assignNew:  # Assign New Material
-            pm.mel.buildObjectMenuItemsNow(
-                "MainPane|viewPanes|modelPanel4|modelPanel4|modelPanel4|modelPanel4ObjectPop"
-            )
-            pm.mel.createAssignNewMaterialTreeLister("")
 
     def lbl000(self):
         """Open material in editor"""
@@ -218,7 +154,7 @@ class Materials(SlotsMaya):
         self.lbl000()
 
     def b002(self, widget):
-        """Set Material: Set the currently selected material as the current material."""
+        """Get Material: Change the index to match the current material selection."""
         selection = pm.ls(sl=True)
         if not selection:
             self.sb.message_box(
@@ -233,28 +169,33 @@ class Materials(SlotsMaya):
             )
             return
 
-        # set the combobox to show all scene materials
-        self.sb.materials.cmb002.menu.cmb001.setCurrentIndex(0)
-        widget.ui.cmb002.init_slot()  # refresh the materials list comboBox
-        self.sb.materials.cmb002.setCurrentItem(mat.pop().name())
-
-    def b003(self, widget):
-        """Assign: Assign Current"""
-        self.sb.materials.tb002.menu.chk007.setChecked(True)
-        self.sb.materials.tb002.setText("Assign Current")
-        widget.ui.tb002.init_slot()
+        self.sb.materials.cmb002.init_slot()  # refresh the materials list comboBox
+        self.sb.materials.cmb002.setCurrentItem(mat.pop().name())  # pop: mat is a set
 
     def b004(self, widget):
         """Assign: Assign Random"""
-        self.sb.materials.tb002.menu.chk008.setChecked(True)
-        self.sb.materials.tb002.setText("Assign Random")
-        widget.ui.tb002.init_slot()
+        selection = pm.ls(sl=True, flatten=1)
+        if not selection:
+            self.sb.message_box("No renderable object is selected for assignment.")
+            return
+
+        mat = mtk.create_mat("random")
+        mtk.assign_mat(selection, mat)
+
+        self.sb.materials.cmb002.init_slot()  # refresh the materials list comboBox
+        self.sb.materials.cmb002.setCurrentItem(mat.name())
 
     def b005(self, widget):
-        """Assign: Assign New"""
-        self.sb.materials.tb002.menu.chk009.setChecked(True)
-        self.sb.materials.tb002.setText("Assign New")
-        widget.ui.tb002.init_slot()
+        """Assign: Assign Current"""
+        selection = pm.ls(sl=True, flatten=1)
+        if not selection:
+            self.sb.message_box("No renderable object is selected for assignment.")
+            return
+
+        mat = self.sb.materials.cmb002.currentData()
+        mtk.assign_mat(selection, mat)
+
+        self.sb.materials.cmb002.init_slot()
 
     def getColorSwatchIcon(self, mat, size=[20, 20]):
         """Get an icon with a color fill matching the given materials RBG value.
