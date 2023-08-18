@@ -29,6 +29,30 @@ class Transform(SlotsMaya):
         ]
         widget.add(items, header="Align To")
 
+    def cmb002(self, index, widget):
+        """Align To"""
+        if index > 0:
+            text = widget.items[index]
+            if text == "Point to Point":
+                pm.mel.SnapPointToPointOptions()  # performSnapPtToPt 1; Select any type of point object or component.
+            elif text == "2 Points to 2 Points":
+                pm.mel.Snap2PointsTo2PointsOptions()  # performSnap2PtTo2Pt 1; Select any type of point object or component.
+            elif text == "3 Points to 3 Points":
+                pm.mel.Snap3PointsTo3PointsOptions()  # performSnap3PtTo3Pt 1; Select any type of point object or component.
+            elif text == "Align Objects":
+                pm.mel.performAlignObjects(1)  # Align the selected objects.
+            elif text == "Position Along Curve":
+                pm.mel.PositionAlongCurve()  # Position selected objects along a selected curve.
+                # import maya.app.general.positionAlongCurve
+                # maya.app.general.positionAlongCurve.positionAlongCurve()
+            elif text == "Align Tool":
+                pm.mel.SetAlignTool()  # setToolTo alignToolCtx; Align the selection to the last selected object.
+            elif text == "Snap Together Tool":
+                pm.mel.SetSnapTogetherToolOptions()  # setToolTo snapTogetherToolCtx; toolPropertyWindow;) Snap two objects together.
+            elif text == "Orient to Vertex/Edge Tool":
+                pm.mel.orientToTool()  # Orient To Vertex/Edge
+            widget.setCurrentIndex(0)
+
     def tb000_init(self, widget):
         """ """
         # drop to grid.
@@ -59,6 +83,17 @@ class Transform(SlotsMaya):
             setChecked=True,
             setToolTip="Reset the selected transform and all of its children down to the shape level.",
         )
+
+    def tb000(self, widget):
+        """Drop To Grid"""
+        align = widget.menu.cmb004.currentText()
+        origin = widget.menu.chk014.isChecked()
+        center_pivot = widget.menu.chk016.isChecked()
+        freeze_transforms = widget.menu.chk017.isChecked()
+
+        objects = pm.ls(sl=1, objectsOnly=1)
+        mtk.drop_to_grid(objects, align, origin, center_pivot, freeze_transforms)
+        pm.select(objects)  # reselect the original selection.
 
     def tb001_init(self, widget):
         """ """
@@ -115,6 +150,134 @@ class Transform(SlotsMaya):
             setToolTip="",
         )
 
+    def tb001(self, widget):
+        """Align Components
+
+        Auto Align finds the axis with the largest variance, and sets the axis checkboxes accordingly before performing a regular align.
+        """
+        betweenTwoComponents = widget.menu.chk013.isChecked()
+        autoAlign = widget.menu.chk010.isChecked()
+        autoAlign2Axes = widget.menu.chk011.isChecked()  # Auto Align: Two Axes
+
+        selection = pm.ls(orderedSelection=1, flatten=1)
+
+        if betweenTwoComponents:
+            if len(selection) > 1:
+                componentsOnPath = mtk.get_edge_path(selection, "edgeLoopPath")
+                pm.select(componentsOnPath)
+
+        if autoAlign:  # set coordinates for auto align:
+            if not len(selection) > 1:
+                self.sb.message_box("Operation requires a component selection.")
+                return
+
+            point = pm.xform(selection, q=True, t=True, ws=True)
+            # vertex point 1
+            x1 = round(point[0], 4)
+            y1 = round(point[1], 4)
+            z1 = round(point[2], 4)
+
+            # vertex point 2
+            x2 = round(point[3], 4)
+            y2 = round(point[4], 4)
+            z2 = round(point[5], 4)
+
+            # find the axis with the largest variance to determine direction.
+            x = abs(x1 - x2)
+            y = abs(y1 - y2)
+            z = abs(z1 - z2)
+
+            maskEdge = pm.selectType(query=True, edge=True)
+            if maskEdge:
+                selection = pm.polyListComponentConversion(fromEdge=1, toVertexFace=1)
+
+            vertex = selection[0] if selection else None
+            if vertex is None:
+                self.sb.message_box("Unable to get component path.")
+                return
+
+            vertexTangent = pm.polyNormalPerVertex(vertex, query=True, xyz=True)
+
+            tx = abs(round(vertexTangent[0], 4))
+            ty = abs(round(vertexTangent[1], 4))
+            tz = abs(round(vertexTangent[2], 4))
+
+            axis = max(x, y, z)
+            tangent = max(tx, ty, tz)
+
+            if autoAlign2Axes:
+                if axis == x:  # "yz"
+                    self.sb.toggle_multi(
+                        widget.menu,
+                        setChecked="chk030-31",
+                        setUnChecked="chk029",
+                    )
+                if axis == y:  # "xz"
+                    self.sb.toggle_multi(
+                        widget.menu,
+                        setChecked="chk029,chk031",
+                        setUnChecked="chk030",
+                    )
+                if axis == z:  # "xy"
+                    self.sb.toggle_multi(
+                        widget.menu,
+                        setChecked="chk029-30",
+                        setUnChecked="chk031",
+                    )
+            else:
+                if any(
+                    [axis == x and tangent == ty, axis == y and tangent == tx]
+                ):  # "z"
+                    self.sb.toggle_multi(
+                        widget.menu,
+                        setChecked="chk031",
+                        setUnChecked="chk029-30",
+                    )
+                if any(
+                    [axis == x and tangent == tz, axis == z and tangent == tx]
+                ):  # "y"
+                    self.sb.toggle_multi(
+                        widget.menu,
+                        setChecked="chk030",
+                        setUnChecked="chk029,chk031",
+                    )
+                if any(
+                    [axis == y and tangent == tz, axis == z and tangent == ty]
+                ):  # "x"
+                    self.sb.toggle_multi(
+                        widget.menu,
+                        setChecked="chk029",
+                        setUnChecked="chk030-31",
+                    )
+
+        # align
+        x = widget.menu.chk029.isChecked()
+        y = widget.menu.chk030.isChecked()
+        z = widget.menu.chk031.isChecked()
+        avg = widget.menu.chk006.isChecked()
+        loop = widget.menu.chk007.isChecked()
+
+        if all([x, not y, not z]):  # align x
+            mtk.align_vertices(mode=3, average=avg, edgeloop=loop)
+
+        if all([not x, y, not z]):  # align y
+            mtk.align_vertices(mode=4, average=avg, edgeloop=loop)
+
+        if all([not x, not y, z]):  # align z
+            mtk.align_vertices(mode=5, average=avg, edgeloop=loop)
+
+        if all([not x, y, z]):  # align yz
+            mtk.align_vertices(mode=0, average=avg, edgeloop=loop)
+
+        if all([x, not y, z]):  # align xz
+            mtk.align_vertices(mode=1, average=avg, edgeloop=loop)
+
+        if all([x, y, not z]):  # align xy
+            mtk.align_vertices(mode=2, average=avg, edgeloop=loop)
+
+        if all([x, y, z]):  # align xyz
+            mtk.align_vertices(mode=6, average=avg, edgeloop=loop)
+
     def tb002_init(self, widget):
         """ """
         widget.menu.add(
@@ -144,6 +307,29 @@ class Transform(SlotsMaya):
             setChecked=True,
             setToolTip="Move the objects pivot to the center of it's bounding box.",
         )
+
+    def tb002(self, widget):
+        """Freeze Transformations"""
+        selected_objects = pm.ls(selection=True)
+
+        if len(selected_objects) == 0:
+            self.sb.message_box("Please select at least one object.")
+            return
+
+        translate = widget.menu.chk032.isChecked()
+        rotate = widget.menu.chk033.isChecked()
+        scale = widget.menu.chk034.isChecked()
+        center_pivot = widget.menu.chk035.isChecked()
+
+        try:
+            if center_pivot:
+                pm.xform(selected_objects, centerPivots=1)
+
+            pm.makeIdentity(
+                selected_objects, apply=True, t=translate, r=rotate, s=scale
+            )
+        except Exception as e:
+            print(f"An error occurred while freezing transformations: {e}")
 
     def tb003_init(self, widget):
         """ """
@@ -222,30 +408,6 @@ class Transform(SlotsMaya):
         widget.menu.s022.setValue(scaleValue)
         rotateValue = pm.manipRotateContext("Rotate", q=True, snapValue=True)
         widget.menu.s023.setValue(rotateValue)
-
-    def cmb002(self, index, widget):
-        """Align To"""
-        if index > 0:
-            text = widget.items[index]
-            if text == "Point to Point":
-                pm.mel.SnapPointToPointOptions()  # performSnapPtToPt 1; Select any type of point object or component.
-            elif text == "2 Points to 2 Points":
-                pm.mel.Snap2PointsTo2PointsOptions()  # performSnap2PtTo2Pt 1; Select any type of point object or component.
-            elif text == "3 Points to 3 Points":
-                pm.mel.Snap3PointsTo3PointsOptions()  # performSnap3PtTo3Pt 1; Select any type of point object or component.
-            elif text == "Align Objects":
-                pm.mel.performAlignObjects(1)  # Align the selected objects.
-            elif text == "Position Along Curve":
-                pm.mel.PositionAlongCurve()  # Position selected objects along a selected curve.
-                # import maya.app.general.positionAlongCurve
-                # maya.app.general.positionAlongCurve.positionAlongCurve()
-            elif text == "Align Tool":
-                pm.mel.SetAlignTool()  # setToolTo alignToolCtx; Align the selection to the last selected object.
-            elif text == "Snap Together Tool":
-                pm.mel.SetSnapTogetherToolOptions()  # setToolTo snapTogetherToolCtx; toolPropertyWindow;) Snap two objects together.
-            elif text == "Orient to Vertex/Edge Tool":
-                pm.mel.orientToTool()  # Orient To Vertex/Edge
-            widget.setCurrentIndex(0)
 
     def chk010(self, state, widget):
         """Align Vertices: Auto Align"""
@@ -390,168 +552,6 @@ class Transform(SlotsMaya):
         pm.texRotateContext(
             "texRotateContext", edit=1, snapValue=value
         )  # uv rotate context
-
-    def tb000(self, widget):
-        """Drop To Grid"""
-        align = widget.menu.cmb004.currentText()
-        origin = widget.menu.chk014.isChecked()
-        center_pivot = widget.menu.chk016.isChecked()
-        freeze_transforms = widget.menu.chk017.isChecked()
-
-        objects = pm.ls(sl=1, objectsOnly=1)
-        mtk.drop_to_grid(objects, align, origin, center_pivot, freeze_transforms)
-        pm.select(objects)  # reselect the original selection.
-
-    def tb001(self, widget):
-        """Align Components
-
-        Auto Align finds the axis with the largest variance, and sets the axis checkboxes accordingly before performing a regular align.
-        """
-        betweenTwoComponents = widget.menu.chk013.isChecked()
-        autoAlign = widget.menu.chk010.isChecked()
-        autoAlign2Axes = widget.menu.chk011.isChecked()  # Auto Align: Two Axes
-
-        selection = pm.ls(orderedSelection=1, flatten=1)
-
-        if betweenTwoComponents:
-            if len(selection) > 1:
-                componentsOnPath = mtk.get_edge_path(selection, "edgeLoopPath")
-                pm.select(componentsOnPath)
-
-        if autoAlign:  # set coordinates for auto align:
-            if not len(selection) > 1:
-                self.sb.message_box("Operation requires a component selection.")
-                return
-
-            point = pm.xform(selection, q=True, t=True, ws=True)
-            # vertex point 1
-            x1 = round(point[0], 4)
-            y1 = round(point[1], 4)
-            z1 = round(point[2], 4)
-
-            # vertex point 2
-            x2 = round(point[3], 4)
-            y2 = round(point[4], 4)
-            z2 = round(point[5], 4)
-
-            # find the axis with the largest variance to determine direction.
-            x = abs(x1 - x2)
-            y = abs(y1 - y2)
-            z = abs(z1 - z2)
-
-            maskEdge = pm.selectType(query=True, edge=True)
-            if maskEdge:
-                selection = pm.polyListComponentConversion(fromEdge=1, toVertexFace=1)
-
-            vertex = selection[0] if selection else None
-            if vertex is None:
-                self.sb.message_box("Unable to get component path.")
-                return
-
-            vertexTangent = pm.polyNormalPerVertex(vertex, query=True, xyz=True)
-
-            tx = abs(round(vertexTangent[0], 4))
-            ty = abs(round(vertexTangent[1], 4))
-            tz = abs(round(vertexTangent[2], 4))
-
-            axis = max(x, y, z)
-            tangent = max(tx, ty, tz)
-
-            if autoAlign2Axes:
-                if axis == x:  # "yz"
-                    self.sb.toggle_multi(
-                        widget.menu,
-                        setChecked="chk030-31",
-                        setUnChecked="chk029",
-                    )
-                if axis == y:  # "xz"
-                    self.sb.toggle_multi(
-                        widget.menu,
-                        setChecked="chk029,chk031",
-                        setUnChecked="chk030",
-                    )
-                if axis == z:  # "xy"
-                    self.sb.toggle_multi(
-                        widget.menu,
-                        setChecked="chk029-30",
-                        setUnChecked="chk031",
-                    )
-            else:
-                if any(
-                    [axis == x and tangent == ty, axis == y and tangent == tx]
-                ):  # "z"
-                    self.sb.toggle_multi(
-                        widget.menu,
-                        setChecked="chk031",
-                        setUnChecked="chk029-30",
-                    )
-                if any(
-                    [axis == x and tangent == tz, axis == z and tangent == tx]
-                ):  # "y"
-                    self.sb.toggle_multi(
-                        widget.menu,
-                        setChecked="chk030",
-                        setUnChecked="chk029,chk031",
-                    )
-                if any(
-                    [axis == y and tangent == tz, axis == z and tangent == ty]
-                ):  # "x"
-                    self.sb.toggle_multi(
-                        widget.menu,
-                        setChecked="chk029",
-                        setUnChecked="chk030-31",
-                    )
-
-        # align
-        x = widget.menu.chk029.isChecked()
-        y = widget.menu.chk030.isChecked()
-        z = widget.menu.chk031.isChecked()
-        avg = widget.menu.chk006.isChecked()
-        loop = widget.menu.chk007.isChecked()
-
-        if all([x, not y, not z]):  # align x
-            mtk.align_vertices(mode=3, average=avg, edgeloop=loop)
-
-        if all([not x, y, not z]):  # align y
-            mtk.align_vertices(mode=4, average=avg, edgeloop=loop)
-
-        if all([not x, not y, z]):  # align z
-            mtk.align_vertices(mode=5, average=avg, edgeloop=loop)
-
-        if all([not x, y, z]):  # align yz
-            mtk.align_vertices(mode=0, average=avg, edgeloop=loop)
-
-        if all([x, not y, z]):  # align xz
-            mtk.align_vertices(mode=1, average=avg, edgeloop=loop)
-
-        if all([x, y, not z]):  # align xy
-            mtk.align_vertices(mode=2, average=avg, edgeloop=loop)
-
-        if all([x, y, z]):  # align xyz
-            mtk.align_vertices(mode=6, average=avg, edgeloop=loop)
-
-    def tb002(self, widget):
-        """Freeze Transformations"""
-        selected_objects = pm.ls(selection=True)
-
-        if len(selected_objects) == 0:
-            self.sb.message_box("Please select at least one object.")
-            return
-
-        translate = widget.menu.chk032.isChecked()
-        rotate = widget.menu.chk033.isChecked()
-        scale = widget.menu.chk034.isChecked()
-        center_pivot = widget.menu.chk035.isChecked()
-
-        try:
-            if center_pivot:
-                pm.xform(selected_objects, centerPivots=1)
-
-            pm.makeIdentity(
-                selected_objects, apply=True, t=translate, r=rotate, s=scale
-            )
-        except Exception as e:
-            print(f"An error occurred while freezing transformations: {e}")
 
     def b000(self, widget):
         """Object Transform Attributes"""

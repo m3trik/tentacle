@@ -26,32 +26,6 @@ class Uv(SlotsMaya):
         #     setToolTip="Save an image file of the current UV layout.",
         # )
 
-    def cmb001_init(self, widget):
-        """ """
-        widget.popupStyle = "qmenu"
-        widget.menu.add(
-            self.sb.CheckBox, setObjectName="chk014", setText="Checkered", setToolTip=""
-        )
-        widget.menu.add(
-            self.sb.CheckBox, setObjectName="chk015", setText="Borders", setToolTip=""
-        )
-        widget.menu.add(
-            self.sb.CheckBox,
-            setObjectName="chk016",
-            setText="Distortion",
-            setToolTip="",
-        )
-        panel = mtk.get_panel(scriptType="polyTexturePlacementPanel")
-        widget.menu.chk014.setChecked(
-            pm.textureWindow(panel, displayCheckered=1, q=True)
-        )  # checkered state
-        widget.menu.chk015.setChecked(
-            True if pm.polyOptions(q=True, displayMapBorder=1) else False
-        )  # borders state
-        widget.menu.chk016.setChecked(
-            pm.textureWindow(panel, q=True, displayDistortion=1)
-        )  # distortion state
-
     def cmb002_init(self, widget):
         """ """
         items = [
@@ -120,6 +94,39 @@ class Uv(SlotsMaya):
             setToolTip="Set the shell spacing amount.",
         )
 
+    def tb000(self, widget):
+        """Pack UVs"""
+        scale = widget.menu.s009.value()
+        rotate = widget.menu.s010.value()
+        UDIM = widget.menu.s004.value()
+        padding = widget.menu.s012.value()
+        # similar = widget.menu.s011.value()
+        # tolerance = widget.menu.s006.value()
+        mapSize = self.getMapSize()
+
+        U, D, I, M = [int(i) for i in str(UDIM)]  # UDIM ex. '1001'
+        shellPadding = padding * 0.000244140625
+        tilePadding = shellPadding / 2
+
+        selection = pm.ls(sl=1)
+        if not selection:
+            self.message_box(
+                "<b>Nothing selected.<b><br>The operation requires at least one selected object."
+            )
+            return
+        uvs = pm.polyListComponentConversion(selection, fromFace=True, toUV=True)
+        uvs = pm.ls(uvs, flatten=True)
+
+        pm.u3dLayout(
+            uvs,
+            resolution=mapSize,
+            shellSpacing=shellPadding,
+            tileMargin=tilePadding,
+            preScaleMode=scale,
+            preRotateMode=rotate,
+            packBox=[M - 1, D, I, U],
+        )
+
     def tb001_init(self, widget):
         """ """
         widget.menu.add(
@@ -168,208 +175,6 @@ class Uv(SlotsMaya):
             setToolTip="Create UV texture coordinates for the current selection by creating a planar projection based on the average vector of it's face normals.",
         )
         # widget.menu.chk001.toggled.connect(lambda state: self.sb.toggle_multi(widget.menu, setUnChecked='chk002-3') if state==1 else None)
-
-    def tb003_init(self, widget):
-        """ """
-        widget.menu.add(
-            "QRadioButton",
-            setText="Back-Facing",
-            setObjectName="chk008",
-            setToolTip="Select all back-facing (using counter-clockwise winding order) components for the current selection.",
-        )
-        widget.menu.add(
-            "QRadioButton",
-            setText="Front-Facing",
-            setObjectName="chk009",
-            setToolTip="Select all front-facing (using counter-clockwise winding order) components for the current selection.",
-        )
-        widget.menu.add(
-            "QRadioButton",
-            setText="Overlapping",
-            setObjectName="chk010",
-            setToolTip="Select all components that share the same uv space.",
-        )
-        widget.menu.add(
-            "QRadioButton",
-            setText="Non-Overlapping",
-            setObjectName="chk011",
-            setToolTip="Select all components that do not share the same uv space.",
-        )
-        widget.menu.add(
-            "QRadioButton",
-            setText="Texture Borders",
-            setObjectName="chk012",
-            setToolTip="Select all components on the borders of uv shells.",
-        )
-        widget.menu.add(
-            "QRadioButton",
-            setText="Unmapped",
-            setObjectName="chk013",
-            setChecked=True,
-            setToolTip="Select unmapped faces in the current uv set.",
-        )
-
-    def tb004_init(self, widget):
-        """ """
-        widget.menu.add(
-            "QCheckBox",
-            setText="Optimize",
-            setObjectName="chk017",
-            setChecked=True,
-            setToolTip="The Optimize UV Tool evens out the spacing between UVs on a mesh, fixing areas of distortion (overlapping UVs).",
-        )
-        widget.menu.add(
-            "QCheckBox",
-            setText="Orient",
-            setObjectName="chk007",
-            setChecked=True,
-            setToolTip="Orient selected UV shells to run parallel with the most adjacent U or V axis.",
-        )
-        widget.menu.add(
-            "QCheckBox",
-            setText="Stack Similar",
-            setObjectName="chk022",
-            setChecked=True,
-            setToolTip="Stack only shells that fall within the set tolerance.",
-        )
-        widget.menu.add(
-            "QDoubleSpinBox",
-            setPrefix="Tolerance: ",
-            setObjectName="s000",
-            set_limits=[0, 10, 0.1, 1],
-            setValue=1.0,
-            setToolTip="Stack shells with uv's within the given range.",
-        )
-
-    def tb005_init(self, widget):
-        """ """
-        widget.menu.add(
-            "QSpinBox",
-            setPrefix="Angle: ",
-            setObjectName="s001",
-            set_limits=[0, 360],
-            setValue=30,
-            setToolTip="Set the maximum angle used for straightening uv's.",
-        )
-        widget.menu.add(
-            "QCheckBox",
-            setText="Straighten U",
-            setObjectName="chk018",
-            setChecked=True,
-            setToolTip="Unfold UV's along a horizonal contraint.",
-        )
-        widget.menu.add(
-            "QCheckBox",
-            setText="Straighten V",
-            setObjectName="chk019",
-            setChecked=True,
-            setToolTip="Unfold UV's along a vertical constaint.",
-        )
-        widget.menu.add(
-            "QCheckBox",
-            setText="Straighten Shell",
-            setObjectName="chk020",
-            setToolTip="Straighten a UV shell by unfolding UV's around a selected UV's edgeloop.",
-        )
-
-    def tb006_init(self, widget):
-        """ """
-        widget.menu.add(
-            "QRadioButton",
-            setText="Distribute U",
-            setObjectName="chk023",
-            setChecked=True,
-            setToolTip="Distribute along U.",
-        )
-        widget.menu.add(
-            "QRadioButton",
-            setText="Distribute V",
-            setObjectName="chk024",
-            setToolTip="Distribute along V.",
-        )
-
-    def cmb002(self, index, widget):
-        """Transform"""
-        if index > 0:
-            text = widget.items[index]
-            self.sb.parent().hide()  # hide hotbox then perform operation
-            if text == "Flip U":
-                pm.polyFlipUV(flipType=0, local=1, usePivot=1, pivotU=0, pivotV=0)
-            elif text == "Flip V":
-                pm.polyFlipUV(flipType=1, local=1, usePivot=1, pivotU=0, pivotV=0)
-            elif text == "Align U Left":
-                pm.mel.performAlignUV("minU")
-            elif text == "Align U Middle":
-                pm.mel.performAlignUV("avgU")
-            elif text == "Align U Right":
-                pm.mel.performAlignUV("maxU")
-            elif text == "Align U Top":
-                pm.mel.performAlignUV("maxV")
-            elif text == "Align U Middle":
-                pm.mel.performAlignUV("avgV")
-            elif text == "Align U Bottom":
-                pm.mel.performAlignUV("minV")
-            elif text == "Linear Align":
-                pm.mel.performLinearAlignUV()
-            widget.setCurrentIndex(0)
-
-    def chk001(self, state, widget):
-        """Auto Unwrap: Scale Mode CheckBox"""
-        if state == 0:
-            widget.menu.chk001.setText("Scale Mode 0")
-        if state == 1:
-            widget.menu.chk001.setText("Scale Mode 1")
-            self.sb.toggle_multi(widget.menu, setUnChecked="chk002-6")
-        if state == 2:
-            widget.menu.chk001.setText("Scale Mode 2")
-
-    def chk014(self, state, widget):
-        """Display: Checkered Pattern"""
-        panel = mtk.get_panel(scriptType="polyTexturePlacementPanel")
-        pm.textureWindow(panel, edit=1, displayCheckered=state)
-
-    def chk015(self, state, widget):
-        """Display: Borders"""
-        borderWidth = pm.optionVar(query="displayPolyBorderEdgeSize")[1]
-        borders = pm.polyOptions(displayMapBorder=state, sizeBorder=borderWidth)
-
-    def chk016(self, state, widget):
-        """Display: Distortion"""
-        panel = mtk.get_panel(scriptType="polyTexturePlacementPanel")
-        pm.textureWindow(panel, edit=1, displayDistortion=state)
-
-    def tb000(self, widget):
-        """Pack UVs"""
-        scale = widget.menu.s009.value()
-        rotate = widget.menu.s010.value()
-        UDIM = widget.menu.s004.value()
-        padding = widget.menu.s012.value()
-        similar = widget.menu.s011.value()
-        tolerance = widget.menu.s006.value()
-        mapSize = self.getMapSize()
-
-        U, D, I, M = [int(i) for i in str(UDIM)]  # UDIM ex. '1001'
-        shellPadding = padding * 0.000244140625
-        tilePadding = shellPadding / 2
-
-        selection = pm.ls(sl=1)
-        if not selection:
-            self.message_box(
-                "<b>Nothing selected.<b><br>The operation requires at least one selected object."
-            )
-            return
-        uvs = pm.polyListComponentConversion(selection, fromFace=True, toUV=True)
-        uvs = pm.ls(uvs, flatten=True)
-
-        pm.u3dLayout(
-            uvs,
-            resolution=mapSize,
-            shellSpacing=shellPadding,
-            tileMargin=tilePadding,
-            preScaleMode=scale,
-            preRotateMode=rotate,
-            packBox=[M - 1, D, I, U],
-        )
 
     @mtk.undo
     def tb001(self, widget):
@@ -426,6 +231,79 @@ class Uv(SlotsMaya):
             except Exception as error:
                 print(error)
 
+    def tb002_init(self, widget):
+        """Toggle UV Display Options"""
+        widget.menu.mode = "popup"
+        widget.menu.position = "bottom"
+        widget.menu.setTitle("DISPLAY OPTIONS")
+
+        panel = mtk.get_panel(scriptType="polyTexturePlacementPanel")
+        checkered_state = pm.textureWindow(panel, q=True, displayCheckered=True)
+        borders_state = True if pm.polyOptions(q=True, displayMapBorder=True) else False
+        distortion_state = pm.textureWindow(panel, q=True, displayDistortion=True)
+
+        values = [
+            ("chk014", "Checkered", checkered_state),
+            ("chk015", "Borders", borders_state),
+            ("chk016", "Distortion", distortion_state),
+        ]
+        [
+            widget.menu.add(
+                self.sb.CheckBox, setObjectName=chk, setText=typ, setChecked=state
+            )
+            for chk, typ, state in values
+        ]
+
+        widget.menu.chk014.toggled.connect(
+            lambda state: pm.textureWindow(panel, edit=True, displayCheckered=state)
+        )
+        widget.menu.chk015.toggled.connect(
+            lambda state: pm.polyOptions(displayMapBorder=state)
+        )
+        widget.menu.chk016.toggled.connect(
+            lambda state: pm.textureWindow(panel, edit=True, displayDistortion=state)
+        )
+
+    def tb003_init(self, widget):
+        """ """
+        widget.menu.add(
+            "QRadioButton",
+            setText="Back-Facing",
+            setObjectName="chk008",
+            setToolTip="Select all back-facing (using counter-clockwise winding order) components for the current selection.",
+        )
+        widget.menu.add(
+            "QRadioButton",
+            setText="Front-Facing",
+            setObjectName="chk009",
+            setToolTip="Select all front-facing (using counter-clockwise winding order) components for the current selection.",
+        )
+        widget.menu.add(
+            "QRadioButton",
+            setText="Overlapping",
+            setObjectName="chk010",
+            setToolTip="Select all components that share the same uv space.",
+        )
+        widget.menu.add(
+            "QRadioButton",
+            setText="Non-Overlapping",
+            setObjectName="chk011",
+            setToolTip="Select all components that do not share the same uv space.",
+        )
+        widget.menu.add(
+            "QRadioButton",
+            setText="Texture Borders",
+            setObjectName="chk012",
+            setToolTip="Select all components on the borders of uv shells.",
+        )
+        widget.menu.add(
+            "QRadioButton",
+            setText="Unmapped",
+            setObjectName="chk013",
+            setChecked=True,
+            setToolTip="Select unmapped faces in the current uv set.",
+        )
+
     def tb003(self, widget):
         """Select By Type"""
         back_facing = widget.menu.chk008.isChecked()
@@ -447,6 +325,38 @@ class Uv(SlotsMaya):
             pm.mel.selectUVBorderComponents({}, "", 1)
         elif unmapped:
             pm.mel.selectUnmappedFaces()
+
+    def tb004_init(self, widget):
+        """ """
+        widget.menu.add(
+            "QCheckBox",
+            setText="Optimize",
+            setObjectName="chk017",
+            setChecked=True,
+            setToolTip="The Optimize UV Tool evens out the spacing between UVs on a mesh, fixing areas of distortion (overlapping UVs).",
+        )
+        widget.menu.add(
+            "QCheckBox",
+            setText="Orient",
+            setObjectName="chk007",
+            setChecked=True,
+            setToolTip="Orient selected UV shells to run parallel with the most adjacent U or V axis.",
+        )
+        widget.menu.add(
+            "QCheckBox",
+            setText="Stack Similar",
+            setObjectName="chk022",
+            setChecked=True,
+            setToolTip="Stack only shells that fall within the set tolerance.",
+        )
+        widget.menu.add(
+            "QDoubleSpinBox",
+            setPrefix="Tolerance: ",
+            setObjectName="s000",
+            set_limits=[0, 10, 0.1, 1],
+            setValue=1.0,
+            setToolTip="Stack shells with uv's within the given range.",
+        )
 
     def tb004(self, widget):
         """Unfold"""
@@ -482,6 +392,37 @@ class Uv(SlotsMaya):
         if stackSimilar:
             pm.polyUVStackSimilarShells(tolerance=tolerance)
 
+    def tb005_init(self, widget):
+        """ """
+        widget.menu.add(
+            "QSpinBox",
+            setPrefix="Angle: ",
+            setObjectName="s001",
+            set_limits=[0, 360],
+            setValue=30,
+            setToolTip="Set the maximum angle used for straightening uv's.",
+        )
+        widget.menu.add(
+            "QCheckBox",
+            setText="Straighten U",
+            setObjectName="chk018",
+            setChecked=True,
+            setToolTip="Unfold UV's along a horizonal contraint.",
+        )
+        widget.menu.add(
+            "QCheckBox",
+            setText="Straighten V",
+            setObjectName="chk019",
+            setChecked=True,
+            setToolTip="Unfold UV's along a vertical constaint.",
+        )
+        widget.menu.add(
+            "QCheckBox",
+            setText="Straighten Shell",
+            setObjectName="chk020",
+            setToolTip="Straighten a UV shell by unfolding UV's around a selected UV's edgeloop.",
+        )
+
     def tb005(self, widget):
         """Straighten Uv"""
         u = widget.menu.chk018.isChecked()
@@ -498,6 +439,22 @@ class Uv(SlotsMaya):
 
         if straightenShell:
             pm.mel.texStraightenShell()
+
+    def tb006_init(self, widget):
+        """ """
+        widget.menu.add(
+            "QRadioButton",
+            setText="Distribute U",
+            setObjectName="chk023",
+            setChecked=True,
+            setToolTip="Distribute along U.",
+        )
+        widget.menu.add(
+            "QRadioButton",
+            setText="Distribute V",
+            setObjectName="chk024",
+            setToolTip="Distribute along V.",
+        )
 
     def tb006(self, widget):
         """Distribute"""
@@ -520,6 +477,56 @@ class Uv(SlotsMaya):
 
         for t in to:
             mtk.transfer_uvs(frm, t)
+
+    def cmb002(self, index, widget):
+        """Transform"""
+        if index > 0:
+            text = widget.items[index]
+            self.sb.parent().hide()  # hide hotbox then perform operation
+            if text == "Flip U":
+                pm.polyFlipUV(flipType=0, local=1, usePivot=1, pivotU=0, pivotV=0)
+            elif text == "Flip V":
+                pm.polyFlipUV(flipType=1, local=1, usePivot=1, pivotU=0, pivotV=0)
+            elif text == "Align U Left":
+                pm.mel.performAlignUV("minU")
+            elif text == "Align U Middle":
+                pm.mel.performAlignUV("avgU")
+            elif text == "Align U Right":
+                pm.mel.performAlignUV("maxU")
+            elif text == "Align U Top":
+                pm.mel.performAlignUV("maxV")
+            elif text == "Align U Middle":
+                pm.mel.performAlignUV("avgV")
+            elif text == "Align U Bottom":
+                pm.mel.performAlignUV("minV")
+            elif text == "Linear Align":
+                pm.mel.performLinearAlignUV()
+            widget.setCurrentIndex(0)
+
+    def chk001(self, state, widget):
+        """Auto Unwrap: Scale Mode CheckBox"""
+        if state == 0:
+            widget.menu.chk001.setText("Scale Mode 0")
+        if state == 1:
+            widget.menu.chk001.setText("Scale Mode 1")
+            self.sb.toggle_multi(widget.menu, setUnChecked="chk002-6")
+        if state == 2:
+            widget.menu.chk001.setText("Scale Mode 2")
+
+    def chk014(self, state, widget):
+        """Display: Checkered Pattern"""
+        panel = mtk.get_panel(scriptType="polyTexturePlacementPanel")
+        pm.textureWindow(panel, edit=1, displayCheckered=state)
+
+    def chk015(self, state, widget):
+        """Display: Borders"""
+        borderWidth = pm.optionVar(query="displayPolyBorderEdgeSize")[1]
+        pm.polyOptions(displayMapBorder=state, sizeBorder=borderWidth)
+
+    def chk016(self, state, widget):
+        """Display: Distortion"""
+        panel = mtk.get_panel(scriptType="polyTexturePlacementPanel")
+        pm.textureWindow(panel, edit=1, displayDistortion=state)
 
     def b001(self):
         """Create UV Snapshot"""

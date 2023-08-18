@@ -56,6 +56,39 @@ class MyProjectSlots(MyProject):
         # Set multiple connections using the Slots.connect method.
         self.sb.connect_multi(widget.menu, "chk006-9", "toggled", self.chk006_9)
 
+    def tb002_init(self, widget):
+        """Toggle UV Display Options"""
+        widget.menu.mode = "popup"
+        widget.menu.position = "bottom"
+        widget.menu.setTitle("DISPLAY OPTIONS")
+
+        panel = mtk.get_panel(scriptType="polyTexturePlacementPanel")
+        checkered_state = pm.textureWindow(panel, q=True, displayCheckered=True)
+        borders_state = True if pm.polyOptions(q=True, displayMapBorder=True) else False
+        distortion_state = pm.textureWindow(panel, q=True, displayDistortion=True)
+
+        values = [
+            ("chk014", "Checkered", checkered_state),
+            ("chk015", "Borders", borders_state),
+            ("chk016", "Distortion", distortion_state),
+        ]
+        [
+            widget.menu.add(
+                self.sb.CheckBox, setObjectName=chk, setText=typ, setChecked=state
+            )
+            for chk, typ, state in values
+        ]
+
+        widget.menu.chk014.toggled.connect(
+            lambda state: pm.textureWindow(panel, edit=True, displayCheckered=state)
+        )
+        widget.menu.chk015.toggled.connect(
+            lambda state: pm.polyOptions(displayMapBorder=state)
+        )
+        widget.menu.chk016.toggled.connect(
+            lambda state: pm.textureWindow(panel, edit=True, displayDistortion=state)
+        )
+
     # ComboBox slot example:
     def cmb000_init(self, widget):
         """Initialize the Combo Box"""

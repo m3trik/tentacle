@@ -10,7 +10,7 @@
     <x>0</x>
     <y>0</y>
     <width>147</width>
-    <height>472</height>
+    <height>479</height>
    </rect>
   </property>
   <property name="minimumSize">
@@ -371,7 +371,16 @@
           <number>0</number>
          </property>
          <item>
-          <widget class="ComboBox" name="cmb001">
+          <widget class="PushButton" name="tb002">
+           <property name="enabled">
+            <bool>true</bool>
+           </property>
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
            <property name="minimumSize">
             <size>
              <width>0</width>
@@ -385,19 +394,17 @@
             </size>
            </property>
            <property name="toolTip">
-            <string>Selection contraints.</string>
+            <string>Toggle UV display options.</string>
            </property>
-           <property name="editable">
-            <bool>false</bool>
+           <property name="text">
+            <string>Display Options</string>
            </property>
-           <property name="sizeAdjustPolicy">
-            <enum>QComboBox::AdjustToContents</enum>
+           <property name="iconSize">
+            <size>
+             <width>18</width>
+             <height>18</height>
+            </size>
            </property>
-           <item>
-            <property name="text">
-             <string>Display:</string>
-            </property>
-           </item>
           </widget>
          </item>
         </layout>
@@ -1196,7 +1203,7 @@
   <customwidget>
    <class>PushButton</class>
    <extends>QPushButton</extends>
-   <header>pushButton.h</header>
+   <header>widgets.pushbutton.h</header>
   </customwidget>
   <customwidget>
    <class>DraggableHeader</class>
