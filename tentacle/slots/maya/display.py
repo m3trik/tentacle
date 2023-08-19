@@ -76,10 +76,6 @@ class Display(SlotsMaya):
         pm.modelEditor(currentPanel, edit=1, useDefaultMaterial=not state)
         mtk.viewport_message("Default Material Override: <hl>{}</hl>.".format(state))
 
-    def b010(self):
-        """Toggle Explode Selected"""
-        mtk.ExplodedView.toggle_explode()
-
     def b011(self):
         """Toggle Component Id Display"""
         index = ptk.cycle([0, 1, 2, 3, 4], "componentID")
