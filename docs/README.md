@@ -1,13 +1,13 @@
 [![License: LGPL v3](https://img.shields.io/badge/License-LGPL%20v3-blue.svg)](https://www.gnu.org/licenses/lgpl-3.0.en.html)
 ![Version](https://img.shields.io/badge/Version-0.7.1-blue.svg)
 
-# Tentacle: A Python3/PySide2 Marking Menu and UI Toolkit
+# Tentacle: A Python3/PySide2 Marking Menu and DCC Toolkit
 
-Tentacle is a Python3/PySide2 marking menu and UI toolkit designed for Maya, 3ds Max, Blender, and any other DCC app that supports the PySide2 framework. It is a personal project and is currently a work in progress.
+Tentacle is a Python3/PySide2 marking menu implemented using Qt's QStackedWidget. It is designed for use with Maya, 3ds Max, Blender, and any other DCC app that supports the PySide2 framework. It allows easy management of various user interfaces (UIs) and provides functionality related to key events and mouse interactions. This is an ongoing personal project and is currently a work in progress. At the moment, I have stopped developing for Max and Blender and am solely focused on Maya, as it proved too much of an undertaking at this stage to support all three apps, especially since I am still somewhat in the experimental stage. However, this can be easily extended to work with those apps. If you have any questions or thoughts about that, feel like collaborating on something, or anything else, just drop me message.
 
 ## Design
 
-Tentacle is a dynamic UI toolkit with a marking menu style UI derived from a QStackedWidget. The switchboard module, derived from QUiLoader, provides properties and convenience methods that allow quick and easy getting/setting of relevant UI and widget data across modules.
+Tentacle runs on top of the [uitk](https://github.com/m3trik/uitk.git), a dynamic UI loader and management package which supports multiple UI, custom widget, and slot locations. 
 
 ## Example
 
