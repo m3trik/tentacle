@@ -63,6 +63,9 @@ class Materials(SlotsMaya):
                 setObjectName="lbl004",
                 setToolTip="Show the material attributes in the attribute editor.",
             )
+            # Initialize the widget every time before the popup is shown.
+            widget.before_popup_shown.connect(lambda: self.cmb002_init(widget))
+            # Rename the material after editing has finished.
             widget.on_editing_finished.connect(
                 lambda text: pm.rename(widget.currentData(), text)
             )

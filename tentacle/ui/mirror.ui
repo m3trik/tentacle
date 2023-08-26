@@ -9,21 +9,9 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>147</width>
-    <height>102</height>
+    <width>200</width>
+    <height>110</height>
    </rect>
-  </property>
-  <property name="minimumSize">
-   <size>
-    <width>0</width>
-    <height>0</height>
-   </size>
-  </property>
-  <property name="maximumSize">
-   <size>
-    <width>999</width>
-    <height>999</height>
-   </size>
   </property>
   <property name="font">
    <font>
@@ -43,6 +31,12 @@
    <set>QMainWindow::AllowNestedDocks|QMainWindow::AllowTabbedDocks|QMainWindow::AnimatedDocks|QMainWindow::ForceTabbedDocks</set>
   </property>
   <widget class="QWidget" name="central_widget">
+   <property name="minimumSize">
+    <size>
+     <width>200</width>
+     <height>0</height>
+    </size>
+   </property>
    <layout class="QVBoxLayout" name="verticalLayout_3">
     <item>
      <layout class="QVBoxLayout" name="verticalLayout">
@@ -50,17 +44,11 @@
        <number>0</number>
       </property>
       <item>
-       <widget class="DraggableHeader" name="draggableHeader">
+       <widget class="Header" name="header">
         <property name="minimumSize">
          <size>
           <width>0</width>
-          <height>22</height>
-         </size>
-        </property>
-        <property name="maximumSize">
-         <size>
-          <width>125</width>
-          <height>22</height>
+          <height>20</height>
          </size>
         </property>
         <property name="font">
@@ -76,18 +64,6 @@
       </item>
       <item>
        <widget class="QGroupBox" name="group000">
-        <property name="minimumSize">
-         <size>
-          <width>125</width>
-          <height>0</height>
-         </size>
-        </property>
-        <property name="maximumSize">
-         <size>
-          <width>125</width>
-          <height>999</height>
-         </size>
-        </property>
         <property name="title">
          <string>Mirror</string>
         </property>
@@ -117,7 +93,7 @@
            </property>
            <property name="maximumSize">
             <size>
-             <width>999</width>
+             <width>16777215</width>
              <height>20</height>
             </size>
            </property>
@@ -158,14 +134,14 @@
  </widget>
  <customwidgets>
   <customwidget>
+   <class>Header</class>
+   <extends>QLabel</extends>
+   <header>uitk.widgets.header.Header.h</header>
+  </customwidget>
+  <customwidget>
    <class>PushButton</class>
    <extends>QPushButton</extends>
    <header>widgets.pushbutton.h</header>
-  </customwidget>
-  <customwidget>
-   <class>DraggableHeader</class>
-   <extends>QLabel</extends>
-   <header>draggableHeader.h</header>
   </customwidget>
  </customwidgets>
  <resources/>

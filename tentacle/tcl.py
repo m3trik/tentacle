@@ -119,6 +119,7 @@ class Tcl(QtWidgets.QStackedWidget):
             ui.setWindowFlags(QtCore.Qt.Tool | QtCore.Qt.FramelessWindowHint)
             ui.setAttribute(QtCore.Qt.WA_TranslucentBackground)
             ui.set_style(theme="dark", style_class="translucentBgWithBorder")
+            ui.header.configureButtons(menu_button=True, pin_button=True)
             self.key_show_release.connect(ui.hide)
 
         # set style before child init (resize).
@@ -338,7 +339,7 @@ class Tcl(QtWidgets.QStackedWidget):
         ]
 
         for w in ptk.make_iterable(widgets):
-            if (w.derived_type not in filtered_types) or (  # not correct type.
+            if (w.derived_type not in filtered_types) or (  # not correct derived type:
                 not w.ui.has_tag("startmenu|submenu")  # not stacked UI:
             ):
                 continue

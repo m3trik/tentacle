@@ -9,24 +9,9 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>147</width>
-    <height>345</height>
+    <width>200</width>
+    <height>334</height>
    </rect>
-  </property>
-  <property name="minimumSize">
-   <size>
-    <width>0</width>
-    <height>0</height>
-   </size>
-  </property>
-  <property name="maximumSize">
-   <size>
-    <width>999</width>
-    <height>999</height>
-   </size>
-  </property>
-  <property name="windowTitle">
-   <string>Toolkit</string>
   </property>
   <property name="tabShape">
    <enum>QTabWidget::Triangular</enum>
@@ -38,6 +23,12 @@
    <set>QMainWindow::AllowNestedDocks|QMainWindow::AllowTabbedDocks|QMainWindow::AnimatedDocks|QMainWindow::ForceTabbedDocks</set>
   </property>
   <widget class="QWidget" name="central_widget">
+   <property name="minimumSize">
+    <size>
+     <width>200</width>
+     <height>0</height>
+    </size>
+   </property>
    <layout class="QVBoxLayout" name="verticalLayout_2">
     <item>
      <layout class="QVBoxLayout" name="verticalLayout">
@@ -45,17 +36,17 @@
        <number>0</number>
       </property>
       <item>
-       <widget class="DraggableHeader" name="draggableHeader">
+       <widget class="Header" name="header">
         <property name="minimumSize">
          <size>
           <width>0</width>
-          <height>22</height>
+          <height>20</height>
          </size>
         </property>
         <property name="maximumSize">
          <size>
-          <width>125</width>
-          <height>22</height>
+          <width>16777215</width>
+          <height>20</height>
          </size>
         </property>
         <property name="font">
@@ -71,18 +62,6 @@
       </item>
       <item>
        <widget class="QGroupBox" name="face">
-        <property name="minimumSize">
-         <size>
-          <width>125</width>
-          <height>0</height>
-         </size>
-        </property>
-        <property name="maximumSize">
-         <size>
-          <width>125</width>
-          <height>999</height>
-         </size>
-        </property>
         <property name="title">
          <string>Face</string>
         </property>
@@ -99,10 +78,7 @@
          <property name="bottomMargin">
           <number>0</number>
          </property>
-         <property name="horizontalSpacing">
-          <number>0</number>
-         </property>
-         <property name="verticalSpacing">
+         <property name="spacing">
           <number>1</number>
          </property>
          <item row="6" column="0" colspan="3">
@@ -118,7 +94,7 @@
            </property>
            <property name="maximumSize">
             <size>
-             <width>999</width>
+             <width>16777215</width>
              <height>20</height>
             </size>
            </property>
@@ -149,7 +125,7 @@
            </property>
            <property name="maximumSize">
             <size>
-             <width>999</width>
+             <width>16777215</width>
              <height>20</height>
             </size>
            </property>
@@ -180,7 +156,7 @@
            </property>
            <property name="maximumSize">
             <size>
-             <width>999</width>
+             <width>16777215</width>
              <height>20</height>
             </size>
            </property>
@@ -211,7 +187,7 @@
            </property>
            <property name="maximumSize">
             <size>
-             <width>999</width>
+             <width>16777215</width>
              <height>20</height>
             </size>
            </property>
@@ -234,18 +210,6 @@
       </item>
       <item>
        <widget class="QGroupBox" name="edge">
-        <property name="minimumSize">
-         <size>
-          <width>125</width>
-          <height>0</height>
-         </size>
-        </property>
-        <property name="maximumSize">
-         <size>
-          <width>125</width>
-          <height>999</height>
-         </size>
-        </property>
         <property name="title">
          <string>Edge</string>
         </property>
@@ -278,7 +242,7 @@
            </property>
            <property name="maximumSize">
             <size>
-             <width>999</width>
+             <width>16777215</width>
              <height>20</height>
             </size>
            </property>
@@ -309,7 +273,7 @@
            </property>
            <property name="maximumSize">
             <size>
-             <width>999</width>
+             <width>16777215</width>
              <height>20</height>
             </size>
            </property>
@@ -332,18 +296,6 @@
       </item>
       <item>
        <widget class="QGroupBox" name="display">
-        <property name="minimumSize">
-         <size>
-          <width>125</width>
-          <height>0</height>
-         </size>
-        </property>
-        <property name="maximumSize">
-         <size>
-          <width>125</width>
-          <height>999</height>
-         </size>
-        </property>
         <property name="title">
          <string>Display</string>
         </property>
@@ -376,7 +328,7 @@
            </property>
            <property name="maximumSize">
             <size>
-             <width>999</width>
+             <width>16777215</width>
              <height>20</height>
             </size>
            </property>
@@ -407,7 +359,7 @@
            </property>
            <property name="maximumSize">
             <size>
-             <width>999</width>
+             <width>16777215</width>
              <height>20</height>
             </size>
            </property>
@@ -438,7 +390,7 @@
            </property>
            <property name="maximumSize">
             <size>
-             <width>999</width>
+             <width>16777215</width>
              <height>20</height>
             </size>
            </property>
@@ -461,18 +413,6 @@
       </item>
       <item>
        <widget class="QGroupBox" name="transfer">
-        <property name="minimumSize">
-         <size>
-          <width>125</width>
-          <height>0</height>
-         </size>
-        </property>
-        <property name="maximumSize">
-         <size>
-          <width>125</width>
-          <height>999</height>
-         </size>
-        </property>
         <property name="title">
          <string>Transfer</string>
         </property>
@@ -505,7 +445,7 @@
            </property>
            <property name="maximumSize">
             <size>
-             <width>999</width>
+             <width>16777215</width>
              <height>20</height>
             </size>
            </property>
@@ -546,14 +486,14 @@
  </widget>
  <customwidgets>
   <customwidget>
+   <class>Header</class>
+   <extends>QLabel</extends>
+   <header>uitk.widgets.header.Header.h</header>
+  </customwidget>
+  <customwidget>
    <class>PushButton</class>
    <extends>QPushButton</extends>
    <header>widgets.pushbutton.h</header>
-  </customwidget>
-  <customwidget>
-   <class>DraggableHeader</class>
-   <extends>QLabel</extends>
-   <header>draggableHeader.h</header>
   </customwidget>
  </customwidgets>
  <resources/>

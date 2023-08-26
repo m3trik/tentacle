@@ -9,21 +9,9 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>147</width>
-    <height>254</height>
+    <width>200</width>
+    <height>255</height>
    </rect>
-  </property>
-  <property name="minimumSize">
-   <size>
-    <width>0</width>
-    <height>0</height>
-   </size>
-  </property>
-  <property name="maximumSize">
-   <size>
-    <width>999</width>
-    <height>999</height>
-   </size>
   </property>
   <property name="windowTitle">
    <string>Toolkit</string>
@@ -38,6 +26,12 @@
    <set>QMainWindow::AllowNestedDocks|QMainWindow::AllowTabbedDocks|QMainWindow::AnimatedDocks|QMainWindow::ForceTabbedDocks</set>
   </property>
   <widget class="QWidget" name="central_widget">
+   <property name="minimumSize">
+    <size>
+     <width>200</width>
+     <height>0</height>
+    </size>
+   </property>
    <layout class="QVBoxLayout" name="verticalLayout_2">
     <item>
      <layout class="QVBoxLayout" name="verticalLayout">
@@ -45,17 +39,11 @@
        <number>0</number>
       </property>
       <item>
-       <widget class="DraggableHeader" name="draggableHeader">
+       <widget class="Header" name="header">
         <property name="minimumSize">
          <size>
           <width>0</width>
-          <height>22</height>
-         </size>
-        </property>
-        <property name="maximumSize">
-         <size>
-          <width>125</width>
-          <height>22</height>
+          <height>20</height>
          </size>
         </property>
         <property name="font">
@@ -71,18 +59,6 @@
       </item>
       <item>
        <widget class="QGroupBox" name="app">
-        <property name="minimumSize">
-         <size>
-          <width>125</width>
-          <height>0</height>
-         </size>
-        </property>
-        <property name="maximumSize">
-         <size>
-          <width>125</width>
-          <height>999</height>
-         </size>
-        </property>
         <property name="title">
          <string>App</string>
         </property>
@@ -112,7 +88,7 @@
            </property>
            <property name="maximumSize">
             <size>
-             <width>999</width>
+             <width>16777215</width>
              <height>20</height>
             </size>
            </property>
@@ -131,7 +107,7 @@
            </property>
            <property name="maximumSize">
             <size>
-             <width>999</width>
+             <width>16777215</width>
              <height>20</height>
             </size>
            </property>
@@ -150,7 +126,7 @@
            </property>
            <property name="maximumSize">
             <size>
-             <width>999</width>
+             <width>16777215</width>
              <height>20</height>
             </size>
            </property>
@@ -172,7 +148,7 @@
            </property>
            <property name="maximumSize">
             <size>
-             <width>999</width>
+             <width>16777215</width>
              <height>20</height>
             </size>
            </property>
@@ -184,106 +160,94 @@
            </property>
           </widget>
          </item>
+        </layout>
+       </widget>
+      </item>
+      <item>
+       <widget class="QGroupBox" name="units">
+        <property name="title">
+         <string>Working Units</string>
+        </property>
+        <layout class="QVBoxLayout" name="verticalLayout_4">
+         <property name="spacing">
+          <number>1</number>
+         </property>
+         <property name="leftMargin">
+          <number>0</number>
+         </property>
+         <property name="topMargin">
+          <number>0</number>
+         </property>
+         <property name="rightMargin">
+          <number>0</number>
+         </property>
+         <property name="bottomMargin">
+          <number>0</number>
+         </property>
          <item>
-          <widget class="QGroupBox" name="units">
+          <widget class="ComboBox" name="cmb001">
            <property name="minimumSize">
             <size>
-             <width>125</width>
-             <height>56</height>
+             <width>0</width>
+             <height>20</height>
             </size>
            </property>
            <property name="maximumSize">
             <size>
-             <width>125</width>
-             <height>999</height>
+             <width>16777215</width>
+             <height>20</height>
             </size>
            </property>
-           <property name="title">
-            <string>Working Units</string>
+           <property name="toolTip">
+            <string>Set working units: Linear</string>
            </property>
-           <layout class="QVBoxLayout" name="verticalLayout_4">
-            <property name="spacing">
-             <number>0</number>
+           <property name="maxCount">
+            <number>999</number>
+           </property>
+           <property name="sizeAdjustPolicy">
+            <enum>QComboBox::AdjustToContents</enum>
+           </property>
+           <property name="frame">
+            <bool>false</bool>
+           </property>
+           <item>
+            <property name="text">
+             <string>Linear</string>
             </property>
-            <property name="leftMargin">
-             <number>0</number>
+           </item>
+          </widget>
+         </item>
+         <item>
+          <widget class="ComboBox" name="cmb002">
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>20</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>16777215</width>
+             <height>20</height>
+            </size>
+           </property>
+           <property name="toolTip">
+            <string>Set working units: Time</string>
+           </property>
+           <property name="maxCount">
+            <number>999</number>
+           </property>
+           <property name="sizeAdjustPolicy">
+            <enum>QComboBox::AdjustToContents</enum>
+           </property>
+           <property name="frame">
+            <bool>false</bool>
+           </property>
+           <item>
+            <property name="text">
+             <string>Time</string>
             </property>
-            <property name="topMargin">
-             <number>0</number>
-            </property>
-            <property name="rightMargin">
-             <number>0</number>
-            </property>
-            <property name="bottomMargin">
-             <number>0</number>
-            </property>
-            <item>
-             <widget class="ComboBox" name="cmb001">
-              <property name="minimumSize">
-               <size>
-                <width>0</width>
-                <height>20</height>
-               </size>
-              </property>
-              <property name="maximumSize">
-               <size>
-                <width>999</width>
-                <height>20</height>
-               </size>
-              </property>
-              <property name="toolTip">
-               <string>Set working units: Linear</string>
-              </property>
-              <property name="maxCount">
-               <number>999</number>
-              </property>
-              <property name="sizeAdjustPolicy">
-               <enum>QComboBox::AdjustToContents</enum>
-              </property>
-              <property name="frame">
-               <bool>false</bool>
-              </property>
-              <item>
-               <property name="text">
-                <string>Linear</string>
-               </property>
-              </item>
-             </widget>
-            </item>
-            <item>
-             <widget class="ComboBox" name="cmb002">
-              <property name="minimumSize">
-               <size>
-                <width>0</width>
-                <height>20</height>
-               </size>
-              </property>
-              <property name="maximumSize">
-               <size>
-                <width>999</width>
-                <height>20</height>
-               </size>
-              </property>
-              <property name="toolTip">
-               <string>Set working units: Time</string>
-              </property>
-              <property name="maxCount">
-               <number>999</number>
-              </property>
-              <property name="sizeAdjustPolicy">
-               <enum>QComboBox::AdjustToContents</enum>
-              </property>
-              <property name="frame">
-               <bool>false</bool>
-              </property>
-              <item>
-               <property name="text">
-                <string>Time</string>
-               </property>
-              </item>
-             </widget>
-            </item>
-           </layout>
+           </item>
           </widget>
          </item>
         </layout>
@@ -291,18 +255,6 @@
       </item>
       <item>
        <widget class="QGroupBox" name="ui">
-        <property name="minimumSize">
-         <size>
-          <width>125</width>
-          <height>0</height>
-         </size>
-        </property>
-        <property name="maximumSize">
-         <size>
-          <width>125</width>
-          <height>999</height>
-         </size>
-        </property>
         <property name="title">
          <string>UI</string>
         </property>
@@ -332,7 +284,7 @@
            </property>
            <property name="maximumSize">
             <size>
-             <width>999</width>
+             <width>16777215</width>
              <height>20</height>
             </size>
            </property>
@@ -378,14 +330,14 @@
  </widget>
  <customwidgets>
   <customwidget>
-   <class>DraggableHeader</class>
+   <class>Header</class>
    <extends>QLabel</extends>
-   <header>draggableHeader.h</header>
+   <header>uitk.widgets.header.Header.h</header>
   </customwidget>
   <customwidget>
    <class>ComboBox</class>
    <extends>QComboBox</extends>
-   <header>widgets.combobox.h</header>
+   <header>uitk.widgets.comboBox.ComboBox.h</header>
   </customwidget>
  </customwidgets>
  <resources/>

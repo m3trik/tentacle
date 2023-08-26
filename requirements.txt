@@ -1,8 +1,9 @@
 numpy
 Pillow
 pymel
-PySide2==5.15.2
-shiboken2==5.15.2
+PySide2
+shiboken2
 
 pythontk
 mayatk
+uitk
