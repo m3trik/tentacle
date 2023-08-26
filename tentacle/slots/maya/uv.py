@@ -17,14 +17,14 @@ class Uv(SlotsMaya):
         # get the map size from the combobox as an int. ie. 2048
         self.getMapSize = lambda: int(self.sb.uv.cmb003.currentText())
 
-    def draggableHeader_init(self, widget):
+    def header_init(self, widget):
         """ """
-        # widget.menu.add(
-        #     "QPushButton",
-        #     setText="Create UV Snapshot",
-        #     setObjectName="b001",
-        #     setToolTip="Save an image file of the current UV layout.",
-        # )
+        widget.menu.add(
+            "QPushButton",
+            setText="Create UV Snapshot",
+            setObjectName="b001",
+            setToolTip="Save an image file of the current UV layout.",
+        )
 
     def cmb002_init(self, widget):
         """ """
@@ -110,7 +110,7 @@ class Uv(SlotsMaya):
 
         selection = pm.ls(sl=1)
         if not selection:
-            self.message_box(
+            self.sb.message_box(
                 "<b>Nothing selected.<b><br>The operation requires at least one selected object."
             )
             return

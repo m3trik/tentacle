@@ -14,6 +14,7 @@ class Mirror(SlotsMaya):
 
     def tb000_init(self, widget):
         """ """
+        widget.menu.setTitle("MIRROR")
         widget.menu.add(
             "QCheckBox",
             setText="-",

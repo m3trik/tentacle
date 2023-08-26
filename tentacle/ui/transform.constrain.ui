@@ -6,18 +6,9 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>147</width>
-    <height>120</height>
+    <width>200</width>
+    <height>116</height>
    </rect>
-  </property>
-  <property name="maximumSize">
-   <size>
-    <width>999</width>
-    <height>999</height>
-   </size>
-  </property>
-  <property name="windowTitle">
-   <string>Toolkit</string>
   </property>
   <property name="tabShape">
    <enum>QTabWidget::Triangular</enum>
@@ -31,7 +22,13 @@
   <property name="bnabled" stdset="0">
    <bool>true</bool>
   </property>
-  <widget class="QWidget" name="mainWindow">
+  <widget class="QWidget" name="central_widget">
+   <property name="minimumSize">
+    <size>
+     <width>200</width>
+     <height>0</height>
+    </size>
+   </property>
    <property name="palette">
     <palette>
      <active>
@@ -76,17 +73,11 @@
        <number>0</number>
       </property>
       <item>
-       <widget class="DraggableHeader" name="draggableHeader">
+       <widget class="Header" name="header">
         <property name="minimumSize">
          <size>
           <width>0</width>
-          <height>22</height>
-         </size>
-        </property>
-        <property name="maximumSize">
-         <size>
-          <width>125</width>
-          <height>22</height>
+          <height>20</height>
          </size>
         </property>
         <property name="font">
@@ -102,18 +93,6 @@
       </item>
       <item>
        <widget class="QGroupBox" name="duplicate">
-        <property name="minimumSize">
-         <size>
-          <width>125</width>
-          <height>0</height>
-         </size>
-        </property>
-        <property name="maximumSize">
-         <size>
-          <width>125</width>
-          <height>999</height>
-         </size>
-        </property>
         <property name="title">
          <string>Snap</string>
         </property>
@@ -135,12 +114,6 @@
          </property>
          <item row="1" column="0" colspan="3">
           <widget class="QDoubleSpinBox" name="s002">
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
            <property name="minimumSize">
             <size>
              <width>0</width>
@@ -149,7 +122,7 @@
            </property>
            <property name="maximumSize">
             <size>
-             <width>999</width>
+             <width>16777215</width>
              <height>20</height>
             </size>
            </property>
@@ -189,7 +162,7 @@
            </property>
            <property name="maximumSize">
             <size>
-             <width>999</width>
+             <width>16777215</width>
              <height>20</height>
             </size>
            </property>
@@ -245,9 +218,9 @@
  </widget>
  <customwidgets>
   <customwidget>
-   <class>DraggableHeader</class>
+   <class>Header</class>
    <extends>QLabel</extends>
-   <header>draggableHeader.h</header>
+   <header>uitk.widgets.header.Header.h</header>
   </customwidget>
  </customwidgets>
  <resources/>
