@@ -10,7 +10,7 @@
     <x>0</x>
     <y>0</y>
     <width>200</width>
-    <height>171</height>
+    <height>148</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -81,7 +81,32 @@
          <property name="spacing">
           <number>1</number>
          </property>
-         <item row="2" column="0" colspan="3">
+         <item row="11" column="0" colspan="4">
+          <widget class="PushButton" name="b005">
+           <property name="enabled">
+            <bool>true</bool>
+           </property>
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>20</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>16777215</width>
+             <height>20</height>
+            </size>
+           </property>
+           <property name="toolTip">
+            <string>Assign the current material to any selected object(s).</string>
+           </property>
+           <property name="text">
+            <string>Assign Current</string>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="0" colspan="4">
           <widget class="ComboBox" name="cmb002">
            <property name="minimumSize">
             <size>
@@ -117,57 +142,7 @@
            </item>
           </widget>
          </item>
-         <item row="8" column="0">
-          <widget class="QPushButton" name="b002">
-           <property name="enabled">
-            <bool>true</bool>
-           </property>
-           <property name="minimumSize">
-            <size>
-             <width>0</width>
-             <height>20</height>
-            </size>
-           </property>
-           <property name="maximumSize">
-            <size>
-             <width>16777215</width>
-             <height>20</height>
-            </size>
-           </property>
-           <property name="toolTip">
-            <string>Set material shader ID from selection.</string>
-           </property>
-           <property name="text">
-            <string>Get</string>
-           </property>
-          </widget>
-         </item>
-         <item row="10" column="0" colspan="3">
-          <widget class="PushButton" name="b004">
-           <property name="enabled">
-            <bool>true</bool>
-           </property>
-           <property name="minimumSize">
-            <size>
-             <width>0</width>
-             <height>20</height>
-            </size>
-           </property>
-           <property name="maximumSize">
-            <size>
-             <width>16777215</width>
-             <height>20</height>
-            </size>
-           </property>
-           <property name="toolTip">
-            <string>Assign a new random material to any selected object(s).</string>
-           </property>
-           <property name="text">
-            <string>Assign Random</string>
-           </property>
-          </widget>
-         </item>
-         <item row="8" column="1" colspan="2">
+         <item row="8" column="2" colspan="2">
           <widget class="PushButton" name="tb000">
            <property name="enabled">
             <bool>true</bool>
@@ -192,7 +167,32 @@
            </property>
           </widget>
          </item>
-         <item row="9" column="0" colspan="3">
+         <item row="8" column="0" colspan="2">
+          <widget class="QPushButton" name="b002">
+           <property name="enabled">
+            <bool>true</bool>
+           </property>
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>20</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>16777215</width>
+             <height>20</height>
+            </size>
+           </property>
+           <property name="toolTip">
+            <string>Set material shader ID from selection.</string>
+           </property>
+           <property name="text">
+            <string>Get</string>
+           </property>
+          </widget>
+         </item>
+         <item row="12" column="0" colspan="2">
           <widget class="ComboBox" name="cmb000">
            <property name="minimumSize">
             <size>
@@ -228,8 +228,8 @@
            </item>
           </widget>
          </item>
-         <item row="11" column="0" colspan="3">
-          <widget class="PushButton" name="b005">
+         <item row="12" column="2" colspan="2">
+          <widget class="PushButton" name="b004">
            <property name="enabled">
             <bool>true</bool>
            </property>
@@ -246,10 +246,10 @@
             </size>
            </property>
            <property name="toolTip">
-            <string>Assign the current material to any selected object(s).</string>
+            <string>Assign a new random material to any selected object(s).</string>
            </property>
            <property name="text">
-            <string>Assign Current</string>
+            <string>Assign Random</string>
            </property>
           </widget>
          </item>
@@ -276,6 +276,11 @@
  </widget>
  <customwidgets>
   <customwidget>
+   <class>PushButton</class>
+   <extends>QPushButton</extends>
+   <header>uitk.widgets.pushbutton.PushButton.h</header>
+  </customwidget>
+  <customwidget>
    <class>Header</class>
    <extends>QLabel</extends>
    <header>uitk.widgets.header.Header.h</header>
@@ -284,11 +289,6 @@
    <class>ComboBox</class>
    <extends>QComboBox</extends>
    <header>uitk.widgets.comboBox.ComboBox.h</header>
-  </customwidget>
-  <customwidget>
-   <class>PushButton</class>
-   <extends>QPushButton</extends>
-   <header>widgets.pushbutton.h</header>
   </customwidget>
  </customwidgets>
  <resources/>

@@ -312,7 +312,7 @@
           </widget>
          </item>
          <item>
-          <widget class="QPushButton" name="b049">
+          <widget class="QPushButton" name="b051">
            <property name="enabled">
             <bool>true</bool>
            </property>
@@ -329,25 +329,16 @@
             </size>
            </property>
            <property name="toolTip">
-            <string>Slide edge loops or paths along their neighboring edges</string>
+            <string>Offset edge loop tool</string>
            </property>
            <property name="text">
-            <string>Slide</string>
+            <string>Offset Edgeloop</string>
            </property>
            <property name="iconSize">
             <size>
              <width>18</width>
              <height>18</height>
             </size>
-           </property>
-           <property name="autoDefault">
-            <bool>false</bool>
-           </property>
-           <property name="default">
-            <bool>false</bool>
-           </property>
-           <property name="flat">
-            <bool>false</bool>
            </property>
            <property name="balette" stdset="0">
             <palette>
@@ -389,7 +380,7 @@
           </widget>
          </item>
          <item>
-          <widget class="QPushButton" name="b051">
+          <widget class="QPushButton" name="b049">
            <property name="enabled">
             <bool>true</bool>
            </property>
@@ -406,16 +397,25 @@
             </size>
            </property>
            <property name="toolTip">
-            <string>Offset edge loop tool</string>
+            <string>Slide edge loops or paths along their neighboring edges</string>
            </property>
            <property name="text">
-            <string>Offset Edgeloop</string>
+            <string>Slide</string>
            </property>
            <property name="iconSize">
             <size>
              <width>18</width>
              <height>18</height>
             </size>
+           </property>
+           <property name="autoDefault">
+            <bool>false</bool>
+           </property>
+           <property name="default">
+            <bool>false</bool>
+           </property>
+           <property name="flat">
+            <bool>false</bool>
            </property>
            <property name="balette" stdset="0">
             <palette>
@@ -773,7 +773,7 @@
          <property name="spacing">
           <number>1</number>
          </property>
-         <item row="0" column="0" colspan="2">
+         <item row="1" column="0" colspan="2">
           <widget class="PushButton" name="tb003">
            <property name="enabled">
             <bool>true</bool>
@@ -804,109 +804,7 @@
            </property>
           </widget>
          </item>
-         <item row="6" column="0" colspan="2">
-          <widget class="QPushButton" name="b009">
-           <property name="enabled">
-            <bool>true</bool>
-           </property>
-           <property name="minimumSize">
-            <size>
-             <width>0</width>
-             <height>20</height>
-            </size>
-           </property>
-           <property name="maximumSize">
-            <size>
-             <width>16777215</width>
-             <height>20</height>
-            </size>
-           </property>
-           <property name="toolTip">
-            <string>Collapse the selected edges or faces</string>
-           </property>
-           <property name="text">
-            <string>Collapse</string>
-           </property>
-           <property name="iconSize">
-            <size>
-             <width>18</width>
-             <height>18</height>
-            </size>
-           </property>
-           <property name="autoDefault">
-            <bool>false</bool>
-           </property>
-           <property name="default">
-            <bool>false</bool>
-           </property>
-           <property name="flat">
-            <bool>false</bool>
-           </property>
-          </widget>
-         </item>
-         <item row="2" column="0" colspan="2">
-          <widget class="PushButton" name="tb001">
-           <property name="enabled">
-            <bool>true</bool>
-           </property>
-           <property name="minimumSize">
-            <size>
-             <width>0</width>
-             <height>20</height>
-            </size>
-           </property>
-           <property name="maximumSize">
-            <size>
-             <width>16777215</width>
-             <height>20</height>
-            </size>
-           </property>
-           <property name="toolTip">
-            <string>Create a bridge between two sets of edges or faces</string>
-           </property>
-           <property name="text">
-            <string>Bridge</string>
-           </property>
-           <property name="iconSize">
-            <size>
-             <width>18</width>
-             <height>18</height>
-            </size>
-           </property>
-          </widget>
-         </item>
-         <item row="1" column="0" colspan="2">
-          <widget class="PushButton" name="tb004">
-           <property name="enabled">
-            <bool>true</bool>
-           </property>
-           <property name="minimumSize">
-            <size>
-             <width>0</width>
-             <height>20</height>
-            </size>
-           </property>
-           <property name="maximumSize">
-            <size>
-             <width>16777215</width>
-             <height>20</height>
-            </size>
-           </property>
-           <property name="toolTip">
-            <string>Bevel modifier</string>
-           </property>
-           <property name="text">
-            <string>Bevel</string>
-           </property>
-           <property name="iconSize">
-            <size>
-             <width>18</width>
-             <height>18</height>
-            </size>
-           </property>
-          </widget>
-         </item>
-         <item row="3" column="0" colspan="2">
+         <item row="5" column="0" colspan="2">
           <widget class="QPushButton" name="b000">
            <property name="enabled">
             <bool>true</bool>
@@ -974,7 +872,38 @@
            </property>
           </widget>
          </item>
-         <item row="4" column="0" colspan="2">
+         <item row="3" column="0" colspan="2">
+          <widget class="PushButton" name="tb004">
+           <property name="enabled">
+            <bool>true</bool>
+           </property>
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>20</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>16777215</width>
+             <height>20</height>
+            </size>
+           </property>
+           <property name="toolTip">
+            <string>Bevel modifier</string>
+           </property>
+           <property name="text">
+            <string>Bevel</string>
+           </property>
+           <property name="iconSize">
+            <size>
+             <width>18</width>
+             <height>18</height>
+            </size>
+           </property>
+          </widget>
+         </item>
+         <item row="6" column="0" colspan="2">
           <widget class="QPushButton" name="b003">
            <property name="enabled">
             <bool>true</bool>
@@ -1042,115 +971,7 @@
            </property>
           </widget>
          </item>
-         <item row="10" column="0" colspan="2">
-          <widget class="QPushButton" name="b012">
-           <property name="enabled">
-            <bool>true</bool>
-           </property>
-           <property name="minimumSize">
-            <size>
-             <width>0</width>
-             <height>20</height>
-            </size>
-           </property>
-           <property name="maximumSize">
-            <size>
-             <width>16777215</width>
-             <height>20</height>
-            </size>
-           </property>
-           <property name="toolTip">
-            <string>Divide faces by splitting cutting and inserting edge loops</string>
-           </property>
-           <property name="text">
-            <string>Multi-Cut</string>
-           </property>
-           <property name="iconSize">
-            <size>
-             <width>18</width>
-             <height>18</height>
-            </size>
-           </property>
-           <property name="balette" stdset="0">
-            <palette>
-             <active>
-              <colorrole role="Highlight">
-               <brush brushstyle="SolidPattern">
-                <color alpha="255">
-                 <red>168</red>
-                 <green>152</green>
-                 <blue>250</blue>
-                </color>
-               </brush>
-              </colorrole>
-             </active>
-             <inactive>
-              <colorrole role="Highlight">
-               <brush brushstyle="SolidPattern">
-                <color alpha="255">
-                 <red>168</red>
-                 <green>152</green>
-                 <blue>250</blue>
-                </color>
-               </brush>
-              </colorrole>
-             </inactive>
-             <disabled>
-              <colorrole role="Highlight">
-               <brush brushstyle="SolidPattern">
-                <color alpha="255">
-                 <red>0</red>
-                 <green>120</green>
-                 <blue>215</blue>
-                </color>
-               </brush>
-              </colorrole>
-             </disabled>
-            </palette>
-           </property>
-          </widget>
-         </item>
-         <item row="9" column="1">
-          <widget class="QPushButton" name="b046">
-           <property name="enabled">
-            <bool>true</bool>
-           </property>
-           <property name="minimumSize">
-            <size>
-             <width>0</width>
-             <height>20</height>
-            </size>
-           </property>
-           <property name="maximumSize">
-            <size>
-             <width>16777215</width>
-             <height>20</height>
-            </size>
-           </property>
-           <property name="toolTip">
-            <string>Split selected components resulting in a edge ring around them</string>
-           </property>
-           <property name="text">
-            <string>Split</string>
-           </property>
-           <property name="iconSize">
-            <size>
-             <width>18</width>
-             <height>18</height>
-            </size>
-           </property>
-           <property name="autoDefault">
-            <bool>false</bool>
-           </property>
-           <property name="default">
-            <bool>false</bool>
-           </property>
-           <property name="flat">
-            <bool>false</bool>
-           </property>
-          </widget>
-         </item>
-         <item row="9" column="0">
+         <item row="11" column="0">
           <widget class="QPushButton" name="b032">
            <property name="enabled">
             <bool>true</bool>
@@ -1218,7 +1039,7 @@
            </property>
           </widget>
          </item>
-         <item row="7" column="0">
+         <item row="9" column="0">
           <widget class="QPushButton" name="b022">
            <property name="enabled">
             <bool>true</bool>
@@ -1249,7 +1070,47 @@
            </property>
           </widget>
          </item>
-         <item row="7" column="1">
+         <item row="11" column="1">
+          <widget class="QPushButton" name="b046">
+           <property name="enabled">
+            <bool>true</bool>
+           </property>
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>20</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>16777215</width>
+             <height>20</height>
+            </size>
+           </property>
+           <property name="toolTip">
+            <string>Split selected components resulting in a edge ring around them</string>
+           </property>
+           <property name="text">
+            <string>Split</string>
+           </property>
+           <property name="iconSize">
+            <size>
+             <width>18</width>
+             <height>18</height>
+            </size>
+           </property>
+           <property name="autoDefault">
+            <bool>false</bool>
+           </property>
+           <property name="default">
+            <bool>false</bool>
+           </property>
+           <property name="flat">
+            <bool>false</bool>
+           </property>
+          </widget>
+         </item>
+         <item row="9" column="1">
           <widget class="PushButton" name="tb005">
            <property name="enabled">
             <bool>true</bool>
@@ -1280,6 +1141,145 @@
            </property>
           </widget>
          </item>
+         <item row="2" column="0" colspan="2">
+          <widget class="PushButton" name="tb001">
+           <property name="enabled">
+            <bool>true</bool>
+           </property>
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>20</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>16777215</width>
+             <height>20</height>
+            </size>
+           </property>
+           <property name="toolTip">
+            <string>Create a bridge between two sets of edges or faces</string>
+           </property>
+           <property name="text">
+            <string>Bridge</string>
+           </property>
+           <property name="iconSize">
+            <size>
+             <width>18</width>
+             <height>18</height>
+            </size>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="0" colspan="2">
+          <widget class="QPushButton" name="b012">
+           <property name="enabled">
+            <bool>true</bool>
+           </property>
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>20</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>16777215</width>
+             <height>20</height>
+            </size>
+           </property>
+           <property name="toolTip">
+            <string>Divide faces by splitting cutting and inserting edge loops</string>
+           </property>
+           <property name="text">
+            <string>Multi-Cut</string>
+           </property>
+           <property name="iconSize">
+            <size>
+             <width>18</width>
+             <height>18</height>
+            </size>
+           </property>
+           <property name="balette" stdset="0">
+            <palette>
+             <active>
+              <colorrole role="Highlight">
+               <brush brushstyle="SolidPattern">
+                <color alpha="255">
+                 <red>168</red>
+                 <green>152</green>
+                 <blue>250</blue>
+                </color>
+               </brush>
+              </colorrole>
+             </active>
+             <inactive>
+              <colorrole role="Highlight">
+               <brush brushstyle="SolidPattern">
+                <color alpha="255">
+                 <red>168</red>
+                 <green>152</green>
+                 <blue>250</blue>
+                </color>
+               </brush>
+              </colorrole>
+             </inactive>
+             <disabled>
+              <colorrole role="Highlight">
+               <brush brushstyle="SolidPattern">
+                <color alpha="255">
+                 <red>0</red>
+                 <green>120</green>
+                 <blue>215</blue>
+                </color>
+               </brush>
+              </colorrole>
+             </disabled>
+            </palette>
+           </property>
+          </widget>
+         </item>
+         <item row="12" column="0" colspan="2">
+          <widget class="QPushButton" name="b009">
+           <property name="enabled">
+            <bool>true</bool>
+           </property>
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>20</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>16777215</width>
+             <height>20</height>
+            </size>
+           </property>
+           <property name="toolTip">
+            <string>Collapse the selected edges or faces</string>
+           </property>
+           <property name="text">
+            <string>Collapse</string>
+           </property>
+           <property name="iconSize">
+            <size>
+             <width>18</width>
+             <height>18</height>
+            </size>
+           </property>
+           <property name="autoDefault">
+            <bool>false</bool>
+           </property>
+           <property name="default">
+            <bool>false</bool>
+           </property>
+           <property name="flat">
+            <bool>false</bool>
+           </property>
+          </widget>
+         </item>
         </layout>
        </widget>
       </item>
@@ -1304,14 +1304,14 @@
          <property name="spacing">
           <number>1</number>
          </property>
-         <item row="3" column="0">
-          <widget class="PushButton" name="tb002">
+         <item row="4" column="1">
+          <widget class="QPushButton" name="b002">
            <property name="enabled">
             <bool>true</bool>
            </property>
            <property name="minimumSize">
             <size>
-             <width>88</width>
+             <width>0</width>
              <height>20</height>
             </size>
            </property>
@@ -1322,10 +1322,10 @@
             </size>
            </property>
            <property name="toolTip">
-            <string>Combine the selected polygon objects into one single object to allow operations such as merges or face trims</string>
+            <string>Separates the selected polygonobject shells or the shells of any selected faces from the object into one object into distinct objects</string>
            </property>
            <property name="text">
-            <string>Combine</string>
+            <string>Separate</string>
            </property>
            <property name="iconSize">
             <size>
@@ -1336,68 +1336,6 @@
           </widget>
          </item>
          <item row="2" column="0" colspan="2">
-          <widget class="QPushButton" name="b028">
-           <property name="enabled">
-            <bool>true</bool>
-           </property>
-           <property name="minimumSize">
-            <size>
-             <width>0</width>
-             <height>20</height>
-            </size>
-           </property>
-           <property name="maximumSize">
-            <size>
-             <width>16777215</width>
-             <height>20</height>
-            </size>
-           </property>
-           <property name="toolTip">
-            <string>Enter quad draw tool</string>
-           </property>
-           <property name="text">
-            <string>Quad Draw</string>
-           </property>
-           <property name="iconSize">
-            <size>
-             <width>18</width>
-             <height>18</height>
-            </size>
-           </property>
-          </widget>
-         </item>
-         <item row="0" column="0" colspan="2">
-          <widget class="PushButton" name="tb008">
-           <property name="enabled">
-            <bool>true</bool>
-           </property>
-           <property name="minimumSize">
-            <size>
-             <width>0</width>
-             <height>20</height>
-            </size>
-           </property>
-           <property name="maximumSize">
-            <size>
-             <width>16777215</width>
-             <height>20</height>
-            </size>
-           </property>
-           <property name="toolTip">
-            <string>Preforms a boolean union on the selected polygon objects creating a new object</string>
-           </property>
-           <property name="text">
-            <string>Boolean</string>
-           </property>
-           <property name="iconSize">
-            <size>
-             <width>18</width>
-             <height>18</height>
-            </size>
-           </property>
-          </widget>
-         </item>
-         <item row="1" column="0" colspan="2">
           <widget class="QPushButton" name="b001">
            <property name="enabled">
             <bool>true</bool>
@@ -1428,8 +1366,8 @@
            </property>
           </widget>
          </item>
-         <item row="3" column="1">
-          <widget class="QPushButton" name="b002">
+         <item row="1" column="0" colspan="2">
+          <widget class="PushButton" name="tb008">
            <property name="enabled">
             <bool>true</bool>
            </property>
@@ -1446,10 +1384,72 @@
             </size>
            </property>
            <property name="toolTip">
-            <string>Separates the selected polygonobject shells or the shells of any selected faces from the object into one object into distinct objects</string>
+            <string>Preforms a boolean union on the selected polygon objects creating a new object</string>
            </property>
            <property name="text">
-            <string>Separate</string>
+            <string>Boolean</string>
+           </property>
+           <property name="iconSize">
+            <size>
+             <width>18</width>
+             <height>18</height>
+            </size>
+           </property>
+          </widget>
+         </item>
+         <item row="4" column="0">
+          <widget class="PushButton" name="tb002">
+           <property name="enabled">
+            <bool>true</bool>
+           </property>
+           <property name="minimumSize">
+            <size>
+             <width>88</width>
+             <height>20</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>16777215</width>
+             <height>20</height>
+            </size>
+           </property>
+           <property name="toolTip">
+            <string>Combine the selected polygon objects into one single object to allow operations such as merges or face trims</string>
+           </property>
+           <property name="text">
+            <string>Combine</string>
+           </property>
+           <property name="iconSize">
+            <size>
+             <width>18</width>
+             <height>18</height>
+            </size>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="0" colspan="2">
+          <widget class="QPushButton" name="b028">
+           <property name="enabled">
+            <bool>true</bool>
+           </property>
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>20</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>16777215</width>
+             <height>20</height>
+            </size>
+           </property>
+           <property name="toolTip">
+            <string>Enter quad draw tool</string>
+           </property>
+           <property name="text">
+            <string>Quad Draw</string>
            </property>
            <property name="iconSize">
             <size>

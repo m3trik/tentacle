@@ -59,8 +59,8 @@
    <widget class="QPushButton" name="i018">
     <property name="geometry">
      <rect>
-      <x>385</x>
-      <y>290</y>
+      <x>380</x>
+      <y>300</y>
       <width>66</width>
       <height>21</height>
      </rect>
@@ -87,8 +87,8 @@
    <widget class="QPushButton" name="i005">
     <property name="geometry">
      <rect>
-      <x>375</x>
-      <y>260</y>
+      <x>380</x>
+      <y>270</y>
       <width>66</width>
       <height>21</height>
      </rect>
@@ -146,8 +146,8 @@
     </property>
     <property name="geometry">
      <rect>
-      <x>185</x>
-      <y>260</y>
+      <x>235</x>
+      <y>330</y>
       <width>51</width>
       <height>19</height>
      </rect>
@@ -165,10 +165,10 @@
      </size>
     </property>
     <property name="toolTip">
-     <string>Store selected material shader ID</string>
+     <string>Get Material: Change the index to match the current material selection.</string>
     </property>
     <property name="text">
-     <string>Set</string>
+     <string>Get</string>
     </property>
     <property name="iconSize">
      <size>
@@ -183,7 +183,7 @@
     </property>
     <property name="geometry">
      <rect>
-      <x>285</x>
+      <x>315</x>
       <y>330</y>
       <width>56</width>
       <height>19</height>
@@ -220,126 +220,15 @@
      </size>
     </property>
    </widget>
-   <widget class="QPushButton" name="b001">
-    <property name="enabled">
-     <bool>true</bool>
-    </property>
-    <property name="geometry">
-     <rect>
-      <x>360</x>
-      <y>330</y>
-      <width>46</width>
-      <height>19</height>
-     </rect>
-    </property>
-    <property name="minimumSize">
-     <size>
-      <width>0</width>
-      <height>19</height>
-     </size>
-    </property>
-    <property name="maximumSize">
-     <size>
-      <width>111</width>
-      <height>19</height>
-     </size>
-    </property>
-    <property name="toolTip">
-     <string>Open material in editor</string>
-    </property>
-    <property name="text">
-     <string>Edit</string>
-    </property>
-    <property name="iconSize">
-     <size>
-      <width>18</width>
-      <height>18</height>
-     </size>
-    </property>
-   </widget>
-   <widget class="QPushButton" name="b004">
-    <property name="enabled">
-     <bool>true</bool>
-    </property>
-    <property name="geometry">
-     <rect>
-      <x>310</x>
-      <y>230</y>
-      <width>96</width>
-      <height>19</height>
-     </rect>
-    </property>
-    <property name="minimumSize">
-     <size>
-      <width>0</width>
-      <height>19</height>
-     </size>
-    </property>
-    <property name="maximumSize">
-     <size>
-      <width>111</width>
-      <height>19</height>
-     </size>
-    </property>
-    <property name="toolTip">
-     <string>Assign a new random material.</string>
-    </property>
-    <property name="text">
-     <string>Assign Random</string>
-    </property>
-    <property name="iconSize">
-     <size>
-      <width>18</width>
-      <height>18</height>
-     </size>
-    </property>
-   </widget>
    <widget class="QPushButton" name="b005">
     <property name="enabled">
      <bool>true</bool>
     </property>
     <property name="geometry">
      <rect>
-      <x>215</x>
+      <x>255</x>
       <y>230</y>
-      <width>76</width>
-      <height>19</height>
-     </rect>
-    </property>
-    <property name="minimumSize">
-     <size>
-      <width>0</width>
-      <height>19</height>
-     </size>
-    </property>
-    <property name="maximumSize">
-     <size>
-      <width>111</width>
-      <height>19</height>
-     </size>
-    </property>
-    <property name="toolTip">
-     <string>Assign a new material.</string>
-    </property>
-    <property name="text">
-     <string>Assign New</string>
-    </property>
-    <property name="iconSize">
-     <size>
-      <width>18</width>
-      <height>18</height>
-     </size>
-    </property>
-   </widget>
-   <widget class="QPushButton" name="b003">
-    <property name="enabled">
-     <bool>true</bool>
-    </property>
-    <property name="geometry">
-     <rect>
-      <x>230</x>
-      <y>200</y>
-      <width>146</width>
+      <width>166</width>
       <height>19</height>
      </rect>
     </property>
@@ -368,15 +257,15 @@
      </size>
     </property>
    </widget>
-   <widget class="QPushButton" name="b000">
+   <widget class="QPushButton" name="lbl004">
     <property name="enabled">
      <bool>true</bool>
     </property>
     <property name="geometry">
      <rect>
-      <x>195</x>
-      <y>330</y>
-      <width>61</width>
+      <x>290</x>
+      <y>200</y>
+      <width>86</width>
       <height>19</height>
      </rect>
     </property>
@@ -393,10 +282,84 @@
      </size>
     </property>
     <property name="toolTip">
-     <string>Open material in editor</string>
+     <string>Material Attributes: Show Material Attributes in the Attribute Editor.</string>
+    </property>
+    <property name="text">
+     <string>Attributes</string>
+    </property>
+    <property name="iconSize">
+     <size>
+      <width>18</width>
+      <height>18</height>
+     </size>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="lbl002">
+    <property name="enabled">
+     <bool>true</bool>
+    </property>
+    <property name="geometry">
+     <rect>
+      <x>220</x>
+      <y>260</y>
+      <width>66</width>
+      <height>19</height>
+     </rect>
+    </property>
+    <property name="minimumSize">
+     <size>
+      <width>0</width>
+      <height>19</height>
+     </size>
+    </property>
+    <property name="maximumSize">
+     <size>
+      <width>111</width>
+      <height>19</height>
+     </size>
+    </property>
+    <property name="toolTip">
+     <string>Delete the current material.</string>
     </property>
     <property name="text">
      <string>Delete</string>
+    </property>
+    <property name="iconSize">
+     <size>
+      <width>18</width>
+      <height>18</height>
+     </size>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="lbl000">
+    <property name="enabled">
+     <bool>true</bool>
+    </property>
+    <property name="geometry">
+     <rect>
+      <x>310</x>
+      <y>260</y>
+      <width>56</width>
+      <height>19</height>
+     </rect>
+    </property>
+    <property name="minimumSize">
+     <size>
+      <width>0</width>
+      <height>19</height>
+     </size>
+    </property>
+    <property name="maximumSize">
+     <size>
+      <width>111</width>
+      <height>19</height>
+     </size>
+    </property>
+    <property name="toolTip">
+     <string>Open the current material in editor.</string>
+    </property>
+    <property name="text">
+     <string>Edit</string>
     </property>
     <property name="iconSize">
      <size>

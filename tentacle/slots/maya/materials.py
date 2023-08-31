@@ -13,7 +13,7 @@ class Materials(SlotsMaya):
         super().__init__(*args, **kwargs)
 
     def cmb000_init(self, widget):
-        """Assign: Assign New"""
+        """ """
         # Get all shader types derived from the 'shader' class
         items = pm.listNodeTypes("shader")
         widget.add(items, header="Assign New")
@@ -23,6 +23,7 @@ class Materials(SlotsMaya):
         selection = pm.ls(sl=True, flatten=1)
         if not selection:
             self.sb.message_box("No renderable object is selected for assignment.")
+            widget.setCurrentIndex(0)
             return
 
         if index > 0:
@@ -31,7 +32,6 @@ class Materials(SlotsMaya):
             mtk.assign_mat(selection, mat)
             self.sb.materials.cmb002.init_slot()
             self.sb.materials.cmb002.setCurrentItem(mat_name)
-
             widget.setCurrentIndex(0)
 
     def cmb002_init(self, widget):
@@ -39,11 +39,13 @@ class Materials(SlotsMaya):
         widget.refresh = True
         if not widget.is_initialized:
             widget.editable = True
+            widget.menu.mode = "context"
+            widget.menu.setTitle("Material Options")
             widget.menu.add(
                 self.sb.Label,
-                setText="Open in Editor",
-                setObjectName="lbl000",
-                setToolTip="Open material in editor.",
+                setText="Rename",
+                setObjectName="lbl005",
+                setToolTip="Rename the current material.",
             )
             widget.menu.add(
                 self.sb.Label,
@@ -63,31 +65,32 @@ class Materials(SlotsMaya):
                 setObjectName="lbl004",
                 setToolTip="Show the material attributes in the attribute editor.",
             )
-            # Initialize the widget every time before the popup is shown.
-            widget.before_popup_shown.connect(lambda: self.cmb002_init(widget))
+            widget.menu.add(
+                self.sb.Label,
+                setText="Open in Editor",
+                setObjectName="lbl000",
+                setToolTip="Open the current material in editor.",
+            )
             # Rename the material after editing has finished.
             widget.on_editing_finished.connect(
                 lambda text: pm.rename(widget.currentData(), text)
             )
+            # Initialize the widget every time before the popup is shown.
+            widget.before_popup_shown.connect(widget.init_slot)
+            # Add the current material name to the assign button.
+            widget.currentIndexChanged.connect(
+                lambda: self.b005_init(self.sb.materials.b005)
+            )
 
+        # Use 'restore_index=True' to save and restore the index
         materials = mtk.get_scene_mats(exc="standardSurface")
-
         materials_dict = {m.name(): m for m in materials}
-        widget.add(materials_dict, clear=True)
+        widget.add(materials_dict, clear=True, restore_index=True)
 
         # create and set icons with color swatch
         for i, mat in enumerate(widget.items):
-            icon = self.getColorSwatchIcon(mat)
+            icon = mtk.get_mat_swatch_icon(mat)
             widget.setItemIcon(i, icon) if icon else None
-
-        # initialize the materials list
-        b = self.sb.materials_submenu.b003
-        # set submenu assign material button attributes
-        b.setText("Assign " + widget.currentText())
-        icon = self.getColorSwatchIcon(widget.currentText(), [15, 15])
-        b.setIcon(icon) if icon else None
-        b.setMinimumWidth(b.minimumSizeHint().width() + 25)
-        b.setVisible(True if widget.currentText() else False)
 
     def tb000_init(self, widget):
         """ """
@@ -129,32 +132,25 @@ class Materials(SlotsMaya):
 
     def lbl002(self):
         """Delete Material"""
-        mat = self.sb.materials.cmb002.currentData()
+        mat = self.sb.materials.cmb002.currentData()  # get the mat obj from cmb002
         mat = pm.delete(mat)
-
-        index = self.sb.materials.cmb002.currentIndex()
-        self.sb.materials.cmb002.setItemText(index, "None")
+        self.sb.materials.cmb002.init_slot()  # refresh the materials list comboBox
 
     def lbl003(self, widget):
         """Delete Unused Materials"""
         pm.mel.hyperShadePanelMenuCommand("hyperShadePanel1", "deleteUnusedNodes")
-        widget.ui.cmb002.init_slot  # refresh the materials list comboBox
+        self.sb.materials.cmb002.init_slot()  # refresh the materials list comboBox
 
     def lbl004(self):
         """Material Attributes: Show Material Attributes in the Attribute Editor."""
-        mat = self.sb.materials.cmb002.currentData()
-        try:
-            pm.mel.showSG(mat.name())
-        except Exception as e:
-            print(e)
+        mat = self.sb.materials.cmb002.currentData()  # get the mat obj from cmb002
+        pm.select(mat, replace=True)
+        pm.mel.eval(f'showEditorExact("{mat}")')
 
-    def b000(self):
-        """Material List: Delete"""
-        self.lbl002()
-
-    def b001(self):
-        """Material List: Edit"""
-        self.lbl000()
+    def lbl005(self):
+        """Set the current combo box text as editable."""
+        self.sb.materials.cmb002.setEditable(True)
+        self.sb.materials.cmb002.menu.hide()
 
     def b002(self, widget):
         """Get Material: Change the index to match the current material selection."""
@@ -188,6 +184,19 @@ class Materials(SlotsMaya):
         self.sb.materials.cmb002.init_slot()  # refresh the materials list comboBox
         self.sb.materials.cmb002.setCurrentItem(mat.name())
 
+    def b005_init(self, widget):
+        """ """
+        current_material = self.sb.materials.cmb002.currentData()
+        text = f"Assign {current_material}"
+        widget.setText(text)
+        submenu_widget = self.sb.materials_submenu.b005
+        submenu_widget.setText(text)
+        submenu_widget.setMinimumWidth(submenu_widget.minimumSizeHint().width() + 25)
+        if current_material:
+            icon = mtk.get_mat_swatch_icon(current_material, [15, 15])
+            if icon is not None:
+                submenu_widget.setIcon(icon)
+
     def b005(self, widget):
         """Assign: Assign Current"""
         selection = pm.ls(sl=True, flatten=1)
@@ -197,35 +206,6 @@ class Materials(SlotsMaya):
 
         mat = self.sb.materials.cmb002.currentData()
         mtk.assign_mat(selection, mat)
-
-        self.sb.materials.cmb002.init_slot()
-
-    def getColorSwatchIcon(self, mat, size=[20, 20]):
-        """Get an icon with a color fill matching the given materials RBG value.
-
-        Parameters:
-            mat (obj)(str): The material or the material's name.
-            size (list): Desired icon size.
-
-        Returns:
-            (obj) pixmap icon.
-        """
-        from PySide2.QtGui import QPixmap, QColor, QIcon
-
-        try:
-            # get the string name if a mat object is given.
-            matName = mat.name() if not isinstance(mat, (str)) else mat
-            # convert from 0-1 to 0-255 value and then to an integer
-            r = int(pm.getAttr(matName + ".colorR") * 255)
-            g = int(pm.getAttr(matName + ".colorG") * 255)
-            b = int(pm.getAttr(matName + ".colorB") * 255)
-            pixmap = QPixmap(size[0], size[1])
-            pixmap.fill(QColor.fromRgb(r, g, b))
-
-            return QIcon(pixmap)
-
-        except Exception:
-            pass
 
 
 # --------------------------------------------------------------------------------------------
