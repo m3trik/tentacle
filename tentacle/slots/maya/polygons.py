@@ -177,13 +177,10 @@ class Polygons(SlotsMaya):
 
     def tb004(self, widget):
         """Bevel (Chamfer)"""
-        ui_file = mtk.bevel_edges.get_ui_file()
-        slot_class = mtk.bevel_edges.BevelEdgesSlots
+        module = mtk.edit_utils.bevel_edges
+        slot_class = module.BevelEdgesSlots
 
-        self.sb.register(ui_file, slot_class)
-        # if pm.ls(sl=True):
-        #     self.sb.bevel_edges.set_as_current()
-        #     self.sb.bevel_edges.slots.preview.enable()
+        self.sb.register("bevel_edges.ui", slot_class, base_dir=module)
         self.sb.parent().set_ui("bevel_edges")
 
     def tb005_init(self, widget):

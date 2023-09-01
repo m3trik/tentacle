@@ -128,10 +128,10 @@ class Display(SlotsMaya):
 
     def b013(self):
         """Explode View GUI"""
-        ui_file = mtk.exploded_view.get_ui_file()
-        slot_class = mtk.exploded_view.ExplodedViewSlots
+        module = mtk.display_utils.exploded_view
+        slot_class = module.ExplodedViewSlots
 
-        self.sb.register(ui_file, slot_class)
+        self.sb.register("exploded_view.ui", slot_class, base_dir=module)
         self.sb.parent().set_ui("exploded_view")
 
     def b021(self):
