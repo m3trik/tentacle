@@ -40,18 +40,18 @@ class Duplicate(SlotsMaya):
 
     def b006(self):
         """Duplicate Linear"""
-        ui_file = mtk.duplicate_linear.get_ui_file()
-        slot_class = mtk.duplicate_linear.DuplicateLinearSlots
+        module = mtk.edit_utils.duplicate_linear
+        slot_class = module.DuplicateLinearSlots
 
-        self.sb.register(ui_file, slot_class)
+        self.sb.register("duplicate_linear.ui", slot_class, base_dir=module)
         self.sb.parent().set_ui("duplicate_linear")
 
     def b007(self):
         """Duplicate Radial"""
-        ui_file = mtk.duplicate_radial.get_ui_file()
-        slot_class = mtk.duplicate_radial.DuplicateRadialSlots
+        module = mtk.edit_utils.duplicate_radial
+        slot_class = module.DuplicateRadialSlots
 
-        self.sb.register(ui_file, slot_class)
+        self.sb.register("duplicate_radial.ui", slot_class, base_dir=module)
         self.sb.parent().set_ui("duplicate_radial")
 
 

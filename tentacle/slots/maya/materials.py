@@ -187,7 +187,7 @@ class Materials(SlotsMaya):
     def b005_init(self, widget):
         """ """
         current_material = self.sb.materials.cmb002.currentData()
-        text = f"Assign {current_material}"
+        text = f"Assign: {current_material}"
         widget.setText(text)
         submenu_widget = self.sb.materials_submenu.b005
         submenu_widget.setText(text)
