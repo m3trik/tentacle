@@ -43,6 +43,12 @@ class Materials(SlotsMaya):
             widget.menu.setTitle("Material Options")
             widget.menu.add(
                 self.sb.Label,
+                setText="Select",
+                setObjectName="lbl004",
+                setToolTip="Select the material and show its attributes in the attribute editor.",
+            )
+            widget.menu.add(
+                self.sb.Label,
                 setText="Rename",
                 setObjectName="lbl005",
                 setToolTip="Rename the current material.",
@@ -58,12 +64,6 @@ class Materials(SlotsMaya):
                 setText="Delete All Unused Materials",
                 setObjectName="lbl003",
                 setToolTip="Delete All unused materials.",
-            )
-            widget.menu.add(
-                self.sb.Label,
-                setText="Material Attributes",
-                setObjectName="lbl004",
-                setToolTip="Show the material attributes in the attribute editor.",
             )
             widget.menu.add(
                 self.sb.Label,
@@ -122,13 +122,17 @@ class Materials(SlotsMaya):
     def lbl000(self):
         """Open material in editor"""
         try:
-            mat = self.sb.materials.cmb002.currentData()  # get the mat obj from cmb002
+            mat = self.sb.materials.cmb002.currentData()
             pm.select(mat)
         except Exception:
             self.sb.message_box("No stored material or no valid object selected.")
             return
 
-        pm.mel.HypershadeWindow()  # open the hypershade editor
+        print(pm.mel.HypershadeWindow())
+        #  Finally, graph the material in the hypershade window.
+        pm.mel.eval(
+            'hyperShadePanelGraphCommand("hyperShadePanel1", "showUpAndDownstream")'
+        )
 
     def lbl002(self):
         """Delete Material"""
@@ -142,7 +146,7 @@ class Materials(SlotsMaya):
         self.sb.materials.cmb002.init_slot()  # refresh the materials list comboBox
 
     def lbl004(self):
-        """Material Attributes: Show Material Attributes in the Attribute Editor."""
+        """Select and Show Attributes: Show Material Attributes in the Attribute Editor."""
         mat = self.sb.materials.cmb002.currentData()  # get the mat obj from cmb002
         pm.select(mat, replace=True)
         pm.mel.eval(f'showEditorExact("{mat}")')
