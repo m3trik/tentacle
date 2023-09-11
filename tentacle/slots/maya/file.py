@@ -29,6 +29,22 @@ class File(SlotsMaya):
                 else mtk.remove_reference(scene)
             )
 
+    def cmb001_init(self, widget):
+        """ """
+        widget.refresh = True
+
+        widget.add(
+            mtk.get_recent_projects(slice(0, 20), format="timestamp|standard"),
+            header="Recent Projects:",
+            clear=True,
+        )
+
+    def cmb001(self, index, widget):
+        """Recent Projects"""
+        if index > 0:
+            pm.mel.setProject(widget.items[index])
+            widget.setCurrentIndex(0)
+
     def cmb002_init(self, widget):
         """ """
         # Get the current autosave state
@@ -92,6 +108,13 @@ class File(SlotsMaya):
             clear=True,
         )
 
+    def cmb002(self, index, widget):
+        """Recent Autosave"""
+        if index > 0:
+            file = widget.items[index]
+            pm.openFile(file, open=1, force=True)
+            widget.setCurrentIndex(0)
+
     def cmb003_init(self, widget):
         """ """
         widget.add(
@@ -103,6 +126,20 @@ class File(SlotsMaya):
             ],
             header="Import",
         )
+
+    def cmb003(self, index, widget):
+        """Import"""
+        if index > 0:  # hide then perform operation
+            self.sb.parent().hide(force=1)
+            if index == 1:  # Import
+                pm.mel.Import()
+            elif index == 2:  # Import options
+                pm.mel.ImportOptions()
+            elif index == 3:  # FBX Import Presets
+                pm.mel.FBXUICallBack(-1, "editImportPresetInNewWindow", "fbx")
+            elif index == 4:  # Obj Import Presets
+                pm.mel.FBXUICallBack(-1, "editImportPresetInNewWindow", "obj")
+            widget.setCurrentIndex(0)
 
     def cmb004_init(self, widget):
         """ """
@@ -120,95 +157,6 @@ class File(SlotsMaya):
             "Obj Export Presets",
         ]
         widget.add(items, header="Export")
-
-    def cmb005_init(self, widget):
-        """ """
-        widget.menu.add(
-            "QPushButton",
-            setObjectName="b001",
-            setText="Last",
-            setToolTip="Open the most recent file.",
-        )
-        widget.add(
-            mtk.get_recent_files(slice(0, 20), format="timestamp|standard"),
-            header="Recent Files",
-            clear=True,
-        )
-
-    def cmb006_init(self, widget):
-        """ """
-        widget.refresh = True
-        widget.menu.clear()
-        widget.menu.add(
-            self.sb.ComboBox,
-            setObjectName="cmb001",
-            setToolTip="Current project directory root.",
-        )
-        widget.menu.add(
-            self.sb.Label,
-            setObjectName="lbl000",
-            setText="Set",
-            setToolTip="Set the project directory.",
-        )
-        widget.menu.add(
-            self.sb.Label,
-            setObjectName="lbl004",
-            setText="Root",
-            setToolTip="Open the project directory.",
-        )
-        widget.menu.cmb001.add(
-            mtk.get_recent_projects(slice(0, 20), format="timestamp|standard"),
-            header="Recent Projects",
-            clear=True,
-        )
-        workspace = ptk.format_path(pm.workspace(q=True, rd=1))  # current project path.
-        project = ptk.format_path(workspace, "dir")
-        items = [f for f in os.listdir(workspace)]
-        widget.add(items, header=project, clear=True)
-
-    def list000_init(self, widget):
-        """ """
-        widget.position = "top"
-        widget.sublist_y_offset = 18
-        widget.fixed_item_height = 18
-        recentFiles = mtk.get_recent_files(slice(0, 6))
-        w1 = widget.add("Recent Files")
-        truncated = ptk.truncate(recentFiles, 65)
-        w1.sublist.add(zip(truncated, recentFiles))
-        widget.setVisible(bool(recentFiles))
-
-    @signals("on_item_interacted")
-    def list000(self, item):
-        """ """
-        data = item.item_data()
-        pm.openFile(data, open=True, force=True)
-
-    def cmb001(self, index, widget):
-        """Recent Projects"""
-        if index > 0:
-            pm.mel.setProject(widget.items[index])
-            widget.setCurrentIndex(0)
-
-    def cmb002(self, index, widget):
-        """Recent Autosave"""
-        if index > 0:
-            file = widget.items[index]
-            pm.openFile(file, open=1, force=True)
-            widget.setCurrentIndex(0)
-
-    def cmb003(self, index, widget):
-        """Import"""
-        if index > 0:  # hide then perform operation
-            self.sb.parent().hide(force=1)
-            if index == 1:  # Import
-                pm.mel.Import()
-            elif index == 2:  # Import options
-                pm.mel.ImportOptions()
-            elif index == 3:  # FBX Import Presets
-                pm.mel.FBXUICallBack(-1, "editImportPresetInNewWindow", "fbx")
-            elif index == 4:  # Obj Import Presets
-                pm.mel.FBXUICallBack(-1, "editImportPresetInNewWindow", "obj")
-            widget.setCurrentIndex(0)
 
     def cmb004(self, index, widget):
         """Export"""
@@ -240,6 +188,20 @@ class File(SlotsMaya):
                 pm.mel.FBXUICallBack(-1, "editExportPresetInNewWindow", "obj")
             widget.setCurrentIndex(0)
 
+    def cmb005_init(self, widget):
+        """ """
+        widget.menu.add(
+            "QPushButton",
+            setObjectName="b001",
+            setText="Last",
+            setToolTip="Open the most recent file.",
+        )
+        widget.add(
+            mtk.get_recent_files(slice(0, 20), format="timestamp|standard"),
+            header="Recent Files",
+            clear=True,
+        )
+
     def cmb005(self, index, widget):
         """Recent Files"""
         if index > 0:
@@ -249,6 +211,28 @@ class File(SlotsMaya):
             print(widget.items[index])
             pm.openFile(widget.items[index], open=1, force=force)
             widget.setCurrentIndex(0)
+
+    def cmb006_init(self, widget):
+        """ """
+        widget.refresh = True
+        widget.menu.clear()
+
+        widget.menu.add(
+            self.sb.Label,
+            setObjectName="lbl000",
+            setText="Set",
+            setToolTip="Set the project directory.",
+        )
+        widget.menu.add(
+            self.sb.Label,
+            setObjectName="lbl004",
+            setText="Root",
+            setToolTip="Open the project directory.",
+        )
+        workspace = ptk.format_path(pm.workspace(q=True, rd=1))  # current project path.
+        project = ptk.format_path(workspace, "dir")
+        items = [f for f in os.listdir(workspace)]
+        widget.add(items, header=project, clear=True)
 
     def cmb006(self, index, widget):
         """Workspace"""
@@ -261,6 +245,23 @@ class File(SlotsMaya):
             except Exception as e:
                 print(e)
         widget.setCurrentIndex(0)
+
+    def list000_init(self, widget):
+        """ """
+        widget.position = "top"
+        widget.sublist_y_offset = 18
+        widget.fixed_item_height = 18
+        recentFiles = mtk.get_recent_files(slice(0, 6))
+        w1 = widget.add("Recent Files")
+        truncated = ptk.truncate(recentFiles, 65)
+        w1.sublist.add(zip(truncated, recentFiles))
+        widget.setVisible(bool(recentFiles))
+
+    @signals("on_item_interacted")
+    def list000(self, item):
+        """ """
+        data = item.item_data()
+        pm.openFile(data, open=True, force=True)
 
     def lbl000(self):
         """Set Workspace"""
@@ -285,11 +286,6 @@ class File(SlotsMaya):
 
         except FileNotFoundError:
             self.sb.message_box("The system cannot find the file specified.")
-
-    @SlotsMaya.hide_main
-    def b001(self):
-        """Recent Files: Open Last"""
-        self.sb.file.cmb005.call_slot(1)
 
     def b002(self):
         """Autosave: Delete All"""

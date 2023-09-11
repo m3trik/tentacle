@@ -76,6 +76,36 @@
           <number>0</number>
          </property>
          <item>
+          <widget class="ComboBox" name="cmb001">
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>20</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>16777215</width>
+             <height>20</height>
+            </size>
+           </property>
+           <property name="maxVisibleItems">
+            <number>30</number>
+           </property>
+           <property name="sizeAdjustPolicy">
+            <enum>QComboBox::AdjustToContentsOnFirstShow</enum>
+           </property>
+           <property name="frame">
+            <bool>false</bool>
+           </property>
+           <item>
+            <property name="text">
+             <string>Recent Projects:</string>
+            </property>
+           </item>
+          </widget>
+         </item>
+         <item>
           <widget class="ComboBox" name="cmb006">
            <property name="minimumSize">
             <size>
@@ -100,7 +130,7 @@
            </property>
            <item>
             <property name="text">
-             <string>Workspace:</string>
+             <string>Project:</string>
             </property>
            </item>
           </widget>
