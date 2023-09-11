@@ -57,7 +57,7 @@ class Polygons(SlotsMaya):
             )
             return
 
-        mtk.merge_vertices(objects, selected=componentMode, tolerance=tolerance)
+        mtk.merge_vertices(objects, tolerance=tolerance, selected_only=componentMode)
 
     def tb001_init(self, widget):
         """ """
@@ -467,17 +467,16 @@ class Polygons(SlotsMaya):
             p1 = pm.pointPosition(verts[0], world=True)
             p2 = pm.pointPosition(verts[1], world=True)
         except IndexError:
-            p1, p2 = [
-                (0.0005, 0, 0),
-                (0, 0, 0),
-            ]  # arbitrary points that will return the spinbox to it's default value of 0.0005.
+            # Use Arbitrary points that will return the spinbox to it's default value of 0.0005
+            p1, p2 = [(0.0005, 0, 0), (0, 0, 0)]
 
         self.setMergeVertexDistance(p1, p2)
 
     def b006(self):
         """Merge Vertices: Merge All"""
         sel = pm.ls(sl=True, objectsOnly=True)
-        mtk.merge_vertices(sel)
+        tolerance = self.sb.polygons.tb000.menu.s002.value()
+        mtk.merge_vertices(sel, tolerance)
 
     def b009(self):
         """Collapse Component"""
@@ -569,6 +568,8 @@ class Polygons(SlotsMaya):
         """Merge Vertices: Set Distance"""
         spinbox = self.sb.polygons.tb000.menu.s002
         dist = ptk.get_distance(p1, p2)
+        adjustment_factor = 1.01  # Add 1% to the distance
+        dist *= adjustment_factor
         spinbox.setValue(dist)
 
 
