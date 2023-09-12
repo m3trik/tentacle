@@ -10,7 +10,7 @@
     <x>0</x>
     <y>0</y>
     <width>200</width>
-    <height>110</height>
+    <height>106</height>
    </rect>
   </property>
   <property name="font">
@@ -136,7 +136,7 @@
   <customwidget>
    <class>Header</class>
    <extends>QLabel</extends>
-   <header>uitk.widgets.header.Header.h</header>
+   <header>header.h</header>
   </customwidget>
   <customwidget>
    <class>PushButton</class>

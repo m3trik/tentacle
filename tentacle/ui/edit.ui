@@ -204,7 +204,7 @@
             <enum>Qt::LeftToRight</enum>
            </property>
            <property name="text">
-            <string>Delete -X</string>
+            <string>Delete Along Axis: -X</string>
            </property>
            <property name="iconSize">
             <size>
@@ -657,6 +657,11 @@
  </widget>
  <customwidgets>
   <customwidget>
+   <class>PushButton</class>
+   <extends>QPushButton</extends>
+   <header>widgets.pushbutton.h</header>
+  </customwidget>
+  <customwidget>
    <class>Header</class>
    <extends>QLabel</extends>
    <header>uitk.widgets.header.Header.h</header>
@@ -665,11 +670,6 @@
    <class>ComboBox</class>
    <extends>QComboBox</extends>
    <header>uitk.widgets.comboBox.ComboBox.h</header>
-  </customwidget>
-  <customwidget>
-   <class>PushButton</class>
-   <extends>QPushButton</extends>
-   <header>widgets.pushbutton.h</header>
   </customwidget>
  </customwidgets>
  <resources/>

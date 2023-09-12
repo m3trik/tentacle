@@ -13,226 +13,38 @@ class Selection(SlotsMaya):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-    def tb000_init(self, widget):
-        """ """
-        widget.menu.add(
-            "QRadioButton",
-            setText="Edge Ring",
-            setObjectName="chk000",
-            setToolTip="Select component ring.",
-        )
-        widget.menu.add(
-            "QRadioButton",
-            setText="Edge Loop",
-            setObjectName="chk001",
-            setChecked=True,
-            setToolTip="Select all contiguous components that form a loop with the current selection.",
-        )
-        widget.menu.add(
-            "QRadioButton",
-            setText="Edge Loop Path",
-            setObjectName="chk009",
-            setToolTip="The path along loop between two selected edges, vertices or UV's.",
-        )
-        widget.menu.add(
-            "QRadioButton",
-            setText="Shortest Edge Path",
-            setObjectName="chk002",
-            setToolTip="The shortest component path between two selected edges, vertices or UV's.",
-        )
-        widget.menu.add(
-            "QRadioButton",
-            setText="Border Edges",
-            setObjectName="chk010",
-            setToolTip="Select the object(s) border edges.",
-        )
-        widget.menu.add(
-            "QSpinBox",
-            setPrefix="Step: ",
-            setObjectName="s003",
-            set_limits=[1, 100],
-            setValue=1,
-            setToolTip="Step Amount.",
-        )
-
-    def tb001_init(self, widget):
-        """ """
-        widget.menu.add(
-            "QDoubleSpinBox",
-            setPrefix="Tolerance: ",
-            setObjectName="s000",
-            set_limits=[0, 9999, 0.0, 3],
-            setValue=0.0,
-            setToolTip="The allowed difference in any of the compared results.\nie. A tolerance of 4 allows for a difference of 4 components.\nie. A tolerance of 0.05 allows for that amount of variance between any of the bounding box values.",
-        )
-        widget.menu.add(
-            "QCheckBox",
-            setText="Vertex",
-            setObjectName="chk011",
-            setChecked=True,
-            setToolTip="The number of vertices.",
-        )
-        widget.menu.add(
-            "QCheckBox",
-            setText="Edge",
-            setObjectName="chk012",
-            setChecked=True,
-            setToolTip="The number of edges.",
-        )
-        widget.menu.add(
-            "QCheckBox",
-            setText="Face",
-            setObjectName="chk013",
-            setChecked=True,
-            setToolTip="The number of faces.",
-        )
-        widget.menu.add(
-            "QCheckBox",
-            setText="Triangle",
-            setObjectName="chk014",
-            setToolTip="The number of triangles.",
-        )
-        widget.menu.add(
-            "QCheckBox",
-            setText="Shell",
-            setObjectName="chk015",
-            setToolTip="The number of shells shells (disconnected pieces).",
-        )
-        widget.menu.add(
-            "QCheckBox",
-            setText="Uv Coord",
-            setObjectName="chk016",
-            setToolTip="The number of uv coordinates (for the current map).",
-        )
-        widget.menu.add(
-            "QCheckBox",
-            setText="Area",
-            setObjectName="chk017",
-            setToolTip="The surface area of the object's faces in local space.",
-        )
-        widget.menu.add(
-            "QCheckBox",
-            setText="World Area",
-            setObjectName="chk018",
-            setChecked=True,
-            setToolTip="The surface area of the object's faces in world space.",
-        )
-        widget.menu.add(
-            "QCheckBox",
-            setText="Bounding Box",
-            setObjectName="chk019",
-            setToolTip="The object's bounding box in 3d space.\nCannot be used with the topological flags.",
-        )
-        widget.menu.add(
-            "QCheckBox",
-            setText="Include Original",
-            setObjectName="chk020",
-            setToolTip="Include the original selected object(s) in the final selection.",
-        )
-        widget.menu.chk018.stateChanged.connect(
-            lambda state: self.sb.toggle_multi(widget.menu, setDisabled="chk011-18")
-            if state
-            else self.sb.toggle_multi(widget.menu, setEnabled="chk011-18")
-        )
-
-    def tb002_init(self, widget):
-        """ """
-        widget.menu.add(
-            "QCheckBox",
-            setText="Lock Values",
-            setObjectName="chk003",
-            setChecked=True,
-            setToolTip="Keep values in sync.",
-        )
-        widget.menu.add(
-            "QDoubleSpinBox",
-            setPrefix="x: ",
-            setObjectName="s002",
-            set_limits=[0, 1, 0.01, 2],
-            setValue=0.05,
-            setToolTip="Normal X range.",
-        )
-        widget.menu.add(
-            "QDoubleSpinBox",
-            setPrefix="y: ",
-            setObjectName="s004",
-            set_limits=[0, 1, 0.01, 2],
-            setValue=0.05,
-            setToolTip="Normal Y range.",
-        )
-        widget.menu.add(
-            "QDoubleSpinBox",
-            setPrefix="z: ",
-            setObjectName="s005",
-            set_limits=[0, 1, 0.01, 2],
-            setValue=0.05,
-            setToolTip="Normal Z range.",
-        )
-
-        def update_normal_ranges(value, widget):
-            """Update all spin boxes if checkbox is checked."""
-            if widget.menu.chk003.isChecked():
-                # Update all spin boxes
-                widget.menu.s002.setValue(value)
-                widget.menu.s004.setValue(value)
-                widget.menu.s005.setValue(value)
-
-        # Connect signals
-        widget.menu.s002.valueChanged.connect(lambda v: update_normal_ranges(v, widget))
-        widget.menu.s004.valueChanged.connect(lambda v: update_normal_ranges(v, widget))
-        widget.menu.s005.valueChanged.connect(lambda v: update_normal_ranges(v, widget))
-
-    def tb003_init(self, widget):
-        """ """
-        widget.menu.add(
-            "QDoubleSpinBox",
-            setPrefix="Angle Low:  ",
-            setObjectName="s006",
-            set_limits=[0, 180],
-            setValue=70,
-            setToolTip="Normal angle low range.",
-        )
-        widget.menu.add(
-            "QDoubleSpinBox",
-            setPrefix="Angle High: ",
-            setObjectName="s007",
-            set_limits=[0, 180],
-            setValue=160,
-            setToolTip="Normal angle high range.",
-        )
-
     def cmb001_init(self, widget):
         """ """
-        widget.clear()
         widget.refresh = True
-        items = [str(s) for s in pm.ls(et="objectSet", flatten=1)]
-        widget.add(items, header="Selection Sets:")
+        if not widget.is_initialized:
+            widget.menu.add(
+                self.sb.Label,
+                setText="Select",
+                setObjectName="lbl005",
+                setToolTip="Select the current set elements.",
+            )
+            widget.menu.add(
+                self.sb.Label,
+                setText="New",
+                setObjectName="lbl000",
+                setToolTip="Create a new selection set.",
+            )
+            widget.menu.add(
+                self.sb.Label,
+                setText="Modify",
+                setObjectName="lbl001",
+                setToolTip="Modify the current set by renaming and/or changing the selection.",
+            )
+            widget.menu.add(
+                self.sb.Label,
+                setText="Delete",
+                setObjectName="lbl002",
+                setToolTip="Delete the current set.",
+            )
+            widget.currentIndexChanged.connect(self.lbl005)
 
-        widget.menu.add(
-            self.sb.Label,
-            setText="Select",
-            setObjectName="lbl005",
-            setToolTip="Select the current set elements.",
-        )
-        widget.menu.add(
-            self.sb.Label,
-            setText="New",
-            setObjectName="lbl000",
-            setToolTip="Create a new selection set.",
-        )
-        widget.menu.add(
-            self.sb.Label,
-            setText="Modify",
-            setObjectName="lbl001",
-            setToolTip="Modify the current set by renaming and/or changing the selection.",
-        )
-        widget.menu.add(
-            self.sb.Label,
-            setText="Delete",
-            setObjectName="lbl002",
-            setToolTip="Delete the current set.",
-        )
-        widget.currentIndexChanged.connect(self.lbl005)
+        items = [str(s) for s in pm.ls(et="objectSet", flatten=1)]
+        widget.add(items, header="Selection Sets:", clear=True)
 
     def cmb002_init(self, widget):
         """ """
@@ -266,6 +78,69 @@ class Selection(SlotsMaya):
         ]
         widget.add(items, header="By Type:")
 
+    def cmb002(self, index, widget):
+        """Select by Type"""
+        if index > 0:
+            text = widget.items[index]
+            if text == "IK Handles":  #
+                type_ = pm.ls(type=["ikHandle", "hikEffector"])
+            elif text == "Joints":  #
+                type_ = pm.ls(type="joint")
+            elif text == "Clusters":  #
+                type_ = pm.listTransforms(type="clusterHandle")
+            elif text == "Lattices":  #
+                type_ = pm.listTransforms(type="lattice")
+            elif text == "Sculpt Objects":  #
+                type_ = pm.listTransforms(type=["implicitSphere", "sculpt"])
+            elif text == "Wires":  #
+                type_ = pm.ls(type="wire")
+            elif text == "Transforms":  #
+                type_ = pm.ls(type="transform")
+            elif text == "Geometry":  # Select all Geometry
+                geometry = pm.ls(geometry=True)
+                type_ = pm.listRelatives(
+                    geometry, p=True, path=True
+                )  # pm.listTransforms(type='nRigid')
+            elif text == "NURBS Curves":  #
+                type_ = pm.listTransforms(type="nurbsCurve")
+            elif text == "NURBS Surfaces":  #
+                type_ = pm.ls(type="nurbsSurface")
+            elif text == "Polygon Geometry":  #
+                type_ = pm.listTransforms(type="mesh")
+            elif text == "Cameras":  #
+                type_ = pm.listTransforms(cameras=1)
+            elif text == "Lights":  #
+                type_ = pm.listTransforms(lights=1)
+            elif text == "Image Planes":  #
+                type_ = pm.ls(type="imagePlane")
+            elif text == "Assets":  #
+                type_ = pm.ls(type=["container", "dagContainer"])
+            elif text == "Fluids":  #
+                type_ = pm.listTransforms(type="fluidShape")
+            elif text == "Particles":  #
+                type_ = pm.listTransforms(type="particle")
+            elif text == "Rigid Bodies":  #
+                type_ = pm.listTransforms(type="rigidBody")
+            elif text == "Rigid Constraints":  #
+                type_ = pm.ls(type="rigidConstraint")
+            elif text == "Brushes":  #
+                type_ = pm.ls(type="brush")
+            elif text == "Strokes":  #
+                type_ = pm.listTransforms(type="stroke")
+            elif text == "Dynamic Constraints":  #
+                type_ = pm.listTransforms(type="dynamicConstraint")
+            elif text == "Follicles":  #
+                type_ = pm.listTransforms(type="follicle")
+            elif text == "nCloths":  #
+                type_ = pm.listTransforms(type="nCloth")
+            elif text == "nParticles":  #
+                type_ = pm.listTransforms(type="nParticle")
+            elif text == "nRigids":  #
+                type_ = pm.listTransforms(type="nRigid")
+
+            pm.select(type_)
+            widget.setCurrentIndex(0)
+
     def cmb003_init(self, widget):
         """ """
         items = [
@@ -292,22 +167,75 @@ class Selection(SlotsMaya):
         ]
         widget.add(items, header="Convert To:")
 
+    def cmb003(self, index, widget):
+        """Convert To"""
+        if index > 0:
+            text = widget.items[index]
+            if text == "Verts":  # Convert Selection To Vertices
+                pm.mel.PolySelectConvert(3)
+            elif text == "Vertex Faces":  #
+                pm.mel.PolySelectConvert(5)
+            elif text == "Vertex Perimeter":  #
+                pm.mel.ConvertSelectionToVertexPerimeter()
+            elif text == "Edges":  # Convert Selection To Edges
+                pm.mel.PolySelectConvert(2)
+            elif text == "Edge Loop":  #
+                pm.mel.polySelectSp(loop=1)
+            elif text == "Edge Ring":  # Convert Selection To Edge Ring
+                pm.mel.SelectEdgeRingSp()
+            elif text == "Contained Edges":  #
+                pm.mel.PolySelectConvert(20)
+            elif text == "Edge Perimeter":  #
+                pm.mel.ConvertSelectionToEdgePerimeter()
+            elif text == "Border Edges":  #
+                pm.select(self.getBorderEdgeFromFace())
+            elif text == "Faces":  # Convert Selection To Faces
+                pm.mel.PolySelectConvert(1)
+            elif text == "Face Path":  #
+                pm.mel.polySelectEdges("edgeRing")
+            elif text == "Contained Faces":  #
+                pm.mel.PolySelectConvert(10)
+            elif text == "Face Perimeter":  #
+                pm.mel.polySelectFacePerimeter()
+            elif text == "UV's":  #
+                pm.mel.PolySelectConvert(4)
+            elif text == "UV Shell":  #
+                pm.mel.polySelectBorderShell(0)
+            elif text == "UV Shell Border":  #
+                pm.mel.polySelectBorderShell(1)
+            elif text == "UV Perimeter":  #
+                pm.mel.ConvertSelectionToUVPerimeter()
+            elif text == "UV Edge Loop":  #
+                pm.mel.polySelectEdges("edgeUVLoopOrBorder")
+            elif text == "Shell":  #
+                pm.mel.polyConvertToShell()
+            elif text == "Shell Border":  #
+                pm.mel.polyConvertToShellBorder()
+            widget.setCurrentIndex(0)
+
     def cmb005_init(self, widget):
         """ """
         items = ["Angle", "Border", "Edge Loop", "Edge Ring", "Shell", "UV Edge Loop"]
         widget.add(items, header="Off")
 
-    def chk005_init(self, widget):
-        """Create button group for radioboxes chk005, chk006, chk007"""
-        self.sb.create_button_groups(widget.ui, "chk005-7")
-
-        ctx = self.get_selection_tool()
-        if ctx == "selectSuperContext":
-            widget.ui.chk005.setChecked(True)
-        elif ctx == "lassoSelectContext":
-            widget.ui.chk006.setChecked(True)
-        elif ctx == "artSelectContext":
-            widget.ui.chk007.setChecked(True)
+    def cmb005(self, index, widget):
+        """Selection Contraints"""
+        if index > 0:
+            text = widget.items[index]
+            if text == "Angle":
+                pm.mel.dR_selConstraintAngle()  # dR_DoCmd("selConstraintAngle");
+            elif text == "Border":
+                pm.mel.dR_selConstraintBorder()  # dR_DoCmd("selConstraintBorder");
+            elif text == "Edge Loop":
+                pm.mel.dR_selConstraintEdgeLoop()  # dR_DoCmd("selConstraintEdgeLoop");
+            elif text == "Edge Ring":
+                pm.mel.dR_selConstraintEdgeRing()  # dR_DoCmd("selConstraintEdgeRing");
+            elif text == "Shell":
+                pm.mel.dR_selConstraintElement()  # dR_DoCmd("selConstraintElement");
+            elif text == "UV Edge Loop":
+                pm.mel.dR_selConstraintUVEdgeLoop()  # dR_DoCmd("selConstraintUVEdgeLoop");
+        else:
+            pm.mel.dR_selConstraintOff()  # dR_DoCmd("selConstraintOff");
 
     def chk000(self, state, widget):
         """Select Nth: uncheck other checkboxes"""
@@ -320,6 +248,18 @@ class Selection(SlotsMaya):
     def chk002(self, state, widget):
         """Select Nth: uncheck other checkboxes"""
         self.sb.toggle_multi(widget.menu, setUnChecked="chk000-1")
+
+    def chk005_init(self, widget):
+        """Create button group for radioboxes chk005, chk006, chk007"""
+        self.sb.create_button_groups(widget.ui, "chk005-7")
+
+        ctx = self.get_selection_tool()
+        if ctx == "selectSuperContext":
+            widget.ui.chk005.setChecked(True)
+        elif ctx == "lassoSelectContext":
+            widget.ui.chk006.setChecked(True)
+        elif ctx == "artSelectContext":
+            widget.ui.chk007.setChecked(True)
 
     def chk005(self, state, widget):
         """Select Style: Marquee"""
@@ -409,134 +349,6 @@ class Selection(SlotsMaya):
             pm.softSelect(edit=1, softSelectEnabled=False)
             self.sb.message_box("Soft Select <hl>Off</hl>.")
 
-    def cmb002(self, index, widget):
-        """Select by Type"""
-        if index > 0:
-            text = widget.items[index]
-            if text == "IK Handles":  #
-                type_ = pm.ls(type=["ikHandle", "hikEffector"])
-            elif text == "Joints":  #
-                type_ = pm.ls(type="joint")
-            elif text == "Clusters":  #
-                type_ = pm.listTransforms(type="clusterHandle")
-            elif text == "Lattices":  #
-                type_ = pm.listTransforms(type="lattice")
-            elif text == "Sculpt Objects":  #
-                type_ = pm.listTransforms(type=["implicitSphere", "sculpt"])
-            elif text == "Wires":  #
-                type_ = pm.ls(type="wire")
-            elif text == "Transforms":  #
-                type_ = pm.ls(type="transform")
-            elif text == "Geometry":  # Select all Geometry
-                geometry = pm.ls(geometry=True)
-                type_ = pm.listRelatives(
-                    geometry, p=True, path=True
-                )  # pm.listTransforms(type='nRigid')
-            elif text == "NURBS Curves":  #
-                type_ = pm.listTransforms(type="nurbsCurve")
-            elif text == "NURBS Surfaces":  #
-                type_ = pm.ls(type="nurbsSurface")
-            elif text == "Polygon Geometry":  #
-                type_ = pm.listTransforms(type="mesh")
-            elif text == "Cameras":  #
-                type_ = pm.listTransforms(cameras=1)
-            elif text == "Lights":  #
-                type_ = pm.listTransforms(lights=1)
-            elif text == "Image Planes":  #
-                type_ = pm.ls(type="imagePlane")
-            elif text == "Assets":  #
-                type_ = pm.ls(type=["container", "dagContainer"])
-            elif text == "Fluids":  #
-                type_ = pm.listTransforms(type="fluidShape")
-            elif text == "Particles":  #
-                type_ = pm.listTransforms(type="particle")
-            elif text == "Rigid Bodies":  #
-                type_ = pm.listTransforms(type="rigidBody")
-            elif text == "Rigid Constraints":  #
-                type_ = pm.ls(type="rigidConstraint")
-            elif text == "Brushes":  #
-                type_ = pm.ls(type="brush")
-            elif text == "Strokes":  #
-                type_ = pm.listTransforms(type="stroke")
-            elif text == "Dynamic Constraints":  #
-                type_ = pm.listTransforms(type="dynamicConstraint")
-            elif text == "Follicles":  #
-                type_ = pm.listTransforms(type="follicle")
-            elif text == "nCloths":  #
-                type_ = pm.listTransforms(type="nCloth")
-            elif text == "nParticles":  #
-                type_ = pm.listTransforms(type="nParticle")
-            elif text == "nRigids":  #
-                type_ = pm.listTransforms(type="nRigid")
-
-            pm.select(type_)
-            widget.setCurrentIndex(0)
-
-    def cmb003(self, index, widget):
-        """Convert To"""
-        if index > 0:
-            text = widget.items[index]
-            if text == "Verts":  # Convert Selection To Vertices
-                pm.mel.PolySelectConvert(3)
-            elif text == "Vertex Faces":  #
-                pm.mel.PolySelectConvert(5)
-            elif text == "Vertex Perimeter":  #
-                pm.mel.ConvertSelectionToVertexPerimeter()
-            elif text == "Edges":  # Convert Selection To Edges
-                pm.mel.PolySelectConvert(2)
-            elif text == "Edge Loop":  #
-                pm.mel.polySelectSp(loop=1)
-            elif text == "Edge Ring":  # Convert Selection To Edge Ring
-                pm.mel.SelectEdgeRingSp()
-            elif text == "Contained Edges":  #
-                pm.mel.PolySelectConvert(20)
-            elif text == "Edge Perimeter":  #
-                pm.mel.ConvertSelectionToEdgePerimeter()
-            elif text == "Border Edges":  #
-                pm.select(self.getBorderEdgeFromFace())
-            elif text == "Faces":  # Convert Selection To Faces
-                pm.mel.PolySelectConvert(1)
-            elif text == "Face Path":  #
-                pm.mel.polySelectEdges("edgeRing")
-            elif text == "Contained Faces":  #
-                pm.mel.PolySelectConvert(10)
-            elif text == "Face Perimeter":  #
-                pm.mel.polySelectFacePerimeter()
-            elif text == "UV's":  #
-                pm.mel.PolySelectConvert(4)
-            elif text == "UV Shell":  #
-                pm.mel.polySelectBorderShell(0)
-            elif text == "UV Shell Border":  #
-                pm.mel.polySelectBorderShell(1)
-            elif text == "UV Perimeter":  #
-                pm.mel.ConvertSelectionToUVPerimeter()
-            elif text == "UV Edge Loop":  #
-                pm.mel.polySelectEdges("edgeUVLoopOrBorder")
-            elif text == "Shell":  #
-                pm.mel.polyConvertToShell()
-            elif text == "Shell Border":  #
-                pm.mel.polyConvertToShellBorder()
-            widget.setCurrentIndex(0)
-
-    def cmb005(self, index, widget):
-        """Selection Contraints"""
-        if index > 0:
-            text = widget.items[index]
-            if text == "Angle":
-                pm.mel.dR_selConstraintAngle()  # dR_DoCmd("selConstraintAngle");
-            elif text == "Border":
-                pm.mel.dR_selConstraintBorder()  # dR_DoCmd("selConstraintBorder");
-            elif text == "Edge Loop":
-                pm.mel.dR_selConstraintEdgeLoop()  # dR_DoCmd("selConstraintEdgeLoop");
-            elif text == "Edge Ring":
-                pm.mel.dR_selConstraintEdgeRing()  # dR_DoCmd("selConstraintEdgeRing");
-            elif text == "Shell":
-                pm.mel.dR_selConstraintElement()  # dR_DoCmd("selConstraintElement");
-            elif text == "UV Edge Loop":
-                pm.mel.dR_selConstraintUVEdgeLoop()  # dR_DoCmd("selConstraintUVEdgeLoop");
-        else:
-            pm.mel.dR_selConstraintOff()  # dR_DoCmd("selConstraintOff");
-
     def chkxxx(self, **kwargs):
         """Transform Constraints: Constraint CheckBoxes"""
         widget = kwargs.get("widget")
@@ -545,6 +357,48 @@ class Selection(SlotsMaya):
             pm.select(widget.text(), deselect=(not state))
         except KeyError:
             pass
+
+    def tb000_init(self, widget):
+        """ """
+        widget.menu.add(
+            "QRadioButton",
+            setText="Edge Ring",
+            setObjectName="chk000",
+            setToolTip="Select component ring.",
+        )
+        widget.menu.add(
+            "QRadioButton",
+            setText="Edge Loop",
+            setObjectName="chk001",
+            setChecked=True,
+            setToolTip="Select all contiguous components that form a loop with the current selection.",
+        )
+        widget.menu.add(
+            "QRadioButton",
+            setText="Edge Loop Path",
+            setObjectName="chk009",
+            setToolTip="The path along loop between two selected edges, vertices or UV's.",
+        )
+        widget.menu.add(
+            "QRadioButton",
+            setText="Shortest Edge Path",
+            setObjectName="chk002",
+            setToolTip="The shortest component path between two selected edges, vertices or UV's.",
+        )
+        widget.menu.add(
+            "QRadioButton",
+            setText="Border Edges",
+            setObjectName="chk010",
+            setToolTip="Select the object(s) border edges.",
+        )
+        widget.menu.add(
+            "QSpinBox",
+            setPrefix="Step: ",
+            setObjectName="s003",
+            set_limits=[1, 100],
+            setValue=1,
+            setToolTip="Step Amount.",
+        )
 
     def tb000(self, widget):
         """Select Nth"""
@@ -577,6 +431,86 @@ class Selection(SlotsMaya):
             result = mtk.get_border_components(selection, "edges")
 
         pm.select(result[::step])
+
+    def tb001_init(self, widget):
+        """ """
+        widget.menu.add(
+            "QDoubleSpinBox",
+            setPrefix="Tolerance: ",
+            setObjectName="s000",
+            set_limits=[0, 9999, 0.0, 3],
+            setValue=0.0,
+            setToolTip="The allowed difference in any of the compared results.\nie. A tolerance of 4 allows for a difference of 4 components.\nie. A tolerance of 0.05 allows for that amount of variance between any of the bounding box values.",
+        )
+        widget.menu.add(
+            "QCheckBox",
+            setText="Vertex",
+            setObjectName="chk011",
+            setChecked=True,
+            setToolTip="The number of vertices.",
+        )
+        widget.menu.add(
+            "QCheckBox",
+            setText="Edge",
+            setObjectName="chk012",
+            setChecked=True,
+            setToolTip="The number of edges.",
+        )
+        widget.menu.add(
+            "QCheckBox",
+            setText="Face",
+            setObjectName="chk013",
+            setChecked=True,
+            setToolTip="The number of faces.",
+        )
+        widget.menu.add(
+            "QCheckBox",
+            setText="Triangle",
+            setObjectName="chk014",
+            setToolTip="The number of triangles.",
+        )
+        widget.menu.add(
+            "QCheckBox",
+            setText="Shell",
+            setObjectName="chk015",
+            setToolTip="The number of shells shells (disconnected pieces).",
+        )
+        widget.menu.add(
+            "QCheckBox",
+            setText="Uv Coord",
+            setObjectName="chk016",
+            setToolTip="The number of uv coordinates (for the current map).",
+        )
+        widget.menu.add(
+            "QCheckBox",
+            setText="Area",
+            setObjectName="chk017",
+            setToolTip="The surface area of the object's faces in local space.",
+        )
+        widget.menu.add(
+            "QCheckBox",
+            setText="World Area",
+            setObjectName="chk018",
+            setChecked=True,
+            setToolTip="The surface area of the object's faces in world space.",
+        )
+        widget.menu.add(
+            "QCheckBox",
+            setText="Bounding Box",
+            setObjectName="chk019",
+            setToolTip="The object's bounding box in 3d space.\nCannot be used with the topological flags.",
+        )
+        widget.menu.add(
+            "QCheckBox",
+            setText="Include Original",
+            setObjectName="chk020",
+            setToolTip="Include the original selected object(s) in the final selection.",
+        )
+        widget.menu.chk018.stateChanged.connect(
+            lambda state: self.sb.toggle_multi(widget.menu, setDisabled="chk011-18")
+            if state
+            else self.sb.toggle_multi(widget.menu, setEnabled="chk011-18")
+        )
 
     def tb001(self, widget):
         """Select Similar"""
@@ -615,6 +549,53 @@ class Selection(SlotsMaya):
         else:
             pm.mel.doSelectSimilar(1, {tolerance})
 
+    def tb002_init(self, widget):
+        """ """
+        widget.menu.add(
+            "QCheckBox",
+            setText="Lock Values",
+            setObjectName="chk003",
+            setChecked=True,
+            setToolTip="Keep values in sync.",
+        )
+        widget.menu.add(
+            "QDoubleSpinBox",
+            setPrefix="x: ",
+            setObjectName="s002",
+            set_limits=[0, 1, 0.01, 2],
+            setValue=0.05,
+            setToolTip="Normal X range.",
+        )
+        widget.menu.add(
+            "QDoubleSpinBox",
+            setPrefix="y: ",
+            setObjectName="s004",
+            set_limits=[0, 1, 0.01, 2],
+            setValue=0.05,
+            setToolTip="Normal Y range.",
+        )
+        widget.menu.add(
+            "QDoubleSpinBox",
+            setPrefix="z: ",
+            setObjectName="s005",
+            set_limits=[0, 1, 0.01, 2],
+            setValue=0.05,
+            setToolTip="Normal Z range.",
+        )
+
+        def update_normal_ranges(value, widget):
+            """Update all spin boxes if checkbox is checked."""
+            if widget.menu.chk003.isChecked():
+                # Update all spin boxes
+                widget.menu.s002.setValue(value)
+                widget.menu.s004.setValue(value)
+                widget.menu.s005.setValue(value)
+
+        # Connect signals
+        widget.menu.s002.valueChanged.connect(lambda v: update_normal_ranges(v, widget))
+        widget.menu.s004.valueChanged.connect(lambda v: update_normal_ranges(v, widget))
+        widget.menu.s005.valueChanged.connect(lambda v: update_normal_ranges(v, widget))
+
     def tb002(self, widget):
         """Select Island: Select Polygon Face Island"""
         range_x = float(widget.menu.s002.value())
@@ -633,6 +614,25 @@ class Selection(SlotsMaya):
         islands = mtk.get_contigious_islands(similar_faces)
         island = [i for i in islands if bool(set(i) & set(selected_faces))]
         pm.select(island)
+
+    def tb003_init(self, widget):
+        """ """
+        widget.menu.add(
+            "QDoubleSpinBox",
+            setPrefix="Angle Low:  ",
+            setObjectName="s006",
+            set_limits=[0, 180],
+            setValue=70,
+            setToolTip="Normal angle low range.",
+        )
+        widget.menu.add(
+            "QDoubleSpinBox",
+            setPrefix="Angle High: ",
+            setObjectName="s007",
+            set_limits=[0, 180],
+            setValue=160,
+            setToolTip="Normal angle high range.",
+        )
 
     def tb003(self, widget):
         """Select Edges By Angle"""

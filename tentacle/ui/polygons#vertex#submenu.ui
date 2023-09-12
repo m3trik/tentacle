@@ -62,9 +62,9 @@
     </property>
     <property name="geometry">
      <rect>
-      <x>265</x>
+      <x>260</x>
       <y>240</y>
-      <width>66</width>
+      <width>76</width>
       <height>19</height>
      </rect>
     </property>

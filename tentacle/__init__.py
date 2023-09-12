@@ -6,6 +6,7 @@ __package__ = "tentacle"
 __version__ = "0.7.9"
 
 
+
 def greeting(string, outputToConsole=True):
     """Format a string using preset variables.
 

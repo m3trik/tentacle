@@ -57,7 +57,7 @@ class Polygons(SlotsMaya):
             )
             return
 
-        mtk.merge_vertices(objects, selected=componentMode, tolerance=tolerance)
+        mtk.merge_vertices(objects, tolerance=tolerance, selected_only=componentMode)
 
     def tb001_init(self, widget):
         """ """
@@ -467,10 +467,8 @@ class Polygons(SlotsMaya):
             p1 = pm.pointPosition(verts[0], world=True)
             p2 = pm.pointPosition(verts[1], world=True)
         except IndexError:
-            p1, p2 = [
-                (0.0005, 0, 0),
-                (0, 0, 0),
-            ]  # arbitrary points that will return the spinbox to it's default value of 0.0005.
+            # Use Arbitrary points that will return the spinbox to it's default value of 0.0005
+            p1, p2 = [(0.0005, 0, 0), (0, 0, 0)]
 
         self.setMergeVertexDistance(p1, p2)
 
