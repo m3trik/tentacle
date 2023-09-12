@@ -474,11 +474,6 @@ class Polygons(SlotsMaya):
 
         self.setMergeVertexDistance(p1, p2)
 
-    def b006(self):
-        """Merge Vertices: Merge All"""
-        sel = pm.ls(sl=True, objectsOnly=True)
-        mtk.merge_vertices(sel)
-
     def b009(self):
         """Collapse Component"""
         if pm.selectType(q=True, facet=1):
@@ -569,6 +564,8 @@ class Polygons(SlotsMaya):
         """Merge Vertices: Set Distance"""
         spinbox = self.sb.polygons.tb000.menu.s002
         dist = ptk.get_distance(p1, p2)
+        adjustment_factor = 1.01  # Add 1% to the distance
+        dist *= adjustment_factor
         spinbox.setValue(dist)
 
 
