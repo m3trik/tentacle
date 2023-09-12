@@ -17,7 +17,6 @@ class Edit(SlotsMaya):
 
     def cmb001_init(self, widget):
         """ """
-        widget.clear()
         widget.refresh = True
         try:
             selection = pm.ls(sl=1, objectsOnly=1)
@@ -25,7 +24,7 @@ class Edit(SlotsMaya):
             items = {str(o): o for o in obj_hist}
         except RuntimeError:
             items = ["No selection."]
-        widget.add(items, header="History")
+        widget.add(items, header="History", clear=True)
 
     def cmb001(self, index, widget):
         """Object History Attributes"""
@@ -431,7 +430,7 @@ class Edit(SlotsMaya):
         def set_axis_text(widget):
             """Set the toolbutton's text according to the checkstates."""
             axis = self.sb.get_axis_from_checkboxes("chk006-9", widget.menu)
-            widget.setText(f"Delete {axis}")
+            widget.setText(f"Delete Along Axis: {axis}")
 
         self.sb.connect_multi(
             widget.menu, "chk006-9", "toggled", lambda s, w=widget: set_axis_text(w)

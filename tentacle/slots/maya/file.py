@@ -215,20 +215,20 @@ class File(SlotsMaya):
     def cmb006_init(self, widget):
         """ """
         widget.refresh = True
-        widget.menu.clear()
+        if not widget.is_initialized:
+            widget.menu.add(
+                self.sb.Label,
+                setObjectName="lbl000",
+                setText="Set",
+                setToolTip="Set the project directory.",
+            )
+            widget.menu.add(
+                self.sb.Label,
+                setObjectName="lbl004",
+                setText="Root",
+                setToolTip="Open the project directory.",
+            )
 
-        widget.menu.add(
-            self.sb.Label,
-            setObjectName="lbl000",
-            setText="Set",
-            setToolTip="Set the project directory.",
-        )
-        widget.menu.add(
-            self.sb.Label,
-            setObjectName="lbl004",
-            setText="Root",
-            setToolTip="Open the project directory.",
-        )
         workspace = ptk.format_path(pm.workspace(q=True, rd=1))  # current project path.
         project = ptk.format_path(workspace, "dir")
         items = [f for f in os.listdir(workspace)]
