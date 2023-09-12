@@ -472,12 +472,6 @@ class Polygons(SlotsMaya):
 
         self.setMergeVertexDistance(p1, p2)
 
-    def b006(self):
-        """Merge Vertices: Merge All"""
-        sel = pm.ls(sl=True, objectsOnly=True)
-        tolerance = self.sb.polygons.tb000.menu.s002.value()
-        mtk.merge_vertices(sel, tolerance)
-
     def b009(self):
         """Collapse Component"""
         if pm.selectType(q=True, facet=1):
