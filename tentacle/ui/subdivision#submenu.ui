@@ -90,7 +90,7 @@
     </property>
     <property name="geometry">
      <rect>
-      <x>315</x>
+      <x>395</x>
       <y>330</y>
       <width>86</width>
       <height>19</height>
@@ -189,8 +189,8 @@
     </property>
     <property name="geometry">
      <rect>
-      <x>360</x>
-      <y>290</y>
+      <x>310</x>
+      <y>330</y>
       <width>66</width>
       <height>19</height>
      </rect>
@@ -206,6 +206,43 @@
     </property>
     <property name="text">
      <string>Reduce</string>
+    </property>
+    <property name="iconSize">
+     <size>
+      <width>18</width>
+      <height>18</height>
+     </size>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="b011">
+    <property name="enabled">
+     <bool>true</bool>
+    </property>
+    <property name="geometry">
+     <rect>
+      <x>365</x>
+      <y>290</y>
+      <width>111</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="minimumSize">
+     <size>
+      <width>0</width>
+      <height>20</height>
+     </size>
+    </property>
+    <property name="maximumSize">
+     <size>
+      <width>16777215</width>
+      <height>19</height>
+     </size>
+    </property>
+    <property name="toolTip">
+     <string>Convert smooth mesh preview to polygons</string>
+    </property>
+    <property name="text">
+     <string>Convert Preview</string>
     </property>
     <property name="iconSize">
      <size>
