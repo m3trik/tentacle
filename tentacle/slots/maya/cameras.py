@@ -16,34 +16,42 @@ class Cameras(SlotsMaya):
         self.sb.parent().left_mouse_double_click.connect(self.toggle_camera_view)
 
     def list000_init(self, widget):
-        """ """
         widget.clear()
         widget.refresh = True
         widget.fixed_item_height = 18
         widget.sublist_x_offset = -10
         widget.sublist_y_offset = -10
 
+        # Define camera types and their focal lengths
+        camera_types = {
+            "Standard Camera": 35,
+            "Wide Angle Camera": 18,
+            "Telephoto Camera": 85,
+        }
+
+        # Add 'Create' as the first parent item and its sublist
+        w0 = widget.add("Create Camera")
+        w0.sublist.add(camera_types)
+
+        # Existing code for finding and listing cameras
         try:
-            cameras = pm.ls(type=("camera"), l=True)  # Get all cameras
-            # filter all startup / default cameras
+            cameras = pm.ls(type=("camera"), l=True)
             startup_cameras = [
                 camera
                 for camera in cameras
                 if pm.camera(camera.parent(0), q=True, startupCamera=True)
             ]
-            # get non-default cameras. these are all PyNodes
             non_startup_cameras_pynodes = list(set(cameras) - set(startup_cameras))
-            # non-PyNode, regular string name list
-            non_startup_cameras = map(str, non_startup_cameras_pynodes)
+            non_startup_cameras = list(map(str, non_startup_cameras_pynodes))
 
         except AttributeError:
             non_startup_cameras = []
 
-        if list(non_startup_cameras):
-            w1 = widget.add("Cameras")
+        if non_startup_cameras:
+            w1 = widget.add("Select Camera")
             w1.sublist.add(non_startup_cameras)
 
-        w2 = widget.add("Per Camera Visibility")
+        w2 = widget.add("Visibility Settings")
         per_camera_visibility = [
             "Exclusive to Camera",
             "Hidden from Camera",
@@ -54,76 +62,40 @@ class Cameras(SlotsMaya):
         ]
         w2.sublist.add(per_camera_visibility)
 
-        w3 = widget.add("Editors")
-        editors = ["Camera Sequencer", "Camera Set Editor"]
-        w3.sublist.add(editors)
+        w3 = widget.add("Camera Options")
+        options = ["Auto Adjust Clipping"]
+        w3.sublist.add(options)
 
     @signals("on_item_interacted")
     def list000(self, item):
-        """ """
         text = item.item_text()
         parent_text = item.parent_item_text()
 
-        if parent_text == "Create":
-            if text == "Custom Camera":  # Create a camera with the specified settings
-                camera = pm.camera(
-                    centerOfInterest=5,
-                    focalLength=35,
-                    horizontalFilmAperture=1.41732,
-                    verticalFilmAperture=0.94488,
-                )
-            elif text == "Set Custom Camera":  # Set the camera to the perspective view
-                home_panel = mtk.get_panel(withFocus=True)
-                if pm.modelPanel(home_panel, query=True, camera=True) == "persp":
-                    pm.cameraView(camera, edit=True, setCamera=True)
+        if parent_text == "Create Camera":
+            focal_length = item.item_data()
+            pm.camera(focalLength=focal_length)
 
-            elif text == "Camera From View":
-                mtk.create_camera_from_view()
+        elif parent_text == "Select Camera":
+            pm.select(text)
+            pm.lookThru(text)
 
-            elif parent_text == "Cameras":
-                pm.select(text)
-                pm.lookThru(text)
-
-        if parent_text == "Editors":
-            if text == "Camera Sequencer":
-                pm.mel.eval("SequenceEditor;")
-
-            elif text == "Camera Set Editor":
-                pm.mel.eval("cameraSetEditor;")
-
-        if parent_text == "Per Camera Visibility":
+        elif parent_text == "Visibility Settings":
             if text == "Exclusive to Camera":
-                pm.mel.eval(
-                    "SetExclusiveToCamera;"
-                )  # doPerCameraVisibility 0; Make selected objects exclusive to the selected (or current) camera.
+                pm.mel.eval("SetExclusiveToCamera;")
             elif text == "Hidden from Camera":
-                pm.mel.eval(
-                    "SetHiddenFromCamera;"
-                )  # doPerCameraVisibility 1; Make selected objects hidden from the selected (or current) camera.
+                pm.mel.eval("SetHiddenFromCamera;")
             elif text == "Remove from Exclusive":
-                pm.mel.eval(
-                    "CameraRemoveFromExclusive;"
-                )  # doPerCameraVisibility 2; Remove selected objects from the selected (or current) camera's exclusive list.
+                pm.mel.eval("CameraRemoveFromExclusive;")
             elif text == "Remove from Hidden":
-                pm.mel.eval(
-                    "CameraRemoveFromHidden;"
-                )  # doPerCameraVisibility 3; Remove the selected objects from the selected (or current) camera's hidden list.
-            elif (
-                text == "Remove All for Camera"
-            ):  # Remove all hidden or exclusive objects for the selected (or current) camera.
-                pm.mel.eval("CameraRemoveAll;")  # doPerCameraVisibility 4;
+                pm.mel.eval("CameraRemoveFromHidden;")
+            elif text == "Remove All for Camera":
+                pm.mel.eval("CameraRemoveAll;")
             elif text == "Remove All":
-                pm.mel.eval(
-                    "CameraRemoveAllForAll;"
-                )  # doPerCameraVisibility 5; Remove all hidden or exclusive objects for all cameras.
+                pm.mel.eval("CameraRemoveAllForAll;")
 
-        if parent_text == "Options":
-            if text == "Group Cameras":
-                mtk.group_cameras()
-            elif text == "Adjust Clipping":
-                self.clippingMenu.show()
-            elif text == "Toggle Safe Frames":  # Viewport Safeframes Toggle
-                mtk.toggle_safe_frames()
+        elif parent_text == "Camera Options":
+            if text == "Auto Adjust Clipping":
+                mtk.adjust_camera_clipping(auto=True)
 
     def chk000(self, state, widget):
         """Camera Clipping: Auto Clip"""
