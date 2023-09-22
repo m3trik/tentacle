@@ -5,6 +5,7 @@ try:
 except ImportError as error:
     print(__file__, error)
 import mayatk as mtk
+from uitk import signals
 from tentacle.slots.maya import SlotsMaya
 
 
@@ -71,6 +72,19 @@ class Scene(SlotsMaya):
         if text:
             pm.select(pm.ls(text))
 
+    # The LineEdit text parameter is not emitted on `returnPressed`
+    @signals("returnPressed")
+    def txt001(self, widget):
+        """Rename"""
+        # An asterisk denotes startswith*, *endswith, *contains*
+        find = widget.ui.txt000.text()
+        to = widget.text()
+        regex = widget.ui.txt000.menu.chk001.isChecked()
+        ignore_case = widget.ui.txt000.menu.chk000.isChecked()
+
+        selection = pm.ls(sl=1, objectsOnly=True)
+        mtk.rename(selection, to, find, regex=regex, ignore_case=ignore_case)
+
     def tb000(self, widget):
         """Convert Case"""
         case = widget.menu.cmb001.currentText()
@@ -94,17 +108,6 @@ class Scene(SlotsMaya):
             strip_trailing_alpha=strip_trailing_alpha,
             reverse=reverse,
         )
-
-    def b000(self, widget):
-        """Rename"""
-        # An asterisk denotes startswith*, *endswith, *contains*
-        find = self.sb.scene.txt000.text()
-        to = self.sb.scene.txt001.text()
-        regex = self.sb.scene.txt000.menu.chk001.isChecked()
-        ignore_case = self.sb.scene.txt000.menu.chk000.isChecked()
-
-        selection = pm.ls(sl=1, objectsOnly=True)
-        mtk.rename(selection, to, find, regex=regex, ignore_case=ignore_case)
 
 
 # --------------------------------------------------------------------------------------------
