@@ -371,11 +371,10 @@ class Edit(SlotsMaya):
             pm.mel.OptimizeScene()
 
         # Display messages in the viewport
-        obj_names = ", ".join([str(obj) for obj in objects])
         if deformers:
-            self.sb.message_box(f"<hl>Delete history</hl> on {obj_names}")
+            self.sb.message_box("<hl>Delete history</hl>")
         else:
-            self.sb.message_box(f"<hl>Delete non-deformer history</hl> on {obj_names}")
+            self.sb.message_box("<hl>Delete non-deformer history</hl>")
 
     def tb002(self, widget):
         """Delete"""
