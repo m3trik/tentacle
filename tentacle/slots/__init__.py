@@ -27,10 +27,13 @@ class Slots(QtCore.QObject):
 
     def hide_main(fn):
         """A decorator that hides the stacked widget main window."""
+        from functools import wraps
 
+        @wraps(fn)  # This ensures the wrapped function retains meta-info
         def wrapper(self, *args, **kwargs):
-            fn(self, *args, **kwargs)  # execute the method normally.
-            self.sb.parent().hide()  # Get the state of the widget in the current ui and set any widgets (having the methods name) in child or parent ui's accordingly.
+            result = fn(self, *args, **kwargs)  # execute the method normally
+            self.sb.parent().hide()
+            return result
 
         return wrapper
 

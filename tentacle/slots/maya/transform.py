@@ -409,6 +409,40 @@ class Transform(SlotsMaya):
         rotateValue = pm.manipRotateContext("Rotate", q=True, snapValue=True)
         widget.menu.s023.setValue(rotateValue)
 
+    def tb005_init(self, widget):
+        """Initialize Move To Menu"""
+        widget.menu.setTitle("MOVE TO")
+
+        widget.menu.add(
+            "QCheckBox",
+            setText="Move All To Last",
+            setObjectName="chk036",
+            setChecked=True,
+            setToolTip="If checked, all selected objects will move to align with the last selected object.\nIf unchecked, the first object will move to the remaining selected objects' bounding box.",
+        )
+
+    @mtk.undo
+    def tb005(self, widget):
+        """Move To"""
+        move_all_to_last = widget.menu.chk036.isChecked()
+
+        sel = pm.ls(sl=1, transforms=1)
+        if not len(sel) > 1:
+            self.sb.message_box(
+                "<b>Nothing selected.</b><br>The operation requires at least two selected objects."
+            )
+            return
+
+        # Move all to last selected object's position
+        if move_all_to_last:
+            target = sel[-1]
+            mtk.move_to(sel[:-1], target)
+        else:  # Move first object to remaining selected objects' bounding box or pivot point
+            target = sel[1:]
+            mtk.move_to(sel[0], target)
+
+        pm.select(sel)
+
     def chk010(self, state, widget):
         """Align Vertices: Auto Align"""
         if state:
@@ -604,23 +638,6 @@ class Transform(SlotsMaya):
     def b003(self):
         """Center Pivot Object"""
         pm.mel.CenterPivot()
-
-    def b005(self):
-        """Move To"""
-        sel = pm.ls(sl=1, transforms=1)
-        if not sel:
-            self.sb.message_box(
-                "<b>Nothing selected.</b><br>The operation requires at least two selected objects."
-            )
-            return
-
-        objects = sel[:-1]
-        target = sel[-1]
-
-        pm.matchTransform(
-            objects, target, position=1, rotation=1, scale=0, pivots=1
-        )  # move object to center of the last selected items bounding box
-        pm.select(objects)
 
     def b012(self):
         """Make Live (Toggle)"""
