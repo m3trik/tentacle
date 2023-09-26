@@ -504,10 +504,12 @@ class Tcl(QtWidgets.QStackedWidget):
 
     def repeat_last_command(self):
         """Repeat the last stored command."""
+        self.hide()
         method = self.sb.prev_slot
 
         if callable(method):
-            method()
+            widget = self.sb.get_widget_from_method(method)
+            widget.call_slot()
         else:
             logging.info("No recent commands in history.")
         self.option_box = False

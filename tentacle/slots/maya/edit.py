@@ -38,13 +38,6 @@ class Edit(SlotsMaya):
                         visible=True,
                         keyable=True,
                     )
-                    # # Filter the unknown datatypes here
-                    # attrs = {
-                    #     k: v
-                    #     for k, v in attrs.items()
-                    #     if self.sb.AttributeWindow.is_type_supported(type(v))
-                    # }
-                    # print(attrs)
                     window = self.sb.AttributeWindow(
                         node,
                         attrs,
@@ -52,6 +45,7 @@ class Edit(SlotsMaya):
                         set_attribute_func=lambda obj, n, v: getattr(obj, n).set(v),
                     )
                     window.set_style(theme="dark")
+                    window.set_flags(WindowStaysOnTopHint=True)
                     window.show()
             else:
                 self.sb.message_box("Found no items to list the history for.")
