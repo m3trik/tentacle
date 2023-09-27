@@ -121,9 +121,9 @@
     </property>
     <property name="geometry">
      <rect>
-      <x>150</x>
-      <y>350</y>
-      <width>76</width>
+      <x>130</x>
+      <y>360</y>
+      <width>91</width>
       <height>19</height>
      </rect>
     </property>
@@ -192,8 +192,8 @@
     </property>
     <property name="geometry">
      <rect>
-      <x>185</x>
-      <y>210</y>
+      <x>230</x>
+      <y>360</y>
       <width>106</width>
       <height>19</height>
      </rect>
@@ -226,8 +226,8 @@
     </property>
     <property name="geometry">
      <rect>
-      <x>75</x>
-      <y>280</y>
+      <x>110</x>
+      <y>270</y>
       <width>136</width>
       <height>19</height>
      </rect>
@@ -266,8 +266,8 @@
     </property>
     <property name="geometry">
      <rect>
-      <x>245</x>
-      <y>350</y>
+      <x>150</x>
+      <y>330</y>
       <width>51</width>
       <height>19</height>
      </rect>
@@ -386,7 +386,7 @@
    <widget class="QPushButton" name="b000">
     <property name="geometry">
      <rect>
-      <x>125</x>
+      <x>130</x>
       <y>240</y>
       <width>96</width>
       <height>20</height>
@@ -460,14 +460,14 @@
      <bool>true</bool>
     </property>
    </widget>
-   <widget class="QPushButton" name="b005">
+   <widget class="PushButton" name="tb005">
     <property name="enabled">
      <bool>true</bool>
     </property>
     <property name="geometry">
      <rect>
-      <x>120</x>
-      <y>320</y>
+      <x>130</x>
+      <y>300</y>
       <width>86</width>
       <height>20</height>
      </rect>
@@ -486,7 +486,7 @@
     </property>
     <property name="maximumSize">
      <size>
-      <width>999</width>
+      <width>16777215</width>
       <height>20</height>
      </size>
     </property>
@@ -518,7 +518,7 @@
   <customwidget>
    <class>PushButton</class>
    <extends>QPushButton</extends>
-   <header>uitk.widgets.pushbutton.PushButton.h</header>
+   <header>widgets.pushbutton.h</header>
   </customwidget>
   <customwidget>
    <class>CheckBox</class>

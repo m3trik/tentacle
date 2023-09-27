@@ -54,6 +54,14 @@ class Duplicate(SlotsMaya):
         self.sb.register("duplicate_radial.ui", slot_class, base_dir=module)
         self.sb.parent().set_ui("duplicate_radial")
 
+    def b008(self):
+        """Duplicate Grid"""
+        module = mtk.edit_utils.duplicate_grid
+        slot_class = module.DuplicateGridSlots
+
+        self.sb.register("duplicate_grid.ui", slot_class, base_dir=module)
+        self.sb.parent().set_ui("duplicate_grid")
+
 
 # --------------------------------------------------------------------------------------------
 

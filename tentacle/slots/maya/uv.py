@@ -560,15 +560,28 @@ class Uv(SlotsMaya):
 
     def b006(self):
         """Rotate UV's 90"""
-        angle = 45
-        # issue with getting rotate pivot; queries returning None instead of float values.
-        objects = pm.ls(sl=True, objectsOnly=1)
-        # for obj in objects:
-        #   pu = pm.polyEditUV(obj, q=True, pivotU=True)
-        #   pv = pm.polyEditUV(obj, q=True, pivotV=True)
+        angle = -45
+        selected_objects = pm.ls(sl=True, fl=True)
 
-        #   pm.polyEditUV(obj, pivotU=pu, pivotV=pv, angle=angle, relative=True)
-        pm.polyEditUV(objects, angle=angle, rr=True)
+        # Convert shell selection to individual UVs
+        selected_uvs = pm.polyListComponentConversion(selected_objects, toUV=True)
+        selected_uvs = pm.ls(selected_uvs, flatten=True)
+
+        # Calculate the pivot point for the UV shell
+        all_u, all_v = [], []
+        for uv in selected_uvs:
+            u, v = pm.polyEditUV(uv, query=True, uValue=True, vValue=True)
+            all_u.append(u)
+            all_v.append(v)
+
+        pivot_u = sum(all_u) / len(all_u)
+        pivot_v = sum(all_v) / len(all_v)
+
+        # Rotate UVs using the calculated pivot point
+        for uv in selected_uvs:
+            pm.polyEditUV(
+                uv, pivotU=pivot_u, pivotV=pivot_v, angle=angle, relative=True
+            )
 
     def b011(self):
         """Sew UV's"""

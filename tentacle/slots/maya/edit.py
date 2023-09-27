@@ -38,13 +38,6 @@ class Edit(SlotsMaya):
                         visible=True,
                         keyable=True,
                     )
-                    # # Filter the unknown datatypes here
-                    # attrs = {
-                    #     k: v
-                    #     for k, v in attrs.items()
-                    #     if self.sb.AttributeWindow.is_type_supported(type(v))
-                    # }
-                    # print(attrs)
                     window = self.sb.AttributeWindow(
                         node,
                         attrs,
@@ -52,6 +45,7 @@ class Edit(SlotsMaya):
                         set_attribute_func=lambda obj, n, v: getattr(obj, n).set(v),
                     )
                     window.set_style(theme="dark")
+                    window.set_flags(WindowStaysOnTopHint=True)
                     window.show()
             else:
                 self.sb.message_box("Found no items to list the history for.")
@@ -371,11 +365,10 @@ class Edit(SlotsMaya):
             pm.mel.OptimizeScene()
 
         # Display messages in the viewport
-        obj_names = ", ".join([str(obj) for obj in objects])
         if deformers:
-            self.sb.message_box(f"<hl>Delete history</hl> on {obj_names}")
+            self.sb.message_box("<hl>Delete history</hl>")
         else:
-            self.sb.message_box(f"<hl>Delete non-deformer history</hl> on {obj_names}")
+            self.sb.message_box("<hl>Delete non-deformer history</hl>")
 
     def tb002(self, widget):
         """Delete"""
@@ -469,12 +462,13 @@ class Edit(SlotsMaya):
             pm.lockNode(node, lock=not unlock)
 
     @SlotsMaya.hide_main
-    def b001(self, widget):
+    def b001(self):
         """Object History Attributes: get most recent node"""
         cmb = self.sb.edit.cmb001
         index = cmb.items.index(cmb.items[-1])
-        cmb.init_slot(index)
+        cmb.call_slot(index)
 
+    @SlotsMaya.hide_main
     def b021(self):
         """Tranfer Maps"""
         pm.mel.performSurfaceSampling(1)
