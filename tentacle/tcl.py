@@ -44,7 +44,7 @@ class Tcl(QtWidgets.QStackedWidget):
         slot_location="slots",
         widget_location=None,
         prevent_hide=False,
-        log_level=logging.WARNING,
+        log_level=logging.ERROR,
     ):
         """ """
         super().__init__(parent)
@@ -69,7 +69,7 @@ class Tcl(QtWidgets.QStackedWidget):
             ui_location=ui_location,
             slot_location=slot_location,
             widget_location=widget_location,
-            log_level=logging.ERROR,
+            log_level=self.logger.getEffectiveLevel(),
         )
         self.child_event_filter = EventFactoryFilter(
             self,
