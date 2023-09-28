@@ -20,7 +20,7 @@ The following example demonstrates re-opening the last scene, renaming a materia
 
 The structure of the project is as follows:
 
-![Structure](https://raw.githubusercontent.com/m3trik/tentacle/master/docs/dependancy_graph.jpg)
+![Structure](https://raw.githubusercontent.com/m3trik/tentacle/master/docs/UML_diagram.jpg)
 
 | Module | Description |
 | ------- | ----------- |
