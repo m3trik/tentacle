@@ -229,19 +229,18 @@ class File(SlotsMaya):
                 setToolTip="Open the project directory.",
             )
 
-        workspace = ptk.format_path(pm.workspace(q=True, rd=1))  # current project path.
+        workspace = mtk.get_maya_info("workspace_dir")
         project = ptk.format_path(workspace, "dir")
-        items = [f for f in os.listdir(workspace)]
+        # Add each dir in the workspace as well as its full path as data
+        items = {d: f"{workspace}/{d}" for d in os.listdir(workspace)}
         widget.add(items, header=project, clear=True)
 
     def cmb006(self, index, widget):
         """Workspace"""
         if index > 0:
             try:
-                # Get the current project path.
-                path = ptk.format_path(pm.workspace(q=True, rd=1))
-                folder = widget.items[index - 1]
-                os.startfile(path + folder)
+                item = widget.items[index]
+                os.startfile(item)
             except Exception as e:
                 print(e)
         widget.setCurrentIndex(0)
