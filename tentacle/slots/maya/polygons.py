@@ -176,38 +176,37 @@ class Polygons(SlotsMaya):
             pm.mel.PolyExtrude()  # return polyExtrudeVertex(selection, ch=1, width=0.5, length=1, divisions=divisions)
 
     def tb004(self, widget):
-        """Bevel (Chamfer)"""
+        """Bevel"""
         module = mtk.edit_utils.bevel_edges
         slot_class = module.BevelEdgesSlots
 
         self.sb.register("bevel_edges.ui", slot_class, base_dir=module)
+        self.sb.bevel_edges.slots.preview.enable_on_show = True
         self.sb.parent().set_ui("bevel_edges")
 
     def tb005_init(self, widget):
-        """ """
+        """Initialize the tool buttons for detaching operations."""
         widget.menu.add(
             "QCheckBox",
-            setText="Duplicate",
+            setText="Duplicate Faces",
             setObjectName="chk014",
             setChecked=True,
             setToolTip="Duplicate any selected faces, leaving the originals.",
         )
         widget.menu.add(
             "QCheckBox",
-            setText="Separate",
+            setText="Separate Objects",
             setObjectName="chk015",
             setChecked=True,
             setToolTip="Separate mesh objects after detaching faces.",
         )
-        # tb005.menu.add('QCheckBox', setText='Delete Original', setObjectName='chk007', setChecked=True, setToolTip='Delete original selected faces.')
 
     def tb005(self, widget):
-        """Detach"""
-        duplicate = widget.menu.chk014.isChecked()
-        separate = widget.menu.chk015.isChecked()
+        """Perform detach operations based on user settings and selection."""
+        duplicate_faces = widget.menu.chk014.isChecked()
+        separate_objects = widget.menu.chk015.isChecked()
 
         vertexMask = pm.selectType(q=True, vertex=True)
-        # edgeMask = pm.selectType(q=True, edge=True)
         facetMask = pm.selectType(q=True, facet=True)
 
         selection = pm.ls(sl=1)
@@ -219,19 +218,21 @@ class Polygons(SlotsMaya):
 
         if vertexMask:
             pm.mel.polySplitVertex()
-
         elif facetMask:
             extract = pm.polyChipOff(
-                selection, ch=1, keepFacesTogether=1, dup=duplicate, off=0
+                selection,
+                ch=True,
+                keepFacesTogether=True,
+                dup=duplicate_faces,
+                off=True,
             )
-            if separate:
+            if separate_objects:
                 try:
                     splitObjects = pm.polySeparate(selection)
                 except Exception:
-                    splitObjects = pm.polySeparate(pm.ls(selection, objectsOnly=1))
+                    splitObjects = pm.polySeparate(pm.ls(selection, objectsOnly=True))
             pm.select(splitObjects[-1])
             return extract
-
         else:
             pm.mel.DetachComponent()
 
