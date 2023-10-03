@@ -8,26 +8,13 @@ except ImportError as error:
     print(__file__, error)
 import pythontk as ptk
 import mayatk as mtk
-from uitk.switchboard import signals
+from uitk import Signals
 from tentacle.slots.maya import SlotsMaya
 
 
 class File(SlotsMaya):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-
-    def cmb000_init(self, widget):
-        """ """
-        widget.refresh = True
-        widget.clear()
-
-        for i in mtk.get_workspace_scenes(fullPath=True):
-            chk = widget.add("QCheckBox", setText=i)
-            chk.toggled.connect(
-                lambda state, scene=i: mtk.reference_scene(scene)
-                if state
-                else mtk.remove_reference(scene)
-            )
 
     def cmb001_init(self, widget):
         """ """
@@ -42,8 +29,10 @@ class File(SlotsMaya):
     def cmb001(self, index, widget):
         """Recent Projects"""
         if index > 0:
-            pm.mel.setProject(widget.items[index])
+            project = widget.items[index]
+            pm.workspace.open(project)
             widget.setCurrentIndex(0)
+            self.sb.file.cmb006.init_slot()
 
     def cmb002_init(self, widget):
         """ """
@@ -250,13 +239,13 @@ class File(SlotsMaya):
         widget.position = "top"
         widget.sublist_y_offset = 18
         widget.fixed_item_height = 18
-        recentFiles = mtk.get_recent_files(slice(0, 6))
+        recentFiles = mtk.get_recent_files(slice(0, 11))
         w1 = widget.add("Recent Files")
         truncated = ptk.truncate(recentFiles, 65)
         w1.sublist.add(zip(truncated, recentFiles))
         widget.setVisible(bool(recentFiles))
 
-    @signals("on_item_interacted")
+    @Signals("on_item_interacted")
     def list000(self, item):
         """ """
         data = item.item_data()
@@ -285,6 +274,14 @@ class File(SlotsMaya):
 
         except FileNotFoundError:
             self.sb.message_box("The system cannot find the file specified.")
+
+    def b001(self):
+        """Open Reference Manager"""
+        module = mtk.core_utils.reference_manager
+        slot_class = module.ReferenceManagerSlots
+
+        self.sb.register("reference_manager.ui", slot_class, base_dir=module)
+        self.sb.parent().set_ui("reference_manager")
 
     def b002(self):
         """Autosave: Delete All"""

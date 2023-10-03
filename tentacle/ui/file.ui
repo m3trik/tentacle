@@ -10,7 +10,7 @@
     <x>0</x>
     <y>0</y>
     <width>200</width>
-    <height>237</height>
+    <height>249</height>
    </rect>
   </property>
   <property name="tabShape">
@@ -304,7 +304,10 @@
           </widget>
          </item>
          <item>
-          <widget class="ComboBox" name="cmb000">
+          <widget class="PushButton" name="b001">
+           <property name="enabled">
+            <bool>true</bool>
+           </property>
            <property name="minimumSize">
             <size>
              <width>0</width>
@@ -317,20 +320,18 @@
              <height>20</height>
             </size>
            </property>
-           <property name="maxVisibleItems">
-            <number>30</number>
+           <property name="toolTip">
+            <string>Open the reference manager.</string>
            </property>
-           <property name="sizeAdjustPolicy">
-            <enum>QComboBox::AdjustToContentsOnFirstShow</enum>
+           <property name="text">
+            <string>Reference Manager</string>
            </property>
-           <property name="frame">
-            <bool>false</bool>
+           <property name="iconSize">
+            <size>
+             <width>18</width>
+             <height>18</height>
+            </size>
            </property>
-           <item>
-            <property name="text">
-             <string>Reference:</string>
-            </property>
-           </item>
           </widget>
          </item>
         </layout>
@@ -364,6 +365,11 @@
    <class>ComboBox</class>
    <extends>QComboBox</extends>
    <header>uitk.widgets.comboBox.ComboBox.h</header>
+  </customwidget>
+  <customwidget>
+   <class>PushButton</class>
+   <extends>QPushButton</extends>
+   <header>widgets.pushbutton.h</header>
   </customwidget>
  </customwidgets>
  <resources/>

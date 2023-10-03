@@ -5,7 +5,7 @@ try:
 except ImportError as error:
     print(__file__, error)
 import mayatk as mtk
-from uitk import signals
+from uitk import Signals
 from tentacle.slots.maya import SlotsMaya
 
 
@@ -73,7 +73,7 @@ class Scene(SlotsMaya):
             pm.select(pm.ls(text))
 
     # The LineEdit text parameter is not emitted on `returnPressed`
-    @signals("returnPressed")
+    @Signals("returnPressed")
     def txt001(self, widget):
         """Rename"""
         # An asterisk denotes startswith*, *endswith, *contains*

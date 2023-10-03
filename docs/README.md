@@ -1,5 +1,5 @@
 [![License: LGPL v3](https://img.shields.io/badge/License-LGPL%20v3-blue.svg)](https://www.gnu.org/licenses/lgpl-3.0.en.html)
-[![Version](https://img.shields.io/badge/Version-0.8.1-blue.svg)](https://pypi.org/project/tentacletk/)
+[![Version](https://img.shields.io/badge/Version-0.8.2-blue.svg)](https://pypi.org/project/tentacletk/)
 
 
 # Tentacle: A Python3/PySide2 Marking Menu and DCC Toolkit
@@ -20,7 +20,7 @@ The following example demonstrates re-opening the last scene, renaming a materia
 
 The structure of the project is as follows:
 
-![Structure](https://raw.githubusercontent.com/m3trik/tentacle/master/docs/dependancy_graph.jpg)
+![Structure](https://raw.githubusercontent.com/m3trik/tentacle/master/docs/UML_diagram.jpg)
 
 | Module | Description |
 | ------- | ----------- |

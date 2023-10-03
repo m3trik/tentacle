@@ -5,7 +5,7 @@ try:
 except ImportError as error:
     print(__file__, error)
 import mayatk as mtk
-from uitk.switchboard import signals
+from uitk import Signals
 from tentacle.slots.maya import SlotsMaya
 
 
@@ -63,10 +63,10 @@ class Cameras(SlotsMaya):
         w2.sublist.add(per_camera_visibility)
 
         w3 = widget.add("Camera Options")
-        options = ["Auto Adjust Clipping"]
+        options = ["Auto Adjust Clipping", "Reset Clipping"]
         w3.sublist.add(options)
 
-    @signals("on_item_interacted")
+    @Signals("on_item_interacted")
     def list000(self, item):
         text = item.item_text()
         parent_text = item.parent_item_text()
@@ -95,39 +95,9 @@ class Cameras(SlotsMaya):
 
         elif parent_text == "Camera Options":
             if text == "Auto Adjust Clipping":
-                mtk.adjust_camera_clipping(auto=True)
-
-    def chk000(self, state, widget):
-        """Camera Clipping: Auto Clip"""
-        if state:
-            self.sb.toggle_multi(self.clippingMenu, setDisabled="s000-1")
-        else:
-            self.sb.toggle_multi(self.clippingMenu, setEnabled="s000-1")
-
-        activeCamera = mtk.get_current_cam()
-        if not activeCamera:
-            self.sb.message_box("No Active Camera.")
-            return
-
-        pm.viewClipPlane(activeCamera, autoClipPlane=True)
-
-    def s000(self, value, widget):
-        """Camera Clipping: Near Clip"""
-        activeCamera = mtk.get_current_cam()
-        if not activeCamera:
-            self.sb.message_box("No Active Camera.")
-            return
-
-        pm.viewClipPlane(activeCamera, nearClipPlane=value)
-
-    def s001(self, value, widget):
-        """Camera Clipping: Far Clip"""
-        activeCamera = mtk.get_current_cam()
-        if not activeCamera:
-            self.sb.message_box("No Active Camera.")
-            return
-
-        pm.viewClipPlane(activeCamera, farClipPlane=value)
+                mtk.adjust_camera_clipping(mode="auto")
+            elif text == "Reset Clipping":
+                mtk.adjust_camera_clipping(mode="reset")
 
     def b000(self):
         """Cameras: Back View"""
@@ -261,64 +231,6 @@ class Cameras(SlotsMaya):
     def b013(self):
         """Camera: Orbit"""
         pm.viewPreset(camera="orbit")
-
-    @property
-    def clippingMenu(self):
-        """Menu: Camera clip plane settings.
-
-        Returns:
-                (obj) menu as a property.
-        """
-        if not hasattr(self, "_clippingMenu"):
-            self._clippingMenu = self.sb.Menu(self.sb.cameras, position="cursorPos")
-            self._clippingMenu.add(
-                "QPushButton",
-                setText="Auto Clip",
-                setObjectName="chk000",
-                setCheckable=True,
-                setToolTip="When Auto Clip is ON, geometry closer to the camera than 3 units is not displayed. Turn OFF to manually define.",
-            )
-            self._clippingMenu.add(
-                "QDoubleSpinBox",
-                setPrefix="Far Clip:  ",
-                setObjectName="s000",
-                set_limits=[0.01, 10, 0.1, 2],
-                setToolTip="Adjust the current cameras near clipping plane.",
-            )
-            self._clippingMenu.add(
-                "QSpinBox",
-                setPrefix="Near Clip: ",
-                setObjectName="s001",
-                set_limits=[10, 10000],
-                setToolTip="Adjust the current cameras far clipping plane.",
-            )
-
-        # set widget states for the active camera
-        activeCamera = mtk.get_current_cam()
-        if not activeCamera:
-            self.sb.toggle_multi(self._clippingMenu, setDisabled="s000-1,chk000")
-
-        elif pm.viewClipPlane(
-            activeCamera, q=True, autoClipPlane=1
-        ):  # if autoClipPlane is active:
-            self._clippingMenu.chk000.setChecked(True)
-            self.sb.toggle_multi(self._clippingMenu, setDisabled="s000-1")
-
-        nearClip = (
-            pm.viewClipPlane(activeCamera, q=True, nearClipPlane=1)
-            if activeCamera
-            else 1.0
-        )
-        farClip = (
-            pm.viewClipPlane(activeCamera, q=True, farClipPlane=1)
-            if activeCamera
-            else 1000.0
-        )
-
-        self._clippingMenu.s000.setValue(nearClip)
-        self._clippingMenu.s001.setValue(farClip)
-
-        return self._clippingMenu
 
     def toggle_camera_view(self):
         """Toggle between the last two camera views in history."""

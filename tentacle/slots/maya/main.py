@@ -4,7 +4,7 @@ try:
     import pymel.core as pm
 except ImportError as error:
     print(__file__, error)
-from uitk.switchboard import signals
+from uitk import Signals
 from tentacle.slots.maya import SlotsMaya
 
 
@@ -34,7 +34,7 @@ class Main(SlotsMaya):
             history = {str(node): node for node in pm.listHistory(obj)}
             w2.sublist.add(history)
 
-    @signals("on_item_interacted")
+    @Signals("on_item_interacted")
     def list000(self, item):
         """ """
         text = item.item_text()

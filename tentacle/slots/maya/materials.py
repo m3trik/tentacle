@@ -12,6 +12,36 @@ class Materials(SlotsMaya):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
+    def header_init(self, widget):
+        """ """
+        # Add a button to launch the hdr manager.
+        widget.menu.add(
+            self.sb.PushButton,
+            setToolTip="Manage the scene's HDR shader.",
+            setText="HDR Manager",
+            setObjectName="b000",
+        )
+        module = mtk.mat_utils.hdr_manager
+        slot_class = module.HdrManagerSlots
+
+        self.sb.register("hdr_manager.ui", slot_class, base_dir=module)
+        widget.menu.b000.clicked.connect(lambda: self.sb.parent().set_ui("hdr_manager"))
+
+        # Add a button to launch stringray arnold shader.
+        widget.menu.add(
+            self.sb.PushButton,
+            setToolTip="Create a stingray material network that can be previewed in Arnold.",
+            setText="Stingray Arnold Shader",
+            setObjectName="b001",
+        )
+        module = mtk.mat_utils.stingray_arnold_shader
+        slot_class = module.StingrayArnoldShaderSlots
+
+        self.sb.register("stingray_arnold_shader.ui", slot_class, base_dir=module)
+        widget.menu.b001.clicked.connect(
+            lambda: self.sb.parent().set_ui("stingray_arnold_shader")
+        )
+
     def cmb000_init(self, widget):
         """ """
         # Get all shader types derived from the 'shader' class
@@ -52,6 +82,12 @@ class Materials(SlotsMaya):
                 setText="Rename",
                 setObjectName="lbl005",
                 setToolTip="Rename the current material.",
+            )
+            widget.menu.add(
+                self.sb.Label,
+                setText="Reload Textures",
+                setObjectName="lbl006",
+                setToolTip="Reload textures for all scene materials.",
             )
             widget.menu.add(
                 self.sb.Label,
@@ -155,6 +191,12 @@ class Materials(SlotsMaya):
         """Set the current combo box text as editable."""
         self.sb.materials.cmb002.setEditable(True)
         self.sb.materials.cmb002.menu.hide()
+
+    def lbl006(self):
+        """Reload Textures"""
+        mtk.reload_textures()
+        confirmation_message = "<html><body><p style='font-size:16px; color:yellow;'>Textures have been <strong>reloaded</strong>.</p></body></html>"
+        self.sb.message_box(confirmation_message)
 
     def b002(self, widget):
         """Get Material: Change the index to match the current material selection."""
