@@ -150,8 +150,10 @@ class Tcl(QtWidgets.QStackedWidget):
         else:
             self.hide()
             found_ui.show()
-            found_ui.setFixedSize(found_ui.minimumSizeHint())
-            found_ui.update()
+            widget_before_adjust = found_ui.width()
+            found_ui.adjustSize()
+            found_ui.resize(widget_before_adjust, found_ui.sizeHint().height())
+            found_ui.updateGeometry()
             # move to cursor position.
             self.sb.center_widget(found_ui, "cursor", offset_y=25)
 
