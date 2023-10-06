@@ -1,5 +1,5 @@
 [![License: LGPL v3](https://img.shields.io/badge/License-LGPL%20v3-blue.svg)](https://www.gnu.org/licenses/lgpl-3.0.en.html)
-[![Version](https://img.shields.io/badge/Version-0.8.3-blue.svg)](https://pypi.org/project/tentacletk/)
+[![Version](https://img.shields.io/badge/Version-0.8.4-blue.svg)](https://pypi.org/project/tentacletk/)
 
 
 # Tentacle: A Python3/PySide2 Marking Menu and DCC Toolkit
