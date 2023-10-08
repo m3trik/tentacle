@@ -409,7 +409,9 @@ class Tcl(QtWidgets.QStackedWidget):
                         self.set_ui(menu)
             if hasattr(w, "click"):
                 self.hide()
-                w.click()  # send click signal on mouseRelease.
+                if w.ui.has_tag("submenu"):
+                    if not w.base_name == "chk":
+                        w.click()  # send click signal on mouseRelease.
 
         w.mouseReleaseEvent(event)
 
