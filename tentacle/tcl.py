@@ -107,8 +107,8 @@ class Tcl(QtWidgets.QStackedWidget):
         if not isinstance(ui, QtWidgets.QWidget):
             raise ValueError(f"Invalid datatype: {type(ui)}, expected QWidget.")
 
-        if ui.has_tag("startmenu|submenu"):  # StackedWidget
-            if ui.has_tag("submenu"):
+        if ui.has_tags(["startmenu", "submenu"]):  # StackedWidget
+            if ui.has_tags("submenu"):
                 ui.set_style(theme="dark", style_class="transparentBgNoBorder")
             else:
                 ui.set_style(theme="dark", style_class="translucentBgNoBorder")
@@ -142,8 +142,8 @@ class Tcl(QtWidgets.QStackedWidget):
         if not found_ui.is_initialized:
             self._init_ui(found_ui)
 
-        if found_ui.has_tag("startmenu|submenu"):
-            if found_ui.has_tag("startmenu"):
+        if found_ui.has_tags(["startmenu", "submenu"]):
+            if found_ui.has_tags("startmenu"):
                 self.move(self.sb.get_cursor_offset_from_center(self))
             self.setCurrentWidget(found_ui)  # set the stacked widget to the found UI.
 
@@ -236,7 +236,7 @@ class Tcl(QtWidgets.QStackedWidget):
         """ """
         modifiers = self.app.keyboardModifiers()
 
-        if self.sb.current_ui.has_tag("startmenu|submenu"):
+        if self.sb.current_ui.has_tags(["startmenu", "submenu"]):
             if not modifiers:
                 if event.button() == QtCore.Qt.LeftButton:
                     self.set_ui("cameras#startmenu")
@@ -259,7 +259,7 @@ class Tcl(QtWidgets.QStackedWidget):
         """ """
         modifiers = self.app.keyboardModifiers()
 
-        if self.sb.current_ui.has_tag("startmenu|submenu"):
+        if self.sb.current_ui.has_tags(["startmenu", "submenu"]):
             if event.button() == QtCore.Qt.LeftButton:
                 if modifiers == QtCore.Qt.ControlModifier:
                     self.left_mouse_double_click_ctrl.emit()
@@ -342,7 +342,7 @@ class Tcl(QtWidgets.QStackedWidget):
 
         for w in ptk.make_iterable(widgets):
             if (w.derived_type not in filtered_types) or (  # not correct derived type:
-                not w.ui.has_tag("startmenu|submenu")  # not stacked UI:
+                not w.ui.has_tags(["startmenu", "submenu"])  # not stacked UI:
             ):
                 continue
 
@@ -373,7 +373,7 @@ class Tcl(QtWidgets.QStackedWidget):
                         self.set_submenu(submenu, w)
 
         if w.base_name == "chk":
-            if w.ui.has_tag("submenu"):
+            if w.ui.has_tags("submenu"):
                 if self.isVisible():  # Omit children of popup menus.
                     w.click()  # send click signal on enterEvent.
 
@@ -409,7 +409,7 @@ class Tcl(QtWidgets.QStackedWidget):
                         self.set_ui(menu)
             if hasattr(w, "click"):
                 self.hide()
-                if w.ui.has_tag("submenu"):
+                if w.ui.has_tags(["startmenu", "submenu"]):
                     if not w.base_name == "chk":
                         w.click()  # send click signal on mouseRelease.
 
@@ -432,7 +432,7 @@ class Tcl(QtWidgets.QStackedWidget):
                 and not modifiers == QtCore.Qt.ControlModifier
             ):
                 if w.derived_type == QtWidgets.QMainWindow:
-                    if not w.ui.has_tag("startmenu|submenu"):
+                    if not w.ui.has_tags(["startmenu", "submenu"]):
                         self.key_show_release.emit()
                         w.releaseKeyboard()
 
@@ -441,11 +441,11 @@ class Tcl(QtWidgets.QStackedWidget):
     # ---------------------------------------------------------------------------------------------
 
     @staticmethod
-    def get_unknown_tags(tag_string, known_tags="submenu|startmenu"):
+    def get_unknown_tags(tag_string, known_tags=["submenu", "startmenu"]):
         """Extracts all tags from a given string that are not known tags.
 
         Parameters:
-            tag_string (str): The string from which to extract unknown tags.
+            tag_string (str/list): The known tags in which to derive any unknown tags from.
 
         Returns:
             list: A list of unknown tags extracted from the tag_string.
@@ -456,7 +456,10 @@ class Tcl(QtWidgets.QStackedWidget):
         """
         import re
 
-        unknown_tags = re.findall(f"#(?!{known_tags})[a-zA-Z0-9]*", tag_string)
+        # Join known_tags into a pattern string
+        known_tags_list = ptk.make_iterable(known_tags)
+        known_tags_pattern = "|".join(known_tags_list)
+        unknown_tags = re.findall(f"#(?!{known_tags_pattern})[a-zA-Z0-9]*", tag_string)
         # Remove leading '#' from all tags
         unknown_tags = [tag[1:] for tag in unknown_tags if tag != "#"]
         return unknown_tags

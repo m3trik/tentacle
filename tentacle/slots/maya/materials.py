@@ -12,6 +12,9 @@ class Materials(SlotsMaya):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
+        self.ui = self.sb.materials
+        self.submenu = self.sb.materials_submenu
+
     def header_init(self, widget):
         """ """
         # Add a button to launch the hdr manager.
@@ -46,7 +49,7 @@ class Materials(SlotsMaya):
         """ """
         # Get all shader types derived from the 'shader' class
         items = pm.listNodeTypes("shader")
-        widget.add(items, header="Assign New")
+        widget.add(items, header="Assign New", header_alignment="center")
 
     def cmb000(self, index, widget):
         """Assign: Assign New"""
@@ -60,8 +63,8 @@ class Materials(SlotsMaya):
             mat_name = widget.currentText()
             mat = mtk.create_mat(mat_name)
             mtk.assign_mat(selection, mat)
-            self.sb.materials.cmb002.init_slot()
-            self.sb.materials.cmb002.setCurrentItem(mat_name)
+            self.ui.cmb002.init_slot()
+            self.ui.cmb002.setCurrentItem(mat_name)
             widget.setCurrentIndex(0)
 
     def cmb002_init(self, widget):
@@ -111,12 +114,12 @@ class Materials(SlotsMaya):
             widget.on_editing_finished.connect(
                 lambda text: pm.rename(widget.currentData(), text)
             )
+            # Update the assign button with the new material name.
+            widget.on_editing_finished.connect(self.ui.b005.init_slot)
             # Initialize the widget every time before the popup is shown.
             widget.before_popup_shown.connect(widget.init_slot)
             # Add the current material name to the assign button.
-            widget.currentIndexChanged.connect(
-                lambda: self.b005_init(self.sb.materials.b005)
-            )
+            widget.currentIndexChanged.connect(self.ui.b005.init_slot)
 
         # Use 'restore_index=True' to save and restore the index
         materials = mtk.get_scene_mats(exc="standardSurface")
@@ -139,7 +142,7 @@ class Materials(SlotsMaya):
 
     def tb000(self, widget):
         """Select By Material ID"""
-        mat = self.sb.materials.cmb002.currentData()
+        mat = self.ui.cmb002.currentData()
         if not mat:
             self.sb.message_box(
                 amg="<hl>Nothing selected</hl><br>Select an object face, or choose the option: current material.",
@@ -158,7 +161,7 @@ class Materials(SlotsMaya):
     def lbl000(self):
         """Open material in editor"""
         try:
-            mat = self.sb.materials.cmb002.currentData()
+            mat = self.ui.cmb002.currentData()
             pm.select(mat)
         except Exception:
             self.sb.message_box("No stored material or no valid object selected.")
@@ -172,25 +175,25 @@ class Materials(SlotsMaya):
 
     def lbl002(self):
         """Delete Material"""
-        mat = self.sb.materials.cmb002.currentData()  # get the mat obj from cmb002
+        mat = self.ui.cmb002.currentData()  # get the mat obj from cmb002
         mat = pm.delete(mat)
-        self.sb.materials.cmb002.init_slot()  # refresh the materials list comboBox
+        self.ui.cmb002.init_slot()  # refresh the materials list comboBox
 
     def lbl003(self, widget):
         """Delete Unused Materials"""
         pm.mel.hyperShadePanelMenuCommand("hyperShadePanel1", "deleteUnusedNodes")
-        self.sb.materials.cmb002.init_slot()  # refresh the materials list comboBox
+        self.ui.cmb002.init_slot()  # refresh the materials list comboBox
 
     def lbl004(self):
         """Select and Show Attributes: Show Material Attributes in the Attribute Editor."""
-        mat = self.sb.materials.cmb002.currentData()  # get the mat obj from cmb002
+        mat = self.ui.cmb002.currentData()  # get the mat obj from cmb002
         pm.select(mat, replace=True)
         pm.mel.eval(f'showEditorExact("{mat}")')
 
     def lbl005(self):
         """Set the current combo box text as editable."""
-        self.sb.materials.cmb002.setEditable(True)
-        self.sb.materials.cmb002.menu.hide()
+        self.ui.cmb002.setEditable(True)
+        self.ui.cmb002.menu.hide()
 
     def lbl006(self):
         """Reload Textures"""
@@ -214,8 +217,8 @@ class Materials(SlotsMaya):
             )
             return
 
-        self.sb.materials.cmb002.init_slot()  # refresh the materials list comboBox
-        self.sb.materials.cmb002.setCurrentItem(mat.pop().name())  # pop: mat is a set
+        self.ui.cmb002.init_slot()  # refresh the materials list comboBox
+        self.ui.cmb002.setCurrentItem(mat.pop().name())  # pop: mat is a set
 
     def b004(self, widget):
         """Assign: Assign Random"""
@@ -227,15 +230,15 @@ class Materials(SlotsMaya):
         mat = mtk.create_mat("random")
         mtk.assign_mat(selection, mat)
 
-        self.sb.materials.cmb002.init_slot()  # refresh the materials list comboBox
-        self.sb.materials.cmb002.setCurrentItem(mat.name())
+        self.ui.cmb002.init_slot()  # refresh the materials list comboBox
+        self.ui.cmb002.setCurrentItem(mat.name())
 
     def b005_init(self, widget):
         """ """
-        current_material = self.sb.materials.cmb002.currentData()
+        widget.refresh = True
+        current_material = self.ui.cmb002.currentData()
         text = f"Assign: {current_material}"
-        widget.setText(text)
-        submenu_widget = self.sb.materials_submenu.b005
+        submenu_widget = self.submenu.b005
         submenu_widget.setText(text)
         submenu_widget.setMinimumWidth(submenu_widget.minimumSizeHint().width() + 25)
         if current_material:
@@ -250,7 +253,7 @@ class Materials(SlotsMaya):
             self.sb.message_box("No renderable object is selected for assignment.")
             return
 
-        mat = self.sb.materials.cmb002.currentData()
+        mat = self.ui.cmb002.currentData()
         mtk.assign_mat(selection, mat)
 
 

@@ -13,6 +13,9 @@ class Selection(SlotsMaya):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
+        self.ui = self.sb.selection
+        self.submenu = self.sb.selection_submenu
+
     def cmb001_init(self, widget):
         """ """
         widget.refresh = True
@@ -41,7 +44,7 @@ class Selection(SlotsMaya):
                 setObjectName="lbl002",
                 setToolTip="Delete the current set.",
             )
-            widget.currentIndexChanged.connect(self.lbl005)
+            widget.currentIndexChanged.connect(widget.menu.lbl005.call_slot)
 
         items = [str(s) for s in pm.ls(et="objectSet", flatten=1)]
         widget.add(items, header="Selection Sets:", clear=True)
@@ -281,7 +284,7 @@ class Selection(SlotsMaya):
 
     def lbl000(self, widget):
         """Selection Sets: Create New"""
-        cmb = self.sb.selection.cmb001
+        cmb = self.ui.cmb001
         if not cmb.isEditable():
             cmb.add("", ascending=True)
             cmb.setEditable(True)
@@ -289,12 +292,12 @@ class Selection(SlotsMaya):
         else:
             name = cmb.currentText()
             self.creatNewSelectionSet(name)
-            self.cmb001_init(widget.ui)  # refresh the sets comboBox
+            self.ui.cmb001.init_slot()  # refresh the sets comboBox
             cmb.setCurrentIndex(0)
 
     def lbl001(self, widget):
         """Selection Sets: Modify Current"""
-        cmb = self.sb.selection.cmb001
+        cmb = self.ui.cmb001
         if not cmb.isEditable():
             name = cmb.currentText()
             self._oldSetName = name
@@ -304,15 +307,15 @@ class Selection(SlotsMaya):
             name = cmb.currentText()
             self.modifySet(self._oldSetName)
             cmb.setItemText(cmb.currentIndex(), name)
-            # self.cmb001_init(widget.ui)  # refresh the sets comboBox
+            # self.ui.cmb001.init_slot()  # refresh the sets comboBox
 
     def lbl002(self, widget):
         """Selection Sets: Delete Current"""
-        cmb = self.sb.selection.cmb001
+        cmb = self.ui.cmb001
         name = cmb.currentText()
 
         pm.delete(name)
-        self.cmb001_init(widget.ui)  # refresh the sets comboBox
+        self.ui.cmb001.init_slot()  # refresh the sets comboBox
 
     def lbl003(self, widget):
         """Grow Selection"""
@@ -324,7 +327,7 @@ class Selection(SlotsMaya):
 
     def lbl005(self, widget):
         """Selection Sets: Select Current"""
-        cmb = self.sb.selection.cmb001
+        cmb = self.ui.cmb001
         name = cmb.currentText()
 
         if cmb.currentIndex() > 0:
@@ -727,7 +730,7 @@ class Selection(SlotsMaya):
 
     def modifySet(self, name):
         """Selection Sets: Modify Current by renaming or changing the set members."""
-        newName = self.sb.selection.cmb001.currentText()
+        newName = self.ui.cmb001.currentText()
         if not newName:
             newName = self.generateUniqueSetName()
         name = pm.rename(name, newName)

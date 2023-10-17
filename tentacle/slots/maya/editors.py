@@ -12,6 +12,8 @@ class Editors(SlotsMaya):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
+        self.ui = self.sb.editors
+
     def list000_init(self, widget):
         """ """
         widget.fixed_item_height = 18
@@ -304,8 +306,6 @@ class Editors(SlotsMaya):
                 -showCachedConnections 0
                 $editorName //
         """
-        # e = pm.mel.eval('$tmp=$gHyperGraphPanel')
-        # self.showEditor(e, 640, 480)
         pm.mel.HypergraphHierarchyWindow()
 
     def getEditorWidget(self, name):
@@ -321,24 +321,6 @@ class Editors(SlotsMaya):
             setattr(self, _name, w)
 
         return getattr(self, _name)
-
-    def showEditor(self, name, width=640, height=480):
-        """Show, resize, and center the given editor.
-
-        Parameters:
-                name (str): The name of the editor.
-                width (int): The editor's desired width.
-                height (int): The editor's desired height.
-
-        Returns:
-                (obj) The editor as a QWidget.
-        """
-        w = self.getEditorWidget(name)
-
-        self.sb.parent().set_ui("dynLayout")
-        self.stackedWidget.setCurrentWidget(w)
-        self.sb.parent().resize(width, height)
-        return w
 
 
 # --------------------------------------------------------------------------------------------

@@ -11,6 +11,9 @@ class Rendering(SlotsMaya):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
+        self.ui = self.sb.rendering
+        self.submenu = self.sb.rendering_submenu
+
     def cmb001_init(self, widget):
         """Render: camera"""
         lst = {c.name(): c for c in pm.ls(type="camera") if "Target" not in c.name()}
@@ -18,7 +21,7 @@ class Rendering(SlotsMaya):
 
     def b000(self):
         """Render Current Frame"""
-        cmb = self.sb.rendering.cmb001
+        cmb = self.ui.cmb001
         index = cmb.currentIndex()
 
         camera = cmb.items[index]

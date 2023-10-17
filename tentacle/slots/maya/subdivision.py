@@ -12,6 +12,9 @@ class Subdivision(SlotsMaya):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
+        self.ui = self.sb.subdivision
+        self.submenu = self.sb.subdivision_submenu
+
     def cmb001(self, index, widget):
         """Smooth Proxy"""
         if index > 0:
@@ -58,6 +61,28 @@ class Subdivision(SlotsMaya):
             if hasattr(obj, "smoothLevel"):
                 mtk.set_node_attributes(obj, {"smoothTessLevel": value})
                 mtk.viewport_message(f"{obj}: Tesselation Level: <hl>{value}</hl>")
+
+    def b000(self):
+        """Quadrangulate"""
+        selection = pm.selected()
+
+        # Ensure there's a selection and it's a mesh
+        if not selection or not isinstance(selection[0], pm.nodetypes.Transform):
+            self.sb.message_box(
+                "No valid objects selected.\nPlease select a mesh or mesh face."
+            )
+            return
+
+        shapes = mtk.get_shape_node(selection)
+        pm.polyQuad(
+            shapes,
+            angle=30,
+            keepGeometryBorder=True,
+            keepTextureBorder=True,
+            keepHardEdge=False,
+            worldSpace=True,
+            constructionHistory=True,
+        )
 
     def b005(self):
         """Reduce"""

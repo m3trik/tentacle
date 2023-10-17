@@ -12,8 +12,11 @@ class Edit(SlotsMaya):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
+        self.ui = self.sb.edit
+        self.submenu = self.sb.edit_submenu
+
         # Refresh the combo box on every view show
-        self.sb.edit.cmb001.before_popup_shown.connect(self.sb.edit.cmb001.init_slot)
+        self.ui.cmb001.before_popup_shown.connect(self.ui.cmb001.init_slot)
 
     def cmb001_init(self, widget):
         """ """
@@ -335,40 +338,29 @@ class Edit(SlotsMaya):
 
     def tb001(self, widget):
         """Delete History"""
-        # Get the state of the checkboxes
-        unusedNodes = widget.menu.chk019.isChecked()
-        deformers = widget.menu.chk020.isChecked()
-        optimize = widget.menu.chk030.isChecked()
+        # Get the state of the checkboxes and selected or all mesh objects
+        unused_nodes, deformers, optimize = map(
+            lambda chk: chk.isChecked(),
+            (widget.menu.chk019, widget.menu.chk020, widget.menu.chk030),
+        )
+        objects = pm.ls(sl=True, objectsOnly=1) or pm.ls(typ="mesh")
 
-        # Get the selected objects or all mesh objects depending on whether there's a current selection
-        objects = pm.ls(sl=True, objectsOnly=1) if pm.ls(sl=True) else pm.ls(typ="mesh")
+        # Delete unused nodes
+        if unused_nodes:
+            pm.mel.MLdeleteUnused()
+            pm.delete(mtk.get_groups(empty=True))
 
-        # Delete unused nodes if the corresponding checkbox is checked
-        if unusedNodes:
-            pm.mel.MLdeleteUnused()  # Delete unused nodes
-            empty = mtk.get_groups(empty=True)  # Get empty groups
-            pm.delete(empty)  # Delete empty groups
-
-        # Try to delete history
-        try:
-            if deformers:
-                pm.delete(objects, constructionHistory=1)  # Delete all history
-            else:
-                pm.bakePartialHistory(
-                    objects, prePostDeformers=1
-                )  # Delete non-deformer history
-        except Exception:
-            pass
-
-        # Optimize the scene if the corresponding checkbox is checked
-        if optimize:
-            pm.mel.OptimizeScene()
-
-        # Display messages in the viewport
+        # Delete history
         if deformers:
+            pm.delete(objects, constructionHistory=1)
             self.sb.message_box("<hl>Delete history</hl>")
         else:
+            pm.bakePartialHistory(objects, prePostDeformers=1)
             self.sb.message_box("<hl>Delete non-deformer history</hl>")
+
+        # Optimize the scene
+        if optimize:
+            pm.mel.OptimizeScene()
 
     def tb002(self, widget):
         """Delete"""
@@ -464,7 +456,7 @@ class Edit(SlotsMaya):
     @SlotsMaya.hide_main
     def b001(self):
         """Object History Attributes: get most recent node"""
-        cmb = self.sb.edit.cmb001
+        cmb = self.ui.cmb001
         index = cmb.items.index(cmb.items[-1])
         cmb.call_slot(index)
 

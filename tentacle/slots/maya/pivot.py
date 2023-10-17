@@ -4,13 +4,16 @@ try:
     import pymel.core as pm
 except ImportError as error:
     print(__file__, error)
-import mayatk as mtk
+# import mayatk as mtk
 from tentacle.slots.maya import SlotsMaya
 
 
 class Pivot(SlotsMaya):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+
+        self.ui = self.sb.pivot
+        self.submenu = self.sb.pivot_submenu
 
     def tb000_init(self, widget):
         """ """
@@ -27,6 +30,22 @@ class Pivot(SlotsMaya):
             setObjectName="chk001",
             setChecked=True,
             setToolTip="",
+        )
+
+    def tb000(self, widget):
+        """Reset Pivot"""
+        resetPivotPosition = widget.menu.chk000.isChecked()  # Reset Pivot Position
+        resetPivotOrientation = (
+            widget.menu.chk001.isChecked()
+        )  # Reset Pivot Orientation
+
+        pm.mel.manipPivotReset(int(resetPivotPosition), int(resetPivotOrientation))
+        pm.inViewMessage(
+            status_message="Reset Pivot Position <hl>{0}</hl>.<br>Reset Pivot Orientation <hl>{1}</hl>.".format(
+                resetPivotPosition, resetPivotOrientation
+            ),
+            pos="topCenter",
+            fade=True,
         )
 
     def tb001_init(self, widget):
@@ -51,23 +70,6 @@ class Pivot(SlotsMaya):
             setToolTip="Center the pivot on world origin.",
         )
 
-    def tb000(self, widget):
-        """Reset Pivot"""
-        resetPivotPosition = widget.menu.chk000.isChecked()  # Reset Pivot Position
-        resetPivotOrientation = (
-            widget.menu.chk001.isChecked()
-        )  # Reset Pivot Orientation
-
-        pm.mel.manipPivotReset(int(resetPivotPosition), int(resetPivotOrientation))
-        pm.inViewMessage(
-            status_message="Reset Pivot Position <hl>{0}</hl>.<br>Reset Pivot Orientation <hl>{1}</hl>.".format(
-                resetPivotPosition, resetPivotOrientation
-            ),
-            pos="topCenter",
-            fade=True,
-        )
-        # self.sb.message_box('Reset Pivot Position <hl>{0}</hl>.<br>Reset Pivot Orientation <hl>{1}</hl>.'.format(resetPivotPosition, resetPivotOrientation))
-
     def tb001(self, widget):
         """Center Pivot"""
         component = widget.menu.chk002.isChecked()
@@ -85,26 +87,26 @@ class Pivot(SlotsMaya):
 
     def b000(self):
         """Center Pivot: Object"""
-        self.sb.pivot.tb001.init_slot()
-        self.sb.pivot.tb001.menu.chk003.setChecked(True)
-        self.sb.pivot.tb001.call_slot()
+        self.ui.tb001.init_slot()
+        self.ui.tb001.menu.chk003.setChecked(True)
+        self.ui.tb001.call_slot()
 
     def b001(self):
         """Center Pivot: Component"""
-        self.sb.pivot.tb001.init_slot()
-        self.sb.pivot.tb001.menu.chk002.setChecked(True)
-        self.sb.pivot.tb001.call_slot()
+        self.ui.tb001.init_slot()
+        self.ui.tb001.menu.chk002.setChecked(True)
+        self.ui.tb001.call_slot()
 
     def b002(self, widget):
         """Center Pivot: World"""
-        self.sb.pivot.tb001.init_slot()
-        self.sb.pivot.tb001.menu.chk004.setChecked(True)
-        self.sb.pivot.tb001.call_slot()
+        self.ui.tb001.init_slot()
+        self.ui.tb001.menu.chk004.setChecked(True)
+        self.ui.tb001.call_slot()
 
     def b004(self):
         """Bake Pivot"""
-        sel = pm.ls(sl=1)
-        mtk.bake_custom_pivot(sel, position=1, orientation=1)
+        pm.mel.BakeCustomPivot()
+        # mtk.bake_custom_pivot(pm.selected(), position=1, orientation=1)
 
 
 # --------------------------------------------------------------------------------------------
