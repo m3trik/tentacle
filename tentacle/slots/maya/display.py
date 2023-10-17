@@ -13,6 +13,9 @@ class Display(SlotsMaya):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
+        self.ui = self.sb.display
+        self.submenu = self.sb.display_submenu
+
     def b000(self):
         """Set Wireframe color"""
         pm.mel.objectColorPalette()

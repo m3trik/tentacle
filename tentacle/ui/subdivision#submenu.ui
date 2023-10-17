@@ -121,9 +121,9 @@
     </property>
     <property name="geometry">
      <rect>
-      <x>325</x>
+      <x>315</x>
       <y>260</y>
-      <width>81</width>
+      <width>101</width>
       <height>19</height>
      </rect>
     </property>
@@ -243,6 +243,43 @@
     </property>
     <property name="text">
      <string>Convert Preview</string>
+    </property>
+    <property name="iconSize">
+     <size>
+      <width>18</width>
+      <height>18</height>
+     </size>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="b000">
+    <property name="enabled">
+     <bool>true</bool>
+    </property>
+    <property name="geometry">
+     <rect>
+      <x>310</x>
+      <y>230</y>
+      <width>111</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="minimumSize">
+     <size>
+      <width>0</width>
+      <height>20</height>
+     </size>
+    </property>
+    <property name="maximumSize">
+     <size>
+      <width>16777215</width>
+      <height>20</height>
+     </size>
+    </property>
+    <property name="toolTip">
+     <string>Change the selected faces into quadrilaterals.</string>
+    </property>
+    <property name="text">
+     <string>Quadrangulate</string>
     </property>
     <property name="iconSize">
      <size>

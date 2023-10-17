@@ -12,19 +12,30 @@ class Uv(SlotsMaya):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
+        self.ui = self.sb.uv
+        self.submenu = self.sb.uv_submenu
+
         # Assure the maya UV plugin is loaded
         self.sb.preferences.slots.loadPlugin("Unfold3D.mll")
         # get the map size from the combobox as an int. ie. 2048
-        self.getMapSize = lambda: int(self.sb.uv.cmb003.currentText())
+        self.getMapSize = lambda: int(self.ui.cmb003.currentText())
 
     def header_init(self, widget):
         """ """
         widget.menu.add(
             "QPushButton",
             setText="Create UV Snapshot",
-            setObjectName="b001",
+            setObjectName="uv_snapshot",
             setToolTip="Save an image file of the current UV layout.",
         )
+        widget.menu.add(
+            "QPushButton",
+            setText="Open UV Editor",
+            setObjectName="uv_editor",
+            setToolTip="Open the texture coordinate mapping window.",
+        )
+        widget.menu.uv_snapshot.clicked.connect(pm.mel.UVCreateSnapshot)
+        widget.menu.uv_editor.clicked.connect(pm.mel.TextureViewWindow)
 
     def cmb002_init(self, widget):
         """ """
@@ -526,10 +537,6 @@ class Uv(SlotsMaya):
         panel = mtk.get_panel(scriptType="polyTexturePlacementPanel")
         pm.textureWindow(panel, edit=1, displayDistortion=state)
 
-    def b001(self):
-        """Create UV Snapshot"""
-        pm.mel.UVCreateSnapshot()
-
     def b002(self):
         """Stack Shells"""
         pm.mel.texStackShells({})
@@ -538,12 +545,18 @@ class Uv(SlotsMaya):
     def b003(self):
         """Get texel density."""
         density = pm.mel.texGetTexelDensity(self.getMapSize())
-        self.sb.uv.s003.setValue(density)
+        self.ui.s003.setValue(density)
 
     def b004(self):
         """Set Texel Density"""
-        density = self.sb.uv.s003.value()
+        density = self.ui.s003.value()
         mapSize = self.getMapSize()
+
+        # Ensure density and mapSize are non-zero to avoid division by zero error in MEL script
+        if density == 0 or mapSize == 0:
+            pm.warning("Density or Map Size is zero. Cannot set Texel Density.")
+            return  # exit the method if either value is zero
+
         pm.mel.texSetTexelDensity(density, mapSize)
 
     def b005(self):
@@ -597,8 +610,8 @@ class Uv(SlotsMaya):
 
     def b021(self, widget):
         """Unfold and Pack UVs"""
-        self.sb.uv.tb004.call_slot()  # perform unfold
-        self.sb.uv.tb000.call_slot()  # perform pack
+        self.ui.tb004.call_slot()  # perform unfold
+        self.ui.tb000.call_slot()  # perform pack
 
     def b022(self):
         """Cut UV hard edges"""

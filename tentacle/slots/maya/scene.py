@@ -13,6 +13,9 @@ class Scene(SlotsMaya):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
+        self.ui = self.sb.scene
+        self.submenu = self.sb.scene_submenu
+
     def txt000_init(self, widget):
         """ """
         widget.menu.add(

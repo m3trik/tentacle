@@ -13,6 +13,9 @@ class Polygons(SlotsMaya):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
+        self.ui = self.sb.polygons
+        self.submenu = self.sb.polygons_submenu
+
     def chk008(self, state, widget):
         """Divide Facet: Split U"""
         self.sb.toggle_multi(widget.ui, setUnChecked="chk010")
@@ -62,10 +65,26 @@ class Polygons(SlotsMaya):
     def tb001_init(self, widget):
         """ """
         widget.menu.add(
-            "QComboBox",
-            setObjectName="cmb000",
-            addItems=["Linear", "Blend", "Curve"],
-            setToolTip="Bridge Type.",
+            "QRadioButton",
+            setText="Linear",
+            setObjectName="chk003",
+            setChecked=True,
+            set_height=20,
+            setToolTip="Curve Type: Linear.",
+        )
+        widget.menu.add(
+            "QRadioButton",
+            setText="Blend",
+            setObjectName="chk004",
+            set_height=20,
+            setToolTip="Curve Type: Blend.",
+        )
+        widget.menu.add(
+            "QRadioButton",
+            setText="Curve",
+            setObjectName="chk005",
+            set_height=20,
+            setToolTip="Curve Type: Curve.",
         )
         widget.menu.add(
             "QSpinBox",
@@ -79,7 +98,13 @@ class Polygons(SlotsMaya):
 
     def tb001(self, widget):
         """Bridge"""
-        curve_type = widget.menu.cmb000.currentIndex()
+        curve_type = (
+            0
+            if widget.menu.chk003.isChecked()
+            else 1
+            if widget.menu.chk004.isChecked()
+            else 2
+        )
         divisions = widget.menu.s003.value()
 
         selection = pm.ls(sl=1)
@@ -561,7 +586,7 @@ class Polygons(SlotsMaya):
 
     def setMergeVertexDistance(self, p1, p2):
         """Merge Vertices: Set Distance"""
-        spinbox = self.sb.polygons.tb000.menu.s002
+        spinbox = self.ui.tb000.menu.s002
         dist = ptk.get_distance(p1, p2)
         adjustment_factor = 1.01  # Add 1% to the distance
         dist *= adjustment_factor

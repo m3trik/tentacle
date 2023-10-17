@@ -15,6 +15,9 @@ class Transform(SlotsMaya):
         """ """
         super().__init__(*args, **kwargs)
 
+        self.ui = self.sb.transform
+        self.submenu = self.sb.transform_submenu
+
     def cmb002_init(self, widget):
         """ """
         items = [
@@ -25,7 +28,6 @@ class Transform(SlotsMaya):
             "Position Along Curve",
             "Align Tool",
             "Snap Together Tool",
-            "Orient to Vertex/Edge Tool",
         ]
         widget.add(items, header="Align To")
 
@@ -43,19 +45,14 @@ class Transform(SlotsMaya):
                 pm.mel.performAlignObjects(1)  # Align the selected objects.
             elif text == "Position Along Curve":
                 pm.mel.PositionAlongCurve()  # Position selected objects along a selected curve.
-                # import maya.app.general.positionAlongCurve
-                # maya.app.general.positionAlongCurve.positionAlongCurve()
             elif text == "Align Tool":
                 pm.mel.SetAlignTool()  # setToolTo alignToolCtx; Align the selection to the last selected object.
             elif text == "Snap Together Tool":
                 pm.mel.SetSnapTogetherToolOptions()  # setToolTo snapTogetherToolCtx; toolPropertyWindow;) Snap two objects together.
-            elif text == "Orient to Vertex/Edge Tool":
-                pm.mel.orientToTool()  # Orient To Vertex/Edge
             widget.setCurrentIndex(0)
 
     def tb000_init(self, widget):
         """ """
-        # drop to grid.
         widget.menu.add(
             "QComboBox",
             addItems=["Min", "Mid", "Max"],
@@ -307,10 +304,17 @@ class Transform(SlotsMaya):
             setChecked=True,
             setToolTip="Move the objects pivot to the center of it's bounding box.",
         )
+        widget.menu.add(
+            "QCheckBox",
+            setText="Store Transforms",
+            setObjectName="chk037",
+            setChecked=True,
+            setToolTip="Store the original transforms as custom attributes.",
+        )
 
     def tb002(self, widget):
         """Freeze Transformations"""
-        selected_objects = pm.ls(selection=True)
+        selected_objects = pm.selected()
 
         if len(selected_objects) == 0:
             self.sb.message_box("Please select at least one object.")
@@ -320,51 +324,60 @@ class Transform(SlotsMaya):
         rotate = widget.menu.chk033.isChecked()
         scale = widget.menu.chk034.isChecked()
         center_pivot = widget.menu.chk035.isChecked()
+        store_transforms = widget.menu.chk037.isChecked()
 
-        try:
-            if center_pivot:
-                pm.xform(selected_objects, centerPivots=1)
+        # Store original transforms if the option is checked
+        if store_transforms:
+            for obj in selected_objects:
+                mtk.store_transforms(obj)
 
-            pm.makeIdentity(
-                selected_objects, apply=True, t=translate, r=rotate, s=scale
-            )
-        except Exception as e:
-            print(f"An error occurred while freezing transformations: {e}")
+        if center_pivot:
+            pm.xform(selected_objects, centerPivots=1)
+
+        # temp while testing store transforms
+        import importlib
+
+        importlib.reload(mtk.core_utils)
+        importlib.reload(mtk.xform_utils)
+        print("reload: mtk.core_utils")
+        print("reload: mtk.xform_utils")
+
+        pm.makeIdentity(selected_objects, apply=True, t=translate, r=rotate, s=scale)
 
     def tb003_init(self, widget):
         """ """
         widget.menu.mode = "popup"
-        widget.menu.position = "bottom"
         widget.menu.setTitle("CONSTRAINTS")
-        edge_constraint = (
-            True if pm.xformConstraint(q=True, type=1) == "edge" else False
-        )
-        surface_constraint = (
-            True if pm.xformConstraint(q=True, type=1) == "surface" else False
-        )
-        live_object = True if pm.ls(live=1) else False
+        edge_constraint = pm.xformConstraint(q=True, type=1) == "edge"
+        surface_constraint = pm.xformConstraint(q=True, type=1) == "surface"
         values = [
             ("chk024", "Contrain: Edge", edge_constraint),
             ("chk025", "Constain: Surface", surface_constraint),
-            ("chk026", "Make Live", live_object),
+            ("chk026", "Make Live", True),
         ]
-        [
+        for name, text, state in values:
             widget.menu.add(
-                self.sb.CheckBox, setObjectName=chk, setText=typ, setChecked=state
+                "QCheckBox",
+                setObjectName=name,
+                setText=text,
+                setChecked=state,
             )
-            for chk, typ, state in values
-        ]
+
+        def update_text():
+            state = any(w.isChecked() for w in widget.menu.get_items(self.sb.QCheckBox))
+            widget.setText("Constrain: ON" if state else "Constrain: OFF")
+
+        # Connecting signals to update_text method
+        self.sb.connect_multi(widget.menu, "chk024-26", "toggled", update_text)
 
     def tb004_init(self, widget):
         """ """
         widget.menu.mode = "popup"
-        widget.menu.position = "bottom"
         widget.menu.setTitle("SNAP")
         widget.menu.add(
             self.sb.CheckBox,
             setObjectName="chk021",
-            setText="Snap Move: Off",
-            setTristate=True,
+            setText="Snap Move",
         )
         widget.menu.add(
             "QDoubleSpinBox",
@@ -377,8 +390,7 @@ class Transform(SlotsMaya):
         widget.menu.add(
             self.sb.CheckBox,
             setObjectName="chk022",
-            setText="Snap Scale: Off",
-            setTristate=True,
+            setText="Snap Scale",
         )
         widget.menu.add(
             "QDoubleSpinBox",
@@ -391,8 +403,7 @@ class Transform(SlotsMaya):
         widget.menu.add(
             self.sb.CheckBox,
             setObjectName="chk023",
-            setText="Snap Rotate: Off",
-            setTristate=True,
+            setText="Snap Rotate",
         )
         widget.menu.add(
             "QDoubleSpinBox",
@@ -402,12 +413,17 @@ class Transform(SlotsMaya):
             set_limits=[1.40625, 360, 0.40625, 5],
             setDisabled=True,
         )
-        moveValue = pm.manipMoveContext("Move", q=True, snapValue=True)
-        widget.menu.s021.setValue(moveValue)
-        scaleValue = pm.manipScaleContext("Scale", q=True, snapValue=True)
-        widget.menu.s022.setValue(scaleValue)
-        rotateValue = pm.manipRotateContext("Rotate", q=True, snapValue=True)
-        widget.menu.s023.setValue(rotateValue)
+        # Set the values
+        widget.menu.s021.setValue(pm.manipMoveContext("Move", q=True, snapValue=True))
+        widget.menu.s022.setValue(pm.manipScaleContext("Scale", q=True, snapValue=True))
+        widget.menu.s023.setValue(pm.manipRotateContext("Rotate", q=1, snapValue=True))
+
+        def update_text():
+            state = any(w.isChecked() for w in widget.menu.get_items(self.sb.CheckBox))
+            widget.setText("Snap: ON" if state else "Snap: OFF")
+
+        # Connecting signals to update_text method
+        self.sb.connect_multi(widget.menu, "chk021-23", "toggled", update_text)
 
     def tb005_init(self, widget):
         """Initialize Move To Menu"""
@@ -426,7 +442,7 @@ class Transform(SlotsMaya):
         """Move To"""
         move_all_to_last = widget.menu.chk036.isChecked()
 
-        sel = pm.ls(sl=1, transforms=1)
+        sel = pm.ls(orderedSelection=True, transforms=True)
         if not len(sel) > 1:
             self.sb.message_box(
                 "<b>Nothing selected.</b><br>The operation requires at least two selected objects."
@@ -452,140 +468,71 @@ class Transform(SlotsMaya):
 
     def chk021(self, state, widget):
         """Transform Tool Snap Settings: Move"""
-        tb = self.sb.transform.tb004
+        tb = self.ui.tb004
         tb.init_slot()
-        tri_state = tb.menu.chk021.checkState()
-        text = {0: "Snap Move: Off", 1: "Snap Move: Relative", 2: "Snap Move: Absolute"}
-        tb.menu.chk021.setText(text[tri_state])
-        tb.menu.s021.setEnabled(tri_state)
-        tb.setText("Snap: OFF") if not any(
-            (
-                tri_state,
-                tb.menu.chk022.isChecked(),
-                tb.menu.chk023.isChecked(),
-            )
-        ) else tb.setText("Snap: ON")
-
-        self.setTransformSnap("move", tri_state)
+        tb.menu.s021.setEnabled(state)  # Enable/Disable based on the checked state
+        self.setTransformSnap("move", state)
 
     def chk022(self, state, widget):
         """Transform Tool Snap Settings: Scale"""
-        tb = self.sb.transform.tb004
+        tb = self.ui.tb004
         tb.init_slot()
-        tri_state = tb.menu.chk022.checkState()
-        text = {
-            0: "Snap Scale: Off",
-            1: "Snap Scale: Relative",
-            2: "Snap Scale: Absolute",
-        }
-        tb.menu.chk022.setText(text[tri_state])
-        tb.menu.s022.setEnabled(tri_state)
-        tb.setText("Snap: OFF") if not any(
-            (
-                tri_state,
-                tb.menu.chk021.isChecked(),
-                tb.menu.chk023.isChecked(),
-            )
-        ) else tb.setText("Snap: ON")
-
-        self.setTransformSnap("scale", tri_state)
+        tb.menu.s022.setEnabled(state)  # Enable/Disable based on the checked state
+        self.setTransformSnap("scale", state)
 
     def chk023(self, state, widget):
         """Transform Tool Snap Settings: Rotate"""
-        tb = self.sb.transform.tb004
+        tb = self.ui.tb004
         tb.init_slot()
-        tri_state = tb.menu.chk023.checkState()
-        text = {
-            0: "Snap Rotate: Off",
-            1: "Snap Rotate: Relative",
-            2: "Snap Rotate: Absolute",
-        }
-        tb.menu.chk023.setText(text[tri_state])
-        tb.menu.s023.setEnabled(tri_state)
-        tb.setText("Snap: OFF") if not any(
-            (
-                tri_state,
-                tb.menu.chk021.isChecked(),
-                tb.menu.chk022.isChecked(),
-            )
-        ) else tb.setText("Snap: ON")
-
-        self.setTransformSnap("rotate", tri_state)
+        tb.menu.s023.setEnabled(state)  # Enable/Disable based on the checked state
+        self.setTransformSnap("rotate", state)
 
     def chk024(self, state, widget):
         """Transform Constraints: Edge"""
-        tb = self.sb.transform.tb003
+        tb = self.ui.tb003
         tb.init_slot()
         if state:
             pm.xformConstraint(type="edge")
         else:
             pm.xformConstraint(type="none")
 
-        tb.setText("Constrain: OFF") if not any(
-            (
-                state,
-                tb.menu.chk025.isChecked(),
-                tb.menu.chk026.isChecked(),
-            )
-        ) else tb.setText("Constrain: ON")
-
     def chk025(self, state, widget):
         """Transform Contraints: Surface"""
-        tb = self.sb.transform.tb003
+        tb = self.ui.tb003
         tb.init_slot()
         if state:
             pm.xformConstraint(type="surface")
         else:
             pm.xformConstraint(type="none")
 
-        tb.setText("Constrain: OFF") if not any(
-            (
-                state,
-                tb.menu.chk024.isChecked(),
-                tb.menu.chk026.isChecked(),
-            )
-        ) else tb.setText("Constrain: ON")
-
     def chk026(self, state, widget):
-        """Transform Contraints: Make Live"""
-        tb = self.sb.transform.tb003
+        """Transform Constraints: Make Live"""
+        tb = self.ui.tb003
         tb.init_slot()
+
         selection = pm.ls(sl=1, objectsOnly=1, type="transform")
         if state and selection:
-            live_objects = pm.ls(live=1)
-            shape = mtk.get_shape_node(selection[0])
-            if shape not in live_objects:
-                # Construction planes, nurbs surfaces and polygon meshes can be made live. makeLive supports one live object at a time.
-                pm.makeLive(selection)
+            pm.makeLive(selection[0])
         else:
             pm.makeLive(none=True)
-
-        tb.setText("Constrain: OFF") if not any(
-            (
-                state,
-                tb.menu.chk024.isChecked(),
-                tb.menu.chk025.isChecked(),
-            )
-        ) else tb.setText("Constrain: ON")
 
     def s021(self, value, widget):
         """Transform Tool Snap Settings: Spinboxes"""
         pm.manipMoveContext("Move", edit=1, snapValue=value)
-        pm.texMoveContext("texMoveContext", edit=1, snapValue=value)  # uv move context
+        # UV move context
+        pm.texMoveContext("texMoveContext", edit=1, snapValue=value)
 
     def s022(self, value, widget):
         """Transform Tool Snap Settings: Spinboxes"""
         pm.manipScaleContext("Scale", edit=1, snapValue=value)
-        pm.texScaleContext(
-            "texScaleContext", edit=1, snapValue=value
-        )  # uv scale context
+        # UV scale context
+        pm.texScaleContext("texScaleContext", edit=1, snapValue=value)
 
     def s023(self, value, widget):
         """Transform Tool Snap Settings: Spinboxes"""
         pm.manipRotateContext("Rotate", edit=1, snapValue=value)
-        pm.texRotateContext(
-            "texRotateContext", edit=1, snapValue=value
-        )  # uv rotate context
+        # UV rotate context
+        pm.texRotateContext("texRotateContext", edit=1, snapValue=value)
 
     def b000(self, widget):
         """Object Transform Attributes"""
@@ -636,49 +583,19 @@ class Transform(SlotsMaya):
 
         mtk.match_scale(frm, to)
 
-    def b003(self):
-        """Center Pivot Object"""
-        pm.mel.CenterPivot()
+    def b002(self):
+        """Un-Freeze Transforms"""
+        mtk.restore_transforms(pm.selected())
 
-    def b012(self):
-        """Make Live (Toggle)"""
-        tb = self.sb.transform.tb003
-        selection = pm.ls(sl=1, objectsOnly=1, type="transform")
-
-        if selection:
-            live_object = pm.ls(live=1)
-            shape = mtk.get_shape_node(selection[0])
-            if shape not in str(live_object):
-                self.chk026(state=1)
-                tb.menu.chk026.setChecked(True)
-        else:
-            self.chk026(state=0)
-            tb.menu.chk026.setChecked(False)
-
-    def b014(self):
-        """Center Pivot Component"""
-        [pm.xform(s, centerPivot=1) for s in pm.ls(sl=1, objectsOnly=1, flatten=1)]
-        # pm.mel.eval("moveObjectPivotToComponentCentre;")
-
-    def b015(self):
-        """Center Pivot World"""
-        pm.xform(pivots=(0, 0, 0), worldSpace=1)
-
-    def b016(self):
-        """Set To Bounding Box"""
-        pm.mel.eval("bt_alignPivotToBoundingBoxWin;")
-
-    def b017(self):
-        """Bake Pivot"""
-        pm.mel.BakeCustomPivot()
-
-    def b032(self):
-        """Reset Pivot Transforms"""
-        objs = pm.ls(type=["transform", "geometryShape"], sl=1)
-        if len(objs) > 0:
-            pm.xform(cp=1)
-
-        pm.manipPivot(ro=1, rp=1)
+        # Debug: Final state
+        obj = pm.selected()
+        print(
+            f"Final state: {obj} - "
+            f"Translate: {pm.xform(obj, query=True, translation=True, worldSpace=True)}, "
+            f"Rotate: {pm.xform(obj, query=True, rotation=True, worldSpace=True)}, "
+            f"RotatePivot: {pm.xform(obj, query=True, rotatePivot=True, worldSpace=True)}, "
+            f"ScalePivot: {pm.xform(obj, query=True, scalePivot=True, worldSpace=True)}"
+        )
 
     def setTransformSnap(self, ctx, state):
         """Set the transform tool's move, rotate, and scale snap states.
