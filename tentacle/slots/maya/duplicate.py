@@ -26,6 +26,15 @@ class Duplicate(SlotsMaya):
             pm.selectPref(trackSelectionOrder=1)
         mtk.convert_to_instances(selection)
 
+    def b000(self):
+        """Mirror"""
+        module = mtk.edit_utils.mirror
+        slot_class = module.MirrorSlots
+
+        self.sb.register("mirror.ui", slot_class, base_dir=module)
+        self.sb.mirror.slots.preview.enable_on_show = True
+        self.sb.parent().set_ui("mirror")
+
     def b004(self):
         """Select Instanced Objects"""
         # Select instances of the selected objects or all instanced objects in the scene if not selection.

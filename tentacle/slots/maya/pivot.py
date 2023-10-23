@@ -4,7 +4,7 @@ try:
     import pymel.core as pm
 except ImportError as error:
     print(__file__, error)
-# import mayatk as mtk
+import mayatk as mtk
 from tentacle.slots.maya import SlotsMaya
 
 
@@ -105,8 +105,7 @@ class Pivot(SlotsMaya):
 
     def b004(self):
         """Bake Pivot"""
-        pm.mel.BakeCustomPivot()
-        # mtk.bake_custom_pivot(pm.selected(), position=1, orientation=1)
+        mtk.bake_pivot(pm.selected(), position=1, orientation=1)
 
 
 # --------------------------------------------------------------------------------------------

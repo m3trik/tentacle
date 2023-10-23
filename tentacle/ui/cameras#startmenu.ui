@@ -60,6 +60,69 @@
        <item row="0" column="0" rowspan="3">
         <widget class="Region" name="region_4" native="true"/>
        </item>
+       <item row="2" column="1">
+        <widget class="Region" name="region_3" native="true">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Preferred" vsizetype="MinimumExpanding">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <layout class="QVBoxLayout" name="verticalLayout_2">
+          <item>
+           <widget class="QWidget" name="region_5" native="true">
+            <property name="minimumSize">
+             <size>
+              <width>0</width>
+              <height>100</height>
+             </size>
+            </property>
+            <widget class="QPushButton" name="i000">
+             <property name="geometry">
+              <rect>
+               <x>95</x>
+               <y>0</y>
+               <width>111</width>
+               <height>21</height>
+              </rect>
+             </property>
+             <property name="minimumSize">
+              <size>
+               <width>0</width>
+               <height>21</height>
+              </size>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>999</width>
+               <height>21</height>
+              </size>
+             </property>
+             <property name="whatsThis">
+              <string>cameras#lower</string>
+             </property>
+             <property name="text">
+              <string>Camera Options</string>
+             </property>
+            </widget>
+           </widget>
+          </item>
+          <item>
+           <spacer name="verticalSpacer_2">
+            <property name="orientation">
+             <enum>Qt::Vertical</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>20</width>
+              <height>40</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+         </layout>
+        </widget>
+       </item>
        <item row="0" column="1">
         <widget class="Region" name="region" native="true">
          <layout class="QVBoxLayout" name="verticalLayout">
@@ -258,7 +321,7 @@
          <widget class="QPushButton" name="b005">
           <property name="geometry">
            <rect>
-            <x>210</x>
+            <x>195</x>
             <y>50</y>
             <width>66</width>
             <height>21</height>
@@ -283,7 +346,7 @@
          <widget class="QPushButton" name="b002">
           <property name="geometry">
            <rect>
-            <x>235</x>
+            <x>220</x>
             <y>90</y>
             <width>66</width>
             <height>21</height>
@@ -308,7 +371,7 @@
          <widget class="QPushButton" name="b003">
           <property name="geometry">
            <rect>
-            <x>20</x>
+            <x>35</x>
             <y>90</y>
             <width>66</width>
             <height>21</height>
@@ -333,7 +396,7 @@
          <widget class="QPushButton" name="b000">
           <property name="geometry">
            <rect>
-            <x>210</x>
+            <x>195</x>
             <y>130</y>
             <width>66</width>
             <height>21</height>
@@ -358,7 +421,7 @@
          <widget class="QPushButton" name="b006">
           <property name="geometry">
            <rect>
-            <x>45</x>
+            <x>55</x>
             <y>130</y>
             <width>66</width>
             <height>21</height>
@@ -408,7 +471,7 @@
          <widget class="QPushButton" name="b001">
           <property name="geometry">
            <rect>
-            <x>45</x>
+            <x>60</x>
             <y>50</y>
             <width>66</width>
             <height>21</height>
@@ -432,69 +495,6 @@
          </widget>
         </widget>
        </item>
-       <item row="2" column="1">
-        <widget class="Region" name="region_3" native="true">
-         <property name="sizePolicy">
-          <sizepolicy hsizetype="Preferred" vsizetype="MinimumExpanding">
-           <horstretch>0</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
-         </property>
-         <layout class="QVBoxLayout" name="verticalLayout_2">
-          <item>
-           <widget class="QWidget" name="region_5" native="true">
-            <property name="minimumSize">
-             <size>
-              <width>0</width>
-              <height>100</height>
-             </size>
-            </property>
-            <widget class="QPushButton" name="i000">
-             <property name="geometry">
-              <rect>
-               <x>95</x>
-               <y>0</y>
-               <width>111</width>
-               <height>21</height>
-              </rect>
-             </property>
-             <property name="minimumSize">
-              <size>
-               <width>0</width>
-               <height>21</height>
-              </size>
-             </property>
-             <property name="maximumSize">
-              <size>
-               <width>999</width>
-               <height>21</height>
-              </size>
-             </property>
-             <property name="whatsThis">
-              <string>cameras#lower</string>
-             </property>
-             <property name="text">
-              <string>Camera Options</string>
-             </property>
-            </widget>
-           </widget>
-          </item>
-          <item>
-           <spacer name="verticalSpacer_2">
-            <property name="orientation">
-             <enum>Qt::Vertical</enum>
-            </property>
-            <property name="sizeHint" stdset="0">
-             <size>
-              <width>20</width>
-              <height>40</height>
-             </size>
-            </property>
-           </spacer>
-          </item>
-         </layout>
-        </widget>
-       </item>
       </layout>
       <zorder>region</zorder>
       <zorder>viewport</zorder>
@@ -510,7 +510,7 @@
   <customwidget>
    <class>Region</class>
    <extends>QWidget</extends>
-   <header>region.h</header>
+   <header>widgets.region.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

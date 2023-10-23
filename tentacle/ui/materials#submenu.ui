@@ -59,9 +59,9 @@
    <widget class="QPushButton" name="i018">
     <property name="geometry">
      <rect>
-      <x>380</x>
+      <x>365</x>
       <y>300</y>
-      <width>66</width>
+      <width>41</width>
       <height>21</height>
      </rect>
     </property>
@@ -87,7 +87,7 @@
    <widget class="QPushButton" name="i005">
     <property name="geometry">
      <rect>
-      <x>380</x>
+      <x>365</x>
       <y>270</y>
       <width>66</width>
       <height>21</height>
@@ -146,9 +146,9 @@
     </property>
     <property name="geometry">
      <rect>
-      <x>235</x>
+      <x>225</x>
       <y>330</y>
-      <width>51</width>
+      <width>56</width>
       <height>19</height>
      </rect>
     </property>
@@ -183,9 +183,9 @@
     </property>
     <property name="geometry">
      <rect>
-      <x>315</x>
+      <x>290</x>
       <y>330</y>
-      <width>56</width>
+      <width>66</width>
       <height>19</height>
      </rect>
     </property>
@@ -337,7 +337,7 @@
     </property>
     <property name="geometry">
      <rect>
-      <x>310</x>
+      <x>295</x>
       <y>260</y>
       <width>56</width>
       <height>19</height>
@@ -374,7 +374,7 @@
   <customwidget>
    <class>PushButton</class>
    <extends>QPushButton</extends>
-   <header>uitk.widgets.pushbutton.PushButton.h</header>
+   <header>widgets.pushbutton.h</header>
   </customwidget>
  </customwidgets>
  <resources/>
