@@ -16,39 +16,6 @@ class Selection(SlotsMaya):
         self.ui = self.sb.selection
         self.submenu = self.sb.selection_submenu
 
-    def cmb001_init(self, widget):
-        """ """
-        widget.refresh = True
-        if not widget.is_initialized:
-            widget.menu.add(
-                self.sb.Label,
-                setText="Select",
-                setObjectName="lbl005",
-                setToolTip="Select the current set elements.",
-            )
-            widget.menu.add(
-                self.sb.Label,
-                setText="New",
-                setObjectName="lbl000",
-                setToolTip="Create a new selection set.",
-            )
-            widget.menu.add(
-                self.sb.Label,
-                setText="Modify",
-                setObjectName="lbl001",
-                setToolTip="Modify the current set by renaming and/or changing the selection.",
-            )
-            widget.menu.add(
-                self.sb.Label,
-                setText="Delete",
-                setObjectName="lbl002",
-                setToolTip="Delete the current set.",
-            )
-            widget.currentIndexChanged.connect(widget.menu.lbl005.call_slot)
-
-        items = [str(s) for s in pm.ls(et="objectSet", flatten=1)]
-        widget.add(items, header="Selection Sets:", clear=True)
-
     def cmb002_init(self, widget):
         """ """
         items = [
@@ -282,57 +249,13 @@ class Selection(SlotsMaya):
             self.set_selection_tool("artSelectContext")
             # self.sb.message_box("Select Style: <hl>Paint</hl>")
 
-    def lbl000(self, widget):
-        """Selection Sets: Create New"""
-        cmb = self.ui.cmb001
-        if not cmb.isEditable():
-            cmb.add("", ascending=True)
-            cmb.setEditable(True)
-            cmb.lineEdit().setPlaceholderText("New Set:")
-        else:
-            name = cmb.currentText()
-            self.creatNewSelectionSet(name)
-            self.ui.cmb001.init_slot()  # refresh the sets comboBox
-            cmb.setCurrentIndex(0)
-
-    def lbl001(self, widget):
-        """Selection Sets: Modify Current"""
-        cmb = self.ui.cmb001
-        if not cmb.isEditable():
-            name = cmb.currentText()
-            self._oldSetName = name
-            cmb.setEditable(True)
-            cmb.lineEdit().setPlaceholderText(name)
-        else:
-            name = cmb.currentText()
-            self.modifySet(self._oldSetName)
-            cmb.setItemText(cmb.currentIndex(), name)
-            # self.ui.cmb001.init_slot()  # refresh the sets comboBox
-
-    def lbl002(self, widget):
-        """Selection Sets: Delete Current"""
-        cmb = self.ui.cmb001
-        name = cmb.currentText()
-
-        pm.delete(name)
-        self.ui.cmb001.init_slot()  # refresh the sets comboBox
-
-    def lbl003(self, widget):
+    def lbl003(self, *args):
         """Grow Selection"""
         pm.mel.GrowPolygonSelectionRegion()
 
-    def lbl004(self, widget):
+    def lbl004(self, *args):
         """Shrink Selection"""
         pm.mel.ShrinkPolygonSelectionRegion()
-
-    def lbl005(self, widget):
-        """Selection Sets: Select Current"""
-        cmb = self.ui.cmb001
-        name = cmb.currentText()
-
-        if cmb.currentIndex() > 0:
-            # Select The Selection Set Itself (Not Members Of) (noExpand=select set)
-            pm.select(name)  # pm.select(name, noExpand=1)
 
     def chk004(self, state, widget):
         """Ignore Backfacing (Camera Based Selection)"""
@@ -696,48 +619,6 @@ class Selection(SlotsMaya):
             pm.setToolTo(tool)
         except Exception as e:
             print(f"# Error: {e}")
-
-    def generateUniqueSetName(self, obj=None):
-        """Generate a generic name based on the object's name.
-
-        Parameters:
-            obj (str/obj/list): The maya scene object to derive a unique name from.
-
-        Example:
-            <objectName>_Set<int>
-        """
-        if obj is None:
-            obj = pm.ls(sl=1)
-        num = ptk.cycle(list(range(99)), "selectionSetNum")
-        name = pm.ls(obj, objectsOnly=1, flatten=1)[0].name
-        set_name = f"{name}_Set{num}"  # ie. pCube1_Set0
-
-        return set_name
-
-    def creatNewSelectionSet(self, name=None):
-        """Selection Sets: Create a new selection set."""
-        if pm.objExists(name):
-            self.sb.message_box(
-                "Set with name <hl>{}</hl> already exists.".format(name)
-            )
-            return
-
-        else:  # create set
-            if not name:  # name=='set#Set': #generate a generic name based on obj.name
-                name = self.generateUniqueSetName()
-
-            pm.sets(name=name, text="gCharacterSet")
-
-    def modifySet(self, name):
-        """Selection Sets: Modify Current by renaming or changing the set members."""
-        newName = self.ui.cmb001.currentText()
-        if not newName:
-            newName = self.generateUniqueSetName()
-        name = pm.rename(name, newName)
-
-        if pm.objExists(name):
-            pm.sets(name, clear=1)
-            pm.sets(name, add=1)  # if set exists; clear set and add current selection
 
 
 # --------------------------------------------------------------------------------------------

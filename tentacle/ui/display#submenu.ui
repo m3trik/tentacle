@@ -87,7 +87,7 @@
    <widget class="QPushButton" name="b002">
     <property name="geometry">
      <rect>
-      <x>185</x>
+      <x>190</x>
       <y>340</y>
       <width>97</width>
       <height>19</height>
@@ -106,7 +106,7 @@
    <widget class="QPushButton" name="b003">
     <property name="geometry">
      <rect>
-      <x>305</x>
+      <x>80</x>
       <y>340</y>
       <width>97</width>
       <height>19</height>
@@ -144,8 +144,8 @@
    <widget class="QPushButton" name="b021">
     <property name="geometry">
      <rect>
-      <x>245</x>
-      <y>380</y>
+      <x>300</x>
+      <y>340</y>
       <width>111</width>
       <height>19</height>
      </rect>
@@ -201,8 +201,8 @@
    <widget class="QPushButton" name="b004">
     <property name="geometry">
      <rect>
-      <x>415</x>
-      <y>340</y>
+      <x>130</x>
+      <y>370</y>
       <width>123</width>
       <height>19</height>
      </rect>
@@ -221,6 +221,37 @@
     </property>
     <property name="text">
      <string>Show Geometry</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="b013">
+    <property name="geometry">
+     <rect>
+      <x>265</x>
+      <y>370</y>
+      <width>116</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="minimumSize">
+     <size>
+      <width>0</width>
+      <height>20</height>
+     </size>
+    </property>
+    <property name="maximumSize">
+     <size>
+      <width>16777215</width>
+      <height>20</height>
+     </size>
+    </property>
+    <property name="toolTip">
+     <string>Launch the exploded view tool GUI.</string>
+    </property>
+    <property name="text">
+     <string>Exploded View</string>
+    </property>
+    <property name="checkable">
+     <bool>false</bool>
     </property>
    </widget>
   </widget>

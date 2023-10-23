@@ -150,6 +150,43 @@
      <bool>true</bool>
     </property>
    </widget>
+   <widget class="PushButton" name="b001">
+    <property name="enabled">
+     <bool>true</bool>
+    </property>
+    <property name="geometry">
+     <rect>
+      <x>55</x>
+      <y>550</y>
+      <width>141</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="minimumSize">
+     <size>
+      <width>0</width>
+      <height>20</height>
+     </size>
+    </property>
+    <property name="maximumSize">
+     <size>
+      <width>16777215</width>
+      <height>20</height>
+     </size>
+    </property>
+    <property name="toolTip">
+     <string>Open the reference manager.</string>
+    </property>
+    <property name="text">
+     <string>Reference Manager</string>
+    </property>
+    <property name="iconSize">
+     <size>
+      <width>18</width>
+      <height>18</height>
+     </size>
+    </property>
+   </widget>
   </widget>
  </widget>
  <customwidgets>
@@ -158,6 +195,11 @@
    <extends>QWidget</extends>
    <header>widgets.expandablelist.h</header>
    <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>PushButton</class>
+   <extends>QPushButton</extends>
+   <header>widgets.pushbutton.h</header>
   </customwidget>
  </customwidgets>
  <resources/>

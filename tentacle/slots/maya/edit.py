@@ -363,25 +363,8 @@ class Edit(SlotsMaya):
             pm.mel.OptimizeScene()
 
     def tb002(self, widget):
-        """Delete"""
-        maskVertex = pm.selectType(q=True, vertex=True)
-        maskEdge = pm.selectType(q=True, edge=True)
-
-        objects = pm.ls(sl=1, objectsOnly=1)
-        for obj in objects:
-            if pm.objectType(obj, isType="joint"):
-                pm.removeJoint(obj)  # Remove joints
-
-            elif pm.objectType(obj, isType="mesh"):
-                selection = pm.ls(obj, sl=1, flatten=1)
-                if maskEdge:
-                    pm.polyDelEdge(selection, cleanVertices=True)  # Delete edges
-
-                elif maskVertex:
-                    pm.polyDelVertex(selection)  # Try delete vertices
-
-                else:
-                    pm.delete(obj)  # Delete faces\mesh objects
+        """Delete Selected"""
+        mtk.delete_selected()
 
     def tb003_init(self, widget):
         """ """

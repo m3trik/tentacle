@@ -10,7 +10,7 @@
     <x>0</x>
     <y>0</y>
     <width>200</width>
-    <height>271</height>
+    <height>252</height>
    </rect>
   </property>
   <property name="tabShape">
@@ -107,39 +107,6 @@
            <item>
             <property name="text">
              <string>By Type:</string>
-            </property>
-           </item>
-          </widget>
-         </item>
-         <item>
-          <widget class="ComboBox" name="cmb001">
-           <property name="minimumSize">
-            <size>
-             <width>0</width>
-             <height>20</height>
-            </size>
-           </property>
-           <property name="maximumSize">
-            <size>
-             <width>16777215</width>
-             <height>20</height>
-            </size>
-           </property>
-           <property name="toolTip">
-            <string>Select by selection set.</string>
-           </property>
-           <property name="editable">
-            <bool>false</bool>
-           </property>
-           <property name="maxVisibleItems">
-            <number>30</number>
-           </property>
-           <property name="sizeAdjustPolicy">
-            <enum>QComboBox::AdjustToContents</enum>
-           </property>
-           <item>
-            <property name="text">
-             <string>Selection Sets:</string>
             </property>
            </item>
           </widget>
@@ -274,7 +241,6 @@
         <zorder>cmb002</zorder>
         <zorder>tb000</zorder>
         <zorder>tb003</zorder>
-        <zorder>cmb001</zorder>
        </widget>
       </item>
       <item>

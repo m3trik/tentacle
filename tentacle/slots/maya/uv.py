@@ -617,7 +617,7 @@ class Uv(SlotsMaya):
         """Cut UV hard edges"""
         # perform select edges by angle.
         self.sb.selection.tb003.call_slot()
-        self.b005()  # perform cut.
+        self.b005()  # Perform cut.
 
     def b023(self):
         """Move To Uv Space: Left"""
