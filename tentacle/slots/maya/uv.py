@@ -16,7 +16,7 @@ class Uv(SlotsMaya):
         self.submenu = self.sb.uv_submenu
 
         # Assure the maya UV plugin is loaded
-        self.sb.preferences.slots.loadPlugin("Unfold3D.mll")
+        mtk.load_plugin("Unfold3D.mll")
         # get the map size from the combobox as an int. ie. 2048
         self.getMapSize = lambda: int(self.ui.cmb003.currentText())
 
@@ -564,7 +564,9 @@ class Uv(SlotsMaya):
         for obj in selected:
             # Check if the selected item is a mesh edge
             if isinstance(obj, pm.MeshEdge):
-                pm.polyMapCut(obj)
+                print(11, obj)
+                pm.polyMapCut(selected)
+                return
             # Check if the selected item is a transform node (possibly a mesh object)
             elif isinstance(obj, pm.nodetypes.Transform):
                 shape = obj.getShape()
