@@ -670,80 +670,6 @@
            </property>
           </widget>
          </item>
-         <item row="0" column="0">
-          <widget class="PushButton" name="tb005">
-           <property name="enabled">
-            <bool>true</bool>
-           </property>
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-           <property name="minimumSize">
-            <size>
-             <width>0</width>
-             <height>20</height>
-            </size>
-           </property>
-           <property name="maximumSize">
-            <size>
-             <width>16777215</width>
-             <height>20</height>
-            </size>
-           </property>
-           <property name="toolTip">
-            <string>Straighten UV edge loops along U and/or V</string>
-           </property>
-           <property name="text">
-            <string>Straighten</string>
-           </property>
-           <property name="iconSize">
-            <size>
-             <width>18</width>
-             <height>18</height>
-            </size>
-           </property>
-          </widget>
-         </item>
-         <item row="1" column="0">
-          <widget class="QPushButton" name="b006">
-           <property name="enabled">
-            <bool>true</bool>
-           </property>
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-           <property name="minimumSize">
-            <size>
-             <width>0</width>
-             <height>20</height>
-            </size>
-           </property>
-           <property name="maximumSize">
-            <size>
-             <width>16777215</width>
-             <height>20</height>
-            </size>
-           </property>
-           <property name="toolTip">
-            <string>Rotate Selected shell(s) 90 degrees relative.</string>
-           </property>
-           <property name="text">
-            <string>Rotate 45</string>
-           </property>
-           <property name="iconSize">
-            <size>
-             <width>18</width>
-             <height>18</height>
-            </size>
-           </property>
-          </widget>
-         </item>
          <item row="2" column="0" colspan="6">
           <widget class="ComboBox" name="cmb002">
            <property name="minimumSize">
@@ -884,7 +810,37 @@
            </property>
           </widget>
          </item>
-         <item row="0" column="1" rowspan="2">
+         <item row="0" column="5" rowspan="2">
+          <widget class="QPushButton" name="b026">
+           <property name="enabled">
+            <bool>true</bool>
+           </property>
+           <property name="minimumSize">
+            <size>
+             <width>31</width>
+             <height>20</height>
+            </size>
+           </property>
+           <property name="font">
+            <font>
+             <pointsize>22</pointsize>
+            </font>
+           </property>
+           <property name="toolTip">
+            <string>Move Relative: Move the selected shells to a UV space relative to their current position.</string>
+           </property>
+           <property name="text">
+            <string>⇨</string>
+           </property>
+           <property name="iconSize">
+            <size>
+             <width>18</width>
+             <height>18</height>
+            </size>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="3" rowspan="2">
           <widget class="QPushButton" name="b023">
            <property name="enabled">
             <bool>true</bool>
@@ -914,27 +870,71 @@
            </property>
           </widget>
          </item>
-         <item row="0" column="5" rowspan="2">
-          <widget class="QPushButton" name="b026">
+         <item row="0" column="0" colspan="3">
+          <widget class="PushButton" name="tb005">
            <property name="enabled">
             <bool>true</bool>
            </property>
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
            <property name="minimumSize">
             <size>
-             <width>31</width>
+             <width>0</width>
              <height>20</height>
             </size>
            </property>
-           <property name="font">
-            <font>
-             <pointsize>22</pointsize>
-            </font>
+           <property name="maximumSize">
+            <size>
+             <width>16777215</width>
+             <height>20</height>
+            </size>
            </property>
            <property name="toolTip">
-            <string>Move Relative: Move the selected shells to a UV space relative to their current position.</string>
+            <string>Straighten UV edge loops along U and/or V</string>
            </property>
            <property name="text">
-            <string>⇨</string>
+            <string>Straighten</string>
+           </property>
+           <property name="iconSize">
+            <size>
+             <width>18</width>
+             <height>18</height>
+            </size>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="0" colspan="3">
+          <widget class="QPushButton" name="b006">
+           <property name="enabled">
+            <bool>true</bool>
+           </property>
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>20</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>16777215</width>
+             <height>20</height>
+            </size>
+           </property>
+           <property name="toolTip">
+            <string>Rotate Selected shell(s) 90 degrees relative.</string>
+           </property>
+           <property name="text">
+            <string>Rotate 45</string>
            </property>
            <property name="iconSize">
             <size>
