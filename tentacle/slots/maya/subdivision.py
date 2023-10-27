@@ -17,30 +17,26 @@ class Subdivision(SlotsMaya):
 
     def cmb001(self, index, widget):
         """Smooth Proxy"""
-        if index > 0:
-            text = widget.items[index]
-            if text == "Create Subdiv Proxy":
-                pm.mel.SmoothProxyOptions()  # Add polygons to the selected proxy objects #performSmoothProxy 1;
-            elif text == "Remove Subdiv Proxy Mirror":
-                pm.mel.UnmirrorSmoothProxyOptions()  # Create a single low resolution mesh for a mirrored proxy setup #performUnmirrorSmoothProxy 1;
-            elif text == "Crease Tool":
-                pm.mel.polyCreaseProperties()  # Harden or soften the edges of a smooth mesh preview #polyCreaseValues polyCreaseContext;
-            elif text == "Toggle Subdiv Proxy Display":
-                pm.mel.SmoothingDisplayToggle()  # Toggle the display of smooth shapes #smoothingDisplayToggle 1;
-            elif text == "Both Proxy and Subdiv Display":
-                pm.mel.SmoothingDisplayShowBoth()  # Display both smooth shapes #smoothingDisplayToggle 0;
-            widget.setCurrentIndex(0)
+        text = widget.items[index]
+        if text == "Create Subdiv Proxy":
+            pm.mel.SmoothProxyOptions()  # Add polygons to the selected proxy objects #performSmoothProxy 1;
+        elif text == "Remove Subdiv Proxy Mirror":
+            pm.mel.UnmirrorSmoothProxyOptions()  # Create a single low resolution mesh for a mirrored proxy setup #performUnmirrorSmoothProxy 1;
+        elif text == "Crease Tool":
+            pm.mel.polyCreaseProperties()  # Harden or soften the edges of a smooth mesh preview #polyCreaseValues polyCreaseContext;
+        elif text == "Toggle Subdiv Proxy Display":
+            pm.mel.SmoothingDisplayToggle()  # Toggle the display of smooth shapes #smoothingDisplayToggle 1;
+        elif text == "Both Proxy and Subdiv Display":
+            pm.mel.SmoothingDisplayShowBoth()  # Display both smooth shapes #smoothingDisplayToggle 0;
 
     def cmb002(self, index, widget):
         """Maya Subdivision Operations"""
-        if index > 0:
-            if index is widget.items.index("Reduce Polygons"):
-                pm.mel.ReducePolygonOptions()
-            elif index is widget.items.index("Add Divisions"):
-                pm.mel.SubdividePolygonOptions()
-            elif index is widget.items.index("Smooth"):
-                pm.mel.performPolySmooth(1)
-            widget.setCurrentIndex(0)
+        if index is widget.items.index("Reduce Polygons"):
+            pm.mel.ReducePolygonOptions()
+        elif index is widget.items.index("Add Divisions"):
+            pm.mel.SubdividePolygonOptions()
+        elif index is widget.items.index("Smooth"):
+            pm.mel.performPolySmooth(1)
 
     def s000(self, value, widget):
         """Division Level"""

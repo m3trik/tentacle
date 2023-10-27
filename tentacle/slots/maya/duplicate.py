@@ -12,18 +12,31 @@ class Duplicate(SlotsMaya):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
+    def tb000_init(self, widget):
+        widget.menu.add(
+            "QCheckBox",
+            setText="Freeze Transforms",
+            setObjectName="chk000",
+            setChecked=False,
+            setToolTip="Freeze transforms on the object(s) before instancing.",
+        )
+
     def tb000(self, widget):
         """Convert to Instances"""
-        selection = pm.ls(sl=1, transforms=1)
+        freeze_transforms = widget.menu.chk000.isChecked()
+        # Get the list of selected transform nodes in the order they were selected
+        selection = pm.ls(orderedSelection=True, transforms=True)
         if not selection:
             self.sb.message_box(
                 "<strong>Nothing selected</strong>.<br>Operation requires an object selection."
             )
             return
 
-        # If ordered selection is not on, turn it on. If off, the current selection is likely not ordered.
-        if not pm.selectPref(q=1, trackSelectionOrder=1):
-            pm.selectPref(trackSelectionOrder=1)
+        # Freeze transforms if the option is checked
+        if freeze_transforms:
+            for obj in selection:
+                pm.makeIdentity(obj, apply=True, t=1, r=1, s=1, n=0)
+
         mtk.convert_to_instances(selection)
 
     def b000(self):

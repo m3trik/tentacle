@@ -31,28 +31,26 @@ class Edit(SlotsMaya):
 
     def cmb001(self, index, widget):
         """Object History Attributes"""
-        if index > 0:
-            if widget.items[index] != "No selection.":
-                node = widget.itemData(index)
-                if node:
-                    attrs = mtk.get_node_attributes(
-                        node,
-                        mapping=True,
-                        visible=True,
-                        keyable=True,
-                    )
-                    window = self.sb.AttributeWindow(
-                        node,
-                        attrs,
-                        window_title=node.name(),
-                        set_attribute_func=lambda obj, n, v: getattr(obj, n).set(v),
-                    )
-                    window.set_style(theme="dark")
-                    window.set_flags(WindowStaysOnTopHint=True)
-                    window.show()
-            else:
-                self.sb.message_box("Found no items to list the history for.")
-            widget.setCurrentIndex(0)
+        if widget.items[index] != "No selection.":
+            node = widget.itemData(index)
+            if node:
+                attrs = mtk.get_node_attributes(
+                    node,
+                    mapping=True,
+                    visible=True,
+                    keyable=True,
+                )
+                window = self.sb.AttributeWindow(
+                    node,
+                    attrs,
+                    window_title=node.name(),
+                    set_attribute_func=lambda obj, n, v: getattr(obj, n).set(v),
+                )
+                window.set_style(theme="dark")
+                window.set_flags(WindowStaysOnTopHint=True)
+                window.show()
+        else:
+            self.sb.message_box("Found no items to list the history for.")
 
     def tb000_init(self, widget):
         """ """
@@ -249,7 +247,7 @@ class Edit(SlotsMaya):
         # [15] check for nonmanifold polys
         nonmanifold = int(widget.menu.chk017.isChecked())
         # [16] check for lamina polys [default -1]
-        lamina = -int(widget.menu.chk018.isChecked())
+        # lamina = -int(widget.menu.chk018.isChecked())
         split_non_manifold_vertex = widget.menu.chk021.isChecked()
         invalidComponents = 0  # int(widget.menu.chk019.isChecked()) #[17] a guess what this arg does. not checked. default is 0.
         overlappingFaces = widget.menu.chk025.isChecked()

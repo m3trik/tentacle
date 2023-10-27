@@ -56,16 +56,13 @@ class Materials(SlotsMaya):
         selection = pm.ls(sl=True, flatten=1)
         if not selection:
             self.sb.message_box("No renderable object is selected for assignment.")
-            widget.setCurrentIndex(0)
             return
 
-        if index > 0:
-            mat_name = widget.currentText()
-            mat = mtk.create_mat(mat_name)
-            mtk.assign_mat(selection, mat)
-            self.ui.cmb002.init_slot()
-            self.ui.cmb002.setCurrentItem(mat_name)
-            widget.setCurrentIndex(0)
+        mat_name = widget.itemText(index)
+        mat = mtk.create_mat(mat_name)
+        mtk.assign_mat(selection, mat)
+        self.ui.cmb002.init_slot()
+        self.ui.cmb002.setAsCurrent(mat_name)
 
     def cmb002_init(self, widget):
         """ """
@@ -126,10 +123,11 @@ class Materials(SlotsMaya):
         materials_dict = {m.name(): m for m in materials}
         widget.add(materials_dict, clear=True, restore_index=True)
 
-        # create and set icons with color swatch
+        # Create and set icons with color swatch
         for i, mat in enumerate(widget.items):
             icon = mtk.get_mat_swatch_icon(mat)
-            widget.setItemIcon(i, icon) if icon else None
+            if icon:
+                widget.setItemIcon(i, icon)
 
     def tb000_init(self, widget):
         """ """
@@ -167,7 +165,7 @@ class Materials(SlotsMaya):
             self.sb.message_box("No stored material or no valid object selected.")
             return
 
-        print(pm.mel.HypershadeWindow())
+        pm.mel.HypershadeWindow()
         #  Finally, graph the material in the hypershade window.
         pm.mel.eval(
             'hyperShadePanelGraphCommand("hyperShadePanel1", "showUpAndDownstream")'
@@ -218,7 +216,7 @@ class Materials(SlotsMaya):
             return
 
         self.ui.cmb002.init_slot()  # refresh the materials list comboBox
-        self.ui.cmb002.setCurrentItem(mat.pop().name())  # pop: mat is a set
+        self.ui.cmb002.setAsCurrent(mat.pop().name())  # pop: mat is a set
 
     def b004(self, widget):
         """Assign: Assign Random"""
@@ -231,7 +229,7 @@ class Materials(SlotsMaya):
         mtk.assign_mat(selection, mat)
 
         self.ui.cmb002.init_slot()  # refresh the materials list comboBox
-        self.ui.cmb002.setCurrentItem(mat.name())
+        self.ui.cmb002.setAsCurrent(mat.name())
 
     def b005_init(self, widget):
         """ """

@@ -121,37 +121,60 @@ class Polygons(SlotsMaya):
         return node
 
     def tb002_init(self, widget):
-        """ """
+        # Remove 'Merge' and add 'Bake Partial History' option
+        widget.menu.setTitle("COMBINE")
         widget.menu.add(
             "QCheckBox",
-            setText="Merge",
-            setObjectName="chk000",
+            setText="Bake Partial History",
+            setObjectName="chk_bake_history",
             setChecked=True,
             set_height=20,
-            setToolTip="Combine selected meshes and merge any coincident verts/edges.",
+            setToolTip="Bake the construction history of the base mesh into its current state.",
+        )
+        # Add 'Center Pivot' option
+        widget.menu.add(
+            "QCheckBox",
+            setText="Center Pivot",
+            setObjectName="chk_center_pivot",
+            setChecked=True,
+            set_height=20,
+            setToolTip="Center the pivot point of the combined mesh.",
         )
 
     def tb002(self, widget):
         """Combine"""
-        if widget.menu.chk000.isChecked():
-            sel = pm.ls(sl=1, objectsOnly=1)
-            if not sel:
-                return self.sb.message_box(
-                    "<strong>Nothing selected</strong>.<br>Operation requires the selection of at least two objects.",
-                    message_type="Error",
-                )
+        # Get options from UI
+        bake_history = widget.menu.chk_bake_history.isChecked()
+        center_pivot = widget.menu.chk_center_pivot.isChecked()
 
-            objName = sel[0].name()
-            objParent = pm.listRelatives(objName, parent=1)
-            # combine
-            newObj = pm.polyUnite(ch=1, mergeUVSets=1, centerPivot=1)
-            # rename using the first selected object
-            pm.bakePartialHistory(objName, all=True)
-            objName_ = pm.rename(newObj[0], objName)
-            # reparent
-            pm.parent(objName_, objParent)
-        else:
-            pm.mel.CombinePolygons()
+        # Get ordered selection of objects
+        sel = pm.ls(orderedSelection=True, objectsOnly=True)
+
+        # Check if selection is valid
+        if not sel or len(sel) < 2:
+            return self.sb.message_box(
+                "<strong>Insufficient selection</strong>.<br>Operation requires the selection of at least two objects.",
+                message_type="Error",
+            )
+
+        # Get the name and parent of the first selected object
+        base_mesh = sel[0]
+        objName = base_mesh.name()
+        objParent = pm.listRelatives(base_mesh, parent=True)
+
+        # Combine meshes
+        newObj = pm.polyUnite(sel, ch=True, mergeUVSets=True, centerPivot=center_pivot)
+
+        # Optionally bake history
+        if bake_history:
+            pm.bakePartialHistory(base_mesh, all=True)
+
+        # Rename the new object
+        newObjRenamed = pm.rename(newObj[0], objName)
+
+        # Reparent to the original parent of the first selected object
+        if objParent:
+            pm.parent(newObjRenamed, objParent[0])
 
     def tb003_init(self, widget):
         """ """

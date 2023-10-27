@@ -210,19 +210,17 @@ class Rigging(SlotsMaya):
 
     def cmb001(self, index, widget):
         """Create"""
-        if index > 0:
-            text = widget.items[index]
-            if text == "Joints":
-                pm.setToolTo("jointContext")  # create joint tool
-            elif text == "Locator":
-                pm.spaceLocator(p=[0, 0, 0])  # locator
-            elif text == "IK Handle":
-                pm.setToolTo("ikHandleContext")  # create ik handle
-            elif text == "Lattice":  # create lattice
-                pm.lattice(divisions=[2, 5, 2], objectCentered=1, ldv=[2, 2, 2])
-            elif text == "Cluster":
-                pm.mel.eval("CreateCluster;")  # create cluster
-            widget.setCurrentIndex(0)
+        text = widget.items[index]
+        if text == "Joints":
+            pm.setToolTo("jointContext")  # create joint tool
+        elif text == "Locator":
+            pm.spaceLocator(p=[0, 0, 0])  # locator
+        elif text == "IK Handle":
+            pm.setToolTo("ikHandleContext")  # create ik handle
+        elif text == "Lattice":  # create lattice
+            pm.lattice(divisions=[2, 5, 2], objectCentered=1, ldv=[2, 2, 2])
+        elif text == "Cluster":
+            pm.mel.eval("CreateCluster;")  # create cluster
 
     def chk000(self, state, widget):
         """Scale Joint"""

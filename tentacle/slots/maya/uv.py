@@ -489,28 +489,26 @@ class Uv(SlotsMaya):
 
     def cmb002(self, index, widget):
         """Transform"""
-        if index > 0:
-            text = widget.items[index]
-            self.sb.parent().hide()  # hide hotbox then perform operation
-            if text == "Flip U":
-                pm.polyFlipUV(flipType=0, local=1, usePivot=1, pivotU=0, pivotV=0)
-            elif text == "Flip V":
-                pm.polyFlipUV(flipType=1, local=1, usePivot=1, pivotU=0, pivotV=0)
-            elif text == "Align U Left":
-                pm.mel.performAlignUV("minU")
-            elif text == "Align U Middle":
-                pm.mel.performAlignUV("avgU")
-            elif text == "Align U Right":
-                pm.mel.performAlignUV("maxU")
-            elif text == "Align U Top":
-                pm.mel.performAlignUV("maxV")
-            elif text == "Align U Middle":
-                pm.mel.performAlignUV("avgV")
-            elif text == "Align U Bottom":
-                pm.mel.performAlignUV("minV")
-            elif text == "Linear Align":
-                pm.mel.performLinearAlignUV()
-            widget.setCurrentIndex(0)
+        text = widget.items[index]
+        self.sb.parent().hide()  # hide hotbox then perform operation
+        if text == "Flip U":
+            pm.polyFlipUV(flipType=0, local=1, usePivot=1, pivotU=0, pivotV=0)
+        elif text == "Flip V":
+            pm.polyFlipUV(flipType=1, local=1, usePivot=1, pivotU=0, pivotV=0)
+        elif text == "Align U Left":
+            pm.mel.performAlignUV("minU")
+        elif text == "Align U Middle":
+            pm.mel.performAlignUV("avgU")
+        elif text == "Align U Right":
+            pm.mel.performAlignUV("maxU")
+        elif text == "Align U Top":
+            pm.mel.performAlignUV("maxV")
+        elif text == "Align U Middle":
+            pm.mel.performAlignUV("avgV")
+        elif text == "Align U Bottom":
+            pm.mel.performAlignUV("minV")
+        elif text == "Linear Align":
+            pm.mel.performLinearAlignUV()
 
     def chk001(self, state, widget):
         """Auto Unwrap: Scale Mode CheckBox"""
@@ -561,15 +559,18 @@ class Uv(SlotsMaya):
 
     def b005(self):
         """Cut UV's"""
-        objects = pm.ls(sl=True, objectsOnly=1, flatten=1)
+        selected = pm.selected(flatten=True)
 
-        for obj in objects:
-            if pm.selectMode(q=True, object=1):  # use all edges when in object mode.
-                edges = obj.e[:]
-            else:  # get any selected edges.
-                edges = pm.ls(obj, sl=1)
-
-            pm.polyMapCut(edges)
+        for obj in selected:
+            # Check if the selected item is a mesh edge
+            if isinstance(obj, pm.MeshEdge):
+                pm.polyMapCut(obj)
+            # Check if the selected item is a transform node (possibly a mesh object)
+            elif isinstance(obj, pm.nodetypes.Transform):
+                shape = obj.getShape()
+                # Confirm the shape node is a mesh
+                if shape and isinstance(shape, pm.nodetypes.Mesh):
+                    pm.polyMapCut(shape.e[:])
 
     def b006(self):
         """Rotate UV's 90"""
@@ -597,16 +598,19 @@ class Uv(SlotsMaya):
             )
 
     def b011(self):
-        """Sew UV's"""
-        objects = pm.ls(sl=True, objectsOnly=1, flatten=1)
+        """Sew UVs"""
+        selected = pm.selected(flatten=True)
 
-        for obj in objects:
-            if pm.selectMode(q=True, object=1):  # use all edges when in object mode.
-                edges = obj.e[:]
-            else:  # get any selected edges.
-                edges = pm.ls(obj, sl=1)
-
-            pm.polyMapSew(edges)
+        for obj in selected:
+            # Check if the selected item is a mesh edge
+            if isinstance(obj, pm.MeshEdge):
+                pm.polyMapSew(obj)
+            # Check if the selected item is a transform node (possibly a mesh object)
+            elif isinstance(obj, pm.nodetypes.Transform):
+                shape = obj.getShape()
+                # Confirm the shape node is a mesh
+                if shape and isinstance(shape, pm.nodetypes.Mesh):
+                    pm.polyMapSew(shape.e[:])
 
     def b021(self, widget):
         """Unfold and Pack UVs"""

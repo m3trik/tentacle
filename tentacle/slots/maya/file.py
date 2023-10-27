@@ -28,11 +28,9 @@ class File(SlotsMaya):
 
     def cmb001(self, index, widget):
         """Recent Projects"""
-        if index > 0:
-            project = widget.items[index]
-            pm.workspace.open(project)
-            widget.setCurrentIndex(0)
-            self.sb.file.cmb006.init_slot()
+        project = widget.items[index]
+        pm.workspace.open(project)
+        self.sb.file.cmb006.init_slot()
 
     def cmb002_init(self, widget):
         """ """
@@ -99,10 +97,8 @@ class File(SlotsMaya):
 
     def cmb002(self, index, widget):
         """Recent Autosave"""
-        if index > 0:
-            file = widget.items[index]
-            pm.openFile(file, open=1, force=True)
-            widget.setCurrentIndex(0)
+        file = widget.items[index]
+        pm.openFile(file, open=1, force=True)
 
     def cmb003_init(self, widget):
         """ """
@@ -111,24 +107,24 @@ class File(SlotsMaya):
                 "Import file",
                 "Import Options",
                 "FBX Import Presets",
-                "Obj Import Presets",
+                "OBJ Import Presets",
             ],
             header="Import",
         )
 
+    @SlotsMaya.hide_main
     def cmb003(self, index, widget):
         """Import"""
-        if index > 0:  # hide then perform operation
-            self.sb.parent().hide(force=1)
-            if index == 1:  # Import
-                pm.mel.Import()
-            elif index == 2:  # Import options
-                pm.mel.ImportOptions()
-            elif index == 3:  # FBX Import Presets
-                pm.mel.FBXUICallBack(-1, "editImportPresetInNewWindow", "fbx")
-            elif index == 4:  # Obj Import Presets
-                pm.mel.FBXUICallBack(-1, "editImportPresetInNewWindow", "obj")
-            widget.setCurrentIndex(0)
+        self.sb.parent().hide(force=1)
+        text = widget.items[index]
+        if text == "Import File":  # Import
+            pm.mel.Import()
+        elif text == "Import Options":  # Import options
+            pm.mel.ImportOptions()
+        elif text == "FBX Import Presets":  # FBX Import Presets
+            pm.mel.FBXUICallBack(-1, "editImportPresetInNewWindow", "fbx")
+        elif text == "OBJ Import Presets":  # Obj Import Presets
+            pm.mel.FBXUICallBack(-1, "editImportPresetInNewWindow", "obj")
 
     def cmb004_init(self, widget):
         """ """
@@ -143,39 +139,38 @@ class File(SlotsMaya):
             "Export to Offline File",
             "Export Options",
             "FBX Export Presets",
-            "Obj Export Presets",
+            "OBJ Export Presets",
         ]
         widget.add(items, header="Export")
 
+    @SlotsMaya.hide_main
     def cmb004(self, index, widget):
         """Export"""
-        if index > 0:  # hide then perform operation
-            self.sb.parent().hide(force=1)
-            if index == 1:  # Export selection
-                pm.mel.ExportSelection()
-            elif index == 2:  # Unreal
-                pm.mel.SendToUnrealSelection()
-            elif index == 3:  # Unity
-                pm.mel.SendToUnitySelection()
-            elif index == 4:  # GoZ
-                pm.mel.eval(
-                    'print("GoZ"); source"C:/Users/Public/Pixologic/GoZApps/Maya/GoZBrushFromMaya.mel"; source "C:/Users/Public/Pixologic/GoZApps/Maya/GoZScript.mel";'
-                )
-            elif index == 5:  # Send to 3dsMax: As New Scene
-                pm.mel.SendAsNewScene3dsMax()  # OneClickMenuExecute ("3ds Max", "SendAsNewScene"); doMaxFlow { "sendNew","perspShape","1" };
-            elif index == 6:  # Send to 3dsMax: Update Current
-                pm.mel.UpdateCurrentScene3dsMax()  # OneClickMenuExecute ("3ds Max", "UpdateCurrentScene"); doMaxFlow { "update","perspShape","1" };
-            elif index == 7:  # Send to 3dsMax: Add to Current
-                pm.mel.AddToCurrentScene3dsMax()  # OneClickMenuExecute ("3ds Max", "AddToScene"); doMaxFlow { "add","perspShape","1" };
-            elif index == 8:  # Export to Offline File
-                pm.mel.ExportOfflineFileOptions()  # ExportOfflineFile
-            elif index == 9:  # Export options
-                pm.mel.ExportSelectionOptions()
-            elif index == 10:  # FBX Export Presets
-                pm.mel.FBXUICallBack(-1, "editExportPresetInNewWindow", "fbx")
-            elif index == 11:  # Obj Export Presets
-                pm.mel.FBXUICallBack(-1, "editExportPresetInNewWindow", "obj")
-            widget.setCurrentIndex(0)
+        text = widget.items[index]
+        if text == "Export Selection":
+            pm.mel.ExportSelection()
+        elif text == "Send to Unreal":
+            pm.mel.SendToUnrealSelection()
+        elif text == "Send to Unity":
+            pm.mel.SendToUnitySelection()
+        elif text == "GoZ":
+            pm.mel.eval(
+                'print("GoZ"); source"C:/Users/Public/Pixologic/GoZApps/Maya/GoZBrushFromMaya.mel"; source "C:/Users/Public/Pixologic/GoZApps/Maya/GoZScript.mel";'
+            )
+        elif text == "Send to 3dsMax: As New Scene":  # Send to 3dsMax: As New Scene
+            pm.mel.SendAsNewScene3dsMax()  # OneClickMenuExecute ("3ds Max", "SendAsNewScene"); doMaxFlow { "sendNew","perspShape","1" };
+        elif text == "Send to 3dsMax: Update Current":  # Send to 3dsMax: Update Current
+            pm.mel.UpdateCurrentScene3dsMax()  # OneClickMenuExecute ("3ds Max", "UpdateCurrentScene"); doMaxFlow { "update","perspShape","1" };
+        elif text == "Send to 3dsMax: Add to Current":  # Send to 3dsMax: Add to Current
+            pm.mel.AddToCurrentScene3dsMax()  # OneClickMenuExecute ("3ds Max", "AddToScene"); doMaxFlow { "add","perspShape","1" };
+        elif text == "Export to Offline File":  # Export to Offline File
+            pm.mel.ExportOfflineFileOptions()  # ExportOfflineFile
+        elif text == "Export Options":  # Export options
+            pm.mel.ExportSelectionOptions()
+        elif text == "FBX Export Presets":  # FBX Export Presets
+            pm.mel.FBXUICallBack(-1, "editExportPresetInNewWindow", "fbx")
+        elif text == "OBJ Export Presets":  # Obj Export Presets
+            pm.mel.FBXUICallBack(-1, "editExportPresetInNewWindow", "obj")
 
     def cmb005_init(self, widget):
         """ """
@@ -193,13 +188,9 @@ class File(SlotsMaya):
 
     def cmb005(self, index, widget):
         """Recent Files"""
-        if index > 0:
-            force = True
-            # if sceneName prompt user to save; else force open
-            force if str(pm.mel.file(q=True, sceneName=1, shortName=1)) else not force
-            print(widget.items[index])
-            pm.openFile(widget.items[index], open=1, force=force)
-            widget.setCurrentIndex(0)
+        # if sceneName prompt user to save; else force open
+        force = True if str(pm.mel.file(q=True, sceneName=1, shortName=1)) else False
+        pm.openFile(widget.items[index], open=1, force=force)
 
     def cmb006_init(self, widget):
         """ """
@@ -226,13 +217,11 @@ class File(SlotsMaya):
 
     def cmb006(self, index, widget):
         """Workspace"""
-        if index > 0:
-            try:
-                item = widget.items[index]
-                os.startfile(item)
-            except Exception as e:
-                print(e)
-        widget.setCurrentIndex(0)
+        try:
+            item = widget.items[index]
+            os.startfile(item)
+        except Exception as e:
+            print(e)
 
     def list000_init(self, widget):
         """ """
