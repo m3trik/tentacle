@@ -87,85 +87,14 @@
      <string>Crease</string>
     </property>
    </widget>
-   <widget class="QCheckBox" name="chk011">
-    <property name="enabled">
-     <bool>true</bool>
-    </property>
-    <property name="geometry">
-     <rect>
-      <x>370</x>
-      <y>310</y>
-      <width>56</width>
-      <height>19</height>
-     </rect>
-    </property>
-    <property name="maximumSize">
-     <size>
-      <width>111</width>
-      <height>19</height>
-     </size>
-    </property>
-    <property name="toolTip">
-     <string>Auto crease selected object(s) within set angle tolerance.</string>
-    </property>
-    <property name="text">
-     <string>Auto ±</string>
-    </property>
-    <property name="iconSize">
-     <size>
-      <width>18</width>
-      <height>18</height>
-     </size>
-    </property>
-    <property name="checkable">
-     <bool>true</bool>
-    </property>
-    <property name="checked">
-     <bool>true</bool>
-    </property>
-   </widget>
-   <widget class="QCheckBox" name="chk002">
-    <property name="enabled">
-     <bool>true</bool>
-    </property>
-    <property name="geometry">
-     <rect>
-      <x>270</x>
-      <y>230</y>
-      <width>56</width>
-      <height>19</height>
-     </rect>
-    </property>
-    <property name="maximumSize">
-     <size>
-      <width>111</width>
-      <height>19</height>
-     </size>
-    </property>
-    <property name="toolTip">
-     <string>Un-crease selected components or If in object mode, uncrease all.</string>
-    </property>
-    <property name="text">
-     <string>Un ±</string>
-    </property>
-    <property name="iconSize">
-     <size>
-      <width>18</width>
-      <height>18</height>
-     </size>
-    </property>
-    <property name="checkable">
-     <bool>true</bool>
-    </property>
-   </widget>
    <widget class="PushButton" name="tb000">
     <property name="enabled">
      <bool>true</bool>
     </property>
     <property name="geometry">
      <rect>
-      <x>330</x>
-      <y>230</y>
+      <x>270</x>
+      <y>240</y>
       <width>71</width>
       <height>19</height>
      </rect>
@@ -187,40 +116,6 @@
       <width>18</width>
       <height>18</height>
      </size>
-    </property>
-   </widget>
-   <widget class="QCheckBox" name="chk003">
-    <property name="enabled">
-     <bool>true</bool>
-    </property>
-    <property name="geometry">
-     <rect>
-      <x>390</x>
-      <y>270</y>
-      <width>51</width>
-      <height>19</height>
-     </rect>
-    </property>
-    <property name="maximumSize">
-     <size>
-      <width>111</width>
-      <height>19</height>
-     </size>
-    </property>
-    <property name="toolTip">
-     <string>Un-crease selected components or If in object mode, uncrease all.</string>
-    </property>
-    <property name="text">
-     <string>Max ±</string>
-    </property>
-    <property name="iconSize">
-     <size>
-      <width>18</width>
-      <height>18</height>
-     </size>
-    </property>
-    <property name="checkable">
-     <bool>true</bool>
     </property>
    </widget>
   </widget>

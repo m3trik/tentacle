@@ -21,10 +21,8 @@ class Rendering(SlotsMaya):
 
     def b000(self):
         """Render Current Frame"""
-        cmb = self.ui.cmb001
-        index = cmb.currentIndex()
-
-        camera = cmb.items[index]
+        self.ui.cmb001.init_slot()
+        camera = self.ui.cmb001.currentText()
         pm.render(camera)  # render with selected camera
 
     def b001(self):

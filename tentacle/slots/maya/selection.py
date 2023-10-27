@@ -4,7 +4,6 @@ try:
     import pymel.core as pm
 except ImportError as error:
     print(__file__, error)
-import pythontk as ptk
 import mayatk as mtk
 from tentacle.slots.maya import SlotsMaya
 
@@ -50,66 +49,64 @@ class Selection(SlotsMaya):
 
     def cmb002(self, index, widget):
         """Select by Type"""
-        if index > 0:
-            text = widget.items[index]
-            if text == "IK Handles":  #
-                type_ = pm.ls(type=["ikHandle", "hikEffector"])
-            elif text == "Joints":  #
-                type_ = pm.ls(type="joint")
-            elif text == "Clusters":  #
-                type_ = pm.listTransforms(type="clusterHandle")
-            elif text == "Lattices":  #
-                type_ = pm.listTransforms(type="lattice")
-            elif text == "Sculpt Objects":  #
-                type_ = pm.listTransforms(type=["implicitSphere", "sculpt"])
-            elif text == "Wires":  #
-                type_ = pm.ls(type="wire")
-            elif text == "Transforms":  #
-                type_ = pm.ls(type="transform")
-            elif text == "Geometry":  # Select all Geometry
-                geometry = pm.ls(geometry=True)
-                type_ = pm.listRelatives(
-                    geometry, p=True, path=True
-                )  # pm.listTransforms(type='nRigid')
-            elif text == "NURBS Curves":  #
-                type_ = pm.listTransforms(type="nurbsCurve")
-            elif text == "NURBS Surfaces":  #
-                type_ = pm.ls(type="nurbsSurface")
-            elif text == "Polygon Geometry":  #
-                type_ = pm.listTransforms(type="mesh")
-            elif text == "Cameras":  #
-                type_ = pm.listTransforms(cameras=1)
-            elif text == "Lights":  #
-                type_ = pm.listTransforms(lights=1)
-            elif text == "Image Planes":  #
-                type_ = pm.ls(type="imagePlane")
-            elif text == "Assets":  #
-                type_ = pm.ls(type=["container", "dagContainer"])
-            elif text == "Fluids":  #
-                type_ = pm.listTransforms(type="fluidShape")
-            elif text == "Particles":  #
-                type_ = pm.listTransforms(type="particle")
-            elif text == "Rigid Bodies":  #
-                type_ = pm.listTransforms(type="rigidBody")
-            elif text == "Rigid Constraints":  #
-                type_ = pm.ls(type="rigidConstraint")
-            elif text == "Brushes":  #
-                type_ = pm.ls(type="brush")
-            elif text == "Strokes":  #
-                type_ = pm.listTransforms(type="stroke")
-            elif text == "Dynamic Constraints":  #
-                type_ = pm.listTransforms(type="dynamicConstraint")
-            elif text == "Follicles":  #
-                type_ = pm.listTransforms(type="follicle")
-            elif text == "nCloths":  #
-                type_ = pm.listTransforms(type="nCloth")
-            elif text == "nParticles":  #
-                type_ = pm.listTransforms(type="nParticle")
-            elif text == "nRigids":  #
-                type_ = pm.listTransforms(type="nRigid")
+        text = widget.items[index]
+        if text == "IK Handles":  #
+            type_ = pm.ls(type=["ikHandle", "hikEffector"])
+        elif text == "Joints":  #
+            type_ = pm.ls(type="joint")
+        elif text == "Clusters":  #
+            type_ = pm.listTransforms(type="clusterHandle")
+        elif text == "Lattices":  #
+            type_ = pm.listTransforms(type="lattice")
+        elif text == "Sculpt Objects":  #
+            type_ = pm.listTransforms(type=["implicitSphere", "sculpt"])
+        elif text == "Wires":  #
+            type_ = pm.ls(type="wire")
+        elif text == "Transforms":  #
+            type_ = pm.ls(type="transform")
+        elif text == "Geometry":  # Select all Geometry
+            geometry = pm.ls(geometry=True)
+            type_ = pm.listRelatives(
+                geometry, p=True, path=True
+            )  # pm.listTransforms(type='nRigid')
+        elif text == "NURBS Curves":  #
+            type_ = pm.listTransforms(type="nurbsCurve")
+        elif text == "NURBS Surfaces":  #
+            type_ = pm.ls(type="nurbsSurface")
+        elif text == "Polygon Geometry":  #
+            type_ = pm.listTransforms(type="mesh")
+        elif text == "Cameras":  #
+            type_ = pm.listTransforms(cameras=1)
+        elif text == "Lights":  #
+            type_ = pm.listTransforms(lights=1)
+        elif text == "Image Planes":  #
+            type_ = pm.ls(type="imagePlane")
+        elif text == "Assets":  #
+            type_ = pm.ls(type=["container", "dagContainer"])
+        elif text == "Fluids":  #
+            type_ = pm.listTransforms(type="fluidShape")
+        elif text == "Particles":  #
+            type_ = pm.listTransforms(type="particle")
+        elif text == "Rigid Bodies":  #
+            type_ = pm.listTransforms(type="rigidBody")
+        elif text == "Rigid Constraints":  #
+            type_ = pm.ls(type="rigidConstraint")
+        elif text == "Brushes":  #
+            type_ = pm.ls(type="brush")
+        elif text == "Strokes":  #
+            type_ = pm.listTransforms(type="stroke")
+        elif text == "Dynamic Constraints":  #
+            type_ = pm.listTransforms(type="dynamicConstraint")
+        elif text == "Follicles":  #
+            type_ = pm.listTransforms(type="follicle")
+        elif text == "nCloths":  #
+            type_ = pm.listTransforms(type="nCloth")
+        elif text == "nParticles":  #
+            type_ = pm.listTransforms(type="nParticle")
+        elif text == "nRigids":  #
+            type_ = pm.listTransforms(type="nRigid")
 
-            pm.select(type_)
-            widget.setCurrentIndex(0)
+        pm.select(type_)
 
     def cmb003_init(self, widget):
         """ """
@@ -139,73 +136,79 @@ class Selection(SlotsMaya):
 
     def cmb003(self, index, widget):
         """Convert To"""
-        if index > 0:
-            text = widget.items[index]
-            if text == "Verts":  # Convert Selection To Vertices
-                pm.mel.PolySelectConvert(3)
-            elif text == "Vertex Faces":  #
-                pm.mel.PolySelectConvert(5)
-            elif text == "Vertex Perimeter":  #
-                pm.mel.ConvertSelectionToVertexPerimeter()
-            elif text == "Edges":  # Convert Selection To Edges
-                pm.mel.PolySelectConvert(2)
-            elif text == "Edge Loop":  #
-                pm.mel.polySelectSp(loop=1)
-            elif text == "Edge Ring":  # Convert Selection To Edge Ring
-                pm.mel.SelectEdgeRingSp()
-            elif text == "Contained Edges":  #
-                pm.mel.PolySelectConvert(20)
-            elif text == "Edge Perimeter":  #
-                pm.mel.ConvertSelectionToEdgePerimeter()
-            elif text == "Border Edges":  #
-                pm.select(self.getBorderEdgeFromFace())
-            elif text == "Faces":  # Convert Selection To Faces
-                pm.mel.PolySelectConvert(1)
-            elif text == "Face Path":  #
-                pm.mel.polySelectEdges("edgeRing")
-            elif text == "Contained Faces":  #
-                pm.mel.PolySelectConvert(10)
-            elif text == "Face Perimeter":  #
-                pm.mel.polySelectFacePerimeter()
-            elif text == "UV's":  #
-                pm.mel.PolySelectConvert(4)
-            elif text == "UV Shell":  #
-                pm.mel.polySelectBorderShell(0)
-            elif text == "UV Shell Border":  #
-                pm.mel.polySelectBorderShell(1)
-            elif text == "UV Perimeter":  #
-                pm.mel.ConvertSelectionToUVPerimeter()
-            elif text == "UV Edge Loop":  #
-                pm.mel.polySelectEdges("edgeUVLoopOrBorder")
-            elif text == "Shell":  #
-                pm.mel.polyConvertToShell()
-            elif text == "Shell Border":  #
-                pm.mel.polyConvertToShellBorder()
-            widget.setCurrentIndex(0)
+        text = widget.items[index]
+        if text == "Verts":  # Convert Selection To Vertices
+            pm.mel.PolySelectConvert(3)
+        elif text == "Vertex Faces":  #
+            pm.mel.PolySelectConvert(5)
+        elif text == "Vertex Perimeter":  #
+            pm.mel.ConvertSelectionToVertexPerimeter()
+        elif text == "Edges":  # Convert Selection To Edges
+            pm.mel.PolySelectConvert(2)
+        elif text == "Edge Loop":  #
+            pm.mel.polySelectSp(loop=1)
+        elif text == "Edge Ring":  # Convert Selection To Edge Ring
+            pm.mel.SelectEdgeRingSp()
+        elif text == "Contained Edges":  #
+            pm.mel.PolySelectConvert(20)
+        elif text == "Edge Perimeter":  #
+            pm.mel.ConvertSelectionToEdgePerimeter()
+        elif text == "Border Edges":  #
+            pm.select(self.getBorderEdgeFromFace())
+        elif text == "Faces":  # Convert Selection To Faces
+            pm.mel.PolySelectConvert(1)
+        elif text == "Face Path":  #
+            pm.mel.polySelectEdges("edgeRing")
+        elif text == "Contained Faces":  #
+            pm.mel.PolySelectConvert(10)
+        elif text == "Face Perimeter":  #
+            pm.mel.polySelectFacePerimeter()
+        elif text == "UV's":  #
+            pm.mel.PolySelectConvert(4)
+        elif text == "UV Shell":  #
+            pm.mel.polySelectBorderShell(0)
+        elif text == "UV Shell Border":  #
+            pm.mel.polySelectBorderShell(1)
+        elif text == "UV Perimeter":  #
+            pm.mel.ConvertSelectionToUVPerimeter()
+        elif text == "UV Edge Loop":  #
+            pm.mel.polySelectEdges("edgeUVLoopOrBorder")
+        elif text == "Shell":  #
+            pm.mel.polyConvertToShell()
+        elif text == "Shell Border":  #
+            pm.mel.polyConvertToShellBorder()
 
     def cmb005_init(self, widget):
         """ """
-        items = ["Angle", "Border", "Edge Loop", "Edge Ring", "Shell", "UV Edge Loop"]
-        widget.add(items, header="Off")
+        items = [
+            "OFF",
+            "Angle",
+            "Border",
+            "Edge Loop",
+            "Edge Ring",
+            "Shell",
+            "UV Edge Loop",
+        ]
+        widget.add(items)
 
     def cmb005(self, index, widget):
         """Selection Contraints"""
-        if index > 0:
-            text = widget.items[index]
-            if text == "Angle":
-                pm.mel.dR_selConstraintAngle()  # dR_DoCmd("selConstraintAngle");
-            elif text == "Border":
-                pm.mel.dR_selConstraintBorder()  # dR_DoCmd("selConstraintBorder");
-            elif text == "Edge Loop":
-                pm.mel.dR_selConstraintEdgeLoop()  # dR_DoCmd("selConstraintEdgeLoop");
-            elif text == "Edge Ring":
-                pm.mel.dR_selConstraintEdgeRing()  # dR_DoCmd("selConstraintEdgeRing");
-            elif text == "Shell":
-                pm.mel.dR_selConstraintElement()  # dR_DoCmd("selConstraintElement");
-            elif text == "UV Edge Loop":
-                pm.mel.dR_selConstraintUVEdgeLoop()  # dR_DoCmd("selConstraintUVEdgeLoop");
-        else:
-            pm.mel.dR_selConstraintOff()  # dR_DoCmd("selConstraintOff");
+        text = widget.items[index]
+        if text == "Angle":
+            pm.mel.dR_selConstraintAngle()
+        elif text == "Border":
+            pm.mel.dR_selConstraintBorder()
+        elif text == "Edge Loop":
+            pm.mel.dR_selConstraintEdgeLoop()
+        elif text == "Edge Ring":
+            pm.mel.dR_selConstraintEdgeRing()
+        elif text == "Shell":
+            pm.mel.dR_selConstraintElement()
+        elif text == "UV Edge Loop":
+            pm.mel.dR_selConstraintUVEdgeLoop()
+        elif text == "OFF":
+            pm.mel.dR_selConstraintOff()
+        self.sb.message_box(f"Select Constaints: <hl>{text}</hl>")
 
     def chk000(self, state, widget):
         """Select Nth: uncheck other checkboxes"""
@@ -335,7 +338,7 @@ class Selection(SlotsMaya):
         borderEdges = widget.menu.chk010.isChecked()
         step = widget.menu.s003.value()
 
-        selection = pm.ls(sl=1)
+        selection = pm.ls(sl=1, transforms=True)
         if not selection:
             self.sb.message_box("Operation requires a valid selection.")
             return
@@ -354,7 +357,8 @@ class Selection(SlotsMaya):
             result = mtk.get_shortest_path(selection)
 
         elif borderEdges:
-            result = mtk.get_border_components(selection, "edges")
+            all_edges = mtk.get_components(selection, "edges")
+            result = mtk.get_border_components(all_edges)
 
         pm.select(result[::step])
 

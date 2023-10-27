@@ -33,23 +33,21 @@ class Transform(SlotsMaya):
 
     def cmb002(self, index, widget):
         """Align To"""
-        if index > 0:
-            text = widget.items[index]
-            if text == "Point to Point":
-                pm.mel.SnapPointToPointOptions()  # performSnapPtToPt 1; Select any type of point object or component.
-            elif text == "2 Points to 2 Points":
-                pm.mel.Snap2PointsTo2PointsOptions()  # performSnap2PtTo2Pt 1; Select any type of point object or component.
-            elif text == "3 Points to 3 Points":
-                pm.mel.Snap3PointsTo3PointsOptions()  # performSnap3PtTo3Pt 1; Select any type of point object or component.
-            elif text == "Align Objects":
-                pm.mel.performAlignObjects(1)  # Align the selected objects.
-            elif text == "Position Along Curve":
-                pm.mel.PositionAlongCurve()  # Position selected objects along a selected curve.
-            elif text == "Align Tool":
-                pm.mel.SetAlignTool()  # setToolTo alignToolCtx; Align the selection to the last selected object.
-            elif text == "Snap Together Tool":
-                pm.mel.SetSnapTogetherToolOptions()  # setToolTo snapTogetherToolCtx; toolPropertyWindow;) Snap two objects together.
-            widget.setCurrentIndex(0)
+        text = widget.items[index]
+        if text == "Point to Point":
+            pm.mel.SnapPointToPointOptions()  # performSnapPtToPt 1; Select any type of point object or component.
+        elif text == "2 Points to 2 Points":
+            pm.mel.Snap2PointsTo2PointsOptions()  # performSnap2PtTo2Pt 1; Select any type of point object or component.
+        elif text == "3 Points to 3 Points":
+            pm.mel.Snap3PointsTo3PointsOptions()  # performSnap3PtTo3Pt 1; Select any type of point object or component.
+        elif text == "Align Objects":
+            pm.mel.performAlignObjects(1)  # Align the selected objects.
+        elif text == "Position Along Curve":
+            pm.mel.PositionAlongCurve()  # Position selected objects along a selected curve.
+        elif text == "Align Tool":
+            pm.mel.SetAlignTool()  # setToolTo alignToolCtx; Align the selection to the last selected object.
+        elif text == "Snap Together Tool":
+            pm.mel.SetSnapTogetherToolOptions()  # setToolTo snapTogetherToolCtx; toolPropertyWindow;) Snap two objects together.
 
     def tb000_init(self, widget):
         """ """

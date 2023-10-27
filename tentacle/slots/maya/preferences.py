@@ -26,9 +26,14 @@ class Preferences(SlotsMaya):
             "mile",
         ]
         widget.add(items)
-        # get/set current linear value.
+        # Get/Set current linear value.
         index = widget.items.index(pm.currentUnit(q=True, fullName=1, linear=1))
         widget.setCurrentIndex(index)
+
+    def cmb001(self, index, widget):
+        """Set Working Units: Linear"""
+        # millimeter | centimeter | meter | kilometer | inch | foot | yard | mile
+        pm.currentUnit(linear=widget.items[index])
 
     def cmb002_init(self, widget):
         """ """
@@ -42,33 +47,14 @@ class Preferences(SlotsMaya):
             "60 fps (ntscf)": "ntscf",
         }
         widget.add(items)
-        index = widget.items.index(
-            pm.currentUnit(q=True, fullName=1, time=1)
-        )  # get/set current time value.
+        # Get/Set current time value.
+        index = widget.items.index(pm.currentUnit(q=True, fullName=1, time=1))
         widget.setCurrentIndex(index)
-
-    def cmb003_init(self, widget):
-        """ """
-        from PySide2 import QtWidgets, QtCore
-
-        items = QtWidgets.QStyleFactory.keys()  # get styles from QStyleFactory
-        widget.add(items)
-        index = widget.findText(
-            QtWidgets.QApplication.style().objectName(), QtCore.Qt.MatchFixedString
-        )  # get/set current value
-        widget.setCurrentIndex(index)
-
-    def cmb001(self, index, widget):
-        """Set Working Units: Linear"""
-        if index > 0:
-            # millimeter | centimeter | meter | kilometer | inch | foot | yard | mile
-            pm.currentUnit(linear=widget.items[index])
 
     def cmb002(self, index, widget):
         """Set Working Units: Time"""
-        if index > 0:
-            # game | film | pal | ntsc | show | palf | ntscf
-            pm.currentUnit(time=widget.items[index].split()[-1])
+        # game | film | pal | ntsc | show | palf | ntscf
+        pm.currentUnit(time=widget.items[index].split()[-1])
 
     def b001(self):
         """Color Settings"""
@@ -85,17 +71,6 @@ class Preferences(SlotsMaya):
     def b010(self):
         """Settings/Preferences"""
         pm.mel.PreferencesWindow()
-
-    @staticmethod
-    def loadPlugin(plugin):
-        """Loads A Plugin.
-
-        Parameters:
-                plugin (str): The desired plugin to load.
-
-        ex. loadPlugin('nearestPointOnMesh')
-        """
-        not pm.pluginInfo(plugin, query=True, loaded=True) and pm.loadPlugin(plugin)
 
 
 # -------------------------------------------------------------------------------------------

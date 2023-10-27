@@ -172,29 +172,23 @@ class Nurbs(SlotsMaya):
 
     def cmb001(self, index, widget):
         """Create: Curve"""
-        if index > 0:
-            text = widget.items[index]
-            if text == "Ep Curve Tool":
-                pm.mel.eval("EPCurveToolOptions;")  # pm.mel.eval('EPCurveTool;')
-            elif text == "CV Curve Tool":
-                pm.mel.eval("CVCurveToolOptions")  # pm.mel.eval('CVCurveTool')
-            elif text == "Bezier Curve Tool":
-                pm.mel.eval(
-                    "CreateBezierCurveToolOptions"
-                )  # pm.mel.eval('CreateBezierCurveTool;')
-            elif text == "Pencil Curve Tool":
-                pm.mel.eval(
-                    "PencilCurveToolOptions;"
-                )  # pm.mel.eval('PencilCurveTool;')
-            elif text == "2 Point Circular Arc":
-                pm.mel.eval(
-                    "TwoPointArcToolOptions;"
-                )  # pm.mel.eval("TwoPointArcTool;")
-            elif text == "3 Point Circular Arc":
-                pm.mel.eval(
-                    "ThreePointArcToolOptions;"
-                )  # pm.mel.eval("ThreePointArcTool;")
-            widget.setCurrentIndex(0)
+        text = widget.items[index]
+        if text == "Ep Curve Tool":
+            pm.mel.eval("EPCurveToolOptions;")  # pm.mel.eval('EPCurveTool;')
+        elif text == "CV Curve Tool":
+            pm.mel.eval("CVCurveToolOptions")  # pm.mel.eval('CVCurveTool')
+        elif text == "Bezier Curve Tool":
+            pm.mel.eval(
+                "CreateBezierCurveToolOptions"
+            )  # pm.mel.eval('CreateBezierCurveTool;')
+        elif text == "Pencil Curve Tool":
+            pm.mel.eval("PencilCurveToolOptions;")  # pm.mel.eval('PencilCurveTool;')
+        elif text == "2 Point Circular Arc":
+            pm.mel.eval("TwoPointArcToolOptions;")  # pm.mel.eval("TwoPointArcTool;")
+        elif text == "3 Point Circular Arc":
+            pm.mel.eval(
+                "ThreePointArcToolOptions;"
+            )  # pm.mel.eval("ThreePointArcTool;")
 
     def tb000(self, widget):
         """Revolve"""
@@ -204,7 +198,7 @@ class Nurbs(SlotsMaya):
         sections = widget.menu.s005.value()
         range_ = widget.menu.chk006.isChecked()
         polygon = 1 if widget.menu.chk007.isChecked() else 0
-        autoCorrectNormal = widget.menu.chk008.isChecked()
+        # autoCorrectNormal = widget.menu.chk008.isChecked()
         useTolerance = widget.menu.chk009.isChecked()
         tolerance = widget.menu.s006.value()
 
