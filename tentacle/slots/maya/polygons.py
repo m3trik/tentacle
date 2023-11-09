@@ -233,7 +233,7 @@ class Polygons(SlotsMaya):
         self.sb.parent().set_ui("bevel_edges")
 
     def tb005_init(self, widget):
-        """Initialize the tool buttons for detaching operations."""
+        """ """
         widget.menu.add(
             "QCheckBox",
             setText="Duplicate Faces",
@@ -250,7 +250,7 @@ class Polygons(SlotsMaya):
         )
 
     def tb005(self, widget):
-        """Perform detach operations based on user settings and selection."""
+        """Detach."""
         duplicate_faces = widget.menu.chk014.isChecked()
         separate_objects = widget.menu.chk015.isChecked()
 

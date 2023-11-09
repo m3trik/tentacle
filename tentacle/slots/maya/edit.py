@@ -364,52 +364,6 @@ class Edit(SlotsMaya):
         """Delete Selected"""
         mtk.delete_selected()
 
-    def tb003_init(self, widget):
-        """ """
-        widget.menu.add(
-            "QCheckBox",
-            setText="-",
-            setObjectName="chk006",
-            setChecked=True,
-            setToolTip="Perform delete along negative axis.",
-        )
-        widget.menu.add(
-            "QRadioButton",
-            setText="X",
-            setObjectName="chk007",
-            setChecked=True,
-            setToolTip="Perform delete along X axis.",
-        )
-        widget.menu.add(
-            "QRadioButton",
-            setText="Y",
-            setObjectName="chk008",
-            setToolTip="Perform delete along Y axis.",
-        )
-        widget.menu.add(
-            "QRadioButton",
-            setText="Z",
-            setObjectName="chk009",
-            setToolTip="Perform delete along Z axis.",
-        )
-
-        def set_axis_text(widget):
-            """Set the toolbutton's text according to the checkstates."""
-            axis = self.sb.get_axis_from_checkboxes("chk006-9", widget.menu)
-            widget.setText(f"Delete Along Axis: {axis}")
-
-        self.sb.connect_multi(
-            widget.menu, "chk006-9", "toggled", lambda s, w=widget: set_axis_text(w)
-        )
-
-    @mtk.undo
-    def tb003(self, widget):
-        """Delete Along Axis"""
-        axis = self.sb.get_axis_from_checkboxes("chk006-9", widget.menu)
-        selection = pm.ls(sl=1)
-
-        mtk.delete_along_axis(selection, axis)
-
     def tb004_init(self, widget):
         """ """
         widget.menu.add(
@@ -433,6 +387,15 @@ class Edit(SlotsMaya):
         nodes = selection if selection else pm.ls()
         for node in nodes:
             pm.lockNode(node, lock=not unlock)
+
+    def b000(self):
+        """Cut On Axis"""
+        module = mtk.edit_utils.cut_on_axis
+        slot_class = module.CutOnAxisSlots
+
+        self.sb.register("cut_on_axis.ui", slot_class, base_dir=module)
+        self.sb.cut_on_axis.slots.preview.enable_on_show = True
+        self.sb.parent().set_ui("cut_on_axis")
 
     @SlotsMaya.hide_main
     def b001(self):
