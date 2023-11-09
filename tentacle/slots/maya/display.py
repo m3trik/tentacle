@@ -27,17 +27,16 @@ class Display(SlotsMaya):
     def b002(self):
         """Hide Selected"""
         selection = pm.ls(sl=True)
-        pm.hide(selection)  # pm.mel.HideSelectedObjects()
+        pm.hide(selection)
 
     def b003(self):
         """Show Selected"""
         selection = pm.ls(sl=True)
-        pm.showHidden(selection)  # pm.mel.ShowSelectedObjects()
+        pm.showHidden(selection)
 
     def b004(self):
         """Show Geometry"""
-        # Do not use python syntax with hideShow
-        pm.mel.eval("hideShow -geometry 1 -show 1")
+        mtk.set_visibility("mesh", True)
 
     def b005(self):
         """Xray Selected"""

@@ -104,7 +104,7 @@ class File(SlotsMaya):
         """ """
         widget.add(
             [
-                "Import file",
+                "Import File",
                 "Import Options",
                 "FBX Import Presets",
                 "OBJ Import Presets",
@@ -285,12 +285,12 @@ class File(SlotsMaya):
     @SlotsMaya.hide_main
     def b007(self):
         """Import file"""
-        self.sb.file.cmb003.call_slot(1)
+        self.sb.file.cmb003.call_slot(0)
 
     @SlotsMaya.hide_main
     def b008(self):
         """Export Selection"""
-        self.sb.file.cmb004.call_slot(1)
+        self.sb.file.cmb004.call_slot(0)
 
     def b015(self):
         """Remove String From Object Names."""

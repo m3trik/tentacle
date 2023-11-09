@@ -149,14 +149,6 @@ class Transform(SlotsMaya):
         if center_pivot:
             pm.xform(selected_objects, centerPivots=1)
 
-        # temp while testing store transforms
-        import importlib
-
-        importlib.reload(mtk.core_utils)
-        importlib.reload(mtk.xform_utils)
-        print("reload: mtk.core_utils")
-        print("reload: mtk.xform_utils")
-
         pm.makeIdentity(selected_objects, apply=True, t=translate, r=rotate, s=scale)
 
     def tb003_init(self, widget):

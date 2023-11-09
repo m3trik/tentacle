@@ -31,6 +31,11 @@ class Slots(QtCore.QObject):
 
         @wraps(fn)  # This ensures the wrapped function retains meta-info
         def wrapper(self, *args, **kwargs):
+            # If the main window or any widget has grabbed the keyboard, release it.
+            keyboard_grabber = self.sb.parent().keyboardGrabber()
+            if keyboard_grabber:
+                keyboard_grabber.releaseKeyboard()
+
             result = fn(self, *args, **kwargs)  # execute the method normally
             self.sb.parent().hide()
             return result

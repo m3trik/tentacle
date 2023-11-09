@@ -542,37 +542,44 @@ class Uv(SlotsMaya):
 
     def b003(self):
         """Get texel density."""
-        density = pm.mel.texGetTexelDensity(self.getMapSize())
+        # Assuming get_texel_density is defined elsewhere in this script
+        density = mtk.get_texel_density(pm.selected(), self.getMapSize())
         self.ui.s003.setValue(density)
 
+    @mtk.undo
     def b004(self):
         """Set Texel Density"""
         density = self.ui.s003.value()
         mapSize = self.getMapSize()
 
-        # Ensure density and mapSize are non-zero to avoid division by zero error in MEL script
-        if density == 0 or mapSize == 0:
-            pm.warning("Density or Map Size is zero. Cannot set Texel Density.")
-            return  # exit the method if either value is zero
-
-        pm.mel.texSetTexelDensity(density, mapSize)
+        for obj in pm.selected():
+            mtk.set_texel_density(obj, density, mapSize)
 
     def b005(self):
         """Cut UV's"""
-        selected = pm.selected(flatten=True)
+        selection = pm.ls(selection=True, flatten=True)
+        selected_edges = pm.filterExpand(selection, selectionMask=32)
 
-        for obj in selected:
-            # Check if the selected item is a mesh edge
-            if isinstance(obj, pm.MeshEdge):
-                print(11, obj)
-                pm.polyMapCut(selected)
-                return
-            # Check if the selected item is a transform node (possibly a mesh object)
-            elif isinstance(obj, pm.nodetypes.Transform):
-                shape = obj.getShape()
-                # Confirm the shape node is a mesh
-                if shape and isinstance(shape, pm.nodetypes.Mesh):
-                    pm.polyMapCut(shape.e[:])
+        if not selection:
+            self.sb.message_box("Nothing selected")
+            return
+
+        if selected_edges:
+            # Map the selected edges to their respective objects
+            edges_by_object = mtk.map_components_to_objects(selected_edges)
+            # Iterate through the objects and perform the cut operation on their edges
+            for obj_name, edges in edges_by_object.items():
+                pm.polyMapCut(edges)
+            # Re-select the edges after the operation
+            pm.select(selected_edges)
+        else:
+            # If no edges are selected, check for selected objects that are mesh transforms
+            for obj in selection:
+                if isinstance(obj, pm.nodetypes.Transform):
+                    shape = obj.getShape()
+                    if shape and isinstance(shape, pm.nodetypes.Mesh):
+                        # Cut the UVs along all edges of the mesh
+                        pm.polyMapCut(shape.e[:])
 
     def b006(self):
         """Rotate UV's 90"""
