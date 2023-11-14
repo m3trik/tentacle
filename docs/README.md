@@ -1,5 +1,5 @@
 [![License: LGPL v3](https://img.shields.io/badge/License-LGPL%20v3-blue.svg)](https://www.gnu.org/licenses/lgpl-3.0.en.html)
-[![Version](https://img.shields.io/badge/Version-0.9.1-blue.svg)](https://pypi.org/project/tentacletk/)
+[![Version](https://img.shields.io/badge/Version-0.9.2-blue.svg)](https://pypi.org/project/tentacletk/)
 
 
 # Tentacle: A Python3/PySide2 Marking Menu and DCC Toolkit
@@ -42,7 +42,7 @@ To launch the marking menu:
 For Maya, add a macro to a hotkey similar to the following:
 ```python
 from tentacle import tcl_maya
-tcl_maya.show(key_show='Key_F12')
+tcl_maya.show(key_show='Key_F12')  # Change 'Z' to match your desired hotkey.
 ```
 
 For 3ds Max, add a macro to a hotkey similar to the following:
@@ -53,7 +53,7 @@ silentErrors: false
 autoUndoEnabled: false
 (
 	python.Execute "from tentacle import tcl_max"
-	python.Execute "tcl_max.show(key_show='Key_F12')"
+	python.Execute "tcl_max.show(key_show='Key_F12')"  // Change 'Z' to match your desired hotkey.
 )
 ```
 Again, please note that this is a personal project and is currently a work in progress. Contributions are welcome.
