@@ -107,6 +107,9 @@
            <property name="editable">
             <bool>false</bool>
            </property>
+           <property name="currentText">
+            <string>4096</string>
+           </property>
            <property name="currentIndex">
             <number>4</number>
            </property>
@@ -140,7 +143,12 @@
            </item>
            <item>
             <property name="text">
-             <string>8,138</string>
+             <string>8138</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>16276</string>
             </property>
            </item>
           </widget>

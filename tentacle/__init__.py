@@ -3,7 +3,7 @@
 import sys
 
 __package__ = "tentacle"
-__version__ = "0.9.0"
+__version__ = "0.9.1"
 
 
 
