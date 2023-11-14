@@ -17,8 +17,10 @@ class Uv(SlotsMaya):
 
         # Assure the maya UV plugin is loaded
         mtk.load_plugin("Unfold3D.mll")
-        # get the map size from the combobox as an int. ie. 2048
-        self.getMapSize = lambda: int(self.ui.cmb003.currentText())
+
+    def get_map_size(self):
+        """Get the map size from the combobox as an int. ie. 2048"""
+        return int(self.ui.cmb003.currentText())
 
     def header_init(self, widget):
         """ """
@@ -99,7 +101,7 @@ class Uv(SlotsMaya):
             setPrefix="Padding: ",
             setObjectName="s012",
             set_limits=[0, 1000],
-            setValue=self.getMapSize() / 256 * 2,
+            setValue=self.get_map_size() / 256 * 2,
             setToolTip="Set the shell spacing amount.",
         )
 
@@ -111,7 +113,7 @@ class Uv(SlotsMaya):
         padding = widget.menu.s012.value()
         # similar = widget.menu.s011.value()
         # tolerance = widget.menu.s006.value()
-        mapSize = self.getMapSize()
+        mapSize = self.get_map_size()
 
         U, D, I, M = [int(i) for i in str(UDIM)]  # UDIM ex. '1001'
         shellPadding = padding * 0.000244140625
@@ -373,7 +375,7 @@ class Uv(SlotsMaya):
         orient = widget.menu.chk007.isChecked()
         stackSimilar = widget.menu.chk022.isChecked()
         tolerance = widget.menu.s000.value()
-        mapSize = self.getMapSize()
+        mapSize = self.get_map_size()
 
         pm.u3dUnfold(
             iterations=1,
@@ -543,14 +545,14 @@ class Uv(SlotsMaya):
     def b003(self):
         """Get texel density."""
         # Assuming get_texel_density is defined elsewhere in this script
-        density = mtk.get_texel_density(pm.selected(), self.getMapSize())
+        density = mtk.get_texel_density(pm.selected(), self.get_map_size())
         self.ui.s003.setValue(density)
 
     @mtk.undo
     def b004(self):
         """Set Texel Density"""
         density = self.ui.s003.value()
-        mapSize = self.getMapSize()
+        mapSize = self.get_map_size()
 
         for obj in pm.selected():
             mtk.set_texel_density(obj, density, mapSize)
@@ -606,6 +608,7 @@ class Uv(SlotsMaya):
                 uv, pivotU=pivot_u, pivotV=pivot_v, angle=angle, relative=True
             )
 
+    @mtk.undo
     def b011(self):
         """Sew UVs"""
         selected = pm.selected(flatten=True)
