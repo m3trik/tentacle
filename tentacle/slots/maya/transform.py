@@ -266,13 +266,6 @@ class Transform(SlotsMaya):
 
         pm.select(sel)
 
-    def chk010(self, state, widget):
-        """Align Vertices: Auto Align"""
-        if state:
-            self.sb.toggle_multi(widget.ui.tb001.menu, setDisabled="chk029-31")
-        else:
-            self.sb.toggle_multi(widget.ui.tb001.menu, setEnabled="chk029-31")
-
     def chk021(self, state, widget):
         """Transform Tool Snap Settings: Move"""
         tb = self.ui.tb004
@@ -378,7 +371,7 @@ class Transform(SlotsMaya):
 
     def b001(self):
         """Match Scale"""
-        selection = pm.ls(sl=1)
+        selection = pm.ls(orderedSelection=True, flatten=True)
         if not selection:
             self.sb.message_box(
                 "<b>Nothing selected.</b><br>The operation requires at least two selected objects."

@@ -10,7 +10,7 @@
     <x>0</x>
     <y>0</y>
     <width>200</width>
-    <height>141</height>
+    <height>156</height>
    </rect>
   </property>
   <property name="tabShape">
@@ -63,7 +63,7 @@
          </size>
         </property>
         <property name="title">
-         <string>Animation</string>
+         <string>Keyframes</string>
         </property>
         <layout class="QVBoxLayout" name="verticalLayout_6">
          <property name="spacing">
@@ -100,6 +100,31 @@
            </property>
            <property name="text">
             <string>Move to Frame</string>
+           </property>
+           <property name="checkable">
+            <bool>false</bool>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="PushButton" name="tb002">
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>20</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>16777215</width>
+             <height>20</height>
+            </size>
+           </property>
+           <property name="toolTip">
+            <string>Adds spacing between all keys at a given time.</string>
+           </property>
+           <property name="text">
+            <string>Add Spacing</string>
            </property>
            <property name="checkable">
             <bool>false</bool>
