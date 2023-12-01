@@ -24,6 +24,31 @@ class Normals(SlotsMaya):
             setToolTip="Normal display size.",
         )
 
+    def tb000(self, widget):
+        """Display Face Normals"""
+        size = widget.menu.s001.value()
+        # state = pm.polyOptions (query=True, displayNormal=True)
+        state = ptk.cycle([1, 2, 3, 0], "displayNormals")
+        if state == 0:  # off
+            pm.polyOptions(displayNormal=0, sizeNormal=0)
+            pm.polyOptions(displayTangent=False)
+            mtk.viewport_message("Normals Display <hl>Off</hl>.")
+
+        if state == 1:  # facet
+            pm.polyOptions(displayNormal=1, facet=True, sizeNormal=size)
+            pm.polyOptions(displayTangent=False)
+            mtk.viewport_message("<hl>Facet</hl> Normals Display <hl>On</hl>.")
+
+        if state == 2:  # Vertex
+            pm.polyOptions(displayNormal=1, point=True, sizeNormal=size)
+            pm.polyOptions(displayTangent=False)
+            mtk.viewport_message("<hl>Vertex</hl> Normals Display <hl>On</hl>.")
+
+        if state == 3:  # tangent
+            pm.polyOptions(displayTangent=True)
+            pm.polyOptions(displayNormal=0)
+            mtk.viewport_message("<hl>Tangent</hl> Display <hl>On</hl>.")
+
     def tb001_init(self, widget):
         """ """
         widget.menu.add(
@@ -58,6 +83,29 @@ class Normals(SlotsMaya):
             setToolTip="Turn on soft edge display for the object.",
         )
 
+    def tb001(self, widget):
+        """Harden Edge Normals"""
+        angle_threshold = widget.menu.s002.value()
+        upper_hardness = widget.menu.s003.value()
+        lower_hardness = widget.menu.s004.value()
+        soft_edge_display = widget.menu.chk007.isChecked()
+
+        # If value is -1, upper/lower hardess will be disabled.
+        upper_hardness = upper_hardness if upper_hardness > -1 else None
+        lower_hardness = lower_hardness if lower_hardness > -1 else None
+
+        selection = pm.ls(sl=True)
+        # Reset the normals before the operation with object selections.
+        if pm.selectMode(query=True, object=True):
+            pm.polySetToFaceNormal(selection)
+
+        mtk.set_edge_hardness(
+            selection, angle_threshold, upper_hardness, lower_hardness
+        )
+
+        objects = pm.ls(selection, objectsOnly=True)
+        pm.polyOptions(objects, se=soft_edge_display)
+
     def tb002_init(self, widget):
         """ """
         widget.menu.add(
@@ -68,6 +116,20 @@ class Normals(SlotsMaya):
             setValue=60,
             setToolTip="Angle degree.",
         )
+
+    def tb002(self, widget):
+        """Set Normals By Angle"""
+        normalAngle = widget.menu.s000.value()
+
+        objects = pm.ls(sl=True, objectsOnly=1, flatten=1)
+        for obj in objects:
+            sel = pm.ls(obj, sl=1)
+            pm.polySetToFaceNormal(sel, setUserNormal=1)  # reset to face
+            polySoftEdge = pm.polySoftEdge(
+                sel, angle=normalAngle
+            )  # smooth if angle is lower than specified amount. default:60
+            if len(objects) == 1:
+                return polySoftEdge
 
     def tb003_init(self, widget):
         """ """
@@ -83,73 +145,6 @@ class Normals(SlotsMaya):
             if state
             else w.setText("Unlock")
         )
-
-    def tb004_init(self, widget):
-        """ """
-        widget.menu.add(
-            "QCheckBox",
-            setText="By UV Shell",
-            setObjectName="chk003",
-            setToolTip="Average the normals of each object's faces per UV shell.",
-        )
-
-    def tb000(self, widget):
-        """Display Face Normals"""
-        size = widget.menu.s001.value()
-        # state = pm.polyOptions (query=True, displayNormal=True)
-        state = ptk.cycle([1, 2, 3, 0], "displayNormals")
-        if state == 0:  # off
-            pm.polyOptions(displayNormal=0, sizeNormal=0)
-            pm.polyOptions(displayTangent=False)
-            mtk.viewport_message("Normals Display <hl>Off</hl>.")
-
-        if state == 1:  # facet
-            pm.polyOptions(displayNormal=1, facet=True, sizeNormal=size)
-            pm.polyOptions(displayTangent=False)
-            mtk.viewport_message("<hl>Facet</hl> Normals Display <hl>On</hl>.")
-
-        if state == 2:  # Vertex
-            pm.polyOptions(displayNormal=1, point=True, sizeNormal=size)
-            pm.polyOptions(displayTangent=False)
-            mtk.viewport_message("<hl>Vertex</hl> Normals Display <hl>On</hl>.")
-
-        if state == 3:  # tangent
-            pm.polyOptions(displayTangent=True)
-            pm.polyOptions(displayNormal=0)
-            mtk.viewport_message("<hl>Tangent</hl> Display <hl>On</hl>.")
-
-    def tb001(self, widget):
-        """Harden Edge Normals"""
-        angle_threshold = widget.menu.s002.value()
-        upper_hardness = widget.menu.s003.value()
-        lower_hardness = widget.menu.s004.value()
-        soft_edge_display = widget.menu.chk007.isChecked()
-
-        # If value is -1, upper/lower hardess will be disabled.
-        upper_hardness = upper_hardness if upper_hardness > -1 else None
-        lower_hardness = lower_hardness if lower_hardness > -1 else None
-
-        selection = pm.ls(sl=True)
-        mtk.set_edge_hardness(
-            selection, angle_threshold, upper_hardness, lower_hardness
-        )
-
-        objects = pm.ls(selection, objectsOnly=True)
-        pm.polyOptions(objects, se=soft_edge_display)
-
-    def tb002(self, widget):
-        """Set Normals By Angle"""
-        normalAngle = widget.menu.s000.value()
-
-        objects = pm.ls(sl=True, objectsOnly=1, flatten=1)
-        for obj in objects:
-            sel = pm.ls(obj, sl=1)
-            pm.polySetToFaceNormal(sel, setUserNormal=1)  # reset to face
-            polySoftEdge = pm.polySoftEdge(
-                sel, angle=normalAngle
-            )  # smooth if angle is lower than specified amount. default:60
-            if len(objects) == 1:
-                return polySoftEdge
 
     def tb003(self, widget):
         """Lock/Unlock Vertex Normals"""
@@ -170,6 +165,15 @@ class Normals(SlotsMaya):
         else:
             pm.polyNormalPerVertex(vertices, freezeNormal=True)
             mtk.viewport_message("Normals <hl>Locked</hl>.")
+
+    def tb004_init(self, widget):
+        """ """
+        widget.menu.add(
+            "QCheckBox",
+            setText="By UV Shell",
+            setObjectName="chk003",
+            setToolTip="Average the normals of each object's faces per UV shell.",
+        )
 
     def tb004(self, widget):
         """Average Normals"""

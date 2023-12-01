@@ -26,6 +26,7 @@ class Selection(SlotsMaya):
             "Wires",
             "Transforms",
             "Geometry",
+            "Locators",
             "NURBS Curves",
             "NURBS Surfaces",
             "Polygon Geometry",
@@ -51,62 +52,63 @@ class Selection(SlotsMaya):
         """Select by Type"""
         text = widget.items[index]
         if text == "IK Handles":  #
-            type_ = pm.ls(type=["ikHandle", "hikEffector"])
+            objs = pm.ls(type=["ikHandle", "hikEffector"])
         elif text == "Joints":  #
-            type_ = pm.ls(type="joint")
+            objs = pm.ls(type="joint")
         elif text == "Clusters":  #
-            type_ = pm.listTransforms(type="clusterHandle")
+            objs = pm.listTransforms(type="clusterHandle")
         elif text == "Lattices":  #
-            type_ = pm.listTransforms(type="lattice")
+            objs = pm.listTransforms(type="lattice")
         elif text == "Sculpt Objects":  #
-            type_ = pm.listTransforms(type=["implicitSphere", "sculpt"])
+            objs = pm.listTransforms(type=["implicitSphere", "sculpt"])
         elif text == "Wires":  #
-            type_ = pm.ls(type="wire")
+            objs = pm.ls(type="wire")
         elif text == "Transforms":  #
-            type_ = pm.ls(type="transform")
+            objs = pm.ls(type="transform")
         elif text == "Geometry":  # Select all Geometry
-            geometry = pm.ls(geometry=True)
-            type_ = pm.listRelatives(
-                geometry, p=True, path=True
-            )  # pm.listTransforms(type='nRigid')
+            shapes = pm.ls(geometry=True)
+            objs = pm.listRelatives(shapes, parent=True, path=True)
+        elif text == "Locators":
+            shapes = pm.ls(type="locator")
+            objs = pm.listRelatives(shapes, parent=True, path=True)
         elif text == "NURBS Curves":  #
-            type_ = pm.listTransforms(type="nurbsCurve")
+            objs = pm.listTransforms(type="nurbsCurve")
         elif text == "NURBS Surfaces":  #
-            type_ = pm.ls(type="nurbsSurface")
+            objs = pm.ls(type="nurbsSurface")
         elif text == "Polygon Geometry":  #
-            type_ = pm.listTransforms(type="mesh")
+            objs = pm.listTransforms(type="mesh")
         elif text == "Cameras":  #
-            type_ = pm.listTransforms(cameras=1)
+            objs = pm.listTransforms(cameras=1)
         elif text == "Lights":  #
-            type_ = pm.listTransforms(lights=1)
+            objs = pm.listTransforms(lights=1)
         elif text == "Image Planes":  #
-            type_ = pm.ls(type="imagePlane")
+            objs = pm.ls(type="imagePlane")
         elif text == "Assets":  #
-            type_ = pm.ls(type=["container", "dagContainer"])
+            objs = pm.ls(type=["container", "dagContainer"])
         elif text == "Fluids":  #
-            type_ = pm.listTransforms(type="fluidShape")
+            objs = pm.listTransforms(type="fluidShape")
         elif text == "Particles":  #
-            type_ = pm.listTransforms(type="particle")
+            objs = pm.listTransforms(type="particle")
         elif text == "Rigid Bodies":  #
-            type_ = pm.listTransforms(type="rigidBody")
+            objs = pm.listTransforms(type="rigidBody")
         elif text == "Rigid Constraints":  #
-            type_ = pm.ls(type="rigidConstraint")
+            objs = pm.ls(type="rigidConstraint")
         elif text == "Brushes":  #
-            type_ = pm.ls(type="brush")
+            objs = pm.ls(type="brush")
         elif text == "Strokes":  #
-            type_ = pm.listTransforms(type="stroke")
+            objs = pm.listTransforms(type="stroke")
         elif text == "Dynamic Constraints":  #
-            type_ = pm.listTransforms(type="dynamicConstraint")
+            objs = pm.listTransforms(type="dynamicConstraint")
         elif text == "Follicles":  #
-            type_ = pm.listTransforms(type="follicle")
+            objs = pm.listTransforms(type="follicle")
         elif text == "nCloths":  #
-            type_ = pm.listTransforms(type="nCloth")
+            objs = pm.listTransforms(type="nCloth")
         elif text == "nParticles":  #
-            type_ = pm.listTransforms(type="nParticle")
+            objs = pm.listTransforms(type="nParticle")
         elif text == "nRigids":  #
-            type_ = pm.listTransforms(type="nRigid")
+            objs = pm.listTransforms(type="nRigid")
 
-        pm.select(type_)
+        pm.select(objs)
 
     def cmb003_init(self, widget):
         """ """
