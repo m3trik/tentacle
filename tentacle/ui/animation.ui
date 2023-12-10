@@ -10,7 +10,7 @@
     <x>0</x>
     <y>0</y>
     <width>200</width>
-    <height>156</height>
+    <height>212</height>
    </rect>
   </property>
   <property name="tabShape">
@@ -121,10 +121,10 @@
             </size>
            </property>
            <property name="toolTip">
-            <string>Adds spacing between all keys at a given time.</string>
+            <string>Add or remove spacing between all keys at a given time for any currently selected objects.</string>
            </property>
            <property name="text">
-            <string>Add Spacing</string>
+            <string>Adjust Spacing</string>
            </property>
            <property name="checkable">
             <bool>false</bool>
@@ -149,7 +149,7 @@
             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Duplicate any selected keyframes and paste them inverted at the given time.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
            </property>
            <property name="text">
-            <string>Invert Sel Keys</string>
+            <string>Invert Selected Keys</string>
            </property>
            <property name="checkable">
             <bool>false</bool>
@@ -174,10 +174,96 @@
             </size>
            </property>
            <property name="toolTip">
-            <string>Delete keys for the currently selected object(s).</string>
+            <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Deletes &lt;span style=&quot; font-weight:600;&quot;&gt;ALL&lt;/span&gt; keyframes for the currently selected object(s).&lt;/p&gt;&lt;p&gt;If specific attributes are selected in the channel box, only keyframes for those attributes will be deleted.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
            </property>
            <property name="text">
             <string>Delete Keys</string>
+           </property>
+           <property name="iconSize">
+            <size>
+             <width>18</width>
+             <height>18</height>
+            </size>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </widget>
+      </item>
+      <item>
+       <widget class="QGroupBox" name="groupBox">
+        <property name="title">
+         <string>Channel Box</string>
+        </property>
+        <layout class="QGridLayout" name="gridLayout">
+         <property name="leftMargin">
+          <number>0</number>
+         </property>
+         <property name="topMargin">
+          <number>0</number>
+         </property>
+         <property name="rightMargin">
+          <number>0</number>
+         </property>
+         <property name="bottomMargin">
+          <number>0</number>
+         </property>
+         <property name="spacing">
+          <number>1</number>
+         </property>
+         <item row="1" column="1">
+          <widget class="QPushButton" name="b002">
+           <property name="enabled">
+            <bool>true</bool>
+           </property>
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>20</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>16777215</width>
+             <height>20</height>
+            </size>
+           </property>
+           <property name="toolTip">
+            <string>Sets keyframes for any previously stored attribute values at the current time.</string>
+           </property>
+           <property name="text">
+            <string>Key Attributes</string>
+           </property>
+           <property name="iconSize">
+            <size>
+             <width>18</width>
+             <height>18</height>
+            </size>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="1">
+          <widget class="QPushButton" name="b001">
+           <property name="enabled">
+            <bool>true</bool>
+           </property>
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>20</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>16777215</width>
+             <height>20</height>
+            </size>
+           </property>
+           <property name="toolTip">
+            <string>Stores the current values of attributes selected in Maya's channel box for any selected objects.</string>
+           </property>
+           <property name="text">
+            <string>Get Attributes</string>
            </property>
            <property name="iconSize">
             <size>
