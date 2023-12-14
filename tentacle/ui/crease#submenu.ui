@@ -93,9 +93,9 @@
     </property>
     <property name="geometry">
      <rect>
-      <x>270</x>
-      <y>240</y>
-      <width>71</width>
+      <x>255</x>
+      <y>250</y>
+      <width>96</width>
       <height>19</height>
      </rect>
     </property>
@@ -124,7 +124,7 @@
   <customwidget>
    <class>PushButton</class>
    <extends>QPushButton</extends>
-   <header>uitk.widgets.pushbutton.PushButton.h</header>
+   <header>widgets.pushbutton.h</header>
   </customwidget>
  </customwidgets>
  <resources/>

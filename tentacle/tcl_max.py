@@ -8,8 +8,7 @@ except ImportError as error:
     print(error)
 from tentacle.tcl import Tcl
 
-
-INSTANCES = {}
+instance = None
 
 
 class TclMax(Tcl):
@@ -84,38 +83,17 @@ class TclMax(Tcl):
         super().hideEvent(event)  # super().hideEvent(event)
 
 
-# --------------------------------------------------------------------------------------------
-
-
-def getInstance(instanceID=None, *args, **kwargs):
-    """Get an instance of this class using a given instanceID.
-    The instanceID is either the object or the object's id.
-
-    Parameters:
-            instanceID () = The instanceID can be any immutable type.
-            args/kwargs () = The args to be passed to the class instance when it is created.
-
-    Returns:
-            (obj) An instance of this class.
-
-    Example: tentacle = getInstance(id(0), key_show='Key_F12') #returns the class instance with an instance ID of the value of `id(0)`.
-    """
-    import inspect
-
-    if instanceID is None:
-        instanceID = inspect.stack()[1][3]
-    try:
-        return INSTANCES[instanceID]
-
-    except KeyError:
-        INSTANCES[instanceID] = TclMax(*args, **kwargs)
-        return INSTANCES[instanceID]
-
-
-def show(instanceID=None, *args, **kwargs):
-    """Expands `getInstance` to get and then show an instance in a single command."""
-    inst = getInstance(instanceID=instanceID, *args, **kwargs)
-    inst.show()
+def show(*args, **kwargs):
+    """Create and show a TclMax instance"""
+    global instance
+    if instance is None:
+        instance = TclMax(*args, **kwargs)
+        instance.show()
+    elif not instance.isVisible():
+        instance.show()
+    else:  # Bring the existing instance to the front
+        instance.raise_()
+        instance.activateWindow()
 
 
 # --------------------------------------------------------------------------------------------
@@ -123,7 +101,6 @@ def show(instanceID=None, *args, **kwargs):
 if __name__ == "__main__":
     main = TclMax()
     main.show("init#startmenu")
-
     # run app, show window, wait for input, then terminate program with a status code returned from app.
     exit_code = main.app.exec_()
     if exit_code != -1:
@@ -134,40 +111,3 @@ if __name__ == "__main__":
 # --------------------------------------------------------------------------------------------
 # Notes
 # --------------------------------------------------------------------------------------------
-
-
-# deprecated: -----------------------------------
-
-# class Instance(Instance):
-#   '''Manage multiple instances of TclMax.
-#   '''
-#   def __init__(self, *args, **kwargs):
-#       '''
-#       '''
-#       super().__init__(*args, **kwargs)
-#       self.Class = TclMax
-
-
-# import contextlib
-# @contextlib.contextmanager
-# def performAppUndo(self, enabled=True, message=''):
-#   '''
-#   Uses pymxs's undo mechanism, but doesn't silence exceptions raised
-#   in it.
-
-#   :Parameter:
-#       enabled (bool): Turns undo functionality on.
-#       message (str): Label for the undo item in the undo menu.
-#   '''
-#   print('undo')
-#   import pymxs
-#   import traceback
-#   e = None
-#   with pymxs.undo(enabled, message):
-#       try:
-#           yield
-#       except Exception as e:
-#           # print error, raise error then run undo
-#           print(traceback.print_exc())
-#           raise(e)
-#           pymxs.run_undo()
