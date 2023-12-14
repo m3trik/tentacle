@@ -4,8 +4,7 @@ import sys
 from PySide2 import QtWidgets, QtCore
 from tentacle.tcl import Tcl
 
-
-INSTANCES = {}
+instance = None
 
 
 class TclBlender(Tcl):
@@ -52,53 +51,18 @@ class TclBlender(Tcl):
 
         super().keyPressEvent(event)
 
-    def showEvent(self, event):
-        """
-        Parameters:
-                event = <QEvent>
-        """
-        super().showEvent(event)  # super().showEvent(event)
 
-    def hideEvent(self, event):
-        """
-        Parameters:
-                event = <QEvent>
-        """
-        super().hideEvent(event)  # super().hideEvent(event)
-
-
-# --------------------------------------------------------------------------------------------
-
-
-def getInstance(instanceID=None, *args, **kwargs):
-    """Get an instance of this class using a given instanceID.
-    The instanceID is either the object or the object's id.
-
-    Parameters:
-            instanceID () = The instanceID can be any immutable type.
-            args/kwargs () = The args to be passed to the class instance when it is created.
-
-    Returns:
-            (obj) An instance of this class.
-
-    Example: tentacle = getInstance(id(0), key_show='Key_F12') #returns the class instance with an instance ID of the value of `id(0)`.
-    """
-    import inspect
-
-    if instanceID is None:
-        instanceID = inspect.stack()[1][3]
-    try:
-        return INSTANCES[instanceID]
-
-    except KeyError:
-        INSTANCES[instanceID] = TclBlender(*args, **kwargs)
-        return INSTANCES[instanceID]
-
-
-def show(instanceID=None, *args, **kwargs):
-    """Expands `getInstance` to get and then show an instance in a single command."""
-    inst = getInstance(instanceID=instanceID, *args, **kwargs)
-    inst.show()
+def show(*args, **kwargs):
+    """Create and show a TclBlender instance"""
+    global instance
+    if instance is None:
+        instance = TclBlender(*args, **kwargs)
+        instance.show()
+    elif not instance.isVisible():
+        instance.show()
+    else:  # Bring the existing instance to the front
+        instance.raise_()
+        instance.activateWindow()
 
 
 # --------------------------------------------------------------------------------------------
@@ -106,7 +70,6 @@ def show(instanceID=None, *args, **kwargs):
 if __name__ == "__main__":
     main = TclBlender()
     main.show("init#startmenu")
-
     # run app, show window, wait for input, then terminate program with a status code returned from app.
     exit_code = main.app.exec_()
     if exit_code != -1:
