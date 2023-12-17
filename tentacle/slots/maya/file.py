@@ -34,61 +34,6 @@ class File(SlotsMaya):
 
     def cmb002_init(self, widget):
         """ """
-        # Get the current autosave state
-        autoSaveState = pm.autoSave(q=True, enable=True)
-        autoSaveInterval = pm.autoSave(q=True, int=True)
-        autoSaveAmount = pm.autoSave(q=True, maxBackups=True)
-        # open directory
-        widget.menu.add(
-            "QPushButton",
-            setObjectName="b000",
-            setText="Open Directory",
-            setToolTip="Open the autosave directory.",
-        )
-        # delete all
-        widget.menu.add(
-            "QPushButton",
-            setObjectName="b002",
-            setText="Delete All",
-            setToolTip="Delete all autosave files.",
-        )
-        # toggle autosave
-        widget.menu.add(
-            "QCheckBox",
-            setText="Autosave",
-            setObjectName="chk006",
-            setChecked=autoSaveState,
-            setToolTip="Set the autosave state as active or disabled.",
-        )
-        # autosave amount
-        widget.menu.add(
-            "QSpinBox",
-            setPrefix="Amount: ",
-            setObjectName="s000",
-            set_limits=[1, 100],
-            setValue=autoSaveAmount,
-            set_height=20,
-            setToolTip="The number of autosave files to retain.",
-        )
-        # autosave interval
-        widget.menu.add(
-            "QSpinBox",
-            setPrefix="Interval: ",
-            setObjectName="s001",
-            set_limits=[1, 60],
-            setValue=autoSaveInterval / 60,
-            set_height=20,
-            setToolTip="The autosave interval in minutes.",
-        )
-        widget.menu.chk006.toggled.connect(
-            lambda s: pm.autoSave(enable=s, limitBackups=True)
-        )
-        widget.menu.s000.valueChanged.connect(
-            lambda v: pm.autoSave(maxBackups=v, limitBackups=True)
-        )
-        widget.menu.s001.valueChanged.connect(
-            lambda v: pm.autoSave(int=v * 60, limitBackups=True)
-        )
         widget.add(
             mtk.get_recent_autosave(format="timestamp|standard"),
             header="Recent Autosave",
@@ -174,12 +119,6 @@ class File(SlotsMaya):
 
     def cmb005_init(self, widget):
         """ """
-        widget.menu.add(
-            "QPushButton",
-            setObjectName="b001",
-            setText="Last",
-            setToolTip="Open the most recent file.",
-        )
         widget.add(
             mtk.get_recent_files(slice(0, 20), format="timestamp|standard"),
             header="Recent Files",
@@ -271,16 +210,6 @@ class File(SlotsMaya):
 
         self.sb.register("reference_manager.ui", slot_class, base_dir=module)
         self.sb.parent().set_ui("reference_manager")
-
-    def b002(self):
-        """Autosave: Delete All"""
-        files = mtk.get_recent_autosave()
-        for file in files:
-            try:
-                os.remove(file)
-
-            except Exception as error:
-                print(error)
 
     @SlotsMaya.hide_main
     def b007(self):

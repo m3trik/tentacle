@@ -1,8 +1,8 @@
-numpy==1.24.1
-Pillow==9.3.0
-PySide2==5.15.2.1
-shiboken2==5.15.2.1
+numpy
+Pillow
+PySide2
+shiboken2
 pymel
-pythontk==0.7.9
-uitk==1.0.6
-mayatk==0.9.7
+pythontk==0.7.10
+uitk==1.0.7
+mayatk==0.9.8

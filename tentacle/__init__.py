@@ -3,23 +3,22 @@
 import sys
 
 __package__ = "tentacle"
-__version__ = "0.9.7"
-
+__version__ = "0.9.8"
 
 
 def greeting(string, outputToConsole=True):
     """Format a string using preset variables.
 
     Parameters:
-            string (str): The greeting to format as a string with placeholders using the below keywords.
-                    ex. 'Good {hr}! You are using {modver} with {pyver}.'
-                    {hr} - Gives the current time of day (morning, afternoon, evening)
-                    {pyver} - The python interpreter version.
-                    {modver} - This modules version.
-            outputToConsole = Print the greeting.
+        string (str): The greeting to format as a string with placeholders using the below keywords.
+                ex. 'Good {hr}! You are using {modver} with {pyver}.'
+                {hr} - Gives the current time of day (morning, afternoon, evening)
+                {pyver} - The python interpreter version.
+                {modver} - This modules version.
+        outputToConsole = Print the greeting.
 
     Returns:
-            (str)
+        (str)
 
     Example: greeting('Good {hr}! You are using {modver} with {pyver}.')
     """

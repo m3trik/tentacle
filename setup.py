@@ -19,7 +19,7 @@ setuptools.setup(
     description=description,
     long_description=long_description,
     long_description_content_type="text/markdown",
-    url="https://github.com/m3trik/tentacle",
+    url=f"https://github.com/m3trik/{__package__}",
     classifiers=[
         "Programming Language :: Python :: 3",
         "License :: OSI Approved :: GNU Library or Lesser General Public License (LGPL)",
@@ -27,10 +27,15 @@ setuptools.setup(
     ],
     packages=setuptools.find_packages(),
     include_package_data=True,
-    install_requires=ptk.update_requirements(),
+    install_requires=ptk.update_requirements(
+        exc=["Pillow", "PySide2", "numpy", "shiboken2", "pymel"]
+    ),
     data_files=ptk.get_dir_contents(
-        __package__, "filepath", exc_files=["*.py", "*.pyc", "*.json"]
-    ),  # ie. ('uitk/ui/0', ['uitk/ui/0/init.ui']),
+        __package__,
+        "filepath",
+        exc_files=["*.py", "*.pyc", "*.json", "*.bak"],
+        recursive=True,
+    ),
 )
 
 # --------------------------------------------------------------------------------------------
