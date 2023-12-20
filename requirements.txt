@@ -5,4 +5,4 @@ shiboken2
 pymel
 pythontk==0.7.10
 uitk==1.0.7
-mayatk==0.9.8
+mayatk==0.9.9

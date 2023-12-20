@@ -14,7 +14,7 @@ class Animation(SlotsMaya):
 
     def tb000_init(self, widget):
         """ """
-        widget.menu.setTitle("Set Current Frame")
+        widget.menu.setTitle("Move To Frame")
         widget.menu.add(
             "QSpinBox",
             setPrefix="Frame: ",
@@ -39,7 +39,7 @@ class Animation(SlotsMaya):
         )
 
     def tb000(self, widget):
-        """Set Current Frame"""
+        """Move To Frame"""
         time = widget.menu.s000.value()
         update = widget.menu.chk001.isChecked()
         relative = widget.menu.chk000.isChecked()

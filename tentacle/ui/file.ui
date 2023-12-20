@@ -89,6 +89,9 @@
              <height>20</height>
             </size>
            </property>
+           <property name="toolTip">
+            <string>Any recent workspaces will appear here.</string>
+           </property>
            <property name="maxVisibleItems">
             <number>30</number>
            </property>
@@ -118,6 +121,9 @@
              <width>16777215</width>
              <height>20</height>
             </size>
+           </property>
+           <property name="toolTip">
+            <string>Open a workspace folder, or set a new workspace.</string>
            </property>
            <property name="maxVisibleItems">
             <number>40</number>
@@ -173,6 +179,9 @@
              <height>20</height>
             </size>
            </property>
+           <property name="toolTip">
+            <string>Any recent scenes will appear here.</string>
+           </property>
            <property name="maxVisibleItems">
             <number>30</number>
            </property>
@@ -202,6 +211,9 @@
              <width>16777215</width>
              <height>20</height>
             </size>
+           </property>
+           <property name="toolTip">
+            <string>Any recent autosaves will appear here.</string>
            </property>
            <property name="maxVisibleItems">
             <number>30</number>
