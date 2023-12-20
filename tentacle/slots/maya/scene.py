@@ -4,6 +4,7 @@ try:
     import pymel.core as pm
 except ImportError as error:
     print(__file__, error)
+import pythontk as ptk
 import mayatk as mtk
 from uitk import Signals
 from tentacle.slots.maya import SlotsMaya
@@ -31,11 +32,14 @@ class Scene(SlotsMaya):
             setToolTip="When checked, regular expression syntax is used instead of the default '*' and '|' wildcards.",
         )
 
+    @Signals("textChanged", "returnPressed")
     def txt000(self, text, widget):
-        """Select By Name"""
+        """Find"""
         # An asterisk denotes startswith*, *endswith, *contains*
         if text:
-            pm.select(pm.ls(text))
+            object_names = [str(i) for i in pm.ls()]
+            found_object_names = ptk.find_str(text, object_names)
+            pm.select(found_object_names)
 
     # The LineEdit text parameter is not emitted on `returnPressed`
     @Signals("returnPressed")

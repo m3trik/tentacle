@@ -1,5 +1,5 @@
 [![License: LGPL v3](https://img.shields.io/badge/License-LGPL%20v3-blue.svg)](https://www.gnu.org/licenses/lgpl-3.0.en.html)
-[![Version](https://img.shields.io/badge/Version-0.9.8-blue.svg)](https://pypi.org/project/tentacletk/)
+[![Version](https://img.shields.io/badge/Version-0.9.10-blue.svg)](https://pypi.org/project/tentacletk/)
 
 
 # Tentacle: A Python3/PySide2 Marking Menu and DCC Toolkit
@@ -29,7 +29,7 @@ The structure of the project is as follows:
 Install via pip in a command line window using:
 
 ```bash
-python -m pip install tentacletk
+path/to/mayapy.exe -m pip install tentacletk
 ```
 ## Usage
 To launch the marking menu:
