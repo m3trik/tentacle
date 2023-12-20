@@ -100,23 +100,26 @@ class Preferences(SlotsMaya):
         mayapy = os.path.join(mtk.get_maya_info("install_path"), "bin", "mayapy.exe")
         pkg_mgr = ptk.PkgManager(python_path=mayapy)
 
-        package_name = "tentacletk"
+        this_pkg = "tentacletk"
         # Check if the package is outdated
-        if pkg_mgr.is_outdated(package_name):
+        if pkg_mgr.is_outdated(this_pkg):
             # Ask user whether to update
-            user_choice = self.prompt_update_decision(package_name)
+            user_choice = self.prompt_update_decision(this_pkg)
             if user_choice == self.sb.QMessageBox.Yes:
                 # User chose to update
-                pkg_mgr.update(package_name)
+                pkg_mgr.update("pythontk")
+                pkg_mgr.update("uitk")
+                pkg_mgr.update("mayatk")
+                pkg_mgr.update(this_pkg)
                 self.sb.message_box(
-                    f"Updated {package_name} to the latest version.", location="center"
+                    f"Updated {this_pkg} to the latest version.", location="center"
                 )
             else:  # User chose not to update
                 self.sb.message_box(
-                    f"Update for {package_name} was cancelled.", location="center"
+                    f"Update for {this_pkg} was cancelled.", location="center"
                 )
         else:
-            self.sb.message_box(f"{package_name} is already up to date.")
+            self.sb.message_box(f"{this_pkg} is already up to date.")
 
     def prompt_update_decision(self, package_name):
         """Prompt user to decide on updating the package."""
