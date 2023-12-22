@@ -10,7 +10,7 @@
     <x>0</x>
     <y>0</y>
     <width>200</width>
-    <height>193</height>
+    <height>182</height>
    </rect>
   </property>
   <property name="tabShape">
@@ -90,10 +90,7 @@
             </size>
            </property>
            <property name="toolTip">
-            <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Select all by name.&lt;br&gt;&lt;br/&gt;&lt;span style=&quot; text-decoration: underline;&quot;&gt;Wildcards:&lt;/span&gt;&lt;br&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Startswith&lt;/span&gt;*&lt;br&gt;*&lt;span style=&quot; font-weight:600;&quot;&gt;Endswith&lt;/span&gt;&lt;br&gt;*&lt;span style=&quot; font-weight:600;&quot;&gt;contains&lt;/span&gt;*&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-           </property>
-           <property name="maxLength">
-            <number>100</number>
+            <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Search Objects by Name&lt;/span&gt;&lt;/p&gt;&lt;ul style=&quot;margin-top: 0px; margin-bottom: 0px; margin-left: 0px; margin-right: 0px; -qt-list-indent: 1;&quot;&gt;&lt;li style=&quot; margin-top:12px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;Use wildcards to refine your search:&lt;/li&gt;&lt;ul style=&quot;margin-top: 0px; margin-bottom: 0px; margin-left: 0px; margin-right: 0px; -qt-list-indent: 2;&quot;&gt;&lt;li style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:'Courier New';&quot;&gt;startswith*&lt;/span&gt;: Finds objects whose names start with the specified characters.&lt;/li&gt;&lt;li style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:'Courier New';&quot;&gt;*endswith&lt;/span&gt;: Finds objects whose names end with the specified characters.&lt;/li&gt;&lt;li style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:'Courier New';&quot;&gt;*contains*&lt;/span&gt;: Finds objects whose names contain the specified characters.&lt;/li&gt;&lt;/ul&gt;&lt;li style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;Combine terms with &lt;span style=&quot; font-family:'Courier New';&quot;&gt;|&lt;/span&gt; for multiple searches (e.g., &lt;span style=&quot; font-family:'Courier New';&quot;&gt;start*|*end&lt;/span&gt;).&lt;/li&gt;&lt;li style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;Enable &amp;quot;Regular Expression&amp;quot; in the menu for advanced patterns.&lt;/li&gt;&lt;li style=&quot; margin-top:0px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&amp;quot;Ignore Case&amp;quot; in the menu allows case-insensitive searches.&lt;/li&gt;&lt;/ul&gt;&lt;/body&gt;&lt;/html&gt;</string>
            </property>
            <property name="frame">
             <bool>false</bool>
@@ -145,19 +142,7 @@
             </size>
            </property>
            <property name="toolTip">
-            <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Rename: &lt;span style=&quot; font-weight:600;&quot;&gt;Replace with&lt;/span&gt;&lt;/p&gt;&lt;p&gt;If no objects are selected, all scene objects will be renamed.&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; text-decoration: underline;&quot;&gt;wildcards:&lt;/span&gt;&lt;/p&gt;&lt;p&gt;'' (empty string) - strip from the result.&lt;/p&gt;&lt;p&gt;string - replace all.&lt;/p&gt;&lt;p&gt;*string* - replace only.&lt;/p&gt;&lt;p&gt;*string - replace suffix.&lt;/p&gt;&lt;p&gt;**string - append suffix.&lt;/p&gt;&lt;p&gt;string* - replace prefix.&lt;/p&gt;&lt;p&gt;string** - append prefix.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-           </property>
-           <property name="layoutDirection">
-            <enum>Qt::RightToLeft</enum>
-           </property>
-           <property name="autoFillBackground">
-            <bool>true</bool>
-           </property>
-           <property name="text">
-            <string/>
-           </property>
-           <property name="maxLength">
-            <number>99</number>
+            <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Rename Objects&lt;/span&gt;&lt;/p&gt;&lt;ul style=&quot;margin-top: 0px; margin-bottom: 0px; margin-left: 0px; margin-right: 0px; -qt-list-indent: 1;&quot;&gt;&lt;li style=&quot; margin-top:12px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;Specify the new name pattern for selected objects.&lt;/li&gt;&lt;li style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;If no objects are selected, all scene objects are considered.&lt;/li&gt;&lt;li style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;Use wildcards for pattern-based renaming:&lt;/li&gt;&lt;ul style=&quot;margin-top: 0px; margin-bottom: 0px; margin-left: 0px; margin-right: 0px; -qt-list-indent: 2;&quot;&gt;&lt;li style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:'Courier New';&quot;&gt;*string*&lt;/span&gt;: Replace only the matched part in object names.&lt;/li&gt;&lt;li style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:'Courier New';&quot;&gt;string*&lt;/span&gt;: Replace the prefix in object names.&lt;/li&gt;&lt;li style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:'Courier New';&quot;&gt;*string&lt;/span&gt;: Replace the suffix in object names.&lt;/li&gt;&lt;li style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:'Courier New';&quot;&gt;**string&lt;/span&gt;: Append after the last character in object names.&lt;/li&gt;&lt;li style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:'Courier New';&quot;&gt;string**&lt;/span&gt;: Append before the first character in object names.&lt;/li&gt;&lt;li style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:'Courier New';&quot;&gt;empty&lt;/span&gt;: Strip matched parts from the object names.&lt;/li&gt;&lt;/ul&gt;&lt;li style=&quot; margin-top:0px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;Combine terms with &lt;span style=&quot; font-family:'Courier New';&quot;&gt;|&lt;/span&gt; for multiple renaming criteria (e.g., &lt;span style=&quot; font-family:'Courier New';&quot;&gt;prefix*|*suffix&lt;/span&gt;).&lt;/li&gt;&lt;/ul&gt;&lt;/body&gt;&lt;/html&gt;</string>
            </property>
            <property name="frame">
             <bool>false</bool>

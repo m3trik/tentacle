@@ -33,9 +33,10 @@ class Scene(SlotsMaya):
         )
 
     @Signals("textChanged", "returnPressed")
-    def txt000(self, text, widget):
+    def txt000(self, widget):
         """Find"""
         # An asterisk denotes startswith*, *endswith, *contains*
+        text = widget.text()
         if text:
             object_names = [str(i) for i in pm.ls()]
             found_object_names = ptk.find_str(text, object_names)

@@ -117,7 +117,7 @@ class Animation(SlotsMaya):
         )
 
     def tb002(self, widget):
-        """Add Keyframe spacing"""
+        """Adjust spacing"""
         amount = widget.menu.s003.value()
         time = widget.menu.s002.value()
         relative = widget.menu.chk004.isChecked()
