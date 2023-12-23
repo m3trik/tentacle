@@ -251,12 +251,10 @@ class Edit(SlotsMaya):
         split_non_manifold_vertex = widget.menu.chk021.isChecked()
         invalidComponents = 0  # int(widget.menu.chk019.isChecked()) #[17] a guess what this arg does. not checked. default is 0.
         overlappingFaces = widget.menu.chk025.isChecked()
-        overlappingDuplicateObjects = (
-            widget.menu.chk022.isChecked()
-        )  # find overlapping geometry at object level.
-        omitSelectedObjects = (
-            widget.menu.chk023.isChecked()
-        )  # Search for duplicates of any selected objects while omitting the initially selected objects.
+        # Find overlapping geometry at object level.
+        overlappingDuplicateObjects = widget.menu.chk022.isChecked()
+        # Search for duplicates of any selected objects while omitting the initially selected objects.
+        omitSelectedObjects = widget.menu.chk023.isChecked()
 
         objects = pm.ls(sl=1, transforms=1)
 
@@ -265,23 +263,17 @@ class Edit(SlotsMaya):
                 retain_given_objects=omitSelectedObjects, select=True, verbose=True
             )
             self.sb.message_box(
-                "Found {} duplicate overlapping objects.".format(len(duplicates)),
-                message_type="Result",
+                f"Found {len(duplicates)} duplicate overlapping objects."
             )
             pm.delete(duplicates) if repair else pm.select(duplicates)
             return
 
-        if mergeVertices:
-            [
-                pm.polyMergeVertex(obj.verts, distance=0.0001) for obj in objects
-            ]  # merge vertices on each object.
+        if mergeVertices:  # Merge vertices on each object.
+            [pm.polyMergeVertex(obj.verts, distance=0.0001) for obj in objects]
 
         if overlappingFaces:
             duplicates = mtk.get_overlapping_faces(objects)
-            self.sb.message_box(
-                "Found {} duplicate overlapping faces.".format(len(duplicates)),
-                message_type="Result",
-            )
+            self.sb.message_box(f"Found {len(duplicates)} duplicate overlapping faces.")
             pm.delete(duplicates) if repair else pm.select(duplicates, add=1)
 
         mtk.clean_geometry(
