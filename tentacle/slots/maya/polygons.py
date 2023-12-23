@@ -55,8 +55,7 @@ class Polygons(SlotsMaya):
 
         if not objects:
             self.sb.message_box(
-                "<strong>Nothing selected</strong>.<br>Operation requires an object or component selection.",
-                message_type="Error",
+                "<strong>Nothing selected</strong>.<br>Operation requires an object or component selection."
             )
             return
 
@@ -111,8 +110,7 @@ class Polygons(SlotsMaya):
         edges = pm.filterExpand(selection, selectionMask=32, expand=1)
         if not edges:
             return self.sb.message_box(
-                "<strong>Nothing selected</strong>.<br>Operation requires a edge selection.",
-                message_type="Error",
+                "<strong>Nothing selected</strong>.<br>Operation requires a edge selection."
             )
         # Bridge the edges
         node = pm.polyBridgeEdge(edges, curveType=curve_type, divisions=divisions)
@@ -153,8 +151,7 @@ class Polygons(SlotsMaya):
         # Check if selection is valid
         if not sel or len(sel) < 2:
             return self.sb.message_box(
-                "<strong>Insufficient selection</strong>.<br>Operation requires the selection of at least two objects.",
-                message_type="Error",
+                "<strong>Insufficient selection</strong>.<br>Operation requires the selection of at least two objects."
             )
 
         # Get the name and parent of the first selected object
@@ -204,8 +201,7 @@ class Polygons(SlotsMaya):
         selection = pm.ls(sl=1)
         if not selection:
             return self.sb.message_box(
-                "<strong>Nothing selected</strong>.<br>Operation requires a component selection.",
-                message_type="Error",
+                "<strong>Nothing selected</strong>.<br>Operation requires a component selection."
             )
         if pm.selectType(q=True, facet=1):  # face selection
             pm.polyExtrudeFacet(
@@ -260,8 +256,7 @@ class Polygons(SlotsMaya):
         selection = pm.ls(sl=1)
         if not selection:
             return self.sb.message_box(
-                "<strong>Nothing selected</strong>.<br>Operation requires a component selection.",
-                message_type="Error",
+                "<strong>Nothing selected</strong>.<br>Operation requires a component selection."
             )
 
         if vertexMask:
@@ -302,8 +297,7 @@ class Polygons(SlotsMaya):
         selected_faces = pm.filterExpand(selection, selectionMask=34, expand=1)
         if not selected_faces:
             self.sb.message_box(
-                "<strong>Nothing selected</strong>.<br>Operation requires a face selection.",
-                message_type="Error",
+                "<strong>Nothing selected</strong>.<br>Operation requires a face selection."
             )
             return
 
@@ -388,8 +382,7 @@ class Polygons(SlotsMaya):
                 )
         else:
             self.sb.message_box(
-                "<strong>Nothing selected</strong>.<br>Operation requires a face selection.",
-                message_type="Error",
+                "<strong>Nothing selected</strong>.<br>Operation requires a face selection."
             )
             return
 
@@ -423,8 +416,7 @@ class Polygons(SlotsMaya):
         selection = pm.ls(sl=1)
         if not selection:
             return self.sb.message_box(
-                "<strong>Nothing selected</strong>.<br>Operation requires the selection of at least two objects.",
-                message_type="Error",
+                "<strong>Nothing selected</strong>.<br>Operation requires the selection of at least two objects."
             )
         if widget.menu.chk011.isChecked():  # union
             pm.mel.PolygonBooleanIntersection()
@@ -464,8 +456,7 @@ class Polygons(SlotsMaya):
             mtk.snap_closest_verts(obj1, obj2, tolerance, freezetransforms)
         else:
             self.sb.message_box(
-                "<strong>Nothing selected</strong>.<br>Operation requires at least two selected objects.",
-                message_type="Error",
+                "<strong>Nothing selected</strong>.<br>Operation requires at least two selected objects."
             )
             return
 
@@ -551,8 +542,7 @@ class Polygons(SlotsMaya):
             pm.mel.WedgePolygon()
         except Exception:
             self.sb.message_box(
-                "<strong>Nothing selected</strong>.<br>Select faces and one or more edges from the selected faces to wedge about.",
-                message_type="Error",
+                "<strong>Nothing selected</strong>.<br>Select faces and one or more edges from the selected faces to wedge about."
             )
 
     def b038(self):
@@ -561,8 +551,7 @@ class Polygons(SlotsMaya):
         selected_faces = pm.filterExpand(selection, selectionMask=34, expand=1)
         if not selected_faces:
             self.sb.message_box(
-                "<strong>Nothing selected</strong>.<br>Operation requires a face selection.",
-                message_type="Error",
+                "<strong>Nothing selected</strong>.<br>Operation requires a face selection."
             )
             return
         if not pm.polyHole(selected_faces, q=True, assignHole=True):

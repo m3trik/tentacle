@@ -102,32 +102,20 @@ class Preferences(SlotsMaya):
 
         this_pkg = "tentacletk"
         # Check if the package is outdated
-        if pkg_mgr.is_outdated(this_pkg):
-            # Ask user whether to update
-            user_choice = self.prompt_update_decision(this_pkg)
-            if user_choice == self.sb.QMessageBox.Yes:
-                # User chose to update
+        if pkg_mgr.is_outdated(this_pkg):  # Prompt user whether to update
+            user_choice = self.sb.message_box(
+                f"<b>{this_pkg} is outdated. Do you want to update it?</b>", "Yes", "No"
+            )
+            if user_choice == "Yes":  # User chose to update
                 pkg_mgr.update("pythontk")
                 pkg_mgr.update("uitk")
                 pkg_mgr.update("mayatk")
                 pkg_mgr.update(this_pkg)
-                self.sb.message_box(
-                    f"Updated {this_pkg} to the latest version.", location="center"
-                )
-            else:  # User chose not to update
-                self.sb.message_box(
-                    f"Update for {this_pkg} was cancelled.", location="center"
-                )
-        else:
-            self.sb.message_box(f"{this_pkg} is already up to date.")
-
-    def prompt_update_decision(self, package_name):
-        """Prompt user to decide on updating the package."""
-        msg_box = self.sb.QMessageBox()
-        msg_box.setWindowTitle("Update Package")
-        msg_box.setText(f"{package_name} is outdated. Do you want to update it?")
-        msg_box.setStandardButtons(self.sb.QMessageBox.Yes | self.sb.QMessageBox.No)
-        return msg_box.exec_()
+                self.sb.message_box(f"<b>Updated {this_pkg} to the latest version.</b>")
+            else:  # User chose not to update or closed the dialog
+                self.sb.message_box("<b>The update was cancelled.</b>")
+        else:  # Package is up to date
+            self.sb.message_box(f"<b>{this_pkg} is already up to date.</b>")
 
     def b001(self):
         """Color Settings"""
