@@ -240,19 +240,16 @@ class Selection(SlotsMaya):
         """Select Style: Marquee"""
         if state:
             self.set_selection_tool("selectSuperContext")
-            # self.sb.message_box("Select Style: <hl>Marquee</hl>")
 
     def chk006(self, state, widget):
         """Select Style: Lasso"""
         if state:
             self.set_selection_tool("lassoSelectContext")
-            # self.sb.message_box("Select Style: <hl>Lasso</hl>")
 
     def chk007(self, state, widget):
         """Select Style: Paint"""
         if state:
             self.set_selection_tool("artSelectContext")
-            # self.sb.message_box("Select Style: <hl>Paint</hl>")
 
     def lbl003(self, *args):
         """Grow Selection"""

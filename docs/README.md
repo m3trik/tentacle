@@ -1,5 +1,5 @@
 [![License: LGPL v3](https://img.shields.io/badge/License-LGPL%20v3-blue.svg)](https://www.gnu.org/licenses/lgpl-3.0.en.html)
-[![Version](https://img.shields.io/badge/Version-0.9.14-blue.svg)](https://pypi.org/project/tentacletk/)
+[![Version](https://img.shields.io/badge/Version-0.9.15-blue.svg)](https://pypi.org/project/tentacletk/)
 
 # Tentacle: A Python3/PySide2 Marking Menu and DCC Toolkit
 
@@ -43,7 +43,7 @@ path/to/mayapy.exe -m pip install tentacletk
 ### Installation Using Mayapy Package Manager
 
 Alternatively, you can use the mayapy package manager for a streamlined installation process. 
-Download the mayapy package manager from [here](https://github.com/m3trik/windows-shell-scripting/blob/master/mayapy-package-manager.bat).
+Download the mayapy package manager from [here](https://github.com/m3trik/windows-shell-scripting/blob/master/mayapy-package-manager.bat). (Give your Maya version. Hit 1 to install package. The package name is `tentacletk`)
 
 ## Usage
 

@@ -360,7 +360,7 @@ class Edit(SlotsMaya):
         """ """
         widget.menu.add(
             "QCheckBox",
-            setText="UnLock",
+            setText="Toggle Lock/UnLock",
             setObjectName="chk027",
             setChecked=True,
             setToolTip="Unlock nodes (else lock).",
