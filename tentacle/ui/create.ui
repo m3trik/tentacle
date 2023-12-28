@@ -187,10 +187,7 @@
             </size>
            </property>
            <property name="toolTip">
-            <string>Create the specified object. If a point is set, the object will be created at that coordinate.</string>
-           </property>
-           <property name="layoutDirection">
-            <enum>Qt::RightToLeft</enum>
+            <string>Create the specified object.</string>
            </property>
            <property name="text">
             <string>Create</string>
