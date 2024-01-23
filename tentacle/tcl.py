@@ -31,9 +31,9 @@ class Tcl(QtWidgets.QStackedWidget):
 
     left_mouse_double_click = QtCore.Signal()
     left_mouse_double_click_ctrl = QtCore.Signal()
-    left_mouse_double_click_ctrl_alt = QtCore.Signal()
     middle_mouse_double_click = QtCore.Signal()
     right_mouse_double_click = QtCore.Signal()
+    right_mouse_double_click_ctrl = QtCore.Signal()
     key_show_release = QtCore.Signal()
 
     def __init__(
@@ -80,7 +80,6 @@ class Tcl(QtWidgets.QStackedWidget):
         self.mouse_tracking = MouseTracking(self)
 
         self.left_mouse_double_click_ctrl.connect(self.repeat_last_command)
-        # self.left_mouse_double_click_ctrl_alt.connect()
         # self.middle_mouse_double_click.connect()
         self.right_mouse_double_click.connect(self.repeat_last_ui)
 
@@ -263,8 +262,6 @@ class Tcl(QtWidgets.QStackedWidget):
             if event.button() == QtCore.Qt.LeftButton:
                 if modifiers == QtCore.Qt.ControlModifier:
                     self.left_mouse_double_click_ctrl.emit()
-                elif modifiers == (QtCore.Qt.ControlModifier | QtCore.Qt.AltModifier):
-                    self.left_mouse_double_click_ctrl_alt.emit()
                 else:
                     self.left_mouse_double_click.emit()
 
@@ -272,7 +269,10 @@ class Tcl(QtWidgets.QStackedWidget):
                 self.middle_mouse_double_click.emit()
 
             elif event.button() == QtCore.Qt.RightButton:
-                self.right_mouse_double_click.emit()
+                if modifiers == QtCore.Qt.ControlModifier:
+                    self.right_mouse_double_click_ctrl.emit()
+                else:
+                    self.right_mouse_double_click.emit()
 
         super().mouseDoubleClickEvent(event)
 
