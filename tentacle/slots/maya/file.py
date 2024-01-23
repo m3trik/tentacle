@@ -138,13 +138,13 @@ class File(SlotsMaya):
             widget.menu.add(
                 self.sb.Label,
                 setObjectName="lbl000",
-                setText="Set Project Directory",
+                setText="Set Project",
                 setToolTip="Set the project directory.",
             )
             widget.menu.add(
                 self.sb.Label,
                 setObjectName="lbl004",
-                setText="Open Project Directory",
+                setText="Open Project Root",
                 setToolTip="Open the project root directory.",
             )
 

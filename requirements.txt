@@ -4,5 +4,5 @@ PySide2
 shiboken2
 pymel
 pythontk==0.7.12
-uitk==1.0.10
+uitk==1.0.11
 mayatk==0.9.13
