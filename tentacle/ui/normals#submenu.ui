@@ -90,9 +90,9 @@
     </property>
     <property name="geometry">
      <rect>
-      <x>360</x>
-      <y>270</y>
-      <width>91</width>
+      <x>435</x>
+      <y>240</y>
+      <width>81</width>
       <height>19</height>
      </rect>
     </property>
@@ -106,7 +106,7 @@
      <string>Harden all creased edges on the selected object.</string>
     </property>
     <property name="text">
-     <string>Harden Edges</string>
+     <string>By Angle</string>
     </property>
     <property name="iconSize">
      <size>
@@ -214,14 +214,14 @@
      </size>
     </property>
    </widget>
-   <widget class="QPushButton" name="b001">
+   <widget class="QPushButton" name="b000">
     <property name="enabled">
      <bool>true</bool>
     </property>
     <property name="geometry">
      <rect>
-      <x>360</x>
-      <y>300</y>
+      <x>370</x>
+      <y>270</y>
       <width>91</width>
       <height>20</height>
      </rect>
@@ -280,6 +280,37 @@
     </property>
     <property name="text">
      <string>Transfer Normals</string>
+    </property>
+    <property name="iconSize">
+     <size>
+      <width>18</width>
+      <height>18</height>
+     </size>
+    </property>
+   </widget>
+   <widget class="PushButton" name="b001">
+    <property name="enabled">
+     <bool>true</bool>
+    </property>
+    <property name="geometry">
+     <rect>
+      <x>370</x>
+      <y>300</y>
+      <width>91</width>
+      <height>19</height>
+     </rect>
+    </property>
+    <property name="maximumSize">
+     <size>
+      <width>999</width>
+      <height>19</height>
+     </size>
+    </property>
+    <property name="toolTip">
+     <string>Harden all creased edges on the selected object.</string>
+    </property>
+    <property name="text">
+     <string>Harden Edges</string>
     </property>
     <property name="iconSize">
      <size>

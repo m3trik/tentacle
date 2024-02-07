@@ -21,9 +21,9 @@ class Slots(QtCore.QObject):
 
     def __init__(self, parent=None):
         super().__init__(parent)
-        """
-        """
+        """ """
         self.sb = self.switchboard()
+        self.sb.parent().left_mouse_double_click_ctrl.connect(self.repeat_last_command)
 
     def hide_main(fn):
         """A decorator that hides the stacked widget main window."""
@@ -41,6 +41,17 @@ class Slots(QtCore.QObject):
             return result
 
         return wrapper
+
+    def repeat_last_command(self):
+        """Repeat the last stored command."""
+        self.sb.parent().hide()
+        method = self.sb.prev_slot
+
+        if callable(method):
+            widget = self.sb.get_widget_from_method(method)
+            widget.call_slot()
+        else:
+            print("No recent commands in history.")
 
 
 # --------------------------------------------------------------------------------------------

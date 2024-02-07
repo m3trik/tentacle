@@ -84,7 +84,7 @@ class Normals(SlotsMaya):
         )
 
     def tb001(self, widget):
-        """Harden Edge Normals"""
+        """Set Normals By Angle"""
         angle_threshold = widget.menu.s002.value()
         upper_hardness = widget.menu.s003.value()
         lower_hardness = widget.menu.s004.value()
@@ -105,31 +105,6 @@ class Normals(SlotsMaya):
 
         objects = pm.ls(selection, objectsOnly=True)
         pm.polyOptions(objects, se=soft_edge_display)
-
-    def tb002_init(self, widget):
-        """ """
-        widget.menu.add(
-            "QSpinBox",
-            setPrefix="Angle: ",
-            setObjectName="s000",
-            set_limits=[0, 180],
-            setValue=60,
-            setToolTip="Angle degree.",
-        )
-
-    def tb002(self, widget):
-        """Set Normals By Angle"""
-        normalAngle = widget.menu.s000.value()
-
-        objects = pm.ls(sl=True, objectsOnly=1, flatten=1)
-        for obj in objects:
-            sel = pm.ls(obj, sl=1)
-            pm.polySetToFaceNormal(sel, setUserNormal=1)  # reset to face
-            polySoftEdge = pm.polySoftEdge(
-                sel, angle=normalAngle
-            )  # smooth if angle is lower than specified amount. default:60
-            if len(objects) == 1:
-                return polySoftEdge
 
     def tb003_init(self, widget):
         """ """
@@ -182,11 +157,19 @@ class Normals(SlotsMaya):
         objects = pm.ls(sl=True)
         mtk.average_normals(objects, by_uv_shell=by_uv_shell)
 
-    def b001(self):
+    def b000(self):
         """Soften Edge Normals"""
-        selection = pm.ls(sl=1)
+        selection = pm.ls(sl=True, fl=True)
         if selection:
-            pm.polySoftEdge(selection, angle=180)
+            pm.polySoftEdge(selection, angle=180)  # Use maximum angle to soften
+            pm.select(selection)  # Re-select the original selection
+
+    def b001(self):
+        """Harden all selected edges."""
+        selection = pm.ls(sl=True, fl=True)
+        if selection:
+            pm.polySoftEdge(selection, angle=0)  # Use minimum angle to harden
+            pm.select(selection)  # Re-select the original selection
 
     def b002(self):
         """Transfer Normals"""

@@ -34,12 +34,13 @@ class Tcl(QtWidgets.QStackedWidget):
     middle_mouse_double_click = QtCore.Signal()
     right_mouse_double_click = QtCore.Signal()
     right_mouse_double_click_ctrl = QtCore.Signal()
+    # key_show_press = QtCore.Signal()
     key_show_release = QtCore.Signal()
 
     def __init__(
         self,
         parent=None,
-        key_show="Key_F12",
+        key_show="F12",
         ui_location="ui",
         slot_location="slots",
         widget_location=None,
@@ -48,21 +49,7 @@ class Tcl(QtWidgets.QStackedWidget):
     ):
         """ """
         super().__init__(parent)
-
         self._init_logger(log_level)
-
-        self.key_show = getattr(QtCore.Qt, key_show)
-        self.key_close = QtCore.Qt.Key_Escape
-        self.prevent_hide = prevent_hide
-        self._mouse_press_pos = QtCore.QPoint()
-
-        # self.app.setDoubleClickInterval(400)
-        # self.app.setKeyboardInputInterval(400)
-
-        self.setWindowFlags(QtCore.Qt.Tool | QtCore.Qt.FramelessWindowHint)
-        self.setAttribute(QtCore.Qt.WA_TranslucentBackground)
-        self.setAttribute(QtCore.Qt.WA_NoMousePropagation, False)
-        self.resize(1600, 800)
 
         self.sb = Switchboard(
             self,
@@ -79,9 +66,18 @@ class Tcl(QtWidgets.QStackedWidget):
         self.overlay = Overlay(self, antialiasing=True)
         self.mouse_tracking = MouseTracking(self)
 
-        self.left_mouse_double_click_ctrl.connect(self.repeat_last_command)
-        # self.middle_mouse_double_click.connect()
-        self.right_mouse_double_click.connect(self.repeat_last_ui)
+        self.key_show = self.sb.convert.to_qkey(key_show)
+        self.key_close = QtCore.Qt.Key_Escape
+        self.prevent_hide = prevent_hide
+        self._mouse_press_pos = QtCore.QPoint()
+
+        # self.app.setDoubleClickInterval(400)
+        # self.app.setKeyboardInputInterval(400)
+
+        self.setWindowFlags(QtCore.Qt.Tool | QtCore.Qt.FramelessWindowHint)
+        self.setAttribute(QtCore.Qt.WA_TranslucentBackground)
+        self.setAttribute(QtCore.Qt.WA_NoMousePropagation, False)
+        self.resize(1600, 800)
 
     def _init_logger(self, log_level):
         """Initializes logger with the specified log level.
@@ -211,8 +207,9 @@ class Tcl(QtWidgets.QStackedWidget):
         if event.isAutoRepeat():
             return
 
-        # modifiers = self.app.keyboardModifiers()
-        elif event.key() == self.key_close:
+        modifiers = self.app.keyboardModifiers()
+
+        if event.key() == self.key_close and not modifiers:
             self.close()
 
         super().keyPressEvent(event)
@@ -224,7 +221,7 @@ class Tcl(QtWidgets.QStackedWidget):
 
         modifiers = self.app.keyboardModifiers()
 
-        if event.key() == self.key_show and not modifiers == QtCore.Qt.ControlModifier:
+        if event.key() == self.key_show and not modifiers:
             self.key_show_release.emit()
             self.releaseKeyboard()
             self.hide()
@@ -311,15 +308,6 @@ class Tcl(QtWidgets.QStackedWidget):
         if force or not self.prevent_hide:
             # logging.info(f"mouseGrabber: {self.mouseGrabber()}") #Returns the widget that is currently grabbing the mouse input. else: None
             super().hide()
-
-    def hideEvent(self, event):
-        """Hide events are sent to widgets immediately after they have been hidden."""
-        try:
-            self.mouseGrabber().releaseMouse()
-        except AttributeError:  # NoneType object has no attribute 'releaseMouse'
-            pass
-
-        super().hideEvent(event)
 
     # ---------------------------------------------------------------------------------------------
 
@@ -415,29 +403,6 @@ class Tcl(QtWidgets.QStackedWidget):
 
         w.mouseReleaseEvent(event)
 
-    def child_sendKeyPressEvent(self, w, key, modifier=QtCore.Qt.NoModifier):
-        """ """
-        w.grabKeyboard()
-        event = QtGui.QKeyEvent(QtCore.QEvent.KeyPress, key, modifier)
-        self.child_keyPressEvent(w, event)
-
-    def child_keyReleaseEvent(self, w, event):
-        """A widget must accept focus initially, and have focus, in order to receive a key release event."""
-        if not event.isAutoRepeat():
-            # logging.info(f'child_keyReleaseEvent: {e}: {event}')
-            modifiers = self.app.keyboardModifiers()
-
-            if (
-                event.key() == self.key_show
-                and not modifiers == QtCore.Qt.ControlModifier
-            ):
-                if w.derived_type == QtWidgets.QMainWindow:
-                    if not w.ui.has_tags(["startmenu", "submenu"]):
-                        self.key_show_release.emit()
-                        w.releaseKeyboard()
-
-        w.keyReleaseEvent(event)
-
     # ---------------------------------------------------------------------------------------------
 
     @staticmethod
@@ -508,26 +473,6 @@ class Tcl(QtWidgets.QStackedWidget):
                 groupbox.hide()
             else:
                 groupbox.show()
-
-    def repeat_last_command(self):
-        """Repeat the last stored command."""
-        self.hide()
-        method = self.sb.prev_slot
-
-        if callable(method):
-            widget = self.sb.get_widget_from_method(method)
-            widget.call_slot()
-        else:
-            logging.info("No recent commands in history.")
-        self.option_box = False
-
-    def repeat_last_ui(self):
-        """Open the last used top level menu."""
-        prev_ui = self.sb.ui_history(-1, exc=("*#submenu*", "*#startmenu*"))
-        if prev_ui:
-            self.set_ui(prev_ui)
-        else:
-            logging.info("No recent menus in history.")
 
 
 # --------------------------------------------------------------------------------------------
