@@ -160,6 +160,8 @@ class Create(SlotsMaya):
             if scale:
                 mtk.match_scale(node[0], selection, average=True)
 
+        mtk.add_to_isolation_set(node)
+
         return mtk.get_history_node(node[0])
 
     @mtk.undo

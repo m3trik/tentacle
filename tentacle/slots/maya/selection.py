@@ -214,15 +214,15 @@ class Selection(SlotsMaya):
 
     def chk000(self, state, widget):
         """Select Nth: uncheck other checkboxes"""
-        self.sb.toggle_multi(widget.menu, setUnChecked="chk001-2")
+        self.sb.toggle_multi(widget.ui, setUnChecked="chk001-2")
 
     def chk001(self, state, widget):
         """Select Nth: uncheck other checkboxes"""
-        self.sb.toggle_multi(widget.menu, setUnChecked="chk000,chk002")
+        self.sb.toggle_multi(widget.ui, setUnChecked="chk000,chk002")
 
     def chk002(self, state, widget):
         """Select Nth: uncheck other checkboxes"""
-        self.sb.toggle_multi(widget.menu, setUnChecked="chk000-1")
+        self.sb.toggle_multi(widget.ui, setUnChecked="chk000-1")
 
     def chk005_init(self, widget):
         """Create button group for radioboxes chk005, chk006, chk007"""
@@ -337,7 +337,7 @@ class Selection(SlotsMaya):
         borderEdges = widget.menu.chk010.isChecked()
         step = widget.menu.s003.value()
 
-        selection = pm.ls(sl=1, transforms=True)
+        selection = pm.ls(orderedSelection=True)
         if not selection:
             self.sb.message_box("Operation requires a valid selection.")
             return
