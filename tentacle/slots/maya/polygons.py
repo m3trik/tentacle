@@ -173,6 +173,9 @@ class Polygons(SlotsMaya):
         if objParent:
             pm.parent(newObjRenamed, objParent[0])
 
+        # Check for an existing isolation set and add the new object if one exists
+        mtk.add_to_isolation_set(newObjRenamed)
+
     def tb003_init(self, widget):
         """ """
         widget.menu.add(
@@ -517,7 +520,10 @@ class Polygons(SlotsMaya):
         if pm.selectType(q=True, facet=1):
             pm.mel.PolygonCollapse()
         else:
+            was_edge_selected = pm.selectType(q=True, edge=True)
             pm.mel.MergeToCenter()
+            if was_edge_selected:
+                pm.selectType(edge=True)
 
     def b012(self):
         """Multi-Cut Tool"""
@@ -561,7 +567,7 @@ class Polygons(SlotsMaya):
 
     def b043(self):
         """Target Weld"""
-        pm.mel.ConvertSelectionToVertices()
+        pm.selectType(vertex=True)
         pm.select(deselect=True)
         pm.mel.dR_targetWeldTool()
 
