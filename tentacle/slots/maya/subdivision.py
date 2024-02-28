@@ -38,24 +38,26 @@ class Subdivision(SlotsMaya):
         elif index is widget.items.index("Smooth"):
             pm.mel.performPolySmooth(1)
 
-    def s000(self, value, widget):
+    def s000(self, value: int, widget: object) -> None:
         """Division Level"""
-        shapes = pm.ls(sl=1, dag=1, leaf=1)
-        transforms = pm.listRelatives(shapes, p=True)
+        shapes = pm.ls(selection=True, dag=True, leaf=True)
+        transforms = pm.listRelatives(shapes, parent=True)
         for obj in transforms:
             if hasattr(obj, "smoothLevel"):
-                mtk.set_node_attributes(obj, {"smoothLevel": value})
-                # subDiv proxy options: 'divisions'
-                pm.optionVar(intValue=["proxyDivisions", 1])
+                # Correctly pass attributes as keyword arguments
+                mtk.set_node_attributes(obj, smoothLevel=value)
+                # SubDivision proxy options: 'divisions'
+                pm.optionVar(intValue=["proxyDivisions", value])
                 mtk.viewport_message(f"{obj}: Division Level: <hl>{value}</hl>")
 
-    def s001(self, value, widget):
+    def s001(self, value: int, widget: object) -> None:
         """Tesselation Level"""
-        shapes = pm.ls(sl=1, dag=1, leaf=1)
-        transforms = pm.listRelatives(shapes, p=True)
+        shapes = pm.ls(selection=True, dag=True, leaf=True)
+        transforms = pm.listRelatives(shapes, parent=True)
         for obj in transforms:
             if hasattr(obj, "smoothLevel"):
-                mtk.set_node_attributes(obj, {"smoothTessLevel": value})
+                # Correctly pass attributes as keyword arguments
+                mtk.set_node_attributes(obj, smoothTessLevel=value)
                 mtk.viewport_message(f"{obj}: Tesselation Level: <hl>{value}</hl>")
 
     def b000(self):

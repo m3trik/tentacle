@@ -77,9 +77,10 @@ class Tcl(QtWidgets.QStackedWidget):
         self.setWindowFlags(QtCore.Qt.Tool | QtCore.Qt.FramelessWindowHint)
         self.setAttribute(QtCore.Qt.WA_TranslucentBackground)
         self.setAttribute(QtCore.Qt.WA_NoMousePropagation, False)
+        self.setFocusPolicy(QtCore.Qt.StrongFocus)
         self.resize(1600, 800)
 
-    def _init_logger(self, log_level):
+    def _init_logger(self, log_level) -> None:
         """Initializes logger with the specified log level.
 
         Parameters:
@@ -93,7 +94,7 @@ class Tcl(QtWidgets.QStackedWidget):
         )
         self.logger.addHandler(handler)
 
-    def _init_ui(self, ui):
+    def _init_ui(self, ui) -> None:
         """Initialize the given UI.
 
         Parameters:
@@ -121,7 +122,7 @@ class Tcl(QtWidgets.QStackedWidget):
         self.add_child_event_filter(ui.widgets)
         ui.on_child_added.connect(lambda w: self.add_child_event_filter(w))
 
-    def set_ui(self, ui):
+    def set_ui(self, ui) -> None:
         """Set the stacked Widget's index to the given UI.
 
         Parameters:
@@ -143,6 +144,7 @@ class Tcl(QtWidgets.QStackedWidget):
             self.setCurrentWidget(found_ui)  # set the stacked widget to the found UI.
 
         else:
+            self._is_keyboard_grabber = False
             self.hide()
             found_ui.show()
             widget_before_adjust = found_ui.width()
@@ -152,7 +154,7 @@ class Tcl(QtWidgets.QStackedWidget):
             # move to cursor position.
             self.sb.center_widget(found_ui, "cursor", offset_y=25)
 
-    def set_submenu(self, ui, w):
+    def set_submenu(self, ui, w) -> None:
         """Set the stacked widget's index to the submenu associated with the given widget.
         Positions the new UI to line up with the previous UI's button that called the new UI.
         If the given UI is already set, then this method will simply return without performing any operation.
@@ -183,7 +185,7 @@ class Tcl(QtWidgets.QStackedWidget):
             return_func = self.return_to_startmenu
             self.overlay.clone_widgets_along_path(ui, return_func)
 
-    def return_to_startmenu(self):
+    def return_to_startmenu(self) -> None:
         """Return the stacked widget to it's starting index."""
         if not self.overlay.path.start_pos:
             raise ValueError("No start position found in the path.")
@@ -196,44 +198,55 @@ class Tcl(QtWidgets.QStackedWidget):
     # ---------------------------------------------------------------------------------------------
     #   Stacked Widget Event handling:
 
-    def send_key_press_event(self, key, modifier=QtCore.Qt.NoModifier):
-        """ """
-        self.grabKeyboard()
-        event = QtGui.QKeyEvent(QtCore.QEvent.KeyPress, key, modifier)
-        self.keyPressEvent(event)  # self.app.postEvent(self, event)
+    def send_key_press_event(self, key, modifier=QtCore.Qt.NoModifier) -> None:
+        """Simulate a key press event within the widget.
 
-    def keyPressEvent(self, event):
-        """A widget must call setFocusPolicy() to accept focus initially, and have focus, in order to receive a key press event."""
+        Parameters:
+            key (Qt.Key): The key code of the pressed key.
+            modifier (Qt.Modifier): Optional modifier to use with the key press.
+        """
+        self.grabKeyboard()
+        self._is_keyboard_grabber = True
+        event = QtGui.QKeyEvent(QtCore.QEvent.KeyPress, key, modifier)
+        # Use QApplication.postEvent for thread safety
+        self.app.postEvent(self, event)
+
+    def keyPressEvent(self, event) -> None:
+        """Handles key press events, closing the widget if the specified key is pressed without modifiers.
+
+        Parameters:
+            event (QKeyEvent): The key event.
+        """
         if event.isAutoRepeat():
             return
 
-        modifiers = self.app.keyboardModifiers()
-
-        if event.key() == self.key_close and not modifiers:
+        if event.key() == self.key_close and not event.modifiers():
             self.close()
 
         super().keyPressEvent(event)
 
-    def keyReleaseEvent(self, event):
-        """A widget must accept focus initially, and have focus, in order to receive a key release event."""
+    def keyReleaseEvent(self, event) -> None:
+        """Handles key release events, hiding the widget if the specified key is released.
+
+        Parameters:
+            event (QKeyEvent): The key event.
+        """
+        # Early return if the event is an auto-repeat to avoid handling continuous press events
         if event.isAutoRepeat():
             return
 
-        modifiers = self.app.keyboardModifiers()
-
-        if event.key() == self.key_show and not modifiers:
-            self.key_show_release.emit()
+        # No modifiers should be active for this specific key release event
+        if event.key() == self.key_show and not event.modifiers():
+            self.key_show_release.emit()  # Emit signal indicating the key was released
             self.releaseKeyboard()
-            self.hide()
+            self.hide()  # Hide the widget as part of the key release action
 
         super().keyReleaseEvent(event)
 
-    def mousePressEvent(self, event):
+    def mousePressEvent(self, event) -> None:
         """ """
-        modifiers = self.app.keyboardModifiers()
-
         if self.sb.current_ui.has_tags(["startmenu", "submenu"]):
-            if not modifiers:
+            if not event.modifiers():
                 if event.button() == QtCore.Qt.LeftButton:
                     self.set_ui("cameras#startmenu")
 
@@ -245,19 +258,17 @@ class Tcl(QtWidgets.QStackedWidget):
 
         super().mousePressEvent(event)
 
-    def mouseReleaseEvent(self, event):
+    def mouseReleaseEvent(self, event) -> None:
         """ """
         self.set_ui("init#startmenu")
 
         super().mouseReleaseEvent(event)
 
-    def mouseDoubleClickEvent(self, event):
+    def mouseDoubleClickEvent(self, event) -> None:
         """ """
-        modifiers = self.app.keyboardModifiers()
-
         if self.sb.current_ui.has_tags(["startmenu", "submenu"]):
             if event.button() == QtCore.Qt.LeftButton:
-                if modifiers == QtCore.Qt.ControlModifier:
+                if event.modifiers() == QtCore.Qt.ControlModifier:
                     self.left_mouse_double_click_ctrl.emit()
                 else:
                     self.left_mouse_double_click.emit()
@@ -266,31 +277,21 @@ class Tcl(QtWidgets.QStackedWidget):
                 self.middle_mouse_double_click.emit()
 
             elif event.button() == QtCore.Qt.RightButton:
-                if modifiers == QtCore.Qt.ControlModifier:
+                if event.modifiers() == QtCore.Qt.ControlModifier:
                     self.right_mouse_double_click_ctrl.emit()
                 else:
                     self.right_mouse_double_click.emit()
 
         super().mouseDoubleClickEvent(event)
 
-    def show(self, ui="init#startmenu", profile=False):
+    def show(self, ui="init#startmenu", profile=False) -> None:
         """Sets the widget as visible.
 
         Parameters:
             ui (str/QWidget): Show the given UI.
-            profile (bool): Prints the total running time, times each function separately,
-                    and tells you how many times each function was called.
         """
         self.send_key_press_event(self.key_show)
-
-        if profile:
-            import cProfile
-
-            ui_name = self.sb.get_ui(ui).name
-            cProfile.runctx("self.set_ui(ui_name)", globals(), locals())
-
-        else:
-            self.set_ui(ui)
+        self.set_ui(ui)
 
         if self.sb.current_ui.name == "init#startmenu":
             self.move(self.sb.get_cursor_offset_from_center(self))
@@ -298,7 +299,7 @@ class Tcl(QtWidgets.QStackedWidget):
         super().show()
         self.activateWindow()  # the window cannot be activated for keyboard events until after it is shown.
 
-    def hide(self, force=False):
+    def hide(self, force=False) -> None:
         """Sets the widget as invisible.
         Prevents hide event under certain circumstances.
 
@@ -309,9 +310,19 @@ class Tcl(QtWidgets.QStackedWidget):
             # logging.info(f"mouseGrabber: {self.mouseGrabber()}") #Returns the widget that is currently grabbing the mouse input. else: None
             super().hide()
 
+    def hideEvent(self, event):
+        """"""
+        if self._is_keyboard_grabber:
+            self.releaseKeyboard()
+            self._is_keyboard_grabber = False
+        if self.mouseGrabber():
+            self.mouseGrabber().releaseMouse()
+
+        super().hideEvent(event)
+
     # ---------------------------------------------------------------------------------------------
 
-    def add_child_event_filter(self, widgets):
+    def add_child_event_filter(self, widgets) -> None:
         """Initialize child widgets with an event filter.
 
         Parameters:
@@ -350,7 +361,7 @@ class Tcl(QtWidgets.QStackedWidget):
             if w.type == self.sb.Region:
                 w.visible_on_mouse_over = True
 
-    def child_enterEvent(self, w, event):
+    def child_enterEvent(self, w, event) -> None:
         """ """
         if w.derived_type == QtWidgets.QPushButton:
             if w.base_name == "i":  # set the stacked widget.
@@ -367,14 +378,14 @@ class Tcl(QtWidgets.QStackedWidget):
 
         w.enterEvent(event)
 
-    def child_mousePressEvent(self, w, event):
+    def child_mousePressEvent(self, w, event) -> None:
         """ """
         self._mouse_press_pos = event.globalPos()  # mouse positon at press
         self.__mouseMovePos = event.globalPos()  # mouse move position from last press
 
         w.mousePressEvent(event)
 
-    def child_mouseMoveEvent(self, w, event):
+    def child_mouseMoveEvent(self, w, event) -> None:
         """ """
         try:
             globalPos = event.globalPos()
@@ -384,7 +395,7 @@ class Tcl(QtWidgets.QStackedWidget):
 
         w.mouseMoveEvent(event)
 
-    def child_mouseReleaseEvent(self, w, event):
+    def child_mouseReleaseEvent(self, w, event) -> None:
         """ """
         if w.underMouse():  # if mouse over widget
             if w.derived_type == QtWidgets.QPushButton:
@@ -449,7 +460,7 @@ class Tcl(QtWidgets.QStackedWidget):
         cleaned_tag_string = re.sub("#" + "|#".join(unknown_tags), "", tag_string)
         return cleaned_tag_string
 
-    def hide_unmatched_groupboxes(self, ui, tag_string):
+    def hide_unmatched_groupboxes(self, ui, tag_string) -> None:
         """Hides all QGroupBox widgets in the provided UI that do not match the unknown tags extracted
         from the provided tag string.
 

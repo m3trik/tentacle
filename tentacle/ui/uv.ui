@@ -1032,7 +1032,7 @@
           <number>1</number>
          </property>
          <item row="0" column="0">
-          <widget class="PushButton" name="tb008">
+          <widget class="QPushButton" name="b000">
            <property name="enabled">
             <bool>true</bool>
            </property>
@@ -1055,7 +1055,7 @@
             </size>
            </property>
            <property name="toolTip">
-            <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Transfer UV sets from the first selected object to the remaining.&lt;/p&gt;&lt;p&gt;If the selected objects are groups, then the operation will be performed on the group's children.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+            <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Transfers UV sets from the first selected object to all other selected objects. &lt;/p&gt;&lt;p&gt;This operation applies to individual meshes or the children of selected groups&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
            </property>
            <property name="text">
             <string>Transfer UV Sets</string>
