@@ -472,7 +472,7 @@ class Nurbs(SlotsMaya):
         # pm.undoInfo(openChunk=1)
         p1 = pm.objectCenter(start)
         p2 = pm.objectCenter(end)
-        hypotenuse = ptk.get_distance(p1, p2)
+        hypotenuse = ptk.distance_between_points(p1, p2)
 
         v1, v2 = self.getCrossProductOfCurves([start, end], normalize=1, values=1)
         v3a = ptk.get_vector_from_two_points(p1, p2)
@@ -685,7 +685,7 @@ class Nurbs(SlotsMaya):
                     pos = i
                 pm.setAttr(npcNode.inPosition, pos)
 
-                distance = ptk.get_distance(pos, pm.getAttr(npcNode.position))
+                distance = ptk.distance_between_points(pos, pm.getAttr(npcNode.position))
                 p = pm.getAttr(npcNode.parameter)
                 if not tolerance:
                     result[i] = p

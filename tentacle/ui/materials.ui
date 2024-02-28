@@ -231,7 +231,7 @@
                </size>
               </property>
               <property name="toolTip">
-               <string>Assign a new random material to any selected object(s).</string>
+               <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Assign a new random material to any selected object(s).&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;span style=&quot; font-style:italic;&quot;&gt;You can click repeatedly until a desired color is found.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
               </property>
               <property name="text">
                <string>Assign Random</string>

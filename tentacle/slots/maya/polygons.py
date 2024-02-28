@@ -69,21 +69,21 @@ class Polygons(SlotsMaya):
             setObjectName="chk003",
             setChecked=True,
             set_height=20,
-            setToolTip="Curve Type: Linear.",
+            setToolTip="Curve Type: Linear.\n(not valid with edges that share a vertex)",
         )
         widget.menu.add(
             "QRadioButton",
             setText="Blend",
             setObjectName="chk004",
             set_height=20,
-            setToolTip="Curve Type: Blend.",
+            setToolTip="Curve Type: Blend.\n(not valid with edges that share a vertex)",
         )
         widget.menu.add(
             "QRadioButton",
             setText="Curve",
             setObjectName="chk005",
             set_height=20,
-            setToolTip="Curve Type: Curve.",
+            setToolTip="Curve Type: Curve.\n(not valid with edges that share a vertex)",
         )
         widget.menu.add(
             "QSpinBox",
@@ -92,7 +92,7 @@ class Polygons(SlotsMaya):
             set_limits=[0],
             setValue=0,
             set_height=20,
-            setToolTip="Subdivision Amount.",
+            setToolTip="Subdivision Amount.\n(not valid with edges that share a vertex)",
         )
 
     def tb001(self, widget):
@@ -112,11 +112,14 @@ class Polygons(SlotsMaya):
             return self.sb.message_box(
                 "<strong>Nothing selected</strong>.<br>Operation requires a edge selection."
             )
-        # Bridge the edges
-        node = pm.polyBridgeEdge(edges, curveType=curve_type, divisions=divisions)
-        # Fill edges if they lie on a border
-        pm.polyCloseBorder(edges)
-        return node
+
+        try:  # Bridge the edges
+            node = pm.polyBridgeEdge(edges, curveType=curve_type, divisions=divisions)
+            # Fill edges if they lie on a border
+            pm.polyCloseBorder(edges)
+            return node
+        except RuntimeError:  # Bridge edges that share a vertex
+            mtk.bridge_connected_edges(edges)
 
     def tb002_init(self, widget):
         # Remove 'Merge' and add 'Bake Partial History' option
@@ -140,7 +143,7 @@ class Polygons(SlotsMaya):
         )
 
     def tb002(self, widget):
-        """Combine"""
+        """Combine selected meshes."""
         # Get options from UI
         bake_history = widget.menu.chk_bake_history.isChecked()
         center_pivot = widget.menu.chk_center_pivot.isChecked()
@@ -160,21 +163,23 @@ class Polygons(SlotsMaya):
         objParent = pm.listRelatives(base_mesh, parent=True)
 
         # Combine meshes
-        newObj = pm.polyUnite(sel, ch=True, mergeUVSets=True, centerPivot=center_pivot)
+        newObj = pm.polyUnite(sel, ch=True, mergeUVSets=True, centerPivot=center_pivot)[
+            0
+        ]
 
         # Optionally bake history
         if bake_history:
-            pm.bakePartialHistory(base_mesh, all=True)
-
-        # Rename the new object
-        newObjRenamed = pm.rename(newObj[0], objName)
+            pm.bakePartialHistory(newObj, all=True)
 
         # Reparent to the original parent of the first selected object
         if objParent:
-            pm.parent(newObjRenamed, objParent[0])
+            pm.parent(newObj, objParent[0])
 
         # Check for an existing isolation set and add the new object if one exists
-        mtk.add_to_isolation_set(newObjRenamed)
+        mtk.add_to_isolation_set(newObj)
+
+        # Rename the new object after all other operations
+        pm.rename(newObj, objName)
 
     def tb003_init(self, widget):
         """ """
@@ -453,7 +458,7 @@ class Polygons(SlotsMaya):
         tolerance = widget.menu.s005.value()
         freezetransforms = widget.menu.chk016.isChecked()
 
-        selection = pm.ls(sl=1, objectsOnly=1, type="transform")
+        selection = pm.ls(sl=1, type="transform")
         if len(selection) > 1:
             obj1, obj2 = selection
             mtk.snap_closest_verts(obj1, obj2, tolerance, freezetransforms)
@@ -567,6 +572,7 @@ class Polygons(SlotsMaya):
 
     def b043(self):
         """Target Weld"""
+        pm.selectMode(component=True)
         pm.selectType(vertex=True)
         pm.select(deselect=True)
         pm.mel.dR_targetWeldTool()
@@ -605,7 +611,7 @@ class Polygons(SlotsMaya):
     def setMergeVertexDistance(self, p1, p2):
         """Merge Vertices: Set Distance"""
         spinbox = self.ui.tb000.menu.s002
-        dist = ptk.get_distance(p1, p2)
+        dist = ptk.distance_between_points(p1, p2)
         adjustment_factor = 1.01  # Add 1% to the distance
         dist *= adjustment_factor
         spinbox.setValue(dist)

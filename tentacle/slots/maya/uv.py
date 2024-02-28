@@ -477,18 +477,6 @@ class Uv(SlotsMaya):
         if v:
             pm.mel.texDistributeShells(0, 0, "down", [])  # 'up', 'down'
 
-    @mtk.undo
-    def tb008(self, widget):
-        """Transfer UV's"""
-        frm, *to = pm.ls(orderedSelection=1, flatten=1)
-        if not to:
-            return self.sb.message_box(
-                "<b>Nothing selected.</b><br>The operation requires the selection of two polygon objects."
-            )
-
-        for t in to:
-            mtk.transfer_uvs(frm, t)
-
     def cmb002(self, index, widget):
         """Transform"""
         text = widget.items[index]
@@ -536,6 +524,18 @@ class Uv(SlotsMaya):
         """Display: Distortion"""
         panel = mtk.get_panel(scriptType="polyTexturePlacementPanel")
         pm.textureWindow(panel, edit=1, displayDistortion=state)
+
+    @mtk.undo
+    def b000(self, widget):
+        """Transfer UV's"""
+        frm, *to = pm.ls(orderedSelection=1, flatten=1)
+        if not to:
+            return self.sb.message_box(
+                "<b>Nothing selected.</b><br>The operation requires the selection of at least two polygon objects."
+            )
+
+        for t in to:
+            mtk.transfer_uvs(frm, t)
 
     def b002(self):
         """Stack Shells"""

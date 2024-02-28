@@ -15,6 +15,9 @@ class Materials(SlotsMaya):
         self.ui = self.sb.materials
         self.submenu = self.sb.materials_submenu
 
+        # Set a class attribute to track the last created random material
+        self.last_random_material = None
+
     def header_init(self, widget):
         """ """
         # Add a button to launch the hdr manager.
@@ -33,8 +36,8 @@ class Materials(SlotsMaya):
         # Add a button to launch stringray arnold shader.
         widget.menu.add(
             self.sb.PushButton,
-            setToolTip="Create a stingray material network that can be previewed in Arnold.",
-            setText="Stingray Arnold Shader",
+            setToolTip="Create a stingray material network that can optionally be rendered in Arnold.",
+            setText="Create Stingray Shader",
             setObjectName="b001",
         )
         module = mtk.mat_utils.stingray_arnold_shader
@@ -220,16 +223,42 @@ class Materials(SlotsMaya):
 
     def b004(self, widget):
         """Assign: Assign Random"""
-        selection = pm.ls(sl=True, flatten=1)
+        selection = pm.ls(sl=True, flatten=True)
         if not selection:
             self.sb.message_box("No renderable object is selected for assignment.")
             return
 
-        mat = mtk.create_mat("random")
-        mtk.assign_mat(selection, mat)
+        # Create and assign a new random material
+        new_mat = mtk.create_mat("random")
+        mtk.assign_mat(selection, new_mat)
 
-        self.ui.cmb002.init_slot()  # refresh the materials list comboBox
-        self.ui.cmb002.setAsCurrent(mat.name())
+        # Check and delete the last random material if it's no longer in use
+        if self.last_random_material and self.last_random_material != new_mat:
+            # Check all shading engines connected to the last random material
+            shading_engines = pm.listConnections(
+                self.last_random_material, type="shadingEngine"
+            )
+
+            # Iterate through each shading engine to check if any geometry is connected
+            is_in_use = False
+            for se in shading_engines:
+                if pm.listConnections(se, type="mesh"):
+                    is_in_use = True
+                    break
+
+            # If the last random material is not in use, delete it
+            if not is_in_use:
+                pm.delete(self.last_random_material)
+
+        # Update the last random material with the newly created one
+        self.last_random_material = new_mat
+
+        # Refresh the UI
+        self.ui.cmb002.init_slot()
+        self.ui.cmb002.setAsCurrent(new_mat.name())
+
+        # Reselect the original selection so that this method can be called again if needed.
+        pm.select(selection)
 
     def b005_init(self, widget):
         """ """
