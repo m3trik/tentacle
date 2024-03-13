@@ -378,20 +378,19 @@ class Rigging(SlotsMaya):
             "scaleZ": "sz",
         }
 
-        def set_transform_limit(node, attr, value):
+        def set_transform_limit(attr, value):
             arg = params.get(attr)
             if arg is not None and isinstance(value, list) and len(value) == 2:
                 kwargs = {arg: tuple(value)}
                 pm.transformLimits(node, **kwargs)
 
         try:
-            attrs = mtk.get_parameter_mapping(
-                node, "transformLimits", list(params.keys())
-            )
             window = self.sb.AttributeWindow(
                 node,
-                attrs,
                 window_title=node.name(),
+                get_attribute_func=lambda: mtk.get_parameter_mapping(
+                    node, "transformLimits", list(params.keys())
+                ),
                 set_attribute_func=set_transform_limit,
                 allow_unsupported_types=True,
             )

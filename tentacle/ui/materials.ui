@@ -189,56 +189,6 @@
              <number>0</number>
             </property>
             <item>
-             <widget class="PushButton" name="b005">
-              <property name="enabled">
-               <bool>true</bool>
-              </property>
-              <property name="minimumSize">
-               <size>
-                <width>0</width>
-                <height>20</height>
-               </size>
-              </property>
-              <property name="maximumSize">
-               <size>
-                <width>16777215</width>
-                <height>20</height>
-               </size>
-              </property>
-              <property name="toolTip">
-               <string>Assign the current material to any selected object(s).</string>
-              </property>
-              <property name="text">
-               <string>Assign Current</string>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="PushButton" name="b004">
-              <property name="enabled">
-               <bool>true</bool>
-              </property>
-              <property name="minimumSize">
-               <size>
-                <width>0</width>
-                <height>20</height>
-               </size>
-              </property>
-              <property name="maximumSize">
-               <size>
-                <width>16777215</width>
-                <height>20</height>
-               </size>
-              </property>
-              <property name="toolTip">
-               <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Assign a new random material to any selected object(s).&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;span style=&quot; font-style:italic;&quot;&gt;You can click repeatedly until a desired color is found.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-              </property>
-              <property name="text">
-               <string>Assign Random</string>
-              </property>
-             </widget>
-            </item>
-            <item>
              <widget class="ComboBox" name="cmb000">
               <property name="minimumSize">
                <size>
@@ -272,6 +222,56 @@
                 <string>Assign New</string>
                </property>
               </item>
+             </widget>
+            </item>
+            <item>
+             <widget class="PushButton" name="b004">
+              <property name="enabled">
+               <bool>true</bool>
+              </property>
+              <property name="minimumSize">
+               <size>
+                <width>0</width>
+                <height>20</height>
+               </size>
+              </property>
+              <property name="maximumSize">
+               <size>
+                <width>16777215</width>
+                <height>20</height>
+               </size>
+              </property>
+              <property name="toolTip">
+               <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Assign a new random material to any selected object(s).&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;span style=&quot; font-style:italic;&quot;&gt;You can click repeatedly until a desired color is found.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+              </property>
+              <property name="text">
+               <string>Assign Random</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="PushButton" name="b005">
+              <property name="enabled">
+               <bool>true</bool>
+              </property>
+              <property name="minimumSize">
+               <size>
+                <width>0</width>
+                <height>20</height>
+               </size>
+              </property>
+              <property name="maximumSize">
+               <size>
+                <width>16777215</width>
+                <height>20</height>
+               </size>
+              </property>
+              <property name="toolTip">
+               <string>Assign the current material to any selected object(s).</string>
+              </property>
+              <property name="text">
+               <string>Assign Current</string>
+              </property>
              </widget>
             </item>
             <item>

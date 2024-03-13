@@ -1,9 +1,13 @@
 # !/usr/bin/python
 # coding=utf-8
+import os
+
 try:
     import pymel.core as pm
 except ImportError as error:
     print(__file__, error)
+import pythontk as ptk
+import mayatk as mtk
 from tentacle.slots.maya import SlotsMaya
 
 
@@ -13,9 +17,14 @@ class Init(SlotsMaya):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
+        mayapy = os.path.join(mtk.get_maya_info("install_path"), "bin", "mayapy.exe")
+        pkg_mgr = ptk.PkgManager(python_path=mayapy)
+        this_pkg = "tentacletk"
+        self.installed_ver = pkg_mgr.installed_version(this_pkg)
+        self.latest_ver = pkg_mgr.latest_version(this_pkg)
+
         try:  # set the 'hud_text' textEdit to connect to the 'contruct_hud' method on show.
             self.sb.init.hud_text.shown.connect(self.construct_hud)
-
         except AttributeError as error:  # (an inherited class)
             print(error)
 
@@ -31,38 +40,52 @@ class Init(SlotsMaya):
             return
 
         if not selection:
-            autoSaveState = pm.autoSave(q=True, enable=True)
-            if not autoSaveState:
+            if self.installed_ver != self.latest_ver:
                 hud.insertText(
-                    'Autosave: <font style="color: {};">{}'.format(
-                        "Green" if autoSaveState else "Red",
-                        "On" if autoSaveState else "Off",
-                    )
-                )  # symmetry axis
+                    f'New release available: <font style="color: Cyan;">{self.latest_ver}</font>'
+                )
 
-            sceneUnits = pm.currentUnit(q=True, fullName=1, linear=1)
-            hud.insertText(
-                'Units: <font style="color: Yellow;">{}'.format(sceneUnits)
-            )  # symmetry axis
+            # Display the autosave state if it is not on
+            if not pm.autoSave(q=True, enable=True):
+                hud.insertText('Autosave: <font style="color: Red;">OFF</font>')
 
-            symmetry = pm.symmetricModelling(q=True, symmetry=1)
-            if symmetry:
-                axis = pm.symmetricModelling(q=True, axis=1)
+            # Display the symmetry state if it is on
+            if pm.symmetricModelling(q=True, symmetry=True):
+                axis = pm.symmetricModelling(q=True, axis=True)
                 hud.insertText(
-                    'Symmetry Axis: <font style="color: Yellow;">{}'.format(
+                    'Symmetry Axis: <font style="color: Yellow;">{}</font>'.format(
                         axis.upper()
                     )
-                )  # symmetry axis
+                )
 
+            # Display any transform constraints
             xformConstraint = pm.xformConstraint(query=True, type=True)
-            if xformConstraint == "none":
-                xformConstraint = None
-            if xformConstraint:
+            if xformConstraint and xformConstraint != "none":
                 hud.insertText(
-                    'Xform Constraint: <font style="color: Yellow;">{}'.format(
+                    'Xform Constraint: <font style="color: Cyan;">{}</font>'.format(
                         xformConstraint
                     )
-                )  # transform constraits
+                )
+
+            # Display current workspace if one is set
+            workspace = mtk.get_maya_info("workspace_dir")
+            if workspace and workspace != "default":
+                hud.insertText(
+                    'Project: <font style="color: Yellow;">{}</font>'.format(workspace)
+                )
+
+            # Display the scene units
+            sceneUnits = pm.currentUnit(q=True, fullName=True, linear=True)
+            hud.insertText(
+                'Units: <font style="color: Yellow;">{}</font>'.format(sceneUnits)
+            )
+
+            # Display animation frame rate
+            frame_rate_key = pm.currentUnit(q=True, time=True)
+            frame_rate_display = mtk.format_frame_rate_str(frame_rate_key)
+            hud.insertText(
+                f'Frame Rate: <font style="color: Yellow;">{frame_rate_display}</font>'
+            )
 
         else:
             if pm.selectMode(q=True, object=1):  # object mode:
