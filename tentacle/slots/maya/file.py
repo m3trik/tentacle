@@ -148,11 +148,11 @@ class File(SlotsMaya):
                 setToolTip="Open the project root directory.",
             )
 
-        workspace = mtk.get_maya_info("workspace_dir")
-        project = ptk.format_path(workspace, "dir")
+        workspace = mtk.get_maya_info("workspace")
+        workspace_dir = mtk.get_maya_info("workspace_dir")
         # Add each dir in the workspace as well as its full path as data
         items = {d: f"{workspace}/{d}" for d in os.listdir(workspace)}
-        widget.add(items, header=f"Project: {project}", clear=True)
+        widget.add(items, header=workspace_dir, clear=True)
 
     def cmb006(self, index, widget):
         """Workspace"""

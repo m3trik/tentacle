@@ -46,15 +46,10 @@ class Preferences(SlotsMaya):
         pm.currentUnit(linear=widget.items[index])
 
     def cmb002_init(self, widget):
-        """ """
-        items = {
-            "15 fps (game)": "game",
-            "24 fps (film)": "film",
-            "25 fps (pal)": "pal",
-            "30 fps (ntsc)": "ntsc",
-            "48 fps (show)": "show",
-            "50 fps (palf)": "palf",
-            "60 fps (ntscf)": "ntscf",
+        """Initializes the combo box with frame rate options."""
+        items = {  # Generate formatted frame rate items from the FRAME_RATE_VALUES
+            mtk.AnimUtils.format_frame_rate_str(key): key
+            for key in mtk.AnimUtils.FRAME_RATE_VALUES
         }
         widget.add(items)
         # Get/Set current time value.
@@ -99,25 +94,35 @@ class Preferences(SlotsMaya):
 
     def b000(self):
         """Update Package"""
+        self.check_for_update()
+
+    def check_for_update(self):
+        """ """
         mayapy = os.path.join(mtk.get_maya_info("install_path"), "bin", "mayapy.exe")
         pkg_mgr = ptk.PkgManager(python_path=mayapy)
-
         this_pkg = "tentacletk"
+        latest_ver = pkg_mgr.latest_version(this_pkg)
         # Check if the package is outdated
         if pkg_mgr.is_outdated(this_pkg):  # Prompt user whether to update
             user_choice = self.sb.message_box(
-                f"<b>{this_pkg} is outdated. Do you want to update it?</b>", "Yes", "No"
+                f"<b><hl>{latest_ver}</hl> is available. Do you want to update it?</b>",
+                "Yes",
+                "No",
             )
             if user_choice == "Yes":  # User chose to update
                 pkg_mgr.update("pythontk")
                 pkg_mgr.update("uitk")
                 pkg_mgr.update("mayatk")
                 pkg_mgr.update(this_pkg)
-                self.sb.message_box(f"<b>Updated {this_pkg} to the latest version.</b>")
+                self.sb.message_box(
+                    "<b>The package and it's dependencies have been <hl>updated</hl>.</b>"
+                )
             else:  # User chose not to update or closed the dialog
                 self.sb.message_box("<b>The update was cancelled.</b>")
         else:  # Package is up to date
-            self.sb.message_box(f"<b>{this_pkg} is already up to date.</b>")
+            self.sb.message_box(
+                f"<b><hl>{latest_ver}</hl> is already the latest version.</b>"
+            )
 
     def b001(self):
         """Color Settings"""

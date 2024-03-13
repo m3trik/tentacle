@@ -15,14 +15,13 @@ class Editors(SlotsMaya):
         self.ui = self.sb.editors
 
     def list000_init(self, widget):
-        """ """
+        """Initialize the widget with structured data for easier maintenance."""
         widget.fixed_item_height = 18
         widget.sublist_x_offset = -10
         widget.sublist_y_offset = -10
 
-        w1 = widget.add("General Editors")
-        general_editors = sorted(
-            [
+        editors_dict = {
+            "General Editors": [
                 "Attribute Editor",
                 "Channel Box",
                 "Layer Editor",
@@ -43,25 +42,15 @@ class Editors(SlotsMaya):
                 "Command Shell",
                 "Profiler",
                 "Evaluation Toolkit",
-            ]
-        )
-        w1.sublist.add(general_editors)
-
-        w2 = widget.add("Modeling Editors")
-        modeling_editors = sorted(
-            [
+            ],
+            "Modeling Editors": [
                 "Modeling Toolkit",
                 "Paint Effects",
                 "UV Editor",
                 "XGen Editor",
                 "Crease Sets",
-            ]
-        )
-        w2.sublist.add(modeling_editors)
-
-        w3 = widget.add("Animation Editors")
-        animation_editors = sorted(
-            [
+            ],
+            "Animation Editors": [
                 "Graph Editor",
                 "Time Editor",
                 "Trax Editor",
@@ -72,13 +61,8 @@ class Editors(SlotsMaya):
                 "Shape Editor",
                 "Pose Editor",
                 "Expression Editor",
-            ]
-        )
-        w3.sublist.add(animation_editors)
-
-        w4 = widget.add("Rendering Editors")
-        rendering_editors = sorted(
-            [
+            ],
+            "Rendering Editors": [
                 "Render View",
                 "Render Settings",
                 "Hypershade",
@@ -87,13 +71,8 @@ class Editors(SlotsMaya):
                 "Custom Stereo Rig Editor",
                 "Rendering Flags",
                 "Shading Group Attributes",
-            ]
-        )
-        w4.sublist.add(rendering_editors)
-
-        w5 = widget.add("Relationship Editors")
-        relationship_editors = sorted(
-            [
+            ],
+            "Relationship Editors": [
                 "Animation Layers",
                 "Camera Sets",
                 "Character Sets",
@@ -109,9 +88,12 @@ class Editors(SlotsMaya):
                 "UV Linking: UV-Centric",
                 "UV Linking: Paint Effects/UV",
                 "UV Linking: Hair/UV",
-            ]
-        )
-        w5.sublist.add(relationship_editors)
+            ],
+        }
+
+        for category, items in editors_dict.items():
+            w = widget.add(category)
+            w.sublist.add(sorted(items))
 
     @Signals("on_item_interacted")
     def list000(self, item):

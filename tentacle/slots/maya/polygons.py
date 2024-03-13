@@ -175,11 +175,11 @@ class Polygons(SlotsMaya):
         if objParent:
             pm.parent(newObj, objParent[0])
 
-        # Check for an existing isolation set and add the new object if one exists
-        mtk.add_to_isolation_set(newObj)
-
         # Rename the new object after all other operations
         pm.rename(newObj, objName)
+
+        # Check for an existing isolation set and add the new object if one exists
+        mtk.add_to_isolation_set(objName)
 
     def tb003_init(self, widget):
         """ """

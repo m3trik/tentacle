@@ -18,33 +18,35 @@ class Edit(SlotsMaya):
         # Refresh the combo box on every view show
         self.ui.cmb001.before_popup_shown.connect(self.ui.cmb001.init_slot)
 
-    def cmb001_init(self, widget):
-        """ """
+    def cmb001_init(self, widget) -> None:
+        """Initializes the widget with object history items or a placeholder if no selection."""
         widget.refresh = True
         try:
-            selection = pm.ls(sl=1, objectsOnly=1)
-            obj_hist = pm.listHistory(selection, pruneDagObjects=1)
+            selection = pm.ls(sl=True, objectsOnly=True)
+            obj_hist = pm.listHistory(selection, pruneDagObjects=True)
             items = {str(o): o for o in obj_hist}
         except RuntimeError:
             items = ["No selection."]
         widget.add(items, header="History", clear=True)
 
-    def cmb001(self, index, widget):
+    def cmb001(self, index: int, widget) -> None:
         """Object History Attributes"""
-        if widget.items[index] != "No selection.":
+        try:
+            item = widget.items[index]
+        except IndexError:
+            self.sb.message_box("Index out of range. Please select a valid item.")
+            return
+
+        if item != "No selection.":
             node = widget.itemData(index)
             if node:
-                attrs = mtk.get_node_attributes(
-                    node,
-                    mapping=True,
-                    visible=True,
-                    keyable=True,
-                )
                 window = self.sb.AttributeWindow(
                     node,
-                    attrs,
                     window_title=node.name(),
-                    set_attribute_func=lambda obj, n, v: getattr(obj, n).set(v),
+                    get_attribute_func=lambda: mtk.get_node_attributes(
+                        node, mapping=True, visible=True, keyable=True
+                    ),
+                    set_attribute_func=lambda n, v: getattr(node, n).set(v),
                 )
                 window.set_style(theme="dark")
                 window.set_flags(WindowStaysOnTopHint=True)
@@ -86,12 +88,6 @@ class Edit(SlotsMaya):
             setObjectName="chk017",
             setChecked=True,
             setToolTip="Check for nonmanifold polys.",
-        )
-        widget.menu.add(
-            "QCheckBox",
-            setText="Non-Manifold Vertex",
-            setObjectName="chk021",
-            setToolTip="A connected vertex of non-manifold geometry where the faces share a single vertex.",
         )
         widget.menu.add(
             "QCheckBox",
@@ -248,7 +244,6 @@ class Edit(SlotsMaya):
         nonmanifold = int(widget.menu.chk017.isChecked())
         # [16] check for lamina polys [default -1]
         # lamina = -int(widget.menu.chk018.isChecked())
-        split_non_manifold_vertex = widget.menu.chk021.isChecked()
         invalidComponents = 0  # int(widget.menu.chk019.isChecked()) #[17] a guess what this arg does. not checked. default is 0.
         overlappingFaces = widget.menu.chk025.isChecked()
         # Find overlapping geometry at object level.
@@ -294,7 +289,6 @@ class Edit(SlotsMaya):
             sharedUVs=sharedUVs,
             nonmanifold=nonmanifold,
             invalidComponents=invalidComponents,
-            split_non_manifold_vertex=split_non_manifold_vertex,
         )
 
     def tb001_init(self, widget):
