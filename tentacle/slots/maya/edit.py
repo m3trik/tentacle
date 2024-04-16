@@ -44,7 +44,7 @@ class Edit(SlotsMaya):
                     node,
                     window_title=node.name(),
                     get_attribute_func=lambda: mtk.get_node_attributes(
-                        node, mapping=True, visible=True, keyable=True
+                        node, visible=True, keyable=True
                     ),
                     set_attribute_func=lambda n, v: getattr(node, n).set(v),
                 )
@@ -376,10 +376,11 @@ class Edit(SlotsMaya):
 
     def b000(self):
         """Cut On Axis"""
-        module = mtk.edit_utils.cut_on_axis
-        slot_class = module.CutOnAxisSlots
+        from mayatk.edit_utils import cut_on_axis
 
-        self.sb.register("cut_on_axis.ui", slot_class, base_dir=module)
+        slot_class = cut_on_axis.CutOnAxisSlots
+
+        self.sb.register("cut_on_axis.ui", slot_class, base_dir=cut_on_axis)
         self.sb.cut_on_axis.slots.preview.enable_on_show = True
         self.sb.parent().set_ui("cut_on_axis")
 

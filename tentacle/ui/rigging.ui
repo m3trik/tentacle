@@ -594,13 +594,10 @@
             </size>
            </property>
            <property name="toolTip">
-            <string>Lock/Unlock object attributes.</string>
+            <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Lock/Unlock object attributes.&lt;/p&gt;&lt;p&gt;Check to lock. &lt;/p&gt;&lt;p&gt;Uncheck to unlock.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
            </property>
            <property name="text">
             <string>Lock / Unlock</string>
-           </property>
-           <property name="checkable">
-            <bool>false</bool>
            </property>
           </widget>
          </item>

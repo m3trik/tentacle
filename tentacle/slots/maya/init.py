@@ -17,11 +17,11 @@ class Init(SlotsMaya):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        mayapy = os.path.join(mtk.get_maya_info("install_path"), "bin", "mayapy.exe")
-        pkg_mgr = ptk.PkgManager(python_path=mayapy)
-        this_pkg = "tentacletk"
-        self.installed_ver = pkg_mgr.installed_version(this_pkg)
-        self.latest_ver = pkg_mgr.latest_version(this_pkg)
+        # mayapy = os.path.join(mtk.get_maya_info("install_path"), "bin", "mayapy.exe")
+        # pkg_mgr = ptk.PkgManager(python_path=mayapy)
+        # this_pkg = "tentacletk"
+        # self.installed_ver = pkg_mgr.installed_version(this_pkg)
+        # self.latest_ver = pkg_mgr.latest_version(this_pkg)
 
         try:  # set the 'hud_text' textEdit to connect to the 'contruct_hud' method on show.
             self.sb.init.hud_text.shown.connect(self.construct_hud)
@@ -40,10 +40,10 @@ class Init(SlotsMaya):
             return
 
         if not selection:
-            if self.installed_ver != self.latest_ver:
-                hud.insertText(
-                    f'New release available: <font style="color: Cyan;">{self.latest_ver}</font>'
-                )
+            # if self.installed_ver != self.latest_ver:
+            #     hud.insertText(
+            #         f'New release available: <font style="color: Cyan;">{self.latest_ver}</font>'
+            #     )
 
             # Display the autosave state if it is not on
             if not pm.autoSave(q=True, enable=True):

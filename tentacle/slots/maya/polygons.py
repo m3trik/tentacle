@@ -36,14 +36,14 @@ class Polygons(SlotsMaya):
             setObjectName="s002",
             set_limits=[0, 1000, 0.0001, 5],
             setValue=0.0005,
-            set_height=20,
+            set_fixed_height=20,
             setToolTip="Merge Distance.",
         )
         widget.menu.add(
             "QPushButton",
             setText="Set Distance",
             setObjectName="b005",
-            set_height=20,
+            set_fixed_height=20,
             setToolTip="Set the distance using two selected vertices.\nElse; return the Distance to it's default value",
         )
 
@@ -68,21 +68,21 @@ class Polygons(SlotsMaya):
             setText="Linear",
             setObjectName="chk003",
             setChecked=True,
-            set_height=20,
+            set_fixed_height=20,
             setToolTip="Curve Type: Linear.\n(not valid with edges that share a vertex)",
         )
         widget.menu.add(
             "QRadioButton",
             setText="Blend",
             setObjectName="chk004",
-            set_height=20,
+            set_fixed_height=20,
             setToolTip="Curve Type: Blend.\n(not valid with edges that share a vertex)",
         )
         widget.menu.add(
             "QRadioButton",
             setText="Curve",
             setObjectName="chk005",
-            set_height=20,
+            set_fixed_height=20,
             setToolTip="Curve Type: Curve.\n(not valid with edges that share a vertex)",
         )
         widget.menu.add(
@@ -91,7 +91,7 @@ class Polygons(SlotsMaya):
             setObjectName="s003",
             set_limits=[0],
             setValue=0,
-            set_height=20,
+            set_fixed_height=20,
             setToolTip="Subdivision Amount.\n(not valid with edges that share a vertex)",
         )
 
@@ -129,7 +129,7 @@ class Polygons(SlotsMaya):
             setText="Bake Partial History",
             setObjectName="chk_bake_history",
             setChecked=True,
-            set_height=20,
+            set_fixed_height=20,
             setToolTip="Bake the construction history of the base mesh into its current state.",
         )
         # Add 'Center Pivot' option
@@ -138,7 +138,7 @@ class Polygons(SlotsMaya):
             setText="Center Pivot",
             setObjectName="chk_center_pivot",
             setChecked=True,
-            set_height=20,
+            set_fixed_height=20,
             setToolTip="Center the pivot point of the combined mesh.",
         )
 
@@ -188,7 +188,7 @@ class Polygons(SlotsMaya):
             setText="Keep Faces Together",
             setObjectName="chk002",
             setChecked=True,
-            set_height=20,
+            set_fixed_height=20,
             setToolTip="Keep edges/faces together.",
         )
         widget.menu.add(
@@ -197,7 +197,7 @@ class Polygons(SlotsMaya):
             setObjectName="s004",
             set_limits=[0],
             setValue=1,
-            set_height=20,
+            set_fixed_height=20,
             setToolTip="Subdivision Amount.",
         )
 
@@ -229,10 +229,11 @@ class Polygons(SlotsMaya):
 
     def tb004(self, widget):
         """Bevel"""
-        module = mtk.edit_utils.bevel_edges
-        slot_class = module.BevelEdgesSlots
+        from mayatk.edit_utils import bevel_edges
 
-        self.sb.register("bevel_edges.ui", slot_class, base_dir=module)
+        slot_class = bevel_edges.BevelEdgesSlots
+
+        self.sb.register("bevel_edges.ui", slot_class, base_dir=bevel_edges)
         self.sb.bevel_edges.slots.preview.enable_on_show = True
         self.sb.parent().set_ui("bevel_edges")
 
@@ -295,7 +296,7 @@ class Polygons(SlotsMaya):
             setObjectName="s001",
             set_limits=[0, 100],
             setValue=2.00,
-            set_height=20,
+            set_fixed_height=20,
             setToolTip="Offset amount.",
         )
 
@@ -331,7 +332,7 @@ class Polygons(SlotsMaya):
             setText="U",
             setObjectName="chk008",
             setChecked=True,
-            set_height=20,
+            set_fixed_height=20,
             setToolTip="Divide facet: U coordinate.",
         )
         widget.menu.add(
@@ -339,14 +340,14 @@ class Polygons(SlotsMaya):
             setText="V",
             setObjectName="chk009",
             setChecked=True,
-            set_height=20,
+            set_fixed_height=20,
             setToolTip="Divide facet: V coordinate.",
         )
         widget.menu.add(
             "QCheckBox",
             setText="Tris",
             setObjectName="chk010",
-            set_height=20,
+            set_fixed_height=20,
             setToolTip="Divide facet: Tris.",
         )
 
@@ -400,7 +401,7 @@ class Polygons(SlotsMaya):
             "QRadioButton",
             setText="Union",
             setObjectName="chk011",
-            set_height=20,
+            set_fixed_height=20,
             setToolTip="Fuse two objects together.",
         )
         widget.menu.add(
@@ -408,14 +409,14 @@ class Polygons(SlotsMaya):
             setText="Difference",
             setObjectName="chk012",
             setChecked=True,
-            set_height=20,
+            set_fixed_height=20,
             setToolTip="Indents one object with the shape of another at the point of their intersection.",
         )
         widget.menu.add(
             "QRadioButton",
             setText="Intersection",
             setObjectName="chk013",
-            set_height=20,
+            set_fixed_height=20,
             setToolTip="Keep only the interaction point of two objects.",
         )
 

@@ -34,8 +34,19 @@ class File(SlotsMaya):
 
     def cmb002_init(self, widget):
         """ """
+        # Fetch recent autosave files
+        recent_autosaves = mtk.get_recent_autosave(
+            filter_time=24, timestamp_format="%H:%M:%S"
+        )
+
+        # Prepare dictionary for ComboBox: key is 'path + timestamp', value is 'path'
+        autosave_dict = {
+            f"{i[1]}  {ptk.format_path(i[0], 'file')}": i[0] for i in recent_autosaves
+        }
+
+        # Add items to the ComboBox
         widget.add(
-            mtk.get_recent_autosave(format="timestamp|standard"),
+            autosave_dict,
             header="Recent Autosave",
             clear=True,
         )
@@ -119,11 +130,8 @@ class File(SlotsMaya):
 
     def cmb005_init(self, widget):
         """ """
-        widget.add(
-            mtk.get_recent_files(slice(0, 20), format="timestamp|standard"),
-            header="Recent Files",
-            clear=True,
-        )
+        recent_files = mtk.get_recent_files(slice(0, 20))
+        widget.add(recent_files, header="Recent Files", clear=True)
 
     def cmb005(self, index, widget):
         """Recent Files"""
@@ -167,11 +175,11 @@ class File(SlotsMaya):
         widget.position = "top"
         widget.sublist_y_offset = 18
         widget.fixed_item_height = 18
-        recentFiles = mtk.get_recent_files(slice(0, 11))
+        recent_files = mtk.get_recent_files(slice(0, 11))
         w1 = widget.add("Recent Files")
-        truncated = ptk.truncate(recentFiles, 65)
-        w1.sublist.add(zip(truncated, recentFiles))
-        widget.setVisible(bool(recentFiles))
+        truncated = ptk.truncate(recent_files, 65)
+        w1.sublist.add(zip(truncated, recent_files))
+        widget.setVisible(bool(recent_files))
 
     @Signals("on_item_interacted")
     def list000(self, item):
@@ -205,10 +213,11 @@ class File(SlotsMaya):
 
     def b001(self):
         """Open Reference Manager"""
-        module = mtk.core_utils.reference_manager
-        slot_class = module.ReferenceManagerSlots
+        from mayatk.core_utils import reference_manager
 
-        self.sb.register("reference_manager.ui", slot_class, base_dir=module)
+        slot_class = reference_manager.ReferenceManagerSlots
+
+        self.sb.register("reference_manager.ui", slot_class, base_dir=reference_manager)
         self.sb.parent().set_ui("reference_manager")
 
     @SlotsMaya.hide_main

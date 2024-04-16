@@ -53,6 +53,7 @@ class Scene(SlotsMaya):
         ignore_case = widget.ui.txt000.menu.chk000.isChecked()
 
         selection = pm.ls(sl=1, objectsOnly=True)
+        print(0, mtk.rename)
         mtk.rename(selection, to, find, regex=regex, ignore_case=ignore_case)
 
     def tb000_init(self, widget):

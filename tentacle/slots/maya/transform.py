@@ -403,9 +403,7 @@ class Transform(SlotsMaya):
             window = self.sb.AttributeWindow(
                 node,
                 window_title=node.name(),
-                get_attribute_func=lambda: mtk.get_node_attributes(
-                    node, params, mapping=True
-                ),
+                get_attribute_func=lambda: mtk.get_node_attributes(node, params),
                 set_attribute_func=lambda a, v: mtk.set_node_attributes(node, **{a: v}),
                 float_precision=3,
             )

@@ -194,17 +194,6 @@ class Rigging(SlotsMaya):
                     )
                     else "Unlock Attributes"
                 ),
-                lambda state: widget.setText(
-                    "Lock Transforms"
-                    if any(
-                        (
-                            widget.menu.chk012.isChecked(),
-                            widget.menu.chk013.isChecked(),
-                            widget.menu.chk014.isChecked(),
-                        )
-                    )
-                    else "Unlock Attributes"
-                ),
             ],
         )
 

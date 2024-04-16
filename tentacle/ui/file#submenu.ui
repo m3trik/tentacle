@@ -84,8 +84,8 @@
    <widget class="QPushButton" name="b007">
     <property name="geometry">
      <rect>
-      <x>80</x>
-      <y>520</y>
+      <x>70</x>
+      <y>490</y>
       <width>71</width>
       <height>19</height>
      </rect>
@@ -112,8 +112,8 @@
    <widget class="QPushButton" name="b008">
     <property name="geometry">
      <rect>
-      <x>45</x>
-      <y>490</y>
+      <x>70</x>
+      <y>520</y>
       <width>106</width>
       <height>19</height>
      </rect>
@@ -191,15 +191,15 @@
  </widget>
  <customwidgets>
   <customwidget>
+   <class>PushButton</class>
+   <extends>QPushButton</extends>
+   <header>widgets.pushbutton.h</header>
+  </customwidget>
+  <customwidget>
    <class>ExpandableList</class>
    <extends>QWidget</extends>
    <header>widgets.expandablelist.h</header>
    <container>1</container>
-  </customwidget>
-  <customwidget>
-   <class>PushButton</class>
-   <extends>QPushButton</extends>
-   <header>widgets.pushbutton.h</header>
   </customwidget>
  </customwidgets>
  <resources/>

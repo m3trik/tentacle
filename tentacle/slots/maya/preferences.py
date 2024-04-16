@@ -25,16 +25,7 @@ class Preferences(SlotsMaya):
 
     def cmb001_init(self, widget):
         """ """
-        items = [
-            "millimeter",
-            "centimeter",
-            "meter",
-            "kilometer",
-            "inch",
-            "foot",
-            "yard",
-            "mile",
-        ]
+        items = {i.upper(): i for i in mtk.Project.SCENE_UNIT_VALUES}
         widget.add(items)
         # Get/Set current linear value.
         index = widget.items.index(pm.currentUnit(q=True, fullName=1, linear=1))
@@ -42,8 +33,9 @@ class Preferences(SlotsMaya):
 
     def cmb001(self, index, widget):
         """Set Working Units: Linear"""
-        # millimeter | centimeter | meter | kilometer | inch | foot | yard | mile
-        pm.currentUnit(linear=widget.items[index])
+        # Valid Units: millimeter | centimeter | meter | kilometer | inch | foot | yard | mile
+        unit = widget.currentData()
+        pm.currentUnit(linear=unit.lower())
 
     def cmb002_init(self, widget):
         """Initializes the combo box with frame rate options."""
@@ -59,7 +51,7 @@ class Preferences(SlotsMaya):
     def cmb002(self, index, widget):
         """Set Working Units: Time"""
         # game | film | pal | ntsc | show | palf | ntscf
-        pm.currentUnit(time=widget.items[index].split()[-1])
+        pm.currentUnit(time=widget.currentData())
 
     def s000_init(self, widget):
         """ """
@@ -85,7 +77,7 @@ class Preferences(SlotsMaya):
     def b002(self):
         """Autosave: Delete All"""
         files = mtk.get_recent_autosave()
-        for file in files:
+        for file, _ in files:
             try:
                 os.remove(file)
 
