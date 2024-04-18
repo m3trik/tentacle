@@ -82,7 +82,7 @@
           <number>0</number>
          </property>
          <item>
-          <widget class="PushButton" name="tb003">
+          <widget class="QPushButton" name="b004">
            <property name="enabled">
             <bool>true</bool>
            </property>
@@ -99,7 +99,7 @@
             </size>
            </property>
            <property name="toolTip">
-            <string>Lock Normals: lock/Unlock all normals from the selected object or object containing a selected vertice</string>
+            <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Toggle the vertex normals locked/Unlocked for the selected object(s) or components.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
            </property>
            <property name="text">
             <string>Un/Lock Normals</string>

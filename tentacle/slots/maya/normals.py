@@ -106,26 +106,9 @@ class Normals(SlotsMaya):
         objects = pm.ls(selection, objectsOnly=True)
         pm.polyOptions(objects, se=soft_edge_display)
 
-    def tb003_init(self, widget):
-        """ """
-        widget.menu.add(
-            "QCheckBox",
-            setText="Lock",
-            setObjectName="chk002",
-            setChecked=True,
-            setToolTip="Toggle Lock/Unlock.",
-        )
-        widget.menu.chk002.toggled.connect(
-            lambda state, w=widget.menu.chk002: w.setText("Lock")
-            if state
-            else w.setText("Unlock")
-        )
-
-    def tb003(self, widget):
-        """Lock/Unlock Vertex Normals"""
-        state = widget.menu.chk002.isChecked()
+    def b004(self, widget):
+        """Toggle lock/unlock vertex normals."""
         selection = pm.ls(sl=True)
-
         if not selection:
             self.sb.message_box("Operation requires at least one selected object.")
             return
@@ -134,7 +117,10 @@ class Normals(SlotsMaya):
             selection, fromFace=True, toVertex=True
         )
 
-        if not state:
+        # Determine the current normal state by querying one vertex
+        current_state = pm.polyNormalPerVertex(vertices[0], q=True, freezeNormal=True)
+
+        if current_state:
             pm.polyNormalPerVertex(vertices, unFreezeNormal=True)
             mtk.viewport_message("Normals <hl>UnLocked</hl>.")
         else:
