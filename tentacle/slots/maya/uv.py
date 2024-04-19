@@ -74,35 +74,11 @@ class Uv(SlotsMaya):
         )
         widget.menu.add(
             "QSpinBox",
-            setPrefix="Stack Similar: ",
-            setObjectName="s011",
-            set_limits=[0, 2],
-            setValue=0,
-            setToolTip="Find Similar shells. <br>state 1: Find similar shells, and pack one of each, ommiting the rest.<br>state 2: Find similar shells, and stack during packing.",
-        )
-        widget.menu.add(
-            "QDoubleSpinBox",
-            setPrefix="Tolerance: ",
-            setObjectName="s006",
-            set_limits=[0, 10, 0.1, 1],
-            setValue=1.0,
-            setToolTip="Stack Similar: Stack shells with uv's within the given range.",
-        )
-        widget.menu.add(
-            "QSpinBox",
             setPrefix="UDIM: ",
             setObjectName="s004",
             set_limits=[1001, 1200],
             setValue=1001,
             setToolTip="Set the desired UDIM tile space.",
-        )
-        widget.menu.add(
-            "QSpinBox",
-            setPrefix="Padding: ",
-            setObjectName="s012",
-            set_limits=[0, 1000],
-            setValue=self.get_map_size() / 256 * 2,
-            setToolTip="Set the shell spacing amount.",
         )
 
     def tb000(self, widget):
@@ -110,13 +86,11 @@ class Uv(SlotsMaya):
         scale = widget.menu.s009.value()
         rotate = widget.menu.s010.value()
         UDIM = widget.menu.s004.value()
-        padding = widget.menu.s012.value()
-        # similar = widget.menu.s011.value()
-        # tolerance = widget.menu.s006.value()
         mapSize = self.get_map_size()
 
         U, D, I, M = [int(i) for i in str(UDIM)]  # UDIM ex. '1001'
-        shellPadding = padding * 0.000244140625
+        map_size = self.get_map_size()
+        shellPadding = mtk.calculate_uv_padding(map_size, normalize=True)
         tilePadding = shellPadding / 2
 
         selection = pm.ls(sl=1)
@@ -126,10 +100,10 @@ class Uv(SlotsMaya):
             )
             return
         uvs = pm.polyListComponentConversion(selection, fromFace=True, toUV=True)
-        uvs = pm.ls(uvs, flatten=True)
+        uvs_flattened = pm.ls(uvs, flatten=True)
 
         pm.u3dLayout(
-            uvs,
+            uvs_flattened,
             resolution=mapSize,
             shellSpacing=shellPadding,
             tileMargin=tilePadding,

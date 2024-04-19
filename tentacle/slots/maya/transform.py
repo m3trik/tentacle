@@ -129,27 +129,18 @@ class Transform(SlotsMaya):
 
     def tb002(self, widget):
         """Freeze Transformations"""
-        selected_objects = pm.selected()
+        objects = pm.selected()
 
-        if len(selected_objects) == 0:
+        if len(objects) == 0:
             self.sb.message_box("Please select at least one object.")
             return
 
         translate = widget.menu.chk032.isChecked()
         rotate = widget.menu.chk033.isChecked()
         scale = widget.menu.chk034.isChecked()
-        center_pivot = widget.menu.chk035.isChecked()
-        store_transforms = widget.menu.chk037.isChecked()
+        cp = widget.menu.chk035.isChecked()
 
-        # Store original transforms if the option is checked
-        if store_transforms:
-            for obj in selected_objects:
-                mtk.store_transforms(obj)
-
-        if center_pivot:
-            pm.xform(selected_objects, centerPivots=1)
-
-        pm.makeIdentity(selected_objects, apply=True, t=translate, r=rotate, s=scale)
+        mtk.freeze_transforms(objects, center_pivot=cp, t=translate, r=rotate, s=scale)
 
     def tb003_init(self, widget):
         """ """
@@ -336,93 +327,6 @@ class Transform(SlotsMaya):
         # UV rotate context
         pm.texRotateContext("texRotateContext", edit=1, snapValue=value)
 
-    # def create_attribute_callback(
-    #     self, objects, attributes, callback_function, cleanup_events=None
-    # ):
-    #     """Creates scriptJobs that listen to changes on specified attributes of one or more objects and executes a callback function.
-
-    #     Parameters:
-    #         objects (str/obj/list): A single PyMEL object or a list of PyMEL objects to monitor.
-    #         attributes (str/list): A single attribute or list of attributes to monitor (e.g., "translateX" or ["translateX", "rotateY"]).
-    #         callback_function (str): The function to call when any of the specified attributes change.
-    #         cleanup_event: Optional. A Maya event (as a string) that, when triggered, will delete the created scriptJobs.
-
-    #     Returns:
-    #         (list) The scriptJob IDs for the created scriptJobs.
-    #     """
-    #     import pythontk as ptk  # Assuming this is a custom or third-party utility module
-
-    #     objects = pm.ls(objects, objectsOnly=True)
-    #     job_ids = []
-
-    #     for obj in objects:
-    #         for attr in ptk.make_iterable(attributes):
-    #             attr_name = f"{obj}.{attr}"
-    #             print(0, attr_name)
-    #             job_id = pm.scriptJob(
-    #                 attributeChange=[attr_name, callback_function],
-    #                 runOnce=False,
-    #                 killWithScene=True,
-    #             )
-    #             job_ids.append(job_id)
-
-    #     # if cleanup_events:
-    #     #     for cleanup_event in ptk.make_iterable(cleanup_events):
-    #     #         print(2, cleanup_event)
-    #     #         self.cleanup_callback = lambda ids=job_ids: [
-    #     #             pm.scriptJob(kill=job_id, force=True) for job_id in ids
-    #     #         ]
-    #     #         pm.scriptJob(event=[cleanup_event, self.cleanup_callback])
-
-    #     return job_ids
-
-    def b000(self, widget):
-        """Object Transform Attributes"""
-        try:
-            obj = pm.ls(sl=1, objectsOnly=1)[0]
-        except IndexError:
-            self.sb.message_box(
-                "<b>Nothing selected.</b><br>The operation requires a single selected object."
-            )
-            return
-
-        node = mtk.get_transform_node(obj)
-        params = [
-            "translateX",
-            "translateY",
-            "translateZ",
-            "rotateX",
-            "rotateY",
-            "rotateZ",
-            "scaleX",
-            "scaleY",
-            "scaleZ",
-        ]
-
-        try:
-            window = self.sb.AttributeWindow(
-                node,
-                window_title=node.name(),
-                get_attribute_func=lambda: mtk.get_node_attributes(node, params),
-                set_attribute_func=lambda a, v: mtk.set_node_attributes(node, **{a: v}),
-                float_precision=3,
-            )
-            # # Assuming create_attribute_callback is available and correctly defined
-            # self.transform_script_job = self.create_attribute_callback(
-            #     objects=node,
-            #     attributes=params,
-            #     callback_function=window.refresh_attributes,
-            #     cleanup_events="SelectionChanged",
-            # )
-
-            window.set_style(theme="dark")
-            window.set_flags(WindowStaysOnTopHint=True)
-
-            window.show()
-
-        except Exception as e:
-            pm.error(f"An error occurred while getting parameter values: {e}")
-
     def b001(self):
         """Match Scale"""
         selection = pm.ls(orderedSelection=True, flatten=True)
@@ -440,16 +344,6 @@ class Transform(SlotsMaya):
     def b002(self):
         """Un-Freeze Transforms"""
         mtk.restore_transforms(pm.selected())
-
-        # Debug: Final state
-        obj = pm.selected()
-        print(
-            f"Final state: {obj} - "
-            f"Translate: {pm.xform(obj, query=True, translation=True, worldSpace=True)}, "
-            f"Rotate: {pm.xform(obj, query=True, rotation=True, worldSpace=True)}, "
-            f"RotatePivot: {pm.xform(obj, query=True, rotatePivot=True, worldSpace=True)}, "
-            f"ScalePivot: {pm.xform(obj, query=True, scalePivot=True, worldSpace=True)}"
-        )
 
     def setTransformSnap(self, ctx, state):
         """Set the transform tool's move, rotate, and scale snap states.

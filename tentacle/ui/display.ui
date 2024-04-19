@@ -10,7 +10,7 @@
     <x>0</x>
     <y>0</y>
     <width>200</width>
-    <height>374</height>
+    <height>355</height>
    </rect>
   </property>
   <property name="tabShape">
@@ -75,25 +75,6 @@
          <property name="bottomMargin">
           <number>0</number>
          </property>
-         <item>
-          <widget class="QPushButton" name="b001">
-           <property name="minimumSize">
-            <size>
-             <width>0</width>
-             <height>20</height>
-            </size>
-           </property>
-           <property name="maximumSize">
-            <size>
-             <width>16777215</width>
-             <height>20</height>
-            </size>
-           </property>
-           <property name="text">
-            <string>Toggle Visibility</string>
-           </property>
-          </widget>
-         </item>
          <item>
           <widget class="QPushButton" name="b002">
            <property name="minimumSize">
@@ -210,7 +191,7 @@
             <string>Material Override: Override with UV checker</string>
            </property>
            <property name="text">
-            <string>UV</string>
+            <string>UV Override</string>
            </property>
           </widget>
          </item>

@@ -13,42 +13,6 @@ class Normals(SlotsMaya):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-    def tb000_init(self, widget):
-        """ """
-        widget.menu.add(
-            "QSpinBox",
-            setPrefix="Display Size: ",
-            setObjectName="s001",
-            set_limits=[1, 100],
-            setValue=1,
-            setToolTip="Normal display size.",
-        )
-
-    def tb000(self, widget):
-        """Display Face Normals"""
-        size = widget.menu.s001.value()
-        # state = pm.polyOptions (query=True, displayNormal=True)
-        state = ptk.cycle([1, 2, 3, 0], "displayNormals")
-        if state == 0:  # off
-            pm.polyOptions(displayNormal=0, sizeNormal=0)
-            pm.polyOptions(displayTangent=False)
-            mtk.viewport_message("Normals Display <hl>Off</hl>.")
-
-        if state == 1:  # facet
-            pm.polyOptions(displayNormal=1, facet=True, sizeNormal=size)
-            pm.polyOptions(displayTangent=False)
-            mtk.viewport_message("<hl>Facet</hl> Normals Display <hl>On</hl>.")
-
-        if state == 2:  # Vertex
-            pm.polyOptions(displayNormal=1, point=True, sizeNormal=size)
-            pm.polyOptions(displayTangent=False)
-            mtk.viewport_message("<hl>Vertex</hl> Normals Display <hl>On</hl>.")
-
-        if state == 3:  # tangent
-            pm.polyOptions(displayTangent=True)
-            pm.polyOptions(displayNormal=0)
-            mtk.viewport_message("<hl>Tangent</hl> Display <hl>On</hl>.")
-
     def tb001_init(self, widget):
         """ """
         widget.menu.add(
@@ -106,27 +70,6 @@ class Normals(SlotsMaya):
         objects = pm.ls(selection, objectsOnly=True)
         pm.polyOptions(objects, se=soft_edge_display)
 
-    def b004(self, widget):
-        """Toggle lock/unlock vertex normals."""
-        selection = pm.ls(sl=True)
-        if not selection:
-            self.sb.message_box("Operation requires at least one selected object.")
-            return
-
-        vertices = pm.polyListComponentConversion(
-            selection, fromFace=True, toVertex=True
-        )
-
-        # Determine the current normal state by querying one vertex
-        current_state = pm.polyNormalPerVertex(vertices[0], q=True, freezeNormal=True)
-
-        if current_state:
-            pm.polyNormalPerVertex(vertices, unFreezeNormal=True)
-            mtk.viewport_message("Normals <hl>UnLocked</hl>.")
-        else:
-            pm.polyNormalPerVertex(vertices, freezeNormal=True)
-            mtk.viewport_message("Normals <hl>Locked</hl>.")
-
     def tb004_init(self, widget):
         """ """
         widget.menu.add(
@@ -164,11 +107,21 @@ class Normals(SlotsMaya):
 
     def b003(self):
         """Soft Edge Display"""
-        g_cond = pm.polyOptions(q=1, ae=1)
-        if g_cond[0]:
-            pm.polyOptions(se=1)
-        else:
-            pm.polyOptions(ae=1)
+        from mayatk.edit_utils.macros import Macros
+
+        Macros.m_soft_edge_display()
+
+    def b004(self, widget):
+        """Toggle lock/unlock vertex normals."""
+        from mayatk.edit_utils.macros import Macros
+
+        Macros.m_lock_vertex_normals()
+
+    def b005(self, widget):
+        """Display Face Normals"""
+        from mayatk.edit_utils.macros import Macros
+
+        Macros.m_normals_display()
 
     def b006(self):
         """Set To Face"""
