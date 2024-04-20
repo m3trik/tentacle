@@ -86,10 +86,9 @@ class Uv(SlotsMaya):
         scale = widget.menu.s009.value()
         rotate = widget.menu.s010.value()
         UDIM = widget.menu.s004.value()
-        mapSize = self.get_map_size()
+        map_size = self.get_map_size()
 
         U, D, I, M = [int(i) for i in str(UDIM)]  # UDIM ex. '1001'
-        map_size = self.get_map_size()
         shellPadding = mtk.calculate_uv_padding(map_size, normalize=True)
         tilePadding = shellPadding / 2
 
@@ -104,7 +103,7 @@ class Uv(SlotsMaya):
 
         pm.u3dLayout(
             uvs_flattened,
-            resolution=mapSize,
+            resolution=map_size,
             shellSpacing=shellPadding,
             tileMargin=tilePadding,
             preScaleMode=scale,
@@ -349,14 +348,14 @@ class Uv(SlotsMaya):
         orient = widget.menu.chk007.isChecked()
         stackSimilar = widget.menu.chk022.isChecked()
         tolerance = widget.menu.s000.value()
-        mapSize = self.get_map_size()
+        map_size = self.get_map_size()
 
         pm.u3dUnfold(
             iterations=1,
             pack=0,
             borderintersection=1,
             triangleflip=1,
-            mapsize=mapSize,
+            mapsize=map_size,
             roomspace=0,
         )  # pm.mel.performUnfold(0)
 
@@ -367,7 +366,7 @@ class Uv(SlotsMaya):
                 surfangle=1,
                 borderintersection=0,
                 triangleflip=1,
-                mapsize=mapSize,
+                mapsize=map_size,
                 roomspace=0,
             )  # pm.mel.performPolyOptimizeUV(0)
 
@@ -526,10 +525,10 @@ class Uv(SlotsMaya):
     def b004(self):
         """Set Texel Density"""
         density = self.ui.s003.value()
-        mapSize = self.get_map_size()
+        map_size = self.get_map_size()
 
         for obj in pm.selected():
-            mtk.set_texel_density(obj, density, mapSize)
+            mtk.set_texel_density(obj, density, map_size)
 
     def b005(self):
         """Cut UV's"""
