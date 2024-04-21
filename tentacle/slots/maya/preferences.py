@@ -20,16 +20,29 @@ class Preferences(SlotsMaya):
 
         # Change generic button text to Maya specific
         self.ui.parent_app.setTitle("Maya")
-        self.ui.b010.setText("Maya Preferences")
         self.submenu.b010.setText("Maya Preferences")
 
     def cmb001_init(self, widget):
-        """ """
+        """Initializes the combo box with unit options."""
+        if not widget.is_initialized:
+            # Set up a script job to update the index when the unit changes
+            widget.unitChangeJob = pm.scriptJob(
+                event=[
+                    "linearUnitChanged",
+                    lambda: widget.setCurrentIndex(
+                        widget.items.index(
+                            pm.currentUnit(q=True, fullName=True, linear=True)
+                        )
+                    ),
+                ],
+                runOnce=False,
+            )
+
         items = {i.upper(): i for i in mtk.Project.SCENE_UNIT_VALUES}
         widget.add(items)
-        # Get/Set current linear value.
-        index = widget.items.index(pm.currentUnit(q=True, fullName=1, linear=1))
-        widget.setCurrentIndex(index)
+        widget.setCurrentIndex(
+            widget.items.index(pm.currentUnit(q=True, fullName=True, linear=True))
+        )
 
     def cmb001(self, index, widget):
         """Set Working Units: Linear"""
@@ -39,14 +52,28 @@ class Preferences(SlotsMaya):
 
     def cmb002_init(self, widget):
         """Initializes the combo box with frame rate options."""
-        items = {  # Generate formatted frame rate items from the FRAME_RATE_VALUES
+        if not widget.is_initialized:
+            # Set up a script job to update the index when the frame rate changes
+            widget.timeChangeJob = pm.scriptJob(
+                event=[
+                    "timeChanged",
+                    lambda: widget.setCurrentIndex(
+                        widget.items.index(
+                            pm.currentUnit(q=True, fullName=True, time=True)
+                        )
+                    ),
+                ],
+                runOnce=False,
+            )
+
+        items = {
             mtk.AnimUtils.format_frame_rate_str(key): key
             for key in mtk.AnimUtils.FRAME_RATE_VALUES
         }
         widget.add(items)
-        # Get/Set current time value.
-        index = widget.items.index(pm.currentUnit(q=True, fullName=1, time=1))
-        widget.setCurrentIndex(index)
+        widget.setCurrentIndex(
+            widget.items.index(pm.currentUnit(q=True, fullName=True, time=True))
+        )
 
     def cmb002(self, index, widget):
         """Set Working Units: Time"""

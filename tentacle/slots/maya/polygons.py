@@ -159,27 +159,34 @@ class Polygons(SlotsMaya):
 
         # Get the name and parent of the first selected object
         base_mesh = sel[0]
-        objName = base_mesh.name()
-        objParent = pm.listRelatives(base_mesh, parent=True)
+        base_mesh_name = base_mesh.name()
+        base_mesh_parent = (
+            pm.listRelatives(base_mesh, parent=True, fullPath=True) or None
+        )
+
+        # Ensure the parent group stays by adding a temporary null object
+        if base_mesh_parent:
+            temp_null = pm.spaceLocator(name="deleteMe")
+            pm.parent(temp_null, base_mesh_parent[0])
 
         # Combine meshes
-        newObj = pm.polyUnite(sel, ch=True, mergeUVSets=True, centerPivot=center_pivot)[
-            0
-        ]
+        combined_mesh = pm.polyUnite(
+            sel, ch=True, mergeUVSets=True, centerPivot=center_pivot
+        )[0]
+        combined_mesh = pm.rename(combined_mesh, base_mesh_name)  # Rename immediately
 
         # Optionally bake history
         if bake_history:
-            pm.bakePartialHistory(newObj, all=True)
+            pm.bakePartialHistory(combined_mesh, all=True)
 
         # Reparent to the original parent of the first selected object
-        if objParent:
-            pm.parent(newObj, objParent[0])
-
-        # Rename the new object after all other operations
-        pm.rename(newObj, objName)
+        if base_mesh_parent:
+            pm.parent(combined_mesh, base_mesh_parent[0])
+            # Safe to delete the temp null now
+            pm.delete(temp_null)
 
         # Check for an existing isolation set and add the new object if one exists
-        mtk.add_to_isolation_set(objName)
+        mtk.add_to_isolation_set(combined_mesh.name())
 
     def tb003_init(self, widget):
         """ """
