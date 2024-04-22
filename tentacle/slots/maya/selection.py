@@ -263,19 +263,19 @@ class Selection(SlotsMaya):
         """Ignore Backfacing (Camera Based Selection)"""
         if state:
             pm.selectPref(useDepth=True)
-            self.sb.message_box("Camera-based selection <hl>On</hl>.")
+            self.sb.message_box("Camera-based selection <hl>ON</hl>.")
         else:
             pm.selectPref(useDepth=False)
-            self.sb.message_box("Camera-based selection <hl>Off</hl>.")
+            self.sb.message_box("Camera-based selection <hl>OFF</hl>.")
 
     def chk008(self, state, widget):
         """Toggle Soft Selection"""
         if state:
             pm.softSelect(edit=1, softSelectEnabled=True)
-            self.sb.message_box("Soft Select <hl>On</hl>.")
+            self.sb.message_box("Soft Select <hl>ON</hl>.")
         else:
             pm.softSelect(edit=1, softSelectEnabled=False)
-            self.sb.message_box("Soft Select <hl>Off</hl>.")
+            self.sb.message_box("Soft Select <hl>OFF</hl>.")
 
     def chkxxx(self, **kwargs):
         """Transform Constraints: Constraint CheckBoxes"""
