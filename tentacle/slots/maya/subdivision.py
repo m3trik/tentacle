@@ -48,7 +48,11 @@ class Subdivision(SlotsMaya):
                 mtk.set_node_attributes(obj, smoothLevel=value)
                 # SubDivision proxy options: 'divisions'
                 pm.optionVar(intValue=["proxyDivisions", value])
-                mtk.viewport_message(f"{obj}: Division Level: <hl>{value}</hl>")
+                pm.inViewMessage(
+                    statusMessage=f"{obj}: Division Level: <hl>{value}</hl>",
+                    pos="topCenter",
+                    fade=True,
+                )
 
     def s001(self, value: int, widget: object) -> None:
         """Tesselation Level"""
@@ -58,7 +62,11 @@ class Subdivision(SlotsMaya):
             if hasattr(obj, "smoothLevel"):
                 # Correctly pass attributes as keyword arguments
                 mtk.set_node_attributes(obj, smoothTessLevel=value)
-                mtk.viewport_message(f"{obj}: Tesselation Level: <hl>{value}</hl>")
+                pm.inViewMessage(
+                    statusMessage=f"{obj}: Tesselation Level: <hl>{value}</hl>",
+                    pos="topCenter",
+                    fade=True,
+                )
 
     def b000(self):
         """Quadrangulate"""

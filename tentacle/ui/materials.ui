@@ -250,6 +250,19 @@
              </widget>
             </item>
             <item>
+             <spacer name="verticalSpacer">
+              <property name="orientation">
+               <enum>Qt::Vertical</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>0</width>
+                <height>10</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+            <item>
              <widget class="PushButton" name="b005">
               <property name="enabled">
                <bool>true</bool>
@@ -273,19 +286,6 @@
                <string>Assign Current</string>
               </property>
              </widget>
-            </item>
-            <item>
-             <spacer name="verticalSpacer">
-              <property name="orientation">
-               <enum>Qt::Vertical</enum>
-              </property>
-              <property name="sizeHint" stdset="0">
-               <size>
-                <width>0</width>
-                <height>10</height>
-               </size>
-              </property>
-             </spacer>
             </item>
            </layout>
           </widget>

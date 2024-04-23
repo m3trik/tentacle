@@ -20,10 +20,6 @@ class Display(SlotsMaya):
         """Set Wireframe color"""
         pm.mel.objectColorPalette()
 
-    def b001(self):
-        """Toggle Visibility"""
-        pm.mel.ToggleVisibilityAndKeepSelection()
-
     def b002(self):
         """Hide Selected"""
         selection = pm.ls(sl=True)
@@ -73,54 +69,15 @@ class Display(SlotsMaya):
 
     def b009(self):
         """Toggle Material Override"""
-        currentPanel = mtk.get_panel(withFocus=True)
-        state = pm.modelEditor(currentPanel, q=True, useDefaultMaterial=1)
-        pm.modelEditor(currentPanel, edit=1, useDefaultMaterial=not state)
-        mtk.viewport_message("Default Material Override: <hl>{}</hl>.".format(state))
+        from mayatk.edit_utils.macros import Macros
+
+        Macros.m_material_override()
 
     def b011(self):
-        """Toggle Component Id Display"""
-        index = ptk.cycle([0, 1, 2, 3, 4], "componentID")
+        """Toggle Component ID Display"""
+        from mayatk.edit_utils.macros import Macros
 
-        visible = pm.polyOptions(q=True, displayItemNumbers=1)
-        if not visible:
-            self.sb.message_box("Nothing selected.")
-            return
-
-        dinArray = [(1, 0, 0, 0), (0, 1, 0, 0), (0, 0, 1, 0), (0, 0, 0, 1)]
-
-        if index == 4:
-            i = 0
-            for _ in range(4):
-                if visible[i] is True:
-                    pm.polyOptions(
-                        relative=1, displayItemNumbers=dinArray[i], activeObjects=1
-                    )
-                i += 1
-
-        elif visible[index] is not True and index != 4:
-            pm.polyOptions(
-                relative=1, displayItemNumbers=dinArray[index], activeObjects=1
-            )
-
-            i = 0
-            for _ in range(4):
-                if visible[i] is True and i != index:
-                    pm.polyOptions(
-                        relative=1, displayItemNumbers=dinArray[i], activeObjects=1
-                    )
-                i += 1
-
-        if index == 0:
-            mtk.viewport_message("[1,0,0,0] <hl>vertIDs</hl>.")
-        elif index == 1:
-            mtk.viewport_message("[0,1,0,0] <hl>edgeIDs</hl>.")
-        elif index == 2:
-            mtk.viewport_message("[0,0,1,0] <hl>faceIDs</hl>.")
-        elif index == 3:
-            mtk.viewport_message("[0,0,0,1] <hl>compIDs(UV)</hl>.")
-        elif index == 4:
-            mtk.viewport_message("component ID <hl>Off</hl>.")
+        Macros.m_component_id_display()
 
     def b012(self):
         """Wireframe Non Active (Wireframe All But The Selected Item)"""
@@ -130,11 +87,21 @@ class Display(SlotsMaya):
 
     def b013(self):
         """Explode View GUI"""
-        module = mtk.display_utils.exploded_view
-        slot_class = module.ExplodedViewSlots
+        from mayatk.display_utils import exploded_view
 
-        self.sb.register("exploded_view.ui", slot_class, base_dir=module)
+        slot_class = exploded_view.ExplodedViewSlots
+
+        self.sb.register("exploded_view.ui", slot_class, base_dir=exploded_view)
         self.sb.parent().set_ui("exploded_view")
+
+    def b014(self):
+        """Color Manager GUI"""
+        from mayatk.display_utils import color_manager
+
+        slot_class = color_manager.ColorManagerSlots
+
+        self.sb.register("color_manager.ui", slot_class, base_dir=color_manager)
+        self.sb.parent().set_ui("color_manager")
 
     def b021(self):
         """Template Selected"""

@@ -44,7 +44,7 @@ class Edit(SlotsMaya):
                     node,
                     window_title=node.name(),
                     get_attribute_func=lambda: mtk.get_node_attributes(
-                        node, mapping=True, visible=True, keyable=True
+                        node, visible=True, keyable=True
                     ),
                     set_attribute_func=lambda n, v: getattr(node, n).set(v),
                 )
@@ -70,9 +70,16 @@ class Edit(SlotsMaya):
         )  # add(self.sb.CheckBox, setText='Select Only', setObjectName='chk004', setTristate=True, setCheckState=2, setToolTip='Select and/or Repair matching geometry. <br>0: Repair Only<br>1: Repair and Select<br>2: Select Only')
         widget.menu.add(
             "QCheckBox",
+            setText="Delete History",
+            setObjectName="chk026",
+            setChecked=True,
+            setToolTip="Bake non-deformer history before executing the cleanup operation.",
+        )
+        widget.menu.add(
+            "QCheckBox",
             setText="Merge vertices",
             setObjectName="chk024",
-            setChecked=True,
+            setChecked=False,
             setToolTip="Merge overlapping vertices on the object(s) before executing the clean command.",
         )
         widget.menu.add(
@@ -250,8 +257,12 @@ class Edit(SlotsMaya):
         overlappingDuplicateObjects = widget.menu.chk022.isChecked()
         # Search for duplicates of any selected objects while omitting the initially selected objects.
         omitSelectedObjects = widget.menu.chk023.isChecked()
+        delete_history = widget.menu.chk026.isChecked()
 
         objects = pm.ls(sl=1, transforms=1)
+
+        if delete_history:
+            pm.bakePartialHistory(objects, prePostDeformers=True)
 
         if overlappingDuplicateObjects:
             duplicates = mtk.get_overlapping_duplicates(
@@ -336,10 +347,10 @@ class Edit(SlotsMaya):
 
         # Delete history
         if deformers:
-            pm.delete(objects, constructionHistory=1)
+            pm.delete(objects, constructionHistory=True)
             self.sb.message_box("<hl>Delete history</hl>")
         else:
-            pm.bakePartialHistory(objects, prePostDeformers=1)
+            pm.bakePartialHistory(objects, prePostDeformers=True)
             self.sb.message_box("<hl>Delete non-deformer history</hl>")
 
         # Optimize the scene
@@ -376,10 +387,11 @@ class Edit(SlotsMaya):
 
     def b000(self):
         """Cut On Axis"""
-        module = mtk.edit_utils.cut_on_axis
-        slot_class = module.CutOnAxisSlots
+        from mayatk.edit_utils import cut_on_axis
 
-        self.sb.register("cut_on_axis.ui", slot_class, base_dir=module)
+        slot_class = cut_on_axis.CutOnAxisSlots
+
+        self.sb.register("cut_on_axis.ui", slot_class, base_dir=cut_on_axis)
         self.sb.cut_on_axis.slots.preview.enable_on_show = True
         self.sb.parent().set_ui("cut_on_axis")
 

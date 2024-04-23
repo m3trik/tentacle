@@ -27,10 +27,11 @@ class Materials(SlotsMaya):
             setText="HDR Manager",
             setObjectName="b000",
         )
-        module = mtk.mat_utils.hdr_manager
-        slot_class = module.HdrManagerSlots
+        from mayatk.mat_utils import hdr_manager
 
-        self.sb.register("hdr_manager.ui", slot_class, base_dir=module)
+        slot_class = hdr_manager.HdrManagerSlots
+
+        self.sb.register("hdr_manager.ui", slot_class, base_dir=hdr_manager)
         widget.menu.b000.clicked.connect(lambda: self.sb.parent().set_ui("hdr_manager"))
 
         # Add a button to launch stringray arnold shader.
@@ -40,10 +41,13 @@ class Materials(SlotsMaya):
             setText="Create Stingray Shader",
             setObjectName="b001",
         )
-        module = mtk.mat_utils.stingray_arnold_shader
-        slot_class = module.StingrayArnoldShaderSlots
+        from mayatk.mat_utils import stingray_arnold_shader
 
-        self.sb.register("stingray_arnold_shader.ui", slot_class, base_dir=module)
+        slot_class = stingray_arnold_shader.StingrayArnoldShaderSlots
+
+        self.sb.register(
+            "stingray_arnold_shader.ui", slot_class, base_dir=stingray_arnold_shader
+        )
         widget.menu.b001.clicked.connect(
             lambda: self.sb.parent().set_ui("stingray_arnold_shader")
         )

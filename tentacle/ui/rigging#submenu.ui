@@ -218,37 +218,6 @@
      <bool>false</bool>
     </property>
    </widget>
-   <widget class="PushButton" name="tb004">
-    <property name="geometry">
-     <rect>
-      <x>200</x>
-      <y>400</y>
-      <width>120</width>
-      <height>20</height>
-     </rect>
-    </property>
-    <property name="minimumSize">
-     <size>
-      <width>0</width>
-      <height>20</height>
-     </size>
-    </property>
-    <property name="maximumSize">
-     <size>
-      <width>999</width>
-      <height>20</height>
-     </size>
-    </property>
-    <property name="toolTip">
-     <string>Lock/Unlock object attributes.</string>
-    </property>
-    <property name="text">
-     <string>Unlock Attributes</string>
-    </property>
-    <property name="checkable">
-     <bool>true</bool>
-    </property>
-   </widget>
    <widget class="QPushButton" name="b003">
     <property name="geometry">
      <rect>

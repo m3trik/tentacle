@@ -1,6 +1,7 @@
 # !/usr/bin/python
 # coding=utf-8
 import os
+import threading
 
 try:
     import pymel.core as pm
@@ -17,16 +18,29 @@ class Init(SlotsMaya):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        mayapy = os.path.join(mtk.get_maya_info("install_path"), "bin", "mayapy.exe")
-        pkg_mgr = ptk.PkgManager(python_path=mayapy)
-        this_pkg = "tentacletk"
-        self.installed_ver = pkg_mgr.installed_version(this_pkg)
-        self.latest_ver = pkg_mgr.latest_version(this_pkg)
+        # Start the version check in a separate thread
+        threading.Thread(target=self.check_version, daemon=True).start()
 
         try:  # set the 'hud_text' textEdit to connect to the 'contruct_hud' method on show.
             self.sb.init.hud_text.shown.connect(self.construct_hud)
         except AttributeError as error:  # (an inherited class)
             print(error)
+
+    @property
+    def new_version_available(self):
+        """Check if a new version is available; initiates version check on first access."""
+        try:
+            return self.installed_ver != self.latest_ver
+        except AttributeError:
+            return
+
+    def check_version(self):
+        """Check the installed and latest versions in a separate thread."""
+        mayapy = os.path.join(mtk.get_maya_info("install_path"), "bin", "mayapy.exe")
+        pkg_mgr = ptk.PkgManager(python_path=mayapy)
+        this_pkg = "tentacletk"
+        self._installed_ver = pkg_mgr.installed_version(this_pkg)
+        self._latest_ver = pkg_mgr.latest_version(this_pkg)
 
     def construct_hud(self):
         """Add current scene attributes to the hud lineEdit.
@@ -40,9 +54,9 @@ class Init(SlotsMaya):
             return
 
         if not selection:
-            if self.installed_ver != self.latest_ver:
+            if self.new_version_available:
                 hud.insertText(
-                    f'New release available: <font style="color: Cyan;">{self.latest_ver}</font>'
+                    f'New release available: <font style="color: Cyan;">{self._latest_ver}</font>'
                 )
 
             # Display the autosave state if it is not on
