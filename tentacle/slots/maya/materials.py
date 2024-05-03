@@ -20,6 +20,27 @@ class Materials(SlotsMaya):
 
     def header_init(self, widget):
         """ """
+        # Add a button to open the hypershade editor.
+        widget.menu.add(
+            self.sb.PushButton,
+            setToolTip="Open the Hypershade Window.",
+            setText="Hypershade Editor",
+            setObjectName="b050",
+        )
+        widget.menu.b050.clicked.connect(pm.mel.HypershadeWindow)
+
+        widget.menu.add(
+            self.sb.PushButton,
+            setToolTip="Open the current project's source images folder.",
+            setText="Source Images",
+            setObjectName="b051",
+        )
+        import os
+
+        widget.menu.b051.clicked.connect(
+            lambda: os.startfile(mtk.get_maya_info("workspace"))
+        )
+
         # Add a button to launch the hdr manager.
         widget.menu.add(
             self.sb.PushButton,
@@ -29,9 +50,9 @@ class Materials(SlotsMaya):
         )
         from mayatk.mat_utils import hdr_manager
 
-        slot_class = hdr_manager.HdrManagerSlots
-
-        self.sb.register("hdr_manager.ui", slot_class, base_dir=hdr_manager)
+        self.sb.register(
+            "hdr_manager.ui", hdr_manager.HdrManagerSlots, base_dir=hdr_manager
+        )
         widget.menu.b000.clicked.connect(lambda: self.sb.parent().set_ui("hdr_manager"))
 
         # Add a button to launch stringray arnold shader.
@@ -43,10 +64,10 @@ class Materials(SlotsMaya):
         )
         from mayatk.mat_utils import stingray_arnold_shader
 
-        slot_class = stingray_arnold_shader.StingrayArnoldShaderSlots
-
         self.sb.register(
-            "stingray_arnold_shader.ui", slot_class, base_dir=stingray_arnold_shader
+            "stingray_arnold_shader.ui",
+            stingray_arnold_shader.StingrayArnoldShaderSlots,
+            base_dir=stingray_arnold_shader,
         )
         widget.menu.b001.clicked.connect(
             lambda: self.sb.parent().set_ui("stingray_arnold_shader")
@@ -118,10 +139,10 @@ class Materials(SlotsMaya):
             widget.on_editing_finished.connect(
                 lambda text: pm.rename(widget.currentData(), text)
             )
-            # Update the assign button with the new material name.
-            widget.on_editing_finished.connect(self.ui.b005.init_slot)
             # Initialize the widget every time before the popup is shown.
             widget.before_popup_shown.connect(widget.init_slot)
+            # Update the assign button with the new material name.
+            widget.on_editing_finished.connect(self.ui.b005.init_slot)
             # Add the current material name to the assign button.
             widget.currentIndexChanged.connect(self.ui.b005.init_slot)
 
@@ -267,6 +288,9 @@ class Materials(SlotsMaya):
     def b005_init(self, widget):
         """ """
         widget.refresh = True
+        if not self.ui.cmb002.is_initialized:
+            self.ui.cmb002.init_slot()
+
         current_material = self.ui.cmb002.currentData()
         text = f"Assign: {current_material}"
         submenu_widget = self.submenu.b005

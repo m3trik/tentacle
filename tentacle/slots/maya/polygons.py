@@ -61,66 +61,6 @@ class Polygons(SlotsMaya):
 
         mtk.merge_vertices(objects, tolerance=tolerance, selected_only=componentMode)
 
-    def tb001_init(self, widget):
-        """ """
-        widget.menu.add(
-            "QRadioButton",
-            setText="Linear",
-            setObjectName="chk003",
-            setChecked=True,
-            set_fixed_height=20,
-            setToolTip="Curve Type: Linear.\n(not valid with edges that share a vertex)",
-        )
-        widget.menu.add(
-            "QRadioButton",
-            setText="Blend",
-            setObjectName="chk004",
-            set_fixed_height=20,
-            setToolTip="Curve Type: Blend.\n(not valid with edges that share a vertex)",
-        )
-        widget.menu.add(
-            "QRadioButton",
-            setText="Curve",
-            setObjectName="chk005",
-            set_fixed_height=20,
-            setToolTip="Curve Type: Curve.\n(not valid with edges that share a vertex)",
-        )
-        widget.menu.add(
-            "QSpinBox",
-            setPrefix="Divisions: ",
-            setObjectName="s003",
-            set_limits=[0],
-            setValue=0,
-            set_fixed_height=20,
-            setToolTip="Subdivision Amount.\n(not valid with edges that share a vertex)",
-        )
-
-    def tb001(self, widget):
-        """Bridge"""
-        curve_type = (
-            0
-            if widget.menu.chk003.isChecked()
-            else 1
-            if widget.menu.chk004.isChecked()
-            else 2
-        )
-        divisions = widget.menu.s003.value()
-
-        selection = pm.ls(sl=1)
-        edges = pm.filterExpand(selection, selectionMask=32, expand=1)
-        if not edges:
-            return self.sb.message_box(
-                "<strong>Nothing selected</strong>.<br>Operation requires a edge selection."
-            )
-
-        try:  # Bridge the edges
-            node = pm.polyBridgeEdge(edges, curveType=curve_type, divisions=divisions)
-            # Fill edges if they lie on a border
-            pm.polyCloseBorder(edges)
-            return node
-        except RuntimeError:  # Bridge edges that share a vertex
-            mtk.bridge_connected_edges(edges)
-
     def tb002_init(self, widget):
         # Remove 'Merge' and add 'Bake Partial History' option
         widget.menu.setTitle("COMBINE")
@@ -236,13 +176,11 @@ class Polygons(SlotsMaya):
 
     def tb004(self, widget):
         """Bevel"""
-        from mayatk.edit_utils import bevel_edges
+        from mayatk.edit_utils import bevel
 
-        slot_class = bevel_edges.BevelEdgesSlots
-
-        self.sb.register("bevel_edges.ui", slot_class, base_dir=bevel_edges)
-        self.sb.bevel_edges.slots.preview.enable_on_show = True
-        self.sb.parent().set_ui("bevel_edges")
+        self.sb.register("bevel.ui", bevel.BevelSlots, base_dir=bevel)
+        self.sb.bevel.slots.preview.enable_on_show = True
+        self.sb.parent().set_ui("bevel")
 
     def tb005_init(self, widget):
         """ """
@@ -429,18 +367,17 @@ class Polygons(SlotsMaya):
 
     def tb008(self, widget):
         """Boolean Operation"""
-        selection = pm.ls(sl=1)
-        if not selection:
+        if not pm.selected():
             return self.sb.message_box(
                 "<strong>Nothing selected</strong>.<br>Operation requires the selection of at least two objects."
             )
-        if widget.menu.chk011.isChecked():  # union
+        if widget.menu.chk011.isChecked():  # Union
             pm.mel.PolygonBooleanIntersection()
 
-        if widget.menu.chk012.isChecked():  # difference
+        if widget.menu.chk012.isChecked():  # Difference
             pm.mel.PolygonBooleanDifference()
 
-        if widget.menu.chk013.isChecked():  # intersection
+        if widget.menu.chk013.isChecked():  # Intersection
             pm.mel.PolygonBooleanIntersection()
 
     def tb009_init(self, widget):
@@ -528,6 +465,29 @@ class Polygons(SlotsMaya):
 
         self.setMergeVertexDistance(p1, p2)
 
+    def b006(self, widget):
+        """Bridge"""
+        selection = pm.ls(sl=1)
+        edges = pm.filterExpand(selection, selectionMask=32, expand=1)
+        if not edges:
+            return self.sb.message_box(
+                "<strong>Nothing selected</strong>.<br>Operation requires a edge selection."
+            )
+        try:  # Bridge the edges
+            node = pm.polyBridgeEdge(edges, curveType=0, divisions=0)
+            # Fill edges if they lie on a border
+            pm.polyCloseBorder(edges)
+            return node
+        except RuntimeError:  # Bridge edges that share a vertex
+            mtk.bridge_connected_edges(edges)
+
+    def b007(self):
+        """Interactive Bridge"""
+        from mayatk.edit_utils import bridge
+
+        self.sb.register("bridge.ui", bridge.BridgeSlots, base_dir=bridge)
+        self.sb.parent().set_ui("bridge")
+
     def b009(self):
         """Collapse Component"""
         if pm.selectType(q=True, facet=1):
@@ -546,10 +506,6 @@ class Polygons(SlotsMaya):
         """Attach"""
         # pm.mel.AttachComponent()
         pm.mel.dR_connectTool()
-
-    def b028(self):
-        """Quad Draw"""
-        pm.mel.dR_quadDrawTool()
 
     def b032(self):
         """Poke"""

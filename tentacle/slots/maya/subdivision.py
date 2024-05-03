@@ -70,25 +70,7 @@ class Subdivision(SlotsMaya):
 
     def b000(self):
         """Quadrangulate"""
-        selection = pm.selected()
-
-        # Ensure there's a selection and it's a mesh
-        if not selection or not isinstance(selection[0], pm.nodetypes.Transform):
-            self.sb.message_box(
-                "No valid objects selected.\nPlease select a mesh or mesh face."
-            )
-            return
-
-        shapes = mtk.get_shape_node(selection)
-        pm.polyQuad(
-            shapes,
-            angle=30,
-            keepGeometryBorder=True,
-            keepTextureBorder=True,
-            keepHardEdge=False,
-            worldSpace=True,
-            constructionHistory=True,
-        )
+        pm.mel.performPolyQuadrangulate(0)
 
     def b005(self):
         """Reduce"""
@@ -139,6 +121,10 @@ class Subdivision(SlotsMaya):
     def b011(self):
         """Apply Smooth Preview"""
         pm.mel.performSmoothMeshPreviewToPolygon()  # convert smooth mesh preview to polygons
+
+    def b028(self):
+        """Quad Draw"""
+        pm.mel.dR_quadDrawTool()
 
     @staticmethod
     def smoothProxy():

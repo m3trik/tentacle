@@ -16,6 +16,25 @@ class File(SlotsMaya):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
+    def cmb000_init(self, widget):
+        """ """
+        widget.refresh = True
+
+        scenes = {
+            ptk.format_path(f, "file"): f
+            for f in mtk.get_workspace_scenes(recursive=True)
+        }
+        widget.add(
+            scenes,
+            header="Scenes:",
+            clear=True,
+        )
+
+    def cmb000(self, index, widget):
+        """Workspace Scenes"""
+        scene = widget.items[index]
+        pm.openFile(scene, force=True)
+
     def cmb001_init(self, widget):
         """ """
         widget.refresh = True
@@ -215,9 +234,11 @@ class File(SlotsMaya):
         """Open Reference Manager"""
         from mayatk.core_utils import reference_manager
 
-        slot_class = reference_manager.ReferenceManagerSlots
-
-        self.sb.register("reference_manager.ui", slot_class, base_dir=reference_manager)
+        self.sb.register(
+            "reference_manager.ui",
+            reference_manager.ReferenceManagerSlots,
+            base_dir=reference_manager,
+        )
         self.sb.parent().set_ui("reference_manager")
 
     @SlotsMaya.hide_main

@@ -89,18 +89,18 @@ class Display(SlotsMaya):
         """Explode View GUI"""
         from mayatk.display_utils import exploded_view
 
-        slot_class = exploded_view.ExplodedViewSlots
-
-        self.sb.register("exploded_view.ui", slot_class, base_dir=exploded_view)
+        self.sb.register(
+            "exploded_view.ui", exploded_view.ExplodedViewSlots, base_dir=exploded_view
+        )
         self.sb.parent().set_ui("exploded_view")
 
     def b014(self):
         """Color Manager GUI"""
         from mayatk.display_utils import color_manager
 
-        slot_class = color_manager.ColorManagerSlots
-
-        self.sb.register("color_manager.ui", slot_class, base_dir=color_manager)
+        self.sb.register(
+            "color_manager.ui", color_manager.ColorManagerSlots, base_dir=color_manager
+        )
         self.sb.parent().set_ui("color_manager")
 
     def b021(self):

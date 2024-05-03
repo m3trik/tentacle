@@ -39,20 +39,12 @@ class Normals(SlotsMaya):
             setValue=180,
             setToolTip="The hardness to apply to edges with a normal angle less than the threshold.\n0, Edges will appear hard.\n180, Edges will appear soft.\n-1, Will Disable.",
         )
-        widget.menu.add(
-            "QCheckBox",
-            setText="Soft Edge Display",
-            setObjectName="chk007",
-            setChecked=True,
-            setToolTip="Turn on soft edge display for the object.",
-        )
 
     def tb001(self, widget):
         """Set Normals By Angle"""
         angle_threshold = widget.menu.s002.value()
         upper_hardness = widget.menu.s003.value()
         lower_hardness = widget.menu.s004.value()
-        soft_edge_display = widget.menu.chk007.isChecked()
 
         # If value is -1, upper/lower hardess will be disabled.
         upper_hardness = upper_hardness if upper_hardness > -1 else None
@@ -68,7 +60,7 @@ class Normals(SlotsMaya):
         )
 
         objects = pm.ls(selection, objectsOnly=True)
-        pm.polyOptions(objects, se=soft_edge_display)
+        pm.polyOptions(objects, se=True)  # Soft edge display.
 
     def tb004_init(self, widget):
         """ """
@@ -88,17 +80,25 @@ class Normals(SlotsMaya):
 
     def b000(self):
         """Soften Edge Normals"""
-        selection = pm.ls(sl=True, fl=True)
-        if selection:
-            pm.polySoftEdge(selection, angle=180)  # Use maximum angle to soften
-            pm.select(selection)  # Re-select the original selection
+        selection = pm.selected()
+        # Map components to their respective objects
+        components_dict = mtk.map_components_to_objects(selection)
+        # Loop through each object and its corresponding components
+        for obj, components in components_dict.items():
+            pm.polySoftEdge(components, angle=180)  # Use maximum angle to soften
+            pm.polyOptions(obj, se=True)  # Set soft edge display.
+        pm.select(selection)  # Re-select the original selection
 
     def b001(self):
         """Harden all selected edges."""
-        selection = pm.ls(sl=True, fl=True)
-        if selection:
-            pm.polySoftEdge(selection, angle=0)  # Use minimum angle to harden
-            pm.select(selection)  # Re-select the original selection
+        selection = pm.selected()
+        # Map components to their respective objects
+        components_dict = mtk.map_components_to_objects(selection)
+        # Loop through each object and its corresponding components
+        for obj, components in components_dict.items():
+            pm.polySoftEdge(components, angle=0)  # Use minimum angle to harden
+            pm.polyOptions(obj, se=True)  # Set soft edge display.
+        pm.select(selection)  # Re-select the original selection
 
     def b002(self):
         """Transfer Normals"""
