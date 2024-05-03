@@ -43,9 +43,7 @@ class Duplicate(SlotsMaya):
         """Mirror"""
         from mayatk.edit_utils import mirror
 
-        slot_class = mirror.MirrorSlots
-
-        self.sb.register("mirror.ui", slot_class, base_dir=mirror)
+        self.sb.register("mirror.ui", mirror.MirrorSlots, base_dir=mirror)
         self.sb.mirror.slots.preview.enable_on_show = True
         self.sb.parent().set_ui("mirror")
 
@@ -65,27 +63,33 @@ class Duplicate(SlotsMaya):
         """Duplicate Linear"""
         from mayatk.edit_utils import duplicate_linear
 
-        slot_class = duplicate_linear.DuplicateLinearSlots
-
-        self.sb.register("duplicate_linear.ui", slot_class, base_dir=duplicate_linear)
+        self.sb.register(
+            "duplicate_linear.ui",
+            duplicate_linear.DuplicateLinearSlots,
+            base_dir=duplicate_linear,
+        )
         self.sb.parent().set_ui("duplicate_linear")
 
     def b007(self):
         """Duplicate Radial"""
         from mayatk.edit_utils import duplicate_radial
 
-        slot_class = duplicate_radial.DuplicateRadialSlots
-
-        self.sb.register("duplicate_radial.ui", slot_class, base_dir=duplicate_radial)
+        self.sb.register(
+            "duplicate_radial.ui",
+            duplicate_radial.DuplicateRadialSlots,
+            base_dir=duplicate_radial,
+        )
         self.sb.parent().set_ui("duplicate_radial")
 
     def b008(self):
         """Duplicate Grid"""
         from mayatk.edit_utils import duplicate_grid
 
-        slot_class = duplicate_grid.DuplicateGridSlots
-
-        self.sb.register("duplicate_grid.ui", slot_class, base_dir=duplicate_grid)
+        self.sb.register(
+            "duplicate_grid.ui",
+            duplicate_grid.DuplicateGridSlots,
+            base_dir=duplicate_grid,
+        )
         self.sb.parent().set_ui("duplicate_grid")
 
 

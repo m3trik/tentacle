@@ -566,7 +566,7 @@
      </palette>
     </property>
    </widget>
-   <widget class="PushButton" name="tb001">
+   <widget class="QPushButton" name="b006">
     <property name="enabled">
      <bool>true</bool>
     </property>
@@ -574,7 +574,7 @@
      <rect>
       <x>385</x>
       <y>220</y>
-      <width>56</width>
+      <width>96</width>
       <height>19</height>
      </rect>
     </property>
@@ -588,7 +588,38 @@
      <string>Create a bridge between two sets of edges or faces</string>
     </property>
     <property name="text">
-     <string>Bridge</string>
+     <string>Bridge Linear</string>
+    </property>
+    <property name="iconSize">
+     <size>
+      <width>18</width>
+      <height>18</height>
+     </size>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="b007">
+    <property name="enabled">
+     <bool>true</bool>
+    </property>
+    <property name="geometry">
+     <rect>
+      <x>390</x>
+      <y>190</y>
+      <width>116</width>
+      <height>19</height>
+     </rect>
+    </property>
+    <property name="maximumSize">
+     <size>
+      <width>121</width>
+      <height>19</height>
+     </size>
+    </property>
+    <property name="toolTip">
+     <string>Interactive bridge tool.</string>
+    </property>
+    <property name="text">
+     <string>Bridge Interactive</string>
     </property>
     <property name="iconSize">
      <size>

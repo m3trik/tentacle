@@ -112,12 +112,6 @@ class Cameras(SlotsMaya):
             pm.viewSet(back=1)  # initialize the camera view
             pm.hide(cam)
 
-            grp = pm.ls("cameras", transforms=1)
-            if grp and self.is_group(
-                grp[0]
-            ):  # add the new cam to 'cameras' group (if it exists).
-                pm.parent(cam, "cameras")
-
     def b001(self):
         """Cameras: Top View"""
         try:
@@ -143,15 +137,9 @@ class Cameras(SlotsMaya):
             cam, camShape = pm.camera()  # create camera
             pm.lookThru(cam)
 
-            pm.rename(cam, "left")
-            pm.viewSet(leftSide=1)  # initialize the camera view
             pm.hide(cam)
-
-            grp = pm.ls("cameras", transforms=1)
-            if grp and self.is_group(
-                grp[0]
-            ):  # add the new cam to 'cameras' group (if it exists).
-                pm.parent(cam, "cameras")
+            pm.viewSet(leftSide=1)  # initialize the camera view
+            pm.rename(cam, "left")
 
     def b004(self):
         """Cameras: Perspective View"""
@@ -178,37 +166,24 @@ class Cameras(SlotsMaya):
             cam, camShape = pm.camera()  # create camera
             pm.lookThru(cam)
 
-            pm.rename(cam, "bottom")
             pm.viewSet(bottom=1)  # initialize the camera view
             pm.hide(cam)
-
-            grp = pm.ls("cameras", transforms=1)
-            if grp and self.is_group(
-                grp[0]
-            ):  # add the new cam to 'cameras' group (if it exists).
-                pm.parent(cam, "cameras")
+            pm.rename(cam, "bottom")
 
     def b007(self):
         """Cameras: Align View"""
-        selection = pm.ls(sl=1)
+        selection = pm.selected()
         if not selection:
             self.sb.message_box("Nothing Selected.")
             return
 
         if not pm.objExists("alignToPoly"):  # if no camera exists; create camera
             cam, camShape = pm.camera()
-            pm.rename(cam, "alignToPoly")
             pm.hide(cam)
+            pm.rename(cam, "alignToPoly")
 
-            grp = pm.ls("cameras", transforms=1)
-            if grp and self.is_group(
-                grp[0]
-            ):  # add the new cam to 'cameras' group (if it exists).
-                pm.parent(cam, "cameras")
-
-        ortho = int(
-            pm.camera("alignToPoly", q=True, orthographic=1)
-        )  # check if camera view is orthoraphic
+        # Check if camera view is orthoraphic
+        ortho = int(pm.camera("alignToPoly", q=True, orthographic=1))
         if not ortho:
             pm.viewPlace("alignToPoly", ortho=1)
 

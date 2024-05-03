@@ -389,9 +389,9 @@ class Edit(SlotsMaya):
         """Cut On Axis"""
         from mayatk.edit_utils import cut_on_axis
 
-        slot_class = cut_on_axis.CutOnAxisSlots
-
-        self.sb.register("cut_on_axis.ui", slot_class, base_dir=cut_on_axis)
+        self.sb.register(
+            "cut_on_axis.ui", cut_on_axis.CutOnAxisSlots, base_dir=cut_on_axis
+        )
         self.sb.cut_on_axis.slots.preview.enable_on_show = True
         self.sb.parent().set_ui("cut_on_axis")
 
