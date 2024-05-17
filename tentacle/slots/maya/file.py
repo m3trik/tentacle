@@ -16,13 +16,24 @@ class File(SlotsMaya):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
+        self.ui = self.sb.file
+        self.submenu = self.sb.file_submenu
+
+    @Signals("textChanged", "returnPressed")
+    def txt000(self, widget):
+        """Workspace Scenes: Filter"""
+        self.ui.cmb000.init_slot()
+
     def cmb000_init(self, widget):
         """ """
         widget.refresh = True
+        include = self.ui.txt000.text() or None
 
         scenes = {
             ptk.format_path(f, "file"): f
-            for f in mtk.get_workspace_scenes(recursive=True)
+            for f in mtk.get_workspace_scenes(
+                recursive=True, inc=include, basename_only=True
+            )
         }
         widget.add(
             scenes,
@@ -49,7 +60,7 @@ class File(SlotsMaya):
         """Recent Projects"""
         project = widget.items[index]
         pm.workspace.open(project)
-        self.sb.file.cmb006.init_slot()
+        self.ui.cmb006.init_slot()
 
     def cmb002_init(self, widget):
         """ """
@@ -210,7 +221,7 @@ class File(SlotsMaya):
         """Set Workspace"""
         pm.mel.SetProject()
         # refresh project items to reflect new workspace.
-        self.sb.file.cmb006.init_slot()
+        self.ui.cmb006.init_slot()
 
     def lbl004(self):
         """Open current project root"""
@@ -244,20 +255,20 @@ class File(SlotsMaya):
     @SlotsMaya.hide_main
     def b007(self):
         """Import file"""
-        self.sb.file.cmb003.call_slot(0)
+        self.ui.cmb003.call_slot(0)
 
     @SlotsMaya.hide_main
     def b008(self):
         """Export Selection"""
-        self.sb.file.cmb004.call_slot(0)
+        self.ui.cmb004.call_slot(0)
 
     def b015(self):
         """Remove String From Object Names."""
         # asterisk denotes startswith*, *endswith, *contains*
-        from_ = str(self.sb.file.t000.text())
-        to = str(self.sb.file.t001.text())
-        replace = self.sb.file.chk004.isChecked()
-        selected = self.sb.file.chk005.isChecked()
+        from_ = str(self.ui.t000.text())
+        to = str(self.ui.t001.text())
+        replace = self.ui.chk004.isChecked()
+        selected = self.ui.chk005.isChecked()
 
         objects = pm.ls(from_)  # Stores a list of all objects starting with 'from_'
         if selected:  # get user selected objects instead

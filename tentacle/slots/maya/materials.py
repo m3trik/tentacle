@@ -38,7 +38,7 @@ class Materials(SlotsMaya):
         import os
 
         widget.menu.b051.clicked.connect(
-            lambda: os.startfile(mtk.get_maya_info("workspace"))
+            lambda: os.startfile(f"{mtk.get_maya_info('workspace')}/sourcimages")
         )
 
         # Add a button to launch the hdr manager.
@@ -288,8 +288,9 @@ class Materials(SlotsMaya):
     def b005_init(self, widget):
         """ """
         widget.refresh = True
-        if not self.ui.cmb002.is_initialized:
+        if not widget.is_initialized:
             self.ui.cmb002.init_slot()
+            self.ui.cmb002.is_initialized = True
 
         current_material = self.ui.cmb002.currentData()
         text = f"Assign: {current_material}"

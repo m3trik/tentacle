@@ -125,6 +125,32 @@ class Scene(SlotsMaya):
             reverse=reverse,
         )
 
+    def tb002_init(self, widget):
+        """ """
+        widget.menu.add(
+            "QSpinBox",
+            setText="Num Chars",
+            setObjectName="s000",
+            setValue=1,
+            setToolTip="The number of characters to delete.",
+        )
+        widget.menu.add(
+            "QCheckBox",
+            setText="Trailing",
+            setObjectName="chk005",
+            setChecked=True,
+            setToolTip="Whether to delete characters from the rear of the name.",
+        )
+
+    def tb002(self, widget):
+        """Strip Chars"""
+        sel = pm.selected()
+        kwargs = {
+            "num_chars": widget.menu.s000.value(),
+            "trailing": widget.menu.chk005.isChecked(),
+        }
+        mtk.strip_chars(sel, **kwargs)
+
 
 # --------------------------------------------------------------------------------------------
 

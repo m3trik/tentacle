@@ -208,16 +208,18 @@ class Edit(SlotsMaya):
             lambda state: widget.menu.s008.setEnabled(True if state else False)
         )
         widget.menu.chk022.stateChanged.connect(
-            lambda state: self.sb.toggle_multi(
-                widget.menu,
-                setDisabled="chk002-3,chk005,chk010-21,chk024,s006-8",
-                setEnabled="chk023",
-            )
-            if state
-            else self.sb.toggle_multi(
-                widget.menu,
-                setEnabled="chk002-3,chk005,chk010-21,s006-8",
-                setDisabled="chk023",
+            lambda state: (
+                self.sb.toggle_multi(
+                    widget.menu,
+                    setDisabled="chk002-3,chk005,chk010-21,chk024,s006-8",
+                    setEnabled="chk023",
+                )
+                if state
+                else self.sb.toggle_multi(
+                    widget.menu,
+                    setEnabled="chk002-3,chk005,chk010-21,s006-8",
+                    setDisabled="chk023",
+                )
             )
         )  # disable non-relevant options.
 
@@ -261,9 +263,6 @@ class Edit(SlotsMaya):
 
         objects = pm.ls(sl=1, transforms=1)
 
-        if delete_history:
-            pm.bakePartialHistory(objects, prePostDeformers=True)
-
         if overlappingDuplicateObjects:
             duplicates = mtk.get_overlapping_duplicates(
                 retain_given_objects=omitSelectedObjects, select=True, verbose=True
@@ -300,6 +299,7 @@ class Edit(SlotsMaya):
             sharedUVs=sharedUVs,
             nonmanifold=nonmanifold,
             invalidComponents=invalidComponents,
+            bakePartialHistory=delete_history,
         )
 
     def tb001_init(self, widget):
