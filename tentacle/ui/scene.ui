@@ -10,7 +10,7 @@
     <x>0</x>
     <y>0</y>
     <width>200</width>
-    <height>182</height>
+    <height>190</height>
    </rect>
   </property>
   <property name="tabShape">
@@ -210,6 +210,37 @@
            </property>
            <property name="text">
             <string>Convert Case</string>
+           </property>
+           <property name="iconSize">
+            <size>
+             <width>18</width>
+             <height>18</height>
+            </size>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="PushButton" name="tb002">
+           <property name="enabled">
+            <bool>true</bool>
+           </property>
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>20</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>16777215</width>
+             <height>20</height>
+            </size>
+           </property>
+           <property name="toolTip">
+            <string>Deletes characters from the names of the provided objects and renames them.</string>
+           </property>
+           <property name="text">
+            <string>Strip Chars</string>
            </property>
            <property name="iconSize">
             <size>

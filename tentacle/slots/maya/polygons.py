@@ -61,73 +61,6 @@ class Polygons(SlotsMaya):
 
         mtk.merge_vertices(objects, tolerance=tolerance, selected_only=componentMode)
 
-    def tb002_init(self, widget):
-        # Remove 'Merge' and add 'Bake Partial History' option
-        widget.menu.setTitle("COMBINE")
-        widget.menu.add(
-            "QCheckBox",
-            setText="Bake Partial History",
-            setObjectName="chk_bake_history",
-            setChecked=True,
-            set_fixed_height=20,
-            setToolTip="Bake the construction history of the base mesh into its current state.",
-        )
-        # Add 'Center Pivot' option
-        widget.menu.add(
-            "QCheckBox",
-            setText="Center Pivot",
-            setObjectName="chk_center_pivot",
-            setChecked=True,
-            set_fixed_height=20,
-            setToolTip="Center the pivot point of the combined mesh.",
-        )
-
-    def tb002(self, widget):
-        """Combine selected meshes."""
-        # Get options from UI
-        bake_history = widget.menu.chk_bake_history.isChecked()
-        center_pivot = widget.menu.chk_center_pivot.isChecked()
-
-        # Get ordered selection of objects
-        sel = pm.ls(orderedSelection=True, objectsOnly=True)
-
-        # Check if selection is valid
-        if not sel or len(sel) < 2:
-            return self.sb.message_box(
-                "<strong>Insufficient selection</strong>.<br>Operation requires the selection of at least two objects."
-            )
-
-        # Get the name and parent of the first selected object
-        base_mesh = sel[0]
-        base_mesh_name = base_mesh.name()
-        base_mesh_parent = (
-            pm.listRelatives(base_mesh, parent=True, fullPath=True) or None
-        )
-
-        # Ensure the parent group stays by adding a temporary null object
-        if base_mesh_parent:
-            temp_null = pm.spaceLocator(name="deleteMe")
-            pm.parent(temp_null, base_mesh_parent[0])
-
-        # Combine meshes
-        combined_mesh = pm.polyUnite(
-            sel, ch=True, mergeUVSets=True, centerPivot=center_pivot
-        )[0]
-        combined_mesh = pm.rename(combined_mesh, base_mesh_name)  # Rename immediately
-
-        # Optionally bake history
-        if bake_history:
-            pm.bakePartialHistory(combined_mesh, all=True)
-
-        # Reparent to the original parent of the first selected object
-        if base_mesh_parent:
-            pm.parent(combined_mesh, base_mesh_parent[0])
-            # Safe to delete the temp null now
-            pm.delete(temp_null)
-
-        # Check for an existing isolation set and add the new object if one exists
-        mtk.add_to_isolation_set(combined_mesh.name())
-
     def tb003_init(self, widget):
         """ """
         widget.menu.add(
@@ -364,6 +297,13 @@ class Polygons(SlotsMaya):
             set_fixed_height=20,
             setToolTip="Keep only the interaction point of two objects.",
         )
+        widget.menu.add(
+            "QCheckBox",
+            setText="Interactive",
+            setObjectName="chk017",
+            set_fixed_height=20,
+            setToolTip="Perform the operation using the interactive boolean tool.",
+        )
 
     def tb008(self, widget):
         """Boolean Operation"""
@@ -371,14 +311,27 @@ class Polygons(SlotsMaya):
             return self.sb.message_box(
                 "<strong>Nothing selected</strong>.<br>Operation requires the selection of at least two objects."
             )
+        from mayatk.edit_utils.macros import Macros
+
+        interactive = widget.menu.chk017.isChecked()
+
         if widget.menu.chk011.isChecked():  # Union
-            pm.mel.PolygonBooleanIntersection()
+            if interactive:
+                pm.mel.PolygonBooleanUnion()
+            else:
+                Macros.m_boolean(operation="union")
 
-        if widget.menu.chk012.isChecked():  # Difference
-            pm.mel.PolygonBooleanDifference()
+        elif widget.menu.chk012.isChecked():  # Difference
+            if interactive:
+                pm.mel.PolygonBooleanDifference()
+            else:
+                Macros.m_boolean(operation="difference")
 
-        if widget.menu.chk013.isChecked():  # Intersection
-            pm.mel.PolygonBooleanIntersection()
+        elif widget.menu.chk013.isChecked():  # Intersection
+            if interactive:
+                pm.mel.PolygonBooleanIntersection()
+            else:
+                Macros.m_boolean(operation="intersection")
 
     def tb009_init(self, widget):
         """ """
@@ -416,7 +369,7 @@ class Polygons(SlotsMaya):
     def b000(self):
         """Circularize"""
         circularize = pm.polyCircularize(
-            constructionHistory=1,
+            ch=True,
             alignment=0,
             radialOffset=0,
             normalOffset=0,
@@ -487,6 +440,12 @@ class Polygons(SlotsMaya):
 
         self.sb.register("bridge.ui", bridge.BridgeSlots, base_dir=bridge)
         self.sb.parent().set_ui("bridge")
+
+    def b013(self):
+        """Combine Selected Meshes."""
+        from mayatk.edit_utils.macros import Macros
+
+        Macros.m_combine()
 
     def b009(self):
         """Collapse Component"""
