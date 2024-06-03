@@ -27,6 +27,9 @@ class File(SlotsMaya):
     def cmb000_init(self, widget):
         """ """
         widget.refresh = True
+        if not widget.is_initialized:
+            pm.scriptJob(event=["workspaceChanged", self.ui.cmb000.init_slot])
+
         include = self.ui.txt000.text() or None
 
         scenes = {
