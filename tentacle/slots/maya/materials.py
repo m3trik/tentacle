@@ -147,8 +147,9 @@ class Materials(SlotsMaya):
             widget.currentIndexChanged.connect(self.ui.b005.init_slot)
 
         # Use 'restore_index=True' to save and restore the index
-        materials = mtk.get_scene_mats(exc="standardSurface")
-        materials_dict = {m.name(): m for m in materials}
+        materials_dict = mtk.get_scene_mats(
+            exc="standardSurface", sort=True, as_dict=True
+        )
         widget.add(materials_dict, clear=True, restore_index=True)
 
         # Create and set icons with color swatch
