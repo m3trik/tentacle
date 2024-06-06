@@ -73,6 +73,13 @@ class Uv(SlotsMaya):
             setToolTip="Allow shell rotation during packing.",
         )
         widget.menu.add(
+            "QCheckBox",
+            setText="Uniform Texel Density",
+            setObjectName="chk008",
+            setChecked=True,
+            setToolTip="Scale all shells uniformly.",
+        )
+        widget.menu.add(
             "QSpinBox",
             setPrefix="UDIM: ",
             setObjectName="s004",
@@ -84,6 +91,7 @@ class Uv(SlotsMaya):
     def tb000(self, widget):
         """Pack UVs"""
         scale = widget.menu.s009.value()
+        uniform = widget.menu.chk008.isChecked()
         rotate = widget.menu.s010.value()
         UDIM = widget.menu.s004.value()
         map_size = self.get_map_size()
@@ -100,6 +108,9 @@ class Uv(SlotsMaya):
             return
         uvs = pm.polyListComponentConversion(selection, fromFace=True, toUV=True)
         uvs_flattened = pm.ls(uvs, flatten=True)
+
+        if uniform:
+            self.ui.b004.call_slot()
 
         pm.u3dLayout(
             uvs_flattened,

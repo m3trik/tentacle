@@ -101,9 +101,9 @@ class Materials(SlotsMaya):
             widget.menu.setTitle("Material Options")
             widget.menu.add(
                 self.sb.Label,
-                setText="Select",
+                setText="Select Node",
                 setObjectName="lbl004",
-                setToolTip="Select the material and show its attributes in the attribute editor.",
+                setToolTip="Select the material node and show its attributes in the attribute editor.",
             )
             widget.menu.add(
                 self.sb.Label,
@@ -115,7 +115,19 @@ class Materials(SlotsMaya):
                 self.sb.Label,
                 setText="Reload Textures",
                 setObjectName="lbl006",
-                setToolTip="Reload textures for all scene materials.",
+                setToolTip="Reload file textures for all scene materials.",
+            )
+            widget.menu.add(
+                self.sb.Label,
+                setText="Convert Filepaths to Relative",
+                setObjectName="lbl007",
+                setToolTip="Convert absolute file paths to relative paths for file texture nodes.",
+            )
+            widget.menu.add(
+                self.sb.Label,
+                setText="Remove Duplicates",
+                setObjectName="lbl008",
+                setToolTip="Find duplicate materials, remove duplicates, and reassign them to the original material.",
             )
             widget.menu.add(
                 self.sb.Label,
@@ -125,7 +137,7 @@ class Materials(SlotsMaya):
             )
             widget.menu.add(
                 self.sb.Label,
-                setText="Delete All Unused Materials",
+                setText="Delete All Unused",
                 setObjectName="lbl003",
                 setToolTip="Delete All unused materials.",
             )
@@ -227,6 +239,14 @@ class Materials(SlotsMaya):
         mtk.reload_textures()
         confirmation_message = "<html><body><p style='font-size:16px; color:yellow;'>Textures have been <strong>reloaded</strong>.</p></body></html>"
         self.sb.message_box(confirmation_message)
+
+    def lbl007(self):
+        """Convert to Relative Paths"""
+        mtk.convert_to_relative_paths(copy_missing_files=True, use_workspace_drive=True)
+
+    def lbl008(self):
+        """Remove and Reassign Duplicates"""
+        mtk.remove_and_reassign_duplicates()
 
     def b002(self, widget):
         """Get Material: Change the index to match the current material selection."""
