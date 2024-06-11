@@ -72,6 +72,23 @@ class Materials(SlotsMaya):
         widget.menu.b001.clicked.connect(
             lambda: self.sb.parent().set_ui("stingray_arnold_shader")
         )
+        # Add a button to launch map converter.
+        widget.menu.add(
+            self.sb.PushButton,
+            setToolTip="Convert exisitng texture maps to another type.",
+            setText="Map Converter",
+            setObjectName="b003",
+        )
+        from mayatk.mat_utils import map_converter
+
+        self.sb.register(
+            "map_converter.ui",
+            map_converter.MapConverterSlots,
+            base_dir=map_converter,
+        )
+        widget.menu.b003.clicked.connect(
+            lambda: self.sb.parent().set_ui("map_converter")
+        )
 
     def cmb000_init(self, widget):
         """ """
@@ -206,11 +223,17 @@ class Materials(SlotsMaya):
             self.sb.message_box("No stored material or no valid object selected.")
             return
 
+        # Open the Hypershade window
         pm.mel.HypershadeWindow()
-        #  Finally, graph the material in the hypershade window.
-        pm.mel.eval(
-            'hyperShadePanelGraphCommand("hyperShadePanel1", "showUpAndDownstream")'
-        )
+
+        # Define the deferred command to graph the material
+        def graph_material():
+            pm.mel.eval(
+                'hyperShadePanelGraphCommand("hyperShadePanel1", "showUpAndDownstream")'
+            )
+
+        # Execute the graph command after the Hypershade window is fully initialized
+        pm.evalDeferred(graph_material)
 
     def lbl002(self):
         """Delete Material"""
@@ -236,7 +259,7 @@ class Materials(SlotsMaya):
 
     def lbl006(self):
         """Reload Textures"""
-        mtk.reload_textures()
+        mtk.reload_textures()  # pm.mel.AEReloadAllTextures()
         confirmation_message = "<html><body><p style='font-size:16px; color:yellow;'>Textures have been <strong>reloaded</strong>.</p></body></html>"
         self.sb.message_box(confirmation_message)
 
