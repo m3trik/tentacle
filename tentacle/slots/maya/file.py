@@ -19,6 +19,26 @@ class File(SlotsMaya):
         self.ui = self.sb.file
         self.submenu = self.sb.file_submenu
 
+    def header_init(self, widget):
+        """ """
+        # Add a button to launch map converter.
+        widget.menu.add(
+            self.sb.PushButton,
+            setToolTip="Export scene assets with environment checks and presets.",
+            setText="Scene Exporter",
+            setObjectName="b002",
+        )
+        from mayatk.env_utils import scene_exporter
+
+        self.sb.register(
+            "scene_exporter.ui",
+            scene_exporter.SceneExporterSlots,
+            base_dir=scene_exporter,
+        )
+        widget.menu.b002.clicked.connect(
+            lambda: self.sb.parent().set_ui("scene_exporter")
+        )
+
     @Signals("textChanged", "returnPressed")
     def txt000(self, widget):
         """Workspace Scenes: Filter"""
@@ -246,7 +266,7 @@ class File(SlotsMaya):
 
     def b001(self):
         """Open Reference Manager"""
-        from mayatk.core_utils import reference_manager
+        from mayatk.env_utils import reference_manager
 
         self.sb.register(
             "reference_manager.ui",
