@@ -265,7 +265,7 @@ class Materials(SlotsMaya):
 
     def lbl007(self):
         """Convert to Relative Paths"""
-        mtk.convert_to_relative_paths(copy_missing_files=True, use_workspace_drive=True)
+        mtk.convert_to_relative_paths()
 
     def lbl008(self):
         """Remove and Reassign Duplicates"""

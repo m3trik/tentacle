@@ -204,6 +204,12 @@ class File(SlotsMaya):
             )
             widget.menu.add(
                 self.sb.Label,
+                setObjectName="lbl005",
+                setText="Auto Set Project",
+                setToolTip="Determine the workspace directory by moving up directory levels until a workspace is found.",
+            )
+            widget.menu.add(
+                self.sb.Label,
                 setObjectName="lbl004",
                 setText="Open Project Root",
                 setToolTip="Open the project root directory.",
@@ -250,6 +256,19 @@ class File(SlotsMaya):
         """Open current project root"""
         dir_ = pm.workspace(q=True, rd=1)  # current project path.
         os.startfile(ptk.format_path(dir_))
+
+    def lbl005(self):
+        """Auto Set Workspace"""
+        workspace = mtk.find_workspace_using_path()
+        if workspace:
+            import os
+
+            pm.workspace(workspace, openWorkspace=True)
+            workspace_name = os.path.basename(workspace)
+            self.sb.message_box(f"Workspace set to {workspace_name}.")
+            self.ui.cmb006.init_slot()
+        else:
+            self.sb.message_box("No workspace found.")
 
     def b000(self):
         """Autosave: Open Directory"""
