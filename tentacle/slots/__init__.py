@@ -48,7 +48,7 @@ class Slots(QtCore.QObject):
         method = self.sb.prev_slot
 
         if callable(method):
-            widget = self.sb.get_widget_from_method(method)
+            widget = self.sb.get_widget_from_slot(method)
             widget.call_slot()
         else:
             print("No recent commands in history.")
