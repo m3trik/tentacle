@@ -85,6 +85,61 @@ class Pivot(SlotsMaya):
         elif world:
             pm.xform(worldSpace=1, pivots=[0, 0, 0])
 
+    def tb002_init(self, widget):
+        """ """
+        widget.menu.add(
+            "QCheckBox",
+            setText="Translate",
+            setObjectName="chk005",
+            setChecked=True,
+            setToolTip="Transfer the translation pivot.",
+        )
+        widget.menu.add(
+            "QCheckBox",
+            setText="Rotate",
+            setObjectName="chk006",
+            setChecked=True,
+            setToolTip="Transfer the pivot orientation.",
+        )
+        widget.menu.add(
+            "QCheckBox",
+            setText="Scale",
+            setObjectName="chk007",
+            setChecked=True,
+            setToolTip="Transfer the scale pivot.",
+        )
+        widget.menu.add(
+            "QCheckBox",
+            setText="Bake",
+            setObjectName="chk008",
+            setChecked=False,
+            setToolTip="Bake the pivot values into the transform node.",
+        )
+        widget.menu.add(
+            "QCheckBox",
+            setText="World Space",
+            setObjectName="chk009",
+            setChecked=True,
+            setToolTip="Whether to use world space for transformations.",
+        )
+
+    def tb002(self, widget):
+        """Transfer Pivot"""
+        translate = widget.menu.chk005.isChecked()
+        rotate = widget.menu.chk006.isChecked()
+        scale = widget.menu.chk007.isChecked()
+        bake = widget.menu.chk008.isChecked()
+        world_space = widget.menu.chk009.isChecked()
+
+        mtk.transfer_pivot(
+            pm.selected(),
+            translate=translate,
+            rotate=rotate,
+            scale=scale,
+            bake=bake,
+            world_space=world_space,
+        )
+
     def b000(self):
         """Center Pivot: Object"""
         self.ui.tb001.init_slot()

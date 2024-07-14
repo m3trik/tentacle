@@ -269,7 +269,10 @@ class Materials(SlotsMaya):
 
     def lbl008(self):
         """Remove and Reassign Duplicates"""
-        mtk.remove_and_reassign_duplicates()
+        dups = mtk.find_materials_with_duplicate_textures()
+        if dups:
+            mtk.reassign_duplicates(dups, delete=True)
+            self.ui.cmb002.init_slot()
 
     def b002(self, widget):
         """Get Material: Change the index to match the current material selection."""

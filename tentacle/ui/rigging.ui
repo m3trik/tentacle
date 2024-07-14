@@ -10,7 +10,7 @@
     <x>0</x>
     <y>0</y>
     <width>200</width>
-    <height>386</height>
+    <height>330</height>
    </rect>
   </property>
   <property name="toolTip">
@@ -364,7 +364,7 @@
       <item>
        <widget class="QGroupBox" name="constraints">
         <property name="title">
-         <string>Contraints</string>
+         <string>Constraints</string>
         </property>
         <layout class="QGridLayout" name="gridLayout">
          <property name="leftMargin">
@@ -382,64 +382,7 @@
          <property name="spacing">
           <number>1</number>
          </property>
-         <item row="3" column="0">
-          <widget class="QPushButton" name="b009">
-           <property name="minimumSize">
-            <size>
-             <width>88</width>
-             <height>20</height>
-            </size>
-           </property>
-           <property name="maximumSize">
-            <size>
-             <width>16777215</width>
-             <height>20</height>
-            </size>
-           </property>
-           <property name="text">
-            <string>Aim</string>
-           </property>
-          </widget>
-         </item>
-         <item row="1" column="0">
-          <widget class="PushButton" name="tb002">
-           <property name="minimumSize">
-            <size>
-             <width>88</width>
-             <height>20</height>
-            </size>
-           </property>
-           <property name="maximumSize">
-            <size>
-             <width>16777215</width>
-             <height>20</height>
-            </size>
-           </property>
-           <property name="text">
-            <string>Parent</string>
-           </property>
-          </widget>
-         </item>
-         <item row="2" column="0">
-          <widget class="QPushButton" name="b008">
-           <property name="minimumSize">
-            <size>
-             <width>88</width>
-             <height>20</height>
-            </size>
-           </property>
-           <property name="maximumSize">
-            <size>
-             <width>16777215</width>
-             <height>20</height>
-            </size>
-           </property>
-           <property name="text">
-            <string>Orient</string>
-           </property>
-          </widget>
-         </item>
-         <item row="4" column="0" colspan="3">
+         <item row="2" column="0" colspan="2">
           <widget class="QPushButton" name="b000">
            <property name="minimumSize">
             <size>
@@ -510,8 +453,8 @@
            </property>
           </widget>
          </item>
-         <item row="3" column="1" colspan="2">
-          <widget class="QPushButton" name="b010">
+         <item row="1" column="0" colspan="2">
+          <widget class="PushButton" name="tb002">
            <property name="minimumSize">
             <size>
              <width>0</width>
@@ -524,46 +467,14 @@
              <height>20</height>
             </size>
            </property>
-           <property name="text">
-            <string>Pole Vector</string>
-           </property>
-          </widget>
-         </item>
-         <item row="2" column="1" colspan="2">
-          <widget class="QPushButton" name="b007">
-           <property name="minimumSize">
-            <size>
-             <width>0</width>
-             <height>20</height>
-            </size>
-           </property>
-           <property name="maximumSize">
-            <size>
-             <width>16777215</width>
-             <height>20</height>
-            </size>
+           <property name="toolTip">
+            <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Create locators with the same transforms as any selected object(s).&lt;/p&gt;&lt;p&gt;If there are vertices selected it will create a locator at the center of the selected vertices combined bounding box.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
            </property>
            <property name="text">
-            <string>Scale</string>
+            <string>Set Constraint</string>
            </property>
-          </widget>
-         </item>
-         <item row="1" column="1" colspan="2">
-          <widget class="QPushButton" name="b006">
-           <property name="minimumSize">
-            <size>
-             <width>0</width>
-             <height>20</height>
-            </size>
-           </property>
-           <property name="maximumSize">
-            <size>
-             <width>16777215</width>
-             <height>20</height>
-            </size>
-           </property>
-           <property name="text">
-            <string>Point</string>
+           <property name="checkable">
+            <bool>false</bool>
            </property>
           </widget>
          </item>

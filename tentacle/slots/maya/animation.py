@@ -19,7 +19,7 @@ class Animation(SlotsMaya):
             "QSpinBox",
             setPrefix="Frame: ",
             setObjectName="s000",
-            set_limits=[0, 10000],
+            set_limits=[0, 100000],
             setValue=0,
             setToolTip="The desired frame number.",
         )
@@ -53,7 +53,7 @@ class Animation(SlotsMaya):
             "QSpinBox",
             setPrefix="Time: ",
             setObjectName="s001",
-            set_limits=[0, 10000],
+            set_limits=[0, 100000],
             setValue=0,
             setToolTip="The desired start time for the inverted keys.",
         )
@@ -89,7 +89,7 @@ class Animation(SlotsMaya):
             "QSpinBox",
             setPrefix="Frame: ",
             setObjectName="s002",
-            set_limits=[0, 10000],
+            set_limits=[0, 100000],
             setValue=0,
             setToolTip="The time at which to start adding spacing.",
         )
@@ -97,7 +97,7 @@ class Animation(SlotsMaya):
             "QSpinBox",
             setPrefix="Amount: ",
             setObjectName="s003",
-            set_limits=[-10000, 10000],
+            set_limits=[-100000, 100000],
             setValue=1,
             setToolTip="The amount of spacing to add or subtract.",
         )
@@ -134,13 +134,69 @@ class Animation(SlotsMaya):
 
     def tb003_init(self, widget):
         """ """
+        widget.menu.setTitle("Stagger Keys")
         widget.menu.add(
             "QSpinBox",
-            setPrefix="Time: ",
-            setObjectName="s001",
-            set_limits=[0, 10000],
-            setValue=0,
-            setToolTip="The desired start time for the inverted keys.",
+            setPrefix="Offset: ",
+            setObjectName="s004",
+            set_limits=[-100000, 100000],
+            setValue=1,
+            setToolTip="The amount of spacing to add or subtract.",
+        )
+        widget.menu.add(
+            "QCheckBox",
+            setText="Invert",
+            setObjectName="chk008",
+            setChecked=False,
+            setToolTip="Invert the staggered keyframe order.",
+        )
+        widget.menu.add(
+            "QCheckBox",
+            setText="Smooth Tangents",
+            setObjectName="chk009",
+            setChecked=False,
+            setToolTip="Adjust tangents for smooth transitions.",
+        )
+
+    def tb003(self, widget):
+        """Stagger Keys"""
+        offset = widget.menu.s004.value()
+        invert = widget.menu.chk008.isChecked()
+        smooth_tangents = widget.menu.chk009.isChecked()
+        selected_objects = pm.selected()
+        mtk.stagger_keyframes(
+            selected_objects,
+            offset=offset,
+            invert=invert,
+            smooth_tangents=smooth_tangents,
+        )
+
+    def tb004_init(self, widget):
+        """ """
+        widget.menu.setTitle("Transfer Keys")
+        widget.menu.add(
+            "QCheckBox",
+            setText="Relative",
+            setObjectName="chk006",
+            setChecked=True,
+            setToolTip="Values relative to the current position.",
+        )
+        widget.menu.add(
+            "QCheckBox",
+            setText="Tangents",
+            setObjectName="chk007",
+            setChecked=True,
+            setToolTip="Transfer tangent values.",
+        )
+
+    def tb004(self, widget):
+        """Tansfer Keys"""
+        relative = widget.menu.chk006.isChecked()
+        tangents = widget.menu.chk007.isChecked()
+
+        selected_objects = pm.selected()
+        mtk.transfer_keyframes(
+            selected_objects, relative=relative, transfer_tangents=tangents
         )
 
     def b000(self):

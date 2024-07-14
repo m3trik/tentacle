@@ -349,7 +349,7 @@ class Nurbs(SlotsMaya):
 
     def b051(self):
         """Reverse Curve"""
-        pm.mel.reverse()
+        pm.mel.ReverseCurve()
 
     def b052(self):
         """Extend Curve"""
@@ -685,7 +685,9 @@ class Nurbs(SlotsMaya):
                     pos = i
                 pm.setAttr(npcNode.inPosition, pos)
 
-                distance = ptk.distance_between_points(pos, pm.getAttr(npcNode.position))
+                distance = ptk.distance_between_points(
+                    pos, pm.getAttr(npcNode.position)
+                )
                 p = pm.getAttr(npcNode.parameter)
                 if not tolerance:
                     result[i] = p

@@ -50,6 +50,63 @@ class Rigging(SlotsMaya):
             setToolTip="Display IK\\FK.",
         )
 
+    def cmb001(self, index, widget):
+        """Create"""
+        text = widget.items[index]
+        if text == "Joints":
+            pm.setToolTo("jointContext")  # create joint tool
+        elif text == "Locator":
+            pm.spaceLocator(p=[0, 0, 0])  # locator
+        elif text == "IK Handle":
+            pm.setToolTo("ikHandleContext")  # create ik handle
+        elif text == "Lattice":  # create lattice
+            pm.lattice(divisions=[2, 5, 2], objectCentered=1, ldv=[2, 2, 2])
+        elif text == "Cluster":
+            pm.mel.eval("CreateCluster;")  # create cluster
+
+    def chk000(self, state, widget):
+        """Scale Joint"""
+        # init global joint display size
+        widget.ui.tb000.menu.s000.setValue(pm.jointDisplayScale(q=True))
+
+    def chk001(self, state, widget):
+        """Scale IK"""
+        # init IK handle display size
+        widget.ui.tb000.menu.s000.setValue(pm.ikHandleDisplayScale(q=True))
+
+    def chk002(self, state, widget):
+        """Scale IK/FK"""
+        # init IKFK display size
+        widget.ui.tb000.menu.s000.setValue(pm.jointDisplayScale(q=True, ikfk=1))
+
+    def s000(self, value, widget):
+        """Scale Joint/IK/FK"""
+        if widget.ui.tb000.menu.chk000.isChecked():
+            pm.jointDisplayScale(value)  # set global joint display size
+        elif widget.ui.tb000.menu.chk001.isChecked():
+            pm.ikHandleDisplayScale(value)  # set global IK handle display size
+        else:  # widget.ui.chk002.isChecked():
+            pm.jointDisplayScale(value, ikfk=1)  # set global IKFK display size
+
+    def tb000(self, widget):
+        """Toggle Display Local Rotation Axes"""
+        joints = pm.ls(type="joint")  # get all scene joints
+
+        if not joints:  # if no joints in the scene
+            self.sb.message_box("No joints found in the scene.")
+            return  # exit the function
+
+        state = pm.toggle(joints[0], q=True, localAxis=1)
+        toggle = widget.menu.isChecked() != state
+
+        if toggle:
+            try:
+                pm.toggle(joints, localAxis=1)  # set display off
+            except Exception as e:
+                print(f"An error occurred while toggling local axes: {e}")
+
+        self.sb.message_box(f"Display Local Rotation Axes:<hl>{state}</hl>")
+
     def tb001_init(self, widget):
         """ """
         widget.menu.add(
@@ -59,18 +116,53 @@ class Rigging(SlotsMaya):
             setToolTip="Align joints with the worlds transform.",
         )
 
+    def tb001(self, widget):
+        """Orient Joints"""
+        orientJoint = "xyz"  # orient joints
+        alignWorld = widget.menu.chk003.isChecked()
+
+        if alignWorld:
+            orientJoint = "none"  # orient joint to world
+
+        joints = pm.ls(type="joint", sl=True)  # get selected joints
+
+        if not joints:  # if no joints are selected
+            joints = pm.ls(type="joint")  # get all joints in the scene
+            if not joints:  # if no joints in the scene
+                self.sb.message_box("No joints found.")
+                return  # exit the function
+        try:
+            for joint in joints:
+                pm.joint(
+                    joint, edit=1, orientJoint=orientJoint, zeroScaleOrient=1, ch=1
+                )
+        except Exception as e:
+            print(f"An error occurred while orienting joints: {e}")
+
     def tb002_init(self, widget):
         """ """
         widget.menu.add(
-            "QCheckBox",
-            setText="Template Child",
-            setObjectName="chk004",
-            setChecked=False,
-            setToolTip="Template child object(s) after parenting.",
+            "QComboBox",
+            setObjectName="cmb000",
+            addItems=["Point", "Orient", "Parent", "Scale", "Aim", "Pole Vector"],
+            setToolTip="Constraint type.",
         )
+
+    def tb002(self, widget):
+        """Set Constraint"""
+        constraint_type = widget.menu.cmb000.currentText()
+        *objects_to_constrain, target = pm.selected()
+
+        if not target or not objects_to_constrain:
+            self.sb.message_box(
+                "Please select a target and at least one object to constrain."
+            )
+            return
+        mtk.constrain(target, objects_to_constrain, constraint_type.lower())
 
     def tb003_init(self, widget):
         """ """
+        widget.menu.setTitle("Create Locator")
         widget.menu.add(
             "QDoubleSpinBox",
             setPrefix="Locator Scale: ",
@@ -155,6 +247,42 @@ class Rigging(SlotsMaya):
             setToolTip="Lock the scale values of the child object.",
         )
 
+    @mtk.undo
+    def tb003(self, widget):
+        """Create Locator at Selection"""
+        grp_suffix = widget.menu.t002.text()
+        loc_suffix = widget.menu.t000.text()
+        obj_suffix = widget.menu.t001.text()
+        parent = widget.menu.chk006.isChecked()
+        freeze_transforms = widget.menu.chk010.isChecked()
+        bake_child_pivot = widget.menu.chk011.isChecked()
+        scale = widget.menu.s001.value()
+        strip_digits = widget.menu.chk005.isChecked()
+        strip_suffix = widget.menu.chk016.isChecked()
+        lock_translate = widget.menu.chk007.isChecked()
+        lock_rotation = widget.menu.chk008.isChecked()
+        lock_scale = widget.menu.chk009.isChecked()
+
+        selection = pm.selected()
+        if not selection:
+            return mtk.create_locator(scale=scale)
+
+        mtk.create_locator_at_object(
+            selection,
+            parent=parent,
+            freeze_transforms=freeze_transforms,
+            bake_child_pivot=bake_child_pivot,
+            scale=scale,
+            grp_suffix=grp_suffix,
+            loc_suffix=loc_suffix,
+            obj_suffix=obj_suffix,
+            strip_digits=strip_digits,
+            strip_suffix=strip_suffix,
+            lock_translate=lock_translate,
+            lock_rotation=lock_rotation,
+            lock_scale=lock_scale,
+        )
+
     def tb004_init(self, widget):
         """ """
         widget.menu.add(
@@ -195,134 +323,6 @@ class Rigging(SlotsMaya):
                     else "Unlock Attributes"
                 ),
             ],
-        )
-
-    def cmb001(self, index, widget):
-        """Create"""
-        text = widget.items[index]
-        if text == "Joints":
-            pm.setToolTo("jointContext")  # create joint tool
-        elif text == "Locator":
-            pm.spaceLocator(p=[0, 0, 0])  # locator
-        elif text == "IK Handle":
-            pm.setToolTo("ikHandleContext")  # create ik handle
-        elif text == "Lattice":  # create lattice
-            pm.lattice(divisions=[2, 5, 2], objectCentered=1, ldv=[2, 2, 2])
-        elif text == "Cluster":
-            pm.mel.eval("CreateCluster;")  # create cluster
-
-    def chk000(self, state, widget):
-        """Scale Joint"""
-        # init global joint display size
-        widget.ui.tb000.menu.s000.setValue(pm.jointDisplayScale(q=True))
-
-    def chk001(self, state, widget):
-        """Scale IK"""
-        # init IK handle display size
-        widget.ui.tb000.menu.s000.setValue(pm.ikHandleDisplayScale(q=True))
-
-    def chk002(self, state, widget):
-        """Scale IK/FK"""
-        # init IKFK display size
-        widget.ui.tb000.menu.s000.setValue(pm.jointDisplayScale(q=True, ikfk=1))
-
-    def s000(self, value, widget):
-        """Scale Joint/IK/FK"""
-        if widget.ui.tb000.menu.chk000.isChecked():
-            pm.jointDisplayScale(value)  # set global joint display size
-        elif widget.ui.tb000.menu.chk001.isChecked():
-            pm.ikHandleDisplayScale(value)  # set global IK handle display size
-        else:  # widget.ui.chk002.isChecked():
-            pm.jointDisplayScale(value, ikfk=1)  # set global IKFK display size
-
-    def tb000(self, widget):
-        """Toggle Display Local Rotation Axes"""
-        joints = pm.ls(type="joint")  # get all scene joints
-
-        if not joints:  # if no joints in the scene
-            self.sb.message_box("No joints found in the scene.")
-            return  # exit the function
-
-        state = pm.toggle(joints[0], q=True, localAxis=1)
-        toggle = widget.menu.isChecked() != state
-
-        if toggle:
-            try:
-                pm.toggle(joints, localAxis=1)  # set display off
-            except Exception as e:
-                print(f"An error occurred while toggling local axes: {e}")
-
-        self.sb.message_box(f"Display Local Rotation Axes:<hl>{state}</hl>")
-
-    def tb001(self, widget):
-        """Orient Joints"""
-        orientJoint = "xyz"  # orient joints
-        alignWorld = widget.menu.chk003.isChecked()
-
-        if alignWorld:
-            orientJoint = "none"  # orient joint to world
-
-        joints = pm.ls(type="joint", sl=True)  # get selected joints
-
-        if not joints:  # if no joints are selected
-            joints = pm.ls(type="joint")  # get all joints in the scene
-            if not joints:  # if no joints in the scene
-                self.sb.message_box("No joints found.")
-                return  # exit the function
-        try:
-            for joint in joints:
-                pm.joint(
-                    joint, edit=1, orientJoint=orientJoint, zeroScaleOrient=1, ch=1
-                )
-        except Exception as e:
-            print(f"An error occurred while orienting joints: {e}")
-
-    def tb002(self, widget):
-        """Constraint: Parent"""
-        template = widget.menu.chk004.isChecked()
-        objects = pm.ls(sl=1, objectsOnly=1)
-
-        for obj in objects[:-1]:
-            pm.parentConstraint(obj, objects[:-1], maintainOffset=1, weight=1)
-
-            if template:
-                if not pm.toggle(obj, template=1, q=True):
-                    pm.toggle(obj, template=1, q=True)
-
-    @mtk.undo
-    def tb003(self, widget):
-        """Create Locator at Selection"""
-        grp_suffix = widget.menu.t002.text()
-        loc_suffix = widget.menu.t000.text()
-        obj_suffix = widget.menu.t001.text()
-        parent = widget.menu.chk006.isChecked()
-        freeze_transforms = widget.menu.chk010.isChecked()
-        bake_child_pivot = widget.menu.chk011.isChecked()
-        scale = widget.menu.s001.value()
-        strip_digits = widget.menu.chk005.isChecked()
-        strip_suffix = widget.menu.chk016.isChecked()
-        lock_translate = widget.menu.chk007.isChecked()
-        lock_rotation = widget.menu.chk008.isChecked()
-        lock_scale = widget.menu.chk009.isChecked()
-
-        selection = pm.ls(selection=True)
-        if not selection:
-            return mtk.create_locator(scale=scale)
-
-        mtk.create_locator_at_object(
-            selection,
-            parent=parent,
-            freeze_transforms=freeze_transforms,
-            bake_child_pivot=bake_child_pivot,
-            scale=scale,
-            grp_suffix=grp_suffix,
-            loc_suffix=loc_suffix,
-            obj_suffix=obj_suffix,
-            strip_digits=strip_digits,
-            strip_suffix=strip_suffix,
-            lock_translate=lock_translate,
-            lock_rotation=lock_rotation,
-            lock_scale=lock_scale,
         )
 
     def tb004(self, widget):
