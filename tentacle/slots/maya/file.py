@@ -19,6 +19,26 @@ class File(SlotsMaya):
         self.ui = self.sb.file
         self.submenu = self.sb.file_submenu
 
+    def header_init(self, widget):
+        """ """
+        # Add a button to launch map converter.
+        widget.menu.add(
+            self.sb.PushButton,
+            setToolTip="Export scene assets with environment checks and presets.",
+            setText="Scene Exporter",
+            setObjectName="b002",
+        )
+        from mayatk.env_utils import scene_exporter
+
+        self.sb.register(
+            "scene_exporter.ui",
+            scene_exporter.SceneExporterSlots,
+            base_dir=scene_exporter,
+        )
+        widget.menu.b002.clicked.connect(
+            lambda: self.sb.parent().set_ui("scene_exporter")
+        )
+
     @Signals("textChanged", "returnPressed")
     def txt000(self, widget):
         """Workspace Scenes: Filter"""
@@ -27,6 +47,9 @@ class File(SlotsMaya):
     def cmb000_init(self, widget):
         """ """
         widget.refresh = True
+        if not widget.is_initialized:
+            pm.scriptJob(event=["workspaceChanged", self.ui.cmb000.init_slot])
+
         include = self.ui.txt000.text() or None
 
         scenes = {
@@ -181,6 +204,12 @@ class File(SlotsMaya):
             )
             widget.menu.add(
                 self.sb.Label,
+                setObjectName="lbl005",
+                setText="Auto Set Project",
+                setToolTip="Determine the workspace directory by moving up directory levels until a workspace is found.",
+            )
+            widget.menu.add(
+                self.sb.Label,
                 setObjectName="lbl004",
                 setText="Open Project Root",
                 setToolTip="Open the project root directory.",
@@ -228,6 +257,19 @@ class File(SlotsMaya):
         dir_ = pm.workspace(q=True, rd=1)  # current project path.
         os.startfile(ptk.format_path(dir_))
 
+    def lbl005(self):
+        """Auto Set Workspace"""
+        workspace = mtk.find_workspace_using_path()
+        if workspace:
+            import os
+
+            pm.workspace(workspace, openWorkspace=True)
+            workspace_name = os.path.basename(workspace)
+            self.sb.message_box(f"Workspace set to {workspace_name}.")
+            self.ui.cmb006.init_slot()
+        else:
+            self.sb.message_box("No workspace found.")
+
     def b000(self):
         """Autosave: Open Directory"""
         # dir1 = str(pm.workspace(q=True, rd=1))+'autosave' #current project path.
@@ -243,7 +285,7 @@ class File(SlotsMaya):
 
     def b001(self):
         """Open Reference Manager"""
-        from mayatk.core_utils import reference_manager
+        from mayatk.env_utils import reference_manager
 
         self.sb.register(
             "reference_manager.ui",

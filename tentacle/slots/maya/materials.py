@@ -72,6 +72,23 @@ class Materials(SlotsMaya):
         widget.menu.b001.clicked.connect(
             lambda: self.sb.parent().set_ui("stingray_arnold_shader")
         )
+        # Add a button to launch map converter.
+        widget.menu.add(
+            self.sb.PushButton,
+            setToolTip="Convert exisitng texture maps to another type.",
+            setText="Map Converter",
+            setObjectName="b003",
+        )
+        from mayatk.mat_utils import map_converter
+
+        self.sb.register(
+            "map_converter.ui",
+            map_converter.MapConverterSlots,
+            base_dir=map_converter,
+        )
+        widget.menu.b003.clicked.connect(
+            lambda: self.sb.parent().set_ui("map_converter")
+        )
 
     def cmb000_init(self, widget):
         """ """
@@ -101,9 +118,9 @@ class Materials(SlotsMaya):
             widget.menu.setTitle("Material Options")
             widget.menu.add(
                 self.sb.Label,
-                setText="Select",
+                setText="Select Node",
                 setObjectName="lbl004",
-                setToolTip="Select the material and show its attributes in the attribute editor.",
+                setToolTip="Select the material node and show its attributes in the attribute editor.",
             )
             widget.menu.add(
                 self.sb.Label,
@@ -115,7 +132,19 @@ class Materials(SlotsMaya):
                 self.sb.Label,
                 setText="Reload Textures",
                 setObjectName="lbl006",
-                setToolTip="Reload textures for all scene materials.",
+                setToolTip="Reload file textures for all scene materials.",
+            )
+            widget.menu.add(
+                self.sb.Label,
+                setText="Convert Filepaths to Relative",
+                setObjectName="lbl007",
+                setToolTip="Convert absolute file paths to relative paths for file texture nodes.",
+            )
+            widget.menu.add(
+                self.sb.Label,
+                setText="Remove Duplicates",
+                setObjectName="lbl008",
+                setToolTip="Find duplicate materials, remove duplicates, and reassign them to the original material.",
             )
             widget.menu.add(
                 self.sb.Label,
@@ -125,7 +154,7 @@ class Materials(SlotsMaya):
             )
             widget.menu.add(
                 self.sb.Label,
-                setText="Delete All Unused Materials",
+                setText="Delete All Unused",
                 setObjectName="lbl003",
                 setToolTip="Delete All unused materials.",
             )
@@ -147,8 +176,9 @@ class Materials(SlotsMaya):
             widget.currentIndexChanged.connect(self.ui.b005.init_slot)
 
         # Use 'restore_index=True' to save and restore the index
-        materials = mtk.get_scene_mats(exc="standardSurface")
-        materials_dict = {m.name(): m for m in materials}
+        materials_dict = mtk.get_scene_mats(
+            exc="standardSurface", sort=True, as_dict=True
+        )
         widget.add(materials_dict, clear=True, restore_index=True)
 
         # Create and set icons with color swatch
@@ -193,11 +223,17 @@ class Materials(SlotsMaya):
             self.sb.message_box("No stored material or no valid object selected.")
             return
 
+        # Open the Hypershade window
         pm.mel.HypershadeWindow()
-        #  Finally, graph the material in the hypershade window.
-        pm.mel.eval(
-            'hyperShadePanelGraphCommand("hyperShadePanel1", "showUpAndDownstream")'
-        )
+
+        # Define the deferred command to graph the material
+        def graph_material():
+            pm.mel.eval(
+                'hyperShadePanelGraphCommand("hyperShadePanel1", "showUpAndDownstream")'
+            )
+
+        # Execute the graph command after the Hypershade window is fully initialized
+        pm.evalDeferred(graph_material)
 
     def lbl002(self):
         """Delete Material"""
@@ -223,9 +259,20 @@ class Materials(SlotsMaya):
 
     def lbl006(self):
         """Reload Textures"""
-        mtk.reload_textures()
+        mtk.reload_textures()  # pm.mel.AEReloadAllTextures()
         confirmation_message = "<html><body><p style='font-size:16px; color:yellow;'>Textures have been <strong>reloaded</strong>.</p></body></html>"
         self.sb.message_box(confirmation_message)
+
+    def lbl007(self):
+        """Convert to Relative Paths"""
+        mtk.convert_to_relative_paths()
+
+    def lbl008(self):
+        """Remove and Reassign Duplicates"""
+        dups = mtk.find_materials_with_duplicate_textures()
+        if dups:
+            mtk.reassign_duplicates(dups, delete=True)
+            self.ui.cmb002.init_slot()
 
     def b002(self, widget):
         """Get Material: Change the index to match the current material selection."""

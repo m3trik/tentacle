@@ -3,6 +3,6 @@ Pillow
 PySide2
 shiboken2
 pymel
-pythontk==0.7.18
-uitk==1.0.18
-mayatk==0.9.21
+pythontk==0.7.19
+uitk==1.0.19
+mayatk==0.9.22

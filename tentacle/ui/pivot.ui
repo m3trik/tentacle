@@ -111,7 +111,7 @@
             <string>Center the the selected object's pivot.</string>
            </property>
            <property name="text">
-            <string>Center Pivot</string>
+            <string>Center</string>
            </property>
            <property name="iconSize">
             <size>
@@ -142,7 +142,38 @@
             <string>Set selected object(s) transform to the current tool's custom axis orintaion.</string>
            </property>
            <property name="text">
-            <string>Bake Pivot</string>
+            <string>Bake</string>
+           </property>
+           <property name="iconSize">
+            <size>
+             <width>18</width>
+             <height>18</height>
+            </size>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="PushButton" name="tb002">
+           <property name="enabled">
+            <bool>true</bool>
+           </property>
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>20</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>16777215</width>
+             <height>20</height>
+            </size>
+           </property>
+           <property name="toolTip">
+            <string>Transfer the pivot orientation from the first given object to the remaining given objects.</string>
+           </property>
+           <property name="text">
+            <string>Transfer</string>
            </property>
            <property name="iconSize">
             <size>

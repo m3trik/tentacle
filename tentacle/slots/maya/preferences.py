@@ -38,7 +38,7 @@ class Preferences(SlotsMaya):
                 runOnce=False,
             )
 
-        items = {i.upper(): i for i in mtk.Project.SCENE_UNIT_VALUES}
+        items = {i.upper(): i for i in mtk.EnvUtils.SCENE_UNIT_VALUES}
         widget.add(items)
         widget.setCurrentIndex(
             widget.items.index(pm.currentUnit(q=True, fullName=True, linear=True))

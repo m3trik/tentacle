@@ -10,7 +10,7 @@
     <x>0</x>
     <y>0</y>
     <width>200</width>
-    <height>212</height>
+    <height>241</height>
    </rect>
   </property>
   <property name="tabShape">
@@ -162,6 +162,56 @@
            </property>
            <property name="text">
             <string>Invert Selected Keys</string>
+           </property>
+           <property name="checkable">
+            <bool>false</bool>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="PushButton" name="tb003">
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>20</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>16777215</width>
+             <height>20</height>
+            </size>
+           </property>
+           <property name="toolTip">
+            <string>Stagger the keyframes of selected objects such that the keyframes of each subsequent object start after the previous object.</string>
+           </property>
+           <property name="text">
+            <string>Stagger Keys</string>
+           </property>
+           <property name="checkable">
+            <bool>false</bool>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="PushButton" name="tb004">
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>20</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>16777215</width>
+             <height>20</height>
+            </size>
+           </property>
+           <property name="toolTip">
+            <string>Transfer keyframes from the first selected object to the subsequent objects.</string>
+           </property>
+           <property name="text">
+            <string>Transfer Keys</string>
            </property>
            <property name="checkable">
             <bool>false</bool>

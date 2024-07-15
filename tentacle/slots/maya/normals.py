@@ -102,8 +102,7 @@ class Normals(SlotsMaya):
 
     def b002(self):
         """Transfer Normals"""
-        source, *target = pm.ls(sl=1)
-        mtk.transfer_normals(source, target)
+        mtk.transfer_normals(pm.selected())
 
     def b003(self):
         """Soft Edge Display"""

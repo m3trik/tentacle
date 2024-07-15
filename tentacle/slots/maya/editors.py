@@ -290,6 +290,34 @@ class Editors(SlotsMaya):
         """
         pm.mel.HypergraphHierarchyWindow()
 
+    def b007(self):
+        """Status Line"""
+        pm.mel.ToggleStatusLine()
+
+    def b008(self):
+        """Shelf"""
+        pm.mel.ToggleShelf()
+
+    def b009(self):
+        """Time Slider"""
+        pm.mel.ToggleTimeSlider()
+
+    def b010(self):
+        """Range Slider"""
+        pm.mel.ToggleRangeSlider()
+
+    def b011(self):
+        """Command Line"""
+        pm.mel.ToggleCommandLine()
+
+    def b012(self):
+        """Help Line"""
+        pm.mel.ToggleHelpLine()
+
+    def b013(self):
+        """Tool Box"""
+        pm.mel.ToggleToolbox()
+
     def getEditorWidget(self, name):
         """Get a maya widget from a given name.
 
