@@ -105,7 +105,7 @@
             </size>
            </property>
            <property name="toolTip">
-            <string>Select All objects in the scene of the same type</string>
+            <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Select objects in the scene based on their type.&amp;lt;br&amp;gt;&amp;lt;br&amp;gt;&lt;/p&gt;&lt;p&gt;&amp;lt;b&amp;gt;Options:&amp;lt;/b&amp;gt;&amp;lt;br&amp;gt;&lt;/p&gt;&lt;p&gt;&amp;lt;b&amp;gt;Replace:&amp;lt;/b&amp;gt; Replace the current selection with the new selection.&amp;lt;br&amp;gt;&lt;/p&gt;&lt;p&gt;&amp;lt;b&amp;gt;Add:&amp;lt;/b&amp;gt; Add the new selection to the current selection.&amp;lt;br&amp;gt;&lt;/p&gt;&lt;p&gt;&amp;lt;b&amp;gt;Remove:&amp;lt;/b&amp;gt; Remove the new selection from the current selection.&amp;lt;br&amp;gt;&amp;lt;br&amp;gt;&lt;/p&gt;&lt;p&gt;When the &amp;quot;Replace&amp;quot; option is selected, the script uses the currently selected objects, or if none are selected, it lists all objects in the scene.&amp;lt;br&amp;gt;&lt;/p&gt;&lt;p&gt;When the &amp;quot;Add&amp;quot; or &amp;quot;Remove&amp;quot; option is selected, the script lists all objects in the scene, ignoring the current selection.&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
            </property>
            <property name="editable">
             <bool>false</bool>

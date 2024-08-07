@@ -197,14 +197,9 @@ class Materials(SlotsMaya):
         )
 
     def tb000(self, widget):
-        """Select By Material ID"""
+        """Select By Material"""
         mat = self.ui.cmb002.currentData()
         if not mat:
-            self.sb.message_box(
-                amg="<hl>Nothing selected</hl><br>Select an object face, or choose the option: current material.",
-                pos="midCenterTop",
-                fade=True,
-            )
             return
 
         shell = widget.menu.chk005.isChecked()  # Select by material: shell

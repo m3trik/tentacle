@@ -11,8 +11,8 @@ class Convert(SlotsMaya):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        self.ui = self.sb.preferences
-        self.submenu = self.sb.preferences_submenu
+        self.ui = self.sb.loaded_ui.convert
+        self.submenu = self.sb.loaded_ui.convert_submenu
 
     def cmb001_init(self, widget):
         """ """
