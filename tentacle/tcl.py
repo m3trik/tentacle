@@ -1,7 +1,6 @@
 # !/usr/bin/python
 # coding=utf-8
 import sys
-import logging
 from PySide2 import QtCore, QtGui, QtWidgets
 import pythontk as ptk
 from uitk.switchboard import Switchboard
@@ -9,7 +8,7 @@ from uitk.events import EventFactoryFilter, MouseTracking
 from tentacle.overlay import Overlay
 
 
-class Tcl(QtWidgets.QStackedWidget):
+class Tcl(QtWidgets.QStackedWidget, ptk.LoggingMixin, ptk.HelpMixin):
     """Tcl is a marking menu based on a QStackedWidget.
     The various UI's are set by calling 'set_ui' with the intended UI name string. ex. Tcl().set_ui('polygons')
 
@@ -45,11 +44,11 @@ class Tcl(QtWidgets.QStackedWidget):
         slot_location="slots",
         widget_location=None,
         prevent_hide=False,
-        log_level=logging.ERROR,
+        log_level: str = "WARNING",
     ):
         """ """
         super().__init__(parent)
-        self._init_logger(log_level)
+        self.logger.setLevel(log_level)
 
         self.sb = Switchboard(
             self,
@@ -79,20 +78,6 @@ class Tcl(QtWidgets.QStackedWidget):
         self.setAttribute(QtCore.Qt.WA_NoMousePropagation, False)
         self.setFocusPolicy(QtCore.Qt.StrongFocus)
         self.resize(1600, 800)
-
-    def _init_logger(self, log_level) -> None:
-        """Initializes logger with the specified log level.
-
-        Parameters:
-            log_level (int): Logging level.
-        """
-        self.logger = logging.getLogger(__name__)
-        self.logger.setLevel(log_level)
-        handler = logging.StreamHandler()
-        handler.setFormatter(
-            logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
-        )
-        self.logger.addHandler(handler)
 
     def _init_ui(self, ui) -> None:
         """Initialize the given UI.
@@ -191,7 +176,6 @@ class Tcl(QtWidgets.QStackedWidget):
             raise ValueError("No start position found in the path.")
 
         startmenu = self.sb.ui_history(-1, inc="*#startmenu*")
-        # logging.info(f"startmenu: {startmenu.name}")
         self.set_ui(startmenu)
         self.move(self.overlay.path.start_pos - self.rect().center())
 
@@ -307,7 +291,6 @@ class Tcl(QtWidgets.QStackedWidget):
             force (bool): override prevent_hide.
         """
         if force or not self.prevent_hide:
-            # logging.info(f"mouseGrabber: {self.mouseGrabber()}") #Returns the widget that is currently grabbing the mouse input. else: None
             super().hide()
 
     def hideEvent(self, event):
@@ -497,8 +480,6 @@ if __name__ == "__main__":
     if exit_code != -1:
         sys.exit(exit_code)
 
-# module name
-# logging.info(__name__)
 # --------------------------------------------------------------------------------------------
 # Notes
 # --------------------------------------------------------------------------------------------

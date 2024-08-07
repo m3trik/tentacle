@@ -92,6 +92,7 @@ class Transform(SlotsMaya):
 
     def tb002_init(self, widget):
         """ """
+        widget.menu.setTitle("Freeze Transforms")
         widget.menu.add(
             "QCheckBox",
             setText="Translate",
@@ -130,17 +131,19 @@ class Transform(SlotsMaya):
     def tb002(self, widget):
         """Freeze Transformations"""
         objects = pm.selected()
-
-        if len(objects) == 0:
+        if not objects:
             self.sb.message_box("Please select at least one object.")
             return
 
+        cp = widget.menu.chk035.isChecked()
         translate = widget.menu.chk032.isChecked()
         rotate = widget.menu.chk033.isChecked()
         scale = widget.menu.chk034.isChecked()
-        cp = widget.menu.chk035.isChecked()
+        force = True if len(objects) == 1 else False
 
-        mtk.freeze_transforms(objects, center_pivot=cp, t=translate, r=rotate, s=scale)
+        mtk.freeze_transforms(
+            objects, center_pivot=cp, t=translate, r=rotate, s=scale, force=force
+        )
 
     def tb003_init(self, widget):
         """ """

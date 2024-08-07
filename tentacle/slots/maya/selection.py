@@ -17,31 +17,61 @@ class Selection(SlotsMaya):
 
     def cmb002_init(self, widget):
         """ """
+        widget.menu.setTitle("Select By Type")
+        widget.menu.add(
+            "QRadioButton",
+            setText="Replace",
+            setObjectName="chk010",
+            setChecked=True,
+            setToolTip=(
+                "Replace current selection with the new selection.<br>"
+                "Uses selected objects, or all objects if none are selected."
+            ),
+        )
+        widget.menu.add(
+            "QRadioButton",
+            setText="Add",
+            setObjectName="chk011",
+            setToolTip=(
+                "Add new selection to the current selection.<br>"
+                "Ignores the current selection."
+            ),
+        )
+        widget.menu.add(
+            "QRadioButton",
+            setText="Remove",
+            setObjectName="chk012",
+            setToolTip=(
+                "Remove new selection from the current selection.<br>"
+                "Ignores the current selection."
+            ),
+        )
         items = [
-            "IK Handles",
-            "Joints",
+            "Assets",
+            "Brushes",
+            "Cameras",
             "Clusters",
-            "Lattices",
-            "Sculpt Objects",
-            "Wires",
-            "Transforms",
+            "Dynamic Constraints",
+            "Fluids",
+            "Follicles",
             "Geometry",
+            "Groups",
+            "IK Handles",
+            "Image Planes",
+            "Joints",
+            "Lattices",
+            "Lights",
             "Locators",
             "NURBS Curves",
             "NURBS Surfaces",
-            "Polygon Geometry",
-            "Cameras",
-            "Lights",
-            "Image Planes",
-            "Assets",
-            "Fluids",
             "Particles",
+            "Polygon Geometry",
             "Rigid Bodies",
             "Rigid Constraints",
-            "Brushes",
+            "Sculpt Objects",
             "Strokes",
-            "Dynamic Constraints",
-            "Follicles",
+            "Transforms",
+            "Wires",
             "nCloths",
             "nParticles",
             "nRigids",
@@ -50,65 +80,78 @@ class Selection(SlotsMaya):
 
     def cmb002(self, index, widget):
         """Select by Type"""
+        replace = widget.menu.chk010.isChecked()
+        add = widget.menu.chk011.isChecked()
+        remove = widget.menu.chk012.isChecked()
+
+        objects = pm.selected() or pm.ls() if replace else pm.ls()
         text = widget.items[index]
         if text == "IK Handles":  #
-            objs = pm.ls(type=["ikHandle", "hikEffector"])
+            objs = pm.ls(objects, type=["ikHandle", "hikEffector"])
         elif text == "Joints":  #
-            objs = pm.ls(type="joint")
+            objs = pm.ls(objects, type="joint")
         elif text == "Clusters":  #
-            objs = pm.listTransforms(type="clusterHandle")
+            objs = pm.listTransforms(objects, type="clusterHandle")
         elif text == "Lattices":  #
-            objs = pm.listTransforms(type="lattice")
+            objs = pm.listTransforms(objects, type="lattice")
         elif text == "Sculpt Objects":  #
-            objs = pm.listTransforms(type=["implicitSphere", "sculpt"])
+            objs = pm.listTransforms(objects, type=["implicitSphere", "sculpt"])
         elif text == "Wires":  #
-            objs = pm.ls(type="wire")
+            objs = pm.ls(objects, type="wire")
         elif text == "Transforms":  #
-            objs = pm.ls(type="transform")
-        elif text == "Geometry":  # Select all Geometry
-            shapes = pm.ls(geometry=True)
-            objs = pm.listRelatives(shapes, parent=True, path=True)
+            objs = pm.ls(objects, type="transform")
+        elif text == "Geometry":  # Select all Geometry excluding locators
+            shapes = pm.ls(objects, geometry=True)
+            rel = pm.listRelatives(shapes, parent=True, path=True)
+            objs = [obj for obj in rel if not mtk.is_locator(obj)]
+        elif text == "Groups":  #
+            objs = [obj for obj in objects if mtk.is_group(obj)]
         elif text == "Locators":
-            shapes = pm.ls(type="locator")
+            shapes = pm.ls(objects, type="locator")
             objs = pm.listRelatives(shapes, parent=True, path=True)
         elif text == "NURBS Curves":  #
-            objs = pm.listTransforms(type="nurbsCurve")
+            objs = pm.listTransforms(objects, type="nurbsCurve")
         elif text == "NURBS Surfaces":  #
-            objs = pm.ls(type="nurbsSurface")
+            objs = pm.ls(objects, type="nurbsSurface")
         elif text == "Polygon Geometry":  #
-            objs = pm.listTransforms(type="mesh")
+            objs = pm.listTransforms(objects, type="mesh")
         elif text == "Cameras":  #
-            objs = pm.listTransforms(cameras=1)
+            objs = pm.listTransforms(objects, cameras=1)
         elif text == "Lights":  #
-            objs = pm.listTransforms(lights=1)
+            objs = pm.listTransforms(objects, lights=1)
         elif text == "Image Planes":  #
-            objs = pm.ls(type="imagePlane")
+            objs = pm.ls(objects, type="imagePlane")
         elif text == "Assets":  #
-            objs = pm.ls(type=["container", "dagContainer"])
+            objs = pm.ls(objects, type=["container", "dagContainer"])
         elif text == "Fluids":  #
-            objs = pm.listTransforms(type="fluidShape")
+            objs = pm.listTransforms(objects, type="fluidShape")
         elif text == "Particles":  #
-            objs = pm.listTransforms(type="particle")
+            objs = pm.listTransforms(objects, type="particle")
         elif text == "Rigid Bodies":  #
-            objs = pm.listTransforms(type="rigidBody")
+            objs = pm.listTransforms(objects, type="rigidBody")
         elif text == "Rigid Constraints":  #
-            objs = pm.ls(type="rigidConstraint")
+            objs = pm.ls(objects, type="rigidConstraint")
         elif text == "Brushes":  #
-            objs = pm.ls(type="brush")
+            objs = pm.ls(objects, type="brush")
         elif text == "Strokes":  #
-            objs = pm.listTransforms(type="stroke")
+            objs = pm.listTransforms(objects, type="stroke")
         elif text == "Dynamic Constraints":  #
-            objs = pm.listTransforms(type="dynamicConstraint")
+            objs = pm.listTransforms(objects, type="dynamicConstraint")
         elif text == "Follicles":  #
-            objs = pm.listTransforms(type="follicle")
+            objs = pm.listTransforms(objects, type="follicle")
         elif text == "nCloths":  #
-            objs = pm.listTransforms(type="nCloth")
+            objs = pm.listTransforms(objects, type="nCloth")
         elif text == "nParticles":  #
-            objs = pm.listTransforms(type="nParticle")
+            objs = pm.listTransforms(objects, type="nParticle")
         elif text == "nRigids":  #
-            objs = pm.listTransforms(type="nRigid")
+            objs = pm.listTransforms(objects, type="nRigid")
 
-        pm.select(objs)
+        if add:
+            pm.select(objs, add=True)
+        elif remove:
+            pm.select(objs, deselect=True)
+        else:
+            pm.select(objs, replace=True)
 
     def cmb003_init(self, widget):
         """ """
@@ -436,9 +479,11 @@ class Selection(SlotsMaya):
             setToolTip="Include the original selected object(s) in the final selection.",
         )
         widget.menu.chk018.stateChanged.connect(
-            lambda state: self.sb.toggle_multi(widget.menu, setDisabled="chk011-18")
-            if state
-            else self.sb.toggle_multi(widget.menu, setEnabled="chk011-18")
+            lambda state: (
+                self.sb.toggle_multi(widget.menu, setDisabled="chk011-18")
+                if state
+                else self.sb.toggle_multi(widget.menu, setEnabled="chk011-18")
+            )
         )
 
     def tb001(self, widget):
