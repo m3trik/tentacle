@@ -19,7 +19,7 @@ class Animation(SlotsMaya):
             "QSpinBox",
             setPrefix="Frame: ",
             setObjectName="s000",
-            set_limits=[0, 100000],
+            set_limits=[-999999, 999999],
             setValue=0,
             setToolTip="The desired frame number.",
         )

@@ -19,6 +19,7 @@ class Scene(SlotsMaya):
 
     def txt000_init(self, widget):
         """ """
+        widget.menu.setTitle("Find")
         widget.menu.add(
             "QCheckBox",
             setText="Ignore Case",
@@ -57,6 +58,7 @@ class Scene(SlotsMaya):
 
     def tb000_init(self, widget):
         """ """
+        widget.menu.setTitle("Convert Case")
         widget.menu.add(
             "QComboBox",
             addItems=["capitalize", "upper", "lower", "swapcase", "title"],
@@ -74,6 +76,7 @@ class Scene(SlotsMaya):
 
     def tb001_init(self, widget):
         """ """
+        widget.menu.setTitle("Suffix By Location")
         widget.menu.add(
             "QCheckBox",
             setText="First Object As Reference",
@@ -127,6 +130,7 @@ class Scene(SlotsMaya):
 
     def tb002_init(self, widget):
         """ """
+        widget.menu.setTitle("Strip Chars")
         widget.menu.add(
             "QSpinBox",
             setText="Num Chars",

@@ -107,8 +107,8 @@ class Selection(SlotsMaya):
         elif text == "Groups":  #
             objs = [obj for obj in objects if mtk.is_group(obj)]
         elif text == "Locators":
-            shapes = pm.ls(objects, type="locator")
-            objs = pm.listRelatives(shapes, parent=True, path=True)
+            shapes = pm.ls(objects, exactType="locator")
+            objs = set(pm.listRelatives(shapes, parent=True, path=True))
         elif text == "NURBS Curves":  #
             objs = pm.listTransforms(objects, type="nurbsCurve")
         elif text == "NURBS Surfaces":  #
@@ -621,6 +621,14 @@ class Selection(SlotsMaya):
 
         pm.selectMode(component=1)
         pm.selectType(edge=1)
+
+    def b000(self):
+        """Reveal in Outliner"""
+        # Get the outliner editor associated with 'outlinerPanel1'
+        outliner_editor = pm.outlinerPanel(
+            "outlinerPanel1", query=True, outlinerEditor=True
+        )
+        pm.outlinerEditor(outliner_editor, edit=True, showSelected=True)
 
     def b016(self):
         """Convert Selection To Vertices"""

@@ -10,7 +10,7 @@
     <x>0</x>
     <y>0</y>
     <width>200</width>
-    <height>330</height>
+    <height>293</height>
    </rect>
   </property>
   <property name="toolTip">
@@ -482,52 +482,6 @@
        </widget>
       </item>
       <item>
-       <widget class="QGroupBox" name="attributes">
-        <property name="title">
-         <string>Attributes</string>
-        </property>
-        <layout class="QVBoxLayout" name="verticalLayout_7">
-         <property name="spacing">
-          <number>1</number>
-         </property>
-         <property name="leftMargin">
-          <number>0</number>
-         </property>
-         <property name="topMargin">
-          <number>0</number>
-         </property>
-         <property name="rightMargin">
-          <number>0</number>
-         </property>
-         <property name="bottomMargin">
-          <number>0</number>
-         </property>
-         <item>
-          <widget class="PushButton" name="tb004">
-           <property name="minimumSize">
-            <size>
-             <width>0</width>
-             <height>20</height>
-            </size>
-           </property>
-           <property name="maximumSize">
-            <size>
-             <width>16777215</width>
-             <height>20</height>
-            </size>
-           </property>
-           <property name="toolTip">
-            <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Lock/Unlock object attributes.&lt;/p&gt;&lt;p&gt;Check to lock. &lt;/p&gt;&lt;p&gt;Uncheck to unlock.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-           </property>
-           <property name="text">
-            <string>Lock / Unlock</string>
-           </property>
-          </widget>
-         </item>
-        </layout>
-       </widget>
-      </item>
-      <item>
        <spacer name="verticalSpacer">
         <property name="orientation">
          <enum>Qt::Vertical</enum>
@@ -547,6 +501,11 @@
  </widget>
  <customwidgets>
   <customwidget>
+   <class>PushButton</class>
+   <extends>QPushButton</extends>
+   <header>widgets.pushbutton.h</header>
+  </customwidget>
+  <customwidget>
    <class>Header</class>
    <extends>QLabel</extends>
    <header>uitk.widgets.header.Header.h</header>
@@ -555,11 +514,6 @@
    <class>ComboBox</class>
    <extends>QComboBox</extends>
    <header>uitk.widgets.comboBox.ComboBox.h</header>
-  </customwidget>
-  <customwidget>
-   <class>PushButton</class>
-   <extends>QPushButton</extends>
-   <header>widgets.pushbutton.h</header>
   </customwidget>
  </customwidgets>
  <resources/>

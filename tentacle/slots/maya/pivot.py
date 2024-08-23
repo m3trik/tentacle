@@ -160,7 +160,9 @@ class Pivot(SlotsMaya):
 
     def b004(self):
         """Bake Pivot"""
-        mtk.bake_pivot(pm.selected(), position=1, orientation=1)
+        mtk.bake_pivot(
+            pm.selected(), position=True, orientation=True, preserve_normals=True
+        )
 
 
 # --------------------------------------------------------------------------------------------
