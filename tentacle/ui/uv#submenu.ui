@@ -158,9 +158,9 @@
     </property>
     <property name="geometry">
      <rect>
-      <x>430</x>
+      <x>440</x>
       <y>270</y>
-      <width>141</width>
+      <width>106</width>
       <height>19</height>
      </rect>
     </property>
@@ -174,7 +174,7 @@
      <string>Cut all UV seams at hard edges.</string>
     </property>
     <property name="text">
-     <string>Cut UV Hard Edges</string>
+     <string>Cut Hard Edges</string>
     </property>
     <property name="autoDefault">
      <bool>true</bool>
@@ -249,6 +249,40 @@
     </property>
     <property name="text">
      <string>Pack</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="b022_2">
+    <property name="enabled">
+     <bool>true</bool>
+    </property>
+    <property name="geometry">
+     <rect>
+      <x>305</x>
+      <y>210</y>
+      <width>121</width>
+      <height>19</height>
+     </rect>
+    </property>
+    <property name="maximumSize">
+     <size>
+      <width>999</width>
+      <height>19</height>
+     </size>
+    </property>
+    <property name="toolTip">
+     <string>Cut all UV seams at hard edges.</string>
+    </property>
+    <property name="text">
+     <string>Display UV Border</string>
+    </property>
+    <property name="autoDefault">
+     <bool>true</bool>
+    </property>
+    <property name="default">
+     <bool>false</bool>
+    </property>
+    <property name="flat">
+     <bool>false</bool>
     </property>
    </widget>
   </widget>

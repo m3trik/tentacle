@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>200</width>
-    <height>621</height>
+    <height>623</height>
    </rect>
   </property>
   <property name="tabShape">
@@ -126,6 +126,31 @@
            </property>
            <property name="text">
             <string>Merge</string>
+           </property>
+           <property name="iconSize">
+            <size>
+             <width>18</width>
+             <height>18</height>
+            </size>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="b008">
+           <property name="enabled">
+            <bool>true</bool>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>16777215</width>
+             <height>19</height>
+            </size>
+           </property>
+           <property name="toolTip">
+            <string>Merge vertices in pairs determined by selection order.</string>
+           </property>
+           <property name="text">
+            <string>Merge Pairs</string>
            </property>
            <property name="iconSize">
             <size>
@@ -853,7 +878,7 @@
            </property>
           </widget>
          </item>
-         <item row="13" column="0" colspan="2">
+         <item row="14" column="0" colspan="2">
           <widget class="QPushButton" name="b009">
            <property name="enabled">
             <bool>true</bool>
@@ -1063,6 +1088,37 @@
            </property>
           </widget>
          </item>
+         <item row="4" column="0" colspan="2">
+          <widget class="PushButton" name="tb004">
+           <property name="enabled">
+            <bool>true</bool>
+           </property>
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>20</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>16777215</width>
+             <height>20</height>
+            </size>
+           </property>
+           <property name="toolTip">
+            <string>Bevel modifier</string>
+           </property>
+           <property name="text">
+            <string>Bevel</string>
+           </property>
+           <property name="iconSize">
+            <size>
+             <width>18</width>
+             <height>18</height>
+            </size>
+           </property>
+          </widget>
+         </item>
          <item row="12" column="0">
           <widget class="QPushButton" name="b032">
            <property name="enabled">
@@ -1230,8 +1286,8 @@
            </property>
           </widget>
          </item>
-         <item row="4" column="0" colspan="2">
-          <widget class="PushButton" name="tb004">
+         <item row="2" column="0" colspan="2">
+          <widget class="QPushButton" name="b006">
            <property name="enabled">
             <bool>true</bool>
            </property>
@@ -1248,10 +1304,10 @@
             </size>
            </property>
            <property name="toolTip">
-            <string>Bevel modifier</string>
+            <string>Create a bridge between two sets of edges or faces</string>
            </property>
            <property name="text">
-            <string>Bevel</string>
+            <string>Bridge Linear</string>
            </property>
            <property name="iconSize">
             <size>
@@ -1283,37 +1339,6 @@
            </property>
            <property name="text">
             <string>Bridge Interactive</string>
-           </property>
-           <property name="iconSize">
-            <size>
-             <width>18</width>
-             <height>18</height>
-            </size>
-           </property>
-          </widget>
-         </item>
-         <item row="2" column="0" colspan="2">
-          <widget class="QPushButton" name="b006">
-           <property name="enabled">
-            <bool>true</bool>
-           </property>
-           <property name="minimumSize">
-            <size>
-             <width>0</width>
-             <height>20</height>
-            </size>
-           </property>
-           <property name="maximumSize">
-            <size>
-             <width>16777215</width>
-             <height>20</height>
-            </size>
-           </property>
-           <property name="toolTip">
-            <string>Create a bridge between two sets of edges or faces</string>
-           </property>
-           <property name="text">
-            <string>Bridge Linear</string>
            </property>
            <property name="iconSize">
             <size>

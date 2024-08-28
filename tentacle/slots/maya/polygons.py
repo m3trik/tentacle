@@ -408,15 +408,22 @@ class Polygons(SlotsMaya):
     def b005(self):
         """Merge Vertices: Set Distance"""
         verts = pm.ls(sl=1, flatten=1)
-
         try:
-            p1 = pm.pointPosition(verts[0], world=True)
-            p2 = pm.pointPosition(verts[1], world=True)
-        except IndexError:
-            # Use Arbitrary points that will return the spinbox to it's default value of 0.0005
+            p1, p2 = verts
+        except ValueError:
+            print(
+                "Invalid selection: Operation requires exactly two vertices.\n\tUsing arbitrary points to set the distance to 0.0005"
+            )
             p1, p2 = [(0.0005, 0, 0), (0, 0, 0)]
 
-        self.setMergeVertexDistance(p1, p2)
+        dist = mtk.adjusted_distance_between_vertices(
+            p1, p2, adjust=0.1, as_percentage=True
+        )
+        spinbox = self.ui.tb000.menu.s002
+        spinbox.setValue(dist)
+        # Switch back to object mode
+        pm.selectMode(object=True)
+        pm.select(pm.ls(verts, objectsOnly=True))
 
     def b006(self, widget):
         """Bridge"""
@@ -440,6 +447,21 @@ class Polygons(SlotsMaya):
 
         self.sb.register("bridge.ui", bridge.BridgeSlots, base_dir=bridge)
         self.sb.parent().set_ui("bridge")
+
+    def b008(self):
+        """Merge Vertex Pairs"""
+        track_selection_order_enabled = pm.optionVar(query="trackSelectionOrder")
+        if not track_selection_order_enabled:
+            print("Track Selection Order was not enabled during the last selection.")
+            print("\tEnabling trackSelectionOrder ..")
+            pm.optionVar(iv=("trackSelectionOrder", 1))
+            print(
+                "\tPlease reselect the vertices so that the selection order can now be tracked."
+            )
+            pm.select(deselect=True)
+            return
+        vertices = pm.ls(orderedSelection=True, flatten=True)
+        mtk.merge_vertex_pairs(vertices)
 
     def b013(self):
         """Combine Selected Meshes."""
@@ -530,14 +552,6 @@ class Polygons(SlotsMaya):
     def b053(self):
         """Edit Edge Flow"""
         pm.polyEditEdgeFlow(adjustEdgeFlow=1)
-
-    def setMergeVertexDistance(self, p1, p2):
-        """Merge Vertices: Set Distance"""
-        spinbox = self.ui.tb000.menu.s002
-        dist = ptk.distance_between_points(p1, p2)
-        adjustment_factor = 1.01  # Add 1% to the distance
-        dist *= adjustment_factor
-        spinbox.setValue(dist)
 
 
 # --------------------------------------------------------------------------------------------

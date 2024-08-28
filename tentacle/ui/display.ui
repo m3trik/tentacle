@@ -232,6 +232,28 @@
           <number>0</number>
          </property>
          <item>
+          <widget class="QPushButton" name="b001">
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>20</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>16777215</width>
+             <height>20</height>
+            </size>
+           </property>
+           <property name="toolTip">
+            <string>Toggle wireframe on all selected objects.</string>
+           </property>
+           <property name="text">
+            <string>Wireframe Selected</string>
+           </property>
+          </widget>
+         </item>
+         <item>
           <widget class="QPushButton" name="b012">
            <property name="minimumSize">
             <size>

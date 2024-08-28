@@ -90,25 +90,6 @@ class Materials(SlotsMaya):
             lambda: self.sb.parent().set_ui("map_converter")
         )
 
-    def cmb000_init(self, widget):
-        """ """
-        # Get all shader types derived from the 'shader' class
-        items = pm.listNodeTypes("shader")
-        widget.add(items, header="Assign New", header_alignment="center")
-
-    def cmb000(self, index, widget):
-        """Assign: Assign New"""
-        selection = pm.ls(sl=True, flatten=1)
-        if not selection:
-            self.sb.message_box("No renderable object is selected for assignment.")
-            return
-
-        mat_name = widget.itemText(index)
-        mat = mtk.create_mat(mat_name)
-        mtk.assign_mat(selection, mat)
-        self.ui.cmb002.init_slot()
-        self.ui.cmb002.setAsCurrent(mat_name)
-
     def cmb002_init(self, widget):
         """ """
         widget.refresh = True
@@ -353,6 +334,14 @@ class Materials(SlotsMaya):
 
         mat = self.ui.cmb002.currentData()
         mtk.assign_mat(selection, mat)
+
+    def b006(self, widget):
+        """Assign: New Material"""
+        renderable_objects = pm.ls(sl=True, type="mesh", dag=True, geometry=True)
+        if not renderable_objects:
+            self.sb.message_box("No renderable object is selected for assignment.")
+            return
+        pm.mel.createAssignNewMaterialTreeLister("")
 
 
 # --------------------------------------------------------------------------------------------

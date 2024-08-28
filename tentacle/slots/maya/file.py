@@ -188,9 +188,8 @@ class File(SlotsMaya):
 
     def cmb005(self, index, widget):
         """Recent Files"""
-        # if sceneName prompt user to save; else force open
-        force = True if str(pm.mel.file(q=True, sceneName=1, shortName=1)) else False
-        pm.openFile(widget.items[index], open=1, force=force)
+        force = not pm.file(q=True, modified=True)
+        pm.openFile(widget.items[index], open=True, force=force, ignoreVersion=True)
 
     def cmb006_init(self, widget):
         """ """

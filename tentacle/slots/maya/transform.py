@@ -348,6 +348,10 @@ class Transform(SlotsMaya):
         """Un-Freeze Transforms"""
         mtk.restore_transforms(pm.selected())
 
+    def b003(self):
+        """Scale Connected Edges"""
+        mtk.scale_connected_edges()
+
     def setTransformSnap(self, ctx, state):
         """Set the transform tool's move, rotate, and scale snap states.
 

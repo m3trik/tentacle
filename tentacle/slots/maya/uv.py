@@ -592,6 +592,12 @@ class Uv(SlotsMaya):
                 uv, pivotU=pivot_u, pivotV=pivot_v, angle=angle, relative=True
             )
 
+    def b007(self):
+        """Display UV Borders"""
+        from mayatk.edit_utils.macros import Macros
+
+        Macros.m_toggle_uv_border_edges()
+
     @mtk.undo
     def b011(self):
         """Sew UVs"""

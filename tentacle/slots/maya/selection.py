@@ -56,6 +56,7 @@ class Selection(SlotsMaya):
             "Follicles",
             "Geometry",
             "Groups",
+            "Geometry (Hidden)",
             "IK Handles",
             "Image Planes",
             "Joints",
@@ -70,13 +71,16 @@ class Selection(SlotsMaya):
             "Rigid Constraints",
             "Sculpt Objects",
             "Strokes",
+            "Templated Geometry",
             "Transforms",
             "Wires",
             "nCloths",
             "nParticles",
             "nRigids",
+            "Animated Objects",
         ]
-        widget.add(items, header="By Type:")
+
+        widget.add(sorted(items), header="By Type:")
 
     def cmb002(self, index, widget):
         """Select by Type"""
@@ -86,65 +90,89 @@ class Selection(SlotsMaya):
 
         objects = pm.selected() or pm.ls() if replace else pm.ls()
         text = widget.items[index]
-        if text == "IK Handles":  #
+
+        if text == "IK Handles":
             objs = pm.ls(objects, type=["ikHandle", "hikEffector"])
-        elif text == "Joints":  #
+        elif text == "Joints":
             objs = pm.ls(objects, type="joint")
-        elif text == "Clusters":  #
+        elif text == "Clusters":
             objs = pm.listTransforms(objects, type="clusterHandle")
-        elif text == "Lattices":  #
+        elif text == "Lattices":
             objs = pm.listTransforms(objects, type="lattice")
-        elif text == "Sculpt Objects":  #
+        elif text == "Sculpt Objects":
             objs = pm.listTransforms(objects, type=["implicitSphere", "sculpt"])
-        elif text == "Wires":  #
+        elif text == "Wires":
             objs = pm.ls(objects, type="wire")
-        elif text == "Transforms":  #
+        elif text == "Transforms":
             objs = pm.ls(objects, type="transform")
         elif text == "Geometry":  # Select all Geometry excluding locators
             shapes = pm.ls(objects, geometry=True)
             rel = pm.listRelatives(shapes, parent=True, path=True)
             objs = [obj for obj in rel if not mtk.is_locator(obj)]
-        elif text == "Groups":  #
+        elif text == "Groups":
             objs = [obj for obj in objects if mtk.is_group(obj)]
         elif text == "Locators":
             shapes = pm.ls(objects, exactType="locator")
             objs = set(pm.listRelatives(shapes, parent=True, path=True))
-        elif text == "NURBS Curves":  #
+        elif text == "NURBS Curves":
             objs = pm.listTransforms(objects, type="nurbsCurve")
-        elif text == "NURBS Surfaces":  #
+        elif text == "NURBS Surfaces":
             objs = pm.ls(objects, type="nurbsSurface")
-        elif text == "Polygon Geometry":  #
+        elif text == "Polygon Geometry":
             objs = pm.listTransforms(objects, type="mesh")
-        elif text == "Cameras":  #
+        elif text == "Cameras":
             objs = pm.listTransforms(objects, cameras=1)
-        elif text == "Lights":  #
+        elif text == "Lights":
             objs = pm.listTransforms(objects, lights=1)
-        elif text == "Image Planes":  #
+        elif text == "Image Planes":
             objs = pm.ls(objects, type="imagePlane")
-        elif text == "Assets":  #
+        elif text == "Assets":
             objs = pm.ls(objects, type=["container", "dagContainer"])
-        elif text == "Fluids":  #
+        elif text == "Fluids":
             objs = pm.listTransforms(objects, type="fluidShape")
-        elif text == "Particles":  #
+        elif text == "Particles":
             objs = pm.listTransforms(objects, type="particle")
-        elif text == "Rigid Bodies":  #
+        elif text == "Rigid Bodies":
             objs = pm.listTransforms(objects, type="rigidBody")
-        elif text == "Rigid Constraints":  #
+        elif text == "Rigid Constraints":
             objs = pm.ls(objects, type="rigidConstraint")
-        elif text == "Brushes":  #
+        elif text == "Brushes":
             objs = pm.ls(objects, type="brush")
-        elif text == "Strokes":  #
+        elif text == "Strokes":
             objs = pm.listTransforms(objects, type="stroke")
-        elif text == "Dynamic Constraints":  #
+        elif text == "Dynamic Constraints":
             objs = pm.listTransforms(objects, type="dynamicConstraint")
-        elif text == "Follicles":  #
+        elif text == "Follicles":
             objs = pm.listTransforms(objects, type="follicle")
-        elif text == "nCloths":  #
+        elif text == "nCloths":
             objs = pm.listTransforms(objects, type="nCloth")
-        elif text == "nParticles":  #
+        elif text == "nParticles":
             objs = pm.listTransforms(objects, type="nParticle")
-        elif text == "nRigids":  #
+        elif text == "nRigids":
             objs = pm.listTransforms(objects, type="nRigid")
+        elif text == "Geometry (Hidden)":  # Select hidden geometry
+            all_geometry = pm.ls(objects, geometry=True)
+            hidden_geometry = [
+                pm.listRelatives(geo, parent=True)[0]
+                for geo in all_geometry
+                if not pm.getAttr(f"{geo}.visibility")
+            ]
+            objs = set(hidden_geometry)
+        elif text == "Templated Geometry":  # Select templated geometry
+            all_geometry = pm.ls(objects, geometry=True)
+            templated_geometry = [
+                pm.listRelatives(geo, parent=True)[0]
+                for geo in all_geometry
+                if pm.getAttr(f"{geo}.overrideEnabled")
+                and pm.getAttr(f"{geo}.overrideDisplayType") == 1
+            ]
+            objs = set(templated_geometry)
+        elif text == "Animated Objects":  # Select objects with animation keys
+            objs = pm.ls(objects, keyable=True)
+            animated_objects = [
+                obj for obj in objs if pm.keyframe(obj, query=True, name=True)
+            ]
+            objs = set(animated_objects)
 
         if add:
             pm.select(objs, add=True)
@@ -629,6 +657,12 @@ class Selection(SlotsMaya):
             "outlinerPanel1", query=True, outlinerEditor=True
         )
         pm.outlinerEditor(outliner_editor, edit=True, showSelected=True)
+
+    def b001(self):
+        """Toggle Selectability"""
+        from mayatk.edit_utils.macros import Macros
+
+        Macros.m_toggle_selectability()
 
     def b016(self):
         """Convert Selection To Vertices"""
