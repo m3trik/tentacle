@@ -48,36 +48,37 @@ class Selection(SlotsMaya):
         )
         items = [
             "Assets",
+            "Animated Objects",
             "Brushes",
             "Cameras",
             "Clusters",
             "Dynamic Constraints",
             "Fluids",
             "Follicles",
-            "Geometry",
             "Groups",
+            "Geometry",
+            "Geometry (Polygon)",
             "Geometry (Hidden)",
+            "Geometry (Templated)",
+            "Geometry (Un-Selectable)",
             "IK Handles",
             "Image Planes",
             "Joints",
             "Lattices",
             "Lights",
             "Locators",
-            "NURBS Curves",
-            "NURBS Surfaces",
+            "NURBS (Curves)",
+            "NURBS (Surfaces)",
             "Particles",
-            "Polygon Geometry",
             "Rigid Bodies",
             "Rigid Constraints",
             "Sculpt Objects",
             "Strokes",
-            "Templated Geometry",
             "Transforms",
             "Wires",
             "nCloths",
             "nParticles",
             "nRigids",
-            "Animated Objects",
         ]
 
         widget.add(sorted(items), header="By Type:")
@@ -114,11 +115,11 @@ class Selection(SlotsMaya):
         elif text == "Locators":
             shapes = pm.ls(objects, exactType="locator")
             objs = set(pm.listRelatives(shapes, parent=True, path=True))
-        elif text == "NURBS Curves":
+        elif text == "NURBS (Curves)":
             objs = pm.listTransforms(objects, type="nurbsCurve")
-        elif text == "NURBS Surfaces":
+        elif text == "NURBS (Surfaces)":
             objs = pm.ls(objects, type="nurbsSurface")
-        elif text == "Polygon Geometry":
+        elif text == "Geometry (Polygon)":
             objs = pm.listTransforms(objects, type="mesh")
         elif text == "Cameras":
             objs = pm.listTransforms(objects, cameras=1)
@@ -152,27 +153,42 @@ class Selection(SlotsMaya):
             objs = pm.listTransforms(objects, type="nRigid")
         elif text == "Geometry (Hidden)":  # Select hidden geometry
             all_geometry = pm.ls(objects, geometry=True)
-            hidden_geometry = [
-                pm.listRelatives(geo, parent=True)[0]
-                for geo in all_geometry
-                if not pm.getAttr(f"{geo}.visibility")
-            ]
-            objs = set(hidden_geometry)
-        elif text == "Templated Geometry":  # Select templated geometry
+            objs = set(
+                [
+                    geo.getParent()
+                    for geo in all_geometry
+                    if not geo.getParent().visibility.get()
+                ]
+            )
+        elif text == "Geometry (Templated)":  # Select templated geometry
             all_geometry = pm.ls(objects, geometry=True)
-            templated_geometry = [
-                pm.listRelatives(geo, parent=True)[0]
-                for geo in all_geometry
-                if pm.getAttr(f"{geo}.overrideEnabled")
-                and pm.getAttr(f"{geo}.overrideDisplayType") == 1
-            ]
-            objs = set(templated_geometry)
+            objs = set(
+                [
+                    geo.getParent()
+                    for geo in all_geometry
+                    if hasattr(geo.getParent(), "template")
+                    and geo.getParent().template.get()
+                ]
+            )
+        elif text == "Geometry (Un-Selectable)":  # Select unselectable geometry
+            all_geometry = pm.ls(geometry=True)
+            objs = set(
+                [
+                    geo.getParent()
+                    for geo in all_geometry
+                    if geo.getParent().overrideEnabled.get()
+                    and geo.getParent().overrideDisplayType.get() == 2
+                ]
+            )
         elif text == "Animated Objects":  # Select objects with animation keys
-            objs = pm.ls(objects, keyable=True)
-            animated_objects = [
-                obj for obj in objs if pm.keyframe(obj, query=True, name=True)
-            ]
-            objs = set(animated_objects)
+            all_objects = pm.ls(type="transform")  # List all transform nodes
+            objs = set(
+                [
+                    obj
+                    for obj in all_objects
+                    if pm.keyframe(obj, query=True, keyframeCount=True) > 0
+                ]
+            )
 
         if add:
             pm.select(objs, add=True)

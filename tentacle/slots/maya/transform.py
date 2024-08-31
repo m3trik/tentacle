@@ -90,6 +90,22 @@ class Transform(SlotsMaya):
         mtk.drop_to_grid(objects, align, origin, center_pivot, freeze_transforms)
         pm.select(objects)  # reselect the original selection.
 
+    def tb001_init(self, widget):
+        """ """
+        widget.add(
+            "QDoubleSpinBox",
+            setObjectName="s001",
+            setPrefix="Scale Factor:",
+            setValue=1.1,
+            set_limits=[-999, 999, 0.1],
+            setToolTip="Scale factor to apply to scaling by as a percentage.",
+        )
+
+    def tb0001(self):
+        """Scale Connected Edges"""
+        factor = self.ui.s001.value()
+        mtk.scale_connected_edges(scale_factor=factor)
+
     def tb002_init(self, widget):
         """ """
         widget.menu.setTitle("Freeze Transforms")
@@ -347,10 +363,6 @@ class Transform(SlotsMaya):
     def b002(self):
         """Un-Freeze Transforms"""
         mtk.restore_transforms(pm.selected())
-
-    def b003(self):
-        """Scale Connected Edges"""
-        mtk.scale_connected_edges()
 
     def setTransformSnap(self, ctx, state):
         """Set the transform tool's move, rotate, and scale snap states.

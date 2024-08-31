@@ -293,6 +293,10 @@ class File(SlotsMaya):
         )
         self.sb.parent().set_ui("reference_manager")
 
+    def b003(self):
+        """Export Scene Geometry"""
+        mtk.export_scene_as_fbx()
+
     @SlotsMaya.hide_main
     def b007(self):
         """Import file"""

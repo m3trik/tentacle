@@ -449,19 +449,12 @@ class Polygons(SlotsMaya):
         self.sb.parent().set_ui("bridge")
 
     def b008(self):
-        """Merge Vertex Pairs"""
-        track_selection_order_enabled = pm.optionVar(query="trackSelectionOrder")
-        if not track_selection_order_enabled:
-            print("Track Selection Order was not enabled during the last selection.")
-            print("\tEnabling trackSelectionOrder ..")
-            pm.optionVar(iv=("trackSelectionOrder", 1))
-            print(
-                "\tPlease reselect the vertices so that the selection order can now be tracked."
-            )
-            pm.select(deselect=True)
-            return
-        vertices = pm.ls(orderedSelection=True, flatten=True)
-        mtk.merge_vertex_pairs(vertices)
+        """Weld Center"""
+        pm.selectMode(component=True)
+        pm.selectType(vertex=True)
+        pm.select(deselect=True)
+        pm.mel.targetWeldCtx("polyMergeVertexContext", edit=True, mergeToCenter=True)
+        pm.mel.MergeVertexTool()
 
     def b013(self):
         """Combine Selected Meshes."""
@@ -520,7 +513,8 @@ class Polygons(SlotsMaya):
         pm.selectMode(component=True)
         pm.selectType(vertex=True)
         pm.select(deselect=True)
-        pm.mel.dR_targetWeldTool()
+        pm.mel.targetWeldCtx("polyMergeVertexContext", edit=True, mergeToCenter=False)
+        pm.mel.MergeVertexTool()
 
     def b046(self):
         """Split"""
