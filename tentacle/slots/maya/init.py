@@ -134,15 +134,13 @@ class Init(SlotsMaya):
                             noIntermediate=True,
                             fullPath=True,
                         )
-
-                        if shape_node:
+                        if shape_node and isinstance(shape_node[0], pm.nt.Mesh):
                             # Get all vertex faces from the shape node
                             vertex_faces = shape_node[0].vtxFace
                             # Check if any of the vertex faces have locked normals
                             all_locked = pm.polyNormalPerVertex(
                                 vertex_faces, query=True, allLocked=True
                             )
-
                             if all_locked:
                                 if any(all_locked):
                                     hud.insertText(

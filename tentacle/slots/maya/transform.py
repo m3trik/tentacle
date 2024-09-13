@@ -92,7 +92,7 @@ class Transform(SlotsMaya):
 
     def tb001_init(self, widget):
         """ """
-        widget.add(
+        widget.menu.add(
             "QDoubleSpinBox",
             setObjectName="s001",
             setPrefix="Scale Factor:",
