@@ -37,9 +37,8 @@ class Materials(SlotsMaya):
         )
         import os
 
-        widget.menu.b051.clicked.connect(
-            lambda: os.startfile(f"{mtk.get_maya_info('workspace')}/sourcimages")
-        )
+        source_images_dir = mtk.get_maya_info("sourceimages")
+        widget.menu.b051.clicked.connect(lambda: os.startfile(source_images_dir))
 
         # Add a button to launch the hdr manager.
         widget.menu.add(

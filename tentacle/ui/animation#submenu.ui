@@ -87,7 +87,7 @@
    <widget class="QPushButton" name="i024">
     <property name="geometry">
      <rect>
-      <x>180</x>
+      <x>125</x>
       <y>320</y>
       <width>66</width>
       <height>21</height>
@@ -234,6 +234,34 @@
     </property>
     <property name="checkable">
      <bool>true</bool>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="i025">
+    <property name="geometry">
+     <rect>
+      <x>205</x>
+      <y>320</y>
+      <width>66</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="minimumSize">
+     <size>
+      <width>0</width>
+      <height>21</height>
+     </size>
+    </property>
+    <property name="maximumSize">
+     <size>
+      <width>999</width>
+      <height>21</height>
+     </size>
+    </property>
+    <property name="whatsThis">
+     <string>skin</string>
+    </property>
+    <property name="text">
+     <string>Skin</string>
     </property>
    </widget>
   </widget>

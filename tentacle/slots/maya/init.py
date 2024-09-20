@@ -26,6 +26,15 @@ class Init(SlotsMaya):
         except AttributeError as error:  # (an inherited class)
             print(error)
 
+        from mayatk.ui_utils import maya_menu_handler
+
+        handler = maya_menu_handler.MayaMenuHandler()
+        menu = handler.create_tool_menu("skin")
+        print(repr(menu))
+        print("menu objectName:", menu.objectName())
+        self.sb.add_ui(menu, name="skin")
+        print(self.sb.skin, repr(self.sb.skin))
+
     @property
     def new_version_available(self):
         """Check if a new version is available; initiates version check on first access."""
