@@ -29,11 +29,31 @@ class Init(SlotsMaya):
         from mayatk.ui_utils import maya_menu_handler
 
         handler = maya_menu_handler.MayaMenuHandler()
-        menu = handler.create_tool_menu("skin")
+        menu = handler.get_menu("key")
         print(repr(menu))
-        print("menu objectName:", menu.objectName())
-        self.sb.add_ui(menu, name="skin")
-        print(self.sb.skin, repr(self.sb.skin))
+        header = self.sb.Header()
+        header.attach_to(menu)
+        menu.header.setTitle(menu.objectName().upper())
+        menu.header.configure_buttons(menu_button=True, pin_button=True)
+        self.sb.add_ui(menu)
+
+        handler = maya_menu_handler.MayaMenuHandler()
+        menu = handler.get_menu("skin")
+        print(repr(menu))
+        header = self.sb.Header()
+        header.attach_to(menu)
+        menu.header.setTitle(menu.objectName().upper())
+        menu.header.configure_buttons(menu_button=True, pin_button=True)
+        self.sb.add_ui(menu)
+
+        handler = maya_menu_handler.MayaMenuHandler()
+        menu = handler.get_menu("constrain")
+        print(repr(menu))
+        header = self.sb.Header()
+        header.attach_to(menu)
+        menu.header.setTitle(menu.objectName().upper())
+        menu.header.configure_buttons(menu_button=True, pin_button=True)
+        self.sb.add_ui(menu)
 
     @property
     def new_version_available(self):

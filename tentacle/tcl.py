@@ -77,7 +77,7 @@ class Tcl(QtWidgets.QStackedWidget, ptk.LoggingMixin, ptk.HelpMixin):
         self.setAttribute(QtCore.Qt.WA_TranslucentBackground)
         self.setAttribute(QtCore.Qt.WA_NoMousePropagation, False)
         self.setFocusPolicy(QtCore.Qt.StrongFocus)
-        self.resize(1600, 800)
+        self.resize(800, 800)
 
     def _init_ui(self, ui) -> None:
         """Initialize the given UI.
@@ -100,7 +100,10 @@ class Tcl(QtWidgets.QStackedWidget, ptk.LoggingMixin, ptk.HelpMixin):
             ui.setWindowFlags(QtCore.Qt.Tool | QtCore.Qt.FramelessWindowHint)
             ui.setAttribute(QtCore.Qt.WA_TranslucentBackground)
             ui.set_style(theme="dark", style_class="translucentBgWithBorder")
-            ui.header.configureButtons(menu_button=True, pin_button=True)
+            try:
+                ui.header.configure_buttons(menu_button=True, pin_button=True)
+            except AttributeError:
+                pass
             self.key_show_release.connect(ui.hide)
 
         # set style before child init (resize).

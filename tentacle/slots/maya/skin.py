@@ -12,9 +12,7 @@ class Skin(SlotsMaya):
         super().__init__(*args, **kwargs)
 
         self.ui = self.sb.skin
-        self.submenu = self.sb.skin_submenu
-        print("Skin constructor:", self.ui, self.submenu)
-        print(self.ui, repr(self.ui))
+        print("Skin constructor:", self.ui)
 
     def i025(self):
         from mayatk.ui_utils import maya_menu_handler

@@ -87,8 +87,8 @@
    <widget class="QPushButton" name="i024">
     <property name="geometry">
      <rect>
-      <x>125</x>
-      <y>320</y>
+      <x>150</x>
+      <y>330</y>
       <width>66</width>
       <height>21</height>
      </rect>
@@ -236,11 +236,11 @@
      <bool>true</bool>
     </property>
    </widget>
-   <widget class="QPushButton" name="i025">
+   <widget class="QPushButton" name="i027">
     <property name="geometry">
      <rect>
-      <x>205</x>
-      <y>320</y>
+      <x>235</x>
+      <y>330</y>
       <width>66</width>
       <height>21</height>
      </rect>
@@ -258,10 +258,10 @@
      </size>
     </property>
     <property name="whatsThis">
-     <string>skin</string>
+     <string>key</string>
     </property>
     <property name="text">
-     <string>Skin</string>
+     <string>Key</string>
     </property>
    </widget>
   </widget>
