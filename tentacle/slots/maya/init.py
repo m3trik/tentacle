@@ -175,6 +175,17 @@ class Init(SlotsMaya):
                                     hud.insertText(
                                         'Normals: <font style="color: Red;">LOCKED</font>'
                                     )
+                            # Check if the object is instanced
+                            instance_count = (
+                                pm.objectType(shape_node[0], isType="mesh")
+                                and shape_node[0].isInstanced()
+                            )
+                            if instance_count:
+                                hud.insertText(
+                                    'Instances: <font style="color: Yellow;">{}</font>'.format(
+                                        shape_node[0].instanceCount()
+                                    )
+                                )
 
                     objectFaces = pm.polyEvaluate(selection, face=True)
                     if type(objectFaces) == int:
