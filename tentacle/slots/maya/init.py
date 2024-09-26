@@ -30,30 +30,30 @@ class Init(SlotsMaya):
 
         handler = maya_menu_handler.MayaMenuHandler()
         menu = handler.get_menu("key")
-        print(repr(menu))
         header = self.sb.Header()
         header.attach_to(menu)
         menu.header.setTitle(menu.objectName().upper())
         menu.header.configure_buttons(menu_button=True, pin_button=True)
         self.sb.add_ui(menu)
+        self.sb.key.lock_style = True
 
         handler = maya_menu_handler.MayaMenuHandler()
         menu = handler.get_menu("skin")
-        print(repr(menu))
         header = self.sb.Header()
         header.attach_to(menu)
         menu.header.setTitle(menu.objectName().upper())
         menu.header.configure_buttons(menu_button=True, pin_button=True)
         self.sb.add_ui(menu)
+        self.sb.skin.lock_style = True
 
         handler = maya_menu_handler.MayaMenuHandler()
         menu = handler.get_menu("constrain")
-        print(repr(menu))
         header = self.sb.Header()
         header.attach_to(menu)
         menu.header.setTitle(menu.objectName().upper())
         menu.header.configure_buttons(menu_button=True, pin_button=True)
         self.sb.add_ui(menu)
+        self.sb.constrain.lock_style = True
 
     @property
     def new_version_available(self):

@@ -33,7 +33,7 @@ class Scene(SlotsMaya):
             setToolTip="When checked, regular expression syntax is used instead of the default '*' and '|' wildcards.",
         )
 
-    @Signals("textChanged", "returnPressed")
+    @Signals("returnPressed")
     def txt000(self, widget):
         """Find"""
         # An asterisk denotes startswith*, *endswith, *contains*
