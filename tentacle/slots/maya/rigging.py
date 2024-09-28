@@ -17,40 +17,6 @@ class Rigging(SlotsMaya):
         items = ["Joints", "Locator", "IK Handle", "Lattice", "Cluster"]
         widget.add(items, header="Create")
 
-    def tb000_init(self, widget):
-        """ """
-        scale_joint_value = pm.jointDisplayScale(q=True)
-        widget.menu.setTitle("Display Local Rotation Axes")
-        widget.menu.add(
-            "QDoubleSpinBox",
-            setPrefix="Tolerance: ",
-            setObjectName="s000",
-            set_limits=[0, 10, 0.5, 2],
-            setValue=scale_joint_value,
-            setToolTip="Global display scale for the selected type.",
-        )
-        widget.menu.add(
-            "QRadioButton",
-            setText="Joints",
-            setObjectName="chk000",
-            setChecked=True,
-            setToolTip="Display Joints.",
-        )
-        widget.menu.add(
-            "QRadioButton",
-            setText="IK",
-            setObjectName="chk001",
-            setChecked=True,
-            setToolTip="Display IK.",
-        )
-        widget.menu.add(
-            "QRadioButton",
-            setText="IK\\FK",
-            setObjectName="chk002",
-            setChecked=True,
-            setToolTip="Display IK\\FK.",
-        )
-
     def cmb001(self, index, widget):
         """Create"""
         text = widget.items[index]
@@ -89,6 +55,40 @@ class Rigging(SlotsMaya):
         else:  # widget.ui.chk002.isChecked():
             pm.jointDisplayScale(value, ikfk=1)  # set global IKFK display size
 
+    def tb000_init(self, widget):
+        """ """
+        scale_joint_value = pm.jointDisplayScale(q=True)
+        widget.menu.setTitle("Display Local Rotation Axes")
+        widget.menu.add(
+            "QDoubleSpinBox",
+            setPrefix="Tolerance: ",
+            setObjectName="s000",
+            set_limits=[0, 10, 0.5, 2],
+            setValue=scale_joint_value,
+            setToolTip="Global display scale for the selected type.",
+        )
+        widget.menu.add(
+            "QRadioButton",
+            setText="Joints",
+            setObjectName="chk000",
+            setChecked=True,
+            setToolTip="Display Joints.",
+        )
+        widget.menu.add(
+            "QRadioButton",
+            setText="IK",
+            setObjectName="chk001",
+            setChecked=True,
+            setToolTip="Display IK.",
+        )
+        widget.menu.add(
+            "QRadioButton",
+            setText="IK\\FK",
+            setObjectName="chk002",
+            setChecked=True,
+            setToolTip="Display IK\\FK.",
+        )
+
     def tb000(self, widget):
         """Toggle Display Local Rotation Axes"""
         joints = pm.ls(type="joint")  # get all scene joints
@@ -98,7 +98,7 @@ class Rigging(SlotsMaya):
             return  # exit the function
 
         state = pm.toggle(joints[0], q=True, localAxis=1)
-        toggle = widget.menu.isChecked() != state
+        toggle = widget.menu.chk000.isChecked()
 
         if toggle:
             try:
