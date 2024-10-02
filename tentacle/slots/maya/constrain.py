@@ -7,22 +7,22 @@ except ImportError as error:
 from tentacle.slots.maya import SlotsMaya
 
 
-class Skin(SlotsMaya):
+class Constrain(SlotsMaya):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        self.ui = self.sb.skin
+        self.ui = self.sb.constrain
 
         from mayatk.ui_utils import maya_menu_handler
 
         handler = maya_menu_handler.MayaMenuHandler()
-        menu = handler.get_menu("skin")
+        menu = handler.get_menu("constrain")
         header = self.sb.Header()
         header.attach_to(menu)
         menu.header.setTitle(menu.objectName().upper())
         menu.header.configure_buttons(menu_button=True, pin_button=True)
         self.sb.add_ui(menu)
-        self.sb.skin.lock_style = True
+        self.sb.constrain.lock_style = True
 
 
 # --------------------------------------------------------------------------------------------
