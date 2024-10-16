@@ -87,6 +87,7 @@ class Pivot(SlotsMaya):
 
     def tb002_init(self, widget):
         """ """
+        widget.menu.setTitle("Transfer Pivot")
         widget.menu.add(
             "QCheckBox",
             setText="Translate",
@@ -138,6 +139,7 @@ class Pivot(SlotsMaya):
             scale=scale,
             bake=bake,
             world_space=world_space,
+            select_targets_after_transfer=True,
         )
 
     def b000(self):

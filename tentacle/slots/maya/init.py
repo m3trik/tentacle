@@ -18,13 +18,13 @@ class Init(SlotsMaya):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
+        self.ui = self.sb.get_ui("init#submenu")
+
         # Start the version check in a separate thread
         threading.Thread(target=self.check_version, daemon=True).start()
 
-        try:  # set the 'hud_text' textEdit to connect to the 'contruct_hud' method on show.
-            self.sb.init.hud_text.shown.connect(self.construct_hud)
-        except AttributeError as error:  # (an inherited class)
-            print(error)
+        print("Init:", self.ui)
+        # self.ui.hud_text.shown.connect(self.construct_hud)
 
     @property
     def new_version_available(self):
@@ -46,7 +46,7 @@ class Init(SlotsMaya):
         """Add current scene attributes to the hud lineEdit.
         Only those with relevant values will be displayed.
         """
-        hud = self.sb.init.hud_text
+        hud = self.ui.hud_text
 
         try:
             selection = pm.ls(sl=True)
