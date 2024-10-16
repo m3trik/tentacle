@@ -18,13 +18,11 @@ class Init(SlotsMaya):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        self.ui = self.sb.get_ui("init#submenu")
-
         # Start the version check in a separate thread
         threading.Thread(target=self.check_version, daemon=True).start()
 
-        print("Init:", self.ui)
-        # self.ui.hud_text.shown.connect(self.construct_hud)
+        self.ui = self.sb.get_ui("init#startmenu")
+        self.ui.hud_text.shown.connect(self.construct_hud)
 
     @property
     def new_version_available(self):
