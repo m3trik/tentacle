@@ -1,6 +1,6 @@
 numpy
 Pillow
-PySide2
+qtpy
 shiboken2
 pymel
 pythontk==0.7.20

@@ -1,7 +1,7 @@
 # !/usr/bin/python
 # coding=utf-8
 import sys
-from PySide2 import QtWidgets, QtCore
+from qtpy import QtWidgets, QtCore
 from tentacle.tcl import Tcl
 
 instance = None

@@ -1,7 +1,7 @@
 # !/usr/bin/python
 # coding=utf-8
 import inspect
-from PySide2 import QtCore
+from qtpy import QtCore
 import pythontk as ptk
 
 

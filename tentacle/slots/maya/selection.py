@@ -52,6 +52,7 @@ class Selection(SlotsMaya):
             "Brushes",
             "Cameras",
             "Clusters",
+            "Constraints",
             "Dynamic Constraints",
             "Fluids",
             "Follicles",
@@ -98,6 +99,8 @@ class Selection(SlotsMaya):
             objs = pm.ls(objects, type="joint")
         elif text == "Clusters":
             objs = pm.listTransforms(objects, type="clusterHandle")
+        elif text == "Constraints":
+            objs = pm.ls(objects, type="constraint")
         elif text == "Lattices":
             objs = pm.listTransforms(objects, type="lattice")
         elif text == "Sculpt Objects":

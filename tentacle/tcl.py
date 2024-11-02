@@ -1,7 +1,7 @@
 # !/usr/bin/python
 # coding=utf-8
 import sys
-from PySide2 import QtCore, QtGui, QtWidgets
+from qtpy import QtCore, QtGui, QtWidgets
 import pythontk as ptk
 from uitk.switchboard import Switchboard
 from uitk.events import EventFactoryFilter, MouseTracking

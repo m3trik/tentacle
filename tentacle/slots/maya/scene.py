@@ -133,7 +133,7 @@ class Scene(SlotsMaya):
         widget.menu.setTitle("Strip Chars")
         widget.menu.add(
             "QSpinBox",
-            setText="Num Chars",
+            setPrefix="Num Chars:",
             setObjectName="s000",
             setValue=1,
             setToolTip="The number of characters to delete.",

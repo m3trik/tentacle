@@ -34,7 +34,7 @@ class TclMax(Tcl):
         """Get the 3DS MAX main window.
 
         Returns:
-                PySide2.QtWidgets.QMainWindow: 'QMainWindow' 3DS MAX main window.
+                qtpy.QtWidgets.QMainWindow: 'QMainWindow' 3DS MAX main window.
         """
         # import qtmax
         # main_window = qtmax.GetQMaxMainWindow()

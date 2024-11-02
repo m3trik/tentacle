@@ -72,6 +72,10 @@ class Subdivision(SlotsMaya):
         """Quadrangulate"""
         pm.mel.performPolyQuadrangulate(0)
 
+    def b001(self):
+        """Triangulate"""
+        pm.mel.polyTriangulate()
+
     def b005(self):
         """Reduce"""
         selection = pm.ls(sl=1, objectsOnly=1, type="transform")
