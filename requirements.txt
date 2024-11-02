@@ -3,6 +3,6 @@ Pillow
 qtpy
 shiboken2
 pymel
-pythontk==0.7.20
-uitk==1.0.20
-mayatk==0.9.23
+pythontk==0.7.21
+uitk==1.0.21
+mayatk==0.9.24
