@@ -17,39 +17,6 @@ class Rigging(SlotsMaya):
         items = ["Joints", "Locator", "IK Handle", "Lattice", "Cluster"]
         widget.add(items, header="Create")
 
-    def tb000_init(self, widget):
-        """ """
-        scale_joint_value = pm.jointDisplayScale(q=True)
-        widget.menu.add(
-            "QDoubleSpinBox",
-            setPrefix="Tolerance: ",
-            setObjectName="s000",
-            set_limits=[0, 10, 0.5, 2],
-            setValue=scale_joint_value,
-            setToolTip="Global display scale for the selected type.",
-        )
-        widget.menu.add(
-            "QRadioButton",
-            setText="Joints",
-            setObjectName="chk000",
-            setChecked=True,
-            setToolTip="Display Joints.",
-        )
-        widget.menu.add(
-            "QRadioButton",
-            setText="IK",
-            setObjectName="chk001",
-            setChecked=True,
-            setToolTip="Display IK.",
-        )
-        widget.menu.add(
-            "QRadioButton",
-            setText="IK\\FK",
-            setObjectName="chk002",
-            setChecked=True,
-            setToolTip="Display IK\\FK.",
-        )
-
     def cmb001(self, index, widget):
         """Create"""
         text = widget.items[index]
@@ -88,6 +55,40 @@ class Rigging(SlotsMaya):
         else:  # widget.ui.chk002.isChecked():
             pm.jointDisplayScale(value, ikfk=1)  # set global IKFK display size
 
+    def tb000_init(self, widget):
+        """ """
+        scale_joint_value = pm.jointDisplayScale(q=True)
+        widget.menu.setTitle("Display Local Rotation Axes")
+        widget.menu.add(
+            "QDoubleSpinBox",
+            setPrefix="Tolerance: ",
+            setObjectName="s000",
+            set_limits=[0, 10, 0.5, 2],
+            setValue=scale_joint_value,
+            setToolTip="Global display scale for the selected type.",
+        )
+        widget.menu.add(
+            "QRadioButton",
+            setText="Joints",
+            setObjectName="chk000",
+            setChecked=True,
+            setToolTip="Display Joints.",
+        )
+        widget.menu.add(
+            "QRadioButton",
+            setText="IK",
+            setObjectName="chk001",
+            setChecked=True,
+            setToolTip="Display IK.",
+        )
+        widget.menu.add(
+            "QRadioButton",
+            setText="IK\\FK",
+            setObjectName="chk002",
+            setChecked=True,
+            setToolTip="Display IK\\FK.",
+        )
+
     def tb000(self, widget):
         """Toggle Display Local Rotation Axes"""
         joints = pm.ls(type="joint")  # get all scene joints
@@ -97,7 +98,7 @@ class Rigging(SlotsMaya):
             return  # exit the function
 
         state = pm.toggle(joints[0], q=True, localAxis=1)
-        toggle = widget.menu.isChecked() != state
+        toggle = widget.menu.chk000.isChecked()
 
         if toggle:
             try:
@@ -109,6 +110,7 @@ class Rigging(SlotsMaya):
 
     def tb001_init(self, widget):
         """ """
+        widget.menu.setTitle("Orient Joints")
         widget.menu.add(
             "QCheckBox",
             setText="Align world",
@@ -141,6 +143,7 @@ class Rigging(SlotsMaya):
 
     def tb002_init(self, widget):
         """ """
+        widget.menu.setTitle("Constrain")
         widget.menu.add(
             "QComboBox",
             setObjectName="cmb000",
@@ -149,7 +152,7 @@ class Rigging(SlotsMaya):
         )
 
     def tb002(self, widget):
-        """Set Constraint"""
+        """Constrain"""
         constraint_type = widget.menu.cmb000.currentText()
         *objects_to_constrain, target = pm.selected()
 
@@ -256,7 +259,7 @@ class Rigging(SlotsMaya):
         parent = widget.menu.chk006.isChecked()
         freeze_transforms = widget.menu.chk010.isChecked()
         bake_child_pivot = widget.menu.chk011.isChecked()
-        scale = widget.menu.s001.value()
+        loc_scale = widget.menu.s001.value()
         strip_digits = widget.menu.chk005.isChecked()
         strip_suffix = widget.menu.chk016.isChecked()
         lock_translate = widget.menu.chk007.isChecked()
@@ -265,14 +268,14 @@ class Rigging(SlotsMaya):
 
         selection = pm.selected()
         if not selection:
-            return mtk.create_locator(scale=scale)
+            return mtk.create_locator(scale=loc_scale)
 
         mtk.create_locator_at_object(
             selection,
             parent=parent,
             freeze_transforms=freeze_transforms,
             bake_child_pivot=bake_child_pivot,
-            scale=scale,
+            loc_scale=loc_scale,
             grp_suffix=grp_suffix,
             loc_suffix=loc_suffix,
             obj_suffix=obj_suffix,
@@ -281,59 +284,6 @@ class Rigging(SlotsMaya):
             lock_translate=lock_translate,
             lock_rotation=lock_rotation,
             lock_scale=lock_scale,
-        )
-
-    def tb004_init(self, widget):
-        """ """
-        widget.menu.add(
-            "QCheckBox",
-            setText="Translate",
-            setObjectName="chk012",
-            setChecked=False,
-            setToolTip="",
-        )
-        widget.menu.add(
-            "QCheckBox",
-            setText="Rotate",
-            setObjectName="chk013",
-            setChecked=False,
-            setToolTip="",
-        )
-        widget.menu.add(
-            "QCheckBox",
-            setText="Scale",
-            setObjectName="chk014",
-            setChecked=False,
-            setToolTip="",
-        )
-        self.sb.connect_multi(
-            widget.menu,
-            "chk012-14",
-            "toggled",
-            [
-                lambda state: widget.setText(
-                    "Lock Attributes"
-                    if any(
-                        (
-                            widget.menu.chk012.isChecked(),
-                            widget.menu.chk013.isChecked(),
-                            widget.menu.chk014.isChecked(),
-                        )
-                    )
-                    else "Unlock Attributes"
-                ),
-            ],
-        )
-
-    def tb004(self, widget):
-        """Lock/Unlock Attributes"""
-        lock_translate = widget.menu.chk012.isChecked()
-        lock_rotation = widget.menu.chk013.isChecked()
-        lock_scale = widget.menu.chk014.isChecked()
-
-        sel = pm.ls(sl=True)
-        mtk.set_attr_lock_state(
-            sel, translate=lock_translate, rotate=lock_rotation, scale=lock_scale
         )
 
     def b000(self, widget):

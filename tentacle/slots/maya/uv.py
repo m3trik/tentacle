@@ -36,8 +36,15 @@ class Uv(SlotsMaya):
             setObjectName="uv_editor",
             setToolTip="Open the texture coordinate mapping window.",
         )
+        widget.menu.add(
+            "QPushButton",
+            setText="Open UV Set Editor",
+            setObjectName="uv_set_editor",
+            setToolTip="Edit UV sets on selected objects.",
+        )
         widget.menu.uv_snapshot.clicked.connect(pm.mel.UVCreateSnapshot)
         widget.menu.uv_editor.clicked.connect(pm.mel.TextureViewWindow)
+        widget.menu.uv_set_editor.clicked.connect(pm.mel.UVSetEditor)
 
     def cmb002_init(self, widget):
         """ """
@@ -591,6 +598,12 @@ class Uv(SlotsMaya):
             pm.polyEditUV(
                 uv, pivotU=pivot_u, pivotV=pivot_v, angle=angle, relative=True
             )
+
+    def b007(self):
+        """Display UV Borders"""
+        from mayatk.edit_utils.macros import Macros
+
+        Macros.m_toggle_uv_border_edges()
 
     @mtk.undo
     def b011(self):

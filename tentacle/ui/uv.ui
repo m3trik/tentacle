@@ -10,7 +10,7 @@
     <x>0</x>
     <y>0</y>
     <width>200</width>
-    <height>480</height>
+    <height>496</height>
    </rect>
   </property>
   <property name="toolTip">
@@ -328,6 +328,34 @@
           <number>0</number>
          </property>
          <item>
+          <widget class="QPushButton" name="b022_2">
+           <property name="enabled">
+            <bool>true</bool>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>999</width>
+             <height>19</height>
+            </size>
+           </property>
+           <property name="toolTip">
+            <string>Cut all UV seams at hard edges.</string>
+           </property>
+           <property name="text">
+            <string>Display UV Border</string>
+           </property>
+           <property name="autoDefault">
+            <bool>true</bool>
+           </property>
+           <property name="default">
+            <bool>false</bool>
+           </property>
+           <property name="flat">
+            <bool>false</bool>
+           </property>
+          </widget>
+         </item>
+         <item>
           <widget class="PushButton" name="tb002">
            <property name="enabled">
             <bool>true</bool>
@@ -612,7 +640,7 @@
             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Cut all seams at the edges within the threshold defined in selection&amp;gt;by angle.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
            </property>
            <property name="text">
-            <string>Cut UV Hard Edges</string>
+            <string>Cut Hard Edges</string>
            </property>
            <property name="autoDefault">
             <bool>true</bool>

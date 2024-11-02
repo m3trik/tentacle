@@ -1,13 +1,13 @@
 [![License: LGPL v3](https://img.shields.io/badge/License-LGPL%20v3-blue.svg)](https://www.gnu.org/licenses/lgpl-3.0.en.html)
-[![Version](https://img.shields.io/badge/Version-0.9.27-blue.svg)](https://pypi.org/project/tentacletk/)
+[![Version](https://img.shields.io/badge/Version-0.9.28-blue.svg)](https://pypi.org/project/tentacletk/)
 
-# Tentacle: A Python3/PySide2 Marking Menu and DCC Toolkit
+# Tentacle: A Python3/qtpy Marking Menu and DCC Toolkit
 
-Tentacle is a Python3/PySide2 marking menu implemented using Qt's QStackedWidget. It is designed for use with Maya, 3ds Max, Blender, and any other DCC app that supports the PySide2 framework, but in it's current implementation, it only has slots set up for Maya.  
+Tentacle is a Python3/qtpy marking menu implemented using Qt's QStackedWidget. It is designed for use with Maya, 3ds Max, Blender, and any other DCC app that supports the qtpy framework, but in it's current implementation, it only has slots set up for Maya.  
 
 ## Design
 
-Tentacle runs on top of [uitk](https://github.com/m3trik/uitk.git), a PySide2 dynamic UI loader and management package, which allows for the creation of fully-featured UI with less time and code.
+Tentacle runs on top of [uitk](https://github.com/m3trik/uitk.git), a qtpy dynamic UI loader and management package, which allows for the creation of fully-featured UI with less time and code.
 
 ## Example
 

@@ -20,6 +20,12 @@ class Display(SlotsMaya):
         """Set Wireframe color"""
         pm.mel.objectColorPalette()
 
+    def b001(self):
+        """Wireframe Selected"""
+        from mayatk.edit_utils.macros import Macros
+
+        Macros.m_wireframe_toggle()
+
     def b002(self):
         """Hide Selected"""
         selection = pm.ls(sl=True)

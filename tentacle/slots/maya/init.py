@@ -21,10 +21,8 @@ class Init(SlotsMaya):
         # Start the version check in a separate thread
         threading.Thread(target=self.check_version, daemon=True).start()
 
-        try:  # set the 'hud_text' textEdit to connect to the 'contruct_hud' method on show.
-            self.sb.init.hud_text.shown.connect(self.construct_hud)
-        except AttributeError as error:  # (an inherited class)
-            print(error)
+        self.ui = self.sb.get_ui("init#startmenu")
+        self.ui.hud_text.shown.connect(self.construct_hud)
 
     @property
     def new_version_available(self):
@@ -46,7 +44,7 @@ class Init(SlotsMaya):
         """Add current scene attributes to the hud lineEdit.
         Only those with relevant values will be displayed.
         """
-        hud = self.sb.init.hud_text
+        hud = self.ui.hud_text
 
         try:
             selection = pm.ls(sl=True)
@@ -102,16 +100,15 @@ class Init(SlotsMaya):
             )
 
         else:
-            if pm.selectMode(q=True, object=1):  # object mode:
-                if pm.selectType(q=True, allObjects=1):  # get object/s
-                    selectedObjects = pm.ls(sl=True)  # , objectsOnly=1)
-                    numberOfSelected = len(selectedObjects)
+            if pm.selectMode(q=True, object=True):  # object mode:
+                if pm.selectType(q=True, allObjects=True):  # get object/s
+                    numberOfSelected = len(selection)
                     if numberOfSelected < 11:
                         name_and_type = [
                             '<font style="color: Yellow;">{0}<font style="color: LightGray;">:{1}<br/>'.format(
                                 i.name(), pm.objectType(i)
                             )
-                            for i in selectedObjects
+                            for i in selection
                         ]  # ie. ['pCube1:transform', 'pSphere1:transform']
                         name_and_type_str = str(name_and_type).translate(
                             str.maketrans("", "", ",[]'")
@@ -124,7 +121,42 @@ class Init(SlotsMaya):
                         )
                     )  # currently selected objects by name and type.
 
-                    objectFaces = pm.polyEvaluate(selectedObjects, face=True)
+                    if (
+                        numberOfSelected == 1
+                        and pm.nodeType(selection[0]) == "transform"
+                    ):
+                        # Get the shape node associated with the transform
+                        shape_node = pm.listRelatives(
+                            selection[0],
+                            shapes=True,
+                            noIntermediate=True,
+                            fullPath=True,
+                        )
+                        if shape_node and isinstance(shape_node[0], pm.nt.Mesh):
+                            # Get all vertex faces from the shape node
+                            vertex_faces = shape_node[0].vtxFace
+                            # Check if any of the vertex faces have locked normals
+                            all_locked = pm.polyNormalPerVertex(
+                                vertex_faces, query=True, allLocked=True
+                            )
+                            if all_locked:
+                                if any(all_locked):
+                                    hud.insertText(
+                                        'Normals: <font style="color: Red;">LOCKED</font>'
+                                    )
+                            # Check if the object is instanced
+                            instance_count = (
+                                pm.objectType(shape_node[0], isType="mesh")
+                                and shape_node[0].isInstanced()
+                            )
+                            if instance_count:
+                                hud.insertText(
+                                    'Instances: <font style="color: Yellow;">{}</font>'.format(
+                                        shape_node[0].instanceCount()
+                                    )
+                                )
+
+                    objectFaces = pm.polyEvaluate(selection, face=True)
                     if type(objectFaces) == int:
                         hud.insertText(
                             'Faces: <font style="color: Yellow;">{}'.format(
@@ -132,7 +164,7 @@ class Init(SlotsMaya):
                             )
                         )  # add commas each 3 decimal places.
 
-                    objectTris = pm.polyEvaluate(selectedObjects, triangle=True)
+                    objectTris = pm.polyEvaluate(selection, triangle=True)
                     if type(objectTris) == int:
                         hud.insertText(
                             'Tris: <font style="color: Yellow;">{}'.format(
@@ -140,7 +172,7 @@ class Init(SlotsMaya):
                             )
                         )  # add commas each 3 decimal places.
 
-                    objectUVs = pm.polyEvaluate(selectedObjects, uvcoord=True)
+                    objectUVs = pm.polyEvaluate(selection, uvcoord=True)
                     if type(objectUVs) == int:
                         hud.insertText(
                             'UVs: <font style="color: Yellow;">{}'.format(

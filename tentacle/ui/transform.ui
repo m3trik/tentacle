@@ -10,7 +10,7 @@
     <x>0</x>
     <y>0</y>
     <width>200</width>
-    <height>263</height>
+    <height>268</height>
    </rect>
   </property>
   <property name="tabShape">
@@ -201,6 +201,52 @@
            </property>
            <property name="text">
             <string>Match Scale</string>
+           </property>
+           <property name="iconSize">
+            <size>
+             <width>18</width>
+             <height>18</height>
+            </size>
+           </property>
+           <property name="autoDefault">
+            <bool>false</bool>
+           </property>
+           <property name="default">
+            <bool>false</bool>
+           </property>
+           <property name="flat">
+            <bool>false</bool>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="PushButton" name="tb001">
+           <property name="enabled">
+            <bool>true</bool>
+           </property>
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>20</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>16777215</width>
+             <height>20</height>
+            </size>
+           </property>
+           <property name="toolTip">
+            <string>Scales each set of connected edges separately.</string>
+           </property>
+           <property name="text">
+            <string>Scale Connected Edges</string>
            </property>
            <property name="iconSize">
             <size>
@@ -519,6 +565,11 @@
  </widget>
  <customwidgets>
   <customwidget>
+   <class>PushButton</class>
+   <extends>QPushButton</extends>
+   <header>widgets.pushbutton.h</header>
+  </customwidget>
+  <customwidget>
    <class>Header</class>
    <extends>QLabel</extends>
    <header>uitk.widgets.header.Header.h</header>
@@ -527,11 +578,6 @@
    <class>ComboBox</class>
    <extends>QComboBox</extends>
    <header>uitk.widgets.comboBox.ComboBox.h</header>
-  </customwidget>
-  <customwidget>
-   <class>PushButton</class>
-   <extends>QPushButton</extends>
-   <header>widgets.pushbutton.h</header>
   </customwidget>
  </customwidgets>
  <resources/>

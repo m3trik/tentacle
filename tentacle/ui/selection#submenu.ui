@@ -34,6 +34,9 @@
   <property name="cursor">
    <cursorShape>ArrowCursor</cursorShape>
   </property>
+  <property name="toolTip">
+   <string>Toggle selectability of the given objects.</string>
+  </property>
   <property name="whatsThis">
    <string>main</string>
   </property>
@@ -87,7 +90,7 @@
    <widget class="QPushButton" name="i021">
     <property name="geometry">
      <rect>
-      <x>270</x>
+      <x>220</x>
       <y>250</y>
       <width>66</width>
       <height>21</height>
@@ -373,6 +376,68 @@
     </property>
     <property name="checkable">
      <bool>true</bool>
+    </property>
+   </widget>
+   <widget class="PushButton" name="b000">
+    <property name="enabled">
+     <bool>true</bool>
+    </property>
+    <property name="geometry">
+     <rect>
+      <x>345</x>
+      <y>210</y>
+      <width>121</width>
+      <height>19</height>
+     </rect>
+    </property>
+    <property name="maximumSize">
+     <size>
+      <width>121</width>
+      <height>19</height>
+     </size>
+    </property>
+    <property name="toolTip">
+     <string>Expand the outliner to show the currently selected object(s).</string>
+    </property>
+    <property name="text">
+     <string>Reveal in Outliner</string>
+    </property>
+    <property name="iconSize">
+     <size>
+      <width>18</width>
+      <height>18</height>
+     </size>
+    </property>
+   </widget>
+   <widget class="PushButton" name="b001">
+    <property name="enabled">
+     <bool>true</bool>
+    </property>
+    <property name="geometry">
+     <rect>
+      <x>325</x>
+      <y>180</y>
+      <width>116</width>
+      <height>19</height>
+     </rect>
+    </property>
+    <property name="maximumSize">
+     <size>
+      <width>131</width>
+      <height>19</height>
+     </size>
+    </property>
+    <property name="toolTip">
+     <string>Expand the outliner to show the currently selected object(s).</string>
+    </property>
+    <property name="text">
+     <string>Non/Selectable</string>
+    </property>
+    <property name="iconSize">
+     <size>
+      <width>18</width>
+      <height>18</height>
+     </size>
     </property>
    </widget>
   </widget>

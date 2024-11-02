@@ -37,9 +37,8 @@ class Materials(SlotsMaya):
         )
         import os
 
-        widget.menu.b051.clicked.connect(
-            lambda: os.startfile(f"{mtk.get_maya_info('workspace')}/sourcimages")
-        )
+        source_images_dir = mtk.get_maya_info("sourceimages")
+        widget.menu.b051.clicked.connect(lambda: os.startfile(source_images_dir))
 
         # Add a button to launch the hdr manager.
         widget.menu.add(
@@ -89,25 +88,6 @@ class Materials(SlotsMaya):
         widget.menu.b003.clicked.connect(
             lambda: self.sb.parent().set_ui("map_converter")
         )
-
-    def cmb000_init(self, widget):
-        """ """
-        # Get all shader types derived from the 'shader' class
-        items = pm.listNodeTypes("shader")
-        widget.add(items, header="Assign New", header_alignment="center")
-
-    def cmb000(self, index, widget):
-        """Assign: Assign New"""
-        selection = pm.ls(sl=True, flatten=1)
-        if not selection:
-            self.sb.message_box("No renderable object is selected for assignment.")
-            return
-
-        mat_name = widget.itemText(index)
-        mat = mtk.create_mat(mat_name)
-        mtk.assign_mat(selection, mat)
-        self.ui.cmb002.init_slot()
-        self.ui.cmb002.setAsCurrent(mat_name)
 
     def cmb002_init(self, widget):
         """ """
@@ -266,7 +246,7 @@ class Materials(SlotsMaya):
         """Remove and Reassign Duplicates"""
         dups = mtk.find_materials_with_duplicate_textures()
         if dups:
-            mtk.reassign_duplicates(dups, delete=True)
+            mtk.reassign_duplicate_materials(dups, delete=True)
             self.ui.cmb002.init_slot()
 
     def b002(self, widget):
@@ -353,6 +333,14 @@ class Materials(SlotsMaya):
 
         mat = self.ui.cmb002.currentData()
         mtk.assign_mat(selection, mat)
+
+    def b006(self, widget):
+        """Assign: New Material"""
+        renderable_objects = pm.ls(sl=True, type="mesh", dag=True, geometry=True)
+        if not renderable_objects:
+            self.sb.message_box("No renderable object is selected for assignment.")
+            return
+        pm.mel.createAssignNewMaterialTreeLister("")
 
 
 # --------------------------------------------------------------------------------------------
