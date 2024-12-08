@@ -516,21 +516,6 @@ class Polygons(SlotsMaya):
         pm.mel.targetWeldCtx("polyMergeVertexContext", edit=True, mergeToCenter=False)
         pm.mel.MergeVertexTool()
 
-    def b046(self):
-        """Split"""
-        vertexMask = pm.selectType(q=True, vertex=True)
-        edgeMask = pm.selectType(q=True, edge=True)
-        facetMask = pm.selectType(q=True, facet=True)
-
-        if facetMask:
-            pm.mel.performPolyPoke(1)
-
-        elif edgeMask:
-            pm.polySubdivideEdge(ws=0, s=0, dv=1, ch=0)
-
-        elif vertexMask:
-            pm.mel.polyChamferVtx(0, 0.25, 0)
-
     def b047(self):
         """Insert Edgeloop"""
         pm.mel.SplitEdgeRingTool()

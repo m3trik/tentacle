@@ -20,6 +20,7 @@ class Preferences(SlotsMaya):
 
         # Change generic button text to Maya specific
         self.ui.parent_app.setTitle("Maya")
+        self.ui.b010.setText("Maya Preferences")
         self.submenu.b010.setText("Maya Preferences")
 
     def cmb001_init(self, widget):

@@ -255,25 +255,8 @@ class Nurbs(SlotsMaya):
         """Extract Curve"""
         try:
             pm.mel.CreateCurveFromPoly()
-
         except Exception:
-            sel = pm.ls(sl=1)
-            sel_edges = mtk.get_components(
-                sel, component_type="edges", flatten=1
-            )  # get edges from selection.
-            edge_rings = mtk.get_contigious_edges(sel_edges)
-            multi = len(edge_rings) > 1
-
-            for edge_ring in edge_rings:
-                pm.select(edge_ring)
-                if multi:
-                    pm.polyToCurve(
-                        form=2, degree=3, conformToSmoothMeshPreview=True
-                    )  # degree: 1=linear,2= ,3=cubic,5= ,7=
-                else:
-                    return pm.polyToCurve(
-                        form=2, degree=3, conformToSmoothMeshPreview=True
-                    )  # degree: 1=linear,2= ,3=cubic,5= ,7=
+            mtk.create_curve_from_edges()
 
     def b018(self):
         """Lock Curve"""
