@@ -338,20 +338,20 @@ class Edit(SlotsMaya):
             lambda chk: chk.isChecked(),
             (widget.menu.chk019, widget.menu.chk020, widget.menu.chk030),
         )
-        objects = pm.ls(sl=True, objectsOnly=1) or pm.ls(typ="mesh")
+        objects = pm.ls(sl=True, objectsOnly=True) or pm.ls(typ="mesh")
 
-        # Delete unused nodes
-        if unused_nodes:
+        if unused_nodes:  # Delete unused nodes
             pm.mel.MLdeleteUnused()
             pm.delete(mtk.get_groups(empty=True))
 
-        # Delete history
-        if deformers:
+        if deformers:  # Delete all history
             pm.delete(objects, constructionHistory=True)
             self.sb.message_box("<hl>Delete history</hl>")
-        else:
-            pm.bakePartialHistory(objects, prePostDeformers=True)
-            self.sb.message_box("<hl>Delete non-deformer history</hl>")
+        else:  # Delete non-deformer history
+            shapes = mtk.get_shape_node(objects)
+            if shapes:
+                pm.bakePartialHistory(shapes, prePostDeformers=True)
+                self.sb.message_box("<hl>Delete non-deformer history</hl>")
 
         # Optimize the scene
         if optimize:
