@@ -55,7 +55,6 @@ class Tcl(QtWidgets.QStackedWidget, ptk.LoggingMixin, ptk.HelpMixin):
             ui_source=ui_source,
             slot_source=slot_source,
             widget_source=widget_source,
-            log_level=log_level,
         )
         self.child_event_filter = EventFactoryFilter(
             self,
@@ -344,7 +343,7 @@ class Tcl(QtWidgets.QStackedWidget, ptk.LoggingMixin, ptk.HelpMixin):
                 if w.base_name == "i":
                     w.ui.set_style(widget=w)
 
-            if w.type == self.sb.Region:
+            if w.type == self.sb.registered_widgets.Region:
                 w.visible_on_mouse_over = True
 
     def child_enterEvent(self, w, event) -> None:

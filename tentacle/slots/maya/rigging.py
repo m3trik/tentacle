@@ -324,7 +324,7 @@ class Rigging(SlotsMaya):
                 pm.transformLimits(node, **kwargs)
 
         try:
-            window = self.sb.AttributeWindow(
+            window = self.sb.registered_widgets.AttributeWindow(
                 node,
                 window_title=node.name(),
                 get_attribute_func=lambda: mtk.get_parameter_mapping(

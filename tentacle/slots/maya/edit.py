@@ -12,8 +12,8 @@ class Edit(SlotsMaya):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        self.ui = self.sb.edit
-        self.submenu = self.sb.edit_submenu
+        self.ui = self.sb.loaded_ui.edit
+        self.submenu = self.sb.loaded_ui.edit_submenu
 
         # Refresh the combo box on every view show
         self.ui.cmb001.before_popup_shown.connect(self.ui.cmb001.init_slot)
@@ -40,7 +40,7 @@ class Edit(SlotsMaya):
         if item != "No selection.":
             node = widget.itemData(index)
             if node:
-                window = self.sb.AttributeWindow(
+                window = self.sb.registered_widgets.AttributeWindow(
                     node,
                     window_title=node.name(),
                     get_attribute_func=lambda: mtk.get_node_attributes(
@@ -67,7 +67,7 @@ class Edit(SlotsMaya):
             setText="Repair",
             setObjectName="chk004",
             setToolTip="Repair matching geometry. Else, select only.",
-        )  # add(self.sb.CheckBox, setText='Select Only', setObjectName='chk004', setTristate=True, setCheckState=2, setToolTip='Select and/or Repair matching geometry. <br>0: Repair Only<br>1: Repair and Select<br>2: Select Only')
+        )  # add(self.sb.registered_widgets.CheckBox, setText='Select Only', setObjectName='chk004', setTristate=True, setCheckState=2, setToolTip='Select and/or Repair matching geometry. <br>0: Repair Only<br>1: Repair and Select<br>2: Select Only')
         widget.menu.add(
             "QCheckBox",
             setText="Delete History",

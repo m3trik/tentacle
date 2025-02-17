@@ -12,8 +12,8 @@ class Crease(SlotsMaya):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        self.ui = self.sb.crease
-        self.submenu = self.sb.crease_submenu
+        self.ui = self.sb.loaded_ui.crease
+        self.submenu = self.sb.loaded_ui.crease_submenu
 
     def tb000_init(self, widget):
         """ """

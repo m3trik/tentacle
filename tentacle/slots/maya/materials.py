@@ -12,8 +12,8 @@ class Materials(SlotsMaya):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        self.ui = self.sb.materials
-        self.submenu = self.sb.materials_submenu
+        self.ui = self.sb.loaded_ui.materials
+        self.submenu = self.sb.loaded_ui.materials_submenu
 
         # Set a class attribute to track the last created random material
         self.last_random_material = None
@@ -22,7 +22,7 @@ class Materials(SlotsMaya):
         """ """
         # Add a button to open the hypershade editor.
         widget.menu.add(
-            self.sb.PushButton,
+            self.sb.registered_widgets.PushButton,
             setToolTip="Open the Hypershade Window.",
             setText="Hypershade Editor",
             setObjectName="b050",
@@ -30,7 +30,7 @@ class Materials(SlotsMaya):
         widget.menu.b050.clicked.connect(pm.mel.HypershadeWindow)
 
         widget.menu.add(
-            self.sb.PushButton,
+            self.sb.registered_widgets.PushButton,
             setToolTip="Open the current project's source images folder.",
             setText="Source Images",
             setObjectName="b051",
@@ -40,23 +40,9 @@ class Materials(SlotsMaya):
         source_images_dir = mtk.get_maya_info("sourceimages")
         widget.menu.b051.clicked.connect(lambda: os.startfile(source_images_dir))
 
-        # Add a button to launch the hdr manager.
-        widget.menu.add(
-            self.sb.PushButton,
-            setToolTip="Manage the scene's HDR shader.",
-            setText="HDR Manager",
-            setObjectName="b000",
-        )
-        from mayatk.mat_utils import hdr_manager
-
-        self.sb.register(
-            "hdr_manager.ui", hdr_manager.HdrManagerSlots, base_dir=hdr_manager
-        )
-        widget.menu.b000.clicked.connect(lambda: self.sb.parent().set_ui("hdr_manager"))
-
         # Add a button to launch stringray arnold shader.
         widget.menu.add(
-            self.sb.PushButton,
+            self.sb.registered_widgets.PushButton,
             setToolTip="Create a stingray material network that can optionally be rendered in Arnold.",
             setText="Create Stingray Shader",
             setObjectName="b001",
@@ -73,7 +59,7 @@ class Materials(SlotsMaya):
         )
         # Add a button to launch map converter.
         widget.menu.add(
-            self.sb.PushButton,
+            self.sb.registered_widgets.PushButton,
             setToolTip="Convert exisitng texture maps to another type.",
             setText="Map Converter",
             setObjectName="b003",
@@ -97,49 +83,49 @@ class Materials(SlotsMaya):
             widget.menu.mode = "context"
             widget.menu.setTitle("Material Options")
             widget.menu.add(
-                self.sb.Label,
+                self.sb.registered_widgets.Label,
                 setText="Select Node",
                 setObjectName="lbl004",
                 setToolTip="Select the material node and show its attributes in the attribute editor.",
             )
             widget.menu.add(
-                self.sb.Label,
+                self.sb.registered_widgets.Label,
                 setText="Rename",
                 setObjectName="lbl005",
                 setToolTip="Rename the current material.",
             )
             widget.menu.add(
-                self.sb.Label,
+                self.sb.registered_widgets.Label,
                 setText="Reload Textures",
                 setObjectName="lbl006",
                 setToolTip="Reload file textures for all scene materials.",
             )
             widget.menu.add(
-                self.sb.Label,
+                self.sb.registered_widgets.Label,
                 setText="Convert Filepaths to Relative",
                 setObjectName="lbl007",
                 setToolTip="Convert absolute file paths to relative paths for file texture nodes.",
             )
             widget.menu.add(
-                self.sb.Label,
+                self.sb.registered_widgets.Label,
                 setText="Remove Duplicates",
                 setObjectName="lbl008",
                 setToolTip="Find duplicate materials, remove duplicates, and reassign them to the original material.",
             )
             widget.menu.add(
-                self.sb.Label,
+                self.sb.registered_widgets.Label,
                 setText="Delete",
                 setObjectName="lbl002",
                 setToolTip="Delete the current material.",
             )
             widget.menu.add(
-                self.sb.Label,
+                self.sb.registered_widgets.Label,
                 setText="Delete All Unused",
                 setObjectName="lbl003",
                 setToolTip="Delete All unused materials.",
             )
             widget.menu.add(
-                self.sb.Label,
+                self.sb.registered_widgets.Label,
                 setText="Open in Editor",
                 setObjectName="lbl000",
                 setToolTip="Open the current material in editor.",

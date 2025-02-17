@@ -13,8 +13,8 @@ class Rendering(SlotsMaya):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        self.ui = self.sb.rendering
-        self.submenu = self.sb.rendering_submenu
+        self.ui = self.sb.loaded_ui.rendering
+        self.submenu = self.sb.loaded_ui.rendering_submenu
 
     def cmb001_init(self, widget):
         """Render: camera"""

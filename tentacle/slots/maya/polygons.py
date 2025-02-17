@@ -13,8 +13,8 @@ class Polygons(SlotsMaya):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        self.ui = self.sb.polygons
-        self.submenu = self.sb.polygons_submenu
+        self.ui = self.sb.loaded_ui.polygons
+        self.submenu = self.sb.loaded_ui.polygons_submenu
 
     def chk008(self, state, widget):
         """Divide Facet: Split U"""

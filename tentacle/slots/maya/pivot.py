@@ -12,8 +12,8 @@ class Pivot(SlotsMaya):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        self.ui = self.sb.pivot
-        self.submenu = self.sb.pivot_submenu
+        self.ui = self.sb.loaded_ui.pivot
+        self.submenu = self.sb.loaded_ui.pivot_submenu
 
     def tb000_init(self, widget):
         """ """

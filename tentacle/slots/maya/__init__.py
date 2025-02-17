@@ -28,7 +28,7 @@ class SlotsMaya(Slots):
         ui.setWindowFlags(self.sb.QtCore.Qt.FramelessWindowHint)
         ui.lock_style = True
 
-        ui.header = self.sb.Header()
+        ui.header = self.sb.registered_widgets.Header()
         ui.header.setTitle(ui.name.upper())
         ui.header.attach_to(ui)
 

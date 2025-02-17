@@ -10,8 +10,8 @@ from tentacle.slots.maya import SlotsMaya
 class Symmetry(SlotsMaya):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.ui = self.sb.symmetry
-        self.submenu = self.sb.symmetry_submenu
+        self.ui = self.sb.loaded_ui.symmetry
+        self.submenu = self.sb.loaded_ui.symmetry_submenu
 
     def chk000_init(self, widget):
         """Set initial symmetry state"""

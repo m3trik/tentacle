@@ -15,8 +15,8 @@ class Preferences(SlotsMaya):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        self.ui = self.sb.preferences
-        self.submenu = self.sb.preferences_submenu
+        self.ui = self.sb.loaded_ui.preferences
+        self.submenu = self.sb.loaded_ui.preferences_submenu
 
         # Change generic button text to Maya specific
         self.ui.parent_app.setTitle("Maya")

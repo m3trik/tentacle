@@ -19,10 +19,10 @@ class Slots(QtCore.QObject):
                     return int(f)
     """
 
-    def __init__(self, parent=None):
+    def __init__(self, parent=None, **kwargs):
         super().__init__(parent)
         """ """
-        self.sb = self.switchboard()
+        self.sb = kwargs.get("switchboard")
         self.sb.parent().left_mouse_double_click_ctrl.connect(self.repeat_last_command)
 
     def hide_main(fn):

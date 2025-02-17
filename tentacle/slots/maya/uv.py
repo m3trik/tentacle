@@ -12,8 +12,8 @@ class Uv(SlotsMaya):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        self.ui = self.sb.uv
-        self.submenu = self.sb.uv_submenu
+        self.ui = self.sb.loaded_ui.uv
+        self.submenu = self.sb.loaded_ui.uv_submenu
 
         # Assure the maya UV plugin is loaded
         mtk.load_plugin("Unfold3D.mll")
@@ -251,7 +251,10 @@ class Uv(SlotsMaya):
         ]
         [
             widget.menu.add(
-                self.sb.CheckBox, setObjectName=chk, setText=typ, setChecked=state
+                self.sb.registered_widgets.CheckBox,
+                setObjectName=chk,
+                setText=typ,
+                setChecked=state,
             )
             for chk, typ, state in values
         ]

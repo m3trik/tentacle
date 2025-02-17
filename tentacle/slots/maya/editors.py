@@ -12,7 +12,7 @@ class Editors(SlotsMaya):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        self.ui = self.sb.editors
+        self.ui = self.sb.loaded_ui.editors
 
     def list000_init(self, widget):
         """Initialize the widget with structured data for easier maintenance."""
