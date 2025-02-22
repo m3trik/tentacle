@@ -44,7 +44,7 @@ class Tcl(QtWidgets.QStackedWidget, ptk.LoggingMixin, ptk.HelpMixin):
         slot_source="slots",
         widget_source=None,
         prevent_hide=False,
-        log_level: str = "ERROR",
+        log_level: str = "WARNING",
     ):
         """ """
         super().__init__(parent)
@@ -76,7 +76,7 @@ class Tcl(QtWidgets.QStackedWidget, ptk.LoggingMixin, ptk.HelpMixin):
         self.setAttribute(QtCore.Qt.WA_TranslucentBackground)
         self.setAttribute(QtCore.Qt.WA_NoMousePropagation, False)
         self.setFocusPolicy(QtCore.Qt.StrongFocus)
-        self.resize(800, 800)
+        self.resize(600, 600)
 
     def _init_ui(self, ui) -> None:
         """Initialize the given UI.
