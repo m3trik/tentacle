@@ -112,7 +112,7 @@ class Polygons(SlotsMaya):
         from mayatk.edit_utils import bevel
 
         self.sb.register("bevel.ui", bevel.BevelSlots, base_dir=bevel)
-        self.sb.bevel.slots.preview.enable_on_show = True
+        self.sb.loaded_ui.bevel.slots.preview.enable_on_show = True
         self.sb.parent().set_ui("bevel")
 
     def tb005_init(self, widget):
