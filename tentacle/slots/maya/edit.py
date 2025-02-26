@@ -274,7 +274,7 @@ class Edit(SlotsMaya):
             return
 
         if mergeVertices:  # Merge vertices on each object.
-            [pm.polyMergeVertex(obj.verts, distance=0.0001) for obj in objects]
+            mtk.merge_vertices(objects, tolerance=0.0001)
 
         if overlappingFaces:
             duplicates = mtk.get_overlapping_faces(objects)

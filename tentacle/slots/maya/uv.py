@@ -107,7 +107,7 @@ class Uv(SlotsMaya):
         shellPadding = mtk.calculate_uv_padding(map_size, normalize=True)
         tilePadding = shellPadding / 2
 
-        selection = pm.ls(sl=1)
+        selection = pm.selected()
         if not selection:
             self.sb.message_box(
                 "<b>Nothing selected.<b><br>The operation requires at least one selected object."
@@ -189,7 +189,7 @@ class Uv(SlotsMaya):
         sphericalUnwrap = widget.menu.chk005.isChecked()
         normalBasedUnwrap = widget.menu.chk006.isChecked()
 
-        selection = pm.ls(sl=True, flatten=1)
+        selection = pm.selected()
         for obj in selection:
             try:
                 if seamOnly:
@@ -553,7 +553,7 @@ class Uv(SlotsMaya):
 
     def b005(self):
         """Cut UV's"""
-        selection = pm.ls(selection=True, flatten=True)
+        selection = pm.selected()
         selected_edges = pm.filterExpand(selection, selectionMask=32)
 
         if not selection:
@@ -580,7 +580,7 @@ class Uv(SlotsMaya):
     def b006(self):
         """Rotate UV's 90"""
         angle = -45
-        selected_objects = pm.ls(sl=True, fl=True)
+        selected_objects = pm.selected()
 
         # Convert shell selection to individual UVs
         selected_uvs = pm.polyListComponentConversion(selected_objects, toUV=True)
@@ -632,27 +632,27 @@ class Uv(SlotsMaya):
     def b022(self):
         """Cut UV hard edges"""
         # perform select edges by angle.
-        self.sb.selection.tb003.call_slot()
+        self.sb.loaded_ui.selection.tb003.call_slot()
         self.b005()  # Perform cut.
 
     def b023(self):
         """Move To Uv Space: Left"""
-        selection = pm.ls(sl=True)
+        selection = pm.selected()
         mtk.move_to_uv_space(selection, -1, 0)  # move left
 
     def b024(self):
         """Move To Uv Space: Down"""
-        selection = pm.ls(sl=True)
+        selection = pm.selected()
         mtk.move_to_uv_space(selection, 0, -1)  # move down
 
     def b025(self):
         """Move To Uv Space: Up"""
-        selection = pm.ls(sl=True)
+        selection = pm.selected()
         mtk.move_to_uv_space(selection, 0, 1)  # move up
 
     def b026(self):
         """Move To Uv Space: Right"""
-        selection = pm.ls(sl=True)
+        selection = pm.selected()
         mtk.move_to_uv_space(selection, 1, 0)  # move right
 
 

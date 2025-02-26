@@ -10,7 +10,7 @@
     <x>0</x>
     <y>0</y>
     <width>600</width>
-    <height>600</height>
+    <height>593</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -82,6 +82,34 @@
     </property>
     <property name="text">
      <string>Deformation</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="i027">
+    <property name="geometry">
+     <rect>
+      <x>155</x>
+      <y>290</y>
+      <width>66</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="minimumSize">
+     <size>
+      <width>0</width>
+      <height>21</height>
+     </size>
+    </property>
+    <property name="maximumSize">
+     <size>
+      <width>999</width>
+      <height>21</height>
+     </size>
+    </property>
+    <property name="whatsThis">
+     <string>deform</string>
+    </property>
+    <property name="text">
+     <string>Deform</string>
     </property>
    </widget>
   </widget>
