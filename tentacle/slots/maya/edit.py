@@ -392,7 +392,7 @@ class Edit(SlotsMaya):
         self.sb.register(
             "cut_on_axis.ui", cut_on_axis.CutOnAxisSlots, base_dir=cut_on_axis
         )
-        self.sb.cut_on_axis.slots.preview.enable_on_show = True
+        self.sb.loaded_ui.cut_on_axis.slots.preview.enable_on_show = True
         self.sb.parent().set_ui("cut_on_axis")
 
     @SlotsMaya.hide_main

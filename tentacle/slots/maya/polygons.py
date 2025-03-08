@@ -46,12 +46,20 @@ class Polygons(SlotsMaya):
             set_fixed_height=20,
             setToolTip="Set the distance using two selected vertices.\nElse; return the Distance to it's default value",
         )
+        widget.menu.add(
+            "QPushButton",
+            setText="Reset",
+            setObjectName="b010",
+            set_fixed_height=20,
+            setToolTip="Reset the distance to it's default value.",
+        )
+        widget.menu.b010.clicked.connect(lambda: widget.menu.s002.setValue(0.0005))
 
     def tb000(self, widget):
         """Merge Vertices"""
         tolerance = widget.menu.s002.value()
-        objects = pm.ls(sl=True, objectsOnly=1, flatten=1)
-        componentMode = pm.selectMode(q=True, component=1)
+        objects = pm.ls(sl=True, objectsOnly=True, flatten=True)
+        componentMode = pm.selectMode(q=True, component=True)
 
         if not objects:
             self.sb.message_box(
@@ -456,12 +464,6 @@ class Polygons(SlotsMaya):
         pm.mel.targetWeldCtx("polyMergeVertexContext", edit=True, mergeToCenter=True)
         pm.mel.MergeVertexTool()
 
-    def b013(self):
-        """Combine Selected Meshes."""
-        from mayatk.edit_utils.macros import Macros
-
-        Macros.m_combine()
-
     def b009(self):
         """Collapse Component"""
         if pm.selectType(q=True, facet=1):
@@ -475,6 +477,12 @@ class Polygons(SlotsMaya):
     def b012(self):
         """Multi-Cut Tool"""
         pm.mel.dR_multiCutTool()
+
+    def b013(self):
+        """Combine Selected Meshes."""
+        from mayatk.edit_utils.macros import Macros
+
+        Macros.m_combine()
 
     def b022(self):
         """Attach"""

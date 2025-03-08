@@ -188,7 +188,7 @@ class File(SlotsMaya):
 
     def cmb005(self, index, widget):
         """Recent Files"""
-        force = not pm.file(q=True, modified=True)
+        force = not pm.mel.file(q=True, modified=True)
         pm.openFile(widget.items[index], open=True, force=force, ignoreVersion=True)
 
     def cmb006_init(self, widget):

@@ -12,6 +12,9 @@ class Create(SlotsMaya):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
+        self.ui = self.sb.loaded_ui.create
+        self.submenu = self.sb.loaded_ui.create_submenu
+
     def cmb001_init(self, widget):
         """ """
         items = ["Polygon", "NURBS", "Light"]
@@ -77,8 +80,8 @@ class Create(SlotsMaya):
 
     def tb000(self, widget):
         """Create Primitive"""
-        baseType = self.sb.create.cmb001.currentText()
-        subType = self.sb.create.cmb002.currentText()
+        baseType = self.ui.cmb001.currentText()
+        subType = self.ui.cmb002.currentText()
         scale = widget.menu.chk001.isChecked()
         translate = widget.menu.chk000.isChecked()
 

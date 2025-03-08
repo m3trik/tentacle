@@ -13,6 +13,9 @@ class Nurbs(SlotsMaya):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
+        self.ui = self.sb.loaded_ui.nurbs
+        self.submenu = self.sb.loaded_ui.nurbs_submenu
+
     def cmb001_init(self, widget):
         """ """
         items = [
@@ -26,6 +29,7 @@ class Nurbs(SlotsMaya):
         widget.add(items, header="Create Curve")
 
     def tb000_init(self, widget):
+        """ """
         widget.menu.add(
             "QSpinBox",
             setPrefix="Degree:",
@@ -95,22 +99,23 @@ class Nurbs(SlotsMaya):
             setToolTip="Tolerance to build to (if useTolerance attribute is set).",
         )
 
-        tb001 = self.sb.nurbs.tb001
-        tb001.menu.add(
+    def tb001_init(self, widget):
+        """ """
+        widget.menu.add(
             "QCheckBox",
             setText="Uniform",
             setObjectName="chk000",
             setChecked=True,
             setToolTip="The resulting surface will have uniform parameterization in the loft direction. If set to false, the parameterization will be chord length.",
         )
-        tb001.menu.add(
+        widget.menu.add(
             "QCheckBox",
             setText="Close",
             setObjectName="chk001",
             setChecked=False,
             setToolTip="The resulting surface will be closed (periodic) with the start (end) at the first curve. If set to false, the surface will remain open.",
         )
-        tb001.menu.add(
+        widget.menu.add(
             "QSpinBox",
             setPrefix="Degree:",
             setObjectName="s000",
@@ -118,14 +123,14 @@ class Nurbs(SlotsMaya):
             set_limits=[0],
             setToolTip="The degree of the resulting surface.",
         )
-        tb001.menu.add(
+        widget.menu.add(
             "QCheckBox",
             setText="Auto Reverse",
             setObjectName="chk002",
             setChecked=False,
             setToolTip="The direction of the curves for the loft is computed automatically. If set to false, the values of the multi-use reverse flag are used instead.",
         )
-        tb001.menu.add(
+        widget.menu.add(
             "QSpinBox",
             setPrefix="Section Spans:",
             setObjectName="s001",
@@ -133,35 +138,35 @@ class Nurbs(SlotsMaya):
             set_limits=[0],
             setToolTip="The number of surface spans between consecutive curves in the loft.",
         )
-        tb001.menu.add(
+        widget.menu.add(
             "QCheckBox",
             setText="Range",
             setObjectName="chk003",
             setChecked=False,
             setToolTip="Force a curve range on complete input curve.",
         )
-        tb001.menu.add(
+        widget.menu.add(
             "QCheckBox",
             setText="Polygon",
             setObjectName="chk004",
             setChecked=True,
             setToolTip="The object created by this operation.",
         )
-        tb001.menu.add(
+        widget.menu.add(
             "QCheckBox",
             setText="Reverse Surface Normals",
             setObjectName="chk005",
             setChecked=True,
             setToolTip="The surface normals on the output NURBS surface will be reversed. This is accomplished by swapping the U and V parametric directions.",
         )
-        tb001.menu.add(
+        widget.menu.add(
             "QCheckBox",
             setText="Angle Loft Between Two Curves",
             setObjectName="chk010",
             setChecked=False,
             setToolTip="Perform a loft at an angle between two selected curves or polygon edges (that will be extracted as curves).",
         )
-        tb001.menu.add(
+        widget.menu.add(
             "QSpinBox",
             setPrefix="Angle Loft: Spans:",
             setObjectName="s007",
