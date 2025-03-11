@@ -40,9 +40,9 @@ class Rigging(SlotsMaya):
         """Quick Rig"""
         text = widget.items[index]
         if text == "Tube Rig":
-            from mayatk.rig_utils import tube_rig
+            from mayatk.rig_utils.tube_rig import TubeRigUi
 
-            tube_rig.main()
+            TubeRigUi().show(pos="cursor", app_exec=True)
 
     def chk000(self, state, widget):
         """Scale Joint"""
