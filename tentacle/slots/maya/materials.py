@@ -64,13 +64,17 @@ class Materials(SlotsMaya):
             setText="Map Converter",
             setObjectName="b003",
         )
-        from mayatk.mat_utils import map_converter
+        from pythontk.img_utils import map_converter
 
         self.sb.register(
             "map_converter.ui",
             map_converter.MapConverterSlots,
             base_dir=map_converter,
         )
+        # Set the starting directory for the map converter
+        source_images_dir = mtk.get_maya_info("sourceimages")
+        self.sb.loaded_ui.map_converter.slots.source_dir = source_images_dir
+        # Connect the button to the map converter UI
         widget.menu.b003.clicked.connect(
             lambda: self.sb.parent().set_ui("map_converter")
         )
