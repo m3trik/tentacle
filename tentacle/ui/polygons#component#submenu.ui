@@ -201,8 +201,8 @@
     </property>
     <property name="geometry">
      <rect>
-      <x>350</x>
-      <y>330</y>
+      <x>355</x>
+      <y>290</y>
       <width>56</width>
       <height>19</height>
      </rect>
@@ -263,46 +263,6 @@
      </palette>
     </property>
    </widget>
-   <widget class="QPushButton" name="b046">
-    <property name="enabled">
-     <bool>true</bool>
-    </property>
-    <property name="geometry">
-     <rect>
-      <x>365</x>
-      <y>290</y>
-      <width>56</width>
-      <height>19</height>
-     </rect>
-    </property>
-    <property name="maximumSize">
-     <size>
-      <width>111</width>
-      <height>19</height>
-     </size>
-    </property>
-    <property name="toolTip">
-     <string>Split selected components resulting in a edge ring around them</string>
-    </property>
-    <property name="text">
-     <string>Split</string>
-    </property>
-    <property name="iconSize">
-     <size>
-      <width>18</width>
-      <height>18</height>
-     </size>
-    </property>
-    <property name="autoDefault">
-     <bool>false</bool>
-    </property>
-    <property name="default">
-     <bool>false</bool>
-    </property>
-    <property name="flat">
-     <bool>false</bool>
-    </property>
-   </widget>
    <widget class="PushButton" name="tb005">
     <property name="enabled">
      <bool>true</bool>
@@ -340,8 +300,8 @@
     </property>
     <property name="geometry">
      <rect>
-      <x>285</x>
-      <y>360</y>
+      <x>300</x>
+      <y>330</y>
       <width>81</width>
       <height>19</height>
      </rect>
@@ -498,8 +458,8 @@
     </property>
     <property name="geometry">
      <rect>
-      <x>285</x>
-      <y>390</y>
+      <x>300</x>
+      <y>360</y>
       <width>81</width>
       <height>20</height>
      </rect>

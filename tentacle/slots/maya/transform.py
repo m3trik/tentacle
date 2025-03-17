@@ -15,8 +15,8 @@ class Transform(SlotsMaya):
         """ """
         super().__init__(*args, **kwargs)
 
-        self.ui = self.sb.transform
-        self.submenu = self.sb.transform_submenu
+        self.ui = self.sb.loaded_ui.transform
+        self.submenu = self.sb.loaded_ui.transform_submenu
 
     def cmb002_init(self, widget):
         """ """
@@ -192,7 +192,7 @@ class Transform(SlotsMaya):
         widget.menu.mode = "popup"
         widget.menu.setTitle("SNAP")
         widget.menu.add(
-            self.sb.CheckBox,
+            self.sb.registered_widgets.CheckBox,
             setObjectName="chk021",
             setText="Snap Move",
         )
@@ -205,7 +205,7 @@ class Transform(SlotsMaya):
             setDisabled=True,
         )
         widget.menu.add(
-            self.sb.CheckBox,
+            self.sb.registered_widgets.CheckBox,
             setObjectName="chk022",
             setText="Snap Scale",
         )
@@ -218,7 +218,7 @@ class Transform(SlotsMaya):
             setDisabled=True,
         )
         widget.menu.add(
-            self.sb.CheckBox,
+            self.sb.registered_widgets.CheckBox,
             setObjectName="chk023",
             setText="Snap Rotate",
         )

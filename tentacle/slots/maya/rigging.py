@@ -15,7 +15,7 @@ class Rigging(SlotsMaya):
     def cmb001_init(self, widget):
         """ """
         items = ["Joints", "Locator", "IK Handle", "Lattice", "Cluster"]
-        widget.add(items, header="Create")
+        widget.add(items, header="Utility Node:")
 
     def cmb001(self, index, widget):
         """Create"""
@@ -30,6 +30,19 @@ class Rigging(SlotsMaya):
             pm.lattice(divisions=[2, 5, 2], objectCentered=1, ldv=[2, 2, 2])
         elif text == "Cluster":
             pm.mel.eval("CreateCluster;")  # create cluster
+
+    def cmb002_init(self, widget):
+        """ """
+        items = ["Tube Rig"]
+        widget.add(items, header="Quick Rig:")
+
+    def cmb002(self, index, widget):
+        """Quick Rig"""
+        text = widget.items[index]
+        if text == "Tube Rig":
+            from mayatk.rig_utils.tube_rig import TubeRigUi
+
+            TubeRigUi().show(pos="cursor", app_exec=True)
 
     def chk000(self, state, widget):
         """Scale Joint"""
@@ -324,7 +337,7 @@ class Rigging(SlotsMaya):
                 pm.transformLimits(node, **kwargs)
 
         try:
-            window = self.sb.AttributeWindow(
+            window = self.sb.registered_widgets.AttributeWindow(
                 node,
                 window_title=node.name(),
                 get_attribute_func=lambda: mtk.get_parameter_mapping(

@@ -84,6 +84,34 @@
      <string>Vfx</string>
     </property>
    </widget>
+   <widget class="QPushButton" name="i027">
+    <property name="geometry">
+     <rect>
+      <x>175</x>
+      <y>290</y>
+      <width>66</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="minimumSize">
+     <size>
+      <width>0</width>
+      <height>21</height>
+     </size>
+    </property>
+    <property name="maximumSize">
+     <size>
+      <width>999</width>
+      <height>21</height>
+     </size>
+    </property>
+    <property name="whatsThis">
+     <string>effects</string>
+    </property>
+    <property name="text">
+     <string>Effects</string>
+    </property>
+   </widget>
   </widget>
  </widget>
  <resources/>

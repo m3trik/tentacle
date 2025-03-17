@@ -12,8 +12,8 @@ class Edit(SlotsMaya):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        self.ui = self.sb.edit
-        self.submenu = self.sb.edit_submenu
+        self.ui = self.sb.loaded_ui.edit
+        self.submenu = self.sb.loaded_ui.edit_submenu
 
         # Refresh the combo box on every view show
         self.ui.cmb001.before_popup_shown.connect(self.ui.cmb001.init_slot)
@@ -40,7 +40,7 @@ class Edit(SlotsMaya):
         if item != "No selection.":
             node = widget.itemData(index)
             if node:
-                window = self.sb.AttributeWindow(
+                window = self.sb.registered_widgets.AttributeWindow(
                     node,
                     window_title=node.name(),
                     get_attribute_func=lambda: mtk.get_node_attributes(
@@ -67,7 +67,7 @@ class Edit(SlotsMaya):
             setText="Repair",
             setObjectName="chk004",
             setToolTip="Repair matching geometry. Else, select only.",
-        )  # add(self.sb.CheckBox, setText='Select Only', setObjectName='chk004', setTristate=True, setCheckState=2, setToolTip='Select and/or Repair matching geometry. <br>0: Repair Only<br>1: Repair and Select<br>2: Select Only')
+        )  # add(self.sb.registered_widgets.CheckBox, setText='Select Only', setObjectName='chk004', setTristate=True, setCheckState=2, setToolTip='Select and/or Repair matching geometry. <br>0: Repair Only<br>1: Repair and Select<br>2: Select Only')
         widget.menu.add(
             "QCheckBox",
             setText="Delete History",
@@ -274,7 +274,7 @@ class Edit(SlotsMaya):
             return
 
         if mergeVertices:  # Merge vertices on each object.
-            [pm.polyMergeVertex(obj.verts, distance=0.0001) for obj in objects]
+            mtk.merge_vertices(objects, tolerance=0.0001)
 
         if overlappingFaces:
             duplicates = mtk.get_overlapping_faces(objects)
@@ -338,20 +338,20 @@ class Edit(SlotsMaya):
             lambda chk: chk.isChecked(),
             (widget.menu.chk019, widget.menu.chk020, widget.menu.chk030),
         )
-        objects = pm.ls(sl=True, objectsOnly=1) or pm.ls(typ="mesh")
+        objects = pm.ls(sl=True, objectsOnly=True) or pm.ls(typ="mesh")
 
-        # Delete unused nodes
-        if unused_nodes:
+        if unused_nodes:  # Delete unused nodes
             pm.mel.MLdeleteUnused()
             pm.delete(mtk.get_groups(empty=True))
 
-        # Delete history
-        if deformers:
+        if deformers:  # Delete all history
             pm.delete(objects, constructionHistory=True)
             self.sb.message_box("<hl>Delete history</hl>")
-        else:
-            pm.bakePartialHistory(objects, prePostDeformers=True)
-            self.sb.message_box("<hl>Delete non-deformer history</hl>")
+        else:  # Delete non-deformer history
+            shapes = mtk.get_shape_node(objects)
+            if shapes:
+                pm.bakePartialHistory(shapes, prePostDeformers=True)
+                self.sb.message_box("<hl>Delete non-deformer history</hl>")
 
         # Optimize the scene
         if optimize:
@@ -392,7 +392,7 @@ class Edit(SlotsMaya):
         self.sb.register(
             "cut_on_axis.ui", cut_on_axis.CutOnAxisSlots, base_dir=cut_on_axis
         )
-        self.sb.cut_on_axis.slots.preview.enable_on_show = True
+        self.sb.loaded_ui.cut_on_axis.slots.preview.enable_on_show = True
         self.sb.parent().set_ui("cut_on_axis")
 
     @SlotsMaya.hide_main

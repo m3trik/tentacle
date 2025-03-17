@@ -5,14 +5,16 @@ try:
 except ImportError as error:
     print(__file__, error)
 from tentacle.slots.maya import SlotsMaya
+import pythontk as ptk
+import mayatk as mtk
 
 
 class Rendering(SlotsMaya):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        self.ui = self.sb.rendering
-        self.submenu = self.sb.rendering_submenu
+        self.ui = self.sb.loaded_ui.rendering
+        self.submenu = self.sb.loaded_ui.rendering_submenu
 
     def cmb001_init(self, widget):
         """Render: camera"""
@@ -67,30 +69,15 @@ class Rendering(SlotsMaya):
 
     def b006(self):
         """Load Vray Plugin"""
-        if self.load_vray_plugin(query=True):
-            self.load_vray_plugin(unload=True)
-        else:
-            self.load_vray_plugin()
+        mtk.vray_plugin()
 
-    def load_vray_plugin(self, unload=False, query=False):
-        """Load/Unload the Maya Vray Plugin if it exists.
-
-        Parameters:
-                unload (bool): Unload the VRay plugin.
-                query (bool): Query the state of the VRay Plugin.
-        """
-        if query:
-            return True if pm.pluginInfo("vrayformaya.mll", q=True, loaded=1) else False
-
-        vray = ["vrayformaya.mll", "vrayformayapatch.mll"]
-
-        try:
-            if unload:
-                pm.unloadPlugin(vray)
-            else:
-                pm.loadPlugin(vray)
-        except RuntimeError as e:
-            print(f"An error occurred: {e}")
+    def b007(self):
+        """Export Playblast"""
+        # create playblast to the users desktop and compress it
+        playblast_path = mtk.create_playblast(
+            filepath="%USERPROFILE%/Desktop", compression="iyuv"
+        )
+        ptk.compress_video(input_filepath=playblast_path, delete_original=True)
 
 
 # --------------------------------------------------------------------------------------------

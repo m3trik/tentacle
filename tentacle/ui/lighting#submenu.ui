@@ -84,6 +84,34 @@
      <string>Lighting</string>
     </property>
    </widget>
+   <widget class="QPushButton" name="i027">
+    <property name="geometry">
+     <rect>
+      <x>355</x>
+      <y>280</y>
+      <width>136</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="minimumSize">
+     <size>
+      <width>0</width>
+      <height>21</height>
+     </size>
+    </property>
+    <property name="maximumSize">
+     <size>
+      <width>999</width>
+      <height>21</height>
+     </size>
+    </property>
+    <property name="whatsThis">
+     <string>lighting_shading</string>
+    </property>
+    <property name="text">
+     <string>Lighting and Shading</string>
+    </property>
+   </widget>
   </widget>
  </widget>
  <resources/>

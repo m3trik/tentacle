@@ -16,14 +16,14 @@ class File(SlotsMaya):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        self.ui = self.sb.file
-        self.submenu = self.sb.file_submenu
+        self.ui = self.sb.loaded_ui.file
+        self.submenu = self.sb.loaded_ui.file_submenu
 
     def header_init(self, widget):
         """ """
         # Add a button to launch map converter.
         widget.menu.add(
-            self.sb.PushButton,
+            self.sb.registered_widgets.PushButton,
             setToolTip="Export scene assets with environment checks and presets.",
             setText="Scene Exporter",
             setObjectName="b002",
@@ -188,7 +188,7 @@ class File(SlotsMaya):
 
     def cmb005(self, index, widget):
         """Recent Files"""
-        force = not pm.file(q=True, modified=True)
+        force = not pm.mel.file(q=True, modified=True)
         pm.openFile(widget.items[index], open=True, force=force, ignoreVersion=True)
 
     def cmb006_init(self, widget):
@@ -196,19 +196,19 @@ class File(SlotsMaya):
         widget.refresh = True
         if not widget.is_initialized:
             widget.menu.add(
-                self.sb.Label,
+                self.sb.registered_widgets.Label,
                 setObjectName="lbl000",
                 setText="Set Project",
                 setToolTip="Set the project directory.",
             )
             widget.menu.add(
-                self.sb.Label,
+                self.sb.registered_widgets.Label,
                 setObjectName="lbl005",
                 setText="Auto Set Project",
                 setToolTip="Determine the workspace directory by moving up directory levels until a workspace is found.",
             )
             widget.menu.add(
-                self.sb.Label,
+                self.sb.registered_widgets.Label,
                 setObjectName="lbl004",
                 setText="Open Project Root",
                 setToolTip="Open the project root directory.",

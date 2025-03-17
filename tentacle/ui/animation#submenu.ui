@@ -239,9 +239,9 @@
    <widget class="QPushButton" name="i027">
     <property name="geometry">
      <rect>
-      <x>235</x>
+      <x>230</x>
       <y>330</y>
-      <width>66</width>
+      <width>51</width>
       <height>21</height>
      </rect>
     </property>
@@ -262,6 +262,34 @@
     </property>
     <property name="text">
      <string>Key</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="i027_2">
+    <property name="geometry">
+     <rect>
+      <x>290</x>
+      <y>330</y>
+      <width>76</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="minimumSize">
+     <size>
+      <width>0</width>
+      <height>21</height>
+     </size>
+    </property>
+    <property name="maximumSize">
+     <size>
+      <width>999</width>
+      <height>21</height>
+     </size>
+    </property>
+    <property name="whatsThis">
+     <string>skeleton</string>
+    </property>
+    <property name="text">
+     <string>Skeleton</string>
     </property>
    </widget>
   </widget>

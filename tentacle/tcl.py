@@ -15,10 +15,10 @@ class Tcl(QtWidgets.QStackedWidget, ptk.LoggingMixin, ptk.HelpMixin):
     Parameters:
         parent (QWidget): The parent application's top level window instance. ie. the Maya main window.
         key_show (str): The name of the key which, when pressed, will trigger the display of the marking menu. This should be one of the key names defined in QtCore.Qt. Defaults to 'Key_F12'.
-        ui_location (str): The directory path or the module where the UI files are located.
+        ui_source (str): The directory path or the module where the UI files are located.
                 If the given dir is not a full path, it will be treated as relative to the default path.
                 If a module is given, the path to that module will be used.
-        slot_location (str): The directory path where the slot classes are located or a class object.
+        slot_source (str): The directory path where the slot classes are located or a class object.
                 If the given dir is a string and not a full path, it will be treated as relative to the default path.
                 If a module is given, the path to that module will be used.
         prevent_hide (bool): While True, the hide method is disabled.
@@ -40,9 +40,9 @@ class Tcl(QtWidgets.QStackedWidget, ptk.LoggingMixin, ptk.HelpMixin):
         self,
         parent=None,
         key_show="F12",
-        ui_location="ui",
-        slot_location="slots",
-        widget_location=None,
+        ui_source="ui",
+        slot_source="slots",
+        widget_source=None,
         prevent_hide=False,
         log_level: str = "WARNING",
     ):
@@ -52,10 +52,9 @@ class Tcl(QtWidgets.QStackedWidget, ptk.LoggingMixin, ptk.HelpMixin):
 
         self.sb = Switchboard(
             self,
-            ui_location=ui_location,
-            slot_location=slot_location,
-            widget_location=widget_location,
-            log_level=self.logger.getEffectiveLevel(),
+            ui_source=ui_source,
+            slot_source=slot_source,
+            widget_source=widget_source,
         )
         self.child_event_filter = EventFactoryFilter(
             self,
@@ -77,7 +76,7 @@ class Tcl(QtWidgets.QStackedWidget, ptk.LoggingMixin, ptk.HelpMixin):
         self.setAttribute(QtCore.Qt.WA_TranslucentBackground)
         self.setAttribute(QtCore.Qt.WA_NoMousePropagation, False)
         self.setFocusPolicy(QtCore.Qt.StrongFocus)
-        self.resize(800, 800)
+        self.resize(600, 600)
 
     def _init_ui(self, ui) -> None:
         """Initialize the given UI.
@@ -344,7 +343,7 @@ class Tcl(QtWidgets.QStackedWidget, ptk.LoggingMixin, ptk.HelpMixin):
                 if w.base_name == "i":
                     w.ui.set_style(widget=w)
 
-            if w.type == self.sb.Region:
+            if w.type == self.sb.registered_widgets.Region:
                 w.visible_on_mouse_over = True
 
     def child_enterEvent(self, w, event) -> None:
@@ -475,7 +474,7 @@ class Tcl(QtWidgets.QStackedWidget, ptk.LoggingMixin, ptk.HelpMixin):
 # --------------------------------------------------------------------------------------------
 
 if __name__ == "__main__":
-    tcl = Tcl(slot_location="slots/maya")
+    tcl = Tcl(slot_source="slots/maya")
     tcl.show(profile=0)
 
     # run app, show window, wait for input, then terminate program with a status code returned from app.

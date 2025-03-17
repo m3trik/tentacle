@@ -12,8 +12,8 @@ class Pivot(SlotsMaya):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        self.ui = self.sb.pivot
-        self.submenu = self.sb.pivot_submenu
+        self.ui = self.sb.loaded_ui.pivot
+        self.submenu = self.sb.loaded_ui.pivot_submenu
 
     def tb000_init(self, widget):
         """ """
@@ -162,9 +162,7 @@ class Pivot(SlotsMaya):
 
     def b004(self):
         """Bake Pivot"""
-        mtk.bake_pivot(
-            pm.selected(), position=True, orientation=True, preserve_normals=True
-        )
+        mtk.bake_pivot(pm.selected(), position=True, orientation=True)
 
 
 # --------------------------------------------------------------------------------------------

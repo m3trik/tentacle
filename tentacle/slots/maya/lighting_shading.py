@@ -7,11 +7,12 @@ except ImportError as error:
 from tentacle.slots.maya import SlotsMaya
 
 
-class KeySlots(SlotsMaya):
+class LightingShadingSlots(SlotsMaya):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        self.ui = self.sb.get_ui("key")
+        self.ui = self.sb.get_ui("lighting_shading")
+        print(f"ui: {self.ui}")
         if not self.ui.centralWidget():
             self.embed_maya_menu(self.ui)
 

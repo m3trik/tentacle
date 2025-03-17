@@ -12,8 +12,8 @@ class Selection(SlotsMaya):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        self.ui = self.sb.selection
-        self.submenu = self.sb.selection_submenu
+        self.ui = self.sb.loaded_ui.selection
+        self.submenu = self.sb.loaded_ui.selection_submenu
 
     def cmb002_init(self, widget):
         """ """

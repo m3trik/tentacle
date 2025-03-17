@@ -13,8 +13,8 @@ class Polygons(SlotsMaya):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        self.ui = self.sb.polygons
-        self.submenu = self.sb.polygons_submenu
+        self.ui = self.sb.loaded_ui.polygons
+        self.submenu = self.sb.loaded_ui.polygons_submenu
 
     def chk008(self, state, widget):
         """Divide Facet: Split U"""
@@ -46,12 +46,20 @@ class Polygons(SlotsMaya):
             set_fixed_height=20,
             setToolTip="Set the distance using two selected vertices.\nElse; return the Distance to it's default value",
         )
+        widget.menu.add(
+            "QPushButton",
+            setText="Reset",
+            setObjectName="b010",
+            set_fixed_height=20,
+            setToolTip="Reset the distance to it's default value.",
+        )
+        widget.menu.b010.clicked.connect(lambda: widget.menu.s002.setValue(0.0005))
 
     def tb000(self, widget):
         """Merge Vertices"""
         tolerance = widget.menu.s002.value()
-        objects = pm.ls(sl=True, objectsOnly=1, flatten=1)
-        componentMode = pm.selectMode(q=True, component=1)
+        objects = pm.ls(sl=True, objectsOnly=True, flatten=True)
+        componentMode = pm.selectMode(q=True, component=True)
 
         if not objects:
             self.sb.message_box(
@@ -112,7 +120,7 @@ class Polygons(SlotsMaya):
         from mayatk.edit_utils import bevel
 
         self.sb.register("bevel.ui", bevel.BevelSlots, base_dir=bevel)
-        self.sb.bevel.slots.preview.enable_on_show = True
+        self.sb.loaded_ui.bevel.slots.preview.enable_on_show = True
         self.sb.parent().set_ui("bevel")
 
     def tb005_init(self, widget):
@@ -456,12 +464,6 @@ class Polygons(SlotsMaya):
         pm.mel.targetWeldCtx("polyMergeVertexContext", edit=True, mergeToCenter=True)
         pm.mel.MergeVertexTool()
 
-    def b013(self):
-        """Combine Selected Meshes."""
-        from mayatk.edit_utils.macros import Macros
-
-        Macros.m_combine()
-
     def b009(self):
         """Collapse Component"""
         if pm.selectType(q=True, facet=1):
@@ -475,6 +477,12 @@ class Polygons(SlotsMaya):
     def b012(self):
         """Multi-Cut Tool"""
         pm.mel.dR_multiCutTool()
+
+    def b013(self):
+        """Combine Selected Meshes."""
+        from mayatk.edit_utils.macros import Macros
+
+        Macros.m_combine()
 
     def b022(self):
         """Attach"""
@@ -515,21 +523,6 @@ class Polygons(SlotsMaya):
         pm.select(deselect=True)
         pm.mel.targetWeldCtx("polyMergeVertexContext", edit=True, mergeToCenter=False)
         pm.mel.MergeVertexTool()
-
-    def b046(self):
-        """Split"""
-        vertexMask = pm.selectType(q=True, vertex=True)
-        edgeMask = pm.selectType(q=True, edge=True)
-        facetMask = pm.selectType(q=True, facet=True)
-
-        if facetMask:
-            pm.mel.performPolyPoke(1)
-
-        elif edgeMask:
-            pm.polySubdivideEdge(ws=0, s=0, dv=1, ch=0)
-
-        elif vertexMask:
-            pm.mel.polyChamferVtx(0, 0.25, 0)
 
     def b047(self):
         """Insert Edgeloop"""

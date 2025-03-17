@@ -18,7 +18,7 @@ class TclMax(Tcl):
             parent = main application top level window object.
     """
 
-    def __init__(self, parent=None, slot_location="slots/max", *args, **kwargs):
+    def __init__(self, parent=None, slot_source="slots/max", *args, **kwargs):
         """ """
         if not parent:
             try:
@@ -27,7 +27,7 @@ class TclMax(Tcl):
             except Exception as error:
                 print(__file__, error)
 
-        super().__init__(parent, slot_location=slot_location, *args, **kwargs)
+        super().__init__(parent, slot_source=slot_source, *args, **kwargs)
 
     @classmethod
     def get_main_window(cls):

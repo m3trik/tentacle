@@ -44,7 +44,7 @@ class Duplicate(SlotsMaya):
         from mayatk.edit_utils import mirror
 
         self.sb.register("mirror.ui", mirror.MirrorSlots, base_dir=mirror)
-        self.sb.mirror.slots.preview.enable_on_show = True
+        self.sb.loaded_ui.mirror.slots.preview.enable_on_show = True
         self.sb.parent().set_ui("mirror")
 
     def b004(self):

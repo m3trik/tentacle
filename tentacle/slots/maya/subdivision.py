@@ -12,8 +12,8 @@ class Subdivision(SlotsMaya):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        self.ui = self.sb.subdivision
-        self.submenu = self.sb.subdivision_submenu
+        self.ui = self.sb.loaded_ui.subdivision
+        self.submenu = self.sb.loaded_ui.subdivision_submenu
 
     def cmb001(self, index, widget):
         """Smooth Proxy"""
