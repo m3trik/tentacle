@@ -434,20 +434,20 @@ class Selection(SlotsMaya):
 
         result = []
         if edgeRing:
-            result = mtk.get_edge_path(selection, "edgeRing")
+            result = mtk.Components.get_edge_path(selection, "edgeRing")
 
         elif edgeLoop:
-            result = mtk.get_edge_path(selection, "edgeLoop")
+            result = mtk.Components.get_edge_path(selection, "edgeLoop")
 
         elif pathAlongLoop:
-            result = mtk.get_edge_path(selection, "edgeLoopPath")
+            result = mtk.Components.get_edge_path(selection, "edgeLoopPath")
 
         elif shortestPath:
-            result = mtk.get_shortest_path(selection)
+            result = mtk.Components.get_shortest_path(selection)
 
         elif borderEdges:
-            all_edges = mtk.get_components(selection, "edges")
-            result = mtk.get_border_components(all_edges)
+            all_edges = mtk.Components.get_components(selection, "edges")
+            result = mtk.Components.get_border_components(all_edges)
 
         pm.select(result[::step])
 
@@ -624,15 +624,15 @@ class Selection(SlotsMaya):
         range_z = float(widget.menu.s005.value())
 
         sel = pm.ls(sl=1)
-        selected_faces = mtk.get_components(sel, component_type="faces")
+        selected_faces = mtk.Components.get_components(sel, component_type="faces")
         if not selected_faces:
             self.sb.message_box("The operation requires a face selection.")
             return
 
-        similar_faces = mtk.get_faces_with_similar_normals(
+        similar_faces = mtk.Components.get_faces_with_similar_normals(
             selected_faces, range_x=range_x, range_y=range_y, range_z=range_z
         )
-        islands = mtk.get_contigious_islands(similar_faces)
+        islands = mtk.Components.get_contigious_islands(similar_faces)
         island = [i for i in islands if bool(set(i) & set(selected_faces))]
         pm.select(island)
 
@@ -661,7 +661,7 @@ class Selection(SlotsMaya):
         angleHigh = widget.menu.s007.value()
 
         objects = pm.ls(sl=1, objectsOnly=1)
-        edges = mtk.get_edges_by_normal_angle(
+        edges = mtk.Components.get_edges_by_normal_angle(
             objects, low_angle=angleLow, high_angle=angleHigh
         )
         pm.select(edges)
@@ -679,9 +679,7 @@ class Selection(SlotsMaya):
 
     def b001(self):
         """Toggle Selectability"""
-        from mayatk.edit_utils.macros import Macros
-
-        Macros.m_toggle_selectability()
+        mtk.Macros.m_toggle_selectability()
 
     def b016(self):
         """Convert Selection To Vertices"""

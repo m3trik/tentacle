@@ -374,7 +374,7 @@ class Edit(SlotsMaya):
             lambda state: widget.setText("Unlock Nodes" if state else "Lock Nodes")
         )
 
-    @mtk.undo
+    @mtk.undoable
     def tb004(self, widget):
         """Node Locking"""
         unlock = widget.menu.chk027.isChecked()
@@ -387,13 +387,8 @@ class Edit(SlotsMaya):
 
     def b000(self):
         """Cut On Axis"""
-        from mayatk.edit_utils import cut_on_axis
-
-        self.sb.register(
-            "cut_on_axis.ui", cut_on_axis.CutOnAxisSlots, base_dir=cut_on_axis
-        )
-        self.sb.loaded_ui.cut_on_axis.slots.preview.enable_on_show = True
-        self.sb.parent().set_ui("cut_on_axis")
+        ui = mtk.UiManager.instance(self.sb).get("cut_on_axis")
+        self.sb.parent().set_ui(ui)
 
     @SlotsMaya.hide_main
     def b001(self):

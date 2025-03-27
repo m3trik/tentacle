@@ -55,7 +55,7 @@ class Normals(SlotsMaya):
         if pm.selectMode(query=True, object=True):
             pm.polySetToFaceNormal(selection)
 
-        mtk.set_edge_hardness(
+        mtk.Components.set_edge_hardness(
             selection, angle_threshold, upper_hardness, lower_hardness
         )
 
@@ -76,13 +76,13 @@ class Normals(SlotsMaya):
         by_uv_shell = widget.menu.chk003.isChecked()
 
         objects = pm.ls(sl=True)
-        mtk.average_normals(objects, by_uv_shell=by_uv_shell)
+        mtk.Components.average_normals(objects, by_uv_shell=by_uv_shell)
 
     def b000(self):
         """Soften Edge Normals"""
         selection = pm.selected()
         # Map components to their respective objects
-        components_dict = mtk.map_components_to_objects(selection)
+        components_dict = mtk.Components.map_components_to_objects(selection)
         # Loop through each object and its corresponding components
         for obj, components in components_dict.items():
             pm.polySoftEdge(components, angle=180)  # Use maximum angle to soften
@@ -93,7 +93,7 @@ class Normals(SlotsMaya):
         """Harden all selected edges."""
         selection = pm.selected()
         # Map components to their respective objects
-        components_dict = mtk.map_components_to_objects(selection)
+        components_dict = mtk.Components.map_components_to_objects(selection)
         # Loop through each object and its corresponding components
         for obj, components in components_dict.items():
             pm.polySoftEdge(components, angle=0)  # Use minimum angle to harden
@@ -102,25 +102,19 @@ class Normals(SlotsMaya):
 
     def b002(self):
         """Transfer Normals"""
-        mtk.transfer_normals(pm.selected())
+        mtk.Components.transfer_normals(pm.selected())
 
     def b003(self):
         """Soft Edge Display"""
-        from mayatk.edit_utils.macros import Macros
-
-        Macros.m_soft_edge_display()
+        mtk.Macros.m_soft_edge_display()
 
     def b004(self, widget):
         """Toggle lock/unlock vertex normals."""
-        from mayatk.edit_utils.macros import Macros
-
-        Macros.m_lock_vertex_normals()
+        mtk.Macros.m_lock_vertex_normals()
 
     def b005(self, widget):
         """Display Face Normals"""
-        from mayatk.edit_utils.macros import Macros
-
-        Macros.m_normals_display()
+        mtk.Macros.m_normals_display()
 
     def b006(self):
         """Set To Face"""

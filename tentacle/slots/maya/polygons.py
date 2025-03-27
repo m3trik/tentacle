@@ -117,11 +117,8 @@ class Polygons(SlotsMaya):
 
     def tb004(self, widget):
         """Bevel"""
-        from mayatk.edit_utils import bevel
-
-        self.sb.register("bevel.ui", bevel.BevelSlots, base_dir=bevel)
-        self.sb.loaded_ui.bevel.slots.preview.enable_on_show = True
-        self.sb.parent().set_ui("bevel")
+        ui = mtk.UiManager.instance(self.sb).get("bevel")
+        self.sb.parent().set_ui(ui)
 
     def tb005_init(self, widget):
         """ """
@@ -319,27 +316,25 @@ class Polygons(SlotsMaya):
             return self.sb.message_box(
                 "<strong>Nothing selected</strong>.<br>Operation requires the selection of at least two objects."
             )
-        from mayatk.edit_utils.macros import Macros
-
         interactive = widget.menu.chk017.isChecked()
 
         if widget.menu.chk011.isChecked():  # Union
             if interactive:
                 pm.mel.PolygonBooleanUnion()
             else:
-                Macros.m_boolean(operation="union")
+                mtk.Macros.m_boolean(operation="union")
 
         elif widget.menu.chk012.isChecked():  # Difference
             if interactive:
                 pm.mel.PolygonBooleanDifference()
             else:
-                Macros.m_boolean(operation="difference")
+                mtk.Macros.m_boolean(operation="difference")
 
         elif widget.menu.chk013.isChecked():  # Intersection
             if interactive:
                 pm.mel.PolygonBooleanIntersection()
             else:
-                Macros.m_boolean(operation="intersection")
+                mtk.Macros.m_boolean(operation="intersection")
 
     def tb009_init(self, widget):
         """ """
@@ -424,7 +419,7 @@ class Polygons(SlotsMaya):
             )
             p1, p2 = [(0.0005, 0, 0), (0, 0, 0)]
 
-        dist = mtk.adjusted_distance_between_vertices(
+        dist = mtk.Components.adjusted_distance_between_vertices(
             p1, p2, adjust=0.1, as_percentage=True
         )
         spinbox = self.ui.tb000.menu.s002
@@ -447,14 +442,12 @@ class Polygons(SlotsMaya):
             pm.polyCloseBorder(edges)
             return node
         except RuntimeError:  # Bridge edges that share a vertex
-            mtk.bridge_connected_edges(edges)
+            mtk.Components.bridge_connected_edges(edges)
 
     def b007(self):
         """Interactive Bridge"""
-        from mayatk.edit_utils import bridge
-
-        self.sb.register("bridge.ui", bridge.BridgeSlots, base_dir=bridge)
-        self.sb.parent().set_ui("bridge")
+        ui = mtk.UiManager.instance(self.sb).get("bridge")
+        self.sb.parent().set_ui(ui)
 
     def b008(self):
         """Weld Center"""
@@ -480,9 +473,7 @@ class Polygons(SlotsMaya):
 
     def b013(self):
         """Combine Selected Meshes."""
-        from mayatk.edit_utils.macros import Macros
-
-        Macros.m_combine()
+        mtk.Macros.m_combine()
 
     def b022(self):
         """Attach"""

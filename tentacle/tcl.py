@@ -78,6 +78,26 @@ class Tcl(QtWidgets.QStackedWidget, ptk.LoggingMixin, ptk.HelpMixin):
         self.setFocusPolicy(QtCore.Qt.StrongFocus)
         self.resize(600, 600)
 
+        self.app.installEventFilter(self)
+
+    # def eventFilter(self, watched, event):
+    #     """Optimized global event filter for handling key_show press/release without performance impact."""
+    #     if event.type() in (QtCore.QEvent.KeyPress, QtCore.QEvent.KeyRelease):
+    #         if event.key() != self.key_show or event.isAutoRepeat():
+    #             return False  # Ignore unrelated keys and auto-repeats
+
+    #         # if event.type() == QtCore.QEvent.KeyPress:
+    #         #     print("[Tcl] eventFilter → key_show pressed")
+    #         #     self.show()
+    #         #     return True
+
+    #         if event.type() == QtCore.QEvent.KeyRelease and not event.modifiers():
+    #             self.key_show_release.emit()
+    #             self.hide()
+    #             return True
+
+    #     return super().eventFilter(watched, event)
+
     def _init_ui(self, ui) -> None:
         """Initialize the given UI.
 
@@ -100,7 +120,7 @@ class Tcl(QtWidgets.QStackedWidget, ptk.LoggingMixin, ptk.HelpMixin):
             ui.setAttribute(QtCore.Qt.WA_TranslucentBackground)
             ui.set_style(theme="dark", style_class="translucentBgWithBorder")
             try:
-                ui.header.configure_buttons(menu_button=True, pin_button=True)
+                ui.header.config_buttons(menu_button=True, pin_button=True)
             except AttributeError:
                 pass
             self.key_show_release.connect(ui.hide)
@@ -134,11 +154,12 @@ class Tcl(QtWidgets.QStackedWidget, ptk.LoggingMixin, ptk.HelpMixin):
             self._is_keyboard_grabber = False
             self.hide()
             found_ui.show()
+            QtWidgets.QApplication.processEvents()  # <-- force visibility + signal sync
+
             widget_before_adjust = found_ui.width()
             found_ui.adjustSize()
             found_ui.resize(widget_before_adjust, found_ui.sizeHint().height())
             found_ui.updateGeometry()
-            # move to cursor position.
             self.sb.center_widget(found_ui, "cursor", offset_y=25)
 
     def set_submenu(self, ui, w) -> None:

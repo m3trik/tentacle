@@ -50,20 +50,20 @@ class Crease(SlotsMaya):
             lambda value: widget.setText(f"Crease {value}")
         )
 
-    @mtk.undo
+    @mtk.undoable
     def tb000(self, widget):
         """Crease"""
         crease_amount = widget.menu.s003.value()
         smoothing_angle = widget.menu.s004.value()
 
-        mtk.crease_edges(amount=crease_amount, angle=smoothing_angle)
+        mtk.Components.crease_edges(amount=crease_amount, angle=smoothing_angle)
 
-    @mtk.undo
+    @mtk.undoable
     def b002(self, widget):
         """Transfer Crease Edges"""
         try:
             source, *targets = pm.ls(orderedSelection=True, objectsOnly=True)
-            mtk.transfer_creased_edges(source, targets)
+            mtk.Components.transfer_creased_edges(source, targets)
         except ValueError:
             self.sb.message_box(
                 "<hl>Incorrect object selection.</hl><br>Please select at least one source and one target object."

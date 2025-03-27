@@ -254,7 +254,7 @@ class Transform(SlotsMaya):
             setToolTip="If checked, all selected objects will move to align with the last selected object.\nIf unchecked, the first object will move to the remaining selected objects' bounding box.",
         )
 
-    @mtk.undo
+    @mtk.undoable
     def tb005(self, widget):
         """Move To"""
         move_all_to_last = widget.menu.chk036.isChecked()

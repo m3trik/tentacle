@@ -37,11 +37,14 @@ class Scene(SlotsMaya):
     def txt000(self, widget):
         """Find"""
         # An asterisk denotes startswith*, *endswith, *contains*
+        regex = widget.ui.txt000.menu.chk001.isChecked()
+        ign_case = widget.ui.txt000.menu.chk000.isChecked()
+
         text = widget.text()
         if text:
-            object_names = [str(i) for i in pm.ls()]
-            found_object_names = ptk.find_str(text, object_names)
-            pm.select(found_object_names)
+            obj_names = [str(i) for i in pm.ls()]
+            found = ptk.find_str(text, obj_names, regex=regex, ignore_case=ign_case)
+            pm.select(found)
 
     # The LineEdit text parameter is not emitted on `returnPressed`
     @Signals("returnPressed")
@@ -51,10 +54,10 @@ class Scene(SlotsMaya):
         find = widget.ui.txt000.text()
         to = widget.text()
         regex = widget.ui.txt000.menu.chk001.isChecked()
-        ignore_case = widget.ui.txt000.menu.chk000.isChecked()
+        ign_case = widget.ui.txt000.menu.chk000.isChecked()
 
-        selection = pm.ls(sl=1, objectsOnly=True)
-        mtk.rename(selection, to, find, regex=regex, ignore_case=ignore_case)
+        selection = pm.selected() or [str(i) for i in pm.ls()]
+        mtk.Naming.rename(selection, to, find, regex=regex, ignore_case=ign_case)
 
     def tb000_init(self, widget):
         """ """
@@ -72,7 +75,7 @@ class Scene(SlotsMaya):
 
         selection = pm.ls(sl=1)
         objects = selection if selection else pm.ls(objectsOnly=1)
-        mtk.set_case(objects, case)
+        mtk.Naming.set_case(objects, case)
 
     def tb001_init(self, widget):
         """ """
@@ -119,7 +122,7 @@ class Scene(SlotsMaya):
         reverse = widget.menu.chk004.isChecked()
 
         selection = pm.ls(sl=1, objectsOnly=1, type="transform")
-        mtk.append_location_based_suffix(
+        mtk.Naming.append_location_based_suffix(
             selection,
             first_obj_as_ref=first_obj_as_ref,
             alphabetical=alphabetical,
@@ -153,7 +156,7 @@ class Scene(SlotsMaya):
             "num_chars": widget.menu.s000.value(),
             "trailing": widget.menu.chk005.isChecked(),
         }
-        mtk.strip_chars(sel, **kwargs)
+        mtk.Naming.strip_chars(sel, **kwargs)
 
 
 # --------------------------------------------------------------------------------------------

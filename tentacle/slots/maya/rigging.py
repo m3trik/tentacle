@@ -40,9 +40,8 @@ class Rigging(SlotsMaya):
         """Quick Rig"""
         text = widget.items[index]
         if text == "Tube Rig":
-            from mayatk.rig_utils.tube_rig import TubeRigUi
-
-            TubeRigUi().show(pos="cursor", app_exec=True)
+            ui = mtk.UiManager.instance(self.sb).get("tube_rig")
+            ui.show(pos="cursor", app_exec=True)
 
     def chk000(self, state, widget):
         """Scale Joint"""
@@ -263,7 +262,7 @@ class Rigging(SlotsMaya):
             setToolTip="Lock the scale values of the child object.",
         )
 
-    @mtk.undo
+    @mtk.undoable
     def tb003(self, widget):
         """Create Locator at Selection"""
         grp_suffix = widget.menu.t002.text()

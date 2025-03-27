@@ -34,7 +34,7 @@ class Init(SlotsMaya):
 
     def check_version(self):
         """Check the installed and latest versions in a separate thread."""
-        mayapy = os.path.join(mtk.get_maya_info("install_path"), "bin", "mayapy.exe")
+        mayapy = os.path.join(mtk.get_env_info("install_path"), "bin", "mayapy.exe")
         pkg_mgr = ptk.PkgManager(python_path=mayapy)
         this_pkg = "tentacletk"
         self._installed_ver = pkg_mgr.installed_version(this_pkg)
@@ -80,7 +80,7 @@ class Init(SlotsMaya):
                 )
 
             # Display current workspace if one is set
-            workspace = mtk.get_maya_info("workspace_dir")
+            workspace = mtk.get_env_info("workspace_dir")
             if workspace and workspace != "default":
                 hud.insertText(
                     'Project: <font style="color: Yellow;">{}</font>'.format(workspace)

@@ -41,11 +41,8 @@ class Duplicate(SlotsMaya):
 
     def b000(self):
         """Mirror"""
-        from mayatk.edit_utils import mirror
-
-        self.sb.register("mirror.ui", mirror.MirrorSlots, base_dir=mirror)
-        self.sb.loaded_ui.mirror.slots.preview.enable_on_show = True
-        self.sb.parent().set_ui("mirror")
+        ui = mtk.UiManager.instance(self.sb).get("mirror")
+        self.sb.parent().set_ui(ui)
 
     def b004(self):
         """Select Instanced Objects"""
@@ -61,36 +58,18 @@ class Duplicate(SlotsMaya):
 
     def b006(self):
         """Duplicate Linear"""
-        from mayatk.edit_utils import duplicate_linear
-
-        self.sb.register(
-            "duplicate_linear.ui",
-            duplicate_linear.DuplicateLinearSlots,
-            base_dir=duplicate_linear,
-        )
-        self.sb.parent().set_ui("duplicate_linear")
+        ui = mtk.UiManager.instance(self.sb).get("duplicate_linear")
+        self.sb.parent().set_ui(ui)
 
     def b007(self):
         """Duplicate Radial"""
-        from mayatk.edit_utils import duplicate_radial
-
-        self.sb.register(
-            "duplicate_radial.ui",
-            duplicate_radial.DuplicateRadialSlots,
-            base_dir=duplicate_radial,
-        )
-        self.sb.parent().set_ui("duplicate_radial")
+        ui = mtk.UiManager.instance(self.sb).get("duplicate_radial")
+        self.sb.parent().set_ui(ui)
 
     def b008(self):
         """Duplicate Grid"""
-        from mayatk.edit_utils import duplicate_grid
-
-        self.sb.register(
-            "duplicate_grid.ui",
-            duplicate_grid.DuplicateGridSlots,
-            base_dir=duplicate_grid,
-        )
-        self.sb.parent().set_ui("duplicate_grid")
+        ui = mtk.UiManager.instance(self.sb).get("duplicate_grid")
+        self.sb.parent().set_ui(ui)
 
 
 # --------------------------------------------------------------------------------------------
