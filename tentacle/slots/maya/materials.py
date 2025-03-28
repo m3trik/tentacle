@@ -134,6 +134,12 @@ class Materials(SlotsMaya):
             )
             widget.menu.add(
                 self.sb.registered_widgets.Label,
+                setText="Edit Node",
+                setObjectName="lbl006",
+                setToolTip="Open the material in the hypershade editor.",
+            )
+            widget.menu.add(
+                self.sb.registered_widgets.Label,
                 setText="Set Texture Path",
                 setObjectName="lbl011",
                 setToolTip="Set the texture file paths for the current material.\nThe path will be relative if it is within the project's source images directory.",
@@ -204,6 +210,27 @@ class Materials(SlotsMaya):
         """Set the current combo box text as editable."""
         self.ui.cmb002.setEditable(True)
         self.ui.cmb002.menu.hide()
+
+    def lbl006(self):
+        """Open material in editor"""
+        try:
+            mat = self.ui.cmb002.currentData()
+            pm.select(mat)
+        except Exception:
+            self.sb.message_box("No stored material or no valid object selected.")
+            return
+
+        # Open the Hypershade window
+        pm.mel.HypershadeWindow()
+
+        # Define the deferred command to graph the material
+        def graph_material():
+            pm.mel.eval(
+                'hyperShadePanelGraphCommand("hyperShadePanel1", "showUpAndDownstream")'
+            )
+
+        # Execute the graph command after the Hypershade window is fully initialized
+        pm.evalDeferred(graph_material)
 
     def lbl011(self):
         """Set Texture Paths"""
@@ -312,27 +339,6 @@ class Materials(SlotsMaya):
             'buildObjectMenuItemsNow "MainPane|viewPanes|modelPanel4|modelPanel4|modelPanel4|modelPanel4ObjectPop";'
         )
         pm.mel.createAssignNewMaterialTreeLister("")
-
-    def b010(self):
-        """Open material in editor"""
-        try:
-            mat = self.ui.cmb002.currentData()
-            pm.select(mat)
-        except Exception:
-            self.sb.message_box("No stored material or no valid object selected.")
-            return
-
-        # Open the Hypershade window
-        pm.mel.HypershadeWindow()
-
-        # Define the deferred command to graph the material
-        def graph_material():
-            pm.mel.eval(
-                'hyperShadePanelGraphCommand("hyperShadePanel1", "showUpAndDownstream")'
-            )
-
-        # Execute the graph command after the Hypershade window is fully initialized
-        pm.evalDeferred(graph_material)
 
     def b011(self):
         """Set Texture Paths for Selected Objects."""
