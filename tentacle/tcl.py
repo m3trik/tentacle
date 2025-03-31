@@ -1,14 +1,16 @@
 # !/usr/bin/python
 # coding=utf-8
 import sys
-from qtpy import QtCore, QtGui, QtWidgets
+from qtpy import QtCore, QtWidgets
 import pythontk as ptk
 from uitk.switchboard import Switchboard
 from uitk.events import EventFactoryFilter, MouseTracking
 from tentacle.overlay import Overlay
 
 
-class Tcl(QtWidgets.QStackedWidget, ptk.LoggingMixin, ptk.HelpMixin):
+class Tcl(
+    QtWidgets.QStackedWidget, ptk.SingletonMixin, ptk.LoggingMixin, ptk.HelpMixin
+):
     """Tcl is a marking menu based on a QStackedWidget.
     The various UI's are set by calling 'set_ui' with the intended UI name string. ex. Tcl().set_ui('polygons')
 
@@ -22,7 +24,7 @@ class Tcl(QtWidgets.QStackedWidget, ptk.LoggingMixin, ptk.HelpMixin):
                 If the given dir is a string and not a full path, it will be treated as relative to the default path.
                 If a module is given, the path to that module will be used.
         prevent_hide (bool): While True, the hide method is disabled.
-        log_level (int): Determines the level of logging messages to print. Defaults to logging.WARNING. Accepts standard Python logging module levels: DEBUG, INFO, WARNING, ERROR, CRITICAL.
+        log_level (int): Determines the level of logging messages. Defaults to logging.WARNING. Accepts standard Python logging module levels: DEBUG, INFO, WARNING, ERROR, CRITICAL.
     """
 
     # return the existing QApplication object, or create a new one if none exists.
@@ -33,8 +35,11 @@ class Tcl(QtWidgets.QStackedWidget, ptk.LoggingMixin, ptk.HelpMixin):
     middle_mouse_double_click = QtCore.Signal()
     right_mouse_double_click = QtCore.Signal()
     right_mouse_double_click_ctrl = QtCore.Signal()
-    # key_show_press = QtCore.Signal()
+    key_show_press = QtCore.Signal()
     key_show_release = QtCore.Signal()
+
+    _first_show = True
+    _instances = {}
 
     def __init__(
         self,
@@ -47,7 +52,7 @@ class Tcl(QtWidgets.QStackedWidget, ptk.LoggingMixin, ptk.HelpMixin):
         log_level: str = "WARNING",
     ):
         """ """
-        super().__init__(parent)
+        super().__init__(parent=parent)
         self.logger.setLevel(log_level)
 
         self.sb = Switchboard(
@@ -72,31 +77,34 @@ class Tcl(QtWidgets.QStackedWidget, ptk.LoggingMixin, ptk.HelpMixin):
         # self.app.setDoubleClickInterval(400)
         # self.app.setKeyboardInputInterval(400)
 
-        self.setWindowFlags(QtCore.Qt.Tool | QtCore.Qt.FramelessWindowHint)
+        self.setWindowFlags(
+            QtCore.Qt.Tool
+            | QtCore.Qt.FramelessWindowHint
+            | QtCore.Qt.WindowStaysOnTopHint
+        )
         self.setAttribute(QtCore.Qt.WA_TranslucentBackground)
         self.setAttribute(QtCore.Qt.WA_NoMousePropagation, False)
         self.setFocusPolicy(QtCore.Qt.StrongFocus)
-        self.resize(600, 600)
+        self.resize(800, 800)
 
         self.app.installEventFilter(self)
 
-    # def eventFilter(self, watched, event):
-    #     """Optimized global event filter for handling key_show press/release without performance impact."""
-    #     if event.type() in (QtCore.QEvent.KeyPress, QtCore.QEvent.KeyRelease):
-    #         if event.key() != self.key_show or event.isAutoRepeat():
-    #             return False  # Ignore unrelated keys and auto-repeats
+    def eventFilter(self, watched, event):
+        if event.type() in (QtCore.QEvent.KeyPress, QtCore.QEvent.KeyRelease):
+            if event.key() != self.key_show or event.isAutoRepeat():
+                return False
 
-    #         # if event.type() == QtCore.QEvent.KeyPress:
-    #         #     print("[Tcl] eventFilter → key_show pressed")
-    #         #     self.show()
-    #         #     return True
+            if event.type() == QtCore.QEvent.KeyPress:
+                self.key_show_press.emit()
+                self.show()
+                return True
 
-    #         if event.type() == QtCore.QEvent.KeyRelease and not event.modifiers():
-    #             self.key_show_release.emit()
-    #             self.hide()
-    #             return True
+            if event.type() == QtCore.QEvent.KeyRelease:
+                self.key_show_release.emit()
+                self.hide()
+                return True
 
-    #     return super().eventFilter(watched, event)
+        return super().eventFilter(watched, event)
 
     def _init_ui(self, ui) -> None:
         """Initialize the given UI.
@@ -151,7 +159,6 @@ class Tcl(QtWidgets.QStackedWidget, ptk.LoggingMixin, ptk.HelpMixin):
             self.setCurrentWidget(found_ui)  # set the stacked widget to the found UI.
 
         else:
-            self._is_keyboard_grabber = False
             self.hide()
             found_ui.show()
             QtWidgets.QApplication.processEvents()  # <-- force visibility + signal sync
@@ -205,51 +212,6 @@ class Tcl(QtWidgets.QStackedWidget, ptk.LoggingMixin, ptk.HelpMixin):
     # ---------------------------------------------------------------------------------------------
     #   Stacked Widget Event handling:
 
-    def send_key_press_event(self, key, modifier=QtCore.Qt.NoModifier) -> None:
-        """Simulate a key press event within the widget.
-
-        Parameters:
-            key (Qt.Key): The key code of the pressed key.
-            modifier (Qt.Modifier): Optional modifier to use with the key press.
-        """
-        self.grabKeyboard()
-        self._is_keyboard_grabber = True
-        event = QtGui.QKeyEvent(QtCore.QEvent.KeyPress, key, modifier)
-        # Use QApplication.postEvent for thread safety
-        self.app.postEvent(self, event)
-
-    def keyPressEvent(self, event) -> None:
-        """Handles key press events, closing the widget if the specified key is pressed without modifiers.
-
-        Parameters:
-            event (QKeyEvent): The key event.
-        """
-        if event.isAutoRepeat():
-            return
-
-        if event.key() == self.key_close and not event.modifiers():
-            self.close()
-
-        super().keyPressEvent(event)
-
-    def keyReleaseEvent(self, event) -> None:
-        """Handles key release events, hiding the widget if the specified key is released.
-
-        Parameters:
-            event (QKeyEvent): The key event.
-        """
-        # Early return if the event is an auto-repeat to avoid handling continuous press events
-        if event.isAutoRepeat():
-            return
-
-        # No modifiers should be active for this specific key release event
-        if event.key() == self.key_show and not event.modifiers():
-            self.key_show_release.emit()  # Emit signal indicating the key was released
-            self.releaseKeyboard()
-            self.hide()  # Hide the widget as part of the key release action
-
-        super().keyReleaseEvent(event)
-
     def mousePressEvent(self, event) -> None:
         """ """
         if self.sb.current_ui.has_tags(["startmenu", "submenu"]):
@@ -291,20 +253,19 @@ class Tcl(QtWidgets.QStackedWidget, ptk.LoggingMixin, ptk.HelpMixin):
 
         super().mouseDoubleClickEvent(event)
 
-    def show(self, ui="init#startmenu", profile=False) -> None:
-        """Sets the widget as visible.
+    def show(self, ui="init#startmenu") -> None:
+        """Override show to simulate key press only on first run for eventFilter to catch release."""
+        if not self.isVisible():
+            if self._first_show:
+                self.sb.simulate_key_press(self, self.key_show)
+                self._first_show = False
+                self.set_ui(ui)
 
-        Parameters:
-            ui (str/QWidget): Show the given UI.
-        """
-        self.send_key_press_event(self.key_show)
-        self.set_ui(ui)
-
-        if self.sb.current_ui.name == "init#startmenu":
-            self.move(self.sb.get_cursor_offset_from_center(self))
-
-        super().show()
-        self.activateWindow()  # the window cannot be activated for keyboard events until after it is shown.
+            if self.sb.current_ui.name == "init#startmenu":
+                self.move(self.sb.get_cursor_offset_from_center(self))
+            super().show()
+        self.raise_()
+        self.activateWindow()
 
     def hide(self, force=False) -> None:
         """Sets the widget as invisible.
@@ -317,10 +278,9 @@ class Tcl(QtWidgets.QStackedWidget, ptk.LoggingMixin, ptk.HelpMixin):
             super().hide()
 
     def hideEvent(self, event):
-        """"""
-        if self._is_keyboard_grabber:
+        if QtWidgets.QWidget.keyboardGrabber() is self:
             self.releaseKeyboard()
-            self._is_keyboard_grabber = False
+
         if self.mouseGrabber():
             self.mouseGrabber().releaseMouse()
 
@@ -351,7 +311,6 @@ class Tcl(QtWidgets.QStackedWidget, ptk.LoggingMixin, ptk.HelpMixin):
             ):
                 continue
 
-            # print('add_child_event_filter:', w.ui.name.ljust(26), w.base_name.ljust(25), (w.name or type(w).__name__).ljust(25), w.type.ljust(15), w.derived_type.ljust(15), id(w)) #debug
             w.installEventFilter(self.child_event_filter)
 
             if w.derived_type in (
@@ -496,12 +455,8 @@ class Tcl(QtWidgets.QStackedWidget, ptk.LoggingMixin, ptk.HelpMixin):
 
 if __name__ == "__main__":
     tcl = Tcl(slot_source="slots/maya")
-    tcl.show(profile=0)
+    tcl.show("screen", app_exec=True)
 
-    # run app, show window, wait for input, then terminate program with a status code returned from app.
-    exit_code = tcl.app.exec_()
-    if exit_code != -1:
-        sys.exit(exit_code)
 
 # --------------------------------------------------------------------------------------------
 # Notes

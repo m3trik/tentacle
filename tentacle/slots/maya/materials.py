@@ -134,15 +134,15 @@ class Materials(SlotsMaya):
             )
             widget.menu.add(
                 self.sb.registered_widgets.Label,
-                setText="Edit Node",
-                setObjectName="lbl006",
-                setToolTip="Open the material in the hypershade editor.",
-            )
-            widget.menu.add(
-                self.sb.registered_widgets.Label,
                 setText="Set Texture Path",
                 setObjectName="lbl011",
                 setToolTip="Set the texture file paths for the current material.\nThe path will be relative if it is within the project's source images directory.",
+            )
+            widget.menu.add(
+                self.sb.registered_widgets.Label,
+                setText="Open in Editor",
+                setObjectName="lbl006",
+                setToolTip="Open the material in the hypershade editor.",
             )
             # Rename the material after editing has finished.
             widget.on_editing_finished.connect(
