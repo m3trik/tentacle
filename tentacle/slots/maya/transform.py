@@ -143,6 +143,13 @@ class Transform(SlotsMaya):
             setChecked=True,
             setToolTip="Store the original transforms as custom attributes.",
         )
+        widget.menu.add(
+            "QCheckBox",
+            setText="Delete History",
+            setObjectName="chk038",
+            setChecked=True,
+            setToolTip="Delete the objects history.",
+        )
 
     def tb002(self, widget):
         """Freeze Transformations"""
@@ -156,9 +163,16 @@ class Transform(SlotsMaya):
         rotate = widget.menu.chk033.isChecked()
         scale = widget.menu.chk034.isChecked()
         force = True if len(objects) == 1 else False
+        delete_history = widget.menu.chk038.isChecked()
 
         mtk.freeze_transforms(
-            objects, center_pivot=cp, t=translate, r=rotate, s=scale, force=force
+            objects,
+            center_pivot=cp,
+            t=translate,
+            r=rotate,
+            s=scale,
+            force=force,
+            delete_history=delete_history,
         )
 
     def tb003_init(self, widget):
