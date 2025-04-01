@@ -31,6 +31,7 @@ class Duplicate(SlotsMaya):
     def tb000(self, widget):
         """Convert to Instances"""
         freeze_transforms = widget.menu.chk000.isChecked()
+        center_pivot = widget.menu.chk002.isChecked()
         delete_history = widget.menu.chk001.isChecked()
 
         # Get the list of selected transform nodes in the order they were selected
@@ -44,6 +45,7 @@ class Duplicate(SlotsMaya):
         mtk.convert_to_instances(
             selection,
             freeze_transforms=freeze_transforms,
+            center_pivot=center_pivot,
             delete_history=delete_history,
         )
 
