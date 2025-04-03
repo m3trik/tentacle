@@ -41,7 +41,7 @@ class TclBlender(Tcl):
 
 if __name__ == "__main__":
     main = TclBlender()
-    main.show("screen", app_exec=True)
+    main.show()
 
 
 # module name

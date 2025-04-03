@@ -177,52 +177,15 @@
      </size>
     </property>
    </widget>
-   <widget class="QPushButton" name="lbl000">
-    <property name="enabled">
-     <bool>true</bool>
-    </property>
-    <property name="geometry">
-     <rect>
-      <x>200</x>
-      <y>260</y>
-      <width>56</width>
-      <height>19</height>
-     </rect>
-    </property>
-    <property name="minimumSize">
-     <size>
-      <width>0</width>
-      <height>19</height>
-     </size>
-    </property>
-    <property name="maximumSize">
-     <size>
-      <width>111</width>
-      <height>19</height>
-     </size>
-    </property>
-    <property name="toolTip">
-     <string>Open the current material in editor.</string>
-    </property>
-    <property name="text">
-     <string>Edit</string>
-    </property>
-    <property name="iconSize">
-     <size>
-      <width>18</width>
-      <height>18</height>
-     </size>
-    </property>
-   </widget>
    <widget class="PushButton" name="tb000">
     <property name="enabled">
      <bool>true</bool>
     </property>
     <property name="geometry">
      <rect>
-      <x>305</x>
-      <y>330</y>
-      <width>116</width>
+      <x>335</x>
+      <y>200</y>
+      <width>71</width>
       <height>20</height>
      </rect>
     </property>
@@ -242,7 +205,7 @@
      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Select all components with the same material. &lt;/p&gt;&lt;p&gt;If nothing is selected; search all geometry.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
     </property>
     <property name="text">
-     <string>Select By Material</string>
+     <string>Select By</string>
     </property>
    </widget>
    <widget class="QPushButton" name="b002">
@@ -251,8 +214,8 @@
     </property>
     <property name="geometry">
      <rect>
-      <x>210</x>
-      <y>330</y>
+      <x>235</x>
+      <y>200</y>
       <width>86</width>
       <height>20</height>
      </rect>

@@ -48,7 +48,7 @@ class Materials(SlotsMaya):
             setObjectName="b009",
         )
         ui = mtk.UiManager.instance(self.sb).get("stingray_arnold_shader")
-        widget.menu.b009.clicked.connect(lambda: self.sb.parent().set_ui(ui))
+        widget.menu.b009.clicked.connect(lambda: self.sb.parent().show(ui))
         # Add a button to launch map converter.
         widget.menu.add(
             self.sb.registered_widgets.PushButton,
@@ -67,9 +67,7 @@ class Materials(SlotsMaya):
         source_images_dir = mtk.get_env_info("sourceimages")
         self.sb.loaded_ui.map_converter.slots.source_dir = source_images_dir
         # Connect the button to the map converter UI
-        widget.menu.b016.clicked.connect(
-            lambda: self.sb.parent().set_ui("map_converter")
-        )
+        widget.menu.b016.clicked.connect(lambda: self.sb.parent().show("map_converter"))
         widget.menu.add(
             self.sb.registered_widgets.PushButton,
             setText="Set Texture Paths",

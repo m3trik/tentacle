@@ -66,7 +66,7 @@ class TclMax(Tcl):
 
 if __name__ == "__main__":
     main = TclMax()
-    main.show("screen", app_exec=True)
+    main.show()
 
 
 # module name

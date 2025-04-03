@@ -52,6 +52,6 @@ To launch the marking menu:
 For Maya, add a macro to a hotkey similar to the following:
 
 ```python
-from tentacle import tcl_maya
-tcl_maya.show(key_show='Z')  # Change to match your chosen hotkey.
+from tentacle.tcl_maya import TclMaya
+TclMaya.instance(key_show='Z').show()  # Change to match your chosen hotkey.
 ```

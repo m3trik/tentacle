@@ -29,7 +29,7 @@ class File(SlotsMaya):
             setObjectName="b002",
         )
         ui = mtk.UiManager.instance(self.sb).get("scene_exporter")
-        widget.menu.b002.clicked.connect(lambda: self.sb.parent().set_ui(ui))
+        widget.menu.b002.clicked.connect(lambda: self.sb.parent().show(ui))
 
     @Signals("textChanged", "returnPressed")
     def txt000(self, widget):
@@ -275,7 +275,7 @@ class File(SlotsMaya):
     def b001(self):
         """Open Reference Manager"""
         ui = mtk.UiManager.instance(self.sb).get("reference_manager")
-        self.sb.parent().set_ui(ui)
+        self.sb.parent().show(ui)
 
     def b003(self):
         """Export Scene Geometry"""

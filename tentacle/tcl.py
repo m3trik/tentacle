@@ -12,7 +12,7 @@ class Tcl(
     QtWidgets.QStackedWidget, ptk.SingletonMixin, ptk.LoggingMixin, ptk.HelpMixin
 ):
     """Tcl is a marking menu based on a QStackedWidget.
-    The various UI's are set by calling 'set_ui' with the intended UI name string. ex. Tcl().set_ui('polygons')
+    The various UI's are set by calling 'show' with the intended UI name string. ex. Tcl().show('polygons')
 
     Parameters:
         parent (QWidget): The parent application's top level window instance. ie. the Maya main window.
@@ -72,7 +72,7 @@ class Tcl(
         self.key_show = self.sb.convert.to_qkey(key_show)
         self.key_close = QtCore.Qt.Key_Escape
         self.prevent_hide = prevent_hide
-        self._mouse_press_pos = QtCore.QPoint()
+        self._mouse_press_pos = QtCore.QPoint(0, 0)
 
         # self.app.setDoubleClickInterval(400)
         # self.app.setKeyboardInputInterval(400)
@@ -90,16 +90,16 @@ class Tcl(
         self.app.installEventFilter(self)
 
     def eventFilter(self, watched, event):
-        if event.type() in (QtCore.QEvent.KeyPress, QtCore.QEvent.KeyRelease):
-            if event.key() != self.key_show or event.isAutoRepeat():
-                return False
+        etype = event.type()
 
-            if event.type() == QtCore.QEvent.KeyPress:
+        if etype == QtCore.QEvent.KeyPress:
+            if event.key() == self.key_show and not event.isAutoRepeat():
                 self.key_show_press.emit()
                 self.show()
                 return True
 
-            if event.type() == QtCore.QEvent.KeyRelease:
+        elif etype == QtCore.QEvent.KeyRelease:
+            if event.key() == self.key_show and not event.isAutoRepeat():
                 self.key_show_release.emit()
                 self.hide()
                 return True
@@ -137,77 +137,89 @@ class Tcl(
         self.add_child_event_filter(ui.widgets)
         ui.on_child_added.connect(lambda w: self.add_child_event_filter(w))
 
-    def set_ui(self, ui) -> None:
-        """Set the stacked Widget's index to the given UI.
-
-        Parameters:
-            ui (str/QWidget): The UI or name of the UI to set the stacked widget index to.
-        """
+    def _prepare_ui(self, ui) -> QtWidgets.QWidget:
+        """Initialize and set the UI without showing it."""
         if not isinstance(ui, (str, QtWidgets.QWidget)):
-            raise ValueError(
-                f"Invalid datatype for ui: {type(ui)}, expected str or QWidget."
-            )
+            raise ValueError(f"Invalid datatype for ui: {type(ui)}")
 
-        # Get the UI of the given name, and set it as the current UI in the switchboard module.
         found_ui = self.sb.get_ui(ui)
+
         if not found_ui.is_initialized:
             self._init_ui(found_ui)
 
         if found_ui.has_tags(["startmenu", "submenu"]):
             if found_ui.has_tags("startmenu"):
                 self.move(self.sb.get_cursor_offset_from_center(self))
-            self.setCurrentWidget(found_ui)  # set the stacked widget to the found UI.
-
+            self.setCurrentWidget(found_ui)
         else:
-            self.hide()
-            found_ui.show()
-            QtWidgets.QApplication.processEvents()  # <-- force visibility + signal sync
+            self.hide(force=True)
 
-            widget_before_adjust = found_ui.width()
-            found_ui.adjustSize()
-            found_ui.resize(widget_before_adjust, found_ui.sizeHint().height())
-            found_ui.updateGeometry()
-            self.sb.center_widget(found_ui, "cursor", offset_y=25)
+        self.sb.current_ui = found_ui
+        return found_ui
 
-    def set_submenu(self, ui, w) -> None:
+    def _show_ui(self) -> None:
+        """Show the current UI appropriately, hiding Tcl if needed."""
+        current = self.sb.current_ui
+
+        is_stacked_ui = current.has_tags(["startmenu", "submenu"])
+
+        if is_stacked_ui:
+            super().show()
+        else:
+            current.show()
+            QtWidgets.QApplication.processEvents()
+
+            widget_before_adjust = current.width()
+            current.adjustSize()
+            current.resize(widget_before_adjust, current.sizeHint().height())
+            current.updateGeometry()
+            self.sb.center_widget(current, "cursor", offset_y=25)
+
+        self.raise_()
+        self.activateWindow()
+        self.setFocus()
+
+    def _set_submenu(self, ui, w) -> None:
         """Set the stacked widget's index to the submenu associated with the given widget.
-        Positions the new UI to line up with the previous UI's button that called the new UI.
-        If the given UI is already set, then this method will simply return without performing any operation.
+        Positions the new UI to align with the previous UI's widget that triggered the transition.
 
         Parameters:
             ui (QWidget): The UI submenu to set as current.
-            w (QWidget): The widget under cursor at the time this method was called.
+            w (QWidget): The widget under the cursor that triggered this submenu.
         """
         if not isinstance(ui, QtWidgets.QWidget):
             raise ValueError(f"Invalid datatype for ui: {type(ui)}, expected QWidget.")
 
         self.overlay.path.add(ui, w)
-        self.set_ui(ui)  # switch the stacked widget to the given submenu.
 
-        # get the old widget position.
-        p1 = w.mapToGlobal(w.rect().center())
-        # get the widget of the same name in the new UI.
-        w2 = self.sb.get_widget(w.name, ui)
-        # get the new widget position.
-        p2 = w2.mapToGlobal(w2.rect().center())
-        currentPos = self.mapToGlobal(self.pos())
-        # move the UI to currentPos + difference
-        self.move(self.mapFromGlobal(currentPos + (p1 - p2)))
+        if not ui.is_initialized:
+            self._init_ui(ui)
 
-        # if the submenu UI called for the first time:
+        self._prepare_ui(ui)
+
+        try:
+            p1 = w.mapToGlobal(w.rect().center())
+            w2 = self.sb.get_widget(w.name, ui)
+            p2 = w2.mapToGlobal(w2.rect().center())
+            self.move(self.pos() + (p1 - p2))
+        except Exception as e:
+            self.logger.warning(f"Submenu positioning failed: {e}")
+
+        self._show_ui()
+
         if ui not in self.sb.ui_history(slice(0, -1), allow_duplicates=True):
-            # re-construct any widgets from the previous UI that fall along the plotted path.
-            return_func = self.return_to_startmenu
-            self.overlay.clone_widgets_along_path(ui, return_func)
+            self.overlay.clone_widgets_along_path(ui, self._return_to_startmenu)
 
-    def return_to_startmenu(self) -> None:
-        """Return the stacked widget to it's starting index."""
-        if not self.overlay.path.start_pos:
-            raise ValueError("No start position found in the path.")
+    def _return_to_startmenu(self) -> None:
+        start_pos = self.overlay.path.start_pos
+        if not isinstance(start_pos, QtCore.QPoint):
+            self.logger.warning("_return_to_startmenu called with no valid start_pos.")
+            return
 
         startmenu = self.sb.ui_history(-1, inc="*#startmenu*")
-        self.set_ui(startmenu)
-        self.move(self.overlay.path.start_pos - self.rect().center())
+        self._prepare_ui(startmenu)
+        self.move(start_pos - self.rect().center())
+        self._show_ui()
 
     # ---------------------------------------------------------------------------------------------
     #   Stacked Widget Event handling:
@@ -217,21 +229,15 @@ class Tcl(
         if self.sb.current_ui.has_tags(["startmenu", "submenu"]):
             if not event.modifiers():
                 if event.button() == QtCore.Qt.LeftButton:
-                    self.set_ui("cameras#startmenu")
+                    self.show("cameras#startmenu")
 
                 elif event.button() == QtCore.Qt.MiddleButton:
-                    self.set_ui("editors#startmenu")
+                    self.show("editors#startmenu")
 
                 elif event.button() == QtCore.Qt.RightButton:
-                    self.set_ui("main#startmenu")
+                    self.show("main#startmenu")
 
         super().mousePressEvent(event)
-
-    def mouseReleaseEvent(self, event) -> None:
-        """ """
-        self.set_ui("init#startmenu")
-
-        super().mouseReleaseEvent(event)
 
     def mouseDoubleClickEvent(self, event) -> None:
         """ """
@@ -254,18 +260,17 @@ class Tcl(
         super().mouseDoubleClickEvent(event)
 
     def show(self, ui="init#startmenu") -> None:
-        """Override show to simulate key press only on first run for eventFilter to catch release."""
-        if not self.isVisible():
-            if self._first_show:
-                self.sb.simulate_key_press(self, self.key_show)
-                self._first_show = False
-                self.set_ui(ui)
+        """Sets the widget as visible and shows the specified UI."""
+        self._prepare_ui(ui)
 
-            if self.sb.current_ui.name == "init#startmenu":
-                self.move(self.sb.get_cursor_offset_from_center(self))
-            super().show()
-        self.raise_()
-        self.activateWindow()
+        if QtWidgets.QApplication.mouseButtons() or self.isVisible():
+            return
+
+        if self._first_show:
+            self.sb.simulate_key_press(self, self.key_show)
+            self._first_show = False
+
+        self._show_ui()
 
     def hide(self, force=False) -> None:
         """Sets the widget as invisible.
@@ -334,7 +339,7 @@ class Tcl(
                 if submenu_name != w.ui.name:
                     submenu = self.sb.get_ui(submenu_name)
                     if submenu:
-                        self.set_submenu(submenu, w)
+                        self._set_submenu(submenu, w)
 
         if w.base_name == "chk":
             if w.ui.has_tags("submenu"):
@@ -370,7 +375,7 @@ class Tcl(
                     menu = self.sb.get_ui(new_menu_name)
                     if menu:
                         self.hide_unmatched_groupboxes(menu, menu_name)
-                        self.set_ui(menu)
+                        self.show(menu)
             if hasattr(w, "click"):
                 self.hide()
                 if w.ui.has_tags(["startmenu", "submenu"]):

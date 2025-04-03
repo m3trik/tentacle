@@ -388,7 +388,7 @@ class Edit(SlotsMaya):
     def b000(self):
         """Cut On Axis"""
         ui = mtk.UiManager.instance(self.sb).get("cut_on_axis")
-        self.sb.parent().set_ui(ui)
+        self.sb.parent().show(ui)
 
     @SlotsMaya.hide_main
     def b001(self):

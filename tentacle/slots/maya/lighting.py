@@ -26,7 +26,7 @@ class Lighting(SlotsMaya):
             setObjectName="b000",
         )
         ui = mtk.UiManager.instance(self.sb).get("hdr_manager")
-        widget.menu.b000.clicked.connect(lambda: self.sb.parent().set_ui(ui))
+        widget.menu.b000.clicked.connect(lambda: self.sb.parent().show(ui))
 
 
 # --------------------------------------------------------------------------------------------
