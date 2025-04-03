@@ -22,9 +22,7 @@ class Display(SlotsMaya):
 
     def b001(self):
         """Wireframe Selected"""
-        from mayatk.edit_utils.macros import Macros
-
-        Macros.m_wireframe_toggle()
+        mtk.Macros.m_wireframe_toggle()
 
     def b002(self):
         """Hide Selected"""
@@ -75,15 +73,11 @@ class Display(SlotsMaya):
 
     def b009(self):
         """Toggle Material Override"""
-        from mayatk.edit_utils.macros import Macros
-
-        Macros.m_material_override()
+        mtk.Macros.m_material_override()
 
     def b011(self):
         """Toggle Component ID Display"""
-        from mayatk.edit_utils.macros import Macros
-
-        Macros.m_component_id_display()
+        mtk.Macros.m_component_id_display()
 
     def b012(self):
         """Wireframe Non Active (Wireframe All But The Selected Item)"""
@@ -93,21 +87,13 @@ class Display(SlotsMaya):
 
     def b013(self):
         """Explode View GUI"""
-        from mayatk.display_utils import exploded_view
-
-        self.sb.register(
-            "exploded_view.ui", exploded_view.ExplodedViewSlots, base_dir=exploded_view
-        )
-        self.sb.parent().set_ui("exploded_view")
+        ui = mtk.UiManager.instance(self.sb).get("exploded_view")
+        self.sb.parent().show(ui)
 
     def b014(self):
         """Color Manager GUI"""
-        from mayatk.display_utils import color_manager
-
-        self.sb.register(
-            "color_manager.ui", color_manager.ColorManagerSlots, base_dir=color_manager
-        )
-        self.sb.parent().set_ui("color_manager")
+        ui = mtk.UiManager.instance(self.sb).get("color_manager")
+        self.sb.parent().show(ui)
 
     def b021(self):
         """Template Selected"""

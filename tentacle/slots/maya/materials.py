@@ -25,44 +25,36 @@ class Materials(SlotsMaya):
             self.sb.registered_widgets.PushButton,
             setToolTip="Open the Hypershade Window.",
             setText="Hypershade Editor",
-            setObjectName="b050",
+            setObjectName="b007",
         )
-        widget.menu.b050.clicked.connect(pm.mel.HypershadeWindow)
+        widget.menu.b007.clicked.connect(pm.mel.HypershadeWindow)
 
         widget.menu.add(
             self.sb.registered_widgets.PushButton,
             setToolTip="Open the current project's source images folder.",
             setText="Source Images",
-            setObjectName="b051",
+            setObjectName="b008",
         )
         import os
 
-        source_images_dir = mtk.get_maya_info("sourceimages")
-        widget.menu.b051.clicked.connect(lambda: os.startfile(source_images_dir))
+        source_images_dir = mtk.get_env_info("sourceimages")
+        widget.menu.b008.clicked.connect(lambda: os.startfile(source_images_dir))
 
         # Add a button to launch stringray arnold shader.
         widget.menu.add(
             self.sb.registered_widgets.PushButton,
             setToolTip="Create a stingray material network that can optionally be rendered in Arnold.",
             setText="Create Stingray Shader",
-            setObjectName="b001",
+            setObjectName="b009",
         )
-        from mayatk.mat_utils import stingray_arnold_shader
-
-        self.sb.register(
-            "stingray_arnold_shader.ui",
-            stingray_arnold_shader.StingrayArnoldShaderSlots,
-            base_dir=stingray_arnold_shader,
-        )
-        widget.menu.b001.clicked.connect(
-            lambda: self.sb.parent().set_ui("stingray_arnold_shader")
-        )
+        ui = mtk.UiManager.instance(self.sb).get("stingray_arnold_shader")
+        widget.menu.b009.clicked.connect(lambda: self.sb.parent().show(ui))
         # Add a button to launch map converter.
         widget.menu.add(
             self.sb.registered_widgets.PushButton,
             setToolTip="Convert exisitng texture maps to another type.",
             setText="Map Converter",
-            setObjectName="b003",
+            setObjectName="b016",
         )
         from pythontk.img_utils import map_converter
 
@@ -72,40 +64,44 @@ class Materials(SlotsMaya):
             base_dir=map_converter,
         )
         # Set the starting directory for the map converter
-        source_images_dir = mtk.get_maya_info("sourceimages")
+        source_images_dir = mtk.get_env_info("sourceimages")
         self.sb.loaded_ui.map_converter.slots.source_dir = source_images_dir
         # Connect the button to the map converter UI
-        widget.menu.b003.clicked.connect(
-            lambda: self.sb.parent().set_ui("map_converter")
+        widget.menu.b016.clicked.connect(lambda: self.sb.parent().show("map_converter"))
+        widget.menu.add(
+            self.sb.registered_widgets.PushButton,
+            setText="Set Texture Paths",
+            setObjectName="b011",
+            setToolTip="Set the texture file paths for selected objects.\nThe path will be relative if it is within the project's source images directory.",
         )
         widget.menu.add(
-            self.sb.registered_widgets.Label,
-            setText="Set Texture Directory",
-            setObjectName="lbl001",
-            setToolTip="Set the texture file paths for all scene materials.\nThe path will be relative if it is within the project's source images directory.",
-        )
-        widget.menu.add(
-            self.sb.registered_widgets.Label,
-            setText="Convert Texture Paths Relative",
-            setObjectName="lbl007",
+            self.sb.registered_widgets.PushButton,
+            setText="Set Paths Relative",
+            setObjectName="b012",
             setToolTip="Convert all texture paths to relative paths.",
         )
         widget.menu.add(
-            self.sb.registered_widgets.Label,
+            self.sb.registered_widgets.PushButton,
+            setText="Migate Textures",
+            setObjectName="b017",
+            setToolTip="Migrate file textures for selected objects to a new directory.\nFirst, select the objects with the textures you want to migrate and the directory to migrate from.\nThen, select the directory you want to migrate the textures to.",
+        )
+        widget.menu.add(
+            self.sb.registered_widgets.PushButton,
             setText="Reload Textures",
-            setObjectName="lbl006",
+            setObjectName="b013",
             setToolTip="Reload file textures for all scene materials.",
         )
         widget.menu.add(
-            self.sb.registered_widgets.Label,
+            self.sb.registered_widgets.PushButton,
             setText="Remove Duplicate Materials",
-            setObjectName="lbl008",
+            setObjectName="b014",
             setToolTip="Find duplicate materials, remove duplicates, and reassign them to the original material.",
         )
         widget.menu.add(
-            self.sb.registered_widgets.Label,
+            self.sb.registered_widgets.PushButton,
             setText="Delete All Unused Materials",
-            setObjectName="lbl003",
+            setObjectName="b015",
             setToolTip="Delete all unused materials.",
         )
 
@@ -116,18 +112,6 @@ class Materials(SlotsMaya):
             widget.editable = True
             widget.menu.mode = "context"
             widget.menu.setTitle("Material Options")
-            widget.menu.add(
-                self.sb.registered_widgets.Label,
-                setText="Assign to Selection",
-                setObjectName="lbl009",
-                setToolTip="Assign the material to the current selection.",
-            )
-            widget.menu.add(
-                self.sb.registered_widgets.PushButton,
-                setText="Select by Material",
-                setObjectName="tb000",
-                setToolTip="Select objects containing the material.",
-            )
             widget.menu.add(
                 self.sb.registered_widgets.Label,
                 setText="Rename",
@@ -148,9 +132,15 @@ class Materials(SlotsMaya):
             )
             widget.menu.add(
                 self.sb.registered_widgets.Label,
+                setText="Set Texture Path",
+                setObjectName="lbl011",
+                setToolTip="Set the texture file paths for the current material.\nThe path will be relative if it is within the project's source images directory.",
+            )
+            widget.menu.add(
+                self.sb.registered_widgets.Label,
                 setText="Open in Editor",
-                setObjectName="lbl000",
-                setToolTip="Open the current material in editor.",
+                setObjectName="lbl006",
+                setToolTip="Open the material in the hypershade editor.",
             )
             # Rename the material after editing has finished.
             widget.on_editing_finished.connect(
@@ -197,7 +187,29 @@ class Materials(SlotsMaya):
 
         pm.select(faces_with_mat)
 
-    def lbl000(self):
+    def lbl002(self):
+        """Delete Material"""
+        mat = self.ui.cmb002.currentData()  # get the mat obj from cmb002
+        mat = pm.delete(mat)
+        self.ui.cmb002.init_slot()  # refresh the materials list comboBox
+
+    def b015(self, widget):
+        """Delete Unused Materials"""
+        pm.mel.hyperShadePanelMenuCommand("hyperShadePanel1", "deleteUnusedNodes")
+        self.ui.cmb002.init_slot()  # refresh the materials list comboBox
+
+    def lbl004(self):
+        """Select and Show Attributes: Show Material Attributes in the Attribute Editor."""
+        mat = self.ui.cmb002.currentData()  # get the mat obj from cmb002
+        pm.select(mat, replace=True)
+        pm.mel.eval(f'showEditorExact("{mat}")')
+
+    def lbl005(self):
+        """Set the current combo box text as editable."""
+        self.ui.cmb002.setEditable(True)
+        self.ui.cmb002.menu.hide()
+
+    def lbl006(self):
         """Open material in editor"""
         try:
             mat = self.ui.cmb002.currentData()
@@ -218,64 +230,17 @@ class Materials(SlotsMaya):
         # Execute the graph command after the Hypershade window is fully initialized
         pm.evalDeferred(graph_material)
 
-    def lbl001(self):
+    def lbl011(self):
         """Set Texture Paths"""
         texture_dir = self.sb.dir_dialog(
-            title="Set Texture Paths", start_dir=mtk.get_maya_info("sourceimages")
+            title="Set Texture Paths for the current material",
+            start_dir=mtk.get_env_info("sourceimages"),
         )
         if not texture_dir:
             return
         pm.displayInfo(f"Setting texture paths to: {texture_dir}")
-        mtk.remap_texture_paths(new_dir=texture_dir)
-
-    def lbl002(self):
-        """Delete Material"""
-        mat = self.ui.cmb002.currentData()  # get the mat obj from cmb002
-        mat = pm.delete(mat)
-        self.ui.cmb002.init_slot()  # refresh the materials list comboBox
-
-    def lbl003(self, widget):
-        """Delete Unused Materials"""
-        pm.mel.hyperShadePanelMenuCommand("hyperShadePanel1", "deleteUnusedNodes")
-        self.ui.cmb002.init_slot()  # refresh the materials list comboBox
-
-    def lbl004(self):
-        """Select and Show Attributes: Show Material Attributes in the Attribute Editor."""
-        mat = self.ui.cmb002.currentData()  # get the mat obj from cmb002
-        pm.select(mat, replace=True)
-        pm.mel.eval(f'showEditorExact("{mat}")')
-
-    def lbl005(self):
-        """Set the current combo box text as editable."""
-        self.ui.cmb002.setEditable(True)
-        self.ui.cmb002.menu.hide()
-
-    def lbl006(self):
-        """Reload Textures"""
-        mtk.reload_textures()  # pm.mel.AEReloadAllTextures()
-        confirmation_message = "<html><body><p style='font-size:16px; color:yellow;'>Textures are <strong>reloading ..</strong>.</p></body></html>"
-        self.sb.message_box(confirmation_message)
-
-    def lbl007(self):
-        """Convert to Relative Paths"""
-        mtk.remap_texture_paths()
-
-    def lbl008(self):
-        """Remove and Reassign Duplicates"""
-        dups = mtk.find_materials_with_duplicate_textures()
-        if dups:
-            mtk.reassign_duplicate_materials(dups, delete=True)
-            self.ui.cmb002.init_slot()
-
-    def lbl009(self):
-        """Assign: Assign Current"""
-        selection = pm.ls(sl=True, flatten=1)
-        if not selection:
-            self.sb.message_box("No renderable object is selected for assignment.")
-            return
-
-        mat = self.ui.cmb002.currentData()
-        mtk.assign_mat(selection, mat)
+        material = self.ui.cmb002.currentData()
+        mtk.remap_texture_paths(material, new_dir=texture_dir)
 
     def b002(self, widget):
         """Get Material: Change the index to match the current material selection."""
@@ -352,6 +317,16 @@ class Materials(SlotsMaya):
             if icon is not None:
                 submenu_widget.setIcon(icon)
 
+    def b005(self, widget):
+        """Assign: Assign Current"""
+        selection = pm.ls(sl=True, flatten=1)
+        if not selection:
+            self.sb.message_box("No renderable object is selected for assignment.")
+            return
+
+        mat = self.ui.cmb002.currentData()
+        mtk.assign_mat(selection, mat)
+
     def b006(self, widget):
         """Assign: New Material"""
         renderable_objects = pm.ls(sl=True, type="mesh", dag=True, geometry=True)
@@ -362,6 +337,59 @@ class Materials(SlotsMaya):
             'buildObjectMenuItemsNow "MainPane|viewPanes|modelPanel4|modelPanel4|modelPanel4|modelPanel4ObjectPop";'
         )
         pm.mel.createAssignNewMaterialTreeLister("")
+
+    def b011(self):
+        """Set Texture Paths for Selected Objects."""
+        texture_dir = self.sb.dir_dialog(
+            title="Set Texture Paths for Selected Objects",
+            start_dir=mtk.get_env_info("sourceimages"),
+        )
+        if not texture_dir:
+            return
+        pm.displayInfo(f"Setting texture paths to: {texture_dir}")
+        selection = pm.ls(sl=True, flatten=True)
+        materials = mtk.get_mats(selection)
+        mtk.remap_texture_paths(materials, new_dir=texture_dir)
+
+    def b012(self):
+        """Convert to Relative Paths"""
+        mtk.remap_texture_paths()
+
+    def b013(self):
+        """Reload Textures"""
+        mtk.reload_textures()  # pm.mel.AEReloadAllTextures()
+        confirmation_message = "<html><body><p style='font-size:16px; color:yellow;'>Textures are <strong>reloading ..</strong>.</p></body></html>"
+        self.sb.message_box(confirmation_message)
+
+    def b014(self):
+        """Remove and Reassign Duplicates"""
+        dups = mtk.find_materials_with_duplicate_textures()
+        if dups:
+            mtk.reassign_duplicate_materials(dups, delete=True)
+            self.ui.cmb002.init_slot()
+
+    def b017(self):
+        """Migrate Textures"""
+        old_dir = self.sb.dir_dialog(
+            title="Select a directory to migrate textures from:",
+            start_dir=mtk.get_env_info("sourceimages"),
+        )
+        if not old_dir:
+            return
+        new_dir = self.sb.dir_dialog(
+            title="Select a directory to migrate textures to:",
+            start_dir=mtk.get_env_info("sourceimages"),
+        )
+        if not new_dir:
+            return
+
+        selection = pm.ls(sl=True, flatten=True)
+        materials = mtk.get_mats(selection)
+        if not materials:
+            self.sb.message_box("No materials found.\nSelect object(s) with materials.")
+            return
+
+        mtk.migrate_textures(materials=materials, old_dir=old_dir, new_dir=new_dir)
 
 
 # --------------------------------------------------------------------------------------------

@@ -4,6 +4,9 @@ try:
     import pymel.core as pm
 except ImportError as error:
     print(__file__, error)
+import mayatk as mtk
+
+# From this package:
 from tentacle.slots.maya import SlotsMaya
 
 
@@ -11,10 +14,8 @@ class LightingShadingSlots(SlotsMaya):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        self.ui = self.sb.get_ui("lighting_shading")
-        print(f"ui: {self.ui}")
-        if not self.ui.centralWidget():
-            self.embed_maya_menu(self.ui)
+        self.sb = kwargs.get("switchboard")
+        self.ui = mtk.UiManager.instance(self.sb).get("lighting_shading", header=True)
 
 
 # --------------------------------------------------------------------------------------------

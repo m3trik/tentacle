@@ -28,16 +28,8 @@ class File(SlotsMaya):
             setText="Scene Exporter",
             setObjectName="b002",
         )
-        from mayatk.env_utils import scene_exporter
-
-        self.sb.register(
-            "scene_exporter.ui",
-            scene_exporter.SceneExporterSlots,
-            base_dir=scene_exporter,
-        )
-        widget.menu.b002.clicked.connect(
-            lambda: self.sb.parent().set_ui("scene_exporter")
-        )
+        ui = mtk.UiManager.instance(self.sb).get("scene_exporter")
+        widget.menu.b002.clicked.connect(lambda: self.sb.parent().show(ui))
 
     @Signals("textChanged", "returnPressed")
     def txt000(self, widget):
@@ -186,9 +178,9 @@ class File(SlotsMaya):
         recent_files = mtk.get_recent_files(slice(0, 20))
         widget.add(recent_files, header="Recent Files", clear=True)
 
-    def cmb005(self, index, widget):
+    def cmb005(self, index: int, widget):
         """Recent Files"""
-        force = not pm.mel.file(q=True, modified=True)
+        force = not mtk.get_env_info("scene_modified")
         pm.openFile(widget.items[index], open=True, force=force, ignoreVersion=True)
 
     def cmb006_init(self, widget):
@@ -214,8 +206,8 @@ class File(SlotsMaya):
                 setToolTip="Open the project root directory.",
             )
 
-        workspace = mtk.get_maya_info("workspace")
-        workspace_dir = mtk.get_maya_info("workspace_dir")
+        workspace = mtk.get_env_info("workspace")
+        workspace_dir = mtk.get_env_info("workspace_dir")
         # Add each dir in the workspace as well as its full path as data
         items = {d: f"{workspace}/{d}" for d in os.listdir(workspace)}
         widget.add(items, header=workspace_dir, clear=True)
@@ -260,8 +252,6 @@ class File(SlotsMaya):
         """Auto Set Workspace"""
         workspace = mtk.find_workspace_using_path()
         if workspace:
-            import os
-
             pm.workspace(workspace, openWorkspace=True)
             workspace_name = os.path.basename(workspace)
             self.sb.message_box(f"Workspace set to {workspace_name}.")
@@ -284,14 +274,8 @@ class File(SlotsMaya):
 
     def b001(self):
         """Open Reference Manager"""
-        from mayatk.env_utils import reference_manager
-
-        self.sb.register(
-            "reference_manager.ui",
-            reference_manager.ReferenceManagerSlots,
-            base_dir=reference_manager,
-        )
-        self.sb.parent().set_ui("reference_manager")
+        ui = mtk.UiManager.instance(self.sb).get("reference_manager")
+        self.sb.parent().show(ui)
 
     def b003(self):
         """Export Scene Geometry"""

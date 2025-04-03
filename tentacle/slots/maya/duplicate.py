@@ -20,10 +20,20 @@ class Duplicate(SlotsMaya):
             setChecked=False,
             setToolTip="Freeze transforms on the object(s) before instancing.",
         )
+        widget.menu.add(
+            "QCheckBox",
+            setText="Delete History",
+            setObjectName="chk001",
+            setChecked=False,
+            setToolTip="Delete history on the object(s) before instancing.",
+        )
 
     def tb000(self, widget):
         """Convert to Instances"""
         freeze_transforms = widget.menu.chk000.isChecked()
+        center_pivot = widget.menu.chk002.isChecked()
+        delete_history = widget.menu.chk001.isChecked()
+
         # Get the list of selected transform nodes in the order they were selected
         selection = pm.ls(orderedSelection=True, transforms=True)
         if not selection:
@@ -32,20 +42,17 @@ class Duplicate(SlotsMaya):
             )
             return
 
-        # Freeze transforms if the option is checked
-        if freeze_transforms:
-            for obj in selection:
-                pm.makeIdentity(obj, apply=True, t=1, r=1, s=1, n=0)
-
-        mtk.convert_to_instances(selection)
+        mtk.convert_to_instances(
+            selection,
+            freeze_transforms=freeze_transforms,
+            center_pivot=center_pivot,
+            delete_history=delete_history,
+        )
 
     def b000(self):
         """Mirror"""
-        from mayatk.edit_utils import mirror
-
-        self.sb.register("mirror.ui", mirror.MirrorSlots, base_dir=mirror)
-        self.sb.loaded_ui.mirror.slots.preview.enable_on_show = True
-        self.sb.parent().set_ui("mirror")
+        ui = mtk.UiManager.instance(self.sb).get("mirror")
+        self.sb.parent().show(ui)
 
     def b004(self):
         """Select Instanced Objects"""
@@ -61,36 +68,18 @@ class Duplicate(SlotsMaya):
 
     def b006(self):
         """Duplicate Linear"""
-        from mayatk.edit_utils import duplicate_linear
-
-        self.sb.register(
-            "duplicate_linear.ui",
-            duplicate_linear.DuplicateLinearSlots,
-            base_dir=duplicate_linear,
-        )
-        self.sb.parent().set_ui("duplicate_linear")
+        ui = mtk.UiManager.instance(self.sb).get("duplicate_linear")
+        self.sb.parent().show(ui)
 
     def b007(self):
         """Duplicate Radial"""
-        from mayatk.edit_utils import duplicate_radial
-
-        self.sb.register(
-            "duplicate_radial.ui",
-            duplicate_radial.DuplicateRadialSlots,
-            base_dir=duplicate_radial,
-        )
-        self.sb.parent().set_ui("duplicate_radial")
+        ui = mtk.UiManager.instance(self.sb).get("duplicate_radial")
+        self.sb.parent().show(ui)
 
     def b008(self):
         """Duplicate Grid"""
-        from mayatk.edit_utils import duplicate_grid
-
-        self.sb.register(
-            "duplicate_grid.ui",
-            duplicate_grid.DuplicateGridSlots,
-            base_dir=duplicate_grid,
-        )
-        self.sb.parent().set_ui("duplicate_grid")
+        ui = mtk.UiManager.instance(self.sb).get("duplicate_grid")
+        self.sb.parent().show(ui)
 
 
 # --------------------------------------------------------------------------------------------

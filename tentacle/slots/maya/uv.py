@@ -178,7 +178,7 @@ class Uv(SlotsMaya):
         )
         # widget.menu.chk001.toggled.connect(lambda state: self.sb.toggle_multi(widget.menu, setUnChecked='chk002-3') if state==1 else None)
 
-    @mtk.undo
+    @mtk.undoable
     def tb001(self, widget):
         """Auto Unwrap"""
         standardUnwrap = widget.menu.chk000.isChecked()
@@ -202,9 +202,9 @@ class Uv(SlotsMaya):
                         unwrapType = "Cylindrical"
                     elif sphericalUnwrap:
                         unwrapType = "Spherical"
-                    objFaces = mtk.get_components(obj, "f")
+                    objFaces = mtk.Components.get_components(obj, "f")
                     if not objFaces:
-                        objFaces = mtk.get_components(obj, "f")
+                        objFaces = mtk.Components.get_components(obj, "f")
                     pm.polyProjection(
                         objFaces, type=unwrapType, insertBeforeDeformers=1, smartFit=1
                     )
@@ -519,7 +519,7 @@ class Uv(SlotsMaya):
         panel = mtk.get_panel(scriptType="polyTexturePlacementPanel")
         pm.textureWindow(panel, edit=1, displayDistortion=state)
 
-    @mtk.undo
+    @mtk.undoable
     def b000(self, widget):
         """Transfer UV's"""
         frm, *to = pm.ls(orderedSelection=1, flatten=1)
@@ -529,7 +529,7 @@ class Uv(SlotsMaya):
             )
 
         for t in to:
-            mtk.transfer_uvs(frm, t)
+            mtk.Components.transfer_uvs(frm, t)
 
     def b002(self):
         """Stack Shells"""
@@ -538,18 +538,17 @@ class Uv(SlotsMaya):
 
     def b003(self):
         """Get texel density."""
-        # Assuming get_texel_density is defined elsewhere in this script
-        density = mtk.get_texel_density(pm.selected(), self.get_map_size())
+        density = mtk.Components.get_texel_density(pm.selected(), self.get_map_size())
         self.ui.s003.setValue(density)
 
-    @mtk.undo
+    @mtk.undoable
     def b004(self):
         """Set Texel Density"""
         density = self.ui.s003.value()
         map_size = self.get_map_size()
 
         for obj in pm.selected():
-            mtk.set_texel_density(obj, density, map_size)
+            mtk.Components.set_texel_density(obj, density, map_size)
 
     def b005(self):
         """Cut UV's"""
@@ -562,7 +561,7 @@ class Uv(SlotsMaya):
 
         if selected_edges:
             # Map the selected edges to their respective objects
-            edges_by_object = mtk.map_components_to_objects(selected_edges)
+            edges_by_object = mtk.Components.map_components_to_objects(selected_edges)
             # Iterate through the objects and perform the cut operation on their edges
             for obj_name, edges in edges_by_object.items():
                 pm.polyMapCut(edges)
@@ -604,11 +603,9 @@ class Uv(SlotsMaya):
 
     def b007(self):
         """Display UV Borders"""
-        from mayatk.edit_utils.macros import Macros
+        mtk.Macros.m_toggle_uv_border_edges()
 
-        Macros.m_toggle_uv_border_edges()
-
-    @mtk.undo
+    @mtk.undoable
     def b011(self):
         """Sew UVs"""
         selected = pm.selected(flatten=True)
@@ -638,22 +635,22 @@ class Uv(SlotsMaya):
     def b023(self):
         """Move To Uv Space: Left"""
         selection = pm.selected()
-        mtk.move_to_uv_space(selection, -1, 0)  # move left
+        mtk.Components.move_to_uv_space(selection, -1, 0)  # move left
 
     def b024(self):
         """Move To Uv Space: Down"""
         selection = pm.selected()
-        mtk.move_to_uv_space(selection, 0, -1)  # move down
+        mtk.Components.move_to_uv_space(selection, 0, -1)  # move down
 
     def b025(self):
         """Move To Uv Space: Up"""
         selection = pm.selected()
-        mtk.move_to_uv_space(selection, 0, 1)  # move up
+        mtk.Components.move_to_uv_space(selection, 0, 1)  # move up
 
     def b026(self):
         """Move To Uv Space: Right"""
         selection = pm.selected()
-        mtk.move_to_uv_space(selection, 1, 0)  # move right
+        mtk.Components.move_to_uv_space(selection, 1, 0)  # move right
 
 
 # --------------------------------------------------------------------------------------------

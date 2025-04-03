@@ -4,12 +4,17 @@ try:
     import pymel.core as pm
 except ImportError as error:
     print(__file__, error)
+import mayatk as mtk
+
+# From this Package:
 from tentacle.slots.maya import SlotsMaya
 
 
 class Lighting(SlotsMaya):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+
+        self.sb = kwargs.get("switchboard")
 
     def header_init(self, widget):
         """ """
@@ -20,12 +25,8 @@ class Lighting(SlotsMaya):
             setText="HDR Manager",
             setObjectName="b000",
         )
-        from mayatk.light_utils import hdr_manager
-
-        self.sb.register(
-            "hdr_manager.ui", hdr_manager.HdrManagerSlots, base_dir=hdr_manager
-        )
-        widget.menu.b000.clicked.connect(lambda: self.sb.parent().set_ui("hdr_manager"))
+        ui = mtk.UiManager.instance(self.sb).get("hdr_manager")
+        widget.menu.b000.clicked.connect(lambda: self.sb.parent().show(ui))
 
 
 # --------------------------------------------------------------------------------------------

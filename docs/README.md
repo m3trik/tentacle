@@ -1,5 +1,5 @@
 [![License: LGPL v3](https://img.shields.io/badge/License-LGPL%20v3-blue.svg)](https://www.gnu.org/licenses/lgpl-3.0.en.html)
-[![Version](https://img.shields.io/badge/Version-0.9.29-blue.svg)](https://pypi.org/project/tentacletk/)
+[![Version](https://img.shields.io/badge/Version-0.9.30-blue.svg)](https://pypi.org/project/tentacletk/)
 
 # Tentacle: A Python3/qtpy Marking Menu
 
@@ -52,6 +52,6 @@ To launch the marking menu:
 For Maya, add a macro to a hotkey similar to the following:
 
 ```python
-from tentacle import tcl_maya
-tcl_maya.show(key_show='Z')  # Change to match your chosen hotkey.
+from tentacle.tcl_maya import TclMaya
+TclMaya.instance(key_show='Z').show()  # Change to match your chosen hotkey.
 ```

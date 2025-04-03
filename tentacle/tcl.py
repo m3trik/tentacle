@@ -1,16 +1,18 @@
 # !/usr/bin/python
 # coding=utf-8
 import sys
-from qtpy import QtCore, QtGui, QtWidgets
+from qtpy import QtCore, QtWidgets
 import pythontk as ptk
 from uitk.switchboard import Switchboard
 from uitk.events import EventFactoryFilter, MouseTracking
 from tentacle.overlay import Overlay
 
 
-class Tcl(QtWidgets.QStackedWidget, ptk.LoggingMixin, ptk.HelpMixin):
+class Tcl(
+    QtWidgets.QStackedWidget, ptk.SingletonMixin, ptk.LoggingMixin, ptk.HelpMixin
+):
     """Tcl is a marking menu based on a QStackedWidget.
-    The various UI's are set by calling 'set_ui' with the intended UI name string. ex. Tcl().set_ui('polygons')
+    The various UI's are set by calling 'show' with the intended UI name string. ex. Tcl().show('polygons')
 
     Parameters:
         parent (QWidget): The parent application's top level window instance. ie. the Maya main window.
@@ -22,7 +24,7 @@ class Tcl(QtWidgets.QStackedWidget, ptk.LoggingMixin, ptk.HelpMixin):
                 If the given dir is a string and not a full path, it will be treated as relative to the default path.
                 If a module is given, the path to that module will be used.
         prevent_hide (bool): While True, the hide method is disabled.
-        log_level (int): Determines the level of logging messages to print. Defaults to logging.WARNING. Accepts standard Python logging module levels: DEBUG, INFO, WARNING, ERROR, CRITICAL.
+        log_level (int): Determines the level of logging messages. Defaults to logging.WARNING. Accepts standard Python logging module levels: DEBUG, INFO, WARNING, ERROR, CRITICAL.
     """
 
     # return the existing QApplication object, or create a new one if none exists.
@@ -33,8 +35,11 @@ class Tcl(QtWidgets.QStackedWidget, ptk.LoggingMixin, ptk.HelpMixin):
     middle_mouse_double_click = QtCore.Signal()
     right_mouse_double_click = QtCore.Signal()
     right_mouse_double_click_ctrl = QtCore.Signal()
-    # key_show_press = QtCore.Signal()
+    key_show_press = QtCore.Signal()
     key_show_release = QtCore.Signal()
+
+    _first_show = True
+    _instances = {}
 
     def __init__(
         self,
@@ -47,7 +52,7 @@ class Tcl(QtWidgets.QStackedWidget, ptk.LoggingMixin, ptk.HelpMixin):
         log_level: str = "WARNING",
     ):
         """ """
-        super().__init__(parent)
+        super().__init__(parent=parent)
         self.logger.setLevel(log_level)
 
         self.sb = Switchboard(
@@ -67,16 +72,39 @@ class Tcl(QtWidgets.QStackedWidget, ptk.LoggingMixin, ptk.HelpMixin):
         self.key_show = self.sb.convert.to_qkey(key_show)
         self.key_close = QtCore.Qt.Key_Escape
         self.prevent_hide = prevent_hide
-        self._mouse_press_pos = QtCore.QPoint()
+        self._mouse_press_pos = QtCore.QPoint(0, 0)
 
         # self.app.setDoubleClickInterval(400)
         # self.app.setKeyboardInputInterval(400)
 
-        self.setWindowFlags(QtCore.Qt.Tool | QtCore.Qt.FramelessWindowHint)
+        self.setWindowFlags(
+            QtCore.Qt.Tool
+            | QtCore.Qt.FramelessWindowHint
+            | QtCore.Qt.WindowStaysOnTopHint
+        )
         self.setAttribute(QtCore.Qt.WA_TranslucentBackground)
         self.setAttribute(QtCore.Qt.WA_NoMousePropagation, False)
         self.setFocusPolicy(QtCore.Qt.StrongFocus)
-        self.resize(600, 600)
+        self.resize(800, 800)
+
+        self.app.installEventFilter(self)
+
+    def eventFilter(self, watched, event):
+        etype = event.type()
+
+        if etype == QtCore.QEvent.KeyPress:
+            if event.key() == self.key_show and not event.isAutoRepeat():
+                self.key_show_press.emit()
+                self.show()
+                return True
+
+        elif etype == QtCore.QEvent.KeyRelease:
+            if event.key() == self.key_show and not event.isAutoRepeat():
+                self.key_show_release.emit()
+                self.hide()
+                return True
+
+        return super().eventFilter(watched, event)
 
     def _init_ui(self, ui) -> None:
         """Initialize the given UI.
@@ -100,7 +128,7 @@ class Tcl(QtWidgets.QStackedWidget, ptk.LoggingMixin, ptk.HelpMixin):
             ui.setAttribute(QtCore.Qt.WA_TranslucentBackground)
             ui.set_style(theme="dark", style_class="translucentBgWithBorder")
             try:
-                ui.header.configure_buttons(menu_button=True, pin_button=True)
+                ui.header.config_buttons(menu_button=True, pin_button=True)
             except AttributeError:
                 pass
             self.key_show_release.connect(ui.hide)
@@ -109,146 +137,107 @@ class Tcl(QtWidgets.QStackedWidget, ptk.LoggingMixin, ptk.HelpMixin):
         self.add_child_event_filter(ui.widgets)
         ui.on_child_added.connect(lambda w: self.add_child_event_filter(w))
 
-    def set_ui(self, ui) -> None:
-        """Set the stacked Widget's index to the given UI.
-
-        Parameters:
-            ui (str/QWidget): The UI or name of the UI to set the stacked widget index to.
-        """
+    def _prepare_ui(self, ui) -> QtWidgets.QWidget:
+        """Initialize and set the UI without showing it."""
         if not isinstance(ui, (str, QtWidgets.QWidget)):
-            raise ValueError(
-                f"Invalid datatype for ui: {type(ui)}, expected str or QWidget."
-            )
+            raise ValueError(f"Invalid datatype for ui: {type(ui)}")
 
-        # Get the UI of the given name, and set it as the current UI in the switchboard module.
         found_ui = self.sb.get_ui(ui)
+
         if not found_ui.is_initialized:
             self._init_ui(found_ui)
 
         if found_ui.has_tags(["startmenu", "submenu"]):
             if found_ui.has_tags("startmenu"):
                 self.move(self.sb.get_cursor_offset_from_center(self))
-            self.setCurrentWidget(found_ui)  # set the stacked widget to the found UI.
-
+            self.setCurrentWidget(found_ui)
         else:
-            self._is_keyboard_grabber = False
-            self.hide()
-            found_ui.show()
-            widget_before_adjust = found_ui.width()
-            found_ui.adjustSize()
-            found_ui.resize(widget_before_adjust, found_ui.sizeHint().height())
-            found_ui.updateGeometry()
-            # move to cursor position.
-            self.sb.center_widget(found_ui, "cursor", offset_y=25)
+            self.hide(force=True)
 
-    def set_submenu(self, ui, w) -> None:
+        self.sb.current_ui = found_ui
+        return found_ui
+
+    def _show_ui(self) -> None:
+        """Show the current UI appropriately, hiding Tcl if needed."""
+        current = self.sb.current_ui
+
+        is_stacked_ui = current.has_tags(["startmenu", "submenu"])
+
+        if is_stacked_ui:
+            super().show()
+        else:
+            current.show()
+            QtWidgets.QApplication.processEvents()
+
+            widget_before_adjust = current.width()
+            current.adjustSize()
+            current.resize(widget_before_adjust, current.sizeHint().height())
+            current.updateGeometry()
+            self.sb.center_widget(current, "cursor", offset_y=25)
+
+        self.raise_()
+        self.activateWindow()
+        self.setFocus()
+
+    def _set_submenu(self, ui, w) -> None:
         """Set the stacked widget's index to the submenu associated with the given widget.
-        Positions the new UI to line up with the previous UI's button that called the new UI.
-        If the given UI is already set, then this method will simply return without performing any operation.
+        Positions the new UI to align with the previous UI's widget that triggered the transition.
 
         Parameters:
             ui (QWidget): The UI submenu to set as current.
-            w (QWidget): The widget under cursor at the time this method was called.
+            w (QWidget): The widget under the cursor that triggered this submenu.
         """
         if not isinstance(ui, QtWidgets.QWidget):
             raise ValueError(f"Invalid datatype for ui: {type(ui)}, expected QWidget.")
 
         self.overlay.path.add(ui, w)
-        self.set_ui(ui)  # switch the stacked widget to the given submenu.
 
-        # get the old widget position.
-        p1 = w.mapToGlobal(w.rect().center())
-        # get the widget of the same name in the new UI.
-        w2 = self.sb.get_widget(w.name, ui)
-        # get the new widget position.
-        p2 = w2.mapToGlobal(w2.rect().center())
-        currentPos = self.mapToGlobal(self.pos())
-        # move the UI to currentPos + difference
-        self.move(self.mapFromGlobal(currentPos + (p1 - p2)))
+        if not ui.is_initialized:
+            self._init_ui(ui)
 
-        # if the submenu UI called for the first time:
+        self._prepare_ui(ui)
+
+        try:
+            p1 = w.mapToGlobal(w.rect().center())
+            w2 = self.sb.get_widget(w.name, ui)
+            p2 = w2.mapToGlobal(w2.rect().center())
+            self.move(self.pos() + (p1 - p2))
+        except Exception as e:
+            self.logger.warning(f"Submenu positioning failed: {e}")
+
+        self._show_ui()
+
         if ui not in self.sb.ui_history(slice(0, -1), allow_duplicates=True):
-            # re-construct any widgets from the previous UI that fall along the plotted path.
-            return_func = self.return_to_startmenu
-            self.overlay.clone_widgets_along_path(ui, return_func)
+            self.overlay.clone_widgets_along_path(ui, self._return_to_startmenu)
 
-    def return_to_startmenu(self) -> None:
-        """Return the stacked widget to it's starting index."""
-        if not self.overlay.path.start_pos:
-            raise ValueError("No start position found in the path.")
+    def _return_to_startmenu(self) -> None:
+        start_pos = self.overlay.path.start_pos
+        if not isinstance(start_pos, QtCore.QPoint):
+            self.logger.warning("_return_to_startmenu called with no valid start_pos.")
+            return
 
         startmenu = self.sb.ui_history(-1, inc="*#startmenu*")
-        self.set_ui(startmenu)
-        self.move(self.overlay.path.start_pos - self.rect().center())
+        self._prepare_ui(startmenu)
+        self.move(start_pos - self.rect().center())
+        self._show_ui()
 
     # ---------------------------------------------------------------------------------------------
     #   Stacked Widget Event handling:
-
-    def send_key_press_event(self, key, modifier=QtCore.Qt.NoModifier) -> None:
-        """Simulate a key press event within the widget.
-
-        Parameters:
-            key (Qt.Key): The key code of the pressed key.
-            modifier (Qt.Modifier): Optional modifier to use with the key press.
-        """
-        self.grabKeyboard()
-        self._is_keyboard_grabber = True
-        event = QtGui.QKeyEvent(QtCore.QEvent.KeyPress, key, modifier)
-        # Use QApplication.postEvent for thread safety
-        self.app.postEvent(self, event)
-
-    def keyPressEvent(self, event) -> None:
-        """Handles key press events, closing the widget if the specified key is pressed without modifiers.
-
-        Parameters:
-            event (QKeyEvent): The key event.
-        """
-        if event.isAutoRepeat():
-            return
-
-        if event.key() == self.key_close and not event.modifiers():
-            self.close()
-
-        super().keyPressEvent(event)
-
-    def keyReleaseEvent(self, event) -> None:
-        """Handles key release events, hiding the widget if the specified key is released.
-
-        Parameters:
-            event (QKeyEvent): The key event.
-        """
-        # Early return if the event is an auto-repeat to avoid handling continuous press events
-        if event.isAutoRepeat():
-            return
-
-        # No modifiers should be active for this specific key release event
-        if event.key() == self.key_show and not event.modifiers():
-            self.key_show_release.emit()  # Emit signal indicating the key was released
-            self.releaseKeyboard()
-            self.hide()  # Hide the widget as part of the key release action
-
-        super().keyReleaseEvent(event)
 
     def mousePressEvent(self, event) -> None:
         """ """
         if self.sb.current_ui.has_tags(["startmenu", "submenu"]):
             if not event.modifiers():
                 if event.button() == QtCore.Qt.LeftButton:
-                    self.set_ui("cameras#startmenu")
+                    self.show("cameras#startmenu")
 
                 elif event.button() == QtCore.Qt.MiddleButton:
-                    self.set_ui("editors#startmenu")
+                    self.show("editors#startmenu")
 
                 elif event.button() == QtCore.Qt.RightButton:
-                    self.set_ui("main#startmenu")
+                    self.show("main#startmenu")
 
         super().mousePressEvent(event)
-
-    def mouseReleaseEvent(self, event) -> None:
-        """ """
-        self.set_ui("init#startmenu")
-
-        super().mouseReleaseEvent(event)
 
     def mouseDoubleClickEvent(self, event) -> None:
         """ """
@@ -270,20 +259,18 @@ class Tcl(QtWidgets.QStackedWidget, ptk.LoggingMixin, ptk.HelpMixin):
 
         super().mouseDoubleClickEvent(event)
 
-    def show(self, ui="init#startmenu", profile=False) -> None:
-        """Sets the widget as visible.
+    def show(self, ui="init#startmenu") -> None:
+        """Sets the widget as visible and shows the specified UI."""
+        self._prepare_ui(ui)
 
-        Parameters:
-            ui (str/QWidget): Show the given UI.
-        """
-        self.send_key_press_event(self.key_show)
-        self.set_ui(ui)
+        if QtWidgets.QApplication.mouseButtons() or self.isVisible():
+            return
 
-        if self.sb.current_ui.name == "init#startmenu":
-            self.move(self.sb.get_cursor_offset_from_center(self))
+        if self._first_show:
+            self.sb.simulate_key_press(self, self.key_show)
+            self._first_show = False
 
-        super().show()
-        self.activateWindow()  # the window cannot be activated for keyboard events until after it is shown.
+        self._show_ui()
 
     def hide(self, force=False) -> None:
         """Sets the widget as invisible.
@@ -296,10 +283,9 @@ class Tcl(QtWidgets.QStackedWidget, ptk.LoggingMixin, ptk.HelpMixin):
             super().hide()
 
     def hideEvent(self, event):
-        """"""
-        if self._is_keyboard_grabber:
+        if QtWidgets.QWidget.keyboardGrabber() is self:
             self.releaseKeyboard()
-            self._is_keyboard_grabber = False
+
         if self.mouseGrabber():
             self.mouseGrabber().releaseMouse()
 
@@ -330,7 +316,6 @@ class Tcl(QtWidgets.QStackedWidget, ptk.LoggingMixin, ptk.HelpMixin):
             ):
                 continue
 
-            # print('add_child_event_filter:', w.ui.name.ljust(26), w.base_name.ljust(25), (w.name or type(w).__name__).ljust(25), w.type.ljust(15), w.derived_type.ljust(15), id(w)) #debug
             w.installEventFilter(self.child_event_filter)
 
             if w.derived_type in (
@@ -354,7 +339,7 @@ class Tcl(QtWidgets.QStackedWidget, ptk.LoggingMixin, ptk.HelpMixin):
                 if submenu_name != w.ui.name:
                     submenu = self.sb.get_ui(submenu_name)
                     if submenu:
-                        self.set_submenu(submenu, w)
+                        self._set_submenu(submenu, w)
 
         if w.base_name == "chk":
             if w.ui.has_tags("submenu"):
@@ -390,7 +375,7 @@ class Tcl(QtWidgets.QStackedWidget, ptk.LoggingMixin, ptk.HelpMixin):
                     menu = self.sb.get_ui(new_menu_name)
                     if menu:
                         self.hide_unmatched_groupboxes(menu, menu_name)
-                        self.set_ui(menu)
+                        self.show(menu)
             if hasattr(w, "click"):
                 self.hide()
                 if w.ui.has_tags(["startmenu", "submenu"]):
@@ -475,12 +460,8 @@ class Tcl(QtWidgets.QStackedWidget, ptk.LoggingMixin, ptk.HelpMixin):
 
 if __name__ == "__main__":
     tcl = Tcl(slot_source="slots/maya")
-    tcl.show(profile=0)
+    tcl.show("screen", app_exec=True)
 
-    # run app, show window, wait for input, then terminate program with a status code returned from app.
-    exit_code = tcl.app.exec_()
-    if exit_code != -1:
-        sys.exit(exit_code)
 
 # --------------------------------------------------------------------------------------------
 # Notes

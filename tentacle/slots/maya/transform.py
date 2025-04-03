@@ -143,6 +143,13 @@ class Transform(SlotsMaya):
             setChecked=True,
             setToolTip="Store the original transforms as custom attributes.",
         )
+        widget.menu.add(
+            "QCheckBox",
+            setText="Delete History",
+            setObjectName="chk038",
+            setChecked=True,
+            setToolTip="Delete the objects history.",
+        )
 
     def tb002(self, widget):
         """Freeze Transformations"""
@@ -156,9 +163,16 @@ class Transform(SlotsMaya):
         rotate = widget.menu.chk033.isChecked()
         scale = widget.menu.chk034.isChecked()
         force = True if len(objects) == 1 else False
+        delete_history = widget.menu.chk038.isChecked()
 
         mtk.freeze_transforms(
-            objects, center_pivot=cp, t=translate, r=rotate, s=scale, force=force
+            objects,
+            center_pivot=cp,
+            t=translate,
+            r=rotate,
+            s=scale,
+            force=force,
+            delete_history=delete_history,
         )
 
     def tb003_init(self, widget):
@@ -254,7 +268,7 @@ class Transform(SlotsMaya):
             setToolTip="If checked, all selected objects will move to align with the last selected object.\nIf unchecked, the first object will move to the remaining selected objects' bounding box.",
         )
 
-    @mtk.undo
+    @mtk.undoable
     def tb005(self, widget):
         """Move To"""
         move_all_to_last = widget.menu.chk036.isChecked()
