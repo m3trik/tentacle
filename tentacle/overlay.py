@@ -21,29 +21,31 @@ class OverlayFactoryFilter(QtCore.QObject):
         if not widget.isWidgetType():
             return False
 
-        if event.type() == QtCore.QEvent.MouseButtonPress:
+        etype = event.type()
+
+        if etype == QtCore.QEvent.MouseButtonPress:
             self.mousePressEvent(event)
 
-        elif event.type() == QtCore.QEvent.MouseButtonRelease:
+        elif etype == QtCore.QEvent.MouseButtonRelease:
             self.mouseReleaseEvent(event)
 
-        elif event.type() == QtCore.QEvent.MouseMove:
+        elif etype == QtCore.QEvent.MouseMove:
             self.mouseMoveEvent(event)
 
-        elif event.type() == QtCore.QEvent.MouseButtonDblClick:
-            self.mouseDoubleClickEvent(event)
+        # elif etype == QtCore.QEvent.MouseButtonDblClick:
+        #     self.mouseDoubleClickEvent(event)
 
-        elif event.type() == QtCore.QEvent.KeyPress:
-            self.keyPressEvent(event)
+        # elif etype == QtCore.QEvent.KeyPress:
+        #     self.keyPressEvent(event)
 
-        elif event.type() == QtCore.QEvent.KeyRelease:
-            self.keyReleaseEvent(event)
+        # elif etype == QtCore.QEvent.KeyRelease:
+        #     self.keyReleaseEvent(event)
 
-        elif event.type() == QtCore.QEvent.Resize:
+        elif etype == QtCore.QEvent.Resize:
             if widget == self.parentWidget():
                 self.resize(widget.size())
 
-        elif event.type() == QtCore.QEvent.Show:
+        elif etype == QtCore.QEvent.Show:
             self.raise_()
 
         return super().eventFilter(widget, event)

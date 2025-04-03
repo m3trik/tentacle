@@ -15,6 +15,13 @@ class Duplicate(SlotsMaya):
     def tb000_init(self, widget):
         widget.menu.add(
             "QCheckBox",
+            setText="Center Pivot",
+            setObjectName="chk002",
+            setChecked=True,
+            setToolTip="Center pivot on the object(s) before instancing.",
+        )
+        widget.menu.add(
+            "QCheckBox",
             setText="Freeze Transforms",
             setObjectName="chk000",
             setChecked=False,
@@ -24,7 +31,7 @@ class Duplicate(SlotsMaya):
             "QCheckBox",
             setText="Delete History",
             setObjectName="chk001",
-            setChecked=False,
+            setChecked=True,
             setToolTip="Delete history on the object(s) before instancing.",
         )
 
