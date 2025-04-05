@@ -385,7 +385,9 @@ class Rigging(SlotsMaya):
         target = selected_objects[1]
 
         try:
-            pm.pointConstraint(source, target, offset=[0, 0, 0], weight=1)
+            node = pm.pointConstraint(source, target, offset=[0, 0, 0], weight=1)
+            pm.select(node)
+            pm.mel.eval("AttributeEditor -edit -open 1 -show 1 -showAll 1;")
         except Exception as e:
             print(f"An error occurred while applying the point constraint: {e}")
 
@@ -403,7 +405,9 @@ class Rigging(SlotsMaya):
         target = selected_objects[1]
 
         try:
-            pm.scaleConstraint(source, target, offset=[1, 1, 1], weight=1)
+            node = pm.scaleConstraint(source, target, offset=[1, 1, 1], weight=1)
+            pm.select(node)
+            pm.mel.eval("AttributeEditor -edit -open 1 -show 1 -showAll 1;")
         except Exception as e:
             print(f"An error occurred while applying the scale constraint: {e}")
 
@@ -421,7 +425,9 @@ class Rigging(SlotsMaya):
         target = selected_objects[1]
 
         try:
-            pm.orientConstraint(source, target, offset=[0, 0, 0], weight=1)
+            node = pm.orientConstraint(source, target, offset=[0, 0, 0], weight=1)
+            pm.select(node)
+            pm.mel.eval("AttributeEditor -edit -open 1 -show 1 -showAll 1;")
         except Exception as e:
             print(f"An error occurred while applying the orient constraint: {e}")
 
@@ -439,7 +445,7 @@ class Rigging(SlotsMaya):
         target = selected_objects[1]
 
         try:
-            pm.aimConstraint(
+            node = pm.aimConstraint(
                 source,
                 target,
                 offset=[0, 0, 0],
@@ -449,6 +455,8 @@ class Rigging(SlotsMaya):
                 worldUpType="vector",
                 worldUpVector=[0, 1, 0],
             )
+            pm.select(node)
+            pm.mel.eval("AttributeEditor -edit -open 1 -show 1 -showAll 1;")
         except Exception as e:
             print(f"An error occurred while applying the aim constraint: {e}")
 
@@ -466,7 +474,9 @@ class Rigging(SlotsMaya):
         target = selected_objects[1]
 
         try:
-            pm.poleVectorConstraint(source, target, offset=[0, 0, 0], weight=1)
+            node = pm.poleVectorConstraint(source, target, offset=[0, 0, 0], weight=1)
+            pm.select(node)
+            pm.mel.eval("AttributeEditor -edit -open 1 -show 1 -showAll 1;")
         except Exception as e:
             print(f"An error occurred while applying the pole vector constraint: {e}")
 
