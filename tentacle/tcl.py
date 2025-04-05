@@ -259,11 +259,19 @@ class Tcl(
 
         super().mouseDoubleClickEvent(event)
 
-    def show(self, ui="init#startmenu") -> None:
+    def mouseReleaseEvent(self, event) -> None:
+        """ """
+        current_ui = self.sb.current_ui
+        if current_ui and current_ui.has_tags(["startmenu", "submenu"]):
+            self.show("init#startmenu", force=True)
+
+        super().mouseReleaseEvent(event)
+
+    def show(self, ui="init#startmenu", force=False) -> None:
         """Sets the widget as visible and shows the specified UI."""
         self._prepare_ui(ui)
 
-        if QtWidgets.QApplication.mouseButtons() or self.isVisible():
+        if not force and (QtWidgets.QApplication.mouseButtons() or self.isVisible()):
             return
 
         if self._first_show:
