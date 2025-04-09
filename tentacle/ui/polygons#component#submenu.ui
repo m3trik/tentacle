@@ -414,7 +414,7 @@
       <height>21</height>
      </size>
     </property>
-    <property name="whatsThis">
+    <property name="accessibleName">
      <string>polygons#component</string>
     </property>
     <property name="text">

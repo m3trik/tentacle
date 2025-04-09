@@ -1,0 +1,298 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>QtUi</class>
+ <widget class="QMainWindow" name="QtUi">
+  <property name="enabled">
+   <bool>true</bool>
+  </property>
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>600</width>
+    <height>600</height>
+   </rect>
+  </property>
+  <property name="sizePolicy">
+   <sizepolicy hsizetype="Ignored" vsizetype="Ignored">
+    <horstretch>0</horstretch>
+    <verstretch>0</verstretch>
+   </sizepolicy>
+  </property>
+  <property name="minimumSize">
+   <size>
+    <width>0</width>
+    <height>0</height>
+   </size>
+  </property>
+  <property name="maximumSize">
+   <size>
+    <width>600</width>
+    <height>600</height>
+   </size>
+  </property>
+  <property name="toolButtonStyle">
+   <enum>Qt::ToolButtonIconOnly</enum>
+  </property>
+  <property name="tabShape">
+   <enum>QTabWidget::Triangular</enum>
+  </property>
+  <property name="dockNestingEnabled">
+   <bool>true</bool>
+  </property>
+  <property name="dockOptions">
+   <set>QMainWindow::AllowNestedDocks|QMainWindow::AllowTabbedDocks|QMainWindow::AnimatedDocks|QMainWindow::ForceTabbedDocks</set>
+  </property>
+  <widget class="QWidget" name="widget">
+   <property name="sizePolicy">
+    <sizepolicy hsizetype="Ignored" vsizetype="Ignored">
+     <horstretch>0</horstretch>
+     <verstretch>0</verstretch>
+    </sizepolicy>
+   </property>
+   <widget class="QPushButton" name="i024">
+    <property name="geometry">
+     <rect>
+      <x>260</x>
+      <y>290</y>
+      <width>66</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="minimumSize">
+     <size>
+      <width>0</width>
+      <height>21</height>
+     </size>
+    </property>
+    <property name="maximumSize">
+     <size>
+      <width>66</width>
+      <height>21</height>
+     </size>
+    </property>
+    <property name="accessibleName">
+     <string>effects</string>
+    </property>
+    <property name="text">
+     <string>Effects</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="i034">
+    <property name="geometry">
+     <rect>
+      <x>180</x>
+      <y>250</y>
+      <width>66</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="minimumSize">
+     <size>
+      <width>0</width>
+      <height>21</height>
+     </size>
+    </property>
+    <property name="maximumSize">
+     <size>
+      <width>66</width>
+      <height>21</height>
+     </size>
+    </property>
+    <property name="accessibleName">
+     <string>ncloth</string>
+    </property>
+    <property name="text">
+     <string>NCloth</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="i035">
+    <property name="geometry">
+     <rect>
+      <x>155</x>
+      <y>280</y>
+      <width>66</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="minimumSize">
+     <size>
+      <width>0</width>
+      <height>21</height>
+     </size>
+    </property>
+    <property name="maximumSize">
+     <size>
+      <width>66</width>
+      <height>21</height>
+     </size>
+    </property>
+    <property name="accessibleName">
+     <string>nparticles</string>
+    </property>
+    <property name="text">
+     <string>NParticles</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="i036">
+    <property name="geometry">
+     <rect>
+      <x>260</x>
+      <y>250</y>
+      <width>66</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="minimumSize">
+     <size>
+      <width>0</width>
+      <height>21</height>
+     </size>
+    </property>
+    <property name="maximumSize">
+     <size>
+      <width>66</width>
+      <height>21</height>
+     </size>
+    </property>
+    <property name="accessibleName">
+     <string>nhair</string>
+    </property>
+    <property name="text">
+     <string>NHair</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="i037">
+    <property name="geometry">
+     <rect>
+      <x>155</x>
+      <y>310</y>
+      <width>66</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="minimumSize">
+     <size>
+      <width>0</width>
+      <height>21</height>
+     </size>
+    </property>
+    <property name="maximumSize">
+     <size>
+      <width>66</width>
+      <height>21</height>
+     </size>
+    </property>
+    <property name="accessibleName">
+     <string>nconstraint</string>
+    </property>
+    <property name="text">
+     <string>NConstraint</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="i038">
+    <property name="geometry">
+     <rect>
+      <x>260</x>
+      <y>330</y>
+      <width>66</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="minimumSize">
+     <size>
+      <width>0</width>
+      <height>21</height>
+     </size>
+    </property>
+    <property name="maximumSize">
+     <size>
+      <width>66</width>
+      <height>21</height>
+     </size>
+    </property>
+    <property name="accessibleName">
+     <string>fluids</string>
+    </property>
+    <property name="text">
+     <string>Fluids</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="i039">
+    <property name="geometry">
+     <rect>
+      <x>170</x>
+      <y>340</y>
+      <width>66</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="minimumSize">
+     <size>
+      <width>0</width>
+      <height>21</height>
+     </size>
+    </property>
+    <property name="maximumSize">
+     <size>
+      <width>66</width>
+      <height>21</height>
+     </size>
+    </property>
+    <property name="accessibleName">
+     <string>fields_solvers</string>
+    </property>
+    <property name="text">
+     <string>Fields Solvers</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="i040">
+    <property name="geometry">
+     <rect>
+      <x>340</x>
+      <y>330</y>
+      <width>66</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="minimumSize">
+     <size>
+      <width>0</width>
+      <height>21</height>
+     </size>
+    </property>
+    <property name="maximumSize">
+     <size>
+      <width>66</width>
+      <height>21</height>
+     </size>
+    </property>
+    <property name="accessibleName">
+     <string>cache</string>
+    </property>
+    <property name="text">
+     <string>Cache</string>
+    </property>
+   </widget>
+  </widget>
+ </widget>
+ <resources/>
+ <connections/>
+ <designerdata>
+  <property name="gridDeltaX">
+   <number>5</number>
+  </property>
+  <property name="gridDeltaY">
+   <number>10</number>
+  </property>
+  <property name="gridSnapX">
+   <bool>true</bool>
+  </property>
+  <property name="gridSnapY">
+   <bool>true</bool>
+  </property>
+  <property name="gridVisible">
+   <bool>true</bool>
+  </property>
+ </designerdata>
+</ui>

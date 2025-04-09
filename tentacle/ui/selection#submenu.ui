@@ -31,15 +31,6 @@
     <height>600</height>
    </size>
   </property>
-  <property name="cursor">
-   <cursorShape>ArrowCursor</cursorShape>
-  </property>
-  <property name="toolTip">
-   <string>Toggle selectability of the given objects.</string>
-  </property>
-  <property name="whatsThis">
-   <string>main</string>
-  </property>
   <property name="toolButtonStyle">
    <enum>Qt::ToolButtonIconOnly</enum>
   </property>
@@ -80,7 +71,7 @@
       <height>21</height>
      </size>
     </property>
-    <property name="whatsThis">
+    <property name="accessibleName">
      <string>selection</string>
     </property>
     <property name="text">
@@ -108,7 +99,7 @@
       <height>21</height>
      </size>
     </property>
-    <property name="whatsThis">
+    <property name="accessibleName">
      <string>symmetry</string>
     </property>
     <property name="text">

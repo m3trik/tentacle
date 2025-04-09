@@ -31,12 +31,6 @@
     <height>600</height>
    </size>
   </property>
-  <property name="cursor">
-   <cursorShape>ArrowCursor</cursorShape>
-  </property>
-  <property name="whatsThis">
-   <string>main</string>
-  </property>
   <property name="toolButtonStyle">
    <enum>Qt::ToolButtonIconOnly</enum>
   </property>
@@ -77,14 +71,14 @@
       <height>21</height>
      </size>
     </property>
-    <property name="whatsThis">
+    <property name="accessibleName">
      <string>duplicate</string>
     </property>
     <property name="text">
      <string>Duplicate</string>
     </property>
    </widget>
-   <widget class="QPushButton" name="i004">
+   <widget class="QPushButton" name="i057">
     <property name="geometry">
      <rect>
       <x>365</x>
@@ -105,14 +99,14 @@
       <height>21</height>
      </size>
     </property>
-    <property name="whatsThis">
+    <property name="accessibleName">
      <string>subdivision</string>
     </property>
     <property name="text">
      <string>Subdivision</string>
     </property>
    </widget>
-   <widget class="QPushButton" name="i006">
+   <widget class="QPushButton" name="i059">
     <property name="geometry">
      <rect>
       <x>175</x>
@@ -133,14 +127,14 @@
       <height>21</height>
      </size>
     </property>
-    <property name="whatsThis">
+    <property name="accessibleName">
      <string>create</string>
     </property>
     <property name="text">
      <string>Create</string>
     </property>
    </widget>
-   <widget class="QPushButton" name="i002">
+   <widget class="QPushButton" name="i058">
     <property name="geometry">
      <rect>
       <x>205</x>
@@ -161,7 +155,7 @@
       <height>21</height>
      </size>
     </property>
-    <property name="whatsThis">
+    <property name="accessibleName">
      <string>convert</string>
     </property>
     <property name="text">
@@ -189,7 +183,7 @@
       <height>21</height>
      </size>
     </property>
-    <property name="whatsThis">
+    <property name="accessibleName">
      <string>edit</string>
     </property>
     <property name="text">

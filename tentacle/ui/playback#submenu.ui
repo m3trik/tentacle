@@ -34,9 +34,6 @@
   <property name="cursor">
    <cursorShape>ArrowCursor</cursorShape>
   </property>
-  <property name="whatsThis">
-   <string>main</string>
-  </property>
   <property name="toolButtonStyle">
    <enum>Qt::ToolButtonIconOnly</enum>
   </property>
@@ -56,10 +53,10 @@
      <verstretch>0</verstretch>
     </sizepolicy>
    </property>
-   <widget class="QPushButton" name="i024">
+   <widget class="QPushButton" name="i032">
     <property name="geometry">
      <rect>
-      <x>265</x>
+      <x>260</x>
       <y>290</y>
       <width>66</width>
       <height>21</height>
@@ -73,43 +70,15 @@
     </property>
     <property name="maximumSize">
      <size>
-      <width>16777215</width>
-      <height>21</height>
-     </size>
-    </property>
-    <property name="whatsThis">
-     <string>vfx</string>
-    </property>
-    <property name="text">
-     <string>Vfx</string>
-    </property>
-   </widget>
-   <widget class="QPushButton" name="i027">
-    <property name="geometry">
-     <rect>
-      <x>175</x>
-      <y>290</y>
       <width>66</width>
       <height>21</height>
-     </rect>
-    </property>
-    <property name="minimumSize">
-     <size>
-      <width>0</width>
-      <height>21</height>
      </size>
     </property>
-    <property name="maximumSize">
-     <size>
-      <width>999</width>
-      <height>21</height>
-     </size>
-    </property>
-    <property name="whatsThis">
-     <string>effects</string>
+    <property name="accessibleName">
+     <string>playback</string>
     </property>
     <property name="text">
-     <string>Effects</string>
+     <string>Playback</string>
     </property>
    </widget>
   </widget>

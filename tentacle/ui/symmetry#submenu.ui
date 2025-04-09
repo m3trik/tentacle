@@ -74,7 +74,7 @@
       <height>21</height>
      </size>
     </property>
-    <property name="whatsThis">
+    <property name="accessibleName">
      <string>symmetry</string>
     </property>
     <property name="text">

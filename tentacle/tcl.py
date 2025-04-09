@@ -77,15 +77,11 @@ class Tcl(
         # self.app.setDoubleClickInterval(400)
         # self.app.setKeyboardInputInterval(400)
 
-        self.setWindowFlags(
-            QtCore.Qt.Tool
-            | QtCore.Qt.FramelessWindowHint
-            | QtCore.Qt.WindowStaysOnTopHint
-        )
+        self.setWindowFlags(QtCore.Qt.Tool | QtCore.Qt.FramelessWindowHint)
         self.setAttribute(QtCore.Qt.WA_TranslucentBackground)
         self.setAttribute(QtCore.Qt.WA_NoMousePropagation, False)
         self.setFocusPolicy(QtCore.Qt.StrongFocus)
-        self.resize(800, 800)
+        self.resize(600, 600)
 
         self.app.installEventFilter(self)
 
@@ -200,6 +196,7 @@ class Tcl(
         try:
             p1 = w.mapToGlobal(w.rect().center())
             w2 = self.sb.get_widget(w.name, ui)
+            w2.resize(w.size())
             p2 = w2.mapToGlobal(w2.rect().center())
             self.move(self.pos() + (p1 - p2))
         except Exception as e:
@@ -343,7 +340,7 @@ class Tcl(
         """ """
         if w.derived_type == QtWidgets.QPushButton:
             if w.base_name == "i":  # set the stacked widget.
-                submenu_name = f"{w.whatsThis()}#submenu"
+                submenu_name = f"{w.accessibleName()}#submenu"
                 if submenu_name != w.ui.name:
                     submenu = self.sb.get_ui(submenu_name)
                     if submenu:
@@ -378,7 +375,7 @@ class Tcl(
         if w.underMouse():  # if mouse over widget
             if w.derived_type == QtWidgets.QPushButton:
                 if w.base_name == "i":  # ie. 'i012'
-                    menu_name = w.whatsThis()
+                    menu_name = w.accessibleName()
                     new_menu_name = self.clean_tag_string(menu_name)
                     menu = self.sb.get_ui(new_menu_name)
                     if menu:

@@ -132,12 +132,6 @@ class Materials(SlotsMaya):
             )
             widget.menu.add(
                 self.sb.registered_widgets.Label,
-                setText="Set Texture Path",
-                setObjectName="lbl011",
-                setToolTip="Set the texture file paths for the current material.\nThe path will be relative if it is within the project's source images directory.",
-            )
-            widget.menu.add(
-                self.sb.registered_widgets.Label,
                 setText="Open in Editor",
                 setObjectName="lbl006",
                 setToolTip="Open the material in the hypershade editor.",
@@ -229,18 +223,6 @@ class Materials(SlotsMaya):
 
         # Execute the graph command after the Hypershade window is fully initialized
         pm.evalDeferred(graph_material)
-
-    def lbl011(self):
-        """Set Texture Paths"""
-        texture_dir = self.sb.dir_dialog(
-            title="Set Texture Paths for the current material",
-            start_dir=mtk.get_env_info("sourceimages"),
-        )
-        if not texture_dir:
-            return
-        pm.displayInfo(f"Setting texture paths to: {texture_dir}")
-        material = self.ui.cmb002.currentData()
-        mtk.remap_texture_paths(material, new_dir=texture_dir)
 
     def b002(self, widget):
         """Get Material: Change the index to match the current material selection."""

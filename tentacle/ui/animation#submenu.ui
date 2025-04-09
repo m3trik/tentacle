@@ -77,7 +77,7 @@
       <height>21</height>
      </size>
     </property>
-    <property name="whatsThis">
+    <property name="accessibleName">
      <string>animation</string>
     </property>
     <property name="text">
@@ -105,19 +105,19 @@
       <height>21</height>
      </size>
     </property>
-    <property name="whatsThis">
-     <string>vfx</string>
+    <property name="accessibleName">
+     <string>effects</string>
     </property>
     <property name="text">
-     <string>Vfx</string>
+     <string>Effects</string>
     </property>
    </widget>
    <widget class="QPushButton" name="i020">
     <property name="geometry">
      <rect>
-      <x>140</x>
+      <x>150</x>
       <y>260</y>
-      <width>106</width>
+      <width>81</width>
       <height>21</height>
      </rect>
     </property>
@@ -133,11 +133,11 @@
       <height>21</height>
      </size>
     </property>
-    <property name="whatsThis">
-     <string>deformation</string>
+    <property name="accessibleName">
+     <string>deform</string>
     </property>
     <property name="text">
-     <string>Deformation</string>
+     <string>Deform</string>
     </property>
    </widget>
    <widget class="QPushButton" name="i016">
@@ -161,7 +161,7 @@
       <height>21</height>
      </size>
     </property>
-    <property name="whatsThis">
+    <property name="accessibleName">
      <string>rigging</string>
     </property>
     <property name="text">
@@ -236,7 +236,7 @@
      <bool>true</bool>
     </property>
    </widget>
-   <widget class="QPushButton" name="i027">
+   <widget class="QPushButton" name="i006">
     <property name="geometry">
      <rect>
       <x>230</x>
@@ -257,14 +257,14 @@
       <height>21</height>
      </size>
     </property>
-    <property name="whatsThis">
+    <property name="accessibleName">
      <string>key</string>
     </property>
     <property name="text">
      <string>Key</string>
     </property>
    </widget>
-   <widget class="QPushButton" name="i027_2">
+   <widget class="QPushButton" name="i028">
     <property name="geometry">
      <rect>
       <x>290</x>
@@ -285,7 +285,7 @@
       <height>21</height>
      </size>
     </property>
-    <property name="whatsThis">
+    <property name="accessibleName">
      <string>skeleton</string>
     </property>
     <property name="text">

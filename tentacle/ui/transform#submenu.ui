@@ -31,12 +31,6 @@
     <height>600</height>
    </size>
   </property>
-  <property name="cursor">
-   <cursorShape>ArrowCursor</cursorShape>
-  </property>
-  <property name="whatsThis">
-   <string>main</string>
-  </property>
   <property name="toolButtonStyle">
    <enum>Qt::ToolButtonIconOnly</enum>
   </property>
@@ -56,7 +50,7 @@
      <verstretch>0</verstretch>
     </sizepolicy>
    </property>
-   <widget class="QPushButton" name="i029">
+   <widget class="QPushButton" name="i061">
     <property name="geometry">
      <rect>
       <x>240</x>
@@ -77,17 +71,14 @@
       <height>21</height>
      </size>
     </property>
-    <property name="toolTip">
-     <string/>
-    </property>
-    <property name="whatsThis">
+    <property name="accessibleName">
      <string>pivot</string>
     </property>
     <property name="text">
      <string>Pivot</string>
     </property>
    </widget>
-   <widget class="QPushButton" name="i008">
+   <widget class="QPushButton" name="i060">
     <property name="geometry">
      <rect>
       <x>270</x>
@@ -108,7 +99,7 @@
       <height>21</height>
      </size>
     </property>
-    <property name="whatsThis">
+    <property name="accessibleName">
      <string>transform</string>
     </property>
     <property name="text">

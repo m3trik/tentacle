@@ -4,12 +4,18 @@ try:
     import pymel.core as pm
 except ImportError as error:
     print(__file__, error)
+import mayatk as mtk
+
+# From this package:
 from tentacle.slots.maya import SlotsMaya
 
 
-class Vfx(SlotsMaya):
+class ToonSlots(SlotsMaya):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+
+        self.sb = kwargs.get("switchboard")
+        self.ui = mtk.UiManager.instance(self.sb).get("toon", header=True)
 
 
 # --------------------------------------------------------------------------------------------

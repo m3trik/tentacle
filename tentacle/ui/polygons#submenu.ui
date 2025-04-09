@@ -74,7 +74,7 @@
       <height>21</height>
      </size>
     </property>
-    <property name="whatsThis">
+    <property name="accessibleName">
      <string>polygons</string>
     </property>
     <property name="text">
@@ -102,7 +102,7 @@
       <height>21</height>
      </size>
     </property>
-    <property name="whatsThis">
+    <property name="accessibleName">
      <string>polygons#mesh</string>
     </property>
     <property name="text">
@@ -130,7 +130,7 @@
       <height>21</height>
      </size>
     </property>
-    <property name="whatsThis">
+    <property name="accessibleName">
      <string>polygons#vertex</string>
     </property>
     <property name="text">
@@ -158,7 +158,7 @@
       <height>21</height>
      </size>
     </property>
-    <property name="whatsThis">
+    <property name="accessibleName">
      <string>polygons#edge</string>
     </property>
     <property name="text">
@@ -186,7 +186,7 @@
       <height>21</height>
      </size>
     </property>
-    <property name="whatsThis">
+    <property name="accessibleName">
      <string>polygons#face</string>
     </property>
     <property name="text">
@@ -214,7 +214,7 @@
       <height>21</height>
      </size>
     </property>
-    <property name="whatsThis">
+    <property name="accessibleName">
      <string>polygons#component</string>
     </property>
     <property name="text">

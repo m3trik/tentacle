@@ -12,6 +12,19 @@ class Rigging(SlotsMaya):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
+    def header_init(self, widget):
+        """ """
+        widget.menu.setTitle("Rigging")
+        widget.menu.add(
+            "QPushButton",
+            setText="Rebind Skin Clusters",
+            setObjectName="b020",
+            setToolTip="Rebinds skinClusters on the selected meshe(s), preserving weights, bind pose.",
+        )
+        widget.menu.b020.clicked.connect(
+            lambda: mtk.rebind_skin_clusters(pm.selected())
+        )
+
     def cmb001_init(self, widget):
         """ """
         items = ["Joints", "Locator", "IK Handle", "Lattice", "Cluster"]

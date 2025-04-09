@@ -10,7 +10,7 @@
     <x>0</x>
     <y>0</y>
     <width>200</width>
-    <height>302</height>
+    <height>305</height>
    </rect>
   </property>
   <property name="toolTip">
@@ -409,6 +409,31 @@
          <property name="spacing">
           <number>1</number>
          </property>
+         <item row="1" column="0" colspan="2">
+          <widget class="PushButton" name="tb002">
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>20</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>16777215</width>
+             <height>20</height>
+            </size>
+           </property>
+           <property name="toolTip">
+            <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Create locators with the same transforms as any selected object(s).&lt;/p&gt;&lt;p&gt;If there are vertices selected it will create a locator at the center of the selected vertices combined bounding box.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+           </property>
+           <property name="text">
+            <string>Set Constraint</string>
+           </property>
+           <property name="checkable">
+            <bool>false</bool>
+           </property>
+          </widget>
+         </item>
          <item row="2" column="0" colspan="2">
           <widget class="QPushButton" name="b000">
            <property name="minimumSize">
@@ -477,31 +502,6 @@
            </property>
            <property name="bnabled" stdset="0">
             <bool>true</bool>
-           </property>
-          </widget>
-         </item>
-         <item row="1" column="0" colspan="2">
-          <widget class="PushButton" name="tb002">
-           <property name="minimumSize">
-            <size>
-             <width>0</width>
-             <height>20</height>
-            </size>
-           </property>
-           <property name="maximumSize">
-            <size>
-             <width>16777215</width>
-             <height>20</height>
-            </size>
-           </property>
-           <property name="toolTip">
-            <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Create locators with the same transforms as any selected object(s).&lt;/p&gt;&lt;p&gt;If there are vertices selected it will create a locator at the center of the selected vertices combined bounding box.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-           </property>
-           <property name="text">
-            <string>Set Constraint</string>
-           </property>
-           <property name="checkable">
-            <bool>false</bool>
            </property>
           </widget>
          </item>

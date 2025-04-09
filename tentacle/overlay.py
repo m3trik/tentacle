@@ -1,6 +1,7 @@
 # !/usr/bin/python
 # coding=utf-8
 import sys
+from typing import Callable, Any
 from qtpy import QtCore, QtGui, QtWidgets
 
 
@@ -304,27 +305,50 @@ class Overlay(QtWidgets.QWidget, OverlayFactoryFilter):
 
         return new_widgets
 
-    def _clone_widget(self, ui, prev_widget, position):
-        """Clone a widget and place it on the given position in the UI.
-
-        Parameters:
-            ui (QMainWindow): The UI to place the cloned widget.
-            prev_widget (QWidget): The widget to clone.
-            position (QPoint): The position to place the cloned widget.
-        """
+    def _clone_widget(
+        self,
+        ui: QtWidgets.QMainWindow,
+        prev_widget: QtWidgets.QWidget,
+        position: QtCore.QPoint,
+    ) -> QtWidgets.QWidget:
+        """Clone a widget and place it at the given position in the UI."""
         new_widget = type(prev_widget)(ui)
 
-        try:
-            new_widget.setObjectName(prev_widget.objectName())
-            new_widget.resize(prev_widget.size())
-            new_widget.setWhatsThis(prev_widget.whatsThis())
-            new_widget.setText(prev_widget.text())
-            new_widget.move(  # set the position of the new widget in the new UI.
-                new_widget.mapFromGlobal(position - new_widget.rect().center())
-            )
-            new_widget.setVisible(True)
-        except AttributeError:
-            pass
+        safe_attrs: dict[str, Callable[[QtWidgets.QWidget], Any]] = {
+            "objectName": lambda w: w.objectName(),
+            "accessibleName": lambda w: w.accessibleName(),
+            "toolTip": lambda w: w.toolTip(),
+            "statusTip": lambda w: w.statusTip(),
+            "whatsThis": lambda w: w.whatsThis(),
+            "font": lambda w: w.font(),
+            "styleSheet": lambda w: w.styleSheet(),
+            "enabled": lambda w: w.isEnabled(),
+            "visible": lambda w: w.isVisible(),
+            "size": lambda w: w.size(),
+            "minimumSize": lambda w: w.minimumSize(),
+            "maximumSize": lambda w: w.maximumSize(),
+            "layoutDirection": lambda w: w.layoutDirection(),
+            "contextMenuPolicy": lambda w: w.contextMenuPolicy(),
+            "cursor": lambda w: w.cursor(),
+            "windowTitle": lambda w: w.windowTitle(),
+            "windowIcon": lambda w: w.windowIcon(),
+        }
+
+        if hasattr(prev_widget, "text") and callable(prev_widget.text):
+            safe_attrs["text"] = lambda w: w.text()
+
+        for attr, getter in safe_attrs.items():
+            setter_name = f"set{attr[0].upper()}{attr[1:]}"
+            if hasattr(new_widget, setter_name):
+                setter = getattr(new_widget, setter_name)
+                try:
+                    setter(getter(prev_widget))
+                except Exception:
+                    continue
+
+        new_pos = new_widget.mapFromGlobal(position - new_widget.rect().center())
+        new_widget.move(new_pos)
+        new_widget.setVisible(True)
 
         return new_widget
 
