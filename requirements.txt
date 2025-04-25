@@ -1,7 +1,7 @@
 numpy
 Pillow
 qtpy
-shiboken2
+shiboken6
 pymel
 pythontk==0.7.23
 uitk==1.0.25

@@ -2,54 +2,37 @@
 # coding=utf-8
 import sys
 from typing import Callable, Any
-from qtpy import QtCore, QtGui, QtWidgets
+from qtpy import QtWidgets, QtGui, QtCore
 
 
 class OverlayFactoryFilter(QtCore.QObject):
-    """This class provides an event filter to relay events from the parent widget to the overlay."""
+    def __init__(self, overlay: QtWidgets.QWidget):
+        super().__init__(overlay)
+        self.overlay = overlay
 
     def eventFilter(self, widget, event):
-        """Relay events from the parent widget to the overlay.
-        Captures various event types and forwards them to the respective methods.
-
-        Parameters:
-            widget (QWidget): The parent widget that the event filter is applied to.
-            event (QEvent): The event that needs to be processed.
-
-        Returns:
-            bool: False if the widget is not a QWidget, True otherwise.
-        """
         if not widget.isWidgetType():
             return False
 
         etype = event.type()
 
         if etype == QtCore.QEvent.MouseButtonPress:
-            self.mousePressEvent(event)
+            self.overlay.mousePressEvent(event)
 
         elif etype == QtCore.QEvent.MouseButtonRelease:
-            self.mouseReleaseEvent(event)
+            self.overlay.mouseReleaseEvent(event)
 
         elif etype == QtCore.QEvent.MouseMove:
-            self.mouseMoveEvent(event)
-
-        # elif etype == QtCore.QEvent.MouseButtonDblClick:
-        #     self.mouseDoubleClickEvent(event)
-
-        # elif etype == QtCore.QEvent.KeyPress:
-        #     self.keyPressEvent(event)
-
-        # elif etype == QtCore.QEvent.KeyRelease:
-        #     self.keyReleaseEvent(event)
+            self.overlay.mouseMoveEvent(event)
 
         elif etype == QtCore.QEvent.Resize:
-            if widget == self.parentWidget():
-                self.resize(widget.size())
+            if widget == self.overlay.parentWidget():
+                self.overlay.resize(widget.size())
 
         elif etype == QtCore.QEvent.Show:
-            self.raise_()
+            self.overlay.raise_()
 
-        return super().eventFilter(widget, event)
+        return False
 
 
 class Path:
@@ -176,7 +159,7 @@ class Path:
             self._path = self._path[:]
 
 
-class Overlay(QtWidgets.QWidget, OverlayFactoryFilter):
+class Overlay(QtWidgets.QWidget):
     """Handles paint events as an overlay on top of an existing widget.
     Inherits from OverlayFactoryFilter to relay events from the parent widget to the overlay.
     Maintains a list of draw paths to track the user's interactions.
@@ -221,8 +204,9 @@ class Overlay(QtWidgets.QWidget, OverlayFactoryFilter):
         self.painter = QtGui.QPainter()
         self.path = Path()
 
+        self._event_filter = OverlayFactoryFilter(self)
         if parent:
-            parent.installEventFilter(self)
+            parent.installEventFilter(self._event_filter)
 
     def draw_tangent(self, start_point, end_point, ellipseSize=7):
         """Draws a tangent line between two points with an ellipse at the start point.

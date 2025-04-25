@@ -12,6 +12,33 @@ class Duplicate(SlotsMaya):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
+    def header_init(self, widget):
+        """ """
+        widget.menu.add(
+            "QPushButton",
+            setText="Mirror",
+            setObjectName="b000",
+            setToolTip="Open the mirror window.",
+        )
+        widget.menu.add(
+            "QPushButton",
+            setText="Duplicate Linear",
+            setObjectName="b006",
+            setToolTip="Open the duplicate linear window.",
+        )
+        widget.menu.add(
+            "QPushButton",
+            setText="Duplicate Radial",
+            setObjectName="b007",
+            setToolTip="Open the duplicate radial window.",
+        )
+        widget.menu.add(
+            "QPushButton",
+            setText="Duplicate Grid",
+            setObjectName="b008",
+            setToolTip="Open the duplicate grid window.",
+        )
+
     def tb000_init(self, widget):
         widget.menu.add(
             "QCheckBox",
@@ -59,7 +86,7 @@ class Duplicate(SlotsMaya):
     def b000(self):
         """Mirror"""
         ui = mtk.UiManager.instance(self.sb).get("mirror")
-        self.sb.parent().show(ui)
+        ui.show()
 
     def b004(self):
         """Select Instanced Objects"""
@@ -76,17 +103,17 @@ class Duplicate(SlotsMaya):
     def b006(self):
         """Duplicate Linear"""
         ui = mtk.UiManager.instance(self.sb).get("duplicate_linear")
-        self.sb.parent().show(ui)
+        ui.show()
 
     def b007(self):
         """Duplicate Radial"""
         ui = mtk.UiManager.instance(self.sb).get("duplicate_radial")
-        self.sb.parent().show(ui)
+        ui.show()
 
     def b008(self):
         """Duplicate Grid"""
         ui = mtk.UiManager.instance(self.sb).get("duplicate_grid")
-        self.sb.parent().show(ui)
+        ui.show()
 
 
 # --------------------------------------------------------------------------------------------

@@ -18,6 +18,15 @@ class Edit(SlotsMaya):
         # Refresh the combo box on every view show
         self.ui.cmb001.before_popup_shown.connect(self.ui.cmb001.init_slot)
 
+    def header_init(self, widget):
+        """ """
+        widget.menu.add(
+            "QPushButton",
+            setText="Cut On Axis",
+            setObjectName="b000",
+            setToolTip="Cut selected objects on axis.",
+        )
+
     def cmb001_init(self, widget) -> None:
         """Initializes the widget with object history items or a placeholder if no selection."""
         widget.refresh = True
@@ -49,7 +58,6 @@ class Edit(SlotsMaya):
                     set_attribute_func=lambda n, v: getattr(node, n).set(v),
                 )
                 window.set_style(theme="dark")
-                window.set_flags(WindowStaysOnTopHint=True)
                 window.show()
         else:
             self.sb.message_box("Found no items to list the history for.")
@@ -388,16 +396,14 @@ class Edit(SlotsMaya):
     def b000(self):
         """Cut On Axis"""
         ui = mtk.UiManager.instance(self.sb).get("cut_on_axis")
-        self.sb.parent().show(ui)
+        ui.show()
 
-    @SlotsMaya.hide_main
     def b001(self):
         """Object History Attributes: get most recent node"""
         cmb = self.ui.cmb001
         index = cmb.items.index(cmb.items[-1])
         cmb.call_slot(index)
 
-    @SlotsMaya.hide_main
     def b021(self):
         """Tranfer Maps"""
         pm.mel.performSurfaceSampling(1)

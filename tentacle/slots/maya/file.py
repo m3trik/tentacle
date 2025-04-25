@@ -21,15 +21,18 @@ class File(SlotsMaya):
 
     def header_init(self, widget):
         """ """
-        # Add a button to launch map converter.
         widget.menu.add(
             self.sb.registered_widgets.PushButton,
             setToolTip="Export scene assets with environment checks and presets.",
             setText="Scene Exporter",
             setObjectName="b002",
         )
-        ui = mtk.UiManager.instance(self.sb).get("scene_exporter")
-        widget.menu.b002.clicked.connect(lambda: self.sb.parent().show(ui))
+        widget.menu.add(
+            "QPushButton",
+            setText="Reference Manager",
+            setObjectName="b001",
+            setToolTip="Open the reference manager.",
+        )
 
     @Signals("textChanged", "returnPressed")
     def txt000(self, widget):
@@ -113,10 +116,8 @@ class File(SlotsMaya):
             header="Import",
         )
 
-    @SlotsMaya.hide_main
     def cmb003(self, index, widget):
         """Import"""
-        self.sb.parent().hide(force=1)
         text = widget.items[index]
         if text == "Import File":  # Import
             pm.mel.Import()
@@ -144,7 +145,6 @@ class File(SlotsMaya):
         ]
         widget.add(items, header="Export")
 
-    @SlotsMaya.hide_main
     def cmb004(self, index, widget):
         """Export"""
         text = widget.items[index]
@@ -275,18 +275,21 @@ class File(SlotsMaya):
     def b001(self):
         """Open Reference Manager"""
         ui = mtk.UiManager.instance(self.sb).get("reference_manager")
-        self.sb.parent().show(ui)
+        ui.show()
+
+    def b002(self):
+        """Scene Exporter"""
+        ui = mtk.UiManager.instance(self.sb).get("scene_exporter")
+        ui.show()
 
     def b003(self):
         """Export Scene Geometry"""
         mtk.export_scene_as_fbx()
 
-    @SlotsMaya.hide_main
     def b007(self):
         """Import file"""
         self.ui.cmb003.call_slot(0)
 
-    @SlotsMaya.hide_main
     def b008(self):
         """Export Selection"""
         self.ui.cmb004.call_slot(0)

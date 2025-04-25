@@ -31,12 +31,6 @@
     <height>16777215</height>
    </size>
   </property>
-  <property name="cursor">
-   <cursorShape>ArrowCursor</cursorShape>
-  </property>
-  <property name="whatsThis">
-   <string>editors</string>
-  </property>
   <property name="toolButtonStyle">
    <enum>Qt::ToolButtonIconOnly</enum>
   </property>
@@ -559,7 +553,7 @@
                <height>21</height>
               </size>
              </property>
-             <property name="whatsThis">
+             <property name="accessibleName">
               <string>editors#lower</string>
              </property>
              <property name="text">

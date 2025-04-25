@@ -37,6 +37,53 @@ class Animation(SlotsMaya):
             setChecked=True,
             setToolTip="Move relative to the current position.",
         )
+        widget.menu.add(
+            self.sb.registered_widgets.Label,
+            setText="Set To Current Frame",
+            setObjectName="lbl020",
+            setToolTip="Set frame to the current time.",
+        )
+        widget.menu.lbl020.clicked.connect(
+            lambda: widget.menu.s000.setValue(pm.currentTime(q=True))
+        )
+        widget.menu.add(
+            "QCheckBox",
+            setText="Toggle Single frame",
+            setObjectName="chk010",
+            setChecked=False,
+            setToolTip="Toggle single frame mode.",
+        )
+        widget._previous_frame_value = 1
+
+        def toggle_single_frame(state):
+            spinbox = widget.menu.s000
+            if state:
+                widget._previous_frame_value = spinbox.value() or 1
+                spinbox.setValue(-1 if widget._previous_frame_value > 0 else 1)
+            else:
+                spinbox.setValue(widget._previous_frame_value)
+
+        widget.menu.chk010.toggled.connect(toggle_single_frame)
+        widget.menu.add(
+            "QCheckBox",
+            setText="Invert",
+            setObjectName="chk011",
+            setChecked=False,
+            setToolTip="Toggle inverted mode.",
+        )
+
+        def toggle_inverted(state):
+            spinbox = widget.menu.s000
+            spinbox.setValue(-spinbox.value())
+
+        widget.menu.chk011.toggled.connect(toggle_inverted)
+
+        def update_invert_checkbox(value):
+            block = widget.menu.chk011.blockSignals(True)
+            widget.menu.chk011.setChecked(value < 0)
+            widget.menu.chk011.blockSignals(block)
+
+        widget.menu.s000.valueChanged.connect(update_invert_checkbox)
 
     def tb000(self, widget):
         """Move To Frame"""
@@ -44,7 +91,7 @@ class Animation(SlotsMaya):
         update = widget.menu.chk001.isChecked()
         relative = widget.menu.chk000.isChecked()
 
-        mtk.setCurrentFrame(time=time, update=update, relative=relative)
+        mtk.set_current_frame(time=time, update=update, relative=relative)
 
     def tb001_init(self, widget):
         """ """

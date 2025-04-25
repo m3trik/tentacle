@@ -10,7 +10,7 @@
     <x>0</x>
     <y>0</y>
     <width>200</width>
-    <height>496</height>
+    <height>516</height>
    </rect>
   </property>
   <property name="toolTip">
@@ -483,6 +483,37 @@
          <property name="spacing">
           <number>1</number>
          </property>
+         <item row="4" column="0" colspan="2">
+          <widget class="PushButton" name="tb004">
+           <property name="enabled">
+            <bool>true</bool>
+           </property>
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>20</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>16777215</width>
+             <height>20</height>
+            </size>
+           </property>
+           <property name="toolTip">
+            <string>Select a poly object or UV's to be unfolded.</string>
+           </property>
+           <property name="text">
+            <string>Unfold</string>
+           </property>
+          </widget>
+         </item>
          <item row="5" column="0" colspan="2">
           <widget class="PushButton" name="tb001">
            <property name="enabled">
@@ -517,37 +548,6 @@
              <width>18</width>
              <height>18</height>
             </size>
-           </property>
-          </widget>
-         </item>
-         <item row="4" column="0" colspan="2">
-          <widget class="PushButton" name="tb004">
-           <property name="enabled">
-            <bool>true</bool>
-           </property>
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-           <property name="minimumSize">
-            <size>
-             <width>0</width>
-             <height>20</height>
-            </size>
-           </property>
-           <property name="maximumSize">
-            <size>
-             <width>16777215</width>
-             <height>20</height>
-            </size>
-           </property>
-           <property name="toolTip">
-            <string>Select a poly object or UV's to be unfolded.</string>
-           </property>
-           <property name="text">
-            <string>Unfold</string>
            </property>
           </widget>
          </item>
@@ -659,12 +659,50 @@
            </property>
           </widget>
          </item>
+         <item row="6" column="0" colspan="2">
+          <widget class="PushButton" name="tb007">
+           <property name="enabled">
+            <bool>true</bool>
+           </property>
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>20</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>16777215</width>
+             <height>20</height>
+            </size>
+           </property>
+           <property name="toolTip">
+            <string>A tool for automatically unfolding UV</string>
+           </property>
+           <property name="text">
+            <string>Cleanup UV Sets</string>
+           </property>
+           <property name="iconSize">
+            <size>
+             <width>18</width>
+             <height>18</height>
+            </size>
+           </property>
+          </widget>
+         </item>
         </layout>
         <zorder>tb004</zorder>
         <zorder>tb001</zorder>
         <zorder>b005</zorder>
         <zorder>b011</zorder>
         <zorder>b022</zorder>
+        <zorder>tb007</zorder>
        </widget>
       </item>
       <item>

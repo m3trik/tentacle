@@ -362,7 +362,6 @@ class Rigging(SlotsMaya):
                 allow_unsupported_types=True,
             )
             window.set_style(theme="dark")
-            window.set_flags(WindowStaysOnTopHint=True)
             window.show()
         except Exception as e:
             print(f"An error occurred while getting parameter values: {e}")

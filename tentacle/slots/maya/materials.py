@@ -4,14 +4,16 @@ try:
     import pymel.core as pm
 except ImportError as error:
     print(__file__, error)
+import pythontk as ptk
 import mayatk as mtk
 from tentacle.slots.maya import SlotsMaya
 
 
-class Materials(SlotsMaya):
+class MaterialsSlots(SlotsMaya):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
+        self.sb = kwargs.get("switchboard")
         self.ui = self.sb.loaded_ui.materials
         self.submenu = self.sb.loaded_ui.materials_submenu
 
@@ -28,18 +30,6 @@ class Materials(SlotsMaya):
             setObjectName="b007",
         )
         widget.menu.b007.clicked.connect(pm.mel.HypershadeWindow)
-
-        widget.menu.add(
-            self.sb.registered_widgets.PushButton,
-            setToolTip="Open the current project's source images folder.",
-            setText="Source Images",
-            setObjectName="b008",
-        )
-        import os
-
-        source_images_dir = mtk.get_env_info("sourceimages")
-        widget.menu.b008.clicked.connect(lambda: os.startfile(source_images_dir))
-
         # Add a button to launch stringray arnold shader.
         widget.menu.add(
             self.sb.registered_widgets.PushButton,
@@ -47,8 +37,6 @@ class Materials(SlotsMaya):
             setText="Create Stingray Shader",
             setObjectName="b009",
         )
-        ui = mtk.UiManager.instance(self.sb).get("stingray_arnold_shader")
-        widget.menu.b009.clicked.connect(lambda: self.sb.parent().show(ui))
         # Add a button to launch map converter.
         widget.menu.add(
             self.sb.registered_widgets.PushButton,
@@ -56,18 +44,6 @@ class Materials(SlotsMaya):
             setText="Map Converter",
             setObjectName="b016",
         )
-        from pythontk.img_utils import map_converter
-
-        self.sb.register(
-            "map_converter.ui",
-            map_converter.MapConverterSlots,
-            base_dir=map_converter,
-        )
-        # Set the starting directory for the map converter
-        source_images_dir = mtk.get_env_info("sourceimages")
-        self.sb.loaded_ui.map_converter.slots.source_dir = source_images_dir
-        # Connect the button to the map converter UI
-        widget.menu.b016.clicked.connect(lambda: self.sb.parent().show("map_converter"))
         widget.menu.add(
             self.sb.registered_widgets.PushButton,
             setText="Set Texture Paths",
@@ -79,6 +55,12 @@ class Materials(SlotsMaya):
             setText="Set Paths Relative",
             setObjectName="b012",
             setToolTip="Convert all texture paths to relative paths.",
+        )
+        widget.menu.add(
+            self.sb.registered_widgets.PushButton,
+            setText="Find Textures",
+            setObjectName="b010",
+            setToolTip="Find texture files for selected objects by searching recursively from the given source directory.\nAny textures found will be moved to the destination directory.\n\nNote: This will not work with Arnold texture nodes.",
         )
         widget.menu.add(
             self.sb.registered_widgets.PushButton,
@@ -320,6 +302,40 @@ class Materials(SlotsMaya):
         )
         pm.mel.createAssignNewMaterialTreeLister("")
 
+    def b009(self, widget):
+        """Create Stingray Shader"""
+        ui = mtk.UiManager.instance(self.sb).get("stingray_arnold_shader")
+        ui.show()
+
+    def b010(self):
+        """Find and Move Textures"""
+        start_dir = mtk.get_env_info("sourceimages")
+        source_dir = self.sb.dir_dialog(
+            title="Select a root directory to recursively search for textures:",
+            start_dir=start_dir,
+        )
+        if not source_dir:
+            return
+
+        selection = pm.ls(sl=True, flatten=True)
+        found_textures = mtk.find_texture_files(
+            objects=selection, source_dir=source_dir, recursive=True
+        )
+        if not found_textures:
+            pm.warning("No textures found.")
+            return
+
+        dest_dir = self.sb.dir_dialog(
+            title="Select destination directory for textures:",
+            start_dir=start_dir,
+        )
+        if not dest_dir:
+            return
+
+        mtk.move_texture_files(
+            found_files=found_textures, new_dir=dest_dir, delete_old=False
+        )
+
     def b011(self):
         """Set Texture Paths for Selected Objects."""
         texture_dir = self.sb.dir_dialog(
@@ -349,6 +365,28 @@ class Materials(SlotsMaya):
         if dups:
             mtk.reassign_duplicate_materials(dups, delete=True)
             self.ui.cmb002.init_slot()
+
+    def b016(self):
+        """Map Converter"""
+        from pythontk.img_utils import map_converter
+
+        self.sb.register(
+            "map_converter.ui",
+            map_converter.MapConverterSlots,
+            base_dir=map_converter,
+        )
+
+        ui = self.sb.get_ui("map_converter")
+        ui.set_attributes(WA_TranslucentBackground=True)
+        ui.set_flags(FramelessWindowHint=True)
+        ui.set_style(theme="dark", style_class="translucentBgWithBorder")
+        ui.header.config_buttons(menu_button=True, hide_button=True)
+
+        # Set the starting directory for the map converter
+        source_images_dir = mtk.get_env_info("sourceimages")
+        ui.slots.source_dir = source_images_dir
+
+        ui.show()
 
     def b017(self):
         """Migrate Textures"""

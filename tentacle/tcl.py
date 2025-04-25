@@ -23,12 +23,8 @@ class Tcl(
         slot_source (str): The directory path where the slot classes are located or a class object.
                 If the given dir is a string and not a full path, it will be treated as relative to the default path.
                 If a module is given, the path to that module will be used.
-        prevent_hide (bool): While True, the hide method is disabled.
         log_level (int): Determines the level of logging messages. Defaults to logging.WARNING. Accepts standard Python logging module levels: DEBUG, INFO, WARNING, ERROR, CRITICAL.
     """
-
-    # return the existing QApplication object, or create a new one if none exists.
-    app = QtWidgets.QApplication.instance() or QtWidgets.QApplication(sys.argv)
 
     left_mouse_double_click = QtCore.Signal()
     left_mouse_double_click_ctrl = QtCore.Signal()
@@ -48,7 +44,6 @@ class Tcl(
         ui_source="ui",
         slot_source="slots",
         widget_source=None,
-        prevent_hide=False,
         log_level: str = "WARNING",
     ):
         """ """
@@ -61,21 +56,28 @@ class Tcl(
             slot_source=slot_source,
             widget_source=widget_source,
         )
+
         self.child_event_filter = EventFactoryFilter(
-            self,
-            event_name_prefix="child_",
+            parent=self,
             forward_events_to=self,
+            event_name_prefix="child_",
+            event_types={
+                "Enter",
+                "MouseMove",
+                "MouseButtonPress",
+                "MouseButtonRelease",
+            },
         )
+
         self.overlay = Overlay(self, antialiasing=True)
         self.mouse_tracking = MouseTracking(self)
 
         self.key_show = self.sb.convert.to_qkey(key_show)
         self.key_close = QtCore.Qt.Key_Escape
-        self.prevent_hide = prevent_hide
         self._mouse_press_pos = QtCore.QPoint(0, 0)
 
-        # self.app.setDoubleClickInterval(400)
-        # self.app.setKeyboardInputInterval(400)
+        # self.sb.app.setDoubleClickInterval(400)
+        # self.sb.app.setKeyboardInputInterval(400)
 
         self.setWindowFlags(QtCore.Qt.Tool | QtCore.Qt.FramelessWindowHint)
         self.setAttribute(QtCore.Qt.WA_TranslucentBackground)
@@ -83,24 +85,42 @@ class Tcl(
         self.setFocusPolicy(QtCore.Qt.StrongFocus)
         self.resize(600, 600)
 
-        self.app.installEventFilter(self)
+        self.sb.app.installEventFilter(self)
+        self.sb.app.focusChanged.connect(self._on_focus_changed)
 
     def eventFilter(self, watched, event):
+        """Filter key press/release for show/hide."""
         etype = event.type()
 
-        if etype == QtCore.QEvent.KeyPress:
+        if etype == QtCore.QEvent.Type.KeyPress:
             if event.key() == self.key_show and not event.isAutoRepeat():
                 self.key_show_press.emit()
                 self.show()
                 return True
 
-        elif etype == QtCore.QEvent.KeyRelease:
+        elif etype == QtCore.QEvent.Type.KeyRelease:
             if event.key() == self.key_show and not event.isAutoRepeat():
                 self.key_show_release.emit()
                 self.hide()
                 return True
 
         return super().eventFilter(watched, event)
+
+    def _on_focus_changed(self, old, new):
+        """Handle focus changes between widgets.
+        Parameters:
+            old (QWidget): The previous widget that had focus.
+            new (QWidget): The new widget that has focus.
+        """
+        # If Tcl is visible, showing a stacked UI, and focus moved outside of Tcl
+        if (
+            self.isVisible()
+            and self.sb.current_ui.has_tags(["startmenu", "submenu"])
+            and new is not None
+            and not self.isAncestorOf(new)
+        ):
+            self.logger.debug(f"Tcl focus changed to: {new}. Hiding Tcl.")
+            self.hide()
 
     def _init_ui(self, ui) -> None:
         """Initialize the given UI.
@@ -148,7 +168,7 @@ class Tcl(
                 self.move(self.sb.get_cursor_offset_from_center(self))
             self.setCurrentWidget(found_ui)
         else:
-            self.hide(force=True)
+            self.hide()
 
         self.sb.current_ui = found_ui
         return found_ui
@@ -172,7 +192,6 @@ class Tcl(
             self.sb.center_widget(current, "cursor", offset_y=25)
 
         self.raise_()
-        self.activateWindow()
         self.setFocus()
 
     def _set_submenu(self, ui, w) -> None:
@@ -208,6 +227,7 @@ class Tcl(
             self.overlay.clone_widgets_along_path(ui, self._return_to_startmenu)
 
     def _return_to_startmenu(self) -> None:
+        """Return to the start menu by moving the overlay path back to the start position."""
         start_pos = self.overlay.path.start_pos
         if not isinstance(start_pos, QtCore.QPoint):
             self.logger.warning("_return_to_startmenu called with no valid start_pos.")
@@ -260,7 +280,8 @@ class Tcl(
         """ """
         current_ui = self.sb.current_ui
         if current_ui and current_ui.has_tags(["startmenu", "submenu"]):
-            self.show("init#startmenu", force=True)
+            if self.isActiveWindow():
+                self.show("init#startmenu", force=True)
 
         super().mouseReleaseEvent(event)
 
@@ -277,17 +298,8 @@ class Tcl(
 
         self._show_ui()
 
-    def hide(self, force=False) -> None:
-        """Sets the widget as invisible.
-        Prevents hide event under certain circumstances.
-
-        Parameters:
-            force (bool): override prevent_hide.
-        """
-        if force or not self.prevent_hide:
-            super().hide()
-
     def hideEvent(self, event):
+        """ """
         if QtWidgets.QWidget.keyboardGrabber() is self:
             self.releaseKeyboard()
 
@@ -321,8 +333,6 @@ class Tcl(
             ):
                 continue
 
-            w.installEventFilter(self.child_event_filter)
-
             if w.derived_type in (
                 QtWidgets.QPushButton,
                 QtWidgets.QLabel,
@@ -336,29 +346,49 @@ class Tcl(
             if w.type == self.sb.registered_widgets.Region:
                 w.visible_on_mouse_over = True
 
+            self.child_event_filter.install(w)
+
     def child_enterEvent(self, w, event) -> None:
-        """ """
+        """Handle child enterEvent properly."""
         if w.derived_type == QtWidgets.QPushButton:
-            if w.base_name == "i":  # set the stacked widget.
+            if w.base_name == "i":
                 submenu_name = f"{w.accessibleName()}#submenu"
                 if submenu_name != w.ui.name:
                     submenu = self.sb.get_ui(submenu_name)
                     if submenu:
                         self._set_submenu(submenu, w)
 
-        if w.base_name == "chk":
-            if w.ui.has_tags("submenu"):
-                if self.isVisible():  # Omit children of popup menus.
-                    w.click()  # send click signal on enterEvent.
+        if w.base_name == "chk" and w.ui.has_tags("submenu") and self.isVisible():
+            w.click()
 
-        w.enterEvent(event)
+        # Safe default: call original enterEvent
+        if hasattr(w, "enterEvent"):
+            super_event = getattr(super(type(w), w), "enterEvent", None)
+            if callable(super_event):
+                super_event(event)
 
-    def child_mousePressEvent(self, w, event) -> None:
-        """ """
-        self._mouse_press_pos = event.globalPos()  # mouse positon at press
-        self.__mouseMovePos = event.globalPos()  # mouse move position from last press
-
+    def child_mouseButtonPressEvent(self, w, event) -> None:
+        self._mouse_press_pos = event.globalPos()
+        self.__mouseMovePos = event.globalPos()
         w.mousePressEvent(event)
+
+    def child_mouseButtonReleaseEvent(self, w, event) -> bool:
+        if w.underMouse():
+            if w.derived_type == QtWidgets.QPushButton:
+                if w.base_name == "i":
+                    menu_name = w.accessibleName()
+                    new_menu_name = self.clean_tag_string(menu_name)
+                    menu = self.sb.get_ui(new_menu_name)
+                    if menu:
+                        self.hide_unmatched_groupboxes(menu, menu_name)
+                        self.show(menu)
+
+            if hasattr(w, "click"):
+                self.hide()
+                if w.ui.has_tags(["startmenu", "submenu"]) and w.base_name != "chk":
+                    w.click()
+
+        w.mouseReleaseEvent(event)
 
     def child_mouseMoveEvent(self, w, event) -> None:
         """ """
@@ -369,25 +399,6 @@ class Tcl(
             pass
 
         w.mouseMoveEvent(event)
-
-    def child_mouseReleaseEvent(self, w, event) -> None:
-        """ """
-        if w.underMouse():  # if mouse over widget
-            if w.derived_type == QtWidgets.QPushButton:
-                if w.base_name == "i":  # ie. 'i012'
-                    menu_name = w.accessibleName()
-                    new_menu_name = self.clean_tag_string(menu_name)
-                    menu = self.sb.get_ui(new_menu_name)
-                    if menu:
-                        self.hide_unmatched_groupboxes(menu, menu_name)
-                        self.show(menu)
-            if hasattr(w, "click"):
-                self.hide()
-                if w.ui.has_tags(["startmenu", "submenu"]):
-                    if not w.base_name == "chk":
-                        w.click()  # send click signal on mouseRelease.
-
-        w.mouseReleaseEvent(event)
 
     # ---------------------------------------------------------------------------------------------
 

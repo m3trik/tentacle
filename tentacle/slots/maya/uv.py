@@ -8,7 +8,7 @@ import mayatk as mtk
 from tentacle.slots.maya import SlotsMaya
 
 
-class Uv(SlotsMaya):
+class UvSlots(SlotsMaya):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
@@ -471,10 +471,62 @@ class Uv(SlotsMaya):
         if v:
             pm.mel.texDistributeShells(0, 0, "down", [])  # 'up', 'down'
 
+    def tb007_init(self, widget):
+        """ """
+        widget.menu.add(
+            "QCheckBox",
+            setText="Remove Empty",
+            setObjectName="chk025",
+            setChecked=True,
+            setToolTip="Remove empty UV sets.",
+        )
+        widget.menu.add(
+            "QCheckBox",
+            setText="Keep Only Primary",
+            setObjectName="chk026",
+            setChecked=False,
+            setToolTip="Keep only the primary UV set.",
+        )
+        widget.menu.add(
+            "QCheckBox",
+            setText="Rename Primary to Map1",
+            setObjectName="chk027",
+            setChecked=False,
+            setToolTip="Rename the primary UV set to 'map1'. (default UV set name)",
+        )
+        widget.menu.add(
+            "QCheckBox",
+            setText="Force Rename",
+            setObjectName="chk028",
+            setChecked=False,
+            setToolTip="Force rename even if 'map1' already exists (by renaming the existing map1 to 'map1_conflict').",
+        )
+
+    def tb007(self, widget):
+        """Cleanup UV Sets"""
+        remove_empty = widget.menu.chk025.isChecked()
+        keep_only_primary = widget.menu.chk026.isChecked()
+        rename_primary = widget.menu.chk027.isChecked()
+        force_rename = widget.menu.chk028.isChecked()
+
+        selection = pm.selected()
+        if not selection:
+            self.sb.message_box(
+                "<b>Nothing selected.<b><br>The operation requires at least one selected object."
+            )
+            return
+
+        mtk.cleanup_uv_sets(
+            selection,
+            remove_empty=remove_empty,
+            keep_only_primary=keep_only_primary,
+            rename_primary_to_map1=rename_primary,
+            force_rename=force_rename,
+        )
+
     def cmb002(self, index, widget):
         """Transform"""
         text = widget.items[index]
-        self.sb.parent().hide()  # hide hotbox then perform operation
         if text == "Flip U":
             pm.polyFlipUV(flipType=0, local=1, usePivot=1, pivotU=0, pivotV=0)
         elif text == "Flip V":

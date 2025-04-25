@@ -9,12 +9,27 @@ import mayatk as mtk
 from tentacle.slots.maya import SlotsMaya
 
 
-class Display(SlotsMaya):
+class DisplaySlots(SlotsMaya):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
         self.ui = self.sb.loaded_ui.display
         self.submenu = self.sb.loaded_ui.display_submenu
+
+    def header_init(self, widget):
+        """ """
+        widget.menu.add(
+            "QPushButton",
+            setText="Exploded View",
+            setObjectName="b013",
+            setToolTip="Open the exploded view window.",
+        )
+        widget.menu.add(
+            "QPushButton",
+            setText="Color Manager",
+            setObjectName="b014",
+            setToolTip="Open the color manager window.",
+        )
 
     def b000(self):
         """Set Wireframe color"""
@@ -88,12 +103,12 @@ class Display(SlotsMaya):
     def b013(self):
         """Explode View GUI"""
         ui = mtk.UiManager.instance(self.sb).get("exploded_view")
-        self.sb.parent().show(ui)
+        ui.show()
 
     def b014(self):
         """Color Manager GUI"""
         ui = mtk.UiManager.instance(self.sb).get("color_manager")
-        self.sb.parent().show(ui)
+        ui.show()
 
     def b021(self):
         """Template Selected"""

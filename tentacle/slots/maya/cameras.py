@@ -12,8 +12,10 @@ from tentacle.slots.maya import SlotsMaya
 class Cameras(SlotsMaya):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-
-        self.sb.parent().left_mouse_double_click.connect(self.toggle_camera_view)
+        try:
+            self.sb.parent().left_mouse_double_click.connect(self.toggle_camera_view)
+        except AttributeError:
+            pass
 
     def list000_init(self, widget):
         widget.clear()

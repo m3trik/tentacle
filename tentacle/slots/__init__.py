@@ -23,28 +23,15 @@ class Slots(QtCore.QObject):
         super().__init__(parent)
         """ """
         self.sb = kwargs.get("switchboard")
-        self.sb.parent().left_mouse_double_click_ctrl.connect(self.repeat_last_command)
-
-    def hide_main(fn):
-        """A decorator that hides the stacked widget main window."""
-        from functools import wraps
-
-        @wraps(fn)  # This ensures the wrapped function retains meta-info
-        def wrapper(self, *args, **kwargs):
-            # If the main window or any widget has grabbed the keyboard, release it.
-            keyboard_grabber = self.sb.parent().keyboardGrabber()
-            if keyboard_grabber:
-                keyboard_grabber.releaseKeyboard()
-
-            result = fn(self, *args, **kwargs)  # execute the method normally
-            self.sb.parent().hide()
-            return result
-
-        return wrapper
+        try:
+            self.sb.parent().left_mouse_double_click_ctrl.connect(
+                self.repeat_last_command
+            )
+        except AttributeError:
+            pass
 
     def repeat_last_command(self):
         """Repeat the last stored command."""
-        self.sb.parent().hide()
         method = self.sb.prev_slot
 
         if callable(method):
