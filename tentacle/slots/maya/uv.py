@@ -30,21 +30,14 @@ class UvSlots(SlotsMaya):
             setObjectName="uv_snapshot",
             setToolTip="Save an image file of the current UV layout.",
         )
+        widget.menu.uv_snapshot.clicked.connect(pm.mel.UVCreateSnapshot)
         widget.menu.add(
             "QPushButton",
             setText="Open UV Editor",
             setObjectName="uv_editor",
             setToolTip="Open the texture coordinate mapping window.",
         )
-        widget.menu.add(
-            "QPushButton",
-            setText="Open UV Set Editor",
-            setObjectName="uv_set_editor",
-            setToolTip="Edit UV sets on selected objects.",
-        )
-        widget.menu.uv_snapshot.clicked.connect(pm.mel.UVCreateSnapshot)
         widget.menu.uv_editor.clicked.connect(pm.mel.TextureViewWindow)
-        widget.menu.uv_set_editor.clicked.connect(pm.mel.UVSetEditor)
 
     def cmb002_init(self, widget):
         """ """
@@ -581,7 +574,7 @@ class UvSlots(SlotsMaya):
             )
 
         for t in to:
-            mtk.Components.transfer_uvs(frm, t)
+            mtk.transfer_uvs(frm, t)
 
     def b002(self):
         """Stack Shells"""
@@ -590,7 +583,7 @@ class UvSlots(SlotsMaya):
 
     def b003(self):
         """Get texel density."""
-        density = mtk.Components.get_texel_density(pm.selected(), self.get_map_size())
+        density = mtk.get_texel_density(pm.selected(), self.get_map_size())
         self.ui.s003.setValue(density)
 
     @mtk.undoable
@@ -599,8 +592,7 @@ class UvSlots(SlotsMaya):
         density = self.ui.s003.value()
         map_size = self.get_map_size()
 
-        for obj in pm.selected():
-            mtk.Components.set_texel_density(obj, density, map_size)
+        mtk.set_texel_density(pm.selected(), density, map_size)
 
     def b005(self):
         """Cut UV's"""
@@ -687,22 +679,22 @@ class UvSlots(SlotsMaya):
     def b023(self):
         """Move To Uv Space: Left"""
         selection = pm.selected()
-        mtk.Components.move_to_uv_space(selection, -1, 0)  # move left
+        mtk.move_to_uv_space(selection, -1, 0)  # move left
 
     def b024(self):
         """Move To Uv Space: Down"""
         selection = pm.selected()
-        mtk.Components.move_to_uv_space(selection, 0, -1)  # move down
+        mtk.move_to_uv_space(selection, 0, -1)  # move down
 
     def b025(self):
         """Move To Uv Space: Up"""
         selection = pm.selected()
-        mtk.Components.move_to_uv_space(selection, 0, 1)  # move up
+        mtk.move_to_uv_space(selection, 0, 1)  # move up
 
     def b026(self):
         """Move To Uv Space: Right"""
         selection = pm.selected()
-        mtk.Components.move_to_uv_space(selection, 1, 0)  # move right
+        mtk.move_to_uv_space(selection, 1, 0)  # move right
 
 
 # --------------------------------------------------------------------------------------------

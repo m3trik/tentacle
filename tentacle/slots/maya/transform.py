@@ -8,7 +8,7 @@ import mayatk as mtk
 from tentacle.slots.maya import SlotsMaya
 
 
-class Transform(SlotsMaya):
+class TransformSlots(SlotsMaya):
     """ """
 
     def __init__(self, *args, **kwargs):
@@ -101,9 +101,9 @@ class Transform(SlotsMaya):
             setToolTip="Scale factor to apply to scaling by as a percentage.",
         )
 
-    def tb0001(self):
+    def tb001(self, widget):
         """Scale Connected Edges"""
-        factor = self.ui.s001.value()
+        factor = widget.menu.s001.value()
         mtk.scale_connected_edges(scale_factor=factor)
 
     def tb002_init(self, widget):

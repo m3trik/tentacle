@@ -151,7 +151,7 @@ class Tcl(
 
         # set style before child init (resize).
         self.add_child_event_filter(ui.widgets)
-        ui.on_child_added.connect(lambda w: self.add_child_event_filter(w))
+        ui.on_child_registered.connect(lambda w: self.add_child_event_filter(w))
 
     def _prepare_ui(self, ui) -> QtWidgets.QWidget:
         """Initialize and set the UI without showing it."""
@@ -281,11 +281,11 @@ class Tcl(
         current_ui = self.sb.current_ui
         if current_ui and current_ui.has_tags(["startmenu", "submenu"]):
             if self.isActiveWindow():
-                self.show("init#startmenu", force=True)
+                self.show(force=True)
 
         super().mouseReleaseEvent(event)
 
-    def show(self, ui="init#startmenu", force=False) -> None:
+    def show(self, ui="hud#startmenu", force=False) -> None:
         """Sets the widget as visible and shows the specified UI."""
         self._prepare_ui(ui)
 
@@ -328,9 +328,12 @@ class Tcl(
         ]
 
         for w in ptk.make_iterable(widgets):
-            if (w.derived_type not in filtered_types) or (  # not correct derived type:
-                not w.ui.has_tags(["startmenu", "submenu"])  # not stacked UI:
-            ):
+            try:  # If not correct type, skip it.
+                if (w.derived_type not in filtered_types) or (
+                    not w.ui.has_tags(["startmenu", "submenu"])
+                ):
+                    continue
+            except AttributeError:  # Or not initialized yet.
                 continue
 
             if w.derived_type in (

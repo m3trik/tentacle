@@ -12,7 +12,7 @@ import mayatk as mtk
 from tentacle.slots.maya import SlotsMaya
 
 
-class Init(SlotsMaya):
+class HudSlots(SlotsMaya):
     """ """
 
     def __init__(self, *args, **kwargs):
@@ -21,8 +21,8 @@ class Init(SlotsMaya):
         # Start the version check in a separate thread
         threading.Thread(target=self.check_version, daemon=True).start()
 
-        self.ui = self.sb.get_ui("init#startmenu")
-        self.ui.hud_text.shown.connect(self.construct_hud)
+        self.ui = self.sb.loaded_ui.hud_startmenu
+        self.ui.hudTextEdit.shown.connect(self.construct_hud)
 
     @property
     def new_version_available(self):
@@ -44,7 +44,7 @@ class Init(SlotsMaya):
         """Add current scene attributes to the hud lineEdit.
         Only those with relevant values will be displayed.
         """
-        hud = self.ui.hud_text
+        hud = self.ui.hudTextEdit
 
         try:
             selection = pm.ls(sl=True)

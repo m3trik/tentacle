@@ -345,8 +345,7 @@ class MaterialsSlots(SlotsMaya):
         if not texture_dir:
             return
         pm.displayInfo(f"Setting texture paths to: {texture_dir}")
-        selection = pm.ls(sl=True, flatten=True)
-        materials = mtk.get_mats(selection)
+        materials = mtk.get_mats()
         mtk.remap_texture_paths(materials, new_dir=texture_dir)
 
     def b012(self):
