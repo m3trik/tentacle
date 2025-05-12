@@ -238,27 +238,6 @@ class Rigging(SlotsMaya):
         )
         widget.menu.add(
             "QCheckBox",
-            setText="Parent",
-            setObjectName="chk006",
-            setChecked=True,
-            setToolTip="Parent to object to the locator.",
-        )
-        widget.menu.add(
-            "QCheckBox",
-            setText="Freeze Transforms",
-            setObjectName="chk010",
-            setChecked=True,
-            setToolTip="Freeze transforms on the locator.",
-        )
-        widget.menu.add(
-            "QCheckBox",
-            setText="Bake Child Pivot",
-            setObjectName="chk011",
-            setChecked=True,
-            setToolTip="Bake pivot positions on the child object.",
-        )
-        widget.menu.add(
-            "QCheckBox",
             setText="Lock Child Translate",
             setObjectName="chk007",
             setChecked=True,
@@ -284,9 +263,6 @@ class Rigging(SlotsMaya):
         grp_suffix = widget.menu.t002.text()
         loc_suffix = widget.menu.t000.text()
         obj_suffix = widget.menu.t001.text()
-        parent = widget.menu.chk006.isChecked()
-        freeze_transforms = widget.menu.chk010.isChecked()
-        bake_child_pivot = widget.menu.chk011.isChecked()
         loc_scale = widget.menu.s001.value()
         strip_digits = widget.menu.chk005.isChecked()
         strip_suffix = widget.menu.chk016.isChecked()
@@ -300,9 +276,6 @@ class Rigging(SlotsMaya):
 
         mtk.create_locator_at_object(
             selection,
-            parent=parent,
-            freeze_transforms=freeze_transforms,
-            bake_child_pivot=bake_child_pivot,
             loc_scale=loc_scale,
             grp_suffix=grp_suffix,
             loc_suffix=loc_suffix,
@@ -314,7 +287,7 @@ class Rigging(SlotsMaya):
             lock_scale=lock_scale,
         )
 
-    def b000(self, widget):
+    def b000(self):
         """Object Transform Limit Attributes"""
         selected_objects = pm.ls(selection=True, objectsOnly=True)
 

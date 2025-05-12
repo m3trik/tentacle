@@ -102,17 +102,24 @@ class Normals(SlotsMaya):
 
     def b002(self):
         """Transfer Normals"""
-        mtk.Components.transfer_normals(pm.selected())
+        source, *target = pm.ls(sl=1, fl=True)
+        if not source or not target:
+            self.sb.message_box(
+                "Select a source object and one or more target objects."
+            )
+            return
+
+        mtk.Components.transfer_normals(source, target)
 
     def b003(self):
         """Soft Edge Display"""
         mtk.Macros.m_soft_edge_display()
 
-    def b004(self, widget):
+    def b004(self):
         """Toggle lock/unlock vertex normals."""
         mtk.Macros.m_lock_vertex_normals()
 
-    def b005(self, widget):
+    def b005(self):
         """Display Face Normals"""
         mtk.Macros.m_normals_display()
 
