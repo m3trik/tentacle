@@ -246,6 +246,46 @@ class Animation(SlotsMaya):
             selected_objects, relative=relative, transfer_tangents=tangents
         )
 
+    def tb005_init(self, widget):
+        """ """
+        widget.menu.setTitle("Set Key")
+        widget.menu.add(
+            "QSpinBox",
+            setPrefix="Start Time: ",
+            setObjectName="s005",
+            set_limits=[0, 100000],
+            setValue=0,
+            setToolTip="The time at which to start adding keys.",
+        )
+        widget.menu.add(
+            "QSpinBox",
+            setPrefix="End Time: ",
+            setObjectName="s006",
+            set_limits=[0, 100000],
+            setValue=100,
+            setToolTip="The time at which to end adding keys.",
+        )
+        widget.menu.add(
+            "QSpinBox",
+            setPrefix="Percent: ",
+            setObjectName="s007",
+            set_limits=[0, 100],
+            setValue=5,
+            setToolTip="The percentage of the key to add.",
+        )
+
+    def tb005(self, widget):
+        """Add Intermediate Keys"""
+        start_time = widget.menu.s005.value()
+        end_time = widget.menu.s006.value()
+        percent = widget.menu.s007.value()
+
+        objects = pm.selected(flatten=True)
+        if not objects:
+            self.sb.message_box("You must select at least one object.")
+            return
+        mtk.add_intermediate_keys(objects, start_time, end_time, percent)
+
     def b000(self):
         """Delete Keys"""
         try:

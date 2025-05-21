@@ -481,7 +481,7 @@ class PolygonsSlots(SlotsMaya):
 
     def b013(self):
         """Combine Selected Meshes."""
-        mtk.Macros.m_combine()
+        mtk.Macros.m_combine(allow_multiple_materials=False)
 
     def b022(self):
         """Attach"""

@@ -46,6 +46,12 @@ class MaterialsSlots(SlotsMaya):
         )
         widget.menu.add(
             self.sb.registered_widgets.PushButton,
+            setText="Map Packer",
+            setObjectName="b008",
+            setToolTip="Pack up to 4 input grayscale maps into specified RGBA channels.",
+        )
+        widget.menu.add(
+            self.sb.registered_widgets.PushButton,
             setText="Set Texture Paths",
             setObjectName="b011",
             setToolTip="Set the texture file paths for selected objects.\nThe path will be relative if it is within the project's source images directory.",
@@ -301,6 +307,28 @@ class MaterialsSlots(SlotsMaya):
             'buildObjectMenuItemsNow "MainPane|viewPanes|modelPanel4|modelPanel4|modelPanel4|modelPanel4ObjectPop";'
         )
         pm.mel.createAssignNewMaterialTreeLister("")
+
+    def b008(self, widget):
+        """Map Packer"""
+        from pythontk.img_utils import map_packer
+
+        self.sb.register(
+            "map_packer.ui",
+            map_packer.MapPackerSlots,
+            base_dir=map_packer,
+        )
+
+        ui = self.sb.get_ui("map_packer")
+        ui.set_attributes(WA_TranslucentBackground=True)
+        ui.set_flags(FramelessWindowHint=True)
+        ui.set_style(theme="dark", style_class="translucentBgWithBorder")
+        ui.header.config_buttons(menu_button=True, hide_button=True)
+
+        # Set the starting directory for the map converter
+        source_images_dir = mtk.get_env_info("sourceimages")
+        ui.slots.source_dir = source_images_dir
+
+        ui.show()
 
     def b009(self, widget):
         """Create Stingray Shader"""
