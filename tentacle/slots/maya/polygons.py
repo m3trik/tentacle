@@ -130,6 +130,21 @@ class PolygonsSlots(SlotsMaya):
             pm.polyExtrudeVertex(edit=1, width=0.5, length=1, divisions=divisions)
             pm.mel.PolyExtrude()  # return polyExtrudeVertex(selection, ch=1, width=0.5, length=1, divisions=divisions)
 
+    def tb004_init(self, widget):
+        """ """
+        widget.menu.add(
+            "QCheckBox",
+            setText="Allow Multiple Materials",
+            setObjectName="chk003",
+            setChecked=True,
+            setToolTip="Allow multiple materials.",
+        )
+
+    def tb004(self, widget):
+        """Combine Selected Meshes."""
+        amm = widget.menu.chk003.isChecked()
+        mtk.Macros.m_combine(allow_multiple_materials=amm)
+
     def tb005_init(self, widget):
         """ """
         widget.menu.add(
@@ -478,10 +493,6 @@ class PolygonsSlots(SlotsMaya):
     def b012(self):
         """Multi-Cut Tool"""
         pm.mel.dR_multiCutTool()
-
-    def b013(self):
-        """Combine Selected Meshes."""
-        mtk.Macros.m_combine(allow_multiple_materials=False)
 
     def b022(self):
         """Attach"""

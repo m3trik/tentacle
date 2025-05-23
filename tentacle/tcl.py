@@ -139,7 +139,7 @@ class Tcl(
             self.addWidget(ui)  # add the UI to the stackedLayout.
 
         else:  # MainWindow
-            ui.setParent(self.parent())
+            ui.setParent(self)
             ui.setWindowFlags(QtCore.Qt.Tool | QtCore.Qt.FramelessWindowHint)
             ui.setAttribute(QtCore.Qt.WA_TranslucentBackground)
             ui.set_style(theme="dark", style_class="translucentBgWithBorder")
