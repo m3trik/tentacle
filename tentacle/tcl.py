@@ -51,7 +51,7 @@ class Tcl(
         self.logger.setLevel(log_level)
 
         self.sb = Switchboard(
-            self,
+            parent,
             ui_source=ui_source,
             slot_source=slot_source,
             widget_source=widget_source,
@@ -79,7 +79,11 @@ class Tcl(
         # self.sb.app.setDoubleClickInterval(400)
         # self.sb.app.setKeyboardInputInterval(400)
 
-        self.setWindowFlags(QtCore.Qt.Tool | QtCore.Qt.FramelessWindowHint)
+        self.setWindowFlags(
+            QtCore.Qt.Tool
+            | QtCore.Qt.FramelessWindowHint
+            | QtCore.Qt.WindowStaysOnTopHint
+        )
         self.setAttribute(QtCore.Qt.WA_TranslucentBackground)
         self.setAttribute(QtCore.Qt.WA_NoMousePropagation, False)
         self.setFocusPolicy(QtCore.Qt.StrongFocus)

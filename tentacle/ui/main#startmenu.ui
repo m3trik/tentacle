@@ -241,7 +241,7 @@
              <string>render</string>
             </property>
             <property name="text">
-             <string>Rendering</string>
+             <string>Render</string>
             </property>
            </widget>
            <widget class="QPushButton" name="i060">
@@ -465,8 +465,8 @@
               <widget class="QPushButton" name="i011">
                <property name="geometry">
                 <rect>
-                 <x>200</x>
-                 <y>10</y>
+                 <x>190</x>
+                 <y>50</y>
                  <width>76</width>
                  <height>21</height>
                 </rect>
@@ -521,8 +521,8 @@
               <widget class="QPushButton" name="i014">
                <property name="geometry">
                 <rect>
-                 <x>15</x>
-                 <y>10</y>
+                 <x>205</x>
+                 <y>20</y>
                  <width>76</width>
                  <height>21</height>
                 </rect>
@@ -549,8 +549,8 @@
               <widget class="QPushButton" name="i002">
                <property name="geometry">
                 <rect>
-                 <x>190</x>
-                 <y>50</y>
+                 <x>5</x>
+                 <y>20</y>
                  <width>66</width>
                  <height>21</height>
                 </rect>

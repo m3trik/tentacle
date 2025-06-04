@@ -81,7 +81,7 @@
      </size>
     </property>
    </widget>
-   <widget class="PushButton" name="b013">
+   <widget class="PushButton" name="tb004">
     <property name="enabled">
      <bool>true</bool>
     </property>

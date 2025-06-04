@@ -46,6 +46,16 @@ class Scene(SlotsMaya):
             found = ptk.find_str(text, obj_names, regex=regex, ignore_case=ign_case)
             pm.select(found)
 
+    def txt001_init(self, widget):
+        """ """
+        widget.menu.setTitle("Rename")
+        widget.menu.add(
+            "QCheckBox",
+            setText="Retain Suffix",
+            setObjectName="chk002",
+            setToolTip="Retain the suffix of the selected object(s).",
+        )
+
     # The LineEdit text parameter is not emitted on `returnPressed`
     @Signals("returnPressed")
     def txt001(self, widget):
@@ -55,9 +65,17 @@ class Scene(SlotsMaya):
         to = widget.text()
         regex = widget.ui.txt000.menu.chk001.isChecked()
         ign_case = widget.ui.txt000.menu.chk000.isChecked()
+        retain_suffix = widget.ui.txt001.menu.chk002.isChecked()
 
-        selection = pm.selected() or [str(i) for i in pm.ls()]
-        mtk.Naming.rename(selection, to, find, regex=regex, ignore_case=ign_case)
+        selection = pm.selected() or pm.ls()
+        mtk.Naming.rename(
+            selection,
+            to,
+            find,
+            regex=regex,
+            ignore_case=ign_case,
+            retain_suffix=retain_suffix,
+        )
 
     def tb000_init(self, widget):
         """ """
@@ -121,7 +139,7 @@ class Scene(SlotsMaya):
         strip_trailing_alpha = widget.menu.chk003.isChecked()
         reverse = widget.menu.chk004.isChecked()
 
-        selection = pm.ls(sl=1, objectsOnly=1, type="transform")
+        selection = pm.ls(sl=True, objectsOnly=True, type="transform")
         mtk.Naming.append_location_based_suffix(
             selection,
             first_obj_as_ref=first_obj_as_ref,
@@ -157,6 +175,90 @@ class Scene(SlotsMaya):
             "trailing": widget.menu.chk005.isChecked(),
         }
         mtk.Naming.strip_chars(sel, **kwargs)
+
+    def tb003_init(self, widget):
+        """ """
+        widget.menu.setTitle("Suffix By Type")
+        widget.menu.add(
+            "QLineEdit",
+            setPlaceholderText="Group Suffix",
+            setText="_GRP",
+            setObjectName="tb003_txt000",
+            setToolTip="Suffix for transform groups.",
+        )
+        widget.menu.add(
+            "QLineEdit",
+            setPlaceholderText="Locator Suffix",
+            setText="_LOC",
+            setObjectName="tb003_txt001",
+            setToolTip="Suffix for locators.",
+        )
+        widget.menu.add(
+            "QLineEdit",
+            setPlaceholderText="Joint Suffix",
+            setText="_JNT",
+            setObjectName="tb003_txt002",
+            setToolTip="Suffix for joints.",
+        )
+        widget.menu.add(
+            "QLineEdit",
+            setPlaceholderText="Mesh Suffix",
+            setText="_GEO",
+            setObjectName="tb003_txt003",
+            setToolTip="Suffix for meshes.",
+        )
+        widget.menu.add(
+            "QLineEdit",
+            setPlaceholderText="Nurbs Curve Suffix",
+            setText="_CRV",
+            setObjectName="tb003_txt004",
+            setToolTip="Suffix for nurbs curves.",
+        )
+        widget.menu.add(
+            "QLineEdit",
+            setPlaceholderText="Camera Suffix",
+            setText="_CAM",
+            setObjectName="tb003_txt005",
+            setToolTip="Suffix for cameras.",
+        )
+        widget.menu.add(
+            "QLineEdit",
+            setPlaceholderText="Light Suffix",
+            setText="_LGT",
+            setObjectName="tb003_txt006",
+            setToolTip="Suffix for lights.",
+        )
+        widget.menu.add(
+            "QLineEdit",
+            setPlaceholderText="Display Layer Suffix",
+            setText="_LYR",
+            setObjectName="tb003_txt007",
+            setToolTip="Suffix for display layers.",
+        )
+        widget.menu.add(
+            "QCheckBox",
+            setText="Strip Trailing Integers",
+            setObjectName="tb003_chk002",
+            setChecked=True,
+            setToolTip="Strip any trailing integers. ie. '123' of 'cube123'",
+        )
+
+    def tb003(self, widget):
+        """Suffix By Type"""
+        objects = pm.ls(sl=True, objectsOnly=True)
+
+        kwargs = {
+            "group_suffix": widget.menu.tb003_txt000.text(),
+            "locator_suffix": widget.menu.tb003_txt001.text(),
+            "joint_suffix": widget.menu.tb003_txt002.text(),
+            "mesh_suffix": widget.menu.tb003_txt003.text(),
+            "nurbs_curve_suffix": widget.menu.tb003_txt004.text(),
+            "camera_suffix": widget.menu.tb003_txt005.text(),
+            "light_suffix": widget.menu.tb003_txt006.text(),
+            "display_layer_suffix": widget.menu.tb003_txt007.text(),
+            "strip_trailing_ints": widget.menu.tb003_chk002.isChecked(),
+        }
+        mtk.Naming.suffix_by_type(objects, **kwargs)
 
 
 # --------------------------------------------------------------------------------------------

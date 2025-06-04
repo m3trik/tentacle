@@ -50,7 +50,7 @@
      <verstretch>0</verstretch>
     </sizepolicy>
    </property>
-   <widget class="QPushButton" name="i055">
+   <widget class="QPushButton" name="i027">
     <property name="geometry">
      <rect>
       <x>245</x>

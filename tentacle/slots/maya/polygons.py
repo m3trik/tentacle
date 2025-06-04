@@ -143,7 +143,7 @@ class PolygonsSlots(SlotsMaya):
     def tb004(self, widget):
         """Combine Selected Meshes."""
         amm = widget.menu.chk003.isChecked()
-        mtk.Macros.m_combine(allow_multiple_materials=amm)
+        mtk.Macros.m_combine(allow_multiple_mats=amm)
 
     def tb005_init(self, widget):
         """ """

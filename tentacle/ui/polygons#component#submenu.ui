@@ -421,7 +421,7 @@
      <string>Component</string>
     </property>
    </widget>
-   <widget class="PushButton" name="tb004">
+   <widget class="QPushButton" name="b011">
     <property name="enabled">
      <bool>true</bool>
     </property>

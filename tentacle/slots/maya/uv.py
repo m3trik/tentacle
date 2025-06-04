@@ -364,6 +364,10 @@ class UvSlots(SlotsMaya):
         tolerance = widget.menu.s000.value()
         map_size = self.get_map_size()
 
+        # Perform a preliminary unfold to optionally clean the mesh
+        pm.mel.UnfoldUV()  # Prepares the context
+        pm.mel.performUnfold(0)  # Mimics UI's behavior
+
         pm.u3dUnfold(
             iterations=1,
             pack=0,
@@ -371,7 +375,7 @@ class UvSlots(SlotsMaya):
             triangleflip=1,
             mapsize=map_size,
             roomspace=0,
-        )  # pm.mel.performUnfold(0)
+        )
 
         if optimize:
             pm.u3dOptimize(
@@ -382,7 +386,7 @@ class UvSlots(SlotsMaya):
                 triangleflip=1,
                 mapsize=map_size,
                 roomspace=0,
-            )  # pm.mel.performPolyOptimizeUV(0)
+            )
 
         if orient:
             pm.mel.texOrientShells()
