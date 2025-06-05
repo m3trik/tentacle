@@ -2,7 +2,7 @@
 # coding=utf-8
 import os
 import threading
-from typing import Optional, Any, List
+from typing import Optional
 
 try:
     import pymel.core as pm
@@ -160,54 +160,40 @@ class HudSlots(SlotsMaya, VersionMixin, StatusMixin, SelectionMixin):
 
     _installed_ver: Optional[str] = None
     _latest_ver: Optional[str] = None
+    _hud_request_token: int = 0
 
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
         threading.Thread(target=self.check_version, daemon=True).start()
         self.ui = self.sb.loaded_ui.hud_startmenu
-        self.ui.hudTextEdit.shown.connect(self.construct_hud)
+        self.ui.hudTextEdit.shown.connect(self.request_hud_build)
+
+    def request_hud_build(self) -> None:
+        """Start a new HUD build request, only the latest token will be used."""
+        self._hud_request_token += 1
+        my_token = self._hud_request_token
+        self.sb.QtCore.QTimer.singleShot(
+            1000, lambda: self._delayed_hud_build(my_token)
+        )
+
+    def _delayed_hud_build(self, token: int) -> None:
+        if token != self._hud_request_token:
+            return  # Outdated request, ignore.
+        if not (self.ui.isVisible() and self.ui.hudTextEdit.isVisible()):
+            return
+        self.construct_hud()
 
     def construct_hud(self) -> None:
-        """Construct the HUD with scene and selection information."""
-        import time
-
         hud = self.ui.hudTextEdit
 
         selection = pm.ls(sl=True)
         if not selection:
             self.insert_scene_status(hud)
         else:
-            objects = pm.ls(selection, objectsOnly=True)
-            try:
-                start = time.perf_counter()
-                total_tris = sum(
-                    pm.polyEvaluate(obj, triangle=True) or 0 for obj in objects
-                )
-                elapsed = time.perf_counter() - start
-            except Exception:
-                total_tris = 0
-                elapsed = 0
-
-            tri_limit = 500_000
-            time_limit = 0.2  # seconds
-
-            # if total_tris > tri_limit or elapsed > time_limit or len(objects) > 2000:
-            #     hud.insertText(
-            #         f'Selected: <font style="color: Yellow;">{len(selection)}</font><br/>'
-            #         f'<font style="color: Red;">Selection too heavy ({total_tris:,d} tris, {elapsed:.2f}s), skipping details.</font>'
-            #     )
-            #     return
-
             if pm.selectMode(q=True, object=True):
                 self.insert_selection_info(hud, selection)
             elif pm.selectMode(q=True, component=1):
                 self.insert_component_info(hud, selection)
-
-        method = getattr(self.sb, "prev_slot", None)
-        if method:
-            hud.insertText(
-                f'Prev Command: <font style="color: Yellow;">{method.__doc__}'
-            )
 
 
 # --------------------------------------------------------------------------------------------

@@ -103,7 +103,7 @@
      <string>lighting_shading</string>
     </property>
     <property name="text">
-     <string>Lighting and Shading</string>
+     <string>Lighting Shading</string>
     </property>
    </widget>
   </widget>
