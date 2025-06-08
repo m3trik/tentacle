@@ -172,9 +172,7 @@ class HudSlots(SlotsMaya, VersionMixin, StatusMixin, SelectionMixin):
         """Start a new HUD build request, only the latest token will be used."""
         self._hud_request_token += 1
         my_token = self._hud_request_token
-        self.sb.QtCore.QTimer.singleShot(
-            1000, lambda: self._delayed_hud_build(my_token)
-        )
+        self.sb.QtCore.QTimer.singleShot(500, lambda: self._delayed_hud_build(my_token))
 
     def _delayed_hud_build(self, token: int) -> None:
         if token != self._hud_request_token:
@@ -194,6 +192,13 @@ class HudSlots(SlotsMaya, VersionMixin, StatusMixin, SelectionMixin):
                 self.insert_selection_info(hud, selection)
             elif pm.selectMode(q=True, component=1):
                 self.insert_component_info(hud, selection)
+
+        method = self.sb.prev_slot
+        if method:
+            # Get button text from last used command
+            hud.insertText(
+                'Prev Command: <font style="color: Yellow;">{}'.format(method.__doc__)
+            )
 
 
 # --------------------------------------------------------------------------------------------

@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>200</width>
-    <height>599</height>
+    <height>598</height>
    </rect>
   </property>
   <property name="tabShape">
@@ -118,7 +118,7 @@
            <property name="maximumSize">
             <size>
              <width>16777215</width>
-             <height>20</height>
+             <height>19</height>
             </size>
            </property>
            <property name="toolTip">
@@ -149,7 +149,7 @@
            <property name="maximumSize">
             <size>
              <width>16777215</width>
-             <height>20</height>
+             <height>19</height>
             </size>
            </property>
            <property name="toolTip">
@@ -217,7 +217,7 @@
            <property name="maximumSize">
             <size>
              <width>16777215</width>
-             <height>20</height>
+             <height>19</height>
             </size>
            </property>
            <property name="toolTip">
@@ -269,7 +269,7 @@
            <property name="maximumSize">
             <size>
              <width>16777215</width>
-             <height>20</height>
+             <height>19</height>
             </size>
            </property>
            <property name="toolTip">
@@ -337,7 +337,7 @@
            <property name="maximumSize">
             <size>
              <width>16777215</width>
-             <height>20</height>
+             <height>19</height>
             </size>
            </property>
            <property name="toolTip">
@@ -405,7 +405,7 @@
            <property name="maximumSize">
             <size>
              <width>16777215</width>
-             <height>20</height>
+             <height>19</height>
             </size>
            </property>
            <property name="toolTip">
@@ -482,7 +482,7 @@
            <property name="maximumSize">
             <size>
              <width>16777215</width>
-             <height>20</height>
+             <height>19</height>
             </size>
            </property>
            <property name="toolTip">
@@ -577,7 +577,7 @@
            <property name="maximumSize">
             <size>
              <width>16777215</width>
-             <height>20</height>
+             <height>19</height>
             </size>
            </property>
            <property name="toolTip">
@@ -608,7 +608,7 @@
            <property name="maximumSize">
             <size>
              <width>16777215</width>
-             <height>20</height>
+             <height>19</height>
             </size>
            </property>
            <property name="toolTip">
@@ -639,7 +639,7 @@
            <property name="maximumSize">
             <size>
              <width>16777215</width>
-             <height>20</height>
+             <height>19</height>
             </size>
            </property>
            <property name="toolTip">
@@ -707,7 +707,7 @@
            <property name="maximumSize">
             <size>
              <width>16777215</width>
-             <height>20</height>
+             <height>19</height>
             </size>
            </property>
            <property name="toolTip">
@@ -799,7 +799,7 @@
            <property name="maximumSize">
             <size>
              <width>16777215</width>
-             <height>20</height>
+             <height>19</height>
             </size>
            </property>
            <property name="toolTip">
@@ -867,7 +867,7 @@
            <property name="maximumSize">
             <size>
              <width>16777215</width>
-             <height>20</height>
+             <height>19</height>
             </size>
            </property>
            <property name="toolTip">
@@ -907,7 +907,7 @@
            <property name="maximumSize">
             <size>
              <width>16777215</width>
-             <height>20</height>
+             <height>19</height>
             </size>
            </property>
            <property name="toolTip">
@@ -938,7 +938,7 @@
            <property name="maximumSize">
             <size>
              <width>16777215</width>
-             <height>20</height>
+             <height>19</height>
             </size>
            </property>
            <property name="toolTip">
@@ -969,7 +969,7 @@
            <property name="maximumSize">
             <size>
              <width>16777215</width>
-             <height>20</height>
+             <height>19</height>
             </size>
            </property>
            <property name="toolTip">
@@ -1037,7 +1037,7 @@
            <property name="maximumSize">
             <size>
              <width>16777215</width>
-             <height>20</height>
+             <height>19</height>
             </size>
            </property>
            <property name="toolTip">
@@ -1068,7 +1068,7 @@
            <property name="maximumSize">
             <size>
              <width>16777215</width>
-             <height>20</height>
+             <height>19</height>
             </size>
            </property>
            <property name="toolTip">
@@ -1099,7 +1099,7 @@
            <property name="maximumSize">
             <size>
              <width>16777215</width>
-             <height>20</height>
+             <height>19</height>
             </size>
            </property>
            <property name="toolTip">
@@ -1130,7 +1130,7 @@
            <property name="maximumSize">
             <size>
              <width>16777215</width>
-             <height>20</height>
+             <height>19</height>
             </size>
            </property>
            <property name="toolTip">
@@ -1198,7 +1198,7 @@
            <property name="maximumSize">
             <size>
              <width>16777215</width>
-             <height>20</height>
+             <height>19</height>
             </size>
            </property>
            <property name="toolTip">
@@ -1290,7 +1290,7 @@
            <property name="maximumSize">
             <size>
              <width>16777215</width>
-             <height>20</height>
+             <height>19</height>
             </size>
            </property>
            <property name="toolTip">
@@ -1321,7 +1321,7 @@
            <property name="maximumSize">
             <size>
              <width>16777215</width>
-             <height>20</height>
+             <height>19</height>
             </size>
            </property>
            <property name="toolTip">
@@ -1352,7 +1352,7 @@
            <property name="maximumSize">
             <size>
              <width>16777215</width>
-             <height>20</height>
+             <height>19</height>
             </size>
            </property>
            <property name="toolTip">
@@ -1383,7 +1383,7 @@
            <property name="maximumSize">
             <size>
              <width>16777215</width>
-             <height>20</height>
+             <height>19</height>
             </size>
            </property>
            <property name="toolTip">

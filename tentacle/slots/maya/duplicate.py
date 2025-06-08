@@ -76,7 +76,7 @@ class Duplicate(SlotsMaya):
             )
             return
 
-        mtk.convert_to_instances(
+        mtk.instance(
             selection,
             freeze_transforms=freeze_transforms,
             center_pivot=center_pivot,

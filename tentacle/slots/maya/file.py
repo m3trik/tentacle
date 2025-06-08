@@ -12,7 +12,7 @@ from uitk import Signals
 from tentacle.slots.maya import SlotsMaya
 
 
-class File(SlotsMaya):
+class FileSlots(SlotsMaya):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
@@ -26,6 +26,12 @@ class File(SlotsMaya):
             setToolTip="Export scene assets with environment checks and presets.",
             setText="Scene Exporter",
             setObjectName="b002",
+        )
+        widget.menu.add(
+            self.sb.registered_widgets.PushButton,
+            setText="Quick Export Scene Geo",
+            setObjectName="b003",
+            setToolTip="Export the scene geometry as FBX to the current maya file's directory.\nThe file name will be the same as the current scene and overwrite the current file if it exists.",
         )
         widget.menu.add(
             "QPushButton",
@@ -283,7 +289,7 @@ class File(SlotsMaya):
         ui.show()
 
     def b003(self):
-        """Export Scene Geometry"""
+        """Quick Export Scene Geo"""
         mtk.export_scene_as_fbx()
 
     def b007(self):

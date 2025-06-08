@@ -103,7 +103,7 @@
      <string>skeleton</string>
     </property>
     <property name="text">
-     <string>Rigging</string>
+     <string>Skeleton</string>
     </property>
    </widget>
    <widget class="QPushButton" name="i024">

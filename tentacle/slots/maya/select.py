@@ -17,17 +17,6 @@ class SelectSlots(SlotsMaya):
         self.sb = kwargs.get("switchboard")
         self.ui = mtk.UiManager.instance(self.sb).get("select", header=True)
 
-        menu = self.ui.centralWidget()
-        menu.add("QPushButton", setText="Test", clicked=self.test, row=0)
-        menu.add(self.sb.registered_widgets.Separator, row=1)
-        menu.add("QLabel", setText="Custom Label", row=2)
-
-    def test(self, *args, **kwargs):
-        print(f"test {args} {kwargs}")
-
-    def hello(self, *args, **kwargs):
-        print(f"hello {args} {kwargs}")
-
 
 # --------------------------------------------------------------------------------------------
 
