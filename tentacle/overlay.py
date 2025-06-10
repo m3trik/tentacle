@@ -126,14 +126,11 @@ class Path:
         self._path = self._path[:1]
 
     def add(self, ui, widget):
-        """Adds a widget and its position to the path. Also removes any references
-        to the provided ui object from the path.
-
-        Parameters:
-            ui: The ui object to remove from the path.
-            widget: The widget to add to the path.
-        """
+        """Adds a widget and its global position to the path."""
+        if widget is None or not widget.isVisible():
+            return
         w_pos = widget.mapToGlobal(widget.rect().center())
+
         self._path.append((widget, w_pos, QtGui.QCursor.pos()))
         self.remove(ui)
 
