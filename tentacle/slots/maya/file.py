@@ -281,12 +281,12 @@ class FileSlots(SlotsMaya):
     def b001(self):
         """Open Reference Manager"""
         ui = mtk.UiManager.instance(self.sb).get("reference_manager")
-        ui.show()
+        self.sb.parent().show(ui)
 
     def b002(self):
         """Scene Exporter"""
         ui = mtk.UiManager.instance(self.sb).get("scene_exporter")
-        ui.show()
+        self.sb.parent().show(ui)
 
     def b003(self):
         """Quick Export Scene Geo"""

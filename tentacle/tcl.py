@@ -51,7 +51,7 @@ class Tcl(
         self.logger.setLevel(log_level)
 
         self.sb = Switchboard(
-            parent,
+            self,
             ui_source=ui_source,
             slot_source=slot_source,
             widget_source=widget_source,

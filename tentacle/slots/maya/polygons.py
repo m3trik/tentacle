@@ -465,7 +465,7 @@ class PolygonsSlots(SlotsMaya):
     def b007(self):
         """Interactive Bridge"""
         ui = mtk.UiManager.instance(self.sb).get("bridge")
-        ui.show()
+        self.sb.parent().show(ui)
 
     def b008(self):
         """Weld Center"""
@@ -488,7 +488,7 @@ class PolygonsSlots(SlotsMaya):
     def b011(self):
         """Bevel"""
         ui = mtk.UiManager.instance(self.sb).get("bevel")
-        ui.show()
+        self.sb.parent().show(ui)
 
     def b012(self):
         """Multi-Cut Tool"""

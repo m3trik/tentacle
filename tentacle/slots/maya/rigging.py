@@ -138,58 +138,44 @@ class Rigging(SlotsMaya):
 
     def tb001_init(self, widget):
         """ """
-        widget.menu.setTitle("Orient Joints")
+        widget.menu.setTitle("Create Constraint Switch")
+        widget.menu.add(
+            "QLineEdit",
+            setPlaceholderText="Switch Name:",
+            setText="switch",
+            setObjectName="t003",
+            setToolTip="The name of the switch attribute to create.",
+        )
+        widget.menu.add(
+            "QLineEdit",
+            setPlaceholderText="Anchor Name:",
+            setText="",
+            setObjectName="t004",
+            setToolTip="Create a helper locator to allow anchoring the constraint to world origin.\nIf a previous anchor exists of the same name, it will be reused.\nLeave blank to not create an anchor.\n(default: empty string)",
+        )
         widget.menu.add(
             "QCheckBox",
-            setText="Align world",
+            setText="Weighted",
             setObjectName="chk003",
-            setToolTip="Align joints with the worlds transform.",
+            setChecked=False,
+            setToolTip="Create a weighted switch instead of a simple one.",
         )
 
     def tb001(self, widget):
-        """Orient Joints"""
-        orientJoint = "xyz"  # orient joints
-        alignWorld = widget.menu.chk003.isChecked()
+        """Create Constraint Switch"""
+        sel = pm.selected(flatten=True)
 
-        if alignWorld:
-            orientJoint = "none"  # orient joint to world
+        switch_name = widget.menu.t003.text()
+        weighted = widget.menu.chk003.isChecked()
+        anchor_name = widget.menu.t004.text()
 
-        joints = pm.ls(type="joint", sl=True)  # get selected joints
-
-        if not joints:  # if no joints are selected
-            joints = pm.ls(type="joint")  # get all joints in the scene
-            if not joints:  # if no joints in the scene
-                self.sb.message_box("No joints found.")
-                return  # exit the function
-        try:
-            for joint in joints:
-                pm.joint(
-                    joint, edit=1, orientJoint=orientJoint, zeroScaleOrient=1, ch=1
-                )
-        except Exception as e:
-            print(f"An error occurred while orienting joints: {e}")
-
-    def tb002_init(self, widget):
-        """ """
-        widget.menu.setTitle("Constrain")
-        widget.menu.add(
-            "QComboBox",
-            setObjectName="cmb000",
-            addItems=["Point", "Orient", "Parent", "Scale", "Aim", "Pole Vector"],
-            setToolTip="Constraint type.",
+        mtk.connect_switch_to_constraint(
+            constraint_node=sel[0] if sel else None,
+            attr_name=switch_name,
+            weighted=weighted,
+            overwrite_existing=True,
+            anchor=anchor_name,
         )
-
-    def tb002(self, widget):
-        """Constrain"""
-        constraint_type = widget.menu.cmb000.currentText()
-        *objects_to_constrain, target = pm.selected()
-
-        if not target or not objects_to_constrain:
-            self.sb.message_box(
-                "Please select a target and at least one object to constrain."
-            )
-            return
-        mtk.constrain(target, objects_to_constrain, constraint_type.lower())
 
     def tb003_init(self, widget):
         """ """
@@ -287,183 +273,10 @@ class Rigging(SlotsMaya):
             lock_scale=lock_scale,
         )
 
-    def b000(self):
-        """Object Transform Limit Attributes"""
-        selected_objects = pm.ls(selection=True, objectsOnly=True)
-
-        if len(selected_objects) != 1:
-            self.sb.message_box("Operation requires a single selected object.")
-            return
-
-        node = selected_objects[0]
-
-        params = {
-            "enableTranslationX": "etx",
-            "translationX": "tx",
-            "enableTranslationY": "ety",
-            "translationY": "ty",
-            "enableTranslationZ": "etz",
-            "translationZ": "tz",
-            "enableRotationX": "erx",
-            "rotationX": "rx",
-            "enableRotationY": "ery",
-            "rotationY": "ry",
-            "enableRotationZ": "erz",
-            "rotationZ": "rz",
-            "enableScaleX": "esx",
-            "scaleX": "sx",
-            "enableScaleY": "esy",
-            "scaleY": "sy",
-            "enableScaleZ": "esz",
-            "scaleZ": "sz",
-        }
-
-        def set_transform_limit(attr, value):
-            arg = params.get(attr)
-            if arg is not None and isinstance(value, list) and len(value) == 2:
-                kwargs = {arg: tuple(value)}
-                pm.transformLimits(node, **kwargs)
-
-        try:
-            window = self.sb.registered_widgets.AttributeWindow(
-                node,
-                window_title=node.name(),
-                get_attribute_func=lambda: mtk.get_parameter_mapping(
-                    node, "transformLimits", list(params.keys())
-                ),
-                set_attribute_func=set_transform_limit,
-                allow_unsupported_types=True,
-            )
-            window.set_style(theme="dark")
-            window.show()
-        except Exception as e:
-            print(f"An error occurred while getting parameter values: {e}")
-
-    def b001(self):
-        """Connect Joints"""
-        pm.connectJoint(cm=1)
-
-    def b002(self):
-        """Insert Joint Tool"""
-        pm.setToolTo("insertJointContext")  # insert joint tool
-
     def b003(self):
         """Remove Locator"""
         selection = pm.ls(selection=True)
         mtk.remove_locator(selection)
-
-    def b004(self):
-        """Reroot"""
-        pm.reroot()  # re-root joints
-
-    def b006(self):
-        """Constraint: Point"""
-        selected_objects = pm.ls(selection=True)
-
-        if len(selected_objects) < 2:
-            self.sb.message_box(
-                "Please select two objects before applying a point constraint."
-            )
-            return
-
-        source = selected_objects[0]
-        target = selected_objects[1]
-
-        try:
-            node = pm.pointConstraint(source, target, offset=[0, 0, 0], weight=1)
-            pm.select(node)
-            pm.mel.eval("AttributeEditor -edit -open 1 -show 1 -showAll 1;")
-        except Exception as e:
-            print(f"An error occurred while applying the point constraint: {e}")
-
-    def b007(self):
-        """Constraint: Scale"""
-        selected_objects = pm.ls(selection=True)
-
-        if len(selected_objects) < 2:
-            self.sb.message_box(
-                "Please select two objects before applying a scale constraint."
-            )
-            return
-
-        source = selected_objects[0]
-        target = selected_objects[1]
-
-        try:
-            node = pm.scaleConstraint(source, target, offset=[1, 1, 1], weight=1)
-            pm.select(node)
-            pm.mel.eval("AttributeEditor -edit -open 1 -show 1 -showAll 1;")
-        except Exception as e:
-            print(f"An error occurred while applying the scale constraint: {e}")
-
-    def b008(self):
-        """Constraint: Orient"""
-        selected_objects = pm.ls(selection=True)
-
-        if len(selected_objects) < 2:
-            self.sb.message_box(
-                "Please select two objects before applying an orient constraint."
-            )
-            return
-
-        source = selected_objects[0]
-        target = selected_objects[1]
-
-        try:
-            node = pm.orientConstraint(source, target, offset=[0, 0, 0], weight=1)
-            pm.select(node)
-            pm.mel.eval("AttributeEditor -edit -open 1 -show 1 -showAll 1;")
-        except Exception as e:
-            print(f"An error occurred while applying the orient constraint: {e}")
-
-    def b009(self):
-        """Constraint: Aim"""
-        selected_objects = pm.ls(selection=True)
-
-        if len(selected_objects) < 2:
-            self.sb.message_box(
-                "Please select two objects before applying an aim constraint."
-            )
-            return
-
-        source = selected_objects[0]
-        target = selected_objects[1]
-
-        try:
-            node = pm.aimConstraint(
-                source,
-                target,
-                offset=[0, 0, 0],
-                weight=1,
-                aimVector=[1, 0, 0],
-                upVector=[0, 1, 0],
-                worldUpType="vector",
-                worldUpVector=[0, 1, 0],
-            )
-            pm.select(node)
-            pm.mel.eval("AttributeEditor -edit -open 1 -show 1 -showAll 1;")
-        except Exception as e:
-            print(f"An error occurred while applying the aim constraint: {e}")
-
-    def b010(self):
-        """Constraint: Pole Vector"""
-        selected_objects = pm.ls(selection=True)
-
-        if len(selected_objects) < 2:
-            self.sb.message_box(
-                "Please select two objects before applying a pole vector constraint."
-            )
-            return
-
-        source = selected_objects[0]
-        target = selected_objects[1]
-
-        try:
-            node = pm.poleVectorConstraint(source, target, offset=[0, 0, 0], weight=1)
-            pm.select(node)
-            pm.mel.eval("AttributeEditor -edit -open 1 -show 1 -showAll 1;")
-        except Exception as e:
-            print(f"An error occurred while applying the pole vector constraint: {e}")
 
 
 # --------------------------------------------------------------------------------------------

@@ -328,12 +328,12 @@ class MaterialsSlots(SlotsMaya):
         source_images_dir = mtk.get_env_info("sourceimages")
         ui.slots.source_dir = source_images_dir
 
-        ui.show()
+        self.sb.parent().show(ui)
 
     def b009(self, widget):
         """Create Stingray Shader"""
         ui = mtk.UiManager.instance(self.sb).get("stingray_arnold_shader")
-        ui.show()
+        self.sb.parent().show(ui)
 
     def b010(self):
         """Find and Move Textures"""
@@ -413,7 +413,7 @@ class MaterialsSlots(SlotsMaya):
         source_images_dir = mtk.get_env_info("sourceimages")
         ui.slots.source_dir = source_images_dir
 
-        ui.show()
+        self.sb.parent().show(ui)
 
     def b017(self):
         """Migrate Textures"""

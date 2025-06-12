@@ -86,7 +86,7 @@ class Duplicate(SlotsMaya):
     def b000(self):
         """Mirror"""
         ui = mtk.UiManager.instance(self.sb).get("mirror")
-        ui.show()
+        self.sb.parent().show(ui)
 
     def b004(self):
         """Select Instanced Objects"""
@@ -103,17 +103,17 @@ class Duplicate(SlotsMaya):
     def b006(self):
         """Duplicate Linear"""
         ui = mtk.UiManager.instance(self.sb).get("duplicate_linear")
-        ui.show()
+        self.sb.parent().show(ui)
 
     def b007(self):
         """Duplicate Radial"""
         ui = mtk.UiManager.instance(self.sb).get("duplicate_radial")
-        ui.show()
+        self.sb.parent().show(ui)
 
     def b008(self):
         """Duplicate Grid"""
         ui = mtk.UiManager.instance(self.sb).get("duplicate_grid")
-        ui.show()
+        self.sb.parent().show(ui)
 
 
 # --------------------------------------------------------------------------------------------

@@ -396,7 +396,7 @@ class Edit(SlotsMaya):
     def b000(self):
         """Cut On Axis"""
         ui = mtk.UiManager.instance(self.sb).get("cut_on_axis")
-        ui.show()
+        self.sb.parent().show(ui)
 
     def b001(self):
         """Object History Attributes: get most recent node"""

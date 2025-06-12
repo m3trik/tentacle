@@ -103,12 +103,12 @@ class DisplaySlots(SlotsMaya):
     def b013(self):
         """Explode View GUI"""
         ui = mtk.UiManager.instance(self.sb).get("exploded_view")
-        ui.show()
+        self.sb.parent().show(ui)
 
     def b014(self):
         """Color Manager GUI"""
         ui = mtk.UiManager.instance(self.sb).get("color_manager")
-        ui.show()
+        self.sb.parent().show(ui)
 
     def b021(self):
         """Template Selected"""
