@@ -72,7 +72,7 @@
      </size>
     </property>
     <property name="accessibleName">
-     <string>ncontraint</string>
+     <string>nconstraint</string>
     </property>
     <property name="text">
      <string>NConstraint</string>

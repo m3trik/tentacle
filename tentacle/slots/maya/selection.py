@@ -92,6 +92,9 @@ class Selection(SlotsMaya):
         remove = widget.menu.chk012.isChecked()
 
         objects = pm.selected() or pm.ls() if replace else pm.ls()
+        if not objects:
+            self.logger.error("No objects found for selection.")
+            return
         text = widget.items[index]
 
         if text == "IK Handles":

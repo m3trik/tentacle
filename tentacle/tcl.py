@@ -136,10 +136,7 @@ class Tcl(
             raise ValueError(f"Invalid datatype: {type(ui)}, expected QWidget.")
 
         if ui.has_tags(["startmenu", "submenu"]):  # StackedWidget
-            if ui.has_tags("submenu"):
-                ui.set_style(theme="dark", style_class="transparentBgNoBorder")
-            else:
-                ui.set_style(theme="dark", style_class="translucentBgNoBorder")
+            ui.set_style(theme="dark", style_class="translucentBgNoBorder")
             self.addWidget(ui)  # add the UI to the stackedLayout.
 
         else:  # MainWindow
@@ -215,7 +212,7 @@ class Tcl(
 
             try:
                 p1 = w.mapToGlobal(w.rect().center())
-                w2 = self.sb.get_widget(w.name, ui)
+                w2 = self.sb.get_widget(w.objectName(), ui)
                 w2.resize(w.size())
                 p2 = w2.mapToGlobal(w2.rect().center())
                 self.move(self.pos() + (p1 - p2))
@@ -380,7 +377,7 @@ class Tcl(
                 QtWidgets.QRadioButton,
             ):
                 self.sb.center_widget(w, padding_x=25)
-                if w.base_name == "i":
+                if w.base_name() == "i":
                     w.ui.set_style(widget=w)
 
             if w.type == self.sb.registered_widgets.Region:
@@ -391,7 +388,7 @@ class Tcl(
     def child_enterEvent(self, w, event) -> None:
         """Handle the enter event for child widgets."""
         if w.derived_type == QtWidgets.QPushButton:
-            if w.base_name == "i":
+            if w.base_name() == "i":
                 acc_name = w.accessibleName()
                 if not acc_name:
                     self.logger.debug(
@@ -399,12 +396,12 @@ class Tcl(
                     )
                     return
                 submenu_name = f"{acc_name}#submenu"
-                if submenu_name != w.ui.name:
+                if submenu_name != w.ui.objectName():
                     submenu = self.sb.get_ui(submenu_name)
                     if submenu:
                         self._set_submenu(submenu, w)
 
-        if w.base_name == "chk" and w.ui.has_tags("submenu") and self.isVisible():
+        if w.base_name() == "chk" and w.ui.has_tags("submenu") and self.isVisible():
             w.click()
 
         # Safe default: call original enterEvent
@@ -423,22 +420,22 @@ class Tcl(
         """ """
         if w.underMouse():
             if w.derived_type == QtWidgets.QPushButton:
-                if w.base_name == "i":
+                if w.base_name() == "i":
                     menu_name = w.accessibleName()
                     if not menu_name:
                         self.logger.debug(
                             f"child_mouseButtonReleaseEvent: Button '{w.objectName()}' with base_name 'i' has no accessibleName; skipping menu lookup."
                         )
                     else:
-                        new_menu_name = self.clean_tag_string(menu_name)
+                        new_menu_name = self.sb.clean_tag_string(menu_name)
                         menu = self.sb.get_ui(new_menu_name)
                         if menu:
-                            self.hide_unmatched_groupboxes(menu, menu_name)
+                            self.sb.hide_unmatched_groupboxes(menu, menu_name)
                             self.show(menu)
 
             if hasattr(w, "click"):
                 self.hide()
-                if w.ui.has_tags(["startmenu", "submenu"]) and w.base_name != "chk":
+                if w.ui.has_tags(["startmenu", "submenu"]) and w.base_name() != "chk":
                     w.click()
 
         w.mouseReleaseEvent(event)
@@ -452,77 +449,6 @@ class Tcl(
             pass
 
         w.mouseMoveEvent(event)
-
-    # ---------------------------------------------------------------------------------------------
-
-    @staticmethod
-    def get_unknown_tags(tag_string, known_tags=["submenu", "startmenu"]):
-        """Extracts all tags from a given string that are not known tags.
-
-        Parameters:
-            tag_string (str/list): The known tags in which to derive any unknown tags from.
-
-        Returns:
-            list: A list of unknown tags extracted from the tag_string.
-
-        Note:
-            Known tags are defined as 'submenu' and 'startmenu'. Any other tag found in the string
-            is considered unknown. Tags are expected to be prefixed by a '#' symbol.
-        """
-        import re
-
-        # Join known_tags into a pattern string
-        known_tags_list = ptk.make_iterable(known_tags)
-        known_tags_pattern = "|".join(known_tags_list)
-        unknown_tags = re.findall(f"#(?!{known_tags_pattern})[a-zA-Z0-9]*", tag_string)
-        # Remove leading '#' from all tags
-        unknown_tags = [tag[1:] for tag in unknown_tags if tag != "#"]
-        return unknown_tags
-
-    def clean_tag_string(self, tag_string):
-        """Cleans a given tag string by removing unknown tags.
-
-        Parameters:
-            tag_string (str): The string from which to remove unknown tags.
-
-        Returns:
-            str: The cleaned tag string with unknown tags removed.
-
-        Note:
-            This function utilizes the get_unknown_tags function to identify and subsequently
-            remove unknown tags from the provided string.
-        """
-        import re
-
-        unknown_tags = self.get_unknown_tags(tag_string)
-        # Remove unknown tags from the string
-        cleaned_tag_string = re.sub("#" + "|#".join(unknown_tags), "", tag_string)
-        return cleaned_tag_string
-
-    def hide_unmatched_groupboxes(self, ui, tag_string) -> None:
-        """Hides all QGroupBox widgets in the provided UI that do not match the unknown tags extracted
-        from the provided tag string.
-
-        Parameters:
-            ui (QObject): The UI object in which to hide unmatched QGroupBox widgets.
-            tag_string (str): The string from which to extract unknown tags for comparison.
-
-        Note:
-            This function uses the get_unknown_tags function to determine which QGroupBox widgets
-            to hide. If a QGroupBox widget's objectName does not match one of the unknown tags,
-            the widget will be hidden.
-        """
-        unknown_tags = self.get_unknown_tags(tag_string)
-
-        # Find all QGroupBox widgets in the UI
-        groupboxes = ui.findChildren(QtWidgets.QGroupBox)
-
-        # Hide all groupboxes that do not match the unknown tags
-        for groupbox in groupboxes:
-            if unknown_tags and groupbox.objectName() not in unknown_tags:
-                groupbox.hide()
-            else:
-                groupbox.show()
 
 
 # --------------------------------------------------------------------------------------------

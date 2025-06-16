@@ -100,7 +100,7 @@ class Animation(SlotsMaya):
             "QSpinBox",
             setPrefix="Time: ",
             setObjectName="s001",
-            set_limits=[0, 100000],
+            set_limits=[-100000, 100000],
             setValue=0,
             setToolTip="The desired start time for the inverted keys.",
         )

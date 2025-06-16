@@ -198,22 +198,16 @@ class Rigging(SlotsMaya):
         widget.menu.add(
             "QLineEdit",
             setPlaceholderText="Locator Suffix:",
-            setText="",
+            setText="_LOC",
             setObjectName="t000",
             setToolTip="A string appended to the end of the created locator's name.",
         )
         widget.menu.add(
             "QLineEdit",
             setPlaceholderText="Geometry Suffix:",
-            setText="",
+            setText="_GEO",
             setObjectName="t001",
             setToolTip="A string appended to the end of the existing geometry's name.",
-        )
-        widget.menu.add(
-            "QCheckBox",
-            setText="Strip Suffix",
-            setObjectName="chk016",
-            setToolTip="Strip any of preexisting suffixes from the group name before appending the new ones.\nA suffix is defined as anything trailing an underscore.\nAny user-defined suffixes are stripped by default.",
         )
         widget.menu.add(
             "QCheckBox",
@@ -226,14 +220,14 @@ class Rigging(SlotsMaya):
             "QCheckBox",
             setText="Lock Child Translate",
             setObjectName="chk007",
-            setChecked=True,
+            setChecked=False,
             setToolTip="Lock the translate values of the child object.",
         )
         widget.menu.add(
             "QCheckBox",
             setText="Lock Child Rotation",
             setObjectName="chk008",
-            setChecked=True,
+            setChecked=False,
             setToolTip="Lock the rotation values of the child object.",
         )
         widget.menu.add(
@@ -251,7 +245,6 @@ class Rigging(SlotsMaya):
         obj_suffix = widget.menu.t001.text()
         loc_scale = widget.menu.s001.value()
         strip_digits = widget.menu.chk005.isChecked()
-        strip_suffix = widget.menu.chk016.isChecked()
         lock_translate = widget.menu.chk007.isChecked()
         lock_rotation = widget.menu.chk008.isChecked()
         lock_scale = widget.menu.chk009.isChecked()
@@ -267,7 +260,6 @@ class Rigging(SlotsMaya):
             loc_suffix=loc_suffix,
             obj_suffix=obj_suffix,
             strip_digits=strip_digits,
-            strip_suffix=strip_suffix,
             lock_translate=lock_translate,
             lock_rotation=lock_rotation,
             lock_scale=lock_scale,
