@@ -24,7 +24,7 @@ class MaterialsSlots(SlotsMaya):
         """ """
         # Add a button to open the hypershade editor.
         widget.menu.add(
-            self.sb.registered_widgets.PushButton,
+            "QPushButton",
             setToolTip="Open the Hypershade Window.",
             setText="Hypershade Editor",
             setObjectName="b007",
@@ -32,62 +32,46 @@ class MaterialsSlots(SlotsMaya):
         widget.menu.b007.clicked.connect(pm.mel.HypershadeWindow)
         # Add a button to launch stringray arnold shader.
         widget.menu.add(
-            self.sb.registered_widgets.PushButton,
+            "QPushButton",
             setToolTip="Create a stingray material network that can optionally be rendered in Arnold.",
             setText="Create Stingray Shader",
             setObjectName="b009",
         )
+        # Add a button to launch the Texture Path Editor.
+        widget.menu.add(
+            "QPushButton",
+            setToolTip="Edit texture paths for materials in the scene.",
+            setText="Texture Path Editor",
+            setObjectName="b010",
+        )
         # Add a button to launch map converter.
         widget.menu.add(
-            self.sb.registered_widgets.PushButton,
-            setToolTip="Convert exisitng texture maps to another type.",
+            "QPushButton",
+            setToolTip="Convert existing texture maps to another type.",
             setText="Map Converter",
             setObjectName="b016",
         )
         widget.menu.add(
-            self.sb.registered_widgets.PushButton,
+            "QPushButton",
             setText="Map Packer",
             setObjectName="b008",
             setToolTip="Pack up to 4 input grayscale maps into specified RGBA channels.",
         )
+
         widget.menu.add(
-            self.sb.registered_widgets.PushButton,
-            setText="Set Texture Paths",
-            setObjectName="b011",
-            setToolTip="Set the texture file paths for selected objects.\nThe path will be relative if it is within the project's source images directory.",
-        )
-        widget.menu.add(
-            self.sb.registered_widgets.PushButton,
-            setText="Set Paths Relative",
-            setObjectName="b012",
-            setToolTip="Convert all texture paths to relative paths.",
-        )
-        widget.menu.add(
-            self.sb.registered_widgets.PushButton,
-            setText="Find Textures",
-            setObjectName="b010",
-            setToolTip="Find texture files for selected objects by searching recursively from the given source directory.\nAny textures found will be moved to the destination directory.\n\nNote: This will not work with Arnold texture nodes.",
-        )
-        widget.menu.add(
-            self.sb.registered_widgets.PushButton,
-            setText="Migate Textures",
-            setObjectName="b017",
-            setToolTip="Migrate file textures for selected objects to a new directory.\nFirst, select the objects with the textures you want to migrate and the directory to migrate from.\nThen, select the directory you want to migrate the textures to.",
-        )
-        widget.menu.add(
-            self.sb.registered_widgets.PushButton,
+            "QPushButton",
             setText="Reload Textures",
             setObjectName="b013",
             setToolTip="Reload file textures for all scene materials.",
         )
         widget.menu.add(
-            self.sb.registered_widgets.PushButton,
+            "QPushButton",
             setText="Remove Duplicate Materials",
             setObjectName="b014",
             setToolTip="Find duplicate materials, remove duplicates, and reassign them to the original material.",
         )
         widget.menu.add(
-            self.sb.registered_widgets.PushButton,
+            "QPushButton",
             setText="Delete All Unused Materials",
             setObjectName="b015",
             setToolTip="Delete all unused materials.",
@@ -205,8 +189,9 @@ class MaterialsSlots(SlotsMaya):
 
         # Define the deferred command to graph the material
         def graph_material():
-            pm.mel.eval(
-                'hyperShadePanelGraphCommand("hyperShadePanel1", "showUpAndDownstream")'
+            # graphMaterials, addSelected, showUpstream, showDownstream, showUpAndDownstream
+            pm.mel.hyperShadePanelGraphCommand(
+                "hyperShadePanel1", "showUpAndDownstream"
             )
 
         # Execute the graph command after the Hypershade window is fully initialized
@@ -335,50 +320,10 @@ class MaterialsSlots(SlotsMaya):
         ui = mtk.UiManager.instance(self.sb).get("stingray_arnold_shader")
         self.sb.parent().show(ui)
 
-    def b010(self):
-        """Find and Move Textures"""
-        start_dir = mtk.get_env_info("sourceimages")
-        source_dir = self.sb.dir_dialog(
-            title="Select a root directory to recursively search for textures:",
-            start_dir=start_dir,
-        )
-        if not source_dir:
-            return
-
-        selection = pm.ls(sl=True, flatten=True)
-        found_textures = mtk.find_texture_files(
-            objects=selection, source_dir=source_dir, recursive=True
-        )
-        if not found_textures:
-            pm.warning("No textures found.")
-            return
-
-        dest_dir = self.sb.dir_dialog(
-            title="Select destination directory for textures:",
-            start_dir=start_dir,
-        )
-        if not dest_dir:
-            return
-
-        mtk.move_texture_files(
-            found_files=found_textures, new_dir=dest_dir, delete_old=False
-        )
-
-    def b011(self):
-        """Set Texture Paths for Selected Objects."""
-        texture_dir = self.sb.dir_dialog(
-            title="Set Texture Paths for Selected Objects",
-            start_dir=mtk.get_env_info("sourceimages"),
-        )
-        if not texture_dir:
-            return
-        pm.displayInfo(f"Setting texture paths to: {texture_dir}")
-        materials = mtk.get_mats()
-        mtk.remap_texture_paths(materials, new_dir=texture_dir)
-
-    def b012(self):
-        """Convert to Relative Paths"""
-        mtk.remap_texture_paths()
+    def b010(self, widget):
+        """Texture Path Editor"""
+        ui = mtk.UiManager.instance(self.sb).get("texture_path_editor")
+        self.sb.parent().show(ui)
 
     def b013(self):
         """Reload Textures"""
@@ -414,29 +359,6 @@ class MaterialsSlots(SlotsMaya):
         ui.slots.source_dir = source_images_dir
 
         self.sb.parent().show(ui)
-
-    def b017(self):
-        """Migrate Textures"""
-        old_dir = self.sb.dir_dialog(
-            title="Select a directory to migrate textures from:",
-            start_dir=mtk.get_env_info("sourceimages"),
-        )
-        if not old_dir:
-            return
-        new_dir = self.sb.dir_dialog(
-            title="Select a directory to migrate textures to:",
-            start_dir=mtk.get_env_info("sourceimages"),
-        )
-        if not new_dir:
-            return
-
-        selection = pm.ls(sl=True, flatten=True)
-        materials = mtk.get_mats(selection)
-        if not materials:
-            self.sb.message_box("No materials found.\nSelect object(s) with materials.")
-            return
-
-        mtk.migrate_textures(materials=materials, old_dir=old_dir, new_dir=new_dir)
 
 
 # --------------------------------------------------------------------------------------------

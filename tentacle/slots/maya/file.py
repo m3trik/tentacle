@@ -182,7 +182,8 @@ class FileSlots(SlotsMaya):
     def cmb005_init(self, widget):
         """ """
         recent_files = mtk.get_recent_files(slice(0, 20))
-        widget.add(recent_files, header="Recent Files", clear=True)
+        truncated = ptk.truncate(recent_files, 165)
+        widget.add(zip(truncated, recent_files), header="Recent Files", clear=True)
 
     def cmb005(self, index: int, widget):
         """Recent Files"""
