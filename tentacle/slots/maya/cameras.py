@@ -19,10 +19,11 @@ class Cameras(SlotsMaya):
 
     def list000_init(self, widget):
         widget.clear()
-        widget.refresh = True
-        widget.fixed_item_height = 18
-        widget.sublist_x_offset = -10
-        widget.sublist_y_offset = -10
+        if not widget.is_initialized:
+            widget.refresh_on_show = True  # Call this method on show
+            widget.fixed_item_height = 18
+            widget.sublist_x_offset = -10
+            widget.sublist_y_offset = -10
 
         # Define camera types and their focal lengths
         camera_types = {

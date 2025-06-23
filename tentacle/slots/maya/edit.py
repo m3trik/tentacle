@@ -29,7 +29,9 @@ class Edit(SlotsMaya):
 
     def cmb001_init(self, widget) -> None:
         """Initializes the widget with object history items or a placeholder if no selection."""
-        widget.refresh = True
+        if not widget.is_initialized:
+            widget.refresh_on_show = True  # Call this method on show
+
         try:
             selection = pm.ls(sl=True, objectsOnly=True)
             obj_hist = pm.listHistory(selection, pruneDagObjects=True)

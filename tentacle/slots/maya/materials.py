@@ -79,8 +79,8 @@ class MaterialsSlots(SlotsMaya):
 
     def cmb002_init(self, widget):
         """ """
-        widget.refresh = True
         if not widget.is_initialized:
+            widget.refresh_on_show = True  # Call this method on show
             widget.editable = True
             widget.menu.mode = "context"
             widget.menu.setTitle("Material Options")
@@ -257,8 +257,8 @@ class MaterialsSlots(SlotsMaya):
 
     def b005_init(self, widget):
         """ """
-        widget.refresh = True
         if not widget.is_initialized:
+            widget.refresh_on_show = True  # Call this method on show
             self.ui.cmb002.init_slot()
             self.ui.cmb002.is_initialized = True
 

@@ -15,7 +15,8 @@ class Main(SlotsMaya):
     # def list000_init(self, widget):
     #     """ """
     #     widget.clear()
-    #     widget.refresh = True
+    #     if not widget.is_initialized:
+    #       widget.refresh_on_show = True  # Call this method on show
     #     widget.fixed_item_height = 18
     #     widget.sublist_x_offset = -10
     #     widget.sublist_y_offset = -10

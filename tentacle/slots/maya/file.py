@@ -47,8 +47,8 @@ class FileSlots(SlotsMaya):
 
     def cmb000_init(self, widget):
         """ """
-        widget.refresh = True
         if not widget.is_initialized:
+            widget.refresh_on_show = True  # Call this method on show
             pm.scriptJob(event=["workspaceChanged", self.ui.cmb000.init_slot])
 
         include = self.ui.txt000.text() or None
@@ -192,8 +192,8 @@ class FileSlots(SlotsMaya):
 
     def cmb006_init(self, widget):
         """ """
-        widget.refresh = True
         if not widget.is_initialized:
+            widget.refresh_on_show = True  # Call this method on show
             widget.menu.add(
                 self.sb.registered_widgets.Label,
                 setObjectName="lbl000",
