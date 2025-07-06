@@ -241,7 +241,7 @@
             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Create locators with the same transforms as any selected object(s).&lt;/p&gt;&lt;p&gt;If there are vertices selected it will create a locator at the center of the selected vertices combined bounding box.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
            </property>
            <property name="text">
-            <string>Create Locator</string>
+            <string>Rig Object with Locator</string>
            </property>
            <property name="checkable">
             <bool>false</bool>
@@ -266,7 +266,7 @@
             <string>Remove locators from the selected object(s).</string>
            </property>
            <property name="text">
-            <string>Remove Locator</string>
+            <string>Remove Locator from Obj</string>
            </property>
            <property name="checkable">
             <bool>false</bool>

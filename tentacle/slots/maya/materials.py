@@ -306,7 +306,7 @@ class MaterialsSlots(SlotsMaya):
         ui = self.sb.get_ui("map_packer")
         ui.set_attributes(WA_TranslucentBackground=True)
         ui.set_flags(FramelessWindowHint=True)
-        ui.set_style(theme="dark", style_class="translucentBgWithBorder")
+        ui.style.set(theme="dark", style_class="translucentBgWithBorder")
         ui.header.config_buttons(menu_button=True, hide_button=True)
 
         # Set the starting directory for the map converter
@@ -351,7 +351,7 @@ class MaterialsSlots(SlotsMaya):
         ui = self.sb.get_ui("map_converter")
         ui.set_attributes(WA_TranslucentBackground=True)
         ui.set_flags(FramelessWindowHint=True)
-        ui.set_style(theme="dark", style_class="translucentBgWithBorder")
+        ui.style.set(theme="dark", style_class="translucentBgWithBorder")
         ui.header.config_buttons(menu_button=True, hide_button=True)
 
         # Set the starting directory for the map converter

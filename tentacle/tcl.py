@@ -136,14 +136,14 @@ class Tcl(
             raise ValueError(f"Invalid datatype: {type(ui)}, expected QWidget.")
 
         if ui.has_tags(["startmenu", "submenu"]):  # StackedWidget
-            ui.set_style(theme="dark", style_class="translucentBgNoBorder")
+            ui.style.set(theme="dark", style_class="translucentBgNoBorder")
             self.addWidget(ui)  # add the UI to the stackedLayout.
 
         else:  # MainWindow
             ui.setParent(self)
             ui.setWindowFlags(QtCore.Qt.Window | QtCore.Qt.FramelessWindowHint)
             ui.setAttribute(QtCore.Qt.WA_TranslucentBackground)
-            ui.set_style(theme="dark", style_class="translucentBgWithBorder")
+            ui.style.set(theme="dark", style_class="translucentBgWithBorder")
             try:
                 ui.header.config_buttons(menu_button=True, pin_button=True)
             except AttributeError:
@@ -378,7 +378,7 @@ class Tcl(
             ):
                 self.sb.center_widget(w, padding_x=25)
                 if w.base_name() == "i":
-                    w.ui.set_style(widget=w)
+                    w.ui.style.set(widget=w)
 
             if w.type == self.sb.registered_widgets.Region:
                 w.visible_on_mouse_over = True

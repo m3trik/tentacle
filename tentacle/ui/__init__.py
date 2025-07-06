@@ -4,8 +4,8 @@ import inspect
 import pythontk as ptk
 
 
-module = inspect.getmodule(inspect.currentframe())  # this module.
-path = ptk.get_object_path(module)  # this modules directory.
+# module = inspect.getmodule(inspect.currentframe())  # this module.
+# path = ptk.get_object_path(module)  # this modules directory.
 
 # --------------------------------------------------------------------------------------------
 

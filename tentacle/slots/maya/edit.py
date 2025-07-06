@@ -15,9 +15,6 @@ class Edit(SlotsMaya):
         self.ui = self.sb.loaded_ui.edit
         self.submenu = self.sb.loaded_ui.edit_submenu
 
-        # Refresh the combo box on every view show
-        self.ui.cmb001.before_popup_shown.connect(self.ui.cmb001.init_slot)
-
     def header_init(self, widget):
         """ """
         widget.menu.add(
@@ -26,43 +23,6 @@ class Edit(SlotsMaya):
             setObjectName="b000",
             setToolTip="Cut selected objects on axis.",
         )
-
-    def cmb001_init(self, widget) -> None:
-        """Initializes the widget with object history items or a placeholder if no selection."""
-        if not widget.is_initialized:
-            widget.refresh_on_show = True  # Call this method on show
-
-        try:
-            selection = pm.ls(sl=True, objectsOnly=True)
-            obj_hist = pm.listHistory(selection, pruneDagObjects=True)
-            items = {str(o): o for o in obj_hist}
-        except RuntimeError:
-            items = ["No selection."]
-        widget.add(items, header="History", clear=True)
-
-    def cmb001(self, index: int, widget) -> None:
-        """Object History Attributes"""
-        try:
-            item = widget.items[index]
-        except IndexError:
-            self.sb.message_box("Index out of range. Please select a valid item.")
-            return
-
-        if item != "No selection.":
-            node = widget.itemData(index)
-            if node:
-                window = self.sb.registered_widgets.AttributeWindow(
-                    node,
-                    window_title=node.name(),
-                    get_attribute_func=lambda: mtk.get_node_attributes(
-                        node, visible=True, keyable=True
-                    ),
-                    set_attribute_func=lambda n, v: getattr(node, n).set(v),
-                )
-                window.set_style(theme="dark")
-                window.show()
-        else:
-            self.sb.message_box("Found no items to list the history for.")
 
     def tb000_init(self, widget):
         """ """
@@ -399,12 +359,6 @@ class Edit(SlotsMaya):
         """Cut On Axis"""
         ui = mtk.UiManager.instance(self.sb).get("cut_on_axis")
         self.sb.parent().show(ui)
-
-    def b001(self):
-        """Object History Attributes: get most recent node"""
-        cmb = self.ui.cmb001
-        index = cmb.items.index(cmb.items[-1])
-        cmb.call_slot(index)
 
     def b021(self):
         """Tranfer Maps"""

@@ -21,24 +21,25 @@ class FileSlots(SlotsMaya):
 
     def header_init(self, widget):
         """ """
-        widget.menu.add(
-            self.sb.registered_widgets.PushButton,
-            setToolTip="Export scene assets with environment checks and presets.",
-            setText="Scene Exporter",
-            setObjectName="b002",
-        )
-        widget.menu.add(
-            self.sb.registered_widgets.PushButton,
-            setText="Quick Export Scene Geo",
-            setObjectName="b003",
-            setToolTip="Export the scene geometry as FBX to the current maya file's directory.\nThe file name will be the same as the current scene and overwrite the current file if it exists.",
-        )
-        widget.menu.add(
-            "QPushButton",
-            setText="Reference Manager",
-            setObjectName="b001",
-            setToolTip="Open the reference manager.",
-        )
+        if not widget.is_initialized:
+            widget.menu.add(
+                self.sb.registered_widgets.PushButton,
+                setToolTip="Export scene assets with environment checks and presets.",
+                setText="Scene Exporter",
+                setObjectName="b002",
+            )
+            widget.menu.add(
+                self.sb.registered_widgets.PushButton,
+                setText="Quick Export Scene Geo",
+                setObjectName="b003",
+                setToolTip="Export the scene geometry as FBX to the current maya file's directory.\nThe file name will be the same as the current scene and overwrite the current file if it exists.",
+            )
+            widget.menu.add(
+                "QPushButton",
+                setText="Reference Manager",
+                setObjectName="b001",
+                setToolTip="Open the reference manager.",
+            )
 
     @Signals("textChanged", "returnPressed")
     def txt000(self, widget):
