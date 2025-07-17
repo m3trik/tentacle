@@ -269,13 +269,13 @@ class FileSlots(SlotsMaya):
 
     def b000(self):
         """Autosave: Open Directory"""
-        # dir1 = str(pm.workspace(q=True, rd=1))+'autosave' #current project path.
-        # get autosave dir path from env variable.
-        dir2 = os.environ.get("MAYA_AUTOSAVE_FOLDER").split(";")[0]
+        autosave_dir = os.environ.get("MAYA_AUTOSAVE_FOLDER", "")
+        if not autosave_dir:
+            return
+        dirs = autosave_dir.split(";")[0]
 
         try:
-            # os.startfile(self.format_path(dir1))
-            os.startfile(ptk.format_path(dir2))
+            os.startfile(ptk.format_path(dirs))
 
         except FileNotFoundError:
             self.sb.message_box("The system cannot find the file specified.")

@@ -184,8 +184,8 @@ class MaterialsSlots(SlotsMaya):
             self.sb.message_box("No stored material or no valid object selected.")
             return
 
-        # Open the Hypershade window
-        pm.mel.HypershadeWindow()
+        # # Open the Hypershade window
+        print(1, pm.mel.HypershadeWindow())
 
         # Define the deferred command to graph the material
         def graph_material():
@@ -195,7 +195,7 @@ class MaterialsSlots(SlotsMaya):
             )
 
         # Execute the graph command after the Hypershade window is fully initialized
-        pm.evalDeferred(graph_material)
+        self.sb.defer_with_timer(graph_material, ms=500)
 
     def b002(self, widget):
         """Get Material: Change the index to match the current material selection."""
