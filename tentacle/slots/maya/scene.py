@@ -10,7 +10,7 @@ from uitk import Signals
 from tentacle.slots.maya import SlotsMaya
 
 
-class Scene(SlotsMaya):
+class SceneSlots(SlotsMaya):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 

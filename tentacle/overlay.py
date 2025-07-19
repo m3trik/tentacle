@@ -176,7 +176,6 @@ class Overlay(QtWidgets.QWidget):
         self.draw_enabled = False
         self.clear_painting = False
 
-        self.setWindowFlags(QtCore.Qt.WindowStaysOnTopHint)
         self.setAttribute(QtCore.Qt.WA_NoSystemBackground)
         self.setAttribute(QtCore.Qt.WA_TransparentForMouseEvents)
         self.setFocusPolicy(QtCore.Qt.NoFocus)

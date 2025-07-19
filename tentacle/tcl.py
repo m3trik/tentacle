@@ -77,11 +77,7 @@ class Tcl(
         self._mouse_press_pos = QtCore.QPoint(0, 0)
         self._windows_to_restore = set()
 
-        self.setWindowFlags(
-            QtCore.Qt.Window
-            | QtCore.Qt.FramelessWindowHint
-            | QtCore.Qt.WindowStaysOnTopHint
-        )
+        self.setWindowFlags(QtCore.Qt.Window | QtCore.Qt.FramelessWindowHint)
         self.setAttribute(QtCore.Qt.WA_TranslucentBackground)
         self.setAttribute(QtCore.Qt.WA_NoMousePropagation, False)
         self.setFocusPolicy(QtCore.Qt.StrongFocus)
