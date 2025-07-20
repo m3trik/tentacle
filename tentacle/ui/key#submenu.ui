@@ -31,12 +31,6 @@
     <height>600</height>
    </size>
   </property>
-  <property name="cursor">
-   <cursorShape>ArrowCursor</cursorShape>
-  </property>
-  <property name="whatsThis">
-   <string>main</string>
-  </property>
   <property name="toolButtonStyle">
    <enum>Qt::ToolButtonIconOnly</enum>
   </property>
@@ -56,10 +50,10 @@
      <verstretch>0</verstretch>
     </sizepolicy>
    </property>
-   <widget class="QPushButton" name="i024">
+   <widget class="QPushButton" name="i006">
     <property name="geometry">
      <rect>
-      <x>265</x>
+      <x>260</x>
       <y>290</y>
       <width>66</width>
       <height>21</height>
@@ -73,22 +67,50 @@
     </property>
     <property name="maximumSize">
      <size>
-      <width>16777215</width>
+      <width>66</width>
       <height>21</height>
      </size>
     </property>
-    <property name="whatsThis">
-     <string>vfx</string>
+    <property name="accessibleName">
+     <string>key</string>
     </property>
     <property name="text">
-     <string>Vfx</string>
+     <string>Key</string>
     </property>
    </widget>
-   <widget class="QPushButton" name="i027">
+   <widget class="QPushButton" name="i028">
     <property name="geometry">
      <rect>
-      <x>175</x>
+      <x>155</x>
       <y>290</y>
+      <width>76</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="minimumSize">
+     <size>
+      <width>0</width>
+      <height>21</height>
+     </size>
+    </property>
+    <property name="maximumSize">
+     <size>
+      <width>999</width>
+      <height>21</height>
+     </size>
+    </property>
+    <property name="accessibleName">
+     <string>skeleton</string>
+    </property>
+    <property name="text">
+     <string>Skeleton</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="i024">
+    <property name="geometry">
+     <rect>
+      <x>180</x>
+      <y>330</y>
       <width>66</width>
       <height>21</height>
      </rect>
@@ -105,11 +127,95 @@
       <height>21</height>
      </size>
     </property>
-    <property name="whatsThis">
+    <property name="accessibleName">
      <string>effects</string>
     </property>
     <property name="text">
      <string>Effects</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="i032">
+    <property name="geometry">
+     <rect>
+      <x>265</x>
+      <y>330</y>
+      <width>66</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="minimumSize">
+     <size>
+      <width>0</width>
+      <height>21</height>
+     </size>
+    </property>
+    <property name="maximumSize">
+     <size>
+      <width>999</width>
+      <height>21</height>
+     </size>
+    </property>
+    <property name="accessibleName">
+     <string>playback</string>
+    </property>
+    <property name="text">
+     <string>Playback</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="i030">
+    <property name="geometry">
+     <rect>
+      <x>250</x>
+      <y>240</y>
+      <width>66</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="minimumSize">
+     <size>
+      <width>0</width>
+      <height>21</height>
+     </size>
+    </property>
+    <property name="maximumSize">
+     <size>
+      <width>999</width>
+      <height>21</height>
+     </size>
+    </property>
+    <property name="accessibleName">
+     <string>visualize</string>
+    </property>
+    <property name="text">
+     <string>Visualize</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="i031">
+    <property name="geometry">
+     <rect>
+      <x>155</x>
+      <y>250</y>
+      <width>66</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="minimumSize">
+     <size>
+      <width>0</width>
+      <height>21</height>
+     </size>
+    </property>
+    <property name="maximumSize">
+     <size>
+      <width>999</width>
+      <height>21</height>
+     </size>
+    </property>
+    <property name="accessibleName">
+     <string>mash</string>
+    </property>
+    <property name="text">
+     <string>Mash</string>
     </property>
    </widget>
   </widget>

@@ -12,6 +12,33 @@ class Duplicate(SlotsMaya):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
+    def header_init(self, widget):
+        """ """
+        widget.menu.add(
+            "QPushButton",
+            setText="Mirror",
+            setObjectName="b000",
+            setToolTip="Open the mirror window.",
+        )
+        widget.menu.add(
+            "QPushButton",
+            setText="Duplicate Linear",
+            setObjectName="b006",
+            setToolTip="Open the duplicate linear window.",
+        )
+        widget.menu.add(
+            "QPushButton",
+            setText="Duplicate Radial",
+            setObjectName="b007",
+            setToolTip="Open the duplicate radial window.",
+        )
+        widget.menu.add(
+            "QPushButton",
+            setText="Duplicate Grid",
+            setObjectName="b008",
+            setToolTip="Open the duplicate grid window.",
+        )
+
     def tb000_init(self, widget):
         widget.menu.add(
             "QCheckBox",
@@ -49,7 +76,7 @@ class Duplicate(SlotsMaya):
             )
             return
 
-        mtk.convert_to_instances(
+        mtk.instance(
             selection,
             freeze_transforms=freeze_transforms,
             center_pivot=center_pivot,

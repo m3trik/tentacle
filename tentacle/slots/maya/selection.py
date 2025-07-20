@@ -61,6 +61,7 @@ class Selection(SlotsMaya):
             "Geometry (Polygon)",
             "Geometry (Hidden)",
             "Geometry (Templated)",
+            "Geometry (Single Instance)",
             "Geometry (Un-Selectable)",
             "IK Handles",
             "Image Planes",
@@ -91,6 +92,9 @@ class Selection(SlotsMaya):
         remove = widget.menu.chk012.isChecked()
 
         objects = pm.selected() or pm.ls() if replace else pm.ls()
+        if not objects:
+            self.logger.error("No objects found for selection.")
+            return
         text = widget.items[index]
 
         if text == "IK Handles":
@@ -155,40 +159,44 @@ class Selection(SlotsMaya):
         elif text == "nRigids":
             objs = pm.listTransforms(objects, type="nRigid")
         elif text == "Geometry (Hidden)":  # Select hidden geometry
-            all_geometry = pm.ls(objects, geometry=True)
+            geometry = pm.ls(objects, geometry=True)
             objs = set(
                 [
                     geo.getParent()
-                    for geo in all_geometry
+                    for geo in geometry
                     if not geo.getParent().visibility.get()
                 ]
             )
         elif text == "Geometry (Templated)":  # Select templated geometry
-            all_geometry = pm.ls(objects, geometry=True)
+            geometry = pm.ls(objects, geometry=True)
             objs = set(
                 [
                     geo.getParent()
-                    for geo in all_geometry
+                    for geo in geometry
                     if hasattr(geo.getParent(), "template")
                     and geo.getParent().template.get()
                 ]
             )
         elif text == "Geometry (Un-Selectable)":  # Select unselectable geometry
-            all_geometry = pm.ls(geometry=True)
+            geometry = pm.ls(geometry=True)
             objs = set(
                 [
                     geo.getParent()
-                    for geo in all_geometry
+                    for geo in geometry
                     if geo.getParent().overrideEnabled.get()
                     and geo.getParent().overrideDisplayType.get() == 2
                 ]
             )
+        elif text == "Geometry (Single Instance)":
+            geometry = pm.ls(objects, geometry=True)
+            objs = mtk.filter_duplicate_instances(geometry)
+
         elif text == "Animated Objects":  # Select objects with animation keys
-            all_objects = pm.ls(type="transform")  # List all transform nodes
+            transforms = pm.ls(objects, type="transform")  # List all transform nodes
             objs = set(
                 [
                     obj
-                    for obj in all_objects
+                    for obj in transforms
                     if pm.keyframe(obj, query=True, keyframeCount=True) > 0
                 ]
             )

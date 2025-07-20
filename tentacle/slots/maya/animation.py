@@ -37,6 +37,53 @@ class Animation(SlotsMaya):
             setChecked=True,
             setToolTip="Move relative to the current position.",
         )
+        widget.menu.add(
+            self.sb.registered_widgets.Label,
+            setText="Set To Current Frame",
+            setObjectName="lbl020",
+            setToolTip="Set frame to the current time.",
+        )
+        widget.menu.lbl020.clicked.connect(
+            lambda: widget.menu.s000.setValue(pm.currentTime(q=True))
+        )
+        widget.menu.add(
+            "QCheckBox",
+            setText="Toggle Single frame",
+            setObjectName="chk010",
+            setChecked=False,
+            setToolTip="Toggle single frame mode.",
+        )
+        widget._previous_frame_value = 1
+
+        def toggle_single_frame(state):
+            spinbox = widget.menu.s000
+            if state:
+                widget._previous_frame_value = spinbox.value() or 1
+                spinbox.setValue(-1 if widget._previous_frame_value > 0 else 1)
+            else:
+                spinbox.setValue(widget._previous_frame_value)
+
+        widget.menu.chk010.toggled.connect(toggle_single_frame)
+        widget.menu.add(
+            "QCheckBox",
+            setText="Invert",
+            setObjectName="chk011",
+            setChecked=False,
+            setToolTip="Toggle inverted mode.",
+        )
+
+        def toggle_inverted(state):
+            spinbox = widget.menu.s000
+            spinbox.setValue(-spinbox.value())
+
+        widget.menu.chk011.toggled.connect(toggle_inverted)
+
+        def update_invert_checkbox(value):
+            block = widget.menu.chk011.blockSignals(True)
+            widget.menu.chk011.setChecked(value < 0)
+            widget.menu.chk011.blockSignals(block)
+
+        widget.menu.s000.valueChanged.connect(update_invert_checkbox)
 
     def tb000(self, widget):
         """Move To Frame"""
@@ -44,7 +91,7 @@ class Animation(SlotsMaya):
         update = widget.menu.chk001.isChecked()
         relative = widget.menu.chk000.isChecked()
 
-        mtk.setCurrentFrame(time=time, update=update, relative=relative)
+        mtk.set_current_frame(time=time, update=update, relative=relative)
 
     def tb001_init(self, widget):
         """ """
@@ -53,7 +100,7 @@ class Animation(SlotsMaya):
             "QSpinBox",
             setPrefix="Time: ",
             setObjectName="s001",
-            set_limits=[0, 100000],
+            set_limits=[-100000, 100000],
             setValue=0,
             setToolTip="The desired start time for the inverted keys.",
         )
@@ -198,6 +245,46 @@ class Animation(SlotsMaya):
         mtk.transfer_keyframes(
             selected_objects, relative=relative, transfer_tangents=tangents
         )
+
+    def tb005_init(self, widget):
+        """ """
+        widget.menu.setTitle("Set Key")
+        widget.menu.add(
+            "QSpinBox",
+            setPrefix="Start Time: ",
+            setObjectName="s005",
+            set_limits=[0, 100000],
+            setValue=0,
+            setToolTip="The time at which to start adding keys.",
+        )
+        widget.menu.add(
+            "QSpinBox",
+            setPrefix="End Time: ",
+            setObjectName="s006",
+            set_limits=[0, 100000],
+            setValue=100,
+            setToolTip="The time at which to end adding keys.",
+        )
+        widget.menu.add(
+            "QSpinBox",
+            setPrefix="Percent: ",
+            setObjectName="s007",
+            set_limits=[0, 100],
+            setValue=5,
+            setToolTip="The percentage of the key to add.",
+        )
+
+    def tb005(self, widget):
+        """Add Intermediate Keys"""
+        start_time = widget.menu.s005.value()
+        end_time = widget.menu.s006.value()
+        percent = widget.menu.s007.value()
+
+        objects = pm.selected(flatten=True)
+        if not objects:
+            self.sb.message_box("You must select at least one object.")
+            return
+        mtk.add_intermediate_keys(objects, start_time, end_time, percent)
 
     def b000(self):
         """Delete Keys"""

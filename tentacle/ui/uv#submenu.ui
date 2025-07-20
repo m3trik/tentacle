@@ -77,7 +77,7 @@
       <height>21</height>
      </size>
     </property>
-    <property name="whatsThis">
+    <property name="accessibleName">
      <string>uv</string>
     </property>
     <property name="text">

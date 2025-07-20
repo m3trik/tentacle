@@ -12,7 +12,7 @@ from uitk import Signals
 from tentacle.slots.maya import SlotsMaya
 
 
-class File(SlotsMaya):
+class FileSlots(SlotsMaya):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
@@ -21,15 +21,25 @@ class File(SlotsMaya):
 
     def header_init(self, widget):
         """ """
-        # Add a button to launch map converter.
-        widget.menu.add(
-            self.sb.registered_widgets.PushButton,
-            setToolTip="Export scene assets with environment checks and presets.",
-            setText="Scene Exporter",
-            setObjectName="b002",
-        )
-        ui = mtk.UiManager.instance(self.sb).get("scene_exporter")
-        widget.menu.b002.clicked.connect(lambda: self.sb.parent().show(ui))
+        if not widget.is_initialized:
+            widget.menu.add(
+                self.sb.registered_widgets.PushButton,
+                setToolTip="Export scene assets with environment checks and presets.",
+                setText="Scene Exporter",
+                setObjectName="b002",
+            )
+            widget.menu.add(
+                self.sb.registered_widgets.PushButton,
+                setText="Quick Export Scene Geo",
+                setObjectName="b003",
+                setToolTip="Export the scene geometry as FBX to the current maya file's directory.\nThe file name will be the same as the current scene and overwrite the current file if it exists.",
+            )
+            widget.menu.add(
+                "QPushButton",
+                setText="Reference Manager",
+                setObjectName="b001",
+                setToolTip="Open the reference manager.",
+            )
 
     @Signals("textChanged", "returnPressed")
     def txt000(self, widget):
@@ -38,8 +48,8 @@ class File(SlotsMaya):
 
     def cmb000_init(self, widget):
         """ """
-        widget.refresh = True
         if not widget.is_initialized:
+            widget.refresh_on_show = True  # Call this method on show
             pm.scriptJob(event=["workspaceChanged", self.ui.cmb000.init_slot])
 
         include = self.ui.txt000.text() or None
@@ -113,10 +123,8 @@ class File(SlotsMaya):
             header="Import",
         )
 
-    @SlotsMaya.hide_main
     def cmb003(self, index, widget):
         """Import"""
-        self.sb.parent().hide(force=1)
         text = widget.items[index]
         if text == "Import File":  # Import
             pm.mel.Import()
@@ -144,7 +152,6 @@ class File(SlotsMaya):
         ]
         widget.add(items, header="Export")
 
-    @SlotsMaya.hide_main
     def cmb004(self, index, widget):
         """Export"""
         text = widget.items[index]
@@ -176,7 +183,8 @@ class File(SlotsMaya):
     def cmb005_init(self, widget):
         """ """
         recent_files = mtk.get_recent_files(slice(0, 20))
-        widget.add(recent_files, header="Recent Files", clear=True)
+        truncated = ptk.truncate(recent_files, 165)
+        widget.add(zip(truncated, recent_files), header="Recent Files", clear=True)
 
     def cmb005(self, index: int, widget):
         """Recent Files"""
@@ -185,8 +193,8 @@ class File(SlotsMaya):
 
     def cmb006_init(self, widget):
         """ """
-        widget.refresh = True
         if not widget.is_initialized:
+            widget.refresh_on_show = True  # Call this method on show
             widget.menu.add(
                 self.sb.registered_widgets.Label,
                 setObjectName="lbl000",
@@ -261,13 +269,13 @@ class File(SlotsMaya):
 
     def b000(self):
         """Autosave: Open Directory"""
-        # dir1 = str(pm.workspace(q=True, rd=1))+'autosave' #current project path.
-        # get autosave dir path from env variable.
-        dir2 = os.environ.get("MAYA_AUTOSAVE_FOLDER").split(";")[0]
+        autosave_dir = os.environ.get("MAYA_AUTOSAVE_FOLDER", "")
+        if not autosave_dir:
+            return
+        dirs = autosave_dir.split(";")[0]
 
         try:
-            # os.startfile(self.format_path(dir1))
-            os.startfile(ptk.format_path(dir2))
+            os.startfile(ptk.format_path(dirs))
 
         except FileNotFoundError:
             self.sb.message_box("The system cannot find the file specified.")
@@ -277,16 +285,19 @@ class File(SlotsMaya):
         ui = mtk.UiManager.instance(self.sb).get("reference_manager")
         self.sb.parent().show(ui)
 
+    def b002(self):
+        """Scene Exporter"""
+        ui = mtk.UiManager.instance(self.sb).get("scene_exporter")
+        self.sb.parent().show(ui)
+
     def b003(self):
-        """Export Scene Geometry"""
+        """Quick Export Scene Geo"""
         mtk.export_scene_as_fbx()
 
-    @SlotsMaya.hide_main
     def b007(self):
         """Import file"""
         self.ui.cmb003.call_slot(0)
 
-    @SlotsMaya.hide_main
     def b008(self):
         """Export Selection"""
         self.ui.cmb004.call_slot(0)

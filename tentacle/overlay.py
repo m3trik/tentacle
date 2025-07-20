@@ -1,54 +1,38 @@
 # !/usr/bin/python
 # coding=utf-8
 import sys
-from qtpy import QtCore, QtGui, QtWidgets
+from typing import Callable, Any
+from qtpy import QtWidgets, QtGui, QtCore
 
 
 class OverlayFactoryFilter(QtCore.QObject):
-    """This class provides an event filter to relay events from the parent widget to the overlay."""
+    def __init__(self, overlay: QtWidgets.QWidget):
+        super().__init__(overlay)
+        self.overlay = overlay
 
     def eventFilter(self, widget, event):
-        """Relay events from the parent widget to the overlay.
-        Captures various event types and forwards them to the respective methods.
-
-        Parameters:
-            widget (QWidget): The parent widget that the event filter is applied to.
-            event (QEvent): The event that needs to be processed.
-
-        Returns:
-            bool: False if the widget is not a QWidget, True otherwise.
-        """
         if not widget.isWidgetType():
             return False
 
         etype = event.type()
 
         if etype == QtCore.QEvent.MouseButtonPress:
-            self.mousePressEvent(event)
+            self.overlay.mousePressEvent(event)
 
         elif etype == QtCore.QEvent.MouseButtonRelease:
-            self.mouseReleaseEvent(event)
+            self.overlay.mouseReleaseEvent(event)
 
         elif etype == QtCore.QEvent.MouseMove:
-            self.mouseMoveEvent(event)
-
-        # elif etype == QtCore.QEvent.MouseButtonDblClick:
-        #     self.mouseDoubleClickEvent(event)
-
-        # elif etype == QtCore.QEvent.KeyPress:
-        #     self.keyPressEvent(event)
-
-        # elif etype == QtCore.QEvent.KeyRelease:
-        #     self.keyReleaseEvent(event)
+            self.overlay.mouseMoveEvent(event)
 
         elif etype == QtCore.QEvent.Resize:
-            if widget == self.parentWidget():
-                self.resize(widget.size())
+            if widget == self.overlay.parentWidget():
+                self.overlay.resize(widget.size())
 
         elif etype == QtCore.QEvent.Show:
-            self.raise_()
+            self.overlay.raise_()
 
-        return super().eventFilter(widget, event)
+        return False
 
 
 class Path:
@@ -142,14 +126,11 @@ class Path:
         self._path = self._path[:1]
 
     def add(self, ui, widget):
-        """Adds a widget and its position to the path. Also removes any references
-        to the provided ui object from the path.
-
-        Parameters:
-            ui: The ui object to remove from the path.
-            widget: The widget to add to the path.
-        """
+        """Adds a widget and its global position to the path."""
+        if widget is None or not widget.isVisible():
+            return
         w_pos = widget.mapToGlobal(widget.rect().center())
+
         self._path.append((widget, w_pos, QtGui.QCursor.pos()))
         self.remove(ui)
 
@@ -175,7 +156,7 @@ class Path:
             self._path = self._path[:]
 
 
-class Overlay(QtWidgets.QWidget, OverlayFactoryFilter):
+class Overlay(QtWidgets.QWidget):
     """Handles paint events as an overlay on top of an existing widget.
     Inherits from OverlayFactoryFilter to relay events from the parent widget to the overlay.
     Maintains a list of draw paths to track the user's interactions.
@@ -195,7 +176,6 @@ class Overlay(QtWidgets.QWidget, OverlayFactoryFilter):
         self.draw_enabled = False
         self.clear_painting = False
 
-        self.setWindowFlags(QtCore.Qt.WindowStaysOnTopHint)
         self.setAttribute(QtCore.Qt.WA_NoSystemBackground)
         self.setAttribute(QtCore.Qt.WA_TransparentForMouseEvents)
         self.setFocusPolicy(QtCore.Qt.NoFocus)
@@ -220,8 +200,9 @@ class Overlay(QtWidgets.QWidget, OverlayFactoryFilter):
         self.painter = QtGui.QPainter()
         self.path = Path()
 
+        self._event_filter = OverlayFactoryFilter(self)
         if parent:
-            parent.installEventFilter(self)
+            parent.installEventFilter(self._event_filter)
 
     def draw_tangent(self, start_point, end_point, ellipseSize=7):
         """Draws a tangent line between two points with an ellipse at the start point.
@@ -304,27 +285,50 @@ class Overlay(QtWidgets.QWidget, OverlayFactoryFilter):
 
         return new_widgets
 
-    def _clone_widget(self, ui, prev_widget, position):
-        """Clone a widget and place it on the given position in the UI.
-
-        Parameters:
-            ui (QMainWindow): The UI to place the cloned widget.
-            prev_widget (QWidget): The widget to clone.
-            position (QPoint): The position to place the cloned widget.
-        """
+    def _clone_widget(
+        self,
+        ui: QtWidgets.QMainWindow,
+        prev_widget: QtWidgets.QWidget,
+        position: QtCore.QPoint,
+    ) -> QtWidgets.QWidget:
+        """Clone a widget and place it at the given position in the UI."""
         new_widget = type(prev_widget)(ui)
 
-        try:
-            new_widget.setObjectName(prev_widget.objectName())
-            new_widget.resize(prev_widget.size())
-            new_widget.setWhatsThis(prev_widget.whatsThis())
-            new_widget.setText(prev_widget.text())
-            new_widget.move(  # set the position of the new widget in the new UI.
-                new_widget.mapFromGlobal(position - new_widget.rect().center())
-            )
-            new_widget.setVisible(True)
-        except AttributeError:
-            pass
+        safe_attrs: dict[str, Callable[[QtWidgets.QWidget], Any]] = {
+            "objectName": lambda w: w.objectName(),
+            "accessibleName": lambda w: w.accessibleName(),
+            "toolTip": lambda w: w.toolTip(),
+            "statusTip": lambda w: w.statusTip(),
+            "whatsThis": lambda w: w.whatsThis(),
+            "font": lambda w: w.font(),
+            "styleSheet": lambda w: w.styleSheet(),
+            "enabled": lambda w: w.isEnabled(),
+            "visible": lambda w: w.isVisible(),
+            "size": lambda w: w.size(),
+            "minimumSize": lambda w: w.minimumSize(),
+            "maximumSize": lambda w: w.maximumSize(),
+            "layoutDirection": lambda w: w.layoutDirection(),
+            "contextMenuPolicy": lambda w: w.contextMenuPolicy(),
+            "cursor": lambda w: w.cursor(),
+            "windowTitle": lambda w: w.windowTitle(),
+            "windowIcon": lambda w: w.windowIcon(),
+        }
+
+        if hasattr(prev_widget, "text") and callable(prev_widget.text):
+            safe_attrs["text"] = lambda w: w.text()
+
+        for attr, getter in safe_attrs.items():
+            setter_name = f"set{attr[0].upper()}{attr[1:]}"
+            if hasattr(new_widget, setter_name):
+                setter = getattr(new_widget, setter_name)
+                try:
+                    setter(getter(prev_widget))
+                except Exception:
+                    continue
+
+        new_pos = new_widget.mapFromGlobal(position - new_widget.rect().center())
+        new_widget.move(new_pos)
+        new_widget.setVisible(True)
 
         return new_widget
 

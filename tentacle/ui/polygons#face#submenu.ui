@@ -145,7 +145,7 @@
       <height>21</height>
      </size>
     </property>
-    <property name="whatsThis">
+    <property name="accessibleName">
      <string>polygons#face</string>
     </property>
     <property name="text">

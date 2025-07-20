@@ -31,12 +31,6 @@
     <height>600</height>
    </size>
   </property>
-  <property name="cursor">
-   <cursorShape>ArrowCursor</cursorShape>
-  </property>
-  <property name="whatsThis">
-   <string>main</string>
-  </property>
   <property name="toolButtonStyle">
    <enum>Qt::ToolButtonIconOnly</enum>
   </property>
@@ -77,10 +71,10 @@
       <height>21</height>
      </size>
     </property>
-    <property name="toolTip">
-     <string/>
+    <property name="cursor">
+     <cursorShape>UpArrowCursor</cursorShape>
     </property>
-    <property name="whatsThis">
+    <property name="accessibleName">
      <string>file</string>
     </property>
     <property name="text">
@@ -108,7 +102,7 @@
       <height>21</height>
      </size>
     </property>
-    <property name="whatsThis">
+    <property name="accessibleName">
      <string>display</string>
     </property>
     <property name="text">
@@ -136,7 +130,7 @@
       <height>21</height>
      </size>
     </property>
-    <property name="whatsThis">
+    <property name="accessibleName">
      <string>scene</string>
     </property>
     <property name="text">
@@ -164,10 +158,7 @@
       <height>21</height>
      </size>
     </property>
-    <property name="toolTip">
-     <string>Preferences</string>
-    </property>
-    <property name="whatsThis">
+    <property name="accessibleName">
      <string>preferences</string>
     </property>
     <property name="text">
@@ -198,7 +189,7 @@
     <property name="cursor">
      <cursorShape>IBeamCursor</cursorShape>
     </property>
-    <property name="whatsThis">
+    <property name="accessibleName">
      <string>utilities</string>
     </property>
     <property name="text">

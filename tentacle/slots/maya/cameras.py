@@ -12,15 +12,18 @@ from tentacle.slots.maya import SlotsMaya
 class Cameras(SlotsMaya):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-
-        self.sb.parent().left_mouse_double_click.connect(self.toggle_camera_view)
+        try:
+            self.sb.parent().left_mouse_double_click.connect(self.toggle_camera_view)
+        except AttributeError:
+            pass
 
     def list000_init(self, widget):
         widget.clear()
-        widget.refresh = True
-        widget.fixed_item_height = 18
-        widget.sublist_x_offset = -10
-        widget.sublist_y_offset = -10
+        if not widget.is_initialized:
+            widget.refresh_on_show = True  # Call this method on show
+            widget.fixed_item_height = 18
+            widget.sublist_x_offset = -10
+            widget.sublist_y_offset = -10
 
         # Define camera types and their focal lengths
         camera_types = {

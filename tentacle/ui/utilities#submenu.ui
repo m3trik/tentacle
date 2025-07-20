@@ -80,7 +80,7 @@
     <property name="cursor">
      <cursorShape>IBeamCursor</cursorShape>
     </property>
-    <property name="whatsThis">
+    <property name="accessibleName">
      <string>utilities</string>
     </property>
     <property name="text">

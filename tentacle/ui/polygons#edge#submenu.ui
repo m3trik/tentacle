@@ -34,9 +34,6 @@
   <property name="cursor">
    <cursorShape>ArrowCursor</cursorShape>
   </property>
-  <property name="whatsThis">
-   <string>main</string>
-  </property>
   <property name="toolButtonStyle">
    <enum>Qt::ToolButtonIconOnly</enum>
   </property>
@@ -145,7 +142,7 @@
       <height>21</height>
      </size>
     </property>
-    <property name="whatsThis">
+    <property name="accessibleName">
      <string>polygons#edge</string>
     </property>
     <property name="text">
@@ -173,7 +170,7 @@
       <height>21</height>
      </size>
     </property>
-    <property name="whatsThis">
+    <property name="accessibleName">
      <string>crease</string>
     </property>
     <property name="text">

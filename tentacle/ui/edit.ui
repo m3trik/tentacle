@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>200</width>
-    <height>306</height>
+    <height>267</height>
    </rect>
   </property>
   <property name="tabShape">
@@ -576,45 +576,6 @@
            </property>
           </widget>
          </item>
-         <item>
-          <widget class="ComboBox" name="cmb001">
-           <property name="minimumSize">
-            <size>
-             <width>0</width>
-             <height>20</height>
-            </size>
-           </property>
-           <property name="maximumSize">
-            <size>
-             <width>16777215</width>
-             <height>20</height>
-            </size>
-           </property>
-           <property name="toolTip">
-            <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;History nodes for the currently selected object(s).&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-           </property>
-           <property name="editable">
-            <bool>false</bool>
-           </property>
-           <property name="maxVisibleItems">
-            <number>40</number>
-           </property>
-           <property name="maxCount">
-            <number>200</number>
-           </property>
-           <property name="sizeAdjustPolicy">
-            <enum>QComboBox::AdjustToContentsOnFirstShow</enum>
-           </property>
-           <property name="frame">
-            <bool>true</bool>
-           </property>
-           <item>
-            <property name="text">
-             <string>History</string>
-            </property>
-           </item>
-          </widget>
-         </item>
         </layout>
        </widget>
       </item>
@@ -641,11 +602,6 @@
    <class>Header</class>
    <extends>QLabel</extends>
    <header>uitk.widgets.header.Header.h</header>
-  </customwidget>
-  <customwidget>
-   <class>ComboBox</class>
-   <extends>QComboBox</extends>
-   <header>uitk.widgets.comboBox.ComboBox.h</header>
   </customwidget>
   <customwidget>
    <class>PushButton</class>

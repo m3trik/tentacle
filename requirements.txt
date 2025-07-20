@@ -1,8 +1,5 @@
-numpy
-Pillow
 qtpy
-shiboken2
 pymel
-pythontk==0.7.23
-uitk==1.0.25
-mayatk==0.9.28
+pythontk==0.7.24
+uitk==1.0.26
+mayatk==0.9.29

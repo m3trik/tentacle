@@ -1,6 +1,5 @@
 # !/usr/bin/python
 # coding=utf-8
-import sys
 from qtpy import QtCore, QtWidgets
 import pythontk as ptk
 from uitk.switchboard import Switchboard
@@ -23,12 +22,8 @@ class Tcl(
         slot_source (str): The directory path where the slot classes are located or a class object.
                 If the given dir is a string and not a full path, it will be treated as relative to the default path.
                 If a module is given, the path to that module will be used.
-        prevent_hide (bool): While True, the hide method is disabled.
         log_level (int): Determines the level of logging messages. Defaults to logging.WARNING. Accepts standard Python logging module levels: DEBUG, INFO, WARNING, ERROR, CRITICAL.
     """
-
-    # return the existing QApplication object, or create a new one if none exists.
-    app = QtWidgets.QApplication.instance() or QtWidgets.QApplication(sys.argv)
 
     left_mouse_double_click = QtCore.Signal()
     left_mouse_double_click_ctrl = QtCore.Signal()
@@ -38,8 +33,9 @@ class Tcl(
     key_show_press = QtCore.Signal()
     key_show_release = QtCore.Signal()
 
-    _first_show = True
-    _instances = {}
+    _first_show: bool = True
+    _in_transition: bool = False
+    _instances: dict = {}
 
     def __init__(
         self,
@@ -48,7 +44,6 @@ class Tcl(
         ui_source="ui",
         slot_source="slots",
         widget_source=None,
-        prevent_hide=False,
         log_level: str = "WARNING",
     ):
         """ """
@@ -61,50 +56,71 @@ class Tcl(
             slot_source=slot_source,
             widget_source=widget_source,
         )
+
         self.child_event_filter = EventFactoryFilter(
-            self,
-            event_name_prefix="child_",
+            parent=self,
             forward_events_to=self,
+            event_name_prefix="child_",
+            event_types={
+                "Enter",
+                "MouseMove",
+                "MouseButtonPress",
+                "MouseButtonRelease",
+            },
         )
+
         self.overlay = Overlay(self, antialiasing=True)
         self.mouse_tracking = MouseTracking(self)
 
         self.key_show = self.sb.convert.to_qkey(key_show)
         self.key_close = QtCore.Qt.Key_Escape
-        self.prevent_hide = prevent_hide
         self._mouse_press_pos = QtCore.QPoint(0, 0)
+        self._windows_to_restore = set()
 
-        # self.app.setDoubleClickInterval(400)
-        # self.app.setKeyboardInputInterval(400)
-
-        self.setWindowFlags(
-            QtCore.Qt.Tool
-            | QtCore.Qt.FramelessWindowHint
-            | QtCore.Qt.WindowStaysOnTopHint
-        )
+        self.setWindowFlags(QtCore.Qt.Window | QtCore.Qt.FramelessWindowHint)
         self.setAttribute(QtCore.Qt.WA_TranslucentBackground)
         self.setAttribute(QtCore.Qt.WA_NoMousePropagation, False)
         self.setFocusPolicy(QtCore.Qt.StrongFocus)
-        self.resize(800, 800)
+        self.resize(600, 600)
 
-        self.app.installEventFilter(self)
+        self.sb.app.installEventFilter(self)
+        self.sb.app.focusChanged.connect(self._on_focus_changed)
 
     def eventFilter(self, watched, event):
+        """Filter key press/release for show/hide."""
         etype = event.type()
 
-        if etype == QtCore.QEvent.KeyPress:
+        if etype == QtCore.QEvent.Type.KeyPress:
             if event.key() == self.key_show and not event.isAutoRepeat():
                 self.key_show_press.emit()
                 self.show()
+                QtCore.QTimer.singleShot(0, self.hide_other_windows)
                 return True
 
-        elif etype == QtCore.QEvent.KeyRelease:
+        elif etype == QtCore.QEvent.Type.KeyRelease:
             if event.key() == self.key_show and not event.isAutoRepeat():
                 self.key_show_release.emit()
                 self.hide()
+                QtCore.QTimer.singleShot(0, self.show_other_windows)
                 return True
 
         return super().eventFilter(watched, event)
+
+    def _on_focus_changed(self, old, new):
+        """Handle focus changes between widgets.
+        Parameters:
+            old (QWidget): The previous widget that had focus.
+            new (QWidget): The new widget that has focus.
+        """
+        # If Tcl is visible, showing a stacked UI, and focus moved outside of Tcl
+        if (
+            self.isVisible()
+            and self.sb.current_ui.has_tags(["startmenu", "submenu"])
+            and new is not None
+            and not self.isAncestorOf(new)
+        ):
+            self.logger.debug(f"Tcl focus changed to: {new}. Hiding Tcl.")
+            self.hide()
 
     def _init_ui(self, ui) -> None:
         """Initialize the given UI.
@@ -116,17 +132,14 @@ class Tcl(
             raise ValueError(f"Invalid datatype: {type(ui)}, expected QWidget.")
 
         if ui.has_tags(["startmenu", "submenu"]):  # StackedWidget
-            if ui.has_tags("submenu"):
-                ui.set_style(theme="dark", style_class="transparentBgNoBorder")
-            else:
-                ui.set_style(theme="dark", style_class="translucentBgNoBorder")
+            ui.style.set(theme="dark", style_class="translucentBgNoBorder")
             self.addWidget(ui)  # add the UI to the stackedLayout.
 
         else:  # MainWindow
-            ui.setParent(self.parent())
-            ui.setWindowFlags(QtCore.Qt.Tool | QtCore.Qt.FramelessWindowHint)
+            ui.setParent(self)
+            ui.setWindowFlags(QtCore.Qt.Window | QtCore.Qt.FramelessWindowHint)
             ui.setAttribute(QtCore.Qt.WA_TranslucentBackground)
-            ui.set_style(theme="dark", style_class="translucentBgWithBorder")
+            ui.style.set(theme="dark", style_class="translucentBgWithBorder")
             try:
                 ui.header.config_buttons(menu_button=True, pin_button=True)
             except AttributeError:
@@ -135,7 +148,7 @@ class Tcl(
 
         # set style before child init (resize).
         self.add_child_event_filter(ui.widgets)
-        ui.on_child_added.connect(lambda w: self.add_child_event_filter(w))
+        ui.on_child_registered.connect(lambda w: self.add_child_event_filter(w))
 
     def _prepare_ui(self, ui) -> QtWidgets.QWidget:
         """Initialize and set the UI without showing it."""
@@ -152,7 +165,7 @@ class Tcl(
                 self.move(self.sb.get_cursor_offset_from_center(self))
             self.setCurrentWidget(found_ui)
         else:
-            self.hide(force=True)
+            self.hide()
 
         self.sb.current_ui = found_ui
         return found_ui
@@ -174,43 +187,49 @@ class Tcl(
             current.resize(widget_before_adjust, current.sizeHint().height())
             current.updateGeometry()
             self.sb.center_widget(current, "cursor", offset_y=25)
+            self.show_other_windows()
 
-        self.raise_()
-        self.activateWindow()
-        self.setFocus()
+        current.setFocus()
+        current.raise_()
 
     def _set_submenu(self, ui, w) -> None:
-        """Set the stacked widget's index to the submenu associated with the given widget.
-        Positions the new UI to align with the previous UI's widget that triggered the transition.
-
-        Parameters:
-            ui (QWidget): The UI submenu to set as current.
-            w (QWidget): The widget under the cursor that triggered this submenu.
-        """
-        if not isinstance(ui, QtWidgets.QWidget):
-            raise ValueError(f"Invalid datatype for ui: {type(ui)}, expected QWidget.")
-
-        self.overlay.path.add(ui, w)
-
-        if not ui.is_initialized:
-            self._init_ui(ui)
-
-        self._prepare_ui(ui)
-
+        """Set the submenu for the given UI and widget."""
+        if self._in_transition:
+            self.logger.debug(
+                f"_set_submenu: Transition in progress, skipping for {ui}"
+            )
+            return
+        self._in_transition = True
         try:
-            p1 = w.mapToGlobal(w.rect().center())
-            w2 = self.sb.get_widget(w.name, ui)
-            p2 = w2.mapToGlobal(w2.rect().center())
-            self.move(self.pos() + (p1 - p2))
-        except Exception as e:
-            self.logger.warning(f"Submenu positioning failed: {e}")
+            self.overlay.path.add(ui, w)
+            if not ui.is_initialized:
+                self._init_ui(ui)
+            self._prepare_ui(ui)
 
-        self._show_ui()
+            try:
+                p1 = w.mapToGlobal(w.rect().center())
+                w2 = self.sb.get_widget(w.objectName(), ui)
+                w2.resize(w.size())
+                p2 = w2.mapToGlobal(w2.rect().center())
+                self.move(self.pos() + (p1 - p2))
+            except Exception as e:
+                self.logger.warning(f"Submenu positioning failed: {e}")
 
-        if ui not in self.sb.ui_history(slice(0, -1), allow_duplicates=True):
-            self.overlay.clone_widgets_along_path(ui, self._return_to_startmenu)
+            self._show_ui()
+
+            if ui not in self.sb.ui_history(slice(0, -1), allow_duplicates=True):
+                self.overlay.clone_widgets_along_path(ui, self._return_to_startmenu)
+
+        finally:
+            # Small delay can help smooth rapid UI transitions (optional)
+            QtCore.QTimer.singleShot(50, self._clear_transition_flag)
+
+    def _clear_transition_flag(self):
+        """Clear the transition flag to allow new transitions."""
+        self._in_transition = False
 
     def _return_to_startmenu(self) -> None:
+        """Return to the start menu by moving the overlay path back to the start position."""
         start_pos = self.overlay.path.start_pos
         if not isinstance(start_pos, QtCore.QPoint):
             self.logger.warning("_return_to_startmenu called with no valid start_pos.")
@@ -263,14 +282,19 @@ class Tcl(
         """ """
         current_ui = self.sb.current_ui
         if current_ui and current_ui.has_tags(["startmenu", "submenu"]):
-            self.show("init#startmenu", force=True)
+            if self.isActiveWindow():
+                self.show(force=True)
 
         super().mouseReleaseEvent(event)
 
-    def show(self, ui="init#startmenu", force=False) -> None:
-        """Sets the widget as visible and shows the specified UI."""
-        self._prepare_ui(ui)
+    def show(self, ui="hud#startmenu", force=False) -> None:
+        """Show the Tcl UI with the specified name.
 
+        Parameters:
+            ui (str/QWidget): The name of the UI to show or a QWidget instance.
+            force (bool): If True, forces the UI to show even if it is already visible.
+        """
+        ui = self._prepare_ui(ui)
         if not force and (QtWidgets.QApplication.mouseButtons() or self.isVisible()):
             return
 
@@ -280,24 +304,39 @@ class Tcl(
 
         self._show_ui()
 
-    def hide(self, force=False) -> None:
-        """Sets the widget as invisible.
-        Prevents hide event under certain circumstances.
-
-        Parameters:
-            force (bool): override prevent_hide.
-        """
-        if force or not self.prevent_hide:
-            super().hide()
-
     def hideEvent(self, event):
+        """ """
         if QtWidgets.QWidget.keyboardGrabber() is self:
             self.releaseKeyboard()
-
         if self.mouseGrabber():
             self.mouseGrabber().releaseMouse()
 
         super().hideEvent(event)
+
+    def hide_other_windows(self) -> None:
+        """Hide all visible windows except the current one."""
+        if not self.isVisible():
+            return
+
+        for win in self.sb.visible_windows:
+            if win is not self and not win.has_tags(["startmenu", "submenu"]):
+                self._windows_to_restore.add(win)
+                win.header.hide_window()
+
+        if self._windows_to_restore:
+            self.logger.debug(f"Hiding other windows: {self._windows_to_restore}")
+
+    def show_other_windows(self) -> None:
+        """Show all previously hidden windows."""
+        if not self._windows_to_restore:
+            return
+
+        for win in self._windows_to_restore:
+            if win.isVisible():
+                continue
+            win.header.unhide_window()
+        self._windows_to_restore.clear()
+        self.logger.debug("Restored previously hidden windows.")
 
     # ---------------------------------------------------------------------------------------------
 
@@ -319,12 +358,13 @@ class Tcl(
         ]
 
         for w in ptk.make_iterable(widgets):
-            if (w.derived_type not in filtered_types) or (  # not correct derived type:
-                not w.ui.has_tags(["startmenu", "submenu"])  # not stacked UI:
-            ):
+            try:  # If not correct type, skip it.
+                if (w.derived_type not in filtered_types) or (
+                    not w.ui.has_tags(["startmenu", "submenu"])
+                ):
+                    continue
+            except AttributeError:  # Or not initialized yet.
                 continue
-
-            w.installEventFilter(self.child_event_filter)
 
             if w.derived_type in (
                 QtWidgets.QPushButton,
@@ -333,35 +373,68 @@ class Tcl(
                 QtWidgets.QRadioButton,
             ):
                 self.sb.center_widget(w, padding_x=25)
-                if w.base_name == "i":
-                    w.ui.set_style(widget=w)
+                if w.base_name() == "i":
+                    w.ui.style.set(widget=w)
 
             if w.type == self.sb.registered_widgets.Region:
                 w.visible_on_mouse_over = True
 
+            self.child_event_filter.install(w)
+
     def child_enterEvent(self, w, event) -> None:
-        """ """
+        """Handle the enter event for child widgets."""
         if w.derived_type == QtWidgets.QPushButton:
-            if w.base_name == "i":  # set the stacked widget.
-                submenu_name = f"{w.whatsThis()}#submenu"
-                if submenu_name != w.ui.name:
+            if w.base_name() == "i":
+                acc_name = w.accessibleName()
+                if not acc_name:
+                    self.logger.debug(
+                        f"child_enterEvent: Button '{w.objectName()}' with base_name 'i' has no accessibleName; skipping submenu lookup."
+                    )
+                    return
+                submenu_name = f"{acc_name}#submenu"
+                if submenu_name != w.ui.objectName():
                     submenu = self.sb.get_ui(submenu_name)
                     if submenu:
                         self._set_submenu(submenu, w)
 
-        if w.base_name == "chk":
-            if w.ui.has_tags("submenu"):
-                if self.isVisible():  # Omit children of popup menus.
-                    w.click()  # send click signal on enterEvent.
+        if w.base_name() == "chk" and w.ui.has_tags("submenu") and self.isVisible():
+            w.click()
 
-        w.enterEvent(event)
+        # Safe default: call original enterEvent
+        if hasattr(w, "enterEvent"):
+            super_event = getattr(super(type(w), w), "enterEvent", None)
+            if callable(super_event):
+                super_event(event)
 
-    def child_mousePressEvent(self, w, event) -> None:
+    def child_mouseButtonPressEvent(self, w, event) -> None:
         """ """
-        self._mouse_press_pos = event.globalPos()  # mouse positon at press
-        self.__mouseMovePos = event.globalPos()  # mouse move position from last press
-
+        self._mouse_press_pos = event.globalPos()
+        self.__mouseMovePos = event.globalPos()
         w.mousePressEvent(event)
+
+    def child_mouseButtonReleaseEvent(self, w, event) -> bool:
+        """ """
+        if w.underMouse():
+            if w.derived_type == QtWidgets.QPushButton:
+                if w.base_name() == "i":
+                    menu_name = w.accessibleName()
+                    if not menu_name:
+                        self.logger.debug(
+                            f"child_mouseButtonReleaseEvent: Button '{w.objectName()}' with base_name 'i' has no accessibleName; skipping menu lookup."
+                        )
+                    else:
+                        new_menu_name = self.sb.clean_tag_string(menu_name)
+                        menu = self.sb.get_ui(new_menu_name)
+                        if menu:
+                            self.sb.hide_unmatched_groupboxes(menu, menu_name)
+                            self.show(menu)
+
+            if hasattr(w, "click"):
+                self.hide()
+                if w.ui.has_tags(["startmenu", "submenu"]) and w.base_name() != "chk":
+                    w.click()
+
+        w.mouseReleaseEvent(event)
 
     def child_mouseMoveEvent(self, w, event) -> None:
         """ """
@@ -372,96 +445,6 @@ class Tcl(
             pass
 
         w.mouseMoveEvent(event)
-
-    def child_mouseReleaseEvent(self, w, event) -> None:
-        """ """
-        if w.underMouse():  # if mouse over widget
-            if w.derived_type == QtWidgets.QPushButton:
-                if w.base_name == "i":  # ie. 'i012'
-                    menu_name = w.whatsThis()
-                    new_menu_name = self.clean_tag_string(menu_name)
-                    menu = self.sb.get_ui(new_menu_name)
-                    if menu:
-                        self.hide_unmatched_groupboxes(menu, menu_name)
-                        self.show(menu)
-            if hasattr(w, "click"):
-                self.hide()
-                if w.ui.has_tags(["startmenu", "submenu"]):
-                    if not w.base_name == "chk":
-                        w.click()  # send click signal on mouseRelease.
-
-        w.mouseReleaseEvent(event)
-
-    # ---------------------------------------------------------------------------------------------
-
-    @staticmethod
-    def get_unknown_tags(tag_string, known_tags=["submenu", "startmenu"]):
-        """Extracts all tags from a given string that are not known tags.
-
-        Parameters:
-            tag_string (str/list): The known tags in which to derive any unknown tags from.
-
-        Returns:
-            list: A list of unknown tags extracted from the tag_string.
-
-        Note:
-            Known tags are defined as 'submenu' and 'startmenu'. Any other tag found in the string
-            is considered unknown. Tags are expected to be prefixed by a '#' symbol.
-        """
-        import re
-
-        # Join known_tags into a pattern string
-        known_tags_list = ptk.make_iterable(known_tags)
-        known_tags_pattern = "|".join(known_tags_list)
-        unknown_tags = re.findall(f"#(?!{known_tags_pattern})[a-zA-Z0-9]*", tag_string)
-        # Remove leading '#' from all tags
-        unknown_tags = [tag[1:] for tag in unknown_tags if tag != "#"]
-        return unknown_tags
-
-    def clean_tag_string(self, tag_string):
-        """Cleans a given tag string by removing unknown tags.
-
-        Parameters:
-            tag_string (str): The string from which to remove unknown tags.
-
-        Returns:
-            str: The cleaned tag string with unknown tags removed.
-
-        Note:
-            This function utilizes the get_unknown_tags function to identify and subsequently
-            remove unknown tags from the provided string.
-        """
-        import re
-
-        unknown_tags = self.get_unknown_tags(tag_string)
-        # Remove unknown tags from the string
-        cleaned_tag_string = re.sub("#" + "|#".join(unknown_tags), "", tag_string)
-        return cleaned_tag_string
-
-    def hide_unmatched_groupboxes(self, ui, tag_string) -> None:
-        """Hides all QGroupBox widgets in the provided UI that do not match the unknown tags extracted
-        from the provided tag string.
-
-        Parameters:
-            ui (QObject): The UI object in which to hide unmatched QGroupBox widgets.
-            tag_string (str): The string from which to extract unknown tags for comparison.
-
-        Note:
-            This function uses the get_unknown_tags function to determine which QGroupBox widgets
-            to hide. If a QGroupBox widget's objectName does not match one of the unknown tags,
-            the widget will be hidden.
-        """
-        unknown_tags = self.get_unknown_tags(tag_string)
-
-        # Find all QGroupBox widgets in the UI
-        groupboxes = ui.findChildren(QtWidgets.QGroupBox)
-
-        # Hide all groupboxes that do not match the unknown tags
-        for groupbox in groupboxes:
-            if unknown_tags and groupbox.objectName() not in unknown_tags:
-                groupbox.hide()
-            else:
-                groupbox.show()
 
 
 # --------------------------------------------------------------------------------------------

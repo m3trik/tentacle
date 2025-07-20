@@ -9,12 +9,27 @@ import mayatk as mtk
 from tentacle.slots.maya import SlotsMaya
 
 
-class Polygons(SlotsMaya):
+class PolygonsSlots(SlotsMaya):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
         self.ui = self.sb.loaded_ui.polygons
         self.submenu = self.sb.loaded_ui.polygons_submenu
+
+    def header_init(self, widget):
+        """ """
+        widget.menu.add(
+            "QPushButton",
+            setText="Bridge",
+            setObjectName="b007",
+            setToolTip="Open the bridge window.",
+        )
+        widget.menu.add(
+            "QPushButton",
+            setText="Bevel",
+            setObjectName="b011",
+            setToolTip="Open the bevel window.",
+        )
 
     def chk008(self, state, widget):
         """Divide Facet: Split U"""
@@ -115,10 +130,20 @@ class Polygons(SlotsMaya):
             pm.polyExtrudeVertex(edit=1, width=0.5, length=1, divisions=divisions)
             pm.mel.PolyExtrude()  # return polyExtrudeVertex(selection, ch=1, width=0.5, length=1, divisions=divisions)
 
+    def tb004_init(self, widget):
+        """ """
+        widget.menu.add(
+            "QCheckBox",
+            setText="Allow Multiple Materials",
+            setObjectName="chk003",
+            setChecked=True,
+            setToolTip="Allow multiple materials.",
+        )
+
     def tb004(self, widget):
-        """Bevel"""
-        ui = mtk.UiManager.instance(self.sb).get("bevel")
-        self.sb.parent().show(ui)
+        """Combine Selected Meshes."""
+        amm = widget.menu.chk003.isChecked()
+        mtk.Macros.m_combine(allow_multiple_mats=amm)
 
     def tb005_init(self, widget):
         """ """
@@ -401,13 +426,6 @@ class Polygons(SlotsMaya):
         """Symmetrize"""
         pm.mel.Symmetrize()
 
-    def b004(self):
-        """Slice"""
-        cuttingDirection = "Y"  # valid values: 'x','y','z' A value of 'x' will cut the object along the YZ plane cutting through the center of the bounding box. 'y':ZX. 'z':XY.
-
-        component_sel = pm.ls(sl=1)
-        return pm.polyCut(component_sel, cuttingDirection=cuttingDirection, ch=1)
-
     def b005(self):
         """Merge Vertices: Set Distance"""
         verts = pm.ls(sl=1, flatten=1)
@@ -467,13 +485,14 @@ class Polygons(SlotsMaya):
             if was_edge_selected:
                 pm.selectType(edge=True)
 
+    def b011(self):
+        """Bevel"""
+        ui = mtk.UiManager.instance(self.sb).get("bevel")
+        self.sb.parent().show(ui)
+
     def b012(self):
         """Multi-Cut Tool"""
         pm.mel.dR_multiCutTool()
-
-    def b013(self):
-        """Combine Selected Meshes."""
-        mtk.Macros.m_combine()
 
     def b022(self):
         """Attach"""

@@ -10,7 +10,7 @@
     <x>0</x>
     <y>0</y>
     <width>200</width>
-    <height>190</height>
+    <height>210</height>
    </rect>
   </property>
   <property name="tabShape">
@@ -138,9 +138,6 @@
          </property>
          <item>
           <widget class="LineEdit" name="txt001">
-           <property name="enabled">
-            <bool>true</bool>
-           </property>
            <property name="minimumSize">
             <size>
              <width>0</width>
@@ -241,6 +238,37 @@
            </property>
            <property name="text">
             <string>Strip Chars</string>
+           </property>
+           <property name="iconSize">
+            <size>
+             <width>18</width>
+             <height>18</height>
+            </size>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="PushButton" name="tb003">
+           <property name="enabled">
+            <bool>true</bool>
+           </property>
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>20</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>16777215</width>
+             <height>20</height>
+            </size>
+           </property>
+           <property name="toolTip">
+            <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Rename objects with a suffix defined by its type.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+           </property>
+           <property name="text">
+            <string>Suffix By Type</string>
            </property>
            <property name="iconSize">
             <size>

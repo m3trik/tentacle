@@ -80,7 +80,7 @@
     <property name="toolTip">
      <string>Preferences</string>
     </property>
-    <property name="whatsThis">
+    <property name="accessibleName">
      <string>preferences</string>
     </property>
     <property name="text">

@@ -414,14 +414,14 @@
       <height>21</height>
      </size>
     </property>
-    <property name="whatsThis">
+    <property name="accessibleName">
      <string>polygons#component</string>
     </property>
     <property name="text">
      <string>Component</string>
     </property>
    </widget>
-   <widget class="PushButton" name="tb004">
+   <widget class="QPushButton" name="b011">
     <property name="enabled">
      <bool>true</bool>
     </property>
