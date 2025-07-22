@@ -7,7 +7,7 @@ Tentacle is a Python3/qtpy marking menu implemented using Qt's QStackedWidget. I
 
 ## Design
 
-Tentacle runs on top of [uitk](https://github.com/m3trik/uitk.git), a qtpy dynamic UI loader and management package, which allows for the creation of fully-featured UI with less time and code.
+Tentacle runs on top of [uitk](https://github.com/m3trik/uitk.git), a qtpy dynamic UI loader, which allows for the creation of fully-featured UI with less time and code.
 
 ## Example
 
