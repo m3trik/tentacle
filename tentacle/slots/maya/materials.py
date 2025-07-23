@@ -79,6 +79,7 @@ class MaterialsSlots(SlotsMaya):
 
     def cmb002_init(self, widget):
         """ """
+        print("cmb002_init", widget)
         if not widget.is_initialized:
             widget.refresh_on_show = True  # Call this method on show
             widget.editable = True
@@ -185,7 +186,7 @@ class MaterialsSlots(SlotsMaya):
             return
 
         # # Open the Hypershade window
-        print(1, pm.mel.HypershadeWindow())
+        print("Opening the Hypershade window ..", pm.mel.HypershadeWindow())
 
         # Define the deferred command to graph the material
         def graph_material():
