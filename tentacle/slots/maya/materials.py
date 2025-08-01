@@ -79,7 +79,6 @@ class MaterialsSlots(SlotsMaya):
 
     def cmb002_init(self, widget):
         """ """
-        print("cmb002_init", widget)
         if not widget.is_initialized:
             widget.refresh_on_show = True  # Call this method on show
             widget.editable = True

@@ -1,7 +1,6 @@
 # !/usr/bin/python
 # coding=utf-8
 import os
-import threading
 from typing import Optional
 
 try:
@@ -13,37 +12,6 @@ import mayatk as mtk
 from tentacle.slots.maya import SlotsMaya
 
 
-class VersionMixin:
-    _installed_ver: str = ""
-    _latest_ver: str = ""
-
-    def start_version_check(self) -> None:
-        threading.Thread(target=self.check_version, daemon=True).start()
-
-    @property
-    def new_version_available(self) -> bool:
-        """Check if a new version is available."""
-        try:
-            return self.installed_ver != self.latest_ver
-        except AttributeError:
-            return False
-
-    @property
-    def installed_ver(self) -> str:
-        return getattr(self, "_installed_ver", "")
-
-    @property
-    def latest_ver(self) -> str:
-        return getattr(self, "_latest_ver", "")
-
-    def check_version(self) -> None:
-        mayapy = os.path.join(mtk.get_env_info("install_path"), "bin", "mayapy.exe")
-        pkg_mgr = ptk.PkgManager(python_path=mayapy)
-        this_pkg = "tentacletk"
-        self._installed_ver = pkg_mgr.installed_version(this_pkg)
-        self._latest_ver = pkg_mgr.latest_version(this_pkg)
-
-
 class StatusMixin:
     def insert_scene_status(self, hud) -> None:
         # New version?
@@ -51,6 +19,8 @@ class StatusMixin:
             hud.insertText(
                 f'New release available: <font style="color: Cyan;">{self.latest_ver}</font>'
             )
+            if self.sb.preferences.tb000.menu.auto_update:
+                self.sb.check_for_update()
         # Autosave status
         if not pm.autoSave(q=True, enable=True):
             hud.insertText('Autosave: <font style="color: Red;">OFF</font>')
@@ -155,16 +125,16 @@ class SelectionMixin:
             )
 
 
-class HudSlots(SlotsMaya, VersionMixin, StatusMixin, SelectionMixin):
+class HudSlots(SlotsMaya, ptk.PkgVersionCheck, StatusMixin, SelectionMixin):
     """HUD Slots for Maya, providing scene and selection information."""
 
-    _installed_ver: Optional[str] = None
-    _latest_ver: Optional[str] = None
     _hud_request_token: int = 0
 
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
-        threading.Thread(target=self.check_version, daemon=True).start()
+        mayapy = os.path.join(mtk.get_env_info("install_path"), "bin", "mayapy.exe")
+        self.start_version_check(package_name="tentacletk", python_path=mayapy)
+
         self.ui = self.sb.loaded_ui.hud_startmenu
         self.ui.hudTextEdit.shown.connect(self.request_hud_build)
 

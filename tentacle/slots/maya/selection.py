@@ -69,6 +69,7 @@ class Selection(SlotsMaya):
             "Lattices",
             "Lights",
             "Locators",
+            "Locators (Keyed)",
             "NURBS (Curves)",
             "NURBS (Surfaces)",
             "Particles",
@@ -122,6 +123,15 @@ class Selection(SlotsMaya):
         elif text == "Locators":
             shapes = pm.ls(objects, exactType="locator")
             objs = set(pm.listRelatives(shapes, parent=True, path=True))
+        elif text == "Locators (Keyed)":
+            shapes = pm.ls(objects, exactType="locator")
+            objs = set(
+                [
+                    obj.getParent()
+                    for obj in shapes
+                    if pm.keyframe(obj, query=True, keyframeCount=True) > 0
+                ]
+            )
         elif text == "NURBS (Curves)":
             objs = pm.listTransforms(objects, type="nurbsCurve")
         elif text == "NURBS (Surfaces)":

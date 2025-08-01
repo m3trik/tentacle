@@ -133,6 +133,7 @@ class Tcl(
 
         if ui.has_tags(["startmenu", "submenu"]):  # StackedWidget
             ui.style.set(theme="dark", style_class="translucentBgNoBorder")
+            ui.size_grip.setVisible(False)  # Hide size grip for stacked UIs
             self.addWidget(ui)  # add the UI to the stackedLayout.
 
         else:  # MainWindow
