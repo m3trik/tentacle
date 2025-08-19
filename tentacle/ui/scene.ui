@@ -10,7 +10,7 @@
     <x>0</x>
     <y>0</y>
     <width>200</width>
-    <height>210</height>
+    <height>254</height>
    </rect>
   </property>
   <property name="tabShape">
@@ -67,11 +67,11 @@
        </widget>
       </item>
       <item>
-       <widget class="QGroupBox" name="groupBox_5">
+       <widget class="QGroupBox" name="Project">
         <property name="title">
-         <string>Find</string>
+         <string>Project</string>
         </property>
-        <layout class="QVBoxLayout" name="verticalLayout_6">
+        <layout class="QVBoxLayout" name="verticalLayout_5">
          <property name="spacing">
           <number>1</number>
          </property>
@@ -88,7 +88,7 @@
           <number>0</number>
          </property>
          <item>
-          <widget class="LineEdit" name="txt000">
+          <widget class="ComboBox" name="cmb001">
            <property name="minimumSize">
             <size>
              <width>0</width>
@@ -102,23 +102,107 @@
             </size>
            </property>
            <property name="toolTip">
-            <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Search Objects by Name&lt;/span&gt;&lt;/p&gt;&lt;ul style=&quot;margin-top: 0px; margin-bottom: 0px; margin-left: 0px; margin-right: 0px; -qt-list-indent: 1;&quot;&gt;&lt;li style=&quot; margin-top:12px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;Use wildcards to refine your search:&lt;/li&gt;&lt;ul style=&quot;margin-top: 0px; margin-bottom: 0px; margin-left: 0px; margin-right: 0px; -qt-list-indent: 2;&quot;&gt;&lt;li style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:'Courier New';&quot;&gt;startswith*&lt;/span&gt;: Finds objects whose names start with the specified characters.&lt;/li&gt;&lt;li style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:'Courier New';&quot;&gt;*endswith&lt;/span&gt;: Finds objects whose names end with the specified characters.&lt;/li&gt;&lt;li style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:'Courier New';&quot;&gt;*contains*&lt;/span&gt;: Finds objects whose names contain the specified characters.&lt;/li&gt;&lt;/ul&gt;&lt;li style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;Combine terms with &lt;span style=&quot; font-family:'Courier New';&quot;&gt;|&lt;/span&gt; for multiple searches (e.g., &lt;span style=&quot; font-family:'Courier New';&quot;&gt;start*|*end&lt;/span&gt;).&lt;/li&gt;&lt;li style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;Enable &amp;quot;Regular Expression&amp;quot; in the menu for advanced patterns.&lt;/li&gt;&lt;li style=&quot; margin-top:0px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&amp;quot;Ignore Case&amp;quot; in the menu allows case-insensitive searches.&lt;/li&gt;&lt;/ul&gt;&lt;/body&gt;&lt;/html&gt;</string>
+            <string>Any recent workspaces will appear here.</string>
+           </property>
+           <property name="maxVisibleItems">
+            <number>30</number>
+           </property>
+           <property name="sizeAdjustPolicy">
+            <enum>QComboBox::AdjustToContentsOnFirstShow</enum>
            </property>
            <property name="frame">
             <bool>false</bool>
            </property>
-           <property name="placeholderText">
-            <string>find:</string>
+           <item>
+            <property name="text">
+             <string>Recent Projects:</string>
+            </property>
+           </item>
+          </widget>
+         </item>
+         <item>
+          <widget class="ComboBox" name="cmb006">
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>20</height>
+            </size>
            </property>
+           <property name="maximumSize">
+            <size>
+             <width>16777215</width>
+             <height>20</height>
+            </size>
+           </property>
+           <property name="toolTip">
+            <string>Open a workspace folder, or set a new workspace.</string>
+           </property>
+           <property name="maxVisibleItems">
+            <number>40</number>
+           </property>
+           <property name="sizeAdjustPolicy">
+            <enum>QComboBox::AdjustToContents</enum>
+           </property>
+           <property name="frame">
+            <bool>false</bool>
+           </property>
+           <item>
+            <property name="text">
+             <string>Project:</string>
+            </property>
+           </item>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLineEdit" name="txt000">
+           <property name="toolTip">
+            <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Filter the results of the 'Scenes' list.&lt;/span&gt;&lt;/p&gt;&lt;p&gt;    Each item can be a string or integer. Strings can include shell-style wildcards:&lt;/p&gt;&lt;p&gt;     - '*': Matches any sequence of characters (including none).&lt;/p&gt;&lt;p&gt;	startswith*&lt;br/&gt;	*endswith&lt;/p&gt;&lt;p&gt;	*contains*&lt;/p&gt;&lt;p&gt;     - '?': Matches any single character.&lt;/p&gt;&lt;p&gt;     - '[seq]': Matches any character in 'seq'.&lt;/p&gt;&lt;p&gt;     - '[!seq]': Matches any character not in 'seq'.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+           </property>
+           <property name="placeholderText">
+            <string>Filter Scenes:</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="ComboBox" name="cmb000">
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>20</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>16777215</width>
+             <height>20</height>
+            </size>
+           </property>
+           <property name="toolTip">
+            <string>Open a scene file from the current workspace directory.</string>
+           </property>
+           <property name="maxVisibleItems">
+            <number>40</number>
+           </property>
+           <property name="sizeAdjustPolicy">
+            <enum>QComboBox::AdjustToContents</enum>
+           </property>
+           <property name="frame">
+            <bool>false</bool>
+           </property>
+           <item>
+            <property name="text">
+             <string>Scenes:</string>
+            </property>
+           </item>
           </widget>
          </item>
         </layout>
        </widget>
       </item>
       <item>
-       <widget class="QGroupBox" name="Naming">
+       <widget class="QGroupBox" name="File">
         <property name="title">
-         <string>Rename</string>
+         <string>File</string>
         </property>
         <layout class="QVBoxLayout" name="verticalLayout_3">
          <property name="spacing">
@@ -137,7 +221,7 @@
           <number>0</number>
          </property>
          <item>
-          <widget class="LineEdit" name="txt001">
+          <widget class="ComboBox" name="cmb005">
            <property name="minimumSize">
             <size>
              <width>0</width>
@@ -151,23 +235,64 @@
             </size>
            </property>
            <property name="toolTip">
-            <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Rename Objects&lt;/span&gt;&lt;/p&gt;&lt;ul style=&quot;margin-top: 0px; margin-bottom: 0px; margin-left: 0px; margin-right: 0px; -qt-list-indent: 1;&quot;&gt;&lt;li style=&quot; margin-top:12px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;Specify the new name pattern for selected objects.&lt;/li&gt;&lt;li style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;If no objects are selected, all scene objects are considered.&lt;/li&gt;&lt;li style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;Use wildcards for pattern-based renaming:&lt;/li&gt;&lt;ul style=&quot;margin-top: 0px; margin-bottom: 0px; margin-left: 0px; margin-right: 0px; -qt-list-indent: 2;&quot;&gt;&lt;li style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:'Courier New';&quot;&gt;*string*&lt;/span&gt;: Replace only the matched part in object names.&lt;/li&gt;&lt;li style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:'Courier New';&quot;&gt;string*&lt;/span&gt;: Replace the prefix in object names.&lt;/li&gt;&lt;li style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:'Courier New';&quot;&gt;*string&lt;/span&gt;: Replace the suffix in object names.&lt;/li&gt;&lt;li style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:'Courier New';&quot;&gt;**string&lt;/span&gt;: Append after the last character in object names.&lt;/li&gt;&lt;li style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:'Courier New';&quot;&gt;string**&lt;/span&gt;: Append before the first character in object names.&lt;/li&gt;&lt;li style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:'Courier New';&quot;&gt;empty&lt;/span&gt;: Strip matched parts from the object names.&lt;/li&gt;&lt;/ul&gt;&lt;li style=&quot; margin-top:0px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;Combine terms with &lt;span style=&quot; font-family:'Courier New';&quot;&gt;|&lt;/span&gt; for multiple renaming criteria (e.g., &lt;span style=&quot; font-family:'Courier New';&quot;&gt;prefix*|*suffix&lt;/span&gt;).&lt;/li&gt;&lt;/ul&gt;&lt;/body&gt;&lt;/html&gt;</string>
+            <string>Any recent scenes will appear here.</string>
+           </property>
+           <property name="maxVisibleItems">
+            <number>30</number>
+           </property>
+           <property name="sizeAdjustPolicy">
+            <enum>QComboBox::AdjustToContentsOnFirstShow</enum>
            </property>
            <property name="frame">
             <bool>false</bool>
            </property>
-           <property name="placeholderText">
-            <string>Rename:</string>
+           <item>
+            <property name="text">
+             <string>Recent Files:</string>
+            </property>
+           </item>
+          </widget>
+         </item>
+         <item>
+          <widget class="ComboBox" name="cmb002">
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>20</height>
+            </size>
            </property>
+           <property name="maximumSize">
+            <size>
+             <width>16777215</width>
+             <height>20</height>
+            </size>
+           </property>
+           <property name="toolTip">
+            <string>Any recent autosaves will appear here.</string>
+           </property>
+           <property name="maxVisibleItems">
+            <number>30</number>
+           </property>
+           <property name="sizeAdjustPolicy">
+            <enum>QComboBox::AdjustToContentsOnFirstShow</enum>
+           </property>
+           <property name="frame">
+            <bool>false</bool>
+           </property>
+           <item>
+            <property name="text">
+             <string>Recent Autosave:</string>
+            </property>
+           </item>
           </widget>
          </item>
         </layout>
        </widget>
       </item>
       <item>
-       <widget class="QGroupBox" name="Formatting">
+       <widget class="QGroupBox" name="Import_Export">
         <property name="title">
-         <string>Formatting</string>
+         <string>Import/Export</string>
         </property>
         <layout class="QVBoxLayout" name="verticalLayout_4">
          <property name="spacing">
@@ -186,10 +311,7 @@
           <number>0</number>
          </property>
          <item>
-          <widget class="PushButton" name="tb000">
-           <property name="enabled">
-            <bool>true</bool>
-           </property>
+          <widget class="ComboBox" name="cmb003">
            <property name="minimumSize">
             <size>
              <width>0</width>
@@ -202,25 +324,24 @@
              <height>20</height>
             </size>
            </property>
-           <property name="toolTip">
-            <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Convert the case of scene object names.&lt;/p&gt;&lt;p&gt;If nothing is selected all scene objects will be renamed.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+           <property name="maxVisibleItems">
+            <number>30</number>
            </property>
-           <property name="text">
-            <string>Convert Case</string>
+           <property name="sizeAdjustPolicy">
+            <enum>QComboBox::AdjustToContentsOnFirstShow</enum>
            </property>
-           <property name="iconSize">
-            <size>
-             <width>18</width>
-             <height>18</height>
-            </size>
+           <property name="frame">
+            <bool>false</bool>
            </property>
+           <item>
+            <property name="text">
+             <string>Import:</string>
+            </property>
+           </item>
           </widget>
          </item>
          <item>
-          <widget class="PushButton" name="tb002">
-           <property name="enabled">
-            <bool>true</bool>
-           </property>
+          <widget class="ComboBox" name="cmb004">
            <property name="minimumSize">
             <size>
              <width>0</width>
@@ -233,87 +354,27 @@
              <height>20</height>
             </size>
            </property>
-           <property name="toolTip">
-            <string>Deletes characters from the names of the provided objects and renames them.</string>
+           <property name="maxVisibleItems">
+            <number>30</number>
            </property>
-           <property name="text">
-            <string>Strip Chars</string>
+           <property name="sizeAdjustPolicy">
+            <enum>QComboBox::AdjustToContentsOnFirstShow</enum>
            </property>
-           <property name="iconSize">
-            <size>
-             <width>18</width>
-             <height>18</height>
-            </size>
+           <property name="frame">
+            <bool>false</bool>
            </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="PushButton" name="tb003">
-           <property name="enabled">
-            <bool>true</bool>
-           </property>
-           <property name="minimumSize">
-            <size>
-             <width>0</width>
-             <height>20</height>
-            </size>
-           </property>
-           <property name="maximumSize">
-            <size>
-             <width>16777215</width>
-             <height>20</height>
-            </size>
-           </property>
-           <property name="toolTip">
-            <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Rename objects with a suffix defined by its type.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-           </property>
-           <property name="text">
-            <string>Suffix By Type</string>
-           </property>
-           <property name="iconSize">
-            <size>
-             <width>18</width>
-             <height>18</height>
-            </size>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="PushButton" name="tb001">
-           <property name="enabled">
-            <bool>true</bool>
-           </property>
-           <property name="minimumSize">
-            <size>
-             <width>0</width>
-             <height>20</height>
-            </size>
-           </property>
-           <property name="maximumSize">
-            <size>
-             <width>16777215</width>
-             <height>20</height>
-            </size>
-           </property>
-           <property name="toolTip">
-            <string>Rename objects with a suffix defined by its location from origin.</string>
-           </property>
-           <property name="text">
-            <string>Suffix By Location</string>
-           </property>
-           <property name="iconSize">
-            <size>
-             <width>18</width>
-             <height>18</height>
-            </size>
-           </property>
+           <item>
+            <property name="text">
+             <string>Export:</string>
+            </property>
+           </item>
           </widget>
          </item>
         </layout>
        </widget>
       </item>
       <item>
-       <spacer name="verticalSpacer_2">
+       <spacer name="verticalSpacer">
         <property name="orientation">
          <enum>Qt::Vertical</enum>
         </property>
@@ -337,14 +398,9 @@
    <header>uitk.widgets.header.Header.h</header>
   </customwidget>
   <customwidget>
-   <class>PushButton</class>
-   <extends>QPushButton</extends>
-   <header>widgets.pushbutton.h</header>
-  </customwidget>
-  <customwidget>
-   <class>LineEdit</class>
-   <extends>QLineEdit</extends>
-   <header>widgets.lineedit.h</header>
+   <class>ComboBox</class>
+   <extends>QComboBox</extends>
+   <header>uitk.widgets.comboBox.ComboBox.h</header>
   </customwidget>
  </customwidgets>
  <resources/>

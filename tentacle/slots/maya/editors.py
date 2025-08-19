@@ -9,9 +9,10 @@ from tentacle.slots.maya import SlotsMaya
 
 
 class Editors(SlotsMaya):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+    def __init__(self, switchboard):
+        super().__init__(switchboard)
 
+        self.sb = switchboard
         self.ui = self.sb.loaded_ui.editors
 
     def list000_init(self, widget):

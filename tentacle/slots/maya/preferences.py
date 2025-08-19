@@ -112,7 +112,18 @@ class Preferences(SlotsMaya):
             except Exception as error:
                 print(error)
 
-    def b000(self):
+    def tb000_init(self, widget):
+        """ """
+        if not widget.is_initialized:
+            widget.menu.add(
+                "QCheckBox",
+                setText="Auto Update",
+                setObjectName="auto_update",
+                setChecked=True,
+                setToolTip="Automatically check for updates",
+            )
+
+    def tb000(self):
         """Update Package"""
         self.check_for_update()
 
@@ -130,9 +141,6 @@ class Preferences(SlotsMaya):
                 "No",
             )
             if user_choice == "Yes":  # User chose to update
-                pkg_mgr.update("pythontk")
-                pkg_mgr.update("uitk")
-                pkg_mgr.update("mayatk")
                 pkg_mgr.update(this_pkg)
                 self.sb.message_box(
                     "<b>The package and it's dependencies have been <hl>updated</hl>.</b>"

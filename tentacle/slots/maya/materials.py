@@ -4,16 +4,17 @@ try:
     import pymel.core as pm
 except ImportError as error:
     print(__file__, error)
-import pythontk as ptk
 import mayatk as mtk
+
+# From this package
 from tentacle.slots.maya import SlotsMaya
 
 
 class MaterialsSlots(SlotsMaya):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+    def __init__(self, switchboard):
+        super().__init__(switchboard)
 
-        self.sb = kwargs.get("switchboard")
+        self.sb = switchboard
         self.ui = self.sb.loaded_ui.materials
         self.submenu = self.sb.loaded_ui.materials_submenu
 
@@ -79,7 +80,6 @@ class MaterialsSlots(SlotsMaya):
 
     def cmb002_init(self, widget):
         """ """
-        print("cmb002_init", widget)
         if not widget.is_initialized:
             widget.refresh_on_show = True  # Call this method on show
             widget.editable = True

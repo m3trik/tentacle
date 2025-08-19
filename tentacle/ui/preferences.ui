@@ -373,7 +373,7 @@
           <number>0</number>
          </property>
          <item>
-          <widget class="QPushButton" name="b000">
+          <widget class="PushButton" name="tb000">
            <property name="minimumSize">
             <size>
              <width>0</width>
@@ -390,7 +390,7 @@
             <string>Updates this app to the latest version.</string>
            </property>
            <property name="text">
-            <string>Update</string>
+            <string>Check for Update</string>
            </property>
           </widget>
          </item>
@@ -425,6 +425,11 @@
    <class>ComboBox</class>
    <extends>QComboBox</extends>
    <header>uitk.widgets.comboBox.ComboBox.h</header>
+  </customwidget>
+  <customwidget>
+   <class>PushButton</class>
+   <extends>QPushButton</extends>
+   <header>widgets.pushbutton.h</header>
   </customwidget>
  </customwidgets>
  <resources/>

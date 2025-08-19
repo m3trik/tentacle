@@ -11,10 +11,11 @@ from tentacle.slots.maya import SlotsMaya
 
 
 class CacheSlots(SlotsMaya):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
 
-        self.sb = kwargs.get("switchboard")
+    def __init__(self, switchboard):
+        super().__init__(switchboard=switchboard)
+
+        self.sb = switchboard
         self.ui = mtk.UiManager.instance(self.sb).get("cache", header=True)
 
 

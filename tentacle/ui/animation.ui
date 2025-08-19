@@ -219,6 +219,31 @@
           </widget>
          </item>
          <item>
+          <widget class="PushButton" name="tb006">
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>20</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>16777215</width>
+             <height>20</height>
+            </size>
+           </property>
+           <property name="toolTip">
+            <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Move the selected keyframes to the current time with the selected option, &lt;/p&gt;&lt;p&gt;Else move all keyframes of the selected objects.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+           </property>
+           <property name="text">
+            <string>Move Keys</string>
+           </property>
+           <property name="checkable">
+            <bool>false</bool>
+           </property>
+          </widget>
+         </item>
+         <item>
           <widget class="PushButton" name="tb004">
            <property name="minimumSize">
             <size>

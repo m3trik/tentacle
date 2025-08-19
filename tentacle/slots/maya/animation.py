@@ -9,8 +9,12 @@ from tentacle.slots.maya import SlotsMaya
 
 
 class Animation(SlotsMaya):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+    def __init__(self, switchboard):
+        super().__init__(switchboard)
+
+        self.sb = switchboard
+        self.ui = self.sb.loaded_ui.animation
+        self.ui_submenu = self.sb.loaded_ui.animation_submenu
 
     def tb000_init(self, widget):
         """ """
@@ -285,6 +289,39 @@ class Animation(SlotsMaya):
             self.sb.message_box("You must select at least one object.")
             return
         mtk.add_intermediate_keys(objects, start_time, end_time, percent)
+
+    def tb006_init(self, widget):
+        """Move Keys Init"""
+        widget.menu.setTitle("Move Keys")
+        widget.menu.add(
+            "QCheckBox",
+            setText="Move Selected Keys",
+            setObjectName="chk010",
+            setChecked=True,
+            setToolTip="Move selected keys to current frame.\nElse move all keys on selected objects.",
+        )
+        widget.menu.add(
+            "QCheckBox",
+            setText="Maintain Spacing",
+            setObjectName="chk012",
+            setChecked=True,
+            setToolTip="Maintain relative spacing between objects.\nElse move each object's first key to target frame.",
+        )
+
+    def tb006(self, widget):
+        """Move Keys"""
+        only_move_selected = widget.menu.chk010.isChecked()
+        retain_spacing = widget.menu.chk012.isChecked()
+
+        objects = pm.selected(flatten=True)
+        if not objects:
+            self.sb.message_box("You must select at least one object or set of keys.")
+            return
+        mtk.move_keys_to_frame(
+            objects,
+            only_move_selected=only_move_selected,
+            retain_spacing=retain_spacing,
+        )
 
     def b000(self):
         """Delete Keys"""

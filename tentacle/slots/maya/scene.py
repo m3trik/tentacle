@@ -1,5 +1,7 @@
 # !/usr/bin/python
 # coding=utf-8
+import os
+
 try:
     import pymel.core as pm
 except ImportError as error:
@@ -11,258 +13,344 @@ from tentacle.slots.maya import SlotsMaya
 
 
 class SceneSlots(SlotsMaya):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+    def __init__(self, switchboard):
+        super().__init__(switchboard)
 
+        self.sb = switchboard
         self.ui = self.sb.loaded_ui.scene
         self.submenu = self.sb.loaded_ui.scene_submenu
 
-    def txt000_init(self, widget):
+    def header_init(self, widget):
         """ """
-        widget.menu.setTitle("Find")
-        widget.menu.add(
-            "QCheckBox",
-            setText="Ignore Case",
-            setObjectName="chk000",
-            setToolTip="Search case insensitive.",
-        )
-        widget.menu.add(
-            "QCheckBox",
-            setText="Regular Expression",
-            setObjectName="chk001",
-            setToolTip="When checked, regular expression syntax is used instead of the default '*' and '|' wildcards.",
-        )
+        if not widget.is_initialized:
+            widget.menu.add(
+                self.sb.registered_widgets.PushButton,
+                setToolTip="Export scene assets with environment checks and presets.",
+                setText="Scene Exporter",
+                setObjectName="b002",
+            )
+            widget.menu.add(
+                self.sb.registered_widgets.PushButton,
+                setText="Quick Export Scene Geo",
+                setObjectName="b003",
+                setToolTip="Export the scene geometry as FBX to the current maya file's directory.\nThe file name will be the same as the current scene and overwrite the current file if it exists.",
+            )
+            widget.menu.add(
+                "QPushButton",
+                setText="Reference Manager",
+                setObjectName="b001",
+                setToolTip="Open the reference manager.",
+            )
+            widget.menu.add(
+                "QPushButton",
+                setText="Hierarchy Manager",
+                setObjectName="b004",
+                setToolTip="Open the hierarchy manager.",
+            )
+            widget.menu.add(
+                "QPushButton",
+                setText="Naming",
+                setObjectName="b005",
+                setToolTip="Open the naming tool.",
+            )
 
-    @Signals("returnPressed")
+    @Signals("textChanged", "returnPressed")
     def txt000(self, widget):
-        """Find"""
-        # An asterisk denotes startswith*, *endswith, *contains*
-        regex = widget.ui.txt000.menu.chk001.isChecked()
-        ign_case = widget.ui.txt000.menu.chk000.isChecked()
+        """Workspace Scenes: Filter"""
+        self.ui.cmb000.init_slot()
 
-        text = widget.text()
-        if text:
-            obj_names = [str(i) for i in pm.ls()]
-            found = ptk.find_str(text, obj_names, regex=regex, ignore_case=ign_case)
-            pm.select(found)
-
-    def txt001_init(self, widget):
+    def cmb000_init(self, widget):
         """ """
-        widget.menu.setTitle("Rename")
-        widget.menu.add(
-            "QCheckBox",
-            setText="Retain Suffix",
-            setObjectName="chk002",
-            setToolTip="Retain the suffix of the selected object(s).",
-        )
+        if not widget.is_initialized:
+            widget.refresh_on_show = True  # Call this method on show
+            pm.scriptJob(event=["workspaceChanged", self.ui.cmb000.init_slot])
 
-    # The LineEdit text parameter is not emitted on `returnPressed`
-    @Signals("returnPressed")
-    def txt001(self, widget):
-        """Rename"""
-        # An asterisk denotes startswith*, *endswith, *contains*
-        find = widget.ui.txt000.text()
-        to = widget.text()
-        regex = widget.ui.txt000.menu.chk001.isChecked()
-        ign_case = widget.ui.txt000.menu.chk000.isChecked()
-        retain_suffix = widget.ui.txt001.menu.chk002.isChecked()
+        include = self.ui.txt000.text() or None
 
-        selection = pm.selected() or pm.ls()
-        mtk.Naming.rename(
-            selection,
-            to,
-            find,
-            regex=regex,
-            ignore_case=ign_case,
-            retain_suffix=retain_suffix,
-        )
-
-    def tb000_init(self, widget):
-        """ """
-        widget.menu.setTitle("Convert Case")
-        widget.menu.add(
-            "QComboBox",
-            addItems=["capitalize", "upper", "lower", "swapcase", "title"],
-            setObjectName="cmb001",
-            setToolTip="Set desired python case operator.",
-        )
-
-    def tb000(self, widget):
-        """Convert Case"""
-        case = widget.menu.cmb001.currentText()
-
-        selection = pm.ls(sl=1)
-        objects = selection if selection else pm.ls(objectsOnly=1)
-        mtk.Naming.set_case(objects, case)
-
-    def tb001_init(self, widget):
-        """ """
-        widget.menu.setTitle("Suffix By Location")
-        widget.menu.add(
-            "QCheckBox",
-            setText="First Object As Reference",
-            setObjectName="chk006",
-            setToolTip="Use the first selected object as the reference point, otherwise the scene origin (0,0,0) will be used.",
-        )
-        widget.menu.add(
-            "QCheckBox",
-            setText="Alphabetical",
-            setObjectName="chk005",
-            setToolTip="Use an alphabet character as a suffix when there is less than 26 objects, else use integers.",
-        )
-        widget.menu.add(
-            "QCheckBox",
-            setText="Strip Trailing Integers",
-            setObjectName="chk002",
-            setChecked=True,
-            setToolTip="Strip any trailing integers. ie. '123' of 'cube123'",
-        )
-        widget.menu.add(
-            "QCheckBox",
-            setText="Strip Trailing Alphabetical",
-            setObjectName="chk003",
-            setChecked=True,
-            setToolTip="Strip any trailing uppercase alphabet chars that are prefixed with an underscore.  ie. 'A' of 'cube_A'",
-        )
-        widget.menu.add(
-            "QCheckBox",
-            setText="Reverse",
-            setObjectName="chk004",
-            setToolTip="Reverse the naming order. (Farthest object first)",
-        )
-
-    def tb001(self, widget):
-        """Suffix By Location"""
-        first_obj_as_ref = widget.menu.chk006.isChecked()
-        alphabetical = widget.menu.chk005.isChecked()
-        strip_trailing_ints = widget.menu.chk002.isChecked()
-        strip_trailing_alpha = widget.menu.chk003.isChecked()
-        reverse = widget.menu.chk004.isChecked()
-
-        selection = pm.ls(sl=True, objectsOnly=True, type="transform")
-        mtk.Naming.append_location_based_suffix(
-            selection,
-            first_obj_as_ref=first_obj_as_ref,
-            alphabetical=alphabetical,
-            strip_trailing_ints=strip_trailing_ints,
-            strip_trailing_alpha=strip_trailing_alpha,
-            reverse=reverse,
-        )
-
-    def tb002_init(self, widget):
-        """ """
-        widget.menu.setTitle("Strip Chars")
-        widget.menu.add(
-            "QSpinBox",
-            setPrefix="Num Chars:",
-            setObjectName="s000",
-            setValue=1,
-            setToolTip="The number of characters to delete.",
-        )
-        widget.menu.add(
-            "QCheckBox",
-            setText="Trailing",
-            setObjectName="chk005",
-            setChecked=True,
-            setToolTip="Whether to delete characters from the rear of the name.",
-        )
-
-    def tb002(self, widget):
-        """Strip Chars"""
-        sel = pm.selected()
-        kwargs = {
-            "num_chars": widget.menu.s000.value(),
-            "trailing": widget.menu.chk005.isChecked(),
+        scenes = {
+            ptk.format_path(f, "file"): f
+            for f in mtk.get_workspace_scenes(
+                recursive=True, inc=include, basename_only=True
+            )
         }
-        mtk.Naming.strip_chars(sel, **kwargs)
+        widget.add(
+            scenes,
+            header="Scenes:",
+            clear=True,
+        )
 
-    def tb003_init(self, widget):
+    def cmb000(self, index, widget):
+        """Workspace Scenes"""
+        scene = widget.items[index]
+        pm.openFile(scene, force=True)
+
+    def cmb001_init(self, widget):
         """ """
-        widget.menu.setTitle("Suffix By Type")
-        widget.menu.add(
-            "QLineEdit",
-            setPlaceholderText="Group Suffix",
-            setText="_GRP",
-            setObjectName="tb003_txt000",
-            setToolTip="Suffix for transform groups.",
-        )
-        widget.menu.add(
-            "QLineEdit",
-            setPlaceholderText="Locator Suffix",
-            setText="_LOC",
-            setObjectName="tb003_txt001",
-            setToolTip="Suffix for locators.",
-        )
-        widget.menu.add(
-            "QLineEdit",
-            setPlaceholderText="Joint Suffix",
-            setText="_JNT",
-            setObjectName="tb003_txt002",
-            setToolTip="Suffix for joints.",
-        )
-        widget.menu.add(
-            "QLineEdit",
-            setPlaceholderText="Mesh Suffix",
-            setText="_GEO",
-            setObjectName="tb003_txt003",
-            setToolTip="Suffix for meshes.",
-        )
-        widget.menu.add(
-            "QLineEdit",
-            setPlaceholderText="Nurbs Curve Suffix",
-            setText="_CRV",
-            setObjectName="tb003_txt004",
-            setToolTip="Suffix for nurbs curves.",
-        )
-        widget.menu.add(
-            "QLineEdit",
-            setPlaceholderText="Camera Suffix",
-            setText="_CAM",
-            setObjectName="tb003_txt005",
-            setToolTip="Suffix for cameras.",
-        )
-        widget.menu.add(
-            "QLineEdit",
-            setPlaceholderText="Light Suffix",
-            setText="_LGT",
-            setObjectName="tb003_txt006",
-            setToolTip="Suffix for lights.",
-        )
-        widget.menu.add(
-            "QLineEdit",
-            setPlaceholderText="Display Layer Suffix",
-            setText="_LYR",
-            setObjectName="tb003_txt007",
-            setToolTip="Suffix for display layers.",
-        )
-        widget.menu.add(
-            "QCheckBox",
-            setText="Strip Trailing Integers",
-            setObjectName="tb003_chk002",
-            setChecked=True,
-            setToolTip="Strip any trailing integers. ie. '123' of 'cube123'",
+        widget.refresh = True
+
+        widget.add(
+            mtk.get_recent_projects(slice(0, 20), format="timestamp|standard"),
+            header="Recent Projects:",
+            clear=True,
         )
 
-    def tb003(self, widget):
-        """Suffix By Type"""
-        objects = pm.ls(sl=True, objectsOnly=True)
+    def cmb001(self, index, widget):
+        """Recent Projects"""
+        project = widget.items[index]
+        pm.workspace.open(project)
+        self.ui.cmb006.init_slot()
 
-        kwargs = {
-            "group_suffix": widget.menu.tb003_txt000.text(),
-            "locator_suffix": widget.menu.tb003_txt001.text(),
-            "joint_suffix": widget.menu.tb003_txt002.text(),
-            "mesh_suffix": widget.menu.tb003_txt003.text(),
-            "nurbs_curve_suffix": widget.menu.tb003_txt004.text(),
-            "camera_suffix": widget.menu.tb003_txt005.text(),
-            "light_suffix": widget.menu.tb003_txt006.text(),
-            "display_layer_suffix": widget.menu.tb003_txt007.text(),
-            "strip_trailing_ints": widget.menu.tb003_chk002.isChecked(),
+    def cmb002_init(self, widget):
+        """ """
+        # Fetch recent autosave files
+        recent_autosaves = mtk.get_recent_autosave(
+            filter_time=24, timestamp_format="%H:%M:%S"
+        )
+
+        # Prepare dictionary for ComboBox: key is 'path + timestamp', value is 'path'
+        autosave_dict = {
+            f"{i[1]}  {ptk.format_path(i[0], 'file')}": i[0] for i in recent_autosaves
         }
-        mtk.Naming.suffix_by_type(objects, **kwargs)
+
+        # Add items to the ComboBox
+        widget.add(
+            autosave_dict,
+            header="Recent Autosave",
+            clear=True,
+        )
+
+    def cmb002(self, index, widget):
+        """Recent Autosave"""
+        file = widget.items[index]
+        pm.openFile(file, open=1, force=True)
+
+    def cmb003_init(self, widget):
+        """ """
+        widget.add(
+            [
+                "Import File",
+                "Import Options",
+                "FBX Import Presets",
+                "OBJ Import Presets",
+            ],
+            header="Import",
+        )
+
+    def cmb003(self, index, widget):
+        """Import"""
+        text = widget.items[index]
+        if text == "Import File":  # Import
+            pm.mel.Import()
+        elif text == "Import Options":  # Import options
+            pm.mel.ImportOptions()
+        elif text == "FBX Import Presets":  # FBX Import Presets
+            pm.mel.FBXUICallBack(-1, "editImportPresetInNewWindow", "fbx")
+        elif text == "OBJ Import Presets":  # Obj Import Presets
+            pm.mel.FBXUICallBack(-1, "editImportPresetInNewWindow", "obj")
+
+    def cmb004_init(self, widget):
+        """ """
+        items = [
+            "Export Selection",
+            "Send to Unreal",
+            "Send to Unity",
+            "GoZ",
+            "Send to 3dsMax: As New Scene",
+            "Send to 3dsMax: Update Current",
+            "Send to 3dsMax: Add to Current",
+            "Export to Offline File",
+            "Export Options",
+            "FBX Export Presets",
+            "OBJ Export Presets",
+        ]
+        widget.add(items, header="Export")
+
+    def cmb004(self, index, widget):
+        """Export"""
+        text = widget.items[index]
+        if text == "Export Selection":
+            pm.mel.ExportSelection()
+        elif text == "Send to Unreal":
+            pm.mel.SendToUnrealSelection()
+        elif text == "Send to Unity":
+            pm.mel.SendToUnitySelection()
+        elif text == "GoZ":
+            pm.mel.eval(
+                'print("GoZ"); source"C:/Users/Public/Pixologic/GoZApps/Maya/GoZBrushFromMaya.mel"; source "C:/Users/Public/Pixologic/GoZApps/Maya/GoZScript.mel";'
+            )
+        elif text == "Send to 3dsMax: As New Scene":  # Send to 3dsMax: As New Scene
+            pm.mel.SendAsNewScene3dsMax()  # OneClickMenuExecute ("3ds Max", "SendAsNewScene"); doMaxFlow { "sendNew","perspShape","1" };
+        elif text == "Send to 3dsMax: Update Current":  # Send to 3dsMax: Update Current
+            pm.mel.UpdateCurrentScene3dsMax()  # OneClickMenuExecute ("3ds Max", "UpdateCurrentScene"); doMaxFlow { "update","perspShape","1" };
+        elif text == "Send to 3dsMax: Add to Current":  # Send to 3dsMax: Add to Current
+            pm.mel.AddToCurrentScene3dsMax()  # OneClickMenuExecute ("3ds Max", "AddToScene"); doMaxFlow { "add","perspShape","1" };
+        elif text == "Export to Offline File":  # Export to Offline File
+            pm.mel.ExportOfflineFileOptions()  # ExportOfflineFile
+        elif text == "Export Options":  # Export options
+            pm.mel.ExportSelectionOptions()
+        elif text == "FBX Export Presets":  # FBX Export Presets
+            pm.mel.FBXUICallBack(-1, "editExportPresetInNewWindow", "fbx")
+        elif text == "OBJ Export Presets":  # Obj Export Presets
+            pm.mel.FBXUICallBack(-1, "editExportPresetInNewWindow", "obj")
+
+    def cmb005_init(self, widget):
+        """ """
+        recent_files = mtk.get_recent_files(slice(0, 20))
+        truncated = ptk.truncate(recent_files, 165)
+        widget.add(zip(truncated, recent_files), header="Recent Files", clear=True)
+
+    def cmb005(self, index: int, widget):
+        """Recent Files"""
+        force = not mtk.get_env_info("scene_modified")
+        pm.openFile(widget.items[index], open=True, force=force, ignoreVersion=True)
+
+    def cmb006_init(self, widget):
+        """ """
+        if not widget.is_initialized:
+            widget.refresh_on_show = True  # Call this method on show
+            widget.menu.add(
+                self.sb.registered_widgets.Label,
+                setObjectName="lbl000",
+                setText="Set Project",
+                setToolTip="Set the project directory.",
+            )
+            widget.menu.add(
+                self.sb.registered_widgets.Label,
+                setObjectName="lbl005",
+                setText="Auto Set Project",
+                setToolTip="Determine the workspace directory by moving up directory levels until a workspace is found.",
+            )
+            widget.menu.add(
+                self.sb.registered_widgets.Label,
+                setObjectName="lbl004",
+                setText="Open Project Root",
+                setToolTip="Open the project root directory.",
+            )
+
+        workspace = mtk.get_env_info("workspace")
+        workspace_dir = mtk.get_env_info("workspace_dir")
+        # Add each dir in the workspace as well as its full path as data
+        items = {d: f"{workspace}/{d}" for d in os.listdir(workspace)}
+        widget.add(items, header=workspace_dir, clear=True)
+
+    def cmb006(self, index, widget):
+        """Workspace"""
+        try:
+            item = widget.items[index]
+            os.startfile(item)
+        except Exception as e:
+            print(e)
+
+    def list000_init(self, widget):
+        """ """
+        widget.position = "top"
+        widget.sublist_y_offset = 18
+        widget.fixed_item_height = 18
+        recent_files = mtk.get_recent_files(slice(0, 11))
+        w1 = widget.add("Recent Files")
+        truncated = ptk.truncate(recent_files, 65)
+        w1.sublist.add(zip(truncated, recent_files))
+        widget.setVisible(bool(recent_files))
+
+    @Signals("on_item_interacted")
+    def list000(self, item):
+        """ """
+        data = item.item_data()
+        pm.openFile(data, open=True, force=True)
+
+    def lbl000(self):
+        """Set Workspace"""
+        pm.mel.SetProject()
+        # refresh project items to reflect new workspace.
+        self.ui.cmb006.init_slot()
+
+    def lbl004(self):
+        """Open current project root"""
+        dir_ = pm.workspace(q=True, rd=1)  # current project path.
+        os.startfile(ptk.format_path(dir_))
+
+    def lbl005(self):
+        """Auto Set Workspace"""
+        workspace = mtk.find_workspace_using_path()
+        if workspace:
+            pm.workspace(workspace, openWorkspace=True)
+            workspace_name = os.path.basename(workspace)
+            self.sb.message_box(f"Workspace set to {workspace_name}.")
+            self.ui.cmb006.init_slot()
+        else:
+            self.sb.message_box("No workspace found.")
+
+    def b000(self):
+        """Autosave: Open Directory"""
+        autosave_dir = os.environ.get("MAYA_AUTOSAVE_FOLDER", "")
+        if not autosave_dir:
+            return
+        dirs = autosave_dir.split(";")[0]
+
+        try:
+            os.startfile(ptk.format_path(dirs))
+
+        except FileNotFoundError:
+            self.sb.message_box("The system cannot find the file specified.")
+
+    def b001(self):
+        """Open Reference Manager"""
+        ui = mtk.UiManager.instance(self.sb).get("reference_manager")
+        self.sb.parent().show(ui)
+
+    def b002(self):
+        """Scene Exporter"""
+        ui = mtk.UiManager.instance(self.sb).get("scene_exporter")
+        self.sb.parent().show(ui)
+
+    def b003(self):
+        """Quick Export Scene Geo"""
+        mtk.export_scene_as_fbx()
+
+    def b004(self):
+        """Open Hierarchy Manager"""
+        ui = mtk.UiManager.instance(self.sb).get("hierarchy_manager")
+        self.sb.parent().show(ui)
+
+    def b005(self):
+        """Open Naming Tool"""
+        ui = mtk.UiManager.instance(self.sb).get("naming")
+        self.sb.parent().show(ui)
+
+    def b007(self):
+        """Import file"""
+        self.ui.cmb003.call_slot(0)
+
+    def b008(self):
+        """Export Selection"""
+        self.ui.cmb004.call_slot(0)
+
+    def b015(self):
+        """Remove String From Object Names."""
+        # asterisk denotes startswith*, *endswith, *contains*
+        from_ = str(self.ui.t000.text())
+        to = str(self.ui.t001.text())
+        replace = self.ui.chk004.isChecked()
+        selected = self.ui.chk005.isChecked()
+
+        objects = pm.ls(from_)  # Stores a list of all objects starting with 'from_'
+        if selected:  # get user selected objects instead
+            objects = pm.ls(sl=True)
+        from_ = from_.strip("*")  # strip modifier asterisk from user input
+
+        for obj in objects:  # Get a list of it's direct parent
+            relatives = pm.listRelatives(obj, parent=1)
+            # If that parent starts with group, it came in root level and is pasted in a group, so ungroup it
+            if "group*" in relatives:
+                relatives[0].ungroup()
+
+            newName = to
+            if replace:
+                newName = obj.replace(from_, to)
+            pm.rename(obj, newName)  # Rename the object with the new name
 
 
 # --------------------------------------------------------------------------------------------
-
 
 # module name
 # print(__name__)

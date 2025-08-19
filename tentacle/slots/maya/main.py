@@ -9,8 +9,11 @@ from tentacle.slots.maya import SlotsMaya
 
 
 class Main(SlotsMaya):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+    def __init__(self, switchboard):
+        super().__init__(switchboard)
+
+        self.sb = switchboard
+        self.ui = self.sb.loaded_ui.main
 
     # def list000_init(self, widget):
     #     """ """

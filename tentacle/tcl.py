@@ -36,6 +36,9 @@ class Tcl(
     _first_show: bool = True
     _in_transition: bool = False
     _instances: dict = {}
+    _submenu_cache: dict = {}
+    _last_ui_history_check: QtWidgets.QWidget = None
+    _pending_show_timer: QtCore.QTimer = None
 
     def __init__(
         self,
@@ -86,6 +89,11 @@ class Tcl(
         self.sb.app.installEventFilter(self)
         self.sb.app.focusChanged.connect(self._on_focus_changed)
 
+        # Initialize smooth transition timer
+        self._pending_show_timer = QtCore.QTimer()
+        self._pending_show_timer.setSingleShot(True)
+        self._pending_show_timer.timeout.connect(self._delayed_show_ui)
+
     def eventFilter(self, watched, event):
         """Filter key press/release for show/hide."""
         etype = event.type()
@@ -133,6 +141,7 @@ class Tcl(
 
         if ui.has_tags(["startmenu", "submenu"]):  # StackedWidget
             ui.style.set(theme="dark", style_class="translucentBgNoBorder")
+            ui.size_grip.setVisible(False)  # Hide size grip for stacked UIs
             self.addWidget(ui)  # add the UI to the stackedLayout.
 
         else:  # MainWindow
@@ -177,18 +186,22 @@ class Tcl(
         is_stacked_ui = current.has_tags(["startmenu", "submenu"])
 
         if is_stacked_ui:
+            # For stacked UIs (submenus), show with smooth timing
             super().show()
         else:
             current.show()
-            QtWidgets.QApplication.processEvents()
+            # Minimal processing for smoother transitions
 
+            # Cache width before adjusting size to avoid repeated calculations
             widget_before_adjust = current.width()
             current.adjustSize()
-            current.resize(widget_before_adjust, current.sizeHint().height())
+            size_hint = current.sizeHint()
+            current.resize(widget_before_adjust, size_hint.height())
             current.updateGeometry()
             self.sb.center_widget(current, "cursor", offset_y=25)
             self.show_other_windows()
 
+        # Batch focus and raise operations
         current.setFocus()
         current.raise_()
 
@@ -201,28 +214,78 @@ class Tcl(
             return
         self._in_transition = True
         try:
+            # Preserve overlay path order by adding to path first
             self.overlay.path.add(ui, w)
+
+            # Batch UI initialization and preparation
             if not ui.is_initialized:
                 self._init_ui(ui)
             self._prepare_ui(ui)
 
-            try:
-                p1 = w.mapToGlobal(w.rect().center())
-                w2 = self.sb.get_widget(w.objectName(), ui)
-                w2.resize(w.size())
-                p2 = w2.mapToGlobal(w2.rect().center())
-                self.move(self.pos() + (p1 - p2))
-            except Exception as e:
-                self.logger.warning(f"Submenu positioning failed: {e}")
+            # Position submenu smoothly without forcing immediate updates
+            self._position_submenu_smooth(ui, w)
 
-            self._show_ui()
+            # Use smooth delayed show for better visual transitions
+            self._schedule_smooth_show(ui)
 
-            if ui not in self.sb.ui_history(slice(0, -1), allow_duplicates=True):
-                self.overlay.clone_widgets_along_path(ui, self._return_to_startmenu)
+            # Optimize history check and overlay cloning
+            self._handle_overlay_cloning(ui)
 
         finally:
-            # Small delay can help smooth rapid UI transitions (optional)
-            QtCore.QTimer.singleShot(50, self._clear_transition_flag)
+            # Clear transition flag after a brief delay to allow smooth completion
+            QtCore.QTimer.singleShot(16, self._clear_transition_flag)  # ~60fps timing
+
+    def _position_submenu_smooth(self, ui, w) -> None:
+        """Handle submenu positioning with smooth visual transitions."""
+        try:
+            # Cache widget centers to avoid repeated calculations
+            w_center = w.rect().center()
+            p1 = w.mapToGlobal(w_center)
+
+            w2 = self.sb.get_widget(w.objectName(), ui)
+            if w2:
+                w2.resize(w.size())
+                w2_center = w2.rect().center()
+                p2 = w2.mapToGlobal(w2_center)
+
+                # Calculate new position
+                new_pos = self.pos() + (p1 - p2)
+
+                # Move to position smoothly - let Qt handle the timing naturally
+                self.move(new_pos)
+
+        except Exception as e:
+            self.logger.warning(f"Submenu positioning failed: {e}")
+
+    def _schedule_smooth_show(self, ui) -> None:
+        """Schedule UI show with optimal timing for smooth transitions."""
+        # Cancel any pending show
+        if self._pending_show_timer.isActive():
+            self._pending_show_timer.stop()
+
+        # Store the UI to show
+        self._pending_ui = ui
+
+        # Schedule show with minimal delay for smooth positioning
+        self._pending_show_timer.start(8)  # ~120fps timing for very smooth transitions
+
+    def _delayed_show_ui(self) -> None:
+        """Show the UI after smooth positioning delay."""
+        if hasattr(self, "_pending_ui"):
+            current_ui = self.sb.current_ui
+            if current_ui == self._pending_ui:
+                self._show_ui()
+            delattr(self, "_pending_ui")
+
+    def _handle_overlay_cloning(self, ui) -> None:
+        """Handle overlay cloning with optimized history checking."""
+        # Optimize history check by avoiding expensive slice operations
+        # Only check if this is a different UI than last time
+        if ui != self._last_ui_history_check:
+            ui_history_slice = self.sb.ui_history(slice(0, -1), allow_duplicates=True)
+            if ui not in ui_history_slice:
+                self.overlay.clone_widgets_along_path(ui, self._return_to_startmenu)
+            self._last_ui_history_check = ui
 
     def _clear_transition_flag(self):
         """Clear the transition flag to allow new transitions."""
@@ -311,7 +374,23 @@ class Tcl(
         if self.mouseGrabber():
             self.mouseGrabber().releaseMouse()
 
+        # Clear optimization caches on hide to prevent memory leaks
+        self._clear_optimization_caches()
+
         super().hideEvent(event)
+
+    def _clear_optimization_caches(self):
+        """Clear optimization caches to prevent memory accumulation."""
+        # Cancel any pending show operations
+        if self._pending_show_timer and self._pending_show_timer.isActive():
+            self._pending_show_timer.stop()
+        if hasattr(self, "_pending_ui"):
+            delattr(self, "_pending_ui")
+
+        # Periodically clear the submenu cache to prevent excessive memory usage
+        if len(self._submenu_cache) > 50:  # Reasonable threshold
+            self._submenu_cache.clear()
+        self._last_ui_history_check = None
 
     def hide_other_windows(self) -> None:
         """Hide all visible windows except the current one."""
@@ -391,9 +470,16 @@ class Tcl(
                         f"child_enterEvent: Button '{w.objectName()}' with base_name 'i' has no accessibleName; skipping submenu lookup."
                     )
                     return
+
                 submenu_name = f"{acc_name}#submenu"
                 if submenu_name != w.ui.objectName():
-                    submenu = self.sb.get_ui(submenu_name)
+                    # Cache submenu lookups to avoid repeated sb.get_ui() calls
+                    submenu = self._submenu_cache.get(submenu_name)
+                    if submenu is None:
+                        submenu = self.sb.get_ui(submenu_name)
+                        if submenu:
+                            self._submenu_cache[submenu_name] = submenu
+
                     if submenu:
                         self._set_submenu(submenu, w)
 
@@ -423,10 +509,22 @@ class Tcl(
                             f"child_mouseButtonReleaseEvent: Button '{w.objectName()}' with base_name 'i' has no accessibleName; skipping menu lookup."
                         )
                     else:
-                        new_menu_name = self.sb.clean_tag_string(menu_name)
-                        menu = self.sb.get_ui(new_menu_name)
+                        unknown_tags = self.sb.get_unknown_tags(
+                            menu_name, known_tags=["submenu", "startmenu"]
+                        )
+                        new_menu_name = self.sb.remove_tags(menu_name, unknown_tags)
+                        # Cache menu lookups similar to submenu caching
+                        menu = self._submenu_cache.get(new_menu_name)
+                        if menu is None:
+                            menu = self.sb.get_ui(new_menu_name)
+                            if menu:
+                                self._submenu_cache[new_menu_name] = menu
+
                         if menu:
-                            self.sb.hide_unmatched_groupboxes(menu, menu_name)
+                            unknown_tags = self.sb.get_unknown_tags(
+                                menu_name, known_tags=["submenu", "startmenu"]
+                            )
+                            self.sb.hide_unmatched_groupboxes(menu, unknown_tags)
                             self.show(menu)
 
             if hasattr(w, "click"):
