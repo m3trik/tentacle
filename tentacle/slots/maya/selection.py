@@ -9,8 +9,8 @@ from tentacle.slots.maya import SlotsMaya
 
 
 class Selection(SlotsMaya):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+    def __init__(self, switchboard):
+        super().__init__(switchboard)
 
         self.ui = self.sb.loaded_ui.selection
         self.submenu = self.sb.loaded_ui.selection_submenu
@@ -46,44 +46,9 @@ class Selection(SlotsMaya):
                 "Ignores the current selection."
             ),
         )
-        items = [
-            "Assets",
-            "Animated Objects",
-            "Brushes",
-            "Cameras",
-            "Clusters",
-            "Constraints",
-            "Dynamic Constraints",
-            "Fluids",
-            "Follicles",
-            "Groups",
-            "Geometry",
-            "Geometry (Polygon)",
-            "Geometry (Hidden)",
-            "Geometry (Templated)",
-            "Geometry (Single Instance)",
-            "Geometry (Un-Selectable)",
-            "IK Handles",
-            "Image Planes",
-            "Joints",
-            "Lattices",
-            "Lights",
-            "Locators",
-            "Locators (Keyed)",
-            "NURBS (Curves)",
-            "NURBS (Surfaces)",
-            "Particles",
-            "Rigid Bodies",
-            "Rigid Constraints",
-            "Sculpt Objects",
-            "Strokes",
-            "Transforms",
-            "Wires",
-            "nCloths",
-            "nParticles",
-            "nRigids",
-        ]
 
+        # Get available selection types from the Selection class
+        items = mtk.Selection.get_available_selection_types()
         widget.add(sorted(items), header="By Type:")
 
     def cmb002(self, index, widget):
@@ -92,131 +57,30 @@ class Selection(SlotsMaya):
         add = widget.menu.chk011.isChecked()
         remove = widget.menu.chk012.isChecked()
 
+        # Determine selection mode
+        if add:
+            mode = "add"
+        elif remove:
+            mode = "remove"
+        else:
+            mode = "replace"
+
+        # Get the selection type
+        selection_type = widget.items[index]
+
+        # Get objects to work with
         objects = pm.selected() or pm.ls() if replace else pm.ls()
         if not objects:
-            self.logger.error("No objects found for selection.")
+            pm.warning("No objects found for selection.")
             return
-        text = widget.items[index]
 
-        if text == "IK Handles":
-            objs = pm.ls(objects, type=["ikHandle", "hikEffector"])
-        elif text == "Joints":
-            objs = pm.ls(objects, type="joint")
-        elif text == "Clusters":
-            objs = pm.listTransforms(objects, type="clusterHandle")
-        elif text == "Constraints":
-            objs = pm.ls(objects, type="constraint")
-        elif text == "Lattices":
-            objs = pm.listTransforms(objects, type="lattice")
-        elif text == "Sculpt Objects":
-            objs = pm.listTransforms(objects, type=["implicitSphere", "sculpt"])
-        elif text == "Wires":
-            objs = pm.ls(objects, type="wire")
-        elif text == "Transforms":
-            objs = pm.ls(objects, type="transform")
-        elif text == "Geometry":  # Select all Geometry excluding locators
-            shapes = pm.ls(objects, geometry=True)
-            rel = pm.listRelatives(shapes, parent=True, path=True)
-            objs = [obj for obj in rel if not mtk.is_locator(obj)]
-        elif text == "Groups":
-            objs = [obj for obj in objects if mtk.is_group(obj)]
-        elif text == "Locators":
-            shapes = pm.ls(objects, exactType="locator")
-            objs = set(pm.listRelatives(shapes, parent=True, path=True))
-        elif text == "Locators (Keyed)":
-            shapes = pm.ls(objects, exactType="locator")
-            objs = set(
-                [
-                    obj.getParent()
-                    for obj in shapes
-                    if pm.keyframe(obj, query=True, keyframeCount=True) > 0
-                ]
-            )
-        elif text == "NURBS (Curves)":
-            objs = pm.listTransforms(objects, type="nurbsCurve")
-        elif text == "NURBS (Surfaces)":
-            objs = pm.ls(objects, type="nurbsSurface")
-        elif text == "Geometry (Polygon)":
-            objs = pm.listTransforms(objects, type="mesh")
-        elif text == "Cameras":
-            objs = pm.listTransforms(objects, cameras=1)
-        elif text == "Lights":
-            objs = pm.listTransforms(objects, lights=1)
-        elif text == "Image Planes":
-            objs = pm.ls(objects, type="imagePlane")
-        elif text == "Assets":
-            objs = pm.ls(objects, type=["container", "dagContainer"])
-        elif text == "Fluids":
-            objs = pm.listTransforms(objects, type="fluidShape")
-        elif text == "Particles":
-            objs = pm.listTransforms(objects, type="particle")
-        elif text == "Rigid Bodies":
-            objs = pm.listTransforms(objects, type="rigidBody")
-        elif text == "Rigid Constraints":
-            objs = pm.ls(objects, type="rigidConstraint")
-        elif text == "Brushes":
-            objs = pm.ls(objects, type="brush")
-        elif text == "Strokes":
-            objs = pm.listTransforms(objects, type="stroke")
-        elif text == "Dynamic Constraints":
-            objs = pm.listTransforms(objects, type="dynamicConstraint")
-        elif text == "Follicles":
-            objs = pm.listTransforms(objects, type="follicle")
-        elif text == "nCloths":
-            objs = pm.listTransforms(objects, type="nCloth")
-        elif text == "nParticles":
-            objs = pm.listTransforms(objects, type="nParticle")
-        elif text == "nRigids":
-            objs = pm.listTransforms(objects, type="nRigid")
-        elif text == "Geometry (Hidden)":  # Select hidden geometry
-            geometry = pm.ls(objects, geometry=True)
-            objs = set(
-                [
-                    geo.getParent()
-                    for geo in geometry
-                    if not geo.getParent().visibility.get()
-                ]
-            )
-        elif text == "Geometry (Templated)":  # Select templated geometry
-            geometry = pm.ls(objects, geometry=True)
-            objs = set(
-                [
-                    geo.getParent()
-                    for geo in geometry
-                    if hasattr(geo.getParent(), "template")
-                    and geo.getParent().template.get()
-                ]
-            )
-        elif text == "Geometry (Un-Selectable)":  # Select unselectable geometry
-            geometry = pm.ls(geometry=True)
-            objs = set(
-                [
-                    geo.getParent()
-                    for geo in geometry
-                    if geo.getParent().overrideEnabled.get()
-                    and geo.getParent().overrideDisplayType.get() == 2
-                ]
-            )
-        elif text == "Geometry (Single Instance)":
-            geometry = pm.ls(objects, geometry=True)
-            objs = mtk.filter_duplicate_instances(geometry)
-
-        elif text == "Animated Objects":  # Select objects with animation keys
-            transforms = pm.ls(objects, type="transform")  # List all transform nodes
-            objs = set(
-                [
-                    obj
-                    for obj in transforms
-                    if pm.keyframe(obj, query=True, keyframeCount=True) > 0
-                ]
-            )
-
-        if add:
-            pm.select(objs, add=True)
-        elif remove:
-            pm.select(objs, deselect=True)
-        else:
-            pm.select(objs, replace=True)
+        try:
+            result = mtk.Selection.select_by_type(selection_type, objects, mode)
+            print(f"Selected {len(result)} objects of type: {selection_type}")
+        except ValueError as e:
+            pm.warning(str(e))
+        except Exception as e:
+            pm.warning(f"Error selecting by type '{selection_type}': {str(e)}")
 
     def cmb003_init(self, widget):
         """ """

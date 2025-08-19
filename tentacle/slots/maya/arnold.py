@@ -11,10 +11,10 @@ from tentacle.slots.maya import SlotsMaya
 
 
 class ArnoldSlots(SlotsMaya):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+    def __init__(self, switchboard):
+        super().__init__(switchboard)
 
-        self.sb = kwargs.get("switchboard")
+        self.sb = switchboard
         self.ui = mtk.UiManager.instance(self.sb).get("arnold", header=True)
 
 

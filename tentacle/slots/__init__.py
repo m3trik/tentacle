@@ -1,12 +1,6 @@
 # !/usr/bin/python
 # coding=utf-8
-import inspect
 from qtpy import QtCore
-import pythontk as ptk
-
-
-# module = inspect.getmodule(inspect.currentframe())  # this module.
-# path = ptk.get_object_path(module)  # this modules directory.
 
 
 class Slots(QtCore.QObject):
@@ -19,10 +13,10 @@ class Slots(QtCore.QObject):
                     return int(f)
     """
 
-    def __init__(self, parent=None, **kwargs):
-        super().__init__(parent)
+    def __init__(self, switchboard):
+        super().__init__()
         """ """
-        self.sb = kwargs.get("switchboard")
+        self.sb = switchboard
         try:
             self.sb.parent().left_mouse_double_click_ctrl.connect(
                 self.repeat_last_command

@@ -10,8 +10,12 @@ from tentacle.slots.maya import SlotsMaya
 
 
 class Cameras(SlotsMaya):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+    def __init__(self, switchboard):
+        super().__init__(switchboard)
+
+        self.sb = switchboard
+        self.ui = self.sb.loaded_ui.cameras
+
         try:
             self.sb.parent().left_mouse_double_click.connect(self.toggle_camera_view)
         except AttributeError:
@@ -20,7 +24,7 @@ class Cameras(SlotsMaya):
     def list000_init(self, widget):
         widget.clear()
         if not widget.is_initialized:
-            widget.refresh_on_show = True  # Call this method on show
+            widget.refresh_on_show = True  # This method called on each show
             widget.fixed_item_height = 18
             widget.sublist_x_offset = -10
             widget.sublist_y_offset = -10
@@ -104,74 +108,31 @@ class Cameras(SlotsMaya):
 
     def b000(self):
         """Cameras: Back View"""
-        try:  # if pm.objExists('back'):
-            pm.lookThru("back")
-
-        except Exception:
-            cam, camShape = pm.camera()  # create camera
-            pm.lookThru(cam)
-
-            pm.rename(cam, "back")
-            pm.viewSet(back=1)  # initialize the camera view
-            pm.hide(cam)
+        mtk.switch_viewport_camera("back")
 
     def b001(self):
         """Cameras: Top View"""
-        try:
-            pm.lookThru("topShape")
-
-        except Exception:
-            pm.lookThru("|top")
+        mtk.switch_viewport_camera("top")
 
     def b002(self):
         """Cameras: Right View"""
-        try:
-            pm.lookThru("sideShape")
-
-        except Exception:
-            pm.lookThru("|side")
+        mtk.switch_viewport_camera("side")
 
     def b003(self):
         """Cameras: Left View"""
-        try:  # if pm.objExists('back'):
-            pm.lookThru("left")
-
-        except Exception:
-            cam, camShape = pm.camera()  # create camera
-            pm.lookThru(cam)
-
-            pm.hide(cam)
-            pm.viewSet(leftSide=1)  # initialize the camera view
-            pm.rename(cam, "left")
+        mtk.switch_viewport_camera("left")
 
     def b004(self):
         """Cameras: Perspective View"""
-        try:
-            pm.lookThru("perspShape")
-
-        except Exception:
-            pm.lookThru("|persp")
+        mtk.switch_viewport_camera("persp")
 
     def b005(self):
         """Cameras: Front View"""
-        try:
-            pm.lookThru("frontShape")
-
-        except Exception:
-            pm.lookThru("|front")
+        mtk.switch_viewport_camera("front")
 
     def b006(self):
         """Cameras: Bottom View"""
-        try:  # if pm.objExists('back'):
-            pm.lookThru("bottom")
-
-        except Exception:
-            cam, camShape = pm.camera()  # create camera
-            pm.lookThru(cam)
-
-            pm.viewSet(bottom=1)  # initialize the camera view
-            pm.hide(cam)
-            pm.rename(cam, "bottom")
+        mtk.switch_viewport_camera("bottom")
 
     def b007(self):
         """Cameras: Align View"""
