@@ -140,16 +140,70 @@ class MaterialsSlots(SlotsMaya):
             setObjectName="chk005",
             setToolTip="Select object(s) containing the material.",
         )
+        widget.menu.add(
+            "QCheckBox",
+            setText="Search in Selection Only",
+            setObjectName="chk006",
+            setChecked=False,
+            setToolTip="When checked, search only within currently selected objects (if nothing is selected will default to all objects)\nWhen unchecked, always search all objects in the scene.",
+        )
+        widget.menu.add(
+            "QCheckBox",
+            setText="Get and Select",
+            setObjectName="chk007",
+            setChecked=False,
+            setToolTip="When checked, first get the material from the current viewport selection and set it as the current material, then perform the selection.",
+        )
 
     def tb000(self, widget):
         """Select By Material"""
+        get_and_select = widget.menu.chk007.isChecked()  # Get and select option
+
+        # If get_and_select is enabled, first get the material from current selection
+        if get_and_select:
+            selection = pm.ls(sl=True)
+            if selection:
+                mat = mtk.get_mats(selection[0])
+                if len(mat) == 1:
+                    # Refresh the materials list and set the found material as current
+                    self.ui.cmb002.init_slot()
+                    self.ui.cmb002.setAsCurrent(mat.pop().name())
+                elif len(mat) == 0:
+                    print(
+                        "Get material failed: No material found on selected object. Proceeding with current material."
+                    )
+                    self.sb.message_box(
+                        "<hl>No material found</hl><br>Selected object has no material assigned. Proceeding with current material."
+                    )
+                else:
+                    print(
+                        "Get material failed: Multiple materials found on selected object. Proceeding with current material."
+                    )
+                    self.sb.message_box(
+                        "<hl>Multiple materials found</hl><br>Selected object has multiple materials assigned. Cannot determine single material. Proceeding with current material."
+                    )
+            else:
+                print(
+                    "Get material failed: Nothing selected. Proceeding with current material."
+                )
+                self.sb.message_box(
+                    "<hl>Nothing selected</hl><br>Select mesh object(s) or face(s) to get material from. Proceeding with current material."
+                )
+
         mat = self.ui.cmb002.currentData()
         if not mat:
             return
 
         shell = widget.menu.chk005.isChecked()  # Select by material: shell
+        search_in_selection_only = (
+            widget.menu.chk006.isChecked()
+        )  # Search in selection only
 
-        selection = pm.ls(sl=True, objectsOnly=True)
+        if search_in_selection_only:
+            selection = pm.ls(sl=True, objectsOnly=True)
+        else:
+            selection = None  # Search all objects in the scene
+
         faces_with_mat = mtk.find_by_mat_id(mat, selection, shell=shell)
 
         pm.select(faces_with_mat)

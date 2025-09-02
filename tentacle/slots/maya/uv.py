@@ -55,14 +55,28 @@ class UvSlots(SlotsMaya):
         widget.add(items, header="Transform:")
 
     def tb000_init(self, widget):
-        """ """
+        """Initialize UV packing tool interface.
+
+        Sets up the UV packing options menu with controls for:
+        - Pre-Scale Mode: Controls how UV shells are scaled before packing
+        - Pre-Rotate Mode: Controls how UV shells are rotated during packing
+        - Uniform Texel Density: Option to maintain consistent texture resolution
+        - UDIM: Target UDIM tile space for the packed UVs
+
+        Parameters:
+            widget: The parent widget to add menu items to
+        """
+        widget.menu.setTitle("Pack: Options")
         widget.menu.add(
             "QSpinBox",
             setPrefix="Pre-Scale Mode: ",
             setObjectName="s009",
             set_limits=[0, 2],
             setValue=1,
-            setToolTip="Allow shell scaling during packing.",
+            setToolTip="Pre-scale mode for UV shells during packing:\n"
+            "0 = No scaling (keep original size)\n"
+            "1 = Uniform scaling (scale uniformly to fit)\n"
+            "2 = Non-uniform scaling (stretch to optimize space)",
         )
         widget.menu.add(
             "QSpinBox",
@@ -70,14 +84,36 @@ class UvSlots(SlotsMaya):
             setObjectName="s010",
             set_limits=[0, 2],
             setValue=0,
-            setToolTip="Allow shell rotation during packing.",
+            setToolTip="Pre-rotate mode for UV shells during packing:\n"
+            "0 = No rotation (keep original orientation)\n"
+            "1 = 90-degree steps only\n"
+            "2 = Free rotation (any angle for optimal packing)",
+        )
+        # Rotation sampling controls (always available; respected when rotation enabled)
+        widget.menu.add(
+            "QSpinBox",
+            setPrefix="Rotate Step: ",
+            setObjectName="s011",
+            set_limits=[1, 360],
+            setValue=90,
+            setToolTip="Increment (degrees) between tested rotations when Pre-Rotate Mode = 1 (stepped).\n"
+            "A small increment can add lots of additional processing time.",
         )
         widget.menu.add(
-            "QCheckBox",
-            setText="Uniform Texel Density",
-            setObjectName="chk008",
-            setChecked=True,
-            setToolTip="Scale all shells uniformly.",
+            "QSpinBox",
+            setPrefix="Rotate Min: ",
+            setObjectName="s012",
+            set_limits=[0, 359],
+            setValue=0,
+            setToolTip="Minimum shell rotation (degrees) considered during packing.",
+        )
+        widget.menu.add(
+            "QSpinBox",
+            setPrefix="Rotate Max: ",
+            setObjectName="s013",
+            set_limits=[0, 359],
+            setValue=180,
+            setToolTip="Maximum shell rotation (degrees) considered during packing.",
         )
         widget.menu.add(
             "QSpinBox",
@@ -85,15 +121,47 @@ class UvSlots(SlotsMaya):
             setObjectName="s004",
             set_limits=[1001, 1200],
             setValue=1001,
-            setToolTip="Set the desired UDIM tile space.",
+            setToolTip="Set the desired UDIM tile space (1001-1200).\n"
+            "1001 = First tile (0-1, 0-1 UV space)\n"
+            "1002 = Second tile (1-2, 0-1 UV space), etc.",
         )
 
     def tb000(self, widget):
-        """Pack UVs"""
+        """Pack UVs with specified settings.
+
+        Performs UV packing operation on selected objects using Maya's u3dLayout command
+        with user-specified scaling, rotation, and UDIM settings.
+
+        The packing operation:
+        1. Gets UV packing parameters from UI controls
+        2. Calculates appropriate padding based on texture resolution
+        4. Packs UV shells into the specified UDIM tile
+
+        Parameters:
+            widget: The widget containing the menu controls with packing options
+
+        UI Parameters used:
+            scale (int): Pre-scale mode from s009 spinbox
+                - 0: No scaling (preserve original shell sizes)
+                - 1: Uniform scaling (scale proportionally)
+                - 2: Non-uniform scaling (stretch to optimize)
+            rotate (int): Pre-rotate mode from s010 spinbox
+                - 0: No rotation (preserve original orientation)
+                - 1: 90-degree rotation steps only
+                - 2: Free rotation (any angle)
+            UDIM (int): Target UDIM tile number (s004), e.g., 1001
+
+        Note:
+            - Requires at least one object to be selected
+            - Automatically calculates shell and tile padding based on map size
+            - If uniform texel density is enabled, normalizes all shells before packing
+        """
         scale = widget.menu.s009.value()
-        uniform = widget.menu.chk008.isChecked()
         rotate = widget.menu.s010.value()
         UDIM = widget.menu.s004.value()
+        rotate_step = widget.menu.s011.value()
+        rotate_min = widget.menu.s012.value()
+        rotate_max = widget.menu.s013.value()
         map_size = self.get_map_size()
 
         U, D, I, M = [int(i) for i in str(UDIM)]  # UDIM ex. '1001'
@@ -109,9 +177,6 @@ class UvSlots(SlotsMaya):
         uvs = pm.polyListComponentConversion(selection, fromFace=True, toUV=True)
         uvs_flattened = pm.ls(uvs, flatten=True)
 
-        if uniform:
-            self.ui.b004.call_slot()
-
         pm.u3dLayout(
             uvs_flattened,
             resolution=map_size,
@@ -120,6 +185,9 @@ class UvSlots(SlotsMaya):
             preScaleMode=scale,
             preRotateMode=rotate,
             packBox=[M - 1, D, I, U],
+            rotateStep=rotate_step,
+            rotateMin=rotate_min,
+            rotateMax=rotate_max,
         )
 
     def tb001_init(self, widget):
@@ -363,6 +431,10 @@ class UvSlots(SlotsMaya):
         stackSimilar = widget.menu.chk022.isChecked()
         tolerance = widget.menu.s000.value()
         map_size = self.get_map_size()
+
+        # If selection mode is not object, switch to object mode
+        if pm.selectMode(query=True, object=True):
+            pm.selectMode(object=True)
 
         # Perform a preliminary unfold to optionally clean the mesh
         pm.mel.UnfoldUV()  # Prepares the context
