@@ -76,7 +76,13 @@ class Duplicate(SlotsMaya):
             )
             return
 
-        mtk.instance(
+        if len(selection) < 2:
+            self.sb.message_box(
+                "<strong>Insufficient selection</strong>.<br>Operation requires at least two objects: source and target(s)."
+            )
+            return
+
+        mtk.replace_with_instances(
             selection,
             freeze_transforms=freeze_transforms,
             center_pivot=center_pivot,
