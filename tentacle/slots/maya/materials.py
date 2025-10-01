@@ -1,5 +1,7 @@
 # !/usr/bin/python
 # coding=utf-8
+import re
+
 try:
     import pymel.core as pm
 except ImportError as error:
@@ -93,6 +95,12 @@ class MaterialsSlots(SlotsMaya):
             )
             widget.menu.add(
                 self.sb.registered_widgets.Label,
+                setText="Rename (strip trailing ints)",
+                setObjectName="lbl007",
+                setToolTip="Rename the current material by removing trailing digits if present.",
+            )
+            widget.menu.add(
+                self.sb.registered_widgets.Label,
                 setText="Delete",
                 setObjectName="lbl002",
                 setToolTip="Delete the current material.",
@@ -131,6 +139,53 @@ class MaterialsSlots(SlotsMaya):
             icon = mtk.get_mat_swatch_icon(mat)
             if icon:
                 widget.setItemIcon(i, icon)
+
+    def lbl007(self):
+        """Rename the current material by stripping trailing integers.
+
+        - Compute new name by removing trailing digits from the current name.
+        - Abort if the new name already exists or if nothing to change.
+        - Refresh UI and keep selection on the renamed material.
+        """
+        mat = self.ui.cmb002.currentData()
+        if not mat:
+            return
+
+        old_name = mat.name()
+        new_name = re.sub(r"\d+$", "", old_name)
+
+        # If stripping results in no change
+        if new_name == old_name:
+            self.sb.message_box(
+                "<hl>No trailing integers</hl><br>No trailing integers to strip; rename not performed."
+            )
+            return
+
+        # If stripping removes all characters
+        if not new_name:
+            self.sb.message_box(
+                "<hl>Invalid new name</hl><br>Stripping digits results in an empty name. Rename aborted."
+            )
+            return
+
+        # Ensure the target name doesn't already exist
+        if pm.objExists(new_name):
+            self.sb.message_box(
+                f"<hl>Rename aborted</hl><br>A node named '<strong>{new_name}</strong>' already exists."
+            )
+            return
+
+        try:
+            pm.rename(mat, new_name)
+        except Exception as e:
+            self.sb.message_box(f"<hl>Rename failed</hl><br>{e}")
+            return
+
+        # Refresh the materials list and keep current selection on the new name
+        self.ui.cmb002.init_slot()
+        self.ui.cmb002.setAsCurrent(new_name)
+        # Update the assign button text/icon
+        self.submenu.b005.init_slot()
 
     def tb000_init(self, widget):
         """ """

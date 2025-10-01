@@ -36,19 +36,19 @@ class SceneSlots(SlotsMaya):
                 setToolTip="Export the scene geometry as FBX to the current maya file's directory.\nThe file name will be the same as the current scene and overwrite the current file if it exists.",
             )
             widget.menu.add(
-                "QPushButton",
+                self.sb.registered_widgets.PushButton,
                 setText="Reference Manager",
                 setObjectName="b001",
                 setToolTip="Open the reference manager.",
             )
             widget.menu.add(
-                "QPushButton",
+                self.sb.registered_widgets.PushButton,
                 setText="Hierarchy Manager",
                 setObjectName="b004",
                 setToolTip="Open the hierarchy manager.",
             )
             widget.menu.add(
-                "QPushButton",
+                self.sb.registered_widgets.PushButton,
                 setText="Naming",
                 setObjectName="b005",
                 setToolTip="Open the naming tool.",

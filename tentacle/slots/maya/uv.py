@@ -570,6 +570,13 @@ class UvSlots(SlotsMaya):
             setChecked=False,
             setToolTip="Force rename even if 'map1' already exists (by renaming the existing map1 to 'map1_conflict').",
         )
+        widget.menu.add(
+            "QCheckBox",
+            setText="Prefer Largest Area",
+            setObjectName="chk029",
+            setChecked=False,
+            setToolTip="When multiple UV sets exist, choose the one with the largest actual face area coverage as primary.\nUses sum of UV face areas (not bounding box) to determine which set has the most comprehensive mapping.",
+        )
 
     def tb007(self, widget):
         """Cleanup UV Sets"""
@@ -577,6 +584,7 @@ class UvSlots(SlotsMaya):
         keep_only_primary = widget.menu.chk026.isChecked()
         rename_primary = widget.menu.chk027.isChecked()
         force_rename = widget.menu.chk028.isChecked()
+        prefer_largest_area = widget.menu.chk029.isChecked()
 
         selection = pm.selected()
         if not selection:
@@ -591,6 +599,7 @@ class UvSlots(SlotsMaya):
             keep_only_primary=keep_only_primary,
             rename_primary_to_map1=rename_primary,
             force_rename=force_rename,
+            prefer_largest_area=prefer_largest_area,
         )
 
     def cmb002(self, index, widget):
