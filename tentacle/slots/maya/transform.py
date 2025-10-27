@@ -51,27 +51,27 @@ class TransformSlots(SlotsMaya):
 
     def tb000_init(self, widget):
         """ """
-        widget.menu.add(
+        widget.option_box.menu.add(
             "QComboBox",
             addItems=["Min", "Mid", "Max"],
             setObjectName="cmb004",
             setToolTip="Choose which point of the bounding box to align to.",
         )
-        widget.menu.add(
+        widget.option_box.menu.add(
             "QCheckBox",
             setText="Move to Origin",
             setObjectName="chk014",
             setChecked=True,
             setToolTip="Move to origin (xyz 0,0,0).",
         )
-        widget.menu.add(
+        widget.option_box.menu.add(
             "QCheckBox",
             setText="Center Pivot",
             setObjectName="chk016",
             setChecked=True,
             setToolTip="Center pivot on objects bounding box.",
         )
-        widget.menu.add(
+        widget.option_box.menu.add(
             "QCheckBox",
             setText="Freeze Transforms",
             setObjectName="chk017",
@@ -81,10 +81,10 @@ class TransformSlots(SlotsMaya):
 
     def tb000(self, widget):
         """Drop To Grid"""
-        align = widget.menu.cmb004.currentText()
-        origin = widget.menu.chk014.isChecked()
-        center_pivot = widget.menu.chk016.isChecked()
-        freeze_transforms = widget.menu.chk017.isChecked()
+        align = widget.option_box.menu.cmb004.currentText()
+        origin = widget.option_box.menu.chk014.isChecked()
+        center_pivot = widget.option_box.menu.chk016.isChecked()
+        freeze_transforms = widget.option_box.menu.chk017.isChecked()
 
         objects = pm.ls(sl=1, objectsOnly=1)
         mtk.drop_to_grid(objects, align, origin, center_pivot, freeze_transforms)
@@ -92,7 +92,7 @@ class TransformSlots(SlotsMaya):
 
     def tb001_init(self, widget):
         """ """
-        widget.menu.add(
+        widget.option_box.menu.add(
             "QDoubleSpinBox",
             setObjectName="s001",
             setPrefix="Scale Factor:",
@@ -103,47 +103,47 @@ class TransformSlots(SlotsMaya):
 
     def tb001(self, widget):
         """Scale Connected Edges"""
-        factor = widget.menu.s001.value()
+        factor = widget.option_box.menu.s001.value()
         mtk.scale_connected_edges(scale_factor=factor)
 
     def tb002_init(self, widget):
         """ """
-        widget.menu.setTitle("Freeze Transforms")
-        widget.menu.add(
+        widget.option_box.menu.setTitle("Freeze Transforms")
+        widget.option_box.menu.add(
             "QCheckBox",
             setText="Translate",
             setObjectName="chk032",
             setChecked=True,
             setToolTip="The translation will be changed to 0, 0, 0.",
         )
-        widget.menu.add(
+        widget.option_box.menu.add(
             "QCheckBox",
             setText="Rotate",
             setObjectName="chk033",
             setToolTip="The rotation will be changed to 0, 0, 0.",
         )
-        widget.menu.add(
+        widget.option_box.menu.add(
             "QCheckBox",
             setText="Scale",
             setObjectName="chk034",
             setChecked=True,
             setToolTip="The scale factor will be changed to 1, 1, 1.",
         )
-        widget.menu.add(
+        widget.option_box.menu.add(
             "QCheckBox",
             setText="Center Pivot",
             setObjectName="chk035",
             setChecked=True,
             setToolTip="Move the objects pivot to the center of it's bounding box.",
         )
-        widget.menu.add(
+        widget.option_box.menu.add(
             "QCheckBox",
             setText="Store Transforms",
             setObjectName="chk037",
             setChecked=True,
             setToolTip="Store the original transforms as custom attributes.",
         )
-        widget.menu.add(
+        widget.option_box.menu.add(
             "QCheckBox",
             setText="Delete History",
             setObjectName="chk038",
@@ -158,12 +158,12 @@ class TransformSlots(SlotsMaya):
             self.sb.message_box("Please select at least one object.")
             return
 
-        cp = widget.menu.chk035.isChecked()
-        translate = widget.menu.chk032.isChecked()
-        rotate = widget.menu.chk033.isChecked()
-        scale = widget.menu.chk034.isChecked()
+        cp = widget.option_box.menu.chk035.isChecked()
+        translate = widget.option_box.menu.chk032.isChecked()
+        rotate = widget.option_box.menu.chk033.isChecked()
+        scale = widget.option_box.menu.chk034.isChecked()
         force = True if len(objects) == 1 else False
-        delete_history = widget.menu.chk038.isChecked()
+        delete_history = widget.option_box.menu.chk038.isChecked()
 
         mtk.freeze_transforms(
             objects,
@@ -177,8 +177,9 @@ class TransformSlots(SlotsMaya):
 
     def tb003_init(self, widget):
         """ """
-        widget.menu.mode = "popup"
-        widget.menu.setTitle("CONSTRAINTS")
+        widget.option_box.menu.trigger_button = "left"
+        widget.option_box.menu.add_apply_button = False
+        widget.option_box.menu.setTitle("CONSTRAINTS")
         edge_constraint = pm.xformConstraint(q=True, type=1) == "edge"
         surface_constraint = pm.xformConstraint(q=True, type=1) == "surface"
         values = [
@@ -187,7 +188,7 @@ class TransformSlots(SlotsMaya):
             ("chk026", "Make Live", True),
         ]
         for name, text, state in values:
-            widget.menu.add(
+            widget.option_box.menu.add(
                 "QCheckBox",
                 setObjectName=name,
                 setText=text,
@@ -195,7 +196,9 @@ class TransformSlots(SlotsMaya):
             )
 
         def update_text():
-            state = any(w.isChecked() for w in widget.menu.get_items("QCheckBox"))
+            state = any(
+                w.isChecked() for w in widget.option_box.menu.get_items("QCheckBox")
+            )
             widget.setText("Constrain: ON" if state else "Constrain: OFF")
 
         # Connecting signals to update_text method
@@ -203,14 +206,15 @@ class TransformSlots(SlotsMaya):
 
     def tb004_init(self, widget):
         """ """
-        widget.menu.mode = "popup"
-        widget.menu.setTitle("SNAP")
-        widget.menu.add(
+        widget.option_box.menu.trigger_button = "left"
+        widget.option_box.menu.add_apply_button = False
+        widget.option_box.menu.setTitle("SNAP")
+        widget.option_box.menu.add(
             self.sb.registered_widgets.CheckBox,
             setObjectName="chk021",
             setText="Snap Move",
         )
-        widget.menu.add(
+        widget.option_box.menu.add(
             "QDoubleSpinBox",
             setObjectName="s021",
             setPrefix="Increment:",
@@ -218,12 +222,12 @@ class TransformSlots(SlotsMaya):
             set_limits=[1, 1000, 1, 1],
             setDisabled=True,
         )
-        widget.menu.add(
+        widget.option_box.menu.add(
             self.sb.registered_widgets.CheckBox,
             setObjectName="chk022",
             setText="Snap Scale",
         )
-        widget.menu.add(
+        widget.option_box.menu.add(
             "QDoubleSpinBox",
             setObjectName="s022",
             setPrefix="Increment:",
@@ -231,12 +235,12 @@ class TransformSlots(SlotsMaya):
             set_limits=[1, 1000, 1, 1],
             setDisabled=True,
         )
-        widget.menu.add(
+        widget.option_box.menu.add(
             self.sb.registered_widgets.CheckBox,
             setObjectName="chk023",
             setText="Snap Rotate",
         )
-        widget.menu.add(
+        widget.option_box.menu.add(
             "QDoubleSpinBox",
             setObjectName="s023",
             setPrefix="Degrees:",
@@ -245,12 +249,20 @@ class TransformSlots(SlotsMaya):
             setDisabled=True,
         )
         # Set the values
-        widget.menu.s021.setValue(pm.manipMoveContext("Move", q=True, snapValue=True))
-        widget.menu.s022.setValue(pm.manipScaleContext("Scale", q=True, snapValue=True))
-        widget.menu.s023.setValue(pm.manipRotateContext("Rotate", q=1, snapValue=True))
+        widget.option_box.menu.s021.setValue(
+            pm.manipMoveContext("Move", q=True, snapValue=True)
+        )
+        widget.option_box.menu.s022.setValue(
+            pm.manipScaleContext("Scale", q=True, snapValue=True)
+        )
+        widget.option_box.menu.s023.setValue(
+            pm.manipRotateContext("Rotate", q=1, snapValue=True)
+        )
 
         def update_text():
-            state = any(w.isChecked() for w in widget.menu.get_items("CheckBox"))
+            state = any(
+                w.isChecked() for w in widget.option_box.menu.get_items("CheckBox")
+            )
             widget.setText("Snap: ON" if state else "Snap: OFF")
 
         # Connecting signals to update_text method
@@ -258,9 +270,9 @@ class TransformSlots(SlotsMaya):
 
     def tb005_init(self, widget):
         """Initialize Move To Menu"""
-        widget.menu.setTitle("MOVE TO")
+        widget.option_box.menu.setTitle("MOVE TO")
 
-        widget.menu.add(
+        widget.option_box.menu.add(
             "QCheckBox",
             setText="Move All To Last",
             setObjectName="chk036",
@@ -271,7 +283,7 @@ class TransformSlots(SlotsMaya):
     @mtk.undoable
     def tb005(self, widget):
         """Move To"""
-        move_all_to_last = widget.menu.chk036.isChecked()
+        move_all_to_last = widget.option_box.menu.chk036.isChecked()
 
         sel = pm.ls(orderedSelection=True, transforms=True)
         if not len(sel) > 1:
@@ -296,21 +308,27 @@ class TransformSlots(SlotsMaya):
         """Transform Tool Snap Settings: Move"""
         tb = self.ui.tb004
         tb.init_slot()
-        tb.menu.s021.setEnabled(state)  # Enable/Disable based on the checked state
+        tb.option_box.menu.s021.setEnabled(
+            state
+        )  # Enable/Disable based on the checked state
         self.setTransformSnap("move", state)
 
     def chk022(self, state, widget):
         """Transform Tool Snap Settings: Scale"""
         tb = self.ui.tb004
         tb.init_slot()
-        tb.menu.s022.setEnabled(state)  # Enable/Disable based on the checked state
+        tb.option_box.menu.s022.setEnabled(
+            state
+        )  # Enable/Disable based on the checked state
         self.setTransformSnap("scale", state)
 
     def chk023(self, state, widget):
         """Transform Tool Snap Settings: Rotate"""
         tb = self.ui.tb004
         tb.init_slot()
-        tb.menu.s023.setEnabled(state)  # Enable/Disable based on the checked state
+        tb.option_box.menu.s023.setEnabled(
+            state
+        )  # Enable/Disable based on the checked state
         self.setTransformSnap("rotate", state)
 
     def chk024(self, state, widget):

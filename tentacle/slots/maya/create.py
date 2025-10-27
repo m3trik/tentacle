@@ -63,14 +63,14 @@ class Create(SlotsMaya):
 
     def tb000_init(self, widget):
         """ """
-        widget.menu.add(
+        widget.option_box.menu.add(
             "QCheckBox",
             setText="Translate",
             setObjectName="chk000",
             setChecked=True,
             setToolTip="Move the created object to the center point of any selected object(s).",
         )
-        widget.menu.add(
+        widget.option_box.menu.add(
             "QCheckBox",
             setText="Scale",
             setObjectName="chk001",
@@ -82,8 +82,8 @@ class Create(SlotsMaya):
         """Create Primitive"""
         baseType = self.ui.cmb001.currentText()
         subType = self.ui.cmb002.currentText()
-        scale = widget.menu.chk001.isChecked()
-        translate = widget.menu.chk000.isChecked()
+        scale = widget.option_box.menu.chk001.isChecked()
+        translate = widget.option_box.menu.chk000.isChecked()
 
         hist_node = mtk.Primitives.create_default_primitive(
             baseType, subType, scale=scale, translate=translate

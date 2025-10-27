@@ -73,11 +73,40 @@ class Rendering(SlotsMaya):
 
     def b007(self):
         """Export Playblast"""
-        # create playblast to the users desktop and compress it
-        playblast_path = mtk.create_playblast(
-            filepath="%USERPROFILE%/Desktop", compression="iyuv"
+        # Force viewport refresh from start frame
+        start_frame = pm.playbackOptions(q=True, minTime=True)
+        end_frame = pm.playbackOptions(q=True, maxTime=True)
+        pm.currentTime(start_frame, update=True)
+
+        import os
+
+        desktop_path = os.path.expandvars("%USERPROFILE%/Desktop")
+        scene_name = (
+            os.path.basename(pm.sceneName()).rsplit(".", 1)[0]
+            if pm.sceneName()
+            else "playblast"
         )
-        ptk.compress_video(input_filepath=playblast_path, delete_original=True)
+        output_path = os.path.join(desktop_path, scene_name)
+
+        result = pm.playblast(
+            filename=output_path,
+            compression="none",  # Uncompressed to avoid codec corruption
+            clearCache=True,  # Clear previous temp files
+            forceOverwrite=True,
+            viewer=False,
+            offScreen=True,  # Render offscreen to avoid viewport corruption
+            showOrnaments=True,
+            percent=100,
+            quality=100,
+            widthHeight=(1920, 1080),
+            startTime=start_frame,
+            endTime=end_frame,
+        )
+
+        print(f"Uncompressed AVI created: {result}")
+
+        # Compress the uncompressed AVI to MP4 using FFmpeg
+        ptk.compress_video(input_filepath=result, delete_original=True)
 
 
 # --------------------------------------------------------------------------------------------

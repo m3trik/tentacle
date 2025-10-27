@@ -208,19 +208,19 @@ class SceneSlots(SlotsMaya):
         """ """
         if not widget.is_initialized:
             widget.refresh_on_show = True  # Call this method on show
-            widget.menu.add(
+            widget.option_box.menu.add(
                 self.sb.registered_widgets.Label,
                 setObjectName="lbl000",
                 setText="Set Project",
                 setToolTip="Set the project directory.",
             )
-            widget.menu.add(
+            widget.option_box.menu.add(
                 self.sb.registered_widgets.Label,
                 setObjectName="lbl005",
                 setText="Auto Set Project",
                 setToolTip="Determine the workspace directory by moving up directory levels until a workspace is found.",
             )
-            widget.menu.add(
+            widget.option_box.menu.add(
                 self.sb.registered_widgets.Label,
                 setObjectName="lbl004",
                 setText="Open Project Root",

@@ -115,7 +115,7 @@ class Preferences(SlotsMaya):
     def tb000_init(self, widget):
         """ """
         if not widget.is_initialized:
-            widget.menu.add(
+            widget.option_box.menu.add(
                 "QCheckBox",
                 setText="Auto Update",
                 setObjectName="auto_update",

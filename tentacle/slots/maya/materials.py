@@ -85,33 +85,32 @@ class MaterialsSlots(SlotsMaya):
         if not widget.is_initialized:
             widget.refresh_on_show = True  # Call this method on show
             widget.editable = True
-            widget.menu.mode = "context"
-            widget.menu.setTitle("Material Options")
-            widget.menu.add(
+            widget.option_box.menu.setTitle("Material Options")
+            widget.option_box.menu.add(
                 self.sb.registered_widgets.Label,
                 setText="Rename",
                 setObjectName="lbl005",
                 setToolTip="Rename the current material.",
             )
-            widget.menu.add(
+            widget.option_box.menu.add(
                 self.sb.registered_widgets.Label,
                 setText="Rename (strip trailing ints)",
                 setObjectName="lbl007",
                 setToolTip="Rename the current material by removing trailing digits if present.",
             )
-            widget.menu.add(
+            widget.option_box.menu.add(
                 self.sb.registered_widgets.Label,
                 setText="Delete",
                 setObjectName="lbl002",
                 setToolTip="Delete the current material.",
             )
-            widget.menu.add(
+            widget.option_box.menu.add(
                 self.sb.registered_widgets.Label,
                 setText="Select Node",
                 setObjectName="lbl004",
                 setToolTip="Select the material node and show its attributes in the attribute editor.",
             )
-            widget.menu.add(
+            widget.option_box.menu.add(
                 self.sb.registered_widgets.Label,
                 setText="Open in Editor",
                 setObjectName="lbl006",
@@ -189,20 +188,20 @@ class MaterialsSlots(SlotsMaya):
 
     def tb000_init(self, widget):
         """ """
-        widget.menu.add(
+        widget.option_box.menu.add(
             "QCheckBox",
             setText="Shell",
             setObjectName="chk005",
             setToolTip="Select object(s) containing the material.",
         )
-        widget.menu.add(
+        widget.option_box.menu.add(
             "QCheckBox",
             setText="Search in Selection Only",
             setObjectName="chk006",
             setChecked=False,
             setToolTip="When checked, search only within currently selected objects (if nothing is selected will default to all objects)\nWhen unchecked, always search all objects in the scene.",
         )
-        widget.menu.add(
+        widget.option_box.menu.add(
             "QCheckBox",
             setText="Get and Select",
             setObjectName="chk007",
@@ -212,7 +211,9 @@ class MaterialsSlots(SlotsMaya):
 
     def tb000(self, widget):
         """Select By Material"""
-        get_and_select = widget.menu.chk007.isChecked()  # Get and select option
+        get_and_select = (
+            widget.option_box.menu.chk007.isChecked()
+        )  # Get and select option
 
         # If get_and_select is enabled, first get the material from current selection
         if get_and_select:
@@ -249,9 +250,9 @@ class MaterialsSlots(SlotsMaya):
         if not mat:
             return
 
-        shell = widget.menu.chk005.isChecked()  # Select by material: shell
+        shell = widget.option_box.menu.chk005.isChecked()  # Select by material: shell
         search_in_selection_only = (
-            widget.menu.chk006.isChecked()
+            widget.option_box.menu.chk006.isChecked()
         )  # Search in selection only
 
         if search_in_selection_only:
@@ -283,7 +284,7 @@ class MaterialsSlots(SlotsMaya):
     def lbl005(self):
         """Set the current combo box text as editable."""
         self.ui.cmb002.setEditable(True)
-        self.ui.cmb002.menu.hide()
+        self.ui.cmb002.option_box.menu.hide()
 
     def lbl006(self):
         """Open material in editor"""

@@ -40,21 +40,21 @@ class Duplicate(SlotsMaya):
         )
 
     def tb000_init(self, widget):
-        widget.menu.add(
+        widget.option_box.menu.add(
             "QCheckBox",
             setText="Center Pivot",
             setObjectName="chk002",
             setChecked=True,
             setToolTip="Center pivot on the object(s) before instancing.",
         )
-        widget.menu.add(
+        widget.option_box.menu.add(
             "QCheckBox",
             setText="Freeze Transforms",
             setObjectName="chk000",
             setChecked=False,
             setToolTip="Freeze transforms on the object(s) before instancing.",
         )
-        widget.menu.add(
+        widget.option_box.menu.add(
             "QCheckBox",
             setText="Delete History",
             setObjectName="chk001",
@@ -64,9 +64,9 @@ class Duplicate(SlotsMaya):
 
     def tb000(self, widget):
         """Convert to Instances"""
-        freeze_transforms = widget.menu.chk000.isChecked()
-        center_pivot = widget.menu.chk002.isChecked()
-        delete_history = widget.menu.chk001.isChecked()
+        freeze_transforms = widget.option_box.menu.chk000.isChecked()
+        center_pivot = widget.option_box.menu.chk002.isChecked()
+        delete_history = widget.option_box.menu.chk001.isChecked()
 
         # Get the list of selected transform nodes in the order they were selected
         selection = pm.ls(orderedSelection=True, transforms=True)
