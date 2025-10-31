@@ -144,6 +144,39 @@ class Pivot(SlotsMaya):
             select_targets_after_transfer=True,
         )
 
+    def tb003_init(self, widget):
+        """Initialize World-Aligned Pivot options"""
+        widget.option_box.menu.setTitle("World-Aligned Pivot")
+        widget.option_box.menu.add(
+            "QCheckBox",
+            setText="Manip Pivot",
+            setObjectName="chk010",
+            setChecked=True,
+            setToolTip="Set temporary manipulator pivot. If unchecked, sets permanent object pivot.",
+        )
+
+    def tb003(self, widget):
+        """World-Aligned Pivot"""
+        manip_pivot = widget.option_box.menu.chk010.isChecked()
+
+        # Set pivot
+        pivot_type = "manip" if manip_pivot else "object"
+        result = mtk.world_aligned_pivot(mode="set", pivot_type=pivot_type)
+
+        if result:
+            if pivot_type == "manip":
+                pm.inViewMessage(
+                    status_message="World-aligned <hl>manipulator</hl> pivot set (temporary).",
+                    pos="topCenter",
+                    fade=True,
+                )
+            else:
+                pm.inViewMessage(
+                    status_message="World-aligned <hl>object</hl> pivot set (permanent).",
+                    pos="topCenter",
+                    fade=True,
+                )
+
     def b000(self):
         """Center Pivot: Object"""
         self.ui.tb001.init_slot()

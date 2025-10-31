@@ -85,27 +85,27 @@ class Selection(SlotsMaya):
             setText="Replace",
             setObjectName="chk010",
             setChecked=True,
-            setToolTip=(
-                "Replace current selection with the new selection.<br>"
-                "Uses selected objects, or all objects if none are selected."
-            ),
+            setToolTip=("Replace current selection with the new selection."),
         )
         widget.option_box.menu.add(
             "QRadioButton",
             setText="Add",
             setObjectName="chk011",
-            setToolTip=(
-                "Add new selection to the current selection.<br>"
-                "Ignores the current selection."
-            ),
+            setToolTip=("Add new selection to the current selection."),
         )
         widget.option_box.menu.add(
             "QRadioButton",
             setText="Remove",
             setObjectName="chk012",
+            setToolTip=("Remove new selection from the current selection."),
+        )
+        widget.option_box.menu.add(
+            "QCheckBox",
+            setText="Search Current Selection Only",
+            setObjectName="chk013",
+            setChecked=False,
             setToolTip=(
-                "Remove new selection from the current selection.<br>"
-                "Ignores the current selection."
+                "Search within the current selection instead of all scene objects."
             ),
         )
 
@@ -118,6 +118,7 @@ class Selection(SlotsMaya):
         replace = widget.option_box.menu.chk010.isChecked()
         add = widget.option_box.menu.chk011.isChecked()
         remove = widget.option_box.menu.chk012.isChecked()
+        search_selection = widget.option_box.menu.chk013.isChecked()
 
         # Determine selection mode
         if add:
@@ -131,10 +132,15 @@ class Selection(SlotsMaya):
         selection_type = widget.items[index]
 
         # Get objects to work with
-        objects = pm.selected() or pm.ls() if replace else pm.ls()
-        if not objects:
-            pm.warning("No objects found for selection.")
-            return
+        if search_selection:
+            # Search within current selection only
+            objects = pm.selected()
+            if not objects:
+                self.sb.message_box("No objects selected to search within.")
+                return
+        else:
+            # Search all scene objects
+            objects = pm.ls()
 
         try:
             result = mtk.Selection.select_by_type(selection_type, objects, mode)

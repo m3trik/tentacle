@@ -124,8 +124,8 @@
     </property>
     <property name="geometry">
      <rect>
-      <x>180</x>
-      <y>210</y>
+      <x>170</x>
+      <y>220</y>
       <width>71</width>
       <height>19</height>
      </rect>
@@ -220,6 +220,37 @@
      <bool>false</bool>
     </property>
    </widget>
+   <widget class="PushButton" name="tb003">
+    <property name="enabled">
+     <bool>true</bool>
+    </property>
+    <property name="geometry">
+     <rect>
+      <x>255</x>
+      <y>200</y>
+      <width>86</width>
+      <height>19</height>
+     </rect>
+    </property>
+    <property name="maximumSize">
+     <size>
+      <width>111</width>
+      <height>19</height>
+     </size>
+    </property>
+    <property name="toolTip">
+     <string>Set pivot to world-aligned orientation.</string>
+    </property>
+    <property name="text">
+     <string>Align World</string>
+    </property>
+    <property name="iconSize">
+     <size>
+      <width>18</width>
+      <height>18</height>
+     </size>
+    </property>
+   </widget>
    <widget class="PushButton" name="tb000">
     <property name="enabled">
      <bool>true</bool>
@@ -227,7 +258,7 @@
     <property name="geometry">
      <rect>
       <x>270</x>
-      <y>200</y>
+      <y>170</y>
       <width>56</width>
       <height>19</height>
      </rect>
@@ -239,47 +270,10 @@
      </size>
     </property>
     <property name="toolTip">
-     <string>Move the pivot point to the center of the selected object</string>
+     <string>Set pivot to world-aligned orientation.</string>
     </property>
     <property name="text">
      <string>Reset</string>
-    </property>
-    <property name="iconSize">
-     <size>
-      <width>18</width>
-      <height>18</height>
-     </size>
-    </property>
-   </widget>
-   <widget class="PushButton" name="tb002">
-    <property name="enabled">
-     <bool>true</bool>
-    </property>
-    <property name="geometry">
-     <rect>
-      <x>180</x>
-      <y>180</y>
-      <width>71</width>
-      <height>20</height>
-     </rect>
-    </property>
-    <property name="minimumSize">
-     <size>
-      <width>0</width>
-      <height>20</height>
-     </size>
-    </property>
-    <property name="maximumSize">
-     <size>
-      <width>16777215</width>
-      <height>20</height>
-     </size>
-    </property>
-    <property name="toolTip">
-     <string>Transfer the pivot orientation from the first given object to the remaining given objects.</string>
-    </property>
-    <property name="text">
-     <string>Transfer</string>
     </property>
     <property name="iconSize">
      <size>

@@ -349,7 +349,7 @@ class Animation(SlotsMaya):
             setText="Move Selected Keys",
             setObjectName="chk010",
             setChecked=True,
-            setToolTip="Move selected keys to current frame.\nElse move all keys on selected objects.",
+            setToolTip="Move selected keys from graph editor to current frame.\nElse move all keys on selected objects.",
         )
         widget.option_box.menu.add(
             "QCheckBox",
@@ -358,11 +358,19 @@ class Animation(SlotsMaya):
             setChecked=True,
             setToolTip="Maintain relative spacing between objects.\nElse move each object's first key to target frame.",
         )
+        widget.option_box.menu.add(
+            "QCheckBox",
+            setText="Channel Box Only",
+            setObjectName="chk021",
+            setChecked=False,
+            setToolTip="Only move keys for attributes selected in the channel box.\nWorks with both 'Move Selected Keys' and all keys modes.",
+        )
 
     def tb006(self, widget):
         """Move Keys"""
-        only_move_selected = widget.option_box.menu.chk010.isChecked()
+        selected_keys_only = widget.option_box.menu.chk010.isChecked()
         retain_spacing = widget.option_box.menu.chk012.isChecked()
+        channel_box_attrs_only = widget.option_box.menu.chk021.isChecked()
 
         objects = pm.selected(flatten=True)
         if not objects:
@@ -370,8 +378,9 @@ class Animation(SlotsMaya):
             return
         mtk.move_keys_to_frame(
             objects,
-            only_move_selected=only_move_selected,
+            selected_keys_only=selected_keys_only,
             retain_spacing=retain_spacing,
+            channel_box_attrs_only=channel_box_attrs_only,
         )
 
     def tb007_init(self, widget):
@@ -564,14 +573,254 @@ class Animation(SlotsMaya):
         else:
             self.sb.message_box(f"Snapped {result} keyframe(s) to whole frames.")
 
-    def b000(self):
+    def tb010_init(self, widget):
+        """Delete Keys Init"""
+        widget.option_box.menu.setTitle("Delete Keys")
+        cmb = widget.option_box.menu.add(
+            "QComboBox",
+            setObjectName="cmb004",
+            setToolTip="Time range for keyframe deletion:\n"
+            "• All Keyframes: Delete all keyframes on selected attributes\n"
+            "• Current Frame: Delete keyframes at current frame only\n"
+            "• Before Current: Delete all keyframes before current frame (excluding current)\n"
+            "• Before & Current: Delete all keyframes before and including current frame\n"
+            "• After Current: Delete all keyframes after current frame (excluding current)\n"
+            "• Current & After: Delete all keyframes at and after current frame (including current)",
+        )
+
+        # Add items with display text and associated data
+        items = [
+            ("All Keyframes", "all"),
+            ("Current Frame", "current"),
+            ("Before Current", "before"),
+            ("Before & Current", "before|current"),
+            ("After Current", "after"),
+            ("Current & After", "after|current"),
+        ]
+
+        for display_text, data_value in items:
+            cmb.addItem(display_text)
+            cmb.setItemData(cmb.count() - 1, data_value)
+
+        cmb.setCurrentIndex(0)
+
+        widget.option_box.menu.add(
+            "QCheckBox",
+            setText="Channel Box Only",
+            setObjectName="chk020",
+            setChecked=False,
+            setToolTip="If checked, only delete keys for attributes selected in the channel box.\nIf unchecked, delete keys for all keyable attributes.",
+        )
+
+    def tb010(self, widget):
         """Delete Keys"""
+        cmb = widget.option_box.menu.cmb004
+        time_param = cmb.itemData(cmb.currentIndex())
+        channel_box_only = widget.option_box.menu.chk020.isChecked()
+
         try:
             objects = pm.selected()
-            attributes = mtk.get_channel_box_attributes(objects)
-            mtk.delete_keys(objects, *attributes.keys())
+            if not objects:
+                self.sb.message_box("You must select at least one object.")
+                return
+
+            if channel_box_only:
+                # Use channel box filtering
+                if time_param == "all":
+                    mtk.delete_keys(objects, channel_box_only=True)
+                else:
+                    mtk.delete_keys(objects, time=time_param, channel_box_only=True)
+            else:
+                # Use old behavior with get_channel_box_attributes
+                attributes = mtk.get_channel_box_attributes(objects)
+                if not attributes:
+                    self.sb.message_box("No channel box attributes selected.")
+                    return
+
+                if time_param == "all":
+                    mtk.delete_keys(objects, *attributes.keys())
+                else:
+                    mtk.delete_keys(objects, *attributes.keys(), time=time_param)
         except AttributeError:
             self.sb.message_box("No channel box values stored.")
+
+    def tb011_init(self, widget):
+        """Tie/Untie Keyframes Init"""
+        widget.option_box.menu.setTitle("Tie/Untie Keyframes")
+        widget.option_box.menu.add(
+            "QCheckBox",
+            setText="Untie Keyframes",
+            setObjectName="chk022",
+            setChecked=False,
+            setToolTip="If checked, removes bookend keyframes (preserves genuine animation).\nIf unchecked, adds keyframes at start/end of animation range.",
+        )
+        widget.option_box.menu.add(
+            "QCheckBox",
+            setText="Use Absolute Range",
+            setObjectName="chk023",
+            setChecked=False,
+            setToolTip="If checked, uses the absolute start/end keyframes across all objects.\nIf unchecked, uses the scene's playback range.",
+        )
+
+    def tb011(self, widget):
+        """Tie/Untie Keyframes"""
+        untie_mode = widget.option_box.menu.chk022.isChecked()
+        absolute = widget.option_box.menu.chk023.isChecked()
+
+        objects = pm.selected()
+        if not objects:
+            # If no selection, operate on all keyed objects in scene
+            objects = None
+
+        if untie_mode:
+            mtk.untie_keyframes(objects=objects, absolute=absolute)
+        else:
+            mtk.tie_keyframes(objects=objects, absolute=absolute)
+
+    def tb012_init(self, widget):
+        """Insert Keyframe Gap Init"""
+        widget.option_box.menu.setTitle("Insert Keyframe Gap")
+        widget.option_box.menu.add(
+            "QSpinBox",
+            setPrefix="Start Frame: ",
+            setObjectName="s009",
+            set_limits=[-1000000, 1000000],
+            setValue=0,
+            setToolTip="Gap start frame. Set to 0 to use current time as start.",
+        )
+        widget.option_box.menu.add(
+            "QSpinBox",
+            setPrefix="End Frame: ",
+            setObjectName="s010",
+            set_limits=[-1000000, 1000000],
+            setValue=10,
+            setToolTip="When Start=0: Gap duration in frames.\nWhen Start≠0: Gap size in frames (gap ends at Start+End).",
+        )
+        widget.option_box.menu.add(
+            "QCheckBox",
+            setText="Selected Keys Only",
+            setObjectName="chk020",
+            setChecked=False,
+            setToolTip="Only affect selected keyframes in graph editor.\nWhen unchecked, affects all keys on selected objects (or all scene objects if nothing selected).",
+        )
+
+    def tb012(self, widget):
+        """Insert Keyframe Gap"""
+        start_frame = widget.option_box.menu.s009.value()
+        end_frame = widget.option_box.menu.s010.value()
+        selected_keys_only = widget.option_box.menu.chk020.isChecked()
+
+        # Determine duration parameter
+        if start_frame == 0:
+            # Use current time + duration (end_frame as duration)
+            duration = end_frame
+        else:
+            # Use explicit start and end
+            duration = (start_frame, start_frame + end_frame)
+
+        # Get objects to affect
+        selected_objects = pm.selected()
+        objects = selected_objects if selected_objects else None
+
+        result = mtk.insert_keyframe_gap(
+            duration=duration,
+            objects=objects,
+            selected_keys_only=selected_keys_only,
+        )
+
+        if result["keys_moved"] == 0:
+            self.sb.message_box("No keyframes found to move.")
+
+    def tb013_init(self, widget):
+        """Select Keys Init"""
+        widget.option_box.menu.setTitle("Select Keys")
+        widget.option_box.menu.add(
+            "QComboBox",
+            addItems=[
+                "All",
+                "Current",
+                "Before",
+                "After",
+                "Before|Current",
+                "After|Current",
+                "Range",
+            ],
+            setObjectName="cmb003",
+            setCurrentIndex=0,
+            setToolTip="Type of time selection to make.",
+        )
+        widget.option_box.menu.add(
+            "QSpinBox",
+            setPrefix="Start Frame: ",
+            setObjectName="s012",
+            set_limits=[-10000, 10000],
+            setValue=1,
+            setToolTip="Start frame for Range selection mode.",
+        )
+        widget.option_box.menu.add(
+            "QSpinBox",
+            setPrefix="End Frame: ",
+            setObjectName="s013",
+            set_limits=[-10000, 10000],
+            setValue=100,
+            setToolTip="End frame for Range selection mode.",
+        )
+        widget.option_box.menu.add(
+            "QCheckBox",
+            setText="Channel Box Only",
+            setObjectName="chk021",
+            setChecked=False,
+            setToolTip="Only select keys for attributes selected in the channel box.",
+        )
+        widget.option_box.menu.add(
+            "QCheckBox",
+            setText="Add to Selection",
+            setObjectName="chk022",
+            setChecked=False,
+            setToolTip="Add to existing keyframe selection instead of replacing it.",
+        )
+
+    def tb013(self, widget):
+        """Select Keys"""
+        selection_type = widget.option_box.menu.cmb003.currentText()
+        start_frame = widget.option_box.menu.s012.value()
+        end_frame = widget.option_box.menu.s013.value()
+        channel_box_only = widget.option_box.menu.chk021.isChecked()
+        add_to_selection = widget.option_box.menu.chk022.isChecked()
+
+        # Determine time parameter based on selection type
+        if selection_type == "All":
+            time = None
+        elif selection_type == "Current":
+            time = "current"
+        elif selection_type == "Before":
+            time = "before"
+        elif selection_type == "After":
+            time = "after"
+        elif selection_type == "Before|Current":
+            time = "before|current"
+        elif selection_type == "After|Current":
+            time = "after|current"
+        elif selection_type == "Range":
+            time = (start_frame, end_frame)
+        else:
+            time = None
+
+        # Get objects to affect
+        selected_objects = pm.selected()
+        objects = selected_objects if selected_objects else None
+
+        keys_selected = mtk.select_keys(
+            objects=objects,
+            time=time,
+            channel_box_only=channel_box_only,
+            add_to_selection=add_to_selection,
+        )
+
+        if keys_selected == 0:
+            self.sb.message_box("No keyframes found to select.")
+        else:
+            pm.displayInfo(f"Selected {keys_selected} keyframe(s)")
 
     def b001(self):
         """Store Channel Box Attributes"""
@@ -585,7 +834,9 @@ class Animation(SlotsMaya):
         """Key Stored Attributes"""
         try:
             objects = pm.selected()  # Get the currently selected objects
-            mtk.set_keys_for_attributes(objects, **self._stored_attributes)
+            mtk.set_keys_for_attributes(
+                objects, refresh_channel_box=True, **self._stored_attributes
+            )
         except AttributeError:
             self.sb.message_box("No channel box values stored.")
 
