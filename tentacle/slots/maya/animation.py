@@ -822,23 +822,65 @@ class Animation(SlotsMaya):
         else:
             pm.displayInfo(f"Selected {keys_selected} keyframe(s)")
 
-    def b001(self):
-        """Store Channel Box Attributes"""
+    def b001(self, widget=None):
+        """Copy Keys"""
         objects = pm.selected()
-        if objects:
-            self._stored_attributes = mtk.get_channel_box_attributes(objects)
-        else:
-            self.sb.message_box("You must select at least one channel box attribute.")
+        if not objects:
+            self.sb.message_box("You must select at least one object.")
+            return
 
-    def b002(self):
-        """Key Stored Attributes"""
-        try:
-            objects = pm.selected()  # Get the currently selected objects
-            mtk.set_keys_for_attributes(
-                objects, refresh_channel_box=True, **self._stored_attributes
+        # Copy each object's unique values (default behavior)
+        self._stored_attributes = mtk.get_channel_box_attributes(objects)
+
+        if not self._stored_attributes:
+            self.sb.message_box("No channel box attributes selected.")
+        else:
+            self.sb.message_box(
+                f"Copied values from {len(self._stored_attributes)} object(s)."
             )
-        except AttributeError:
-            self.sb.message_box("No channel box values stored.")
+
+    def b002(self, widget=None):
+        """Paste Keys"""
+        if not hasattr(self, "_stored_attributes") or not self._stored_attributes:
+            self.sb.message_box("No values stored. Use 'Copy Keys' first.")
+            return
+
+        objects = pm.selected()
+        if not objects:
+            self.sb.message_box("You must select at least one object.")
+            return
+
+        # Paste - auto-detects per-object mode from dict structure
+        mtk.set_keys_for_attributes(
+            objects, refresh_channel_box=True, **self._stored_attributes
+        )
+
+        # Count how many objects were actually matched
+        keys_set = 0
+        for obj in objects:
+            obj_name = str(obj)
+            if obj_name in self._stored_attributes:
+                keys_set += 1
+            elif obj.nodeName() in self._stored_attributes:
+                keys_set += 1
+            else:
+                # Check for short name matches
+                for stored_name in self._stored_attributes.keys():
+                    if stored_name.split("|")[-1] == obj.nodeName():
+                        keys_set += 1
+                        break
+
+        if keys_set > 0:
+            msg = f"Pasted values to {keys_set} object(s)."
+            if keys_set < len(objects):
+                msg += (
+                    f"\n{len(objects) - keys_set} object(s) not found in copied data."
+                )
+            self.sb.message_box(msg)
+        else:
+            self.sb.message_box(
+                "No matching objects found. Select the same objects you copied from."
+            )
 
 
 # --------------------------------------------------------------------------------------------
