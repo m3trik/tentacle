@@ -88,14 +88,6 @@ class Ui_QtUi(object):
 
         self.verticalLayout_6.addWidget(self.tb005)
 
-        self.tb003 = PushButton(self.keyframes)
-        self.tb003.setObjectName(u"tb003")
-        self.tb003.setMinimumSize(QSize(0, 20))
-        self.tb003.setMaximumSize(QSize(16777215, 20))
-        self.tb003.setCheckable(False)
-
-        self.verticalLayout_6.addWidget(self.tb003)
-
         self.tb002 = PushButton(self.keyframes)
         self.tb002.setObjectName(u"tb002")
         self.tb002.setMinimumSize(QSize(0, 20))
@@ -103,6 +95,14 @@ class Ui_QtUi(object):
         self.tb002.setCheckable(False)
 
         self.verticalLayout_6.addWidget(self.tb002)
+
+        self.tb003 = PushButton(self.keyframes)
+        self.tb003.setObjectName(u"tb003")
+        self.tb003.setMinimumSize(QSize(0, 20))
+        self.tb003.setMaximumSize(QSize(16777215, 20))
+        self.tb003.setCheckable(False)
+
+        self.verticalLayout_6.addWidget(self.tb003)
 
         self.tb012 = PushButton(self.keyframes)
         self.tb012.setObjectName(u"tb012")
@@ -233,13 +233,13 @@ class Ui_QtUi(object):
 #endif // QT_CONFIG(tooltip)
         self.tb005.setText(QCoreApplication.translate("QtUi", u"Add Intermediate Keys", None))
 #if QT_CONFIG(tooltip)
-        self.tb003.setToolTip(QCoreApplication.translate("QtUi", u"<html><head/><body><pre style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; line-height:24px; background-color:#272822;\"><span style=\" font-family:'Consolas,Courier New,monospace'; font-size:18px; color:#e6db74;\">Stagger the keyframes of selected objects with various positioning controls.</span></pre><p><span style=\" font-family:'Consolas,Courier New,monospace'; font-size:18px; color:#f8f8f2;\"><br/></span><span style=\" font-family:'Consolas,Courier New,monospace'; font-size:18px; color:#e6db74;\">If keys are selected, only those keys are staggered. If no keys are selected, all keys are staggered.</span></p><p><span style=\" font-family:'Consolas,Courier New,monospace'; font-size:18px; color:#f8f8f2;\"><br/></span></p></body></html>", None))
-#endif // QT_CONFIG(tooltip)
-        self.tb003.setText(QCoreApplication.translate("QtUi", u"Stagger Keys", None))
-#if QT_CONFIG(tooltip)
         self.tb002.setToolTip(QCoreApplication.translate("QtUi", u"Add or remove spacing between all keys at a given time for any currently selected objects.", None))
 #endif // QT_CONFIG(tooltip)
         self.tb002.setText(QCoreApplication.translate("QtUi", u"Adjust Spacing", None))
+#if QT_CONFIG(tooltip)
+        self.tb003.setToolTip(QCoreApplication.translate("QtUi", u"<html><head/><body><pre style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; line-height:24px; background-color:#272822;\"><span style=\" font-family:'Consolas,Courier New,monospace'; font-size:18px; color:#e6db74;\">Stagger the keyframes of selected objects with various positioning controls.</span></pre><p><span style=\" font-family:'Consolas,Courier New,monospace'; font-size:18px; color:#f8f8f2;\"><br/></span><span style=\" font-family:'Consolas,Courier New,monospace'; font-size:18px; color:#e6db74;\">If keys are selected, only those keys are staggered. If no keys are selected, all keys are staggered.</span></p><p><span style=\" font-family:'Consolas,Courier New,monospace'; font-size:18px; color:#f8f8f2;\"><br/></span></p></body></html>", None))
+#endif // QT_CONFIG(tooltip)
+        self.tb003.setText(QCoreApplication.translate("QtUi", u"Stagger Keys", None))
 #if QT_CONFIG(tooltip)
         self.tb012.setToolTip(QCoreApplication.translate("QtUi", u"Create a gap in keyframes by moving keyframes forward in time.", None))
 #endif // QT_CONFIG(tooltip)

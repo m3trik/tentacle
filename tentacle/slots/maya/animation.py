@@ -188,14 +188,6 @@ class Animation(SlotsMaya):
         widget.option_box.menu.setTitle("Stagger Keys")
         widget.option_box.menu.add(
             "QSpinBox",
-            setPrefix="Offset: ",
-            setObjectName="s004",
-            set_limits=[-100000, 100000],
-            setValue=0,
-            setToolTip="Offset/spacing between animations. Positive = gap, Negative = overlap, 0 = end-to-start.\nFloat between -1.0 and 1.0 = percentage of duration.",
-        )
-        widget.option_box.menu.add(
-            "QSpinBox",
             setPrefix="Start Frame: ",
             setObjectName="s005",
             set_limits=[-100000, 100000],
@@ -204,26 +196,47 @@ class Animation(SlotsMaya):
         )
         widget.option_box.menu.add(
             "QSpinBox",
-            setPrefix="Interval: ",
-            setObjectName="s006",
-            set_limits=[0, 100000],
+            setPrefix="Spacing: ",
+            setObjectName="s004",
+            set_limits=[-100000, 100000],
             setValue=0,
-            setToolTip="Place animations at regular frame intervals (e.g., 100 = frames 0, 100, 200...).\n0 = disabled, uses offset instead.",
-        )
-        widget.option_box.menu.add(
-            "QSpinBox",
-            setPrefix="Overlap Interval: ",
-            setObjectName="s007",
-            set_limits=[0, 100000],
-            setValue=0,
-            setToolTip="Additional interval to use when overlap detected.\nIf non-zero, animations skip to next interval position to avoid overlap.\n0 = disabled.",
+            setToolTip="Sequential mode: Offset/spacing between animations.\n"
+            "  • Positive = gap in frames\n"
+            "  • Zero = end-to-start (default)\n"
+            "  • Negative = overlap in frames\n"
+            "  • Float -1.0 to 1.0 = % of duration\n\n"
+            "Interval mode: Fixed frame interval for placement\n"
+            "  • e.g., 100 = animations at frames 0, 100, 200...",
         )
         widget.option_box.menu.add(
             "QCheckBox",
-            setText="Invert",
-            setObjectName="chk008",
+            setText="Use Intervals",
+            setObjectName="chk025",
             setChecked=False,
-            setToolTip="Invert the staggered keyframe order.",
+            setToolTip="Place animations at fixed frame intervals instead of sequential spacing.\n"
+            "When enabled, Spacing defines the interval (e.g., 100 = frames 0, 100, 200...).",
+        )
+        widget.option_box.menu.add(
+            "QCheckBox",
+            setText="Avoid Overlap",
+            setObjectName="chk026",
+            setChecked=False,
+            setToolTip="Skip to next interval if animation would overlap with previous one.\n"
+            "Only applies when 'Use Intervals' is enabled.",
+        )
+        widget.option_box.menu.add(
+            "QCheckBox",
+            setText="Group Overlapping",
+            setObjectName="chk014",
+            setChecked=False,
+            setToolTip="Treat objects with overlapping keyframes as a single block.\nObjects in the same time range will move together.",
+        )
+        widget.option_box.menu.add(
+            "QCheckBox",
+            setText="Ignore Visibility",
+            setObjectName="chk024",
+            setChecked=False,
+            setToolTip="Ignore visibility keyframes when staggering.\nVisibility keys will remain at their original positions.",
         )
         widget.option_box.menu.add(
             "QCheckBox",
@@ -234,43 +247,40 @@ class Animation(SlotsMaya):
         )
         widget.option_box.menu.add(
             "QCheckBox",
-            setText="Group Overlapping",
-            setObjectName="chk014",
+            setText="Invert",
+            setObjectName="chk008",
             setChecked=False,
-            setToolTip="Treat objects with overlapping keyframes as a single block.\nObjects in the same time range will move together.",
+            setToolTip="Invert the staggered keyframe order.",
         )
 
     def tb003(self, widget):
         """Stagger Keys"""
-        offset = widget.option_box.menu.s004.value()
+        spacing = widget.option_box.menu.s004.value()
         start_frame_value = widget.option_box.menu.s005.value()
-        interval_value = widget.option_box.menu.s006.value()
-        overlap_interval_value = widget.option_box.menu.s007.value()
+        use_intervals = widget.option_box.menu.chk025.isChecked()
+        avoid_overlap = widget.option_box.menu.chk026.isChecked()
         invert = widget.option_box.menu.chk008.isChecked()
         smooth_tangents = widget.option_box.menu.chk009.isChecked()
         group_overlapping = widget.option_box.menu.chk014.isChecked()
+        ignore_visibility = widget.option_box.menu.chk024.isChecked()
 
-        # Only use start_frame/interval if non-zero
+        # Only use start_frame if non-zero
         start_frame = start_frame_value if start_frame_value != 0 else None
 
-        # Handle interval as tuple if overlap_interval is specified
-        if interval_value != 0:
-            if overlap_interval_value != 0:
-                interval = (interval_value, overlap_interval_value)
-            else:
-                interval = interval_value
-        else:
-            interval = None
+        # Set ignore parameter based on checkbox
+        ignore = "visibility" if ignore_visibility else None
 
         selected_objects = pm.selected()
         mtk.stagger_keyframes(
             selected_objects,
             start_frame=start_frame,
-            interval=interval,
-            offset=offset,
+            spacing=spacing,
+            use_intervals=use_intervals,
+            avoid_overlap=avoid_overlap,
             invert=invert,
             smooth_tangents=smooth_tangents,
             group_overlapping=group_overlapping,
+            ignore=ignore,
         )
 
     def tb004_init(self, widget):
