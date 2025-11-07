@@ -106,7 +106,7 @@ class Animation(SlotsMaya):
             setObjectName="s001",
             set_limits=[-100000, 100000],
             setValue=0,
-            setToolTip="The desired start time for the inverted keys.",
+            setToolTip="The desired start time for the inverted keys.\nSet to 0 to use the earliest selected keyframe time.",
         )
         widget.option_box.menu.add(
             "QCheckBox",
@@ -125,9 +125,12 @@ class Animation(SlotsMaya):
 
     def tb001(self, widget):
         """Invert Selected Keyframes"""
-        time = widget.option_box.menu.s001.value()
+        time_value = widget.option_box.menu.s001.value()
         relative = widget.option_box.menu.chk002.isChecked()
         delete_original = widget.option_box.menu.chk005.isChecked()
+
+        # Use None when time is 0 to auto-detect earliest selected keyframe
+        time = None if time_value == 0 else time_value
 
         mtk.invert_selected_keys(
             time=time, relative=relative, delete_original=delete_original
