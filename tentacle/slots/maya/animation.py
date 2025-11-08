@@ -105,8 +105,8 @@ class Animation(SlotsMaya):
             setPrefix="Time: ",
             setObjectName="s001",
             set_limits=[-100000, 100000],
-            setValue=0,
-            setToolTip="The desired start time for the inverted keys.\nSet to 0 to use the earliest selected keyframe time.",
+            setValue=-1,
+            setToolTip="The desired start time for the inverted keys.\nSet to -1 to auto-detect from selected keyframes.",
         )
         widget.option_box.menu.add(
             "QCheckBox",
@@ -129,8 +129,8 @@ class Animation(SlotsMaya):
         relative = widget.option_box.menu.chk002.isChecked()
         delete_original = widget.option_box.menu.chk005.isChecked()
 
-        # Use None when time is 0 to auto-detect earliest selected keyframe
-        time = None if time_value == 0 else time_value
+        # Use None when time is -1 to auto-detect earliest selected keyframe
+        time = None if time_value == -1 else time_value
 
         mtk.invert_selected_keys(
             time=time, relative=relative, delete_original=delete_original
@@ -143,9 +143,9 @@ class Animation(SlotsMaya):
             "QSpinBox",
             setPrefix="Frame: ",
             setObjectName="s002",
-            set_limits=[0, 100000],
-            setValue=0,
-            setToolTip="The time at which to start adding spacing.",
+            set_limits=[-100000, 100000],
+            setValue=-1,
+            setToolTip="The time at which to start adding spacing.\nSet to -1 to use earliest keyframe on selected objects.",
         )
         widget.option_box.menu.add(
             "QSpinBox",
@@ -173,11 +173,15 @@ class Animation(SlotsMaya):
     def tb002(self, widget):
         """Adjust spacing"""
         amount = widget.option_box.menu.s003.value()
-        time = widget.option_box.menu.s002.value()
+        time_value = widget.option_box.menu.s002.value()
         relative = widget.option_box.menu.chk004.isChecked()
         preserve_keys = widget.option_box.menu.chk003.isChecked()
 
         objects = pm.ls(sl=True, type="transform", long=True)
+
+        # Use None when -1 to auto-detect earliest keyframe
+        time = None if time_value == -1 else time_value
+
         mtk.adjust_key_spacing(
             objects,
             spacing=amount,
@@ -194,8 +198,8 @@ class Animation(SlotsMaya):
             setPrefix="Start Frame: ",
             setObjectName="s005",
             set_limits=[-100000, 100000],
-            setValue=0,
-            setToolTip="Override starting frame. 0 = use earliest keyframe.",
+            setValue=-1,
+            setToolTip="Override starting frame. -1 = use earliest keyframe.",
         )
         widget.option_box.menu.add(
             "QSpinBox",
@@ -267,8 +271,8 @@ class Animation(SlotsMaya):
         group_overlapping = widget.option_box.menu.chk014.isChecked()
         ignore_visibility = widget.option_box.menu.chk024.isChecked()
 
-        # Only use start_frame if non-zero
-        start_frame = start_frame_value if start_frame_value != 0 else None
+        # Only use start_frame if not -1
+        start_frame = start_frame_value if start_frame_value != -1 else None
 
         # Set ignore parameter based on checkbox
         ignore = "visibility" if ignore_visibility else None
@@ -316,22 +320,22 @@ class Animation(SlotsMaya):
 
     def tb005_init(self, widget):
         """ """
-        widget.option_box.menu.setTitle("Set Key")
+        widget.option_box.menu.setTitle("Intermediate Keys")
         widget.option_box.menu.add(
             "QSpinBox",
             setPrefix="Start Time: ",
             setObjectName="s005",
-            set_limits=[0, 100000],
-            setValue=0,
-            setToolTip="The time at which to start adding keys.",
+            set_limits=[-1, 100000],
+            setValue=-1,
+            setToolTip="The time at which to start adding keys. Set to -1 to auto-detect from first keyframe.",
         )
         widget.option_box.menu.add(
             "QSpinBox",
             setPrefix="End Time: ",
             setObjectName="s006",
-            set_limits=[0, 100000],
-            setValue=100,
-            setToolTip="The time at which to end adding keys.",
+            set_limits=[-1, 100000],
+            setValue=-1,
+            setToolTip="The time at which to end adding keys. Set to -1 to auto-detect from last keyframe.",
         )
         widget.option_box.menu.add(
             "QSpinBox",
@@ -341,18 +345,71 @@ class Animation(SlotsMaya):
             setValue=5,
             setToolTip="The percentage of the key to add.",
         )
+        widget.option_box.menu.add(
+            "QCheckBox",
+            setText="Ignore Visibility",
+            setObjectName="chk028",
+            setChecked=False,
+            setToolTip="Ignore visibility keyframes when adding/removing intermediate keys.\nVisibility keys will remain unchanged.",
+        )
+        widget.option_box.menu.add(
+            "QCheckBox",
+            setText="Remove Intermediate Keys",
+            setObjectName="chk027",
+            setChecked=False,
+            setToolTip="If checked, removes all intermediate keys (keeps only first and last).\nIf unchecked, adds intermediate keys within the range.",
+        )
+        # Auto-connect toggle behavior using state mapping
+        self.sb.toggle_multi(
+            widget.option_box.menu,
+            trigger="chk027",
+            signal="toggled",
+            on_True={"setDisabled": "s005,s006,s007"},
+            on_False={"setEnabled": "s005,s006,s007"},
+        )
 
     def tb005(self, widget):
-        """Add Intermediate Keys"""
-        start_time = widget.option_box.menu.s005.value()
-        end_time = widget.option_box.menu.s006.value()
-        percent = widget.option_box.menu.s007.value()
+        """Add/Remove Intermediate Keys"""
+        remove_mode = widget.option_box.menu.chk027.isChecked()
+        ignore_visibility = widget.option_box.menu.chk028.isChecked()
 
         objects = pm.selected(flatten=True)
         if not objects:
             self.sb.message_box("You must select at least one object.")
             return
-        mtk.add_intermediate_keys(objects, start_time, end_time, percent)
+
+        # Set ignore parameter based on checkbox
+        ignore = "visibility" if ignore_visibility else None
+
+        if remove_mode:
+            # Remove intermediate keys (auto-detects range)
+            keys_removed = mtk.remove_intermediate_keys(objects, ignore=ignore)
+            if keys_removed > 0:
+                self.sb.message_box(f"Removed {keys_removed} intermediate keyframe(s).")
+            else:
+                self.sb.message_box("No intermediate keyframes found to remove.")
+        else:
+            # Add intermediate keys
+            start_time_value = widget.option_box.menu.s005.value()
+            end_time_value = widget.option_box.menu.s006.value()
+            percent = widget.option_box.menu.s007.value()
+
+            # Build time_range parameter based on UI values
+            if start_time_value == -1 and end_time_value == -1:
+                # Both auto-detect
+                time_range = None
+            elif start_time_value == -1:
+                # Auto-detect start, explicit end
+                time_range = end_time_value
+            elif end_time_value == -1:
+                # Explicit start, auto-detect end - need to get end from keyframes
+                # This is an edge case; for simplicity use tuple
+                time_range = (start_time_value, None)
+            else:
+                # Both explicit
+                time_range = (start_time_value, end_time_value)
+
+            mtk.add_intermediate_keys(objects, time_range, percent, ignore=ignore)
 
     def tb006_init(self, widget):
         """Move Keys Init"""
@@ -413,8 +470,8 @@ class Animation(SlotsMaya):
             setObjectName="spn000",
             setMinimum=-10000,
             setMaximum=10000,
-            setValue=0,
-            setToolTip="Specific frame to align to. Leave at 0 to use earliest/latest from selection.",
+            setValue=-1,
+            setToolTip="Specific frame to align to.\nSet to -1 to auto-detect from selected keyframes.",
         )
 
     def tb007(self, widget):
@@ -422,8 +479,8 @@ class Animation(SlotsMaya):
         use_earliest = widget.option_box.menu.chk013.isChecked()
         target_frame_value = widget.option_box.menu.spn000.value()
 
-        # Only use target_frame if it's non-zero, otherwise use None to auto-detect
-        target_frame = target_frame_value if target_frame_value != 0 else None
+        # Only use target_frame if not -1, otherwise use None to auto-detect
+        target_frame = target_frame_value if target_frame_value != -1 else None
 
         objects = pm.selected(flatten=True)
         if not objects:
@@ -662,17 +719,17 @@ class Animation(SlotsMaya):
         widget.option_box.menu.setTitle("Tie/Untie Keyframes")
         widget.option_box.menu.add(
             "QCheckBox",
-            setText="Untie Keyframes",
-            setObjectName="chk022",
-            setChecked=False,
-            setToolTip="If checked, removes bookend keyframes (preserves genuine animation).\nIf unchecked, adds keyframes at start/end of animation range.",
-        )
-        widget.option_box.menu.add(
-            "QCheckBox",
             setText="Use Absolute Range",
             setObjectName="chk023",
             setChecked=False,
             setToolTip="If checked, uses the absolute start/end keyframes across all objects.\nIf unchecked, uses the scene's playback range.",
+        )
+        widget.option_box.menu.add(
+            "QCheckBox",
+            setText="Untie Keyframes",
+            setObjectName="chk022",
+            setChecked=False,
+            setToolTip="If checked, removes bookend keyframes (preserves genuine animation).\nIf unchecked, adds keyframes at start/end of animation range.",
         )
 
     def tb011(self, widget):
