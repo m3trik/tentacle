@@ -418,7 +418,7 @@ class MaterialsSlots(SlotsMaya):
         ui.set_attributes(WA_TranslucentBackground=True)
         ui.set_flags(FramelessWindowHint=True)
         ui.style.set(theme="dark", style_class="translucentBgWithBorder")
-        ui.header.config_buttons(menu_button=True, hide_button=True)
+        ui.header.config_buttons("menu_button", "hide_button")
 
         # Set the starting directory for the map converter
         source_images_dir = mtk.get_env_info("sourceimages")
@@ -463,7 +463,7 @@ class MaterialsSlots(SlotsMaya):
         ui.set_attributes(WA_TranslucentBackground=True)
         ui.set_flags(FramelessWindowHint=True)
         ui.style.set(theme="dark", style_class="translucentBgWithBorder")
-        ui.header.config_buttons(menu_button=True, hide_button=True)
+        ui.header.config_buttons("menu_button", "hide_button")
 
         # Set the starting directory for the map converter
         source_images_dir = mtk.get_env_info("sourceimages")

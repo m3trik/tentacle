@@ -150,7 +150,7 @@ class Tcl(
             ui.setAttribute(QtCore.Qt.WA_TranslucentBackground)
             ui.style.set(theme="dark", style_class="translucentBgWithBorder")
             try:
-                ui.header.config_buttons(menu_button=True, pin_button=True)
+                ui.header.config_buttons("menu_button", "pin_button")
             except AttributeError:
                 pass
             self.key_show_release.connect(ui.hide)
