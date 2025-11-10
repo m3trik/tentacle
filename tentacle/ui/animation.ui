@@ -10,7 +10,7 @@
     <x>0</x>
     <y>0</y>
     <width>200</width>
-    <height>408</height>
+    <height>428</height>
    </rect>
   </property>
   <property name="tabShape">
@@ -162,6 +162,31 @@
            </property>
            <property name="text">
             <string>Invert Selected Keys</string>
+           </property>
+           <property name="checkable">
+            <bool>false</bool>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="PushButton" name="tb014">
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>20</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>16777215</width>
+             <height>20</height>
+            </size>
+           </property>
+           <property name="toolTip">
+            <string>Scale the keys on any selected objects by a given percentage.</string>
+           </property>
+           <property name="text">
+            <string>Scale Keys</string>
            </property>
            <property name="checkable">
             <bool>false</bool>

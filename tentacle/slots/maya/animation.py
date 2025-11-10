@@ -364,8 +364,8 @@ class Animation(SlotsMaya):
             widget.option_box.menu,
             trigger="chk027",
             signal="toggled",
-            on_True={"setDisabled": "s005,s006,s007"},
-            on_False={"setEnabled": "s005,s006,s007"},
+            on_True={"setDisabled": "s007"},
+            on_False={"setEnabled": "s007"},
         )
 
     def tb005(self, widget):
@@ -381,34 +381,36 @@ class Animation(SlotsMaya):
         # Set ignore parameter based on checkbox
         ignore = "visibility" if ignore_visibility else None
 
+        # Build time_range parameter based on UI values
+        start_time_value = widget.option_box.menu.s005.value()
+        end_time_value = widget.option_box.menu.s006.value()
+
+        if start_time_value == -1 and end_time_value == -1:
+            # Both auto-detect
+            time_range = None
+        elif start_time_value == -1:
+            # Auto-detect start, explicit end
+            time_range = end_time_value
+        elif end_time_value == -1:
+            # Explicit start, auto-detect end - need to get end from keyframes
+            # This is an edge case; for simplicity use tuple
+            time_range = (start_time_value, None)
+        else:
+            # Both explicit
+            time_range = (start_time_value, end_time_value)
+
         if remove_mode:
-            # Remove intermediate keys (auto-detects range)
-            keys_removed = mtk.remove_intermediate_keys(objects, ignore=ignore)
+            # Remove intermediate keys with time_range
+            keys_removed = mtk.remove_intermediate_keys(
+                objects, time_range, ignore=ignore
+            )
             if keys_removed > 0:
                 self.sb.message_box(f"Removed {keys_removed} intermediate keyframe(s).")
             else:
                 self.sb.message_box("No intermediate keyframes found to remove.")
         else:
             # Add intermediate keys
-            start_time_value = widget.option_box.menu.s005.value()
-            end_time_value = widget.option_box.menu.s006.value()
             percent = widget.option_box.menu.s007.value()
-
-            # Build time_range parameter based on UI values
-            if start_time_value == -1 and end_time_value == -1:
-                # Both auto-detect
-                time_range = None
-            elif start_time_value == -1:
-                # Auto-detect start, explicit end
-                time_range = end_time_value
-            elif end_time_value == -1:
-                # Explicit start, auto-detect end - need to get end from keyframes
-                # This is an edge case; for simplicity use tuple
-                time_range = (start_time_value, None)
-            else:
-                # Both explicit
-                time_range = (start_time_value, end_time_value)
-
             mtk.add_intermediate_keys(objects, time_range, percent, ignore=ignore)
 
     def tb006_init(self, widget):
@@ -465,7 +467,6 @@ class Animation(SlotsMaya):
         )
         widget.option_box.menu.add(
             "QSpinBox",
-            setText="Target Frame:",
             setPrefix="Frame: ",
             setObjectName="spn000",
             setMinimum=-10000,
@@ -891,6 +892,148 @@ class Animation(SlotsMaya):
             self.sb.message_box("No keyframes found to select.")
         else:
             pm.displayInfo(f"Selected {keys_selected} keyframe(s)")
+
+    def tb014_init(self, widget):
+        """Scale Keys Init"""
+        widget.option_box.menu.setTitle("Scale Keys")
+        widget.option_box.menu.add(
+            "QComboBox",
+            addItems=["Uniform Scaling", "Speed-Based Scaling"],
+            setObjectName="cmb014",
+            setCurrentIndex=0,
+            setToolTip="Scaling mode:\n"
+            "• Uniform: Traditional time scaling around pivot\n"
+            "• Speed-Based: Time warping based on motion speed",
+        )
+        widget.option_box.menu.add(
+            "QDoubleSpinBox",
+            setPrefix="Factor: ",
+            setObjectName="d001",
+            setMinimum=0.01,
+            setMaximum=100.0,
+            setSingleStep=0.1,
+            setValue=1.0,
+            setDecimals=2,
+            setToolTip="Context-sensitive multiplier:\n\n"
+            "UNIFORM MODE:\n"
+            "• 1.0 = no change (100%)\n"
+            "• 0.5 = compress to 50% (faster)\n"
+            "• 2.0 = expand to 200% (slower)\n\n"
+            "SPEED MODE:\n"
+            "• 0.5-1.0 = subtle effect\n"
+            "• 1.0-2.0 = moderate effect\n"
+            "• 2.0-3.0 = dramatic effect",
+        )
+        widget.option_box.menu.add(
+            "QSpinBox",
+            setPrefix="Start Frame: ",
+            setObjectName="s015",
+            set_limits=[-10000, 10000],
+            setValue=-1,
+            setToolTip="Context-sensitive time range start:\n\n"
+            "UNIFORM MODE:\n"
+            "• Pivot point for scaling\n"
+            "• -1 = auto-detect (earliest key)\n"
+            "• Set with End=-1 to scale from this frame onward\n\n"
+            "SPEED MODE:\n"
+            "• Start of analysis window\n"
+            "• -1 = auto-detect (earliest key)\n"
+            "• Supports partial ranges with End=-1",
+        )
+        widget.option_box.menu.add(
+            "QSpinBox",
+            setPrefix="End Frame: ",
+            setObjectName="s016",
+            set_limits=[-10000, 10000],
+            setValue=-1,
+            setToolTip="Context-sensitive time range end:\n\n"
+            "UNIFORM MODE:\n"
+            "• Limits scaling range\n"
+            "• -1 = scale all keys from Start onward\n"
+            "• Set with Start=-1 to scale up to this frame\n\n"
+            "SPEED MODE:\n"
+            "• End of analysis window\n"
+            "• -1 = auto-detect (latest key)\n"
+            "• Supports partial ranges with Start=-1",
+        )
+        widget.option_box.menu.add(
+            "QCheckBox",
+            setText="Ignore Visibility",
+            setObjectName="chk032",
+            setChecked=False,
+            setToolTip="Ignore visibility keyframes when scaling.\n"
+            "Visibility keys will remain at their original positions.",
+        )
+
+        # Auto-toggle UI elements based on mode
+        def update_mode_ui(index):
+            is_speed_mode = index == 1
+            # Both modes can use time range, no need to disable
+            # Update factor label based on mode
+            if is_speed_mode:
+                widget.option_box.menu.d001.setPrefix("Effect Strength: ")
+            else:
+                widget.option_box.menu.d001.setPrefix("Factor: ")
+
+        widget.option_box.menu.cmb014.currentIndexChanged.connect(update_mode_ui)
+        update_mode_ui(0)  # Initialize UI state
+
+    def tb014(self, widget):
+        """Scale Keys"""
+        mode_index = widget.option_box.menu.cmb014.currentIndex()
+        factor = widget.option_box.menu.d001.value()
+        start_frame = widget.option_box.menu.s015.value()
+        end_frame = widget.option_box.menu.s016.value()
+        ignore_visibility = widget.option_box.menu.chk032.isChecked()
+
+        # Get objects to affect
+        selected_objects = pm.selected()
+        if not selected_objects:
+            self.sb.message_box("You must select at least one object.")
+            return
+
+        # Build time_range - supports partial ranges
+        # -1 = auto-detect for that boundary
+        # Both -1 = None (no range restriction)
+        # One -1 = partial range (scale from/to that point)
+        time_range = None
+        if start_frame != -1 or end_frame != -1:
+            time_range = (
+                None if start_frame == -1 else start_frame,
+                None if end_frame == -1 else end_frame,
+            )
+
+        # Determine parameters
+        by_speed = mode_index == 1
+        ignore = "visibility" if ignore_visibility else None
+        selected_keys_only = (
+            bool(pm.keyframe(query=True, sl=True, tc=True)) and not by_speed
+        )
+        channel_box_attrs = pm.channelBox(
+            "mainChannelBox", query=True, selectedMainAttributes=True
+        )
+        channel_box_only = bool(channel_box_attrs)
+
+        # Call the method
+        keys_scaled = mtk.scale_keys(
+            objects=selected_objects,
+            factor=factor,
+            selected_keys_only=selected_keys_only,
+            time_range=time_range,
+            channel_box_attrs_only=channel_box_only,
+            ignore=ignore,
+            by_speed=by_speed,
+        )
+
+        # Report results
+        if keys_scaled > 0:
+            mode_str = "speed" if by_speed else f"{factor * 100}%"
+            context = f" (channel box)" if channel_box_only else ""
+            self.sb.message_box(
+                f"Scaled {keys_scaled} keyframe(s){context} by {mode_str}."
+            )
+        else:
+            self.sb.message_box("No keyframes found to scale.")
 
     def b001(self, widget=None):
         """Copy Keys"""

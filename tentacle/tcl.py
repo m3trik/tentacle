@@ -397,13 +397,13 @@ class Tcl(
         if not self.isVisible():
             return
 
-        for win in self.sb.visible_windows:
-            if win is not self and not win.has_tags(["startmenu", "submenu"]):
-                self._windows_to_restore.add(win)
-                win.header.hide_window()
+        # for win in self.sb.visible_windows:
+        #     if win is not self and not win.has_tags(["startmenu", "submenu"]):
+        #         self._windows_to_restore.add(win)
+        #         win.header.hide_window()
 
-        if self._windows_to_restore:
-            self.logger.debug(f"Hiding other windows: {self._windows_to_restore}")
+        # if self._windows_to_restore:
+        #     self.logger.debug(f"Hiding other windows: {self._windows_to_restore}")
 
     def show_other_windows(self) -> None:
         """Show all previously hidden windows."""
