@@ -484,7 +484,11 @@ class Tcl(
                         self._set_submenu(submenu, w)
 
         if w.base_name() == "chk" and w.ui.has_tags("submenu") and self.isVisible():
-            w.click()
+            # Emit signal directly to ensure it triggers even when widget state changes
+            if hasattr(w, "clicked"):
+                w.clicked.emit()
+            else:
+                w.click()
 
         # Safe default: call original enterEvent
         if hasattr(w, "enterEvent"):
@@ -499,40 +503,55 @@ class Tcl(
         w.mousePressEvent(event)
 
     def child_mouseButtonReleaseEvent(self, w, event) -> bool:
-        """ """
-        if w.underMouse():
-            if w.derived_type == QtWidgets.QPushButton:
-                if w.base_name() == "i":
-                    menu_name = w.accessibleName()
-                    if not menu_name:
-                        self.logger.debug(
-                            f"child_mouseButtonReleaseEvent: Button '{w.objectName()}' with base_name 'i' has no accessibleName; skipping menu lookup."
-                        )
-                    else:
-                        unknown_tags = self.sb.get_unknown_tags(
-                            menu_name, known_tags=["submenu", "startmenu"]
-                        )
-                        new_menu_name = self.sb.remove_tags(menu_name, unknown_tags)
-                        # Cache menu lookups similar to submenu caching
-                        menu = self._submenu_cache.get(new_menu_name)
-                        if menu is None:
-                            menu = self.sb.get_ui(new_menu_name)
-                            if menu:
-                                self._submenu_cache[new_menu_name] = menu
+        """Handle mouse button release events on child widgets.
 
+        Note: Uses clicked.emit() instead of click() because Qt's click() method
+        doesn't emit signals when widgets are hidden, and this menu hides itself
+        before triggering widget callbacks.
+        """
+        if not w.underMouse():
+            w.mouseReleaseEvent(event)
+            return False
+
+        # Resolve container clicks to actual child widget (fixes OptionBox button clicks)
+        if w.derived_type == QtWidgets.QWidget:
+            child = w.childAt(event.pos())
+            if child:
+                w = child
+
+        # Handle pushbutton clicks
+        if isinstance(w, QtWidgets.QPushButton):
+            if hasattr(w, "base_name") and w.base_name() == "i":
+                menu_name = w.accessibleName()
+                if menu_name:
+                    unknown_tags = self.sb.get_unknown_tags(
+                        menu_name, known_tags=["submenu", "startmenu"]
+                    )
+                    new_menu_name = self.sb.remove_tags(menu_name, unknown_tags)
+
+                    menu = self._submenu_cache.get(new_menu_name)
+                    if menu is None:
+                        menu = self.sb.get_ui(new_menu_name)
                         if menu:
-                            unknown_tags = self.sb.get_unknown_tags(
-                                menu_name, known_tags=["submenu", "startmenu"]
-                            )
-                            self.sb.hide_unmatched_groupboxes(menu, unknown_tags)
-                            self.show(menu)
+                            self._submenu_cache[new_menu_name] = menu
 
-            if hasattr(w, "click"):
+                    if menu:
+                        self.sb.hide_unmatched_groupboxes(menu, unknown_tags)
+                        self.show(menu)
+
+        # Emit clicked signal directly (bypasses Qt visibility checks)
+        if hasattr(w, "clicked"):
+            if hasattr(w, "base_name") and hasattr(w, "ui"):
+                # Tentacle widget
                 self.hide()
                 if w.ui.has_tags(["startmenu", "submenu"]) and w.base_name() != "chk":
-                    w.click()
+                    w.clicked.emit()
+            else:
+                # OptionBox button or other widget
+                w.clicked.emit()
 
         w.mouseReleaseEvent(event)
+        return True
 
     def child_mouseMoveEvent(self, w, event) -> None:
         """ """
