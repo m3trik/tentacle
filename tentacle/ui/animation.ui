@@ -158,10 +158,10 @@
             </size>
            </property>
            <property name="toolTip">
-            <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Duplicate any selected keyframes and paste them inverted at the given time.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+            <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Duplicate any selected keyframes and paste them inverted at the given time.&lt;br/&gt;If none are selected, all keys for the object(s) will be used.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
            </property>
            <property name="text">
-            <string>Invert Selected Keys</string>
+            <string>Invert Keys</string>
            </property>
            <property name="checkable">
             <bool>false</bool>

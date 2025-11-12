@@ -99,21 +99,21 @@ class Animation(SlotsMaya):
 
     def tb001_init(self, widget):
         """ """
-        widget.option_box.menu.setTitle("Invert Selected Keys")
+        widget.option_box.menu.setTitle("Invert Keys")
         widget.option_box.menu.add(
             "QSpinBox",
             setPrefix="Time: ",
             setObjectName="s001",
             set_limits=[-100000, 100000],
             setValue=-1,
-            setToolTip="The desired start time for the inverted keys.\nSet to -1 to auto-detect from selected keyframes.",
+            setToolTip="Start time for inverted keys.\nSet to -1 to auto-detect from keys (selected or all).",
         )
         widget.option_box.menu.add(
             "QCheckBox",
             setText="Relative",
             setObjectName="chk002",
             setChecked=True,
-            setToolTip="Start time position as relative or absolute.",
+            setToolTip="Treat time as relative offset (checked) or absolute frame (unchecked).",
         )
         widget.option_box.menu.add(
             "QCheckBox",
@@ -124,17 +124,15 @@ class Animation(SlotsMaya):
         )
 
     def tb001(self, widget):
-        """Invert Selected Keyframes"""
+        """Invert keyframes (selected keys preferred, fallback to all keys)."""
         time_value = widget.option_box.menu.s001.value()
         relative = widget.option_box.menu.chk002.isChecked()
         delete_original = widget.option_box.menu.chk005.isChecked()
 
-        # Use None when time is -1 to auto-detect earliest selected keyframe
+        # Use None when time is -1 to auto-detect earliest keyframe
         time = None if time_value == -1 else time_value
 
-        mtk.invert_selected_keys(
-            time=time, relative=relative, delete_original=delete_original
-        )
+        mtk.invert_keys(time=time, relative=relative, delete_original=delete_original)
 
     def tb002_init(self, widget):
         """ """
@@ -901,10 +899,34 @@ class Animation(SlotsMaya):
             addItems=["Uniform Scaling", "Speed-Based Scaling"],
             setObjectName="cmb014",
             setCurrentIndex=0,
+            block_signals_on_restore=False,  # Allow signals during restore to trigger update_mode_ui
             setToolTip="Scaling mode:\n"
             "• Uniform: Traditional time scaling around pivot\n"
-            "• Speed-Based: Time warping based on motion speed",
+            "• Speed: Motion-based speed normalization",
         )
+        uniform_tooltip = (
+            "Time scaling factor:\n\n"
+            "UNIFORM MODE:\n"
+            "• 1.0 = no change (100%)\n"
+            "• 0.5 = compress to 50% (2x faster)\n"
+            "• 2.0 = expand to 200% (2x slower)\n"
+        )
+
+        speed_tooltip = (
+            "Target speed in units per frame:\n\n"
+            "SPEED MODE:\n"
+            "• All objects retimed to this exact speed\n"
+            "• Example: 5.0 = all objects move at 5 units/frame\n"
+            "• Duration automatically calculated: distance / speed\n"
+        )
+
+        grouping_tooltip = (
+            "Grouping strategy for pivots and time ranges:\n\n"
+            "• Group All Objects: Share a single pivot/range across the selection.\n"
+            "• Per Object Pivots: Each object uses its own pivot and auto-detected range.\n"
+            "• Group Overlaps: Objects with overlapping key ranges share a group pivot."
+        )
+
         widget.option_box.menu.add(
             "QDoubleSpinBox",
             setPrefix="Factor: ",
@@ -914,48 +936,54 @@ class Animation(SlotsMaya):
             setSingleStep=0.1,
             setValue=1.0,
             setDecimals=2,
-            setToolTip="Context-sensitive multiplier:\n\n"
-            "UNIFORM MODE:\n"
-            "• 1.0 = no change (100%)\n"
-            "• 0.5 = compress to 50% (faster)\n"
-            "• 2.0 = expand to 200% (slower)\n\n"
-            "SPEED MODE:\n"
-            "• 0.5-1.0 = subtle effect\n"
-            "• 1.0-2.0 = moderate effect\n"
-            "• 2.0-3.0 = dramatic effect",
+            setToolTip=uniform_tooltip,
         )
         widget.option_box.menu.add(
-            "QSpinBox",
-            setPrefix="Start Frame: ",
-            setObjectName="s015",
-            set_limits=[-10000, 10000],
-            setValue=-1,
-            setToolTip="Context-sensitive time range start:\n\n"
-            "UNIFORM MODE:\n"
-            "• Pivot point for scaling\n"
-            "• -1 = auto-detect (earliest key)\n"
-            "• Set with End=-1 to scale from this frame onward\n\n"
-            "SPEED MODE:\n"
-            "• Start of analysis window\n"
-            "• -1 = auto-detect (earliest key)\n"
-            "• Supports partial ranges with End=-1",
+            "QComboBox",
+            addItems=[
+                "Group All Objects",
+                "Per Object Pivots",
+                "Group Overlaps",
+            ],
+            setObjectName="cmb033",
+            setCurrentIndex=0,
+            setToolTip=grouping_tooltip,
         )
+
+        widget.option_box.menu.add(
+            "QComboBox",
+            addItems=[
+                "Nearest",
+                "Preferred",
+                "Aggressive Preferred",
+                "None (Precise)",
+            ],
+            setObjectName="cmb034",
+            setCurrentIndex=0,
+            setToolTip="Keyframe snapping after scaling (both modes):\n\n"
+            "• Nearest: Round to nearest whole number (default)\n"
+            "• Preferred: Round to clean numbers when close (24→25, 99→100)\n"
+            "• Aggressive Preferred: Round to clean numbers aggressively (48→50, 73→75)\n"
+            "• None: No snapping, preserve precise decimal times\n\n"
+            "Applies after keyframe scaling to snap decimal frame times to whole frames.",
+        )
+
         widget.option_box.menu.add(
             "QSpinBox",
-            setPrefix="End Frame: ",
-            setObjectName="s016",
-            set_limits=[-10000, 10000],
-            setValue=-1,
-            setToolTip="Context-sensitive time range end:\n\n"
-            "UNIFORM MODE:\n"
-            "• Limits scaling range\n"
-            "• -1 = scale all keys from Start onward\n"
-            "• Set with Start=-1 to scale up to this frame\n\n"
-            "SPEED MODE:\n"
-            "• End of analysis window\n"
-            "• -1 = auto-detect (latest key)\n"
-            "• Supports partial ranges with Start=-1",
+            setPrefix="Samples: ",
+            setObjectName="s014",
+            setMinimum=8,
+            setMaximum=512,
+            setSingleStep=8,
+            setValue=64,
+            setToolTip="Motion sampling resolution for speed mode:\n\n"
+            "• Higher values = more accurate motion detection but slower\n"
+            "• Lower values = faster processing but less precise\n"
+            "• Default: 64 samples (good balance)\n"
+            "• Recommended range: 32-128\n\n"
+            "Note: Only applies in speed mode, ignored in uniform mode.",
         )
+
         widget.option_box.menu.add(
             "QCheckBox",
             setText="Ignore Visibility",
@@ -968,12 +996,26 @@ class Animation(SlotsMaya):
         # Auto-toggle UI elements based on mode
         def update_mode_ui(index):
             is_speed_mode = index == 1
-            # Both modes can use time range, no need to disable
-            # Update factor label based on mode
+            spinbox = widget.option_box.menu.d001
+            samples_spinbox = widget.option_box.menu.s014
+
+            # Only samples spinbox is speed-mode specific
+            # Snap mode now works for both uniform and speed modes
+            samples_spinbox.setEnabled(is_speed_mode)
+
+            # Update factor label and ranges/tooltips based on mode
             if is_speed_mode:
-                widget.option_box.menu.d001.setPrefix("Effect Strength: ")
+                spinbox.setPrefix("Speed: ")
+                spinbox.setRange(0.01, 1000.0)
+                spinbox.setSingleStep(0.5)
+                spinbox.setValue(5.0)
+                spinbox.setToolTip(speed_tooltip)
             else:
-                widget.option_box.menu.d001.setPrefix("Factor: ")
+                spinbox.setPrefix("Factor: ")
+                spinbox.setRange(0.01, 100.0)
+                spinbox.setSingleStep(0.1)
+                spinbox.setValue(1.0)
+                spinbox.setToolTip(uniform_tooltip)
 
         widget.option_box.menu.cmb014.currentIndexChanged.connect(update_mode_ui)
         update_mode_ui(0)  # Initialize UI state
@@ -982,9 +1024,8 @@ class Animation(SlotsMaya):
         """Scale Keys"""
         mode_index = widget.option_box.menu.cmb014.currentIndex()
         factor = widget.option_box.menu.d001.value()
-        start_frame = widget.option_box.menu.s015.value()
-        end_frame = widget.option_box.menu.s016.value()
         ignore_visibility = widget.option_box.menu.chk032.isChecked()
+        group_mode_index = widget.option_box.menu.cmb033.currentIndex()
 
         # Get objects to affect
         selected_objects = pm.selected()
@@ -992,42 +1033,62 @@ class Animation(SlotsMaya):
             self.sb.message_box("You must select at least one object.")
             return
 
-        # Build time_range - supports partial ranges
-        # -1 = auto-detect for that boundary
-        # Both -1 = None (no range restriction)
-        # One -1 = partial range (scale from/to that point)
-        time_range = None
-        if start_frame != -1 or end_frame != -1:
-            time_range = (
-                None if start_frame == -1 else start_frame,
-                None if end_frame == -1 else end_frame,
-            )
+        # Determine mode
+        mode = "speed" if mode_index == 1 else "uniform"
+
+        # Determine keys parameter - check for selected keys in graph editor
+        selected_keys_in_graph = pm.keyframe(query=True, sl=True, tc=True)
+        keys = "selected" if selected_keys_in_graph and mode_index == 0 else None
 
         # Determine parameters
-        by_speed = mode_index == 1
         ignore = "visibility" if ignore_visibility else None
-        selected_keys_only = (
-            bool(pm.keyframe(query=True, sl=True, tc=True)) and not by_speed
-        )
         channel_box_attrs = pm.channelBox(
             "mainChannelBox", query=True, selectedMainAttributes=True
         )
         channel_box_only = bool(channel_box_attrs)
+        group_mode_values = ["single_group", "per_object", "overlap_groups"]
+        group_mode = group_mode_values[group_mode_index]
 
-        # Call the method
+        # Map snap mode combo index to parameter value
+        snap_mode_values = [
+            "nearest",  # 0: Nearest (default)
+            "preferred",  # 1: Preferred
+            "aggressive_preferred",  # 2: Aggressive Preferred
+            "none",  # 3: None (Precise)
+        ]
+        # Get snap mode index safely
+        try:
+            snap_mode_index = widget.option_box.menu.cmb034.currentIndex()
+            snap_mode = snap_mode_values[snap_mode_index]
+        except (AttributeError, IndexError):
+            # Fallback to default if combo doesn't exist or index is invalid
+            snap_mode = "nearest"
+
+        # Get samples parameter for speed mode
+        samples = widget.option_box.menu.s014.value() if mode == "speed" else None
+
+        # Call the method with updated API (factor param serves both modes)
         keys_scaled = mtk.scale_keys(
             objects=selected_objects,
             factor=factor,
-            selected_keys_only=selected_keys_only,
-            time_range=time_range,
+            mode=mode,
+            pivot=None,  # Auto-detect pivot
+            keys=keys,
             channel_box_attrs_only=channel_box_only,
             ignore=ignore,
-            by_speed=by_speed,
+            group_mode=group_mode,
+            snap_mode=snap_mode,
+            samples=samples,
         )
 
         # Report results
         if keys_scaled > 0:
-            mode_str = "speed" if by_speed else f"{factor * 100}%"
+            if mode_index == 1:
+                # Speed mode: factor = target speed
+                mode_str = f"{factor:.2f} units/frame"
+            else:
+                # Uniform mode: factor = time multiplier
+                mode_str = f"{factor * 100:.0f}%"
             context = f" (channel box)" if channel_box_only else ""
             self.sb.message_box(
                 f"Scaled {keys_scaled} keyframe(s){context} by {mode_str}."

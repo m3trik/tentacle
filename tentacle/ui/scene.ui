@@ -108,7 +108,7 @@
             <number>30</number>
            </property>
            <property name="sizeAdjustPolicy">
-            <enum>QComboBox::AdjustToContentsOnFirstShow</enum>
+            <enum>QComboBox::AdjustToMinimumContentsLengthWithIcon</enum>
            </property>
            <property name="frame">
             <bool>false</bool>
@@ -141,7 +141,7 @@
             <number>40</number>
            </property>
            <property name="sizeAdjustPolicy">
-            <enum>QComboBox::AdjustToContents</enum>
+            <enum>QComboBox::AdjustToMinimumContentsLengthWithIcon</enum>
            </property>
            <property name="frame">
             <bool>false</bool>
@@ -184,7 +184,7 @@
             <number>40</number>
            </property>
            <property name="sizeAdjustPolicy">
-            <enum>QComboBox::AdjustToContents</enum>
+            <enum>QComboBox::AdjustToMinimumContentsLengthWithIcon</enum>
            </property>
            <property name="frame">
             <bool>false</bool>
@@ -241,7 +241,7 @@
             <number>30</number>
            </property>
            <property name="sizeAdjustPolicy">
-            <enum>QComboBox::AdjustToContentsOnFirstShow</enum>
+            <enum>QComboBox::AdjustToMinimumContentsLengthWithIcon</enum>
            </property>
            <property name="frame">
             <bool>false</bool>
