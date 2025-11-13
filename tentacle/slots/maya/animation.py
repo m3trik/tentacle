@@ -129,8 +129,8 @@ class Animation(SlotsMaya):
         relative = widget.option_box.menu.chk002.isChecked()
         delete_original = widget.option_box.menu.chk005.isChecked()
 
-        # Use None when time is -1 to auto-detect earliest keyframe
-        time = None if time_value == -1 else time_value
+        # Use current time when time is -1
+        time = pm.currentTime(q=True) if time_value == -1 else time_value
 
         mtk.invert_keys(time=time, relative=relative, delete_original=delete_original)
 
@@ -1095,6 +1095,114 @@ class Animation(SlotsMaya):
             )
         else:
             self.sb.message_box("No keyframes found to scale.")
+
+    def tb015_init(self, widget):
+        """Repair Corrupted Curves - Initialize option box"""
+        widget.option_box.menu.setTitle("Repair Corrupted Curves")
+        widget.option_box.menu.add(
+            "QCheckBox",
+            setText="Delete Unfixable Curves",
+            setObjectName="chk015",
+            setChecked=True,
+            setToolTip="Delete curves that cannot be repaired.",
+        )
+        widget.option_box.menu.add(
+            "QCheckBox",
+            setText="Fix Infinite Values",
+            setObjectName="chk016",
+            setChecked=True,
+            setToolTip="Fix infinite and NaN keyframe values.",
+        )
+        widget.option_box.menu.add(
+            "QCheckBox",
+            setText="Fix Invalid Times",
+            setObjectName="chk017",
+            setChecked=True,
+            setToolTip="Fix invalid time ranges (e.g., -165916080).",
+        )
+        widget.option_box.menu.add(
+            "QDoubleSpinBox",
+            setPrefix="Time Threshold: ",
+            setObjectName="d015",
+            set_limits=[1000, 999999999],
+            setValue=100000,
+            setToolTip="Maximum reasonable time value (frames). Keys beyond this are flagged as corrupted.",
+        )
+        widget.option_box.menu.add(
+            "QDoubleSpinBox",
+            setPrefix="Value Threshold: ",
+            setObjectName="d016",
+            set_limits=[1000, 999999999],
+            setValue=1000000,
+            setToolTip="Maximum reasonable keyframe value. Values beyond this are flagged as corrupted.",
+        )
+
+    def tb015(self, widget):
+        """Repair Corrupted Curves
+
+        Automatically detects scope based on selection:
+        - Selected keys in graph editor: checks only those curves
+        - Selected objects: checks all keys on those objects
+        - Nothing selected: checks all keys in the scene
+        """
+        delete_corrupted = widget.option_box.menu.chk015.isChecked()
+        fix_infinite = widget.option_box.menu.chk016.isChecked()
+        fix_invalid_times = widget.option_box.menu.chk017.isChecked()
+        time_threshold = widget.option_box.menu.d015.value()
+        value_threshold = widget.option_box.menu.d016.value()
+
+        # Determine objects to process based on selection context
+        selected_objects = pm.selected(flatten=True)
+        selected_curves = mtk.AnimUtils.get_anim_curves(
+            objects=None, selected_keys_only=True, recursive=True
+        )
+
+        if selected_curves:
+            objects = list(set(selected_curves))
+            scope_label = "selected keys"
+        elif selected_objects:
+            objects = selected_objects
+            scope_label = "selected objects"
+        else:
+            objects = None
+            scope_label = "entire scene"
+
+        # Call the repair method
+        result = mtk.repair.repair_corrupted_curves(
+            objects=objects,
+            recursive=True,
+            delete_corrupted=delete_corrupted,
+            fix_infinite=fix_infinite,
+            fix_invalid_times=fix_invalid_times,
+            time_range_threshold=time_threshold,
+            value_threshold=value_threshold,
+            quiet=False,
+        )
+
+        # Format and display results
+        corrupted = result["corrupted_found"]
+        repaired = result["curves_repaired"]
+        deleted = result["curves_deleted"]
+        keys_fixed = result["keys_fixed"]
+
+        if corrupted == 0:
+            self.sb.message_box(
+                f"No corrupted curves found on {scope_label}. All animation curves are clean!"
+            )
+        else:
+            message = f"Found {corrupted} corrupted curve(s):\n"
+            message += f"  • Repaired: {repaired}\n"
+            message += f"  • Deleted: {deleted}\n"
+            message += f"  • Keys fixed: {keys_fixed}\n"
+
+            if result["details"]:
+                message += f"\nFirst 3 issues:\n"
+                for detail in result["details"][:3]:
+                    message += f"  • {detail}\n"
+                if len(result["details"]) > 3:
+                    message += f"  ... and {len(result['details']) - 3} more"
+
+            self.sb.message_box(message)
 
     def b001(self, widget=None):
         """Copy Keys"""
