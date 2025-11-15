@@ -265,26 +265,31 @@ class Edit(SlotsMaya):
             self.sb.message_box(f"Found {len(duplicates)} duplicate overlapping faces.")
             pm.delete(duplicates) if repair else pm.select(duplicates, add=1)
 
-        mtk.clean_geometry(
-            objects,
-            allMeshes=allMeshes,
-            repair=repair,
-            quads=quads,
-            nsided=nsided,
-            concave=concave,
-            holed=holed,
-            nonplanar=nonplanar,
-            zeroGeom=zeroGeom,
-            zeroGeomTol=zeroGeomTol,
-            zeroEdge=zeroEdge,
-            zeroEdgeTol=zeroEdgeTol,
-            zeroMap=zeroMap,
-            zeroMapTol=zeroMapTol,
-            sharedUVs=sharedUVs,
-            nonmanifold=nonmanifold,
-            invalidComponents=invalidComponents,
-            bakePartialHistory=delete_history,
-        )
+        try:
+            mtk.clean_geometry(
+                objects,
+                allMeshes=allMeshes,
+                repair=repair,
+                quads=quads,
+                nsided=nsided,
+                concave=concave,
+                holed=holed,
+                nonplanar=nonplanar,
+                zeroGeom=zeroGeom,
+                zeroGeomTol=zeroGeomTol,
+                zeroEdge=zeroEdge,
+                zeroEdgeTol=zeroEdgeTol,
+                zeroMap=zeroMap,
+                zeroMapTol=zeroMapTol,
+                sharedUVs=sharedUVs,
+                nonmanifold=nonmanifold,
+                invalidComponents=invalidComponents,
+                bakePartialHistory=delete_history,
+            )
+        except (ValueError, RuntimeError) as exc:
+            pm.warning(str(exc))
+            self.sb.message_box(str(exc))
+            return
 
     def tb001_init(self, widget):
         """ """

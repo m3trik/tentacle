@@ -1,13 +1,15 @@
 # !/usr/bin/python
 # coding=utf-8
+import html
 import os
+import sys
 
 try:
     import pymel.core as pm
 except ImportError as error:
     print(__file__, error)
-import pythontk as ptk
 import mayatk as mtk
+import pythontk as ptk
 from tentacle.slots.maya import SlotsMaya
 
 
@@ -17,6 +19,8 @@ class Preferences(SlotsMaya):
 
         self.ui = self.sb.loaded_ui.preferences
         self.submenu = self.sb.loaded_ui.preferences_submenu
+
+        self._build_tentacle_reloader()
 
         # Change generic button text to Maya specific
         self.ui.parent_app.setTitle("Maya")
@@ -126,6 +130,121 @@ class Preferences(SlotsMaya):
     def tb000(self):
         """Update Package"""
         self.check_for_update()
+
+    def tb001_init(self, widget):
+        """Configure reload button helpers once."""
+        if not widget.is_initialized:
+            widget.setToolTip(
+                "Reload Tentacle and its core dependencies in the current session."
+            )
+
+    def tb001(self):
+        """Reload Tentacle package with its dependencies."""
+        state = self._teardown_tentacle_instance()
+        try:
+            modules = self._tentacle_reloader.reload("tentacle")
+        except Exception as error:
+            print(f"Tentacle reload failed: {error}")
+            self.sb.message_box(
+                "<b>Reload failed.</b><br><small>{}</small>".format(
+                    html.escape(str(error))
+                )
+            )
+            return
+
+        self._build_tentacle_reloader()
+        self._restore_tentacle_instance(state)
+
+        module_names = ", ".join(module.__name__ for module in modules)
+        print(f"Tentacle reload complete: {module_names}")
+        self.sb.message_box(
+            f"<b>Reload complete.</b><br><small>{len(modules)} module(s) refreshed.</small>"
+        )
+
+    def _build_tentacle_reloader(self):
+        dependency_candidates = ("pythontk", "mayatk", "uitk")
+        # Only reload dependencies that are already live to avoid importing new modules implicitly.
+        self._tentacle_reload_dependencies = tuple(
+            dep for dep in dependency_candidates if dep in sys.modules
+        )
+        self._tentacle_reloader = ptk.ModuleReloader(
+            dependencies_first=self._tentacle_reload_dependencies,
+            include_submodules=True,
+            import_missing=True,
+        )
+
+    def _teardown_tentacle_instance(self):
+        state = {"was_visible": False, "ui_name": None}
+
+        tcl_module = sys.modules.get("tentacle.tcl")
+        if not tcl_module:
+            return state
+
+        Tcl = getattr(tcl_module, "Tcl", None)
+        if Tcl is None:
+            return state
+
+        instance = getattr(Tcl, "_instances", {}).get(Tcl)
+        if instance is None:
+            return state
+
+        try:
+            state["was_visible"] = instance.isVisible()
+            instance.hide()
+        except Exception:
+            pass
+
+        try:
+            current_ui = getattr(getattr(instance, "sb", None), "current_ui", None)
+            if current_ui is not None:
+                state["ui_name"] = getattr(current_ui, "objectName", lambda: None)()
+        except Exception:
+            pass
+
+        try:
+            instance.deleteLater()
+        except Exception:
+            pass
+
+        if hasattr(Tcl, "_submenu_cache"):
+            try:
+                Tcl._submenu_cache.clear()
+            except Exception:
+                pass
+
+        if hasattr(Tcl, "reset_instance"):
+            try:
+                Tcl.reset_instance()
+            except Exception:
+                pass
+
+        # Ensure the singleton registry is cleared for safety.
+        try:
+            Tcl._instances.pop(Tcl, None)
+        except Exception:
+            pass
+
+        return state
+
+    def _restore_tentacle_instance(self, state):
+        if not state.get("was_visible"):
+            return
+
+        try:
+            from tentacle.tcl_maya import TclMaya
+        except Exception as error:
+            print(f"Tentacle restore skipped: {error}")
+            return
+
+        try:
+            new_instance = TclMaya()
+            target_ui = state.get("ui_name") or "hud#startmenu"
+            try:
+                new_instance.show(target_ui)
+            except Exception:
+                new_instance.show()
+        except Exception as error:
+            print(f"Tentacle restore failed: {error}")
 
     def check_for_update(self):
         """ """

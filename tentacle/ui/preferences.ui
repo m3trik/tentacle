@@ -10,7 +10,7 @@
     <x>0</x>
     <y>0</y>
     <width>200</width>
-    <height>307</height>
+    <height>313</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -391,6 +391,28 @@
            </property>
            <property name="text">
             <string>Check for Update</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="PushButton" name="tb001">
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>20</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>16777215</width>
+             <height>20</height>
+            </size>
+           </property>
+           <property name="toolTip">
+            <string>Updates this app to the latest version.</string>
+           </property>
+           <property name="text">
+            <string>Reload</string>
            </property>
           </widget>
          </item>

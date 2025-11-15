@@ -1168,7 +1168,7 @@ class Animation(SlotsMaya):
             scope_label = "entire scene"
 
         # Call the repair method
-        result = mtk.repair.repair_corrupted_curves(
+        result = mtk.repair_corrupted_curves(
             objects=objects,
             recursive=True,
             delete_corrupted=delete_corrupted,
@@ -1189,20 +1189,21 @@ class Animation(SlotsMaya):
             self.sb.message_box(
                 f"No corrupted curves found on {scope_label}. All animation curves are clean!"
             )
-        else:
-            message = f"Found {corrupted} corrupted curve(s):\n"
-            message += f"  • Repaired: {repaired}\n"
-            message += f"  • Deleted: {deleted}\n"
-            message += f"  • Keys fixed: {keys_fixed}\n"
+            return
 
-            if result["details"]:
-                message += f"\nFirst 3 issues:\n"
-                for detail in result["details"][:3]:
-                    message += f"  • {detail}\n"
-                if len(result["details"]) > 3:
-                    message += f"  ... and {len(result['details']) - 3} more"
+        message = f"Found {corrupted} corrupted curve(s):\n"
+        message += f"  • Repaired: {repaired}\n"
+        message += f"  • Deleted: {deleted}\n"
+        message += f"  • Keys fixed: {keys_fixed}\n"
 
-            self.sb.message_box(message)
+        if result["details"]:
+            message += f"\nFirst 3 issues:\n"
+            for detail in result["details"][:3]:
+                message += f"  • {detail}\n"
+            if len(result["details"]) > 3:
+                message += f"  ... and {len(result['details']) - 3} more"
+
+        self.sb.message_box(message)
 
     def b001(self, widget=None):
         """Copy Keys"""

@@ -47,7 +47,7 @@ class Tcl(
         ui_source="ui",
         slot_source="slots",
         widget_source=None,
-        log_level: str = "WARNING",
+        log_level: str = "DEBUG",
     ):
         """ """
         super().__init__(parent=parent)
@@ -141,14 +141,13 @@ class Tcl(
 
         if ui.has_tags(["startmenu", "submenu"]):  # StackedWidget
             ui.style.set(theme="dark", style_class="translucentBgNoBorder")
-            ui.size_grip.setVisible(False)  # Hide size grip for stacked UIs
             self.addWidget(ui)  # add the UI to the stackedLayout.
 
         else:  # MainWindow
             ui.setParent(self)
             ui.setWindowFlags(QtCore.Qt.Window | QtCore.Qt.FramelessWindowHint)
             ui.setAttribute(QtCore.Qt.WA_TranslucentBackground)
-            ui.style.set(theme="dark", style_class="translucentBgWithBorder")
+            ui.style.set(theme="dark")
             try:
                 ui.header.config_buttons("menu_button", "pin_button")
             except AttributeError:
