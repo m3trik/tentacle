@@ -145,8 +145,8 @@ class Tcl(
 
         else:  # MainWindow
             ui.setParent(self)
-            ui.setWindowFlags(QtCore.Qt.Window | QtCore.Qt.FramelessWindowHint)
-            ui.setAttribute(QtCore.Qt.WA_TranslucentBackground)
+            ui.set_flags(Window=True, FramelessWindowHint=True)
+            ui.set_attributes(WA_TranslucentBackground=True)
             ui.style.set(theme="dark")
             try:
                 ui.header.config_buttons("menu_button", "pin_button")
@@ -365,6 +365,24 @@ class Tcl(
             self._first_show = False
 
         self._show_ui()
+
+    def hide(self):
+        """Override hide to properly reset stacked widget state."""
+        # Reset the current widget index to -1 to ensure proper hide behavior
+        if self.currentWidget():
+            self.setCurrentIndex(-1)
+
+        # Reset pinned state for all stacked UIs to ensure they can be hidden next time
+        current_ui = self.sb.current_ui
+        if current_ui and current_ui.has_tags(["startmenu", "submenu"]):
+            if hasattr(current_ui, "header") and current_ui.header:
+                # Silently reset pin state without triggering toggle
+                if current_ui.header.pinned:
+                    current_ui.header.pinned = False
+                    if hasattr(current_ui, "prevent_hide"):
+                        current_ui.prevent_hide = False
+
+        super().hide()
 
     def hideEvent(self, event):
         """ """
