@@ -77,7 +77,6 @@ class Tcl(
 
         self.key_show = self.sb.convert.to_qkey(key_show)
         self.key_close = QtCore.Qt.Key_Escape
-        self._mouse_press_pos = QtCore.QPoint(0, 0)
         self._windows_to_restore = set()
 
         self.setWindowFlags(QtCore.Qt.Window | QtCore.Qt.FramelessWindowHint)
@@ -87,7 +86,6 @@ class Tcl(
         self.resize(600, 600)
 
         self.sb.app.installEventFilter(self)
-        self.sb.app.focusChanged.connect(self._on_focus_changed)
 
         # Initialize smooth transition timer
         self._pending_show_timer = QtCore.QTimer()
@@ -113,22 +111,6 @@ class Tcl(
                 return True
 
         return super().eventFilter(watched, event)
-
-    def _on_focus_changed(self, old, new):
-        """Handle focus changes between widgets.
-        Parameters:
-            old (QWidget): The previous widget that had focus.
-            new (QWidget): The new widget that has focus.
-        """
-        # If Tcl is visible, showing a stacked UI, and focus moved outside of Tcl
-        if (
-            self.isVisible()
-            and self.sb.current_ui.has_tags(["startmenu", "submenu"])
-            and new is not None
-            and not self.isAncestorOf(new)
-        ):
-            self.logger.debug(f"Tcl focus changed to: {new}. Hiding Tcl.")
-            self.hide()
 
     def _init_ui(self, ui) -> None:
         """Initialize the given UI.
@@ -375,10 +357,12 @@ class Tcl(
         # Reset pinned state for all stacked UIs to ensure they can be hidden next time
         current_ui = self.sb.current_ui
         if current_ui and current_ui.has_tags(["startmenu", "submenu"]):
-            if hasattr(current_ui, "header") and current_ui.header:
-                # Silently reset pin state without triggering toggle
-                if current_ui.header.pinned:
-                    current_ui.header.pinned = False
+            header = getattr(current_ui, "header", None)
+            if header:
+                if hasattr(header, "reset_pin_state"):
+                    header.reset_pin_state()
+                elif getattr(header, "pinned", False):
+                    header.pinned = False
                     if hasattr(current_ui, "prevent_hide"):
                         current_ui.prevent_hide = False
 
@@ -414,13 +398,13 @@ class Tcl(
         if not self.isVisible():
             return
 
-        # for win in self.sb.visible_windows:
-        #     if win is not self and not win.has_tags(["startmenu", "submenu"]):
-        #         self._windows_to_restore.add(win)
-        #         win.header.hide_window()
+        for win in self.sb.visible_windows:
+            if win is not self and not win.has_tags(["startmenu", "submenu"]):
+                self._windows_to_restore.add(win)
+                win.header.hide_window()
 
-        # if self._windows_to_restore:
-        #     self.logger.debug(f"Hiding other windows: {self._windows_to_restore}")
+        if self._windows_to_restore:
+            self.logger.debug(f"Hiding other windows: {self._windows_to_restore}")
 
     def show_other_windows(self) -> None:
         """Show all previously hidden windows."""
@@ -504,20 +488,12 @@ class Tcl(
             # Emit signal directly to ensure it triggers even when widget state changes
             if hasattr(w, "clicked"):
                 w.clicked.emit()
-            else:
-                w.click()
 
         # Safe default: call original enterEvent
         if hasattr(w, "enterEvent"):
             super_event = getattr(super(type(w), w), "enterEvent", None)
             if callable(super_event):
                 super_event(event)
-
-    def child_mouseButtonPressEvent(self, w, event) -> None:
-        """ """
-        self._mouse_press_pos = event.globalPos()
-        self.__mouseMovePos = event.globalPos()
-        w.mousePressEvent(event)
 
     def child_mouseButtonReleaseEvent(self, w, event) -> bool:
         """Handle mouse button release events on child widgets.
@@ -558,27 +534,12 @@ class Tcl(
 
         # Emit clicked signal directly (bypasses Qt visibility checks)
         if hasattr(w, "clicked"):
-            if hasattr(w, "base_name") and hasattr(w, "ui"):
-                # Tentacle widget
-                self.hide()
-                if w.ui.has_tags(["startmenu", "submenu"]) and w.base_name() != "chk":
-                    w.clicked.emit()
-            else:
-                # OptionBox button or other widget
+            self.hide()
+            if w.ui.has_tags(["startmenu", "submenu"]) and w.base_name() != "chk":
                 w.clicked.emit()
 
         w.mouseReleaseEvent(event)
         return True
-
-    def child_mouseMoveEvent(self, w, event) -> None:
-        """ """
-        try:
-            globalPos = event.globalPos()
-            self.__mouseMovePos = globalPos
-        except AttributeError:
-            pass
-
-        w.mouseMoveEvent(event)
 
 
 # --------------------------------------------------------------------------------------------
