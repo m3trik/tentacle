@@ -78,7 +78,7 @@
      <string>Duplicate</string>
     </property>
    </widget>
-   <widget class="QPushButton" name="b004">
+   <widget class="PushButton" name="tb001">
     <property name="geometry">
      <rect>
       <x>300</x>
