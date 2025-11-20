@@ -19,7 +19,7 @@ class TransformSlots(SlotsMaya):
         self.submenu = self.sb.loaded_ui.transform_submenu
 
     def cmb002_init(self, widget):
-        """ """
+        """Align To Init"""
         items = [
             "Point to Point",
             "2 Points to 2 Points",
@@ -50,7 +50,7 @@ class TransformSlots(SlotsMaya):
             pm.mel.SetSnapTogetherToolOptions()  # setToolTo snapTogetherToolCtx; toolPropertyWindow;) Snap two objects together.
 
     def tb000_init(self, widget):
-        """ """
+        """Drop To Grid Init"""
         widget.option_box.menu.add(
             "QComboBox",
             addItems=["Min", "Mid", "Max"],
@@ -91,7 +91,7 @@ class TransformSlots(SlotsMaya):
         pm.select(objects)  # reselect the original selection.
 
     def tb001_init(self, widget):
-        """ """
+        """Scale Connected Edges Init"""
         widget.option_box.menu.add(
             "QDoubleSpinBox",
             setObjectName="s001",
@@ -107,7 +107,7 @@ class TransformSlots(SlotsMaya):
         mtk.scale_connected_edges(scale_factor=factor)
 
     def tb002_init(self, widget):
-        """ """
+        """Freeze Transformations Init"""
         widget.option_box.menu.setTitle("Freeze Transforms")
         widget.option_box.menu.add(
             "QCheckBox",
@@ -138,6 +138,29 @@ class TransformSlots(SlotsMaya):
         )
         widget.option_box.menu.add(
             "QCheckBox",
+            setText="Freeze Children",
+            setObjectName="chk039",
+            setChecked=False,
+            setToolTip="Freeze all descendant transform nodes.",
+        )
+        widget.option_box.menu.add(
+            "QComboBox",
+            setObjectName="cmb_connection_strategy",
+            addItems=[
+                "Preserve Connections (Warn and Skip)",
+                "Disconnect Incoming Connections",
+                "Delete Connection Nodes",
+            ],
+            setCurrentIndex=0,
+            setToolTip=(
+                "Select the fallback when translate/rotate/scale are driven:\n"
+                "• Preserve: warn and skip freeze\n"
+                "• Disconnect: break incoming plugs\n"
+                "• Delete: break plugs and delete their driver nodes"
+            ),
+        )
+        widget.option_box.menu.add(
+            "QCheckBox",
             setText="Store Transforms",
             setObjectName="chk037",
             setChecked=True,
@@ -164,6 +187,9 @@ class TransformSlots(SlotsMaya):
         scale = widget.option_box.menu.chk034.isChecked()
         force = True if len(objects) == 1 else False
         delete_history = widget.option_box.menu.chk038.isChecked()
+        freeze_children = widget.option_box.menu.chk039.isChecked()
+        strategy_index = widget.option_box.menu.cmb_connection_strategy.currentIndex()
+        connection_strategy = ["preserve", "disconnect", "delete"][strategy_index]
 
         mtk.freeze_transforms(
             objects,
@@ -173,10 +199,12 @@ class TransformSlots(SlotsMaya):
             s=scale,
             force=force,
             delete_history=delete_history,
+            freeze_children=freeze_children,
+            connection_strategy=connection_strategy,
         )
 
     def tb003_init(self, widget):
-        """ """
+        """Constraints Init"""
         widget.option_box.menu.trigger_button = "left"
         widget.option_box.menu.add_apply_button = False
         widget.option_box.menu.setTitle("CONSTRAINTS")
@@ -205,7 +233,7 @@ class TransformSlots(SlotsMaya):
         self.sb.connect_multi(widget.menu, "chk024-26", "toggled", update_text)
 
     def tb004_init(self, widget):
-        """ """
+        """Snap Init"""
         widget.option_box.menu.trigger_button = "left"
         widget.option_box.menu.add_apply_button = False
         widget.option_box.menu.setTitle("SNAP")
@@ -269,7 +297,7 @@ class TransformSlots(SlotsMaya):
         self.sb.connect_multi(widget.menu, "chk021-23", "toggled", update_text)
 
     def tb005_init(self, widget):
-        """Initialize Move To Menu"""
+        """Move To Init"""
         widget.option_box.menu.setTitle("MOVE TO")
 
         widget.option_box.menu.add(

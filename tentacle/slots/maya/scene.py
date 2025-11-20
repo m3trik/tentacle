@@ -24,31 +24,31 @@ class SceneSlots(SlotsMaya):
         """ """
         if not widget.is_initialized:
             widget.menu.add(
-                self.sb.registered_widgets.PushButton,
+                "QPushButton",
                 setToolTip="Export scene assets with environment checks and presets.",
                 setText="Scene Exporter",
                 setObjectName="b002",
             )
             widget.menu.add(
-                self.sb.registered_widgets.PushButton,
+                "QPushButton",
                 setText="Quick Export Scene Geo",
                 setObjectName="b003",
                 setToolTip="Export the scene geometry as FBX to the current maya file's directory.\nThe file name will be the same as the current scene and overwrite the current file if it exists.",
             )
             widget.menu.add(
-                self.sb.registered_widgets.PushButton,
+                "QPushButton",
                 setText="Reference Manager",
                 setObjectName="b001",
                 setToolTip="Open the reference manager.",
             )
             widget.menu.add(
-                self.sb.registered_widgets.PushButton,
+                "QPushButton",
                 setText="Hierarchy Manager",
                 setObjectName="b004",
                 setToolTip="Open the hierarchy manager.",
             )
             widget.menu.add(
-                self.sb.registered_widgets.PushButton,
+                "QPushButton",
                 setText="Naming",
                 setObjectName="b005",
                 setToolTip="Open the naming tool.",
@@ -209,19 +209,19 @@ class SceneSlots(SlotsMaya):
         if not widget.is_initialized:
             widget.refresh_on_show = True  # Call this method on show
             widget.option_box.menu.add(
-                self.sb.registered_widgets.Label,
+                "QPushButton",
                 setObjectName="lbl000",
                 setText="Set Project",
                 setToolTip="Set the project directory.",
             )
             widget.option_box.menu.add(
-                self.sb.registered_widgets.Label,
+                "QPushButton",
                 setObjectName="lbl005",
                 setText="Auto Set Project",
                 setToolTip="Determine the workspace directory by moving up directory levels until a workspace is found.",
             )
             widget.option_box.menu.add(
-                self.sb.registered_widgets.Label,
+                "QPushButton",
                 setObjectName="lbl004",
                 setText="Open Project Root",
                 setToolTip="Open the project root directory.",

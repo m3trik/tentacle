@@ -61,60 +61,59 @@ class MaterialsSlots(SlotsMaya):
             setToolTip="Pack up to 4 input grayscale maps into specified RGBA channels.",
         )
 
-        widget.menu.add(
-            "QPushButton",
-            setText="Reload Textures",
-            setObjectName="b013",
-            setToolTip="Reload file textures for all scene materials.",
-        )
-        widget.menu.add(
-            "QPushButton",
-            setText="Remove Duplicate Materials",
-            setObjectName="b014",
-            setToolTip="Find duplicate materials, remove duplicates, and reassign them to the original material.",
-        )
-        widget.menu.add(
-            "QPushButton",
-            setText="Delete All Unused Materials",
-            setObjectName="b015",
-            setToolTip="Delete all unused materials.",
-        )
-
     def cmb002_init(self, widget):
         """ """
         if not widget.is_initialized:
             widget.refresh_on_show = True  # Call this method on show
             widget.editable = True
-            widget.option_box.menu.setTitle("Material Options")
-            widget.option_box.menu.add(
+            widget.menu.setTitle("Material Options")
+            widget.menu.add(
                 self.sb.registered_widgets.Label,
                 setText="Rename",
                 setObjectName="lbl005",
                 setToolTip="Rename the current material.",
             )
-            widget.option_box.menu.add(
+            widget.menu.add(
                 self.sb.registered_widgets.Label,
                 setText="Rename (strip trailing ints)",
                 setObjectName="lbl007",
                 setToolTip="Rename the current material by removing trailing digits if present.",
             )
-            widget.option_box.menu.add(
+            widget.menu.add(
                 self.sb.registered_widgets.Label,
                 setText="Delete",
                 setObjectName="lbl002",
                 setToolTip="Delete the current material.",
             )
-            widget.option_box.menu.add(
+            widget.menu.add(
                 self.sb.registered_widgets.Label,
                 setText="Select Node",
                 setObjectName="lbl004",
                 setToolTip="Select the material node and show its attributes in the attribute editor.",
             )
-            widget.option_box.menu.add(
+            widget.menu.add(
                 self.sb.registered_widgets.Label,
                 setText="Open in Editor",
                 setObjectName="lbl006",
                 setToolTip="Open the material in the hypershade editor.",
+            )
+            widget.menu.add(
+                self.sb.registered_widgets.Label,
+                setText="Reload Textures",
+                setObjectName="b013",
+                setToolTip="Reload file textures for all scene materials.",
+            )
+            widget.menu.add(
+                self.sb.registered_widgets.Label,
+                setText="Remove Duplicate Materials",
+                setObjectName="b014",
+                setToolTip="Find duplicate materials, remove duplicates, and reassign them to the original material.",
+            )
+            widget.menu.add(
+                self.sb.registered_widgets.Label,
+                setText="Delete All Unused Materials",
+                setObjectName="b015",
+                setToolTip="Delete all unused materials.",
             )
             # Rename the material after editing has finished.
             widget.on_editing_finished.connect(

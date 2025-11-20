@@ -308,26 +308,12 @@ class PolygonsSlots(SlotsMaya):
     def tb008_init(self, widget):
         """ """
         widget.option_box.menu.add(
-            "QRadioButton",
-            setText="Union",
-            setObjectName="chk011",
+            "QComboBox",
+            addItems=["Union", "Difference", "Intersection"],
+            setObjectName="cmb011",
+            setCurrentText="Difference",
             set_fixed_height=20,
-            setToolTip="Fuse two objects together.",
-        )
-        widget.option_box.menu.add(
-            "QRadioButton",
-            setText="Difference",
-            setObjectName="chk012",
-            setChecked=True,
-            set_fixed_height=20,
-            setToolTip="Indents one object with the shape of another at the point of their intersection.",
-        )
-        widget.option_box.menu.add(
-            "QRadioButton",
-            setText="Intersection",
-            setObjectName="chk013",
-            set_fixed_height=20,
-            setToolTip="Keep only the interaction point of two objects.",
+            setToolTip="Select the boolean operation to apply.",
         )
         widget.option_box.menu.add(
             "QCheckBox",
@@ -344,20 +330,19 @@ class PolygonsSlots(SlotsMaya):
                 "<strong>Nothing selected</strong>.<br>Operation requires the selection of at least two objects."
             )
         interactive = widget.option_box.menu.chk017.isChecked()
+        mode = widget.option_box.menu.cmb011.currentText()
 
-        if widget.option_box.menu.chk011.isChecked():  # Union
+        if mode == "Union":
             if interactive:
                 pm.mel.PolygonBooleanUnion()
             else:
                 mtk.Macros.m_boolean(operation="union")
-
-        elif widget.option_box.menu.chk012.isChecked():  # Difference
+        elif mode == "Difference":
             if interactive:
                 pm.mel.PolygonBooleanDifference()
             else:
                 mtk.Macros.m_boolean(operation="difference")
-
-        elif widget.option_box.menu.chk013.isChecked():  # Intersection
+        elif mode == "Intersection":
             if interactive:
                 pm.mel.PolygonBooleanIntersection()
             else:

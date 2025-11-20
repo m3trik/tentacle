@@ -13,7 +13,7 @@ class Rigging(SlotsMaya):
         super().__init__(*args, **kwargs)
 
     def header_init(self, widget):
-        """ """
+        """Create Rigging Header"""
         widget.menu.setTitle("Rigging")
         widget.menu.add(
             "QPushButton",
@@ -26,8 +26,10 @@ class Rigging(SlotsMaya):
         )
 
     def cmb001_init(self, widget):
-        """ """
-        items = ["Joints", "Locator", "IK Handle", "Lattice", "Cluster"]
+        """Create Init"""
+        items = sorted(
+            ["Joints", "Locator", "IK Handle", "Lattice", "Cluster", "Null Group"]
+        )
         widget.add(items, header="Utility Node:")
 
     def cmb001(self, index, widget):
@@ -42,10 +44,12 @@ class Rigging(SlotsMaya):
         elif text == "Lattice":  # create lattice
             pm.lattice(divisions=[2, 5, 2], objectCentered=1, ldv=[2, 2, 2])
         elif text == "Cluster":
-            pm.mel.eval("CreateCluster;")  # create cluster
+            pm.mel.CreateCluster()  # create cluster
+        elif text == "Null Group":
+            pm.group(empty=True, name="null")  # create empty group
 
     def cmb002_init(self, widget):
-        """ """
+        """Create Quick Rig Init"""
         items = ["Tube Rig", "Wheel Rig"]
         widget.add(items, header="Quick Rig:")
 
@@ -86,7 +90,7 @@ class Rigging(SlotsMaya):
             pm.jointDisplayScale(value, ikfk=1)  # set global IKFK display size
 
     def tb000_init(self, widget):
-        """ """
+        """Create Display Local Rotation Axes Init"""
         scale_joint_value = pm.jointDisplayScale(q=True)
         widget.option_box.menu.setTitle("Display Local Rotation Axes")
         widget.option_box.menu.add(
@@ -139,7 +143,7 @@ class Rigging(SlotsMaya):
         self.sb.message_box(f"Display Local Rotation Axes:<hl>{state}</hl>")
 
     def tb001_init(self, widget):
-        """ """
+        """Create Constraint Switch Init"""
         widget.option_box.menu.setTitle("Create Constraint Switch")
         widget.option_box.menu.add(
             "QLineEdit",
@@ -180,7 +184,7 @@ class Rigging(SlotsMaya):
         )
 
     def tb003_init(self, widget):
-        """ """
+        """Create Locator at Selection Init"""
         widget.option_box.menu.setTitle("Create Locator")
         widget.option_box.menu.add(
             "QDoubleSpinBox",
