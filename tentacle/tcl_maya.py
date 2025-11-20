@@ -8,9 +8,6 @@ class TclMaya(Tcl):
     """Tcl class overridden for use with Autodesk Maya."""
 
     def __init__(self, parent=None, slot_source="slots/maya", *args, **kwargs):
-        if getattr(self, "_initialized", False):
-            return
-
         if not parent:
             try:
                 parent = mtk.get_main_window()
@@ -18,7 +15,6 @@ class TclMaya(Tcl):
                 print(f"Error getting main window: {error}")
 
         super().__init__(parent, slot_source=slot_source, *args, **kwargs)
-        self._initialized = True
 
 
 # --------------------------------------------------------------------------------------------

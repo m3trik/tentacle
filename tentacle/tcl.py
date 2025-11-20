@@ -1,10 +1,116 @@
 # !/usr/bin/python
 # coding=utf-8
-from qtpy import QtCore, QtWidgets
+from typing import Optional
+
+from qtpy import QtCore, QtWidgets, QtGui
 import pythontk as ptk
 from uitk.switchboard import Switchboard
 from uitk.events import EventFactoryFilter, MouseTracking
 from tentacle.overlay import Overlay
+
+
+class ShortcutHandler(QtCore.QObject):
+    """Application-wide shortcut that toggles the Tcl overlay."""
+
+    _instance: Optional["ShortcutHandler"] = None
+
+    def __init__(
+        self, owner: "Tcl", shortcut_parent: Optional[QtWidgets.QWidget] = None
+    ):
+        super().__init__(owner)
+        self._owner = owner
+        self._target = self._resolve_target(shortcut_parent)
+        sequence = self._build_sequence(owner.key_show)
+        self._shortcut = QtWidgets.QShortcut(sequence, self._target)
+        self._shortcut.setContext(QtCore.Qt.ApplicationShortcut)
+        self._shortcut.setAutoRepeat(False)
+        self._shortcut.activated.connect(self._on_key_press)
+        self._key_is_down = False
+        self._event_source = self._install_release_filter()
+
+    @classmethod
+    def create(
+        cls, owner: "Tcl", shortcut_parent: Optional[QtWidgets.QWidget] = None
+    ) -> "ShortcutHandler":
+        """Install or update the global shortcut binding."""
+        if cls._instance:
+            cls._instance.deleteLater()
+        cls._instance = cls(owner, shortcut_parent)
+        return cls._instance
+
+    def _install_release_filter(self):
+        app = QtWidgets.QApplication.instance()
+        source = app if app else self._target
+        if source:
+            source.installEventFilter(self)
+        return source
+
+    def _resolve_target(self, explicit_parent):
+        if isinstance(explicit_parent, QtWidgets.QWidget):
+            return explicit_parent
+
+        app = getattr(self._owner.sb, "app", None) or QtWidgets.QApplication.instance()
+        if app:
+            active = app.activeWindow()
+            if isinstance(active, QtWidgets.QWidget):
+                return active
+
+            for widget in app.topLevelWidgets():
+                if (
+                    isinstance(widget, QtWidgets.QWidget)
+                    and widget.objectName() == "MayaWindow"
+                ):
+                    return widget
+
+        parent_widget = self._owner.parentWidget()
+        if isinstance(parent_widget, QtWidgets.QWidget):
+            return parent_widget
+
+        logical_parent = self._owner.parent()
+        if isinstance(logical_parent, QtWidgets.QWidget):
+            return logical_parent
+
+        return self._owner
+
+    def _build_sequence(self, key_value):
+        if key_value is None:
+            self._owner.logger.warning(
+                "key_show is invalid; defaulting to F12 shortcut"
+            )
+            key_value = QtCore.Qt.Key_F12
+            self._owner.key_show = key_value
+
+        if isinstance(key_value, QtGui.QKeySequence):
+            return key_value
+
+        return QtGui.QKeySequence(key_value)
+
+    def eventFilter(self, obj, event):
+        if (
+            self._key_is_down
+            and event.type() == QtCore.QEvent.KeyRelease
+            and event.key() == self._owner.key_show
+            and not event.isAutoRepeat()
+        ):
+            self._on_key_release()
+            return True
+        return super().eventFilter(obj, event)
+
+    def _on_key_press(self):
+        if self._key_is_down:
+            return
+        self._key_is_down = True
+        self._owner.key_show_press.emit()
+        self._owner.show("hud#startmenu")
+        QtCore.QTimer.singleShot(0, self._owner.hide_other_windows)
+
+    def _on_key_release(self):
+        if not self._key_is_down:
+            return
+        self._key_is_down = False
+        self._owner.key_show_release.emit()
+        self._owner.hide()
+        QtCore.QTimer.singleShot(0, self._owner.show_other_windows)
 
 
 class Tcl(
@@ -33,12 +139,12 @@ class Tcl(
     key_show_press = QtCore.Signal()
     key_show_release = QtCore.Signal()
 
-    _first_show: bool = True
     _in_transition: bool = False
     _instances: dict = {}
     _submenu_cache: dict = {}
     _last_ui_history_check: QtWidgets.QWidget = None
     _pending_show_timer: QtCore.QTimer = None
+    _shortcut_instance: Optional["ShortcutHandler"] = None
 
     def __init__(
         self,
@@ -85,32 +191,15 @@ class Tcl(
         self.setFocusPolicy(QtCore.Qt.StrongFocus)
         self.resize(600, 600)
 
-        self.sb.app.installEventFilter(self)
-
         # Initialize smooth transition timer
         self._pending_show_timer = QtCore.QTimer()
         self._pending_show_timer.setSingleShot(True)
         self._pending_show_timer.timeout.connect(self._delayed_show_ui)
+        self._setup_complete = True
 
-    def eventFilter(self, watched, event):
-        """Filter key press/release for show/hide."""
-        etype = event.type()
-
-        if etype == QtCore.QEvent.Type.KeyPress:
-            if event.key() == self.key_show and not event.isAutoRepeat():
-                self.key_show_press.emit()
-                self.show()
-                QtCore.QTimer.singleShot(0, self.hide_other_windows)
-                return True
-
-        elif etype == QtCore.QEvent.Type.KeyRelease:
-            if event.key() == self.key_show and not event.isAutoRepeat():
-                self.key_show_release.emit()
-                self.hide()
-                QtCore.QTimer.singleShot(0, self.show_other_windows)
-                return True
-
-        return super().eventFilter(watched, event)
+        # Auto-install shortcut if parent is provided
+        if parent:
+            ShortcutHandler.create(self, parent)
 
     def _init_ui(self, ui) -> None:
         """Initialize the given UI.
@@ -181,10 +270,6 @@ class Tcl(
             current.updateGeometry()
             self.sb.center_widget(current, "cursor", offset_y=25)
             self.show_other_windows()
-
-        # Batch focus and raise operations
-        current.setFocus()
-        current.raise_()
 
     def _set_submenu(self, ui, w) -> None:
         """Set the submenu for the given UI and widget."""
@@ -327,24 +412,23 @@ class Tcl(
         current_ui = self.sb.current_ui
         if current_ui and current_ui.has_tags(["startmenu", "submenu"]):
             if self.isActiveWindow():
-                self.show(force=True)
+                self.show("hud#startmenu", force=True)
 
         super().mouseReleaseEvent(event)
 
-    def show(self, ui="hud#startmenu", force=False) -> None:
+    def show(self, ui=None, force=False) -> None:
         """Show the Tcl UI with the specified name.
 
         Parameters:
             ui (str/QWidget): The name of the UI to show or a QWidget instance.
             force (bool): If True, forces the UI to show even if it is already visible.
         """
+        if ui is None:
+            ui = "hud#startmenu"
+
         ui = self._prepare_ui(ui)
         if not force and (QtWidgets.QApplication.mouseButtons() or self.isVisible()):
             return
-
-        if self._first_show:
-            self.sb.simulate_key_press(self, self.key_show)
-            self._first_show = False
 
         self._show_ui()
 
@@ -370,10 +454,6 @@ class Tcl(
 
     def hideEvent(self, event):
         """ """
-        if QtWidgets.QWidget.keyboardGrabber() is self:
-            self.releaseKeyboard()
-        if self.mouseGrabber():
-            self.mouseGrabber().releaseMouse()
 
         # Clear optimization caches on hide to prevent memory leaks
         self._clear_optimization_caches()
