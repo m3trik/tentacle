@@ -153,7 +153,7 @@ class Tcl(
         ui_source="ui",
         slot_source="slots",
         widget_source=None,
-        log_level: str = "DEBUG",
+        log_level: str = "WARNING",
     ):
         """ """
         super().__init__(parent=parent)
@@ -172,6 +172,7 @@ class Tcl(
             event_name_prefix="child_",
             event_types={
                 "Enter",
+                "Leave",
                 "MouseMove",
                 "MouseButtonPress",
                 "MouseButtonRelease",
@@ -194,7 +195,7 @@ class Tcl(
         # Initialize smooth transition timer
         self._pending_show_timer = QtCore.QTimer()
         self._pending_show_timer.setSingleShot(True)
-        self._pending_show_timer.timeout.connect(self._delayed_show_ui)
+        self._pending_show_timer.timeout.connect(self._perform_transition)
         self._setup_complete = True
 
         # Auto-install shortcut if parent is provided
@@ -219,11 +220,9 @@ class Tcl(
             ui.set_flags(Window=True, FramelessWindowHint=True)
             ui.set_attributes(WA_TranslucentBackground=True)
             ui.style.set(theme="dark")
-            try:
+            if hasattr(ui, "header") and not ui.header.has_buttons():
                 ui.header.config_buttons("menu_button", "pin_button")
-            except AttributeError:
-                pass
-            self.key_show_release.connect(ui.hide)
+                self.key_show_release.connect(ui.hide)
 
         # set style before child init (resize).
         self.add_child_event_filter(ui.widgets)
@@ -258,18 +257,18 @@ class Tcl(
         if is_stacked_ui:
             # For stacked UIs (submenus), show with smooth timing
             super().show()
+            self.activateWindow()
+            self.raise_()
         else:
+            self.show_other_windows()
             current.show()
-            # Minimal processing for smoother transitions
 
-            # Cache width before adjusting size to avoid repeated calculations
-            widget_before_adjust = current.width()
             current.adjustSize()
-            size_hint = current.sizeHint()
-            current.resize(widget_before_adjust, size_hint.height())
             current.updateGeometry()
             self.sb.center_widget(current, "cursor", offset_y=25)
-            self.show_other_windows()
+
+            current.raise_()
+            current.activateWindow()
 
     def _set_submenu(self, ui, w) -> None:
         """Set the submenu for the given UI and widget."""
@@ -279,6 +278,25 @@ class Tcl(
             )
             return
         self._in_transition = True
+
+        # Store transition data and schedule execution
+        self._pending_transition_ui = ui
+        self._pending_transition_widget = w
+        self._pending_show_timer.start(8)  # ~120fps timing for very smooth transitions
+
+    def _perform_transition(self) -> None:
+        """Execute the scheduled submenu transition."""
+        ui = getattr(self, "_pending_transition_ui", None)
+        w = getattr(self, "_pending_transition_widget", None)
+
+        # Clear pending references
+        self._pending_transition_ui = None
+        self._pending_transition_widget = None
+
+        if not ui or not w:
+            self._clear_transition_flag()
+            return
+
         try:
             # Preserve overlay path order by adding to path first
             self.overlay.path.add(ui, w)
@@ -291,8 +309,7 @@ class Tcl(
             # Position submenu smoothly without forcing immediate updates
             self._position_submenu_smooth(ui, w)
 
-            # Use smooth delayed show for better visual transitions
-            self._schedule_smooth_show(ui)
+            self._show_ui()
 
             # Optimize history check and overlay cloning
             self._handle_overlay_cloning(ui)
@@ -323,26 +340,6 @@ class Tcl(
         except Exception as e:
             self.logger.warning(f"Submenu positioning failed: {e}")
 
-    def _schedule_smooth_show(self, ui) -> None:
-        """Schedule UI show with optimal timing for smooth transitions."""
-        # Cancel any pending show
-        if self._pending_show_timer.isActive():
-            self._pending_show_timer.stop()
-
-        # Store the UI to show
-        self._pending_ui = ui
-
-        # Schedule show with minimal delay for smooth positioning
-        self._pending_show_timer.start(8)  # ~120fps timing for very smooth transitions
-
-    def _delayed_show_ui(self) -> None:
-        """Show the UI after smooth positioning delay."""
-        if hasattr(self, "_pending_ui"):
-            current_ui = self.sb.current_ui
-            if current_ui == self._pending_ui:
-                self._show_ui()
-            delattr(self, "_pending_ui")
-
     def _handle_overlay_cloning(self, ui) -> None:
         """Handle overlay cloning with optimized history checking."""
         # Optimize history check by avoiding expensive slice operations
@@ -352,6 +349,14 @@ class Tcl(
             if ui not in ui_history_slice:
                 self.overlay.clone_widgets_along_path(ui, self._return_to_startmenu)
             self._last_ui_history_check = ui
+
+    def _delayed_show_ui(self) -> None:
+        """Show the UI after smooth positioning delay."""
+        if hasattr(self, "_pending_ui"):
+            current_ui = self.sb.current_ui
+            if current_ui == self._pending_ui:
+                self._show_ui()
+            delattr(self, "_pending_ui")
 
     def _clear_transition_flag(self):
         """Clear the transition flag to allow new transitions."""
@@ -411,7 +416,18 @@ class Tcl(
         """ """
         current_ui = self.sb.current_ui
         if current_ui and current_ui.has_tags(["startmenu", "submenu"]):
-            if self.isActiveWindow():
+            widget = QtWidgets.QApplication.widgetAt(QtGui.QCursor.pos())
+            if (
+                widget
+                and widget is not self
+                and widget is not current_ui
+                and widget is not getattr(self, "overlay", None)
+            ):
+                if not current_ui.isAncestorOf(widget):
+                    super().mouseReleaseEvent(event)
+                    return
+
+            if self.isActiveWindow() and self.rect().contains(event.pos()):
                 self.show("hud#startmenu", force=True)
 
         super().mouseReleaseEvent(event)
@@ -454,7 +470,6 @@ class Tcl(
 
     def hideEvent(self, event):
         """ """
-
         # Clear optimization caches on hide to prevent memory leaks
         self._clear_optimization_caches()
 
@@ -575,6 +590,21 @@ class Tcl(
             if callable(super_event):
                 super_event(event)
 
+    def child_leaveEvent(self, w, event) -> None:
+        """Handle the leave event for child widgets."""
+        if w.derived_type == QtWidgets.QPushButton:
+            if self._pending_show_timer.isActive():
+                self._pending_show_timer.stop()
+                self._clear_transition_flag()
+                self._pending_transition_ui = None
+                self._pending_transition_widget = None
+
+        # Safe default: call original leaveEvent
+        if hasattr(w, "leaveEvent"):
+            super_event = getattr(super(type(w), w), "leaveEvent", None)
+            if callable(super_event):
+                super_event(event)
+
     def child_mouseButtonReleaseEvent(self, w, event) -> bool:
         """Handle mouse button release events on child widgets.
 
@@ -600,7 +630,7 @@ class Tcl(
                     unknown_tags = self.sb.get_unknown_tags(
                         menu_name, known_tags=["submenu", "startmenu"]
                     )
-                    new_menu_name = self.sb.remove_tags(menu_name, unknown_tags)
+                    new_menu_name = self.sb.edit_tags(menu_name, remove=unknown_tags)
 
                     menu = self._submenu_cache.get(new_menu_name)
                     if menu is None:
