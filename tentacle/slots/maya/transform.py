@@ -161,6 +161,13 @@ class TransformSlots(SlotsMaya):
         )
         widget.option_box.menu.add(
             "QCheckBox",
+            setText="From Channel Box",
+            setObjectName="chk040",
+            setChecked=False,
+            setToolTip="Use the selected attributes in the channel box to determine what to freeze.",
+        )
+        widget.option_box.menu.add(
+            "QCheckBox",
             setText="Store Transforms",
             setObjectName="chk037",
             setChecked=True,
@@ -172,6 +179,13 @@ class TransformSlots(SlotsMaya):
             setObjectName="chk038",
             setChecked=True,
             setToolTip="Delete the objects history.",
+        )
+
+        self.sb.toggle_multi(
+            widget.option_box.menu,
+            trigger="chk040",
+            on_True={"setDisabled": "chk032-34"},
+            on_False={"setEnabled": "chk032-34"},
         )
 
     def tb002(self, widget):
@@ -188,6 +202,7 @@ class TransformSlots(SlotsMaya):
         force = True if len(objects) == 1 else False
         delete_history = widget.option_box.menu.chk038.isChecked()
         freeze_children = widget.option_box.menu.chk039.isChecked()
+        from_channel_box = widget.option_box.menu.chk040.isChecked()
         strategy_index = widget.option_box.menu.cmb_connection_strategy.currentIndex()
         connection_strategy = ["preserve", "disconnect", "delete"][strategy_index]
 
@@ -201,6 +216,7 @@ class TransformSlots(SlotsMaya):
             delete_history=delete_history,
             freeze_children=freeze_children,
             connection_strategy=connection_strategy,
+            from_channel_box=from_channel_box,
         )
 
     def tb003_init(self, widget):
