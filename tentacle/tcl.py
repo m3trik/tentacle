@@ -580,10 +580,9 @@ class Tcl(
                     if submenu:
                         self._set_submenu(submenu, w)
 
-        if w.base_name() == "chk" and w.ui.has_tags("submenu") and self.isVisible():
-            # Emit signal directly to ensure it triggers even when widget state changes
-            if hasattr(w, "clicked"):
-                w.clicked.emit()
+        if w.isCheckable() and w.ui.has_tags("submenu") and self.isVisible():
+            if hasattr(w, "toggle"):
+                w.toggle()
 
         # Safe default: call original enterEvent
         if hasattr(w, "enterEvent"):
@@ -646,7 +645,7 @@ class Tcl(
         # Emit clicked signal directly (bypasses Qt visibility checks)
         if hasattr(w, "clicked"):
             self.hide()
-            if w.ui.has_tags(["startmenu", "submenu"]) and w.base_name() != "chk":
+            if w.ui.has_tags(["startmenu", "submenu"]) and not w.isCheckable():
                 w.clicked.emit()
 
         w.mouseReleaseEvent(event)
