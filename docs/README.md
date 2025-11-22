@@ -49,9 +49,14 @@ Download the mayapy package manager from [here](https://github.com/m3trik/window
 
 To launch the marking menu:
 
-For Maya, add a macro to a hotkey similar to the following:
+For Maya, add the following to your `userSetup.py`:
 
 ```python
-from tentacle.tcl_maya import TclMaya
-TclMaya.instance(key_show='Z').show()  # Change to match your chosen hotkey.
+import pymel.core as pm
+
+def start_tentacle():
+    from tentacle.tcl_maya import TclMaya
+    TclMaya(key_show='F12') # Change 'F12' to match your chosen hotkey.
+
+pm.evalDeferred(start_tentacle)
 ```
