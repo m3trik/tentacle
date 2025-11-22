@@ -40,21 +40,21 @@ class Duplicate(SlotsMaya):
         )
 
     def tb000_init(self, widget):
-        widget.menu.add(
+        widget.option_box.menu.add(
             "QCheckBox",
             setText="Center Pivot",
             setObjectName="chk002",
             setChecked=True,
             setToolTip="Center pivot on the object(s) before instancing.",
         )
-        widget.menu.add(
+        widget.option_box.menu.add(
             "QCheckBox",
             setText="Freeze Transforms",
             setObjectName="chk000",
             setChecked=False,
             setToolTip="Freeze transforms on the object(s) before instancing.",
         )
-        widget.menu.add(
+        widget.option_box.menu.add(
             "QCheckBox",
             setText="Delete History",
             setObjectName="chk001",
@@ -64,9 +64,9 @@ class Duplicate(SlotsMaya):
 
     def tb000(self, widget):
         """Convert to Instances"""
-        freeze_transforms = widget.menu.chk000.isChecked()
-        center_pivot = widget.menu.chk002.isChecked()
-        delete_history = widget.menu.chk001.isChecked()
+        freeze_transforms = widget.option_box.menu.chk000.isChecked()
+        center_pivot = widget.option_box.menu.chk002.isChecked()
+        delete_history = widget.option_box.menu.chk001.isChecked()
 
         # Get the list of selected transform nodes in the order they were selected
         selection = pm.ls(orderedSelection=True, transforms=True)
@@ -89,17 +89,41 @@ class Duplicate(SlotsMaya):
             delete_history=delete_history,
         )
 
+    def tb001_init(self, widget):
+        widget.option_box.menu.add(
+            "QCheckBox",
+            setText="All Instanced Objects",
+            setObjectName="chk000",
+            setChecked=True,
+            setToolTip="Select all instanced objects in the scene instead of just instances of selected objects.",
+        )
+
+    def tb001(self, widget):
+        """Select Instanced Objects"""
+        all_instanced = widget.option_box.menu.chk000.isChecked()
+
+        if all_instanced:
+            # Select all instanced objects in the scene
+            instances = mtk.get_instances(objects=None)
+        else:
+            # Select instances of the selected objects only
+            selection = pm.ls(sl=1)
+            if not selection:
+                self.sb.message_box(
+                    "<strong>Nothing selected</strong>.<br>Select objects to find their instances, or enable 'All Instanced Objects' option."
+                )
+                return
+            instances = mtk.get_instances(selection)
+
+        if instances:
+            pm.select(instances)
+        else:
+            self.sb.message_box("<strong>No instanced objects found</strong>.")
+
     def b000(self):
         """Mirror"""
         ui = mtk.UiManager.instance(self.sb).get("mirror")
         self.sb.parent().show(ui)
-
-    def b004(self):
-        """Select Instanced Objects"""
-        # Select instances of the selected objects or all instanced objects in the scene if not selection.
-        objects = None or pm.ls(sl=1)
-        instances = mtk.get_instances(objects)
-        pm.select(instances)
 
     def b005(self):
         """Uninstance Selected Objects"""

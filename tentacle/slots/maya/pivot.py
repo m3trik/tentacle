@@ -17,14 +17,14 @@ class Pivot(SlotsMaya):
 
     def tb000_init(self, widget):
         """ """
-        widget.menu.add(
+        widget.option_box.menu.add(
             "QCheckBox",
             setText="Reset Pivot Position",
             setObjectName="chk000",
             setChecked=True,
             setToolTip="",
         )
-        widget.menu.add(
+        widget.option_box.menu.add(
             "QCheckBox",
             setText="Reset Pivot Orientation",
             setObjectName="chk001",
@@ -34,9 +34,11 @@ class Pivot(SlotsMaya):
 
     def tb000(self, widget):
         """Reset Pivot"""
-        resetPivotPosition = widget.menu.chk000.isChecked()  # Reset Pivot Position
+        resetPivotPosition = (
+            widget.option_box.menu.chk000.isChecked()
+        )  # Reset Pivot Position
         resetPivotOrientation = (
-            widget.menu.chk001.isChecked()
+            widget.option_box.menu.chk001.isChecked()
         )  # Reset Pivot Orientation
 
         pm.mel.manipPivotReset(int(resetPivotPosition), int(resetPivotOrientation))
@@ -50,20 +52,20 @@ class Pivot(SlotsMaya):
 
     def tb001_init(self, widget):
         """ """
-        widget.menu.add(
+        widget.option_box.menu.add(
             "QRadioButton",
             setText="Component",
             setObjectName="chk002",
             setToolTip="Center the pivot on the center of the selected component's bounding box",
         )
-        widget.menu.add(
+        widget.option_box.menu.add(
             "QRadioButton",
             setText="Object",
             setObjectName="chk003",
             setChecked=True,
             setToolTip="Center the pivot on the center of the object's bounding box",
         )
-        widget.menu.add(
+        widget.option_box.menu.add(
             "QRadioButton",
             setText="World",
             setObjectName="chk004",
@@ -72,9 +74,9 @@ class Pivot(SlotsMaya):
 
     def tb001(self, widget):
         """Center Pivot"""
-        component = widget.menu.chk002.isChecked()
-        object_ = widget.menu.chk003.isChecked()
-        world = widget.menu.chk004.isChecked()
+        component = widget.option_box.menu.chk002.isChecked()
+        object_ = widget.option_box.menu.chk003.isChecked()
+        world = widget.option_box.menu.chk004.isChecked()
 
         pm.mel.manipPivotReset(1, 1)  # reset Pivot Position and Orientation.
 
@@ -87,36 +89,36 @@ class Pivot(SlotsMaya):
 
     def tb002_init(self, widget):
         """ """
-        widget.menu.setTitle("Transfer Pivot")
-        widget.menu.add(
+        widget.option_box.menu.setTitle("Transfer Pivot")
+        widget.option_box.menu.add(
             "QCheckBox",
             setText="Translate",
             setObjectName="chk005",
             setChecked=True,
             setToolTip="Transfer the translation pivot.",
         )
-        widget.menu.add(
+        widget.option_box.menu.add(
             "QCheckBox",
             setText="Rotate",
             setObjectName="chk006",
             setChecked=True,
             setToolTip="Transfer the pivot orientation.",
         )
-        widget.menu.add(
+        widget.option_box.menu.add(
             "QCheckBox",
             setText="Scale",
             setObjectName="chk007",
             setChecked=True,
             setToolTip="Transfer the scale pivot.",
         )
-        widget.menu.add(
+        widget.option_box.menu.add(
             "QCheckBox",
             setText="Bake",
             setObjectName="chk008",
             setChecked=False,
             setToolTip="Bake the pivot values into the transform node.",
         )
-        widget.menu.add(
+        widget.option_box.menu.add(
             "QCheckBox",
             setText="World Space",
             setObjectName="chk009",
@@ -126,11 +128,11 @@ class Pivot(SlotsMaya):
 
     def tb002(self, widget):
         """Transfer Pivot"""
-        translate = widget.menu.chk005.isChecked()
-        rotate = widget.menu.chk006.isChecked()
-        scale = widget.menu.chk007.isChecked()
-        bake = widget.menu.chk008.isChecked()
-        world_space = widget.menu.chk009.isChecked()
+        translate = widget.option_box.menu.chk005.isChecked()
+        rotate = widget.option_box.menu.chk006.isChecked()
+        scale = widget.option_box.menu.chk007.isChecked()
+        bake = widget.option_box.menu.chk008.isChecked()
+        world_space = widget.option_box.menu.chk009.isChecked()
 
         mtk.transfer_pivot(
             pm.selected(),
@@ -142,22 +144,55 @@ class Pivot(SlotsMaya):
             select_targets_after_transfer=True,
         )
 
+    def tb003_init(self, widget):
+        """Initialize World-Aligned Pivot options"""
+        widget.option_box.menu.setTitle("World-Aligned Pivot")
+        widget.option_box.menu.add(
+            "QCheckBox",
+            setText="Manip Pivot",
+            setObjectName="chk010",
+            setChecked=True,
+            setToolTip="Set temporary manipulator pivot. If unchecked, sets permanent object pivot.",
+        )
+
+    def tb003(self, widget):
+        """World-Aligned Pivot"""
+        manip_pivot = widget.option_box.menu.chk010.isChecked()
+
+        # Set pivot
+        pivot_type = "manip" if manip_pivot else "object"
+        result = mtk.world_aligned_pivot(mode="set", pivot_type=pivot_type)
+
+        if result:
+            if pivot_type == "manip":
+                pm.inViewMessage(
+                    status_message="World-aligned <hl>manipulator</hl> pivot set (temporary).",
+                    pos="topCenter",
+                    fade=True,
+                )
+            else:
+                pm.inViewMessage(
+                    status_message="World-aligned <hl>object</hl> pivot set (permanent).",
+                    pos="topCenter",
+                    fade=True,
+                )
+
     def b000(self):
         """Center Pivot: Object"""
         self.ui.tb001.init_slot()
-        self.ui.tb001.menu.chk003.setChecked(True)
+        self.ui.tb001.option_box.menu.chk003.setChecked(True)
         self.ui.tb001.call_slot()
 
     def b001(self):
         """Center Pivot: Component"""
         self.ui.tb001.init_slot()
-        self.ui.tb001.menu.chk002.setChecked(True)
+        self.ui.tb001.option_box.menu.chk002.setChecked(True)
         self.ui.tb001.call_slot()
 
     def b002(self, widget):
         """Center Pivot: World"""
         self.ui.tb001.init_slot()
-        self.ui.tb001.menu.chk004.setChecked(True)
+        self.ui.tb001.option_box.menu.chk004.setChecked(True)
         self.ui.tb001.call_slot()
 
     def b004(self):

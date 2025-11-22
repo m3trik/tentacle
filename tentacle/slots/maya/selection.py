@@ -15,35 +15,97 @@ class Selection(SlotsMaya):
         self.ui = self.sb.loaded_ui.selection
         self.submenu = self.sb.loaded_ui.selection_submenu
 
+    def cmb001_init(self, widget):
+        """Reorder Selection Init"""
+        widget.option_box.menu.setTitle("Reorder Selection")
+        widget.option_box.menu.add(
+            "QCheckBox",
+            setText="Reverse Order",
+            setObjectName="chk009",
+            setChecked=False,
+            setToolTip="Reverse the reordered selection.",
+        )
+        # Get available reorder methods
+        items = [
+            "Name",
+            "Hierarchy",
+            "X Position",
+            "Y Position",
+            "Z Position",
+            "Distance from Origin",
+            "Volume",
+            "Vertex Count",
+            "Random",
+            "Creation Time",
+        ]
+        widget.add(items, header="Reorder By:")
+
+    def cmb001(self, index, widget):
+        """Reorder Selection"""
+        reverse = widget.option_box.menu.chk009.isChecked()
+
+        # Map display names to method names
+        method_map = {
+            "Name": "name",
+            "Hierarchy": "hierarchy",
+            "X Position": "x",
+            "Y Position": "y",
+            "Z Position": "z",
+            "Distance from Origin": "distance",
+            "Volume": "volume",
+            "Vertex Count": "vertex_count",
+            "Random": "random",
+            "Creation Time": "creation_time",
+        }
+
+        selected_option = widget.items[index]
+        method = method_map.get(selected_option, "name")
+
+        # Get current selection
+        objects = pm.selected()
+        if not objects:
+            self.sb.message_box("No objects selected to reorder.")
+            return
+
+        # Reorder the objects
+        reordered = mtk.reorder_objects(objects, method=method, reverse=reverse)
+
+        # Reselect in new order
+        if reordered:
+            pm.select(reordered)
+            print(
+                f"Reordered {len(reordered)} objects by {selected_option}{' (reversed)' if reverse else ''}"
+            )
+
     def cmb002_init(self, widget):
         """ """
-        widget.menu.setTitle("Select By Type")
-        widget.menu.add(
+        widget.option_box.menu.setTitle("Select By Type")
+        widget.option_box.menu.add(
             "QRadioButton",
             setText="Replace",
             setObjectName="chk010",
             setChecked=True,
-            setToolTip=(
-                "Replace current selection with the new selection.<br>"
-                "Uses selected objects, or all objects if none are selected."
-            ),
+            setToolTip=("Replace current selection with the new selection."),
         )
-        widget.menu.add(
+        widget.option_box.menu.add(
             "QRadioButton",
             setText="Add",
             setObjectName="chk011",
-            setToolTip=(
-                "Add new selection to the current selection.<br>"
-                "Ignores the current selection."
-            ),
+            setToolTip=("Add new selection to the current selection."),
         )
-        widget.menu.add(
+        widget.option_box.menu.add(
             "QRadioButton",
             setText="Remove",
             setObjectName="chk012",
+            setToolTip=("Remove new selection from the current selection."),
+        )
+        widget.option_box.menu.add(
+            "QCheckBox",
+            setText="Search Current Selection Only",
+            setObjectName="chk013",
+            setChecked=False,
             setToolTip=(
-                "Remove new selection from the current selection.<br>"
-                "Ignores the current selection."
+                "Search within the current selection instead of all scene objects."
             ),
         )
 
@@ -53,9 +115,10 @@ class Selection(SlotsMaya):
 
     def cmb002(self, index, widget):
         """Select by Type"""
-        replace = widget.menu.chk010.isChecked()
-        add = widget.menu.chk011.isChecked()
-        remove = widget.menu.chk012.isChecked()
+        replace = widget.option_box.menu.chk010.isChecked()
+        add = widget.option_box.menu.chk011.isChecked()
+        remove = widget.option_box.menu.chk012.isChecked()
+        search_selection = widget.option_box.menu.chk013.isChecked()
 
         # Determine selection mode
         if add:
@@ -69,10 +132,15 @@ class Selection(SlotsMaya):
         selection_type = widget.items[index]
 
         # Get objects to work with
-        objects = pm.selected() or pm.ls() if replace else pm.ls()
-        if not objects:
-            pm.warning("No objects found for selection.")
-            return
+        if search_selection:
+            # Search within current selection only
+            objects = pm.selected()
+            if not objects:
+                self.sb.message_box("No objects selected to search within.")
+                return
+        else:
+            # Search all scene objects
+            objects = pm.ls()
 
         try:
             result = mtk.Selection.select_by_type(selection_type, objects, mode)
@@ -260,38 +328,38 @@ class Selection(SlotsMaya):
 
     def tb000_init(self, widget):
         """ """
-        widget.menu.add(
+        widget.option_box.menu.add(
             "QRadioButton",
             setText="Edge Ring",
             setObjectName="chk000",
             setToolTip="Select component ring.",
         )
-        widget.menu.add(
+        widget.option_box.menu.add(
             "QRadioButton",
             setText="Edge Loop",
             setObjectName="chk001",
             setChecked=True,
             setToolTip="Select all contiguous components that form a loop with the current selection.",
         )
-        widget.menu.add(
+        widget.option_box.menu.add(
             "QRadioButton",
             setText="Edge Loop Path",
             setObjectName="chk009",
             setToolTip="The path along loop between two selected edges, vertices or UV's.",
         )
-        widget.menu.add(
+        widget.option_box.menu.add(
             "QRadioButton",
             setText="Shortest Edge Path",
             setObjectName="chk002",
             setToolTip="The shortest component path between two selected edges, vertices or UV's.",
         )
-        widget.menu.add(
+        widget.option_box.menu.add(
             "QRadioButton",
             setText="Border Edges",
             setObjectName="chk010",
             setToolTip="Select the object(s) border edges.",
         )
-        widget.menu.add(
+        widget.option_box.menu.add(
             "QSpinBox",
             setPrefix="Step: ",
             setObjectName="s003",
@@ -302,12 +370,12 @@ class Selection(SlotsMaya):
 
     def tb000(self, widget):
         """Select Nth"""
-        edgeRing = widget.menu.chk000.isChecked()
-        edgeLoop = widget.menu.chk001.isChecked()
-        pathAlongLoop = widget.menu.chk009.isChecked()
-        shortestPath = widget.menu.chk002.isChecked()
-        borderEdges = widget.menu.chk010.isChecked()
-        step = widget.menu.s003.value()
+        edgeRing = widget.option_box.menu.chk000.isChecked()
+        edgeLoop = widget.option_box.menu.chk001.isChecked()
+        pathAlongLoop = widget.option_box.menu.chk009.isChecked()
+        shortestPath = widget.option_box.menu.chk002.isChecked()
+        borderEdges = widget.option_box.menu.chk010.isChecked()
+        step = widget.option_box.menu.s003.value()
 
         selection = pm.ls(orderedSelection=True)
         if not selection:
@@ -335,7 +403,7 @@ class Selection(SlotsMaya):
 
     def tb001_init(self, widget):
         """ """
-        widget.menu.add(
+        widget.option_box.menu.add(
             "QDoubleSpinBox",
             setPrefix="Tolerance: ",
             setObjectName="s000",
@@ -343,71 +411,71 @@ class Selection(SlotsMaya):
             setValue=0.0,
             setToolTip="The allowed difference in any of the compared results.\nie. A tolerance of 4 allows for a difference of 4 components.\nie. A tolerance of 0.05 allows for that amount of variance between any of the bounding box values.",
         )
-        widget.menu.add(
+        widget.option_box.menu.add(
             "QCheckBox",
             setText="Vertex",
             setObjectName="chk011",
             setChecked=True,
             setToolTip="The number of vertices.",
         )
-        widget.menu.add(
+        widget.option_box.menu.add(
             "QCheckBox",
             setText="Edge",
             setObjectName="chk012",
             setChecked=True,
             setToolTip="The number of edges.",
         )
-        widget.menu.add(
+        widget.option_box.menu.add(
             "QCheckBox",
             setText="Face",
             setObjectName="chk013",
             setChecked=True,
             setToolTip="The number of faces.",
         )
-        widget.menu.add(
+        widget.option_box.menu.add(
             "QCheckBox",
             setText="Triangle",
             setObjectName="chk014",
             setToolTip="The number of triangles.",
         )
-        widget.menu.add(
+        widget.option_box.menu.add(
             "QCheckBox",
             setText="Shell",
             setObjectName="chk015",
             setToolTip="The number of shells shells (disconnected pieces).",
         )
-        widget.menu.add(
+        widget.option_box.menu.add(
             "QCheckBox",
             setText="Uv Coord",
             setObjectName="chk016",
             setToolTip="The number of uv coordinates (for the current map).",
         )
-        widget.menu.add(
+        widget.option_box.menu.add(
             "QCheckBox",
             setText="Area",
             setObjectName="chk017",
             setToolTip="The surface area of the object's faces in local space.",
         )
-        widget.menu.add(
+        widget.option_box.menu.add(
             "QCheckBox",
             setText="World Area",
             setObjectName="chk018",
             setChecked=True,
             setToolTip="The surface area of the object's faces in world space.",
         )
-        widget.menu.add(
+        widget.option_box.menu.add(
             "QCheckBox",
             setText="Bounding Box",
             setObjectName="chk019",
             setToolTip="The object's bounding box in 3d space.\nCannot be used with the topological flags.",
         )
-        widget.menu.add(
+        widget.option_box.menu.add(
             "QCheckBox",
             setText="Include Original",
             setObjectName="chk020",
             setToolTip="Include the original selected object(s) in the final selection.",
         )
-        widget.menu.chk018.stateChanged.connect(
+        widget.option_box.menu.chk018.stateChanged.connect(
             lambda state: (
                 self.sb.toggle_multi(widget.menu, setDisabled="chk011-18")
                 if state
@@ -417,17 +485,17 @@ class Selection(SlotsMaya):
 
     def tb001(self, widget):
         """Select Similar"""
-        tolerance = widget.menu.s000.value()  # tolerance
-        v = widget.menu.chk011.isChecked()  # vertex
-        e = widget.menu.chk012.isChecked()  # edge
-        f = widget.menu.chk013.isChecked()  # face
-        t = widget.menu.chk014.isChecked()  # triangle
-        s = widget.menu.chk015.isChecked()  # shell
-        uv = widget.menu.chk016.isChecked()  # uvcoord
-        a = widget.menu.chk017.isChecked()  # area
-        wa = widget.menu.chk018.isChecked()  # world area
-        b = widget.menu.chk019.isChecked()  # bounding box
-        inc = widget.menu.chk020.isChecked()  # select the original objects
+        tolerance = widget.option_box.menu.s000.value()  # tolerance
+        v = widget.option_box.menu.chk011.isChecked()  # vertex
+        e = widget.option_box.menu.chk012.isChecked()  # edge
+        f = widget.option_box.menu.chk013.isChecked()  # face
+        t = widget.option_box.menu.chk014.isChecked()  # triangle
+        s = widget.option_box.menu.chk015.isChecked()  # shell
+        uv = widget.option_box.menu.chk016.isChecked()  # uvcoord
+        a = widget.option_box.menu.chk017.isChecked()  # area
+        wa = widget.option_box.menu.chk018.isChecked()  # world area
+        b = widget.option_box.menu.chk019.isChecked()  # bounding box
+        inc = widget.option_box.menu.chk020.isChecked()  # select the original objects
 
         objMode = pm.selectMode(q=True, object=1)
         if objMode:
@@ -454,14 +522,14 @@ class Selection(SlotsMaya):
 
     def tb002_init(self, widget):
         """ """
-        widget.menu.add(
+        widget.option_box.menu.add(
             "QCheckBox",
             setText="Lock Values",
             setObjectName="chk003",
             setChecked=True,
             setToolTip="Keep values in sync.",
         )
-        widget.menu.add(
+        widget.option_box.menu.add(
             "QDoubleSpinBox",
             setPrefix="x: ",
             setObjectName="s002",
@@ -469,7 +537,7 @@ class Selection(SlotsMaya):
             setValue=0.05,
             setToolTip="Normal X range.",
         )
-        widget.menu.add(
+        widget.option_box.menu.add(
             "QDoubleSpinBox",
             setPrefix="y: ",
             setObjectName="s004",
@@ -477,7 +545,7 @@ class Selection(SlotsMaya):
             setValue=0.05,
             setToolTip="Normal Y range.",
         )
-        widget.menu.add(
+        widget.option_box.menu.add(
             "QDoubleSpinBox",
             setPrefix="z: ",
             setObjectName="s005",
@@ -488,22 +556,28 @@ class Selection(SlotsMaya):
 
         def update_normal_ranges(value, widget):
             """Update all spin boxes if checkbox is checked."""
-            if widget.menu.chk003.isChecked():
+            if widget.option_box.menu.chk003.isChecked():
                 # Update all spin boxes
-                widget.menu.s002.setValue(value)
-                widget.menu.s004.setValue(value)
-                widget.menu.s005.setValue(value)
+                widget.option_box.menu.s002.setValue(value)
+                widget.option_box.menu.s004.setValue(value)
+                widget.option_box.menu.s005.setValue(value)
 
         # Connect signals
-        widget.menu.s002.valueChanged.connect(lambda v: update_normal_ranges(v, widget))
-        widget.menu.s004.valueChanged.connect(lambda v: update_normal_ranges(v, widget))
-        widget.menu.s005.valueChanged.connect(lambda v: update_normal_ranges(v, widget))
+        widget.option_box.menu.s002.valueChanged.connect(
+            lambda v: update_normal_ranges(v, widget)
+        )
+        widget.option_box.menu.s004.valueChanged.connect(
+            lambda v: update_normal_ranges(v, widget)
+        )
+        widget.option_box.menu.s005.valueChanged.connect(
+            lambda v: update_normal_ranges(v, widget)
+        )
 
     def tb002(self, widget):
         """Select Island: Select Polygon Face Island"""
-        range_x = float(widget.menu.s002.value())
-        range_y = float(widget.menu.s004.value())
-        range_z = float(widget.menu.s005.value())
+        range_x = float(widget.option_box.menu.s002.value())
+        range_y = float(widget.option_box.menu.s004.value())
+        range_z = float(widget.option_box.menu.s005.value())
 
         sel = pm.ls(sl=1)
         selected_faces = mtk.Components.get_components(sel, component_type="faces")
@@ -520,7 +594,7 @@ class Selection(SlotsMaya):
 
     def tb003_init(self, widget):
         """ """
-        widget.menu.add(
+        widget.option_box.menu.add(
             "QDoubleSpinBox",
             setPrefix="Angle Low:  ",
             setObjectName="s006",
@@ -528,7 +602,7 @@ class Selection(SlotsMaya):
             setValue=70,
             setToolTip="Normal angle low range.",
         )
-        widget.menu.add(
+        widget.option_box.menu.add(
             "QDoubleSpinBox",
             setPrefix="Angle High: ",
             setObjectName="s007",
@@ -539,8 +613,8 @@ class Selection(SlotsMaya):
 
     def tb003(self, widget):
         """Select Edges By Angle"""
-        angleLow = widget.menu.s006.value()
-        angleHigh = widget.menu.s007.value()
+        angleLow = widget.option_box.menu.s006.value()
+        angleHigh = widget.option_box.menu.s007.value()
 
         objects = pm.ls(sl=1, objectsOnly=1)
         edges = mtk.Components.get_edges_by_normal_angle(

@@ -13,9 +13,6 @@ class TclMax(Tcl):
     """Tcl class overridden for use with Autodesk 3ds Max."""
 
     def __init__(self, parent=None, slot_source="slots/max", *args, **kwargs):
-        if getattr(self, "_initialized", False):
-            return
-
         if not parent:
             try:
                 parent = self.get_main_window()
@@ -23,7 +20,6 @@ class TclMax(Tcl):
                 print(__file__, error)
 
         super().__init__(parent, slot_source=slot_source, *args, **kwargs)
-        self._initialized = True
 
     @classmethod
     def get_main_window(cls):

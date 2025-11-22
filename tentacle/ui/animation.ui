@@ -10,7 +10,7 @@
     <x>0</x>
     <y>0</y>
     <width>200</width>
-    <height>262</height>
+    <height>445</height>
    </rect>
   </property>
   <property name="tabShape">
@@ -67,7 +67,7 @@
        </widget>
       </item>
       <item>
-       <widget class="QGroupBox" name="face">
+       <widget class="QGroupBox" name="keyframes">
         <property name="baseSize">
          <size>
           <width>0</width>
@@ -94,6 +94,31 @@
           <number>0</number>
          </property>
          <item>
+          <widget class="PushButton" name="tb013">
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>20</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>16777215</width>
+             <height>20</height>
+            </size>
+           </property>
+           <property name="toolTip">
+            <string>Select keys</string>
+           </property>
+           <property name="text">
+            <string>Select Keys</string>
+           </property>
+           <property name="checkable">
+            <bool>false</bool>
+           </property>
+          </widget>
+         </item>
+         <item>
           <widget class="PushButton" name="tb000">
            <property name="minimumSize">
             <size>
@@ -119,31 +144,6 @@
           </widget>
          </item>
          <item>
-          <widget class="PushButton" name="tb002">
-           <property name="minimumSize">
-            <size>
-             <width>0</width>
-             <height>20</height>
-            </size>
-           </property>
-           <property name="maximumSize">
-            <size>
-             <width>16777215</width>
-             <height>20</height>
-            </size>
-           </property>
-           <property name="toolTip">
-            <string>Add or remove spacing between all keys at a given time for any currently selected objects.</string>
-           </property>
-           <property name="text">
-            <string>Adjust Spacing</string>
-           </property>
-           <property name="checkable">
-            <bool>false</bool>
-           </property>
-          </widget>
-         </item>
-         <item>
           <widget class="PushButton" name="tb001">
            <property name="minimumSize">
             <size>
@@ -158,10 +158,10 @@
             </size>
            </property>
            <property name="toolTip">
-            <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Duplicate any selected keyframes and paste them inverted at the given time.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+            <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Duplicate any selected keyframes and paste them inverted at the given time.&lt;br/&gt;If none are selected, all keys for the object(s) will be used.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
            </property>
            <property name="text">
-            <string>Invert Selected Keys</string>
+            <string>Invert Keys</string>
            </property>
            <property name="checkable">
             <bool>false</bool>
@@ -169,7 +169,7 @@
           </widget>
          </item>
          <item>
-          <widget class="PushButton" name="tb003">
+          <widget class="PushButton" name="tb014">
            <property name="minimumSize">
             <size>
              <width>0</width>
@@ -183,10 +183,10 @@
             </size>
            </property>
            <property name="toolTip">
-            <string>Stagger the keyframes of selected objects such that the keyframes of each subsequent object start after the previous object.</string>
+            <string>Scale the keys on any selected objects by a given percentage.</string>
            </property>
            <property name="text">
-            <string>Stagger Keys</string>
+            <string>Scale Keys</string>
            </property>
            <property name="checkable">
             <bool>false</bool>
@@ -219,6 +219,156 @@
           </widget>
          </item>
          <item>
+          <widget class="PushButton" name="tb002">
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>20</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>16777215</width>
+             <height>20</height>
+            </size>
+           </property>
+           <property name="toolTip">
+            <string>Add or remove spacing between all keys at a given time for any currently selected objects.</string>
+           </property>
+           <property name="text">
+            <string>Adjust Spacing</string>
+           </property>
+           <property name="checkable">
+            <bool>false</bool>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="PushButton" name="tb003">
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>20</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>16777215</width>
+             <height>20</height>
+            </size>
+           </property>
+           <property name="toolTip">
+            <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;pre style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; line-height:24px; background-color:#272822;&quot;&gt;&lt;span style=&quot; font-family:'Consolas,Courier New,monospace'; font-size:18px; color:#e6db74;&quot;&gt;Stagger the keyframes of selected objects with various positioning controls.&lt;/span&gt;&lt;/pre&gt;&lt;p&gt;&lt;span style=&quot; font-family:'Consolas,Courier New,monospace'; font-size:18px; color:#f8f8f2;&quot;&gt;&lt;br/&gt;&lt;/span&gt;&lt;span style=&quot; font-family:'Consolas,Courier New,monospace'; font-size:18px; color:#e6db74;&quot;&gt;If keys are selected, only those keys are staggered. If no keys are selected, all keys are staggered.&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-family:'Consolas,Courier New,monospace'; font-size:18px; color:#f8f8f2;&quot;&gt;&lt;br/&gt;&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+           </property>
+           <property name="text">
+            <string>Stagger Keys</string>
+           </property>
+           <property name="checkable">
+            <bool>false</bool>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="PushButton" name="tb012">
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>20</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>16777215</width>
+             <height>20</height>
+            </size>
+           </property>
+           <property name="toolTip">
+            <string>Create a gap in keyframes by moving keyframes forward in time.</string>
+           </property>
+           <property name="text">
+            <string>Create Gap</string>
+           </property>
+           <property name="checkable">
+            <bool>false</bool>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="PushButton" name="tb008">
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>20</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>16777215</width>
+             <height>20</height>
+            </size>
+           </property>
+           <property name="toolTip">
+            <string>Set Visibility Keys</string>
+           </property>
+           <property name="text">
+            <string>Set Visibility Keys</string>
+           </property>
+           <property name="checkable">
+            <bool>false</bool>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="PushButton" name="tb011">
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>20</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>16777215</width>
+             <height>20</height>
+            </size>
+           </property>
+           <property name="toolTip">
+            <string/>
+           </property>
+           <property name="text">
+            <string>Tie Keyframes</string>
+           </property>
+           <property name="checkable">
+            <bool>false</bool>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="PushButton" name="tb009">
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>20</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>16777215</width>
+             <height>20</height>
+            </size>
+           </property>
+           <property name="toolTip">
+            <string>Snaps keyframes with decimal time values to whole frame numbers.</string>
+           </property>
+           <property name="text">
+            <string>Snap Keys</string>
+           </property>
+           <property name="checkable">
+            <bool>false</bool>
+           </property>
+          </widget>
+         </item>
+         <item>
           <widget class="PushButton" name="tb006">
            <property name="minimumSize">
             <size>
@@ -237,6 +387,31 @@
            </property>
            <property name="text">
             <string>Move Keys</string>
+           </property>
+           <property name="checkable">
+            <bool>false</bool>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="PushButton" name="tb007">
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>20</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>16777215</width>
+             <height>20</height>
+            </size>
+           </property>
+           <property name="toolTip">
+            <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;pre style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; line-height:24px; background-color:#272822;&quot;&gt;&lt;span style=&quot; font-family:'Consolas,Courier New,monospace'; font-size:18px; color:#e6db74;&quot;&gt;Aligns the starting keyframes of selected keyframes in the graph editor across multiple objects.&lt;/span&gt;&lt;/pre&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-family:'Consolas,Courier New,monospace'; font-size:18px; color:#e6db74;&quot;&gt;Aligns the starting keyframes of selected keyframes in the graph editor across multiple objects.&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-family:'Consolas,Courier New,monospace'; font-size:18px; color:#f8f8f2;&quot;&gt;&lt;br/&gt;&lt;/span&gt;&lt;span style=&quot; font-family:'Consolas,Courier New,monospace'; font-size:18px; color:#e6db74;&quot;&gt;This method finds the earliest (or latest) selected keyframe across all objects and shifts&lt;/span&gt;&lt;/p&gt;&lt;pre style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:'Consolas,Courier New,monospace'; font-size:18px; color:#e6db74;&quot;&gt;each object's selected keyframes so they start at the same frame. Only processes selected&lt;/span&gt;&lt;/pre&gt;&lt;pre style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:'Consolas,Courier New,monospace'; font-size:18px; color:#e6db74;&quot;&gt;keyframes from the graph editor.&lt;/span&gt;&lt;/pre&gt;&lt;/body&gt;&lt;/html&gt;</string>
+           </property>
+           <property name="text">
+            <string>Align Keys</string>
            </property>
            <property name="checkable">
             <bool>false</bool>
@@ -269,7 +444,38 @@
           </widget>
          </item>
          <item>
-          <widget class="QPushButton" name="b000">
+          <widget class="PushButton" name="tb015">
+           <property name="enabled">
+            <bool>true</bool>
+           </property>
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>20</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>16777215</width>
+             <height>20</height>
+            </size>
+           </property>
+           <property name="toolTip">
+            <string>Detects and repairs corrupted animation curves.</string>
+           </property>
+           <property name="text">
+            <string>Repair Curves</string>
+           </property>
+           <property name="iconSize">
+            <size>
+             <width>18</width>
+             <height>18</height>
+            </size>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="PushButton" name="tb010">
            <property name="enabled">
             <bool>true</bool>
            </property>
@@ -303,7 +509,7 @@
        </widget>
       </item>
       <item>
-       <widget class="QGroupBox" name="groupBox">
+       <widget class="QGroupBox" name="channel_box">
         <property name="title">
          <string>Channel Box</string>
         </property>

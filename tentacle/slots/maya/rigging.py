@@ -13,7 +13,7 @@ class Rigging(SlotsMaya):
         super().__init__(*args, **kwargs)
 
     def header_init(self, widget):
-        """ """
+        """Create Rigging Header"""
         widget.menu.setTitle("Rigging")
         widget.menu.add(
             "QPushButton",
@@ -26,8 +26,10 @@ class Rigging(SlotsMaya):
         )
 
     def cmb001_init(self, widget):
-        """ """
-        items = ["Joints", "Locator", "IK Handle", "Lattice", "Cluster"]
+        """Create Init"""
+        items = sorted(
+            ["Joints", "Locator", "IK Handle", "Lattice", "Cluster", "Null Group"]
+        )
         widget.add(items, header="Utility Node:")
 
     def cmb001(self, index, widget):
@@ -42,10 +44,12 @@ class Rigging(SlotsMaya):
         elif text == "Lattice":  # create lattice
             pm.lattice(divisions=[2, 5, 2], objectCentered=1, ldv=[2, 2, 2])
         elif text == "Cluster":
-            pm.mel.eval("CreateCluster;")  # create cluster
+            pm.mel.CreateCluster()  # create cluster
+        elif text == "Null Group":
+            pm.group(empty=True, name="null")  # create empty group
 
     def cmb002_init(self, widget):
-        """ """
+        """Create Quick Rig Init"""
         items = ["Tube Rig", "Wheel Rig"]
         widget.add(items, header="Quick Rig:")
 
@@ -62,32 +66,34 @@ class Rigging(SlotsMaya):
     def chk000(self, state, widget):
         """Scale Joint"""
         # init global joint display size
-        widget.ui.tb000.menu.s000.setValue(pm.jointDisplayScale(q=True))
+        widget.ui.tb000.option_box.menu.s000.setValue(pm.jointDisplayScale(q=True))
 
     def chk001(self, state, widget):
         """Scale IK"""
         # init IK handle display size
-        widget.ui.tb000.menu.s000.setValue(pm.ikHandleDisplayScale(q=True))
+        widget.ui.tb000.option_box.menu.s000.setValue(pm.ikHandleDisplayScale(q=True))
 
     def chk002(self, state, widget):
         """Scale IK/FK"""
         # init IKFK display size
-        widget.ui.tb000.menu.s000.setValue(pm.jointDisplayScale(q=True, ikfk=1))
+        widget.ui.tb000.option_box.menu.s000.setValue(
+            pm.jointDisplayScale(q=True, ikfk=1)
+        )
 
     def s000(self, value, widget):
         """Scale Joint/IK/FK"""
-        if widget.ui.tb000.menu.chk000.isChecked():
+        if widget.ui.tb000.option_box.menu.chk000.isChecked():
             pm.jointDisplayScale(value)  # set global joint display size
-        elif widget.ui.tb000.menu.chk001.isChecked():
+        elif widget.ui.tb000.option_box.menu.chk001.isChecked():
             pm.ikHandleDisplayScale(value)  # set global IK handle display size
         else:  # widget.ui.chk002.isChecked():
             pm.jointDisplayScale(value, ikfk=1)  # set global IKFK display size
 
     def tb000_init(self, widget):
-        """ """
+        """Create Display Local Rotation Axes Init"""
         scale_joint_value = pm.jointDisplayScale(q=True)
-        widget.menu.setTitle("Display Local Rotation Axes")
-        widget.menu.add(
+        widget.option_box.menu.setTitle("Display Local Rotation Axes")
+        widget.option_box.menu.add(
             "QDoubleSpinBox",
             setPrefix="Tolerance: ",
             setObjectName="s000",
@@ -95,21 +101,21 @@ class Rigging(SlotsMaya):
             setValue=scale_joint_value,
             setToolTip="Global display scale for the selected type.",
         )
-        widget.menu.add(
+        widget.option_box.menu.add(
             "QRadioButton",
             setText="Joints",
             setObjectName="chk000",
             setChecked=True,
             setToolTip="Display Joints.",
         )
-        widget.menu.add(
+        widget.option_box.menu.add(
             "QRadioButton",
             setText="IK",
             setObjectName="chk001",
             setChecked=True,
             setToolTip="Display IK.",
         )
-        widget.menu.add(
+        widget.option_box.menu.add(
             "QRadioButton",
             setText="IK\\FK",
             setObjectName="chk002",
@@ -126,7 +132,7 @@ class Rigging(SlotsMaya):
             return  # exit the function
 
         state = pm.toggle(joints[0], q=True, localAxis=1)
-        toggle = widget.menu.chk000.isChecked()
+        toggle = widget.option_box.menu.chk000.isChecked()
 
         if toggle:
             try:
@@ -137,23 +143,23 @@ class Rigging(SlotsMaya):
         self.sb.message_box(f"Display Local Rotation Axes:<hl>{state}</hl>")
 
     def tb001_init(self, widget):
-        """ """
-        widget.menu.setTitle("Create Constraint Switch")
-        widget.menu.add(
+        """Create Constraint Switch Init"""
+        widget.option_box.menu.setTitle("Create Constraint Switch")
+        widget.option_box.menu.add(
             "QLineEdit",
             setPlaceholderText="Switch Name:",
             setText="switch",
             setObjectName="t003",
             setToolTip="The name of the switch attribute to create.",
         )
-        widget.menu.add(
+        widget.option_box.menu.add(
             "QLineEdit",
             setPlaceholderText="Anchor Name:",
             setText="",
             setObjectName="t004",
             setToolTip="Create a helper locator to allow anchoring the constraint to world origin.\nIf a previous anchor exists of the same name, it will be reused.\nLeave blank to not create an anchor.\n(default: empty string)",
         )
-        widget.menu.add(
+        widget.option_box.menu.add(
             "QCheckBox",
             setText="Weighted",
             setObjectName="chk003",
@@ -165,9 +171,9 @@ class Rigging(SlotsMaya):
         """Create Constraint Switch"""
         sel = pm.selected(flatten=True)
 
-        switch_name = widget.menu.t003.text()
-        weighted = widget.menu.chk003.isChecked()
-        anchor_name = widget.menu.t004.text()
+        switch_name = widget.option_box.menu.t003.text()
+        weighted = widget.option_box.menu.chk003.isChecked()
+        anchor_name = widget.option_box.menu.t004.text()
 
         mtk.connect_switch_to_constraint(
             constraint_node=sel[0] if sel else None,
@@ -178,9 +184,9 @@ class Rigging(SlotsMaya):
         )
 
     def tb003_init(self, widget):
-        """ """
-        widget.menu.setTitle("Create Locator")
-        widget.menu.add(
+        """Create Locator at Selection Init"""
+        widget.option_box.menu.setTitle("Create Locator")
+        widget.option_box.menu.add(
             "QDoubleSpinBox",
             setPrefix="Locator Scale: ",
             setObjectName="s001",
@@ -188,49 +194,49 @@ class Rigging(SlotsMaya):
             setValue=1,
             setToolTip="The scale of the locator.",
         )
-        widget.menu.add(
+        widget.option_box.menu.add(
             "QLineEdit",
             setPlaceholderText="Group Suffix:",
             setText="_GRP",
             setObjectName="t002",
             setToolTip="A string appended to the end of the created group's name.",
         )
-        widget.menu.add(
+        widget.option_box.menu.add(
             "QLineEdit",
             setPlaceholderText="Locator Suffix:",
             setText="_LOC",
             setObjectName="t000",
             setToolTip="A string appended to the end of the created locator's name.",
         )
-        widget.menu.add(
+        widget.option_box.menu.add(
             "QLineEdit",
             setPlaceholderText="Geometry Suffix:",
             setText="_GEO",
             setObjectName="t001",
             setToolTip="A string appended to the end of the existing geometry's name.",
         )
-        widget.menu.add(
+        widget.option_box.menu.add(
             "QCheckBox",
             setText="Strip Digits",
             setObjectName="chk005",
             setChecked=True,
             setToolTip="Strip any trailing numeric characters from the name.\nIf the resulting name is not unique, maya will append a trailing digit.",
         )
-        widget.menu.add(
+        widget.option_box.menu.add(
             "QCheckBox",
             setText="Lock Child Translate",
             setObjectName="chk007",
             setChecked=False,
             setToolTip="Lock the translate values of the child object.",
         )
-        widget.menu.add(
+        widget.option_box.menu.add(
             "QCheckBox",
             setText="Lock Child Rotation",
             setObjectName="chk008",
             setChecked=False,
             setToolTip="Lock the rotation values of the child object.",
         )
-        widget.menu.add(
+        widget.option_box.menu.add(
             "QCheckBox",
             setText="Lock Child Scale",
             setObjectName="chk009",
@@ -240,14 +246,14 @@ class Rigging(SlotsMaya):
     @mtk.undoable
     def tb003(self, widget):
         """Create Locator at Selection"""
-        grp_suffix = widget.menu.t002.text()
-        loc_suffix = widget.menu.t000.text()
-        obj_suffix = widget.menu.t001.text()
-        loc_scale = widget.menu.s001.value()
-        strip_digits = widget.menu.chk005.isChecked()
-        lock_translate = widget.menu.chk007.isChecked()
-        lock_rotation = widget.menu.chk008.isChecked()
-        lock_scale = widget.menu.chk009.isChecked()
+        grp_suffix = widget.option_box.menu.t002.text()
+        loc_suffix = widget.option_box.menu.t000.text()
+        obj_suffix = widget.option_box.menu.t001.text()
+        loc_scale = widget.option_box.menu.s001.value()
+        strip_digits = widget.option_box.menu.chk005.isChecked()
+        lock_translate = widget.option_box.menu.chk007.isChecked()
+        lock_rotation = widget.option_box.menu.chk008.isChecked()
+        lock_scale = widget.option_box.menu.chk009.isChecked()
 
         selection = pm.selected()
         if not selection:

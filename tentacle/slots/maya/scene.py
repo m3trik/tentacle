@@ -24,13 +24,13 @@ class SceneSlots(SlotsMaya):
         """ """
         if not widget.is_initialized:
             widget.menu.add(
-                self.sb.registered_widgets.PushButton,
+                "QPushButton",
                 setToolTip="Export scene assets with environment checks and presets.",
                 setText="Scene Exporter",
                 setObjectName="b002",
             )
             widget.menu.add(
-                self.sb.registered_widgets.PushButton,
+                "QPushButton",
                 setText="Quick Export Scene Geo",
                 setObjectName="b003",
                 setToolTip="Export the scene geometry as FBX to the current maya file's directory.\nThe file name will be the same as the current scene and overwrite the current file if it exists.",
@@ -208,20 +208,20 @@ class SceneSlots(SlotsMaya):
         """ """
         if not widget.is_initialized:
             widget.refresh_on_show = True  # Call this method on show
-            widget.menu.add(
-                self.sb.registered_widgets.Label,
+            widget.option_box.menu.add(
+                "QPushButton",
                 setObjectName="lbl000",
                 setText="Set Project",
                 setToolTip="Set the project directory.",
             )
-            widget.menu.add(
-                self.sb.registered_widgets.Label,
+            widget.option_box.menu.add(
+                "QPushButton",
                 setObjectName="lbl005",
                 setText="Auto Set Project",
                 setToolTip="Determine the workspace directory by moving up directory levels until a workspace is found.",
             )
-            widget.menu.add(
-                self.sb.registered_widgets.Label,
+            widget.option_box.menu.add(
+                "QPushButton",
                 setObjectName="lbl004",
                 setText="Open Project Root",
                 setToolTip="Open the project root directory.",

@@ -1,5 +1,7 @@
 # !/usr/bin/python
 # coding=utf-8
+import re
+
 try:
     import pymel.core as pm
 except ImportError as error:
@@ -59,37 +61,23 @@ class MaterialsSlots(SlotsMaya):
             setToolTip="Pack up to 4 input grayscale maps into specified RGBA channels.",
         )
 
-        widget.menu.add(
-            "QPushButton",
-            setText="Reload Textures",
-            setObjectName="b013",
-            setToolTip="Reload file textures for all scene materials.",
-        )
-        widget.menu.add(
-            "QPushButton",
-            setText="Remove Duplicate Materials",
-            setObjectName="b014",
-            setToolTip="Find duplicate materials, remove duplicates, and reassign them to the original material.",
-        )
-        widget.menu.add(
-            "QPushButton",
-            setText="Delete All Unused Materials",
-            setObjectName="b015",
-            setToolTip="Delete all unused materials.",
-        )
-
     def cmb002_init(self, widget):
         """ """
         if not widget.is_initialized:
             widget.refresh_on_show = True  # Call this method on show
             widget.editable = True
-            widget.menu.mode = "context"
             widget.menu.setTitle("Material Options")
             widget.menu.add(
                 self.sb.registered_widgets.Label,
                 setText="Rename",
                 setObjectName="lbl005",
                 setToolTip="Rename the current material.",
+            )
+            widget.menu.add(
+                self.sb.registered_widgets.Label,
+                setText="Rename (strip trailing ints)",
+                setObjectName="lbl007",
+                setToolTip="Rename the current material by removing trailing digits if present.",
             )
             widget.menu.add(
                 self.sb.registered_widgets.Label,
@@ -108,6 +96,24 @@ class MaterialsSlots(SlotsMaya):
                 setText="Open in Editor",
                 setObjectName="lbl006",
                 setToolTip="Open the material in the hypershade editor.",
+            )
+            widget.menu.add(
+                self.sb.registered_widgets.Label,
+                setText="Reload Textures",
+                setObjectName="b013",
+                setToolTip="Reload file textures for all scene materials.",
+            )
+            widget.menu.add(
+                self.sb.registered_widgets.Label,
+                setText="Remove Duplicate Materials",
+                setObjectName="b014",
+                setToolTip="Find duplicate materials, remove duplicates, and reassign them to the original material.",
+            )
+            widget.menu.add(
+                self.sb.registered_widgets.Label,
+                setText="Delete All Unused Materials",
+                setObjectName="b015",
+                setToolTip="Delete all unused materials.",
             )
             # Rename the material after editing has finished.
             widget.on_editing_finished.connect(
@@ -132,22 +138,69 @@ class MaterialsSlots(SlotsMaya):
             if icon:
                 widget.setItemIcon(i, icon)
 
+    def lbl007(self):
+        """Rename the current material by stripping trailing integers.
+
+        - Compute new name by removing trailing digits from the current name.
+        - Abort if the new name already exists or if nothing to change.
+        - Refresh UI and keep selection on the renamed material.
+        """
+        mat = self.ui.cmb002.currentData()
+        if not mat:
+            return
+
+        old_name = mat.name()
+        new_name = re.sub(r"\d+$", "", old_name)
+
+        # If stripping results in no change
+        if new_name == old_name:
+            self.sb.message_box(
+                "<hl>No trailing integers</hl><br>No trailing integers to strip; rename not performed."
+            )
+            return
+
+        # If stripping removes all characters
+        if not new_name:
+            self.sb.message_box(
+                "<hl>Invalid new name</hl><br>Stripping digits results in an empty name. Rename aborted."
+            )
+            return
+
+        # Ensure the target name doesn't already exist
+        if pm.objExists(new_name):
+            self.sb.message_box(
+                f"<hl>Rename aborted</hl><br>A node named '<strong>{new_name}</strong>' already exists."
+            )
+            return
+
+        try:
+            pm.rename(mat, new_name)
+        except Exception as e:
+            self.sb.message_box(f"<hl>Rename failed</hl><br>{e}")
+            return
+
+        # Refresh the materials list and keep current selection on the new name
+        self.ui.cmb002.init_slot()
+        self.ui.cmb002.setAsCurrent(new_name)
+        # Update the assign button text/icon
+        self.submenu.b005.init_slot()
+
     def tb000_init(self, widget):
         """ """
-        widget.menu.add(
+        widget.option_box.menu.add(
             "QCheckBox",
             setText="Shell",
             setObjectName="chk005",
             setToolTip="Select object(s) containing the material.",
         )
-        widget.menu.add(
+        widget.option_box.menu.add(
             "QCheckBox",
             setText="Search in Selection Only",
             setObjectName="chk006",
             setChecked=False,
             setToolTip="When checked, search only within currently selected objects (if nothing is selected will default to all objects)\nWhen unchecked, always search all objects in the scene.",
         )
-        widget.menu.add(
+        widget.option_box.menu.add(
             "QCheckBox",
             setText="Get and Select",
             setObjectName="chk007",
@@ -157,7 +210,9 @@ class MaterialsSlots(SlotsMaya):
 
     def tb000(self, widget):
         """Select By Material"""
-        get_and_select = widget.menu.chk007.isChecked()  # Get and select option
+        get_and_select = (
+            widget.option_box.menu.chk007.isChecked()
+        )  # Get and select option
 
         # If get_and_select is enabled, first get the material from current selection
         if get_and_select:
@@ -194,9 +249,9 @@ class MaterialsSlots(SlotsMaya):
         if not mat:
             return
 
-        shell = widget.menu.chk005.isChecked()  # Select by material: shell
+        shell = widget.option_box.menu.chk005.isChecked()  # Select by material: shell
         search_in_selection_only = (
-            widget.menu.chk006.isChecked()
+            widget.option_box.menu.chk006.isChecked()
         )  # Search in selection only
 
         if search_in_selection_only:
@@ -228,7 +283,7 @@ class MaterialsSlots(SlotsMaya):
     def lbl005(self):
         """Set the current combo box text as editable."""
         self.ui.cmb002.setEditable(True)
-        self.ui.cmb002.menu.hide()
+        self.ui.cmb002.option_box.menu.hide()
 
     def lbl006(self):
         """Open material in editor"""
@@ -362,7 +417,7 @@ class MaterialsSlots(SlotsMaya):
         ui.set_attributes(WA_TranslucentBackground=True)
         ui.set_flags(FramelessWindowHint=True)
         ui.style.set(theme="dark", style_class="translucentBgWithBorder")
-        ui.header.config_buttons(menu_button=True, hide_button=True)
+        ui.header.config_buttons("menu_button", "hide_button")
 
         # Set the starting directory for the map converter
         source_images_dir = mtk.get_env_info("sourceimages")
@@ -407,7 +462,7 @@ class MaterialsSlots(SlotsMaya):
         ui.set_attributes(WA_TranslucentBackground=True)
         ui.set_flags(FramelessWindowHint=True)
         ui.style.set(theme="dark", style_class="translucentBgWithBorder")
-        ui.header.config_buttons(menu_button=True, hide_button=True)
+        ui.header.config_buttons("menu_button", "hide_button")
 
         # Set the starting directory for the map converter
         source_images_dir = mtk.get_env_info("sourceimages")

@@ -1,16 +1,120 @@
 # !/usr/bin/python
 # coding=utf-8
-from qtpy import QtCore, QtWidgets
+from typing import Optional
+
+from qtpy import QtCore, QtWidgets, QtGui
 import pythontk as ptk
 from uitk.switchboard import Switchboard
 from uitk.events import EventFactoryFilter, MouseTracking
 from tentacle.overlay import Overlay
 
 
-class Tcl(
-    QtWidgets.QStackedWidget, ptk.SingletonMixin, ptk.LoggingMixin, ptk.HelpMixin
-):
-    """Tcl is a marking menu based on a QStackedWidget.
+class ShortcutHandler(QtCore.QObject):
+    """Application-wide shortcut that toggles the Tcl overlay."""
+
+    _instance: Optional["ShortcutHandler"] = None
+
+    def __init__(
+        self, owner: "Tcl", shortcut_parent: Optional[QtWidgets.QWidget] = None
+    ):
+        super().__init__(owner)
+        self._owner = owner
+        self._target = self._resolve_target(shortcut_parent)
+        sequence = self._build_sequence(owner.key_show)
+        self._shortcut = QtWidgets.QShortcut(sequence, self._target)
+        self._shortcut.setContext(QtCore.Qt.ApplicationShortcut)
+        self._shortcut.setAutoRepeat(False)
+        self._shortcut.activated.connect(self._on_key_press)
+        self._key_is_down = False
+        self._event_source = self._install_release_filter()
+
+    @classmethod
+    def create(
+        cls, owner: "Tcl", shortcut_parent: Optional[QtWidgets.QWidget] = None
+    ) -> "ShortcutHandler":
+        """Install or update the global shortcut binding."""
+        if cls._instance:
+            cls._instance.deleteLater()
+        cls._instance = cls(owner, shortcut_parent)
+        return cls._instance
+
+    def _install_release_filter(self):
+        app = QtWidgets.QApplication.instance()
+        source = app if app else self._target
+        if source:
+            source.installEventFilter(self)
+        return source
+
+    def _resolve_target(self, explicit_parent):
+        if isinstance(explicit_parent, QtWidgets.QWidget):
+            return explicit_parent
+
+        app = getattr(self._owner.sb, "app", None) or QtWidgets.QApplication.instance()
+        if app:
+            active = app.activeWindow()
+            if isinstance(active, QtWidgets.QWidget):
+                return active
+
+            for widget in app.topLevelWidgets():
+                if (
+                    isinstance(widget, QtWidgets.QWidget)
+                    and widget.objectName() == "MayaWindow"
+                ):
+                    return widget
+
+        parent_widget = self._owner.parentWidget()
+        if isinstance(parent_widget, QtWidgets.QWidget):
+            return parent_widget
+
+        logical_parent = self._owner.parent()
+        if isinstance(logical_parent, QtWidgets.QWidget):
+            return logical_parent
+
+        return self._owner
+
+    def _build_sequence(self, key_value):
+        if key_value is None:
+            self._owner.logger.warning(
+                "key_show is invalid; defaulting to F12 shortcut"
+            )
+            key_value = QtCore.Qt.Key_F12
+            self._owner.key_show = key_value
+
+        if isinstance(key_value, QtGui.QKeySequence):
+            return key_value
+
+        return QtGui.QKeySequence(key_value)
+
+    def eventFilter(self, obj, event):
+        if (
+            self._key_is_down
+            and event.type() == QtCore.QEvent.KeyRelease
+            and event.key() == self._owner.key_show
+            and not event.isAutoRepeat()
+        ):
+            self._on_key_release()
+            return True
+        return super().eventFilter(obj, event)
+
+    def _on_key_press(self):
+        if self._key_is_down:
+            return
+        self._key_is_down = True
+        self._owner.key_show_press.emit()
+        self._owner.show("hud#startmenu")
+        QtCore.QTimer.singleShot(0, self._owner.dim_other_windows)
+
+    def _on_key_release(self):
+        if not self._key_is_down:
+            return
+        self._key_is_down = False
+        self._owner.key_show_release.emit()
+        self._owner.hide()
+        QtCore.QTimer.singleShot(0, self._owner.restore_other_windows)
+
+
+class Tcl(QtWidgets.QWidget, ptk.SingletonMixin, ptk.LoggingMixin, ptk.HelpMixin):
+    """Tcl is a marking menu based on a QWidget.
     The various UI's are set by calling 'show' with the intended UI name string. ex. Tcl().show('polygons')
 
     Parameters:
@@ -33,12 +137,13 @@ class Tcl(
     key_show_press = QtCore.Signal()
     key_show_release = QtCore.Signal()
 
-    _first_show: bool = True
     _in_transition: bool = False
     _instances: dict = {}
     _submenu_cache: dict = {}
     _last_ui_history_check: QtWidgets.QWidget = None
     _pending_show_timer: QtCore.QTimer = None
+    _shortcut_instance: Optional["ShortcutHandler"] = None
+    _current_widget: Optional[QtWidgets.QWidget] = None
 
     def __init__(
         self,
@@ -66,6 +171,7 @@ class Tcl(
             event_name_prefix="child_",
             event_types={
                 "Enter",
+                "Leave",
                 "MouseMove",
                 "MouseButtonPress",
                 "MouseButtonRelease",
@@ -73,62 +179,75 @@ class Tcl(
         )
 
         self.overlay = Overlay(self, antialiasing=True)
-        self.mouse_tracking = MouseTracking(self)
+        self.mouse_tracking = MouseTracking(self, auto_update=False)
 
         self.key_show = self.sb.convert.to_qkey(key_show)
         self.key_close = QtCore.Qt.Key_Escape
-        self._mouse_press_pos = QtCore.QPoint(0, 0)
         self._windows_to_restore = set()
 
         self.setWindowFlags(QtCore.Qt.Window | QtCore.Qt.FramelessWindowHint)
         self.setAttribute(QtCore.Qt.WA_TranslucentBackground)
         self.setAttribute(QtCore.Qt.WA_NoMousePropagation, False)
         self.setFocusPolicy(QtCore.Qt.StrongFocus)
-        self.resize(600, 600)
-
-        self.sb.app.installEventFilter(self)
-        self.sb.app.focusChanged.connect(self._on_focus_changed)
+        self.showFullScreen()
 
         # Initialize smooth transition timer
         self._pending_show_timer = QtCore.QTimer()
         self._pending_show_timer.setSingleShot(True)
-        self._pending_show_timer.timeout.connect(self._delayed_show_ui)
+        self._pending_show_timer.timeout.connect(self._perform_transition)
+        self._setup_complete = True
 
-    def eventFilter(self, watched, event):
-        """Filter key press/release for show/hide."""
-        etype = event.type()
+        # Auto-install shortcut if parent is provided
+        if parent:
+            ShortcutHandler.create(self, parent)
 
-        if etype == QtCore.QEvent.Type.KeyPress:
-            if event.key() == self.key_show and not event.isAutoRepeat():
-                self.key_show_press.emit()
-                self.show()
-                QtCore.QTimer.singleShot(0, self.hide_other_windows)
-                return True
+    def addWidget(self, widget: QtWidgets.QWidget) -> None:
+        """Add a widget to the Tcl window.
 
-        elif etype == QtCore.QEvent.Type.KeyRelease:
-            if event.key() == self.key_show and not event.isAutoRepeat():
-                self.key_show_release.emit()
-                self.hide()
-                QtCore.QTimer.singleShot(0, self.show_other_windows)
-                return True
-
-        return super().eventFilter(watched, event)
-
-    def _on_focus_changed(self, old, new):
-        """Handle focus changes between widgets.
         Parameters:
-            old (QWidget): The previous widget that had focus.
-            new (QWidget): The new widget that has focus.
+            widget (QWidget): The widget to add.
         """
-        # If Tcl is visible, showing a stacked UI, and focus moved outside of Tcl
-        if (
-            self.isVisible()
-            and self.sb.current_ui.has_tags(["startmenu", "submenu"])
-            and new is not None
-            and not self.isAncestorOf(new)
-        ):
-            self.logger.debug(f"Tcl focus changed to: {new}. Hiding Tcl.")
-            self.hide()
+        widget.setParent(self)
+
+    def currentWidget(self) -> Optional[QtWidgets.QWidget]:
+        """Get the currently active widget.
+
+        Returns:
+            QWidget: The currently active widget, or None if no widget is active.
+        """
+        return self._current_widget
+
+    def setCurrentWidget(self, widget: QtWidgets.QWidget) -> None:
+        """Set the current widget and position it at the cursor.
+
+        Parameters:
+            widget (QWidget): The widget to set as current.
+        """
+        if self._current_widget:
+            self._current_widget.hide()
+
+        self._current_widget = widget
+        widget.show()
+        widget.raise_()
+
+        # Position the widget at the cursor
+        cursor_pos = QtGui.QCursor.pos()
+        local_pos = self.mapFromGlobal(cursor_pos)
+        widget.move(local_pos - widget.rect().center())
+
+        # Update mouse tracking cache for the new widget
+        if hasattr(self, "mouse_tracking"):
+            self.mouse_tracking.update_child_widgets()
+
+    def setCurrentIndex(self, index: int) -> None:
+        """Set the current widget index (compatibility method).
+
+        Parameters:
+            index (int): The index to set. If -1, hides the current widget.
+        """
+        if index == -1 and self._current_widget:
+            self._current_widget.hide()
+            self._current_widget = None
 
     def _init_ui(self, ui) -> None:
         """Initialize the given UI.
@@ -141,23 +260,22 @@ class Tcl(
 
         if ui.has_tags(["startmenu", "submenu"]):  # StackedWidget
             ui.style.set(theme="dark", style_class="translucentBgNoBorder")
-            ui.size_grip.setVisible(False)  # Hide size grip for stacked UIs
+            ui.resize(600, 600)
             self.addWidget(ui)  # add the UI to the stackedLayout.
 
         else:  # MainWindow
             ui.setParent(self)
-            ui.setWindowFlags(QtCore.Qt.Window | QtCore.Qt.FramelessWindowHint)
-            ui.setAttribute(QtCore.Qt.WA_TranslucentBackground)
-            ui.style.set(theme="dark", style_class="translucentBgWithBorder")
-            try:
-                ui.header.config_buttons(menu_button=True, pin_button=True)
-            except AttributeError:
-                pass
-            self.key_show_release.connect(ui.hide)
+            ui.set_flags(Window=True, FramelessWindowHint=True)
+            ui.set_attributes(WA_TranslucentBackground=True)
+            ui.style.set(theme="dark")
+            if hasattr(ui, "header") and not ui.header.has_buttons():
+                ui.header.config_buttons("menu_button", "pin_button")
+                self.key_show_release.connect(ui.hide)
 
         # set style before child init (resize).
         self.add_child_event_filter(ui.widgets)
         ui.on_child_registered.connect(lambda w: self.add_child_event_filter(w))
+        ui.default_slot_timeout = 90.0
 
     def _prepare_ui(self, ui) -> QtWidgets.QWidget:
         """Initialize and set the UI without showing it."""
@@ -170,8 +288,6 @@ class Tcl(
             self._init_ui(found_ui)
 
         if found_ui.has_tags(["startmenu", "submenu"]):
-            if found_ui.has_tags("startmenu"):
-                self.move(self.sb.get_cursor_offset_from_center(self))
             self.setCurrentWidget(found_ui)
         else:
             self.hide()
@@ -188,22 +304,24 @@ class Tcl(
         if is_stacked_ui:
             # For stacked UIs (submenus), show with smooth timing
             super().show()
+
+            self.raise_()
+            self.activateWindow()
         else:
+            self.restore_other_windows()
             current.show()
-            # Minimal processing for smoother transitions
 
-            # Cache width before adjusting size to avoid repeated calculations
-            widget_before_adjust = current.width()
             current.adjustSize()
-            size_hint = current.sizeHint()
-            current.resize(widget_before_adjust, size_hint.height())
             current.updateGeometry()
-            self.sb.center_widget(current, "cursor", offset_y=25)
-            self.show_other_windows()
 
-        # Batch focus and raise operations
-        current.setFocus()
-        current.raise_()
+            # Position the widget at the cursor (handling parent coordinates)
+            cursor_pos = QtGui.QCursor.pos()
+            local_pos = self.mapFromGlobal(cursor_pos)
+            offset = QtCore.QPoint(0, int(current.height() * 0.25))
+            current.move(local_pos - current.rect().center() + offset)
+
+            current.raise_()
+            current.activateWindow()
 
     def _set_submenu(self, ui, w) -> None:
         """Set the submenu for the given UI and widget."""
@@ -213,6 +331,25 @@ class Tcl(
             )
             return
         self._in_transition = True
+
+        # Store transition data and schedule execution
+        self._pending_transition_ui = ui
+        self._pending_transition_widget = w
+        self._pending_show_timer.start(8)  # ~120fps timing for very smooth transitions
+
+    def _perform_transition(self) -> None:
+        """Execute the scheduled submenu transition."""
+        ui = getattr(self, "_pending_transition_ui", None)
+        w = getattr(self, "_pending_transition_widget", None)
+
+        # Clear pending references
+        self._pending_transition_ui = None
+        self._pending_transition_widget = None
+
+        if not ui or not w:
+            self._clear_transition_flag()
+            return
+
         try:
             # Preserve overlay path order by adding to path first
             self.overlay.path.add(ui, w)
@@ -225,11 +362,14 @@ class Tcl(
             # Position submenu smoothly without forcing immediate updates
             self._position_submenu_smooth(ui, w)
 
-            # Use smooth delayed show for better visual transitions
-            self._schedule_smooth_show(ui)
+            self._show_ui()
 
             # Optimize history check and overlay cloning
             self._handle_overlay_cloning(ui)
+
+            # Update mouse tracking to include newly cloned widgets
+            if hasattr(self, "mouse_tracking"):
+                self.mouse_tracking.update_child_widgets()
 
         finally:
             # Clear transition flag after a brief delay to allow smooth completion
@@ -249,33 +389,13 @@ class Tcl(
                 p2 = w2.mapToGlobal(w2_center)
 
                 # Calculate new position
-                new_pos = self.pos() + (p1 - p2)
+                diff = p1 - p2
 
                 # Move to position smoothly - let Qt handle the timing naturally
-                self.move(new_pos)
+                ui.move(ui.pos() + diff)
 
         except Exception as e:
             self.logger.warning(f"Submenu positioning failed: {e}")
-
-    def _schedule_smooth_show(self, ui) -> None:
-        """Schedule UI show with optimal timing for smooth transitions."""
-        # Cancel any pending show
-        if self._pending_show_timer.isActive():
-            self._pending_show_timer.stop()
-
-        # Store the UI to show
-        self._pending_ui = ui
-
-        # Schedule show with minimal delay for smooth positioning
-        self._pending_show_timer.start(8)  # ~120fps timing for very smooth transitions
-
-    def _delayed_show_ui(self) -> None:
-        """Show the UI after smooth positioning delay."""
-        if hasattr(self, "_pending_ui"):
-            current_ui = self.sb.current_ui
-            if current_ui == self._pending_ui:
-                self._show_ui()
-            delattr(self, "_pending_ui")
 
     def _handle_overlay_cloning(self, ui) -> None:
         """Handle overlay cloning with optimized history checking."""
@@ -286,6 +406,14 @@ class Tcl(
             if ui not in ui_history_slice:
                 self.overlay.clone_widgets_along_path(ui, self._return_to_startmenu)
             self._last_ui_history_check = ui
+
+    def _delayed_show_ui(self) -> None:
+        """Show the UI after smooth positioning delay."""
+        if hasattr(self, "_pending_ui"):
+            current_ui = self.sb.current_ui
+            if current_ui == self._pending_ui:
+                self._show_ui()
+            delattr(self, "_pending_ui")
 
     def _clear_transition_flag(self):
         """Clear the transition flag to allow new transitions."""
@@ -300,7 +428,10 @@ class Tcl(
 
         startmenu = self.sb.ui_history(-1, inc="*#startmenu*")
         self._prepare_ui(startmenu)
-        self.move(start_pos - self.rect().center())
+
+        local_pos = self.mapFromGlobal(start_pos)
+        startmenu.move(local_pos - startmenu.rect().center())
+
         self._show_ui()
 
     # ---------------------------------------------------------------------------------------------
@@ -345,35 +476,60 @@ class Tcl(
         """ """
         current_ui = self.sb.current_ui
         if current_ui and current_ui.has_tags(["startmenu", "submenu"]):
-            if self.isActiveWindow():
-                self.show(force=True)
+            widget = QtWidgets.QApplication.widgetAt(QtGui.QCursor.pos())
+            if (
+                widget
+                and widget is not self
+                and widget is not current_ui
+                and widget is not getattr(self, "overlay", None)
+            ):
+                if not current_ui.isAncestorOf(widget):
+                    super().mouseReleaseEvent(event)
+                    return
+
+            if self.isActiveWindow() and self.rect().contains(event.pos()):
+                self.show("hud#startmenu", force=True)
 
         super().mouseReleaseEvent(event)
 
-    def show(self, ui="hud#startmenu", force=False) -> None:
+    def show(self, ui=None, force=False) -> None:
         """Show the Tcl UI with the specified name.
 
         Parameters:
             ui (str/QWidget): The name of the UI to show or a QWidget instance.
             force (bool): If True, forces the UI to show even if it is already visible.
         """
+        if ui is None:
+            ui = "hud#startmenu"
+
         ui = self._prepare_ui(ui)
         if not force and (QtWidgets.QApplication.mouseButtons() or self.isVisible()):
             return
 
-        if self._first_show:
-            self.sb.simulate_key_press(self, self.key_show)
-            self._first_show = False
-
         self._show_ui()
+
+    def hide(self):
+        """Override hide to properly reset stacked widget state."""
+        # Reset the current widget index to -1 to ensure proper hide behavior
+        if self.currentWidget():
+            self.setCurrentIndex(-1)
+
+        # Reset pinned state for all stacked UIs to ensure they can be hidden next time
+        current_ui = self.sb.current_ui
+        if current_ui and current_ui.has_tags(["startmenu", "submenu"]):
+            header = getattr(current_ui, "header", None)
+            if header:
+                if hasattr(header, "reset_pin_state"):
+                    header.reset_pin_state()
+                elif getattr(header, "pinned", False):
+                    header.pinned = False
+                    if hasattr(current_ui, "prevent_hide"):
+                        current_ui.prevent_hide = False
+
+        super().hide()
 
     def hideEvent(self, event):
         """ """
-        if QtWidgets.QWidget.keyboardGrabber() is self:
-            self.releaseKeyboard()
-        if self.mouseGrabber():
-            self.mouseGrabber().releaseMouse()
-
         # Clear optimization caches on hide to prevent memory leaks
         self._clear_optimization_caches()
 
@@ -392,30 +548,30 @@ class Tcl(
             self._submenu_cache.clear()
         self._last_ui_history_check = None
 
-    def hide_other_windows(self) -> None:
-        """Hide all visible windows except the current one."""
+    def dim_other_windows(self) -> None:
+        """Dim all visible windows except the current one."""
         if not self.isVisible():
             return
 
         for win in self.sb.visible_windows:
             if win is not self and not win.has_tags(["startmenu", "submenu"]):
                 self._windows_to_restore.add(win)
-                win.header.hide_window()
+                win.setWindowOpacity(0.3)
+                win.setAttribute(QtCore.Qt.WA_TransparentForMouseEvents, True)
 
         if self._windows_to_restore:
-            self.logger.debug(f"Hiding other windows: {self._windows_to_restore}")
+            self.logger.debug(f"Dimming other windows: {self._windows_to_restore}")
 
-    def show_other_windows(self) -> None:
-        """Show all previously hidden windows."""
+    def restore_other_windows(self) -> None:
+        """Restore all previously dimmed windows."""
         if not self._windows_to_restore:
             return
 
         for win in self._windows_to_restore:
-            if win.isVisible():
-                continue
-            win.header.unhide_window()
+            win.setWindowOpacity(1.0)
+            win.setAttribute(QtCore.Qt.WA_TransparentForMouseEvents, False)
         self._windows_to_restore.clear()
-        self.logger.debug("Restored previously hidden windows.")
+        self.logger.debug("Restored previously dimmed windows.")
 
     # ---------------------------------------------------------------------------------------------
 
@@ -484,7 +640,8 @@ class Tcl(
                         self._set_submenu(submenu, w)
 
         if w.base_name() == "chk" and w.ui.has_tags("submenu") and self.isVisible():
-            w.click()
+            if hasattr(w, "toggle"):
+                w.toggle()
 
         # Safe default: call original enterEvent
         if hasattr(w, "enterEvent"):
@@ -492,57 +649,66 @@ class Tcl(
             if callable(super_event):
                 super_event(event)
 
-    def child_mouseButtonPressEvent(self, w, event) -> None:
-        """ """
-        self._mouse_press_pos = event.globalPos()
-        self.__mouseMovePos = event.globalPos()
-        w.mousePressEvent(event)
+    def child_leaveEvent(self, w, event) -> None:
+        """Handle the leave event for child widgets."""
+        if w.derived_type == QtWidgets.QPushButton:
+            if self._pending_show_timer.isActive():
+                self._pending_show_timer.stop()
+                self._clear_transition_flag()
+                self._pending_transition_ui = None
+                self._pending_transition_widget = None
+
+        # Safe default: call original leaveEvent
+        if hasattr(w, "leaveEvent"):
+            super_event = getattr(super(type(w), w), "leaveEvent", None)
+            if callable(super_event):
+                super_event(event)
 
     def child_mouseButtonReleaseEvent(self, w, event) -> bool:
-        """ """
-        if w.underMouse():
-            if w.derived_type == QtWidgets.QPushButton:
-                if w.base_name() == "i":
-                    menu_name = w.accessibleName()
-                    if not menu_name:
-                        self.logger.debug(
-                            f"child_mouseButtonReleaseEvent: Button '{w.objectName()}' with base_name 'i' has no accessibleName; skipping menu lookup."
-                        )
-                    else:
-                        unknown_tags = self.sb.get_unknown_tags(
-                            menu_name, known_tags=["submenu", "startmenu"]
-                        )
-                        new_menu_name = self.sb.remove_tags(menu_name, unknown_tags)
-                        # Cache menu lookups similar to submenu caching
-                        menu = self._submenu_cache.get(new_menu_name)
-                        if menu is None:
-                            menu = self.sb.get_ui(new_menu_name)
-                            if menu:
-                                self._submenu_cache[new_menu_name] = menu
+        """Handle mouse button release events on child widgets.
 
+        Note: Uses clicked.emit() instead of click() because Qt's click() method
+        doesn't emit signals when widgets are hidden, and this menu hides itself
+        before triggering widget callbacks.
+        """
+        if not w.underMouse():
+            w.mouseReleaseEvent(event)
+            return False
+
+        # Resolve container clicks to actual child widget (fixes OptionBox button clicks)
+        if w.derived_type == QtWidgets.QWidget:
+            child = w.childAt(event.pos())
+            if child:
+                w = child
+
+        # Handle pushbutton clicks
+        if isinstance(w, QtWidgets.QPushButton):
+            if hasattr(w, "base_name") and w.base_name() == "i":
+                menu_name = w.accessibleName()
+                if menu_name:
+                    unknown_tags = self.sb.get_unknown_tags(
+                        menu_name, known_tags=["submenu", "startmenu"]
+                    )
+                    new_menu_name = self.sb.edit_tags(menu_name, remove=unknown_tags)
+
+                    menu = self._submenu_cache.get(new_menu_name)
+                    if menu is None:
+                        menu = self.sb.get_ui(new_menu_name)
                         if menu:
-                            unknown_tags = self.sb.get_unknown_tags(
-                                menu_name, known_tags=["submenu", "startmenu"]
-                            )
-                            self.sb.hide_unmatched_groupboxes(menu, unknown_tags)
-                            self.show(menu)
+                            self._submenu_cache[new_menu_name] = menu
 
-            if hasattr(w, "click"):
-                self.hide()
-                if w.ui.has_tags(["startmenu", "submenu"]) and w.base_name() != "chk":
-                    w.click()
+                    if menu:
+                        self.sb.hide_unmatched_groupboxes(menu, unknown_tags)
+                        self.show(menu)
+
+        # Emit clicked signal directly (bypasses Qt visibility checks)
+        if hasattr(w, "clicked"):
+            self.hide()
+            if w.ui.has_tags(["startmenu", "submenu"]) and w.base_name() != "chk":
+                w.clicked.emit()
 
         w.mouseReleaseEvent(event)
-
-    def child_mouseMoveEvent(self, w, event) -> None:
-        """ """
-        try:
-            globalPos = event.globalPos()
-            self.__mouseMovePos = globalPos
-        except AttributeError:
-            pass
-
-        w.mouseMoveEvent(event)
+        return True
 
 
 # --------------------------------------------------------------------------------------------

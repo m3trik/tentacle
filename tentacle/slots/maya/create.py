@@ -63,14 +63,14 @@ class Create(SlotsMaya):
 
     def tb000_init(self, widget):
         """ """
-        widget.menu.add(
+        widget.option_box.menu.add(
             "QCheckBox",
             setText="Translate",
             setObjectName="chk000",
             setChecked=True,
             setToolTip="Move the created object to the center point of any selected object(s).",
         )
-        widget.menu.add(
+        widget.option_box.menu.add(
             "QCheckBox",
             setText="Scale",
             setObjectName="chk001",
@@ -82,33 +82,34 @@ class Create(SlotsMaya):
         """Create Primitive"""
         baseType = self.ui.cmb001.currentText()
         subType = self.ui.cmb002.currentText()
-        scale = widget.menu.chk001.isChecked()
-        translate = widget.menu.chk000.isChecked()
+        scale = widget.option_box.menu.chk001.isChecked()
+        translate = widget.option_box.menu.chk000.isChecked()
 
-        hist_node = mtk.create_default_primitive(baseType, subType, scale, translate)
+        hist_node = mtk.Primitives.create_default_primitive(
+            baseType, subType, scale=scale, translate=translate
+        )
         pm.selectMode(object=True)  # place scene select type in object mode.
         pm.select(hist_node)  # select the transform node so that you can see any edits
 
     def b001(self):
         """Create poly cube"""
-        mtk.create_default_primitive("Polygon", "Cube")
+        mtk.Primitives.create_default_primitive("Polygon", "Cube")
 
     def b002(self):
         """Create poly sphere"""
-        mtk.create_default_primitive("Polygon", "Sphere")
+        mtk.Primitives.create_default_primitive("Polygon", "Sphere")
 
     def b003(self):
         """Create poly cylinder"""
-        mtk.create_default_primitive("Polygon", "Cylinder")
+        mtk.Primitives.create_default_primitive("Polygon", "Cylinder")
 
     def b004(self):
         """Create poly plane"""
-        mtk.create_default_primitive("Polygon", "Plane")
+        mtk.Primitives.create_default_primitive("Polygon", "Plane")
 
     def b005(self):
         """Create 6 sided poly cylinder"""
-        cyl = mtk.create_default_primitive("Polygon", "Cylinder")
-        mtk.set_node_attributes(cyl, subdivisionsAxis=6)
+        mtk.Primitives.create_default_primitive("Polygon", "Cylinder", subdivisionsX=6)
 
 
 # --------------------------------------------------------------------------------------------

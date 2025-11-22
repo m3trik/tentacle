@@ -15,7 +15,7 @@ class Normals(SlotsMaya):
 
     def tb001_init(self, widget):
         """ """
-        widget.menu.add(
+        widget.option_box.menu.add(
             "QSpinBox",
             setPrefix="Angle Threshold: ",
             setObjectName="s002",
@@ -23,7 +23,7 @@ class Normals(SlotsMaya):
             setValue=90,
             setToolTip="The threshold of the normal angle in degrees to determine hardness.",
         )
-        widget.menu.add(
+        widget.option_box.menu.add(
             "QSpinBox",
             setPrefix="Upper Hardness: ",
             setObjectName="s003",
@@ -31,7 +31,7 @@ class Normals(SlotsMaya):
             setValue=0,
             setToolTip="The hardness to apply to edges with a normal angle greater than or equal to the threshold.\n0, Edges will appear hard.\n180, Edges will appear soft.\n-1, Will Disable.",
         )
-        widget.menu.add(
+        widget.option_box.menu.add(
             "QSpinBox",
             setPrefix="Lower Hardness: ",
             setObjectName="s004",
@@ -42,9 +42,9 @@ class Normals(SlotsMaya):
 
     def tb001(self, widget):
         """Set Normals By Angle"""
-        angle_threshold = widget.menu.s002.value()
-        upper_hardness = widget.menu.s003.value()
-        lower_hardness = widget.menu.s004.value()
+        angle_threshold = widget.option_box.menu.s002.value()
+        upper_hardness = widget.option_box.menu.s003.value()
+        lower_hardness = widget.option_box.menu.s004.value()
 
         # If value is -1, upper/lower hardess will be disabled.
         upper_hardness = upper_hardness if upper_hardness > -1 else None
@@ -64,7 +64,7 @@ class Normals(SlotsMaya):
 
     def tb004_init(self, widget):
         """ """
-        widget.menu.add(
+        widget.option_box.menu.add(
             "QCheckBox",
             setText="By UV Shell",
             setObjectName="chk003",
@@ -73,7 +73,7 @@ class Normals(SlotsMaya):
 
     def tb004(self, widget):
         """Average Normals"""
-        by_uv_shell = widget.menu.chk003.isChecked()
+        by_uv_shell = widget.option_box.menu.chk003.isChecked()
 
         objects = pm.ls(sl=True)
         mtk.Components.average_normals(objects, by_uv_shell=by_uv_shell)
