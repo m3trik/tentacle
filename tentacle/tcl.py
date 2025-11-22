@@ -580,7 +580,7 @@ class Tcl(
                     if submenu:
                         self._set_submenu(submenu, w)
 
-        if w.isCheckable() and w.ui.has_tags("submenu") and self.isVisible():
+        if w.base_name() == "chk" and w.ui.has_tags("submenu") and self.isVisible():
             if hasattr(w, "toggle"):
                 w.toggle()
 
@@ -645,7 +645,7 @@ class Tcl(
         # Emit clicked signal directly (bypasses Qt visibility checks)
         if hasattr(w, "clicked"):
             self.hide()
-            if w.ui.has_tags(["startmenu", "submenu"]) and not w.isCheckable():
+            if w.ui.has_tags(["startmenu", "submenu"]) and w.base_name() != "chk":
                 w.clicked.emit()
 
         w.mouseReleaseEvent(event)
