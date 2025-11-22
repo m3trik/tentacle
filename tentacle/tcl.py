@@ -102,7 +102,7 @@ class ShortcutHandler(QtCore.QObject):
         self._key_is_down = True
         self._owner.key_show_press.emit()
         self._owner.show("hud#startmenu")
-        QtCore.QTimer.singleShot(0, self._owner.hide_other_windows)
+        QtCore.QTimer.singleShot(0, self._owner.dim_other_windows)
 
     def _on_key_release(self):
         if not self._key_is_down:
@@ -110,13 +110,11 @@ class ShortcutHandler(QtCore.QObject):
         self._key_is_down = False
         self._owner.key_show_release.emit()
         self._owner.hide()
-        QtCore.QTimer.singleShot(0, self._owner.show_other_windows)
+        QtCore.QTimer.singleShot(0, self._owner.restore_other_windows)
 
 
-class Tcl(
-    QtWidgets.QStackedWidget, ptk.SingletonMixin, ptk.LoggingMixin, ptk.HelpMixin
-):
-    """Tcl is a marking menu based on a QStackedWidget.
+class Tcl(QtWidgets.QWidget, ptk.SingletonMixin, ptk.LoggingMixin, ptk.HelpMixin):
+    """Tcl is a marking menu based on a QWidget.
     The various UI's are set by calling 'show' with the intended UI name string. ex. Tcl().show('polygons')
 
     Parameters:
@@ -145,6 +143,7 @@ class Tcl(
     _last_ui_history_check: QtWidgets.QWidget = None
     _pending_show_timer: QtCore.QTimer = None
     _shortcut_instance: Optional["ShortcutHandler"] = None
+    _current_widget: Optional[QtWidgets.QWidget] = None
 
     def __init__(
         self,
@@ -180,7 +179,7 @@ class Tcl(
         )
 
         self.overlay = Overlay(self, antialiasing=True)
-        self.mouse_tracking = MouseTracking(self)
+        self.mouse_tracking = MouseTracking(self, auto_update=False)
 
         self.key_show = self.sb.convert.to_qkey(key_show)
         self.key_close = QtCore.Qt.Key_Escape
@@ -190,7 +189,7 @@ class Tcl(
         self.setAttribute(QtCore.Qt.WA_TranslucentBackground)
         self.setAttribute(QtCore.Qt.WA_NoMousePropagation, False)
         self.setFocusPolicy(QtCore.Qt.StrongFocus)
-        self.resize(600, 600)
+        self.showFullScreen()
 
         # Initialize smooth transition timer
         self._pending_show_timer = QtCore.QTimer()
@@ -201,6 +200,54 @@ class Tcl(
         # Auto-install shortcut if parent is provided
         if parent:
             ShortcutHandler.create(self, parent)
+
+    def addWidget(self, widget: QtWidgets.QWidget) -> None:
+        """Add a widget to the Tcl window.
+
+        Parameters:
+            widget (QWidget): The widget to add.
+        """
+        widget.setParent(self)
+
+    def currentWidget(self) -> Optional[QtWidgets.QWidget]:
+        """Get the currently active widget.
+
+        Returns:
+            QWidget: The currently active widget, or None if no widget is active.
+        """
+        return self._current_widget
+
+    def setCurrentWidget(self, widget: QtWidgets.QWidget) -> None:
+        """Set the current widget and position it at the cursor.
+
+        Parameters:
+            widget (QWidget): The widget to set as current.
+        """
+        if self._current_widget:
+            self._current_widget.hide()
+
+        self._current_widget = widget
+        widget.show()
+        widget.raise_()
+
+        # Position the widget at the cursor
+        cursor_pos = QtGui.QCursor.pos()
+        local_pos = self.mapFromGlobal(cursor_pos)
+        widget.move(local_pos - widget.rect().center())
+
+        # Update mouse tracking cache for the new widget
+        if hasattr(self, "mouse_tracking"):
+            self.mouse_tracking.update_child_widgets()
+
+    def setCurrentIndex(self, index: int) -> None:
+        """Set the current widget index (compatibility method).
+
+        Parameters:
+            index (int): The index to set. If -1, hides the current widget.
+        """
+        if index == -1 and self._current_widget:
+            self._current_widget.hide()
+            self._current_widget = None
 
     def _init_ui(self, ui) -> None:
         """Initialize the given UI.
@@ -213,6 +260,7 @@ class Tcl(
 
         if ui.has_tags(["startmenu", "submenu"]):  # StackedWidget
             ui.style.set(theme="dark", style_class="translucentBgNoBorder")
+            ui.resize(600, 600)
             self.addWidget(ui)  # add the UI to the stackedLayout.
 
         else:  # MainWindow
@@ -240,8 +288,6 @@ class Tcl(
             self._init_ui(found_ui)
 
         if found_ui.has_tags(["startmenu", "submenu"]):
-            if found_ui.has_tags("startmenu"):
-                self.move(self.sb.get_cursor_offset_from_center(self))
             self.setCurrentWidget(found_ui)
         else:
             self.hide()
@@ -258,15 +304,21 @@ class Tcl(
         if is_stacked_ui:
             # For stacked UIs (submenus), show with smooth timing
             super().show()
-            self.activateWindow()
+
             self.raise_()
+            self.activateWindow()
         else:
-            self.show_other_windows()
+            self.restore_other_windows()
             current.show()
 
             current.adjustSize()
             current.updateGeometry()
-            self.sb.center_widget(current, "cursor", offset_y=25)
+
+            # Position the widget at the cursor (handling parent coordinates)
+            cursor_pos = QtGui.QCursor.pos()
+            local_pos = self.mapFromGlobal(cursor_pos)
+            offset = QtCore.QPoint(0, int(current.height() * 0.25))
+            current.move(local_pos - current.rect().center() + offset)
 
             current.raise_()
             current.activateWindow()
@@ -315,6 +367,10 @@ class Tcl(
             # Optimize history check and overlay cloning
             self._handle_overlay_cloning(ui)
 
+            # Update mouse tracking to include newly cloned widgets
+            if hasattr(self, "mouse_tracking"):
+                self.mouse_tracking.update_child_widgets()
+
         finally:
             # Clear transition flag after a brief delay to allow smooth completion
             QtCore.QTimer.singleShot(16, self._clear_transition_flag)  # ~60fps timing
@@ -333,10 +389,10 @@ class Tcl(
                 p2 = w2.mapToGlobal(w2_center)
 
                 # Calculate new position
-                new_pos = self.pos() + (p1 - p2)
+                diff = p1 - p2
 
                 # Move to position smoothly - let Qt handle the timing naturally
-                self.move(new_pos)
+                ui.move(ui.pos() + diff)
 
         except Exception as e:
             self.logger.warning(f"Submenu positioning failed: {e}")
@@ -372,7 +428,10 @@ class Tcl(
 
         startmenu = self.sb.ui_history(-1, inc="*#startmenu*")
         self._prepare_ui(startmenu)
-        self.move(start_pos - self.rect().center())
+
+        local_pos = self.mapFromGlobal(start_pos)
+        startmenu.move(local_pos - startmenu.rect().center())
+
         self._show_ui()
 
     # ---------------------------------------------------------------------------------------------
@@ -489,30 +548,30 @@ class Tcl(
             self._submenu_cache.clear()
         self._last_ui_history_check = None
 
-    def hide_other_windows(self) -> None:
-        """Hide all visible windows except the current one."""
+    def dim_other_windows(self) -> None:
+        """Dim all visible windows except the current one."""
         if not self.isVisible():
             return
 
         for win in self.sb.visible_windows:
             if win is not self and not win.has_tags(["startmenu", "submenu"]):
                 self._windows_to_restore.add(win)
-                win.header.hide_window()
+                win.setWindowOpacity(0.3)
+                win.setAttribute(QtCore.Qt.WA_TransparentForMouseEvents, True)
 
         if self._windows_to_restore:
-            self.logger.debug(f"Hiding other windows: {self._windows_to_restore}")
+            self.logger.debug(f"Dimming other windows: {self._windows_to_restore}")
 
-    def show_other_windows(self) -> None:
-        """Show all previously hidden windows."""
+    def restore_other_windows(self) -> None:
+        """Restore all previously dimmed windows."""
         if not self._windows_to_restore:
             return
 
         for win in self._windows_to_restore:
-            if win.isVisible():
-                continue
-            win.header.unhide_window()
+            win.setWindowOpacity(1.0)
+            win.setAttribute(QtCore.Qt.WA_TransparentForMouseEvents, False)
         self._windows_to_restore.clear()
-        self.logger.debug("Restored previously hidden windows.")
+        self.logger.debug("Restored previously dimmed windows.")
 
     # ---------------------------------------------------------------------------------------------
 
