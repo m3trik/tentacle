@@ -3,11 +3,11 @@
 
 # Tentacle: A Python3/qtpy Marking Menu
 
-Tentacle is a Python3/qtpy marking menu implemented using Qt's QStackedWidget. It is designed for use with Maya, 3ds Max, Blender, and any other DCC app that supports a qtpy framework.  In it's current implementation, it only has slots set up for Maya.
+Tentacle is a Python3/qtpy marking menu implemented using Qt's QStackedWidget. It is designed for use with Maya, 3ds Max, Blender, and any other DCC app that supports qtpy.  In it's current implementation, it only has slots set up for Maya 2025.
 
 ## Design
 
-Tentacle runs on top of [uitk](https://github.com/m3trik/uitk.git), a qtpy dynamic UI loader and management package, which allows for the creation of fully-featured UI with less time and code.
+Tentacle runs on top of [uitk](https://github.com/m3trik/uitk.git), a qtpy dynamic UI loader, which allows for the creation of fully-featured UI with less time and code.
 
 ## Example
 
