@@ -1,6 +1,5 @@
 # !/usr/bin/python
 # coding=utf-8
-import sys
 from qtpy import QtWidgets, QtCore
 from tentacle.tcl import Tcl
 

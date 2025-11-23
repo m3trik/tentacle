@@ -1,7 +1,5 @@
 # !/usr/bin/python
 # coding=utf-8
-import sys
-
 try:
     from pymxs import runtime as rt
 except ImportError as error:
