@@ -18,8 +18,6 @@ class Editors(SlotsMaya):
     def list000_init(self, widget):
         """Initialize the widget with structured data for easier maintenance."""
         widget.fixed_item_height = 18
-        widget.sublist_x_offset = -10
-        widget.sublist_y_offset = -10
 
         editors_dict = {
             "General Editors": [

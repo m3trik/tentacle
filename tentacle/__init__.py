@@ -29,7 +29,6 @@ bootstrap_package(
     globals(),
     include=DEFAULT_INCLUDE,
     on_import_error=_handle_optional_import,
-    lazy_import=True,
 )
 
 

@@ -26,8 +26,6 @@ class Cameras(SlotsMaya):
         if not widget.is_initialized:
             widget.refresh_on_show = True  # This method called on each show
             widget.fixed_item_height = 18
-            widget.sublist_x_offset = -10
-            widget.sublist_y_offset = -10
 
         # Define camera types and their focal lengths
         camera_types = {

@@ -5,6 +5,7 @@ try:
 except ImportError as error:
     print(__file__, error)
 import mayatk as mtk
+import pythontk as ptk
 from tentacle.slots.maya import SlotsMaya
 
 
@@ -17,8 +18,8 @@ class Animation(SlotsMaya):
         self.ui_submenu = self.sb.loaded_ui.animation_submenu
 
     def tb000_init(self, widget):
-        """ """
-        widget.option_box.menu.setTitle("Move To Frame")
+        """Go To Frame Init"""
+        widget.option_box.menu.setTitle("Go To Frame")
         widget.option_box.menu.add(
             "QSpinBox",
             setPrefix="Frame: ",
@@ -27,19 +28,38 @@ class Animation(SlotsMaya):
             setValue=0,
             setToolTip="The desired frame number.",
         )
+        # Mode ComboBox
+        cmb000 = widget.option_box.menu.add(
+            "QComboBox",
+            setObjectName="cmb000",
+            setToolTip="Set the mode to Absolute or Relative.",
+        )
+        for text, data in [
+            ("Mode: Absolute", "Absolute"),
+            ("Mode: Relative", "Relative"),
+        ]:
+            cmb000.addItem(text, data)
+        cmb000.setCurrentIndex(1)
+
+        # Snap ComboBox
+        cmb001 = widget.option_box.menu.add(
+            "QComboBox",
+            setObjectName="cmb001",
+            setToolTip="Snap the resulting frame number.",
+        )
+        snap_items = [
+            ("Snap: None", "none"),
+            ("Snap: Preferred", "preferred"),
+            ("Snap: Aggressive", "aggressive"),
+        ]
+        for text, data in snap_items:
+            cmb001.addItem(text, data)
         widget.option_box.menu.add(
             "QCheckBox",
             setText="Update",
             setObjectName="chk001",
             setChecked=True,
             setToolTip="Change the current time, but do not update the world.",
-        )
-        widget.option_box.menu.add(
-            "QCheckBox",
-            setText="Relative",
-            setObjectName="chk000",
-            setChecked=True,
-            setToolTip="Move relative to the current position.",
         )
         widget.option_box.menu.add(
             self.sb.registered_widgets.Label,
@@ -89,17 +109,57 @@ class Animation(SlotsMaya):
 
         widget.option_box.menu.s000.valueChanged.connect(update_invert_checkbox)
 
-    def tb000(self, widget):
-        """Move To Frame"""
-        time = widget.option_box.menu.s000.value()
-        update = widget.option_box.menu.chk001.isChecked()
-        relative = widget.option_box.menu.chk000.isChecked()
+        self.sb.toggle_multi(
+            widget.option_box.menu,
+            trigger="cmb001",
+            signal="currentIndexChanged",
+            on_0={"setEnabled": "s000,cmb000,lbl020,chk010"},
+            on_1={"setDisabled": "s000,cmb000,lbl020,chk010"},
+            on_2={"setDisabled": "s000,cmb000,lbl020,chk010"},
+        )
 
-        mtk.set_current_frame(time=time, update=update, relative=relative)
+    def tb000(self, widget):
+        """Go To Frame"""
+        update = widget.option_box.menu.chk001.isChecked()
+
+        cmb001 = widget.option_box.menu.cmb001
+        snap_mode = cmb001.itemData(cmb001.currentIndex())
+        invert = widget.option_box.menu.chk011.isChecked()
+
+        if snap_mode == "none":
+            time_value = widget.option_box.menu.s000.value()
+            cmb000 = widget.option_box.menu.cmb000
+            mode = cmb000.itemData(cmb000.currentIndex())
+            relative = mode == "Relative"
+            time = time_value
+        else:
+            # Snap mode: use current time (time=None)
+            time = None
+            relative = False
+
+        mtk.set_current_frame(
+            time=time,
+            update=update,
+            relative=relative,
+            snap_mode=snap_mode,
+            invert_snap=invert,
+        )
 
     def tb001_init(self, widget):
         """ """
         widget.option_box.menu.setTitle("Invert Keys")
+        cmb = widget.option_box.menu.add(
+            "QComboBox",
+            setObjectName="cmb000",
+            setToolTip="Inversion mode.",
+        )
+        for text, data in [
+            ("Mode: X", "horizontal"),
+            ("Mode: Y", "vertical"),
+            ("Mode: X & Y", "both"),
+        ]:
+            cmb.addItem(text, data)
+
         widget.option_box.menu.add(
             "QSpinBox",
             setPrefix="Time: ",
@@ -107,6 +167,14 @@ class Animation(SlotsMaya):
             set_limits=[-100000, 100000],
             setValue=-1,
             setToolTip="Start time for inverted keys.\nSet to -1 to auto-detect from keys (selected or all).",
+        )
+        widget.option_box.menu.add(
+            "QDoubleSpinBox",
+            setPrefix="Pivot: ",
+            setObjectName="d000",
+            set_limits=[-100000, 100000],
+            setValue=0.0,
+            setToolTip="Value pivot for vertical inversion.",
         )
         widget.option_box.menu.add(
             "QCheckBox",
@@ -123,16 +191,35 @@ class Animation(SlotsMaya):
             setToolTip="Delete the original keyframes after inverting.",
         )
 
+        self.sb.toggle_multi(
+            widget.option_box.menu,
+            trigger="cmb000",
+            signal="currentIndexChanged",
+            on_0={"setEnabled": "s001,chk002", "setDisabled": "d000"},
+            on_1={"setDisabled": "s001,chk002", "setEnabled": "d000"},
+            on_2={"setEnabled": "s001,chk002,d000"},
+        )
+        widget.option_box.menu.d000.setDisabled(True)
+
     def tb001(self, widget):
         """Invert keyframes (selected keys preferred, fallback to all keys)."""
+        cmb = widget.option_box.menu.cmb000
+        mode = cmb.itemData(cmb.currentIndex())
         time_value = widget.option_box.menu.s001.value()
+        value_pivot = widget.option_box.menu.d000.value()
         relative = widget.option_box.menu.chk002.isChecked()
         delete_original = widget.option_box.menu.chk005.isChecked()
 
         # Use current time when time is -1
         time = pm.currentTime(q=True) if time_value == -1 else time_value
 
-        mtk.invert_keys(time=time, relative=relative, delete_original=delete_original)
+        mtk.invert_keys(
+            time=time,
+            relative=relative,
+            delete_original=delete_original,
+            mode=mode,
+            value_pivot=value_pivot,
+        )
 
     def tb002_init(self, widget):
         """ """

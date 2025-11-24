@@ -260,7 +260,7 @@ class Tcl(QtWidgets.QWidget, ptk.SingletonMixin, ptk.LoggingMixin, ptk.HelpMixin
 
         if ui.has_tags(["startmenu", "submenu"]):  # StackedWidget
             ui.style.set(theme="dark", style_class="translucentBgNoBorder")
-            ui.resize(600, 600)
+            # ui.resize(600, 600)
             self.addWidget(ui)  # add the UI to the stackedLayout.
 
         else:  # MainWindow
@@ -275,7 +275,7 @@ class Tcl(QtWidgets.QWidget, ptk.SingletonMixin, ptk.LoggingMixin, ptk.HelpMixin
         # set style before child init (resize).
         self.add_child_event_filter(ui.widgets)
         ui.on_child_registered.connect(lambda w: self.add_child_event_filter(w))
-        ui.default_slot_timeout = 90.0
+        ui.default_slot_timeout = 60.0
 
     def _prepare_ui(self, ui) -> QtWidgets.QWidget:
         """Initialize and set the UI without showing it."""
@@ -556,7 +556,7 @@ class Tcl(QtWidgets.QWidget, ptk.SingletonMixin, ptk.LoggingMixin, ptk.HelpMixin
         for win in self.sb.visible_windows:
             if win is not self and not win.has_tags(["startmenu", "submenu"]):
                 self._windows_to_restore.add(win)
-                win.setWindowOpacity(0.3)
+                win.setWindowOpacity(0.1)
                 win.setAttribute(QtCore.Qt.WA_TransparentForMouseEvents, True)
 
         if self._windows_to_restore:
