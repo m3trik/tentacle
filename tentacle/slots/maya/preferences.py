@@ -249,7 +249,7 @@ class Preferences(SlotsMaya):
     def check_for_update(self):
         """ """
         mayapy = os.path.join(mtk.get_env_info("install_path"), "bin", "mayapy.exe")
-        pkg_mgr = ptk.PkgManager(python_path=mayapy)
+        pkg_mgr = ptk.PackageManager(python_path=mayapy)
         this_pkg = "tentacletk"
         latest_ver = pkg_mgr.latest_version(this_pkg)
         # Check if the package is outdated

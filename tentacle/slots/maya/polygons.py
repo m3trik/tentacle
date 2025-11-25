@@ -447,9 +447,8 @@ class PolygonsSlots(SlotsMaya):
             )
         try:  # Bridge the edges
             node = pm.polyBridgeEdge(edges, curveType=0, divisions=0)
-            # Fill edges if they lie on a border
-            pm.polyCloseBorder(edges)
-            return node
+            if node:  # Fill edges if they lie on a border
+                pm.polyCloseBorder(edges)
         except RuntimeError:  # Bridge edges that share a vertex
             mtk.Components.bridge_connected_edges(edges)
 

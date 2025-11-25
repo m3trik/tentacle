@@ -25,6 +25,13 @@ class MaterialsSlots(SlotsMaya):
 
     def header_init(self, widget):
         """ """
+        # Add a button to reload all textures in the scene.
+        widget.menu.add(
+            "QPushButton",
+            setText="Reload Scene Textures",
+            setObjectName="b013",
+            setToolTip="Reload file textures for all scene materials.",
+        )
         # Add a button to open the hypershade editor.
         widget.menu.add(
             "QPushButton",
@@ -96,12 +103,6 @@ class MaterialsSlots(SlotsMaya):
                 setText="Open in Editor",
                 setObjectName="lbl006",
                 setToolTip="Open the material in the hypershade editor.",
-            )
-            widget.menu.add(
-                self.sb.registered_widgets.Label,
-                setText="Reload Textures",
-                setObjectName="b013",
-                setToolTip="Reload file textures for all scene materials.",
             )
             widget.menu.add(
                 self.sb.registered_widgets.Label,
