@@ -16,6 +16,15 @@ class Nurbs(SlotsMaya):
         self.ui = self.sb.loaded_ui.nurbs
         self.submenu = self.sb.loaded_ui.nurbs_submenu
 
+    def header_init(self, widget):
+        """ """
+        widget.menu.add(
+            self.sb.registered_widgets.Label,
+            setText="Image Tracer",
+            setObjectName="lbl000",
+            setToolTip="Trace images into NURBS curves.",
+        )
+
     def cmb001_init(self, widget):
         """ """
         items = [
@@ -247,6 +256,11 @@ class Nurbs(SlotsMaya):
             angleLoftBetweenTwoCurves=angleLoftBetweenTwoCurves,
             angleLoftSpans=angleLoftSpans,
         )
+
+    def lbl000(self, widget):
+        """Image Tracer"""
+        ui = mtk.UiManager.instance(self.sb).get("image_tracer")
+        self.sb.parent().show(ui)
 
     def b012(self):
         """Project Curve"""

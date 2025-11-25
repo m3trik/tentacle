@@ -58,10 +58,10 @@ class Rigging(SlotsMaya):
         text = widget.items[index]
         if text == "Tube Rig":
             ui = mtk.UiManager.instance(self.sb).get("tube_rig")
-            ui.show(pos="cursor", app_exec=True)
+            self.sb.parent().show(ui)
         elif text == "Wheel Rig":
             ui = mtk.UiManager.instance(self.sb).get("wheel_rig")
-            ui.show(pos="cursor", app_exec=True)
+            self.sb.parent().show(ui)
 
     def chk000(self, state, widget):
         """Scale Joint"""

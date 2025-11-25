@@ -125,7 +125,7 @@ class SelectionMixin:
             )
 
 
-class HudSlots(SlotsMaya, ptk.PkgVersionCheck, StatusMixin, SelectionMixin):
+class HudSlots(SlotsMaya, StatusMixin, SelectionMixin):
     """HUD Slots for Maya, providing scene and selection information."""
 
     _hud_request_token: int = 0
@@ -133,7 +133,9 @@ class HudSlots(SlotsMaya, ptk.PkgVersionCheck, StatusMixin, SelectionMixin):
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
         mayapy = os.path.join(mtk.get_env_info("install_path"), "bin", "mayapy.exe")
-        self.start_version_check(package_name="tentacletk", python_path=mayapy)
+        ptk.PackageManager.start_version_check(
+            package_name="tentacletk", python_path=mayapy
+        )
 
         self.ui = self.sb.loaded_ui.hud_startmenu
         self.ui.hudTextEdit.shown.connect(self.request_hud_build)
