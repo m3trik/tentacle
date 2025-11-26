@@ -84,22 +84,6 @@ class SceneSlots(SlotsMaya):
         scene = widget.items[index]
         pm.openFile(scene, force=True)
 
-    def cmb001_init(self, widget):
-        """ """
-        widget.refresh = True
-
-        widget.add(
-            mtk.get_recent_projects(slice(0, 20), format="timestamp|standard"),
-            header="Recent Projects:",
-            clear=True,
-        )
-
-    def cmb001(self, index, widget):
-        """Recent Projects"""
-        project = widget.items[index]
-        pm.workspace.open(project)
-        self.ui.cmb006.init_slot()
-
     def cmb002_init(self, widget):
         """ """
         # Fetch recent autosave files
@@ -225,6 +209,25 @@ class SceneSlots(SlotsMaya):
                 setObjectName="lbl004",
                 setText="Open Project Root",
                 setToolTip="Open the project root directory.",
+            )
+            widget.option_box.menu.add(
+                self.sb.registered_widgets.ComboBox,
+                setObjectName="cmb001",
+                setToolTip="Recent Projects",
+            )
+            widget.option_box.menu.cmb001.add(
+                mtk.get_recent_projects(slice(0, 20), format="timestamp|standard"),
+                header="Recent Projects:",
+                clear=True,
+            )
+
+            def open_recent_project(index, w=widget.option_box.menu.cmb001):
+                project = w.items[index]
+                pm.workspace.open(project)
+                self.ui.cmb006.init_slot()
+
+            widget.option_box.menu.cmb001.currentIndexChanged.connect(
+                open_recent_project
             )
 
         workspace = mtk.get_env_info("workspace")

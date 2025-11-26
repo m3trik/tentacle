@@ -37,7 +37,7 @@ class Edit(SlotsMaya):
             setText="Repair",
             setObjectName="chk004",
             setToolTip="Repair matching geometry. Else, select only.",
-        )  # add(self.sb.registered_widgets.CheckBox, setText='Select Only', setObjectName='chk004', setTristate=True, setCheckState=2, setToolTip='Select and/or Repair matching geometry. <br>0: Repair Only<br>1: Repair and Select<br>2: Select Only')
+        )
         widget.option_box.menu.add(
             "QCheckBox",
             setText="Delete History",
