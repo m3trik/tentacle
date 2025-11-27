@@ -10,7 +10,7 @@
     <x>0</x>
     <y>0</y>
     <width>200</width>
-    <height>254</height>
+    <height>194</height>
    </rect>
   </property>
   <property name="tabShape">
@@ -88,33 +88,6 @@
           <number>0</number>
          </property>
          <item>
-          <widget class="ComboBox" name="cmb001">
-           <property name="minimumSize">
-            <size>
-             <width>0</width>
-             <height>20</height>
-            </size>
-           </property>
-           <property name="maximumSize">
-            <size>
-             <width>16777215</width>
-             <height>20</height>
-            </size>
-           </property>
-           <property name="toolTip">
-            <string>Any recent workspaces will appear here.</string>
-           </property>
-           <property name="maxVisibleItems">
-            <number>40</number>
-           </property>
-           <item>
-            <property name="text">
-             <string>Recent Projects:</string>
-            </property>
-           </item>
-          </widget>
-         </item>
-         <item>
           <widget class="ComboBox" name="cmb006">
            <property name="minimumSize">
             <size>
@@ -137,43 +110,6 @@
            <item>
             <property name="text">
              <string>Project:</string>
-            </property>
-           </item>
-          </widget>
-         </item>
-         <item>
-          <widget class="QLineEdit" name="txt000">
-           <property name="toolTip">
-            <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Filter the results of the 'Scenes' list.&lt;/span&gt;&lt;/p&gt;&lt;p&gt;    Each item can be a string or integer. Strings can include shell-style wildcards:&lt;/p&gt;&lt;p&gt;     - '*': Matches any sequence of characters (including none).&lt;/p&gt;&lt;p&gt;	startswith*&lt;br/&gt;	*endswith&lt;/p&gt;&lt;p&gt;	*contains*&lt;/p&gt;&lt;p&gt;     - '?': Matches any single character.&lt;/p&gt;&lt;p&gt;     - '[seq]': Matches any character in 'seq'.&lt;/p&gt;&lt;p&gt;     - '[!seq]': Matches any character not in 'seq'.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-           </property>
-           <property name="placeholderText">
-            <string>Filter Scenes:</string>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="ComboBox" name="cmb000">
-           <property name="minimumSize">
-            <size>
-             <width>0</width>
-             <height>20</height>
-            </size>
-           </property>
-           <property name="maximumSize">
-            <size>
-             <width>16777215</width>
-             <height>20</height>
-            </size>
-           </property>
-           <property name="toolTip">
-            <string>Open a scene file from the current workspace directory.</string>
-           </property>
-           <property name="maxVisibleItems">
-            <number>40</number>
-           </property>
-           <item>
-            <property name="text">
-             <string>Scenes:</string>
             </property>
            </item>
           </widget>

@@ -161,7 +161,7 @@ class Pivot(SlotsMaya):
 
         # Set pivot
         pivot_type = "manip" if manip_pivot else "object"
-        result = mtk.world_aligned_pivot(mode="set", pivot_type=pivot_type)
+        result = mtk.world_align_pivot(mode="set", pivot_type=pivot_type)
 
         if result:
             if pivot_type == "manip":

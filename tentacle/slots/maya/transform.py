@@ -130,11 +130,11 @@ class TransformSlots(SlotsMaya):
             setToolTip="The scale factor will be changed to 1, 1, 1.",
         )
         widget.option_box.menu.add(
-            "QCheckBox",
-            setText="Center Pivot",
-            setObjectName="chk035",
-            setChecked=True,
-            setToolTip="Move the objects pivot to the center of it's bounding box.",
+            "QComboBox",
+            setObjectName="cmb_center_pivot",
+            addItems=["Center Pivot: None", "Center Pivot: Mesh", "Center Pivot: All"],
+            setCurrentIndex=0,
+            setToolTip="Move the objects pivot to the center of its bounding box.\n• None: Don't center pivot\n• Mesh: Center pivot on mesh objects only\n• All: Center pivot on all objects",
         )
         widget.option_box.menu.add(
             "QCheckBox",
@@ -195,20 +195,27 @@ class TransformSlots(SlotsMaya):
             self.sb.message_box("Please select at least one object.")
             return
 
-        cp = widget.option_box.menu.chk035.isChecked()
+        center_pivot = (
+            widget.option_box.menu.cmb_center_pivot.currentIndex()
+        )  # 0=None, 1=Mesh, 2=All
         translate = widget.option_box.menu.chk032.isChecked()
         rotate = widget.option_box.menu.chk033.isChecked()
         scale = widget.option_box.menu.chk034.isChecked()
         force = True if len(objects) == 1 else False
+        store_transforms = widget.option_box.menu.chk037.isChecked()
         delete_history = widget.option_box.menu.chk038.isChecked()
         freeze_children = widget.option_box.menu.chk039.isChecked()
         from_channel_box = widget.option_box.menu.chk040.isChecked()
         strategy_index = widget.option_box.menu.cmb_connection_strategy.currentIndex()
         connection_strategy = ["preserve", "disconnect", "delete"][strategy_index]
 
+        # Store transforms before freezing so they can be restored later
+        if store_transforms:
+            mtk.store_transforms(objects, accumulate=True)
+
         mtk.freeze_transforms(
             objects,
-            center_pivot=cp,
+            center_pivot=center_pivot,
             t=translate,
             r=rotate,
             s=scale,
