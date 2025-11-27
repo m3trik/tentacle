@@ -275,7 +275,7 @@ class Tcl(QtWidgets.QWidget, ptk.SingletonMixin, ptk.LoggingMixin, ptk.HelpMixin
         # set style before child init (resize).
         self.add_child_event_filter(ui.widgets)
         ui.on_child_registered.connect(lambda w: self.add_child_event_filter(w))
-        ui.default_slot_timeout = 60.0
+        ui.default_slot_timeout = 90.0
 
     def _prepare_ui(self, ui) -> QtWidgets.QWidget:
         """Initialize and set the UI without showing it."""

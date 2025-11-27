@@ -23,6 +23,12 @@ class Edit(SlotsMaya):
             setObjectName="b000",
             setToolTip="Cut selected objects on axis.",
         )
+        widget.menu.add(
+            "QPushButton",
+            setText="Snap",
+            setObjectName="b001",
+            setToolTip="Open the snap toolset.",
+        )
 
     def tb000_init(self, widget):
         """ """
@@ -381,6 +387,11 @@ class Edit(SlotsMaya):
     def b000(self):
         """Cut On Axis"""
         ui = mtk.UiManager.instance(self.sb).get("cut_on_axis")
+        self.sb.parent().show(ui)
+
+    def b001(self):
+        """Snap Toolset"""
+        ui = mtk.UiManager.instance(self.sb).get("snap")
         self.sb.parent().show(ui)
 
     def b021(self):
