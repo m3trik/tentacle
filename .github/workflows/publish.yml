@@ -64,15 +64,15 @@ jobs:
         if: steps.version.outputs.publish == 'true'
         run: |
           VERSION=${{ steps.version.outputs.version }}
-          sed -i "s/badge\/Version-[0-9]\+\.[0-9]\+\.[0-9]\+/badge\/Version-$VERSION/" docs/README.md
-          
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add docs/README.md
-          
-          if ! git diff --staged --quiet; then
-            git commit -m "Update version badge to $VERSION [skip ci]"
-            git push origin main
+          if [ -f docs/README.md ]; then
+            sed -i "s/badge\/Version-[0-9]\+\.[0-9]\+\.[0-9]\+/badge\/Version-$VERSION/" docs/README.md
+            git config user.name "github-actions[bot]"
+            git config user.email "github-actions[bot]@users.noreply.github.com"
+            git add docs/README.md
+            if ! git diff --staged --quiet; then
+              git commit -m "Update version badge to $VERSION [skip ci]"
+              git push origin main
+            fi
           fi
       
       - name: Build
