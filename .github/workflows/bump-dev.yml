@@ -40,3 +40,22 @@ jobs:
           git push origin dev
           
           echo "Bumped dev to $VERSION"
+      
+      - name: Update requirements.txt
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          
+          PYTHONTK_VER=$(pip index versions pythontk 2>/dev/null | grep -oP 'Available versions: \K[^,]+' || echo "0.7.36")
+          UITK_VER=$(pip index versions uitk 2>/dev/null | grep -oP 'Available versions: \K[^,]+' || echo "1.0.37")
+          MAYATK_VER=$(pip index versions mayatk 2>/dev/null | grep -oP 'Available versions: \K[^,]+' || echo "0.9.40")
+          sed -i "s/pythontk==.*/pythontk==$PYTHONTK_VER/" requirements.txt
+          sed -i "s/uitk==.*/uitk==$UITK_VER/" requirements.txt
+          sed -i "s/mayatk==.*/mayatk==$MAYATK_VER/" requirements.txt
+          
+          git add requirements.txt
+          
+          if ! git diff --staged --quiet; then
+            git commit -m "Update requirements.txt [skip ci]"
+            git push origin dev
+          fi
