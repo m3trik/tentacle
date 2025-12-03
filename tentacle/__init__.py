@@ -5,7 +5,7 @@ import sys
 from pythontk.core_utils.module_resolver import bootstrap_package
 
 __package__ = "tentacle"
-__version__ = "0.9.54"
+__version__ = "0.9.55"
 
 
 DEFAULT_INCLUDE = {
@@ -73,3 +73,4 @@ greeting("Good {hr}! You are using {modver} with {pyver}.")
 # --------------------------------------------------------------------------------------------
 # Notes
 # --------------------------------------------------------------------------------------------
+# Test: 220855
