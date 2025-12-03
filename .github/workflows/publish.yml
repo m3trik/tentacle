@@ -45,9 +45,9 @@ jobs:
       - name: Update requirements
         if: steps.version.outputs.publish == 'true'
         run: |
-          PYTHONTK_VER=$(pip index versions pythontk 2>/dev/null | grep -oP 'Available versions: \K[^,]+' || echo "0.7.36")
-          UITK_VER=$(pip index versions uitk 2>/dev/null | grep -oP 'Available versions: \K[^,]+' || echo "1.0.37")
-          MAYATK_VER=$(pip index versions mayatk 2>/dev/null | grep -oP 'Available versions: \K[^,]+' || echo "0.9.40")
+          PYTHONTK_VER=$(curl -s https://raw.githubusercontent.com/m3trik/pythontk/main/pythontk/__init__.py | grep -oP '__version__\s*=\s*["\x27]\K[^"\x27]+')
+          UITK_VER=$(curl -s https://raw.githubusercontent.com/m3trik/uitk/main/uitk/__init__.py | grep -oP '__version__\s*=\s*["\x27]\K[^"\x27]+')
+          MAYATK_VER=$(curl -s https://raw.githubusercontent.com/m3trik/mayatk/main/mayatk/__init__.py | grep -oP '__version__\s*=\s*["\x27]\K[^"\x27]+')
           sed -i "s/pythontk==.*/pythontk==$PYTHONTK_VER/" requirements.txt
           sed -i "s/uitk==.*/uitk==$UITK_VER/" requirements.txt
           sed -i "s/mayatk==.*/mayatk==$MAYATK_VER/" requirements.txt
