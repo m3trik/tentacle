@@ -6,6 +6,7 @@ on:
     paths:
       - 'tentacle/**'
       - 'pyproject.toml'
+      - '.github/workflows/**'
   
   workflow_dispatch:
 
