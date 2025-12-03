@@ -1,0 +1,38 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "tentacletk"
+dynamic = ["version", "readme"]
+description = "A multi-application marking menu and UI framework for Maya, 3ds Max, and Blender."
+authors = [{name = "Ryan Simpson", email = "m3trik@outlook.com"}]
+license = {text = "LGPL-3.0-or-later"}
+requires-python = ">=3.9"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: GNU Lesser General Public License v3 or later (LGPLv3+)",
+    "Operating System :: OS Independent",
+]
+
+# Dependencies - exclude optional system deps (Pillow, qtpy, numpy, shiboken6, pymel)
+dependencies = [
+    "pythontk>=0.7.34",
+    "uitk>=1.0.35",
+    "mayatk>=0.9.38",
+]
+
+[project.urls]
+Homepage = "https://github.com/m3trik/tentacle"
+Repository = "https://github.com/m3trik/tentacle"
+
+[tool.setuptools.dynamic]
+version = {attr = "tentacle.__version__"}
+readme = {file = "docs/README.md", content-type = "text/markdown"}
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["tentacle*"]
+
+[tool.setuptools.package-data]
+"*" = ["*.ui", "*.json", "*.txt", "*.md"]
