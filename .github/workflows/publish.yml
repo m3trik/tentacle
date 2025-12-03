@@ -1,0 +1,85 @@
+name: Publish to PyPI
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'tentacle/**'
+      - 'pyproject.toml'
+  
+  workflow_dispatch:
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.REPO_DISPATCH_TOKEN }}
+      
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      
+      - name: Install build tools
+        run: pip install build twine
+      
+      - name: Get version
+        id: version
+        run: |
+          VERSION=$(grep -oP '__version__\s*=\s*["\x27]\K[^"\x27]+' tentacle/__init__.py)
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          
+          PYPI=$(pip index versions tentacletk 2>/dev/null | grep -oP 'Available versions: \K[^,]+' || echo "none")
+          echo "pypi=$PYPI" >> $GITHUB_OUTPUT
+          
+          if [ "$VERSION" != "$PYPI" ]; then
+            echo "publish=true" >> $GITHUB_OUTPUT
+          else
+            echo "publish=false" >> $GITHUB_OUTPUT
+          fi
+      
+      - name: Build
+        if: steps.version.outputs.publish == 'true'
+        run: python -m build --wheel
+      
+      - name: Publish
+        if: steps.version.outputs.publish == 'true'
+        env:
+          TWINE_USERNAME: __token__
+          TWINE_PASSWORD: ${{ secrets.PYPI_TOKEN }}
+        run: python -m twine upload dist/* --skip-existing
+      
+      - name: Bump version
+        if: steps.version.outputs.publish == 'true'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          
+          python -c "
+          import re
+          from pathlib import Path
+          f = Path('tentacle/__init__.py')
+          txt = f.read_text()
+          def bump(m):
+              ma, mi, pa = int(m[1]), int(m[2]), int(m[3])
+              pa += 1
+              if pa > 99: pa, mi = 0, mi + 1
+              if mi > 99: mi, ma = 0, ma + 1
+              return f'__version__ = \"{ma}.{mi}.{pa}\"'
+          f.write_text(re.sub(r'__version__\s*=\s*[\"\\'](\d+)\.(\d+)\.(\d+)[\"\\']', bump, txt))
+          "
+          
+          git add tentacle/__init__.py
+          git commit -m "Bump version [skip ci]"
+          git push
+      
+      - name: Summary
+        run: |
+          if [ "${{ steps.version.outputs.publish }}" == "true" ]; then
+            echo "Published tentacletk v${{ steps.version.outputs.version }}"
+          else
+            echo "v${{ steps.version.outputs.version }} already on PyPI"
+          fi

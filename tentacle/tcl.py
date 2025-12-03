@@ -269,7 +269,7 @@ class Tcl(QtWidgets.QWidget, ptk.SingletonMixin, ptk.LoggingMixin, ptk.HelpMixin
             ui.set_attributes(WA_TranslucentBackground=True)
             ui.style.set(theme="dark")
             if hasattr(ui, "header") and not ui.header.has_buttons():
-                ui.header.config_buttons("menu_button", "pin_button")
+                ui.header.config_buttons("menu", "collapse", "pin")
                 self.key_show_release.connect(ui.hide)
 
         # set style before child init (resize).
