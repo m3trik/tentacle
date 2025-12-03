@@ -41,6 +41,16 @@ jobs:
             echo "publish=false" >> $GITHUB_OUTPUT
           fi
       
+      - name: Update requirements
+        if: steps.version.outputs.publish == 'true'
+        run: |
+          PYTHONTK_VER=$(pip index versions pythontk 2>/dev/null | grep -oP 'Available versions: \K[^,]+' || echo "0.7.36")
+          UITK_VER=$(pip index versions uitk 2>/dev/null | grep -oP 'Available versions: \K[^,]+' || echo "1.0.37")
+          MAYATK_VER=$(pip index versions mayatk 2>/dev/null | grep -oP 'Available versions: \K[^,]+' || echo "0.9.40")
+          sed -i "s/pythontk==.*/pythontk==$PYTHONTK_VER/" requirements.txt
+          sed -i "s/uitk==.*/uitk==$UITK_VER/" requirements.txt
+          sed -i "s/mayatk==.*/mayatk==$MAYATK_VER/" requirements.txt
+      
       - name: Build
         if: steps.version.outputs.publish == 'true'
         run: python -m build --wheel
@@ -72,7 +82,7 @@ jobs:
           f.write_text(re.sub(r'__version__\s*=\s*[\"\\'](\d+)\.(\d+)\.(\d+)[\"\\']', bump, txt))
           "
           
-          git add tentacle/__init__.py
+          git add tentacle/__init__.py requirements.txt
           git commit -m "Bump version [skip ci]"
           git push
       
