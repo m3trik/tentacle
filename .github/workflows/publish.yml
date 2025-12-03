@@ -50,6 +50,15 @@ jobs:
           sed -i "s/pythontk==.*/pythontk==$PYTHONTK_VER/" requirements.txt
           sed -i "s/uitk==.*/uitk==$UITK_VER/" requirements.txt
           sed -i "s/mayatk==.*/mayatk==$MAYATK_VER/" requirements.txt
+          
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add requirements.txt
+          
+          if ! git diff --staged --quiet; then
+            git commit -m "Update requirements.txt [skip ci]"
+            git push origin main
+          fi
       
       - name: Build
         if: steps.version.outputs.publish == 'true'
