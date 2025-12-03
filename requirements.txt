@@ -1,11 +1,5 @@
 qtpy
 pymel
-<<<<<<< HEAD
-pythontk==0.7.36
-uitk==1.0.38
-mayatk==0.9.42
-=======
 pythontk==0.7.38
 uitk==1.0.41
-mayatk==0.9.38
->>>>>>> dev
+mayatk==0.9.44
