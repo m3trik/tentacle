@@ -1,0 +1,42 @@
+name: Bump Dev Version
+
+on:
+  repository_dispatch:
+    types: [bump_dev]
+
+jobs:
+  bump:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: dev
+          token: ${{ secrets.REPO_DISPATCH_TOKEN }}
+      
+      - name: Bump version
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          
+          python -c "
+          import re
+          from pathlib import Path
+          f = Path('tentacle/__init__.py')
+          txt = f.read_text()
+          def bump(m):
+              ma, mi, pa = int(m[1]), int(m[2]), int(m[3])
+              pa += 1
+              if pa > 99: pa, mi = 0, mi + 1
+              if mi > 99: mi, ma = 0, ma + 1
+              return f'__version__ = \"{ma}.{mi}.{pa}\"'
+          f.write_text(re.sub(r'__version__\s*=\s*[\"\\'](\d+)\.(\d+)\.(\d+)[\"\\']', bump, txt))
+          "
+          
+          VERSION=$(grep -oP '__version__\s*=\s*["\x27]\K[^"\x27]+' tentacle/__init__.py)
+          
+          git add tentacle/__init__.py
+          git commit -m "Bump version to $VERSION [skip ci]"
+          git push origin dev
+          
+          echo "Bumped dev to $VERSION"
