@@ -6,7 +6,6 @@ on:
     paths:
       - 'tentacle/**'
       - 'pyproject.toml'
-      - '.github/workflows/**'
   
   workflow_dispatch:
 
@@ -45,9 +44,9 @@ jobs:
       - name: Update requirements
         if: steps.version.outputs.publish == 'true'
         run: |
-          PYTHONTK_VER=$(curl -s https://raw.githubusercontent.com/m3trik/pythontk/main/pythontk/__init__.py | grep -oP '__version__\s*=\s*["\x27]\K[^"\x27]+')
-          UITK_VER=$(curl -s https://raw.githubusercontent.com/m3trik/uitk/main/uitk/__init__.py | grep -oP '__version__\s*=\s*["\x27]\K[^"\x27]+')
-          MAYATK_VER=$(curl -s https://raw.githubusercontent.com/m3trik/mayatk/main/mayatk/__init__.py | grep -oP '__version__\s*=\s*["\x27]\K[^"\x27]+')
+          PYTHONTK_VER=$(pip index versions pythontk 2>/dev/null | grep -oP 'Available versions: \K[^,]+' || echo "0.7.36")
+          UITK_VER=$(pip index versions uitk 2>/dev/null | grep -oP 'Available versions: \K[^,]+' || echo "1.0.37")
+          MAYATK_VER=$(pip index versions mayatk 2>/dev/null | grep -oP 'Available versions: \K[^,]+' || echo "0.9.40")
           sed -i "s/pythontk==.*/pythontk==$PYTHONTK_VER/" requirements.txt
           sed -i "s/uitk==.*/uitk==$UITK_VER/" requirements.txt
           sed -i "s/mayatk==.*/mayatk==$MAYATK_VER/" requirements.txt
@@ -63,32 +62,14 @@ jobs:
           TWINE_PASSWORD: ${{ secrets.PYPI_TOKEN }}
         run: python -m twine upload dist/* --skip-existing
       
-      - name: Bump version
+      - name: Trigger dev bump
         if: steps.version.outputs.publish == 'true'
         run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          
-          git checkout dev
-          git pull origin dev
-          
-          python -c "
-          import re
-          from pathlib import Path
-          f = Path('tentacle/__init__.py')
-          txt = f.read_text()
-          def bump(m):
-              ma, mi, pa = int(m[1]), int(m[2]), int(m[3])
-              pa += 1
-              if pa > 99: pa, mi = 0, mi + 1
-              if mi > 99: mi, ma = 0, ma + 1
-              return f'__version__ = \"{ma}.{mi}.{pa}\"'
-          f.write_text(re.sub(r'__version__\s*=\s*[\"\\'](\d+)\.(\d+)\.(\d+)[\"\\']', bump, txt))
-          "
-          
-          git add tentacle/__init__.py requirements.txt
-          git commit -m "Bump version [skip ci]"
-          git push origin dev
+          curl -X POST \
+            -H "Accept: application/vnd.github.v3+json" \
+            -H "Authorization: token ${{ secrets.REPO_DISPATCH_TOKEN }}" \
+            https://api.github.com/repos/${{ github.repository }}/dispatches \
+            -d '{"event_type":"bump_dev","client_payload":{"package":"tentacle"}}'
       
       - name: Summary
         run: |
