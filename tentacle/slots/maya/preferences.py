@@ -87,24 +87,61 @@ class Preferences(SlotsMaya):
 
     def s000_init(self, widget):
         """ """
-        # Get the current autosave state
-        autoSaveState = pm.autoSave(q=True, enable=True)
-        if autoSaveState:
-            autoSaveAmount = pm.autoSave(q=True, maxBackups=True)
-            widget.setValue(autoSaveAmount)
-        else:
-            widget.setValue(0)
+        if not widget.is_initialized:
+            # Initial Sync
+            autoSaveState = pm.autoSave(q=True, enable=True)
+            if autoSaveState:
+                autoSaveAmount = pm.autoSave(q=True, maxBackups=True)
+                widget.setValue(autoSaveAmount)
+            else:
+                widget.setValue(0)
 
-        widget.valueChanged.connect(
-            lambda v: pm.autoSave(enable=v, maxBackups=v, limitBackups=True)
-        )
+            widget.valueChanged.connect(
+                lambda v: pm.autoSave(enable=v, maxBackups=v, limitBackups=True)
+            )
+
+            def enforce_widget_value(*args):
+                val = widget.value()
+                current_enable = pm.autoSave(q=True, enable=True)
+                current_max = pm.autoSave(q=True, maxBackups=True)
+
+                if val == 0:
+                    if current_enable:
+                        pm.autoSave(enable=False)
+                else:
+                    if not current_enable or current_max != val:
+                        pm.autoSave(enable=True, maxBackups=val, limitBackups=True)
+
+            widget.autoSaveEnableJob = pm.scriptJob(
+                optionVarChange=["autoSaveEnable", enforce_widget_value],
+                runOnce=False,
+            )
+            widget.autoSaveMaxBackupsJob = pm.scriptJob(
+                optionVarChange=["autoSaveMaxBackups", enforce_widget_value],
+                runOnce=False,
+            )
 
     def s001_init(self, widget):
         """ """
-        autoSaveInterval = pm.autoSave(q=True, int=True)
-        widget.setValue(autoSaveInterval / 60)
+        if not widget.is_initialized:
+            # Initial Sync
+            autoSaveInterval = pm.autoSave(q=True, int=True)
+            widget.setValue(autoSaveInterval / 60)
 
-        widget.valueChanged.connect(lambda v: pm.autoSave(int=v * 60))
+            widget.valueChanged.connect(lambda v: pm.autoSave(int=v * 60))
+
+            def enforce_interval(*args):
+                val = widget.value()
+                target_seconds = int(val * 60)
+                current_seconds = pm.autoSave(q=True, int=True)
+
+                if current_seconds != target_seconds:
+                    pm.autoSave(int=target_seconds)
+
+            widget.autoSaveIntervalJob = pm.scriptJob(
+                optionVarChange=["autoSaveInterval", enforce_interval],
+                runOnce=False,
+            )
 
     def b002(self):
         """Autosave: Delete All"""

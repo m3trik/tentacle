@@ -272,7 +272,7 @@ class Edit(SlotsMaya):
             pm.delete(duplicates) if repair else pm.select(duplicates, add=1)
 
         try:
-            mtk.clean_geometry(
+            mtk.Diagnostics.clean_geometry(
                 objects,
                 allMeshes=allMeshes,
                 repair=repair,
