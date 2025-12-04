@@ -127,13 +127,36 @@ class Normals(SlotsMaya):
         """Set To Face"""
         pm.polySetToFaceNormal()
 
-    def b010(self):
+    def tb010_init(self, widget):
+        """ """
+        if not widget.is_initialized:
+            widget.option_box.menu.setTitle("Reverse Normals")
+            widget.option_box.menu.add(
+                "QComboBox",
+                setObjectName="cmb000",
+                addItems=[
+                    "Reverse",
+                    "Propagate",
+                    "Conform",
+                    "Reverse and Extract",
+                    "Reverse and Propagate",
+                ],
+                setCurrentIndex=3,
+                setToolTip="Normal operation mode.",
+            )
+
+    def tb010(self, widget):
         """Reverse Normals"""
+        mode = widget.option_box.menu.cmb000.currentIndex()
+
         for obj in pm.ls(sl=1, objectsOnly=1):
             sel = pm.ls(obj, sl=1)
-            # normalMode 3: reverse and cut a new shell on selected face(s).
-            # normalMode 4: reverse and propagate; Reverse the normal(s) and propagate this direction to all other faces in the shell.
-            pm.polyNormal(sel, normalMode=3, userNormalMode=1)
+            # normalMode 0: Reverse
+            # normalMode 1: Propagate
+            # normalMode 2: Conform
+            # normalMode 3: Reverse and Extract
+            # normalMode 4: Reverse and Propagate
+            pm.polyNormal(sel, normalMode=mode, userNormalMode=1)
 
 
 # --------------------------------------------------------------------------------------------

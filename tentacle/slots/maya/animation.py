@@ -1255,7 +1255,7 @@ class Animation(SlotsMaya):
             scope_label = "entire scene"
 
         # Call the repair method
-        result = mtk.repair_corrupted_curves(
+        result = mtk.Diagnostics.repair_corrupted_curves(
             objects=objects,
             recursive=True,
             delete_corrupted=delete_corrupted,
