@@ -5,30 +5,23 @@ import sys
 from pythontk.core_utils.module_resolver import bootstrap_package
 
 __package__ = "tentacle"
-__version__ = "0.9.57"
+__version__ = "0.9.58"
 
 
 DEFAULT_INCLUDE = {
-    "overlay": "*",
+    "overlay": ["OverlayFactoryFilter", "Overlay"],
     "tcl": "Tcl",
     "tcl_blender": "TclBlender",
     "tcl_max": "TclMax",
     "tcl_maya": "TclMaya",
-    "slots": "Slots",
+    "slots._slots": "Slots",
     "slots.maya": "SlotsMaya",
 }
-
-
-def _handle_optional_import(module_name: str, exc: Exception) -> None:
-    if module_name.startswith("tentacle.slots.maya"):
-        return
-    print(f"tentacle bootstrap warning: {module_name} -> {exc}")
 
 
 bootstrap_package(
     globals(),
     include=DEFAULT_INCLUDE,
-    on_import_error=_handle_optional_import,
 )
 
 

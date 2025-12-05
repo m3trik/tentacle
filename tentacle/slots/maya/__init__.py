@@ -1,7 +1,7 @@
 # !/usr/bin/python
 # coding=utf-8
 # From this package:
-from tentacle.slots import Slots
+from tentacle.slots._slots import Slots
 
 
 class SlotsMaya(Slots):
