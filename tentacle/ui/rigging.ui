@@ -346,7 +346,14 @@
                </palette>
               </property>
               <property name="toolTip">
-               <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Select a constraint node to create a custom switch attribute on the driven object.&lt;/p&gt;&lt;p&gt;Will overwrite an existing attribute of the given name if it exists.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+               <string>Create a custom switch attribute on the constrained object to control its constraint.
+
+Select a constraint node, then click to add a control attribute:
+• 1 target: Boolean on/off toggle
+• 2 targets: Enum snap or float blend (if Weighted enabled)
+• 3+ targets: Enum dropdown for snapping between targets
+
+Note: Overwrites any existing attribute with the same name.</string>
               </property>
               <property name="text">
                <string>Create Constraint Switch</string>
