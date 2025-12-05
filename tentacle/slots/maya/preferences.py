@@ -86,9 +86,9 @@ class Preferences(SlotsMaya):
         pm.currentUnit(time=widget.currentData())
 
     def s000_init(self, widget):
-        """ """
+        """Initialize autosave max backups spinbox (widget is source of truth)."""
         if not widget.is_initialized:
-            # Initial Sync
+            # Set initial value from Maya
             autoSaveState = pm.autoSave(q=True, enable=True)
             if autoSaveState:
                 autoSaveAmount = pm.autoSave(q=True, maxBackups=True)
@@ -96,52 +96,35 @@ class Preferences(SlotsMaya):
             else:
                 widget.setValue(0)
 
-            widget.valueChanged.connect(
-                lambda v: pm.autoSave(enable=v, maxBackups=v, limitBackups=True)
-            )
-
-            def enforce_widget_value(*args):
-                val = widget.value()
-                current_enable = pm.autoSave(q=True, enable=True)
-                current_max = pm.autoSave(q=True, maxBackups=True)
-
-                if val == 0:
-                    if current_enable:
-                        pm.autoSave(enable=False)
+            def update_autosave(value):
+                """Update Maya autosave settings from widget value."""
+                if value == 0:
+                    pm.autoSave(enable=False)
                 else:
-                    if not current_enable or current_max != val:
-                        pm.autoSave(enable=True, maxBackups=val, limitBackups=True)
+                    pm.autoSave(enable=True, maxBackups=value, limitBackups=True)
 
-            widget.autoSaveEnableJob = pm.scriptJob(
-                optionVarChange=["autoSaveEnable", enforce_widget_value],
-                runOnce=False,
-            )
-            widget.autoSaveMaxBackupsJob = pm.scriptJob(
-                optionVarChange=["autoSaveMaxBackups", enforce_widget_value],
-                runOnce=False,
-            )
+            widget.valueChanged.connect(update_autosave)
+
+            # Enforce widget as source of truth on show
+            current_value = widget.value()
+            update_autosave(current_value)
 
     def s001_init(self, widget):
-        """ """
+        """Initialize autosave interval spinbox (widget is source of truth)."""
         if not widget.is_initialized:
-            # Initial Sync
+            # Set initial value from Maya
             autoSaveInterval = pm.autoSave(q=True, int=True)
             widget.setValue(autoSaveInterval / 60)
 
-            widget.valueChanged.connect(lambda v: pm.autoSave(int=v * 60))
+            def update_interval(value):
+                """Update Maya autosave interval from widget value."""
+                pm.autoSave(int=int(value * 60))
 
-            def enforce_interval(*args):
-                val = widget.value()
-                target_seconds = int(val * 60)
-                current_seconds = pm.autoSave(q=True, int=True)
+            widget.valueChanged.connect(update_interval)
 
-                if current_seconds != target_seconds:
-                    pm.autoSave(int=target_seconds)
-
-            widget.autoSaveIntervalJob = pm.scriptJob(
-                optionVarChange=["autoSaveInterval", enforce_interval],
-                runOnce=False,
-            )
+            # Enforce widget as source of truth on show
+            current_value = widget.value()
+            update_interval(current_value)
 
     def b002(self):
         """Autosave: Delete All"""
