@@ -241,7 +241,7 @@ class Nurbs(SlotsMaya):
         range_ = widget.menu.chk003.isChecked()
         polygon = 1 if widget.menu.chk004.isChecked() else 0
         reverseSurfaceNormals = widget.menu.chk005.isChecked()
-        angleLoftBetweenTwoCurves = widget.menu.chk010.isChecked()
+        angle_loft_between_two_curves = widget.menu.chk010.isChecked()
         angleLoftSpans = widget.menu.s007.value()
 
         self.loft(
@@ -253,7 +253,7 @@ class Nurbs(SlotsMaya):
             range_=range_,
             polygon=polygon,
             reverseSurfaceNormals=reverseSurfaceNormals,
-            angleLoftBetweenTwoCurves=angleLoftBetweenTwoCurves,
+            angle_loft_between_two_curves=angle_loft_between_two_curves,
             angleLoftSpans=angleLoftSpans,
         )
 
