@@ -296,23 +296,15 @@ class MaterialsSlots(SlotsMaya):
         """Open material in editor"""
         try:
             mat = self.ui.cmb002.currentData()
-            pm.select(mat)
         except Exception:
             self.sb.message_box("No stored material or no valid object selected.")
             return
 
-        # # Open the Hypershade window
-        print("Opening the Hypershade window ..", pm.mel.HypershadeWindow())
+        if not mat:
+            self.sb.message_box("No stored material or no valid object selected.")
+            return
 
-        # Define the deferred command to graph the material
-        def graph_material():
-            # graphMaterials, addSelected, showUpstream, showDownstream, showUpAndDownstream
-            pm.mel.hyperShadePanelGraphCommand(
-                "hyperShadePanel1", "showUpAndDownstream"
-            )
-
-        # Execute the graph command after the Hypershade window is fully initialized
-        self.sb.defer_with_timer(graph_material, ms=500)
+        mtk.graph_materials(mat)
 
     def b002(self, widget):
         """Get Material: Change the index to match the current material selection."""
