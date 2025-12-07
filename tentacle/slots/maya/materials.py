@@ -39,13 +39,19 @@ class MaterialsSlots(SlotsMaya):
             setText="Hypershade Editor",
             setObjectName="b007",
         )
-        widget.menu.b007.clicked.connect(pm.mel.HypershadeWindow)
         # Add a button to launch stringray arnold shader.
         widget.menu.add(
             "QPushButton",
             setToolTip="Create a stingray material network that can optionally be rendered in Arnold.",
             setText="Create Stingray Shader",
             setObjectName="b009",
+        )
+        # Add a button to launch the shader templates UI.
+        widget.menu.add(
+            "QPushButton",
+            setToolTip="Open the Shader Templates UI to save and load shader graphs.",
+            setText="Shader Templates",
+            setObjectName="b011",
         )
         # Add a button to launch the Texture Path Editor.
         widget.menu.add(
@@ -404,6 +410,10 @@ class MaterialsSlots(SlotsMaya):
         )
         pm.mel.createAssignNewMaterialTreeLister("")
 
+    def b007(self, widget):
+        """Hypershade Editor"""
+        pm.mel.HypershadeWindow()
+
     def b008(self, widget):
         """Map Packer"""
         from pythontk.img_utils import map_packer
@@ -434,6 +444,11 @@ class MaterialsSlots(SlotsMaya):
     def b010(self, widget):
         """Texture Path Editor"""
         ui = mtk.UiManager.instance(self.sb).get("texture_path_editor")
+        self.sb.parent().show(ui)
+
+    def b011(self, widget):
+        """Shader Templates"""
+        ui = mtk.UiManager.instance(self.sb).get("shader_templates")
         self.sb.parent().show(ui)
 
     def b013(self):
