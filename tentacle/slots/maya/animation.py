@@ -17,6 +17,15 @@ class Animation(SlotsMaya):
         self.ui = self.sb.loaded_ui.animation
         self.ui_submenu = self.sb.loaded_ui.animation_submenu
 
+    def header_init(self, widget):
+        """Header Init"""
+        widget.menu.add(
+            "QPushButton",
+            setText="Print Animation Info",
+            setToolTip="Print segmented keyframe info for selected objects (or all if none selected).",
+            clicked=lambda: mtk.SegmentKeys.print_segment_info(),
+        )
+
     def tb000_init(self, widget):
         """Go To Frame Init"""
         widget.option_box.menu.setTitle("Go To Frame")
@@ -363,7 +372,7 @@ class Animation(SlotsMaya):
         ignore = "visibility" if ignore_visibility else None
 
         selected_objects = pm.selected()
-        mtk.stagger_keyframes(
+        mtk.stagger_keys(
             selected_objects,
             start_frame=start_frame,
             spacing=spacing,
@@ -373,6 +382,7 @@ class Animation(SlotsMaya):
             smooth_tangents=smooth_tangents,
             group_overlapping=group_overlapping,
             ignore=ignore,
+            verbose=True,
         )
 
     def tb004_init(self, widget):
@@ -1221,6 +1231,7 @@ class Animation(SlotsMaya):
             include_rotation=include_rotation,
             absolute=absolute_mode,
             split_static=split_static,
+            verbose=True,
         )
 
         # Report results
