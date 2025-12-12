@@ -146,7 +146,7 @@ class Animation(SlotsMaya):
         )
 
     def tb001_init(self, widget):
-        """ """
+        """Invert Keyframes Init"""
         widget.option_box.menu.setTitle("Invert Keys")
         cmb = widget.option_box.menu.add(
             "QComboBox",
@@ -222,7 +222,7 @@ class Animation(SlotsMaya):
         )
 
     def tb002_init(self, widget):
-        """ """
+        """Adjust Spacing Init"""
         widget.option_box.menu.setTitle("Adjust Spacing")
         widget.option_box.menu.add(
             "QSpinBox",
@@ -376,7 +376,7 @@ class Animation(SlotsMaya):
         )
 
     def tb004_init(self, widget):
-        """ """
+        """Transfer Keys Init"""
         widget.option_box.menu.setTitle("Transfer Keys")
         widget.option_box.menu.add(
             "QCheckBox",
@@ -404,7 +404,7 @@ class Animation(SlotsMaya):
         )
 
     def tb005_init(self, widget):
-        """ """
+        """Add/Remove Intermediate Keys Init"""
         widget.option_box.menu.setTitle("Intermediate Keys")
         widget.option_box.menu.add(
             "QSpinBox",
@@ -983,13 +983,20 @@ class Animation(SlotsMaya):
         widget.option_box.menu.setTitle("Scale Keys")
         widget.option_box.menu.add(
             "QComboBox",
-            addItems=["Uniform Scaling", "Speed-Based Scaling"],
+            addItems=[
+                "Uniform Mode",
+                "Speed Mode",
+                "Speed Mode: Linear",
+                "Speed Mode: Rotation",
+            ],
             setObjectName="cmb014",
             setCurrentIndex=0,
             block_signals_on_restore=False,  # Allow signals during restore to trigger update_mode_ui
             setToolTip="Scaling mode:\n"
             "• Uniform: Traditional time scaling around pivot\n"
-            "• Speed: Motion-based speed normalization",
+            "• Speed: Motion-based speed normalization (Translation + Rotation)\n"
+            "• Speed (Linear): Translation only\n"
+            "• Speed (Rotation): Rotation only",
         )
         uniform_tooltip = (
             "Time scaling factor:\n\n"
@@ -1040,10 +1047,10 @@ class Animation(SlotsMaya):
         widget.option_box.menu.add(
             "QComboBox",
             addItems=[
-                "Nearest",
-                "Preferred",
-                "Aggressive Preferred",
-                "None (Precise)",
+                "Snap: Nearest",
+                "Snap: Preferred",
+                "Snap: Aggressive",
+                "Snap: None",
             ],
             setObjectName="cmb034",
             setCurrentIndex=0,
@@ -1074,17 +1081,45 @@ class Animation(SlotsMaya):
         widget.option_box.menu.add(
             "QCheckBox",
             setText="Ignore Visibility",
-            setObjectName="chk032",
+            setObjectName="chk_ignore_vis",
             setChecked=False,
             setToolTip="Ignore visibility keyframes when scaling.\n"
             "Visibility keys will remain at their original positions.",
         )
 
+        widget.option_box.menu.add(
+            "QCheckBox",
+            setText="Absolute Mode",
+            setObjectName="chk_absolute",
+            setChecked=False,
+            setToolTip="Toggle between Absolute and Relative scaling:\n\n"
+            "Uniform Mode:\n"
+            "• Unchecked (Relative): Factor is a multiplier (2.0 = 2x longer)\n"
+            "• Checked (Absolute): Factor is target duration in frames\n\n"
+            "Speed Mode:\n"
+            "• Unchecked (Relative): Factor is speed multiplier (2.0 = 2x faster)\n"
+            "• Checked (Absolute): Factor is target speed (units/frame)",
+        )
+
+        widget.option_box.menu.add(
+            "QCheckBox",
+            setText="Split Static Segments",
+            setObjectName="chk_split_static",
+            setChecked=True,
+            setToolTip="Split animation by static segments:\n\n"
+            "• Checked (default): Animation segments separated by flat keys\n"
+            "  are treated as independent groups and scaled separately.\n"
+            "• Unchecked: All keys on an object are scaled as a single block.\n\n"
+            "Use this when objects have multiple animation 'clips' separated\n"
+            "by static holds that should be scaled independently.",
+        )
+
         # Auto-toggle UI elements based on mode
         def update_mode_ui(index):
-            is_speed_mode = index == 1
+            is_speed_mode = index > 0
             spinbox = widget.option_box.menu.d001
             samples_spinbox = widget.option_box.menu.s014
+            absolute_chk = widget.option_box.menu.chk_absolute
 
             # Only samples spinbox is speed-mode specific
             # Snap mode now works for both uniform and speed modes
@@ -1097,12 +1132,16 @@ class Animation(SlotsMaya):
                 spinbox.setSingleStep(0.5)
                 spinbox.setValue(5.0)
                 spinbox.setToolTip(speed_tooltip)
+                # Default to Absolute (Target Speed) for Speed Mode
+                absolute_chk.setChecked(True)
             else:
                 spinbox.setPrefix("Factor: ")
                 spinbox.setRange(0.01, 100.0)
                 spinbox.setSingleStep(0.1)
                 spinbox.setValue(1.0)
                 spinbox.setToolTip(uniform_tooltip)
+                # Default to Relative (Multiplier) for Uniform Mode
+                absolute_chk.setChecked(False)
 
         widget.option_box.menu.cmb014.currentIndexChanged.connect(update_mode_ui)
         update_mode_ui(0)  # Initialize UI state
@@ -1111,7 +1150,9 @@ class Animation(SlotsMaya):
         """Scale Keys"""
         mode_index = widget.option_box.menu.cmb014.currentIndex()
         factor = widget.option_box.menu.d001.value()
-        ignore_visibility = widget.option_box.menu.chk032.isChecked()
+        ignore_visibility = widget.option_box.menu.chk_ignore_vis.isChecked()
+        absolute_mode = widget.option_box.menu.chk_absolute.isChecked()
+        split_static = widget.option_box.menu.chk_split_static.isChecked()
         group_mode_index = widget.option_box.menu.cmb033.currentIndex()
 
         # Get objects to affect
@@ -1120,12 +1161,23 @@ class Animation(SlotsMaya):
             self.sb.message_box("You must select at least one object.")
             return
 
-        # Determine mode
-        mode = "speed" if mode_index == 1 else "uniform"
+        # Determine mode and include_rotation
+        mode = "uniform"
+        include_rotation = False
+
+        if mode_index == 1:  # Speed Mode (Combined)
+            mode = "speed"
+            include_rotation = True
+        elif mode_index == 2:  # Speed Mode: Linear
+            mode = "speed"
+            include_rotation = False
+        elif mode_index == 3:  # Speed Mode: Rotation
+            mode = "speed"
+            include_rotation = "only"
 
         # Determine keys parameter - check for selected keys in graph editor
         selected_keys_in_graph = pm.keyframe(query=True, sl=True, tc=True)
-        keys = "selected" if selected_keys_in_graph and mode_index == 0 else None
+        keys = "selected" if selected_keys_in_graph and mode == "uniform" else None
 
         # Determine parameters
         ignore = "visibility" if ignore_visibility else None
@@ -1166,19 +1218,29 @@ class Animation(SlotsMaya):
             group_mode=group_mode,
             snap_mode=snap_mode,
             samples=samples,
+            include_rotation=include_rotation,
+            absolute=absolute_mode,
+            split_static=split_static,
         )
 
         # Report results
         if keys_scaled > 0:
-            if mode_index == 1:
-                # Speed mode: factor = target speed
-                mode_str = f"{factor:.2f} units/frame"
+            if mode == "speed":
+                # Speed mode
+                if absolute_mode:
+                    mode_str = f"{factor:.2f} units/frame"
+                else:
+                    mode_str = f"{factor:.2f}x speed"
             else:
-                # Uniform mode: factor = time multiplier
-                mode_str = f"{factor * 100:.0f}%"
+                # Uniform mode
+                if absolute_mode:
+                    mode_str = f"to {factor:.2f} frames"
+                else:
+                    mode_str = f"{factor * 100:.0f}%"
+
             context = f" (channel box)" if channel_box_only else ""
             self.sb.message_box(
-                f"Scaled {keys_scaled} keyframe(s){context} by {mode_str}."
+                f"Scaled {keys_scaled} keyframe(s){context} {mode_str}."
             )
         else:
             self.sb.message_box("No keyframes found to scale.")

@@ -383,7 +383,8 @@
             </size>
            </property>
            <property name="toolTip">
-            <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Move the selected keyframes to the current time with the selected option, &lt;/p&gt;&lt;p&gt;Else move all keyframes of the selected objects.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+            <string>Move the selected keyframes to the current time with the selected option,
+Else move all keyframes of the selected objects.</string>
            </property>
            <property name="text">
             <string>Move Keys</string>
@@ -408,7 +409,11 @@
             </size>
            </property>
            <property name="toolTip">
-            <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;pre style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; line-height:24px; background-color:#272822;&quot;&gt;&lt;span style=&quot; font-family:'Consolas,Courier New,monospace'; font-size:18px; color:#e6db74;&quot;&gt;Aligns the starting keyframes of selected keyframes in the graph editor across multiple objects.&lt;/span&gt;&lt;/pre&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-family:'Consolas,Courier New,monospace'; font-size:18px; color:#e6db74;&quot;&gt;Aligns the starting keyframes of selected keyframes in the graph editor across multiple objects.&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-family:'Consolas,Courier New,monospace'; font-size:18px; color:#f8f8f2;&quot;&gt;&lt;br/&gt;&lt;/span&gt;&lt;span style=&quot; font-family:'Consolas,Courier New,monospace'; font-size:18px; color:#e6db74;&quot;&gt;This method finds the earliest (or latest) selected keyframe across all objects and shifts&lt;/span&gt;&lt;/p&gt;&lt;pre style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:'Consolas,Courier New,monospace'; font-size:18px; color:#e6db74;&quot;&gt;each object's selected keyframes so they start at the same frame. Only processes selected&lt;/span&gt;&lt;/pre&gt;&lt;pre style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:'Consolas,Courier New,monospace'; font-size:18px; color:#e6db74;&quot;&gt;keyframes from the graph editor.&lt;/span&gt;&lt;/pre&gt;&lt;/body&gt;&lt;/html&gt;</string>
+            <string>Aligns the starting keyframes of selected keyframes in the graph editor across multiple objects.
+
+This method finds the earliest (or latest) selected keyframe across all objects and shifts
+each object's selected keyframes so they start at the same frame. Only processes selected
+keyframes from the graph editor.</string>
            </property>
            <property name="text">
             <string>Align Keys</string>

@@ -53,6 +53,12 @@ class SceneSlots(SlotsMaya):
                 setObjectName="b005",
                 setToolTip="Open the naming tool.",
             )
+            widget.menu.add(
+                "QPushButton",
+                setText="Fix Unknown Data",
+                setObjectName="b006",
+                setToolTip="Fix 'Unable to Save Scene' issues by removing unknown nodes and plugins.",
+            )
 
     @Signals("textChanged", "returnPressed")
     def txt000(self, widget):
@@ -319,6 +325,10 @@ class SceneSlots(SlotsMaya):
         """Open Naming Tool"""
         ui = mtk.UiManager.instance(self.sb).get("naming")
         self.sb.parent().show(ui)
+
+    def b006(self):
+        """Fix Unknown Data"""
+        mtk.Diagnostics.fix_unknown_plugins(dry_run=False, verbose=True)
 
     def b007(self):
         """Import file"""
