@@ -1124,6 +1124,18 @@ class Animation(SlotsMaya):
             "by static holds that should be scaled independently.",
         )
 
+        widget.option_box.menu.add(
+            "QCheckBox",
+            setText="Merge Touching Segments",
+            setObjectName="chk_merge_touching",
+            setChecked=False,
+            setToolTip="Merge touching animation segments:\n\n"
+            "• Checked: Segments that touch (end frame == start frame)\n"
+            "  are merged into a single group when using 'Group Overlaps'.\n"
+            "• Unchecked (default): Touching segments remain separate,\n"
+            "  preserving the gap between them during scaling.",
+        )
+
         # Auto-toggle UI elements based on mode
         def update_mode_ui(index):
             is_speed_mode = index > 0
@@ -1163,6 +1175,7 @@ class Animation(SlotsMaya):
         ignore_visibility = widget.option_box.menu.chk_ignore_vis.isChecked()
         absolute_mode = widget.option_box.menu.chk_absolute.isChecked()
         split_static = widget.option_box.menu.chk_split_static.isChecked()
+        merge_touching = widget.option_box.menu.chk_merge_touching.isChecked()
         group_mode_index = widget.option_box.menu.cmb033.currentIndex()
 
         # Get objects to affect
@@ -1231,6 +1244,7 @@ class Animation(SlotsMaya):
             include_rotation=include_rotation,
             absolute=absolute_mode,
             split_static=split_static,
+            merge_touching=merge_touching,
             verbose=True,
         )
 
