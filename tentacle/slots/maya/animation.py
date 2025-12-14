@@ -23,7 +23,7 @@ class Animation(SlotsMaya):
             "QPushButton",
             setText="Print Animation Info",
             setToolTip="Print segmented keyframe info for selected objects (or all if none selected).",
-            clicked=lambda: mtk.SegmentKeys.print_segment_info(),
+            clicked=lambda: mtk.SegmentKeys.print_scene_info(detailed=True),
         )
 
     def tb000_init(self, widget):
