@@ -1141,10 +1141,10 @@ class Animation(SlotsMaya):
             setText="Prevent Overlap",
             setObjectName="chk_prevent_overlap",
             setChecked=False,
-            setToolTip="Prevent collisions between scaled groups:\n\n"
-            "• Checked: If scaling causes a group to expand into the next one,\n"
-            "  the subsequent groups are shifted to maintain order.\n"
-            "• Unchecked (default): Groups scale in place, potentially overlapping.",
+            setToolTip="Prevent segments from overlapping after scaling:\n\n"
+            "• Checked: If scaling causes segments to overlap, they will be\n"
+            "  shifted sequentially to avoid collision.\n"
+            "• Unchecked (default): Segments may overlap if scaled up.",
         )
 
         # Auto-toggle UI elements based on mode
