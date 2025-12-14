@@ -1045,7 +1045,7 @@ class Animation(SlotsMaya):
         widget.option_box.menu.add(
             "QComboBox",
             addItems=[
-                "Group All Objects",
+                "Single Group",
                 "Per Object Pivots",
                 "Group Overlaps",
             ],
@@ -1126,7 +1126,7 @@ class Animation(SlotsMaya):
 
         widget.option_box.menu.add(
             "QCheckBox",
-            setText="Merge Touching Segments",
+            setText="Group Touching",
             setObjectName="chk_merge_touching",
             setChecked=False,
             setToolTip="Merge touching animation segments:\n\n"
@@ -1134,6 +1134,17 @@ class Animation(SlotsMaya):
             "  are merged into a single group when using 'Group Overlaps'.\n"
             "• Unchecked (default): Touching segments remain separate,\n"
             "  preserving the gap between them during scaling.",
+        )
+
+        widget.option_box.menu.add(
+            "QCheckBox",
+            setText="Prevent Overlap",
+            setObjectName="chk_prevent_overlap",
+            setChecked=False,
+            setToolTip="Prevent collisions between scaled groups:\n\n"
+            "• Checked: If scaling causes a group to expand into the next one,\n"
+            "  the subsequent groups are shifted to maintain order.\n"
+            "• Unchecked (default): Groups scale in place, potentially overlapping.",
         )
 
         # Auto-toggle UI elements based on mode
@@ -1176,6 +1187,7 @@ class Animation(SlotsMaya):
         absolute_mode = widget.option_box.menu.chk_absolute.isChecked()
         split_static = widget.option_box.menu.chk_split_static.isChecked()
         merge_touching = widget.option_box.menu.chk_merge_touching.isChecked()
+        prevent_overlap = widget.option_box.menu.chk_prevent_overlap.isChecked()
         group_mode_index = widget.option_box.menu.cmb033.currentIndex()
 
         # Get objects to affect
@@ -1245,6 +1257,7 @@ class Animation(SlotsMaya):
             absolute=absolute_mode,
             split_static=split_static,
             merge_touching=merge_touching,
+            prevent_overlap=prevent_overlap,
             verbose=True,
         )
 
