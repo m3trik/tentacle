@@ -4,6 +4,8 @@ try:
     import pymel.core as pm
 except ImportError as error:
     print(__file__, error)
+from qtpy import QtWidgets
+from uitk import WidgetComboBox, ToolBox
 import mayatk as mtk
 from tentacle.slots.maya import SlotsMaya
 
@@ -78,26 +80,13 @@ class Selection(SlotsMaya):
             )
 
     def cmb002_init(self, widget):
-        """ """
+        """Select By Type Init"""
         widget.option_box.menu.setTitle("Select By Type")
         widget.option_box.menu.add(
-            "QRadioButton",
-            setText="Replace",
-            setObjectName="chk010",
-            setChecked=True,
-            setToolTip=("Replace current selection with the new selection."),
-        )
-        widget.option_box.menu.add(
-            "QRadioButton",
-            setText="Add",
-            setObjectName="chk011",
-            setToolTip=("Add new selection to the current selection."),
-        )
-        widget.option_box.menu.add(
-            "QRadioButton",
-            setText="Remove",
-            setObjectName="chk012",
-            setToolTip=("Remove new selection from the current selection."),
+            "QComboBox",
+            setObjectName="cmb000",
+            addItems=["Mode: Replace", "Mode: Add", "Mode: Remove"],
+            setToolTip="Selection Mode.",
         )
         widget.option_box.menu.add(
             "QCheckBox",
@@ -109,21 +98,24 @@ class Selection(SlotsMaya):
             ),
         )
 
-        # Get available selection types from the Selection class
-        items = mtk.Selection.get_available_selection_types()
-        widget.add(sorted(items), header="By Type:")
+        # Get categories and types
+        categories = mtk.Selection.get_selection_categories()
+        # Flatten into a single list including category names
+        items = sorted(
+            list(categories.keys())
+            + [t for types in categories.values() for t in types]
+        )
+        widget.add(items, header="By Type:")
 
     def cmb002(self, index, widget):
         """Select by Type"""
-        replace = widget.option_box.menu.chk010.isChecked()
-        add = widget.option_box.menu.chk011.isChecked()
-        remove = widget.option_box.menu.chk012.isChecked()
+        mode_text = widget.option_box.menu.cmb000.currentText()
         search_selection = widget.option_box.menu.chk013.isChecked()
 
         # Determine selection mode
-        if add:
+        if "Add" in mode_text:
             mode = "add"
-        elif remove:
+        elif "Remove" in mode_text:
             mode = "remove"
         else:
             mode = "replace"
@@ -145,8 +137,8 @@ class Selection(SlotsMaya):
         try:
             result = mtk.Selection.select_by_type(selection_type, objects, mode)
             print(f"Selected {len(result)} objects of type: {selection_type}")
-        except ValueError as e:
-            pm.warning(str(e))
+        except ValueError:
+            pass
         except Exception as e:
             pm.warning(f"Error selecting by type '{selection_type}': {str(e)}")
 
@@ -624,14 +616,6 @@ class Selection(SlotsMaya):
 
         pm.selectMode(component=1)
         pm.selectType(edge=1)
-
-    def b000(self):
-        """Reveal in Outliner"""
-        # Get the outliner editor associated with 'outlinerPanel1'
-        outliner_editor = pm.outlinerPanel(
-            "outlinerPanel1", query=True, outlinerEditor=True
-        )
-        pm.outlinerEditor(outliner_editor, edit=True, showSelected=True)
 
     def b001(self):
         """Toggle Selectability"""

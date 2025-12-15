@@ -39,13 +39,19 @@ class MaterialsSlots(SlotsMaya):
             setText="Hypershade Editor",
             setObjectName="b007",
         )
-        widget.menu.b007.clicked.connect(pm.mel.HypershadeWindow)
         # Add a button to launch stringray arnold shader.
         widget.menu.add(
             "QPushButton",
             setToolTip="Create a stingray material network that can optionally be rendered in Arnold.",
             setText="Create Stingray Shader",
             setObjectName="b009",
+        )
+        # Add a button to launch the shader templates UI.
+        widget.menu.add(
+            "QPushButton",
+            setToolTip="Open the Shader Templates UI to save and load shader graphs.",
+            setText="Shader Templates",
+            setObjectName="b011",
         )
         # Add a button to launch the Texture Path Editor.
         widget.menu.add(
@@ -290,23 +296,15 @@ class MaterialsSlots(SlotsMaya):
         """Open material in editor"""
         try:
             mat = self.ui.cmb002.currentData()
-            pm.select(mat)
         except Exception:
             self.sb.message_box("No stored material or no valid object selected.")
             return
 
-        # # Open the Hypershade window
-        print("Opening the Hypershade window ..", pm.mel.HypershadeWindow())
+        if not mat:
+            self.sb.message_box("No stored material or no valid object selected.")
+            return
 
-        # Define the deferred command to graph the material
-        def graph_material():
-            # graphMaterials, addSelected, showUpstream, showDownstream, showUpAndDownstream
-            pm.mel.hyperShadePanelGraphCommand(
-                "hyperShadePanel1", "showUpAndDownstream"
-            )
-
-        # Execute the graph command after the Hypershade window is fully initialized
-        self.sb.defer_with_timer(graph_material, ms=500)
+        mtk.graph_materials(mat)
 
     def b002(self, widget):
         """Get Material: Change the index to match the current material selection."""
@@ -404,6 +402,10 @@ class MaterialsSlots(SlotsMaya):
         )
         pm.mel.createAssignNewMaterialTreeLister("")
 
+    def b007(self, widget):
+        """Hypershade Editor"""
+        pm.mel.HypershadeWindow()
+
     def b008(self, widget):
         """Map Packer"""
         from pythontk.img_utils import map_packer
@@ -434,6 +436,11 @@ class MaterialsSlots(SlotsMaya):
     def b010(self, widget):
         """Texture Path Editor"""
         ui = mtk.UiManager.instance(self.sb).get("texture_path_editor")
+        self.sb.parent().show(ui)
+
+    def b011(self, widget):
+        """Shader Templates"""
+        ui = mtk.UiManager.instance(self.sb).get("shader_templates")
         self.sb.parent().show(ui)
 
     def b013(self):

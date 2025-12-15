@@ -112,6 +112,9 @@
       <height>21</height>
      </rect>
     </property>
+    <property name="toolTip">
+     <string>Recent Scenes</string>
+    </property>
     <property name="autoFillBackground">
      <bool>true</bool>
     </property>

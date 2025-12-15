@@ -53,6 +53,12 @@ class SceneSlots(SlotsMaya):
                 setObjectName="b005",
                 setToolTip="Open the naming tool.",
             )
+            widget.menu.add(
+                "QPushButton",
+                setText="Scene Cleanup",
+                setObjectName="b006",
+                setToolTip="Fix common scene issues:\n• Remove unknown/legacy nodes/plugins/expressions",
+            )
 
     @Signals("textChanged", "returnPressed")
     def txt000(self, widget):
@@ -319,6 +325,10 @@ class SceneSlots(SlotsMaya):
         """Open Naming Tool"""
         ui = mtk.UiManager.instance(self.sb).get("naming")
         self.sb.parent().show(ui)
+
+    def b006(self):
+        """Scene Cleanup"""
+        mtk.Diagnostics.cleanup_scene()
 
     def b007(self):
         """Import file"""

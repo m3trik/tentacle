@@ -44,6 +44,9 @@ desktop.ini
 *.swatch
 *.bak
 *.rar
+
+# Generated UI python modules
+*_ui.py
 .vscode
 .test
 **/grepWin_backup

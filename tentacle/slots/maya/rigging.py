@@ -150,21 +150,21 @@ class Rigging(SlotsMaya):
             setPlaceholderText="Switch Name:",
             setText="switch",
             setObjectName="t003",
-            setToolTip="The name of the switch attribute to create.",
+            setToolTip="The name of the switch attribute to create on the constrained object.",
         )
         widget.option_box.menu.add(
             "QLineEdit",
             setPlaceholderText="Anchor Name:",
             setText="",
             setObjectName="t004",
-            setToolTip="Create a helper locator to allow anchoring the constraint to world origin.\nIf a previous anchor exists of the same name, it will be reused.\nLeave blank to not create an anchor.\n(default: empty string)",
+            setToolTip="Optional: Create a locator at world origin as an additional constraint target.\nLeave blank to use only existing constraint targets.",
         )
         widget.option_box.menu.add(
             "QCheckBox",
             setText="Weighted",
             setObjectName="chk003",
             setChecked=False,
-            setToolTip="Create a weighted switch instead of a simple one.",
+            setToolTip="For 2-target constraints: Enable smooth blending (float 0-1) instead of snap switching (enum).\nHas no effect on 1-target or 3+ target constraints.",
         )
 
     def tb001(self, widget):
