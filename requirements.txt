@@ -1,5 +1,5 @@
 qtpy
 pymel
-pythontk==0.7.51
-uitk==1.0.52
-mayatk==0.9.54
+pythontk==0.7.52
+uitk==1.0.53
+mayatk==0.9.56
