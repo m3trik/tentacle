@@ -1,5 +1,10 @@
 qtpy
 pymel
 pythontk==0.7.51
+<<<<<<< HEAD
 uitk==1.0.52
 mayatk==0.9.55
+=======
+uitk==1.0.51
+mayatk==0.9.54
+>>>>>>> d2a1cb66ef244c34cb9a21184387d41f36fc1c0e

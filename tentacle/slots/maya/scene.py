@@ -55,9 +55,15 @@ class SceneSlots(SlotsMaya):
             )
             widget.menu.add(
                 "QPushButton",
-                setText="Scene Cleanup",
+                setText="Cleanup Unknown",
                 setObjectName="b006",
                 setToolTip="Fix common scene issues:\n• Remove unknown/legacy nodes/plugins/expressions",
+            )
+            widget.menu.add(
+                "QPushButton",
+                setText="Fix OCIO",
+                setObjectName="b009",
+                setToolTip="Fix Maya Color Management / OCIO config preferences.",
             )
 
     @Signals("textChanged", "returnPressed")
@@ -329,6 +335,10 @@ class SceneSlots(SlotsMaya):
     def b006(self):
         """Scene Cleanup"""
         mtk.Diagnostics.cleanup_scene()
+
+    def b009(self):
+        """Fix OCIO"""
+        mtk.Diagnostics.fix_ocio()
 
     def b007(self):
         """Import file"""
