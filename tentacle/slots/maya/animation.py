@@ -25,6 +25,14 @@ class Animation(SlotsMaya):
             setToolTip="Print segmented keyframe info for selected objects (or all if none selected).",
             clicked=lambda: mtk.SegmentKeys.print_scene_info(detailed=True),
         )
+        widget.menu.add(
+            "QPushButton",
+            setText="Repair Visibility Tangents",
+            setToolTip="Force 'step' tangents on visibility curves for selected objects (or all if none selected).",
+            clicked=lambda: mtk.Diagnostics.repair_visibility_tangents(
+                objects=pm.selected() or None
+            ),
+        )
 
     def tb000_init(self, widget):
         """Go To Frame Init"""
@@ -317,20 +325,31 @@ class Animation(SlotsMaya):
             setToolTip="Place animations at fixed frame intervals instead of sequential spacing.\n"
             "When enabled, Spacing defines the interval (e.g., 100 = frames 0, 100, 200...).",
         )
-        widget.option_box.menu.add(
-            "QCheckBox",
-            setText="Avoid Overlap",
-            setObjectName="chk026",
-            setChecked=False,
-            setToolTip="Skip to next interval if animation would overlap with previous one.\n"
-            "Only applies when 'Use Intervals' is enabled.",
-        )
+        # widget.option_box.menu.add(
+        #     "QCheckBox",
+        #     setText="Avoid Overlap",
+        #     setObjectName="chk026",
+        #     setChecked=False,
+        #     setToolTip="Skip to next interval if animation would overlap with previous one.\n"
+        #     "Only applies when 'Use Intervals' is enabled.",
+        # )
         widget.option_box.menu.add(
             "QCheckBox",
             setText="Group Overlapping",
             setObjectName="chk014",
             setChecked=False,
             setToolTip="Treat objects with overlapping keyframes as a single block.\nObjects in the same time range will move together.",
+        )
+        widget.option_box.menu.add(
+            "QCheckBox",
+            setText="Group Touching",
+            setObjectName="chk029",
+            setChecked=False,
+            setToolTip="Merge touching animation segments:\n\n"
+            "• Checked: Segments that touch (end frame == start frame)\n"
+            "  are merged into a single group when using 'Group Overlapping'.\n"
+            "• Unchecked (default): Touching segments remain separate,\n"
+            "  preserving the gap between them.",
         )
         widget.option_box.menu.add(
             "QCheckBox",
@@ -359,10 +378,11 @@ class Animation(SlotsMaya):
         spacing = widget.option_box.menu.s004.value()
         start_frame_value = widget.option_box.menu.s005.value()
         use_intervals = widget.option_box.menu.chk025.isChecked()
-        avoid_overlap = widget.option_box.menu.chk026.isChecked()
+        # avoid_overlap = widget.option_box.menu.chk026.isChecked()
         invert = widget.option_box.menu.chk008.isChecked()
         smooth_tangents = widget.option_box.menu.chk009.isChecked()
         group_overlapping = widget.option_box.menu.chk014.isChecked()
+        merge_touching = widget.option_box.menu.chk029.isChecked()
         ignore_visibility = widget.option_box.menu.chk024.isChecked()
 
         # Only use start_frame if not -1
@@ -377,10 +397,11 @@ class Animation(SlotsMaya):
             start_frame=start_frame,
             spacing=spacing,
             use_intervals=use_intervals,
-            avoid_overlap=avoid_overlap,
+            avoid_overlap=True,
             invert=invert,
             smooth_tangents=smooth_tangents,
             group_overlapping=group_overlapping,
+            merge_touching=merge_touching,
             ignore=ignore,
             verbose=True,
         )
@@ -1136,17 +1157,6 @@ class Animation(SlotsMaya):
             "  preserving the gap between them during scaling.",
         )
 
-        widget.option_box.menu.add(
-            "QCheckBox",
-            setText="Prevent Overlap",
-            setObjectName="chk_prevent_overlap",
-            setChecked=False,
-            setToolTip="Prevent segments from overlapping after scaling:\n\n"
-            "• Checked: If scaling causes segments to overlap, they will be\n"
-            "  shifted sequentially to avoid collision.\n"
-            "• Unchecked (default): Segments may overlap if scaled up.",
-        )
-
         # Auto-toggle UI elements based on mode
         def update_mode_ui(index):
             is_speed_mode = index > 0
@@ -1187,7 +1197,6 @@ class Animation(SlotsMaya):
         absolute_mode = widget.option_box.menu.chk_absolute.isChecked()
         split_static = widget.option_box.menu.chk_split_static.isChecked()
         merge_touching = widget.option_box.menu.chk_merge_touching.isChecked()
-        prevent_overlap = widget.option_box.menu.chk_prevent_overlap.isChecked()
         group_mode_index = widget.option_box.menu.cmb033.currentIndex()
 
         # Get objects to affect
@@ -1257,7 +1266,7 @@ class Animation(SlotsMaya):
             absolute=absolute_mode,
             split_static=split_static,
             merge_touching=merge_touching,
-            prevent_overlap=prevent_overlap,
+            prevent_overlap=True,
             verbose=True,
         )
 

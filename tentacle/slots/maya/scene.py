@@ -55,9 +55,9 @@ class SceneSlots(SlotsMaya):
             )
             widget.menu.add(
                 "QPushButton",
-                setText="Fix Unknown Data",
+                setText="Scene Cleanup",
                 setObjectName="b006",
-                setToolTip="Fix 'Unable to Save Scene' issues by removing unknown nodes and plugins.",
+                setToolTip="Fix common scene issues:\n• Remove unknown/legacy nodes/plugins/expressions",
             )
 
     @Signals("textChanged", "returnPressed")
@@ -327,8 +327,8 @@ class SceneSlots(SlotsMaya):
         self.sb.parent().show(ui)
 
     def b006(self):
-        """Fix Unknown Data"""
-        mtk.Diagnostics.fix_unknown_plugins(dry_run=False, verbose=True)
+        """Scene Cleanup"""
+        mtk.Diagnostics.cleanup_scene()
 
     def b007(self):
         """Import file"""
