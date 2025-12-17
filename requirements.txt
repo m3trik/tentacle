@@ -2,4 +2,4 @@ qtpy
 pymel
 pythontk==0.7.53
 uitk==1.0.55
-mayatk==0.9.58
+mayatk==0.9.59
