@@ -17,7 +17,7 @@ class Create(SlotsMaya):
 
     def cmb001_init(self, widget):
         """ """
-        items = ["Polygon", "NURBS", "Light"]
+        items = ["Polygon", "NURBS", "Light", "Control"]
         widget.add(items)
 
         widget.currentIndexChanged.connect(
@@ -42,6 +42,22 @@ class Create(SlotsMaya):
 
         elif index == 2:
             items = ["Ambient", "Directional", "Point", "Spot", "Area", "Volume"]
+
+        elif index == 3:
+            items = [
+                "Circle",
+                "Square",
+                "Diamond",
+                "Arrow",
+                "Two Way Arrow",
+                "Four Way Arrow",
+                "Chevron Left",
+                "Chevron Right",
+                "Target",
+                "Secondary",
+                "Box",
+                "Ball",
+            ]
 
         else:  # Default to polygon  primitives.
             items = [
@@ -85,11 +101,39 @@ class Create(SlotsMaya):
         scale = widget.option_box.menu.chk001.isChecked()
         translate = widget.option_box.menu.chk000.isChecked()
 
-        hist_node = mtk.Primitives.create_default_primitive(
-            baseType, subType, scale=scale, translate=translate
-        )
-        pm.selectMode(object=True)  # place scene select type in object mode.
-        pm.select(hist_node)  # select the transform node so that you can see any edits
+        if baseType == "Control":
+            self._create_control(subType)
+        else:
+            hist_node = mtk.Primitives.create_default_primitive(
+                baseType, subType, scale=scale, translate=translate
+            )
+            pm.selectMode(object=True)  # place scene select type in object mode.
+            pm.select(
+                hist_node
+            )  # select the transform node so that you can see any edits
+
+    def _create_control(self, subType):
+        """Create a NURBS control curve."""
+        # Map UI names to preset names and optional kwargs
+        control_map = {
+            "Circle": ("circle", {}),
+            "Square": ("square", {}),
+            "Diamond": ("diamond", {}),
+            "Arrow": ("arrow", {}),
+            "Two Way Arrow": ("two_way_arrow", {}),
+            "Four Way Arrow": ("four_way_arrow", {}),
+            "Chevron Left": ("chevron", {"direction": "left"}),
+            "Chevron Right": ("chevron", {"direction": "right"}),
+            "Target": ("target", {}),
+            "Secondary": ("secondary", {}),
+            "Box": ("box", {}),
+            "Ball": ("ball", {}),
+        }
+
+        if subType in control_map:
+            preset, kwargs = control_map[subType]
+            ctrl = mtk.Controls.create(preset, name=subType.replace(" ", ""), **kwargs)
+            pm.select(ctrl)
 
     def b001(self):
         """Create poly cube"""

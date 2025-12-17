@@ -261,8 +261,7 @@ class Tcl(QtWidgets.QWidget, ptk.SingletonMixin, ptk.LoggingMixin, ptk.HelpMixin
         if ui.has_tags(["startmenu", "submenu"]):  # StackedWidget
             ui.style.set(theme="dark", style_class="translucentBgNoBorder")
             ui.resize(600, 600)
-            if hasattr(ui, "ensure_on_screen"):
-                ui.ensure_on_screen = False
+            ui.ensure_on_screen = False
             self.addWidget(ui)  # add the UI to the stackedLayout.
 
         else:  # MainWindow

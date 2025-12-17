@@ -353,10 +353,13 @@ class Animation(SlotsMaya):
         )
         widget.option_box.menu.add(
             "QCheckBox",
-            setText="Ignore Visibility",
+            setText="Channel Box Attrs Only",
             setObjectName="chk024",
             setChecked=False,
-            setToolTip="Ignore visibility keyframes when staggering.\nVisibility keys will remain at their original positions.",
+            setToolTip="Only affect attributes currently selected in the Channel Box.\n\n"
+            "• Unchecked (default): All animated attributes are staggered.\n"
+            "• Checked: Only attributes selected in Channel Box are staggered.\n\n"
+            "This allows precise control over which channels are affected.",
         )
         widget.option_box.menu.add(
             "QCheckBox",
@@ -383,13 +386,10 @@ class Animation(SlotsMaya):
         smooth_tangents = widget.option_box.menu.chk009.isChecked()
         group_overlapping = widget.option_box.menu.chk014.isChecked()
         merge_touching = widget.option_box.menu.chk029.isChecked()
-        ignore_visibility = widget.option_box.menu.chk024.isChecked()
+        channel_box_only = widget.option_box.menu.chk024.isChecked()
 
         # Only use start_frame if not -1
         start_frame = start_frame_value if start_frame_value != -1 else None
-
-        # Set ignore parameter based on checkbox
-        ignore = "visibility" if ignore_visibility else None
 
         selected_objects = pm.selected()
         mtk.stagger_keys(
@@ -402,7 +402,7 @@ class Animation(SlotsMaya):
             smooth_tangents=smooth_tangents,
             group_overlapping=group_overlapping,
             merge_touching=merge_touching,
-            ignore=ignore,
+            channel_box_attrs_only=channel_box_only,
             verbose=True,
         )
 
@@ -1111,11 +1111,13 @@ class Animation(SlotsMaya):
 
         widget.option_box.menu.add(
             "QCheckBox",
-            setText="Ignore Visibility",
-            setObjectName="chk_ignore_vis",
+            setText="Channel Box Attrs Only",
+            setObjectName="chk_channel_box",
             setChecked=False,
-            setToolTip="Ignore visibility keyframes when scaling.\n"
-            "Visibility keys will remain at their original positions.",
+            setToolTip="Only affect attributes currently selected in the Channel Box.\n\n"
+            "• Unchecked (default): All animated attributes are scaled.\n"
+            "• Checked: Only attributes selected in Channel Box are scaled.\n\n"
+            "This allows precise control over which channels are affected.",
         )
 
         widget.option_box.menu.add(
@@ -1193,7 +1195,7 @@ class Animation(SlotsMaya):
         """Scale Keys"""
         mode_index = widget.option_box.menu.cmb014.currentIndex()
         factor = widget.option_box.menu.d001.value()
-        ignore_visibility = widget.option_box.menu.chk_ignore_vis.isChecked()
+        channel_box_only_checked = widget.option_box.menu.chk_channel_box.isChecked()
         absolute_mode = widget.option_box.menu.chk_absolute.isChecked()
         split_static = widget.option_box.menu.chk_split_static.isChecked()
         merge_touching = widget.option_box.menu.chk_merge_touching.isChecked()
@@ -1223,12 +1225,8 @@ class Animation(SlotsMaya):
         selected_keys_in_graph = pm.keyframe(query=True, sl=True, tc=True)
         keys = "selected" if selected_keys_in_graph and mode == "uniform" else None
 
-        # Determine parameters
-        ignore = "visibility" if ignore_visibility else None
-        channel_box_attrs = pm.channelBox(
-            "mainChannelBox", query=True, selectedMainAttributes=True
-        )
-        channel_box_only = bool(channel_box_attrs)
+        # Determine parameters - use explicit checkbox instead of auto-detection
+        channel_box_only = channel_box_only_checked
         group_mode_values = ["single_group", "per_object", "overlap_groups"]
         group_mode = group_mode_values[group_mode_index]
 
@@ -1258,7 +1256,6 @@ class Animation(SlotsMaya):
             pivot=None,  # Auto-detect pivot
             keys=keys,
             channel_box_attrs_only=channel_box_only,
-            ignore=ignore,
             group_mode=group_mode,
             snap_mode=snap_mode,
             samples=samples,

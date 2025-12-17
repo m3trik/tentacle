@@ -5,6 +5,8 @@ try:
 except ImportError as error:
     print(__file__, error)
 import mayatk as mtk
+
+# From this package:
 from tentacle.slots.maya import SlotsMaya
 
 
@@ -23,7 +25,7 @@ class UvSlots(SlotsMaya):
         return int(self.ui.cmb003.currentText())
 
     def header_init(self, widget):
-        """ """
+        """Initialize UV Menu Header"""
         widget.menu.add(
             "QPushButton",
             setText="Create UV Snapshot",
@@ -40,10 +42,11 @@ class UvSlots(SlotsMaya):
         widget.menu.uv_editor.clicked.connect(pm.mel.TextureViewWindow)
 
     def cmb002_init(self, widget):
-        """ """
+        """Initialize UV Transform Menu"""
         items = [
             "Flip U",
             "Flip V",
+            "Rotate 45",
             "Align U Left",
             "Align U Middle",
             "Align U Right",
@@ -66,7 +69,7 @@ class UvSlots(SlotsMaya):
         Parameters:
             widget: The parent widget to add menu items to
         """
-        widget.option_box.menu.setTitle("Pack: Options")
+        widget.option_box.menu.setTitle("Pack UVs")
         widget.option_box.menu.add(
             "QSpinBox",
             setPrefix="Pre-Scale Mode: ",
@@ -191,7 +194,8 @@ class UvSlots(SlotsMaya):
         )
 
     def tb001_init(self, widget):
-        """ """
+        """Initialize Auto Unwrap"""
+        widget.option_box.menu.setTitle("Auto Unwrap")
         widget.option_box.menu.add(
             "QRadioButton",
             setText="Standard",
@@ -295,7 +299,7 @@ class UvSlots(SlotsMaya):
                 print(error)
 
     def tb002_init(self, widget):
-        """Toggle UV Display Options"""
+        """Initialize Toggle UV Display Options"""
         widget.option_box.menu.trigger_button = "left"
         widget.option_box.menu.add_apply_button = False
         widget.option_box.menu.position = "bottom"
@@ -332,7 +336,8 @@ class UvSlots(SlotsMaya):
         )
 
     def tb003_init(self, widget):
-        """ """
+        """Initialize Select By Type"""
+        widget.option_box.menu.setTitle("Select By Type")
         widget.option_box.menu.add(
             "QRadioButton",
             setText="Back-Facing",
@@ -394,7 +399,8 @@ class UvSlots(SlotsMaya):
             pm.mel.selectUnmappedFaces()
 
     def tb004_init(self, widget):
-        """ """
+        """Initialize Unfold UV"""
+        widget.option_box.menu.setTitle("Unfold UV")
         widget.option_box.menu.add(
             "QCheckBox",
             setText="Optimize",
@@ -468,7 +474,8 @@ class UvSlots(SlotsMaya):
             pm.polyUVStackSimilarShells(tolerance=tolerance)
 
     def tb005_init(self, widget):
-        """ """
+        """Initialize Straighten UV"""
+        widget.option_box.menu.setTitle("Straighten")
         widget.option_box.menu.add(
             "QSpinBox",
             setPrefix="Angle: ",
@@ -479,7 +486,7 @@ class UvSlots(SlotsMaya):
         )
         widget.option_box.menu.add(
             "QCheckBox",
-            setText="Straighten U",
+            setText="Straighten UV",
             setObjectName="chk018",
             setChecked=True,
             setToolTip="Unfold UV's along a horizonal contraint.",
@@ -499,7 +506,7 @@ class UvSlots(SlotsMaya):
         )
 
     def tb005(self, widget):
-        """Straighten Uv"""
+        """Straighten UV"""
         u = widget.option_box.menu.chk018.isChecked()
         v = widget.option_box.menu.chk019.isChecked()
         angle = widget.option_box.menu.s001.value()
@@ -516,7 +523,8 @@ class UvSlots(SlotsMaya):
             pm.mel.texStraightenShell()
 
     def tb006_init(self, widget):
-        """ """
+        """Initialize Distribute"""
+        widget.option_box.menu.setTitle("Distribute")
         widget.option_box.menu.add(
             "QRadioButton",
             setText="Distribute U",
@@ -542,34 +550,14 @@ class UvSlots(SlotsMaya):
             pm.mel.texDistributeShells(0, 0, "down", [])  # 'up', 'down'
 
     def tb007_init(self, widget):
-        """ """
+        """Initialize Cleanup UV Sets"""
+        widget.option_box.menu.setTitle("Cleanup UV Sets")
         widget.option_box.menu.add(
             "QCheckBox",
-            setText="Remove Empty",
-            setObjectName="chk025",
-            setChecked=True,
-            setToolTip="Remove empty UV sets.",
-        )
-        widget.option_box.menu.add(
-            "QCheckBox",
-            setText="Keep Only Primary",
-            setObjectName="chk026",
+            setText="Dry Run",
+            setObjectName="chk030",
             setChecked=False,
-            setToolTip="Keep only the primary UV set.",
-        )
-        widget.option_box.menu.add(
-            "QCheckBox",
-            setText="Rename Primary to Map1",
-            setObjectName="chk027",
-            setChecked=False,
-            setToolTip="Rename the primary UV set to 'map1'. (default UV set name)",
-        )
-        widget.option_box.menu.add(
-            "QCheckBox",
-            setText="Force Rename",
-            setObjectName="chk028",
-            setChecked=False,
-            setToolTip="Force rename even if 'map1' already exists (by renaming the existing map1 to 'map1_conflict').",
+            setToolTip="Preview changes without modifying anything.",
         )
         widget.option_box.menu.add(
             "QCheckBox",
@@ -581,10 +569,7 @@ class UvSlots(SlotsMaya):
 
     def tb007(self, widget):
         """Cleanup UV Sets"""
-        remove_empty = widget.option_box.menu.chk025.isChecked()
-        keep_only_primary = widget.option_box.menu.chk026.isChecked()
-        rename_primary = widget.option_box.menu.chk027.isChecked()
-        force_rename = widget.option_box.menu.chk028.isChecked()
+        dry_run = widget.option_box.menu.chk030.isChecked()
         prefer_largest_area = widget.option_box.menu.chk029.isChecked()
 
         selection = pm.selected()
@@ -594,13 +579,70 @@ class UvSlots(SlotsMaya):
             )
             return
 
-        mtk.cleanup_uv_sets(
+        mtk.Diagnostics.cleanup_uv_sets(
             selection,
-            remove_empty=remove_empty,
-            keep_only_primary=keep_only_primary,
-            rename_primary_to_map1=rename_primary,
-            force_rename=force_rename,
             prefer_largest_area=prefer_largest_area,
+            dry_run=dry_run,
+        )
+
+    def tb008_init(self, widget):
+        """Initialize Mirror UVs.
+
+        Mirrors UVs across U or V. By default this uses the footprint-preserving
+        reassignment mode (preserve_position=True), which keeps the UV point set
+        unchanged and only reassigns which UV gets which point.
+        """
+        widget.option_box.menu.setTitle("Mirror UVs")
+        widget.option_box.menu.add(
+            "QRadioButton",
+            setText="Mirror U",
+            setObjectName="chk031",
+            setChecked=True,
+            setToolTip="Mirror across U. Default mode preserves the UV footprint.",
+        )
+        widget.option_box.menu.add(
+            "QRadioButton",
+            setText="Mirror V",
+            setObjectName="chk032",
+            setToolTip="Mirror across V. Default mode preserves the UV footprint.",
+        )
+        widget.option_box.menu.add(
+            "QCheckBox",
+            setText="Per Shell",
+            setObjectName="chk033",
+            setChecked=True,
+            setToolTip="If enabled, mirrors each UV shell independently.",
+        )
+        widget.option_box.menu.add(
+            "QCheckBox",
+            setText="Preserve Footprint",
+            setObjectName="chk034",
+            setChecked=True,
+            setToolTip="If enabled, preserves the exact UV point set using one-to-one reassignment.\nIf disabled, performs a geometric mirror around the pivot.",
+        )
+
+    @mtk.undoable
+    def tb008(self, widget):
+        """Mirror UVs (footprint-preserving by default)."""
+        mirror_u = widget.option_box.menu.chk031.isChecked()
+        mirror_v = widget.option_box.menu.chk032.isChecked()
+        per_shell = widget.option_box.menu.chk033.isChecked()
+        preserve_position = widget.option_box.menu.chk034.isChecked()
+
+        axis = "u" if mirror_u and not mirror_v else "v"
+
+        selection = pm.selected()
+        if not selection:
+            self.sb.message_box(
+                "<b>Nothing selected.<b><br>The operation requires at least one selected object."
+            )
+            return
+
+        mtk.UvUtils.mirror_uvs(
+            selection,
+            axis=axis,
+            per_shell=per_shell,
+            preserve_position=preserve_position,
         )
 
     def cmb002(self, index, widget):
@@ -610,6 +652,36 @@ class UvSlots(SlotsMaya):
             pm.polyFlipUV(flipType=0, local=1, usePivot=1, pivotU=0, pivotV=0)
         elif text == "Flip V":
             pm.polyFlipUV(flipType=1, local=1, usePivot=1, pivotU=0, pivotV=0)
+        elif text == "Rotate 45":
+            angle = -45
+            selected_objects = pm.selected()
+            if not selected_objects:
+                self.sb.message_box(
+                    "<b>Nothing selected.<b><br>The operation requires at least one selected object."
+                )
+                return
+
+            selected_uvs = pm.polyListComponentConversion(selected_objects, toUV=True)
+            selected_uvs = pm.ls(selected_uvs, flatten=True)
+            if not selected_uvs:
+                self.sb.message_box(
+                    "<b>No UVs found.<b><br>Select a mesh, faces, edges, or UVs."
+                )
+                return
+
+            all_u, all_v = [], []
+            for uv in selected_uvs:
+                u, v = pm.polyEditUV(uv, query=True, uValue=True, vValue=True)
+                all_u.append(u)
+                all_v.append(v)
+
+            pivot_u = sum(all_u) / len(all_u)
+            pivot_v = sum(all_v) / len(all_v)
+
+            for uv in selected_uvs:
+                pm.polyEditUV(
+                    uv, pivotU=pivot_u, pivotV=pivot_v, angle=angle, relative=True
+                )
         elif text == "Align U Left":
             pm.mel.performAlignUV("minU")
         elif text == "Align U Middle":
@@ -705,31 +777,6 @@ class UvSlots(SlotsMaya):
                     if shape and isinstance(shape, pm.nodetypes.Mesh):
                         # Cut the UVs along all edges of the mesh
                         pm.polyMapCut(shape.e[:])
-
-    def b006(self):
-        """Rotate UV's 90"""
-        angle = -45
-        selected_objects = pm.selected()
-
-        # Convert shell selection to individual UVs
-        selected_uvs = pm.polyListComponentConversion(selected_objects, toUV=True)
-        selected_uvs = pm.ls(selected_uvs, flatten=True)
-
-        # Calculate the pivot point for the UV shell
-        all_u, all_v = [], []
-        for uv in selected_uvs:
-            u, v = pm.polyEditUV(uv, query=True, uValue=True, vValue=True)
-            all_u.append(u)
-            all_v.append(v)
-
-        pivot_u = sum(all_u) / len(all_u)
-        pivot_v = sum(all_v) / len(all_v)
-
-        # Rotate UVs using the calculated pivot point
-        for uv in selected_uvs:
-            pm.polyEditUV(
-                uv, pivotU=pivot_u, pivotV=pivot_v, angle=angle, relative=True
-            )
 
     def b007(self):
         """Display UV Borders"""
