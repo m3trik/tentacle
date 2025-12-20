@@ -65,6 +65,12 @@ class SceneSlots(SlotsMaya):
                 setObjectName="b009",
                 setToolTip="Fix Maya Color Management / OCIO config preferences.",
             )
+            widget.menu.add(
+                "QPushButton",
+                setText="Scene Audit",
+                setObjectName="b010",
+                setToolTip="Analyze scene for performance issues (poly count, draw calls, textures).",
+            )
 
     @Signals("textChanged", "returnPressed")
     def txt000(self, widget):
@@ -111,12 +117,12 @@ class SceneSlots(SlotsMaya):
         # Add items to the ComboBox
         widget.add(
             autosave_dict,
-            header="Recent Autosave",
+            header="Autosave:",
             clear=True,
         )
 
     def cmb002(self, index, widget):
-        """Recent Autosave"""
+        """Autosave"""
         file = widget.items[index]
         pm.openFile(file, open=1, force=True)
 
@@ -339,6 +345,10 @@ class SceneSlots(SlotsMaya):
     def b009(self):
         """Fix OCIO"""
         mtk.Diagnostics.fix_ocio()
+
+    def b010(self):
+        """Scene Audit"""
+        mtk.SceneAnalyzer.run_audit(adaptive=True)
 
     def b007(self):
         """Import file"""

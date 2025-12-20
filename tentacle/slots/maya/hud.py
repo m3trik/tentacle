@@ -45,7 +45,11 @@ class StatusMixin:
         hud.insertText(f'Units: <font style="color: Yellow;">{sceneUnits}</font>')
         # Frame rate
         frame_rate_key = pm.currentUnit(q=True, time=True)
-        frame_rate_display = mtk.format_frame_rate_str(frame_rate_key)
+        frame_rate_val = ptk.VidUtils.FRAME_RATES.get(frame_rate_key)
+        if frame_rate_val is None:
+            frame_rate_display = "Unknown Frame Rate"
+        else:
+            frame_rate_display = f"{frame_rate_val} fps {frame_rate_key.upper()}"
         hud.insertText(
             f'Frame Rate: <font style="color: Yellow;">{frame_rate_display}</font>'
         )

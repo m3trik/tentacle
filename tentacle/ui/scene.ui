@@ -10,7 +10,7 @@
     <x>0</x>
     <y>0</y>
     <width>200</width>
-    <height>194</height>
+    <height>173</height>
    </rect>
   </property>
   <property name="tabShape">
@@ -139,33 +139,6 @@
           <number>0</number>
          </property>
          <item>
-          <widget class="ComboBox" name="cmb005">
-           <property name="minimumSize">
-            <size>
-             <width>0</width>
-             <height>20</height>
-            </size>
-           </property>
-           <property name="maximumSize">
-            <size>
-             <width>16777215</width>
-             <height>20</height>
-            </size>
-           </property>
-           <property name="toolTip">
-            <string>Any recent scenes will appear here.</string>
-           </property>
-           <property name="maxVisibleItems">
-            <number>40</number>
-           </property>
-           <item>
-            <property name="text">
-             <string>Recent Files:</string>
-            </property>
-           </item>
-          </widget>
-         </item>
-         <item>
           <widget class="ComboBox" name="cmb002">
            <property name="minimumSize">
             <size>
@@ -187,7 +160,7 @@
            </property>
            <item>
             <property name="text">
-             <string>Recent Autosave:</string>
+             <string>Autosave:</string>
             </property>
            </item>
           </widget>

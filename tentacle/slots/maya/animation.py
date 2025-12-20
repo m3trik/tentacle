@@ -20,11 +20,12 @@ class Animation(SlotsMaya):
     def header_init(self, widget):
         """Header Init"""
         widget.menu.add(
-            "QPushButton",
+            self.sb.registered_widgets.PushButton,
             setText="Print Animation Info",
+            setObjectName="tb016",
             setToolTip="Print segmented keyframe info for selected objects (or all if none selected).",
-            clicked=lambda: mtk.SegmentKeys.print_scene_info(detailed=True),
         )
+
         widget.menu.add(
             "QPushButton",
             setText="Repair Visibility Tangents",
@@ -32,6 +33,13 @@ class Animation(SlotsMaya):
             clicked=lambda: mtk.Diagnostics.repair_visibility_tangents(
                 objects=pm.selected() or None
             ),
+        )
+
+        widget.menu.add(
+            self.sb.registered_widgets.PushButton,
+            setText="Repair Corrupted Curves",
+            setObjectName="tb015",
+            setToolTip="Repair corrupted animation curves.",
         )
 
     def tb000_init(self, widget):
@@ -1397,6 +1405,44 @@ class Animation(SlotsMaya):
                 message += f"  ... and {len(result['details']) - 3} more"
 
         self.sb.message_box(message)
+
+    def tb016_init(self, widget):
+        """Print Animation Info - Initialize option box"""
+        widget.option_box.menu.setTitle("Print Animation Info")
+        widget.option_box.menu.add(
+            "QCheckBox",
+            setText="Sort by Time",
+            setObjectName="chk_sort_time",
+            setChecked=False,
+            setToolTip="Sort output by start time instead of object name.",
+        )
+        widget.option_box.menu.add(
+            "QCheckBox",
+            setText="CSV Output",
+            setObjectName="chk_csv_output",
+            setChecked=False,
+            setToolTip="Print output in CSV format for easy spreadsheet import.",
+        )
+        widget.option_box.menu.add(
+            "QCheckBox",
+            setText="Ignore Holds",
+            setObjectName="chk_ignore_holds",
+            setChecked=True,
+            setToolTip="Exclude static hold keys from the reported ranges.\nUncheck to include leading/trailing holds.",
+        )
+
+    def tb016(self, widget):
+        """Print Animation Info"""
+        by_time = widget.option_box.menu.chk_sort_time.isChecked()
+        csv_output = widget.option_box.menu.chk_csv_output.isChecked()
+        ignore_holds = widget.option_box.menu.chk_ignore_holds.isChecked()
+
+        mtk.SegmentKeys.print_scene_info(
+            detailed=True,
+            by_time=by_time,
+            csv_output=csv_output,
+            ignore_holds=ignore_holds,
+        )
 
     def b001(self, widget=None):
         """Copy Keys"""

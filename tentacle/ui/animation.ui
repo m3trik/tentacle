@@ -10,7 +10,7 @@
     <x>0</x>
     <y>0</y>
     <width>200</width>
-    <height>445</height>
+    <height>410</height>
    </rect>
   </property>
   <property name="tabShape">
@@ -94,31 +94,6 @@
           <number>0</number>
          </property>
          <item>
-          <widget class="PushButton" name="tb013">
-           <property name="minimumSize">
-            <size>
-             <width>0</width>
-             <height>20</height>
-            </size>
-           </property>
-           <property name="maximumSize">
-            <size>
-             <width>16777215</width>
-             <height>20</height>
-            </size>
-           </property>
-           <property name="toolTip">
-            <string>Select keys</string>
-           </property>
-           <property name="text">
-            <string>Select Keys</string>
-           </property>
-           <property name="checkable">
-            <bool>false</bool>
-           </property>
-          </widget>
-         </item>
-         <item>
           <widget class="PushButton" name="tb000">
            <property name="minimumSize">
             <size>
@@ -144,7 +119,7 @@
           </widget>
          </item>
          <item>
-          <widget class="PushButton" name="tb001">
+          <widget class="PushButton" name="tb013">
            <property name="minimumSize">
             <size>
              <width>0</width>
@@ -158,10 +133,10 @@
             </size>
            </property>
            <property name="toolTip">
-            <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Duplicate any selected keyframes and paste them inverted at the given time.&lt;br/&gt;If none are selected, all keys for the object(s) will be used.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+            <string>Select keys</string>
            </property>
            <property name="text">
-            <string>Invert Keys</string>
+            <string>Select Keys</string>
            </property>
            <property name="checkable">
             <bool>false</bool>
@@ -194,7 +169,7 @@
           </widget>
          </item>
          <item>
-          <widget class="PushButton" name="tb005">
+          <widget class="PushButton" name="tb001">
            <property name="minimumSize">
             <size>
              <width>0</width>
@@ -208,35 +183,10 @@
             </size>
            </property>
            <property name="toolTip">
-            <string>Stagger the keyframes of selected objects such that the keyframes of each subsequent object start after the previous object.</string>
+            <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Duplicate any selected keyframes and paste them inverted at the given time.&lt;br/&gt;If none are selected, all keys for the object(s) will be used.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
            </property>
            <property name="text">
-            <string>Add Intermediate Keys</string>
-           </property>
-           <property name="checkable">
-            <bool>false</bool>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="PushButton" name="tb002">
-           <property name="minimumSize">
-            <size>
-             <width>0</width>
-             <height>20</height>
-            </size>
-           </property>
-           <property name="maximumSize">
-            <size>
-             <width>16777215</width>
-             <height>20</height>
-            </size>
-           </property>
-           <property name="toolTip">
-            <string>Add or remove spacing between all keys at a given time for any currently selected objects.</string>
-           </property>
-           <property name="text">
-            <string>Adjust Spacing</string>
+            <string>Invert Keys</string>
            </property>
            <property name="checkable">
             <bool>false</bool>
@@ -294,6 +244,56 @@
           </widget>
          </item>
          <item>
+          <widget class="PushButton" name="tb002">
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>20</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>16777215</width>
+             <height>20</height>
+            </size>
+           </property>
+           <property name="toolTip">
+            <string>Add or remove spacing between all keys at a given time for any currently selected objects.</string>
+           </property>
+           <property name="text">
+            <string>Adjust Spacing</string>
+           </property>
+           <property name="checkable">
+            <bool>false</bool>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="PushButton" name="tb005">
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>20</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>16777215</width>
+             <height>20</height>
+            </size>
+           </property>
+           <property name="toolTip">
+            <string>Stagger the keyframes of selected objects such that the keyframes of each subsequent object start after the previous object.</string>
+           </property>
+           <property name="text">
+            <string>Add Intermediate Keys</string>
+           </property>
+           <property name="checkable">
+            <bool>false</bool>
+           </property>
+          </widget>
+         </item>
+         <item>
           <widget class="PushButton" name="tb008">
            <property name="minimumSize">
             <size>
@@ -344,31 +344,6 @@
           </widget>
          </item>
          <item>
-          <widget class="PushButton" name="tb009">
-           <property name="minimumSize">
-            <size>
-             <width>0</width>
-             <height>20</height>
-            </size>
-           </property>
-           <property name="maximumSize">
-            <size>
-             <width>16777215</width>
-             <height>20</height>
-            </size>
-           </property>
-           <property name="toolTip">
-            <string>Snaps keyframes with decimal time values to whole frame numbers.</string>
-           </property>
-           <property name="text">
-            <string>Snap Keys</string>
-           </property>
-           <property name="checkable">
-            <bool>false</bool>
-           </property>
-          </widget>
-         </item>
-         <item>
           <widget class="PushButton" name="tb006">
            <property name="minimumSize">
             <size>
@@ -388,6 +363,31 @@ Else move all keyframes of the selected objects.</string>
            </property>
            <property name="text">
             <string>Move Keys</string>
+           </property>
+           <property name="checkable">
+            <bool>false</bool>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="PushButton" name="tb009">
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>20</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>16777215</width>
+             <height>20</height>
+            </size>
+           </property>
+           <property name="toolTip">
+            <string>Snaps keyframes with decimal time values to whole frame numbers.</string>
+           </property>
+           <property name="text">
+            <string>Snap Keys</string>
            </property>
            <property name="checkable">
             <bool>false</bool>
@@ -449,37 +449,6 @@ keyframes from the graph editor.</string>
           </widget>
          </item>
          <item>
-          <widget class="PushButton" name="tb015">
-           <property name="enabled">
-            <bool>true</bool>
-           </property>
-           <property name="minimumSize">
-            <size>
-             <width>0</width>
-             <height>20</height>
-            </size>
-           </property>
-           <property name="maximumSize">
-            <size>
-             <width>16777215</width>
-             <height>20</height>
-            </size>
-           </property>
-           <property name="toolTip">
-            <string>Detects and repairs corrupted animation curves.</string>
-           </property>
-           <property name="text">
-            <string>Repair Curves</string>
-           </property>
-           <property name="iconSize">
-            <size>
-             <width>18</width>
-             <height>18</height>
-            </size>
-           </property>
-          </widget>
-         </item>
-         <item>
           <widget class="PushButton" name="tb010">
            <property name="enabled">
             <bool>true</bool>
@@ -534,37 +503,6 @@ keyframes from the graph editor.</string>
          <property name="spacing">
           <number>1</number>
          </property>
-         <item row="1" column="1">
-          <widget class="QPushButton" name="b002">
-           <property name="enabled">
-            <bool>true</bool>
-           </property>
-           <property name="minimumSize">
-            <size>
-             <width>0</width>
-             <height>20</height>
-            </size>
-           </property>
-           <property name="maximumSize">
-            <size>
-             <width>16777215</width>
-             <height>20</height>
-            </size>
-           </property>
-           <property name="toolTip">
-            <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Sets keys matching any previously stored attributes at the current time.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-           </property>
-           <property name="text">
-            <string>Paste Keys</string>
-           </property>
-           <property name="iconSize">
-            <size>
-             <width>18</width>
-             <height>18</height>
-            </size>
-           </property>
-          </widget>
-         </item>
          <item row="0" column="1">
           <widget class="QPushButton" name="b001">
            <property name="enabled">
@@ -587,6 +525,37 @@ keyframes from the graph editor.</string>
            </property>
            <property name="text">
             <string>Copy Keys</string>
+           </property>
+           <property name="iconSize">
+            <size>
+             <width>18</width>
+             <height>18</height>
+            </size>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="2">
+          <widget class="QPushButton" name="b002">
+           <property name="enabled">
+            <bool>true</bool>
+           </property>
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>20</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>16777215</width>
+             <height>20</height>
+            </size>
+           </property>
+           <property name="toolTip">
+            <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Sets keys matching any previously stored attributes at the current time.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+           </property>
+           <property name="text">
+            <string>Paste Keys</string>
            </property>
            <property name="iconSize">
             <size>

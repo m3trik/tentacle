@@ -71,9 +71,9 @@ class Preferences(SlotsMaya):
                 runOnce=False,
             )
 
+        frame_rates = ptk.VidUtils.FRAME_RATES
         items = {
-            mtk.AnimUtils.format_frame_rate_str(key): key
-            for key in mtk.AnimUtils.FRAME_RATE_VALUES
+            f"{frame_rates.get(key)} fps {key.upper()}": key for key in frame_rates
         }
         widget.add(items)
         widget.setCurrentIndex(
@@ -191,6 +191,7 @@ class Preferences(SlotsMaya):
             dependencies_first=self._tentacle_reload_dependencies,
             include_submodules=True,
             import_missing=True,
+            exclude_modules=["*_ui"],
         )
 
     def _teardown_tentacle_instance(self):
@@ -271,24 +272,34 @@ class Preferences(SlotsMaya):
         mayapy = os.path.join(mtk.get_env_info("install_path"), "bin", "mayapy.exe")
         pkg_mgr = ptk.PackageManager(python_path=mayapy)
         this_pkg = "tentacletk"
-        latest_ver = pkg_mgr.latest_version(this_pkg)
-        # Check if the package is outdated
-        if pkg_mgr.is_outdated(this_pkg):  # Prompt user whether to update
-            user_choice = self.sb.message_box(
-                f"<b><hl>{latest_ver}</hl> is available. Do you want to update it?</b>",
-                "Yes",
-                "No",
-            )
-            if user_choice == "Yes":  # User chose to update
-                pkg_mgr.update(this_pkg)
-                self.sb.message_box(
-                    "<b>The package and it's dependencies have been <hl>updated</hl>.</b>"
+
+        try:
+            latest_ver = pkg_mgr.latest_version(this_pkg)
+            # Check if the package is outdated
+            if pkg_mgr.is_outdated(this_pkg):  # Prompt user whether to update
+                user_choice = self.sb.message_box(
+                    f"<b><hl>{latest_ver}</hl> is available. Do you want to update it?</b>",
+                    "Yes",
+                    "No",
                 )
-            else:  # User chose not to update or closed the dialog
-                self.sb.message_box("<b>The update was cancelled.</b>")
-        else:  # Package is up to date
+                if user_choice == "Yes":  # User chose to update
+                    pkg_mgr.update(this_pkg)
+                    self.sb.message_box(
+                        "<b>The package and it's dependencies have been <hl>updated</hl>.</b>"
+                    )
+                else:  # User chose not to update or closed the dialog
+                    self.sb.message_box("<b>The update was cancelled.</b>")
+            else:  # Package is up to date
+                self.sb.message_box(
+                    f"<b><hl>{latest_ver}</hl> is already the latest version.</b>"
+                )
+
+        except Exception as error:
+            print(f"Update check failed: {error}")
             self.sb.message_box(
-                f"<b><hl>{latest_ver}</hl> is already the latest version.</b>"
+                "<b>Update check failed.</b><br><small>{}</small>".format(
+                    html.escape(str(error))
+                )
             )
 
     def b001(self):
