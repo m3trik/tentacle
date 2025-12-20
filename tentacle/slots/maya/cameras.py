@@ -22,6 +22,7 @@ class Cameras(SlotsMaya):
             pass
 
     def list000_init(self, widget):
+        """Initialize Camera Options List"""
         widget.clear()
         if not widget.is_initialized:
             widget.refresh_on_show = True  # This method called on each show
@@ -73,6 +74,7 @@ class Cameras(SlotsMaya):
 
     @Signals("on_item_interacted")
     def list000(self, item):
+        """Camera Options List"""
         text = item.item_text()
         parent_text = item.parent_item_text()
 
