@@ -102,9 +102,10 @@ class Cameras(SlotsMaya):
 
         elif parent_text == "Camera Options":
             if text == "Auto Adjust Clipping":
-                mtk.adjust_camera_clipping(mode="auto")
+                print("Auto Adjust Clipping selected")
+                mtk.adjust_camera_clipping(near_clip="auto", far_clip="auto")
             elif text == "Reset Clipping":
-                mtk.adjust_camera_clipping(mode="reset")
+                mtk.adjust_camera_clipping(near_clip="reset", far_clip="reset")
 
     def b000(self):
         """Cameras: Back View"""
