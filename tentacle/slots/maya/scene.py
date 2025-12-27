@@ -67,6 +67,12 @@ class SceneSlots(SlotsMaya):
             )
             widget.menu.add(
                 "QPushButton",
+                setText="Fix Color Spaces",
+                setObjectName="b011",
+                setToolTip="Fix missing color space errors on file texture nodes.\nAuto-detects sRGB vs Raw based on texture type.",
+            )
+            widget.menu.add(
+                "QPushButton",
                 setText="Scene Audit",
                 setObjectName="b010",
                 setToolTip="Analyze scene for performance issues (poly count, draw calls, textures).",
@@ -349,6 +355,10 @@ class SceneSlots(SlotsMaya):
     def b010(self):
         """Scene Audit"""
         mtk.SceneAnalyzer.run_audit(adaptive=True)
+
+    def b011(self):
+        """Fix Color Spaces"""
+        mtk.Diagnostics.fix_missing_color_spaces(force_update=True)
 
     def b007(self):
         """Import file"""

@@ -14,7 +14,7 @@ class Normals(SlotsMaya):
         super().__init__(*args, **kwargs)
 
     def tb001_init(self, widget):
-        """ """
+        """Initialize Set Normals By Angle"""
         widget.option_box.menu.add(
             "QSpinBox",
             setPrefix="Angle Threshold: ",
@@ -63,7 +63,7 @@ class Normals(SlotsMaya):
         pm.polyOptions(objects, se=True)  # Soft edge display.
 
     def tb004_init(self, widget):
-        """ """
+        """Initialize Average Normals"""
         widget.option_box.menu.add(
             "QCheckBox",
             setText="By UV Shell",
@@ -128,7 +128,7 @@ class Normals(SlotsMaya):
         pm.polySetToFaceNormal()
 
     def tb010_init(self, widget):
-        """ """
+        """Initialize Reverse Normals"""
         if not widget.is_initialized:
             widget.option_box.menu.setTitle("Reverse Normals")
             widget.option_box.menu.add(

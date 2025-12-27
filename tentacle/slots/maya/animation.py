@@ -813,31 +813,23 @@ class Animation(SlotsMaya):
         time_param = cmb.itemData(cmb.currentIndex())
         channel_box_only = widget.option_box.menu.chk020.isChecked()
 
-        try:
-            objects = pm.selected()
-            if not objects:
-                self.sb.message_box("You must select at least one object.")
-                return
+        objects = pm.selected()
+        if not objects:
+            self.sb.message_box("You must select at least one object.")
+            return
 
-            if channel_box_only:
-                # Use channel box filtering
-                if time_param == "all":
-                    mtk.delete_keys(objects, channel_box_only=True)
-                else:
-                    mtk.delete_keys(objects, time=time_param, channel_box_only=True)
+        if channel_box_only:
+            # Use channel box filtering
+            if time_param == "all":
+                mtk.delete_keys(objects, channel_box_only=True)
             else:
-                # Use old behavior with get_channel_box_attributes
-                attributes = mtk.get_channel_box_attributes(objects)
-                if not attributes:
-                    self.sb.message_box("No channel box attributes selected.")
-                    return
-
-                if time_param == "all":
-                    mtk.delete_keys(objects, *attributes.keys())
-                else:
-                    mtk.delete_keys(objects, *attributes.keys(), time=time_param)
-        except AttributeError:
-            self.sb.message_box("No channel box values stored.")
+                mtk.delete_keys(objects, time=time_param, channel_box_only=True)
+        else:
+            # Delete all keyable attributes (no filtering)
+            if time_param == "all":
+                mtk.delete_keys(objects)
+            else:
+                mtk.delete_keys(objects, time=time_param)
 
     def tb011_init(self, widget):
         """Tie/Untie Keyframes Init"""

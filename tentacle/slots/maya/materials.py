@@ -24,7 +24,7 @@ class MaterialsSlots(SlotsMaya):
         self.last_random_material = None
 
     def header_init(self, widget):
-        """ """
+        """Initialize the header menu"""
         # Add a button to reload all textures in the scene.
         widget.menu.add(
             "QPushButton",
@@ -72,6 +72,13 @@ class MaterialsSlots(SlotsMaya):
             setText="Map Packer",
             setObjectName="b008",
             setToolTip="Pack up to 4 input grayscale maps into specified RGBA channels.",
+        )
+        # Add a button to print scene texture info.
+        widget.menu.add(
+            "QPushButton",
+            setText="Print Texture Info",
+            setObjectName="b017",
+            setToolTip="Print information about all texture files in the scene to the script editor.",
         )
 
     def cmb002_init(self, widget):
@@ -429,8 +436,8 @@ class MaterialsSlots(SlotsMaya):
         self.sb.parent().show(ui)
 
     def b009(self, widget):
-        """Create Stingray Shader"""
-        ui = mtk.UiManager.instance(self.sb).get("stingray_arnold_shader")
+        """Create Game Shader"""
+        ui = mtk.UiManager.instance(self.sb).get("game_shader")
         self.sb.parent().show(ui)
 
     def b010(self, widget):
@@ -477,6 +484,27 @@ class MaterialsSlots(SlotsMaya):
         ui.slots.source_dir = source_images_dir
 
         self.sb.parent().show(ui)
+
+    def b017(self, widget):
+        """Print Texture Info"""
+        info_list = mtk.MatUtils.get_texture_info()
+
+        print(f"\n{'='*60}")
+        print(f"Found {len(info_list)} valid textures in scene.")
+        print(f"{'='*60}")
+
+        for info in info_list:
+            print(f"Name: {info['name']}")
+            print(f"  Path:   {info['path']}")
+            print(f"  Size:   {info['size']:,} bytes")
+            print(f"  Res:    {info['width']}x{info['height']}")
+            print(f"  Mode:   {info['mode']}")
+            print(f"  Format: {info['format']}")
+            print("-" * 40)
+
+        self.sb.message_box(
+            f"Printed info for {len(info_list)} textures to Script Editor."
+        )
 
 
 # --------------------------------------------------------------------------------------------
