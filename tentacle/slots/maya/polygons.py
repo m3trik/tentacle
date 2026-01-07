@@ -17,7 +17,7 @@ class PolygonsSlots(SlotsMaya):
         self.submenu = self.sb.loaded_ui.polygons_submenu
 
     def header_init(self, widget):
-        """ """
+        """Initialize Header"""
         widget.menu.add(
             "QPushButton",
             setText="Bridge",
@@ -44,7 +44,7 @@ class PolygonsSlots(SlotsMaya):
         self.sb.toggle_multi(widget.ui, setUnChecked="chk008,chk009")
 
     def tb000_init(self, widget):
-        """ """
+        """Initialize Merge Vertices"""
         widget.option_box.menu.add(
             "QDoubleSpinBox",
             setPrefix="Distance: ",
@@ -87,7 +87,7 @@ class PolygonsSlots(SlotsMaya):
         mtk.merge_vertices(objects, tolerance=tolerance, selected_only=componentMode)
 
     def tb003_init(self, widget):
-        """ """
+        """Initialize Extrude"""
         widget.option_box.menu.add(
             "QCheckBox",
             setText="Keep Faces Together",
@@ -133,28 +133,64 @@ class PolygonsSlots(SlotsMaya):
             pm.mel.PolyExtrude()  # return polyExtrudeVertex(selection, ch=1, width=0.5, length=1, divisions=divisions)
 
     def tb004_init(self, widget):
-        """ """
+        """Initialize Combine"""
         widget.option_box.menu.add(
             "QCheckBox",
-            setText="Allow Multiple Materials",
+            setText="Group by Material",
             setObjectName="chk003",
-            setChecked=True,
-            setToolTip="Allow multiple materials.",
+            setChecked=False,
+            setToolTip="Combine objects into groups based on their assigned materials.",
         )
+        widget.option_box.menu.add(
+            "QCheckBox",
+            setText="Cluster by Distance",
+            setObjectName="chk004",
+            setChecked=False,
+            setToolTip="Further subdivide material groups based on spatial proximity.",
+        )
+        widget.option_box.menu.add(
+            "QDoubleSpinBox",
+            setPrefix="Threshold: ",
+            setObjectName="s003",
+            set_limits=[0, 100000, 1, 2],
+            setValue=10000.0,
+            setToolTip="Maximum distance between objects to be considered in the same cluster.",
+        )
+
+        # Connect signals
+        chk_cluster = widget.option_box.menu.chk004
+        spin_threshold = widget.option_box.menu.s003
+
+        spin_threshold.setEnabled(chk_cluster.isChecked())
+        chk_cluster.toggled.connect(spin_threshold.setEnabled)
 
     def tb004(self, widget):
         """Combine Selected Meshes."""
-        amm = widget.option_box.menu.chk003.isChecked()
-        mtk.Macros.m_combine(allow_multiple_mats=amm)
+        group_by_material = widget.option_box.menu.chk003.isChecked()
+        cluster_by_distance = widget.option_box.menu.chk004.isChecked()
+        threshold = widget.option_box.menu.s003.value()
+
+        selection = pm.selected()
+        if not selection:
+            return self.sb.message_box(
+                "<strong>Nothing selected</strong>.<br>Operation requires a selection."
+            )
+
+        mtk.EditUtils.combine_objects(
+            selection,
+            group_by_material=group_by_material,
+            cluster_by_distance=cluster_by_distance,
+            threshold=threshold,
+        )
 
     def tb005_init(self, widget):
-        """ """
+        """Initialize Detach"""
         widget.option_box.menu.add(
             "QCheckBox",
-            setText="Duplicate Faces",
+            setText="Duplicate",
             setObjectName="chk014",
             setChecked=True,
-            setToolTip="Duplicate any selected faces, leaving the originals.",
+            setToolTip="Duplicate the faces, leaving the original mesh unchanged.",
         )
         widget.option_box.menu.add(
             "QCheckBox",
@@ -166,40 +202,23 @@ class PolygonsSlots(SlotsMaya):
 
     def tb005(self, widget):
         """Detach."""
-        duplicate_faces = widget.option_box.menu.chk014.isChecked()
-        separate_objects = widget.option_box.menu.chk015.isChecked()
+        duplicate = widget.option_box.menu.chk014.isChecked()
+        separate = widget.option_box.menu.chk015.isChecked()
 
-        vertexMask = pm.selectType(q=True, vertex=True)
-        facetMask = pm.selectType(q=True, facet=True)
-
-        selection = pm.ls(sl=1)
+        selection = pm.ls(sl=True)
         if not selection:
             return self.sb.message_box(
                 "<strong>Nothing selected</strong>.<br>Operation requires a component selection."
             )
 
-        if vertexMask:
-            pm.mel.polySplitVertex()
-        elif facetMask:
-            extract = pm.polyChipOff(
-                selection,
-                ch=True,
-                keepFacesTogether=True,
-                dup=duplicate_faces,
-                off=True,
-            )
-            if separate_objects:
-                try:
-                    splitObjects = pm.polySeparate(selection)
-                except Exception:
-                    splitObjects = pm.polySeparate(pm.ls(selection, objectsOnly=True))
-            pm.select(splitObjects[-1])
-            return extract
-        else:
-            pm.mel.DetachComponent()
+        return mtk.EditUtils.detach_components(
+            selection,
+            duplicate=duplicate,
+            separate=separate,
+        )
 
     def tb006_init(self, widget):
-        """ """
+        """Initialize Inset Face Region"""
         widget.option_box.menu.add(
             "QDoubleSpinBox",
             setPrefix="Offset: ",
@@ -236,7 +255,7 @@ class PolygonsSlots(SlotsMaya):
         )
 
     def tb007_init(self, widget):
-        """ """
+        """Initialize Divide Facet"""
         widget.option_box.menu.add(
             "QCheckBox",
             setText="U",
@@ -306,7 +325,7 @@ class PolygonsSlots(SlotsMaya):
             return
 
     def tb008_init(self, widget):
-        """ """
+        """Initialize Boolean Operation"""
         widget.option_box.menu.add(
             "QComboBox",
             addItems=["Union", "Difference", "Intersection"],
@@ -349,7 +368,7 @@ class PolygonsSlots(SlotsMaya):
                 mtk.Macros.m_boolean(operation="intersection")
 
     def tb009_init(self, widget):
-        """ """
+        """Initialize Snap Closest Verts"""
         widget.option_box.menu.add(
             "QDoubleSpinBox",
             setPrefix="Tolerance: ",

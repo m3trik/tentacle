@@ -50,7 +50,7 @@ class Rigging(SlotsMaya):
 
     def cmb002_init(self, widget):
         """Create Quick Rig Init"""
-        items = ["Tube Rig", "Wheel Rig"]
+        items = ["Tube Rig", "Wheel Rig", "Shadow Rig"]
         widget.add(items, header="Quick Rig:")
 
     def cmb002(self, index, widget):
@@ -61,6 +61,9 @@ class Rigging(SlotsMaya):
             self.sb.parent().show(ui)
         elif text == "Wheel Rig":
             ui = mtk.UiManager.instance(self.sb).get("wheel_rig")
+            self.sb.parent().show(ui)
+        elif text == "Shadow Rig":
+            ui = mtk.UiManager.instance(self.sb).get("shadow_rig")
             self.sb.parent().show(ui)
 
     def chk000(self, state, widget):

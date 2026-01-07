@@ -263,6 +263,8 @@ class Tcl(QtWidgets.QWidget, ptk.SingletonMixin, ptk.LoggingMixin, ptk.HelpMixin
             ui.resize(600, 600)
             ui.ensure_on_screen = False
             self.addWidget(ui)  # add the UI to the stackedLayout.
+            self.add_child_event_filter(ui.widgets)
+            ui.on_child_registered.connect(lambda w: self.add_child_event_filter(w))
 
         else:  # MainWindow
             ui.setParent(self)
@@ -273,10 +275,7 @@ class Tcl(QtWidgets.QWidget, ptk.SingletonMixin, ptk.LoggingMixin, ptk.HelpMixin
                 ui.header.config_buttons("menu", "collapse", "pin")
                 self.key_show_release.connect(ui.hide)
 
-        # set style before child init (resize).
-        self.add_child_event_filter(ui.widgets)
-        ui.on_child_registered.connect(lambda w: self.add_child_event_filter(w))
-        ui.default_slot_timeout = 120.0
+            ui.default_slot_timeout = 360.0
 
     def _prepare_ui(self, ui) -> QtWidgets.QWidget:
         """Initialize and set the UI without showing it."""
