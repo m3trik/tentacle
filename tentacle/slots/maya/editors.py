@@ -298,12 +298,18 @@ class Editors(SlotsMaya):
         pm.mel.ToggleShelf()
 
     def b009(self):
-        """Time Slider"""
-        pm.mel.ToggleTimeSlider()
+        """Time & Range"""
+        ts_visible = pm.mel.isUIComponentVisible("Time Slider")
+        rs_visible = pm.mel.isUIComponentVisible("Range Slider")
 
-    def b010(self):
-        """Range Slider"""
-        pm.mel.ToggleRangeSlider()
+        if ts_visible or rs_visible:
+            if ts_visible:
+                pm.mel.ToggleTimeSlider()
+            if rs_visible:
+                pm.mel.ToggleRangeSlider()
+        else:
+            pm.mel.ToggleTimeSlider()
+            pm.mel.ToggleRangeSlider()
 
     def b011(self):
         """Command Line"""

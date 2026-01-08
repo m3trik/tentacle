@@ -311,9 +311,6 @@ class Tcl(QtWidgets.QWidget, ptk.SingletonMixin, ptk.LoggingMixin, ptk.HelpMixin
             self.restore_other_windows()
             current.show()
 
-            current.adjustSize()
-            current.updateGeometry()
-
             # Position the widget at the cursor (handling parent coordinates)
             cursor_pos = QtGui.QCursor.pos()
             local_pos = self.mapFromGlobal(cursor_pos)
@@ -321,7 +318,7 @@ class Tcl(QtWidgets.QWidget, ptk.SingletonMixin, ptk.LoggingMixin, ptk.HelpMixin
             current.move(local_pos - current.rect().center() + offset)
 
             current.raise_()
-            current.activateWindow()
+            # current.activateWindow()
 
     def _set_submenu(self, ui, w) -> None:
         """Set the submenu for the given UI and widget."""
