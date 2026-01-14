@@ -487,10 +487,6 @@ class UvSlots(SlotsMaya):
         if pm.selectMode(query=True, object=True):
             pm.selectMode(object=True)
 
-        # Perform a preliminary unfold to optionally clean the mesh
-        pm.mel.UnfoldUV()  # Prepares the context
-        pm.mel.performUnfold(0)  # Mimics UI's behavior
-
         pm.u3dUnfold(
             iterations=1,
             pack=0,

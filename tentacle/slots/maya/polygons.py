@@ -194,16 +194,24 @@ class PolygonsSlots(SlotsMaya):
         )
         widget.option_box.menu.add(
             "QCheckBox",
-            setText="Separate Objects",
+            setText="Separate Extracted Faces",
             setObjectName="chk015",
             setChecked=True,
-            setToolTip="Separate mesh objects after detaching faces.",
+            setToolTip="Separate the extracted faces into new objects.",
+        )
+        widget.option_box.menu.add(
+            "QCheckBox",
+            setText="Separate Each Face",
+            setObjectName="chk020",
+            setChecked=False,
+            setToolTip="If checked, each detached face becomes a separate object.",
         )
 
     def tb005(self, widget):
         """Detach."""
         duplicate = widget.option_box.menu.chk014.isChecked()
         separate = widget.option_box.menu.chk015.isChecked()
+        separate_each = widget.option_box.menu.chk020.isChecked()
 
         selection = pm.ls(sl=True)
         if not selection:
@@ -211,11 +219,14 @@ class PolygonsSlots(SlotsMaya):
                 "<strong>Nothing selected</strong>.<br>Operation requires a component selection."
             )
 
-        return mtk.EditUtils.detach_components(
+        result = mtk.EditUtils.detach_components(
             selection,
             duplicate=duplicate,
             separate=separate,
+            keep_faces_together=not separate_each,
         )
+        pm.selectMode(object=True)
+        return result
 
     def tb006_init(self, widget):
         """Initialize Inset Face Region"""

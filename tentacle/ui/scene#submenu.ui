@@ -108,12 +108,15 @@
      <rect>
       <x>145</x>
       <y>470</y>
-      <width>126</width>
+      <width>120</width>
       <height>21</height>
      </rect>
     </property>
-    <property name="toolTip">
-     <string>Recent Scenes</string>
+    <property name="minimumSize">
+     <size>
+      <width>100</width>
+      <height>0</height>
+     </size>
     </property>
     <property name="autoFillBackground">
      <bool>true</bool>

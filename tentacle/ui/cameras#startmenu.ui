@@ -48,9 +48,39 @@
     </sizepolicy>
    </property>
    <layout class="QGridLayout" name="gridLayout">
+    <property name="leftMargin">
+     <number>0</number>
+    </property>
+    <property name="topMargin">
+     <number>0</number>
+    </property>
+    <property name="rightMargin">
+     <number>0</number>
+    </property>
+    <property name="bottomMargin">
+     <number>0</number>
+    </property>
+    <property name="spacing">
+     <number>0</number>
+    </property>
     <item row="0" column="0">
      <widget class="QWidget" name="staticWindow" native="true">
       <layout class="QGridLayout" name="gridLayout_2">
+       <property name="leftMargin">
+        <number>0</number>
+       </property>
+       <property name="topMargin">
+        <number>0</number>
+       </property>
+       <property name="rightMargin">
+        <number>0</number>
+       </property>
+       <property name="bottomMargin">
+        <number>0</number>
+       </property>
+       <property name="spacing">
+        <number>0</number>
+       </property>
        <item row="0" column="0" rowspan="3">
         <widget class="Region" name="region_4" native="true"/>
        </item>
@@ -63,6 +93,21 @@
           </sizepolicy>
          </property>
          <layout class="QVBoxLayout" name="verticalLayout_2">
+          <property name="spacing">
+           <number>0</number>
+          </property>
+          <property name="leftMargin">
+           <number>0</number>
+          </property>
+          <property name="topMargin">
+           <number>0</number>
+          </property>
+          <property name="rightMargin">
+           <number>0</number>
+          </property>
+          <property name="bottomMargin">
+           <number>0</number>
+          </property>
           <item>
            <widget class="QWidget" name="region_5" native="true">
             <property name="minimumSize">
@@ -74,7 +119,7 @@
             <widget class="QPushButton" name="i000">
              <property name="geometry">
               <rect>
-               <x>95</x>
+               <x>105</x>
                <y>0</y>
                <width>111</width>
                <height>21</height>
@@ -120,6 +165,21 @@
        <item row="0" column="1">
         <widget class="Region" name="region" native="true">
          <layout class="QVBoxLayout" name="verticalLayout">
+          <property name="spacing">
+           <number>0</number>
+          </property>
+          <property name="leftMargin">
+           <number>0</number>
+          </property>
+          <property name="topMargin">
+           <number>0</number>
+          </property>
+          <property name="rightMargin">
+           <number>0</number>
+          </property>
+          <property name="bottomMargin">
+           <number>0</number>
+          </property>
           <item>
            <spacer name="verticalSpacer">
             <property name="orientation">
@@ -147,7 +207,7 @@
              </property>
              <property name="geometry">
               <rect>
-               <x>200</x>
+               <x>210</x>
                <y>80</y>
                <width>66</width>
                <height>21</height>
@@ -178,7 +238,7 @@
              </property>
              <property name="geometry">
               <rect>
-               <x>85</x>
+               <x>95</x>
                <y>56</y>
                <width>66</width>
                <height>21</height>
@@ -209,7 +269,7 @@
              </property>
              <property name="geometry">
               <rect>
-               <x>155</x>
+               <x>165</x>
                <y>56</y>
                <width>66</width>
                <height>21</height>
@@ -240,7 +300,7 @@
              </property>
              <property name="geometry">
               <rect>
-               <x>40</x>
+               <x>50</x>
                <y>80</y>
                <width>66</width>
                <height>21</height>

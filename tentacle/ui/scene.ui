@@ -109,7 +109,7 @@
            </property>
            <item>
             <property name="text">
-             <string>Project:</string>
+             <string>Workspace:</string>
             </property>
            </item>
           </widget>

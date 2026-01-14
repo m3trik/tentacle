@@ -57,34 +57,35 @@ class DisplaySlots(SlotsMaya):
         """Xray Selected"""
         objects = pm.ls(sl=True, transforms=True)
         for item in objects:
-            pm.displaySurface(
-                item, xRay=(not pm.displaySurface(item, xRay=True, query=True)[0])
-            )
+            result = pm.displaySurface(item, xRay=True, query=True)
+            if result is not None:
+                pm.displaySurface(item, xRay=(not result[0]))
 
     def b006(self):
         """Un-Xray All"""
-        # Get all model panels
-        model_panels = pm.getPanel(type="modelPanel")
-
-        for panel in model_panels:
-            # Set the X-ray mode to False
-            pm.modelEditor(panel, edit=True, xray=False)
+        # Get all mesh transforms and disable xray on each
+        meshes = pm.ls(type="mesh")
+        for mesh in meshes:
+            transform = mesh.getParent()
+            if transform:
+                pm.displaySurface(transform, xRay=False)
 
     def b007(self):
         """Xray Other"""
-        # Get all transform nodes in the scene
-        all_objects = pm.ls(type="transform")
+        # Get all mesh transforms
+        meshes = pm.ls(type="mesh")
+        all_mesh_transforms = set(
+            mesh.getParent() for mesh in meshes if mesh.getParent()
+        )
         # Get the currently selected objects
-        selected_objects = pm.ls(sl=True, transforms=True)
+        selected_objects = set(pm.ls(sl=True, transforms=True))
         # Filter out the selected objects
-        non_selected_objects = [
-            obj for obj in all_objects if obj not in selected_objects
-        ]
+        non_selected_objects = all_mesh_transforms - selected_objects
 
         for item in non_selected_objects:
-            pm.displaySurface(
-                item, xRay=(not pm.displaySurface(item, xRay=True, query=True)[0])
-            )
+            result = pm.displaySurface(item, xRay=True, query=True)
+            if result is not None:
+                pm.displaySurface(item, xRay=(not result[0]))
 
     def b009(self):
         """Toggle Material Override"""
