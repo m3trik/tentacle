@@ -66,6 +66,20 @@ class Path:
         """Provides a string representation of the current path."""
         return f"Path({self._path})"
 
+    def __len__(self):
+        """Return number of entries in path."""
+        return len(self._path)
+
+    @property
+    def is_empty(self) -> bool:
+        """Check if path has no entries."""
+        return len(self._path) == 0
+
+    @property
+    def intermediate_entries(self):
+        """Entries between start and end (for cloning)."""
+        return self._path[1:-1]
+
     @property
     def start_pos(self) -> QtCore.QPoint:
         """Gets the starting position of the path.
@@ -166,6 +180,27 @@ class Overlay(QtWidgets.QWidget):
         antialiasing (bool, optional): Set antialiasing for the tangent paint events. Defaults to False.
     """
 
+    # Attributes to copy when cloning widgets
+    CLONE_ATTRS = (
+        "objectName",
+        "accessibleName",
+        "toolTip",
+        "statusTip",
+        "whatsThis",
+        "font",
+        "styleSheet",
+        "enabled",
+        "visible",
+        "size",
+        "minimumSize",
+        "maximumSize",
+        "layoutDirection",
+        "contextMenuPolicy",
+        "cursor",
+        "windowTitle",
+        "windowIcon",
+    )
+
     # return the existing QApplication object, or create a new one if none exist.
     app = QtWidgets.QApplication.instance() or QtWidgets.QApplication(sys.argv)
 
@@ -199,6 +234,7 @@ class Overlay(QtWidgets.QWidget):
 
         self.painter = QtGui.QPainter()
         self.path = Path()
+        self._cursor_overridden = False
 
         self._event_filter = OverlayFactoryFilter(self)
         if parent:
@@ -262,6 +298,25 @@ class Overlay(QtWidgets.QWidget):
 
         return region_widget
 
+    def start_gesture(self, global_pos: QtCore.QPoint) -> None:
+        """Begin a gesture at the given global position.
+
+        This sets the cursor to CrossCursor, clears any existing painting,
+        and resets the path to start from the given position.
+
+        Parameters:
+            global_pos: The global screen position to start the gesture.
+        """
+        if not self._cursor_overridden:
+            QtWidgets.QApplication.setOverrideCursor(
+                QtGui.QCursor(QtCore.Qt.CrossCursor)
+            )
+            self._cursor_overridden = True
+
+        self.clear_paint_events()
+        self.path.reset()
+        self.mouseMovePos = self.mapFromGlobal(global_pos)
+
     def clone_widgets_along_path(self, ui, return_func):
         """Re-constructs the relevant widgets from the previous UI for the new UI, and positions them.
         Initializes the new widgets by adding them to the switchboard.
@@ -272,16 +327,19 @@ class Overlay(QtWidgets.QWidget):
             ui (QMainWindow): The UI in which to copy the widgets to.
         """
         if not self.path.start_pos:
-            raise ValueError("No start position found in the path.")
+            # Fallback: initialize path at current cursor if missing
+            self.start_gesture(QtGui.QCursor.pos())
 
         # Initialize the return area region for the UI
         region_widget = self.init_region(ui, self.path.start_pos)
         region_widget.on_enter.connect(return_func)
         region_widget.on_enter.connect(self.path.clear_to_origin)
 
-        # Clone the widgets along the path. Omit the starting index and the last widget which already exists in the new UI.
-        to_clone = self.path._path[1:-1]
-        new_widgets = tuple(self._clone_widget(ui, w, pos) for w, pos, _ in to_clone)
+        # Clone the widgets along the path (intermediate entries only)
+        new_widgets = tuple(
+            self._clone_widget(ui, w, pos)
+            for w, pos, _ in self.path.intermediate_entries
+        )
 
         return new_widgets
 
@@ -294,7 +352,8 @@ class Overlay(QtWidgets.QWidget):
         """Clone a widget and place it at the given position in the UI."""
         new_widget = type(prev_widget)(ui)
 
-        safe_attrs: dict[str, Callable[[QtWidgets.QWidget], Any]] = {
+        # Build getter map from class constant
+        attr_getters = {
             "objectName": lambda w: w.objectName(),
             "accessibleName": lambda w: w.accessibleName(),
             "toolTip": lambda w: w.toolTip(),
@@ -315,16 +374,25 @@ class Overlay(QtWidgets.QWidget):
         }
 
         if hasattr(prev_widget, "text") and callable(prev_widget.text):
-            safe_attrs["text"] = lambda w: w.text()
+            attr_getters["text"] = lambda w: w.text()
 
-        for attr, getter in safe_attrs.items():
+        for attr in self.CLONE_ATTRS:
+            getter = attr_getters.get(attr)
+            if not getter:
+                continue
             setter_name = f"set{attr[0].upper()}{attr[1:]}"
             if hasattr(new_widget, setter_name):
-                setter = getattr(new_widget, setter_name)
                 try:
-                    setter(getter(prev_widget))
+                    getattr(new_widget, setter_name)(getter(prev_widget))
                 except Exception:
                     continue
+
+        # Handle text separately if present
+        if "text" in attr_getters and hasattr(new_widget, "setText"):
+            try:
+                new_widget.setText(attr_getters["text"](prev_widget))
+            except Exception:
+                pass
 
         new_pos = new_widget.mapFromGlobal(position - new_widget.rect().center())
         new_widget.move(new_pos)
@@ -359,23 +427,17 @@ class Overlay(QtWidgets.QWidget):
         self.painter.end()
 
     def mousePressEvent(self, event):
-        """ """
-        # Change the cursor shape to a drag move cursor.
-        QtWidgets.QApplication.setOverrideCursor(QtGui.QCursor(QtCore.Qt.CrossCursor))
-
-        self.clear_paint_events()
-        self.path.reset()
-        self.mouseMovePos = event.pos()
-
+        """Handle mouse press by starting gesture at the event position."""
+        self.start_gesture(event.globalPos())
         super().mousePressEvent(event)
 
     def mouseReleaseEvent(self, event):
-        """ """
-        # Restore the cursor to its default shape.
-        QtWidgets.QApplication.restoreOverrideCursor()
+        """Handle mouse release by restoring cursor and clearing painting."""
+        if self._cursor_overridden:
+            QtWidgets.QApplication.restoreOverrideCursor()
+            self._cursor_overridden = False
 
-        self.clear_paint_events()  # Explicitly clear the overlay
-
+        self.clear_paint_events()
         super().mouseReleaseEvent(event)
 
     def mouseMoveEvent(self, event):
@@ -387,9 +449,11 @@ class Overlay(QtWidgets.QWidget):
         super().mouseMoveEvent(event)
 
     def hideEvent(self, event):
-        """Clears the path and restores the cursor to its default shape when the overlay is hidden."""
+        """Clears the path and restores the cursor when the overlay is hidden."""
         self.path.clear()
-        QtWidgets.QApplication.restoreOverrideCursor()  # Restore the cursor to its default shape.
+        if self._cursor_overridden:
+            QtWidgets.QApplication.restoreOverrideCursor()
+            self._cursor_overridden = False
         super().hideEvent(event)
 
 

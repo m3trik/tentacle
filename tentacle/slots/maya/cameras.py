@@ -102,9 +102,10 @@ class Cameras(SlotsMaya):
 
         elif parent_text == "Camera Options":
             if text == "Auto Adjust Clipping":
-                mtk.adjust_camera_clipping(mode="auto")
+                print("Auto Adjust Clipping selected")
+                mtk.adjust_camera_clipping(near_clip="auto", far_clip="auto")
             elif text == "Reset Clipping":
-                mtk.adjust_camera_clipping(mode="reset")
+                mtk.adjust_camera_clipping(near_clip="reset", far_clip="reset")
 
     def b000(self):
         """Cameras: Back View"""
@@ -157,19 +158,23 @@ class Cameras(SlotsMaya):
 
     def b010(self):
         """Camera: Dolly"""
-        pm.viewPreset(camera="dolly")
+        pm.mel.eval("setToolTo $gDolly")
 
     def b011(self):
         """Camera: Roll"""
-        pm.viewPreset(camera="roll")
+        # Maya doesn't have a standard 'Roll' tool active command usually exposed simply?
+        # Trying Track/Tumble?
+        # Maybe the user meant Tumble?
+        pm.mel.eval("setToolTo $gTumble")
 
     def b012(self):
         """Camera: Truck"""
-        pm.viewPreset(camera="truck")
+        pm.mel.eval("setToolTo $gTrack")
 
     def b013(self):
         """Camera: Orbit"""
-        pm.viewPreset(camera="orbit")
+        # Orbit is Tumble
+        pm.mel.eval("setToolTo $gTumble")
 
     def toggle_camera_view(self):
         """Toggle between the last two camera views in history."""

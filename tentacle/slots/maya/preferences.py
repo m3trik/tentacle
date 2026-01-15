@@ -10,6 +10,8 @@ except ImportError as error:
     print(__file__, error)
 import mayatk as mtk
 import pythontk as ptk
+
+# From this package:
 from tentacle.slots.maya import SlotsMaya
 
 
@@ -20,12 +22,27 @@ class Preferences(SlotsMaya):
         self.ui = self.sb.loaded_ui.preferences
         self.submenu = self.sb.loaded_ui.preferences_submenu
 
-        self._build_tentacle_reloader()
-
-        # Change generic button text to Maya specific
-        self.ui.parent_app.setTitle("Maya")
-        self.ui.b010.setText("Maya Preferences")
-        self.submenu.b010.setText("Maya Preferences")
+    def header_init(self, widget):
+        """Initialize header"""
+        if not widget.is_initialized:
+            widget.menu.add(
+                self.sb.registered_widgets.Label,
+                setText="UI Style Editor",
+                setObjectName="lbl000",
+                setToolTip="Customize the UI colors used by Tentacle.",
+            )
+            widget.menu.add(
+                self.sb.registered_widgets.PushButton,
+                setText="Update Package",
+                setObjectName="tb000",
+                setToolTip="Check for Tentacle package updates.",
+            )
+            widget.menu.add(
+                self.sb.registered_widgets.PushButton,
+                setText="Reload Scripts",
+                setObjectName="tb001",
+                setToolTip="Reload Tentacle and its core dependencies in the current session.",
+            )
 
     def cmb001_init(self, widget):
         """Initializes the combo box with unit options."""
@@ -126,43 +143,20 @@ class Preferences(SlotsMaya):
             current_value = widget.value()
             update_interval(current_value)
 
-    def b002(self):
-        """Autosave: Delete All"""
-        files = mtk.get_recent_autosave()
-        for file, _ in files:
-            try:
-                os.remove(file)
-
-            except Exception as error:
-                print(error)
-
-    def tb000_init(self, widget):
-        """ """
-        if not widget.is_initialized:
-            widget.option_box.menu.add(
-                "QCheckBox",
-                setText="Auto Update",
-                setObjectName="auto_update",
-                setChecked=True,
-                setToolTip="Automatically check for updates",
-            )
-
     def tb000(self):
         """Update Package"""
         self.check_for_update()
 
-    def tb001_init(self, widget):
-        """Configure reload button helpers once."""
-        if not widget.is_initialized:
-            widget.setToolTip(
-                "Reload Tentacle and its core dependencies in the current session."
-            )
-
     def tb001(self):
         """Reload Tentacle package with its dependencies."""
         state = self._teardown_tentacle_instance()
+
+        # Reload dependencies first, then tentacle
+        modules = [m for m in ("pythontk", "mayatk", "uitk") if m in sys.modules]
+        modules.append("tentacle")
+
         try:
-            modules = self._tentacle_reloader.reload("tentacle")
+            reloaded = mtk.MayaConnection.reload_modules(modules)
         except Exception as error:
             print(f"Tentacle reload failed: {error}")
             self.sb.message_box(
@@ -172,26 +166,10 @@ class Preferences(SlotsMaya):
             )
             return
 
-        self._build_tentacle_reloader()
         self._restore_tentacle_instance(state)
 
-        module_names = ", ".join(module.__name__ for module in modules)
-        print(f"Tentacle reload complete: {module_names}")
         self.sb.message_box(
-            f"<b>Reload complete.</b><br><small>{len(modules)} module(s) refreshed.</small>"
-        )
-
-    def _build_tentacle_reloader(self):
-        dependency_candidates = ("pythontk", "mayatk", "uitk")
-        # Only reload dependencies that are already live to avoid importing new modules implicitly.
-        self._tentacle_reload_dependencies = tuple(
-            dep for dep in dependency_candidates if dep in sys.modules
-        )
-        self._tentacle_reloader = ptk.ModuleReloader(
-            dependencies_first=self._tentacle_reload_dependencies,
-            include_submodules=True,
-            import_missing=True,
-            exclude_modules=["*_ui"],
+            f"<b>Reload complete.</b><br><small>{len(reloaded)} module(s) refreshed.</small>"
         )
 
     def _teardown_tentacle_instance(self):
@@ -268,7 +246,7 @@ class Preferences(SlotsMaya):
             print(f"Tentacle restore failed: {error}")
 
     def check_for_update(self):
-        """ """
+        """Check for Tentacle package updates"""
         mayapy = os.path.join(mtk.get_env_info("install_path"), "bin", "mayapy.exe")
         pkg_mgr = ptk.PackageManager(python_path=mayapy)
         this_pkg = "tentacletk"
@@ -302,9 +280,38 @@ class Preferences(SlotsMaya):
                 )
             )
 
+    def lbl000(self):
+        """UI Style Editor"""
+        from uitk.widgets.style_editor import StyleEditor
+
+        # Create if not exists or if the C++ object has been deleted
+        if not hasattr(self, "_style_editor"):
+            self._style_editor = StyleEditor(parent=self.sb.parent())
+        else:
+            try:
+                # Check if underlying C++ object is valid
+                if not self._style_editor.isVisible():
+                    self._style_editor.show()  # Just show if hidden
+            except RuntimeError:
+                # Re-create if deleted
+                self._style_editor = StyleEditor(parent=self.sb.parent())
+        print("Opening Style Editor:", self._style_editor)
+        self._style_editor.show()
+        self._style_editor.raise_()
+
     def b001(self):
         """Color Settings"""
         pm.mel.colorPrefWnd()
+
+    def b002(self):
+        """Autosave: Delete All"""
+        files = mtk.get_recent_autosave()
+        for file, _ in files:
+            try:
+                os.remove(file)
+
+            except Exception as error:
+                print(error)
 
     def b008(self):
         """Hotkeys"""

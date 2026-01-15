@@ -138,6 +138,7 @@ class UvSlots(SlotsMaya):
         The packing operation:
         1. Gets UV packing parameters from UI controls
         2. Calculates appropriate padding based on texture resolution
+        3. Processes each mesh individually to handle errors gracefully
         4. Packs UV shells into the specified UDIM tile
 
         Parameters:
@@ -158,6 +159,7 @@ class UvSlots(SlotsMaya):
             - Requires at least one object to be selected
             - Automatically calculates shell and tile padding based on map size
             - If uniform texel density is enabled, normalizes all shells before packing
+            - Meshes with errors (e.g., non-manifold vertices) are skipped with a summary
         """
         scale = widget.option_box.menu.s009.value()
         rotate = widget.option_box.menu.s010.value()
@@ -177,21 +179,63 @@ class UvSlots(SlotsMaya):
                 "<b>Nothing selected.<b><br>The operation requires at least one selected object."
             )
             return
-        uvs = pm.polyListComponentConversion(selection, fromFace=True, toUV=True)
-        uvs_flattened = pm.ls(uvs, flatten=True)
 
-        pm.u3dLayout(
-            uvs_flattened,
-            resolution=map_size,
-            shellSpacing=shellPadding,
-            tileMargin=tilePadding,
-            preScaleMode=scale,
-            preRotateMode=rotate,
-            packBox=[M - 1, D, I, U],
-            rotateStep=rotate_step,
-            rotateMin=rotate_min,
-            rotateMax=rotate_max,
-        )
+        # Get unique meshes from selection (handles both object and component selection)
+        meshes = mtk.Components.get_components(selection, "mesh", flatten=False)
+        if not meshes:
+            meshes = pm.ls(selection, type="transform", dag=True) or selection
+
+        successful = []
+        failed = []
+
+        for mesh in meshes:
+            try:
+                uvs = pm.polyListComponentConversion(mesh, fromFace=True, toUV=True)
+                uvs_flattened = pm.ls(uvs, flatten=True)
+                if not uvs_flattened:
+                    continue
+
+                pm.u3dLayout(
+                    uvs_flattened,
+                    resolution=map_size,
+                    shellSpacing=shellPadding,
+                    tileMargin=tilePadding,
+                    preScaleMode=scale,
+                    preRotateMode=rotate,
+                    packBox=[M - 1, D, I, U],
+                    rotateStep=rotate_step,
+                    rotateMin=rotate_min,
+                    rotateMax=rotate_max,
+                )
+                successful.append(str(mesh))
+            except RuntimeError as e:
+                error_msg = str(e)
+                # Extract user-friendly error description
+                if "non-manifold" in error_msg.lower():
+                    reason = "non-manifold vertices"
+                elif "overlapping" in error_msg.lower():
+                    reason = "overlapping UVs"
+                else:
+                    reason = error_msg.split("\n")[0][:50]  # First 50 chars
+                failed.append((str(mesh), reason))
+
+        # Report summary
+        if failed:
+            failed_list = "<br>".join(
+                f"• <b>{name}</b>: {reason}" for name, reason in failed
+            )
+            self.sb.message_box(
+                f"<b>UV Pack Complete</b><br><br>"
+                f"✓ Packed: {len(successful)} mesh(es)<br>"
+                f"✗ Skipped: {len(failed)} mesh(es)<br><br>"
+                f"<b>Skipped meshes:</b><br>{failed_list}<br><br>"
+                f"<i>Tip: Use Mesh > Cleanup to fix non-manifold geometry.</i>"
+            )
+        elif successful:
+            self.sb.message_box(
+                f"<b>UV Pack Complete</b><br><br>"
+                f"✓ Successfully packed {len(successful)} mesh(es)."
+            )
 
     def tb001_init(self, widget):
         """Initialize Auto Unwrap"""
@@ -442,10 +486,6 @@ class UvSlots(SlotsMaya):
         # If selection mode is not object, switch to object mode
         if pm.selectMode(query=True, object=True):
             pm.selectMode(object=True)
-
-        # Perform a preliminary unfold to optionally clean the mesh
-        pm.mel.UnfoldUV()  # Prepares the context
-        pm.mel.performUnfold(0)  # Mimics UI's behavior
 
         pm.u3dUnfold(
             iterations=1,

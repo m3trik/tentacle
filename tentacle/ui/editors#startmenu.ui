@@ -51,15 +51,60 @@
     </sizepolicy>
    </property>
    <layout class="QGridLayout" name="gridLayout">
+    <property name="leftMargin">
+     <number>0</number>
+    </property>
+    <property name="topMargin">
+     <number>0</number>
+    </property>
+    <property name="rightMargin">
+     <number>0</number>
+    </property>
+    <property name="bottomMargin">
+     <number>0</number>
+    </property>
+    <property name="spacing">
+     <number>0</number>
+    </property>
     <item row="0" column="0">
      <widget class="QWidget" name="staticWindow" native="true">
       <layout class="QGridLayout" name="gridLayout_2">
+       <property name="leftMargin">
+        <number>0</number>
+       </property>
+       <property name="topMargin">
+        <number>0</number>
+       </property>
+       <property name="rightMargin">
+        <number>0</number>
+       </property>
+       <property name="bottomMargin">
+        <number>0</number>
+       </property>
+       <property name="spacing">
+        <number>0</number>
+       </property>
        <item row="0" column="0" rowspan="3">
         <widget class="Region" name="region_4" native="true"/>
        </item>
        <item row="0" column="1">
         <widget class="Region" name="region" native="true">
          <layout class="QVBoxLayout" name="verticalLayout_2">
+          <property name="spacing">
+           <number>0</number>
+          </property>
+          <property name="leftMargin">
+           <number>0</number>
+          </property>
+          <property name="topMargin">
+           <number>0</number>
+          </property>
+          <property name="rightMargin">
+           <number>0</number>
+          </property>
+          <property name="bottomMargin">
+           <number>0</number>
+          </property>
           <item>
            <spacer name="verticalSpacer_2">
             <property name="orientation">
@@ -84,7 +129,7 @@
             <widget class="QPushButton" name="b007">
              <property name="geometry">
               <rect>
-               <x>0</x>
+               <x>10</x>
                <y>30</y>
                <width>91</width>
                <height>21</height>
@@ -109,39 +154,11 @@
               <string>Status Line</string>
              </property>
             </widget>
-            <widget class="QPushButton" name="b010">
-             <property name="geometry">
-              <rect>
-               <x>110</x>
-               <y>30</y>
-               <width>91</width>
-               <height>21</height>
-              </rect>
-             </property>
-             <property name="minimumSize">
-              <size>
-               <width>0</width>
-               <height>21</height>
-              </size>
-             </property>
-             <property name="maximumSize">
-              <size>
-               <width>16777215</width>
-               <height>21</height>
-              </size>
-             </property>
-             <property name="whatsThis">
-              <string>dynLayout</string>
-             </property>
-             <property name="text">
-              <string>Range Slider</string>
-             </property>
-            </widget>
             <widget class="QPushButton" name="b009">
              <property name="geometry">
               <rect>
-               <x>110</x>
-               <y>60</y>
+               <x>120</x>
+               <y>40</y>
                <width>91</width>
                <height>21</height>
               </rect>
@@ -162,14 +179,14 @@
               <string>dynLayout</string>
              </property>
              <property name="text">
-              <string>Time Slider</string>
+              <string>Time &amp;&amp; Range</string>
              </property>
             </widget>
             <widget class="QPushButton" name="b008">
              <property name="geometry">
               <rect>
-               <x>110</x>
-               <y>0</y>
+               <x>120</x>
+               <y>10</y>
                <width>91</width>
                <height>21</height>
               </rect>
@@ -196,7 +213,7 @@
             <widget class="QPushButton" name="b011">
              <property name="geometry">
               <rect>
-               <x>215</x>
+               <x>225</x>
                <y>30</y>
                <width>91</width>
                <height>21</height>
@@ -224,7 +241,7 @@
             <widget class="QPushButton" name="b012">
              <property name="geometry">
               <rect>
-               <x>215</x>
+               <x>225</x>
                <y>60</y>
                <width>91</width>
                <height>21</height>
@@ -252,7 +269,7 @@
             <widget class="QPushButton" name="b013">
              <property name="geometry">
               <rect>
-               <x>0</x>
+               <x>10</x>
                <y>60</y>
                <width>91</width>
                <height>21</height>
@@ -524,6 +541,21 @@
           <string/>
          </property>
          <layout class="QVBoxLayout" name="verticalLayout">
+          <property name="spacing">
+           <number>0</number>
+          </property>
+          <property name="leftMargin">
+           <number>0</number>
+          </property>
+          <property name="topMargin">
+           <number>0</number>
+          </property>
+          <property name="rightMargin">
+           <number>0</number>
+          </property>
+          <property name="bottomMargin">
+           <number>0</number>
+          </property>
           <item>
            <widget class="QWidget" name="widget_2" native="true">
             <property name="minimumSize">
@@ -535,8 +567,8 @@
             <widget class="QPushButton" name="i000">
              <property name="geometry">
               <rect>
-               <x>105</x>
-               <y>10</y>
+               <x>120</x>
+               <y>0</y>
                <width>91</width>
                <height>21</height>
               </rect>

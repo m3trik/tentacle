@@ -18,6 +18,16 @@ class TransformSlots(SlotsMaya):
         self.ui = self.sb.loaded_ui.transform
         self.submenu = self.sb.loaded_ui.transform_submenu
 
+    def header_init(self, widget):
+        """Header Init"""
+        widget.menu.add(
+            "QPushButton",
+            setText="Fix Non-Orthogonal Axes",
+            setObjectName="fix_non_ortho_axes",
+            setToolTip="Fix non-orthogonal axes (shear) on selected objects.",
+            clicked=lambda: mtk.Diagnostics.fix_non_orthogonal_axes(),
+        )
+
     def cmb002_init(self, widget):
         """Align To Init"""
         items = [
@@ -140,7 +150,6 @@ class TransformSlots(SlotsMaya):
             "QCheckBox",
             setText="Freeze Children",
             setObjectName="chk039",
-            setChecked=False,
             setToolTip="Freeze all descendant transform nodes.",
         )
         widget.option_box.menu.add(

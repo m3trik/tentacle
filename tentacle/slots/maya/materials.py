@@ -8,7 +8,7 @@ except ImportError as error:
     print(__file__, error)
 import mayatk as mtk
 
-# From this package
+# From this package:
 from tentacle.slots.maya import SlotsMaya
 
 
@@ -24,7 +24,8 @@ class MaterialsSlots(SlotsMaya):
         self.last_random_material = None
 
     def header_init(self, widget):
-        """ """
+        """Initialize the header menu"""
+        widget.menu.setTitle("Materials: Utilities")
         # Add a button to reload all textures in the scene.
         widget.menu.add(
             "QPushButton",
@@ -35,37 +36,45 @@ class MaterialsSlots(SlotsMaya):
         # Add a button to open the hypershade editor.
         widget.menu.add(
             "QPushButton",
-            setToolTip="Open the Hypershade Window.",
             setText="Hypershade Editor",
             setObjectName="b007",
+            setToolTip="Open the Hypershade Window.",
+            clicked=lambda: pm.mel.HypershadeWindow(),
         )
-        # Add a button to launch stringray arnold shader.
+        # Add a button to launch the game shader.
         widget.menu.add(
             "QPushButton",
-            setToolTip="Create a stingray material network that can optionally be rendered in Arnold.",
-            setText="Create Stingray Shader",
+            setText="Create Game Shader",
             setObjectName="b009",
+            setToolTip="Create an exportable game shader network that can optionally be rendered in Arnold.",
+        )
+        # Add a button to launch the Material Updater.
+        widget.menu.add(
+            "QPushButton",
+            setText="Material Updater",
+            setObjectName="b018",
+            setToolTip="Update material networks with new textures and settings.",
         )
         # Add a button to launch the shader templates UI.
         widget.menu.add(
             "QPushButton",
-            setToolTip="Open the Shader Templates UI to save and load shader graphs.",
             setText="Shader Templates",
             setObjectName="b011",
+            setToolTip="Open the Shader Templates UI to save and load shader graphs.",
         )
         # Add a button to launch the Texture Path Editor.
         widget.menu.add(
             "QPushButton",
-            setToolTip="Edit texture paths for materials in the scene.",
             setText="Texture Path Editor",
             setObjectName="b010",
+            setToolTip="Edit texture paths for materials in the scene.",
         )
         # Add a button to launch map converter.
         widget.menu.add(
             "QPushButton",
-            setToolTip="Convert existing texture maps to another type.",
             setText="Map Converter",
             setObjectName="b016",
+            setToolTip="Convert existing texture maps to another type.",
         )
         widget.menu.add(
             "QPushButton",
@@ -73,9 +82,16 @@ class MaterialsSlots(SlotsMaya):
             setObjectName="b008",
             setToolTip="Pack up to 4 input grayscale maps into specified RGBA channels.",
         )
+        # Add a button to print scene texture info.
+        widget.menu.add(
+            "QPushButton",
+            setText="Print Texture Info",
+            setObjectName="b017",
+            setToolTip="Print information about all texture files in the scene to the script editor.",
+        )
 
     def cmb002_init(self, widget):
-        """ """
+        """Initialize Materials"""
         if not widget.is_initialized:
             widget.refresh_on_show = True  # Call this method on show
             widget.editable = True
@@ -134,14 +150,14 @@ class MaterialsSlots(SlotsMaya):
             widget.currentIndexChanged.connect(self.submenu.b005.init_slot)
 
         # Use 'restore_index=True' to save and restore the index
-        materials_dict = mtk.get_scene_mats(
+        materials_dict = mtk.MatUtils.get_scene_mats(
             exc="standardSurface", sort=True, as_dict=True
         )
         widget.add(materials_dict, clear=True, restore_index=True)
 
         # Create and set icons with color swatch
         for i, mat in enumerate(widget.items):
-            icon = mtk.get_mat_swatch_icon(mat)
+            icon = mtk.MatUtils.get_mat_swatch_icon(mat)
             if icon:
                 widget.setItemIcon(i, icon)
 
@@ -225,7 +241,7 @@ class MaterialsSlots(SlotsMaya):
         if get_and_select:
             selection = pm.ls(sl=True)
             if selection:
-                mat = mtk.get_mats(selection[0])
+                mat = mtk.MatUtils.get_mats(selection[0])
                 if len(mat) == 1:
                     # Refresh the materials list and set the found material as current
                     self.ui.cmb002.init_slot()
@@ -266,7 +282,7 @@ class MaterialsSlots(SlotsMaya):
         else:
             selection = None  # Search all objects in the scene
 
-        faces_with_mat = mtk.find_by_mat_id(mat, selection, shell=shell)
+        faces_with_mat = mtk.MatUtils.find_by_mat_id(mat, selection, shell=shell)
 
         pm.select(faces_with_mat)
 
@@ -304,7 +320,7 @@ class MaterialsSlots(SlotsMaya):
             self.sb.message_box("No stored material or no valid object selected.")
             return
 
-        mtk.graph_materials(mat)
+        mtk.MatUtils.graph_materials(mat)
 
     def b002(self, widget):
         """Get Material: Change the index to match the current material selection."""
@@ -315,7 +331,7 @@ class MaterialsSlots(SlotsMaya):
             )
             return
 
-        mat = mtk.get_mats(selection[0])
+        mat = mtk.MatUtils.get_mats(selection[0])
         if len(mat) != 1:
             self.sb.message_box(
                 "<hl>Invalid selection</hl><br>Selection must have exactly one material assigned."
@@ -326,15 +342,15 @@ class MaterialsSlots(SlotsMaya):
         self.ui.cmb002.setAsCurrent(mat.pop().name())  # pop: mat is a set
 
     def b004(self, widget):
-        """Assign: Assign Random"""
+        """Assign Random"""
         selection = pm.ls(sl=True, flatten=True)
         if not selection:
             self.sb.message_box("No renderable object is selected for assignment.")
             return
 
         # Create and assign a new random material
-        new_mat = mtk.create_mat("random")
-        mtk.assign_mat(selection, new_mat)
+        new_mat = mtk.MatUtils.create_mat("random")
+        mtk.MatUtils.assign_mat(selection, new_mat)
 
         # Check and delete the last random material if it's no longer in use
         if self.last_random_material and self.last_random_material != new_mat:
@@ -365,7 +381,7 @@ class MaterialsSlots(SlotsMaya):
         pm.select(selection)
 
     def b005_init(self, widget):
-        """ """
+        """Initialize Assign Current"""
         if not widget.is_initialized:
             widget.refresh_on_show = True  # Call this method on show
             self.ui.cmb002.init_slot()
@@ -377,19 +393,19 @@ class MaterialsSlots(SlotsMaya):
         submenu_widget.setText(text)
         submenu_widget.setMinimumWidth(submenu_widget.minimumSizeHint().width() + 25)
         if current_material:
-            icon = mtk.get_mat_swatch_icon(current_material, [15, 15])
+            icon = mtk.MatUtils.get_mat_swatch_icon(current_material, [15, 15])
             if icon is not None:
                 submenu_widget.setIcon(icon)
 
     def b005(self, widget):
-        """Assign: Assign Current"""
+        """Assign Current"""
         selection = pm.ls(sl=True, flatten=1)
         if not selection:
             self.sb.message_box("No renderable object is selected for assignment.")
             return
 
         mat = self.ui.cmb002.currentData()
-        mtk.assign_mat(selection, mat)
+        mtk.MatUtils.assign_mat(selection, mat)
 
     def b006(self, widget):
         """Assign: New Material"""
@@ -401,10 +417,6 @@ class MaterialsSlots(SlotsMaya):
             'buildObjectMenuItemsNow "MainPane|viewPanes|modelPanel4|modelPanel4|modelPanel4|modelPanel4ObjectPop";'
         )
         pm.mel.createAssignNewMaterialTreeLister("")
-
-    def b007(self, widget):
-        """Hypershade Editor"""
-        pm.mel.HypershadeWindow()
 
     def b008(self, widget):
         """Map Packer"""
@@ -429,8 +441,8 @@ class MaterialsSlots(SlotsMaya):
         self.sb.parent().show(ui)
 
     def b009(self, widget):
-        """Create Stingray Shader"""
-        ui = mtk.UiManager.instance(self.sb).get("stingray_arnold_shader")
+        """Create Game Shader"""
+        ui = mtk.UiManager.instance(self.sb).get("game_shader")
         self.sb.parent().show(ui)
 
     def b010(self, widget):
@@ -445,15 +457,15 @@ class MaterialsSlots(SlotsMaya):
 
     def b013(self):
         """Reload Textures"""
-        mtk.reload_textures()  # pm.mel.AEReloadAllTextures()
+        mtk.MatUtils.reload_textures()  # pm.mel.AEReloadAllTextures()
         confirmation_message = "<html><body><p style='font-size:16px; color:yellow;'>Textures are <strong>reloading ..</strong>.</p></body></html>"
         self.sb.message_box(confirmation_message)
 
     def b014(self):
         """Remove and Reassign Duplicates"""
-        dups = mtk.find_materials_with_duplicate_textures()
+        dups = mtk.MatUtils.find_materials_with_duplicate_textures()
         if dups:
-            mtk.reassign_duplicate_materials(dups, delete=True)
+            mtk.MatUtils.reassign_duplicate_materials(dups, delete=True)
             self.ui.cmb002.init_slot()
 
     def b016(self):
@@ -476,6 +488,32 @@ class MaterialsSlots(SlotsMaya):
         source_images_dir = mtk.get_env_info("sourceimages")
         ui.slots.source_dir = source_images_dir
 
+        self.sb.parent().show(ui)
+
+    def b017(self, widget):
+        """Print Texture Info"""
+        info_list = mtk.MatUtils.get_texture_info()
+
+        print(f"\n{'='*60}")
+        print(f"Found {len(info_list)} valid textures in scene.")
+        print(f"{'='*60}")
+
+        for info in info_list:
+            print(f"Name: {info['name']}")
+            print(f"  Path:   {info['path']}")
+            print(f"  Size:   {info['size']:,} bytes")
+            print(f"  Res:    {info['width']}x{info['height']}")
+            print(f"  Mode:   {info['mode']}")
+            print(f"  Format: {info['format']}")
+            print("-" * 40)
+
+        self.sb.message_box(
+            f"Printed info for {len(info_list)} textures to Script Editor."
+        )
+
+    def b018(self, widget):
+        """Material Updater"""
+        ui = mtk.UiManager.instance(self.sb).get("material_updater")
         self.sb.parent().show(ui)
 
 

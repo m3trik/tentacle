@@ -21,7 +21,7 @@ class SceneSlots(SlotsMaya):
         self.submenu = self.sb.loaded_ui.scene_submenu
 
     def header_init(self, widget):
-        """ """
+        """Initialize Header"""
         if not widget.is_initialized:
             widget.menu.add(
                 "QPushButton",
@@ -67,6 +67,12 @@ class SceneSlots(SlotsMaya):
             )
             widget.menu.add(
                 "QPushButton",
+                setText="Fix Color Spaces",
+                setObjectName="b011",
+                setToolTip="Fix missing color space errors on file texture nodes.\nAuto-detects sRGB vs Raw based on texture type.",
+            )
+            widget.menu.add(
+                "QPushButton",
                 setText="Scene Audit",
                 setObjectName="b010",
                 setToolTip="Analyze scene for performance issues (poly count, draw calls, textures).",
@@ -78,7 +84,7 @@ class SceneSlots(SlotsMaya):
         self.ui.cmb000.init_slot()
 
     def cmb000_init(self, widget):
-        """ """
+        """Initialize Workspace Scenes"""
         if not widget.is_initialized:
             widget.refresh_on_show = True  # Call this method on show
             pm.scriptJob(event=["workspaceChanged", self.ui.cmb000.init_slot])
@@ -103,7 +109,7 @@ class SceneSlots(SlotsMaya):
         pm.openFile(scene, force=True)
 
     def cmb002_init(self, widget):
-        """ """
+        """Initialize Autosave"""
         # Fetch recent autosave files
         recent_autosaves = mtk.get_recent_autosave(
             filter_time=24, timestamp_format="%H:%M:%S"
@@ -127,7 +133,7 @@ class SceneSlots(SlotsMaya):
         pm.openFile(file, open=1, force=True)
 
     def cmb003_init(self, widget):
-        """ """
+        """Initialize Import"""
         widget.add(
             [
                 "Import File",
@@ -151,7 +157,7 @@ class SceneSlots(SlotsMaya):
             pm.mel.FBXUICallBack(-1, "editImportPresetInNewWindow", "obj")
 
     def cmb004_init(self, widget):
-        """ """
+        """Initialize Export"""
         items = [
             "Export Selection",
             "Send to Unreal",
@@ -196,7 +202,7 @@ class SceneSlots(SlotsMaya):
             pm.mel.FBXUICallBack(-1, "editExportPresetInNewWindow", "obj")
 
     def cmb005_init(self, widget):
-        """ """
+        """Initialize Recent Files"""
         recent_files = mtk.get_recent_files(slice(0, 20))
         truncated = ptk.truncate(recent_files, 165)
         widget.add(zip(truncated, recent_files), header="Recent Files", clear=True)
@@ -207,35 +213,35 @@ class SceneSlots(SlotsMaya):
         pm.openFile(widget.items[index], open=True, force=force, ignoreVersion=True)
 
     def cmb006_init(self, widget):
-        """ """
+        """Initialize Workspace"""
         if not widget.is_initialized:
             widget.refresh_on_show = True  # Call this method on show
             widget.option_box.menu.add(
                 "QPushButton",
                 setObjectName="lbl000",
-                setText="Set Project",
+                setText="Set Workspace",
                 setToolTip="Set the project directory.",
             )
             widget.option_box.menu.add(
                 "QPushButton",
                 setObjectName="lbl005",
-                setText="Auto Set Project",
+                setText="Auto Set Workspace",
                 setToolTip="Determine the workspace directory by moving up directory levels until a workspace is found.",
             )
             widget.option_box.menu.add(
                 "QPushButton",
                 setObjectName="lbl004",
-                setText="Open Project Root",
+                setText="Open Workspace Root",
                 setToolTip="Open the project root directory.",
             )
             widget.option_box.menu.add(
                 self.sb.registered_widgets.ComboBox,
                 setObjectName="cmb001",
-                setToolTip="Recent Projects",
+                setToolTip="Recent Workspaces",
             )
             widget.option_box.menu.cmb001.add(
                 mtk.get_recent_projects(slice(0, 20), format="timestamp|standard"),
-                header="Recent Projects:",
+                header="Recent Workspaces:",
                 clear=True,
             )
 
@@ -263,7 +269,7 @@ class SceneSlots(SlotsMaya):
             print(e)
 
     def list000_init(self, widget):
-        """ """
+        """Initialize Recent Files"""
         widget.position = "top"
         widget.sublist_y_offset = 18
         widget.fixed_item_height = 18
@@ -275,7 +281,7 @@ class SceneSlots(SlotsMaya):
 
     @Signals("on_item_interacted")
     def list000(self, item):
-        """ """
+        """Recent Files"""
         data = item.item_data()
         pm.openFile(data, open=True, force=True)
 
@@ -349,6 +355,10 @@ class SceneSlots(SlotsMaya):
     def b010(self):
         """Scene Audit"""
         mtk.SceneAnalyzer.run_audit(adaptive=True)
+
+    def b011(self):
+        """Fix Color Spaces"""
+        mtk.Diagnostics.fix_missing_color_spaces(force_update=True)
 
     def b007(self):
         """Import file"""

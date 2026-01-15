@@ -91,7 +91,7 @@
           <number>1</number>
          </property>
          <item row="1" column="4" colspan="2">
-          <widget class="QPushButton" name="b030">
+          <widget class="QPushButton" name="b002">
            <property name="minimumSize">
             <size>
              <width>0</width>
@@ -153,7 +153,7 @@
           </widget>
          </item>
          <item row="1" column="0" colspan="4">
-          <widget class="QPushButton" name="b031">
+          <widget class="QPushButton" name="b003">
            <property name="minimumSize">
             <size>
              <width>0</width>
@@ -167,13 +167,13 @@
             </size>
            </property>
            <property name="toolTip">
-            <string>Grease pencil</string>
+            <string>Open the built-in blue pencil tool.</string>
            </property>
            <property name="autoFillBackground">
             <bool>false</bool>
            </property>
            <property name="text">
-            <string>Grease Pencil</string>
+            <string>Pencil</string>
            </property>
            <property name="iconSize">
             <size>

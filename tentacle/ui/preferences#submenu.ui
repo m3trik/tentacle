@@ -109,7 +109,7 @@
      </size>
     </property>
     <property name="text">
-     <string>App Preferences</string>
+     <string>Maya Preferences</string>
     </property>
    </widget>
    <widget class="QPushButton" name="b009">

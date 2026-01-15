@@ -101,7 +101,16 @@ class ShortcutHandler(QtCore.QObject):
             return
         self._key_is_down = True
         self._owner.key_show_press.emit()
-        self._owner.show("hud#startmenu")
+
+        # Use consolidated button detection
+        active_button = self._owner._detect_active_button()
+
+        # Dismiss external popups (e.g., Maya's native marking menus)
+        # Pass the active button so a synthetic release can be sent
+        self._owner._dismiss_external_popups(active_button)
+
+        menu_name = self._owner.get_menu_name(active_button)
+        self._owner.show(menu_name, force=True)
         QtCore.QTimer.singleShot(0, self._owner.dim_other_windows)
 
     def _on_key_release(self):
@@ -128,6 +137,18 @@ class Tcl(QtWidgets.QWidget, ptk.SingletonMixin, ptk.LoggingMixin, ptk.HelpMixin
                 If a module is given, the path to that module will be used.
         log_level (int): Determines the level of logging messages. Defaults to logging.WARNING. Accepts standard Python logging module levels: DEBUG, INFO, WARNING, ERROR, CRITICAL.
     """
+
+    # Single source of truth for button→menu mapping
+    # Combo (Left+Right) is checked first, then individual buttons (priority: R > M > L)
+    # Set combo value to None to disable, or a menu name like "tools#startmenu" to enable
+    BUTTON_MENU_MAP = {
+        QtCore.Qt.LeftButton
+        | QtCore.Qt.RightButton: None,  # Left+Right combo (disabled)
+        QtCore.Qt.RightButton: "main#startmenu",
+        QtCore.Qt.MiddleButton: "editors#startmenu",
+        QtCore.Qt.LeftButton: "cameras#startmenu",
+        None: "hud#startmenu",
+    }
 
     left_mouse_double_click = QtCore.Signal()
     left_mouse_double_click_ctrl = QtCore.Signal()
@@ -263,6 +284,8 @@ class Tcl(QtWidgets.QWidget, ptk.SingletonMixin, ptk.LoggingMixin, ptk.HelpMixin
             ui.resize(600, 600)
             ui.ensure_on_screen = False
             self.addWidget(ui)  # add the UI to the stackedLayout.
+            self.add_child_event_filter(ui.widgets)
+            ui.on_child_registered.connect(lambda w: self.add_child_event_filter(w))
 
         else:  # MainWindow
             ui.setParent(self)
@@ -273,10 +296,7 @@ class Tcl(QtWidgets.QWidget, ptk.SingletonMixin, ptk.LoggingMixin, ptk.HelpMixin
                 ui.header.config_buttons("menu", "collapse", "pin")
                 self.key_show_release.connect(ui.hide)
 
-        # set style before child init (resize).
-        self.add_child_event_filter(ui.widgets)
-        ui.on_child_registered.connect(lambda w: self.add_child_event_filter(w))
-        ui.default_slot_timeout = 90.0
+            ui.default_slot_timeout = 360.0
 
     def _prepare_ui(self, ui) -> QtWidgets.QWidget:
         """Initialize and set the UI without showing it."""
@@ -312,9 +332,6 @@ class Tcl(QtWidgets.QWidget, ptk.SingletonMixin, ptk.LoggingMixin, ptk.HelpMixin
             self.restore_other_windows()
             current.show()
 
-            current.adjustSize()
-            current.updateGeometry()
-
             # Position the widget at the cursor (handling parent coordinates)
             cursor_pos = QtGui.QCursor.pos()
             local_pos = self.mapFromGlobal(cursor_pos)
@@ -322,7 +339,7 @@ class Tcl(QtWidgets.QWidget, ptk.SingletonMixin, ptk.LoggingMixin, ptk.HelpMixin
             current.move(local_pos - current.rect().center() + offset)
 
             current.raise_()
-            current.activateWindow()
+            # current.activateWindow()
 
     def _set_submenu(self, ui, w) -> None:
         """Set the submenu for the given UI and widget."""
@@ -436,26 +453,124 @@ class Tcl(QtWidgets.QWidget, ptk.SingletonMixin, ptk.LoggingMixin, ptk.HelpMixin
         self._show_ui()
 
     # ---------------------------------------------------------------------------------------------
+    #   Menu Navigation Helpers:
+
+    @property
+    def is_stacked_ui(self) -> bool:
+        """Check if current UI is a stacked menu (startmenu/submenu)."""
+        ui = self.sb.current_ui
+        return ui is not None and ui.has_tags(["startmenu", "submenu"])
+
+    def get_menu_name(self, button: QtCore.Qt.MouseButton = None) -> str:
+        """Return the menu name corresponding to the given mouse button.
+
+        Parameters:
+            button: The mouse button (LeftButton, MiddleButton, RightButton, or None).
+
+        Returns:
+            The menu name string (e.g., 'main#startmenu', 'hud#startmenu'),
+            or None if the combo is disabled.
+        """
+        menu = self.BUTTON_MENU_MAP.get(button)
+        if menu is None and button is not None:
+            # Combo is disabled or not mapped, fall back to HUD
+            menu = self.BUTTON_MENU_MAP[None]
+        return menu
+
+    def _detect_active_button(self) -> QtCore.Qt.MouseButton:
+        """Detect which mouse button(s) are currently held.
+
+        Returns combined flags for Left+Right combo, otherwise single button (priority: R > M > L).
+        """
+        held = QtWidgets.QApplication.mouseButtons()
+        # Check Left+Right combo first
+        if (held & QtCore.Qt.LeftButton) and (held & QtCore.Qt.RightButton):
+            return QtCore.Qt.LeftButton | QtCore.Qt.RightButton
+        if held & QtCore.Qt.RightButton:
+            return QtCore.Qt.RightButton
+        elif held & QtCore.Qt.MiddleButton:
+            return QtCore.Qt.MiddleButton
+        elif held & QtCore.Qt.LeftButton:
+            return QtCore.Qt.LeftButton
+        return None
+
+    def _acquire_mouse_grab(self) -> None:
+        """Grab mouse if not already grabbed by self."""
+        if self.mouseGrabber() != self:
+            self.grabMouse()
+
+    def _release_mouse_grab(self) -> None:
+        """Release mouse grab if held by self."""
+        if self.mouseGrabber() == self:
+            self.releaseMouse()
+
+    def _begin_gesture(self, active_button=None) -> None:
+        """Single entry point for starting a navigation gesture.
+
+        Handles: dismissing external popups, starting overlay gesture,
+        and acquiring mouse grab if buttons are held.
+        """
+        self._dismiss_external_popups(active_button)
+        if hasattr(self, "overlay"):
+            self.overlay.start_gesture(QtGui.QCursor.pos())
+        if QtWidgets.QApplication.mouseButtons() != QtCore.Qt.NoButton:
+            self._acquire_mouse_grab()
+
+    def _dismiss_external_popups(self, active_button=None) -> None:
+        """Dismiss any active popup widgets that are not children of Tcl.
+
+        This is called before showing Tcl to close external menus that would
+        otherwise conflict with the overlay's event handling.
+
+        Parameters:
+            active_button: The mouse button currently held (if any). If provided,
+                          a synthetic release is sent to dismiss non-Qt popups.
+        """
+        # First, try closing Qt popup widgets
+        popup = QtWidgets.QApplication.activePopupWidget()
+        while popup is not None:
+            # Don't close our own popups
+            if self.isAncestorOf(popup):
+                break
+            popup.close()
+            # Check for nested popups
+            popup = QtWidgets.QApplication.activePopupWidget()
+
+        # For non-Qt popups (native context menus, etc.), send a synthetic
+        # mouse release to the widget under cursor to dismiss them
+        if active_button is not None:
+            cursor_pos = QtGui.QCursor.pos()
+            target_widget = QtWidgets.QApplication.widgetAt(cursor_pos)
+            if target_widget and target_widget is not self:
+                local_pos = target_widget.mapFromGlobal(cursor_pos)
+                release_event = QtGui.QMouseEvent(
+                    QtCore.QEvent.MouseButtonRelease,
+                    QtCore.QPointF(local_pos),
+                    QtCore.QPointF(cursor_pos),
+                    active_button,
+                    QtCore.Qt.NoButton,  # No buttons held after release
+                    QtWidgets.QApplication.keyboardModifiers(),
+                )
+                QtWidgets.QApplication.postEvent(target_widget, release_event)
+
+    # ---------------------------------------------------------------------------------------------
     #   Stacked Widget Event handling:
 
     def mousePressEvent(self, event) -> None:
-        """ """
-        if self.sb.current_ui.has_tags(["startmenu", "submenu"]):
+        """Handle mouse press to switch menus based on button(s)."""
+        if self.is_stacked_ui:
             if not event.modifiers():
-                if event.button() == QtCore.Qt.LeftButton:
-                    self.show("cameras#startmenu")
-
-                elif event.button() == QtCore.Qt.MiddleButton:
-                    self.show("editors#startmenu")
-
-                elif event.button() == QtCore.Qt.RightButton:
-                    self.show("main#startmenu")
+                # Detect all held buttons (including the one just pressed)
+                active = self._detect_active_button()
+                if active in self.BUTTON_MENU_MAP:
+                    # Force=True to allow fast menu switching while visible
+                    self.show(self.get_menu_name(active), force=True)
 
         super().mousePressEvent(event)
 
     def mouseDoubleClickEvent(self, event) -> None:
-        """ """
-        if self.sb.current_ui.has_tags(["startmenu", "submenu"]):
+        """Handle double-click events to emit custom signals."""
+        if self.is_stacked_ui:
             if event.button() == QtCore.Qt.LeftButton:
                 if event.modifiers() == QtCore.Qt.ControlModifier:
                     self.left_mouse_double_click_ctrl.emit()
@@ -474,9 +589,11 @@ class Tcl(QtWidgets.QWidget, ptk.SingletonMixin, ptk.LoggingMixin, ptk.HelpMixin
         super().mouseDoubleClickEvent(event)
 
     def mouseReleaseEvent(self, event) -> None:
-        """ """
-        current_ui = self.sb.current_ui
-        if current_ui and current_ui.has_tags(["startmenu", "submenu"]):
+        """Handle mouse release, releasing any mouse grab and processing the event."""
+        self._release_mouse_grab()
+
+        if self.is_stacked_ui:
+            current_ui = self.sb.current_ui
             widget = QtWidgets.QApplication.widgetAt(QtGui.QCursor.pos())
             if (
                 widget
@@ -489,7 +606,10 @@ class Tcl(QtWidgets.QWidget, ptk.SingletonMixin, ptk.LoggingMixin, ptk.HelpMixin
                     return
 
             if self.isActiveWindow() and self.rect().contains(event.pos()):
-                self.show("hud#startmenu", force=True)
+                # Check what buttons remain held after this release
+                remaining = self._detect_active_button()
+                menu_name = self.get_menu_name(remaining)  # Returns HUD if None
+                self.show(menu_name, force=True)
 
         super().mouseReleaseEvent(event)
 
@@ -501,23 +621,28 @@ class Tcl(QtWidgets.QWidget, ptk.SingletonMixin, ptk.LoggingMixin, ptk.HelpMixin
             force (bool): If True, forces the UI to show even if it is already visible.
         """
         if ui is None:
-            ui = "hud#startmenu"
+            ui = self.BUTTON_MENU_MAP[None]
 
         ui = self._prepare_ui(ui)
         if not force and (QtWidgets.QApplication.mouseButtons() or self.isVisible()):
             return
 
+        # Begin gesture for startmenu UIs (handles popups, cursor, grab)
+        if ui.has_tags("startmenu"):
+            self._begin_gesture()
+
         self._show_ui()
 
     def hide(self):
         """Override hide to properly reset stacked widget state."""
-        # Reset the current widget index to -1 to ensure proper hide behavior
+        self._release_mouse_grab()
+
         if self.currentWidget():
             self.setCurrentIndex(-1)
 
-        # Reset pinned state for all stacked UIs to ensure they can be hidden next time
-        current_ui = self.sb.current_ui
-        if current_ui and current_ui.has_tags(["startmenu", "submenu"]):
+        # Reset pinned state for stacked UIs
+        if self.is_stacked_ui:
+            current_ui = self.sb.current_ui
             header = getattr(current_ui, "header", None)
             if header:
                 if hasattr(header, "reset_pin_state"):

@@ -16,7 +16,7 @@ class Edit(SlotsMaya):
         self.submenu = self.sb.loaded_ui.edit_submenu
 
     def header_init(self, widget):
-        """ """
+        """Initialize header menu"""
         widget.menu.add(
             "QPushButton",
             setText="Cut On Axis",
@@ -31,7 +31,7 @@ class Edit(SlotsMaya):
         )
 
     def tb000_init(self, widget):
-        """ """
+        """Initialize Mesh Cleanup"""
         widget.option_box.menu.add(
             "QCheckBox",
             setText="All Geometry",
@@ -298,7 +298,7 @@ class Edit(SlotsMaya):
             return
 
     def tb001_init(self, widget):
-        """ """
+        """Initialize Delete History"""
         widget.option_box.menu.add(
             "QCheckBox",
             setText="For All Objects",

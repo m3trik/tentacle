@@ -39,7 +39,9 @@ class StatusMixin:
         # Workspace
         workspace = mtk.get_env_info("workspace_dir")
         if workspace and workspace != "default":
-            hud.insertText(f'Project: <font style="color: Yellow;">{workspace}</font>')
+            hud.insertText(
+                f'Workspace: <font style="color: Yellow;">{workspace}</font>'
+            )
         # Units
         sceneUnits = pm.currentUnit(q=True, fullName=True, linear=True)
         hud.insertText(f'Units: <font style="color: Yellow;">{sceneUnits}</font>')

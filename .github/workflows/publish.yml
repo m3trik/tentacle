@@ -31,35 +31,16 @@ jobs:
         run: |
           VERSION=$(grep -oP '__version__\s*=\s*["\x27]\K[^"\x27]+' tentacle/__init__.py)
           echo "version=$VERSION" >> $GITHUB_OUTPUT
-          
+
           PYPI=$(pip index versions tentacletk 2>/dev/null | grep -oP 'Available versions: \K[^,]+' || echo "none")
           echo "pypi=$PYPI" >> $GITHUB_OUTPUT
-          
+
           if [ "$VERSION" != "$PYPI" ]; then
             echo "publish=true" >> $GITHUB_OUTPUT
           else
             echo "publish=false" >> $GITHUB_OUTPUT
           fi
-      
-      - name: Update requirements
-        if: steps.version.outputs.publish == 'true'
-        run: |
-          PYTHONTK_VER=$(pip index versions pythontk 2>/dev/null | grep -oP 'Available versions: \K[^,]+' || echo "0.7.36")
-          UITK_VER=$(pip index versions uitk 2>/dev/null | grep -oP 'Available versions: \K[^,]+' || echo "1.0.37")
-          MAYATK_VER=$(pip index versions mayatk 2>/dev/null | grep -oP 'Available versions: \K[^,]+' || echo "0.9.40")
-          sed -i "s/pythontk==.*/pythontk==$PYTHONTK_VER/" requirements.txt
-          sed -i "s/uitk==.*/uitk==$UITK_VER/" requirements.txt
-          sed -i "s/mayatk==.*/mayatk==$MAYATK_VER/" requirements.txt
-          
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add requirements.txt
-          
-          if ! git diff --staged --quiet; then
-            git commit -m "Update requirements.txt [skip ci]"
-            git push origin main
-          fi
-      
+
       - name: Update README badge
         if: steps.version.outputs.publish == 'true'
         run: |

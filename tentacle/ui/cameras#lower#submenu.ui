@@ -87,11 +87,17 @@
       <widget class="ExpandableList" name="list000" native="true">
        <property name="geometry">
         <rect>
-         <x>55</x>
+         <x>85</x>
          <y>140</y>
-         <width>126</width>
+         <width>125</width>
          <height>21</height>
         </rect>
+       </property>
+       <property name="minimumSize">
+        <size>
+         <width>125</width>
+         <height>0</height>
+        </size>
        </property>
        <property name="autoFillBackground">
         <bool>true</bool>

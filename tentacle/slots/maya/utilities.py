@@ -4,6 +4,7 @@ try:
     import pymel.core as pm
 except ImportError as error:
     print(__file__, error)
+import mayatk as mtk
 from tentacle.slots.maya import SlotsMaya
 
 
@@ -21,11 +22,12 @@ class Utilities(SlotsMaya):
 
     def b002(self):
         """Calculator"""
-        pm.mel.calculator()
+        ui = mtk.UiManager.instance(self.sb).get("calculator")
+        self.sb.parent().show(ui)
 
     def b003(self):
         """Grease Pencil"""
-        pm.mel.greasePencilCtx()
+        pm.mel.OpenBluePencil()
 
 
 # --------------------------------------------------------------------------------------------
