@@ -1,1 +1,1 @@
-recursive-include = *.ui
+recursive-include tentacle *.ui *.png
