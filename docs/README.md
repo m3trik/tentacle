@@ -1,6 +1,6 @@
 [![Tests](https://img.shields.io/badge/Tests-5%20passed%201%20failed-orange.svg)](test/)
 [![License: LGPL v3](https://img.shields.io/badge/License-LGPL%20v3-blue.svg)](https://www.gnu.org/licenses/lgpl-3.0.en.html)
-[![Version](https://img.shields.io/badge/Version-0.9.66-blue.svg)](https://pypi.org/project/tentacletk/)
+[![Version](https://img.shields.io/badge/Version-0.9.67-blue.svg)](https://pypi.org/project/tentacletk/)
 
 # Tentacle: A Python3/qtpy Marking Menu
 
