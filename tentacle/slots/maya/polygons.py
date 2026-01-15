@@ -86,6 +86,36 @@ class PolygonsSlots(SlotsMaya):
 
         mtk.merge_vertices(objects, tolerance=tolerance, selected_only=componentMode)
 
+    def tb002_init(self, widget):
+        """Initialize Separate"""
+        widget.option_box.menu.setTitle("Separate")
+        widget.option_box.menu.add(
+            "QCheckBox",
+            setText="By Material",
+            setObjectName="chk021",
+            setChecked=False,
+            setToolTip="Separate selected meshes into objects grouped by material.",
+        )
+        widget.option_box.menu.add(
+            "QCheckBox",
+            setText="Rename",
+            setObjectName="chk022",
+            setChecked=False,
+            setToolTip="Rename resulting objects using the original name and location suffix.",
+        )
+
+    @mtk.undoable
+    def tb002(self, widget):
+        """Separate"""
+        separate_by_material = widget.option_box.menu.chk021.isChecked()
+        rename = widget.option_box.menu.chk022.isChecked()
+
+        separated = mtk.EditUtils.separate_objects(
+            by_material=separate_by_material, center_pivots=True, rename=rename
+        )
+        if separated:
+            pm.select(separated)
+
     def tb003_init(self, widget):
         """Initialize Extrude"""
         widget.option_box.menu.add(
@@ -431,17 +461,6 @@ class PolygonsSlots(SlotsMaya):
     def b001(self):
         """Fill Holes"""
         pm.mel.FillHole()
-
-    def b002(self):
-        """Separate"""
-        pm.undoInfo(openChunk=True)
-        try:
-            pm.mel.SeparatePolygon()
-            sel = pm.ls(sl=1, objectsOnly=True)
-            for obj in sel:
-                pm.xform(obj, centerPivots=1)
-        finally:
-            pm.undoInfo(closeChunk=True)
 
     def b003(self):
         """Symmetrize"""
