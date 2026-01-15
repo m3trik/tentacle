@@ -630,6 +630,8 @@ class Tcl(QtWidgets.QWidget, ptk.SingletonMixin, ptk.LoggingMixin, ptk.HelpMixin
         # Begin gesture for startmenu UIs (handles popups, cursor, grab)
         if ui.has_tags("startmenu"):
             self._begin_gesture()
+        else:
+            self._handle_overlay_cloning(ui)
 
         self._show_ui()
 
