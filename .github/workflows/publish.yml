@@ -8,10 +8,17 @@ on:
       - 'pyproject.toml'
   
   workflow_dispatch:
+    inputs:
+      dry_run:
+        description: 'Dry Run (Skip Upload)'
+        type: boolean
+        default: false
 
 jobs:
   publish:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     
     steps:
       - uses: actions/checkout@v4
@@ -42,7 +49,7 @@ jobs:
           fi
 
       - name: Update README badge
-        if: steps.version.outputs.publish == 'true'
+        if: steps.version.outputs.publish == 'true' && inputs.dry_run != true
         run: |
           VERSION=${{ steps.version.outputs.version }}
           if [ -f docs/README.md ]; then
@@ -58,17 +65,23 @@ jobs:
       
       - name: Build
         if: steps.version.outputs.publish == 'true'
-        run: python -m build --wheel
+        run: |
+          python -m build --wheel
+          python -m twine check dist/*
       
-      - name: Publish
+      - name: Verify Install
         if: steps.version.outputs.publish == 'true'
+        run: pip install dist/*.whl
+
+      - name: Publish
+        if: steps.version.outputs.publish == 'true' && inputs.dry_run != true
         env:
           TWINE_USERNAME: __token__
           TWINE_PASSWORD: ${{ secrets.PYPI_TOKEN }}
         run: python -m twine upload dist/* --skip-existing
       
       - name: Trigger dev bump
-        if: steps.version.outputs.publish == 'true'
+        if: steps.version.outputs.publish == 'true' && inputs.dry_run != true
         run: |
           curl -X POST \
             -H "Accept: application/vnd.github.v3+json" \
