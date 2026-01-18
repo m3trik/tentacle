@@ -336,11 +336,18 @@ class Tcl(QtWidgets.QWidget, ptk.SingletonMixin, ptk.LoggingMixin, ptk.HelpMixin
 
     def _set_submenu(self, ui, w) -> None:
         """Set the submenu for the given UI and widget."""
+        # If a transition is merely pending (timer running), we can cleanly override it.
+        # If it's actively executing (timer not active but flag set), we must skip to avoid corruption.
         if self._in_transition:
-            self.logger.debug(
-                f"_set_submenu: Transition in progress, skipping for {ui}"
-            )
-            return
+            if self._pending_show_timer.isActive():
+                # Debounce: Cancel previous pending show and queue this one
+                self._pending_show_timer.stop()
+            else:
+                self.logger.debug(
+                    f"_set_submenu: Active transition in progress, skipping for {ui}"
+                )
+                return
+
         self._in_transition = True
 
         # Store transition data and schedule execution
@@ -358,6 +365,20 @@ class Tcl(QtWidgets.QWidget, ptk.SingletonMixin, ptk.LoggingMixin, ptk.HelpMixin
         self._pending_transition_widget = None
 
         if not ui or not w:
+            self._clear_transition_flag()
+            return
+
+        # VALIDATION: Abort if user has moved cursor away from the triggering widget
+        # This prevents "phantom" menus and sticky states when moving quickly back to center
+        try:
+            cursor_pos = QtGui.QCursor.pos()
+            w_rect = QtCore.QRect(w.mapToGlobal(QtCore.QPoint(0, 0)), w.size())
+            # Allow a small margin of error (e.g. 5 pixels) for fast movements
+            if not w_rect.adjusted(-5, -5, 5, 5).contains(cursor_pos):
+                self._clear_transition_flag()
+                return
+        except RuntimeError:
+            # Widget might be deleted or invalid
             self._clear_transition_flag()
             return
 
@@ -381,6 +402,17 @@ class Tcl(QtWidgets.QWidget, ptk.SingletonMixin, ptk.LoggingMixin, ptk.HelpMixin
             # Update mouse tracking to include newly cloned widgets
             if hasattr(self, "mouse_tracking"):
                 self.mouse_tracking.update_child_widgets()
+
+            # Post-show check: If mouse ended up in "return to start" region, trigger it immediately
+            # This covers the edge case where the user entered the region precisely as the transition fired
+            if self.overlay and self.overlay.path.start_pos:
+                region_rect = QtCore.QRect(
+                    0, 0, 100, 100
+                )  # approximate/default region size
+                region_rect.moveCenter(self.overlay.path.start_pos)
+                if region_rect.contains(QtGui.QCursor.pos()):
+                    # Delay slightly to allow UI to settle, then verify and return
+                    QtCore.QTimer.singleShot(0, self._return_to_startmenu)
 
         finally:
             # Clear transition flag after a brief delay to allow smooth completion
@@ -432,6 +464,13 @@ class Tcl(QtWidgets.QWidget, ptk.SingletonMixin, ptk.LoggingMixin, ptk.HelpMixin
 
     def _return_to_startmenu(self) -> None:
         """Return to the start menu by moving the overlay path back to the start position."""
+        # Cancel any pending transitions to submenus, as we are explicitly returning to start
+        if self._pending_show_timer.isActive():
+            self._pending_show_timer.stop()
+        self._in_transition = False
+        self._pending_transition_ui = None
+        self._pending_transition_widget = None
+
         start_pos = self.overlay.path.start_pos
         if not isinstance(start_pos, QtCore.QPoint):
             self.logger.warning("_return_to_startmenu called with no valid start_pos.")
@@ -659,6 +698,10 @@ class Tcl(QtWidgets.QWidget, ptk.SingletonMixin, ptk.LoggingMixin, ptk.HelpMixin
         # Cancel any pending show operations
         if self._pending_show_timer and self._pending_show_timer.isActive():
             self._pending_show_timer.stop()
+
+        # Ensure transition flag is reset to prevent lockups if hide() interrupts a pending transition
+        self._in_transition = False
+
         if hasattr(self, "_pending_ui"):
             delattr(self, "_pending_ui")
 
