@@ -47,7 +47,7 @@ sys.modules["pythontk.core_utils.module_resolver"] = ptk.core_utils.module_resol
 
 sys.modules["uitk.switchboard"] = MagicMock()
 sys.modules["uitk.events"] = MagicMock()
-sys.modules["tentacle.overlay"] = MagicMock()
+sys.modules["uitk.marking_menu.overlay"] = MagicMock()
 
 # Now import Tcl
 from tentacle import tcl

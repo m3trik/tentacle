@@ -1,7 +1,7 @@
 import unittest
 from qtpy import QtWidgets, QtCore
 from unittest.mock import MagicMock, patch
-from tentacle.overlay import Overlay, Path
+from uitk.marking_menu.overlay import Overlay, Path
 
 
 class TestOverlayPathSafety(unittest.TestCase):

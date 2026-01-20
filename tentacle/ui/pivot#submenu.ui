@@ -157,13 +157,13 @@
      <rect>
       <x>335</x>
       <y>250</y>
-      <width>46</width>
+      <width>56</width>
       <height>19</height>
      </rect>
     </property>
     <property name="maximumSize">
      <size>
-      <width>111</width>
+      <width>999</width>
       <height>19</height>
      </size>
     </property>
@@ -186,15 +186,15 @@
     </property>
     <property name="geometry">
      <rect>
-      <x>215</x>
+      <x>205</x>
       <y>250</y>
-      <width>46</width>
+      <width>56</width>
       <height>19</height>
      </rect>
     </property>
     <property name="maximumSize">
      <size>
-      <width>111</width>
+      <width>999</width>
       <height>19</height>
      </size>
     </property>

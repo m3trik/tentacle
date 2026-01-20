@@ -4,11 +4,11 @@ try:
     from pymxs import runtime as rt
 except ImportError as error:
     print(error)
-from tentacle.tcl import Tcl
+from uitk import MarkingMenu
 
 
-class TclMax(Tcl):
-    """Tcl class overridden for use with Autodesk 3ds Max."""
+class TclMax(MarkingMenu):
+    """Marking Menu class overridden for use with Autodesk 3ds Max."""
 
     def __init__(self, parent=None, slot_source="slots/max", *args, **kwargs):
         if not parent:
@@ -17,7 +17,9 @@ class TclMax(Tcl):
             except Exception as error:
                 print(__file__, error)
 
-        super().__init__(parent, slot_source=slot_source, *args, **kwargs)
+        super().__init__(
+            parent, ui_source="ui", slot_source=slot_source, *args, **kwargs
+        )
 
     @classmethod
     def get_main_window(cls):

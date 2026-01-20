@@ -9,8 +9,7 @@ __version__ = "0.9.74"
 
 
 DEFAULT_INCLUDE = {
-    "overlay": ["OverlayFactoryFilter", "Overlay"],
-    "tcl": "Tcl",
+    # "overlay": ["OverlayFactoryFilter", "Overlay"],
     "tcl_blender": "TclBlender",
     "tcl_max": "TclMax",
     "tcl_maya": "TclMaya",

@@ -175,15 +175,16 @@ class Preferences(SlotsMaya):
     def _teardown_tentacle_instance(self):
         state = {"was_visible": False, "ui_name": None}
 
-        tcl_module = sys.modules.get("tentacle.tcl")
-        if not tcl_module:
+        uitk_module = sys.modules.get("uitk.marking_menu._marking_menu")
+        if not uitk_module:
+            # Fallback for old import path if needed (though we are removing back-compat)
             return state
 
-        Tcl = getattr(tcl_module, "Tcl", None)
-        if Tcl is None:
+        MarkingMenu = getattr(uitk_module, "MarkingMenu", None)
+        if MarkingMenu is None:
             return state
 
-        instance = getattr(Tcl, "_instances", {}).get(Tcl)
+        instance = getattr(MarkingMenu, "_instances", {}).get(MarkingMenu)
         if instance is None:
             return state
 
@@ -205,21 +206,21 @@ class Preferences(SlotsMaya):
         except Exception:
             pass
 
-        if hasattr(Tcl, "_submenu_cache"):
+        if hasattr(MarkingMenu, "_submenu_cache"):
             try:
-                Tcl._submenu_cache.clear()
+                MarkingMenu._submenu_cache.clear()
             except Exception:
                 pass
 
-        if hasattr(Tcl, "reset_instance"):
+        if hasattr(MarkingMenu, "reset_instance"):
             try:
-                Tcl.reset_instance()
+                MarkingMenu.reset_instance()
             except Exception:
                 pass
 
         # Ensure the singleton registry is cleared for safety.
         try:
-            Tcl._instances.pop(Tcl, None)
+            MarkingMenu._instances.pop(MarkingMenu, None)
         except Exception:
             pass
 
