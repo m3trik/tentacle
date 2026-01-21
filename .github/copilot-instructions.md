@@ -35,3 +35,4 @@
 
 ## 4. Work Logs & History
 - [x] **Initial Setup** — Repository established.
+- [x] **2026-01-21 Refactor**: Updated `tcl_maya` MarkingMenu initialization and `preferences` logic to fix settings persistence and validation.

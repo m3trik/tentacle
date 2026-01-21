@@ -78,39 +78,11 @@
      <string>Skeleton</string>
     </property>
    </widget>
-   <widget class="QPushButton" name="i020">
-    <property name="geometry">
-     <rect>
-      <x>160</x>
-      <y>250</y>
-      <width>81</width>
-      <height>21</height>
-     </rect>
-    </property>
-    <property name="minimumSize">
-     <size>
-      <width>0</width>
-      <height>21</height>
-     </size>
-    </property>
-    <property name="maximumSize">
-     <size>
-      <width>999</width>
-      <height>21</height>
-     </size>
-    </property>
-    <property name="accessibleName">
-     <string>deform</string>
-    </property>
-    <property name="text">
-     <string>Deform</string>
-    </property>
-   </widget>
    <widget class="QPushButton" name="i026">
     <property name="geometry">
      <rect>
-      <x>150</x>
-      <y>330</y>
+      <x>140</x>
+      <y>290</y>
       <width>86</width>
       <height>21</height>
      </rect>
@@ -137,8 +109,8 @@
    <widget class="QPushButton" name="i025">
     <property name="geometry">
      <rect>
-      <x>170</x>
-      <y>290</y>
+      <x>165</x>
+      <y>250</y>
       <width>66</width>
       <height>21</height>
      </rect>
@@ -165,8 +137,8 @@
    <widget class="QPushButton" name="i033">
     <property name="geometry">
      <rect>
-      <x>190</x>
-      <y>370</y>
+      <x>160</x>
+      <y>330</y>
       <width>86</width>
       <height>21</height>
      </rect>

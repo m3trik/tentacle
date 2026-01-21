@@ -7,7 +7,9 @@ from uitk import MarkingMenu
 class TclMaya(MarkingMenu):
     """Marking Menu class overridden for use with Autodesk Maya."""
 
-    def __init__(self, parent=None, slot_source="slots/maya", **kwargs):
+    def __init__(
+        self, parent=None, slot_source="slots/maya", log_level="WARNING", **kwargs
+    ):
         if not parent:
             try:
                 parent = mtk.get_main_window()
@@ -30,7 +32,7 @@ class TclMaya(MarkingMenu):
             ui_source=("ui", "ui/maya_menus"),
             slot_source=slot_source,
             bindings=bindings,
-            log_level="WARNING",
+            log_level=log_level,
             **kwargs,
         )
 

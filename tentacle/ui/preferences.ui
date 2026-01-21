@@ -352,6 +352,111 @@
        </widget>
       </item>
       <item>
+       <widget class="QGroupBox" name="bindings_group">
+        <property name="title">
+         <string>Menu Bindings</string>
+        </property>
+        <layout class="QVBoxLayout" name="verticalLayout_bindings">
+         <property name="spacing">
+          <number>1</number>
+         </property>
+         <property name="leftMargin">
+          <number>0</number>
+         </property>
+         <property name="topMargin">
+          <number>0</number>
+         </property>
+         <property name="rightMargin">
+          <number>0</number>
+         </property>
+         <property name="bottomMargin">
+          <number>0</number>
+         </property>
+         <item>
+          <widget class="ComboBox" name="cmb_bind_default">
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>20</height>
+            </size>
+           </property>
+           <property name="toolTip">
+            <string>Default menu (key only)</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="ComboBox" name="cmb_bind_left">
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>20</height>
+            </size>
+           </property>
+           <property name="toolTip">
+            <string>Left mouse button</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="ComboBox" name="cmb_bind_middle">
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>20</height>
+            </size>
+           </property>
+           <property name="toolTip">
+            <string>Middle mouse button</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="ComboBox" name="cmb_bind_right">
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>20</height>
+            </size>
+           </property>
+           <property name="toolTip">
+            <string>Right mouse button</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="ComboBox" name="cmb_bind_left_right">
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>20</height>
+            </size>
+           </property>
+           <property name="toolTip">
+            <string>Left + Right mouse buttons</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="b_reset_bindings">
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>20</height>
+            </size>
+           </property>
+           <property name="toolTip">
+            <string>Reset bindings to defaults</string>
+           </property>
+           <property name="text">
+            <string>Reset to Defaults</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </widget>
+      </item>
+      <item>
        <spacer name="verticalSpacer_2">
         <property name="orientation">
          <enum>Qt::Vertical</enum>
