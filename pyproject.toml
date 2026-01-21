@@ -19,7 +19,7 @@ classifiers = [
 dependencies = [
     "pythontk>=0.7.67",
     "uitk>=1.0.66",
-    "mayatk>=0.9.71",
+    "mayatk>=0.9.72",
 ]
 
 [project.urls]
