@@ -50,7 +50,7 @@
      <verstretch>0</verstretch>
     </sizepolicy>
    </property>
-   <widget class="QPushButton" name="i028">
+   <widget class="QPushButton" name="i006">
     <property name="geometry">
      <rect>
       <x>260</x>
@@ -72,73 +72,45 @@
      </size>
     </property>
     <property name="accessibleName">
+     <string>key</string>
+    </property>
+    <property name="text">
+     <string>Key</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="i028">
+    <property name="geometry">
+     <rect>
+      <x>155</x>
+      <y>290</y>
+      <width>76</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="minimumSize">
+     <size>
+      <width>0</width>
+      <height>21</height>
+     </size>
+    </property>
+    <property name="maximumSize">
+     <size>
+      <width>999</width>
+      <height>21</height>
+     </size>
+    </property>
+    <property name="accessibleName">
      <string>skeleton</string>
     </property>
     <property name="text">
      <string>Skeleton</string>
     </property>
    </widget>
-   <widget class="QPushButton" name="i020">
+   <widget class="QPushButton" name="i032">
     <property name="geometry">
      <rect>
-      <x>160</x>
-      <y>250</y>
-      <width>81</width>
-      <height>21</height>
-     </rect>
-    </property>
-    <property name="minimumSize">
-     <size>
-      <width>0</width>
-      <height>21</height>
-     </size>
-    </property>
-    <property name="maximumSize">
-     <size>
-      <width>999</width>
-      <height>21</height>
-     </size>
-    </property>
-    <property name="accessibleName">
-     <string>deform</string>
-    </property>
-    <property name="text">
-     <string>Deform</string>
-    </property>
-   </widget>
-   <widget class="QPushButton" name="i026">
-    <property name="geometry">
-     <rect>
-      <x>150</x>
-      <y>330</y>
-      <width>86</width>
-      <height>21</height>
-     </rect>
-    </property>
-    <property name="minimumSize">
-     <size>
-      <width>0</width>
-      <height>21</height>
-     </size>
-    </property>
-    <property name="maximumSize">
-     <size>
-      <width>999</width>
-      <height>21</height>
-     </size>
-    </property>
-    <property name="accessibleName">
-     <string>constrain</string>
-    </property>
-    <property name="text">
-     <string>Constrain</string>
-    </property>
-   </widget>
-   <widget class="QPushButton" name="i025">
-    <property name="geometry">
-     <rect>
-      <x>170</x>
-      <y>290</y>
+      <x>165</x>
+      <y>240</y>
       <width>66</width>
       <height>21</height>
      </rect>
@@ -156,18 +128,18 @@
      </size>
     </property>
     <property name="accessibleName">
-     <string>skin</string>
+     <string>playback</string>
     </property>
     <property name="text">
-     <string>Skin</string>
+     <string>Playback</string>
     </property>
    </widget>
-   <widget class="QPushButton" name="i033">
+   <widget class="QPushButton" name="i030">
     <property name="geometry">
      <rect>
-      <x>190</x>
-      <y>370</y>
-      <width>86</width>
+      <x>250</x>
+      <y>240</y>
+      <width>66</width>
       <height>21</height>
      </rect>
     </property>
@@ -184,10 +156,38 @@
      </size>
     </property>
     <property name="accessibleName">
-     <string>control</string>
+     <string>visualize</string>
     </property>
     <property name="text">
-     <string>Control</string>
+     <string>Visualize</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="i031">
+    <property name="geometry">
+     <rect>
+      <x>190</x>
+      <y>330</y>
+      <width>66</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="minimumSize">
+     <size>
+      <width>0</width>
+      <height>21</height>
+     </size>
+    </property>
+    <property name="maximumSize">
+     <size>
+      <width>999</width>
+      <height>21</height>
+     </size>
+    </property>
+    <property name="accessibleName">
+     <string>mash</string>
+    </property>
+    <property name="text">
+     <string>Mash</string>
     </property>
    </widget>
   </widget>

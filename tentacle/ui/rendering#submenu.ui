@@ -84,8 +84,8 @@
    <widget class="QPushButton" name="b002">
     <property name="geometry">
      <rect>
-      <x>180</x>
-      <y>280</y>
+      <x>355</x>
+      <y>270</y>
       <width>49</width>
       <height>19</height>
      </rect>
@@ -100,8 +100,8 @@
    <widget class="QPushButton" name="b000">
     <property name="geometry">
      <rect>
-      <x>180</x>
-      <y>320</y>
+      <x>350</x>
+      <y>310</y>
       <width>61</width>
       <height>19</height>
      </rect>
@@ -111,34 +111,6 @@
     </property>
     <property name="text">
      <string>Render</string>
-    </property>
-   </widget>
-   <widget class="QPushButton" name="i027">
-    <property name="geometry">
-     <rect>
-      <x>240</x>
-      <y>240</y>
-      <width>66</width>
-      <height>21</height>
-     </rect>
-    </property>
-    <property name="minimumSize">
-     <size>
-      <width>0</width>
-      <height>21</height>
-     </size>
-    </property>
-    <property name="maximumSize">
-     <size>
-      <width>999</width>
-      <height>21</height>
-     </size>
-    </property>
-    <property name="accessibleName">
-     <string>arnold</string>
-    </property>
-    <property name="text">
-     <string>Arnold</string>
     </property>
    </widget>
   </widget>

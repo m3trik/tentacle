@@ -50,7 +50,7 @@
      <verstretch>0</verstretch>
     </sizepolicy>
    </property>
-   <widget class="QPushButton" name="i006">
+   <widget class="QPushButton" name="i005">
     <property name="geometry">
      <rect>
       <x>260</x>
@@ -72,18 +72,18 @@
      </size>
     </property>
     <property name="accessibleName">
-     <string>key</string>
+     <string>render</string>
     </property>
     <property name="text">
-     <string>Key</string>
+     <string>Render</string>
     </property>
    </widget>
-   <widget class="QPushButton" name="i028">
+   <widget class="QPushButton" name="i027">
     <property name="geometry">
      <rect>
-      <x>155</x>
+      <x>350</x>
       <y>290</y>
-      <width>76</width>
+      <width>66</width>
       <height>21</height>
      </rect>
     </property>
@@ -100,16 +100,16 @@
      </size>
     </property>
     <property name="accessibleName">
-     <string>skeleton</string>
+     <string>arnold</string>
     </property>
     <property name="text">
-     <string>Skeleton</string>
+     <string>Arnold</string>
     </property>
    </widget>
-   <widget class="QPushButton" name="i024">
+   <widget class="QPushButton" name="i041">
     <property name="geometry">
      <rect>
-      <x>180</x>
+      <x>325</x>
       <y>330</y>
       <width>66</width>
       <height>21</height>
@@ -128,94 +128,10 @@
      </size>
     </property>
     <property name="accessibleName">
-     <string>effects</string>
+     <string>stereo</string>
     </property>
     <property name="text">
-     <string>Effects</string>
-    </property>
-   </widget>
-   <widget class="QPushButton" name="i032">
-    <property name="geometry">
-     <rect>
-      <x>265</x>
-      <y>330</y>
-      <width>66</width>
-      <height>21</height>
-     </rect>
-    </property>
-    <property name="minimumSize">
-     <size>
-      <width>0</width>
-      <height>21</height>
-     </size>
-    </property>
-    <property name="maximumSize">
-     <size>
-      <width>999</width>
-      <height>21</height>
-     </size>
-    </property>
-    <property name="accessibleName">
-     <string>playback</string>
-    </property>
-    <property name="text">
-     <string>Playback</string>
-    </property>
-   </widget>
-   <widget class="QPushButton" name="i030">
-    <property name="geometry">
-     <rect>
-      <x>250</x>
-      <y>240</y>
-      <width>66</width>
-      <height>21</height>
-     </rect>
-    </property>
-    <property name="minimumSize">
-     <size>
-      <width>0</width>
-      <height>21</height>
-     </size>
-    </property>
-    <property name="maximumSize">
-     <size>
-      <width>999</width>
-      <height>21</height>
-     </size>
-    </property>
-    <property name="accessibleName">
-     <string>visualize</string>
-    </property>
-    <property name="text">
-     <string>Visualize</string>
-    </property>
-   </widget>
-   <widget class="QPushButton" name="i031">
-    <property name="geometry">
-     <rect>
-      <x>155</x>
-      <y>250</y>
-      <width>66</width>
-      <height>21</height>
-     </rect>
-    </property>
-    <property name="minimumSize">
-     <size>
-      <width>0</width>
-      <height>21</height>
-     </size>
-    </property>
-    <property name="maximumSize">
-     <size>
-      <width>999</width>
-      <height>21</height>
-     </size>
-    </property>
-    <property name="accessibleName">
-     <string>mash</string>
-    </property>
-    <property name="text">
-     <string>Mash</string>
+     <string>Stereo</string>
     </property>
    </widget>
   </widget>

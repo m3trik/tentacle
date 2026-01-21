@@ -112,7 +112,7 @@
      </size>
     </property>
    </widget>
-   <widget class="QPushButton" name="b002">
+   <widget class="PushButton" name="tb002">
     <property name="enabled">
      <bool>true</bool>
     </property>

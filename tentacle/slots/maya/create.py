@@ -69,6 +69,7 @@ class Create(SlotsMaya):
                 "Cone",
                 "Pyramid",
                 "Torus",
+                "Helix",
                 "Tube",
                 "GeoSphere",
                 "Platonic Solids",

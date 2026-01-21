@@ -5,12 +5,11 @@ import sys
 from pythontk.core_utils.module_resolver import bootstrap_package
 
 __package__ = "tentacle"
-__version__ = "0.9.73"
+__version__ = "0.9.74"
 
 
 DEFAULT_INCLUDE = {
-    "overlay": ["OverlayFactoryFilter", "Overlay"],
-    "tcl": "Tcl",
+    # "overlay": ["OverlayFactoryFilter", "Overlay"],
     "tcl_blender": "TclBlender",
     "tcl_max": "TclMax",
     "tcl_maya": "TclMaya",

@@ -1,11 +1,11 @@
 # !/usr/bin/python
 # coding=utf-8
 from qtpy import QtWidgets, QtCore
-from tentacle.tcl import Tcl
+from uitk import MarkingMenu
 
 
-class TclBlender(Tcl):
-    """Tcl class overridden for use with Blender."""
+class TclBlender(MarkingMenu):
+    """Marking Menu class overridden for use with Blender."""
 
     def __init__(self, parent=None, slot_source="slots/blender", *args, **kwargs):
         if not parent:
@@ -14,7 +14,9 @@ class TclBlender(Tcl):
             except Exception as error:
                 print(__file__, error)
 
-        super().__init__(parent, slot_source=slot_source, *args, **kwargs)
+        super().__init__(
+            parent, ui_source="ui", slot_source=slot_source, *args, **kwargs
+        )
 
     @classmethod
     def get_main_window(cls):

@@ -175,15 +175,20 @@ class Preferences(SlotsMaya):
     def _teardown_tentacle_instance(self):
         state = {"was_visible": False, "ui_name": None}
 
-        tcl_module = sys.modules.get("tentacle.tcl")
-        if not tcl_module:
+        uitk_module = sys.modules.get("uitk.controllers.marking_menu._marking_menu")
+        if not uitk_module:
+            # Fallback to check old path just in case
+            uitk_module = sys.modules.get("uitk.marking_menu._marking_menu")
+
+        if not uitk_module:
+            # Fallback for old import path if needed (though we are removing back-compat)
             return state
 
-        Tcl = getattr(tcl_module, "Tcl", None)
-        if Tcl is None:
+        MarkingMenu = getattr(uitk_module, "MarkingMenu", None)
+        if MarkingMenu is None:
             return state
 
-        instance = getattr(Tcl, "_instances", {}).get(Tcl)
+        instance = getattr(MarkingMenu, "_instances", {}).get(MarkingMenu)
         if instance is None:
             return state
 
@@ -205,21 +210,21 @@ class Preferences(SlotsMaya):
         except Exception:
             pass
 
-        if hasattr(Tcl, "_submenu_cache"):
+        if hasattr(MarkingMenu, "_submenu_cache"):
             try:
-                Tcl._submenu_cache.clear()
+                MarkingMenu._submenu_cache.clear()
             except Exception:
                 pass
 
-        if hasattr(Tcl, "reset_instance"):
+        if hasattr(MarkingMenu, "reset_instance"):
             try:
-                Tcl.reset_instance()
+                MarkingMenu.reset_instance()
             except Exception:
                 pass
 
         # Ensure the singleton registry is cleared for safety.
         try:
-            Tcl._instances.pop(Tcl, None)
+            MarkingMenu._instances.pop(MarkingMenu, None)
         except Exception:
             pass
 
@@ -324,6 +329,101 @@ class Preferences(SlotsMaya):
     def b010(self):
         """Settings/Preferences"""
         pm.mel.PreferencesWindow()
+
+    # -------------------------------------------------------------------------
+    # Menu Bindings Configuration
+    # -------------------------------------------------------------------------
+
+    def _get_startmenus(self) -> list:
+        """Get available startmenu UIs from the registry."""
+        # Access registry through the parent switchboard (tentacle's sb)
+        filenames = self.sb.registry.ui_registry.get("filename") or []
+        return sorted([f for f in filenames if "#startmenu" in f])
+
+    def _init_binding_combo(self, widget, binding_key: str):
+        """Initialize a binding combo box."""
+        # Disable auto-restore state for these widgets, as they are managed manually
+        # via the marking_menu_bindings setting.
+        widget.restore_state = False
+
+        available = self._get_startmenus()
+        items = {ui.replace("#startmenu", ""): ui for ui in available}
+        widget.clear()
+        widget.add(items)
+
+        # Connect to settings change for reactive updates
+        self.sb.configurable.marking_menu_bindings.changed.connect(
+            lambda v: self._sync_binding_combo(widget, binding_key, v)
+        )
+
+        # Initial sync
+        self._sync_binding_combo(
+            widget, binding_key, self.sb.configurable.marking_menu_bindings.get({})
+        )
+
+    def _sync_binding_combo(self, widget, key, bindings):
+        """Sync combo box with settings value."""
+        try:
+            val = bindings.get(key, "")
+            if val in widget.items:
+                # Only update if different to avoid signal loops
+                if widget.currentData() != val:
+                    widget.setCurrentIndex(widget.items.index(val))
+        except (RuntimeError, AttributeError):
+            pass  # Widget likely deleted
+
+    def _on_binding_change(self, binding_key: str, widget):
+        """Handle binding combo change."""
+        bindings = self.sb.configurable.marking_menu_bindings.get({})
+        # Only update if value changed (avoids unnecessary writes)
+        if bindings.get(binding_key) != widget.currentData():
+            bindings[binding_key] = widget.currentData()
+            self.sb.configurable.marking_menu_bindings.set(bindings)
+
+    def _get_activation_key(self) -> str:
+        """Get activation key from bindings."""
+        bindings = self.sb.configurable.marking_menu_bindings.get({})
+        for key in bindings:
+            for part in key.split("|"):
+                if part.startswith("Key_"):
+                    return part
+        return "Key_F12"
+
+    def cmb_bind_default_init(self, widget):
+        """Default binding (key only)."""
+        key = self._get_activation_key()
+        self._init_binding_combo(widget, key)
+        widget.currentIndexChanged.connect(lambda: self._on_binding_change(key, widget))
+
+    def cmb_bind_left_init(self, widget):
+        """Left button binding."""
+        key = f"{self._get_activation_key()}|LeftButton"
+        self._init_binding_combo(widget, key)
+        widget.currentIndexChanged.connect(lambda: self._on_binding_change(key, widget))
+
+    def cmb_bind_middle_init(self, widget):
+        """Middle button binding."""
+        key = f"{self._get_activation_key()}|MiddleButton"
+        self._init_binding_combo(widget, key)
+        widget.currentIndexChanged.connect(lambda: self._on_binding_change(key, widget))
+
+    def cmb_bind_right_init(self, widget):
+        """Right button binding."""
+        key = f"{self._get_activation_key()}|RightButton"
+        self._init_binding_combo(widget, key)
+        widget.currentIndexChanged.connect(lambda: self._on_binding_change(key, widget))
+
+    def cmb_bind_left_right_init(self, widget):
+        """Left+Right button binding."""
+        key = f"{self._get_activation_key()}|LeftButton|RightButton"
+        self._init_binding_combo(widget, key)
+        widget.currentIndexChanged.connect(lambda: self._on_binding_change(key, widget))
+
+    def b_reset_bindings(self):
+        """Reset bindings to defaults."""
+        parent = self.sb.parent()
+        defaults = getattr(parent, "_initial_bindings", {}) if parent else {}
+        self.sb.configurable.marking_menu_bindings.set(defaults)
 
 
 # -------------------------------------------------------------------------------------------

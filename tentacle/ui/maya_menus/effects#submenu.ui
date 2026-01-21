@@ -50,10 +50,10 @@
      <verstretch>0</verstretch>
     </sizepolicy>
    </property>
-   <widget class="QPushButton" name="i061">
+   <widget class="QPushButton" name="i024">
     <property name="geometry">
      <rect>
-      <x>265</x>
+      <x>260</x>
       <y>290</y>
       <width>66</width>
       <height>21</height>
@@ -67,230 +67,215 @@
     </property>
     <property name="maximumSize">
      <size>
-      <width>16777215</width>
+      <width>66</width>
       <height>21</height>
      </size>
     </property>
     <property name="accessibleName">
-     <string>pivot</string>
+     <string>effects</string>
     </property>
     <property name="text">
-     <string>Pivot</string>
+     <string>Effects</string>
     </property>
    </widget>
-   <widget class="QPushButton" name="b000">
-    <property name="enabled">
-     <bool>true</bool>
-    </property>
+   <widget class="QPushButton" name="i034">
     <property name="geometry">
      <rect>
-      <x>275</x>
-      <y>240</y>
-      <width>46</width>
-      <height>19</height>
+      <x>180</x>
+      <y>250</y>
+      <width>66</width>
+      <height>21</height>
      </rect>
+    </property>
+    <property name="minimumSize">
+     <size>
+      <width>0</width>
+      <height>21</height>
+     </size>
     </property>
     <property name="maximumSize">
      <size>
-      <width>111</width>
-      <height>19</height>
+      <width>66</width>
+      <height>21</height>
      </size>
     </property>
-    <property name="toolTip">
-     <string>Move the pivot point to the center of the selected object</string>
+    <property name="accessibleName">
+     <string>ncloth</string>
     </property>
     <property name="text">
-     <string>Obj</string>
-    </property>
-    <property name="iconSize">
-     <size>
-      <width>18</width>
-      <height>18</height>
-     </size>
-    </property>
-    <property name="autoDefault">
-     <bool>false</bool>
-    </property>
-    <property name="default">
-     <bool>false</bool>
-    </property>
-    <property name="flat">
-     <bool>false</bool>
+     <string>NCloth</string>
     </property>
    </widget>
-   <widget class="QPushButton" name="b004">
-    <property name="enabled">
-     <bool>true</bool>
-    </property>
+   <widget class="QPushButton" name="i035">
     <property name="geometry">
      <rect>
-      <x>170</x>
-      <y>220</y>
+      <x>150</x>
+      <y>280</y>
       <width>71</width>
-      <height>19</height>
+      <height>21</height>
      </rect>
     </property>
-    <property name="maximumSize">
+    <property name="minimumSize">
      <size>
-      <width>111</width>
-      <height>19</height>
+      <width>0</width>
+      <height>21</height>
      </size>
-    </property>
-    <property name="toolTip">
-     <string>Set selected object(s) transform to the current tool's custom axis orintaion.</string>
-    </property>
-    <property name="text">
-     <string>Bake</string>
-    </property>
-    <property name="iconSize">
-     <size>
-      <width>18</width>
-      <height>18</height>
-     </size>
-    </property>
-   </widget>
-   <widget class="QPushButton" name="b002">
-    <property name="enabled">
-     <bool>true</bool>
-    </property>
-    <property name="geometry">
-     <rect>
-      <x>335</x>
-      <y>250</y>
-      <width>56</width>
-      <height>19</height>
-     </rect>
     </property>
     <property name="maximumSize">
      <size>
       <width>999</width>
-      <height>19</height>
+      <height>21</height>
      </size>
     </property>
-    <property name="toolTip">
-     <string>Set selected objects pivot point to world space 0,0,0</string>
+    <property name="accessibleName">
+     <string>nparticles</string>
     </property>
     <property name="text">
-     <string>World</string>
-    </property>
-    <property name="iconSize">
-     <size>
-      <width>18</width>
-      <height>18</height>
-     </size>
+     <string>NParticles</string>
     </property>
    </widget>
-   <widget class="QPushButton" name="b001">
-    <property name="enabled">
-     <bool>true</bool>
-    </property>
+   <widget class="QPushButton" name="i036">
     <property name="geometry">
      <rect>
-      <x>205</x>
+      <x>260</x>
       <y>250</y>
-      <width>56</width>
-      <height>19</height>
+      <width>66</width>
+      <height>21</height>
      </rect>
+    </property>
+    <property name="minimumSize">
+     <size>
+      <width>0</width>
+      <height>21</height>
+     </size>
     </property>
     <property name="maximumSize">
      <size>
-      <width>999</width>
-      <height>19</height>
+      <width>66</width>
+      <height>21</height>
      </size>
     </property>
-    <property name="toolTip">
-     <string>Move the pivot point of the object to the center of the selected components</string>
+    <property name="accessibleName">
+     <string>nhair</string>
     </property>
     <property name="text">
-     <string>Cmpnt</string>
-    </property>
-    <property name="iconSize">
-     <size>
-      <width>18</width>
-      <height>18</height>
-     </size>
-    </property>
-    <property name="autoDefault">
-     <bool>false</bool>
-    </property>
-    <property name="default">
-     <bool>false</bool>
-    </property>
-    <property name="flat">
-     <bool>false</bool>
+     <string>NHair</string>
     </property>
    </widget>
-   <widget class="PushButton" name="tb003">
-    <property name="enabled">
-     <bool>true</bool>
-    </property>
+   <widget class="QPushButton" name="i037">
     <property name="geometry">
      <rect>
-      <x>255</x>
-      <y>200</y>
+      <x>135</x>
+      <y>310</y>
       <width>86</width>
-      <height>19</height>
+      <height>21</height>
      </rect>
+    </property>
+    <property name="minimumSize">
+     <size>
+      <width>0</width>
+      <height>21</height>
+     </size>
     </property>
     <property name="maximumSize">
      <size>
-      <width>111</width>
-      <height>19</height>
+      <width>999</width>
+      <height>21</height>
      </size>
     </property>
-    <property name="toolTip">
-     <string>Set pivot to world-aligned orientation.</string>
+    <property name="accessibleName">
+     <string>nconstraint</string>
     </property>
     <property name="text">
-     <string>Align World</string>
-    </property>
-    <property name="iconSize">
-     <size>
-      <width>18</width>
-      <height>18</height>
-     </size>
+     <string>NConstraint</string>
     </property>
    </widget>
-   <widget class="PushButton" name="tb000">
-    <property name="enabled">
-     <bool>true</bool>
-    </property>
+   <widget class="QPushButton" name="i038">
     <property name="geometry">
      <rect>
-      <x>270</x>
-      <y>170</y>
-      <width>56</width>
-      <height>19</height>
+      <x>260</x>
+      <y>330</y>
+      <width>66</width>
+      <height>21</height>
      </rect>
+    </property>
+    <property name="minimumSize">
+     <size>
+      <width>0</width>
+      <height>21</height>
+     </size>
     </property>
     <property name="maximumSize">
      <size>
-      <width>111</width>
-      <height>19</height>
+      <width>66</width>
+      <height>21</height>
      </size>
     </property>
-    <property name="toolTip">
-     <string>Set pivot to world-aligned orientation.</string>
+    <property name="accessibleName">
+     <string>fluids</string>
     </property>
     <property name="text">
-     <string>Reset</string>
+     <string>Fluids</string>
     </property>
-    <property name="iconSize">
+   </widget>
+   <widget class="QPushButton" name="i039">
+    <property name="geometry">
+     <rect>
+      <x>150</x>
+      <y>340</y>
+      <width>86</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="minimumSize">
      <size>
-      <width>18</width>
-      <height>18</height>
+      <width>0</width>
+      <height>21</height>
      </size>
+    </property>
+    <property name="maximumSize">
+     <size>
+      <width>999</width>
+      <height>21</height>
+     </size>
+    </property>
+    <property name="accessibleName">
+     <string>fields_solvers</string>
+    </property>
+    <property name="text">
+     <string>Fields Solvers</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="i040">
+    <property name="geometry">
+     <rect>
+      <x>340</x>
+      <y>330</y>
+      <width>66</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="minimumSize">
+     <size>
+      <width>0</width>
+      <height>21</height>
+     </size>
+    </property>
+    <property name="maximumSize">
+     <size>
+      <width>66</width>
+      <height>21</height>
+     </size>
+    </property>
+    <property name="accessibleName">
+     <string>cache</string>
+    </property>
+    <property name="text">
+     <string>Cache</string>
     </property>
    </widget>
   </widget>
  </widget>
- <customwidgets>
-  <customwidget>
-   <class>PushButton</class>
-   <extends>QPushButton</extends>
-   <header>widgets.pushbutton.h</header>
-  </customwidget>
- </customwidgets>
  <resources/>
  <connections/>
  <designerdata>

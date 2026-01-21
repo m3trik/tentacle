@@ -1277,7 +1277,7 @@
           <number>1</number>
          </property>
          <item row="4" column="1">
-          <widget class="QPushButton" name="b002">
+          <widget class="PushButton" name="tb002">
            <property name="enabled">
             <bool>true</bool>
            </property>

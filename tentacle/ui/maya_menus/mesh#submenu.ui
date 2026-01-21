@@ -81,9 +81,9 @@
    <widget class="QPushButton" name="i042">
     <property name="geometry">
      <rect>
-      <x>170</x>
+      <x>175</x>
       <y>260</y>
-      <width>66</width>
+      <width>76</width>
       <height>21</height>
      </rect>
     </property>
@@ -95,7 +95,7 @@
     </property>
     <property name="maximumSize">
      <size>
-      <width>66</width>
+      <width>999</width>
       <height>21</height>
      </size>
     </property>
@@ -109,9 +109,9 @@
    <widget class="QPushButton" name="i043">
     <property name="geometry">
      <rect>
-      <x>285</x>
-      <y>220</y>
-      <width>66</width>
+      <x>195</x>
+      <y>230</y>
+      <width>86</width>
       <height>21</height>
      </rect>
     </property>
@@ -123,7 +123,7 @@
     </property>
     <property name="maximumSize">
      <size>
-      <width>66</width>
+      <width>999</width>
       <height>21</height>
      </size>
     </property>
@@ -137,9 +137,9 @@
    <widget class="QPushButton" name="i044">
     <property name="geometry">
      <rect>
-      <x>365</x>
-      <y>220</y>
-      <width>66</width>
+      <x>295</x>
+      <y>230</y>
+      <width>86</width>
       <height>21</height>
      </rect>
     </property>
@@ -151,7 +151,7 @@
     </property>
     <property name="maximumSize">
      <size>
-      <width>66</width>
+      <width>999</width>
       <height>21</height>
      </size>
     </property>
@@ -165,9 +165,9 @@
    <widget class="QPushButton" name="i047">
     <property name="geometry">
      <rect>
-      <x>370</x>
+      <x>330</x>
       <y>260</y>
-      <width>66</width>
+      <width>71</width>
       <height>21</height>
      </rect>
     </property>
@@ -179,7 +179,7 @@
     </property>
     <property name="maximumSize">
      <size>
-      <width>66</width>
+      <width>999</width>
       <height>21</height>
      </size>
     </property>
@@ -188,62 +188,6 @@
     </property>
     <property name="text">
      <string>Generate</string>
-    </property>
-   </widget>
-   <widget class="QPushButton" name="i045">
-    <property name="geometry">
-     <rect>
-      <x>170</x>
-      <y>220</y>
-      <width>66</width>
-      <height>21</height>
-     </rect>
-    </property>
-    <property name="minimumSize">
-     <size>
-      <width>0</width>
-      <height>21</height>
-     </size>
-    </property>
-    <property name="maximumSize">
-     <size>
-      <width>66</width>
-      <height>21</height>
-     </size>
-    </property>
-    <property name="accessibleName">
-     <string>curves</string>
-    </property>
-    <property name="text">
-     <string>Curves</string>
-    </property>
-   </widget>
-   <widget class="QPushButton" name="i046">
-    <property name="geometry">
-     <rect>
-      <x>225</x>
-      <y>190</y>
-      <width>66</width>
-      <height>21</height>
-     </rect>
-    </property>
-    <property name="minimumSize">
-     <size>
-      <width>0</width>
-      <height>21</height>
-     </size>
-    </property>
-    <property name="maximumSize">
-     <size>
-      <width>66</width>
-      <height>21</height>
-     </size>
-    </property>
-    <property name="accessibleName">
-     <string>surfaces</string>
-    </property>
-    <property name="text">
-     <string>Surfaces</string>
     </property>
    </widget>
   </widget>

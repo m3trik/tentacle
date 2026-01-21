@@ -84,62 +84,6 @@
      <string>Animation</string>
     </property>
    </widget>
-   <widget class="QPushButton" name="i024">
-    <property name="geometry">
-     <rect>
-      <x>150</x>
-      <y>330</y>
-      <width>66</width>
-      <height>21</height>
-     </rect>
-    </property>
-    <property name="minimumSize">
-     <size>
-      <width>0</width>
-      <height>21</height>
-     </size>
-    </property>
-    <property name="maximumSize">
-     <size>
-      <width>999</width>
-      <height>21</height>
-     </size>
-    </property>
-    <property name="accessibleName">
-     <string>effects</string>
-    </property>
-    <property name="text">
-     <string>Effects</string>
-    </property>
-   </widget>
-   <widget class="QPushButton" name="i020">
-    <property name="geometry">
-     <rect>
-      <x>150</x>
-      <y>260</y>
-      <width>81</width>
-      <height>21</height>
-     </rect>
-    </property>
-    <property name="minimumSize">
-     <size>
-      <width>0</width>
-      <height>21</height>
-     </size>
-    </property>
-    <property name="maximumSize">
-     <size>
-      <width>999</width>
-      <height>21</height>
-     </size>
-    </property>
-    <property name="accessibleName">
-     <string>deform</string>
-    </property>
-    <property name="text">
-     <string>Deform</string>
-    </property>
-   </widget>
    <widget class="QPushButton" name="i016">
     <property name="geometry">
      <rect>
@@ -174,8 +118,8 @@
     </property>
     <property name="geometry">
      <rect>
-      <x>150</x>
-      <y>200</y>
+      <x>155</x>
+      <y>220</y>
       <width>91</width>
       <height>20</height>
      </rect>
@@ -205,70 +149,14 @@
      </size>
     </property>
    </widget>
-   <widget class="QPushButton" name="i006">
-    <property name="geometry">
-     <rect>
-      <x>230</x>
-      <y>330</y>
-      <width>51</width>
-      <height>21</height>
-     </rect>
-    </property>
-    <property name="minimumSize">
-     <size>
-      <width>0</width>
-      <height>21</height>
-     </size>
-    </property>
-    <property name="maximumSize">
-     <size>
-      <width>999</width>
-      <height>21</height>
-     </size>
-    </property>
-    <property name="accessibleName">
-     <string>key</string>
-    </property>
-    <property name="text">
-     <string>Key</string>
-    </property>
-   </widget>
-   <widget class="QPushButton" name="i028">
-    <property name="geometry">
-     <rect>
-      <x>290</x>
-      <y>330</y>
-      <width>76</width>
-      <height>21</height>
-     </rect>
-    </property>
-    <property name="minimumSize">
-     <size>
-      <width>0</width>
-      <height>21</height>
-     </size>
-    </property>
-    <property name="maximumSize">
-     <size>
-      <width>999</width>
-      <height>21</height>
-     </size>
-    </property>
-    <property name="accessibleName">
-     <string>skeleton</string>
-    </property>
-    <property name="text">
-     <string>Skeleton</string>
-    </property>
-   </widget>
    <widget class="QPushButton" name="b001">
     <property name="enabled">
      <bool>true</bool>
     </property>
     <property name="geometry">
      <rect>
-      <x>150</x>
-      <y>230</y>
+      <x>155</x>
+      <y>250</y>
       <width>91</width>
       <height>20</height>
      </rect>
@@ -304,8 +192,8 @@
     </property>
     <property name="geometry">
      <rect>
-      <x>245</x>
-      <y>230</y>
+      <x>250</x>
+      <y>250</y>
       <width>91</width>
       <height>20</height>
      </rect>

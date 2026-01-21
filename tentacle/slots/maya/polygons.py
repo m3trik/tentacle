@@ -110,7 +110,7 @@ class PolygonsSlots(SlotsMaya):
         separate_by_material = widget.option_box.menu.chk021.isChecked()
         rename = widget.option_box.menu.chk022.isChecked()
 
-        separated = mtk.EditUtils.separate_objects(
+        separated = mtk.separate_objects(
             by_material=separate_by_material, center_pivots=True, rename=rename
         )
         if separated:
