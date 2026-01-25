@@ -419,6 +419,52 @@ class Preferences(SlotsMaya):
         self._init_binding_combo(widget, key)
         widget.currentIndexChanged.connect(lambda: self._on_binding_change(key, widget))
 
+    def kse_activation_key_init(self, widget):
+        """Initialize activation key sequence editor."""
+        if not widget.is_initialized:
+            val = self._get_activation_key()
+            try:
+                seq_str = val.replace("Key_", "")
+                widget.setKeySequence(self.sb.QtGui.QKeySequence(seq_str))
+            except Exception:
+                pass
+
+            widget.keySequenceChanged.connect(
+                lambda: self._on_activation_key_change(widget)
+            )
+
+    def _on_activation_key_change(self, widget):
+        """Handle activation key change."""
+        try:
+            val = widget.keySequence().toString()
+        except AttributeError:
+            return
+
+        if not val:
+            return
+
+        new_key_part = f"Key_{val}"
+        old_key_part = self._get_activation_key()
+
+        if new_key_part == old_key_part:
+            return
+
+        bindings = self.sb.configurable.marking_menu_bindings.get({})
+        new_bindings = {}
+
+        for key, menu in bindings.items():
+            parts = key.split("|")
+            new_parts = []
+            for part in parts:
+                if part == old_key_part:
+                    new_parts.append(new_key_part)
+                else:
+                    new_parts.append(part)
+            new_key = "|".join(new_parts)
+            new_bindings[new_key] = menu
+
+        self.sb.configurable.marking_menu_bindings.set(new_bindings)
+
     def b_reset_bindings(self):
         """Reset bindings to defaults."""
         parent = self.sb.parent()

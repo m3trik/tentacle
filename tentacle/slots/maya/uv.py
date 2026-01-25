@@ -594,23 +594,55 @@ class UvSlots(SlotsMaya):
         widget.option_box.menu.setTitle("Cleanup UV Sets")
         widget.option_box.menu.add(
             "QCheckBox",
-            setText="Dry Run",
-            setObjectName="chk030",
-            setChecked=False,
-            setToolTip="Preview changes without modifying anything.",
+            setText="Prefer Best Layout",
+            setObjectName="chk029",
+            setChecked=True,
+            setToolTip="<b>Best Information Strategy</b><br>If checked: Analyzes all valid UV sets and picks the one with the best layout density (Fill Rate).<br>Ignores global scaling, prioritizing actual texture usage and validity.<br>If unchecked: Uses the currently active UV set.",
         )
         widget.option_box.menu.add(
             "QCheckBox",
-            setText="Prefer Largest Area",
-            setObjectName="chk029",
+            setText="Remove Empty Sets",
+            setObjectName="chk035",
+            setChecked=True,
+            setToolTip="<b>Safe Cleanup</b><br>Deletes any UV sets that have no UV coordinates.",
+        )
+        widget.option_box.menu.add(
+            "QCheckBox",
+            setText="Delete Secondary Sets",
+            setObjectName="chk036",
             setChecked=False,
-            setToolTip="When multiple UV sets exist, choose the one with the largest actual face area coverage as primary.\nUses sum of UV face areas (not bounding box) to determine which set has the most comprehensive mapping.",
+            setToolTip="<b>Aggressive Cleanup</b><br>If checked: Deletes ALL other UV sets, leaving only the primary one.<br>If unchecked: Only deletes empty sets (if enabled). Secondary sets with data are preserved.",
+        )
+        widget.option_box.menu.add(
+            "QCheckBox",
+            setText="Rename to 'map1'",
+            setObjectName="chk037",
+            setChecked=True,
+            setToolTip="<b>Standardization</b><br>Renames the primary UV set to the default 'map1'.<br>This also moves it to the first index (canonical position).",
+        )
+        widget.option_box.menu.add(
+            "QCheckBox",
+            setText="Force Rename",
+            setObjectName="chk038",
+            setChecked=False,
+            setToolTip="<b>Destructive Rename</b><br>If 'map1' already exists but isn't the primary set:<br>Checked: Overwrite/merge 'map1' with the primary set.<br>Unchecked: Skip renaming if 'map1' exists and has content.",
+        )
+        widget.option_box.menu.add(
+            "QCheckBox",
+            setText="Dry Run",
+            setObjectName="chk030",
+            setChecked=False,
+            setToolTip="Preview changes in the Script Editor without modifying anything.",
         )
 
     def tb007(self, widget):
         """Cleanup UV Sets"""
-        dry_run = widget.option_box.menu.chk030.isChecked()
         prefer_largest_area = widget.option_box.menu.chk029.isChecked()
+        remove_empty = widget.option_box.menu.chk035.isChecked()
+        keep_only_primary = widget.option_box.menu.chk036.isChecked()
+        rename_to_map1 = widget.option_box.menu.chk037.isChecked()
+        force_rename = widget.option_box.menu.chk038.isChecked()
+        dry_run = widget.option_box.menu.chk030.isChecked()
 
         selection = pm.selected()
         if not selection:
@@ -619,11 +651,50 @@ class UvSlots(SlotsMaya):
             )
             return
 
-        mtk.Diagnostics.cleanup_uv_sets(
+        results = mtk.Diagnostics.cleanup_uv_sets(
             selection,
+            remove_empty=remove_empty,
+            keep_only_primary=keep_only_primary,
+            rename_to_map1=rename_to_map1,
+            force_rename=force_rename,
             prefer_largest_area=prefer_largest_area,
             dry_run=dry_run,
         )
+
+        # Generate summary report
+        if not results:
+            return
+
+        report_lines = []
+        for r in results:
+            if r.error:
+                report_lines.append(f"❌ <b>{r.shape}</b>: {r.error}")
+                continue
+
+            # Format specific details
+            details = []
+            if r.initial_sets:
+                deleted_count = len(r.sets_to_delete)
+                kept = r.primary_set
+
+                if dry_run:
+                    action = "Would keep"
+                    del_action = "would delete"
+                else:
+                    action = "Kept"
+                    del_action = "deleted"
+
+                details.append(f"{action} '<b>{kept}</b>'")
+                if r.final_name != kept and (rename_to_map1 or force_rename):
+                    details.append(f" → renamed to '<b>{r.final_name}</b>'")
+
+                if deleted_count > 0:
+                    details.append(f", {del_action} {deleted_count} others")
+
+            report_lines.append(f"• <b>{r.shape}</b>: {''.join(details)}")
+
+        header = "<b>Dry Run Report</b>" if dry_run else "<b>Cleanup Complete</b>"
+        self.sb.message_box(f"{header}<br><br>" + "<br>".join(report_lines))
 
     def tb008_init(self, widget):
         """Initialize Mirror UVs.

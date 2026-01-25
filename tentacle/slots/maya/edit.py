@@ -349,8 +349,11 @@ class Edit(SlotsMaya):
         else:  # Delete non-deformer history
             shapes = mtk.get_shape_node(objects)
             if shapes:
-                pm.bakePartialHistory(shapes, prePostDeformers=True)
-                self.sb.message_box("<hl>Delete non-deformer history</hl>")
+                try:
+                    pm.bakePartialHistory(shapes, prePostDeformers=True)
+                    self.sb.message_box("<hl>Delete non-deformer history</hl>")
+                except RuntimeError as error:
+                    print(f"Bake Partial History Failed: {error}")
 
         # Optimize the scene
         if optimize:

@@ -373,6 +373,19 @@
           <number>0</number>
          </property>
          <item>
+          <widget class="QKeySequenceEdit" name="kse_activation_key">
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>20</height>
+            </size>
+           </property>
+           <property name="toolTip">
+            <string>Set the hotkey to show the marking menu</string>
+           </property>
+          </widget>
+         </item>
+         <item>
           <widget class="ComboBox" name="cmb_bind_default">
            <property name="minimumSize">
             <size>

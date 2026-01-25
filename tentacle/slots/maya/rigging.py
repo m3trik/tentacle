@@ -227,6 +227,13 @@ class Rigging(SlotsMaya):
         )
         widget.option_box.menu.add(
             "QCheckBox",
+            setText="Strip Suffix",
+            setObjectName="chk006",
+            setChecked=True,
+            setToolTip="Strip any of the defined suffixes (Group, Locator, Geometry) from the name when enabled.",
+        )
+        widget.option_box.menu.add(
+            "QCheckBox",
             setText="Lock Child Translate",
             setObjectName="chk007",
             setChecked=False,
@@ -254,6 +261,7 @@ class Rigging(SlotsMaya):
         obj_suffix = widget.option_box.menu.t001.text()
         loc_scale = widget.option_box.menu.s001.value()
         strip_digits = widget.option_box.menu.chk005.isChecked()
+        strip_suffix = widget.option_box.menu.chk006.isChecked()
         lock_translate = widget.option_box.menu.chk007.isChecked()
         lock_rotation = widget.option_box.menu.chk008.isChecked()
         lock_scale = widget.option_box.menu.chk009.isChecked()
@@ -269,6 +277,7 @@ class Rigging(SlotsMaya):
             loc_suffix=loc_suffix,
             obj_suffix=obj_suffix,
             strip_digits=strip_digits,
+            strip_suffix=strip_suffix,
             lock_translate=lock_translate,
             lock_rotation=lock_rotation,
             lock_scale=lock_scale,
