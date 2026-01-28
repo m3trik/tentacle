@@ -175,7 +175,7 @@ class Preferences(SlotsMaya):
     def _teardown_tentacle_instance(self):
         state = {"was_visible": False, "ui_name": None}
 
-        uitk_module = sys.modules.get("uitk.menus.marking_menu")
+        uitk_module = sys.modules.get("uitk.widgets.marking_menu")
         if not uitk_module:
             return state
 

@@ -3,15 +3,12 @@
 import mayatk as mtk
 
 # From this package:
-from uitk.menus.marking_menu import MarkingMenu
+from uitk.widgets.marking_menu import MarkingMenu
 from mayatk.ui_utils.maya_ui_handler import MayaUiHandler
 
 
 class TclMaya(MarkingMenu):
     """Marking Menu class overridden for use with Autodesk Maya."""
-
-    # Use Maya-specific UI Handler
-    HANDLERS = {"ui": MayaUiHandler}
 
     def __init__(
         self, parent=None, slot_source="slots/maya", log_level="WARNING", **kwargs
@@ -38,6 +35,7 @@ class TclMaya(MarkingMenu):
             ui_source=("ui", "ui/maya_menus"),
             slot_source=slot_source,
             bindings=bindings,
+            handlers={"ui": MayaUiHandler},
             log_level=log_level,
             **kwargs,
         )
