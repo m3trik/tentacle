@@ -15,7 +15,7 @@ class FieldsSolversSlots(SlotsMaya):
         super().__init__(*args, **kwargs)
 
         self.sb = kwargs.get("switchboard")
-        self.ui = self.sb.managers.window.get("fields_solvers", header=True)
+        self.ui = self.sb.handlers.ui.get("fields_solvers", header=True)
 
 
 # --------------------------------------------------------------------------------------------

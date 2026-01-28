@@ -259,7 +259,7 @@ class Nurbs(SlotsMaya):
 
     def lbl000(self, widget):
         """Image Tracer"""
-        ui = self.sb.managers.window.get("image_tracer")
+        ui = self.sb.handlers.ui.get("image_tracer")
         self.sb.parent().show(ui)
 
     def b012(self):

@@ -16,7 +16,7 @@ class CacheSlots(SlotsMaya):
         super().__init__(switchboard=switchboard)
 
         self.sb = switchboard
-        self.ui = self.sb.managers.window.get("cache", header=True)
+        self.ui = self.sb.handlers.ui.get("cache", header=True)
 
 
 # --------------------------------------------------------------------------------------------

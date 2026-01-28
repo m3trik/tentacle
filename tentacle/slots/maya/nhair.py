@@ -15,7 +15,7 @@ class NHairSlots(SlotsMaya):
         super().__init__(*args, **kwargs)
 
         self.sb = kwargs.get("switchboard")
-        self.ui = self.sb.managers.window.get("nhair", header=True)
+        self.ui = self.sb.handlers.ui.get("nhair", header=True)
 
 
 # --------------------------------------------------------------------------------------------

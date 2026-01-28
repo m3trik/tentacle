@@ -4,14 +4,14 @@ import mayatk as mtk
 
 # From this package:
 from uitk.menus.marking_menu import MarkingMenu
-from mayatk.ui_utils.maya_window_manager import MayaWindowManager
+from mayatk.ui_utils.maya_ui_handler import MayaUiHandler
 
 
 class TclMaya(MarkingMenu):
     """Marking Menu class overridden for use with Autodesk Maya."""
 
-    # Use Maya-specific Window Manager
-    MANAGERS = {"window": MayaWindowManager}
+    # Use Maya-specific UI Handler
+    HANDLERS = {"ui": MayaUiHandler}
 
     def __init__(
         self, parent=None, slot_source="slots/maya", log_level="WARNING", **kwargs

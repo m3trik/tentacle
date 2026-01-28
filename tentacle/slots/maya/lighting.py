@@ -30,7 +30,7 @@ class Lighting(SlotsMaya):
 
     def b000(self):
         """Launch the HDR Manager."""
-        ui = self.sb.managers.window.get("hdr_manager")
+        ui = self.sb.handlers.ui.get("hdr_manager")
         self.sb.parent().show(ui)
 
 

@@ -15,7 +15,7 @@ class SurfacesSlots(SlotsMaya):
         super().__init__(*args, **kwargs)
 
         self.sb = kwargs.get("switchboard")
-        self.ui = self.sb.managers.window.get("surfaces", header=True)
+        self.ui = self.sb.handlers.ui.get("surfaces", header=True)
 
 
 # --------------------------------------------------------------------------------------------

@@ -15,7 +15,7 @@ class ControlSlots(SlotsMaya):
         super().__init__(switchboard)
 
         self.sb = switchboard
-        self.ui = self.sb.managers.window.get("control", header=True)
+        self.ui = self.sb.handlers.ui.get("control", header=True)
 
 
 # --------------------------------------------------------------------------------------------

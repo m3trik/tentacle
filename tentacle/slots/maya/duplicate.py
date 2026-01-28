@@ -122,7 +122,7 @@ class Duplicate(SlotsMaya):
 
     def b000(self):
         """Mirror"""
-        ui = self.sb.managers.window.get("mirror")
+        ui = self.sb.handlers.ui.get("mirror")
         self.sb.parent().show(ui)
 
     def b005(self):
@@ -132,17 +132,17 @@ class Duplicate(SlotsMaya):
 
     def b006(self):
         """Duplicate Linear"""
-        ui = self.sb.managers.window.get("duplicate_linear")
+        ui = self.sb.handlers.ui.get("duplicate_linear")
         self.sb.parent().show(ui)
 
     def b007(self):
         """Duplicate Radial"""
-        ui = self.sb.managers.window.get("duplicate_radial")
+        ui = self.sb.handlers.ui.get("duplicate_radial")
         self.sb.parent().show(ui)
 
     def b008(self):
         """Duplicate Grid"""
-        ui = self.sb.managers.window.get("duplicate_grid")
+        ui = self.sb.handlers.ui.get("duplicate_grid")
         self.sb.parent().show(ui)
 
 

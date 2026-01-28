@@ -389,12 +389,12 @@ class Edit(SlotsMaya):
 
     def b000(self):
         """Cut On Axis"""
-        ui = self.sb.managers.window.get("cut_on_axis")
+        ui = self.sb.handlers.ui.get("cut_on_axis")
         self.sb.parent().show(ui)
 
     def b001(self):
         """Snap Toolset"""
-        ui = self.sb.managers.window.get("snap")
+        ui = self.sb.handlers.ui.get("snap")
         self.sb.parent().show(ui)
 
     def b021(self):

@@ -15,7 +15,7 @@ class MashSlots(SlotsMaya):
         super().__init__(*args, **kwargs)
 
         self.sb = kwargs.get("switchboard")
-        self.ui = self.sb.managers.window.get("mash", header=True)
+        self.ui = self.sb.handlers.ui.get("mash", header=True)
 
 
 # --------------------------------------------------------------------------------------------

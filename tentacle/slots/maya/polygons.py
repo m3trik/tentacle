@@ -503,7 +503,7 @@ class PolygonsSlots(SlotsMaya):
 
     def b007(self):
         """Interactive Bridge"""
-        ui = self.sb.managers.window.get("bridge")
+        ui = self.sb.handlers.ui.get("bridge")
         self.sb.parent().show(ui)
 
     def b008(self):
@@ -526,7 +526,7 @@ class PolygonsSlots(SlotsMaya):
 
     def b011(self):
         """Bevel"""
-        ui = self.sb.managers.window.get("bevel")
+        ui = self.sb.handlers.ui.get("bevel")
         self.sb.parent().show(ui)
 
     def b012(self):

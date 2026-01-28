@@ -442,17 +442,17 @@ class MaterialsSlots(SlotsMaya):
 
     def b009(self, widget):
         """Create Game Shader"""
-        ui = self.sb.managers.window.get("game_shader")
+        ui = self.sb.handlers.ui.get("game_shader")
         self.sb.parent().show(ui)
 
     def b010(self, widget):
         """Texture Path Editor"""
-        ui = self.sb.managers.window.get("texture_path_editor")
+        ui = self.sb.handlers.ui.get("texture_path_editor")
         self.sb.parent().show(ui)
 
     def b011(self, widget):
         """Shader Templates"""
-        ui = self.sb.managers.window.get("shader_templates")
+        ui = self.sb.handlers.ui.get("shader_templates")
         self.sb.parent().show(ui)
 
     def b013(self):
@@ -513,7 +513,7 @@ class MaterialsSlots(SlotsMaya):
 
     def b018(self, widget):
         """Material Updater"""
-        ui = self.sb.managers.window.get("material_updater")
+        ui = self.sb.handlers.ui.get("material_updater")
         self.sb.parent().show(ui)
 
 
