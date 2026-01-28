@@ -15,7 +15,7 @@ class WindowsSlots(SlotsMaya):
         super().__init__(*args, **kwargs)
 
         self.sb = kwargs.get("switchboard")
-        self.ui = mtk.UiManager.instance(self.sb).get("windows", header=True)
+        self.ui = self.sb.managers.window.get("windows", header=True)
 
 
 # --------------------------------------------------------------------------------------------

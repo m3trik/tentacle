@@ -175,13 +175,8 @@ class Preferences(SlotsMaya):
     def _teardown_tentacle_instance(self):
         state = {"was_visible": False, "ui_name": None}
 
-        uitk_module = sys.modules.get("uitk.controllers.marking_menu._marking_menu")
+        uitk_module = sys.modules.get("uitk.menus.marking_menu")
         if not uitk_module:
-            # Fallback to check old path just in case
-            uitk_module = sys.modules.get("uitk.marking_menu._marking_menu")
-
-        if not uitk_module:
-            # Fallback for old import path if needed (though we are removing back-compat)
             return state
 
         MarkingMenu = getattr(uitk_module, "MarkingMenu", None)

@@ -15,7 +15,7 @@ class ArnoldSlots(SlotsMaya):
         super().__init__(switchboard)
 
         self.sb = switchboard
-        self.ui = mtk.UiManager.instance(self.sb).get("arnold", header=True)
+        self.ui = self.sb.managers.window.get("arnold", header=True)
 
 
 # --------------------------------------------------------------------------------------------

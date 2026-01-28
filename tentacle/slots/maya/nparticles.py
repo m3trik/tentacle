@@ -15,7 +15,7 @@ class NParticlesSlots(SlotsMaya):
         super().__init__(*args, **kwargs)
 
         self.sb = kwargs.get("switchboard")
-        self.ui = mtk.UiManager.instance(self.sb).get("nparticles", header=True)
+        self.ui = self.sb.managers.window.get("nparticles", header=True)
 
 
 # --------------------------------------------------------------------------------------------

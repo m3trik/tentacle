@@ -503,7 +503,7 @@ class PolygonsSlots(SlotsMaya):
 
     def b007(self):
         """Interactive Bridge"""
-        ui = mtk.UiManager.instance(self.sb).get("bridge")
+        ui = self.sb.managers.window.get("bridge")
         self.sb.parent().show(ui)
 
     def b008(self):
@@ -526,7 +526,7 @@ class PolygonsSlots(SlotsMaya):
 
     def b011(self):
         """Bevel"""
-        ui = mtk.UiManager.instance(self.sb).get("bevel")
+        ui = self.sb.managers.window.get("bevel")
         self.sb.parent().show(ui)
 
     def b012(self):

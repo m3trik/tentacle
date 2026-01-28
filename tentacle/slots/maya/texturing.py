@@ -15,7 +15,7 @@ class TexturingSlots(SlotsMaya):
         super().__init__(*args, **kwargs)
 
         self.sb = kwargs.get("switchboard")
-        self.ui = mtk.UiManager.instance(self.sb).get("texturing", header=True)
+        self.ui = self.sb.managers.window.get("texturing", header=True)
 
 
 # --------------------------------------------------------------------------------------------

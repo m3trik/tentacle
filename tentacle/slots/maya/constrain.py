@@ -15,7 +15,7 @@ class Constrain(SlotsMaya):
         super().__init__(switchboard)
 
         self.sb = switchboard
-        self.ui = mtk.UiManager.instance(self.sb).get("constrain", header=True)
+        self.ui = self.sb.managers.window.get("constrain", header=True)
 
 
 # --------------------------------------------------------------------------------------------

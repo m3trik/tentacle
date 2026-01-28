@@ -15,7 +15,7 @@ class SkeletonSlots(SlotsMaya):
         super().__init__(*args, **kwargs)
 
         self.sb = kwargs.get("switchboard")
-        self.ui = mtk.UiManager.instance(self.sb).get("skeleton", header=True)
+        self.ui = self.sb.managers.window.get("skeleton", header=True)
 
 
 # --------------------------------------------------------------------------------------------

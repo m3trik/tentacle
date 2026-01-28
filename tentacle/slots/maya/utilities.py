@@ -22,7 +22,7 @@ class Utilities(SlotsMaya):
 
     def b002(self):
         """Calculator"""
-        ui = mtk.UiManager.instance(self.sb).get("calculator")
+        ui = self.sb.managers.window.get("calculator")
         self.sb.parent().show(ui)
 
     def b003(self):

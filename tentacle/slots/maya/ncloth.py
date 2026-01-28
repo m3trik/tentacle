@@ -15,7 +15,7 @@ class NClothSlots(SlotsMaya):
         super().__init__(*args, **kwargs)
 
         self.sb = kwargs.get("switchboard")
-        self.ui = mtk.UiManager.instance(self.sb).get("ncloth", header=True)
+        self.ui = self.sb.managers.window.get("ncloth", header=True)
 
 
 # --------------------------------------------------------------------------------------------

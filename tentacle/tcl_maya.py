@@ -1,11 +1,17 @@
 # !/usr/bin/python
 # coding=utf-8
 import mayatk as mtk
-from uitk import MarkingMenu
+
+# From this package:
+from uitk.menus.marking_menu import MarkingMenu
+from mayatk.ui_utils.maya_window_manager import MayaWindowManager
 
 
 class TclMaya(MarkingMenu):
     """Marking Menu class overridden for use with Autodesk Maya."""
+
+    # Use Maya-specific Window Manager
+    MANAGERS = {"window": MayaWindowManager}
 
     def __init__(
         self, parent=None, slot_source="slots/maya", log_level="WARNING", **kwargs

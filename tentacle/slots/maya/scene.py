@@ -322,12 +322,12 @@ class SceneSlots(SlotsMaya):
 
     def b001(self):
         """Open Reference Manager"""
-        ui = mtk.UiManager.instance(self.sb).get("reference_manager")
+        ui = self.sb.managers.window.get("reference_manager")
         self.sb.parent().show(ui)
 
     def b002(self):
         """Scene Exporter"""
-        ui = mtk.UiManager.instance(self.sb).get("scene_exporter")
+        ui = self.sb.managers.window.get("scene_exporter")
         self.sb.parent().show(ui)
 
     def b003(self):
@@ -336,12 +336,12 @@ class SceneSlots(SlotsMaya):
 
     def b004(self):
         """Open Hierarchy Manager"""
-        ui = mtk.UiManager.instance(self.sb).get("hierarchy_manager")
+        ui = self.sb.managers.window.get("hierarchy_manager")
         self.sb.parent().show(ui)
 
     def b005(self):
         """Open Naming Tool"""
-        ui = mtk.UiManager.instance(self.sb).get("naming")
+        ui = self.sb.managers.window.get("naming")
         self.sb.parent().show(ui)
 
     def b006(self):

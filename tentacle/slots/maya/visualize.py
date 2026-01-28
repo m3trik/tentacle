@@ -15,7 +15,7 @@ class VisualizeSlots(SlotsMaya):
         super().__init__(*args, **kwargs)
 
         self.sb = kwargs.get("switchboard")
-        self.ui = mtk.UiManager.instance(self.sb).get("visualize", header=True)
+        self.ui = self.sb.managers.window.get("visualize", header=True)
 
 
 # --------------------------------------------------------------------------------------------

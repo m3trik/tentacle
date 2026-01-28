@@ -57,13 +57,13 @@ class Rigging(SlotsMaya):
         """Quick Rig"""
         text = widget.items[index]
         if text == "Tube Rig":
-            ui = mtk.UiManager.instance(self.sb).get("tube_rig")
+            ui = self.sb.managers.window.get("tube_rig")
             self.sb.parent().show(ui)
         elif text == "Wheel Rig":
-            ui = mtk.UiManager.instance(self.sb).get("wheel_rig")
+            ui = self.sb.managers.window.get("wheel_rig")
             self.sb.parent().show(ui)
         elif text == "Shadow Rig":
-            ui = mtk.UiManager.instance(self.sb).get("shadow_rig")
+            ui = self.sb.managers.window.get("shadow_rig")
             self.sb.parent().show(ui)
 
     def chk000(self, state, widget):

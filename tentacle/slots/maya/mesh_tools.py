@@ -15,7 +15,7 @@ class MeshToolsSlots(SlotsMaya):
         super().__init__(*args, **kwargs)
 
         self.sb = kwargs.get("switchboard")
-        self.ui = mtk.UiManager.instance(self.sb).get("mesh_tools", header=True)
+        self.ui = self.sb.managers.window.get("mesh_tools", header=True)
 
 
 # --------------------------------------------------------------------------------------------

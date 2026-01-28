@@ -15,7 +15,7 @@ class KeySlots(SlotsMaya):
         super().__init__(*args, **kwargs)
 
         self.sb = kwargs.get("switchboard")
-        self.ui = mtk.UiManager.instance(self.sb).get("key", header=True)
+        self.ui = self.sb.managers.window.get("key", header=True)
 
 
 # --------------------------------------------------------------------------------------------

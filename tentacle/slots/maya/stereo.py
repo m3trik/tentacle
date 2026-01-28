@@ -15,7 +15,7 @@ class StereoSlots(SlotsMaya):
         super().__init__(*args, **kwargs)
 
         self.sb = kwargs.get("switchboard")
-        self.ui = mtk.UiManager.instance(self.sb).get("stereo", header=True)
+        self.ui = self.sb.managers.window.get("stereo", header=True)
 
 
 # --------------------------------------------------------------------------------------------
