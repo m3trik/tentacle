@@ -10,7 +10,7 @@
     <x>0</x>
     <y>0</y>
     <width>200</width>
-    <height>255</height>
+    <height>485</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -373,19 +373,6 @@
           <number>0</number>
          </property>
          <item>
-          <widget class="QKeySequenceEdit" name="kse_activation_key">
-           <property name="minimumSize">
-            <size>
-             <width>0</width>
-             <height>20</height>
-            </size>
-           </property>
-           <property name="toolTip">
-            <string>Set the hotkey to show the marking menu</string>
-           </property>
-          </widget>
-         </item>
-         <item>
           <widget class="ComboBox" name="cmb_bind_default">
            <property name="minimumSize">
             <size>
@@ -450,8 +437,32 @@
            </property>
           </widget>
          </item>
+        </layout>
+       </widget>
+      </item>
+      <item>
+       <widget class="QGroupBox" name="bindings_group_2">
+        <property name="title">
+         <string>Key Bindings</string>
+        </property>
+        <layout class="QVBoxLayout" name="verticalLayout_bindings_3">
+         <property name="spacing">
+          <number>1</number>
+         </property>
+         <property name="leftMargin">
+          <number>0</number>
+         </property>
+         <property name="topMargin">
+          <number>0</number>
+         </property>
+         <property name="rightMargin">
+          <number>0</number>
+         </property>
+         <property name="bottomMargin">
+          <number>0</number>
+         </property>
          <item>
-          <widget class="QPushButton" name="b_reset_bindings">
+          <widget class="QKeySequenceEdit" name="kse_activation_key">
            <property name="minimumSize">
             <size>
              <width>0</width>
@@ -459,14 +470,40 @@
             </size>
            </property>
            <property name="toolTip">
-            <string>Reset bindings to defaults</string>
+            <string>Set the hotkey to show the marking menu</string>
            </property>
-           <property name="text">
-            <string>Reset to Defaults</string>
+          </widget>
+         </item>
+         <item>
+          <widget class="QKeySequenceEdit" name="kse_repeat_last">
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>20</height>
+            </size>
+           </property>
+           <property name="toolTip">
+            <string>Set the hotkey to repeat the last called slot</string>
            </property>
           </widget>
          </item>
         </layout>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="b_reset_bindings">
+        <property name="minimumSize">
+         <size>
+          <width>0</width>
+          <height>20</height>
+         </size>
+        </property>
+        <property name="toolTip">
+         <string>Reset bindings to defaults</string>
+        </property>
+        <property name="text">
+         <string>Reset to Defaults</string>
+        </property>
        </widget>
       </item>
       <item>

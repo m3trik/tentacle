@@ -25,11 +25,27 @@ class Preferences(SlotsMaya):
     def header_init(self, widget):
         """Initialize header"""
         if not widget.is_initialized:
+            # Editors section
+            widget.menu.add(
+                self.sb.registered_widgets.Separator,
+                setTitle="Editors",
+            )
             widget.menu.add(
                 self.sb.registered_widgets.Label,
                 setText="UI Style Editor",
                 setObjectName="lbl000",
                 setToolTip="Customize the UI colors used by Tentacle.",
+            )
+            widget.menu.add(
+                self.sb.registered_widgets.Label,
+                setText="Hotkey Editor",
+                setObjectName="lbl001",
+                setToolTip="Customize the UI shortcuts.",
+            )
+            # Package section
+            widget.menu.add(
+                self.sb.registered_widgets.Separator,
+                setTitle="Package",
             )
             widget.menu.add(
                 self.sb.registered_widgets.PushButton,
@@ -299,6 +315,29 @@ class Preferences(SlotsMaya):
         self._style_editor.show()
         self._style_editor.raise_()
 
+    def lbl001(self):
+        """Hotkey Editor"""
+        from uitk.widgets.hotkey_editor import HotkeyEditor
+
+        # Create if not exists or if the C++ object has been deleted
+        if not hasattr(self, "_hotkey_editor"):
+            self._hotkey_editor = HotkeyEditor(
+                switchboard=self.sb, parent=self.sb.parent()
+            )
+        else:
+            try:
+                # Check if underlying C++ object is valid
+                if not self._hotkey_editor.isVisible():
+                    self._hotkey_editor.show()  # Just show if hidden
+            except RuntimeError:
+                # Re-create if deleted
+                self._hotkey_editor = HotkeyEditor(
+                    switchboard=self.sb, parent=self.sb.parent()
+                )
+
+        self._hotkey_editor.show()
+        self._hotkey_editor.raise_()
+
     def b001(self):
         """Color Settings"""
         pm.mel.colorPrefWnd()
@@ -427,6 +466,27 @@ class Preferences(SlotsMaya):
             widget.keySequenceChanged.connect(
                 lambda: self._on_activation_key_change(widget)
             )
+
+    def kse_repeat_last_init(self, widget):
+        """Initialize repeat last command key sequence editor."""
+        if not widget.is_initialized:
+            # Get stored value or default
+            sequence = self.sb.configurable.repeat_last_shortcut.get("Ctrl+Shift+R")
+            if sequence:
+                widget.setKeySequence(self.sb.QtGui.QKeySequence(sequence))
+
+            widget.keySequenceChanged.connect(
+                lambda: self._on_repeat_last_change(widget)
+            )
+
+    def _on_repeat_last_change(self, widget):
+        """Handle repeat last shortcut change."""
+        try:
+            sequence = widget.keySequence().toString()
+        except AttributeError:
+            return
+
+        self.sb.configurable.repeat_last_shortcut.set(sequence)
 
     def _on_activation_key_change(self, widget):
         """Handle activation key change."""
