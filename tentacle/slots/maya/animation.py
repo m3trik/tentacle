@@ -21,11 +21,16 @@ class Animation(SlotsMaya):
         """Header Init"""
         widget.menu.add(
             self.sb.registered_widgets.PushButton,
+            setText="Smart Bake",
+            setObjectName="tb017",
+            setToolTip="Intelligently bake constraints, driven keys, expressions, IK, motion paths, and blend shapes.",
+        )
+        widget.menu.add(
+            self.sb.registered_widgets.PushButton,
             setText="Print Animation Info",
             setObjectName="tb016",
             setToolTip="Print segmented keyframe info for selected objects (or all if none selected).",
         )
-
         widget.menu.add(
             "QPushButton",
             setText="Repair Visibility Tangents",
@@ -34,7 +39,6 @@ class Animation(SlotsMaya):
                 objects=pm.selected() or None
             ),
         )
-
         widget.menu.add(
             self.sb.registered_widgets.PushButton,
             setText="Repair Corrupted Curves",
@@ -186,11 +190,12 @@ class Animation(SlotsMaya):
             cmb.addItem(text, data)
 
         widget.option_box.menu.add(
-            "QSpinBox",
+            self.sb.registered_widgets.SpinBox,
             setPrefix="Time: ",
             setObjectName="s001",
             set_limits=[-100000, 100000],
             setValue=-1,
+            setCustomDisplayValues={-1: "Time: Auto"},
             setToolTip="Start time for inverted keys.\nSet to -1 to auto-detect from keys (selected or all).",
         )
         widget.option_box.menu.add(
@@ -250,11 +255,12 @@ class Animation(SlotsMaya):
         """Adjust Spacing Init"""
         widget.option_box.menu.setTitle("Adjust Spacing")
         widget.option_box.menu.add(
-            "QSpinBox",
+            self.sb.registered_widgets.SpinBox,
             setPrefix="Frame: ",
             setObjectName="s002",
             set_limits=[-100000, 100000],
             setValue=-1,
+            setCustomDisplayValues={-1: "Frame: Auto"},
             setToolTip="The time at which to start adding spacing.\nSet to -1 to use earliest keyframe on selected objects.",
         )
         widget.option_box.menu.add(
@@ -304,11 +310,12 @@ class Animation(SlotsMaya):
         """Stagger Keys Init"""
         widget.option_box.menu.setTitle("Stagger Keys")
         widget.option_box.menu.add(
-            "QSpinBox",
+            self.sb.registered_widgets.SpinBox,
             setPrefix="Start Frame: ",
             setObjectName="s005",
             set_limits=[-100000, 100000],
             setValue=-1,
+            setCustomDisplayValues={-1: "Start Frame: Auto"},
             setToolTip="Override starting frame. -1 = use earliest keyframe.",
         )
         widget.option_box.menu.add(
@@ -446,19 +453,21 @@ class Animation(SlotsMaya):
         """Add/Remove Intermediate Keys Init"""
         widget.option_box.menu.setTitle("Intermediate Keys")
         widget.option_box.menu.add(
-            "QSpinBox",
+            self.sb.registered_widgets.SpinBox,
             setPrefix="Start Time: ",
             setObjectName="s005",
             set_limits=[-1, 100000],
             setValue=-1,
+            setCustomDisplayValues={-1: "Start Time: Auto"},
             setToolTip="The time at which to start adding keys. Set to -1 to auto-detect from first keyframe.",
         )
         widget.option_box.menu.add(
-            "QSpinBox",
+            self.sb.registered_widgets.SpinBox,
             setPrefix="End Time: ",
             setObjectName="s006",
             set_limits=[-1, 100000],
             setValue=-1,
+            setCustomDisplayValues={-1: "End Time: Auto"},
             setToolTip="The time at which to end adding keys. Set to -1 to auto-detect from last keyframe.",
         )
         widget.option_box.menu.add(
@@ -590,12 +599,13 @@ class Animation(SlotsMaya):
             setToolTip="Align to the earliest selected keyframe.\nElse align to the latest selected keyframe.",
         )
         widget.option_box.menu.add(
-            "QSpinBox",
+            self.sb.registered_widgets.SpinBox,
             setPrefix="Frame: ",
             setObjectName="spn000",
             setMinimum=-10000,
             setMaximum=10000,
             setValue=-1,
+            setCustomDisplayValues={-1: "Frame: Auto"},
             setToolTip="Specific frame to align to.\nSet to -1 to auto-detect from selected keyframes.",
         )
 
