@@ -25,3 +25,4 @@
 ## 3. Work Logs & History
 - [x] **Initial Setup** — Repository established.
 - [x] **2026-01-21 Refactor**: Updated `tcl_maya` MarkingMenu initialization and `preferences` logic to fix settings persistence and validation.
+- [x] **2026-02-11 Feature**: Updated `materials.py` to strip trailing underscores in addition to digits in `lbl007` logic.

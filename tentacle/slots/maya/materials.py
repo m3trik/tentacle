@@ -44,9 +44,16 @@ class MaterialsSlots(SlotsMaya):
         # Add a button to launch the game shader.
         widget.menu.add(
             "QPushButton",
-            setText="Create Game Shader",
+            setText="Game Shader",
             setObjectName="b009",
             setToolTip="Create an exportable game shader network that can optionally be rendered in Arnold.",
+        )
+        # Add a button to send to Marmoset.
+        widget.menu.add(
+            "QPushButton",
+            setText="Send to Marmoset",
+            setObjectName="b019",
+            setToolTip="Export selection to Marmoset Toolbag.",
         )
         # Add a button to launch the Material Updater.
         widget.menu.add(
@@ -104,9 +111,9 @@ class MaterialsSlots(SlotsMaya):
             )
             widget.menu.add(
                 self.sb.registered_widgets.Label,
-                setText="Rename (strip trailing ints)",
+                setText="Rename (strip trailing ints & _)",
                 setObjectName="lbl007",
-                setToolTip="Rename the current material by removing trailing digits if present.",
+                setToolTip="Rename the current material by removing trailing digits and underscores if present.",
             )
             widget.menu.add(
                 self.sb.registered_widgets.Label,
@@ -162,9 +169,9 @@ class MaterialsSlots(SlotsMaya):
                 widget.setItemIcon(i, icon)
 
     def lbl007(self):
-        """Rename the current material by stripping trailing integers.
+        """Rename the current material by stripping trailing integers and underscores.
 
-        - Compute new name by removing trailing digits from the current name.
+        - Compute new name by removing trailing digits and underscores from the current name.
         - Abort if the new name already exists or if nothing to change.
         - Refresh UI and keep selection on the renamed material.
         """
@@ -173,19 +180,19 @@ class MaterialsSlots(SlotsMaya):
             return
 
         old_name = mat.name()
-        new_name = re.sub(r"\d+$", "", old_name)
+        new_name = re.sub(r"[\d_]+$", "", old_name)
 
         # If stripping results in no change
         if new_name == old_name:
             self.sb.message_box(
-                "<hl>No trailing integers</hl><br>No trailing integers to strip; rename not performed."
+                "<hl>No trailing suffix</hl><br>No trailing integers or underscores to strip; rename not performed."
             )
             return
 
         # If stripping removes all characters
         if not new_name:
             self.sb.message_box(
-                "<hl>Invalid new name</hl><br>Stripping digits results in an empty name. Rename aborted."
+                "<hl>Invalid new name</hl><br>Stripping suffix results in an empty name. Rename aborted."
             )
             return
 
@@ -283,6 +290,13 @@ class MaterialsSlots(SlotsMaya):
             selection = None  # Search all objects in the scene
 
         faces_with_mat = mtk.MatUtils.find_by_mat_id(mat, selection, shell=shell)
+
+        if not faces_with_mat:
+            print(f"No objects found with material: {mat}")
+            self.sb.message_box(
+                f"<hl>No matches</hl><br>No objects found with material '<strong>{mat}</strong>'."
+            )
+            return
 
         pm.select(faces_with_mat)
 
@@ -456,9 +470,10 @@ class MaterialsSlots(SlotsMaya):
         self.sb.parent().show(ui)
 
     def b013(self):
-        """Reload Textures"""
+        """Reload Textures and Reset Viewport"""
         mtk.MatUtils.reload_textures()  # pm.mel.AEReloadAllTextures()
-        confirmation_message = "<html><body><p style='font-size:16px; color:yellow;'>Textures are <strong>reloading ..</strong>.</p></body></html>"
+        mtk.DisplayUtils.reset_viewport()
+        confirmation_message = "<html><body><p style='font-size:16px; color:yellow;'>Textures Reloaded & Viewport Reset.</p></body></html>"
         self.sb.message_box(confirmation_message)
 
     def b014(self):
@@ -513,8 +528,16 @@ class MaterialsSlots(SlotsMaya):
 
     def b018(self, widget):
         """Material Updater"""
-        ui = self.sb.handlers.ui.get("material_updater")
+        ui = self.sb.handlers.ui.get("mat_updater")
         self.sb.parent().show(ui)
+
+    def b019(self, widget):
+        """Send to Marmoset"""
+        exporter = mtk.MarmosetExporter()
+        script = exporter.send(headless=False)
+        if script:
+            print(f"Marmoset Export Successful: {script}")
+            # Optional: self.sb.message_box("Export sent to Marmoset.")
 
 
 # --------------------------------------------------------------------------------------------
