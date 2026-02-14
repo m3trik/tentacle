@@ -26,14 +26,21 @@ class MaterialsSlots(SlotsMaya):
     def header_init(self, widget):
         """Initialize the header menu"""
         widget.menu.setTitle("Materials: Utilities")
-        # Add a button to reload all textures in the scene.
+
+        # Section: Utilities
+        widget.menu.add("Separator", setTitle="Utilities")
         widget.menu.add(
             "QPushButton",
             setText="Reload Scene Textures",
             setObjectName="b013",
             setToolTip="Reload file textures for all scene materials.",
         )
-        # Add a button to open the hypershade editor.
+        widget.menu.add(
+            "QPushButton",
+            setText="Print Texture Info",
+            setObjectName="b017",
+            setToolTip="Print information about all texture files in the scene to the script editor.",
+        )
         widget.menu.add(
             "QPushButton",
             setText="Hypershade Editor",
@@ -41,42 +48,46 @@ class MaterialsSlots(SlotsMaya):
             setToolTip="Open the Hypershade Window.",
             clicked=lambda: pm.mel.HypershadeWindow(),
         )
-        # Add a button to launch the game shader.
+        # Section: Setup
+        widget.menu.add("Separator", setTitle="Setup")
         widget.menu.add(
-            "QPushButton",
-            setText="Game Shader",
-            setObjectName="b009",
-            setToolTip="Create an exportable game shader network that can optionally be rendered in Arnold.",
+            self.sb.registered_widgets.PushButton,
+            setText="Render Opacity",
+            setObjectName="tb001",
+            setToolTip="Create a render opacity controller for selected objects.",
         )
-        # Add a button to send to Marmoset.
-        widget.menu.add(
-            "QPushButton",
-            setText="Send to Marmoset",
-            setObjectName="b019",
-            setToolTip="Export selection to Marmoset Toolbag.",
-        )
-        # Add a button to launch the Material Updater.
         widget.menu.add(
             "QPushButton",
             setText="Material Updater",
             setObjectName="b018",
             setToolTip="Update material networks with new textures and settings.",
         )
-        # Add a button to launch the shader templates UI.
         widget.menu.add(
             "QPushButton",
             setText="Shader Templates",
             setObjectName="b011",
             setToolTip="Open the Shader Templates UI to save and load shader graphs.",
         )
-        # Add a button to launch the Texture Path Editor.
         widget.menu.add(
             "QPushButton",
             setText="Texture Path Editor",
             setObjectName="b010",
             setToolTip="Edit texture paths for materials in the scene.",
         )
-        # Add a button to launch map converter.
+        # Section: Conversion / Export
+        widget.menu.add("Separator", setTitle="Conversion / Export")
+        widget.menu.add(
+            "QPushButton",
+            setText="Game Shader",
+            setObjectName="b009",
+            setToolTip="Create an exportable game shader network that can optionally be rendered in Arnold.",
+        )
+        widget.menu.add(
+            "QPushButton",
+            setText="Send to Marmoset",
+            setObjectName="b019",
+            setToolTip="Export selection to Marmoset Toolbag.",
+        )
         widget.menu.add(
             "QPushButton",
             setText="Map Converter",
@@ -89,13 +100,6 @@ class MaterialsSlots(SlotsMaya):
             setObjectName="b008",
             setToolTip="Pack up to 4 input grayscale maps into specified RGBA channels.",
         )
-        # Add a button to print scene texture info.
-        widget.menu.add(
-            "QPushButton",
-            setText="Print Texture Info",
-            setObjectName="b017",
-            setToolTip="Print information about all texture files in the scene to the script editor.",
-        )
 
     def cmb002_init(self, widget):
         """Initialize Materials"""
@@ -103,6 +107,9 @@ class MaterialsSlots(SlotsMaya):
             widget.refresh_on_show = True  # Call this method on show
             widget.editable = True
             widget.menu.setTitle("Material Options")
+
+            # Section: Edit
+            widget.menu.add("Separator", setTitle="Edit")
             widget.menu.add(
                 self.sb.registered_widgets.Label,
                 setText="Rename",
@@ -121,6 +128,8 @@ class MaterialsSlots(SlotsMaya):
                 setObjectName="lbl002",
                 setToolTip="Delete the current material.",
             )
+            # Section: View / Select
+            widget.menu.add("Separator", setTitle="View / Select")
             widget.menu.add(
                 self.sb.registered_widgets.Label,
                 setText="Select Node",
@@ -133,6 +142,8 @@ class MaterialsSlots(SlotsMaya):
                 setObjectName="lbl006",
                 setToolTip="Open the material in the hypershade editor.",
             )
+            # Section: Cleanup
+            widget.menu.add("Separator", setTitle="Cleanup")
             widget.menu.add(
                 self.sb.registered_widgets.Label,
                 setText="Remove Duplicate Materials",
@@ -299,6 +310,32 @@ class MaterialsSlots(SlotsMaya):
             return
 
         pm.select(faces_with_mat)
+
+    def tb001_init(self, widget):
+        """Render Opacity Init"""
+        widget.option_box.menu.setTitle("Render Opacity")
+
+        widget.option_box.menu.add(
+            "QComboBox",
+            addItems=["Material", "Attribute", "Remove"],
+            setObjectName="cmb000",
+            setToolTip="Both modes create a keyable 'opacity' attribute in the channel box.\n"
+            "• Material Mode (default): Connects transparency graph on StingrayPBS\n"
+            "• Attribute Mode: Creates an attribute only, which can later be custom wired in game engine.\n"
+            "• Remove: Resets and cleans up all artifacts from any previous render opacity operation.\n"
+            "<b>Note</b>: Material mode creates a duplicate StingrayPBS material for each object.\n",
+        )
+
+    def tb001(self, widget):
+        """Render Opacity"""
+        mode = widget.option_box.menu.cmb000.currentText().lower()
+
+        objects = pm.selected()
+        if not objects:
+            self.sb.message_box("Select one or more objects to set render opacity.")
+            return
+
+        mtk.RenderOpacity.create(objects, mode=mode)
 
     def lbl002(self):
         """Delete Material"""
@@ -533,8 +570,8 @@ class MaterialsSlots(SlotsMaya):
 
     def b019(self, widget):
         """Send to Marmoset"""
-        exporter = mtk.MarmosetExporter()
-        script = exporter.send(headless=False)
+        bridge = mtk.MarmosetBridge()
+        script = bridge.send(headless=False)
         if script:
             print(f"Marmoset Export Successful: {script}")
             # Optional: self.sb.message_box("Export sent to Marmoset.")
