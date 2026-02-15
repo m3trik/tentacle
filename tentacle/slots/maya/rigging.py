@@ -5,6 +5,8 @@ try:
 except ImportError as error:
     print(__file__, error)
 import mayatk as mtk
+
+# From this package:
 from tentacle.slots.maya import SlotsMaya
 
 

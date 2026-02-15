@@ -1454,7 +1454,7 @@ class Animation(SlotsMaya):
             return
 
         # Copy each object's unique values (default behavior)
-        self._stored_attributes = mtk.get_channel_box_attributes(objects)
+        self._stored_attributes = mtk.AttributeManager.get_channel_box_values(objects)
 
         if not self._stored_attributes:
             self.sb.message_box("No channel box attributes selected.")

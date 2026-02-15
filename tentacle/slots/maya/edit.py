@@ -19,6 +19,12 @@ class Edit(SlotsMaya):
         """Initialize header menu"""
         widget.menu.add(
             "QPushButton",
+            setText="Attribute Manager",
+            setObjectName="b_attr_mgr",
+            setToolTip="Open the Attribute Manager.",
+        )
+        widget.menu.add(
+            "QPushButton",
             setText="Cut On Axis",
             setObjectName="b000",
             setToolTip="Cut selected objects on axis.",
@@ -386,6 +392,11 @@ class Edit(SlotsMaya):
         nodes = selection if selection else pm.ls()
         for node in nodes:
             pm.lockNode(node, lock=not unlock)
+
+    def b_attr_mgr(self):
+        """Attribute Manager"""
+        ui = self.sb.handlers.ui.get("attribute_manager")
+        self.sb.parent().show(ui)
 
     def b000(self):
         """Cut On Axis"""
