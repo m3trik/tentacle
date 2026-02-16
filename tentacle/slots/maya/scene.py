@@ -9,7 +9,7 @@ except ImportError as error:
 import pythontk as ptk
 import mayatk as mtk
 from uitk import Signals
-from tentacle.slots.maya import SlotsMaya
+from tentacle.slots.maya._slots_maya import SlotsMaya
 
 
 class SceneSlots(SlotsMaya):
@@ -322,13 +322,11 @@ class SceneSlots(SlotsMaya):
 
     def b001(self):
         """Open Reference Manager"""
-        ui = self.sb.handlers.ui.get("reference_manager")
-        self.sb.parent().show(ui)
+        self.sb.handlers.marking_menu.show("reference_manager")
 
     def b002(self):
         """Scene Exporter"""
-        ui = self.sb.handlers.ui.get("scene_exporter")
-        self.sb.parent().show(ui)
+        self.sb.handlers.marking_menu.show("scene_exporter")
 
     def b003(self):
         """Quick Export Scene Geo"""
@@ -336,13 +334,11 @@ class SceneSlots(SlotsMaya):
 
     def b004(self):
         """Open Hierarchy Manager"""
-        ui = self.sb.handlers.ui.get("hierarchy_manager")
-        self.sb.parent().show(ui)
+        self.sb.handlers.marking_menu.show("hierarchy_manager")
 
     def b005(self):
         """Open Naming Tool"""
-        ui = self.sb.handlers.ui.get("naming")
-        self.sb.parent().show(ui)
+        self.sb.handlers.marking_menu.show("naming")
 
     def b006(self):
         """Scene Cleanup"""

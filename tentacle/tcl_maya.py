@@ -3,7 +3,7 @@
 import mayatk as mtk
 
 # From this package:
-from uitk.widgets.marking_menu import MarkingMenu
+from uitk.widgets.marking_menu._marking_menu import MarkingMenu
 from mayatk.ui_utils.maya_ui_handler import MayaUiHandler
 
 

@@ -7,7 +7,7 @@ except ImportError as error:
 import mayatk as mtk
 
 # From this Package:
-from tentacle.slots.maya import SlotsMaya
+from tentacle.slots.maya._slots_maya import SlotsMaya
 
 
 class Lighting(SlotsMaya):
@@ -30,8 +30,7 @@ class Lighting(SlotsMaya):
 
     def b000(self):
         """Launch the HDR Manager."""
-        ui = self.sb.handlers.ui.get("hdr_manager")
-        self.sb.parent().show(ui)
+        self.sb.handlers.marking_menu.show("hdr_manager")
 
 
 # --------------------------------------------------------------------------------------------

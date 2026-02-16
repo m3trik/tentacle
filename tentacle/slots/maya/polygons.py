@@ -6,7 +6,7 @@ except ImportError as error:
     print(__file__, error)
 import pythontk as ptk
 import mayatk as mtk
-from tentacle.slots.maya import SlotsMaya
+from tentacle.slots.maya._slots_maya import SlotsMaya
 
 
 class PolygonsSlots(SlotsMaya):
@@ -60,16 +60,6 @@ class PolygonsSlots(SlotsMaya):
             setObjectName="b005",
             set_fixed_height=20,
             setToolTip="Set the distance using two selected vertices.\nElse; return the Distance to it's default value",
-        )
-        widget.option_box.menu.add(
-            "QPushButton",
-            setText="Reset",
-            setObjectName="b010",
-            set_fixed_height=20,
-            setToolTip="Reset the distance to it's default value.",
-        )
-        widget.option_box.menu.b010.clicked.connect(
-            lambda: widget.option_box.menu.s002.setValue(0.0005)
         )
 
     def tb000(self, widget):
@@ -503,8 +493,7 @@ class PolygonsSlots(SlotsMaya):
 
     def b007(self):
         """Interactive Bridge"""
-        ui = self.sb.handlers.ui.get("bridge")
-        self.sb.parent().show(ui)
+        self.sb.handlers.marking_menu.show("bridge")
 
     def b008(self):
         """Weld Center"""
@@ -526,8 +515,7 @@ class PolygonsSlots(SlotsMaya):
 
     def b011(self):
         """Bevel"""
-        ui = self.sb.handlers.ui.get("bevel")
-        self.sb.parent().show(ui)
+        self.sb.handlers.marking_menu.show("bevel")
 
     def b012(self):
         """Multi-Cut Tool"""

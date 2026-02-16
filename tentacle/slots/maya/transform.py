@@ -5,7 +5,7 @@ try:
 except ImportError as error:
     print(__file__, error)
 import mayatk as mtk
-from tentacle.slots.maya import SlotsMaya
+from tentacle.slots.maya._slots_maya import SlotsMaya
 
 
 class TransformSlots(SlotsMaya):
@@ -26,6 +26,12 @@ class TransformSlots(SlotsMaya):
             setObjectName="fix_non_ortho_axes",
             setToolTip="Fix non-orthogonal axes (shear) on selected objects.",
             clicked=lambda: mtk.Diagnostics.fix_non_orthogonal_axes(),
+        )
+        widget.menu.add(
+            "QPushButton",
+            setText="Snap",
+            setObjectName="b_snap_ts",
+            setToolTip="Open the snap toolset.",
         )
 
     def cmb002_init(self, widget):
@@ -437,6 +443,10 @@ class TransformSlots(SlotsMaya):
         pm.manipRotateContext("Rotate", edit=1, snapValue=value)
         # UV rotate context
         pm.texRotateContext("texRotateContext", edit=1, snapValue=value)
+
+    def b_snap_ts(self):
+        """Snap Toolset"""
+        self.sb.handlers.marking_menu.show("snap")
 
     def b001(self):
         """Match Scale"""

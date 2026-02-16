@@ -6,7 +6,7 @@ except ImportError as error:
     print(__file__, error)
 import mayatk as mtk
 from uitk import Signals
-from tentacle.slots.maya import SlotsMaya
+from tentacle.slots.maya._slots_maya import SlotsMaya
 
 
 class Cameras(SlotsMaya):
@@ -17,7 +17,7 @@ class Cameras(SlotsMaya):
         self.ui = self.sb.loaded_ui.cameras
 
         try:
-            self.sb.parent().left_mouse_double_click.connect(self.toggle_camera_view)
+            self.sb.handlers.marking_menu.left_mouse_double_click.connect(self.toggle_camera_view)
         except AttributeError:
             pass
 

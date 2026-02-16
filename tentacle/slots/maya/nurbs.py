@@ -6,7 +6,7 @@ except ImportError as error:
     print(__file__, error)
 import pythontk as ptk
 import mayatk as mtk
-from tentacle.slots.maya import SlotsMaya
+from tentacle.slots.maya._slots_maya import SlotsMaya
 
 
 class Nurbs(SlotsMaya):
@@ -259,8 +259,7 @@ class Nurbs(SlotsMaya):
 
     def lbl000(self, widget):
         """Image Tracer"""
-        ui = self.sb.handlers.ui.get("image_tracer")
-        self.sb.parent().show(ui)
+        self.sb.handlers.marking_menu.show("image_tracer")
 
     def b012(self):
         """Project Curve"""

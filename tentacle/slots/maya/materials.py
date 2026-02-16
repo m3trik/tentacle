@@ -9,7 +9,7 @@ except ImportError as error:
 import mayatk as mtk
 
 # From this package:
-from tentacle.slots.maya import SlotsMaya
+from tentacle.slots.maya._slots_maya import SlotsMaya
 
 
 class MaterialsSlots(SlotsMaya):
@@ -332,10 +332,36 @@ class MaterialsSlots(SlotsMaya):
 
         objects = pm.selected()
         if not objects:
-            self.sb.message_box("Select one or more objects to set render opacity.")
+            self.sb.message_box(
+                "<hl>No selection</hl><br>"
+                "Select one or more objects to set render opacity."
+            )
             return
 
-        mtk.RenderOpacity.create(objects, mode=mode)
+        names = [o.name() for o in objects]
+        label = ", ".join(names[:5])
+        if len(names) > 5:
+            label += f" … (+{len(names) - 5} more)"
+
+        try:
+            results = mtk.RenderOpacity.create(objects, mode=mode)
+        except Exception as e:
+            self.sb.message_box(
+                f"<hl>Render Opacity error</hl><br>{e}"
+            )
+            return
+
+        if mode == "remove":
+            self.sb.message_box(
+                f"Result: Opacity removed from <strong>{len(objects)}</strong> object(s).<br>"
+                f"{label}"
+            )
+        else:
+            self.sb.message_box(
+                f"Result: <strong>{mode.title()}</strong> opacity applied to "
+                f"<strong>{len(results)}</strong> object(s).<br>"
+                f"{label}"
+            )
 
     def lbl002(self):
         """Delete Material"""
@@ -489,22 +515,19 @@ class MaterialsSlots(SlotsMaya):
         source_images_dir = mtk.get_env_info("sourceimages")
         ui.slots.source_dir = source_images_dir
 
-        self.sb.parent().show(ui)
+        self.sb.handlers.marking_menu.show(ui)
 
     def b009(self, widget):
         """Create Game Shader"""
-        ui = self.sb.handlers.ui.get("game_shader")
-        self.sb.parent().show(ui)
+        self.sb.handlers.marking_menu.show("game_shader")
 
     def b010(self, widget):
         """Texture Path Editor"""
-        ui = self.sb.handlers.ui.get("texture_path_editor")
-        self.sb.parent().show(ui)
+        self.sb.handlers.marking_menu.show("texture_path_editor")
 
     def b011(self, widget):
         """Shader Templates"""
-        ui = self.sb.handlers.ui.get("shader_templates")
-        self.sb.parent().show(ui)
+        self.sb.handlers.marking_menu.show("shader_templates")
 
     def b013(self):
         """Reload Textures and Reset Viewport"""
@@ -540,7 +563,7 @@ class MaterialsSlots(SlotsMaya):
         source_images_dir = mtk.get_env_info("sourceimages")
         ui.slots.source_dir = source_images_dir
 
-        self.sb.parent().show(ui)
+        self.sb.handlers.marking_menu.show(ui)
 
     def b017(self, widget):
         """Print Texture Info"""
@@ -565,8 +588,7 @@ class MaterialsSlots(SlotsMaya):
 
     def b018(self, widget):
         """Material Updater"""
-        ui = self.sb.handlers.ui.get("mat_updater")
-        self.sb.parent().show(ui)
+        self.sb.handlers.marking_menu.show("mat_updater")
 
     def b019(self, widget):
         """Send to Marmoset"""

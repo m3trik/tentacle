@@ -42,7 +42,7 @@ class Slots(QtCore.QObject):
             return  # Disabled if empty
 
         # Find appropriate parent widget for the shortcut
-        parent = self.sb.parent()
+        parent = self.sb.handlers.marking_menu
         if parent is None:
             return
 

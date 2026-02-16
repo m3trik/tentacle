@@ -5,7 +5,7 @@ try:
 except ImportError as error:
     print(__file__, error)
 import mayatk as mtk
-from tentacle.slots.maya import SlotsMaya
+from tentacle.slots.maya._slots_maya import SlotsMaya
 
 
 class Edit(SlotsMaya):
@@ -29,15 +29,10 @@ class Edit(SlotsMaya):
             setObjectName="b000",
             setToolTip="Cut selected objects on axis.",
         )
-        widget.menu.add(
-            "QPushButton",
-            setText="Snap",
-            setObjectName="b001",
-            setToolTip="Open the snap toolset.",
-        )
 
     def tb000_init(self, widget):
         """Initialize Mesh Cleanup"""
+        widget.option_box.menu.add("Separator", setTitle="General")
         widget.option_box.menu.add(
             "QCheckBox",
             setText="All Geometry",
@@ -64,6 +59,7 @@ class Edit(SlotsMaya):
             setChecked=False,
             setToolTip="Merge overlapping vertices on the object(s) before executing the clean command.",
         )
+        widget.option_box.menu.add("Separator", setTitle="Topology")
         widget.option_box.menu.add(
             "QCheckBox",
             setText="N-Gons",
@@ -109,12 +105,14 @@ class Edit(SlotsMaya):
             setChecked=True,
             setToolTip="Check for lamina polys.",
         )
+        widget.option_box.menu.add("Separator", setTitle="UVs")
         widget.option_box.menu.add(
             "QCheckBox",
             setText="Shared UV's",
             setObjectName="chk016",
             setToolTip="Unshare uvs that are shared across vertices.",
         )
+        widget.option_box.menu.add("Separator", setTitle="Tolerances")
         # widget.option_box.menu.add('QCheckBox', setText='Invalid Components', setObjectName='chk019', setToolTip='Check for invalid components.')
         widget.option_box.menu.add(
             "QCheckBox",
@@ -161,6 +159,7 @@ class Edit(SlotsMaya):
             setValue=0.000010,
             setToolTip="Tolerance for uv face areas.",
         )
+        widget.option_box.menu.add("Separator", setTitle="Overlapping")
         widget.option_box.menu.add(
             "QCheckBox",
             setText="Overlapping Faces",
@@ -395,18 +394,11 @@ class Edit(SlotsMaya):
 
     def b_attr_mgr(self):
         """Attribute Manager"""
-        ui = self.sb.handlers.ui.get("attribute_manager")
-        self.sb.parent().show(ui)
+        self.sb.handlers.marking_menu.show("attribute_manager")
 
     def b000(self):
         """Cut On Axis"""
-        ui = self.sb.handlers.ui.get("cut_on_axis")
-        self.sb.parent().show(ui)
-
-    def b001(self):
-        """Snap Toolset"""
-        ui = self.sb.handlers.ui.get("snap")
-        self.sb.parent().show(ui)
+        self.sb.handlers.marking_menu.show("cut_on_axis")
 
     def b021(self):
         """Tranfer Maps"""

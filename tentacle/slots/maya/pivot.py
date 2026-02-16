@@ -5,7 +5,7 @@ try:
 except ImportError as error:
     print(__file__, error)
 import mayatk as mtk
-from tentacle.slots.maya import SlotsMaya
+from tentacle.slots.maya._slots_maya import SlotsMaya
 
 
 class Pivot(SlotsMaya):

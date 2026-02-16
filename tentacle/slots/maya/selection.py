@@ -7,7 +7,7 @@ except ImportError as error:
 from qtpy import QtWidgets
 from uitk import WidgetComboBox, ToolBox
 import mayatk as mtk
-from tentacle.slots.maya import SlotsMaya
+from tentacle.slots.maya._slots_maya import SlotsMaya
 
 
 class Selection(SlotsMaya):

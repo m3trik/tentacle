@@ -14,7 +14,7 @@ DEFAULT_INCLUDE = {
     "tcl_max": "TclMax",
     "tcl_maya": "TclMaya",
     "slots._slots": "Slots",
-    "slots.maya": "SlotsMaya",
+    "slots.maya._slots_maya": "SlotsMaya",
 }
 
 

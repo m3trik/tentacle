@@ -9,7 +9,7 @@ try:
 except ImportError as error:
     print(__file__, error)
 
-from tentacle.slots.maya import SlotsMaya
+from tentacle.slots.maya._slots_maya import SlotsMaya
 import mayatk as mtk
 from mayatk.anim_utils.playblast_exporter import PlayblastExporter
 

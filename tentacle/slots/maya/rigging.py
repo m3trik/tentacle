@@ -7,7 +7,7 @@ except ImportError as error:
 import mayatk as mtk
 
 # From this package:
-from tentacle.slots.maya import SlotsMaya
+from tentacle.slots.maya._slots_maya import SlotsMaya
 
 
 class Rigging(SlotsMaya):
@@ -59,17 +59,13 @@ class Rigging(SlotsMaya):
         """Quick Rig"""
         text = widget.items[index]
         if text == "Tube Rig":
-            ui = self.sb.handlers.ui.get("tube_rig")
-            self.sb.parent().show(ui)
+            self.sb.handlers.marking_menu.show("tube_rig")
         elif text == "Wheel Rig":
-            ui = self.sb.handlers.ui.get("wheel_rig")
-            self.sb.parent().show(ui)
+            self.sb.handlers.marking_menu.show("wheel_rig")
         elif text == "Shadow Rig":
-            ui = self.sb.handlers.ui.get("shadow_rig")
-            self.sb.parent().show(ui)
+            self.sb.handlers.marking_menu.show("shadow_rig")
         elif text == "Telescope Rig":
-            ui = self.sb.handlers.ui.get("telescope_rig")
-            self.sb.parent().show(ui)
+            self.sb.handlers.marking_menu.show("telescope_rig")
 
     def chk000(self, state, widget):
         """Scale Joint"""

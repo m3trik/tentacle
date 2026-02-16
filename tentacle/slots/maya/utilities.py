@@ -5,7 +5,7 @@ try:
 except ImportError as error:
     print(__file__, error)
 import mayatk as mtk
-from tentacle.slots.maya import SlotsMaya
+from tentacle.slots.maya._slots_maya import SlotsMaya
 
 
 class Utilities(SlotsMaya):
@@ -22,8 +22,7 @@ class Utilities(SlotsMaya):
 
     def b002(self):
         """Calculator"""
-        ui = self.sb.handlers.ui.get("calculator")
-        self.sb.parent().show(ui)
+        self.sb.handlers.marking_menu.show("calculator")
 
     def b003(self):
         """Grease Pencil"""

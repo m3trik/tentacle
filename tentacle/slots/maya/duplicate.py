@@ -5,7 +5,7 @@ try:
 except ImportError as error:
     print(__file__, error)
 import mayatk as mtk
-from tentacle.slots.maya import SlotsMaya
+from tentacle.slots.maya._slots_maya import SlotsMaya
 
 
 class Duplicate(SlotsMaya):
@@ -122,8 +122,7 @@ class Duplicate(SlotsMaya):
 
     def b000(self):
         """Mirror"""
-        ui = self.sb.handlers.ui.get("mirror")
-        self.sb.parent().show(ui)
+        self.sb.handlers.marking_menu.show("mirror")
 
     def b005(self):
         """Uninstance Selected Objects"""
@@ -132,18 +131,15 @@ class Duplicate(SlotsMaya):
 
     def b006(self):
         """Duplicate Linear"""
-        ui = self.sb.handlers.ui.get("duplicate_linear")
-        self.sb.parent().show(ui)
+        self.sb.handlers.marking_menu.show("duplicate_linear")
 
     def b007(self):
         """Duplicate Radial"""
-        ui = self.sb.handlers.ui.get("duplicate_radial")
-        self.sb.parent().show(ui)
+        self.sb.handlers.marking_menu.show("duplicate_radial")
 
     def b008(self):
         """Duplicate Grid"""
-        ui = self.sb.handlers.ui.get("duplicate_grid")
-        self.sb.parent().show(ui)
+        self.sb.handlers.marking_menu.show("duplicate_grid")
 
 
 # --------------------------------------------------------------------------------------------

@@ -7,7 +7,7 @@ except ImportError as error:
 import mayatk as mtk
 
 # From this package:
-from tentacle.slots.maya import SlotsMaya
+from tentacle.slots.maya._slots_maya import SlotsMaya
 
 
 class CacheSlots(SlotsMaya):

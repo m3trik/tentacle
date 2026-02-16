@@ -5,7 +5,7 @@ try:
 except ImportError as error:
     print(__file__, error)
 from uitk import Signals
-from tentacle.slots.maya import SlotsMaya
+from tentacle.slots.maya._slots_maya import SlotsMaya
 
 
 class Editors(SlotsMaya):

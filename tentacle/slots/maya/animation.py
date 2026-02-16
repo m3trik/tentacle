@@ -6,7 +6,7 @@ except ImportError as error:
     print(__file__, error)
 import mayatk as mtk
 import pythontk as ptk
-from tentacle.slots.maya import SlotsMaya
+from tentacle.slots.maya._slots_maya import SlotsMaya
 
 
 class Animation(SlotsMaya):

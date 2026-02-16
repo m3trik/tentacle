@@ -6,7 +6,7 @@ except ImportError as error:
     print(__file__, error)
 import pythontk as ptk
 import mayatk as mtk
-from tentacle.slots.maya import SlotsMaya
+from tentacle.slots.maya._slots_maya import SlotsMaya
 
 
 class DisplaySlots(SlotsMaya):
@@ -103,13 +103,11 @@ class DisplaySlots(SlotsMaya):
 
     def b013(self):
         """Explode View GUI"""
-        ui = self.sb.handlers.ui.get("exploded_view")
-        self.sb.parent().show(ui)
+        self.sb.handlers.marking_menu.show("exploded_view")
 
     def b014(self):
         """Color Manager GUI"""
-        ui = self.sb.handlers.ui.get("color_manager")
-        self.sb.parent().show(ui)
+        self.sb.handlers.marking_menu.show("color_manager")
 
     def b021(self):
         """Template Selected"""

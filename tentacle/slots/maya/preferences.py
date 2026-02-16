@@ -12,7 +12,7 @@ import mayatk as mtk
 import pythontk as ptk
 
 # From this package:
-from tentacle.slots.maya import SlotsMaya
+from tentacle.slots.maya._slots_maya import SlotsMaya
 
 
 class Preferences(SlotsMaya):
@@ -302,7 +302,7 @@ class Preferences(SlotsMaya):
 
         # Create if not exists or if the C++ object has been deleted
         if not hasattr(self, "_style_editor"):
-            self._style_editor = StyleEditor(parent=self.sb.parent())
+            self._style_editor = StyleEditor(parent=self.sb.handlers.marking_menu)
         else:
             try:
                 # Check if underlying C++ object is valid
@@ -310,7 +310,7 @@ class Preferences(SlotsMaya):
                     self._style_editor.show()  # Just show if hidden
             except RuntimeError:
                 # Re-create if deleted
-                self._style_editor = StyleEditor(parent=self.sb.parent())
+                self._style_editor = StyleEditor(parent=self.sb.handlers.marking_menu)
         print("Opening Style Editor:", self._style_editor)
         self._style_editor.show()
         self._style_editor.raise_()
@@ -322,7 +322,7 @@ class Preferences(SlotsMaya):
         # Create if not exists or if the C++ object has been deleted
         if not hasattr(self, "_hotkey_editor"):
             self._hotkey_editor = HotkeyEditor(
-                switchboard=self.sb, parent=self.sb.parent()
+                switchboard=self.sb, parent=self.sb.handlers.marking_menu
             )
         else:
             try:
@@ -332,7 +332,7 @@ class Preferences(SlotsMaya):
             except RuntimeError:
                 # Re-create if deleted
                 self._hotkey_editor = HotkeyEditor(
-                    switchboard=self.sb, parent=self.sb.parent()
+                    switchboard=self.sb, parent=self.sb.handlers.marking_menu
                 )
 
         self._hotkey_editor.show()
@@ -522,8 +522,8 @@ class Preferences(SlotsMaya):
 
     def b_reset_bindings(self):
         """Reset bindings to defaults."""
-        parent = self.sb.parent()
-        defaults = getattr(parent, "_initial_bindings", {}) if parent else {}
+        marking_menu = self.sb.handlers.marking_menu
+        defaults = getattr(marking_menu, "_initial_bindings", {}) if marking_menu else {}
         self.sb.configurable.marking_menu_bindings.set(defaults)
 
 
