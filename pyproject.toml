@@ -36,3 +36,7 @@ include = ["tentacle*"]
 
 [tool.setuptools.package-data]
 "*" = ["*.ui", "*.json", "*.txt", "*.md"]
+
+[tool.pytest.ini_options]
+testpaths = ["test"]
+addopts = "--ignore=test/temp_tests"
