@@ -71,7 +71,7 @@ jobs:
       
       - name: Verify Install
         if: steps.version.outputs.publish == 'true'
-        run: pip install dist/*.whl
+        run: pip install dist/*.whl --no-deps
 
       - name: Publish
         if: steps.version.outputs.publish == 'true' && inputs.dry_run != true
