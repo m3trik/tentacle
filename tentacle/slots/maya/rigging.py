@@ -15,7 +15,7 @@ class Rigging(SlotsMaya):
         super().__init__(*args, **kwargs)
 
     def header_init(self, widget):
-        """Create Rigging Header"""
+        """Init Rigging Header"""
         widget.menu.setTitle("Rigging")
         widget.menu.add(
             "QPushButton",
@@ -28,7 +28,7 @@ class Rigging(SlotsMaya):
         )
 
     def cmb001_init(self, widget):
-        """Create Init"""
+        """Init Create"""
         items = sorted(
             ["Joints", "Locator", "IK Handle", "Lattice", "Cluster", "Null Group"]
         )
@@ -36,7 +36,7 @@ class Rigging(SlotsMaya):
 
     def cmb001(self, index, widget):
         """Create"""
-        text = widget.items[index]
+        text = widget.itemText(index)
         if text == "Joints":
             pm.setToolTo("jointContext")  # create joint tool
         elif text == "Locator":
@@ -51,7 +51,7 @@ class Rigging(SlotsMaya):
             pm.group(empty=True, name="null")  # create empty group
 
     def cmb002_init(self, widget):
-        """Create Quick Rig Init"""
+        """Init Quick Rig"""
         items = ["Tube Rig", "Wheel Rig", "Shadow Rig", "Telescope Rig"]
         widget.add(items, header="Quick Rig:")
 
@@ -94,7 +94,7 @@ class Rigging(SlotsMaya):
             pm.jointDisplayScale(value, ikfk=1)  # set global IKFK display size
 
     def tb000_init(self, widget):
-        """Create Display Local Rotation Axes Init"""
+        """Init Display Local Rotation Axes"""
         scale_joint_value = pm.jointDisplayScale(q=True)
         widget.option_box.menu.setTitle("Display Local Rotation Axes")
         widget.option_box.menu.add(
@@ -147,7 +147,7 @@ class Rigging(SlotsMaya):
         self.sb.message_box(f"Display Local Rotation Axes:<hl>{state}</hl>")
 
     def tb001_init(self, widget):
-        """Create Constraint Switch Init"""
+        """Init Constraint Switch"""
         widget.option_box.menu.setTitle("Create Constraint Switch")
         widget.option_box.menu.add(
             "QLineEdit",
@@ -172,7 +172,7 @@ class Rigging(SlotsMaya):
         )
 
     def tb001(self, widget):
-        """Create Constraint Switch"""
+        """Constraint Switch"""
         sel = pm.selected(flatten=True)
 
         switch_name = widget.option_box.menu.t003.text()
@@ -187,9 +187,123 @@ class Rigging(SlotsMaya):
             anchor=anchor_name,
         )
 
+    def tb002_init(self, widget):
+        """Init Event Triggers"""
+        widget.option_box.menu.setTitle("Event Triggers")
+        widget.option_box.menu.add(
+            "QComboBox",
+            addItems=["audio", "vfx"],
+            setObjectName="cmb010",
+            setEditable=True,
+            setToolTip="Event category — determines attribute naming.\n"
+            "Each category creates its own independent trigger channel\n"
+            "(e.g. audio_trigger, vfx_trigger).\n"
+            "Type a custom name or pick from the list.",
+        )
+        widget.option_box.menu.add(
+            "QLineEdit",
+            setPlaceholderText="Event Names (comma-separated):",
+            setText="",
+            setObjectName="t005",
+            setToolTip="Comma-separated event names.\n"
+            "Example: Footstep, Jump, Land\n"
+            "Creates the trigger attribute if it doesn't exist,\n"
+            "otherwise appends new events to the existing one.\n"
+            "Leave blank to create the attribute with no events.",
+        )
+        widget.option_box.menu.add(
+            "QCheckBox",
+            setText="Remove",
+            setObjectName="chk010",
+            setChecked=False,
+            setToolTip="Remove the trigger attribute and its keyframes\n"
+            "for the selected category instead of creating/updating.",
+        )
+
+    @mtk.undoable
+    def tb002(self, widget):
+        """Event Triggers"""
+        sel = pm.selected()
+        if not sel:
+            self.sb.message_box("Select object(s) to add event triggers.")
+            return
+
+        category = widget.option_box.menu.cmb010.currentText().strip()
+        remove = widget.option_box.menu.chk010.isChecked()
+
+        if remove:
+            mtk.EventTriggers.remove(objects=sel, category=category)
+            self.sb.message_box(
+                f"Removed <hl>{category}</hl> triggers from {len(sel)} object(s)."
+            )
+            return
+
+        event_text = widget.option_box.menu.t005.text().strip()
+        events = [e.strip() for e in event_text.split(",") if e.strip()] or None
+
+        result = mtk.EventTriggers.ensure(objects=sel, events=events, category=category)
+        event_str = ", ".join(events) if events else "None"
+        self.sb.message_box(
+            f"Event triggers (<hl>{category}</hl>) on "
+            f"<hl>{len(result)}</hl> object(s): {event_str}"
+        )
+
+    def tb004_init(self, widget):
+        """Init Render Opacity"""
+        widget.option_box.menu.setTitle("Render Opacity")
+
+        widget.option_box.menu.add(
+            "QComboBox",
+            addItems=["Material", "Attribute", "Remove"],
+            setObjectName="cmb000",
+            setToolTip="Both modes create a keyable 'opacity' attribute in the channel box.\n"
+            "• Material Mode (default): Connects transparency graph on StingrayPBS\n"
+            "• Attribute Mode: Creates an attribute only, which can later be custom wired in game engine.\n"
+            "• Remove: Resets and cleans up all artifacts from any previous render opacity operation.\n"
+            "<b>Note</b>: Material mode creates a duplicate StingrayPBS material for each object.\n",
+        )
+
+    @mtk.undoable
+    def tb004(self, widget):
+        """Render Opacity"""
+        mode = widget.option_box.menu.cmb000.currentText().lower()
+
+        objects = pm.selected()
+        if not objects:
+            self.sb.message_box(
+                "<hl>No selection</hl><br>"
+                "Select one or more objects to set render opacity."
+            )
+            return
+
+        names = [o.name() for o in objects]
+        label = ", ".join(names[:5])
+        if len(names) > 5:
+            label += f" … (+{len(names) - 5} more)"
+
+        try:
+            results = mtk.RenderOpacity.create(objects, mode=mode)
+        except Exception as e:
+            self.sb.message_box(f"<hl>Render Opacity error</hl><br>{e}")
+            return
+
+        if mode == "remove":
+            self.sb.message_box(
+                f"Result: Opacity removed from <strong>{len(objects)}</strong> object(s).<br>"
+                f"{label}"
+            )
+        else:
+            self.sb.message_box(
+                f"Result: <strong>{mode.title()}</strong> opacity applied to "
+                f"<strong>{len(results)}</strong> object(s).<br>"
+                f"{label}"
+            )
+
     def tb003_init(self, widget):
-        """Create Locator at Selection Init"""
+        """Init Create Locator at Selection"""
         widget.option_box.menu.setTitle("Create Locator")
+        # Section: Scale
+        widget.option_box.menu.add("Separator", setTitle="Scale")
         widget.option_box.menu.add(
             "QDoubleSpinBox",
             setPrefix="Locator Scale: ",
@@ -198,6 +312,8 @@ class Rigging(SlotsMaya):
             setValue=1,
             setToolTip="The scale of the locator.",
         )
+        # Section: Naming
+        widget.option_box.menu.add("Separator", setTitle="Naming")
         widget.option_box.menu.add(
             "QLineEdit",
             setPlaceholderText="Group Suffix:",
@@ -233,6 +349,8 @@ class Rigging(SlotsMaya):
             setChecked=True,
             setToolTip="Strip any of the defined suffixes (Group, Locator, Geometry) from the name when enabled.",
         )
+        # Section: Lock Channels
+        widget.option_box.menu.add("Separator", setTitle="Lock Channels")
         widget.option_box.menu.add(
             "QCheckBox",
             setText="Lock Child Translate",
