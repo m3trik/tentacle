@@ -4,11 +4,16 @@
 
 # Tentacle: A Python3/qtpy Marking Menu
 
-Tentacle is a Python3/qtpy marking menu implemented using Qt's QStackedWidget. It is designed for use with Maya, 3ds Max, Blender, and any other DCC app that supports qtpy.  In it's current implementation, it only has slots set up for Maya 2025.
+Tentacle is a Python/qtpy marking menu runtime for DCC applications, built on top of `uitk`.
+It currently ships a full slot ecosystem for Maya (tested with Maya 2025), with wrapper entry points for Blender and 3ds Max.
 
 ## Design
 
-Tentacle runs on top of [uitk](https://github.com/m3trik/uitk.git), a qtpy dynamic UI loader, which allows for the creation of fully-featured UI with less time and code.
+Tentacle runs on top of [uitk](https://github.com/m3trik/uitk.git), which provides:
+
+- Dynamic `.ui` loading via `Switchboard`
+- Convention-based slot binding (`widget_name -> slot method`)
+- The marking-menu engine (`MarkingMenu`) and gesture path overlay (`Overlay`)
 
 ## Example
 
@@ -18,16 +23,25 @@ The following example demonstrates re-opening the last scene, renaming a materia
 
 ## Structure
 
-The structure of the project is as follows:
+Current architecture overview:
 
-![Structure](https://raw.githubusercontent.com/m3trik/tentacle/master/docs/UML_diagram.jpg)
+```mermaid
+flowchart TD
+    A[TclMaya\n(tentacle/tcl_maya.py)] --> B[MarkingMenu\n(uitk)]
+    B --> C[Switchboard\n(uitk)]
+    C --> D[UI Files\n(tentacle/ui/*.ui)]
+    C --> E[Slots\n(tentacle/slots/maya/*.py)]
+    B --> F[Overlay\n(uitk/widgets/marking_menu/overlay.py)]
+    A --> G[MayaUiHandler\n(mayatk)]
+```
 
 | Module        | Description   |
 | ------------- | ------------- |
-| [tcl](https://github.com/m3trik/uitk/blob/main/tentacle/tcl.py)         | Handles main GUI construction for the marking menu. |
-| [overlay](https://github.com/m3trik/uitk/blob/main/tentacle/overlay.py) | Tracks cursor position and UI hierarchy to generate paint events that overlay its parent widget. |
-| [ui](https://github.com/m3trik/uitk/blob/main/tentacle/events.py)       | Location of the dynamic UI files. |
-| [slots](https://github.com/m3trik/uitk/blob/main/tentacle/slots)        | Location of the various slot modules. |
+| [tentacle/tcl_maya.py](../tentacle/tcl_maya.py) | Maya entry point and default key/button bindings for the marking menu. |
+| [tentacle/slots](../tentacle/slots) | Slot classes containing command logic (Maya-focused). |
+| [tentacle/ui](../tentacle/ui) | Dynamic `.ui` definitions for start menus and submenus. |
+| [uitk/widgets/marking_menu/_marking_menu.py](../../uitk/uitk/widgets/marking_menu/_marking_menu.py) | Core marking menu engine (input state, transitions, window handling). |
+| [uitk/widgets/marking_menu/overlay.py](../../uitk/uitk/widgets/marking_menu/overlay.py) | Gesture/path overlay used for submenu path continuity and drawing. |
 
 ## Installation
 
@@ -56,8 +70,27 @@ For Maya, add the following to your `userSetup.py`:
 import pymel.core as pm
 
 def start_tentacle():
-    from tentacle.tcl_maya import TclMaya
-    TclMaya(key_show='F12') # Change 'F12' to match your chosen hotkey.
+    from tentacle import TclMaya
+    TclMaya(key_show='Key_F12')  # Use Qt key names, e.g. Key_F12
 
 pm.evalDeferred(start_tentacle)
 ```
+
+## Menu Wiring (How It Works)
+
+Tentacle uses naming conventions between UI widgets and slot methods:
+
+- UI file names determine menu identity (example: `materials.ui`, `main#startmenu.ui`)
+- Widget object names map to methods in the matching slots class
+    - `b005` -> `def b005(...)`
+    - `cmb002` -> `def cmb002(...)`
+    - Optional setup hooks: `def cmb002_init(widget)`
+- "Info" buttons (`i*`) route by `accessibleName` to submenu UIs
+
+This wiring is handled by `uitk` `Switchboard` + `MarkingMenu`.
+
+## Platform Support
+
+- Maya: full menu and slot coverage
+- Blender: wrapper class exists (`TclBlender`), no equivalent slot suite in this repo
+- 3ds Max: wrapper class exists (`TclMax`), no equivalent slot suite in this repo
