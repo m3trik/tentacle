@@ -51,12 +51,6 @@ class MaterialsSlots(SlotsMaya):
         # Section: Setup
         widget.menu.add("Separator", setTitle="Setup")
         widget.menu.add(
-            self.sb.registered_widgets.PushButton,
-            setText="Render Opacity",
-            setObjectName="tb001",
-            setToolTip="Create a render opacity controller for selected objects.",
-        )
-        widget.menu.add(
             "QPushButton",
             setText="Material Updater",
             setObjectName="b018",
@@ -310,58 +304,6 @@ class MaterialsSlots(SlotsMaya):
             return
 
         pm.select(faces_with_mat)
-
-    def tb001_init(self, widget):
-        """Render Opacity Init"""
-        widget.option_box.menu.setTitle("Render Opacity")
-
-        widget.option_box.menu.add(
-            "QComboBox",
-            addItems=["Material", "Attribute", "Remove"],
-            setObjectName="cmb000",
-            setToolTip="Both modes create a keyable 'opacity' attribute in the channel box.\n"
-            "• Material Mode (default): Connects transparency graph on StingrayPBS\n"
-            "• Attribute Mode: Creates an attribute only, which can later be custom wired in game engine.\n"
-            "• Remove: Resets and cleans up all artifacts from any previous render opacity operation.\n"
-            "<b>Note</b>: Material mode creates a duplicate StingrayPBS material for each object.\n",
-        )
-
-    def tb001(self, widget):
-        """Render Opacity"""
-        mode = widget.option_box.menu.cmb000.currentText().lower()
-
-        objects = pm.selected()
-        if not objects:
-            self.sb.message_box(
-                "<hl>No selection</hl><br>"
-                "Select one or more objects to set render opacity."
-            )
-            return
-
-        names = [o.name() for o in objects]
-        label = ", ".join(names[:5])
-        if len(names) > 5:
-            label += f" … (+{len(names) - 5} more)"
-
-        try:
-            results = mtk.RenderOpacity.create(objects, mode=mode)
-        except Exception as e:
-            self.sb.message_box(
-                f"<hl>Render Opacity error</hl><br>{e}"
-            )
-            return
-
-        if mode == "remove":
-            self.sb.message_box(
-                f"Result: Opacity removed from <strong>{len(objects)}</strong> object(s).<br>"
-                f"{label}"
-            )
-        else:
-            self.sb.message_box(
-                f"Result: <strong>{mode.title()}</strong> opacity applied to "
-                f"<strong>{len(results)}</strong> object(s).<br>"
-                f"{label}"
-            )
 
     def lbl002(self):
         """Delete Material"""

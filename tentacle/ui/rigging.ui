@@ -10,7 +10,7 @@
     <x>0</x>
     <y>0</y>
     <width>200</width>
-    <height>230</height>
+    <height>267</height>
    </rect>
   </property>
   <property name="toolTip">
@@ -294,7 +294,31 @@
             <property name="spacing">
              <number>1</number>
             </property>
-            <item row="1" column="0" colspan="2">
+            <item row="4" column="0" colspan="2">
+             <widget class="PushButton" name="tb004">
+              <property name="minimumSize">
+               <size>
+                <width>0</width>
+                <height>20</height>
+               </size>
+              </property>
+              <property name="maximumSize">
+               <size>
+                <width>16777215</width>
+                <height>20</height>
+               </size>
+              </property>
+              <property name="toolTip">
+               <string>Create a render opacity controller for selected objects.
+
+Use the option box to choose Material, Attribute, or Remove mode.</string>
+              </property>
+              <property name="text">
+               <string>Render Opacity</string>
+              </property>
+             </widget>
+            </item>
+            <item row="2" column="0" colspan="2">
              <widget class="PushButton" name="tb001">
               <property name="minimumSize">
                <size>
@@ -356,7 +380,7 @@ Select a constraint node, then click to add a control attribute:
 Note: Overwrites any existing attribute with the same name.</string>
               </property>
               <property name="text">
-               <string>Create Constraint Switch</string>
+               <string>Constraint Switch</string>
               </property>
               <property name="autoDefault">
                <bool>true</bool>
@@ -369,6 +393,31 @@ Note: Overwrites any existing attribute with the same name.</string>
               </property>
               <property name="bnabled" stdset="0">
                <bool>true</bool>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="0" colspan="2">
+             <widget class="PushButton" name="tb002">
+              <property name="minimumSize">
+               <size>
+                <width>0</width>
+                <height>20</height>
+               </size>
+              </property>
+              <property name="maximumSize">
+               <size>
+                <width>16777215</width>
+                <height>20</height>
+               </size>
+              </property>
+              <property name="toolTip">
+               <string>Manage per-object event trigger attributes for game-engine export.
+
+Create, add, remove, or bake keyable enum triggers that artists
+can key on the timeline. Use the option box for mode and settings.</string>
+              </property>
+              <property name="text">
+               <string>Event Triggers</string>
               </property>
              </widget>
             </item>
