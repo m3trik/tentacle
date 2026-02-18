@@ -27,12 +27,12 @@ Current architecture overview:
 
 ```mermaid
 flowchart TD
-    A[TclMaya\n(tentacle/tcl_maya.py)] --> B[MarkingMenu\n(uitk)]
-    B --> C[Switchboard\n(uitk)]
-    C --> D[UI Files\n(tentacle/ui/*.ui)]
-    C --> E[Slots\n(tentacle/slots/maya/*.py)]
-    B --> F[Overlay\n(uitk/widgets/marking_menu/overlay.py)]
-    A --> G[MayaUiHandler\n(mayatk)]
+    A["TclMaya<br/>(tentacle/tcl_maya.py)"] --> B["MarkingMenu<br/>(uitk)"]
+    B --> C["Switchboard<br/>(uitk)"]
+    C --> D["UI Files<br/>(tentacle/ui/*.ui)"]
+    C --> E["Slots<br/>(tentacle/slots/maya/*.py)"]
+    B --> F["Overlay<br/>(uitk/widgets/marking_menu/overlay.py)"]
+    A --> G["MayaUiHandler<br/>(mayatk)"]
 ```
 
 | Module        | Description   |
