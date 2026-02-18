@@ -26,7 +26,6 @@ class MaterialsSlots(SlotsMaya):
     def header_init(self, widget):
         """Initialize the header menu"""
         widget.menu.setTitle("Materials: Utilities")
-
         # Section: Utilities
         widget.menu.add("Separator", setTitle="Utilities")
         widget.menu.add(
@@ -68,19 +67,13 @@ class MaterialsSlots(SlotsMaya):
             setObjectName="b010",
             setToolTip="Edit texture paths for materials in the scene.",
         )
-        # Section: Conversion / Export
-        widget.menu.add("Separator", setTitle="Conversion / Export")
+        # Section: Conversion
+        widget.menu.add("Separator", setTitle="Conversion")
         widget.menu.add(
             "QPushButton",
             setText="Game Shader",
             setObjectName="b009",
             setToolTip="Create an exportable game shader network that can optionally be rendered in Arnold.",
-        )
-        widget.menu.add(
-            "QPushButton",
-            setText="Send to Marmoset",
-            setObjectName="b019",
-            setToolTip="Export selection to Marmoset Toolbag.",
         )
         widget.menu.add(
             "QPushButton",
@@ -93,6 +86,20 @@ class MaterialsSlots(SlotsMaya):
             setText="Map Packer",
             setObjectName="b008",
             setToolTip="Pack up to 4 input grayscale maps into specified RGBA channels.",
+        )
+        # Section: External Tools
+        widget.menu.add("Separator", setTitle="External Tools")
+        widget.menu.add(
+            "QPushButton",
+            setText="Send to Marmoset",
+            setObjectName="b019",
+            setToolTip="Export selection to Marmoset Toolbag.",
+        )
+        widget.menu.add(
+            "QPushButton",
+            setText="Send to Substance Painter",
+            setObjectName="b020",
+            setToolTip="Export selection to Adobe Substance 3D Painter.",
         )
 
     def cmb002_init(self, widget):
@@ -539,6 +546,18 @@ class MaterialsSlots(SlotsMaya):
         if script:
             print(f"Marmoset Export Successful: {script}")
             # Optional: self.sb.message_box("Export sent to Marmoset.")
+
+    def b020(self, widget):
+        """Send to Substance Painter"""
+        try:
+            from mayatk.mat_utils.substance import SubstanceBridge
+
+            bridge = SubstanceBridge()
+            exported_fbx = bridge.send(headless=False)
+            if exported_fbx:
+                print(f"Substance Painter Export Successful: {exported_fbx}")
+        except Exception as e:
+            print(f"Substance Painter Export Failed: {e}")
 
 
 # --------------------------------------------------------------------------------------------

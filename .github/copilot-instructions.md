@@ -26,3 +26,5 @@
 - [x] **Initial Setup** — Repository established.
 - [x] **2026-01-21 Refactor**: Updated `tcl_maya` MarkingMenu initialization and `preferences` logic to fix settings persistence and validation.
 - [x] **2026-02-11 Feature**: Updated `materials.py` to strip trailing underscores in addition to digits in `lbl007` logic.
+- [x] **2026-02-18 Docs**: Refreshed `docs/README.md` for current architecture, valid module links, key binding usage (`Key_F12`), platform support scope, and testing notes.
+- [x] **2026-02-18 Docs**: Replaced outdated static UML image reference in `docs/README.md` with an inline Mermaid architecture diagram that reflects current `TclMaya` + `uitk` + slots flow.

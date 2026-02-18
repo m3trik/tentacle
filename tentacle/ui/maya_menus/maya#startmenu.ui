@@ -127,36 +127,7 @@
              <number>0</number>
             </property>
             <item>
-             <widget class="Region" name="region_A" native="true">
-              <widget class="QPushButton" name="i028">
-               <property name="geometry">
-                <rect>
-                 <x>95</x>
-                 <y>100</y>
-                 <width>76</width>
-                 <height>21</height>
-                </rect>
-               </property>
-               <property name="minimumSize">
-                <size>
-                 <width>0</width>
-                 <height>21</height>
-                </size>
-               </property>
-               <property name="maximumSize">
-                <size>
-                 <width>999</width>
-                 <height>21</height>
-                </size>
-               </property>
-               <property name="accessibleName">
-                <string>skeleton</string>
-               </property>
-               <property name="text">
-                <string>Skeleton</string>
-               </property>
-              </widget>
-             </widget>
+             <widget class="Region" name="region_A" native="true"/>
             </item>
            </layout>
           </widget>
@@ -426,64 +397,7 @@
              <number>0</number>
             </property>
             <item>
-             <widget class="Region" name="region_B" native="true">
-              <widget class="QPushButton" name="i026">
-               <property name="geometry">
-                <rect>
-                 <x>90</x>
-                 <y>70</y>
-                 <width>86</width>
-                 <height>21</height>
-                </rect>
-               </property>
-               <property name="minimumSize">
-                <size>
-                 <width>0</width>
-                 <height>21</height>
-                </size>
-               </property>
-               <property name="maximumSize">
-                <size>
-                 <width>999</width>
-                 <height>21</height>
-                </size>
-               </property>
-               <property name="accessibleName">
-                <string>constrain</string>
-               </property>
-               <property name="text">
-                <string>Constrain</string>
-               </property>
-              </widget>
-              <widget class="QPushButton" name="i025">
-               <property name="geometry">
-                <rect>
-                 <x>100</x>
-                 <y>40</y>
-                 <width>66</width>
-                 <height>21</height>
-                </rect>
-               </property>
-               <property name="minimumSize">
-                <size>
-                 <width>0</width>
-                 <height>21</height>
-                </size>
-               </property>
-               <property name="maximumSize">
-                <size>
-                 <width>999</width>
-                 <height>21</height>
-                </size>
-               </property>
-               <property name="accessibleName">
-                <string>skin</string>
-               </property>
-               <property name="text">
-                <string>Skin</string>
-               </property>
-              </widget>
-             </widget>
+             <widget class="Region" name="region_B" native="true"/>
             </item>
            </layout>
           </widget>
