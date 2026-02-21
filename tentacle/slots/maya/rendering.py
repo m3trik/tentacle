@@ -8,6 +8,7 @@ try:
     import pymel.core as pm
 except ImportError as error:
     print(__file__, error)
+    pm = None
 
 from tentacle.slots.maya._slots_maya import SlotsMaya
 import mayatk as mtk
@@ -575,9 +576,13 @@ class Rendering(SlotsMaya):
 
     def b005(self):
         """Apply Vray Attributes To Selected Objects"""
-        if not self.load_vray_plugin(query=True):
+        if pm is None:
+            print("PyMEL is unavailable. VRay attributes can only be applied inside Maya.")
+            return
+
+        if not mtk.vray_plugin(query=True):
             print("VRay plugin is not loaded. Loading it now.")
-            self.load_vray_plugin()
+            mtk.vray_plugin(load=True)
 
         selection = pm.ls(selection=True)
         currentID = 1
@@ -607,6 +612,9 @@ class Rendering(SlotsMaya):
 
     @staticmethod
     def _scene_base_name() -> str:
+        if pm is None:
+            return "playblast"
+
         scene = pm.sceneName()
         if scene:
             return os.path.basename(scene).rsplit(".", 1)[0]
@@ -614,6 +622,9 @@ class Rendering(SlotsMaya):
 
     @staticmethod
     def _camera_transforms() -> List[str]:
+        if pm is None:
+            return []
+
         camera_names: List[str] = []
         for camera_shape in pm.ls(type="camera"):
             parent = camera_shape.getParent()

@@ -59,7 +59,7 @@
        <number>0</number>
       </property>
       <item>
-       <widget class="Header" name="header">
+       <widget class="Header" name="header" native="true">
         <property name="minimumSize">
          <size>
           <width>0</width>
@@ -78,13 +78,13 @@
           <bold>true</bold>
          </font>
         </property>
-        <property name="text">
+        <property name="text" stdset="0">
          <string>POLYGONS</string>
         </property>
        </widget>
       </item>
       <item>
-       <widget class="QGroupBox" name="vertex">
+       <widget class="CollapsableGroup" name="vertex">
         <property name="title">
          <string>Vertex</string>
         </property>
@@ -235,7 +235,7 @@
        </widget>
       </item>
       <item>
-       <widget class="QGroupBox" name="edge">
+       <widget class="CollapsableGroup" name="edge">
         <property name="title">
          <string>Edge</string>
         </property>
@@ -543,7 +543,7 @@
        </widget>
       </item>
       <item>
-       <widget class="QGroupBox" name="face">
+       <widget class="CollapsableGroup" name="face">
         <property name="title">
          <string>Face</string>
         </property>
@@ -765,7 +765,7 @@
        </widget>
       </item>
       <item>
-       <widget class="QGroupBox" name="component">
+       <widget class="CollapsableGroup" name="component">
         <property name="title">
          <string>Component</string>
         </property>
@@ -1256,7 +1256,7 @@
        </widget>
       </item>
       <item>
-       <widget class="QGroupBox" name="mesh">
+       <widget class="CollapsableGroup" name="mesh">
         <property name="title">
          <string>Mesh</string>
         </property>
@@ -1424,13 +1424,19 @@
  <customwidgets>
   <customwidget>
    <class>Header</class>
-   <extends>QLabel</extends>
-   <header>uitk.widgets.header.Header.h</header>
+   <extends>QWidget</extends>
+   <header>uitk.widgets.header</header>
   </customwidget>
   <customwidget>
    <class>PushButton</class>
    <extends>QPushButton</extends>
    <header>widgets.pushbutton.h</header>
+  </customwidget>
+  <customwidget>
+   <class>CollapsableGroup</class>
+   <extends>QGroupBox</extends>
+   <header>uitk.widgets.collapsableGroup.CollapsableGroup.h</header>
+   <container>1</container>
   </customwidget>
  </customwidgets>
  <resources/>

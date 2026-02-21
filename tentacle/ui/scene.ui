@@ -48,7 +48,7 @@
        <number>0</number>
       </property>
       <item>
-       <widget class="Header" name="header">
+       <widget class="Header" name="header" native="true">
         <property name="minimumSize">
          <size>
           <width>0</width>
@@ -61,13 +61,13 @@
           <bold>true</bold>
          </font>
         </property>
-        <property name="text">
+        <property name="text" stdset="0">
          <string>SCENE</string>
         </property>
        </widget>
       </item>
       <item>
-       <widget class="QGroupBox" name="Project">
+       <widget class="CollapsableGroup" name="Project">
         <property name="title">
          <string>Project</string>
         </property>
@@ -118,7 +118,7 @@
        </widget>
       </item>
       <item>
-       <widget class="QGroupBox" name="File">
+       <widget class="CollapsableGroup" name="File">
         <property name="title">
          <string>File</string>
         </property>
@@ -169,7 +169,7 @@
        </widget>
       </item>
       <item>
-       <widget class="QGroupBox" name="Import_Export">
+       <widget class="CollapsableGroup" name="Import_Export">
         <property name="title">
          <string>Import/Export</string>
         </property>
@@ -261,13 +261,19 @@
  <customwidgets>
   <customwidget>
    <class>Header</class>
-   <extends>QLabel</extends>
-   <header>uitk.widgets.header.Header.h</header>
+   <extends>QWidget</extends>
+   <header>uitk.widgets.header</header>
   </customwidget>
   <customwidget>
    <class>ComboBox</class>
    <extends>QComboBox</extends>
    <header>uitk.widgets.comboBox.ComboBox.h</header>
+  </customwidget>
+  <customwidget>
+   <class>CollapsableGroup</class>
+   <extends>QGroupBox</extends>
+   <header>uitk.widgets.collapsableGroup.CollapsableGroup.h</header>
+   <container>1</container>
   </customwidget>
  </customwidgets>
  <resources/>

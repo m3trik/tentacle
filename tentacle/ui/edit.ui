@@ -91,7 +91,7 @@
        <number>0</number>
       </property>
       <item>
-       <widget class="Header" name="header">
+       <widget class="Header" name="header" native="true">
         <property name="minimumSize">
          <size>
           <width>0</width>
@@ -110,13 +110,13 @@
           <bold>true</bold>
          </font>
         </property>
-        <property name="text">
+        <property name="text" stdset="0">
          <string>EDIT</string>
         </property>
        </widget>
       </item>
       <item>
-       <widget class="QGroupBox" name="delete_2">
+       <widget class="CollapsableGroup" name="delete_2">
         <property name="title">
          <string>Delete</string>
         </property>
@@ -199,7 +199,7 @@
        </widget>
       </item>
       <item>
-       <widget class="QGroupBox" name="mesh_cleanup">
+       <widget class="CollapsableGroup" name="mesh_cleanup">
         <property name="title">
          <string>Mesh Cleanup</string>
         </property>
@@ -251,7 +251,7 @@
        </widget>
       </item>
       <item>
-       <widget class="QGroupBox" name="transfer">
+       <widget class="CollapsableGroup" name="transfer">
         <property name="title">
          <string>Transfer</string>
         </property>
@@ -528,7 +528,7 @@
        </widget>
       </item>
       <item>
-       <widget class="QGroupBox" name="nodes">
+       <widget class="CollapsableGroup" name="nodes">
         <property name="title">
          <string>Nodes</string>
         </property>
@@ -600,13 +600,19 @@
  <customwidgets>
   <customwidget>
    <class>Header</class>
-   <extends>QLabel</extends>
-   <header>uitk.widgets.header.Header.h</header>
+   <extends>QWidget</extends>
+   <header>uitk.widgets.header</header>
   </customwidget>
   <customwidget>
    <class>PushButton</class>
    <extends>QPushButton</extends>
    <header>widgets.pushbutton.h</header>
+  </customwidget>
+  <customwidget>
+   <class>CollapsableGroup</class>
+   <extends>QGroupBox</extends>
+   <header>uitk.widgets.collapsableGroup.CollapsableGroup.h</header>
+   <container>1</container>
   </customwidget>
  </customwidgets>
  <resources/>

@@ -260,8 +260,8 @@ class Animation(SlotsMaya):
             setObjectName="s002",
             set_limits=[-100000, 100000],
             setValue=-1,
-            setCustomDisplayValues={-1: "Frame: Auto"},
-            setToolTip="The time at which to start adding spacing.\nSet to -1 to use earliest keyframe on selected objects.",
+            setCustomDisplayValues={-1: "Auto"},
+            setToolTip="Starting frame for the shift.\n-1 = earliest keyframe on selected objects.",
         )
         widget.option_box.menu.add(
             "QSpinBox",
@@ -269,7 +269,7 @@ class Animation(SlotsMaya):
             setObjectName="s003",
             set_limits=[-100000, 100000],
             setValue=1,
-            setToolTip="The amount of spacing to add or subtract.",
+            setToolTip="Frames to add (+) or remove (−) between keys.",
         )
         widget.option_box.menu.add(
             "QCheckBox",
@@ -876,22 +876,22 @@ class Animation(SlotsMaya):
 
     def tb012_init(self, widget):
         """Insert Keyframe Gap Init"""
-        widget.option_box.menu.setTitle("Insert Keyframe Gap")
+        widget.option_box.menu.setTitle("Create Gap")
         widget.option_box.menu.add(
             "QSpinBox",
             setPrefix="Start Frame: ",
             setObjectName="s009",
             set_limits=[-1000000, 1000000],
             setValue=0,
-            setToolTip="Gap start frame. Set to 0 to use current time as start.",
+            setToolTip="Frame where the gap begins. 0 = current time.",
         )
         widget.option_box.menu.add(
             "QSpinBox",
-            setPrefix="End Frame: ",
+            setPrefix="Gap Size: ",
             setObjectName="s010",
             set_limits=[-1000000, 1000000],
             setValue=10,
-            setToolTip="When Start=0: Gap duration in frames.\nWhen Start≠0: Gap size in frames (gap ends at Start+End).",
+            setToolTip="Number of empty frames to insert.",
         )
         widget.option_box.menu.add(
             "QCheckBox",
@@ -1454,7 +1454,7 @@ class Animation(SlotsMaya):
             return
 
         # Copy each object's unique values (default behavior)
-        self._stored_attributes = mtk.AttributeManager.get_channel_box_values(objects)
+        self._stored_attributes = mtk.Attributes.get_channel_box_values(objects)
 
         if not self._stored_attributes:
             self.sb.message_box("No channel box attributes selected.")

@@ -223,13 +223,24 @@ class Rigging(SlotsMaya):
     @mtk.undoable
     def tb002(self, widget):
         """Event Triggers"""
-        sel = pm.selected()
-        if not sel:
-            self.sb.message_box("Select object(s) to add event triggers.")
-            return
-
         category = widget.option_box.menu.cmb010.currentText().strip()
         remove = widget.option_box.menu.chk010.isChecked()
+
+        sel = pm.selected()
+        if not sel:
+            null_name = f"{category}_triggers"
+            if pm.objExists(null_name):
+                sel = [pm.PyNode(null_name)]
+            elif remove:
+                self.sb.message_box(
+                    f"No objects selected and <hl>{null_name}</hl> not found."
+                )
+                return
+            else:
+                sel = [pm.spaceLocator(name=null_name)]
+                self.sb.message_box(
+                    f"No selection \u2014 created <hl>{null_name}</hl> locator."
+                )
 
         if remove:
             mtk.EventTriggers.remove(objects=sel, category=category)
@@ -248,56 +259,17 @@ class Rigging(SlotsMaya):
             f"<hl>{len(result)}</hl> object(s): {event_str}"
         )
 
-    def tb004_init(self, widget):
-        """Init Render Opacity"""
-        widget.option_box.menu.setTitle("Render Opacity")
+    # ------------------------------------------------------------------
+    # tb005 — Audio Events
+    # ------------------------------------------------------------------
 
-        widget.option_box.menu.add(
-            "QComboBox",
-            addItems=["Material", "Attribute", "Remove"],
-            setObjectName="cmb000",
-            setToolTip="Both modes create a keyable 'opacity' attribute in the channel box.\n"
-            "• Material Mode (default): Connects transparency graph on StingrayPBS\n"
-            "• Attribute Mode: Creates an attribute only, which can later be custom wired in game engine.\n"
-            "• Remove: Resets and cleans up all artifacts from any previous render opacity operation.\n"
-            "<b>Note</b>: Material mode creates a duplicate StingrayPBS material for each object.\n",
-        )
+    def tb005(self, widget):
+        """Audio Events"""
+        self.sb.handlers.marking_menu.show("audio_events")
 
-    @mtk.undoable
-    def tb004(self, widget):
-        """Render Opacity"""
-        mode = widget.option_box.menu.cmb000.currentText().lower()
-
-        objects = pm.selected()
-        if not objects:
-            self.sb.message_box(
-                "<hl>No selection</hl><br>"
-                "Select one or more objects to set render opacity."
-            )
-            return
-
-        names = [o.name() for o in objects]
-        label = ", ".join(names[:5])
-        if len(names) > 5:
-            label += f" … (+{len(names) - 5} more)"
-
-        try:
-            results = mtk.RenderOpacity.create(objects, mode=mode)
-        except Exception as e:
-            self.sb.message_box(f"<hl>Render Opacity error</hl><br>{e}")
-            return
-
-        if mode == "remove":
-            self.sb.message_box(
-                f"Result: Opacity removed from <strong>{len(objects)}</strong> object(s).<br>"
-                f"{label}"
-            )
-        else:
-            self.sb.message_box(
-                f"Result: <strong>{mode.title()}</strong> opacity applied to "
-                f"<strong>{len(results)}</strong> object(s).<br>"
-                f"{label}"
-            )
+    # ------------------------------------------------------------------
+    # tb003 — Create Locator at Selection
+    # ------------------------------------------------------------------
 
     def tb003_init(self, widget):
         """Init Create Locator at Selection"""
@@ -406,6 +378,10 @@ class Rigging(SlotsMaya):
         """Remove Locator"""
         selection = pm.ls(selection=True)
         mtk.remove_locator(selection)
+
+    def b004(self):
+        """Render Opacity"""
+        self.sb.handlers.marking_menu.show("render_opacity")
 
 
 # --------------------------------------------------------------------------------------------

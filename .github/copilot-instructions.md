@@ -28,3 +28,5 @@
 - [x] **2026-02-11 Feature**: Updated `materials.py` to strip trailing underscores in addition to digits in `lbl007` logic.
 - [x] **2026-02-18 Docs**: Refreshed `docs/README.md` for current architecture, valid module links, key binding usage (`Key_F12`), platform support scope, and testing notes.
 - [x] **2026-02-18 Docs**: Replaced outdated static UML image reference in `docs/README.md` with an inline Mermaid architecture diagram that reflects current `TclMaya` + `uitk` + slots flow.
+- [x] **2026-02-18 Tests/CI**: Added structural test suite (`test_package.py`, `test_slot_integrity.py`, `test_ui_integrity.py`) — 22 tests covering package metadata, slot class conventions, UI file pairing, and binding targets. Created `.github/workflows/tests.yml` to run tests on push/PR to main and auto-update the README badge.
+- [x] **2026-02-20 Bugfix/Tests**: Fixed `slots/maya/rendering.py` headless safety and VRay plugin loading path (`b005` now uses `mayatk.vray_plugin(query/load)`), added regression coverage in `test/test_rendering.py`, and added a repro script in `test/temp_tests/repro_rendering_b005_missing_loader.py`.

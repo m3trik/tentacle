@@ -10,7 +10,7 @@
     <x>0</x>
     <y>0</y>
     <width>200</width>
-    <height>410</height>
+    <height>432</height>
    </rect>
   </property>
   <property name="tabShape">
@@ -48,7 +48,7 @@
        <number>0</number>
       </property>
       <item>
-       <widget class="Header" name="header">
+       <widget class="Header" name="header" native="true">
         <property name="minimumSize">
          <size>
           <width>0</width>
@@ -61,23 +61,17 @@
           <bold>true</bold>
          </font>
         </property>
-        <property name="text">
+        <property name="text" stdset="0">
          <string>ANIMATION</string>
         </property>
        </widget>
       </item>
       <item>
-       <widget class="QGroupBox" name="keyframes">
-        <property name="baseSize">
-         <size>
-          <width>0</width>
-          <height>0</height>
-         </size>
-        </property>
+       <widget class="CollapsableGroup" name="selection">
         <property name="title">
-         <string>Keyframes</string>
+         <string>Selection</string>
         </property>
-        <layout class="QVBoxLayout" name="verticalLayout_6">
+        <layout class="QVBoxLayout" name="verticalLayout_7">
          <property name="spacing">
           <number>1</number>
          </property>
@@ -143,6 +137,30 @@
            </property>
           </widget>
          </item>
+        </layout>
+       </widget>
+      </item>
+      <item>
+       <widget class="CollapsableGroup" name="transform">
+        <property name="title">
+         <string>Transform</string>
+        </property>
+        <layout class="QVBoxLayout" name="verticalLayout_8">
+         <property name="spacing">
+          <number>1</number>
+         </property>
+         <property name="leftMargin">
+          <number>0</number>
+         </property>
+         <property name="topMargin">
+          <number>0</number>
+         </property>
+         <property name="rightMargin">
+          <number>0</number>
+         </property>
+         <property name="bottomMargin">
+          <number>0</number>
+         </property>
          <item>
           <widget class="PushButton" name="tb014">
            <property name="minimumSize">
@@ -233,7 +251,9 @@
             </size>
            </property>
            <property name="toolTip">
-            <string>Create a gap in keyframes by moving keyframes forward in time.</string>
+            <string>Insert empty time at a point on the timeline.
+All keys after that point shift forward to clear the gap.
+Use this to make room for new animation.</string>
            </property>
            <property name="text">
             <string>Create Gap</string>
@@ -258,7 +278,12 @@
             </size>
            </property>
            <property name="toolTip">
-            <string>Add or remove spacing between all keys at a given time for any currently selected objects.</string>
+            <string>Push keys apart or pull them closer by a fixed frame amount.
+Every key at or after the given time shifts by the same offset.
+Supports negative values to compress timing.
+
+Unlike Create Gap, this does not clear a specific range —
+it uniformly shifts all qualifying keys.</string>
            </property>
            <property name="text">
             <string>Adjust Spacing</string>
@@ -283,60 +308,11 @@
             </size>
            </property>
            <property name="toolTip">
-            <string>Stagger the keyframes of selected objects such that the keyframes of each subsequent object start after the previous object.</string>
+            <string>Add keys on every frame (or a percentage of frames) between existing keyframes.
+Useful for baking out curves before export or to lock timing.</string>
            </property>
            <property name="text">
             <string>Add Intermediate Keys</string>
-           </property>
-           <property name="checkable">
-            <bool>false</bool>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="PushButton" name="tb008">
-           <property name="minimumSize">
-            <size>
-             <width>0</width>
-             <height>20</height>
-            </size>
-           </property>
-           <property name="maximumSize">
-            <size>
-             <width>16777215</width>
-             <height>20</height>
-            </size>
-           </property>
-           <property name="toolTip">
-            <string>Set Visibility Keys</string>
-           </property>
-           <property name="text">
-            <string>Set Visibility Keys</string>
-           </property>
-           <property name="checkable">
-            <bool>false</bool>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="PushButton" name="tb011">
-           <property name="minimumSize">
-            <size>
-             <width>0</width>
-             <height>20</height>
-            </size>
-           </property>
-           <property name="maximumSize">
-            <size>
-             <width>16777215</width>
-             <height>20</height>
-            </size>
-           </property>
-           <property name="toolTip">
-            <string/>
-           </property>
-           <property name="text">
-            <string>Tie Keyframes</string>
            </property>
            <property name="checkable">
             <bool>false</bool>
@@ -363,6 +339,108 @@ Else move all keyframes of the selected objects.</string>
            </property>
            <property name="text">
             <string>Move Keys</string>
+           </property>
+           <property name="checkable">
+            <bool>false</bool>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="PushButton" name="tb004">
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>20</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>16777215</width>
+             <height>20</height>
+            </size>
+           </property>
+           <property name="toolTip">
+            <string>Transfer keyframes from the first selected object to the subsequent objects.</string>
+           </property>
+           <property name="text">
+            <string>Transfer Keys</string>
+           </property>
+           <property name="checkable">
+            <bool>false</bool>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </widget>
+      </item>
+      <item>
+       <widget class="CollapsableGroup" name="alignment">
+        <property name="title">
+         <string>Alignment</string>
+        </property>
+        <layout class="QVBoxLayout" name="verticalLayout_9">
+         <property name="spacing">
+          <number>1</number>
+         </property>
+         <property name="leftMargin">
+          <number>0</number>
+         </property>
+         <property name="topMargin">
+          <number>0</number>
+         </property>
+         <property name="rightMargin">
+          <number>0</number>
+         </property>
+         <property name="bottomMargin">
+          <number>0</number>
+         </property>
+         <item>
+          <widget class="PushButton" name="tb008">
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>20</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>16777215</width>
+             <height>20</height>
+            </size>
+           </property>
+           <property name="toolTip">
+            <string>Key the visibility attribute on/off at animation boundaries.
+Automatically detects each object's keyframe range.</string>
+           </property>
+           <property name="text">
+            <string>Set Visibility Keys</string>
+           </property>
+           <property name="checkable">
+            <bool>false</bool>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="PushButton" name="tb011">
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>20</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>16777215</width>
+             <height>20</height>
+            </size>
+           </property>
+           <property name="toolTip">
+            <string>Add (tie) or remove (untie) bookend keyframes at the start/end of the playback range.
+Tying ensures every animated object has keys at the range boundaries.
+Untying removes only those bookend keys, preserving genuine animation.</string>
+           </property>
+           <property name="text">
+            <string>Tie Keyframes</string>
            </property>
            <property name="checkable">
             <bool>false</bool>
@@ -424,31 +502,6 @@ keyframes from the graph editor.</string>
           </widget>
          </item>
          <item>
-          <widget class="PushButton" name="tb004">
-           <property name="minimumSize">
-            <size>
-             <width>0</width>
-             <height>20</height>
-            </size>
-           </property>
-           <property name="maximumSize">
-            <size>
-             <width>16777215</width>
-             <height>20</height>
-            </size>
-           </property>
-           <property name="toolTip">
-            <string>Transfer keyframes from the first selected object to the subsequent objects.</string>
-           </property>
-           <property name="text">
-            <string>Transfer Keys</string>
-           </property>
-           <property name="checkable">
-            <bool>false</bool>
-           </property>
-          </widget>
-         </item>
-         <item>
           <widget class="PushButton" name="tb010">
            <property name="enabled">
             <bool>true</bool>
@@ -483,7 +536,7 @@ keyframes from the graph editor.</string>
        </widget>
       </item>
       <item>
-       <widget class="QGroupBox" name="channel_box">
+       <widget class="CollapsableGroup" name="channel_box">
         <property name="title">
          <string>Channel Box</string>
         </property>
@@ -589,13 +642,19 @@ keyframes from the graph editor.</string>
  <customwidgets>
   <customwidget>
    <class>Header</class>
-   <extends>QLabel</extends>
-   <header>uitk.widgets.header.Header.h</header>
+   <extends>QWidget</extends>
+   <header>uitk.widgets.header</header>
   </customwidget>
   <customwidget>
    <class>PushButton</class>
    <extends>QPushButton</extends>
    <header>widgets.pushbutton.h</header>
+  </customwidget>
+  <customwidget>
+   <class>CollapsableGroup</class>
+   <extends>QGroupBox</extends>
+   <header>uitk.widgets.collapsableGroup.CollapsableGroup.h</header>
+   <container>1</container>
   </customwidget>
  </customwidgets>
  <resources/>

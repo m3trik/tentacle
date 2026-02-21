@@ -45,7 +45,7 @@ class Subdivision(SlotsMaya):
         for obj in transforms:
             if hasattr(obj, "smoothLevel"):
                 # Correctly pass attributes as keyword arguments
-                mtk.AttributeManager.set_attributes(obj, smoothLevel=value)
+                mtk.Attributes.set_attributes(obj, smoothLevel=value)
                 # SubDivision proxy options: 'divisions'
                 pm.optionVar(intValue=["proxyDivisions", value])
                 pm.inViewMessage(
@@ -61,7 +61,7 @@ class Subdivision(SlotsMaya):
         for obj in transforms:
             if hasattr(obj, "smoothLevel"):
                 # Correctly pass attributes as keyword arguments
-                mtk.AttributeManager.set_attributes(obj, smoothTessLevel=value)
+                mtk.Attributes.set_attributes(obj, smoothTessLevel=value)
                 pm.inViewMessage(
                     statusMessage=f"{obj}: Tesselation Level: <hl>{value}</hl>",
                     pos="topCenter",
