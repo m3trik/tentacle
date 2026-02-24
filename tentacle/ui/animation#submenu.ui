@@ -118,9 +118,9 @@
     </property>
     <property name="geometry">
      <rect>
-      <x>155</x>
-      <y>260</y>
-      <width>91</width>
+      <x>170</x>
+      <y>240</y>
+      <width>76</width>
       <height>20</height>
      </rect>
     </property>
@@ -155,8 +155,8 @@
     </property>
     <property name="geometry">
      <rect>
-      <x>190</x>
-      <y>235</y>
+      <x>145</x>
+      <y>265</y>
       <width>91</width>
       <height>20</height>
      </rect>
@@ -189,9 +189,9 @@
    <widget class="PushButton" name="tb006">
     <property name="geometry">
      <rect>
-      <x>250</x>
-      <y>260</y>
-      <width>96</width>
+      <x>215</x>
+      <y>215</y>
+      <width>81</width>
       <height>20</height>
      </rect>
     </property>
@@ -252,7 +252,7 @@ Else move all keyframes of the selected objects.</string>
    <widget class="PushButton" name="tb002">
     <property name="geometry">
      <rect>
-      <x>195</x>
+      <x>150</x>
       <y>345</y>
       <width>121</width>
       <height>20</height>
@@ -280,6 +280,111 @@ it uniformly shifts all qualifying keys.</string>
     </property>
     <property name="text">
      <string>Adjust Spacing</string>
+    </property>
+    <property name="checkable">
+     <bool>false</bool>
+    </property>
+   </widget>
+   <widget class="PushButton" name="tb017">
+    <property name="enabled">
+     <bool>true</bool>
+    </property>
+    <property name="geometry">
+     <rect>
+      <x>255</x>
+      <y>240</y>
+      <width>91</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="minimumSize">
+     <size>
+      <width>0</width>
+      <height>20</height>
+     </size>
+    </property>
+    <property name="maximumSize">
+     <size>
+      <width>16777215</width>
+      <height>20</height>
+     </size>
+    </property>
+    <property name="toolTip">
+     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Set stepped (hold) out-tangents on animation keys.&lt;/p&gt;&lt;p&gt;Use the option box to choose: current time, selected keys, or all keys.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+    </property>
+    <property name="text">
+     <string>Step Keys</string>
+    </property>
+    <property name="iconSize">
+     <size>
+      <width>18</width>
+      <height>18</height>
+     </size>
+    </property>
+   </widget>
+   <widget class="PushButton" name="tb010">
+    <property name="enabled">
+     <bool>true</bool>
+    </property>
+    <property name="geometry">
+     <rect>
+      <x>275</x>
+      <y>345</y>
+      <width>91</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="minimumSize">
+     <size>
+      <width>0</width>
+      <height>20</height>
+     </size>
+    </property>
+    <property name="maximumSize">
+     <size>
+      <width>16777215</width>
+      <height>20</height>
+     </size>
+    </property>
+    <property name="toolTip">
+     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Deletes &lt;span style=&quot; font-weight:600;&quot;&gt;ALL&lt;/span&gt; keyframes for the currently selected object(s).&lt;/p&gt;&lt;p&gt;If specific attributes are selected in the channel box, only keyframes for those attributes will be deleted.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+    </property>
+    <property name="text">
+     <string>Delete Keys</string>
+    </property>
+    <property name="iconSize">
+     <size>
+      <width>18</width>
+      <height>18</height>
+     </size>
+    </property>
+   </widget>
+   <widget class="PushButton" name="tb000_2">
+    <property name="geometry">
+     <rect>
+      <x>170</x>
+      <y>375</y>
+      <width>111</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="minimumSize">
+     <size>
+      <width>0</width>
+      <height>20</height>
+     </size>
+    </property>
+    <property name="maximumSize">
+     <size>
+      <width>16777215</width>
+      <height>20</height>
+     </size>
+    </property>
+    <property name="toolTip">
+     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Set the current frame on the timeslider.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+    </property>
+    <property name="text">
+     <string>Go to Frame</string>
     </property>
     <property name="checkable">
      <bool>false</bool>

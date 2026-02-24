@@ -77,6 +77,12 @@ class SceneSlots(SlotsMaya):
                 setObjectName="b010",
                 setToolTip="Analyze scene for performance issues (poly count, draw calls, textures).",
             )
+            widget.menu.add(
+                "QPushButton",
+                setText="Toggle Command Ports",
+                setObjectName="b012",
+                setToolTip="Toggle Maya command ports on/off (MEL :7001, Python :7002).\nUsed for external editor connections.",
+            )
 
     @Signals("textChanged", "returnPressed")
     def txt000(self, widget):
@@ -160,6 +166,7 @@ class SceneSlots(SlotsMaya):
         """Initialize Export"""
         items = [
             "Export Selection",
+            "Export All",
             "Send to Unreal",
             "Send to Unity",
             "GoZ",
@@ -178,6 +185,8 @@ class SceneSlots(SlotsMaya):
         text = widget.items[index]
         if text == "Export Selection":
             pm.mel.ExportSelection()
+        elif text == "Export All":
+            pm.mel.Export()
         elif text == "Send to Unreal":
             pm.mel.SendToUnrealSelection()
         elif text == "Send to Unity":
@@ -355,6 +364,21 @@ class SceneSlots(SlotsMaya):
     def b011(self):
         """Fix Color Spaces"""
         mtk.Diagnostics.fix_missing_color_spaces(force_update=True)
+
+    def b012(self):
+        """Toggle Command Ports"""
+        is_open, ports = mtk.MayaConnection.toggle_command_ports()
+        port_lines = "".join(
+            f"<br> \u2022 {port} ({src})" for port, src in ports.items()
+        )
+        state = "OPENED" if is_open else "CLOSED"
+        self.sb.message_box(
+            f"Command Ports <hl>{state}</hl>{port_lines}",
+            timeout=4,
+        )
+        # Mirror to console
+        console_lines = ", ".join(f"{p} ({s})" for p, s in ports.items())
+        print(f"Command Ports {state}: {console_lines}")
 
     def b007(self):
         """Import file"""

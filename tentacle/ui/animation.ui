@@ -10,7 +10,7 @@
     <x>0</x>
     <y>0</y>
     <width>200</width>
-    <height>432</height>
+    <height>431</height>
    </rect>
   </property>
   <property name="tabShape">
@@ -641,14 +641,14 @@ keyframes from the graph editor.</string>
  </widget>
  <customwidgets>
   <customwidget>
-   <class>Header</class>
-   <extends>QWidget</extends>
-   <header>uitk.widgets.header</header>
-  </customwidget>
-  <customwidget>
    <class>PushButton</class>
    <extends>QPushButton</extends>
    <header>widgets.pushbutton.h</header>
+  </customwidget>
+  <customwidget>
+   <class>Header</class>
+   <extends>QWidget</extends>
+   <header>uitk.widgets.header</header>
   </customwidget>
   <customwidget>
    <class>CollapsableGroup</class>

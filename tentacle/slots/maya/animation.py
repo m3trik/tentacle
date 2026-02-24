@@ -22,7 +22,7 @@ class Animation(SlotsMaya):
         widget.menu.add(
             self.sb.registered_widgets.PushButton,
             setText="Smart Bake",
-            setObjectName="tb017",
+            setObjectName="tb018",
             setToolTip="Intelligently bake constraints, driven keys, expressions, IK, motion paths, and blend shapes.",
         )
         widget.menu.add(
@@ -38,6 +38,12 @@ class Animation(SlotsMaya):
             clicked=lambda: mtk.Diagnostics.repair_visibility_tangents(
                 objects=pm.selected() or None
             ),
+        )
+        widget.menu.add(
+            self.sb.registered_widgets.PushButton,
+            setText="Step Keys",
+            setObjectName="tb017",
+            setToolTip="Set stepped tangents on keys.\nUse the option box to choose: current time, selected keys, or all keys.",
         )
         widget.menu.add(
             self.sb.registered_widgets.PushButton,
@@ -195,7 +201,7 @@ class Animation(SlotsMaya):
             setObjectName="s001",
             set_limits=[-100000, 100000],
             setValue=-1,
-            setCustomDisplayValues={-1: "Time: Auto"},
+            setCustomDisplayValues={-1: "Auto"},
             setToolTip="Start time for inverted keys.\nSet to -1 to auto-detect from keys (selected or all).",
         )
         widget.option_box.menu.add(
@@ -315,7 +321,7 @@ class Animation(SlotsMaya):
             setObjectName="s005",
             set_limits=[-100000, 100000],
             setValue=-1,
-            setCustomDisplayValues={-1: "Start Frame: Auto"},
+            setCustomDisplayValues={-1: "Auto"},
             setToolTip="Override starting frame. -1 = use earliest keyframe.",
         )
         widget.option_box.menu.add(
@@ -458,7 +464,7 @@ class Animation(SlotsMaya):
             setObjectName="s005",
             set_limits=[-1, 100000],
             setValue=-1,
-            setCustomDisplayValues={-1: "Start Time: Auto"},
+            setCustomDisplayValues={-1: "Auto"},
             setToolTip="The time at which to start adding keys. Set to -1 to auto-detect from first keyframe.",
         )
         widget.option_box.menu.add(
@@ -467,7 +473,7 @@ class Animation(SlotsMaya):
             setObjectName="s006",
             set_limits=[-1, 100000],
             setValue=-1,
-            setCustomDisplayValues={-1: "End Time: Auto"},
+            setCustomDisplayValues={-1: "Auto"},
             setToolTip="The time at which to end adding keys. Set to -1 to auto-detect from last keyframe.",
         )
         widget.option_box.menu.add(
@@ -605,7 +611,7 @@ class Animation(SlotsMaya):
             setMinimum=-10000,
             setMaximum=10000,
             setValue=-1,
-            setCustomDisplayValues={-1: "Frame: Auto"},
+            setCustomDisplayValues={-1: "Auto"},
             setToolTip="Specific frame to align to.\nSet to -1 to auto-detect from selected keyframes.",
         )
 
@@ -1445,6 +1451,43 @@ class Animation(SlotsMaya):
             csv_output=csv_output,
             ignore_holds=ignore_holds,
         )
+
+    def tb017_init(self, widget):
+        """Step Keys Init"""
+        widget.option_box.menu.setTitle("Step Keys")
+        cmb = widget.option_box.menu.add(
+            "QComboBox",
+            setObjectName="cmb000",
+            setToolTip="Which keys to step.",
+        )
+        for text, data in [
+            ("Keys: Current Time", "current_time"),
+            ("Keys: Selected", "selected"),
+            ("Keys: All", "all"),
+        ]:
+            cmb.addItem(text, data)
+
+    def tb017(self, widget):
+        """Step Keys — set stepped tangents on keys."""
+        import maya.cmds as cmds
+
+        mode = widget.option_box.menu.cmb000.currentData()
+
+        if mode == "selected":
+            keys = cmds.keyframe(query=True, selected=True, name=True) or []
+            if not keys:
+                self.sb.message_box("No keys selected in the Graph Editor.")
+                return
+        elif mode == "current_time":
+            keys = cmds.currentTime(query=True)
+        else:  # "all"
+            keys = None
+
+        result = mtk.AnimUtils.step_keys(keys=keys)
+        if result["curves"]:
+            self.sb.message_box(f"Stepped {result['curves']} curve(s).")
+        else:
+            self.sb.message_box("No keys found. Select objects with keyframes.")
 
     def b001(self, widget=None):
         """Copy Keys"""
