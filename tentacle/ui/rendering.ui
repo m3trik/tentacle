@@ -51,7 +51,7 @@
        <number>0</number>
       </property>
       <item>
-       <widget class="Header" name="header">
+       <widget class="Header" name="header" native="true">
         <property name="minimumSize">
          <size>
           <width>0</width>
@@ -64,13 +64,13 @@
           <bold>true</bold>
          </font>
         </property>
-        <property name="text">
+        <property name="text" stdset="0">
          <string>RENDERING</string>
         </property>
        </widget>
       </item>
       <item>
-       <widget class="QGroupBox" name="groupBox_2">
+       <widget class="CollapsableGroup" name="groupBox_2">
         <property name="title">
          <string>Render</string>
         </property>
@@ -193,7 +193,7 @@
        </widget>
       </item>
       <item>
-       <widget class="QGroupBox" name="groupBox_4">
+       <widget class="CollapsableGroup" name="groupBox_4">
         <property name="title">
          <string>VRay</string>
         </property>
@@ -261,7 +261,7 @@
        </widget>
       </item>
       <item>
-       <widget class="QGroupBox" name="groupBox_3">
+       <widget class="CollapsableGroup" name="groupBox_3">
         <property name="title">
          <string>Settings</string>
         </property>
@@ -377,8 +377,8 @@
  <customwidgets>
   <customwidget>
    <class>Header</class>
-   <extends>QLabel</extends>
-   <header>uitk.widgets.header.Header.h</header>
+   <extends>QWidget</extends>
+   <header>uitk.widgets.header</header>
   </customwidget>
   <customwidget>
    <class>PushButton</class>
@@ -389,6 +389,12 @@
    <class>ComboBox</class>
    <extends>QComboBox</extends>
    <header>uitk.widgets.comboBox.ComboBox.h</header>
+  </customwidget>
+  <customwidget>
+   <class>CollapsableGroup</class>
+   <extends>QGroupBox</extends>
+   <header>uitk.widgets.collapsableGroup.CollapsableGroup.h</header>
+   <container>1</container>
   </customwidget>
  </customwidgets>
  <resources/>

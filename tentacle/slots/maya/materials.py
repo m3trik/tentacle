@@ -51,6 +51,12 @@ class MaterialsSlots(SlotsMaya):
         widget.menu.add("Separator", setTitle="Setup")
         widget.menu.add(
             "QPushButton",
+            setText="Image to Plane",
+            setObjectName="b021",
+            setToolTip="Create textured polygon planes from image files with correct aspect ratios.",
+        )
+        widget.menu.add(
+            "QPushButton",
             setText="Material Updater",
             setObjectName="b018",
             setToolTip="Update material networks with new textures and settings.",
@@ -538,6 +544,10 @@ class MaterialsSlots(SlotsMaya):
     def b018(self, widget):
         """Material Updater"""
         self.sb.handlers.marking_menu.show("mat_updater")
+
+    def b021(self, widget):
+        """Image to Plane"""
+        self.sb.handlers.marking_menu.show("image_to_plane")
 
     def b019(self, widget):
         """Send to Marmoset"""

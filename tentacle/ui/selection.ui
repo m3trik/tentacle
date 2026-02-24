@@ -51,7 +51,7 @@
        <number>0</number>
       </property>
       <item>
-       <widget class="Header" name="header">
+       <widget class="Header" name="header" native="true">
         <property name="minimumSize">
          <size>
           <width>0</width>
@@ -64,7 +64,7 @@
           <bold>true</bold>
          </font>
         </property>
-        <property name="text">
+        <property name="text" stdset="0">
          <string>SELECTION</string>
         </property>
        </widget>
@@ -256,7 +256,7 @@
        </widget>
       </item>
       <item>
-       <widget class="QGroupBox" name="groupBox_8">
+       <widget class="CollapsableGroup" name="groupBox_8">
         <property name="toolTip">
          <string/>
         </property>
@@ -313,7 +313,7 @@
        </widget>
       </item>
       <item>
-       <widget class="QGroupBox" name="groupBox_6">
+       <widget class="CollapsableGroup" name="groupBox_6">
         <property name="title">
          <string>Convert</string>
         </property>
@@ -373,7 +373,7 @@
        </widget>
       </item>
       <item>
-       <widget class="QGroupBox" name="groupBox_7">
+       <widget class="CollapsableGroup" name="groupBox_7">
         <property name="title">
          <string>Re-Order Selectiion</string>
         </property>
@@ -453,8 +453,8 @@
  <customwidgets>
   <customwidget>
    <class>Header</class>
-   <extends>QLabel</extends>
-   <header>uitk.widgets.header.Header.h</header>
+   <extends>QWidget</extends>
+   <header>uitk.widgets.header</header>
   </customwidget>
   <customwidget>
    <class>PushButton</class>
@@ -465,6 +465,12 @@
    <class>ComboBox</class>
    <extends>QComboBox</extends>
    <header>uitk.widgets.comboBox.ComboBox.h</header>
+  </customwidget>
+  <customwidget>
+   <class>CollapsableGroup</class>
+   <extends>QGroupBox</extends>
+   <header>uitk.widgets.collapsableGroup.CollapsableGroup.h</header>
+   <container>1</container>
   </customwidget>
  </customwidgets>
  <resources/>

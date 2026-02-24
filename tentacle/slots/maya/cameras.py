@@ -17,7 +17,9 @@ class Cameras(SlotsMaya):
         self.ui = self.sb.loaded_ui.cameras
 
         try:
-            self.sb.handlers.marking_menu.left_mouse_double_click.connect(self.toggle_camera_view)
+            self.sb.handlers.marking_menu.left_mouse_double_click.connect(
+                self.toggle_camera_view
+            )
         except AttributeError:
             pass
 
@@ -186,6 +188,8 @@ class Cameras(SlotsMaya):
 
         # If the last method is b004, call the last non-perspective camera
         if history[-1].__name__ == self.b004.__name__:
+            if len(history) < 2:
+                return
             last_non_persp_cam = history[-2]
             last_non_persp_cam()
             self.sb.slot_history(add=last_non_persp_cam)

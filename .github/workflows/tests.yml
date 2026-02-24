@@ -1,0 +1,87 @@
+name: Tests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.REPO_DISPATCH_TOKEN }}
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install pytest qtpy PySide6
+          pip install -e . --no-deps
+
+      - name: Run tests
+        id: tests
+        run: |
+          set +e
+          OUTPUT=$(pytest --tb=short -v test/ 2>&1)
+          EXIT_CODE=$?
+          echo "$OUTPUT"
+
+          PASSED=$(echo "$OUTPUT" | grep -oP '\d+(?= passed)' || echo "0")
+          FAILED=$(echo "$OUTPUT" | grep -oP '\d+(?= failed)' || echo "0")
+          ERRORS=$(echo "$OUTPUT" | grep -oP '\d+(?= error)' || echo "0")
+          PASSED=${PASSED:-0}
+          FAILED=${FAILED:-0}
+          ERRORS=${ERRORS:-0}
+
+          echo "passed=$PASSED" >> $GITHUB_OUTPUT
+          echo "failed=$FAILED" >> $GITHUB_OUTPUT
+          echo "errors=$ERRORS" >> $GITHUB_OUTPUT
+          echo "exit_code=$EXIT_CODE" >> $GITHUB_OUTPUT
+
+      - name: Update README badge
+        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+        run: |
+          PASSED=${{ steps.tests.outputs.passed }}
+          FAILED=${{ steps.tests.outputs.failed }}
+          ERRORS=${{ steps.tests.outputs.errors }}
+          TOTAL_FAIL=$((FAILED + ERRORS))
+
+          if [ "$TOTAL_FAIL" -eq 0 ]; then
+            COLOR="brightgreen"
+            STATUS="${PASSED} passed"
+          elif [ "$PASSED" -eq 0 ]; then
+            COLOR="red"
+            STATUS="${TOTAL_FAIL} failed"
+          else
+            COLOR="orange"
+            STATUS="${PASSED} passed, ${TOTAL_FAIL} failed"
+          fi
+
+          BADGE_TEXT=$(echo "$STATUS" | sed 's/ /%20/g; s/,//g')
+          NEW_BADGE="[![Tests](https://img.shields.io/badge/Tests-${BADGE_TEXT}-${COLOR}.svg)](test/)"
+
+          if [ -f docs/README.md ]; then
+            sed -i 's|\[!\[Tests\](https://img\.shields\.io/badge/Tests-[^)]*)\](test/)'"$|${NEW_BADGE}|" docs/README.md
+
+            git config user.name "github-actions[bot]"
+            git config user.email "github-actions[bot]@users.noreply.github.com"
+            git add docs/README.md
+            if ! git diff --staged --quiet; then
+              git commit -m "Update test badge: ${STATUS} [skip ci]"
+              git push origin main
+            fi
+          fi
+
+      - name: Fail if tests failed
+        if: steps.tests.outputs.exit_code != '0'
+        run: exit 1

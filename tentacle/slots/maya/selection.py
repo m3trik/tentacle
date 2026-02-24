@@ -492,23 +492,7 @@ class Selection(SlotsMaya):
         objMode = pm.selectMode(q=True, object=1)
         if objMode:
             selection = pm.ls(sl=1, objectsOnly=1, type="transform")
-            pm.select(clear=1)
-            for obj in selection:
-                similar = mtk.get_similar_mesh(
-                    obj,
-                    tolerance=tolerance,
-                    inc_orig=inc,
-                    vertex=v,
-                    edge=e,
-                    face=f,
-                    uvcoord=uv,
-                    triangle=t,
-                    shell=s,
-                    boundingBox=b,
-                    area=a,
-                    worldArea=wa,
-                )
-                pm.select(similar, add=True)
+            mtk.get_similar_mesh(selection, tolerance=tolerance, inc_orig=inc, select=True, vertex=v, edge=e, face=f, uvcoord=uv, triangle=t, shell=s, boundingBox=b, area=a, worldArea=wa)
         else:
             pm.mel.doSelectSimilar(1, {tolerance})
 
