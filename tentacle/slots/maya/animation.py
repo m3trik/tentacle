@@ -202,7 +202,7 @@ class Animation(SlotsMaya):
             set_limits=[-100000, 100000],
             setValue=-1,
             setCustomDisplayValues={-1: "Auto"},
-            setToolTip="Start time for inverted keys.\nSet to -1 to auto-detect from keys (selected or all).",
+            setToolTip="Start time for inverted keys.\nSet to -1 (Auto) to place inverted keys at the current time.",
         )
         widget.option_box.menu.add(
             "QDoubleSpinBox",
@@ -246,8 +246,8 @@ class Animation(SlotsMaya):
         relative = widget.option_box.menu.chk002.isChecked()
         delete_original = widget.option_box.menu.chk005.isChecked()
 
-        # Use current time when time is -1
-        time = pm.currentTime(q=True) if time_value == -1 else time_value
+        # Use None (auto) when time is -1 to let invert_keys use current time
+        time = None if time_value == -1 else time_value
 
         mtk.invert_keys(
             time=time,
