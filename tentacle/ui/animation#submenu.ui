@@ -112,7 +112,7 @@
      <string>Rigging</string>
     </property>
    </widget>
-   <widget class="QPushButton" name="b001">
+   <widget class="PushButton" name="b001">
     <property name="enabled">
      <bool>true</bool>
     </property>
@@ -273,10 +273,7 @@ Else move all keyframes of the selected objects.</string>
     <property name="toolTip">
      <string>Push keys apart or pull them closer by a fixed frame amount.
 Every key at or after the given time shifts by the same offset.
-Supports negative values to compress timing.
-
-Unlike Create Gap, this does not clear a specific range —
-it uniformly shifts all qualifying keys.</string>
+Supports negative values to compress timing.</string>
     </property>
     <property name="text">
      <string>Adjust Spacing</string>
@@ -357,37 +354,6 @@ it uniformly shifts all qualifying keys.</string>
       <width>18</width>
       <height>18</height>
      </size>
-    </property>
-   </widget>
-   <widget class="PushButton" name="tb000_2">
-    <property name="geometry">
-     <rect>
-      <x>170</x>
-      <y>375</y>
-      <width>111</width>
-      <height>20</height>
-     </rect>
-    </property>
-    <property name="minimumSize">
-     <size>
-      <width>0</width>
-      <height>20</height>
-     </size>
-    </property>
-    <property name="maximumSize">
-     <size>
-      <width>16777215</width>
-      <height>20</height>
-     </size>
-    </property>
-    <property name="toolTip">
-     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Set the current frame on the timeslider.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-    </property>
-    <property name="text">
-     <string>Go to Frame</string>
-    </property>
-    <property name="checkable">
-     <bool>false</bool>
     </property>
    </widget>
   </widget>
