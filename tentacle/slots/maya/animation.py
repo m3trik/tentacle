@@ -267,7 +267,7 @@ class Animation(SlotsMaya):
             set_limits=[-100000, 100000],
             setValue=-1,
             setCustomDisplayValues={-1: "Auto"},
-            setToolTip="Starting frame for the shift.\n-1 = earliest keyframe on selected objects.",
+            setToolTip="Starting frame for the shift.\n-1 = current time.",
         )
         widget.option_box.menu.add(
             "QSpinBox",
@@ -291,6 +291,20 @@ class Animation(SlotsMaya):
             setChecked=True,
             setToolTip="Preserves and adjusts a keyframe at the specified time if it exists.",
         )
+        widget.option_box.menu.add(
+            "QCheckBox",
+            setText="Selected Keys Only",
+            setObjectName="chk020",
+            setChecked=False,
+            setToolTip="Only affect selected keyframes in graph editor.\nWhen unchecked, affects all keys on selected objects (or all scene objects if nothing selected).",
+        )
+        widget.option_box.menu.add(
+            "QCheckBox",
+            setText="Exact Gap",
+            setObjectName="chk021",
+            setChecked=False,
+            setToolTip="Calculate the shift so the first key after the start time\nlands exactly at (start + amount), clearing a precise range.",
+        )
 
     def tb002(self, widget):
         """Adjust spacing"""
@@ -298,10 +312,12 @@ class Animation(SlotsMaya):
         time_value = widget.option_box.menu.s002.value()
         relative = widget.option_box.menu.chk004.isChecked()
         preserve_keys = widget.option_box.menu.chk003.isChecked()
+        selected_keys_only = widget.option_box.menu.chk020.isChecked()
+        exact_gap = widget.option_box.menu.chk021.isChecked()
 
-        objects = pm.ls(sl=True, type="transform", long=True)
+        objects = pm.ls(sl=True, type="transform", long=True) or None
 
-        # Use None when -1 to auto-detect earliest keyframe
+        # Use None when -1 to use current playhead time
         time = None if time_value == -1 else time_value
 
         mtk.adjust_key_spacing(
@@ -310,6 +326,8 @@ class Animation(SlotsMaya):
             time=time,
             relative=relative,
             preserve_keys=preserve_keys,
+            selected_keys_only=selected_keys_only,
+            exact_gap=exact_gap,
         )
 
     def tb003_init(self, widget):
@@ -576,12 +594,23 @@ class Animation(SlotsMaya):
             setChecked=False,
             setToolTip="Only move keys for attributes selected in the channel box.\nWorks with both 'Move Selected Keys' and all keys modes.",
         )
+        cmb = widget.option_box.menu.add(
+            "QComboBox",
+            setObjectName="cmb_align",
+            setToolTip="Which end of the key range aligns to the target frame.",
+        )
+        for text, data in [
+            ("Align: Start", "start"),
+            ("Align: End", "end"),
+        ]:
+            cmb.addItem(text, data)
 
     def tb006(self, widget):
         """Move Keys"""
         selected_keys_only = widget.option_box.menu.chk010.isChecked()
         retain_spacing = widget.option_box.menu.chk012.isChecked()
         channel_box_attrs_only = widget.option_box.menu.chk021.isChecked()
+        align = widget.option_box.menu.cmb_align.currentData()
 
         objects = pm.selected(flatten=True)
         if not objects:
@@ -592,6 +621,7 @@ class Animation(SlotsMaya):
             selected_keys_only=selected_keys_only,
             retain_spacing=retain_spacing,
             channel_box_attrs_only=channel_box_attrs_only,
+            align=align,
         )
 
     def tb007_init(self, widget):
@@ -879,60 +909,6 @@ class Animation(SlotsMaya):
             mtk.untie_keyframes(objects=objects, absolute=absolute)
         else:
             mtk.tie_keyframes(objects=objects, absolute=absolute)
-
-    def tb012_init(self, widget):
-        """Insert Keyframe Gap Init"""
-        widget.option_box.menu.setTitle("Create Gap")
-        widget.option_box.menu.add(
-            "QSpinBox",
-            setPrefix="Start Frame: ",
-            setObjectName="s009",
-            set_limits=[-1000000, 1000000],
-            setValue=0,
-            setToolTip="Frame where the gap begins. 0 = current time.",
-        )
-        widget.option_box.menu.add(
-            "QSpinBox",
-            setPrefix="Gap Size: ",
-            setObjectName="s010",
-            set_limits=[-1000000, 1000000],
-            setValue=10,
-            setToolTip="Number of empty frames to insert.",
-        )
-        widget.option_box.menu.add(
-            "QCheckBox",
-            setText="Selected Keys Only",
-            setObjectName="chk020",
-            setChecked=False,
-            setToolTip="Only affect selected keyframes in graph editor.\nWhen unchecked, affects all keys on selected objects (or all scene objects if nothing selected).",
-        )
-
-    def tb012(self, widget):
-        """Insert Keyframe Gap"""
-        start_frame = widget.option_box.menu.s009.value()
-        end_frame = widget.option_box.menu.s010.value()
-        selected_keys_only = widget.option_box.menu.chk020.isChecked()
-
-        # Determine duration parameter
-        if start_frame == 0:
-            # Use current time + duration (end_frame as duration)
-            duration = end_frame
-        else:
-            # Use explicit start and end
-            duration = (start_frame, start_frame + end_frame)
-
-        # Get objects to affect
-        selected_objects = pm.selected()
-        objects = selected_objects if selected_objects else None
-
-        result = mtk.insert_keyframe_gap(
-            duration=duration,
-            objects=objects,
-            selected_keys_only=selected_keys_only,
-        )
-
-        if result["keys_moved"] == 0:
-            self.sb.message_box("No keyframes found to move.")
 
     def tb013_init(self, widget):
         """Select Keys Init"""
@@ -1489,21 +1465,39 @@ class Animation(SlotsMaya):
         else:
             self.sb.message_box("No keys found. Select objects with keyframes.")
 
-    def b001(self, widget=None):
-        """Copy Keys"""
-        objects = pm.selected()
-        if not objects:
-            self.sb.message_box("You must select at least one object.")
-            return
+    def b001_init(self, widget):
+        """Copy Keys Init"""
+        widget.option_box.menu.setTitle("Copy Keys")
+        cmb = widget.option_box.menu.add(
+            "QComboBox",
+            setObjectName="cmb000",
+            setToolTip="Which attributes/keys to copy.",
+        )
+        for text, data in [
+            ("Mode: Current Frame", "current_frame"),
+            ("Mode: Selected Keys", "selected"),
+            ("Mode: Channel Box", "channel_box"),
+        ]:
+            cmb.addItem(text, data)
 
-        # Copy each object's unique values (default behavior)
-        self._stored_attributes = mtk.Attributes.get_channel_box_values(objects)
+    def b001(self, widget):
+        """Copy Keys"""
+        mode = widget.option_box.menu.cmb000.currentData()
+
+        self._stored_attributes = mtk.AnimUtils.copy_keys(mode=mode)
 
         if not self._stored_attributes:
-            self.sb.message_box("No channel box attributes selected.")
+            labels = {
+                "current_frame": "No keyed attributes found at current frame.",
+                "selected": "No keys selected in the Graph Editor.",
+                "channel_box": "No channel box attributes selected.",
+            }
+            self.sb.message_box(labels.get(mode, "Nothing to copy."))
         else:
+            total_attrs = sum(len(v) for v in self._stored_attributes.values())
             self.sb.message_box(
-                f"Copied values from {len(self._stored_attributes)} object(s)."
+                f"Copied {total_attrs} attribute(s) from "
+                f"{len(self._stored_attributes)} object(s)."
             )
 
     def b002(self, widget=None):
@@ -1517,25 +1511,9 @@ class Animation(SlotsMaya):
             self.sb.message_box("You must select at least one object.")
             return
 
-        # Paste - auto-detects per-object mode from dict structure
-        mtk.set_keys_for_attributes(
-            objects, refresh_channel_box=True, **self._stored_attributes
+        keys_set = mtk.AnimUtils.paste_keys(
+            objects, copied_data=self._stored_attributes
         )
-
-        # Count how many objects were actually matched
-        keys_set = 0
-        for obj in objects:
-            obj_name = str(obj)
-            if obj_name in self._stored_attributes:
-                keys_set += 1
-            elif obj.nodeName() in self._stored_attributes:
-                keys_set += 1
-            else:
-                # Check for short name matches
-                for stored_name in self._stored_attributes.keys():
-                    if stored_name.split("|")[-1] == obj.nodeName():
-                        keys_set += 1
-                        break
 
         if keys_set > 0:
             msg = f"Pasted values to {keys_set} object(s)."

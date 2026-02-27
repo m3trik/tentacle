@@ -237,33 +237,6 @@
           </widget>
          </item>
          <item>
-          <widget class="PushButton" name="tb012">
-           <property name="minimumSize">
-            <size>
-             <width>0</width>
-             <height>20</height>
-            </size>
-           </property>
-           <property name="maximumSize">
-            <size>
-             <width>16777215</width>
-             <height>20</height>
-            </size>
-           </property>
-           <property name="toolTip">
-            <string>Insert empty time at a point on the timeline.
-All keys after that point shift forward to clear the gap.
-Use this to make room for new animation.</string>
-           </property>
-           <property name="text">
-            <string>Create Gap</string>
-           </property>
-           <property name="checkable">
-            <bool>false</bool>
-           </property>
-          </widget>
-         </item>
-         <item>
           <widget class="PushButton" name="tb002">
            <property name="minimumSize">
             <size>
@@ -280,10 +253,7 @@ Use this to make room for new animation.</string>
            <property name="toolTip">
             <string>Push keys apart or pull them closer by a fixed frame amount.
 Every key at or after the given time shifts by the same offset.
-Supports negative values to compress timing.
-
-Unlike Create Gap, this does not clear a specific range —
-it uniformly shifts all qualifying keys.</string>
+Supports negative values to compress timing.</string>
            </property>
            <property name="text">
             <string>Adjust Spacing</string>
@@ -557,7 +527,7 @@ keyframes from the graph editor.</string>
           <number>1</number>
          </property>
          <item row="0" column="1">
-          <widget class="QPushButton" name="b001">
+          <widget class="PushButton" name="b001">
            <property name="enabled">
             <bool>true</bool>
            </property>
