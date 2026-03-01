@@ -109,7 +109,7 @@ class Normals(SlotsMaya):
             )
             return
 
-        mtk.Components.transfer_normals(source, target)
+        mtk.Components.transfer_normals([source] + target)
 
     def b003(self):
         """Soft Edge Display"""

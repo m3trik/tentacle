@@ -112,44 +112,7 @@
      <string>Rigging</string>
     </property>
    </widget>
-   <widget class="PushButton" name="b001">
-    <property name="enabled">
-     <bool>true</bool>
-    </property>
-    <property name="geometry">
-     <rect>
-      <x>170</x>
-      <y>240</y>
-      <width>76</width>
-      <height>20</height>
-     </rect>
-    </property>
-    <property name="minimumSize">
-     <size>
-      <width>0</width>
-      <height>20</height>
-     </size>
-    </property>
-    <property name="maximumSize">
-     <size>
-      <width>16777215</width>
-      <height>20</height>
-     </size>
-    </property>
-    <property name="toolTip">
-     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Stores the current values of any selected attributes in Maya's channel box for the currently selected scene objects.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-    </property>
-    <property name="text">
-     <string>Copy Keys</string>
-    </property>
-    <property name="iconSize">
-     <size>
-      <width>18</width>
-      <height>18</height>
-     </size>
-    </property>
-   </widget>
-   <widget class="QPushButton" name="b002">
+   <widget class="PushButton" name="tb018">
     <property name="enabled">
      <bool>true</bool>
     </property>
@@ -221,9 +184,9 @@ Else move all keyframes of the selected objects.</string>
    <widget class="PushButton" name="tb000">
     <property name="geometry">
      <rect>
-      <x>150</x>
-      <y>320</y>
-      <width>96</width>
+      <x>215</x>
+      <y>190</y>
+      <width>81</width>
       <height>20</height>
      </rect>
     </property>
@@ -348,6 +311,43 @@ Supports negative values to compress timing.</string>
     </property>
     <property name="text">
      <string>Delete Keys</string>
+    </property>
+    <property name="iconSize">
+     <size>
+      <width>18</width>
+      <height>18</height>
+     </size>
+    </property>
+   </widget>
+   <widget class="PushButton" name="tb012">
+    <property name="enabled">
+     <bool>true</bool>
+    </property>
+    <property name="geometry">
+     <rect>
+      <x>160</x>
+      <y>240</y>
+      <width>86</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="minimumSize">
+     <size>
+      <width>0</width>
+      <height>20</height>
+     </size>
+    </property>
+    <property name="maximumSize">
+     <size>
+      <width>16777215</width>
+      <height>20</height>
+     </size>
+    </property>
+    <property name="toolTip">
+     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Stores the current values of any selected attributes in Maya's channel box for the currently selected scene objects.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+    </property>
+    <property name="text">
+     <string>Copy Keys</string>
     </property>
     <property name="iconSize">
      <size>

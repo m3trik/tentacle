@@ -279,9 +279,8 @@ class SceneSlots(SlotsMaya):
 
     def list000_init(self, widget):
         """Initialize Recent Files"""
-        widget.position = "top"
-        widget.sublist_y_offset = 18
         widget.fixed_item_height = 18
+        widget.apply_preset("expand_up")
         recent_files = mtk.get_recent_files(slice(0, 11))
         w1 = widget.add("Recent Files")
         truncated = ptk.truncate(recent_files, 65)

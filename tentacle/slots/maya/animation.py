@@ -291,13 +291,17 @@ class Animation(SlotsMaya):
             setChecked=True,
             setToolTip="Preserves and adjusts a keyframe at the specified time if it exists.",
         )
-        widget.option_box.menu.add(
-            "QCheckBox",
-            setText="Selected Keys Only",
-            setObjectName="chk020",
-            setChecked=False,
-            setToolTip="Only affect selected keyframes in graph editor.\nWhen unchecked, affects all keys on selected objects (or all scene objects if nothing selected).",
+        cmb = widget.option_box.menu.add(
+            "QComboBox",
+            setObjectName="cmb000",
+            setToolTip="Which keys to shift.",
         )
+        for text, data in [
+            ("Scope: Selected Objects", "objects"),
+            ("Scope: Selected Keys", "keys"),
+            ("Scope: Entire Scene", "scene"),
+        ]:
+            cmb.addItem(text, data)
         widget.option_box.menu.add(
             "QCheckBox",
             setText="Exact Gap",
@@ -312,10 +316,17 @@ class Animation(SlotsMaya):
         time_value = widget.option_box.menu.s002.value()
         relative = widget.option_box.menu.chk004.isChecked()
         preserve_keys = widget.option_box.menu.chk003.isChecked()
-        selected_keys_only = widget.option_box.menu.chk020.isChecked()
+        scope = widget.option_box.menu.cmb000.currentData()
         exact_gap = widget.option_box.menu.chk021.isChecked()
 
-        objects = pm.ls(sl=True, type="transform", long=True) or None
+        selected_keys_only = scope == "keys"
+        if scope == "scene":
+            objects = None
+        else:
+            objects = pm.ls(sl=True, type="transform", long=True)
+            if not objects:
+                self.sb.message_box("No objects selected.")
+                return
 
         # Use None when -1 to use current playhead time
         time = None if time_value == -1 else time_value
@@ -600,6 +611,7 @@ class Animation(SlotsMaya):
             setToolTip="Which end of the key range aligns to the target frame.",
         )
         for text, data in [
+            ("Align: Auto", "auto"),
             ("Align: Start", "start"),
             ("Align: End", "end"),
         ]:
@@ -1443,6 +1455,18 @@ class Animation(SlotsMaya):
         ]:
             cmb.addItem(text, data)
 
+        cmb_tan = widget.option_box.menu.add(
+            "QComboBox",
+            setObjectName="cmb001",
+            setToolTip="Which tangent(s) to set stepped.",
+        )
+        for text, data in [
+            ("Tangent: Out", "out"),
+            ("Tangent: In", "in"),
+            ("Tangent: Both", "both"),
+        ]:
+            cmb_tan.addItem(text, data)
+
     def tb017(self, widget):
         """Step Keys — set stepped tangents on keys."""
         import maya.cmds as cmds
@@ -1459,13 +1483,15 @@ class Animation(SlotsMaya):
         else:  # "all"
             keys = None
 
-        result = mtk.AnimUtils.step_keys(keys=keys)
+        tangent = widget.option_box.menu.cmb001.currentData()
+
+        result = mtk.AnimUtils.step_keys(keys=keys, tangent=tangent)
         if result["curves"]:
             self.sb.message_box(f"Stepped {result['curves']} curve(s).")
         else:
             self.sb.message_box("No keys found. Select objects with keyframes.")
 
-    def b001_init(self, widget):
+    def tb012_init(self, widget):
         """Copy Keys Init"""
         widget.option_box.menu.setTitle("Copy Keys")
         cmb = widget.option_box.menu.add(
@@ -1474,33 +1500,59 @@ class Animation(SlotsMaya):
             setToolTip="Which attributes/keys to copy.",
         )
         for text, data in [
+            ("Mode: Auto", "auto"),
             ("Mode: Current Frame", "current_frame"),
             ("Mode: Selected Keys", "selected"),
             ("Mode: Channel Box", "channel_box"),
         ]:
             cmb.addItem(text, data)
 
-    def b001(self, widget):
+    def tb012(self, widget):
         """Copy Keys"""
         mode = widget.option_box.menu.cmb000.currentData()
 
         self._stored_attributes = mtk.AnimUtils.copy_keys(mode=mode)
+        self._stored_frame = pm.currentTime(query=True)
 
         if not self._stored_attributes:
             labels = {
+                "auto": "Nothing to copy (no selected keys, channel box attributes, or keyed attributes at current frame).",
                 "current_frame": "No keyed attributes found at current frame.",
                 "selected": "No keys selected in the Graph Editor.",
                 "channel_box": "No channel box attributes selected.",
             }
             self.sb.message_box(labels.get(mode, "Nothing to copy."))
         else:
+            # Count total items: for multi-key data (list), count keys;
+            # for scalar data (float), count 1 per attribute.
+            total_keys = 0
+            for obj_data in self._stored_attributes.values():
+                for data in obj_data.values():
+                    if isinstance(data, list):
+                        total_keys += len(data)
+                    else:
+                        total_keys += 1
             total_attrs = sum(len(v) for v in self._stored_attributes.values())
             self.sb.message_box(
-                f"Copied {total_attrs} attribute(s) from "
+                f"Copied {total_keys} key(s) across {total_attrs} attribute(s) from "
                 f"{len(self._stored_attributes)} object(s)."
             )
 
-    def b002(self, widget=None):
+    def tb018_init(self, widget):
+        """Paste Keys Init"""
+        widget.option_box.menu.setTitle("Paste Keys")
+        cmb = widget.option_box.menu.add(
+            "QComboBox",
+            setObjectName="cmb000",
+            setToolTip="Where to paste the copied key values.",
+        )
+        for text, data in [
+            ("At Playhead", "playhead"),
+            ("At Copy Frame", "source"),
+        ]:
+            cmb.addItem(text, data)
+
+    def tb018(self, widget):
         """Paste Keys"""
         if not hasattr(self, "_stored_attributes") or not self._stored_attributes:
             self.sb.message_box("No values stored. Use 'Copy Keys' first.")
@@ -1511,8 +1563,13 @@ class Animation(SlotsMaya):
             self.sb.message_box("You must select at least one object.")
             return
 
+        paste_mode = widget.option_box.menu.cmb000.currentData()
+        target_time = (
+            getattr(self, "_stored_frame", None) if paste_mode == "source" else None
+        )
+
         keys_set = mtk.AnimUtils.paste_keys(
-            objects, copied_data=self._stored_attributes
+            objects, copied_data=self._stored_attributes, target_time=target_time
         )
 
         if keys_set > 0:

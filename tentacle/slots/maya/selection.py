@@ -5,7 +5,7 @@ try:
 except ImportError as error:
     print(__file__, error)
 from qtpy import QtWidgets
-from uitk import WidgetComboBox, ToolBox
+from uitk import Signals, WidgetComboBox, ToolBox
 import mayatk as mtk
 from tentacle.slots.maya._slots_maya import SlotsMaya
 
@@ -16,6 +16,40 @@ class Selection(SlotsMaya):
 
         self.ui = self.sb.loaded_ui.selection
         self.submenu = self.sb.loaded_ui.selection_submenu
+
+    def list000_init(self, widget):
+        """Select by Type: Hierarchical type list."""
+        widget.fixed_item_height = 18
+        widget.apply_preset("expand_up")
+
+        root = widget.add("By Type")
+        root.sublist.setMinimumWidth(widget.width() or 120)
+
+        categories = mtk.Selection.get_selection_categories()
+        for category, types in categories.items():
+            w = root.sublist.add(category)
+            w.sublist.add(sorted(types))
+
+    @Signals("on_item_interacted")
+    def list000(self, item):
+        """Select by Type"""
+        # Only leaf items (specific types) are actionable.
+        # Root ("By Type") and category headers are navigation-only.
+        if getattr(item, "sublist", None) and item.sublist.get_items():
+            return
+
+        selection_type = item.item_text()
+        objects = pm.ls()
+
+        try:
+            result = mtk.Selection.select_by_type(
+                selection_type, objects, mode="replace"
+            )
+            print(f"Selected {len(result)} objects of type: {selection_type}")
+        except ValueError:
+            pass
+        except Exception as e:
+            pm.warning(f"Error selecting by type '{selection_type}': {e}")
 
     def cmb001_init(self, widget):
         """Reorder Selection Init"""
@@ -78,69 +112,6 @@ class Selection(SlotsMaya):
             print(
                 f"Reordered {len(reordered)} objects by {selected_option}{' (reversed)' if reverse else ''}"
             )
-
-    def cmb002_init(self, widget):
-        """Select By Type Init"""
-        widget.option_box.menu.setTitle("Select By Type")
-        widget.option_box.menu.add(
-            "QComboBox",
-            setObjectName="cmb000",
-            addItems=["Mode: Replace", "Mode: Add", "Mode: Remove"],
-            setToolTip="Selection Mode.",
-        )
-        widget.option_box.menu.add(
-            "QCheckBox",
-            setText="Search Current Selection Only",
-            setObjectName="chk013",
-            setChecked=False,
-            setToolTip=(
-                "Search within the current selection instead of all scene objects."
-            ),
-        )
-
-        # Get categories and types
-        categories = mtk.Selection.get_selection_categories()
-        # Flatten into a single list including category names
-        items = sorted(
-            list(categories.keys())
-            + [t for types in categories.values() for t in types]
-        )
-        widget.add(items, header="By Type:")
-
-    def cmb002(self, index, widget):
-        """Select by Type"""
-        mode_text = widget.option_box.menu.cmb000.currentText()
-        search_selection = widget.option_box.menu.chk013.isChecked()
-
-        # Determine selection mode
-        if "Add" in mode_text:
-            mode = "add"
-        elif "Remove" in mode_text:
-            mode = "remove"
-        else:
-            mode = "replace"
-
-        # Get the selection type
-        selection_type = widget.items[index]
-
-        # Get objects to work with
-        if search_selection:
-            # Search within current selection only
-            objects = pm.selected()
-            if not objects:
-                self.sb.message_box("No objects selected to search within.")
-                return
-        else:
-            # Search all scene objects
-            objects = pm.ls()
-
-        try:
-            result = mtk.Selection.select_by_type(selection_type, objects, mode)
-            print(f"Selected {len(result)} objects of type: {selection_type}")
-        except ValueError:
-            pass
-        except Exception as e:
-            pm.warning(f"Error selecting by type '{selection_type}': {str(e)}")
 
     def cmb003_init(self, widget):
         """ """
@@ -492,7 +463,21 @@ class Selection(SlotsMaya):
         objMode = pm.selectMode(q=True, object=1)
         if objMode:
             selection = pm.ls(sl=1, objectsOnly=1, type="transform")
-            mtk.get_similar_mesh(selection, tolerance=tolerance, inc_orig=inc, select=True, vertex=v, edge=e, face=f, uvcoord=uv, triangle=t, shell=s, boundingBox=b, area=a, worldArea=wa)
+            mtk.get_similar_mesh(
+                selection,
+                tolerance=tolerance,
+                inc_orig=inc,
+                select=True,
+                vertex=v,
+                edge=e,
+                face=f,
+                uvcoord=uv,
+                triangle=t,
+                shell=s,
+                boundingBox=b,
+                area=a,
+                worldArea=wa,
+            )
         else:
             pm.mel.doSelectSimilar(1, {tolerance})
 
