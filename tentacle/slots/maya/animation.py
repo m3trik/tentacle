@@ -1523,9 +1523,18 @@ class Animation(SlotsMaya):
             }
             self.sb.message_box(labels.get(mode, "Nothing to copy."))
         else:
+            # Count total items: for multi-key data (list), count keys;
+            # for scalar data (float), count 1 per attribute.
+            total_keys = 0
+            for obj_data in self._stored_attributes.values():
+                for data in obj_data.values():
+                    if isinstance(data, list):
+                        total_keys += len(data)
+                    else:
+                        total_keys += 1
             total_attrs = sum(len(v) for v in self._stored_attributes.values())
             self.sb.message_box(
-                f"Copied {total_attrs} attribute(s) from "
+                f"Copied {total_keys} key(s) across {total_attrs} attribute(s) from "
                 f"{len(self._stored_attributes)} object(s)."
             )
 

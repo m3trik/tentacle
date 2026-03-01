@@ -5,6 +5,7 @@ try:
 except ImportError as error:
     print(__file__, error)
 import mayatk as mtk
+from uitk import Signals
 from tentacle.slots.maya._slots_maya import SlotsMaya
 
 
@@ -399,6 +400,154 @@ class Edit(SlotsMaya):
     def b000(self):
         """Cut On Axis"""
         self.sb.handlers.marking_menu.show("cut_on_axis")
+
+    # --- Create Expandable List -----------------------------------------
+
+    def list000_init(self, widget):
+        """Initialize Create Primitives list."""
+        widget.fixed_item_height = 18
+        widget.apply_preset("expand_left")
+
+        root = widget.add("Create")
+        root.sublist.setMinimumWidth(widget.width() or 120)
+
+        primitives = {
+            "Polygon": [
+                "Cube",
+                "Sphere",
+                "Cylinder",
+                "Plane",
+                "Circle",
+                "Cone",
+                "Pyramid",
+                "Torus",
+                "Helix",
+                "Tube",
+                "GeoSphere",
+                "Platonic Solids",
+                "Text",
+            ],
+            "NURBS": [
+                "Cube",
+                "Sphere",
+                "Cylinder",
+                "Cone",
+                "Plane",
+                "Torus",
+                "Circle",
+                "Square",
+            ],
+            "Light": [
+                "Ambient",
+                "Directional",
+                "Point",
+                "Spot",
+                "Area",
+                "Volume",
+            ],
+            "Control": [
+                "Circle",
+                "Square",
+                "Diamond",
+                "Arrow",
+                "Two Way Arrow",
+                "Four Way Arrow",
+                "Chevron Left",
+                "Chevron Right",
+                "Target",
+                "Secondary",
+                "Box",
+                "Ball",
+            ],
+        }
+
+        for category, types in primitives.items():
+            w = root.sublist.add(category)
+            w.sublist.add(types)
+
+    @Signals("on_item_interacted")
+    def list000(self, item):
+        """Create Primitive"""
+        if getattr(item, "sublist", None) and item.sublist.get_items():
+            return
+
+        text = item.item_text()
+        parent_text = item.parent_item_text() or ""
+
+        if parent_text == "Control":
+            control_map = {
+                "Circle": ("circle", {}),
+                "Square": ("square", {}),
+                "Diamond": ("diamond", {}),
+                "Arrow": ("arrow", {}),
+                "Two Way Arrow": ("two_way_arrow", {}),
+                "Four Way Arrow": ("four_way_arrow", {}),
+                "Chevron Left": ("chevron", {"direction": "left"}),
+                "Chevron Right": ("chevron", {"direction": "right"}),
+                "Target": ("target", {}),
+                "Secondary": ("secondary", {}),
+                "Box": ("box", {}),
+                "Ball": ("ball", {}),
+            }
+            if text in control_map:
+                preset, kwargs = control_map[text]
+                ctrl = mtk.Controls.create(
+                    preset, name=text.replace(" ", ""), **kwargs
+                )
+                pm.select(ctrl)
+        else:
+            try:
+                mtk.Primitives.create_default_primitive(parent_text, text)
+                pm.selectMode(object=True)
+            except Exception as e:
+                pm.warning(f"Error creating {parent_text} {text}: {e}")
+
+    # --- Convert Expandable List ----------------------------------------
+
+    _CONVERT_COMMANDS = {
+        "NURBS to Polygons": "performnurbsToPoly 0;",
+        "NURBS to Subdiv": "performSubdivCreate 0;",
+        "Polygons to Subdiv": "performSubdivCreate 0;",
+        "Smooth Mesh Preview to Polygons": "performSmoothMeshPreviewToPolygon;",
+        "Polygon Edges to Curve": "polyToCurve -form 2 -degree 3 -conformToSmoothMeshPreview 1;",
+        "Type to Curves": "convertTypeCapsToCurves;",
+        "Subdiv to Polygons": "performSubdivTessellate  false;",
+        "Subdiv to NURBS": "performSubdToNurbs 0;",
+        "NURBS Curve to Bezier": "nurbsCurveToBezier;",
+        "Bezier Curve to NURBS": "bezierCurveToNurbs;",
+        "Paint Effects to NURBS": "performPaintEffectsToNurbs  false;",
+        "Paint Effects to Curves": "performPaintEffectsToCurve  false;",
+        "Texture to Geometry": "performTextureToGeom 0;",
+        "Displacement to Polygons": "displacementToPoly;",
+        "Displacement to Poly w/ History": "setupAnimatedDisplacement;",
+        "Fluid to Polygons": "fluidToPoly;",
+        "nParticle to Polygons": "particleToPoly;",
+        "Instance to Object": "convertInstanceToObject;",
+        "Geometry to Bounding Box": "performGeomToBBox 0;",
+    }
+
+    def list001_init(self, widget):
+        """Initialize Convert list."""
+        widget.fixed_item_height = 18
+        widget.apply_preset("expand_down")
+
+        root = widget.add("Convert")
+        root.sublist.setMinimumWidth(180)
+        root.sublist.add(list(self._CONVERT_COMMANDS))
+
+    @Signals("on_item_interacted")
+    def list001(self, item):
+        """Convert"""
+        if getattr(item, "sublist", None) and item.sublist.get_items():
+            return
+
+        text = item.item_text()
+        cmd = self._CONVERT_COMMANDS.get(text)
+        if cmd:
+            try:
+                pm.mel.eval(cmd)
+            except Exception as e:
+                pm.warning(f"Convert '{text}' failed: {e}")
 
     def b021(self):
         """Tranfer Maps"""
