@@ -10,7 +10,7 @@
     <x>0</x>
     <y>0</y>
     <width>600</width>
-    <height>604</height>
+    <height>724</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -31,14 +31,8 @@
     <height>16777215</height>
    </size>
   </property>
-  <property name="cursor">
-   <cursorShape>ArrowCursor</cursorShape>
-  </property>
   <property name="whatsThis">
    <string>main_lower</string>
-  </property>
-  <property name="toolButtonStyle">
-   <enum>Qt::ToolButtonIconOnly</enum>
   </property>
   <property name="tabShape">
    <enum>QTabWidget::Triangular</enum>
@@ -67,24 +61,24 @@
         <rect>
          <x>70</x>
          <y>140</y>
-         <width>76</width>
-         <height>21</height>
+         <width>96</width>
+         <height>19</height>
         </rect>
        </property>
        <property name="minimumSize">
         <size>
          <width>0</width>
-         <height>21</height>
+         <height>19</height>
         </size>
        </property>
        <property name="maximumSize">
         <size>
          <width>16777215</width>
-         <height>21</height>
+         <height>19</height>
         </size>
        </property>
-       <property name="whatsThis">
-        <string>main.lower</string>
+       <property name="accessibleName">
+        <string>main#lower</string>
        </property>
        <property name="text">
         <string>i000</string>
@@ -93,11 +87,17 @@
       <widget class="ExpandableList" name="list000" native="true">
        <property name="geometry">
         <rect>
-         <x>45</x>
+         <x>70</x>
          <y>140</y>
-         <width>126</width>
+         <width>129</width>
          <height>21</height>
         </rect>
+       </property>
+       <property name="minimumSize">
+        <size>
+         <width>129</width>
+         <height>0</height>
+        </size>
        </property>
        <property name="autoFillBackground">
         <bool>true</bool>

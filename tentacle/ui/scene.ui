@@ -69,7 +69,7 @@
       <item>
        <widget class="CollapsableGroup" name="Project">
         <property name="title">
-         <string>Project</string>
+         <string>Set Workspace</string>
         </property>
         <layout class="QVBoxLayout" name="verticalLayout_5">
          <property name="spacing">
@@ -88,7 +88,7 @@
           <number>0</number>
          </property>
          <item>
-          <widget class="ComboBox" name="cmb006">
+          <widget class="PushButton" name="tb000">
            <property name="minimumSize">
             <size>
              <width>0</width>
@@ -102,16 +102,11 @@
             </size>
            </property>
            <property name="toolTip">
-            <string>Open a workspace folder, or set a new workspace.</string>
+            <string>Click to set the project directory.</string>
            </property>
-           <property name="maxVisibleItems">
-            <number>40</number>
+           <property name="text">
+            <string>Set Workspace</string>
            </property>
-           <item>
-            <property name="text">
-             <string>Workspace:</string>
-            </property>
-           </item>
           </widget>
          </item>
         </layout>
@@ -259,6 +254,11 @@
   </widget>
  </widget>
  <customwidgets>
+  <customwidget>
+   <class>PushButton</class>
+   <extends>QPushButton</extends>
+   <header>widgets.pushbutton.h</header>
+  </customwidget>
   <customwidget>
    <class>Header</class>
    <extends>QWidget</extends>

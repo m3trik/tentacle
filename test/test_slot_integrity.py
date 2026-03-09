@@ -126,5 +126,136 @@ class TestSlotsMayaBase(unittest.TestCase):
         )
 
 
+class TestEditTb001Performance(unittest.TestCase):
+    """Verify edit.py tb001 uses performance-optimized patterns (AST-based).
+
+    Bug: Delete History (tb001) was extremely slow on heavy scenes because
+    it used PyMEL for bulk queries and per-node utility calls without
+    suspending viewport refresh.
+    Fixed: 2026-03-03
+    """
+
+    @classmethod
+    def setUpClass(cls):
+        cls.source = (SLOTS_DIR / "edit.py").read_text(encoding="utf-8")
+        tree = ast.parse(cls.source)
+        cls.tb001_node = None
+        for node in ast.walk(tree):
+            if isinstance(node, ast.FunctionDef) and node.name == "tb001":
+                cls.tb001_node = node
+                break
+
+    @staticmethod
+    def _collect_calls(node):
+        """Collect all function/method call strings from an AST subtree.
+
+        Returns a list of dotted call names like 'cmds.ls', 'pm.ls',
+        'mtk.get_groups', 'pm.refresh', etc.
+        """
+        calls = []
+        for child in ast.walk(node):
+            if isinstance(child, ast.Call):
+                func = child.func
+                if isinstance(func, ast.Attribute):
+                    # e.g. cmds.ls, pm.refresh, mtk.get_groups
+                    if isinstance(func.value, ast.Name):
+                        calls.append(f"{func.value.id}.{func.attr}")
+                    elif isinstance(func.value, ast.Attribute):
+                        # e.g. pm.mel.MLdeleteUnused
+                        if isinstance(func.value.value, ast.Name):
+                            calls.append(
+                                f"{func.value.value.id}.{func.value.attr}.{func.attr}"
+                            )
+                elif isinstance(func, ast.Name):
+                    calls.append(func.id)
+        return calls
+
+    def test_tb001_exists(self):
+        self.assertIsNotNone(self.tb001_node, "tb001 method not found in edit.py")
+
+    def test_uses_cmds_for_queries(self):
+        """tb001 should use maya.cmds for bulk queries, not PyMEL."""
+        calls = self._collect_calls(self.tb001_node)
+        self.assertTrue(
+            any(c == "cmds.ls" for c in calls),
+            "tb001 should use cmds.ls for fast queries",
+        )
+        self.assertFalse(
+            any(c == "pm.ls" for c in calls),
+            "tb001 should not use pm.ls (PyMEL) for bulk scene queries",
+        )
+
+    def test_viewport_suspended(self):
+        """tb001 should suspend viewport refresh during cleanup."""
+        calls = self._collect_calls(self.tb001_node)
+        self.assertTrue(
+            any(c == "pm.refresh" for c in calls),
+            "tb001 should call pm.refresh (for suspend/resume)",
+        )
+
+    def test_no_per_node_pymel_groups(self):
+        """tb001 should not call mtk.get_groups (slow PyMEL per-node loop)."""
+        calls = self._collect_calls(self.tb001_node)
+        self.assertFalse(
+            any(c == "mtk.get_groups" for c in calls),
+            "tb001 should use cmds path-parsing for empty groups, not mtk.get_groups",
+        )
+
+    def test_no_per_node_pymel_shapes(self):
+        """tb001 should not call mtk.get_shape_node (slow PyMEL per-node loop)."""
+        calls = self._collect_calls(self.tb001_node)
+        self.assertFalse(
+            any(c == "mtk.get_shape_node" for c in calls),
+            "tb001 should use cmds.listRelatives for shapes, not mtk.get_shape_node",
+        )
+
+    def test_uses_exact_type_for_groups(self):
+        """Empty-group detection must use exactType to avoid matching joints etc."""
+        # Look for cmds.ls calls with exactType keyword
+        has_exact_type = False
+        for child in ast.walk(self.tb001_node):
+            if isinstance(child, ast.Call) and isinstance(child.func, ast.Attribute):
+                if (
+                    isinstance(child.func.value, ast.Name)
+                    and child.func.value.id == "cmds"
+                    and child.func.attr == "ls"
+                ):
+                    for kw in child.keywords:
+                        if kw.arg == "exactType":
+                            has_exact_type = True
+        self.assertTrue(
+            has_exact_type,
+            "tb001 should use cmds.ls(exactType='transform') for group detection",
+        )
+
+    def test_message_box_outside_suspend(self):
+        """message_box must not be called while viewport refresh is suspended.
+
+        Verify that self.sb.message_box calls are NOT inside the try block
+        that wraps the suspended-refresh section.
+        """
+        # Find the try/finally block (the suspend wrapper)
+        try_node = None
+        for child in ast.walk(self.tb001_node):
+            if isinstance(child, ast.Try) and child.finalbody:
+                try_node = child
+                break
+        self.assertIsNotNone(try_node, "tb001 should have a try/finally block")
+
+        # Collect calls inside the try body (not the finally)
+        try_body_calls = []
+        for stmt in try_node.body:
+            for sub in ast.walk(stmt):
+                if isinstance(sub, ast.Call) and isinstance(sub.func, ast.Attribute):
+                    if sub.func.attr == "message_box":
+                        try_body_calls.append(sub.func.attr)
+
+        self.assertEqual(
+            try_body_calls,
+            [],
+            "message_box should not be called inside the viewport-suspended try block",
+        )
+
+
 if __name__ == "__main__":
     unittest.main()

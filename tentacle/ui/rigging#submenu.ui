@@ -216,6 +216,39 @@ Import audio clips onto the Maya timeline aligned to keyed event triggers.</stri
      <string>Audio Events</string>
     </property>
    </widget>
+   <widget class="PushButton" name="tb004">
+    <property name="geometry">
+     <rect>
+      <x>145</x>
+      <y>210</y>
+      <width>81</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="minimumSize">
+     <size>
+      <width>0</width>
+      <height>20</height>
+     </size>
+    </property>
+    <property name="maximumSize">
+     <size>
+      <width>16777215</width>
+      <height>20</height>
+     </size>
+    </property>
+    <property name="toolTip">
+     <string>Push keys apart or pull them closer by a fixed frame amount.
+Every key at or after the given time shifts by the same offset.
+Supports negative values to compress timing.</string>
+    </property>
+    <property name="text">
+     <string>Unlock</string>
+    </property>
+    <property name="checkable">
+     <bool>false</bool>
+    </property>
+   </widget>
   </widget>
  </widget>
  <customwidgets>

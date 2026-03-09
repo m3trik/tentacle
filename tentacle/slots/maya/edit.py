@@ -334,7 +334,8 @@ class Edit(SlotsMaya):
 
     def tb001(self, widget):
         """Delete History"""
-        # Get the state of the checkboxes and selected or all mesh objects
+        import maya.cmds as cmds
+
         unused_nodes, deformers, optimize = map(
             lambda chk: chk.isChecked(),
             (
@@ -343,27 +344,67 @@ class Edit(SlotsMaya):
                 widget.option_box.menu.chk030,
             ),
         )
-        objects = pm.ls(sl=True, objectsOnly=True) or pm.ls(typ="mesh")
 
-        if unused_nodes:  # Delete unused nodes
-            pm.mel.MLdeleteUnused()
-            pm.delete(mtk.get_groups(empty=True))
+        # Use cmds for bulk queries (avoids PyMEL object wrapping overhead)
+        sel = cmds.ls(sl=True, objectsOnly=True, long=True)
+        if sel:
+            objects = sel
+            # Batch-extract non-intermediate shapes from all selected at once
+            shapes = set(
+                cmds.listRelatives(sel, shapes=True, fullPath=True, noIntermediate=True)
+                or []
+            )
+        else:
+            # All non-intermediate mesh shapes in scene
+            all_meshes = cmds.ls(typ="mesh", long=True) or []
+            intermediates = set(cmds.ls(intermediateObjects=True, long=True) or [])
+            shapes = set(all_meshes) - intermediates
+            objects = list(shapes)
 
-        if deformers:  # Delete all history
-            pm.delete(objects, constructionHistory=True)
-            self.sb.message_box("<hl>Delete history</hl>")
-        else:  # Delete non-deformer history
-            shapes = mtk.get_shape_node(objects)
-            if shapes:
-                try:
-                    pm.bakePartialHistory(shapes, prePostDeformers=True)
-                    self.sb.message_box("<hl>Delete non-deformer history</hl>")
-                except RuntimeError as error:
-                    print(f"Bake Partial History Failed: {error}")
+        result_msg = None
 
-        # Optimize the scene
-        if optimize:
-            pm.mel.OptimizeScene()
+        # Suspend viewport refresh for the duration of the cleanup
+        pm.refresh(suspend=True)
+        try:
+            if unused_nodes:
+                pm.mel.MLdeleteUnused()
+                # Fast empty-group deletion via DAG path parsing
+                # A "group" is an exact-type transform with no shape children.
+                # An "empty group" is a group with no DAG children at all.
+                all_dag = cmds.ls(dag=True, long=True) or []
+                exact_transforms = set(cmds.ls(exactType="transform", long=True) or [])
+                shape_parents = {
+                    s.rsplit("|", 1)[0] for s in (cmds.ls(shapes=True, long=True) or [])
+                }
+                dag_parents = {p.rsplit("|", 1)[0] for p in all_dag if "|" in p} - {""}
+                groups = exact_transforms - shape_parents
+                empty_groups = [g for g in groups if g not in dag_parents]
+                if empty_groups:
+                    # Re-validate existence (MLdeleteUnused may have removed some)
+                    existing = cmds.ls(empty_groups, long=True) or []
+                    if existing:
+                        cmds.delete(existing)
+
+            if deformers:
+                if objects:
+                    cmds.delete(objects, constructionHistory=True)
+                result_msg = "<hl>Delete history</hl>"
+            else:
+                if shapes:
+                    try:
+                        cmds.bakePartialHistory(list(shapes), prePostDeformers=True)
+                        result_msg = "<hl>Delete non-deformer history</hl>"
+                    except RuntimeError as error:
+                        print(f"Bake Partial History Failed: {error}")
+
+            if optimize:
+                pm.mel.OptimizeScene()
+        finally:
+            pm.refresh(suspend=False)
+            pm.refresh(force=True)
+
+        if result_msg:
+            self.sb.message_box(result_msg)
 
     def tb002(self, widget):
         """Delete Selected"""
@@ -446,18 +487,20 @@ class Edit(SlotsMaya):
                 "Volume",
             ],
             "Control": [
-                "Circle",
-                "Square",
                 "Diamond",
                 "Arrow",
                 "Two Way Arrow",
                 "Four Way Arrow",
-                "Chevron Left",
-                "Chevron Right",
+                "Chevron",
                 "Target",
-                "Secondary",
                 "Box",
+                "Beveled Cube",
                 "Ball",
+                "Torus",
+                "Helix",
+                "Geosphere",
+                "Pyramid",
+                "Star",
             ],
         }
 
@@ -476,24 +519,24 @@ class Edit(SlotsMaya):
 
         if parent_text == "Control":
             control_map = {
-                "Circle": ("circle", {}),
-                "Square": ("square", {}),
                 "Diamond": ("diamond", {}),
                 "Arrow": ("arrow", {}),
                 "Two Way Arrow": ("two_way_arrow", {}),
                 "Four Way Arrow": ("four_way_arrow", {}),
-                "Chevron Left": ("chevron", {"direction": "left"}),
-                "Chevron Right": ("chevron", {"direction": "right"}),
+                "Chevron": ("chevron", {}),
                 "Target": ("target", {}),
-                "Secondary": ("secondary", {}),
                 "Box": ("box", {}),
+                "Beveled Cube": ("beveled_cube", {}),
                 "Ball": ("ball", {}),
+                "Torus": ("torus", {}),
+                "Helix": ("helix", {}),
+                "Geosphere": ("geosphere", {}),
+                "Pyramid": ("pyramid", {}),
+                "Star": ("star", {}),
             }
             if text in control_map:
                 preset, kwargs = control_map[text]
-                ctrl = mtk.Controls.create(
-                    preset, name=text.replace(" ", ""), **kwargs
-                )
+                ctrl = mtk.Controls.create(preset, name=text.replace(" ", ""), **kwargs)
                 pm.select(ctrl)
         else:
             try:

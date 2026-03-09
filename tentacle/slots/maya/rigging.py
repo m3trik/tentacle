@@ -379,6 +379,76 @@ class Rigging(SlotsMaya):
         selection = pm.ls(selection=True)
         mtk.remove_locator(selection)
 
+    # ------------------------------------------------------------------
+    # tb004 — Lock / Unlock Attributes
+    # ------------------------------------------------------------------
+
+    def tb004_init(self, widget):
+        """Init Lock/Unlock Attributes"""
+        widget.option_box.menu.setTitle("Lock / Unlock Attributes")
+        widget.option_box.menu.add(
+            "QCheckBox",
+            setText="Lock",
+            setObjectName="chk010",
+            setChecked=False,
+            setToolTip="When checked, the button locks attributes instead of unlocking.",
+        )
+        widget.option_box.menu.chk010.toggled.connect(
+            lambda state: widget.setText("Lock" if state else "Unlock")
+        )
+        cmb = widget.option_box.menu.add(
+            "QComboBox",
+            setObjectName="cmb010",
+            setToolTip="Which attributes to affect.\n"
+            "Auto: prefer channel-box selection, fall back to all transform attrs.\n"
+            "Channel Box: only attributes currently selected in the channel box.\n"
+            "All: all standard transform attributes (translate, rotate, scale).",
+        )
+        for text, data in [
+            ("Attrs: Auto", "auto"),
+            ("Attrs: Channel Box", "channel_box"),
+            ("Attrs: All", "all"),
+        ]:
+            cmb.addItem(text, data)
+
+    @mtk.undoable
+    def tb004(self, widget):
+        """Lock/Unlock Attributes"""
+        import maya.cmds as cmds
+
+        lock = widget.option_box.menu.chk010.isChecked()
+        mode = widget.option_box.menu.cmb010.currentData()
+
+        selection = cmds.ls(selection=True, type="transform")
+        if not selection:
+            self.sb.message_box("Nothing selected.")
+            return
+
+        all_attrs = ("tx", "ty", "tz", "rx", "ry", "rz", "sx", "sy", "sz")
+
+        if mode == "channel_box":
+            attrs = mtk.Attributes.get_selected_channels()
+            if not attrs:
+                self.sb.message_box("No attributes selected in the channel box.")
+                return
+        elif mode == "all":
+            attrs = all_attrs
+        else:  # auto
+            attrs = mtk.Attributes.get_selected_channels() or all_attrs
+
+        for node in selection:
+            for attr in attrs:
+                try:
+                    cmds.setAttr(f"{node}.{attr}", lock=lock)
+                except Exception:
+                    pass
+
+        action = "Locked" if lock else "Unlocked"
+        self.sb.message_box(
+            f"{action} <hl>{len(attrs)}</hl> attr(s) on "
+            f"<hl>{len(selection)}</hl> object(s)."
+        )
+
     def b004(self):
         """Render Opacity"""
         self.sb.handlers.marking_menu.show("render_opacity")
