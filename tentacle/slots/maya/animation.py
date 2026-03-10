@@ -57,6 +57,12 @@ class Animation(SlotsMaya):
             setObjectName="tb015",
             setToolTip="Repair corrupted animation curves.",
         )
+        widget.menu.add(
+            "QPushButton",
+            setText="Sequencer",
+            setObjectName="b000",
+            setToolTip="Open the sequencer for managing per-scene animation with ripple editing.",
+        )
 
     def tb000_init(self, widget):
         """Go To Frame Init"""
@@ -1688,6 +1694,10 @@ class Animation(SlotsMaya):
             pct = (1 - ka / kb) * 100
             msg += f" ({pct:.1f}% reduction)"
         self.sb.message_box(msg)
+
+    def b000(self):
+        """Open Sequencer"""
+        self.sb.handlers.marking_menu.show("sequencer")
 
 
 # --------------------------------------------------------------------------------------------
