@@ -221,16 +221,12 @@ class SceneSlots(SlotsMaya):
         force = not mtk.get_env_info("scene_modified")
         pm.openFile(widget.items[index], open=True, force=force, ignoreVersion=True)
 
-    def cmb006_init(self, widget):
-        """Initialize Workspace"""
+    def tb000_init(self, widget):
+        """Initialize Set Workspace"""
         if not widget.is_initialized:
-            widget.refresh_on_show = True  # Call this method on show
-            widget.option_box.menu.add(
-                "QPushButton",
-                setObjectName="lbl000",
-                setText="Set Workspace",
-                setToolTip="Set the project directory.",
-            )
+            widget.refresh_on_show = True
+            widget.setToolTip("Click to set the project directory.")
+            widget.option_box.menu.setTitle("Workspace Options")
             widget.option_box.menu.add(
                 "QPushButton",
                 setObjectName="lbl005",
@@ -243,39 +239,46 @@ class SceneSlots(SlotsMaya):
                 setText="Open Workspace Root",
                 setToolTip="Open the project root directory.",
             )
-            widget.option_box.menu.add(
-                self.sb.registered_widgets.ComboBox,
-                setObjectName="cmb001",
-                setToolTip="Recent Workspaces",
-            )
-            widget.option_box.menu.cmb001.add(
-                mtk.get_recent_projects(slice(0, 20), format="timestamp|standard"),
-                header="Recent Workspaces:",
-                clear=True,
-            )
 
-            def open_recent_project(index, w=widget.option_box.menu.cmb001):
-                project = w.items[index]
-                pm.workspace.open(project)
-                self.ui.cmb006.init_slot()
+            from uitk.widgets.optionBox.options.recent_values import RecentValuesOption
 
-            widget.option_box.menu.cmb001.currentIndexChanged.connect(
-                open_recent_project
+            self._recent_workspaces = RecentValuesOption(
+                wrapped_widget=widget,
+                settings_key="workspace_recent_projects",
+                max_recent=10,
             )
+            widget.option_box.add_option(self._recent_workspaces)
 
-        workspace = mtk.get_env_info("workspace")
+            # Seed from Maya's recent projects (only valid workspaces)
+            if not self._recent_workspaces.recent_values:
+                for p in mtk.get_recent_projects(slice(0, 10), format="standard"):
+                    if os.path.isfile(os.path.join(p, "workspace.mel")):
+                        self._recent_workspaces.add_recent_value(p)
+
+            self._recent_workspaces.value_selected.connect(self._open_recent_workspace)
+
+        # Update button text to current workspace name
         workspace_dir = mtk.get_env_info("workspace_dir")
-        # Add each dir in the workspace as well as its full path as data
-        items = {d: f"{workspace}/{d}" for d in os.listdir(workspace)}
-        widget.add(items, header=workspace_dir, clear=True)
+        widget.setText(workspace_dir or "Set Workspace")
 
-    def cmb006(self, index, widget):
-        """Workspace"""
-        try:
-            item = widget.items[index]
-            os.startfile(item)
-        except Exception as e:
-            print(e)
+    def tb000(self, widget):
+        """Set Workspace"""
+        pm.mel.SetProject()
+        # Record the newly set workspace
+        workspace = mtk.get_env_info("workspace")
+        if hasattr(self, "_recent_workspaces") and workspace:
+            self._recent_workspaces.record(workspace)
+        widget.init_slot()
+
+    def _open_recent_workspace(self, path):
+        """Open a workspace from the recent list."""
+        if not os.path.isfile(os.path.join(str(path), "workspace.mel")):
+            self.sb.message_box("Not a valid workspace.")
+            return
+        pm.workspace(path, openWorkspace=True)
+        workspace_name = os.path.basename(path)
+        self.sb.message_box(f"Workspace set to {workspace_name}.")
+        self.ui.tb000.init_slot()
 
     def list000_init(self, widget):
         """Initialize Recent Files"""
@@ -293,12 +296,6 @@ class SceneSlots(SlotsMaya):
         data = item.item_data()
         pm.openFile(data, open=True, force=True)
 
-    def lbl000(self):
-        """Set Workspace"""
-        pm.mel.SetProject()
-        # refresh project items to reflect new workspace.
-        self.ui.cmb006.init_slot()
-
     def lbl004(self):
         """Open current project root"""
         dir_ = pm.workspace(q=True, rd=1)  # current project path.
@@ -311,7 +308,7 @@ class SceneSlots(SlotsMaya):
             pm.workspace(workspace, openWorkspace=True)
             workspace_name = os.path.basename(workspace)
             self.sb.message_box(f"Workspace set to {workspace_name}.")
-            self.ui.cmb006.init_slot()
+            self.ui.tb000.init_slot()
         else:
             self.sb.message_box("No workspace found.")
 

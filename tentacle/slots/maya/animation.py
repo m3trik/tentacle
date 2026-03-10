@@ -47,9 +47,21 @@ class Animation(SlotsMaya):
         )
         widget.menu.add(
             self.sb.registered_widgets.PushButton,
+            setText="Optimize Keys",
+            setObjectName="tb019",
+            setToolTip="Remove static curves, redundant flat keys, and optionally simplify curves.\nUse the option box to configure tolerance and phases.",
+        )
+        widget.menu.add(
+            self.sb.registered_widgets.PushButton,
             setText="Repair Corrupted Curves",
             setObjectName="tb015",
             setToolTip="Repair corrupted animation curves.",
+        )
+        widget.menu.add(
+            "QPushButton",
+            setText="Sequencer",
+            setObjectName="b000",
+            setToolTip="Open the sequencer for managing per-scene animation with ripple editing.",
         )
 
     def tb000_init(self, widget):
@@ -1449,6 +1461,7 @@ class Animation(SlotsMaya):
             setToolTip="Which keys to step.",
         )
         for text, data in [
+            ("Keys: Auto", "auto"),
             ("Keys: Current Time", "current_time"),
             ("Keys: Selected", "selected"),
             ("Keys: All", "all"),
@@ -1473,7 +1486,9 @@ class Animation(SlotsMaya):
 
         mode = widget.option_box.menu.cmb000.currentData()
 
-        if mode == "selected":
+        if mode == "auto":
+            keys = "auto"
+        elif mode == "selected":
             keys = cmds.keyframe(query=True, selected=True, name=True) or []
             if not keys:
                 self.sb.message_box("No keys selected in the Graph Editor.")
@@ -1504,6 +1519,7 @@ class Animation(SlotsMaya):
             ("Mode: Current Frame", "current_frame"),
             ("Mode: Selected Keys", "selected"),
             ("Mode: Channel Box", "channel_box"),
+            ("Mode: Copy + Paste", "copy_paste"),
         ]:
             cmb.addItem(text, data)
 
@@ -1511,7 +1527,8 @@ class Animation(SlotsMaya):
         """Copy Keys"""
         mode = widget.option_box.menu.cmb000.currentData()
 
-        self._stored_attributes = mtk.AnimUtils.copy_keys(mode=mode)
+        copy_mode = "auto" if mode == "copy_paste" else mode
+        self._stored_attributes = mtk.AnimUtils.copy_keys(mode=copy_mode)
         self._stored_frame = pm.currentTime(query=True)
 
         if not self._stored_attributes:
@@ -1520,23 +1537,41 @@ class Animation(SlotsMaya):
                 "current_frame": "No keyed attributes found at current frame.",
                 "selected": "No keys selected in the Graph Editor.",
                 "channel_box": "No channel box attributes selected.",
+                "copy_paste": "Nothing to copy from selection.",
             }
             self.sb.message_box(labels.get(mode, "Nothing to copy."))
-        else:
-            # Count total items: for multi-key data (list), count keys;
-            # for scalar data (float), count 1 per attribute.
-            total_keys = 0
-            for obj_data in self._stored_attributes.values():
-                for data in obj_data.values():
-                    if isinstance(data, list):
-                        total_keys += len(data)
-                    else:
-                        total_keys += 1
-            total_attrs = sum(len(v) for v in self._stored_attributes.values())
-            self.sb.message_box(
-                f"Copied {total_keys} key(s) across {total_attrs} attribute(s) from "
-                f"{len(self._stored_attributes)} object(s)."
+            return
+
+        if mode == "copy_paste":
+            objects = pm.selected()
+            if not objects:
+                self.sb.message_box("You must select at least one object.")
+                return
+            keys_set = mtk.AnimUtils.paste_keys(
+                objects, copied_data=self._stored_attributes
             )
+            if keys_set > 0:
+                self.sb.message_box(
+                    f"Copied and pasted values to {keys_set} object(s)."
+                )
+            else:
+                self.sb.message_box("No matching objects found.")
+            return
+
+        # Count total items: for multi-key data (list), count keys;
+        # for scalar data (float), count 1 per attribute.
+        total_keys = 0
+        for obj_data in self._stored_attributes.values():
+            for data in obj_data.values():
+                if isinstance(data, list):
+                    total_keys += len(data)
+                else:
+                    total_keys += 1
+        total_attrs = sum(len(v) for v in self._stored_attributes.values())
+        self.sb.message_box(
+            f"Copied {total_keys} key(s) across {total_attrs} attribute(s) from "
+            f"{len(self._stored_attributes)} object(s)."
+        )
 
     def tb018_init(self, widget):
         """Paste Keys Init"""
@@ -1583,6 +1618,86 @@ class Animation(SlotsMaya):
             self.sb.message_box(
                 "No matching objects found. Select the same objects you copied from."
             )
+
+    def tb019_init(self, widget):
+        """Optimize Keys Init"""
+        widget.option_box.menu.setTitle("Optimize Keys")
+        widget.option_box.menu.add(
+            "QCheckBox",
+            setText="Remove Static Curves",
+            setObjectName="chk000",
+            setChecked=True,
+            setToolTip="Delete curves that hold a constant value equal to the attribute default.",
+        )
+        widget.option_box.menu.add(
+            "QCheckBox",
+            setText="Remove Flat Keys",
+            setObjectName="chk001",
+            setChecked=True,
+            setToolTip="Remove interior keys from constant-value segments (keeps boundary keys).",
+        )
+        widget.option_box.menu.add(
+            "QCheckBox",
+            setText="Simplify Curves",
+            setObjectName="chk002",
+            setChecked=False,
+            setToolTip="Further reduce keys using Maya's key reducer filter.\nProduces more aggressive reduction at the cost of slight value drift.",
+        )
+        widget.option_box.menu.add(
+            "QDoubleSpinBox",
+            setPrefix="Tolerance: ",
+            setObjectName="d000",
+            set_limits=[0.0001, 1.0],
+            setValue=0.001,
+            setDecimals=4,
+            setSingleStep=0.001,
+            setToolTip="Maximum allowed value deviation when removing keys.",
+        )
+
+    def tb019(self, widget):
+        """Optimize Keys — remove redundant animation data."""
+        import maya.cmds as cmds
+
+        remove_static = widget.option_box.menu.chk000.isChecked()
+        remove_flat = widget.option_box.menu.chk001.isChecked()
+        simplify = widget.option_box.menu.chk002.isChecked()
+        tolerance = widget.option_box.menu.d000.value()
+
+        selected = pm.selected(flatten=True)
+        objects = selected if selected else cmds.ls(type="transform")
+        if not objects:
+            self.sb.message_box("No objects found to optimize.")
+            return
+
+        stats = {}
+        mtk.AnimUtils.optimize_keys(
+            objects,
+            value_tolerance=tolerance,
+            remove_static_curves=remove_static,
+            remove_flat_keys=remove_flat,
+            simplify_keys=simplify,
+            recursive=True,
+            quiet=True,
+            stats=stats,
+        )
+
+        kb = stats.get("keys_before", 0)
+        ka = stats.get("keys_after", 0)
+        cb = stats.get("curves_before", 0)
+        ca = stats.get("curves_after", 0)
+
+        scope = "selected objects" if selected else "scene"
+        msg = f"Optimized {scope}:\n"
+        msg += f"  \u2022 Curves: {cb} \u2192 {ca} ({cb - ca} removed)\n"
+        msg += f"  \u2022 Keys: {kb:,} \u2192 {ka:,} ({kb - ka:,} removed)"
+        if kb > 0:
+            pct = (1 - ka / kb) * 100
+            msg += f" ({pct:.1f}% reduction)"
+        self.sb.message_box(msg)
+
+    def b000(self):
+        """Open Sequencer"""
+        self.sb.handlers.marking_menu.show("sequencer")
 
 
 # --------------------------------------------------------------------------------------------

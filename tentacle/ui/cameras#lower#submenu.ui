@@ -62,19 +62,19 @@
          <x>70</x>
          <y>140</y>
          <width>96</width>
-         <height>21</height>
+         <height>19</height>
         </rect>
        </property>
        <property name="minimumSize">
         <size>
          <width>0</width>
-         <height>21</height>
+         <height>19</height>
         </size>
        </property>
        <property name="maximumSize">
         <size>
-         <width>999</width>
-         <height>21</height>
+         <width>16777215</width>
+         <height>19</height>
         </size>
        </property>
        <property name="accessibleName">
@@ -87,15 +87,15 @@
       <widget class="ExpandableList" name="list000" native="true">
        <property name="geometry">
         <rect>
-         <x>85</x>
+         <x>70</x>
          <y>140</y>
-         <width>125</width>
+         <width>129</width>
          <height>21</height>
         </rect>
        </property>
        <property name="minimumSize">
         <size>
-         <width>125</width>
+         <width>129</width>
          <height>0</height>
         </size>
        </property>

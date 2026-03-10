@@ -1,9 +1,12 @@
 # !/usr/bin/python
 # coding=utf-8
+import os
+
 try:
     import pymel.core as pm
 except ImportError as error:
     print(__file__, error)
+import mayatk as mtk
 from uitk import Signals
 from tentacle.slots.maya._slots_maya import SlotsMaya
 
@@ -15,41 +18,62 @@ class Main(SlotsMaya):
         self.sb = switchboard
         self.ui = self.sb.loaded_ui.main
 
-    # def list000_init(self, widget):
-    #     """ """
-    #     widget.clear()
-    #     if not widget.is_initialized:
-    #       widget.refresh_on_show = True  # Call this method on show
-    #     widget.fixed_item_height = 18
-    #     widget.sublist_x_offset = -10
-    #     widget.sublist_y_offset = -10
+    def list000_init(self, widget):
+        """Initialize Workspace Browser"""
+        widget.clear()
+        if not widget.is_initialized:
+            widget.refresh_on_show = True
+        widget.fixed_item_height = 18
+        widget.apply_preset("expand_down")
 
-    #     w1 = widget.add("Recent Commands")
-    #     recent_commands = {
-    #         m.__doc__.split("\n")[0]: m
-    #         for m in self.sb.slot_history(slice(None, -12))
-    #         if m.__doc__
-    #     }
-    #     w1.sublist.add(recent_commands)
+        workspace = mtk.get_env_info("workspace")
+        workspace_dir = mtk.get_env_info("workspace_dir")
 
-    #     w2 = widget.add("History")
-    #     obj = pm.ls(sl=True)
-    #     if obj:
-    #         history = {str(node): node for node in pm.listHistory(obj)}
-    #         w2.sublist.add(history)
+        if not workspace or not os.path.isdir(workspace):
+            widget.setVisible(False)
+            return
 
-    # @Signals("on_item_interacted")
-    # def list000(self, item):
-    #     """ """
-    #     text = item.item_text()
-    #     data = item.item_data()
-    #     parent_text = item.parent_item_text()
+        w = widget.add(workspace_dir, data=workspace)
+        w.sublist.setMinimumWidth(widget.width())
+        self._populate_dir_sublist(w.sublist, workspace, max_depth=2)
+        widget.setVisible(True)
 
-    #     if parent_text == "Recent Commands":
-    #         data()
+    def _populate_dir_sublist(self, sublist, path, max_depth=2):
+        """Recursively populate directory sublists."""
+        try:
+            dirs = sorted(
+                d
+                for d in os.listdir(path)
+                if os.path.isdir(os.path.join(path, d)) and not d.startswith(".")
+            )
+        except OSError:
+            return
 
-    #     elif parent_text == "History":
-    #         pm.select(text)
+        for d in dirs:
+            full_path = os.path.join(path, d)
+            item = sublist.add(d, data=full_path)
+            if max_depth > 1:
+                try:
+                    has_subdirs = any(
+                        sd
+                        for sd in os.listdir(full_path)
+                        if os.path.isdir(os.path.join(full_path, sd))
+                        and not sd.startswith(".")
+                    )
+                    if has_subdirs:
+                        self._populate_dir_sublist(
+                            item.sublist, full_path, max_depth - 1
+                        )
+                except OSError:
+                    pass
+
+    @Signals("on_item_interacted")
+    def list000(self, item):
+        """Workspace Browser"""
+        data = item.item_data()
+        if data and os.path.isdir(str(data)):
+            os.startfile(str(data))
+            self.sb.handlers.marking_menu.hide()
 
 
 # --------------------------------------------------------------------------------------------
