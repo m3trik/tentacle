@@ -63,6 +63,12 @@ class Animation(SlotsMaya):
             setObjectName="b000",
             setToolTip="Open the sequencer for managing per-scene animation with ripple editing.",
         )
+        widget.menu.add(
+            "QPushButton",
+            setText="Scene Builder",
+            setObjectName="b004",
+            setToolTip="Import a CSV sequence document and build scenes.",
+        )
 
     def tb000_init(self, widget):
         """Go To Frame Init"""
@@ -485,15 +491,26 @@ class Animation(SlotsMaya):
             setChecked=True,
             setToolTip="Transfer tangent values.",
         )
+        widget.option_box.menu.add(
+            "QCheckBox",
+            setText="Optimize Before Transfer",
+            setObjectName="chk008",
+            setChecked=False,
+            setToolTip="Run optimize_keys on the source to remove redundant keys before transferring.",
+        )
 
     def tb004(self, widget):
-        """Tansfer Keys"""
+        """Transfer Keys"""
         relative = widget.option_box.menu.chk006.isChecked()
         tangents = widget.option_box.menu.chk007.isChecked()
+        optimize = widget.option_box.menu.chk008.isChecked()
 
         selected_objects = pm.selected()
         mtk.transfer_keyframes(
-            selected_objects, relative=relative, transfer_tangents=tangents
+            selected_objects,
+            relative=relative,
+            transfer_tangents=tangents,
+            optimize=optimize,
         )
 
     def tb005_init(self, widget):
@@ -1698,6 +1715,10 @@ class Animation(SlotsMaya):
     def b000(self):
         """Open Sequencer"""
         self.sb.handlers.marking_menu.show("sequencer")
+
+    def b004(self):
+        """Open Scene Builder"""
+        self.sb.handlers.marking_menu.show("scene_builder")
 
 
 # --------------------------------------------------------------------------------------------

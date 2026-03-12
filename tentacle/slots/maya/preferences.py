@@ -391,9 +391,14 @@ class Preferences(SlotsMaya):
         )
 
         # Initial sync
-        self._sync_binding_combo(
-            widget, binding_key, self.sb.configurable.marking_menu_bindings.get({})
-        )
+        bindings = self.sb.configurable.marking_menu_bindings.get({})
+        if not bindings:
+            marking_menu = self.sb.handlers.marking_menu
+            bindings = (
+                getattr(marking_menu, "default_bindings", {}) if marking_menu else {}
+            )
+
+        self._sync_binding_combo(widget, binding_key, bindings)
 
     def _sync_binding_combo(self, widget, key, bindings):
         """Sync combo box with settings value."""
@@ -523,7 +528,7 @@ class Preferences(SlotsMaya):
     def b_reset_bindings(self):
         """Reset bindings to defaults."""
         marking_menu = self.sb.handlers.marking_menu
-        defaults = getattr(marking_menu, "_initial_bindings", {}) if marking_menu else {}
+        defaults = getattr(marking_menu, "default_bindings", {}) if marking_menu else {}
         self.sb.configurable.marking_menu_bindings.set(defaults)
 
 

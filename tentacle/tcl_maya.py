@@ -19,7 +19,8 @@ class TclMaya(MarkingMenu):
             except Exception as error:
                 print(f"Error getting main window: {error}")
 
-        key_show = kwargs.pop("key_show", "Key_F12")
+        key_show = kwargs.pop("key_show", "F12")
+        key_show = f"Key_{key_show}" if not key_show.startswith("Key_") else key_show
 
         # Default bindings for Maya (fully qualified)
         bindings = kwargs.pop("bindings", None) or {
