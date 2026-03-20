@@ -20,24 +20,22 @@ class Animation(SlotsMaya):
     def header_init(self, widget):
         """Header Init"""
         widget.menu.add(
+            "QPushButton",
+            setText="Shot Manifest",
+            setObjectName="b004",
+            setToolTip="Import a CSV sequence document and build scenes.",
+        )
+        widget.menu.add(
+            "QPushButton",
+            setText="Slot Sequencer",
+            setObjectName="b000",
+            setToolTip="Open the sequencer for managing per-scene animation with ripple editing.",
+        )
+        widget.menu.add(
             self.sb.registered_widgets.PushButton,
             setText="Smart Bake",
             setObjectName="tb018",
             setToolTip="Intelligently bake constraints, driven keys, expressions, IK, motion paths, and blend shapes.",
-        )
-        widget.menu.add(
-            self.sb.registered_widgets.PushButton,
-            setText="Print Animation Info",
-            setObjectName="tb016",
-            setToolTip="Print segmented keyframe info for selected objects (or all if none selected).",
-        )
-        widget.menu.add(
-            "QPushButton",
-            setText="Repair Visibility Tangents",
-            setToolTip="Force 'step' tangents on visibility curves for selected objects (or all if none selected).",
-            clicked=lambda: mtk.Diagnostics.repair_visibility_tangents(
-                objects=pm.selected() or None
-            ),
         )
         widget.menu.add(
             self.sb.registered_widgets.PushButton,
@@ -59,15 +57,17 @@ class Animation(SlotsMaya):
         )
         widget.menu.add(
             "QPushButton",
-            setText="Sequencer",
-            setObjectName="b000",
-            setToolTip="Open the sequencer for managing per-scene animation with ripple editing.",
+            setText="Repair Visibility Tangents",
+            setToolTip="Force 'step' tangents on visibility curves for selected objects (or all if none selected).",
+            clicked=lambda: mtk.Diagnostics.repair_visibility_tangents(
+                objects=pm.selected() or None
+            ),
         )
         widget.menu.add(
-            "QPushButton",
-            setText="Scene Builder",
-            setObjectName="b004",
-            setToolTip="Import a CSV sequence document and build scenes.",
+            self.sb.registered_widgets.PushButton,
+            setText="Print Animation Info",
+            setObjectName="tb016",
+            setToolTip="Print segmented keyframe info for selected objects (or all if none selected).",
         )
 
     def tb000_init(self, widget):
@@ -393,14 +393,6 @@ class Animation(SlotsMaya):
             setToolTip="Place animations at fixed frame intervals instead of sequential spacing.\n"
             "When enabled, Spacing defines the interval (e.g., 100 = frames 0, 100, 200...).",
         )
-        # widget.option_box.menu.add(
-        #     "QCheckBox",
-        #     setText="Avoid Overlap",
-        #     setObjectName="chk026",
-        #     setChecked=False,
-        #     setToolTip="Skip to next interval if animation would overlap with previous one.\n"
-        #     "Only applies when 'Use Intervals' is enabled.",
-        # )
         widget.option_box.menu.add(
             "QCheckBox",
             setText="Group Overlapping",
@@ -449,7 +441,6 @@ class Animation(SlotsMaya):
         spacing = widget.option_box.menu.s004.value()
         start_frame_value = widget.option_box.menu.s005.value()
         use_intervals = widget.option_box.menu.chk025.isChecked()
-        # avoid_overlap = widget.option_box.menu.chk026.isChecked()
         invert = widget.option_box.menu.chk008.isChecked()
         smooth_tangents = widget.option_box.menu.chk009.isChecked()
         group_overlapping = widget.option_box.menu.chk014.isChecked()
@@ -722,13 +713,19 @@ class Animation(SlotsMaya):
             setChecked=True,
             setToolTip="Set visibility to on (visible) or off (hidden).",
         )
-        widget.option_box.menu.add(
+        cmb = widget.option_box.menu.add(
             "QComboBox",
-            addItems=["Start", "End", "Both", "Before Start", "After End"],
             setObjectName="cmb002",
-            setCurrentIndex=0,
             setToolTip="When to set the visibility keyframe:\n• Start: At animation start\n• End: At animation end\n• Both: At start and end\n• Before Start: One frame before start\n• After End: One frame after end",
         )
+        for text, data in [
+            ("Start", "start"),
+            ("End", "end"),
+            ("Both", "both"),
+            ("Before Start", "before_start"),
+            ("After End", "after_end"),
+        ]:
+            cmb.addItem(text, data)
         widget.option_box.menu.add(
             "QSpinBox",
             setPrefix="Offset: ",
@@ -748,13 +745,9 @@ class Animation(SlotsMaya):
     def tb008(self, widget):
         """Set Visibility Keys"""
         visible = widget.option_box.menu.chk015.isChecked()
-        when_index = widget.option_box.menu.cmb002.currentIndex()
+        when = widget.option_box.menu.cmb002.currentData()
         offset = widget.option_box.menu.s008.value()
         group_overlapping = widget.option_box.menu.chk016.isChecked()
-
-        # Map combobox index to 'when' parameter
-        when_options = ["start", "end", "both", "before_start", "after_end"]
-        when = when_options[when_index]
 
         selected_objects = pm.selected()
         if not selected_objects:
@@ -777,18 +770,9 @@ class Animation(SlotsMaya):
     def tb009_init(self, widget):
         """Snap Keys to Frames Init"""
         widget.option_box.menu.setTitle("Snap Keys to Frames")
-        widget.option_box.menu.add(
+        cmb = widget.option_box.menu.add(
             "QComboBox",
-            addItems=[
-                "Nearest",
-                "Floor",
-                "Ceil",
-                "Half Up",
-                "Preferred",
-                "Aggressive Preferred",
-            ],
             setObjectName="cmb003",
-            setCurrentIndex=0,
             setToolTip="Rounding method:\n"
             "• Nearest: Round to nearest whole number\n"
             "• Floor: Always round down\n"
@@ -797,6 +781,15 @@ class Animation(SlotsMaya):
             "• Preferred: Round to clean numbers when very close (24→25, 99→100)\n"
             "• Aggressive Preferred: Round to clean numbers even when farther (48→50, 73→75)",
         )
+        for text, data in [
+            ("Nearest", "nearest"),
+            ("Floor", "floor"),
+            ("Ceil", "ceil"),
+            ("Half Up", "half_up"),
+            ("Preferred", "preferred"),
+            ("Aggressive Preferred", "aggressive_preferred"),
+        ]:
+            cmb.addItem(text, data)
         widget.option_box.menu.add(
             "QCheckBox",
             setText="Selected Keys Only",
@@ -814,20 +807,9 @@ class Animation(SlotsMaya):
 
     def tb009(self, widget):
         """Snap Keys to Frames"""
-        method_index = widget.option_box.menu.cmb003.currentIndex()
+        method = widget.option_box.menu.cmb003.currentData()
         selected_only = widget.option_box.menu.chk017.isChecked()
         use_time_range = widget.option_box.menu.chk018.isChecked()
-
-        # Map combobox index to method parameter
-        method_options = [
-            "nearest",
-            "floor",
-            "ceil",
-            "half_up",
-            "preferred",
-            "aggressive_preferred",
-        ]
-        method = method_options[method_index]
 
         # Get time range if requested
         time_range = None
@@ -905,18 +887,12 @@ class Animation(SlotsMaya):
             self.sb.message_box("You must select at least one object.")
             return
 
+        kwargs = {}
+        if time_param != "all":
+            kwargs["time"] = time_param
         if channel_box_only:
-            # Use channel box filtering
-            if time_param == "all":
-                mtk.delete_keys(objects, channel_box_only=True)
-            else:
-                mtk.delete_keys(objects, time=time_param, channel_box_only=True)
-        else:
-            # Delete all keyable attributes (no filtering)
-            if time_param == "all":
-                mtk.delete_keys(objects)
-            else:
-                mtk.delete_keys(objects, time=time_param)
+            kwargs["channel_box_only"] = True
+        mtk.delete_keys(objects, **kwargs)
 
     def tb011_init(self, widget):
         """Tie/Untie Keyframes Init"""
@@ -954,21 +930,21 @@ class Animation(SlotsMaya):
     def tb013_init(self, widget):
         """Select Keys Init"""
         widget.option_box.menu.setTitle("Select Keys")
-        widget.option_box.menu.add(
+        cmb = widget.option_box.menu.add(
             "QComboBox",
-            addItems=[
-                "All",
-                "Current",
-                "Before",
-                "After",
-                "Before|Current",
-                "After|Current",
-                "Range",
-            ],
             setObjectName="cmb003",
-            setCurrentIndex=0,
             setToolTip="Type of time selection to make.",
         )
+        for text, data in [
+            ("All", "all"),
+            ("Current", "current"),
+            ("Before", "before"),
+            ("After", "after"),
+            ("Before|Current", "before|current"),
+            ("After|Current", "after|current"),
+            ("Range", "range"),
+        ]:
+            cmb.addItem(text, data)
         widget.option_box.menu.add(
             "QSpinBox",
             setPrefix="Start Frame: ",
@@ -1002,29 +978,19 @@ class Animation(SlotsMaya):
 
     def tb013(self, widget):
         """Select Keys"""
-        selection_type = widget.option_box.menu.cmb003.currentText()
+        selection_type = widget.option_box.menu.cmb003.currentData()
         start_frame = widget.option_box.menu.s012.value()
         end_frame = widget.option_box.menu.s013.value()
         channel_box_only = widget.option_box.menu.chk021.isChecked()
         add_to_selection = widget.option_box.menu.chk022.isChecked()
 
         # Determine time parameter based on selection type
-        if selection_type == "All":
-            time = None
-        elif selection_type == "Current":
-            time = "current"
-        elif selection_type == "Before":
-            time = "before"
-        elif selection_type == "After":
-            time = "after"
-        elif selection_type == "Before|Current":
-            time = "before|current"
-        elif selection_type == "After|Current":
-            time = "after|current"
-        elif selection_type == "Range":
+        if selection_type == "range":
             time = (start_frame, end_frame)
-        else:
+        elif selection_type == "all":
             time = None
+        else:
+            time = selection_type
 
         # Get objects to affect
         selected_objects = pm.selected()
@@ -1045,16 +1011,9 @@ class Animation(SlotsMaya):
     def tb014_init(self, widget):
         """Scale Keys Init"""
         widget.option_box.menu.setTitle("Scale Keys")
-        widget.option_box.menu.add(
+        cmb_mode = widget.option_box.menu.add(
             "QComboBox",
-            addItems=[
-                "Uniform Mode",
-                "Speed Mode",
-                "Speed Mode: Linear",
-                "Speed Mode: Rotation",
-            ],
             setObjectName="cmb014",
-            setCurrentIndex=0,
             block_signals_on_restore=False,  # Allow signals during restore to trigger update_mode_ui
             setToolTip="Scaling mode:\n"
             "• Uniform: Traditional time scaling around pivot\n"
@@ -1062,6 +1021,13 @@ class Animation(SlotsMaya):
             "• Speed (Linear): Translation only\n"
             "• Speed (Rotation): Rotation only",
         )
+        for text, data in [
+            ("Uniform Mode", "uniform"),
+            ("Speed Mode", "speed"),
+            ("Speed Mode: Linear", "speed_linear"),
+            ("Speed Mode: Rotation", "speed_rotation"),
+        ]:
+            cmb_mode.addItem(text, data)
         uniform_tooltip = (
             "Time scaling factor:\n\n"
             "UNIFORM MODE:\n"
@@ -1096,28 +1062,21 @@ class Animation(SlotsMaya):
             setDecimals=2,
             setToolTip=uniform_tooltip,
         )
-        widget.option_box.menu.add(
+        cmb_group = widget.option_box.menu.add(
             "QComboBox",
-            addItems=[
-                "Single Group",
-                "Per Object Pivots",
-                "Group Overlaps",
-            ],
             setObjectName="cmb033",
-            setCurrentIndex=0,
             setToolTip=grouping_tooltip,
         )
+        for text, data in [
+            ("Single Group", "single_group"),
+            ("Per Object Pivots", "per_object"),
+            ("Group Overlaps", "overlap_groups"),
+        ]:
+            cmb_group.addItem(text, data)
 
-        widget.option_box.menu.add(
+        cmb_snap = widget.option_box.menu.add(
             "QComboBox",
-            addItems=[
-                "Snap: Nearest",
-                "Snap: Preferred",
-                "Snap: Aggressive",
-                "Snap: None",
-            ],
             setObjectName="cmb034",
-            setCurrentIndex=0,
             setToolTip="Keyframe snapping after scaling (both modes):\n\n"
             "• Nearest: Round to nearest whole number (default)\n"
             "• Preferred: Round to clean numbers when close (24→25, 99→100)\n"
@@ -1125,6 +1084,13 @@ class Animation(SlotsMaya):
             "• None: No snapping, preserve precise decimal times\n\n"
             "Applies after keyframe scaling to snap decimal frame times to whole frames.",
         )
+        for text, data in [
+            ("Snap: Nearest", "nearest"),
+            ("Snap: Preferred", "preferred"),
+            ("Snap: Aggressive", "aggressive_preferred"),
+            ("Snap: None", "none"),
+        ]:
+            cmb_snap.addItem(text, data)
 
         widget.option_box.menu.add(
             "QSpinBox",
@@ -1226,13 +1192,14 @@ class Animation(SlotsMaya):
 
     def tb014(self, widget):
         """Scale Keys"""
-        mode_index = widget.option_box.menu.cmb014.currentIndex()
+        mode_data = widget.option_box.menu.cmb014.currentData()
         factor = widget.option_box.menu.d001.value()
-        channel_box_only_checked = widget.option_box.menu.chk_channel_box.isChecked()
+        channel_box_only = widget.option_box.menu.chk_channel_box.isChecked()
         absolute_mode = widget.option_box.menu.chk_absolute.isChecked()
         split_static = widget.option_box.menu.chk_split_static.isChecked()
         merge_touching = widget.option_box.menu.chk_merge_touching.isChecked()
-        group_mode_index = widget.option_box.menu.cmb033.currentIndex()
+        group_mode = widget.option_box.menu.cmb033.currentData()
+        snap_mode = widget.option_box.menu.cmb034.currentData()
 
         # Get objects to affect
         selected_objects = pm.selected()
@@ -1240,43 +1207,19 @@ class Animation(SlotsMaya):
             self.sb.message_box("You must select at least one object.")
             return
 
-        # Determine mode and include_rotation
-        mode = "uniform"
-        include_rotation = False
-
-        if mode_index == 1:  # Speed Mode (Combined)
-            mode = "speed"
-            include_rotation = True
-        elif mode_index == 2:  # Speed Mode: Linear
-            mode = "speed"
-            include_rotation = False
-        elif mode_index == 3:  # Speed Mode: Rotation
-            mode = "speed"
-            include_rotation = "only"
+        # Determine mode and include_rotation from combo data
+        if mode_data == "speed":
+            mode, include_rotation = "speed", True
+        elif mode_data == "speed_linear":
+            mode, include_rotation = "speed", False
+        elif mode_data == "speed_rotation":
+            mode, include_rotation = "speed", "only"
+        else:
+            mode, include_rotation = "uniform", False
 
         # Determine keys parameter - check for selected keys in graph editor
         selected_keys_in_graph = pm.keyframe(query=True, sl=True, tc=True)
         keys = "selected" if selected_keys_in_graph and mode == "uniform" else None
-
-        # Determine parameters - use explicit checkbox instead of auto-detection
-        channel_box_only = channel_box_only_checked
-        group_mode_values = ["single_group", "per_object", "overlap_groups"]
-        group_mode = group_mode_values[group_mode_index]
-
-        # Map snap mode combo index to parameter value
-        snap_mode_values = [
-            "nearest",  # 0: Nearest (default)
-            "preferred",  # 1: Preferred
-            "aggressive_preferred",  # 2: Aggressive Preferred
-            "none",  # 3: None (Precise)
-        ]
-        # Get snap mode index safely
-        try:
-            snap_mode_index = widget.option_box.menu.cmb034.currentIndex()
-            snap_mode = snap_mode_values[snap_mode_index]
-        except (AttributeError, IndexError):
-            # Fallback to default if combo doesn't exist or index is invalid
-            snap_mode = "nearest"
 
         # Get samples parameter for speed mode
         samples = widget.option_box.menu.s014.value() if mode == "speed" else None
@@ -1713,12 +1656,12 @@ class Animation(SlotsMaya):
         self.sb.message_box(msg)
 
     def b000(self):
-        """Open Sequencer"""
-        self.sb.handlers.marking_menu.show("sequencer")
+        """Open Shot Sequencer"""
+        self.sb.handlers.marking_menu.show("shot_sequencer")
 
     def b004(self):
-        """Open Scene Builder"""
-        self.sb.handlers.marking_menu.show("scene_builder")
+        """Open Shot Manifest"""
+        self.sb.handlers.marking_menu.show("shot_manifest")
 
 
 # --------------------------------------------------------------------------------------------
