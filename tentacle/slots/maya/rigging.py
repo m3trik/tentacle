@@ -16,7 +16,6 @@ class Rigging(SlotsMaya):
 
     def header_init(self, widget):
         """Init Rigging Header"""
-        widget.menu.setTitle("Rigging")
         widget.menu.add(
             "QPushButton",
             setText="Rebind Skin Clusters",

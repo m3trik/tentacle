@@ -25,7 +25,6 @@ class MaterialsSlots(SlotsMaya):
 
     def header_init(self, widget):
         """Initialize the header menu"""
-        widget.menu.setTitle("Materials: Utilities")
         # Section: Utilities
         widget.menu.add("Separator", setTitle="Utilities")
         widget.menu.add(
@@ -113,9 +112,6 @@ class MaterialsSlots(SlotsMaya):
         if not widget.is_initialized:
             widget.refresh_on_show = True  # Call this method on show
             widget.editable = True
-            widget.menu.setTitle("Material Options")
-
-            # Section: Edit
             widget.menu.add("Separator", setTitle="Edit")
             widget.menu.add(
                 self.sb.registered_widgets.Label,
