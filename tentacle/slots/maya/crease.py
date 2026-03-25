@@ -17,7 +17,6 @@ class Crease(SlotsMaya):
 
     def tb000_init(self, widget):
         """ """
-        widget.menu.setTitle("Crease")
         widget.menu.add(
             "QSpinBox",
             setPrefix="Amount: ",

@@ -64,6 +64,12 @@ class Animation(SlotsMaya):
             ),
         )
         widget.menu.add(
+            "QPushButton",
+            setText="Fit Playback Range",
+            setObjectName="b005",
+            setToolTip="Set the playback range to span all keyframed objects in the scene.",
+        )
+        widget.menu.add(
             self.sb.registered_widgets.PushButton,
             setText="Print Animation Info",
             setObjectName="tb016",
@@ -1662,6 +1668,10 @@ class Animation(SlotsMaya):
     def b004(self):
         """Open Shot Manifest"""
         self.sb.handlers.marking_menu.show("shot_manifest")
+
+    def b005(self):
+        """Fit Playback Range"""
+        mtk.AnimUtils.fit_playback_range()
 
 
 # --------------------------------------------------------------------------------------------
