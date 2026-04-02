@@ -298,7 +298,7 @@ class Preferences(SlotsMaya):
 
     def lbl000(self):
         """UI Style Editor"""
-        from uitk.widgets.style_editor import StyleEditor
+        from uitk.widgets.editors.style_editor import StyleEditor
 
         # Create if not exists or if the C++ object has been deleted
         if not hasattr(self, "_style_editor"):
@@ -317,7 +317,7 @@ class Preferences(SlotsMaya):
 
     def lbl001(self):
         """Hotkey Editor"""
-        from uitk.widgets.hotkey_editor import HotkeyEditor
+        from uitk.widgets.editors.hotkey_editor import HotkeyEditor
 
         # Create if not exists or if the C++ object has been deleted
         if not hasattr(self, "_hotkey_editor"):
