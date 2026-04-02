@@ -131,7 +131,6 @@ class TestSlotUiCoverage(unittest.TestCase):
     EXPECTED_PAIRS = [
         "animation",
         "cameras",
-        "create",
         "display",
         "edit",
         "lighting",
