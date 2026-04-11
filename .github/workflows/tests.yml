@@ -25,7 +25,7 @@ jobs:
       - name: Install system dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y libegl1-mesa libopengl0
+          sudo apt-get install -y libegl1-mesa libopengl0 xvfb
 
       - name: Install dependencies
         run: |
@@ -37,7 +37,7 @@ jobs:
         id: tests
         run: |
           set +e
-          OUTPUT=$(pytest --tb=short -v test/ 2>&1)
+          OUTPUT=$(xvfb-run -a pytest --tb=short -v test/ 2>&1)
           EXIT_CODE=$?
           echo "$OUTPUT"
 
