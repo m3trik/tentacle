@@ -121,19 +121,19 @@
               <rect>
                <x>105</x>
                <y>0</y>
-               <width>111</width>
+               <width>100</width>
                <height>21</height>
               </rect>
              </property>
              <property name="minimumSize">
               <size>
-               <width>0</width>
+               <width>100</width>
                <height>21</height>
               </size>
              </property>
              <property name="maximumSize">
               <size>
-               <width>999</width>
+               <width>100</width>
                <height>21</height>
               </size>
              </property>

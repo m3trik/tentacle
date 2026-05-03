@@ -144,6 +144,7 @@ class TestSlotUiCoverage(unittest.TestCase):
         "rigging",
         "scene",
         "selection",
+        "settings",
         "subdivision",
         "symmetry",
         "transform",
