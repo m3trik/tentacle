@@ -16,7 +16,7 @@ class StatusMixin:
             hud.insertText(
                 f'New release available: <font style="color: Cyan;">{self.latest_ver}</font>'
             )
-            if self.sb.preferences.tb000.menu.auto_update:
+            if self.sb.settings.tb000.menu.auto_update:
                 self.sb.check_for_update()
         # Symmetry status
         if cmds.symmetricModelling(q=True, symmetry=True):
