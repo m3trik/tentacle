@@ -42,6 +42,14 @@ class TclMaya(MarkingMenu):
             **kwargs,
         )
 
+        # Register the Maya hotkey-collision checker on the bundled
+        # HotkeyEditor whenever it's built. Lazily wired so the editor
+        # module stays unimported until the user opens it.
+        self.sb.editors.add_post_build_hook(
+            "hotkey",
+            lambda editor: editor.add_collision_checker(mtk.maya_collision_checker),
+        )
+
 
 # --------------------------------------------------------------------------------------------
 
