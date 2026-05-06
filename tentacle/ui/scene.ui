@@ -10,7 +10,7 @@
     <x>0</x>
     <y>0</y>
     <width>200</width>
-    <height>173</height>
+    <height>175</height>
    </rect>
   </property>
   <property name="tabShape">
@@ -30,6 +30,9 @@
     </size>
    </property>
    <layout class="QVBoxLayout" name="verticalLayout_2">
+    <property name="spacing">
+     <number>2</number>
+    </property>
     <property name="leftMargin">
      <number>2</number>
     </property>
@@ -40,9 +43,6 @@
      <number>2</number>
     </property>
     <property name="bottomMargin">
-     <number>2</number>
-    </property>
-    <property name="spacing">
      <number>2</number>
     </property>
     <item>
@@ -72,7 +72,7 @@
       <item>
        <widget class="CollapsableGroup" name="Project">
         <property name="title">
-         <string>Set Workspace</string>
+         <string>Workspace</string>
         </property>
         <layout class="QVBoxLayout" name="verticalLayout_5">
          <property name="spacing">
@@ -251,6 +251,22 @@
         </property>
        </spacer>
       </item>
+      <item>
+       <widget class="Footer" name="footer" native="true">
+        <property name="minimumSize">
+         <size>
+          <width>0</width>
+          <height>20</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>16777215</width>
+          <height>20</height>
+         </size>
+        </property>
+       </widget>
+      </item>
      </layout>
     </item>
    </layout>
@@ -258,14 +274,14 @@
  </widget>
  <customwidgets>
   <customwidget>
-   <class>PushButton</class>
-   <extends>QPushButton</extends>
-   <header>widgets.pushbutton.h</header>
-  </customwidget>
-  <customwidget>
    <class>Header</class>
    <extends>QWidget</extends>
    <header>uitk.widgets.header</header>
+  </customwidget>
+  <customwidget>
+   <class>PushButton</class>
+   <extends>QPushButton</extends>
+   <header>widgets.pushbutton.h</header>
   </customwidget>
   <customwidget>
    <class>ComboBox</class>
@@ -277,6 +293,11 @@
    <extends>QGroupBox</extends>
    <header>uitk.widgets.collapsableGroup.CollapsableGroup.h</header>
    <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>Footer</class>
+   <extends>QWidget</extends>
+   <header>uitk.widgets.footer</header>
   </customwidget>
  </customwidgets>
  <resources/>

@@ -1,10 +1,9 @@
 # !/usr/bin/python
 # coding=utf-8
-import re
-
 import maya.cmds as cmds
 import maya.mel as mel
 import mayatk as mtk
+import pythontk as ptk
 
 # From this package:
 from tentacle.slots.maya._slots_maya import SlotsMaya
@@ -117,12 +116,47 @@ class MaterialsSlots(SlotsMaya):
                 setObjectName="lbl005",
                 setToolTip="Rename the current material.",
             )
-            widget.menu.add(
+            lbl007 = widget.menu.add(
                 self.sb.registered_widgets.Label,
                 setText="Rename (strip trailing ints & _)",
                 setObjectName="lbl007",
                 setToolTip="Rename the current material by removing trailing digits and underscores if present.",
             )
+            lbl007.option_box.set_action(
+                callback=self.lbl007_global,
+                icon="list",
+                tooltip="Strip trailing ints & _ from ALL scene materials.",
+            )
+            # Toggle: how same-base name conflicts are resolved.
+            # Off (default): skip conflicting groups (legacy behavior).
+            # On: rename group members with alphabetical suffixes (mat_A, mat_B, ...).
+            from uitk.widgets.optionBox.options.action import ActionOption
+
+            self._strip_alpha_option = ActionOption(
+                wrapped_widget=lbl007,
+                callback=None,
+                states=[
+                    {
+                        "icon": "font",
+                        "tooltip": (
+                            "Name conflicts: <strong>skip</strong> (default).<br>"
+                            "Click to resolve conflicts with alphabetical suffixes "
+                            "(mat_A, mat_B, mat_C, ...)."
+                        ),
+                    },
+                    {
+                        "icon": "font",
+                        "color": "#5fb878",
+                        "tooltip": (
+                            "Name conflicts: <strong>alphabetical</strong> "
+                            "(mat_A, mat_B, mat_C, ...).<br>"
+                            "Click to disable and skip conflicts instead."
+                        ),
+                    },
+                ],
+                settings_key="materials_strip_collision_alpha",
+            )
+            lbl007.option_box.add_option(self._strip_alpha_option)
             widget.menu.add(
                 self.sb.registered_widgets.Label,
                 setText="Delete",
@@ -180,52 +214,166 @@ class MaterialsSlots(SlotsMaya):
             if icon:
                 widget.setItemIcon(i, icon)
 
+    def _collision_mode_is_alpha(self):
+        """Read the persistent toggle on the lbl007 option box.
+
+        Returns True when same-base name conflicts should be resolved with
+        alphabetical suffixes (mat_A, mat_B, ...) rather than skipped.
+        """
+        opt = getattr(self, "_strip_alpha_option", None)
+        return bool(opt and opt.current_state == 1)
+
+    def _strip_material_names(self, materials):
+        """Strip trailing ints/underscores across the given materials and apply renames.
+
+        Delegates the strip + collision-resolution logic to
+        ``pythontk.StrUtils.resolve_name_collisions``. The option-box toggle
+        controls whether multi-member groups get alphabetical suffixes
+        (``mat_A``, ``mat_B``, ...) or are skipped. Single-member groups
+        always strip to base.
+
+        Parameters:
+            materials: Iterable of Maya material nodes.
+
+        Returns:
+            dict with keys:
+                renamed: list[(old_name, new_name)] successfully renamed.
+                no_change: list[old_name] that needed no strip (already at base
+                    in a singleton group, or skipped because of toggle-off conflict).
+                conflicts: list[old_name] whose target collided with a non-input
+                    scene node.
+                failed: list[str] error messages from cmds.rename failures.
+        """
+        materials = list(materials)
+        name_to_mat = {str(m).rsplit("|", 1)[-1]: m for m in materials}
+        candidates = list(name_to_mat.keys())
+
+        rename_map = ptk.StrUtils.resolve_name_collisions(
+            candidates,
+            strip="_",
+            strip_trailing_ints=True,
+            collision_suffix="alpha" if self._collision_mode_is_alpha() else None,
+        )
+
+        renamed, conflicts, failed = [], [], []
+        no_change = [n for n in candidates if n not in rename_map]
+        candidate_set = set(candidates)
+
+        for old_name, new_name in rename_map.items():
+            # Allow the rename if the target collides only with another candidate
+            # (which will itself be renamed away), but not with an unrelated node.
+            if new_name not in candidate_set and cmds.objExists(new_name):
+                conflicts.append(old_name)
+                continue
+            try:
+                cmds.rename(str(name_to_mat[old_name]), new_name)
+                renamed.append((old_name, new_name))
+            except Exception as e:
+                failed.append(f"{old_name}: {e}")
+
+        return {
+            "renamed": renamed,
+            "no_change": no_change,
+            "conflicts": conflicts,
+            "failed": failed,
+        }
+
+    def _refresh_after_rename(self, current_old, renamed):
+        """Refresh the materials combo and restore selection on the current mat."""
+        self.ui.cmb002.init_slot()
+        for old, new in renamed:
+            if old == current_old:
+                self.ui.cmb002.setAsCurrent(new)
+                break
+        self.submenu.b005.init_slot()
+
     def lbl007(self):
         """Rename the current material by stripping trailing integers and underscores.
 
-        - Compute new name by removing trailing digits and underscores from the current name.
-        - Abort if the new name already exists or if nothing to change.
-        - Refresh UI and keep selection on the renamed material.
+        With the option-box alpha toggle ON, the current material's collision
+        group (other materials sharing the same stripped base) is renamed
+        alphabetically together so the convention stays consistent. With the
+        toggle OFF, only the current material is renamed and the operation
+        aborts on conflict.
         """
         mat = self.ui.cmb002.currentData()
         if not mat:
             return
 
         old_name = str(mat).rsplit("|", 1)[-1]
-        new_name = re.sub(r"[\d_]+$", "", old_name)
-
-        # If stripping results in no change
-        if new_name == old_name:
-            self.sb.message_box(
-                "<hl>No trailing suffix</hl><br>No trailing integers or underscores to strip; rename not performed."
-            )
-            return
-
-        # If stripping removes all characters
-        if not new_name:
+        target_base = ptk.StrUtils.format_suffix(
+            old_name, strip="_", strip_trailing_ints=True
+        )
+        if not target_base:
             self.sb.message_box(
                 "<hl>Invalid new name</hl><br>Stripping suffix results in an empty name. Rename aborted."
             )
             return
 
-        # Ensure the target name doesn't already exist
-        if cmds.objExists(new_name):
+        # Scope the operation: alpha mode renames the whole group; skip mode renames just the current.
+        if self._collision_mode_is_alpha():
+            all_materials = mtk.MatUtils.get_scene_mats(
+                exc="standardSurface", sort=True
+            )
+            scope = [
+                m
+                for m in all_materials
+                if ptk.StrUtils.format_suffix(
+                    str(m).rsplit("|", 1)[-1], strip="_", strip_trailing_ints=True
+                )
+                == target_base
+            ]
+        else:
+            scope = [mat]
+
+        result = self._strip_material_names(scope)
+
+        if old_name in result["no_change"]:
             self.sb.message_box(
-                f"<hl>Rename aborted</hl><br>A node named '<strong>{new_name}</strong>' already exists."
+                "<hl>No trailing suffix</hl><br>No trailing integers or underscores to strip; rename not performed."
+            )
+            return
+        if old_name in result["conflicts"]:
+            self.sb.message_box(
+                f"<hl>Rename aborted</hl><br>A node named '<strong>{target_base}</strong>' already exists."
+            )
+            return
+        if result["failed"]:
+            self.sb.message_box(f"<hl>Rename failed</hl><br>{result['failed'][0]}")
+            return
+
+        self._refresh_after_rename(old_name, result["renamed"])
+
+    def lbl007_global(self):
+        """Rename ALL scene materials by stripping trailing integers and underscores.
+
+        Same-base groups are resolved per the option-box alpha toggle: skipped
+        (default) or renamed with alphabetical suffixes (mat_A, mat_B, mat_C, ...).
+        Reports a summary at the end.
+        """
+        materials = list(
+            mtk.MatUtils.get_scene_mats(exc="standardSurface", sort=True)
+        )
+        if not materials:
+            self.sb.message_box(
+                "<hl>No materials</hl><br>No materials found in scene."
             )
             return
 
-        try:
-            cmds.rename(str(mat), new_name)
-        except Exception as e:
-            self.sb.message_box(f"<hl>Rename failed</hl><br>{e}")
-            return
+        current = self.ui.cmb002.currentData()
+        current_old = str(current).rsplit("|", 1)[-1] if current else None
 
-        # Refresh the materials list and keep current selection on the new name
-        self.ui.cmb002.init_slot()
-        self.ui.cmb002.setAsCurrent(new_name)
-        # Update the assign button text/icon
-        self.submenu.b005.init_slot()
+        result = self._strip_material_names(materials)
+        self._refresh_after_rename(current_old, result["renamed"])
+
+        mode = "alpha" if self._collision_mode_is_alpha() else "skip"
+        self.sb.message_box(
+            f"<hl>Strip trailing — global ({mode})</hl><br>"
+            f"Renamed: <strong>{len(result['renamed'])}</strong><br>"
+            f"No change: <strong>{len(result['no_change'])}</strong><br>"
+            f"Conflicts: <strong>{len(result['conflicts'])}</strong><br>"
+            f"Failed: <strong>{len(result['failed'])}</strong>"
+        )
 
     def tb000_init(self, widget):
         """ """
@@ -511,6 +659,17 @@ class MaterialsSlots(SlotsMaya):
         # Set the starting directory for the map converter
         source_images_dir = mtk.get_env_info("sourceimages")
         ui.slots.source_dir = source_images_dir
+
+        # Provider used by the Optimize "Selected" option — returns the
+        # texture paths assigned to the currently selected objects.
+        def _selected_texture_paths():
+            sel = cmds.ls(selection=True, long=True) or []
+            if not sel:
+                return []
+            info_list = mtk.MatUtils.get_texture_info(objects=sel) or []
+            return [info["path"] for info in info_list if info.get("path")]
+
+        ui.slots.texture_provider = _selected_texture_paths
 
         self.sb.handlers.marking_menu.show(ui)
 

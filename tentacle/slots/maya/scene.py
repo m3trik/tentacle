@@ -7,6 +7,7 @@ import maya.mel as mel
 import pythontk as ptk
 import mayatk as mtk
 from uitk import Signals
+from uitk.widgets.footer import FooterStatusController
 from tentacle.slots.maya._slots_maya import SlotsMaya
 
 
@@ -17,6 +18,7 @@ class SceneSlots(SlotsMaya):
         self.sb = switchboard
         self.ui = self.sb.loaded_ui.scene
         self.submenu = self.sb.loaded_ui.scene_submenu
+        self._footer_controller = self._create_footer_controller()
 
     def header_init(self, widget):
         """Initialize Header"""
@@ -91,7 +93,7 @@ class SceneSlots(SlotsMaya):
         """Initialize Workspace Scenes"""
         if not widget.is_initialized:
             widget.refresh_on_show = True  # Call this method on show
-            cmds.scriptJob(event=["workspaceChanged", self.ui.cmb000.init_slot])
+            cmds.scriptJob(event=["workspaceChanged", self._on_workspace_changed])
 
         include = self.ui.txt000.text() or None
 
@@ -222,8 +224,9 @@ class SceneSlots(SlotsMaya):
     def tb000_init(self, widget):
         """Initialize Set Workspace"""
         if not widget.is_initialized:
-            widget.refresh_on_show = True
-            widget.setToolTip("Click to set the project directory.")
+            widget.setToolTip(
+                "Click to set the project directory. Current workspace shown in footer."
+            )
             widget.option_box.menu.setTitle("Workspace Options")
             widget.option_box.menu.add(
                 "QPushButton",
@@ -255,10 +258,6 @@ class SceneSlots(SlotsMaya):
 
             self._recent_workspaces.value_selected.connect(self._open_recent_workspace)
 
-        # Update button text to current workspace name
-        workspace_dir = mtk.get_env_info("workspace_dir")
-        widget.setText(workspace_dir or "Set Workspace")
-
     def tb000(self, widget):
         """Set Workspace"""
         mel.eval("SetProject")
@@ -266,7 +265,8 @@ class SceneSlots(SlotsMaya):
         workspace = mtk.get_env_info("workspace")
         if hasattr(self, "_recent_workspaces") and workspace:
             self._recent_workspaces.record(workspace)
-        widget.init_slot()
+        if self._footer_controller:
+            self._footer_controller.update()
 
     def _open_recent_workspace(self, path):
         """Open a workspace from the recent list."""
@@ -276,7 +276,8 @@ class SceneSlots(SlotsMaya):
         cmds.workspace(path, openWorkspace=True)
         workspace_name = os.path.basename(path)
         self.sb.message_box(f"Workspace set to {workspace_name}.")
-        self.ui.tb000.init_slot()
+        if self._footer_controller:
+            self._footer_controller.update()
 
     def list000_init(self, widget):
         """Initialize Recent Files"""
@@ -306,9 +307,30 @@ class SceneSlots(SlotsMaya):
             cmds.workspace(workspace, openWorkspace=True)
             workspace_name = os.path.basename(workspace)
             self.sb.message_box(f"Workspace set to {workspace_name}.")
-            self.ui.tb000.init_slot()
+            if self._footer_controller:
+                self._footer_controller.update()
         else:
             self.sb.message_box("No workspace found.")
+
+    def _on_workspace_changed(self):
+        """Maya workspaceChanged scriptJob handler — refresh dependent UI."""
+        self.ui.cmb000.init_slot()
+        if self._footer_controller:
+            self._footer_controller.update()
+
+    def _create_footer_controller(self):
+        footer = getattr(self.ui, "footer", None)
+        if not footer:
+            return None
+        return FooterStatusController(
+            footer=footer,
+            resolver=self._resolve_workspace_text,
+            default_text="No workspace set",
+            truncate_kwargs={"length": 96, "mode": "middle"},
+        )
+
+    def _resolve_workspace_text(self) -> str:
+        return mtk.get_env_info("workspace_dir") or ""
 
     def b000(self):
         """Autosave: Open Directory"""
