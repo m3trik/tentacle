@@ -2,11 +2,13 @@
 
 _Auto-generated. Do not edit by hand. Refresh via `m3trik/scripts/generate_api_registry.py`._
 
-_Generated: 2026-04-29_
+_Generated: 2026-05-07_
 
 ## Index
 
 - [`__init__.py`](#__init__)
+- [`bench/option_box.py`](#bench--option_box) — Tentacle-side option_box init bench.
+- [`bench/run_in_maya.py`](#bench--run_in_maya) — Launch a fresh Maya, run an :class:`OptionBoxInitBench` subclass, capture JSON.
 - [`slots/_slots.py`](#slots--_slots)
 - [`slots/maya/_slots_maya.py`](#slots--maya--_slots_maya)
 - [`slots/maya/animation.py`](#slots--maya--animation)
@@ -54,6 +56,7 @@ _Generated: 2026-04-29_
 - [`slots/maya/scene.py`](#slots--maya--scene)
 - [`slots/maya/select.py`](#slots--maya--select)
 - [`slots/maya/selection.py`](#slots--maya--selection)
+- [`slots/maya/settings.py`](#slots--maya--settings)
 - [`slots/maya/skeleton.py`](#slots--maya--skeleton)
 - [`slots/maya/skin.py`](#slots--maya--skin)
 - [`slots/maya/stereo.py`](#slots--maya--stereo)
@@ -78,6 +81,22 @@ _Generated: 2026-04-29_
 
 - [`greeting(string, outputToConsole=True)`](tentacle/tentacle/__init__.py#L26) — Format a string using preset variables.
 
+<a id="bench--option_box"></a>
+### `bench/option_box.py`
+
+Tentacle-side option_box init bench.
+
+- **[`class TentacleOptionBoxBench(OptionBoxInitBench)`](tentacle/tentacle/bench/option_box.py#L24)**
+  - `TentacleOptionBoxBench.setup_switchboard(self)`
+  - `TentacleOptionBoxBench.post_switchboard(self, sb) -> None`
+
+<a id="bench--run_in_maya"></a>
+### `bench/run_in_maya.py`
+
+Launch a fresh Maya, run an :class:`OptionBoxInitBench` subclass, capture JSON.
+
+- [`main() -> int`](tentacle/tentacle/bench/run_in_maya.py#L334)
+
 <a id="slots--_slots"></a>
 ### `slots/_slots.py`
 
@@ -92,7 +111,7 @@ _Generated: 2026-04-29_
 <a id="slots--maya--animation"></a>
 ### `slots/maya/animation.py`
 
-- **[`class Animation(SlotsMaya)`](tentacle/tentacle/slots/maya/animation.py#L12)**
+- **[`class Animation(SlotsMaya)`](tentacle/tentacle/slots/maya/animation.py#L10)**
   - `Animation.header_init(self, widget)` — Header Init
   - `Animation.tb000_init(self, widget)` — Go To Frame Init
   - `Animation.tb000(self, widget)` — Go To Frame
@@ -141,17 +160,17 @@ _Generated: 2026-04-29_
 <a id="slots--maya--arnold"></a>
 ### `slots/maya/arnold.py`
 
-- **[`class ArnoldSlots(SlotsMaya)`](tentacle/tentacle/slots/maya/arnold.py#L13)**
+- **[`class ArnoldSlots(SlotsMaya)`](tentacle/tentacle/slots/maya/arnold.py#L9)**
 
 <a id="slots--maya--cache"></a>
 ### `slots/maya/cache.py`
 
-- **[`class CacheSlots(SlotsMaya)`](tentacle/tentacle/slots/maya/cache.py#L13)**
+- **[`class CacheSlots(SlotsMaya)`](tentacle/tentacle/slots/maya/cache.py#L9)**
 
 <a id="slots--maya--cameras"></a>
 ### `slots/maya/cameras.py`
 
-- **[`class Cameras(SlotsMaya)`](tentacle/tentacle/slots/maya/cameras.py#L12)**
+- **[`class Cameras(SlotsMaya)`](tentacle/tentacle/slots/maya/cameras.py#L10)**
   - `Cameras.list000_init(self, widget)` — Initialize Camera Options List
   - `Cameras.list000(self, item)` — Camera Options List
   - `Cameras.b000(self)` — Cameras: Back View
@@ -171,17 +190,17 @@ _Generated: 2026-04-29_
 <a id="slots--maya--constrain"></a>
 ### `slots/maya/constrain.py`
 
-- **[`class Constrain(SlotsMaya)`](tentacle/tentacle/slots/maya/constrain.py#L13)**
+- **[`class Constrain(SlotsMaya)`](tentacle/tentacle/slots/maya/constrain.py#L9)**
 
 <a id="slots--maya--control"></a>
 ### `slots/maya/control.py`
 
-- **[`class ControlSlots(SlotsMaya)`](tentacle/tentacle/slots/maya/control.py#L13)**
+- **[`class ControlSlots(SlotsMaya)`](tentacle/tentacle/slots/maya/control.py#L9)**
 
 <a id="slots--maya--crease"></a>
 ### `slots/maya/crease.py`
 
-- **[`class Crease(SlotsMaya)`](tentacle/tentacle/slots/maya/crease.py#L11)**
+- **[`class Crease(SlotsMaya)`](tentacle/tentacle/slots/maya/crease.py#L8)**
   - `Crease.tb000_init(self, widget)`
   - `Crease.tb000(self, widget)` — Crease
   - `Crease.b002(self, widget)` — Transfer Crease Edges
@@ -189,17 +208,17 @@ _Generated: 2026-04-29_
 <a id="slots--maya--curves"></a>
 ### `slots/maya/curves.py`
 
-- **[`class CurvesSlots(SlotsMaya)`](tentacle/tentacle/slots/maya/curves.py#L13)**
+- **[`class CurvesSlots(SlotsMaya)`](tentacle/tentacle/slots/maya/curves.py#L9)**
 
 <a id="slots--maya--deform"></a>
 ### `slots/maya/deform.py`
 
-- **[`class DeformSlots(SlotsMaya)`](tentacle/tentacle/slots/maya/deform.py#L13)**
+- **[`class DeformSlots(SlotsMaya)`](tentacle/tentacle/slots/maya/deform.py#L9)**
 
 <a id="slots--maya--display"></a>
 ### `slots/maya/display.py`
 
-- **[`class DisplaySlots(SlotsMaya)`](tentacle/tentacle/slots/maya/display.py#L12)**
+- **[`class DisplaySlots(SlotsMaya)`](tentacle/tentacle/slots/maya/display.py#L10)**
   - `DisplaySlots.header_init(self, widget)`
   - `DisplaySlots.b000(self)` — Set Wireframe color
   - `DisplaySlots.b001(self)` — Wireframe Selected
@@ -219,7 +238,7 @@ _Generated: 2026-04-29_
 <a id="slots--maya--duplicate"></a>
 ### `slots/maya/duplicate.py`
 
-- **[`class Duplicate(SlotsMaya)`](tentacle/tentacle/slots/maya/duplicate.py#L11)**
+- **[`class Duplicate(SlotsMaya)`](tentacle/tentacle/slots/maya/duplicate.py#L8)**
   - `Duplicate.header_init(self, widget)`
   - `Duplicate.tb000_init(self, widget)`
   - `Duplicate.tb000(self, widget)` — Convert to Instances
@@ -234,7 +253,7 @@ _Generated: 2026-04-29_
 <a id="slots--maya--edit"></a>
 ### `slots/maya/edit.py`
 
-- **[`class Edit(SlotsMaya)`](tentacle/tentacle/slots/maya/edit.py#L12)**
+- **[`class Edit(SlotsMaya)`](tentacle/tentacle/slots/maya/edit.py#L10)**
   - `Edit.header_init(self, widget)` — Initialize header menu
   - `Edit.tb000_init(self, widget)` — Initialize Mesh Cleanup
   - `Edit.tb000(self, widget)` — Mesh Cleanup
@@ -243,7 +262,7 @@ _Generated: 2026-04-29_
   - `Edit.tb002(self, widget)` — Delete Selected
   - `Edit.tb004_init(self, widget)`
   - `Edit.tb004(self, widget)` — Node Locking
-  - `Edit.b_attr_mgr(self)` — Attribute Manager
+  - `Edit.b_channels(self)` — Channels
   - `Edit.b000(self)` — Cut On Axis
   - `Edit.list000_init(self, widget)` — Initialize Create Primitives list.
   - `Edit.list000(self, item)` — Create Primitive
@@ -257,12 +276,12 @@ _Generated: 2026-04-29_
 <a id="slots--maya--edit_mesh"></a>
 ### `slots/maya/edit_mesh.py`
 
-- **[`class EditMeshSlots(SlotsMaya)`](tentacle/tentacle/slots/maya/edit_mesh.py#L13)**
+- **[`class EditMeshSlots(SlotsMaya)`](tentacle/tentacle/slots/maya/edit_mesh.py#L9)**
 
 <a id="slots--maya--editors"></a>
 ### `slots/maya/editors.py`
 
-- **[`class Editors(SlotsMaya)`](tentacle/tentacle/slots/maya/editors.py#L11)**
+- **[`class Editors(SlotsMaya)`](tentacle/tentacle/slots/maya/editors.py#L9)**
   - `Editors.list000_init(self, widget)` — Initialize the widget with structured data for easier maintenance.
   - `Editors.list000(self, item)`
   - `Editors.b000(self)` — Attributes
@@ -283,80 +302,81 @@ _Generated: 2026-04-29_
 <a id="slots--maya--effects"></a>
 ### `slots/maya/effects.py`
 
-- **[`class EffectsSlots(SlotsMaya)`](tentacle/tentacle/slots/maya/effects.py#L13)**
+- **[`class EffectsSlots(SlotsMaya)`](tentacle/tentacle/slots/maya/effects.py#L9)**
 
 <a id="slots--maya--fields_solvers"></a>
 ### `slots/maya/fields_solvers.py`
 
-- **[`class FieldsSolversSlots(SlotsMaya)`](tentacle/tentacle/slots/maya/fields_solvers.py#L13)**
+- **[`class FieldsSolversSlots(SlotsMaya)`](tentacle/tentacle/slots/maya/fields_solvers.py#L9)**
 
 <a id="slots--maya--fluids"></a>
 ### `slots/maya/fluids.py`
 
-- **[`class FluidsSlots(SlotsMaya)`](tentacle/tentacle/slots/maya/fluids.py#L13)**
+- **[`class FluidsSlots(SlotsMaya)`](tentacle/tentacle/slots/maya/fluids.py#L9)**
 
 <a id="slots--maya--generate"></a>
 ### `slots/maya/generate.py`
 
-- **[`class GenerateSlots(SlotsMaya)`](tentacle/tentacle/slots/maya/generate.py#L13)**
+- **[`class GenerateSlots(SlotsMaya)`](tentacle/tentacle/slots/maya/generate.py#L9)**
 
 <a id="slots--maya--help"></a>
 ### `slots/maya/help.py`
 
-- **[`class HelpSlots(SlotsMaya)`](tentacle/tentacle/slots/maya/help.py#L13)**
+- **[`class HelpSlots(SlotsMaya)`](tentacle/tentacle/slots/maya/help.py#L9)**
 
 <a id="slots--maya--hud"></a>
 ### `slots/maya/hud.py`
 
-- **[`class StatusMixin`](tentacle/tentacle/slots/maya/hud.py#L15)**
+- **[`class StatusMixin`](tentacle/tentacle/slots/maya/hud.py#L12)**
   - `StatusMixin.insert_scene_status(self, hud) -> None`
-- **[`class SelectionMixin`](tentacle/tentacle/slots/maya/hud.py#L57)**
+- **[`class SelectionMixin`](tentacle/tentacle/slots/maya/hud.py#L54)**
   - `SelectionMixin.insert_selection_info(self, hud, selection) -> None`
   - `SelectionMixin.insert_component_info(self, hud, selection) -> None`
-- **[`class WarningsMixin`](tentacle/tentacle/slots/maya/hud.py#L131)** — Lightweight pre-build checks shown as colored icons (immediately) and
+- **[`class WarningsMixin`](tentacle/tentacle/slots/maya/hud.py#L127)** — Lightweight pre-build checks shown as colored icons (immediately) and
   - `WarningsMixin.evaluate_warnings(self) -> list` — Return the subset of WARNING_DEFS whose check fires and is enabled.
   - `WarningsMixin.insert_warning_icons(self, hud, warnings) -> None` — Insert a single-line row of colored badges;
   - `WarningsMixin.insert_warning_details(self, hud, warnings) -> None` — Insert a formatted detail line per active warning.
-- **[`class HudSlots(SlotsMaya, ptk.PackageManager, StatusMixin, SelectionMixin, WarningsMixin)`](tentacle/tentacle/slots/maya/hud.py#L278)** — HUD Slots for Maya, providing scene and selection information.
+- **[`class HudSlots(SlotsMaya, ptk.PackageManager, StatusMixin, SelectionMixin, WarningsMixin)`](tentacle/tentacle/slots/maya/hud.py#L274)** — HUD Slots for Maya, providing scene and selection information.
   - `HudSlots.request_hud_build(self) -> None` — Start a new HUD build request, only the latest token will be used.
   - `HudSlots.construct_hud(self) -> None`
 
 <a id="slots--maya--key"></a>
 ### `slots/maya/key.py`
 
-- **[`class KeySlots(SlotsMaya)`](tentacle/tentacle/slots/maya/key.py#L13)**
+- **[`class KeySlots(SlotsMaya)`](tentacle/tentacle/slots/maya/key.py#L9)**
 
 <a id="slots--maya--lighting"></a>
 ### `slots/maya/lighting.py`
 
-- **[`class Lighting(SlotsMaya)`](tentacle/tentacle/slots/maya/lighting.py#L13)**
+- **[`class Lighting(SlotsMaya)`](tentacle/tentacle/slots/maya/lighting.py#L9)**
   - `Lighting.header_init(self, widget)`
   - `Lighting.b000(self)` — Launch the HDR Manager.
 
 <a id="slots--maya--lighting_shading"></a>
 ### `slots/maya/lighting_shading.py`
 
-- **[`class LightingShadingSlots(SlotsMaya)`](tentacle/tentacle/slots/maya/lighting_shading.py#L13)**
+- **[`class LightingShadingSlots(SlotsMaya)`](tentacle/tentacle/slots/maya/lighting_shading.py#L9)**
 
 <a id="slots--maya--main"></a>
 ### `slots/maya/main.py`
 
-- **[`class Main(SlotsMaya)`](tentacle/tentacle/slots/maya/main.py#L14)**
+- **[`class Main(SlotsMaya)`](tentacle/tentacle/slots/maya/main.py#L10)**
   - `Main.list000_init(self, widget)` — Initialize Workspace Browser
   - `Main.list000(self, item)` — Workspace Browser
 
 <a id="slots--maya--mash"></a>
 ### `slots/maya/mash.py`
 
-- **[`class MashSlots(SlotsMaya)`](tentacle/tentacle/slots/maya/mash.py#L13)**
+- **[`class MashSlots(SlotsMaya)`](tentacle/tentacle/slots/maya/mash.py#L9)**
 
 <a id="slots--maya--materials"></a>
 ### `slots/maya/materials.py`
 
-- **[`class MaterialsSlots(SlotsMaya)`](tentacle/tentacle/slots/maya/materials.py#L15)**
+- **[`class MaterialsSlots(SlotsMaya)`](tentacle/tentacle/slots/maya/materials.py#L12)**
   - `MaterialsSlots.header_init(self, widget)` — Initialize the header menu
   - `MaterialsSlots.cmb002_init(self, widget)` — Initialize Materials
   - `MaterialsSlots.lbl007(self)` — Rename the current material by stripping trailing integers and underscores.
+  - `MaterialsSlots.lbl007_global(self)` — Rename ALL scene materials by stripping trailing integers and underscores.
   - `MaterialsSlots.tb000_init(self, widget)`
   - `MaterialsSlots.tb000(self, widget)` — Select By Material
   - `MaterialsSlots.lbl002(self)` — Delete Material
@@ -385,37 +405,37 @@ _Generated: 2026-04-29_
 <a id="slots--maya--mesh"></a>
 ### `slots/maya/mesh.py`
 
-- **[`class MeshSlots(SlotsMaya)`](tentacle/tentacle/slots/maya/mesh.py#L13)**
+- **[`class MeshSlots(SlotsMaya)`](tentacle/tentacle/slots/maya/mesh.py#L9)**
 
 <a id="slots--maya--mesh_display"></a>
 ### `slots/maya/mesh_display.py`
 
-- **[`class MeshDisplaySlots(SlotsMaya)`](tentacle/tentacle/slots/maya/mesh_display.py#L13)**
+- **[`class MeshDisplaySlots(SlotsMaya)`](tentacle/tentacle/slots/maya/mesh_display.py#L9)**
 
 <a id="slots--maya--mesh_tools"></a>
 ### `slots/maya/mesh_tools.py`
 
-- **[`class MeshToolsSlots(SlotsMaya)`](tentacle/tentacle/slots/maya/mesh_tools.py#L13)**
+- **[`class MeshToolsSlots(SlotsMaya)`](tentacle/tentacle/slots/maya/mesh_tools.py#L9)**
 
 <a id="slots--maya--ncloth"></a>
 ### `slots/maya/ncloth.py`
 
-- **[`class NClothSlots(SlotsMaya)`](tentacle/tentacle/slots/maya/ncloth.py#L13)**
+- **[`class NClothSlots(SlotsMaya)`](tentacle/tentacle/slots/maya/ncloth.py#L9)**
 
 <a id="slots--maya--nconstraint"></a>
 ### `slots/maya/nconstraint.py`
 
-- **[`class NConstraintSlots(SlotsMaya)`](tentacle/tentacle/slots/maya/nconstraint.py#L13)**
+- **[`class NConstraintSlots(SlotsMaya)`](tentacle/tentacle/slots/maya/nconstraint.py#L9)**
 
 <a id="slots--maya--nhair"></a>
 ### `slots/maya/nhair.py`
 
-- **[`class NHairSlots(SlotsMaya)`](tentacle/tentacle/slots/maya/nhair.py#L13)**
+- **[`class NHairSlots(SlotsMaya)`](tentacle/tentacle/slots/maya/nhair.py#L9)**
 
 <a id="slots--maya--normals"></a>
 ### `slots/maya/normals.py`
 
-- **[`class Normals(SlotsMaya)`](tentacle/tentacle/slots/maya/normals.py#L12)**
+- **[`class Normals(SlotsMaya)`](tentacle/tentacle/slots/maya/normals.py#L9)**
   - `Normals.tb001_init(self, widget)` — Initialize Set Normals By Angle
   - `Normals.tb001(self, widget)` — Set Normals By Angle
   - `Normals.tb004_init(self, widget)` — Initialize Average Normals
@@ -433,17 +453,15 @@ _Generated: 2026-04-29_
 <a id="slots--maya--nparticles"></a>
 ### `slots/maya/nparticles.py`
 
-- **[`class NParticlesSlots(SlotsMaya)`](tentacle/tentacle/slots/maya/nparticles.py#L13)**
+- **[`class NParticlesSlots(SlotsMaya)`](tentacle/tentacle/slots/maya/nparticles.py#L9)**
 
 <a id="slots--maya--nurbs"></a>
 ### `slots/maya/nurbs.py`
 
-- **[`class Nurbs(SlotsMaya)`](tentacle/tentacle/slots/maya/nurbs.py#L12)**
+- **[`class Nurbs(SlotsMaya)`](tentacle/tentacle/slots/maya/nurbs.py#L10)**
   - `Nurbs.header_init(self, widget)`
-  - `Nurbs.cmb001_init(self, widget)`
   - `Nurbs.tb000_init(self, widget)`
   - `Nurbs.tb001_init(self, widget)`
-  - `Nurbs.cmb001(self, index, widget)` — Create: Curve
   - `Nurbs.tb000(self, widget)` — Revolve
   - `Nurbs.tb001(self, widget)` — Loft
   - `Nurbs.lbl000(self, widget)` — Image Tracer
@@ -475,7 +493,7 @@ _Generated: 2026-04-29_
 <a id="slots--maya--pivot"></a>
 ### `slots/maya/pivot.py`
 
-- **[`class Pivot(SlotsMaya)`](tentacle/tentacle/slots/maya/pivot.py#L11)**
+- **[`class Pivot(SlotsMaya)`](tentacle/tentacle/slots/maya/pivot.py#L9)**
   - `Pivot.tb000_init(self, widget)`
   - `Pivot.tb000(self, widget)` — Reset Pivot
   - `Pivot.tb001_init(self, widget)`
@@ -492,12 +510,12 @@ _Generated: 2026-04-29_
 <a id="slots--maya--playback"></a>
 ### `slots/maya/playback.py`
 
-- **[`class PlaybackSlots(SlotsMaya)`](tentacle/tentacle/slots/maya/playback.py#L13)**
+- **[`class PlaybackSlots(SlotsMaya)`](tentacle/tentacle/slots/maya/playback.py#L9)**
 
 <a id="slots--maya--polygons"></a>
 ### `slots/maya/polygons.py`
 
-- **[`class PolygonsSlots(SlotsMaya)`](tentacle/tentacle/slots/maya/polygons.py#L12)**
+- **[`class PolygonsSlots(SlotsMaya)`](tentacle/tentacle/slots/maya/polygons.py#L10)**
   - `PolygonsSlots.header_init(self, widget)` — Initialize Header
   - `PolygonsSlots.chk008(self, state, widget)` — Divide Facet: Split U
   - `PolygonsSlots.chk009(self, state, widget)` — Divide Facet: Split V
@@ -543,42 +561,28 @@ _Generated: 2026-04-29_
 <a id="slots--maya--preferences"></a>
 ### `slots/maya/preferences.py`
 
-- **[`class Preferences(SlotsMaya)`](tentacle/tentacle/slots/maya/preferences.py#L18)**
-  - `Preferences.header_init(self, widget)` — Initialize header
+- **[`class Preferences(SlotsMaya)`](tentacle/tentacle/slots/maya/preferences.py#L14)**
   - `Preferences.cmb001_init(self, widget)` — Initializes the combo box with unit options.
   - `Preferences.cmb001(self, index, widget)` — Set Working Units: Linear
   - `Preferences.cmb002_init(self, widget)` — Initializes the combo box with frame rate options.
   - `Preferences.cmb002(self, index, widget)` — Set Working Units: Time
   - `Preferences.s000_init(self, widget)` — Initialize autosave max backups spinbox (widget is source of truth).
   - `Preferences.s001_init(self, widget)` — Initialize autosave interval spinbox (widget is source of truth).
-  - `Preferences.tb000(self)` — Update Package
-  - `Preferences.tb001(self)` — Reload Tentacle package with its dependencies.
-  - `Preferences.check_for_update(self)` — Check for Tentacle package updates
-  - `Preferences.lbl000(self)` — UI Style Editor
-  - `Preferences.lbl001(self)` — Hotkey Editor
   - `Preferences.b001(self)` — Color Settings
   - `Preferences.b002(self)` — Autosave: Delete All
   - `Preferences.b008(self)` — Hotkeys
   - `Preferences.b009(self)` — Plug-In Manager
   - `Preferences.b010(self)` — Settings/Preferences
-  - `Preferences.cmb_bind_default_init(self, widget)` — Default binding (key only).
-  - `Preferences.cmb_bind_left_init(self, widget)` — Left button binding.
-  - `Preferences.cmb_bind_middle_init(self, widget)` — Middle button binding.
-  - `Preferences.cmb_bind_right_init(self, widget)` — Right button binding.
-  - `Preferences.cmb_bind_left_right_init(self, widget)` — Left+Right button binding.
-  - `Preferences.kse_activation_key_init(self, widget)` — Initialize activation key sequence editor.
-  - `Preferences.kse_repeat_last_init(self, widget)` — Initialize repeat last command key sequence editor.
-  - `Preferences.b_reset_bindings(self)` — Reset bindings to defaults.
 
 <a id="slots--maya--render"></a>
 ### `slots/maya/render.py`
 
-- **[`class Render(SlotsMaya)`](tentacle/tentacle/slots/maya/render.py#L13)**
+- **[`class Render(SlotsMaya)`](tentacle/tentacle/slots/maya/render.py#L9)**
 
 <a id="slots--maya--rendering"></a>
 ### `slots/maya/rendering.py`
 
-- **[`class Rendering(SlotsMaya)`](tentacle/tentacle/slots/maya/rendering.py#L18)**
+- **[`class Rendering(SlotsMaya)`](tentacle/tentacle/slots/maya/rendering.py#L16)**
   - `Rendering.cmb001_init(self, widget)` — Render: camera
   - `Rendering.tb000_init(self, widget)` — Export Playblast Init
   - `Rendering.tb000(self, widget)` — Export Playblast
@@ -593,7 +597,7 @@ _Generated: 2026-04-29_
 <a id="slots--maya--rigging"></a>
 ### `slots/maya/rigging.py`
 
-- **[`class Rigging(SlotsMaya)`](tentacle/tentacle/slots/maya/rigging.py#L13)**
+- **[`class Rigging(SlotsMaya)`](tentacle/tentacle/slots/maya/rigging.py#L11)**
   - `Rigging.header_init(self, widget)` — Init Rigging Header
   - `Rigging.cmb001_init(self, widget)` — Init Create
   - `Rigging.cmb001(self, index, widget)` — Create
@@ -619,7 +623,7 @@ _Generated: 2026-04-29_
 <a id="slots--maya--scene"></a>
 ### `slots/maya/scene.py`
 
-- **[`class SceneSlots(SlotsMaya)`](tentacle/tentacle/slots/maya/scene.py#L15)**
+- **[`class SceneSlots(SlotsMaya)`](tentacle/tentacle/slots/maya/scene.py#L14)**
   - `SceneSlots.header_init(self, widget)` — Initialize Header
   - `SceneSlots.txt000(self, widget)` — Workspace Scenes: Filter
   - `SceneSlots.cmb000_init(self, widget)` — Initialize Workspace Scenes
@@ -651,17 +655,18 @@ _Generated: 2026-04-29_
   - `SceneSlots.b012(self)` — Toggle Command Ports
   - `SceneSlots.b007(self)` — Import file
   - `SceneSlots.b008(self)` — Export Selection
+  - `SceneSlots.b013(self)` — Mesh Converter (FBX -> GLB)
   - `SceneSlots.b015(self)` — Remove String From Object Names.
 
 <a id="slots--maya--select"></a>
 ### `slots/maya/select.py`
 
-- **[`class SelectSlots(SlotsMaya)`](tentacle/tentacle/slots/maya/select.py#L13)**
+- **[`class SelectSlots(SlotsMaya)`](tentacle/tentacle/slots/maya/select.py#L9)**
 
 <a id="slots--maya--selection"></a>
 ### `slots/maya/selection.py`
 
-- **[`class Selection(SlotsMaya)`](tentacle/tentacle/slots/maya/selection.py#L13)**
+- **[`class Selection(SlotsMaya)`](tentacle/tentacle/slots/maya/selection.py#L11)**
   - `Selection.list000_init(self, widget)` — Select by Type: Hierarchical type list.
   - `Selection.list000(self, item)` — Select by Type
   - `Selection.cmb001_init(self, widget)` — Reorder Selection Init
@@ -698,25 +703,45 @@ _Generated: 2026-04-29_
   - `Selection.get_selection_tool()` *(static)* — Queries the current selection tool in Maya.
   - `Selection.set_selection_tool(tool)` *(static)* — Sets the selection tool in Maya.
 
+<a id="slots--maya--settings"></a>
+### `slots/maya/settings.py`
+
+- **[`class Settings(SlotsMaya)`](tentacle/tentacle/slots/maya/settings.py#L14)**
+  - `Settings.header_init(self, widget)` — Initialize header
+  - `Settings.tb000(self)` — Update Package
+  - `Settings.tb001(self)` — Reload Tentacle package with its dependencies.
+  - `Settings.check_for_update(self)` — Check for Tentacle package updates
+  - `Settings.b020(self)` — UI Style Editor
+  - `Settings.b021(self)` — Hotkey Editor
+  - `Settings.b022(self)` — UI Browser
+  - `Settings.cmb_bind_default_init(self, widget)` — Default binding (key only).
+  - `Settings.cmb_bind_left_init(self, widget)` — Left button binding.
+  - `Settings.cmb_bind_middle_init(self, widget)` — Middle button binding.
+  - `Settings.cmb_bind_right_init(self, widget)` — Right button binding.
+  - `Settings.cmb_bind_left_right_init(self, widget)` — Left+Right button binding.
+  - `Settings.kse_activation_key_init(self, widget)` — Initialize activation key sequence editor.
+  - `Settings.kse_repeat_last_init(self, widget)` — Initialize repeat last command key sequence editor.
+  - `Settings.b_reset_bindings(self)` — Reset bindings to defaults.
+
 <a id="slots--maya--skeleton"></a>
 ### `slots/maya/skeleton.py`
 
-- **[`class SkeletonSlots(SlotsMaya)`](tentacle/tentacle/slots/maya/skeleton.py#L13)**
+- **[`class SkeletonSlots(SlotsMaya)`](tentacle/tentacle/slots/maya/skeleton.py#L9)**
 
 <a id="slots--maya--skin"></a>
 ### `slots/maya/skin.py`
 
-- **[`class Skin(SlotsMaya)`](tentacle/tentacle/slots/maya/skin.py#L13)**
+- **[`class Skin(SlotsMaya)`](tentacle/tentacle/slots/maya/skin.py#L9)**
 
 <a id="slots--maya--stereo"></a>
 ### `slots/maya/stereo.py`
 
-- **[`class StereoSlots(SlotsMaya)`](tentacle/tentacle/slots/maya/stereo.py#L13)**
+- **[`class StereoSlots(SlotsMaya)`](tentacle/tentacle/slots/maya/stereo.py#L9)**
 
 <a id="slots--maya--subdivision"></a>
 ### `slots/maya/subdivision.py`
 
-- **[`class Subdivision(SlotsMaya)`](tentacle/tentacle/slots/maya/subdivision.py#L11)**
+- **[`class Subdivision(SlotsMaya)`](tentacle/tentacle/slots/maya/subdivision.py#L9)**
   - `Subdivision.cmb001(self, index, widget)` — Smooth Proxy
   - `Subdivision.cmb002(self, index, widget)` — Maya Subdivision Operations
   - `Subdivision.s000(self, value: int, widget: object) -> None` — Division Level
@@ -733,12 +758,12 @@ _Generated: 2026-04-29_
 <a id="slots--maya--surfaces"></a>
 ### `slots/maya/surfaces.py`
 
-- **[`class SurfacesSlots(SlotsMaya)`](tentacle/tentacle/slots/maya/surfaces.py#L13)**
+- **[`class SurfacesSlots(SlotsMaya)`](tentacle/tentacle/slots/maya/surfaces.py#L9)**
 
 <a id="slots--maya--symmetry"></a>
 ### `slots/maya/symmetry.py`
 
-- **[`class Symmetry(SlotsMaya)`](tentacle/tentacle/slots/maya/symmetry.py#L10)**
+- **[`class Symmetry(SlotsMaya)`](tentacle/tentacle/slots/maya/symmetry.py#L7)**
   - `Symmetry.chk000_init(self, widget)` — Set initial symmetry state
   - `Symmetry.chk000(self, state, widget)` — Symmetry X
   - `Symmetry.chk001(self, state, widget)` — Symmetry Y
@@ -749,17 +774,17 @@ _Generated: 2026-04-29_
 <a id="slots--maya--texturing"></a>
 ### `slots/maya/texturing.py`
 
-- **[`class TexturingSlots(SlotsMaya)`](tentacle/tentacle/slots/maya/texturing.py#L13)**
+- **[`class TexturingSlots(SlotsMaya)`](tentacle/tentacle/slots/maya/texturing.py#L9)**
 
 <a id="slots--maya--toon"></a>
 ### `slots/maya/toon.py`
 
-- **[`class ToonSlots(SlotsMaya)`](tentacle/tentacle/slots/maya/toon.py#L13)**
+- **[`class ToonSlots(SlotsMaya)`](tentacle/tentacle/slots/maya/toon.py#L9)**
 
 <a id="slots--maya--transform"></a>
 ### `slots/maya/transform.py`
 
-- **[`class TransformSlots(SlotsMaya)`](tentacle/tentacle/slots/maya/transform.py#L11)**
+- **[`class TransformSlots(SlotsMaya)`](tentacle/tentacle/slots/maya/transform.py#L9)**
   - `TransformSlots.header_init(self, widget)` — Header Init
   - `TransformSlots.cmb002_init(self, widget)` — Align To Init
   - `TransformSlots.cmb002(self, index, widget)` — Align To
@@ -790,7 +815,7 @@ _Generated: 2026-04-29_
 <a id="slots--maya--utilities"></a>
 ### `slots/maya/utilities.py`
 
-- **[`class Utilities(SlotsMaya)`](tentacle/tentacle/slots/maya/utilities.py#L11)**
+- **[`class Utilities(SlotsMaya)`](tentacle/tentacle/slots/maya/utilities.py#L8)**
   - `Utilities.b000(self)` — Measure
   - `Utilities.b001(self)` — Annotation
   - `Utilities.b002(self)` — Calculator
@@ -799,7 +824,7 @@ _Generated: 2026-04-29_
 <a id="slots--maya--uv"></a>
 ### `slots/maya/uv.py`
 
-- **[`class UvSlots(SlotsMaya)`](tentacle/tentacle/slots/maya/uv.py#L13)**
+- **[`class UvSlots(SlotsMaya)`](tentacle/tentacle/slots/maya/uv.py#L11)**
   - `UvSlots.get_map_size(self)` — Get the map size from the combobox as an int.
   - `UvSlots.header_init(self, widget)` — Initialize UV Menu Header
   - `UvSlots.cmb002_init(self, widget)` — Initialize UV Transform Menu
@@ -842,12 +867,12 @@ _Generated: 2026-04-29_
 <a id="slots--maya--visualize"></a>
 ### `slots/maya/visualize.py`
 
-- **[`class VisualizeSlots(SlotsMaya)`](tentacle/tentacle/slots/maya/visualize.py#L13)**
+- **[`class VisualizeSlots(SlotsMaya)`](tentacle/tentacle/slots/maya/visualize.py#L9)**
 
 <a id="slots--maya--windows"></a>
 ### `slots/maya/windows.py`
 
-- **[`class WindowsSlots(SlotsMaya)`](tentacle/tentacle/slots/maya/windows.py#L13)**
+- **[`class WindowsSlots(SlotsMaya)`](tentacle/tentacle/slots/maya/windows.py#L9)**
 
 <a id="tcl_blender"></a>
 ### `tcl_blender.py`

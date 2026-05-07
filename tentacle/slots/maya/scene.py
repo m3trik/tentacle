@@ -23,6 +23,7 @@ class SceneSlots(SlotsMaya):
     def header_init(self, widget):
         """Initialize Header"""
         if not widget.is_initialized:
+            widget.menu.add("Separator", setTitle="Export")
             widget.menu.add(
                 "QPushButton",
                 setToolTip="Export scene assets with environment checks and presets.",
@@ -35,6 +36,13 @@ class SceneSlots(SlotsMaya):
                 setObjectName="b003",
                 setToolTip="Export the scene geometry as FBX to the current maya file's directory.\nThe file name will be the same as the current scene and overwrite the current file if it exists.",
             )
+            widget.menu.add(
+                "QPushButton",
+                setText="Mesh Converter",
+                setObjectName="b013",
+                setToolTip="Open the FBX -> GLB converter window.\nBacked by godotengine/FBX2glTF; the binary is downloaded on first use.",
+            )
+            widget.menu.add("Separator", setTitle="Manage")
             widget.menu.add(
                 "QPushButton",
                 setText="Reference Manager",
@@ -53,6 +61,7 @@ class SceneSlots(SlotsMaya):
                 setObjectName="b005",
                 setToolTip="Open the naming tool.",
             )
+            widget.menu.add("Separator", setTitle="Fix")
             widget.menu.add(
                 "QPushButton",
                 setText="Cleanup Unknown",
@@ -71,6 +80,7 @@ class SceneSlots(SlotsMaya):
                 setObjectName="b011",
                 setToolTip="Fix missing color space errors on file texture nodes.\nAuto-detects sRGB vs Raw based on texture type.",
             )
+            widget.menu.add("Separator", setTitle="Diagnostics")
             widget.menu.add(
                 "QPushButton",
                 setText="Scene Audit",
@@ -403,6 +413,51 @@ class SceneSlots(SlotsMaya):
     def b008(self):
         """Export Selection"""
         self.ui.cmb004.call_slot(0)
+
+    def b013(self):
+        """Mesh Converter (FBX -> GLB)"""
+        from pythontk.file_utils.mesh_convert import slots as mesh_convert_slots
+
+        self.sb.register(
+            "mesh_convert.ui",
+            mesh_convert_slots.MeshConvertSlots,
+            base_dir=mesh_convert_slots,
+        )
+
+        ui = self.sb.get_ui("mesh_convert")
+        ui.set_attributes(WA_TranslucentBackground=True)
+        ui.set_flags(FramelessWindowHint=True)
+        ui.style.set(theme="dark", style_class="translucentBgWithBorder")
+        ui.header.config_buttons("menu", "minimize", "hide")
+
+        # Default the file dialog to the current scene's directory.
+        scene_path = cmds.file(query=True, sceneName=True) or ""
+        if scene_path:
+            ui.slots.source_dir = os.path.dirname(scene_path)
+
+        # Provider used by the header "Use Selection" toggle — returns FBX paths
+        # found on selected reference nodes. Components and non-DAG types in
+        # the selection raise on referenceQuery; skip them silently.
+        def _selected_fbx_paths():
+            sel = cmds.ls(selection=True, long=True, objectsOnly=True) or []
+            paths = []
+            for node in sel:
+                try:
+                    if not cmds.referenceQuery(node, isNodeReferenced=True):
+                        continue
+                    ref_path = cmds.referenceQuery(
+                        node, filename=True, withoutCopyNumber=True
+                    ) or ""
+                except RuntimeError:
+                    continue
+                if ref_path.lower().endswith(".fbx"):
+                    paths.append(ref_path)
+            # Dedupe while preserving order.
+            return list(dict.fromkeys(paths))
+
+        ui.slots.fbx_provider = _selected_fbx_paths
+
+        self.sb.handlers.marking_menu.show(ui)
 
     def b015(self):
         """Remove String From Object Names."""

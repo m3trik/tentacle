@@ -660,14 +660,9 @@ class MaterialsSlots(SlotsMaya):
         source_images_dir = mtk.get_env_info("sourceimages")
         ui.slots.source_dir = source_images_dir
 
-        # Provider used by the Optimize "Selected" option — returns the
-        # texture paths assigned to the currently selected objects.
         def _selected_texture_paths():
             sel = cmds.ls(selection=True, long=True) or []
-            if not sel:
-                return []
-            info_list = mtk.MatUtils.get_texture_info(objects=sel) or []
-            return [info["path"] for info in info_list if info.get("path")]
+            return mtk.MatUtils.get_texture_paths(objects=sel) if sel else []
 
         ui.slots.texture_provider = _selected_texture_paths
 

@@ -1,0 +1,53 @@
+{
+  "label": "fix_bd",
+  "ui": "edit",
+  "samples": 3,
+  "widget_count": 19,
+  "wrapped_menus": 3,
+  "total_menu_items": 31,
+  "sample_widget": "tb001",
+  "phases_ms_best": {
+    "01_imports": 27.9,
+    "02_switchboard_construct": 1098.003,
+    "03_load_ui_file": 9.841,
+    "04_register_children_sync": 49.056,
+    "05_drain_deferred_timers": 65.063,
+    "06_first_show_option_box_menu": 117.022
+  },
+  "phases_ms_median": {
+    "01_imports": 28.228,
+    "02_switchboard_construct": 1098.978,
+    "03_load_ui_file": 10.17,
+    "04_register_children_sync": 49.163,
+    "05_drain_deferred_timers": 70.489,
+    "06_first_show_option_box_menu": 117.737
+  },
+  "all_samples": [
+    {
+      "01_imports": 28.698,
+      "02_switchboard_construct": 1098.003,
+      "03_load_ui_file": 9.841,
+      "04_register_children_sync": 49.163,
+      "05_drain_deferred_timers": 75.704,
+      "06_first_show_option_box_menu": 117.022
+    },
+    {
+      "01_imports": 27.9,
+      "02_switchboard_construct": 1293.003,
+      "03_load_ui_file": 10.17,
+      "04_register_children_sync": 54.229,
+      "05_drain_deferred_timers": 70.489,
+      "06_first_show_option_box_menu": 125.753
+    },
+    {
+      "01_imports": 28.228,
+      "02_switchboard_construct": 1098.978,
+      "03_load_ui_file": 11.228,
+      "04_register_children_sync": 49.056,
+      "05_drain_deferred_timers": 65.063,
+      "06_first_show_option_box_menu": 117.737
+    }
+  ],
+  "init_total_ms_best": 114.119,
+  "first_show_ms_best": 117.022
+}

@@ -1,7 +1,7 @@
 {
   "name": "tentacle",
   "source_root": "tentacle/tentacle",
-  "generated_at": "2026-04-29",
+  "generated_at": "2026-05-07",
   "modules": [
     {
       "relpath": "__init__.py",
@@ -14,6 +14,57 @@
           "signature": "(string, outputToConsole=True)",
           "summary": "Format a string using preset variables.",
           "line": 26,
+          "deprecated": false
+        }
+      ],
+      "classes": []
+    },
+    {
+      "relpath": "bench/option_box.py",
+      "summary": "Tentacle-side option_box init bench.",
+      "functions": [],
+      "classes": [
+        {
+          "name": "TentacleOptionBoxBench",
+          "summary": "",
+          "line": 24,
+          "bases": [
+            "OptionBoxInitBench"
+          ],
+          "members": [
+            {
+              "name": "setup_switchboard",
+              "qualname": "TentacleOptionBoxBench.setup_switchboard",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "",
+              "line": 37,
+              "deprecated": false
+            },
+            {
+              "name": "post_switchboard",
+              "qualname": "TentacleOptionBoxBench.post_switchboard",
+              "kind": "method",
+              "signature": "(self, sb) -> None",
+              "summary": "",
+              "line": 53,
+              "deprecated": false
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "relpath": "bench/run_in_maya.py",
+      "summary": "Launch a fresh Maya, run an :class:`OptionBoxInitBench` subclass, capture JSON.",
+      "functions": [
+        {
+          "name": "main",
+          "qualname": "main",
+          "kind": "function",
+          "signature": "() -> int",
+          "summary": "",
+          "line": 334,
           "deprecated": false
         }
       ],
@@ -69,7 +120,7 @@
         {
           "name": "Animation",
           "summary": "",
-          "line": 12,
+          "line": 10,
           "bases": [
             "SlotsMaya"
           ],
@@ -80,7 +131,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Header Init",
-              "line": 20,
+              "line": 18,
               "deprecated": false
             },
             {
@@ -89,7 +140,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Go To Frame Init",
-              "line": 79,
+              "line": 77,
               "deprecated": false
             },
             {
@@ -98,7 +149,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Go To Frame",
-              "line": 180,
+              "line": 178,
               "deprecated": false
             },
             {
@@ -107,7 +158,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Invert Keyframes Init",
-              "line": 207,
+              "line": 205,
               "deprecated": false
             },
             {
@@ -116,7 +167,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Invert keyframes (selected keys preferred, fallback to all keys).",
-              "line": 264,
+              "line": 262,
               "deprecated": false
             },
             {
@@ -125,7 +176,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Adjust Spacing Init",
-              "line": 284,
+              "line": 282,
               "deprecated": false
             },
             {
@@ -134,7 +185,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Adjust spacing",
-              "line": 337,
+              "line": 335,
               "deprecated": false
             },
             {
@@ -143,7 +194,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Stagger Keys Init",
-              "line": 368,
+              "line": 366,
               "deprecated": false
             },
             {
@@ -152,7 +203,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Stagger Keys",
-              "line": 445,
+              "line": 443,
               "deprecated": false
             },
             {
@@ -161,7 +212,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Transfer Keys Init",
-              "line": 474,
+              "line": 472,
               "deprecated": false
             },
             {
@@ -170,7 +221,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Transfer Keys",
-              "line": 499,
+              "line": 497,
               "deprecated": false
             },
             {
@@ -179,7 +230,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Add/Remove Intermediate Keys Init",
-              "line": 513,
+              "line": 511,
               "deprecated": false
             },
             {
@@ -188,7 +239,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Add/Remove Intermediate Keys",
-              "line": 565,
+              "line": 563,
               "deprecated": false
             },
             {
@@ -197,7 +248,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Move Keys Init",
-              "line": 610,
+              "line": 608,
               "deprecated": false
             },
             {
@@ -206,7 +257,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Move Keys",
-              "line": 646,
+              "line": 644,
               "deprecated": false
             },
             {
@@ -215,7 +266,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Align Selected Keyframes Init",
-              "line": 665,
+              "line": 663,
               "deprecated": false
             },
             {
@@ -224,7 +275,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Align Selected Keyframes",
-              "line": 686,
+              "line": 684,
               "deprecated": false
             },
             {
@@ -233,7 +284,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Set Visibility Keys Init",
-              "line": 712,
+              "line": 710,
               "deprecated": false
             },
             {
@@ -242,7 +293,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Set Visibility Keys",
-              "line": 751,
+              "line": 749,
               "deprecated": false
             },
             {
@@ -251,7 +302,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Snap Keys to Frames Init",
-              "line": 776,
+              "line": 774,
               "deprecated": false
             },
             {
@@ -260,7 +311,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Snap Keys to Frames",
-              "line": 814,
+              "line": 812,
               "deprecated": false
             },
             {
@@ -269,7 +320,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Delete Keys Init",
-              "line": 846,
+              "line": 844,
               "deprecated": false
             },
             {
@@ -278,7 +329,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Delete Keys",
-              "line": 885,
+              "line": 883,
               "deprecated": false
             },
             {
@@ -287,7 +338,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Tie/Untie Keyframes Init",
-              "line": 903,
+              "line": 901,
               "deprecated": false
             },
             {
@@ -296,7 +347,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Tie/Untie Keyframes",
-              "line": 921,
+              "line": 919,
               "deprecated": false
             },
             {
@@ -305,7 +356,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Select Keys Init",
-              "line": 936,
+              "line": 934,
               "deprecated": false
             },
             {
@@ -314,7 +365,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Select Keys",
-              "line": 985,
+              "line": 983,
               "deprecated": false
             },
             {
@@ -323,7 +374,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Scale Keys Init",
-              "line": 1017,
+              "line": 1015,
               "deprecated": false
             },
             {
@@ -332,7 +383,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Scale Keys",
-              "line": 1199,
+              "line": 1197,
               "deprecated": false
             },
             {
@@ -341,7 +392,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Repair Corrupted Curves - Initialize option box",
-              "line": 1274,
+              "line": 1272,
               "deprecated": false
             },
             {
@@ -350,7 +401,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Repair Corrupted Curves",
-              "line": 1315,
+              "line": 1313,
               "deprecated": false
             },
             {
@@ -359,7 +410,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Print Animation Info - Initialize option box",
-              "line": 1383,
+              "line": 1381,
               "deprecated": false
             },
             {
@@ -368,7 +419,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Print Animation Info",
-              "line": 1408,
+              "line": 1406,
               "deprecated": false
             },
             {
@@ -377,7 +428,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Step Keys Init",
-              "line": 1421,
+              "line": 1419,
               "deprecated": false
             },
             {
@@ -386,7 +437,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Step Keys — set stepped tangents on keys.",
-              "line": 1449,
+              "line": 1447,
               "deprecated": false
             },
             {
@@ -395,7 +446,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Copy Keys Init",
-              "line": 1475,
+              "line": 1471,
               "deprecated": false
             },
             {
@@ -404,7 +455,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Copy Keys",
-              "line": 1492,
+              "line": 1488,
               "deprecated": false
             },
             {
@@ -413,7 +464,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Paste Keys Init",
-              "line": 1542,
+              "line": 1538,
               "deprecated": false
             },
             {
@@ -422,7 +473,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Paste Keys",
-              "line": 1556,
+              "line": 1552,
               "deprecated": false
             },
             {
@@ -431,7 +482,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Optimize Keys Init",
-              "line": 1588,
+              "line": 1584,
               "deprecated": false
             },
             {
@@ -440,7 +491,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Optimize Keys — remove redundant animation data.",
-              "line": 1623,
+              "line": 1619,
               "deprecated": false
             },
             {
@@ -449,7 +500,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Open Shot Sequencer",
-              "line": 1664,
+              "line": 1658,
               "deprecated": false
             },
             {
@@ -458,7 +509,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Open Shot Manifest",
-              "line": 1668,
+              "line": 1662,
               "deprecated": false
             },
             {
@@ -467,7 +518,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Fit Playback Range",
-              "line": 1672,
+              "line": 1666,
               "deprecated": false
             }
           ]
@@ -482,7 +533,7 @@
         {
           "name": "ArnoldSlots",
           "summary": "",
-          "line": 13,
+          "line": 9,
           "bases": [
             "SlotsMaya"
           ],
@@ -498,7 +549,7 @@
         {
           "name": "CacheSlots",
           "summary": "",
-          "line": 13,
+          "line": 9,
           "bases": [
             "SlotsMaya"
           ],
@@ -514,7 +565,7 @@
         {
           "name": "Cameras",
           "summary": "",
-          "line": 12,
+          "line": 10,
           "bases": [
             "SlotsMaya"
           ],
@@ -525,7 +576,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Initialize Camera Options List",
-              "line": 26,
+              "line": 24,
               "deprecated": false
             },
             {
@@ -534,7 +585,7 @@
               "kind": "method",
               "signature": "(self, item)",
               "summary": "Camera Options List",
-              "line": 78,
+              "line": 77,
               "deprecated": false
             },
             {
@@ -543,7 +594,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Cameras: Back View",
-              "line": 112,
+              "line": 111,
               "deprecated": false
             },
             {
@@ -552,7 +603,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Cameras: Top View",
-              "line": 116,
+              "line": 115,
               "deprecated": false
             },
             {
@@ -561,7 +612,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Cameras: Right View",
-              "line": 120,
+              "line": 119,
               "deprecated": false
             },
             {
@@ -570,7 +621,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Cameras: Left View",
-              "line": 124,
+              "line": 123,
               "deprecated": false
             },
             {
@@ -579,7 +630,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Cameras: Perspective View",
-              "line": 128,
+              "line": 127,
               "deprecated": false
             },
             {
@@ -588,7 +639,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Cameras: Front View",
-              "line": 132,
+              "line": 131,
               "deprecated": false
             },
             {
@@ -597,7 +648,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Cameras: Bottom View",
-              "line": 136,
+              "line": 135,
               "deprecated": false
             },
             {
@@ -606,7 +657,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Cameras: Align View",
-              "line": 140,
+              "line": 139,
               "deprecated": false
             },
             {
@@ -615,7 +666,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Camera: Dolly",
-              "line": 161,
+              "line": 160,
               "deprecated": false
             },
             {
@@ -624,7 +675,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Camera: Roll",
-              "line": 165,
+              "line": 164,
               "deprecated": false
             },
             {
@@ -633,7 +684,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Camera: Truck",
-              "line": 172,
+              "line": 171,
               "deprecated": false
             },
             {
@@ -642,7 +693,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Camera: Orbit",
-              "line": 176,
+              "line": 175,
               "deprecated": false
             },
             {
@@ -651,7 +702,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Toggle between the last two camera views in history.",
-              "line": 181,
+              "line": 180,
               "deprecated": false
             }
           ]
@@ -666,7 +717,7 @@
         {
           "name": "Constrain",
           "summary": "",
-          "line": 13,
+          "line": 9,
           "bases": [
             "SlotsMaya"
           ],
@@ -682,7 +733,7 @@
         {
           "name": "ControlSlots",
           "summary": "",
-          "line": 13,
+          "line": 9,
           "bases": [
             "SlotsMaya"
           ],
@@ -698,7 +749,7 @@
         {
           "name": "Crease",
           "summary": "",
-          "line": 11,
+          "line": 8,
           "bases": [
             "SlotsMaya"
           ],
@@ -709,7 +760,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "",
-              "line": 18,
+              "line": 15,
               "deprecated": false
             },
             {
@@ -718,7 +769,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Crease",
-              "line": 53,
+              "line": 50,
               "deprecated": false
             },
             {
@@ -727,7 +778,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Transfer Crease Edges",
-              "line": 61,
+              "line": 58,
               "deprecated": false
             }
           ]
@@ -742,7 +793,7 @@
         {
           "name": "CurvesSlots",
           "summary": "",
-          "line": 13,
+          "line": 9,
           "bases": [
             "SlotsMaya"
           ],
@@ -758,7 +809,7 @@
         {
           "name": "DeformSlots",
           "summary": "",
-          "line": 13,
+          "line": 9,
           "bases": [
             "SlotsMaya"
           ],
@@ -774,7 +825,7 @@
         {
           "name": "DisplaySlots",
           "summary": "",
-          "line": 12,
+          "line": 10,
           "bases": [
             "SlotsMaya"
           ],
@@ -785,7 +836,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "",
-              "line": 19,
+              "line": 17,
               "deprecated": false
             },
             {
@@ -794,7 +845,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Set Wireframe color",
-              "line": 34,
+              "line": 32,
               "deprecated": false
             },
             {
@@ -803,7 +854,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Wireframe Selected",
-              "line": 38,
+              "line": 36,
               "deprecated": false
             },
             {
@@ -812,7 +863,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Hide Selected",
-              "line": 42,
+              "line": 40,
               "deprecated": false
             },
             {
@@ -821,7 +872,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Show Selected",
-              "line": 47,
+              "line": 46,
               "deprecated": false
             },
             {
@@ -857,7 +908,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Xray Other",
-              "line": 73,
+              "line": 72,
               "deprecated": false
             },
             {
@@ -866,7 +917,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Toggle Material Override",
-              "line": 90,
+              "line": 88,
               "deprecated": false
             },
             {
@@ -875,7 +926,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Toggle Component ID Display",
-              "line": 94,
+              "line": 92,
               "deprecated": false
             },
             {
@@ -884,7 +935,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Wireframe Non Active (Wireframe All But The Selected Item)",
-              "line": 98,
+              "line": 96,
               "deprecated": false
             },
             {
@@ -893,7 +944,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Explode View GUI",
-              "line": 104,
+              "line": 102,
               "deprecated": false
             },
             {
@@ -902,7 +953,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Color Manager GUI",
-              "line": 108,
+              "line": 106,
               "deprecated": false
             },
             {
@@ -911,7 +962,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Template Selected",
-              "line": 112,
+              "line": 110,
               "deprecated": false
             }
           ]
@@ -926,7 +977,7 @@
         {
           "name": "Duplicate",
           "summary": "",
-          "line": 11,
+          "line": 8,
           "bases": [
             "SlotsMaya"
           ],
@@ -937,7 +988,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "",
-              "line": 15,
+              "line": 12,
               "deprecated": false
             },
             {
@@ -946,7 +997,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "",
-              "line": 42,
+              "line": 39,
               "deprecated": false
             },
             {
@@ -955,7 +1006,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Convert to Instances",
-              "line": 65,
+              "line": 62,
               "deprecated": false
             },
             {
@@ -964,7 +1015,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "",
-              "line": 92,
+              "line": 89,
               "deprecated": false
             },
             {
@@ -973,7 +1024,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Select Instanced Objects",
-              "line": 101,
+              "line": 98,
               "deprecated": false
             },
             {
@@ -982,7 +1033,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Mirror",
-              "line": 123,
+              "line": 120,
               "deprecated": false
             },
             {
@@ -991,7 +1042,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Uninstance Selected Objects",
-              "line": 127,
+              "line": 124,
               "deprecated": false
             },
             {
@@ -1000,7 +1051,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Duplicate Linear",
-              "line": 132,
+              "line": 129,
               "deprecated": false
             },
             {
@@ -1009,7 +1060,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Duplicate Radial",
-              "line": 136,
+              "line": 133,
               "deprecated": false
             },
             {
@@ -1018,7 +1069,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Duplicate Grid",
-              "line": 140,
+              "line": 137,
               "deprecated": false
             }
           ]
@@ -1033,7 +1084,7 @@
         {
           "name": "Edit",
           "summary": "",
-          "line": 12,
+          "line": 10,
           "bases": [
             "SlotsMaya"
           ],
@@ -1044,7 +1095,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Initialize header menu",
-              "line": 19,
+              "line": 17,
               "deprecated": false
             },
             {
@@ -1053,7 +1104,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Initialize Mesh Cleanup",
-              "line": 34,
+              "line": 32,
               "deprecated": false
             },
             {
@@ -1062,7 +1113,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Mesh Cleanup",
-              "line": 214,
+              "line": 212,
               "deprecated": false
             },
             {
@@ -1089,7 +1140,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Delete Selected",
-              "line": 409,
+              "line": 407,
               "deprecated": false
             },
             {
@@ -1098,7 +1149,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "",
-              "line": 413,
+              "line": 411,
               "deprecated": false
             },
             {
@@ -1107,16 +1158,16 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Node Locking",
-              "line": 427,
+              "line": 425,
               "deprecated": false
             },
             {
-              "name": "b_attr_mgr",
-              "qualname": "Edit.b_attr_mgr",
+              "name": "b_channels",
+              "qualname": "Edit.b_channels",
               "kind": "method",
               "signature": "(self)",
-              "summary": "Attribute Manager",
-              "line": 437,
+              "summary": "Channels",
+              "line": 435,
               "deprecated": false
             },
             {
@@ -1125,7 +1176,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Cut On Axis",
-              "line": 441,
+              "line": 439,
               "deprecated": false
             },
             {
@@ -1134,7 +1185,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Initialize Create Primitives list.",
-              "line": 447,
+              "line": 459,
               "deprecated": false
             },
             {
@@ -1143,7 +1194,7 @@
               "kind": "method",
               "signature": "(self, item)",
               "summary": "Create Primitive",
-              "line": 512,
+              "line": 526,
               "deprecated": false
             },
             {
@@ -1152,7 +1203,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Initialize Convert list.",
-              "line": 572,
+              "line": 600,
               "deprecated": false
             },
             {
@@ -1161,7 +1212,7 @@
               "kind": "method",
               "signature": "(self, item)",
               "summary": "Convert",
-              "line": 582,
+              "line": 610,
               "deprecated": false
             },
             {
@@ -1170,7 +1221,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Tranfer Maps",
-              "line": 595,
+              "line": 623,
               "deprecated": false
             },
             {
@@ -1179,7 +1230,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Transfer Vertex Order",
-              "line": 599,
+              "line": 627,
               "deprecated": false
             },
             {
@@ -1188,7 +1239,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Transfer Attribute Values",
-              "line": 603,
+              "line": 631,
               "deprecated": false
             },
             {
@@ -1197,7 +1248,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Shading Sets",
-              "line": 607,
+              "line": 635,
               "deprecated": false
             }
           ]
@@ -1212,7 +1263,7 @@
         {
           "name": "EditMeshSlots",
           "summary": "",
-          "line": 13,
+          "line": 9,
           "bases": [
             "SlotsMaya"
           ],
@@ -1228,7 +1279,7 @@
         {
           "name": "Editors",
           "summary": "",
-          "line": 11,
+          "line": 9,
           "bases": [
             "SlotsMaya"
           ],
@@ -1239,7 +1290,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Initialize the widget with structured data for easier maintenance.",
-              "line": 18,
+              "line": 16,
               "deprecated": false
             },
             {
@@ -1248,7 +1299,7 @@
               "kind": "method",
               "signature": "(self, item)",
               "summary": "",
-              "line": 98,
+              "line": 96,
               "deprecated": false
             },
             {
@@ -1257,7 +1308,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Attributes",
-              "line": 229,
+              "line": 227,
               "deprecated": false
             },
             {
@@ -1266,7 +1317,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Outliner",
-              "line": 233,
+              "line": 231,
               "deprecated": false
             },
             {
@@ -1275,7 +1326,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Tool",
-              "line": 237,
+              "line": 235,
               "deprecated": false
             },
             {
@@ -1284,7 +1335,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Layers",
-              "line": 241,
+              "line": 239,
               "deprecated": false
             },
             {
@@ -1293,7 +1344,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Channels",
-              "line": 245,
+              "line": 243,
               "deprecated": false
             },
             {
@@ -1302,7 +1353,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Node Editor",
-              "line": 249,
+              "line": 247,
               "deprecated": false
             },
             {
@@ -1311,7 +1362,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Dependancy Graph",
-              "line": 253,
+              "line": 251,
               "deprecated": false
             },
             {
@@ -1320,7 +1371,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Status Line",
-              "line": 292,
+              "line": 290,
               "deprecated": false
             },
             {
@@ -1329,7 +1380,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Shelf",
-              "line": 296,
+              "line": 294,
               "deprecated": false
             },
             {
@@ -1338,7 +1389,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Time & Range",
-              "line": 300,
+              "line": 298,
               "deprecated": false
             },
             {
@@ -1347,7 +1398,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Command Line",
-              "line": 314,
+              "line": 312,
               "deprecated": false
             },
             {
@@ -1356,7 +1407,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Help Line",
-              "line": 318,
+              "line": 316,
               "deprecated": false
             },
             {
@@ -1365,7 +1416,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Tool Box",
-              "line": 322,
+              "line": 320,
               "deprecated": false
             },
             {
@@ -1374,7 +1425,7 @@
               "kind": "method",
               "signature": "(self, name)",
               "summary": "Get a maya widget from a given name.",
-              "line": 326,
+              "line": 324,
               "deprecated": false
             }
           ]
@@ -1389,7 +1440,7 @@
         {
           "name": "EffectsSlots",
           "summary": "",
-          "line": 13,
+          "line": 9,
           "bases": [
             "SlotsMaya"
           ],
@@ -1405,7 +1456,7 @@
         {
           "name": "FieldsSolversSlots",
           "summary": "",
-          "line": 13,
+          "line": 9,
           "bases": [
             "SlotsMaya"
           ],
@@ -1421,7 +1472,7 @@
         {
           "name": "FluidsSlots",
           "summary": "",
-          "line": 13,
+          "line": 9,
           "bases": [
             "SlotsMaya"
           ],
@@ -1437,7 +1488,7 @@
         {
           "name": "GenerateSlots",
           "summary": "",
-          "line": 13,
+          "line": 9,
           "bases": [
             "SlotsMaya"
           ],
@@ -1453,7 +1504,7 @@
         {
           "name": "HelpSlots",
           "summary": "",
-          "line": 13,
+          "line": 9,
           "bases": [
             "SlotsMaya"
           ],
@@ -1469,7 +1520,7 @@
         {
           "name": "StatusMixin",
           "summary": "",
-          "line": 15,
+          "line": 12,
           "bases": [],
           "members": [
             {
@@ -1478,7 +1529,7 @@
               "kind": "method",
               "signature": "(self, hud) -> None",
               "summary": "",
-              "line": 16,
+              "line": 13,
               "deprecated": false
             }
           ]
@@ -1486,7 +1537,7 @@
         {
           "name": "SelectionMixin",
           "summary": "",
-          "line": 57,
+          "line": 54,
           "bases": [],
           "members": [
             {
@@ -1495,7 +1546,7 @@
               "kind": "method",
               "signature": "(self, hud, selection) -> None",
               "summary": "",
-              "line": 58,
+              "line": 55,
               "deprecated": false
             },
             {
@@ -1504,7 +1555,7 @@
               "kind": "method",
               "signature": "(self, hud, selection) -> None",
               "summary": "",
-              "line": 106,
+              "line": 102,
               "deprecated": false
             }
           ]
@@ -1512,7 +1563,7 @@
         {
           "name": "WarningsMixin",
           "summary": "Lightweight pre-build checks shown as colored icons (immediately) and",
-          "line": 131,
+          "line": 127,
           "bases": [],
           "members": [
             {
@@ -1521,7 +1572,7 @@
               "kind": "method",
               "signature": "(self) -> list",
               "summary": "Return the subset of WARNING_DEFS whose check fires and is enabled.",
-              "line": 201,
+              "line": 197,
               "deprecated": false
             },
             {
@@ -1530,7 +1581,7 @@
               "kind": "method",
               "signature": "(self, hud, warnings) -> None",
               "summary": "Insert a single-line row of colored badges;",
-              "line": 218,
+              "line": 214,
               "deprecated": false
             },
             {
@@ -1539,7 +1590,7 @@
               "kind": "method",
               "signature": "(self, hud, warnings) -> None",
               "summary": "Insert a formatted detail line per active warning.",
-              "line": 228,
+              "line": 224,
               "deprecated": false
             }
           ]
@@ -1547,7 +1598,7 @@
         {
           "name": "HudSlots",
           "summary": "HUD Slots for Maya, providing scene and selection information.",
-          "line": 278,
+          "line": 274,
           "bases": [
             "SlotsMaya",
             "ptk.PackageManager",
@@ -1562,7 +1613,7 @@
               "kind": "method",
               "signature": "(self) -> None",
               "summary": "Start a new HUD build request, only the latest token will be used.",
-              "line": 294,
+              "line": 290,
               "deprecated": false
             },
             {
@@ -1571,7 +1622,7 @@
               "kind": "method",
               "signature": "(self) -> None",
               "summary": "",
-              "line": 314,
+              "line": 310,
               "deprecated": false
             }
           ]
@@ -1586,7 +1637,7 @@
         {
           "name": "KeySlots",
           "summary": "",
-          "line": 13,
+          "line": 9,
           "bases": [
             "SlotsMaya"
           ],
@@ -1602,7 +1653,7 @@
         {
           "name": "Lighting",
           "summary": "",
-          "line": 13,
+          "line": 9,
           "bases": [
             "SlotsMaya"
           ],
@@ -1613,7 +1664,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "",
-              "line": 21,
+              "line": 17,
               "deprecated": false
             },
             {
@@ -1622,7 +1673,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Launch the HDR Manager.",
-              "line": 31,
+              "line": 27,
               "deprecated": false
             }
           ]
@@ -1637,7 +1688,7 @@
         {
           "name": "LightingShadingSlots",
           "summary": "",
-          "line": 13,
+          "line": 9,
           "bases": [
             "SlotsMaya"
           ],
@@ -1653,7 +1704,7 @@
         {
           "name": "Main",
           "summary": "",
-          "line": 14,
+          "line": 10,
           "bases": [
             "SlotsMaya"
           ],
@@ -1664,7 +1715,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Initialize Workspace Browser",
-              "line": 21,
+              "line": 17,
               "deprecated": false
             },
             {
@@ -1673,7 +1724,7 @@
               "kind": "method",
               "signature": "(self, item)",
               "summary": "Workspace Browser",
-              "line": 71,
+              "line": 67,
               "deprecated": false
             }
           ]
@@ -1688,7 +1739,7 @@
         {
           "name": "MashSlots",
           "summary": "",
-          "line": 13,
+          "line": 9,
           "bases": [
             "SlotsMaya"
           ],
@@ -1704,7 +1755,7 @@
         {
           "name": "MaterialsSlots",
           "summary": "",
-          "line": 15,
+          "line": 12,
           "bases": [
             "SlotsMaya"
           ],
@@ -1715,7 +1766,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Initialize the header menu",
-              "line": 26,
+              "line": 23,
               "deprecated": false
             },
             {
@@ -1724,7 +1775,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Initialize Materials",
-              "line": 110,
+              "line": 107,
               "deprecated": false
             },
             {
@@ -1733,7 +1784,16 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Rename the current material by stripping trailing integers and underscores.",
-              "line": 185,
+              "line": 290,
+              "deprecated": false
+            },
+            {
+              "name": "lbl007_global",
+              "qualname": "MaterialsSlots.lbl007_global",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Rename ALL scene materials by stripping trailing integers and underscores.",
+              "line": 347,
               "deprecated": false
             },
             {
@@ -1742,7 +1802,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "",
-              "line": 232,
+              "line": 378,
               "deprecated": false
             },
             {
@@ -1751,7 +1811,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Select By Material",
-              "line": 255,
+              "line": 401,
               "deprecated": false
             },
             {
@@ -1760,7 +1820,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Delete Material",
-              "line": 317,
+              "line": 463,
               "deprecated": false
             },
             {
@@ -1769,7 +1829,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Delete Unused Materials",
-              "line": 323,
+              "line": 469,
               "deprecated": false
             },
             {
@@ -1778,7 +1838,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Select and Show Attributes: Show Material Attributes in the Attribute Editor.",
-              "line": 328,
+              "line": 474,
               "deprecated": false
             },
             {
@@ -1787,7 +1847,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Set the current combo box text as editable.",
-              "line": 334,
+              "line": 480,
               "deprecated": false
             },
             {
@@ -1796,7 +1856,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Open material in editor",
-              "line": 339,
+              "line": 485,
               "deprecated": false
             },
             {
@@ -1805,7 +1865,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Get Material: Change the index to match the current material selection.",
-              "line": 353,
+              "line": 499,
               "deprecated": false
             },
             {
@@ -1814,7 +1874,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Assign Random",
-              "line": 372,
+              "line": 518,
               "deprecated": false
             },
             {
@@ -1823,7 +1883,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Initialize Assign Current",
-              "line": 411,
+              "line": 557,
               "deprecated": false
             },
             {
@@ -1832,7 +1892,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Assign Current",
-              "line": 428,
+              "line": 574,
               "deprecated": false
             },
             {
@@ -1841,7 +1901,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Assign: New Material",
-              "line": 438,
+              "line": 584,
               "deprecated": false
             },
             {
@@ -1850,7 +1910,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Map Packer",
-              "line": 449,
+              "line": 595,
               "deprecated": false
             },
             {
@@ -1859,7 +1919,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Create Game Shader",
-              "line": 471,
+              "line": 617,
               "deprecated": false
             },
             {
@@ -1868,7 +1928,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Texture Path Editor",
-              "line": 475,
+              "line": 621,
               "deprecated": false
             },
             {
@@ -1877,7 +1937,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Shader Templates",
-              "line": 479,
+              "line": 625,
               "deprecated": false
             },
             {
@@ -1886,7 +1946,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Reload Textures and Reset Viewport",
-              "line": 483,
+              "line": 629,
               "deprecated": false
             },
             {
@@ -1895,7 +1955,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Remove and Reassign Duplicates",
-              "line": 490,
+              "line": 636,
               "deprecated": false
             },
             {
@@ -1904,7 +1964,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Map Converter",
-              "line": 497,
+              "line": 643,
               "deprecated": false
             },
             {
@@ -1913,7 +1973,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Print Texture Info",
-              "line": 519,
+              "line": 671,
               "deprecated": false
             },
             {
@@ -1922,7 +1982,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Material Updater",
-              "line": 540,
+              "line": 692,
               "deprecated": false
             },
             {
@@ -1931,7 +1991,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Image to Plane",
-              "line": 544,
+              "line": 696,
               "deprecated": false
             },
             {
@@ -1940,7 +2000,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Send to Marmoset",
-              "line": 548,
+              "line": 700,
               "deprecated": false
             },
             {
@@ -1949,7 +2009,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Send to Substance Painter",
-              "line": 556,
+              "line": 708,
               "deprecated": false
             }
           ]
@@ -1964,7 +2024,7 @@
         {
           "name": "MeshSlots",
           "summary": "",
-          "line": 13,
+          "line": 9,
           "bases": [
             "SlotsMaya"
           ],
@@ -1980,7 +2040,7 @@
         {
           "name": "MeshDisplaySlots",
           "summary": "",
-          "line": 13,
+          "line": 9,
           "bases": [
             "SlotsMaya"
           ],
@@ -1996,7 +2056,7 @@
         {
           "name": "MeshToolsSlots",
           "summary": "",
-          "line": 13,
+          "line": 9,
           "bases": [
             "SlotsMaya"
           ],
@@ -2012,7 +2072,7 @@
         {
           "name": "NClothSlots",
           "summary": "",
-          "line": 13,
+          "line": 9,
           "bases": [
             "SlotsMaya"
           ],
@@ -2028,7 +2088,7 @@
         {
           "name": "NConstraintSlots",
           "summary": "",
-          "line": 13,
+          "line": 9,
           "bases": [
             "SlotsMaya"
           ],
@@ -2044,7 +2104,7 @@
         {
           "name": "NHairSlots",
           "summary": "",
-          "line": 13,
+          "line": 9,
           "bases": [
             "SlotsMaya"
           ],
@@ -2060,7 +2120,7 @@
         {
           "name": "Normals",
           "summary": "",
-          "line": 12,
+          "line": 9,
           "bases": [
             "SlotsMaya"
           ],
@@ -2071,7 +2131,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Initialize Set Normals By Angle",
-              "line": 16,
+              "line": 13,
               "deprecated": false
             },
             {
@@ -2080,7 +2140,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Set Normals By Angle",
-              "line": 43,
+              "line": 40,
               "deprecated": false
             },
             {
@@ -2089,7 +2149,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Initialize Average Normals",
-              "line": 65,
+              "line": 63,
               "deprecated": false
             },
             {
@@ -2098,7 +2158,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Average Normals",
-              "line": 74,
+              "line": 72,
               "deprecated": false
             },
             {
@@ -2107,7 +2167,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Soften Edge Normals",
-              "line": 81,
+              "line": 79,
               "deprecated": false
             },
             {
@@ -2116,7 +2176,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Harden all selected edges.",
-              "line": 92,
+              "line": 91,
               "deprecated": false
             },
             {
@@ -2134,7 +2194,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Soft Edge Display",
-              "line": 114,
+              "line": 115,
               "deprecated": false
             },
             {
@@ -2143,7 +2203,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Toggle lock/unlock vertex normals.",
-              "line": 118,
+              "line": 119,
               "deprecated": false
             },
             {
@@ -2152,7 +2212,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Display Face Normals",
-              "line": 122,
+              "line": 123,
               "deprecated": false
             },
             {
@@ -2161,7 +2221,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Set To Face",
-              "line": 126,
+              "line": 127,
               "deprecated": false
             },
             {
@@ -2170,7 +2230,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Initialize Reverse Normals",
-              "line": 130,
+              "line": 131,
               "deprecated": false
             },
             {
@@ -2179,7 +2239,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Reverse Normals",
-              "line": 148,
+              "line": 149,
               "deprecated": false
             }
           ]
@@ -2194,7 +2254,7 @@
         {
           "name": "NParticlesSlots",
           "summary": "",
-          "line": 13,
+          "line": 9,
           "bases": [
             "SlotsMaya"
           ],
@@ -2210,7 +2270,7 @@
         {
           "name": "Nurbs",
           "summary": "",
-          "line": 12,
+          "line": 10,
           "bases": [
             "SlotsMaya"
           ],
@@ -2221,16 +2281,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "",
-              "line": 19,
-              "deprecated": false
-            },
-            {
-              "name": "cmb001_init",
-              "qualname": "Nurbs.cmb001_init",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "",
-              "line": 28,
+              "line": 17,
               "deprecated": false
             },
             {
@@ -2239,7 +2290,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "",
-              "line": 40,
+              "line": 26,
               "deprecated": false
             },
             {
@@ -2248,16 +2299,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "",
-              "line": 111,
-              "deprecated": false
-            },
-            {
-              "name": "cmb001",
-              "qualname": "Nurbs.cmb001",
-              "kind": "method",
-              "signature": "(self, index, widget)",
-              "summary": "Create: Curve",
-              "line": 187,
+              "line": 97,
               "deprecated": false
             },
             {
@@ -2266,7 +2308,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Revolve",
-              "line": 207,
+              "line": 173,
               "deprecated": false
             },
             {
@@ -2275,7 +2317,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Loft",
-              "line": 234,
+              "line": 200,
               "deprecated": false
             },
             {
@@ -2284,7 +2326,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Image Tracer",
-              "line": 260,
+              "line": 226,
               "deprecated": false
             },
             {
@@ -2293,7 +2335,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Project Curve",
-              "line": 264,
+              "line": 230,
               "deprecated": false
             },
             {
@@ -2302,7 +2344,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Duplicate Curve",
-              "line": 268,
+              "line": 234,
               "deprecated": false
             },
             {
@@ -2311,7 +2353,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Extract Curve",
-              "line": 272,
+              "line": 238,
               "deprecated": false
             },
             {
@@ -2320,7 +2362,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Lock Curve",
-              "line": 279,
+              "line": 245,
               "deprecated": false
             },
             {
@@ -2329,7 +2371,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Unlock Curve",
-              "line": 283,
+              "line": 249,
               "deprecated": false
             },
             {
@@ -2338,7 +2380,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Bend Curve",
-              "line": 287,
+              "line": 253,
               "deprecated": false
             },
             {
@@ -2347,7 +2389,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Curl Curve",
-              "line": 291,
+              "line": 257,
               "deprecated": false
             },
             {
@@ -2356,7 +2398,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Modify Curve Curvature",
-              "line": 295,
+              "line": 261,
               "deprecated": false
             },
             {
@@ -2365,7 +2407,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Smooth Curve",
-              "line": 299,
+              "line": 265,
               "deprecated": false
             },
             {
@@ -2374,7 +2416,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Straighten Curve",
-              "line": 303,
+              "line": 269,
               "deprecated": false
             },
             {
@@ -2383,7 +2425,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Extrude",
-              "line": 307,
+              "line": 273,
               "deprecated": false
             },
             {
@@ -2392,7 +2434,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Planar",
-              "line": 311,
+              "line": 277,
               "deprecated": false
             },
             {
@@ -2401,7 +2443,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Insert Isoparm",
-              "line": 315,
+              "line": 281,
               "deprecated": false
             },
             {
@@ -2410,7 +2452,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Edit Curve Tool",
-              "line": 319,
+              "line": 285,
               "deprecated": false
             },
             {
@@ -2419,7 +2461,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Attach Curve",
-              "line": 323,
+              "line": 289,
               "deprecated": false
             },
             {
@@ -2428,7 +2470,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Detach Curve",
-              "line": 327,
+              "line": 293,
               "deprecated": false
             },
             {
@@ -2437,7 +2479,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Extend Curve",
-              "line": 331,
+              "line": 297,
               "deprecated": false
             },
             {
@@ -2446,7 +2488,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Cut Curve",
-              "line": 335,
+              "line": 301,
               "deprecated": false
             },
             {
@@ -2455,7 +2497,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Open/Close Curve",
-              "line": 339,
+              "line": 305,
               "deprecated": false
             },
             {
@@ -2464,7 +2506,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Insert Knot",
-              "line": 343,
+              "line": 309,
               "deprecated": false
             },
             {
@@ -2473,7 +2515,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Add Points Tool",
-              "line": 347,
+              "line": 313,
               "deprecated": false
             },
             {
@@ -2482,7 +2524,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Reverse Curve",
-              "line": 351,
+              "line": 317,
               "deprecated": false
             },
             {
@@ -2491,7 +2533,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Extend Curve",
-              "line": 355,
+              "line": 321,
               "deprecated": false
             },
             {
@@ -2500,7 +2542,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Extend On Surface",
-              "line": 359,
+              "line": 325,
               "deprecated": false
             }
           ]
@@ -2515,7 +2557,7 @@
         {
           "name": "Pivot",
           "summary": "",
-          "line": 11,
+          "line": 9,
           "bases": [
             "SlotsMaya"
           ],
@@ -2526,7 +2568,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "",
-              "line": 18,
+              "line": 16,
               "deprecated": false
             },
             {
@@ -2535,7 +2577,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Reset Pivot",
-              "line": 35,
+              "line": 33,
               "deprecated": false
             },
             {
@@ -2562,7 +2604,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "",
-              "line": 90,
+              "line": 94,
               "deprecated": false
             },
             {
@@ -2571,7 +2613,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Transfer Pivot",
-              "line": 129,
+              "line": 133,
               "deprecated": false
             },
             {
@@ -2580,7 +2622,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Initialize World-Aligned Pivot options",
-              "line": 147,
+              "line": 151,
               "deprecated": false
             },
             {
@@ -2589,7 +2631,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "World-Aligned Pivot",
-              "line": 158,
+              "line": 162,
               "deprecated": false
             },
             {
@@ -2598,7 +2640,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Center Pivot: Object",
-              "line": 180,
+              "line": 184,
               "deprecated": false
             },
             {
@@ -2607,7 +2649,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Center Pivot: Component",
-              "line": 186,
+              "line": 190,
               "deprecated": false
             },
             {
@@ -2616,7 +2658,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Center Pivot: World",
-              "line": 192,
+              "line": 196,
               "deprecated": false
             },
             {
@@ -2625,7 +2667,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Bake Pivot",
-              "line": 198,
+              "line": 202,
               "deprecated": false
             }
           ]
@@ -2640,7 +2682,7 @@
         {
           "name": "PlaybackSlots",
           "summary": "",
-          "line": 13,
+          "line": 9,
           "bases": [
             "SlotsMaya"
           ],
@@ -2656,7 +2698,7 @@
         {
           "name": "PolygonsSlots",
           "summary": "",
-          "line": 12,
+          "line": 10,
           "bases": [
             "SlotsMaya"
           ],
@@ -2667,7 +2709,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Initialize Header",
-              "line": 19,
+              "line": 17,
               "deprecated": false
             },
             {
@@ -2676,7 +2718,7 @@
               "kind": "method",
               "signature": "(self, state, widget)",
               "summary": "Divide Facet: Split U",
-              "line": 34,
+              "line": 32,
               "deprecated": false
             },
             {
@@ -2685,7 +2727,7 @@
               "kind": "method",
               "signature": "(self, state, widget)",
               "summary": "Divide Facet: Split V",
-              "line": 38,
+              "line": 36,
               "deprecated": false
             },
             {
@@ -2694,7 +2736,7 @@
               "kind": "method",
               "signature": "(self, state, widget)",
               "summary": "Divide Facet: Tris",
-              "line": 42,
+              "line": 40,
               "deprecated": false
             },
             {
@@ -2703,7 +2745,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Initialize Merge Vertices",
-              "line": 46,
+              "line": 44,
               "deprecated": false
             },
             {
@@ -2712,7 +2754,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Merge Vertices",
-              "line": 65,
+              "line": 63,
               "deprecated": false
             },
             {
@@ -2721,7 +2763,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Initialize Separate",
-              "line": 79,
+              "line": 77,
               "deprecated": false
             },
             {
@@ -2730,7 +2772,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Separate",
-              "line": 98,
+              "line": 96,
               "deprecated": false
             },
             {
@@ -2739,7 +2781,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Initialize Extrude",
-              "line": 109,
+              "line": 107,
               "deprecated": false
             },
             {
@@ -2748,7 +2790,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Extrude",
-              "line": 129,
+              "line": 127,
               "deprecated": false
             },
             {
@@ -2757,7 +2799,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Initialize Combine",
-              "line": 155,
+              "line": 153,
               "deprecated": false
             },
             {
@@ -2766,7 +2808,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Combine Selected Meshes.",
-              "line": 187,
+              "line": 185,
               "deprecated": false
             },
             {
@@ -2775,7 +2817,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Initialize Detach",
-              "line": 206,
+              "line": 204,
               "deprecated": false
             },
             {
@@ -2784,7 +2826,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Detach.",
-              "line": 230,
+              "line": 228,
               "deprecated": false
             },
             {
@@ -2793,7 +2835,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Initialize Inset Face Region",
-              "line": 251,
+              "line": 249,
               "deprecated": false
             },
             {
@@ -2802,7 +2844,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Inset Face Region",
-              "line": 263,
+              "line": 261,
               "deprecated": false
             },
             {
@@ -2811,7 +2853,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Initialize Divide Facet",
-              "line": 288,
+              "line": 286,
               "deprecated": false
             },
             {
@@ -2820,7 +2862,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Divide Facet",
-              "line": 314,
+              "line": 312,
               "deprecated": false
             },
             {
@@ -2829,7 +2871,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Initialize Boolean Operation",
-              "line": 358,
+              "line": 356,
               "deprecated": false
             },
             {
@@ -2838,7 +2880,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Boolean Operation",
-              "line": 376,
+              "line": 374,
               "deprecated": false
             },
             {
@@ -2847,7 +2889,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Initialize Snap Closest Verts",
-              "line": 401,
+              "line": 399,
               "deprecated": false
             },
             {
@@ -2856,7 +2898,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Snap Closest Verts",
-              "line": 419,
+              "line": 417,
               "deprecated": false
             },
             {
@@ -2901,7 +2943,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Bridge",
-              "line": 479,
+              "line": 480,
               "deprecated": false
             },
             {
@@ -2910,7 +2952,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Interactive Bridge",
-              "line": 494,
+              "line": 495,
               "deprecated": false
             },
             {
@@ -2919,7 +2961,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Weld Center",
-              "line": 498,
+              "line": 499,
               "deprecated": false
             },
             {
@@ -2928,7 +2970,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Collapse Component",
-              "line": 506,
+              "line": 507,
               "deprecated": false
             },
             {
@@ -2937,7 +2979,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Bevel",
-              "line": 516,
+              "line": 517,
               "deprecated": false
             },
             {
@@ -2946,7 +2988,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Multi-Cut Tool",
-              "line": 520,
+              "line": 521,
               "deprecated": false
             },
             {
@@ -2955,7 +2997,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Attach",
-              "line": 524,
+              "line": 525,
               "deprecated": false
             },
             {
@@ -3042,27 +3084,18 @@
         {
           "name": "Preferences",
           "summary": "",
-          "line": 18,
+          "line": 14,
           "bases": [
             "SlotsMaya"
           ],
           "members": [
-            {
-              "name": "header_init",
-              "qualname": "Preferences.header_init",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Initialize header",
-              "line": 25,
-              "deprecated": false
-            },
             {
               "name": "cmb001_init",
               "qualname": "Preferences.cmb001_init",
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Initializes the combo box with unit options.",
-              "line": 63,
+              "line": 21,
               "deprecated": false
             },
             {
@@ -3071,7 +3104,7 @@
               "kind": "method",
               "signature": "(self, index, widget)",
               "summary": "Set Working Units: Linear",
-              "line": 85,
+              "line": 43,
               "deprecated": false
             },
             {
@@ -3080,7 +3113,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Initializes the combo box with frame rate options.",
-              "line": 91,
+              "line": 49,
               "deprecated": false
             },
             {
@@ -3089,7 +3122,7 @@
               "kind": "method",
               "signature": "(self, index, widget)",
               "summary": "Set Working Units: Time",
-              "line": 116,
+              "line": 74,
               "deprecated": false
             },
             {
@@ -3098,7 +3131,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Initialize autosave max backups spinbox (widget is source of truth).",
-              "line": 121,
+              "line": 79,
               "deprecated": false
             },
             {
@@ -3107,52 +3140,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Initialize autosave interval spinbox (widget is source of truth).",
-              "line": 145,
-              "deprecated": false
-            },
-            {
-              "name": "tb000",
-              "qualname": "Preferences.tb000",
-              "kind": "method",
-              "signature": "(self)",
-              "summary": "Update Package",
-              "line": 162,
-              "deprecated": false
-            },
-            {
-              "name": "tb001",
-              "qualname": "Preferences.tb001",
-              "kind": "method",
-              "signature": "(self)",
-              "summary": "Reload Tentacle package with its dependencies.",
-              "line": 166,
-              "deprecated": false
-            },
-            {
-              "name": "check_for_update",
-              "qualname": "Preferences.check_for_update",
-              "kind": "method",
-              "signature": "(self)",
-              "summary": "Check for Tentacle package updates",
-              "line": 264,
-              "deprecated": false
-            },
-            {
-              "name": "lbl000",
-              "qualname": "Preferences.lbl000",
-              "kind": "method",
-              "signature": "(self)",
-              "summary": "UI Style Editor",
-              "line": 299,
-              "deprecated": false
-            },
-            {
-              "name": "lbl001",
-              "qualname": "Preferences.lbl001",
-              "kind": "method",
-              "signature": "(self)",
-              "summary": "Hotkey Editor",
-              "line": 318,
+              "line": 103,
               "deprecated": false
             },
             {
@@ -3161,7 +3149,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Color Settings",
-              "line": 341,
+              "line": 120,
               "deprecated": false
             },
             {
@@ -3170,7 +3158,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Autosave: Delete All",
-              "line": 345,
+              "line": 124,
               "deprecated": false
             },
             {
@@ -3179,7 +3167,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Hotkeys",
-              "line": 355,
+              "line": 134,
               "deprecated": false
             },
             {
@@ -3188,7 +3176,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Plug-In Manager",
-              "line": 359,
+              "line": 138,
               "deprecated": false
             },
             {
@@ -3197,79 +3185,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Settings/Preferences",
-              "line": 363,
-              "deprecated": false
-            },
-            {
-              "name": "cmb_bind_default_init",
-              "qualname": "Preferences.cmb_bind_default_init",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Default binding (key only).",
-              "line": 431,
-              "deprecated": false
-            },
-            {
-              "name": "cmb_bind_left_init",
-              "qualname": "Preferences.cmb_bind_left_init",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Left button binding.",
-              "line": 437,
-              "deprecated": false
-            },
-            {
-              "name": "cmb_bind_middle_init",
-              "qualname": "Preferences.cmb_bind_middle_init",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Middle button binding.",
-              "line": 443,
-              "deprecated": false
-            },
-            {
-              "name": "cmb_bind_right_init",
-              "qualname": "Preferences.cmb_bind_right_init",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Right button binding.",
-              "line": 449,
-              "deprecated": false
-            },
-            {
-              "name": "cmb_bind_left_right_init",
-              "qualname": "Preferences.cmb_bind_left_right_init",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Left+Right button binding.",
-              "line": 455,
-              "deprecated": false
-            },
-            {
-              "name": "kse_activation_key_init",
-              "qualname": "Preferences.kse_activation_key_init",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Initialize activation key sequence editor.",
-              "line": 461,
-              "deprecated": false
-            },
-            {
-              "name": "kse_repeat_last_init",
-              "qualname": "Preferences.kse_repeat_last_init",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Initialize repeat last command key sequence editor.",
-              "line": 475,
-              "deprecated": false
-            },
-            {
-              "name": "b_reset_bindings",
-              "qualname": "Preferences.b_reset_bindings",
-              "kind": "method",
-              "signature": "(self)",
-              "summary": "Reset bindings to defaults.",
-              "line": 528,
+              "line": 142,
               "deprecated": false
             }
           ]
@@ -3284,7 +3200,7 @@
         {
           "name": "Render",
           "summary": "",
-          "line": 13,
+          "line": 9,
           "bases": [
             "SlotsMaya"
           ],
@@ -3300,7 +3216,7 @@
         {
           "name": "Rendering",
           "summary": "",
-          "line": 18,
+          "line": 16,
           "bases": [
             "SlotsMaya"
           ],
@@ -3311,7 +3227,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Render: camera",
-              "line": 25,
+              "line": 23,
               "deprecated": false
             },
             {
@@ -3320,7 +3236,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Export Playblast Init",
-              "line": 30,
+              "line": 29,
               "deprecated": false
             },
             {
@@ -3329,7 +3245,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Export Playblast",
-              "line": 287,
+              "line": 286,
               "deprecated": false
             },
             {
@@ -3338,7 +3254,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Render Current Frame",
-              "line": 555,
+              "line": 557,
               "deprecated": false
             },
             {
@@ -3347,7 +3263,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Open Render Settings Window",
-              "line": 561,
+              "line": 563,
               "deprecated": false
             },
             {
@@ -3356,7 +3272,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Redo Previous Render",
-              "line": 565,
+              "line": 567,
               "deprecated": false
             },
             {
@@ -3365,7 +3281,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Editor: Render Setup",
-              "line": 569,
+              "line": 571,
               "deprecated": false
             },
             {
@@ -3374,7 +3290,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Editor: Rendering Flags",
-              "line": 573,
+              "line": 575,
               "deprecated": false
             },
             {
@@ -3383,7 +3299,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Apply Vray Attributes To Selected Objects",
-              "line": 577,
+              "line": 579,
               "deprecated": false
             },
             {
@@ -3392,7 +3308,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Load Vray Plugin",
-              "line": 605,
+              "line": 602,
               "deprecated": false
             }
           ]
@@ -3407,7 +3323,7 @@
         {
           "name": "Rigging",
           "summary": "",
-          "line": 13,
+          "line": 11,
           "bases": [
             "SlotsMaya"
           ],
@@ -3418,7 +3334,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Init Rigging Header",
-              "line": 17,
+              "line": 15,
               "deprecated": false
             },
             {
@@ -3427,7 +3343,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Init Create",
-              "line": 29,
+              "line": 27,
               "deprecated": false
             },
             {
@@ -3436,7 +3352,7 @@
               "kind": "method",
               "signature": "(self, index, widget)",
               "summary": "Create",
-              "line": 36,
+              "line": 32,
               "deprecated": false
             },
             {
@@ -3445,7 +3361,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Init Quick Rig",
-              "line": 52,
+              "line": 44,
               "deprecated": false
             },
             {
@@ -3454,7 +3370,7 @@
               "kind": "method",
               "signature": "(self, index, widget)",
               "summary": "Quick Rig",
-              "line": 57,
+              "line": 49,
               "deprecated": false
             },
             {
@@ -3463,7 +3379,7 @@
               "kind": "method",
               "signature": "(self, state, widget)",
               "summary": "Scale Joint",
-              "line": 69,
+              "line": 61,
               "deprecated": false
             },
             {
@@ -3472,7 +3388,7 @@
               "kind": "method",
               "signature": "(self, state, widget)",
               "summary": "Scale IK",
-              "line": 74,
+              "line": 66,
               "deprecated": false
             },
             {
@@ -3481,7 +3397,7 @@
               "kind": "method",
               "signature": "(self, state, widget)",
               "summary": "Scale IK/FK",
-              "line": 79,
+              "line": 71,
               "deprecated": false
             },
             {
@@ -3490,7 +3406,7 @@
               "kind": "method",
               "signature": "(self, value, widget)",
               "summary": "Scale Joint/IK/FK",
-              "line": 86,
+              "line": 78,
               "deprecated": false
             },
             {
@@ -3499,7 +3415,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Init Display Local Rotation Axes",
-              "line": 95,
+              "line": 87,
               "deprecated": false
             },
             {
@@ -3508,7 +3424,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Toggle Display Local Rotation Axes",
-              "line": 129,
+              "line": 121,
               "deprecated": false
             },
             {
@@ -3517,7 +3433,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Init Constraint Switch",
-              "line": 148,
+              "line": 140,
               "deprecated": false
             },
             {
@@ -3526,7 +3442,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Constraint Switch",
-              "line": 173,
+              "line": 165,
               "deprecated": false
             },
             {
@@ -3535,7 +3451,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Init Event Triggers",
-              "line": 189,
+              "line": 181,
               "deprecated": false
             },
             {
@@ -3544,7 +3460,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Event Triggers",
-              "line": 223,
+              "line": 215,
               "deprecated": false
             },
             {
@@ -3553,7 +3469,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Init Create Locator at Selection",
-              "line": 265,
+              "line": 257,
               "deprecated": false
             },
             {
@@ -3562,7 +3478,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Create Locator at Selection",
-              "line": 339,
+              "line": 331,
               "deprecated": false
             },
             {
@@ -3571,7 +3487,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Remove Locator",
-              "line": 368,
+              "line": 360,
               "deprecated": false
             },
             {
@@ -3580,7 +3496,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Init Lock/Unlock Attributes",
-              "line": 377,
+              "line": 369,
               "deprecated": false
             },
             {
@@ -3589,7 +3505,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Lock/Unlock Attributes",
-              "line": 406,
+              "line": 398,
               "deprecated": false
             },
             {
@@ -3598,7 +3514,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Render Opacity",
-              "line": 443,
+              "line": 433,
               "deprecated": false
             }
           ]
@@ -3613,7 +3529,7 @@
         {
           "name": "SceneSlots",
           "summary": "",
-          "line": 15,
+          "line": 14,
           "bases": [
             "SlotsMaya"
           ],
@@ -3741,7 +3657,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Set Workspace",
-              "line": 264,
+              "line": 261,
               "deprecated": false
             },
             {
@@ -3750,7 +3666,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Initialize Recent Files",
-              "line": 283,
+              "line": 282,
               "deprecated": false
             },
             {
@@ -3759,7 +3675,7 @@
               "kind": "method",
               "signature": "(self, item)",
               "summary": "Recent Files",
-              "line": 294,
+              "line": 293,
               "deprecated": false
             },
             {
@@ -3768,7 +3684,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Open current project root",
-              "line": 299,
+              "line": 298,
               "deprecated": false
             },
             {
@@ -3777,7 +3693,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Auto Set Workspace",
-              "line": 304,
+              "line": 303,
               "deprecated": false
             },
             {
@@ -3786,7 +3702,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Autosave: Open Directory",
-              "line": 315,
+              "line": 335,
               "deprecated": false
             },
             {
@@ -3795,7 +3711,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Open Reference Manager",
-              "line": 328,
+              "line": 348,
               "deprecated": false
             },
             {
@@ -3804,7 +3720,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Scene Exporter",
-              "line": 332,
+              "line": 352,
               "deprecated": false
             },
             {
@@ -3813,7 +3729,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Quick Export Scene Geo",
-              "line": 336,
+              "line": 356,
               "deprecated": false
             },
             {
@@ -3822,7 +3738,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Open Hierarchy Manager",
-              "line": 340,
+              "line": 360,
               "deprecated": false
             },
             {
@@ -3831,7 +3747,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Open Naming Tool",
-              "line": 344,
+              "line": 364,
               "deprecated": false
             },
             {
@@ -3840,7 +3756,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Scene Cleanup",
-              "line": 348,
+              "line": 368,
               "deprecated": false
             },
             {
@@ -3849,7 +3765,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Fix OCIO",
-              "line": 352,
+              "line": 372,
               "deprecated": false
             },
             {
@@ -3858,7 +3774,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Scene Audit",
-              "line": 356,
+              "line": 376,
               "deprecated": false
             },
             {
@@ -3867,7 +3783,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Fix Color Spaces",
-              "line": 360,
+              "line": 380,
               "deprecated": false
             },
             {
@@ -3876,7 +3792,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Toggle Command Ports",
-              "line": 364,
+              "line": 384,
               "deprecated": false
             },
             {
@@ -3885,7 +3801,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Import file",
-              "line": 379,
+              "line": 399,
               "deprecated": false
             },
             {
@@ -3894,7 +3810,16 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Export Selection",
-              "line": 383,
+              "line": 403,
+              "deprecated": false
+            },
+            {
+              "name": "b013",
+              "qualname": "SceneSlots.b013",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Mesh Converter (FBX -> GLB)",
+              "line": 407,
               "deprecated": false
             },
             {
@@ -3903,7 +3828,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Remove String From Object Names.",
-              "line": 387,
+              "line": 452,
               "deprecated": false
             }
           ]
@@ -3918,7 +3843,7 @@
         {
           "name": "SelectSlots",
           "summary": "",
-          "line": 13,
+          "line": 9,
           "bases": [
             "SlotsMaya"
           ],
@@ -3934,7 +3859,7 @@
         {
           "name": "Selection",
           "summary": "",
-          "line": 13,
+          "line": 11,
           "bases": [
             "SlotsMaya"
           ],
@@ -3945,7 +3870,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Select by Type: Hierarchical type list.",
-              "line": 20,
+              "line": 18,
               "deprecated": false
             },
             {
@@ -3954,7 +3879,7 @@
               "kind": "method",
               "signature": "(self, item)",
               "summary": "Select by Type",
-              "line": 34,
+              "line": 32,
               "deprecated": false
             },
             {
@@ -3963,7 +3888,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Reorder Selection Init",
-              "line": 54,
+              "line": 52,
               "deprecated": false
             },
             {
@@ -3972,7 +3897,7 @@
               "kind": "method",
               "signature": "(self, index, widget)",
               "summary": "Reorder Selection",
-              "line": 79,
+              "line": 77,
               "deprecated": false
             },
             {
@@ -3981,7 +3906,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "",
-              "line": 116,
+              "line": 114,
               "deprecated": false
             },
             {
@@ -3990,7 +3915,7 @@
               "kind": "method",
               "signature": "(self, index, widget)",
               "summary": "Convert To",
-              "line": 142,
+              "line": 140,
               "deprecated": false
             },
             {
@@ -3999,7 +3924,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "",
-              "line": 186,
+              "line": 184,
               "deprecated": false
             },
             {
@@ -4008,7 +3933,7 @@
               "kind": "method",
               "signature": "(self, index, widget)",
               "summary": "Selection Contraints",
-              "line": 199,
+              "line": 197,
               "deprecated": false
             },
             {
@@ -4017,7 +3942,7 @@
               "kind": "method",
               "signature": "(self, state, widget)",
               "summary": "Select Nth: uncheck other checkboxes",
-              "line": 218,
+              "line": 216,
               "deprecated": false
             },
             {
@@ -4026,7 +3951,7 @@
               "kind": "method",
               "signature": "(self, state, widget)",
               "summary": "Select Nth: uncheck other checkboxes",
-              "line": 222,
+              "line": 220,
               "deprecated": false
             },
             {
@@ -4035,7 +3960,7 @@
               "kind": "method",
               "signature": "(self, state, widget)",
               "summary": "Select Nth: uncheck other checkboxes",
-              "line": 226,
+              "line": 224,
               "deprecated": false
             },
             {
@@ -4044,7 +3969,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Create button group for radioboxes chk005, chk006, chk007",
-              "line": 230,
+              "line": 228,
               "deprecated": false
             },
             {
@@ -4053,7 +3978,7 @@
               "kind": "method",
               "signature": "(self, state, widget)",
               "summary": "Select Style: Marquee",
-              "line": 242,
+              "line": 240,
               "deprecated": false
             },
             {
@@ -4062,7 +3987,7 @@
               "kind": "method",
               "signature": "(self, state, widget)",
               "summary": "Select Style: Lasso",
-              "line": 247,
+              "line": 245,
               "deprecated": false
             },
             {
@@ -4071,7 +3996,7 @@
               "kind": "method",
               "signature": "(self, state, widget)",
               "summary": "Select Style: Paint",
-              "line": 252,
+              "line": 250,
               "deprecated": false
             },
             {
@@ -4080,7 +4005,7 @@
               "kind": "method",
               "signature": "(self, *args)",
               "summary": "Grow Selection",
-              "line": 257,
+              "line": 255,
               "deprecated": false
             },
             {
@@ -4089,7 +4014,7 @@
               "kind": "method",
               "signature": "(self, *args)",
               "summary": "Shrink Selection",
-              "line": 261,
+              "line": 259,
               "deprecated": false
             },
             {
@@ -4098,7 +4023,7 @@
               "kind": "method",
               "signature": "(self, state, widget)",
               "summary": "Ignore Backfacing (Camera Based Selection)",
-              "line": 265,
+              "line": 263,
               "deprecated": false
             },
             {
@@ -4107,7 +4032,7 @@
               "kind": "method",
               "signature": "(self, state, widget)",
               "summary": "Toggle Soft Selection",
-              "line": 274,
+              "line": 272,
               "deprecated": false
             },
             {
@@ -4116,7 +4041,7 @@
               "kind": "method",
               "signature": "(self, **kwargs)",
               "summary": "Transform Constraints: Constraint CheckBoxes",
-              "line": 283,
+              "line": 281,
               "deprecated": false
             },
             {
@@ -4125,7 +4050,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "",
-              "line": 292,
+              "line": 290,
               "deprecated": false
             },
             {
@@ -4134,7 +4059,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Select Nth",
-              "line": 334,
+              "line": 332,
               "deprecated": false
             },
             {
@@ -4143,7 +4068,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "",
-              "line": 367,
+              "line": 365,
               "deprecated": false
             },
             {
@@ -4152,7 +4077,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Select Similar",
-              "line": 449,
+              "line": 447,
               "deprecated": false
             },
             {
@@ -4161,7 +4086,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "",
-              "line": 484,
+              "line": 482,
               "deprecated": false
             },
             {
@@ -4170,7 +4095,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Select Island: Select Polygon Face Island",
-              "line": 537,
+              "line": 535,
               "deprecated": false
             },
             {
@@ -4179,7 +4104,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "",
-              "line": 556,
+              "line": 554,
               "deprecated": false
             },
             {
@@ -4188,7 +4113,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Select Edges By Angle",
-              "line": 575,
+              "line": 573,
               "deprecated": false
             },
             {
@@ -4197,7 +4122,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Toggle Selectability",
-              "line": 589,
+              "line": 587,
               "deprecated": false
             },
             {
@@ -4206,7 +4131,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Convert Selection To Vertices",
-              "line": 593,
+              "line": 591,
               "deprecated": false
             },
             {
@@ -4215,7 +4140,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Convert Selection To Edges",
-              "line": 597,
+              "line": 595,
               "deprecated": false
             },
             {
@@ -4224,7 +4149,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Convert Selection To Faces",
-              "line": 601,
+              "line": 599,
               "deprecated": false
             },
             {
@@ -4233,7 +4158,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Convert Selection To Edge Ring",
-              "line": 605,
+              "line": 603,
               "deprecated": false
             },
             {
@@ -4242,7 +4167,7 @@
               "kind": "staticmethod",
               "signature": "()",
               "summary": "Queries the current selection tool in Maya.",
-              "line": 610,
+              "line": 608,
               "deprecated": false
             },
             {
@@ -4251,7 +4176,159 @@
               "kind": "staticmethod",
               "signature": "(tool)",
               "summary": "Sets the selection tool in Maya.",
-              "line": 623,
+              "line": 621,
+              "deprecated": false
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "relpath": "slots/maya/settings.py",
+      "summary": "",
+      "functions": [],
+      "classes": [
+        {
+          "name": "Settings",
+          "summary": "",
+          "line": 14,
+          "bases": [
+            "SlotsMaya"
+          ],
+          "members": [
+            {
+              "name": "header_init",
+              "qualname": "Settings.header_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Initialize header",
+              "line": 21,
+              "deprecated": false
+            },
+            {
+              "name": "tb000",
+              "qualname": "Settings.tb000",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Update Package",
+              "line": 41,
+              "deprecated": false
+            },
+            {
+              "name": "tb001",
+              "qualname": "Settings.tb001",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Reload Tentacle package with its dependencies.",
+              "line": 45,
+              "deprecated": false
+            },
+            {
+              "name": "check_for_update",
+              "qualname": "Settings.check_for_update",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Check for Tentacle package updates",
+              "line": 142,
+              "deprecated": false
+            },
+            {
+              "name": "b020",
+              "qualname": "Settings.b020",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "UI Style Editor",
+              "line": 176,
+              "deprecated": false
+            },
+            {
+              "name": "b021",
+              "qualname": "Settings.b021",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Hotkey Editor",
+              "line": 180,
+              "deprecated": false
+            },
+            {
+              "name": "b022",
+              "qualname": "Settings.b022",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "UI Browser",
+              "line": 184,
+              "deprecated": false
+            },
+            {
+              "name": "cmb_bind_default_init",
+              "qualname": "Settings.cmb_bind_default_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Default binding (key only).",
+              "line": 247,
+              "deprecated": false
+            },
+            {
+              "name": "cmb_bind_left_init",
+              "qualname": "Settings.cmb_bind_left_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Left button binding.",
+              "line": 253,
+              "deprecated": false
+            },
+            {
+              "name": "cmb_bind_middle_init",
+              "qualname": "Settings.cmb_bind_middle_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Middle button binding.",
+              "line": 259,
+              "deprecated": false
+            },
+            {
+              "name": "cmb_bind_right_init",
+              "qualname": "Settings.cmb_bind_right_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Right button binding.",
+              "line": 265,
+              "deprecated": false
+            },
+            {
+              "name": "cmb_bind_left_right_init",
+              "qualname": "Settings.cmb_bind_left_right_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Left+Right button binding.",
+              "line": 271,
+              "deprecated": false
+            },
+            {
+              "name": "kse_activation_key_init",
+              "qualname": "Settings.kse_activation_key_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Initialize activation key sequence editor.",
+              "line": 277,
+              "deprecated": false
+            },
+            {
+              "name": "kse_repeat_last_init",
+              "qualname": "Settings.kse_repeat_last_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Initialize repeat last command key sequence editor.",
+              "line": 291,
+              "deprecated": false
+            },
+            {
+              "name": "b_reset_bindings",
+              "qualname": "Settings.b_reset_bindings",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Reset bindings to defaults.",
+              "line": 343,
               "deprecated": false
             }
           ]
@@ -4266,7 +4343,7 @@
         {
           "name": "SkeletonSlots",
           "summary": "",
-          "line": 13,
+          "line": 9,
           "bases": [
             "SlotsMaya"
           ],
@@ -4282,7 +4359,7 @@
         {
           "name": "Skin",
           "summary": "",
-          "line": 13,
+          "line": 9,
           "bases": [
             "SlotsMaya"
           ],
@@ -4298,7 +4375,7 @@
         {
           "name": "StereoSlots",
           "summary": "",
-          "line": 13,
+          "line": 9,
           "bases": [
             "SlotsMaya"
           ],
@@ -4314,7 +4391,7 @@
         {
           "name": "Subdivision",
           "summary": "",
-          "line": 11,
+          "line": 9,
           "bases": [
             "SlotsMaya"
           ],
@@ -4325,7 +4402,7 @@
               "kind": "method",
               "signature": "(self, index, widget)",
               "summary": "Smooth Proxy",
-              "line": 18,
+              "line": 16,
               "deprecated": false
             },
             {
@@ -4334,7 +4411,7 @@
               "kind": "method",
               "signature": "(self, index, widget)",
               "summary": "Maya Subdivision Operations",
-              "line": 32,
+              "line": 30,
               "deprecated": false
             },
             {
@@ -4343,7 +4420,7 @@
               "kind": "method",
               "signature": "(self, value: int, widget: object) -> None",
               "summary": "Division Level",
-              "line": 41,
+              "line": 39,
               "deprecated": false
             },
             {
@@ -4352,7 +4429,7 @@
               "kind": "method",
               "signature": "(self, value: int, widget: object) -> None",
               "summary": "Tesselation Level",
-              "line": 57,
+              "line": 55,
               "deprecated": false
             },
             {
@@ -4361,7 +4438,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Quadrangulate",
-              "line": 71,
+              "line": 69,
               "deprecated": false
             },
             {
@@ -4370,7 +4447,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Triangulate",
-              "line": 75,
+              "line": 73,
               "deprecated": false
             },
             {
@@ -4379,7 +4456,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Reduce",
-              "line": 79,
+              "line": 77,
               "deprecated": false
             },
             {
@@ -4439,7 +4516,7 @@
         {
           "name": "SurfacesSlots",
           "summary": "",
-          "line": 13,
+          "line": 9,
           "bases": [
             "SlotsMaya"
           ],
@@ -4455,7 +4532,7 @@
         {
           "name": "Symmetry",
           "summary": "",
-          "line": 10,
+          "line": 7,
           "bases": [
             "SlotsMaya"
           ],
@@ -4466,7 +4543,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Set initial symmetry state",
-              "line": 16,
+              "line": 13,
               "deprecated": false
             },
             {
@@ -4475,7 +4552,7 @@
               "kind": "method",
               "signature": "(self, state, widget)",
               "summary": "Symmetry X",
-              "line": 24,
+              "line": 21,
               "deprecated": false
             },
             {
@@ -4484,7 +4561,7 @@
               "kind": "method",
               "signature": "(self, state, widget)",
               "summary": "Symmetry Y",
-              "line": 28,
+              "line": 25,
               "deprecated": false
             },
             {
@@ -4493,7 +4570,7 @@
               "kind": "method",
               "signature": "(self, state, widget)",
               "summary": "Symmetry Z",
-              "line": 32,
+              "line": 29,
               "deprecated": false
             },
             {
@@ -4502,7 +4579,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Set symmetry reference space",
-              "line": 36,
+              "line": 33,
               "deprecated": false
             },
             {
@@ -4511,7 +4588,7 @@
               "kind": "method",
               "signature": "(self, state, widget)",
               "summary": "Symmetry: Topo",
-              "line": 40,
+              "line": 37,
               "deprecated": false
             }
           ]
@@ -4526,7 +4603,7 @@
         {
           "name": "TexturingSlots",
           "summary": "",
-          "line": 13,
+          "line": 9,
           "bases": [
             "SlotsMaya"
           ],
@@ -4542,7 +4619,7 @@
         {
           "name": "ToonSlots",
           "summary": "",
-          "line": 13,
+          "line": 9,
           "bases": [
             "SlotsMaya"
           ],
@@ -4558,7 +4635,7 @@
         {
           "name": "TransformSlots",
           "summary": "",
-          "line": 11,
+          "line": 9,
           "bases": [
             "SlotsMaya"
           ],
@@ -4569,7 +4646,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Header Init",
-              "line": 21,
+              "line": 19,
               "deprecated": false
             },
             {
@@ -4578,7 +4655,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Align To Init",
-              "line": 37,
+              "line": 35,
               "deprecated": false
             },
             {
@@ -4587,7 +4664,7 @@
               "kind": "method",
               "signature": "(self, index, widget)",
               "summary": "Align To",
-              "line": 50,
+              "line": 48,
               "deprecated": false
             },
             {
@@ -4596,7 +4673,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Drop To Grid Init",
-              "line": 68,
+              "line": 66,
               "deprecated": false
             },
             {
@@ -4605,7 +4682,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Drop To Grid",
-              "line": 98,
+              "line": 96,
               "deprecated": false
             },
             {
@@ -4614,7 +4691,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Scale Connected Edges Init",
-              "line": 109,
+              "line": 108,
               "deprecated": false
             },
             {
@@ -4623,7 +4700,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Scale Connected Edges",
-              "line": 120,
+              "line": 119,
               "deprecated": false
             },
             {
@@ -4632,7 +4709,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Freeze Transformations Init",
-              "line": 125,
+              "line": 124,
               "deprecated": false
             },
             {
@@ -4641,7 +4718,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Freeze Transformations",
-              "line": 206,
+              "line": 205,
               "deprecated": false
             },
             {
@@ -4650,7 +4727,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Constraints Init",
-              "line": 244,
+              "line": 243,
               "deprecated": false
             },
             {
@@ -4659,7 +4736,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Snap Init",
-              "line": 273,
+              "line": 272,
               "deprecated": false
             },
             {
@@ -4668,7 +4745,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Move To Init",
-              "line": 337,
+              "line": 336,
               "deprecated": false
             },
             {
@@ -4677,7 +4754,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Move To",
-              "line": 350,
+              "line": 349,
               "deprecated": false
             },
             {
@@ -4686,7 +4763,7 @@
               "kind": "method",
               "signature": "(self, state, widget)",
               "summary": "Transform Tool Snap Settings: Move",
-              "line": 373,
+              "line": 372,
               "deprecated": false
             },
             {
@@ -4695,7 +4772,7 @@
               "kind": "method",
               "signature": "(self, state, widget)",
               "summary": "Transform Tool Snap Settings: Scale",
-              "line": 382,
+              "line": 381,
               "deprecated": false
             },
             {
@@ -4704,7 +4781,7 @@
               "kind": "method",
               "signature": "(self, state, widget)",
               "summary": "Transform Tool Snap Settings: Rotate",
-              "line": 391,
+              "line": 390,
               "deprecated": false
             },
             {
@@ -4713,7 +4790,7 @@
               "kind": "method",
               "signature": "(self, state, widget)",
               "summary": "Transform Constraints: Edge",
-              "line": 400,
+              "line": 399,
               "deprecated": false
             },
             {
@@ -4722,7 +4799,7 @@
               "kind": "method",
               "signature": "(self, state, widget)",
               "summary": "Transform Contraints: Surface",
-              "line": 409,
+              "line": 408,
               "deprecated": false
             },
             {
@@ -4731,7 +4808,7 @@
               "kind": "method",
               "signature": "(self, state, widget)",
               "summary": "Transform Constraints: Make Live",
-              "line": 418,
+              "line": 417,
               "deprecated": false
             },
             {
@@ -4740,7 +4817,7 @@
               "kind": "method",
               "signature": "(self, value, widget)",
               "summary": "Transform Tool Snap Settings: Spinboxes",
-              "line": 429,
+              "line": 428,
               "deprecated": false
             },
             {
@@ -4749,7 +4826,7 @@
               "kind": "method",
               "signature": "(self, value, widget)",
               "summary": "Transform Tool Snap Settings: Spinboxes",
-              "line": 435,
+              "line": 434,
               "deprecated": false
             },
             {
@@ -4758,7 +4835,7 @@
               "kind": "method",
               "signature": "(self, value, widget)",
               "summary": "Transform Tool Snap Settings: Spinboxes",
-              "line": 441,
+              "line": 440,
               "deprecated": false
             },
             {
@@ -4767,7 +4844,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Snap Toolset",
-              "line": 447,
+              "line": 446,
               "deprecated": false
             },
             {
@@ -4776,7 +4853,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Match Scale",
-              "line": 451,
+              "line": 450,
               "deprecated": false
             },
             {
@@ -4785,7 +4862,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Un-Freeze Transforms",
-              "line": 465,
+              "line": 464,
               "deprecated": false
             },
             {
@@ -4794,7 +4871,7 @@
               "kind": "method",
               "signature": "(self, ctx, state)",
               "summary": "Set the transform tool's move, rotate, and scale snap states.",
-              "line": 469,
+              "line": 468,
               "deprecated": false
             }
           ]
@@ -4809,7 +4886,7 @@
         {
           "name": "Utilities",
           "summary": "",
-          "line": 11,
+          "line": 8,
           "bases": [
             "SlotsMaya"
           ],
@@ -4820,7 +4897,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Measure",
-              "line": 15,
+              "line": 12,
               "deprecated": false
             },
             {
@@ -4829,7 +4906,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Annotation",
-              "line": 19,
+              "line": 16,
               "deprecated": false
             },
             {
@@ -4838,7 +4915,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Calculator",
-              "line": 23,
+              "line": 20,
               "deprecated": false
             },
             {
@@ -4847,7 +4924,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Grease Pencil",
-              "line": 27,
+              "line": 24,
               "deprecated": false
             }
           ]
@@ -4862,7 +4939,7 @@
         {
           "name": "UvSlots",
           "summary": "",
-          "line": 13,
+          "line": 11,
           "bases": [
             "SlotsMaya"
           ],
@@ -4873,7 +4950,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Get the map size from the combobox as an int.",
-              "line": 23,
+              "line": 21,
               "deprecated": false
             },
             {
@@ -4882,7 +4959,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Initialize UV Menu Header",
-              "line": 27,
+              "line": 25,
               "deprecated": false
             },
             {
@@ -4891,7 +4968,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Initialize UV Transform Menu",
-              "line": 44,
+              "line": 42,
               "deprecated": false
             },
             {
@@ -4900,7 +4977,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Initialize UV packing tool interface.",
-              "line": 60,
+              "line": 58,
               "deprecated": false
             },
             {
@@ -4909,7 +4986,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Pack UVs with specified settings.",
-              "line": 132,
+              "line": 130,
               "deprecated": false
             },
             {
@@ -4918,7 +4995,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Initialize Auto Unwrap",
-              "line": 240,
+              "line": 238,
               "deprecated": false
             },
             {
@@ -4927,7 +5004,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Auto Unwrap",
-              "line": 291,
+              "line": 289,
               "deprecated": false
             },
             {
@@ -4936,7 +5013,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Initialize Toggle UV Display Options",
-              "line": 345,
+              "line": 343,
               "deprecated": false
             },
             {
@@ -4945,7 +5022,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Initialize Select By Type",
-              "line": 382,
+              "line": 380,
               "deprecated": false
             },
             {
@@ -4954,7 +5031,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Select By Type",
-              "line": 423,
+              "line": 421,
               "deprecated": false
             },
             {
@@ -4963,7 +5040,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Initialize Unfold UV",
-              "line": 445,
+              "line": 443,
               "deprecated": false
             },
             {
@@ -4972,7 +5049,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Unfold",
-              "line": 478,
+              "line": 476,
               "deprecated": false
             },
             {
@@ -4981,7 +5058,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Initialize Straighten UV",
-              "line": 516,
+              "line": 514,
               "deprecated": false
             },
             {
@@ -4990,7 +5067,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Straighten UV",
-              "line": 548,
+              "line": 546,
               "deprecated": false
             },
             {
@@ -4999,7 +5076,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Initialize Distribute",
-              "line": 565,
+              "line": 563,
               "deprecated": false
             },
             {
@@ -5008,7 +5085,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Distribute",
-              "line": 582,
+              "line": 580,
               "deprecated": false
             },
             {
@@ -5017,7 +5094,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Initialize Cleanup UV Sets",
-              "line": 592,
+              "line": 590,
               "deprecated": false
             },
             {
@@ -5026,7 +5103,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Cleanup UV Sets",
-              "line": 638,
+              "line": 636,
               "deprecated": false
             },
             {
@@ -5035,7 +5112,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Initialize Mirror UVs.",
-              "line": 699,
+              "line": 697,
               "deprecated": false
             },
             {
@@ -5044,7 +5121,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Mirror UVs (footprint-preserving by default).",
-              "line": 736,
+              "line": 734,
               "deprecated": false
             },
             {
@@ -5053,7 +5130,7 @@
               "kind": "method",
               "signature": "(self, index, widget)",
               "summary": "Transform",
-              "line": 759,
+              "line": 757,
               "deprecated": false
             },
             {
@@ -5062,7 +5139,7 @@
               "kind": "method",
               "signature": "(self, state, widget)",
               "summary": "Auto Unwrap: Scale Mode CheckBox",
-              "line": 811,
+              "line": 809,
               "deprecated": false
             },
             {
@@ -5071,7 +5148,7 @@
               "kind": "method",
               "signature": "(self, state, widget)",
               "summary": "Display: Checkered Pattern",
-              "line": 821,
+              "line": 819,
               "deprecated": false
             },
             {
@@ -5080,7 +5157,7 @@
               "kind": "method",
               "signature": "(self, state, widget)",
               "summary": "Display: Borders",
-              "line": 826,
+              "line": 824,
               "deprecated": false
             },
             {
@@ -5089,7 +5166,7 @@
               "kind": "method",
               "signature": "(self, state, widget)",
               "summary": "Display: Distortion",
-              "line": 831,
+              "line": 829,
               "deprecated": false
             },
             {
@@ -5098,7 +5175,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Transfer UV's",
-              "line": 837,
+              "line": 835,
               "deprecated": false
             },
             {
@@ -5107,7 +5184,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Stack Shells",
-              "line": 848,
+              "line": 847,
               "deprecated": false
             },
             {
@@ -5116,7 +5193,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Get texel density.",
-              "line": 853,
+              "line": 851,
               "deprecated": false
             },
             {
@@ -5125,7 +5202,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Set Texel Density",
-              "line": 859,
+              "line": 857,
               "deprecated": false
             },
             {
@@ -5134,7 +5211,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Cut UV's",
-              "line": 866,
+              "line": 864,
               "deprecated": false
             },
             {
@@ -5143,7 +5220,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Display UV Borders",
-              "line": 892,
+              "line": 893,
               "deprecated": false
             },
             {
@@ -5152,7 +5229,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Sew UVs",
-              "line": 897,
+              "line": 898,
               "deprecated": false
             },
             {
@@ -5161,7 +5238,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Unfold and Pack UVs",
-              "line": 912,
+              "line": 915,
               "deprecated": false
             },
             {
@@ -5170,7 +5247,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Cut UV hard edges",
-              "line": 917,
+              "line": 920,
               "deprecated": false
             },
             {
@@ -5179,7 +5256,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Move To Uv Space: Left",
-              "line": 923,
+              "line": 926,
               "deprecated": false
             },
             {
@@ -5188,7 +5265,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Move To Uv Space: Down",
-              "line": 928,
+              "line": 931,
               "deprecated": false
             },
             {
@@ -5197,7 +5274,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Move To Uv Space: Up",
-              "line": 933,
+              "line": 936,
               "deprecated": false
             },
             {
@@ -5206,7 +5283,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Move To Uv Space: Right",
-              "line": 938,
+              "line": 941,
               "deprecated": false
             }
           ]
@@ -5221,7 +5298,7 @@
         {
           "name": "VisualizeSlots",
           "summary": "",
-          "line": 13,
+          "line": 9,
           "bases": [
             "SlotsMaya"
           ],
@@ -5237,7 +5314,7 @@
         {
           "name": "WindowsSlots",
           "summary": "",
-          "line": 13,
+          "line": 9,
           "bases": [
             "SlotsMaya"
           ],
