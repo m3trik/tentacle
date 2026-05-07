@@ -18,9 +18,9 @@ class Edit(SlotsMaya):
         """Initialize header menu"""
         widget.menu.add(
             "QPushButton",
-            setText="Attribute Manager",
-            setObjectName="b_attr_mgr",
-            setToolTip="Open the Attribute Manager.",
+            setText="Channels",
+            setObjectName="b_channels",
+            setToolTip="Open the Channels UI.",
         )
         widget.menu.add(
             "QPushButton",
@@ -432,15 +432,29 @@ class Edit(SlotsMaya):
         for node in nodes:
             cmds.lockNode(node, lock=not unlock)
 
-    def b_attr_mgr(self):
-        """Attribute Manager"""
-        self.sb.handlers.marking_menu.show("attribute_manager")
+    def b_channels(self):
+        """Channels"""
+        self.sb.handlers.marking_menu.show("channels")
 
     def b000(self):
         """Cut On Axis"""
         self.sb.handlers.marking_menu.show("cut_on_axis")
 
     # --- Create Expandable List -----------------------------------------
+
+    _CURVE_COMMANDS = {
+        "Ep Curve Tool": "EPCurveToolOptions;",
+        "CV Curve Tool": "CVCurveToolOptions;",
+        "Bezier Curve Tool": "CreateBezierCurveToolOptions;",
+        "Pencil Curve Tool": "PencilCurveToolOptions;",
+        "2 Point Circular Arc": "TwoPointArcToolOptions;",
+        "3 Point Circular Arc": "ThreePointArcToolOptions;",
+    }
+
+    _HELPER_COMMANDS = {
+        "Null Group": lambda: cmds.group(empty=True, name="null"),
+        "Locator": lambda: cmds.spaceLocator(p=[0, 0, 0]),
+    }
 
     def list000_init(self, widget):
         """Initialize Create Primitives list."""
@@ -476,6 +490,8 @@ class Edit(SlotsMaya):
                 "Circle",
                 "Square",
             ],
+            "Curve": list(self._CURVE_COMMANDS),
+            "Helper": list(self._HELPER_COMMANDS),
             "Light": [
                 "Ambient",
                 "Directional",
@@ -536,6 +552,20 @@ class Edit(SlotsMaya):
                 preset, kwargs = control_map[text]
                 ctrl = mtk.Controls.create(preset, name=text.replace(" ", ""), **kwargs)
                 cmds.select(ctrl)
+        elif parent_text == "Curve":
+            cmd = self._CURVE_COMMANDS.get(text)
+            if cmd:
+                try:
+                    mel.eval(cmd)
+                except Exception as e:
+                    cmds.warning(f"Error creating curve '{text}': {e}")
+        elif parent_text == "Helper":
+            fn = self._HELPER_COMMANDS.get(text)
+            if fn:
+                try:
+                    fn()
+                except Exception as e:
+                    cmds.warning(f"Error creating helper '{text}': {e}")
         else:
             try:
                 mtk.Primitives.create_default_primitive(parent_text, text)

@@ -259,7 +259,7 @@
      </size>
     </property>
    </widget>
-   <widget class="QPushButton" name="b_attr_mgr">
+   <widget class="QPushButton" name="b_channels">
     <property name="geometry">
      <rect>
       <x>380</x>
@@ -315,7 +315,7 @@
      <string/>
     </property>
     <property name="text">
-     <string>Attributes Manager</string>
+     <string>Channels</string>
     </property>
     <property name="autoDefault">
      <bool>true</bool>

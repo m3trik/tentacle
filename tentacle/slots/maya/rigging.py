@@ -26,9 +26,7 @@ class Rigging(SlotsMaya):
 
     def cmb001_init(self, widget):
         """Init Create"""
-        items = sorted(
-            ["Joints", "Locator", "IK Handle", "Lattice", "Cluster", "Null Group"]
-        )
+        items = sorted(["Joints", "IK Handle", "Lattice", "Cluster"])
         widget.add(items, header="Utility Node:")
 
     def cmb001(self, index, widget):
@@ -36,16 +34,12 @@ class Rigging(SlotsMaya):
         text = widget.itemText(index)
         if text == "Joints":
             cmds.setToolTo("jointContext")  # create joint tool
-        elif text == "Locator":
-            cmds.spaceLocator(p=[0, 0, 0])  # locator
         elif text == "IK Handle":
             cmds.setToolTo("ikHandleContext")  # create ik handle
         elif text == "Lattice":  # create lattice
             cmds.lattice(divisions=[2, 5, 2], objectCentered=1, ldv=[2, 2, 2])
         elif text == "Cluster":
             mel.eval("CreateCluster")  # create cluster
-        elif text == "Null Group":
-            cmds.group(empty=True, name="null")  # create empty group
 
     def cmb002_init(self, widget):
         """Init Quick Rig"""
