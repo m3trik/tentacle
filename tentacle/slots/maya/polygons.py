@@ -82,7 +82,11 @@ class PolygonsSlots(SlotsMaya):
             setText="By Material",
             setObjectName="chk021",
             setChecked=False,
-            setToolTip="Separate selected meshes into objects grouped by material.",
+            setToolTip=(
+                "Split each mesh so every result has exactly one material, "
+                "then parent the results under per-material groups (mirror of "
+                "Combine → Group by Material)."
+            ),
         )
         widget.option_box.menu.add(
             "QCheckBox",
@@ -99,7 +103,10 @@ class PolygonsSlots(SlotsMaya):
         rename = widget.option_box.menu.chk022.isChecked()
 
         separated = mtk.separate_objects(
-            by_material=separate_by_material, center_pivots=True, rename=rename
+            by_material=separate_by_material,
+            group_by_material=separate_by_material,
+            center_pivots=True,
+            rename=rename,
         )
         if separated:
             cmds.select(separated)
