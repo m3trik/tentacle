@@ -23,18 +23,6 @@ class Nurbs(SlotsMaya):
             setToolTip="Trace images into NURBS curves.",
         )
 
-    def cmb001_init(self, widget):
-        """ """
-        items = [
-            "Ep Curve Tool",
-            "CV Curve Tool",
-            "Bezier Curve Tool",
-            "Pencil Curve Tool",
-            "2 Point Circular Arc",
-            "3 Point Circular Arc",
-        ]
-        widget.add(items, header="Create Curve")
-
     def tb000_init(self, widget):
         """ """
         widget.menu.add(
@@ -181,22 +169,6 @@ class Nurbs(SlotsMaya):
             set_limits=[2],
             setToolTip="Angle loft: Number of duplicated points (spans).",
         )
-
-    def cmb001(self, index, widget):
-        """Create: Curve"""
-        text = widget.items[index]
-        if text == "Ep Curve Tool":
-            mel.eval("EPCurveToolOptions;")
-        elif text == "CV Curve Tool":
-            mel.eval("CVCurveToolOptions")
-        elif text == "Bezier Curve Tool":
-            mel.eval("CreateBezierCurveToolOptions")
-        elif text == "Pencil Curve Tool":
-            mel.eval("PencilCurveToolOptions;")
-        elif text == "2 Point Circular Arc":
-            mel.eval("TwoPointArcToolOptions;")
-        elif text == "3 Point Circular Arc":
-            mel.eval("ThreePointArcToolOptions;")
 
     def tb000(self, widget):
         """Revolve"""
