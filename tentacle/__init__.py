@@ -5,7 +5,7 @@ import sys
 from pythontk.core_utils.module_resolver import bootstrap_package
 
 __package__ = "tentacle"
-__version__ = "0.11.2"
+__version__ = "0.11.3"
 
 
 DEFAULT_INCLUDE = {
