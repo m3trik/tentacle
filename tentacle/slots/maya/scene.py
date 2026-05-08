@@ -119,6 +119,23 @@ class SceneSlots(SlotsMaya):
             clear=True,
         )
 
+    def _eval_fbx_uicallback(self, suffix):
+        """Run ``FBXUICallBack -1 "<suffix>"`` after ensuring fbxmaya is loaded.
+
+        Without the plugin, the MEL command does not exist and raises a
+        confusing parse error in the script editor.
+        """
+        if not cmds.pluginInfo("fbxmaya", query=True, loaded=True):
+            try:
+                cmds.loadPlugin("fbxmaya", quiet=True)
+            except Exception as e:
+                self.sb.message_box(f"Could not load FBX plugin:\n{e}")
+                return
+        try:
+            mel.eval(f'FBXUICallBack -1 "{suffix}"')
+        except Exception as e:
+            self.sb.message_box(f"FBX UI callback failed:\n{e}")
+
     def cmb000(self, index, widget):
         """Workspace Scenes"""
         scene = widget.items[index]
@@ -168,9 +185,9 @@ class SceneSlots(SlotsMaya):
         elif text == "Import Options":  # Import options
             mel.eval("ImportOptions")
         elif text == "FBX Import Presets":  # FBX Import Presets
-            mel.eval('FBXUICallBack -1 "editImportPresetInNewWindow" "fbx"')
+            self._eval_fbx_uicallback('editImportPresetInNewWindow" "fbx')
         elif text == "OBJ Import Presets":  # Obj Import Presets
-            mel.eval('FBXUICallBack -1 "editImportPresetInNewWindow" "obj"')
+            self._eval_fbx_uicallback('editImportPresetInNewWindow" "obj')
 
     def cmb004_init(self, widget):
         """Initialize Export"""
@@ -216,9 +233,9 @@ class SceneSlots(SlotsMaya):
         elif text == "Export Options":  # Export options
             mel.eval("ExportSelectionOptions")
         elif text == "FBX Export Presets":  # FBX Export Presets
-            mel.eval('FBXUICallBack -1 "editExportPresetInNewWindow" "fbx"')
+            self._eval_fbx_uicallback('editExportPresetInNewWindow" "fbx')
         elif text == "OBJ Export Presets":  # Obj Export Presets
-            mel.eval('FBXUICallBack -1 "editExportPresetInNewWindow" "obj"')
+            self._eval_fbx_uicallback('editExportPresetInNewWindow" "obj')
 
     def cmb005_init(self, widget):
         """Initialize Recent Files"""

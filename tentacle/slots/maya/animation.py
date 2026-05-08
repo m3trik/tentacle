@@ -17,6 +17,7 @@ class Animation(SlotsMaya):
 
     def header_init(self, widget):
         """Header Init"""
+        widget.menu.add("Separator", setTitle="Sequencing")
         widget.menu.add(
             "QPushButton",
             setText="Shot Manifest",
@@ -29,6 +30,7 @@ class Animation(SlotsMaya):
             setObjectName="b000",
             setToolTip="Open the sequencer for managing per-scene animation with ripple editing.",
         )
+        widget.menu.add("Separator", setTitle="Keys")
         widget.menu.add(
             self.sb.registered_widgets.PushButton,
             setText="Smart Bake",
@@ -47,6 +49,7 @@ class Animation(SlotsMaya):
             setObjectName="tb019",
             setToolTip="Remove static curves, redundant flat keys, and optionally simplify curves.\nUse the option box to configure tolerance and phases.",
         )
+        widget.menu.add("Separator", setTitle="Repair")
         widget.menu.add(
             self.sb.registered_widgets.PushButton,
             setText="Repair Corrupted Curves",
@@ -61,12 +64,14 @@ class Animation(SlotsMaya):
                 objects=cmds.ls(sl=True) or None
             ),
         )
+        widget.menu.add("Separator", setTitle="Playback")
         widget.menu.add(
             "QPushButton",
             setText="Fit Playback Range",
             setObjectName="b005",
             setToolTip="Set the playback range to span all keyframed objects in the scene.",
         )
+        widget.menu.add("Separator", setTitle="Info")
         widget.menu.add(
             self.sb.registered_widgets.PushButton,
             setText="Print Animation Info",
@@ -271,13 +276,22 @@ class Animation(SlotsMaya):
         # Use None (auto) when time is -1 to let invert_keys use current time
         time = None if time_value == -1 else time_value
 
-        mtk.invert_keys(
-            time=time,
-            relative=relative,
-            delete_original=delete_original,
-            mode=mode,
-            value_pivot=value_pivot,
-        )
+        try:
+            mtk.invert_keys(
+                time=time,
+                relative=relative,
+                delete_original=delete_original,
+                mode=mode,
+                value_pivot=value_pivot,
+            )
+        except RuntimeError as e:
+            self.sb.message_box(
+                "<strong>Nothing to invert</strong>.<br>"
+                f"{e}<br><br>"
+                "Select one or more objects with keyframes, "
+                "or pick keys directly in the <hl>Graph Editor</hl>."
+            )
+            return
 
     def tb002_init(self, widget):
         """Adjust Spacing Init"""
