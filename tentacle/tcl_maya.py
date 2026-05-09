@@ -39,6 +39,7 @@ class TclMaya(MarkingMenu):
             handlers={"ui": MayaUiHandler},
             log_level=log_level,
             suppress_default_on_reentry=True,
+            precompile=True,
             **kwargs,
         )
 

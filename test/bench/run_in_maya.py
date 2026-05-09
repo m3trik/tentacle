@@ -14,12 +14,16 @@ writes JSON to a file before calling ``cmds.quit``.
 
 Usage::
 
-    python -m tentacle.bench.run_in_maya \\
-        tentacle.bench.option_box:TentacleOptionBoxBench \\
+    python tentacle/test/bench/run_in_maya.py \\
+        option_box:TentacleOptionBoxBench \\
         --ui edit --label baseline --samples 3
 
-The first positional arg is a ``module.path:ClassName`` spec for the
-bench class.
+The first positional arg is ``module:ClassName`` where ``module`` is
+the basename (without ``.py``) of a bench file in this directory and
+``ClassName`` is the bench subclass to instantiate.  The driver loads
+the file via :mod:`importlib` so the bench module never registers
+under the bare name ``bench`` in ``sys.modules`` — that key is
+reserved for uitk's host-agnostic base classes (``uitk/test/bench/``).
 
 Optional ``--diff`` compares against a previously-saved JSON and prints
 per-phase deltas suitable for before/after reporting.
@@ -30,7 +34,6 @@ from __future__ import annotations
 import argparse
 import json
 import os
-import re
 import sys
 import tempfile
 import time
@@ -45,11 +48,21 @@ from typing import Any, Optional
 # These dirs are inserted into sys.path inside the launched Maya so the
 # bench class and its dependencies resolve consistently with the dev
 # checkout.  Edit if your monorepo lives elsewhere.
+#
+# ``uitk/test`` carries the reusable bench base classes (uitk's
+# ``bench`` package); tentacle's bench files import them as
+# ``from bench.<name> import <Class>``.
+_REPO_ROOT = Path(__file__).resolve().parents[3]
 DEFAULT_MAYA_SYSPATH = [
-    # tentacle/tentacle/bench/run_in_maya.py -> parents[3] = monorepo root
-    str(Path(__file__).resolve().parents[3] / p)
-    for p in ("pythontk", "uitk", "mayatk", "tentacle")
+    str(_REPO_ROOT / "pythontk"),
+    str(_REPO_ROOT / "uitk"),
+    str(_REPO_ROOT / "mayatk"),
+    str(_REPO_ROOT / "tentacle"),
+    str(_REPO_ROOT / "uitk" / "test"),
 ]
+
+# Directory holding tentacle's bench modules (siblings of this file).
+BENCH_DIR = Path(__file__).resolve().parent
 
 
 # ---------------------------------------------------------------------------
@@ -57,21 +70,40 @@ DEFAULT_MAYA_SYSPATH = [
 # ---------------------------------------------------------------------------
 
 _RUNNER_TEMPLATE = r'''
-"""Bench runner — written by tentacle.bench.run_in_maya into a temp file.
+"""Bench runner — written by run_in_maya into a temp file.
 
 Maya boots normally, fires our ``-command`` MEL on startup which calls
 ``executeDeferred`` so we run *after* the main window + autoload have
 finished.  We then build the bench, run it, write JSON, and quit Maya.
 """
+import importlib.util
 import json, os, sys, traceback
 
 
 SYSPATH = __SYSPATH__
-BENCH_SPEC = __BENCH_SPEC__
+BENCH_FILE = __BENCH_FILE__
+BENCH_CLASS = __BENCH_CLASS__
 UI_NAME = __UI_NAME__
 LABEL = __LABEL__
 OUT_PATH = __OUT_PATH__
 ERR_PATH = __ERR_PATH__
+
+
+def _load_bench_module(file_path):
+    """Load the bench file by absolute path under a private module name.
+
+    Using a name like ``_tentacle_bench_runner`` keeps the bare
+    ``bench`` key in ``sys.modules`` reserved for uitk's host-agnostic
+    base classes (``uitk/test/bench``) — whose ``__init__`` is what
+    ``from bench.<name> import <Class>`` inside the bench file resolves
+    against.
+    """
+    spec = importlib.util.spec_from_file_location(
+        "_tentacle_bench_runner_module", file_path
+    )
+    mod = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(mod)
+    return mod
 
 
 def _bench_main():
@@ -80,9 +112,8 @@ def _bench_main():
             if p not in sys.path:
                 sys.path.insert(0, p)
 
-        mod_name, cls_name = BENCH_SPEC.split(":", 1)
-        mod = __import__(mod_name, fromlist=[cls_name])
-        BenchCls = getattr(mod, cls_name)
+        mod = _load_bench_module(BENCH_FILE)
+        BenchCls = getattr(mod, BENCH_CLASS)
         bench = BenchCls(ui_name=UI_NAME, label=LABEL)
 
         result = bench.run()
@@ -108,8 +139,32 @@ maya.utils.executeDeferred(_bench_main)
 '''
 
 
+def _resolve_bench_spec(bench_spec: str) -> tuple[Path, str]:
+    """Return ``(absolute_file_path, class_name)`` for a ``module:Class`` spec.
+
+    ``module`` is a basename (no ``.py``) of a file in ``BENCH_DIR``.
+    """
+    if ":" not in bench_spec:
+        raise ValueError(
+            f"bench_spec must be 'module:ClassName', got {bench_spec!r}"
+        )
+    module_name, class_name = bench_spec.split(":", 1)
+    if not module_name or not class_name:
+        raise ValueError(
+            f"bench_spec must be 'module:ClassName', got {bench_spec!r}"
+        )
+    file_path = BENCH_DIR / f"{module_name}.py"
+    if not file_path.is_file():
+        raise FileNotFoundError(
+            f"Bench file not found: {file_path}. "
+            f"Available: {sorted(p.stem for p in BENCH_DIR.glob('*.py') if p.stem != 'run_in_maya')}"
+        )
+    return file_path, class_name
+
+
 def _build_runner_script(
-    bench_spec: str,
+    bench_file: Path,
+    bench_class: str,
     ui_name: str,
     label: str,
     syspath: list[str],
@@ -119,7 +174,8 @@ def _build_runner_script(
     src = (
         _RUNNER_TEMPLATE
         .replace("__SYSPATH__", json.dumps(syspath))
-        .replace("__BENCH_SPEC__", json.dumps(bench_spec))
+        .replace("__BENCH_FILE__", json.dumps(str(bench_file)))
+        .replace("__BENCH_CLASS__", json.dumps(bench_class))
         .replace("__UI_NAME__", json.dumps(ui_name))
         .replace("__LABEL__", json.dumps(label))
         .replace("__OUT_PATH__", json.dumps(str(out_path)))
@@ -151,7 +207,8 @@ def _find_maya_exe() -> str:
 
 
 def _run_one_sample(
-    bench_spec: str,
+    bench_file: Path,
+    bench_class: str,
     ui_name: str,
     label: str,
     syspath: list[str],
@@ -159,7 +216,7 @@ def _run_one_sample(
     timeout_s: int = 300,
 ) -> Optional[dict[str, Any]]:
     """Spawn a fresh Maya, run the bench-runner, return the JSON result."""
-    sys.path.insert(0, str(Path(__file__).resolve().parents[3] / "pythontk"))
+    sys.path.insert(0, str(_REPO_ROOT / "pythontk"))
     from pythontk import AppLauncher
 
     out_dir = Path(tempfile.gettempdir())
@@ -169,7 +226,8 @@ def _run_one_sample(
     err_path.unlink(missing_ok=True)
 
     runner_path = _build_runner_script(
-        bench_spec=bench_spec,
+        bench_file=bench_file,
+        bench_class=bench_class,
         ui_name=ui_name,
         label=label,
         syspath=syspath,
@@ -335,7 +393,8 @@ def main() -> int:
     p = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     p.add_argument(
         "bench_spec",
-        help="Bench class to instantiate, formatted ``module.path:ClassName``",
+        help="Bench to run, formatted ``module:ClassName`` where ``module`` "
+        "is a basename (no .py) of a file in this directory.",
     )
     p.add_argument("--ui", default=None, help="UI name to load (default: bench's DEFAULT_UI)")
     p.add_argument("--label", default="run")
@@ -375,8 +434,10 @@ def main() -> int:
     )
     args = p.parse_args()
 
-    if not re.match(r"[\w\.]+:[\w_]+$", args.bench_spec):
-        p.error(f"bench_spec must be 'module.path:ClassName', got {args.bench_spec!r}")
+    try:
+        bench_file, bench_class = _resolve_bench_spec(args.bench_spec)
+    except (ValueError, FileNotFoundError) as exc:
+        p.error(str(exc))
 
     syspath = args.maya_syspath if args.maya_syspath is not None else DEFAULT_MAYA_SYSPATH
 
@@ -386,7 +447,8 @@ def main() -> int:
     for i in range(max(1, args.samples)):
         print(f"\n========== sample {i + 1}/{args.samples} ==========")
         sample = _run_one_sample(
-            bench_spec=args.bench_spec,
+            bench_file=bench_file,
+            bench_class=bench_class,
             ui_name=ui_name,
             label=f"{args.label}#{i + 1}",
             syspath=syspath,

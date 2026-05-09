@@ -68,6 +68,12 @@
       <height>19</height>
      </rect>
     </property>
+    <property name="minimumSize">
+     <size>
+      <width>0</width>
+      <height>19</height>
+     </size>
+    </property>
     <property name="maximumSize">
      <size>
       <width>111</width>
@@ -107,6 +113,12 @@
       <width>56</width>
       <height>19</height>
      </rect>
+    </property>
+    <property name="minimumSize">
+     <size>
+      <width>0</width>
+      <height>19</height>
+     </size>
     </property>
     <property name="maximumSize">
      <size>
@@ -176,6 +188,12 @@
       <height>19</height>
      </rect>
     </property>
+    <property name="minimumSize">
+     <size>
+      <width>0</width>
+      <height>19</height>
+     </size>
+    </property>
     <property name="maximumSize">
      <size>
       <width>111</width>
@@ -206,6 +224,12 @@
       <width>56</width>
       <height>19</height>
      </rect>
+    </property>
+    <property name="minimumSize">
+     <size>
+      <width>0</width>
+      <height>19</height>
+     </size>
     </property>
     <property name="maximumSize">
      <size>
@@ -275,6 +299,12 @@
       <height>19</height>
      </rect>
     </property>
+    <property name="minimumSize">
+     <size>
+      <width>0</width>
+      <height>19</height>
+     </size>
+    </property>
     <property name="maximumSize">
      <size>
       <width>111</width>
@@ -305,6 +335,12 @@
       <width>81</width>
       <height>19</height>
      </rect>
+    </property>
+    <property name="minimumSize">
+     <size>
+      <width>0</width>
+      <height>19</height>
+     </size>
     </property>
     <property name="maximumSize">
      <size>
@@ -374,6 +410,12 @@
       <height>19</height>
      </rect>
     </property>
+    <property name="minimumSize">
+     <size>
+      <width>0</width>
+      <height>19</height>
+     </size>
+    </property>
     <property name="maximumSize">
      <size>
       <width>111</width>
@@ -433,6 +475,12 @@
       <height>19</height>
      </rect>
     </property>
+    <property name="minimumSize">
+     <size>
+      <width>0</width>
+      <height>19</height>
+     </size>
+    </property>
     <property name="maximumSize">
      <size>
       <width>111</width>
@@ -467,13 +515,13 @@
     <property name="minimumSize">
      <size>
       <width>0</width>
-      <height>20</height>
+      <height>19</height>
      </size>
     </property>
     <property name="maximumSize">
      <size>
       <width>999</width>
-      <height>20</height>
+      <height>19</height>
      </size>
     </property>
     <property name="toolTip">
@@ -538,6 +586,12 @@
       <height>19</height>
      </rect>
     </property>
+    <property name="minimumSize">
+     <size>
+      <width>0</width>
+      <height>19</height>
+     </size>
+    </property>
     <property name="maximumSize">
      <size>
       <width>111</width>
@@ -568,6 +622,12 @@
       <width>116</width>
       <height>19</height>
      </rect>
+    </property>
+    <property name="minimumSize">
+     <size>
+      <width>0</width>
+      <height>19</height>
+     </size>
     </property>
     <property name="maximumSize">
      <size>

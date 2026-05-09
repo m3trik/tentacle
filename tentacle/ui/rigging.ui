@@ -104,13 +104,13 @@
            <property name="minimumSize">
             <size>
              <width>0</width>
-             <height>20</height>
+             <height>19</height>
             </size>
            </property>
            <property name="maximumSize">
             <size>
              <width>16777215</width>
-             <height>20</height>
+             <height>19</height>
             </size>
            </property>
            <property name="toolTip">
@@ -231,13 +231,13 @@
            <property name="minimumSize">
             <size>
              <width>0</width>
-             <height>20</height>
+             <height>19</height>
             </size>
            </property>
            <property name="maximumSize">
             <size>
              <width>16777215</width>
-             <height>20</height>
+             <height>19</height>
             </size>
            </property>
            <property name="toolTip">
@@ -256,13 +256,13 @@
            <property name="minimumSize">
             <size>
              <width>0</width>
-             <height>20</height>
+             <height>19</height>
             </size>
            </property>
            <property name="maximumSize">
             <size>
              <width>16777215</width>
-             <height>20</height>
+             <height>19</height>
             </size>
            </property>
            <property name="toolTip">
@@ -305,13 +305,13 @@
            <property name="minimumSize">
             <size>
              <width>0</width>
-             <height>20</height>
+             <height>19</height>
             </size>
            </property>
            <property name="maximumSize">
             <size>
              <width>16777215</width>
-             <height>20</height>
+             <height>19</height>
             </size>
            </property>
            <property name="toolTip">
@@ -329,13 +329,13 @@ Create, keyframe-fade, and remove per-object opacity controllers.</string>
            <property name="minimumSize">
             <size>
              <width>0</width>
-             <height>20</height>
+             <height>19</height>
             </size>
            </property>
            <property name="maximumSize">
             <size>
              <width>16777215</width>
-             <height>20</height>
+             <height>19</height>
             </size>
            </property>
            <property name="toolTip">
@@ -353,13 +353,13 @@ Import audio clips onto the Maya timeline aligned to keyed event triggers.</stri
            <property name="minimumSize">
             <size>
              <width>0</width>
-             <height>20</height>
+             <height>19</height>
             </size>
            </property>
            <property name="maximumSize">
             <size>
              <width>16777215</width>
-             <height>20</height>
+             <height>19</height>
             </size>
            </property>
            <property name="palette">
@@ -431,13 +431,13 @@ Note: Overwrites any existing attribute with the same name.</string>
            <property name="minimumSize">
             <size>
              <width>0</width>
-             <height>20</height>
+             <height>19</height>
             </size>
            </property>
            <property name="maximumSize">
             <size>
              <width>16777215</width>
-             <height>20</height>
+             <height>19</height>
             </size>
            </property>
            <property name="toolTip">

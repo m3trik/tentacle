@@ -1,0 +1,18 @@
+{
+  "label": "hier#1",
+  "ui": "hierarchy_manager",
+  "widget_count": 36,
+  "phases_ms_best": {
+    "01_imports": 21.126,
+    "02_construct": 2092.469,
+    "03_lazy_load_ui": 708.794,
+    "04_register_children": 80.061,
+    "05_first_show": 39.271,
+    "06_drain_after_show": 73.42,
+    "07_warm_show": 21.406,
+    "08_warm_load_via_loader": 7.154
+  },
+  "first_load_total_ms_best": 828.125,
+  "warm_show_ms_best": 21.406,
+  "warm_load_ms_best": 7.154
+}

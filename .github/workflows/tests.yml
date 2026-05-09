@@ -29,7 +29,11 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install pytest qtpy PySide6 pythontk uitk mayatk
+          pip install pytest qtpy PySide6
+          # --no-cache-dir + --upgrade forces a fresh resolution from PyPI
+          # for in-house deps. pip's wheel cache otherwise can return a
+          # stale upstream that lacks newly-shipped APIs.
+          pip install --no-cache-dir --upgrade pythontk uitk mayatk
           pip install -e . --no-deps
 
       - name: Compile UI files (pyside6-uic)

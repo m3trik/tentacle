@@ -6,6 +6,7 @@ import maya.cmds as cmds
 import maya.mel as mel
 import mayatk as mtk
 import pythontk as ptk
+from mayatk.core_utils.script_job_manager import ScriptJobManager
 
 # From this package:
 from tentacle.slots.maya._slots_maya import SlotsMaya
@@ -21,18 +22,17 @@ class Preferences(SlotsMaya):
     def cmb001_init(self, widget):
         """Initializes the combo box with unit options."""
         if not widget.is_initialized:
-            # Set up a script job to update the index when the unit changes
-            widget.unitChangeJob = cmds.scriptJob(
-                event=[
-                    "linearUnitChanged",
-                    lambda: widget.setCurrentIndex(
-                        widget.items.index(
-                            cmds.currentUnit(q=True, fullName=True, linear=True)
-                        )
-                    ),
-                ],
-                runOnce=False,
+            mgr = ScriptJobManager.instance()
+            mgr.subscribe(
+                "linearUnitChanged",
+                lambda w=widget: w.setCurrentIndex(
+                    w.items.index(
+                        cmds.currentUnit(q=True, fullName=True, linear=True)
+                    )
+                ),
+                owner=widget,
             )
+            mgr.connect_cleanup(widget, owner=widget)
 
         items = {i.upper(): i for i in mtk.EnvUtils.SCENE_UNIT_VALUES}
         widget.add(items)
@@ -49,18 +49,17 @@ class Preferences(SlotsMaya):
     def cmb002_init(self, widget):
         """Initializes the combo box with frame rate options."""
         if not widget.is_initialized:
-            # Set up a script job to update the index when the frame rate changes
-            widget.timeChangeJob = cmds.scriptJob(
-                event=[
-                    "timeChanged",
-                    lambda: widget.setCurrentIndex(
-                        widget.items.index(
-                            cmds.currentUnit(q=True, fullName=True, time=True)
-                        )
-                    ),
-                ],
-                runOnce=False,
+            mgr = ScriptJobManager.instance()
+            mgr.subscribe(
+                "timeUnitChanged",
+                lambda w=widget: w.setCurrentIndex(
+                    w.items.index(
+                        cmds.currentUnit(q=True, fullName=True, time=True)
+                    )
+                ),
+                owner=widget,
             )
+            mgr.connect_cleanup(widget, owner=widget)
 
         frame_rates = ptk.VidUtils.FRAME_RATES
         items = {

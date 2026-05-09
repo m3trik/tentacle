@@ -1,0 +1,18 @@
+{
+  "label": "color#1",
+  "ui": "color_manager",
+  "widget_count": 24,
+  "phases_ms_best": {
+    "01_imports": 35.465,
+    "02_construct": 2512.284,
+    "03_lazy_load_ui": 864.356,
+    "04_register_children": 10.301,
+    "05_first_show": 38.574,
+    "06_drain_after_show": 53.477,
+    "07_warm_show": 17.711,
+    "08_warm_load_via_loader": 4.948
+  },
+  "first_load_total_ms_best": 913.231,
+  "warm_show_ms_best": 17.711,
+  "warm_load_ms_best": 4.948
+}
