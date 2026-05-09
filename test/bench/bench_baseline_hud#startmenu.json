@@ -1,0 +1,25 @@
+{
+  "label": "baseline#1",
+  "ui": "hud#startmenu",
+  "submenu": null,
+  "widget_count": 7,
+  "submenu_widget_count": null,
+  "phases_ms_best": {
+    "01_imports": 24.805,
+    "02_switchboard_construct": 0.006,
+    "03_marking_menu_construct": 2053.493,
+    "04_lazy_load_startmenu": 6.42,
+    "05_init_startmenu": 9.21,
+    "06_first_show_startmenu": 27.972,
+    "07_drain_after_startmenu": 28.26,
+    "08_lazy_load_submenu": NaN,
+    "09_init_submenu": NaN,
+    "10_drain_after_submenu": NaN,
+    "11_warm_show_startmenu": 7.138,
+    "12_warm_load_via_loader": 2.925
+  },
+  "first_load_total_ms_best": 43.603,
+  "submenu_load_total_ms_best": 0,
+  "warm_show_ms_best": 7.138,
+  "warm_load_ms_best": 2.925
+}

@@ -1,24 +1,24 @@
 """Tentacle-side option_box init bench.
 
-Subclass of :class:`uitk.bench.option_box_init.OptionBoxInitBench` that
+Subclass of :class:`bench.option_box_init.OptionBoxInitBench` that
 points the Switchboard at tentacle's UI / slot sources.  The Switchboard
 is constructed without a Maya parent — earlier attempts to parent it to
 ``mayatk.get_main_window()`` tripled ``register_children`` time without
 changing the lifecycle being measured, so the bench mirrors the simpler
 construction path.
 
-Runs inside a fresh Maya launched by ``tentacle.bench.run_in_maya``.
+Runs inside a fresh Maya launched by ``run_in_maya`` (sibling file).
 
 Run from the repo root::
 
-    python -m tentacle.bench.run_in_maya \\
-        tentacle.bench.option_box:TentacleOptionBoxBench \\
+    python tentacle/test/bench/run_in_maya.py \\
+        option_box:TentacleOptionBoxBench \\
         --ui edit --label baseline --samples 3
 """
 
 from __future__ import annotations
 
-from uitk.bench.option_box_init import OptionBoxInitBench
+from bench.option_box_init import OptionBoxInitBench
 
 
 class TentacleOptionBoxBench(OptionBoxInitBench):

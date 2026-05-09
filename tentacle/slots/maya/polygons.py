@@ -18,9 +18,9 @@ class PolygonsSlots(SlotsMaya):
         """Initialize Header"""
         widget.menu.add(
             "QPushButton",
-            setText="Bridge",
+            setText="Bridge Interactive",
             setObjectName="b007",
-            setToolTip="Open the bridge window.",
+            setToolTip="Interactive bridge tool.",
         )
         widget.menu.add(
             "QPushButton",
@@ -440,20 +440,14 @@ class PolygonsSlots(SlotsMaya):
 
     def b000(self):
         """Circularize"""
-        circularize = cmds.polyCircularize(
-            ch=True,
-            alignment=0,
-            radialOffset=0,
-            normalOffset=0,
-            normalOrientation=0,
-            smoothingAngle=30,
-            evenlyDistribute=1,
-            divisions=0,
-            supportingEdges=0,
-            twist=0,
-            relaxInterior=1,
+        components = cmds.filterExpand(
+            cmds.ls(sl=1) or [], selectionMask=(32, 34), expand=1
         )
-        return circularize
+        if not components:
+            return self.sb.message_box(
+                "<strong>Nothing selected</strong>.<br>Operation requires a face or border-edge selection."
+            )
+        return mel.eval("Circularize")
 
     def b001(self):
         """Fill Holes"""

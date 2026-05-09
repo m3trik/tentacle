@@ -8,6 +8,7 @@ import pythontk as ptk
 import mayatk as mtk
 from uitk import Signals
 from uitk.widgets.footer import FooterStatusController
+from mayatk.core_utils.script_job_manager import ScriptJobManager
 from tentacle.slots.maya._slots_maya import SlotsMaya
 
 
@@ -61,6 +62,13 @@ class SceneSlots(SlotsMaya):
                 setObjectName="b005",
                 setToolTip="Open the naming tool.",
             )
+            widget.menu.add("Separator", setTitle="Recover")
+            widget.menu.add(
+                "QPushButton",
+                setText="Save to Original Scene",
+                setObjectName="b014",
+                setToolTip="Save the currently open autosave back to the original scene file.\nEnabled only when an autosave is open and the original is locatable.",
+            )
             widget.menu.add("Separator", setTitle="Fix")
             widget.menu.add(
                 "QPushButton",
@@ -103,7 +111,11 @@ class SceneSlots(SlotsMaya):
         """Initialize Workspace Scenes"""
         if not widget.is_initialized:
             widget.refresh_on_show = True  # Call this method on show
-            cmds.scriptJob(event=["workspaceChanged", self._on_workspace_changed])
+            mgr = ScriptJobManager.instance()
+            mgr.subscribe(
+                "workspaceChanged", self._on_workspace_changed, owner=widget
+            )
+            mgr.connect_cleanup(widget, owner=widget)
 
         include = self.ui.txt000.text() or None
 
@@ -119,18 +131,25 @@ class SceneSlots(SlotsMaya):
             clear=True,
         )
 
+    def _ensure_fbx_plugin(self):
+        """Load fbxmaya if not already loaded. Returns True on success."""
+        if cmds.pluginInfo("fbxmaya", query=True, loaded=True):
+            return True
+        try:
+            cmds.loadPlugin("fbxmaya", quiet=True)
+            return True
+        except Exception as e:
+            self.sb.message_box(f"Could not load FBX plugin:\n{e}")
+            return False
+
     def _eval_fbx_uicallback(self, suffix):
         """Run ``FBXUICallBack -1 "<suffix>"`` after ensuring fbxmaya is loaded.
 
         Without the plugin, the MEL command does not exist and raises a
         confusing parse error in the script editor.
         """
-        if not cmds.pluginInfo("fbxmaya", query=True, loaded=True):
-            try:
-                cmds.loadPlugin("fbxmaya", quiet=True)
-            except Exception as e:
-                self.sb.message_box(f"Could not load FBX plugin:\n{e}")
-                return
+        if not self._ensure_fbx_plugin():
+            return
         try:
             mel.eval(f'FBXUICallBack -1 "{suffix}"')
         except Exception as e:
@@ -211,6 +230,7 @@ class SceneSlots(SlotsMaya):
         """Export"""
         text = widget.items[index]
         if text == "Export Selection":
+            self._ensure_fbx_plugin()
             mel.eval("ExportSelection")
         elif text == "Export All":
             mel.eval("Export")
@@ -452,8 +472,8 @@ class SceneSlots(SlotsMaya):
         if scene_path:
             ui.slots.source_dir = os.path.dirname(scene_path)
 
-        # Provider used by the header "Use Selection" toggle — returns FBX paths
-        # found on selected reference nodes. Components and non-DAG types in
+        # Provider used by the header "From FBX references" toggle — returns
+        # FBX paths found on selected reference nodes. Components and non-DAG types in
         # the selection raise on referenceQuery; skip them silently.
         def _selected_fbx_paths():
             sel = cmds.ls(selection=True, long=True, objectsOnly=True) or []
@@ -475,6 +495,80 @@ class SceneSlots(SlotsMaya):
         ui.slots.fbx_provider = _selected_fbx_paths
 
         self.sb.handlers.marking_menu.show(ui)
+
+    def b014_init(self, widget):
+        """Initialize Save to Original Scene.
+
+        Resolves the original scene for the currently open autosave (via
+        `mtk.find_original_for_autosave`) and reflects it on the button:
+        enabled state, tooltip with the full destination path, and button
+        text showing the destination basename truncated to its first 10
+        characters. Subscribes to `SceneOpened` / `NewSceneOpened` so the
+        button stays in sync as the active scene changes.
+        """
+        if not widget.is_initialized:
+            widget.refresh_on_show = True
+            self._b014_widget = widget
+            mgr = ScriptJobManager.instance()
+            mgr.subscribe("SceneOpened", self._on_scene_changed, owner=self)
+            mgr.subscribe("NewSceneOpened", self._on_scene_changed, owner=self)
+            mgr.connect_cleanup(widget, owner=self)
+
+        current = cmds.file(query=True, sceneName=True) or ""
+        is_autosave = bool(current) and mtk.matches_autosave_pattern(
+            os.path.basename(current)
+        )
+        original = mtk.find_original_for_autosave(current) if is_autosave else None
+
+        widget.setEnabled(bool(original))
+        if original:
+            widget.setToolTip(f"Save current autosave back to:\n{original}")
+            short = ptk.truncate(os.path.basename(original), 10, mode="end")
+            widget.setText(f"Save to: {short}")
+        else:
+            widget.setText("Save to Original Scene")
+            if is_autosave:
+                widget.setToolTip(
+                    "Could not resolve the original scene for this autosave."
+                )
+            else:
+                widget.setToolTip("Only available when an autosave file is open.")
+
+    def _on_scene_changed(self):
+        """SceneOpened/NewSceneOpened handler — refresh b014 enable state."""
+        btn = getattr(self, "_b014_widget", None)
+        if btn is not None:
+            self.b014_init(btn)
+
+    def b014(self):
+        """Save to Original Scene.
+
+        Saves the currently open autosave file back to its resolved
+        original path (shown in the button text and tooltip). The existing
+        original is backed up to `<path>.bak` first; if a `.bak` already
+        exists, a timestamped variant is used so prior backups are
+        preserved. See `mtk.save_autosave_to_original`.
+        """
+        current = cmds.file(query=True, sceneName=True) or ""
+        original = mtk.find_original_for_autosave(current)
+        if not original:
+            self.sb.message_box("Could not resolve the original scene.")
+            return
+
+        choice = self.sb.message_box(
+            f"Save current autosave to:<br><hl>{original}</hl><br>"
+            "(Existing file will be backed up alongside it.)",
+            "Save",
+            "Cancel",
+        )
+        if choice != "Save":
+            return
+
+        saved = mtk.save_autosave_to_original(original)
+        if saved:
+            self.sb.message_box(f"Saved to <hl>{os.path.basename(saved)}</hl>.")
+        else:
+            self.sb.message_box("Save failed. See script editor for details.")
 
     def b015(self):
         """Remove String From Object Names."""

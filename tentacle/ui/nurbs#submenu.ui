@@ -93,6 +93,18 @@
       <height>19</height>
      </rect>
     </property>
+    <property name="maximumSize">
+     <size>
+      <width>16777215</width>
+      <height>19</height>
+     </size>
+    </property>
+    <property name="minimumSize">
+     <size>
+      <width>0</width>
+      <height>19</height>
+     </size>
+    </property>
     <property name="toolTip">
      <string extracomment="Select the curve point at which you want to split the curve and choose Curves &gt; Detach Curves.  When construction history is on, you can select the detach node and use the Show Manipulator tool to edit the detach point.">Detach Curve</string>
     </property>
@@ -124,6 +136,18 @@
       <height>19</height>
      </rect>
     </property>
+    <property name="maximumSize">
+     <size>
+      <width>16777215</width>
+      <height>19</height>
+     </size>
+    </property>
+    <property name="minimumSize">
+     <size>
+      <width>0</width>
+      <height>19</height>
+     </size>
+    </property>
     <property name="toolTip">
      <string>Straighten Selected Curves or Curve CV's</string>
     </property>
@@ -149,6 +173,18 @@
       <height>19</height>
      </rect>
     </property>
+    <property name="maximumSize">
+     <size>
+      <width>16777215</width>
+      <height>19</height>
+     </size>
+    </property>
+    <property name="minimumSize">
+     <size>
+      <width>0</width>
+      <height>19</height>
+     </size>
+    </property>
     <property name="toolTip">
      <string>Attach Curve Options</string>
     </property>
@@ -173,6 +209,12 @@
       <width>66</width>
       <height>19</height>
      </rect>
+    </property>
+    <property name="minimumSize">
+     <size>
+      <width>0</width>
+      <height>19</height>
+     </size>
     </property>
     <property name="maximumSize">
      <size>
@@ -205,6 +247,18 @@
       <height>19</height>
      </rect>
     </property>
+    <property name="maximumSize">
+     <size>
+      <width>16777215</width>
+      <height>19</height>
+     </size>
+    </property>
+    <property name="minimumSize">
+     <size>
+      <width>0</width>
+      <height>19</height>
+     </size>
+    </property>
     <property name="toolTip">
      <string>Duplicate Surface Curves</string>
     </property>
@@ -229,6 +283,18 @@
       <width>56</width>
       <height>19</height>
      </rect>
+    </property>
+    <property name="maximumSize">
+     <size>
+      <width>16777215</width>
+      <height>19</height>
+     </size>
+    </property>
+    <property name="minimumSize">
+     <size>
+      <width>0</width>
+      <height>19</height>
+     </size>
     </property>
     <property name="toolTip">
      <string>Cut Curves Where they Intersect</string>
@@ -255,6 +321,18 @@
       <height>19</height>
      </rect>
     </property>
+    <property name="maximumSize">
+     <size>
+      <width>16777215</width>
+      <height>19</height>
+     </size>
+    </property>
+    <property name="minimumSize">
+     <size>
+      <width>0</width>
+      <height>19</height>
+     </size>
+    </property>
     <property name="toolTip">
      <string>Project Curve on Surface</string>
     </property>
@@ -279,6 +357,18 @@
       <width>61</width>
       <height>19</height>
      </rect>
+    </property>
+    <property name="maximumSize">
+     <size>
+      <width>16777215</width>
+      <height>19</height>
+     </size>
+    </property>
+    <property name="minimumSize">
+     <size>
+      <width>0</width>
+      <height>19</height>
+     </size>
     </property>
     <property name="toolTip">
      <string>Extract Curve from Poly Surface</string>
@@ -308,6 +398,18 @@
       <height>19</height>
      </rect>
     </property>
+    <property name="maximumSize">
+     <size>
+      <width>16777215</width>
+      <height>19</height>
+     </size>
+    </property>
+    <property name="minimumSize">
+     <size>
+      <width>0</width>
+      <height>19</height>
+     </size>
+    </property>
     <property name="toolTip">
      <string>Smooth Selected Curves or Curve CV's</string>
     </property>
@@ -333,6 +435,18 @@
       <height>19</height>
      </rect>
     </property>
+    <property name="maximumSize">
+     <size>
+      <width>16777215</width>
+      <height>19</height>
+     </size>
+    </property>
+    <property name="minimumSize">
+     <size>
+      <width>0</width>
+      <height>19</height>
+     </size>
+    </property>
     <property name="toolTip">
      <string>Reverse Curve Direction</string>
     </property>
@@ -357,6 +471,12 @@
       <width>66</width>
       <height>19</height>
      </rect>
+    </property>
+    <property name="minimumSize">
+     <size>
+      <width>0</width>
+      <height>19</height>
+     </size>
     </property>
     <property name="maximumSize">
      <size>
@@ -388,6 +508,12 @@
       <width>66</width>
       <height>19</height>
      </rect>
+    </property>
+    <property name="minimumSize">
+     <size>
+      <width>0</width>
+      <height>19</height>
+     </size>
     </property>
     <property name="maximumSize">
      <size>

@@ -93,13 +93,13 @@
     <property name="minimumSize">
      <size>
       <width>0</width>
-      <height>20</height>
+      <height>19</height>
      </size>
     </property>
     <property name="maximumSize">
      <size>
       <width>999</width>
-      <height>20</height>
+      <height>19</height>
      </size>
     </property>
     <property name="toolTip">
@@ -120,6 +120,18 @@
       <width>116</width>
       <height>19</height>
      </rect>
+    </property>
+    <property name="maximumSize">
+     <size>
+      <width>16777215</width>
+      <height>19</height>
+     </size>
+    </property>
+    <property name="minimumSize">
+     <size>
+      <width>0</width>
+      <height>19</height>
+     </size>
     </property>
     <property name="toolTip">
      <string>Insert Joint</string>
@@ -168,13 +180,13 @@
     <property name="minimumSize">
      <size>
       <width>0</width>
-      <height>20</height>
+      <height>19</height>
      </size>
     </property>
     <property name="maximumSize">
      <size>
       <width>16777215</width>
-      <height>20</height>
+      <height>19</height>
      </size>
     </property>
     <property name="toolTip">
@@ -198,13 +210,13 @@ Create, keyframe-fade, and remove per-object opacity controllers.</string>
     <property name="minimumSize">
      <size>
       <width>0</width>
-      <height>20</height>
+      <height>19</height>
      </size>
     </property>
     <property name="maximumSize">
      <size>
       <width>16777215</width>
-      <height>20</height>
+      <height>19</height>
      </size>
     </property>
     <property name="toolTip">

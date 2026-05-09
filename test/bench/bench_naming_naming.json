@@ -1,0 +1,18 @@
+{
+  "label": "naming#1",
+  "ui": "naming",
+  "widget_count": 11,
+  "phases_ms_best": {
+    "01_imports": 33.845,
+    "02_construct": 2510.862,
+    "03_lazy_load_ui": 836.436,
+    "04_register_children": 115.603,
+    "05_first_show": 34.121,
+    "06_drain_after_show": 32.798,
+    "07_warm_show": 14.007,
+    "08_warm_load_via_loader": 3.34
+  },
+  "first_load_total_ms_best": 986.16,
+  "warm_show_ms_best": 14.007,
+  "warm_load_ms_best": 3.34
+}

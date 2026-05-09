@@ -95,13 +95,13 @@
            <property name="minimumSize">
             <size>
              <width>0</width>
-             <height>20</height>
+             <height>19</height>
             </size>
            </property>
            <property name="maximumSize">
             <size>
              <width>16777215</width>
-             <height>20</height>
+             <height>19</height>
             </size>
            </property>
            <property name="toolTip">
@@ -120,13 +120,13 @@
            <property name="minimumSize">
             <size>
              <width>0</width>
-             <height>20</height>
+             <height>19</height>
             </size>
            </property>
            <property name="maximumSize">
             <size>
              <width>16777215</width>
-             <height>20</height>
+             <height>19</height>
             </size>
            </property>
            <property name="toolTip">
@@ -169,13 +169,13 @@
            <property name="minimumSize">
             <size>
              <width>0</width>
-             <height>20</height>
+             <height>19</height>
             </size>
            </property>
            <property name="maximumSize">
             <size>
              <width>16777215</width>
-             <height>20</height>
+             <height>19</height>
             </size>
            </property>
            <property name="toolTip">
@@ -194,13 +194,13 @@
            <property name="minimumSize">
             <size>
              <width>0</width>
-             <height>20</height>
+             <height>19</height>
             </size>
            </property>
            <property name="maximumSize">
             <size>
              <width>16777215</width>
-             <height>20</height>
+             <height>19</height>
             </size>
            </property>
            <property name="toolTip">
@@ -219,13 +219,13 @@
            <property name="minimumSize">
             <size>
              <width>0</width>
-             <height>20</height>
+             <height>19</height>
             </size>
            </property>
            <property name="maximumSize">
             <size>
              <width>16777215</width>
-             <height>20</height>
+             <height>19</height>
             </size>
            </property>
            <property name="toolTip">
@@ -244,13 +244,13 @@
            <property name="minimumSize">
             <size>
              <width>0</width>
-             <height>20</height>
+             <height>19</height>
             </size>
            </property>
            <property name="maximumSize">
             <size>
              <width>16777215</width>
-             <height>20</height>
+             <height>19</height>
             </size>
            </property>
            <property name="toolTip">
@@ -271,13 +271,13 @@ Supports negative values to compress timing.</string>
            <property name="minimumSize">
             <size>
              <width>0</width>
-             <height>20</height>
+             <height>19</height>
             </size>
            </property>
            <property name="maximumSize">
             <size>
              <width>16777215</width>
-             <height>20</height>
+             <height>19</height>
             </size>
            </property>
            <property name="toolTip">
@@ -297,13 +297,13 @@ Useful for baking out curves before export or to lock timing.</string>
            <property name="minimumSize">
             <size>
              <width>0</width>
-             <height>20</height>
+             <height>19</height>
             </size>
            </property>
            <property name="maximumSize">
             <size>
              <width>16777215</width>
-             <height>20</height>
+             <height>19</height>
             </size>
            </property>
            <property name="toolTip">
@@ -323,13 +323,13 @@ Else move all keyframes of the selected objects.</string>
            <property name="minimumSize">
             <size>
              <width>0</width>
-             <height>20</height>
+             <height>19</height>
             </size>
            </property>
            <property name="maximumSize">
             <size>
              <width>16777215</width>
-             <height>20</height>
+             <height>19</height>
             </size>
            </property>
            <property name="toolTip">
@@ -372,13 +372,13 @@ Else move all keyframes of the selected objects.</string>
            <property name="minimumSize">
             <size>
              <width>0</width>
-             <height>20</height>
+             <height>19</height>
             </size>
            </property>
            <property name="maximumSize">
             <size>
              <width>16777215</width>
-             <height>20</height>
+             <height>19</height>
             </size>
            </property>
            <property name="toolTip">
@@ -398,13 +398,13 @@ Automatically detects each object's keyframe range.</string>
            <property name="minimumSize">
             <size>
              <width>0</width>
-             <height>20</height>
+             <height>19</height>
             </size>
            </property>
            <property name="maximumSize">
             <size>
              <width>16777215</width>
-             <height>20</height>
+             <height>19</height>
             </size>
            </property>
            <property name="toolTip">
@@ -425,13 +425,13 @@ Untying removes only those bookend keys, preserving genuine animation.</string>
            <property name="minimumSize">
             <size>
              <width>0</width>
-             <height>20</height>
+             <height>19</height>
             </size>
            </property>
            <property name="maximumSize">
             <size>
              <width>16777215</width>
-             <height>20</height>
+             <height>19</height>
             </size>
            </property>
            <property name="toolTip">
@@ -450,13 +450,13 @@ Untying removes only those bookend keys, preserving genuine animation.</string>
            <property name="minimumSize">
             <size>
              <width>0</width>
-             <height>20</height>
+             <height>19</height>
             </size>
            </property>
            <property name="maximumSize">
             <size>
              <width>16777215</width>
-             <height>20</height>
+             <height>19</height>
             </size>
            </property>
            <property name="toolTip">
@@ -482,13 +482,13 @@ keyframes from the graph editor.</string>
            <property name="minimumSize">
             <size>
              <width>0</width>
-             <height>20</height>
+             <height>19</height>
             </size>
            </property>
            <property name="maximumSize">
             <size>
              <width>16777215</width>
-             <height>20</height>
+             <height>19</height>
             </size>
            </property>
            <property name="toolTip">
@@ -537,13 +537,13 @@ keyframes from the graph editor.</string>
            <property name="minimumSize">
             <size>
              <width>0</width>
-             <height>20</height>
+             <height>19</height>
             </size>
            </property>
            <property name="maximumSize">
             <size>
              <width>16777215</width>
-             <height>20</height>
+             <height>19</height>
             </size>
            </property>
            <property name="toolTip">
@@ -568,13 +568,13 @@ keyframes from the graph editor.</string>
            <property name="minimumSize">
             <size>
              <width>0</width>
-             <height>20</height>
+             <height>19</height>
             </size>
            </property>
            <property name="maximumSize">
             <size>
              <width>16777215</width>
-             <height>20</height>
+             <height>19</height>
             </size>
            </property>
            <property name="toolTip">
