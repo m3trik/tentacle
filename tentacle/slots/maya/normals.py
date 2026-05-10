@@ -48,10 +48,6 @@ class Normals(SlotsMaya):
         lower_hardness = lower_hardness if lower_hardness > -1 else None
 
         selection = cmds.ls(sl=True) or []
-        # Reset the normals before the operation with object selections.
-        if selection and cmds.selectMode(query=True, object=True):
-            cmds.polySetToFaceNormal(selection)
-
         mtk.Components.set_edge_hardness(
             selection, angle_threshold, upper_hardness, lower_hardness
         )

@@ -309,6 +309,14 @@ class Editors(SlotsMaya):
             mel.eval("ToggleTimeSlider")
             mel.eval("ToggleRangeSlider")
 
+    def b010(self):
+        """Script Output"""
+        from mayatk.env_utils import script_output
+
+        script_output.toggle(
+            dock=("TimeSlider", "top"), tab_position="right", height=50
+        )
+
     def b011(self):
         """Command Line"""
         mel.eval("ToggleCommandLine")
