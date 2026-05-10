@@ -539,7 +539,16 @@ class Selection(SlotsMaya):
         range_z = float(widget.option_box.menu.s005.value())
 
         sel = cmds.ls(sl=1) or []
-        selected_faces = mtk.Components.get_components(sel, component_type="faces")
+        selected_faces = (
+            cmds.ls(
+                mtk.Components.get_components(
+                    sel, component_type="faces", flatten=True
+                )
+                or [],
+                flatten=True,
+            )
+            or []
+        )
         if not selected_faces:
             self.sb.message_box("The operation requires a face selection.")
             return
@@ -548,8 +557,9 @@ class Selection(SlotsMaya):
             selected_faces, range_x=range_x, range_y=range_y, range_z=range_z
         )
         islands = mtk.Components.get_contigious_islands(similar_faces)
-        island = [i for i in islands if bool(set(i) & set(selected_faces))]
-        cmds.select(island)
+        selected_set = set(selected_faces)
+        matching = [f for island in islands if island & selected_set for f in island]
+        cmds.select(matching)
 
     def tb003_init(self, widget):
         """ """

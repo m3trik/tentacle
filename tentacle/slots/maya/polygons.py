@@ -447,7 +447,9 @@ class PolygonsSlots(SlotsMaya):
             return self.sb.message_box(
                 "<strong>Nothing selected</strong>.<br>Operation requires a face or border-edge selection."
             )
-        return mel.eval("Circularize")
+        if any(".e[" in c for c in components):
+            return cmds.polyCircularizeEdge(components, ch=True)
+        return cmds.polyCircularizeFace(components, ch=True)
 
     def b001(self):
         """Fill Holes"""

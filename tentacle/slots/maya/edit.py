@@ -454,6 +454,7 @@ class Edit(SlotsMaya):
     _HELPER_COMMANDS = {
         "Null Group": lambda: cmds.group(empty=True, name="null"),
         "Locator": lambda: cmds.spaceLocator(p=[0, 0, 0]),
+        "Set": lambda: cmds.sets(name="set1"),
     }
 
     def list000_init(self, widget):
