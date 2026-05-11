@@ -182,7 +182,12 @@ class SceneSlots(SlotsMaya):
     def cmb002(self, index, widget):
         """Autosave"""
         file = widget.items[index]
-        cmds.file(file, open=True, force=True)
+        try:
+            cmds.file(file, open=True, force=True)
+        except RuntimeError as e:
+            self.sb.message_box(
+                f"Could not open autosave:\n<hl>{ptk.format_path(file, 'file')}</hl>\n\n{e}"
+            )
 
     def cmb003_init(self, widget):
         """Initialize Import"""

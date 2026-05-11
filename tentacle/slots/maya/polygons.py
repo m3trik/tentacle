@@ -85,7 +85,8 @@ class PolygonsSlots(SlotsMaya):
             setToolTip=(
                 "Split each mesh so every result has exactly one material, "
                 "then parent the results under per-material groups (mirror of "
-                "Combine → Group by Material)."
+                "Combine → Group by Material). Children inherit the source "
+                "object's name with a letter (A, B, …) or numeric suffix."
             ),
         )
         widget.option_box.menu.add(
@@ -93,8 +94,18 @@ class PolygonsSlots(SlotsMaya):
             setText="Rename",
             setObjectName="chk022",
             setChecked=False,
-            setToolTip="Rename resulting objects using the original name and location suffix.",
+            setToolTip=(
+                "Rename resulting objects using the original name and a "
+                "location-based suffix. Disabled while 'By Material' is on — "
+                "the grouped path uses its own letter/number scheme."
+            ),
         )
+
+        # Rename is redundant whenever By Material drives the grouped naming.
+        chk_by_material = widget.option_box.menu.chk021
+        chk_rename = widget.option_box.menu.chk022
+        chk_rename.setEnabled(not chk_by_material.isChecked())
+        chk_by_material.toggled.connect(lambda on: chk_rename.setEnabled(not on))
 
     @mtk.undoable
     def tb002(self, widget):
