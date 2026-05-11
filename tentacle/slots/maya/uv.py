@@ -3,6 +3,7 @@
 import maya.cmds as cmds
 import maya.mel as mel
 import mayatk as mtk
+from uitk import IconManager
 
 # From this package:
 from tentacle.slots.maya._slots_maya import SlotsMaya
@@ -17,6 +18,19 @@ class UvSlots(SlotsMaya):
 
         # Assure the maya UV plugin is loaded
         mtk.load_plugin("Unfold3D.mll")
+
+        # Dual-state toggle state for b029 (Pin) and b030 (Stack).
+        # Each button tracks the selection captured at its last successful
+        # action; on the next click we compare to the live selection and reset
+        # the toggle if it changed. This is more robust than a SelectionChanged
+        # scriptJob — Maya can fire SelectionChanged as a side effect of UV
+        # commands (e.g. texStackShells), which would silently reset our flag
+        # mid-operation.
+        self._b029_pinned = False
+        self._b029_last_selection = None
+        self._b030_stacked = False
+        self._b030_last_selection = None
+        self._b030_uv_snapshot = None
 
     def get_map_size(self):
         """Get the map size from the combobox as an int. ie. 2048"""
@@ -68,46 +82,71 @@ class UvSlots(SlotsMaya):
         """Initialize UV packing tool interface.
 
         Sets up the UV packing options menu with controls for:
-        - Pre-Scale Mode: Controls how UV shells are scaled before packing
-        - Pre-Rotate Mode: Controls how UV shells are rotated during packing
-        - Uniform Texel Density: Option to maintain consistent texture resolution
+        - Pre-Scale Mode: How shells are scaled before packing
+        - Pre-Rotate Mode: One-shot shell orientation before packing
+        - Rotate Step/Min/Max: Packing-time rotation search (active when Max > Min)
+        - Mutations: Optimization passes (higher = better pack, slower)
         - UDIM: Target UDIM tile space for the packed UVs
+
+        Rotate Step is auto-disabled when Rotate Max <= Rotate Min (no range
+        to step through).
 
         Parameters:
             widget: The parent widget to add menu items to
         """
         widget.option_box.menu.setTitle("Pack UVs")
-        widget.option_box.menu.add(
-            "QSpinBox",
-            setPrefix="Pre-Scale Mode: ",
-            setObjectName="s009",
-            set_limits=[0, 2],
-            setValue=1,
-            setToolTip="Pre-scale mode for UV shells during packing:\n"
-            "0 = No scaling (keep original size)\n"
-            "1 = Uniform scaling (scale uniformly to fit)\n"
-            "2 = Non-uniform scaling (stretch to optimize space)",
+        # Pre-Scale Mode. Empirically, u3dLayout has only two distinct -preScaleMode
+        # behaviors in Maya 2025: omitted/0 keeps input UV proportions; any non-zero
+        # value rescales shells by 3D area. Stock Maya's "Preserve UV" UI option
+        # actually emits -scl 3, which empirically behaves as Preserve 3D — so don't
+        # expose the broken intermediate values.
+        cmb009 = widget.option_box.menu.add(
+            "QComboBox",
+            setObjectName="cmb009",
+            setToolTip=(
+                "Maya u3dLayout -preScaleMode (only two distinct behaviors).\n"
+                "Preserve UV: keep each shell's input UV proportions relative to the others.\n"
+                "Preserve 3D: rescale shells uniformly so 3D surface area governs UV area."
+            ),
         )
-        widget.option_box.menu.add(
-            "QSpinBox",
-            setPrefix="Pre-Rotate Mode: ",
-            setObjectName="s010",
-            set_limits=[0, 2],
-            setValue=0,
-            setToolTip="Pre-rotate mode for UV shells during packing:\n"
-            "0 = No rotation (keep original orientation)\n"
-            "1 = 90-degree steps only\n"
-            "2 = Free rotation (any angle for optimal packing)",
+        for text, data in [
+            ("Pre-Scale: Preserve UV", 0),
+            ("Pre-Scale: Preserve 3D", 1),
+        ]:
+            cmb009.addItem(text, data)
+        cmb009.setCurrentIndex(1)  # matches prior default (preScaleMode=1)
+
+        # Pre-Rotate Mode. Mirrors Maya's stock dialog
+        # (performPolyLayoutUV.mel:662-670). Values are passed through directly;
+        # 0 = omit the flag.
+        cmb010 = widget.option_box.menu.add(
+            "QComboBox",
+            setObjectName="cmb010",
+            setToolTip=(
+                "Maya u3dLayout -preRotateMode. One-shot pre-orient before packing.\n"
+                "Axis modes (X/Y/Z to V) use the underlying 3D mesh orientation."
+            ),
         )
-        # Rotation sampling controls (always available; respected when rotation enabled)
+        for text, data in [
+            ("Pre-Rotate: Off", 0),
+            ("Pre-Rotate: Horizontal (long axis to U)", 1),
+            ("Pre-Rotate: Vertical (long axis to V)", 2),
+            ("Pre-Rotate: Axis X to V", 3),
+            ("Pre-Rotate: Axis Y to V", 4),
+            ("Pre-Rotate: Axis Z to V", 5),
+        ]:
+            cmb010.addItem(text, data)
+        cmb010.setCurrentIndex(0)  # Off (matches prior default of 0)
+        # Packing-time rotation search: active when Rotate Max > Rotate Min.
+        # Independent of Pre-Rotate Mode.
         widget.option_box.menu.add(
             "QSpinBox",
             setPrefix="Rotate Step: ",
             setObjectName="s011",
             set_limits=[1, 360],
             setValue=90,
-            setToolTip="Increment (degrees) between tested rotations when Pre-Rotate Mode = 1 (stepped).\n"
-            "A small increment can add lots of additional processing time.",
+            setToolTip="Increment (degrees) between rotations tested during packing.\n"
+            "Active only when Rotate Max > Rotate Min. Smaller steps cost more time.",
         )
         widget.option_box.menu.add(
             "QSpinBox",
@@ -115,15 +154,28 @@ class UvSlots(SlotsMaya):
             setObjectName="s012",
             set_limits=[0, 359],
             setValue=0,
-            setToolTip="Minimum shell rotation (degrees) considered during packing.",
+            setToolTip="Minimum rotation (degrees) for packing-time rotation search.\n"
+            "Rotation only activates when Rotate Max > Rotate Min.",
         )
         widget.option_box.menu.add(
             "QSpinBox",
             setPrefix="Rotate Max: ",
             setObjectName="s013",
             set_limits=[0, 359],
-            setValue=180,
-            setToolTip="Maximum shell rotation (degrees) considered during packing.",
+            setValue=0,
+            setToolTip="Maximum rotation (degrees) for packing-time rotation search.\n"
+            "Defaults to 0 (rotation disabled). Set above Rotate Min to opt in;\n"
+            "180 covers all unique orientations.",
+        )
+        widget.option_box.menu.add(
+            "QSpinBox",
+            setPrefix="Mutations: ",
+            setObjectName="s014",
+            set_limits=[1, 64],
+            setValue=1,
+            setToolTip="Maya u3dLayout -mutations. Number of optimization passes.\n"
+            "Higher values produce tighter packs at the cost of CPU time.\n"
+            "Stock Maya only emits this flag when > 1.",
         )
         widget.option_box.menu.add(
             "QSpinBox",
@@ -136,6 +188,16 @@ class UvSlots(SlotsMaya):
             "1002 = Second tile (1-2, 0-1 UV space), etc.",
         )
 
+        # Gate: Rotate Step is meaningless when Rotate Max <= Rotate Min.
+        menu = widget.option_box.menu
+
+        def _sync_rotate_step():
+            menu.s011.setEnabled(menu.s013.value() > menu.s012.value())
+
+        menu.s012.valueChanged.connect(_sync_rotate_step)
+        menu.s013.valueChanged.connect(_sync_rotate_step)
+        _sync_rotate_step()
+
     def tb000(self, widget):
         """Pack UVs with specified settings.
 
@@ -145,38 +207,40 @@ class UvSlots(SlotsMaya):
         The packing operation:
         1. Gets UV packing parameters from UI controls
         2. Calculates appropriate padding based on texture resolution
-        3. Processes each mesh individually to handle errors gracefully
-        4. Packs UV shells into the specified UDIM tile
+        3. Packs UVs from all selected meshes together into the target UDIM tile
+           (falls back to per-mesh probing if the batched call fails, isolates
+           the offending mesh, and re-packs the survivors together)
 
         Parameters:
             widget: The widget containing the menu controls with packing options
 
         UI Parameters used:
-            scale (int): Pre-scale mode from s009 spinbox
-                - 0: No scaling (preserve original shell sizes)
-                - 1: Uniform scaling (scale proportionally)
-                - 2: Non-uniform scaling (stretch to optimize)
-            rotate (int): Pre-rotate mode from s010 spinbox
-                - 0: No rotation (preserve original orientation)
-                - 1: 90-degree rotation steps only
-                - 2: Free rotation (any angle)
+            scale (int): Pre-scale mode from cmb009 (Maya -preScaleMode)
+                - 0: Preserve UV (no rescaling), 1: Preserve 3D (uniform by 3D area)
+            rotate (int): Pre-rotate mode from cmb010 (Maya -preRotateMode)
+                - 0: Off, 1: Horizontal, 2: Vertical, 3-5: Axis X/Y/Z to V
+            rotate_step/min/max (int): Packing-time rotation search.
+                Active only when max > min; independent of pre-rotate mode.
+            mutations (int): s014 spinbox (Maya -mutations). Optimization passes;
+                only emitted when > 1.
             UDIM (int): Target UDIM tile number (s004), e.g., 1001
 
         Note:
             - Requires at least one object to be selected
             - Automatically calculates shell and tile padding based on map size
-            - If uniform texel density is enabled, normalizes all shells before packing
             - Meshes with errors (e.g., non-manifold vertices) are skipped with a summary
         """
-        scale = widget.option_box.menu.s009.value()
-        rotate = widget.option_box.menu.s010.value()
+        scale = widget.option_box.menu.cmb009.currentData()
+        rotate = widget.option_box.menu.cmb010.currentData()
         UDIM = widget.option_box.menu.s004.value()
         rotate_step = widget.option_box.menu.s011.value()
         rotate_min = widget.option_box.menu.s012.value()
         rotate_max = widget.option_box.menu.s013.value()
+        mutations = widget.option_box.menu.s014.value()
         map_size = self.get_map_size()
 
-        U, D, I, M = [int(i) for i in str(UDIM)]  # UDIM ex. '1001'
+        # UDIM = 1001 + u + 10*v   (u: 0-9, v: 0+); packBox is [umin, umax, vmin, vmax]
+        u_tile, v_tile = (UDIM - 1001) % 10, (UDIM - 1001) // 10
         shellPadding = mtk.calculate_uv_padding(map_size, normalize=True)
         tilePadding = shellPadding / 2
 
@@ -192,39 +256,82 @@ class UvSlots(SlotsMaya):
         if not meshes:
             meshes = cmds.ls(selection, type="transform", dag=True) or selection
 
+        # Bulk-resolve UVs in one call; keep ranges unflattened ("pCube1.map[0:23]")
+        # so we don't pay to expand millions of indices into individual strings.
+        all_uvs = (
+            cmds.polyListComponentConversion(meshes, fromFace=True, toUV=True) or []
+        )
+        if not all_uvs:
+            self.sb.message_box("<b>No UVs found on selection.</b>")
+            return
+
+        pack_kwargs = dict(
+            resolution=map_size,
+            shellSpacing=shellPadding,
+            tileMargin=tilePadding,
+            preScaleMode=scale,
+            preRotateMode=rotate,
+            packBox=[u_tile, u_tile + 1, v_tile, v_tile + 1],
+            multiObject=True,  # -m off causes all shells to stack at the tile center
+        )
+        # Rotate flags only when the user opts in (max > min). Maya's stock dialog
+        # follows the same pattern: it omits these unless the "Rotate" checkbox is on.
+        # Passing them with the default range (0..180) silently rotates shells even
+        # when Pre-Rotate is set to Off.
+        if rotate_max > rotate_min:
+            pack_kwargs["rotateStep"] = rotate_step
+            pack_kwargs["rotateMin"] = rotate_min
+            pack_kwargs["rotateMax"] = rotate_max
+        if mutations > 1:
+            pack_kwargs["mutations"] = mutations
+
+        def _classify(err):
+            msg = str(err)
+            low = msg.lower()
+            if "non-manifold" in low:
+                return "non-manifold vertices"
+            if "overlapping" in low:
+                return "overlapping UVs"
+            return msg.split("\n")[0][:50]
+
         successful = []
         failed = []
-
-        for mesh in meshes:
+        cmds.undoInfo(openChunk=True, chunkName="UV Pack")
+        cmds.refresh(suspend=True)
+        try:
             try:
-                uvs = cmds.polyListComponentConversion(mesh, fromFace=True, toUV=True)
-                uvs_flattened = cmds.ls(uvs, flatten=True) or []
-                if not uvs_flattened:
-                    continue
-
-                cmds.u3dLayout(
-                    uvs_flattened,
-                    resolution=map_size,
-                    shellSpacing=shellPadding,
-                    tileMargin=tilePadding,
-                    preScaleMode=scale,
-                    preRotateMode=rotate,
-                    packBox=[M - 1, D, I, U],
-                    rotateStep=rotate_step,
-                    rotateMin=rotate_min,
-                    rotateMax=rotate_max,
-                )
-                successful.append(str(mesh))
-            except RuntimeError as e:
-                error_msg = str(e)
-                # Extract user-friendly error description
-                if "non-manifold" in error_msg.lower():
-                    reason = "non-manifold vertices"
-                elif "overlapping" in error_msg.lower():
-                    reason = "overlapping UVs"
-                else:
-                    reason = error_msg.split("\n")[0][:50]  # First 50 chars
-                failed.append((str(mesh), reason))
+                # Single batched pack — all meshes share the target tile together.
+                cmds.u3dLayout(all_uvs, **pack_kwargs)
+                successful = [str(m) for m in meshes]
+            except RuntimeError:
+                # Batch failed: probe each mesh to isolate the bad one(s),
+                # then re-pack the survivors together so they share the tile.
+                good = []
+                for mesh in meshes:
+                    uvs = (
+                        cmds.polyListComponentConversion(
+                            mesh, fromFace=True, toUV=True
+                        )
+                        or []
+                    )
+                    if not uvs:
+                        continue
+                    try:
+                        cmds.u3dLayout(uvs, **pack_kwargs)
+                        good.extend(uvs)
+                        successful.append(str(mesh))
+                    except RuntimeError as me:
+                        failed.append((str(mesh), _classify(me)))
+                if good:
+                    try:
+                        cmds.u3dLayout(good, **pack_kwargs)
+                    except RuntimeError as ce:
+                        # Survivors packed individually (each filling the tile);
+                        # combine failed, so leave them as-is and surface the cause.
+                        failed.append(("<combined re-pack>", _classify(ce)))
+        finally:
+            cmds.refresh(suspend=False)
+            cmds.undoInfo(closeChunk=True)
 
         # Report summary
         if failed:
@@ -853,10 +960,6 @@ class UvSlots(SlotsMaya):
         for t in to:
             mtk.transfer_uvs(frm, t)
 
-    def b002(self):
-        """Stack Shells"""
-        mel.eval("texStackShells {}")
-
     def b003(self):
         """Get texel density."""
         density = mtk.get_texel_density(cmds.ls(sl=True) or [], self.get_map_size())
@@ -926,11 +1029,73 @@ class UvSlots(SlotsMaya):
         self.ui.tb004.call_slot()  # perform unfold
         self.ui.tb000.call_slot()  # perform pack
 
-    def b022(self):
-        """Cut UV hard edges"""
-        # perform select edges by angle.
-        self.sb.loaded_ui.selection.tb003.call_slot()
-        self.b005()  # Perform cut.
+    def tb022_init(self, widget):
+        """Initialize Cut Hard Edges option menu."""
+        widget.option_box.menu.setTitle("Cut Hard Edges")
+        widget.option_box.menu.add(
+            "QDoubleSpinBox",
+            setPrefix="Angle Low:  ",
+            setObjectName="s014",
+            set_limits=[0, 180],
+            setValue=70,
+            setToolTip="Normal angle low range for hard-edge detection.",
+        )
+        widget.option_box.menu.add(
+            "QDoubleSpinBox",
+            setPrefix="Angle High: ",
+            setObjectName="s015",
+            set_limits=[0, 180],
+            setValue=180,
+            setToolTip="Normal angle high range for hard-edge detection.",
+        )
+        widget.option_box.menu.add(
+            "QCheckBox",
+            setText="Include UV Borders",
+            setObjectName="chk025",
+            setChecked=False,
+            setToolTip="Also cut along edges that are existing UV shell borders.",
+        )
+        widget.option_box.menu.add(
+            "QCheckBox",
+            setText="Include Auto Seams",
+            setObjectName="chk026",
+            setChecked=False,
+            setToolTip="Also cut along seams auto-detected by u3dAutoSeam.",
+        )
+
+    @mtk.undoable
+    def tb022(self, widget):
+        """Cut UV hard edges (always), optionally also UV borders and auto-detected seams."""
+        angle_low = widget.option_box.menu.s014.value()
+        angle_high = widget.option_box.menu.s015.value()
+        include_uv_borders = widget.option_box.menu.chk025.isChecked()
+        include_auto_seams = widget.option_box.menu.chk026.isChecked()
+
+        objects = cmds.ls(sl=True, objectsOnly=True) or []
+        if not objects:
+            self.sb.message_box("Nothing selected")
+            return
+
+        # Hard edges (always on) — cut along edges within the angle range.
+        hard_edges = mtk.Components.get_edges_by_normal_angle(
+            objects, low_angle=angle_low, high_angle=angle_high
+        )
+        if hard_edges:
+            cmds.polyMapCut(hard_edges)
+
+        # Optional: cut along existing UV shell border edges.
+        if include_uv_borders:
+            border_edges = mtk.UvUtils.get_uv_shell_border_edges(objects)
+            if border_edges:
+                cmds.polyMapCut(border_edges)
+
+        # Optional: auto-detected seams via Unfold3D.
+        if include_auto_seams:
+            for obj in objects:
+                try:
+                    cmds.u3dAutoSeam(obj, s=0, p=1)
+                except Exception as error:
+                    print(error)
 
     def b023(self):
         """Move To Uv Space: Left"""
@@ -951,6 +1116,107 @@ class UvSlots(SlotsMaya):
         """Move To Uv Space: Right"""
         selection = cmds.ls(sl=True) or []
         mtk.move_to_uv_space(selection, 1, 0)  # move right
+
+    def b029_init(self, widget):
+        """Initialize Pin/Unpin button — static pin icon, non-checkable.
+
+        Defensively strips any `checkable`/`text` properties a Qt Designer
+        round-trip may have re-added, then installs the static `pin` icon.
+        """
+        widget.setCheckable(False)
+        widget.setText("")
+        IconManager.set_icon(widget, "pin", size=(16, 16))
+
+    @mtk.undoable
+    def b029(self, widget):
+        """Pin / Unpin selected UVs (dual-state toggle).
+
+        First click on a fresh selection pins; the next click unpins; and so
+        on. A selection change since the last click resets the toggle, so the
+        next click always starts with Pin.
+        """
+        selection = cmds.ls(sl=True) or []
+        if not selection:
+            self.sb.message_box("<b>Nothing selected.</b>")
+            return
+        uvs = cmds.polyListComponentConversion(selection, toUV=True) or []
+        if not uvs:
+            self.sb.message_box("<b>No UVs found in selection.</b>")
+            return
+
+        if self._b029_last_selection != selection:
+            self._b029_pinned = False  # fresh selection — start with Pin
+        self._b029_pinned = not self._b029_pinned
+        cmds.polyPinUV(uvs, value=1.0 if self._b029_pinned else 0.0)
+        self._b029_last_selection = list(selection)
+
+    def b030_init(self, widget):
+        """Initialize Stack button — static stack icon, non-checkable.
+
+        Defensively strips any `checkable`/`text` properties a Qt Designer
+        round-trip may have re-added, then installs the static `stack` icon.
+        """
+        widget.setCheckable(False)
+        widget.setText("")
+        IconManager.set_icon(widget, "stack", size=(16, 16))
+
+    @mtk.undoable
+    def b030(self, widget):
+        """Stack / Unstack similar shells (dual-state toggle).
+
+        First click on a fresh selection captures each selected UV's position
+        and stacks similar shells (texStackShells). The next click restores
+        those positions, returning shells to exactly where they were before
+        the stack. A selection change since the last click resets the toggle
+        and drops the snapshot.
+
+        Per-UV capture and restore avoid an ordering ambiguity in bulk
+        ``polyEditUV(..., query=True)``.
+        """
+        selection = cmds.ls(sl=True) or []
+        if not selection:
+            self.sb.message_box("<b>Nothing selected.</b>")
+            return
+        uvs = cmds.polyListComponentConversion(selection, toUV=True) or []
+        uvs = cmds.ls(uvs, flatten=True) or []
+        if not uvs:
+            self.sb.message_box("<b>No UVs found in selection.</b>")
+            return
+
+        if self._b030_last_selection != selection:
+            # Fresh selection — reset to "next click stacks" and drop any
+            # snapshot from a previous selection.
+            self._b030_stacked = False
+            self._b030_uv_snapshot = None
+
+        self._b030_stacked = not self._b030_stacked
+        self._b030_last_selection = list(selection)
+
+        if self._b030_stacked:
+            snapshot = []
+            for uv in uvs:
+                pos = cmds.polyEditUV(uv, query=True)
+                if pos and len(pos) >= 2:
+                    snapshot.append((uv, pos[0], pos[1]))
+            self._b030_uv_snapshot = snapshot
+            mel.eval("texStackShells {}")
+            return
+
+        snapshot = self._b030_uv_snapshot or []
+        self._b030_uv_snapshot = None
+        if not snapshot:
+            self.sb.message_box(
+                "<b>No snapshot available.</b><br>"
+                "Stack a selection first; Unstack restores the pre-stack positions."
+            )
+            return
+        cmds.refresh(suspend=True)
+        try:
+            for uv, u, v in snapshot:
+                if cmds.objExists(uv):
+                    cmds.polyEditUV(uv, uValue=u, vValue=v, relative=False)
+        finally:
+            cmds.refresh(suspend=False)
 
 
 # --------------------------------------------------------------------------------------------

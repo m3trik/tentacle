@@ -10,7 +10,7 @@
     <x>0</x>
     <y>0</y>
     <width>200</width>
-    <height>516</height>
+    <height>494</height>
    </rect>
   </property>
   <property name="toolTip">
@@ -33,6 +33,9 @@
     </size>
    </property>
    <layout class="QVBoxLayout" name="verticalLayout_2">
+    <property name="spacing">
+     <number>2</number>
+    </property>
     <property name="leftMargin">
      <number>2</number>
     </property>
@@ -45,16 +48,13 @@
     <property name="bottomMargin">
      <number>2</number>
     </property>
-    <property name="spacing">
-     <number>2</number>
-    </property>
     <item>
      <layout class="QVBoxLayout" name="verticalLayout">
       <property name="spacing">
        <number>0</number>
       </property>
       <item>
-       <widget class="Header" name="header">
+       <widget class="Header" name="header" native="true">
         <property name="minimumSize">
          <size>
           <width>0</width>
@@ -67,7 +67,7 @@
           <bold>true</bold>
          </font>
         </property>
-        <property name="text">
+        <property name="text" stdset="0">
          <string>UV</string>
         </property>
        </widget>
@@ -338,14 +338,14 @@
          </property>
          <item>
           <widget class="QPushButton" name="b007">
+           <property name="enabled">
+            <bool>true</bool>
+           </property>
            <property name="minimumSize">
             <size>
              <width>0</width>
              <height>19</height>
             </size>
-           </property>
-           <property name="enabled">
-            <bool>true</bool>
            </property>
            <property name="maximumSize">
             <size>
@@ -641,15 +641,15 @@
           </widget>
          </item>
          <item row="1" column="0" colspan="2">
-          <widget class="QPushButton" name="b022">
+          <widget class="PushButton" name="tb022">
+           <property name="enabled">
+            <bool>true</bool>
+           </property>
            <property name="minimumSize">
             <size>
              <width>0</width>
              <height>19</height>
             </size>
-           </property>
-           <property name="enabled">
-            <bool>true</bool>
            </property>
            <property name="maximumSize">
             <size>
@@ -658,7 +658,7 @@
             </size>
            </property>
            <property name="toolTip">
-            <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Cut all seams at the edges within the threshold defined in selection&amp;gt;by angle.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+            <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Cut UVs along hard edges (always on). Optionally also cut along existing UV shell borders or auto-detected seams.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
            </property>
            <property name="text">
             <string>Cut Hard Edges</string>
@@ -735,43 +735,7 @@
          <property name="spacing">
           <number>1</number>
          </property>
-         <item row="0" column="4">
-          <widget class="QPushButton" name="b025">
-           <property name="enabled">
-            <bool>true</bool>
-           </property>
-           <property name="minimumSize">
-            <size>
-             <width>31</width>
-             <height>19</height>
-            </size>
-           </property>
-           <property name="maximumSize">
-            <size>
-             <width>16777215</width>
-             <height>19</height>
-            </size>
-           </property>
-           <property name="font">
-            <font>
-             <pointsize>22</pointsize>
-            </font>
-           </property>
-           <property name="toolTip">
-            <string>Move Relative: Move the selected shells to a UV space relative to their current position.</string>
-           </property>
-           <property name="text">
-            <string>⇧</string>
-           </property>
-           <property name="iconSize">
-            <size>
-             <width>18</width>
-             <height>18</height>
-            </size>
-           </property>
-          </widget>
-         </item>
-         <item row="2" column="0" colspan="6">
+         <item row="3" column="0" colspan="9">
           <widget class="ComboBox" name="cmb002">
            <property name="minimumSize">
             <size>
@@ -801,7 +765,7 @@
            </item>
           </widget>
          </item>
-         <item row="7" column="0" colspan="6">
+         <item row="7" column="0" colspan="9">
           <widget class="PushButton" name="tb006">
            <property name="enabled">
             <bool>true</bool>
@@ -838,99 +802,26 @@
            </property>
           </widget>
          </item>
-         <item row="8" column="0" colspan="6">
-          <widget class="QPushButton" name="b002">
-           <property name="enabled">
-            <bool>true</bool>
-           </property>
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-           <property name="minimumSize">
-            <size>
-             <width>0</width>
-             <height>19</height>
-            </size>
-           </property>
-           <property name="maximumSize">
-            <size>
-             <width>16777215</width>
-             <height>19</height>
-            </size>
-           </property>
-           <property name="toolTip">
-            <string>Move Relative: Move the selected shells to a UV space relative to their current position.</string>
-           </property>
-           <property name="text">
-            <string>Stack</string>
-           </property>
-           <property name="iconSize">
-            <size>
-             <width>18</width>
-             <height>18</height>
-            </size>
-           </property>
-          </widget>
-         </item>
-         <item row="1" column="4">
-          <widget class="QPushButton" name="b024">
-           <property name="enabled">
-            <bool>true</bool>
-           </property>
-           <property name="minimumSize">
-            <size>
-             <width>31</width>
-             <height>19</height>
-            </size>
-           </property>
-           <property name="maximumSize">
-            <size>
-             <width>16777215</width>
-             <height>19</height>
-            </size>
-           </property>
-           <property name="font">
-            <font>
-             <pointsize>22</pointsize>
-            </font>
-           </property>
-           <property name="toolTip">
-            <string>Move Relative: Move the selected shells to a UV space relative to their current position.</string>
-           </property>
-           <property name="text">
-            <string>⇩</string>
-           </property>
-           <property name="iconSize">
-            <size>
-             <width>18</width>
-             <height>18</height>
-            </size>
-           </property>
-          </widget>
-         </item>
-         <item row="0" column="5" rowspan="2">
+         <item row="0" column="8">
           <widget class="QPushButton" name="b026">
-           <property name="maximumSize">
-            <size>
-             <width>16777215</width>
-             <height>19</height>
-            </size>
-           </property>
            <property name="enabled">
             <bool>true</bool>
            </property>
            <property name="minimumSize">
             <size>
-             <width>31</width>
+             <width>19</width>
+             <height>19</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>19</width>
              <height>19</height>
             </size>
            </property>
            <property name="font">
             <font>
-             <pointsize>22</pointsize>
+             <pointsize>18</pointsize>
             </font>
            </property>
            <property name="toolTip">
@@ -947,26 +838,123 @@
            </property>
           </widget>
          </item>
-         <item row="0" column="3" rowspan="2">
-          <widget class="QPushButton" name="b023">
-           <property name="maximumSize">
-            <size>
-             <width>16777215</width>
-             <height>19</height>
-            </size>
-           </property>
+         <item row="1" column="8">
+          <widget class="QPushButton" name="b030">
            <property name="enabled">
             <bool>true</bool>
            </property>
            <property name="minimumSize">
             <size>
-             <width>31</width>
+             <width>19</width>
+             <height>19</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>19</width>
+             <height>19</height>
+            </size>
+           </property>
+           <property name="toolTip">
+            <string>Stack / Unstack similar shells (toggle). Unstack packs the selection at the original texel density.</string>
+           </property>
+           <property name="text">
+            <string/>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="7">
+          <widget class="QPushButton" name="b024">
+           <property name="enabled">
+            <bool>true</bool>
+           </property>
+           <property name="minimumSize">
+            <size>
+             <width>19</width>
+             <height>19</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>19</width>
              <height>19</height>
             </size>
            </property>
            <property name="font">
             <font>
-             <pointsize>22</pointsize>
+             <pointsize>18</pointsize>
+            </font>
+           </property>
+           <property name="toolTip">
+            <string>Move Relative: Move the selected shells to a UV space relative to their current position.</string>
+           </property>
+           <property name="text">
+            <string>⇩</string>
+           </property>
+           <property name="iconSize">
+            <size>
+             <width>18</width>
+             <height>18</height>
+            </size>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="7">
+          <widget class="QPushButton" name="b025">
+           <property name="enabled">
+            <bool>true</bool>
+           </property>
+           <property name="minimumSize">
+            <size>
+             <width>19</width>
+             <height>19</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>19</width>
+             <height>19</height>
+            </size>
+           </property>
+           <property name="font">
+            <font>
+             <pointsize>18</pointsize>
+            </font>
+           </property>
+           <property name="toolTip">
+            <string>Move Relative: Move the selected shells to a UV space relative to their current position.</string>
+           </property>
+           <property name="text">
+            <string>⇧</string>
+           </property>
+           <property name="iconSize">
+            <size>
+             <width>18</width>
+             <height>18</height>
+            </size>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="6">
+          <widget class="QPushButton" name="b023">
+           <property name="enabled">
+            <bool>true</bool>
+           </property>
+           <property name="minimumSize">
+            <size>
+             <width>19</width>
+             <height>19</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>19</width>
+             <height>19</height>
+            </size>
+           </property>
+           <property name="font">
+            <font>
+             <pointsize>18</pointsize>
             </font>
            </property>
            <property name="toolTip">
@@ -983,7 +971,32 @@
            </property>
           </widget>
          </item>
-         <item row="0" column="0" colspan="3">
+         <item row="1" column="6">
+          <widget class="QPushButton" name="b029">
+           <property name="enabled">
+            <bool>true</bool>
+           </property>
+           <property name="minimumSize">
+            <size>
+             <width>19</width>
+             <height>19</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>19</width>
+             <height>19</height>
+            </size>
+           </property>
+           <property name="toolTip">
+            <string>Pin / Unpin selected UVs (toggle). Pinned UVs are held fixed during Unfold / Optimize / Layout.</string>
+           </property>
+           <property name="text">
+            <string/>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="0" colspan="6">
           <widget class="PushButton" name="tb005">
            <property name="enabled">
             <bool>true</bool>
@@ -1020,7 +1033,7 @@
            </property>
           </widget>
          </item>
-         <item row="1" column="0" colspan="3">
+         <item row="1" column="0" colspan="6">
           <widget class="PushButton" name="tb008">
            <property name="enabled">
             <bool>true</bool>
@@ -1216,8 +1229,8 @@
  <customwidgets>
   <customwidget>
    <class>Header</class>
-   <extends>QLabel</extends>
-   <header>uitk.widgets.header.Header.h</header>
+   <extends>QWidget</extends>
+   <header>uitk.widgets.header</header>
   </customwidget>
   <customwidget>
    <class>PushButton</class>
@@ -1230,14 +1243,14 @@
    <header>uitk.widgets.comboBox.ComboBox.h</header>
   </customwidget>
   <customwidget>
-   <class>DoubleSpinBox</class>
-   <extends>QDoubleSpinBox</extends>
-   <header>widgets.doublespinbox.h</header>
-  </customwidget>
-  <customwidget>
    <class>Footer</class>
    <extends>QWidget</extends>
    <header>uitk.widgets.footer</header>
+  </customwidget>
+  <customwidget>
+   <class>DoubleSpinBox</class>
+   <extends>QDoubleSpinBox</extends>
+   <header>widgets.doublespinbox.h</header>
   </customwidget>
  </customwidgets>
  <resources/>
