@@ -369,10 +369,17 @@ class Edit(SlotsMaya):
                 # Fast empty-group deletion via DAG path parsing
                 # A "group" is an exact-type transform with no shape children.
                 # An "empty group" is a group with no DAG children at all.
-                all_dag = cmds.ls(dag=True, long=True) or []
-                exact_transforms = set(cmds.ls(exactType="transform", long=True) or [])
+                # allPaths=True enumerates every DAG path of instanced nodes;
+                # without it, instance siblings look like empty groups and get deleted.
+                all_dag = cmds.ls(dag=True, long=True, allPaths=True) or []
+                exact_transforms = set(
+                    cmds.ls(dag=True, exactType="transform", long=True, allPaths=True) or []
+                )
                 shape_parents = {
-                    s.rsplit("|", 1)[0] for s in (cmds.ls(shapes=True, long=True) or [])
+                    s.rsplit("|", 1)[0]
+                    for s in (
+                        cmds.ls(dag=True, shapes=True, long=True, allPaths=True) or []
+                    )
                 }
                 dag_parents = {p.rsplit("|", 1)[0] for p in all_dag if "|" in p} - {""}
                 groups = exact_transforms - shape_parents

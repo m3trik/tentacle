@@ -397,12 +397,21 @@ class MaterialsSlots(SlotsMaya):
             setChecked=False,
             setToolTip="When checked, first get the material from the current viewport selection and set it as the current material, then perform the selection.",
         )
+        widget.option_box.menu.add(
+            "QCheckBox",
+            setText="Add to Selection",
+            setObjectName="chk008",
+            setChecked=False,
+            setToolTip="When checked, add matches to the existing selection instead of replacing it.",
+        )
 
     def tb000(self, widget):
         """Select By Material"""
         get_and_select = (
             widget.option_box.menu.chk007.isChecked()
         )  # Get and select option
+        add_to_selection = widget.option_box.menu.chk008.isChecked()
+        prior_selection = cmds.ls(sl=True, flatten=True) or []
 
         # If get_and_select is enabled, first get the material from current selection
         if get_and_select:
@@ -458,7 +467,11 @@ class MaterialsSlots(SlotsMaya):
             )
             return
 
-        cmds.select(faces_with_mat)
+        if add_to_selection and prior_selection:
+            cmds.select(prior_selection, replace=True)
+            cmds.select(faces_with_mat, add=True)
+        else:
+            cmds.select(faces_with_mat)
 
     def lbl002(self):
         """Delete Material"""

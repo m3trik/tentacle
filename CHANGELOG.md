@@ -2,6 +2,7 @@
 
 ## 2026
 
+- **2026-05-11 Bugfix** — `edit.py tb001` (Delete History → Delete Unused Nodes) was deleting instanced objects. Empty-group sweep used `cmds.ls` without `allPaths=True`, so only one DAG path per instanced node was listed; sibling instance transforms then appeared in `groups` but not in `dag_parents` and were deleted. Added `dag=True, allPaths=True` to the three `cmds.ls` calls that build `all_dag`, `exact_transforms`, and `shape_parents`. Regression test in `test/test_edit.py` (shape instance, transform instance, truly-empty group).
 - **2026-03-26 Bugfix** — `ExpandableList list000` (Create Primitive) double-execution. `eventFilter` wasn't consuming `MouseButtonRelease` after emitting `on_item_interacted`, allowing re-trigger. Added `return True` after emission in `uitk/widgets/expandableList.py`.
 - **2026-03-03 Perf** — `edit.py tb001` (Delete History) optimized for heavy scenes. Replaced PyMEL bulk queries with `maya.cmds`, batch-extracted shapes via `cmds.listRelatives`, DAG path-parsing with `exactType` for empty-group detection, filtered intermediate shapes, suspended viewport refresh, moved `message_box` outside the suspend block. Added AST regression tests in `test_slot_integrity.py`.
 - **2026-02-26 Feature** — Animation Copy Keys button (`b001`) gained `copy_keys` / `paste_keys` modes: current frame, selected keys (Graph Editor), channel box. Core logic added as `AnimUtils.copy_keys` / `paste_keys` in mayatk.

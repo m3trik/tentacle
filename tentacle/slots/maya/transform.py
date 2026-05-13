@@ -158,6 +158,20 @@ class TransformSlots(SlotsMaya):
             setToolTip="Freeze all descendant transform nodes.",
         )
         widget.option_box.menu.add(
+            "QCheckBox",
+            setText="Restore Rig Anchors",
+            setObjectName="chk_restore_rig_anchors",
+            setChecked=True,
+            setToolTip=(
+                "After freeze, re-anchor each GRP > LOC > GEO rig to its world\n"
+                "pivot: lift the world position from vertex coordinates back onto\n"
+                "the GRP's translate, shift mesh vertices and rotate/scale pivots\n"
+                "to compensate. Restores the canonical create_locator_at_object\n"
+                "hierarchy. Skips rigs whose LOC has incoming animation curves\n"
+                "(those weren't disturbed by the freeze)."
+            ),
+        )
+        widget.option_box.menu.add(
             "QComboBox",
             setObjectName="cmb_connection_strategy",
             addItems=[
@@ -220,12 +234,17 @@ class TransformSlots(SlotsMaya):
         delete_history = widget.option_box.menu.chk038.isChecked()
         freeze_children = widget.option_box.menu.chk039.isChecked()
         from_channel_box = widget.option_box.menu.chk040.isChecked()
+        restore_rig_anchors = (
+            widget.option_box.menu.chk_restore_rig_anchors.isChecked()
+        )
         strategy_index = widget.option_box.menu.cmb_connection_strategy.currentIndex()
         connection_strategy = ["preserve", "disconnect", "delete"][strategy_index]
 
-        # Store transforms before freezing so they can be restored later
+        # Store transforms before freezing so they can be restored later.
+        # When freezing children the cascade reaches descendants, so traverse
+        # the same set or unfreeze on a child will warn about missing attrs.
         if store_transforms:
-            mtk.store_transforms(objects, accumulate=True)
+            mtk.store_transforms(objects, accumulate=True, traverse=freeze_children)
 
         mtk.freeze_transforms(
             objects,
@@ -239,6 +258,9 @@ class TransformSlots(SlotsMaya):
             connection_strategy=connection_strategy,
             from_channel_box=from_channel_box,
         )
+
+        if restore_rig_anchors:
+            mtk.restore_rig_anchors(objects, traverse=True)
 
     def tb003_init(self, widget):
         """Constraints Init"""
