@@ -452,15 +452,13 @@ class PolygonsSlots(SlotsMaya):
     def b000(self):
         """Circularize"""
         components = cmds.filterExpand(
-            cmds.ls(sl=1) or [], selectionMask=(32, 34), expand=1
+            cmds.ls(sl=1) or [], selectionMask=(31, 32, 34), expand=1
         )
         if not components:
             return self.sb.message_box(
-                "<strong>Nothing selected</strong>.<br>Operation requires a face or border-edge selection."
+                "<strong>Nothing selected</strong>.<br>Operation requires a vertex, edge, or face selection."
             )
-        if any(".e[" in c for c in components):
-            return cmds.polyCircularizeEdge(components, ch=True)
-        return cmds.polyCircularizeFace(components, ch=True)
+        return cmds.polyCircularize(components, ch=True)
 
     def b001(self):
         """Fill Holes"""
