@@ -93,7 +93,7 @@
       <x>310</x>
       <y>330</y>
       <width>123</width>
-      <height>20</height>
+      <height>19</height>
      </rect>
     </property>
     <property name="minimumSize">
@@ -118,7 +118,7 @@
       <x>355</x>
       <y>260</y>
       <width>86</width>
-      <height>20</height>
+      <height>19</height>
      </rect>
     </property>
     <property name="minimumSize">
@@ -143,7 +143,7 @@
       <x>380</x>
       <y>290</y>
       <width>86</width>
-      <height>20</height>
+      <height>19</height>
      </rect>
     </property>
     <property name="minimumSize">

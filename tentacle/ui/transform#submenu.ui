@@ -330,7 +330,7 @@
       <x>130</x>
       <y>280</y>
       <width>86</width>
-      <height>20</height>
+      <height>19</height>
      </rect>
     </property>
     <property name="sizePolicy">
@@ -382,7 +382,7 @@
       <x>130</x>
       <y>340</y>
       <width>86</width>
-      <height>20</height>
+      <height>19</height>
      </rect>
     </property>
     <property name="sizePolicy">

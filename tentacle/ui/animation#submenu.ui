@@ -121,7 +121,7 @@
       <x>145</x>
       <y>265</y>
       <width>91</width>
-      <height>20</height>
+      <height>19</height>
      </rect>
     </property>
     <property name="minimumSize">
@@ -155,7 +155,7 @@
       <x>215</x>
       <y>215</y>
       <width>81</width>
-      <height>20</height>
+      <height>19</height>
      </rect>
     </property>
     <property name="minimumSize">
@@ -187,7 +187,7 @@ Else move all keyframes of the selected objects.</string>
       <x>215</x>
       <y>190</y>
       <width>81</width>
-      <height>20</height>
+      <height>19</height>
      </rect>
     </property>
     <property name="minimumSize">
@@ -218,7 +218,7 @@ Else move all keyframes of the selected objects.</string>
       <x>150</x>
       <y>345</y>
       <width>121</width>
-      <height>20</height>
+      <height>19</height>
      </rect>
     </property>
     <property name="minimumSize">
@@ -254,7 +254,7 @@ Supports negative values to compress timing.</string>
       <x>255</x>
       <y>240</y>
       <width>91</width>
-      <height>20</height>
+      <height>19</height>
      </rect>
     </property>
     <property name="minimumSize">
@@ -291,7 +291,7 @@ Supports negative values to compress timing.</string>
       <x>275</x>
       <y>345</y>
       <width>91</width>
-      <height>20</height>
+      <height>19</height>
      </rect>
     </property>
     <property name="minimumSize">
@@ -328,7 +328,7 @@ Supports negative values to compress timing.</string>
       <x>160</x>
       <y>240</y>
       <width>86</width>
-      <height>20</height>
+      <height>19</height>
      </rect>
     </property>
     <property name="minimumSize">
@@ -362,7 +362,7 @@ Supports negative values to compress timing.</string>
       <x>95</x>
       <y>190</y>
       <width>111</width>
-      <height>20</height>
+      <height>19</height>
      </rect>
     </property>
     <property name="minimumSize">
@@ -390,7 +390,7 @@ Supports negative values to compress timing.</string>
       <x>95</x>
       <y>215</y>
       <width>111</width>
-      <height>20</height>
+      <height>19</height>
      </rect>
     </property>
     <property name="minimumSize">
@@ -418,7 +418,7 @@ Supports negative values to compress timing.</string>
       <x>130</x>
       <y>320</y>
       <width>116</width>
-      <height>20</height>
+      <height>19</height>
      </rect>
     </property>
     <property name="minimumSize">
