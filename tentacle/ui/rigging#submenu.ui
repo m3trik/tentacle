@@ -87,7 +87,7 @@
       <x>240</x>
       <y>210</y>
       <width>96</width>
-      <height>20</height>
+      <height>19</height>
      </rect>
     </property>
     <property name="minimumSize">
@@ -174,7 +174,7 @@
       <x>130</x>
       <y>260</y>
       <width>111</width>
-      <height>20</height>
+      <height>19</height>
      </rect>
     </property>
     <property name="minimumSize">
@@ -204,7 +204,7 @@ Create, keyframe-fade, and remove per-object opacity controllers.</string>
       <x>150</x>
       <y>235</y>
       <width>81</width>
-      <height>20</height>
+      <height>19</height>
      </rect>
     </property>
     <property name="minimumSize">

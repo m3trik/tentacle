@@ -176,7 +176,7 @@
       <x>355</x>
       <y>290</y>
       <width>136</width>
-      <height>20</height>
+      <height>19</height>
      </rect>
     </property>
     <property name="minimumSize">
@@ -222,7 +222,7 @@
       <x>360</x>
       <y>250</y>
       <width>126</width>
-      <height>20</height>
+      <height>19</height>
      </rect>
     </property>
     <property name="minimumSize">
@@ -268,7 +268,7 @@
       <x>360</x>
       <y>190</y>
       <width>126</width>
-      <height>20</height>
+      <height>19</height>
      </rect>
     </property>
     <property name="minimumSize">
@@ -314,7 +314,7 @@
       <x>360</x>
       <y>220</y>
       <width>126</width>
-      <height>20</height>
+      <height>19</height>
      </rect>
     </property>
     <property name="minimumSize">
@@ -360,7 +360,7 @@
       <x>270</x>
       <y>250</y>
       <width>71</width>
-      <height>20</height>
+      <height>19</height>
      </rect>
     </property>
     <property name="minimumSize">
