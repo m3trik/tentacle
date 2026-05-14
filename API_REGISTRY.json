@@ -1,7 +1,7 @@
 {
   "name": "tentacle",
   "source_root": "tentacle/tentacle",
-  "generated_at": "2026-05-07",
+  "generated_at": "2026-05-14",
   "modules": [
     {
       "relpath": "__init__.py",
@@ -14,57 +14,6 @@
           "signature": "(string, outputToConsole=True)",
           "summary": "Format a string using preset variables.",
           "line": 26,
-          "deprecated": false
-        }
-      ],
-      "classes": []
-    },
-    {
-      "relpath": "bench/option_box.py",
-      "summary": "Tentacle-side option_box init bench.",
-      "functions": [],
-      "classes": [
-        {
-          "name": "TentacleOptionBoxBench",
-          "summary": "",
-          "line": 24,
-          "bases": [
-            "OptionBoxInitBench"
-          ],
-          "members": [
-            {
-              "name": "setup_switchboard",
-              "qualname": "TentacleOptionBoxBench.setup_switchboard",
-              "kind": "method",
-              "signature": "(self)",
-              "summary": "",
-              "line": 37,
-              "deprecated": false
-            },
-            {
-              "name": "post_switchboard",
-              "qualname": "TentacleOptionBoxBench.post_switchboard",
-              "kind": "method",
-              "signature": "(self, sb) -> None",
-              "summary": "",
-              "line": 53,
-              "deprecated": false
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "relpath": "bench/run_in_maya.py",
-      "summary": "Launch a fresh Maya, run an :class:`OptionBoxInitBench` subclass, capture JSON.",
-      "functions": [
-        {
-          "name": "main",
-          "qualname": "main",
-          "kind": "function",
-          "signature": "() -> int",
-          "summary": "",
-          "line": 334,
           "deprecated": false
         }
       ],
@@ -140,7 +89,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Go To Frame Init",
-              "line": 77,
+              "line": 82,
               "deprecated": false
             },
             {
@@ -149,7 +98,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Go To Frame",
-              "line": 178,
+              "line": 183,
               "deprecated": false
             },
             {
@@ -158,7 +107,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Invert Keyframes Init",
-              "line": 205,
+              "line": 210,
               "deprecated": false
             },
             {
@@ -167,7 +116,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Invert keyframes (selected keys preferred, fallback to all keys).",
-              "line": 262,
+              "line": 267,
               "deprecated": false
             },
             {
@@ -176,7 +125,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Adjust Spacing Init",
-              "line": 282,
+              "line": 296,
               "deprecated": false
             },
             {
@@ -185,7 +134,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Adjust spacing",
-              "line": 335,
+              "line": 349,
               "deprecated": false
             },
             {
@@ -194,7 +143,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Stagger Keys Init",
-              "line": 366,
+              "line": 380,
               "deprecated": false
             },
             {
@@ -203,7 +152,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Stagger Keys",
-              "line": 443,
+              "line": 457,
               "deprecated": false
             },
             {
@@ -212,7 +161,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Transfer Keys Init",
-              "line": 472,
+              "line": 486,
               "deprecated": false
             },
             {
@@ -221,7 +170,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Transfer Keys",
-              "line": 497,
+              "line": 511,
               "deprecated": false
             },
             {
@@ -230,7 +179,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Add/Remove Intermediate Keys Init",
-              "line": 511,
+              "line": 525,
               "deprecated": false
             },
             {
@@ -239,7 +188,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Add/Remove Intermediate Keys",
-              "line": 563,
+              "line": 577,
               "deprecated": false
             },
             {
@@ -248,7 +197,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Move Keys Init",
-              "line": 608,
+              "line": 622,
               "deprecated": false
             },
             {
@@ -257,7 +206,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Move Keys",
-              "line": 644,
+              "line": 658,
               "deprecated": false
             },
             {
@@ -266,7 +215,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Align Selected Keyframes Init",
-              "line": 663,
+              "line": 677,
               "deprecated": false
             },
             {
@@ -275,7 +224,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Align Selected Keyframes",
-              "line": 684,
+              "line": 698,
               "deprecated": false
             },
             {
@@ -284,7 +233,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Set Visibility Keys Init",
-              "line": 710,
+              "line": 724,
               "deprecated": false
             },
             {
@@ -293,7 +242,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Set Visibility Keys",
-              "line": 749,
+              "line": 763,
               "deprecated": false
             },
             {
@@ -302,7 +251,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Snap Keys to Frames Init",
-              "line": 774,
+              "line": 788,
               "deprecated": false
             },
             {
@@ -311,7 +260,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Snap Keys to Frames",
-              "line": 812,
+              "line": 826,
               "deprecated": false
             },
             {
@@ -320,7 +269,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Delete Keys Init",
-              "line": 844,
+              "line": 858,
               "deprecated": false
             },
             {
@@ -329,7 +278,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Delete Keys",
-              "line": 883,
+              "line": 897,
               "deprecated": false
             },
             {
@@ -338,7 +287,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Tie/Untie Keyframes Init",
-              "line": 901,
+              "line": 915,
               "deprecated": false
             },
             {
@@ -347,7 +296,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Tie/Untie Keyframes",
-              "line": 919,
+              "line": 933,
               "deprecated": false
             },
             {
@@ -356,7 +305,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Select Keys Init",
-              "line": 934,
+              "line": 948,
               "deprecated": false
             },
             {
@@ -365,7 +314,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Select Keys",
-              "line": 983,
+              "line": 997,
               "deprecated": false
             },
             {
@@ -374,7 +323,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Scale Keys Init",
-              "line": 1015,
+              "line": 1029,
               "deprecated": false
             },
             {
@@ -383,7 +332,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Scale Keys",
-              "line": 1197,
+              "line": 1211,
               "deprecated": false
             },
             {
@@ -392,7 +341,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Repair Corrupted Curves - Initialize option box",
-              "line": 1272,
+              "line": 1286,
               "deprecated": false
             },
             {
@@ -401,7 +350,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Repair Corrupted Curves",
-              "line": 1313,
+              "line": 1327,
               "deprecated": false
             },
             {
@@ -410,7 +359,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Print Animation Info - Initialize option box",
-              "line": 1381,
+              "line": 1395,
               "deprecated": false
             },
             {
@@ -419,7 +368,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Print Animation Info",
-              "line": 1406,
+              "line": 1420,
               "deprecated": false
             },
             {
@@ -428,7 +377,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Step Keys Init",
-              "line": 1419,
+              "line": 1433,
               "deprecated": false
             },
             {
@@ -437,7 +386,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Step Keys — set stepped tangents on keys.",
-              "line": 1447,
+              "line": 1461,
               "deprecated": false
             },
             {
@@ -446,7 +395,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Copy Keys Init",
-              "line": 1471,
+              "line": 1485,
               "deprecated": false
             },
             {
@@ -455,7 +404,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Copy Keys",
-              "line": 1488,
+              "line": 1502,
               "deprecated": false
             },
             {
@@ -464,7 +413,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Paste Keys Init",
-              "line": 1538,
+              "line": 1552,
               "deprecated": false
             },
             {
@@ -473,7 +422,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Paste Keys",
-              "line": 1552,
+              "line": 1566,
               "deprecated": false
             },
             {
@@ -482,7 +431,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Optimize Keys Init",
-              "line": 1584,
+              "line": 1598,
               "deprecated": false
             },
             {
@@ -491,7 +440,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Optimize Keys — remove redundant animation data.",
-              "line": 1619,
+              "line": 1633,
               "deprecated": false
             },
             {
@@ -500,7 +449,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Open Shot Sequencer",
-              "line": 1658,
+              "line": 1672,
               "deprecated": false
             },
             {
@@ -509,7 +458,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Open Shot Manifest",
-              "line": 1662,
+              "line": 1676,
               "deprecated": false
             },
             {
@@ -518,7 +467,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Fit Playback Range",
-              "line": 1666,
+              "line": 1680,
               "deprecated": false
             }
           ]
@@ -1140,7 +1089,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Delete Selected",
-              "line": 407,
+              "line": 414,
               "deprecated": false
             },
             {
@@ -1149,7 +1098,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "",
-              "line": 411,
+              "line": 418,
               "deprecated": false
             },
             {
@@ -1158,7 +1107,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Node Locking",
-              "line": 425,
+              "line": 432,
               "deprecated": false
             },
             {
@@ -1167,7 +1116,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Channels",
-              "line": 435,
+              "line": 442,
               "deprecated": false
             },
             {
@@ -1176,7 +1125,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Cut On Axis",
-              "line": 439,
+              "line": 446,
               "deprecated": false
             },
             {
@@ -1185,7 +1134,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Initialize Create Primitives list.",
-              "line": 459,
+              "line": 467,
               "deprecated": false
             },
             {
@@ -1194,7 +1143,7 @@
               "kind": "method",
               "signature": "(self, item)",
               "summary": "Create Primitive",
-              "line": 526,
+              "line": 534,
               "deprecated": false
             },
             {
@@ -1203,7 +1152,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Initialize Convert list.",
-              "line": 600,
+              "line": 608,
               "deprecated": false
             },
             {
@@ -1212,7 +1161,7 @@
               "kind": "method",
               "signature": "(self, item)",
               "summary": "Convert",
-              "line": 610,
+              "line": 618,
               "deprecated": false
             },
             {
@@ -1221,7 +1170,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Tranfer Maps",
-              "line": 623,
+              "line": 631,
               "deprecated": false
             },
             {
@@ -1230,7 +1179,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Transfer Vertex Order",
-              "line": 627,
+              "line": 635,
               "deprecated": false
             },
             {
@@ -1239,7 +1188,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Transfer Attribute Values",
-              "line": 631,
+              "line": 639,
               "deprecated": false
             },
             {
@@ -1248,7 +1197,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Shading Sets",
-              "line": 635,
+              "line": 643,
               "deprecated": false
             }
           ]
@@ -1393,12 +1342,21 @@
               "deprecated": false
             },
             {
+              "name": "b010",
+              "qualname": "Editors.b010",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Script Output",
+              "line": 312,
+              "deprecated": false
+            },
+            {
               "name": "b011",
               "qualname": "Editors.b011",
               "kind": "method",
               "signature": "(self)",
               "summary": "Command Line",
-              "line": 312,
+              "line": 320,
               "deprecated": false
             },
             {
@@ -1407,7 +1365,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Help Line",
-              "line": 316,
+              "line": 324,
               "deprecated": false
             },
             {
@@ -1416,7 +1374,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Tool Box",
-              "line": 320,
+              "line": 328,
               "deprecated": false
             },
             {
@@ -1425,7 +1383,7 @@
               "kind": "method",
               "signature": "(self, name)",
               "summary": "Get a maya widget from a given name.",
-              "line": 324,
+              "line": 332,
               "deprecated": false
             }
           ]
@@ -1811,7 +1769,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Select By Material",
-              "line": 401,
+              "line": 408,
               "deprecated": false
             },
             {
@@ -1820,7 +1778,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Delete Material",
-              "line": 463,
+              "line": 476,
               "deprecated": false
             },
             {
@@ -1829,7 +1787,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Delete Unused Materials",
-              "line": 469,
+              "line": 482,
               "deprecated": false
             },
             {
@@ -1838,7 +1796,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Select and Show Attributes: Show Material Attributes in the Attribute Editor.",
-              "line": 474,
+              "line": 487,
               "deprecated": false
             },
             {
@@ -1847,7 +1805,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Set the current combo box text as editable.",
-              "line": 480,
+              "line": 493,
               "deprecated": false
             },
             {
@@ -1856,7 +1814,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Open material in editor",
-              "line": 485,
+              "line": 498,
               "deprecated": false
             },
             {
@@ -1865,7 +1823,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Get Material: Change the index to match the current material selection.",
-              "line": 499,
+              "line": 512,
               "deprecated": false
             },
             {
@@ -1874,7 +1832,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Assign Random",
-              "line": 518,
+              "line": 531,
               "deprecated": false
             },
             {
@@ -1883,7 +1841,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Initialize Assign Current",
-              "line": 557,
+              "line": 570,
               "deprecated": false
             },
             {
@@ -1892,7 +1850,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Assign Current",
-              "line": 574,
+              "line": 587,
               "deprecated": false
             },
             {
@@ -1901,7 +1859,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Assign: New Material",
-              "line": 584,
+              "line": 597,
               "deprecated": false
             },
             {
@@ -1910,7 +1868,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Map Packer",
-              "line": 595,
+              "line": 608,
               "deprecated": false
             },
             {
@@ -1919,7 +1877,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Create Game Shader",
-              "line": 617,
+              "line": 630,
               "deprecated": false
             },
             {
@@ -1928,7 +1886,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Texture Path Editor",
-              "line": 621,
+              "line": 634,
               "deprecated": false
             },
             {
@@ -1937,7 +1895,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Shader Templates",
-              "line": 625,
+              "line": 638,
               "deprecated": false
             },
             {
@@ -1946,7 +1904,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Reload Textures and Reset Viewport",
-              "line": 629,
+              "line": 642,
               "deprecated": false
             },
             {
@@ -1955,7 +1913,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Remove and Reassign Duplicates",
-              "line": 636,
+              "line": 649,
               "deprecated": false
             },
             {
@@ -1964,7 +1922,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Map Converter",
-              "line": 643,
+              "line": 656,
               "deprecated": false
             },
             {
@@ -1973,7 +1931,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Print Texture Info",
-              "line": 671,
+              "line": 684,
               "deprecated": false
             },
             {
@@ -1982,7 +1940,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Material Updater",
-              "line": 692,
+              "line": 705,
               "deprecated": false
             },
             {
@@ -1991,7 +1949,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Image to Plane",
-              "line": 696,
+              "line": 709,
               "deprecated": false
             },
             {
@@ -2000,7 +1958,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Send to Marmoset",
-              "line": 700,
+              "line": 713,
               "deprecated": false
             },
             {
@@ -2009,7 +1967,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Send to Substance Painter",
-              "line": 708,
+              "line": 721,
               "deprecated": false
             }
           ]
@@ -2149,7 +2107,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Initialize Average Normals",
-              "line": 63,
+              "line": 59,
               "deprecated": false
             },
             {
@@ -2158,7 +2116,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Average Normals",
-              "line": 72,
+              "line": 68,
               "deprecated": false
             },
             {
@@ -2167,7 +2125,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Soften Edge Normals",
-              "line": 79,
+              "line": 75,
               "deprecated": false
             },
             {
@@ -2176,7 +2134,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Harden all selected edges.",
-              "line": 91,
+              "line": 87,
               "deprecated": false
             },
             {
@@ -2185,7 +2143,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Transfer Normals",
-              "line": 103,
+              "line": 99,
               "deprecated": false
             },
             {
@@ -2194,7 +2152,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Soft Edge Display",
-              "line": 115,
+              "line": 111,
               "deprecated": false
             },
             {
@@ -2203,7 +2161,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Toggle lock/unlock vertex normals.",
-              "line": 119,
+              "line": 115,
               "deprecated": false
             },
             {
@@ -2212,7 +2170,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Display Face Normals",
-              "line": 123,
+              "line": 119,
               "deprecated": false
             },
             {
@@ -2221,7 +2179,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Set To Face",
-              "line": 127,
+              "line": 123,
               "deprecated": false
             },
             {
@@ -2230,7 +2188,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Initialize Reverse Normals",
-              "line": 131,
+              "line": 127,
               "deprecated": false
             },
             {
@@ -2239,7 +2197,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Reverse Normals",
-              "line": 149,
+              "line": 145,
               "deprecated": false
             }
           ]
@@ -2772,7 +2730,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Separate",
-              "line": 96,
+              "line": 111,
               "deprecated": false
             },
             {
@@ -2781,7 +2739,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Initialize Extrude",
-              "line": 107,
+              "line": 125,
               "deprecated": false
             },
             {
@@ -2790,7 +2748,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Extrude",
-              "line": 127,
+              "line": 145,
               "deprecated": false
             },
             {
@@ -2799,7 +2757,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Initialize Combine",
-              "line": 153,
+              "line": 171,
               "deprecated": false
             },
             {
@@ -2808,7 +2766,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Combine Selected Meshes.",
-              "line": 185,
+              "line": 203,
               "deprecated": false
             },
             {
@@ -2817,7 +2775,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Initialize Detach",
-              "line": 204,
+              "line": 222,
               "deprecated": false
             },
             {
@@ -2826,7 +2784,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Detach.",
-              "line": 228,
+              "line": 246,
               "deprecated": false
             },
             {
@@ -2835,7 +2793,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Initialize Inset Face Region",
-              "line": 249,
+              "line": 267,
               "deprecated": false
             },
             {
@@ -2844,7 +2802,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Inset Face Region",
-              "line": 261,
+              "line": 279,
               "deprecated": false
             },
             {
@@ -2853,7 +2811,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Initialize Divide Facet",
-              "line": 286,
+              "line": 304,
               "deprecated": false
             },
             {
@@ -2862,7 +2820,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Divide Facet",
-              "line": 312,
+              "line": 330,
               "deprecated": false
             },
             {
@@ -2871,7 +2829,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Initialize Boolean Operation",
-              "line": 356,
+              "line": 374,
               "deprecated": false
             },
             {
@@ -2880,7 +2838,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Boolean Operation",
-              "line": 374,
+              "line": 392,
               "deprecated": false
             },
             {
@@ -2889,7 +2847,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Initialize Snap Closest Verts",
-              "line": 399,
+              "line": 417,
               "deprecated": false
             },
             {
@@ -2898,7 +2856,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Snap Closest Verts",
-              "line": 417,
+              "line": 435,
               "deprecated": false
             },
             {
@@ -2907,7 +2865,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Circularize",
-              "line": 434,
+              "line": 452,
               "deprecated": false
             },
             {
@@ -2916,7 +2874,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Fill Holes",
-              "line": 451,
+              "line": 463,
               "deprecated": false
             },
             {
@@ -2925,7 +2883,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Symmetrize",
-              "line": 455,
+              "line": 467,
               "deprecated": false
             },
             {
@@ -2934,7 +2892,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Merge Vertices: Set Distance",
-              "line": 459,
+              "line": 471,
               "deprecated": false
             },
             {
@@ -2943,7 +2901,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Bridge",
-              "line": 480,
+              "line": 492,
               "deprecated": false
             },
             {
@@ -2952,7 +2910,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Interactive Bridge",
-              "line": 495,
+              "line": 507,
               "deprecated": false
             },
             {
@@ -2961,7 +2919,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Weld Center",
-              "line": 499,
+              "line": 511,
               "deprecated": false
             },
             {
@@ -2970,7 +2928,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Collapse Component",
-              "line": 507,
+              "line": 519,
               "deprecated": false
             },
             {
@@ -2979,7 +2937,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Bevel",
-              "line": 517,
+              "line": 529,
               "deprecated": false
             },
             {
@@ -2988,7 +2946,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Multi-Cut Tool",
-              "line": 521,
+              "line": 533,
               "deprecated": false
             },
             {
@@ -2997,7 +2955,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Attach",
-              "line": 525,
+              "line": 537,
               "deprecated": false
             },
             {
@@ -3006,7 +2964,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Poke",
-              "line": 529,
+              "line": 541,
               "deprecated": false
             },
             {
@@ -3015,7 +2973,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Wedge",
-              "line": 533,
+              "line": 545,
               "deprecated": false
             },
             {
@@ -3024,7 +2982,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Assign Invisible",
-              "line": 542,
+              "line": 554,
               "deprecated": false
             },
             {
@@ -3033,7 +2991,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Target Weld",
-              "line": 556,
+              "line": 568,
               "deprecated": false
             },
             {
@@ -3042,7 +3000,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Insert Edgeloop",
-              "line": 564,
+              "line": 576,
               "deprecated": false
             },
             {
@@ -3051,7 +3009,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Slide Edge Tool",
-              "line": 568,
+              "line": 580,
               "deprecated": false
             },
             {
@@ -3060,7 +3018,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Offset Edgeloop",
-              "line": 572,
+              "line": 584,
               "deprecated": false
             },
             {
@@ -3069,7 +3027,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Edit Edge Flow",
-              "line": 576,
+              "line": 588,
               "deprecated": false
             }
           ]
@@ -3084,7 +3042,7 @@
         {
           "name": "Preferences",
           "summary": "",
-          "line": 14,
+          "line": 15,
           "bases": [
             "SlotsMaya"
           ],
@@ -3095,7 +3053,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Initializes the combo box with unit options.",
-              "line": 21,
+              "line": 22,
               "deprecated": false
             },
             {
@@ -3122,7 +3080,7 @@
               "kind": "method",
               "signature": "(self, index, widget)",
               "summary": "Set Working Units: Time",
-              "line": 74,
+              "line": 73,
               "deprecated": false
             },
             {
@@ -3131,7 +3089,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Initialize autosave max backups spinbox (widget is source of truth).",
-              "line": 79,
+              "line": 78,
               "deprecated": false
             },
             {
@@ -3140,7 +3098,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Initialize autosave interval spinbox (widget is source of truth).",
-              "line": 103,
+              "line": 102,
               "deprecated": false
             },
             {
@@ -3149,7 +3107,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Color Settings",
-              "line": 120,
+              "line": 119,
               "deprecated": false
             },
             {
@@ -3158,7 +3116,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Autosave: Delete All",
-              "line": 124,
+              "line": 123,
               "deprecated": false
             },
             {
@@ -3167,7 +3125,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Hotkeys",
-              "line": 134,
+              "line": 133,
               "deprecated": false
             },
             {
@@ -3176,7 +3134,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Plug-In Manager",
-              "line": 138,
+              "line": 137,
               "deprecated": false
             },
             {
@@ -3185,7 +3143,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Settings/Preferences",
-              "line": 142,
+              "line": 141,
               "deprecated": false
             }
           ]
@@ -3529,7 +3487,7 @@
         {
           "name": "SceneSlots",
           "summary": "",
-          "line": 14,
+          "line": 15,
           "bases": [
             "SlotsMaya"
           ],
@@ -3540,7 +3498,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Initialize Header",
-              "line": 23,
+              "line": 24,
               "deprecated": false
             },
             {
@@ -3549,7 +3507,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Workspace Scenes: Filter",
-              "line": 88,
+              "line": 106,
               "deprecated": false
             },
             {
@@ -3558,7 +3516,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Initialize Workspace Scenes",
-              "line": 92,
+              "line": 110,
               "deprecated": false
             },
             {
@@ -3567,7 +3525,7 @@
               "kind": "method",
               "signature": "(self, index, widget)",
               "summary": "Workspace Scenes",
-              "line": 112,
+              "line": 158,
               "deprecated": false
             },
             {
@@ -3576,7 +3534,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Initialize Autosave",
-              "line": 117,
+              "line": 163,
               "deprecated": false
             },
             {
@@ -3585,7 +3543,7 @@
               "kind": "method",
               "signature": "(self, index, widget)",
               "summary": "Autosave",
-              "line": 136,
+              "line": 182,
               "deprecated": false
             },
             {
@@ -3594,7 +3552,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Initialize Import",
-              "line": 141,
+              "line": 192,
               "deprecated": false
             },
             {
@@ -3603,7 +3561,7 @@
               "kind": "method",
               "signature": "(self, index, widget)",
               "summary": "Import",
-              "line": 153,
+              "line": 204,
               "deprecated": false
             },
             {
@@ -3612,7 +3570,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Initialize Export",
-              "line": 165,
+              "line": 216,
               "deprecated": false
             },
             {
@@ -3621,7 +3579,7 @@
               "kind": "method",
               "signature": "(self, index, widget)",
               "summary": "Export",
-              "line": 183,
+              "line": 234,
               "deprecated": false
             },
             {
@@ -3630,7 +3588,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Initialize Recent Files",
-              "line": 213,
+              "line": 265,
               "deprecated": false
             },
             {
@@ -3639,7 +3597,7 @@
               "kind": "method",
               "signature": "(self, index: int, widget)",
               "summary": "Recent Files",
-              "line": 219,
+              "line": 271,
               "deprecated": false
             },
             {
@@ -3648,7 +3606,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Initialize Set Workspace",
-              "line": 224,
+              "line": 276,
               "deprecated": false
             },
             {
@@ -3657,7 +3615,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Set Workspace",
-              "line": 261,
+              "line": 313,
               "deprecated": false
             },
             {
@@ -3666,7 +3624,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Initialize Recent Files",
-              "line": 282,
+              "line": 334,
               "deprecated": false
             },
             {
@@ -3675,7 +3633,7 @@
               "kind": "method",
               "signature": "(self, item)",
               "summary": "Recent Files",
-              "line": 293,
+              "line": 345,
               "deprecated": false
             },
             {
@@ -3684,7 +3642,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Open current project root",
-              "line": 298,
+              "line": 350,
               "deprecated": false
             },
             {
@@ -3693,7 +3651,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Auto Set Workspace",
-              "line": 303,
+              "line": 355,
               "deprecated": false
             },
             {
@@ -3702,7 +3660,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Autosave: Open Directory",
-              "line": 335,
+              "line": 387,
               "deprecated": false
             },
             {
@@ -3711,7 +3669,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Open Reference Manager",
-              "line": 348,
+              "line": 400,
               "deprecated": false
             },
             {
@@ -3720,7 +3678,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Scene Exporter",
-              "line": 352,
+              "line": 404,
               "deprecated": false
             },
             {
@@ -3729,7 +3687,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Quick Export Scene Geo",
-              "line": 356,
+              "line": 408,
               "deprecated": false
             },
             {
@@ -3738,7 +3696,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Open Hierarchy Manager",
-              "line": 360,
+              "line": 412,
               "deprecated": false
             },
             {
@@ -3747,7 +3705,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Open Naming Tool",
-              "line": 364,
+              "line": 416,
               "deprecated": false
             },
             {
@@ -3756,7 +3714,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Scene Cleanup",
-              "line": 368,
+              "line": 420,
               "deprecated": false
             },
             {
@@ -3765,7 +3723,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Fix OCIO",
-              "line": 372,
+              "line": 424,
               "deprecated": false
             },
             {
@@ -3774,7 +3732,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Scene Audit",
-              "line": 376,
+              "line": 428,
               "deprecated": false
             },
             {
@@ -3783,7 +3741,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Fix Color Spaces",
-              "line": 380,
+              "line": 432,
               "deprecated": false
             },
             {
@@ -3792,7 +3750,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Toggle Command Ports",
-              "line": 384,
+              "line": 436,
               "deprecated": false
             },
             {
@@ -3801,7 +3759,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Import file",
-              "line": 399,
+              "line": 451,
               "deprecated": false
             },
             {
@@ -3810,7 +3768,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Export Selection",
-              "line": 403,
+              "line": 455,
               "deprecated": false
             },
             {
@@ -3819,7 +3777,25 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Mesh Converter (FBX -> GLB)",
-              "line": 407,
+              "line": 459,
+              "deprecated": false
+            },
+            {
+              "name": "b014_init",
+              "qualname": "SceneSlots.b014_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Initialize Save to Original Scene.",
+              "line": 504,
+              "deprecated": false
+            },
+            {
+              "name": "b014",
+              "qualname": "SceneSlots.b014",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Save to Original Scene.",
+              "line": 548,
               "deprecated": false
             },
             {
@@ -3828,7 +3804,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Remove String From Object Names.",
-              "line": 452,
+              "line": 578,
               "deprecated": false
             }
           ]
@@ -4104,7 +4080,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "",
-              "line": 554,
+              "line": 564,
               "deprecated": false
             },
             {
@@ -4113,7 +4089,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Select Edges By Angle",
-              "line": 573,
+              "line": 583,
               "deprecated": false
             },
             {
@@ -4122,7 +4098,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Toggle Selectability",
-              "line": 587,
+              "line": 597,
               "deprecated": false
             },
             {
@@ -4131,7 +4107,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Convert Selection To Vertices",
-              "line": 591,
+              "line": 601,
               "deprecated": false
             },
             {
@@ -4140,7 +4116,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Convert Selection To Edges",
-              "line": 595,
+              "line": 605,
               "deprecated": false
             },
             {
@@ -4149,7 +4125,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Convert Selection To Faces",
-              "line": 599,
+              "line": 609,
               "deprecated": false
             },
             {
@@ -4158,7 +4134,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Convert Selection To Edge Ring",
-              "line": 603,
+              "line": 613,
               "deprecated": false
             },
             {
@@ -4167,7 +4143,7 @@
               "kind": "staticmethod",
               "signature": "()",
               "summary": "Queries the current selection tool in Maya.",
-              "line": 608,
+              "line": 618,
               "deprecated": false
             },
             {
@@ -4176,7 +4152,7 @@
               "kind": "staticmethod",
               "signature": "(tool)",
               "summary": "Sets the selection tool in Maya.",
-              "line": 621,
+              "line": 631,
               "deprecated": false
             }
           ]
@@ -4718,7 +4694,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Freeze Transformations",
-              "line": 205,
+              "line": 219,
               "deprecated": false
             },
             {
@@ -4727,7 +4703,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Constraints Init",
-              "line": 243,
+              "line": 265,
               "deprecated": false
             },
             {
@@ -4736,7 +4712,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Snap Init",
-              "line": 272,
+              "line": 294,
               "deprecated": false
             },
             {
@@ -4745,7 +4721,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Move To Init",
-              "line": 336,
+              "line": 358,
               "deprecated": false
             },
             {
@@ -4754,7 +4730,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Move To",
-              "line": 349,
+              "line": 371,
               "deprecated": false
             },
             {
@@ -4763,7 +4739,7 @@
               "kind": "method",
               "signature": "(self, state, widget)",
               "summary": "Transform Tool Snap Settings: Move",
-              "line": 372,
+              "line": 394,
               "deprecated": false
             },
             {
@@ -4772,7 +4748,7 @@
               "kind": "method",
               "signature": "(self, state, widget)",
               "summary": "Transform Tool Snap Settings: Scale",
-              "line": 381,
+              "line": 403,
               "deprecated": false
             },
             {
@@ -4781,7 +4757,7 @@
               "kind": "method",
               "signature": "(self, state, widget)",
               "summary": "Transform Tool Snap Settings: Rotate",
-              "line": 390,
+              "line": 412,
               "deprecated": false
             },
             {
@@ -4790,7 +4766,7 @@
               "kind": "method",
               "signature": "(self, state, widget)",
               "summary": "Transform Constraints: Edge",
-              "line": 399,
+              "line": 421,
               "deprecated": false
             },
             {
@@ -4799,7 +4775,7 @@
               "kind": "method",
               "signature": "(self, state, widget)",
               "summary": "Transform Contraints: Surface",
-              "line": 408,
+              "line": 430,
               "deprecated": false
             },
             {
@@ -4808,7 +4784,7 @@
               "kind": "method",
               "signature": "(self, state, widget)",
               "summary": "Transform Constraints: Make Live",
-              "line": 417,
+              "line": 439,
               "deprecated": false
             },
             {
@@ -4817,7 +4793,7 @@
               "kind": "method",
               "signature": "(self, value, widget)",
               "summary": "Transform Tool Snap Settings: Spinboxes",
-              "line": 428,
+              "line": 450,
               "deprecated": false
             },
             {
@@ -4826,7 +4802,7 @@
               "kind": "method",
               "signature": "(self, value, widget)",
               "summary": "Transform Tool Snap Settings: Spinboxes",
-              "line": 434,
+              "line": 456,
               "deprecated": false
             },
             {
@@ -4835,7 +4811,7 @@
               "kind": "method",
               "signature": "(self, value, widget)",
               "summary": "Transform Tool Snap Settings: Spinboxes",
-              "line": 440,
+              "line": 462,
               "deprecated": false
             },
             {
@@ -4844,7 +4820,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Snap Toolset",
-              "line": 446,
+              "line": 468,
               "deprecated": false
             },
             {
@@ -4853,7 +4829,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Match Scale",
-              "line": 450,
+              "line": 472,
               "deprecated": false
             },
             {
@@ -4862,7 +4838,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Un-Freeze Transforms",
-              "line": 464,
+              "line": 486,
               "deprecated": false
             },
             {
@@ -4871,7 +4847,7 @@
               "kind": "method",
               "signature": "(self, ctx, state)",
               "summary": "Set the transform tool's move, rotate, and scale snap states.",
-              "line": 468,
+              "line": 490,
               "deprecated": false
             }
           ]
@@ -4939,7 +4915,7 @@
         {
           "name": "UvSlots",
           "summary": "",
-          "line": 11,
+          "line": 12,
           "bases": [
             "SlotsMaya"
           ],
@@ -4950,7 +4926,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Get the map size from the combobox as an int.",
-              "line": 21,
+              "line": 35,
               "deprecated": false
             },
             {
@@ -4959,7 +4935,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Initialize UV Menu Header",
-              "line": 25,
+              "line": 39,
               "deprecated": false
             },
             {
@@ -4968,7 +4944,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Initialize UV Transform Menu",
-              "line": 42,
+              "line": 65,
               "deprecated": false
             },
             {
@@ -4977,7 +4953,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Initialize UV packing tool interface.",
-              "line": 58,
+              "line": 81,
               "deprecated": false
             },
             {
@@ -4986,7 +4962,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Pack UVs with specified settings.",
-              "line": 130,
+              "line": 201,
               "deprecated": false
             },
             {
@@ -4995,7 +4971,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Initialize Auto Unwrap",
-              "line": 238,
+              "line": 354,
               "deprecated": false
             },
             {
@@ -5004,7 +4980,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Auto Unwrap",
-              "line": 289,
+              "line": 405,
               "deprecated": false
             },
             {
@@ -5013,7 +4989,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Initialize Toggle UV Display Options",
-              "line": 343,
+              "line": 459,
               "deprecated": false
             },
             {
@@ -5022,7 +4998,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Initialize Select By Type",
-              "line": 380,
+              "line": 496,
               "deprecated": false
             },
             {
@@ -5031,7 +5007,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Select By Type",
-              "line": 421,
+              "line": 537,
               "deprecated": false
             },
             {
@@ -5040,7 +5016,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Initialize Unfold UV",
-              "line": 443,
+              "line": 559,
               "deprecated": false
             },
             {
@@ -5049,7 +5025,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Unfold",
-              "line": 476,
+              "line": 592,
               "deprecated": false
             },
             {
@@ -5058,7 +5034,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Initialize Straighten UV",
-              "line": 514,
+              "line": 630,
               "deprecated": false
             },
             {
@@ -5067,7 +5043,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Straighten UV",
-              "line": 546,
+              "line": 662,
               "deprecated": false
             },
             {
@@ -5076,7 +5052,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Initialize Distribute",
-              "line": 563,
+              "line": 679,
               "deprecated": false
             },
             {
@@ -5085,7 +5061,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Distribute",
-              "line": 580,
+              "line": 696,
               "deprecated": false
             },
             {
@@ -5094,7 +5070,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Initialize Cleanup UV Sets",
-              "line": 590,
+              "line": 706,
               "deprecated": false
             },
             {
@@ -5103,7 +5079,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Cleanup UV Sets",
-              "line": 636,
+              "line": 752,
               "deprecated": false
             },
             {
@@ -5112,7 +5088,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Initialize Mirror UVs.",
-              "line": 697,
+              "line": 813,
               "deprecated": false
             },
             {
@@ -5121,7 +5097,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Mirror UVs (footprint-preserving by default).",
-              "line": 734,
+              "line": 850,
               "deprecated": false
             },
             {
@@ -5130,7 +5106,7 @@
               "kind": "method",
               "signature": "(self, index, widget)",
               "summary": "Transform",
-              "line": 757,
+              "line": 873,
               "deprecated": false
             },
             {
@@ -5139,7 +5115,7 @@
               "kind": "method",
               "signature": "(self, state, widget)",
               "summary": "Auto Unwrap: Scale Mode CheckBox",
-              "line": 809,
+              "line": 925,
               "deprecated": false
             },
             {
@@ -5148,7 +5124,7 @@
               "kind": "method",
               "signature": "(self, state, widget)",
               "summary": "Display: Checkered Pattern",
-              "line": 819,
+              "line": 935,
               "deprecated": false
             },
             {
@@ -5157,7 +5133,7 @@
               "kind": "method",
               "signature": "(self, state, widget)",
               "summary": "Display: Borders",
-              "line": 824,
+              "line": 940,
               "deprecated": false
             },
             {
@@ -5166,7 +5142,7 @@
               "kind": "method",
               "signature": "(self, state, widget)",
               "summary": "Display: Distortion",
-              "line": 829,
+              "line": 945,
               "deprecated": false
             },
             {
@@ -5175,16 +5151,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Transfer UV's",
-              "line": 835,
-              "deprecated": false
-            },
-            {
-              "name": "b002",
-              "qualname": "UvSlots.b002",
-              "kind": "method",
-              "signature": "(self)",
-              "summary": "Stack Shells",
-              "line": 847,
+              "line": 951,
               "deprecated": false
             },
             {
@@ -5193,7 +5160,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Get texel density.",
-              "line": 851,
+              "line": 963,
               "deprecated": false
             },
             {
@@ -5202,7 +5169,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Set Texel Density",
-              "line": 857,
+              "line": 969,
               "deprecated": false
             },
             {
@@ -5211,7 +5178,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Cut UV's",
-              "line": 864,
+              "line": 976,
               "deprecated": false
             },
             {
@@ -5220,7 +5187,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Display UV Borders",
-              "line": 893,
+              "line": 1005,
               "deprecated": false
             },
             {
@@ -5229,7 +5196,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Sew UVs",
-              "line": 898,
+              "line": 1010,
               "deprecated": false
             },
             {
@@ -5238,16 +5205,25 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Unfold and Pack UVs",
-              "line": 915,
+              "line": 1027,
               "deprecated": false
             },
             {
-              "name": "b022",
-              "qualname": "UvSlots.b022",
+              "name": "tb022_init",
+              "qualname": "UvSlots.tb022_init",
               "kind": "method",
-              "signature": "(self)",
-              "summary": "Cut UV hard edges",
-              "line": 920,
+              "signature": "(self, widget)",
+              "summary": "Initialize Cut Hard Edges option menu.",
+              "line": 1032,
+              "deprecated": false
+            },
+            {
+              "name": "tb022",
+              "qualname": "UvSlots.tb022",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Cut UV hard edges (always), optionally also UV borders and auto-detected seams.",
+              "line": 1067,
               "deprecated": false
             },
             {
@@ -5256,7 +5232,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Move To Uv Space: Left",
-              "line": 926,
+              "line": 1100,
               "deprecated": false
             },
             {
@@ -5265,7 +5241,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Move To Uv Space: Down",
-              "line": 931,
+              "line": 1105,
               "deprecated": false
             },
             {
@@ -5274,7 +5250,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Move To Uv Space: Up",
-              "line": 936,
+              "line": 1110,
               "deprecated": false
             },
             {
@@ -5283,7 +5259,43 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Move To Uv Space: Right",
-              "line": 941,
+              "line": 1115,
+              "deprecated": false
+            },
+            {
+              "name": "b029_init",
+              "qualname": "UvSlots.b029_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Initialize Pin/Unpin button — static pin icon, non-checkable.",
+              "line": 1120,
+              "deprecated": false
+            },
+            {
+              "name": "b029",
+              "qualname": "UvSlots.b029",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Pin / Unpin selected UVs (dual-state toggle).",
+              "line": 1131,
+              "deprecated": false
+            },
+            {
+              "name": "b030_init",
+              "qualname": "UvSlots.b030_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Initialize Stack button — static stack icon, non-checkable.",
+              "line": 1153,
+              "deprecated": false
+            },
+            {
+              "name": "b030",
+              "qualname": "UvSlots.b030",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Stack / Unstack similar shells (dual-state toggle).",
+              "line": 1164,
               "deprecated": false
             }
           ]
