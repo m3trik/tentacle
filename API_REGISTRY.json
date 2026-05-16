@@ -1,7 +1,7 @@
 {
   "name": "tentacle",
   "source_root": "tentacle/tentacle",
-  "generated_at": "2026-05-14",
+  "generated_at": "2026-05-16",
   "modules": [
     {
       "relpath": "__init__.py",
@@ -1733,7 +1733,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Initialize Materials",
-              "line": 107,
+              "line": 111,
               "deprecated": false
             },
             {
@@ -1742,7 +1742,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Rename the current material by stripping trailing integers and underscores.",
-              "line": 290,
+              "line": 294,
               "deprecated": false
             },
             {
@@ -1751,7 +1751,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Rename ALL scene materials by stripping trailing integers and underscores.",
-              "line": 347,
+              "line": 351,
               "deprecated": false
             },
             {
@@ -1760,7 +1760,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "",
-              "line": 378,
+              "line": 382,
               "deprecated": false
             },
             {
@@ -1769,7 +1769,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Select By Material",
-              "line": 408,
+              "line": 412,
               "deprecated": false
             },
             {
@@ -1778,7 +1778,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Delete Material",
-              "line": 476,
+              "line": 480,
               "deprecated": false
             },
             {
@@ -1787,7 +1787,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Delete Unused Materials",
-              "line": 482,
+              "line": 486,
               "deprecated": false
             },
             {
@@ -1796,7 +1796,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Select and Show Attributes: Show Material Attributes in the Attribute Editor.",
-              "line": 487,
+              "line": 491,
               "deprecated": false
             },
             {
@@ -1805,7 +1805,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Set the current combo box text as editable.",
-              "line": 493,
+              "line": 497,
               "deprecated": false
             },
             {
@@ -1814,7 +1814,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Open material in editor",
-              "line": 498,
+              "line": 502,
               "deprecated": false
             },
             {
@@ -1823,7 +1823,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Get Material: Change the index to match the current material selection.",
-              "line": 512,
+              "line": 516,
               "deprecated": false
             },
             {
@@ -1832,7 +1832,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Assign Random",
-              "line": 531,
+              "line": 535,
               "deprecated": false
             },
             {
@@ -1841,7 +1841,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Initialize Assign Current",
-              "line": 570,
+              "line": 574,
               "deprecated": false
             },
             {
@@ -1850,7 +1850,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Assign Current",
-              "line": 587,
+              "line": 591,
               "deprecated": false
             },
             {
@@ -1859,7 +1859,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Assign: New Material",
-              "line": 597,
+              "line": 601,
               "deprecated": false
             },
             {
@@ -1868,7 +1868,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Map Packer",
-              "line": 608,
+              "line": 612,
               "deprecated": false
             },
             {
@@ -1877,7 +1877,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Create Game Shader",
-              "line": 630,
+              "line": 634,
               "deprecated": false
             },
             {
@@ -1886,7 +1886,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Texture Path Editor",
-              "line": 634,
+              "line": 638,
               "deprecated": false
             },
             {
@@ -1895,7 +1895,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Shader Templates",
-              "line": 638,
+              "line": 642,
               "deprecated": false
             },
             {
@@ -1904,7 +1904,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Reload Textures and Reset Viewport",
-              "line": 642,
+              "line": 646,
               "deprecated": false
             },
             {
@@ -1913,7 +1913,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Remove and Reassign Duplicates",
-              "line": 649,
+              "line": 653,
               "deprecated": false
             },
             {
@@ -1922,7 +1922,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Map Converter",
-              "line": 656,
+              "line": 660,
               "deprecated": false
             },
             {
@@ -1931,7 +1931,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Print Texture Info",
-              "line": 684,
+              "line": 688,
               "deprecated": false
             },
             {
@@ -1940,7 +1940,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Material Updater",
-              "line": 705,
+              "line": 709,
               "deprecated": false
             },
             {
@@ -1949,7 +1949,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Image to Plane",
-              "line": 709,
+              "line": 713,
               "deprecated": false
             },
             {
@@ -1957,8 +1957,8 @@
               "qualname": "MaterialsSlots.b019",
               "kind": "method",
               "signature": "(self, widget)",
-              "summary": "Send to Marmoset",
-              "line": 713,
+              "summary": "Marmoset Bridge",
+              "line": 717,
               "deprecated": false
             },
             {
