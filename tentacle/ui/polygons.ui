@@ -62,7 +62,7 @@
        <number>0</number>
       </property>
       <item>
-       <widget class="Header" name="header" native="true">
+       <widget class="Header" name="header">
         <property name="minimumSize">
          <size>
           <width>0</width>
@@ -81,7 +81,7 @@
           <bold>true</bold>
          </font>
         </property>
-        <property name="text" stdset="0">
+        <property name="text">
          <string>POLYGONS</string>
         </property>
        </widget>
@@ -1412,7 +1412,7 @@
  <customwidgets>
   <customwidget>
    <class>Header</class>
-   <extends>QWidget</extends>
+   <extends>QLabel</extends>
    <header>uitk.widgets.header</header>
   </customwidget>
   <customwidget>

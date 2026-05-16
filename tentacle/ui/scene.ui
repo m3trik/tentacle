@@ -46,7 +46,7 @@
      <number>2</number>
     </property>
     <item>
-     <layout class="QVBoxLayout" name="verticalLayout">
+     <layout class="QVBoxLayout" name="main_layout">
       <property name="spacing">
        <number>0</number>
       </property>
@@ -64,7 +64,7 @@
           <bold>true</bold>
          </font>
         </property>
-        <property name="text" stdset="0">
+        <property name="text">
          <string>SCENE</string>
         </property>
        </widget>
@@ -279,6 +279,11 @@
    <header>uitk.widgets.header</header>
   </customwidget>
   <customwidget>
+   <class>Footer</class>
+   <extends>QWidget</extends>
+   <header>uitk.widgets.footer</header>
+  </customwidget>
+  <customwidget>
    <class>PushButton</class>
    <extends>QPushButton</extends>
    <header>widgets.pushbutton.h</header>
@@ -293,11 +298,6 @@
    <extends>QGroupBox</extends>
    <header>uitk.widgets.collapsableGroup.CollapsableGroup.h</header>
    <container>1</container>
-  </customwidget>
-  <customwidget>
-   <class>Footer</class>
-   <extends>QWidget</extends>
-   <header>uitk.widgets.footer</header>
   </customwidget>
  </customwidgets>
  <resources/>

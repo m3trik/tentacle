@@ -10,7 +10,7 @@
     <x>0</x>
     <y>0</y>
     <width>200</width>
-    <height>605</height>
+    <height>553</height>
    </rect>
   </property>
   <property name="tabShape">
@@ -30,6 +30,9 @@
     </size>
    </property>
    <layout class="QVBoxLayout" name="verticalLayout_2">
+    <property name="spacing">
+     <number>2</number>
+    </property>
     <property name="leftMargin">
      <number>2</number>
     </property>
@@ -40,9 +43,6 @@
      <number>2</number>
     </property>
     <property name="bottomMargin">
-     <number>2</number>
-    </property>
-    <property name="spacing">
      <number>2</number>
     </property>
     <item>
@@ -64,7 +64,7 @@
           <bold>true</bold>
          </font>
         </property>
-        <property name="text" stdset="0">
+        <property name="text">
          <string>NURBS</string>
         </property>
        </widget>
@@ -1070,14 +1070,9 @@
    <header>uitk.widgets.header</header>
   </customwidget>
   <customwidget>
-   <class>PushButton</class>
-   <extends>QPushButton</extends>
-   <header>widgets.pushbutton.h</header>
-  </customwidget>
-  <customwidget>
-   <class>ComboBox</class>
-   <extends>QComboBox</extends>
-   <header>uitk.widgets.comboBox.ComboBox.h</header>
+   <class>Footer</class>
+   <extends>QWidget</extends>
+   <header>uitk.widgets.footer</header>
   </customwidget>
   <customwidget>
    <class>CollapsableGroup</class>
@@ -1086,9 +1081,9 @@
    <container>1</container>
   </customwidget>
   <customwidget>
-   <class>Footer</class>
-   <extends>QWidget</extends>
-   <header>uitk.widgets.footer</header>
+   <class>PushButton</class>
+   <extends>QPushButton</extends>
+   <header>widgets.pushbutton.h</header>
   </customwidget>
  </customwidgets>
  <resources/>
