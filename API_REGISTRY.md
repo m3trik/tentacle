@@ -2,13 +2,11 @@
 
 _Auto-generated. Do not edit by hand. Refresh via `m3trik/scripts/generate_api_registry.py`._
 
-_Generated: 2026-05-07_
+_Generated: 2026-05-14_
 
 ## Index
 
 - [`__init__.py`](#__init__)
-- [`bench/option_box.py`](#bench--option_box) — Tentacle-side option_box init bench.
-- [`bench/run_in_maya.py`](#bench--run_in_maya) — Launch a fresh Maya, run an :class:`OptionBoxInitBench` subclass, capture JSON.
 - [`slots/_slots.py`](#slots--_slots)
 - [`slots/maya/_slots_maya.py`](#slots--maya--_slots_maya)
 - [`slots/maya/animation.py`](#slots--maya--animation)
@@ -80,22 +78,6 @@ _Generated: 2026-05-07_
 ### `__init__.py`
 
 - [`greeting(string, outputToConsole=True)`](tentacle/tentacle/__init__.py#L26) — Format a string using preset variables.
-
-<a id="bench--option_box"></a>
-### `bench/option_box.py`
-
-Tentacle-side option_box init bench.
-
-- **[`class TentacleOptionBoxBench(OptionBoxInitBench)`](tentacle/tentacle/bench/option_box.py#L24)**
-  - `TentacleOptionBoxBench.setup_switchboard(self)`
-  - `TentacleOptionBoxBench.post_switchboard(self, sb) -> None`
-
-<a id="bench--run_in_maya"></a>
-### `bench/run_in_maya.py`
-
-Launch a fresh Maya, run an :class:`OptionBoxInitBench` subclass, capture JSON.
-
-- [`main() -> int`](tentacle/tentacle/bench/run_in_maya.py#L334)
 
 <a id="slots--_slots"></a>
 ### `slots/_slots.py`
@@ -294,6 +276,7 @@ Launch a fresh Maya, run an :class:`OptionBoxInitBench` subclass, capture JSON.
   - `Editors.b007(self)` — Status Line
   - `Editors.b008(self)` — Shelf
   - `Editors.b009(self)` — Time & Range
+  - `Editors.b010(self)` — Script Output
   - `Editors.b011(self)` — Command Line
   - `Editors.b012(self)` — Help Line
   - `Editors.b013(self)` — Tool Box
@@ -561,7 +544,7 @@ Launch a fresh Maya, run an :class:`OptionBoxInitBench` subclass, capture JSON.
 <a id="slots--maya--preferences"></a>
 ### `slots/maya/preferences.py`
 
-- **[`class Preferences(SlotsMaya)`](tentacle/tentacle/slots/maya/preferences.py#L14)**
+- **[`class Preferences(SlotsMaya)`](tentacle/tentacle/slots/maya/preferences.py#L15)**
   - `Preferences.cmb001_init(self, widget)` — Initializes the combo box with unit options.
   - `Preferences.cmb001(self, index, widget)` — Set Working Units: Linear
   - `Preferences.cmb002_init(self, widget)` — Initializes the combo box with frame rate options.
@@ -623,7 +606,7 @@ Launch a fresh Maya, run an :class:`OptionBoxInitBench` subclass, capture JSON.
 <a id="slots--maya--scene"></a>
 ### `slots/maya/scene.py`
 
-- **[`class SceneSlots(SlotsMaya)`](tentacle/tentacle/slots/maya/scene.py#L14)**
+- **[`class SceneSlots(SlotsMaya)`](tentacle/tentacle/slots/maya/scene.py#L15)**
   - `SceneSlots.header_init(self, widget)` — Initialize Header
   - `SceneSlots.txt000(self, widget)` — Workspace Scenes: Filter
   - `SceneSlots.cmb000_init(self, widget)` — Initialize Workspace Scenes
@@ -656,6 +639,8 @@ Launch a fresh Maya, run an :class:`OptionBoxInitBench` subclass, capture JSON.
   - `SceneSlots.b007(self)` — Import file
   - `SceneSlots.b008(self)` — Export Selection
   - `SceneSlots.b013(self)` — Mesh Converter (FBX -> GLB)
+  - `SceneSlots.b014_init(self, widget)` — Initialize Save to Original Scene.
+  - `SceneSlots.b014(self)` — Save to Original Scene.
   - `SceneSlots.b015(self)` — Remove String From Object Names.
 
 <a id="slots--maya--select"></a>
@@ -824,7 +809,7 @@ Launch a fresh Maya, run an :class:`OptionBoxInitBench` subclass, capture JSON.
 <a id="slots--maya--uv"></a>
 ### `slots/maya/uv.py`
 
-- **[`class UvSlots(SlotsMaya)`](tentacle/tentacle/slots/maya/uv.py#L11)**
+- **[`class UvSlots(SlotsMaya)`](tentacle/tentacle/slots/maya/uv.py#L12)**
   - `UvSlots.get_map_size(self)` — Get the map size from the combobox as an int.
   - `UvSlots.header_init(self, widget)` — Initialize UV Menu Header
   - `UvSlots.cmb002_init(self, widget)` — Initialize UV Transform Menu
@@ -851,18 +836,22 @@ Launch a fresh Maya, run an :class:`OptionBoxInitBench` subclass, capture JSON.
   - `UvSlots.chk015(self, state, widget)` — Display: Borders
   - `UvSlots.chk016(self, state, widget)` — Display: Distortion
   - `UvSlots.b000(self, widget)` — Transfer UV's
-  - `UvSlots.b002(self)` — Stack Shells
   - `UvSlots.b003(self)` — Get texel density.
   - `UvSlots.b004(self)` — Set Texel Density
   - `UvSlots.b005(self)` — Cut UV's
   - `UvSlots.b007(self)` — Display UV Borders
   - `UvSlots.b011(self)` — Sew UVs
   - `UvSlots.b021(self, widget)` — Unfold and Pack UVs
-  - `UvSlots.b022(self)` — Cut UV hard edges
+  - `UvSlots.tb022_init(self, widget)` — Initialize Cut Hard Edges option menu.
+  - `UvSlots.tb022(self, widget)` — Cut UV hard edges (always), optionally also UV borders and auto-detected seams.
   - `UvSlots.b023(self)` — Move To Uv Space: Left
   - `UvSlots.b024(self)` — Move To Uv Space: Down
   - `UvSlots.b025(self)` — Move To Uv Space: Up
   - `UvSlots.b026(self)` — Move To Uv Space: Right
+  - `UvSlots.b029_init(self, widget)` — Initialize Pin/Unpin button — static pin icon, non-checkable.
+  - `UvSlots.b029(self, widget)` — Pin / Unpin selected UVs (dual-state toggle).
+  - `UvSlots.b030_init(self, widget)` — Initialize Stack button — static stack icon, non-checkable.
+  - `UvSlots.b030(self, widget)` — Stack / Unstack similar shells (dual-state toggle).
 
 <a id="slots--maya--visualize"></a>
 ### `slots/maya/visualize.py`

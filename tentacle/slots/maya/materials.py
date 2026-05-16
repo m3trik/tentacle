@@ -93,9 +93,13 @@ class MaterialsSlots(SlotsMaya):
         widget.menu.add("Separator", setTitle="External Tools")
         widget.menu.add(
             "QPushButton",
-            setText="Send to Marmoset",
+            setText="Marmoset Bridge",
             setObjectName="b019",
-            setToolTip="Export selection to Marmoset Toolbag.",
+            setToolTip=(
+                "Open the Marmoset Toolbag bridge: pick a template "
+                "(import / bake / lookdev), tune parameters, then send "
+                "the selection to Toolbag."
+            ),
         )
         widget.menu.add(
             "QPushButton",
@@ -711,12 +715,8 @@ class MaterialsSlots(SlotsMaya):
         self.sb.handlers.marking_menu.show("image_to_plane")
 
     def b019(self, widget):
-        """Send to Marmoset"""
-        bridge = mtk.MarmosetBridge()
-        script = bridge.send(headless=False)
-        if script:
-            print(f"Marmoset Export Successful: {script}")
-            # Optional: self.sb.message_box("Export sent to Marmoset.")
+        """Marmoset Bridge"""
+        self.sb.handlers.marking_menu.show("marmoset_bridge")
 
     def b020(self, widget):
         """Send to Substance Painter"""
