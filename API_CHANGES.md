@@ -2,4 +2,7 @@
 
 _Diff vs prior baseline. Generated 2026-05-17._
 
-No public API changes since last refresh.
+## Added (2)
+
+- `slots/maya/materials.py::MaterialsSlots.b022(self, widget)`
+- `slots/maya/materials.py::MaterialsSlots.b023(self, widget)`

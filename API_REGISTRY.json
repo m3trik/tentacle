@@ -1713,7 +1713,7 @@
         {
           "name": "MaterialsSlots",
           "summary": "",
-          "line": 12,
+          "line": 13,
           "bases": [
             "SlotsMaya"
           ],
@@ -1724,7 +1724,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Initialize the header menu",
-              "line": 23,
+              "line": 39,
               "deprecated": false
             },
             {
@@ -1733,7 +1733,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Initialize Materials",
-              "line": 111,
+              "line": 139,
               "deprecated": false
             },
             {
@@ -1742,7 +1742,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Rename the current material by stripping trailing integers and underscores.",
-              "line": 294,
+              "line": 322,
               "deprecated": false
             },
             {
@@ -1751,7 +1751,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Rename ALL scene materials by stripping trailing integers and underscores.",
-              "line": 351,
+              "line": 379,
               "deprecated": false
             },
             {
@@ -1760,7 +1760,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "",
-              "line": 382,
+              "line": 410,
               "deprecated": false
             },
             {
@@ -1769,7 +1769,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Select By Material",
-              "line": 412,
+              "line": 440,
               "deprecated": false
             },
             {
@@ -1778,7 +1778,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Delete Material",
-              "line": 480,
+              "line": 508,
               "deprecated": false
             },
             {
@@ -1787,7 +1787,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Delete Unused Materials",
-              "line": 486,
+              "line": 514,
               "deprecated": false
             },
             {
@@ -1796,7 +1796,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Select and Show Attributes: Show Material Attributes in the Attribute Editor.",
-              "line": 491,
+              "line": 519,
               "deprecated": false
             },
             {
@@ -1805,7 +1805,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Set the current combo box text as editable.",
-              "line": 497,
+              "line": 525,
               "deprecated": false
             },
             {
@@ -1814,7 +1814,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Open material in editor",
-              "line": 502,
+              "line": 530,
               "deprecated": false
             },
             {
@@ -1823,7 +1823,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Get Material: Change the index to match the current material selection.",
-              "line": 516,
+              "line": 544,
               "deprecated": false
             },
             {
@@ -1832,7 +1832,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Assign Random",
-              "line": 535,
+              "line": 563,
               "deprecated": false
             },
             {
@@ -1841,7 +1841,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Initialize Assign Current",
-              "line": 574,
+              "line": 602,
               "deprecated": false
             },
             {
@@ -1850,7 +1850,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Assign Current",
-              "line": 591,
+              "line": 619,
               "deprecated": false
             },
             {
@@ -1859,7 +1859,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Assign: New Material",
-              "line": 601,
+              "line": 629,
               "deprecated": false
             },
             {
@@ -1868,7 +1868,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Map Packer",
-              "line": 612,
+              "line": 640,
               "deprecated": false
             },
             {
@@ -1877,7 +1877,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Create Game Shader",
-              "line": 634,
+              "line": 662,
               "deprecated": false
             },
             {
@@ -1886,7 +1886,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Texture Path Editor",
-              "line": 638,
+              "line": 666,
               "deprecated": false
             },
             {
@@ -1895,7 +1895,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Shader Templates",
-              "line": 642,
+              "line": 670,
               "deprecated": false
             },
             {
@@ -1904,7 +1904,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Reload Textures and Reset Viewport",
-              "line": 646,
+              "line": 674,
               "deprecated": false
             },
             {
@@ -1913,7 +1913,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Remove and Reassign Duplicates",
-              "line": 653,
+              "line": 681,
               "deprecated": false
             },
             {
@@ -1922,7 +1922,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Map Converter",
-              "line": 660,
+              "line": 688,
               "deprecated": false
             },
             {
@@ -1931,7 +1931,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Print Texture Info",
-              "line": 688,
+              "line": 716,
               "deprecated": false
             },
             {
@@ -1940,7 +1940,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Material Updater",
-              "line": 709,
+              "line": 737,
               "deprecated": false
             },
             {
@@ -1949,7 +1949,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Image to Plane",
-              "line": 713,
+              "line": 741,
               "deprecated": false
             },
             {
@@ -1958,7 +1958,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Marmoset Bridge",
-              "line": 717,
+              "line": 745,
               "deprecated": false
             },
             {
@@ -1967,7 +1967,25 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Send to Substance Painter",
-              "line": 721,
+              "line": 749,
+              "deprecated": false
+            },
+            {
+              "name": "b022",
+              "qualname": "MaterialsSlots.b022",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Map Compositor",
+              "line": 761,
+              "deprecated": false
+            },
+            {
+              "name": "b023",
+              "qualname": "MaterialsSlots.b023",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Metashape Workflow",
+              "line": 765,
               "deprecated": false
             }
           ]
@@ -5421,7 +5439,7 @@
         {
           "name": "TclMaya",
           "summary": "Marking Menu class overridden for use with Autodesk Maya.",
-          "line": 10,
+          "line": 11,
           "bases": [
             "MarkingMenu"
           ],
