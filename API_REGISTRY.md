@@ -2,7 +2,7 @@
 
 _Auto-generated. Do not edit by hand. Refresh via `m3trik/scripts/generate_api_registry.py`._
 
-_Generated: 2026-05-14_
+_Generated: 2026-05-17_
 
 ## Index
 
@@ -382,7 +382,7 @@ _Generated: 2026-05-14_
   - `MaterialsSlots.b017(self, widget)` — Print Texture Info
   - `MaterialsSlots.b018(self, widget)` — Material Updater
   - `MaterialsSlots.b021(self, widget)` — Image to Plane
-  - `MaterialsSlots.b019(self, widget)` — Send to Marmoset
+  - `MaterialsSlots.b019(self, widget)` — Marmoset Bridge
   - `MaterialsSlots.b020(self, widget)` — Send to Substance Painter
 
 <a id="slots--maya--mesh"></a>

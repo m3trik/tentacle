@@ -4,6 +4,7 @@ import mayatk as mtk
 
 # From this package:
 from uitk.widgets.marking_menu._marking_menu import MarkingMenu
+from uitk.handlers.external_tool_handler import ExternalToolHandler
 from mayatk.ui_utils.maya_ui_handler import MayaUiHandler
 
 
@@ -36,7 +37,7 @@ class TclMaya(MarkingMenu):
             ui_source=("ui", "ui/maya_menus"),
             slot_source=slot_source,
             bindings=bindings,
-            handlers={"ui": MayaUiHandler},
+            handlers={"ui": MayaUiHandler, "external_tool": ExternalToolHandler},
             log_level=log_level,
             suppress_default_on_reentry=True,
             precompile=True,

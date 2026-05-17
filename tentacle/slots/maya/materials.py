@@ -4,6 +4,7 @@ import maya.cmds as cmds
 import maya.mel as mel
 import mayatk as mtk
 import pythontk as ptk
+from qtpy import QtCore
 
 # From this package:
 from tentacle.slots.maya._slots_maya import SlotsMaya
@@ -19,6 +20,21 @@ class MaterialsSlots(SlotsMaya):
 
         # Set a class attribute to track the last created random material
         self.last_random_material = None
+
+        self.sb.handlers.external_tool.register(
+            "map_compositor",
+            module="map_compositor",
+            entry="MapCompositorUI",
+            install_spec="map_compositor",
+            mode="in_process",
+        )
+        self.sb.handlers.external_tool.register(
+            "metashape_workflow",
+            module="metashape_workflow",
+            entry="MetashapeWorkflowUI",
+            install_spec="git+https://github.com/m3trik/metashape_workflow",
+            mode="in_process",
+        )
 
     def header_init(self, widget):
         """Initialize the header menu"""
@@ -106,6 +122,18 @@ class MaterialsSlots(SlotsMaya):
             setText="Send to Substance Painter",
             setObjectName="b020",
             setToolTip="Export selection to Adobe Substance 3D Painter.",
+        )
+        widget.menu.add(
+            "QPushButton",
+            setText="Map Compositor",
+            setObjectName="b022",
+            setToolTip="Launch the Map Compositor (installs on first use).",
+        )
+        widget.menu.add(
+            "QPushButton",
+            setText="Metashape Workflow",
+            setObjectName="b023",
+            setToolTip="Launch the Metashape photogrammetry workflow (installs on first use).",
         )
 
     def cmb002_init(self, widget):
@@ -729,6 +757,29 @@ class MaterialsSlots(SlotsMaya):
                 print(f"Substance Painter Export Successful: {exported_fbx}")
         except Exception as e:
             print(f"Substance Painter Export Failed: {e}")
+
+    def b022(self, widget):
+        """Map Compositor"""
+        self._launch_external("map_compositor")
+
+    def b023(self, widget):
+        """Metashape Workflow"""
+        self._launch_external("metashape_workflow")
+
+    def _launch_external(self, name):
+        """Launch an in-process external tool, parented under Maya's main window.
+
+        Preserves the widget's existing windowFlags (e.g. FramelessWindowHint
+        set by the tool itself) when reparenting; passing a bare ``Qt.Window``
+        to ``setParent`` would replace flags wholesale and break the look.
+        """
+        ui = self.sb.handlers.external_tool.launch(name)
+        if ui is None:
+            return
+        ui.setParent(mtk.get_main_window(), ui.windowFlags() | QtCore.Qt.Window)
+        ui.show()
+        ui.raise_()
+        ui.activateWindow()
 
 
 # --------------------------------------------------------------------------------------------
