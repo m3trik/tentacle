@@ -52,6 +52,35 @@ class TclMaya(MarkingMenu):
             lambda editor: editor.add_collision_checker(mtk.maya_collision_checker),
         )
 
+        # External tools — two paths:
+        #
+        # 1. Auto-discovery via ``importlib.metadata.entry_points`` runs
+        #    inside ExternalToolHandler.__init__. Tools whose installed
+        #    metadata advertises ``uitk.external_tools[.in_process]``
+        #    are picked up with zero changes here. Once map_compositor
+        #    and metashape_workflow ship with their entry-point metadata
+        #    on PyPI / git, the manual block below collapses to nothing.
+        #
+        # 2. Manual registration — for tools that may not be installed
+        #    yet. ``install_spec`` lets the handler pip-install them
+        #    on first launch. Re-registration of a name discovered in
+        #    pass 1 is intentional and idempotent (the manual call
+        #    wins, carrying ``install_spec`` for the on-demand install).
+        self.sb.handlers.external_tool.register(
+            "map_compositor",
+            module="map_compositor",
+            entry="MapCompositorUI",
+            install_spec="map_compositor",
+            mode="in_process",
+        )
+        self.sb.handlers.external_tool.register(
+            "metashape_workflow",
+            module="metashape_workflow",
+            entry="MetashapeWorkflowUI",
+            install_spec="git+https://github.com/m3trik/metashape_workflow",
+            mode="in_process",
+        )
+
 
 # --------------------------------------------------------------------------------------------
 
