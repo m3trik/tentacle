@@ -1713,7 +1713,7 @@
         {
           "name": "MaterialsSlots",
           "summary": "",
-          "line": 13,
+          "line": 11,
           "bases": [
             "SlotsMaya"
           ],
@@ -1724,7 +1724,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Initialize the header menu",
-              "line": 39,
+              "line": 25,
               "deprecated": false
             },
             {
@@ -1733,7 +1733,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Initialize Materials",
-              "line": 139,
+              "line": 125,
               "deprecated": false
             },
             {
@@ -1742,7 +1742,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Rename the current material by stripping trailing integers and underscores.",
-              "line": 322,
+              "line": 308,
               "deprecated": false
             },
             {
@@ -1751,7 +1751,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Rename ALL scene materials by stripping trailing integers and underscores.",
-              "line": 379,
+              "line": 365,
               "deprecated": false
             },
             {
@@ -1760,7 +1760,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "",
-              "line": 410,
+              "line": 396,
               "deprecated": false
             },
             {
@@ -1769,7 +1769,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Select By Material",
-              "line": 440,
+              "line": 426,
               "deprecated": false
             },
             {
@@ -1778,7 +1778,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Delete Material",
-              "line": 508,
+              "line": 494,
               "deprecated": false
             },
             {
@@ -1787,7 +1787,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Delete Unused Materials",
-              "line": 514,
+              "line": 500,
               "deprecated": false
             },
             {
@@ -1796,7 +1796,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Select and Show Attributes: Show Material Attributes in the Attribute Editor.",
-              "line": 519,
+              "line": 505,
               "deprecated": false
             },
             {
@@ -1805,7 +1805,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Set the current combo box text as editable.",
-              "line": 525,
+              "line": 511,
               "deprecated": false
             },
             {
@@ -1814,7 +1814,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Open material in editor",
-              "line": 530,
+              "line": 516,
               "deprecated": false
             },
             {
@@ -1823,7 +1823,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Get Material: Change the index to match the current material selection.",
-              "line": 544,
+              "line": 530,
               "deprecated": false
             },
             {
@@ -1832,7 +1832,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Assign Random",
-              "line": 563,
+              "line": 549,
               "deprecated": false
             },
             {
@@ -1841,7 +1841,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Initialize Assign Current",
-              "line": 602,
+              "line": 588,
               "deprecated": false
             },
             {
@@ -1850,7 +1850,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Assign Current",
-              "line": 619,
+              "line": 605,
               "deprecated": false
             },
             {
@@ -1859,7 +1859,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Assign: New Material",
-              "line": 629,
+              "line": 615,
               "deprecated": false
             },
             {
@@ -1868,7 +1868,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Map Packer",
-              "line": 640,
+              "line": 626,
               "deprecated": false
             },
             {
@@ -1877,7 +1877,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Create Game Shader",
-              "line": 662,
+              "line": 648,
               "deprecated": false
             },
             {
@@ -1886,7 +1886,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Texture Path Editor",
-              "line": 666,
+              "line": 652,
               "deprecated": false
             },
             {
@@ -1895,7 +1895,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Shader Templates",
-              "line": 670,
+              "line": 656,
               "deprecated": false
             },
             {
@@ -1904,7 +1904,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Reload Textures and Reset Viewport",
-              "line": 674,
+              "line": 660,
               "deprecated": false
             },
             {
@@ -1913,7 +1913,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Remove and Reassign Duplicates",
-              "line": 681,
+              "line": 667,
               "deprecated": false
             },
             {
@@ -1922,7 +1922,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Map Converter",
-              "line": 688,
+              "line": 674,
               "deprecated": false
             },
             {
@@ -1931,7 +1931,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Print Texture Info",
-              "line": 716,
+              "line": 702,
               "deprecated": false
             },
             {
@@ -1940,7 +1940,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Material Updater",
-              "line": 737,
+              "line": 723,
               "deprecated": false
             },
             {
@@ -1949,7 +1949,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Image to Plane",
-              "line": 741,
+              "line": 727,
               "deprecated": false
             },
             {
@@ -1958,7 +1958,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Marmoset Bridge",
-              "line": 745,
+              "line": 731,
               "deprecated": false
             },
             {
@@ -1967,7 +1967,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Send to Substance Painter",
-              "line": 749,
+              "line": 735,
               "deprecated": false
             },
             {
@@ -1976,7 +1976,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Map Compositor",
-              "line": 761,
+              "line": 747,
               "deprecated": false
             },
             {
@@ -1985,7 +1985,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Metashape Workflow",
-              "line": 765,
+              "line": 751,
               "deprecated": false
             }
           ]
@@ -2116,7 +2116,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Set Normals By Angle",
-              "line": 40,
+              "line": 47,
               "deprecated": false
             },
             {
@@ -2125,7 +2125,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Initialize Average Normals",
-              "line": 59,
+              "line": 71,
               "deprecated": false
             },
             {
@@ -2134,7 +2134,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Average Normals",
-              "line": 68,
+              "line": 80,
               "deprecated": false
             },
             {
@@ -2143,7 +2143,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Soften Edge Normals",
-              "line": 75,
+              "line": 87,
               "deprecated": false
             },
             {
@@ -2152,7 +2152,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Harden all selected edges.",
-              "line": 87,
+              "line": 99,
               "deprecated": false
             },
             {
@@ -2161,7 +2161,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Transfer Normals",
-              "line": 99,
+              "line": 111,
               "deprecated": false
             },
             {
@@ -2170,7 +2170,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Soft Edge Display",
-              "line": 111,
+              "line": 123,
               "deprecated": false
             },
             {
@@ -2179,7 +2179,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Toggle lock/unlock vertex normals.",
-              "line": 115,
+              "line": 127,
               "deprecated": false
             },
             {
@@ -2188,7 +2188,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Display Face Normals",
-              "line": 119,
+              "line": 131,
               "deprecated": false
             },
             {
@@ -2197,7 +2197,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Set To Face",
-              "line": 123,
+              "line": 135,
               "deprecated": false
             },
             {
@@ -2206,7 +2206,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Initialize Reverse Normals",
-              "line": 127,
+              "line": 139,
               "deprecated": false
             },
             {
@@ -2215,7 +2215,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Reverse Normals",
-              "line": 145,
+              "line": 157,
               "deprecated": false
             }
           ]
