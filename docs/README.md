@@ -1,4 +1,4 @@
-[![Tests](https://img.shields.io/badge/Tests-285%20passed-brightgreen.svg)](test/)
+[![Tests](https://img.shields.io/badge/Tests-41%20passed-brightgreen.svg)](test/)
 [![License: LGPL v3](https://img.shields.io/badge/License-LGPL%20v3-blue.svg)](https://www.gnu.org/licenses/lgpl-3.0.en.html)
 [![Version](https://img.shields.io/badge/Version-0.11.40-blue.svg)](https://pypi.org/project/tentacletk/)
 
@@ -6,7 +6,7 @@
 
 A Qt marking-menu (pie-menu) launcher for DCC apps. Hold a hotkey, flick toward a wedge, release — the tool runs. Submenus open along the gesture path.
 
-Tentacle is the Maya-flavored shell on top of [`uitk.MarkingMenu`](../../uitk/uitk/widgets/marking_menu/_marking_menu.py). It ships ~55 Maya tool panels (modeling, UV, materials, rigging, animation, rendering, …) and wrapper entry points for Blender and 3ds Max.
+Tentacle is the Maya-flavored shell on top of [`uitk.MarkingMenu`](../../uitk/uitk/widgets/marking_menu/_marking_menu.py). It ships ~60 Maya tool panels (modeling, UV, materials, rigging, animation, rendering, …) and wrapper entry points for Blender and 3ds Max.
 
 ![Demo](https://raw.githubusercontent.com/m3trik/tentacle/master/docs/toolkit_demo.gif)
 
@@ -34,11 +34,11 @@ def start_tentacle():
 executeDeferred(start_tentacle)
 ```
 
-`key_show` accepts bare keys (`"Z"`, `"Space"`) or Qt names (`"Key_Z"`).
+`key_show` accepts bare keys (`"Z"`, `"Space"`) or Qt names (`"Key_Z"`); if omitted it defaults to `F12`.
 
-## Default bindings
+## Bindings
 
-Defined in [`tcl_maya.py`](../tentacle/tcl_maya.py); chords are parsed by `uitk.MarkingMenu` (see [`uitk/docs/MARKING_MENU.md`](../../uitk/docs/MARKING_MENU.md)).
+Defined in [`tcl_maya.py`](../tentacle/tcl_maya.py); chords are parsed by `uitk.MarkingMenu` (see [`uitk/docs/MARKING_MENU.md`](../../uitk/docs/MARKING_MENU.md)). The table below assumes `key_show="Z"` from the example — substitute your chosen key.
 
 | Chord                                | Opens                 |
 | ------------------------------------ | --------------------- |
@@ -97,7 +97,7 @@ tentacle/
 ├── tcl_blender.py         TclBlender (wrapper, no slot library yet)
 ├── slots/
 │   ├── _slots.py          Slots base — repeat-last-command shortcut
-│   └── maya/              ~55 SlotsMaya subclasses
+│   └── maya/              ~60 SlotsMaya subclasses
 └── ui/                    .ui definitions; maya_menus/ holds Maya submenus
 ```
 

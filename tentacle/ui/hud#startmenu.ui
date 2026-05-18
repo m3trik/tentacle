@@ -179,8 +179,8 @@
    <header>widgets.textedit.h</header>
   </customwidget>
  </customwidgets>
- <resources/>
- <connections/>
+ <resources />
+ <connections />
  <designerdata>
   <property name="gridDeltaX">
    <number>5</number>

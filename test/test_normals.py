@@ -82,11 +82,12 @@ class TestTb001HardnessTranslation(unittest.TestCase):
         self._original = mtk.Components.set_edge_hardness
         self.captured = []
 
-        def fake_set_edge_hardness(selection, threshold, upper, lower):
+        def fake_set_edge_hardness(selection, threshold, upper, lower, **kwargs):
             self.captured.append({
                 "threshold": threshold,
                 "upper": upper,
                 "lower": lower,
+                "unlock_normals": kwargs.get("unlock_normals"),
             })
 
         mtk.Components.set_edge_hardness = staticmethod(fake_set_edge_hardness)
@@ -96,12 +97,23 @@ class TestTb001HardnessTranslation(unittest.TestCase):
         mtk.Components.set_edge_hardness = self._original
         cmds.file(new=True, force=True)
 
-    def _make_widget(self, threshold, upper, lower):
+    def _make_widget(self, threshold, upper, lower, unlock=False):
         widget = _FakeWidget()
         widget.option_box.menu.s002 = _FakeSpin(threshold)
         widget.option_box.menu.s003 = _FakeSpin(upper)
         widget.option_box.menu.s004 = _FakeSpin(lower)
+        widget.option_box.menu.chk_unlock_normals = _FakeCheck(unlock)
         return widget
+
+    def test_unlock_checkbox_propagates(self):
+        widget = self._make_widget(threshold=90, upper=0, lower=180, unlock=True)
+        self.instance.tb001(widget)
+        self.assertTrue(self.captured[0]["unlock_normals"])
+
+    def test_unlock_unchecked_propagates_false(self):
+        widget = self._make_widget(threshold=90, upper=0, lower=180, unlock=False)
+        self.instance.tb001(widget)
+        self.assertFalse(self.captured[0]["unlock_normals"])
 
     def test_normal_values_pass_through(self):
         widget = self._make_widget(threshold=45, upper=0, lower=180)

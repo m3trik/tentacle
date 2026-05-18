@@ -2,7 +2,7 @@
 
 _Auto-generated. Do not edit by hand. Refresh via `m3trik/scripts/generate_api_registry.py`._
 
-_Generated: 2026-05-17_
+_Generated: 2026-05-18_
 
 ## Index
 
@@ -355,7 +355,7 @@ _Generated: 2026-05-17_
 <a id="slots--maya--materials"></a>
 ### `slots/maya/materials.py`
 
-- **[`class MaterialsSlots(SlotsMaya)`](tentacle/tentacle/slots/maya/materials.py#L12)**
+- **[`class MaterialsSlots(SlotsMaya)`](tentacle/tentacle/slots/maya/materials.py#L13)**
   - `MaterialsSlots.header_init(self, widget)` — Initialize the header menu
   - `MaterialsSlots.cmb002_init(self, widget)` — Initialize Materials
   - `MaterialsSlots.lbl007(self)` — Rename the current material by stripping trailing integers and underscores.
@@ -384,6 +384,8 @@ _Generated: 2026-05-17_
   - `MaterialsSlots.b021(self, widget)` — Image to Plane
   - `MaterialsSlots.b019(self, widget)` — Marmoset Bridge
   - `MaterialsSlots.b020(self, widget)` — Send to Substance Painter
+  - `MaterialsSlots.b022(self, widget)` — Map Compositor
+  - `MaterialsSlots.b023(self, widget)` — Metashape Workflow
 
 <a id="slots--maya--mesh"></a>
 ### `slots/maya/mesh.py`
@@ -881,4 +883,4 @@ _Generated: 2026-05-17_
 <a id="tcl_maya"></a>
 ### `tcl_maya.py`
 
-- **[`class TclMaya(MarkingMenu)`](tentacle/tentacle/tcl_maya.py#L10)** — Marking Menu class overridden for use with Autodesk Maya.
+- **[`class TclMaya(MarkingMenu)`](tentacle/tentacle/tcl_maya.py#L11)** — Marking Menu class overridden for use with Autodesk Maya.

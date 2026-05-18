@@ -17,14 +17,15 @@ Refresh manually: `python m3trik/scripts/generate_api_registry.py tentacle` — 
 ## Architecture
 
 - `tentacle/slots/<dcc>/*.py` — DCC-specific slot handlers (e.g. `slots/maya/rendering.py`).
-- `tentacle/tcl_maya/` — Maya integration entry + MarkingMenu.
+- `tentacle/tcl_maya.py` — Maya integration entry + MarkingMenu (`tcl_max.py`, `tcl_blender.py` are wrapper-only).
 - **UI**: Qt via [uitk](../uitk/CLAUDE.md). Widget naming: `tb###`, `b###`, `list###`, etc.
 
 ## Conventions
 
 - Slot classes inherit from the DCC base; slot methods are named after their widget (`tb000`, `b005`).
 - UI files pair with slot files (same basename). Enforced by `test_ui_integrity.py`.
-- Heavy scenes: prefer `maya.cmds` over PyMEL in hot paths; suspend viewport refresh around bulk edits.
+- **No PyMEL.** `pymel.core` was migrated out — use `maya.cmds` / `maya.mel` only. (`import pymel.core` at module top blocks Maya's UI for minutes during init.)
+- Heavy scenes: suspend viewport refresh around bulk edits.
 
 ## Tests
 

@@ -36,12 +36,20 @@ class Normals(SlotsMaya):
             setValue=180,
             setToolTip="The hardness to apply to edges with a normal angle less than the threshold.\n0, Edges will appear hard.\n180, Edges will appear soft.\n-1, Will Disable.",
         )
+        widget.option_box.menu.add(
+            "QCheckBox",
+            setText="Unlock Normals First",
+            setObjectName="chk_unlock_normals",
+            setChecked=True,
+            setToolTip="Unlock vertex normals before applying hardness.\nRequired for imported assets (FBX/Marmoset) — locked normals\nsilently block the smoothing update.",
+        )
 
     def tb001(self, widget):
         """Set Normals By Angle"""
         angle_threshold = widget.option_box.menu.s002.value()
         upper_hardness = widget.option_box.menu.s003.value()
         lower_hardness = widget.option_box.menu.s004.value()
+        unlock_normals = widget.option_box.menu.chk_unlock_normals.isChecked()
 
         # If value is -1, upper/lower hardess will be disabled.
         upper_hardness = upper_hardness if upper_hardness > -1 else None
@@ -49,7 +57,11 @@ class Normals(SlotsMaya):
 
         selection = cmds.ls(sl=True) or []
         mtk.Components.set_edge_hardness(
-            selection, angle_threshold, upper_hardness, lower_hardness
+            selection,
+            angle_threshold,
+            upper_hardness,
+            lower_hardness,
+            unlock_normals=unlock_normals,
         )
 
         objects = cmds.ls(selection, objectsOnly=True) or []
