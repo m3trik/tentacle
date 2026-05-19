@@ -4,7 +4,7 @@ import mayatk as mtk
 
 # From this package:
 from uitk.widgets.marking_menu._marking_menu import MarkingMenu
-from uitk.handlers.external_tool_handler import ExternalToolHandler
+from uitk.handlers.external_app_handler import ExternalAppHandler
 from mayatk.ui_utils.maya_ui_handler import MayaUiHandler
 
 
@@ -37,7 +37,7 @@ class TclMaya(MarkingMenu):
             ui_source=("ui", "ui/maya_menus"),
             slot_source=slot_source,
             bindings=bindings,
-            handlers={"ui": MayaUiHandler, "external_tool": ExternalToolHandler},
+            handlers={"ui": MayaUiHandler, "external_app": ExternalAppHandler},
             log_level=log_level,
             suppress_default_on_reentry=True,
             precompile=True,
@@ -52,11 +52,11 @@ class TclMaya(MarkingMenu):
             lambda editor: editor.add_collision_checker(mtk.maya_collision_checker),
         )
 
-        # External tools — all bundled in the ``extapps`` PyPI package.
+        # External apps — all bundled in the ``extapps`` PyPI package.
         #
         # Auto-discovery via ``importlib.metadata.entry_points`` runs
-        # inside ExternalToolHandler.__init__. Once ``extapps`` is
-        # installed, its five ``uitk.external_tools.in_process`` entry
+        # inside ExternalAppHandler.__init__. Once ``extapps`` is
+        # installed, its five ``uitk.external_apps.in_process`` entry
         # points are picked up with zero changes here.
         #
         # The manual registrations below cover the case where ``extapps``
@@ -71,7 +71,7 @@ class TclMaya(MarkingMenu):
             ("map_packer", "MapPackerUI"),
             ("mesh_convert", "MeshConvertUI"),
         ):
-            self.sb.handlers.external_tool.register(
+            self.sb.handlers.external_app.register(
                 _name,
                 module=f"extapps.{_name}",
                 entry=_entry,

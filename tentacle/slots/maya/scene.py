@@ -458,7 +458,7 @@ class SceneSlots(SlotsMaya):
 
     def b013(self):
         """Mesh Converter (FBX -> GLB)"""
-        ui = self.sb.handlers.external_tool.launch("mesh_convert", show=False)
+        ui = self.sb.handlers.external_app.launch("mesh_convert", show=False)
 
         # Default the file dialog to the current scene's directory.
         scene_path = cmds.file(query=True, sceneName=True) or ""
