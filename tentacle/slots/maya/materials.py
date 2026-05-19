@@ -629,24 +629,8 @@ class MaterialsSlots(SlotsMaya):
 
     def b008(self, widget):
         """Map Packer"""
-        from pythontk.img_utils import map_packer
-
-        self.sb.register(
-            "map_packer.ui",
-            map_packer.MapPackerSlots,
-            base_dir=map_packer,
-        )
-
-        ui = self.sb.get_ui("map_packer")
-        ui.set_attributes(WA_TranslucentBackground=True)
-        ui.set_flags(FramelessWindowHint=True)
-        ui.style.set(theme="dark", style_class="translucentBgWithBorder")
-        ui.header.config_buttons("menu", "minimize", "hide")
-
-        # Set the starting directory for the map converter
-        source_images_dir = mtk.get_env_info("sourceimages")
-        ui.slots.source_dir = source_images_dir
-
+        ui = self.sb.handlers.external_tool.launch("map_packer", show=False)
+        ui.slots.source_dir = mtk.get_env_info("sourceimages")
         self.sb.handlers.marking_menu.show(ui)
 
     def b009(self, widget):
@@ -677,23 +661,8 @@ class MaterialsSlots(SlotsMaya):
 
     def b016(self):
         """Map Converter"""
-        from pythontk.img_utils import map_converter
-
-        self.sb.register(
-            "map_converter.ui",
-            map_converter.MapConverterSlots,
-            base_dir=map_converter,
-        )
-
-        ui = self.sb.get_ui("map_converter")
-        ui.set_attributes(WA_TranslucentBackground=True)
-        ui.set_flags(FramelessWindowHint=True)
-        ui.style.set(theme="dark", style_class="translucentBgWithBorder")
-        ui.header.config_buttons("menu", "minimize", "hide")
-
-        # Set the starting directory for the map converter
-        source_images_dir = mtk.get_env_info("sourceimages")
-        ui.slots.source_dir = source_images_dir
+        ui = self.sb.handlers.external_tool.launch("map_converter", show=False)
+        ui.slots.source_dir = mtk.get_env_info("sourceimages")
 
         def _selected_texture_paths():
             sel = cmds.ls(selection=True, long=True) or []

@@ -383,7 +383,7 @@ _Generated: 2026-05-19_
   - `MaterialsSlots.b018(self, widget)` — Material Updater
   - `MaterialsSlots.b021(self, widget)` — Image to Plane
   - `MaterialsSlots.b019(self, widget)` — Marmoset Bridge
-  - `MaterialsSlots.b020(self, widget)` — Send to Substance Painter
+  - `MaterialsSlots.b020(self, widget)` — Substance Bridge
   - `MaterialsSlots.b022(self, widget)` — Map Compositor
   - `MaterialsSlots.b023(self, widget)` — Metashape Workflow
 

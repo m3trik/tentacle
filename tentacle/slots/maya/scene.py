@@ -458,19 +458,7 @@ class SceneSlots(SlotsMaya):
 
     def b013(self):
         """Mesh Converter (FBX -> GLB)"""
-        from pythontk.file_utils.mesh_convert import slots as mesh_convert_slots
-
-        self.sb.register(
-            "mesh_convert.ui",
-            mesh_convert_slots.MeshConvertSlots,
-            base_dir=mesh_convert_slots,
-        )
-
-        ui = self.sb.get_ui("mesh_convert")
-        ui.set_attributes(WA_TranslucentBackground=True)
-        ui.set_flags(FramelessWindowHint=True)
-        ui.style.set(theme="dark", style_class="translucentBgWithBorder")
-        ui.header.config_buttons("menu", "minimize", "hide")
+        ui = self.sb.handlers.external_tool.launch("mesh_convert", show=False)
 
         # Default the file dialog to the current scene's directory.
         scene_path = cmds.file(query=True, sceneName=True) or ""

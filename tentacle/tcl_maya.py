@@ -52,34 +52,32 @@ class TclMaya(MarkingMenu):
             lambda editor: editor.add_collision_checker(mtk.maya_collision_checker),
         )
 
-        # External tools — two paths:
+        # External tools — all bundled in the ``extapps`` PyPI package.
         #
-        # 1. Auto-discovery via ``importlib.metadata.entry_points`` runs
-        #    inside ExternalToolHandler.__init__. Tools whose installed
-        #    metadata advertises ``uitk.external_tools[.in_process]``
-        #    are picked up with zero changes here. Once map_compositor
-        #    and metashape_workflow ship with their entry-point metadata
-        #    on PyPI / git, the manual block below collapses to nothing.
+        # Auto-discovery via ``importlib.metadata.entry_points`` runs
+        # inside ExternalToolHandler.__init__. Once ``extapps`` is
+        # installed, its five ``uitk.external_tools.in_process`` entry
+        # points are picked up with zero changes here.
         #
-        # 2. Manual registration — for tools that may not be installed
-        #    yet. ``install_spec`` lets the handler pip-install them
-        #    on first launch. Re-registration of a name discovered in
-        #    pass 1 is intentional and idempotent (the manual call
-        #    wins, carrying ``install_spec`` for the on-demand install).
-        self.sb.handlers.external_tool.register(
-            "map_compositor",
-            module="map_compositor",
-            entry="MapCompositorUI",
-            install_spec="map_compositor",
-            mode="in_process",
-        )
-        self.sb.handlers.external_tool.register(
-            "metashape_workflow",
-            module="metashape_workflow",
-            entry="MetashapeWorkflowUI",
-            install_spec="git+https://github.com/m3trik/metashape_workflow",
-            mode="in_process",
-        )
+        # The manual registrations below cover the case where ``extapps``
+        # isn't installed yet — ``install_spec`` lets the handler
+        # pip-install it on first launch. Re-registration of a name
+        # discovered by auto-discovery is intentional and idempotent
+        # (the manual call wins, carrying ``install_spec``).
+        for _name, _entry in (
+            ("map_compositor", "MapCompositorUI"),
+            ("metashape_workflow", "MetashapeWorkflowUI"),
+            ("map_converter", "MapConverterUI"),
+            ("map_packer", "MapPackerUI"),
+            ("mesh_convert", "MeshConvertUI"),
+        ):
+            self.sb.handlers.external_tool.register(
+                _name,
+                module=f"extapps.{_name}",
+                entry=_entry,
+                install_spec="extapps",
+                mode="in_process",
+            )
 
 
 # --------------------------------------------------------------------------------------------
