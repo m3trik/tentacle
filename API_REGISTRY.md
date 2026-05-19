@@ -2,7 +2,7 @@
 
 _Auto-generated. Do not edit by hand. Refresh via `m3trik/scripts/generate_api_registry.py`._
 
-_Generated: 2026-05-18_
+_Generated: 2026-05-19_
 
 ## Index
 
@@ -355,7 +355,7 @@ _Generated: 2026-05-18_
 <a id="slots--maya--materials"></a>
 ### `slots/maya/materials.py`
 
-- **[`class MaterialsSlots(SlotsMaya)`](tentacle/tentacle/slots/maya/materials.py#L13)**
+- **[`class MaterialsSlots(SlotsMaya)`](tentacle/tentacle/slots/maya/materials.py#L11)**
   - `MaterialsSlots.header_init(self, widget)` — Initialize the header menu
   - `MaterialsSlots.cmb002_init(self, widget)` — Initialize Materials
   - `MaterialsSlots.lbl007(self)` — Rename the current material by stripping trailing integers and underscores.

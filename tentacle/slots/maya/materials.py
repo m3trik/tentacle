@@ -105,9 +105,13 @@ class MaterialsSlots(SlotsMaya):
         )
         widget.menu.add(
             "QPushButton",
-            setText="Send to Substance Painter",
+            setText="Substance Bridge",
             setObjectName="b020",
-            setToolTip="Export selection to Adobe Substance 3D Painter.",
+            setToolTip=(
+                "Open the Substance Painter bridge: pick a template "
+                "(import / with_textures), then send the selection to "
+                "Adobe Substance 3D Painter."
+            ),
         )
         widget.menu.add(
             "QPushButton",
@@ -733,16 +737,8 @@ class MaterialsSlots(SlotsMaya):
         self.sb.handlers.marking_menu.show("marmoset_bridge")
 
     def b020(self, widget):
-        """Send to Substance Painter"""
-        try:
-            from mayatk.mat_utils.substance import SubstanceBridge
-
-            bridge = SubstanceBridge()
-            exported_fbx = bridge.send(headless=False)
-            if exported_fbx:
-                print(f"Substance Painter Export Successful: {exported_fbx}")
-        except Exception as e:
-            print(f"Substance Painter Export Failed: {e}")
+        """Substance Bridge"""
+        self.sb.handlers.marking_menu.show("substance_bridge")
 
     def b022(self, widget):
         """Map Compositor"""
