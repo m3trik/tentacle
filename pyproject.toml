@@ -17,9 +17,9 @@ classifiers = [
 
 # Dependencies - exclude optional system deps (Pillow, qtpy, numpy, shiboken6)
 dependencies = [
-    "pythontk>=0.8.39",
-    "uitk>=1.2.16",
-    "mayatk>=0.11.69",
+    "pythontk>=0.8.41",
+    "uitk>=1.2.21",
+    "mayatk>=0.11.76",
 ]
 
 [project.urls]
