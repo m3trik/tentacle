@@ -629,7 +629,7 @@ class MaterialsSlots(SlotsMaya):
 
     def b008(self, widget):
         """Map Packer"""
-        ui = self.sb.handlers.external_tool.launch("map_packer", show=False)
+        ui = self.sb.handlers.external_app.launch("map_packer", show=False)
         ui.slots.source_dir = mtk.get_env_info("sourceimages")
         self.sb.handlers.marking_menu.show(ui)
 
@@ -661,7 +661,7 @@ class MaterialsSlots(SlotsMaya):
 
     def b016(self):
         """Map Converter"""
-        ui = self.sb.handlers.external_tool.launch("map_converter", show=False)
+        ui = self.sb.handlers.external_app.launch("map_converter", show=False)
         ui.slots.source_dir = mtk.get_env_info("sourceimages")
 
         def _selected_texture_paths():
@@ -711,11 +711,11 @@ class MaterialsSlots(SlotsMaya):
 
     def b022(self, widget):
         """Map Compositor"""
-        self.sb.handlers.external_tool.launch("map_compositor")
+        self.sb.handlers.external_app.launch("map_compositor")
 
     def b023(self, widget):
         """Metashape Workflow"""
-        self.sb.handlers.external_tool.launch("metashape_workflow")
+        self.sb.handlers.external_app.launch("metashape_workflow")
 
 
 # --------------------------------------------------------------------------------------------

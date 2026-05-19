@@ -1877,7 +1877,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Create Game Shader",
-              "line": 652,
+              "line": 636,
               "deprecated": false
             },
             {
@@ -1886,7 +1886,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Texture Path Editor",
-              "line": 656,
+              "line": 640,
               "deprecated": false
             },
             {
@@ -1895,7 +1895,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Shader Templates",
-              "line": 660,
+              "line": 644,
               "deprecated": false
             },
             {
@@ -1904,7 +1904,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Reload Textures and Reset Viewport",
-              "line": 664,
+              "line": 648,
               "deprecated": false
             },
             {
@@ -1913,7 +1913,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Remove and Reassign Duplicates",
-              "line": 671,
+              "line": 655,
               "deprecated": false
             },
             {
@@ -1922,7 +1922,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Map Converter",
-              "line": 678,
+              "line": 662,
               "deprecated": false
             },
             {
@@ -1931,7 +1931,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Print Texture Info",
-              "line": 706,
+              "line": 675,
               "deprecated": false
             },
             {
@@ -1940,7 +1940,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Material Updater",
-              "line": 727,
+              "line": 696,
               "deprecated": false
             },
             {
@@ -1949,7 +1949,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Image to Plane",
-              "line": 731,
+              "line": 700,
               "deprecated": false
             },
             {
@@ -1958,7 +1958,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Marmoset Bridge",
-              "line": 735,
+              "line": 704,
               "deprecated": false
             },
             {
@@ -1967,7 +1967,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Substance Bridge",
-              "line": 739,
+              "line": 708,
               "deprecated": false
             },
             {
@@ -1976,7 +1976,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Map Compositor",
-              "line": 743,
+              "line": 712,
               "deprecated": false
             },
             {
@@ -1985,7 +1985,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Metashape Workflow",
-              "line": 747,
+              "line": 716,
               "deprecated": false
             }
           ]
@@ -3804,7 +3804,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Initialize Save to Original Scene.",
-              "line": 504,
+              "line": 492,
               "deprecated": false
             },
             {
@@ -3813,7 +3813,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Save to Original Scene.",
-              "line": 548,
+              "line": 536,
               "deprecated": false
             },
             {
@@ -3822,7 +3822,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Remove String From Object Names.",
-              "line": 578,
+              "line": 566,
               "deprecated": false
             }
           ]
