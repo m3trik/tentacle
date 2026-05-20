@@ -6,7 +6,7 @@ Most of nurbs.py is a flat mel.eval dispatch table for NURBS edit
 operations. The units worth pinning at this layer:
 
 - tb000 (Revolve): widget values → cmds.revolve kwargs.
-- lbl000 (Image Tracer): marking-menu key name.
+- b056 (Image Tracer): marking-menu key name.
 - b016 (Extract Curve): Exception fallback to mtk.create_curve_from_edges.
 - tb001 (Loft): forwards 10 widget values to mtk.loft. Pins the
   contract after the 2026-05-16 fix that replaced a 2-year-old
@@ -149,13 +149,13 @@ class TestTb000Revolve(unittest.TestCase):
 
 
 @unittest.skipUnless(_MAYA_AVAILABLE, "Requires maya.cmds")
-class TestLbl000ImageTracer(unittest.TestCase):
-    """lbl000 shows the 'image_tracer' marking menu."""
+class TestB056ImageTracer(unittest.TestCase):
+    """b056 shows the 'image_tracer' marking menu."""
 
-    def test_lbl000_routes_to_image_tracer(self):
+    def test_b056_routes_to_image_tracer(self):
         instance = nurbs_module.Nurbs.__new__(nurbs_module.Nurbs)
         instance.sb = _RecordedSb()
-        instance.lbl000(widget=None)
+        instance.b056()
         self.assertEqual(instance.sb.handlers.marking_menu.shown, ["image_tracer"])
 
 

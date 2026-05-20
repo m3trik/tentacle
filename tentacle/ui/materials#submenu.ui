@@ -53,8 +53,8 @@
    <widget class="QPushButton" name="i018">
     <property name="geometry">
      <rect>
-      <x>365</x>
-      <y>300</y>
+      <x>195</x>
+      <y>270</y>
       <width>41</width>
       <height>21</height>
      </rect>
@@ -81,8 +81,8 @@
    <widget class="QPushButton" name="i005">
     <property name="geometry">
      <rect>
-      <x>365</x>
-      <y>270</y>
+      <x>195</x>
+      <y>240</y>
       <width>66</width>
       <height>21</height>
      </rect>
@@ -109,8 +109,8 @@
    <widget class="QPushButton" name="i012">
     <property name="geometry">
      <rect>
-      <x>270</x>
-      <y>290</y>
+      <x>100</x>
+      <y>260</y>
       <width>66</width>
       <height>21</height>
      </rect>
@@ -134,114 +134,50 @@
      <string>Materials</string>
     </property>
    </widget>
-   <widget class="QPushButton" name="lbl004">
-    <property name="enabled">
-     <bool>true</bool>
-    </property>
+   <widget class="ExpandableList" name="list000" native="true">
     <property name="geometry">
      <rect>
-      <x>270</x>
-      <y>260</y>
-      <width>86</width>
-      <height>19</height>
+      <x>130</x>
+      <y>310</y>
+      <width>120</width>
+      <height>21</height>
      </rect>
     </property>
     <property name="minimumSize">
      <size>
-      <width>0</width>
-      <height>19</height>
+      <width>100</width>
+      <height>21</height>
      </size>
     </property>
-    <property name="maximumSize">
-     <size>
-      <width>111</width>
-      <height>19</height>
-     </size>
-    </property>
-    <property name="toolTip">
-     <string>Material Attributes: Show Material Attributes in the Attribute Editor.</string>
-    </property>
-    <property name="text">
-     <string>Attributes</string>
-    </property>
-    <property name="iconSize">
-     <size>
-      <width>18</width>
-      <height>18</height>
-     </size>
-    </property>
-   </widget>
-   <widget class="PushButton" name="tb000">
-    <property name="enabled">
+    <property name="autoFillBackground">
      <bool>true</bool>
     </property>
+   </widget>
+   <widget class="ExpandableList" name="list001" native="true">
     <property name="geometry">
      <rect>
-      <x>355</x>
+      <x>130</x>
       <y>210</y>
-      <width>71</width>
-      <height>19</height>
+      <width>120</width>
+      <height>21</height>
      </rect>
     </property>
     <property name="minimumSize">
      <size>
-      <width>0</width>
-      <height>19</height>
+      <width>100</width>
+      <height>21</height>
      </size>
     </property>
-    <property name="maximumSize">
-     <size>
-      <width>16777215</width>
-      <height>19</height>
-     </size>
-    </property>
-    <property name="toolTip">
-     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Select all components with the same material. &lt;/p&gt;&lt;p&gt;If nothing is selected; search all geometry.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-    </property>
-    <property name="text">
-     <string>Select</string>
-    </property>
-   </widget>
-   <widget class="QPushButton" name="b002">
-    <property name="enabled">
+    <property name="autoFillBackground">
      <bool>true</bool>
     </property>
-    <property name="geometry">
-     <rect>
-      <x>290</x>
-      <y>210</y>
-      <width>56</width>
-      <height>19</height>
-     </rect>
-    </property>
-    <property name="minimumSize">
-     <size>
-      <width>0</width>
-      <height>19</height>
-     </size>
-    </property>
-    <property name="maximumSize">
-     <size>
-      <width>16777215</width>
-      <height>19</height>
-     </size>
-    </property>
-    <property name="toolTip">
-     <string>Set material shader ID from selection.</string>
-    </property>
-    <property name="text">
-     <string>Get </string>
-    </property>
    </widget>
-   <widget class="PushButton" name="b005">
-    <property name="enabled">
-     <bool>true</bool>
-    </property>
+   <widget class="QPushButton" name="b013">
     <property name="geometry">
      <rect>
-      <x>260</x>
-      <y>230</y>
-      <width>171</width>
+      <x>130</x>
+      <y>340</y>
+      <width>120</width>
       <height>19</height>
      </rect>
     </property>
@@ -258,19 +194,20 @@
      </size>
     </property>
     <property name="toolTip">
-     <string>Assign the current material to any selected object(s).</string>
+     <string>Reload file textures for all scene materials.</string>
     </property>
     <property name="text">
-     <string>Assign Current</string>
+     <string>Reload Textures</string>
     </property>
    </widget>
   </widget>
  </widget>
  <customwidgets>
   <customwidget>
-   <class>PushButton</class>
-   <extends>QPushButton</extends>
-   <header>widgets.pushbutton.h</header>
+   <class>ExpandableList</class>
+   <extends>QWidget</extends>
+   <header>widgets.expandablelist.h</header>
+   <container>1</container>
   </customwidget>
  </customwidgets>
  <resources/>

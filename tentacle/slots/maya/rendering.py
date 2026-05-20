@@ -576,33 +576,6 @@ class Rendering(SlotsMaya):
         """Editor: Rendering Flags"""
         mel.eval("renderFlagsWindow")
 
-    def b005(self):
-        """Apply Vray Attributes To Selected Objects"""
-        if not mtk.vray_plugin(query=True):
-            print("VRay plugin is not loaded. Loading it now.")
-            mtk.vray_plugin(load=True)
-
-        selection = cmds.ls(selection=True) or []
-        currentID = 1
-        for obj in selection:
-            # get renderable shape nodes relative to transform, iterate through and apply subdivision
-            shapes = cmds.listRelatives(obj, s=1, ni=1) or []
-            for shape in shapes:
-                mel.eval(
-                    "vray addAttributesFromGroup " + shape + " vray_subdivision 1;"
-                )
-                mel.eval(
-                    "vray addAttributesFromGroup " + shape + " vray_subquality 1;"
-                )
-            # apply object ID to xform. i don't like giving individual shapes IDs.
-            mel.eval("vray addAttributesFromGroup " + obj + " vray_objectID 1;")
-            cmds.setAttr(obj + ".vrayObjectID", currentID)
-            currentID += 1
-
-    def b006(self):
-        """Load Vray Plugin"""
-        mtk.vray_plugin()
-
     def _default_playblast_path(self) -> str:
         desktop = os.path.expanduser(os.path.join("~", "Desktop"))
         return os.path.normpath(os.path.join(desktop, self._scene_base_name()))

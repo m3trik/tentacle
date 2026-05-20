@@ -4,11 +4,35 @@ import maya.cmds as cmds
 import maya.mel as mel
 import mayatk as mtk
 import pythontk as ptk
+from uitk import Signals
 # From this package:
 from tentacle.slots.maya._slots_maya import SlotsMaya
 
 
 class MaterialsSlots(SlotsMaya):
+    # Submenu Tools list — categories mirror the original header-menu sections.
+    # Each leaf maps to a slot method on this class (kept on the class so
+    # marking-menu and other entry points can still reach them).
+    _TOOLS_ITEMS = {
+        "Setup": [
+            ("Image to Plane", "b021"),
+            ("Material Updater", "b018"),
+            ("Shader Templates", "b011"),
+            ("Texture Path Editor", "b010"),
+        ],
+        "Conversion": [
+            ("Game Shader", "b009"),
+            ("Map Converter", "b016"),
+            ("Map Packer", "b008"),
+        ],
+        "External": [
+            ("Marmoset Bridge", "b019"),
+            ("Substance Bridge", "b020"),
+            ("Map Compositor", "b022"),
+            ("Metashape Workflow", "b023"),
+        ],
+    }
+
     def __init__(self, switchboard):
         super().__init__(switchboard)
 
@@ -23,8 +47,7 @@ class MaterialsSlots(SlotsMaya):
         # appear in the UI browser without first loading this UI.
 
     def header_init(self, widget):
-        """Initialize the header menu"""
-        # Section: Utilities
+        """Initialize the header menu (Utilities only — Setup/Conversion/External live in the submenu Tools list)."""
         widget.menu.add("Separator", setTitle="Utilities")
         widget.menu.add(
             "QPushButton",
@@ -45,86 +68,147 @@ class MaterialsSlots(SlotsMaya):
             setToolTip="Open the Hypershade Window.",
             clicked=lambda: mel.eval("HypershadeWindow"),
         )
-        # Section: Setup
-        widget.menu.add("Separator", setTitle="Setup")
-        widget.menu.add(
-            "QPushButton",
-            setText="Image to Plane",
-            setObjectName="b021",
-            setToolTip="Create textured polygon planes from image files with correct aspect ratios.",
+
+    # --- Submenu Assign list -------------------------------------------
+
+    def list000_init(self, widget):
+        """Assign list: scene materials + 'New' + 'Random'.
+
+        Re-populated on every show so the list reflects the current scene
+        contents and the current cmb002 selection. The root mirrors the
+        current material; releasing on it assigns that material.
+        """
+        if not getattr(widget, "_assign_list_configured", False):
+            widget.refresh_on_show = True
+            widget.fixed_item_height = 18
+            widget.apply_preset("expand_right")
+            widget._assign_list_configured = True
+            # Ensure cmb002 is populated so we can read currentData below.
+            if not getattr(self.ui.cmb002, "is_initialized", False):
+                self.ui.cmb002.init_slot()
+                self.ui.cmb002.is_initialized = True
+
+        widget.clear()
+
+        current = self.ui.cmb002.currentData()
+        root_text = f"Assign: {current}" if current else "Assign"
+        root = widget.add(root_text)
+        root.sublist.setMinimumWidth(widget.width() or 160)
+
+        # Special actions first
+        root.sublist.add("New")
+        root.sublist.add("Random")
+
+        # Then every scene material, sorted
+        scene_mats = mtk.MatUtils.get_scene_mats(
+            exc="standardSurface", sort=True
+        ) or []
+        for mat in scene_mats:
+            root.sublist.add(str(mat))
+
+    @Signals("on_item_interacted")
+    def list000(self, item):
+        """Dispatch Assign list selection.
+
+        - Releasing on the root assigns the current cmb002 material.
+        - 'New' / 'Random' route to b006 / b004.
+        - Any other leaf is treated as a material name and assigned directly.
+        Result is reported via sb.message_box in every branch.
+        """
+        text = item.item_text()
+        parent = item.parent_item_text()
+
+        # Root release: assign the current cmb002 material.
+        if parent is None:
+            current = self.ui.cmb002.currentData()
+            if not current:
+                self.sb.message_box(
+                    "<hl>No current material</hl><br>"
+                    "Pick a material in the main UI first."
+                )
+                return
+            self._assign_material_with_feedback(str(current))
+            return
+
+        if text == "New":
+            self.b006(item)
+            return
+        if text == "Random":
+            self.b004(item)
+            return
+
+        # Otherwise treat as a material name — assign directly.
+        self._assign_material_with_feedback(text)
+
+    def _assign_material_with_feedback(self, mat_name):
+        """Assign ``mat_name`` to the current selection and report the result.
+
+        Side effects:
+            - Sets cmb002's current material to ``mat_name`` (which fires
+              the connected ``list000.init_slot`` so the root label updates).
+            - Emits an sb.message_box describing success or the failure reason.
+        """
+        selection = cmds.ls(sl=True, flatten=True) or []
+        if not selection:
+            self.sb.message_box(
+                "<hl>Nothing selected</hl><br>"
+                "Select object(s) before assigning a material."
+            )
+            return
+        try:
+            mtk.MatUtils.assign_mat(selection, mat_name)
+        except Exception as e:
+            self.sb.message_box(
+                f"<hl>Assign failed</hl><br>{mat_name}: {e}"
+            )
+            return
+        # Push the assigned material into cmb002 — this propagates to the
+        # submenu Assign list's root label via the cmb002 signal connections.
+        self.ui.cmb002.setAsCurrent(mat_name)
+        self.sb.message_box(
+            f"Assigned <hl>{mat_name}</hl> to "
+            f"<hl>{len(selection)}</hl> object(s)."
         )
-        widget.menu.add(
-            "QPushButton",
-            setText="Material Updater",
-            setObjectName="b018",
-            setToolTip="Update material networks with new textures and settings.",
-        )
-        widget.menu.add(
-            "QPushButton",
-            setText="Shader Templates",
-            setObjectName="b011",
-            setToolTip="Open the Shader Templates UI to save and load shader graphs.",
-        )
-        widget.menu.add(
-            "QPushButton",
-            setText="Texture Path Editor",
-            setObjectName="b010",
-            setToolTip="Edit texture paths for materials in the scene.",
-        )
-        # Section: Conversion
-        widget.menu.add("Separator", setTitle="Conversion")
-        widget.menu.add(
-            "QPushButton",
-            setText="Game Shader",
-            setObjectName="b009",
-            setToolTip="Create an exportable game shader network that can optionally be rendered in Arnold.",
-        )
-        widget.menu.add(
-            "QPushButton",
-            setText="Map Converter",
-            setObjectName="b016",
-            setToolTip="Convert existing texture maps to another type.",
-        )
-        widget.menu.add(
-            "QPushButton",
-            setText="Map Packer",
-            setObjectName="b008",
-            setToolTip="Pack up to 4 input grayscale maps into specified RGBA channels.",
-        )
-        # Section: External Tools
-        widget.menu.add("Separator", setTitle="External Tools")
-        widget.menu.add(
-            "QPushButton",
-            setText="Marmoset Bridge",
-            setObjectName="b019",
-            setToolTip=(
-                "Open the Marmoset Toolbag bridge: pick a template "
-                "(import / bake / lookdev), tune parameters, then send "
-                "the selection to Toolbag."
-            ),
-        )
-        widget.menu.add(
-            "QPushButton",
-            setText="Substance Bridge",
-            setObjectName="b020",
-            setToolTip=(
-                "Open the Substance Painter bridge: pick a template "
-                "(import / with_textures), then send the selection to "
-                "Adobe Substance 3D Painter."
-            ),
-        )
-        widget.menu.add(
-            "QPushButton",
-            setText="Map Compositor",
-            setObjectName="b022",
-            setToolTip="Launch the Map Compositor (installs on first use).",
-        )
-        widget.menu.add(
-            "QPushButton",
-            setText="Metashape Workflow",
-            setObjectName="b023",
-            setToolTip="Launch the Metashape photogrammetry workflow (installs on first use).",
-        )
+
+    # --- Submenu Tools list --------------------------------------------
+
+    def list001_init(self, widget):
+        """Tools list: Setup / Conversion / External (mirrors prior header sections).
+
+        Uses ``expand_up`` so the categories sublist overlays the root's
+        lower-left corner (the sublist's last item lines up with the
+        ``Tools`` trigger button), and deeper item sublists fan right.
+        """
+        widget.fixed_item_height = 18
+        widget.apply_preset("expand_up")
+
+        root = widget.add("Tools")
+        root.sublist.setMinimumWidth(widget.width() or 160)
+
+        for category, items in self._TOOLS_ITEMS.items():
+            cat = root.sublist.add(category)
+            cat.sublist.add([label for label, _ in items])
+
+    @Signals("on_item_interacted")
+    def list001(self, item):
+        """Dispatch Tools list selection to the matching slot method."""
+        if getattr(item, "sublist", None) and item.sublist.get_items():
+            return
+
+        text = item.item_text()
+        parent = item.parent_item_text() or ""
+
+        for label, slot_name in self._TOOLS_ITEMS.get(parent, ()):
+            if label == text:
+                slot = getattr(self, slot_name, None)
+                if not callable(slot):
+                    return
+                # Tool slots all take a widget arg; the list item suffices.
+                try:
+                    slot(item)
+                except TypeError:
+                    slot()
+                return
 
     def cmb002_init(self, widget):
         """Initialize Materials"""
@@ -219,10 +303,9 @@ class MaterialsSlots(SlotsMaya):
             )
             # Initialize the widget every time before the popup is shown.
             widget.before_popup_shown.connect(widget.init_slot)
-            # Update the assign button with the new material name.
-            widget.on_editing_finished.connect(self.submenu.b005.init_slot)
-            # Add the current material name to the assign button.
-            widget.currentIndexChanged.connect(self.submenu.b005.init_slot)
+            # Refresh the submenu Assign list when the current material changes.
+            widget.on_editing_finished.connect(self.submenu.list000.init_slot)
+            widget.currentIndexChanged.connect(self.submenu.list000.init_slot)
 
         # Use 'restore_index=True' to save and restore the index
         materials_dict = mtk.MatUtils.get_scene_mats(
@@ -307,7 +390,7 @@ class MaterialsSlots(SlotsMaya):
             if old == current_old:
                 self.ui.cmb002.setAsCurrent(new)
                 break
-        self.submenu.b005.init_slot()
+        self.submenu.list000.init_slot()
 
     def lbl007(self):
         """Rename the current material by stripping trailing integers and underscores.
@@ -589,25 +672,8 @@ class MaterialsSlots(SlotsMaya):
         # Reselect the original selection so that this method can be called again if needed.
         cmds.select(selection)
 
-    def b005_init(self, widget):
-        """Initialize Assign Current"""
-        if not widget.is_initialized:
-            widget.refresh_on_show = True  # Call this method on show
-            self.ui.cmb002.init_slot()
-            self.ui.cmb002.is_initialized = True
-
-        current_material = self.ui.cmb002.currentData()
-        text = f"Assign: {current_material}"
-        submenu_widget = self.submenu.b005
-        submenu_widget.setText(text)
-        submenu_widget.setMinimumWidth(submenu_widget.minimumSizeHint().width() + 25)
-        if current_material:
-            icon = mtk.MatUtils.get_mat_swatch_icon(current_material, [15, 15])
-            if icon is not None:
-                submenu_widget.setIcon(icon)
-
     def b005(self, widget):
-        """Assign Current"""
+        """Assign Current (main UI button)"""
         selection = cmds.ls(sl=True, flatten=1) or []
         if not selection:
             self.sb.message_box("No renderable object is selected for assignment.")

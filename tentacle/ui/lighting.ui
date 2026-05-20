@@ -10,7 +10,7 @@
     <x>0</x>
     <y>0</y>
     <width>200</width>
-    <height>101</height>
+    <height>94</height>
    </rect>
   </property>
   <property name="tabShape">
@@ -30,6 +30,9 @@
     </size>
    </property>
    <layout class="QVBoxLayout" name="verticalLayout_2">
+    <property name="spacing">
+     <number>2</number>
+    </property>
     <property name="leftMargin">
      <number>2</number>
     </property>
@@ -42,16 +45,13 @@
     <property name="bottomMargin">
      <number>2</number>
     </property>
-    <property name="spacing">
-     <number>2</number>
-    </property>
     <item>
      <layout class="QVBoxLayout" name="verticalLayout">
       <property name="spacing">
        <number>0</number>
       </property>
       <item>
-       <widget class="Header" name="header">
+       <widget class="Header" name="header" native="true">
         <property name="minimumSize">
          <size>
           <width>0</width>
@@ -64,7 +64,7 @@
           <bold>true</bold>
          </font>
         </property>
-        <property name="text">
+        <property name="text" stdset="0">
          <string>LIGHTING</string>
         </property>
        </widget>
@@ -94,10 +94,7 @@
           <number>0</number>
          </property>
          <item>
-          <widget class="PushButton" name="tb001">
-           <property name="enabled">
-            <bool>true</bool>
-           </property>
+          <widget class="PushButton" name="b000">
            <property name="minimumSize">
             <size>
              <width>0</width>
@@ -111,16 +108,10 @@
             </size>
            </property>
            <property name="toolTip">
-            <string/>
+            <string>Manage the scene's HDR shader.</string>
            </property>
            <property name="text">
-            <string/>
-           </property>
-           <property name="iconSize">
-            <size>
-             <width>18</width>
-             <height>18</height>
-            </size>
+            <string>HDR Manager</string>
            </property>
           </widget>
          </item>
@@ -164,18 +155,18 @@
  <customwidgets>
   <customwidget>
    <class>Header</class>
-   <extends>QLabel</extends>
-   <header>uitk.widgets.header.Header.h</header>
-  </customwidget>
-  <customwidget>
-   <class>PushButton</class>
-   <extends>QPushButton</extends>
-   <header>widgets.pushbutton.h</header>
+   <extends>QWidget</extends>
+   <header>uitk.widgets.header</header>
   </customwidget>
   <customwidget>
    <class>Footer</class>
    <extends>QWidget</extends>
    <header>uitk.widgets.footer</header>
+  </customwidget>
+  <customwidget>
+   <class>PushButton</class>
+   <extends>QPushButton</extends>
+   <header>widgets.pushbutton.h</header>
   </customwidget>
  </customwidgets>
  <resources/>

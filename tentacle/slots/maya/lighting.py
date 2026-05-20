@@ -14,16 +14,6 @@ class Lighting(SlotsMaya):
         self.ui = self.sb.loaded_ui.lighting
         self.submenu = self.sb.loaded_ui.lighting_submenu
 
-    def header_init(self, widget):
-        """ """
-        # Add a button to launch the hdr manager.
-        widget.menu.add(
-            "QPushButton",
-            setText="HDR Manager",
-            setObjectName="b000",
-            setToolTip="Manage the scene's HDR shader.",
-        )
-
     def b000(self):
         """Launch the HDR Manager."""
         self.sb.handlers.marking_menu.show("hdr_manager")
