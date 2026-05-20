@@ -394,33 +394,6 @@ Automatically detects each object's keyframe range.</string>
           </widget>
          </item>
          <item>
-          <widget class="PushButton" name="tb011">
-           <property name="minimumSize">
-            <size>
-             <width>0</width>
-             <height>19</height>
-            </size>
-           </property>
-           <property name="maximumSize">
-            <size>
-             <width>16777215</width>
-             <height>19</height>
-            </size>
-           </property>
-           <property name="toolTip">
-            <string>Add (tie) or remove (untie) bookend keyframes at the start/end of the playback range.
-Tying ensures every animated object has keys at the range boundaries.
-Untying removes only those bookend keys, preserving genuine animation.</string>
-           </property>
-           <property name="text">
-            <string>Tie Keyframes</string>
-           </property>
-           <property name="checkable">
-            <bool>false</bool>
-           </property>
-          </widget>
-         </item>
-         <item>
           <widget class="PushButton" name="tb009">
            <property name="minimumSize">
             <size>
@@ -496,92 +469,6 @@ keyframes from the graph editor.</string>
            </property>
            <property name="text">
             <string>Delete Keys</string>
-           </property>
-           <property name="iconSize">
-            <size>
-             <width>18</width>
-             <height>18</height>
-            </size>
-           </property>
-          </widget>
-         </item>
-        </layout>
-       </widget>
-      </item>
-      <item>
-       <widget class="CollapsableGroup" name="channel_box">
-        <property name="title">
-         <string>Channel Box</string>
-        </property>
-        <layout class="QGridLayout" name="gridLayout">
-         <property name="leftMargin">
-          <number>0</number>
-         </property>
-         <property name="topMargin">
-          <number>0</number>
-         </property>
-         <property name="rightMargin">
-          <number>0</number>
-         </property>
-         <property name="bottomMargin">
-          <number>0</number>
-         </property>
-         <property name="spacing">
-          <number>1</number>
-         </property>
-         <item row="0" column="1">
-          <widget class="PushButton" name="tb012">
-           <property name="enabled">
-            <bool>true</bool>
-           </property>
-           <property name="minimumSize">
-            <size>
-             <width>0</width>
-             <height>19</height>
-            </size>
-           </property>
-           <property name="maximumSize">
-            <size>
-             <width>16777215</width>
-             <height>19</height>
-            </size>
-           </property>
-           <property name="toolTip">
-            <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Stores the current values of any selected attributes in Maya's channel box for the currently selected scene objects.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-           </property>
-           <property name="text">
-            <string>Copy Keys</string>
-           </property>
-           <property name="iconSize">
-            <size>
-             <width>18</width>
-             <height>18</height>
-            </size>
-           </property>
-          </widget>
-         </item>
-         <item row="0" column="2">
-          <widget class="PushButton" name="tb018">
-           <property name="enabled">
-            <bool>true</bool>
-           </property>
-           <property name="minimumSize">
-            <size>
-             <width>0</width>
-             <height>19</height>
-            </size>
-           </property>
-           <property name="maximumSize">
-            <size>
-             <width>16777215</width>
-             <height>19</height>
-            </size>
-           </property>
-           <property name="toolTip">
-            <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Sets keys matching any previously stored attributes at the current time.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-           </property>
-           <property name="text">
-            <string>Paste Keys</string>
            </property>
            <property name="iconSize">
             <size>

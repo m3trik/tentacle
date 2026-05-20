@@ -10,7 +10,7 @@
     <x>0</x>
     <y>0</y>
     <width>200</width>
-    <height>306</height>
+    <height>242</height>
    </rect>
   </property>
   <property name="tabShape">
@@ -30,6 +30,9 @@
     </size>
    </property>
    <layout class="QVBoxLayout" name="verticalLayout_2">
+    <property name="spacing">
+     <number>2</number>
+    </property>
     <property name="leftMargin">
      <number>2</number>
     </property>
@@ -40,9 +43,6 @@
      <number>2</number>
     </property>
     <property name="bottomMargin">
-     <number>2</number>
-    </property>
-    <property name="spacing">
      <number>2</number>
     </property>
     <item>
@@ -407,14 +407,14 @@
  </widget>
  <customwidgets>
   <customwidget>
-   <class>Header</class>
-   <extends>QLabel</extends>
-   <header>uitk.widgets.header.Header.h</header>
-  </customwidget>
-  <customwidget>
    <class>PushButton</class>
    <extends>QPushButton</extends>
    <header>widgets.pushbutton.h</header>
+  </customwidget>
+  <customwidget>
+   <class>Header</class>
+   <extends>QLabel</extends>
+   <header>uitk.widgets.header.Header.h</header>
   </customwidget>
   <customwidget>
    <class>CollapsableGroup</class>
