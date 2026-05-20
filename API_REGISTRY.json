@@ -913,6 +913,87 @@
               "summary": "Template Selected",
               "line": 110,
               "deprecated": false
+            },
+            {
+              "name": "b022",
+              "qualname": "DisplaySlots.b022",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Display UV Borders",
+              "line": 114,
+              "deprecated": false
+            },
+            {
+              "name": "chk014_init",
+              "qualname": "DisplaySlots.chk014_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Initialize UV Display: Checkered toggle from current state.",
+              "line": 118,
+              "deprecated": false
+            },
+            {
+              "name": "chk014",
+              "qualname": "DisplaySlots.chk014",
+              "kind": "method",
+              "signature": "(self, state, widget)",
+              "summary": "UV Display: Checkered Pattern",
+              "line": 124,
+              "deprecated": false
+            },
+            {
+              "name": "chk015_init",
+              "qualname": "DisplaySlots.chk015_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Initialize UV Display: Borders toggle from current state.",
+              "line": 129,
+              "deprecated": false
+            },
+            {
+              "name": "chk015",
+              "qualname": "DisplaySlots.chk015",
+              "kind": "method",
+              "signature": "(self, state, widget)",
+              "summary": "UV Display: Borders",
+              "line": 134,
+              "deprecated": false
+            },
+            {
+              "name": "chk016_init",
+              "qualname": "DisplaySlots.chk016_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Initialize UV Display: Distortion toggle from current state.",
+              "line": 139,
+              "deprecated": false
+            },
+            {
+              "name": "chk016",
+              "qualname": "DisplaySlots.chk016",
+              "kind": "method",
+              "signature": "(self, state, widget)",
+              "summary": "UV Display: Distortion",
+              "line": 145,
+              "deprecated": false
+            },
+            {
+              "name": "b023",
+              "qualname": "DisplaySlots.b023",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Soft Edge Display",
+              "line": 150,
+              "deprecated": false
+            },
+            {
+              "name": "b024",
+              "qualname": "DisplaySlots.b024",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Display Face Normals",
+              "line": 154,
+              "deprecated": false
             }
           ]
         }
@@ -2165,30 +2246,12 @@
               "deprecated": false
             },
             {
-              "name": "b003",
-              "qualname": "Normals.b003",
-              "kind": "method",
-              "signature": "(self)",
-              "summary": "Soft Edge Display",
-              "line": 123,
-              "deprecated": false
-            },
-            {
               "name": "b004",
               "qualname": "Normals.b004",
               "kind": "method",
               "signature": "(self)",
               "summary": "Toggle lock/unlock vertex normals.",
-              "line": 127,
-              "deprecated": false
-            },
-            {
-              "name": "b005",
-              "qualname": "Normals.b005",
-              "kind": "method",
-              "signature": "(self)",
-              "summary": "Display Face Normals",
-              "line": 131,
+              "line": 123,
               "deprecated": false
             },
             {
@@ -2197,7 +2260,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Set To Face",
-              "line": 135,
+              "line": 127,
               "deprecated": false
             },
             {
@@ -2206,7 +2269,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Initialize Reverse Normals",
-              "line": 139,
+              "line": 131,
               "deprecated": false
             },
             {
@@ -2215,7 +2278,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Reverse Normals",
-              "line": 157,
+              "line": 149,
               "deprecated": false
             }
           ]
@@ -3422,30 +3485,12 @@
               "deprecated": false
             },
             {
-              "name": "tb002_init",
-              "qualname": "Rigging.tb002_init",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Init Event Triggers",
-              "line": 181,
-              "deprecated": false
-            },
-            {
-              "name": "tb002",
-              "qualname": "Rigging.tb002",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Event Triggers",
-              "line": 215,
-              "deprecated": false
-            },
-            {
               "name": "tb003_init",
               "qualname": "Rigging.tb003_init",
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Init Create Locator at Selection",
-              "line": 257,
+              "line": 185,
               "deprecated": false
             },
             {
@@ -3454,7 +3499,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Create Locator at Selection",
-              "line": 331,
+              "line": 259,
               "deprecated": false
             },
             {
@@ -3463,7 +3508,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Remove Locator",
-              "line": 360,
+              "line": 288,
               "deprecated": false
             },
             {
@@ -3472,7 +3517,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Init Lock/Unlock Attributes",
-              "line": 369,
+              "line": 297,
               "deprecated": false
             },
             {
@@ -3481,7 +3526,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Lock/Unlock Attributes",
-              "line": 398,
+              "line": 326,
               "deprecated": false
             },
             {
@@ -3490,7 +3535,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Render Opacity",
-              "line": 433,
+              "line": 361,
               "deprecated": false
             }
           ]
@@ -5002,39 +5047,12 @@
               "deprecated": false
             },
             {
-              "name": "tb002_init",
-              "qualname": "UvSlots.tb002_init",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Initialize Toggle UV Display Options",
-              "line": 459,
-              "deprecated": false
-            },
-            {
-              "name": "tb003_init",
-              "qualname": "UvSlots.tb003_init",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Initialize Select By Type",
-              "line": 496,
-              "deprecated": false
-            },
-            {
-              "name": "tb003",
-              "qualname": "UvSlots.tb003",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Select By Type",
-              "line": 537,
-              "deprecated": false
-            },
-            {
               "name": "tb004_init",
               "qualname": "UvSlots.tb004_init",
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Initialize Unfold UV",
-              "line": 559,
+              "line": 459,
               "deprecated": false
             },
             {
@@ -5043,7 +5061,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Unfold",
-              "line": 592,
+              "line": 492,
               "deprecated": false
             },
             {
@@ -5052,7 +5070,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Initialize Straighten UV",
-              "line": 630,
+              "line": 530,
               "deprecated": false
             },
             {
@@ -5061,7 +5079,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Straighten UV",
-              "line": 662,
+              "line": 562,
               "deprecated": false
             },
             {
@@ -5070,7 +5088,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Initialize Distribute",
-              "line": 679,
+              "line": 579,
               "deprecated": false
             },
             {
@@ -5079,7 +5097,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Distribute",
-              "line": 696,
+              "line": 596,
               "deprecated": false
             },
             {
@@ -5088,7 +5106,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Initialize Cleanup UV Sets",
-              "line": 706,
+              "line": 606,
               "deprecated": false
             },
             {
@@ -5097,7 +5115,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Cleanup UV Sets",
-              "line": 752,
+              "line": 652,
               "deprecated": false
             },
             {
@@ -5106,7 +5124,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Initialize Mirror UVs.",
-              "line": 813,
+              "line": 713,
               "deprecated": false
             },
             {
@@ -5115,7 +5133,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Mirror UVs (footprint-preserving by default).",
-              "line": 850,
+              "line": 750,
               "deprecated": false
             },
             {
@@ -5124,7 +5142,7 @@
               "kind": "method",
               "signature": "(self, index, widget)",
               "summary": "Transform",
-              "line": 873,
+              "line": 773,
               "deprecated": false
             },
             {
@@ -5133,34 +5151,7 @@
               "kind": "method",
               "signature": "(self, state, widget)",
               "summary": "Auto Unwrap: Scale Mode CheckBox",
-              "line": 925,
-              "deprecated": false
-            },
-            {
-              "name": "chk014",
-              "qualname": "UvSlots.chk014",
-              "kind": "method",
-              "signature": "(self, state, widget)",
-              "summary": "Display: Checkered Pattern",
-              "line": 935,
-              "deprecated": false
-            },
-            {
-              "name": "chk015",
-              "qualname": "UvSlots.chk015",
-              "kind": "method",
-              "signature": "(self, state, widget)",
-              "summary": "Display: Borders",
-              "line": 940,
-              "deprecated": false
-            },
-            {
-              "name": "chk016",
-              "qualname": "UvSlots.chk016",
-              "kind": "method",
-              "signature": "(self, state, widget)",
-              "summary": "Display: Distortion",
-              "line": 945,
+              "line": 825,
               "deprecated": false
             },
             {
@@ -5169,7 +5160,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Transfer UV's",
-              "line": 951,
+              "line": 836,
               "deprecated": false
             },
             {
@@ -5178,7 +5169,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Get texel density.",
-              "line": 963,
+              "line": 848,
               "deprecated": false
             },
             {
@@ -5187,7 +5178,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Set Texel Density",
-              "line": 969,
+              "line": 854,
               "deprecated": false
             },
             {
@@ -5196,16 +5187,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Cut UV's",
-              "line": 976,
-              "deprecated": false
-            },
-            {
-              "name": "b007",
-              "qualname": "UvSlots.b007",
-              "kind": "method",
-              "signature": "(self)",
-              "summary": "Display UV Borders",
-              "line": 1005,
+              "line": 861,
               "deprecated": false
             },
             {
@@ -5214,7 +5196,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Sew UVs",
-              "line": 1010,
+              "line": 891,
               "deprecated": false
             },
             {
@@ -5223,7 +5205,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Unfold and Pack UVs",
-              "line": 1027,
+              "line": 908,
               "deprecated": false
             },
             {
@@ -5232,7 +5214,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Initialize Cut Hard Edges option menu.",
-              "line": 1032,
+              "line": 913,
               "deprecated": false
             },
             {
@@ -5241,7 +5223,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Cut UV hard edges (always), optionally also UV borders and auto-detected seams.",
-              "line": 1067,
+              "line": 948,
               "deprecated": false
             },
             {
@@ -5250,7 +5232,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Move To Uv Space: Left",
-              "line": 1100,
+              "line": 981,
               "deprecated": false
             },
             {
@@ -5259,7 +5241,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Move To Uv Space: Down",
-              "line": 1105,
+              "line": 986,
               "deprecated": false
             },
             {
@@ -5268,7 +5250,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Move To Uv Space: Up",
-              "line": 1110,
+              "line": 991,
               "deprecated": false
             },
             {
@@ -5277,7 +5259,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Move To Uv Space: Right",
-              "line": 1115,
+              "line": 996,
               "deprecated": false
             },
             {
@@ -5286,7 +5268,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Initialize Pin/Unpin button — static pin icon, non-checkable.",
-              "line": 1120,
+              "line": 1001,
               "deprecated": false
             },
             {
@@ -5295,7 +5277,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Pin / Unpin selected UVs (dual-state toggle).",
-              "line": 1131,
+              "line": 1012,
               "deprecated": false
             },
             {
@@ -5304,7 +5286,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Initialize Stack button — static stack icon, non-checkable.",
-              "line": 1153,
+              "line": 1034,
               "deprecated": false
             },
             {
@@ -5313,7 +5295,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Stack / Unstack similar shells (dual-state toggle).",
-              "line": 1164,
+              "line": 1045,
               "deprecated": false
             }
           ]

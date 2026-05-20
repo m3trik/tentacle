@@ -216,6 +216,15 @@ _Generated: 2026-05-20_
   - `DisplaySlots.b013(self)` — Explode View GUI
   - `DisplaySlots.b014(self)` — Color Manager GUI
   - `DisplaySlots.b021(self)` — Template Selected
+  - `DisplaySlots.b022(self)` — Display UV Borders
+  - `DisplaySlots.chk014_init(self, widget)` — Initialize UV Display: Checkered toggle from current state.
+  - `DisplaySlots.chk014(self, state, widget)` — UV Display: Checkered Pattern
+  - `DisplaySlots.chk015_init(self, widget)` — Initialize UV Display: Borders toggle from current state.
+  - `DisplaySlots.chk015(self, state, widget)` — UV Display: Borders
+  - `DisplaySlots.chk016_init(self, widget)` — Initialize UV Display: Distortion toggle from current state.
+  - `DisplaySlots.chk016(self, state, widget)` — UV Display: Distortion
+  - `DisplaySlots.b023(self)` — Soft Edge Display
+  - `DisplaySlots.b024(self)` — Display Face Normals
 
 <a id="slots--maya--duplicate"></a>
 ### `slots/maya/duplicate.py`
@@ -428,9 +437,7 @@ _Generated: 2026-05-20_
   - `Normals.b000(self)` — Soften Edge Normals
   - `Normals.b001(self)` — Harden all selected edges.
   - `Normals.b002(self)` — Transfer Normals
-  - `Normals.b003(self)` — Soft Edge Display
   - `Normals.b004(self)` — Toggle lock/unlock vertex normals.
-  - `Normals.b005(self)` — Display Face Normals
   - `Normals.b006(self)` — Set To Face
   - `Normals.tb010_init(self, widget)` — Initialize Reverse Normals
   - `Normals.tb010(self, widget)` — Reverse Normals
@@ -596,8 +603,6 @@ _Generated: 2026-05-20_
   - `Rigging.tb000(self, widget)` — Toggle Display Local Rotation Axes
   - `Rigging.tb001_init(self, widget)` — Init Constraint Switch
   - `Rigging.tb001(self, widget)` — Constraint Switch
-  - `Rigging.tb002_init(self, widget)` — Init Event Triggers
-  - `Rigging.tb002(self, widget)` — Event Triggers
   - `Rigging.tb003_init(self, widget)` — Init Create Locator at Selection
   - `Rigging.tb003(self, widget)` — Create Locator at Selection
   - `Rigging.b003(self)` — Remove Locator
@@ -819,9 +824,6 @@ _Generated: 2026-05-20_
   - `UvSlots.tb000(self, widget)` — Pack UVs with specified settings.
   - `UvSlots.tb001_init(self, widget)` — Initialize Auto Unwrap
   - `UvSlots.tb001(self, widget)` — Auto Unwrap
-  - `UvSlots.tb002_init(self, widget)` — Initialize Toggle UV Display Options
-  - `UvSlots.tb003_init(self, widget)` — Initialize Select By Type
-  - `UvSlots.tb003(self, widget)` — Select By Type
   - `UvSlots.tb004_init(self, widget)` — Initialize Unfold UV
   - `UvSlots.tb004(self, widget)` — Unfold
   - `UvSlots.tb005_init(self, widget)` — Initialize Straighten UV
@@ -834,14 +836,10 @@ _Generated: 2026-05-20_
   - `UvSlots.tb008(self, widget)` — Mirror UVs (footprint-preserving by default).
   - `UvSlots.cmb002(self, index, widget)` — Transform
   - `UvSlots.chk001(self, state, widget)` — Auto Unwrap: Scale Mode CheckBox
-  - `UvSlots.chk014(self, state, widget)` — Display: Checkered Pattern
-  - `UvSlots.chk015(self, state, widget)` — Display: Borders
-  - `UvSlots.chk016(self, state, widget)` — Display: Distortion
   - `UvSlots.b000(self, widget)` — Transfer UV's
   - `UvSlots.b003(self)` — Get texel density.
   - `UvSlots.b004(self)` — Set Texel Density
   - `UvSlots.b005(self)` — Cut UV's
-  - `UvSlots.b007(self)` — Display UV Borders
   - `UvSlots.b011(self)` — Sew UVs
   - `UvSlots.b021(self, widget)` — Unfold and Pack UVs
   - `UvSlots.tb022_init(self, widget)` — Initialize Cut Hard Edges option menu.
