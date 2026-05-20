@@ -53,8 +53,8 @@
    <widget class="QPushButton" name="b007">
     <property name="geometry">
      <rect>
-      <x>185</x>
-      <y>540</y>
+      <x>160</x>
+      <y>550</y>
       <width>71</width>
       <height>19</height>
      </rect>
@@ -78,36 +78,11 @@
      <string>Import</string>
     </property>
    </widget>
-   <widget class="QPushButton" name="b008">
-    <property name="geometry">
-     <rect>
-      <x>140</x>
-      <y>510</y>
-      <width>116</width>
-      <height>19</height>
-     </rect>
-    </property>
-    <property name="minimumSize">
-     <size>
-      <width>0</width>
-      <height>19</height>
-     </size>
-    </property>
-    <property name="maximumSize">
-     <size>
-      <width>16777215</width>
-      <height>19</height>
-     </size>
-    </property>
-    <property name="text">
-     <string>Export Selection</string>
-    </property>
-   </widget>
    <widget class="ExpandableList" name="list000" native="true">
     <property name="geometry">
      <rect>
       <x>145</x>
-      <y>470</y>
+      <y>480</y>
       <width>120</width>
       <height>21</height>
      </rect>
@@ -128,8 +103,8 @@
     </property>
     <property name="geometry">
      <rect>
-      <x>0</x>
-      <y>510</y>
+      <x>30</x>
+      <y>520</y>
       <width>136</width>
       <height>19</height>
      </rect>
@@ -159,12 +134,12 @@
      </size>
     </property>
    </widget>
-   <widget class="QPushButton" name="b003">
+   <widget class="PushButton" name="tb003">
     <property name="geometry">
      <rect>
-      <x>10</x>
-      <y>570</y>
-      <width>161</width>
+      <x>185</x>
+      <y>520</y>
+      <width>66</width>
       <height>19</height>
      </rect>
     </property>
@@ -181,18 +156,19 @@
      </size>
     </property>
     <property name="toolTip">
-     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Export the current scene as an fbx in the same dir as the scene file.&lt;br/&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Export Options:&lt;/span&gt;&lt;/p&gt;&lt;ul style=&quot;margin-top: 0px; margin-bottom: 0px; margin-left: 0px; margin-right: 0px; -qt-list-indent: 1;&quot;&gt;&lt;li style=&quot; margin-top:12px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;FBXExportCameras:&lt;/span&gt; False (cameras are not exported)&lt;/li&gt;&lt;li style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;FBXExportLights:&lt;/span&gt; False (lights are not exported)&lt;/li&gt;&lt;li style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;FBXExportSkins:&lt;/span&gt; False (skinning data is not exported)&lt;/li&gt;&lt;li style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;FBXExportShapes:&lt;/span&gt; False (shape deformers are not exported)&lt;/li&gt;&lt;li style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;FBXExportSmoothingGroups:&lt;/span&gt; True (smoothing groups are exported)&lt;/li&gt;&lt;li style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;FBXExportSmoothMesh:&lt;/span&gt; True (smooth mesh is exported)&lt;/li&gt;&lt;li style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;FBXExportHardEdges:&lt;/span&gt; True (hard edges are exported to maintain normal edge hardness)&lt;/li&gt;&lt;li style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;FBXExportTangents:&lt;/span&gt; True (tangent information is exported)&lt;/li&gt;&lt;li style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;FBXExportInstances:&lt;/span&gt; True (instance information is exported)&lt;/li&gt;&lt;li style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;FBXExportReferencedAssetsContent:&lt;/span&gt; False (referenced assets are not exported)&lt;/li&gt;&lt;li style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;FBXExportInputConnections:&lt;/span&gt; True (input connections are exported)&lt;/li&gt;&lt;li style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;FBXExportUseSceneName:&lt;/span&gt; True (uses the scene name for export)&lt;/li&gt;&lt;li style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;FBXExportUpAxis:&lt;/span&gt; &amp;quot;y&amp;quot; (sets up axis to Y)&lt;/li&gt;&lt;li style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;FBXExportScaleFactor:&lt;/span&gt; 1.0 (uses a scale factor of 1.0)&lt;/li&gt;&lt;li style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;FBXExportConvertUnitString:&lt;/span&gt; &amp;quot;cm&amp;quot; (converts units to centimeters)&lt;/li&gt;&lt;li style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;FBXExportTriangulate:&lt;/span&gt; False (meshes are not triangulated)&lt;/li&gt;&lt;li style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;FBXExportEmbeddedTextures:&lt;/span&gt; True (embeds textures in the FBX file)&lt;/li&gt;&lt;li style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;FBXExportConstraints:&lt;/span&gt; False (constraints are not exported)&lt;/li&gt;&lt;li style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;FBXExportAnimationOnly:&lt;/span&gt; False (exports both geometry and animation data, if any)&lt;/li&gt;&lt;li style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;FBXExportApplyConstantKeyReducer:&lt;/span&gt; False (constant key reducer is not applied)&lt;/li&gt;&lt;li style=&quot; margin-top:0px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;FBXExportBakeComplexAnimation:&lt;/span&gt; False (complex animations are not d by default)&lt;/li&gt;&lt;/ul&gt;&lt;/body&gt;&lt;/html&gt;</string>
+     <string>Export the scene to FBX (and optionally GLB).
+Click the gear icon to configure scope, included types, and save location.</string>
     </property>
     <property name="text">
-     <string>Quick Export Scene Geo</string>
+     <string>Export</string>
     </property>
    </widget>
    <widget class="QPushButton" name="b002">
     <property name="geometry">
      <rect>
-      <x>65</x>
-      <y>540</y>
-      <width>106</width>
+      <x>50</x>
+      <y>550</y>
+      <width>101</width>
       <height>19</height>
      </rect>
     </property>
@@ -216,7 +192,7 @@
     <property name="geometry">
      <rect>
       <x>5</x>
-      <y>480</y>
+      <y>490</y>
       <width>121</width>
       <height>19</height>
      </rect>
@@ -240,7 +216,7 @@
    <widget class="QPushButton" name="i032">
     <property name="geometry">
      <rect>
-      <x>265</x>
+      <x>245</x>
       <y>560</y>
       <width>71</width>
       <height>21</height>
@@ -268,7 +244,7 @@
    <widget class="QPushButton" name="i022">
     <property name="geometry">
      <rect>
-      <x>355</x>
+      <x>335</x>
       <y>550</y>
       <width>91</width>
       <height>21</height>
@@ -297,7 +273,7 @@
     <property name="geometry">
      <rect>
       <x>355</x>
-      <y>510</y>
+      <y>520</y>
       <width>66</width>
       <height>21</height>
      </rect>
@@ -328,7 +304,7 @@
     <property name="geometry">
      <rect>
       <x>265</x>
-      <y>510</y>
+      <y>520</y>
       <width>71</width>
       <height>21</height>
      </rect>
@@ -355,8 +331,8 @@
    <widget class="QPushButton" name="b005">
     <property name="geometry">
      <rect>
-      <x>180</x>
-      <y>570</y>
+      <x>135</x>
+      <y>580</y>
       <width>71</width>
       <height>19</height>
      </rect>

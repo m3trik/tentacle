@@ -33,9 +33,9 @@ class SceneSlots(SlotsMaya):
             )
             widget.menu.add(
                 "QPushButton",
-                setText="Quick Export Scene Geo",
-                setObjectName="b003",
-                setToolTip="Export the scene geometry as FBX to the current maya file's directory.\nThe file name will be the same as the current scene and overwrite the current file if it exists.",
+                setText="Export Scene",
+                setObjectName="tb003",
+                setToolTip="Export the scene to FBX (and optionally GLB) using the configured options.\nOptions live on the submenu's Export button (gear icon).",
             )
             widget.menu.add(
                 "QPushButton",
@@ -405,9 +405,156 @@ class SceneSlots(SlotsMaya):
         """Scene Exporter"""
         self.sb.handlers.marking_menu.show("scene_exporter")
 
-    def b003(self):
-        """Quick Export Scene Geo"""
-        mtk.export_scene_as_fbx()
+    def tb003_init(self, widget):
+        """Initialize Export."""
+        if not widget.is_initialized:
+            widget.option_box.menu.setTitle("Export Options")
+            cmb_scope = widget.option_box.menu.add(
+                "QComboBox",
+                setObjectName="cmb_scope",
+                setToolTip=(
+                    "What to export:\n"
+                    "• Entire Scene — export the full scene\n"
+                    "• Selected Only — export only the current selection"
+                ),
+            )
+            for text, data in [("Entire Scene", "all"), ("Selected Only", "selected")]:
+                cmb_scope.addItem(text, data)
+
+            cmb_save = widget.option_box.menu.add(
+                "QComboBox",
+                setObjectName="cmb_save",
+                setToolTip=(
+                    "Where to write the exported file(s):\n"
+                    "• Alongside Scene File — same directory and basename as the open scene\n"
+                    "• Prompt for Directory — pick a directory each time"
+                ),
+            )
+            for text, data in [
+                ("Alongside Scene File", "scene_dir"),
+                ("Prompt for Directory", "prompt"),
+            ]:
+                cmb_save.addItem(text, data)
+
+            widget.option_box.menu.add(
+                "QCheckBox",
+                setText="Include Cameras",
+                setObjectName="chk_cameras",
+                setChecked=False,
+                setToolTip="Include camera nodes in the FBX export.",
+            )
+            widget.option_box.menu.add(
+                "QCheckBox",
+                setText="Include Lights",
+                setObjectName="chk_lights",
+                setChecked=False,
+                setToolTip="Include light nodes in the FBX export.",
+            )
+            widget.option_box.menu.add(
+                "QCheckBox",
+                setText="Include Skins",
+                setObjectName="chk_skins",
+                setChecked=False,
+                setToolTip="Include skin clusters / skinning data in the FBX export.",
+            )
+            widget.option_box.menu.add(
+                "QCheckBox",
+                setText="Also Export GLB",
+                setObjectName="chk_glb",
+                setChecked=False,
+                setToolTip=(
+                    "After writing the FBX, also produce a GLB sidecar via\n"
+                    "pythontk's MeshConvert (FBX2glTF). The FBX2glTF binary\n"
+                    "is downloaded automatically on first use."
+                ),
+            )
+
+    def tb003(self, widget):
+        """Export Scene (FBX + optional GLB) using the configured options."""
+        # Options always live on the submenu's tb003 (the PushButton with the
+        # option_box gear). The header-menu entry is a plain QPushButton — it
+        # reaches us via the same slot name but has no option_box of its own.
+        opts_widget = self.submenu.tb003
+        if not getattr(opts_widget, "is_initialized", False):
+            self.tb003_init(opts_widget)
+            opts_widget.is_initialized = True
+
+        menu = opts_widget.option_box.menu
+        scope = menu.cmb_scope.currentData()
+        save_mode = menu.cmb_save.currentData()
+        include_cameras = menu.chk_cameras.isChecked()
+        include_lights = menu.chk_lights.isChecked()
+        include_skins = menu.chk_skins.isChecked()
+        also_glb = menu.chk_glb.isChecked()
+
+        selection_only = scope == "selected"
+        if selection_only and not cmds.ls(selection=True):
+            self.sb.message_box("No objects selected.")
+            return
+
+        scene_path = cmds.file(query=True, sceneName=True) or ""
+
+        if save_mode == "prompt":
+            fd_kwargs = dict(
+                fileMode=3,
+                caption="Select Export Directory",
+                okCaption="Export",
+                dialogStyle=2,
+            )
+            if scene_path:
+                fd_kwargs["startingDirectory"] = os.path.dirname(scene_path)
+            picked = cmds.fileDialog2(**fd_kwargs)
+            if not picked:
+                return
+            out_dir = picked[0]
+            base = (
+                os.path.splitext(os.path.basename(scene_path))[0]
+                if scene_path
+                else "untitled"
+            )
+            fbx_path = os.path.join(out_dir, base + ".fbx")
+        else:
+            if not scene_path:
+                self.sb.message_box(
+                    "Scene has not been saved yet.<br>"
+                    "Save the scene first, or choose <hl>Prompt for Directory</hl>."
+                )
+                return
+            fbx_path = os.path.splitext(scene_path)[0] + ".fbx"
+
+        try:
+            mtk.export_scene_as_fbx(
+                file_path=fbx_path,
+                selection_only=selection_only,
+                FBXExportCameras=include_cameras,
+                FBXExportLights=include_lights,
+                FBXExportSkins=include_skins,
+            )
+        except Exception as e:
+            self.sb.message_box(f"FBX export failed:<br>{e}")
+            return
+
+        if also_glb:
+            try:
+                glb_path = ptk.MeshConvert.fbx_to_glb(
+                    fbx_path,
+                    overwrite=True,
+                    auto_install=True,
+                    prompt=False,
+                )
+            except Exception as e:
+                self.sb.message_box(
+                    f"FBX exported, but GLB conversion failed:<br>{e}"
+                )
+                return
+            self.sb.message_box(
+                f"Exported <hl>{os.path.basename(fbx_path)}</hl> and "
+                f"<hl>{os.path.basename(glb_path)}</hl>."
+            )
+        else:
+            self.sb.message_box(
+                f"Exported <hl>{os.path.basename(fbx_path)}</hl>."
+            )
 
     def b004(self):
         """Open Hierarchy Manager"""

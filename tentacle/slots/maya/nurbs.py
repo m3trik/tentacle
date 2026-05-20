@@ -4,6 +4,7 @@ import maya.cmds as cmds
 import maya.mel as mel
 import pythontk as ptk
 import mayatk as mtk
+from uitk import Signals
 from tentacle.slots.maya._slots_maya import SlotsMaya
 
 
@@ -14,14 +15,79 @@ class Nurbs(SlotsMaya):
         self.ui = self.sb.loaded_ui.nurbs
         self.submenu = self.sb.loaded_ui.nurbs_submenu
 
-    def header_init(self, widget):
-        """ """
-        widget.menu.add(
-            self.sb.registered_widgets.Label,
-            setText="Image Tracer",
-            setObjectName="lbl000",
-            setToolTip="Trace images into NURBS curves.",
-        )
+    # --- Nurbs Expandable List ------------------------------------------
+
+    # (category, label) -> MEL command. Each leaf click runs the MEL via
+    # mel.eval so Maya's own configured tool/option settings are used.
+    # Extrude / Revolve / Loft are intentionally excluded — those have
+    # dedicated option-box buttons in the main window.
+    _LIST000_COMMANDS = {
+        "Create": [
+            ("Project", "ProjectCurveOnMesh"),
+            ("Extract", "CreateCurveFromPoly"),
+            ("Duplicate", "DuplicateCurve"),
+        ],
+        "Modify": [
+            ("Lock", "LockCurveLength"),
+            ("Unlock", "UnlockCurveLength"),
+            ("Bend", "BendCurves"),
+            ("Curl", "CurlCurves"),
+            ("Curvature", "ScaleCurvature"),
+            ("Smooth", "SmoothHairCurves"),
+            ("Straighten", "StraightenCurves"),
+        ],
+        "Surfaces": [
+            ("Planar", "Planar"),
+            ("Insert Isoparm", "InsertIsoparms"),
+        ],
+        "Edit": [
+            ("Edit Curve Tool", "CurveEditTool"),
+            ("Attach", "AttachCurveOptions"),
+            ("Detach", "DetachCurve"),
+            ("Cut", "CutCurve"),
+            ("Open/Close", "OpenCloseCurve"),
+            ("Insert Knot", "InsertKnot"),
+            ("Add Points Tool", "AddPointsTool"),
+            ("Rebuild", "RebuildCurveOptions"),
+            ("Reverse", "ReverseCurve"),
+            ("Extend (Options)", "ExtendCurveOptions"),
+            ("Extend", "ExtendCurve"),
+            ("Extend on Surface", "ExtendCurveOnSurface"),
+        ],
+    }
+
+    def list000_init(self, widget):
+        """Initialize Nurbs expandable list (categories → curve actions)."""
+        widget.fixed_item_height = 18
+        widget.apply_preset("expand_overlay")
+
+        root = widget.add("Nurbs")
+        root.sublist.setMinimumWidth(widget.width() or 120)
+
+        for category, items in self._LIST000_COMMANDS.items():
+            cat = root.sublist.add(category)
+            cat.sublist.add([label for label, _ in items])
+
+    @Signals("on_item_interacted")
+    def list000(self, item):
+        """Dispatch a Nurbs leaf action via mel.eval (uses Maya's stored settings)."""
+        if getattr(item, "sublist", None) and item.sublist.get_items():
+            return
+
+        text = item.item_text()
+        parent = item.parent_item_text() or ""
+
+        for label, command in self._LIST000_COMMANDS.get(parent, ()):
+            if label == text:
+                try:
+                    mel.eval(command)
+                except Exception as e:
+                    cmds.warning(f"Nurbs '{text}' ({command}) failed: {e}")
+                return
+
+    def b056(self):
+        """Image Tracer"""
+        self.sb.handlers.marking_menu.show("image_tracer")
 
     def tb000_init(self, widget):
         """ """
@@ -92,6 +158,33 @@ class Nurbs(SlotsMaya):
             setValue=0.001,
             set_limits=[0],
             setToolTip="Tolerance to build to (if useTolerance attribute is set).",
+        )
+
+    def tb000(self, widget):
+        """Revolve"""
+        degree = widget.option_box.menu.s002.value()
+        startSweep = widget.option_box.menu.s003.value()
+        endSweep = widget.option_box.menu.s004.value()
+        sections = widget.option_box.menu.s005.value()
+        range_ = widget.option_box.menu.chk006.isChecked()
+        polygon = 1 if widget.option_box.menu.chk007.isChecked() else 0
+        # autoCorrectNormal = widget.option_box.menu.chk008.isChecked()
+        useTolerance = widget.option_box.menu.chk009.isChecked()
+        tolerance = widget.option_box.menu.s006.value()
+
+        curves = cmds.ls(sl=True) or []
+        return cmds.revolve(
+            curves,
+            po=polygon,
+            rn=range_,
+            ssw=startSweep,
+            esw=endSweep,
+            ut=useTolerance,
+            tolerance=tolerance,
+            degree=degree,
+            s=sections,
+            ulp=1,
+            ax=[0, 1, 0],
         )
 
     def tb001_init(self, widget):
@@ -170,33 +263,6 @@ class Nurbs(SlotsMaya):
             setToolTip="Angle loft: Number of duplicated points (spans).",
         )
 
-    def tb000(self, widget):
-        """Revolve"""
-        degree = widget.option_box.menu.s002.value()
-        startSweep = widget.option_box.menu.s003.value()
-        endSweep = widget.option_box.menu.s004.value()
-        sections = widget.option_box.menu.s005.value()
-        range_ = widget.option_box.menu.chk006.isChecked()
-        polygon = 1 if widget.option_box.menu.chk007.isChecked() else 0
-        # autoCorrectNormal = widget.option_box.menu.chk008.isChecked()
-        useTolerance = widget.option_box.menu.chk009.isChecked()
-        tolerance = widget.option_box.menu.s006.value()
-
-        curves = cmds.ls(sl=True) or []
-        return cmds.revolve(
-            curves,
-            po=polygon,
-            rn=range_,
-            ssw=startSweep,
-            esw=endSweep,
-            ut=useTolerance,
-            tolerance=tolerance,
-            degree=degree,
-            s=sections,
-            ulp=1,
-            ax=[0, 1, 0],
-        )
-
     def tb001(self, widget):
         """Loft"""
         uniform = widget.option_box.menu.chk000.isChecked()
@@ -222,10 +288,6 @@ class Nurbs(SlotsMaya):
             angle_loft_between_two_curves=angle_loft_between_two_curves,
             angleLoftSpans=angleLoftSpans,
         )
-
-    def lbl000(self, widget):
-        """Image Tracer"""
-        self.sb.handlers.marking_menu.show("image_tracer")
 
     def b012(self):
         """Project Curve"""
