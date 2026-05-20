@@ -456,106 +456,6 @@ class UvSlots(SlotsMaya):
             except Exception as error:
                 print(error)
 
-    def tb002_init(self, widget):
-        """Initialize Toggle UV Display Options"""
-        widget.option_box.menu.trigger_button = "left"
-        widget.option_box.menu.add_apply_button = False
-        widget.option_box.menu.position = "bottom"
-        widget.option_box.menu.setTitle("DISPLAY OPTIONS")
-
-        panel = mtk.get_panel(scriptType="polyTexturePlacementPanel")
-        checkered_state = cmds.textureWindow(panel, q=True, displayCheckered=True)
-        borders_state = True if cmds.polyOptions(q=True, displayMapBorder=True) else False
-        distortion_state = cmds.textureWindow(panel, q=True, displayDistortion=True)
-
-        values = [
-            ("chk014", "Checkered", checkered_state),
-            ("chk015", "Borders", borders_state),
-            ("chk016", "Distortion", distortion_state),
-        ]
-        [
-            widget.option_box.menu.add(
-                self.sb.registered_widgets.CheckBox,
-                setObjectName=chk,
-                setText=typ,
-                setChecked=state,
-            )
-            for chk, typ, state in values
-        ]
-
-        widget.option_box.menu.chk014.toggled.connect(
-            lambda state: cmds.textureWindow(panel, edit=True, displayCheckered=state)
-        )
-        widget.option_box.menu.chk015.toggled.connect(
-            lambda state: cmds.polyOptions(displayMapBorder=state)
-        )
-        widget.option_box.menu.chk016.toggled.connect(
-            lambda state: cmds.textureWindow(panel, edit=True, displayDistortion=state)
-        )
-
-    def tb003_init(self, widget):
-        """Initialize Select By Type"""
-        widget.option_box.menu.setTitle("Select By Type")
-        widget.option_box.menu.add(
-            "QRadioButton",
-            setText="Back-Facing",
-            setObjectName="chk008",
-            setToolTip="Select all back-facing (using counter-clockwise winding order) components for the current selection.",
-        )
-        widget.option_box.menu.add(
-            "QRadioButton",
-            setText="Front-Facing",
-            setObjectName="chk009",
-            setToolTip="Select all front-facing (using counter-clockwise winding order) components for the current selection.",
-        )
-        widget.option_box.menu.add(
-            "QRadioButton",
-            setText="Overlapping",
-            setObjectName="chk010",
-            setToolTip="Select all components that share the same uv space.",
-        )
-        widget.option_box.menu.add(
-            "QRadioButton",
-            setText="Non-Overlapping",
-            setObjectName="chk011",
-            setToolTip="Select all components that do not share the same uv space.",
-        )
-        widget.option_box.menu.add(
-            "QRadioButton",
-            setText="Texture Borders",
-            setObjectName="chk012",
-            setToolTip="Select all components on the borders of uv shells.",
-        )
-        widget.option_box.menu.add(
-            "QRadioButton",
-            setText="Unmapped",
-            setObjectName="chk013",
-            setChecked=True,
-            setToolTip="Select unmapped faces in the current uv set.",
-        )
-
-    def tb003(self, widget):
-        """Select By Type"""
-        back_facing = widget.option_box.menu.chk008.isChecked()
-        front_facing = widget.option_box.menu.chk009.isChecked()
-        overlapping = widget.option_box.menu.chk010.isChecked()
-        nonOverlapping = widget.option_box.menu.chk011.isChecked()
-        textureBorders = widget.option_box.menu.chk012.isChecked()
-        unmapped = widget.option_box.menu.chk013.isChecked()
-
-        if back_facing:
-            mel.eval("selectUVFaceOrientationComponents {} 0 2 1")
-        elif front_facing:
-            mel.eval("selectUVFaceOrientationComponents {} 0 1 1")
-        elif overlapping:
-            mel.eval("selectUVOverlappingComponents 1 0")
-        elif nonOverlapping:
-            mel.eval("selectUVOverlappingComponents 0 0")
-        elif textureBorders:
-            mel.eval('selectUVBorderComponents {} "" 1')
-        elif unmapped:
-            mel.eval("selectUnmappedFaces")
-
     def tb004_init(self, widget):
         """Initialize Unfold UV"""
         widget.option_box.menu.setTitle("Unfold UV")
@@ -932,21 +832,6 @@ class UvSlots(SlotsMaya):
         if state == 2:
             widget.option_box.menu.chk001.setText("Scale Mode 2")
 
-    def chk014(self, state, widget):
-        """Display: Checkered Pattern"""
-        panel = mtk.get_panel(scriptType="polyTexturePlacementPanel")
-        cmds.textureWindow(panel, edit=1, displayCheckered=state)
-
-    def chk015(self, state, widget):
-        """Display: Borders"""
-        borderWidth = cmds.optionVar(query="displayPolyBorderEdgeSize")[1]
-        cmds.polyOptions(displayMapBorder=state, sizeBorder=borderWidth)
-
-    def chk016(self, state, widget):
-        """Display: Distortion"""
-        panel = mtk.get_panel(scriptType="polyTexturePlacementPanel")
-        cmds.textureWindow(panel, edit=1, displayDistortion=state)
-
     @mtk.undoable
     def b000(self, widget):
         """Transfer UV's"""
@@ -1001,10 +886,6 @@ class UvSlots(SlotsMaya):
                         if cmds.objectType(shape) == "mesh":
                             # Cut the UVs along all edges of the mesh
                             cmds.polyMapCut(f"{shape}.e[*]")
-
-    def b007(self):
-        """Display UV Borders"""
-        mtk.Macros.m_toggle_uv_border_edges()
 
     @mtk.undoable
     def b011(self):

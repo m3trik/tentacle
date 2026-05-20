@@ -120,17 +120,9 @@ class Normals(SlotsMaya):
 
         mtk.Components.transfer_normals([source] + target)
 
-    def b003(self):
-        """Soft Edge Display"""
-        mtk.Macros.m_soft_edge_display()
-
     def b004(self):
         """Toggle lock/unlock vertex normals."""
         mtk.Macros.m_lock_vertex_normals()
-
-    def b005(self):
-        """Display Face Normals"""
-        mtk.Macros.m_normals_display()
 
     def b006(self):
         """Set To Face"""
