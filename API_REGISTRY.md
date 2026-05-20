@@ -201,7 +201,8 @@ _Generated: 2026-05-20_
 ### `slots/maya/display.py`
 
 - **[`class DisplaySlots(SlotsMaya)`](tentacle/tentacle/slots/maya/display.py#L10)**
-  - `DisplaySlots.header_init(self, widget)`
+  - `DisplaySlots.list000_init(self, widget)` — Initialize Display expandable list (categories → actions).
+  - `DisplaySlots.list000(self, item)` — Dispatch a Display action and report state via message_box.
   - `DisplaySlots.b000(self)` — Set Wireframe color
   - `DisplaySlots.b001(self)` — Wireframe Selected
   - `DisplaySlots.b002(self)` — Hide Selected
@@ -217,12 +218,6 @@ _Generated: 2026-05-20_
   - `DisplaySlots.b014(self)` — Color Manager GUI
   - `DisplaySlots.b021(self)` — Template Selected
   - `DisplaySlots.b022(self)` — Display UV Borders
-  - `DisplaySlots.chk014_init(self, widget)` — Initialize UV Display: Checkered toggle from current state.
-  - `DisplaySlots.chk014(self, state, widget)` — UV Display: Checkered Pattern
-  - `DisplaySlots.chk015_init(self, widget)` — Initialize UV Display: Borders toggle from current state.
-  - `DisplaySlots.chk015(self, state, widget)` — UV Display: Borders
-  - `DisplaySlots.chk016_init(self, widget)` — Initialize UV Display: Distortion toggle from current state.
-  - `DisplaySlots.chk016(self, state, widget)` — UV Display: Distortion
   - `DisplaySlots.b023(self)` — Soft Edge Display
   - `DisplaySlots.b024(self)` — Display Face Normals
 
@@ -341,7 +336,6 @@ _Generated: 2026-05-20_
 ### `slots/maya/lighting.py`
 
 - **[`class Lighting(SlotsMaya)`](tentacle/tentacle/slots/maya/lighting.py#L9)**
-  - `Lighting.header_init(self, widget)`
   - `Lighting.b000(self)` — Launch the HDR Manager.
 
 <a id="slots--maya--lighting_shading"></a>
@@ -364,8 +358,12 @@ _Generated: 2026-05-20_
 <a id="slots--maya--materials"></a>
 ### `slots/maya/materials.py`
 
-- **[`class MaterialsSlots(SlotsMaya)`](tentacle/tentacle/slots/maya/materials.py#L11)**
-  - `MaterialsSlots.header_init(self, widget)` — Initialize the header menu
+- **[`class MaterialsSlots(SlotsMaya)`](tentacle/tentacle/slots/maya/materials.py#L12)**
+  - `MaterialsSlots.header_init(self, widget)` — Initialize the header menu (Utilities only — Setup/Conversion/External live in the submenu Tools li…
+  - `MaterialsSlots.list000_init(self, widget)` — Assign list: scene materials + 'New' + 'Random'.
+  - `MaterialsSlots.list000(self, item)` — Dispatch Assign list selection.
+  - `MaterialsSlots.list001_init(self, widget)` — Tools list: Setup / Conversion / External (mirrors prior header sections).
+  - `MaterialsSlots.list001(self, item)` — Dispatch Tools list selection to the matching slot method.
   - `MaterialsSlots.cmb002_init(self, widget)` — Initialize Materials
   - `MaterialsSlots.lbl007(self)` — Rename the current material by stripping trailing integers and underscores.
   - `MaterialsSlots.lbl007_global(self)` — Rename ALL scene materials by stripping trailing integers and underscores.
@@ -378,8 +376,7 @@ _Generated: 2026-05-20_
   - `MaterialsSlots.lbl006(self)` — Open material in editor
   - `MaterialsSlots.b002(self, widget)` — Get Material: Change the index to match the current material selection.
   - `MaterialsSlots.b004(self, widget)` — Assign Random
-  - `MaterialsSlots.b005_init(self, widget)` — Initialize Assign Current
-  - `MaterialsSlots.b005(self, widget)` — Assign Current
+  - `MaterialsSlots.b005(self, widget)` — Assign Current (main UI button)
   - `MaterialsSlots.b006(self, widget)` — Assign: New Material
   - `MaterialsSlots.b008(self, widget)` — Map Packer
   - `MaterialsSlots.b009(self, widget)` — Create Game Shader
@@ -450,13 +447,14 @@ _Generated: 2026-05-20_
 <a id="slots--maya--nurbs"></a>
 ### `slots/maya/nurbs.py`
 
-- **[`class Nurbs(SlotsMaya)`](tentacle/tentacle/slots/maya/nurbs.py#L10)**
-  - `Nurbs.header_init(self, widget)`
+- **[`class Nurbs(SlotsMaya)`](tentacle/tentacle/slots/maya/nurbs.py#L11)**
+  - `Nurbs.list000_init(self, widget)` — Initialize Nurbs expandable list (categories → curve actions).
+  - `Nurbs.list000(self, item)` — Dispatch a Nurbs leaf action via mel.eval (uses Maya's stored settings).
+  - `Nurbs.b056(self)` — Image Tracer
   - `Nurbs.tb000_init(self, widget)`
-  - `Nurbs.tb001_init(self, widget)`
   - `Nurbs.tb000(self, widget)` — Revolve
+  - `Nurbs.tb001_init(self, widget)`
   - `Nurbs.tb001(self, widget)` — Loft
-  - `Nurbs.lbl000(self, widget)` — Image Tracer
   - `Nurbs.b012(self)` — Project Curve
   - `Nurbs.b014(self)` — Duplicate Curve
   - `Nurbs.b016(self)` — Extract Curve
@@ -583,8 +581,6 @@ _Generated: 2026-05-20_
   - `Rendering.b002(self)` — Redo Previous Render
   - `Rendering.b003(self)` — Editor: Render Setup
   - `Rendering.b004(self)` — Editor: Rendering Flags
-  - `Rendering.b005(self)` — Apply Vray Attributes To Selected Objects
-  - `Rendering.b006(self)` — Load Vray Plugin
 
 <a id="slots--maya--rigging"></a>
 ### `slots/maya/rigging.py`
@@ -635,7 +631,8 @@ _Generated: 2026-05-20_
   - `SceneSlots.b000(self)` — Autosave: Open Directory
   - `SceneSlots.b001(self)` — Open Reference Manager
   - `SceneSlots.b002(self)` — Scene Exporter
-  - `SceneSlots.b003(self)` — Quick Export Scene Geo
+  - `SceneSlots.tb003_init(self, widget)` — Initialize Export.
+  - `SceneSlots.tb003(self, widget)` — Export Scene (FBX + optional GLB) using the configured options.
   - `SceneSlots.b004(self)` — Open Hierarchy Manager
   - `SceneSlots.b005(self)` — Open Naming Tool
   - `SceneSlots.b006(self)` — Scene Cleanup

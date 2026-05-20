@@ -34,12 +34,32 @@ class Animation(SlotsMaya):
         widget.menu.add(
             self.sb.registered_widgets.PushButton,
             setText="Smart Bake",
-            setObjectName="tb018",
+            setObjectName="tb020",
             setToolTip="Intelligently bake constraints, driven keys, expressions, IK, motion paths, and blend shapes.",
         )
         widget.menu.add(
             self.sb.registered_widgets.PushButton,
-            setText="Step Keys",
+            setText="Tie Keyframes",
+            setObjectName="tb011",
+            setToolTip="Add (tie) or remove (untie) bookend keyframes at the start/end of the playback range.\n"
+            "Tying ensures every animated object has keys at the range boundaries.\n"
+            "Untying removes only those bookend keys, preserving genuine animation.",
+        )
+        widget.menu.add(
+            self.sb.registered_widgets.PushButton,
+            setText="Copy Keys",
+            setObjectName="tb012",
+            setToolTip="Store the current values of any selected attributes in Maya's channel box for the currently selected scene objects.",
+        )
+        widget.menu.add(
+            self.sb.registered_widgets.PushButton,
+            setText="Paste Keys",
+            setObjectName="tb018",
+            setToolTip="Set keys matching any previously stored attributes at the current time.",
+        )
+        widget.menu.add(
+            self.sb.registered_widgets.PushButton,
+            setText="Step Tangents",
             setObjectName="tb017",
             setToolTip="Set stepped tangents on keys.\nUse the option box to choose: current time, selected keys, or all keys.",
         )
@@ -1431,8 +1451,8 @@ class Animation(SlotsMaya):
         )
 
     def tb017_init(self, widget):
-        """Step Keys Init"""
-        widget.option_box.menu.setTitle("Step Keys")
+        """Step Tangents Init"""
+        widget.option_box.menu.setTitle("Step Tangents")
         cmb = widget.option_box.menu.add(
             "QComboBox",
             setObjectName="cmb000",
@@ -1459,7 +1479,7 @@ class Animation(SlotsMaya):
             cmb_tan.addItem(text, data)
 
     def tb017(self, widget):
-        """Step Keys — set stepped tangents on keys."""
+        """Step Tangents — set stepped tangents on keys."""
         mode = widget.option_box.menu.cmb000.currentData()
 
         if mode == "auto":
@@ -1668,6 +1688,105 @@ class Animation(SlotsMaya):
             pct = (1 - ka / kb) * 100
             msg += f" ({pct:.1f}% reduction)"
         self.sb.message_box(msg)
+
+    def tb020_init(self, widget):
+        """Smart Bake Init"""
+        widget.option_box.menu.setTitle("Smart Bake")
+        widget.option_box.menu.add(
+            "QSpinBox",
+            setPrefix="Sample By: ",
+            setObjectName="s020",
+            set_limits=[1, 100],
+            setValue=1,
+            setToolTip="Keyframe sample interval (1 = every frame).",
+        )
+        widget.option_box.menu.add(
+            "QCheckBox",
+            setText="Preserve Outside Keys",
+            setObjectName="chk_preserve_outside",
+            setChecked=True,
+            setToolTip="Keep existing keys outside the bake range.",
+        )
+        widget.option_box.menu.add(
+            "QCheckBox",
+            setText="Delete Inputs",
+            setObjectName="chk_delete_inputs",
+            setChecked=False,
+            setToolTip="Delete constraint/expression nodes after baking.\nIgnored when 'Use Override Layer' is checked.",
+        )
+        widget.option_box.menu.add(
+            "QCheckBox",
+            setText="Optimize Keys",
+            setObjectName="chk_optimize",
+            setChecked=False,
+            setToolTip="Run optimize_keys on baked objects to remove static curves and redundant flat keys.",
+        )
+        widget.option_box.menu.add(
+            "QCheckBox",
+            setText="Bake Blend Shapes",
+            setObjectName="chk_bake_blendshapes",
+            setChecked=True,
+            setToolTip="Analyze and bake driven blend shape weights.\nRequired for Unity if blend shapes are driven by SDKs/expressions.",
+        )
+        widget.option_box.menu.add(
+            "QCheckBox",
+            setText="Bake Inherited Visibility",
+            setObjectName="chk_inherited_vis",
+            setChecked=False,
+            setToolTip="Walk ancestor transforms to detect inherited .visibility animation\n"
+            "and bake it onto child mesh transforms. Required for FBX/Unity when\n"
+            "parent nodes toggle visibility that child geo inherits at runtime.",
+        )
+        widget.option_box.menu.add(
+            "QCheckBox",
+            setText="Use Override Layer",
+            setObjectName="chk_override_layer",
+            setChecked=False,
+            setToolTip="Bake to a new override animation layer instead of the base layer.\n"
+            "Original drivers remain connected but are overridden by the baked layer.",
+        )
+        widget.option_box.menu.add(
+            "QCheckBox",
+            setText="Mute Drivers",
+            setObjectName="chk_mute_drivers",
+            setChecked=False,
+            setToolTip="Mute driver nodes after baking instead of deleting them.\nUseful with 'Use Override Layer' to keep drivers recoverable.",
+        )
+
+    def tb020(self, widget):
+        """Smart Bake"""
+        sample_by = widget.option_box.menu.s020.value()
+        preserve_outside = widget.option_box.menu.chk_preserve_outside.isChecked()
+        delete_inputs = widget.option_box.menu.chk_delete_inputs.isChecked()
+        optimize = widget.option_box.menu.chk_optimize.isChecked()
+        bake_blendshapes = widget.option_box.menu.chk_bake_blendshapes.isChecked()
+        inherited_vis = widget.option_box.menu.chk_inherited_vis.isChecked()
+        override_layer = widget.option_box.menu.chk_override_layer.isChecked()
+        mute_drivers = widget.option_box.menu.chk_mute_drivers.isChecked()
+
+        objects = cmds.ls(sl=True, long=True) or None
+
+        result = mtk.SmartBake.run(
+            objects=objects,
+            sample_by=sample_by,
+            preserve_outside_keys=preserve_outside,
+            delete_inputs=delete_inputs,
+            optimize_keys=optimize,
+            bake_blend_shapes=bake_blendshapes,
+            bake_inherited_visibility=inherited_vis,
+            use_override_layer=override_layer,
+            mute_drivers=mute_drivers,
+        )
+
+        if result.success:
+            self.sb.message_box(
+                f"Smart Bake complete: baked {result.baked_count} object(s)."
+            )
+        else:
+            self.sb.message_box(
+                "Smart Bake: nothing to bake.\n"
+                "No constraints, driven keys, expressions, or IK chains detected on the selection."
+            )
 
     def b000(self):
         """Open Shot Sequencer"""
