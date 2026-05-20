@@ -89,7 +89,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Go To Frame Init",
-              "line": 82,
+              "line": 102,
               "deprecated": false
             },
             {
@@ -98,7 +98,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Go To Frame",
-              "line": 183,
+              "line": 203,
               "deprecated": false
             },
             {
@@ -107,7 +107,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Invert Keyframes Init",
-              "line": 210,
+              "line": 230,
               "deprecated": false
             },
             {
@@ -116,7 +116,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Invert keyframes (selected keys preferred, fallback to all keys).",
-              "line": 267,
+              "line": 287,
               "deprecated": false
             },
             {
@@ -125,7 +125,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Adjust Spacing Init",
-              "line": 296,
+              "line": 316,
               "deprecated": false
             },
             {
@@ -134,7 +134,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Adjust spacing",
-              "line": 349,
+              "line": 369,
               "deprecated": false
             },
             {
@@ -143,7 +143,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Stagger Keys Init",
-              "line": 380,
+              "line": 400,
               "deprecated": false
             },
             {
@@ -152,7 +152,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Stagger Keys",
-              "line": 457,
+              "line": 477,
               "deprecated": false
             },
             {
@@ -161,7 +161,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Transfer Keys Init",
-              "line": 486,
+              "line": 506,
               "deprecated": false
             },
             {
@@ -170,7 +170,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Transfer Keys",
-              "line": 511,
+              "line": 531,
               "deprecated": false
             },
             {
@@ -179,7 +179,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Add/Remove Intermediate Keys Init",
-              "line": 525,
+              "line": 545,
               "deprecated": false
             },
             {
@@ -188,7 +188,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Add/Remove Intermediate Keys",
-              "line": 577,
+              "line": 597,
               "deprecated": false
             },
             {
@@ -197,7 +197,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Move Keys Init",
-              "line": 622,
+              "line": 642,
               "deprecated": false
             },
             {
@@ -206,7 +206,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Move Keys",
-              "line": 658,
+              "line": 678,
               "deprecated": false
             },
             {
@@ -215,7 +215,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Align Selected Keyframes Init",
-              "line": 677,
+              "line": 697,
               "deprecated": false
             },
             {
@@ -224,7 +224,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Align Selected Keyframes",
-              "line": 698,
+              "line": 718,
               "deprecated": false
             },
             {
@@ -233,7 +233,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Set Visibility Keys Init",
-              "line": 724,
+              "line": 744,
               "deprecated": false
             },
             {
@@ -242,7 +242,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Set Visibility Keys",
-              "line": 763,
+              "line": 783,
               "deprecated": false
             },
             {
@@ -251,7 +251,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Snap Keys to Frames Init",
-              "line": 788,
+              "line": 808,
               "deprecated": false
             },
             {
@@ -260,7 +260,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Snap Keys to Frames",
-              "line": 826,
+              "line": 846,
               "deprecated": false
             },
             {
@@ -269,7 +269,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Delete Keys Init",
-              "line": 858,
+              "line": 878,
               "deprecated": false
             },
             {
@@ -278,7 +278,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Delete Keys",
-              "line": 897,
+              "line": 917,
               "deprecated": false
             },
             {
@@ -287,7 +287,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Tie/Untie Keyframes Init",
-              "line": 915,
+              "line": 935,
               "deprecated": false
             },
             {
@@ -296,7 +296,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Tie/Untie Keyframes",
-              "line": 933,
+              "line": 953,
               "deprecated": false
             },
             {
@@ -305,7 +305,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Select Keys Init",
-              "line": 948,
+              "line": 968,
               "deprecated": false
             },
             {
@@ -314,7 +314,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Select Keys",
-              "line": 997,
+              "line": 1017,
               "deprecated": false
             },
             {
@@ -323,7 +323,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Scale Keys Init",
-              "line": 1029,
+              "line": 1049,
               "deprecated": false
             },
             {
@@ -332,7 +332,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Scale Keys",
-              "line": 1211,
+              "line": 1231,
               "deprecated": false
             },
             {
@@ -341,7 +341,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Repair Corrupted Curves - Initialize option box",
-              "line": 1286,
+              "line": 1306,
               "deprecated": false
             },
             {
@@ -350,7 +350,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Repair Corrupted Curves",
-              "line": 1327,
+              "line": 1347,
               "deprecated": false
             },
             {
@@ -359,7 +359,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Print Animation Info - Initialize option box",
-              "line": 1395,
+              "line": 1415,
               "deprecated": false
             },
             {
@@ -368,7 +368,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Print Animation Info",
-              "line": 1420,
+              "line": 1440,
               "deprecated": false
             },
             {
@@ -376,8 +376,8 @@
               "qualname": "Animation.tb017_init",
               "kind": "method",
               "signature": "(self, widget)",
-              "summary": "Step Keys Init",
-              "line": 1433,
+              "summary": "Step Tangents Init",
+              "line": 1453,
               "deprecated": false
             },
             {
@@ -385,8 +385,8 @@
               "qualname": "Animation.tb017",
               "kind": "method",
               "signature": "(self, widget)",
-              "summary": "Step Keys — set stepped tangents on keys.",
-              "line": 1461,
+              "summary": "Step Tangents — set stepped tangents on keys.",
+              "line": 1481,
               "deprecated": false
             },
             {
@@ -395,7 +395,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Copy Keys Init",
-              "line": 1485,
+              "line": 1505,
               "deprecated": false
             },
             {
@@ -404,7 +404,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Copy Keys",
-              "line": 1502,
+              "line": 1522,
               "deprecated": false
             },
             {
@@ -413,7 +413,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Paste Keys Init",
-              "line": 1552,
+              "line": 1572,
               "deprecated": false
             },
             {
@@ -422,7 +422,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Paste Keys",
-              "line": 1566,
+              "line": 1586,
               "deprecated": false
             },
             {
@@ -431,7 +431,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Optimize Keys Init",
-              "line": 1598,
+              "line": 1618,
               "deprecated": false
             },
             {
@@ -440,7 +440,25 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Optimize Keys — remove redundant animation data.",
-              "line": 1633,
+              "line": 1653,
+              "deprecated": false
+            },
+            {
+              "name": "tb020_init",
+              "qualname": "Animation.tb020_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Smart Bake Init",
+              "line": 1692,
+              "deprecated": false
+            },
+            {
+              "name": "tb020",
+              "qualname": "Animation.tb020",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Smart Bake",
+              "line": 1756,
               "deprecated": false
             },
             {
@@ -449,7 +467,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Open Shot Sequencer",
-              "line": 1672,
+              "line": 1791,
               "deprecated": false
             },
             {
@@ -458,7 +476,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Open Shot Manifest",
-              "line": 1676,
+              "line": 1795,
               "deprecated": false
             },
             {
@@ -467,7 +485,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Fit Playback Range",
-              "line": 1680,
+              "line": 1799,
               "deprecated": false
             }
           ]
