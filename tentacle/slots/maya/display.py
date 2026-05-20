@@ -111,6 +111,50 @@ class DisplaySlots(SlotsMaya):
         """Template Selected"""
         cmds.toggle(template=1)
 
+    def b022(self):
+        """Display UV Borders"""
+        mtk.Macros.m_toggle_uv_border_edges()
+
+    def chk014_init(self, widget):
+        """Initialize UV Display: Checkered toggle from current state."""
+        widget.setCheckable(True)
+        panel = mtk.get_panel(scriptType="polyTexturePlacementPanel")
+        widget.setChecked(bool(cmds.textureWindow(panel, q=True, displayCheckered=True)))
+
+    def chk014(self, state, widget):
+        """UV Display: Checkered Pattern"""
+        panel = mtk.get_panel(scriptType="polyTexturePlacementPanel")
+        cmds.textureWindow(panel, edit=1, displayCheckered=state)
+
+    def chk015_init(self, widget):
+        """Initialize UV Display: Borders toggle from current state."""
+        widget.setCheckable(True)
+        widget.setChecked(bool(cmds.polyOptions(q=True, displayMapBorder=True)))
+
+    def chk015(self, state, widget):
+        """UV Display: Borders"""
+        borderWidth = cmds.optionVar(query="displayPolyBorderEdgeSize")[1]
+        cmds.polyOptions(displayMapBorder=state, sizeBorder=borderWidth)
+
+    def chk016_init(self, widget):
+        """Initialize UV Display: Distortion toggle from current state."""
+        widget.setCheckable(True)
+        panel = mtk.get_panel(scriptType="polyTexturePlacementPanel")
+        widget.setChecked(bool(cmds.textureWindow(panel, q=True, displayDistortion=True)))
+
+    def chk016(self, state, widget):
+        """UV Display: Distortion"""
+        panel = mtk.get_panel(scriptType="polyTexturePlacementPanel")
+        cmds.textureWindow(panel, edit=1, displayDistortion=state)
+
+    def b023(self):
+        """Soft Edge Display"""
+        mtk.Macros.m_soft_edge_display()
+
+    def b024(self):
+        """Display Face Normals"""
+        mtk.Macros.m_normals_display()
+
 
 # --------------------------------------------------------------------------------------------
 

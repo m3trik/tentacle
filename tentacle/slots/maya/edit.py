@@ -642,7 +642,9 @@ class Edit(SlotsMaya):
 
     def b027(self):
         """Shading Sets"""
-        selected_objects = cmds.ls(sl=True, type="surfaceShape") or []
+        selected_objects = (
+            cmds.ls(sl=True, dag=True, type="surfaceShape", noIntermediate=True) or []
+        )
         if selected_objects:
             mel.eval("performTransferShadingSets 0")
         else:
