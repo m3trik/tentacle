@@ -2,7 +2,7 @@
 
 _Auto-generated. Do not edit by hand. Refresh via `m3trik/scripts/generate_api_registry.py`._
 
-_Generated: 2026-05-20_
+_Generated: 2026-05-22_
 
 ## Index
 
@@ -93,7 +93,7 @@ _Generated: 2026-05-20_
 <a id="slots--maya--animation"></a>
 ### `slots/maya/animation.py`
 
-- **[`class Animation(SlotsMaya)`](tentacle/tentacle/slots/maya/animation.py#L10)**
+- **[`class Animation(SlotsMaya)`](tentacle/tentacle/slots/maya/animation.py#L11)**
   - `Animation.header_init(self, widget)` — Header Init
   - `Animation.tb000_init(self, widget)` — Go To Frame Init
   - `Animation.tb000(self, widget)` — Go To Frame
@@ -125,8 +125,8 @@ _Generated: 2026-05-20_
   - `Animation.tb014(self, widget)` — Scale Keys
   - `Animation.tb015_init(self, widget)` — Repair Corrupted Curves - Initialize option box
   - `Animation.tb015(self, widget)` — Repair Corrupted Curves
-  - `Animation.tb016_init(self, widget)` — Print Animation Info - Initialize option box
-  - `Animation.tb016(self, widget)` — Print Animation Info
+  - `Animation.tb016_init(self, widget)` — Get Animation Info — option box.
+  - `Animation.tb016(self, widget)` — Get Animation Info — render the report to the viewer dialog.
   - `Animation.tb017_init(self, widget)` — Step Tangents Init
   - `Animation.tb017(self, widget)` — Step Tangents — set stepped tangents on keys.
   - `Animation.tb012_init(self, widget)` — Copy Keys Init
@@ -241,7 +241,7 @@ _Generated: 2026-05-20_
 <a id="slots--maya--edit"></a>
 ### `slots/maya/edit.py`
 
-- **[`class Edit(SlotsMaya)`](tentacle/tentacle/slots/maya/edit.py#L10)**
+- **[`class Edit(SlotsMaya)`](tentacle/tentacle/slots/maya/edit.py#L11)**
   - `Edit.header_init(self, widget)` — Initialize header menu
   - `Edit.tb000_init(self, widget)` — Initialize Mesh Cleanup
   - `Edit.tb000(self, widget)` — Mesh Cleanup
@@ -387,8 +387,9 @@ _Generated: 2026-05-20_
   - `MaterialsSlots.b013(self)` — Reload Textures and Reset Viewport
   - `MaterialsSlots.b014(self)` — Remove and Reassign Duplicates
   - `MaterialsSlots.b016(self)` — Map Converter
-  - `MaterialsSlots.b017(self, widget)` — Print Texture Info
   - `MaterialsSlots.b018(self, widget)` — Material Updater
+  - `MaterialsSlots.tb001_init(self, widget)` — Get Material Info — option box.
+  - `MaterialsSlots.tb001(self, widget)` — Get Material Info — render a formatted report to the viewer dialog.
   - `MaterialsSlots.b021(self, widget)` — Image to Plane
   - `MaterialsSlots.b019(self, widget)` — Marmoset Bridge
   - `MaterialsSlots.b020(self, widget)` — Substance Bridge
@@ -574,7 +575,7 @@ _Generated: 2026-05-20_
 <a id="slots--maya--rendering"></a>
 ### `slots/maya/rendering.py`
 
-- **[`class Rendering(SlotsMaya)`](tentacle/tentacle/slots/maya/rendering.py#L16)**
+- **[`class Rendering(SlotsMaya)`](tentacle/tentacle/slots/maya/rendering.py#L17)**
   - `Rendering.cmb001_init(self, widget)` — Render: camera
   - `Rendering.tb000_init(self, widget)` — Export Playblast Init
   - `Rendering.tb000(self, widget)` — Export Playblast
@@ -639,7 +640,8 @@ _Generated: 2026-05-20_
   - `SceneSlots.b005(self)` — Open Naming Tool
   - `SceneSlots.b006(self)` — Scene Cleanup
   - `SceneSlots.b009(self)` — Fix OCIO
-  - `SceneSlots.b010(self)` — Scene Audit
+  - `SceneSlots.tb001_init(self, widget)` — Get Scene Info — option box.
+  - `SceneSlots.tb001(self, widget)` — Get Scene Info — render the audit report to the viewer dialog.
   - `SceneSlots.b011(self)` — Fix Color Spaces
   - `SceneSlots.b012(self)` — Toggle Command Ports
   - `SceneSlots.b007(self)` — Import file

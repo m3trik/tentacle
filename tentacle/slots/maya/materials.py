@@ -63,7 +63,8 @@ class MaterialsSlots(SlotsMaya):
                 "Show a formatted report of textures, sizes, bit depth, "
                 "file size, and optimization recommendations. Scope "
                 "(textures, current material, all materials, selected "
-                "objects) is set via the option box."
+                "objects), default-material / unassigned filters, and "
+                "which fields to include are set via the option box."
             ),
         )
         widget.menu.add(
@@ -770,6 +771,60 @@ class MaterialsSlots(SlotsMaya):
         )
         for label, data in self._TB001_SCOPES:
             cmb.addItem(label, data)
+        # Scope filters — apply to scopes that gather more than one material.
+        widget.option_box.menu.add(
+            "QCheckBox",
+            setText="Exclude Default Materials",
+            setObjectName="chk_exclude_defaults",
+            setChecked=True,
+            setToolTip=(
+                "Drop Maya's built-in defaults (lambert1, standardSurface1, …) "
+                "from the report. Has no effect on the Current Material scope."
+            ),
+        )
+        widget.option_box.menu.add(
+            "QCheckBox",
+            setText="Exclude Unassigned Materials",
+            setObjectName="chk_exclude_unassigned",
+            setChecked=False,
+            setToolTip=(
+                "Drop materials whose shading engines have no geometry "
+                "assigned. Most useful on the All Materials scope — "
+                "selection-derived and Current scopes are already "
+                "guaranteed to be assigned."
+            ),
+        )
+        # Field toggles — control how much info each material record carries.
+        widget.option_box.menu.add(
+            "QCheckBox",
+            setText="Include Textures",
+            setObjectName="chk_include_textures",
+            setChecked=True,
+            setToolTip=(
+                "Include the per-file-node texture list. Uncheck for a "
+                "lightweight name + type report."
+            ),
+        )
+        widget.option_box.menu.add(
+            "QCheckBox",
+            setText="Include Image Metadata",
+            setObjectName="chk_include_metadata",
+            setChecked=True,
+            setToolTip=(
+                "Include resolution, mode, format, and bit depth per "
+                "texture. Skipping this avoids opening images with PIL."
+            ),
+        )
+        widget.option_box.menu.add(
+            "QCheckBox",
+            setText="Include Optimization Analysis",
+            setObjectName="chk_include_optimization",
+            setChecked=True,
+            setToolTip=(
+                "Run the texture optimizer per texture and report whether "
+                "a resize, mode change, or bit-depth change is recommended."
+            ),
+        )
 
     def tb001(self, widget):
         """Get Material Info — render a formatted report to the viewer dialog.
@@ -779,9 +834,16 @@ class MaterialsSlots(SlotsMaya):
         doesn't trigger the misleading "Complete" flash that
         :class:`FooterProgressContext` emits on normal context exit.
         """
-        cmb = widget.option_box.menu.cmb_scope
+        menu = widget.option_box.menu
+        cmb = menu.cmb_scope
         scope = cmb.currentData() or "current"
         scope_label = cmb.currentText() or scope
+
+        exclude_defaults = menu.chk_exclude_defaults.isChecked()
+        exclude_unassigned = menu.chk_exclude_unassigned.isChecked()
+        include_textures = menu.chk_include_textures.isChecked()
+        include_metadata = menu.chk_include_metadata.isChecked()
+        include_optimization = menu.chk_include_optimization.isChecked()
 
         # Pre-validate scope inputs.
         get_mat_info_kwargs = None
@@ -810,26 +872,46 @@ class MaterialsSlots(SlotsMaya):
         ) as update:
             cb = self.sb.progress_adapter(update)
             if scope == "textures":
-                info = mtk.MatUtils.get_texture_info()
+                # Resolve the texture scope via materials so the same
+                # default/unassigned filters apply to the texture list.
+                tex_materials = mtk.MatUtils.get_scene_mats(
+                    exclude_defaults=exclude_defaults
+                ) or []
+                if exclude_unassigned:
+                    tex_materials = [
+                        m for m in tex_materials if mtk.MatUtils.is_mat_assigned(m)
+                    ]
+                info = (
+                    mtk.MatUtils.get_texture_info(materials=tex_materials)
+                    if tex_materials
+                    else []
+                )
                 if not info:
                     html = None
                 else:
                     html = mtk.MatUtils.format_texture_info_html(info)
                     title = f"Texture Info — {len(info)} texture(s)"
             else:
+                # "current" scope explicitly targets one material, so the
+                # scope-wide filters would just drop the user's pick.
+                apply_scope_filters = scope != "current"
+                common_kwargs = dict(
+                    optimize_check=include_optimization,
+                    allow_palette=True,
+                    progress_callback=cb,
+                    include_textures=include_textures,
+                    include_image_metadata=include_metadata,
+                    exclude_defaults=exclude_defaults if apply_scope_filters else False,
+                    exclude_unassigned=(
+                        exclude_unassigned if apply_scope_filters else False
+                    ),
+                )
                 if get_mat_info_kwargs is None:  # scope == "all"
-                    records = mtk.MatUtils.get_mat_info(
-                        optimize_check=True,
-                        allow_palette=True,
-                        progress_callback=cb,
-                    )
+                    records = mtk.MatUtils.get_mat_info(**common_kwargs)
                     title = f"Material Info — all ({len(records)} material(s))"
                 else:
                     records = mtk.MatUtils.get_mat_info(
-                        optimize_check=True,
-                        allow_palette=True,
-                        progress_callback=cb,
-                        **get_mat_info_kwargs,
+                        **common_kwargs, **get_mat_info_kwargs
                     )
                 html = (
                     mtk.MatUtils.format_mat_info_html(records) if records else None
