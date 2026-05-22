@@ -2,4 +2,7 @@
 
 _Diff vs prior baseline. Generated 2026-05-20._
 
-No public API changes since last refresh.
+## Added (2)
+
+- `slots/maya/animation.py::Animation.tb020(self, widget)`
+- `slots/maya/animation.py::Animation.tb020_init(self, widget)`

@@ -8,6 +8,7 @@ import maya.cmds as cmds
 import maya.mel as mel
 import maya.api.OpenMaya as om
 
+from uitk.switchboard import Cancelable
 from tentacle.slots.maya._slots_maya import SlotsMaya
 import mayatk as mtk
 from mayatk.anim_utils.playblast_exporter import PlayblastExporter
@@ -283,6 +284,7 @@ class Rendering(SlotsMaya):
         for idx, codes in output_map.items():
             output_combo.setItemData(idx, codes)
 
+    @Cancelable(600)
     def tb000(self, widget):
         """Export Playblast"""
 
@@ -514,12 +516,14 @@ class Rendering(SlotsMaya):
             camera_name=camera_name,
         )
 
-        results = exporter.export_variations(
-            output_path=output_base,
-            base_kwargs=base_kwargs,
-            scene_name=scene_name,
-            variations=variations,
-        )
+        with self.sb.progress(text="Working: Export Playblast") as update:
+            results = exporter.export_variations(
+                output_path=output_base,
+                base_kwargs=base_kwargs,
+                scene_name=scene_name,
+                variations=variations,
+                progress_callback=self.sb.progress_adapter(update),
+            )
 
         outputs = []
         errors = []

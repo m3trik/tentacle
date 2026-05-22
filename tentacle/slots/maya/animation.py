@@ -4,6 +4,7 @@ import maya.cmds as cmds
 import maya.api.OpenMaya as om
 import mayatk as mtk
 import pythontk as ptk
+from uitk.switchboard import Cancelable
 from tentacle.slots.maya._slots_maya import SlotsMaya
 
 
@@ -94,9 +95,13 @@ class Animation(SlotsMaya):
         widget.menu.add("Separator", setTitle="Info")
         widget.menu.add(
             self.sb.registered_widgets.PushButton,
-            setText="Print Animation Info",
+            setText="Get Animation Info",
             setObjectName="tb016",
-            setToolTip="Print segmented keyframe info for selected objects (or all if none selected).",
+            setToolTip=(
+                "Show segmented keyframe info in a formatted viewer.\n"
+                "Use the option box to choose scope (Selected / All), "
+                "dependency traversal, and output flags."
+            ),
         )
 
     def tb000_init(self, widget):
@@ -1412,9 +1417,51 @@ class Animation(SlotsMaya):
 
         self.sb.message_box(message)
 
+    _TB016_SCOPES = (
+        ("Selected", "selected"),
+        ("All Scene Objects", "all"),
+    )
+    _TB016_TRAVERSAL = (
+        ("None", None),
+        ("Upstream", "upstream"),
+        ("Downstream", "downstream"),
+        ("Both", "both"),
+    )
+
     def tb016_init(self, widget):
-        """Print Animation Info - Initialize option box"""
-        widget.option_box.menu.setTitle("Print Animation Info")
+        """Get Animation Info — option box."""
+        widget.option_box.menu.setTitle("Get Animation Info")
+
+        cmb_scope = widget.option_box.menu.add(
+            "QComboBox",
+            setObjectName="cmb_scope",
+            setToolTip=(
+                "Selected: only the current viewport selection.\n"
+                "All Scene Objects: every transform in the scene."
+            ),
+        )
+        for label, data in self._TB016_SCOPES:
+            cmb_scope.addItem(label, data)
+
+        cmb_traversal = widget.option_box.menu.add(
+            "QComboBox",
+            setObjectName="cmb_traversal",
+            setToolTip=(
+                "Expand the selected set by traversing the dependency "
+                "graph. Disabled when Scope = All Scene Objects."
+            ),
+        )
+        for label, data in self._TB016_TRAVERSAL:
+            cmb_traversal.addItem(label, data)
+
+        # Disable traversal when scope is anything but Selected.
+        def _sync_traversal(_idx=None):
+            scope = cmb_scope.currentData()
+            cmb_traversal.setEnabled(scope == "selected")
+
+        cmb_scope.currentIndexChanged.connect(_sync_traversal)
+        _sync_traversal()
+
         widget.option_box.menu.add(
             "QCheckBox",
             setText="Sort by Time",
@@ -1427,7 +1474,7 @@ class Animation(SlotsMaya):
             setText="CSV Output",
             setObjectName="chk_csv_output",
             setChecked=False,
-            setToolTip="Print output in CSV format for easy spreadsheet import.",
+            setToolTip="Format output as CSV (copy/paste into a spreadsheet).",
         )
         widget.option_box.menu.add(
             "QCheckBox",
@@ -1438,16 +1485,51 @@ class Animation(SlotsMaya):
         )
 
     def tb016(self, widget):
-        """Print Animation Info"""
-        by_time = widget.option_box.menu.chk_sort_time.isChecked()
-        csv_output = widget.option_box.menu.chk_csv_output.isChecked()
-        ignore_holds = widget.option_box.menu.chk_ignore_holds.isChecked()
+        """Get Animation Info — render the report to the viewer dialog.
 
-        mtk.SegmentKeys.print_scene_info(
-            detailed=True,
-            by_time=by_time,
-            csv_output=csv_output,
-            ignore_holds=ignore_holds,
+        Feedback while running is the application wait cursor (set by
+        the slot dispatcher for every slot). The dialog itself opens
+        when the report is ready, which is its own "done" signal.
+        """
+        menu = widget.option_box.menu
+        scope = menu.cmb_scope.currentData() or "selected"
+        traversal = menu.cmb_traversal.currentData() if scope == "selected" else None
+        by_time = menu.chk_sort_time.isChecked()
+        csv_output = menu.chk_csv_output.isChecked()
+        ignore_holds = menu.chk_ignore_holds.isChecked()
+
+        if scope == "selected":
+            objects = cmds.ls(selection=True, type="transform") or []
+            if not objects:
+                self.sb.message_box(
+                    "<hl>Nothing selected</hl><br>"
+                    "Select object(s) or switch Scope to All Scene Objects."
+                )
+                return
+        else:  # "all"
+            objects = None  # let mayatk fall through to all-scene
+
+        with self.sb.progress(text="Working: Get Animation Info") as update:
+            html = mtk.SegmentKeys.format_scene_info_html(
+                objects=objects,
+                detailed=True,
+                by_time=by_time,
+                csv_output=csv_output,
+                ignore_holds=ignore_holds,
+                traversal=traversal,
+                progress_callback=self.sb.progress_adapter(update),
+            )
+        if not html:
+            self.sb.message_box("<hl>No animation</hl> found in the selected scope.")
+            return
+
+        # Non-modal viewer so Maya stays responsive while reading.
+        self.sb.text_view_dialog(
+            html,
+            "Ok",
+            title="Get Animation Info",
+            size=(780, 520),
+            monospace=False,
         )
 
     def tb017_init(self, widget):
@@ -1650,6 +1732,7 @@ class Animation(SlotsMaya):
             setToolTip="Maximum allowed value deviation when removing keys.",
         )
 
+    @Cancelable(120)
     def tb019(self, widget):
         """Optimize Keys — remove redundant animation data."""
         remove_static = widget.option_box.menu.chk000.isChecked()
@@ -1664,16 +1747,18 @@ class Animation(SlotsMaya):
             return
 
         stats = {}
-        mtk.AnimUtils.optimize_keys(
-            objects,
-            value_tolerance=tolerance,
-            remove_static_curves=remove_static,
-            remove_flat_keys=remove_flat,
-            simplify_keys=simplify,
-            recursive=True,
-            quiet=True,
-            stats=stats,
-        )
+        with self.sb.progress(text="Working: Optimize Keys") as update:
+            mtk.AnimUtils.optimize_keys(
+                objects,
+                value_tolerance=tolerance,
+                remove_static_curves=remove_static,
+                remove_flat_keys=remove_flat,
+                simplify_keys=simplify,
+                recursive=True,
+                quiet=True,
+                stats=stats,
+                progress_callback=self.sb.progress_adapter(update),
+            )
 
         kb = stats.get("keys_before", 0)
         ka = stats.get("keys_after", 0)
@@ -1753,6 +1838,7 @@ class Animation(SlotsMaya):
             setToolTip="Mute driver nodes after baking instead of deleting them.\nUseful with 'Use Override Layer' to keep drivers recoverable.",
         )
 
+    @Cancelable(180)
     def tb020(self, widget):
         """Smart Bake"""
         sample_by = widget.option_box.menu.s020.value()

@@ -4,6 +4,7 @@ import maya.cmds as cmds
 import maya.mel as mel
 import mayatk as mtk
 from uitk import Signals
+from uitk.switchboard import Cancelable
 from tentacle.slots.maya._slots_maya import SlotsMaya
 
 
@@ -209,6 +210,7 @@ class Edit(SlotsMaya):
             )
         )  # disable non-relevant options.
 
+    @Cancelable(120)
     def tb000(self, widget):
         """Mesh Cleanup"""
         # [0] All selectable meshes

@@ -127,14 +127,16 @@ _Generated: 2026-05-20_
   - `Animation.tb015(self, widget)` — Repair Corrupted Curves
   - `Animation.tb016_init(self, widget)` — Print Animation Info - Initialize option box
   - `Animation.tb016(self, widget)` — Print Animation Info
-  - `Animation.tb017_init(self, widget)` — Step Keys Init
-  - `Animation.tb017(self, widget)` — Step Keys — set stepped tangents on keys.
+  - `Animation.tb017_init(self, widget)` — Step Tangents Init
+  - `Animation.tb017(self, widget)` — Step Tangents — set stepped tangents on keys.
   - `Animation.tb012_init(self, widget)` — Copy Keys Init
   - `Animation.tb012(self, widget)` — Copy Keys
   - `Animation.tb018_init(self, widget)` — Paste Keys Init
   - `Animation.tb018(self, widget)` — Paste Keys
   - `Animation.tb019_init(self, widget)` — Optimize Keys Init
   - `Animation.tb019(self, widget)` — Optimize Keys — remove redundant animation data.
+  - `Animation.tb020_init(self, widget)` — Smart Bake Init
+  - `Animation.tb020(self, widget)` — Smart Bake
   - `Animation.b000(self)` — Open Shot Sequencer
   - `Animation.b004(self)` — Open Shot Manifest
   - `Animation.b005(self)` — Fit Playback Range
