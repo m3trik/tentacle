@@ -1778,7 +1778,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Assign list: scene materials + 'New' + 'Random'.",
-              "line": 79,
+              "line": 80,
               "deprecated": false
             },
             {
@@ -1787,7 +1787,7 @@
               "kind": "method",
               "signature": "(self, item)",
               "summary": "Dispatch Assign list selection.",
-              "line": 115,
+              "line": 116,
               "deprecated": false
             },
             {
@@ -1796,7 +1796,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Tools list: Setup / Conversion / External (mirrors prior header sections).",
-              "line": 180,
+              "line": 181,
               "deprecated": false
             },
             {
@@ -1805,7 +1805,7 @@
               "kind": "method",
               "signature": "(self, item)",
               "summary": "Dispatch Tools list selection to the matching slot method.",
-              "line": 198,
+              "line": 199,
               "deprecated": false
             },
             {
@@ -1814,7 +1814,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Initialize Materials",
-              "line": 218,
+              "line": 219,
               "deprecated": false
             },
             {
@@ -1823,7 +1823,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Rename the current material by stripping trailing integers and underscores.",
-              "line": 400,
+              "line": 401,
               "deprecated": false
             },
             {
@@ -1832,7 +1832,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Rename ALL scene materials by stripping trailing integers and underscores.",
-              "line": 457,
+              "line": 458,
               "deprecated": false
             },
             {
@@ -1841,7 +1841,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "",
-              "line": 488,
+              "line": 489,
               "deprecated": false
             },
             {
@@ -1850,7 +1850,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Select By Material",
-              "line": 518,
+              "line": 519,
               "deprecated": false
             },
             {
@@ -1859,7 +1859,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Delete Material",
-              "line": 586,
+              "line": 587,
               "deprecated": false
             },
             {
@@ -1868,7 +1868,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Delete Unused Materials",
-              "line": 592,
+              "line": 593,
               "deprecated": false
             },
             {
@@ -1877,7 +1877,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Select and Show Attributes: Show Material Attributes in the Attribute Editor.",
-              "line": 597,
+              "line": 598,
               "deprecated": false
             },
             {
@@ -1886,7 +1886,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Set the current combo box text as editable.",
-              "line": 603,
+              "line": 604,
               "deprecated": false
             },
             {
@@ -1895,7 +1895,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Open material in editor",
-              "line": 608,
+              "line": 609,
               "deprecated": false
             },
             {
@@ -1904,7 +1904,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Get Material: Change the index to match the current material selection.",
-              "line": 622,
+              "line": 623,
               "deprecated": false
             },
             {
@@ -1913,7 +1913,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Assign Random",
-              "line": 641,
+              "line": 642,
               "deprecated": false
             },
             {
@@ -1922,7 +1922,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Assign Current (main UI button)",
-              "line": 680,
+              "line": 681,
               "deprecated": false
             },
             {
@@ -1931,7 +1931,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Assign: New Material",
-              "line": 690,
+              "line": 691,
               "deprecated": false
             },
             {
@@ -1940,7 +1940,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Map Packer",
-              "line": 701,
+              "line": 702,
               "deprecated": false
             },
             {
@@ -1949,7 +1949,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Create Game Shader",
-              "line": 707,
+              "line": 708,
               "deprecated": false
             },
             {
@@ -1958,7 +1958,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Texture Path Editor",
-              "line": 711,
+              "line": 712,
               "deprecated": false
             },
             {
@@ -1967,7 +1967,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Shader Templates",
-              "line": 715,
+              "line": 716,
               "deprecated": false
             },
             {
@@ -1976,7 +1976,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Reload Textures and Reset Viewport",
-              "line": 719,
+              "line": 720,
               "deprecated": false
             },
             {
@@ -1985,7 +1985,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Remove and Reassign Duplicates",
-              "line": 726,
+              "line": 727,
               "deprecated": false
             },
             {
@@ -1994,7 +1994,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Map Converter",
-              "line": 733,
+              "line": 734,
               "deprecated": false
             },
             {
@@ -2003,7 +2003,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Material Updater",
-              "line": 746,
+              "line": 747,
               "deprecated": false
             },
             {
@@ -2012,7 +2012,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Get Material Info — option box.",
-              "line": 757,
+              "line": 758,
               "deprecated": false
             },
             {
@@ -2021,7 +2021,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Get Material Info — render a formatted report to the viewer dialog.",
-              "line": 774,
+              "line": 829,
               "deprecated": false
             },
             {
@@ -2030,7 +2030,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Image to Plane",
-              "line": 858,
+              "line": 940,
               "deprecated": false
             },
             {
@@ -2039,7 +2039,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Marmoset Bridge",
-              "line": 862,
+              "line": 944,
               "deprecated": false
             },
             {
@@ -2048,7 +2048,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Substance Bridge",
-              "line": 866,
+              "line": 948,
               "deprecated": false
             },
             {
@@ -2057,7 +2057,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Map Compositor",
-              "line": 870,
+              "line": 952,
               "deprecated": false
             },
             {
@@ -2066,7 +2066,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Metashape Workflow",
-              "line": 874,
+              "line": 956,
               "deprecated": false
             }
           ]
