@@ -90,10 +90,14 @@ class SceneSlots(SlotsMaya):
             )
             widget.menu.add("Separator", setTitle="Diagnostics")
             widget.menu.add(
-                "QPushButton",
-                setText="Scene Audit",
-                setObjectName="b010",
-                setToolTip="Analyze scene for performance issues (poly count, draw calls, textures).",
+                self.sb.registered_widgets.PushButton,
+                setText="Get Scene Info",
+                setObjectName="tb001",
+                setToolTip=(
+                    "Show a formatted scene analysis report in the viewer "
+                    "(poly count, draw calls, textures, fix-first items). "
+                    "Profile (Adaptive / Generic) is set via the option box."
+                ),
             )
             widget.menu.add(
                 "QPushButton",
@@ -572,9 +576,148 @@ class SceneSlots(SlotsMaya):
         """Fix OCIO"""
         mtk.Diagnostics.fix_ocio()
 
-    def b010(self):
-        """Scene Audit"""
-        mtk.SceneAnalyzer.run_audit(adaptive=True)
+    _TB001_PROFILES = (
+        ("Adaptive (Game Ready)", True),
+        ("Generic", False),
+    )
+
+    _TB001_SCOPES = (
+        ("Selected Objects", "selection"),
+        ("Entire Scene", "all"),
+    )
+
+    # Section toggles for the Get Scene Info option box. The key
+    # column maps 1:1 to ``mayatk.SceneInfoSection`` identifiers; the
+    # analyzer skips collection phases that no selected section needs
+    # (notably texture file IO when Textures + Pipeline + Summary +
+    # Fix First are all unchecked). Keep this in section render order.
+    _TB001_SECTIONS = (
+        ("summary", "Executive Summary", True,
+         "Scene-wide totals: meshes, instances, triangles, slots, GPU memory."),
+        ("fix_first", "Fix First (High Impact)", True,
+         "Prioritized remediation items based on budget overshoot."),
+        ("pareto", "Pareto View", True,
+         "Top 10 contributors to total triangles and draw calls."),
+        ("offenders", "Top Issues by Asset", True,
+         "Per-asset offender list with findings and fix plan."),
+        ("categories", "Top Offenders by Category", True,
+         "Materials correlated with high slot meshes."),
+        ("textures", "Textures", True,
+         "Dimension histogram, 4K analysis, heaviest texture files. "
+         "Unchecking this skips per-texture file-size IO — fastest win on heavy scenes."),
+        ("pipeline", "Pipeline Integrity", True,
+         "Missing project textures and their impact on top offenders."),
+        ("assumptions", "Data Assumptions", True,
+         "Methodology footnotes (compression, GPU sizing). Untick to hide the trailing assumptions block."),
+    )
+
+    def tb001_init(self, widget):
+        """Get Scene Info — option box."""
+        widget.option_box.menu.setTitle("Get Scene Info")
+
+        cmb_scope = widget.option_box.menu.add(
+            "QComboBox",
+            setObjectName="cmb_scope",
+            setToolTip=(
+                "Selected Objects: audit only what is selected — fastest.\n"
+                "Entire Scene: audit every mesh in the scene — can take "
+                "several seconds on heavy scenes."
+            ),
+        )
+        for label, data in self._TB001_SCOPES:
+            cmb_scope.addItem(label, data)
+
+        cmb_profile = widget.option_box.menu.add(
+            "QComboBox",
+            setObjectName="cmb_profile",
+            setToolTip=(
+                "Adaptive (Game Ready): adaptive triangle budgeting based on "
+                "object size — the recommended profile for game-ready scenes.\n"
+                "Generic: a flat triangle budget across all objects."
+            ),
+        )
+        for label, data in self._TB001_PROFILES:
+            cmb_profile.addItem(label, data)
+
+        widget.option_box.menu.add(
+            self.sb.registered_widgets.Label,
+            setText="Sections:",
+            setObjectName="lbl_sections",
+            setToolTip="Pick which report sections to query and render.",
+        )
+        for key, label, default_on, tooltip in self._TB001_SECTIONS:
+            widget.option_box.menu.add(
+                "QCheckBox",
+                setText=label,
+                setObjectName=f"chk_section_{key}",
+                setChecked=default_on,
+                setToolTip=tooltip,
+            )
+
+    def tb001(self, widget):
+        """Get Scene Info — render the audit report to the viewer dialog."""
+        scope = widget.option_box.menu.cmb_scope.currentData() or "selection"
+        adaptive = widget.option_box.menu.cmb_profile.currentData()
+        if adaptive is None:
+            adaptive = True  # default to game-ready when nothing's picked
+
+        sections = [
+            key
+            for key, _label, _default, _tip in self._TB001_SECTIONS
+            if getattr(widget.option_box.menu, f"chk_section_{key}").isChecked()
+        ]
+        if not sections:
+            self.sb.message_box(
+                "<hl>No sections selected</hl>. Tick at least one section in "
+                "the option menu."
+            )
+            return
+
+        # ``objects=None`` lets SceneAnalyzer.analyze fall back to its
+        # selection-based default. For "all" we hand it every mesh shape
+        # in the scene; the analyzer's resolver filters intermediates
+        # and components for us. Pre-check the empty case in both
+        # branches so the user sees a clear message instead of a blank
+        # viewer.
+        if scope == "all":
+            objects = cmds.ls(type="mesh", long=True, ni=True) or []
+            if not objects:
+                self.sb.message_box(
+                    "<hl>No mesh geometry</hl> found in the scene."
+                )
+                return
+        else:
+            if not (cmds.ls(selection=True, long=True) or []):
+                self.sb.message_box(
+                    "<hl>Nothing selected</hl>. Select objects, or pick "
+                    "'Entire Scene' from the option menu."
+                )
+                return
+            objects = None
+
+        # ``progress_adapter`` auto-syncs the bar's max from the analyzer's
+        # ``(current, 100, message)`` callbacks on the first tick.
+        with self.sb.progress(text="Working: Get Scene Info") as update:
+            html_dict = mtk.SceneAnalyzer.format_audit_html(
+                adaptive=bool(adaptive),
+                objects=objects,
+                progress_callback=self.sb.progress_adapter(update),
+                sections=sections,
+            )
+        html = "".join(html_dict.values()) if html_dict else ""
+        if not html:
+            self.sb.message_box(
+                "<hl>No scene info</hl> available — analyze returned no records."
+            )
+            return
+
+        self.sb.text_view_dialog(
+            html,
+            "Ok",
+            title="Get Scene Info",
+            size=(820, 560),
+            monospace=False,
+        )
 
     def b011(self):
         """Fix Color Spaces"""

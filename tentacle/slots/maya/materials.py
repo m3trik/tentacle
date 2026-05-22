@@ -56,10 +56,15 @@ class MaterialsSlots(SlotsMaya):
             setToolTip="Reload file textures for all scene materials.",
         )
         widget.menu.add(
-            "QPushButton",
-            setText="Print Texture Info",
-            setObjectName="b017",
-            setToolTip="Print information about all texture files in the scene to the script editor.",
+            self.sb.registered_widgets.PushButton,
+            setText="Get Material Info",
+            setObjectName="tb001",
+            setToolTip=(
+                "Show a formatted report of textures, sizes, bit depth, "
+                "file size, and optimization recommendations. Scope "
+                "(textures, current material, all materials, selected "
+                "objects) is set via the option box."
+            ),
         )
         widget.menu.add(
             "QPushButton",
@@ -738,30 +743,117 @@ class MaterialsSlots(SlotsMaya):
 
         self.sb.handlers.marking_menu.show(ui)
 
-    def b017(self, widget):
-        """Print Texture Info"""
-        info_list = mtk.MatUtils.get_texture_info()
-
-        print(f"\n{'='*60}")
-        print(f"Found {len(info_list)} valid textures in scene.")
-        print(f"{'='*60}")
-
-        for info in info_list:
-            print(f"Name: {info['name']}")
-            print(f"  Path:   {info['path']}")
-            print(f"  Size:   {info['size']:,} bytes")
-            print(f"  Res:    {info['width']}x{info['height']}")
-            print(f"  Mode:   {info['mode']}")
-            print(f"  Format: {info['format']}")
-            print("-" * 40)
-
-        self.sb.message_box(
-            f"Printed info for {len(info_list)} textures to Script Editor."
-        )
-
     def b018(self, widget):
         """Material Updater"""
         self.sb.handlers.marking_menu.show("mat_updater")
+
+    _TB001_SCOPES = (
+        ("Textures", "textures"),
+        ("Current Material", "current"),
+        ("All Materials", "all"),
+        ("Selected Objects", "selected"),
+    )
+
+    def tb001_init(self, widget):
+        """Get Material Info — option box."""
+        widget.option_box.menu.setTitle("Get Material Info")
+        cmb = widget.option_box.menu.add(
+            "QComboBox",
+            setObjectName="cmb_scope",
+            setToolTip=(
+                "Textures: every scene texture file.\n"
+                "Current Material: the material picked in cmb002.\n"
+                "All Materials: every scene material.\n"
+                "Selected Objects: materials assigned to the current "
+                "viewport selection."
+            ),
+        )
+        for label, data in self._TB001_SCOPES:
+            cmb.addItem(label, data)
+
+    def tb001(self, widget):
+        """Get Material Info — render a formatted report to the viewer dialog.
+
+        Validates scope inputs *before* opening the footer progress so
+        a quick bail-out (no current material, empty selection, …)
+        doesn't trigger the misleading "Complete" flash that
+        :class:`FooterProgressContext` emits on normal context exit.
+        """
+        cmb = widget.option_box.menu.cmb_scope
+        scope = cmb.currentData() or "current"
+        scope_label = cmb.currentText() or scope
+
+        # Pre-validate scope inputs.
+        get_mat_info_kwargs = None
+        if scope == "current":
+            mat = self.ui.cmb002.currentData()
+            if not mat:
+                self.sb.message_box(
+                    "<hl>No current material</hl><br>Pick a material first."
+                )
+                return
+            get_mat_info_kwargs = {"materials": [str(mat)]}
+            title = f"Material Info — {mat}"
+        elif scope == "selected":
+            sel = cmds.ls(sl=True, flatten=True) or []
+            if not sel:
+                self.sb.message_box(
+                    "<hl>Nothing selected</hl><br>"
+                    "Select object(s) to report their assigned materials."
+                )
+                return
+            get_mat_info_kwargs = {"objects": sel}
+            title = f"Material Info — {len(sel)} selected object(s)"
+
+        with self.sb.progress(
+            text=f"Working: Get Material Info ({scope_label})"
+        ) as update:
+            cb = self.sb.progress_adapter(update)
+            if scope == "textures":
+                info = mtk.MatUtils.get_texture_info()
+                if not info:
+                    html = None
+                else:
+                    html = mtk.MatUtils.format_texture_info_html(info)
+                    title = f"Texture Info — {len(info)} texture(s)"
+            else:
+                if get_mat_info_kwargs is None:  # scope == "all"
+                    records = mtk.MatUtils.get_mat_info(
+                        optimize_check=True,
+                        allow_palette=True,
+                        progress_callback=cb,
+                    )
+                    title = f"Material Info — all ({len(records)} material(s))"
+                else:
+                    records = mtk.MatUtils.get_mat_info(
+                        optimize_check=True,
+                        allow_palette=True,
+                        progress_callback=cb,
+                        **get_mat_info_kwargs,
+                    )
+                html = (
+                    mtk.MatUtils.format_mat_info_html(records) if records else None
+                )
+
+        if html is None:
+            if scope == "textures":
+                self.sb.message_box("<hl>No textures</hl> found in scene.")
+            else:
+                self.sb.message_box(
+                    f"<hl>No materials</hl> for scope: {scope_label}."
+                )
+            return
+
+        # Non-modal viewer: Maya stays responsive while the user reads
+        # the report. The Ok button closes the window via WindowPanel's
+        # close(); the window's X button works too.
+        self.sb.text_view_dialog(
+            html,
+            "Ok",
+            title=title,
+            size=(760, 520),
+            monospace=False,
+        )
 
     def b021(self, widget):
         """Image to Plane"""
