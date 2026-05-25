@@ -35,6 +35,7 @@ class Editors(SlotsMaya):
                 "Display Layer Editor",
                 "File Path Editor",
                 "Namespace Editor",
+                "Reference Editor",
                 "Script Editor",
                 "Command Shell",
                 "Profiler",
@@ -131,6 +132,8 @@ class Editors(SlotsMaya):
                 mel.eval("FilePathEditor")
             elif text == "Namespace Editor":
                 mel.eval("NamespaceEditor")
+            elif text == "Reference Editor":
+                mel.eval("ReferenceEditor")
             elif text == "Script Editor":
                 mel.eval("ScriptEditor")
             elif text == "Command Shell":
