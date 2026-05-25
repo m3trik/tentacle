@@ -1302,7 +1302,7 @@
               "kind": "method",
               "signature": "(self, item)",
               "summary": "",
-              "line": 96,
+              "line": 97,
               "deprecated": false
             },
             {
@@ -1311,7 +1311,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Attributes",
-              "line": 227,
+              "line": 230,
               "deprecated": false
             },
             {
@@ -1320,7 +1320,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Outliner",
-              "line": 231,
+              "line": 234,
               "deprecated": false
             },
             {
@@ -1329,7 +1329,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Tool",
-              "line": 235,
+              "line": 238,
               "deprecated": false
             },
             {
@@ -1338,7 +1338,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Layers",
-              "line": 239,
+              "line": 242,
               "deprecated": false
             },
             {
@@ -1347,7 +1347,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Channels",
-              "line": 243,
+              "line": 246,
               "deprecated": false
             },
             {
@@ -1356,7 +1356,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Node Editor",
-              "line": 247,
+              "line": 250,
               "deprecated": false
             },
             {
@@ -1365,7 +1365,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Dependancy Graph",
-              "line": 251,
+              "line": 254,
               "deprecated": false
             },
             {
@@ -1374,7 +1374,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Status Line",
-              "line": 290,
+              "line": 293,
               "deprecated": false
             },
             {
@@ -1383,7 +1383,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Shelf",
-              "line": 294,
+              "line": 297,
               "deprecated": false
             },
             {
@@ -1392,7 +1392,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Time & Range",
-              "line": 298,
+              "line": 301,
               "deprecated": false
             },
             {
@@ -1401,7 +1401,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Script Output",
-              "line": 312,
+              "line": 315,
               "deprecated": false
             },
             {
@@ -1410,7 +1410,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Command Line",
-              "line": 320,
+              "line": 323,
               "deprecated": false
             },
             {
@@ -1419,7 +1419,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Help Line",
-              "line": 324,
+              "line": 327,
               "deprecated": false
             },
             {
@@ -1428,7 +1428,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Tool Box",
-              "line": 328,
+              "line": 331,
               "deprecated": false
             },
             {
@@ -1437,7 +1437,7 @@
               "kind": "method",
               "signature": "(self, name)",
               "summary": "Get a maya widget from a given name.",
-              "line": 332,
+              "line": 335,
               "deprecated": false
             }
           ]
