@@ -752,6 +752,8 @@ _Generated: 2026-06-04_
   - `Subdivision.b000(self)` — Quadrangulate
   - `Subdivision.b001(self)` — Triangulate
   - `Subdivision.b005(self)` — Reduce
+  - `Subdivision.tb000_init(self, widget)` — Initialize Decimate
+  - `Subdivision.tb000(self, widget)` — Decimate
   - `Subdivision.b008(self)` — Add Divisions - Subdivide Mesh
   - `Subdivision.b009(self)` — Smooth
   - `Subdivision.b011(self)` — Apply Smooth Preview
@@ -833,7 +835,7 @@ _Generated: 2026-06-04_
   - `UvSlots.cmb002_init(self, widget)` — Initialize UV Transform Menu
   - `UvSlots.tb000_init(self, widget)` — Initialize UV packing tool interface.
   - `UvSlots.tb000(self, widget)` — Pack UVs with specified settings.
-  - `UvSlots.tb001_init(self, widget)` — Initialize Auto Unwrap
+  - `UvSlots.tb001_init(self, widget)` — Initialize Auto Unwrap.
   - `UvSlots.tb001(self, widget)` — Auto Unwrap
   - `UvSlots.tb004_init(self, widget)` — Initialize Unfold UV
   - `UvSlots.tb004(self, widget)` — Unfold
@@ -846,7 +848,6 @@ _Generated: 2026-06-04_
   - `UvSlots.tb008_init(self, widget)` — Initialize Mirror UVs.
   - `UvSlots.tb008(self, widget)` — Mirror UVs (footprint-preserving by default).
   - `UvSlots.cmb002(self, index, widget)` — Transform
-  - `UvSlots.chk001(self, state, widget)` — Auto Unwrap: Scale Mode CheckBox
   - `UvSlots.b000(self, widget)` — Transfer UV's
   - `UvSlots.b003(self)` — Get texel density.
   - `UvSlots.b004(self)` — Set Texel Density

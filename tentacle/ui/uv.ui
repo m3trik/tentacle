@@ -10,7 +10,7 @@
     <x>0</x>
     <y>0</y>
     <width>200</width>
-    <height>491</height>
+    <height>395</height>
    </rect>
   </property>
   <property name="toolTip">
@@ -73,7 +73,7 @@
        </widget>
       </item>
       <item>
-       <widget class="QGroupBox" name="map">
+       <widget class="CollapsableGroup" name="map">
         <property name="enabled">
          <bool>true</bool>
         </property>
@@ -172,7 +172,7 @@
        </widget>
       </item>
       <item>
-       <widget class="QGroupBox" name="map_2">
+       <widget class="CollapsableGroup" name="map_2">
         <property name="enabled">
          <bool>true</bool>
         </property>
@@ -307,7 +307,7 @@
        </widget>
       </item>
       <item>
-       <widget class="QGroupBox" name="edit">
+       <widget class="CollapsableGroup" name="edit">
         <property name="title">
          <string>Edit</string>
         </property>
@@ -550,7 +550,7 @@
        </widget>
       </item>
       <item>
-       <widget class="QGroupBox" name="transform">
+       <widget class="CollapsableGroup" name="transform">
         <property name="title">
          <string>Transform</string>
         </property>
@@ -909,7 +909,7 @@
        </widget>
       </item>
       <item>
-       <widget class="QGroupBox" name="pack">
+       <widget class="CollapsableGroup" name="pack">
         <property name="title">
          <string>Pack</string>
         </property>
@@ -964,7 +964,7 @@
        </widget>
       </item>
       <item>
-       <widget class="QGroupBox" name="transfer">
+       <widget class="CollapsableGroup" name="transfer">
         <property name="title">
          <string>Transfer</string>
         </property>
@@ -1063,14 +1063,20 @@
  </widget>
  <customwidgets>
   <customwidget>
-   <class>Header</class>
-   <extends>QLabel</extends>
-   <header>uitk.widgets.header</header>
-  </customwidget>
-  <customwidget>
    <class>PushButton</class>
    <extends>QPushButton</extends>
-   <header>uitk.widgets.pushButton</header>
+   <header>widgets.pushbutton.h</header>
+  </customwidget>
+  <customwidget>
+   <class>Header</class>
+   <extends>QLabel</extends>
+   <header>uitk.widgets.header.Header.h</header>
+  </customwidget>
+  <customwidget>
+   <class>CollapsableGroup</class>
+   <extends>QGroupBox</extends>
+   <header>uitk.widgets.collapsableGroup.CollapsableGroup.h</header>
+   <container>1</container>
   </customwidget>
   <customwidget>
    <class>Footer</class>

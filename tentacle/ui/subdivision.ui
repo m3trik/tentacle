@@ -122,6 +122,37 @@
           </widget>
          </item>
          <item>
+          <widget class="QPushButton" name="tb000">
+           <property name="enabled">
+            <bool>true</bool>
+           </property>
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>19</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>16777215</width>
+             <height>19</height>
+            </size>
+           </property>
+           <property name="toolTip">
+            <string>Decimate the selected meshes. Choose the algorithm in the option box: Reduce (quadric-error %) or Planar (lossless coplanar dissolve for hard-surface).</string>
+           </property>
+           <property name="text">
+            <string>Decimate</string>
+           </property>
+           <property name="iconSize">
+            <size>
+             <width>18</width>
+             <height>18</height>
+            </size>
+           </property>
+          </widget>
+         </item>
+         <item>
           <widget class="QPushButton" name="b008">
            <property name="enabled">
             <bool>true</bool>

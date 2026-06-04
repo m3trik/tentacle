@@ -2,10 +2,11 @@
 
 _Diff vs prior baseline. Generated 2026-06-04._
 
-## Added (5)
+## Removed (1)
 
-- `slots/maya/deformation.py::DeformationSlots(class)`
-- `slots/maya/deformation.py::DeformationSlots.tb001(self, widget)`
-- `slots/maya/deformation.py::DeformationSlots.tb001_init(self, widget)`
-- `slots/maya/materials.py::MaterialsSlots.b024(self, widget)`
-- `slots/maya/materials.py::MaterialsSlots.b025(self, widget)`
+- `slots/maya/uv.py::UvSlots.chk001` — was `(self, state, widget)`
+
+## Added (2)
+
+- `slots/maya/subdivision.py::Subdivision.tb000(self, widget)`
+- `slots/maya/subdivision.py::Subdivision.tb000_init(self, widget)`
