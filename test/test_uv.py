@@ -11,14 +11,17 @@ at this layer:
 - b005 (Cut UVs): the "selected edges vs whole mesh" routing.
 """
 import unittest
+from unittest import mock
 
 try:
     import maya.cmds as cmds
+    import mayatk as mtk
     from tentacle.slots.maya import uv as uv_module
 
     _MAYA_AVAILABLE = True
 except ImportError:
     cmds = None
+    mtk = None
     uv_module = None
     _MAYA_AVAILABLE = False
 
@@ -177,6 +180,272 @@ class TestB005CutUVsRouting(unittest.TestCase):
         # The argument should be a glob-like edge spec.
         joined = " ".join(str(c) for c in self.captured)
         self.assertIn(".e[", joined)
+
+
+class _FakeCheck:
+    def __init__(self, checked):
+        self._c = checked
+
+    def isChecked(self):
+        return self._c
+
+
+class _FakeSpin:
+    def __init__(self, value):
+        self._v = value
+
+    def value(self):
+        return self._v
+
+
+class _FakeDataCombo:
+    def __init__(self, data):
+        self._d = data
+
+    def currentData(self):
+        return self._d
+
+
+class _FakeUnfoldMenu:
+    """Mimics tb004's widget.option_box.menu (chk017/chk007/chk022/cmb013/s000)."""
+
+    def __init__(
+        self,
+        optimize=True,
+        orient=True,
+        stack=True,
+        tolerance=1.0,
+        nonmanifold_mode="select",
+    ):
+        self.chk017 = _FakeCheck(optimize)  # Optimize
+        self.chk007 = _FakeCheck(orient)  # Orient
+        self.chk022 = _FakeCheck(stack)  # Stack Similar
+        self.cmb013 = _FakeDataCombo(nonmanifold_mode)  # Non-Manifold strategy
+        self.s000 = _FakeSpin(tolerance)  # Tolerance
+
+
+class _FakeOptionBox:
+    def __init__(self, menu):
+        self.menu = menu
+
+
+class _FakeUnfoldWidget:
+    def __init__(self, **kwargs):
+        self.option_box = _FakeOptionBox(_FakeUnfoldMenu(**kwargs))
+
+
+@unittest.skipUnless(_MAYA_AVAILABLE, "Requires maya.cmds")
+class TestClassifyU3dError(unittest.TestCase):
+    """_classify_u3d_error condenses Unfold3D RuntimeErrors into short reasons.
+
+    Shared by tb000 (Pack) and tb004 (Unfold) for their message boxes.
+    """
+
+    def test_non_manifold(self):
+        err = RuntimeError(
+            "Mesh has non-manifold vertices. Clean up the mesh before using unfold."
+        )
+        self.assertEqual(
+            uv_module.UvSlots._classify_u3d_error(err), "non-manifold vertices"
+        )
+
+    def test_overlapping(self):
+        err = RuntimeError("u3dLayout: overlapping UVs detected in the shell")
+        self.assertEqual(
+            uv_module.UvSlots._classify_u3d_error(err), "overlapping UVs"
+        )
+
+    def test_other_truncates_first_line(self):
+        err = RuntimeError("Some unexpected failure\nwith trailing detail lines")
+        self.assertEqual(
+            uv_module.UvSlots._classify_u3d_error(err), "Some unexpected failure"
+        )
+
+
+@unittest.skipUnless(_MAYA_AVAILABLE, "Requires maya.cmds")
+class TestTb004UnfoldGuard(unittest.TestCase):
+    """tb004 (Unfold) must surface u3dUnfold's non-manifold RuntimeError as a
+    message and abort, instead of letting it escape as an unhandled traceback
+    (and instead of running the downstream optimize/stack steps).
+    """
+
+    def setUp(self):
+        cmds.file(new=True, force=True)
+        self.instance = uv_module.UvSlots.__new__(uv_module.UvSlots)
+        self.instance.sb = _RecordedSb()
+        self.instance.get_map_size = lambda: 2048
+
+        # Isolate tb004's control flow from Maya UI state and the Unfold3D
+        # plugin by stubbing the cmds it drives. The u3d* commands only exist
+        # once Unfold3D.mll is loaded, so capture a sentinel for any that are
+        # absent and delete them again on teardown.
+        self._missing = object()
+        self._orig = {
+            name: getattr(cmds, name, self._missing)
+            for name in (
+                "selectMode",
+                "u3dUnfold",
+                "u3dOptimize",
+                "polyUVStackSimilarShells",
+            )
+        }
+        self.optimize_calls = []
+        self.stack_calls = []
+        cmds.selectMode = lambda *a, **k: False  # query → already-object: skip switch
+        cmds.u3dOptimize = lambda *a, **k: self.optimize_calls.append((a, k))
+        cmds.polyUVStackSimilarShells = lambda *a, **k: self.stack_calls.append((a, k))
+
+    def tearDown(self):
+        for name, fn in self._orig.items():
+            if fn is self._missing:
+                if hasattr(cmds, name):
+                    delattr(cmds, name)
+            else:
+                setattr(cmds, name, fn)
+        cmds.file(new=True, force=True)
+
+    def test_non_manifold_runtimeerror_is_caught_and_aborts(self):
+        def _raise(*a, **k):
+            raise RuntimeError(
+                "Mesh has non-manifold vertices. Clean up the mesh before using unfold."
+            )
+
+        cmds.u3dUnfold = _raise
+
+        # Must not raise.
+        self.instance.tb004(widget=_FakeUnfoldWidget())
+
+        # A message naming the cause was surfaced.
+        self.assertTrue(self.instance.sb.messages)
+        joined = " ".join(str(m) for m in self.instance.sb.messages).lower()
+        self.assertIn("non-manifold", joined)
+
+        # Early return: downstream steps were skipped.
+        self.assertEqual(self.optimize_calls, [])
+        self.assertEqual(self.stack_calls, [])
+
+    def test_successful_unfold_runs_downstream_steps(self):
+        cmds.u3dUnfold = lambda *a, **k: None  # succeeds
+
+        # orient=False avoids the mel texOrientShells dependency; the optimize
+        # and stack stubs record that the post-unfold steps ran.
+        self.instance.tb004(widget=_FakeUnfoldWidget(orient=False))
+
+        self.assertFalse(self.instance.sb.messages)
+        self.assertEqual(len(self.optimize_calls), 1)
+        self.assertEqual(len(self.stack_calls), 1)
+
+
+@unittest.skipUnless(_MAYA_AVAILABLE, "Requires maya.cmds")
+class TestTb004NonManifoldStrategy(unittest.TestCase):
+    """tb004's non-manifold strategy combo: Warn + Select vs Repair + Retry.
+
+    Drives the real polyInfo / clean_geometry / selection paths against a real
+    bowtie mesh; only u3dUnfold is stubbed (its Unfold3D plugin need not load).
+    """
+
+    def setUp(self):
+        cmds.file(new=True, force=True)
+        self.instance = uv_module.UvSlots.__new__(uv_module.UvSlots)
+        self.instance.sb = _RecordedSb()
+        self.instance.get_map_size = lambda: 2048
+
+        # Two planes sharing a single corner vertex → one non-manifold (bowtie) vert.
+        p1 = cmds.polyPlane(w=1, h=1, sx=1, sy=1)[0]
+        p2 = cmds.polyPlane(w=1, h=1, sx=1, sy=1)[0]
+        cmds.move(1, 0, 1, p2)
+        self.mesh = cmds.polyUnite(p1, p2, ch=False)[0]
+        cmds.polyMergeVertex(self.mesh, d=0.001, ch=False)
+        self.shape = cmds.listRelatives(self.mesh, shapes=True, ni=True)[0]
+        cmds.select(self.mesh)
+
+        self._orig_unfold = getattr(cmds, "u3dUnfold", None)
+
+        def _raise(*a, **k):
+            raise RuntimeError(
+                "Mesh has non-manifold vertices. Clean up the mesh before using unfold."
+            )
+
+        cmds.u3dUnfold = _raise
+
+    def tearDown(self):
+        if self._orig_unfold is None:
+            if hasattr(cmds, "u3dUnfold"):
+                del cmds.u3dUnfold
+        else:
+            cmds.u3dUnfold = self._orig_unfold
+        cmds.file(new=True, force=True)
+
+    def test_select_mode_selects_and_warns(self):
+        self.instance.tb004(widget=_FakeUnfoldWidget(nonmanifold_mode="select"))
+
+        sel = cmds.ls(sl=True, flatten=True) or []
+        self.assertTrue(sel, "expected the non-manifold vertices to be selected")
+        self.assertTrue(
+            all(".vtx[" in s for s in sel), f"expected vtx components, got {sel}"
+        )
+        joined = " ".join(str(m) for m in self.instance.sb.messages).lower()
+        self.assertIn("non-manifold", joined)
+        self.assertIn("vertex mode", joined)
+
+    def test_repair_mode_repairs_and_retries(self):
+        # First unfold fails (non-manifold); after the real repair the retry succeeds.
+        calls = {"n": 0}
+
+        def _unfold(*a, **k):
+            calls["n"] += 1
+            if calls["n"] == 1:
+                raise RuntimeError(
+                    "Mesh has non-manifold vertices. Clean up the mesh before using unfold."
+                )
+            return None  # post-repair retry succeeds
+
+        cmds.u3dUnfold = _unfold
+
+        self.instance.tb004(
+            widget=_FakeUnfoldWidget(
+                nonmanifold_mode="repair", optimize=False, orient=False, stack=False
+            )
+        )
+
+        self.assertEqual(calls["n"], 2, "expected u3dUnfold to be retried after repair")
+        # The real clean_geometry actually made the mesh manifold.
+        self.assertIsNone(cmds.polyInfo(self.shape, nonManifoldVertices=True))
+        joined = " ".join(str(m) for m in self.instance.sb.messages).lower()
+        self.assertIn("repair", joined)
+
+    def test_repair_mode_falls_back_when_unrepairable(self):
+        # clean_geometry no-op → the mesh stays non-manifold, the retry fails, and
+        # tb004 falls back to Warn + Select.
+        with mock.patch.object(mtk.Diagnostics, "clean_geometry", lambda *a, **k: None):
+            self.instance.tb004(
+                widget=_FakeUnfoldWidget(
+                    nonmanifold_mode="repair", optimize=False, orient=False, stack=False
+                )
+            )
+
+        sel = cmds.ls(sl=True, flatten=True) or []
+        self.assertTrue(
+            any(".vtx[" in s for s in sel), f"expected vtx selection, got {sel}"
+        )
+        joined = " ".join(str(m) for m in self.instance.sb.messages).lower()
+        self.assertIn("non-manifold", joined)
+
+    def test_repair_mode_survives_cleanup_error(self):
+        # A raising clean_geometry must not escape tb004 — it degrades to the
+        # retry, which fails, falling back to Warn + Select.
+        def _boom(*a, **k):
+            raise RuntimeError("polyCleanup failed")
+
+        with mock.patch.object(mtk.Diagnostics, "clean_geometry", _boom):
+            self.instance.tb004(  # must not raise
+                widget=_FakeUnfoldWidget(
+                    nonmanifold_mode="repair", optimize=False, orient=False, stack=False
+                )
+            )
+
+        joined = " ".join(str(m) for m in self.instance.sb.messages).lower()
+        self.assertIn("non-manifold", joined)
 
 
 if __name__ == "__main__":

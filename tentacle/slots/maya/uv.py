@@ -204,6 +204,93 @@ class UvSlots(SlotsMaya):
         menu.s013.valueChanged.connect(_sync_rotate_step)
         _sync_rotate_step()
 
+    @staticmethod
+    def _classify_u3d_error(error) -> str:
+        """Condense an Unfold3D RuntimeError (u3dLayout / u3dUnfold / u3dOptimize)
+        into a short, human-readable reason for display in a message box.
+        """
+        msg = str(error)
+        low = msg.lower()
+        if "non-manifold" in low:
+            return "non-manifold vertices"
+        if "overlapping" in low:
+            return "overlapping UVs"
+        return msg.split("\n")[0][:50]
+
+    @staticmethod
+    def _non_manifold_vertices(objects):
+        """Map each mesh in *objects* to its non-manifold vertices, via polyInfo.
+
+        Native ``polyInfo`` is instant, unlike ``EditUtils.find_non_manifold_vertex``
+        whose per-vertex Python scan is too slow for the heavy meshes that trip
+        Unfold. Returns ``{mesh_shape: [vertex_components]}`` (only meshes that
+        have any; empty dict when there are none).
+        """
+        by_mesh = {}
+        if not objects:
+            return by_mesh
+        for shape in cmds.ls(objects, dag=True, type="mesh", noIntermediate=True) or []:
+            verts = cmds.polyInfo(shape, nonManifoldVertices=True) or []
+            if verts:
+                by_mesh[shape] = cmds.ls(verts, flatten=True)
+        return by_mesh
+
+    def _warn_and_select_non_manifold(self, objects):
+        """Select the non-manifold vertices on *objects* (vertex mode) and explain.
+
+        Backs the 'Warn + Select' strategy and the fallback when a repair can't
+        make the mesh unfoldable.
+        """
+        verts = [v for vs in self._non_manifold_vertices(objects).values() for v in vs]
+        if verts:
+            cmds.selectMode(component=True)
+            cmds.selectType(vertex=True)
+            cmds.select(verts, replace=True)
+        n = len(verts)
+        selected = (
+            f"<b>{n}</b> problem {'vertex' if n == 1 else 'vertices'} "
+            "selected in vertex mode.<br><br>"
+            if verts
+            else ""
+        )
+        self.sb.message_box(
+            "<b>⚠ Unfold stopped — non-manifold geometry</b><br><br>"
+            "Unfold can't flatten a mesh with <b>non-manifold vertices</b> — "
+            "points where the surface branches or folds back on itself.<br><br>"
+            f"{selected}"
+            "<b>To fix:</b><br>"
+            "• Set the Unfold option to <b>Repair + Retry</b> to auto-clean, or<br>"
+            "• run <b>Mesh &gt; Cleanup</b> / <b>Merge</b> doubled verts manually.<br><br>"
+            "<i>Then run Unfold again.</i>"
+        )
+
+    def _repair_non_manifold(self, objects):
+        """Auto-repair non-manifold geometry on *objects* (Mesh Cleanup).
+
+        Logs a per-mesh breakdown to the console and returns a summary
+        ``{"total", "fixed", "remaining"}`` of non-manifold vertices, so the
+        caller can briefly mention the repair in its result message.
+        """
+        before = self._non_manifold_vertices(objects)
+        total = sum(len(v) for v in before.values())
+
+        print("# Unfold: auto-repairing non-manifold geometry #")
+        for shape, verts in before.items():
+            print(f"#   {shape}: {len(verts)} non-manifold vertex(es) #")
+
+        try:
+            mtk.Diagnostics.clean_geometry(objects, repair=True, nonmanifold=True)
+        except (RuntimeError, ValueError) as exc:
+            # Cleanup itself failed — the retry will fall back to Warn + Select.
+            print(f"# Unfold: cleanup failed: {exc} #")
+
+        remaining = sum(len(v) for v in self._non_manifold_vertices(objects).values())
+        fixed = total - remaining
+        print(
+            f"# Unfold: repaired {fixed} non-manifold vertex(es), {remaining} remaining #"
+        )
+        return {"total": total, "fixed": fixed, "remaining": remaining}
+
     def tb000(self, widget):
         """Pack UVs with specified settings.
 
@@ -291,15 +378,6 @@ class UvSlots(SlotsMaya):
         if mutations > 1:
             pack_kwargs["mutations"] = mutations
 
-        def _classify(err):
-            msg = str(err)
-            low = msg.lower()
-            if "non-manifold" in low:
-                return "non-manifold vertices"
-            if "overlapping" in low:
-                return "overlapping UVs"
-            return msg.split("\n")[0][:50]
-
         successful = []
         failed = []
         cmds.undoInfo(openChunk=True, chunkName="UV Pack")
@@ -327,14 +405,14 @@ class UvSlots(SlotsMaya):
                         good.extend(uvs)
                         successful.append(str(mesh))
                     except RuntimeError as me:
-                        failed.append((str(mesh), _classify(me)))
+                        failed.append((str(mesh), self._classify_u3d_error(me)))
                 if good:
                     try:
                         cmds.u3dLayout(good, **pack_kwargs)
                     except RuntimeError as ce:
                         # Survivors packed individually (each filling the tile);
                         # combine failed, so leave them as-is and surface the cause.
-                        failed.append(("<combined re-pack>", _classify(ce)))
+                        failed.append(("<combined re-pack>", self._classify_u3d_error(ce)))
         finally:
             cmds.refresh(suspend=False)
             cmds.undoInfo(closeChunk=True)
@@ -525,20 +603,41 @@ class UvSlots(SlotsMaya):
             setValue=1.0,
             setToolTip="Stack shells with uv's within the given range.",
         )
+        cmb013 = widget.option_box.menu.add(
+            "QComboBox",
+            setObjectName="cmb013",
+            setToolTip=(
+                "What to do when non-manifold geometry blocks Unfold:\n"
+                "Warn + Select: stop, select the offending vertices, and explain.\n"
+                "Repair + Retry: auto-clean the non-manifold geometry (Mesh Cleanup),\n"
+                "then run Unfold again. The repair is noted in the result and the console."
+            ),
+        )
+        for text, data in [
+            ("Non-Manifold: Warn + Select", "select"),
+            ("Non-Manifold: Repair + Retry", "repair"),
+        ]:
+            cmb013.addItem(text, data)
+        cmb013.setCurrentIndex(0)  # Warn + Select (matches the prior default)
 
     def tb004(self, widget):
         """Unfold"""
         optimize = widget.option_box.menu.chk017.isChecked()
         orient = widget.option_box.menu.chk007.isChecked()
         stackSimilar = widget.option_box.menu.chk022.isChecked()
+        nonmanifold_mode = widget.option_box.menu.cmb013.currentData()
         tolerance = widget.option_box.menu.s000.value()
         map_size = self.get_map_size()
+
+        # Capture the operands before any mode switch, so the failure path can
+        # locate / repair non-manifold geometry on them.
+        objects = cmds.ls(sl=True, objectsOnly=True) or []
 
         # If selection mode is not object, switch to object mode
         if cmds.selectMode(query=True, object=True):
             cmds.selectMode(object=True)
 
-        cmds.u3dUnfold(
+        unfold_kwargs = dict(
             iterations=1,
             pack=0,
             borderintersection=1,
@@ -546,6 +645,29 @@ class UvSlots(SlotsMaya):
             mapsize=map_size,
             roomspace=0,
         )
+
+        # u3dUnfold rejects non-manifold geometry with a RuntimeError. Per the
+        # chosen strategy, either warn + select the offending vertices, or
+        # auto-repair (Mesh Cleanup) and retry once.
+        repair_summary = None
+        try:
+            cmds.u3dUnfold(**unfold_kwargs)
+        except RuntimeError as error:
+            if "non-manifold" not in str(error).lower():
+                self.sb.message_box(
+                    f"<b>Unfold failed:</b> {self._classify_u3d_error(error)}."
+                )
+                return
+            if nonmanifold_mode != "repair":
+                self._warn_and_select_non_manifold(objects)
+                return
+            repair_summary = self._repair_non_manifold(objects)
+            try:
+                cmds.u3dUnfold(**unfold_kwargs)
+            except RuntimeError:
+                # Repair couldn't make it unfoldable — fall back to warn + select.
+                self._warn_and_select_non_manifold(objects)
+                return
 
         if optimize:
             cmds.u3dOptimize(
@@ -563,6 +685,19 @@ class UvSlots(SlotsMaya):
 
         if stackSimilar:
             cmds.polyUVStackSimilarShells(tolerance=tolerance)
+
+        if repair_summary:
+            fixed = repair_summary["fixed"]
+            detail = (
+                f" — <b>{fixed}</b> {'vertex' if fixed == 1 else 'vertices'} fixed"
+                if fixed
+                else ""
+            )
+            self.sb.message_box(
+                "<b>Unfold complete.</b><br><br>"
+                f"⚠ Non-manifold geometry was auto-repaired first{detail}.<br>"
+                "<i>See the Script Editor for the per-mesh breakdown.</i>"
+            )
 
     def tb005_init(self, widget):
         """Initialize Straighten UV"""
