@@ -2,7 +2,6 @@
 # coding=utf-8
 """Regression tests for the pure helpers in tentacle.slots.maya.rendering.
 
-test_rendering.py exists but only covers the VRay setup path (b005).
 The pure-Python helpers (_default_playblast_path, _scene_base_name,
 _camera_transforms) had no coverage — they underpin the entire Export
 Playblast workflow.

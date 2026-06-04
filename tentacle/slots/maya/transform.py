@@ -359,6 +359,27 @@ class TransformSlots(SlotsMaya):
         """Move To Init"""
         widget.option_box.menu.setTitle("MOVE TO")
 
+        # Pivot combobox — driven by the mayatk pivot helper (like the Mirror /
+        # Duplicate panels) so it stays in sync. currentData() yields the raw
+        # pivot key ('manip', 'object', 'center', 'xmax', ...).
+        cmb = widget.option_box.menu.add(
+            self.sb.registered_widgets.ComboBox,
+            setObjectName="cmb005",
+            setToolTip="Which point of the target to align the source object(s) to.\n"
+            "Manip / Object pivot, or any bounding-box location (center + extents).",
+        )
+        # Exclude pivots that aren't meaningful for a translate-only "move to
+        # target" op, leaving manip / object / bounding-box locations:
+        #   'baked'  — differs from 'object' only by orientation, which move_to
+        #              ignores, so it resolves to the same point as 'object'.
+        #   'world'  — the origin, ignoring the target entirely (use Drop To Grid).
+        skip = {"baked", "world"}
+        pivot_options = [
+            p for p in mtk.XformUtils.get_pivot_options() if p not in skip
+        ]
+        cmb.add(pivot_options, prefix="Pivot:")
+        cmb.setAsCurrent("center")  # historical default (target bounding-box center)
+
         widget.option_box.menu.add(
             "QCheckBox",
             setText="Move All To Last",
@@ -366,11 +387,20 @@ class TransformSlots(SlotsMaya):
             setChecked=True,
             setToolTip="If checked, all selected objects will move to align with the last selected object.\nIf unchecked, the first object will move to the remaining selected objects' bounding box.",
         )
+        widget.option_box.menu.add(
+            "QCheckBox",
+            setText="Match Scale",
+            setObjectName="chk_match_scale",
+            setChecked=False,
+            setToolTip="Also rescale the moved object(s) to match the target's bounding-box size.",
+        )
 
     @mtk.undoable
     def tb005(self, widget):
         """Move To"""
+        pivot = widget.option_box.menu.cmb005.currentData() or "center"
         move_all_to_last = widget.option_box.menu.chk036.isChecked()
+        do_match_scale = widget.option_box.menu.chk_match_scale.isChecked()
 
         sel = cmds.ls(orderedSelection=True, transforms=True) or []
         if not len(sel) > 1:
@@ -379,17 +409,15 @@ class TransformSlots(SlotsMaya):
             )
             return
 
-        # Move all to last selected object's position
-        if move_all_to_last:
-            source = sel[:-1]
-            target = sel[-1]
-            mtk.move_to(source, target)
-            cmds.select(source)
-        else:  # Move first object to remaining selected objects' bounding box or pivot point
-            source = sel[0]
-            target = sel[1:]
-            mtk.move_to(source, target)
-            cmds.select(source)
+        if move_all_to_last:  # all but the last move to the last object
+            source, target = sel[:-1], sel[-1]
+        else:  # the first object moves to the remaining objects' combined bounding box
+            source, target = sel[0], sel[1:]
+
+        if do_match_scale:  # resize source to the target's bounding-box size
+            mtk.match_scale(source, target)
+        mtk.move_to(source, target, pivot=pivot)
+        cmds.select(source)
 
     def chk021(self, state, widget):
         """Transform Tool Snap Settings: Move"""

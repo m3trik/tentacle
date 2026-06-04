@@ -37,11 +37,15 @@ class _FakeChk:
 
 
 class _FakeCombo:
-    def __init__(self, current_index=0):
+    def __init__(self, current_index=0, data=None):
         self._i = current_index
+        self._data = data
 
     def currentIndex(self):
         return self._i
+
+    def currentData(self):
+        return self._data
 
 
 class _FakeMenu:
@@ -153,19 +157,32 @@ class TestTb005MoveTo(unittest.TestCase):
 
         import mayatk as mtk
         self._orig = mtk.move_to
+        self._orig_scale = mtk.match_scale
         self.calls = []
-        mtk.move_to = lambda source, target: self.calls.append((source, target))
+        self.scale_calls = []
+        mtk.move_to = lambda source, target, pivot="center": self.calls.append(
+            (source, target, pivot)
+        )
+        mtk.match_scale = lambda a, b, *args, **kw: self.scale_calls.append((a, b))
 
     def tearDown(self):
         import mayatk as mtk
         mtk.move_to = self._orig
+        mtk.match_scale = self._orig_scale
         cmds.file(new=True, force=True)
+
+    def _menu(self, move_all_to_last, pivot="center", match_scale=False):
+        return _FakeMenu(
+            chk036=_FakeChk(move_all_to_last),
+            cmb005=_FakeCombo(data=pivot),
+            chk_match_scale=_FakeChk(match_scale),
+        )
 
     def test_one_object_warns(self):
         """Single selection → message, no move_to call."""
         cube = cmds.polyCube(name="mv_one")[0]
         cmds.select(cube)
-        widget = _FakeWidget(_FakeMenu(chk036=_FakeChk(True)))
+        widget = _FakeWidget(self._menu(True))
         self.instance.tb005(widget)
         self.assertEqual(self.calls, [])
         self.assertTrue(self.instance.sb.messages)
@@ -176,14 +193,15 @@ class TestTb005MoveTo(unittest.TestCase):
         b = cmds.polyCube(name="mv_b")[0]
         c = cmds.polyCube(name="mv_c")[0]
         cmds.select([a, b, c])
-        widget = _FakeWidget(_FakeMenu(chk036=_FakeChk(True)))
+        widget = _FakeWidget(self._menu(True))
         self.instance.tb005(widget)
 
         self.assertEqual(len(self.calls), 1)
-        source, target = self.calls[0]
+        source, target, pivot = self.calls[0]
         # source should be [a, b], target = c
         self.assertEqual(list(source), [a, b])
         self.assertEqual(target, c)
+        self.assertEqual(pivot, "center")
 
     def test_first_to_rest(self):
         """chk036=False → first moves to rest (as bounding-box target list)."""
@@ -191,14 +209,50 @@ class TestTb005MoveTo(unittest.TestCase):
         b = cmds.polyCube(name="mv_b2")[0]
         c = cmds.polyCube(name="mv_c2")[0]
         cmds.select([a, b, c])
-        widget = _FakeWidget(_FakeMenu(chk036=_FakeChk(False)))
+        widget = _FakeWidget(self._menu(False))
         self.instance.tb005(widget)
 
         self.assertEqual(len(self.calls), 1)
-        source, target = self.calls[0]
+        source, target, pivot = self.calls[0]
         # source = a, target = [b, c]
         self.assertEqual(source, a)
         self.assertEqual(list(target), [b, c])
+
+    def test_pivot_forwarded(self):
+        """cmb005.currentData() is forwarded to move_to as the pivot option."""
+        a = cmds.polyCube(name="mv_pa")[0]
+        b = cmds.polyCube(name="mv_pb")[0]
+        cmds.select([a, b])
+        widget = _FakeWidget(self._menu(True, pivot="xmax"))
+        self.instance.tb005(widget)
+
+        self.assertEqual(len(self.calls), 1)
+        _source, _target, pivot = self.calls[0]
+        self.assertEqual(pivot, "xmax")
+
+    def test_match_scale_off_by_default(self):
+        """Unchecked Match Scale → move only, no match_scale call."""
+        a = cmds.polyCube(name="mv_da")[0]
+        b = cmds.polyCube(name="mv_db")[0]
+        cmds.select([a, b])
+        widget = _FakeWidget(self._menu(True))
+        self.instance.tb005(widget)
+        self.assertEqual(self.scale_calls, [])
+        self.assertEqual(len(self.calls), 1)
+
+    def test_match_scale_enabled(self):
+        """Checked Match Scale → match_scale(source, target) runs alongside the move."""
+        a = cmds.polyCube(name="mv_sa")[0]
+        b = cmds.polyCube(name="mv_sb")[0]
+        cmds.select([a, b])
+        widget = _FakeWidget(self._menu(True, match_scale=True))
+        self.instance.tb005(widget)
+
+        self.assertEqual(len(self.scale_calls), 1)
+        src, tgt = self.scale_calls[0]
+        self.assertEqual(list(src), [a])  # source = sel[:-1]
+        self.assertEqual(tgt, b)  # target = sel[-1]
+        self.assertEqual(len(self.calls), 1)  # the move still happens
 
 
 @unittest.skipUnless(_MAYA_AVAILABLE, "Requires maya.cmds")

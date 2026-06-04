@@ -30,6 +30,8 @@ class MaterialsSlots(SlotsMaya):
             ("Substance Bridge", "b020"),
             ("Map Compositor", "b022"),
             ("Metashape Workflow", "b023"),
+            ("RealityCapture Workflow", "b024"),
+            ("Brush Splat Workflow", "b025"),
         ],
     }
 
@@ -221,6 +223,37 @@ class MaterialsSlots(SlotsMaya):
         if not widget.is_initialized:
             widget.refresh_on_show = True  # Call this method on show
             widget.editable = True
+            # Option box (a separate dropdown from the right-click context
+            # menu built below): list-population options for the materials combo.
+            widget.option_box.menu.setTitle("Material List Options")
+            chk_hide_defaults = widget.option_box.menu.add(
+                "QCheckBox",
+                setText="Hide Default Materials",
+                setObjectName="chk_hide_defaults",
+                setChecked=False,
+                setToolTip=(
+                    "Hide Maya's built-in default materials (lambert1, "
+                    "standardSurface1, particleCloud1, …) from the list.\n"
+                    "Off by default; user-created materials are always shown."
+                ),
+            )
+            # Re-populate the combo when toggled. The submenu Assign list's
+            # contents don't depend on this toggle, so it needs no refresh.
+            chk_hide_defaults.toggled.connect(widget.init_slot)
+            # Cleanup actions (moved here from the right-click context menu).
+            widget.option_box.menu.add("Separator", setTitle="Cleanup")
+            widget.option_box.menu.add(
+                "QPushButton",
+                setText="Remove Duplicate Materials",
+                setObjectName="b014",
+                setToolTip="Find duplicate materials, remove duplicates, and reassign them to the original material.",
+            )
+            widget.option_box.menu.add(
+                "QPushButton",
+                setText="Delete All Unused Materials",
+                setObjectName="b015",
+                setToolTip="Delete all unused materials.",
+            )
             widget.menu.add("Separator", setTitle="Edit")
             widget.menu.add(
                 self.sb.registered_widgets.Label,
@@ -289,20 +322,6 @@ class MaterialsSlots(SlotsMaya):
                 setObjectName="lbl006",
                 setToolTip="Open the material in the hypershade editor.",
             )
-            # Section: Cleanup
-            widget.menu.add("Separator", setTitle="Cleanup")
-            widget.menu.add(
-                self.sb.registered_widgets.Label,
-                setText="Remove Duplicate Materials",
-                setObjectName="b014",
-                setToolTip="Find duplicate materials, remove duplicates, and reassign them to the original material.",
-            )
-            widget.menu.add(
-                self.sb.registered_widgets.Label,
-                setText="Delete All Unused Materials",
-                setObjectName="b015",
-                setToolTip="Delete all unused materials.",
-            )
             # Rename the material after editing has finished.
             widget.on_editing_finished.connect(
                 lambda text: cmds.rename(str(widget.currentData()), text)
@@ -313,9 +332,12 @@ class MaterialsSlots(SlotsMaya):
             widget.on_editing_finished.connect(self.submenu.list000.init_slot)
             widget.currentIndexChanged.connect(self.submenu.list000.init_slot)
 
-        # Use 'restore_index=True' to save and restore the index
+        # Use 'restore_index=True' to save and restore the index. Default
+        # materials are shown unless the option-box toggle hides them.
         materials_dict = mtk.MatUtils.get_scene_mats(
-            exc="standardSurface", sort=True, as_dict=True
+            sort=True,
+            as_dict=True,
+            exclude_defaults=self._hide_default_materials(),
         )
         widget.add(materials_dict, clear=True, restore_index=True)
 
@@ -324,6 +346,17 @@ class MaterialsSlots(SlotsMaya):
             icon = mtk.MatUtils.get_mat_swatch_icon(mat)
             if icon:
                 widget.setItemIcon(i, icon)
+
+    def _hide_default_materials(self) -> bool:
+        """Whether cmb002's 'Hide Default Materials' option-box toggle is on.
+
+        Returns False (defaults shown) when the option box / checkbox hasn't
+        been created yet, so a population pass that runs before init is safe.
+        """
+        option_box = self.ui.cmb002.option_box
+        menu = option_box.get_menu(create=False) if option_box else None
+        chk = getattr(menu, "chk_hide_defaults", None) if menu else None
+        return bool(chk and chk.isChecked())
 
     def _collision_mode_is_alpha(self):
         """Read the persistent toggle on the lbl007 option box.
@@ -956,6 +989,14 @@ class MaterialsSlots(SlotsMaya):
     def b023(self, widget):
         """Metashape Workflow"""
         self.sb.handlers.external_app.launch("metashape_workflow")
+
+    def b024(self, widget):
+        """RealityCapture Workflow"""
+        self.sb.handlers.external_app.launch("realityscan_workflow")
+
+    def b025(self, widget):
+        """Brush Splat Workflow"""
+        self.sb.handlers.external_app.launch("gaussian_splat_workflow")
 
 
 # --------------------------------------------------------------------------------------------
