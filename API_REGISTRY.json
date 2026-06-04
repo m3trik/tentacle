@@ -1,7 +1,7 @@
 {
   "name": "tentacle",
   "source_root": "tentacle/tentacle",
-  "generated_at": "2026-05-27",
+  "generated_at": "2026-06-04",
   "modules": [
     {
       "relpath": "__init__.py",
@@ -781,6 +781,41 @@
             "SlotsMaya"
           ],
           "members": []
+        }
+      ]
+    },
+    {
+      "relpath": "slots/maya/deformation.py",
+      "summary": "",
+      "functions": [],
+      "classes": [
+        {
+          "name": "DeformationSlots",
+          "summary": "Slots for the Deformation panel (``deformation.ui``).",
+          "line": 6,
+          "bases": [
+            "SlotsMaya"
+          ],
+          "members": [
+            {
+              "name": "tb001_init",
+              "qualname": "DeformationSlots.tb001_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Init Curtain Generator launcher.",
+              "line": 16,
+              "deprecated": false
+            },
+            {
+              "name": "tb001",
+              "qualname": "DeformationSlots.tb001",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Curtain Generator — open the mayatk Curtain tool.",
+              "line": 24,
+              "deprecated": false
+            }
+          ]
         }
       ]
     },
@@ -1769,7 +1804,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Initialize the header menu (Utilities only — Setup/Conversion/External live in the submenu Tools li…",
-              "line": 49,
+              "line": 51,
               "deprecated": false
             },
             {
@@ -1778,7 +1813,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Assign list: scene materials + 'New' + 'Random'.",
-              "line": 80,
+              "line": 82,
               "deprecated": false
             },
             {
@@ -1787,7 +1822,7 @@
               "kind": "method",
               "signature": "(self, item)",
               "summary": "Dispatch Assign list selection.",
-              "line": 116,
+              "line": 118,
               "deprecated": false
             },
             {
@@ -1796,7 +1831,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Tools list: Setup / Conversion / External (mirrors prior header sections).",
-              "line": 181,
+              "line": 183,
               "deprecated": false
             },
             {
@@ -1805,7 +1840,7 @@
               "kind": "method",
               "signature": "(self, item)",
               "summary": "Dispatch Tools list selection to the matching slot method.",
-              "line": 199,
+              "line": 201,
               "deprecated": false
             },
             {
@@ -1814,7 +1849,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Initialize Materials",
-              "line": 219,
+              "line": 221,
               "deprecated": false
             },
             {
@@ -1823,7 +1858,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Rename the current material by stripping trailing integers and underscores.",
-              "line": 401,
+              "line": 434,
               "deprecated": false
             },
             {
@@ -1832,7 +1867,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Rename ALL scene materials by stripping trailing integers and underscores.",
-              "line": 458,
+              "line": 491,
               "deprecated": false
             },
             {
@@ -1841,7 +1876,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "",
-              "line": 489,
+              "line": 522,
               "deprecated": false
             },
             {
@@ -1850,7 +1885,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Select By Material",
-              "line": 519,
+              "line": 552,
               "deprecated": false
             },
             {
@@ -1859,7 +1894,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Delete Material",
-              "line": 587,
+              "line": 620,
               "deprecated": false
             },
             {
@@ -1868,7 +1903,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Delete Unused Materials",
-              "line": 593,
+              "line": 626,
               "deprecated": false
             },
             {
@@ -1877,7 +1912,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Select and Show Attributes: Show Material Attributes in the Attribute Editor.",
-              "line": 598,
+              "line": 631,
               "deprecated": false
             },
             {
@@ -1886,7 +1921,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Set the current combo box text as editable.",
-              "line": 604,
+              "line": 637,
               "deprecated": false
             },
             {
@@ -1895,7 +1930,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Open material in editor",
-              "line": 609,
+              "line": 642,
               "deprecated": false
             },
             {
@@ -1904,7 +1939,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Get Material: Change the index to match the current material selection.",
-              "line": 623,
+              "line": 656,
               "deprecated": false
             },
             {
@@ -1913,7 +1948,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Assign Random",
-              "line": 642,
+              "line": 675,
               "deprecated": false
             },
             {
@@ -1922,7 +1957,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Assign Current (main UI button)",
-              "line": 681,
+              "line": 714,
               "deprecated": false
             },
             {
@@ -1931,7 +1966,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Assign: New Material",
-              "line": 691,
+              "line": 724,
               "deprecated": false
             },
             {
@@ -1940,7 +1975,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Map Packer",
-              "line": 702,
+              "line": 735,
               "deprecated": false
             },
             {
@@ -1949,7 +1984,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Create Game Shader",
-              "line": 708,
+              "line": 741,
               "deprecated": false
             },
             {
@@ -1958,7 +1993,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Texture Path Editor",
-              "line": 712,
+              "line": 745,
               "deprecated": false
             },
             {
@@ -1967,7 +2002,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Shader Templates",
-              "line": 716,
+              "line": 749,
               "deprecated": false
             },
             {
@@ -1976,7 +2011,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Reload Textures and Reset Viewport",
-              "line": 720,
+              "line": 753,
               "deprecated": false
             },
             {
@@ -1985,7 +2020,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Remove and Reassign Duplicates",
-              "line": 727,
+              "line": 760,
               "deprecated": false
             },
             {
@@ -1994,7 +2029,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Map Converter",
-              "line": 734,
+              "line": 767,
               "deprecated": false
             },
             {
@@ -2003,7 +2038,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Material Updater",
-              "line": 747,
+              "line": 780,
               "deprecated": false
             },
             {
@@ -2012,7 +2047,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Get Material Info — option box.",
-              "line": 758,
+              "line": 791,
               "deprecated": false
             },
             {
@@ -2021,7 +2056,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Get Material Info — render a formatted report to the viewer dialog.",
-              "line": 829,
+              "line": 862,
               "deprecated": false
             },
             {
@@ -2030,7 +2065,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Image to Plane",
-              "line": 940,
+              "line": 973,
               "deprecated": false
             },
             {
@@ -2039,7 +2074,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Marmoset Bridge",
-              "line": 944,
+              "line": 977,
               "deprecated": false
             },
             {
@@ -2048,7 +2083,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Substance Bridge",
-              "line": 948,
+              "line": 981,
               "deprecated": false
             },
             {
@@ -2057,7 +2092,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Map Compositor",
-              "line": 952,
+              "line": 985,
               "deprecated": false
             },
             {
@@ -2066,7 +2101,25 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Metashape Workflow",
-              "line": 956,
+              "line": 989,
+              "deprecated": false
+            },
+            {
+              "name": "b024",
+              "qualname": "MaterialsSlots.b024",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "RealityCapture Workflow",
+              "line": 993,
+              "deprecated": false
+            },
+            {
+              "name": "b025",
+              "qualname": "MaterialsSlots.b025",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Brush Splat Workflow",
+              "line": 997,
               "deprecated": false
             }
           ]
@@ -4802,7 +4855,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Move To",
-              "line": 371,
+              "line": 399,
               "deprecated": false
             },
             {
@@ -4811,7 +4864,7 @@
               "kind": "method",
               "signature": "(self, state, widget)",
               "summary": "Transform Tool Snap Settings: Move",
-              "line": 394,
+              "line": 422,
               "deprecated": false
             },
             {
@@ -4820,7 +4873,7 @@
               "kind": "method",
               "signature": "(self, state, widget)",
               "summary": "Transform Tool Snap Settings: Scale",
-              "line": 403,
+              "line": 431,
               "deprecated": false
             },
             {
@@ -4829,7 +4882,7 @@
               "kind": "method",
               "signature": "(self, state, widget)",
               "summary": "Transform Tool Snap Settings: Rotate",
-              "line": 412,
+              "line": 440,
               "deprecated": false
             },
             {
@@ -4838,7 +4891,7 @@
               "kind": "method",
               "signature": "(self, state, widget)",
               "summary": "Transform Constraints: Edge",
-              "line": 421,
+              "line": 449,
               "deprecated": false
             },
             {
@@ -4847,7 +4900,7 @@
               "kind": "method",
               "signature": "(self, state, widget)",
               "summary": "Transform Contraints: Surface",
-              "line": 430,
+              "line": 458,
               "deprecated": false
             },
             {
@@ -4856,7 +4909,7 @@
               "kind": "method",
               "signature": "(self, state, widget)",
               "summary": "Transform Constraints: Make Live",
-              "line": 439,
+              "line": 467,
               "deprecated": false
             },
             {
@@ -4865,7 +4918,7 @@
               "kind": "method",
               "signature": "(self, value, widget)",
               "summary": "Transform Tool Snap Settings: Spinboxes",
-              "line": 450,
+              "line": 478,
               "deprecated": false
             },
             {
@@ -4874,7 +4927,7 @@
               "kind": "method",
               "signature": "(self, value, widget)",
               "summary": "Transform Tool Snap Settings: Spinboxes",
-              "line": 456,
+              "line": 484,
               "deprecated": false
             },
             {
@@ -4883,7 +4936,7 @@
               "kind": "method",
               "signature": "(self, value, widget)",
               "summary": "Transform Tool Snap Settings: Spinboxes",
-              "line": 462,
+              "line": 490,
               "deprecated": false
             },
             {
@@ -4892,7 +4945,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Snap Toolset",
-              "line": 468,
+              "line": 496,
               "deprecated": false
             },
             {
@@ -4901,7 +4954,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Match Scale",
-              "line": 472,
+              "line": 500,
               "deprecated": false
             },
             {
@@ -4910,7 +4963,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Un-Freeze Transforms",
-              "line": 486,
+              "line": 514,
               "deprecated": false
             },
             {
@@ -4919,7 +4972,7 @@
               "kind": "method",
               "signature": "(self, ctx, state)",
               "summary": "Set the transform tool's move, rotate, and scale snap states.",
-              "line": 490,
+              "line": 518,
               "deprecated": false
             }
           ]

@@ -64,16 +64,24 @@ class TclMaya(MarkingMenu):
         # pip-install it on first launch. Re-registration of a name
         # discovered by auto-discovery is intentional and idempotent
         # (the manual call wins, carrying ``install_spec``).
-        for _name, _entry in (
-            ("map_compositor", "MapCompositorUI"),
-            ("metashape_workflow", "MetashapeWorkflowUI"),
-            ("map_converter", "MapConverterUI"),
-            ("map_packer", "MapPackerUI"),
-            ("mesh_convert", "MeshConvertUI"),
+        # ``module`` is spelled out per app rather than derived as
+        # ``extapps.<name>`` — most apps are top-level modules, but some
+        # live in a subpackage (``metashape_workflow`` is under
+        # ``extapps.photogrammetry``), so the path can't be assumed from
+        # the name. A wrong path here would shadow the correct one that
+        # auto-discovery registered and break launch.
+        for _name, _module, _entry in (
+            ("map_compositor", "extapps.map_compositor", "MapCompositorUI"),
+            ("metashape_workflow", "extapps.photogrammetry.metashape_workflow", "MetashapeWorkflowUI"),
+            ("realityscan_workflow", "extapps.photogrammetry.realityscan_workflow", "RealityScanWorkflowUI"),
+            ("gaussian_splat_workflow", "extapps.photogrammetry.gaussian_splat_workflow", "GaussianSplatWorkflowUI"),
+            ("map_converter", "extapps.map_converter", "MapConverterUI"),
+            ("map_packer", "extapps.map_packer", "MapPackerUI"),
+            ("mesh_convert", "extapps.mesh_convert", "MeshConvertUI"),
         ):
             self.sb.handlers.external_app.register(
                 _name,
-                module=f"extapps.{_name}",
+                module=_module,
                 entry=_entry,
                 install_spec="extapps",
                 mode="in_process",

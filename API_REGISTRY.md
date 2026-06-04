@@ -2,7 +2,7 @@
 
 _Auto-generated. Do not edit by hand. Refresh via `m3trik/scripts/generate_api_registry.py`._
 
-_Generated: 2026-05-27_
+_Generated: 2026-06-04_
 
 ## Index
 
@@ -18,6 +18,7 @@ _Generated: 2026-05-27_
 - [`slots/maya/crease.py`](#slots--maya--crease)
 - [`slots/maya/curves.py`](#slots--maya--curves)
 - [`slots/maya/deform.py`](#slots--maya--deform)
+- [`slots/maya/deformation.py`](#slots--maya--deformation)
 - [`slots/maya/display.py`](#slots--maya--display)
 - [`slots/maya/duplicate.py`](#slots--maya--duplicate)
 - [`slots/maya/edit.py`](#slots--maya--edit)
@@ -198,6 +199,13 @@ _Generated: 2026-05-27_
 ### `slots/maya/deform.py`
 
 - **[`class DeformSlots(SlotsMaya)`](tentacle/tentacle/slots/maya/deform.py#L9)**
+
+<a id="slots--maya--deformation"></a>
+### `slots/maya/deformation.py`
+
+- **[`class DeformationSlots(SlotsMaya)`](tentacle/tentacle/slots/maya/deformation.py#L6)** — Slots for the Deformation panel (``deformation.ui``).
+  - `DeformationSlots.tb001_init(self, widget)` — Init Curtain Generator launcher.
+  - `DeformationSlots.tb001(self, widget)` — Curtain Generator — open the mayatk Curtain tool.
 
 <a id="slots--maya--display"></a>
 ### `slots/maya/display.py`
@@ -395,6 +403,8 @@ _Generated: 2026-05-27_
   - `MaterialsSlots.b020(self, widget)` — Substance Bridge
   - `MaterialsSlots.b022(self, widget)` — Map Compositor
   - `MaterialsSlots.b023(self, widget)` — Metashape Workflow
+  - `MaterialsSlots.b024(self, widget)` — RealityCapture Workflow
+  - `MaterialsSlots.b025(self, widget)` — Brush Splat Workflow
 
 <a id="slots--maya--mesh"></a>
 ### `slots/maya/mesh.py`

@@ -50,6 +50,86 @@ class TestPackageMetadata(unittest.TestCase):
             )
 
 
+class TestExtappsRegistration(unittest.TestCase):
+    """tcl_maya's hardcoded extapps registrations must match extapps' entry points.
+
+    tcl_maya manually registers each extapps app (module + entry) so the
+    handler can install-on-demand before auto-discovery would see it. That
+    manual registration *wins* over auto-discovery, so a wrong module path
+    here silently shadows the correct one and breaks launch — which is what
+    happened when ``metashape_workflow`` moved into ``extapps.photogrammetry``
+    but tcl_maya still derived ``extapps.metashape_workflow`` from the name.
+
+    Pins the table to extapps' entry-point metadata (the single source of
+    truth). Skips when extapps isn't importable in the test environment.
+    """
+
+    @staticmethod
+    def _registered_modules():
+        """AST-extract ``{name: module}`` from tcl_maya's register() table.
+
+        Read statically because tcl_maya imports ``maya`` at module top and
+        can't be imported outside a Maya interpreter.
+        """
+        import ast
+        import tentacle
+
+        src = (Path(tentacle.__file__).parent / "tcl_maya.py").read_text(
+            encoding="utf-8"
+        )
+        tree = ast.parse(src)
+        for node in ast.walk(tree):
+            if not isinstance(node, ast.For) or not isinstance(node.iter, ast.Tuple):
+                continue
+            # The loop body must register external apps.
+            if not any(
+                isinstance(c, ast.Call)
+                and isinstance(c.func, ast.Attribute)
+                and c.func.attr == "register"
+                for c in ast.walk(node)
+            ):
+                continue
+            mapping = {}
+            for elt in node.iter.elts:
+                if (
+                    isinstance(elt, ast.Tuple)
+                    and len(elt.elts) == 3
+                    and all(isinstance(e, ast.Constant) for e in elt.elts)
+                ):
+                    name, module, _entry = (e.value for e in elt.elts)
+                    mapping[name] = module
+            if mapping:
+                return mapping
+        return {}
+
+    def test_registered_modules_match_extapps_entry_points(self):
+        try:
+            from importlib.metadata import entry_points
+
+            eps = {
+                ep.name: ep.module
+                for ep in entry_points(group="uitk.external_apps.in_process")
+            }
+        except Exception:
+            eps = {}
+        if not eps:
+            self.skipTest("extapps entry points not available in this environment")
+
+        registered = self._registered_modules()
+        self.assertTrue(
+            registered, "no extapps registration table found in tcl_maya.py"
+        )
+        for name, module in registered.items():
+            if name in eps:
+                self.assertEqual(
+                    module,
+                    eps[name],
+                    f"tcl_maya registers {name!r} as module {module!r} but extapps "
+                    f"declares {eps[name]!r} — the manual registration would shadow "
+                    f"auto-discovery with a wrong path and break launch.",
+                )
+
+
 class TestGreeting(unittest.TestCase):
     """Verify the greeting() helper."""
 
