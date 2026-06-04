@@ -78,52 +78,15 @@
      <string>Subdivision</string>
     </property>
    </widget>
-   <widget class="QPushButton" name="b004">
-    <property name="enabled">
-     <bool>true</bool>
-    </property>
-    <property name="geometry">
-     <rect>
-      <x>395</x>
-      <y>330</y>
-      <width>86</width>
-      <height>19</height>
-     </rect>
-    </property>
-    <property name="minimumSize">
-     <size>
-      <width>0</width>
-      <height>19</height>
-     </size>
-    </property>
-    <property name="maximumSize">
-     <size>
-      <width>111</width>
-      <height>19</height>
-     </size>
-    </property>
-    <property name="toolTip">
-     <string>Simplify a polygonal object by reducing geometry while preserving the overall shape of the mesh.</string>
-    </property>
-    <property name="text">
-     <string>PolyReduce</string>
-    </property>
-    <property name="iconSize">
-     <size>
-      <width>18</width>
-      <height>18</height>
-     </size>
-    </property>
-   </widget>
    <widget class="QPushButton" name="b008">
     <property name="enabled">
      <bool>true</bool>
     </property>
     <property name="geometry">
      <rect>
-      <x>315</x>
-      <y>260</y>
-      <width>101</width>
+      <x>355</x>
+      <y>290</y>
+      <width>86</width>
       <height>19</height>
      </rect>
     </property>
@@ -195,8 +158,8 @@
     </property>
     <property name="geometry">
      <rect>
-      <x>310</x>
-      <y>330</y>
+      <x>280</x>
+      <y>260</y>
       <width>66</width>
       <height>19</height>
      </rect>
@@ -232,8 +195,8 @@
     </property>
     <property name="geometry">
      <rect>
-      <x>365</x>
-      <y>290</y>
+      <x>315</x>
+      <y>320</y>
       <width>111</width>
       <height>19</height>
      </rect>
@@ -269,9 +232,9 @@
     </property>
     <property name="geometry">
      <rect>
-      <x>310</x>
+      <x>365</x>
       <y>230</y>
-      <width>111</width>
+      <width>91</width>
       <height>19</height>
      </rect>
     </property>
@@ -306,9 +269,9 @@
     </property>
     <property name="geometry">
      <rect>
-      <x>310</x>
-      <y>200</y>
-      <width>111</width>
+      <x>265</x>
+      <y>230</y>
+      <width>76</width>
       <height>19</height>
      </rect>
     </property>
@@ -329,6 +292,43 @@
     </property>
     <property name="text">
      <string>Triangulate</string>
+    </property>
+    <property name="iconSize">
+     <size>
+      <width>18</width>
+      <height>18</height>
+     </size>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="tb000">
+    <property name="enabled">
+     <bool>true</bool>
+    </property>
+    <property name="geometry">
+     <rect>
+      <x>360</x>
+      <y>260</y>
+      <width>81</width>
+      <height>19</height>
+     </rect>
+    </property>
+    <property name="minimumSize">
+     <size>
+      <width>0</width>
+      <height>19</height>
+     </size>
+    </property>
+    <property name="maximumSize">
+     <size>
+      <width>16777215</width>
+      <height>19</height>
+     </size>
+    </property>
+    <property name="toolTip">
+     <string>Decimate the selected meshes. Choose the algorithm in the option box: Reduce (quadric-error %) or Planar (lossless coplanar dissolve for hard-surface).</string>
+    </property>
+    <property name="text">
+     <string>Decimate</string>
     </property>
     <property name="iconSize">
      <size>

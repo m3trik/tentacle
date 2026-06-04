@@ -114,6 +114,90 @@ class Subdivision(SlotsMaya):
             replaceOriginal=1,
         )
 
+    def tb000_init(self, widget):
+        """Initialize Decimate"""
+        menu = widget.option_box.menu
+        menu.setTitle("Decimate")
+
+        cmb = menu.add(
+            "QComboBox",
+            setObjectName="cmb000",
+            setToolTip="Decimation algorithm.",
+        )
+        for text, data in [
+            ("Reduce (Quadric Error %)", "qem"),
+            ("Planar (Coplanar Dissolve)", "planar"),
+        ]:
+            cmb.addItem(text, data)
+
+        # Reduce (quadric error metric) options.
+        menu.add(
+            "QDoubleSpinBox",
+            setPrefix="Reduce %: ",
+            setObjectName="s010",
+            set_limits=[0, 99, 1, 1],
+            setValue=50.0,
+            set_fixed_height=20,
+            setToolTip="Percent of faces to remove (quadric-error polyReduce).",
+        )
+        menu.add("QCheckBox", setText="Preserve Borders", setObjectName="chk010",
+                 setChecked=True, setToolTip="Hold open mesh and face-group borders fixed.")
+        menu.add("QCheckBox", setText="Preserve Hard/Crease Edges", setObjectName="chk011",
+                 setChecked=True, setToolTip="Hold hard and crease edges.")
+        menu.add("QCheckBox", setText="Preserve UV Borders", setObjectName="chk012",
+                 setChecked=True, setToolTip="Hold UV (map) and color borders.")
+        menu.add("QCheckBox", setText="Preserve Quads", setObjectName="chk013",
+                 setChecked=True, setToolTip="Bias the reduction toward keeping quads.")
+        menu.add("QCheckBox", setText="Symmetry (X)", setObjectName="chk014",
+                 setChecked=False, setToolTip="Reduce symmetrically about X (virtual symmetry).")
+
+        # Planar (coplanar dissolve) options.
+        menu.add(
+            "QDoubleSpinBox",
+            setPrefix="Angle Tolerance: ",
+            setObjectName="s011",
+            set_limits=[0, 180, 0.5, 1],
+            setValue=1.0,
+            set_fixed_height=20,
+            setToolTip="Max dihedral angle (degrees) treated as coplanar. ~0 is lossless on hard-surface.",
+        )
+
+        # Grey out the options that don't apply to the chosen algorithm.
+        qem_widgets = [menu.s010, menu.chk010, menu.chk011, menu.chk012, menu.chk013, menu.chk014]
+
+        def _sync(*_):
+            planar = menu.cmb000.currentData() == "planar"
+            for w in qem_widgets:
+                w.setEnabled(not planar)
+            menu.s011.setEnabled(planar)
+
+        menu.cmb000.currentIndexChanged.connect(_sync)
+        _sync()
+
+    def tb000(self, widget):
+        """Decimate"""
+        objects = cmds.ls(sl=True, objectsOnly=True, type="transform") or []
+        if not objects:
+            self.sb.message_box(
+                "<strong>Nothing selected</strong>.<br>Select one or more "
+                "meshes to decimate."
+            )
+            return
+
+        menu = widget.option_box.menu
+        if menu.cmb000.currentData() == "planar":
+            mtk.EditUtils.dissolve_coplanar(objects, angle_tolerance=menu.s011.value())
+        else:
+            mtk.EditUtils.decimate(
+                objects,
+                percentage=menu.s010.value(),
+                preserve_borders=menu.chk010.isChecked(),
+                preserve_hard_edges=menu.chk011.isChecked(),
+                preserve_uv_borders=menu.chk012.isChecked(),
+                preserve_quads=menu.chk013.isChecked(),
+                symmetry=menu.chk014.isChecked(),
+            )
+
     def b008(self):
         """Add Divisions - Subdivide Mesh"""
         mel.eval("SubdividePolygon")

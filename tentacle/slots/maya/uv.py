@@ -10,6 +10,12 @@ from tentacle.slots.maya._slots_maya import SlotsMaya
 
 
 class UvSlots(SlotsMaya):
+    # Auto Unwrap modes driven by Maya's polyProjection (single-shape
+    # projection). These are exactly the modes that expose the Smart Fit
+    # option, so tb001_init's gate and tb001's dispatch share this set.
+    # Each key, title-cased, is also the polyProjection -type value.
+    _PROJECTION_UNWRAP_MODES = ("planar", "cylindrical", "spherical")
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
@@ -352,96 +358,127 @@ class UvSlots(SlotsMaya):
             )
 
     def tb001_init(self, widget):
-        """Initialize Auto Unwrap"""
-        widget.option_box.menu.setTitle("Auto Unwrap")
-        widget.option_box.menu.add(
-            "QRadioButton",
-            setText="Standard",
+        """Initialize Auto Unwrap.
+
+        A single mode combobox (cmb011) selects the projection method, and the
+        per-mode option controls beneath it auto-enable only for the modes they
+        actually affect:
+            - Scale Mode (cmb012) → Standard only (polyAutoProjection -scaleMode)
+            - Smart Fit  (chk000) → Planar / Cylindrical / Spherical only
+        Seam Only and Normal-Based expose no options, so both controls disable.
+
+        Parameters:
+            widget: The parent widget to add menu items to
+        """
+        menu = widget.option_box.menu
+        menu.setTitle("Auto Unwrap")
+
+        # Mode selector. Modes are mutually exclusive, so a combobox replaces the
+        # former cluster of radio buttons. Item data is a lowercase mode key
+        # consumed by tb001.
+        cmb011 = menu.add(
+            "QComboBox",
+            setObjectName="cmb011",
+            setToolTip=(
+                "Projection method used to generate UVs.\n"
+                "Standard: best-fit from multiple simultaneous planar projections.\n"
+                "Seam Only: cut auto-detected seams without re-laying out UVs.\n"
+                "Planar / Cylindrical / Spherical: project from a single shape.\n"
+                "Normal-Based: planar projection along the averaged face normal."
+            ),
+        )
+        for text, data in [
+            ("Standard", "standard"),
+            ("Seam Only", "seam"),
+            ("Planar", "planar"),
+            ("Cylindrical", "cylindrical"),
+            ("Spherical", "spherical"),
+            ("Normal-Based", "normal"),
+        ]:
+            cmb011.addItem(text, data)
+        cmb011.setCurrentIndex(0)  # Standard (matches prior default)
+
+        # Scale Mode (Standard only). Explicit data values fix the old tristate
+        # checkbox, whose isChecked() collapsed to a bool and could never emit 2.
+        cmb012 = menu.add(
+            "QComboBox",
+            setObjectName="cmb012",
+            setToolTip=(
+                "Maya polyAutoProjection -scaleMode (Standard only).\n"
+                "None: keep the projected scale.\n"
+                "Uniform: scale uniformly to fit the unit square.\n"
+                "Stretch: non-proportional scale to fill the unit square."
+            ),
+        )
+        for text, data in [
+            ("Scale: None", 0),
+            ("Scale: Uniform", 1),
+            ("Scale: Stretch to Square", 2),
+        ]:
+            cmb012.addItem(text, data)
+        cmb012.setCurrentIndex(1)  # Uniform (matches prior default of scaleMode=1)
+
+        # Smart Fit (Planar / Cylindrical / Spherical only). Defaults on to
+        # preserve the previous hardcoded polyProjection(smartFit=1) behavior.
+        menu.add(
+            "QCheckBox",
+            setText="Smart Fit",
             setObjectName="chk000",
             setChecked=True,
-            setToolTip="Create UV texture coordinates for the selected object or faces by automatically finding the best UV placement using simultanious projections from multiple planes.",
+            setToolTip="Best-fit the projection manipulator to the selection.\n"
+            "Applies to Planar / Cylindrical / Spherical only.",
         )
-        widget.option_box.menu.add(
-            "QCheckBox",
-            setText="Scale Mode 1",
-            setObjectName="chk001",
-            setTristate=True,
-            setChecked=True,
-            setToolTip="0 - No scale is applied.<br>1 - Uniform scale to fit in unit square.<br>2 - Non proportional scale to fit in unit square.",
-        )
-        widget.option_box.menu.add(
-            "QRadioButton",
-            setText="Seam Only",
-            setObjectName="chk002",
-            setToolTip="Cut seams only.",
-        )
-        widget.option_box.menu.add(
-            "QRadioButton",
-            setText="Planar",
-            setObjectName="chk003",
-            setToolTip="Create UV texture coordinates for the current selection by using a planar projection shape.",
-        )
-        widget.option_box.menu.add(
-            "QRadioButton",
-            setText="Cylindrical",
-            setObjectName="chk004",
-            setToolTip="Create UV texture coordinates for the current selection, using a cylidrical projection that gets wrapped around the mesh.<br>Best suited for completely enclosed cylidrical shapes with no holes or projections on the surface.",
-        )
-        widget.option_box.menu.add(
-            "QRadioButton",
-            setText="Spherical",
-            setObjectName="chk005",
-            setToolTip="Create UV texture coordinates for the current selection, using a spherical projection that gets wrapped around the mesh.<br>Best suited for completely enclosed spherical shapes with no holes or projections on the surface.",
-        )
-        widget.option_box.menu.add(
-            "QRadioButton",
-            setText="Normal-Based",
-            setObjectName="chk006",
-            setToolTip="Create UV texture coordinates for the current selection by creating a planar projection based on the average vector of it's face normals.",
-        )
-        # widget.option_box.menu.chk001.toggled.connect(lambda state: self.sb.toggle_multi(widget.menu, setUnChecked='chk002-3') if state==1 else None)
+
+        # Gate: enable only the options relevant to the selected mode.
+        def _sync_options():
+            mode = cmb011.currentData()
+            menu.cmb012.setEnabled(mode == "standard")
+            menu.chk000.setEnabled(mode in self._PROJECTION_UNWRAP_MODES)
+
+        cmb011.currentIndexChanged.connect(_sync_options)
+        _sync_options()
 
     @mtk.undoable
     def tb001(self, widget):
         """Auto Unwrap"""
-        standardUnwrap = widget.option_box.menu.chk000.isChecked()
-        scaleMode = widget.option_box.menu.chk001.isChecked()
-        seamOnly = widget.option_box.menu.chk002.isChecked()
-        planarUnwrap = widget.option_box.menu.chk003.isChecked()
-        cylindricalUnwrap = widget.option_box.menu.chk004.isChecked()
-        sphericalUnwrap = widget.option_box.menu.chk005.isChecked()
-        normalBasedUnwrap = widget.option_box.menu.chk006.isChecked()
+        menu = widget.option_box.menu
+        mode = menu.cmb011.currentData()
+        scale_mode = menu.cmb012.currentData()
+        smart_fit = menu.chk000.isChecked()
 
         selection = cmds.ls(sl=True) or []
+        if not selection:
+            self.sb.message_box(
+                "<b>Nothing selected.</b><br>The operation requires at least one selected object."
+            )
+            return
+
+        result = None
         for obj in selection:
             try:
-                if seamOnly:
-                    autoSeam = cmds.u3dAutoSeam(obj, s=0, p=1)
-                    return autoSeam if len(selection) == 1 else autoSeam
+                if mode == "seam":
+                    result = cmds.u3dAutoSeam(obj, s=0, p=1)
 
-                elif any((cylindricalUnwrap, sphericalUnwrap, planarUnwrap)):
-                    unwrapType = "Planar"
-                    if cylindricalUnwrap:
-                        unwrapType = "Cylindrical"
-                    elif sphericalUnwrap:
-                        unwrapType = "Spherical"
-                    objFaces = mtk.Components.get_components(obj, "f")
-                    if not objFaces:
-                        objFaces = mtk.Components.get_components(obj, "f")
-                    cmds.polyProjection(
-                        objFaces, type=unwrapType, insertBeforeDeformers=1, smartFit=1
+                elif mode in self._PROJECTION_UNWRAP_MODES:
+                    # Mode key doubles as the polyProjection -type value once titled.
+                    obj_faces = mtk.Components.get_components(obj, "f")
+                    result = cmds.polyProjection(
+                        obj_faces,
+                        type=mode.capitalize(),
+                        insertBeforeDeformers=1,
+                        smartFit=1 if smart_fit else 0,
                     )
 
-                elif normalBasedUnwrap:
+                elif mode == "normal":
                     mel.eval(f'texNormalProjection 1 1 "{obj}"')  # Normal-Based unwrap
 
-                elif standardUnwrap:
-                    polyAutoProjection = cmds.polyAutoProjection(
+                else:  # standard
+                    result = cmds.polyAutoProjection(
                         obj,
                         layoutMethod=0,
                         optimize=1,
                         insertBeforeDeformers=1,
-                        scaleMode=scaleMode,
+                        scaleMode=scale_mode,  # 0 none, 1 uniform, 2 stretch to square
                         createNewMap=False,  # Create a new UV set, as opposed to editing the current one, or the one given by the -uvSetName flag.
                         projectBothDirections=0,  # If "on" : projections are mirrored on directly opposite faces. If "off" : projections are not mirrored on opposite faces.
                         layout=2,  # 0 UV pieces are set to no layout. 1 UV pieces are aligned along the U axis. 2 UV pieces are moved in a square shape.
@@ -450,11 +487,11 @@ class UvSlots(SlotsMaya):
                         worldSpace=0,
                     )  # 1=world reference. 0=object reference.
 
-                    if len(selection) == 1:
-                        return polyAutoProjection
-
             except Exception as error:
                 print(error)
+
+        if len(selection) == 1:
+            return result
 
     def tb004_init(self, widget):
         """Initialize Unfold UV"""
@@ -821,16 +858,6 @@ class UvSlots(SlotsMaya):
             mel.eval('performAlignUV "minV"')
         elif text == "Linear Align":
             mel.eval("performLinearAlignUV")
-
-    def chk001(self, state, widget):
-        """Auto Unwrap: Scale Mode CheckBox"""
-        if state == 0:
-            widget.option_box.menu.chk001.setText("Scale Mode 0")
-        if state == 1:
-            widget.option_box.menu.chk001.setText("Scale Mode 1")
-            self.sb.toggle_multi(widget.menu, setUnChecked="chk002-6")
-        if state == 2:
-            widget.option_box.menu.chk001.setText("Scale Mode 2")
 
     @mtk.undoable
     def b000(self, widget):

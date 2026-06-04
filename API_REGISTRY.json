@@ -4561,12 +4561,30 @@
               "deprecated": false
             },
             {
+              "name": "tb000_init",
+              "qualname": "Subdivision.tb000_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Initialize Decimate",
+              "line": 117,
+              "deprecated": false
+            },
+            {
+              "name": "tb000",
+              "qualname": "Subdivision.tb000",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Decimate",
+              "line": 177,
+              "deprecated": false
+            },
+            {
               "name": "b008",
               "qualname": "Subdivision.b008",
               "kind": "method",
               "signature": "(self)",
               "summary": "Add Divisions - Subdivide Mesh",
-              "line": 117,
+              "line": 201,
               "deprecated": false
             },
             {
@@ -4575,7 +4593,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Smooth",
-              "line": 121,
+              "line": 205,
               "deprecated": false
             },
             {
@@ -4584,7 +4602,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Apply Smooth Preview",
-              "line": 125,
+              "line": 209,
               "deprecated": false
             },
             {
@@ -4593,7 +4611,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Quad Draw",
-              "line": 129,
+              "line": 213,
               "deprecated": false
             },
             {
@@ -4602,7 +4620,7 @@
               "kind": "staticmethod",
               "signature": "()",
               "summary": "Subdiv Proxy",
-              "line": 134,
+              "line": 218,
               "deprecated": false
             }
           ]
@@ -5051,7 +5069,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Get the map size from the combobox as an int.",
-              "line": 35,
+              "line": 41,
               "deprecated": false
             },
             {
@@ -5060,7 +5078,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Initialize UV Menu Header",
-              "line": 39,
+              "line": 45,
               "deprecated": false
             },
             {
@@ -5069,7 +5087,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Initialize UV Transform Menu",
-              "line": 65,
+              "line": 71,
               "deprecated": false
             },
             {
@@ -5078,7 +5096,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Initialize UV packing tool interface.",
-              "line": 81,
+              "line": 87,
               "deprecated": false
             },
             {
@@ -5087,7 +5105,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Pack UVs with specified settings.",
-              "line": 201,
+              "line": 207,
               "deprecated": false
             },
             {
@@ -5095,8 +5113,8 @@
               "qualname": "UvSlots.tb001_init",
               "kind": "method",
               "signature": "(self, widget)",
-              "summary": "Initialize Auto Unwrap",
-              "line": 354,
+              "summary": "Initialize Auto Unwrap.",
+              "line": 360,
               "deprecated": false
             },
             {
@@ -5105,7 +5123,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Auto Unwrap",
-              "line": 405,
+              "line": 442,
               "deprecated": false
             },
             {
@@ -5114,7 +5132,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Initialize Unfold UV",
-              "line": 459,
+              "line": 496,
               "deprecated": false
             },
             {
@@ -5123,7 +5141,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Unfold",
-              "line": 492,
+              "line": 529,
               "deprecated": false
             },
             {
@@ -5132,7 +5150,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Initialize Straighten UV",
-              "line": 530,
+              "line": 567,
               "deprecated": false
             },
             {
@@ -5141,7 +5159,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Straighten UV",
-              "line": 562,
+              "line": 599,
               "deprecated": false
             },
             {
@@ -5150,7 +5168,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Initialize Distribute",
-              "line": 579,
+              "line": 616,
               "deprecated": false
             },
             {
@@ -5159,7 +5177,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Distribute",
-              "line": 596,
+              "line": 633,
               "deprecated": false
             },
             {
@@ -5168,7 +5186,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Initialize Cleanup UV Sets",
-              "line": 606,
+              "line": 643,
               "deprecated": false
             },
             {
@@ -5177,7 +5195,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Cleanup UV Sets",
-              "line": 652,
+              "line": 689,
               "deprecated": false
             },
             {
@@ -5186,7 +5204,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Initialize Mirror UVs.",
-              "line": 713,
+              "line": 750,
               "deprecated": false
             },
             {
@@ -5195,7 +5213,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Mirror UVs (footprint-preserving by default).",
-              "line": 750,
+              "line": 787,
               "deprecated": false
             },
             {
@@ -5204,16 +5222,7 @@
               "kind": "method",
               "signature": "(self, index, widget)",
               "summary": "Transform",
-              "line": 773,
-              "deprecated": false
-            },
-            {
-              "name": "chk001",
-              "qualname": "UvSlots.chk001",
-              "kind": "method",
-              "signature": "(self, state, widget)",
-              "summary": "Auto Unwrap: Scale Mode CheckBox",
-              "line": 825,
+              "line": 810,
               "deprecated": false
             },
             {
@@ -5222,7 +5231,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Transfer UV's",
-              "line": 836,
+              "line": 863,
               "deprecated": false
             },
             {
@@ -5231,7 +5240,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Get texel density.",
-              "line": 848,
+              "line": 875,
               "deprecated": false
             },
             {
@@ -5240,7 +5249,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Set Texel Density",
-              "line": 854,
+              "line": 881,
               "deprecated": false
             },
             {
@@ -5249,7 +5258,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Cut UV's",
-              "line": 861,
+              "line": 888,
               "deprecated": false
             },
             {
@@ -5258,7 +5267,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Sew UVs",
-              "line": 891,
+              "line": 918,
               "deprecated": false
             },
             {
@@ -5267,7 +5276,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Unfold and Pack UVs",
-              "line": 908,
+              "line": 935,
               "deprecated": false
             },
             {
@@ -5276,7 +5285,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Initialize Cut Hard Edges option menu.",
-              "line": 913,
+              "line": 940,
               "deprecated": false
             },
             {
@@ -5285,7 +5294,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Cut UV hard edges (always), optionally also UV borders and auto-detected seams.",
-              "line": 948,
+              "line": 975,
               "deprecated": false
             },
             {
@@ -5294,7 +5303,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Move To Uv Space: Left",
-              "line": 981,
+              "line": 1008,
               "deprecated": false
             },
             {
@@ -5303,7 +5312,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Move To Uv Space: Down",
-              "line": 986,
+              "line": 1013,
               "deprecated": false
             },
             {
@@ -5312,7 +5321,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Move To Uv Space: Up",
-              "line": 991,
+              "line": 1018,
               "deprecated": false
             },
             {
@@ -5321,7 +5330,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Move To Uv Space: Right",
-              "line": 996,
+              "line": 1023,
               "deprecated": false
             },
             {
@@ -5330,7 +5339,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Initialize Pin/Unpin button — static pin icon, non-checkable.",
-              "line": 1001,
+              "line": 1028,
               "deprecated": false
             },
             {
@@ -5339,7 +5348,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Pin / Unpin selected UVs (dual-state toggle).",
-              "line": 1012,
+              "line": 1039,
               "deprecated": false
             },
             {
@@ -5348,7 +5357,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Initialize Stack button — static stack icon, non-checkable.",
-              "line": 1034,
+              "line": 1061,
               "deprecated": false
             },
             {
@@ -5357,7 +5366,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Stack / Unstack similar shells (dual-state toggle).",
-              "line": 1045,
+              "line": 1072,
               "deprecated": false
             }
           ]
