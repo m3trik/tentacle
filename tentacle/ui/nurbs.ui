@@ -10,7 +10,7 @@
     <x>0</x>
     <y>0</y>
     <width>200</width>
-    <height>180</height>
+    <height>168</height>
    </rect>
   </property>
   <property name="tabShape">
@@ -64,7 +64,7 @@
           <bold>true</bold>
          </font>
         </property>
-        <property name="text">
+        <property name="text" stdset="0">
          <string>NURBS</string>
         </property>
        </widget>
@@ -199,6 +199,37 @@
            </property>
            <property name="text">
             <string>Loft</string>
+           </property>
+           <property name="iconSize">
+            <size>
+             <width>18</width>
+             <height>18</height>
+            </size>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="b058">
+           <property name="enabled">
+            <bool>true</bool>
+           </property>
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>19</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>16777215</width>
+             <height>19</height>
+            </size>
+           </property>
+           <property name="toolTip">
+            <string>Sweep a circular profile along selected curves into a NURBS or polygon tube.</string>
+           </property>
+           <property name="text">
+            <string>Curve to Tube</string>
            </property>
            <property name="iconSize">
             <size>

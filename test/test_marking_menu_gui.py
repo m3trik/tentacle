@@ -202,8 +202,27 @@ class MarkingMenuGuiTest(unittest.TestCase):
         return ui
 
     def _assert_on_screen(self, ui):
-        sx, sy, sw, sh = self.screen_geom
-        x, y, w, h = ui.x(), ui.y(), ui.width(), ui.height()
+        from qtpy import QtCore, QtWidgets
+
+        # Use GLOBAL geometry: the menu UI is a child of the MarkingMenu, so
+        # ui.x()/y() are parent-relative, not screen coordinates.
+        top_left = ui.mapToGlobal(QtCore.QPoint(0, 0))
+        x, y, w, h = top_left.x(), top_left.y(), ui.width(), ui.height()
+
+        # Check against the screen the menu actually opened on, not the host
+        # window's screen. On multi-monitor the menu opens on the cursor's
+        # screen (which need not match parent.screen()), and QCursor.setPos to
+        # a secondary monitor isn't always honored — so pinning the assertion
+        # to parent.screen() made it depend on the physical monitor layout.
+        center = QtCore.QPoint(x + w // 2, y + h // 2)
+        screen = (
+            QtWidgets.QApplication.screenAt(center)
+            or ui.screen()
+            or self.parent.screen()
+        )
+        ag = screen.availableGeometry()
+        sx, sy, sw, sh = ag.x(), ag.y(), ag.width(), ag.height()
+
         cropped = []
         if y < sy:
             cropped.append(f"top by {sy - y}px")
@@ -217,7 +236,7 @@ class MarkingMenuGuiTest(unittest.TestCase):
             self.fail(
                 f"{ui.objectName()} extends off-screen "
                 f"({', '.join(cropped)}); geom=({x},{y},{w},{h}) "
-                f"screen={self.screen_geom}"
+                f"screen=({sx}, {sy}, {sw}, {sh})"
             )
 
     # ── tests ───────────────────────────────────────────────────────
