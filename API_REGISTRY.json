@@ -2395,12 +2395,21 @@
               "deprecated": false
             },
             {
+              "name": "b058",
+              "qualname": "Nurbs.b058",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Curve to Tube",
+              "line": 92,
+              "deprecated": false
+            },
+            {
               "name": "tb000_init",
               "qualname": "Nurbs.tb000_init",
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "",
-              "line": 92,
+              "line": 96,
               "deprecated": false
             },
             {
@@ -2409,7 +2418,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Revolve",
-              "line": 163,
+              "line": 167,
               "deprecated": false
             },
             {
@@ -2418,7 +2427,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "",
-              "line": 190,
+              "line": 194,
               "deprecated": false
             },
             {
@@ -2427,7 +2436,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Loft",
-              "line": 266,
+              "line": 270,
               "deprecated": false
             },
             {
@@ -2436,7 +2445,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Project Curve",
-              "line": 292,
+              "line": 296,
               "deprecated": false
             },
             {
@@ -2445,7 +2454,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Duplicate Curve",
-              "line": 296,
+              "line": 300,
               "deprecated": false
             },
             {
@@ -2454,7 +2463,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Extract Curve",
-              "line": 300,
+              "line": 304,
               "deprecated": false
             },
             {
@@ -2463,7 +2472,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Lock Curve",
-              "line": 307,
+              "line": 311,
               "deprecated": false
             },
             {
@@ -2472,7 +2481,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Unlock Curve",
-              "line": 311,
+              "line": 315,
               "deprecated": false
             },
             {
@@ -2481,7 +2490,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Bend Curve",
-              "line": 315,
+              "line": 319,
               "deprecated": false
             },
             {
@@ -2490,7 +2499,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Curl Curve",
-              "line": 319,
+              "line": 323,
               "deprecated": false
             },
             {
@@ -2499,7 +2508,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Modify Curve Curvature",
-              "line": 323,
+              "line": 327,
               "deprecated": false
             },
             {
@@ -2508,7 +2517,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Smooth Curve",
-              "line": 327,
+              "line": 331,
               "deprecated": false
             },
             {
@@ -2517,7 +2526,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Straighten Curve",
-              "line": 331,
+              "line": 335,
               "deprecated": false
             },
             {
@@ -2526,7 +2535,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Extrude",
-              "line": 335,
+              "line": 339,
               "deprecated": false
             },
             {
@@ -2535,7 +2544,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Planar",
-              "line": 339,
+              "line": 343,
               "deprecated": false
             },
             {
@@ -2544,7 +2553,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Insert Isoparm",
-              "line": 343,
+              "line": 347,
               "deprecated": false
             },
             {
@@ -2553,7 +2562,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Edit Curve Tool",
-              "line": 347,
+              "line": 351,
               "deprecated": false
             },
             {
@@ -2562,7 +2571,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Attach Curve",
-              "line": 351,
+              "line": 355,
               "deprecated": false
             },
             {
@@ -2571,7 +2580,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Detach Curve",
-              "line": 355,
+              "line": 359,
               "deprecated": false
             },
             {
@@ -2580,7 +2589,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Extend Curve",
-              "line": 359,
+              "line": 363,
               "deprecated": false
             },
             {
@@ -2589,7 +2598,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Cut Curve",
-              "line": 363,
+              "line": 367,
               "deprecated": false
             },
             {
@@ -2598,7 +2607,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Open/Close Curve",
-              "line": 367,
+              "line": 371,
               "deprecated": false
             },
             {
@@ -2607,7 +2616,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Insert Knot",
-              "line": 371,
+              "line": 375,
               "deprecated": false
             },
             {
@@ -2616,7 +2625,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Add Points Tool",
-              "line": 375,
+              "line": 379,
               "deprecated": false
             },
             {
@@ -2625,7 +2634,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Reverse Curve",
-              "line": 379,
+              "line": 383,
               "deprecated": false
             },
             {
@@ -2634,7 +2643,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Extend Curve",
-              "line": 383,
+              "line": 387,
               "deprecated": false
             },
             {
@@ -2643,7 +2652,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Extend On Surface",
-              "line": 387,
+              "line": 391,
               "deprecated": false
             }
           ]
@@ -5217,12 +5226,30 @@
               "deprecated": false
             },
             {
+              "name": "tb009_init",
+              "qualname": "UvSlots.tb009_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Initialize Unwrap Cylinder.",
+              "line": 945,
+              "deprecated": false
+            },
+            {
+              "name": "tb009",
+              "qualname": "UvSlots.tb009",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Unwrap Cylinder",
+              "line": 979,
+              "deprecated": false
+            },
+            {
               "name": "cmb002",
               "qualname": "UvSlots.cmb002",
               "kind": "method",
               "signature": "(self, index, widget)",
               "summary": "Transform",
-              "line": 945,
+              "line": 1006,
               "deprecated": false
             },
             {
@@ -5231,7 +5258,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Transfer UV's",
-              "line": 998,
+              "line": 1059,
               "deprecated": false
             },
             {
@@ -5240,7 +5267,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Get texel density.",
-              "line": 1010,
+              "line": 1071,
               "deprecated": false
             },
             {
@@ -5249,7 +5276,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Set Texel Density",
-              "line": 1016,
+              "line": 1077,
               "deprecated": false
             },
             {
@@ -5258,7 +5285,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Cut UV's",
-              "line": 1023,
+              "line": 1084,
               "deprecated": false
             },
             {
@@ -5267,7 +5294,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Sew UVs",
-              "line": 1053,
+              "line": 1114,
               "deprecated": false
             },
             {
@@ -5276,7 +5303,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Unfold and Pack UVs",
-              "line": 1070,
+              "line": 1131,
               "deprecated": false
             },
             {
@@ -5285,7 +5312,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Initialize Cut Hard Edges option menu.",
-              "line": 1075,
+              "line": 1136,
               "deprecated": false
             },
             {
@@ -5294,7 +5321,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Cut UV hard edges (always), optionally also UV borders and auto-detected seams.",
-              "line": 1110,
+              "line": 1171,
               "deprecated": false
             },
             {
@@ -5303,7 +5330,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Move To Uv Space: Left",
-              "line": 1143,
+              "line": 1204,
               "deprecated": false
             },
             {
@@ -5312,7 +5339,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Move To Uv Space: Down",
-              "line": 1148,
+              "line": 1209,
               "deprecated": false
             },
             {
@@ -5321,7 +5348,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Move To Uv Space: Up",
-              "line": 1153,
+              "line": 1214,
               "deprecated": false
             },
             {
@@ -5330,7 +5357,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Move To Uv Space: Right",
-              "line": 1158,
+              "line": 1219,
               "deprecated": false
             },
             {
@@ -5339,7 +5366,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Initialize Pin/Unpin button — static pin icon, non-checkable.",
-              "line": 1163,
+              "line": 1224,
               "deprecated": false
             },
             {
@@ -5348,7 +5375,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Pin / Unpin selected UVs (dual-state toggle).",
-              "line": 1174,
+              "line": 1235,
               "deprecated": false
             },
             {
@@ -5357,7 +5384,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Initialize Stack button — static stack icon, non-checkable.",
-              "line": 1196,
+              "line": 1257,
               "deprecated": false
             },
             {
@@ -5366,7 +5393,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Stack / Unstack similar shells (dual-state toggle).",
-              "line": 1207,
+              "line": 1268,
               "deprecated": false
             }
           ]
