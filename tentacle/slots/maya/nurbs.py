@@ -89,6 +89,10 @@ class Nurbs(SlotsMaya):
         """Image Tracer"""
         self.sb.handlers.marking_menu.show("image_tracer")
 
+    def b058(self):
+        """Curve to Tube"""
+        self.sb.handlers.marking_menu.show("curve_to_tube")
+
     def tb000_init(self, widget):
         """ """
         widget.option_box.menu.add(

@@ -942,6 +942,67 @@ class UvSlots(SlotsMaya):
             preserve_position=preserve_position,
         )
 
+    def tb009_init(self, widget):
+        """Initialize Unwrap Cylinder.
+
+        Auto-unwraps cylinder / tube meshes: a lengthwise seam plus a ring per
+        end cap, then an unfold so the body lays out as a clean strip and each
+        cap as its own shell. *Invert Seam* moves the lengthwise seam to the
+        opposite side, giving control over where it lands.
+        """
+        widget.option_box.menu.setTitle("Unwrap Cylinder")
+        widget.option_box.menu.add(
+            "QCheckBox",
+            setText="Invert Seam",
+            setObjectName="chk040",
+            setChecked=False,
+            setToolTip="Place the lengthwise seam on the opposite side of the "
+            "cylinder, so it lands on the back / hidden side.",
+        )
+        widget.option_box.menu.add(
+            "QCheckBox",
+            setText="Unfold",
+            setObjectName="chk041",
+            setChecked=True,
+            setToolTip="Unfold (flatten) the UVs after seaming so the body lays "
+            "out as a rectangular strip.",
+        )
+        widget.option_box.menu.add(
+            "QCheckBox",
+            setText="Orient",
+            setObjectName="chk042",
+            setChecked=True,
+            setToolTip="Orient each shell to its nearest U/V axis after the unfold.",
+        )
+
+    @mtk.undoable
+    def tb009(self, widget):
+        """Unwrap Cylinder"""
+        invert_seam = widget.option_box.menu.chk040.isChecked()
+        unfold = widget.option_box.menu.chk041.isChecked()
+        orient = widget.option_box.menu.chk042.isChecked()
+
+        selection = cmds.ls(sl=True, objectsOnly=True) or []
+        if not selection:
+            self.sb.message_box(
+                "<b>Nothing selected.</b><br>The operation requires at least one "
+                "cylinder / tube mesh."
+            )
+            return
+
+        seamed = mtk.UvUtils.unwrap_cylinder(
+            selection,
+            invert_seam=invert_seam,
+            unfold=unfold,
+            orient=orient,
+            map_size=self.get_map_size(),
+        )
+        if not seamed:
+            self.sb.message_box(
+                "<b>No cylinder seams found.</b><br>Select polygon cylinder / "
+                "tube mesh(es) (open, or capped with n-gon caps)."
+            )
+
     def cmb002(self, index, widget):
         """Transform"""
         text = widget.items[index]
