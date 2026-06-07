@@ -315,6 +315,43 @@
      <bool>false</bool>
     </property>
    </widget>
+   <widget class="PushButton" name="tb009">
+    <property name="enabled">
+     <bool>true</bool>
+    </property>
+    <property name="geometry">
+     <rect>
+      <x>435</x>
+      <y>300</y>
+      <width>106</width>
+      <height>19</height>
+     </rect>
+    </property>
+    <property name="minimumSize">
+     <size>
+      <width>0</width>
+      <height>19</height>
+     </size>
+    </property>
+    <property name="maximumSize">
+     <size>
+      <width>16777215</width>
+      <height>19</height>
+     </size>
+    </property>
+    <property name="toolTip">
+     <string>Cut auto seams on cylinder / tube / turned meshes (cap rings + ~90° step rings + one lengthwise seam), then optionally unfold each section flat. Invert Seam moves the lengthwise seam to the opposite side.</string>
+    </property>
+    <property name="text">
+     <string>Cut Cylinder</string>
+    </property>
+    <property name="iconSize">
+     <size>
+      <width>18</width>
+      <height>18</height>
+     </size>
+    </property>
+   </widget>
   </widget>
  </widget>
  <customwidgets>

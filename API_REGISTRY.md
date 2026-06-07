@@ -848,8 +848,8 @@ _Generated: 2026-06-07_
   - `UvSlots.tb007(self, widget)` — Cleanup UV Sets
   - `UvSlots.tb008_init(self, widget)` — Initialize Mirror UVs.
   - `UvSlots.tb008(self, widget)` — Mirror UVs (footprint-preserving by default).
-  - `UvSlots.tb009_init(self, widget)` — Initialize Unwrap Cylinder.
-  - `UvSlots.tb009(self, widget)` — Unwrap Cylinder
+  - `UvSlots.tb009_init(self, widget)` — Initialize Cut Cylinder.
+  - `UvSlots.tb009(self, widget)` — Cut Cylinder
   - `UvSlots.cmb002(self, index, widget)` — Transform
   - `UvSlots.b000(self, widget)` — Transfer UV's
   - `UvSlots.b003(self)` — Get texel density.

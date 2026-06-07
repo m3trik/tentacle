@@ -182,6 +182,41 @@ class TestB005CutUVsRouting(unittest.TestCase):
         self.assertIn(".e[", joined)
 
 
+@unittest.skipUnless(_MAYA_AVAILABLE, "Requires maya.cmds")
+class TestB011SewUVsDuplicateNames(unittest.TestCase):
+    """b011 (Sew UVs) must resolve mesh shapes by full path. Two transforms
+    sharing a short leaf name make their shapes share a short name; the old
+    per-shape ``cmds.objectType(shape)`` call then raised 'No object matches
+    name: <shape>' because the ambiguous short name resolves to nothing.
+    """
+
+    def setUp(self):
+        cmds.file(new=True, force=True)
+        self.instance = uv_module.UvSlots.__new__(uv_module.UvSlots)
+        self.instance.sb = _RecordedSb()
+        self._orig = cmds.polyMapSew
+        self.sewed = []
+        cmds.polyMapSew = lambda *a, **k: self.sewed.append(a[0])
+
+    def tearDown(self):
+        cmds.polyMapSew = self._orig
+        cmds.file(new=True, force=True)
+
+    def test_sews_meshes_with_colliding_short_shape_names(self):
+        g1 = cmds.group(empty=True, name="grpA")
+        cmds.parent(cmds.polyCylinder(name="dupCyl")[0], g1)
+        g2 = cmds.group(empty=True, name="grpB")
+        cmds.parent(cmds.polyCylinder(name="dupCyl")[0], g2)
+        cmds.select([f"{g1}|dupCyl", f"{g2}|dupCyl"])
+
+        # Old code raised here on objectType("dupCylShape"); must not now.
+        self.instance.b011()
+
+        # Both meshes were sewn, addressed by unambiguous full paths.
+        self.assertEqual(len(self.sewed), 2)
+        self.assertTrue(all(s.startswith("|grp") and ".e[*]" in s for s in self.sewed))
+
+
 class _FakeCheck:
     def __init__(self, checked):
         self._c = checked
@@ -388,17 +423,46 @@ class TestTb004NonManifoldStrategy(unittest.TestCase):
         self.assertIn("non-manifold", joined)
         self.assertIn("vertex mode", joined)
 
+    def test_does_not_preempt_unfold_on_polyinfo_flag(self):
+        # Regression ("unfold fails on every mesh"): tb004 must NOT abort based on
+        # a polyInfo non-manifold scan. u3dUnfold's rejection is narrower than
+        # polyInfo's topological flag, so when u3dUnfold accepts this mesh (here:
+        # stubbed to succeed) the unfold proceeds — no warn, no vertex re-select —
+        # even though polyInfo reports the bowtie vert as non-manifold.
+        self.assertTrue(  # precondition: polyInfo does flag this mesh
+            self.instance._non_manifold_vertices([self.mesh]),
+            "fixture should be polyInfo-non-manifold",
+        )
+        cmds.u3dUnfold = lambda *a, **k: None  # u3dUnfold tolerates it
+
+        self.instance.tb004(
+            widget=_FakeUnfoldWidget(
+                nonmanifold_mode="select", optimize=False, orient=False, stack=False
+            )
+        )
+
+        self.assertFalse(
+            self.instance.sb.messages, "unfold should proceed, not warn + abort"
+        )
+        sel = cmds.ls(sl=True, flatten=True) or []
+        self.assertFalse(
+            any(".vtx[" in s for s in sel), f"should not select vertices, got {sel}"
+        )
+
     def test_repair_mode_repairs_and_retries(self):
-        # First unfold fails (non-manifold); after the real repair the retry succeeds.
+        # u3dUnfold itself gates unfoldability (its non-manifold rejection is
+        # narrower than polyInfo's flag), so we must NOT pre-empt on a polyInfo
+        # scan. The first real unfold fails, the repair runs, and the retry — on
+        # the now-manifold mesh — succeeds, all in one click.
         calls = {"n": 0}
 
         def _unfold(*a, **k):
             calls["n"] += 1
-            if calls["n"] == 1:
+            if cmds.polyInfo(self.shape, nonManifoldVertices=True):
                 raise RuntimeError(
                     "Mesh has non-manifold vertices. Clean up the mesh before using unfold."
                 )
-            return None  # post-repair retry succeeds
+            return None  # post-repair retry succeeds on the cleaned mesh
 
         cmds.u3dUnfold = _unfold
 
@@ -446,6 +510,69 @@ class TestTb004NonManifoldStrategy(unittest.TestCase):
 
         joined = " ".join(str(m) for m in self.instance.sb.messages).lower()
         self.assertIn("non-manifold", joined)
+
+
+@unittest.skipUnless(_MAYA_AVAILABLE, "Requires maya.cmds")
+class TestTb004ObjectModeGuard(unittest.TestCase):
+    """tb004 must normalize a component selection to object mode before unfolding.
+
+    The whole-object u3dUnfold behaves non-deterministically when a leftover
+    component selection scopes it to a sub-shell, which is what made the repair
+    flow appear to need a second click. (Regression: the guard's condition was
+    inverted, so it never switched out of component mode.)
+
+    selectMode is spied rather than queried for real: mayapy.standalone doesn't
+    track interactive selection mode, so a real query is unreliable here. The
+    spy reports "not in object mode" and records any switch — under the old
+    inverted guard no switch is issued, so this fails before the fix.
+    """
+
+    def setUp(self):
+        cmds.file(new=True, force=True)
+        self.instance = uv_module.UvSlots.__new__(uv_module.UvSlots)
+        self.instance.sb = _RecordedSb()
+        self.instance.get_map_size = lambda: 2048
+
+        self.mesh = cmds.polyPlane(w=1, h=1, sx=2, sy=2)[0]  # clean, manifold
+        cmds.polyAutoProjection(self.mesh, ch=False)
+        cmds.select(self.mesh, r=True)
+
+        self._orig_selectMode = cmds.selectMode
+        self._orig_unfold = getattr(cmds, "u3dUnfold", None)
+        self.switched_to_object = []
+
+        def _selectMode(*a, **k):
+            if k.get("query") or k.get("q"):
+                return False  # report: not currently in object mode
+            if k.get("object"):
+                self.switched_to_object.append(True)
+            return self._orig_selectMode(*a, **k)
+
+        cmds.selectMode = _selectMode
+        self.unfold_calls = []
+        cmds.u3dUnfold = lambda *a, **k: self.unfold_calls.append((a, k))
+
+    def tearDown(self):
+        cmds.selectMode = self._orig_selectMode
+        if self._orig_unfold is None:
+            if hasattr(cmds, "u3dUnfold"):
+                del cmds.u3dUnfold
+        else:
+            cmds.u3dUnfold = self._orig_unfold
+        cmds.file(new=True, force=True)
+
+    def test_non_object_mode_is_switched_before_unfold(self):
+        self.instance.tb004(
+            widget=_FakeUnfoldWidget(orient=False, stack=False, optimize=False)
+        )
+
+        # The guard issued a switch to object mode, then unfolded once cleanly.
+        self.assertTrue(
+            self.switched_to_object,
+            "tb004 should switch to object mode when not already in it",
+        )
+        self.assertEqual(len(self.unfold_calls), 1)
+        self.assertFalse(self.instance.sb.messages)
 
 
 if __name__ == "__main__":

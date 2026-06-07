@@ -571,6 +571,32 @@ class UvSlots(SlotsMaya):
         if len(selection) == 1:
             return result
 
+    @staticmethod
+    def _mesh_has_unfold_seams(obj):
+        """True if a mesh has UV borders / multiple shells for Unfold to open.
+
+        A closed mesh in a single UV shell has no seams, so ``u3dUnfold`` can't
+        flatten it; such meshes are routed to the auto cylinder unwrap instead.
+        Non-meshes return True (permissive — let the normal path handle them).
+        """
+        try:
+            if (cmds.polyEvaluate(obj, uvShell=True) or 1) > 1:
+                return True
+        except Exception:
+            return True
+        import maya.api.OpenMaya as om
+
+        sel = om.MSelectionList()
+        sel.add(obj)
+        dag = sel.getDagPath(0)
+        dag.extendToShape()
+        edge_it = om.MItMeshEdge(dag)
+        while not edge_it.isDone():
+            if edge_it.onBoundary():  # an open 3D border is unfoldable as-is
+                return True
+            edge_it.next()
+        return False
+
     def tb004_init(self, widget):
         """Initialize Unfold UV"""
         widget.option_box.menu.setTitle("Unfold UV")
@@ -609,8 +635,8 @@ class UvSlots(SlotsMaya):
             setToolTip=(
                 "What to do when non-manifold geometry blocks Unfold:\n"
                 "Warn + Select: stop, select the offending vertices, and explain.\n"
-                "Repair + Retry: auto-clean the non-manifold geometry (Mesh Cleanup),\n"
-                "then run Unfold again. The repair is noted in the result and the console."
+                "Repair + Retry: auto-clean the non-manifold geometry (Mesh Cleanup)\n"
+                "first, then unfold. The repair is noted in the result and the console."
             ),
         )
         for text, data in [
@@ -629,13 +655,28 @@ class UvSlots(SlotsMaya):
         tolerance = widget.option_box.menu.s000.value()
         map_size = self.get_map_size()
 
-        # Capture the operands before any mode switch, so the failure path can
-        # locate / repair non-manifold geometry on them.
+        # Capture the operands before any mode switch, so the repair / warn paths
+        # can locate non-manifold geometry on them.
         objects = cmds.ls(sl=True, objectsOnly=True) or []
 
-        # If selection mode is not object, switch to object mode
-        if cmds.selectMode(query=True, object=True):
+        # u3dUnfold flattens the whole object; make sure we're in object mode so a
+        # leftover component selection (common mid-UV-edit) can't scope it to a
+        # partial sub-shell. Switching modes keeps the parent objects selected.
+        if not cmds.selectMode(query=True, object=True):
             cmds.selectMode(object=True)
+
+        # A closed mesh in a single UV shell has no seams for u3dUnfold to open
+        # along — unfolding it does nothing. Auto-cut cylinder seams and unfold
+        # those via the cylinder unwrapper; meshes that already have seams take
+        # the relax path below.
+        auto = [o for o in objects if not self._mesh_has_unfold_seams(o)]
+        if auto:
+            mtk.UvUtils.unwrap_cylinder(auto, orient=orient, map_size=map_size)
+            objects = [o for o in objects if o not in auto]
+            if not objects:
+                cmds.select(auto, replace=True)
+                return
+            cmds.select(objects, replace=True)
 
         unfold_kwargs = dict(
             iterations=1,
@@ -646,9 +687,13 @@ class UvSlots(SlotsMaya):
             roomspace=0,
         )
 
-        # u3dUnfold rejects non-manifold geometry with a RuntimeError. Per the
-        # chosen strategy, either warn + select the offending vertices, or
-        # auto-repair (Mesh Cleanup) and retry once.
+        # Let u3dUnfold itself decide whether the mesh is unfoldable — its
+        # non-manifold rejection is narrower than polyInfo's topological flag, so
+        # we must NOT pre-empt the unfold on a polyInfo scan (that aborted clean,
+        # unfoldable meshes). Only on an actual non-manifold RuntimeError do we
+        # act on the chosen strategy: warn + select, or repair (Mesh Cleanup) and
+        # retry once. The object-mode switch above is what lets the single repair
+        # retry land in one click.
         repair_summary = None
         try:
             cmds.u3dUnfold(**unfold_kwargs)
@@ -943,15 +988,30 @@ class UvSlots(SlotsMaya):
         )
 
     def tb009_init(self, widget):
-        """Initialize Unwrap Cylinder.
+        """Initialize Cut Cylinder.
 
-        Auto-unwraps cylinder / tube meshes: a lengthwise seam plus a ring per
-        end cap, then an unfold so the body lays out as a clean strip and each
-        cap as its own shell. *Invert Seam* moves the lengthwise seam to the
-        opposite side, giving control over where it lands.
+        Cuts the hard creases (cap rims + step rings) plus one lengthwise seam
+        on cylinder / tube / turned meshes, then optionally unfolds so each
+        smooth section lays out as a clean strip and each flat step / cap as its
+        own shell. *Crease Angle* sets how sharp a bend must be to start a new
+        shell; *Invert Seam* moves the lengthwise seam to the opposite side;
+        *Unfold* flattens the cut sections (off = cut seams only).
         """
-        widget.option_box.menu.setTitle("Unwrap Cylinder")
-        widget.option_box.menu.add(
+        menu = widget.option_box.menu
+        menu.setTitle("Cut Cylinder")
+        menu.add(
+            "QSpinBox",
+            setPrefix="Crease Angle: ",
+            setObjectName="s016",
+            set_limits=[1, 179],
+            setValue=45,
+            setSuffix="°",
+            setToolTip="Crease threshold in degrees. An edge whose two faces "
+            "meet at this angle or sharper starts a new shell, so a smaller "
+            "value splits at gentler bevels and a larger value keeps only the "
+            "hardest (~90°) steps. Default 45.",
+        )
+        menu.add(
             "QCheckBox",
             setText="Invert Seam",
             setObjectName="chk040",
@@ -959,15 +1019,15 @@ class UvSlots(SlotsMaya):
             setToolTip="Place the lengthwise seam on the opposite side of the "
             "cylinder, so it lands on the back / hidden side.",
         )
-        widget.option_box.menu.add(
+        menu.add(
             "QCheckBox",
             setText="Unfold",
             setObjectName="chk041",
             setChecked=True,
             setToolTip="Unfold (flatten) the UVs after seaming so the body lays "
-            "out as a rectangular strip.",
+            "out as a rectangular strip. Uncheck to cut the seams only.",
         )
-        widget.option_box.menu.add(
+        menu.add(
             "QCheckBox",
             setText="Orient",
             setObjectName="chk042",
@@ -977,7 +1037,8 @@ class UvSlots(SlotsMaya):
 
     @mtk.undoable
     def tb009(self, widget):
-        """Unwrap Cylinder"""
+        """Cut Cylinder"""
+        angle = widget.option_box.menu.s016.value()
         invert_seam = widget.option_box.menu.chk040.isChecked()
         unfold = widget.option_box.menu.chk041.isChecked()
         orient = widget.option_box.menu.chk042.isChecked()
@@ -992,6 +1053,7 @@ class UvSlots(SlotsMaya):
 
         seamed = mtk.UvUtils.unwrap_cylinder(
             selection,
+            angle=angle,
             invert_seam=invert_seam,
             unfold=unfold,
             orient=orient,
@@ -1000,7 +1062,7 @@ class UvSlots(SlotsMaya):
         if not seamed:
             self.sb.message_box(
                 "<b>No cylinder seams found.</b><br>Select polygon cylinder / "
-                "tube mesh(es) (open, or capped with n-gon caps)."
+                "tube / turned mesh(es)."
             )
 
     def cmb002(self, index, widget):
@@ -1120,13 +1182,19 @@ class UvSlots(SlotsMaya):
         for edge in edges:
             cmds.polyMapSew(edge)
 
-        # Transforms — sew all edges of their mesh shape
+        # Transforms — sew all edges of each mesh shape. Resolve shapes with a
+        # type filter and full paths, not a per-shape objectType call: a short
+        # shape name is ambiguous when two transforms share a leaf name under
+        # different parents, and objectType then raises "No object matches name".
         transforms = cmds.ls(selected, type="transform") or []
-        for obj in transforms:
-            shapes = cmds.listRelatives(obj, shapes=True, noIntermediate=True) or []
-            for shape in shapes:
-                if cmds.objectType(shape) == "mesh":
-                    cmds.polyMapSew(f"{shape}.e[*]")
+        shapes = (
+            cmds.listRelatives(
+                transforms, shapes=True, noIntermediate=True, type="mesh", fullPath=True
+            )
+            or []
+        )
+        for shape in shapes:
+            cmds.polyMapSew(f"{shape}.e[*]")
 
     def b021(self, widget):
         """Unfold and Pack UVs"""

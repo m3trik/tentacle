@@ -182,6 +182,23 @@ class TestSoftenHarden(unittest.TestCase):
         cmds.select(clear=True)
         self.instance.b000()
 
+    def test_b000_handles_name_collision(self):
+        """Two objects sharing a leaf name must not crash b000.
+
+        map_components_to_objects keys by leaf name, so a duplicate short
+        name (``pCube1`` under different parents) made the old
+        ``polyOptions(obj)`` raise ``More than one object matches name``.
+        The slot now resolves the unambiguous path from the components.
+        """
+        cmds.group(cmds.polyCube(name="pCube1")[0], name="grp1")
+        cmds.group(cmds.polyCube(name="pCube1")[0], name="grp2")
+        cmds.select(cmds.ls("grp1|pCube1.e[0:3]", flatten=True), replace=True)
+
+        self.instance.b000()  # Must not raise.
+
+        is_soft = cmds.polyOptions("grp1|pCube1", q=True, se=True)
+        self.assertTrue(is_soft[0])
+
 
 @unittest.skipUnless(_MAYA_AVAILABLE, "Requires maya.cmds")
 class TestB002SelectionGate(unittest.TestCase):
