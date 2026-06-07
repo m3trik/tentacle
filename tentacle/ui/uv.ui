@@ -527,10 +527,10 @@
             </size>
            </property>
            <property name="toolTip">
-            <string>Auto-unwrap cylinder / tube meshes: a lengthwise seam plus a ring per cap, then unfold. Invert Seam moves the lengthwise seam to the opposite side.</string>
+            <string>Cut auto seams on cylinder / tube / turned meshes (cap rings + ~90° step rings + one lengthwise seam), then optionally unfold each section flat. Invert Seam moves the lengthwise seam to the opposite side.</string>
            </property>
            <property name="text">
-            <string>Unwrap Cylinder</string>
+            <string>Cut Cylinder</string>
            </property>
            <property name="iconSize">
             <size>

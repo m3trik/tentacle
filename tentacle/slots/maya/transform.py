@@ -392,7 +392,7 @@ class TransformSlots(SlotsMaya):
             setText="Match Scale",
             setObjectName="chk_match_scale",
             setChecked=False,
-            setToolTip="Also rescale the moved object(s) to match the target's bounding-box size.",
+            setToolTip="Also uniformly rescale the moved object(s) to match the target's bounding-box size (no per-axis distortion).",
         )
 
     @mtk.undoable
@@ -414,8 +414,8 @@ class TransformSlots(SlotsMaya):
         else:  # the first object moves to the remaining objects' combined bounding box
             source, target = sel[0], sel[1:]
 
-        if do_match_scale:  # resize source to the target's bounding-box size
-            mtk.match_scale(source, target)
+        if do_match_scale:  # uniformly resize source to the target's bounding-box size
+            mtk.match_scale(source, target, average=True)
         mtk.move_to(source, target, pivot=pivot)
         cmds.select(source)
 

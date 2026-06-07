@@ -84,29 +84,32 @@ class Normals(SlotsMaya):
         objects = cmds.ls(sl=True) or []
         mtk.Components.average_normals(objects, by_uv_shell=by_uv_shell)
 
-    def b000(self):
-        """Soften Edge Normals"""
+    def _set_edge_hardness(self, angle):
+        """Set edge normal hardness on the selection, then refresh soft-edge display.
+
+        Parameters:
+            angle (int): polySoftEdge angle — 180 fully softens, 0 fully hardens.
+        """
         selection = cmds.ls(sl=True) or []
-        # Map components to their respective objects
+        # Map components to their respective objects. The dict key is a leaf
+        # name that can collide across the scene, so resolve the unambiguous
+        # object path from the path-qualified components instead.
         components_dict = mtk.Components.map_components_to_objects(selection)
-        # Loop through each object and its corresponding components
-        for obj, components in components_dict.items():
-            cmds.polySoftEdge(components, angle=180)  # Use maximum angle to soften
-            cmds.polyOptions(obj, se=True)  # Set soft edge display.
+        for components in components_dict.values():
+            cmds.polySoftEdge(components, angle=angle)
+            objects = cmds.ls(components, objectsOnly=True, long=True) or []
+            if objects:
+                cmds.polyOptions(objects, se=True)  # Set soft edge display.
         if selection:
             cmds.select(selection)  # Re-select the original selection
 
+    def b000(self):
+        """Soften Edge Normals"""
+        self._set_edge_hardness(180)  # Maximum angle to soften.
+
     def b001(self):
         """Harden all selected edges."""
-        selection = cmds.ls(sl=True) or []
-        # Map components to their respective objects
-        components_dict = mtk.Components.map_components_to_objects(selection)
-        # Loop through each object and its corresponding components
-        for obj, components in components_dict.items():
-            cmds.polySoftEdge(components, angle=0)  # Use minimum angle to harden
-            cmds.polyOptions(obj, se=True)  # Set soft edge display.
-        if selection:
-            cmds.select(selection)  # Re-select the original selection
+        self._set_edge_hardness(0)  # Minimum angle to harden.
 
     def b002(self):
         """Transfer Normals"""

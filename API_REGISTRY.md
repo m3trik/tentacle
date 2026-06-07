@@ -2,7 +2,7 @@
 
 _Auto-generated. Do not edit by hand. Refresh via `m3trik/scripts/generate_api_registry.py`._
 
-_Generated: 2026-06-05_
+_Generated: 2026-06-07_
 
 ## Index
 
@@ -464,6 +464,7 @@ _Generated: 2026-06-05_
   - `Nurbs.list000_init(self, widget)` — Initialize Nurbs expandable list (categories → curve actions).
   - `Nurbs.list000(self, item)` — Dispatch a Nurbs leaf action via mel.eval (uses Maya's stored settings).
   - `Nurbs.b056(self)` — Image Tracer
+  - `Nurbs.b058(self)` — Curve to Tube
   - `Nurbs.tb000_init(self, widget)`
   - `Nurbs.tb000(self, widget)` — Revolve
   - `Nurbs.tb001_init(self, widget)`
@@ -847,6 +848,8 @@ _Generated: 2026-06-05_
   - `UvSlots.tb007(self, widget)` — Cleanup UV Sets
   - `UvSlots.tb008_init(self, widget)` — Initialize Mirror UVs.
   - `UvSlots.tb008(self, widget)` — Mirror UVs (footprint-preserving by default).
+  - `UvSlots.tb009_init(self, widget)` — Initialize Cut Cylinder.
+  - `UvSlots.tb009(self, widget)` — Cut Cylinder
   - `UvSlots.cmb002(self, index, widget)` — Transform
   - `UvSlots.b000(self, widget)` — Transfer UV's
   - `UvSlots.b003(self)` — Get texel density.

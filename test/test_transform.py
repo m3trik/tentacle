@@ -163,7 +163,7 @@ class TestTb005MoveTo(unittest.TestCase):
         mtk.move_to = lambda source, target, pivot="center": self.calls.append(
             (source, target, pivot)
         )
-        mtk.match_scale = lambda a, b, *args, **kw: self.scale_calls.append((a, b))
+        mtk.match_scale = lambda a, b, *args, **kw: self.scale_calls.append((a, b, kw))
 
     def tearDown(self):
         import mayatk as mtk
@@ -249,9 +249,10 @@ class TestTb005MoveTo(unittest.TestCase):
         self.instance.tb005(widget)
 
         self.assertEqual(len(self.scale_calls), 1)
-        src, tgt = self.scale_calls[0]
+        src, tgt, kw = self.scale_calls[0]
         self.assertEqual(list(src), [a])  # source = sel[:-1]
         self.assertEqual(tgt, b)  # target = sel[-1]
+        self.assertTrue(kw.get("average"))  # uniform scale, no per-axis distortion
         self.assertEqual(len(self.calls), 1)  # the move still happens
 
 
