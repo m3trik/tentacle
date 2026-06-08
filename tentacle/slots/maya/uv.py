@@ -571,32 +571,6 @@ class UvSlots(SlotsMaya):
         if len(selection) == 1:
             return result
 
-    @staticmethod
-    def _mesh_has_unfold_seams(obj):
-        """True if a mesh has UV borders / multiple shells for Unfold to open.
-
-        A closed mesh in a single UV shell has no seams, so ``u3dUnfold`` can't
-        flatten it; such meshes are routed to the auto cylinder unwrap instead.
-        Non-meshes return True (permissive — let the normal path handle them).
-        """
-        try:
-            if (cmds.polyEvaluate(obj, uvShell=True) or 1) > 1:
-                return True
-        except Exception:
-            return True
-        import maya.api.OpenMaya as om
-
-        sel = om.MSelectionList()
-        sel.add(obj)
-        dag = sel.getDagPath(0)
-        dag.extendToShape()
-        edge_it = om.MItMeshEdge(dag)
-        while not edge_it.isDone():
-            if edge_it.onBoundary():  # an open 3D border is unfoldable as-is
-                return True
-            edge_it.next()
-        return False
-
     def tb004_init(self, widget):
         """Initialize Unfold UV"""
         widget.option_box.menu.setTitle("Unfold UV")
@@ -665,19 +639,9 @@ class UvSlots(SlotsMaya):
         if not cmds.selectMode(query=True, object=True):
             cmds.selectMode(object=True)
 
-        # A closed mesh in a single UV shell has no seams for u3dUnfold to open
-        # along — unfolding it does nothing. Auto-cut cylinder seams and unfold
-        # those via the cylinder unwrapper; meshes that already have seams take
-        # the relax path below.
-        auto = [o for o in objects if not self._mesh_has_unfold_seams(o)]
-        if auto:
-            mtk.UvUtils.unwrap_cylinder(auto, orient=orient, map_size=map_size)
-            objects = [o for o in objects if o not in auto]
-            if not objects:
-                cmds.select(auto, replace=True)
-                return
-            cmds.select(objects, replace=True)
-
+        # Unfold only relaxes the existing UVs — it never cuts new seams. A mesh
+        # with no seams to open simply stays as-is; seaming a cylinder/tube is the
+        # job of the dedicated Cut Cylinder tool (tb009), kept separate on purpose.
         unfold_kwargs = dict(
             iterations=1,
             pack=0,

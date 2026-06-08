@@ -1,7 +1,7 @@
 {
   "name": "tentacle",
   "source_root": "tentacle/tentacle",
-  "generated_at": "2026-06-07",
+  "generated_at": "2026-06-08",
   "modules": [
     {
       "relpath": "__init__.py",
@@ -5141,7 +5141,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Initialize Unfold UV",
-              "line": 600,
+              "line": 574,
               "deprecated": false
             },
             {
@@ -5150,7 +5150,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Unfold",
-              "line": 649,
+              "line": 623,
               "deprecated": false
             },
             {
@@ -5159,7 +5159,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Initialize Straighten UV",
-              "line": 747,
+              "line": 711,
               "deprecated": false
             },
             {
@@ -5168,7 +5168,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Straighten UV",
-              "line": 779,
+              "line": 743,
               "deprecated": false
             },
             {
@@ -5177,7 +5177,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Initialize Distribute",
-              "line": 796,
+              "line": 760,
               "deprecated": false
             },
             {
@@ -5186,7 +5186,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Distribute",
-              "line": 813,
+              "line": 777,
               "deprecated": false
             },
             {
@@ -5195,7 +5195,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Initialize Cleanup UV Sets",
-              "line": 823,
+              "line": 787,
               "deprecated": false
             },
             {
@@ -5204,7 +5204,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Cleanup UV Sets",
-              "line": 869,
+              "line": 833,
               "deprecated": false
             },
             {
@@ -5213,7 +5213,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Initialize Mirror UVs.",
-              "line": 930,
+              "line": 894,
               "deprecated": false
             },
             {
@@ -5222,7 +5222,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Mirror UVs (footprint-preserving by default).",
-              "line": 967,
+              "line": 931,
               "deprecated": false
             },
             {
@@ -5231,7 +5231,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Initialize Cut Cylinder.",
-              "line": 990,
+              "line": 954,
               "deprecated": false
             },
             {
@@ -5240,7 +5240,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Cut Cylinder",
-              "line": 1039,
+              "line": 1003,
               "deprecated": false
             },
             {
@@ -5249,7 +5249,7 @@
               "kind": "method",
               "signature": "(self, index, widget)",
               "summary": "Transform",
-              "line": 1068,
+              "line": 1032,
               "deprecated": false
             },
             {
@@ -5258,7 +5258,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Transfer UV's",
-              "line": 1121,
+              "line": 1085,
               "deprecated": false
             },
             {
@@ -5267,7 +5267,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Get texel density.",
-              "line": 1133,
+              "line": 1097,
               "deprecated": false
             },
             {
@@ -5276,7 +5276,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Set Texel Density",
-              "line": 1139,
+              "line": 1103,
               "deprecated": false
             },
             {
@@ -5285,7 +5285,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Cut UV's",
-              "line": 1146,
+              "line": 1110,
               "deprecated": false
             },
             {
@@ -5294,7 +5294,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Sew UVs",
-              "line": 1176,
+              "line": 1140,
               "deprecated": false
             },
             {
@@ -5303,7 +5303,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Unfold and Pack UVs",
-              "line": 1199,
+              "line": 1163,
               "deprecated": false
             },
             {
@@ -5312,7 +5312,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Initialize Cut Hard Edges option menu.",
-              "line": 1204,
+              "line": 1168,
               "deprecated": false
             },
             {
@@ -5321,7 +5321,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Cut UV hard edges (always), optionally also UV borders and auto-detected seams.",
-              "line": 1239,
+              "line": 1203,
               "deprecated": false
             },
             {
@@ -5330,7 +5330,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Move To Uv Space: Left",
-              "line": 1272,
+              "line": 1236,
               "deprecated": false
             },
             {
@@ -5339,7 +5339,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Move To Uv Space: Down",
-              "line": 1277,
+              "line": 1241,
               "deprecated": false
             },
             {
@@ -5348,7 +5348,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Move To Uv Space: Up",
-              "line": 1282,
+              "line": 1246,
               "deprecated": false
             },
             {
@@ -5357,7 +5357,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Move To Uv Space: Right",
-              "line": 1287,
+              "line": 1251,
               "deprecated": false
             },
             {
@@ -5366,7 +5366,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Initialize Pin/Unpin button — static pin icon, non-checkable.",
-              "line": 1292,
+              "line": 1256,
               "deprecated": false
             },
             {
@@ -5375,7 +5375,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Pin / Unpin selected UVs (dual-state toggle).",
-              "line": 1303,
+              "line": 1267,
               "deprecated": false
             },
             {
@@ -5384,7 +5384,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Initialize Stack button — static stack icon, non-checkable.",
-              "line": 1325,
+              "line": 1289,
               "deprecated": false
             },
             {
@@ -5393,7 +5393,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Stack / Unstack similar shells (dual-state toggle).",
-              "line": 1336,
+              "line": 1300,
               "deprecated": false
             }
           ]

@@ -372,6 +372,66 @@ class TestTb004UnfoldGuard(unittest.TestCase):
 
 
 @unittest.skipUnless(_MAYA_AVAILABLE, "Requires maya.cmds")
+class TestTb004NeverSeamCuts(unittest.TestCase):
+    """Regression: tb004 (Unfold) relaxes existing UVs only — it must never cut
+    new seams. A closed, single-shell ("seamless") mesh was previously routed to
+    mtk.UvUtils.unwrap_cylinder, which polyMapCuts fresh seams in. Seaming is the
+    job of the dedicated Cut Cylinder tool (tb009); Unfold must leave the UV
+    layout's shell structure untouched.
+    """
+
+    def setUp(self):
+        cmds.file(new=True, force=True)
+        self.instance = uv_module.UvSlots.__new__(uv_module.UvSlots)
+        self.instance.sb = _RecordedSb()
+        self.instance.get_map_size = lambda: 2048
+
+        # A closed cylinder with a single, sewn UV shell — the exact mesh the old
+        # auto-cut path triggered on.
+        self.mesh = cmds.polyCylinder(name="seamlessCyl")[0]
+        cmds.polyMapSew(f"{self.mesh}.e[*]", constructionHistory=True)
+        cmds.select(self.mesh, replace=True)
+
+        self._missing = object()
+        self._orig = {
+            name: getattr(cmds, name, self._missing)
+            for name in (
+                "selectMode",
+                "u3dUnfold",
+                "u3dOptimize",
+                "polyUVStackSimilarShells",
+            )
+        }
+        cmds.selectMode = lambda *a, **k: False  # already-object: skip switch
+        cmds.u3dUnfold = lambda *a, **k: None  # succeed without the Unfold3D plugin
+        cmds.u3dOptimize = lambda *a, **k: None
+        cmds.polyUVStackSimilarShells = lambda *a, **k: None
+
+    def tearDown(self):
+        for name, fn in self._orig.items():
+            if fn is self._missing:
+                if hasattr(cmds, name):
+                    delattr(cmds, name)
+            else:
+                setattr(cmds, name, fn)
+        cmds.file(new=True, force=True)
+
+    def test_seamless_mesh_is_not_routed_through_seam_cutting(self):
+        shells_before = cmds.polyEvaluate(self.mesh, uvShell=True)
+        with mock.patch.object(
+            mtk.UvUtils, "unwrap_cylinder"
+        ) as unwrap, mock.patch.object(cmds, "polyMapCut") as map_cut:
+            self.instance.tb004(widget=_FakeUnfoldWidget(orient=False, stack=False))
+        unwrap.assert_not_called()
+        map_cut.assert_not_called()
+        self.assertEqual(
+            cmds.polyEvaluate(self.mesh, uvShell=True),
+            shells_before,
+            "Unfold must not add UV shells (no new seams) on a seamless mesh",
+        )
+
+
+@unittest.skipUnless(_MAYA_AVAILABLE, "Requires maya.cmds")
 class TestTb004NonManifoldStrategy(unittest.TestCase):
     """tb004's non-manifold strategy combo: Warn + Select vs Repair + Retry.
 
