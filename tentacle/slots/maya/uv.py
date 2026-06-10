@@ -57,16 +57,14 @@ class UvSlots(SlotsMaya):
             setObjectName="uv_editor",
             setToolTip="Open the texture coordinate mapping window.",
         )
-        widget.menu.uv_editor.clicked.connect(lambda: mel.eval("TextureViewWindow"))
+        widget.menu.uv_editor.clicked.connect(lambda: self.b031())
         widget.menu.add(
             "QPushButton",
             setText="RizomUV Bridge",
             setObjectName="btn_rizom_bridge",
             setToolTip="Round-trip selected meshes through RizomUV using a Lua preset.",
         )
-        widget.menu.btn_rizom_bridge.clicked.connect(
-            lambda: self.sb.handlers.marking_menu.show("rizom_bridge")
-        )
+        widget.menu.btn_rizom_bridge.clicked.connect(lambda: self.b032())
 
     def cmb002_init(self, widget):
         """Initialize UV Transform Menu"""
@@ -1353,6 +1351,14 @@ class UvSlots(SlotsMaya):
                     cmds.polyEditUV(uv, uValue=u, vValue=v, relative=False)
         finally:
             cmds.refresh(suspend=False)
+
+    def b031(self):
+        """Open UV Editor"""
+        mel.eval("TextureViewWindow")
+
+    def b032(self):
+        """RizomUV Bridge"""
+        self.sb.handlers.marking_menu.show("rizom_bridge")
 
 
 # --------------------------------------------------------------------------------------------

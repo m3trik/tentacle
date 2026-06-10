@@ -347,6 +347,7 @@ _Generated: 2026-06-10_
 
 - **[`class Lighting(SlotsMaya)`](tentacle/tentacle/slots/maya/lighting.py#L9)**
   - `Lighting.b000(self)` — Launch the HDR Manager.
+  - `Lighting.b001(self)` — Launch the Lightmap Baker.
 
 <a id="slots--maya--lighting_shading"></a>
 ### `slots/maya/lighting_shading.py`
@@ -390,6 +391,7 @@ _Generated: 2026-06-10_
   - `MaterialsSlots.b006(self, widget)` — Assign: New Material
   - `MaterialsSlots.b008(self, widget)` — Map Packer
   - `MaterialsSlots.b009(self, widget)` — Create Game Shader
+  - `MaterialsSlots.b026(self, widget)` — Arnold Bridge
   - `MaterialsSlots.b010(self, widget)` — Texture Path Editor
   - `MaterialsSlots.b011(self, widget)` — Shader Templates
   - `MaterialsSlots.b013(self)` — Reload Textures and Reset Viewport
@@ -867,6 +869,8 @@ _Generated: 2026-06-10_
   - `UvSlots.b029(self, widget)` — Pin / Unpin selected UVs (dual-state toggle).
   - `UvSlots.b030_init(self, widget)` — Initialize Stack button — static stack icon, non-checkable.
   - `UvSlots.b030(self, widget)` — Stack / Unstack similar shells (dual-state toggle).
+  - `UvSlots.b031(self)` — Open UV Editor
+  - `UvSlots.b032(self)` — RizomUV Bridge
 
 <a id="slots--maya--visualize"></a>
 ### `slots/maya/visualize.py`

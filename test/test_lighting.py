@@ -2,9 +2,9 @@
 # coding=utf-8
 """Regression tests for tentacle.slots.maya.lighting.
 
-Lighting is a small slot. The only behavioral unit is b000 (HDR Manager)
-which drives marking_menu.show("hdr_manager"). Pin the key name —
-drift would silently break the HDR Manager launch button.
+Lighting launches two mayatk panels via marking_menu.show(): b000 (HDR
+Manager) and b001 (Lightmap Baker). Pin the key names — drift would
+silently break the launch buttons.
 """
 import unittest
 
@@ -44,6 +44,12 @@ class TestB000HdrManager(unittest.TestCase):
         instance.sb = _FakeSb()
         instance.b000()
         self.assertEqual(instance.sb.handlers.marking_menu.shown, ["hdr_manager"])
+
+    def test_b001_routes_to_lightmap_baker(self):
+        instance = lighting_module.Lighting.__new__(lighting_module.Lighting)
+        instance.sb = _FakeSb()
+        instance.b001()
+        self.assertEqual(instance.sb.handlers.marking_menu.shown, ["lightmap_baker"])
 
 
 if __name__ == "__main__":

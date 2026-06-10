@@ -22,6 +22,7 @@ class MaterialsSlots(SlotsMaya):
         ],
         "Conversion": [
             ("Game Shader", "b009"),
+            ("Arnold Bridge", "b026"),
             ("Map Converter", "b016"),
             ("Map Packer", "b008"),
         ],
@@ -741,6 +742,10 @@ class MaterialsSlots(SlotsMaya):
     def b009(self, widget):
         """Create Game Shader"""
         self.sb.handlers.marking_menu.show("game_shader")
+
+    def b026(self, widget):
+        """Arnold Bridge"""
+        self.sb.handlers.marking_menu.show("arnold_bridge")
 
     def b010(self, widget):
         """Texture Path Editor"""
