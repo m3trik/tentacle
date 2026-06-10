@@ -91,6 +91,7 @@ class UvSlots(SlotsMaya):
         - Rotate Step/Min/Max: Packing-time rotation search (active when Max > Min)
         - Mutations: Optimization passes (higher = better pack, slower)
         - UDIM: Target UDIM tile space for the packed UVs
+        - Skip Instances: Pack one representative per instance group
 
         Rotate Step is auto-disabled when Rotate Max <= Rotate Min (no range
         to step through).
@@ -190,6 +191,22 @@ class UvSlots(SlotsMaya):
             setToolTip="Set the desired UDIM tile space (1001-1200).\n"
             "1001 = First tile (0-1, 0-1 UV space)\n"
             "1002 = Second tile (1-2, 0-1 UV space), etc.",
+        )
+        # Instances share a single shape + UV set, so packing every instance is
+        # redundant and forces the packer to reserve tile space for each
+        # identical copy (lowering density). When on, only one representative
+        # per instance group is packed; the shared UVs apply to all of them.
+        widget.option_box.menu.add(
+            "QCheckBox",
+            setText="Skip Instances",
+            setObjectName="chk016",
+            setChecked=True,
+            setToolTip=(
+                "Pack only one transform per instance group.\n"
+                "Instances share one shape and UV set, so packing every instance\n"
+                "is redundant and wastes tile space; the result applies to all of\n"
+                "them. Ignored for component (face/UV) selections."
+            ),
         )
 
         # Gate: Rotate Step is meaningless when Rotate Max <= Rotate Min.
@@ -315,6 +332,9 @@ class UvSlots(SlotsMaya):
             mutations (int): s014 spinbox (Maya -mutations). Optimization passes;
                 only emitted when > 1.
             UDIM (int): Target UDIM tile number (s004), e.g., 1001
+            skip_instances (bool): chk016. When on (default), pack one
+                representative per instance group instead of every instance.
+                Object-level selection only; ignored for component selections.
 
         Note:
             - Requires at least one object to be selected
@@ -341,6 +361,15 @@ class UvSlots(SlotsMaya):
                 "<b>Nothing selected.<b><br>The operation requires at least one selected object."
             )
             return
+
+        # Instances share one shape + UV set, so packing every instance is
+        # redundant and forces the packer to reserve tile space for each
+        # identical copy. Keep one transform per instance group (object-level
+        # selection only — component selections are packed exactly as given).
+        if widget.option_box.menu.chk016.isChecked() and not any(
+            "." in str(s) for s in selection
+        ):
+            selection = mtk.NodeUtils.filter_duplicate_instances(selection)
 
         # Get unique meshes from selection (handles both object and component selection)
         meshes = mtk.Components.get_components(selection, "mesh", flatten=False)
