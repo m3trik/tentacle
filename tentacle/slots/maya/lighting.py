@@ -18,6 +18,10 @@ class Lighting(SlotsMaya):
         """Launch the HDR Manager."""
         self.sb.handlers.marking_menu.show("hdr_manager")
 
+    def b001(self):
+        """Launch the Lightmap Baker."""
+        self.sb.handlers.marking_menu.show("lightmap_baker")
+
 
 # --------------------------------------------------------------------------------------------
 

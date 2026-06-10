@@ -312,6 +312,68 @@
      </size>
     </property>
    </widget>
+   <widget class="QPushButton" name="b031">
+    <property name="enabled">
+     <bool>true</bool>
+    </property>
+    <property name="geometry">
+     <rect>
+      <x>410</x>
+      <y>250</y>
+      <width>106</width>
+      <height>19</height>
+     </rect>
+    </property>
+    <property name="minimumSize">
+     <size>
+      <width>0</width>
+      <height>19</height>
+     </size>
+    </property>
+    <property name="maximumSize">
+     <size>
+      <width>999</width>
+      <height>19</height>
+     </size>
+    </property>
+    <property name="toolTip">
+     <string>Open the texture coordinate mapping window.</string>
+    </property>
+    <property name="text">
+     <string>Open UV Editor</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="b032">
+    <property name="enabled">
+     <bool>true</bool>
+    </property>
+    <property name="geometry">
+     <rect>
+      <x>410</x>
+      <y>230</y>
+      <width>106</width>
+      <height>19</height>
+     </rect>
+    </property>
+    <property name="minimumSize">
+     <size>
+      <width>0</width>
+      <height>19</height>
+     </size>
+    </property>
+    <property name="maximumSize">
+     <size>
+      <width>999</width>
+      <height>19</height>
+     </size>
+    </property>
+    <property name="toolTip">
+     <string>Round-trip selected meshes through RizomUV using a Lua preset.</string>
+    </property>
+    <property name="text">
+     <string>RizomUV Bridge</string>
+    </property>
+   </widget>
   </widget>
  </widget>
  <customwidgets>

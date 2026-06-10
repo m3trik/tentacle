@@ -106,6 +106,34 @@
      <string>HDR Manager</string>
     </property>
    </widget>
+   <widget class="PushButton" name="b001">
+    <property name="geometry">
+     <rect>
+      <x>120</x>
+      <y>301</y>
+      <width>121</width>
+      <height>19</height>
+     </rect>
+    </property>
+    <property name="minimumSize">
+     <size>
+      <width>0</width>
+      <height>19</height>
+     </size>
+    </property>
+    <property name="maximumSize">
+     <size>
+      <width>16777215</width>
+      <height>19</height>
+     </size>
+    </property>
+    <property name="toolTip">
+     <string>Bake scene lighting into textures for game engines (Unity).</string>
+    </property>
+    <property name="text">
+     <string>Lightmap Baker</string>
+    </property>
+   </widget>
   </widget>
  </widget>
  <customwidgets>
