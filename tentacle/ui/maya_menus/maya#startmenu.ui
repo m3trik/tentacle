@@ -146,7 +146,7 @@
              <height>999</height>
             </size>
            </property>
-           <widget class="QPushButton" name="i005">
+           <widget class="MenuButton" name="i005">
             <property name="geometry">
              <rect>
               <x>205</x>
@@ -167,14 +167,14 @@
               <height>21</height>
              </size>
             </property>
-            <property name="accessibleName">
+            <property name="target">
              <string>render</string>
             </property>
             <property name="text">
              <string>Render</string>
             </property>
            </widget>
-           <widget class="QPushButton" name="i001">
+           <widget class="MenuButton" name="i001">
             <property name="geometry">
              <rect>
               <x>175</x>
@@ -195,14 +195,14 @@
               <height>21</height>
              </size>
             </property>
-            <property name="accessibleName">
+            <property name="target">
              <string>mesh</string>
             </property>
             <property name="text">
              <string>Mesh</string>
             </property>
            </widget>
-           <widget class="QPushButton" name="i002">
+           <widget class="MenuButton" name="i002">
             <property name="geometry">
              <rect>
               <x>205</x>
@@ -223,14 +223,14 @@
               <height>21</height>
              </size>
             </property>
-            <property name="accessibleName">
+            <property name="target">
              <string>select</string>
             </property>
             <property name="text">
              <string>Select</string>
             </property>
            </widget>
-           <widget class="QPushButton" name="i006">
+           <widget class="MenuButton" name="i006">
             <property name="geometry">
              <rect>
               <x>35</x>
@@ -251,14 +251,14 @@
               <height>21</height>
              </size>
             </property>
-            <property name="accessibleName">
+            <property name="target">
              <string>key</string>
             </property>
             <property name="text">
              <string>Key</string>
             </property>
            </widget>
-           <widget class="QPushButton" name="i027">
+           <widget class="MenuButton" name="i027">
             <property name="geometry">
              <rect>
               <x>205</x>
@@ -279,14 +279,14 @@
               <height>21</height>
              </size>
             </property>
-            <property name="accessibleName">
+            <property name="target">
              <string>lighting_shading</string>
             </property>
             <property name="text">
              <string>Lighting Shading</string>
             </property>
            </widget>
-           <widget class="QPushButton" name="i046">
+           <widget class="MenuButton" name="i046">
             <property name="geometry">
              <rect>
               <x>175</x>
@@ -307,14 +307,14 @@
               <height>21</height>
              </size>
             </property>
-            <property name="accessibleName">
+            <property name="target">
              <string>surfaces</string>
             </property>
             <property name="text">
              <string>Surfaces</string>
             </property>
            </widget>
-           <widget class="QPushButton" name="i020">
+           <widget class="MenuButton" name="i020">
             <property name="geometry">
              <rect>
               <x>30</x>
@@ -335,14 +335,14 @@
               <height>21</height>
              </size>
             </property>
-            <property name="accessibleName">
+            <property name="target">
              <string>deform</string>
             </property>
             <property name="text">
              <string>Deform</string>
             </property>
            </widget>
-           <widget class="QPushButton" name="i024">
+           <widget class="MenuButton" name="i024">
             <property name="geometry">
              <rect>
               <x>30</x>
@@ -363,7 +363,7 @@
               <height>21</height>
              </size>
             </property>
-            <property name="accessibleName">
+            <property name="target">
              <string>effects</string>
             </property>
             <property name="text">
@@ -450,6 +450,11 @@
   </widget>
  </widget>
  <customwidgets>
+  <customwidget>
+   <class>MenuButton</class>
+   <extends>QPushButton</extends>
+   <header>widgets.menubutton.h</header>
+  </customwidget>
   <customwidget>
    <class>Region</class>
    <extends>QWidget</extends>

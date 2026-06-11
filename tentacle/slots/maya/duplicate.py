@@ -90,14 +90,14 @@ class Duplicate(SlotsMaya):
         widget.option_box.menu.add(
             "QCheckBox",
             setText="All Instanced Objects",
-            setObjectName="chk000",
+            setObjectName="chk003",
             setChecked=True,
             setToolTip="Select all instanced objects in the scene instead of just instances of selected objects.",
         )
 
     def tb001(self, widget):
         """Select Instanced Objects"""
-        all_instanced = widget.option_box.menu.chk000.isChecked()
+        all_instanced = widget.option_box.menu.chk003.isChecked()
 
         if all_instanced:
             # Select all instanced objects in the scene

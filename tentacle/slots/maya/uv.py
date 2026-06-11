@@ -340,6 +340,8 @@ class UvSlots(SlotsMaya):
             - Requires at least one object to be selected
             - Automatically calculates shell and tile padding based on map size
             - Meshes with errors (e.g., non-manifold vertices) are skipped with a summary
+            - The completion message reports the resulting texel density
+              (px/unit) for the packed meshes, plus the map size and target UDIM
         """
         scale = widget.option_box.menu.cmb009.currentData()
         rotate = widget.option_box.menu.cmb010.currentData()
@@ -444,6 +446,24 @@ class UvSlots(SlotsMaya):
             cmds.refresh(suspend=False)
             cmds.undoInfo(closeChunk=True)
 
+        # Resulting texel density across the packed meshes — a single
+        # representative value (with Preserve-3D pre-scale every shell shares
+        # it; with Preserve-UV it's the aggregate of the kept relative scales).
+        # Never let a texel-calc hiccup swallow the pack result, so guard it.
+        density = 0.0
+        if successful:
+            try:
+                density = mtk.get_texel_density(successful, map_size)
+            except Exception as error:
+                print(f"# Texel density unavailable: {error}")
+
+        # Shared, easy-to-scan stats block appended to both summaries.
+        stats = (
+            (f"<b>Texel Density:</b> {density:,.1f} px/unit<br>" if density else "")
+            + f"<b>Map Size:</b> {map_size} × {map_size} px<br>"
+            + f"<b>Target UDIM:</b> {UDIM}"
+        )
+
         # Report summary
         if failed:
             failed_list = "<br>".join(
@@ -453,13 +473,15 @@ class UvSlots(SlotsMaya):
                 f"<b>UV Pack Complete</b><br><br>"
                 f"✓ Packed: {len(successful)} mesh(es)<br>"
                 f"✗ Skipped: {len(failed)} mesh(es)<br><br>"
+                f"{stats}<br><br>"
                 f"<b>Skipped meshes:</b><br>{failed_list}<br><br>"
                 f"<i>Tip: Use Mesh > Cleanup to fix non-manifold geometry.</i>"
             )
         elif successful:
             self.sb.message_box(
                 f"<b>UV Pack Complete</b><br><br>"
-                f"✓ Successfully packed {len(successful)} mesh(es)."
+                f"✓ Successfully packed {len(successful)} mesh(es).<br><br>"
+                f"{stats}"
             )
 
     def tb001_init(self, widget):
@@ -1198,7 +1220,7 @@ class UvSlots(SlotsMaya):
         widget.option_box.menu.add(
             "QDoubleSpinBox",
             setPrefix="Angle Low:  ",
-            setObjectName="s014",
+            setObjectName="s017",  # NOT s014 — collides with tb000's "Mutations"
             set_limits=[0, 180],
             setValue=70,
             setToolTip="Normal angle low range for hard-edge detection.",
@@ -1206,7 +1228,7 @@ class UvSlots(SlotsMaya):
         widget.option_box.menu.add(
             "QDoubleSpinBox",
             setPrefix="Angle High: ",
-            setObjectName="s015",
+            setObjectName="s018",
             set_limits=[0, 180],
             setValue=180,
             setToolTip="Normal angle high range for hard-edge detection.",
@@ -1229,8 +1251,8 @@ class UvSlots(SlotsMaya):
     @mtk.undoable
     def tb022(self, widget):
         """Cut UV hard edges (always), optionally also UV borders and auto-detected seams."""
-        angle_low = widget.option_box.menu.s014.value()
-        angle_high = widget.option_box.menu.s015.value()
+        angle_low = widget.option_box.menu.s017.value()
+        angle_high = widget.option_box.menu.s018.value()
         include_uv_borders = widget.option_box.menu.chk025.isChecked()
         include_auto_seams = widget.option_box.menu.chk026.isChecked()
 

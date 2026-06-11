@@ -50,7 +50,7 @@
      <verstretch>0</verstretch>
     </sizepolicy>
    </property>
-   <widget class="QPushButton" name="i061">
+   <widget class="MenuButton" name="i061">
     <property name="geometry">
      <rect>
       <x>240</x>
@@ -71,14 +71,14 @@
       <height>21</height>
      </size>
     </property>
-    <property name="accessibleName">
+    <property name="target">
      <string>pivot</string>
     </property>
     <property name="text">
      <string>Pivot</string>
     </property>
    </widget>
-   <widget class="QPushButton" name="i060">
+   <widget class="MenuButton" name="i060">
     <property name="geometry">
      <rect>
       <x>270</x>
@@ -99,7 +99,7 @@
       <height>21</height>
      </size>
     </property>
-    <property name="accessibleName">
+    <property name="target">
      <string>transform</string>
     </property>
     <property name="text">
@@ -428,6 +428,11 @@
   </widget>
  </widget>
  <customwidgets>
+  <customwidget>
+   <class>MenuButton</class>
+   <extends>QPushButton</extends>
+   <header>widgets.menubutton.h</header>
+  </customwidget>
   <customwidget>
    <class>PushButton</class>
    <extends>QPushButton</extends>

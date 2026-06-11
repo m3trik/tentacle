@@ -237,7 +237,7 @@ class Animation(SlotsMaya):
         widget.option_box.menu.setTitle("Invert Keys")
         cmb = widget.option_box.menu.add(
             "QComboBox",
-            setObjectName="cmb000",
+            setObjectName="cmb035",
             setToolTip="Inversion mode.",
         )
         for text, data in [
@@ -281,7 +281,7 @@ class Animation(SlotsMaya):
 
         self.sb.toggle_multi(
             widget.option_box.menu,
-            trigger="cmb000",
+            trigger="cmb035",
             signal="currentIndexChanged",
             on_0={"setEnabled": "s001,chk002", "setDisabled": "d000"},
             on_1={"setDisabled": "s001,chk002", "setEnabled": "d000"},
@@ -291,7 +291,7 @@ class Animation(SlotsMaya):
 
     def tb001(self, widget):
         """Invert keyframes (selected keys preferred, fallback to all keys)."""
-        cmb = widget.option_box.menu.cmb000
+        cmb = widget.option_box.menu.cmb035
         mode = cmb.itemData(cmb.currentIndex())
         time_value = widget.option_box.menu.s001.value()
         value_pivot = widget.option_box.menu.d000.value()
@@ -354,7 +354,7 @@ class Animation(SlotsMaya):
         )
         cmb = widget.option_box.menu.add(
             "QComboBox",
-            setObjectName="cmb000",
+            setObjectName="cmb036",
             setToolTip="Which keys to shift.",
         )
         for text, data in [
@@ -377,7 +377,7 @@ class Animation(SlotsMaya):
         time_value = widget.option_box.menu.s002.value()
         relative = widget.option_box.menu.chk004.isChecked()
         preserve_keys = widget.option_box.menu.chk003.isChecked()
-        scope = widget.option_box.menu.cmb000.currentData()
+        scope = widget.option_box.menu.cmb036.currentData()
         exact_gap = widget.option_box.menu.chk021.isChecked()
 
         selected_keys_only = scope == "keys"
@@ -528,7 +528,7 @@ class Animation(SlotsMaya):
         widget.option_box.menu.add(
             "QCheckBox",
             setText="Optimize Before Transfer",
-            setObjectName="chk008",
+            setObjectName="chk035",
             setChecked=False,
             setToolTip="Run optimize_keys on the source to remove redundant keys before transferring.",
         )
@@ -537,7 +537,7 @@ class Animation(SlotsMaya):
         """Transfer Keys"""
         relative = widget.option_box.menu.chk006.isChecked()
         tangents = widget.option_box.menu.chk007.isChecked()
-        optimize = widget.option_box.menu.chk008.isChecked()
+        optimize = widget.option_box.menu.chk035.isChecked()
 
         selected_objects = cmds.ls(sl=True) or []
         mtk.transfer_keyframes(
@@ -553,7 +553,7 @@ class Animation(SlotsMaya):
         widget.option_box.menu.add(
             self.sb.registered_widgets.SpinBox,
             setPrefix="Start Time: ",
-            setObjectName="s005",
+            setObjectName="s021",
             set_limits=[-1, 100000],
             setValue=-1,
             setCustomDisplayValues={-1: "Auto"},
@@ -613,7 +613,7 @@ class Animation(SlotsMaya):
         ignore = "visibility" if ignore_visibility else None
 
         # Build time_range parameter based on UI values
-        start_time_value = widget.option_box.menu.s005.value()
+        start_time_value = widget.option_box.menu.s021.value()
         end_time_value = widget.option_box.menu.s006.value()
 
         if start_time_value == -1 and end_time_value == -1:
@@ -650,7 +650,7 @@ class Animation(SlotsMaya):
         widget.option_box.menu.add(
             "QCheckBox",
             setText="Move Selected Keys",
-            setObjectName="chk010",
+            setObjectName="chk031",
             setChecked=True,
             setToolTip="Move selected keys from graph editor to current frame.\nElse move all keys on selected objects.",
         )
@@ -664,7 +664,7 @@ class Animation(SlotsMaya):
         widget.option_box.menu.add(
             "QCheckBox",
             setText="Channel Box Only",
-            setObjectName="chk021",
+            setObjectName="chk033",
             setChecked=False,
             setToolTip="Only move keys for attributes selected in the channel box.\nWorks with both 'Move Selected Keys' and all keys modes.",
         )
@@ -682,9 +682,9 @@ class Animation(SlotsMaya):
 
     def tb006(self, widget):
         """Move Keys"""
-        selected_keys_only = widget.option_box.menu.chk010.isChecked()
+        selected_keys_only = widget.option_box.menu.chk031.isChecked()
         retain_spacing = widget.option_box.menu.chk012.isChecked()
-        channel_box_attrs_only = widget.option_box.menu.chk021.isChecked()
+        channel_box_attrs_only = widget.option_box.menu.chk033.isChecked()
         align = widget.option_box.menu.cmb_align.currentData()
 
         objects = cmds.ls(sl=True, flatten=True) or []
@@ -975,7 +975,7 @@ class Animation(SlotsMaya):
         widget.option_box.menu.setTitle("Select Keys")
         cmb = widget.option_box.menu.add(
             "QComboBox",
-            setObjectName="cmb003",
+            setObjectName="cmb041",
             setToolTip="Type of time selection to make.",
         )
         for text, data in [
@@ -1007,25 +1007,25 @@ class Animation(SlotsMaya):
         widget.option_box.menu.add(
             "QCheckBox",
             setText="Channel Box Only",
-            setObjectName="chk021",
+            setObjectName="chk034",
             setChecked=False,
             setToolTip="Only select keys for attributes selected in the channel box.",
         )
         widget.option_box.menu.add(
             "QCheckBox",
             setText="Add to Selection",
-            setObjectName="chk022",
+            setObjectName="chk039",
             setChecked=False,
             setToolTip="Add to existing keyframe selection instead of replacing it.",
         )
 
     def tb013(self, widget):
         """Select Keys"""
-        selection_type = widget.option_box.menu.cmb003.currentData()
+        selection_type = widget.option_box.menu.cmb041.currentData()
         start_frame = widget.option_box.menu.s012.value()
         end_frame = widget.option_box.menu.s013.value()
-        channel_box_only = widget.option_box.menu.chk021.isChecked()
-        add_to_selection = widget.option_box.menu.chk022.isChecked()
+        channel_box_only = widget.option_box.menu.chk034.isChecked()
+        add_to_selection = widget.option_box.menu.chk039.isChecked()
 
         # Determine time parameter based on selection type
         if selection_type == "range":
@@ -1314,21 +1314,21 @@ class Animation(SlotsMaya):
         widget.option_box.menu.add(
             "QCheckBox",
             setText="Delete Unfixable Curves",
-            setObjectName="chk015",
+            setObjectName="chk036",
             setChecked=True,
             setToolTip="Delete curves that cannot be repaired.",
         )
         widget.option_box.menu.add(
             "QCheckBox",
             setText="Fix Infinite Values",
-            setObjectName="chk016",
+            setObjectName="chk037",
             setChecked=True,
             setToolTip="Fix infinite and NaN keyframe values.",
         )
         widget.option_box.menu.add(
             "QCheckBox",
             setText="Fix Invalid Times",
-            setObjectName="chk017",
+            setObjectName="chk038",
             setChecked=True,
             setToolTip="Fix invalid time ranges (e.g., -165916080).",
         )
@@ -1357,9 +1357,9 @@ class Animation(SlotsMaya):
         - Selected objects: checks all keys on those objects
         - Nothing selected: checks all keys in the scene
         """
-        delete_corrupted = widget.option_box.menu.chk015.isChecked()
-        fix_infinite = widget.option_box.menu.chk016.isChecked()
-        fix_invalid_times = widget.option_box.menu.chk017.isChecked()
+        delete_corrupted = widget.option_box.menu.chk036.isChecked()
+        fix_infinite = widget.option_box.menu.chk037.isChecked()
+        fix_invalid_times = widget.option_box.menu.chk038.isChecked()
         time_threshold = widget.option_box.menu.d015.value()
         value_threshold = widget.option_box.menu.d016.value()
 
@@ -1537,7 +1537,7 @@ class Animation(SlotsMaya):
         widget.option_box.menu.setTitle("Step Tangents")
         cmb = widget.option_box.menu.add(
             "QComboBox",
-            setObjectName="cmb000",
+            setObjectName="cmb037",
             setToolTip="Which keys to step.",
         )
         for text, data in [
@@ -1550,7 +1550,7 @@ class Animation(SlotsMaya):
 
         cmb_tan = widget.option_box.menu.add(
             "QComboBox",
-            setObjectName="cmb001",
+            setObjectName="cmb040",
             setToolTip="Which tangent(s) to set stepped.",
         )
         for text, data in [
@@ -1562,7 +1562,7 @@ class Animation(SlotsMaya):
 
     def tb017(self, widget):
         """Step Tangents — set stepped tangents on keys."""
-        mode = widget.option_box.menu.cmb000.currentData()
+        mode = widget.option_box.menu.cmb037.currentData()
 
         if mode == "auto":
             keys = "auto"
@@ -1576,7 +1576,7 @@ class Animation(SlotsMaya):
         else:  # "all"
             keys = None
 
-        tangent = widget.option_box.menu.cmb001.currentData()
+        tangent = widget.option_box.menu.cmb040.currentData()
 
         result = mtk.AnimUtils.step_keys(keys=keys, tangent=tangent)
         if result["curves"]:
@@ -1589,7 +1589,7 @@ class Animation(SlotsMaya):
         widget.option_box.menu.setTitle("Copy Keys")
         cmb = widget.option_box.menu.add(
             "QComboBox",
-            setObjectName="cmb000",
+            setObjectName="cmb038",
             setToolTip="Which attributes/keys to copy.",
         )
         for text, data in [
@@ -1603,7 +1603,7 @@ class Animation(SlotsMaya):
 
     def tb012(self, widget):
         """Copy Keys"""
-        mode = widget.option_box.menu.cmb000.currentData()
+        mode = widget.option_box.menu.cmb038.currentData()
 
         copy_mode = "auto" if mode == "copy_paste" else mode
         self._stored_attributes = mtk.AnimUtils.copy_keys(mode=copy_mode)
@@ -1656,7 +1656,7 @@ class Animation(SlotsMaya):
         widget.option_box.menu.setTitle("Paste Keys")
         cmb = widget.option_box.menu.add(
             "QComboBox",
-            setObjectName="cmb000",
+            setObjectName="cmb039",
             setToolTip="Where to paste the copied key values.",
         )
         for text, data in [
@@ -1676,7 +1676,7 @@ class Animation(SlotsMaya):
             self.sb.message_box("You must select at least one object.")
             return
 
-        paste_mode = widget.option_box.menu.cmb000.currentData()
+        paste_mode = widget.option_box.menu.cmb039.currentData()
         target_time = (
             getattr(self, "_stored_frame", None) if paste_mode == "source" else None
         )
@@ -1710,21 +1710,21 @@ class Animation(SlotsMaya):
         widget.option_box.menu.add(
             "QCheckBox",
             setText="Remove Flat Keys",
-            setObjectName="chk001",
+            setObjectName="chk030",
             setChecked=True,
             setToolTip="Remove interior keys from constant-value segments (keeps boundary keys).",
         )
         widget.option_box.menu.add(
             "QCheckBox",
             setText="Simplify Curves",
-            setObjectName="chk002",
+            setObjectName="chk032",
             setChecked=False,
             setToolTip="Further reduce keys using Maya's key reducer filter.\nProduces more aggressive reduction at the cost of slight value drift.",
         )
         widget.option_box.menu.add(
             "QDoubleSpinBox",
             setPrefix="Tolerance: ",
-            setObjectName="d000",
+            setObjectName="d017",
             set_limits=[0.0001, 1.0],
             setValue=0.001,
             setDecimals=4,
@@ -1736,9 +1736,9 @@ class Animation(SlotsMaya):
     def tb019(self, widget):
         """Optimize Keys — remove redundant animation data."""
         remove_static = widget.option_box.menu.chk000.isChecked()
-        remove_flat = widget.option_box.menu.chk001.isChecked()
-        simplify = widget.option_box.menu.chk002.isChecked()
-        tolerance = widget.option_box.menu.d000.value()
+        remove_flat = widget.option_box.menu.chk030.isChecked()
+        simplify = widget.option_box.menu.chk032.isChecked()
+        tolerance = widget.option_box.menu.d017.value()
 
         selected = cmds.ls(sl=True, flatten=True) or []
         objects = selected if selected else (cmds.ls(type="transform") or [])

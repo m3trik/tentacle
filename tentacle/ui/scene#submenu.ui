@@ -213,7 +213,7 @@ Click the gear icon to configure scope, included types, and save location.</stri
      <string>Hierarchy Manager</string>
     </property>
    </widget>
-   <widget class="QPushButton" name="i032">
+   <widget class="MenuButton" name="i032">
     <property name="geometry">
      <rect>
       <x>245</x>
@@ -234,14 +234,14 @@ Click the gear icon to configure scope, included types, and save location.</stri
       <height>21</height>
      </size>
     </property>
-    <property name="accessibleName">
+    <property name="target">
      <string>display</string>
     </property>
     <property name="text">
      <string>Display</string>
     </property>
    </widget>
-   <widget class="QPushButton" name="i022">
+   <widget class="MenuButton" name="i022">
     <property name="geometry">
      <rect>
       <x>335</x>
@@ -262,14 +262,14 @@ Click the gear icon to configure scope, included types, and save location.</stri
       <height>21</height>
      </size>
     </property>
-    <property name="accessibleName">
+    <property name="target">
      <string>preferences</string>
     </property>
     <property name="text">
      <string>Preferences</string>
     </property>
    </widget>
-   <widget class="QPushButton" name="i020">
+   <widget class="MenuButton" name="i020">
     <property name="geometry">
      <rect>
       <x>355</x>
@@ -293,14 +293,14 @@ Click the gear icon to configure scope, included types, and save location.</stri
     <property name="cursor">
      <cursorShape>IBeamCursor</cursorShape>
     </property>
-    <property name="accessibleName">
+    <property name="target">
      <string>utilities</string>
     </property>
     <property name="text">
      <string>Utilities</string>
     </property>
    </widget>
-   <widget class="QPushButton" name="i003">
+   <widget class="MenuButton" name="i003">
     <property name="geometry">
      <rect>
       <x>265</x>
@@ -321,7 +321,7 @@ Click the gear icon to configure scope, included types, and save location.</stri
       <height>21</height>
      </size>
     </property>
-    <property name="accessibleName">
+    <property name="target">
      <string>scene</string>
     </property>
     <property name="text">
@@ -356,6 +356,11 @@ Click the gear icon to configure scope, included types, and save location.</stri
   </widget>
  </widget>
  <customwidgets>
+  <customwidget>
+   <class>MenuButton</class>
+   <extends>QPushButton</extends>
+   <header>widgets.menubutton.h</header>
+  </customwidget>
   <customwidget>
    <class>PushButton</class>
    <extends>QPushButton</extends>

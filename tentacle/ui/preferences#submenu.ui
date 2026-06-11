@@ -56,7 +56,7 @@
      <verstretch>0</verstretch>
     </sizepolicy>
    </property>
-   <widget class="QPushButton" name="i022">
+   <widget class="MenuButton" name="i022">
     <property name="geometry">
      <rect>
       <x>250</x>
@@ -80,7 +80,7 @@
     <property name="toolTip">
      <string>Preferences</string>
     </property>
-    <property name="accessibleName">
+    <property name="target">
      <string>preferences</string>
     </property>
     <property name="text">
@@ -167,6 +167,13 @@
    </widget>
   </widget>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>MenuButton</class>
+   <extends>QPushButton</extends>
+   <header>widgets.menubutton.h</header>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections/>
  <designerdata>

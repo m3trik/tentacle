@@ -592,7 +592,7 @@
               <height>80</height>
              </size>
             </property>
-            <widget class="QPushButton" name="i000">
+            <widget class="MenuButton" name="i000">
              <property name="geometry">
               <rect>
                <x>120</x>
@@ -613,8 +613,11 @@
                <height>21</height>
               </size>
              </property>
-             <property name="accessibleName">
-              <string>editors#lower</string>
+             <property name="target">
+              <string>editors</string>
+             </property>
+             <property name="filterTags">
+              <string>lower</string>
              </property>
              <property name="text">
               <string>All Editors</string>
@@ -645,6 +648,11 @@
   </widget>
  </widget>
  <customwidgets>
+  <customwidget>
+   <class>MenuButton</class>
+   <extends>QPushButton</extends>
+   <header>widgets.menubutton.h</header>
+  </customwidget>
   <customwidget>
    <class>Region</class>
    <extends>QWidget</extends>

@@ -161,7 +161,7 @@
      </size>
     </property>
    </widget>
-   <widget class="QPushButton" name="i004">
+   <widget class="MenuButton" name="i004">
     <property name="geometry">
      <rect>
       <x>270</x>
@@ -182,8 +182,11 @@
       <height>21</height>
      </size>
     </property>
-    <property name="accessibleName">
-     <string>polygons#mesh</string>
+    <property name="target">
+     <string>polygons</string>
+    </property>
+    <property name="filterTags">
+     <string>mesh</string>
     </property>
     <property name="text">
      <string>Mesh</string>
@@ -229,6 +232,11 @@
   </widget>
  </widget>
  <customwidgets>
+  <customwidget>
+   <class>MenuButton</class>
+   <extends>QPushButton</extends>
+   <header>widgets.menubutton.h</header>
+  </customwidget>
   <customwidget>
    <class>PushButton</class>
    <extends>QPushButton</extends>

@@ -56,7 +56,7 @@
      <verstretch>0</verstretch>
     </sizepolicy>
    </property>
-   <widget class="QPushButton" name="i013">
+   <widget class="MenuButton" name="i013">
     <property name="geometry">
      <rect>
       <x>265</x>
@@ -77,14 +77,14 @@
       <height>21</height>
      </size>
     </property>
-    <property name="accessibleName">
+    <property name="target">
      <string>animation</string>
     </property>
     <property name="text">
      <string>Animation</string>
     </property>
    </widget>
-   <widget class="QPushButton" name="i016">
+   <widget class="MenuButton" name="i016">
     <property name="geometry">
      <rect>
       <x>160</x>
@@ -105,7 +105,7 @@
       <height>21</height>
      </size>
     </property>
-    <property name="accessibleName">
+    <property name="target">
      <string>rigging</string>
     </property>
     <property name="text">
@@ -443,6 +443,11 @@ Supports negative values to compress timing.</string>
   </widget>
  </widget>
  <customwidgets>
+  <customwidget>
+   <class>MenuButton</class>
+   <extends>QPushButton</extends>
+   <header>widgets.menubutton.h</header>
+  </customwidget>
   <customwidget>
    <class>PushButton</class>
    <extends>QPushButton</extends>

@@ -10,6 +10,7 @@ Validates:
 import ast
 import sys
 import unittest
+import xml.etree.ElementTree as ET
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -163,6 +164,45 @@ class TestSlotUiCoverage(unittest.TestCase):
 
         missing = [name for name in self.EXPECTED_PAIRS if name not in all_ui_stems]
         self.assertEqual(missing, [], f"Slots without any UI file: {missing}")
+
+
+class TestMenuButtonTargets(unittest.TestCase):
+    """Every promoted MenuButton must carry a non-empty ``target``.
+
+    The marking menu's hover (``child_enterEvent``) and breadcrumb-clone paths
+    navigate via ``accessibleName``, which MenuButton derives from ``target``.
+    A target-less nav button therefore yields an empty accessibleName and
+    silently breaks navigation — the exact regression this guards against.
+    Qt-free (pure XML) so it runs in the structural CI suite.
+    """
+
+    def _scan(self, directory: Path):
+        """Return (inspected_count, offenders) for MenuButtons in *directory*."""
+        inspected, offenders = 0, []
+        for f in directory.glob("*.ui"):
+            root = ET.parse(f).getroot()
+            for w in root.iter("widget"):
+                if w.get("class") != "MenuButton":
+                    continue
+                inspected += 1
+                target = ""
+                for prop in w.findall("property"):
+                    if prop.get("name") == "target":
+                        s = prop.find("string")
+                        target = (s.text or "") if s is not None else ""
+                if not target.strip():
+                    offenders.append(f"{f.name}:{w.get('name')}")
+        return inspected, offenders
+
+    def test_menubuttons_have_target(self):
+        n1, off1 = self._scan(UI_DIR)
+        n2, off2 = self._scan(UI_MAYA_DIR)
+        offenders = off1 + off2
+        self.assertEqual(
+            offenders, [], f"MenuButton(s) with empty/missing target: {offenders}"
+        )
+        # Guard against a vacuous pass (parsing finding zero MenuButtons).
+        self.assertGreater(n1 + n2, 0, "No MenuButton widgets found to validate")
 
 
 if __name__ == "__main__":

@@ -8,6 +8,7 @@ Validates that every slot module under tentacle/slots/maya/:
 - Has a corresponding __init__ accepting (self, switchboard)
 """
 import ast
+import collections
 import sys
 import unittest
 from pathlib import Path
@@ -123,6 +124,57 @@ class TestSlotsMayaBase(unittest.TestCase):
         self.assertTrue(
             any("Slots" in bases for _, bases in classes),
             "SlotsMaya must inherit from Slots",
+        )
+
+
+class TestUniqueObjectNames(unittest.TestCase):
+    """Every widget a slot class adds via ``setObjectName="..."`` must have a
+    UNIQUE name within that slot.
+
+    A slot's option-box widgets (added across its ``tb###_init`` methods) all
+    register into the slot's single window. Two widgets sharing an objectName
+    therefore collide on (a) the StateManager/QSettings key ``<name>/<signal>``
+    — so they share one persisted value and restore cross-contaminates — and
+    (b) the cross-UI sync lookup ``get_widget(name, ui)``, which scans a set and
+    returns an arbitrary match. The result is "edit one field, another field
+    changes" (e.g. the live ``s014`` Pack-"Mutations" vs Cut-Hard-Edges
+    -"Angle Low" collision).
+
+    Reusing the same name in different option boxes is NOT safe even though
+    slot logic reads it menu-scoped (``widget.option_box.menu.cmb000``): the
+    state layer keys by objectName, not by owning menu.
+    """
+
+    @staticmethod
+    def _set_object_names(source: str):
+        """All ``setObjectName="..."`` string literals in *source* (AST, so
+        comments/docstrings can't false-positive)."""
+        names = []
+        for node in ast.walk(ast.parse(source)):
+            if isinstance(node, ast.Call):
+                for kw in node.keywords:
+                    if (
+                        kw.arg == "setObjectName"
+                        and isinstance(kw.value, ast.Constant)
+                        and isinstance(kw.value.value, str)
+                    ):
+                        names.append(kw.value.value)
+        return names
+
+    def test_no_duplicate_object_names_per_slot(self):
+        offenders = {}
+        for f in _slot_files():
+            names = self._set_object_names(f.read_text(encoding="utf-8"))
+            dupes = {n: c for n, c in collections.Counter(names).items() if c > 1}
+            if dupes:
+                offenders[f.name] = dupes
+
+        self.assertEqual(
+            offenders,
+            {},
+            "Slot files add duplicate widget objectNames (each collides its "
+            f"StateManager key + cross-UI sync — give the later one a free name): "
+            f"{offenders}",
         )
 
 
