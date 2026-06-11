@@ -50,7 +50,7 @@
      <verstretch>0</verstretch>
     </sizepolicy>
    </property>
-   <widget class="QPushButton" name="i025">
+   <widget class="MenuButton" name="i025">
     <property name="geometry">
      <rect>
       <x>480</x>
@@ -71,14 +71,14 @@
       <height>21</height>
      </size>
     </property>
-    <property name="accessibleName">
+    <property name="target">
      <string>duplicate</string>
     </property>
     <property name="text">
      <string>Duplicate</string>
     </property>
    </widget>
-   <widget class="QPushButton" name="i057">
+   <widget class="MenuButton" name="i057">
     <property name="geometry">
      <rect>
       <x>505</x>
@@ -99,7 +99,7 @@
       <height>21</height>
      </size>
     </property>
-    <property name="accessibleName">
+    <property name="target">
      <string>subdivision</string>
     </property>
     <property name="text">
@@ -144,7 +144,7 @@
      <bool>true</bool>
     </property>
    </widget>
-   <widget class="QPushButton" name="i007">
+   <widget class="MenuButton" name="i007">
     <property name="geometry">
      <rect>
       <x>410</x>
@@ -165,7 +165,7 @@
       <height>21</height>
      </size>
     </property>
-    <property name="accessibleName">
+    <property name="target">
      <string>edit</string>
     </property>
     <property name="text">
@@ -391,6 +391,11 @@
   </widget>
  </widget>
  <customwidgets>
+  <customwidget>
+   <class>MenuButton</class>
+   <extends>QPushButton</extends>
+   <header>widgets.menubutton.h</header>
+  </customwidget>
   <customwidget>
    <class>PushButton</class>
    <extends>QPushButton</extends>

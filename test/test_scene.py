@@ -27,13 +27,16 @@ except ImportError:
 
 
 class _RecordedSb:
-    """Stand-in for the switchboard — records message_box calls."""
+    """Stand-in for the switchboard — records message_box calls and returns
+    a preset choice (the clicked-button text, in real use)."""
 
-    def __init__(self):
+    def __init__(self, choice=None):
+        self.choice = choice
         self.messages = []
 
     def message_box(self, *args, **kwargs):
         self.messages.append((args, kwargs))
+        return self.choice
 
 
 @unittest.skipUnless(_MAYA_AVAILABLE, "Requires maya.cmds")
@@ -147,6 +150,53 @@ class TestResolveWorkspaceText(unittest.TestCase):
         # session. Just verify the contract: always a string, never None.
         result = self.instance._resolve_workspace_text()
         self.assertIsInstance(result, str)
+
+
+@unittest.skipUnless(_MAYA_AVAILABLE, "Requires maya.cmds")
+class TestConfirmDenseExport(unittest.TestCase):
+    """_confirm_dense_export warns only when dense AND tangents are on.
+
+    Heads-up dialog before a slow FBX export, gated on triangle count plus
+    the tangents option so the common (small / already-optimized) export is
+    never interrupted.
+    """
+
+    def setUp(self):
+        cmds.file(new=True, force=True)
+        self.inst = scene_module.SceneSlots.__new__(scene_module.SceneSlots)
+
+    def tearDown(self):
+        cmds.file(new=True, force=True)
+
+    def test_no_warning_when_tangents_off(self):
+        """Tangents off ⇒ proceed silently (no density query, no dialog)."""
+        cmds.select(cmds.polyCube()[0])
+        self.inst.sb = _RecordedSb("No")
+        self.assertTrue(self.inst._confirm_dense_export(True, False))
+        self.assertEqual(self.inst.sb.messages, [])
+
+    def test_no_warning_below_threshold(self):
+        """Tangents on but a tiny mesh ⇒ proceed silently."""
+        cmds.select(cmds.polyCube()[0])
+        self.inst.sb = _RecordedSb("No")
+        self.assertTrue(self.inst._confirm_dense_export(True, True))
+        self.assertEqual(self.inst.sb.messages, [])
+
+    def test_warns_when_dense_and_respects_choice(self):
+        """Dense + tangents ⇒ dialog; 'No' cancels, 'Yes' proceeds."""
+        orig = scene_module.SceneSlots._DENSE_TRI_THRESHOLD
+        scene_module.SceneSlots._DENSE_TRI_THRESHOLD = 100  # trip on a small mesh
+        try:
+            cmds.select(cmds.polySphere(sx=20, sy=20)[0])
+
+            self.inst.sb = _RecordedSb("No")
+            self.assertFalse(self.inst._confirm_dense_export(True, True))
+            self.assertEqual(len(self.inst.sb.messages), 1)
+
+            self.inst.sb = _RecordedSb("Yes")
+            self.assertTrue(self.inst._confirm_dense_export(True, True))
+        finally:
+            scene_module.SceneSlots._DENSE_TRI_THRESHOLD = orig
 
 
 if __name__ == "__main__":

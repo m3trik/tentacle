@@ -53,7 +53,7 @@
      <verstretch>0</verstretch>
     </sizepolicy>
    </property>
-   <widget class="QPushButton" name="i038">
+   <widget class="MenuButton" name="i038">
     <property name="geometry">
      <rect>
       <x>260</x>
@@ -74,7 +74,7 @@
       <height>21</height>
      </size>
     </property>
-    <property name="accessibleName">
+    <property name="target">
      <string>fluids</string>
     </property>
     <property name="text">
@@ -83,6 +83,13 @@
    </widget>
   </widget>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>MenuButton</class>
+   <extends>QPushButton</extends>
+   <header>widgets.menubutton.h</header>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections/>
  <designerdata>

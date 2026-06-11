@@ -87,7 +87,7 @@
      </size>
     </property>
    </widget>
-   <widget class="QPushButton" name="i000">
+   <widget class="MenuButton" name="i000">
     <property name="geometry">
      <rect>
       <x>265</x>
@@ -108,8 +108,11 @@
       <height>21</height>
      </size>
     </property>
-    <property name="accessibleName">
-     <string>polygons#vertex</string>
+    <property name="target">
+     <string>polygons</string>
+    </property>
+    <property name="filterTags">
+     <string>vertex</string>
     </property>
     <property name="text">
      <string>Vertex</string>
@@ -229,6 +232,11 @@
   </widget>
  </widget>
  <customwidgets>
+  <customwidget>
+   <class>MenuButton</class>
+   <extends>QPushButton</extends>
+   <header>widgets.menubutton.h</header>
+  </customwidget>
   <customwidget>
    <class>PushButton</class>
    <extends>QPushButton</extends>

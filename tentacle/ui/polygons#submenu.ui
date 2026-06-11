@@ -53,7 +53,7 @@
      <verstretch>0</verstretch>
     </sizepolicy>
    </property>
-   <widget class="QPushButton" name="i010">
+   <widget class="MenuButton" name="i010">
     <property name="geometry">
      <rect>
       <x>270</x>
@@ -74,14 +74,14 @@
       <height>21</height>
      </size>
     </property>
-    <property name="accessibleName">
+    <property name="target">
      <string>polygons</string>
     </property>
     <property name="text">
      <string>Polygons</string>
     </property>
    </widget>
-   <widget class="QPushButton" name="i004">
+   <widget class="MenuButton" name="i004">
     <property name="geometry">
      <rect>
       <x>370</x>
@@ -102,14 +102,17 @@
       <height>21</height>
      </size>
     </property>
-    <property name="accessibleName">
-     <string>polygons#mesh</string>
+    <property name="target">
+     <string>polygons</string>
+    </property>
+    <property name="filterTags">
+     <string>mesh</string>
     </property>
     <property name="text">
      <string>Mesh</string>
     </property>
    </widget>
-   <widget class="QPushButton" name="i000">
+   <widget class="MenuButton" name="i000">
     <property name="geometry">
      <rect>
       <x>270</x>
@@ -130,14 +133,17 @@
       <height>21</height>
      </size>
     </property>
-    <property name="accessibleName">
-     <string>polygons#vertex</string>
+    <property name="target">
+     <string>polygons</string>
+    </property>
+    <property name="filterTags">
+     <string>vertex</string>
     </property>
     <property name="text">
      <string>Vertex</string>
     </property>
    </widget>
-   <widget class="QPushButton" name="i002">
+   <widget class="MenuButton" name="i002">
     <property name="geometry">
      <rect>
       <x>200</x>
@@ -158,14 +164,17 @@
       <height>21</height>
      </size>
     </property>
-    <property name="accessibleName">
-     <string>polygons#edge</string>
+    <property name="target">
+     <string>polygons</string>
+    </property>
+    <property name="filterTags">
+     <string>edge</string>
     </property>
     <property name="text">
      <string>Edge</string>
     </property>
    </widget>
-   <widget class="QPushButton" name="i003">
+   <widget class="MenuButton" name="i003">
     <property name="geometry">
      <rect>
       <x>190</x>
@@ -186,14 +195,17 @@
       <height>21</height>
      </size>
     </property>
-    <property name="accessibleName">
-     <string>polygons#face</string>
+    <property name="target">
+     <string>polygons</string>
+    </property>
+    <property name="filterTags">
+     <string>face</string>
     </property>
     <property name="text">
      <string>Face</string>
     </property>
    </widget>
-   <widget class="QPushButton" name="i011">
+   <widget class="MenuButton" name="i011">
     <property name="geometry">
      <rect>
       <x>355</x>
@@ -214,8 +226,11 @@
       <height>21</height>
      </size>
     </property>
-    <property name="accessibleName">
-     <string>polygons#component</string>
+    <property name="target">
+     <string>polygons</string>
+    </property>
+    <property name="filterTags">
+     <string>component</string>
     </property>
     <property name="text">
      <string>Component</string>
@@ -223,6 +238,13 @@
    </widget>
   </widget>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>MenuButton</class>
+   <extends>QPushButton</extends>
+   <header>widgets.menubutton.h</header>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections/>
  <designerdata>

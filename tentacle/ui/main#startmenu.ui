@@ -128,7 +128,7 @@
             </property>
             <item>
              <widget class="Region" name="region_A" native="true">
-              <widget class="QPushButton" name="i023">
+              <widget class="MenuButton" name="i023">
                <property name="geometry">
                 <rect>
                  <x>110</x>
@@ -152,7 +152,7 @@
                <property name="toolTip">
                 <string>Settings</string>
                </property>
-               <property name="accessibleName">
+               <property name="target">
                 <string>settings</string>
                </property>
                <property name="text">
@@ -178,7 +178,7 @@
              <height>999</height>
             </size>
            </property>
-           <widget class="QPushButton" name="i003">
+           <widget class="MenuButton" name="i003">
             <property name="geometry">
              <rect>
               <x>50</x>
@@ -199,14 +199,14 @@
               <height>21</height>
              </size>
             </property>
-            <property name="accessibleName">
+            <property name="target">
              <string>scene</string>
             </property>
             <property name="text">
              <string>Scene</string>
             </property>
            </widget>
-           <widget class="QPushButton" name="i007">
+           <widget class="MenuButton" name="i007">
             <property name="geometry">
              <rect>
               <x>60</x>
@@ -227,14 +227,14 @@
               <height>21</height>
              </size>
             </property>
-            <property name="accessibleName">
+            <property name="target">
              <string>edit</string>
             </property>
             <property name="text">
              <string>Edit</string>
             </property>
            </widget>
-           <widget class="QPushButton" name="i060">
+           <widget class="MenuButton" name="i060">
             <property name="geometry">
              <rect>
               <x>20</x>
@@ -255,14 +255,14 @@
               <height>21</height>
              </size>
             </property>
-            <property name="accessibleName">
+            <property name="target">
              <string>transform</string>
             </property>
             <property name="text">
              <string>Transform</string>
             </property>
            </widget>
-           <widget class="QPushButton" name="i012">
+           <widget class="MenuButton" name="i012">
             <property name="geometry">
              <rect>
               <x>200</x>
@@ -283,14 +283,14 @@
               <height>21</height>
              </size>
             </property>
-            <property name="accessibleName">
+            <property name="target">
              <string>materials</string>
             </property>
             <property name="text">
              <string>Materials</string>
             </property>
            </widget>
-           <widget class="QPushButton" name="i013">
+           <widget class="MenuButton" name="i013">
             <property name="geometry">
              <rect>
               <x>15</x>
@@ -311,14 +311,14 @@
               <height>21</height>
              </size>
             </property>
-            <property name="accessibleName">
+            <property name="target">
              <string>animation</string>
             </property>
             <property name="text">
              <string>Animation</string>
             </property>
            </widget>
-           <widget class="QPushButton" name="i010">
+           <widget class="MenuButton" name="i010">
             <property name="geometry">
              <rect>
               <x>160</x>
@@ -339,14 +339,14 @@
               <height>21</height>
              </size>
             </property>
-            <property name="accessibleName">
+            <property name="target">
              <string>polygons</string>
             </property>
             <property name="text">
              <string>Polygons</string>
             </property>
            </widget>
-           <widget class="QPushButton" name="i009">
+           <widget class="MenuButton" name="i009">
             <property name="geometry">
              <rect>
               <x>195</x>
@@ -367,14 +367,14 @@
               <height>21</height>
              </size>
             </property>
-            <property name="accessibleName">
+            <property name="target">
              <string>selection</string>
             </property>
             <property name="text">
              <string>Selection</string>
             </property>
            </widget>
-           <widget class="QPushButton" name="i015">
+           <widget class="MenuButton" name="i015">
             <property name="geometry">
              <rect>
               <x>200</x>
@@ -395,14 +395,14 @@
               <height>21</height>
              </size>
             </property>
-            <property name="accessibleName">
+            <property name="target">
              <string>rendering</string>
             </property>
             <property name="text">
              <string>Rendering</string>
             </property>
            </widget>
-           <widget class="QPushButton" name="i011">
+           <widget class="MenuButton" name="i011">
             <property name="geometry">
              <rect>
               <x>160</x>
@@ -423,14 +423,14 @@
               <height>21</height>
              </size>
             </property>
-            <property name="accessibleName">
+            <property name="target">
              <string>nurbs</string>
             </property>
             <property name="text">
              <string>Nurbs</string>
             </property>
            </widget>
-           <widget class="QPushButton" name="i014">
+           <widget class="MenuButton" name="i014">
             <property name="geometry">
              <rect>
               <x>15</x>
@@ -451,7 +451,7 @@
               <height>21</height>
              </size>
             </property>
-            <property name="accessibleName">
+            <property name="target">
              <string>lighting</string>
             </property>
             <property name="text">
@@ -510,7 +510,7 @@
                    <height>100</height>
                   </size>
                  </property>
-                 <widget class="QPushButton" name="i000">
+                 <widget class="MenuButton" name="i000">
                   <property name="geometry">
                    <rect>
                     <x>95</x>
@@ -531,8 +531,11 @@
                     <height>21</height>
                    </size>
                   </property>
-                  <property name="accessibleName">
-                   <string>main#lower</string>
+                  <property name="target">
+                   <string>main</string>
+                  </property>
+                  <property name="filterTags">
+                   <string>lower</string>
                   </property>
                   <property name="text">
                    <string>Workspace</string>
@@ -594,6 +597,11 @@
   </widget>
  </widget>
  <customwidgets>
+  <customwidget>
+   <class>MenuButton</class>
+   <extends>QPushButton</extends>
+   <header>widgets.menubutton.h</header>
+  </customwidget>
   <customwidget>
    <class>Region</class>
    <extends>QWidget</extends>

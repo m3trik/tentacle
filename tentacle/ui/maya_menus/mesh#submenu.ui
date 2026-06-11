@@ -50,7 +50,7 @@
      <verstretch>0</verstretch>
     </sizepolicy>
    </property>
-   <widget class="QPushButton" name="i001">
+   <widget class="MenuButton" name="i001">
     <property name="geometry">
      <rect>
       <x>260</x>
@@ -71,14 +71,14 @@
       <height>21</height>
      </size>
     </property>
-    <property name="accessibleName">
+    <property name="target">
      <string>mesh</string>
     </property>
     <property name="text">
      <string>Mesh</string>
     </property>
    </widget>
-   <widget class="QPushButton" name="i042">
+   <widget class="MenuButton" name="i042">
     <property name="geometry">
      <rect>
       <x>175</x>
@@ -99,14 +99,14 @@
       <height>21</height>
      </size>
     </property>
-    <property name="accessibleName">
+    <property name="target">
      <string>edit_mesh</string>
     </property>
     <property name="text">
      <string>Edit Mesh</string>
     </property>
    </widget>
-   <widget class="QPushButton" name="i043">
+   <widget class="MenuButton" name="i043">
     <property name="geometry">
      <rect>
       <x>195</x>
@@ -127,14 +127,14 @@
       <height>21</height>
      </size>
     </property>
-    <property name="accessibleName">
+    <property name="target">
      <string>mesh_tools</string>
     </property>
     <property name="text">
      <string>Mesh Tools</string>
     </property>
    </widget>
-   <widget class="QPushButton" name="i044">
+   <widget class="MenuButton" name="i044">
     <property name="geometry">
      <rect>
       <x>295</x>
@@ -155,14 +155,14 @@
       <height>21</height>
      </size>
     </property>
-    <property name="accessibleName">
+    <property name="target">
      <string>mesh_display</string>
     </property>
     <property name="text">
      <string>Mesh Display</string>
     </property>
    </widget>
-   <widget class="QPushButton" name="i047">
+   <widget class="MenuButton" name="i047">
     <property name="geometry">
      <rect>
       <x>330</x>
@@ -183,7 +183,7 @@
       <height>21</height>
      </size>
     </property>
-    <property name="accessibleName">
+    <property name="target">
      <string>generate</string>
     </property>
     <property name="text">
@@ -192,6 +192,13 @@
    </widget>
   </widget>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>MenuButton</class>
+   <extends>QPushButton</extends>
+   <header>widgets.menubutton.h</header>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections/>
  <designerdata>

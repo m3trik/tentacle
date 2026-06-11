@@ -310,7 +310,7 @@ class Edit(SlotsMaya):
         widget.option_box.menu.add(
             "QCheckBox",
             setText="For All Objects",
-            setObjectName="chk018",
+            setObjectName="chk031",
             setChecked=True,
             setToolTip="Delete history on All objects or just those selected.",
         )

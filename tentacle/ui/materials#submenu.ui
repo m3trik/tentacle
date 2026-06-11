@@ -50,7 +50,7 @@
      <verstretch>0</verstretch>
     </sizepolicy>
    </property>
-   <widget class="QPushButton" name="i018">
+   <widget class="MenuButton" name="i018">
     <property name="geometry">
      <rect>
       <x>195</x>
@@ -71,14 +71,14 @@
       <height>21</height>
      </size>
     </property>
-    <property name="accessibleName">
+    <property name="target">
      <string>uv</string>
     </property>
     <property name="text">
      <string>UV</string>
     </property>
    </widget>
-   <widget class="QPushButton" name="i005">
+   <widget class="MenuButton" name="i005">
     <property name="geometry">
      <rect>
       <x>195</x>
@@ -99,14 +99,14 @@
       <height>21</height>
      </size>
     </property>
-    <property name="accessibleName">
+    <property name="target">
      <string>normals</string>
     </property>
     <property name="text">
      <string>Normals</string>
     </property>
    </widget>
-   <widget class="QPushButton" name="i012">
+   <widget class="MenuButton" name="i012">
     <property name="geometry">
      <rect>
       <x>100</x>
@@ -127,7 +127,7 @@
       <height>21</height>
      </size>
     </property>
-    <property name="accessibleName">
+    <property name="target">
      <string>materials</string>
     </property>
     <property name="text">
@@ -203,6 +203,11 @@
   </widget>
  </widget>
  <customwidgets>
+  <customwidget>
+   <class>MenuButton</class>
+   <extends>QPushButton</extends>
+   <header>widgets.menubutton.h</header>
+  </customwidget>
   <customwidget>
    <class>ExpandableList</class>
    <extends>QWidget</extends>

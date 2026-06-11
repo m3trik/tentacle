@@ -305,7 +305,7 @@ class Selection(SlotsMaya):
         widget.option_box.menu.add(
             "QRadioButton",
             setText="Edge Loop Path",
-            setObjectName="chk009",
+            setObjectName="chk021",
             setToolTip="The path along loop between two selected edges, vertices or UV's.",
         )
         widget.option_box.menu.add(
@@ -333,7 +333,7 @@ class Selection(SlotsMaya):
         """Select Nth"""
         edgeRing = widget.option_box.menu.chk000.isChecked()
         edgeLoop = widget.option_box.menu.chk001.isChecked()
-        pathAlongLoop = widget.option_box.menu.chk009.isChecked()
+        pathAlongLoop = widget.option_box.menu.chk021.isChecked()
         shortestPath = widget.option_box.menu.chk002.isChecked()
         borderEdges = widget.option_box.menu.chk010.isChecked()
         step = widget.option_box.menu.s003.value()
@@ -556,7 +556,7 @@ class Selection(SlotsMaya):
         similar_faces = mtk.Components.get_faces_with_similar_normals(
             selected_faces, range_x=range_x, range_y=range_y, range_z=range_z
         )
-        islands = mtk.Components.get_contigious_islands(similar_faces)
+        islands = mtk.Components.get_contiguous_islands(similar_faces)
         selected_set = set(selected_faces)
         matching = [f for island in islands if island & selected_set for f in island]
         cmds.select(matching)

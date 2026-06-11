@@ -53,7 +53,7 @@
    <layout class="QGridLayout" name="gridLayout">
     <item row="0" column="0">
      <widget class="QWidget" name="staticWindow" native="true">
-      <widget class="QPushButton" name="i000">
+      <widget class="MenuButton" name="i000">
        <property name="enabled">
         <bool>false</bool>
        </property>
@@ -77,8 +77,11 @@
          <height>19</height>
         </size>
        </property>
-       <property name="accessibleName">
-        <string>main#lower</string>
+       <property name="target">
+        <string>main</string>
+       </property>
+       <property name="filterTags">
+        <string>lower</string>
        </property>
        <property name="text">
         <string>i000</string>
@@ -109,6 +112,11 @@
   </widget>
  </widget>
  <customwidgets>
+  <customwidget>
+   <class>MenuButton</class>
+   <extends>QPushButton</extends>
+   <header>widgets.menubutton.h</header>
+  </customwidget>
   <customwidget>
    <class>ExpandableList</class>
    <extends>QWidget</extends>

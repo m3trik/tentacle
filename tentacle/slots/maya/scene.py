@@ -431,35 +431,73 @@ class SceneSlots(SlotsMaya):
                 setToolTip=(
                     "Where to write the exported file(s):\n"
                     "• Alongside Scene File — same directory and basename as the open scene\n"
-                    "• Prompt for Directory — pick a directory each time"
+                    "• Prompt for File — choose the name and location each time "
+                    "(filename pre-filled from the scene, editable)"
                 ),
             )
             for text, data in [
                 ("Alongside Scene File", "scene_dir"),
-                ("Prompt for Directory", "prompt"),
+                ("Prompt for File", "prompt"),
             ]:
                 cmb_save.addItem(text, data)
 
-            widget.option_box.menu.add(
+            chk_cameras = widget.option_box.menu.add(
                 "QCheckBox",
                 setText="Include Cameras",
                 setObjectName="chk_cameras",
                 setChecked=False,
-                setToolTip="Include camera nodes in the FBX export.",
+                setToolTip=(
+                    "Include camera nodes in the FBX export.\n"
+                    "Applies to whole-scene export only; disabled in "
+                    "Selected Only mode (cameras export only if selected)."
+                ),
             )
-            widget.option_box.menu.add(
+            chk_lights = widget.option_box.menu.add(
                 "QCheckBox",
                 setText="Include Lights",
                 setObjectName="chk_lights",
                 setChecked=False,
-                setToolTip="Include light nodes in the FBX export.",
+                setToolTip=(
+                    "Include light nodes in the FBX export.\n"
+                    "Applies to whole-scene export only; disabled in "
+                    "Selected Only mode (lights export only if selected)."
+                ),
             )
             widget.option_box.menu.add(
                 "QCheckBox",
                 setText="Include Skins",
                 setObjectName="chk_skins",
                 setChecked=False,
-                setToolTip="Include skin clusters / skinning data in the FBX export.",
+                setToolTip=(
+                    "Include skin clusters / skinning data in the FBX export.\n"
+                    "Available in both scopes — skin weights travel with the "
+                    "selected mesh."
+                ),
+            )
+            widget.option_box.menu.add(
+                "QCheckBox",
+                setText="Include Tangents/Binormals",
+                setObjectName="chk_tangents",
+                setChecked=True,
+                setToolTip=(
+                    "Export per-vertex tangents and binormals — needed for "
+                    "correct normal mapping on game assets.\n"
+                    "On dense meshes this roughly doubles export time and file "
+                    "size; untick for a faster export when tangents aren't needed "
+                    "(e.g. photogrammetry meshes with a baked albedo)."
+                ),
+            )
+            widget.option_box.menu.add(
+                "QCheckBox",
+                setText="Embed Textures",
+                setObjectName="chk_embed",
+                setChecked=True,
+                setToolTip=(
+                    "Copy texture files into the FBX so it is self-contained.\n"
+                    "Untick to keep textures as external references — far "
+                    "smaller/faster when maps are large (e.g. an 8K "
+                    "photogrammetry texture already sitting beside the mesh)."
+                ),
             )
             widget.option_box.menu.add(
                 "QCheckBox",
@@ -472,6 +510,55 @@ class SceneSlots(SlotsMaya):
                     "is downloaded automatically on first use."
                 ),
             )
+
+            # Cameras and lights are scene-level categories: in Selected Only
+            # mode they'd only export if explicitly selected, so the
+            # "include all" intent doesn't apply — disable them. Skins are
+            # intrinsic to the selected mesh, so they stay enabled in both
+            # scopes.
+            def _sync_scope(_idx=None):
+                whole_scene = cmb_scope.currentData() == "all"
+                chk_cameras.setEnabled(whole_scene)
+                chk_lights.setEnabled(whole_scene)
+
+            cmb_scope.currentIndexChanged.connect(_sync_scope)
+            _sync_scope()
+
+    # Triangle count at/above which an export with a mesh-cost-scaling option
+    # (tangents) is slow enough on dense geometry — photogrammetry scans,
+    # sculpts — to be worth a heads-up before the blocking write. Tunable.
+    _DENSE_TRI_THRESHOLD = 5_000_000
+
+    def _confirm_dense_export(self, selection_only, include_tangents):
+        """Warn before a dense + taxing FBX export; return False if cancelled.
+
+        Returns True (proceed) for the common, non-taxing case so the normal
+        path is untouched — the dialog only appears when the export set is
+        dense AND tangents are on, the combination that turns a quick export
+        into a multi-minute one. ``message_box`` returns the clicked button
+        text (or None if dismissed), so anything but "Yes" cancels.
+        """
+        if not include_tangents:
+            return True
+        meshes = (
+            cmds.ls(selection=True, dag=True, type="mesh", noIntermediate=True)
+            if selection_only
+            else cmds.ls(type="mesh", noIntermediate=True)
+        ) or []
+        if not meshes:
+            return True
+        tris = cmds.polyEvaluate(meshes, triangle=True)
+        if not isinstance(tris, int) or tris < self._DENSE_TRI_THRESHOLD:
+            return True
+        choice = self.sb.message_box(
+            f"This export covers <hl>{tris:,}</hl> triangles with "
+            f"<hl>Include Tangents/Binormals</hl> enabled, which can be slow "
+            f"on dense meshes.<br><br>Untick it in the export options for a "
+            f"much faster export.<br><br>Proceed anyway?",
+            "Yes",
+            "No",
+        )
+        return choice == "Yes"
 
     def tb003(self, widget):
         """Export Scene (FBX + optional GLB) using the configured options."""
@@ -486,71 +573,100 @@ class SceneSlots(SlotsMaya):
         menu = opts_widget.option_box.menu
         scope = menu.cmb_scope.currentData()
         save_mode = menu.cmb_save.currentData()
-        include_cameras = menu.chk_cameras.isChecked()
-        include_lights = menu.chk_lights.isChecked()
-        include_skins = menu.chk_skins.isChecked()
-        also_glb = menu.chk_glb.isChecked()
-
         selection_only = scope == "selected"
+        # Cameras/lights are inert in Selected Only mode (see tb003_init);
+        # coerce to False so a stale checked-but-disabled box can't leak through.
+        include_cameras = menu.chk_cameras.isChecked() and not selection_only
+        include_lights = menu.chk_lights.isChecked() and not selection_only
+        include_skins = menu.chk_skins.isChecked()
+        include_tangents = menu.chk_tangents.isChecked()
+        embed_textures = menu.chk_embed.isChecked()
+        also_glb = menu.chk_glb.isChecked()
         if selection_only and not cmds.ls(selection=True):
             self.sb.message_box("No objects selected.")
+            return
+
+        if not self._confirm_dense_export(selection_only, include_tangents):
             return
 
         scene_path = cmds.file(query=True, sceneName=True) or ""
 
         if save_mode == "prompt":
-            fd_kwargs = dict(
-                fileMode=3,
-                caption="Select Export Directory",
-                okCaption="Export",
-                dialogStyle=2,
-            )
-            if scene_path:
-                fd_kwargs["startingDirectory"] = os.path.dirname(scene_path)
-            picked = cmds.fileDialog2(**fd_kwargs)
-            if not picked:
-                return
-            out_dir = picked[0]
             base = (
                 os.path.splitext(os.path.basename(scene_path))[0]
                 if scene_path
                 else "untitled"
             )
-            fbx_path = os.path.join(out_dir, base + ".fbx")
+            start_dir = (
+                os.path.dirname(scene_path)
+                if scene_path
+                else (cmds.workspace(query=True, rootDirectory=True) or "")
+            )
+            # fileMode=0 is a save-style "any file" dialog; passing the full
+            # default path as startingDirectory pre-fills an editable filename.
+            picked = cmds.fileDialog2(
+                fileMode=0,
+                caption="Export FBX As",
+                okCaption="Export",
+                fileFilter="FBX (*.fbx)",
+                dialogStyle=2,
+                startingDirectory=os.path.join(start_dir, base + ".fbx"),
+            )
+            if not picked:
+                return
+            fbx_path = picked[0]
+            if not fbx_path.lower().endswith(".fbx"):
+                fbx_path += ".fbx"
         else:
             if not scene_path:
                 self.sb.message_box(
                     "Scene has not been saved yet.<br>"
-                    "Save the scene first, or choose <hl>Prompt for Directory</hl>."
+                    "Save the scene first, or choose <hl>Prompt for File</hl>."
                 )
                 return
             fbx_path = os.path.splitext(scene_path)[0] + ".fbx"
 
+        # FBXExport is a single blocking call that scales with poly count, so on
+        # dense scenes the UI sits frozen with no feedback. Run it inside the
+        # footer progress context, painting a status before each heavy step
+        # (tick() pumps the event loop) so it reads as working, not hung.
+        # Tangents are the dominant controllable cost (~2x time/size on dense
+        # meshes), hence the opt-out above. Let failures propagate out of the
+        # context so it suppresses its "Complete" flash on a non-clean exit; the
+        # `stage` marker disambiguates an FBX failure from a GLB one.
+        stage = "fbx"
+        glb_path = None
         try:
-            mtk.export_scene_as_fbx(
-                file_path=fbx_path,
-                selection_only=selection_only,
-                FBXExportCameras=include_cameras,
-                FBXExportLights=include_lights,
-                FBXExportSkins=include_skins,
-            )
+            with self.sb.progress(
+                text="Exporting FBX… dense scenes can take a while"
+            ) as tick:
+                tick()  # paint the status before the blocking export
+                mtk.export_scene_as_fbx(
+                    file_path=fbx_path,
+                    selection_only=selection_only,
+                    FBXExportCameras=include_cameras,
+                    FBXExportLights=include_lights,
+                    FBXExportSkins=include_skins,
+                    FBXExportTangents=include_tangents,
+                    FBXExportEmbeddedTextures=embed_textures,
+                )
+                if also_glb:
+                    stage = "glb"
+                    tick(text="Converting to GLB…")
+                    glb_path = ptk.MeshConvert.fbx_to_glb(
+                        fbx_path,
+                        overwrite=True,
+                        auto_install=True,
+                        prompt=False,
+                    )
         except Exception as e:
-            self.sb.message_box(f"FBX export failed:<br>{e}")
+            if stage == "glb":
+                self.sb.message_box(f"FBX exported, but GLB conversion failed:<br>{e}")
+            else:
+                self.sb.message_box(f"FBX export failed:<br>{e}")
             return
 
-        if also_glb:
-            try:
-                glb_path = ptk.MeshConvert.fbx_to_glb(
-                    fbx_path,
-                    overwrite=True,
-                    auto_install=True,
-                    prompt=False,
-                )
-            except Exception as e:
-                self.sb.message_box(
-                    f"FBX exported, but GLB conversion failed:<br>{e}"
-                )
-                return
+        if glb_path:
             self.sb.message_box(
                 f"Exported <hl>{os.path.basename(fbx_path)}</hl> and "
                 f"<hl>{os.path.basename(glb_path)}</hl>."
@@ -617,7 +733,7 @@ class SceneSlots(SlotsMaya):
 
         cmb_scope = widget.option_box.menu.add(
             "QComboBox",
-            setObjectName="cmb_scope",
+            setObjectName="cmb_scope1",  # NOT cmb_scope — collides with tb003's scope combo
             setToolTip=(
                 "Selected Objects: audit only what is selected — fastest.\n"
                 "Entire Scene: audit every mesh in the scene — can take "
@@ -656,7 +772,7 @@ class SceneSlots(SlotsMaya):
 
     def tb001(self, widget):
         """Get Scene Info — render the audit report to the viewer dialog."""
-        scope = widget.option_box.menu.cmb_scope.currentData() or "selection"
+        scope = widget.option_box.menu.cmb_scope1.currentData() or "selection"
         adaptive = widget.option_box.menu.cmb_profile.currentData()
         if adaptive is None:
             adaptive = True  # default to game-ready when nothing's picked

@@ -50,7 +50,7 @@
      <verstretch>0</verstretch>
     </sizepolicy>
    </property>
-   <widget class="QPushButton" name="i028">
+   <widget class="MenuButton" name="i028">
     <property name="geometry">
      <rect>
       <x>260</x>
@@ -71,14 +71,14 @@
       <height>21</height>
      </size>
     </property>
-    <property name="accessibleName">
+    <property name="target">
      <string>skeleton</string>
     </property>
     <property name="text">
      <string>Skeleton</string>
     </property>
    </widget>
-   <widget class="QPushButton" name="i026">
+   <widget class="MenuButton" name="i026">
     <property name="geometry">
      <rect>
       <x>140</x>
@@ -99,14 +99,14 @@
       <height>21</height>
      </size>
     </property>
-    <property name="accessibleName">
+    <property name="target">
      <string>constrain</string>
     </property>
     <property name="text">
      <string>Constrain</string>
     </property>
    </widget>
-   <widget class="QPushButton" name="i025">
+   <widget class="MenuButton" name="i025">
     <property name="geometry">
      <rect>
       <x>165</x>
@@ -127,14 +127,14 @@
       <height>21</height>
      </size>
     </property>
-    <property name="accessibleName">
+    <property name="target">
      <string>skin</string>
     </property>
     <property name="text">
      <string>Skin</string>
     </property>
    </widget>
-   <widget class="QPushButton" name="i033">
+   <widget class="MenuButton" name="i033">
     <property name="geometry">
      <rect>
       <x>160</x>
@@ -155,7 +155,7 @@
       <height>21</height>
      </size>
     </property>
-    <property name="accessibleName">
+    <property name="target">
      <string>control</string>
     </property>
     <property name="text">
@@ -164,6 +164,13 @@
    </widget>
   </widget>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>MenuButton</class>
+   <extends>QPushButton</extends>
+   <header>widgets.menubutton.h</header>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections/>
  <designerdata>
