@@ -172,14 +172,62 @@ def ensure_qapp():
 def ensure_blender_widget(app):
     """Establish ``app.blender_widget`` — the parent for the marking menu.
 
-    MVP: a hidden top-level ``QWidget`` (top-level Qt windows over Blender work — Phase 0).
-    A future refinement may wrap Blender's GHOST window (bqt-style HWND) for popup z-order.
+    A hidden top-level ``QWidget`` (top-level Qt windows over Blender work — Phase 0).
+    Native z-order against Blender's own window is handled separately by transient-parenting
+    the menu to the GHOST window (:func:`blender_native_window`), not by this widget.
     """
     if getattr(app, "blender_widget", None) is None:
         widget = QtWidgets.QWidget()
         widget.setObjectName("BlenderWindow")
         app.blender_widget = widget
     return app.blender_widget
+
+
+def blender_native_window():
+    """Blender's main GHOST window wrapped as a foreign ``QWindow`` (cached on the QApplication).
+
+    Used as the marking menu's *transient parent* so the OS keeps the overlay stacked above
+    Blender natively (an owned window on Windows) instead of relying solely on raise_().
+    Light-touch on purpose — no bqt-style ``createWindowContainer`` reparenting, which would
+    take ownership of the GHOST window. Returns ``None`` off-Windows or on any failure
+    (top-level behavior then continues to work as before).
+    """
+    app = QtWidgets.QApplication.instance()
+    cached = getattr(app, "_blender_native_window", None) if app else None
+    if cached is not None:
+        return cached
+    if sys.platform != "win32":
+        return None
+    try:
+        import ctypes
+        from ctypes import wintypes
+        from qtpy import QtGui
+
+        user32 = ctypes.windll.user32
+        pid = os.getpid()
+        found = []
+
+        @ctypes.WINFUNCTYPE(wintypes.BOOL, wintypes.HWND, wintypes.LPARAM)
+        def _enum(hwnd, _lparam):
+            wpid = wintypes.DWORD()
+            user32.GetWindowThreadProcessId(hwnd, ctypes.byref(wpid))
+            if wpid.value == pid and user32.IsWindowVisible(hwnd):
+                buf = ctypes.create_unicode_buffer(64)
+                user32.GetClassNameW(hwnd, buf, 64)
+                if buf.value == "GHOST_WindowClass":
+                    found.append(hwnd)
+                    return False  # stop enumeration
+            return True
+
+        user32.EnumWindows(_enum, 0)
+        if not found:
+            return None
+        window = QtGui.QWindow.fromWinId(int(found[0]))
+        if app is not None:
+            app._blender_native_window = window
+        return window
+    except Exception:
+        return None
 
 
 def start_event_pump(app, interval=0.01):
@@ -385,6 +433,16 @@ class TclBlender(MarkingMenu):
             )
         except Exception as error:
             print(f"{__file__}: Blender keymap bridge skipped: {error}")
+
+        # Transient-parent the overlay to Blender's GHOST window so the OS keeps it stacked
+        # above Blender natively (owned window). Best-effort — top-level already works.
+        try:
+            native = blender_native_window()
+            if native is not None:
+                self.winId()  # force native-window creation so windowHandle() exists
+                self.windowHandle().setTransientParent(native)
+        except Exception as error:
+            print(f"{__file__}: transient-parent skipped: {error}")
 
     @classmethod
     def get_main_window(cls):

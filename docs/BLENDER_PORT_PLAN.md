@@ -144,10 +144,19 @@ Prove tentacle's Qt UI can live over a running Blender *before* investing in sca
       (`phase0_addon_test.py`: key-translate inc. special keys / register / keymap / mute+restore /
       activation-routes-to-show / re-install-safe / error-report / no-active-menu / teardown / host+add-on
       fns). *(in-menu L/M/R nav bindings are Qt-internal.)*
-- [ ] **Parent to `blender_widget`** for popup z-order/modality (top-level already works; this is
-      a refinement — optionally bqt-style HWND wrap).
-- [ ] Confirm real **OS input routing** interactively (the literal F12 keypress) + marking-menu
-      `fit_to_window` sizing — the only remaining live-interactive checks.
+- [x] **Native z-order parenting** — ✅ SHIPPED (2026-06-12): the overlay is **transient-parented
+      to Blender's GHOST window** (`blender_native_window()` wraps the `GHOST_WindowClass` HWND as
+      a foreign `QWindow`; `TclBlender.__init__` sets it as the menu's transient parent — an OS
+      "owned window", stacked above Blender natively). Light-touch by design — NO bqt-style
+      `createWindowContainer` reparenting (which would take ownership of the GHOST window);
+      best-effort with full fallback to the proven top-level behavior off-Windows/on failure.
+- [x] **Real OS input routing + sizing** — ✅ VERIFIED (2026-06-12) via
+      [test/blender/gui_keypress_check.py](../test/blender/gui_keypress_check.py): a **literal
+      OS-level F12** (ctypes `keybd_event`, cursor parked over the viewport) in a fresh GUI
+      Blender shows the marking menu — **MENU WINS, render does not fire**; `fit_to_window`
+      sizing PASS (overlay exactly fills the screen it opened on — the harness compares against
+      `screenAt(menu)`, not primaryScreen, for multi-monitor correctness); transient parent
+      confirmed live. **Phase 0 COMPLETE.**
 - [x] Delivery decided: **single-file entry point** (`tcl_blender.py` carries `bl_info` +
       `register`/`unregister`; startup-snippet, Run-Script, or Install-from-file when loaded from its
       package location).
