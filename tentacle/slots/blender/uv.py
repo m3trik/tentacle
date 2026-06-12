@@ -156,18 +156,9 @@ class Uv(SlotsBlender):
     @btk.undoable
     def b000(self, widget):
         """Transfer UVs (active mesh → other selected, native Data-Transfer)."""
-        objects = [o for o in self.selected_objects() if o.type == "MESH"]
-        active = bpy.context.view_layer.objects.active
-        if active not in objects or len(objects) < 2:
-            self.sb.message_box("Select target mesh(es) with the source mesh active.")
-            return
-        try:
-            bpy.ops.object.data_transfer(
-                data_type="UV", loop_mapping="POLYINTERP_NEAREST",
-                layers_select_src="ACTIVE", layers_select_dst="ACTIVE",
-            )
-        except RuntimeError as e:
-            self.sb.message_box(str(e))
+        self.transfer_from_active(
+            "UV", layers_select_src="ACTIVE", layers_select_dst="ACTIVE"
+        )
 
     # ------------------------------------------------------------------ b003/b004  Texel density
     def b003(self):

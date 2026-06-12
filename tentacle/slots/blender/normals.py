@@ -89,17 +89,7 @@ class Normals(SlotsBlender):
     def b002(self):
         """Transfer Normals (active mesh → other selected, native Data-Transfer
         custom split normals)."""
-        objects = [o for o in self.selected_objects() if o.type == "MESH"]
-        active = bpy.context.view_layer.objects.active
-        if active not in objects or len(objects) < 2:
-            self.sb.message_box("Select target mesh(es) with the source mesh active.")
-            return
-        try:
-            bpy.ops.object.data_transfer(
-                data_type="CUSTOM_NORMAL", loop_mapping="POLYINTERP_NEAREST"
-            )
-        except RuntimeError as e:
-            self.sb.message_box(str(e))
+        self.transfer_from_active("CUSTOM_NORMAL")
 
     # ------------------------------------------------------------------ deferred (Maya-specific)
     def b004(self):
