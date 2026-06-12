@@ -21,11 +21,18 @@ class MaterialsSlots(SlotsBlender):
         self.last_random_material = None
 
     # ------------------------------------------------------------------ cmb002  Current material
+    @staticmethod
+    def _scene_materials():
+        """Scene materials, grease-pencil ones excluded (getattr: attribute renamed across
+        Blender's GPv3 transition)."""
+        return [
+            m for m in bpy.data.materials if not getattr(m, "is_grease_pencil", False)
+        ]
+
     def cmb002_init(self, widget):
         """Initialize the scene-materials combo (label -> material datablock)."""
         widget.refresh_on_show = True
-        materials = {m.name: m for m in bpy.data.materials if not m.is_grease_pencil}
-        widget.add(materials, header="Material:", clear=True)
+        widget.add({m.name: m for m in self._scene_materials()}, header="Material:", clear=True)
 
     def cmb002(self, index, widget):
         """Current Material (selection only — assignment is on the b-buttons)."""
@@ -127,7 +134,7 @@ class MaterialsSlots(SlotsBlender):
         widget.clear()
         root = widget.add("Assign")
         root.sublist.add(["New", "Random"])
-        mats = [m.name for m in bpy.data.materials if not m.is_grease_pencil]
+        mats = [m.name for m in self._scene_materials()]
         if mats:
             root.sublist.add(sorted(mats))
 

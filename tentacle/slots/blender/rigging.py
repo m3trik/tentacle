@@ -20,13 +20,13 @@ class Rigging(SlotsBlender):
 
     # ------------------------------------------------------------------ cmb001  Create
     def cmb001_init(self, widget):
-        widget.add(["Armature", "Single Bone", "Empty"], header="Create")
+        widget.add(["Armature", "Empty"], header="Create")
 
     @btk.undoable
     def cmb001(self, index, widget):
         """Create rigging primitives."""
         text = widget.items[index]
-        if text in ("Armature", "Single Bone"):
+        if text == "Armature":
             bpy.ops.object.armature_add()
         elif text == "Empty":
             bpy.ops.object.empty_add(type="PLAIN_AXES")

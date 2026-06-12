@@ -190,10 +190,9 @@ class PolygonsSlots(SlotsBlender):
         except Exception as e:
             self.sb.message_box(str(e))
 
-    @btk.undoable
     def b022(self):
         """Attach (join the selected meshes)."""
-        self.tb004(None)
+        self.tb004(None)  # tb004 carries the undoable wrap — no second push here
 
     @btk.undoable
     def b032(self):

@@ -89,7 +89,11 @@ class Animation(SlotsBlender):
         if self._copied_action is None:
             self.sb.message_box("Nothing copied — use Copy Keys first.")
             return
-        btk.paste_keys(self.selected_objects(), self._copied_action)
+        try:
+            btk.paste_keys(self.selected_objects(), self._copied_action)
+        except ReferenceError:  # the copied action was deleted (e.g. file reload/purge)
+            self._copied_action = None
+            self.sb.message_box("The copied keys no longer exist — use Copy Keys again.")
 
     def tb014_init(self, widget):
         widget.option_box.menu.setTitle("Scale Keys")
