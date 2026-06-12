@@ -368,17 +368,26 @@ NAV-APP (entry points) → EASY → MEDIUM. Tiers in §4.
       (units/symmetry/component counts), not "light"; revisit with bpy equivalents later.
 - [ ] `editors`/`utilities` NAV-APP (mel-dispatchers) — DEFERRED (complicated, per overnight scope).
 
-### Phase 5 — visibility / coverage (widget-level, inside shared menus only)
-*All three are **net-new uitk features**, not existing config — size them as uitk work, not wiring.*
-- [ ] **(1) Nav auto-hide:** a nav `MenuButton` hides itself when its `target` Designer prop
-      doesn't resolve against the loaded UI registry (no manual tags).
-- [ ] **(2) `requires="maya|blender"` tag** on the rare *leaf* action widget that exists in a
-      shared menu but is unsupported in one DCC.
-- [ ] **(3) Opt-in disable hook:** at [slots.py:1010-1016](../../uitk/uitk/switchboard/slots.py)
-      `connect_slot`'s `if not slot:` branch (currently log-debug + return), add a Switchboard
-      policy hook that greys missing-slot widgets → live "not-yet-built" map. **Dev-flag gated,
-      deferred render, OFF in prod** (must not drag init). Same predicate → headless coverage
-      report (M5).
+### Phase 5 — visibility / coverage — ✅ **SHIPPED (2026-06-12)**
+All three landed as uitk features, applied centrally at `MainWindow.register_widget` /
+`connect_slot` (12 new uitk tests, `test_visibility_policy.py`; mainwindow 91/91 + switchboard
+133/133 regression-clean):
+- [x] **(1) Nav auto-hide:** `Switchboard.apply_visibility_policy` hides a `MenuButton` whose
+      `target` doesn't resolve in the UI registry (`is_registered_ui` — exact-stem lookup, no
+      load). Reason recorded on `widget.hidden_by_policy`.
+- [x] **(2) `requires` tag:** Designer dynamic string property (`"maya"`, `"maya|blender"`;
+      `|`/comma/space alternatives) checked against the switchboard's new `context_tags`
+      (passed through `MarkingMenu`; `tcl_maya`={maya}, `tcl_blender`={blender},
+      `tcl_max`={max}). Empty `context_tags` (standalone/dev) disables filtering.
+- [x] **(3) Missing-slot policy hook:** `connect_slot`'s no-slot branch calls
+      `notify_missing_slot` → the switchboard's `on_missing_slot` hook (default **None** = the
+      old silent behavior, zero prod cost). `UITK_MARK_MISSING_SLOTS` env installs the built-in
+      `mark_missing_slot` grey-out marker (live "not-yet-built" map). Only fires for
+      signal-bearing widget types, never nav `MenuButton`s.
+- [x] **(M5) Coverage report:** [generate_dcc_coverage.py](../../m3trik/scripts/generate_dcc_coverage.py)
+      → [DCC_COVERAGE.md](DCC_COVERAGE.md) — per-domain handled-% per DCC + the exact
+      missing-widget lists, from the same handled-predicate as the hook/M2 test (static AST/XML,
+      headless). First run: Maya 99%, Blender 54% of the 238-widget shared surface.
 
 ---
 

@@ -259,6 +259,7 @@ def start_event_pump(app, interval=0.01):
 # renders everywhere else). ``import bpy`` is deferred so importing this module never needs Blender.
 _ACTIVE_TCL = None  # the live TclBlender the operator drives (one Qt host per Blender process)
 _KEYMAPS = []  # (keymap, keymap_item) pairs we added, for clean removal
+_DEBUG = False  # set True to log each activation (helps confirm the keymap is firing live)
 
 
 # Qt key-name → Blender keymap ``type`` enum. Most keys line up after stripping ``Key_`` and
@@ -294,17 +295,32 @@ def _ensure_show_operator():
         ui_name: bpy.props.StringProperty(default="main#startmenu")
 
         def execute(self, context):
+            # No live menu → tentacle isn't active, so let F12 do its normal thing (CANCELLED
+            # passes the event through to Blender's render shortcut). The _DEBUG line distinguishes
+            # this ("fired, but no menu") from "keymap never dispatched to us" (no line at all).
             if _ACTIVE_TCL is None:
+                if _DEBUG:
+                    print("tentacle: F12 keymap fired but no live menu (_ACTIVE_TCL is None) → render")
                 return {"CANCELLED"}
+            if _DEBUG:
+                print(f"tentacle: F12 keymap fired → show({self.ui_name!r})")
             try:
                 _ACTIVE_TCL.show(self.ui_name)
-                # Blender (GHOST) keeps the OS focus, so nudge the fullscreen overlay to the front
-                # and give it keyboard focus — otherwise it can open behind Blender or unfocused.
-                _ACTIVE_TCL.raise_()
-                _ACTIVE_TCL.activateWindow()
             except Exception as error:  # surface in the status bar, never crash Blender
                 self.report({"ERROR"}, f"Tentacle: {error}")
-                return {"CANCELLED"}
+                if _DEBUG:
+                    print(f"tentacle: show() failed → {error!r}")
+            # Blender (GHOST) keeps the OS focus, so nudge the fullscreen overlay to the front and
+            # give it keyboard focus — best-effort, never fatal (z-order niceties only).
+            for nudge in ("raise_", "activateWindow"):
+                try:
+                    getattr(_ACTIVE_TCL, nudge)()
+                except Exception:
+                    pass
+            # ALWAYS consume the event once tentacle is active: the user bound F12 to the menu, so
+            # it must never fall through to render over the viewport — even if show() errored, they
+            # get the menu (or an error message), not a surprise render. (Returning CANCELLED on a
+            # show()/raise_() exception was the bug: it passed F12 through to render.render.)
             return {"FINISHED"}
 
     bpy.utils.register_class(TENTACLE_OT_show_marking_menu)
@@ -419,6 +435,7 @@ class TclBlender(MarkingMenu):
             bindings=bindings,
             log_level=log_level,
             suppress_default_on_reentry=True,
+            context_tags={"blender"},  # `requires` widget filtering (Phase-5 visibility)
             **kwargs,
         )
 
@@ -521,8 +538,12 @@ def diagnose():
     viewport, so it is intentionally not flagged."""
     import bpy
 
+    # The #1 cause of "nothing happens" is loading a *stale/other* tentacle (a pip-installed copy,
+    # or the module cached from before an edit) — so surface exactly which file is live.
+    print("[tentacle] module file        :", __file__)
     print("[tentacle] operator registered :", hasattr(bpy.types, "TENTACLE_OT_show_marking_menu"))
     print("[tentacle] live TclBlender     :", _ACTIVE_TCL)
+    print("[tentacle] _DEBUG (logs fires) :", _DEBUG)
     print("[tentacle] our keymap items    :",
           [(km.name, kmi.type, kmi.value, kmi.active) for km, kmi in _KEYMAPS])
     our_keys = {kmi.type for _km, kmi in _KEYMAPS}
