@@ -216,10 +216,8 @@ try:
     from tentacle.slots.blender.crease import Crease
 
     cslot = make_slot(Crease)
-    src.select_set(True); bpy.context.view_layer.objects.active = src
-    import blendertk as _btk
-    _btk.crease_edges(src, amount=10)  # full crease on every edge (object mode)
-    tgt.select_set(True)
+    btk.crease_edges(src, amount=10)  # full crease on every edge (object mode)
+    src.select_set(True); tgt.select_set(True)
     bpy.context.view_layer.objects.active = src
     cslot.b002(None)
     crease_attr = tgt.data.attributes.get("crease_edge")

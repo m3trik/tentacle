@@ -28,11 +28,11 @@ rating. Work top-down within a tier; flip a row to ✅ (with date) when it ships
 | cameras `tb000` | Align View | region/view matrix math (GUI-only) | M | open |
 | settings `tb000` | Package update check | pip/git version probe (DCC-agnostic — consider pythontk) | M | open |
 | settings `tb001` | Reload Scripts | `script.reload()` exists but tears down the Qt host — needs a guarded reload that re-registers tentacle | M | open |
-| scene `b007` | Reference Manager | library-link (File ▸ Link) manager panel | L | open |
+| scene `b001` | Reference Manager | library-link (File ▸ Link) manager panel | L | open |
 | uv `tb005`/`tb006` | Straighten / Distribute UVs | UV-editor selection+align semantics in bmesh | L | open |
 | uv `b030` | Stack/Unstack shells | UV-shell detection + overlap/restore math | L | open |
 | selection `cmb001` | Reorder Selection | no object-level ordered selection in Blender (`select_history` is component-only) — questionable value | L | open |
-| nurbs `cmb001` | Image Tracer | SVG import / trace add-on wrap | L | open |
+| nurbs `b056` | Image Tracer | SVG import / trace add-on wrap | L | open |
 
 ## 2. Co-located tool panels (mayatk `edit_utils` marking-menu panels)
 
@@ -59,13 +59,13 @@ grid.ui`) via `MayaUiHandler` discovery. Two Blender routes:
 |:---|:---|:---|:--:|
 | display `b013` | Explode View | offset-from-centroid toggle — mostly math | M |
 | lighting `b000` | HDR Manager | world-shader HDRI browser/manager | L |
-| scene `b008` | Naming (batch rename) | Blender has decent native batch rename (Ctrl+F2); a port is a uitk panel over `bpy` renaming | L |
-| scene `b009` | Hierarchy Manager | outliner-grade tree panel | L |
+| scene `b005` | Naming (batch rename) | Blender has decent native batch rename (Ctrl+F2); a port is a uitk panel over `bpy` renaming | L |
+| scene `b004` | Hierarchy Manager | outliner-grade tree panel | L |
 | display `b014` | Color Manager | Blender color management differs structurally | L |
 | deformation `b000` | Curtain Generator | cloth-sim setup generator | L |
 | rigging `b004` | Render Opacity | unitytk-coupled (FBX custom-prop pipeline) | L |
 | rigging `cmb002` | Quick Rig | a thin Rigify wrapper (enable add-on + meta-rig) could be M; HumanIK-parity is XL | M–XL |
-| scene `b001` | Scene Exporter | batch/preset FBX pipeline | XL |
+| scene `b002` | Scene Exporter | batch/preset FBX pipeline | XL |
 | animation `b000`/`b004` | Shot Sequencer / Shot Manifest | timeline binning, markers, audio | XL |
 | lighting `b001` | Lightmap Baker | Cycles-bake orchestration (the Maya one was its own project) | XL |
 
