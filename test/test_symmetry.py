@@ -5,6 +5,9 @@
 The units worth pinning:
 
 - chk000/1/2: each axis (x/y/z) maps to cmds.symmetricModelling(axis=...).
+- chk004 (Object space): selecting the radio restores about="object" (after a Topo
+  session `about` would otherwise stay "topo"); deselection must be a no-op (radio
+  signal ordering — Topo sets about="topo" itself).
 - chk005 (Topo symmetry): requires an edge selection; catches RuntimeError
   when activation fails and warns.
 """
@@ -66,6 +69,15 @@ class TestChkAxes(unittest.TestCase):
         """state=False → symmetry=False (axis still set, but disabled)."""
         self.instance.chk000(state=False, widget=None)
         self.assertFalse(self.calls[-1]["symmetry"])
+
+    def test_chk004_selected_sets_object_space(self):
+        self.instance.chk004(state=True, widget=None)
+        self.assertEqual(self.calls[-1]["about"], "object")
+
+    def test_chk004_deselected_is_noop(self):
+        """Deselection happens when Topo takes over — it must not clobber about='topo'."""
+        self.instance.chk004(state=False, widget=None)
+        self.assertEqual(self.calls, [])
 
 
 if __name__ == "__main__":

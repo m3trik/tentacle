@@ -53,6 +53,13 @@ class Symmetry(SlotsBlender):
         self._set_mirror("z", state)
 
     # ------------------------------------------------------------------ chk004-5  match mode
+    def chk004(self, state, widget):
+        """Symmetry: match by position (Blender mirror flags are always object-space;
+        radio partner of Topo — only acts when selected)."""
+        if state:
+            for o in self._selected_meshes():
+                o.data.use_mirror_topology = False
+
     def chk005_init(self, widget):
         """Set symmetry reference space (position vs topology)."""
         self.sb.create_button_groups(widget.ui, "chk004-5")

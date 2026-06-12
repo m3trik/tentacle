@@ -76,6 +76,28 @@ class Animation(SlotsBlender):
         if not cleared:
             self.sb.message_box("Nothing keyed in the selection.")
 
+    def tb006_init(self, widget):
+        widget.option_box.menu.setTitle("Move Keys")
+        widget.option_box.menu.add(
+            "QCheckBox", setText="Maintain Spacing", setObjectName="chk012",
+            setChecked=True,
+            setToolTip="Maintain relative spacing between objects.\n"
+            "Else move each object's first key to the current frame.",
+        )
+
+    @btk.undoable
+    def tb006(self, widget):
+        """Move Keys (align the selection's keys to the current frame)."""
+        objects = self.selected_objects()
+        if not objects:
+            self.sb.message_box("Move Keys requires a selection.")
+            return
+        moved = btk.move_keys_to_frame(
+            objects, retain_spacing=widget.option_box.menu.chk012.isChecked()
+        )
+        if not moved:
+            self.sb.message_box("Nothing keyed in the selection.")
+
     def tb012(self, widget):
         """Copy Keys (from the active object)."""
         active = bpy.context.view_layer.objects.active
@@ -151,10 +173,6 @@ class Animation(SlotsBlender):
     def tb005(self, widget):
         """Add/Remove Intermediate Keys — not yet ported."""
         self.sb.message_box("Intermediate Keys is not yet implemented for Blender.")
-
-    def tb006(self, widget):
-        """Move Keys — use the Dope Sheet (G to grab keys)."""
-        self.sb.message_box("Move Keys is not yet implemented for Blender (use the Dope Sheet).")
 
     def tb007(self, widget):
         """Align Keys — not yet ported."""

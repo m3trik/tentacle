@@ -1130,6 +1130,14 @@ class UvSlots(SlotsMaya):
         elif text == "Linear Align":
             mel.eval("performLinearAlignUV")
 
+    def cmb003(self, index, widget):
+        """UV Map Size — passive input; read by get_map_size for the texel-density
+        and layout tools. Nothing to do on change."""
+
+    def s003(self, value, widget):
+        """Texel Density — passive input; read by Get/Set Texel Density (b003/b004).
+        Nothing to do on change."""
+
     @mtk.undoable
     def b000(self, widget):
         """Transfer UV's"""

@@ -28,17 +28,8 @@ A widget counts as **handled** when the DCC's slot class defines the widget meth
 | selection | 13 | 100% | 100% |
 | settings | 3 | 100% | 100% |
 | subdivision | 9 | 100% | 100% |
-| symmetry | 5 | 80% | 80% |
+| symmetry | 5 | 100% | 100% |
 | transform | 12 | 100% | 100% |
 | utilities | 4 | 100% | 100% |
-| uv | 26 | 92% | 100% |
-| **TOTAL** | **238** | **99%** | **100%** |
-
-## maya — unhandled widgets
-
-- **symmetry**: chk004
-- **uv**: cmb003, s003
-
-## blender — unhandled widgets
-
-- **symmetry**: chk004
+| uv | 26 | 100% | 100% |
+| **TOTAL** | **238** | **100%** | **100%** |

@@ -117,6 +117,11 @@ class Uv(SlotsBlender):
         """Cleanup UV Sets (keep only the first UV map)."""
         btk.delete_extra_uv_sets(self.selected_objects())
 
+    # ------------------------------------------------------------------ b031  Open UV Editor
+    def b031(self):
+        """Open UV Editor"""
+        btk.open_editor("UV Editor")
+
     # ------------------------------------------------------------------ deferred (Maya / UV-editor)
     def tb005(self, widget):
         """Straighten UV — UV-editor align op; not yet ported."""
@@ -154,10 +159,6 @@ class Uv(SlotsBlender):
         """Stack / Unstack shells — not yet ported."""
         self.sb.message_box("Stack/Unstack is not yet implemented for Blender.")
 
-    def b031(self):
-        """Open UV Editor — switch an area to the UV editor; not yet ported."""
-        self.sb.message_box("Open UV Editor is not yet implemented for Blender.")
-
     def b032(self):
         """RizomUV Bridge — external tool; not ported."""
         self.sb.message_box("RizomUV Bridge is not applicable in Blender.")
@@ -167,11 +168,12 @@ class Uv(SlotsBlender):
         self.sb.message_box("UV Transform is not yet implemented for Blender.")
 
     def cmb003(self, index, widget):
-        """UV set options — not yet ported."""
-        self.sb.message_box("UV set options are not yet implemented for Blender.")
+        """UV Map Size — passive input for the texel-density tools (not yet ported).
+        Nothing to do on change."""
 
     def s003(self, value, widget):
-        """UV spin option — not yet wired."""
+        """Texel Density — passive input for the texel-density tools (not yet ported).
+        Nothing to do on change."""
 
 
 # --------------------------------------------------------------------------------------------
