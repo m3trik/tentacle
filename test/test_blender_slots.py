@@ -15,7 +15,9 @@ invariants into one DCC-parametrized helper is deferred to the first real slots 
 """
 import ast
 import collections
+import re
 import unittest
+import xml.etree.ElementTree as ET
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -147,6 +149,75 @@ class TestCrossDccObjectNameSemantics(unittest.TestCase):
             conflicts,
             {},
             f"objectName reused with different semantics (blender vs maya): {conflicts}",
+        )
+
+
+UI_DIR = PKG / "ui"
+# Widget-name shapes the slot layer is contractually bound to (option-box/header widgets the
+# slots create themselves are out of scope here — covered by the semantics test above).
+_INTERACTIVE = re.compile(r"^(tb|b|chk|cmb|s|list|txt)\d")
+
+
+def _ui_interactive_widgets(domain):
+    """Interactive widget objectNames across the domain's shared .ui files
+    (``<domain>.ui`` + ``<domain>#*.ui``; never the maya_menus overlay)."""
+    names = set()
+    for f in UI_DIR.glob(f"{domain}*.ui"):
+        if not (f.stem == domain or f.stem.startswith(domain + "#")):
+            continue
+        for w in ET.parse(f).iter("widget"):
+            n = w.get("name") or ""
+            if _INTERACTIVE.match(n):
+                names.add(n)
+    return names
+
+
+def _class_method_names(path):
+    methods = set()
+    for node in ast.walk(ast.parse(path.read_text(encoding="utf-8"))):
+        if isinstance(node, ast.ClassDef):
+            for x in node.body:
+                if isinstance(x, (ast.FunctionDef, ast.AsyncFunctionDef)):
+                    methods.add(x.name)
+    return methods
+
+
+class TestSharedUiContract(unittest.TestCase):
+    """M2 — the shared-.ui safety net (BLENDER_PORT_PLAN §6).
+
+    For every ported Blender domain, each interactive widget in the shared ``.ui`` that the
+    *Maya* slot implements must be either implemented by the Blender slot (a deferred-message
+    stub counts — the widget then says so instead of dying silently) or explicitly handled in
+    a ``<name>_init`` (the hide-until-ported mechanism). Catches a renamed/dropped widget that
+    would otherwise become a silent dead button in one DCC.
+    """
+
+    def test_maya_implemented_widgets_covered_or_hidden(self):
+        gaps = {}
+        for bl_file in _slot_files():
+            maya_file = MAYA_SLOTS_DIR / bl_file.name
+            if not maya_file.exists():
+                continue
+            domain = bl_file.stem
+            ui_widgets = _ui_interactive_widgets(domain)
+            if not ui_widgets:
+                continue
+            maya_methods = _class_method_names(maya_file)
+            blender_methods = _class_method_names(bl_file)
+            missing = sorted(
+                w
+                for w in ui_widgets
+                if w in maya_methods
+                and w not in blender_methods
+                and f"{w}_init" not in blender_methods
+            )
+            if missing:
+                gaps[domain] = missing
+        self.assertEqual(
+            gaps,
+            {},
+            "Shared-.ui widgets implemented in Maya but neither implemented nor hidden "
+            f"(via <name>_init) in the Blender slot: {gaps}",
         )
 
 
