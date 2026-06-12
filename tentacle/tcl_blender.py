@@ -508,7 +508,7 @@ def register():
     launch(key_show=_ACTIVATION_KEY)
     report = diagnose()
     if "PROBLEM" in report or "CONFLICT" in report:
-        message = report.splitlines()[-1]
+        message = report.splitlines()[-1].split(": ", 1)[-1]  # verdict text, minus the "VERDICT :" label
         try:
             bpy.context.window_manager.popup_menu(
                 lambda menu, _ctx: menu.layout.label(text=message[:200]),
@@ -547,10 +547,12 @@ def diagnose():
     seen = set()
     # Scan every evaluated config — including ``addon`` (another add-on binding bare F12 in the
     # viewport is a real conflict the clean factory session can't show, so it must be checked too).
+    # Dedup by name, not id(): ``active`` often aliases ``user``/``default`` but Blender hands back a
+    # fresh Python wrapper each access (distinct id), so id()-dedup would double-list its rivals.
     for kc in (wm.keyconfigs.addon, wm.keyconfigs.user, wm.keyconfigs.active, wm.keyconfigs.default):
-        if kc is None or id(kc) in seen:
+        if kc is None or kc.name in seen:
             continue
-        seen.add(id(kc))
+        seen.add(kc.name)
         # Only a *bare* same-key PRESS in the 3D View keymap could beat us when the viewport has
         # focus — modified combos coexist and the global Screen render shortcut is evaluated after us.
         rivals += [
