@@ -233,9 +233,21 @@ Prove tentacle's Qt UI can live over a running Blender *before* investing in sca
 - **Done when:** ✅ the `selection` menu loads, auto-connects, and its core widgets perform real
   Blender actions live.
 
-### Phase 4 — port the tiers — 🔄 **IN PROGRESS**
-Repeat the Phase-3 pattern per domain (one slot file + the blendertk helpers it needs). Order:
-NAV-APP (entry points) → EASY → MEDIUM. Tiers in §4.
+### Phase 4 — port the tiers — ✅ **COMPLETE (2026-06-12): 100% of the 238-widget shared surface**
+Every shared domain now has a Blender slot — implemented, deferred-with-message, or
+hidden-via-`_init` (the [DCC_COVERAGE.md](DCC_COVERAGE.md) handled-predicate): full EASY tier
+(incl. the straggler **`polygons`** — native edit-mode ops via `_edit_op` on the user's component
+selection; boolean via new `btk.boolean_op`), full NAV-APP (incl. **`hud`** — shared
+`slots/_hud_warnings.py` framework extracted from Maya, dense-safe numpy poly counts,
+`total_*_sel` component counts; **`editors`** — `btk.open_editor` new-window `ui_type` switch,
+22 curated editors; **`utilities`** — builtin measure/annotate tools), and the full **MEDIUM
+tier** (`scene` recent-files/autosave/import-export, `materials` via new `btk.mat_utils`,
+`rendering` camera/playblast/render, `animation` via new `btk.anim_utils` fcurve key-timing
+math — **5.x gotcha: legacy `Action.fcurves` is GONE (slotted/layered actions); resolve via
+`layers → strips → channelbag(slot)`** — `lighting`/`deformation` deferred launchers,
+`rigging` (mirror relaxed: Empties-as-locators, `show_axis`, transform locks), `nurbs`
+(largely hide; curve-bevel + Screw map cleanly)). blendertk = 9 util modules. Original
+tier/order notes follow for reference.
 
 - [x] **`transform`** (EASY) — ✅ DONE & TESTED (2026-06-11).
       [slots/blender/transform.py](../tentacle/slots/blender/transform.py) = `TransformSlots`:
@@ -364,9 +376,21 @@ NAV-APP (entry points) → EASY → MEDIUM. Tiers in §4.
       (`unit_settings`), frame rate (`render.fps`), autosave (filepaths prefs: `save_version` /
       `auto_save_time` — note: NOT `save_version_count`), open-prefs buttons; tested 6/6. `settings` =
       DCC-agnostic uitk delegations (editors.show, reset bindings; live-reload deferred — Maya-specific
-      mechanism); structural-covered. **`hud` DEFERRED** — 338 lines of Maya-cmds status queries
-      (units/symmetry/component counts), not "light"; revisit with bpy equivalents later.
-- [ ] `editors`/`utilities` NAV-APP (mel-dispatchers) — DEFERRED (complicated, per overnight scope).
+      mechanism); structural-covered.
+- [x] **`hud`** — ✅ DONE (2026-06-12). Shared warning framework extracted to
+      [slots/_hud_warnings.py](../tentacle/slots/_hud_warnings.py) (DCC subclasses supply checks);
+      Blender HudSlots: symmetry-flag/workspace/units/fps status, dense-safe selection counts
+      (numpy `foreach_get` — a Python per-poly loop would hang on photogrammetry meshes),
+      edit-mode `total_*_sel` component counts, autosave/default-fps warnings. Harness 12/12;
+      F12 default binding now `hud#startmenu` (Maya parity).
+- [x] **`editors` + `utilities`** — ✅ DONE (2026-06-12). NEW `btk.ui_utils.open_editor`
+      (new window + `Area.ui_type` switch; 22 curated editors — Maya relationship/XGen-style
+      editors are simply absent); measure/annotate → builtin viewport tools; UI-chrome toggles
+      honestly deferred. **NAV-APP tier COMPLETE.**
+- [x] **MEDIUM tier** (scene/materials/lighting/rendering/animation/deformation/rigging/nurbs)
+      — ✅ DONE (2026-06-12), see the Phase-4 header above. **+ `polygons`** (EASY straggler,
+      27 widgets). Headless: `test_mat_anim_utils.py` 16/16, edit_utils suite incl. boolean,
+      structural 9/9 incl. the cross-DCC semantic guard (caught a `chk007` label drift live).
 
 ### Phase 5 — visibility / coverage — ✅ **SHIPPED (2026-06-12)**
 All three landed as uitk features, applied centrally at `MainWindow.register_widget` /

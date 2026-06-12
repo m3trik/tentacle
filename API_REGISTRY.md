@@ -7,22 +7,35 @@ _Generated: 2026-06-12_
 ## Index
 
 - [`__init__.py`](#__init__)
+- [`slots/_hud_warnings.py`](#slots--_hud_warnings) — Shared HUD warning framework (DCC-agnostic).
 - [`slots/_slots.py`](#slots--_slots)
 - [`slots/blender/_slots_blender.py`](#slots--blender--_slots_blender)
+- [`slots/blender/animation.py`](#slots--blender--animation)
 - [`slots/blender/cameras.py`](#slots--blender--cameras)
 - [`slots/blender/crease.py`](#slots--blender--crease)
+- [`slots/blender/deformation.py`](#slots--blender--deformation)
 - [`slots/blender/display.py`](#slots--blender--display)
 - [`slots/blender/duplicate.py`](#slots--blender--duplicate)
 - [`slots/blender/edit.py`](#slots--blender--edit)
+- [`slots/blender/editors.py`](#slots--blender--editors)
+- [`slots/blender/hud.py`](#slots--blender--hud)
+- [`slots/blender/lighting.py`](#slots--blender--lighting)
 - [`slots/blender/main.py`](#slots--blender--main)
+- [`slots/blender/materials.py`](#slots--blender--materials)
 - [`slots/blender/normals.py`](#slots--blender--normals)
+- [`slots/blender/nurbs.py`](#slots--blender--nurbs)
 - [`slots/blender/pivot.py`](#slots--blender--pivot)
+- [`slots/blender/polygons.py`](#slots--blender--polygons)
 - [`slots/blender/preferences.py`](#slots--blender--preferences)
+- [`slots/blender/rendering.py`](#slots--blender--rendering)
+- [`slots/blender/rigging.py`](#slots--blender--rigging)
+- [`slots/blender/scene.py`](#slots--blender--scene)
 - [`slots/blender/selection.py`](#slots--blender--selection)
 - [`slots/blender/settings.py`](#slots--blender--settings)
 - [`slots/blender/subdivision.py`](#slots--blender--subdivision)
 - [`slots/blender/symmetry.py`](#slots--blender--symmetry)
 - [`slots/blender/transform.py`](#slots--blender--transform)
+- [`slots/blender/utilities.py`](#slots--blender--utilities)
 - [`slots/blender/uv.py`](#slots--blender--uv)
 - [`slots/maya/_slots_maya.py`](#slots--maya--_slots_maya)
 - [`slots/maya/animation.py`](#slots--maya--animation)
@@ -96,6 +109,16 @@ _Generated: 2026-06-12_
 
 - [`greeting(string, outputToConsole=True)`](tentacle/tentacle/__init__.py#L26) — Format a string using preset variables.
 
+<a id="slots--_hud_warnings"></a>
+### `slots/_hud_warnings.py`
+
+Shared HUD warning framework (DCC-agnostic).
+
+- **[`class HudWarningsMixin`](tentacle/tentacle/slots/_hud_warnings.py#L22)**
+  - `HudWarningsMixin.evaluate_warnings(self) -> list` — Return the subset of WARNING_DEFS whose check fires and is enabled.
+  - `HudWarningsMixin.insert_warning_icons(self, hud, warnings) -> None` — Insert a single-line row of colored badges;
+  - `HudWarningsMixin.insert_warning_details(self, hud, warnings) -> None` — Insert a formatted detail line per active warning.
+
 <a id="slots--_slots"></a>
 ### `slots/_slots.py`
 
@@ -107,6 +130,33 @@ _Generated: 2026-06-12_
 
 - **[`class SlotsBlender(Slots)`](tentacle/tentacle/slots/blender/_slots_blender.py#L7)** — App specific methods inherited by all other Blender slot classes.
   - `SlotsBlender.selected_objects()` *(static)* — The current object selection (filtered of ``None``) — shared by all Blender slots.
+
+<a id="slots--blender--animation"></a>
+### `slots/blender/animation.py`
+
+- **[`class Animation(SlotsBlender)`](tentacle/tentacle/slots/blender/animation.py#L8)** — Blender port of the shared ``animation`` menu.
+  - `Animation.tb000_init(self, widget)`
+  - `Animation.tb000(self, widget)` — Go To Frame
+  - `Animation.tb001(self, widget)` — Invert Keys (mirror key times about the range center — reverses the motion).
+  - `Animation.tb003_init(self, widget)`
+  - `Animation.tb003(self, widget)` — Stagger Keys (re-time selected objects sequentially).
+  - `Animation.tb009(self, widget)` — Snap Keys to Frames
+  - `Animation.tb010(self, widget)` — Delete Keys (clear all animation on the selection).
+  - `Animation.tb012(self, widget)` — Copy Keys (from the active object).
+  - `Animation.tb018(self, widget)` — Paste Keys (independent copies onto the selection).
+  - `Animation.tb014_init(self, widget)`
+  - `Animation.tb014(self, widget)` — Scale Keys
+  - `Animation.tb017(self, widget)` — Step Tangents (constant interpolation on every key).
+  - `Animation.b005(self)` — Fit Playback Range (to the keyed extent of the selection, or the whole scene).
+  - `Animation.b000(self)` — Shot Sequencer — mayatk window;
+  - `Animation.b004(self)` — Shot Manifest — mayatk window;
+  - `Animation.tb002(self, widget)` — Adjust Key Spacing — not yet ported.
+  - `Animation.tb004(self, widget)` — Transfer Keys — not yet ported.
+  - `Animation.tb005(self, widget)` — Add/Remove Intermediate Keys — not yet ported.
+  - `Animation.tb006(self, widget)` — Move Keys — use the Dope Sheet (G to grab keys).
+  - `Animation.tb007(self, widget)` — Align Keys — not yet ported.
+  - `Animation.tb008(self, widget)` — Set Visibility Keys — not yet ported.
+  - `Animation.tb013(self, widget)` — Select Keys — use the Dope Sheet / Graph Editor.
 
 <a id="slots--blender--cameras"></a>
 ### `slots/blender/cameras.py`
@@ -135,6 +185,12 @@ _Generated: 2026-06-12_
   - `Crease.tb000_init(self, widget)`
   - `Crease.tb000(self, widget)` — Crease
   - `Crease.b002(self, widget)` — Transfer Crease Edges — needs a Data-Transfer edge-data setup;
+
+<a id="slots--blender--deformation"></a>
+### `slots/blender/deformation.py`
+
+- **[`class Deformation(SlotsBlender)`](tentacle/tentacle/slots/blender/deformation.py#L6)** — Blender port of the shared ``deformation`` menu.
+  - `Deformation.tb001(self, widget)` — Curtain Generator — mayatk tool;
 
 <a id="slots--blender--display"></a>
 ### `slots/blender/display.py`
@@ -180,12 +236,70 @@ _Generated: 2026-06-12_
   - `Edit.b023(self, widget)` — Transfer Attribute Values — needs a Data-Transfer setup;
   - `Edit.b027(self, widget)` — Shading Sets — Maya shading groups;
 
+<a id="slots--blender--editors"></a>
+### `slots/blender/editors.py`
+
+- **[`class Editors(SlotsBlender)`](tentacle/tentacle/slots/blender/editors.py#L8)** — Blender port of the shared ``editors`` menu.
+  - `Editors.list000_init(self, widget)` — Initialize the editors list (categories → Blender editors).
+  - `Editors.list000(self, item)` — Open the picked editor in a new window.
+  - `Editors.b000(self)` — Attributes (Properties editor)
+  - `Editors.b001(self)` — Outliner
+  - `Editors.b002(self)` — Tool (active-tool settings live in the Properties editor's Tool tab)
+  - `Editors.b003(self)` — Layers (Blender's collections live in the Outliner)
+  - `Editors.b004(self)` — Channels (object data lives in the Properties editor)
+  - `Editors.b005(self)` — Node Editor (Shader Editor)
+  - `Editors.b009(self)` — Time & Range (Timeline editor)
+  - `Editors.b010(self)` — Script Output (Info log)
+  - `Editors.b011(self)` — Command Line (Python Console)
+  - `Editors.b006(self)` — Dependency Graph — Blender has no user-facing dependency-graph editor.
+  - `Editors.b007(self)` — Status Line — Maya UI chrome;
+  - `Editors.b008(self)` — Shelf — Maya UI chrome;
+  - `Editors.b012(self)` — Help Line — Maya UI chrome;
+  - `Editors.b013(self)` — Tool Box — Blender's toolbar is the T-panel inside each editor.
+
+<a id="slots--blender--hud"></a>
+### `slots/blender/hud.py`
+
+- **[`class StatusMixin`](tentacle/tentacle/slots/blender/hud.py#L11)**
+  - `StatusMixin.insert_scene_status(self, hud) -> None`
+- **[`class SelectionMixin`](tentacle/tentacle/slots/blender/hud.py#L41)**
+  - `SelectionMixin.insert_selection_info(self, hud, selection) -> None`
+  - `SelectionMixin.insert_component_info(self, hud, active) -> None` — Selected/total component counts for the mesh being edited (cheap:
+- **[`class WarningsMixin(HudWarningsMixin)`](tentacle/tentacle/slots/blender/hud.py#L108)** — Blender HUD warnings — the framework lives in the shared
+- **[`class HudSlots(SlotsBlender, StatusMixin, SelectionMixin, WarningsMixin)`](tentacle/tentacle/slots/blender/hud.py#L167)** — HUD Slots for Blender, providing scene and selection information.
+  - `HudSlots.request_hud_build(self) -> None` — Start a new HUD build request, only the latest token will be used.
+  - `HudSlots.construct_hud(self) -> None`
+
+<a id="slots--blender--lighting"></a>
+### `slots/blender/lighting.py`
+
+- **[`class Lighting(SlotsBlender)`](tentacle/tentacle/slots/blender/lighting.py#L6)** — Blender port of the shared ``lighting`` menu.
+  - `Lighting.b000(self)` — HDR Manager — mayatk panel;
+  - `Lighting.b001(self)` — Lightmap Baker — mayatk panel;
+
 <a id="slots--blender--main"></a>
 ### `slots/blender/main.py`
 
 - **[`class Main(SlotsBlender)`](tentacle/tentacle/slots/blender/main.py#L10)** — Blender port of the shared ``main`` start menu — a workspace directory browser.
   - `Main.list000_init(self, widget)` — Initialize Workspace Browser
   - `Main.list000(self, item)` — Workspace Browser
+
+<a id="slots--blender--materials"></a>
+### `slots/blender/materials.py`
+
+- **[`class MaterialsSlots(SlotsBlender)`](tentacle/tentacle/slots/blender/materials.py#L9)** — Blender port of the shared ``materials`` menu.
+  - `MaterialsSlots.cmb002_init(self, widget)` — Initialize the scene-materials combo (label -> material datablock).
+  - `MaterialsSlots.cmb002(self, index, widget)` — Current Material (selection only — assignment is on the b-buttons).
+  - `MaterialsSlots.tb000_init(self, widget)`
+  - `MaterialsSlots.tb000(self, widget)` — Select By Material
+  - `MaterialsSlots.b002(self, widget)` — Get Material: set the combo to the selection's material.
+  - `MaterialsSlots.b004(self, widget)` — Assign Random
+  - `MaterialsSlots.b005(self, widget)` — Assign Current
+  - `MaterialsSlots.b006(self, widget)` — Assign New Material
+  - `MaterialsSlots.b013(self)` — Reload Textures
+  - `MaterialsSlots.list000_init(self, widget)` — Assign list: scene materials + New + Random.
+  - `MaterialsSlots.list000(self, item)` — Assign the picked material (or a New/Random one) to the selection.
+  - `MaterialsSlots.list001_init(self, widget)` — Tools list — Maya-only windows (Stingray/game shader/Arnold bridge);
 
 <a id="slots--blender--normals"></a>
 ### `slots/blender/normals.py`
@@ -203,6 +317,17 @@ _Generated: 2026-06-12_
   - `Normals.b002(self)` — Transfer Normals — needs a Data-Transfer custom-normal setup;
   - `Normals.b004(self)` — Lock/Unlock Vertex Normals — Maya normal locking has no direct Blender analogue.
 
+<a id="slots--blender--nurbs"></a>
+### `slots/blender/nurbs.py`
+
+- **[`class Nurbs(SlotsBlender)`](tentacle/tentacle/slots/blender/nurbs.py#L8)** — Blender port of the shared ``nurbs`` menu — largely HIDE per the plan (Blender has no
+  - `Nurbs.b058(self)` — Curve to Tube (curve bevel).
+  - `Nurbs.tb000(self, widget)` — Revolve (Screw modifier about Z).
+  - `Nurbs.list000_init(self, widget)` — Maya NURBS action list (mel dispatcher) — hidden;
+  - `Nurbs.tb001(self, widget)` — Loft — Blender has no Maya-grade loft;
+  - `Nurbs.b030(self)` — Extrude — use mesh/curve extrude in Edit Mode (E).
+  - `Nurbs.b056(self)` — Image Tracer — not yet ported (Blender: import SVG / trace image add-on).
+
 <a id="slots--blender--pivot"></a>
 ### `slots/blender/pivot.py`
 
@@ -218,6 +343,42 @@ _Generated: 2026-06-12_
   - `Pivot.tb003(self, widget)` — World-Aligned Pivot — Maya manipulator-pivot orientation;
   - `Pivot.b004(self)` — Bake Pivot — Blender object origins are always baked into the transform (no-op).
 
+<a id="slots--blender--polygons"></a>
+### `slots/blender/polygons.py`
+
+- **[`class PolygonsSlots(SlotsBlender)`](tentacle/tentacle/slots/blender/polygons.py#L8)** — Blender port of the shared ``polygons`` menu.
+  - `PolygonsSlots.tb000_init(self, widget)`
+  - `PolygonsSlots.tb000(self, widget)` — Merge Vertices
+  - `PolygonsSlots.tb002(self, widget)` — Separate (split the mesh into loose parts).
+  - `PolygonsSlots.tb003(self, widget)` — Extrude (in place — move with G after).
+  - `PolygonsSlots.tb004(self, widget)` — Combine Selected Meshes
+  - `PolygonsSlots.tb005(self, widget)` — Detach (separate the selected components into a new object).
+  - `PolygonsSlots.tb006_init(self, widget)`
+  - `PolygonsSlots.tb006(self, widget)` — Inset Face Region
+  - `PolygonsSlots.tb007_init(self, widget)`
+  - `PolygonsSlots.tb007(self, widget)` — Divide Facet (subdivide the selected components).
+  - `PolygonsSlots.tb008_init(self, widget)`
+  - `PolygonsSlots.tb008(self, widget)` — Boolean Operation (active mesh = base, other selected = operands).
+  - `PolygonsSlots.tb009(self, widget)` — Snap Closest Verts — not yet ported (use snap + Auto Merge).
+  - `PolygonsSlots.b001(self)` — Fill Holes
+  - `PolygonsSlots.b003(self)` — Symmetrize
+  - `PolygonsSlots.b006(self)` — Bridge (selected edge loops).
+  - `PolygonsSlots.b008(self)` — Weld Center (merge selected at center).
+  - `PolygonsSlots.b009(self)` — Collapse Component
+  - `PolygonsSlots.b011(self)` — Bevel
+  - `PolygonsSlots.b012(self)` — Multi-Cut Tool (Knife).
+  - `PolygonsSlots.b022(self)` — Attach (join the selected meshes).
+  - `PolygonsSlots.b032(self)` — Poke
+  - `PolygonsSlots.b047(self)` — Insert Edgeloop (Loop Cut tool).
+  - `PolygonsSlots.b051(self)` — Offset Edgeloop
+  - `PolygonsSlots.b000(self)` — Circularize — needs the LoopTools add-on (Circle);
+  - `PolygonsSlots.b007(self)` — Interactive Bridge — modal Maya tool;
+  - `PolygonsSlots.b034(self)` — Wedge — no non-modal Blender analogue (use Spin).
+  - `PolygonsSlots.b038(self)` — Assign Invisible — Maya invisible faces have no Blender analogue.
+  - `PolygonsSlots.b043(self)` — Target Weld — enable snap (Vertex) + Auto Merge for the same workflow.
+  - `PolygonsSlots.b049(self)` — Slide Edge — modal in Blender (GG);
+  - `PolygonsSlots.b053(self)` — Edit Edge Flow — needs the Edit-Flow add-on;
+
 <a id="slots--blender--preferences"></a>
 ### `slots/blender/preferences.py`
 
@@ -232,6 +393,55 @@ _Generated: 2026-06-12_
   - `Preferences.b008(self)` — Hotkeys → Blender Preferences (Keymap).
   - `Preferences.b009(self)` — Plug-In Manager → Blender Preferences (Add-ons).
   - `Preferences.b010(self)` — Settings/Preferences → Blender Preferences (Interface).
+
+<a id="slots--blender--rendering"></a>
+### `slots/blender/rendering.py`
+
+- **[`class Rendering(SlotsBlender)`](tentacle/tentacle/slots/blender/rendering.py#L8)** — Blender port of the shared ``rendering`` menu.
+  - `Rendering.cmb001_init(self, widget)` — Initialize the render-camera combo (label -> camera object).
+  - `Rendering.cmb001(self, index, widget)` — Set the scene's active (render) camera.
+  - `Rendering.tb000_init(self, widget)`
+  - `Rendering.tb000(self, widget)` — Export Playblast (OpenGL viewport render of the frame range).
+  - `Rendering.b000(self)` — Render Current Frame
+  - `Rendering.b001(self)` — Render Settings (Properties editor, Render tab)
+  - `Rendering.b002(self)` — Show Last Render
+  - `Rendering.b003(self)` — Render Setup — Maya editor;
+  - `Rendering.b004(self)` — Rendering Flags — Maya editor with no Blender analogue.
+
+<a id="slots--blender--rigging"></a>
+### `slots/blender/rigging.py`
+
+- **[`class Rigging(SlotsBlender)`](tentacle/tentacle/slots/blender/rigging.py#L8)** — Blender port of the shared ``rigging`` menu.
+  - `Rigging.cmb001_init(self, widget)`
+  - `Rigging.cmb001(self, index, widget)` — Create rigging primitives.
+  - `Rigging.tb000(self, widget)` — Toggle Display Local Rotation Axes (``show_axis``).
+  - `Rigging.tb003(self, widget)` — Create Locator at Selection (an Empty at each selected object's origin;
+  - `Rigging.b003(self)` — Remove Locator (delete selected Empties).
+  - `Rigging.tb004_init(self, widget)`
+  - `Rigging.tb004(self, widget)` — Lock/Unlock Attributes (toggles based on the first object's current state).
+  - `Rigging.cmb002(self, index, widget)` — Quick Rig — Maya HumanIK workflow;
+  - `Rigging.tb001(self, widget)` — Constraint Switch — not yet ported (Blender bone constraints differ structurally).
+  - `Rigging.b004(self)` — Render Opacity — mayatk tool;
+
+<a id="slots--blender--scene"></a>
+### `slots/blender/scene.py`
+
+- **[`class SceneSlots(SlotsBlender)`](tentacle/tentacle/slots/blender/scene.py#L10)** — Blender port of the shared ``scene`` menu.
+  - `SceneSlots.list000_init(self, widget)` — Initialize Recent Files
+  - `SceneSlots.list000(self, item)` — Recent Files
+  - `SceneSlots.cmb002_init(self, widget)` — Initialize Autosave (recent temp-dir .blend autosaves, newest first).
+  - `SceneSlots.cmb002(self, index, widget)` — Autosave
+  - `SceneSlots.cmb003_init(self, widget)`
+  - `SceneSlots.cmb003(self, index, widget)` — Import
+  - `SceneSlots.cmb004_init(self, widget)`
+  - `SceneSlots.cmb004(self, index, widget)` — Export
+  - `SceneSlots.tb003(self, widget)` — Export Scene (FBX file dialog)
+  - `SceneSlots.b007(self)` — Import file
+  - `SceneSlots.tb000(self, widget)` — Set Workspace — Blender derives the workspace from the saved .blend's directory.
+  - `SceneSlots.b001(self)` — Reference Manager — Blender uses library linking (File ▸ Link);
+  - `SceneSlots.b002(self)` — Scene Exporter — mayatk window;
+  - `SceneSlots.b004(self)` — Hierarchy Manager — mayatk window;
+  - `SceneSlots.b005(self)` — Naming — mayatk window;
 
 <a id="slots--blender--selection"></a>
 ### `slots/blender/selection.py`
@@ -317,6 +527,15 @@ _Generated: 2026-06-12_
   - `TransformSlots.chk023_init(self, widget)` — Snap Rotate toggle (Maya manipulator snap) — hidden until tb004 is ported.
   - `TransformSlots.chk024_init(self, widget)` — Constraint: Edge toggle — hidden until tb003 is ported.
   - `TransformSlots.chk025_init(self, widget)` — Constraint: Surface toggle — hidden until tb003 is ported.
+
+<a id="slots--blender--utilities"></a>
+### `slots/blender/utilities.py`
+
+- **[`class Utilities(SlotsBlender)`](tentacle/tentacle/slots/blender/utilities.py#L7)** — Blender port of the shared ``utilities`` menu.
+  - `Utilities.b000(self)` — Measure
+  - `Utilities.b001(self)` — Annotation
+  - `Utilities.b002(self)` — Calculator
+  - `Utilities.b003(self)` — Grease Pencil (add an empty stroke object to draw into)
 
 <a id="slots--blender--uv"></a>
 ### `slots/blender/uv.py`
@@ -587,16 +806,13 @@ _Generated: 2026-06-12_
 <a id="slots--maya--hud"></a>
 ### `slots/maya/hud.py`
 
-- **[`class StatusMixin`](tentacle/tentacle/slots/maya/hud.py#L12)**
+- **[`class StatusMixin`](tentacle/tentacle/slots/maya/hud.py#L13)**
   - `StatusMixin.insert_scene_status(self, hud) -> None`
-- **[`class SelectionMixin`](tentacle/tentacle/slots/maya/hud.py#L54)**
+- **[`class SelectionMixin`](tentacle/tentacle/slots/maya/hud.py#L55)**
   - `SelectionMixin.insert_selection_info(self, hud, selection) -> None`
   - `SelectionMixin.insert_component_info(self, hud, selection) -> None`
-- **[`class WarningsMixin`](tentacle/tentacle/slots/maya/hud.py#L127)** — Lightweight pre-build checks shown as colored icons (immediately) and
-  - `WarningsMixin.evaluate_warnings(self) -> list` — Return the subset of WARNING_DEFS whose check fires and is enabled.
-  - `WarningsMixin.insert_warning_icons(self, hud, warnings) -> None` — Insert a single-line row of colored badges;
-  - `WarningsMixin.insert_warning_details(self, hud, warnings) -> None` — Insert a formatted detail line per active warning.
-- **[`class HudSlots(SlotsMaya, ptk.PackageManager, StatusMixin, SelectionMixin, WarningsMixin)`](tentacle/tentacle/slots/maya/hud.py#L274)** — HUD Slots for Maya, providing scene and selection information.
+- **[`class WarningsMixin(HudWarningsMixin)`](tentacle/tentacle/slots/maya/hud.py#L128)** — Maya HUD warnings — the framework lives in the shared
+- **[`class HudSlots(SlotsMaya, ptk.PackageManager, StatusMixin, SelectionMixin, WarningsMixin)`](tentacle/tentacle/slots/maya/hud.py#L208)** — HUD Slots for Maya, providing scene and selection information.
   - `HudSlots.request_hud_build(self) -> None` — Start a new HUD build request, only the latest token will be used.
   - `HudSlots.construct_hud(self) -> None`
 
@@ -1152,12 +1368,13 @@ Blender entry point for tentacle's Qt marking menu — host + keymap bridge + la
 
 - [`ensure_qapp()`](tentacle/tentacle/tcl_blender.py#L164) — Return the process QApplication, creating one if Blender has none.
 - [`ensure_blender_widget(app)`](tentacle/tentacle/tcl_blender.py#L172) — Establish ``app.blender_widget`` — the parent for the marking menu.
-- [`start_event_pump(app, interval=0.01)`](tentacle/tentacle/tcl_blender.py#L185) — Pump Qt events from Blender's timer loop so the Qt UI stays responsive (idempotent).
-- [`launch(**kwargs)`](tentacle/tentacle/tcl_blender.py#L418) — Stand up the Qt host (QApplication + ``blender_widget`` + event pump) and return a
-- [`register()`](tentacle/tentacle/tcl_blender.py#L435) — Blender add-on / startup entry: stand up the host.
-- [`unregister()`](tentacle/tentacle/tcl_blender.py#L448) — Blender add-on teardown: remove the keymap items + bridge operator.
-- [`diagnose()`](tentacle/tentacle/tcl_blender.py#L453) — Print the live activation state — run in Blender's Python console to see why the key isn't
-- **[`class TclBlender(MarkingMenu)`](tentacle/tentacle/tcl_blender.py#L336)** — Marking Menu class overridden for use with Blender.
+- [`blender_native_window()`](tentacle/tentacle/tcl_blender.py#L186) — Blender's main GHOST window wrapped as a foreign ``QWindow`` (cached on the QApplication).
+- [`start_event_pump(app, interval=0.01)`](tentacle/tentacle/tcl_blender.py#L233) — Pump Qt events from Blender's timer loop so the Qt UI stays responsive (idempotent).
+- [`launch(**kwargs)`](tentacle/tentacle/tcl_blender.py#L482) — Stand up the Qt host (QApplication + ``blender_widget`` + event pump) and return a
+- [`register()`](tentacle/tentacle/tcl_blender.py#L499) — Blender add-on / startup entry: stand up the host.
+- [`unregister()`](tentacle/tentacle/tcl_blender.py#L522) — Blender add-on teardown: remove the keymap items + bridge operator.
+- [`diagnose()`](tentacle/tentacle/tcl_blender.py#L527) — Return (and print) the live activation state — run in Blender's Python console to see why
+- **[`class TclBlender(MarkingMenu)`](tentacle/tentacle/tcl_blender.py#L389)** — Marking Menu class overridden for use with Blender.
   - `TclBlender.get_main_window(cls)` *(class)* — Blender parent widget for the marking menu (set by :func:`ensure_blender_widget`).
   - `TclBlender.keyPressEvent(self, event)`
 

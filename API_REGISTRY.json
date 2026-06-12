@@ -20,6 +20,48 @@
       "classes": []
     },
     {
+      "relpath": "slots/_hud_warnings.py",
+      "summary": "Shared HUD warning framework (DCC-agnostic).",
+      "functions": [],
+      "classes": [
+        {
+          "name": "HudWarningsMixin",
+          "summary": "",
+          "line": 22,
+          "bases": [],
+          "members": [
+            {
+              "name": "evaluate_warnings",
+              "qualname": "HudWarningsMixin.evaluate_warnings",
+              "kind": "method",
+              "signature": "(self) -> list",
+              "summary": "Return the subset of WARNING_DEFS whose check fires and is enabled.",
+              "line": 48,
+              "deprecated": false
+            },
+            {
+              "name": "insert_warning_icons",
+              "qualname": "HudWarningsMixin.insert_warning_icons",
+              "kind": "method",
+              "signature": "(self, hud, warnings) -> None",
+              "summary": "Insert a single-line row of colored badges;",
+              "line": 65,
+              "deprecated": false
+            },
+            {
+              "name": "insert_warning_details",
+              "qualname": "HudWarningsMixin.insert_warning_details",
+              "kind": "method",
+              "signature": "(self, hud, warnings) -> None",
+              "summary": "Insert a formatted detail line per active warning.",
+              "line": 75,
+              "deprecated": false
+            }
+          ]
+        }
+      ]
+    },
+    {
       "relpath": "slots/_slots.py",
       "summary": "",
       "functions": [],
@@ -65,6 +107,221 @@
               "signature": "()",
               "summary": "The current object selection (filtered of ``None``) — shared by all Blender slots.",
               "line": 14,
+              "deprecated": false
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "relpath": "slots/blender/animation.py",
+      "summary": "",
+      "functions": [],
+      "classes": [
+        {
+          "name": "Animation",
+          "summary": "Blender port of the shared ``animation`` menu.",
+          "line": 8,
+          "bases": [
+            "SlotsBlender"
+          ],
+          "members": [
+            {
+              "name": "tb000_init",
+              "qualname": "Animation.tb000_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "",
+              "line": 24,
+              "deprecated": false
+            },
+            {
+              "name": "tb000",
+              "qualname": "Animation.tb000",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Go To Frame",
+              "line": 32,
+              "deprecated": false
+            },
+            {
+              "name": "tb001",
+              "qualname": "Animation.tb001",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Invert Keys (mirror key times about the range center — reverses the motion).",
+              "line": 38,
+              "deprecated": false
+            },
+            {
+              "name": "tb003_init",
+              "qualname": "Animation.tb003_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "",
+              "line": 46,
+              "deprecated": false
+            },
+            {
+              "name": "tb003",
+              "qualname": "Animation.tb003",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Stagger Keys (re-time selected objects sequentially).",
+              "line": 55,
+              "deprecated": false
+            },
+            {
+              "name": "tb009",
+              "qualname": "Animation.tb009",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Snap Keys to Frames",
+              "line": 64,
+              "deprecated": false
+            },
+            {
+              "name": "tb010",
+              "qualname": "Animation.tb010",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Delete Keys (clear all animation on the selection).",
+              "line": 73,
+              "deprecated": false
+            },
+            {
+              "name": "tb012",
+              "qualname": "Animation.tb012",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Copy Keys (from the active object).",
+              "line": 79,
+              "deprecated": false
+            },
+            {
+              "name": "tb018",
+              "qualname": "Animation.tb018",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Paste Keys (independent copies onto the selection).",
+              "line": 87,
+              "deprecated": false
+            },
+            {
+              "name": "tb014_init",
+              "qualname": "Animation.tb014_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "",
+              "line": 94,
+              "deprecated": false
+            },
+            {
+              "name": "tb014",
+              "qualname": "Animation.tb014",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Scale Keys",
+              "line": 103,
+              "deprecated": false
+            },
+            {
+              "name": "tb017",
+              "qualname": "Animation.tb017",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Step Tangents (constant interpolation on every key).",
+              "line": 112,
+              "deprecated": false
+            },
+            {
+              "name": "b005",
+              "qualname": "Animation.b005",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Fit Playback Range (to the keyed extent of the selection, or the whole scene).",
+              "line": 121,
+              "deprecated": false
+            },
+            {
+              "name": "b000",
+              "qualname": "Animation.b000",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Shot Sequencer — mayatk window;",
+              "line": 131,
+              "deprecated": false
+            },
+            {
+              "name": "b004",
+              "qualname": "Animation.b004",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Shot Manifest — mayatk window;",
+              "line": 135,
+              "deprecated": false
+            },
+            {
+              "name": "tb002",
+              "qualname": "Animation.tb002",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Adjust Key Spacing — not yet ported.",
+              "line": 139,
+              "deprecated": false
+            },
+            {
+              "name": "tb004",
+              "qualname": "Animation.tb004",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Transfer Keys — not yet ported.",
+              "line": 143,
+              "deprecated": false
+            },
+            {
+              "name": "tb005",
+              "qualname": "Animation.tb005",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Add/Remove Intermediate Keys — not yet ported.",
+              "line": 147,
+              "deprecated": false
+            },
+            {
+              "name": "tb006",
+              "qualname": "Animation.tb006",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Move Keys — use the Dope Sheet (G to grab keys).",
+              "line": 151,
+              "deprecated": false
+            },
+            {
+              "name": "tb007",
+              "qualname": "Animation.tb007",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Align Keys — not yet ported.",
+              "line": 155,
+              "deprecated": false
+            },
+            {
+              "name": "tb008",
+              "qualname": "Animation.tb008",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Set Visibility Keys — not yet ported.",
+              "line": 159,
+              "deprecated": false
+            },
+            {
+              "name": "tb013",
+              "qualname": "Animation.tb013",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Select Keys — use the Dope Sheet / Graph Editor.",
+              "line": 163,
               "deprecated": false
             }
           ]
@@ -261,6 +518,32 @@
               "signature": "(self, widget)",
               "summary": "Transfer Crease Edges — needs a Data-Transfer edge-data setup;",
               "line": 41,
+              "deprecated": false
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "relpath": "slots/blender/deformation.py",
+      "summary": "",
+      "functions": [],
+      "classes": [
+        {
+          "name": "Deformation",
+          "summary": "Blender port of the shared ``deformation`` menu.",
+          "line": 6,
+          "bases": [
+            "SlotsBlender"
+          ],
+          "members": [
+            {
+              "name": "tb001",
+              "qualname": "Deformation.tb001",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Curtain Generator — mayatk tool;",
+              "line": 16,
               "deprecated": false
             }
           ]
@@ -580,6 +863,292 @@
       ]
     },
     {
+      "relpath": "slots/blender/editors.py",
+      "summary": "",
+      "functions": [],
+      "classes": [
+        {
+          "name": "Editors",
+          "summary": "Blender port of the shared ``editors`` menu.",
+          "line": 8,
+          "bases": [
+            "SlotsBlender"
+          ],
+          "members": [
+            {
+              "name": "list000_init",
+              "qualname": "Editors.list000_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Initialize the editors list (categories → Blender editors).",
+              "line": 55,
+              "deprecated": false
+            },
+            {
+              "name": "list000",
+              "qualname": "Editors.list000",
+              "kind": "method",
+              "signature": "(self, item)",
+              "summary": "Open the picked editor in a new window.",
+              "line": 63,
+              "deprecated": false
+            },
+            {
+              "name": "b000",
+              "qualname": "Editors.b000",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Attributes (Properties editor)",
+              "line": 72,
+              "deprecated": false
+            },
+            {
+              "name": "b001",
+              "qualname": "Editors.b001",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Outliner",
+              "line": 76,
+              "deprecated": false
+            },
+            {
+              "name": "b002",
+              "qualname": "Editors.b002",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Tool (active-tool settings live in the Properties editor's Tool tab)",
+              "line": 80,
+              "deprecated": false
+            },
+            {
+              "name": "b003",
+              "qualname": "Editors.b003",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Layers (Blender's collections live in the Outliner)",
+              "line": 84,
+              "deprecated": false
+            },
+            {
+              "name": "b004",
+              "qualname": "Editors.b004",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Channels (object data lives in the Properties editor)",
+              "line": 88,
+              "deprecated": false
+            },
+            {
+              "name": "b005",
+              "qualname": "Editors.b005",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Node Editor (Shader Editor)",
+              "line": 92,
+              "deprecated": false
+            },
+            {
+              "name": "b009",
+              "qualname": "Editors.b009",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Time & Range (Timeline editor)",
+              "line": 96,
+              "deprecated": false
+            },
+            {
+              "name": "b010",
+              "qualname": "Editors.b010",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Script Output (Info log)",
+              "line": 100,
+              "deprecated": false
+            },
+            {
+              "name": "b011",
+              "qualname": "Editors.b011",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Command Line (Python Console)",
+              "line": 104,
+              "deprecated": false
+            },
+            {
+              "name": "b006",
+              "qualname": "Editors.b006",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Dependency Graph — Blender has no user-facing dependency-graph editor.",
+              "line": 109,
+              "deprecated": false
+            },
+            {
+              "name": "b007",
+              "qualname": "Editors.b007",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Status Line — Maya UI chrome;",
+              "line": 113,
+              "deprecated": false
+            },
+            {
+              "name": "b008",
+              "qualname": "Editors.b008",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Shelf — Maya UI chrome;",
+              "line": 117,
+              "deprecated": false
+            },
+            {
+              "name": "b012",
+              "qualname": "Editors.b012",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Help Line — Maya UI chrome;",
+              "line": 121,
+              "deprecated": false
+            },
+            {
+              "name": "b013",
+              "qualname": "Editors.b013",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Tool Box — Blender's toolbar is the T-panel inside each editor.",
+              "line": 125,
+              "deprecated": false
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "relpath": "slots/blender/hud.py",
+      "summary": "",
+      "functions": [],
+      "classes": [
+        {
+          "name": "StatusMixin",
+          "summary": "",
+          "line": 11,
+          "bases": [],
+          "members": [
+            {
+              "name": "insert_scene_status",
+              "qualname": "StatusMixin.insert_scene_status",
+              "kind": "method",
+              "signature": "(self, hud) -> None",
+              "summary": "",
+              "line": 12,
+              "deprecated": false
+            }
+          ]
+        },
+        {
+          "name": "SelectionMixin",
+          "summary": "",
+          "line": 41,
+          "bases": [],
+          "members": [
+            {
+              "name": "insert_selection_info",
+              "qualname": "SelectionMixin.insert_selection_info",
+              "kind": "method",
+              "signature": "(self, hud, selection) -> None",
+              "summary": "",
+              "line": 63,
+              "deprecated": false
+            },
+            {
+              "name": "insert_component_info",
+              "qualname": "SelectionMixin.insert_component_info",
+              "kind": "method",
+              "signature": "(self, hud, active) -> None",
+              "summary": "Selected/total component counts for the mesh being edited (cheap:",
+              "line": 90,
+              "deprecated": false
+            }
+          ]
+        },
+        {
+          "name": "WarningsMixin",
+          "summary": "Blender HUD warnings — the framework lives in the shared",
+          "line": 108,
+          "bases": [
+            "HudWarningsMixin"
+          ],
+          "members": []
+        },
+        {
+          "name": "HudSlots",
+          "summary": "HUD Slots for Blender, providing scene and selection information.",
+          "line": 167,
+          "bases": [
+            "SlotsBlender",
+            "StatusMixin",
+            "SelectionMixin",
+            "WarningsMixin"
+          ],
+          "members": [
+            {
+              "name": "request_hud_build",
+              "qualname": "HudSlots.request_hud_build",
+              "kind": "method",
+              "signature": "(self) -> None",
+              "summary": "Start a new HUD build request, only the latest token will be used.",
+              "line": 178,
+              "deprecated": false
+            },
+            {
+              "name": "construct_hud",
+              "qualname": "HudSlots.construct_hud",
+              "kind": "method",
+              "signature": "(self) -> None",
+              "summary": "",
+              "line": 198,
+              "deprecated": false
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "relpath": "slots/blender/lighting.py",
+      "summary": "",
+      "functions": [],
+      "classes": [
+        {
+          "name": "Lighting",
+          "summary": "Blender port of the shared ``lighting`` menu.",
+          "line": 6,
+          "bases": [
+            "SlotsBlender"
+          ],
+          "members": [
+            {
+              "name": "b000",
+              "qualname": "Lighting.b000",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "HDR Manager — mayatk panel;",
+              "line": 16,
+              "deprecated": false
+            },
+            {
+              "name": "b001",
+              "qualname": "Lighting.b001",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Lightmap Baker — mayatk panel;",
+              "line": 20,
+              "deprecated": false
+            }
+          ]
+        }
+      ]
+    },
+    {
       "relpath": "slots/blender/main.py",
       "summary": "",
       "functions": [],
@@ -608,6 +1177,131 @@
               "signature": "(self, item)",
               "summary": "Workspace Browser",
               "line": 68,
+              "deprecated": false
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "relpath": "slots/blender/materials.py",
+      "summary": "",
+      "functions": [],
+      "classes": [
+        {
+          "name": "MaterialsSlots",
+          "summary": "Blender port of the shared ``materials`` menu.",
+          "line": 9,
+          "bases": [
+            "SlotsBlender"
+          ],
+          "members": [
+            {
+              "name": "cmb002_init",
+              "qualname": "MaterialsSlots.cmb002_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Initialize the scene-materials combo (label -> material datablock).",
+              "line": 24,
+              "deprecated": false
+            },
+            {
+              "name": "cmb002",
+              "qualname": "MaterialsSlots.cmb002",
+              "kind": "method",
+              "signature": "(self, index, widget)",
+              "summary": "Current Material (selection only — assignment is on the b-buttons).",
+              "line": 30,
+              "deprecated": false
+            },
+            {
+              "name": "tb000_init",
+              "qualname": "MaterialsSlots.tb000_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "",
+              "line": 34,
+              "deprecated": false
+            },
+            {
+              "name": "tb000",
+              "qualname": "MaterialsSlots.tb000",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Select By Material",
+              "line": 45,
+              "deprecated": false
+            },
+            {
+              "name": "b002",
+              "qualname": "MaterialsSlots.b002",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Get Material: set the combo to the selection's material.",
+              "line": 59,
+              "deprecated": false
+            },
+            {
+              "name": "b004",
+              "qualname": "MaterialsSlots.b004",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Assign Random",
+              "line": 77,
+              "deprecated": false
+            },
+            {
+              "name": "b005",
+              "qualname": "MaterialsSlots.b005",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Assign Current",
+              "line": 93,
+              "deprecated": false
+            },
+            {
+              "name": "b006",
+              "qualname": "MaterialsSlots.b006",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Assign New Material",
+              "line": 106,
+              "deprecated": false
+            },
+            {
+              "name": "b013",
+              "qualname": "MaterialsSlots.b013",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Reload Textures",
+              "line": 116,
+              "deprecated": false
+            },
+            {
+              "name": "list000_init",
+              "qualname": "MaterialsSlots.list000_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Assign list: scene materials + New + Random.",
+              "line": 122,
+              "deprecated": false
+            },
+            {
+              "name": "list000",
+              "qualname": "MaterialsSlots.list000",
+              "kind": "method",
+              "signature": "(self, item)",
+              "summary": "Assign the picked material (or a New/Random one) to the selection.",
+              "line": 135,
+              "deprecated": false
+            },
+            {
+              "name": "list001_init",
+              "qualname": "MaterialsSlots.list001_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Tools list — Maya-only windows (Stingray/game shader/Arnold bridge);",
+              "line": 154,
               "deprecated": false
             }
           ]
@@ -731,6 +1425,77 @@
       ]
     },
     {
+      "relpath": "slots/blender/nurbs.py",
+      "summary": "",
+      "functions": [],
+      "classes": [
+        {
+          "name": "Nurbs",
+          "summary": "Blender port of the shared ``nurbs`` menu — largely HIDE per the plan (Blender has no",
+          "line": 8,
+          "bases": [
+            "SlotsBlender"
+          ],
+          "members": [
+            {
+              "name": "b058",
+              "qualname": "Nurbs.b058",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Curve to Tube (curve bevel).",
+              "line": 22,
+              "deprecated": false
+            },
+            {
+              "name": "tb000",
+              "qualname": "Nurbs.tb000",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Revolve (Screw modifier about Z).",
+              "line": 33,
+              "deprecated": false
+            },
+            {
+              "name": "list000_init",
+              "qualname": "Nurbs.list000_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Maya NURBS action list (mel dispatcher) — hidden;",
+              "line": 46,
+              "deprecated": false
+            },
+            {
+              "name": "tb001",
+              "qualname": "Nurbs.tb001",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Loft — Blender has no Maya-grade loft;",
+              "line": 50,
+              "deprecated": false
+            },
+            {
+              "name": "b030",
+              "qualname": "Nurbs.b030",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Extrude — use mesh/curve extrude in Edit Mode (E).",
+              "line": 54,
+              "deprecated": false
+            },
+            {
+              "name": "b056",
+              "qualname": "Nurbs.b056",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Image Tracer — not yet ported (Blender: import SVG / trace image add-on).",
+              "line": 58,
+              "deprecated": false
+            }
+          ]
+        }
+      ]
+    },
+    {
       "relpath": "slots/blender/pivot.py",
       "summary": "",
       "functions": [],
@@ -838,6 +1603,302 @@
       ]
     },
     {
+      "relpath": "slots/blender/polygons.py",
+      "summary": "",
+      "functions": [],
+      "classes": [
+        {
+          "name": "PolygonsSlots",
+          "summary": "Blender port of the shared ``polygons`` menu.",
+          "line": 8,
+          "bases": [
+            "SlotsBlender"
+          ],
+          "members": [
+            {
+              "name": "tb000_init",
+              "qualname": "PolygonsSlots.tb000_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "",
+              "line": 43,
+              "deprecated": false
+            },
+            {
+              "name": "tb000",
+              "qualname": "PolygonsSlots.tb000",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Merge Vertices",
+              "line": 52,
+              "deprecated": false
+            },
+            {
+              "name": "tb002",
+              "qualname": "PolygonsSlots.tb002",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Separate (split the mesh into loose parts).",
+              "line": 60,
+              "deprecated": false
+            },
+            {
+              "name": "tb003",
+              "qualname": "PolygonsSlots.tb003",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Extrude (in place — move with G after).",
+              "line": 78,
+              "deprecated": false
+            },
+            {
+              "name": "tb004",
+              "qualname": "PolygonsSlots.tb004",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Combine Selected Meshes",
+              "line": 83,
+              "deprecated": false
+            },
+            {
+              "name": "tb005",
+              "qualname": "PolygonsSlots.tb005",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Detach (separate the selected components into a new object).",
+              "line": 95,
+              "deprecated": false
+            },
+            {
+              "name": "tb006_init",
+              "qualname": "PolygonsSlots.tb006_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "",
+              "line": 99,
+              "deprecated": false
+            },
+            {
+              "name": "tb006",
+              "qualname": "PolygonsSlots.tb006",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Inset Face Region",
+              "line": 108,
+              "deprecated": false
+            },
+            {
+              "name": "tb007_init",
+              "qualname": "PolygonsSlots.tb007_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "",
+              "line": 114,
+              "deprecated": false
+            },
+            {
+              "name": "tb007",
+              "qualname": "PolygonsSlots.tb007",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Divide Facet (subdivide the selected components).",
+              "line": 123,
+              "deprecated": false
+            },
+            {
+              "name": "tb008_init",
+              "qualname": "PolygonsSlots.tb008_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "",
+              "line": 129,
+              "deprecated": false
+            },
+            {
+              "name": "tb008",
+              "qualname": "PolygonsSlots.tb008",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Boolean Operation (active mesh = base, other selected = operands).",
+              "line": 137,
+              "deprecated": false
+            },
+            {
+              "name": "tb009",
+              "qualname": "PolygonsSlots.tb009",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Snap Closest Verts — not yet ported (use snap + Auto Merge).",
+              "line": 151,
+              "deprecated": false
+            },
+            {
+              "name": "b001",
+              "qualname": "PolygonsSlots.b001",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Fill Holes",
+              "line": 157,
+              "deprecated": false
+            },
+            {
+              "name": "b003",
+              "qualname": "PolygonsSlots.b003",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Symmetrize",
+              "line": 162,
+              "deprecated": false
+            },
+            {
+              "name": "b006",
+              "qualname": "PolygonsSlots.b006",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Bridge (selected edge loops).",
+              "line": 167,
+              "deprecated": false
+            },
+            {
+              "name": "b008",
+              "qualname": "PolygonsSlots.b008",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Weld Center (merge selected at center).",
+              "line": 172,
+              "deprecated": false
+            },
+            {
+              "name": "b009",
+              "qualname": "PolygonsSlots.b009",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Collapse Component",
+              "line": 177,
+              "deprecated": false
+            },
+            {
+              "name": "b011",
+              "qualname": "PolygonsSlots.b011",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Bevel",
+              "line": 182,
+              "deprecated": false
+            },
+            {
+              "name": "b012",
+              "qualname": "PolygonsSlots.b012",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Multi-Cut Tool (Knife).",
+              "line": 186,
+              "deprecated": false
+            },
+            {
+              "name": "b022",
+              "qualname": "PolygonsSlots.b022",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Attach (join the selected meshes).",
+              "line": 194,
+              "deprecated": false
+            },
+            {
+              "name": "b032",
+              "qualname": "PolygonsSlots.b032",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Poke",
+              "line": 199,
+              "deprecated": false
+            },
+            {
+              "name": "b047",
+              "qualname": "PolygonsSlots.b047",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Insert Edgeloop (Loop Cut tool).",
+              "line": 203,
+              "deprecated": false
+            },
+            {
+              "name": "b051",
+              "qualname": "PolygonsSlots.b051",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Offset Edgeloop",
+              "line": 211,
+              "deprecated": false
+            },
+            {
+              "name": "b000",
+              "qualname": "PolygonsSlots.b000",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Circularize — needs the LoopTools add-on (Circle);",
+              "line": 216,
+              "deprecated": false
+            },
+            {
+              "name": "b007",
+              "qualname": "PolygonsSlots.b007",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Interactive Bridge — modal Maya tool;",
+              "line": 220,
+              "deprecated": false
+            },
+            {
+              "name": "b034",
+              "qualname": "PolygonsSlots.b034",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Wedge — no non-modal Blender analogue (use Spin).",
+              "line": 224,
+              "deprecated": false
+            },
+            {
+              "name": "b038",
+              "qualname": "PolygonsSlots.b038",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Assign Invisible — Maya invisible faces have no Blender analogue.",
+              "line": 228,
+              "deprecated": false
+            },
+            {
+              "name": "b043",
+              "qualname": "PolygonsSlots.b043",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Target Weld — enable snap (Vertex) + Auto Merge for the same workflow.",
+              "line": 232,
+              "deprecated": false
+            },
+            {
+              "name": "b049",
+              "qualname": "PolygonsSlots.b049",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Slide Edge — modal in Blender (GG);",
+              "line": 238,
+              "deprecated": false
+            },
+            {
+              "name": "b053",
+              "qualname": "PolygonsSlots.b053",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Edit Edge Flow — needs the Edit-Flow add-on;",
+              "line": 242,
+              "deprecated": false
+            }
+          ]
+        }
+      ]
+    },
+    {
       "relpath": "slots/blender/preferences.py",
       "summary": "",
       "functions": [],
@@ -938,6 +1999,363 @@
               "signature": "(self)",
               "summary": "Settings/Preferences → Blender Preferences (Interface).",
               "line": 102,
+              "deprecated": false
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "relpath": "slots/blender/rendering.py",
+      "summary": "",
+      "functions": [],
+      "classes": [
+        {
+          "name": "Rendering",
+          "summary": "Blender port of the shared ``rendering`` menu.",
+          "line": 8,
+          "bases": [
+            "SlotsBlender"
+          ],
+          "members": [
+            {
+              "name": "cmb001_init",
+              "qualname": "Rendering.cmb001_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Initialize the render-camera combo (label -> camera object).",
+              "line": 21,
+              "deprecated": false
+            },
+            {
+              "name": "cmb001",
+              "qualname": "Rendering.cmb001",
+              "kind": "method",
+              "signature": "(self, index, widget)",
+              "summary": "Set the scene's active (render) camera.",
+              "line": 30,
+              "deprecated": false
+            },
+            {
+              "name": "tb000_init",
+              "qualname": "Rendering.tb000_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "",
+              "line": 37,
+              "deprecated": false
+            },
+            {
+              "name": "tb000",
+              "qualname": "Rendering.tb000",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Export Playblast (OpenGL viewport render of the frame range).",
+              "line": 44,
+              "deprecated": false
+            },
+            {
+              "name": "b000",
+              "qualname": "Rendering.b000",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Render Current Frame",
+              "line": 57,
+              "deprecated": false
+            },
+            {
+              "name": "b001",
+              "qualname": "Rendering.b001",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Render Settings (Properties editor, Render tab)",
+              "line": 64,
+              "deprecated": false
+            },
+            {
+              "name": "b002",
+              "qualname": "Rendering.b002",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Show Last Render",
+              "line": 68,
+              "deprecated": false
+            },
+            {
+              "name": "b003",
+              "qualname": "Rendering.b003",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Render Setup — Maya editor;",
+              "line": 76,
+              "deprecated": false
+            },
+            {
+              "name": "b004",
+              "qualname": "Rendering.b004",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Rendering Flags — Maya editor with no Blender analogue.",
+              "line": 80,
+              "deprecated": false
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "relpath": "slots/blender/rigging.py",
+      "summary": "",
+      "functions": [],
+      "classes": [
+        {
+          "name": "Rigging",
+          "summary": "Blender port of the shared ``rigging`` menu.",
+          "line": 8,
+          "bases": [
+            "SlotsBlender"
+          ],
+          "members": [
+            {
+              "name": "cmb001_init",
+              "qualname": "Rigging.cmb001_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "",
+              "line": 22,
+              "deprecated": false
+            },
+            {
+              "name": "cmb001",
+              "qualname": "Rigging.cmb001",
+              "kind": "method",
+              "signature": "(self, index, widget)",
+              "summary": "Create rigging primitives.",
+              "line": 26,
+              "deprecated": false
+            },
+            {
+              "name": "tb000",
+              "qualname": "Rigging.tb000",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Toggle Display Local Rotation Axes (``show_axis``).",
+              "line": 36,
+              "deprecated": false
+            },
+            {
+              "name": "tb003",
+              "qualname": "Rigging.tb003",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Create Locator at Selection (an Empty at each selected object's origin;",
+              "line": 48,
+              "deprecated": false
+            },
+            {
+              "name": "b003",
+              "qualname": "Rigging.b003",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Remove Locator (delete selected Empties).",
+              "line": 62,
+              "deprecated": false
+            },
+            {
+              "name": "tb004_init",
+              "qualname": "Rigging.tb004_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "",
+              "line": 72,
+              "deprecated": false
+            },
+            {
+              "name": "tb004",
+              "qualname": "Rigging.tb004",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Lock/Unlock Attributes (toggles based on the first object's current state).",
+              "line": 83,
+              "deprecated": false
+            },
+            {
+              "name": "cmb002",
+              "qualname": "Rigging.cmb002",
+              "kind": "method",
+              "signature": "(self, index, widget)",
+              "summary": "Quick Rig — Maya HumanIK workflow;",
+              "line": 100,
+              "deprecated": false
+            },
+            {
+              "name": "tb001",
+              "qualname": "Rigging.tb001",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Constraint Switch — not yet ported (Blender bone constraints differ structurally).",
+              "line": 104,
+              "deprecated": false
+            },
+            {
+              "name": "b004",
+              "qualname": "Rigging.b004",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Render Opacity — mayatk tool;",
+              "line": 108,
+              "deprecated": false
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "relpath": "slots/blender/scene.py",
+      "summary": "",
+      "functions": [],
+      "classes": [
+        {
+          "name": "SceneSlots",
+          "summary": "Blender port of the shared ``scene`` menu.",
+          "line": 10,
+          "bases": [
+            "SlotsBlender"
+          ],
+          "members": [
+            {
+              "name": "list000_init",
+              "qualname": "SceneSlots.list000_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Initialize Recent Files",
+              "line": 62,
+              "deprecated": false
+            },
+            {
+              "name": "list000",
+              "qualname": "SceneSlots.list000",
+              "kind": "method",
+              "signature": "(self, item)",
+              "summary": "Recent Files",
+              "line": 73,
+              "deprecated": false
+            },
+            {
+              "name": "cmb002_init",
+              "qualname": "SceneSlots.cmb002_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Initialize Autosave (recent temp-dir .blend autosaves, newest first).",
+              "line": 80,
+              "deprecated": false
+            },
+            {
+              "name": "cmb002",
+              "qualname": "SceneSlots.cmb002",
+              "kind": "method",
+              "signature": "(self, index, widget)",
+              "summary": "Autosave",
+              "line": 89,
+              "deprecated": false
+            },
+            {
+              "name": "cmb003_init",
+              "qualname": "SceneSlots.cmb003_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "",
+              "line": 94,
+              "deprecated": false
+            },
+            {
+              "name": "cmb003",
+              "qualname": "SceneSlots.cmb003",
+              "kind": "method",
+              "signature": "(self, index, widget)",
+              "summary": "Import",
+              "line": 97,
+              "deprecated": false
+            },
+            {
+              "name": "cmb004_init",
+              "qualname": "SceneSlots.cmb004_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "",
+              "line": 103,
+              "deprecated": false
+            },
+            {
+              "name": "cmb004",
+              "qualname": "SceneSlots.cmb004",
+              "kind": "method",
+              "signature": "(self, index, widget)",
+              "summary": "Export",
+              "line": 106,
+              "deprecated": false
+            },
+            {
+              "name": "tb003",
+              "qualname": "SceneSlots.tb003",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Export Scene (FBX file dialog)",
+              "line": 113,
+              "deprecated": false
+            },
+            {
+              "name": "b007",
+              "qualname": "SceneSlots.b007",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Import file",
+              "line": 117,
+              "deprecated": false
+            },
+            {
+              "name": "tb000",
+              "qualname": "SceneSlots.tb000",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Set Workspace — Blender derives the workspace from the saved .blend's directory.",
+              "line": 122,
+              "deprecated": false
+            },
+            {
+              "name": "b001",
+              "qualname": "SceneSlots.b001",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Reference Manager — Blender uses library linking (File ▸ Link);",
+              "line": 128,
+              "deprecated": false
+            },
+            {
+              "name": "b002",
+              "qualname": "SceneSlots.b002",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Scene Exporter — mayatk window;",
+              "line": 132,
+              "deprecated": false
+            },
+            {
+              "name": "b004",
+              "qualname": "SceneSlots.b004",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Hierarchy Manager — mayatk window;",
+              "line": 136,
+              "deprecated": false
+            },
+            {
+              "name": "b005",
+              "qualname": "SceneSlots.b005",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Naming — mayatk window;",
+              "line": 140,
               "deprecated": false
             }
           ]
@@ -1563,6 +2981,59 @@
               "signature": "(self, widget)",
               "summary": "Constraint: Surface toggle — hidden until tb003 is ported.",
               "line": 163,
+              "deprecated": false
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "relpath": "slots/blender/utilities.py",
+      "summary": "",
+      "functions": [],
+      "classes": [
+        {
+          "name": "Utilities",
+          "summary": "Blender port of the shared ``utilities`` menu.",
+          "line": 7,
+          "bases": [
+            "SlotsBlender"
+          ],
+          "members": [
+            {
+              "name": "b000",
+              "qualname": "Utilities.b000",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Measure",
+              "line": 24,
+              "deprecated": false
+            },
+            {
+              "name": "b001",
+              "qualname": "Utilities.b001",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Annotation",
+              "line": 28,
+              "deprecated": false
+            },
+            {
+              "name": "b002",
+              "qualname": "Utilities.b002",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Calculator",
+              "line": 32,
+              "deprecated": false
+            },
+            {
+              "name": "b003",
+              "qualname": "Utilities.b003",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Grease Pencil (add an empty stroke object to draw into)",
+              "line": 36,
               "deprecated": false
             }
           ]
@@ -3342,7 +4813,7 @@
         {
           "name": "StatusMixin",
           "summary": "",
-          "line": 12,
+          "line": 13,
           "bases": [],
           "members": [
             {
@@ -3351,7 +4822,7 @@
               "kind": "method",
               "signature": "(self, hud) -> None",
               "summary": "",
-              "line": 13,
+              "line": 14,
               "deprecated": false
             }
           ]
@@ -3359,7 +4830,7 @@
         {
           "name": "SelectionMixin",
           "summary": "",
-          "line": 54,
+          "line": 55,
           "bases": [],
           "members": [
             {
@@ -3368,7 +4839,7 @@
               "kind": "method",
               "signature": "(self, hud, selection) -> None",
               "summary": "",
-              "line": 55,
+              "line": 56,
               "deprecated": false
             },
             {
@@ -3377,50 +4848,24 @@
               "kind": "method",
               "signature": "(self, hud, selection) -> None",
               "summary": "",
-              "line": 102,
+              "line": 103,
               "deprecated": false
             }
           ]
         },
         {
           "name": "WarningsMixin",
-          "summary": "Lightweight pre-build checks shown as colored icons (immediately) and",
-          "line": 127,
-          "bases": [],
-          "members": [
-            {
-              "name": "evaluate_warnings",
-              "qualname": "WarningsMixin.evaluate_warnings",
-              "kind": "method",
-              "signature": "(self) -> list",
-              "summary": "Return the subset of WARNING_DEFS whose check fires and is enabled.",
-              "line": 197,
-              "deprecated": false
-            },
-            {
-              "name": "insert_warning_icons",
-              "qualname": "WarningsMixin.insert_warning_icons",
-              "kind": "method",
-              "signature": "(self, hud, warnings) -> None",
-              "summary": "Insert a single-line row of colored badges;",
-              "line": 214,
-              "deprecated": false
-            },
-            {
-              "name": "insert_warning_details",
-              "qualname": "WarningsMixin.insert_warning_details",
-              "kind": "method",
-              "signature": "(self, hud, warnings) -> None",
-              "summary": "Insert a formatted detail line per active warning.",
-              "line": 224,
-              "deprecated": false
-            }
-          ]
+          "summary": "Maya HUD warnings — the framework lives in the shared",
+          "line": 128,
+          "bases": [
+            "HudWarningsMixin"
+          ],
+          "members": []
         },
         {
           "name": "HudSlots",
           "summary": "HUD Slots for Maya, providing scene and selection information.",
-          "line": 274,
+          "line": 208,
           "bases": [
             "SlotsMaya",
             "ptk.PackageManager",
@@ -3435,7 +4880,7 @@
               "kind": "method",
               "signature": "(self) -> None",
               "summary": "Start a new HUD build request, only the latest token will be used.",
-              "line": 290,
+              "line": 224,
               "deprecated": false
             },
             {
@@ -3444,7 +4889,7 @@
               "kind": "method",
               "signature": "(self) -> None",
               "summary": "",
-              "line": 310,
+              "line": 244,
               "deprecated": false
             }
           ]
@@ -7266,12 +8711,21 @@
           "deprecated": false
         },
         {
+          "name": "blender_native_window",
+          "qualname": "blender_native_window",
+          "kind": "function",
+          "signature": "()",
+          "summary": "Blender's main GHOST window wrapped as a foreign ``QWindow`` (cached on the QApplication).",
+          "line": 186,
+          "deprecated": false
+        },
+        {
           "name": "start_event_pump",
           "qualname": "start_event_pump",
           "kind": "function",
           "signature": "(app, interval=0.01)",
           "summary": "Pump Qt events from Blender's timer loop so the Qt UI stays responsive (idempotent).",
-          "line": 185,
+          "line": 233,
           "deprecated": false
         },
         {
@@ -7280,7 +8734,7 @@
           "kind": "function",
           "signature": "(**kwargs)",
           "summary": "Stand up the Qt host (QApplication + ``blender_widget`` + event pump) and return a",
-          "line": 418,
+          "line": 482,
           "deprecated": false
         },
         {
@@ -7289,7 +8743,7 @@
           "kind": "function",
           "signature": "()",
           "summary": "Blender add-on / startup entry: stand up the host.",
-          "line": 435,
+          "line": 499,
           "deprecated": false
         },
         {
@@ -7298,7 +8752,7 @@
           "kind": "function",
           "signature": "()",
           "summary": "Blender add-on teardown: remove the keymap items + bridge operator.",
-          "line": 448,
+          "line": 522,
           "deprecated": false
         },
         {
@@ -7306,8 +8760,8 @@
           "qualname": "diagnose",
           "kind": "function",
           "signature": "()",
-          "summary": "Print the live activation state — run in Blender's Python console to see why the key isn't",
-          "line": 453,
+          "summary": "Return (and print) the live activation state — run in Blender's Python console to see why",
+          "line": 527,
           "deprecated": false
         }
       ],
@@ -7315,7 +8769,7 @@
         {
           "name": "TclBlender",
           "summary": "Marking Menu class overridden for use with Blender.",
-          "line": 336,
+          "line": 389,
           "bases": [
             "MarkingMenu"
           ],
@@ -7326,7 +8780,7 @@
               "kind": "classmethod",
               "signature": "(cls)",
               "summary": "Blender parent widget for the marking menu (set by :func:`ensure_blender_widget`).",
-              "line": 390,
+              "line": 454,
               "deprecated": false
             },
             {
@@ -7335,7 +8789,7 @@
               "kind": "method",
               "signature": "(self, event)",
               "summary": "",
-              "line": 399,
+              "line": 463,
               "deprecated": false
             }
           ]
@@ -7361,7 +8815,7 @@
               "kind": "classmethod",
               "signature": "(cls)",
               "summary": "Get the 3DS MAX main window.",
-              "line": 30,
+              "line": 31,
               "deprecated": false
             },
             {
@@ -7370,7 +8824,7 @@
               "kind": "method",
               "signature": "(self, event)",
               "summary": "",
-              "line": 49,
+              "line": 50,
               "deprecated": false
             },
             {
@@ -7379,7 +8833,7 @@
               "kind": "method",
               "signature": "(self, event)",
               "summary": "",
-              "line": 57,
+              "line": 58,
               "deprecated": false
             }
           ]
