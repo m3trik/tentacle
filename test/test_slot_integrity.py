@@ -1,14 +1,15 @@
 #!/usr/bin/python
 # coding=utf-8
-"""Tests for slot file structure and class conventions.
+"""Maya-specific slot-file conventions.
 
-Validates that every slot module under tentacle/slots/maya/:
-- Defines exactly one public class that inherits from SlotsMaya
-- Does not import pymel (the package is fully migrated to maya.cmds)
-- Has a corresponding __init__ accepting (self, switchboard)
+- No pymel imports (the package is fully migrated to maya.cmds).
+- edit.py tb001 heavy-scene performance patterns.
+- 30+ slot files sanity floor.
+
+The DCC-agnostic invariants (package/base wiring, one base-subclass per file, unique
+objectNames) moved to the parametrized ``test_dcc_invariants.py`` (plan M1).
 """
 import ast
-import collections
 import sys
 import unittest
 from pathlib import Path
@@ -33,65 +34,14 @@ def _slot_files():
     )
 
 
-def _parse_classes(source: str):
-    """Return list of (class_name, [base_names]) from source."""
-    tree = ast.parse(source)
-    classes = []
-    for node in ast.walk(tree):
-        if isinstance(node, ast.ClassDef):
-            bases = []
-            for b in node.bases:
-                if isinstance(b, ast.Name):
-                    bases.append(b.id)
-                elif isinstance(b, ast.Attribute):
-                    bases.append(b.attr)
-            classes.append((node.name, bases))
-    return classes
-
-
 class TestSlotFilesExist(unittest.TestCase):
-    """Basic structural checks on the slots/maya directory."""
-
-    def test_slots_dir_exists(self):
-        self.assertTrue(SLOTS_DIR.is_dir(), f"Missing directory: {SLOTS_DIR}")
-
-    def test_base_class_file_exists(self):
-        self.assertTrue(
-            (SLOTS_DIR / "_slots_maya.py").exists(),
-            "Missing base class file _slots_maya.py",
-        )
+    """Maya-specific sanity floor (wiring/uniqueness checks live in test_dcc_invariants)."""
 
     def test_has_slot_files(self):
         files = _slot_files()
         self.assertGreater(
             len(files), 30, f"Expected 30+ slot files, found {len(files)}"
         )
-
-
-class TestSlotClassStructure(unittest.TestCase):
-    """Each slot module must contain exactly one SlotsMaya subclass."""
-
-    def test_each_slot_has_slots_maya_subclass(self):
-        """Every slot .py must define at least one class inheriting SlotsMaya."""
-        missing = []
-        for f in _slot_files():
-            source = f.read_text(encoding="utf-8")
-            classes = _parse_classes(source)
-            slot_classes = [name for name, bases in classes if "SlotsMaya" in bases]
-            if not slot_classes:
-                missing.append(f.name)
-        self.assertEqual(missing, [], f"Files without SlotsMaya subclass: {missing}")
-
-    def test_no_multiple_public_slot_classes(self):
-        """Each file should define at most one SlotsMaya subclass."""
-        multi = []
-        for f in _slot_files():
-            source = f.read_text(encoding="utf-8")
-            classes = _parse_classes(source)
-            slot_classes = [name for name, bases in classes if "SlotsMaya" in bases]
-            if len(slot_classes) > 1:
-                multi.append((f.name, slot_classes))
-        self.assertEqual(multi, [], f"Multiple slot classes in: {multi}")
 
 
 class TestNoPymelImports(unittest.TestCase):
@@ -112,69 +62,6 @@ class TestNoPymelImports(unittest.TestCase):
                         break
         self.assertEqual(
             offenders, [], f"Slot files re-introduced pymel: {offenders}"
-        )
-
-
-class TestSlotsMayaBase(unittest.TestCase):
-    """Verify _slots_maya.py base class."""
-
-    def test_base_inherits_slots(self):
-        source = (SLOTS_DIR / "_slots_maya.py").read_text(encoding="utf-8")
-        classes = _parse_classes(source)
-        self.assertTrue(
-            any("Slots" in bases for _, bases in classes),
-            "SlotsMaya must inherit from Slots",
-        )
-
-
-class TestUniqueObjectNames(unittest.TestCase):
-    """Every widget a slot class adds via ``setObjectName="..."`` must have a
-    UNIQUE name within that slot.
-
-    A slot's option-box widgets (added across its ``tb###_init`` methods) all
-    register into the slot's single window. Two widgets sharing an objectName
-    therefore collide on (a) the StateManager/QSettings key ``<name>/<signal>``
-    — so they share one persisted value and restore cross-contaminates — and
-    (b) the cross-UI sync lookup ``get_widget(name, ui)``, which scans a set and
-    returns an arbitrary match. The result is "edit one field, another field
-    changes" (e.g. the live ``s014`` Pack-"Mutations" vs Cut-Hard-Edges
-    -"Angle Low" collision).
-
-    Reusing the same name in different option boxes is NOT safe even though
-    slot logic reads it menu-scoped (``widget.option_box.menu.cmb000``): the
-    state layer keys by objectName, not by owning menu.
-    """
-
-    @staticmethod
-    def _set_object_names(source: str):
-        """All ``setObjectName="..."`` string literals in *source* (AST, so
-        comments/docstrings can't false-positive)."""
-        names = []
-        for node in ast.walk(ast.parse(source)):
-            if isinstance(node, ast.Call):
-                for kw in node.keywords:
-                    if (
-                        kw.arg == "setObjectName"
-                        and isinstance(kw.value, ast.Constant)
-                        and isinstance(kw.value.value, str)
-                    ):
-                        names.append(kw.value.value)
-        return names
-
-    def test_no_duplicate_object_names_per_slot(self):
-        offenders = {}
-        for f in _slot_files():
-            names = self._set_object_names(f.read_text(encoding="utf-8"))
-            dupes = {n: c for n, c in collections.Counter(names).items() if c > 1}
-            if dupes:
-                offenders[f.name] = dupes
-
-        self.assertEqual(
-            offenders,
-            {},
-            "Slot files add duplicate widget objectNames (each collides its "
-            f"StateManager key + cross-UI sync — give the later one a free name): "
-            f"{offenders}",
         )
 
 

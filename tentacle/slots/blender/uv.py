@@ -12,9 +12,9 @@ class Uv(SlotsBlender):
 
     Core UV operators (unwrap, smart-project, pack, cylinder-project, seam) run as ``bpy.ops.uv.*``
     in edit mode via :meth:`_uv_op` (verified to work headless). Data-level UV work (move/transform/
-    pin/texel density/UV-set cleanup) is backed by ``blendertk.uv_utils`` (bmesh — headless); UV
-    transfer rides the native Data-Transfer operator. Maya-/UV-editor-bound features (straighten,
-    distribute, mirror, stack, RizomUV) stay deferred.
+    mirror/pin/texel density/UV-set cleanup) is backed by ``blendertk.uv_utils`` (bmesh — headless);
+    UV transfer rides the native Data-Transfer operator. Maya-/UV-editor-bound features (straighten,
+    distribute, stack, RizomUV) stay deferred.
     """
 
     def __init__(self, switchboard):
@@ -197,6 +197,29 @@ class Uv(SlotsBlender):
         )
         self._b029_last_selection = names
 
+    # ------------------------------------------------------------------ tb008  Mirror UVs
+    def tb008_init(self, widget):
+        widget.option_box.menu.setTitle("Mirror UVs")
+        widget.option_box.menu.add(
+            "QRadioButton", setText="Mirror U", setObjectName="chk031", setChecked=True,
+            setToolTip="Mirror across U (about the selection's shared UV bbox center).",
+        )
+        widget.option_box.menu.add(
+            "QRadioButton", setText="Mirror V", setObjectName="chk032",
+            setToolTip="Mirror across V (about the selection's shared UV bbox center).",
+        )
+
+    @btk.undoable
+    def tb008(self, widget):
+        """Mirror UVs (whole-map flip about the shared UV bbox center — Maya's per-shell
+        and footprint-preserving modes are not mirrored)."""
+        objects = [o for o in self.selected_objects() if o.type == "MESH"]
+        if not objects:
+            self.sb.message_box("Nothing selected.")
+            return
+        flip_u = widget.option_box.menu.chk031.isChecked()
+        btk.transform_uvs(objects, flip_u=flip_u, flip_v=not flip_u)
+
     # ------------------------------------------------------------------ tb022  Cut Hard Edges
     def tb022_init(self, widget):
         widget.option_box.menu.setTitle("Cut Hard Edges")
@@ -225,10 +248,6 @@ class Uv(SlotsBlender):
     def tb006(self, widget):
         """Distribute — UV-editor align/distribute op; not yet ported."""
         self.sb.message_box("Distribute is not yet implemented for Blender.")
-
-    def tb008(self, widget):
-        """Mirror UVs — UV-editor mirror op; not yet ported."""
-        self.sb.message_box("Mirror UVs is not yet implemented for Blender.")
 
     def b030(self, widget):
         """Stack / Unstack shells — not yet ported."""

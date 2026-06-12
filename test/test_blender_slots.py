@@ -1,20 +1,14 @@
 #!/usr/bin/python
 # coding=utf-8
-"""Structural guards for the Blender slot layer (Phase 2 plumbing).
+"""Blender-specific structural guards.
 
-Guards what exists today — the ``slots/blender`` package, the ``SlotsBlender`` base, and the
-consolidated ``tcl_blender`` entry point (Qt host + keymap bridge + launcher + add-on surface,
-formerly split across ``blender_host`` / ``blender_addon``) — and carries the DCC-agnostic slot
-invariants
-(one base-subclass per file, unique objectNames) so concrete Blender slots are CI-covered the
-moment they land. AST-based: no Maya/Blender runtime needed.
-
-NOTE: the *Maya-specific* structural tests (pymel, cmds perf) legitimately stay scoped to
-``slots/maya``; only the DCC-agnostic invariants are mirrored here. Folding the shared
-invariants into one DCC-parametrized helper is deferred to the first real slots (plan M1).
+Covers what only applies to the Blender layer: the consolidated ``tcl_blender`` entry point
+(Qt host + keymap bridge + launcher + add-on surface), the cross-DCC objectName semantics
+rule, and the M2 shared-UI contract. The DCC-agnostic slot invariants (package/base wiring,
+one base-subclass per file, unique objectNames) live in the parametrized
+``test_dcc_invariants.py`` (plan M1) — not here. AST-based: no Blender runtime needed.
 """
 import ast
-import collections
 import re
 import unittest
 import xml.etree.ElementTree as ET
@@ -34,74 +28,6 @@ def _slot_files():
         for f in SLOTS_DIR.glob("*.py")
         if f.name not in _SKIP and not f.name.startswith("__")
     )
-
-
-def _parse_classes(source: str):
-    """Return [(class_name, [base_names])] from source."""
-    classes = []
-    for node in ast.walk(ast.parse(source)):
-        if isinstance(node, ast.ClassDef):
-            bases = [
-                b.id if isinstance(b, ast.Name) else b.attr
-                for b in node.bases
-                if isinstance(b, (ast.Name, ast.Attribute))
-            ]
-            classes.append((node.name, bases))
-    return classes
-
-
-class TestBlenderSlotPackage(unittest.TestCase):
-    """The Blender slot package + base class exist and are wired correctly."""
-
-    def test_package_exists(self):
-        self.assertTrue(SLOTS_DIR.is_dir(), f"Missing directory: {SLOTS_DIR}")
-        self.assertTrue((SLOTS_DIR / "__init__.py").exists(), "Missing __init__.py")
-
-    def test_base_class_file_exists(self):
-        self.assertTrue(
-            (SLOTS_DIR / "_slots_blender.py").exists(),
-            "Missing base class file _slots_blender.py",
-        )
-
-    def test_base_inherits_slots(self):
-        source = (SLOTS_DIR / "_slots_blender.py").read_text(encoding="utf-8")
-        classes = _parse_classes(source)
-        self.assertTrue(
-            any(name == "SlotsBlender" and "Slots" in bases for name, bases in classes),
-            "SlotsBlender must inherit from Slots",
-        )
-
-
-class TestBlenderSlotStructure(unittest.TestCase):
-    """DCC-agnostic invariants applied to concrete Blender slots as they land
-    (vacuously true until the first slot module exists — Phase 3)."""
-
-    def test_each_slot_has_slots_blender_subclass(self):
-        missing = [
-            f.name
-            for f in _slot_files()
-            if not any("SlotsBlender" in bases for _, bases in _parse_classes(f.read_text(encoding="utf-8")))
-        ]
-        self.assertEqual(missing, [], f"Files without SlotsBlender subclass: {missing}")
-
-    def test_unique_object_names_per_slot(self):
-        offenders = {}
-        for f in _slot_files():
-            names = [
-                kw.value.value
-                for node in ast.walk(ast.parse(f.read_text(encoding="utf-8")))
-                if isinstance(node, ast.Call)
-                for kw in node.keywords
-                if kw.arg == "setObjectName"
-                and isinstance(kw.value, ast.Constant)
-                and isinstance(kw.value.value, str)
-            ]
-            dupes = {n: c for n, c in collections.Counter(names).items() if c > 1}
-            if dupes:
-                offenders[f.name] = dupes
-        self.assertEqual(
-            offenders, {}, f"Blender slots add duplicate widget objectNames: {offenders}"
-        )
 
 
 def _created_widget_texts(path):

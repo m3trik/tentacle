@@ -182,6 +182,12 @@ try:
     check("uv cmb002 Flip U keeps bounds (mirror about center)",
           abs(min_u(o) - before) < 1e-4, f"{before} -> {min_u(o)}")
 
+    # ---- uv tb008: mirror UVs -----------------------------------------------------------------
+    before = min_u(o)
+    slot.tb008(option_box(chk031=chk(True), chk032=chk(False)))  # Mirror U about own center
+    check("uv tb008 Mirror U keeps bounds (flip about center)",
+          abs(min_u(o) - before) < 1e-4, f"{before} -> {min_u(o)}")
+
     # ---- polygons b043: target-weld toggle ----------------------------------------------------
     ts = bpy.context.scene.tool_settings
     ts.use_snap = False; ts.use_mesh_automerge = False
@@ -217,6 +223,19 @@ try:
           key_times(b) == key_times(a)
           and b.animation_data.action is not a.animation_data.action,
           f"b={key_times(b)}")
+
+    slot.tb005(option_box(chk027=chk(False)))  # add intermediates: 11..24 sampled in
+    check("animation tb005 adds intermediate keys", len(key_times(a)) == 16,
+          f"n={len(key_times(a))}")
+    slot.tb005(option_box(chk027=chk(True)))  # remove -> endpoints only
+    check("animation tb005 remove keeps endpoints", key_times(a) == [10.0, 25.0],
+          f"{key_times(a)}")
+
+    slot.tb013(option_box(cmb041=NS(currentText=lambda: "Range"),
+                          s012=spin(20), s013=spin(30)))
+    sel = [k.co.x for fc in btk.get_fcurves(a) for k in fc.keyframe_points
+           if k.select_control_point]
+    check("animation tb013 selects keys in range", sel == [25.0], f"sel={sel}")
 
     for k in [k for fc in btk.get_fcurves(a) for k in fc.keyframe_points]:
         k.select_control_point = True

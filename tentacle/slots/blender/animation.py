@@ -8,12 +8,12 @@ from tentacle.slots.blender._slots_blender import SlotsBlender
 class Animation(SlotsBlender):
     """Blender port of the shared ``animation`` menu.
 
-    The key-timing operations (invert/stagger/snap/scale/step/move/spacing/align/copy/paste/
-    transfer/visibility-keys) are plain math over ``fcurve.keyframe_points`` via
-    ``blendertk.anim_utils`` — the §5 finding that animation is volume, not difficulty.
-    Still deferred: %-based intermediate keys, select-keys (Dope-Sheet-native), repair, and
-    the mayatk shot sequencer/manifest windows. Option-box widget names reused from Maya
-    carry the same option (cross-DCC QSettings rule).
+    Every key operation (invert/stagger/snap/scale/step/move/spacing/align/copy/paste/
+    transfer/intermediate/select/visibility-keys) is plain math over
+    ``fcurve.keyframe_points`` via ``blendertk.anim_utils`` — the §5 finding that animation
+    is volume, not difficulty. Only the mayatk shot sequencer/manifest windows remain
+    deferred. Option-box widget names reused from Maya carry the same option (cross-DCC
+    QSettings rule).
     """
 
     def __init__(self, switchboard):
@@ -120,6 +120,61 @@ class Animation(SlotsBlender):
             self.sb.message_box("The active object has no keys to transfer.")
             return
         btk.paste_keys(targets, action)
+
+    def tb005_init(self, widget):
+        widget.option_box.menu.setTitle("Intermediate Keys")
+        widget.option_box.menu.add(
+            "QCheckBox", setText="Remove Intermediate Keys", setObjectName="chk027",
+            setChecked=False,
+            setToolTip="If checked, removes all intermediate keys (keeps only first and last).\n"
+            "If unchecked, adds a sampled key on every frame between existing keys.",
+        )
+
+    @btk.undoable
+    def tb005(self, widget):
+        """Add/Remove Intermediate Keys"""
+        objects = self.selected_objects()
+        if not objects:
+            self.sb.message_box("Intermediate Keys requires a selection.")
+            return
+        if widget.option_box.menu.chk027.isChecked():
+            count = btk.remove_intermediate_keys(objects)
+        else:
+            count = btk.add_intermediate_keys(objects)
+        if not count:
+            self.sb.message_box("No intermediate keys to change in the selection.")
+
+    def tb013_init(self, widget):
+        widget.option_box.menu.setTitle("Select Keys")
+        widget.option_box.menu.add(
+            "QComboBox", addItems=["All", "Range"], setObjectName="cmb041",
+            setToolTip="Type of time selection to make.",
+        )
+        widget.option_box.menu.add(
+            "QSpinBox", setPrefix="Start Frame: ", setObjectName="s012",
+            set_limits=[-10000, 10000], setValue=1,
+            setToolTip="Start frame for Range selection mode.",
+        )
+        widget.option_box.menu.add(
+            "QSpinBox", setPrefix="End Frame: ", setObjectName="s013",
+            set_limits=[-10000, 10000], setValue=24,
+            setToolTip="End frame for Range selection mode.",
+        )
+
+    def tb013(self, widget):
+        """Select Keys (``select_control_point`` — shows in the Dope Sheet / Graph Editor)."""
+        objects = self.selected_objects()
+        if not objects:
+            self.sb.message_box("Select Keys requires a selection.")
+            return
+        m = widget.option_box.menu
+        time = (
+            (m.s012.value(), m.s013.value())
+            if m.cmb041.currentText() == "Range"
+            else None
+        )
+        if not btk.select_keys(objects, time=time):
+            self.sb.message_box("No keyframes found to select.")
 
     def tb007_init(self, widget):
         widget.option_box.menu.setTitle("Align Selected Keyframes")
@@ -248,15 +303,6 @@ class Animation(SlotsBlender):
     def b004(self):
         """Shot Manifest — mayatk window; not yet ported."""
         self.sb.message_box("Shot Manifest is not yet implemented for Blender.")
-
-    def tb005(self, widget):
-        """Add/Remove Intermediate Keys — %-based in-between insertion is a Maya
-        Graph-Editor workflow; not yet ported."""
-        self.sb.message_box("Intermediate Keys is not yet implemented for Blender.")
-
-    def tb013(self, widget):
-        """Select Keys — use the Dope Sheet / Graph Editor."""
-        self.sb.message_box("Select Keys is not yet implemented for Blender (use the Dope Sheet).")
 
 
 # --------------------------------------------------------------------------------------------
