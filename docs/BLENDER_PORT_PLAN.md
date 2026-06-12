@@ -150,13 +150,16 @@ Prove tentacle's Qt UI can live over a running Blender *before* investing in sca
       "owned window", stacked above Blender natively). Light-touch by design — NO bqt-style
       `createWindowContainer` reparenting (which would take ownership of the GHOST window);
       best-effort with full fallback to the proven top-level behavior off-Windows/on failure.
-- [x] **Real OS input routing + sizing** — ✅ VERIFIED (2026-06-12) via
-      [test/blender/gui_keypress_check.py](../test/blender/gui_keypress_check.py): a **literal
-      OS-level F12** (ctypes `keybd_event`, cursor parked over the viewport) in a fresh GUI
-      Blender shows the marking menu — **MENU WINS, render does not fire**; `fit_to_window`
-      sizing PASS (overlay exactly fills the screen it opened on — the harness compares against
-      `screenAt(menu)`, not primaryScreen, for multi-monitor correctness); transient parent
-      confirmed live. **Phase 0 COMPLETE.**
+- [x] **Real OS input routing** — ✅ VERIFIED CONCLUSIVELY (2026-06-12) via
+      [test/blender/gui_keypress_check.py](../test/blender/gui_keypress_check.py): the keymap is
+      pointed at a **stub** (the real overlay is always-visible + focus-grabbing, so `isVisible()`
+      was a false-positive signal), the GHOST window is forced foreground (injected-Alt +
+      `SetForegroundWindow` — Windows denies foreground to background-launched processes), the
+      cursor parks over the viewport, and a **real scancode F12** is injected: **OUR KEYMAP WINS**
+      (`operator_fired=True`, `show('main#startmenu')` recorded, render did NOT fire) — the
+      viewport-scoped `3D View` item genuinely beats the `Screen` render shortcut. Sizing +
+      transient-parent confirmed in the same-day live runs (overlay exactly fills the screen it
+      opened on; owned by the GHOST window). **Phase 0 COMPLETE.**
 - [x] Delivery decided: **single-file entry point** (`tcl_blender.py` carries `bl_info` +
       `register`/`unregister`; startup-snippet, Run-Script, or Install-from-file when loaded from its
       package location).
