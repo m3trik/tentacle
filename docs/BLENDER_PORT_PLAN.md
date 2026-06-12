@@ -412,6 +412,10 @@ All three landed as uitk features, applied centrally at `MainWindow.register_wid
       → [DCC_COVERAGE.md](DCC_COVERAGE.md) — per-domain handled-% per DCC + the exact
       missing-widget lists, from the same handled-predicate as the hook/M2 test (static AST/XML,
       headless). First run: Maya 99%, Blender 54% of the 238-widget shared surface.
+      **2026-06-12 final: 100%/100%** — the last gaps closed (symmetry `chk004` in both DCCs —
+      the Maya side was a real latent bug, `about` stayed "topo" after any Topo session; Maya
+      `uv cmb003`/`s003` passive-input slots). Stubs deepened where the btk primitive existed
+      (`uv b031` → `btk.open_editor`, `animation tb006` → new `btk.move_keys_to_frame`).
 
 ---
 
