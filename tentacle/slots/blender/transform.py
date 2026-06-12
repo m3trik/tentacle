@@ -125,14 +125,35 @@ class TransformSlots(SlotsBlender):
             return
         btk.match_scale(source, target)
 
-    # ------------------------------------------------------------------ deferred (Maya-specific)
+    # ------------------------------------------------------------------ cmb002  Align To
+    # Combo label -> object.align axis set (centers, relative to the active object).
+    _ALIGN_AXES = {
+        "Align X to Active": {"X"},
+        "Align Y to Active": {"Y"},
+        "Align Z to Active": {"Z"},
+        "Align Centers to Active": {"X", "Y", "Z"},
+    }
+
     def cmb002_init(self, widget):
-        widget.add(["Align Objects", "Position Along Curve"], header="Align To")
+        widget.add(list(self._ALIGN_AXES), header="Align To")
 
+    @btk.undoable
     def cmb002(self, index, widget):
-        """Align To — Maya snap/align tools have no direct Blender analogue yet."""
-        self.sb.message_box("Align To is not yet implemented for Blender.")
+        """Align To (object centers onto the active object's, native ``object.align``)."""
+        axis = self._ALIGN_AXES.get(widget.items[index])
+        if axis is None:
+            return
+        if len(self.selected_objects()) < 2:
+            self.sb.message_box("Align requires 2+ selected objects (active = target).")
+            return
+        try:
+            bpy.ops.object.align(
+                align_mode="OPT_2", relative_to="OPT_4", align_axis=axis
+            )
+        except RuntimeError as e:
+            self.sb.message_box(str(e))
 
+    # ------------------------------------------------------------------ deferred (Maya-specific)
     def tb001(self, widget):
         """Scale Connected Edges — component op, not yet ported."""
         self.sb.message_box("Scale Connected Edges is not yet implemented for Blender.")

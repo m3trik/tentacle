@@ -10,8 +10,8 @@ class Normals(SlotsBlender):
 
     Backed by ``blendertk.edit_utils`` normal/shading helpers (bmesh): soften/harden (smooth vs
     flat shading), set-by-angle (mark sharp edges → Blender split normals follow them), flip, and
-    recalculate. Maya-specific bits — per-vertex normal locking, the Maya reverse sub-modes, and
-    normal transfer (Data-Transfer custom-normal setup) — are deferred.
+    recalculate; normal transfer rides the native Data-Transfer operator. Per-vertex normal
+    locking (Maya-specific) stays deferred.
     """
 
     def __init__(self, switchboard):
@@ -84,11 +84,24 @@ class Normals(SlotsBlender):
         else:
             btk.flip_normals(objects)
 
-    # ------------------------------------------------------------------ deferred (Maya-specific)
+    # ------------------------------------------------------------------ b002  Transfer Normals
+    @btk.undoable
     def b002(self):
-        """Transfer Normals — needs a Data-Transfer custom-normal setup; not yet ported."""
-        self.sb.message_box("Transfer Normals is not yet implemented for Blender.")
+        """Transfer Normals (active mesh → other selected, native Data-Transfer
+        custom split normals)."""
+        objects = [o for o in self.selected_objects() if o.type == "MESH"]
+        active = bpy.context.view_layer.objects.active
+        if active not in objects or len(objects) < 2:
+            self.sb.message_box("Select target mesh(es) with the source mesh active.")
+            return
+        try:
+            bpy.ops.object.data_transfer(
+                data_type="CUSTOM_NORMAL", loop_mapping="POLYINTERP_NEAREST"
+            )
+        except RuntimeError as e:
+            self.sb.message_box(str(e))
 
+    # ------------------------------------------------------------------ deferred (Maya-specific)
     def b004(self):
         """Lock/Unlock Vertex Normals — Maya normal locking has no direct Blender analogue."""
         self.sb.message_box("Lock/Unlock Vertex Normals is not applicable in Blender.")

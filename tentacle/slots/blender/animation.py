@@ -8,11 +8,12 @@ from tentacle.slots.blender._slots_blender import SlotsBlender
 class Animation(SlotsBlender):
     """Blender port of the shared ``animation`` menu.
 
-    The key-timing operations (invert/stagger/snap/scale/step/copy/paste) are plain math over
-    ``fcurve.keyframe_points`` via ``blendertk.anim_utils`` — the §5 finding that animation is
-    volume, not difficulty. Maya-editor-bound features (transfer, align, intermediate keys,
-    select-keys, visibility keys, repair, shot sequencer/manifest) are deferred with messages.
-    Option-box widget names reused from Maya carry the same option (cross-DCC QSettings rule).
+    The key-timing operations (invert/stagger/snap/scale/step/move/spacing/align/copy/paste/
+    transfer/visibility-keys) are plain math over ``fcurve.keyframe_points`` via
+    ``blendertk.anim_utils`` — the §5 finding that animation is volume, not difficulty.
+    Still deferred: %-based intermediate keys, select-keys (Dope-Sheet-native), repair, and
+    the mayatk shot sequencer/manifest windows. Option-box widget names reused from Maya
+    carry the same option (cross-DCC QSettings rule).
     """
 
     def __init__(self, switchboard):
@@ -75,6 +76,92 @@ class Animation(SlotsBlender):
         cleared = btk.delete_keys(self.selected_objects())
         if not cleared:
             self.sb.message_box("Nothing keyed in the selection.")
+
+    def tb002_init(self, widget):
+        widget.option_box.menu.setTitle("Adjust Spacing")
+        widget.option_box.menu.add(
+            "QSpinBox", setPrefix="Frame: ", setObjectName="s002",
+            set_limits=[-1, 100000], setValue=-1,
+            setToolTip="Starting frame for the shift. -1 = current frame.",
+        )
+        widget.option_box.menu.add(
+            "QSpinBox", setPrefix="Amount: ", setObjectName="s003",
+            set_limits=[-100000, 100000], setValue=1,
+            setToolTip="Frames to add (+) or remove (−) between keys.",
+        )
+
+    @btk.undoable
+    def tb002(self, widget):
+        """Adjust Key Spacing (shift every key at/after the frame by the amount)."""
+        objects = self.selected_objects()
+        if not objects:
+            self.sb.message_box("Adjust Spacing requires a selection.")
+            return
+        frame_value = widget.option_box.menu.s002.value()
+        moved = btk.adjust_key_spacing(
+            objects,
+            spacing=widget.option_box.menu.s003.value(),
+            frame=None if frame_value == -1 else frame_value,
+        )
+        if not moved:
+            self.sb.message_box("No keys at or after the frame.")
+
+    @btk.undoable
+    def tb004(self, widget):
+        """Transfer Keys (active object → other selected, independent copies)."""
+        objects = self.selected_objects()
+        active = bpy.context.view_layer.objects.active
+        targets = [o for o in objects if o is not active]
+        if not (active and targets):
+            self.sb.message_box("Select target object(s) with the source object active.")
+            return
+        action = btk.copy_keys(active)
+        if action is None:
+            self.sb.message_box("The active object has no keys to transfer.")
+            return
+        btk.paste_keys(targets, action)
+
+    def tb007_init(self, widget):
+        widget.option_box.menu.setTitle("Align Selected Keyframes")
+        widget.option_box.menu.add(
+            "QCheckBox", setText="Use Earliest Frame", setObjectName="chk013",
+            setChecked=True,
+            setToolTip="Align to the earliest selected keyframe.\n"
+            "Else align to the latest selected keyframe.",
+        )
+
+    @btk.undoable
+    def tb007(self, widget):
+        """Align Selected Keyframes (keys picked in the Dope Sheet / Graph Editor)."""
+        objects = self.selected_objects()
+        if not objects:
+            self.sb.message_box("Align Keys requires a selection.")
+            return
+        moved = btk.align_selected_keyframes(
+            objects, use_earliest=widget.option_box.menu.chk013.isChecked()
+        )
+        if not moved:
+            self.sb.message_box(
+                "No selected keyframes found — select keys in the Dope Sheet first."
+            )
+
+    def tb008_init(self, widget):
+        widget.option_box.menu.setTitle("Set Visibility Keys")
+        widget.option_box.menu.add(
+            "QCheckBox", setText="Visible", setObjectName="chk015", setChecked=True,
+            setToolTip="Set visibility to on (visible) or off (hidden).",
+        )
+
+    @btk.undoable
+    def tb008(self, widget):
+        """Set Visibility Keys (key viewport + render visibility at the current frame)."""
+        objects = self.selected_objects()
+        if not objects:
+            self.sb.message_box("Visibility Keys requires a selection.")
+            return
+        btk.set_visibility_keys(
+            objects, visible=widget.option_box.menu.chk015.isChecked()
+        )
 
     def tb006_init(self, widget):
         widget.option_box.menu.setTitle("Move Keys")
@@ -162,25 +249,10 @@ class Animation(SlotsBlender):
         """Shot Manifest — mayatk window; not yet ported."""
         self.sb.message_box("Shot Manifest is not yet implemented for Blender.")
 
-    def tb002(self, widget):
-        """Adjust Key Spacing — not yet ported."""
-        self.sb.message_box("Adjust Key Spacing is not yet implemented for Blender.")
-
-    def tb004(self, widget):
-        """Transfer Keys — not yet ported."""
-        self.sb.message_box("Transfer Keys is not yet implemented for Blender.")
-
     def tb005(self, widget):
-        """Add/Remove Intermediate Keys — not yet ported."""
+        """Add/Remove Intermediate Keys — %-based in-between insertion is a Maya
+        Graph-Editor workflow; not yet ported."""
         self.sb.message_box("Intermediate Keys is not yet implemented for Blender.")
-
-    def tb007(self, widget):
-        """Align Keys — not yet ported."""
-        self.sb.message_box("Align Keys is not yet implemented for Blender.")
-
-    def tb008(self, widget):
-        """Set Visibility Keys — not yet ported."""
-        self.sb.message_box("Visibility Keys is not yet implemented for Blender.")
 
     def tb013(self, widget):
         """Select Keys — use the Dope Sheet / Graph Editor."""

@@ -4,6 +4,7 @@ import math
 
 import bpy
 import blendertk as btk
+from uitk import Signals
 from tentacle.slots.blender._slots_blender import SlotsBlender
 
 
@@ -12,8 +13,9 @@ class Selection(SlotsBlender):
 
     Per the capability map (BLENDER_PORT_PLAN §5), selection maps almost entirely to **native
     Blender operators**, so most handlers call ``bpy.ops`` directly (proven to work from the Qt
-    event-pump context). Maya-tool-specific widgets with no clean Blender analogue (reorder,
-    dR_ constraints, the type list) are deferred with a clear message.
+    event-pump context); select-by-type rides ``object.select_by_type``. Maya-tool-specific
+    widgets with no clean Blender analogue (reorder, dR_ constraints) are deferred with a
+    clear message.
     """
 
     # Maya "Marquee/Lasso/Paint" select styles -> Blender's box/lasso/circle select tools.
@@ -242,9 +244,44 @@ class Selection(SlotsBlender):
         """Selection Constraints — Maya draggable-constraint tool has no direct Blender analogue."""
         self.sb.message_box("Selection Constraints are not yet implemented for Blender.")
 
-    def list000(self, *args):
-        """Select by Type — deferred (needs blendertk type categories + the list widget)."""
-        self.sb.message_box("Select by Type is not yet implemented for Blender.")
+    # ------------------------------------------------------------------ list000  Select by Type
+    # Friendly label -> Object.type enum, grouped for the hierarchical list (Maya parity).
+    _SELECT_TYPES = {
+        "Geometry": {
+            "Mesh": "MESH", "Curve": "CURVE", "Surface": "SURFACE",
+            "Metaball": "META", "Text": "FONT", "Volume": "VOLUME",
+        },
+        "Helpers": {"Empty": "EMPTY", "Lattice": "LATTICE", "Armature": "ARMATURE"},
+        "Lights & Cameras": {
+            "Light": "LIGHT", "Light Probe": "LIGHT_PROBE",
+            "Camera": "CAMERA", "Speaker": "SPEAKER",
+        },
+    }
+
+    def list000_init(self, widget):
+        """Select by Type: hierarchical type list."""
+        widget.fixed_item_height = 18
+        widget.apply_preset("expand_up")
+        root = widget.add("By Type")
+        root.sublist.setMinimumWidth(widget.width() or 120)
+        for category, types in self._SELECT_TYPES.items():
+            w = root.sublist.add(category)
+            w.sublist.add(sorted(types))
+
+    @Signals("on_item_interacted")
+    def list000(self, item):
+        """Select by Type (native ``object.select_by_type``). Only leaf items act —
+        the root and category headers are navigation-only."""
+        if getattr(item, "sublist", None) and item.sublist.get_items():
+            return
+        label = item.item_text()
+        for types in self._SELECT_TYPES.values():
+            if label in types:
+                try:
+                    bpy.ops.object.select_by_type(type=types[label])
+                except (RuntimeError, TypeError) as e:  # enum drift across Blender versions
+                    self.sb.message_box(str(e))
+                return
 
 
 # --------------------------------------------------------------------------------------------

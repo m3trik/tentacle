@@ -416,6 +416,13 @@ All three landed as uitk features, applied centrally at `MainWindow.register_wid
       the Maya side was a real latent bug, `about` stayed "topo" after any Topo session; Maya
       `uv cmb003`/`s003` passive-input slots). Stubs deepened where the btk primitive existed
       (`uv b031` → `btk.open_editor`, `animation tb006` → new `btk.move_keys_to_frame`).
+      **2026-06-12 stub-deepening batch**: 14 more deferred stubs became real (select-by-type,
+      object-align, normal/UV Data-Transfer, target-weld toggle, texel density get/set, UV
+      pin/transform/cut-hard-edges, key spacing/transfer/align/visibility-keys) — see the
+      tentacle + blendertk CHANGELOGs. **Every Blender menu verified in a live GUI session**
+      (`test/blender/menus_load_check.py`, 27/27 through the real `tcl.show()` path). Still
+      deferred by design: external-addon (LoopTools), Maya-window (shot sequencer/manifest,
+      Quick Rig, Render Opacity), modal-tool, and UV-editor-align-bound features.
 
 ---
 

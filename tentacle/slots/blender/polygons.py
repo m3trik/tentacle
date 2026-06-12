@@ -211,6 +211,23 @@ class PolygonsSlots(SlotsBlender):
         """Offset Edgeloop"""
         self._edit_op(bpy.ops.mesh.offset_edge_loops)
 
+    def b043(self):
+        """Target Weld (toggle vertex snap + Auto Merge — Blender's equivalent workflow:
+        grab a vert, snap it onto another, and they merge)."""
+        ts = bpy.context.scene.tool_settings
+        state = not (ts.use_snap and ts.use_mesh_automerge)
+        ts.use_snap = state
+        ts.use_mesh_automerge = state
+        if state:
+            try:
+                ts.snap_elements = {"VERTEX"}
+            except AttributeError:  # 4.x split: snap_elements_base/_individual
+                ts.snap_elements_base = {"VERTEX"}
+        self.sb.message_box(
+            f"Target Weld <hl>{'enabled' if state else 'disabled'}</hl> "
+            "(vertex snap + auto-merge)."
+        )
+
     # ------------------------------------------------------------------ deferred (modal / no analogue)
     def b000(self):
         """Circularize — needs the LoopTools add-on (Circle); not ported."""
@@ -227,12 +244,6 @@ class PolygonsSlots(SlotsBlender):
     def b038(self):
         """Assign Invisible — Maya invisible faces have no Blender analogue."""
         self.sb.message_box("Assign Invisible is not applicable in Blender.")
-
-    def b043(self):
-        """Target Weld — enable snap (Vertex) + Auto Merge for the same workflow."""
-        self.sb.message_box(
-            "Target Weld is not yet implemented for Blender (snap to Vertex + Auto Merge)."
-        )
 
     def b049(self):
         """Slide Edge — modal in Blender (GG); no persistent tool."""
