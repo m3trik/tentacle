@@ -78,6 +78,68 @@ else:
     _GateOnlyHarness = None  # type: ignore[assignment]
 
 
+class TestSharedMixinGating(unittest.TestCase):
+    """The DCC-agnostic framework (tentacle.slots._hud_warnings) — runs without any DCC.
+
+    Covers the gating logic the Maya-gated tests above exercise through the Maya subclass,
+    so CI keeps coverage even where maya.cmds can't import.
+    """
+
+    def _make(self, unsaved, skip_unsaved, dummy=True):
+        from tentacle.slots._hud_warnings import HudWarningsMixin
+
+        class _Harness(HudWarningsMixin):
+            WARNING_DEFS = (
+                {
+                    "key": "chk_warn_dummy",
+                    "icon": "!",
+                    "color": "Red",
+                    "label": "Dummy",
+                    "check": lambda self: True,
+                    "describe": lambda self: "dummy",
+                },
+            )
+
+            def _scene_is_unsaved(self):
+                return unsaved
+
+        instance = _Harness()
+        instance.sb = _FakeSb(
+            _FakePrefs(chk_warn_skip_unsaved=skip_unsaved, chk_warn_dummy=dummy)
+        )
+        return instance
+
+    def test_skip_unsaved_gate_blocks(self):
+        self.assertEqual(self._make(unsaved=True, skip_unsaved=True).evaluate_warnings(), [])
+
+    def test_gate_off_lets_warnings_through(self):
+        self.assertEqual(len(self._make(unsaved=True, skip_unsaved=False).evaluate_warnings()), 1)
+
+    def test_saved_scene_lets_warnings_through(self):
+        self.assertEqual(len(self._make(unsaved=False, skip_unsaved=True).evaluate_warnings()), 1)
+
+    def test_disabled_warning_never_fires(self):
+        self.assertEqual(
+            self._make(unsaved=False, skip_unsaved=False, dummy=False).evaluate_warnings(), []
+        )
+
+    def test_missing_prefs_means_disabled(self):
+        instance = self._make(unsaved=False, skip_unsaved=False)
+        instance.sb = type("Sb", (), {})()  # no loaded_ui at all
+        self.assertEqual(instance.evaluate_warnings(), [])
+
+    def test_icon_and_detail_rendering(self):
+        instance = self._make(unsaved=False, skip_unsaved=False)
+        warnings = instance.evaluate_warnings()
+        texts = []
+        hud = type("Hud", (), {"insertText": lambda self, t: texts.append(t)})()
+        instance.insert_warning_icons(hud, warnings)
+        instance.insert_warning_details(hud, warnings)
+        self.assertEqual(len(texts), 2)
+        self.assertIn("Dummy", texts[0])
+        self.assertEqual(texts[1], "dummy")
+
+
 @unittest.skipUnless(_MAYA_AVAILABLE, "Requires maya.cmds")
 class TestUnsavedSceneGate(unittest.TestCase):
     _SENTINEL = object()

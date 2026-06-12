@@ -296,14 +296,17 @@ def _ensure_show_operator():
 
         def execute(self, context):
             # No live menu → tentacle isn't active, so let F12 do its normal thing (CANCELLED
-            # passes the event through to Blender's render shortcut). The _DEBUG line distinguishes
-            # this ("fired, but no menu") from "keymap never dispatched to us" (no line at all).
+            # passes the event through to Blender's render shortcut). The _DEBUG report distinguishes
+            # this ("fired, but no menu") from "keymap never dispatched to us" (nothing at all).
+            # NOTE: report() (status bar / Info editor), not print() — a keymap-invoked operator's
+            # print() goes to the *system* console (hidden), never the Python Console panel, so the
+            # user would see "nothing" whether or not we fired. report() is actually visible.
             if _ACTIVE_TCL is None:
                 if _DEBUG:
-                    print("tentacle: F12 keymap fired but no live menu (_ACTIVE_TCL is None) → render")
+                    self.report({"WARNING"}, "Tentacle: key fired but no live menu → render")
                 return {"CANCELLED"}
             if _DEBUG:
-                print(f"tentacle: F12 keymap fired → show({self.ui_name!r})")
+                self.report({"INFO"}, f"Tentacle: key fired → show({self.ui_name})")
             try:
                 _ACTIVE_TCL.show(self.ui_name)
             except Exception as error:  # surface in the status bar, never crash Blender
@@ -334,20 +337,6 @@ def _uninstall_keymap():
         except Exception:
             pass
     _KEYMAPS.clear()
-
-
-def _dispatch_keyconfigs():
-    """Yield the keyconfigs Blender actually evaluates for dispatch — the user/active config the
-    Preferences ▸ Keymap editor edits, plus the factory ``default`` — de-duplicated by identity.
-    The set a conflicting (or stealing) binding could live in."""
-    import bpy
-
-    wm = bpy.context.window_manager
-    seen = set()
-    for kc in (wm.keyconfigs.user, wm.keyconfigs.active, wm.keyconfigs.default):
-        if kc is not None and id(kc) not in seen:
-            seen.add(id(kc))
-            yield kc
 
 
 def _is_bare_press(kmi):
@@ -422,7 +411,7 @@ class TclBlender(MarkingMenu):
         # ultimately comes from the Blender keymap operator below (GHOST consumes keys
         # before Qt); these also define what show() displays by default.
         bindings = kwargs.pop("bindings", None) or {
-            key_show: "main#startmenu",
+            key_show: "hud#startmenu",  # Maya-parity default (hud ported 2026-06-12)
             f"{key_show}|LeftButton": "cameras#startmenu",
             f"{key_show}|MiddleButton": "editors#startmenu",
             f"{key_show}|RightButton": "main#startmenu",
@@ -508,16 +497,26 @@ def launch(**kwargs):
 
 
 def register():
-    """Blender add-on / startup entry: stand up the host. ``TclBlender`` wires the keymap itself."""
+    """Blender add-on / startup entry: stand up the host. ``TclBlender`` wires the keymap itself.
+
+    Returns the :func:`diagnose` report (so ``tcl_blender.register()`` typed in the Python Console
+    shows the live state right there) and, if anything's wrong, raises a Blender popup — because a
+    user running this from the console can't see ``print()`` output (it goes to the hidden *system*
+    console, not the Python Console panel)."""
+    import bpy
+
     launch(key_show=_ACTIVATION_KEY)
-    if _KEYMAPS:
-        km, kmi = _KEYMAPS[0]
-        print(
-            f"tentacle: '{kmi.type}' bound in the '{km.name}' keymap — press it over the 3D "
-            "viewport to open the marking menu."
-        )
-    else:
-        print("tentacle: WARNING — no activation keymap installed; run tcl_blender.diagnose().")
+    report = diagnose()
+    if "PROBLEM" in report or "CONFLICT" in report:
+        message = report.splitlines()[-1]
+        try:
+            bpy.context.window_manager.popup_menu(
+                lambda menu, _ctx: menu.layout.label(text=message[:200]),
+                title="Tentacle activation", icon="ERROR",
+            )
+        except Exception:
+            pass
+    return report
 
 
 def unregister():
@@ -526,41 +525,70 @@ def unregister():
 
 
 def diagnose():
-    """Print the live activation state — run in Blender's Python console to see why the key isn't
-    showing the menu::
+    """Return (and print) the live activation state — run in Blender's Python console to see why
+    the key isn't showing the menu::
 
-        from tentacle import tcl_blender; tcl_blender.diagnose()
+        print(tcl_blender.diagnose())
 
-    Reports whether the bridge operator is registered, whether a live ``TclBlender`` is wired,
-    the keymap item(s) we installed, and any *other* active item bound to the same bare key in the
-    ``3D View`` keymap (the only place that could beat us when the viewport has focus). Blender's
-    bare-F12 ``render.render`` lives in the global ``Screen`` keymap and does NOT conflict over the
-    viewport, so it is intentionally not flagged."""
+    The returned string is shown right in the Python Console panel (``print()`` alone would land in
+    the hidden *system* console). Reports the live module file (a stale/duplicate ``tentacle`` on
+    ``sys.path`` is the #1 cause of "nothing happens"), whether the bridge operator is registered,
+    whether a live ``TclBlender`` is wired, the keymap item(s) we installed, any *other* active item
+    bound to the same bare key in the ``3D View`` keymap (the only thing that could beat us over the
+    viewport), and a plain-language VERDICT. Blender's bare-F12 ``render.render`` lives in the global
+    ``Screen`` keymap and is evaluated *after* our region item, so it is intentionally not a rival."""
     import bpy
 
-    # The #1 cause of "nothing happens" is loading a *stale/other* tentacle (a pip-installed copy,
-    # or the module cached from before an edit) — so surface exactly which file is live.
-    print("[tentacle] module file        :", __file__)
-    print("[tentacle] operator registered :", hasattr(bpy.types, "TENTACLE_OT_show_marking_menu"))
-    print("[tentacle] live TclBlender     :", _ACTIVE_TCL)
-    print("[tentacle] _DEBUG (logs fires) :", _DEBUG)
-    print("[tentacle] our keymap items    :",
-          [(km.name, kmi.type, kmi.value, kmi.active) for km, kmi in _KEYMAPS])
+    wm = bpy.context.window_manager
+    operator_ok = hasattr(bpy.types, "TENTACLE_OT_show_marking_menu")
+    our_active = [kmi for _km, kmi in _KEYMAPS if kmi.active]
     our_keys = {kmi.type for _km, kmi in _KEYMAPS}
-    for kc in _dispatch_keyconfigs():
-        # Only a *bare* same-key PRESS in the same (3D View) keymap could beat us when the viewport
-        # has focus — modified combos (Ctrl/Shift/Alt) coexist fine and the global Screen render
-        # shortcut is evaluated after us, so neither is a real rival.
-        rivals = [
-            kmi.idname
+    rivals = []
+    seen = set()
+    # Scan every evaluated config — including ``addon`` (another add-on binding bare F12 in the
+    # viewport is a real conflict the clean factory session can't show, so it must be checked too).
+    for kc in (wm.keyconfigs.addon, wm.keyconfigs.user, wm.keyconfigs.active, wm.keyconfigs.default):
+        if kc is None or id(kc) in seen:
+            continue
+        seen.add(id(kc))
+        # Only a *bare* same-key PRESS in the 3D View keymap could beat us when the viewport has
+        # focus — modified combos coexist and the global Screen render shortcut is evaluated after us.
+        rivals += [
+            f"{kc.name}:{kmi.idname}"
             for km in kc.keymaps if km.name == "3D View"
             for kmi in km.keymap_items
             if kmi.active and kmi.type in our_keys and _is_bare_press(kmi)
             and kmi.idname != "tentacle.show_marking_menu"
         ]
-        if rivals:
-            print(f"[tentacle] 3D View rivals on key [{kc.name}]:", rivals)
-    print("[tentacle] direct test         : tcl_blender._ACTIVE_TCL.show('main#startmenu')")
+
+    if not (operator_ok and our_active):
+        verdict = ("PROBLEM: activation key not installed — call tcl_blender.register(). If you "
+                   "just did, a stale/duplicate tentacle is on sys.path — check 'module file' above.")
+    elif _ACTIVE_TCL is None:
+        verdict = "PROBLEM: no live menu wired — call tcl_blender.register() (it runs launch())."
+    elif rivals:
+        verdict = (f"CONFLICT: another 3D View binding {rivals} shares the key and may win — "
+                   "disable it, or set TENTACLE_KEY to a different key.")
+    else:
+        key = next(iter(our_keys), _ACTIVATION_KEY)
+        verdict = (f"LIKELY WORKING: '{key}' is bound in the 3D View keymap. Hover the 3D viewport "
+                   "and press it. If render still opens, set tcl_blender._DEBUG=True — each fire "
+                   "then shows 'Tentacle: key fired' in the status bar (print() output is in the "
+                   "hidden system console: Window > Toggle System Console).")
+
+    lines = [
+        "=== tentacle Blender activation ===",
+        f"module file        : {__file__}",
+        f"operator registered: {operator_ok}",
+        f"live TclBlender     : {_ACTIVE_TCL!r}",
+        f"_DEBUG (logs fires) : {_DEBUG}",
+        f"our keymap items    : {[(km.name, kmi.type, kmi.value, kmi.active) for km, kmi in _KEYMAPS]}",
+        f"3D View rivals      : {rivals or 'none'}",
+        f"VERDICT             : {verdict}",
+    ]
+    report = "\n".join(lines)
+    print(report)
+    return report
 
 
 # --------------------------------------------------------------------------------------------
