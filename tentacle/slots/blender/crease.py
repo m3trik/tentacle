@@ -10,7 +10,7 @@ class Crease(SlotsBlender):
     Maya edge creasing → Blender Subdivision-Surface edge crease (``crease_edge`` attribute), via
     ``blendertk.edit_utils.crease_edges`` (creases selected edges in edit mode, all edges in object
     mode). Maya's per-edge smoothing-angle option doesn't map (Blender crease is a single 0–1 value).
-    Crease transfer (Data-Transfer edge data) is deferred.
+    Crease transfer rides the native Data-Transfer operator (edge ``CREASE``).
     """
 
     def __init__(self, switchboard):
@@ -38,9 +38,10 @@ class Crease(SlotsBlender):
             return
         btk.crease_edges(objects, amount=widget.option_box.menu.s003.value())
 
+    @btk.undoable
     def b002(self, widget):
-        """Transfer Crease Edges — needs a Data-Transfer edge-data setup; not yet ported."""
-        self.sb.message_box("Transfer Crease Edges is not yet implemented for Blender.")
+        """Transfer Crease Edges (active mesh → other selected, native Data-Transfer)."""
+        self.transfer_from_active("CREASE", edge_mapping="NEAREST")
 
 
 # --------------------------------------------------------------------------------------------

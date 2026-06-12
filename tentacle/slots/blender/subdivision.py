@@ -1,5 +1,6 @@
 # !/usr/bin/python
 # coding=utf-8
+import bpy
 import blendertk as btk
 from tentacle.slots.blender._slots_blender import SlotsBlender
 
@@ -9,8 +10,8 @@ class Subdivision(SlotsBlender):
 
     Backed by ``blendertk.edit_utils``: reduce/decimate + coplanar-dissolve (Decimate modifier),
     triangulate / tris-to-quads / subdivide (bmesh), and a live Subsurf modifier for smooth
-    preview + division levels. Maya smooth-proxy workflow, the option-dialog combos, and the
-    Quad-Draw retopo tool are deferred (no clean Blender analogue).
+    preview + division levels; Quad Draw maps to the Poly Build tool. The Maya smooth-proxy
+    workflow and the option-dialog combos are deferred (no clean Blender analogue).
     """
 
     def __init__(self, switchboard):
@@ -114,8 +115,11 @@ class Subdivision(SlotsBlender):
     # (cmb001 Smooth-Proxy / cmb002 option-dialogs exist in no shared .ui — Maya's own handlers
     # are unreachable legacy — so no stubs are carried here.)
     def b028(self):
-        """Quad Draw — Maya retopo tool; Blender's Poly Build is an interactive modal tool."""
-        self.sb.message_box("Quad Draw is not yet implemented for Blender.")
+        """Quad Draw (Blender's retopo equivalent: the Poly Build tool)."""
+        try:
+            bpy.ops.wm.tool_set_by_id(name="builtin.poly_build")
+        except Exception as e:
+            self.sb.message_box(str(e))
 
 
 # --------------------------------------------------------------------------------------------

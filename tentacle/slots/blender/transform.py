@@ -9,8 +9,9 @@ class TransformSlots(SlotsBlender):
     """Blender port of the shared ``transform`` menu.
 
     The object-transform ops (drop-to-grid, freeze, move-to, match-scale) are backed by
-    ``blendertk.xform_utils`` (mirrors ``mtk.*``). Maya manipulator-context widgets — snap
-    (``manip*Context``), xform constraints / make-live, the mel align tools — have no clean
+    ``blendertk.xform_utils`` (mirrors ``mtk.*``); Align-To rides native ``object.align`` and
+    Transform Snap maps onto the scene tool-settings increment snap
+    (``use_snap_translate/rotate/scale``). Maya xform constraints / make-live have no clean
     Blender analogue and are deferred with a message.
     """
 
@@ -153,6 +154,46 @@ class TransformSlots(SlotsBlender):
         except RuntimeError as e:
             self.sb.message_box(str(e))
 
+    # ------------------------------------------------------------------ tb004  Transform Snap
+    def _set_snap(self, **kinds):
+        """Apply transform-kind snap flags (``translate``/``rotate``/``scale``) to the scene
+        tool settings; snapping enables on INCREMENT while any kind is on."""
+        ts = bpy.context.scene.tool_settings
+        for kind, state in kinds.items():
+            setattr(ts, f"use_snap_{kind}", bool(state))
+        enabled = ts.use_snap_translate or ts.use_snap_rotate or ts.use_snap_scale
+        ts.use_snap = enabled
+        if enabled:
+            try:
+                ts.snap_elements = {"INCREMENT"}
+            except AttributeError:  # 4.x split: snap_elements_base/_individual
+                ts.snap_elements_base = {"INCREMENT"}
+
+    def tb004_init(self, widget):
+        widget.option_box.menu.setTitle("SNAP")
+        widget.option_box.menu.add(
+            "QCheckBox", setText="Snap Move", setObjectName="chk021",
+            setToolTip="Snap translation to increments (Blender grid-increment snap).",
+        )
+        widget.option_box.menu.add(
+            "QCheckBox", setText="Snap Scale", setObjectName="chk022",
+            setToolTip="Snap scaling to increments.",
+        )
+
+    def tb004(self, widget):
+        """Transform Snap (increment snapping via the scene tool settings — Blender has no
+        per-value increment; the Maya increment spinboxes are not mirrored)."""
+        m = widget.option_box.menu
+        self._set_snap(translate=m.chk021.isChecked(), scale=m.chk022.isChecked())
+
+    def chk023_init(self, widget):
+        """Snap Rotate toggle — reflect the live tool-settings state."""
+        widget.setChecked(bpy.context.scene.tool_settings.use_snap_rotate)
+
+    def chk023(self, state, widget):
+        """Snap: Rotate (increment rotation snapping)."""
+        self._set_snap(rotate=state)
+
     # ------------------------------------------------------------------ deferred (Maya-specific)
     def tb001(self, widget):
         """Scale Connected Edges — component op, not yet ported."""
@@ -166,17 +207,9 @@ class TransformSlots(SlotsBlender):
         """Transform Constraints — Maya edge/surface/make-live constraints have no Blender analogue."""
         self.sb.message_box("Transform Constraints are not yet implemented for Blender.")
 
-    def tb004(self, widget):
-        """Transform Snap — Maya manipulator snap; Blender uses tool-settings snap (deferred)."""
-        self.sb.message_box("Transform Snap is not yet implemented for Blender.")
-
-    # The shared .ui snap/constraint toggles belong to the deferred tb003/tb004 Maya tools.
-    # Hide them rather than stubbing: state restore fires checkbox signals by default
+    # The shared .ui constraint toggles belong to the deferred tb003 Maya tool. Hide them
+    # rather than stubbing: state restore fires checkbox signals by default
     # (block_signals_on_restore=False), so a message stub would pop at UI load.
-    def chk023_init(self, widget):
-        """Snap Rotate toggle (Maya manipulator snap) — hidden until tb004 is ported."""
-        widget.setVisible(False)
-
     def chk024_init(self, widget):
         """Constraint: Edge toggle — hidden until tb003 is ported."""
         widget.setVisible(False)

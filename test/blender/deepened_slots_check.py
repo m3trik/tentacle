@@ -198,6 +198,43 @@ try:
     check("polygons b043 toggles snap+automerge on/off",
           on and not ts.use_snap and not ts.use_mesh_automerge)
 
+    # ---- transform tb004/chk023: increment snap -----------------------------------------------
+    slot = make_slot(TransformSlots)
+    slot.tb004(option_box(chk021=chk(True), chk022=chk(False)))
+    move_on = ts.use_snap and ts.use_snap_translate and not ts.use_snap_scale
+    slot.chk023(True, None)
+    rot_on = ts.use_snap_rotate
+    slot.tb004(option_box(chk021=chk(False), chk022=chk(False)))
+    slot.chk023(False, None)
+    check("transform tb004/chk023 drive tool-settings snap",
+          move_on and rot_on and not ts.use_snap,
+          f"move={move_on} rot={rot_on} off={not ts.use_snap}")
+
+    # ---- crease b002: transfer crease (Data-Transfer CREASE) ----------------------------------
+    reset()
+    src = add_cube("CSrc"); tgt = add_cube("CTgt", (3, 0, 0))
+    from tentacle.slots.blender.crease import Crease
+
+    cslot = make_slot(Crease)
+    src.select_set(True); bpy.context.view_layer.objects.active = src
+    import blendertk as _btk
+    _btk.crease_edges(src, amount=10)  # full crease on every edge (object mode)
+    tgt.select_set(True)
+    bpy.context.view_layer.objects.active = src
+    cslot.b002(None)
+    crease_attr = tgt.data.attributes.get("crease_edge")
+    creased = (
+        sum(1 for d in crease_attr.data if d.value > 0.99) if crease_attr else 0
+    )
+    check("crease b002 transfers edge creases", creased == 12, f"creased={creased}")
+
+    # ---- subdivision b028: quad draw = poly build tool ----------------------------------------
+    from tentacle.slots.blender.subdivision import Subdivision
+
+    sslot = make_slot(Subdivision)
+    sslot.b028()  # headless has no tool context — must not raise (slot catches + messages)
+    check("subdivision b028 poly-build activation is safe headless", True)
+
     # ---- animation tb002/tb004/tb007/tb008 ----------------------------------------------------
     reset()
     a = add_cube("A"); b = add_cube("B", (3, 0, 0))
