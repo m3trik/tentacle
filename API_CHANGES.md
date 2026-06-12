@@ -1,5 +1,196 @@
 # tentacle — API Changes
 
-_Diff vs prior baseline. Generated 2026-06-19._
+_Diff vs prior baseline. Generated 2026-06-12._
 
-No public API changes since last refresh.
+## Added (190)
+
+- `slots/blender/_slots_blender.py::SlotsBlender(class)`
+- `slots/blender/_slots_blender.py::SlotsBlender.selected_objects()`
+- `slots/blender/cameras.py::Cameras(class)`
+- `slots/blender/cameras.py::Cameras.b000(self)`
+- `slots/blender/cameras.py::Cameras.b001(self)`
+- `slots/blender/cameras.py::Cameras.b002(self)`
+- `slots/blender/cameras.py::Cameras.b003(self)`
+- `slots/blender/cameras.py::Cameras.b004(self)`
+- `slots/blender/cameras.py::Cameras.b005(self)`
+- `slots/blender/cameras.py::Cameras.b006(self)`
+- `slots/blender/cameras.py::Cameras.b007(self)`
+- `slots/blender/cameras.py::Cameras.b010(self)`
+- `slots/blender/cameras.py::Cameras.b011(self)`
+- `slots/blender/cameras.py::Cameras.b012(self)`
+- `slots/blender/cameras.py::Cameras.b013(self)`
+- `slots/blender/cameras.py::Cameras.list000(self, item)`
+- `slots/blender/cameras.py::Cameras.list000_init(self, widget)`
+- `slots/blender/cameras.py::Cameras.toggle_camera_view(self)`
+- `slots/blender/crease.py::Crease(class)`
+- `slots/blender/crease.py::Crease.b002(self, widget)`
+- `slots/blender/crease.py::Crease.tb000(self, widget)`
+- `slots/blender/crease.py::Crease.tb000_init(self, widget)`
+- `slots/blender/display.py::DisplaySlots(class)`
+- `slots/blender/display.py::DisplaySlots.b013(self)`
+- `slots/blender/display.py::DisplaySlots.b014(self)`
+- `slots/blender/display.py::DisplaySlots.list000(self, item)`
+- `slots/blender/display.py::DisplaySlots.list000_init(self, widget)`
+- `slots/blender/duplicate.py::Duplicate(class)`
+- `slots/blender/duplicate.py::Duplicate.b000(self)`
+- `slots/blender/duplicate.py::Duplicate.b005(self)`
+- `slots/blender/duplicate.py::Duplicate.b006(self)`
+- `slots/blender/duplicate.py::Duplicate.b007(self)`
+- `slots/blender/duplicate.py::Duplicate.b008(self)`
+- `slots/blender/duplicate.py::Duplicate.header_init(self, widget)`
+- `slots/blender/duplicate.py::Duplicate.tb000(self, widget)`
+- `slots/blender/duplicate.py::Duplicate.tb000_init(self, widget)`
+- `slots/blender/duplicate.py::Duplicate.tb001(self, widget)`
+- `slots/blender/duplicate.py::Duplicate.tb001_init(self, widget)`
+- `slots/blender/edit.py::Edit(class)`
+- `slots/blender/edit.py::Edit.b000(self)`
+- `slots/blender/edit.py::Edit.b021(self, widget)`
+- `slots/blender/edit.py::Edit.b022(self, widget)`
+- `slots/blender/edit.py::Edit.b023(self, widget)`
+- `slots/blender/edit.py::Edit.b027(self, widget)`
+- `slots/blender/edit.py::Edit.header_init(self, widget)`
+- `slots/blender/edit.py::Edit.list000(self, item)`
+- `slots/blender/edit.py::Edit.list000_init(self, widget)`
+- `slots/blender/edit.py::Edit.list001(self, item)`
+- `slots/blender/edit.py::Edit.list001_init(self, widget)`
+- `slots/blender/edit.py::Edit.tb000(self, widget)`
+- `slots/blender/edit.py::Edit.tb000_init(self, widget)`
+- `slots/blender/edit.py::Edit.tb001(self, widget)`
+- `slots/blender/edit.py::Edit.tb002(self, widget)`
+- `slots/blender/edit.py::Edit.tb004(self, widget)`
+- `slots/blender/main.py::Main(class)`
+- `slots/blender/main.py::Main.list000(self, item)`
+- `slots/blender/main.py::Main.list000_init(self, widget)`
+- `slots/blender/normals.py::Normals(class)`
+- `slots/blender/normals.py::Normals.b000(self)`
+- `slots/blender/normals.py::Normals.b001(self)`
+- `slots/blender/normals.py::Normals.b002(self)`
+- `slots/blender/normals.py::Normals.b004(self)`
+- `slots/blender/normals.py::Normals.b006(self)`
+- `slots/blender/normals.py::Normals.tb001(self, widget)`
+- `slots/blender/normals.py::Normals.tb001_init(self, widget)`
+- `slots/blender/normals.py::Normals.tb004(self, widget)`
+- `slots/blender/normals.py::Normals.tb004_init(self, widget)`
+- `slots/blender/normals.py::Normals.tb010(self, widget)`
+- `slots/blender/normals.py::Normals.tb010_init(self, widget)`
+- `slots/blender/pivot.py::Pivot(class)`
+- `slots/blender/pivot.py::Pivot.b000(self)`
+- `slots/blender/pivot.py::Pivot.b001(self)`
+- `slots/blender/pivot.py::Pivot.b002(self, widget)`
+- `slots/blender/pivot.py::Pivot.b004(self)`
+- `slots/blender/pivot.py::Pivot.tb000(self, widget)`
+- `slots/blender/pivot.py::Pivot.tb000_init(self, widget)`
+- `slots/blender/pivot.py::Pivot.tb001(self, widget)`
+- `slots/blender/pivot.py::Pivot.tb001_init(self, widget)`
+- `slots/blender/pivot.py::Pivot.tb002(self, widget)`
+- `slots/blender/pivot.py::Pivot.tb003(self, widget)`
+- `slots/blender/preferences.py::Preferences(class)`
+- `slots/blender/preferences.py::Preferences.b001(self)`
+- `slots/blender/preferences.py::Preferences.b008(self)`
+- `slots/blender/preferences.py::Preferences.b009(self)`
+- `slots/blender/preferences.py::Preferences.b010(self)`
+- `slots/blender/preferences.py::Preferences.cmb001(self, index, widget)`
+- `slots/blender/preferences.py::Preferences.cmb001_init(self, widget)`
+- `slots/blender/preferences.py::Preferences.cmb002(self, index, widget)`
+- `slots/blender/preferences.py::Preferences.cmb002_init(self, widget)`
+- `slots/blender/preferences.py::Preferences.s000_init(self, widget)`
+- `slots/blender/preferences.py::Preferences.s001_init(self, widget)`
+- `slots/blender/selection.py::Selection(class)`
+- `slots/blender/selection.py::Selection.b001(self)`
+- `slots/blender/selection.py::Selection.chk004(self, state, widget)`
+- `slots/blender/selection.py::Selection.chk005(self, state, widget)`
+- `slots/blender/selection.py::Selection.chk005_init(self, widget)`
+- `slots/blender/selection.py::Selection.chk006(self, state, widget)`
+- `slots/blender/selection.py::Selection.chk007(self, state, widget)`
+- `slots/blender/selection.py::Selection.cmb001(self, index, widget)`
+- `slots/blender/selection.py::Selection.cmb001_init(self, widget)`
+- `slots/blender/selection.py::Selection.cmb003(self, index, widget)`
+- `slots/blender/selection.py::Selection.cmb003_init(self, widget)`
+- `slots/blender/selection.py::Selection.cmb005(self, index, widget)`
+- `slots/blender/selection.py::Selection.cmb005_init(self, widget)`
+- `slots/blender/selection.py::Selection.list000(self, *args)`
+- `slots/blender/selection.py::Selection.tb000(self, widget)`
+- `slots/blender/selection.py::Selection.tb000_init(self, widget)`
+- `slots/blender/selection.py::Selection.tb001(self, widget)`
+- `slots/blender/selection.py::Selection.tb001_init(self, widget)`
+- `slots/blender/selection.py::Selection.tb002(self, widget)`
+- `slots/blender/selection.py::Selection.tb002_init(self, widget)`
+- `slots/blender/selection.py::Selection.tb003(self, widget)`
+- `slots/blender/selection.py::Selection.tb003_init(self, widget)`
+- `slots/blender/settings.py::Settings(class)`
+- `slots/blender/settings.py::Settings.b020(self)`
+- `slots/blender/settings.py::Settings.b021(self)`
+- `slots/blender/settings.py::Settings.b022(self)`
+- `slots/blender/settings.py::Settings.b_reset_bindings(self)`
+- `slots/blender/settings.py::Settings.header_init(self, widget)`
+- `slots/blender/settings.py::Settings.tb000(self)`
+- `slots/blender/settings.py::Settings.tb001(self)`
+- `slots/blender/subdivision.py::Subdivision(class)`
+- `slots/blender/subdivision.py::Subdivision.b000(self)`
+- `slots/blender/subdivision.py::Subdivision.b001(self)`
+- `slots/blender/subdivision.py::Subdivision.b005(self)`
+- `slots/blender/subdivision.py::Subdivision.b008(self)`
+- `slots/blender/subdivision.py::Subdivision.b011(self)`
+- `slots/blender/subdivision.py::Subdivision.b028(self)`
+- `slots/blender/subdivision.py::Subdivision.s000(self, value, widget)`
+- `slots/blender/subdivision.py::Subdivision.s001(self, value, widget)`
+- `slots/blender/subdivision.py::Subdivision.tb000(self, widget)`
+- `slots/blender/subdivision.py::Subdivision.tb000_init(self, widget)`
+- `slots/blender/symmetry.py::Symmetry(class)`
+- `slots/blender/symmetry.py::Symmetry.chk000(self, state, widget)`
+- `slots/blender/symmetry.py::Symmetry.chk000_init(self, widget)`
+- `slots/blender/symmetry.py::Symmetry.chk001(self, state, widget)`
+- `slots/blender/symmetry.py::Symmetry.chk002(self, state, widget)`
+- `slots/blender/symmetry.py::Symmetry.chk005(self, state, widget)`
+- `slots/blender/symmetry.py::Symmetry.chk005_init(self, widget)`
+- `slots/blender/transform.py::TransformSlots(class)`
+- `slots/blender/transform.py::TransformSlots.b001(self)`
+- `slots/blender/transform.py::TransformSlots.b002(self)`
+- `slots/blender/transform.py::TransformSlots.chk023_init(self, widget)`
+- `slots/blender/transform.py::TransformSlots.chk024_init(self, widget)`
+- `slots/blender/transform.py::TransformSlots.chk025_init(self, widget)`
+- `slots/blender/transform.py::TransformSlots.cmb002(self, index, widget)`
+- `slots/blender/transform.py::TransformSlots.cmb002_init(self, widget)`
+- `slots/blender/transform.py::TransformSlots.tb000(self, widget)`
+- `slots/blender/transform.py::TransformSlots.tb000_init(self, widget)`
+- `slots/blender/transform.py::TransformSlots.tb001(self, widget)`
+- `slots/blender/transform.py::TransformSlots.tb002(self, widget)`
+- `slots/blender/transform.py::TransformSlots.tb002_init(self, widget)`
+- `slots/blender/transform.py::TransformSlots.tb003(self, widget)`
+- `slots/blender/transform.py::TransformSlots.tb004(self, widget)`
+- `slots/blender/transform.py::TransformSlots.tb005(self, widget)`
+- `slots/blender/transform.py::TransformSlots.tb005_init(self, widget)`
+- `slots/blender/uv.py::Uv(class)`
+- `slots/blender/uv.py::Uv.b000(self, widget)`
+- `slots/blender/uv.py::Uv.b003(self)`
+- `slots/blender/uv.py::Uv.b004(self)`
+- `slots/blender/uv.py::Uv.b005(self)`
+- `slots/blender/uv.py::Uv.b011(self)`
+- `slots/blender/uv.py::Uv.b021(self, widget)`
+- `slots/blender/uv.py::Uv.b023(self)`
+- `slots/blender/uv.py::Uv.b024(self)`
+- `slots/blender/uv.py::Uv.b025(self)`
+- `slots/blender/uv.py::Uv.b026(self)`
+- `slots/blender/uv.py::Uv.b029(self, widget)`
+- `slots/blender/uv.py::Uv.b030(self, widget)`
+- `slots/blender/uv.py::Uv.b031(self)`
+- `slots/blender/uv.py::Uv.b032(self)`
+- `slots/blender/uv.py::Uv.cmb002(self, index, widget)`
+- `slots/blender/uv.py::Uv.cmb003(self, index, widget)`
+- `slots/blender/uv.py::Uv.s003(self, value, widget)`
+- `slots/blender/uv.py::Uv.tb000(self, widget)`
+- `slots/blender/uv.py::Uv.tb001(self, widget)`
+- `slots/blender/uv.py::Uv.tb004(self, widget)`
+- `slots/blender/uv.py::Uv.tb005(self, widget)`
+- `slots/blender/uv.py::Uv.tb006(self, widget)`
+- `slots/blender/uv.py::Uv.tb007(self, widget)`
+- `slots/blender/uv.py::Uv.tb008(self, widget)`
+- `slots/blender/uv.py::Uv.tb009(self, widget)`
+- `slots/blender/uv.py::Uv.tb022(self, widget)`
+- `tcl_blender.py::diagnose()`
+- `tcl_blender.py::ensure_blender_widget(app)`
+- `tcl_blender.py::ensure_qapp()`
+- `tcl_blender.py::launch(**kwargs)`
+- `tcl_blender.py::register()`
+- `tcl_blender.py::start_event_pump(app, interval=0.01)`
+- `tcl_blender.py::unregister()`

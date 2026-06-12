@@ -2,12 +2,28 @@
 
 _Auto-generated. Do not edit by hand. Refresh via `m3trik/scripts/generate_api_registry.py`._
 
-_Generated: 2026-06-19_
+_Generated: 2026-06-12_
 
 ## Index
 
 - [`__init__.py`](#__init__)
 - [`slots/_slots.py`](#slots--_slots)
+- [`slots/blender/_slots_blender.py`](#slots--blender--_slots_blender)
+- [`slots/blender/cameras.py`](#slots--blender--cameras)
+- [`slots/blender/crease.py`](#slots--blender--crease)
+- [`slots/blender/display.py`](#slots--blender--display)
+- [`slots/blender/duplicate.py`](#slots--blender--duplicate)
+- [`slots/blender/edit.py`](#slots--blender--edit)
+- [`slots/blender/main.py`](#slots--blender--main)
+- [`slots/blender/normals.py`](#slots--blender--normals)
+- [`slots/blender/pivot.py`](#slots--blender--pivot)
+- [`slots/blender/preferences.py`](#slots--blender--preferences)
+- [`slots/blender/selection.py`](#slots--blender--selection)
+- [`slots/blender/settings.py`](#slots--blender--settings)
+- [`slots/blender/subdivision.py`](#slots--blender--subdivision)
+- [`slots/blender/symmetry.py`](#slots--blender--symmetry)
+- [`slots/blender/transform.py`](#slots--blender--transform)
+- [`slots/blender/uv.py`](#slots--blender--uv)
 - [`slots/maya/_slots_maya.py`](#slots--maya--_slots_maya)
 - [`slots/maya/animation.py`](#slots--maya--animation)
 - [`slots/maya/arnold.py`](#slots--maya--arnold)
@@ -69,7 +85,7 @@ _Generated: 2026-06-19_
 - [`slots/maya/uv.py`](#slots--maya--uv)
 - [`slots/maya/visualize.py`](#slots--maya--visualize)
 - [`slots/maya/windows.py`](#slots--maya--windows)
-- [`tcl_blender.py`](#tcl_blender)
+- [`tcl_blender.py`](#tcl_blender) — Blender entry point for tentacle's Qt marking menu — host + keymap bridge + launcher in one.
 - [`tcl_max.py`](#tcl_max)
 - [`tcl_maya.py`](#tcl_maya)
 
@@ -85,6 +101,253 @@ _Generated: 2026-06-19_
 
 - **[`class Slots(QtCore.QObject)`](tentacle/tentacle/slots/_slots.py#L6)** — Provides methods that can be triggered by widgets in the ui.
   - `Slots.repeat_last_command(self)` — Repeat the last stored command.
+
+<a id="slots--blender--_slots_blender"></a>
+### `slots/blender/_slots_blender.py`
+
+- **[`class SlotsBlender(Slots)`](tentacle/tentacle/slots/blender/_slots_blender.py#L7)** — App specific methods inherited by all other Blender slot classes.
+  - `SlotsBlender.selected_objects()` *(static)* — The current object selection (filtered of ``None``) — shared by all Blender slots.
+
+<a id="slots--blender--cameras"></a>
+### `slots/blender/cameras.py`
+
+- **[`class Cameras(SlotsBlender)`](tentacle/tentacle/slots/blender/cameras.py#L24)** — Blender port of the shared ``cameras`` menu.
+  - `Cameras.list000_init(self, widget)` — Initialize Camera Options List
+  - `Cameras.list000(self, item)` — Camera Options List
+  - `Cameras.b000(self)` — Cameras: Back View
+  - `Cameras.b001(self)` — Cameras: Top View
+  - `Cameras.b002(self)` — Cameras: Right View
+  - `Cameras.b003(self)` — Cameras: Left View
+  - `Cameras.b004(self)` — Cameras: Perspective View
+  - `Cameras.b005(self)` — Cameras: Front View
+  - `Cameras.b006(self)` — Cameras: Bottom View
+  - `Cameras.b007(self)` — Cameras: Align View — Maya align-camera-to-polygon has no direct Blender analogue.
+  - `Cameras.b010(self)` — Camera: Dolly — Blender viewport navigation is modal, not a persistent tool.
+  - `Cameras.b011(self)` — Camera: Roll
+  - `Cameras.b012(self)` — Camera: Truck
+  - `Cameras.b013(self)` — Camera: Orbit
+  - `Cameras.toggle_camera_view(self)` — Toggle between the last two camera views in history (DCC-agnostic switchboard logic).
+
+<a id="slots--blender--crease"></a>
+### `slots/blender/crease.py`
+
+- **[`class Crease(SlotsBlender)`](tentacle/tentacle/slots/blender/crease.py#L7)** — Blender port of the shared ``crease`` menu.
+  - `Crease.tb000_init(self, widget)`
+  - `Crease.tb000(self, widget)` — Crease
+  - `Crease.b002(self, widget)` — Transfer Crease Edges — needs a Data-Transfer edge-data setup;
+
+<a id="slots--blender--display"></a>
+### `slots/blender/display.py`
+
+- **[`class DisplaySlots(SlotsBlender)`](tentacle/tentacle/slots/blender/display.py#L8)** — Blender port of the shared ``display`` menu.
+  - `DisplaySlots.list000_init(self, widget)` — Initialize Display expandable list (categories → actions).
+  - `DisplaySlots.list000(self, item)` — Dispatch a Display action and report state via message_box.
+  - `DisplaySlots.b013(self)` — Explode View — separate window not ported to Blender yet.
+  - `DisplaySlots.b014(self)` — Color Manager — separate window not ported to Blender yet.
+
+<a id="slots--blender--duplicate"></a>
+### `slots/blender/duplicate.py`
+
+- **[`class Duplicate(SlotsBlender)`](tentacle/tentacle/slots/blender/duplicate.py#L8)** — Blender port of the shared ``duplicate`` menu.
+  - `Duplicate.header_init(self, widget)`
+  - `Duplicate.tb000_init(self, widget)`
+  - `Duplicate.tb000(self, widget)` — Convert to Instances (selected objects share the active object's data).
+  - `Duplicate.tb001_init(self, widget)`
+  - `Duplicate.tb001(self, widget)` — Select Instanced Objects
+  - `Duplicate.b005(self)` — Uninstance Selected Objects (make their data single-user).
+  - `Duplicate.b000(self)` — Mirror — separate menu not ported to Blender yet.
+  - `Duplicate.b006(self)` — Duplicate Linear — separate menu not ported to Blender yet.
+  - `Duplicate.b007(self)` — Duplicate Radial — separate menu not ported to Blender yet.
+  - `Duplicate.b008(self)` — Duplicate Grid — separate menu not ported to Blender yet.
+
+<a id="slots--blender--edit"></a>
+### `slots/blender/edit.py`
+
+- **[`class Edit(SlotsBlender)`](tentacle/tentacle/slots/blender/edit.py#L9)** — Blender port of the shared ``edit`` menu.
+  - `Edit.header_init(self, widget)`
+  - `Edit.tb000_init(self, widget)`
+  - `Edit.tb000(self, widget)` — Mesh Cleanup
+  - `Edit.tb002(self, widget)` — Delete Selected (objects in object mode, components by select mode in edit mode).
+  - `Edit.list000_init(self, widget)` — Initialize Create Primitives list.
+  - `Edit.list000(self, item)` — Create Primitive
+  - `Edit.list001_init(self, widget)` — Initialize Convert list.
+  - `Edit.list001(self, item)` — Convert the selected object(s) to another type.
+  - `Edit.tb001(self, widget)` — Delete History — Blender has no construction history (modifier stack is non-destructive).
+  - `Edit.tb004(self, widget)` — Node Locking — Maya node locking has no Blender analogue.
+  - `Edit.b000(self)` — Cut On Axis — mesh bisect;
+  - `Edit.b021(self, widget)` — Transfer Maps — needs a bake/Data-Transfer setup;
+  - `Edit.b022(self, widget)` — Transfer Vertex Order — Maya-specific;
+  - `Edit.b023(self, widget)` — Transfer Attribute Values — needs a Data-Transfer setup;
+  - `Edit.b027(self, widget)` — Shading Sets — Maya shading groups;
+
+<a id="slots--blender--main"></a>
+### `slots/blender/main.py`
+
+- **[`class Main(SlotsBlender)`](tentacle/tentacle/slots/blender/main.py#L10)** — Blender port of the shared ``main`` start menu — a workspace directory browser.
+  - `Main.list000_init(self, widget)` — Initialize Workspace Browser
+  - `Main.list000(self, item)` — Workspace Browser
+
+<a id="slots--blender--normals"></a>
+### `slots/blender/normals.py`
+
+- **[`class Normals(SlotsBlender)`](tentacle/tentacle/slots/blender/normals.py#L8)** — Blender port of the shared ``normals`` menu.
+  - `Normals.tb001_init(self, widget)`
+  - `Normals.tb001(self, widget)` — Set Normals By Angle
+  - `Normals.tb004_init(self, widget)`
+  - `Normals.tb004(self, widget)` — Average Normals (smooth shading averages vertex normals).
+  - `Normals.b000(self)` — Soften Edge Normals (smooth shading).
+  - `Normals.b001(self)` — Harden Edge Normals (flat shading).
+  - `Normals.b006(self)` — Set To Face (vertex normals follow faces = flat shading).
+  - `Normals.tb010_init(self, widget)`
+  - `Normals.tb010(self, widget)` — Reverse Normals
+  - `Normals.b002(self)` — Transfer Normals — needs a Data-Transfer custom-normal setup;
+  - `Normals.b004(self)` — Lock/Unlock Vertex Normals — Maya normal locking has no direct Blender analogue.
+
+<a id="slots--blender--pivot"></a>
+### `slots/blender/pivot.py`
+
+- **[`class Pivot(SlotsBlender)`](tentacle/tentacle/slots/blender/pivot.py#L8)** — Blender port of the shared ``pivot`` menu.
+  - `Pivot.tb000_init(self, widget)`
+  - `Pivot.tb000(self, widget)` — Reset Pivot
+  - `Pivot.tb001_init(self, widget)`
+  - `Pivot.tb001(self, widget)` — Center Pivot
+  - `Pivot.b000(self)` — Center Pivot: Object
+  - `Pivot.b001(self)` — Center Pivot: Component
+  - `Pivot.b002(self, widget)` — Center Pivot: World
+  - `Pivot.tb002(self, widget)` — Transfer Pivot — Maya's per-channel (translate/rotate/scale) pivot transfer has no
+  - `Pivot.tb003(self, widget)` — World-Aligned Pivot — Maya manipulator-pivot orientation;
+  - `Pivot.b004(self)` — Bake Pivot — Blender object origins are always baked into the transform (no-op).
+
+<a id="slots--blender--preferences"></a>
+### `slots/blender/preferences.py`
+
+- **[`class Preferences(SlotsBlender)`](tentacle/tentacle/slots/blender/preferences.py#L7)** — Blender port of the shared ``preferences`` menu.
+  - `Preferences.cmb001_init(self, widget)`
+  - `Preferences.cmb001(self, index, widget)` — Set Working Units: Linear
+  - `Preferences.cmb002_init(self, widget)`
+  - `Preferences.cmb002(self, index, widget)` — Set Working Units: Time (frame rate)
+  - `Preferences.s000_init(self, widget)`
+  - `Preferences.s001_init(self, widget)`
+  - `Preferences.b001(self)` — Color Settings → Blender Preferences (Themes).
+  - `Preferences.b008(self)` — Hotkeys → Blender Preferences (Keymap).
+  - `Preferences.b009(self)` — Plug-In Manager → Blender Preferences (Add-ons).
+  - `Preferences.b010(self)` — Settings/Preferences → Blender Preferences (Interface).
+
+<a id="slots--blender--selection"></a>
+### `slots/blender/selection.py`
+
+- **[`class Selection(SlotsBlender)`](tentacle/tentacle/slots/blender/selection.py#L10)** — Blender port of the shared ``selection`` menu.
+  - `Selection.tb000_init(self, widget)`
+  - `Selection.tb000(self, widget)` — Select Nth
+  - `Selection.tb001_init(self, widget)`
+  - `Selection.tb001(self, widget)` — Select Similar
+  - `Selection.tb002_init(self, widget)`
+  - `Selection.tb002(self, widget)` — Select Island (connected region)
+  - `Selection.tb003_init(self, widget)`
+  - `Selection.tb003(self, widget)` — Select Edges By Angle
+  - `Selection.cmb003_init(self, widget)`
+  - `Selection.cmb003(self, index, widget)` — Convert the current selection to another component type.
+  - `Selection.chk004(self, state, widget)` — Ignore Backfacing — toggle viewport X-ray (occlude) so only front faces select.
+  - `Selection.chk005_init(self, widget)`
+  - `Selection.chk005(self, state, widget)` — Select Style: Box (Marquee)
+  - `Selection.chk006(self, state, widget)` — Select Style: Lasso
+  - `Selection.chk007(self, state, widget)` — Select Style: Circle (Paint)
+  - `Selection.b001(self)` — Toggle Selectability of the selected object(s).
+  - `Selection.cmb001_init(self, widget)`
+  - `Selection.cmb001(self, index, widget)` — Reorder Selection — not yet ported to Blender.
+  - `Selection.cmb005_init(self, widget)`
+  - `Selection.cmb005(self, index, widget)` — Selection Constraints — Maya draggable-constraint tool has no direct Blender analogue.
+  - `Selection.list000(self, *args)` — Select by Type — deferred (needs blendertk type categories + the list widget).
+
+<a id="slots--blender--settings"></a>
+### `slots/blender/settings.py`
+
+- **[`class Settings(SlotsBlender)`](tentacle/tentacle/slots/blender/settings.py#L6)** — Blender port of the shared ``settings`` menu.
+  - `Settings.header_init(self, widget)`
+  - `Settings.tb000(self)` — Update Package — Maya's updater shells out to mayapy;
+  - `Settings.tb001(self)` — Reload Scripts — live reload uses a Maya-specific mechanism;
+  - `Settings.b020(self)` — UI Style Editor
+  - `Settings.b021(self)` — Hotkey Editor
+  - `Settings.b022(self)` — UI Browser
+  - `Settings.b_reset_bindings(self)` — Reset marking-menu bindings to defaults.
+
+<a id="slots--blender--subdivision"></a>
+### `slots/blender/subdivision.py`
+
+- **[`class Subdivision(SlotsBlender)`](tentacle/tentacle/slots/blender/subdivision.py#L7)** — Blender port of the shared ``subdivision`` menu.
+  - `Subdivision.tb000_init(self, widget)`
+  - `Subdivision.tb000(self, widget)` — Decimate
+  - `Subdivision.s000(self, value, widget)` — Division Level (live Subdivision-Surface viewport level).
+  - `Subdivision.s001(self, value, widget)` — Tesselation Level (Subdivision-Surface render level).
+  - `Subdivision.b000(self)` — Quadrangulate (tris -> quads).
+  - `Subdivision.b001(self)` — Triangulate
+  - `Subdivision.b005(self)` — Reduce (decimate to 50%).
+  - `Subdivision.b008(self)` — Add Divisions - Subdivide Mesh
+  - `Subdivision.b011(self)` — Apply Smooth Preview (live Subdivision-Surface modifier).
+  - `Subdivision.b028(self)` — Quad Draw — Maya retopo tool;
+
+<a id="slots--blender--symmetry"></a>
+### `slots/blender/symmetry.py`
+
+- **[`class Symmetry(SlotsBlender)`](tentacle/tentacle/slots/blender/symmetry.py#L7)** — Blender port of the shared ``symmetry`` menu.
+  - `Symmetry.chk000_init(self, widget)` — Set initial symmetry state from the active mesh.
+  - `Symmetry.chk000(self, state, widget)` — Symmetry X
+  - `Symmetry.chk001(self, state, widget)` — Symmetry Y
+  - `Symmetry.chk002(self, state, widget)` — Symmetry Z
+  - `Symmetry.chk005_init(self, widget)` — Set symmetry reference space (position vs topology).
+  - `Symmetry.chk005(self, state, widget)` — Symmetry: Topo (match mirrored verts by topology instead of position).
+
+<a id="slots--blender--transform"></a>
+### `slots/blender/transform.py`
+
+- **[`class TransformSlots(SlotsBlender)`](tentacle/tentacle/slots/blender/transform.py#L8)** — Blender port of the shared ``transform`` menu.
+  - `TransformSlots.tb000_init(self, widget)`
+  - `TransformSlots.tb000(self, widget)` — Drop To Grid
+  - `TransformSlots.tb002_init(self, widget)`
+  - `TransformSlots.tb002(self, widget)` — Freeze Transformations
+  - `TransformSlots.tb005_init(self, widget)`
+  - `TransformSlots.tb005(self, widget)` — Move To (align source object(s) to the active/target object).
+  - `TransformSlots.b001(self)` — Match Scale (rescale source object(s) to the active/target object).
+  - `TransformSlots.cmb002_init(self, widget)`
+  - `TransformSlots.cmb002(self, index, widget)` — Align To — Maya snap/align tools have no direct Blender analogue yet.
+  - `TransformSlots.tb001(self, widget)` — Scale Connected Edges — component op, not yet ported.
+  - `TransformSlots.b002(self)` — Un-Freeze Transforms — needs stored original transforms;
+  - `TransformSlots.tb003(self, widget)` — Transform Constraints — Maya edge/surface/make-live constraints have no Blender analogue.
+  - `TransformSlots.tb004(self, widget)` — Transform Snap — Maya manipulator snap;
+  - `TransformSlots.chk023_init(self, widget)` — Snap Rotate toggle (Maya manipulator snap) — hidden until tb004 is ported.
+  - `TransformSlots.chk024_init(self, widget)` — Constraint: Edge toggle — hidden until tb003 is ported.
+  - `TransformSlots.chk025_init(self, widget)` — Constraint: Surface toggle — hidden until tb003 is ported.
+
+<a id="slots--blender--uv"></a>
+### `slots/blender/uv.py`
+
+- **[`class Uv(SlotsBlender)`](tentacle/tentacle/slots/blender/uv.py#L8)** — Blender port of the shared ``uv`` menu.
+  - `Uv.tb000(self, widget)` — Pack UVs
+  - `Uv.tb001(self, widget)` — Auto Unwrap (Smart UV Project)
+  - `Uv.tb004(self, widget)` — Unfold (angle-based unwrap)
+  - `Uv.tb009(self, widget)` — Cut Cylinder (cylinder project)
+  - `Uv.b005(self)` — Cut UVs (mark seam on selected edges)
+  - `Uv.b011(self)` — Sew UVs (clear seam on selected edges)
+  - `Uv.b021(self, widget)` — Unfold and Pack UVs
+  - `Uv.b023(self)` — Move To UV Space: Left
+  - `Uv.b024(self)` — Move To UV Space: Down
+  - `Uv.b025(self)` — Move To UV Space: Up
+  - `Uv.b026(self)` — Move To UV Space: Right
+  - `Uv.tb007(self, widget)` — Cleanup UV Sets (keep only the first UV map).
+  - `Uv.tb005(self, widget)` — Straighten UV — UV-editor align op;
+  - `Uv.tb006(self, widget)` — Distribute — UV-editor align/distribute op;
+  - `Uv.tb008(self, widget)` — Mirror UVs — UV-editor mirror op;
+  - `Uv.tb022(self, widget)` — Cut UV hard edges — seam-from-sharp;
+  - `Uv.b000(self, widget)` — Transfer UVs — needs a Data-Transfer UV setup;
+  - `Uv.b003(self)` — Get Texel Density — needs a texel-density helper;
+  - `Uv.b004(self)` — Set Texel Density — needs a texel-density helper;
+  - `Uv.b029(self, widget)` — Pin / Unpin UVs — UV-editor pin;
+  - `Uv.b030(self, widget)` — Stack / Unstack shells — not yet ported.
+  - `Uv.b031(self)` — Open UV Editor — switch an area to the UV editor;
+  - `Uv.b032(self)` — RizomUV Bridge — external tool;
+  - `Uv.cmb002(self, index, widget)` — Transform — UV transform options;
+  - `Uv.cmb003(self, index, widget)` — UV set options — not yet ported.
+  - `Uv.s003(self, value, widget)` — UV spin option — not yet wired.
 
 <a id="slots--maya--_slots_maya"></a>
 ### `slots/maya/_slots_maya.py`
@@ -885,8 +1148,17 @@ _Generated: 2026-06-19_
 <a id="tcl_blender"></a>
 ### `tcl_blender.py`
 
-- **[`class TclBlender(MarkingMenu)`](tentacle/tentacle/tcl_blender.py#L7)** — Marking Menu class overridden for use with Blender.
-  - `TclBlender.get_main_window(cls)` *(class)* — Get Blender's main window object.
+Blender entry point for tentacle's Qt marking menu — host + keymap bridge + launcher in one.
+
+- [`ensure_qapp()`](tentacle/tentacle/tcl_blender.py#L164) — Return the process QApplication, creating one if Blender has none.
+- [`ensure_blender_widget(app)`](tentacle/tentacle/tcl_blender.py#L172) — Establish ``app.blender_widget`` — the parent for the marking menu.
+- [`start_event_pump(app, interval=0.01)`](tentacle/tentacle/tcl_blender.py#L185) — Pump Qt events from Blender's timer loop so the Qt UI stays responsive (idempotent).
+- [`launch(**kwargs)`](tentacle/tentacle/tcl_blender.py#L418) — Stand up the Qt host (QApplication + ``blender_widget`` + event pump) and return a
+- [`register()`](tentacle/tentacle/tcl_blender.py#L435) — Blender add-on / startup entry: stand up the host.
+- [`unregister()`](tentacle/tentacle/tcl_blender.py#L448) — Blender add-on teardown: remove the keymap items + bridge operator.
+- [`diagnose()`](tentacle/tentacle/tcl_blender.py#L453) — Print the live activation state — run in Blender's Python console to see why the key isn't
+- **[`class TclBlender(MarkingMenu)`](tentacle/tentacle/tcl_blender.py#L336)** — Marking Menu class overridden for use with Blender.
+  - `TclBlender.get_main_window(cls)` *(class)* — Blender parent widget for the marking menu (set by :func:`ensure_blender_widget`).
   - `TclBlender.keyPressEvent(self, event)`
 
 <a id="tcl_max"></a>

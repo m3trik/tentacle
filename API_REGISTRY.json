@@ -1,7 +1,7 @@
 {
   "name": "tentacle",
   "source_root": "tentacle/tentacle",
-  "generated_at": "2026-06-19",
+  "generated_at": "2026-06-12",
   "modules": [
     {
       "relpath": "__init__.py",
@@ -39,6 +39,1781 @@
               "signature": "(self)",
               "summary": "Repeat the last stored command.",
               "line": 56,
+              "deprecated": false
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "relpath": "slots/blender/_slots_blender.py",
+      "summary": "",
+      "functions": [],
+      "classes": [
+        {
+          "name": "SlotsBlender",
+          "summary": "App specific methods inherited by all other Blender slot classes.",
+          "line": 7,
+          "bases": [
+            "Slots"
+          ],
+          "members": [
+            {
+              "name": "selected_objects",
+              "qualname": "SlotsBlender.selected_objects",
+              "kind": "staticmethod",
+              "signature": "()",
+              "summary": "The current object selection (filtered of ``None``) — shared by all Blender slots.",
+              "line": 14,
+              "deprecated": false
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "relpath": "slots/blender/cameras.py",
+      "summary": "",
+      "functions": [],
+      "classes": [
+        {
+          "name": "Cameras",
+          "summary": "Blender port of the shared ``cameras`` menu.",
+          "line": 24,
+          "bases": [
+            "SlotsBlender"
+          ],
+          "members": [
+            {
+              "name": "list000_init",
+              "qualname": "Cameras.list000_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Initialize Camera Options List",
+              "line": 54,
+              "deprecated": false
+            },
+            {
+              "name": "list000",
+              "qualname": "Cameras.list000",
+              "kind": "method",
+              "signature": "(self, item)",
+              "summary": "Camera Options List",
+              "line": 73,
+              "deprecated": false
+            },
+            {
+              "name": "b000",
+              "qualname": "Cameras.b000",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Cameras: Back View",
+              "line": 98,
+              "deprecated": false
+            },
+            {
+              "name": "b001",
+              "qualname": "Cameras.b001",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Cameras: Top View",
+              "line": 102,
+              "deprecated": false
+            },
+            {
+              "name": "b002",
+              "qualname": "Cameras.b002",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Cameras: Right View",
+              "line": 106,
+              "deprecated": false
+            },
+            {
+              "name": "b003",
+              "qualname": "Cameras.b003",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Cameras: Left View",
+              "line": 110,
+              "deprecated": false
+            },
+            {
+              "name": "b004",
+              "qualname": "Cameras.b004",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Cameras: Perspective View",
+              "line": 114,
+              "deprecated": false
+            },
+            {
+              "name": "b005",
+              "qualname": "Cameras.b005",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Cameras: Front View",
+              "line": 125,
+              "deprecated": false
+            },
+            {
+              "name": "b006",
+              "qualname": "Cameras.b006",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Cameras: Bottom View",
+              "line": 129,
+              "deprecated": false
+            },
+            {
+              "name": "b007",
+              "qualname": "Cameras.b007",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Cameras: Align View — Maya align-camera-to-polygon has no direct Blender analogue.",
+              "line": 134,
+              "deprecated": false
+            },
+            {
+              "name": "b010",
+              "qualname": "Cameras.b010",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Camera: Dolly — Blender viewport navigation is modal, not a persistent tool.",
+              "line": 138,
+              "deprecated": false
+            },
+            {
+              "name": "b011",
+              "qualname": "Cameras.b011",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Camera: Roll",
+              "line": 142,
+              "deprecated": false
+            },
+            {
+              "name": "b012",
+              "qualname": "Cameras.b012",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Camera: Truck",
+              "line": 146,
+              "deprecated": false
+            },
+            {
+              "name": "b013",
+              "qualname": "Cameras.b013",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Camera: Orbit",
+              "line": 150,
+              "deprecated": false
+            },
+            {
+              "name": "toggle_camera_view",
+              "qualname": "Cameras.toggle_camera_view",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Toggle between the last two camera views in history (DCC-agnostic switchboard logic).",
+              "line": 155,
+              "deprecated": false
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "relpath": "slots/blender/crease.py",
+      "summary": "",
+      "functions": [],
+      "classes": [
+        {
+          "name": "Crease",
+          "summary": "Blender port of the shared ``crease`` menu.",
+          "line": 7,
+          "bases": [
+            "SlotsBlender"
+          ],
+          "members": [
+            {
+              "name": "tb000_init",
+              "qualname": "Crease.tb000_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "",
+              "line": 21,
+              "deprecated": false
+            },
+            {
+              "name": "tb000",
+              "qualname": "Crease.tb000",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Crease",
+              "line": 33,
+              "deprecated": false
+            },
+            {
+              "name": "b002",
+              "qualname": "Crease.b002",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Transfer Crease Edges — needs a Data-Transfer edge-data setup;",
+              "line": 41,
+              "deprecated": false
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "relpath": "slots/blender/display.py",
+      "summary": "",
+      "functions": [],
+      "classes": [
+        {
+          "name": "DisplaySlots",
+          "summary": "Blender port of the shared ``display`` menu.",
+          "line": 8,
+          "bases": [
+            "SlotsBlender"
+          ],
+          "members": [
+            {
+              "name": "list000_init",
+              "qualname": "DisplaySlots.list000_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Initialize Display expandable list (categories → actions).",
+              "line": 42,
+              "deprecated": false
+            },
+            {
+              "name": "list000",
+              "qualname": "DisplaySlots.list000",
+              "kind": "method",
+              "signature": "(self, item)",
+              "summary": "Dispatch a Display action and report state via message_box.",
+              "line": 53,
+              "deprecated": false
+            },
+            {
+              "name": "b013",
+              "qualname": "DisplaySlots.b013",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Explode View — separate window not ported to Blender yet.",
+              "line": 120,
+              "deprecated": false
+            },
+            {
+              "name": "b014",
+              "qualname": "DisplaySlots.b014",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Color Manager — separate window not ported to Blender yet.",
+              "line": 124,
+              "deprecated": false
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "relpath": "slots/blender/duplicate.py",
+      "summary": "",
+      "functions": [],
+      "classes": [
+        {
+          "name": "Duplicate",
+          "summary": "Blender port of the shared ``duplicate`` menu.",
+          "line": 8,
+          "bases": [
+            "SlotsBlender"
+          ],
+          "members": [
+            {
+              "name": "header_init",
+              "qualname": "Duplicate.header_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "",
+              "line": 29,
+              "deprecated": false
+            },
+            {
+              "name": "tb000_init",
+              "qualname": "Duplicate.tb000_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "",
+              "line": 48,
+              "deprecated": false
+            },
+            {
+              "name": "tb000",
+              "qualname": "Duplicate.tb000",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Convert to Instances (selected objects share the active object's data).",
+              "line": 63,
+              "deprecated": false
+            },
+            {
+              "name": "tb001_init",
+              "qualname": "Duplicate.tb001_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "",
+              "line": 81,
+              "deprecated": false
+            },
+            {
+              "name": "tb001",
+              "qualname": "Duplicate.tb001",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Select Instanced Objects",
+              "line": 87,
+              "deprecated": false
+            },
+            {
+              "name": "b005",
+              "qualname": "Duplicate.b005",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Uninstance Selected Objects (make their data single-user).",
+              "line": 110,
+              "deprecated": false
+            },
+            {
+              "name": "b000",
+              "qualname": "Duplicate.b000",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Mirror — separate menu not ported to Blender yet.",
+              "line": 115,
+              "deprecated": false
+            },
+            {
+              "name": "b006",
+              "qualname": "Duplicate.b006",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Duplicate Linear — separate menu not ported to Blender yet.",
+              "line": 119,
+              "deprecated": false
+            },
+            {
+              "name": "b007",
+              "qualname": "Duplicate.b007",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Duplicate Radial — separate menu not ported to Blender yet.",
+              "line": 123,
+              "deprecated": false
+            },
+            {
+              "name": "b008",
+              "qualname": "Duplicate.b008",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Duplicate Grid — separate menu not ported to Blender yet.",
+              "line": 127,
+              "deprecated": false
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "relpath": "slots/blender/edit.py",
+      "summary": "",
+      "functions": [],
+      "classes": [
+        {
+          "name": "Edit",
+          "summary": "Blender port of the shared ``edit`` menu.",
+          "line": 9,
+          "bases": [
+            "SlotsBlender"
+          ],
+          "members": [
+            {
+              "name": "header_init",
+              "qualname": "Edit.header_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "",
+              "line": 47,
+              "deprecated": false
+            },
+            {
+              "name": "tb000_init",
+              "qualname": "Edit.tb000_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "",
+              "line": 54,
+              "deprecated": false
+            },
+            {
+              "name": "tb000",
+              "qualname": "Edit.tb000",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Mesh Cleanup",
+              "line": 75,
+              "deprecated": false
+            },
+            {
+              "name": "tb002",
+              "qualname": "Edit.tb002",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Delete Selected (objects in object mode, components by select mode in edit mode).",
+              "line": 94,
+              "deprecated": false
+            },
+            {
+              "name": "list000_init",
+              "qualname": "Edit.list000_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Initialize Create Primitives list.",
+              "line": 107,
+              "deprecated": false
+            },
+            {
+              "name": "list000",
+              "qualname": "Edit.list000",
+              "kind": "method",
+              "signature": "(self, item)",
+              "summary": "Create Primitive",
+              "line": 120,
+              "deprecated": false
+            },
+            {
+              "name": "list001_init",
+              "qualname": "Edit.list001_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Initialize Convert list.",
+              "line": 133,
+              "deprecated": false
+            },
+            {
+              "name": "list001",
+              "qualname": "Edit.list001",
+              "kind": "method",
+              "signature": "(self, item)",
+              "summary": "Convert the selected object(s) to another type.",
+              "line": 142,
+              "deprecated": false
+            },
+            {
+              "name": "tb001",
+              "qualname": "Edit.tb001",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Delete History — Blender has no construction history (modifier stack is non-destructive).",
+              "line": 162,
+              "deprecated": false
+            },
+            {
+              "name": "tb004",
+              "qualname": "Edit.tb004",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Node Locking — Maya node locking has no Blender analogue.",
+              "line": 166,
+              "deprecated": false
+            },
+            {
+              "name": "b000",
+              "qualname": "Edit.b000",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Cut On Axis — mesh bisect;",
+              "line": 170,
+              "deprecated": false
+            },
+            {
+              "name": "b021",
+              "qualname": "Edit.b021",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Transfer Maps — needs a bake/Data-Transfer setup;",
+              "line": 174,
+              "deprecated": false
+            },
+            {
+              "name": "b022",
+              "qualname": "Edit.b022",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Transfer Vertex Order — Maya-specific;",
+              "line": 178,
+              "deprecated": false
+            },
+            {
+              "name": "b023",
+              "qualname": "Edit.b023",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Transfer Attribute Values — needs a Data-Transfer setup;",
+              "line": 182,
+              "deprecated": false
+            },
+            {
+              "name": "b027",
+              "qualname": "Edit.b027",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Shading Sets — Maya shading groups;",
+              "line": 186,
+              "deprecated": false
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "relpath": "slots/blender/main.py",
+      "summary": "",
+      "functions": [],
+      "classes": [
+        {
+          "name": "Main",
+          "summary": "Blender port of the shared ``main`` start menu — a workspace directory browser.",
+          "line": 10,
+          "bases": [
+            "SlotsBlender"
+          ],
+          "members": [
+            {
+              "name": "list000_init",
+              "qualname": "Main.list000_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Initialize Workspace Browser",
+              "line": 21,
+              "deprecated": false
+            },
+            {
+              "name": "list000",
+              "qualname": "Main.list000",
+              "kind": "method",
+              "signature": "(self, item)",
+              "summary": "Workspace Browser",
+              "line": 68,
+              "deprecated": false
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "relpath": "slots/blender/normals.py",
+      "summary": "",
+      "functions": [],
+      "classes": [
+        {
+          "name": "Normals",
+          "summary": "Blender port of the shared ``normals`` menu.",
+          "line": 8,
+          "bases": [
+            "SlotsBlender"
+          ],
+          "members": [
+            {
+              "name": "tb001_init",
+              "qualname": "Normals.tb001_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "",
+              "line": 21,
+              "deprecated": false
+            },
+            {
+              "name": "tb001",
+              "qualname": "Normals.tb001",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Set Normals By Angle",
+              "line": 30,
+              "deprecated": false
+            },
+            {
+              "name": "tb004_init",
+              "qualname": "Normals.tb004_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "",
+              "line": 39,
+              "deprecated": false
+            },
+            {
+              "name": "tb004",
+              "qualname": "Normals.tb004",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Average Normals (smooth shading averages vertex normals).",
+              "line": 43,
+              "deprecated": false
+            },
+            {
+              "name": "b000",
+              "qualname": "Normals.b000",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Soften Edge Normals (smooth shading).",
+              "line": 49,
+              "deprecated": false
+            },
+            {
+              "name": "b001",
+              "qualname": "Normals.b001",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Harden Edge Normals (flat shading).",
+              "line": 54,
+              "deprecated": false
+            },
+            {
+              "name": "b006",
+              "qualname": "Normals.b006",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Set To Face (vertex normals follow faces = flat shading).",
+              "line": 59,
+              "deprecated": false
+            },
+            {
+              "name": "tb010_init",
+              "qualname": "Normals.tb010_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "",
+              "line": 64,
+              "deprecated": false
+            },
+            {
+              "name": "tb010",
+              "qualname": "Normals.tb010",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Reverse Normals",
+              "line": 74,
+              "deprecated": false
+            },
+            {
+              "name": "b002",
+              "qualname": "Normals.b002",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Transfer Normals — needs a Data-Transfer custom-normal setup;",
+              "line": 88,
+              "deprecated": false
+            },
+            {
+              "name": "b004",
+              "qualname": "Normals.b004",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Lock/Unlock Vertex Normals — Maya normal locking has no direct Blender analogue.",
+              "line": 92,
+              "deprecated": false
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "relpath": "slots/blender/pivot.py",
+      "summary": "",
+      "functions": [],
+      "classes": [
+        {
+          "name": "Pivot",
+          "summary": "Blender port of the shared ``pivot`` menu.",
+          "line": 8,
+          "bases": [
+            "SlotsBlender"
+          ],
+          "members": [
+            {
+              "name": "tb000_init",
+              "qualname": "Pivot.tb000_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "",
+              "line": 24,
+              "deprecated": false
+            },
+            {
+              "name": "tb000",
+              "qualname": "Pivot.tb000",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Reset Pivot",
+              "line": 33,
+              "deprecated": false
+            },
+            {
+              "name": "tb001_init",
+              "qualname": "Pivot.tb001_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "",
+              "line": 44,
+              "deprecated": false
+            },
+            {
+              "name": "tb001",
+              "qualname": "Pivot.tb001",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Center Pivot",
+              "line": 60,
+              "deprecated": false
+            },
+            {
+              "name": "b000",
+              "qualname": "Pivot.b000",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Center Pivot: Object",
+              "line": 75,
+              "deprecated": false
+            },
+            {
+              "name": "b001",
+              "qualname": "Pivot.b001",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Center Pivot: Component",
+              "line": 81,
+              "deprecated": false
+            },
+            {
+              "name": "b002",
+              "qualname": "Pivot.b002",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Center Pivot: World",
+              "line": 87,
+              "deprecated": false
+            },
+            {
+              "name": "tb002",
+              "qualname": "Pivot.tb002",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Transfer Pivot — Maya's per-channel (translate/rotate/scale) pivot transfer has no",
+              "line": 94,
+              "deprecated": false
+            },
+            {
+              "name": "tb003",
+              "qualname": "Pivot.tb003",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "World-Aligned Pivot — Maya manipulator-pivot orientation;",
+              "line": 99,
+              "deprecated": false
+            },
+            {
+              "name": "b004",
+              "qualname": "Pivot.b004",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Bake Pivot — Blender object origins are always baked into the transform (no-op).",
+              "line": 104,
+              "deprecated": false
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "relpath": "slots/blender/preferences.py",
+      "summary": "",
+      "functions": [],
+      "classes": [
+        {
+          "name": "Preferences",
+          "summary": "Blender port of the shared ``preferences`` menu.",
+          "line": 7,
+          "bases": [
+            "SlotsBlender"
+          ],
+          "members": [
+            {
+              "name": "cmb001_init",
+              "qualname": "Preferences.cmb001_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "",
+              "line": 43,
+              "deprecated": false
+            },
+            {
+              "name": "cmb001",
+              "qualname": "Preferences.cmb001",
+              "kind": "method",
+              "signature": "(self, index, widget)",
+              "summary": "Set Working Units: Linear",
+              "line": 51,
+              "deprecated": false
+            },
+            {
+              "name": "cmb002_init",
+              "qualname": "Preferences.cmb002_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "",
+              "line": 59,
+              "deprecated": false
+            },
+            {
+              "name": "cmb002",
+              "qualname": "Preferences.cmb002",
+              "kind": "method",
+              "signature": "(self, index, widget)",
+              "summary": "Set Working Units: Time (frame rate)",
+              "line": 65,
+              "deprecated": false
+            },
+            {
+              "name": "s000_init",
+              "qualname": "Preferences.s000_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "",
+              "line": 70,
+              "deprecated": false
+            },
+            {
+              "name": "s001_init",
+              "qualname": "Preferences.s001_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "",
+              "line": 77,
+              "deprecated": false
+            },
+            {
+              "name": "b001",
+              "qualname": "Preferences.b001",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Color Settings → Blender Preferences (Themes).",
+              "line": 90,
+              "deprecated": false
+            },
+            {
+              "name": "b008",
+              "qualname": "Preferences.b008",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Hotkeys → Blender Preferences (Keymap).",
+              "line": 94,
+              "deprecated": false
+            },
+            {
+              "name": "b009",
+              "qualname": "Preferences.b009",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Plug-In Manager → Blender Preferences (Add-ons).",
+              "line": 98,
+              "deprecated": false
+            },
+            {
+              "name": "b010",
+              "qualname": "Preferences.b010",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Settings/Preferences → Blender Preferences (Interface).",
+              "line": 102,
+              "deprecated": false
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "relpath": "slots/blender/selection.py",
+      "summary": "",
+      "functions": [],
+      "classes": [
+        {
+          "name": "Selection",
+          "summary": "Blender port of the shared ``selection`` menu.",
+          "line": 10,
+          "bases": [
+            "SlotsBlender"
+          ],
+          "members": [
+            {
+              "name": "tb000_init",
+              "qualname": "Selection.tb000_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "",
+              "line": 46,
+              "deprecated": false
+            },
+            {
+              "name": "tb000",
+              "qualname": "Selection.tb000",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Select Nth",
+              "line": 72,
+              "deprecated": false
+            },
+            {
+              "name": "tb001_init",
+              "qualname": "Selection.tb001_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "",
+              "line": 98,
+              "deprecated": false
+            },
+            {
+              "name": "tb001",
+              "qualname": "Selection.tb001",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Select Similar",
+              "line": 105,
+              "deprecated": false
+            },
+            {
+              "name": "tb002_init",
+              "qualname": "Selection.tb002_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "",
+              "line": 118,
+              "deprecated": false
+            },
+            {
+              "name": "tb002",
+              "qualname": "Selection.tb002",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Select Island (connected region)",
+              "line": 126,
+              "deprecated": false
+            },
+            {
+              "name": "tb003_init",
+              "qualname": "Selection.tb003_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "",
+              "line": 135,
+              "deprecated": false
+            },
+            {
+              "name": "tb003",
+              "qualname": "Selection.tb003",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Select Edges By Angle",
+              "line": 142,
+              "deprecated": false
+            },
+            {
+              "name": "cmb003_init",
+              "qualname": "Selection.cmb003_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "",
+              "line": 151,
+              "deprecated": false
+            },
+            {
+              "name": "cmb003",
+              "qualname": "Selection.cmb003",
+              "kind": "method",
+              "signature": "(self, index, widget)",
+              "summary": "Convert the current selection to another component type.",
+              "line": 157,
+              "deprecated": false
+            },
+            {
+              "name": "chk004",
+              "qualname": "Selection.chk004",
+              "kind": "method",
+              "signature": "(self, state, widget)",
+              "summary": "Ignore Backfacing — toggle viewport X-ray (occlude) so only front faces select.",
+              "line": 179,
+              "deprecated": false
+            },
+            {
+              "name": "chk005_init",
+              "qualname": "Selection.chk005_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "",
+              "line": 187,
+              "deprecated": false
+            },
+            {
+              "name": "chk005",
+              "qualname": "Selection.chk005",
+              "kind": "method",
+              "signature": "(self, state, widget)",
+              "summary": "Select Style: Box (Marquee)",
+              "line": 200,
+              "deprecated": false
+            },
+            {
+              "name": "chk006",
+              "qualname": "Selection.chk006",
+              "kind": "method",
+              "signature": "(self, state, widget)",
+              "summary": "Select Style: Lasso",
+              "line": 204,
+              "deprecated": false
+            },
+            {
+              "name": "chk007",
+              "qualname": "Selection.chk007",
+              "kind": "method",
+              "signature": "(self, state, widget)",
+              "summary": "Select Style: Circle (Paint)",
+              "line": 208,
+              "deprecated": false
+            },
+            {
+              "name": "b001",
+              "qualname": "Selection.b001",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Toggle Selectability of the selected object(s).",
+              "line": 214,
+              "deprecated": false
+            },
+            {
+              "name": "cmb001_init",
+              "qualname": "Selection.cmb001_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "",
+              "line": 226,
+              "deprecated": false
+            },
+            {
+              "name": "cmb001",
+              "qualname": "Selection.cmb001",
+              "kind": "method",
+              "signature": "(self, index, widget)",
+              "summary": "Reorder Selection — not yet ported to Blender.",
+              "line": 234,
+              "deprecated": false
+            },
+            {
+              "name": "cmb005_init",
+              "qualname": "Selection.cmb005_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "",
+              "line": 238,
+              "deprecated": false
+            },
+            {
+              "name": "cmb005",
+              "qualname": "Selection.cmb005",
+              "kind": "method",
+              "signature": "(self, index, widget)",
+              "summary": "Selection Constraints — Maya draggable-constraint tool has no direct Blender analogue.",
+              "line": 241,
+              "deprecated": false
+            },
+            {
+              "name": "list000",
+              "qualname": "Selection.list000",
+              "kind": "method",
+              "signature": "(self, *args)",
+              "summary": "Select by Type — deferred (needs blendertk type categories + the list widget).",
+              "line": 245,
+              "deprecated": false
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "relpath": "slots/blender/settings.py",
+      "summary": "",
+      "functions": [],
+      "classes": [
+        {
+          "name": "Settings",
+          "summary": "Blender port of the shared ``settings`` menu.",
+          "line": 6,
+          "bases": [
+            "SlotsBlender"
+          ],
+          "members": [
+            {
+              "name": "header_init",
+              "qualname": "Settings.header_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "",
+              "line": 19,
+              "deprecated": false
+            },
+            {
+              "name": "tb000",
+              "qualname": "Settings.tb000",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Update Package — Maya's updater shells out to mayapy;",
+              "line": 32,
+              "deprecated": false
+            },
+            {
+              "name": "tb001",
+              "qualname": "Settings.tb001",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Reload Scripts — live reload uses a Maya-specific mechanism;",
+              "line": 37,
+              "deprecated": false
+            },
+            {
+              "name": "b020",
+              "qualname": "Settings.b020",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "UI Style Editor",
+              "line": 41,
+              "deprecated": false
+            },
+            {
+              "name": "b021",
+              "qualname": "Settings.b021",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Hotkey Editor",
+              "line": 45,
+              "deprecated": false
+            },
+            {
+              "name": "b022",
+              "qualname": "Settings.b022",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "UI Browser",
+              "line": 49,
+              "deprecated": false
+            },
+            {
+              "name": "b_reset_bindings",
+              "qualname": "Settings.b_reset_bindings",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Reset marking-menu bindings to defaults.",
+              "line": 53,
+              "deprecated": false
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "relpath": "slots/blender/subdivision.py",
+      "summary": "",
+      "functions": [],
+      "classes": [
+        {
+          "name": "Subdivision",
+          "summary": "Blender port of the shared ``subdivision`` menu.",
+          "line": 7,
+          "bases": [
+            "SlotsBlender"
+          ],
+          "members": [
+            {
+              "name": "tb000_init",
+              "qualname": "Subdivision.tb000_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "",
+              "line": 22,
+              "deprecated": false
+            },
+            {
+              "name": "tb000",
+              "qualname": "Subdivision.tb000",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Decimate",
+              "line": 58,
+              "deprecated": false
+            },
+            {
+              "name": "s000",
+              "qualname": "Subdivision.s000",
+              "kind": "method",
+              "signature": "(self, value, widget)",
+              "summary": "Division Level (live Subdivision-Surface viewport level).",
+              "line": 75,
+              "deprecated": false
+            },
+            {
+              "name": "s001",
+              "qualname": "Subdivision.s001",
+              "kind": "method",
+              "signature": "(self, value, widget)",
+              "summary": "Tesselation Level (Subdivision-Surface render level).",
+              "line": 80,
+              "deprecated": false
+            },
+            {
+              "name": "b000",
+              "qualname": "Subdivision.b000",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Quadrangulate (tris -> quads).",
+              "line": 86,
+              "deprecated": false
+            },
+            {
+              "name": "b001",
+              "qualname": "Subdivision.b001",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Triangulate",
+              "line": 91,
+              "deprecated": false
+            },
+            {
+              "name": "b005",
+              "qualname": "Subdivision.b005",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Reduce (decimate to 50%).",
+              "line": 96,
+              "deprecated": false
+            },
+            {
+              "name": "b008",
+              "qualname": "Subdivision.b008",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Add Divisions - Subdivide Mesh",
+              "line": 104,
+              "deprecated": false
+            },
+            {
+              "name": "b011",
+              "qualname": "Subdivision.b011",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Apply Smooth Preview (live Subdivision-Surface modifier).",
+              "line": 109,
+              "deprecated": false
+            },
+            {
+              "name": "b028",
+              "qualname": "Subdivision.b028",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Quad Draw — Maya retopo tool;",
+              "line": 116,
+              "deprecated": false
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "relpath": "slots/blender/symmetry.py",
+      "summary": "",
+      "functions": [],
+      "classes": [
+        {
+          "name": "Symmetry",
+          "summary": "Blender port of the shared ``symmetry`` menu.",
+          "line": 7,
+          "bases": [
+            "SlotsBlender"
+          ],
+          "members": [
+            {
+              "name": "chk000_init",
+              "qualname": "Symmetry.chk000_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Set initial symmetry state from the active mesh.",
+              "line": 29,
+              "deprecated": false
+            },
+            {
+              "name": "chk000",
+              "qualname": "Symmetry.chk000",
+              "kind": "method",
+              "signature": "(self, state, widget)",
+              "summary": "Symmetry X",
+              "line": 43,
+              "deprecated": false
+            },
+            {
+              "name": "chk001",
+              "qualname": "Symmetry.chk001",
+              "kind": "method",
+              "signature": "(self, state, widget)",
+              "summary": "Symmetry Y",
+              "line": 47,
+              "deprecated": false
+            },
+            {
+              "name": "chk002",
+              "qualname": "Symmetry.chk002",
+              "kind": "method",
+              "signature": "(self, state, widget)",
+              "summary": "Symmetry Z",
+              "line": 51,
+              "deprecated": false
+            },
+            {
+              "name": "chk005_init",
+              "qualname": "Symmetry.chk005_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Set symmetry reference space (position vs topology).",
+              "line": 56,
+              "deprecated": false
+            },
+            {
+              "name": "chk005",
+              "qualname": "Symmetry.chk005",
+              "kind": "method",
+              "signature": "(self, state, widget)",
+              "summary": "Symmetry: Topo (match mirrored verts by topology instead of position).",
+              "line": 60,
+              "deprecated": false
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "relpath": "slots/blender/transform.py",
+      "summary": "",
+      "functions": [],
+      "classes": [
+        {
+          "name": "TransformSlots",
+          "summary": "Blender port of the shared ``transform`` menu.",
+          "line": 8,
+          "bases": [
+            "SlotsBlender"
+          ],
+          "members": [
+            {
+              "name": "tb000_init",
+              "qualname": "TransformSlots.tb000_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "",
+              "line": 30,
+              "deprecated": false
+            },
+            {
+              "name": "tb000",
+              "qualname": "TransformSlots.tb000",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Drop To Grid",
+              "line": 49,
+              "deprecated": false
+            },
+            {
+              "name": "tb002_init",
+              "qualname": "TransformSlots.tb002_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "",
+              "line": 66,
+              "deprecated": false
+            },
+            {
+              "name": "tb002",
+              "qualname": "TransformSlots.tb002",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Freeze Transformations",
+              "line": 82,
+              "deprecated": false
+            },
+            {
+              "name": "tb005_init",
+              "qualname": "TransformSlots.tb005_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "",
+              "line": 95,
+              "deprecated": false
+            },
+            {
+              "name": "tb005",
+              "qualname": "TransformSlots.tb005",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Move To (align source object(s) to the active/target object).",
+              "line": 107,
+              "deprecated": false
+            },
+            {
+              "name": "b001",
+              "qualname": "TransformSlots.b001",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Match Scale (rescale source object(s) to the active/target object).",
+              "line": 120,
+              "deprecated": false
+            },
+            {
+              "name": "cmb002_init",
+              "qualname": "TransformSlots.cmb002_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "",
+              "line": 129,
+              "deprecated": false
+            },
+            {
+              "name": "cmb002",
+              "qualname": "TransformSlots.cmb002",
+              "kind": "method",
+              "signature": "(self, index, widget)",
+              "summary": "Align To — Maya snap/align tools have no direct Blender analogue yet.",
+              "line": 132,
+              "deprecated": false
+            },
+            {
+              "name": "tb001",
+              "qualname": "TransformSlots.tb001",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Scale Connected Edges — component op, not yet ported.",
+              "line": 136,
+              "deprecated": false
+            },
+            {
+              "name": "b002",
+              "qualname": "TransformSlots.b002",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Un-Freeze Transforms — needs stored original transforms;",
+              "line": 140,
+              "deprecated": false
+            },
+            {
+              "name": "tb003",
+              "qualname": "TransformSlots.tb003",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Transform Constraints — Maya edge/surface/make-live constraints have no Blender analogue.",
+              "line": 144,
+              "deprecated": false
+            },
+            {
+              "name": "tb004",
+              "qualname": "TransformSlots.tb004",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Transform Snap — Maya manipulator snap;",
+              "line": 148,
+              "deprecated": false
+            },
+            {
+              "name": "chk023_init",
+              "qualname": "TransformSlots.chk023_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Snap Rotate toggle (Maya manipulator snap) — hidden until tb004 is ported.",
+              "line": 155,
+              "deprecated": false
+            },
+            {
+              "name": "chk024_init",
+              "qualname": "TransformSlots.chk024_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Constraint: Edge toggle — hidden until tb003 is ported.",
+              "line": 159,
+              "deprecated": false
+            },
+            {
+              "name": "chk025_init",
+              "qualname": "TransformSlots.chk025_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Constraint: Surface toggle — hidden until tb003 is ported.",
+              "line": 163,
+              "deprecated": false
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "relpath": "slots/blender/uv.py",
+      "summary": "",
+      "functions": [],
+      "classes": [
+        {
+          "name": "Uv",
+          "summary": "Blender port of the shared ``uv`` menu.",
+          "line": 8,
+          "bases": [
+            "SlotsBlender"
+          ],
+          "members": [
+            {
+              "name": "tb000",
+              "qualname": "Uv.tb000",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Pack UVs",
+              "line": 59,
+              "deprecated": false
+            },
+            {
+              "name": "tb001",
+              "qualname": "Uv.tb001",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Auto Unwrap (Smart UV Project)",
+              "line": 64,
+              "deprecated": false
+            },
+            {
+              "name": "tb004",
+              "qualname": "Uv.tb004",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Unfold (angle-based unwrap)",
+              "line": 69,
+              "deprecated": false
+            },
+            {
+              "name": "tb009",
+              "qualname": "Uv.tb009",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Cut Cylinder (cylinder project)",
+              "line": 74,
+              "deprecated": false
+            },
+            {
+              "name": "b005",
+              "qualname": "Uv.b005",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Cut UVs (mark seam on selected edges)",
+              "line": 79,
+              "deprecated": false
+            },
+            {
+              "name": "b011",
+              "qualname": "Uv.b011",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Sew UVs (clear seam on selected edges)",
+              "line": 84,
+              "deprecated": false
+            },
+            {
+              "name": "b021",
+              "qualname": "Uv.b021",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Unfold and Pack UVs",
+              "line": 89,
+              "deprecated": false
+            },
+            {
+              "name": "b023",
+              "qualname": "Uv.b023",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Move To UV Space: Left",
+              "line": 95,
+              "deprecated": false
+            },
+            {
+              "name": "b024",
+              "qualname": "Uv.b024",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Move To UV Space: Down",
+              "line": 100,
+              "deprecated": false
+            },
+            {
+              "name": "b025",
+              "qualname": "Uv.b025",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Move To UV Space: Up",
+              "line": 105,
+              "deprecated": false
+            },
+            {
+              "name": "b026",
+              "qualname": "Uv.b026",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Move To UV Space: Right",
+              "line": 110,
+              "deprecated": false
+            },
+            {
+              "name": "tb007",
+              "qualname": "Uv.tb007",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Cleanup UV Sets (keep only the first UV map).",
+              "line": 116,
+              "deprecated": false
+            },
+            {
+              "name": "tb005",
+              "qualname": "Uv.tb005",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Straighten UV — UV-editor align op;",
+              "line": 121,
+              "deprecated": false
+            },
+            {
+              "name": "tb006",
+              "qualname": "Uv.tb006",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Distribute — UV-editor align/distribute op;",
+              "line": 125,
+              "deprecated": false
+            },
+            {
+              "name": "tb008",
+              "qualname": "Uv.tb008",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Mirror UVs — UV-editor mirror op;",
+              "line": 129,
+              "deprecated": false
+            },
+            {
+              "name": "tb022",
+              "qualname": "Uv.tb022",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Cut UV hard edges — seam-from-sharp;",
+              "line": 133,
+              "deprecated": false
+            },
+            {
+              "name": "b000",
+              "qualname": "Uv.b000",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Transfer UVs — needs a Data-Transfer UV setup;",
+              "line": 137,
+              "deprecated": false
+            },
+            {
+              "name": "b003",
+              "qualname": "Uv.b003",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Get Texel Density — needs a texel-density helper;",
+              "line": 141,
+              "deprecated": false
+            },
+            {
+              "name": "b004",
+              "qualname": "Uv.b004",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Set Texel Density — needs a texel-density helper;",
+              "line": 145,
+              "deprecated": false
+            },
+            {
+              "name": "b029",
+              "qualname": "Uv.b029",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Pin / Unpin UVs — UV-editor pin;",
+              "line": 149,
+              "deprecated": false
+            },
+            {
+              "name": "b030",
+              "qualname": "Uv.b030",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Stack / Unstack shells — not yet ported.",
+              "line": 153,
+              "deprecated": false
+            },
+            {
+              "name": "b031",
+              "qualname": "Uv.b031",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Open UV Editor — switch an area to the UV editor;",
+              "line": 157,
+              "deprecated": false
+            },
+            {
+              "name": "b032",
+              "qualname": "Uv.b032",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "RizomUV Bridge — external tool;",
+              "line": 161,
+              "deprecated": false
+            },
+            {
+              "name": "cmb002",
+              "qualname": "Uv.cmb002",
+              "kind": "method",
+              "signature": "(self, index, widget)",
+              "summary": "Transform — UV transform options;",
+              "line": 165,
+              "deprecated": false
+            },
+            {
+              "name": "cmb003",
+              "qualname": "Uv.cmb003",
+              "kind": "method",
+              "signature": "(self, index, widget)",
+              "summary": "UV set options — not yet ported.",
+              "line": 169,
+              "deprecated": false
+            },
+            {
+              "name": "s003",
+              "qualname": "Uv.s003",
+              "kind": "method",
+              "signature": "(self, value, widget)",
+              "summary": "UV spin option — not yet wired.",
+              "line": 173,
               "deprecated": false
             }
           ]
@@ -5470,13 +7245,77 @@
     },
     {
       "relpath": "tcl_blender.py",
-      "summary": "",
-      "functions": [],
+      "summary": "Blender entry point for tentacle's Qt marking menu — host + keymap bridge + launcher in one.",
+      "functions": [
+        {
+          "name": "ensure_qapp",
+          "qualname": "ensure_qapp",
+          "kind": "function",
+          "signature": "()",
+          "summary": "Return the process QApplication, creating one if Blender has none.",
+          "line": 164,
+          "deprecated": false
+        },
+        {
+          "name": "ensure_blender_widget",
+          "qualname": "ensure_blender_widget",
+          "kind": "function",
+          "signature": "(app)",
+          "summary": "Establish ``app.blender_widget`` — the parent for the marking menu.",
+          "line": 172,
+          "deprecated": false
+        },
+        {
+          "name": "start_event_pump",
+          "qualname": "start_event_pump",
+          "kind": "function",
+          "signature": "(app, interval=0.01)",
+          "summary": "Pump Qt events from Blender's timer loop so the Qt UI stays responsive (idempotent).",
+          "line": 185,
+          "deprecated": false
+        },
+        {
+          "name": "launch",
+          "qualname": "launch",
+          "kind": "function",
+          "signature": "(**kwargs)",
+          "summary": "Stand up the Qt host (QApplication + ``blender_widget`` + event pump) and return a",
+          "line": 418,
+          "deprecated": false
+        },
+        {
+          "name": "register",
+          "qualname": "register",
+          "kind": "function",
+          "signature": "()",
+          "summary": "Blender add-on / startup entry: stand up the host.",
+          "line": 435,
+          "deprecated": false
+        },
+        {
+          "name": "unregister",
+          "qualname": "unregister",
+          "kind": "function",
+          "signature": "()",
+          "summary": "Blender add-on teardown: remove the keymap items + bridge operator.",
+          "line": 448,
+          "deprecated": false
+        },
+        {
+          "name": "diagnose",
+          "qualname": "diagnose",
+          "kind": "function",
+          "signature": "()",
+          "summary": "Print the live activation state — run in Blender's Python console to see why the key isn't",
+          "line": 453,
+          "deprecated": false
+        }
+      ],
       "classes": [
         {
           "name": "TclBlender",
           "summary": "Marking Menu class overridden for use with Blender.",
-          "line": 7,
+          "line": 336,
           "bases": [
             "MarkingMenu"
           ],
@@ -5486,8 +7325,8 @@
               "qualname": "TclBlender.get_main_window",
               "kind": "classmethod",
               "signature": "(cls)",
-              "summary": "Get Blender's main window object.",
-              "line": 27,
+              "summary": "Blender parent widget for the marking menu (set by :func:`ensure_blender_widget`).",
+              "line": 390,
               "deprecated": false
             },
             {
@@ -5496,7 +7335,7 @@
               "kind": "method",
               "signature": "(self, event)",
               "summary": "",
-              "line": 31,
+              "line": 399,
               "deprecated": false
             }
           ]
