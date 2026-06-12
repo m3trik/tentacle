@@ -94,10 +94,11 @@ User preferences (theme, repeat-last shortcut, etc.) live in the in-app **Prefer
 tentacle/
 ├── tcl_maya.py            TclMaya entry point + default bindings
 ├── tcl_max.py             TclMax  (wrapper, no slot library yet)
-├── tcl_blender.py         TclBlender (wrapper, no slot library yet)
+├── tcl_blender.py         TclBlender entry point — Qt host + keymap bridge + launcher + add-on
 ├── slots/
 │   ├── _slots.py          Slots base — repeat-last-command shortcut
-│   └── maya/              ~60 SlotsMaya subclasses
+│   ├── maya/              ~60 SlotsMaya subclasses
+│   └── blender/           SlotsBlender subclasses (Phase 3+)
 └── ui/                    .ui definitions; maya_menus/ holds Maya submenus
 ```
 
@@ -106,7 +107,7 @@ tentacle/
 | DCC         | Status                                                 |
 | ----------- | ------------------------------------------------------ |
 | Maya 2025+  | Full — entry point, slot library, all menus wired.     |
-| Blender     | Wrapper only ([`TclBlender`](../tentacle/tcl_blender.py)). |
+| Blender     | Entry point + keymap activation live ([`TclBlender`](../tentacle/tcl_blender.py)); slot port in progress. |
 | 3ds Max     | Wrapper only ([`TclMax`](../tentacle/tcl_max.py)).         |
 
 ## Development
