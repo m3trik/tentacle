@@ -9,19 +9,23 @@ The open question the headless ``keymap_bridge_check.py`` *can't* answer: our it
 Blender dispatches region handlers before window handlers, so *in theory* we win over the viewport.
 This proves it on a real event.
 
-Why ``PostMessage`` and not ``keybd_event``: ``keybd_event``/``SendInput`` deliver to the OS
-*foreground* window, and a Blender launched from a background shell is denied foreground by Windows
-(the earlier test was stuck INCONCLUSIVE for exactly this reason). ``PostMessage`` queues a message
-to a *specific* ``hwnd`` regardless of foreground, and GHOST's Win32 window proc handles
-``WM_KEYDOWN``/``WM_KEYUP``, so a posted key reaches Blender's event loop exactly like a physical one.
-We first post ``WM_MOUSEMOVE`` to a point inside the 3D viewport (so the key event's region match
-resolves to the viewport), then post F12, then report whether OUR operator fired (region keymap won)
-or a render kicked off (Screen keymap won). Windows-only. Uses a **stub** menu (records ``show``
-calls, no Qt overlay) so Blender keeps focus and the dispatch is measured, not short-circuited.
+Delivery: a real keystroke needs (1) real input — ``keybd_event``/``SendInput`` generate Raw Input
+(``WM_INPUT``), which GHOST reads (``PostMessage`` of ``WM_KEYDOWN`` is *ignored* by GHOST, so that
+route is dead) — and (2) the target window in the OS foreground (Raw Input goes to the focused
+window). A Blender launched from a background shell is denied ``SetForegroundWindow``, *but*
+restoring a just-minimized window is granted foreground by Windows — so we minimize→restore the
+GHOST window to legitimately foreground it, click the viewport (focus + active region), then send a
+real F12 and report whether OUR operator fired (region keymap won) or a render kicked off (Screen
+keymap won). Runs the input in a background thread so Blender's event loop keeps turning and actually
+processes the injected event. Windows-only; **moves the real mouse + steals foreground for ~2 s** —
+run only in a throwaway ``--factory-startup`` instance. Uses a **stub** menu (records ``show`` calls,
+no Qt overlay) so Blender keeps focus and the dispatch is measured, not short-circuited by the overlay.
 """
 import sys
 import os
+import time
 import ctypes
+import threading
 from ctypes import wintypes
 from pathlib import Path
 from types import SimpleNamespace as NS
@@ -36,19 +40,15 @@ os.environ.setdefault("QT_API", "pyside6")
 import bpy
 from tentacle import tcl_blender as tb
 
-_WM_MOUSEMOVE = 0x0200
-_WM_KEYDOWN = 0x0100
-_WM_KEYUP = 0x0101
 _VK_F12 = 0x7B
-_MAPVK_VK_TO_VSC = 0
+_KEYUP = 0x0002
+_LDOWN, _LUP = 0x0002, 0x0004
+_SW_MINIMIZE, _SW_RESTORE = 6, 9
 
 _u = ctypes.windll.user32
-_u.PostMessageW.argtypes = [wintypes.HWND, wintypes.UINT, wintypes.WPARAM, wintypes.LPARAM]
-_u.PostMessageW.restype = wintypes.BOOL
 
 # Keymap → stub: records show(); raise_/activateWindow are no-ops so the operator returns FINISHED
-# (consumes the event). A bare stub would AttributeError on raise_ → operator path differs; mirror
-# the real QWidget surface the bridge touches.
+# (consumes the event) and mirrors the real QWidget surface the bridge touches.
 _calls = []
 _stub = NS(show=lambda ui: _calls.append(ui), raise_=lambda: None, activateWindow=lambda: None)
 
@@ -74,47 +74,52 @@ def _ghost_hwnd():
     return found[0] if found else None
 
 
-def _viewport_client_point(hwnd):
-    """A client-space (x, y) safely inside the 3D viewport region.
-
-    Prefer Blender's own area rect (authoritative for which region the event lands in); fall back to
-    a left-of-center fraction of the client rect (factory layout: viewport fills the left/center,
-    Properties/Outliner sit right, Timeline bottom). Blender's area Y is bottom-up; client Y is
-    top-down, so flip against the client height."""
-    rect = wintypes.RECT()
-    _u.GetClientRect(hwnd, ctypes.byref(rect))
-    cw, ch = rect.right, rect.bottom
+def _screen_viewport_point(hwnd):
+    """Screen-pixel (x, y) inside the 3D viewport region (Blender area rect → client → screen)."""
     for area in bpy.context.window.screen.areas:
         if area.type == "VIEW_3D":
             for region in area.regions:
                 if region.type == "WINDOW":
-                    x = region.x + region.width // 2
-                    y_bottomup = region.y + region.height // 2
-                    return int(x), int(ch - y_bottomup)
-    return int(cw * 0.35), int(ch * 0.45)
+                    rect = wintypes.RECT()
+                    _u.GetClientRect(hwnd, ctypes.byref(rect))
+                    # Blender area Y is bottom-up; client Y is top-down.
+                    pt = wintypes.POINT(region.x + region.width // 2,
+                                        rect.bottom - (region.y + region.height // 2))
+                    _u.ClientToScreen(hwnd, ctypes.byref(pt))
+                    return pt.x, pt.y
+    rect = wintypes.RECT()
+    _u.GetWindowRect(hwnd, ctypes.byref(rect))
+    return (rect.left + rect.right) // 2, (rect.top + rect.bottom) // 2
 
 
-def _lparam(scan, up):
-    """WM_KEY* lParam: repeat=1, scancode in bits 16-23; bits 30-31 set on key-up."""
-    base = 1 | (scan << 16)
-    return base | (0xC0000000 if up else 0)
-
-
-def _post_f12():
-    hwnd = _ghost_hwnd()
+def _press_f12(hwnd, x, y):
+    # OS calls only — no bpy here (Blender restricts bpy.context off the main thread; the viewport
+    # point is computed on the main thread in _go and passed in).
+    time.sleep(0.5)
     if not hwnd:
-        print("[keypress] no GHOST hwnd — cannot post")
-        return False
-    x, y = _viewport_client_point(hwnd)
-    # Position Blender's tracked cursor inside the viewport so the key event's region match is the
-    # 3D view (region handlers, where our item lives), not the header/properties.
-    _u.PostMessageW(hwnd, _WM_MOUSEMOVE, 0, (y << 16) | (x & 0xFFFF))
-    scan = _u.MapVirtualKeyW(_VK_F12, _MAPVK_VK_TO_VSC) or 0x58
-    _u.PostMessageW(hwnd, _WM_KEYDOWN, _VK_F12, _lparam(scan, up=False))
-    _u.PostMessageW(hwnd, _WM_KEYUP, _VK_F12, _lparam(scan, up=True))
-    print(f"[keypress] posted MOUSEMOVE({x},{y}) + F12 (scan=0x{scan:02x}) to hwnd={hwnd}")
+        print("[keypress] no GHOST hwnd — cannot inject")
+        sys.stdout.flush()
+        return
+    # Foreground acquisition: a background-shell Blender is denied SetForegroundWindow, but restoring
+    # a just-minimized window is granted foreground — the only reliable hatch found.
+    _u.ShowWindow(hwnd, _SW_MINIMIZE)
+    time.sleep(0.3)
+    _u.ShowWindow(hwnd, _SW_RESTORE)
+    _u.SetForegroundWindow(hwnd)
+    time.sleep(0.5)
+    fg_ok = _u.GetForegroundWindow() == hwnd
+    _u.SetCursorPos(x, y)
+    time.sleep(0.2)
+    _u.mouse_event(_LDOWN, 0, 0, 0, 0)  # click → focus + active region = the 3D viewport
+    _u.mouse_event(_LUP, 0, 0, 0, 0)
+    time.sleep(0.2)
+    # Real F12 via Raw Input (keybd_event), with the real scancode GHOST expects.
+    scan = _u.MapVirtualKeyW(_VK_F12, 0) or 0x58
+    _u.keybd_event(_VK_F12, scan, 0, 0)
+    time.sleep(0.05)
+    _u.keybd_event(_VK_F12, scan, _KEYUP, 0)
+    print(f"[keypress] fg_ok={fg_ok} cursor=({x},{y}) sent F12 (scan=0x{scan:02x}) to hwnd={hwnd}")
     sys.stdout.flush()
-    return True
 
 
 def _report_and_quit():
@@ -138,10 +143,12 @@ def _report_and_quit():
 
 def _go():
     tb._install_keymap(_stub, "F12", "main#startmenu")  # no register() → no overlay → Blender keeps focus
-    _post_f12()
-    bpy.app.timers.register(_report_and_quit, first_interval=2.5)
+    hwnd = _ghost_hwnd()
+    x, y = _screen_viewport_point(hwnd) if hwnd else (0, 0)  # main-thread bpy.context access
+    threading.Thread(target=_press_f12, args=(hwnd, x, y), daemon=True).start()
+    bpy.app.timers.register(_report_and_quit, first_interval=4.0)
     return None
 
 
 # Defer until the window + keyconfig have settled (the addon keymap merges on the next event-loop pass).
-bpy.app.timers.register(_go, first_interval=2.5)
+bpy.app.timers.register(_go, first_interval=2.0)
