@@ -17,13 +17,17 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 SLOTS_ROOT = ROOT / "tentacle" / "slots"
 
-# dcc package dir -> required base class. Self-adapting to the slot packages
-# actually present: the Blender slot layer is built on dev but deliberately
-# held off main while under construction, so on a checkout without
-# ``slots/blender/`` these invariants simply cover the DCCs that exist
-# (Maya). Add a DCC by listing it here; it's exercised once its dir lands.
-_ALL_DCCS = {"maya": "SlotsMaya", "blender": "SlotsBlender"}
-DCCS = {d: b for d, b in _ALL_DCCS.items() if (SLOTS_ROOT / d).is_dir()}
+# dcc package dir -> required base class. Maya is the established baseline and is
+# ALWAYS enforced (a missing slots/maya/ is a real regression these invariants must
+# catch). The Blender slot layer is built on dev but deliberately held off main
+# while under construction, so it is covered only on checkouts where its slot dir
+# is present — keeping main green without weakening the Maya guarantee. Add a
+# stable DCC to DCCS directly; gate an under-construction one on its dir.
+DCCS = {"maya": "SlotsMaya"}
+# Detect via the base FILE, not the dir: a leftover __pycache__/ keeps the dir
+# present after the slot sources are removed, which would wrongly include Blender.
+if (SLOTS_ROOT / "blender" / "_slots_blender.py").is_file():
+    DCCS["blender"] = "SlotsBlender"
 
 
 def _slot_files(dcc):
