@@ -48,11 +48,36 @@ class _FakeConfigurable:
         self.marking_menu_bindings = _ConfigurableValue(bindings or {})
 
 
+class _FakeMarkingMenu:
+    """Stand-in for the registered marking menu (the binding SSoT).
+
+    settings.py reads/writes bindings through ``marking_menu.bindings`` /
+    ``on_bindings_changed`` (not ``configurable`` directly) because the real
+    store is host-namespaced in uitk. ``bindings`` here delegates to the fake
+    ``configurable`` store the tests inspect, so the indirection is transparent.
+    """
+
+    def __init__(self, sb, default_bindings=None):
+        self._sb = sb
+        self.default_bindings = default_bindings or {}
+
+    @property
+    def bindings(self):
+        return self._sb.configurable.marking_menu_bindings.get({})
+
+    @bindings.setter
+    def bindings(self, value):
+        self._sb.configurable.marking_menu_bindings.set(value)
+
+    def on_bindings_changed(self, callback):
+        pass  # combo-sync wiring is not under test here
+
+
 class _FakeSb:
     def __init__(self, filenames=None, bindings=None):
         self.registry = _FakeRegistry(filenames=filenames)
         self.configurable = _FakeConfigurable(bindings=bindings)
-        self.handlers = SimpleNamespace(marking_menu=None)
+        self.handlers = SimpleNamespace(marking_menu=_FakeMarkingMenu(self))
 
 
 @unittest.skipUnless(_MAYA_AVAILABLE, "Requires tentacle import path")

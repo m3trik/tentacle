@@ -194,10 +194,27 @@ class Settings(SlotsMaya):
         filenames = self.sb.registry.ui_registry.get("filename") or []
         return sorted([f for f in filenames if "#startmenu" in f])
 
+    def _get_bindings(self) -> dict:
+        """Current marking-menu bindings — read from the SSoT (the menu's store).
+
+        Goes through ``marking_menu`` rather than ``configurable.marking_menu_bindings``
+        directly because that key is host-namespaced (Maya/Blender share one
+        QSettings backend; see uitk ``MarkingMenu._binding_store_key``). Poking the
+        bare key here would desync the editor from the live menu.
+        """
+        mm = self.sb.handlers.marking_menu
+        return mm.bindings if mm is not None else {}
+
+    def _set_bindings(self, bindings: dict) -> None:
+        """Persist marking-menu bindings via the SSoT (auto-rebuilds + notifies)."""
+        mm = self.sb.handlers.marking_menu
+        if mm is not None:
+            mm.bindings = bindings
+
     def _init_binding_combo(self, widget, binding_key: str):
         """Initialize a binding combo box."""
         # Disable auto-restore state for these widgets, as they are managed manually
-        # via the marking_menu_bindings setting.
+        # via the marking-menu binding store.
         widget.restore_state = False
 
         available = self._get_startmenus()
@@ -205,13 +222,14 @@ class Settings(SlotsMaya):
         widget.clear()
         widget.add(items)
 
-        self.sb.configurable.marking_menu_bindings.changed.connect(
-            lambda v: self._sync_binding_combo(widget, binding_key, v)
-        )
+        marking_menu = self.sb.handlers.marking_menu
+        if marking_menu is not None:
+            marking_menu.on_bindings_changed(
+                lambda v: self._sync_binding_combo(widget, binding_key, v)
+            )
 
-        bindings = self.sb.configurable.marking_menu_bindings.get({})
+        bindings = self._get_bindings()
         if not bindings:
-            marking_menu = self.sb.handlers.marking_menu
             bindings = (
                 getattr(marking_menu, "default_bindings", {}) if marking_menu else {}
             )
@@ -230,14 +248,14 @@ class Settings(SlotsMaya):
 
     def _on_binding_change(self, binding_key: str, widget):
         """Handle binding combo change."""
-        bindings = self.sb.configurable.marking_menu_bindings.get({})
+        bindings = self._get_bindings()
         if bindings.get(binding_key) != widget.currentData():
             bindings[binding_key] = widget.currentData()
-            self.sb.configurable.marking_menu_bindings.set(bindings)
+            self._set_bindings(bindings)
 
     def _get_activation_key(self) -> str:
         """Get activation key from bindings."""
-        bindings = self.sb.configurable.marking_menu_bindings.get({})
+        bindings = self._get_bindings()
         for key in bindings:
             for part in key.split("|"):
                 if part.startswith("Key_"):
@@ -324,7 +342,7 @@ class Settings(SlotsMaya):
         if new_key_part == old_key_part:
             return
 
-        bindings = self.sb.configurable.marking_menu_bindings.get({})
+        bindings = self._get_bindings()
         new_bindings = {}
 
         for key, menu in bindings.items():
@@ -338,13 +356,13 @@ class Settings(SlotsMaya):
             new_key = "|".join(new_parts)
             new_bindings[new_key] = menu
 
-        self.sb.configurable.marking_menu_bindings.set(new_bindings)
+        self._set_bindings(new_bindings)
 
     def b_reset_bindings(self):
         """Reset bindings to defaults."""
         marking_menu = self.sb.handlers.marking_menu
         defaults = getattr(marking_menu, "default_bindings", {}) if marking_menu else {}
-        self.sb.configurable.marking_menu_bindings.set(defaults)
+        self._set_bindings(defaults)
 
 
 # -------------------------------------------------------------------------------------------

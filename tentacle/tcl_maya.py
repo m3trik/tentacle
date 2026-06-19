@@ -41,6 +41,7 @@ class TclMaya(MarkingMenu):
             log_level=log_level,
             suppress_default_on_reentry=True,
             precompile=True,
+            context_tags={"maya"},  # `requires` widget filtering (Phase-5 visibility)
             **kwargs,
         )
 

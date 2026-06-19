@@ -6,13 +6,10 @@ Most of SceneSlots is a thin shell around MEL/cmds calls (Export, Import,
 SetProject menus). Those are too thin to unit-test meaningfully. This
 covers the units with branching logic:
 
-- _open_recent_workspace — workspace.mel presence gate
 - _ensure_fbx_plugin     — graceful fail when plugin missing
 - _resolve_workspace_text — env fallback
 - b015 (rename pattern)  — startswith/contains asterisk modifiers
 """
-import os
-import tempfile
 import unittest
 
 try:
@@ -39,46 +36,8 @@ class _RecordedSb:
         return self.choice
 
 
-@unittest.skipUnless(_MAYA_AVAILABLE, "Requires maya.cmds")
-class TestOpenRecentWorkspace(unittest.TestCase):
-    """SceneSlots._open_recent_workspace validates workspace.mel before opening."""
-
-    def setUp(self):
-        cmds.file(new=True, force=True)
-        self.instance = scene_module.SceneSlots.__new__(scene_module.SceneSlots)
-        self.instance.sb = _RecordedSb()
-        self.instance._footer_controller = None
-        self.root = tempfile.mkdtemp(prefix="scene_ws_test_")
-
-    def tearDown(self):
-        import shutil
-        shutil.rmtree(self.root, ignore_errors=True)
-        cmds.file(new=True, force=True)
-
-    def test_rejects_path_with_no_workspace_mel(self):
-        """A directory missing workspace.mel must NOT be opened as a workspace."""
-        # Empty dir, no workspace.mel
-        before_ws = cmds.workspace(query=True, rd=True)
-        self.instance._open_recent_workspace(self.root)
-        after_ws = cmds.workspace(query=True, rd=True)
-        # Workspace must not have changed.
-        self.assertEqual(before_ws, after_ws)
-        # And the user must have been warned.
-        self.assertTrue(self.instance.sb.messages, "Expected a user-visible warning")
-
-    def test_accepts_path_with_workspace_mel(self):
-        # Create the marker file Maya expects in a workspace root.
-        with open(os.path.join(self.root, "workspace.mel"), "w") as f:
-            f.write("//Maya workspace stub\n")
-
-        self.instance._open_recent_workspace(self.root)
-
-        new_ws = cmds.workspace(query=True, rd=True)
-        # Maya stores forward slashes; compare normalized.
-        self.assertEqual(
-            os.path.normpath(new_ws).lower(),
-            os.path.normpath(self.root).lower(),
-        )
+# NOTE: the workspace-setting controls (and their workspace.mel gate) moved to
+# the main lower submenu's Workspace list — see test_main_workspace.py.
 
 
 @unittest.skipUnless(_MAYA_AVAILABLE, "Requires maya.cmds")

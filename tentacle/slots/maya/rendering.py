@@ -23,9 +23,18 @@ class Rendering(SlotsMaya):
 
     def cmb001_init(self, widget):
         """Render: camera"""
-        cameras = cmds.ls(type="camera") or []
-        lst = {c: c for c in cameras if "Target" not in c}
-        widget.add(lst)
+        if not widget.is_initialized:
+            # Keep the camera list current when the panel is shown and when the
+            # dropdown is opened, so newly created cameras appear without
+            # resetting the current selection (restore_index below preserves it).
+            # (Refreshing on the action click instead would reset the user's
+            # chosen camera back to the first entry on every render.)
+            widget.refresh_on_show = True
+            widget.before_popup_shown.connect(widget.init_slot)
+        # List camera transforms (not shapes): the Render View procs expect a
+        # transform, and the names read cleaner in the dropdown.
+        cameras = [c for c in self._camera_transforms() if "Target" not in c]
+        widget.add(cameras, clear=True, restore_index=True)
 
     def tb000_init(self, widget):
         """Export Playblast Init"""
@@ -560,9 +569,20 @@ class Rendering(SlotsMaya):
 
     def b000(self):
         """Render Current Frame"""
-        self.ui.cmb001.init_slot()
         camera = self.ui.cmb001.currentText()
-        cmds.render(camera)  # render with selected camera
+        if not camera:
+            self.sb.message_box("No render camera available.")
+            return
+        # Maya's Render View procs expect a camera transform; resolve if the
+        # combo yields a shape.
+        if cmds.objExists(camera) and cmds.objectType(camera) == "camera":
+            camera = mtk.NodeUtils.get_parent(camera) or camera
+        # Render the selected camera into the Render View, opening it if needed
+        # (renderWindowRenderCamera resolves an empty editor via showRenderView).
+        # The previous `cmds.render(camera)` rendered offscreen to a temp file
+        # and never surfaced the Render View, so the button appeared to do
+        # nothing.
+        mel.eval(f'renderWindowRenderCamera "render" "" "{camera}";')
 
     def b001(self):
         """Open Render Settings Window"""

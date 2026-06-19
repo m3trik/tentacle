@@ -10,29 +10,64 @@ from tentacle.slots.maya._slots_maya import SlotsMaya
 
 
 class MaterialsSlots(SlotsMaya):
-    # Submenu Tools list — categories mirror the original header-menu sections.
-    # Each leaf maps to a slot method on this class (kept on the class so
-    # marking-menu and other entry points can still reach them).
+    # Submenu Tools list — categories group tools by *what they act on* so the
+    # similarly-named texture tools stop reading as interchangeable:
+    #   "Materials (scene)"  — mutate the live shading network.
+    #   "Texture Maps (files)" — operate on texture files on disk.
+    # Each entry is (label, slot_name, tooltip); the slot stays on this class so
+    # marking-menu and other entry points can still reach it. Tooltip may be "".
     _TOOLS_ITEMS = {
         "Setup": [
-            ("Image to Plane", "b021"),
-            ("Material Updater", "b018"),
-            ("Shader Templates", "b011"),
-            ("Texture Path Editor", "b010"),
+            ("Image to Plane", "b021", ""),
+            ("Shader Templates", "b011", ""),
+            ("Texture Path Editor", "b010", ""),
         ],
-        "Conversion": [
-            ("Game Shader", "b009"),
-            ("Arnold Bridge", "b026"),
-            ("Map Converter", "b016"),
-            ("Map Packer", "b008"),
+        "Materials (scene)": [
+            (
+                "Update Materials",
+                "b018",
+                "Reprocess the textures on selected (or all) scene materials "
+                "and re-wire the results back into their shading networks "
+                "(standardSurface / StingrayPBS / aiStandardSurface). Works "
+                "in-scene — it modifies materials. For per-file work on the "
+                "textures themselves, use Map Converter under Texture Maps.",
+            ),
+            (
+                "Game Shader",
+                "b009",
+                "Build a StingrayPBS game-shader network from texture maps.",
+            ),
+            (
+                "Arnold Preview Shader",
+                "b026",
+                "Create a parallel aiStandardSurface so materials preview "
+                "correctly under Arnold in Maya.",
+            ),
+        ],
+        "Texture Maps (files)": [
+            (
+                "Map Converter",
+                "b016",
+                "Standalone texture-file toolbox: convert formats, resize / "
+                "optimize, normal-map DirectX↔OpenGL, spec-gloss→PBR, "
+                "and pack / unpack ORM · MRAO · MSAO. Operates on files "
+                "on disk (or the selection's textures) — it does not modify "
+                "materials.",
+            ),
+            (
+                "Map Packer",
+                "b008",
+                "Pack up to four separate channel maps into combined RGBA "
+                "textures (ORM, mask maps, …) across texture sets.",
+            ),
         ],
         "External": [
-            ("Marmoset Bridge", "b019"),
-            ("Substance Bridge", "b020"),
-            ("Map Compositor", "b022"),
-            ("Metashape Workflow", "b023"),
-            ("RealityCapture Workflow", "b024"),
-            ("Brush Splat Workflow", "b025"),
+            ("Marmoset Bridge", "b019", ""),
+            ("Substance Bridge", "b020", ""),
+            ("Map Compositor", "b022", ""),
+            ("Metashape Workflow", "b023", ""),
+            ("RealityCapture Workflow", "b024", ""),
+            ("Brush Splat Workflow", "b025", ""),
         ],
     }
 
@@ -196,7 +231,8 @@ class MaterialsSlots(SlotsMaya):
 
         for category, items in self._TOOLS_ITEMS.items():
             cat = root.sublist.add(category)
-            cat.sublist.add([label for label, _ in items])
+            for label, _slot, *rest in items:
+                cat.sublist.add(label, setToolTip=rest[0] if rest else "")
 
     @Signals("on_item_interacted")
     def list001(self, item):
@@ -207,7 +243,7 @@ class MaterialsSlots(SlotsMaya):
         text = item.item_text()
         parent = item.parent_item_text() or ""
 
-        for label, slot_name in self._TOOLS_ITEMS.get(parent, ()):
+        for label, slot_name, *_ in self._TOOLS_ITEMS.get(parent, ()):
             if label == text:
                 slot = getattr(self, slot_name, None)
                 if not callable(slot):
@@ -744,7 +780,8 @@ class MaterialsSlots(SlotsMaya):
         self.sb.handlers.marking_menu.show("game_shader")
 
     def b026(self, widget):
-        """Arnold Bridge"""
+        """Arnold Preview Shader (parallel aiStandardSurface for in-Maya Arnold preview; not an
+        external-app bridge — renamed from 'Arnold Bridge' to avoid that confusion)."""
         self.sb.handlers.marking_menu.show("arnold_bridge")
 
     def b010(self, widget):
@@ -783,7 +820,7 @@ class MaterialsSlots(SlotsMaya):
         self.sb.handlers.marking_menu.show(ui)
 
     def b018(self, widget):
-        """Material Updater"""
+        """Update Materials (Material Updater) — reprocess scene materials' textures and re-wire them."""
         self.sb.handlers.marking_menu.show("mat_updater")
 
     _TB001_SCOPES = (

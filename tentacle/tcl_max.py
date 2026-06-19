@@ -22,6 +22,7 @@ class TclMax(MarkingMenu):
             ui_source="ui",
             slot_source=slot_source,
             suppress_default_on_reentry=True,
+            context_tags={"max"},  # `requires` widget filtering (Phase-5 visibility)
             *args,
             **kwargs,
         )

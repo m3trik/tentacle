@@ -30,6 +30,12 @@ class Symmetry(SlotsMaya):
         """Symmetry Z"""
         cmds.symmetricModelling(edit=True, symmetry=bool(state), axis="z")
 
+    def chk004(self, state, widget):
+        """Symmetry: Object space (radio partner of Topo; only acts when selected —
+        deselection means Topo took over and sets about='topo' itself)."""
+        if state:
+            cmds.symmetricModelling(edit=True, about="object")
+
     def chk005_init(self, widget):
         """Set symmetry reference space"""
         self.sb.create_button_groups(widget.ui, "chk004-5")

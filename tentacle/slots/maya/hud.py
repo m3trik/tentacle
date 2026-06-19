@@ -6,6 +6,7 @@ from typing import Optional
 import maya.cmds as cmds
 import pythontk as ptk
 import mayatk as mtk
+from tentacle.slots._hud_warnings import HudWarningsMixin
 from tentacle.slots.maya._slots_maya import SlotsMaya
 
 
@@ -124,19 +125,10 @@ class SelectionMixin:
             )
 
 
-class WarningsMixin:
-    """Lightweight pre-build checks shown as colored icons (immediately) and
-    formatted detail lines (after the regular HUD-build delay).
-
-    Each spec defines:
-        key       - QCheckBox objectName in preferences UI gating the check.
-        icon      - Unicode glyph used in the early icon row.
-        color     - HTML color for both icon and detail line.
-        label     - Short tag rendered next to the icon.
-        check     - Callable(self) -> bool. True means "trigger this warning".
-        describe  - Callable(self) -> str. Detail line shown post-delay.
-
-    Adding a new check is a one-line tuple addition — no other edits needed.
+class WarningsMixin(HudWarningsMixin):
+    """Maya HUD warnings — the framework lives in the shared
+    :class:`tentacle.slots._hud_warnings.HudWarningsMixin`; this carries the
+    Maya-specific checks (autosave / framerate / autosave-scene-open).
     """
 
     WARNING_DEFS = (
@@ -166,26 +158,6 @@ class WarningsMixin:
         },
     )
 
-    SKIP_ON_UNSAVED_KEY = "chk_warn_skip_unsaved"
-
-    def _warn_is_enabled(self, key: str) -> bool:
-        """Return True if the user has opted-in to the warning in preferences.
-
-        Triggers lazy load of the preferences UI on first call so checkbox
-        state restoration is available even before the user opens prefs.
-        """
-        try:
-            prefs = self.sb.loaded_ui.preferences
-        except AttributeError:
-            return False
-        widget = getattr(prefs, key, None)
-        if widget is None:
-            return False
-        try:
-            return bool(widget.isChecked())
-        except AttributeError:
-            return False
-
     def _scene_is_unsaved(self) -> bool:
         """True if no saved scene file exists on disk (new/untitled scene)."""
         try:
@@ -193,44 +165,6 @@ class WarningsMixin:
             return not scene or not os.path.isfile(scene)
         except (RuntimeError, TypeError):
             return False
-
-    def evaluate_warnings(self) -> list:
-        """Return the subset of WARNING_DEFS whose check fires and is enabled."""
-        if self._warn_is_enabled(self.SKIP_ON_UNSAVED_KEY) and self._scene_is_unsaved():
-            return []
-        active = []
-        for spec in self.WARNING_DEFS:
-            if not self._warn_is_enabled(spec["key"]):
-                continue
-            try:
-                triggered = bool(spec["check"](self))
-            except Exception as error:
-                print(f"{__file__}: warning check {spec['key']} failed: {error}")
-                continue
-            if triggered:
-                active.append(spec)
-        return active
-
-    def insert_warning_icons(self, hud, warnings) -> None:
-        """Insert a single-line row of colored badges; one per active warning."""
-        if not warnings:
-            return
-        badges = "&nbsp;&nbsp;".join(
-            f'<font style="color: {w["color"]};">{w["icon"]} {w["label"]}</font>'
-            for w in warnings
-        )
-        hud.insertText(f'<span style="font-size: 150%;">{badges}</span>')
-
-    def insert_warning_details(self, hud, warnings) -> None:
-        """Insert a formatted detail line per active warning."""
-        for w in warnings:
-            try:
-                msg = w["describe"](self)
-            except Exception as error:
-                print(f"{__file__}: warning describe {w['key']} failed: {error}")
-                continue
-            if msg:
-                hud.insertText(msg)
 
     # ---- individual checks (kept lightweight: O(1) Maya state queries) ----
 
