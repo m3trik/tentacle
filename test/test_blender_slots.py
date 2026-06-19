@@ -59,6 +59,13 @@ class TestCrossDccObjectNameSemantics(unittest.TestCase):
     counterpart file (different domains have separate stores and don't collide).
     """
 
+    # Intentional, documented divergences where a shared objectName legitimately carries a
+    # different label per DCC. The cross-DCC object-send button is a *counterpart pair* named
+    # after its TARGET app (Blender's menu → "Maya Bridge", Maya's menu → "Blender Bridge"); same
+    # objectName, same store key, same concept (open the bridge to the OTHER app), opposite label
+    # by design. See blendertk/docs/STRUCTURE.md (display_utils row, cross-DCC object send).
+    _ALLOWED_DIVERGENCE = {"scene.py:b010"}
+
     def test_shared_object_names_mean_the_same_thing(self):
         conflicts = {}
         for bl_file in _slot_files():
@@ -68,9 +75,12 @@ class TestCrossDccObjectNameSemantics(unittest.TestCase):
             bl = _created_widget_texts(bl_file)
             my = _created_widget_texts(maya_file)
             for name in sorted(set(bl) & set(my)):
+                key = f"{bl_file.name}:{name}"
+                if key in self._ALLOWED_DIVERGENCE:
+                    continue
                 bl_text, my_text = bl[name], my[name]
                 if bl_text and my_text and bl_text.casefold() != my_text.casefold():
-                    conflicts[f"{bl_file.name}:{name}"] = (bl_text, my_text)
+                    conflicts[key] = (bl_text, my_text)
         self.assertEqual(
             conflicts,
             {},
@@ -171,6 +181,44 @@ class TestBlenderPlumbingParses(unittest.TestCase):
                 and any(getattr(t, "id", None) == "bl_info" for t in n.targets)
                 for n in tree.body),
             "tcl_blender.py must define bl_info (add-on surface)",
+        )
+
+
+def _attr_chain(node):
+    """Dotted name for an attribute/name chain (``bpy.ops.wm.tool_set_by_id``), else ""."""
+    parts = []
+    while isinstance(node, ast.Attribute):
+        parts.append(node.attr)
+        node = node.value
+    if isinstance(node, ast.Name):
+        parts.append(node.id)
+        return ".".join(reversed(parts))
+    return ""
+
+
+class TestViewportToolUsesOverride(unittest.TestCase):
+    """Activating a builtin viewport tool must go through ``set_viewport_tool``.
+
+    A bare ``bpy.ops.wm.tool_set_by_id`` invoked from the Qt marking menu runs in a
+    restricted context (``context.space_data is None``): it returns success but the tool
+    silently never changes — the "Multi-Cut does nothing" bug. ``SlotsBlender.set_viewport_tool``
+    wraps it in a VIEW_3D ``temp_override`` so it lands on the real viewport. The base class is
+    the only place allowed to call the op directly; concrete slots route through the helper.
+    """
+
+    def test_no_concrete_slot_calls_tool_set_by_id_directly(self):
+        offenders = {}
+        for f in _slot_files():
+            for node in ast.walk(ast.parse(f.read_text(encoding="utf-8"))):
+                if isinstance(node, ast.Call) and _attr_chain(node.func).endswith(
+                    "ops.wm.tool_set_by_id"
+                ):
+                    offenders.setdefault(f.name, []).append(getattr(node, "lineno", "?"))
+        self.assertEqual(
+            offenders,
+            {},
+            "Concrete Blender slots must call self.set_viewport_tool(...) rather than "
+            f"bpy.ops.wm.tool_set_by_id directly (silently no-ops from the marking menu): {offenders}",
         )
 
 

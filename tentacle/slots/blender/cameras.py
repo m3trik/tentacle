@@ -6,21 +6,6 @@ from uitk import Signals
 from tentacle.slots.blender._slots_blender import SlotsBlender
 
 
-def _view3d_context():
-    """A context-override dict pointing at the first VIEW_3D area/region, or ``None``.
-
-    Viewport operators (``view3d.*``) are region-centric: when invoked from the Qt marking menu
-    the active area isn't the 3D view, so they need an explicit override (unlike object/mesh ops).
-    """
-    wm = bpy.context.window_manager
-    for win in getattr(wm, "windows", []) or []:
-        for area in win.screen.areas:
-            if area.type == "VIEW_3D":
-                region = next((r for r in area.regions if r.type == "WINDOW"), None)
-                return {"window": win, "area": area, "region": region, "scene": bpy.context.scene}
-    return None
-
-
 class Cameras(SlotsBlender):
     """Blender port of the shared ``cameras`` menu.
 
@@ -43,7 +28,7 @@ class Cameras(SlotsBlender):
         return [o for o in bpy.data.objects if o.type == "CAMERA"]
 
     def _set_view_axis(self, view_type):
-        ctx = _view3d_context()
+        ctx = btk.get_view3d_context()
         if not ctx or not ctx.get("region"):
             self.sb.message_box("No 3D viewport available for view switching.")
             return
@@ -113,7 +98,7 @@ class Cameras(SlotsBlender):
 
     def b004(self):
         """Cameras: Perspective View"""
-        ctx = _view3d_context()
+        ctx = btk.get_view3d_context()
         if not ctx or not ctx.get("region"):
             self.sb.message_box("No 3D viewport available for view switching.")
             return
@@ -132,8 +117,22 @@ class Cameras(SlotsBlender):
 
     # ------------------------------------------------------------------ deferred (Maya-specific)
     def b007(self):
-        """Cameras: Align View — Maya align-camera-to-polygon has no direct Blender analogue."""
-        self.sb.message_box("Align View is not yet implemented for Blender.")
+        """Cameras: Align View (align the viewport to the active element's normal and frame
+        the selection — Blender's Align-View-to-Active, the analogue of Maya's
+        align-camera-to-polygon)."""
+        ctx = btk.get_view3d_context()
+        if not ctx or not ctx.get("region"):
+            self.sb.message_box("No 3D viewport available for view switching.")
+            return
+        if not self.selected_objects():
+            self.sb.message_box("Nothing Selected.")
+            return
+        try:
+            with bpy.context.temp_override(**ctx):
+                bpy.ops.view3d.view_axis(type="TOP", align_active=True)
+                bpy.ops.view3d.view_selected()
+        except RuntimeError as error:
+            self.sb.message_box(str(error))
 
     def b010(self):
         """Camera: Dolly — Blender viewport navigation is modal, not a persistent tool."""

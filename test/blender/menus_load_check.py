@@ -26,11 +26,16 @@ import bpy
 from tentacle import tcl_blender as tb
 
 # Every Blender slot domain (slot-file stems); hud's UI is the hud#startmenu overlay.
+# The blender_menus tool panels (mirror, duplicate_*, cut_on_axis) open as standalone
+# windows through the same show() path.
 DOMAINS = [
-    "animation", "cameras", "crease", "deformation", "display", "duplicate", "edit",
-    "editors", "hud#startmenu", "lighting", "main", "materials", "normals", "nurbs",
-    "pivot", "polygons", "preferences", "rendering", "rigging", "scene", "selection",
-    "settings", "subdivision", "symmetry", "transform", "utilities", "uv",
+    "animation", "blender#startmenu", "cameras", "crease", "curtain", "cut_on_axis",
+    "deformation", "display", "duplicate", "duplicate_grid", "duplicate_linear",
+    "duplicate_radial", "edit", "editors", "hdr_manager", "hud#startmenu",
+    "lighting", "main", "materials", "mirror", "normals", "nurbs", "pivot",
+    "polygons", "preferences", "reference_manager", "rendering", "rigging",
+    "scene", "selection", "settings", "subdivision", "symmetry", "transform",
+    "utilities", "uv",
 ]
 
 lines = []
@@ -54,7 +59,7 @@ def _run():
         from qtpy import QtWidgets
 
         app = QtWidgets.QApplication.instance()
-        tcl = tb._ACTIVE_TCL
+        tcl = tb._KeymapBridge.tcl
         for name in DOMAINS:
             try:
                 # show() returns the shown widget: the overlay for startmenu/submenu-tagged

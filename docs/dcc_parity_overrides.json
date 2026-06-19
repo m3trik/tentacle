@@ -1,0 +1,613 @@
+{
+  "_doc": "Excuses for Maya-only controls reported by generate_dcc_parity.py. DEFAULT IS GAP: a control absent here is an open, unreviewed gap. Add an entry ONLY when genuinely justified. Key = '<domain>:<objectName>'. Each entry: {\"status\": \"na|divergent|done-elsewhere|planned\", \"reason\": \"<concrete why>\", \"label\": \"<human label, for readers>\"}. status na = no Blender mechanism exists at all; divergent = a different Blender paradigm covers it (needs design); done-elsewhere = already built under another objectName/mechanism (say which); planned = accepted+scheduled (still counts as an open gap). A non-empty reason is mandatory; reasonless or bad-status entries are flagged and treated as gaps. Do not dump items here to make the number go down.",
+  "pivot:chk001": {
+    "status": "na",
+    "label": "Reset Pivot Orientation",
+    "reason": "Blender origins have no orientation independent of the object's rotation \u2014 there is no separate pivot orientation to reset."
+  },
+  "pivot:chk005": {
+    "status": "done-elsewhere",
+    "label": "Translate",
+    "reason": "Transfer-translate is already what pivot tb002 (transfer_pivot) does; Blender's origin is translate-only so the per-channel checkbox is unconditional."
+  },
+  "pivot:chk006": {
+    "status": "na",
+    "label": "Rotate",
+    "reason": "Blender's origin is a single point \u2014 there is no rotate pivot channel to transfer."
+  },
+  "pivot:chk007": {
+    "status": "na",
+    "label": "Scale",
+    "reason": "Blender's origin is a single point \u2014 there is no scale pivot channel to transfer."
+  },
+  "pivot:chk008": {
+    "status": "na",
+    "label": "Bake",
+    "reason": "Blender origins are always baked into the object; there is no separate bake-pivot step (already messaged on pivot's Bake Pivot button)."
+  },
+  "pivot:chk009": {
+    "status": "divergent",
+    "label": "World Space",
+    "reason": "Part of the World-Aligned manipulator-pivot option (tb003); Blender has no manipulator pivot distinct from the origin, so the world/local distinction does not apply."
+  },
+  "pivot:chk010": {
+    "status": "na",
+    "label": "Manip Pivot",
+    "reason": "Blender has no manipulator pivot separate from the object origin \u2014 the transform gizmo pivots about the origin/median/cursor, not a stored manip pivot."
+  },
+  "transform:chk038": {
+    "status": "na",
+    "label": "Delete History",
+    "reason": "Blender has no construction/deformation history to delete (already messaged on edit's Delete History)."
+  },
+  "edit:chk026": {
+    "status": "na",
+    "label": "Delete History",
+    "reason": "Blender has no construction history (already messaged on edit's Delete History button)."
+  },
+  "edit:chk027": {
+    "status": "na",
+    "label": "Toggle Lock/UnLock",
+    "reason": "Node locking has no Blender analogue \u2014 datablocks aren't lockable the Maya way (already messaged on edit's Node Locking button)."
+  },
+  "edit:chk012": {
+    "status": "na",
+    "label": "Holed (cleanup)",
+    "reason": "A Blender face is a simple polygon and cannot contain an interior hole, so there are no holed faces to detect."
+  },
+  "edit:chk016": {
+    "status": "na",
+    "label": "Shared UVs (cleanup)",
+    "reason": "Blender UVs are per-loop (face-corner), never shared across a vertex the Maya way \u2014 there is nothing to un-share."
+  },
+  "edit:chk018": {
+    "status": "na",
+    "label": "Lamina (cleanup)",
+    "reason": "A lamina face (two faces on the same vertex set) cannot exist in a bmesh \u2014 Blender rejects creating a duplicate-vertex-set face \u2014 so it can never occur (overlapping faces on DISTINCT vert sets are handled by chk025 / get_overlapping_faces)."
+  },
+  "edit:chk019": {
+    "status": "done-elsewhere",
+    "label": "Delete Unused Nodes",
+    "reason": "Purging unused/orphan datablocks is the scene module's Cleanup (btk.cleanup_scene / scene b_cleanup); Blender has no construction-history node graph on this Delete-History op."
+  },
+  "edit:chk020": {
+    "status": "divergent",
+    "label": "Delete Deformers",
+    "reason": "Blender has no construction/deformation history to delete; deformers are non-destructive modifiers removed individually, not via a Delete-History op."
+  },
+  "edit:chk030": {
+    "status": "done-elsewhere",
+    "label": "Optimize Scene",
+    "reason": "Removing unused scene data is the scene module's Cleanup (orphan purge); there is no separate Optimize-Scene step in Blender."
+  },
+  "edit:chk031": {
+    "status": "divergent",
+    "label": "For All Objects (delete history)",
+    "reason": "Scope toggle for Maya's Delete-History op, which has no Blender analogue (no construction history to delete on all vs selected)."
+  },
+  "selection:chk009": {
+    "status": "na",
+    "label": "Reverse Order",
+    "reason": "Blender operators receive an unordered object set; there is no object selection order to reverse (see the closed Reorder Selection / cmb001 N/A)."
+  },
+  "selection:chk003": {
+    "status": "divergent",
+    "label": "Lock Values (island)",
+    "reason": "UI helper syncing Maya's per-axis Normal X/Y/Z island ranges; Blender's island-by-normal (tb002 chk_island_normal \u2192 select_linked delimit=NORMAL) uses a single normal-angle boundary, so there are no per-axis values to lock."
+  },
+  "selection:s002": {
+    "status": "divergent",
+    "label": "Normal X range (island)",
+    "reason": "Maya grows the face island within a per-axis normal range; Blender's tb002 island uses select_linked delimiters (chk_island_normal stops growth at normal discontinuities by a single angle), not a per-XYZ normal range."
+  },
+  "selection:s004": {
+    "status": "divergent",
+    "label": "Normal Y range (island)",
+    "reason": "Per-axis normal range for Maya's island growth; Blender's select_linked NORMAL delimiter has no per-XYZ range (see s002)."
+  },
+  "selection:s005": {
+    "status": "divergent",
+    "label": "Normal Z range (island)",
+    "reason": "Per-axis normal range for Maya's island growth; Blender's select_linked NORMAL delimiter has no per-XYZ range (see s002)."
+  },
+  "uv:uv_editor": {
+    "status": "done-elsewhere",
+    "label": "Open UV Editor",
+    "reason": "Blender wires Open UV Editor on b031 (btk.open_editor('UV Editor')); the Maya header button name isn't reused."
+  },
+  "uv:s014": {
+    "status": "na",
+    "label": "Mutations",
+    "reason": "bpy.ops.uv.pack_islands has no optimization-passes/mutations parameter \u2014 that is a RizomUV/u3dLayout-specific search knob with no Blender pack analogue."
+  },
+  "uv:s011": {
+    "status": "divergent",
+    "label": "Rotate Step",
+    "reason": "pack_islands rotates by rotate_method (axis-aligned/cardinal/any), exposed as tb000 chk_pack_rotate \u2014 there is no min/max/step rotation search range (RizomUV-specific)."
+  },
+  "uv:s012": {
+    "status": "divergent",
+    "label": "Rotate Min",
+    "reason": "pack_islands has no rotation search range; rotation is the rotate/rotate_method toggle on tb000 (chk_pack_rotate)."
+  },
+  "uv:s013": {
+    "status": "divergent",
+    "label": "Rotate Max",
+    "reason": "pack_islands has no rotation search range; rotation is the rotate/rotate_method toggle on tb000 (chk_pack_rotate)."
+  },
+  "uv:chk016": {
+    "status": "divergent",
+    "label": "Skip Instances",
+    "reason": "bpy.ops.uv.pack_islands has no instance-aware packing flag; the slot packs each selected mesh's UVs."
+  },
+  "uv:cmb009": {
+    "status": "divergent",
+    "label": "Pre-Scale Mode",
+    "reason": "pack_islands exposes only a boolean `scale`, not Maya's Preserve-UV vs Preserve-3D pre-scale modes."
+  },
+  "uv:chk022": {
+    "status": "divergent",
+    "label": "Stack Similar",
+    "reason": "Blender stacks ALL targeted shells (b030 / stack_uv_shells); there is no per-shell similarity/tolerance grouping (Maya texStackShells-specific)."
+  },
+  "uv:s000": {
+    "status": "divergent",
+    "label": "Tolerance",
+    "reason": "Only drives Stack Similar (chk022) \u2014 Blender's shell stacking has no tolerance/similarity grouping to tune."
+  },
+  "uv:cmb013": {
+    "status": "na",
+    "label": "Non-Manifold handling",
+    "reason": "Blender's bpy.ops.uv.unwrap doesn't reject non-manifold geometry, so Maya u3dUnfold's Warn+Select / Repair+Retry strategy has no analogue."
+  },
+  "animation:chk020": {
+    "status": "divergent",
+    "label": "Channel Box Only",
+    "reason": "Blender has no Channel Box \u2014 key ops act on all animated channels; there's no channel-box-scoped subset to restrict to."
+  },
+  "animation:chk024": {
+    "status": "divergent",
+    "label": "Channel Box Attrs Only",
+    "reason": "Blender has no Channel Box (no channel-box-scoped subset)."
+  },
+  "animation:chk033": {
+    "status": "divergent",
+    "label": "Channel Box Only",
+    "reason": "Blender has no Channel Box (no channel-box-scoped subset)."
+  },
+  "animation:chk034": {
+    "status": "divergent",
+    "label": "Channel Box Only",
+    "reason": "Blender has no Channel Box (no channel-box-scoped subset)."
+  },
+  "animation:chk_channel_box": {
+    "status": "divergent",
+    "label": "Channel Box Attrs Only",
+    "reason": "Blender has no Channel Box (no channel-box-scoped subset)."
+  },
+  "animation:chk_override_layer": {
+    "status": "divergent",
+    "label": "Use Override Layer",
+    "reason": "Blender has no animation layers (NLA differs structurally); bake targets the active action."
+  },
+  "animation:chk_delete_inputs": {
+    "status": "na",
+    "label": "Delete Inputs",
+    "reason": "Blender has no construction-history input nodes to delete after baking."
+  },
+  "animation:chk_inherited_vis": {
+    "status": "divergent",
+    "label": "Bake Inherited Visibility",
+    "reason": "Blender visibility (hide_viewport/hide_render) isn't inherited through the hierarchy the Maya way, so there's nothing to flatten on bake."
+  },
+  "animation:chk001": {
+    "status": "divergent",
+    "label": "Update",
+    "reason": "Blender's Go To Frame is a direct frame_set (tb000/s000) that always refreshes; Maya's auto-update playback toggle has no frame-nav analogue."
+  },
+  "animation:chk010": {
+    "status": "divergent",
+    "label": "Toggle Single frame",
+    "reason": "Maya Go-To-Frame single-frame playback toggle \u2014 not part of Blender's direct frame_set nav idiom."
+  },
+  "animation:lbl020": {
+    "status": "divergent",
+    "label": "Set To Current Frame",
+    "reason": "Maya UI button to load the current time into the frame field; redundant in Blender where the timeline already exposes the live current frame."
+  },
+  "animation:s001": {
+    "status": "divergent",
+    "label": "Time (invert)",
+    "reason": "Blender inverts keys in place; Maya's start-time placement of the inverted copy doesn't apply to an in-place mirror."
+  },
+  "animation:chk002": {
+    "status": "divergent",
+    "label": "Relative (invert)",
+    "reason": "Tied to Maya's inverted-copy time placement \u2014 N/A to Blender's in-place key mirror."
+  },
+  "animation:chk005": {
+    "status": "divergent",
+    "label": "Delete Original (invert)",
+    "reason": "Maya inverts to a copy then optionally deletes the original; Blender inverts the keys in place (no copy)."
+  },
+  "animation:chk003": {
+    "status": "divergent",
+    "label": "Preserve Keys (adjust spacing)",
+    "reason": "Maya's Adjust Spacing can insert/preserve a key exactly at the shift frame via its keyframe-insert API; Blender's gap-insert is a pure shift of keyframe_points at/after the frame \u2014 nothing to insert-and-preserve."
+  },
+  "animation:chk004": {
+    "status": "divergent",
+    "label": "Relative (adjust spacing)",
+    "reason": "Blender's Adjust Spacing always shifts keys at/after the frame by a relative amount; there is no absolute-frame repositioning variant of a gap insert."
+  },
+  "animation:chk006": {
+    "status": "divergent",
+    "label": "Relative (transfer)",
+    "reason": "Blender Transfer assigns each target an independent copy of the source action (action.copy()); Maya's relative value-offset transfer (add the source delta to the target's current value) has no analogue in the action-copy model."
+  },
+  "animation:chk007": {
+    "status": "divergent",
+    "label": "Tangents (transfer)",
+    "reason": "Blender Transfer copies the whole action, so handles/tangents always come with it \u2014 there is no separate tangent-only toggle to expose."
+  },
+  "animation:chk011": {
+    "status": "divergent",
+    "label": "Invert (go to frame)",
+    "reason": "A Maya UI convenience that negates the frame spinbox; redundant in Blender where Go To Frame offers an explicit Absolute/Relative mode (cmb000) for negative/relative navigation."
+  },
+  "animation:chk016": {
+    "status": "divergent",
+    "label": "Group Overlapping (visibility)",
+    "reason": "Blender keys visibility per object at the chosen When frame (cmb002); Maya's combined-range group visibility keying is the stagger-style grouping machinery, kept to Stagger Keys (tb003 chk014)."
+  },
+  "animation:chk022": {
+    "status": "done-elsewhere",
+    "label": "Untie Keyframes",
+    "reason": "Blender exposes untie as the chk_untie toggle on tb011 (tie_keyframes(untie=True)); the Maya objectName isn't reused."
+  },
+  "animation:chk_absolute": {
+    "status": "divergent",
+    "label": "Absolute Mode (scale)",
+    "reason": "Blender Scale Keys uses a plain time multiplier; Maya's Absolute mode reinterprets the factor as a target duration/speed, part of its dual uniform/speed-retime model that Blender doesn't share."
+  },
+  "animation:chk_ignore_holds": {
+    "status": "divergent",
+    "label": "Ignore Holds",
+    "reason": "Blender's animation info reports each object's raw keyed extent (min/max); it does no static-hold segment analysis, so there are no leading/trailing holds to exclude."
+  },
+  "animation:chk_merge_touching": {
+    "status": "divergent",
+    "label": "Group Touching (scale)",
+    "reason": "Tied to Maya Scale Keys' overlap-group machinery; Blender Scale Keys scales each action about its own pivot (no cross-object grouping). Stagger Keys carries the touching/overlap grouping (tb003 chk029)."
+  },
+  "animation:chk_mute_drivers": {
+    "status": "divergent",
+    "label": "Mute Drivers",
+    "reason": "Maya mutes driver nodes after bake to keep them recoverable alongside its override-layer workflow; Blender's nla.bake replaces the action and Blender has no override animation layer, so there are no drivers left to mute."
+  },
+  "animation:chk_preserve_outside": {
+    "status": "divergent",
+    "label": "Preserve Outside Keys",
+    "reason": "bpy.ops.nla.bake replaces the action across the baked range with no preserve-outside-range option; preserving keys outside the range isn't exposed by the native bake."
+  },
+  "animation:chk_split_static": {
+    "status": "divergent",
+    "label": "Split Static Segments",
+    "reason": "Maya Scale Keys can split animation into clips separated by static holds and scale each independently; Blender Scale Keys scales each action's keyframe_points as one block \u2014 the segment machinery isn't part of the Blender model."
+  },
+  "animation:cmb001": {
+    "status": "divergent",
+    "label": "Snap (go to frame)",
+    "reason": "Maya snaps the resulting frame to 'clean' numbers (preferred/aggressive) via set_current_frame; Blender frames are integers and Go To Frame is a direct frame_set, so there's no fractional result to snap."
+  },
+  "animation:cmb003": {
+    "status": "divergent",
+    "label": "Rounding method (snap)",
+    "reason": "Blender Snap Keys rounds to the nearest whole frame; Maya's floor/ceil/preferred/aggressive 'clean-number' rounding is its snap-mode machinery with no native Blender analogue."
+  },
+  "animation:cmb004": {
+    "status": "divergent",
+    "label": "Time range (delete keys)",
+    "reason": "Blender Delete Keys clears all animation via animation_data_clear; windowed deletion (before/after/current) is done by selecting keys (tb013) and deleting them in the editor, not a delete-keys mode."
+  },
+  "animation:cmb014": {
+    "status": "divergent",
+    "label": "Scaling mode (uniform/speed)",
+    "reason": "Speed modes retime by sampling world-space motion (units/frame) \u2014 a motion-analysis retimer specific to Maya ScaleKeys. Blender Scale Keys is a pure time multiplier."
+  },
+  "animation:cmb033": {
+    "status": "divergent",
+    "label": "Grouping (scale)",
+    "reason": "Cross-object pivot grouping (single/per-object/overlap) is Maya ScaleKeys machinery; Blender Scale Keys scales each action about its own pivot."
+  },
+  "animation:cmb034": {
+    "status": "done-elsewhere",
+    "label": "Snap after scaling",
+    "reason": "Snapping keys to whole frames after scaling is the Snap Keys op (tb009 / snap_keys); run it after Scale Keys rather than as a scale sub-option."
+  },
+  "animation:cmb037": {
+    "status": "divergent",
+    "label": "Which keys to step",
+    "reason": "Blender Set Tangents applies the interpolation type to all keys of the selected objects; per-key scope (current-time/selected) is graph-editor key-selection nuance not surfaced on this op."
+  },
+  "animation:cmb038": {
+    "status": "divergent",
+    "label": "Copy mode",
+    "reason": "Blender Copy Keys copies the active object's whole action (the paste buffer); Maya's per-attribute/per-frame/channel-box copy modes don't map to the action-copy model."
+  },
+  "animation:cmb039": {
+    "status": "divergent",
+    "label": "Paste mode",
+    "reason": "Blender Paste links an independent copy of the action, preserving its own key timing (= Maya's 'at copy frame'); there is no value-at-playhead attribute paste in the action-copy model."
+  },
+  "animation:cmb040": {
+    "status": "divergent",
+    "label": "Tangent in/out (step)",
+    "reason": "Blender interpolation is per-key (CONSTANT/LINEAR/BEZIER), not split into in/out tangent sides like Maya's stepped tangents, so there's no in/out/both choice."
+  },
+  "animation:cmb_traversal": {
+    "status": "divergent",
+    "label": "Dependency traversal (info)",
+    "reason": "Maya can expand the reported set by walking the dependency graph (up/downstream); Blender has no comparable per-object animation dependency graph to traverse."
+  },
+  "animation:s007": {
+    "status": "divergent",
+    "label": "Percent (intermediate keys)",
+    "reason": "Blender adds intermediate keys by sampling on a frame step (every N frames); Maya's percent-of-key density is a different sampling model."
+  },
+  "animation:s014": {
+    "status": "divergent",
+    "label": "Samples (scale speed mode)",
+    "reason": "Motion-sampling resolution for Maya's speed-retime mode only; Blender Scale Keys has no motion-sampling speed mode."
+  },
+  "animation:b000": {
+    "status": "divergent",
+    "label": "Slot Sequencer",
+    "reason": "Maya's Shot Sequencer is a standalone shot-node / scene-per-shot ripple editor. Blender's sequencing model (the Video Sequencer, linked scenes, and timeline-marker cameras) is structurally different, so a faithful port is a separate Blender-native tool, not a parity control; the b000 slot points the user at the VSE + camera markers."
+  },
+  "animation:b004": {
+    "status": "divergent",
+    "label": "Shot Manifest",
+    "reason": "Maya's Shot Manifest is a CSV-driven scene-assembly window built on Maya shot nodes. Blender assembles shots via linked Scenes/Collections (a different paradigm), so there is no faithful mirror; the b004 slot points the user at that native workflow."
+  },
+  "scene:b006": {
+    "status": "done-elsewhere",
+    "label": "Cleanup Unknown",
+    "reason": "Maya removes 'unknown nodes' (a Maya plugin-loss artifact with no Blender analogue). The Blender cleanup equivalent - purging orphan datablocks - is the header's Scene Cleanup (b_cleanup / btk.cleanup_scene)."
+  },
+  "scene:b009": {
+    "status": "na",
+    "label": "Fix OCIO",
+    "reason": "Maya 'Fix OCIO' repairs a broken/missing OCIO config on scene load; Blender bundles its OCIO config (Filmic/AgX) natively and has no missing/broken-config failure mode to repair."
+  },
+  "scene:b012": {
+    "status": "na",
+    "label": "Toggle Command Ports",
+    "reason": "Maya opens commandPort servers for remote control; Blender has no commandPort-server analogue (the same reason ScriptJobManager has no add_om_callback)."
+  },
+  "scene:b013": {
+    "status": "done-elsewhere",
+    "label": "Mesh Converter",
+    "reason": "Maya's standalone FBX->GLB Mesh Converter window; the Scene Exporter's 'Also Export GLB' (chk_glb, native glTF 2.0) covers GLB output for the live scene. Standalone batch-directory conversion is not part of the menu."
+  },
+  "scene:b014": {
+    "status": "na",
+    "label": "Save to Original Scene",
+    "reason": "Maya saves an open autosave back to its resolved original file; Blender autosave recovery (File > Recover Auto Save) tracks no 'original scene' relationship - an autosave opens as a normal file you then Save As."
+  },
+  "scene:lbl004": {
+    "status": "na",
+    "label": "Open Workspace Root",
+    "reason": "Blender has no project/workspace system, so there is no workspace root to open - a .blend is self-contained (recent-files list000 + autosave cmb002 cover quick re-open)."
+  },
+  "scene:lbl005": {
+    "status": "na",
+    "label": "Auto Set Workspace",
+    "reason": "Blender has no project/workspace system to auto-detect or set by walking up directories; a .blend is self-contained and derives its directory from the saved file."
+  },
+  "rendering:t001": {
+    "status": "divergent",
+    "label": "Scene-name regex",
+    "reason": "Maya's PlayblastExporter applies a regex to the scene name to build multi-variation output filenames; Blender's OpenGL render writes a single output path, set directly via t000 (Output base path). The regex batch-naming belongs to multi-file export, which the single render doesn't do."
+  },
+  "rendering:chk056": {
+    "status": "na",
+    "label": "Offscreen Capture",
+    "reason": "Maya toggles offscreen playblast to dodge viewport-redraw artifacts; Blender's render.opengl always renders to an offscreen buffer (the 'Active Viewport' camera option in cmb041 chooses view_context), so there is no on/off equivalent."
+  },
+  "rendering:chk057": {
+    "status": "divergent",
+    "label": "Show Ornaments",
+    "reason": "Maya burns viewport HUD/ornaments into the capture; Blender's OpenGL render shows overlays only when capturing the viewport (cmb041='Active Viewport' -> view_context), and HUD burn-in is the separate metadata-stamp system, not a capture toggle."
+  },
+  "rendering:chk059": {
+    "status": "na",
+    "label": "Clear Cache",
+    "reason": "Maya clears temporary playblast files before export; Blender's OpenGL render writes straight to the output path with no playblast temp-file cache to clear."
+  },
+  "transform:chk026": {
+    "status": "na",
+    "label": "Make Live",
+    "reason": "Maya's Make Live turns a surface into a live construction grid (new geometry snaps onto it); Blender has no live-surface mode. Surface-snapping during transform is chk025 (Constrain: Surface -> FACE snap)."
+  },
+  "transform:chk040": {
+    "status": "na",
+    "label": "From Channel Box",
+    "reason": "Maya freezes the channel-box-selected attributes; Blender has no channel box. The freeze targets are the explicit Translate/Rotate/Scale checkboxes (chk032-34)."
+  },
+  "transform:chk_restore_rig_anchors": {
+    "status": "na",
+    "label": "Restore Rig Anchors",
+    "reason": "Restores mayatk's GRP>LOC>GEO rig hierarchy (create_locator_at_object convention) after freeze; Blender rigging is Armature + vertex-group based with no such locator-anchor convention to restore."
+  },
+  "transform:cmb_connection_strategy": {
+    "status": "divergent",
+    "label": "Connection Strategy",
+    "reason": "Maya DG: how to handle freezing T/R/S that are driven by node connections (preserve/disconnect/delete). Blender has no DG connection model - transform_apply bakes current values; driven channels are drivers/constraints, not disconnected or deleted by a freeze."
+  },
+  "transform:s021": {
+    "status": "divergent",
+    "label": "Snap Move Increment",
+    "reason": "Numeric move-snap increment; Blender's increment snap uses the viewport grid, not a per-transform numeric value. The on/off is chk021 (Snap Move)."
+  },
+  "transform:s022": {
+    "status": "divergent",
+    "label": "Snap Scale Increment",
+    "reason": "Numeric scale-snap increment; Blender's increment snap is grid-driven with no per-transform numeric value. The on/off is chk022 (Snap Scale)."
+  },
+  "transform:s023": {
+    "status": "divergent",
+    "label": "Snap Rotate Degrees",
+    "reason": "Numeric rotation-snap angle; Blender's increment rotation snap is fixed/grid-driven with no exposed angle setting. The on/off is chk023 (Snap Rotate)."
+  },
+  "transform:chk023": {
+    "status": "done-elsewhere",
+    "label": "Snap Rotate",
+    "reason": "Handled by the standalone chk023 slot (static widget in transform#submenu.ui, live toggle -> use_snap_rotate), not re-built in tb004_init like Maya - re-building would duplicate the chk023 objectName (its siblings chk021/chk022 are tb004 option-box-only). Same rotate-snap behavior, no objectName collision."
+  },
+  "uv:cmb010": {
+    "status": "divergent",
+    "label": "Pre-Rotate Mode",
+    "reason": "Maya u3dLayout -preRotateMode is a 6-mode one-shot pre-orient using the 3D mesh orientation (incl. axis-to-V); Blender pack_islands rotation is the chk_pack_rotate boolean (rotate_method), not a 3D-orientation pre-orient."
+  },
+  "uv:s004": {
+    "status": "divergent",
+    "label": "UDIM tile",
+    "reason": "Target UDIM tile 1001-1200; Blender pack_islands packs into the [0,1]/active tile, not a numbered UDIM - UDIM targeting is a post-pack tile offset, not a pack_islands parameter."
+  },
+  "uv:cmb012": {
+    "status": "divergent",
+    "label": "Scale Mode",
+    "reason": "Maya polyAutoProjection -scaleMode (None/Uniform/Stretch); Blender smart_project exposes a scale_to_bounds boolean + correct_aspect, not the three-mode scale."
+  },
+  "uv:chk000": {
+    "status": "na",
+    "label": "Smart Fit",
+    "reason": "Maya smartFit best-fits the planar/cylindrical/spherical projection manipulator; Blender's Cube/Cylinder/Sphere projections (tb001 cmb011) auto-fit the object bounds with no smart-fit toggle."
+  },
+  "uv:chk020": {
+    "status": "divergent",
+    "label": "Straighten Shell",
+    "reason": "Whole-shell straighten; btk.straighten_uvs (tb005) is edge-based (selected UV edges within an angle band). Blender has no native straighten-entire-shell op."
+  },
+  "uv:chk033": {
+    "status": "divergent",
+    "label": "Per Shell (mirror)",
+    "reason": "Mirror each shell about its own center; btk mirror (transform_uvs / tb008) flips the whole map about the shared UV bbox - there is no per-island in-place flip."
+  },
+  "uv:chk034": {
+    "status": "divergent",
+    "label": "Preserve Footprint (mirror)",
+    "reason": "Keep mirrored UVs in the original footprint; Blender's whole-map mirror about the shared UV bbox center already preserves the footprint - the per-shell footprint option is specific to per-shell mirror (chk033)."
+  },
+  "uv:chk026": {
+    "status": "divergent",
+    "label": "Include Auto Seams",
+    "reason": "Maya u3dAutoSeam auto-detects + cuts new seams without layout; Blender has no auto-seam-only op (smart_project generates seams as part of a full unwrap; existing island borders are chk025 Include UV Borders -> Seams From Islands)."
+  },
+  "uv:chk040": {
+    "status": "divergent",
+    "label": "Invert Seam",
+    "reason": "Maya's unwrap_cylinder cuts an explicit lengthwise seam column and can flip it to the opposite side. Blender's Smart UV Project (the tb009 unwrap path) places the lengthwise cut automatically by connectivity/angle, with no exposed control over which side it lands on, so there is no Invert-Seam toggle to mirror."
+  },
+  "polygons:chk008": {
+    "status": "divergent",
+    "label": "U",
+    "reason": "Maya divides a facet directionally (divisionsU). Blender's bpy.ops.mesh.subdivide is uniform (number_cuts in both parametric directions at once) with no per-face U-only / V-only operator; the Cuts spinbox (s009) is the Blender equivalent control."
+  },
+  "polygons:chk009": {
+    "status": "divergent",
+    "label": "V",
+    "reason": "Maya divides a facet directionally (divisionsV). Blender's bpy.ops.mesh.subdivide is uniform with no per-face V-only operator; the Cuts spinbox (s009) is the Blender equivalent control (see polygons:chk008)."
+  },
+  "materials:b007": {
+    "status": "done-elsewhere",
+    "label": "Hypershade Editor",
+    "reason": "Blender's node-based Shader Editor is the Hypershade analogue; the header exposes it as b_shader_editor 'Shader Editor' (btk.open_editor). The Maya objectName isn't reused because a stateless button carries no shared QSettings state and the label differs (Hypershade vs Shader Editor)."
+  },
+  "materials:chk_exclude_defaults": {
+    "status": "na",
+    "label": "Exclude Default Materials",
+    "reason": "Blender has no auto-created built-in default materials (no lambert1/standardSurface1 equivalent \u2014 a new object starts with no material), so there is nothing to exclude from the report."
+  },
+  "materials:chk_hide_defaults": {
+    "status": "na",
+    "label": "Hide Default Materials",
+    "reason": "Blender has no auto-created built-in default materials to hide from the cmb002 material list (see materials:chk_exclude_defaults)."
+  },
+  "nurbs:s002": {
+    "status": "divergent",
+    "label": "Degree",
+    "reason": "NURBS surface degree. Blender's Revolve is a Screw MODIFIER producing a polygon mesh, not a parametric NURBS surface, so there is no surface degree to set."
+  },
+  "nurbs:chk006": {
+    "status": "divergent",
+    "label": "Range",
+    "reason": "Maya's 'force a curve range on the input curve' is a NURBS-curve parameterization flag; the Screw-mesh revolve has no curve-range concept."
+  },
+  "nurbs:chk007": {
+    "status": "na",
+    "label": "Polygon",
+    "reason": "Maya can output the revolve as a NURBS surface or a polygon; Blender's Screw modifier always produces a polygon mesh, so 'Polygon' is implicitly always on \u2014 there is nothing to toggle."
+  },
+  "nurbs:chk009": {
+    "status": "divergent",
+    "label": "Use Tolerance",
+    "reason": "NURBS build-to-tolerance vs section-count switch. The Screw mesh is driven purely by step count (Sections), so there is no tolerance build mode."
+  },
+  "nurbs:s006": {
+    "status": "divergent",
+    "label": "Tolerance",
+    "reason": "NURBS surface build tolerance (used only when Use Tolerance is on). No analogue for the step-count-driven Screw mesh (see nurbs:chk009)."
+  },
+  "nurbs:chk000": {
+    "status": "divergent",
+    "label": "Uniform",
+    "reason": "Uniform vs chord-length NURBS parameterization in the loft direction. btk.loft builds a polygon mesh by arc-length resampling (always uniform spacing), so there is no parameterization mode to pick."
+  },
+  "nurbs:s000": {
+    "status": "divergent",
+    "label": "Degree",
+    "reason": "Loft NURBS surface degree. btk.loft produces a polygon mesh (linear bridge between profiles), not a parametric surface, so there is no degree."
+  },
+  "nurbs:chk002": {
+    "status": "divergent",
+    "label": "Auto Reverse",
+    "reason": "Maya auto-computes per-curve direction for the NURBS loft. btk.loft bridges the profiles in selection order using each profile's own point order; there is no NURBS direction-reversal solve to automate."
+  },
+  "nurbs:chk003": {
+    "status": "divergent",
+    "label": "Range",
+    "reason": "NURBS-curve range flag for the loft input (see nurbs:chk006); no analogue for the mesh loft."
+  },
+  "nurbs:chk004": {
+    "status": "na",
+    "label": "Polygon",
+    "reason": "Maya can output the loft as a NURBS surface or polygon; btk.loft always builds a polygon mesh, so 'Polygon' is implicitly always on."
+  },
+  "nurbs:chk010": {
+    "status": "divergent",
+    "label": "Angle Loft Between Two Curves",
+    "reason": "Maya's specialized two-curve angle-loft (extracts polygon edges as curves and lofts an angled surface between them) is a NURBS-surfacing feature with no Blender mesh-loft analogue."
+  },
+  "nurbs:s007": {
+    "status": "divergent",
+    "label": "Angle Loft: Spans",
+    "reason": "Span count for Maya's two-curve angle loft (see nurbs:chk010) \u2014 no analogue in Blender."
+  },
+  "rigging:chk001": {
+    "status": "divergent",
+    "label": "IK",
+    "reason": "Maya's tb000 radios pick whether the display-scale applies to joints / IK handles / IK-FK. Blender has no IK-handle display object (IK is a bone constraint, not a separate displayable handle with its own size), so there is no IK axis-display to scale. Bone local axes are toggled via tb000 chk000 (Joints -> armature.show_axes)."
+  },
+  "rigging:chk002": {
+    "status": "divergent",
+    "label": "IK\\FK",
+    "reason": "No Blender analogue for a separate IK/FK display-scale (see rigging:chk001) \u2014 IK/FK is a constraint/driver setup, not a displayable handle."
+  },
+  "rigging:s000": {
+    "status": "divergent",
+    "label": "Tolerance",
+    "reason": "Maya's global joint/IK display-scale (jointDisplayScale). Blender has no global bone-axis display scale \u2014 bone display is per-armature display_type (octahedral/stick/...) and per-bone length, not a single scalar \u2014 so there is no equivalent value to set."
+  }
+}

@@ -43,14 +43,24 @@ class Subdivision(SlotsBlender):
             set_limits=[0, 180, 0.5, 1], setValue=1.0, set_fixed_height=20,
             setToolTip="Max dihedral angle (degrees) treated as coplanar (~0 is lossless).",
         )
+        # chk010/chk011/chk012 reuse the Maya names for the SAME options. They map onto the PLANAR
+        # decimate's boundary/delimit flags (collapse can't preserve features), so pair with s011.
+        menu.add("QCheckBox", setText="Preserve Borders", setObjectName="chk010", setChecked=True,
+                 setToolTip="Hold open mesh boundaries fixed (planar dissolve keeps border verts).")
+        menu.add("QCheckBox", setText="Preserve Hard/Crease Edges", setObjectName="chk011",
+                 setChecked=True, setToolTip="Planar dissolve won't cross sharp edges.")
+        menu.add("QCheckBox", setText="Preserve UV Borders", setObjectName="chk012",
+                 setToolTip="Planar dissolve won't cross UV island borders.")
 
         collapse_widgets = [menu.s010, menu.chk013, menu.chk014]
+        planar_widgets = [menu.s011, menu.chk010, menu.chk011, menu.chk012]
 
         def _sync(*_):
             planar = menu.cmb000.currentData() == "planar"
             for w in collapse_widgets:
                 w.setEnabled(not planar)
-            menu.s011.setEnabled(planar)
+            for w in planar_widgets:
+                w.setEnabled(planar)
 
         menu.cmb000.currentIndexChanged.connect(_sync)
         _sync()
@@ -64,7 +74,15 @@ class Subdivision(SlotsBlender):
             return
         menu = widget.option_box.menu
         if menu.cmb000.currentData() == "planar":
-            btk.dissolve_coplanar(objects, angle_tolerance=menu.s011.value())
+            delimit = set()
+            if menu.chk011.isChecked():
+                delimit.add("SHARP")
+            if menu.chk012.isChecked():
+                delimit.add("UV")
+            btk.dissolve_coplanar(
+                objects, angle_tolerance=menu.s011.value(), delimit=delimit,
+                preserve_borders=menu.chk010.isChecked(),
+            )
         else:
             btk.decimate(
                 objects, percentage=menu.s010.value(),
@@ -116,10 +134,7 @@ class Subdivision(SlotsBlender):
     # are unreachable legacy — so no stubs are carried here.)
     def b028(self):
         """Quad Draw (Blender's retopo equivalent: the Poly Build tool)."""
-        try:
-            bpy.ops.wm.tool_set_by_id(name="builtin.poly_build")
-        except Exception as e:
-            self.sb.message_box(str(e))
+        self.set_viewport_tool("builtin.poly_build", "Quad Draw")
 
 
 # --------------------------------------------------------------------------------------------

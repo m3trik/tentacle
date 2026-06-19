@@ -61,20 +61,24 @@ def _run():
         try:
             from qtpy import QtWidgets
 
-            tb._ACTIVE_TCL.show("main#startmenu")
+            tb._KeymapBridge.tcl.show("main#startmenu")
             app = QtWidgets.QApplication.instance()
             for _ in range(30):
                 app.processEvents()
-            log("menu isVisible after show():", bool(tb._ACTIVE_TCL.isVisible()))
+            log("menu isVisible after show():", bool(tb._KeymapBridge.tcl.isVisible()))
 
-            # Closest proxy to a real F12 press: invoke the bridge operator itself.
-            tb._ACTIVE_TCL.hide()
+            # Closest proxy to a real F12 press/release: invoke the bridge operator both phases.
+            tb._KeymapBridge.tcl.hide()
             for _ in range(10):
                 app.processEvents()
-            bpy.ops.tentacle.show_marking_menu("INVOKE_DEFAULT", ui_name="main#startmenu")
+            bpy.ops.tentacle.show_marking_menu("INVOKE_DEFAULT")  # phase defaults to "press"
             for _ in range(30):
                 app.processEvents()
-            log("menu isVisible after operator invoke:", bool(tb._ACTIVE_TCL.isVisible()))
+            log("menu isVisible after operator press:", bool(tb._KeymapBridge.tcl.isVisible()))
+            bpy.ops.tentacle.show_marking_menu("INVOKE_DEFAULT", phase="release")  # hides + releases grab
+            for _ in range(20):
+                app.processEvents()
+            log("menu isVisible after operator release:", bool(tb._KeymapBridge.tcl.isVisible()))
         except Exception as error:
             import traceback
 

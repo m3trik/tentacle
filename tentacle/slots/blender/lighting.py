@@ -6,20 +6,21 @@ from tentacle.slots.blender._slots_blender import SlotsBlender
 class Lighting(SlotsBlender):
     """Blender port of the shared ``lighting`` menu.
 
-    Both buttons launch mayatk tool panels (HDR Manager / Lightmap Baker) that have no
-    blendertk counterparts yet — deferred with messages until those tools are ported.
+    HDR Manager opens the world-environment panel; the Lightmap Baker opens the
+    Cycles-bake panel (``btk.LightmapBaker`` engine + co-located ``LightmapBakerSlots``,
+    discovered by ``BlenderUiHandler``). Both panels live in blendertk.
     """
 
     def __init__(self, switchboard):
         super().__init__(switchboard)
 
     def b000(self):
-        """HDR Manager — mayatk panel; not yet ported (use World shader nodes for HDRIs)."""
-        self.sb.message_box("HDR Manager is not yet implemented for Blender.")
+        """Launch the HDR Manager (world-environment HDRI panel)."""
+        self.sb.handlers.marking_menu.show("hdr_manager")
 
     def b001(self):
-        """Lightmap Baker — mayatk panel; not yet ported (use Cycles bake)."""
-        self.sb.message_box("Lightmap Baker is not yet implemented for Blender.")
+        """Launch the Lightmap Baker (Cycles-bake → game-engine lightmaps)."""
+        self.sb.handlers.marking_menu.show("lightmap_baker")
 
 
 # --------------------------------------------------------------------------------------------

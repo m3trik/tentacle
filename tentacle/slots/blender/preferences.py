@@ -44,7 +44,7 @@ class Preferences(SlotsBlender):
         widget.add(self._LENGTH_UNITS)
         current = bpy.context.scene.unit_settings.length_unit
         labels = list(self._LENGTH_UNITS)
-        match = next((l for l, u in self._LENGTH_UNITS.items() if u == current), None)
+        match = next((lbl for lbl, u in self._LENGTH_UNITS.items() if u == current), None)
         if match:
             widget.setCurrentIndex(labels.index(match))
 

@@ -17,6 +17,7 @@ ROOT = Path(__file__).resolve().parent.parent
 PKG = ROOT / "tentacle"
 UI_DIR = PKG / "ui"
 UI_MAYA_DIR = UI_DIR / "maya_menus"
+UI_BLENDER_DIR = UI_DIR / "blender_menus"
 SLOTS_DIR = PKG / "slots" / "maya"
 
 if str(ROOT) not in sys.path:
@@ -86,13 +87,38 @@ class TestUiFilePairing(unittest.TestCase):
             f"_ui.py without .ui in maya_menus/: {sorted(orphan_py)}",
         )
 
+    def test_blender_menus_dir_exists(self):
+        self.assertTrue(UI_BLENDER_DIR.is_dir())
+
+    def test_blender_menus_pairing(self):
+        """Each .ui in ui/blender_menus/ must have a corresponding _ui.py."""
+        ui_stems = _ui_files(UI_BLENDER_DIR)
+        py_stems = _generated_py(UI_BLENDER_DIR)
+        missing_py = ui_stems - py_stems
+        self.assertEqual(
+            missing_py,
+            set(),
+            f".ui without _ui.py in blender_menus/: {sorted(missing_py)}",
+        )
+
+    def test_blender_menus_py_has_ui(self):
+        """Each _ui.py in ui/blender_menus/ must have a corresponding .ui."""
+        ui_stems = _ui_files(UI_BLENDER_DIR)
+        py_stems = _generated_py(UI_BLENDER_DIR)
+        orphan_py = py_stems - ui_stems
+        self.assertEqual(
+            orphan_py,
+            set(),
+            f"_ui.py without .ui in blender_menus/: {sorted(orphan_py)}",
+        )
+
 
 class TestBindingTargetsResolve(unittest.TestCase):
-    """TclMaya default bindings must point to real UI files."""
+    """Tcl default bindings (both DCCs) must point to real UI files."""
 
-    def _get_binding_targets(self):
-        """Parse tcl_maya.py and extract binding values (UI references)."""
-        tcl_path = PKG / "tcl_maya.py"
+    def _get_binding_targets(self, tcl_filename="tcl_maya.py"):
+        """Parse a tcl_*.py and extract binding values (UI references)."""
+        tcl_path = PKG / tcl_filename
         source = tcl_path.read_text(encoding="utf-8")
         # Bindings are string values like "hud#startmenu", "cameras#startmenu", etc.
         targets = []
@@ -112,17 +138,24 @@ class TestBindingTargetsResolve(unittest.TestCase):
                                 targets.append(part.value.lstrip("|"))
         return targets
 
-    def test_binding_ui_files_exist(self):
-        """Each binding target (e.g. 'hud#startmenu') must have a .ui file."""
-        targets = self._get_binding_targets()
-        self.assertGreater(len(targets), 0, "Could not extract any binding targets")
+    def test_maya_binding_ui_files_exist(self):
+        """Each TclMaya binding target (e.g. 'hud#startmenu') must have a .ui file."""
+        targets = self._get_binding_targets("tcl_maya.py")
+        self.assertGreater(len(targets), 0, "Could not extract any TclMaya binding targets")
 
         all_ui = _ui_files(UI_DIR) | _ui_files(UI_MAYA_DIR)
-        missing = []
-        for target in targets:
-            if target not in all_ui:
-                missing.append(target)
-        self.assertEqual(missing, [], f"Binding targets without .ui: {missing}")
+        missing = [t for t in targets if t not in all_ui]
+        self.assertEqual(missing, [], f"TclMaya binding targets without .ui: {missing}")
+
+    def test_blender_binding_ui_files_exist(self):
+        """Each TclBlender binding target (incl. the both-button 'blender#startmenu') must
+        resolve to a .ui in ui/ or ui/blender_menus/ — so no chord can dead-end."""
+        targets = self._get_binding_targets("tcl_blender.py")
+        self.assertGreater(len(targets), 0, "Could not extract any TclBlender binding targets")
+
+        all_ui = _ui_files(UI_DIR) | _ui_files(UI_BLENDER_DIR)
+        missing = [t for t in targets if t not in all_ui]
+        self.assertEqual(missing, [], f"TclBlender binding targets without .ui: {missing}")
 
 
 class TestSlotUiCoverage(unittest.TestCase):

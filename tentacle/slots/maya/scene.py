@@ -43,6 +43,18 @@ class SceneSlots(SlotsMaya):
                 setObjectName="b013",
                 setToolTip="Open the FBX -> GLB converter window.\nBacked by godotengine/FBX2glTF; the binary is downloaded on first use.",
             )
+            widget.menu.add(
+                "QPushButton",
+                setText="Blender Bridge",
+                setObjectName="b010",
+                setToolTip="Send the selected objects to a fresh Blender (export FBX + run a chosen import template).",
+            )
+            widget.menu.add(
+                "QPushButton",
+                setText="Unity Bridge",
+                setObjectName="b016",
+                setToolTip="Send the selected objects to a Unity project (export FBX + copy into Assets/).",
+            )
             widget.menu.add("Separator", setTitle="Manage")
             widget.menu.add(
                 "QPushButton",
@@ -277,64 +289,6 @@ class SceneSlots(SlotsMaya):
         force = not mtk.get_env_info("scene_modified")
         cmds.file(widget.items[index], open=True, force=force, ignoreVersion=True)
 
-    def tb000_init(self, widget):
-        """Initialize Set Workspace"""
-        if not widget.is_initialized:
-            widget.setToolTip(
-                "Click to set the project directory. Current workspace shown in footer."
-            )
-            widget.option_box.menu.setTitle("Workspace Options")
-            widget.option_box.menu.add(
-                "QPushButton",
-                setObjectName="lbl005",
-                setText="Auto Set Workspace",
-                setToolTip="Determine the workspace directory by moving up directory levels until a workspace is found.",
-            )
-            widget.option_box.menu.add(
-                "QPushButton",
-                setObjectName="lbl004",
-                setText="Open Workspace Root",
-                setToolTip="Open the project root directory.",
-            )
-
-            from uitk.widgets.optionBox.options.recent_values import RecentValuesOption
-
-            self._recent_workspaces = RecentValuesOption(
-                wrapped_widget=widget,
-                settings_key="workspace_recent_projects",
-                max_recent=10,
-            )
-            widget.option_box.add_option(self._recent_workspaces)
-
-            # Seed from Maya's recent projects (only valid workspaces)
-            if not self._recent_workspaces.recent_values:
-                for p in mtk.get_recent_projects(slice(0, 10), format="standard"):
-                    if os.path.isfile(os.path.join(p, "workspace.mel")):
-                        self._recent_workspaces.add_recent_value(p)
-
-            self._recent_workspaces.value_selected.connect(self._open_recent_workspace)
-
-    def tb000(self, widget):
-        """Set Workspace"""
-        mel.eval("SetProject")
-        # Record the newly set workspace
-        workspace = mtk.get_env_info("workspace")
-        if hasattr(self, "_recent_workspaces") and workspace:
-            self._recent_workspaces.record(workspace)
-        if self._footer_controller:
-            self._footer_controller.update()
-
-    def _open_recent_workspace(self, path):
-        """Open a workspace from the recent list."""
-        if not os.path.isfile(os.path.join(str(path), "workspace.mel")):
-            self.sb.message_box("Not a valid workspace.")
-            return
-        cmds.workspace(path, openWorkspace=True)
-        workspace_name = os.path.basename(path)
-        self.sb.message_box(f"Workspace set to {workspace_name}.")
-        if self._footer_controller:
-            self._footer_controller.update()
-
     def list000_init(self, widget):
         """Initialize Recent Files"""
         widget.fixed_item_height = 18
@@ -350,23 +304,6 @@ class SceneSlots(SlotsMaya):
         """Recent Files"""
         data = item.item_data()
         cmds.file(data, open=True, force=True)
-
-    def lbl004(self):
-        """Open current project root"""
-        dir_ = cmds.workspace(q=True, rd=1)  # current project path.
-        os.startfile(ptk.format_path(dir_))
-
-    def lbl005(self):
-        """Auto Set Workspace"""
-        workspace = mtk.find_workspace_using_path()
-        if workspace:
-            cmds.workspace(workspace, openWorkspace=True)
-            workspace_name = os.path.basename(workspace)
-            self.sb.message_box(f"Workspace set to {workspace_name}.")
-            if self._footer_controller:
-                self._footer_controller.update()
-        else:
-            self.sb.message_box("No workspace found.")
 
     def _on_workspace_changed(self):
         """Maya workspaceChanged scriptJob handler — refresh dependent UI."""
@@ -408,6 +345,14 @@ class SceneSlots(SlotsMaya):
     def b002(self):
         """Scene Exporter"""
         self.sb.handlers.marking_menu.show("scene_exporter")
+
+    def b010(self):
+        """Blender Bridge — send the selection to a fresh Blender (mtk.BlenderBridge)."""
+        self.sb.handlers.marking_menu.show("blender_bridge")
+
+    def b016(self):
+        """Unity Bridge — send the selection to a Unity project's Assets/ (mtk.UnityBridge)."""
+        self.sb.handlers.marking_menu.show("unity_bridge")
 
     def tb003_init(self, widget):
         """Initialize Export."""

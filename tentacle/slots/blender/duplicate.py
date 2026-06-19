@@ -10,8 +10,8 @@ class Duplicate(SlotsBlender):
 
     Maya "instances" (transforms sharing one shape) map onto Blender **linked duplicates**
     (objects sharing one ``obj.data``), backed by ``blendertk.node_utils``. The Mirror /
-    Duplicate-Linear/Radial/Grid header buttons open separate menus that aren't ported yet,
-    so they're deferred with a message.
+    Duplicate-Linear/Radial/Grid header buttons open the Blender-owned tool panels in
+    ``ui/blender_menus/`` (slots ``mirror.py`` / ``duplicate_*.py``).
     """
 
     def __init__(self, switchboard):
@@ -111,22 +111,22 @@ class Duplicate(SlotsBlender):
         """Uninstance Selected Objects (make their data single-user)."""
         btk.uninstance(self.selected_objects())
 
-    # ------------------------------------------------------------------ deferred (separate menus)
+    # ------------------------------------------------------------------ tool panels (blender_menus)
     def b000(self):
-        """Mirror — separate menu not ported to Blender yet."""
-        self.sb.message_box("Mirror is not yet implemented for Blender.")
+        """Mirror"""
+        self.sb.handlers.marking_menu.show("mirror")
 
     def b006(self):
-        """Duplicate Linear — separate menu not ported to Blender yet."""
-        self.sb.message_box("Duplicate Linear is not yet implemented for Blender.")
+        """Duplicate Linear"""
+        self.sb.handlers.marking_menu.show("duplicate_linear")
 
     def b007(self):
-        """Duplicate Radial — separate menu not ported to Blender yet."""
-        self.sb.message_box("Duplicate Radial is not yet implemented for Blender.")
+        """Duplicate Radial"""
+        self.sb.handlers.marking_menu.show("duplicate_radial")
 
     def b008(self):
-        """Duplicate Grid — separate menu not ported to Blender yet."""
-        self.sb.message_box("Duplicate Grid is not yet implemented for Blender.")
+        """Duplicate Grid"""
+        self.sb.handlers.marking_menu.show("duplicate_grid")
 
 
 # --------------------------------------------------------------------------------------------

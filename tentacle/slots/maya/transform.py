@@ -270,8 +270,8 @@ class TransformSlots(SlotsMaya):
         edge_constraint = cmds.xformConstraint(q=True, type=1) == "edge"
         surface_constraint = cmds.xformConstraint(q=True, type=1) == "surface"
         values = [
-            ("chk024", "Contrain: Edge", edge_constraint),
-            ("chk025", "Constain: Surface", surface_constraint),
+            ("chk024", "Constrain: Edge", edge_constraint),
+            ("chk025", "Constrain: Surface", surface_constraint),
             ("chk026", "Make Live", True),
         ]
         for name, text, state in values:

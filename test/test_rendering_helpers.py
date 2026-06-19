@@ -170,5 +170,166 @@ class TestCameraTransforms(unittest.TestCase):
         )
 
 
+@unittest.skipUnless(_MAYA_AVAILABLE, "Requires maya.cmds")
+class TestRenderCurrentFrame(unittest.TestCase):
+    """b000 (Render Current Frame) must surface the Render View.
+
+    Regression: b000 called `cmds.render(camera)`, which renders offscreen
+    to a temp file and returns a path -- it never opens the Render View, so
+    the button appeared to do nothing. It must instead route the *selected*
+    camera transform through `renderWindowRenderCamera` (Maya's own
+    "Render Current Frame" path).
+    """
+
+    def setUp(self):
+        cmds.file(new=True, force=True)
+
+    def tearDown(self):
+        cmds.file(new=True, force=True)
+
+    def _make_instance(self, camera_text):
+        inst = rendering_module.Rendering.__new__(rendering_module.Rendering)
+
+        class _Combo:
+            def currentText(_self):
+                return camera_text
+
+        class _UI:
+            cmb001 = _Combo()
+
+        class _SB:
+            def __init__(s):
+                s.messages = []
+
+            def message_box(s, msg):
+                s.messages.append(msg)
+
+        inst.ui = _UI()
+        inst.sb = _SB()
+        return inst
+
+    def _run_b000(self, inst):
+        """Call b000 with mel.eval / cmds.render patched to capture calls."""
+        captured = {}
+        orig_eval = rendering_module.mel.eval
+        orig_render = rendering_module.cmds.render
+
+        def fake_eval(cmd, *a, **k):
+            captured["mel"] = cmd
+
+        def fake_render(*a, **k):
+            captured["render"] = (a, k)
+
+        try:
+            rendering_module.mel.eval = fake_eval
+            rendering_module.cmds.render = fake_render
+            inst.b000()
+        finally:
+            rendering_module.mel.eval = orig_eval
+            rendering_module.cmds.render = orig_render
+        return captured
+
+    def test_b000_renders_into_render_view_not_offscreen(self):
+        cam_tf = cmds.rename(cmds.camera()[0], "renderCam")
+        shape = cmds.listRelatives(cam_tf, shapes=True)[0]
+
+        # Combo yields the camera *shape*; b000 must resolve it to the transform.
+        inst = self._make_instance(shape)
+        captured = self._run_b000(inst)
+
+        self.assertIn(
+            "renderWindowRenderCamera",
+            captured.get("mel", ""),
+            "b000 should render into the Render View via renderWindowRenderCamera",
+        )
+        self.assertIn(
+            cam_tf,
+            captured.get("mel", ""),
+            "the resolved camera transform should be passed to the Render View",
+        )
+        self.assertNotIn(
+            "render", captured, "b000 must not fall back to silent offscreen cmds.render"
+        )
+
+    def test_b000_passes_transform_unchanged(self):
+        cam_tf = cmds.rename(cmds.camera()[0], "shotCam")
+
+        inst = self._make_instance(cam_tf)  # combo already yields a transform
+        captured = self._run_b000(inst)
+
+        self.assertIn("renderWindowRenderCamera", captured.get("mel", ""))
+        self.assertIn(cam_tf, captured.get("mel", ""))
+
+    def test_b000_no_camera_warns_and_skips(self):
+        inst = self._make_instance("")  # empty selection
+        captured = self._run_b000(inst)
+
+        self.assertNotIn("mel", captured, "b000 must not render with no camera")
+        self.assertTrue(inst.sb.messages, "b000 should warn when no camera is available")
+
+
+@unittest.skipUnless(_MAYA_AVAILABLE, "Requires maya.cmds")
+class TestRenderCameraCombo(unittest.TestCase):
+    """cmb001_init must populate transforms and wire refresh-on-show/popup."""
+
+    def setUp(self):
+        cmds.file(new=True, force=True)
+
+    def tearDown(self):
+        cmds.file(new=True, force=True)
+
+    class _FakeSignal:
+        def __init__(self):
+            self.connected = []
+
+        def connect(self, fn):
+            self.connected.append(fn)
+
+    class _FakeWidget:
+        def __init__(self):
+            self.is_initialized = False
+            self.refresh_on_show = False
+            self.before_popup_shown = TestRenderCameraCombo._FakeSignal()
+            self.added = None
+            self.add_kwargs = None
+
+        def init_slot(self):
+            pass
+
+        def add(self, items, **kwargs):
+            self.added = list(items)
+            self.add_kwargs = kwargs
+
+    def test_cmb001_init_lists_transforms_and_wires_refresh(self):
+        cam_tf = cmds.rename(cmds.camera()[0], "renderCam")
+        inst = rendering_module.Rendering.__new__(rendering_module.Rendering)
+        widget = self._FakeWidget()
+
+        inst.cmb001_init(widget)
+
+        # Transforms, not shapes.
+        self.assertIn("persp", widget.added)
+        self.assertIn(cam_tf, widget.added)
+        self.assertNotIn("perspShape", widget.added)
+        # Selection is preserved across refreshes.
+        self.assertTrue(widget.add_kwargs.get("restore_index"))
+        # Refresh wired for both panel-show and dropdown-open (and only once).
+        self.assertTrue(widget.refresh_on_show)
+        self.assertIn(widget.init_slot, widget.before_popup_shown.connected)
+
+    def test_cmb001_init_skips_rewiring_when_already_initialized(self):
+        cmds.camera()
+        inst = rendering_module.Rendering.__new__(rendering_module.Rendering)
+        widget = self._FakeWidget()
+        widget.is_initialized = True
+
+        inst.cmb001_init(widget)
+
+        # Already-initialized refresh path must not re-connect the popup signal.
+        self.assertEqual(widget.before_popup_shown.connected, [])
+        # ...but the list is still repopulated on every init.
+        self.assertIn("persp", widget.added)
+
+
 if __name__ == "__main__":
     unittest.main()

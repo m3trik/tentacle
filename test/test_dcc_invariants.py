@@ -17,8 +17,13 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 SLOTS_ROOT = ROOT / "tentacle" / "slots"
 
-# dcc package dir -> required base class.
-DCCS = {"maya": "SlotsMaya", "blender": "SlotsBlender"}
+# dcc package dir -> required base class. Self-adapting to the slot packages
+# actually present: the Blender slot layer is built on dev but deliberately
+# held off main while under construction, so on a checkout without
+# ``slots/blender/`` these invariants simply cover the DCCs that exist
+# (Maya). Add a DCC by listing it here; it's exercised once its dir lands.
+_ALL_DCCS = {"maya": "SlotsMaya", "blender": "SlotsBlender"}
+DCCS = {d: b for d, b in _ALL_DCCS.items() if (SLOTS_ROOT / d).is_dir()}
 
 
 def _slot_files(dcc):

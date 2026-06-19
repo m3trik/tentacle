@@ -90,16 +90,33 @@ class Pivot(SlotsBlender):
         self.ui.tb001.option_box.menu.chk004.setChecked(True)
         self.ui.tb001.call_slot()
 
-    # ------------------------------------------------------------------ deferred (Maya-specific)
+    # ------------------------------------------------------------------ tb002  Transfer Pivot
+    @btk.undoable
     def tb002(self, widget):
-        """Transfer Pivot — Maya's per-channel (translate/rotate/scale) pivot transfer has no
-        Blender analogue (single baked origin)."""
-        self.sb.message_box("Transfer Pivot is not yet implemented for Blender.")
+        """Transfer Pivot — move the selected objects' origins onto the **active** object's origin.
+
+        Blender has a single object origin (a point), so only Maya's translate-pivot maps: the
+        active object is the source and every other selected object's origin moves onto it without
+        moving geometry (``btk.transfer_pivot`` — 3D-cursor → ORIGIN_CURSOR). Maya's rotate/scale
+        pivot channels and Bake have no Blender analogue (a single, always-baked origin)."""
+        objects = self.selected_objects()
+        active = bpy.context.view_layer.objects.active
+        if active is None or len(objects) < 2:
+            self.sb.message_box("Select target object(s) with the source object active.")
+            return
+        # Order active-first so it's the source (mtk convention is source = objects[0]).
+        ordered = [active] + [o for o in objects if o != active]
+        btk.transfer_pivot(ordered, translate=True, select_targets_after_transfer=True)
+
+    # ------------------------------------------------------------------ deferred (Maya-specific)
 
     def tb003(self, widget):
         """World-Aligned Pivot — Maya manipulator-pivot orientation; Blender has no separate
-        manip pivot."""
-        self.sb.message_box("World-Aligned Pivot is not yet implemented for Blender.")
+        manip pivot (the origin is a single point), so this is not applicable."""
+        self.sb.message_box(
+            "World-Aligned Pivot is not applicable in Blender (the origin is a single "
+            "point, with no separate manipulator-pivot orientation)."
+        )
 
     def b004(self):
         """Bake Pivot — Blender object origins are always baked into the transform (no-op)."""

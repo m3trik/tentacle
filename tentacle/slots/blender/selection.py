@@ -1,7 +1,5 @@
 # !/usr/bin/python
 # coding=utf-8
-import math
-
 import bpy
 import blendertk as btk
 from uitk import Signals
@@ -13,16 +11,16 @@ class Selection(SlotsBlender):
 
     Per the capability map (BLENDER_PORT_PLAN §5), selection maps almost entirely to **native
     Blender operators**, so most handlers call ``bpy.ops`` directly (proven to work from the Qt
-    event-pump context); select-by-type rides ``object.select_by_type``. Maya-tool-specific
-    widgets with no clean Blender analogue (reorder, dR_ constraints) are deferred with a
-    clear message.
+    event-pump context); select-by-type rides ``object.select_by_type``; the dR_ selection
+    constraints become one-shot selection expansion (no modal analogue). Reorder Selection is
+    closed as not-applicable (no ordered object selection in Blender).
     """
 
     # Maya "Marquee/Lasso/Paint" select styles -> Blender's box/lasso/circle select tools.
     _SELECT_TOOLS = {
-        "chk005": "builtin.select_box",
-        "chk006": "builtin.select_lasso",
-        "chk007": "builtin.select_circle",
+        "chk005": ("builtin.select_box", "Box Select"),
+        "chk006": ("builtin.select_lasso", "Lasso Select"),
+        "chk007": ("builtin.select_circle", "Circle Select"),
     }
 
     def __init__(self, switchboard):
@@ -97,57 +95,137 @@ class Selection(SlotsBlender):
                 self.sb.message_box(str(e))
 
     # ------------------------------------------------------------------ tb001  Select Similar
+    # Maya offers a fixed set of similarity criteria (Area, Normal, …); Blender's
+    # ``mesh.select_similar`` takes ONE ``type`` whose valid values depend on the active
+    # component mode, so we expose a mode-aware combo (label -> {select-mode: enum}). The combo
+    # objectName is Blender-specific (Maya used per-criterion checkboxes — a different model).
+    # Component-mode (Edit) fallback: Maya's tb001 runs object-level Select Similar by the
+    # checkboxes below, and a generic ``doSelectSimilar`` in component mode (no per-type UI). The
+    # blender analogue picks a sensible native ``select_similar`` type for the active component mode.
+    _COMPONENT_DEFAULT = {"VERT": "NORMAL", "EDGE": "LENGTH", "FACE": "AREA"}
+
+    # (objectName, label, tooltip, default-checked) for the object-similarity criteria — Maya's
+    # widgets/objectNames, backed by ``btk.get_similar_mesh`` (polyEvaluate-metric parity).
+    _SIMILAR_CRITERIA = (
+        ("chk011", "Vertex", "The number of vertices.", True),
+        ("chk012", "Edge", "The number of edges.", True),
+        ("chk013", "Face", "The number of faces.", True),
+        ("chk014", "Triangle", "The number of triangles.", False),
+        ("chk015", "Shell", "The number of shells (disconnected pieces).", False),
+        ("chk016", "Uv Coord", "The number of UV coordinates.", False),
+        ("chk017", "Area", "The surface area of the faces in local space.", False),
+        ("chk018", "World Area", "The surface area of the faces in world space.", False),
+        ("chk019", "Bounding Box", "The object's bounding-box dimensions.", False),
+        ("chk020", "Include Original", "Include the originally selected object(s) in the result.", False),
+    )
+
     def tb001_init(self, widget):
+        widget.option_box.menu.setTitle("Select Similar")
         widget.option_box.menu.add(
-            "QDoubleSpinBox", setPrefix="Threshold: ", setObjectName="s000",
-            set_limits=[0, 1, 0.01, 3], setValue=0.1,
-            setToolTip="Allowed difference for the similarity match.",
+            "QDoubleSpinBox", setPrefix="Tolerance: ", setObjectName="s000",
+            set_limits=[0, 9999, 0.0, 3], setValue=0.0,
+            setToolTip="The allowed difference in any compared metric (e.g. 4 allows a 4-component "
+            "difference; 0.05 allows that much variance between bounding-box values).",
         )
+        for name, label, tip, checked in self._SIMILAR_CRITERIA:
+            widget.option_box.menu.add(
+                "QCheckBox", setText=label, setObjectName=name, setChecked=checked, setToolTip=tip,
+            )
 
     def tb001(self, widget):
-        """Select Similar"""
-        threshold = widget.option_box.menu.s000.value()
+        """Select Similar — object-level similarity by topology / area / bounding-box metrics
+        (Maya parity, via ``btk.get_similar_mesh``); in Edit mode, fall back to Blender's native
+        component ``select_similar``."""
+        m = widget.option_box.menu
         obj = bpy.context.active_object
-        try:
-            if obj and obj.mode == "EDIT":
-                bpy.ops.mesh.select_similar(threshold=threshold)
-            else:
-                bpy.ops.object.select_grouped(type="TYPE")
-        except RuntimeError as e:
-            self.sb.message_box(str(e))
+        if obj and obj.mode == "EDIT":
+            vert, edge, face = bpy.context.tool_settings.mesh_select_mode
+            mode = "FACE" if face else "EDGE" if edge else "VERT"
+            try:
+                bpy.ops.mesh.select_similar(
+                    type=self._COMPONENT_DEFAULT[mode],
+                    threshold=min(max(m.s000.value(), 0.0), 1.0),
+                )
+            except RuntimeError as e:
+                self.sb.message_box(str(e))
+            return
+        matched = btk.get_similar_mesh(
+            self.selected_objects(),
+            tolerance=m.s000.value(),
+            inc_orig=m.chk020.isChecked(),
+            select=True,
+            vertex=m.chk011.isChecked(),
+            edge=m.chk012.isChecked(),
+            face=m.chk013.isChecked(),
+            triangle=m.chk014.isChecked(),
+            shell=m.chk015.isChecked(),
+            uvcoord=m.chk016.isChecked(),
+            area=m.chk017.isChecked(),
+            world_area=m.chk018.isChecked(),
+            bounding_box=m.chk019.isChecked(),
+        )
+        if not matched:
+            self.sb.message_box(
+                "No similar objects found (select a reference object and enable a criterion)."
+            )
 
     # ------------------------------------------------------------------ tb002  Select Island
+    # Native ``select_linked`` delimiters {objectName: (label, delimit enum)}. By Normal is the
+    # direct analogue of Maya's "island within a normal range" (growth stops at normal
+    # discontinuities). objectNames are Blender-specific (Maya's island option box used a
+    # Lock-Values + normal-range model).
+    _ISLAND_DELIMIT = {
+        "chk022": ("By Seam", "SEAM"),
+        "chk_island_sharp": ("By Sharp Edges", "SHARP"),
+        "chk_island_normal": ("By Normal Angle", "NORMAL"),
+        "chk_island_material": ("By Material", "MATERIAL"),
+        "chk_island_uv": ("By UV Border", "UV"),
+    }
+
     def tb002_init(self, widget):
-        # chk022: first number free in BOTH this file and maya/selection.py — the QSettings
-        # store is shared across DCCs, so reusing a Maya name for a different option bleeds state.
-        widget.option_box.menu.add(
-            "QCheckBox", setText="By Seam", setObjectName="chk022",
-            setToolTip="Stop the island growth at marked seams.",
-        )
+        widget.option_box.menu.setTitle("Select Island")
+        for name, (label, delim) in self._ISLAND_DELIMIT.items():
+            widget.option_box.menu.add(
+                "QCheckBox", setText=label, setObjectName=name,
+                setToolTip=f"Stop the island growth at {delim.lower()} boundaries.",
+            )
 
     def tb002(self, widget):
-        """Select Island (connected region)"""
+        """Select Island (connected region; growth stopped at the checked boundaries)."""
         if not self._edit_mesh():
             self.sb.message_box("Select Island requires a mesh.")
             return
-        delimit = {"SEAM"} if widget.option_box.menu.chk022.isChecked() else set()
+        m = widget.option_box.menu
+        delimit = {
+            delim for name, (_label, delim) in self._ISLAND_DELIMIT.items()
+            if getattr(m, name).isChecked()
+        }
         bpy.ops.mesh.select_linked(delimit=delimit)
 
     # ------------------------------------------------------------------ tb003  Select Edges By Angle
     def tb003_init(self, widget):
-        widget.option_box.menu.add(
-            "QDoubleSpinBox", setPrefix="Angle: ", setObjectName="s006",
-            set_limits=[0, 180], setValue=30,
-            setToolTip="Select edges sharper than this angle (degrees).",
+        m = widget.option_box.menu
+        m.add(
+            "QDoubleSpinBox", setPrefix="Angle Low:  ", setObjectName="s006",
+            set_limits=[0, 180], setValue=70,
+            setToolTip="Lower bound of the edge dihedral-angle range (degrees).",
+        )
+        m.add(
+            "QDoubleSpinBox", setPrefix="Angle High: ", setObjectName="s007",
+            set_limits=[0, 180], setValue=160,
+            setToolTip="Upper bound of the edge dihedral-angle range (degrees).",
         )
 
     def tb003(self, widget):
-        """Select Edges By Angle"""
-        angle = widget.option_box.menu.s006.value()
-        if not self._edit_mesh("EDGE"):
+        """Select Edges By Angle (within the Low–High range, via ``btk.select_edges_by_angle``)."""
+        m = widget.option_box.menu
+        obj = self._edit_mesh("EDGE")
+        if not obj:
             self.sb.message_box("Select Edges By Angle requires a mesh.")
             return
-        bpy.ops.mesh.edges_select_sharp(sharpness=math.radians(angle))
+        n = btk.select_edges_by_angle(obj, low_angle=m.s006.value(), high_angle=m.s007.value())
+        if not n:
+            self.sb.message_box("No edges found in that angle range.")
 
     # ------------------------------------------------------------------ cmb003  Convert To
     def cmb003_init(self, widget):
@@ -194,10 +272,7 @@ class Selection(SlotsBlender):
             return
         tool = self._SELECT_TOOLS.get(widget.objectName())
         if tool:
-            try:
-                bpy.ops.wm.tool_set_by_id(name=tool)
-            except Exception as e:
-                self.sb.message_box(str(e))
+            self.set_viewport_tool(*tool)
 
     def chk005(self, state, widget):
         """Select Style: Box (Marquee)"""
@@ -224,25 +299,47 @@ class Selection(SlotsBlender):
             o.hide_select = new_state
         self.sb.message_box(f"Selectability <hl>{'OFF' if new_state else 'ON'}</hl>.")
 
-    # ------------------------------------------------------------------ deferred (Maya-specific)
-    def cmb001_init(self, widget):
-        widget.option_box.menu.setTitle("Reorder Selection")
-        widget.option_box.menu.add(
-            "QCheckBox", setText="Reverse Order", setObjectName="chk009",
-            setToolTip="Reverse the reordered selection.",
-        )
-        widget.add(["Name", "X Position", "Y Position", "Z Position", "Random"], header="Reorder By:")
-
-    def cmb001(self, index, widget):
-        """Reorder Selection — not yet ported to Blender."""
-        self.sb.message_box("Reorder Selection is not yet implemented for Blender.")
+    # ------------------------------------------------------------------ cmb005  Selection Constraints
+    # Maya's dR_selConstraint* are persistent drag-select constraints; Blender has no modal
+    # analogue, so each entry instead expands the CURRENT selection once by the same rule.
+    _CONSTRAINT_OPS = {
+        "Angle": lambda: bpy.ops.mesh.faces_select_linked_flat(),
+        "Border": lambda: bpy.ops.mesh.region_to_loop(),
+        "Edge Loop": lambda: bpy.ops.mesh.loop_multi_select(ring=False),
+        "Edge Ring": lambda: bpy.ops.mesh.loop_multi_select(ring=True),
+        "Shell": lambda: bpy.ops.mesh.select_linked(),
+    }
 
     def cmb005_init(self, widget):
-        widget.add(["OFF", "Angle", "Border", "Edge Loop", "Edge Ring", "Shell"])
+        widget.add(["OFF", *self._CONSTRAINT_OPS])
 
     def cmb005(self, index, widget):
-        """Selection Constraints — Maya draggable-constraint tool has no direct Blender analogue."""
-        self.sb.message_box("Selection Constraints are not yet implemented for Blender.")
+        """Selection Constraints (one-shot in Blender: expands the current selection by
+        the chosen rule — there is no persistent drag-select constraint to leave on)."""
+        text = widget.items[index]
+        op = self._CONSTRAINT_OPS.get(text)
+        if op is None:  # OFF — nothing persistent to disable
+            return
+        if not self._edit_mesh("FACE" if text == "Angle" else None):
+            self.sb.message_box("Selection Constraints require a mesh in Edit Mode.")
+            return
+        try:
+            op()
+        except RuntimeError as e:
+            self.sb.message_box(str(e))
+
+    # ------------------------------------------------------------------ closed (not applicable)
+    def cmb001_init(self, widget):
+        """Reorder Selection — hidden: Blender has no ordered *object* selection to feed
+        (operators receive an unordered set; ``select_history`` is component-only)."""
+        widget.setVisible(False)
+
+    def cmb001(self, index, widget):
+        """Reorder Selection — not applicable in Blender."""
+        self.sb.message_box(
+            "Reorder Selection is not applicable in Blender — operators act on an "
+            "unordered selection set."
+        )
 
     # ------------------------------------------------------------------ list000  Select by Type
     # Friendly label -> Object.type enum, grouped for the hierarchical list (Maya parity).

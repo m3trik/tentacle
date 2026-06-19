@@ -47,10 +47,18 @@ _SW_MINIMIZE, _SW_RESTORE = 6, 9
 
 _u = ctypes.windll.user32
 
-# Keymap → stub: records show(); raise_/activateWindow are no-ops so the operator returns FINISHED
-# (consumes the event) and mirrors the real QWidget surface the bridge touches.
-_calls = []
-_stub = NS(show=lambda ui: _calls.append(ui), raise_=lambda: None, activateWindow=lambda: None)
+# Keymap → stub: records the interaction-state-machine calls the operator drives. The grab is a
+# no-op record (so the *test* never leaves a real mouse grab); raise_/activateWindow mirror the
+# QWidget surface the operator nudges. Crucially, this measures whether a real key-up fires the
+# RELEASE item — if it didn't, the live menu's mouse grab would stay stuck.
+_events = []
+_stub = NS(
+    _on_activation_press=lambda: _events.append("press"),
+    _on_activation_release=lambda: _events.append("release"),
+    grabMouse=lambda: _events.append("grab"),
+    raise_=lambda: None,
+    activateWindow=lambda: None,
+)
 
 
 def _ghost_hwnd():
@@ -123,17 +131,19 @@ def _press_f12(hwnd, x, y):
 
 
 def _report_and_quit():
-    fired = bool(_calls)
+    pressed = "press" in _events
+    released = "release" in _events
     n_windows = len(bpy.context.window_manager.windows)
     rr = bpy.data.images.get("Render Result")
     rendered = bool(rr and rr.has_data) or n_windows > 1
     print("\n===F12-DISPATCH===")
-    print(f"operator_fired = {fired}  (show calls: {_calls})")
-    print(f"rendered       = {rendered}  (windows={n_windows}, render_result={bool(rr)})")
-    print("verdict        =",
-          "OUR KEYMAP WINS (region beats Screen)" if fired and not rendered
-          else "RENDER WINS (Screen beat our region item)" if rendered and not fired
-          else "BOTH FIRED — event not consumed" if fired and rendered
+    print(f"events   = {_events}")
+    print(f"rendered = {rendered}  (windows={n_windows}, render_result={bool(rr)})")
+    print("verdict  =",
+          "PRESS+RELEASE BOTH FIRE — grab released on key-up (region beats Screen, safe)"
+          if pressed and released and not rendered
+          else "PRESS fired but RELEASE did NOT — live grab would stay stuck!" if pressed and not released
+          else "RENDER WINS (Screen beat our region item)" if rendered and not pressed
           else "INCONCLUSIVE (F12 may not have reached Blender)")
     print("===END===")
     sys.stdout.flush()
@@ -142,7 +152,7 @@ def _report_and_quit():
 
 
 def _go():
-    tb._install_keymap(_stub, "F12", "main#startmenu")  # no register() → no overlay → Blender keeps focus
+    tb._KeymapBridge.install_keymap(_stub, "F12")  # no register() → no overlay → Blender keeps focus
     hwnd = _ghost_hwnd()
     x, y = _screen_viewport_point(hwnd) if hwnd else (0, 0)  # main-thread bpy.context access
     threading.Thread(target=_press_f12, args=(hwnd, x, y), daemon=True).start()

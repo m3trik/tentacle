@@ -10,11 +10,12 @@ from tentacle.slots.blender._slots_blender import SlotsBlender
 class Uv(SlotsBlender):
     """Blender port of the shared ``uv`` menu.
 
-    Core UV operators (unwrap, smart-project, pack, cylinder-project, seam) run as ``bpy.ops.uv.*``
-    in edit mode via :meth:`_uv_op` (verified to work headless). Data-level UV work (move/transform/
-    mirror/pin/texel density/UV-set cleanup) is backed by ``blendertk.uv_utils`` (bmesh — headless);
-    UV transfer rides the native Data-Transfer operator. Maya-/UV-editor-bound features (straighten,
-    distribute, stack, RizomUV) stay deferred.
+    Core UV operators (unwrap, the cmb011 Smart/Cube/Cylinder/Sphere projections, pack, seam,
+    angle-band hard-edge cut) run as ``bpy.ops.uv.*`` in edit mode via :meth:`_uv_op` (verified to
+    work headless). Data-level UV work (move/transform/mirror/pin/straighten/distribute/stack/texel
+    density/UV-set cleanup) is backed by ``blendertk.uv_utils`` (bmesh — headless); UV transfer rides
+    the native Data-Transfer operator; RizomUV is a one-way bridge. The deferred Maya-only depth is
+    in the parity overrides (RizomUV/u3dLayout packing params + the unwrap_cylinder crease algorithm).
     """
 
     def __init__(self, switchboard):
@@ -65,25 +66,168 @@ class Uv(SlotsBlender):
         bpy.ops.mesh.mark_seam(clear=clear)
 
     # ------------------------------------------------------------------ UV operators (edit mode)
+    # Option-box names are Blender-specific (Maya's UV option boxes carry RizomUV-style packing
+    # params with no Blender analogue): they expose the native operator's own parameters.
+    def tb000_init(self, widget):
+        m = widget.option_box.menu
+        m.setTitle("Pack UVs")
+        m.add(
+            "QDoubleSpinBox", setPrefix="Margin: ", setObjectName="s_pack_margin",
+            set_limits=[0, 1, 0.001, 3], setValue=0.001,
+            setToolTip="Spacing left between packed islands.",
+        )
+        m.add(
+            "QCheckBox", setText="Rotate Islands", setObjectName="chk_pack_rotate", setChecked=True,
+            setToolTip="Allow islands to rotate for a tighter pack.",
+        )
+
     @btk.undoable
     def tb000(self, widget):
         """Pack UVs"""
-        self._uv_op(lambda: bpy.ops.uv.pack_islands())
+        m = widget.option_box.menu
+        self._uv_op(
+            lambda: bpy.ops.uv.pack_islands(
+                margin=m.s_pack_margin.value(), rotate=m.chk_pack_rotate.isChecked()
+            )
+        )
+
+    # cmb011 projection method -> the native Blender projection op (Maya's projection-method
+    # selector; reuses the Maya objectName, cross-DCC rule). Smart uses the angle/margin below;
+    # Cube/Cylinder/Sphere project from the object bounds (no per-mode options, like Maya gates).
+    _PROJECTION_OPS = {
+        "Cube": "cube_project", "Cylinder": "cylinder_project", "Sphere": "sphere_project",
+    }
+    _PROJECTIONS = ("Smart", *_PROJECTION_OPS)  # Smart needs args; the rest map 1:1 to an op
+
+    def tb001_init(self, widget):
+        m = widget.option_box.menu
+        m.setTitle("Auto Unwrap")
+        m.add(
+            "QComboBox", addItems=list(self._PROJECTIONS), setObjectName="cmb011",
+            setToolTip="Projection method used to generate UVs (Blender native projections).\n"
+            "Smart: best-fit from multiple planar projections.\n"
+            "Cube / Cylinder / Sphere: project from the object's bounds.",
+        )
+        m.add(
+            "QSpinBox", setPrefix="Angle Limit: ", setObjectName="s_smart_angle",
+            set_limits=[1, 89], setValue=66,
+            setToolTip="Lower = more islands (Smart UV Project angle limit, degrees). Smart only.",
+        )
+        m.add(
+            "QDoubleSpinBox", setPrefix="Island Margin: ", setObjectName="s_smart_margin",
+            set_limits=[0, 1, 0.001, 3], setValue=0.0,
+            setToolTip="Spacing between the generated islands. Smart only.",
+        )
+
+        def _sync():  # Smart-only params disable for the single-shape projections
+            smart = m.cmb011.currentText() == "Smart"
+            m.s_smart_angle.setEnabled(smart)
+            m.s_smart_margin.setEnabled(smart)
+
+        m.cmb011.currentIndexChanged.connect(_sync)
+        _sync()
 
     @btk.undoable
     def tb001(self, widget):
-        """Auto Unwrap (Smart UV Project)"""
-        self._uv_op(lambda: bpy.ops.uv.smart_project())
+        """Auto Unwrap (Smart UV Project / Cube / Cylinder / Sphere projection)."""
+        m = widget.option_box.menu
+        method = m.cmb011.currentText()
+        if method == "Smart":
+            self._uv_op(
+                lambda: bpy.ops.uv.smart_project(
+                    angle_limit=math.radians(m.s_smart_angle.value()),
+                    island_margin=m.s_smart_margin.value(),
+                )
+            )
+        else:
+            self._uv_op(getattr(bpy.ops.uv, self._PROJECTION_OPS[method]))
+
+    # method enum -> friendly label (Minimum Stretch only exists on newer Blender; guarded).
+    _UNWRAP_METHODS = {"Angle Based": "ANGLE_BASED", "Conformal": "CONFORMAL"}
+
+    def tb004_init(self, widget):
+        m = widget.option_box.menu
+        m.setTitle("Unfold")
+        m.add(
+            "QComboBox", addItems=list(self._UNWRAP_METHODS), setObjectName="cmb_unfold_method",
+            setToolTip="Unwrap algorithm.",
+        )
+        m.add(
+            "QDoubleSpinBox", setPrefix="Margin: ", setObjectName="s_unfold_margin",
+            set_limits=[0, 1, 0.001, 3], setValue=0.0,
+            setToolTip="Spacing between islands after unwrap.",
+        )
+        # Maya parity: post-unwrap relax (Optimize) + axis-align (Orient). Reuses Maya's
+        # chk017/chk007 names + labels (same options, cross-DCC QSettings rule).
+        m.add(
+            "QCheckBox", setText="Optimize", setObjectName="chk017", setChecked=True,
+            setToolTip="Relax the unwrap to even out UV spacing (Minimize Stretch).",
+        )
+        m.add(
+            "QCheckBox", setText="Orient", setObjectName="chk007", setChecked=True,
+            setToolTip="Rotate each shell parallel to the nearest U/V axis (Align Rotation).",
+        )
 
     @btk.undoable
     def tb004(self, widget):
-        """Unfold (angle-based unwrap)"""
-        self._uv_op(lambda: bpy.ops.uv.unwrap(method="ANGLE_BASED"))
+        """Unfold (unwrap, then optionally relax and axis-align the shells)."""
+        m = widget.option_box.menu
+        method = self._UNWRAP_METHODS.get(m.cmb_unfold_method.currentText(), "ANGLE_BASED")
+        optimize = m.chk017.isChecked()
+        orient = m.chk007.isChecked()
+
+        def _run():
+            bpy.ops.uv.unwrap(method=method, margin=m.s_unfold_margin.value())
+            if optimize:
+                bpy.ops.uv.minimize_stretch(iterations=10)
+            if orient:
+                bpy.ops.uv.align_rotation(method="AUTO")
+
+        self._uv_op(_run)
+
+    def tb009_init(self, widget):
+        # s016/chk041/chk042 reuse the Maya names + labels for the SAME options. chk040 (Invert
+        # Seam) has no Blender analogue — the auto-seam path places the lengthwise cut itself.
+        m = widget.option_box.menu
+        m.setTitle("Cut Cylinder")
+        m.add(
+            "QDoubleSpinBox", setPrefix="Crease Angle: ", setObjectName="s016",
+            set_limits=[0, 180, 1, 1], setValue=45.0,
+            setToolTip="Edges sharper than this angle (degrees) become UV seams — cuts ~90° steps "
+            "and cap rings while keeping shallow chamfers merged.",
+        )
+        m.add(
+            "QCheckBox", setText="Unfold", setObjectName="chk041", setChecked=True,
+            setToolTip="Unwrap (flatten) after seaming. Off = only cut the crease seams.",
+        )
+        m.add(
+            "QCheckBox", setText="Orient", setObjectName="chk042", setChecked=True,
+            setToolTip="Rotate each shell parallel to the nearest U/V axis when packing.",
+        )
 
     @btk.undoable
     def tb009(self, widget):
-        """Cut Cylinder (cylinder project)"""
-        self._uv_op(lambda: bpy.ops.uv.cylinder_project())
+        """Cut Cylinder — seam by crease angle, then unfold. The Blender equivalent of Maya's
+        unwrap_cylinder: Smart UV Project auto-seams a tube/turned mesh by angle (cap rings + one
+        lengthwise cut) and unwraps it to clean strips; Unfold off only marks the crease seams."""
+        m = widget.option_box.menu
+        angle = math.radians(m.s016.value())
+        unfold = m.chk041.isChecked()
+        orient = m.chk042.isChecked()
+
+        def _run():
+            if unfold:
+                bpy.ops.uv.smart_project(angle_limit=angle, island_margin=0.003)
+                try:
+                    bpy.ops.uv.pack_islands(rotate=orient, margin=0.003)
+                except TypeError:  # older Blender pack_islands signature
+                    bpy.ops.uv.pack_islands(margin=0.003)
+            else:  # cut crease seams only (no unwrap)
+                bpy.ops.mesh.select_all(action="DESELECT")
+                bpy.ops.mesh.edges_select_sharp(sharpness=angle)
+                bpy.ops.mesh.mark_seam(clear=False)
+
+        self._uv_op(_run)
 
     @btk.undoable
     def b005(self):
@@ -122,10 +266,91 @@ class Uv(SlotsBlender):
         btk.move_uvs(self.selected_objects(), du=1.0)
 
     # ------------------------------------------------------------------ tb007  Cleanup UV Sets
+    def tb007_init(self, widget):
+        """Cleanup UV Sets option box (reuses the Maya objectNames + labels — same options,
+        cross-DCC QSettings rule)."""
+        m = widget.option_box.menu
+        m.setTitle("Cleanup UV Sets")
+        m.add(
+            "QCheckBox", setText="Prefer Best Layout", setObjectName="chk029", setChecked=True,
+            setToolTip="Keep the UV set with the largest UV footprint, not just the first one.",
+        )
+        m.add(
+            "QCheckBox", setText="Remove Empty Sets", setObjectName="chk035", setChecked=True,
+            setToolTip="Delete UV sets whose UVs are all at the origin (never unwrapped).",
+        )
+        m.add(
+            "QCheckBox", setText="Delete Secondary Sets", setObjectName="chk036",
+            setToolTip="Delete ALL other UV sets, leaving only the kept one.",
+        )
+        m.add(
+            "QCheckBox", setText="Rename to 'map1'", setObjectName="chk037", setChecked=True,
+            setToolTip="Rename the kept UV set to 'map1' (Maya's default — export pipeline parity).",
+        )
+        m.add(
+            "QCheckBox", setText="Force Rename", setObjectName="chk038",
+            setToolTip="If another set is already named 'map1', overwrite it instead of skipping.",
+        )
+        m.add(
+            "QCheckBox", setText="Dry Run", setObjectName="chk030",
+            setToolTip="Report what would change without modifying anything.",
+        )
+
     @btk.undoable
     def tb007(self, widget):
-        """Cleanup UV Sets (keep only the first UV map)."""
-        btk.delete_extra_uv_sets(self.selected_objects())
+        """Cleanup UV Sets (standardize/clean the UV layers — mirror of Maya's cleanup_uv_sets)."""
+        m = widget.option_box.menu
+        objects = [o for o in self.selected_objects() if o.type == "MESH"]
+        if not objects:
+            self.sb.message_box("<b>Nothing selected.</b><br>Select mesh object(s) with UV sets.")
+            return
+        dry_run = m.chk030.isChecked()
+        results = btk.cleanup_uv_sets(
+            objects,
+            remove_empty=m.chk035.isChecked(),
+            keep_only_primary=m.chk036.isChecked(),
+            rename_to_map1=m.chk037.isChecked(),
+            force_rename=m.chk038.isChecked(),
+            prefer_largest_area=m.chk029.isChecked(),
+            dry_run=dry_run,
+        )
+        verb, del_verb = ("Would keep", "would delete") if dry_run else ("Kept", "deleted")
+        lines = []
+        for r in results:
+            if r.error:
+                lines.append(f"❌ <b>{r.object}</b>: {r.error}")
+                continue
+            detail = f"{verb} '<b>{r.primary_set}</b>'"
+            if r.final_name != r.primary_set:
+                detail += f" → '<b>{r.final_name}</b>'"
+            if r.deleted:
+                detail += f", {del_verb} {len(r.deleted)} other(s)"
+            lines.append(f"• <b>{r.object}</b>: {detail}")
+        header = "<b>Dry Run</b>" if dry_run else "<b>Cleanup Complete</b>"
+        self.sb.message_box(f"{header}<br><br>" + "<br>".join(lines))
+
+    def header_init(self, widget):
+        """Header menu — Create UV Snapshot + RizomUV Bridge (both reuse the Maya objectNames +
+        labels, cross-DCC QSettings rule). Open UV Editor is already on ``b031``."""
+        widget.menu.add(
+            "QPushButton", setText="Create UV Snapshot", setObjectName="uv_snapshot",
+            setToolTip="Export the active mesh's UV layout to an image (native Export UV Layout) "
+            "as a texture-painting reference.",
+        )
+        widget.menu.add(
+            "QPushButton", setText="RizomUV Bridge", setObjectName="btn_rizom_bridge",
+            setToolTip="Export the selected meshes and open them in a fresh RizomUV session "
+            "(one-way send via a Lua load-script).",
+            clicked=lambda: self.b032(),
+        )
+
+    def uv_snapshot(self):
+        """Create UV Snapshot — export the active mesh's UV layout to an image."""
+        obj = bpy.context.active_object
+        if not (obj and obj.type == "MESH" and obj.data.uv_layers):
+            self.sb.message_box("Create UV Snapshot requires a mesh with a UV map.")
+            return
+        self.invoke_op("uv.export_layout")
 
     # ------------------------------------------------------------------ b031  Open UV Editor
     def b031(self):
@@ -222,40 +447,130 @@ class Uv(SlotsBlender):
 
     # ------------------------------------------------------------------ tb022  Cut Hard Edges
     def tb022_init(self, widget):
-        widget.option_box.menu.setTitle("Cut Hard Edges")
-        widget.option_box.menu.add(
-            "QDoubleSpinBox", setPrefix="Angle: ", setObjectName="s017",
+        m = widget.option_box.menu
+        m.setTitle("Cut Hard Edges")
+        m.add(
+            "QDoubleSpinBox", setPrefix="Angle Low: ", setObjectName="s017",
             set_limits=[0, 180], setValue=70,
-            setToolTip="Edges sharper than this angle are seam-cut.",
+            setToolTip="Lower bound: edges whose dihedral angle is at least this are seam-cut.",
+        )
+        # s018 / chk025 reuse the Maya objectNames + labels (same options, cross-DCC rule).
+        m.add(
+            "QDoubleSpinBox", setPrefix="Angle High: ", setObjectName="s018",
+            set_limits=[0, 180], setValue=180,
+            setToolTip="Upper bound of the seam-cut angle band (180 = no upper limit).",
+        )
+        m.add(
+            "QCheckBox", setText="Include UV Borders", setObjectName="chk025",
+            setToolTip="Also mark seams at the current UV island borders (Seams From Islands).",
         )
 
     @btk.undoable
     def tb022(self, widget):
-        """Cut UV Hard Edges (mark seams on edges sharper than the angle)."""
-        angle = widget.option_box.menu.s017.value()
-        self._uv_op(
-            lambda: (
-                bpy.ops.mesh.edges_select_sharp(sharpness=math.radians(angle)),
-                bpy.ops.mesh.mark_seam(clear=False),
-            )
+        """Cut UV Hard Edges (mark seams on edges whose dihedral angle is in the [low, high]
+        band, optionally also at existing UV island borders)."""
+        m = widget.option_box.menu
+        low, high = m.s017.value(), m.s018.value()
+        include_borders = m.chk025.isChecked()
+        objects = [o for o in self.selected_objects() if o.type == "MESH"]
+
+        def _run():
+            if include_borders:
+                try:
+                    bpy.ops.uv.seams_from_islands()
+                except RuntimeError:
+                    pass  # a mesh without a UV layer has no islands to seam — skip
+            # btk.select_edges_by_angle gives the [low, high] band (mesh.edges_select_sharp is a
+            # single lower threshold); then seam the selection.
+            if btk.select_edges_by_angle(objects, low_angle=low, high_angle=high):
+                bpy.ops.mesh.mark_seam(clear=False)
+
+        self._uv_op(_run)
+
+    # ------------------------------------------------------------------ shell ops (btk islands)
+    def tb005_init(self, widget):
+        widget.option_box.menu.setTitle("Straighten")
+        widget.option_box.menu.add(
+            "QSpinBox", setPrefix="Angle: ", setObjectName="s001",
+            set_limits=[0, 360], setValue=30,
+            setToolTip="Maximum angle used for straightening UVs.",
+        )
+        widget.option_box.menu.add(
+            "QCheckBox", setText="Straighten UV", setObjectName="chk018", setChecked=True,
+            setToolTip="Snap near-horizontal UV edges flat.",  # Maya's label for the U axis
+        )
+        widget.option_box.menu.add(
+            "QCheckBox", setText="Straighten V", setObjectName="chk019", setChecked=True,
+            setToolTip="Snap near-vertical UV edges flat.",
         )
 
-    # ------------------------------------------------------------------ deferred (Maya / UV-editor)
+    @btk.undoable
     def tb005(self, widget):
-        """Straighten UV — UV-editor align op; not yet ported."""
-        self.sb.message_box("Straighten UV is not yet implemented for Blender.")
+        """Straighten UV (selected UV edges within the angle threshold snap flat)."""
+        m = widget.option_box.menu
+        snapped = btk.straighten_uvs(
+            self.selected_objects(),
+            u=m.chk018.isChecked(), v=m.chk019.isChecked(), angle=m.s001.value(),
+        )
+        if not snapped:
+            self.sb.message_box(
+                "<strong>Nothing straightened.</strong><br>Select UV edges in Edit Mode "
+                "within the angle threshold."
+            )
 
+    def tb006_init(self, widget):
+        widget.option_box.menu.setTitle("Distribute")
+        widget.option_box.menu.add(
+            "QRadioButton", setText="Distribute U", setObjectName="chk023", setChecked=True,
+            setToolTip="Distribute along U.",
+        )
+        widget.option_box.menu.add(
+            "QRadioButton", setText="Distribute V", setObjectName="chk024",
+            setToolTip="Distribute along V.",
+        )
+
+    @btk.undoable
     def tb006(self, widget):
-        """Distribute — UV-editor align/distribute op; not yet ported."""
-        self.sb.message_box("Distribute is not yet implemented for Blender.")
+        """Distribute (space the targeted UV shells evenly along U or V)."""
+        axis = "u" if widget.option_box.menu.chk023.isChecked() else "v"
+        moved = btk.distribute_uv_shells(self.selected_objects(), axis=axis)
+        if not moved:
+            self.sb.message_box(
+                "<strong>Nothing distributed.</strong><br>Needs three or more UV shells "
+                "(in Edit Mode, shells touched by the selection)."
+            )
 
+    @btk.undoable
     def b030(self, widget):
-        """Stack / Unstack shells — not yet ported."""
-        self.sb.message_box("Stack/Unstack is not yet implemented for Blender.")
+        """Stack / Unstack shells (dual-state toggle: first click stacks the targeted
+        shells at a shared center and captures their positions; the next click restores
+        them. A selection change resets the toggle)."""
+        objects = [o for o in self.selected_objects() if o.type == "MESH"]
+        if not objects:
+            self.sb.message_box("<b>Nothing selected.</b>")
+            return
+        signature = tuple(sorted(o.name for o in objects))
+        if getattr(self, "_b030_snapshot", None) and self._b030_signature == signature:
+            btk.set_uv_coords(objects, self._b030_snapshot)
+            self._b030_snapshot = None
+            return
+        snapshot = btk.get_uv_coords(objects)
+        moved = btk.stack_uv_shells(objects)
+        if moved:
+            self._b030_snapshot = snapshot
+            self._b030_signature = signature
+        else:
+            self._b030_snapshot = None
+            self.sb.message_box(
+                "<strong>No UV shells stacked.</strong><br>Needs at least two islands "
+                "(in Edit Mode, shells touched by the selection)."
+            )
 
+    # ------------------------------------------------------------------ deferred (Maya / UV-editor)
     def b032(self):
-        """RizomUV Bridge — external tool; not ported."""
-        self.sb.message_box("RizomUV Bridge is not applicable in Blender.")
+        """RizomUV Bridge — co-located blendertk panel (export selection → launch RizomUV with a
+        Lua load-script). Mirrors Maya's b032 → ``marking_menu.show("rizom_bridge")``."""
+        self.sb.handlers.marking_menu.show("rizom_bridge")
 
     def cmb003(self, index, widget):
         """UV Map Size — passive input; read by get_map_size for the texel-density tools.

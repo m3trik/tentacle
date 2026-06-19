@@ -4,7 +4,11 @@ Covers the implementations that replaced deferred-message stubs once their Blend
 existed: selection list000 (select-by-type), transform cmb002 (object.align), normals b002 +
 uv b000 (Data-Transfer), uv b003/b004 (texel density), uv b029 (pin toggle), uv tb022 (cut
 hard edges), uv cmb002 (UV transform), polygons b043 (target-weld toggle), animation
-tb002/tb004/tb007/tb008 (key spacing / transfer / align / visibility keys).
+tb002/tb004/tb007/tb008 (key spacing / transfer / align / visibility keys), transform
+chk024/chk025 (constraints -> snap elements), selection cmb005 (one-shot constraints),
+rigging cmb002 (Rigify quick rig), nurbs b056 (image tracer), the manager-panel routing,
+main list000 (workspace browser = the current .blend's dir contents, files + folders),
+editors buttons + list (every entry opens a real editor; no-analogue buttons relabel).
 
 Requires a real Blender binary (it ``import bpy``), so it is **not** a CI/unittest target — the
 ``blender/`` subdir and the non-``test_`` name keep it out of auto-discovery. Run it against a
@@ -283,6 +287,388 @@ try:
     vis = [fc.data_path for fc in btk.get_fcurves(a) if fc.data_path.startswith("hide_")]
     check("animation tb008 keys visibility", sorted(vis) == ["hide_render", "hide_viewport"]
           and a.hide_render, f"vis={vis}")
+
+    # ---- transform b002 Un-Freeze (restore_transforms round trip through the slot)
+    from tentacle.slots.blender.transform import TransformSlots
+
+    reset()
+    o = add_cube("Frozen", location=(4, 0, 0))
+    o.select_set(True)
+    bpy.context.view_layer.objects.active = o
+    btk.freeze_transforms(o, location=True, rotation=False, scale=False)
+    slot = make_slot(TransformSlots)
+    slot.b002()
+    check("transform b002 un-freezes (location restored)",
+          abs(o.location.x - 4.0) < 1e-4, f"x={o.location.x:.3f}")
+    msgs = []
+    slot.sb = NS(message_box=msgs.append)
+    slot.b002()  # bakes consumed -> nothing-to-restore message
+    check("transform b002 reports when nothing stored",
+          msgs and "Nothing to restore" in msgs[-1])
+
+    # ---- transform tb001 Scale Connected Edges (slot reads option-box s001)
+    reset()
+    o = add_cube("Edges")
+    o.select_set(True)
+    bpy.context.view_layer.objects.active = o
+    bpy.ops.object.mode_set(mode="EDIT")
+    import bmesh as _bmesh
+
+    bm = _bmesh.from_edit_mesh(o.data)
+    for e in bm.edges:
+        e.select = all(abs(v.co.z - 1.0) < 1e-4 for v in e.verts)  # top ring only
+    _bmesh.update_edit_mesh(o.data)
+    slot = make_slot(TransformSlots)
+    slot.tb001(option_box(s001=spin(2.0)))
+    bm = _bmesh.from_edit_mesh(o.data)
+    top_x = sorted(round(v.co.x, 2) for v in bm.verts if abs(v.co.z - 1.0) < 1e-4)
+    check("transform tb001 scales the selected ring", top_x == [-2.0, -2.0, 2.0, 2.0],
+          f"{top_x}")
+    bpy.ops.object.mode_set(mode="OBJECT")
+    msgs = []
+    slot.sb = NS(message_box=msgs.append)
+    slot.tb001(option_box(s001=spin(2.0)))  # object mode -> nothing scaled message
+    check("transform tb001 reports when nothing scaled",
+          msgs and "No connected edges" in msgs[-1])
+
+    # ---- polygons b000/b053 extension wrap: factory startup has no LoopTools ->
+    #      the wrap-if-present path must point at the extension, not crash
+    from tentacle.slots.blender.polygons import PolygonsSlots
+
+    reset()
+    msgs = []
+    slot = make_slot(PolygonsSlots)
+    slot.sb = NS(message_box=msgs.append)
+    slot.b000()
+    check("polygons b000 points at LoopTools when absent",
+          msgs and "LoopTools" in msgs[-1], f"{msgs[-1:]}")
+    slot.b053()
+    check("polygons b053 points at the edge-flow add-on when absent",
+          len(msgs) == 2 and "add-on" in msgs[-1], f"{msgs[-1:]}")
+
+    # ---- polygons tb009 Snap Closest Verts (other mesh snaps onto the ACTIVE)
+    reset()
+    a = add_cube("A", location=(0.05, 0, 0))
+    b = add_cube("B", location=(0, 0, 0))
+    a.select_set(True)
+    b.select_set(True)
+    bpy.context.view_layer.objects.active = b
+    slot = make_slot(PolygonsSlots)
+    slot.tb009(option_box(s005=spin(0.2)))
+    pos_a = sorted(tuple(round(c, 4) for c in (a.matrix_world @ v.co)) for v in a.data.vertices)
+    pos_b = sorted(tuple(round(c, 4) for c in (b.matrix_world @ v.co)) for v in b.data.vertices)
+    check("polygons tb009 snaps onto the active mesh", pos_a == pos_b)
+
+    # ---- polygons b034 Wedge (edit mode, face + hinge edge)
+    reset()
+    import bmesh as _bm
+
+    o = add_cube("W")
+    o.select_set(True)
+    bpy.context.view_layer.objects.active = o
+    bpy.ops.object.mode_set(mode="EDIT")
+    bm = _bm.from_edit_mesh(o.data)
+    for f in bm.faces:
+        f.select = False
+    for e in bm.edges:
+        e.select = False
+    top = next(f for f in bm.faces if all(abs(v.co.z - 1.0) < 1e-4 for v in f.verts))
+    top.select = True
+    next(iter(top.edges)).select = True
+    _bm.update_edit_mesh(o.data)
+    f0 = len(bm.faces)
+    slot = make_slot(PolygonsSlots)
+    slot.b034()
+    bm = _bm.from_edit_mesh(o.data)
+    check("polygons b034 wedges the selected face", len(bm.faces) > f0,
+          f"{f0}->{len(bm.faces)}")
+    bpy.ops.object.mode_set(mode="OBJECT")
+
+    # ---- display b013 Explode View toggle
+    from tentacle.slots.blender.display import DisplaySlots
+
+    reset()
+    a = add_cube("A", location=(0.5, 0, 0))
+    b = add_cube("B", location=(-0.5, 0, 0))
+    a.select_set(True)
+    b.select_set(True)
+    locs = {o.name: tuple(o.location) for o in (a, b)}
+    slot = make_slot(DisplaySlots)
+    slot.b013()
+    check("display b013 explodes apart", btk.is_exploded([a, b]))
+    slot.b013()
+    check("display b013 toggles back to the exact locations",
+          all(tuple(o.location) == locs[o.name] for o in (a, b))
+          and not btk.is_exploded([a, b]))
+
+    # ---- uv tb005/tb006/b030 (shell ops through the slot readers)
+    from tentacle.slots.blender.uv import Uv
+
+    def uv_quads(rects, name="Q"):
+        bm = _bm.new()
+        uvl = bm.loops.layers.uv.new("UVMap")
+        for n, (u0, v0, u1, v1) in enumerate(rects):
+            x = n * 3.0
+            verts = [bm.verts.new((x + dx, dy, 0.0)) for dx, dy in ((0, 0), (1, 0), (1, 1), (0, 1))]
+            face = bm.faces.new(verts)
+            for loop, (lu, lv) in zip(face.loops, ((u0, v0), (u1, v0), (u1, v1), (u0, v1))):
+                loop[uvl].uv = (lu, lv)
+        me = bpy.data.meshes.new(name)
+        bm.to_mesh(me)
+        bm.free()
+        o = bpy.data.objects.new(name, me)
+        bpy.context.collection.objects.link(o)
+        o.select_set(True)
+        bpy.context.view_layer.objects.active = o
+        return o
+
+    reset()
+    o = uv_quads([(0.0, 0.0, 0.2, 0.2), (0.6, 0.6, 0.8, 0.8)])
+    slot = make_slot(Uv)
+    slot.b030(None)  # stack
+    snap_after_stack = btk.get_uv_coords([o])
+    slot.b030(None)  # unstack (same selection -> restore)
+    check("uv b030 stack/unstack round-trips",
+          btk.get_uv_coords([o])[o.name] != snap_after_stack[o.name]
+          and round(btk.get_uv_coords([o])[o.name][0][0], 3) == 0.0)
+
+    reset()
+    o = uv_quads([(0.0, 0.0, 0.2, 0.2), (0.2, 0.0, 0.4, 0.2), (0.8, 0.0, 1.0, 0.2)])
+    slot = make_slot(Uv)
+    slot.tb006(option_box(chk023=chk(True), chk024=chk(False)))
+    from blendertk.uv_utils._uv_utils import _uv_islands, _island_bbox_center
+    bm = _bm.new()
+    bm.from_mesh(o.data)
+    uvl = bm.loops.layers.uv.active
+    centers = sorted(round(_island_bbox_center(isl, uvl)[0], 3) for isl in _uv_islands(bm, uvl))
+    bm.free()
+    check("uv tb006 distributes shells evenly", centers == [0.1, 0.5, 0.9], f"{centers}")
+
+    reset()
+    bpy.ops.mesh.primitive_plane_add()
+    o = bpy.context.active_object
+    bpy.ops.object.mode_set(mode="EDIT")
+    bm = _bm.from_edit_mesh(o.data)
+    uvl = bm.loops.layers.uv.verify()
+    for f in bm.faces:
+        for loop in f.loops:
+            if loop[uvl].uv.x > 0.5 and loop[uvl].uv.y < 0.5:
+                loop[uvl].uv.y = 0.1
+    for e in bm.edges:
+        e.select = True
+    _bm.update_edit_mesh(o.data)
+    slot = make_slot(Uv)
+    slot.tb005(option_box(s001=spin(30), chk018=chk(True), chk019=chk(False)))
+    bm = _bm.from_edit_mesh(o.data)
+    uvl = bm.loops.layers.uv.active
+    bottom = sorted(round(l[uvl].uv.y, 3) for f in bm.faces for l in f.loops if l[uvl].uv.y < 0.5)
+    check("uv tb005 straightens the skewed edge", bottom == [0.05, 0.05], f"{bottom}")
+    bpy.ops.object.mode_set(mode="OBJECT")
+
+    # ---- scene b005 / cameras b007: headless has no window / 3D view -> message, no crash
+    from tentacle.slots.blender.scene import SceneSlots
+    from tentacle.slots.blender.cameras import Cameras
+
+    reset()
+    msgs = []
+    slot = make_slot(SceneSlots)
+    slot.sb = NS(message_box=msgs.append)
+    slot.b005()
+    check("scene b005 fails soft without a window", len(msgs) <= 1)
+
+    msgs = []
+    slot = make_slot(Cameras)
+    slot.sb = NS(message_box=msgs.append)
+    slot.b007()
+    check("cameras b007 fails soft without a 3D view", len(msgs) == 1, f"{msgs}")
+
+    # ---- transform chk024/chk025: constraints -> snap-to-element ---------------------------
+    reset()
+    ts = bpy.context.scene.tool_settings
+    ts.use_snap = False
+    slot = make_slot(TransformSlots, ui=NS(tb003=NS(init_slot=lambda: None)))
+    slot.chk024(True, None)
+    check("transform chk024 enables EDGE snap",
+          ts.use_snap and ts.use_snap_translate and slot._snap_elements() == {"EDGE"},
+          f"snap={ts.use_snap} elems={slot._snap_elements()}")
+    slot.chk025(True, None)  # single-element like Maya: surface replaces edge
+    check("transform chk025 replaces with FACE snap",
+          ts.use_snap and slot._snap_elements() == {"FACE"},
+          f"elems={slot._snap_elements()}")
+    slot.chk025(False, None)
+    check("transform constraint off disables snap", not ts.use_snap)
+
+    # ---- selection cmb005: one-shot constraint expansion -----------------------------------
+    reset()
+    o = add_cube("C5")
+    bpy.ops.object.mode_set(mode="EDIT")
+    bpy.ops.mesh.select_all(action="DESELECT")
+    bpy.ops.mesh.select_mode(type="VERT")
+    bm = _bm.from_edit_mesh(o.data)
+    bm.verts.ensure_lookup_table()
+    bm.verts[0].select = True
+    _bm.update_edit_mesh(o.data)
+    slot = make_slot(Selection)
+    items = ["OFF", "Angle", "Border", "Edge Loop", "Edge Ring", "Shell"]
+    slot.cmb005(5, NS(items=items))  # Shell -> whole connected mesh
+    bm = _bm.from_edit_mesh(o.data)
+    check("selection cmb005 Shell expands to the whole shell",
+          all(v.select for v in bm.verts),
+          f"selected={sum(v.select for v in bm.verts)}/8")
+    slot.cmb005(0, NS(items=items))  # OFF -> no-op, no message
+    bpy.ops.object.mode_set(mode="OBJECT")
+
+    # ---- rigging cmb002: Rigify quick rig ---------------------------------------------------
+    from tentacle.slots.blender.rigging import Rigging
+
+    reset()
+    slot = make_slot(Rigging)
+    rig_items = ["Human Meta-Rig", "Basic Human Meta-Rig", "Generate Rig"]
+    slot.cmb002(0, NS(items=rig_items))
+    meta = bpy.context.view_layer.objects.active
+    check("rigging cmb002 adds the human meta-rig",
+          meta is not None and meta.type == "ARMATURE",
+          f"active={meta and meta.name}")
+    slot.cmb002(2, NS(items=rig_items))  # generate on the active meta-rig
+    rig = bpy.context.view_layer.objects.active
+    check("rigging cmb002 generates the control rig",
+          rig is not None and rig.name == "rig" and rig is not meta,
+          f"active={rig and rig.name}")
+    msgs = []
+    reset()
+    slot.sb = NS(message_box=msgs.append)
+    slot.cmb002(2, NS(items=rig_items))  # nothing active -> message
+    check("rigging cmb002 generate without a meta-rig messages", len(msgs) == 1, f"{msgs}")
+
+    # ---- nurbs b056: image tracer resolves real ops -----------------------------------------
+    from tentacle.slots.blender.nurbs import Nurbs
+
+    reset()
+    msgs = []
+    slot = make_slot(Nurbs)
+    slot.sb = NS(message_box=msgs.append)
+    slot.b056()  # no image empty -> SVG import path (headless: dialog may fail soft)
+    check("nurbs b056 svg path resolves (no 'not available')",
+          all("not available" not in m for m in msgs), f"{msgs}")
+    bpy.ops.object.empty_add(type="IMAGE")
+    msgs.clear()
+    slot.b056()  # image empty -> trace path
+    check("nurbs b056 trace path resolves (no 'not available')",
+          all("not available" not in m for m in msgs), f"{msgs}")
+
+    # ---- scene b001 / lighting b000: route to the new manager panels ------------------------
+    from tentacle.slots.blender.lighting import Lighting
+
+    shown = []
+    mm = NS(marking_menu=NS(show=shown.append))
+    slot = make_slot(SceneSlots)
+    slot.sb = NS(handlers=mm)
+    slot.b001()
+    slot = make_slot(Lighting)
+    slot.sb = NS(handlers=mm)
+    slot.b000()
+    check("scene b001 / lighting b000 open the manager panels",
+          shown == ["reference_manager", "hdr_manager"], f"{shown}")
+
+    # ---- scene b004: native Outliner window (headless: no GUI window -> fails soft) ---------
+    msgs = []
+    slot = make_slot(SceneSlots)
+    slot.sb = NS(message_box=msgs.append)
+    slot.b004()
+    check("scene b004 Outliner fails soft headless", len(msgs) <= 1, f"{msgs}")
+
+    # ---- deformation tb001: routes to the curtain panel -------------------------------------
+    from tentacle.slots.blender.deformation import Deformation
+
+    shown = []
+    slot = make_slot(Deformation)
+    slot.sb = NS(handlers=NS(marking_menu=NS(show=shown.append)))
+    slot.tb001(None)
+    check("deformation tb001 opens the curtain panel", shown == ["curtain"], f"{shown}")
+
+    # ---- main list000: workspace browser = the current .blend's dir CONTENTS ----------------
+    # (files + sub-folders, not just sub-folders) — Blender's analogue of Maya's project tree.
+    import os as _os
+    import shutil as _shutil
+    import tempfile as _tempfile
+    from tentacle.slots.blender.main import Main
+
+    class _SubStub:
+        def __init__(self):
+            self.added = []
+        def add(self, text, data=None):
+            child = _SubItem(text, data)
+            self.added.append(child)
+            return child
+
+    class _SubItem:
+        def __init__(self, text, data):
+            self.text, self.data = text, data
+            self.sublist = _SubStub()
+
+    proj = _tempfile.mkdtemp(prefix="ws_proj_")
+    _os.makedirs(_os.path.join(proj, "textures", "wood"))
+    _os.makedirs(_os.path.join(proj, "exports"))
+    for fn in ("scene.blend", "ref.png", "notes.txt"):
+        open(_os.path.join(proj, fn), "w").close()
+    bpy.ops.wm.save_as_mainfile(filepath=_os.path.join(proj, "scene.blend"))
+
+    check("main workspace resolves to the saved .blend's dir",
+          btk.get_env_info("workspace") == proj, f"ws={btk.get_env_info('workspace')}")
+
+    slot = make_slot(Main)
+    root = _SubStub()
+    slot._populate_dir_contents(root, proj, max_depth=2)
+    names = [i.text for i in root.added]
+    check("workspace lists files alongside folders",
+          {"exports", "textures", "scene.blend", "ref.png", "notes.txt"}.issubset(names),
+          f"names={names}")
+    check("workspace lists folders before files",
+          names.index("exports") < names.index("notes.txt"), f"names={names}")
+    nested = next((i for i in root.added if i.text == "textures"), None)
+    check("workspace recurses sub-folders",
+          nested is not None and [c.text for c in nested.sublist.added] == ["wood"],
+          f"textures->{nested and [c.text for c in nested.sublist.added]}")
+
+    # restore an unsaved state so we don't leave the temp file as the 'open' doc
+    bpy.ops.wm.read_homefile(use_empty=True)
+    _shutil.rmtree(proj, ignore_errors=True)
+
+    # ---- editors: every button + list entry opens a REAL editor (no dead links) ------------
+    from tentacle.slots.blender.editors import Editors
+
+    valid = set(btk.get_editor_types())
+    bad_buttons = {b: e for b, e in Editors._BUTTON_EDITORS.items() if e not in valid}
+    check("every editor button opens a real editor", not bad_buttons, f"{bad_buttons}")
+    bad_list = [e for items in Editors._EDITORS.values() for e in items if e not in valid]
+    check("every editors-list entry opens a real editor", not bad_list, f"{bad_list}")
+
+    # relabel: the five no-analogue Maya buttons show their substitute editor's name
+    class _Btn:
+        def __init__(self, name):
+            self._n, self.text_ = name, None
+        def objectName(self):
+            return self._n
+        def setText(self, t):
+            self.text_ = t
+        def setToolTip(self, t):
+            pass
+
+    eslot = make_slot(Editors)
+    relabeled = {}
+    for bn in Editors._RELABELED:
+        btn = _Btn(bn)
+        getattr(eslot, bn + "_init")(btn)
+        relabeled[bn] = btn.text_
+    check("substituted buttons relabel to their editor",
+          relabeled == {b: Editors._BUTTON_EDITORS[b] for b in Editors._RELABELED},
+          f"{relabeled}")
+    # each substitute editor must be unique across all 14 buttons (distinct from the kept
+    # buttons AND from each other) — count==1 in the full value list proves both.
+    vals = list(Editors._BUTTON_EDITORS.values())
+    subs = [Editors._BUTTON_EDITORS[b] for b in Editors._RELABELED]
+    check("each substitute editor is unique among the buttons",
+          all(vals.count(e) == 1 for e in subs), f"{subs}")
 
 except Exception as e:
     lines.append(f"FAIL setup: {e!r}")

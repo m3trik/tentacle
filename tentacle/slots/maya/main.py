@@ -2,8 +2,10 @@
 # coding=utf-8
 import os
 
+import maya.cmds as cmds
+import maya.mel as mel
 import mayatk as mtk
-from uitk import Signals
+from uitk import Signals, RecentValuesStore
 from tentacle.slots.maya._slots_maya import SlotsMaya
 
 
@@ -15,23 +17,67 @@ class Main(SlotsMaya):
         self.ui = self.sb.loaded_ui.main
 
     def list000_init(self, widget):
-        """Initialize Workspace Browser"""
+        """Initialize the Workspace tab.
+
+        Two root rows: ``Set Workspace`` (click prompts for a project dir; its
+        flyout nests ``Auto Set Workspace`` and a ``Recent Workspaces``
+        sub-flyout) and ``Current Workspace: <name>`` (the row opens the
+        workspace root; its flyout browses the dir tree). Rebuilt on every show
+        (``refresh_on_show``) so the dir tree and recent list stay current.
+        """
         widget.clear()
         if not widget.is_initialized:
             widget.refresh_on_show = True
+            # Shared recent-workspaces model (valid Maya workspaces only), keyed
+            # by the same settings namespace the old Set Workspace option box
+            # used — so existing history carries over. Built once (kept off the
+            # slot __init__ so a recent-projects read can't break construction),
+            # seeded from Maya's recent projects on first ever use.
+            self._workspace_store = RecentValuesStore(
+                settings_key="workspace_recent_projects",
+                max_recent=10,
+                display_format="auto",
+                validator=self._is_workspace,
+            )
+            if not self._workspace_store.values:
+                for p in mtk.get_recent_projects(slice(0, 10), format="standard"):
+                    if self._is_workspace(p):
+                        self._workspace_store.add(p)
         widget.fixed_item_height = 18
-        widget.apply_preset("expand_down")
+        # Sublists fan out to the RIGHT, not down: a downward flyout would open
+        # straight over the rows beneath it (Set Workspace sits above the
+        # current-workspace dir browser).
+        widget.apply_preset("expand_right")
 
+        # --- workspace editing ---
+        # Set Workspace prompts for the project dir on click; its flyout nests
+        # the auto-detect alternative and the recent-workspaces sub-flyout.
+        set_ws = widget.add("Set Workspace", data="__set_dir__")
+        set_ws.sublist.setMinimumWidth(widget.width())
+        set_ws.sublist.add("Auto Set Workspace", data="__auto__")
+        # Recent workspaces nest one level deeper, under Set Workspace (parent
+        # row has no data so it only expands, never sets a workspace); valid
+        # Maya workspaces only.
+        valid = self._workspace_store.valid_values()
+        if valid:
+            recent = set_ws.sublist.add("Recent Workspaces")
+            recent.sublist.setMinimumWidth(widget.width())
+            display = self._workspace_store.display_map(valid)
+            for v in valid:
+                recent.sublist.add(display[v], data=("__recent__", v))
+
+        # --- the current workspace dir browser ---
         workspace = mtk.get_env_info("workspace")
         workspace_dir = mtk.get_env_info("workspace_dir")
+        if workspace and os.path.isdir(workspace):
+            # Maya returns a forward-slash path; normalize once so every entry's
+            # data (root + nested dirs, built via os.path.join) uses native
+            # separators and reliably opens in the system file browser.
+            workspace = os.path.normpath(workspace)
+            w = widget.add(f"Current Workspace: {workspace_dir}", data=workspace)
+            w.sublist.setMinimumWidth(widget.width())
+            self._populate_dir_sublist(w.sublist, workspace, max_depth=2)
 
-        if not workspace or not os.path.isdir(workspace):
-            widget.setVisible(False)
-            return
-
-        w = widget.add(workspace_dir, data=workspace)
-        w.sublist.setMinimumWidth(widget.width())
-        self._populate_dir_sublist(w.sublist, workspace, max_depth=2)
         widget.setVisible(True)
 
     def _populate_dir_sublist(self, sublist, path, max_depth=2):
@@ -65,11 +111,54 @@ class Main(SlotsMaya):
 
     @Signals("on_item_interacted")
     def list000(self, item):
-        """Workspace Browser"""
+        """Workspace tab dispatch — editing actions, recent-workspace selection,
+        and directory-browser entries."""
         data = item.item_data()
-        if data and os.path.isdir(str(data)):
+        if data == "__set_dir__":
+            self._set_workspace_interactive()
+        elif data == "__auto__":
+            self._auto_set_workspace()
+        elif isinstance(data, tuple) and data and data[0] == "__recent__":
+            self._set_workspace_from_path(data[1])
+        elif data and os.path.isdir(str(data)):
             os.startfile(str(data))
             self.sb.handlers.marking_menu.hide()
+
+    # ------------------------------------------------------------------ workspace editing
+
+    @staticmethod
+    def _is_workspace(path):
+        """True if *path* is a Maya workspace root (contains a workspace.mel)."""
+        return bool(path) and os.path.isfile(os.path.join(str(path), "workspace.mel"))
+
+    def _set_workspace_interactive(self):
+        """Set Workspace — prompt for the project directory (MEL SetProject)."""
+        mel.eval("SetProject")
+        workspace = mtk.get_env_info("workspace")
+        if workspace:
+            self._workspace_store.record(workspace)
+        self.sb.handlers.marking_menu.hide()
+
+    def _auto_set_workspace(self):
+        """Auto Set Workspace — walk up parent dirs until a workspace is found."""
+        workspace = mtk.find_workspace_using_path()
+        if not workspace:
+            self.sb.message_box("No workspace found.")
+            return
+        cmds.workspace(workspace, openWorkspace=True)
+        self._workspace_store.record(workspace)
+        self.sb.message_box(f"Workspace set to {os.path.basename(workspace)}.")
+        self.sb.handlers.marking_menu.hide()
+
+    def _set_workspace_from_path(self, path):
+        """Switch to a recent workspace *path* (re-validates the workspace.mel)."""
+        if not self._is_workspace(path):
+            self.sb.message_box("Not a valid workspace.")
+            return
+        cmds.workspace(path, openWorkspace=True)
+        self._workspace_store.record(path)  # bump to most-recent
+        self.sb.message_box(f"Workspace set to {os.path.basename(path)}.")
+        self.sb.handlers.marking_menu.hide()
 
 
 # --------------------------------------------------------------------------------------------

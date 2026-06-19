@@ -1,5 +1,10 @@
 # Blender Port — Plan
 
+> ⚠️ **Status note 2026-06-15.** This plan's phases were all marked complete, but completion was
+> measured as button-presence, not faithful parity. The accurate, measured state of the port lives
+> in [`PARITY_AUDIT.md`](PARITY_AUDIT.md). Treat this plan as the architectural reference, not the
+> progress tracker.
+
 Build Blender support in **tentacle**, modeled on the existing Maya design, sharing UI
 files between DCCs. Develop **blendertk** to do for Blender what **mayatk** does for the
 Maya slots.
@@ -131,16 +136,41 @@ Prove tentacle's Qt UI can live over a running Blender *before* investing in sca
       (`launch()` = QApplication + `blender_widget` parent + `bpy.app.timers` pump) and the add-on
       surface (`bl_info` + `register`/`unregister` + `_bootstrap_paths`) are now **consolidated into
       [tcl_blender.py](../tentacle/tcl_blender.py)** (one entry point; `blender_host.py` + `blender_addon.py`
-      folded in & deleted 2026-06-12). A startup snippet `from tentacle import tcl_blender; tcl_blender.register()`
-      (≈ Maya `userSetup.py`) is all an install needs. **Qt provisioning** is automatic & asymmetric:
+      folded in & deleted 2026-06-12). A startup module (≈ Maya `userSetup.py`) that path-bootstraps
+      the four sibling packages **then** calls `tcl_blender.register()` is all an install needs — the
+      bare two-line snippet fails standalone (`tentacle/__init__` imports pythontk before
+      `_bootstrap_paths` can run). Installed live 2026-06-12:
+      `%APPDATA%/Blender Foundation/Blender/5.1/scripts/startup/tentacle_startup.py`. **Qt provisioning** is automatic & asymmetric:
       Maya bundles PySide6 (used as-is — tentacle/uitk pyproject exclude qtpy/PySide from deps so pip
       never touches it); Blender's Qt-less Python gets PySide6 + qtpy **pip-installed on first launch**
       (`_ensure_qt`, gated on `import bpy`; `TENTACLE_QT_DEPS` skips the download with a pre-staged folder).
-      **F12 collision resolved** (kept for Maya-parity): `_install_keymap` deactivates the bare-F12
-      `render.render` item in the dispatched keyconfig (`user`/`active`, not just `default`) so tentacle
-      wins, restoring it on `unregister` (modified combos untouched; a deferred one-shot re-mute covers
-      early-startup timing). Key translation is alias-mapped (`Key_Meta`→`OSKEY` etc.) so the key is
-      freely reconfigurable. Verified headless 19/19
+      **F12 collision resolved** (kept for Maya-parity): the bridge items live in the **3D View region
+      keymap**, which Blender evaluates before the global `Screen` keymap — tentacle wins over the
+      viewport with **no muting** (the earlier mute/restore of `render.render` was superseded; F12
+      still renders over other editors). **Held-button gap closed (2026-06-12)**: with any mouse
+      button physically held, GHOST dispatches the key to *nothing* (measured: not our item, not
+      render — the pending click/drag, modal op, or popup eats it), so `_install_key_poller`
+      (Windows-only) watches the physical key via `GetAsyncKeyState` on the pump cadence and, only
+      when a button is held, drives `_drive_activation_press(buttons=OS-read mask)` so the
+      `F12|LeftButton`-style chords resolve (backed by uitk `_on_activation_press(buttons=…)`;
+      `QApplication.mouseButtons()` is blind to GHOST's mouse). The same poll doubles as the
+      **focus-independent release watchdog**: key physically up + gesture armed (or overlay
+      visible holding the grab — the half-failed-press signature) → release within a tick;
+      fixes "menu stays open and eats mouse events" when the key-up landed on neither Qt
+      (overlay lost the focus tussle) nor the region-scoped RELEASE item. **Gesture pairing**
+      (`_GESTURE_ACTIVE` + `_drive_activation_release`): every bridge press is paired with a
+      guaranteed release even after uitk `_show_window` clears `_activation_key_held` and arms
+      `_standalone_suppress` (standalone window opened mid-gesture) — without it the suppress
+      stayed armed forever (next presses silently ignored), unpinned tool windows never hid on
+      key-up, and focus was stranded (viewport click needed to revive). Release then hands OS
+      focus back to GHOST via `_restore_blender_foreground` unless a visible tentacle window
+      kept it. Verified end-to-end with real injected input:
+      `test/blender/held_button_activation_check.py` (scenarios + stuck/pairing phases C+D).
+      **Native-modal gate**: the pump + key watcher skip ticks while `GetGUIThreadInfo`
+      reports a modal size/move (or native-menu) loop — pumping Qt inside a title-bar drag's
+      modal loop steals its mouse messages and wedges Blender (reproduced + fixed:
+      `test/blender/native_drag_check.py`). Key translation is
+      alias-mapped (`Key_Meta`→`OSKEY` etc.) so the key is freely reconfigurable. Verified headless 19/19
       (`phase0_addon_test.py`: key-translate inc. special keys / register / keymap / mute+restore /
       activation-routes-to-show / re-install-safe / error-report / no-active-menu / teardown / host+add-on
       fns). *(in-menu L/M/R nav bindings are Qt-internal.)*
@@ -430,7 +460,7 @@ All three landed as uitk features, applied centrally at `MainWindow.register_wid
 
 | Tier | Domains | Approach |
 |:---|:---|:---|
-| **NAV-APP** (port early — entry points) | hud, main, editors\*, preferences, settings, utilities, modify | Menu shells + app wiring; `hud`/`main`/`preferences`/`settings` are light (≈`get_env_info`). \* `editors` is a `mel.eval` Maya-editor dispatcher — **many entries HIDE** (no Blender analogue), rest map to Blender areas (rewrite). Startmenus hud/cameras/editors/main are **shared** (only `maya#startmenu` is Maya-only). |
+| **NAV-APP** (port early — entry points) | hud, main, editors\*, preferences, settings, utilities, modify | Menu shells + app wiring; `hud`/`main`/`preferences`/`settings` are light (≈`get_env_info`). \* `editors` is a `mel.eval` Maya-editor dispatcher — **many entries HIDE** (no Blender analogue), rest map to Blender areas (rewrite). Startmenus hud/cameras/editors/main are **shared**; `maya#startmenu` (both-button) is Maya-only — Blender's equivalent both-button chord is the native-popup `blender#startmenu` (shipped 2026-06-12, `btk.call_native_menu`). |
 | **EASY** | selection, transform, pivot, duplicate, **cameras**, display, polygons (+5 component submenus), subdivision, normals, uv, symmetry, crease, edit | Direct port; `bmesh` / `bpy.ops` analogues of mtk helpers. Mechanical once the slice is proven. (`cameras` is native camera/viewport props — moved here from MEDIUM.) |
 | **MEDIUM** | materials, texturing, lighting, rendering, animation, deformation, **rigging**\*, **scene**†, **nurbs**‡ | Different data model (nodes, modifiers, armatures, Cycles/EEVEE) — see §5. \* `rigging` is the most divergent (skinCluster→Armature+vertex groups); relax the name mirror. † `scene` is **MIXED** — DCC-agnostic recent-files logic + Maya-only widgets to **hide** (command ports, OCIO). ‡ `nurbs` is **largely HIDE** — Blender lacks a Maya-grade NURBS/loft toolkit. |
 | **HARD / HIDE — do not port** | (whole `maya_menus/`) arnold, mash, ncloth, nhair, nparticles, fields_solvers, fluids, stereo, toon, … | Maya-only; hidden **for free** by UI layering (Blender never loads `maya_menus/`). |

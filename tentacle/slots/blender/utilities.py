@@ -15,19 +15,13 @@ class Utilities(SlotsBlender):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-    def _set_tool(self, tool):
-        try:
-            bpy.ops.wm.tool_set_by_id(name=tool)
-        except Exception as e:
-            self.sb.message_box(str(e))
-
     def b000(self):
         """Measure"""
-        self._set_tool("builtin.measure")
+        self.set_viewport_tool("builtin.measure", "Measure")
 
     def b001(self):
         """Annotation"""
-        self._set_tool("builtin.annotate")
+        self.set_viewport_tool("builtin.annotate", "Annotation")
 
     def b002(self):
         """Calculator"""
