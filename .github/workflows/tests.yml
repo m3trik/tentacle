@@ -41,11 +41,11 @@ jobs:
         # test_ui_integrity (which checks .ui <-> _ui.py pairing) and any
         # product code that imports compiled UI works in CI.
         run: |
-          for ui in tentacle/ui/*.ui tentacle/ui/maya_menus/*.ui; do
+          for ui in tentacle/ui/*.ui tentacle/ui/maya_menus/*.ui tentacle/ui/blender_menus/*.ui; do
             out="${ui%.ui}_ui.py"
             pyside6-uic "$ui" -o "$out"
           done
-          echo "Compiled $(ls tentacle/ui/*_ui.py tentacle/ui/maya_menus/*_ui.py | wc -l) UI files"
+          echo "Compiled $(ls tentacle/ui/*_ui.py tentacle/ui/maya_menus/*_ui.py tentacle/ui/blender_menus/*_ui.py | wc -l) UI files"
 
       - name: Run tests
         id: tests
