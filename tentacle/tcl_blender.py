@@ -554,7 +554,10 @@ class _KeymapBridge:
 
             bl_idname = "tentacle.show_marking_menu"
             bl_label = "Tentacle Marking Menu"
-            phase: bpy.props.StringProperty(default="press")  # "press" (key-down) or "release" (key-up)
+            # "press" (key-down) or "release" (key-up). The F821 suppression is a
+            # pyflakes false positive: it misreads the string default inside the
+            # bpy.props annotation as a forward-reference type name.
+            phase: bpy.props.StringProperty(default="press")  # noqa: F821
 
             def execute(self, context):
                 # Key-up: complete/hide the gesture and release the mouse grab.
@@ -885,12 +888,12 @@ class TclBlender(MarkingMenu):
         # Auto-discovery (entry_points) + manual fallback with ``install_spec`` mirror tcl_maya;
         # ``module`` is spelled out per app (some live in the ``extapps.photogrammetry`` subpackage).
         for _name, _module, _entry in (
-            ("map_compositor", "extapps.map_compositor", "MapCompositorUI"),
+            ("compositor", "extapps.texture_maps.compositor", "CompositorUI"),
             ("metashape_workflow", "extapps.photogrammetry.metashape_workflow", "MetashapeWorkflowUI"),
             ("realityscan_workflow", "extapps.photogrammetry.realityscan_workflow", "RealityScanWorkflowUI"),
             ("gaussian_splat_workflow", "extapps.photogrammetry.gaussian_splat_workflow", "GaussianSplatWorkflowUI"),
-            ("map_converter", "extapps.map_converter", "MapConverterUI"),
-            ("map_packer", "extapps.map_packer", "MapPackerUI"),
+            ("converter", "extapps.texture_maps.converter", "ConverterUI"),
+            ("packer", "extapps.texture_maps.packer", "PackerUI"),
             ("mesh_convert", "extapps.mesh_convert", "MeshConvertUI"),
             # The Substance / Marmoset *bridges* reuse these DCC-agnostic extapps workflows: the
             # materials slot exports the Blender selection to FBX and launches the workflow with the
@@ -1036,8 +1039,7 @@ class _ClickDebugger:
     yet the action can still not happen — so the loss is at the slot layer, not the OS window.
     The slot trace localizes which: ``clicked`` never reaching the wrapper (dblclick-eaten or a
     lost connection), a debounce/coalesce swallow, or the slot running but raising into Blender's
-    hidden system console. The marking-menu flick is a *separate* path with its own trace
-    (``tentacle_marking_menu_crash.log``).
+    hidden system console.
     """
 
     path = os.path.join(os.path.expanduser("~"), "tentacle_click_debug.log")
@@ -1177,12 +1179,11 @@ class _ClickDebugger:
     @classmethod
     def enable(cls):
         """Turn on click tracing — run in Blender's Python Console, reproduce the multi-click, then
-        share ``~/tentacle_click_debug.log`` (and ``~/tentacle_marking_menu_crash.log``).
+        share ``~/tentacle_click_debug.log``.
 
         Installs an application-wide mouse-event observer (logs every press/release with the target
-        widget, ``widgetAt``, grab owner, active window, foreground, and ``_activation_key_held``) and
-        flips on the marking menu's own internal trace. :meth:`disable` removes it."""
-        os.environ["TENTACLE_MM_CRASH_DIAG"] = "1"  # also fire the MarkingMenu's internal trace
+        widget, ``widgetAt``, grab owner, active window, foreground, and ``_activation_key_held``).
+        :meth:`disable` removes it."""
         if cls._fh is None:
             cls._fh = open(cls.path, "a", buffering=1, encoding="utf-8")
         cls._write(f"\n===== click-debug enabled pid={os.getpid()} t={time.time():.3f} =====")
@@ -1191,10 +1192,8 @@ class _ClickDebugger:
             cls._filter = cls.Filter()
             app.installEventFilter(cls._filter)
         cls._install_slot_trace()  # also trace whether each click's slot actually runs
-        msg = (f"tentacle: click debugging ON\n  {cls.path}\n  "
-               f"{os.path.expanduser('~/tentacle_marking_menu_crash.log')}\n"
-               "Reproduce the multi-click, then disable_click_debug().")
-        print(msg)
+        print(f"tentacle: click debugging ON\n  {cls.path}\n"
+              "Reproduce the multi-click, then disable_click_debug().")
         return cls.path
 
     @classmethod

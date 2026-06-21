@@ -19,8 +19,9 @@ class MaterialsSlots(SlotsBlender):
     Materials / Game Shader / Shader Templates / Texture Path Editor / Image to Plane) that work on
     the live scene; the host-agnostic ``extapps`` panels (Map Converter / Packer / Compositor and
     the photogrammetry workflows), surfaced exactly as in Maya via ``external_app.launch`` (wired in
-    ``tcl_blender``); and the Marmoset / Substance **bridges**, which export the Blender *selection*
-    to FBX and hand off to the matching extapps workflow (the Blender analogue of Maya's bridges).
+    ``tcl_blender``); and the Marmoset / Substance / Unity **bridges**, which export the Blender
+    *selection* to FBX and hand off to the matching extapps workflow (the Blender analogue of Maya's
+    bridges — for Unity, Maya keeps a native panel while Blender reuses the extapps one).
     Maya-only shaders (Arnold preview) have no Blender equivalent and are absent.
     """
 
@@ -70,6 +71,7 @@ class MaterialsSlots(SlotsBlender):
         "Bridges": [
             ("Marmoset Bridge", "b019", ""),
             ("Substance Bridge", "b020", ""),
+            ("Unity Bridge", "b026", ""),
         ],
         "External": [
             ("Map Compositor", "b022", ""),
@@ -622,15 +624,15 @@ class MaterialsSlots(SlotsBlender):
 
     def b008(self):
         """Map Packer"""
-        self._launch_extapp("map_packer", source_dir=True)
+        self._launch_extapp("packer", source_dir=True)
 
     def b016(self):
         """Map Converter"""
-        self._launch_extapp("map_converter", source_dir=True)
+        self._launch_extapp("converter", source_dir=True)
 
     def b022(self):
         """Map Compositor"""
-        self._launch_extapp("map_compositor")
+        self._launch_extapp("compositor")
 
     def b023(self):
         """Metashape Workflow"""
@@ -678,6 +680,10 @@ class MaterialsSlots(SlotsBlender):
     def b020(self):
         """Substance Bridge — export selection → Substance Painter workflow."""
         self._launch_bridge("substance_workflow", "set_mesh_path")
+
+    def b026(self):
+        """Unity Bridge — export selection → Unity Workflow (copy into a project's Assets/)."""
+        self._launch_bridge("unity_workflow", "set_model_path")
 
 
 # --------------------------------------------------------------------------------------------
