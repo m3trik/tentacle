@@ -166,6 +166,19 @@ class MarkingMenuGuiTest(unittest.TestCase):
                 return btn
         return None
 
+    def _find_menu_button(self, ui, target: str):
+        """Find a ``MenuButton`` in *ui* by its ``target`` property.
+
+        The type-based nav widget carries no ``accessibleName`` (it reads
+        ``target``/``filterTags``), so it can't be found via ``_find_button``.
+        """
+        from uitk.widgets.menuButton import MenuButton
+
+        for btn in ui.findChildren(MenuButton):
+            if btn.target == target:
+                return btn
+        return None
+
     def _hover_button(self, button) -> None:
         """Move cursor onto button and dispatch the enterEvent path.
 
@@ -273,6 +286,123 @@ class MarkingMenuGuiTest(unittest.TestCase):
         self._activate(buttons=0)
         ui = self._assert_visible("hud#startmenu")
         self._assert_on_screen(ui)
+
+    # ── chord-release tolerance (real imperfect L+R timing) ─────────────
+
+    def _send_release(self, button_mask: int, buttons_after_mask: int) -> None:
+        """Send a REAL mouse release to the MarkingMenu at the live cursor — the
+        Maya grab path (``mouseReleaseEvent``). ``button_mask`` is the button just
+        released; ``buttons_after_mask`` the buttons still physically held."""
+        from qtpy import QtCore, QtGui, QtWidgets
+
+        gp = QtGui.QCursor.pos()
+        ev = QtGui.QMouseEvent(
+            QtCore.QEvent.MouseButtonRelease,
+            QtCore.QPointF(self.mm.mapFromGlobal(gp)),
+            QtCore.QPointF(gp),
+            QtCore.Qt.MouseButton(button_mask),
+            QtCore.Qt.MouseButtons(buttons_after_mask),
+            QtCore.Qt.NoModifier,
+        )
+        QtWidgets.QApplication.sendEvent(self.mm, ev)
+        self._process(2)
+
+    def test_imperfect_both_button_release_does_not_switch_menus(self):
+        """Real-world imperfect L+R release: the two buttons lift a few ms apart,
+        so the first release arrives with the other still held. The chord menu
+        must NOT collapse to a single-button menu (the "stays open and shifts
+        while the item under the cursor never clicks" regression) — the partial is
+        deferred for the tolerance window, and the within-tolerance final release
+        completes the both-buttons gesture.
+
+        This is the case the offscreen instant-fire tests missed: it requires a
+        real timing gap, so it drives real release events and a real wait.
+        """
+        self._activate(buttons=self.LEFT | self.RIGHT)
+        self._assert_visible("maya#startmenu")
+        tol = self.mm.CHORD_RELEASE_TOLERANCE_MS
+
+        # R up first, with L still held — must be deferred (no immediate switch).
+        self._send_release(self.RIGHT, self.LEFT)
+        self.assertEqual(
+            self.mm.sb.current_ui.objectName(),
+            "maya#startmenu",
+            "a partial chord release must be deferred — the menu must not switch "
+            "to the remaining-button menu immediately (the shift)",
+        )
+
+        # L up within the tolerance → the both-buttons release completes.
+        self._wait(int(tol * 0.4))
+        self._send_release(self.LEFT, 0)
+        self._process(3)
+
+        cur = self.mm.sb.current_ui
+        cur_name = cur.objectName() if cur else ""
+        self.assertNotIn(
+            cur_name,
+            ("cameras#startmenu", "main#startmenu"),
+            "an imperfect both-buttons release wrongly collapsed to a single-button "
+            "menu — the 'menu stays open and shifts' regression",
+        )
+
+    def test_release_one_button_held_past_tolerance_switches(self):
+        """Releasing ONE chord button and HOLDING the other past the tolerance is
+        an intentional switch → the remaining-button menu appears. The tolerance
+        is exactly what separates this from an imperfect both-buttons release."""
+        self._activate(buttons=self.LEFT | self.RIGHT)
+        self._assert_visible("maya#startmenu")
+        tol = self.mm.CHORD_RELEASE_TOLERANCE_MS
+
+        # Release R, keep L held, wait past the tolerance → switch to L (cameras).
+        self._send_release(self.RIGHT, self.LEFT)
+        self._wait(int(tol * 1.8))
+        self._assert_visible("cameras#startmenu")
+
+    def test_both_button_release_over_menu_button_registers_click(self):
+        """THE reported bug. In maya#startmenu, hover the 'key' MenuButton (it
+        reveals key#submenu and parks the cursor over its 'key' widget), then
+        release BOTH buttons over it. The click must REGISTER (dispatch the nav)
+        on the FIRST release — it must NOT be lost while the menu 'stays open and
+        shifts'. A release over an owned item fires immediately, with NO wait for
+        the tolerance window (the tolerance governs navigation over empty overlay
+        only). The trailing release is swallowed by the latch, so the click
+        dispatches exactly once."""
+        self._activate(buttons=self.LEFT | self.RIGHT)
+        maya_ui = self._assert_visible("maya#startmenu")
+
+        key_btn = self._find_menu_button(maya_ui, "key")
+        self.assertIsNotNone(
+            key_btn, "no MenuButton with target='key' in maya#startmenu"
+        )
+
+        # Hover reveals key#submenu and centers its 'key' widget under the cursor.
+        self._hover_button(key_btn)
+        self._assert_visible("key#submenu")
+
+        dispatched = []
+        orig = self.mm._handle_widget_action
+
+        def spy(widget, global_pos=None):
+            dispatched.append(widget)
+            return orig(widget, global_pos)
+
+        self.mm._handle_widget_action = spy
+
+        # R up first (partial), L still held — owned-item release fires NOW.
+        self._send_release(self.RIGHT, self.LEFT)
+        self.assertTrue(
+            dispatched,
+            "the click over the 'key' MenuButton was not registered on the "
+            "both-button release (the dead-click / 'stays open and shifts' bug)",
+        )
+
+        # L up (final) — swallowed by the single-shot latch; no second dispatch.
+        self._send_release(self.LEFT, 0)
+        self.assertEqual(
+            len(dispatched),
+            1,
+            "the both-button release must dispatch the click exactly once",
+        )
 
 
 if __name__ == "__main__":

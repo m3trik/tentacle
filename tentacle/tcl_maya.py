@@ -72,12 +72,12 @@ class TclMaya(MarkingMenu):
         # the name. A wrong path here would shadow the correct one that
         # auto-discovery registered and break launch.
         for _name, _module, _entry in (
-            ("map_compositor", "extapps.map_compositor", "MapCompositorUI"),
+            ("compositor", "extapps.texture_maps.compositor", "CompositorUI"),
             ("metashape_workflow", "extapps.photogrammetry.metashape_workflow", "MetashapeWorkflowUI"),
             ("realityscan_workflow", "extapps.photogrammetry.realityscan_workflow", "RealityScanWorkflowUI"),
             ("gaussian_splat_workflow", "extapps.photogrammetry.gaussian_splat_workflow", "GaussianSplatWorkflowUI"),
-            ("map_converter", "extapps.map_converter", "MapConverterUI"),
-            ("map_packer", "extapps.map_packer", "MapPackerUI"),
+            ("converter", "extapps.texture_maps.converter", "ConverterUI"),
+            ("packer", "extapps.texture_maps.packer", "PackerUI"),
             ("mesh_convert", "extapps.mesh_convert", "MeshConvertUI"),
         ):
             self.sb.handlers.external_app.register(
