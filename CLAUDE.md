@@ -1,23 +1,21 @@
 # tentacle
 
-**Role**: Desktop app. Slots architecture integrates Maya / Max / Standalone DCCs.
+**Role**: Desktop app. Slots architecture integrates Maya / Max / Blender / Standalone DCCs (engine per DCC: `mayatk`, `blendertk`).
 
 **Nav**: [← root](../CLAUDE.md) · **Deps**: [pythontk](../pythontk/CLAUDE.md) · [uitk](../uitk/CLAUDE.md) · [mayatk](../mayatk/CLAUDE.md)
 
 ## API surface
 
-Before writing a new helper, **check the registry first** — duplicates undermine the SSoT goal.
+**Before adding a helper, check the registry** (navigation rules: [root](../CLAUDE.md)):
 
-- This package: [`API_REGISTRY.md`](API_REGISTRY.md) · [`API_CHANGES.md`](API_CHANGES.md) (diff vs last refresh)
-- Upstream: [`pythontk` API](../pythontk/API_REGISTRY.md) · [`uitk` API](../uitk/API_REGISTRY.md) · [`mayatk` API](../mayatk/API_REGISTRY.md)
+- [`API_INDEX.md`](API_INDEX.md) (compact — read first) · [`API_REGISTRY.md`](API_REGISTRY.md) (grep, don't Read whole) · [`API_CHANGES.md`](API_CHANGES.md)
+- Upstream: [pythontk](../pythontk/API_INDEX.md) · [uitk](../uitk/API_INDEX.md) · [mayatk](../mayatk/API_INDEX.md) · [blendertk](../blendertk/API_INDEX.md)
 - Cross-package shadows: [`m3trik/docs/API_SHADOWS.md`](../m3trik/docs/API_SHADOWS.md)
-
-Refresh manually: `python m3trik/scripts/generate_api_registry.py tentacle` — otherwise auto-refreshed bi-weekly.
 
 ## Architecture
 
 - `tentacle/slots/<dcc>/*.py` — DCC-specific slot handlers (e.g. `slots/maya/rendering.py`).
-- `tentacle/tcl_maya.py` — Maya integration entry + MarkingMenu (`tcl_max.py`, `tcl_blender.py` are wrapper-only).
+- `tentacle/tcl_maya.py` — Maya integration entry + MarkingMenu. `tcl_blender.py` is a full Blender integration (drives `slots/blender` + the `blendertk` engine); `tcl_max.py` is a thin wrapper.
 - **UI**: Qt via [uitk](../uitk/CLAUDE.md). Widget naming: `tb###`, `b###`, `list###`, etc.
 
 ## Conventions

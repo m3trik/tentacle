@@ -2,7 +2,7 @@
 
 _Auto-generated. Do not edit by hand. Refresh via `m3trik/scripts/generate_api_registry.py`._
 
-_Generated: 2026-06-21_
+_Generated: 2026-06-22_
 
 ## Index
 
@@ -486,13 +486,11 @@ Shared HUD warning framework (DCC-agnostic).
 ### `slots/blender/rendering.py`
 
 - **[`class Rendering(SlotsBlender)`](tentacle/tentacle/slots/blender/rendering.py#L8)** — Blender port of the shared ``rendering`` menu.
-  - `Rendering.cmb001_init(self, widget)` — Initialize the render-camera combo (label -> camera object).
-  - `Rendering.cmb001(self, index, widget)` — Set the scene's active (render) camera.
   - `Rendering.tb000_init(self, widget)`
   - `Rendering.tb000(self, widget)` — Export Playblast (OpenGL viewport render of the chosen frame range / format).
-  - `Rendering.b000(self)` — Render Current Frame
+  - `Rendering.tb001_init(self, widget)` — Render: pick the camera, then render the current frame.
+  - `Rendering.tb001(self, widget)` — Render Current Frame
   - `Rendering.b001(self)` — Render Settings (Properties editor, Render tab)
-  - `Rendering.b002(self)` — Show Last Render
   - `Rendering.b003(self)` — Render Setup — Maya's render-layer manager maps onto Blender's **View Layers**
   - `Rendering.b004(self)` — Rendering Flags — Maya's per-object render flags map onto Blender's per-object ray
 
@@ -1190,12 +1188,11 @@ Shared HUD warning framework (DCC-agnostic).
 ### `slots/maya/rendering.py`
 
 - **[`class Rendering(SlotsMaya)`](tentacle/tentacle/slots/maya/rendering.py#L17)**
-  - `Rendering.cmb001_init(self, widget)` — Render: camera
   - `Rendering.tb000_init(self, widget)` — Export Playblast Init
   - `Rendering.tb000(self, widget)` — Export Playblast
-  - `Rendering.b000(self)` — Render Current Frame
+  - `Rendering.tb001_init(self, widget)` — Render: camera, renderer, Arnold network, IPR, and smart redo.
+  - `Rendering.tb001(self, widget)` — Render
   - `Rendering.b001(self)` — Open Render Settings Window
-  - `Rendering.b002(self)` — Redo Previous Render
   - `Rendering.b003(self)` — Editor: Render Setup
   - `Rendering.b004(self)` — Editor: Rendering Flags
 

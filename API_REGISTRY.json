@@ -1,7 +1,7 @@
 {
   "name": "tentacle",
   "source_root": "tentacle/tentacle",
-  "generated_at": "2026-06-21",
+  "generated_at": "2026-06-22",
   "modules": [
     {
       "relpath": "__init__.py",
@@ -2774,30 +2774,12 @@
           ],
           "members": [
             {
-              "name": "cmb001_init",
-              "qualname": "Rendering.cmb001_init",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Initialize the render-camera combo (label -> camera object).",
-              "line": 21,
-              "deprecated": false
-            },
-            {
-              "name": "cmb001",
-              "qualname": "Rendering.cmb001",
-              "kind": "method",
-              "signature": "(self, index, widget)",
-              "summary": "Set the scene's active (render) camera.",
-              "line": 30,
-              "deprecated": false
-            },
-            {
               "name": "tb000_init",
               "qualname": "Rendering.tb000_init",
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "",
-              "line": 78,
+              "line": 67,
               "deprecated": false
             },
             {
@@ -2806,16 +2788,25 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Export Playblast (OpenGL viewport render of the chosen frame range / format).",
-              "line": 156,
+              "line": 145,
               "deprecated": false
             },
             {
-              "name": "b000",
-              "qualname": "Rendering.b000",
+              "name": "tb001_init",
+              "qualname": "Rendering.tb001_init",
               "kind": "method",
-              "signature": "(self)",
+              "signature": "(self, widget)",
+              "summary": "Render: pick the camera, then render the current frame.",
+              "line": 219,
+              "deprecated": false
+            },
+            {
+              "name": "tb001",
+              "qualname": "Rendering.tb001",
+              "kind": "method",
+              "signature": "(self, widget)",
               "summary": "Render Current Frame",
-              "line": 230,
+              "line": 240,
               "deprecated": false
             },
             {
@@ -2824,16 +2815,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Render Settings (Properties editor, Render tab)",
-              "line": 237,
-              "deprecated": false
-            },
-            {
-              "name": "b002",
-              "qualname": "Rendering.b002",
-              "kind": "method",
-              "signature": "(self)",
-              "summary": "Show Last Render",
-              "line": 241,
+              "line": 252,
               "deprecated": false
             },
             {
@@ -2842,7 +2824,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Render Setup — Maya's render-layer manager maps onto Blender's **View Layers**",
-              "line": 249,
+              "line": 257,
               "deprecated": false
             },
             {
@@ -2851,7 +2833,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Rendering Flags — Maya's per-object render flags map onto Blender's per-object ray",
-              "line": 257,
+              "line": 265,
               "deprecated": false
             }
           ]
@@ -7631,21 +7613,12 @@
           ],
           "members": [
             {
-              "name": "cmb001_init",
-              "qualname": "Rendering.cmb001_init",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Render: camera",
-              "line": 24,
-              "deprecated": false
-            },
-            {
               "name": "tb000_init",
               "qualname": "Rendering.tb000_init",
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Export Playblast Init",
-              "line": 39,
+              "line": 26,
               "deprecated": false
             },
             {
@@ -7654,16 +7627,25 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Export Playblast",
-              "line": 297,
+              "line": 284,
               "deprecated": false
             },
             {
-              "name": "b000",
-              "qualname": "Rendering.b000",
+              "name": "tb001_init",
+              "qualname": "Rendering.tb001_init",
               "kind": "method",
-              "signature": "(self)",
-              "summary": "Render Current Frame",
-              "line": 570,
+              "signature": "(self, widget)",
+              "summary": "Render: camera, renderer, Arnold network, IPR, and smart redo.",
+              "line": 557,
+              "deprecated": false
+            },
+            {
+              "name": "tb001",
+              "qualname": "Rendering.tb001",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Render",
+              "line": 635,
               "deprecated": false
             },
             {
@@ -7672,16 +7654,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Open Render Settings Window",
-              "line": 587,
-              "deprecated": false
-            },
-            {
-              "name": "b002",
-              "qualname": "Rendering.b002",
-              "kind": "method",
-              "signature": "(self)",
-              "summary": "Redo Previous Render",
-              "line": 591,
+              "line": 673,
               "deprecated": false
             },
             {
@@ -7690,7 +7663,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Editor: Render Setup",
-              "line": 595,
+              "line": 677,
               "deprecated": false
             },
             {
@@ -7699,7 +7672,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Editor: Rendering Flags",
-              "line": 599,
+              "line": 681,
               "deprecated": false
             }
           ]

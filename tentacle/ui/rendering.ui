@@ -90,7 +90,7 @@
          <property name="spacing">
           <number>1</number>
          </property>
-         <item row="2" column="0" colspan="2">
+         <item row="1" column="0">
           <widget class="PushButton" name="tb000">
            <property name="minimumSize">
             <size>
@@ -112,8 +112,8 @@
            </property>
           </widget>
          </item>
-         <item row="1" column="1">
-          <widget class="QPushButton" name="b002">
+         <item row="0" column="0">
+          <widget class="PushButton" name="tb001">
            <property name="minimumSize">
             <size>
              <width>0</width>
@@ -127,62 +127,7 @@
             </size>
            </property>
            <property name="toolTip">
-            <string>Redo previous render</string>
-           </property>
-           <property name="text">
-            <string>Redo</string>
-           </property>
-          </widget>
-         </item>
-         <item row="0" column="0" colspan="2">
-          <widget class="ComboBox" name="cmb001">
-           <property name="minimumSize">
-            <size>
-             <width>0</width>
-             <height>19</height>
-            </size>
-           </property>
-           <property name="maximumSize">
-            <size>
-             <width>16777215</width>
-             <height>19</height>
-            </size>
-           </property>
-           <property name="statusTip">
-            <string>Render: camera</string>
-           </property>
-           <property name="maxVisibleItems">
-            <number>50</number>
-           </property>
-           <property name="sizeAdjustPolicy">
-            <enum>QComboBox::AdjustToContents</enum>
-           </property>
-           <property name="frame">
-            <bool>false</bool>
-           </property>
-           <item>
-            <property name="text">
-             <string>Render Camera</string>
-            </property>
-           </item>
-          </widget>
-         </item>
-         <item row="1" column="0">
-          <widget class="QPushButton" name="b000">
-           <property name="minimumSize">
-            <size>
-             <width>0</width>
-             <height>19</height>
-            </size>
-           </property>
-           <property name="maximumSize">
-            <size>
-             <width>16777215</width>
-             <height>19</height>
-            </size>
-           </property>
-           <property name="toolTip">
-            <string>Render current scene</string>
+            <string>Render the chosen camera with the selected renderer. Use the option box for camera, renderer, Arnold network, IPR, and smart redo.</string>
            </property>
            <property name="text">
             <string>Render</string>
