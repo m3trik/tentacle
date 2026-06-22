@@ -74,27 +74,21 @@
     <property name="cursor">
      <cursorShape>UpArrowCursor</cursorShape>
     </property>
-    <property name="target">
-     <string>rendering</string>
-    </property>
     <property name="text">
      <string>Rendering</string>
     </property>
+    <property name="target" stdset="0">
+     <string>rendering</string>
+    </property>
    </widget>
-   <widget class="QPushButton" name="b002">
+   <widget class="PushButton" name="tb001">
     <property name="geometry">
      <rect>
-      <x>355</x>
-      <y>270</y>
-      <width>49</width>
+      <x>345</x>
+      <y>290</y>
+      <width>76</width>
       <height>19</height>
      </rect>
-    </property>
-    <property name="maximumSize">
-     <size>
-      <width>16777215</width>
-      <height>19</height>
-     </size>
     </property>
     <property name="minimumSize">
      <size>
@@ -102,36 +96,14 @@
       <height>19</height>
      </size>
     </property>
-    <property name="toolTip">
-     <string>Redo previous render</string>
-    </property>
-    <property name="text">
-     <string>Redo</string>
-    </property>
-   </widget>
-   <widget class="QPushButton" name="b000">
-    <property name="geometry">
-     <rect>
-      <x>350</x>
-      <y>310</y>
-      <width>61</width>
-      <height>19</height>
-     </rect>
-    </property>
     <property name="maximumSize">
      <size>
       <width>16777215</width>
       <height>19</height>
      </size>
     </property>
-    <property name="minimumSize">
-     <size>
-      <width>0</width>
-      <height>19</height>
-     </size>
-    </property>
     <property name="toolTip">
-     <string>Render current scene</string>
+     <string>Render the chosen camera with the selected renderer. Use the option box for camera, renderer, Arnold network, IPR, and smart redo.</string>
     </property>
     <property name="text">
      <string>Render</string>
@@ -144,6 +116,11 @@
    <class>MenuButton</class>
    <extends>QPushButton</extends>
    <header>widgets.menubutton.h</header>
+  </customwidget>
+  <customwidget>
+   <class>PushButton</class>
+   <extends>QPushButton</extends>
+   <header>widgets.pushbutton.h</header>
   </customwidget>
  </customwidgets>
  <resources/>

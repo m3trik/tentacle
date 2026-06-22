@@ -71,18 +71,18 @@
       <height>21</height>
      </size>
     </property>
-    <property name="target">
-     <string>lighting</string>
-    </property>
     <property name="text">
      <string>Lighting</string>
+    </property>
+    <property name="target" stdset="0">
+     <string>lighting</string>
     </property>
    </widget>
    <widget class="PushButton" name="b000">
     <property name="geometry">
      <rect>
       <x>120</x>
-      <y>280</y>
+      <y>270</y>
       <width>121</width>
       <height>19</height>
      </rect>

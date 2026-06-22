@@ -98,7 +98,7 @@ _Generated: 2026-06-22_
 
 ### `slots/blender/rendering.py`
 - `class Rendering(SlotsBlender)`
-  - methods: cmb001_init, cmb001, tb000_init, tb000, b000, b001, b002, b003, b004
+  - methods: tb000_init, tb000, tb001_init, tb001, b001, b003, b004
 
 ### `slots/blender/rigging.py`
 - `class Rigging(SlotsBlender)`
@@ -286,7 +286,7 @@ _Generated: 2026-06-22_
 
 ### `slots/maya/rendering.py`
 - `class Rendering(SlotsMaya)`
-  - methods: cmb001_init, tb000_init, tb000, b000, b001, b002, b003, b004
+  - methods: tb000_init, tb000, tb001_init, tb001, b001, b003, b004
 
 ### `slots/maya/rigging.py`
 - `class Rigging(SlotsMaya)`

@@ -20,21 +20,8 @@ class Rendering(SlotsMaya):
 
         self.ui = self.sb.loaded_ui.rendering
         self.submenu = self.sb.loaded_ui.rendering_submenu
-
-    def cmb001_init(self, widget):
-        """Render: camera"""
-        if not widget.is_initialized:
-            # Keep the camera list current when the panel is shown and when the
-            # dropdown is opened, so newly created cameras appear without
-            # resetting the current selection (restore_index below preserves it).
-            # (Refreshing on the action click instead would reset the user's
-            # chosen camera back to the first entry on every render.)
-            widget.refresh_on_show = True
-            widget.before_popup_shown.connect(widget.init_slot)
-        # List camera transforms (not shapes): the Render View procs expect a
-        # transform, and the names read cleaner in the dropdown.
-        cameras = [c for c in self._camera_transforms() if "Target" not in c]
-        widget.add(cameras, clear=True, restore_index=True)
+        # (camera, renderer) of the last render this session — drives Smart Redo.
+        self._last_render_key = None
 
     def tb000_init(self, widget):
         """Export Playblast Init"""
@@ -567,30 +554,125 @@ class Rendering(SlotsMaya):
         else:
             self.sb.message_box("No playblast outputs were generated.")
 
-    def b000(self):
-        """Render Current Frame"""
-        camera = self.ui.cmb001.currentText()
+    def tb001_init(self, widget):
+        """Render: camera, renderer, Arnold network, IPR, and smart redo."""
+        menu = widget.option_box.menu
+        menu.setTitle("Render")
+
+        # Camera transforms (not shapes): Render-View procs expect a transform.
+        cameras = [c for c in self._camera_transforms() if "Target" not in c]
+        menu.add(
+            "QComboBox",
+            addItems=cameras,
+            setObjectName="cmb002",
+            block_signals_on_restore=False,
+            setToolTip="Camera to render into the Render View / IPR.",
+        )
+        # Default to the perspective camera (handles a namespaced `ns:persp`).
+        default_cam = next(
+            (c for c in cameras if c == "persp" or c.endswith(":persp")), None
+        )
+        menu.cmb002.setCurrentIndex(cameras.index(default_cam) if default_cam else 0)
+
+        # Renderer: built-ins + installed plugins; default to the active one.
+        renderers = mtk.RenderUtils.get_available_renderers()
+        menu.add(
+            "QComboBox",
+            addItems=[r["label"] for r in renderers],
+            setObjectName="cmb003",
+            block_signals_on_restore=False,
+            setToolTip="Renderer to use. Installed-but-unloaded renderers "
+            "(e.g. Arnold) load on demand when selected.",
+        )
+        for i, r in enumerate(renderers):
+            menu.cmb003.setItemData(i, r["name"])
+        names = [r["name"] for r in renderers]
+        current = mtk.RenderUtils.current_renderer()
+        if current in names:
+            menu.cmb003.setCurrentIndex(names.index(current))
+
+        menu.add(
+            "QCheckBox",
+            setText="Add Arnold Network",
+            setObjectName="chk000",
+            setChecked=False,
+            setToolTip="Before rendering, attach the Arnold aiStandardSurface "
+            "preview network to the scene's materials (Arnold only).",
+        )
+        menu.add(
+            "QCheckBox",
+            setText="IPR (realtime)",
+            setObjectName="chk001",
+            setChecked=False,
+            setToolTip="Launch interactive realtime rendering instead of a single "
+            "frame. Disabled automatically for renderers that don't provide IPR.",
+        )
+        menu.add(
+            "QCheckBox",
+            setText="Smart Redo",
+            setObjectName="chk002",
+            setChecked=True,
+            setToolTip="Re-render the previous result when the camera and renderer "
+            "are unchanged (faster); otherwise render fresh.",
+        )
+
+        # Gate the renderer-specific options on the picked renderer: each is
+        # disabled (and cleared) when it doesn't apply, so the user can't ask
+        # for something that would only fail after the click.
+        def _gate(checkbox, allowed):
+            checkbox.setEnabled(allowed)
+            if not allowed:
+                checkbox.setChecked(False)
+
+        def _sync(_=None):
+            renderer = menu.cmb003.currentData()
+            _gate(menu.chk000, renderer == "arnold")  # Arnold-only preview network
+            _gate(menu.chk001, bool(renderer) and mtk.RenderUtils.supports_ipr(renderer))
+
+        menu.cmb003.currentIndexChanged.connect(_sync)
+        _sync()
+
+    def tb001(self, widget):
+        """Render"""
+        menu = widget.option_box.menu
+
+        camera = menu.cmb002.currentText()
         if not camera:
             self.sb.message_box("No render camera available.")
             return
-        # Maya's Render View procs expect a camera transform; resolve if the
-        # combo yields a shape.
+        # Render-View procs expect a transform; resolve if the combo yields a shape.
         if cmds.objExists(camera) and cmds.objectType(camera) == "camera":
             camera = mtk.NodeUtils.get_parent(camera) or camera
-        # Render the selected camera into the Render View, opening it if needed
-        # (renderWindowRenderCamera resolves an empty editor via showRenderView).
-        # The previous `cmds.render(camera)` rendered offscreen to a temp file
-        # and never surfaced the Render View, so the button appeared to do
-        # nothing.
-        mel.eval(f'renderWindowRenderCamera "render" "" "{camera}";')
+
+        renderer = menu.cmb003.currentData() or mtk.RenderUtils.current_renderer()
+        mtk.RenderUtils.set_renderer(renderer)
+
+        # Optionally attach the Arnold preview network to the scene first.
+        # ArnoldBridge.add() already excludes its own aiStandardSurface shaders,
+        # so the raw scene-material list is safe to pass.
+        if renderer == "arnold" and menu.chk000.isChecked():
+            materials = mtk.MatUtils.get_scene_mats()
+            if materials:
+                mtk.ArnoldBridge().add(materials=materials)
+
+        # IPR supersedes a single frame. The checkbox is disabled for renderers
+        # that can't start one (see _sync), so this only fires when supported;
+        # the False fall-through silently covers the rare launch race.
+        if menu.chk001.isChecked() and mtk.RenderUtils.start_ipr(camera, renderer):
+            self._last_render_key = None  # an IPR session invalidates redo
+            return
+
+        # Smart redo: reuse the previous render when nothing relevant changed.
+        key = (camera, renderer)
+        if menu.chk002.isChecked() and self._last_render_key == key:
+            mtk.RenderUtils.redo_previous_render()
+        else:
+            mtk.RenderUtils.render_camera(camera)
+            self._last_render_key = key
 
     def b001(self):
         """Open Render Settings Window"""
         mel.eval("unifiedRenderGlobalsWindow")
-
-    def b002(self):
-        """Redo Previous Render"""
-        mel.eval('redoPreviousRender "render"')
 
     def b003(self):
         """Editor: Render Setup"""

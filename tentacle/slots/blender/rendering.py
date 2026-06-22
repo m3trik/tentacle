@@ -17,22 +17,6 @@ class Rendering(SlotsBlender):
         super().__init__(switchboard)
         self.ui = self.sb.loaded_ui.rendering
 
-    # ------------------------------------------------------------------ cmb001  Render camera
-    def cmb001_init(self, widget):
-        """Initialize the render-camera combo (label -> camera object)."""
-        widget.refresh_on_show = True
-        cameras = {o.name: o for o in bpy.data.objects if o.type == "CAMERA"}
-        widget.add(cameras, header="Camera:", clear=True)
-        current = bpy.context.scene.camera
-        if current and current.name in cameras:
-            widget.setCurrentIndex(list(cameras).index(current.name))
-
-    def cmb001(self, index, widget):
-        """Set the scene's active (render) camera."""
-        cam = widget.currentData()
-        if cam is not None:
-            bpy.context.scene.camera = cam
-
     # ------------------------------------------------------------------ tb000  Playblast
     # Reuses the Maya rendering objectNames/labels for the same options (cross-DCC QSettings rule):
     # t000 path · cmb010/s010/s011 range · s012 padding · cmb040 resolution · s015 scale ·
@@ -74,6 +58,11 @@ class Rendering(SlotsBlender):
         if mode_index == 0 and scene.use_preview_range:  # Playback Range (preview range)
             return scene.frame_preview_start, scene.frame_preview_end
         return scene.frame_start, scene.frame_end  # Playback (no preview) / Animation Range
+
+    @staticmethod
+    def _camera_objects():
+        """Scene camera objects (Blender analogue of the Maya slot's ``_camera_transforms``)."""
+        return [o for o in bpy.data.objects if o.type == "CAMERA"]
 
     def tb000_init(self, widget):
         scene = bpy.context.scene
@@ -130,7 +119,7 @@ class Rendering(SlotsBlender):
             "otherwise the chosen camera is made the scene camera for the capture (restored after).",
         )
         cmb041.addItem("Active Viewport", None)
-        for cam in (o for o in bpy.data.objects if o.type == "CAMERA"):
+        for cam in self._camera_objects():
             cmb041.addItem(cam.name, cam)
         cmb050 = menu.add(
             "QComboBox", setObjectName="cmb050", setMaxVisibleItems=12,
@@ -226,24 +215,43 @@ class Rendering(SlotsBlender):
             return base
         return base if "#" in base else base + "#" * max(1, padding)
 
-    # ------------------------------------------------------------------ b-slots
-    def b000(self):
+    # ------------------------------------------------------------------ tb001  Render
+    def tb001_init(self, widget):
+        """Render: pick the camera, then render the current frame.
+
+        Blender port of the Maya render control (the shared ``rendering.ui``
+        folded the old render / show-last buttons + camera combo into ``tb001``).
+        Maya's renderer / Arnold-network / IPR / smart-redo options have no
+        Blender analogue, so only the shared camera option is carried over —
+        ``cmb002`` keeps the Maya objectName for the cross-DCC QSettings rule.
+        The click renders the current frame; Blender's render window shows it.
+        """
+        menu = widget.option_box.menu
+        menu.setTitle("Render")
+        cmb002 = menu.add(
+            "QComboBox", setObjectName="cmb002",
+            setToolTip="Camera to render. 'Active Camera' uses the scene's current camera; "
+            "any other choice is made the scene camera before rendering.",
+        )
+        cmb002.addItem("Active Camera", None)
+        for cam in self._camera_objects():
+            cmb002.addItem(cam.name, cam)
+
+    def tb001(self, widget):
         """Render Current Frame"""
+        cam = widget.option_box.menu.cmb002.currentData()
         try:
+            if cam is not None:  # otherwise keep the scene's active camera
+                bpy.context.scene.camera = cam
             bpy.ops.render.render("INVOKE_DEFAULT")
-        except RuntimeError as e:
+        # ReferenceError: a camera chosen at init that was since deleted.
+        except (RuntimeError, ReferenceError) as e:
             self.sb.message_box(str(e))
 
+    # ------------------------------------------------------------------ b-slots
     def b001(self):
         """Render Settings (Properties editor, Render tab)"""
         btk.open_editor("Properties")
-
-    def b002(self):
-        """Show Last Render"""
-        try:
-            bpy.ops.render.view_show("INVOKE_DEFAULT")
-        except RuntimeError as e:
-            self.sb.message_box(str(e))
 
     # ------------------------------------------------------------------ Maya-editor analogues
     def b003(self):
