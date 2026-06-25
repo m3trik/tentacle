@@ -53,40 +53,16 @@ class TclMaya(MarkingMenu):
             lambda editor: editor.add_collision_checker(mtk.maya_collision_checker),
         )
 
-        # External apps — all bundled in the ``extapps`` PyPI package.
-        #
-        # Auto-discovery via ``importlib.metadata.entry_points`` runs
-        # inside ExternalAppHandler.__init__. Once ``extapps`` is
-        # installed, its five ``uitk.external_apps.in_process`` entry
-        # points are picked up with zero changes here.
-        #
-        # The manual registrations below cover the case where ``extapps``
-        # isn't installed yet — ``install_spec`` lets the handler
-        # pip-install it on first launch. Re-registration of a name
-        # discovered by auto-discovery is intentional and idempotent
-        # (the manual call wins, carrying ``install_spec``).
-        # ``module`` is spelled out per app rather than derived as
-        # ``extapps.<name>`` — most apps are top-level modules, but some
-        # live in a subpackage (``metashape_workflow`` is under
-        # ``extapps.photogrammetry``), so the path can't be assumed from
-        # the name. A wrong path here would shadow the correct one that
-        # auto-discovery registered and break launch.
-        for _name, _module, _entry in (
-            ("compositor", "extapps.texture_maps.compositor", "CompositorUI"),
-            ("metashape_workflow", "extapps.photogrammetry.metashape_workflow", "MetashapeWorkflowUI"),
-            ("realityscan_workflow", "extapps.photogrammetry.realityscan_workflow", "RealityScanWorkflowUI"),
-            ("gaussian_splat_workflow", "extapps.photogrammetry.gaussian_splat_workflow", "GaussianSplatWorkflowUI"),
-            ("converter", "extapps.texture_maps.converter", "ConverterUI"),
-            ("packer", "extapps.texture_maps.packer", "PackerUI"),
-            ("mesh_convert", "extapps.mesh_convert", "MeshConvertUI"),
-        ):
-            self.sb.handlers.external_app.register(
-                _name,
-                module=_module,
-                entry=_entry,
-                install_spec="extapps",
-                mode="in_process",
-            )
+        # External apps (compositor, photogrammetry, texture/mesh tools)
+        # self-describe via ``extapps``'s ``uitk.external_apps.in_process``
+        # entry points and are auto-registered by ExternalAppHandler on
+        # construction — no per-app list here. ``context_tags={"maya"}``
+        # (above) hides apps gated ``hide_maya`` (Substance/Marmoset, which
+        # Maya serves through native mayatk bridges). ``extapps`` is an
+        # optional, discovered provider (not a hard dep — it's off the
+        # ecosystem release chain); its panels appear whenever it's installed
+        # in the host env, and the provider entry in tentacle's pyproject lets
+        # the handler install it on first launch where the interpreter allows.
 
 
 # --------------------------------------------------------------------------------------------

@@ -17,14 +17,27 @@ classifiers = [
 
 # Dependencies - exclude optional system deps (Pillow, qtpy, numpy, shiboken6)
 dependencies = [
-    "pythontk>=0.8.68",
-    "uitk>=1.2.80",
-    "mayatk>=0.12.50",
+    "pythontk>=0.8.70",
+    "uitk>=1.2.83",
+    "mayatk>=0.12.53",
 ]
 
 [project.urls]
 Homepage = "https://github.com/m3trik/tentacle"
 Repository = "https://github.com/m3trik/tentacle"
+
+# extapps is an OPTIONAL, runtime-discovered provider of the content-pipeline
+# panels (compositor, photogrammetry, texture/mesh tools) — deliberately NOT a
+# pip dependency. It sits outside the ecosystem release chain
+# (pythontk -> uitk -> mayatk -> tentacle) that push.ps1 dep-syncs/cascades, so
+# a hard pin here would escape that tooling (and transitively drag in unitytk,
+# which is likewise off-chain). Instead the panels self-describe via entry
+# points and are auto-registered by uitk's ExternalAppHandler whenever extapps
+# is present in the host env. The provider entry below is *runtime metadata
+# only* (not a build-time pin — invisible to push.ps1): it lets the handler
+# install-on-demand on a standalone host, or self-heal, if extapps is absent.
+[project.entry-points."uitk.external_app_providers"]
+extapps = "extapps"
 
 [tool.setuptools.dynamic]
 version = {attr = "tentacle.__version__"}

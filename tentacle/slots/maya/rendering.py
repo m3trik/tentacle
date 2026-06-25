@@ -284,6 +284,12 @@ class Rendering(SlotsMaya):
     def tb000(self, widget):
         """Export Playblast"""
 
+        # A playblast over a static scene is just N identical frames — bail before
+        # doing any capture work if nothing is keyed over time.
+        if not mtk.AnimUtils.scene_has_animation():
+            self.sb.message_box("No animation in the scene — nothing to playblast.")
+            return
+
         menu = widget.option_box.menu
 
         range_data = menu.cmb010.itemData(menu.cmb010.currentIndex()) or {}

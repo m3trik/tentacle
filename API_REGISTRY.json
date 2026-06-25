@@ -1,7 +1,7 @@
 {
   "name": "tentacle",
   "source_root": "tentacle/tentacle",
-  "generated_at": "2026-06-22",
+  "generated_at": "2026-06-25",
   "modules": [
     {
       "relpath": "__init__.py",
@@ -2797,7 +2797,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Render: pick the camera, then render the current frame.",
-              "line": 219,
+              "line": 225,
               "deprecated": false
             },
             {
@@ -2806,7 +2806,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Render Current Frame",
-              "line": 240,
+              "line": 246,
               "deprecated": false
             },
             {
@@ -2815,7 +2815,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Render Settings (Properties editor, Render tab)",
-              "line": 252,
+              "line": 258,
               "deprecated": false
             },
             {
@@ -2824,7 +2824,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Render Setup — Maya's render-layer manager maps onto Blender's **View Layers**",
-              "line": 257,
+              "line": 263,
               "deprecated": false
             },
             {
@@ -2833,7 +2833,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Rendering Flags — Maya's per-object render flags map onto Blender's per-object ray",
-              "line": 265,
+              "line": 271,
               "deprecated": false
             }
           ]
@@ -6076,7 +6076,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Initialize the header menu (Utilities only — Setup/Conversion/External live in the submenu Tools li…",
-              "line": 87,
+              "line": 88,
               "deprecated": false
             },
             {
@@ -6085,7 +6085,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Assign list: scene materials + 'New' + 'Random'.",
-              "line": 118,
+              "line": 119,
               "deprecated": false
             },
             {
@@ -6094,7 +6094,7 @@
               "kind": "method",
               "signature": "(self, item)",
               "summary": "Dispatch Assign list selection.",
-              "line": 154,
+              "line": 155,
               "deprecated": false
             },
             {
@@ -6103,7 +6103,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Tools list: Setup / Conversion / External (mirrors prior header sections).",
-              "line": 219,
+              "line": 220,
               "deprecated": false
             },
             {
@@ -6112,7 +6112,7 @@
               "kind": "method",
               "signature": "(self, item)",
               "summary": "Dispatch Tools list selection to the matching slot method.",
-              "line": 238,
+              "line": 239,
               "deprecated": false
             },
             {
@@ -6121,7 +6121,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Initialize Materials",
-              "line": 258,
+              "line": 259,
               "deprecated": false
             },
             {
@@ -6130,7 +6130,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Rename the current material by stripping trailing integers and underscores.",
-              "line": 471,
+              "line": 472,
               "deprecated": false
             },
             {
@@ -6139,7 +6139,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Rename ALL scene materials by stripping trailing integers and underscores.",
-              "line": 528,
+              "line": 529,
               "deprecated": false
             },
             {
@@ -6148,7 +6148,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "",
-              "line": 559,
+              "line": 560,
               "deprecated": false
             },
             {
@@ -6157,7 +6157,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Select By Material",
-              "line": 589,
+              "line": 590,
               "deprecated": false
             },
             {
@@ -6166,7 +6166,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Delete Material",
-              "line": 657,
+              "line": 658,
               "deprecated": false
             },
             {
@@ -6175,7 +6175,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Delete Unused Materials",
-              "line": 663,
+              "line": 664,
               "deprecated": false
             },
             {
@@ -6184,7 +6184,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Select and Show Attributes: Show Material Attributes in the Attribute Editor.",
-              "line": 668,
+              "line": 669,
               "deprecated": false
             },
             {
@@ -6193,7 +6193,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Set the current combo box text as editable.",
-              "line": 674,
+              "line": 675,
               "deprecated": false
             },
             {
@@ -6202,7 +6202,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Open material in editor",
-              "line": 679,
+              "line": 680,
               "deprecated": false
             },
             {
@@ -6211,7 +6211,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Get Material: Change the index to match the current material selection.",
-              "line": 693,
+              "line": 694,
               "deprecated": false
             },
             {
@@ -6220,7 +6220,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Assign Random",
-              "line": 712,
+              "line": 713,
               "deprecated": false
             },
             {
@@ -6229,7 +6229,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Assign Current (main UI button)",
-              "line": 751,
+              "line": 752,
               "deprecated": false
             },
             {
@@ -6238,7 +6238,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Assign: New Material",
-              "line": 761,
+              "line": 762,
               "deprecated": false
             },
             {
@@ -6247,7 +6247,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Map Packer",
-              "line": 772,
+              "line": 773,
               "deprecated": false
             },
             {
@@ -6256,7 +6256,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Create Game Shader",
-              "line": 778,
+              "line": 779,
               "deprecated": false
             },
             {
@@ -6265,7 +6265,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Arnold Preview Shader (parallel aiStandardSurface for in-Maya Arnold preview;",
-              "line": 782,
+              "line": 783,
               "deprecated": false
             },
             {
@@ -6274,7 +6274,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Texture Path Editor",
-              "line": 787,
+              "line": 788,
               "deprecated": false
             },
             {
@@ -6283,7 +6283,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Shader Templates",
-              "line": 791,
+              "line": 792,
               "deprecated": false
             },
             {
@@ -6292,7 +6292,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Reload Textures and Reset Viewport",
-              "line": 795,
+              "line": 796,
               "deprecated": false
             },
             {
@@ -6301,7 +6301,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Remove and Reassign Duplicates",
-              "line": 802,
+              "line": 803,
               "deprecated": false
             },
             {
@@ -6310,7 +6310,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Map Converter",
-              "line": 809,
+              "line": 810,
               "deprecated": false
             },
             {
@@ -6319,7 +6319,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Update Materials (Material Updater) — reprocess scene materials' textures and re-wire them.",
-              "line": 822,
+              "line": 823,
               "deprecated": false
             },
             {
@@ -6328,7 +6328,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Get Material Info — option box.",
-              "line": 833,
+              "line": 834,
               "deprecated": false
             },
             {
@@ -6337,7 +6337,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Get Material Info — render a formatted report to the viewer dialog.",
-              "line": 904,
+              "line": 905,
               "deprecated": false
             },
             {
@@ -6346,7 +6346,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Image to Plane",
-              "line": 1015,
+              "line": 1016,
               "deprecated": false
             },
             {
@@ -6355,7 +6355,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Marmoset Bridge",
-              "line": 1019,
+              "line": 1020,
               "deprecated": false
             },
             {
@@ -6364,7 +6364,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Substance Bridge",
-              "line": 1023,
+              "line": 1024,
               "deprecated": false
             },
             {
@@ -6373,7 +6373,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Map Compositor",
-              "line": 1027,
+              "line": 1028,
               "deprecated": false
             },
             {
@@ -6382,7 +6382,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Metashape Workflow",
-              "line": 1031,
+              "line": 1032,
               "deprecated": false
             },
             {
@@ -6391,7 +6391,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "RealityCapture Workflow",
-              "line": 1035,
+              "line": 1036,
               "deprecated": false
             },
             {
@@ -6400,7 +6400,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Brush Splat Workflow",
-              "line": 1039,
+              "line": 1040,
               "deprecated": false
             }
           ]
@@ -7636,7 +7636,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Render: camera, renderer, Arnold network, IPR, and smart redo.",
-              "line": 557,
+              "line": 563,
               "deprecated": false
             },
             {
@@ -7645,7 +7645,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Render",
-              "line": 635,
+              "line": 641,
               "deprecated": false
             },
             {
@@ -7654,7 +7654,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Open Render Settings Window",
-              "line": 673,
+              "line": 679,
               "deprecated": false
             },
             {
@@ -7663,7 +7663,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Editor: Render Setup",
-              "line": 677,
+              "line": 683,
               "deprecated": false
             },
             {
@@ -7672,7 +7672,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Editor: Rendering Flags",
-              "line": 681,
+              "line": 687,
               "deprecated": false
             }
           ]
@@ -9741,7 +9741,7 @@
           "kind": "function",
           "signature": "()",
           "summary": "Return the process QApplication, creating one if Blender has none.",
-          "line": 1385,
+          "line": 1365,
           "deprecated": false
         },
         {
@@ -9750,7 +9750,7 @@
           "kind": "function",
           "signature": "(app)",
           "summary": "Establish ``app.blender_widget`` — the parent for the marking menu.",
-          "line": 1390,
+          "line": 1370,
           "deprecated": false
         },
         {
@@ -9759,7 +9759,7 @@
           "kind": "function",
           "signature": "(app, interval=0.01)",
           "summary": "Pump Qt events from Blender's timer loop so the Qt UI stays responsive (idempotent).",
-          "line": 1395,
+          "line": 1375,
           "deprecated": false
         },
         {
@@ -9768,7 +9768,7 @@
           "kind": "function",
           "signature": "()",
           "summary": "Blender's main GHOST window wrapped as a foreign ``QWindow`` (cached on the QApplication).",
-          "line": 1400,
+          "line": 1380,
           "deprecated": false
         },
         {
@@ -9777,7 +9777,7 @@
           "kind": "function",
           "signature": "(**kwargs)",
           "summary": "Stand up the Qt host and return a :class:`TclBlender` (idempotent).",
-          "line": 1405,
+          "line": 1385,
           "deprecated": false
         },
         {
@@ -9786,7 +9786,7 @@
           "kind": "function",
           "signature": "()",
           "summary": "Blender add-on / startup entry.",
-          "line": 1410,
+          "line": 1390,
           "deprecated": false
         },
         {
@@ -9795,7 +9795,7 @@
           "kind": "function",
           "signature": "()",
           "summary": "Blender add-on teardown.",
-          "line": 1415,
+          "line": 1395,
           "deprecated": false
         },
         {
@@ -9804,7 +9804,7 @@
           "kind": "function",
           "signature": "()",
           "summary": "Reload the tentacle ecosystem in place and re-register.",
-          "line": 1420,
+          "line": 1400,
           "deprecated": false
         },
         {
@@ -9813,7 +9813,7 @@
           "kind": "function",
           "signature": "()",
           "summary": "Return (and print) the live activation state.",
-          "line": 1425,
+          "line": 1405,
           "deprecated": false
         },
         {
@@ -9822,7 +9822,7 @@
           "kind": "function",
           "signature": "()",
           "summary": "Turn on the opt-in click tracer.",
-          "line": 1430,
+          "line": 1410,
           "deprecated": false
         },
         {
@@ -9831,7 +9831,7 @@
           "kind": "function",
           "signature": "()",
           "summary": "Remove the click tracer.",
-          "line": 1435,
+          "line": 1415,
           "deprecated": false
         }
       ],
@@ -9850,7 +9850,7 @@
               "kind": "classmethod",
               "signature": "(cls)",
               "summary": "Blender parent widget for the marking menu (set by :meth:`_QtHost.ensure_widget`).",
-              "line": 931,
+              "line": 911,
               "deprecated": false
             },
             {
@@ -9859,7 +9859,7 @@
               "kind": "method",
               "signature": "(self, event)",
               "summary": "",
-              "line": 986,
+              "line": 966,
               "deprecated": false
             },
             {
@@ -9868,7 +9868,7 @@
               "kind": "method",
               "signature": "(self, event)",
               "summary": "",
-              "line": 997,
+              "line": 977,
               "deprecated": false
             },
             {
@@ -9877,7 +9877,7 @@
               "kind": "method",
               "signature": "(self, event)",
               "summary": "",
-              "line": 1012,
+              "line": 992,
               "deprecated": false
             }
           ]
@@ -9885,7 +9885,7 @@
         {
           "name": "Diagnostics",
           "summary": "The live-activation-state report — run in Blender's Python console to see why the key isn't",
-          "line": 1216,
+          "line": 1196,
           "bases": [],
           "members": [
             {
@@ -9894,7 +9894,7 @@
               "kind": "staticmethod",
               "signature": "()",
               "summary": "Return (and print) the live activation state — run in Blender's Python console to see why",
-              "line": 1221,
+              "line": 1201,
               "deprecated": false
             }
           ]
@@ -9902,7 +9902,7 @@
         {
           "name": "BlenderHost",
           "summary": "Launcher + Blender add-on lifecycle coordinator — ties the Qt host, keymap bridge and menu",
-          "line": 1291,
+          "line": 1271,
           "bases": [],
           "members": [
             {
@@ -9911,7 +9911,7 @@
               "kind": "staticmethod",
               "signature": "(**kwargs)",
               "summary": "Stand up the Qt host (QApplication + ``blender_widget`` + event pump) and return a",
-              "line": 1297,
+              "line": 1277,
               "deprecated": false
             },
             {
@@ -9920,7 +9920,7 @@
               "kind": "staticmethod",
               "signature": "()",
               "summary": "Blender add-on / startup entry: stand up the host.",
-              "line": 1314,
+              "line": 1294,
               "deprecated": false
             },
             {
@@ -9929,7 +9929,7 @@
               "kind": "staticmethod",
               "signature": "()",
               "summary": "Blender add-on teardown: remove the keymap items + bridge operator.",
-              "line": 1337,
+              "line": 1317,
               "deprecated": false
             },
             {
@@ -9938,7 +9938,7 @@
               "kind": "staticmethod",
               "signature": "()",
               "summary": "Reload the tentacle ecosystem in place and re-register — the Blender \"Reload Scripts\".",
-              "line": 1342,
+              "line": 1322,
               "deprecated": false
             }
           ]
