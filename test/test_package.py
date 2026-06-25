@@ -51,37 +51,37 @@ class TestPackageMetadata(unittest.TestCase):
 
 
 class TestExtappsRegistration(unittest.TestCase):
-    """tcl_maya's hardcoded extapps registrations must match extapps' entry points.
+    """External apps are auto-discovered from extapps' entry points — the
+    hosts must carry NO hand-maintained registration table.
 
-    tcl_maya manually registers each extapps app (module + entry) so the
-    handler can install-on-demand before auto-discovery would see it. That
-    manual registration *wins* over auto-discovery, so a wrong module path
-    here silently shadows the correct one and breaks launch — which is what
-    happened when ``metashape_workflow`` moved into ``extapps.photogrammetry``
-    but tcl_maya still derived ``extapps.metashape_workflow`` from the name.
-
-    Pins the table to extapps' entry-point metadata (the single source of
-    truth). Skips when extapps isn't importable in the test environment.
+    The old per-app ``(name, module, entry)`` loop in tcl_maya / tcl_blender
+    drifted from extapps' entry points (and from each other) every time an
+    app was added or moved. The refactor deleted it in favour of
+    ``ExternalAppHandler.discover()`` reading the entry points directly, with
+    ``install_spec`` derived from the distribution. These tests guard that
+    contract: (1) no host reintroduces a manual table, and (2) the entry
+    points (the single source of truth) declare the expected apps and the
+    per-host visibility gates the hosts rely on.
     """
 
     @staticmethod
-    def _registered_modules():
-        """AST-extract ``{name: module}`` from tcl_maya's register() table.
+    def _registered_modules(filename):
+        """AST-extract ``{name: module}`` from any external-app ``register()``
+        loop in *filename* (a host module). Read statically because the hosts
+        import ``maya`` / ``bpy`` at module top and can't import off-DCC.
 
-        Read statically because tcl_maya imports ``maya`` at module top and
-        can't be imported outside a Maya interpreter.
+        Returns ``{}`` when there's no such table — the post-refactor state.
         """
         import ast
         import tentacle
 
-        src = (Path(tentacle.__file__).parent / "tcl_maya.py").read_text(
+        src = (Path(tentacle.__file__).parent / filename).read_text(
             encoding="utf-8"
         )
         tree = ast.parse(src)
         for node in ast.walk(tree):
             if not isinstance(node, ast.For) or not isinstance(node.iter, ast.Tuple):
                 continue
-            # The loop body must register external apps.
             if not any(
                 isinstance(c, ast.Call)
                 and isinstance(c.func, ast.Attribute)
@@ -102,32 +102,41 @@ class TestExtappsRegistration(unittest.TestCase):
                 return mapping
         return {}
 
-    def test_registered_modules_match_extapps_entry_points(self):
+    def test_hosts_have_no_manual_registration_table(self):
+        """Regression guard: neither host may hand-enumerate extapps apps."""
+        for filename in ("tcl_maya.py", "tcl_blender.py"):
+            self.assertEqual(
+                self._registered_modules(filename),
+                {},
+                f"{filename} reintroduced a hardcoded external-app register() "
+                f"table — apps must self-describe via extapps entry points and "
+                f"be picked up by ExternalAppHandler.discover() instead.",
+            )
+
+    def test_entry_points_declare_apps_and_maya_gates(self):
+        """extapps' entry points are the SSoT — they must carry the core apps
+        and gate Substance/Marmoset out of Maya (native bridges supersede)."""
         try:
             from importlib.metadata import entry_points
 
-            eps = {
-                ep.name: ep.module
-                for ep in entry_points(group="uitk.external_apps.in_process")
-            }
+            eps = list(entry_points(group="uitk.external_apps.in_process"))
         except Exception:
-            eps = {}
+            eps = []
         if not eps:
             self.skipTest("extapps entry points not available in this environment")
 
-        registered = self._registered_modules()
-        self.assertTrue(
-            registered, "no extapps registration table found in tcl_maya.py"
-        )
-        for name, module in registered.items():
-            if name in eps:
-                self.assertEqual(
-                    module,
-                    eps[name],
-                    f"tcl_maya registers {name!r} as module {module!r} but extapps "
-                    f"declares {eps[name]!r} — the manual registration would shadow "
-                    f"auto-discovery with a wrong path and break launch.",
-                )
+        names = {ep.name for ep in eps}
+        for expected in ("compositor", "metashape_workflow", "mesh_convert",
+                         "substance_workflow", "marmoset_workflow"):
+            self.assertIn(expected, names, f"extapps no longer declares {expected!r}")
+
+        extras = {ep.name: set(ep.extras or ()) for ep in eps}
+        for gated in ("substance_workflow", "marmoset_workflow"):
+            self.assertIn(
+                "hide_maya", extras.get(gated, set()),
+                f"{gated} must keep the 'hide_maya' gate so Maya (which ships a "
+                f"native bridge) doesn't surface the redundant external panel.",
+            )
 
 
 class TestGreeting(unittest.TestCase):

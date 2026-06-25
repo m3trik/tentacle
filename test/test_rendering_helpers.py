@@ -499,5 +499,56 @@ class TestRenderButtonAction(unittest.TestCase):
         self.assertIn(("render_camera", cam_tf), self.ru.calls)
 
 
+@unittest.skipUnless(_MAYA_AVAILABLE, "Requires maya.cmds")
+class TestExportPlayblastGuard(unittest.TestCase):
+    """tb000 bails early (message + no capture) on a scene with no animation."""
+
+    def setUp(self):
+        cmds.file(new=True, force=True)
+        self._orig_exporter = rendering_module.PlayblastExporter
+
+        def _spy(*a, **k):  # constructing the exporter on a static scene is the bug
+            raise AssertionError("PlayblastExporter must not run on a static scene")
+
+        rendering_module.PlayblastExporter = _spy
+
+    def tearDown(self):
+        rendering_module.PlayblastExporter = self._orig_exporter
+        cmds.file(new=True, force=True)
+
+    def _inst(self):
+        inst = rendering_module.Rendering.__new__(rendering_module.Rendering)
+        inst.sb = _SB()
+        return inst
+
+    def test_static_scene_blocks_with_message(self):
+        # Fresh scene: geometry but no keys. The guard short-circuits before the
+        # menu is even read, so an empty _Widget is enough.
+        cmds.polyCube(name="static_cube")
+        inst = self._inst()
+        inst.tb000(_Widget())
+        self.assertTrue(inst.sb.messages, "a message box should explain why")
+        self.assertIn("no animation", inst.sb.messages[-1].lower())
+
+    def test_animated_scene_passes_guard(self):
+        # A keyed transform must NOT be short-circuited. We let the real exporter
+        # path run into the empty stub menu (which raises downstream) and only
+        # assert the no-animation guard message was never produced — i.e. the
+        # guard let us through (catches an inverted / always-on guard).
+        cube = cmds.polyCube(name="anim_cube")[0]
+        cmds.setKeyframe(cube, attribute="translateX", time=1, value=0)
+        cmds.setKeyframe(cube, attribute="translateX", time=10, value=10)
+        rendering_module.PlayblastExporter = self._orig_exporter
+        inst = self._inst()
+        try:
+            inst.tb000(_Widget())
+        except Exception:
+            pass  # downstream menu access fails — irrelevant to the guard
+        self.assertFalse(
+            any("no animation" in m.lower() for m in inst.sb.messages),
+            "guard must not block an animated scene",
+        )
+
+
 if __name__ == "__main__":
     unittest.main()

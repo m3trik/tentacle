@@ -882,36 +882,16 @@ class TclBlender(MarkingMenu):
             **kwargs,
         )
 
-        # External apps — the same standalone ``extapps`` panels Maya registers (tcl_maya).
-        # They are DCC-agnostic Switchboard tools (image map utils + photogrammetry workflows),
-        # so the Blender materials slot can launch them verbatim via ``external_app.launch``.
-        # Auto-discovery (entry_points) + manual fallback with ``install_spec`` mirror tcl_maya;
-        # ``module`` is spelled out per app (some live in the ``extapps.photogrammetry`` subpackage).
-        for _name, _module, _entry in (
-            ("compositor", "extapps.texture_maps.compositor", "CompositorUI"),
-            ("metashape_workflow", "extapps.photogrammetry.metashape_workflow", "MetashapeWorkflowUI"),
-            ("realityscan_workflow", "extapps.photogrammetry.realityscan_workflow", "RealityScanWorkflowUI"),
-            ("gaussian_splat_workflow", "extapps.photogrammetry.gaussian_splat_workflow", "GaussianSplatWorkflowUI"),
-            ("converter", "extapps.texture_maps.converter", "ConverterUI"),
-            ("packer", "extapps.texture_maps.packer", "PackerUI"),
-            ("mesh_convert", "extapps.mesh_convert", "MeshConvertUI"),
-            # The Substance / Marmoset *bridges* reuse these DCC-agnostic extapps workflows: the
-            # materials slot exports the Blender selection to FBX and launches the workflow with the
-            # mesh pre-filled (the "Reuse extapps" bridge approach).
-            ("substance_workflow", "extapps.substance_workflow", "SubstanceWorkflowUI"),
-            ("marmoset_workflow", "extapps.marmoset_workflow", "MarmosetWorkflowUI"),
-        ):
-            self.sb.handlers.external_app.register(
-                _name,
-                module=_module,
-                entry=_entry,
-                # No ``install_spec`` here (Maya carries one): an in-process install resolves the
-                # interpreter as ``sys.executable`` — the *Blender binary*, not a python — so a pip
-                # call would hang/fail rather than help. extapps is put on ``sys.path`` by
-                # ``_QtBootstrap.bootstrap_paths`` instead; if it's genuinely absent the launch raises
-                # a clear RuntimeError (surfaced by the materials slot) rather than wedging the UI.
-                mode="in_process",
-            )
+        # External apps — the same standalone ``extapps`` panels Maya uses.
+        # They self-describe via ``extapps``'s ``uitk.external_apps.in_process``
+        # entry points and are auto-registered by ExternalAppHandler on
+        # construction, so the Blender materials slot can launch them verbatim
+        # via ``external_app.launch``. ``context_tags={"blender"}`` (above)
+        # surfaces the Substance/Marmoset panels here (they're gated out of Maya
+        # only). ``extapps`` is an optional, discovered provider (not a hard
+        # dep) put on ``sys.path`` by ``_QtBootstrap``; the in-DCC provider
+        # install is suppressed (can't pip into blender.exe), so a genuinely-
+        # absent extapps raises a clear RuntimeError rather than wedging the UI.
 
         # Bridge the activation key from Blender's keymap to this Qt menu (GHOST owns the
         # keyboard, so MarkingMenu's QShortcut can't fire from the viewport). Automatic on

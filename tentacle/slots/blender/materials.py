@@ -38,7 +38,7 @@ class MaterialsSlots(SlotsBlender):
         ],
         "Materials (scene)": [
             (
-                "Update Materials",
+                "Mat Updater",
                 "b018",
                 "Reprocess the textures on selected (or all) scene materials "
                 "and re-wire the results back into their node networks. Works "

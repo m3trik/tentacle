@@ -24,7 +24,7 @@ class MaterialsSlots(SlotsMaya):
         ],
         "Materials (scene)": [
             (
-                "Update Materials",
+                "Mat Updater",
                 "b018",
                 "Reprocess the textures on selected (or all) scene materials "
                 "and re-wire the results back into their shading networks "
@@ -80,9 +80,10 @@ class MaterialsSlots(SlotsMaya):
 
         # Set a class attribute to track the last created random material
         self.last_random_material = None
-        # External tools (compositor, metashape_workflow) are
-        # registered up-front in tcl_maya.TclMaya.__init__ so they
-        # appear in the UI browser without first loading this UI.
+        # External tools (compositor, metashape_workflow, ...) self-describe
+        # via extapps' entry points and are auto-registered by
+        # ExternalAppHandler on host construction, so they appear in the UI
+        # browser without first loading this UI.
 
     def header_init(self, widget):
         """Initialize the header menu (Utilities only — Setup/Conversion/External live in the submenu Tools list)."""

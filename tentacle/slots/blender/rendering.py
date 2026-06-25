@@ -144,6 +144,12 @@ class Rendering(SlotsBlender):
 
     def tb000(self, widget):
         """Export Playblast (OpenGL viewport render of the chosen frame range / format)."""
+        # A playblast over a static scene is just N identical frames — bail before
+        # doing any capture work if nothing is keyed over time.
+        if not btk.scene_has_animation():
+            self.sb.message_box("No animation in the scene — nothing to playblast.")
+            return
+
         m = widget.option_box.menu
         scene = bpy.context.scene
         mode = m.cmb010.currentIndex()

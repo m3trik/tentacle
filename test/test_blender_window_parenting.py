@@ -16,13 +16,36 @@ the root cause so a well-meaning "just use setTransientParent" refactor can't si
 from __future__ import annotations
 
 import ctypes
+import os
 import sys
 import unittest
 
 
+def _real_windows_platform() -> bool:
+    """True only on a real Windows Qt platform — not the offscreen/minimal QPA.
+
+    The ownership these tests assert lives in the OS window manager, so they
+    need genuine native HWNDs. Under ``QT_QPA_PLATFORM=offscreen`` (CI and
+    headless local runs) ``winId()`` returns a synthetic handle that Win32
+    ``SetWindowLongPtr`` rejects, so the tests must *skip* there rather than
+    run-and-fail.
+    """
+    if os.environ.get("QT_QPA_PLATFORM", "").lower() in ("offscreen", "minimal"):
+        return False
+    try:
+        from qtpy import QtGui
+
+        app = QtGui.QGuiApplication.instance()
+        if app is not None and app.platformName().lower() in ("offscreen", "minimal"):
+            return False
+    except Exception:
+        return False
+    return True
+
+
 def _can_run() -> bool:
-    """Windows + a real Qt binding + an importable tcl_blender (Qt-only — no bpy needed)."""
-    if sys.platform != "win32":
+    """Windows + a real (non-offscreen) Qt platform + an importable tcl_blender."""
+    if sys.platform != "win32" or not _real_windows_platform():
         return False
     try:
         from qtpy import QtWidgets  # noqa: F401
@@ -32,7 +55,7 @@ def _can_run() -> bool:
     return True
 
 
-_SKIP_REASON = "Window-ownership tests need Windows + a real Qt platform (skipped in CI / off-Windows)."
+_SKIP_REASON = "Window-ownership tests need Windows + a real Qt platform (skipped in CI / off-Windows / offscreen)."
 
 _GWLP_HWNDPARENT = -8
 
