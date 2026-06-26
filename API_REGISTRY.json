@@ -5543,39 +5543,21 @@
               "deprecated": false
             },
             {
-              "name": "b021",
-              "qualname": "Edit.b021",
+              "name": "cmb000_init",
+              "qualname": "Edit.cmb000_init",
               "kind": "method",
-              "signature": "(self)",
-              "summary": "Tranfer Maps",
-              "line": 633,
+              "signature": "(self, widget)",
+              "summary": "Initialize the Transfer operations menu.",
+              "line": 670,
               "deprecated": false
             },
             {
-              "name": "b022",
-              "qualname": "Edit.b022",
+              "name": "cmb000",
+              "qualname": "Edit.cmb000",
               "kind": "method",
-              "signature": "(self)",
-              "summary": "Transfer Vertex Order",
-              "line": 637,
-              "deprecated": false
-            },
-            {
-              "name": "b023",
-              "qualname": "Edit.b023",
-              "kind": "method",
-              "signature": "(self)",
-              "summary": "Transfer Attribute Values",
-              "line": 641,
-              "deprecated": false
-            },
-            {
-              "name": "b027",
-              "qualname": "Edit.b027",
-              "kind": "method",
-              "signature": "(self)",
-              "summary": "Shading Sets",
-              "line": 645,
+              "signature": "(self, index, widget)",
+              "summary": "Transfer — dispatch the selected transfer operation.",
+              "line": 674,
               "deprecated": false
             }
           ]
@@ -6540,7 +6522,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Initialize Average Normals",
-              "line": 71,
+              "line": 83,
               "deprecated": false
             },
             {
@@ -6549,7 +6531,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Average Normals",
-              "line": 80,
+              "line": 92,
               "deprecated": false
             },
             {
@@ -6558,7 +6540,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Soften Edge Normals",
-              "line": 106,
+              "line": 118,
               "deprecated": false
             },
             {
@@ -6567,7 +6549,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Harden all selected edges.",
-              "line": 110,
+              "line": 122,
               "deprecated": false
             },
             {
@@ -6576,7 +6558,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Transfer Normals",
-              "line": 114,
+              "line": 126,
               "deprecated": false
             },
             {
@@ -6585,7 +6567,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Toggle lock/unlock vertex normals.",
-              "line": 126,
+              "line": 138,
               "deprecated": false
             },
             {
@@ -6594,7 +6576,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Set To Face",
-              "line": 130,
+              "line": 142,
               "deprecated": false
             },
             {
@@ -6603,7 +6585,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Initialize Reverse Normals",
-              "line": 134,
+              "line": 146,
               "deprecated": false
             },
             {
@@ -6612,7 +6594,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Reverse Normals",
-              "line": 152,
+              "line": 164,
               "deprecated": false
             }
           ]
@@ -7562,12 +7544,21 @@
               "deprecated": false
             },
             {
+              "name": "b011",
+              "qualname": "Preferences.b011",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Macro Manager",
+              "line": 137,
+              "deprecated": false
+            },
+            {
               "name": "b009",
               "qualname": "Preferences.b009",
               "kind": "method",
               "signature": "(self)",
               "summary": "Plug-In Manager",
-              "line": 137,
+              "line": 141,
               "deprecated": false
             },
             {
@@ -7576,7 +7567,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Settings/Preferences",
-              "line": 141,
+              "line": 145,
               "deprecated": false
             }
           ]
@@ -7702,12 +7693,21 @@
               "deprecated": false
             },
             {
+              "name": "b020",
+              "qualname": "Rigging.b020",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Rebind Skin Clusters",
+              "line": 25,
+              "deprecated": false
+            },
+            {
               "name": "cmb001_init",
               "qualname": "Rigging.cmb001_init",
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Init Create",
-              "line": 27,
+              "line": 74,
               "deprecated": false
             },
             {
@@ -7716,7 +7716,7 @@
               "kind": "method",
               "signature": "(self, index, widget)",
               "summary": "Create",
-              "line": 32,
+              "line": 79,
               "deprecated": false
             },
             {
@@ -7725,7 +7725,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Init Quick Rig",
-              "line": 44,
+              "line": 91,
               "deprecated": false
             },
             {
@@ -7734,7 +7734,7 @@
               "kind": "method",
               "signature": "(self, index, widget)",
               "summary": "Quick Rig",
-              "line": 49,
+              "line": 96,
               "deprecated": false
             },
             {
@@ -7743,7 +7743,7 @@
               "kind": "method",
               "signature": "(self, state, widget)",
               "summary": "Scale Joint",
-              "line": 61,
+              "line": 108,
               "deprecated": false
             },
             {
@@ -7752,7 +7752,7 @@
               "kind": "method",
               "signature": "(self, state, widget)",
               "summary": "Scale IK",
-              "line": 66,
+              "line": 113,
               "deprecated": false
             },
             {
@@ -7761,7 +7761,7 @@
               "kind": "method",
               "signature": "(self, state, widget)",
               "summary": "Scale IK/FK",
-              "line": 71,
+              "line": 118,
               "deprecated": false
             },
             {
@@ -7770,7 +7770,7 @@
               "kind": "method",
               "signature": "(self, value, widget)",
               "summary": "Scale Joint/IK/FK",
-              "line": 78,
+              "line": 125,
               "deprecated": false
             },
             {
@@ -7779,7 +7779,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Init Display Local Rotation Axes",
-              "line": 87,
+              "line": 134,
               "deprecated": false
             },
             {
@@ -7788,7 +7788,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Toggle Display Local Rotation Axes",
-              "line": 121,
+              "line": 168,
               "deprecated": false
             },
             {
@@ -7797,7 +7797,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Init Constraint Switch",
-              "line": 140,
+              "line": 187,
               "deprecated": false
             },
             {
@@ -7806,7 +7806,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Constraint Switch",
-              "line": 165,
+              "line": 212,
               "deprecated": false
             },
             {
@@ -7815,7 +7815,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Init Create Locator at Selection",
-              "line": 185,
+              "line": 232,
               "deprecated": false
             },
             {
@@ -7824,7 +7824,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Create Locator at Selection",
-              "line": 259,
+              "line": 306,
               "deprecated": false
             },
             {
@@ -7833,7 +7833,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Remove Locator",
-              "line": 288,
+              "line": 335,
               "deprecated": false
             },
             {
@@ -7842,7 +7842,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Init Lock/Unlock Attributes",
-              "line": 297,
+              "line": 344,
               "deprecated": false
             },
             {
@@ -7851,7 +7851,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Lock/Unlock Attributes",
-              "line": 326,
+              "line": 373,
               "deprecated": false
             },
             {
@@ -7860,7 +7860,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Render Opacity",
-              "line": 361,
+              "line": 408,
               "deprecated": false
             }
           ]
@@ -8450,7 +8450,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "",
-              "line": 482,
+              "line": 498,
               "deprecated": false
             },
             {
@@ -8459,7 +8459,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Select Island: Select Polygon Face Island",
-              "line": 535,
+              "line": 551,
               "deprecated": false
             },
             {
@@ -8468,7 +8468,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "",
-              "line": 564,
+              "line": 580,
               "deprecated": false
             },
             {
@@ -8477,7 +8477,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Select Edges By Angle",
-              "line": 583,
+              "line": 599,
               "deprecated": false
             },
             {
@@ -8486,7 +8486,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Toggle Selectability",
-              "line": 597,
+              "line": 613,
               "deprecated": false
             },
             {
@@ -8495,7 +8495,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Convert Selection To Vertices",
-              "line": 601,
+              "line": 617,
               "deprecated": false
             },
             {
@@ -8504,7 +8504,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Convert Selection To Edges",
-              "line": 605,
+              "line": 621,
               "deprecated": false
             },
             {
@@ -8513,7 +8513,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Convert Selection To Faces",
-              "line": 609,
+              "line": 625,
               "deprecated": false
             },
             {
@@ -8522,7 +8522,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Convert Selection To Edge Ring",
-              "line": 613,
+              "line": 629,
               "deprecated": false
             },
             {
@@ -8531,7 +8531,7 @@
               "kind": "staticmethod",
               "signature": "()",
               "summary": "Queries the current selection tool in Maya.",
-              "line": 618,
+              "line": 634,
               "deprecated": false
             },
             {
@@ -8540,7 +8540,7 @@
               "kind": "staticmethod",
               "signature": "(tool)",
               "summary": "Sets the selection tool in Maya.",
-              "line": 631,
+              "line": 647,
               "deprecated": false
             }
           ]

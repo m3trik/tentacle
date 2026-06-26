@@ -165,6 +165,34 @@
      <string>Hotkeys</string>
     </property>
    </widget>
+   <widget class="QPushButton" name="b011">
+    <property name="geometry">
+     <rect>
+      <x>300</x>
+      <y>370</y>
+      <width>123</width>
+      <height>19</height>
+     </rect>
+    </property>
+    <property name="minimumSize">
+     <size>
+      <width>0</width>
+      <height>19</height>
+     </size>
+    </property>
+    <property name="maximumSize">
+     <size>
+      <width>999</width>
+      <height>19</height>
+     </size>
+    </property>
+    <property name="toolTip">
+     <string>Assign hotkeys and categories to macros; save/load presets.</string>
+    </property>
+    <property name="text">
+     <string>Macro Manager</string>
+    </property>
+   </widget>
   </widget>
  </widget>
  <customwidgets>

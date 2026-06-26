@@ -38,7 +38,7 @@ class Normals(SlotsBlender):
             setToolTip="Hardness for edges below the threshold.\n0 = hard, 180 = soft, -1 = leave as-is.",
         )
         widget.option_box.menu.add(
-            "QCheckBox", setText="Unlock Normals First", setObjectName="chk_unlock_normals",
+            "QCheckBox", setText="Unlock Normals", setObjectName="chk_unlock_normals",
             setChecked=True,
             setToolTip="Clear custom split normals before applying.\nRequired for imported assets "
             "(FBX/Marmoset) — locked/custom normals silently block the smoothing update.",

@@ -142,6 +142,68 @@ class TestTb001HardnessTranslation(unittest.TestCase):
 
 
 @unittest.skipUnless(_MAYA_AVAILABLE, "Requires maya.cmds")
+class TestTb001LockedNormalsGuard(unittest.TestCase):
+    """When 'Unlock Normals' is off and set_edge_hardness reports locked
+    objects, tb001 must warn via message_box and abort (no soft-edge display).
+    """
+
+    def setUp(self):
+        cmds.file(new=True, force=True)
+        self.instance = normals_module.Normals.__new__(normals_module.Normals)
+        self.instance.sb = _RecordedSb()
+
+        import mayatk as mtk
+        self._orig_seh = mtk.Components.set_edge_hardness
+        self._orig_polyopts = cmds.polyOptions
+        self.polyopts_calls = []
+
+        def fake_polyOptions(*args, **kwargs):
+            self.polyopts_calls.append((args, kwargs))
+
+        cmds.polyOptions = fake_polyOptions
+
+    def tearDown(self):
+        import mayatk as mtk
+        mtk.Components.set_edge_hardness = self._orig_seh
+        cmds.polyOptions = self._orig_polyopts
+        cmds.file(new=True, force=True)
+
+    def _make_widget(self, unlock=False):
+        widget = _FakeWidget()
+        widget.option_box.menu.s002 = _FakeSpin(90)
+        widget.option_box.menu.s003 = _FakeSpin(0)
+        widget.option_box.menu.s004 = _FakeSpin(180)
+        widget.option_box.menu.chk_unlock_normals = _FakeCheck(unlock)
+        return widget
+
+    def test_locked_objects_trigger_message_box_and_abort(self):
+        import mayatk as mtk
+        cube = cmds.polyCube(name="locked_cube")[0]
+        mtk.Components.set_edge_hardness = staticmethod(
+            lambda *a, **k: [f"|{cube}"]
+        )
+        cmds.select(cube)
+
+        self.instance.tb001(self._make_widget(unlock=False))
+
+        self.assertTrue(self.instance.sb.messages, "user must be warned")
+        self.assertEqual(
+            self.polyopts_calls, [], "aborted run must not set soft-edge display"
+        )
+
+    def test_no_locked_objects_proceeds(self):
+        import mayatk as mtk
+        mtk.Components.set_edge_hardness = staticmethod(lambda *a, **k: [])
+        cube = cmds.polyCube(name="clean_cube")[0]
+        cmds.select(cube)
+
+        self.instance.tb001(self._make_widget(unlock=True))
+
+        self.assertEqual(self.instance.sb.messages, [], "no warning on clean run")
+        self.assertTrue(self.polyopts_calls, "soft-edge display should be applied")
+
+
+@unittest.skipUnless(_MAYA_AVAILABLE, "Requires maya.cmds")
 class TestSoftenHarden(unittest.TestCase):
     """b000 softens all edges; b001 hardens all edges."""
 

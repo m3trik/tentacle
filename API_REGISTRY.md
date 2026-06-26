@@ -866,10 +866,8 @@ Shared HUD warning framework (DCC-agnostic).
   - `Edit.list000(self, item)` — Create Primitive
   - `Edit.list001_init(self, widget)` — Initialize Convert list.
   - `Edit.list001(self, item)` — Convert
-  - `Edit.b021(self)` — Tranfer Maps
-  - `Edit.b022(self)` — Transfer Vertex Order
-  - `Edit.b023(self)` — Transfer Attribute Values
-  - `Edit.b027(self)` — Shading Sets
+  - `Edit.cmb000_init(self, widget)` — Initialize the Transfer operations menu.
+  - `Edit.cmb000(self, index, widget)` — Transfer — dispatch the selected transfer operation.
 
 <a id="slots--maya--edit_mesh"></a>
 ### `slots/maya/edit_mesh.py`
@@ -1176,6 +1174,7 @@ Shared HUD warning framework (DCC-agnostic).
   - `Preferences.b001(self)` — Color Settings
   - `Preferences.b002(self)` — Autosave: Delete All
   - `Preferences.b008(self)` — Hotkeys
+  - `Preferences.b011(self)` — Macro Manager
   - `Preferences.b009(self)` — Plug-In Manager
   - `Preferences.b010(self)` — Settings/Preferences
 
@@ -1201,6 +1200,7 @@ Shared HUD warning framework (DCC-agnostic).
 
 - **[`class Rigging(SlotsMaya)`](tentacle/tentacle/slots/maya/rigging.py#L11)**
   - `Rigging.header_init(self, widget)` — Init Rigging Header
+  - `Rigging.b020(self)` — Rebind Skin Clusters
   - `Rigging.cmb001_init(self, widget)` — Init Create
   - `Rigging.cmb001(self, index, widget)` — Create
   - `Rigging.cmb002_init(self, widget)` — Init Quick Rig

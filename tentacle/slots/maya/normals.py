@@ -38,10 +38,10 @@ class Normals(SlotsMaya):
         )
         widget.option_box.menu.add(
             "QCheckBox",
-            setText="Unlock Normals First",
+            setText="Unlock Normals",
             setObjectName="chk_unlock_normals",
             setChecked=True,
-            setToolTip="Unlock vertex normals before applying hardness.\nRequired for imported assets (FBX/Marmoset) — locked normals\nsilently block the smoothing update.",
+            setToolTip="Unlock vertex normals before applying hardness.\nRequired for imported assets (FBX/Marmoset) — locked normals\nsilently block the smoothing update.\nWhen off, the operation aborts with a warning if locked\nnormals are found.",
         )
 
     def tb001(self, widget):
@@ -56,13 +56,25 @@ class Normals(SlotsMaya):
         lower_hardness = lower_hardness if lower_hardness > -1 else None
 
         selection = cmds.ls(sl=True) or []
-        mtk.Components.set_edge_hardness(
+        locked_objects = mtk.Components.set_edge_hardness(
             selection,
             angle_threshold,
             upper_hardness,
             lower_hardness,
             unlock_normals=unlock_normals,
         )
+        # With 'Unlock Normals' off, set_edge_hardness aborts and returns the
+        # objects whose locked normals would silently block the update.
+        if locked_objects:
+            names = "<br>".join(mtk.short_name(o) for o in locked_objects)
+            self.sb.message_box(
+                "<b>Locked normals detected</b><br><br>"
+                "These objects have locked vertex normals, which silently "
+                "block the smoothing update:<br><br>"
+                f'<font style="color: Yellow;">{names}</font><br><br>'
+                "Enable <b>Unlock Normals</b> in the option box, then run again."
+            )
+            return
 
         objects = cmds.ls(selection, objectsOnly=True) or []
         if objects:

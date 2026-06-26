@@ -183,7 +183,7 @@ _Generated: 2026-06-25_
 
 ### `slots/maya/edit.py`
 - `class Edit(SlotsMaya)`
-  - methods: header_init, tb000_init, tb000, tb001_init, tb001, tb002, tb004_init, tb004, b_channels, b000, list000_init, list000, list001_init, list001, b021, b022, b023, b027
+  - methods: header_init, tb000_init, tb000, tb001_init, tb001, tb002, tb004_init, tb004, b_channels, b000, list000_init, list000, list001_init, list001, cmb000_init, cmb000
 
 ### `slots/maya/edit_mesh.py`
 - `class EditMeshSlots(SlotsMaya)`
@@ -279,7 +279,7 @@ _Generated: 2026-06-25_
 
 ### `slots/maya/preferences.py`
 - `class Preferences(SlotsMaya)`
-  - methods: cmb001_init, cmb001, cmb002_init, cmb002, s000_init, s001_init, b001, b002, b008, b009, b010
+  - methods: cmb001_init, cmb001, cmb002_init, cmb002, s000_init, s001_init, b001, b002, b008, b011, b009, b010
 
 ### `slots/maya/render.py`
 - `class Render(SlotsMaya)`
@@ -290,7 +290,7 @@ _Generated: 2026-06-25_
 
 ### `slots/maya/rigging.py`
 - `class Rigging(SlotsMaya)`
-  - methods: header_init, cmb001_init, cmb001, cmb002_init, cmb002, chk000, chk001, chk002, s000, tb000_init, tb000, tb001_init, tb001, tb003_init, tb003, b003, tb004_init, tb004, b004
+  - methods: header_init, b020, cmb001_init, cmb001, cmb002_init, cmb002, chk000, chk001, chk002, s000, tb000_init, tb000, tb001_init, tb001, tb003_init, tb003, b003, tb004_init, tb004, b004
 
 ### `slots/maya/scene.py`
 - `class SceneSlots(SlotsMaya)`

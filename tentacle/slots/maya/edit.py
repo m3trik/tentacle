@@ -630,29 +630,127 @@ class Edit(SlotsMaya):
             except Exception as e:
                 cmds.warning(f"Convert '{text}' failed: {e}")
 
-    def b021(self):
-        """Tranfer Maps"""
-        mel.eval("performSurfaceSampling 1")
+    # --- Transfer ComboBox -----------------------------------------------
 
-    def b022(self):
-        """Transfer Vertex Order"""
-        mel.eval("TransferVertexOrder")
+    # label -> operation spec. ``command`` is the MEL it drives; ``min``
+    # is the minimum number of source+target surfaces the selection must
+    # hold; ``interactive`` marks ops that open a tool/window rather than
+    # transferring immediately; ``done``/``tip`` feed the user feedback.
+    _TRANSFER_OPS = {
+        "Maps": {
+            "command": "performSurfaceSampling 1",
+            "min": 0,
+            "interactive": True,
+            "done": "Opened Transfer Maps",
+            "tip": "Add source and target surfaces in the window, then bake.",
+        },
+        "Attribute Values": {
+            "command": "TransferAttributeValues",
+            "min": 2,
+            "interactive": False,
+            "done": "Transferred attribute values",
+            "tip": "UVs, vertex positions and colors copied source → target(s).",
+        },
+        "Shading Sets": {
+            "command": "performTransferShadingSets 0",
+            "min": 2,
+            "interactive": False,
+            "done": "Transferred shading sets",
+            "tip": "Shader / shading-group assignments copied source → target(s).",
+        },
+        "Vertex Order": {
+            "command": "TransferVertexOrder",
+            "min": 2,
+            "interactive": True,
+            "done": "Vertex Order tool active",
+            "tip": "Click a source vertex, then the matching target vertex.",
+        },
+    }
 
-    def b023(self):
-        """Transfer Attribute Values"""
-        mel.eval("TransferAttributeValues")
+    def cmb000_init(self, widget):
+        """Initialize the Transfer operations menu."""
+        widget.add(list(self._TRANSFER_OPS), header="Transfer:")
 
-    def b027(self):
-        """Shading Sets"""
-        selected_objects = (
-            cmds.ls(sl=True, dag=True, type="surfaceShape", noIntermediate=True) or []
+    def cmb000(self, index, widget):
+        """Transfer — dispatch the selected transfer operation."""
+        if index < 0:  # header / reset emission
+            return
+        label = widget.items[index]
+        op = self._TRANSFER_OPS.get(label)
+        if op:
+            self._run_transfer(label, op)
+
+    @staticmethod
+    def _transfer_surfaces():
+        """Resolve the active selection to an ordered source/target surface list.
+
+        Returns a de-duplicated list of transform names whose shape is a
+        polygon or NURBS surface, preserving selection order so the first
+        entry is the transfer *source* and the rest are *targets*.
+
+        Components are resolved to their owning object before the
+        shape→transform walk (mtk's ``list_transforms`` can't resolve a
+        ``.vtx[...]`` string to its shape), so a vertex/face selection
+        still counts as its surface.
+        """
+        objects = [
+            node.split(".")[0]  # drop any component suffix
+            for node in cmds.ls(sl=True, flatten=True) or []
+        ]
+        return mtk.NodeUtils.list_transforms(
+            objects, dag=True, type="surfaceShape", noIntermediate=True
         )
-        if selected_objects:
-            mel.eval("performTransferShadingSets 0")
-        else:
-            raise ValueError(
-                "Please select at least one surface to perform the shading transfer."
+
+    def _run_transfer(self, label, op):
+        """Validate the selection, run the transfer, and report the result.
+
+        Quick formatted feedback goes to the message box; the full
+        source → target breakdown and the underlying MEL command go to
+        the console.
+        """
+        surfaces = self._transfer_surfaces()
+
+        if len(surfaces) < op["min"]:
+            self.sb.message_box(
+                f"<b>{label}</b> needs a source and at least one target surface."
+                f"<br>Select the <hl>source</hl> first, then the target(s)."
             )
+            cmds.warning(
+                f"Transfer '{label}' aborted: {len(surfaces)} surface(s) selected "
+                f"({surfaces or 'none'}); requires >= {op['min']} "
+                f"(source first, then target(s))."
+            )
+            return
+
+        source = surfaces[0] if surfaces else None
+        targets = surfaces[1:]
+
+        try:
+            mel.eval(op["command"])
+        except Exception as e:
+            self.sb.message_box(f"<b>{label}</b> failed.<br>{e}")
+            cmds.warning(f"Transfer '{label}' failed running `{op['command']}`: {e}")
+            return
+
+        # Console: detailed breakdown of what ran.
+        if surfaces:
+            print(
+                f"# Transfer '{label}': source=<{source}> "
+                f"target(s)={targets or '(set in tool)'} via `{op['command']}`"
+            )
+        else:
+            print(f"# Transfer '{label}': `{op['command']}` (no pre-selection)")
+
+        # Message box: quick formatted summary.
+        if op["interactive"]:
+            summary = f"<b>{op['done']}</b><br>{op['tip']}"
+        else:
+            plural = "" if len(targets) == 1 else "s"
+            summary = (
+                f"<b>{op['done']}</b><br><hl>{source}</hl> → "
+                f"{len(targets)} target{plural}"
+            )
+        self.sb.message_box(summary)
 
 
 # --------------------------------------------------------------------------------------------

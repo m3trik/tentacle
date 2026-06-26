@@ -477,7 +477,23 @@ class Selection(SlotsMaya):
                 worldArea=wa,
             )
         else:
-            mel.eval(f"doSelectSimilar 1 {{{tolerance}}};")
+            try:
+                mel.eval(f"doSelectSimilar 1 {{{tolerance}}};")
+            except RuntimeError:
+                # doSelectSimilar only supports a subset of component types and
+                # raises (e.g. "Cannot convert data of type float[] to type
+                # string[]") on unsupported ones like edges/vertices. This is an
+                # expected, handled case — surface a friendly note instead of a
+                # raw traceback.
+                sel = cmds.ls(sl=1) or []
+                comp = (
+                    mtk.Components.get_component_type(sel[0], "plural") if sel else None
+                )
+                detail = f"<hl>{comp}</hl>" if comp else "the current selection type"
+                self.sb.message_box(
+                    f"<b>Select Similar</b> isn't supported for {detail}.<br>"
+                    "Try a <hl>face</hl> or <hl>object</hl> selection instead."
+                )
 
     def tb002_init(self, widget):
         """ """
