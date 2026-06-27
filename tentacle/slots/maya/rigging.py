@@ -77,7 +77,7 @@ class Rigging(SlotsMaya):
         widget.add(items, header="Utility Node:")
 
     def cmb001(self, index, widget):
-        """Create"""
+        """Create: create a rigging utility node — joints, IK handle, lattice, or cluster."""
         text = widget.itemText(index)
         if text == "Joints":
             cmds.setToolTo("jointContext")  # create joint tool
@@ -94,7 +94,7 @@ class Rigging(SlotsMaya):
         widget.add(items, header="Quick Rig:")
 
     def cmb002(self, index, widget):
-        """Quick Rig"""
+        """Quick Rig: open a quick-rig tool (tube, wheel, shadow, or telescope rig)."""
         text = widget.items[index]
         if text == "Tube Rig":
             self.sb.handlers.marking_menu.show("tube_rig")

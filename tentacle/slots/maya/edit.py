@@ -442,11 +442,11 @@ class Edit(SlotsMaya):
             cmds.lockNode(node, lock=not unlock)
 
     def b_channels(self):
-        """Channels"""
+        """Channels: open the Channels panel."""
         self.sb.handlers.marking_menu.show("channels")
 
     def b000(self):
-        """Cut On Axis"""
+        """Cut On Axis: open the Cut On Axis tool (slice objects along an axis plane)."""
         self.sb.handlers.marking_menu.show("cut_on_axis")
 
     # --- Create Expandable List -----------------------------------------
@@ -618,7 +618,7 @@ class Edit(SlotsMaya):
 
     @Signals("on_item_interacted")
     def list001(self, item):
-        """Convert"""
+        """Convert: convert the selected geometry between types (NURBS / polygon / subdiv / curve, etc.)."""
         if getattr(item, "sublist", None) and item.sublist.get_items():
             return
 

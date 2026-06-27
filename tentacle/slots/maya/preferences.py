@@ -131,7 +131,7 @@ class Preferences(SlotsMaya):
                 print(error)
 
     def b008(self):
-        """Hotkeys"""
+        """Hotkeys: open Maya's native Hotkey Preferences window."""
         mel.eval("HotkeyPreferencesWindow")
 
     def b011(self):

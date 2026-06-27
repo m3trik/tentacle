@@ -48,7 +48,7 @@ class Crease(SlotsMaya):
 
     @mtk.undoable
     def tb000(self, widget):
-        """Crease"""
+        """Crease: crease the selected edges (subdivision sharpness), with an optional smoothing angle."""
         crease_amount = widget.option_box.menu.s003.value()
         smoothing_angle = widget.option_box.menu.s004.value()
 

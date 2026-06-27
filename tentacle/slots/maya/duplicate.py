@@ -118,7 +118,7 @@ class Duplicate(SlotsMaya):
             self.sb.message_box("<strong>No instanced objects found</strong>.")
 
     def b000(self):
-        """Mirror"""
+        """Mirror: open the Mirror tool window."""
         self.sb.handlers.marking_menu.show("mirror")
 
     def b005(self):

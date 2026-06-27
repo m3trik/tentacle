@@ -165,7 +165,7 @@ class Nurbs(SlotsMaya):
         )
 
     def tb000(self, widget):
-        """Revolve"""
+        """Revolve: sweep the selected profile curve around an axis into a surface."""
         degree = widget.option_box.menu.s002.value()
         startSweep = widget.option_box.menu.s003.value()
         endSweep = widget.option_box.menu.s004.value()
@@ -268,7 +268,7 @@ class Nurbs(SlotsMaya):
         )
 
     def tb001(self, widget):
-        """Loft"""
+        """Loft: build a surface lofted across the selected profile curves."""
         uniform = widget.option_box.menu.chk000.isChecked()
         close = widget.option_box.menu.chk001.isChecked()
         degree = widget.option_box.menu.s000.value()
@@ -337,7 +337,7 @@ class Nurbs(SlotsMaya):
         mel.eval("StraightenCurves")
 
     def b030(self):
-        """Extrude"""
+        """Extrude: extrude the selected NURBS curve(s) into a surface."""
         mel.eval("Extrude")
 
     def b036(self):

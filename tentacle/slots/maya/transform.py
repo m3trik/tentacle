@@ -46,7 +46,7 @@ class TransformSlots(SlotsMaya):
         widget.add(items, header="Align To")
 
     def cmb002(self, index, widget):
-        """Align To"""
+        """Align To: snap/align objects point-to-point, multi-point, or along a curve."""
         text = widget.items[index]
         if text == "Point to Point":
             mel.eval("SnapPointToPointOptions")
@@ -397,7 +397,7 @@ class TransformSlots(SlotsMaya):
 
     @mtk.undoable
     def tb005(self, widget):
-        """Move To"""
+        """Move To: move the selected objects onto the last-selected object (by a chosen pivot)."""
         pivot = widget.option_box.menu.cmb005.currentData() or "center"
         move_all_to_last = widget.option_box.menu.chk036.isChecked()
         do_match_scale = widget.option_box.menu.chk_match_scale.isChecked()
@@ -498,7 +498,7 @@ class TransformSlots(SlotsMaya):
         self.sb.handlers.marking_menu.show("snap")
 
     def b001(self):
-        """Match Scale"""
+        """Match Scale: scale the selected object(s) to match the first-selected object's size."""
         selection = cmds.ls(orderedSelection=True, flatten=True) or []
         if not selection:
             self.sb.message_box(

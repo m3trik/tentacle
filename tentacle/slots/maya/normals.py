@@ -140,7 +140,7 @@ class Normals(SlotsMaya):
         mtk.Macros.m_lock_vertex_normals()
 
     def b006(self):
-        """Set To Face"""
+        """Set To Face: set vertex normals to match their face normals (faceted shading)."""
         cmds.polySetToFaceNormal()
 
     def tb010_init(self, widget):

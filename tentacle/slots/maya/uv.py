@@ -567,7 +567,7 @@ class UvSlots(SlotsMaya):
 
     @mtk.undoable
     def tb001(self, widget):
-        """Auto Unwrap"""
+        """Auto Unwrap: automatically unwrap UVs for the selected objects."""
         menu = widget.option_box.menu
         mode = menu.cmb011.currentData()
         scale_mode = menu.cmb012.currentData()
@@ -670,7 +670,7 @@ class UvSlots(SlotsMaya):
         cmb013.setCurrentIndex(0)  # Warn + Select (matches the prior default)
 
     def tb004(self, widget):
-        """Unfold"""
+        """Unfold: relax/unfold the selected UVs to reduce stretch and distortion."""
         optimize = widget.option_box.menu.chk017.isChecked()
         orient = widget.option_box.menu.chk007.isChecked()
         stackSimilar = widget.option_box.menu.chk022.isChecked()
@@ -824,7 +824,7 @@ class UvSlots(SlotsMaya):
         )
 
     def tb006(self, widget):
-        """Distribute"""
+        """Distribute: evenly space the selected UV shells horizontally or vertically."""
         u = widget.option_box.menu.chk023.isChecked()
         v = widget.option_box.menu.chk024.isChecked()
 
@@ -1079,7 +1079,7 @@ class UvSlots(SlotsMaya):
             )
 
     def cmb002(self, index, widget):
-        """Transform"""
+        """Transform: flip or rotate the selected UVs."""
         text = widget.items[index]
         if text == "Flip U":
             cmds.polyFlipUV(flipType=0, local=1, usePivot=1, pivotU=0, pivotV=0)
@@ -1165,7 +1165,7 @@ class UvSlots(SlotsMaya):
         mtk.set_texel_density(cmds.ls(sl=True) or [], density, map_size)
 
     def b005(self):
-        """Cut UV's"""
+        """Cut UVs: split the UV shell along the selected edges."""
         selection = cmds.ls(sl=True) or []
         selected_edges = cmds.filterExpand(selection, selectionMask=32)
 
@@ -1195,7 +1195,7 @@ class UvSlots(SlotsMaya):
 
     @mtk.undoable
     def b011(self):
-        """Sew UVs"""
+        """Sew UVs: stitch the selected UV edges back together."""
         selected = cmds.ls(sl=True, flatten=True) or []
 
         # Edges (component selection) — sew directly

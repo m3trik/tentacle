@@ -109,7 +109,7 @@ class PolygonsSlots(SlotsMaya):
 
     @mtk.undoable
     def tb002(self, widget):
-        """Separate"""
+        """Separate: split a combined mesh into its disconnected shells (optionally per material)."""
         separate_by_material = widget.option_box.menu.chk021.isChecked()
         rename = widget.option_box.menu.chk022.isChecked()
 
@@ -143,7 +143,7 @@ class PolygonsSlots(SlotsMaya):
         )
 
     def tb003(self, widget):
-        """Extrude"""
+        """Extrude: push out the selected faces, edges, or vertices."""
         keepFacesTogether = widget.option_box.menu.chk002.isChecked()
         divisions = widget.option_box.menu.s004.value()
 
@@ -244,7 +244,7 @@ class PolygonsSlots(SlotsMaya):
         )
 
     def tb005(self, widget):
-        """Detach."""
+        """Detach: extract the selected faces into a new object (optionally duplicated/separated)."""
         duplicate = widget.option_box.menu.chk014.isChecked()
         separate = widget.option_box.menu.chk015.isChecked()
         separate_each = widget.option_box.menu.chk020.isChecked()
@@ -450,7 +450,7 @@ class PolygonsSlots(SlotsMaya):
             return
 
     def b000(self):
-        """Circularize"""
+        """Circularize: reshape the selected vertices, edges, or faces into an even circle."""
         components = cmds.filterExpand(
             cmds.ls(sl=1) or [], selectionMask=(31, 32, 34), expand=1
         )
@@ -461,11 +461,11 @@ class PolygonsSlots(SlotsMaya):
         return cmds.polyCircularize(components, ch=True)
 
     def b001(self):
-        """Fill Holes"""
+        """Fill Holes: cap open holes bounded by the mesh's border edges."""
         mel.eval("FillHole")
 
     def b003(self):
-        """Symmetrize"""
+        """Symmetrize: mirror topology and edits across the active symmetry axis."""
         mel.eval("Symmetrize")
 
     def b005(self):
@@ -490,7 +490,7 @@ class PolygonsSlots(SlotsMaya):
             cmds.select(cmds.ls(verts, objectsOnly=True) or [])
 
     def b006(self, widget):
-        """Bridge"""
+        """Bridge: span two edge selections with new connecting faces (closes border edges)."""
         selection = cmds.ls(sl=1) or []
         edges = cmds.filterExpand(selection, selectionMask=32, expand=1)
         if not edges:
@@ -509,7 +509,7 @@ class PolygonsSlots(SlotsMaya):
         self.sb.handlers.marking_menu.show("bridge")
 
     def b008(self):
-        """Weld Center"""
+        """Weld Center: merge the selected vertices to their shared center point."""
         cmds.selectMode(component=True)
         cmds.selectType(vertex=True)
         cmds.select(deselect=True)
@@ -527,7 +527,7 @@ class PolygonsSlots(SlotsMaya):
                 cmds.selectType(edge=True)
 
     def b011(self):
-        """Bevel"""
+        """Bevel: open the Bevel tool window."""
         self.sb.handlers.marking_menu.show("bevel")
 
     def b012(self):
@@ -535,15 +535,15 @@ class PolygonsSlots(SlotsMaya):
         mel.eval("dR_multiCutTool")
 
     def b022(self):
-        """Attach"""
+        """Attach: connect components interactively with Maya's Connect tool."""
         mel.eval("dR_connectTool")
 
     def b032(self):
-        """Poke"""
+        """Poke: add a center vertex to each selected face, fanning it into triangles."""
         mel.eval("PokePolygon")
 
     def b034(self):
-        """Wedge"""
+        """Wedge: sweep the selected faces around a chosen edge into an arc."""
         try:
             mel.eval("WedgePolygon")
         except Exception:
@@ -566,7 +566,7 @@ class PolygonsSlots(SlotsMaya):
             cmds.polyHole(selected_faces, assignHole=False)
 
     def b043(self):
-        """Target Weld"""
+        """Target Weld: interactively merge one vertex onto another by dragging."""
         cmds.selectMode(component=True)
         cmds.selectType(vertex=True)
         cmds.select(deselect=True)

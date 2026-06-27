@@ -31,7 +31,7 @@ class Pivot(SlotsMaya):
         )
 
     def tb000(self, widget):
-        """Reset Pivot"""
+        """Reset Pivot: reset the selected objects' pivot position and/or orientation."""
         resetPivotPosition = (
             widget.option_box.menu.chk000.isChecked()
         )  # Reset Pivot Position
@@ -200,7 +200,7 @@ class Pivot(SlotsMaya):
         self.ui.tb001.call_slot()
 
     def b004(self):
-        """Bake Pivot"""
+        """Bake Pivot: bake the manipulator pivot's position and orientation into the transform."""
         mtk.bake_pivot(cmds.ls(sl=True) or [], position=True, orientation=True)
 
 

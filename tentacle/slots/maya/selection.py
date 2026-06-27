@@ -138,7 +138,7 @@ class Selection(SlotsMaya):
         widget.add(items, header="Convert To:")
 
     def cmb003(self, index, widget):
-        """Convert To"""
+        """Convert To: convert the component selection to verts, edges, faces, UVs, or shells."""
         text = widget.items[index]
         if text == "Verts":  # Convert Selection To Vertices
             mel.eval("PolySelectConvert 3")
@@ -330,7 +330,7 @@ class Selection(SlotsMaya):
         )
 
     def tb000(self, widget):
-        """Select Nth"""
+        """Select Nth: select edge loops/rings or shortest paths, stepping every Nth component."""
         edgeRing = widget.option_box.menu.chk000.isChecked()
         edgeLoop = widget.option_box.menu.chk001.isChecked()
         pathAlongLoop = widget.option_box.menu.chk021.isChecked()

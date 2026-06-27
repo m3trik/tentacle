@@ -639,7 +639,7 @@ class Rendering(SlotsMaya):
         _sync()
 
     def tb001(self, widget):
-        """Render"""
+        """Render: render the current frame through the selected camera and renderer."""
         menu = widget.option_box.menu
 
         camera = menu.cmb002.currentText()

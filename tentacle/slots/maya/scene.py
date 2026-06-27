@@ -196,7 +196,7 @@ class SceneSlots(SlotsMaya):
         )
 
     def cmb002(self, index, widget):
-        """Autosave"""
+        """Autosave: reopen a recent autosaved scene file."""
         file = widget.items[index]
         try:
             cmds.file(file, open=True, force=True)
@@ -218,7 +218,7 @@ class SceneSlots(SlotsMaya):
         )
 
     def cmb003(self, index, widget):
-        """Import"""
+        """Import: import a file, or open import / FBX / OBJ preset options."""
         text = widget.items[index]
         if text == "Import File":  # Import
             mel.eval("Import")
@@ -248,7 +248,7 @@ class SceneSlots(SlotsMaya):
         widget.add(items, header="Export")
 
     def cmb004(self, index, widget):
-        """Export"""
+        """Export: export the selection or whole scene (FBX, Send to Unreal, etc.)."""
         text = widget.items[index]
         if text == "Export Selection":
             self._ensure_fbx_plugin()
@@ -800,7 +800,7 @@ class SceneSlots(SlotsMaya):
         print(f"Command Ports {state}: {console_lines}")
 
     def b007(self):
-        """Import file"""
+        """Import file: import a file via Maya's Import dialog."""
         self.ui.cmb003.call_slot(0)
 
     def b008(self):

@@ -19,15 +19,15 @@ class Symmetry(SlotsMaya):
         getattr(widget.ui, w).setChecked(state)
 
     def chk000(self, state, widget):
-        """Symmetry X"""
+        """Symmetry X: toggle modeling symmetry across the X axis."""
         cmds.symmetricModelling(edit=True, symmetry=bool(state), axis="x")
 
     def chk001(self, state, widget):
-        """Symmetry Y"""
+        """Symmetry Y: toggle modeling symmetry across the Y axis."""
         cmds.symmetricModelling(edit=True, symmetry=bool(state), axis="y")
 
     def chk002(self, state, widget):
-        """Symmetry Z"""
+        """Symmetry Z: toggle modeling symmetry across the Z axis."""
         cmds.symmetricModelling(edit=True, symmetry=bool(state), axis="z")
 
     def chk004(self, state, widget):
