@@ -20,9 +20,56 @@ class Rigging(SlotsMaya):
             setObjectName="b020",
             setToolTip="Rebinds skinClusters on the selected meshe(s), preserving weights, bind pose.",
         )
-        widget.menu.b020.clicked.connect(
-            lambda: mtk.rebind_skin_clusters(cmds.ls(sl=True) or [])
-        )
+        widget.menu.b020.clicked.connect(self.b020)
+
+    def b020(self):
+        """Rebind Skin Clusters
+
+        Simple pass/fail feedback goes to the message box; the per-object
+        breakdown (which mesh was rebound / skipped / failed and why) is
+        printed to the console by ``mtk.rebind_skin_clusters``.
+        """
+        selection = cmds.ls(sl=True) or []
+        if not selection:
+            self.sb.message_box("Nothing selected.")
+            return
+
+        result = mtk.rebind_skin_clusters(selection)
+        rebound = result["rebound"]
+        no_skin = result["no_skin_cluster"]
+        wrong_type = result["wrong_type"]
+        failed = result["failed"]
+
+        if rebound and not (no_skin or wrong_type or failed):
+            msg = f"Rebound <hl>{len(rebound)}</hl> skinCluster(s)."
+        elif not rebound:
+            # Nothing succeeded — surface the single most relevant reason.
+            if failed:
+                msg = (
+                    f"<hl>Failed</hl> to rebind <hl>{len(failed)}</hl> "
+                    "object(s). See console for details."
+                )
+            elif wrong_type and not no_skin:
+                msg = "<hl>Incorrect object type</hl> — select a skinned mesh."
+            elif no_skin and not wrong_type:
+                msg = "Selected object(s) have <hl>no skinClusters</hl>."
+            else:
+                msg = (
+                    "Nothing rebound — <hl>no skinClusters</hl> / "
+                    "<hl>incorrect type</hl>. See console for details."
+                )
+        else:
+            # Partial success — short tally, details on the console.
+            parts = [f"Rebound <hl>{len(rebound)}</hl>"]
+            if no_skin:
+                parts.append(f"<hl>{len(no_skin)}</hl> w/o skinCluster")
+            if wrong_type:
+                parts.append(f"<hl>{len(wrong_type)}</hl> wrong type")
+            if failed:
+                parts.append(f"<hl>{len(failed)}</hl> failed")
+            msg = ", ".join(parts) + ". See console for details."
+
+        self.sb.message_box(msg)
 
     def cmb001_init(self, widget):
         """Init Create"""
@@ -30,7 +77,7 @@ class Rigging(SlotsMaya):
         widget.add(items, header="Utility Node:")
 
     def cmb001(self, index, widget):
-        """Create"""
+        """Create: create a rigging utility node — joints, IK handle, lattice, or cluster."""
         text = widget.itemText(index)
         if text == "Joints":
             cmds.setToolTo("jointContext")  # create joint tool
@@ -47,7 +94,7 @@ class Rigging(SlotsMaya):
         widget.add(items, header="Quick Rig:")
 
     def cmb002(self, index, widget):
-        """Quick Rig"""
+        """Quick Rig: open a quick-rig tool (tube, wheel, shadow, or telescope rig)."""
         text = widget.items[index]
         if text == "Tube Rig":
             self.sb.handlers.marking_menu.show("tube_rig")

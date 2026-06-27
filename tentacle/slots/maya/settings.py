@@ -182,7 +182,7 @@ class Settings(SlotsMaya):
         self.sb.editors.show("hotkey")
 
     def b022(self):
-        """UI Browser"""
+        """UI Browser: open the tentacle UI browser (search, show/hide registered UIs)."""
         self.sb.editors.show("browser")
 
     # -------------------------------------------------------------------------

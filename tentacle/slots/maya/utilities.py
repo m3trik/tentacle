@@ -10,15 +10,15 @@ class Utilities(SlotsMaya):
         super().__init__(*args, **kwargs)
 
     def b000(self):
-        """Measure"""
+        """Measure: create a distance-measure tool between two points."""
         mel.eval("DistanceTool")
 
     def b001(self):
-        """Annotation"""
+        """Annotation: create an annotation (text label) node."""
         mel.eval("CreateAnnotateNode")
 
     def b002(self):
-        """Calculator"""
+        """Calculator: open the calculator tool."""
         self.sb.handlers.marking_menu.show("calculator")
 
     def b003(self):

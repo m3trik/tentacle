@@ -131,8 +131,12 @@ class Preferences(SlotsMaya):
                 print(error)
 
     def b008(self):
-        """Hotkeys"""
+        """Hotkeys: open Maya's native Hotkey Preferences window."""
         mel.eval("HotkeyPreferencesWindow")
+
+    def b011(self):
+        """Macro Manager"""
+        self.sb.handlers.marking_menu.show("macro_manager")
 
     def b009(self):
         """Plug-In Manager"""

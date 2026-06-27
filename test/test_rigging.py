@@ -258,5 +258,83 @@ class TestTb001ConstraintSwitch(unittest.TestCase):
         self.assertIsNone(self.captured[0]["constraint_node"])
 
 
+@unittest.skipUnless(_MAYA_AVAILABLE, "Requires maya.cmds")
+class TestB020RebindSkinClusters(unittest.TestCase):
+    """b020 turns the engine summary into a simple message-box line and
+    defers the detailed breakdown to the console."""
+
+    def setUp(self):
+        cmds.file(new=True, force=True)
+        self.instance = rigging_module.Rigging.__new__(rigging_module.Rigging)
+        self.instance.sb = _FakeSb()
+
+        import mayatk as mtk
+
+        self._mtk = mtk
+        self._original = mtk.rebind_skin_clusters
+        self._summary = {
+            "rebound": [],
+            "no_skin_cluster": [],
+            "wrong_type": [],
+            "failed": [],
+        }
+        self.passed = []
+
+        def fake_rebind(meshes=None, *a, **kw):
+            self.passed.append(meshes)
+            return self._summary
+
+        mtk.rebind_skin_clusters = fake_rebind
+
+    def tearDown(self):
+        self._mtk.rebind_skin_clusters = self._original
+        cmds.file(new=True, force=True)
+
+    def _last_message(self):
+        self.assertTrue(self.instance.sb.messages, "expected a message box")
+        return self.instance.sb.messages[-1][0][0]
+
+    def test_nothing_selected_warns_and_skips_engine(self):
+        cmds.select(clear=True)
+        self.instance.b020()
+        self.assertEqual(self.passed, [])  # engine not called
+        self.assertIn("Nothing selected", self._last_message())
+
+    def test_success_reports_count(self):
+        cube = cmds.polyCube(name="rb_cube")[0]
+        cmds.select(cube)
+        self._summary["rebound"] = ["rb_cube"]
+        self.instance.b020()
+        self.assertEqual(self.passed, [[cube]])  # forwards the selection
+        self.assertIn("Rebound", self._last_message())
+
+    def test_no_skin_cluster_message(self):
+        cube = cmds.polyCube(name="rb_cube")[0]
+        cmds.select(cube)
+        self._summary["no_skin_cluster"] = ["rb_cube"]
+        self.instance.b020()
+        self.assertIn("no skinClusters", self._last_message())
+
+    def test_wrong_type_message(self):
+        loc = cmds.spaceLocator(name="rb_loc")[0]
+        cmds.select(loc)
+        self._summary["wrong_type"] = ["rb_loc"]
+        self.instance.b020()
+        self.assertIn("Incorrect object type", self._last_message())
+
+    def test_partial_success_tallies_each_bucket(self):
+        cube = cmds.polyCube(name="rb_cube")[0]
+        cmds.select(cube)
+        self._summary["rebound"] = ["a"]
+        self._summary["no_skin_cluster"] = ["b"]
+        self._summary["wrong_type"] = ["c"]
+        self.instance.b020()
+        msg = self._last_message()
+        self.assertIn("Rebound", msg)
+        self.assertIn("w/o skinCluster", msg)
+        self.assertIn("wrong type", msg)
+        self.assertIn("See console", msg)
+
+
 if __name__ == "__main__":
     unittest.main()

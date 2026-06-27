@@ -95,7 +95,7 @@ class Editors(SlotsMaya):
 
     @Signals("on_item_interacted")
     def list000(self, item):
-        """ """
+        """Open the chosen Maya editor (general, modeling, animation, rendering, or relationship)."""
         text = item.item_text()
         parent_text = item.parent_item_text()
 
@@ -228,27 +228,27 @@ class Editors(SlotsMaya):
                 mel.eval("HairUVSetLinkingEditor")
 
     def b000(self):
-        """Attributes"""
+        """Attributes: open the Attribute Editor."""
         mel.eval("AttributeEditor")
 
     def b001(self):
-        """Outliner"""
+        """Outliner: open the Outliner window."""
         mel.eval("OutlinerWindow")
 
     def b002(self):
-        """Tool"""
+        """Tool: open the Tool Settings window."""
         cmds.toolPropertyWindow()
 
     def b003(self):
-        """Layers"""
+        """Layers: open the Channels / Layers panel."""
         mel.eval("OpenChannelsLayers")
 
     def b004(self):
-        """Channels"""
+        """Channels: open the Channels / Layers panel."""
         mel.eval("OpenChannelsLayers")
 
     def b005(self):
-        """Node Editor"""
+        """Node Editor: open the Node Editor window."""
         mel.eval("NodeEditorWindow")
 
     def b006(self):
@@ -291,11 +291,11 @@ class Editors(SlotsMaya):
         mel.eval("HypergraphHierarchyWindow")
 
     def b007(self):
-        """Status Line"""
+        """Status Line: toggle the Status Line UI."""
         mel.eval("ToggleStatusLine")
 
     def b008(self):
-        """Shelf"""
+        """Shelf: toggle the Shelf UI."""
         mel.eval("ToggleShelf")
 
     def b009(self):
@@ -325,11 +325,11 @@ class Editors(SlotsMaya):
         mel.eval("ToggleCommandLine")
 
     def b012(self):
-        """Help Line"""
+        """Help Line: toggle the Help Line UI."""
         mel.eval("ToggleHelpLine")
 
     def b013(self):
-        """Tool Box"""
+        """Tool Box: toggle the Toolbox UI."""
         mel.eval("ToggleToolbox")
 
     def getEditorWidget(self, name):

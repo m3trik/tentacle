@@ -206,7 +206,7 @@ class Animation(SlotsMaya):
         )
 
     def tb000(self, widget):
-        """Go To Frame"""
+        """Go To Frame: jump the time slider to the next/previous key or a snap target."""
         update = widget.option_box.menu.chk001.isChecked()
 
         cmb001 = widget.option_box.menu.cmb001
@@ -681,7 +681,7 @@ class Animation(SlotsMaya):
             cmb.addItem(text, data)
 
     def tb006(self, widget):
-        """Move Keys"""
+        """Move Keys: move the selected keys in time, with optional spacing/alignment."""
         selected_keys_only = widget.option_box.menu.chk031.isChecked()
         retain_spacing = widget.option_box.menu.chk012.isChecked()
         channel_box_attrs_only = widget.option_box.menu.chk033.isChecked()
@@ -920,7 +920,7 @@ class Animation(SlotsMaya):
         )
 
     def tb010(self, widget):
-        """Delete Keys"""
+        """Delete Keys: delete keys on the selection over a chosen time range."""
         cmb = widget.option_box.menu.cmb004
         time_param = cmb.itemData(cmb.currentIndex())
         channel_box_only = widget.option_box.menu.chk020.isChecked()
@@ -1020,7 +1020,7 @@ class Animation(SlotsMaya):
         )
 
     def tb013(self, widget):
-        """Select Keys"""
+        """Select Keys: select keys on the selection within a frame range."""
         selection_type = widget.option_box.menu.cmb041.currentData()
         start_frame = widget.option_box.menu.s012.value()
         end_frame = widget.option_box.menu.s013.value()
@@ -1234,7 +1234,7 @@ class Animation(SlotsMaya):
         update_mode_ui(0)  # Initialize UI state
 
     def tb014(self, widget):
-        """Scale Keys"""
+        """Scale Keys: scale the selected keys in time about a pivot."""
         mode_data = widget.option_box.menu.cmb014.currentData()
         factor = widget.option_box.menu.d001.value()
         channel_box_only = widget.option_box.menu.chk_channel_box.isChecked()
@@ -1602,7 +1602,7 @@ class Animation(SlotsMaya):
             cmb.addItem(text, data)
 
     def tb012(self, widget):
-        """Copy Keys"""
+        """Copy Keys: copy the selected objects' keys for later paste."""
         mode = widget.option_box.menu.cmb038.currentData()
 
         copy_mode = "auto" if mode == "copy_paste" else mode
@@ -1666,7 +1666,7 @@ class Animation(SlotsMaya):
             cmb.addItem(text, data)
 
     def tb018(self, widget):
-        """Paste Keys"""
+        """Paste Keys: paste previously copied keys onto the selection."""
         if not hasattr(self, "_stored_attributes") or not self._stored_attributes:
             self.sb.message_box("No values stored. Use 'Copy Keys' first.")
             return

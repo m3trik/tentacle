@@ -71,11 +71,11 @@ class Subdivision(SlotsMaya):
         mel.eval("performPolyQuadrangulate 0")
 
     def b001(self):
-        """Triangulate"""
+        """Triangulate: split the selected faces into triangles."""
         mel.eval("polyTriangulate")
 
     def b005(self):
-        """Reduce"""
+        """Reduce: lower the polygon count while preserving border, hard, crease, and UV edges."""
         selection = cmds.ls(sl=1, objectsOnly=1, type="transform") or []
         if not selection:
             return
@@ -175,7 +175,7 @@ class Subdivision(SlotsMaya):
         _sync()
 
     def tb000(self, widget):
-        """Decimate"""
+        """Decimate: reduce face count by quadric-error percentage or coplanar-face dissolve."""
         objects = cmds.ls(sl=True, objectsOnly=True, type="transform") or []
         if not objects:
             self.sb.message_box(
@@ -211,7 +211,7 @@ class Subdivision(SlotsMaya):
         mel.eval("performSmoothMeshPreviewToPolygon")
 
     def b028(self):
-        """Quad Draw"""
+        """Quad Draw: enter Maya's Quad Draw retopology tool."""
         mel.eval("dR_quadDrawTool")
 
     @staticmethod

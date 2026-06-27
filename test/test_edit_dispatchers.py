@@ -253,5 +253,157 @@ class TestList001Convert(unittest.TestCase):
             )
 
 
+@unittest.skipUnless(_MAYA_AVAILABLE, "Requires tentacle import path")
+class TestTransferOpsConstant(unittest.TestCase):
+    """The Transfer combobox dispatches off _TRANSFER_OPS — verify its shape
+    so a typo can't silently break a menu entry or its feedback.
+    """
+
+    def test_transfer_ops_shape(self):
+        ops = edit_module.Edit._TRANSFER_OPS
+        self.assertIsInstance(ops, dict)
+        self.assertGreater(len(ops), 0)
+        for label, spec in ops.items():
+            self.assertIsInstance(label, str)
+            self.assertIsInstance(spec, dict)
+            self.assertIsInstance(spec["command"], str)
+            self.assertIsInstance(spec["min"], int)
+            self.assertIsInstance(spec["interactive"], bool)
+            self.assertIsInstance(spec["done"], str)
+            self.assertIsInstance(spec["tip"], str)
+
+    def test_transfer_ops_includes_known_entries(self):
+        ops = edit_module.Edit._TRANSFER_OPS
+        for required in ("Maps", "Attribute Values", "Shading Sets", "Vertex Order"):
+            self.assertIn(required, ops)
+
+
+class _FakeSb:
+    """Minimal switchboard stub recording message_box calls."""
+
+    def __init__(self):
+        self.messages = []
+
+    def message_box(self, string, *args, **kwargs):
+        self.messages.append(string)
+
+
+@unittest.skipUnless(_MAYA_AVAILABLE, "Requires maya.cmds")
+class TestTransferSurfaces(unittest.TestCase):
+    """_transfer_surfaces resolves the live selection to ordered surface
+    transforms (source first) — across whole objects, components, and an
+    empty selection.
+    """
+
+    def setUp(self):
+        cmds.file(new=True, force=True)
+        self.a = cmds.polyCube(name="A")[0]
+        self.b = cmds.polySphere(name="B")[0]
+        self.c = cmds.polyCylinder(name="C")[0]
+
+    def tearDown(self):
+        cmds.file(new=True, force=True)
+
+    def test_preserves_selection_order(self):
+        cmds.select([self.c, self.a, self.b], replace=True)
+        self.assertEqual(edit_module.Edit._transfer_surfaces(), ["C", "A", "B"])
+
+    def test_resolves_components_to_owning_surface(self):
+        # Verts of B (source) then whole A (target) — B must still count.
+        cmds.select([self.b + ".vtx[0:3]", self.a], replace=True)
+        self.assertEqual(edit_module.Edit._transfer_surfaces(), ["B", "A"])
+
+    def test_dedupes_repeated_object(self):
+        cmds.select([self.a, self.a + ".f[0]"], replace=True)
+        self.assertEqual(edit_module.Edit._transfer_surfaces(), ["A"])
+
+    def test_empty_selection_returns_empty(self):
+        cmds.select(clear=True)
+        self.assertEqual(edit_module.Edit._transfer_surfaces(), [])
+
+
+@unittest.skipUnless(_MAYA_AVAILABLE, "Requires maya.cmds")
+class TestTransferDispatch(unittest.TestCase):
+    """cmb000 dispatches the chosen transfer, validating the selection and
+    routing feedback to the message box (quick) and console (detailed).
+    """
+
+    def setUp(self):
+        self.instance = edit_module.Edit.__new__(edit_module.Edit)
+        self.instance.sb = _FakeSb()
+
+        self.mel_calls = []
+        self.warnings = []
+        self._orig_mel_eval = mel.eval
+        self._orig_warning = cmds.warning
+        mel.eval = lambda cmd: self.mel_calls.append(cmd)
+        cmds.warning = lambda msg: self.warnings.append(msg)
+
+        # Drive selection deterministically without scene state.
+        self._surfaces = []
+        self.instance._transfer_surfaces = lambda: list(self._surfaces)
+
+    def tearDown(self):
+        mel.eval = self._orig_mel_eval
+        cmds.warning = self._orig_warning
+
+    def _items_widget(self, items):
+        class _W:
+            pass
+
+        w = _W()
+        w.items = items
+        return w
+
+    def test_negative_index_is_noop(self):
+        widget = self._items_widget(list(edit_module.Edit._TRANSFER_OPS))
+        self.instance.cmb000(-1, widget)
+        self.assertEqual(self.mel_calls, [])
+        self.assertEqual(self.instance.sb.messages, [])
+
+    def test_insufficient_selection_aborts_with_feedback(self):
+        self._surfaces = ["pSphere1"]  # one object, need 2 for Shading Sets
+        widget = self._items_widget(list(edit_module.Edit._TRANSFER_OPS))
+        idx = widget.items.index("Shading Sets")
+        self.instance.cmb000(idx, widget)
+        self.assertEqual(self.mel_calls, [])  # never ran the transfer
+        self.assertEqual(len(self.instance.sb.messages), 1)  # quick feedback
+        self.assertEqual(len(self.warnings), 1)  # detailed console warning
+
+    def test_valid_selection_runs_command_and_reports(self):
+        self._surfaces = ["src", "tgt1", "tgt2"]
+        widget = self._items_widget(list(edit_module.Edit._TRANSFER_OPS))
+        idx = widget.items.index("Attribute Values")
+        self.instance.cmb000(idx, widget)
+        self.assertEqual(self.mel_calls, ["TransferAttributeValues"])
+        self.assertEqual(len(self.instance.sb.messages), 1)
+        self.assertEqual(self.warnings, [])
+        # Summary names the source for immediate (non-interactive) ops.
+        self.assertIn("src", self.instance.sb.messages[0])
+
+    def test_maps_opens_without_selection(self):
+        self._surfaces = []  # Maps has min=0
+        widget = self._items_widget(list(edit_module.Edit._TRANSFER_OPS))
+        idx = widget.items.index("Maps")
+        self.instance.cmb000(idx, widget)
+        self.assertEqual(self.mel_calls, ["performSurfaceSampling 1"])
+        self.assertEqual(self.warnings, [])
+
+    def test_failed_command_reports_error(self):
+        self._surfaces = ["src", "tgt"]
+
+        def _boom(cmd):
+            raise RuntimeError("kaboom")
+
+        mel.eval = _boom
+        widget = self._items_widget(list(edit_module.Edit._TRANSFER_OPS))
+        idx = widget.items.index("Shading Sets")
+        self.instance.cmb000(idx, widget)
+        # Error surfaced to both the message box and the console warning.
+        self.assertEqual(len(self.instance.sb.messages), 1)
+        self.assertIn("failed", self.instance.sb.messages[0].lower())
+        self.assertEqual(len(self.warnings), 1)
+
+
 if __name__ == "__main__":
     unittest.main()
